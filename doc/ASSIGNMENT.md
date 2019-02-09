@@ -1,4 +1,4 @@
-# ASSIGNMENT
+# Assignment
 
 This document covers how the `(assign)` function is used to copy parameter
 lists, provide easy access to resource binding operators and invoke the

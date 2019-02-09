@@ -1,4 +1,4 @@
-# VM
+# Virtual Machine
 
 This document covers a variety of subjects to do with the VM that ChrysaLisp
 employs. Some of them are not exactly about the VM but they are all to do with
