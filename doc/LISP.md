@@ -18,7 +18,7 @@ do have to be careful not to create cycles, so think about how your code works.
 
 No tail recursion optimization ! There is a single looping function provided in
 native code, `while`, every other looping construct builds on this primitive.
-There are also 2 native primitives `some!` and `each!` that provide generic
+There are also two native primitives `some!` and `each!` that provide generic
 access to iterating over a slice of a list/s, calling a function on the grouped
 elements and then calling a function on the result of that. Standard `some` and
 `each` are built on these but they also allow other constructs to be built and
@@ -277,6 +277,7 @@ within-compile-env
 debug_mode
 debug_emit
 debug_inst
+debug_trace
 ```
 
 ### asm.inc functions
