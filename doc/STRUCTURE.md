@@ -274,3 +274,224 @@ conditions at the start and end of the loop as you desire.
 		...
 	(loop-untilnot exp)
 ```
+
+## Object Structures
+
+Classes and objects extend basic structures with methods that act on those
+structures. They also define a lifecycle for the data structure and a reference
+counting scheme to track when the object is no longer in use and can be
+reclaimed.
+
+### Lifecycle
+
+```
+	(call 'xxx 'create)
+		(call 'xxx 'new)
+			(call 'xxx 'init)
+				...
+				[(call 'xxx 'ref)]
+				[(call 'xxx 'ref_if)]
+				...
+				[(call 'xxx 'deref)]
+				[(call 'xxx 'deref_if)]
+				...
+			(call 'xxx 'deinit)
+		(call 'xxx 'delete)
+	(call 'xxx 'destroy)
+```
+
+For any given class there are `create` methods for that class that will take
+any construction parameters and return a fully initialised instance. If the
+`new` or `init` methods fail then they will tidy up and return 0 to indicate a
+problem.
+
+The `init` method is responsible for taking an allocated chunk of memory and
+setting the fields of that object to the initial state, allocating any
+resources etc, and failing with an error if not able to do so.
+
+The `deinit` is the counterpart to `init`, it takes an instance to the final
+state, releasing any resources, and preparing for the object to be freed.
+
+The `new` method is responsible for allocating a chunk of memory for the object
+instance.
+
+The `delete` method frees the object instance, reversing the action of the
+`new` method.
+
+The `ref` or `ref_if` methods just increment the object reference counter.
+
+The `deref` or `deref_if` methods decrement the object reference counter and if
+it becomes 0 automatically call the `destroy` method !
+
+### Class and Object declaration
+
+This is an example from the `class/pair/class.inc` file.
+
+```
+(include 'class/obj/class.inc)
+
+(def-class 'pair 'obj)
+(dec-method 'vtable 'class/pair/vtable)
+(dec-method 'create 'class/pair/create 'static '(r0 r1) '(r0))
+(dec-method 'new 'class/pair/new 'static nil '(r0))
+(dec-method 'init 'class/pair/init 'static '(r0 r1 r2 r3))
+(dec-method 'ref_first 'class/pair/ref_first 'static '(r0) '(r0 r1))
+(dec-method 'ref_second 'class/pair/ref_second 'static '(r0) '(r0 r1))
+(dec-method 'get_first 'class/pair/get_first 'static '(r0) '(r0 r1))
+(dec-method 'get_second 'class/pair/get_second 'static '(r0) '(r0 r1))
+(dec-method 'set_first 'class/pair/set_first 'static '(r0 r1) '(r0))
+(dec-method 'set_second 'class/pair/set_second 'static '(r0 r1) '(r0))
+
+(dec-method 'deinit 'class/pair/deinit 'final)
+
+(def-struct 'pair 'obj)
+	(ptr 'first)
+	(ptr 'second)
+(def-struct-end)
+
+;;;;;;;;;;;;;;;;
+;;inline methods
+;;;;;;;;;;;;;;;;
+
+(defcfun class/pair/init ()
+	;inputs
+	;r0 = pair object (ptr)
+	;r1 = vtable (pptr)
+	;r2 = first object (ptr)
+	;r3 = second object (ptr)
+	;outputs
+	;r0 = pair object (ptr)
+	;r1 = 0 if error, else ok
+	(vp-cpy-ri r2 r0 pair_first)
+	(vp-cpy-ri r3 r0 pair_second)
+	(s-call 'pair 'init '(r0 r1) '(r0 r1)))
+
+(defcfun class/pair/get_first ()
+	;inputs
+	;r0 = pair object (ptr)
+	;outputs
+	;r0 = pair object (ptr)
+	;r1 = object (ptr)
+	(vp-cpy-ir r0 pair_first r1))
+
+(defcfun class/pair/get_second ()
+	;inputs
+	;r0 = pair object (ptr)
+	;outputs
+	;r0 = pair object (ptr)
+	;r1 = object (ptr)
+	(vp-cpy-ir r0 pair_second r1))
+```
+
+The `(def-class)` declares the class name and which class it inherits its
+methods from. The `(def-struct)` declares the structure of the object instance,
+inheriting from the parent class instance.
+
+Here we can see an example of the use of inline methods. If a Lisp function is
+declared matching the declared method path this is taken to mean, 'run this
+function' to emit the method call.
+
+Then the none inline method are defined in the `class/pair/class.vp` file. Note
+the use of the helper method generators `(gen-new 'pair)`, `(gen-create 'pair)`
+and `(gen-class 'pair)`. These helpers use the corresponding method
+declarations to generate the method code for you. Take a look in
+`sys/class.inc` for the implementation of these helpers.
+
+```
+(include 'sys/func.inc)
+(include 'class/pair/class.inc)
+
+(gen-new 'pair)
+(gen-create 'pair)
+(gen-class 'pair)
+
+(def-method 'pair 'deinit)
+	;inputs
+	;r0 = pair object (ptr)
+	;trashes
+	;all but r0
+
+	(vp-push r0)
+	(call 'obj 'deref '((r0 pair_first)))
+	(vp-cpy-ir rsp 0 r0)
+	(call 'obj 'deref '((r0 pair_second)))
+	(vp-pop r0)
+	(s-jump 'pair 'deinit '(r0))
+
+(def-func-end)
+
+(def-method 'pair 'ref_first)
+	;inputs
+	;r0 = pair object (ptr)
+	;outputs
+	;r0 = pair object (ptr)
+	;r1 = object (ptr)
+	;trashes
+	;r2
+
+	(vp-cpy-rr r0 r2)
+	(call 'obj 'ref '((r0 pair_first)) '(r1))
+	(vp-cpy-rr r2 r0)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'pair 'ref_second)
+	;inputs
+	;r0 = pair object (ptr)
+	;outputs
+	;r0 = pair object (ptr)
+	;r1 = object (ptr)
+	;trashes
+	;r2
+
+	(vp-cpy-rr r0 r2)
+	(call 'obj 'ref '((r0 pair_second)) '(r1))
+	(vp-cpy-rr r2 r0)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'pair 'set_first)
+	;inputs
+	;r0 = pair object (ptr)
+	;r1 = object (ptr)
+	;outputs
+	;r0 = pair object (ptr)
+	;trashes
+	;all but r0
+
+	(vp-push r0)
+	(vp-cpy-ir r0 pair_first r2)
+	(vp-cpy-ri r1 r0 pair_first)
+	(call 'obj 'deref '(r2))
+	(vp-pop r0)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'pair 'set_second)
+	;inputs
+	;r0 = pair object (ptr)
+	;r1 = object (ptr)
+	;outputs
+	;r0 = pair object (ptr)
+	;trashes
+	;all but r0
+
+	(vp-push r0)
+	(vp-cpy-ir r0 pair_second r2)
+	(vp-cpy-ri r1 r0 pair_second)
+	(call 'obj 'deref '(r2))
+	(vp-pop r0)
+	(vp-ret)
+
+(def-func-end)
+```
+
+Note that the `init` and `deinit` methods make an `(s-call)` to the superclass
+`init` and `deinit` methods !
+
+Although this is a very simple class, that just hold references to two other
+objects (for use by the `hash_set` and `hash_map` classes), it covers all the
+basic requirements of any class.
