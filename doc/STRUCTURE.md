@@ -491,9 +491,9 @@ declarations to generate the method code for you. Take a look in
 (def-func-end)
 ```
 
-Note that the `init` and `deinit` methods make an `(s-call)` to the superclass
-`init` and `deinit` methods !
+Note that the `init` and `deinit` methods make an `(s-call)` and `(s-jump)` to
+the superclass `init` and `deinit` methods !
 
-Although this is a very simple class, that just hold references to two other
+Although this is a very simple class, that just holds references to two other
 objects (for use by the `hash_set` and `hash_map` classes), it covers all the
 basic requirements of any class.
