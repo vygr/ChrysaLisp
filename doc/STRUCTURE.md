@@ -323,6 +323,8 @@ The `ref` or `ref_if` methods just increment the object reference counter.
 The `deref` or `deref_if` methods decrement the object reference counter and if
 it becomes 0 automatically call the `destroy` method !
 
+The `destroy` method just calls `deinit` folowed by `delete`.
+
 ### Class and Object declaration
 
 This is an example from the `class/pair/class.inc` file.
