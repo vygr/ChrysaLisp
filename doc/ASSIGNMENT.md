@@ -91,7 +91,7 @@ the worlds most powerful languages as your assembler macro system !
 2)	(assign (list x y) (list z x))
 ```
 
-## VP Assignment operators
+## VP Resource operators
 
 You can add operators to your parameters that assignment emits effective
 address or resource binding instructions for.
@@ -100,7 +100,7 @@ address or resource binding instructions for.
 	(assign '((& r0 6)) '(r1))
 	(assign '((& r0 r1)) '(r2))
 	(assign '(($ label)) '(r0))
-	(assign '("Hello world" '(r0))
+	(assign '("Hello world") '(r0))
 	(assign '((@ "sys/mem/alloc")) '(r0))
 	(assign `((@ ,(f-path 'integer 'vtable))) '(r0))
 ```
@@ -162,6 +162,20 @@ variables. Scopes can be nested if desired.
 A special helper function `(return)` is provided that will emit any required
 `(vp-free)` along with a `(vp-ret)` instruction anywhere inside a nested set of
 `(push-scope)`, `(pop-scope)`.
+
+## C-Script Resource operators
+
+You can add resource operator prefixes to your C-Script string parameters too.
+These are in addition to the C/C++ style operators.
+
+```
+	(assign {&var1, &var2} {p_var1, p_var2})
+	(assign {$label} {p_label})
+	(assign {"Hello", "World"} {p_str1, p_str2})
+	(assign {"Hello", "World"} '(r2 r3))
+	(assign {@sys/mem/alloc} {p_alloc})
+	(assign (cat {@} (f-path 'integer 'vtable)) {p_vtable})
+```
 
 ## C-Script function example
 

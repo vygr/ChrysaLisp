@@ -142,6 +142,7 @@ int main(int argc, char *argv[])
 	uint16_t *data = mmap(NULL, fs.st_size, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE|MAP_ANON, -1, 0);
 	int fd = open(argv[1], O_RDONLY);
 	read(fd, data, fs.st_size);
+	close(fd);
 	void(*boot)(char*[], void*[]) = (void(*)(char*[], void*[]))((char*)data + data[5]);
 //	printf("image start address: 0x%llx\n", (unsigned long long)data);
 	boot(argv, host_funcs);

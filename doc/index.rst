@@ -21,6 +21,7 @@ Welcome to ChrysaLisp's documentation!
    SYNTAX
    VM
    ASSIGNMENT
+   STRUCTURE
    FUNCTIONS
    CLASSES
    TUTORIAL

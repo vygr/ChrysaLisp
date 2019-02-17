@@ -16,7 +16,7 @@
 		'font (create-font "fonts/Hack-Regular.ttf" 48)))
 	(ui-element clock (create-canvas clock_size clock_size clock_scale)))
 
-;set a name to the window and clear clack face
+;set a name to the window and clear clock face
 (window-set-title window "Clock")
 (canvas-fill clock 0)
 
