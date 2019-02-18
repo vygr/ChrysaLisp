@@ -11,7 +11,7 @@ and this emits VP operations that evaluate that expression. The C-Script syntax
 is a subset of C/C++ syntax that most C/C++ programmer will be familiar with.
 
 Assignment can be used directly by use of the `(assign)` function in your
-source, but it is always used under the hood, by functions like `(entry)`,
+source, but it is always used, under the hood, by functions like `(entry)`,
 `(exit)`, `(call)` etc. The input and output parameters you declare in such
 calls are processed by an `(assign)` function within those functions.
 
@@ -40,10 +40,9 @@ to r3. Sounds simple enough. So we just emit:
 Job done, yes ? Err, no. You've just corrupted what was in r1 prior to copying
 it to r2 ! The `(assign)` function does a topological sort on the parameters
 you provide to make sure this does not happen ! If it cannot guarantee a cycle
-free set of copy instructions to emit then it will throw an error and expect
-you to sort the problem out. This happens far less often than you might
-imagine, but occasionally you will need to break the cycle with a temp
-register.
+free set of copy instructions then it will throw an error and expect you to
+sort the problem out. This happens far less often than you might imagine, but
+occasionally you will need to break the cycle with a temp register.
 
 The above example actually gets emitted as:
 
@@ -93,7 +92,7 @@ the worlds most powerful languages as your assembler macro system !
 
 ## VP Resource operators
 
-You can add operators to your parameters that assignment emits effective
+You can add operators to your parameters which assignment emits effective
 address or resource binding instructions for.
 
 ```
@@ -121,13 +120,13 @@ Will emit:
 Passing a string parameter will invoke the C-Script parser and compiler ! This
 is where things start to get quite high level for an assembler ! This basic C
 style expression compiler is just an assembler macro set, you can look at the
-implementation in detail in the `sys/code.inc` file. It's quite a simple parse
+implementation in detail in the `sys/code.inc` file. It's quite a simple, parse
 -> reverse-polish -> compile -> optimise -> emit.
 
 While it's possible to use the compilation to do basic things like math, it
 really starts to get interesting when combined with some other functions that
 allow management of local stack variables. Any symbols appearing in the parsed
-output will be search for in the variable scopes. These variables are not the
+output will be search for in these variable scopes. These variables are not the
 same as Lisp level symbols, they are managed by a few scope creation and
 variable declaration functions.
 
@@ -231,7 +230,7 @@ passed to `(assign)`.
 The C-Script compiler emits all the code required to read and write the
 variables, with their correct data type. If you are curious to see the code
 emitted by the compiler you can switch on printing of the emitted code by use
-of the debug_emit and debug_inst flags. A `(setq debug_inst t)` will enable
+of the `debug_emit` and `debug_inst` flags. A `(setq debug_inst t)` will enable
 printing of each expression compilation, `(setq debug_emit t)` will enable
 printing of the entire functions final instructions. Be sure to `(setq
 debug_inst nil)` and `(setq debug_emit nil)` after the section of code or

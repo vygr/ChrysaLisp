@@ -14,7 +14,7 @@ be extended in the future with features like floating point registers or vector
 instructions, but for now I'm preferring to see just how far you can push such
 a simple integer design.
 
-It supports a very orthogonal logic and arithmetic instruction set and few
+It supports a very orthogonal logic and arithmetic instruction set and a few
 simple load/store addressing modes.
 
 ### Registers
@@ -24,16 +24,16 @@ r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, r13, r14, rsp
 ```
 
 These are mapped to real physical registers by the target processor 'emit'
-functions. On certain processors, like the x86_64, it's worth knowing that r0
-and r2 are mapped to rax and rdx when it comes to scheduling VP div and rem
-code ! It makes no difference to the aarch64 emit functions, so one does tend
-to make VP divide code use r0 and r2 as it really helps the x86_64 code
-generation quality.
+functions, look in `sys/x64.inc` and `sys/arm.inc`. On certain processors, like
+the x86_64, it's worth knowing that r0 and r2 are mapped to rax and rdx when it
+comes to scheduling VP div and rem code ! It makes no difference to the aarch64
+emit functions, so one does tend to make VP divide code use r0 and r2 as it
+really helps the x86_64 code generation quality.
 
 You can use the `(vp-def)` macro to assign register equated symbols to help
-your source look nice. Or to bind symbols to registers, via `(method-input)`
-and `(method-output)`, that match function entry/exit parameters if you desire.
-A great example of this is the `canvas::fpoly`, or the `canvas::resize_2`
+your source look nice. Or bind symbols to registers, via `(method-input)` and
+`(method-output)`, that match function entry/exit parameters if you desire. A
+great example of this is the `canvas::fpoly`, or the `canvas::resize_2`
 functions.
 
 ### VP Assembler
@@ -192,22 +192,22 @@ functions.
 
 Simple answer is there is none. The better answer is that all calls, apart from
 host OS ABI calls, take parameters in registers and not via the stack ! All
-functions define their register inputs and outputs, and trashes documented if
-they can. The `(assign)` function will do any parameter mapping and copying for
-you, it will tell you if it can't due to a circular mapping so you can add a
-temp. Assignment will not attempt to spill to the stack or assign temp
-registers !
+functions define their register inputs and outputs, and document register
+trashes if they can. The `(assign)` function will do any parameter mapping and
+copying for you, it will tell you if it can't due to a circular mapping so you
+can add a temp. Assignment will not attempt to spill to the stack or assign
+temp registers !
 
-In other systems, OS and Compilers, they adopt some convention for register
-parameter layout and stack layout, but suffer performance problems and
-inability to support features, like function chaining, as a result. You will
-often see a ChrysaLisp function jump out to another function in order to save
-on stack space with the eventual return going back to the original caller.
-Prime example are deinit methods that chain on to their parent deinit with a
-direct `(s-jump)`, but this happens all over the code base where possible.
+In other systems, OS and Compilers, they adopt some convention for parameter
+register layout and stack layout, but suffer performance problems and inability
+to support features, like function chaining, as a result. You will often see a
+ChrysaLisp function jump out to another function in order to save on stack
+space with the eventual return going back to the original caller. Prime example
+are deinit methods that chain on to their parent deinit with a direct
+`(s-jump)`, but this happens all over the code base where possible.
 
 The `(dec-method)` function takes the lists of input and output parameter
-registers. If the list of inputs or outputs is nil this means to inherit the
+registers. If the list of inputs or outputs is `nil` this means to inherit the
 list from the parent class declaration.
 
 An example from the array class.inc.
@@ -224,12 +224,12 @@ document their register trashing. Higher level functions often use the next
 registers available while calling lower functions in order to avoid stack
 push/pop or other memory read/write instructions.
 
-Any use of the script expression compiler means that all bets are off as
-regards register trashing, so you will see that all such functions are
-documented as 'trashes all'. However the expression compiler can be constrained
-to use only a specific set of registers to do it's work, but that's an advanced
-topic for specialist code generation, the vector math DSL takes full advantage
-of this feature.
+Any use of the script expression compiler means all bets are off as regards
+register trashing, so you will see that all such functions are documented as
+'trashes all'. However the expression compiler can be constrained to use only a
+specific set of registers to do it's work, but that's an advanced topic for
+specialist code generation, the vector math DSL takes full advantage of this
+feature.
 
 ## VP function example
 
@@ -290,8 +290,8 @@ Next there is a section of documentation, this format can be parsed out by the
 The `(entry 'sys_string 'compare '(r0 r1))` and `(exit 'sys_string 'compare
 '(r2))` calls are helpers to make sure input and output parameters get copied
 to the correct registers. They enforce the `(def-method)` input and output
-register declarations by use of two `(assign)` calls. The register list
-provided here is auto assigned from and to the declared register input and
+register declarations by use of two `(assign)` calls. The register lists
+provided here are auto assigned from and to the declared register input and
 output lists ! In this case the entry of `'(r0 r1)` turns into an `(assign '(r0
 r1) '(r0 r1))` which ends up emitting no code, but the exit of `'(r2)` does an
 `(assign '(r2) '(r0))` which emits a `(vp-cpy-rr r2 r0)` ensuring that the

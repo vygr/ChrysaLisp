@@ -40,7 +40,7 @@ bert_f -> 29
 ### Bits
 
 Allow you to define a set of bit masks. Again you can set the initial bit
-offset and each subsequent bit the mask is shifted left by 1.
+offset and for each subsequent bit the mask is shifted left by 1.
 
 ```
 (def-bit 'alf 2)
@@ -156,7 +156,7 @@ computer do this stuff for you !
 ### Switch
 
 `(switch)`, `(case)`, `(default)`, `(endswitch)` and `(break)` are the
-primatives that all the other structured coding functions are based upon.
+primitives that all the other structured coding functions are based upon.
 
 ```
 	(switch ['name])
@@ -175,9 +175,9 @@ primatives that all the other structured coding functions are based upon.
 ```
 
 The switch name is optional and the case expression can be a VP list
-expression, eg `'(r0 >= r3)`, `'(r4 == 56)`, which is parsed to a VP branch
-instruction, or a C-Script string that is evaluated, eg `{length + 23 >
-buf_len}`, and the result tested against 0 with a VP branch instruction.
+expression, eg `'(r0 >= r3)` or `'(r4 == 56)`, which is parsed to a VP branch
+instruction. Or a C-Script string that is evaluated, eg `{length + 23 >
+buf_len}`, with the result tested against 0 with a VP branch instruction.
 
 Each `(case exp)` statement emits a comparison test and jumps to the next case
 if the comparison fails to be true. You do not need to place a `(break)` after
@@ -198,7 +198,7 @@ There are various flavours of `(case)` and `(break)`.
 ### If
 
 `(vpif)`, `(elseif)`, `(else)` and `(endif)` allow basic control flow.
-`(break)` statements covered in the section on switch will jump to the
+`(break)` statements covered in the section on switches will jump to the
 corresponding `(endif)` although you may use named break statements to jump to
 a named `(endif)`.
 
@@ -237,6 +237,10 @@ the loop.
 
 You may combine the various loop start and end statements as you wish, having
 conditions at the start and end of the loop as you desire.
+
+The flavours of `(break)` will exit the current loop or optionally the named
+loop. The flavours of `(continue)` allow you to jump back to the loop start, if
+the loop start statement has a condition then that condition is tested again.
 
 ```
 	(loop-start ['name])
@@ -300,9 +304,9 @@ reclaimed.
 	(call 'xxx 'destroy)
 ```
 
-For any given class there are `create` methods for that class that will take
-any construction parameters and return a fully initialised instance. If the
-`new` or `init` methods fail then they will tidy up and return 0 to indicate a
+For any given class there are `create` methods for that class that take any
+construction parameters and return a fully initialised instance. If the `new`
+or `init` methods fail then they will tidy up and return 0 to indicate a
 problem.
 
 The `init` method is responsible for taking an allocated chunk of memory and
@@ -387,17 +391,18 @@ This is an example from the `class/pair/class.inc` file.
 
 The `(def-class)` declares the class name and which class it inherits its
 methods from. The `(def-struct)` declares the structure of the object instance,
-inheriting from the parent class instance.
+inheriting from that parent class instance.
 
 Here we can see an example of the use of inline methods. If a Lisp function is
 declared matching the declared method path this is taken to mean, 'run this
-function' to emit the method call.
+function' to emit the method call. They need to be declared in the `class.inc`
+file in order to be visible to all code that use those methods.
 
-Then the none inline method are defined in the `class/pair/class.vp` file. Note
-the use of the helper method generators `(gen-new 'pair)`, `(gen-create 'pair)`
-and `(gen-class 'pair)`. These helpers use the corresponding method
-declarations to generate the method code for you. Take a look in
-`sys/class.inc` for the implementation of these helpers.
+The none inline methods are defined in the `class/pair/class.vp` file. Note the
+use of the helper method generators `(gen-new 'pair)`, `(gen-create 'pair)` and
+`(gen-class 'pair)`. These helpers use the corresponding method declarations to
+generate the method code for you. Take a look in `sys/class.inc` for the
+implementation of these.
 
 ```
 (include 'sys/func.inc)
@@ -494,6 +499,6 @@ declarations to generate the method code for you. Take a look in
 Note that the `init` and `deinit` methods make an `(s-call)` and `(s-jump)` to
 the superclass `init` and `deinit` methods !
 
-Although this is a very simple class, that just holds references to two other
-objects (for use by the `hash_set` and `hash_map` classes), it covers all the
-basic requirements of any class.
+Although this is a very simple class, one that just holds references to two
+other objects (for use by the `hash_set` and `hash_map` classes), it covers all
+the basic requirements of any class.
