@@ -11,6 +11,7 @@
 (defun populate-help ()
 	(defq state t vdu_width 1 k (list) v (list))
 	(each-line (lambda (_)
+		(setq _ (trim-end _ (char 13)))
 		(defq s (split _ " ") f (elem 0 s))
 		(cond
 			(state (cond

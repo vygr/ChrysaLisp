@@ -633,6 +633,22 @@ r0 = canvas object (ptr)
 trashes
 r1-r2
 ```
+### canvas::set_edges -> gui/canvas/set_edges
+```
+inputs
+r0 = canvas object (ptr)
+r1 = vector of points objects (ptr)
+r2 = x (16.16)
+r3 = y (16.16)
+outputs
+r0 = canvas object (ptr)
+r1 = min_x (16.16)
+r2 = min_y (16.16)
+r3 = max_x (16.16)
+r4 = max_y (16.16)
+trashes
+all but r0
+```
 ### canvas::get_pick_noclip -> gui/canvas/get_pick_noclip
 ```
 inputs

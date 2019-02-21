@@ -45,6 +45,7 @@
 	;create list of immediate dependencies
 	(defq d (list 'cmd/asm.inc 'class/lisp/boot.inc _))
 	(each-line (lambda (_)
+		(setq _ (trim-end _ (char 13)))
 		(when (and (ge (length _) 10) (eql "(" (elem 0 _))
 				(eq 2 (length (defq s (split _ " ")))))
 			(defq _ (elem 0 s))
@@ -58,6 +59,7 @@
 	(defun trim-cruft (_)
 		(sym (trim-start (trim-end _ ")") "'")))
 	(each-line (lambda (_)
+		(setq _ (trim-end _ (char 13)))
 		(when (and (ge (length _) 10) (eql "(" (elem 0 _))
 				(le 2 (length (defq s (split _ " "))) 4))
 			(defq _ (elem 0 s))
