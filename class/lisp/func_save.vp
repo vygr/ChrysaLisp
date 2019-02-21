@@ -26,7 +26,7 @@
 
 	(call 'vector 'get_begin {args} {_, iter_begin})
 	(assign {iter_begin[0], iter_begin[ptr_size]} {value, name})
-	(call 'sys_pii 'open {&name->string_data, o_creat | o_rdwr | o_trunc, s_irusr | s_iwusr | s_irgrp | s_iroth} {handle})
+	(call 'sys_pii 'open {&name->string_data, file_open_write} {handle})
 	(errorif {handle < 3} 'error2)
 	(call 'sys_pii 'write {handle, &value->string_data, value->string_length})
 	(call 'sys_pii 'close {handle})

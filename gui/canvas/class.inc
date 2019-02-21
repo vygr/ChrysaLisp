@@ -1,7 +1,7 @@
 (include 'gui/view/class.inc)
 
 (def-class 'canvas 'view)
-(dec-method 'vtable 'gui/class_canvas)
+(dec-method 'vtable 'gui/canvas/vtable)
 (dec-method 'create 'gui/canvas/create 'static '(r0 r1 r2) '(r0))
 (dec-method 'create_shared 'gui/canvas/create_shared 'static '(r0) '(r0))
 (dec-method 'new 'gui/canvas/new 'static nil '(r0))
@@ -21,6 +21,7 @@
 (dec-method 'fbox 'gui/canvas/fbox 'static '(r0 r1 r2 r7 r8 r9 r10) '(r0))
 (dec-method 'fpoly 'gui/canvas/fpoly 'static '(r0 r1 r2 r3 r4 r5 r6 r7) '(r0))
 (dec-method 'set_clip 'gui/canvas/set_clip 'static '(r0 r7 r8 r9 r10) '(r0))
+(dec-method 'set_edges 'gui/canvas/set_edges 'static '(r0 r1 r2 r3) '(r0 r1 r2 r3 r4))
 
 (dec-method 'get_pick_noclip 'gui/canvas/get_pick_noclip 'static '(r0 r7 r8) '(r0 r1))
 (dec-method 'get_pick 'gui/canvas/get_pick 'static '(r0 r7 r8) '(r0 r1))

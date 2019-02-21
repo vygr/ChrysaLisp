@@ -248,7 +248,7 @@
 		(vp-cpy-ri-i r1 r0 string_hashcode)
 
 		;open file
-		(call 'sys_pii 'open '((rsp local_filename) o_rdonly 0) '(r3))
+		(call 'sys_pii 'open '((rsp local_filename) file_open_read) '(r3))
 
 		;read into buffer
 		(vp-cpy-ir rsp local_this r0)

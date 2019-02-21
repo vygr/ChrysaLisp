@@ -338,7 +338,7 @@
 	;r0 = view object (ptr)
 	;r1 = draw ctx (ptr)
 	;r2 = flags (ulong)
-	;r3 = depth (uint)
+	;r3 = depth (int)
 	;trashes
 	;all but r0
 

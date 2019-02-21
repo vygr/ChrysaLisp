@@ -1,7 +1,7 @@
 (include 'class/obj/class.inc)
 
 (def-class 'hash_set 'obj)
-(dec-method 'vtable 'class/class_hash_set)
+(dec-method 'vtable 'class/hash_set/vtable)
 (dec-method 'create 'class/hash_set/create 'static '(r0 r1) '(r0))
 (dec-method 'new 'class/hash_set/new 'static nil '(r0))
 (dec-method 'init 'class/hash_set/init 'static '(r0 r1 r2 r3))

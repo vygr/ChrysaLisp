@@ -1,5 +1,5 @@
 (include 'sys/func.inc)
-(include 'gui/sdl2.inc)
+(include 'sys/pii/class.inc)
 (include 'gui/canvas/class.inc)
 (include 'class/vector/class.inc)
 (include 'class/symbol/class.inc)
@@ -116,7 +116,7 @@
 
 (def-func-end)
 
-(def-method 'canvas 'deinit)
+(def-method 'canvas 'deinit 16)
 	;inputs
 	;r0 = canvas object (ptr)
 	;outputs
@@ -139,7 +139,6 @@
 		(ptr 'old_stack)
 	(def-struct-end)
 
-	;align stack for SDL
 	(vp-cpy-rr rsp r1)
 	(vp-alloc local_size)
 	(vp-and-cr -16 rsp)
@@ -163,7 +162,7 @@
 	(vp-cpy-ir rsp local_this r0)
 	(vp-cpy-ir r0 canvas_texture r1)
 	(vpif '(r1 != 0))
-		(sdl-call 'sdl 'sdl_destroy_texture '(r1))
+		(host-call 'host 'sdl_destroy_texture '(r1))
 	(endif)
 
 	(vp-cpy-ir rsp local_old_stack rsp)
@@ -245,7 +244,7 @@
 
 (def-func-end)
 
-(def-method 'canvas 'draw)
+(def-method 'canvas 'draw 16)
 	;inputs
 	;r0 = canvas object (ptr)
 	;r1 = draw ctx (ptr)
@@ -256,7 +255,6 @@
 
 	(ptr 'this 'ctx 'surface 'temp_canvas 'old_stack)
 
-	;align stack to 16 bytes for SDl
 	(vp-cpy-rr rsp r2)
 	(push-scope)
 	(vp-and-cr -16 rsp)
@@ -272,11 +270,11 @@
 			(call 'canvas 'resize {temp_canvas, this})
 			(call 'canvas 'as_argb {temp_canvas, temp_canvas})
 		(endif)
-		(sdl-call 'sdl 'sdl_create_rgb_surface_from {temp_canvas->canvas_array->array_array,
+		(host-call 'host 'sdl_create_rgb_surface_from {temp_canvas->canvas_array->array_array,
 			temp_canvas->canvas_width, temp_canvas->canvas_height, 32,
 			temp_canvas->canvas_stride, 0xff0000, 0xff00, 0xff, 0xff000000} {surface})
-		(sdl-call 'sdl 'sdl_create_texture_from_surface {ctx->ctx_sdl_ctx, surface} {this->canvas_texture})
-		(sdl-call 'sdl 'sdl_free_surface {surface})
+		(host-call 'host 'sdl_create_texture_from_surface {ctx->ctx_sdl_ctx, surface} {this->canvas_texture})
+		(host-call 'host 'sdl_free_surface {surface})
 		(call 'canvas 'deref {temp_canvas})
 	(endif)
 
@@ -286,13 +284,13 @@
 			this->canvas_width / this->canvas_aa_scale, this->canvas_height / this->canvas_aa_scale})
 	(endif)
 
-	(assign {this, old_stack} '(r0 rsp))
+	(assign {old_stack} '(rsp))
 	(pop-scope-syms)
 	(return)
 
 (def-func-end)
 
-(def-method 'canvas 'swap)
+(def-method 'canvas 'swap 16)
 	;inputs
 	;r0 = canvas object (ptr)
 	;outputs
@@ -314,7 +312,6 @@
 		(ptr 'old_stack)
 	(def-struct-end)
 
-	;align stack to 16 bytes for SDl
 	(vp-cpy-rr rsp r1)
 	(vp-alloc local_size)
 	(vp-and-cr -16 rsp)
@@ -325,7 +322,7 @@
 	(vpif '(r1 != 0))
 		(vp-xor-rr r2 r2)
 		(vp-cpy-ri r2 r0 canvas_texture)
-		(sdl-call 'sdl 'sdl_destroy_texture '(r1))
+		(host-call 'host 'sdl_destroy_texture '(r1))
 	(endif)
 
 	(vp-cpy-ir rsp local_old_stack rsp)

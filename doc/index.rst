@@ -6,7 +6,7 @@
 .. Building these docs
    ===
 
-.. pip install --user sphinx recommonmark sphinx_rtd_theme m2r
+.. sudo pip install sphinx recommonmark sphinx_rtd_theme m2r
    make html
 
 Welcome to ChrysaLisp's documentation!
@@ -18,9 +18,13 @@ Welcome to ChrysaLisp's documentation!
 
    INTRO
    LISP
-   FUNCTIONS
    SYNTAX
+   VM
+   ASSIGNMENT
+   STRUCTURE
+   FUNCTIONS
    CLASSES
+   TUTORIAL
    TODO
    TAOS
 

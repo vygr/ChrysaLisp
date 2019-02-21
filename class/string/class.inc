@@ -1,7 +1,7 @@
 (include 'class/sequence/class.inc)
 
 (def-class 'string 'sequence)
-(dec-method 'vtable 'class/class_string)
+(dec-method 'vtable 'class/string/vtable)
 (dec-method 'create_from_buffer 'class/string/create_from_buffer 'static '(r0 r1) '(r0))
 (dec-method 'create_from_cstr 'class/string/create_from_cstr 'static '(r0) '(r0))
 (dec-method 'create_from_file 'class/string/create_from_file 'static '(r0) '(r0))

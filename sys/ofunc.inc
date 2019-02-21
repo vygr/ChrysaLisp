@@ -59,7 +59,8 @@
 			(not (trace_starts_with "sys/pii/"))			;not pii functions
 			(or
 				(trace_starts_with "class/")
-				(trace_starts_with "gui/")))
+				(trace_starts_with "sys/mem/")))
+		
 		(debug-str (cat "entry: " *name*))
 		(vp-call 'func_entry_1)
 		(debug-str (cat "exit: " *name*))

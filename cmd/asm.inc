@@ -2,7 +2,7 @@
 ; VP Assembler
 ;;;;;;;;;;;;;;
 
-(defq debug_mode t debug_emit nil debug_inst nil)
+(defq debug_mode t debug_trace nil debug_emit nil debug_inst nil)
 
 (defun compile (*files* &optional *os* *cpu* *pipes*)
 	(setd *os* (platform) *cpu* (cpu) *pipes* 16)
@@ -59,7 +59,7 @@
 		(sym (trim-start (trim-end _ ")") "'")))
 	(each-line (lambda (_)
 		(when (and (ge (length _) 10) (eql "(" (elem 0 _))
-				(le 2 (length (defq s (split _ " "))) 3))
+				(le 2 (length (defq s (split _ " "))) 4))
 			(defq _ (elem 0 s))
 			(cond
 				((eql _ "(def-method")
@@ -244,21 +244,25 @@
 
 (defun make-platforms ()
 	(make 'Darwin 'x86_64)
+	(make 'Windows 'x86_64)
 	(make 'Linux 'x86_64)
 	(make 'Linux 'aarch64))
 
 (defun make-all-platforms ()
 	(make-all 'Darwin 'x86_64)
+	(make-all 'Windows 'x86_64)
 	(make-all 'Linux 'x86_64)
 	(make-all 'Linux 'aarch64))
 
 (defun remake-platforms ()
 	(remake 'Darwin 'x86_64)
+	(remake 'Windows 'x86_64)
 	(remake 'Linux 'x86_64)
 	(remake 'Linux 'aarch64))
 
 (defun remake-all-platforms ()
 	(remake-all 'Darwin 'x86_64)
+	(remake-all 'Windows 'x86_64)
 	(remake-all 'Linux 'x86_64)
 	(remake-all 'Linux 'aarch64))
 

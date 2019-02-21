@@ -1,17 +1,18 @@
 # ChrysaLisp
 
+Assembler/C-Script/Lisp 64 bit, MIMD, multi CPU, multi threaded, multi core, multi user Parallel OS. With GUI, Terminal, OO Assembler, Class libraries, C-Script compiler, Lisp interpreter, Debugger, and more...
+
+
 ![](./screen_shot_1.png)
 ![](./screen_shot_2.png)
 ![](./screen_shot_3.png)
 
-Assembler/C-Script/Lisp 64 bit OS. MIMD, multi CPU, multi threaded, multi core,
-multi user.
 
 -------
 
-WARNING: There seams to be some issues with MacOS Mojave and SDL. There is a
+WARNING: There seems to be some issues with MacOS Mojave and SDL. There is a
 new release of SDL out soon, but looking at the Beta version on Mojave there
-still seams to be problems with it. An executable created on High Sierra works
+still seems to be problems with it. An executable created on High Sierra works
 absolutely fine on Mojave, and the executable created on Mojave works fine on
 High Sierra, so it's most strange. So temporally the High Sierra main bootstrap
 will be packaged with the snapshot.zip and make on Darwin will produce a file
@@ -161,7 +162,7 @@ into your `/Library/Frameworks` folder.
 
 #### Linux
 
-Linux: Tested on Ubuntu 16-10, 17-10 and Debian PI64
+Linux: Tested on Ubuntu 16-10, 17-10, 18-04 and Debian PI64
 
 ```
 sudo apt-get install libsdl2-ttf-dev

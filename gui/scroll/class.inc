@@ -1,7 +1,7 @@
 (include 'gui/view/class.inc)
 
 (def-class 'scroll 'view)
-(dec-method 'vtable 'gui/class_scroll)
+(dec-method 'vtable 'gui/scroll/vtable)
 (dec-method 'new 'gui/scroll/new 'static nil '(r0))
 (dec-method 'create 'gui/scroll/create 'static '(r0) '(r0))
 (dec-method 'init 'gui/scroll/init 'static '(r0 r1 r2))

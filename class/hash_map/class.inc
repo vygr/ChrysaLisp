@@ -1,7 +1,7 @@
 (include 'class/hash_set/class.inc)
 
 (def-class 'hash_map 'hash_set)
-(dec-method 'vtable 'class/class_hash_map)
+(dec-method 'vtable 'class/hash_map/vtable)
 (dec-method 'create 'class/hash_map/create)
 (dec-method 'new 'class/hash_map/new)
 (dec-method 'init 'class/hash_map/init)

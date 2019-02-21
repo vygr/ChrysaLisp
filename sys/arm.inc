@@ -2,8 +2,6 @@
 ; ARM Emit Functions
 ;;;;;;;;;;;;;;;;;;;;
 
-(defcmacro abi-args (&optional _) (setd _ 8) `',(slice 0 _ '(r0 r1 r2 r3 r4 r5 r6 r7 r8)))
-
 (defmacro emit-ux (x s d)
 	`(emit-int (add 0xd3400000 (bit-shl ,x 10) (bit-shl (reg ,s) 5) (reg ,d))))
 
@@ -150,10 +148,6 @@
 (defcfun emit-bgt (l d) (emit-branch 0xc l))
 (defcfun emit-ble (l d) (emit-branch 0xd l))
 
-(defcfun emit-syscall (n)
-	(emit-cpy-cr n r8)
-	(emit-int 0xd4000001))
-
 (defcfun emit-call (l)
 	(emit-push r30)
 	(cond
@@ -170,20 +164,6 @@
 (defcfun emit-call-i (d c)
 	(emit-cpy-ir d c r29)
 	(emit-call-r r29))
-
-(defcfun emit-call-abi (d c &rest x)
-	(setq x (cat '(r30) x))
-	(apply emit-push x)
-	(emit-cpy-ir d c r29)
-	(emit-int (add 0xd63f0000 (bit-shl (reg r29) 5)))
-	(cond
-		((eq 1 (defq l (length x)))
-			(emit-pop r30))
-		((eq 2 l) 
-			(emit-pop r30 r29))
-		(t
-			(emit-cpy-ir rsp (mul ptr_size (dec l)) r30)
-			(emit-free (mul ptr_size l)))))
 
 (defcfun emit-call-p (l)
 	(emit-cpy-pr l r29)

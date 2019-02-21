@@ -1,7 +1,7 @@
 (include 'gui/view/class.inc)
 
 (def-class 'grid 'view)
-(dec-method 'vtable 'gui/class_grid)
+(dec-method 'vtable 'gui/grid/vtable)
 (dec-method 'create 'gui/grid/create 'static '() '(r0))
 (dec-method 'new 'gui/grid/new)
 

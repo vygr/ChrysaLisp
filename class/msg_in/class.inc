@@ -1,7 +1,7 @@
 (include 'class/stream/class.inc)
 
 (def-class 'msg_in 'stream)
-(dec-method 'vtable 'class/class_msg_in)
+(dec-method 'vtable 'class/msg_in/vtable)
 (dec-method 'create 'class/msg_in/create 'static '() '(r0))
 (dec-method 'new 'class/msg_in/new 'static nil '(r0))
 (dec-method 'init 'class/msg_in/init 'static '(r0 r1))

@@ -4,7 +4,8 @@
 (include 'sys/kernel/class.inc)
 (include 'sys/string/class.inc)
 (include 'class/vector/class.inc)
-(include 'gui/sdl2.inc)
+(include 'sys/pii/class.inc)
+(include 'gui/gui/class.inc)
 
 ;;;;;;;;;;;;;
 ; kernel task
@@ -13,25 +14,21 @@
 (def-method 'sys_kernel 'kernel)
 	;inputs
 	;r0 = argv pointer (pptr)
-	;r1 = SDL func table (pptr)
 	;info
 	;loader is already initialized when we get here !
 
 	(union
-		'(ptr 'argv 'sdl)
+		'(ptr 'argv)
 		'(ptr 'link 'mbox_addr))
-	(ptr 'task_statics 'mail_statics 'func 'old_stack)
+	(ptr 'task_statics 'mail_statics 'load_statics 'func)
 	(ptr 'msg 'data 'new_msg 'pathname)
 	(pptr 'iter_begin 'iter_end)
 	(ulong 'service)
 	(struct 'routes 'lk_table)
 	(uint 'id 'num 'best_cnt 'best_id 'route_index 'hops 'new_hops 'length 'mbox_id)
 
-	;align stack
-	(vp-cpy-rr rsp r2)
 	(push-scope)
-	(vp-and-cr -16 rsp)
-	(entry {argv, sdl, old_stack})
+	(entry {argv})
 
 	;init allocator
 	(call 'sys_mem 'init)
@@ -40,12 +37,13 @@
 	(call 'sys_task 'init)
 
 	;init gui
-	(call 'gui 'init {sdl})
+	(call 'gui 'init)
 
 	;init mailer mailbox vector
 	(call 'sys_mail 'init)
 
 	;start kernel task (get's mailbox id of 0 !)
+	(assign (cat {@} (f-path 'sys_load 'statics)) {load_statics})
 	(assign (cat {@} (f-path 'sys_task 'statics)) {task_statics})
 	(assign (cat {@} (f-path 'sys_mail 'statics)) {mail_statics})
 	(call 'sys_task 'start {$func_entry} {task_statics->tk_statics_kernel_tcb, mbox_id, mbox_addr})
@@ -94,8 +92,8 @@
 				(endif)
 				(vpifnot {length})
 					;yup it's a .lisp file, check it exists
-					(call 'sys_pii 'age {&data->kn_msg_open_pathname} {func})
-					(breakifnot {func})
+					(call 'sys_pii 'stat {&data->kn_msg_open_pathname, load_statics->ld_statics_stat_buffer} {func})
+					(breakif {func})
 					;start lisp run task and send args
 					(call 'sys_task 'start {@class/lisp/run} {_, data->kn_msg_reply_id.id_id, _})
 					(call 'string 'create_from_cstr {&data->kn_msg_open_pathname} {pathname})
@@ -254,7 +252,7 @@
 		(vpif '(r0 < 1))
 			(vp-cpy-cr 1 r0)
 		(endif)
-		(sdl-call 'sdl 'sdl_delay '(r0))
+		(host-call 'host 'sdl_delay '(r0))
 	(loop-end)
 
 	;free any kernel routing table
@@ -263,9 +261,8 @@
 	;deinit allocator
 	(call 'sys_mem 'deinit)
 
-	;restore stack, exit back to main.c
-	(assign {old_stack} '(rsp))
-	(pop-scope-syms)
+	;exit back to main.c
+	(pop-scope)
 	(return)
 
 (vp-label 'flood)

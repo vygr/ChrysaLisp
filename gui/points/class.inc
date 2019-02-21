@@ -1,7 +1,7 @@
 (include 'class/array/class.inc)
 
 (def-class 'points 'array)
-(dec-method 'vtable 'gui/class_points)
+(dec-method 'vtable 'gui/points/vtable)
 (dec-method 'create 'gui/points/create)
 (dec-method 'get_first2 'gui/points/get_first2 'static '(r0) '(r0 r1 r2))
 (dec-method 'get_element2 'gui/points/get_element2 'static '(r0 r1) '(r0 r1 r2))

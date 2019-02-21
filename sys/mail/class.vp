@@ -407,16 +407,15 @@
 	;trashes
 	;all
 
-	(ptr 'mail_statics 'name)
+	(ptr 'name)
 	(ulong 'id)
 
 	(push-scope)
 	(entry 'sys_mail 'declare {name, id})
 
-	(assign (cat {@} (f-path 'sys_mail 'statics)) {mail_statics})
 	(call 'symbol 'intern_cstr {name} {name})
 	(call 'integer 'create {id} {id})
-	(call 'hash_map 'insert {mail_statics->ml_statics_declare_map, name, id})
+	(call 'hash_map 'insert (cat {@} (f-path 'sys_mail 'statics) {.ml_statics_declare_map, name, id}))
 	(call 'symbol 'deref {name})
 	(call 'integer 'deref {id})
 
@@ -433,7 +432,7 @@
 	;trashes
 	;all
 
-	(ptr 'mail_statics 'name)
+	(ptr 'name)
 	(union
 		'(pptr 'iter)
 		'(ulong 'id))
@@ -441,9 +440,8 @@
 	(push-scope)
 	(entry 'sys_mail 'enquire {name})
 
-	(assign (cat {@} (f-path 'sys_mail 'statics)) {mail_statics})
 	(call 'symbol 'intern_cstr {name} {name})
-	(call 'hash_map 'find {mail_statics->ml_statics_declare_map, name} {_, iter, _})
+	(call 'hash_map 'find (cat {@} (f-path 'sys_mail 'statics) {.ml_statics_declare_map, name}) {_, iter, _})
 	(vpif {iter})
 		(call 'pair 'get_second {*iter} {_, id})
 		(call 'integer 'get_value {id} {_, id})
@@ -462,17 +460,16 @@
 	;trashes
 	;all
 
-	(ptr 'mail_statics 'name 'bucket)
+	(ptr 'name 'bucket)
 	(pptr 'iter)
 
 	(push-scope)
 	(entry 'sys_mail 'forget {name})
 
-	(assign (cat {@} (f-path 'sys_mail 'statics)) {mail_statics})
 	(call 'symbol 'intern_cstr {name} {name})
-	(call 'hash_map 'find {mail_statics->ml_statics_declare_map, name} {_, iter, bucket})
+	(call 'hash_map 'find (cat {@} (f-path 'sys_mail 'statics) {.ml_statics_declare_map, name}) {_, iter, bucket})
 	(vpif {iter})
-		(call 'hash_map 'erase {mail_statics->ml_statics_declare_map, iter, bucket})
+		(call 'hash_map 'erase (cat {@} (f-path 'sys_mail 'statics) {.ml_statics_declare_map, iter, bucket}))
 	(endif)
 	(call 'symbol 'deref {name})
 

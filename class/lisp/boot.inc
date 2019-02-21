@@ -591,3 +591,10 @@
 			(push *compile-includes* _)
 			(repl (file-stream _) _)))
 	(catch (progn (setq _ (_) *compile-env* nil) _) (setq *compile-env* nil)))
+
+;; (defq *cond-cnt* (list 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0) *cond-cnt-i* -1)
+;; (defmacro do-cond-cnt ()
+;; 	(setq *cond-cnt-i* (inc *cond-cnt-i*))
+;; 	`(elem-set ,*cond-cnt-i* *cond-cnt* (inc (elem ,*cond-cnt-i* *cond-cnt*))))
+;; (defun print-cond-cnt ()
+;; 	(print (slice 0 (inc *cond-cnt-i*) *cond-cnt*)))

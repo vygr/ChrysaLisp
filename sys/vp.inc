@@ -77,7 +77,7 @@
 	''(emit-cpy-ir-ui emit-cpy-ir-us emit-cpy-ir-ub emit-cpy-ir))
 
 (defmacro opt-emit-call-ops ()
-	''(emit-label emit-syscall emit-call emit-call-abi emit-call-i emit-call-r emit-call-p))
+	''(emit-label emit-call emit-call-abi emit-call-i emit-call-r emit-call-p))
 
 (defmacro opt-emit-kills-ops ()
 	''(emit-beq emit-bne emit-blt emit-ble emit-bgt emit-bge emit-jmp emit-jmp-i emit-jmp-r emit-jmp-p
@@ -210,6 +210,7 @@
 			(cond
 				((reg o) 'r)
 				(t 'c)))
+		((eq i lisp_type_integer) 'c)
 		((eq i lisp_type_list)
 			(setq i (elem 0 o))
 			(cond
@@ -219,13 +220,11 @@
 							(sym-cat "i" (elem 2 o)))))
 				((eql i '@) i)
 				((eql i '$) i)
-				((eql i '?) i)
 				((eql i '&)
 					(if (reg (elem 1 o))
 						(if (reg (elem 2 o)) '&d '&i) nil))
 				(t 'c)))
 		((eq i lisp_type_string) 's)
-		((eq i lisp_type_integer) 'c)
 		(t nil)))
 
 (defcfun label-sym (s)
@@ -280,7 +279,7 @@
 (defcfun vp-push (&rest b) (emit (cat (list 'emit-push) b)))
 (defcfun vp-pop (&rest b) (emit (cat (list 'emit-pop) b)))
 
-(defcfun vp-call-abi (b i x) (emit (cat (list 'emit-call-abi b i) x)))
+(defcfun vp-call-abi (r b i x) (emit (cat (list 'emit-call-abi r b i) x)))
 (defcfun vp-call (l) (emit (list 'emit-call (label-sym l))))
 (defcfun vp-call-r (d) (emit (list 'emit-call-r d)))
 (defcfun vp-call-i (b i) (emit (list 'emit-call-i b i)))
@@ -352,7 +351,6 @@
 (defcfun vp-ext-rr (s d) (emit (list 'emit-ext-rr s d)))
 (defcfun vp-div-rrr (d r q) (emit (list 'emit-div-rrr d r q)))
 (defcfun vp-div-rrr-u (d r q) (emit (list 'emit-div-rrr-u d r q)))
-(defcfun vp-syscall (n) (emit (list 'emit-syscall n)))
 
 (defcfun vp-alloc (c) (emit (list 'emit-alloc c)))
 (defcfun vp-free (c) (emit (list 'emit-free c)))

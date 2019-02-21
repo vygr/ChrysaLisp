@@ -1,7 +1,7 @@
 (include 'gui/component/class.inc)
 
 (def-class 'view 'component)
-(dec-method 'vtable 'gui/class_view)
+(dec-method 'vtable 'gui/view/vtable)
 (dec-method 'create 'gui/view/create 'static '() '(r0))
 (dec-method 'new 'gui/view/new 'static nil '(r0))
 (dec-method 'init 'gui/view/init)

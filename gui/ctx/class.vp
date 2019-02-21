@@ -1,5 +1,5 @@
 (include 'sys/func.inc)
-(include 'gui/sdl2.inc)
+(include 'sys/pii/class.inc)
 (include 'gui/ctx/class.inc)
 (include 'gui/region/class.inc)
 
@@ -9,16 +9,6 @@
 	;r1 = color (argb)
 	;trashes
 	;all
-
-	(def-struct 'local)
-		(ptr 'old_stack)
-	(def-struct-end)
-
-	;align stack to 16 bytes for SDl
-	(vp-cpy-rr rsp r14)
-	(vp-alloc local_size)
-	(vp-and-cr -16 rsp)
-	(vp-cpy-ri r14 rsp local_old_stack)
 
 	(vp-cpy-rr r1 r7)
 	(vp-cpy-rr r1 r8)
@@ -31,9 +21,7 @@
 	(vp-and-cr 0xff r8)
 	(vp-and-cr 0xff r9)
 	(vp-and-cr 0xff r10)
-	(sdl-call 'sdl 'sdl_set_render_draw_color '((r0 ctx_sdl_ctx) r7 r8 r9 r10))
-
-	(vp-cpy-ir rsp local_old_stack rsp)
+	(host-call 'host 'sdl_set_render_draw_color '((r0 ctx_sdl_ctx) r7 r8 r9 r10))
 	(vp-ret)
 
 (def-func-end)
@@ -107,7 +95,7 @@
 			(vp-cpy-ri-i r9 rsp (add local_clip_rect sdl_rect_w))
 			(vp-cpy-ri-i r10 rsp (add local_clip_rect sdl_rect_h))
 			(vp-cpy-ir rsp local_ctx r0)
-			(sdl-call 'sdl 'sdl_render_set_clip_rect '((r0 ctx_sdl_ctx) (& rsp local_clip_rect)))
+			(host-call 'host 'sdl_render_set_clip_rect '((r0 ctx_sdl_ctx) (& rsp local_clip_rect)))
 
 			;run body
 			~b
@@ -115,7 +103,7 @@
 			(vp-cpy-ir rsp local_dirty_rect r0)
 		(loop-end)))
 
-(def-method 'ctx 'blit)
+(def-method 'ctx 'blit 16)
 	;inputs
 	;r0 = draw ctx (ptr)
 	;r1 = texture id (ulong)
@@ -137,11 +125,10 @@
 		(ptr 'old_stack)
 	(def-struct-end)
 
-	;align stack to 16 bytes for SDl
-	(vp-cpy-rr rsp r14)
+	(vp-cpy-rr rsp r3)
 	(vp-alloc local_size)
 	(vp-and-cr -16 rsp)
-	(vp-cpy-ri r14 rsp local_old_stack)
+	(vp-cpy-ri r3 rsp local_old_stack)
 
 	;save draw rectangle info
 	(vp-cpy-ri r0 rsp local_ctx)
@@ -168,12 +155,12 @@
 	(vp-and-cr 0xff r3)
 	(vp-and-cr 0xff r2)
 	(vp-and-cr 0xff r4)
-	(sdl-call 'sdl 'sdl_set_texture_color_mod '((rsp local_texture) r3 r2 r4))
+	(host-call 'host 'sdl_set_texture_color_mod '((rsp local_texture) r3 r2 r4))
 
 	(for-each-visible-rect
 		;blit the texture
 		(vp-cpy-ir rsp local_ctx r0)
-		(sdl-call 'sdl 'sdl_render_copy '((r0 ctx_sdl_ctx) (rsp local_texture) (& rsp local_srect) (& rsp local_drect)))
+		(host-call 'host 'sdl_render_copy '((r0 ctx_sdl_ctx) (rsp local_texture) (& rsp local_srect) (& rsp local_drect)))
 	)
 
 	(vp-cpy-ir rsp local_old_stack rsp)
@@ -181,7 +168,7 @@
 
 (def-func-end)
 
-(def-method 'ctx 'box)
+(def-method 'ctx 'box 16)
 	;inputs
 	;r0 = draw ctx (ptr)
 	;r7 = x (pixels)
@@ -199,11 +186,10 @@
 		(ptr 'old_stack)
 	(def-struct-end)
 
-	;align stack to 16 bytes for SDl
-	(vp-cpy-rr rsp r14)
+	(vp-cpy-rr rsp r3)
 	(vp-alloc local_size)
 	(vp-and-cr -16 rsp)
-	(vp-cpy-ri r14 rsp local_old_stack)
+	(vp-cpy-ri r3 rsp local_old_stack)
 
 	;save draw rectangle info
 	(vp-cpy-ri r0 rsp local_ctx)
@@ -219,7 +205,7 @@
 	(for-each-visible-rect
 		;draw the rectangle
 		(vp-cpy-ir rsp local_ctx r0)
-		(sdl-call 'sdl 'sdl_render_draw_rect '((r0 ctx_sdl_ctx) (& rsp local_rect)))
+		(host-call 'host 'sdl_render_draw_rect '((r0 ctx_sdl_ctx) (& rsp local_rect)))
 	)
 
 	(vp-cpy-ir rsp local_old_stack rsp)
@@ -227,7 +213,7 @@
 
 (def-func-end)
 
-(def-method 'ctx 'filled_box)
+(def-method 'ctx 'filled_box 16)
 	;inputs
 	;r0 = draw ctx (ptr)
 	;r7 = x (pixels)
@@ -245,11 +231,10 @@
 		(ptr 'old_stack)
 	(def-struct-end)
 
-	;align stack to 16 bytes for SDl
-	(vp-cpy-rr rsp r14)
+	(vp-cpy-rr rsp r3)
 	(vp-alloc local_size)
 	(vp-and-cr -16 rsp)
-	(vp-cpy-ri r14 rsp local_old_stack)
+	(vp-cpy-ri r3 rsp local_old_stack)
 
 	;save draw rectangle info
 	(vp-cpy-ri r0 rsp local_ctx)
@@ -265,7 +250,7 @@
 	(for-each-visible-rect
 		;draw the rectangle
 		(vp-cpy-ir rsp local_ctx r0)
-		(sdl-call 'sdl 'sdl_render_fill_rect '((r0 ctx_sdl_ctx) (& rsp local_rect)))
+		(host-call 'host 'sdl_render_fill_rect '((r0 ctx_sdl_ctx) (& rsp local_rect)))
 	)
 
 	(vp-cpy-ir rsp local_old_stack rsp)

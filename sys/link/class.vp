@@ -56,13 +56,13 @@
 	(call 'sys_mail 'send {msg})
 
 	;open shared memory file
-	(call 'sys_pii 'open {pdata, o_creat | o_rdwr, s_irusr | s_iwusr} {handle})
+	(call 'sys_pii 'open {pdata, file_open_readwrite} {handle})
 
 	;set size of region
 	(call 'sys_pii 'ftruncate {handle, lk_buffer_size})
 
 	;map shared object
-	(call 'sys_pii 'mmap {0, lk_buffer_size, prot_read | prot_write, map_shared, handle, 0} {mem})
+	(call 'sys_pii 'mmap {0, lk_buffer_size, mmap_shared, handle, 0} {mem})
 
 	;tx channel, rx channel
 	;tx msg, rx msg

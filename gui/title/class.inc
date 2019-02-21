@@ -1,7 +1,7 @@
 (include 'gui/label/class.inc)
 
 (def-class 'title 'label)
-(dec-method 'vtable 'gui/class_title)
+(dec-method 'vtable 'gui/title/vtable)
 (dec-method 'create 'gui/title/create)
 (dec-method 'new 'gui/title/new)
 (dec-method 'init 'gui/title/init)

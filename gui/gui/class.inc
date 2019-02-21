@@ -11,7 +11,7 @@
 
 (def-class 'gui)
 (dec-method 'statics 'gui/gui/statics)
-(dec-method 'init 'gui/gui/init 'static '(r0))
+(dec-method 'init 'gui/gui/init)
 (dec-method 'update 'gui/gui/update 'static '(r0))
 (dec-method 'add 'gui/gui/add 'static '(r0))
 (dec-method 'gui 'gui/gui/gui)
@@ -23,7 +23,6 @@
 ;;;;;;;;;;;;;;;;
 
 (def-struct 'gui_statics)
-	(ptr 'sdl_funcs)
 	(struct 'rect_heap 'hp_heap)
 	(ptr 'window)
 	(ptr 'screen)

@@ -2,8 +2,28 @@
 
 ![](./screen_shot_1.png)
 
-I have a torn retina ! Not sure how this happened, but just had laser treament
+------
+
+Got another hospital visit for the eyes :( Lots of garbage in my vision still,
+but getting some useful documentation done and a few things to help out on the
+Windows port.
+
+Tried to concentrate on documenting the aspects of the VP and C-Script coding
+that most people will be wondering about when looking at the source files. I
+know what it's like when you read a statement and a huge lightbulb goes on in
+your head. It's so easy to just assume these things are obvious when you wrote
+the code to start with !
+
+------
+
+I have a torn retina ! Not sure how this happened, but just had laser treatment
 to weld things down. So not a lot of screen time at the moment !
+
+------
+
+Big drive to get the platform isolation interface (PII) as simple as possible.
+Started a windows branch for the windows port, thanks to some prompting by
+BannanaEarwig.
 
 ------
 

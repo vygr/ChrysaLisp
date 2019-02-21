@@ -223,8 +223,7 @@
 	(call 'sys_mail 'free {msg})
 
 	;non block on stdin
-	(call 'sys_pii 'fcntl {0, f_getfl, 0} {char})
-	(call 'sys_pii 'fcntl {0, f_setfl, char | o_nonblock})
+	(call 'sys_pii 'noneblk)
 
 	;poll stdin and send char to tui
 	(loop-start)

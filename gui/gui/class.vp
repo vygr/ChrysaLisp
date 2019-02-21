@@ -1,7 +1,8 @@
 (include 'sys/func.inc)
 (include 'sys/heap/class.inc)
 (include 'sys/kernel/class.inc)
-(include 'gui/sdl2.inc)
+(include 'sys/pii/class.inc)
+(include 'gui/gui/class.inc)
 (include 'gui/label/class.inc)
 (include 'class/string/class.inc)
 (include 'gui/region/class.inc)
@@ -15,19 +16,14 @@
 (def-func-end)
 
 (def-method 'gui 'init)
-	;inputs
-	;r0 = sdl function table (pptr)
-
-	;init sdl function table
-	(f-bind 'gui 'statics r4)
-	(vp-cpy-ri r0 r4 gui_statics_sdl_funcs)
 
 	;init region heap
+	(f-bind 'gui 'statics r4)
 	(jump 'sys_heap 'init '((& r4 gui_statics_rect_heap) rect_size (mul rect_size 32)))
 
 (def-func-end)
 
-(def-func 'gui/gui/gui 8192)
+(def-func 'gui/gui/gui 16 8192)
 	;gui process
 
 	(def-struct 'local)
@@ -84,11 +80,10 @@
 	;inputs
 	;r0 = user data
 
-	(ptr 'user 'old_stack 'owner 'msg 'data 'view)
+	(ptr 'user 'owner 'msg 'data 'view 'old_stack)
 	(int 'flag 'key)
 	(struct 'event 256)
 
-	;align stack
 	(vp-cpy-rr rsp r1)
 	(push-scope)
 	(vp-and-cr -16 rsp)
@@ -97,37 +92,37 @@
 	;create screen window ?
 	(vpifnot {user->local_statics->gui_statics_window})
 		;init sdl2
-		(sdl-call 'sdl 'sdl_set_main_ready)
-		(sdl-call 'sdl 'sdl_init {SDL_INIT_VIDEO | SDL_INIT_EVENTS})
-		(sdl-call 'sdl 'ttf_init)
+		(host-call 'host 'sdl_set_main_ready)
+		(host-call 'host 'sdl_init {SDL_INIT_VIDEO | SDL_INIT_EVENTS})
+		(host-call 'host 'ttf_init)
 
 		;create window
-		(sdl-call 'sdl 'sdl_create_window
+		(host-call 'host 'sdl_create_window
 			{$title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_OPENGL}
 			{user->local_statics->gui_statics_window})
 
 		;create renderer
-		(sdl-call 'sdl 'sdl_create_renderer
+		(host-call 'host 'sdl_create_renderer
 			{user->local_statics->gui_statics_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC}
 			{user->local_statics->gui_statics_renderer})
 
 		;set blend mode
-		(sdl-call 'sdl 'sdl_set_render_draw_blend_mode {user->local_statics->gui_statics_renderer, SDL_BLENDMODE_BLEND})
+		(host-call 'host 'sdl_set_render_draw_blend_mode {user->local_statics->gui_statics_renderer, SDL_BLENDMODE_BLEND})
 	(endif)
 
 	;update screen
 	(vpif {user->local_statics->gui_statics_screen && user->local_statics->gui_statics_dirty_flag})
 		;update the screen and refresh
 		(call 'gui 'update {user->local_statics->gui_statics_screen})
-		(sdl-call 'sdl 'sdl_render_present {user->local_statics->gui_statics_renderer})
+		(host-call 'host 'sdl_render_present {user->local_statics->gui_statics_renderer})
 		(assign {0} {user->local_statics->gui_statics_dirty_flag})
 	(endif)
 
 	;any sdl events ?
 	(loop-start)
-		(sdl-call 'sdl 'sdl_poll_event {0} {flag})
+		(host-call 'host 'sdl_poll_event {0} {flag})
 		(breakifnot {flag})
-		(sdl-call 'sdl 'sdl_poll_event {&event})
+		(host-call 'host 'sdl_poll_event {&event})
 		(switch)
 		(case {event.sdl_common_event_type == SDL_MOUSEMOTION})
 			;update mouse state
@@ -216,6 +211,38 @@
 	(pop-scope-syms)
 	(return)
 
+(vp-label 'deinit_callback)
+	;inputs
+	;r0 = user data
+
+	(ptr 'user 'old_stack)
+
+	(vp-cpy-rr rsp r1)
+	(push-scope)
+	(vp-and-cr -16 rsp)
+	(entry {user, old_stack})
+
+	;free any screen
+	(vpif {user->local_statics->gui_statics_screen})
+		(call 'view 'deref {user->local_statics->gui_statics_screen})
+		(assign {0} {user->local_statics->gui_statics_screen})
+	(endif)
+
+	;destroy any window
+	(vpif {user->local_statics->gui_statics_window})
+		(host-call 'host 'sdl_destroy_window {user->local_statics->gui_statics_window})
+		(host-call 'host 'ttf_quit)
+		(host-call 'host 'sdl_quit)
+	(endif)
+
+	;free old region and deinit region heap
+	(call 'region 'free {user->local_statics->gui_statics_rect_heap, user->local_statics->gui_statics_old_region})
+	(call 'sys_heap 'deinit {user->local_statics->gui_statics_rect_heap})
+
+	(assign {old_stack} '(rsp))
+	(pop-scope-syms)
+	(return)
+
 (vp-label 'cook_key)
 	;inputs
 	;r0 = key
@@ -242,39 +269,6 @@
 
 	(exit {key})
 	(pop-scope)
-	(return)
-
-(vp-label 'deinit_callback)
-	;inputs
-	;r0 = user data
-
-	(ptr 'user 'old_stack)
-
-	;align stack
-	(vp-cpy-rr rsp r1)
-	(push-scope)
-	(vp-and-cr -16 rsp)
-	(entry {user, old_stack})
-
-	;free any screen
-	(vpif {user->local_statics->gui_statics_screen})
-		(call 'view 'deref {user->local_statics->gui_statics_screen})
-		(assign {0} {user->local_statics->gui_statics_screen})
-	(endif)
-
-	;destroy any window
-	(vpif {user->local_statics->gui_statics_window})
-		(sdl-call 'sdl 'sdl_destroy_window {user->local_statics->gui_statics_window})
-		(sdl-call 'sdl 'ttf_quit)
-		(sdl-call 'sdl 'sdl_quit)
-	(endif)
-
-	;free old region and deinit region heap
-	(call 'region 'free {user->local_statics->gui_statics_rect_heap, user->local_statics->gui_statics_old_region})
-	(call 'sys_heap 'deinit {user->local_statics->gui_statics_rect_heap})
-
-	(assign {old_stack} '(rsp))
-	(pop-scope-syms)
 	(return)
 
 (vp-label 'title)

@@ -1,7 +1,7 @@
 (include 'class/obj/class.inc)
 
 (def-class 'pair 'obj)
-(dec-method 'vtable 'class/class_pair)
+(dec-method 'vtable 'class/pair/vtable)
 (dec-method 'create 'class/pair/create 'static '(r0 r1) '(r0))
 (dec-method 'new 'class/pair/new 'static nil '(r0))
 (dec-method 'init 'class/pair/init 'static '(r0 r1 r2 r3))

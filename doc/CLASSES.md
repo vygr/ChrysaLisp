@@ -1,7 +1,7 @@
 # Classes
 ## array
 Super Class: sequence
-### array::vtable -> class/class_array
+### array::vtable -> class/array/vtable
 ### array::create -> class/array/create
 ### array::new -> class/array/new
 ### array::init -> class/array/init
@@ -315,7 +315,7 @@ r1-r11
 ```
 ## backdrop
 Super Class: view
-### backdrop::vtable -> apps/boing/class_backdrop
+### backdrop::vtable -> apps/boing/backdrop/vtable
 ### backdrop::create -> apps/boing/backdrop/create
 ### backdrop::new -> apps/boing/backdrop/new
 ### backdrop::pref_size -> apps/boing/backdrop/pref_size
@@ -354,7 +354,7 @@ r1 = return value object (ptr)
 ```
 ## button
 Super Class: label
-### button::vtable -> gui/class_button
+### button::vtable -> gui/button/vtable
 ### button::create -> gui/button/create
 ### button::new -> gui/button/new
 ### button::init -> gui/button/init
@@ -442,7 +442,7 @@ r1 = return value object (ptr)
 ```
 ## canvas
 Super Class: view
-### canvas::vtable -> gui/class_canvas
+### canvas::vtable -> gui/canvas/vtable
 ### canvas::create -> gui/canvas/create
 ### canvas::create_shared -> gui/canvas/create_shared
 ### canvas::new -> gui/canvas/new
@@ -956,7 +956,7 @@ r1 = return value object (ptr)
 ```
 ## component
 Super Class: hash_map
-### component::vtable -> gui/class_component
+### component::vtable -> gui/component/vtable
 ### component::init -> gui/component/init
 ```
 inputs
@@ -1143,7 +1143,7 @@ r2, r3
 ```
 ## error
 Super Class: obj
-### error::vtable -> class/class_error
+### error::vtable -> class/error/vtable
 ### error::create -> class/error/create
 ### error::new -> class/error/new
 ### error::init -> class/error/init
@@ -1215,7 +1215,7 @@ all but r0
 ```
 ## flow
 Super Class: view
-### flow::vtable -> gui/class_flow
+### flow::vtable -> gui/flow/vtable
 ### flow::create -> gui/flow/create
 ### flow::new -> gui/flow/new
 ### flow::pref_size -> gui/flow/pref_size
@@ -1249,7 +1249,7 @@ r1 = return value object (ptr)
 ```
 ## font
 Super Class: obj
-### font::vtable -> gui/class_font
+### font::vtable -> gui/font/vtable
 ### font::statics -> gui/font/statics
 ```
 info
@@ -1335,11 +1335,11 @@ r1 = return value object (ptr)
 ```
 ## function
 Super Class: integer
-### function::vtable -> class/class_function
+### function::vtable -> class/function/vtable
 ### function::create -> class/function/create
 ## grid
 Super Class: view
-### grid::vtable -> gui/class_grid
+### grid::vtable -> gui/grid/vtable
 ### grid::create -> gui/grid/create
 ### grid::new -> gui/grid/new
 ### grid::pref_size -> gui/grid/pref_size
@@ -1375,10 +1375,6 @@ r1 = return value object (ptr)
 Super Class: null
 ### gui::statics -> gui/gui/statics
 ### gui::init -> gui/gui/init
-```
-inputs
-r0 = sdl function table (pptr)
-```
 ### gui::update -> gui/gui/update
 ```
 inputs
@@ -1410,7 +1406,7 @@ r1 = return value object (ptr)
 ```
 ## hash_map
 Super Class: hash_set
-### hash_map::vtable -> class/class_hash_map
+### hash_map::vtable -> class/hash_map/vtable
 ### hash_map::create -> class/hash_map/create
 ### hash_map::new -> class/hash_map/new
 ### hash_map::init -> class/hash_map/init
@@ -1524,7 +1520,7 @@ all but r0
 ```
 ## hash_set
 Super Class: obj
-### hash_set::vtable -> class/class_hash_set
+### hash_set::vtable -> class/hash_set/vtable
 ### hash_set::create -> class/hash_set/create
 ### hash_set::new -> class/hash_set/new
 ### hash_set::init -> class/hash_set/init
@@ -1654,9 +1650,56 @@ r0 = hash_set object (ptr)
 trashes
 all but r0
 ```
+## host
+Super Class: null
+### host::sdl_set_main_ready -> nil
+### host::sdl_init -> nil
+### host::sdl_get_error -> nil
+### host::sdl_quit -> nil
+### host::sdl_create_window -> nil
+### host::sdl_create_window_and_renderer -> nil
+### host::sdl_destroy_window -> nil
+### host::sdl_delay -> nil
+### host::sdl_create_renderer -> nil
+### host::sdl_set_render_draw_color -> nil
+### host::sdl_render_fill_rect -> nil
+### host::sdl_render_present -> nil
+### host::sdl_render_set_clip_rect -> nil
+### host::sdl_set_render_draw_blend_mode -> nil
+### host::sdl_poll_event -> nil
+### host::sdl_render_draw_rect -> nil
+### host::sdl_free_surface -> nil
+### host::sdl_create_texture_from_surface -> nil
+### host::sdl_destroy_texture -> nil
+### host::sdl_render_copy -> nil
+### host::sdl_set_texture_blend_mode -> nil
+### host::sdl_set_texture_color_mod -> nil
+### host::sdl_create_rgb_surface_from -> nil
+### host::ttf_init -> nil
+### host::ttf_quit -> nil
+### host::ttf_open_font -> nil
+### host::ttf_close_font -> nil
+### host::ttf_size_utf8 -> nil
+### host::ttf_font_ascent -> nil
+### host::ttf_font_descent -> nil
+### host::ttf_font_height -> nil
+### host::ttf_render_utf8_blended -> nil
+### host::exit -> nil
+### host::noneblk -> nil
+### host::stat -> nil
+### host::open -> nil
+### host::close -> nil
+### host::ftruncate -> nil
+### host::unlink -> nil
+### host::read -> nil
+### host::write -> nil
+### host::mmap -> nil
+### host::munmap -> nil
+### host::mprotect -> nil
+### host::gettime -> nil
 ## integer
 Super Class: obj
-### integer::vtable -> class/class_integer
+### integer::vtable -> class/integer/vtable
 ### integer::create -> class/integer/create
 ### integer::new -> class/integer/new
 ### integer::init -> class/integer/init
@@ -1679,7 +1722,7 @@ r1 = value (ptr)
 ```
 ## label
 Super Class: view
-### label::vtable -> gui/class_label
+### label::vtable -> gui/label/vtable
 ### label::create -> gui/label/create
 ### label::new -> gui/label/new
 ### label::init -> gui/label/init
@@ -1729,7 +1772,7 @@ r1 = return value object (ptr)
 ```
 ## lisp
 Super Class: obj
-### lisp::vtable -> class/class_lisp
+### lisp::vtable -> class/lisp/vtable
 ### lisp::create -> class/lisp/create
 ### lisp::new -> class/lisp/new
 ### lisp::init -> class/lisp/init
@@ -2775,7 +2818,7 @@ r1 = return value object (ptr)
 ```
 ## msg_in
 Super Class: stream
-### msg_in::vtable -> class/class_msg_in
+### msg_in::vtable -> class/msg_in/vtable
 ### msg_in::create -> class/msg_in/create
 ### msg_in::new -> class/msg_in/new
 ### msg_in::init -> class/msg_in/init
@@ -2837,7 +2880,7 @@ all but r0
 ```
 ## msg_out
 Super Class: stream
-### msg_out::vtable -> class/class_msg_out
+### msg_out::vtable -> class/msg_out/vtable
 ### msg_out::create -> class/msg_out/create
 ### msg_out::new -> class/msg_out/new
 ### msg_out::init -> class/msg_out/init
@@ -2885,7 +2928,7 @@ all but r0
 ```
 ## obj
 Super Class: null
-### obj::vtable -> class/class_obj
+### obj::vtable -> class/obj/vtable
 ### obj::null -> class/obj/null
 ### obj::destroy -> class/obj/destroy
 ```
@@ -2961,7 +3004,7 @@ all but r0
 ```
 ## pair
 Super Class: obj
-### pair::vtable -> class/class_pair
+### pair::vtable -> class/pair/vtable
 ### pair::create -> class/pair/create
 ### pair::new -> class/pair/new
 ### pair::init -> class/pair/init
@@ -3040,7 +3083,7 @@ all but r0
 ```
 ## pipe
 Super Class: obj
-### pipe::vtable -> class/class_pipe
+### pipe::vtable -> class/pipe/vtable
 ### pipe::create -> class/pipe/create
 ### pipe::new -> class/pipe/new
 ### pipe::init -> class/pipe/init
@@ -3100,7 +3143,7 @@ all but r0
 ```
 ## points
 Super Class: array
-### points::vtable -> gui/class_points
+### points::vtable -> gui/points/vtable
 ### points::create -> gui/points/create
 ### points::get_first2 -> gui/points/get_first2
 ```
@@ -3634,7 +3677,7 @@ r1 = return value object (ptr)
 ```
 ## progress
 Super Class: view
-### progress::vtable -> gui/class_progress
+### progress::vtable -> gui/progress/vtable
 ### progress::create -> gui/progress/create
 ### progress::new -> gui/progress/new
 ### progress::pref_size -> gui/progress/pref_size
@@ -3798,7 +3841,7 @@ r1-r14
 ```
 ## scroll
 Super Class: view
-### scroll::vtable -> gui/class_scroll
+### scroll::vtable -> gui/scroll/vtable
 ### scroll::new -> gui/scroll/new
 ### scroll::create -> gui/scroll/create
 ### scroll::init -> gui/scroll/init
@@ -3856,49 +3899,15 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
-## sdl
-Super Class: null
-### sdl::sdl_set_main_ready -> nil
-### sdl::sdl_init -> nil
-### sdl::sdl_get_error -> nil
-### sdl::sdl_quit -> nil
-### sdl::sdl_create_window -> nil
-### sdl::sdl_create_window_and_renderer -> nil
-### sdl::sdl_destroy_window -> nil
-### sdl::sdl_delay -> nil
-### sdl::sdl_create_renderer -> nil
-### sdl::sdl_set_render_draw_color -> nil
-### sdl::sdl_render_fill_rect -> nil
-### sdl::sdl_render_present -> nil
-### sdl::sdl_render_set_clip_rect -> nil
-### sdl::sdl_set_render_draw_blend_mode -> nil
-### sdl::sdl_poll_event -> nil
-### sdl::sdl_render_draw_rect -> nil
-### sdl::sdl_free_surface -> nil
-### sdl::sdl_create_texture_from_surface -> nil
-### sdl::sdl_destroy_texture -> nil
-### sdl::sdl_render_copy -> nil
-### sdl::sdl_set_texture_blend_mode -> nil
-### sdl::sdl_set_texture_color_mod -> nil
-### sdl::sdl_create_rgb_surface_from -> nil
-### sdl::ttf_init -> nil
-### sdl::ttf_quit -> nil
-### sdl::ttf_open_font -> nil
-### sdl::ttf_close_font -> nil
-### sdl::ttf_size_utf8 -> nil
-### sdl::ttf_font_ascent -> nil
-### sdl::ttf_font_descent -> nil
-### sdl::ttf_font_height -> nil
-### sdl::ttf_render_utf8_blended -> nil
 ## sequence
 Super Class: obj
-### sequence::vtable -> class/class_sequence
+### sequence::vtable -> class/sequence/vtable
 ### sequence::get_length -> class/obj/null
 ### sequence::ref_element -> class/obj/null
 ### sequence::slice -> class/obj/null
 ## slave
 Super Class: obj
-### slave::vtable -> class/class_slave
+### slave::vtable -> class/slave/vtable
 ### slave::create -> class/slave/create
 ### slave::new -> class/slave/new
 ### slave::init -> class/slave/init
@@ -3946,7 +3955,7 @@ r1 = return value object (ptr)
 ```
 ## slider
 Super Class: view
-### slider::vtable -> gui/class_slider
+### slider::vtable -> gui/slider/vtable
 ### slider::create -> gui/slider/create
 ### slider::new -> gui/slider/new
 ### slider::init -> gui/slider/init
@@ -4000,7 +4009,7 @@ r0 = view object (ptr)
 trashes
 all but r0
 ```
-### slider::mouse_down -> gui/slider/mouse_move
+### slider::mouse_down -> gui/slider/mouse_down
 ```
 inputs
 r0 = slider object (ptr)
@@ -4044,7 +4053,7 @@ r1 = return value object (ptr)
 ```
 ## stream
 Super Class: obj
-### stream::vtable -> class/class_stream
+### stream::vtable -> class/stream/vtable
 ### stream::create -> class/stream/create
 ### stream::new -> class/stream/new
 ### stream::init -> class/stream/init
@@ -4227,7 +4236,7 @@ r1
 ```
 ## stream_str
 Super Class: stream
-### stream_str::vtable -> class/class_stream_str
+### stream_str::vtable -> class/stream_str/vtable
 ### stream_str::create -> class/stream_str/create
 ### stream_str::new -> class/stream_str/new
 ### stream_str::init -> class/stream_str/init
@@ -4271,7 +4280,7 @@ all but r0
 ```
 ## string
 Super Class: sequence
-### string::vtable -> class/class_string
+### string::vtable -> class/string/vtable
 ### string::create_from_buffer -> class/string/create_from_buffer
 ```
 inputs
@@ -4462,7 +4471,7 @@ r2-r6
 ```
 ## symbol
 Super Class: string
-### symbol::vtable -> class/class_symbol
+### symbol::vtable -> class/symbol/vtable
 ### symbol::statics -> class/symbol/statics
 ```
 info
@@ -4565,7 +4574,6 @@ all
 ```
 inputs
 r0 = argv pointer (pptr)
-r1 = SDL func table (pptr)
 info
 loader is already initialized when we get here !
 ```
@@ -4631,10 +4639,10 @@ Super Class: null
 ```
 inputs
 system argv
-SDL function table
+host function table
 info
 register inputs are dependant on the platform ABI
-they are extracted via (sys-arg 0) and (sys-arg 1)
+they are extracted via (abi-arg 0) and (abi-arg 1)
 ```
 ### sys_load::bind -> sys/load/bind
 ```
@@ -5055,10 +5063,9 @@ r0 = code (long)
 inputs
 r0 = address (ptr)
 r1 = len (ulong)
-r2 = prot (ulong)
-r3 = flags (ulong)
-r4 = fd (ulong)
-r5 = pos (ulong)
+r2 = mode (ulong)
+r3 = fd (ulong)
+r4 = pos (ulong)
 outputs
 r0 = buffer (ptr)
 trashes
@@ -5090,7 +5097,6 @@ none
 inputs
 r0 = c string filename (pubyte)
 r1 = mode (ulong)
-r2 = flags (ulong)
 outputs
 r0 = fd (ulong)
 trashes
@@ -5134,12 +5140,8 @@ r0 = error code (ulong)
 trashes
 none
 ```
-### sys_pii::fcntl -> sys/pii/fcntl
+### sys_pii::noneblk -> sys/pii/noneblk
 ```
-inputs
-r0 = fd (ulong)
-r1 = command (ulong)
-r2 = arg (ulong)
 outputs
 r0 = error code (ulong)
 trashes
@@ -5204,15 +5206,6 @@ inputs
 r0 = fd (ulong)
 outputs
 r0 = char (ulong)
-trashes
-none
-```
-### sys_pii::age -> sys/pii/age
-```
-inputs
-r0 = c string file name (pubyte)
-outputs
-r0 = 0 if error, else modified date (ulong)
 trashes
 none
 ```
@@ -5452,7 +5445,7 @@ r1 = return value object (ptr)
 ```
 ## text
 Super Class: view
-### text::vtable -> gui/class_text
+### text::vtable -> gui/text/vtable
 ### text::create -> gui/text/create
 ### text::new -> gui/text/new
 ### text::init -> gui/text/init
@@ -5498,7 +5491,7 @@ all but r0
 ```
 ## texture
 Super Class: obj
-### texture::vtable -> gui/class_texture
+### texture::vtable -> gui/texture/vtable
 ### texture::create -> gui/texture/create
 ### texture::new -> gui/texture/new
 ### texture::init -> gui/texture/init
@@ -5532,7 +5525,7 @@ all but r0
 ```
 ## title
 Super Class: label
-### title::vtable -> gui/class_title
+### title::vtable -> gui/title/vtable
 ### title::create -> gui/title/create
 ### title::new -> gui/title/new
 ### title::init -> gui/title/init
@@ -5562,7 +5555,7 @@ all but r0
 ```
 ## vdu
 Super Class: view
-### vdu::vtable -> gui/class_vdu
+### vdu::vtable -> gui/vdu/vtable
 ### vdu::create -> gui/vdu/create
 ### vdu::new -> gui/vdu/new
 ### vdu::init -> gui/vdu/init
@@ -5649,7 +5642,7 @@ all but r0
 ```
 ## vector
 Super Class: array
-### vector::vtable -> class/class_vector
+### vector::vtable -> class/vector/vtable
 ### vector::create -> class/vector/create
 ### vector::deinit -> class/vector/deinit
 ```
@@ -5734,7 +5727,7 @@ r1-r11
 ```
 ## view
 Super Class: component
-### view::vtable -> gui/class_view
+### view::vtable -> gui/view/vtable
 ### view::create -> gui/view/create
 ### view::new -> gui/view/new
 ### view::init -> gui/view/init
@@ -5959,7 +5952,7 @@ inputs
 r0 = view object (ptr)
 r1 = draw ctx (ptr)
 r2 = flags (ulong)
-r3 = depth (uint)
+r3 = depth (int)
 trashes
 all but r0
 ```
@@ -6219,7 +6212,7 @@ all but r0
 ### view::action -> class/obj/null
 ## window
 Super Class: view
-### window::vtable -> gui/class_window
+### window::vtable -> gui/window/vtable
 ### window::new -> gui/window/new
 ### window::create -> gui/window/create
 ### window::init -> gui/window/init
