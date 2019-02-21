@@ -3,34 +3,32 @@
 (include 'class/vector/class.inc)
 (include 'gui/points/class.inc)
 
-(def-method 'canvas 'fpoly)
+(def-method 'canvas 'set_edges)
 	;inputs
 	;r0 = canvas object (ptr)
-	;r1 = stack array object (ptr)
-	;r2 = color (argb)
-	;r3 = x (16.16)
-	;r4 = y (16.16)
-	;r5 = winding mode (0/1)
-	;r6 = vector of points objects (ptr)
-	;r7 = span function (ptr)
+	;r1 = vector of points objects (ptr)
+	;r2 = x (16.16)
+	;r3 = y (16.16)
 	;outputs
 	;r0 = canvas object (ptr)
+	;r1 = min_x (16.16)
+	;r2 = min_y (16.16)
+	;r3 = max_x (16.16)
+	;r4 = max_y (16.16)
 	;trashes
 	;all but r0
 
-	(ptr 'this 'span 'stack)
+	(ptr 'this)
 	(union
 		'(ptr 'polygons)
-		'(pptr 'iter_end_polygons 'iter_begin_polygons)
-		'(pptr 'iter_i 'iter_j 'iter_k 'iter_end))
+		'(pptr 'iter_end_polygons 'iter_begin_polygons))
 	(pint 'iter_edge1 'iter_edge2)
 	(pint 'iter_begin_polygon 'iter_end_polygon)
 	(int 'ys 'ye 'xs 'xe 'x 'y)
-	(uint 'mode 'color 'length)
+	(uint 'length)
 
 	(push-scope)
-	(entry 'canvas 'fpoly {this, stack, color, x, y, mode, polygons, span})
-	(call 'canvas 'to_premul {this, color} {_, color})
+	(entry 'canvas 'set_edges {this, polygons, x, y})
 
 	;fill edges, find min and max xy, clip edges not visible or redundant
 	(assign {x + 0.5, y + 0.5, max_int, min_int, max_int, min_int, 0} {x, y, xs, xe, ys, ye, length})
@@ -69,7 +67,9 @@
 				(endif)
 				(vpif `(,y1 < ,y2))
 					(vp-cpy-ir-ui this canvas_cy xdifl)
+					(vp-cpy-ir-ui this canvas_cy1 xdifh)
 					(breakif `(,y2 <= ,xdifl))
+					(breakif `(,y1 >= ,xdifh))
 					(vpif `(,y1 < ,ys))
 						(vp-cpy-rr y1 ys)
 					(endif)
@@ -90,8 +90,10 @@
 					(vp-cpy-ri-i xdifl iter_edge2 edge_dda)
 					(vp-add-cr edge_size iter_edge2)
 				(elseif `(,y1 > ,y2))
-					(vp-cpy-ir-ui this canvas_cy1 xdifl)
-					(breakif `(,y2 >= ,xdifl))
+					(vp-cpy-ir-ui this canvas_cy xdifl)
+					(vp-cpy-ir-ui this canvas_cy1 xdifh)
+					(breakif `(,y1 <= ,xdifl))
+					(breakif `(,y2 >= ,xdifh))
 					(vpif `(,y2 < ,ys))
 						(vp-cpy-rr y2 ys)
 					(endif)
@@ -126,10 +128,49 @@
 		(endif)
 		(assign {iter_begin_polygons + ptr_size} {iter_begin_polygons})
 	(loop-end)
+	(call 'array 'set_length {this->canvas_edges, length})
+
+	(exit 'canvas 'set_edges {this, xs, ys, xe, ye})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-method 'canvas 'fpoly)
+	;inputs
+	;r0 = canvas object (ptr)
+	;r1 = stack array object (ptr)
+	;r2 = color (argb)
+	;r3 = x (16.16)
+	;r4 = y (16.16)
+	;r5 = winding mode (0/1)
+	;r6 = vector of points objects (ptr)
+	;r7 = span function (ptr)
+	;outputs
+	;r0 = canvas object (ptr)
+	;trashes
+	;all but r0
+
+	(ptr 'this 'span 'stack)
+	(union
+		'(ptr 'polygons)
+		'(pptr 'iter_i 'iter_j 'iter_k 'iter_end))
+	(pint 'iter_edge1 'iter_edge2)
+	(int 'ys 'ye 'xs 'xe 'x 'y)
+	(uint 'mode 'color)
+
+	(push-scope)
+	(entry 'canvas 'fpoly {this, stack, color, x, y, mode, polygons, span})
+
+	;fill edges, find min and max xy, clip edges not visible or redundant
+	(call 'canvas 'set_edges {this, polygons, x, y} {_, xs, ys, xe, ye})
 
 	;clip check
 	(vpif {xs < this->canvas_cx1 && xe > this->canvas_cx && ys < this->canvas_cy1 && ye > this->canvas_cy})
+		(call 'canvas 'to_premul {this, color} {_, color})
+
 		;edge pointers into tracker for sorting
+		(call 'array 'get_iters {this->canvas_edges} {_, iter_edge1, iter_edge2})
 		(call 'array 'set_capacity {this->canvas_edge_tracker, (iter_edge2 - iter_edge1) / edge_size})
 		(call 'array 'get_begin {this->canvas_edge_tracker} {_, iter_i})
 		(assign {iter_i, iter_i} {iter_j, iter_end})
