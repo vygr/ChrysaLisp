@@ -7,3 +7,7 @@ chrysalisp*
 .vs/*
 .vscode/*
 x64/*
+main.sln
+main.vcxproj
+main.vcxproj.filters
+main.vcxproj.user
