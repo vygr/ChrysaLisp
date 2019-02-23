@@ -29,7 +29,6 @@ long long myopen(char *path, int mode)
 	case file_open_read: return open(path, O_RDONLY | O_BINARY);
 	case file_open_write: return open(path, O_CREAT | O_RDWR | O_BINARY | O_TRUNC, _S_IREAD | _S_IWRITE);
 	case file_open_readwrite: return open(path, O_CREAT | O_RDWR | O_BINARY);
-	default: return -1;
 	}
 #else
 	switch (mode)
@@ -37,9 +36,9 @@ long long myopen(char *path, int mode)
 	case file_open_read: return open(path, O_RDONLY, 0);
 	case file_open_write: return open(path, O_CREAT | O_RDWR | O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
 	case file_open_readwrite: return open(path, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
-	default: return -1;
 	}
 #endif
+	return -1;
 }
 
 long long myread(int fd, void *addr, size_t len)
@@ -53,9 +52,9 @@ long long mywrite(int fd, void *addr, size_t len)
 }
 
 #ifdef _WIN64
-int ftruncate(int fd, off_t length)
+long long ftruncate(int fd, off_t length)
 {
-	return (0);
+	return 0;
 }
 #endif
 
@@ -81,7 +80,7 @@ long long noneblk()
 #ifndef _WIN64
 	return fcntl(0, F_SETFL, fcntl(0, F_GETFL, 0) | O_NONBLOCK);
 #else
-    return (0);
+    return 0;
 #endif
 }
 
@@ -121,17 +120,21 @@ enum
 	mprotect_none
 };
 
-int mymprotect(void *addr, size_t len, int mode)
+long long mymprotect(void *addr, size_t len, int mode)
 {
 #ifdef _WIN64
-	return 0;
+	int old;
+	switch (mode)
+	{
+	case mprotect_none: if (VirtualProtect(addr, len, PAGE_NOACCESS, &old)) return 0;
+	}
 #else
 	switch (mode)
 	{
 	case mprotect_none: return mprotect(addr, len, 0);
-	default: return -1;
 	}
 #endif
+	return -1;
 }
 
 enum
@@ -149,7 +152,6 @@ void *mymmap(void *addr, size_t len, int mode, int fd, off_t pos)
 	case mmap_data: return VirtualAlloc(addr, len, MEM_COMMIT, PAGE_READWRITE);
 	case mmap_exec: return VirtualAlloc(addr, len, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
 	case mmap_shared: return VirtualAlloc(addr, len, MEM_COMMIT, PAGE_READWRITE);
-	default: return 0;
 	}
 #else
 	switch (mode)
@@ -157,15 +159,16 @@ void *mymmap(void *addr, size_t len, int mode, int fd, off_t pos)
 	case mmap_data: return mmap(addr, len, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANON, fd, pos);
 	case mmap_exec: return mmap(addr, len, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE | MAP_ANON, fd, pos);
 	case mmap_shared: return mmap(addr, len, PROT_READ | PROT_WRITE, MAP_SHARED, fd, pos);
-	default: return 0;
     }
 #endif
+	return 0;
 }
 
 long long mymunmap(void *addr, size_t len)
 {
 #ifdef _WIN64
-	return VirtualFree(addr, len, MEM_RELEASE);
+	if (VirtualFree(addr, len, MEM_RELEASE)) return 0;
+	return -1;
 #else
 	return munmap(addr, len);
 #endif
