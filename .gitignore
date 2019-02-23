@@ -2,5 +2,8 @@ obj/*
 platform
 arch
 doc/_build/
-
-chrysalisp
+chrysalisp*
+*.dll
+.vs/*
+.vscode/*
+x64/*

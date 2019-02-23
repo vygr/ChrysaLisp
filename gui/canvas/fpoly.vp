@@ -103,6 +103,11 @@
 	(pop-scope)
 	(return)
 
+(vp-label 'mask_to_alpha)
+	(apply vp-byte (map (lambda (m)
+		(div (mul 0xff (apply add (map (lambda (s)
+			(bit-and 1 (bit-shr m s))) (const '(range 0 8))))) 8)) (const '(range 0 256))))
+
 (def-func-end)
 
 (def-method 'canvas 'fpoly)

@@ -14,7 +14,7 @@
 	(ptr 'this 'args 'value)
 	(union
 		'(pptr 'iter_begin)
-		'(ulong 'handle)
+		'(long 'handle)
 		'(ptr 'name))
 
 	(push-scope)
