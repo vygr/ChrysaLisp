@@ -9,7 +9,7 @@ snapshot:
 
 boot:
 			rm -f snapshot.zip
-			zip -9q snapshot.zip `find obj -type d` `find obj -name "boot_image"` `find obj -name "main"`
+			zip -9q snapshot.zip `find obj -type d` `find obj -name "boot_image"` `find obj -name "main"` `find obj -name "main.exe"`
 
 obj/$(OS)/$(CPU)/main:	obj/$(OS)/$(CPU)/main.o
 ifeq ($(OS),Darwin)

@@ -162,7 +162,7 @@ void *mymmap(void *addr, size_t len, int mode, int fd, off_t pos)
 #endif
 }
 
-void *mymunmap(void *addr, size_t len)
+long long mymunmap(void *addr, size_t len)
 {
 #ifdef _WIN64
 	return VirtualFree(addr, len, MEM_RELEASE);
@@ -171,7 +171,7 @@ void *mymunmap(void *addr, size_t len)
 #endif
 }
 
-static const void (*host_funcs[]) = {
+static void (*host_funcs[]) = {
 SDL_SetMainReady,
 SDL_Init,
 SDL_GetError,
@@ -232,7 +232,7 @@ int main(int argc, char *argv[])
 			if (data)
 			{
 				read(fd, data, fs.st_size);
-				void(*boot)(char*[], const void*[]) = (uint16_t*)(void(*)(char*[], const void*[]))((char*)data + data[5]);
+				void(*boot)(char*[], void*[]) = (void(*)(char*[], void*[]))((char*)data + data[5]);
 				//printf("image start address: 0x%llx\n", (unsigned long long)data);
 				boot(argv, host_funcs);
 			}
