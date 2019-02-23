@@ -1,6 +1,8 @@
 # ChrysaLisp
 
-Assembler/C-Script/Lisp 64 bit, MIMD, multi CPU, multi threaded, multi core, multi user Parallel OS. With GUI, Terminal, OO Assembler, Class libraries, C-Script compiler, Lisp interpreter, Debugger, and more...
+Assembler/C-Script/Lisp 64 bit, MIMD, multi CPU, multi threaded, multi core,
+multi user Parallel OS. With GUI, Terminal, OO Assembler, Class libraries,
+C-Script compiler, Lisp interpreter, Debugger, and more...
 
 
 ![](./screen_shot_1.png)
@@ -21,10 +23,10 @@ and then this problem will go away.
 
 -------
 
-Runs on OSX or Linux for x64, PI64 Linux for Aarch64. Will move to bare metal
-eventually but it's useful for now to run hosted while experimenting. When time
-allows I will be doing a VM boot image for UniKernel type appliances and a
-WebAssembly target to play around within the browser.
+Runs on OSX, Windows or Linux for x64, PI64 Linux for Aarch64. Will move to
+bare metal eventually but it's useful for now to run hosted while
+experimenting. When time allows I will be doing a VM boot image for UniKernel
+type appliances and a WebAssembly target to play around within the browser.
 
 Allows modelling of various network topologies with point to point links. Each
 CPU in the network is modelled as a separate host process, point to point links
@@ -145,30 +147,31 @@ An example network viewed with ps looks like this for a 4x4 mesh network:
 ./main -cpu 0 -l 000-012 -l 000-004 -l 000-003 -l 000-001 -run gui/gui
 ```
 
-## Dependencies
+## Getting Started
 
-### Install Dependencies
+Take a look at the `doc/INTRO.md` for instruction to get started on all the
+supported platforms.
 
-The experimental GUI requires the **SDL2** and **SDL2_TTF** 
-libraries to be installed. 
+The experimental GUI requires the **SDL2** and **SDL2_TTF** libraries to be
+installed.
 
-#### OSX
+Download these from the SDL and SDL_TTF sites.
 
-Download and copy `SDL2.framework` and `SDL2_ttf.framework` over 
-into your `/Library/Frameworks` folder.
+- [SDL](https://www.libsdl.org/download-2.0.php)
+- [SDL_TTF](https://www.libsdl.org/projects/SDL_ttf/)
 
-- [SDL](https://www.libsdl.org/download-2.0.php), Runtime Binaries(OSX)
-- [SDL_TTF](https://www.libsdl.org/projects/SDL_ttf/), Runtime Binaries(OSX)
-
-#### Linux
-
-Linux: Tested on Ubuntu 16-10, 17-10, 18-04 and Debian PI64
+Or get them via your package manager.
 
 ```
 sudo apt-get install libsdl2-ttf-dev
 ```
 
 ## Make/Run
+
+Take a look at the `doc/INTRO.md` for platform specific instructions. The
+following is for OSX and Linux systems. Windows has a pre-built main.exe
+provided, or you can configure Visual Studio to compile thing yourself if you
+wish.
 
 ### Make
 
