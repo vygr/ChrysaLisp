@@ -87,8 +87,10 @@
 	(entry 'stream_str 'write_flush {this})
 
 	(assign {0} {*this->stream_bufp})
-	(assign {&this->stream_object->string_data} {this->stream_bufp})
-	(call 'sys_pii 'write_str {1, this->stream_bufp})
+	(vpif {this->stream_bufp - &this->stream_object->string_data > 0})
+		(assign {&this->stream_object->string_data} {this->stream_bufp})
+		(call 'sys_pii 'write_str {1, this->stream_bufp})
+	(endif)
 
 	(exit 'stream_str 'write_flush {this})
 	(pop-scope)
