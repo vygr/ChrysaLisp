@@ -4,6 +4,18 @@
 
 ------
 
+Many thanks to Martyn Bliss for pushing the Windows port forward. We now have
+support for running on Windows 64bit. A few things remain to be done to get the
+Windows version running a multiple virtual CPU network, but the GUI is now
+running and the TUI is able to be used to compile and build images.
+
+Due to Windows not supporting none-blocking reads from STDIN I'm in the middle
+of changing things around to deal with this issue, so temporally the TUI can't
+run interactive commands. The GUI terminal can do that still, this only effects
+the TUI. This is top of the list to fix !
+
+------
+
 Got another hospital visit for the eyes :( Lots of garbage in my vision still,
 but getting some useful documentation done and a few things to help out on the
 Windows port.
