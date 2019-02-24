@@ -214,25 +214,24 @@ gettime,
 
 int main(int argc, char *argv[])
 {
+	int ret_val = 0;
 	if (argc > 1)
 	{
 		long long fd = myopen(argv[1], file_open_read);
 		if (fd != -1)
 		{
-			size_t data_size;
 			stat(argv[1], &fs);
-			data_size = fs.st_size;
+			size_t data_size = fs.st_size;
 			uint16_t *data = mymmap(NULL, data_size, mmap_exec, -1, 0);
 			if (data)
 			{
 				read(fd, data, data_size);
-				void(*boot)(char*[], void*[]) = (void(*)(char*[], void*[]))((char*)data + data[5]);
 				//printf("image start address: 0x%llx\n", (unsigned long long)data);
-				boot(argv, host_funcs);
+				ret_val = ((int(*)(char*[], void*[]))((char*)data + data[5]))(argv, host_funcs);
 				mymunmap(data, data_size);
 			}
 			close(fd);
 		}
 	}
-	return 0;
+	return ret_val;
 }

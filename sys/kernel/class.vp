@@ -261,7 +261,7 @@
 	;deinit allocator
 	(call 'sys_mem 'deinit)
 
-	;exit back to main.c
+	;exit back to load init
 	(pop-scope)
 	(return)
 

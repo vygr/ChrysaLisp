@@ -18,6 +18,7 @@
 	;they are extracted via (abi-arg 0) and (abi-arg 1)
 
 	;save inputs
+	(tk-save-state)
 	(vp-push (abi-arg 0))
 	(vp-cpy-rr (abi-arg 1) r14)
 
@@ -97,7 +98,10 @@
 	(vp-call-r r4)
 	(vp-cpy-rr r0 r1)
 	(vp-pop r0)
-	(vp-jmp-r r1)
+	(vp-call-r r1)
+	(tk-load-state)
+	(vp-cpy-cr 0 r0)
+	(vp-ret)
 
 (vp-label 'string_skip)
 	(loop-start)

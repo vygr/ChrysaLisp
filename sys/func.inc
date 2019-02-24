@@ -57,6 +57,10 @@
 			(not (trace_ends_with "/statics"))				;not statics
 			(not (trace_ends_with "/vtable"))				;not vtables
 			(not (trace_starts_with "sys/pii/"))			;not pii functions
+			(not (trace_starts_with "sys/load/"))			;not load functions
+			(not (trace_starts_with "sys/kernel/"))			;not kernel functions
+			(not (trace_starts_with "sys/link/"))			;not link functions
+			(not (trace_starts_with "sys/task/"))			;not task functions
 			(or
 				(trace_starts_with "class/")
 				(trace_starts_with "gui/")))
