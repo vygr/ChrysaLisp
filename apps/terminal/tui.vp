@@ -4,6 +4,14 @@
 (include 'class/msg_out/class.inc)
 (include 'class/string/class.inc)
 
+(def-struct 'tui_msg)
+	(struct 'reply_id 'id)
+(def-struct-end)
+
+(def-struct 'stdin_msg)
+	(ulong 'char)
+(def-struct-end)
+
 (def-func 'apps/terminal/tui)
 
 	(defcvar 'buf_size 256)
@@ -15,10 +23,11 @@
 	(def-struct-end)
 
 	(struct 'local 'local)
+	(struct 'stdin_id 'id)
 	(struct 'tui_id 'id)
-	(ptr 'msg 'stream 'mbox_addr)
+	(ptr 'msg 'data 'stream 'mbox_addr)
 	(long 'state)
-	(uint 'index 'char)
+	(uint 'index)
 
 	;init app vars
 	(push-scope)
@@ -26,6 +35,13 @@
 	(call 'sys_task 'mailbox nil {tui_id.id_id})
 	(call 'sys_mail 'mbox_addr {tui_id.id_mbox} {mbox_addr})
 	(assign {0} {local.local_pipe})
+
+	;start stdin polling task and send it tui mailbox id
+	(call 'sys_task 'start {@apps/terminal/tui_child} {_, stdin_id.id_id, _})
+	(call 'sys_mail 'alloc {tui_msg_size} {msg, data})
+	(assign {stdin_id.id_id} {msg->msg_dest.id_id})
+	(assign {tui_id.id_id} {data->tui_msg_reply_id.id_id})
+	(call 'sys_mail 'send {msg})
 
 	;sign on
 	(call 'terminal_output_cstr {"ChrysaLisp Terminal 1.3"})
@@ -39,25 +55,24 @@
 			(call 'pipe 'select {local.local_pipe, mbox_addr} {_, index})
 
 			;which mailbox has mail ?
-			(vpif {index == 0})
-				(call 'sys_mail 'read {mbox_addr} {msg, _})
-				(call 'sys_mail 'free {msg})
-			(else)
-				;output from a pipe element
-				(call 'vector 'get_element {local.local_pipe->pipe_streams, index} {_, stream})
-				(call 'pipe_output {&local, stream} {state})
-				(vpif {state == -1})
-					;EOF
-					(call 'pipe 'deref {local.local_pipe})
-					(assign {0} {local.local_pipe})
-					(call 'terminal_output_char {char_lf})
-					(call 'terminal_output_char {char_gt})
-				(endif)
+			(gotoif {index == 0} 'from_mymailbox)
+
+			;output from a pipe element
+			(call 'vector 'get_element {local.local_pipe->pipe_streams, index} {_, stream})
+			(call 'pipe_output {&local, stream} {state})
+			(vpif {state == -1})
+				;EOF
+				(call 'pipe 'deref {local.local_pipe})
+				(assign {0} {local.local_pipe})
+				(call 'terminal_output_char {char_lf})
+				(call 'terminal_output_char {char_gt})
 			(endif)
 		(else)
-			;dispatch host input to terminal
-			(call 'sys_pii 'read_char {0} {char})
-			(call 'terminal_input {&local, char})
+		(vp-label 'from_mymailbox)
+			;dispatch event to terminal
+			(call 'sys_mail 'read {mbox_addr} {msg, data})
+			(call 'terminal_input {&local, data->stdin_msg_char})
+			(call 'sys_mail 'free {msg})
 		(endif)
 		(call 'sys_task 'yield)
 	(loop-end)
@@ -186,6 +201,39 @@
 	(loop-while {*charp})
 		(call 'terminal_output_char {*charp})
 		(assign {charp + 1} {charp})
+	(loop-end)
+
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-func 'apps/terminal/tui_child)
+	;stdin polling task
+
+	(ptr 'msg 'data)
+	(struct 'tui_id 'id)
+	(int 'char)
+
+	(push-scope)
+
+	;read tui mailbox id
+	(call 'sys_mail 'mymail nil {msg, data})
+	(assign {data->tui_msg_reply_id.id_id} {tui_id.id_id})
+	(call 'sys_mail 'free {msg})
+
+	;poll stdin and send char to tui
+	(loop-start)
+	(vp-label 'nextchar)
+		(call 'sys_pii 'read_char {0} {char})
+		(vpif {char})
+			(call 'sys_mail 'alloc {stdin_msg_size} {msg, data})
+			(assign {tui_id.id_id} {msg->msg_dest.id_id})
+			(assign {char} {data->stdin_msg_char})
+			(call 'sys_mail 'send {msg})
+			(goto 'nextchar)
+		(endif)
+		(call 'sys_task 'sleep {10000})
 	(loop-end)
 
 	(pop-scope)

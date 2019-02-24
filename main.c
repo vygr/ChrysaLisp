@@ -227,6 +227,9 @@ int main(int argc, char *argv[])
 			{
 				read(fd, data, data_size);
 				//printf("image start address: 0x%llx\n", (unsigned long long)data);
+#ifndef _WIN64
+				fcntl(0, F_SETFL, fcntl(0, F_GETFL, 0) | O_NONBLOCK);
+#endif
 				ret_val = ((int(*)(char*[], void*[]))((char*)data + data[5]))(argv, host_funcs);
 				mymunmap(data, data_size);
 			}
