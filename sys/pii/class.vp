@@ -304,17 +304,3 @@
 	(vp-ret)
 
 (def-func-end)
-
-(def-method 'sys_pii 'noneblk)
-	;outputs
-	;r0 = error code (ulong)
-	;trashes
-	;none
-
-	(abi-push-trashed r13 r14)
-	(host-call 'host 'noneblk nil '(r0))
-	(abi-pop-trashed r13 r14)
-	(exit 'sys_pii 'noneblk '(r0))
-	(vp-ret)
-
-(def-func-end)

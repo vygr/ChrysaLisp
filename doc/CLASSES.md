@@ -1701,7 +1701,6 @@ Super Class: null
 ### host::ttf_font_height -> nil
 ### host::ttf_render_utf8_blended -> nil
 ### host::exit -> nil
-### host::noneblk -> nil
 ### host::stat -> nil
 ### host::open -> nil
 ### host::close -> nil
@@ -5151,13 +5150,6 @@ none
 inputs
 r0 = c string filename (pubyte)
 r1 = stat buf (ptr)
-outputs
-r0 = error code (ulong)
-trashes
-none
-```
-### sys_pii::noneblk -> sys/pii/noneblk
-```
 outputs
 r0 = error code (ulong)
 trashes

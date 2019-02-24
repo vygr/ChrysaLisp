@@ -3,6 +3,8 @@
 #include <fcntl.h>
 #ifdef _WIN64
 #define _CRT_SECURE_NO_WARNINGS
+#define DELTA_EPOCH_IN_MICROSECS 11644473600000000Ui64
+#include < time.h >
 #include <io.h>
 #include <windows.h>
 #else
@@ -75,34 +77,22 @@ long long mystat(char *path, struct finfo *st)
 	return 0;
 }
 
-long long noneblk()
-{
-#ifndef _WIN64
-	return fcntl(0, F_SETFL, fcntl(0, F_GETFL, 0) | O_NONBLOCK);
-#else
-    return 0;
-#endif
-}
-
 #ifdef _WIN64
-int gettimeofday(struct timeval *tp, struct timezone *tzp)
+int gettimeofday(struct timeval *tv, struct timezone *tz)
 {
-	// Note: some broken versions only have 8 trailing zero's, the correct epoch has 9 trailing zero's
-	// This magic number is the number of 100 nanosecond intervals since January 1, 1601 (UTC)
-	// until 00:00:00 January 1, 1970 
-	static const uint64_t EPOCH = ((uint64_t)116444736000000000ULL);
-
-	SYSTEMTIME  system_time;
-	FILETIME    file_time;
-	uint64_t    time;
-
-	GetSystemTime(&system_time);
-	SystemTimeToFileTime(&system_time, &file_time);
-	time = ((uint64_t)file_time.dwLowDateTime);
-	time += ((uint64_t)file_time.dwHighDateTime) << 32;
-
-	tp->tv_sec = (long)((time - EPOCH) / 10000000L);
-	tp->tv_usec = (long)(system_time.wMilliseconds * 1000);
+	if (tv != NULL)
+	{
+		FILETIME ft;
+		unsigned __int64 tmpres = 0;
+		GetSystemTimePreciseAsFileTime(&ft);
+		tmpres |= ft.dwHighDateTime;
+		tmpres <<= 32;
+		tmpres |= ft.dwLowDateTime;
+		tmpres /= 10;
+		tmpres -= DELTA_EPOCH_IN_MICROSECS;
+		tv->tv_sec = (long)(tmpres / 1000000UL);
+		tv->tv_usec = (long)(tmpres % 1000000UL);
+	}
 	return 0;
 }
 #endif
@@ -159,7 +149,7 @@ void *mymmap(void *addr, size_t len, int mode, int fd, off_t pos)
 	case mmap_data: return mmap(addr, len, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANON, fd, pos);
 	case mmap_exec: return mmap(addr, len, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE | MAP_ANON, fd, pos);
 	case mmap_shared: return mmap(addr, len, PROT_READ | PROT_WRITE, MAP_SHARED, fd, pos);
-    }
+	}
 #endif
 	return 0;
 }
@@ -209,7 +199,6 @@ TTF_FontHeight,
 TTF_RenderUTF8_Blended,
 
 exit,
-noneblk,
 mystat,
 myopen,
 close,
@@ -230,14 +219,17 @@ int main(int argc, char *argv[])
 		long long fd = myopen(argv[1], file_open_read);
 		if (fd != -1)
 		{
+			size_t data_size;
 			stat(argv[1], &fs);
-			uint16_t *data = mymmap(NULL, fs.st_size, mmap_exec, -1, 0);
+			data_size = fs.st_size;
+			uint16_t *data = mymmap(NULL, data_size, mmap_exec, -1, 0);
 			if (data)
 			{
-				read(fd, data, fs.st_size);
+				read(fd, data, data_size);
 				void(*boot)(char*[], void*[]) = (void(*)(char*[], void*[]))((char*)data + data[5]);
 				//printf("image start address: 0x%llx\n", (unsigned long long)data);
 				boot(argv, host_funcs);
+				mymunmap(data, data_size);
 			}
 			close(fd);
 		}

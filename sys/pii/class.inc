@@ -35,7 +35,6 @@
 (dec-method 'ttf_render_utf8_blended nil 'virtual (abi-args 3) '(r0))
 
 (dec-method 'exit nil 'virtual (abi-args 1))
-(dec-method 'noneblk nil 'virtual '() '(r0))
 (dec-method 'stat nil 'virtual (abi-args 2) '(r0))
 (dec-method 'open nil 'virtual (abi-args 2) '(r0))
 (dec-method 'close nil 'virtual (abi-args 1) '(r0))
@@ -228,7 +227,6 @@
 (dec-method 'ftruncate 'sys/pii/ftruncate 'static '(r0 r1) '(r0))
 (dec-method 'unlink 'sys/pii/unlink 'static '(r0) '(r0))
 (dec-method 'stat 'sys/pii/stat 'static '(r0 r1) '(r0))
-(dec-method 'noneblk 'sys/pii/noneblk 'static '() '(r0))
 (dec-method 'write 'sys/pii/write 'static '(r0 r1 r2) '(r0))
 (dec-method 'write_char 'sys/pii/write_char 'static '(r0 r1) '(r0))
 (dec-method 'write_str 'sys/pii/write_str 'static '(r0 r1) '(r0))
