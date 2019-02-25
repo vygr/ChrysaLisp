@@ -4,6 +4,15 @@
 
 ------
 
+A fix for the none-blocking stdin on Windows is done. However this shows up
+another bug in Windows that you have to press enter twice to get stdin from the
+console ! And the ESC key dosn't get sent throught to stdin. Seams these issues
+are know issues with Windows. I'll keep a look out for any updates and fixes
+for this. For now however the TUI situation is restored to normal on all other
+platforms and Windows TUI is far more useable than it was.
+
+------
+
 Many thanks to Martyn Bliss for pushing the Windows port forward. We now have
 support for running on Windows 64bit. A few things remain to be done to get the
 Windows version running a multiple virtual CPU network, but the GUI is now
