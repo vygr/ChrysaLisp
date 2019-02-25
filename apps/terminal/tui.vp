@@ -126,7 +126,7 @@
 	(assign {local->local_bufp - &local->local_buffer} {length})
 
 	;send line ?
-	(vpif {char == char_lf || char == char_cr})
+	(vpif {char == char_lf})
 		;what state ?
 		(vpifnot {local->local_pipe})
 			;start new pipe

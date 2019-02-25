@@ -45,6 +45,9 @@ long long myopen(char *path, int mode)
 
 long long myread(int fd, void *addr, size_t len)
 {
+#ifdef _WIN64
+	if (!fd && !kbhit()) return -1;
+#endif
 	return read(fd, addr, len);
 }
 
