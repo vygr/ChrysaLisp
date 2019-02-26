@@ -27,10 +27,8 @@
 			(fmul canvas_width canvas_scale 0.5) (fmul canvas_height canvas_scale 0.5))) _))
 
 (defun fpoly (col mode _)
-	(canvas-set-fpoly canvas stack col 0 0 mode _))
-
-(defun bpoly (col mode _)
-	(canvas-blend-fpoly canvas stack col 0 0 mode _))
+	(canvas-set-color canvas col)
+	(canvas-fpoly canvas stack 0 0 mode _))
 
 (defun redraw ()
 	(canvas-fill canvas 0)
@@ -47,7 +45,7 @@
 				eps (points)))
 			(list)) (neg angle)))
 
-	(bpoly 0xc000ff00 1 (transform
+	(fpoly 0xc000ff00 1 (transform
 		(points-stroke-polylines stack (fmul canvas_width 0x0.1) eps join-round cap-round cap-round
 			(list (points (fmul canvas_width -0.4) (fmul canvas_height -0.4)
 				(fmul canvas_width 0.3) (fmul canvas_height -0.3)
@@ -64,17 +62,17 @@
 					(fmul canvas_width 0.4) (fmul canvas_height -0.4)
 					eps (points)))
 				(list)) (list)) (mul angle -2))))
-	(bpoly 0x80000000 0 (slice 1 2 p))
+	(fpoly 0x80000000 0 (slice 1 2 p))
 
-	(bpoly 0xd0ff00ff 0 (defq p (transform
+	(fpoly 0xd0ff00ff 0 (defq p (transform
 		(points-stroke-polygons stack (fmul canvas_width 0.02) eps join-miter
 			(list (points-gen-arc stack
 				(fmul canvas_width 0.2) (fmul canvas_height 0.3) 0 fp_2pi
 				(fmul canvas_width 0.125) eps (points)))
 			(list)) angle)))
-	(bpoly 0x60000000 0 (slice 0 1 p))
+	(fpoly 0x60000000 0 (slice 0 1 p))
 
-	(bpoly 0xc00000ff 0 (defq polygons (transform
+	(fpoly 0xc00000ff 0 (defq polygons (transform
 		(points-stroke-polygons stack (fmul canvas_width 0.025) eps join-miter
 			(points-stroke-polylines stack (fmul canvas_width 0.05) eps join-bevel cap-square cap-tri
 				(list
@@ -85,7 +83,7 @@
 						(fmul canvas_width -0.2) (fmul canvas_height -0.2) 4.0 2.0
 						(fmul canvas_width 0o0.1) eps (points)))
 				(list)) (list)) angle)))
-	(bpoly 0xa0ffffff 0
+	(fpoly 0xa0ffffff 0
 		(list (elem 1 polygons) (elem 3 polygons)))
 
 	(canvas-swap canvas))

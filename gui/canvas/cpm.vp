@@ -39,6 +39,7 @@
 			;create canvas
 			(call 'canvas 'create {header.cpm_width, header.cpm_height, 1} {this})
 			(vpif {this})
+				(call 'canvas 'fill {this, 0})
 				;decode acording to version
 				(assign {0, 0} {x, y})
 				(loop-start)
@@ -49,14 +50,14 @@
 						;run of a pixel
 						(call 'read_pixel {stream, header.cpm_type} {col})
 						(gotoif {col == -1} 'error)
-						(vpif {col == header.cpm_trans})
-							(assign {0} {col})
-						(endif)
 
 						;plot repeatedly
+						(call 'canvas 'set_color {this, col})
 						(assign {run - 127} {run})
 						(loop-start)
-							(call 'canvas 'set_plot {this, col, x, y})
+							(vpif {col != header.cpm_trans})
+								(call 'canvas 'plot {this, x, y})
+							(endif)
 							(assign {x + 1} {x})
 							(vpif {x == header.cpm_width})
 								(assign {0, y + 1} {x, y})
@@ -69,11 +70,10 @@
 						(loop-start)
 							(call 'read_pixel {stream, header.cpm_type} {col})
 							(gotoif {col == -1} 'error)
-							(vpif {col == header.cpm_trans})
-								(assign {0} {col})
+							(vpif {col != header.cpm_trans})
+								(call 'canvas 'set_color {this, col})
+								(call 'canvas 'plot {this, x, y})
 							(endif)
-
-							(call 'canvas 'set_plot {this, col, x, y})
 							(assign {x + 1} {x})
 							(vpif {x == header.cpm_width})
 								(assign {0, y + 1} {x, y})

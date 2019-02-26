@@ -33,22 +33,18 @@
 ### (bit-xor num num ...)
 ## button-connect-click
 ### (button-connect-click button id)
-## canvas-blend-fbox
-### (canvas-blend-fbox canvas argb x y w h)
-## canvas-blend-fpoly
-### (canvas-blend-fpoly canvas stack argb x y mode list)
-## canvas-blend-plot
-### (canvas-blend-plot canvas argb x y)
+## canvas-fbox
+### (canvas-fbox canvas x y w h)
 ## canvas-fill
 ### (canvas-fill canvas argb)
+## canvas-fpoly
+### (canvas-fpoly canvas stack x y mode list)
 ## canvas-load
 ### (canvas-load path flags)
-## canvas-set-fbox
-### (canvas-set-fbox canvas argb x y w h)
-## canvas-set-fpoly
-### (canvas-set-fpoly canvas stack argb x y mode list)
-## canvas-set-plot
-### (canvas-set-plot canvas argb x y)
+## canvas-plot
+### (canvas-plot canvas x y)
+## canvas-set-color
+### (canvas-set-color canvas argb)
 ## canvas-swap
 ### (canvas-swap canvas)
 ## cat

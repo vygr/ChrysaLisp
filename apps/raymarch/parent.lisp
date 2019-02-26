@@ -24,7 +24,8 @@
 	(while (ge (setq h (dec h)) 0)
 		(defq msg (mail-mymail) x -1 y (get-int msg reply_y))
 		(while (lt (setq x (inc x)) w)
-			(canvas-set-plot canvas (get-int msg (add reply_data (mul x int_size))) x y))
+			(canvas-set-color canvas (get-int msg (add reply_data (mul x int_size))))
+			(canvas-plot canvas x y))
 		(canvas-swap canvas)))
 
 ;read args from parent

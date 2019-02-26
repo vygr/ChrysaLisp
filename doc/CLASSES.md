@@ -563,63 +563,6 @@ r0 = canvas object (ptr)
 trashes
 r1-r6
 ```
-### canvas::pick -> gui/canvas/pick
-```
-inputs
-r0 = canvas object (ptr)
-r1 = pick function (ptr)
-r7 = x (pixels)
-r8 = y (pixels)
-outputs
-r0 = canvas object (ptr)
-r1 = color (argb)
-trashes
-all but r0
-```
-### canvas::plot -> gui/canvas/plot
-```
-inputs
-r0 = canvas object (ptr)
-r1 = color (argb)
-r2 = plot function (ptr)
-r7 = x (pixels)
-r8 = y (pixels)
-outputs
-r0 = canvas object (ptr)
-trashes
-all but r0
-```
-### canvas::fbox -> gui/canvas/fbox
-```
-inputs
-r0 = canvas object (ptr)
-r1 = color (argb)
-r2 = span function (ptr)
-r7 = x (pixels)
-r8 = y (pixels)
-r9 = w (pixels)
-r10 = h (pixels)
-outputs
-r0 = canvas object (ptr)
-trashes
-all but r0
-```
-### canvas::fpoly -> gui/canvas/fpoly
-```
-inputs
-r0 = canvas object (ptr)
-r1 = stack array object (ptr)
-r2 = color (argb)
-r3 = x (16.16)
-r4 = y (16.16)
-r5 = winding mode (0/1)
-r6 = vector of points objects (ptr)
-r7 = span function (ptr)
-outputs
-r0 = canvas object (ptr)
-trashes
-all but r0
-```
 ### canvas::set_clip -> gui/canvas/set_clip
 ```
 inputs
@@ -649,19 +592,41 @@ r4 = max_y (16.16)
 trashes
 all but r0
 ```
-### canvas::get_pick_noclip -> gui/canvas/get_pick_noclip
+### canvas::set_color -> gui/canvas/set_color
+```
+inputs
+r0 = canvas object (ptr)
+r1 = color (argb)
+outputs
+r0 = canvas object (ptr)
+trashes
+r1-r3
+```
+### canvas::span_noclip -> gui/canvas/span_noclip
 ```
 inputs
 r0 = canvas object (ptr)
 r7 = x (pixels)
 r8 = y (pixels)
+r9 = x1 (pixels)
 outputs
 r0 = canvas object (ptr)
-r1 = color (argb)
 trashes
-r2, r7-r8
+r1-r3, r7-r9
 ```
-### canvas::get_pick -> gui/canvas/get_pick
+### canvas::span -> gui/canvas/span
+```
+inputs
+r0 = canvas object (ptr)
+r7 = x (pixels)
+r8 = y (pixels)
+r9 = x1 (pixels)
+outputs
+r0 = canvas object (ptr)
+trashes
+r1-r3, r7-r9
+```
+### canvas::pick -> gui/canvas/pick
 ```
 inputs
 r0 = canvas object (ptr)
@@ -673,49 +638,10 @@ r1 = color (argb)
 trashes
 all but r0
 ```
-### canvas::set_plot_noclip -> gui/canvas/set_plot_noclip
+### canvas::plot -> gui/canvas/plot
 ```
 inputs
 r0 = canvas object (ptr)
-r1 = color (argb)
-r7 = x (pixels)
-r8 = y (pixels)
-outputs
-r0 = canvas object (ptr)
-trashes
-r2-r3, r7-r8
-```
-### canvas::set_span_noclip -> gui/canvas/set_span_noclip
-```
-inputs
-r0 = canvas object (ptr)
-r1 = color (argb)
-r7 = x (pixels)
-r8 = y (pixels)
-r9 = x1 (pixels)
-outputs
-r0 = canvas object (ptr)
-trashes
-r2-r3, r7-r9
-```
-### canvas::set_span -> gui/canvas/set_span
-```
-inputs
-r0 = canvas object (ptr)
-r1 = color (argb)
-r7 = x (pixels)
-r8 = y (pixels)
-r9 = x1 (pixels)
-outputs
-r0 = canvas object (ptr)
-trashes
-r2-r3, r7-r9
-```
-### canvas::set_plot -> gui/canvas/set_plot
-```
-inputs
-r0 = canvas object (ptr)
-r1 = color (argb)
 r7 = x (pixels)
 r8 = y (pixels)
 outputs
@@ -723,11 +649,11 @@ r0 = canvas object (ptr)
 trashes
 all but r0
 ```
-### canvas::set_fbox -> gui/canvas/set_fbox
+### canvas::fbox -> gui/canvas/fbox
 ```
 inputs
 r0 = canvas object (ptr)
-r1 = color (argb)
+r1 = span function (ptr)
 r7 = x (pixels)
 r8 = y (pixels)
 r9 = w (pixels)
@@ -737,95 +663,16 @@ r0 = canvas object (ptr)
 trashes
 all but r0
 ```
-### canvas::set_fpoly -> gui/canvas/set_fpoly
+### canvas::fpoly -> gui/canvas/fpoly
 ```
 inputs
 r0 = canvas object (ptr)
 r1 = stack array object (ptr)
-r2 = color (argb)
-r3 = x (16.16)
-r4 = y (16.16)
-r5 = winding mode (0/1)
-r6 = vector of points objects (ptr)
-outputs
-r0 = canvas object (ptr)
-trashes
-all but r0
-```
-### canvas::blend_plot_noclip -> gui/canvas/blend_plot_noclip
-```
-inputs
-r0 = canvas object (ptr)
-r1 = color (argb)
-r7 = x (pixels)
-r8 = y (pixels)
-outputs
-r0 = canvas object (ptr)
-trashes
-r2-r3 r4-r8
-```
-### canvas::blend_span_noclip -> gui/canvas/blend_span_noclip
-```
-inputs
-r0 = canvas object (ptr)
-r1 = color (argb)
-r7 = x (pixels)
-r8 = y (pixels)
-r9 = x1 (pixels)
-outputs
-r0 = canvas object (ptr)
-trashes
-r2-r3 r4-r9
-```
-### canvas::blend_span -> gui/canvas/blend_span
-```
-inputs
-r0 = canvas object (ptr)
-r1 = color (argb)
-r7 = x (pixels)
-r8 = y (pixels)
-r9 = x1 (pixels)
-outputs
-r0 = canvas object (ptr)
-trashes
-r2-r3 r4-r9
-```
-### canvas::blend_plot -> gui/canvas/blend_plot
-```
-inputs
-r0 = canvas object (ptr)
-r1 = color (argb)
-r7 = x (pixels)
-r8 = y (pixels)
-outputs
-r0 = canvas object (ptr)
-trashes
-all but r0
-```
-### canvas::blend_fbox -> gui/canvas/blend_fbox
-```
-inputs
-r0 = canvas object (ptr)
-r1 = color (argb)
-r7 = x (pixels)
-r8 = y (pixels)
-r9 = w (pixels)
-r10 = h (pixels)
-outputs
-r0 = canvas object (ptr)
-trashes
-all but r0
-```
-### canvas::blend_fpoly -> gui/canvas/blend_fpoly
-```
-inputs
-r0 = canvas object (ptr)
-r1 = stack array object (ptr)
-r2 = color (argb)
-r3 = x (16.16)
-r4 = y (16.16)
-r5 = winding mode (0/1)
-r6 = vector of points objects (ptr)
+r2 = x (16.16)
+r3 = y (16.16)
+r4 = winding mode (0/1)
+r5 = vector of points objects (ptr)
+r6 = span function (ptr)
 outputs
 r0 = canvas object (ptr)
 trashes
@@ -916,7 +763,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
-### canvas::lisp_set_plot -> gui/canvas/lisp_set_plot
+### canvas::lisp_set_color -> gui/canvas/lisp_set_color
 ```
 inputs
 r0 = lisp object (ptr)
@@ -925,7 +772,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
-### canvas::lisp_set_fbox -> gui/canvas/lisp_set_fbox
+### canvas::lisp_plot -> gui/canvas/lisp_plot
 ```
 inputs
 r0 = lisp object (ptr)
@@ -934,7 +781,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
-### canvas::lisp_set_fpoly -> gui/canvas/lisp_set_fpoly
+### canvas::lisp_fbox -> gui/canvas/lisp_fbox
 ```
 inputs
 r0 = lisp object (ptr)
@@ -943,25 +790,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
-### canvas::lisp_blend_plot -> gui/canvas/lisp_blend_plot
-```
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-```
-### canvas::lisp_blend_fbox -> gui/canvas/lisp_blend_fbox
-```
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-```
-### canvas::lisp_blend_fpoly -> gui/canvas/lisp_blend_fpoly
+### canvas::lisp_fpoly -> gui/canvas/lisp_fpoly
 ```
 inputs
 r0 = lisp object (ptr)
