@@ -23,8 +23,8 @@
 (dec-method 'span 'gui/canvas/span 'static '(r0 r7 r8 r9) '(r0))
 (dec-method 'pick 'gui/canvas/pick 'static '(r0 r7 r8) '(r0 r1))
 (dec-method 'plot 'gui/canvas/plot 'static '(r0 r7 r8) '(r0))
-(dec-method 'fbox 'gui/canvas/fbox 'static '(r0 r1 r7 r8 r9 r10) '(r0))
-(dec-method 'fpoly 'gui/canvas/fpoly 'static '(r0 r1 r2 r3 r4 r5 r6) '(r0))
+(dec-method 'fbox 'gui/canvas/fbox 'static '(r0 r7 r8 r9 r10) '(r0))
+(dec-method 'fpoly 'gui/canvas/fpoly 'static '(r0 r1 r2 r3 r4 r5) '(r0))
 
 (dec-method 'load 'gui/canvas/load 'static '(r0 r1) '(r0))
 (dec-method 'load_cpm 'gui/canvas/load_cpm 'static '(r0) '(r0))

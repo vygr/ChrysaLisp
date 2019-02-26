@@ -241,7 +241,7 @@
 	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
-	(call 'canvas 'fbox (cat {arg0, @} (f-path 'canvas 'span_noclip) {, arg1, arg2, arg3, arg4}))
+	(call 'canvas 'fbox {arg0, arg1, arg2, arg3, arg4})
 	(call 'obj 'ref {arg0} {value})
 
 (vp-label 'funcexit)
@@ -277,7 +277,7 @@
 	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
-	(call 'canvas 'fpoly (cat {arg0, arg1, arg2, arg3, arg4, arg5, @} (f-path 'canvas 'span)))
+	(call 'canvas 'fpoly {arg0, arg1, arg2, arg3, arg4, arg5})
 	(call 'obj 'ref {arg0} {value})
 
 (vp-label 'funcexit)
