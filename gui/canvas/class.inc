@@ -1,4 +1,5 @@
 (include 'gui/view/class.inc)
+(include 'sys/list/class.inc)
 
 (def-class 'canvas 'view)
 (dec-method 'vtable 'gui/canvas/vtable)
@@ -24,7 +25,7 @@
 (dec-method 'pick 'gui/canvas/pick 'static '(r0 r7 r8) '(r0 r1))
 (dec-method 'plot 'gui/canvas/plot 'static '(r0 r7 r8) '(r0))
 (dec-method 'fbox 'gui/canvas/fbox 'static '(r0 r7 r8 r9 r10) '(r0))
-(dec-method 'fpoly 'gui/canvas/fpoly 'static '(r0 r1 r2 r3 r4 r5) '(r0))
+(dec-method 'fpoly 'gui/canvas/fpoly 'static '(r0 r1 r2 r3 r4) '(r0))
 
 (dec-method 'load 'gui/canvas/load 'static '(r0 r1) '(r0))
 (dec-method 'load_cpm 'gui/canvas/load_cpm 'static '(r0) '(r0))
@@ -46,10 +47,8 @@
 	(ulong 'texture)
 	(ptr 'array)
 	(ptr 'edges)
-	(ptr 'edge_tracker)
-	(puint 'resize_buf)
-	(uint 'resize_buf_size)
-	(int 'aa_scale)
+	(pptr 'edges_start)
+	(int 'scale)
 	(uint 'width)
 	(uint 'height)
 	(uint 'stride)
@@ -60,7 +59,7 @@
 	(uint 'color)
 (def-struct-end)
 
-(def-struct 'edge)
+(def-struct 'edge 'ln_fnode)
 	(int 'x)
 	(int 'ys)
 	(int 'ye)

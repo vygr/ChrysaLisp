@@ -653,7 +653,6 @@ all but r0
 ```
 inputs
 r0 = canvas object (ptr)
-r1 = span function (ptr)
 r7 = x (pixels)
 r8 = y (pixels)
 r9 = w (pixels)
@@ -667,12 +666,10 @@ all but r0
 ```
 inputs
 r0 = canvas object (ptr)
-r1 = stack array object (ptr)
-r2 = x (16.16)
-r3 = y (16.16)
-r4 = winding mode (0/1)
-r5 = vector of points objects (ptr)
-r6 = span function (ptr)
+r1 = x (16.16)
+r2 = y (16.16)
+r3 = winding mode (0/1)
+r4 = vector of points objects (ptr)
 outputs
 r0 = canvas object (ptr)
 trashes

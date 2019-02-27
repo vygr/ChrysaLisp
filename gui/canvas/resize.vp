@@ -12,7 +12,7 @@
 	;all but r0
 
 	(ptr 'this 'source)
-	(puint 'data 'sdata)
+	(puint 'data 'sdata 'buf)
 	(uint 'x 'y 'x2 'y2)
 	(uint 'x1a 'x1b 'x1c 'x1d 'y1a 'y1b 'y1c 'y1d)
 	(uint 'a 'r 'g 'b 'q 'weight_x 'weight_y)
@@ -40,23 +40,16 @@
 	(push-scope)
 	(entry 'canvas 'resize {this, source})
 
-	(assign {(this->canvas_width + 1) * int_size} {x})
-	(vpif {x > this->canvas_resize_buf_size})
-		(vpif {this->canvas_resize_buf})
-			(call 'sys_mem 'free {this->canvas_resize_buf})
-		(endif)
-		(call 'sys_mem 'alloc {x} {this->canvas_resize_buf, this->canvas_resize_buf_size})
-	(endif)
-
+	(call 'sys_mem 'alloc {(this->canvas_width + 1) * int_size} {buf, _})
 	(assign {(source->canvas_width * 256) </ this->canvas_width} {fw})
 	(assign {(source->canvas_height * 256) </ this->canvas_height} {fh})
 
 	(assign {0} {x2})
 	(loop-while {x2 < this->canvas_width})
-		(assign {x2 *> fw} {(this->canvas_resize_buf)[x2 * int_size]})
+		(assign {x2 *> fw} {(buf)[x2 * int_size]})
 		(assign {x2 + 1} {x2})
 	(loop-end)
-	(assign {source->canvas_width * 256} {(this->canvas_resize_buf)[x2 * int_size]})
+	(assign {source->canvas_width * 256} {(buf)[x2 * int_size]})
 
 	(assign {this->canvas_array->array_array} {data})
 	(assign {0} {y2})
@@ -68,9 +61,9 @@
 
 		(assign {0} {x2})
 		(loop-while {x2 < this->canvas_width})
-			(assign {(this->canvas_resize_buf)[x2 * int_size]} {x1a})
+			(assign {(buf)[x2 * int_size]} {x1a})
 			(assign {x1a >> 8} {x1c})
-			(assign {(this->canvas_resize_buf)[(x2 + 1) * int_size] - 1} {x1b})
+			(assign {(buf)[(x2 + 1) * int_size] - 1} {x1b})
 			(assign {x1b >> 8} {x1d})
 
 			(assign {0, 0, 0, 0, 0} {a, r, g, b, q})

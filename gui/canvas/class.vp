@@ -32,20 +32,18 @@
 
 	;save inputs
 	(push-scope)
-	(entry 'canvas 'init {this, vtable, this->canvas_width, this->canvas_height, this->canvas_aa_scale})
+	(entry 'canvas 'init {this, vtable, this->canvas_width, this->canvas_height, this->canvas_scale})
 
 	;init parent
 	(s-call 'canvas 'init {this, vtable} {_, ok})
 	(vpif {ok})
 		(assign {0} {this->canvas_texture})
-		(assign {0} {this->canvas_resize_buf})
-		(assign {0} {this->canvas_resize_buf_size})
 		(assign {0} {this->canvas_cx})
 		(assign {0} {this->canvas_cy})
 		(assign {argb_black} {this->canvas_color})
 
-		(assign {this->canvas_aa_scale * this->canvas_width} {this->canvas_width})
-		(assign {this->canvas_aa_scale * this->canvas_height} {this->canvas_height})
+		(assign {this->canvas_scale * this->canvas_width} {this->canvas_width})
+		(assign {this->canvas_scale * this->canvas_height} {this->canvas_height})
 		(assign {this->canvas_width} {this->canvas_cx1})
 		(assign {this->canvas_height} {this->canvas_cy1})
 		(assign {this->canvas_width * int_size} {this->canvas_stride})
@@ -57,7 +55,7 @@
 
 		;edge arrays
 		(call 'array 'create nil {this->canvas_edges})
-		(call 'array 'create nil {this->canvas_edge_tracker})
+		(assign {0} {this->canvas_edges_start})
 	(endif)
 
 	(exit 'canvas 'init {this, ok})
@@ -90,13 +88,11 @@
 	(s-call 'canvas 'init {this, vtable} {_, ok})
 	(vpif {ok})
 		(assign {0} {this->canvas_texture})
-		(assign {0} {this->canvas_resize_buf})
-		(assign {0} {this->canvas_resize_buf_size})
 		(assign {0} {this->canvas_cx})
 		(assign {0} {this->canvas_cy})
 		(assign {argb_black} {this->canvas_color})
 
-		(assign {src->canvas_aa_scale} {this->canvas_aa_scale})
+		(assign {src->canvas_scale} {this->canvas_scale})
 		(assign {src->canvas_width} {this->canvas_width})
 		(assign {src->canvas_height} {this->canvas_height})
 		(assign {src->canvas_width} {this->canvas_cx1})
@@ -109,7 +105,7 @@
 
 		;edge arrays
 		(call 'array 'create nil {this->canvas_edges})
-		(call 'array 'create nil {this->canvas_edge_tracker})
+		(assign {0} {this->canvas_edges_start})
 	(endif)
 
 	(exit 'canvas 'init_shared {this, ok})
@@ -146,19 +142,18 @@
 	(vp-and-cr -16 rsp)
 	(entry '((rsp local_this) (rsp local_old_stack)))
 
-	;free edge trackers
+	;free edge arrays
 	(vp-cpy-ir rsp local_this r0)
 	(call 'array 'deref '((r0 canvas_edges)))
 	(vp-cpy-ir rsp local_this r0)
-	(call 'array 'deref '((r0 canvas_edge_tracker)))
+	(vp-cpy-ir r0 canvas_edges_start r0)
+	(vpif '(r0 != 0))
+		(call 'sys_mem 'free '(r0))
+	(endif)
 
 	;free any pixel buffer
 	(vp-cpy-ir rsp local_this r0)
 	(call 'array 'deref '((r0 canvas_array)))
-
-	;free any resize buffer
-	(vp-cpy-ir rsp local_this r0)
-	(call 'sys_mem 'free '((r0 canvas_resize_buf)))
 
 	;free any sdl texture
 	(vp-cpy-ir rsp local_this r0)
@@ -265,8 +260,8 @@
 	;if no texture then create from pixel buffer
 	(vpifnot {this->canvas_texture})
 		;create SDL surface from pixel buffer, convert to texture
-		(call 'canvas 'create {this->canvas_width / this->canvas_aa_scale, this->canvas_height / this->canvas_aa_scale, 1} {temp_canvas})
-		(vpif {this->canvas_aa_scale == 1})
+		(call 'canvas 'create {this->canvas_width / this->canvas_scale, this->canvas_height / this->canvas_scale, 1} {temp_canvas})
+		(vpif {this->canvas_scale == 1})
 			(call 'canvas 'as_argb {temp_canvas, this})
 		(else)
 			(call 'canvas 'resize {temp_canvas, this})
@@ -283,7 +278,7 @@
 	;blit texture
 	(vpif {this->canvas_texture})
 		(call 'ctx 'blit {ctx, this->canvas_texture, 0xffffff, 0, 0,
-			this->canvas_width / this->canvas_aa_scale, this->canvas_height / this->canvas_aa_scale})
+			this->canvas_width / this->canvas_scale, this->canvas_height / this->canvas_scale})
 	(endif)
 
 	(assign {old_stack} '(rsp))
@@ -346,8 +341,8 @@
 
 	(push-scope)
 	(entry 'canvas 'pref_size {this})
-	(exit 'canvas 'pref_size {this, this->canvas_width / this->canvas_aa_scale,
-									this->canvas_height / this->canvas_aa_scale})
+	(exit 'canvas 'pref_size {this, this->canvas_width / this->canvas_scale,
+									this->canvas_height / this->canvas_scale})
 	(pop-scope)
 	(return)
 

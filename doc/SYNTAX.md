@@ -38,7 +38,7 @@
 ## canvas-fill
 ### (canvas-fill canvas argb)
 ## canvas-fpoly
-### (canvas-fpoly canvas stack x y mode list)
+### (canvas-fpoly canvas x y mode list)
 ## canvas-load
 ### (canvas-load path flags)
 ## canvas-plot

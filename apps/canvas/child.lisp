@@ -28,7 +28,7 @@
 
 (defun fpoly (col mode _)
 	(canvas-set-color canvas col)
-	(canvas-fpoly canvas stack 0 0 mode _))
+	(canvas-fpoly canvas 0 0 mode _))
 
 (defun redraw ()
 	(canvas-fill canvas 0)

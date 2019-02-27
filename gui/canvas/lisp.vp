@@ -267,17 +267,17 @@
 	;r1 = return value object (ptr)
 
 	(ptr 'this 'args 'value)
-	(ulong 'arg0 'arg1 'arg2 'arg3 'arg4 'arg5)
+	(ulong 'arg0 'arg1 'arg2 'arg3 'arg4)
 
 	(push-scope)
 	(entry 'canvas 'lisp_fpoly {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 6})
+	(call 'lisp 'env_args_type {args, $sig, 5})
 	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
-	(call 'canvas 'fpoly {arg0, arg1, arg2, arg3, arg4, arg5})
+	(call 'canvas 'fpoly {arg0, arg1, arg2, arg3, arg4})
 	(call 'obj 'ref {arg0} {value})
 
 (vp-label 'funcexit)
@@ -286,9 +286,9 @@
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(canvas-fpoly canvas stack x y mode list)", error_msg_wrong_types, args} {_, value})
+	(call 'lisp 'repl_error {this, "(canvas-fpoly canvas x y mode list)", error_msg_wrong_types, args} {_, value})
 	(goto 'funcexit)
-	(signature 'sig 'canvas 'array 'integer 'integer 'integer 'vector))
+	(signature 'sig 'canvas 'integer 'integer 'integer 'vector))
 
 	(pop-scope-syms)
 
