@@ -115,8 +115,8 @@
 	(ptr 'this)
 	(union
 		'(ptr 'polygons)
-		'(pint 'tracker_list))
-	(pint 'sorted_list 'tracker_node 'tracker_last)
+		'(pint 'sorted_list)
+		'(pint 'tracker_node 'tracker_last 'tracker_list))
 	(int 'ys 'ye 'xs 'xe 'x 'y)
 	(uint 'mode)
 
@@ -134,18 +134,18 @@
 			(call 'sys_mem 'calloc {this->canvas_height * 8 * ptr_size} {this->canvas_edges_start, _})
 		(endif)
 
-		;edge pointers into starts
+		;edge pointers into edge starts
 		(call 'array 'get_iters {this->canvas_edges} {_, tracker_node, tracker_last})
 		(vp-def (edges_start edge_node edge_last edge_tmp edge_list_head))
 		(assign {this->canvas_edges_start, tracker_node, tracker_last}
 			(list edges_start edge_node edge_last))
-		(loop-while `(,edge_node != ,edge_last))
+		(loop-start)
 			(vp-cpy-ir-i edge_node edge_ys edge_list_head)
 			(vp-mul-cr ptr_size edge_list_head)
 			(vp-add-rr edges_start edge_list_head)
 			(ln-add-fnode edge_list_head 0 edge_node edge_tmp)
 			(vp-add-cr edge_size edge_node)
-		(loop-end)
+		(loop-until `(,edge_node == ,edge_last))
 
 		(loop-while {ys < ye})
 			(breakif {ys >= this->canvas_cy1})
@@ -181,9 +181,9 @@
 
 			;draw spans for mode
 			(vp-def (this x1 y x2 w v tracker_node) (method-input 'canvas 'span))
-			(vpif {mode})
+			(assign {mode, this, &tracker_list} (list v this tracker_node))
+			(vpif `(,v != 0))
 				;odd even
-				(assign {this, &tracker_list} (list this tracker_node))
 				(loop-start)
 					(ln-next-fnode tracker_node tracker_node)
 					(assign {ys} (list y))
@@ -198,7 +198,6 @@
 				(loop-end)
 			(else)
 				;non zero
-				(assign {this, &tracker_list} (list this tracker_node))
 				(loop-start)
 					(ln-next-fnode tracker_node tracker_node)
 					(assign {ys} (list y))
@@ -226,14 +225,14 @@
 			(vp-label 'start)
 				(ln-next-fnode tracker_node tracker_last)
 				(vp-cpy-ir-i tracker_node edge_ye x)
-				(vpif `(,x == ,ys))
-					(ln-remove-fnode tracker_node tracker_last)
+				(vpif `(,x != ,ys))
+					(vp-cpy-ir-i tracker_node edge_x x)
+					(vp-cpy-ir-i tracker_node edge_dda dda)
+					(vp-add-rr dda x)
+					(vp-cpy-ri-i x tracker_node edge_x)
 					(goto 'start)
 				(endif)
-				(vp-cpy-ir-i tracker_node edge_x x)
-				(vp-cpy-ir-i tracker_node edge_dda dda)
-				(vp-add-rr dda x)
-				(vp-cpy-ri-i x tracker_node edge_x)
+				(ln-remove-fnode tracker_node tracker_last)
 			(loop-end)
 		(loop-end)
 	(endif)
