@@ -19,6 +19,7 @@
 ;set a name to the window and clear clock face
 (window-set-title window "Clock")
 (canvas-fill clock 0)
+(canvas-set-flags clock 0)
 
 ;bind events
 (window-connect-close window event_close)

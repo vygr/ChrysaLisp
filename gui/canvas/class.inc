@@ -18,10 +18,11 @@
 (dec-method 'as_argb 'gui/canvas/as_argb 'static '(r0 r1) '(r0))
 (dec-method 'as_premul 'gui/canvas/as_premul 'static '(r0 r1) '(r0))
 (dec-method 'set_clip 'gui/canvas/set_clip 'static '(r0 r7 r8 r9 r10) '(r0))
-(dec-method 'set_edges 'gui/canvas/set_edges 'static '(r0 r1 r2 r3) '(r0 r1 r2 r3 r4))
+(dec-method 'set_edges 'gui/canvas/set_edges 'static '(r0 r1 r2 r3 r4) '(r0 r1 r2 r3 r4))
 (dec-method 'set_color 'gui/canvas/set_color 'static '(r0 r1))
-(dec-method 'span_noclip 'gui/canvas/span_noclip 'static '(r0 r7 r8 r9) '(r0))
-(dec-method 'span 'gui/canvas/span 'static '(r0 r7 r8 r9) '(r0))
+(dec-method 'set_flags 'gui/canvas/set_flags 'static '(r0 r1))
+(dec-method 'span_noclip 'gui/canvas/span_noclip 'static '(r0 r1 r7 r8 r9) '(r0))
+(dec-method 'span 'gui/canvas/span 'static '(r0 r1 r7 r8 r9) '(r0))
 (dec-method 'pick 'gui/canvas/pick 'static '(r0 r7 r8) '(r0 r1))
 (dec-method 'plot 'gui/canvas/plot 'static '(r0 r7 r8) '(r0))
 (dec-method 'fbox 'gui/canvas/fbox 'static '(r0 r7 r8 r9 r10) '(r0))
@@ -39,6 +40,7 @@
 (dec-method 'lisp_swap 'gui/canvas/lisp_swap 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_fill 'gui/canvas/lisp_fill 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_set_color 'gui/canvas/lisp_set_color 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_set_flags 'gui/canvas/lisp_set_flags 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_plot 'gui/canvas/lisp_plot 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_fbox 'gui/canvas/lisp_fbox 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_fpoly 'gui/canvas/lisp_fpoly 'static '(r0 r1) '(r0 r1))
@@ -48,6 +50,7 @@
 	(ptr 'array)
 	(ptr 'edges)
 	(pptr 'edges_start)
+	(pubyte 'alias_mask)
 	(int 'scale)
 	(uint 'width)
 	(uint 'height)
@@ -57,6 +60,7 @@
 	(uint 'cx1)
 	(uint 'cy1)
 	(uint 'color)
+	(uint 'flags)
 (def-struct-end)
 
 (def-struct 'edge 'ln_fnode)
@@ -83,5 +87,15 @@
 	;outputs
 	;r0 = canvas object (ptr)
 	;trashes
-	;r1-r3
-	(call 'canvas 'to_premul '(r0 r1) '(r0 (r0 canvas_color i))))
+	;none
+	(vp-cpy-ri-i r1 r0 canvas_color))
+
+(defcfun gui/canvas/set_flags ()
+	;inputs
+	;r0 = canvas object (ptr)
+	;r1 = flags (uint)
+	;outputs
+	;r0 = canvas object (ptr)
+	;trashes
+	;none
+	(vp-cpy-ri-i r1 r0 canvas_flags))

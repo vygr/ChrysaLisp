@@ -5,11 +5,12 @@
 (structure 'event 0
 	(byte 'win_close))
 
-(defq canvas_width 600 canvas_height 600 canvas_scale 3 id t)
+(defq canvas_width 600 canvas_height 600 canvas_scale 1 id t)
 
 (ui-tree window (create-window window_flag_close) nil
 	(ui-element canvas (create-canvas canvas_width canvas_height canvas_scale)))
 
+(canvas-set-flags canvas 1)
 (window-set-title window "Canvas")
 (window-connect-close window event_win_close)
 (bind '(w h) (view-pref-size window))

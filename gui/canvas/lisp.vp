@@ -149,6 +149,42 @@
 
 (def-func-end)
 
+(def-method 'canvas 'lisp_set_flags)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(ptr 'this 'args 'value)
+	(ulong 'arg0 'arg1)
+
+	(push-scope)
+	(entry 'canvas 'lisp_set_flags {this, args})
+
+(errorcases
+	(call 'lisp 'env_args_type {args, $sig, 2})
+	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+
+	(call 'lisp 'env_args_set {args, &arg0, 0})
+	(call 'canvas 'set_flags {arg0, arg1})
+	(call 'obj 'ref {arg0} {value})
+
+(vp-label 'funcexit)
+	(exit 'canvas 'lisp_set_flags {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(call 'lisp 'repl_error {this, "(canvas-set-flags canvas flags)", error_msg_wrong_types, args} {_, value})
+	(goto 'funcexit)
+	(signature 'sig 'canvas 'integer))
+
+	(pop-scope-syms)
+
+(def-func-end)
+
 (def-method 'canvas 'lisp_swap)
 	;inputs
 	;r0 = lisp object (ptr)

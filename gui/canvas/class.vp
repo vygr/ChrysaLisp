@@ -41,6 +41,7 @@
 		(assign {0} {this->canvas_cx})
 		(assign {0} {this->canvas_cy})
 		(assign {argb_black} {this->canvas_color})
+		(assign {0} {this->canvas_flags})
 
 		(assign {this->canvas_scale * this->canvas_width} {this->canvas_width})
 		(assign {this->canvas_scale * this->canvas_height} {this->canvas_height})
@@ -56,6 +57,7 @@
 		;edge arrays
 		(call 'array 'create nil {this->canvas_edges})
 		(assign {0} {this->canvas_edges_start})
+		(assign {0} {this->canvas_alias_mask})
 	(endif)
 
 	(exit 'canvas 'init {this, ok})
@@ -91,6 +93,7 @@
 		(assign {0} {this->canvas_cx})
 		(assign {0} {this->canvas_cy})
 		(assign {argb_black} {this->canvas_color})
+		(assign {0} {this->canvas_flags})
 
 		(assign {src->canvas_scale} {this->canvas_scale})
 		(assign {src->canvas_width} {this->canvas_width})
@@ -106,6 +109,7 @@
 		;edge arrays
 		(call 'array 'create nil {this->canvas_edges})
 		(assign {0} {this->canvas_edges_start})
+		(assign {0} {this->canvas_alias_mask})
 	(endif)
 
 	(exit 'canvas 'init_shared {this, ok})
@@ -147,6 +151,13 @@
 	(call 'array 'deref '((r0 canvas_edges)))
 	(vp-cpy-ir rsp local_this r0)
 	(vp-cpy-ir r0 canvas_edges_start r0)
+	(vpif '(r0 != 0))
+		(call 'sys_mem 'free '(r0))
+	(endif)
+
+	;free alias buffers
+	(vp-cpy-ir rsp local_this r0)
+	(vp-cpy-ir r0 canvas_alias_mask r0)
 	(vpif '(r0 != 0))
 		(call 'sys_mem 'free '(r0))
 	(endif)
@@ -565,6 +576,7 @@
 (def-method 'canvas 'span_noclip)
 	;inputs
 	;r0 = canvas object (ptr)
+	;r2 = coverage (ubyte)
 	;r7 = x (pixels)
 	;r8 = y (pixels)
 	;r9 = x1 (pixels)
@@ -573,12 +585,21 @@
 	;trashes
 	;r1-r3, r7-r9
 
-	(entry 'canvas 'span_noclip '(r0 r7 r8 r9))
+	(entry 'canvas 'span_noclip '(r0 r1 r7 r8 r9))
 
-	(vp-cpy-ir-ui r0 canvas_color r1)
+	(switch)
+	(breakif '(r1 == 0))
+	(vp-cpy-ir-ui r0 canvas_color r2)
+	(vp-cpy-rr r2 r3)
+	(vp-shr-cr 24 r2)
+	(vp-and-cr 0xffffff r3)
+	(vp-mul-rr r2 r1)
+	(vp-shr-cr 8 r1)
+	(vp-shl-cr 24 r1)
+	(vp-add-rr r3 r1)
+	(call 'canvas 'to_premul '(r0 r1) '(r0 r1))
 	(vp-cpy-rr r1 r2)
 	(vp-shr-cr 24 r2)
-	(switch)
 	(breakif '(r2 == 0))
 	(case '(r2 == 0xff))
 		(vp-cpy-ir-ui r0 canvas_stride r2)
@@ -638,6 +659,7 @@
 (def-method 'canvas 'span)
 	;inputs
 	;r0 = canvas object (ptr)
+	;r1 = coverage (ubyte)
 	;r7 = x (pixels)
 	;r8 = y (pixels)
 	;r9 = x1 (pixels)
@@ -646,7 +668,7 @@
 	;trashes
 	;r1-r3, r7-r9
 
-	(entry 'canvas 'span '(r0 r7 r8 r9))
+	(entry 'canvas 'span '(r0 r1 r7 r8 r9))
 
 	;clip check
 	(switch)
@@ -665,7 +687,7 @@
 		(vpif '(r9 > r3))
 			(vp-cpy-rr r3 r9)
 		(endif)
-		(jump 'canvas 'span_noclip '(r0 r7 r8 r9))
+		(jump 'canvas 'span_noclip '(r0 r1 r7 r8 r9))
 	(endswitch)
 
 	(exit 'canvas 'span '(r0))
@@ -823,7 +845,7 @@
 			(assign {this->canvas_cy1} {h})
 		(endif)
 		(loop-start)
-			(call 'canvas 'span_noclip {this, x, y, w})
+			(call 'canvas 'span_noclip {this, 0xff, x, y, w})
 			(assign {y + 1} {y})
 		(loop-until {y == h})
 	(endswitch)

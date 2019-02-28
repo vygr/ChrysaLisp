@@ -3,6 +3,7 @@
 (ffi canvas-fill "gui/canvas/lisp_fill" 0)
 (ffi canvas-load "gui/canvas/lisp_load" 0)
 (ffi canvas-set-color "gui/canvas/lisp_set_color" 0)
+(ffi canvas-set-flags "gui/canvas/lisp_set_flags" 0)
 (ffi canvas-fbox "gui/canvas/lisp_fbox" 0)
 (ffi canvas-fpoly "gui/canvas/lisp_fpoly" 0)
 (ffi canvas-plot "gui/canvas/lisp_plot" 0)
