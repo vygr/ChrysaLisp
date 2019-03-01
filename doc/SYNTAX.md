@@ -45,6 +45,8 @@
 ### (canvas-plot canvas x y)
 ## canvas-set-color
 ### (canvas-set-color canvas argb)
+## canvas-set-flags
+### (canvas-set-flags canvas flags)
 ## canvas-swap
 ### (canvas-swap canvas)
 ## cat

@@ -583,6 +583,7 @@ r0 = canvas object (ptr)
 r1 = vector of points objects (ptr)
 r2 = x (16.16)
 r3 = y (16.16)
+r4 = y scale (int)
 outputs
 r0 = canvas object (ptr)
 r1 = min_x (16.16)
@@ -600,12 +601,23 @@ r1 = color (argb)
 outputs
 r0 = canvas object (ptr)
 trashes
-r1-r3
+none
+```
+### canvas::set_flags -> gui/canvas/set_flags
+```
+inputs
+r0 = canvas object (ptr)
+r1 = flags (uint)
+outputs
+r0 = canvas object (ptr)
+trashes
+none
 ```
 ### canvas::span_noclip -> gui/canvas/span_noclip
 ```
 inputs
 r0 = canvas object (ptr)
+r1 = coverage (ulong)
 r7 = x (pixels)
 r8 = y (pixels)
 r9 = x1 (pixels)
@@ -613,11 +625,14 @@ outputs
 r0 = canvas object (ptr)
 trashes
 r1-r3, r7-r9
+info
+coverage is 0x0 to 0x80
 ```
 ### canvas::span -> gui/canvas/span
 ```
 inputs
 r0 = canvas object (ptr)
+r1 = coverage (ulong)
 r7 = x (pixels)
 r8 = y (pixels)
 r9 = x1 (pixels)
@@ -625,6 +640,8 @@ outputs
 r0 = canvas object (ptr)
 trashes
 r1-r3, r7-r9
+info
+coverage is 0x0 to 0x80
 ```
 ### canvas::pick -> gui/canvas/pick
 ```
@@ -761,6 +778,15 @@ r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
 ### canvas::lisp_set_color -> gui/canvas/lisp_set_color
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### canvas::lisp_set_flags -> gui/canvas/lisp_set_flags
 ```
 inputs
 r0 = lisp object (ptr)

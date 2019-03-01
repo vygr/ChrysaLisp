@@ -239,7 +239,7 @@
 				;draw spans for mode
 				(vp-def (this x1 ys x2 w v tracker_node) (method-input 'canvas 'span))
 				(assign {mode, this, &tracker_list} (list v this tracker_node))
-				(vpif `(,v != 0))
+				(vpif `(,v == 0))
 					;odd even
 					(loop-start)
 						(ln-next-fnode tracker_node tracker_node)
@@ -250,7 +250,7 @@
 						(vp-asr-cr fp_shift x1)
 						(vp-asr-cr fp_shift x2)
 						(assign (list tracker_node) {tracker_node})
-						(call 'canvas 'span (list this 0xff x1 ys x2) (list this))
+						(call 'canvas 'span (list this 0x80 x1 ys x2) (list this))
 						(assign {tracker_node} (list tracker_node))
 					(loop-end)
 				(else)
@@ -269,7 +269,7 @@
 						(vp-asr-cr fp_shift x1)
 						(vp-asr-cr fp_shift x2)
 						(assign (list tracker_node) {tracker_node})
-						(call 'canvas 'span (list this 0xff x1 ys x2) (list this))
+						(call 'canvas 'span (list this 0x80 x1 ys x2) (list this))
 						(assign {tracker_node} (list tracker_node))
 					(loop-end)
 				(endif)
@@ -303,10 +303,11 @@
 	(return)
 
 (vp-label 'sample_offsets)
-	(vp-int 0.25 0.875 0.5 0.125 0.75 0.375 0 0.625)
+	(apply vp-int (map (lambda (o)
+		(sub o 0.5)) '(0.25 0.875 0.5 0.125 0.75 0.375 0 0.625)))
 (vp-label 'mask_to_alpha)
 	(apply vp-byte (map (lambda (m)
-		(div (mul 0xff (apply add (map (lambda (s)
-			(bit-and 1 (bit-shr m s))) (const '(range 0 8))))) 8)) (const '(range 0 256))))
+		(div (mul 0x80 (apply add (map (lambda (s)
+			(bit-and 1 (bit-shr m s))) (const '(range 0 8))))) 8)) (range 0 256)))
 
 (def-func-end)
