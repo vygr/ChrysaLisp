@@ -469,7 +469,7 @@
 	;outputs
 	;r0 = canvas object (ptr)
 	;trashes
-	;r1-r7
+	;r1-r9
 
 	(entry 'canvas 'as_argb '(r0 r1))
 
@@ -481,10 +481,15 @@
 	(vp-cpy-ir-ui r0 canvas_height r1)
 	(vp-mul-rr r1 r6)
 	(vp-add-rr r5 r6)
+	(vp-xor-rr r8 r8)
+	(vp-xor-rr r9 r9)
 	(loop-start)
 		(vp-cpy-ir-ui r7 0 r1)
-		(call 'canvas 'to_argb '(r0 r1) '(r0 r1))
-		(vp-cpy-ri-i r1 r5 0)
+		(vpif '(r1 != r8))
+			(vp-cpy-rr r1 r8)
+			(call 'canvas 'to_argb '(r0 r1) '(r0 r9))
+		(endif)
+		(vp-cpy-ri-i r9 r5 0)
 		(vp-add-cr int_size r5)
 		(vp-add-cr int_size r7)
 	(loop-until '(r5 == r6))
@@ -501,7 +506,7 @@
 	;outputs
 	;r0 = canvas object (ptr)
 	;trashes
-	;r1-r6
+	;r1-r8
 
 	(entry 'canvas 'as_premul '(r0 r1))
 
@@ -513,10 +518,15 @@
 	(vp-cpy-ir-ui r0 canvas_height r1)
 	(vp-mul-rr r1 r4)
 	(vp-add-rr r5 r4)
+	(vp-xor-rr r7 r7)
+	(vp-xor-rr r8 r8)
 	(loop-start)
 		(vp-cpy-ir-ui r6 0 r1)
-		(call 'canvas 'to_premul '(r0 r1) '(r0 r1))
-		(vp-cpy-ri-i r1 r5 0)
+		(vpif '(r1 != r7))
+			(vp-cpy-rr r1 r7)
+			(call 'canvas 'to_premul '(r0 r1) '(r0 r8))
+		(endif)
+		(vp-cpy-ri-i r8 r5 0)
 		(vp-add-cr int_size r5)
 		(vp-add-cr int_size r6)
 	(loop-until '(r5 == r4))

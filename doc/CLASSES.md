@@ -551,7 +551,7 @@ r1 = source canvas object (ptr)
 outputs
 r0 = canvas object (ptr)
 trashes
-r1-r7
+r1-r9
 ```
 ### canvas::as_premul -> gui/canvas/as_premul
 ```
@@ -561,7 +561,7 @@ r1 = source canvas object (ptr)
 outputs
 r0 = canvas object (ptr)
 trashes
-r1-r6
+r1-r8
 ```
 ### canvas::set_clip -> gui/canvas/set_clip
 ```
