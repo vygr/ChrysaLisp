@@ -3,7 +3,7 @@
 (import 'gui/lisp.inc)
 
 ;add event id etc
-(defq clock_size 256 clock_scale 2 id t)
+(defq clock_size 256 clock_scale 1 id t)
 
 ;define events we will use
 (structure 'event 0
@@ -19,7 +19,7 @@
 ;set a name to the window and clear clock face
 (window-set-title window "Clock")
 (canvas-fill clock 0)
-(canvas-set-flags clock 0)
+(canvas-set-flags clock 1)
 
 ;bind events
 (window-connect-close window event_close)

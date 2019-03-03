@@ -33,7 +33,7 @@
 (defun redraw ()
 	(canvas-fill canvas 0)
 
-	(fpoly argb_red 1 (transform-norm (list
+	(fpoly argb_red 0 (transform-norm (list
 		(points -0.5 -0.5 -0.25 0.5 0 -0.5 0.25 0.5 0.5 -0.5 -0.05 0.5)) (mul angle 2)))
 
 	(fpoly 0xff0ff0ff 0 (transform
@@ -45,7 +45,7 @@
 				eps (points)))
 			(list)) (neg angle)))
 
-	(fpoly 0xc000ff00 1 (transform
+	(fpoly 0xc000ff00 0 (transform
 		(points-stroke-polylines stack (fmul canvas_width 0x0.1) eps join-round cap-round cap-round
 			(list (points (fmul canvas_width -0.4) (fmul canvas_height -0.4)
 				(fmul canvas_width 0.3) (fmul canvas_height -0.3)

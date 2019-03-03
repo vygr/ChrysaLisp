@@ -57,7 +57,7 @@
 		;edge arrays
 		(call 'array 'create nil {this->canvas_edges})
 		(assign {0} {this->canvas_edges_start})
-		(assign {0} {this->canvas_alias_mask})
+		(assign {0} {this->canvas_coverage})
 	(endif)
 
 	(exit 'canvas 'init {this, ok})
@@ -109,7 +109,7 @@
 		;edge arrays
 		(call 'array 'create nil {this->canvas_edges})
 		(assign {0} {this->canvas_edges_start})
-		(assign {0} {this->canvas_alias_mask})
+		(assign {0} {this->canvas_coverage})
 	(endif)
 
 	(exit 'canvas 'init_shared {this, ok})
@@ -157,7 +157,7 @@
 
 	;free alias buffers
 	(vp-cpy-ir rsp local_this r0)
-	(vp-cpy-ir r0 canvas_alias_mask r0)
+	(vp-cpy-ir r0 canvas_coverage r0)
 	(vpif '(r0 != 0))
 		(call 'sys_mem 'free '(r0))
 	(endif)

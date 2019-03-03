@@ -50,7 +50,7 @@
 	(ptr 'array)
 	(ptr 'edges)
 	(pptr 'edges_start)
-	(pubyte 'alias_mask)
+	(pubyte 'coverage)
 	(int 'scale)
 	(uint 'width)
 	(uint 'height)
