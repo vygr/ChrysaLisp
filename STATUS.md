@@ -4,9 +4,18 @@
 
 ------
 
+Implemented the ability to draw anti-aliased polygons directly without needing
+to super sample the canvas buffer. Both options are now available, even in
+combination ! The anti-aliased routine uses an 8x rooks pattern sampling, which
+seams pretty good and has good performance. At some future date I may need to
+revisit the simple x sort as it's only fast provided there are not loads of
+active edges.
+
+------
+
 A fix for the none-blocking stdin on Windows is done. However this shows up
 another bug in Windows that you have to press enter twice to get stdin from the
-console ! And the ESC key dosn't get sent throught to stdin. Seams these issues
+console ! And the ESC key doesn't get sent through to stdin. Seams these issues
 are know issues with Windows. I'll keep a look out for any updates and fixes
 for this. For now however the TUI situation is restored to normal on all other
 platforms and Windows TUI is far more useable than it was.
