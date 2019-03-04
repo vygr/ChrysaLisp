@@ -29,8 +29,8 @@
 	(call 'sys_mail 'mymail nil {params, pdata})
 
 	;init link node cpu id and task count
-	(assign {((pdata[5] - 0x30) * 100) + ((pdata[6] - 0x30) * 10) + (pdata[7] - 0x30)} {lo_id})
-	(assign {((pdata[9] - 0x30) * 100) + ((pdata[10] - 0x30) * 10) + (pdata[11] - 0x30)} {hi_id})
+	(assign {((pdata[0] - 0x30) * 100) + ((pdata[1] - 0x30) * 10) + (pdata[2] - 0x30)} {lo_id})
+	(assign {((pdata[4] - 0x30) * 100) + ((pdata[5] - 0x30) * 10) + (pdata[6] - 0x30)} {hi_id})
 	(call 'sys_kernel 'id nil {id})
 	(vpif {id == lo_id})
 		(assign {hi_id} {lk_node.lk_node_cpu_id})
@@ -56,13 +56,10 @@
 	(call 'sys_mail 'send {msg})
 
 	;open shared memory file
-	(call 'sys_pii 'open {pdata, file_open_readwrite} {handle})
-
-	;set size of region
-	(call 'sys_pii 'ftruncate {handle, lk_buffer_size})
+	(call 'sys_pii 'open_shared {pdata, lk_buffer_size} {handle})
 
 	;map shared object
-	(call 'sys_pii 'mmap {0, lk_buffer_size, mmap_shared, handle, 0} {mem})
+	(call 'sys_pii 'mmap {lk_buffer_size, mmap_shared, handle} {mem})
 
 	;tx channel, rx channel
 	;tx msg, rx msg
@@ -164,10 +161,7 @@
 	(call 'sys_pii 'munmap {mem, lk_buffer_size})
 
 	;close it
-	(call 'sys_pii 'close {handle})
-
-	;unlink shared object
-	(call 'sys_pii 'unlink {pdata})
+	(call 'sys_pii 'close_shared {pdata, handle})
 
 	;free params msg
 	(call 'sys_mail 'free {params})

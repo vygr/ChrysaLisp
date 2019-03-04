@@ -1556,7 +1556,6 @@ Super Class: null
 ### host::stat -> nil
 ### host::open -> nil
 ### host::close -> nil
-### host::ftruncate -> nil
 ### host::unlink -> nil
 ### host::read -> nil
 ### host::write -> nil
@@ -1564,6 +1563,8 @@ Super Class: null
 ### host::munmap -> nil
 ### host::mprotect -> nil
 ### host::gettime -> nil
+### host::open_shared -> nil
+### host::close_shared -> nil
 ## integer
 Super Class: obj
 ### integer::vtable -> class/integer/vtable
@@ -4928,11 +4929,9 @@ r0 = code (long)
 ### sys_pii::mmap -> sys/pii/mmap
 ```
 inputs
-r0 = address (ptr)
-r1 = len (ulong)
-r2 = mode (ulong)
-r3 = fd (ulong)
-r4 = pos (ulong)
+r0 = len (ulong)
+r1 = mode (ulong)
+r2 = fd (ulong)
 outputs
 r0 = buffer (ptr)
 trashes
@@ -4978,11 +4977,21 @@ r0 = error code (ulong)
 trashes
 none
 ```
-### sys_pii::ftruncate -> sys/pii/ftruncate
+### sys_pii::open_shared -> sys/pii/open_shared
 ```
 inputs
+r0 = c string filename (pubyte)
+r1 = length (ulong)
+outputs
 r0 = fd (ulong)
-r1 = size (ulong)
+trashes
+none
+```
+### sys_pii::close_shared -> sys/pii/close_shared
+```
+inputs
+r0 = c string filename (pubyte)
+r1 = fd (ulong)
 outputs
 r0 = error code (ulong)
 trashes

@@ -23,7 +23,7 @@
 	(vp-cpy-rr (abi-arg 1) r14)
 
 	;allocate relloc/stat/name buffer
-	(host-call-table 'host 'mmap r14 '(0 ld_reloc_buf_size mmap_data -1 0) '(r0))
+	(host-call-table 'host 'mmap r14 '(ld_reloc_buf_size mmap_data -1) '(r0))
 
 	;get loader statics and bind function !
 	(vp-lea-p 'func_start r5)
@@ -180,7 +180,7 @@
 	(vp-cpy-ir r0 stat_fsize r0)
 	(vpif '(r2 < r0))
 		;not enough so allocate new function buffer
-		(call 'sys_pii 'mmap '(0 ld_block_size mmap_exec -1 0) '(r0))
+		(call 'sys_pii 'mmap '(ld_block_size mmap_exec -1) '(r0))
 		(assert '(r0 != 0))
 
 		;add to block list for freeing

@@ -406,19 +406,15 @@
 	(call 'sys_task 'start (cat {@} (f-path 'sys_link 'link)) {_, mbox.id_id, _})
 
 	;params message
-	(call 'sys_mail 'alloc {5 + 7 + 1} {msg, data})
+	(call 'sys_mail 'alloc {7 + 1} {msg, data})
 	(assign {mbox.id_id} {msg->msg_dest.id_id})
-	(call 'sys_string 'copy {$link_path, data} {_, data})
-	(call 'sys_string 'copy {arg, data - 1} {_, data})
+	(call 'sys_string 'copy {arg, data} {_, data})
 
 	;send to link task
 	(call 'sys_mail 'send {msg})
 
 	(pop-scope)
 	(return)
-
-(vp-label 'link_path)
-	(vp-string "/tmp/") (vp-byte 0)
 
 	(vp-align ptr_size)
 (vp-label 'options_table)

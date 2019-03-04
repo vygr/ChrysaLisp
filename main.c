@@ -43,6 +43,31 @@ long long myopen(char *path, int mode)
 	return -1;
 }
 
+char link_buf[128];
+
+long long myopenshared(char *path, size_t len)
+{
+#ifdef _WIN64
+	return open(path, O_CREAT | O_RDWR | O_BINARY);
+#else
+	strcpy(&link_buf[0], "/tmp/");
+	strcpy(&link_buf[5], path);
+	int fd = open(link_buf, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
+	ftruncate(fd, len);
+	return fd;
+#endif
+}
+
+long long mycloseshared(char *path, int fd)
+{
+#ifdef _WIN64
+	return close(fd);
+#else
+	close(fd);
+	return unlink(path);
+#endif
+}
+
 long long myread(int fd, void *addr, size_t len)
 {
 #ifdef _WIN64
@@ -55,13 +80,6 @@ long long mywrite(int fd, void *addr, size_t len)
 {
 	return write(fd, addr, len);
 }
-
-#ifdef _WIN64
-long long ftruncate(int fd, off_t length)
-{
-	return 0;
-}
-#endif
 
 struct stat fs;
 struct finfo
@@ -137,7 +155,7 @@ enum
 	mmap_shared
 };
 
-void *mymmap(void *addr, size_t len, int mode, int fd, off_t pos)
+void *mymmap(size_t len, int mode, int fd)
 {
 #ifdef _WIN64
 	switch (mode)
@@ -149,9 +167,9 @@ void *mymmap(void *addr, size_t len, int mode, int fd, off_t pos)
 #else
 	switch (mode)
 	{
-	case mmap_data: return mmap(addr, len, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANON, fd, pos);
-	case mmap_exec: return mmap(addr, len, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE | MAP_ANON, fd, pos);
-	case mmap_shared: return mmap(addr, len, PROT_READ | PROT_WRITE, MAP_SHARED, fd, pos);
+	case mmap_data: return mmap(0, len, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANON, fd, 0);
+	case mmap_exec: return mmap(0, len, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE | MAP_ANON, fd, 0);
+	case mmap_shared: return mmap(0, len, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
 	}
 #endif
 	return 0;
@@ -205,7 +223,6 @@ exit,
 mystat,
 myopen,
 close,
-ftruncate,
 unlink,
 myread,
 mywrite,
@@ -213,6 +230,8 @@ mymmap,
 mymunmap,
 mymprotect,
 gettime,
+myopenshared,
+mycloseshared,
 };
 
 int main(int argc, char *argv[])
@@ -225,7 +244,7 @@ int main(int argc, char *argv[])
 		{
 			stat(argv[1], &fs);
 			size_t data_size = fs.st_size;
-			uint16_t *data = mymmap(NULL, data_size, mmap_exec, -1, 0);
+			uint16_t *data = mymmap(data_size, mmap_exec, -1);
 			if (data)
 			{
 				read(fd, data, data_size);
