@@ -126,8 +126,8 @@ implementation in detail in the `sys/code.inc` file. It's quite a simple, parse
 While it's possible to use the compilation to do basic things like math, it
 really starts to get interesting when combined with some other functions that
 allow management of local stack variables. Any symbols appearing in the parsed
-output will be search for in these variable scopes. These variables are not the
-same as Lisp level symbols, they are managed by a few scope creation and
+output will be searched for in these variable scopes. These variables are not
+the same as Lisp level symbols, they are managed by a few scope creation and
 variable declaration functions.
 
 ```
