@@ -4,7 +4,7 @@
 #ifdef _WIN64
 #define _CRT_SECURE_NO_WARNINGS
 #define DELTA_EPOCH_IN_MICROSECS 11644473600000000Ui64
-#include < time.h >
+#include <time.h>
 #include <io.h>
 #include <windows.h>
 #else
@@ -48,22 +48,23 @@ char link_buf[128];
 long long myopenshared(char *path, size_t len)
 {
 #ifdef _WIN64
-	return open(path, O_CREAT | O_RDWR | O_BINARY);
+	return (long long)CreateFileMapping(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, len, path);
 #else
 	strcpy(&link_buf[0], "/tmp/");
 	strcpy(&link_buf[5], path);
-	int fd = open(link_buf, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
-	ftruncate(fd, len);
-	return fd;
+	int hndl = open(link_buf, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
+	ftruncate(hndl, len);
+	return hndl;
 #endif
 }
 
-long long mycloseshared(char *path, int fd)
+long long mycloseshared(char *path, long long hndl)
 {
 #ifdef _WIN64
-	return close(fd);
+	if (CloseHandle((HANDLE)hndl)) return 0;
+	return -1;
 #else
-	close(fd);
+	close(hndl);
 	return unlink(path);
 #endif
 }
@@ -155,14 +156,14 @@ enum
 	mmap_shared
 };
 
-void *mymmap(size_t len, int mode, int fd)
+void *mymmap(size_t len, long long fd, int mode)
 {
 #ifdef _WIN64
 	switch (mode)
 	{
-	case mmap_data: return VirtualAlloc(addr, len, MEM_COMMIT, PAGE_READWRITE);
-	case mmap_exec: return VirtualAlloc(addr, len, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
-	case mmap_shared: return VirtualAlloc(addr, len, MEM_COMMIT, PAGE_READWRITE);
+	case mmap_data: return VirtualAlloc(0, len, MEM_COMMIT, PAGE_READWRITE);
+	case mmap_exec: return VirtualAlloc(0, len, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+	case mmap_shared: return MapViewOfFile((HANDLE)fd, FILE_MAP_ALL_ACCESS, 0, 0, len);
 	}
 #else
 	switch (mode)
@@ -175,14 +176,31 @@ void *mymmap(size_t len, int mode, int fd)
 	return 0;
 }
 
-long long mymunmap(void *addr, size_t len)
+long long mymunmap(void *addr, size_t len, int mode)
 {
 #ifdef _WIN64
-	if (VirtualFree(addr, len, MEM_RELEASE)) return 0;
-	return -1;
+	switch (mode)
+	{
+	case mmap_data:
+	case mmap_exec:
+	{
+		if (VirtualFree(addr, len, MEM_RELEASE)) return 0;
+		break;
+	}
+	case mmap_shared:
+		if (UnmapViewOfFile(addr)) return 0;
+		break;
+	}
 #else
-	return munmap(addr, len);
+	switch (mode)
+	{
+	case mmap_data:
+	case mmap_exec:
+	case mmap_shared:
+		return munmap(addr, len);
+	}
 #endif
+	return -1;
 }
 
 static void (*host_funcs[]) = {
@@ -244,7 +262,7 @@ int main(int argc, char *argv[])
 		{
 			stat(argv[1], &fs);
 			size_t data_size = fs.st_size;
-			uint16_t *data = mymmap(data_size, mmap_exec, -1);
+			uint16_t *data = mymmap(data_size, -1, mmap_exec);
 			if (data)
 			{
 				read(fd, data, data_size);
@@ -253,7 +271,7 @@ int main(int argc, char *argv[])
 				fcntl(0, F_SETFL, fcntl(0, F_GETFL, 0) | O_NONBLOCK);
 #endif
 				ret_val = ((int(*)(char*[], void*[]))((char*)data + data[5]))(argv, host_funcs);
-				mymunmap(data, data_size);
+				mymunmap(data, data_size, mmap_exec);
 			}
 			close(fd);
 		}

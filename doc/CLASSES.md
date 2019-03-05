@@ -4930,8 +4930,8 @@ r0 = code (long)
 ```
 inputs
 r0 = len (ulong)
-r1 = mode (ulong)
-r2 = fd (ulong)
+r1 = fd (ulong)
+r2 = mode (ulong)
 outputs
 r0 = buffer (ptr)
 trashes
@@ -4941,7 +4941,8 @@ none
 ```
 inputs
 r0 = buffer (ptr)
-r1 = size (ulong)
+r1 = len (ulong)
+r2 = mode (ulong)
 outputs
 r0 = error code (ulong)
 trashes
@@ -4951,7 +4952,7 @@ none
 ```
 inputs
 r0 = buffer (ptr)
-r1 = size (ulong)
+r1 = len (ulong)
 r2 = prot (ulong)
 outputs
 r0 = error code (ulong)
@@ -4983,7 +4984,7 @@ inputs
 r0 = c string filename (pubyte)
 r1 = length (ulong)
 outputs
-r0 = fd (ulong)
+r0 = handle (long)
 trashes
 none
 ```
@@ -4991,7 +4992,7 @@ none
 ```
 inputs
 r0 = c string filename (pubyte)
-r1 = fd (ulong)
+r1 = handle (long)
 outputs
 r0 = error code (ulong)
 trashes
@@ -5021,7 +5022,7 @@ none
 inputs
 r0 = fd (ulong)
 r1 = buffer (pubyte)
-r2 = length (ulong)
+r2 = len (ulong)
 outputs
 r0 = error code (ulong)
 trashes
@@ -5063,7 +5064,7 @@ none
 inputs
 r0 = fd (ulong)
 r1 = buffer (ptr)
-r2 = size (ulong)
+r2 = len (ulong)
 outputs
 r0 = error code (ulong)
 trashes

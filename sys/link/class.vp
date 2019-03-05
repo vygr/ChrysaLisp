@@ -10,7 +10,7 @@
 	(ptr 'task_statics 'mail_statics 'params)
 	(ptr 'msg 'data 'rx 'tx 'mem 'rx_msg 'tx_msg 'out_msg)
 	(pubyte 'pdata)
-	(ulong 'handle)
+	(long 'handle)
 	(uint 'lo_id 'hi_id 'id)
 
 	(push-scope)
@@ -59,7 +59,7 @@
 	(call 'sys_pii 'open_shared {pdata, lk_buffer_size} {handle})
 
 	;map shared object
-	(call 'sys_pii 'mmap {lk_buffer_size, mmap_shared, handle} {mem})
+	(call 'sys_pii 'mmap {lk_buffer_size, handle, mmap_shared} {mem})
 
 	;tx channel, rx channel
 	;tx msg, rx msg
@@ -158,7 +158,7 @@
 	(loop-until {lk_node.lk_node_cpu_id == 0xffffffff})
 
 	;unmap object
-	(call 'sys_pii 'munmap {mem, lk_buffer_size})
+	(call 'sys_pii 'munmap {mem, lk_buffer_size, mmap_shared})
 
 	;close it
 	(call 'sys_pii 'close_shared {pdata, handle})
