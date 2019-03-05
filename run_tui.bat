@@ -1,6 +1,7 @@
 @echo off
 @echo Windows > platform
 @echo x86_64 > arch
+@call stop.bat
 @start /b cmd /c .\obj\Windows\x86_64\main.exe .\obj\Windows\x86_64\sys\boot_image -cpu 9 -l 000-009 -l 001-009 -l 002-009 -l 003-009 -l 004-009 -l 005-009 -l 006-009 -l 007-009 -l 008-009
 @start /b cmd /c .\obj\Windows\x86_64\main.exe .\obj\Windows\x86_64\sys\boot_image -cpu 8 -l 000-008 -l 001-008 -l 002-008 -l 003-008 -l 004-008 -l 005-008 -l 006-008 -l 007-008 -l 008-009
 @start /b cmd /c .\obj\Windows\x86_64\main.exe .\obj\Windows\x86_64\sys\boot_image -cpu 7 -l 000-007 -l 001-007 -l 002-007 -l 003-007 -l 004-007 -l 005-007 -l 006-007 -l 007-008 -l 007-009
