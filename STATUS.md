@@ -4,6 +4,13 @@
 
 ------
 
+Added the shared memory link driver code for Windows platform and created
+run.bat, run_tui.bat and run_mesh.bat launch scripts. Windows seams a little
+slow on starting up the 64 CPU mesh compared to MacOS or Linux, but it does run
+just fine. Enjoy.
+
+------
+
 Implemented the ability to draw anti-aliased polygons directly without needing
 to super sample the canvas buffer. Both options are now available, even in
 combination ! The anti-aliased routine uses an 8x rooks pattern sampling, which
