@@ -217,8 +217,7 @@
 		;cursor down
 		(vpifnot {local->local_pipe})
 			(d-call 'vector 'get_length {local->local_history} {_, length})
-			(assign {local->local_history_index + 1} {local->local_history_index})
-			(vpif {local->local_history_index > length})
+			(vpif {(local->local_history_index = local->local_history_index + 1) > length})
 				(assign {length} {local->local_history_index})
 			(endif)
 			(vpif {local->local_history_index == length})

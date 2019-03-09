@@ -341,8 +341,7 @@
 			(endif)
 
 			;next sub scanline
-			(assign {ys + 1} {ys})
-			(breakif {ys >= cy1})
+			(breakif {(ys = ys + 1) >= cy1})
 
 			;step the edges and remove any dead ones
 			(vp-def (tracker_node tracker_last ys x dda))

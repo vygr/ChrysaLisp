@@ -861,8 +861,7 @@
 		(endif)
 		(loop-start)
 			(call 'canvas 'span_noclip {this, 0x80, x, y, w})
-			(assign {y + 1} {y})
-		(loop-until {y == h})
+		(loop-until {(y = y + 1) == h})
 	(endswitch)
 
 	(exit 'canvas 'fbox {this})

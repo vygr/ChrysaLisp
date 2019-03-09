@@ -696,6 +696,16 @@
 										vp-cpy-ri-i vp-cpy-ri-i vp-cpy-ri vp-cpy-ri vp-cpy-ri)))
 	(add-inst (list w x y 0)))
 
+(defcfun compile-equals (_)
+	(defq x (pop-value))
+	(bind '(y w) (pop-reg))
+	(push-reg nil)
+	(setq w (elem (find w "bBsSiIlLp") '(vp-cpy-ri-b vp-cpy-ri-b vp-cpy-ri-s vp-cpy-ri-s
+										vp-cpy-ri-i vp-cpy-ri-i vp-cpy-ri vp-cpy-ri vp-cpy-ri)))
+	(add-inst
+		(list w x y 0)
+		(list 'vp-cpy-rr x y)))
+
 (defcfun compile-deref ()
 	(defq x (top-reg) w (get-type))
 	(if w
@@ -916,6 +926,7 @@
 (operator "|" 10 0 compile-or)
 (operator "&&" 11 0 compile-land)
 (operator "||" 12 0 compile-lor)
+(operator "=" 13 0 compile-equals)
 (operator "(" 14)
 (operator ")" 14)
 (operator "[" 14)
