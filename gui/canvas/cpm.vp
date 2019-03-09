@@ -35,7 +35,8 @@
 	(call 'stream 'read {stream, &header, cpm_size} {_, length})
 	(vpif {length == cpm_size})
 		;check ident '.CPM' or '.FLM'
-		(vpif {header.cpm_ident == 0x2e43504d || header.cpm_ident == 0x2e464c4d})
+		(vpif (cat {header.cpm_ident == } (str (code "MPC." 4))
+				{ || header.cpm_ident == } (str (code "MLF." 4))))
 			;create canvas
 			(call 'canvas 'create {header.cpm_width, header.cpm_height, 1} {this})
 			(vpif {this})
