@@ -771,6 +771,7 @@
 	(breakif '(r7 >= r5))
 	(breakif '(r8 >= r6))
 	(vp-cpy-ir-ui r0 canvas_color r1)
+	(call 'canvas 'to_premul '(r0 r1) '(r0 r1))
 	(vp-cpy-rr r1 r2)
 	(vp-shr-cr 24 r2)
 	(breakif '(r2 == 0))
