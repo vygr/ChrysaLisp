@@ -77,7 +77,6 @@ bit-or
 bit-shl
 bit-shr
 bit-xor
-call
 cat
 catch
 char
@@ -297,4 +296,27 @@ make-platforms
 make-test
 remake
 remake-platforms
+```
+
+## Within a `*compile-env*` enviroment
+
+### `*compile-env*` symbols
+
+```lisp
+*compile-env*
+*compile-includes*
+```
+
+### `*compile-env*` macros
+
+```lisp
+defcvar
+defcfun
+defcfun
+```
+
+### `*compile-env*` functions
+
+```lisp
+include
 ```

@@ -8,7 +8,7 @@ The `(assign src dst)` function takes source and destination parameters. These
 can be lists or strings, thus giving us four possible combinations. When a
 string is used this invokes the C-Script expression compiler, on that string,
 and this emits VP operations that evaluate that expression. The C-Script syntax
-is a subset of C/C++ syntax that most C/C++ programmer will be familiar with.
+is a subset of C/C++ syntax that most C/C++ programmers will be familiar with.
 
 Assignment can be used directly by use of the `(assign)` function in your
 source, but it is always used, under the hood, by functions like `(entry)`,
