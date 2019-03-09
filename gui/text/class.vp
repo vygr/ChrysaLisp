@@ -124,7 +124,7 @@
 	(endif)
 
 	;bounds of text
-	(assign {0, 0} {width, height})
+	(assign {0 => width} {height})
 	(vpif {this->text_string && font})
 		(call 'vector 'get_iters {this->text_words} {_, words, words_end})
 		(loop-start)

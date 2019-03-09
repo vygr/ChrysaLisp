@@ -22,7 +22,7 @@
 	(assign {task_statics->tk_statics_task_count - 1} {task_statics->tk_statics_task_count})
 
 	;allocate link node on stack and add to link array
-	(assign {0, 0} {lk_node.lk_table_array, lk_node.lk_table_array_size})
+	(assign {0 => lk_node.lk_table_array} {lk_node.lk_table_array_size})
 	(call 'array 'push_back {mail_statics->ml_statics_links_array, &lk_node})
 
 	;read params msg from kernel
@@ -48,10 +48,8 @@
 	(assign {0} {msg->msg_dest.id_mbox})
 	(assign {lk_node.lk_node_cpu_id} {msg->msg_dest.id_cpu})
 	(assign {kn_call_route} {data->kn_msg_function})
-	(assign {0} {data->kn_msg_user})
-	(assign {0} {data->kn_msg_reply_id.id_id})
-	(assign {id} {data->kn_msg_route_origin})
-	(assign {id} {data->kn_msg_flood_via})
+	(assign {0 => data->kn_msg_user} {data->kn_msg_reply_id.id_id})
+	(assign {id => data->kn_msg_route_origin} {data->kn_msg_flood_via})
 	(assign {1} {data->kn_msg_route_hops})
 	(call 'sys_mail 'send {msg})
 

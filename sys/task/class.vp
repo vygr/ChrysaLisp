@@ -54,9 +54,8 @@
 	;fill in destination, reply and function
 	(call 'sys_kernel 'id nil {id})
 	(assign {0} {msg->msg_dest.id_mbox})
-	(assign {id} {msg->msg_dest.id_cpu})
+	(assign {id => msg->msg_dest.id_cpu} {data->kn_msg_reply_id.id_cpu})
 	(assign {mbox_id} {data->kn_msg_reply_id.id_mbox})
-	(assign {id} {data->kn_msg_reply_id.id_cpu})
 	(assign {kn_call_callback} {data->kn_msg_function})
 	(assign {usr} {data->kn_msg_user})
 	(assign {addr} {data->kn_msg_callback_addr})

@@ -59,7 +59,7 @@
 	(assign {id + 1} {task_statics->tk_statics_cpu_total})
 
 	;allocate for kernel routing table
-	(assign {0, 0} {routes.lk_table_array, routes.lk_table_array_size})
+	(assign {0 => routes.lk_table_array} {routes.lk_table_array_size})
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ; main kernel task loop

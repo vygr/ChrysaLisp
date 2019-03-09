@@ -23,7 +23,7 @@
 	(call 'obj 'inst_of (cat {vals, @} (f-path 'sequence 'vtable)))
 	(errorif (list (method-output 'obj 'inst_of 1) '== 0) 'error2))
 
-	(assign {0, 0, 0} {index_vars, index_vals, state})
+	(assign {0 => index_vars => index_vals} {state})
 	(call 'obj 'ref {this->lisp_sym_nil} {value})
 	(d-call 'vector 'get_length {vars} {_, len_vars})
 	(call 'sequence 'get_length {vals} {_, len_vals})

@@ -82,7 +82,7 @@
 		(call 'stream 'read_char {this} {_, char})
 		(breakif {char < 0})
 		(assign {char} {*buffer})
-	(loop-until {(buffer = buffer + 1) == buffer_end})
+	(loop-until {(buffer + 1 => buffer) == buffer_end})
 
 	(vpif {buffer != start})
 		(assign {this, buffer - start} '(r0 r1))

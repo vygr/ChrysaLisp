@@ -43,8 +43,8 @@
 	;init vars
 	(push-scope)
 	(assign (cat {@} (f-path 'gui 'statics)) {locals.local_statics})
-	(assign {0, 0, 0, 0, 0, 0} {locals.local_key_view, locals.local_mouse_view,
-		locals.local_mouse_buttons, locals.local_mouse_x, locals.local_mouse_y, locals.local_quit})
+	(assign {0 => locals.local_key_view => locals.local_mouse_view => locals.local_mouse_buttons
+				=> locals.local_mouse_x => locals.local_mouse_y} {locals.local_quit})
 
 	;kernel callback for first update
 	;this will init SDL etc

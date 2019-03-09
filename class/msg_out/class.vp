@@ -31,8 +31,7 @@
 	(s-call 'msg_out 'init {this, vtable, 0, 0, 0, 0} {_, ok})
 	(vpif {ok})
 		;init myself
-		(assign {0} {this->msg_out_seqnum})
-		(assign {0} {this->msg_out_ack_seqnum})
+		(assign {0 => this->msg_out_seqnum} {this->msg_out_ack_seqnum})
 		(assign {stream_mail_state_started} {this->msg_out_state})
 		(call 'sys_mail 'alloc_mbox nil {this->msg_out_ack_mbox_id, this->msg_out_ack_mbox_addr})
 	(endif)

@@ -28,8 +28,7 @@
 	(s-call 'msg_in 'init {this, vtable, 0, 0, 0, 0} {_, ok})
 	(vpif {ok})
 		;init myself
-		(assign {0} {this->msg_in_seqnum})
-		(assign {0} {this->msg_in_ack_seqnum})
+		(assign {0 => this->msg_in_seqnum} {this->msg_in_ack_seqnum})
 		(assign {stream_mail_state_started} {this->msg_in_state})
 		(call 'sys_mail 'alloc_mbox nil {this->msg_in_mbox_id, this->msg_in_mbox_addr})
 		(vp-def (lst tmp))

@@ -66,7 +66,7 @@
 			(assign {(buf)[(x2 + 1) * int_size] - 1} {x1b})
 			(assign {x1b >> 8} {x1d})
 
-			(assign {0, 0, 0, 0, 0} {a, r, g, b, q})
+			(assign {0 => a => r => g => b} {q})
 
 			(assign {y1c} {y})
 			(loop-while {y <= y1d})

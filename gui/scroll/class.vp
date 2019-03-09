@@ -30,9 +30,7 @@
 	(s-call 'scroll 'init {this, vtable} {_, ok})
 	(vpif {ok})
 		;init myself
-		(assign {0} {this->scroll_child})
-		(assign {0} {this->scroll_vslider})
-		(assign {0} {this->scroll_hslider})
+		(assign {0 => this->scroll_child => this->scroll_vslider} {this->scroll_hslider})
 
 		(vpif {flags & scroll_flag_vertical})
 			(call 'slider 'create nil {this->scroll_vslider})
@@ -100,7 +98,7 @@
 
 	;position any sliders
 	(call 'scroll 'get_bounds {this} {_, _, _, w, h})
-	(assign {0, 0} {sw, sh})
+	(assign {0 => sw} {sh})
 	(vpif {this->scroll_vslider})
 		(call 'slider 'pref_size {this->scroll_vslider} {_, sw, _})
 		(call 'slider 'change {this->scroll_vslider, w - sw, 0, sw, h})
@@ -113,7 +111,7 @@
 	;position any child
 	(vpif {this->scroll_child})
 		(call 'scroll 'get_bounds {this->scroll_child} {_, _, _, cw, ch})
-		(assign {0, 0} {vval, hval})
+		(assign {0 => vval} {hval})
 		(vpif {this->scroll_vslider})
 			(call 'slider 'get_long_prop {this->scroll_vslider, prop_value} {_, vval})
 			(assign {ch - (h - sh)} {mo})

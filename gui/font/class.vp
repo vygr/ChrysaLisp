@@ -198,7 +198,7 @@
 
 		;flush cache ?
 		(assign (cat {@} (f-path 'font 'statics)) {font_statics})
-		(vpif {(font_statics->font_statics_count = font_statics->font_statics_count + 1) >= font_max_word_cache})
+		(vpif {(font_statics->font_statics_count + 1 => font_statics->font_statics_count) >= font_max_word_cache})
 			(call 'font 'flush_cache)
 		(endif)
 	(else)
@@ -268,7 +268,7 @@
 			(call 'font 'ref_word {this, word} {_, txt})
 			(call 'vector 'push_back {chars, txt})
 			(call 'symbol 'deref {word})
-		(loop-until {(code = code + 1) == 127})
+		(loop-until {(code + 1 => code) == 127})
 		(vpif {this->font_chars})
 			;another thread got to it during a flush_cache !
 			(call 'vector 'deref {chars})

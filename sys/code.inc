@@ -689,22 +689,13 @@
 (defcfun compile-const (_)
 	(add-inst (list 'vp-cpy-cr _ (push-reg nil))))
 
-(defcfun compile-assign ()
+(defcfun compile-arrow (&optional _)
 	(bind '(y w) (pop-reg))
 	(defq x (pop-value))
+	(if _ (push-reg nil))
 	(setq w (elem (find w "bBsSiIlLp") '(vp-cpy-ri-b vp-cpy-ri-b vp-cpy-ri-s vp-cpy-ri-s
 										vp-cpy-ri-i vp-cpy-ri-i vp-cpy-ri vp-cpy-ri vp-cpy-ri)))
 	(add-inst (list w x y 0)))
-
-(defcfun compile-equals (_)
-	(defq x (pop-value))
-	(bind '(y w) (pop-reg))
-	(push-reg nil)
-	(setq w (elem (find w "bBsSiIlLp") '(vp-cpy-ri-b vp-cpy-ri-b vp-cpy-ri-s vp-cpy-ri-s
-										vp-cpy-ri-i vp-cpy-ri-i vp-cpy-ri vp-cpy-ri vp-cpy-ri)))
-	(add-inst
-		(list w x y 0)
-		(list 'vp-cpy-rr x y)))
 
 (defcfun compile-deref ()
 	(defq x (top-reg) w (get-type))
@@ -926,7 +917,7 @@
 (operator "|" 10 0 compile-or)
 (operator "&&" 11 0 compile-land)
 (operator "||" 12 0 compile-lor)
-(operator "=" 13 0 compile-equals)
+(operator "=>" 13 0 compile-arrow)
 (operator "(" 14)
 (operator ")" 14)
 (operator "[" 14)
@@ -1053,7 +1044,7 @@
 		(reset-reg-stack (length *src*))
 		(each! nil nil nil (lambda (_)
 			(compile-rpn-list (rpn-parse (token-parse _)))
-			(compile-assign)) (list *dst*))
+			(compile-arrow)) (list *dst*))
 		(when debug_inst
 			(print "pre opt:")
 			(each print-inst *inst*))
@@ -1095,7 +1086,7 @@
 			(compile-rpn-list (rpn-parse (token-parse _)))) (list *src*))
 		(each! -1 0 nil (lambda (_)
 			(compile-rpn-list (rpn-parse (token-parse _)))
-			(compile-assign)) (list *dst*))
+			(compile-arrow)) (list *dst*))
 		(when debug_inst
 			(print "pre opt:")
 			(each print-inst *inst*))

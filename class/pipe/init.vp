@@ -81,7 +81,7 @@
 			(call 'vector 'deref {commands})
 
 			;count how many started
-			(assign {0, 0} {started, index})
+			(assign {0 => started} {index})
 			(loop-while {index != length})
 				(call 'array 'get_element {ids, index} {_, mbox.id_id})
 				(vpif {mbox.id_mbox})
