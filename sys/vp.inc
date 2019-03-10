@@ -58,9 +58,6 @@
 ; VP level optimizer
 ;;;;;;;;;;;;;;;;;;;;
 
-(defmacro opt-emit-ok-list ()
-	''(emit-cmp-cr emit-cmp-rr))
-
 (defmacro opt-emit-read-ops ()
 	''(emit-cpy-ir-ui emit-cpy-ir-us emit-cpy-ir-ub emit-cpy-ir-i emit-cpy-ir-s emit-cpy-ir-b emit-cpy-ir))
 
@@ -88,6 +85,12 @@
 
 (defmacro opt-emit-multi-out-ops ()
 	''(emit-pop))
+
+(defmacro opt-emit-sxx-cr-ops ()
+	''(emit-seq-cr emit-sne-cr emit-sle-cr emit-sge-cr emit-sgt-cr emit-slt-cr))
+
+(defmacro opt-emit-sxx-rr-ops ()
+	''(emit-seq-rr emit-sne-rr emit-sle-rr emit-sge-rr emit-sgt-rr emit-slt-rr))
 
 (defmacro opt-trashes? (r e)
 	`(cond
@@ -142,7 +145,7 @@
 (defcfun opt-emit-find-use (_ r o)
 	(defq _ (some! (inc _) nil t (lambda (e)
 		(cond
-			((and (eql o (elem 0 e)) (eql r (elem 1 e))) _)
+			((and (find (elem 0 e) o) (eql r (elem 1 e))) _)
 			((find r e) -1)
 			((find (elem 0 e) (opt-emit-call-ops)) -1))) (list *emit-buffer*)))
 	(and _ (ne _ -1) _))
@@ -186,9 +189,11 @@
 					(elem-set _ *emit-buffer* (lambda))))
 			;compare constant forwarding
 			((and (eql o 'emit-cpy-cr) (le -0x80000000 (eval (elem 1 e)) 0x7fffffff))
-				(when (defq u (opt-emit-find-use _ (elem 2 e) 'emit-cmp-rr))
-					(elem-set u *emit-buffer* (list 'emit-cmp-cr (elem 1 e) (elem 2 (elem u *emit-buffer*))))
-					(elem-set _ *emit-buffer* (lambda))))))
+				(when (defq u (opt-emit-find-use _ (elem 2 e) (opt-emit-sxx-rr-ops)))
+					(defq c (find (elem 0 (elem u *emit-buffer*)) (opt-emit-sxx-rr-ops)))
+					(elem-set u *emit-buffer* (list (elem c (opt-emit-sxx-cr-ops)) (elem 1 e) (elem 2 (elem u *emit-buffer*))))
+					(elem-set _ *emit-buffer* (lambda))))
+			))
 	(list *emit-buffer*)))
 
 ;;;;;;;;;;;;;;;;;
@@ -275,6 +280,20 @@
 (defcfun vp-bge-rr (s d l)
 	(emit (list 'emit-cmp-rr s d))
 	(emit (list 'emit-bge (label-sym l) (dec (length (push *distance* 0))))))
+
+(defcfun vp-seq-cr (c d) (emit (list 'emit-seq-cr c d)))
+(defcfun vp-sne-cr (c d) (emit (list 'emit-sne-cr c d)))
+(defcfun vp-slt-cr (c d) (emit (list 'emit-slt-cr c d)))
+(defcfun vp-sle-cr (c d) (emit (list 'emit-sle-cr c d)))
+(defcfun vp-sgt-cr (c d) (emit (list 'emit-sgt-cr c d)))
+(defcfun vp-sge-cr (c d) (emit (list 'emit-sge-cr c d)))
+
+(defcfun vp-seq-rr (s d) (emit (list 'emit-seq-rr s d)))
+(defcfun vp-sne-rr (s d) (emit (list 'emit-sne-rr s d)))
+(defcfun vp-slt-rr (s d) (emit (list 'emit-slt-rr s d)))
+(defcfun vp-sle-rr (s d) (emit (list 'emit-sle-rr s d)))
+(defcfun vp-sgt-rr (s d) (emit (list 'emit-sgt-rr s d)))
+(defcfun vp-sge-rr (s d) (emit (list 'emit-sge-rr s d)))
 
 (defcfun vp-push (&rest b) (emit (cat (list 'emit-push) b)))
 (defcfun vp-pop (&rest b) (emit (cat (list 'emit-pop) b)))
