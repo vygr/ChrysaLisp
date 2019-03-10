@@ -132,6 +132,20 @@ functions.
 (vp-ble-rr rs rd label)
 (vp-bgt-rr rs rd label)
 (vp-bge-rr rs rd label)
+
+(vp-seq-cr c rd)
+(vp-sne-cr c rd)
+(vp-slt-cr c rd)
+(vp-sle-cr c rd)
+(vp-sgt-cr c rd)
+(vp-sge-cr c rd)
+
+(vp-seq-rr rs rd)
+(vp-sne-rr rs rd)
+(vp-slt-rr rs rd)
+(vp-sle-rr rs rd)
+(vp-sgt-rr rs rd)
+(vp-sge-rr rs rd)
 ```
 
 #### Effective address
