@@ -900,6 +900,12 @@
 ; optimizer
 ;;;;;;;;;;;
 
+(defmacro opt-sxx-cr-ops ()
+	''(vp-seq-cr vp-sne-cr vp-sle-cr vp-sge-cr vp-sgt-cr vp-slt-cr))
+
+(defmacro opt-sxx-rr-ops ()
+	''(vp-seq-rr vp-sne-rr vp-sle-rr vp-sge-rr vp-sgt-rr vp-slt-rr))
+
 (defmacro opt-read-ops ()
 	''(vp-cpy-ir vp-cpy-ir-b vp-cpy-ir-s vp-cpy-ir-i vp-cpy-ir-ub vp-cpy-ir-us vp-cpy-ir-ui))
 
@@ -997,6 +1003,13 @@
 						((eq m 1)
 							(setq c (elem c '(sub add)))))
 					(elem-set 1 e (list c (elem 1 e) (elem 1 (elem p *inst*))))
+					(elem-set p *inst* (lambda)))
+			;compare constant forwarding
+			((and (defq c (find o (opt-sxx-rr-ops)))
+				(opt-find-1 i (defq r (elem 1 e)) (list 'vp-cpy-cr '_ r))
+				(le -0x80000000 (defq v (eval (elem 1 (elem p *inst*)))) 0x7fffffff))
+					(elem-set 0 e (elem c (opt-sxx-cr-ops)))
+					(elem-set 1 e v)
 					(elem-set p *inst* (lambda)))
 			)))
 

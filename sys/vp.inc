@@ -86,12 +86,6 @@
 (defmacro opt-emit-multi-out-ops ()
 	''(emit-pop))
 
-(defmacro opt-emit-sxx-cr-ops ()
-	''(emit-seq-cr emit-sne-cr emit-sle-cr emit-sge-cr emit-sgt-cr emit-slt-cr))
-
-(defmacro opt-emit-sxx-rr-ops ()
-	''(emit-seq-rr emit-sne-rr emit-sle-rr emit-sge-rr emit-sgt-rr emit-slt-rr))
-
 (defmacro opt-trashes? (r e)
 	`(cond
 		((eql ,r (elem -2 ,e)) t)
@@ -142,14 +136,6 @@
 			((k b e) -1))) (list *emit-buffer*)))
 	(and _ (ne _ -1) _))
 
-(defcfun opt-emit-find-use (_ r o)
-	(defq _ (some! (inc _) nil t (lambda (e)
-		(cond
-			((and (find (elem 0 e) o) (eql r (elem 1 e))) _)
-			((find r e) -1)
-			((find (elem 0 e) (opt-emit-call-ops)) -1))) (list *emit-buffer*)))
-	(and _ (ne _ -1) _))
-
 (defcfun opt-emit-find-rr (k _ rs rd)
 	(defq _ (some! _ 0 t (lambda (e)
 		(cond
@@ -186,12 +172,6 @@
 			;redundant copies
 			((eql o 'emit-cpy-rr)
 				(when (opt-emit-find-rr opt-emit-trashes-with-calls? _ (elem 2 e) (elem 1 e))
-					(elem-set _ *emit-buffer* (lambda))))
-			;compare constant forwarding
-			((and (eql o 'emit-cpy-cr) (le -0x80000000 (eval (elem 1 e)) 0x7fffffff))
-				(when (defq u (opt-emit-find-use _ (elem 2 e) (opt-emit-sxx-rr-ops)))
-					(defq c (find (elem 0 (elem u *emit-buffer*)) (opt-emit-sxx-rr-ops)))
-					(elem-set u *emit-buffer* (list (elem c (opt-emit-sxx-cr-ops)) (elem 1 e) (elem 2 (elem u *emit-buffer*))))
 					(elem-set _ *emit-buffer* (lambda))))
 			))
 	(list *emit-buffer*)))
