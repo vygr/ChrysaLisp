@@ -248,8 +248,7 @@
 			(assign {4 - (this->vdu_cursor_x & 3)} {char})
 			(loop-start)
 				(call 'vdu 'print_char {this, 32})
-				(assign {char - 1} {char})
-			(loop-untilnot {char})
+			(loop-untilnot {char - 1 => char})
 		(elseif {char == char_backspace})
 			;backspace
 			(vpif {this->vdu_cursor_x})

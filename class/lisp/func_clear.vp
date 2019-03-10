@@ -23,8 +23,7 @@
 	(loop-start)
 		(assign {*iter_begin} {value})
 		(call 'array 'clear {value})
-		(assign {iter_begin + ptr_size} {iter_begin})
-	(loop-until {iter_begin == iter_end})
+	(loop-until {(iter_begin + ptr_size => iter_begin) == iter_end})
 	(call 'obj 'ref {value})
 
 (vp-label 'funcexit)

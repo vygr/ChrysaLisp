@@ -79,8 +79,7 @@
 			(loop-start)
 				(call 'sequence 'ref_element {*iter, start} {_, value})
 				(call 'vector 'push_back {params, value})
-				(assign {iter + ptr_size} {iter})
-			(loop-until {iter == iter_end})
+			(loop-until {(iter + ptr_size => iter) == iter_end})
 
 			(call 'integer 'create {start} {value})
 			(call 'hash_map 'insert {this->lisp_environment, this->lisp_sym_underscore, value})

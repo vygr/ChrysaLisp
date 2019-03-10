@@ -30,8 +30,7 @@
 		(call 'lisp 'repl_eval {this, iter_begin[ptr_size * 1]} {_, val})
 		(errorif (cat {val->obj_vtable == @} (f-path 'error 'vtable)) 'funcexit)
 		(call 'hash_map 'insert {this->lisp_environment, var, val})
-		(assign {&iter_begin[ptr_size * 2]} {iter_begin})
-	(loop-until {iter_begin == iter_end})
+	(loop-until {(&iter_begin[ptr_size * 2] => iter_begin) == iter_end})
 
 (vp-label 'funcexit)
 	(exit 'lisp 'func_defq {this, val})

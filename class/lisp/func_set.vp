@@ -38,8 +38,7 @@
 		(call 'hash_map 'set {env, var, val} {_, eval})
 		(errorifnot {eval} 'error4)
 		(call 'obj 'ref {val})
-		(assign {&iter_begin[ptr_size * 2]} {iter_begin})
-	(loop-until {iter_begin == iter_end})
+	(loop-until {(&iter_begin[ptr_size * 2] => iter_begin) == iter_end})
 
 (vp-label 'funcexit)
 	(exit 'lisp 'func_set {this, val})

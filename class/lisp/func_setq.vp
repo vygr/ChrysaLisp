@@ -35,8 +35,7 @@
 			(call 'obj 'deref {val})
 			(goto 'error3)
 		(endif))
-		(assign {&iter_begin[ptr_size * 2]} {iter_begin})
-	(loop-until {iter_begin == iter_end})
+	(loop-until {(&iter_begin[ptr_size * 2] => iter_begin) == iter_end})
 
 (vp-label 'funcexit)
 	(exit 'lisp 'func_setq {this, val})

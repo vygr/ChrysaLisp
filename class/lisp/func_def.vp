@@ -36,8 +36,7 @@
 		(errorif (cat {var->obj_vtable != @} (f-path 'symbol 'vtable)) 'error3)
 		(call 'obj 'ref {iter_begin[ptr_size * 1]} {val})
 		(call 'hash_map 'insert {env, var, val})
-		(assign {&iter_begin[ptr_size * 2]} {iter_begin})
-	(loop-until {iter_begin == iter_end})
+	(loop-until {(&iter_begin[ptr_size * 2] => iter_begin) == iter_end})
 
 (vp-label 'funcexit)
 	(exit 'lisp 'func_def {this, val})

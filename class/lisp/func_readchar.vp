@@ -47,8 +47,7 @@
 		(endif)
 		(assign {length} {*chars})
 		(assign {chars + 1} {chars})
-		(assign {width - 1} {width})
-	(loop-untilnot {width})
+	(loop-untilnot {width - 1 => width})
 
 (vp-label 'funcexit)
 	(exit 'lisp 'func_readchar {this, value})

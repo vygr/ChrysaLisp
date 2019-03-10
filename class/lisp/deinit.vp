@@ -18,8 +18,7 @@
 	(assign {&this->lisp_stdin} {iter})
 	(loop-start)
 		(call 'obj 'deref {*iter})
-		(assign {iter + ptr_size} {iter})
-	(loop-until {iter == &this->lisp_nextsym})
+	(loop-until {(iter + ptr_size => iter) == &this->lisp_nextsym})
 
 	;flush interned symbols
 	(call 'symbol 'flush)

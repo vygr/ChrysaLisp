@@ -51,8 +51,7 @@
 					(vpif {dist > max})
 						(assign {dist, length} {max, index})
 					(endif)
-					(assign {length + 2} {length})
-				(loop-until {length == last})
+				(loop-until {(length + 2 => length) == last})
 
 				;continue subdivision ?
 				(vpif {max > eps})
