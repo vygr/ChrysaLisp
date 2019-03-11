@@ -928,7 +928,7 @@
 	''(vp-add-cr vp-sub-cr))
 
 (defmacro opt-uses (r _)
-	`(or (find ,r ,_) (find (elem 0 ,_) '(vpif else endif))))
+	`(find ,r ,_))
 
 (defcfun opt-find-1 (_ r x)
 	(setq _ (some! _ 0 t (lambda (e)
