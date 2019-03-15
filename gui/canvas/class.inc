@@ -5,7 +5,6 @@
 (dec-method 'vtable 'gui/canvas/vtable)
 (dec-method 'create 'gui/canvas/create 'static '(r0 r1 r2) '(r0))
 (dec-method 'create_shared 'gui/canvas/create_shared 'static '(r0) '(r0))
-(dec-method 'new 'gui/canvas/new 'static nil '(r0))
 (dec-method 'init 'gui/canvas/init 'static '(r0 r1 r2 r3 r4) '(r0 r1))
 (dec-method 'init_shared 'gui/canvas/init_shared 'static '(r0 r1 r2) '(r0 r1))
 (dec-method 'swap 'gui/canvas/swap 'static '(r0) '(r0))
@@ -30,6 +29,8 @@
 
 (dec-method 'load 'gui/canvas/load 'static '(r0 r1) '(r0))
 (dec-method 'load_cpm 'gui/canvas/load_cpm 'static '(r0) '(r0))
+(dec-method 'read_pixel 'gui/canvas/read_pixel 'static '(r0 r1) '(r0))
+(dec-method 'to_argb32 'gui/canvas/to_argb32 'static '(r0 r1) '(r0))
 
 (dec-method 'deinit 'gui/canvas/deinit 'override)
 (dec-method 'pref_size 'gui/canvas/pref_size 'override)

@@ -2,6 +2,7 @@
 (include 'gui/canvas/class.inc)
 (include 'gui/ctx/class.inc)
 (include 'class/stream/class.inc)
+(include 'class/array/class.inc)
 
 (def-struct 'cpm)
 	(uint 'ident)		;ident '.CPM' or '.FLM'
@@ -22,9 +23,10 @@
 	;all
 
 	(ptr 'this 'stream)
+	(puint 'data 'data_end)
 	(struct 'header 'cpm)
 	(long 'col)
-	(int 'length 'run 'x 'y)
+	(int 'length)
 
 	;save inputs
 	(push-scope)
@@ -42,46 +44,46 @@
 			(vpif {this})
 				(call 'canvas 'fill {this, 0})
 				;decode acording to version
-				(assign {0 => x} {y})
+				(assign {this->canvas_array->array_array} {data})
+				(assign {data + this->canvas_height * this->canvas_stride} {data_end})
 				(loop-start)
 					;get token
-					(call 'stream 'read_char {stream} {_, run})
-					(gotoif {run == -1} 'error)
-					(vpif {run >= 128})
+					(call 'stream 'read_char {stream} {_, length})
+					(gotoif {length == -1} 'error)
+					(vpif {length >= 128})
 						;run of a pixel
-						(call 'read_pixel {stream, header.cpm_type} {col})
+						(call 'canvas 'read_pixel {stream, header.cpm_type} {col})
 						(gotoif {col == -1} 'error)
 
-						;plot repeatedly
-						(call 'canvas 'set_color {this, col})
-						(assign {run - 127} {run})
-						(loop-start)
-							(vpif {col != header.cpm_trans})
-								(call 'canvas 'plot {this, x, y})
-							(endif)
-							(vpif {(x + 1 => x) == header.cpm_width})
-								(assign {0, y + 1} {x, y})
-							(endif)
-						(loop-untilnot {run - 1 => run})
+						;fill or skip
+						(assign {length - 127} {length})
+						(vpif {col != header.cpm_trans})
+							(loop-start)
+								(gotoif {data >= data_end} 'error)
+								(assign {col} {*data})
+								(assign {data + int_size} {data})
+							(loop-untilnot {length - 1 => length})
+						(else)
+							(assign {data + length * int_size} {data})
+						(endif)
 					(else)
 						;block of pixels
-						(assign {run + 1} {run})
+						(assign {length + 1} {length})
 						(loop-start)
-							(call 'read_pixel {stream, header.cpm_type} {col})
+							(call 'canvas 'read_pixel {stream, header.cpm_type} {col})
 							(gotoif {col == -1} 'error)
+							(gotoif {data >= data_end} 'error)
 							(vpif {col != header.cpm_trans})
-								(call 'canvas 'set_color {this, col})
-								(call 'canvas 'plot {this, x, y})
+								(assign {col} {*data})
 							(endif)
-							(vpif {(x + 1 => x) == header.cpm_width})
-								(assign {0, y + 1} {x, y})
-							(endif)
-						(loop-untilnot {run - 1 => run})
+							(assign {data + int_size} {data})
+						(loop-untilnot {length - 1 => length})
 					(endif)
-				(loop-until {y == header.cpm_height})
+				(loop-until {data == data_end})
 			(endif)
 		(endif)
 	(endif)
+	(call 'canvas 'as_premul {this, this})
 
 (vp-label 'funcexit)
 	(exit 'canvas 'load_cpm {this})
@@ -94,12 +96,14 @@
 
 	(pop-scope-syms)
 
-(vp-label 'read_pixel)
+(def-func-end)
+
+(def-method 'canvas 'read_pixel)
 	;inputs
 	;r0 = stream object (ptr)
 	;r1 = pixel type (uint)
 	;outputs
-	;r0 = -1 if error, else col (uint)
+	;r0 = -1 if error, else pixel (long)
 
 	(vp-def (col pix stream) '(r0 r1))
 
@@ -113,19 +117,19 @@
 		(gotoif `(,pix == -1) 'eof)
 		(vp-pop col)
 		(vp-cpy-cr 32 pix)
-		(vp-jmp 'to_argb)
+		(jump 'canvas 'to_argb32 (list col pix))
 	(case `(,pix == 24))
 		(call 'stream 'read (list stream rsp 3) (list '_ pix))
 		(gotoif `(,pix == -1) 'eof)
 		(vp-pop col)
 		(vp-cpy-cr 24 pix)
-		(vp-jmp 'to_argb)
+		(jump 'canvas 'to_argb32 (list col pix))
 	(case `(,pix == 16))
 		(call 'stream 'read (list stream rsp short_size) (list '_ pix))
 		(gotoif `(,pix == -1) 'eof)
 		(vp-pop col)
 		(vp-cpy-cr 16 pix)
-		(vp-jmp 'to_argb)
+		(jump 'canvas 'to_argb32 (list col pix))
 	(default)
 	(vp-label 'eof)
 		(vp-pop col)
@@ -135,7 +139,9 @@
 	(exit (list col))
 	(vp-ret)
 
-(vp-label 'to_argb)
+(def-func-end)
+
+(def-method 'canvas 'to_argb32)
 	;inputs
 	;r0 = col (uint)
 	;r1 = pixel type (uint)
@@ -155,7 +161,7 @@
 		(vp-cpy-cr argb_black pix)
 		(vp-add-rr pix col)
 		(break)
-	(case `(,pix == 16))
+	(default)
 		(vp-cpy-rr col rh)
 		(vp-cpy-rr col rl)
 		(vp-cpy-rr col gh)
@@ -181,9 +187,6 @@
 		(vp-add-rr rl col)
 		(vp-add-rr gl col)
 		(vp-add-rr bl col)
-		(break)
-	(default)
-		(vp-cpy-cr -1 col)
 	(endswitch)
 
 	(exit (list col))
