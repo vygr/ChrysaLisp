@@ -7,9 +7,8 @@
 (include 'gui/text/class.inc)
 (include 'class/string/class.inc)
 
-(gen-new 'text)
 (gen-create 'text)
-(gen-class 'text)
+(gen-vtable 'text)
 
 (def-method 'text 'init)
 	;inputs

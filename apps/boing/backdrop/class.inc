@@ -3,7 +3,6 @@
 (def-class 'backdrop 'view)
 (dec-method 'vtable 'apps/boing/backdrop/vtable)
 (dec-method 'create 'apps/boing/backdrop/create 'static '() '(r0))
-(dec-method 'new 'apps/boing/backdrop/new 'static nil '(r0))
 
 (dec-method 'pref_size 'apps/boing/backdrop/pref_size 'override)
 (dec-method 'draw 'apps/boing/backdrop/draw 'override)

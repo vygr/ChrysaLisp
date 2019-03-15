@@ -2,7 +2,7 @@
 (include 'class/vector/class.inc)
 
 (gen-create 'vector)
-(gen-class 'vector)
+(gen-vtable 'vector)
 
 (def-method 'vector 'deinit)
 	;inputs

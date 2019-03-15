@@ -312,7 +312,7 @@ remake-platforms
 ```lisp
 defcvar
 defcfun
-defcfun
+defcmacro
 ```
 
 ### `*compile-env*` functions

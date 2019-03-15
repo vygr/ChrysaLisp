@@ -2,9 +2,8 @@
 (include 'class/string/class.inc)
 (include 'class/stream_str/class.inc)
 
-(gen-new 'stream_str)
 (gen-create 'stream_str)
-(gen-class 'stream_str)
+(gen-vtable 'stream_str)
 
 (def-method 'stream_str 'init)
 	;inputs

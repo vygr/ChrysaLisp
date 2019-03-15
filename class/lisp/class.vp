@@ -2,5 +2,4 @@
 (include 'class/lisp/class.inc)
 
 (gen-create 'lisp)
-(gen-class 'lisp)
-(gen-new 'lisp)
+(gen-vtable 'lisp)

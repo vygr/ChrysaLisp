@@ -2,4 +2,4 @@
 (include 'class/function/class.inc)
 
 (gen-create 'function)
-(gen-class 'function)
+(gen-vtable 'function)

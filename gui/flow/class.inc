@@ -3,7 +3,6 @@
 (def-class 'flow 'view)
 (dec-method 'vtable 'gui/flow/vtable)
 (dec-method 'create 'gui/flow/create 'static '() '(r0))
-(dec-method 'new 'gui/flow/new)
 
 (dec-method 'pref_size 'gui/flow/pref_size 'final)
 (dec-method 'layout 'gui/flow/layout 'final)

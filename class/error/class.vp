@@ -3,9 +3,8 @@
 (include 'class/string/class.inc)
 (include 'class/error/class.inc)
 
-(gen-new 'error)
 (gen-create 'error)
-(gen-class 'error)
+(gen-vtable 'error)
 
 (def-method 'error 'init)
 	;inputs

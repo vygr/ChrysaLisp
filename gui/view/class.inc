@@ -3,7 +3,6 @@
 (def-class 'view 'component)
 (dec-method 'vtable 'gui/view/vtable)
 (dec-method 'create 'gui/view/create 'static '() '(r0))
-(dec-method 'new 'gui/view/new 'static nil '(r0))
 (dec-method 'init 'gui/view/init)
 (dec-method 'add_front 'gui/view/add_front 'static '(r0 r1) '(r0))
 (dec-method 'add_back 'gui/view/add_back 'static '(r0 r1) '(r0))

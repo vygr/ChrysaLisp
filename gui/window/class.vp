@@ -9,9 +9,8 @@
 (include 'class/string/class.inc)
 (include 'class/array/class.inc)
 
-(gen-new 'window)
 (gen-create 'window)
-(gen-class 'window)
+(gen-vtable 'window)
 
 (def-method 'window 'init)
 	;inputs

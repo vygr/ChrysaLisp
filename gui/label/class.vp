@@ -3,9 +3,8 @@
 (include 'gui/label/class.inc)
 (include 'gui/flow/class.inc)
 
-(gen-new 'label)
 (gen-create 'label)
-(gen-class 'label)
+(gen-vtable 'label)
 
 (def-method 'label 'init)
 	;inputs

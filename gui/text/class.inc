@@ -3,7 +3,6 @@
 (def-class 'text 'view)
 (dec-method 'vtable 'gui/text/vtable)
 (dec-method 'create 'gui/text/create 'static '() '(r0))
-(dec-method 'new 'gui/text/new 'static nil '(r0))
 (dec-method 'init 'gui/text/init)
 (dec-method 'switch_text 'gui/text/switch_text 'static '(r0) '(r0))
 

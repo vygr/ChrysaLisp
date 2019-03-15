@@ -2,9 +2,8 @@
 (include 'gui/ctx/class.inc)
 (include 'apps/boing/backdrop/class.inc)
 
-(gen-class 'backdrop)
+(gen-vtable 'backdrop)
 (gen-create 'backdrop)
-(gen-new 'backdrop)
 
 (def-method 'backdrop 'draw)
 	;inputs

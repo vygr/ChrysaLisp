@@ -9,9 +9,8 @@
 (include 'sys/pii/class.inc)
 (include 'gui/gui/class.inc)
 
-(gen-new 'font)
 (gen-create 'font)
-(gen-class 'font)
+(gen-vtable 'font)
 
 (def-method 'font 'statics)
 	;info

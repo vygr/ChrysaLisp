@@ -2,9 +2,8 @@
 (include 'gui/scroll/class.inc)
 (include 'gui/slider/class.inc)
 
-(gen-new 'scroll)
 (gen-create 'scroll)
-(gen-class 'scroll)
+(gen-vtable 'scroll)
 
 (def-method 'scroll 'init)
 	;inputs

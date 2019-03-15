@@ -3,7 +3,6 @@
 (def-class 'slave 'obj)
 (dec-method 'vtable 'class/slave/vtable)
 (dec-method 'create 'class/slave/create 'static nil '(r0))
-(dec-method 'new 'class/slave/new 'static nil '(r0))
 (dec-method 'init 'class/slave/init 'static '(r0 r1))
 (dec-method 'get_args 'class/slave/get_args 'static '(r0) '(r0 r1))
 

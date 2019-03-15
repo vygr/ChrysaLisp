@@ -3,9 +3,8 @@
 (include 'class/pair/class.inc)
 (include 'class/hash_map/class.inc)
 
-(gen-new 'hash_map)
 (gen-create 'hash_map)
-(gen-class 'hash_map)
+(gen-vtable 'hash_map)
 
 (def-method 'hash_map 'init)
 	;inputs

@@ -4,7 +4,6 @@
 (def-class 'pipe 'obj)
 (dec-method 'vtable 'class/pipe/vtable)
 (dec-method 'create 'class/pipe/create 'static '(r0 r1) '(r0))
-(dec-method 'new 'class/pipe/new 'static nil '(r0))
 (dec-method 'init 'class/pipe/init 'static '(r0 r1 r2 r3))
 (dec-method 'select 'class/pipe/select 'static '(r0 r1) '(r0 r1))
 (dec-method 'get_state 'class/pipe/get_state 'static '(r0) '(r0 r1))

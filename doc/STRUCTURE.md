@@ -290,7 +290,7 @@ reclaimed.
 
 ```
 	(call 'xxx 'create)
-		(call 'xxx 'new)
+		(call 'sys_mem 'alloc)
 			(call 'xxx 'init)
 				...
 				[(call 'xxx 'ref)]
@@ -300,7 +300,7 @@ reclaimed.
 				[(call 'xxx 'deref_if)]
 				...
 			(call 'xxx 'deinit)
-		(call 'xxx 'delete)
+		(call 'sys_mem 'free)
 	(call 'xxx 'destroy)
 ```
 
@@ -316,18 +316,18 @@ resources etc, and failing with an error if not able to do so.
 The `deinit` is the counterpart to `init`, it takes an instance to the final
 state, releasing any resources, and preparing for the object to be freed.
 
-The `new` method is responsible for allocating a chunk of memory for the object
-instance.
+The `alloc` method is responsible for allocating a chunk of memory for the
+object instance.
 
-The `delete` method frees the object instance, reversing the action of the
-`new` method.
+The `free` method frees the object instance, reversing the action of the
+`alloc` method.
 
 The `ref` or `ref_if` methods just increment the object reference counter.
 
 The `deref` or `deref_if` methods decrement the object reference counter and if
 it becomes 0 automatically call the `destroy` method !
 
-The `destroy` method just calls `deinit` folowed by `delete`.
+The `destroy` method just calls `deinit` folowed by `free`.
 
 ### Class and Object declaration
 
@@ -339,7 +339,6 @@ This is an example from the `class/pair/class.inc` file.
 (def-class 'pair 'obj)
 (dec-method 'vtable 'class/pair/vtable)
 (dec-method 'create 'class/pair/create 'static '(r0 r1) '(r0))
-(dec-method 'new 'class/pair/new 'static nil '(r0))
 (dec-method 'init 'class/pair/init 'static '(r0 r1 r2 r3))
 (dec-method 'ref_first 'class/pair/ref_first 'static '(r0) '(r0 r1))
 (dec-method 'ref_second 'class/pair/ref_second 'static '(r0) '(r0 r1))
@@ -399,18 +398,17 @@ function' to emit the method call. They need to be declared in the `class.inc`
 file in order to be visible to all code that use those methods.
 
 The none inline methods are defined in the `class/pair/class.vp` file. Note the
-use of the helper method generators `(gen-new 'pair)`, `(gen-create 'pair)` and
-`(gen-class 'pair)`. These helpers use the corresponding method declarations to
-generate the method code for you. Take a look in `sys/class.inc` for the
-implementation of these.
+use of the helper method generators `(gen-create 'pair)` and `(gen-vtable
+'pair)`. These helpers use the corresponding method declarations to generate
+the method code for you. Take a look in `sys/class.inc` for the implementation
+of these.
 
 ```
 (include 'sys/func.inc)
 (include 'class/pair/class.inc)
 
-(gen-new 'pair)
 (gen-create 'pair)
-(gen-class 'pair)
+(gen-vtable 'pair)
 
 (def-method 'pair 'deinit)
 	;inputs

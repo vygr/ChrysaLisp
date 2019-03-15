@@ -3,7 +3,6 @@
 (def-class 'button 'label)
 (dec-method 'vtable 'gui/button/vtable)
 (dec-method 'create 'gui/button/create)
-(dec-method 'new 'gui/button/new)
 (dec-method 'init 'gui/button/init)
 (dec-method 'connect_click 'gui/button/connect_click 'static '(r0 r1) '(r0))
 

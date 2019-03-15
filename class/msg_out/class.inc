@@ -3,7 +3,6 @@
 (def-class 'msg_out 'stream)
 (dec-method 'vtable 'class/msg_out/vtable)
 (dec-method 'create 'class/msg_out/create 'static '(r0) '(r0))
-(dec-method 'new 'class/msg_out/new 'static nil '(r0))
 (dec-method 'init 'class/msg_out/init 'static '(r0 r1 r2))
 (dec-method 'set_state 'class/msg_out/set_state 'static '(r0 r1) '(r0))
 

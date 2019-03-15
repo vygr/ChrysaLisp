@@ -3,7 +3,7 @@
 (include 'sys/math/class.inc)
 
 (gen-create 'points)
-(gen-class 'points)
+(gen-vtable 'points)
 
 (def-method 'points 'push_back2)
 	;inputs

@@ -8,7 +8,7 @@
 (include 'gui/font/class.inc)
 (include 'class/vector/class.inc)
 
-(gen-class 'component)
+(gen-vtable 'component)
 
 (def-method 'component 'init)
 	;inputs

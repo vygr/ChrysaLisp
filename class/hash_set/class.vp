@@ -2,9 +2,8 @@
 (include 'class/vector/class.inc)
 (include 'class/hash_set/class.inc)
 
-(gen-new 'hash_set)
 (gen-create 'hash_set)
-(gen-class 'hash_set)
+(gen-vtable 'hash_set)
 
 (def-method 'hash_set 'init)
 	;inputs

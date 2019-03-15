@@ -5,9 +5,8 @@
 (include 'gui/title/class.inc)
 (include 'gui/flow/class.inc)
 
-(gen-new 'title)
 (gen-create 'title)
-(gen-class 'title)
+(gen-vtable 'title)
 
 (def-method 'title 'init)
 	;inputs

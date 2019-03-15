@@ -2,9 +2,8 @@
 (include 'class/array/class.inc)
 (include 'class/integer/class.inc)
 
-(gen-new 'array)
 (gen-create 'array)
-(gen-class 'array)
+(gen-vtable 'array)
 
 (def-method 'array 'deinit)
 	;inputs

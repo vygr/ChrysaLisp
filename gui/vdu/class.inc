@@ -3,7 +3,6 @@
 (def-class 'vdu 'view)
 (dec-method 'vtable 'gui/vdu/vtable)
 (dec-method 'create 'gui/vdu/create 'static '() '(r0))
-(dec-method 'new 'gui/vdu/new 'static nil '(r0))
 (dec-method 'init 'gui/vdu/init)
 (dec-method 'switch_font 'gui/vdu/switch_font 'static '(r0) '(r0))
 (dec-method 'switch_size 'gui/vdu/switch_size 'static '(r0) '(r0))

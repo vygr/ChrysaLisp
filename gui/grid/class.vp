@@ -1,9 +1,8 @@
 (include 'sys/func.inc)
 (include 'gui/grid/class.inc)
 
-(gen-new 'grid)
 (gen-create 'grid)
-(gen-class 'grid)
+(gen-vtable 'grid)
 
 (def-method 'grid 'layout)
 	;inputs

@@ -1,9 +1,8 @@
 (include 'sys/func.inc)
 (include 'class/pair/class.inc)
 
-(gen-new 'pair)
 (gen-create 'pair)
-(gen-class 'pair)
+(gen-vtable 'pair)
 
 (def-method 'pair 'deinit)
 	;inputs

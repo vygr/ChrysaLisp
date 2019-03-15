@@ -1,7 +1,7 @@
 (include 'sys/func.inc)
 (include 'class/obj/class.inc)
 
-(gen-class 'obj)
+(gen-vtable 'obj)
 
 (def-method 'obj 'destroy)
 	;inputs
@@ -10,7 +10,7 @@
 	;all
 
 	(call 'obj 'deinit '(r0))
-	(jump 'obj 'delete '(r0))
+	(jump 'sys_mem 'free '(r0))
 
 (def-func-end)
 

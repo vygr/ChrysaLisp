@@ -5,9 +5,8 @@
 (include 'class/slave/class.inc)
 (include 'class/pipe/class.inc)
 
-(gen-new 'pipe)
 (gen-create 'pipe)
-(gen-class 'pipe)
+(gen-vtable 'pipe)
 
 (def-method 'pipe 'select)
 	;inputs

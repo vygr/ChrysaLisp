@@ -3,7 +3,6 @@
 (def-class 'error 'obj)
 (dec-method 'vtable 'class/error/vtable)
 (dec-method 'create 'class/error/create 'static '(r0 r1 r2 r3 r4) '(r0))
-(dec-method 'new 'class/error/new 'static nil '(r0))
 (dec-method 'init 'class/error/init 'static '(r0 r1 r2 r3 r4 r5 r6))
 (dec-method 'get_description 'class/error/get_description 'static '(r0) '(r0 r1))
 (dec-method 'get_msg 'class/error/get_msg 'static '(r0) '(r0 r1))

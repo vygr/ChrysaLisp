@@ -8,7 +8,6 @@
 (dec-method 'create_from_long 'class/string/create_from_long 'static '(r0 r1) '(r0))
 (dec-method 'append 'class/string/append 'static '(r0 r1) '(r0))
 (dec-method 'cat 'class/string/cat 'static '(r0) '(r0))
-(dec-method 'new 'class/string/new 'static '(r0) '(r0))
 (dec-method 'init 'class/string/init 'static '(r0 r1 r2 r3))
 (dec-method 'init1 'class/string/init1 'static '(r0 r1 r2 r3) '(r0 r1))
 (dec-method 'init2 'class/string/init2 'static '(r0 r1 r2 r3) '(r0 r1))

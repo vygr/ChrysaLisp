@@ -3,7 +3,6 @@
 Super Class: sequence
 ### array::vtable -> class/array/vtable
 ### array::create -> class/array/create
-### array::new -> class/array/new
 ### array::init -> class/array/init
 ```
 inputs
@@ -317,7 +316,6 @@ r1-r11
 Super Class: view
 ### backdrop::vtable -> apps/boing/backdrop/vtable
 ### backdrop::create -> apps/boing/backdrop/create
-### backdrop::new -> apps/boing/backdrop/new
 ### backdrop::pref_size -> apps/boing/backdrop/pref_size
 ```
 inputs
@@ -356,7 +354,6 @@ r1 = return value object (ptr)
 Super Class: label
 ### button::vtable -> gui/button/vtable
 ### button::create -> gui/button/create
-### button::new -> gui/button/new
 ### button::init -> gui/button/init
 ```
 inputs
@@ -445,7 +442,6 @@ Super Class: view
 ### canvas::vtable -> gui/canvas/vtable
 ### canvas::create -> gui/canvas/create
 ### canvas::create_shared -> gui/canvas/create_shared
-### canvas::new -> gui/canvas/new
 ### canvas::init -> gui/canvas/init
 ```
 inputs
@@ -710,6 +706,22 @@ outputs
 r0 = 0 if error, else canvas object (ptr)
 trashes
 all
+```
+### canvas::read_pixel -> gui/canvas/read_pixel
+```
+inputs
+r0 = stream object (ptr)
+r1 = pixel type (uint)
+outputs
+r0 = -1 if error, else pixel (long)
+```
+### canvas::to_argb32 -> gui/canvas/to_argb32
+```
+inputs
+r0 = col (uint)
+r1 = pixel type (uint)
+outputs
+r0 = col (uint)
 ```
 ### canvas::deinit -> gui/canvas/deinit
 ```
@@ -1013,7 +1025,6 @@ r2, r3
 Super Class: obj
 ### error::vtable -> class/error/vtable
 ### error::create -> class/error/create
-### error::new -> class/error/new
 ### error::init -> class/error/init
 ```
 inputs
@@ -1085,7 +1096,6 @@ all but r0
 Super Class: view
 ### flow::vtable -> gui/flow/vtable
 ### flow::create -> gui/flow/create
-### flow::new -> gui/flow/new
 ### flow::pref_size -> gui/flow/pref_size
 ```
 inputs
@@ -1133,7 +1143,6 @@ trashes
 all
 ```
 ### font::create -> gui/font/create
-### font::new -> gui/font/new
 ### font::init -> gui/font/init
 ```
 inputs
@@ -1209,7 +1218,6 @@ Super Class: integer
 Super Class: view
 ### grid::vtable -> gui/grid/vtable
 ### grid::create -> gui/grid/create
-### grid::new -> gui/grid/new
 ### grid::pref_size -> gui/grid/pref_size
 ```
 inputs
@@ -1276,7 +1284,6 @@ r1 = return value object (ptr)
 Super Class: hash_set
 ### hash_map::vtable -> class/hash_map/vtable
 ### hash_map::create -> class/hash_map/create
-### hash_map::new -> class/hash_map/new
 ### hash_map::init -> class/hash_map/init
 ```
 inputs
@@ -1390,7 +1397,6 @@ all but r0
 Super Class: obj
 ### hash_set::vtable -> class/hash_set/vtable
 ### hash_set::create -> class/hash_set/create
-### hash_set::new -> class/hash_set/new
 ### hash_set::init -> class/hash_set/init
 ```
 inputs
@@ -1569,7 +1575,6 @@ Super Class: null
 Super Class: obj
 ### integer::vtable -> class/integer/vtable
 ### integer::create -> class/integer/create
-### integer::new -> class/integer/new
 ### integer::init -> class/integer/init
 ```
 inputs
@@ -1592,7 +1597,6 @@ r1 = value (ptr)
 Super Class: view
 ### label::vtable -> gui/label/vtable
 ### label::create -> gui/label/create
-### label::new -> gui/label/new
 ### label::init -> gui/label/init
 ```
 inputs
@@ -1642,7 +1646,6 @@ r1 = return value object (ptr)
 Super Class: obj
 ### lisp::vtable -> class/lisp/vtable
 ### lisp::create -> class/lisp/create
-### lisp::new -> class/lisp/new
 ### lisp::init -> class/lisp/init
 ```
 inputs
@@ -2688,7 +2691,6 @@ r1 = return value object (ptr)
 Super Class: stream
 ### msg_in::vtable -> class/msg_in/vtable
 ### msg_in::create -> class/msg_in/create
-### msg_in::new -> class/msg_in/new
 ### msg_in::init -> class/msg_in/init
 ```
 inputs
@@ -2750,7 +2752,6 @@ all but r0
 Super Class: stream
 ### msg_out::vtable -> class/msg_out/vtable
 ### msg_out::create -> class/msg_out/create
-### msg_out::new -> class/msg_out/new
 ### msg_out::init -> class/msg_out/init
 ```
 inputs
@@ -2852,13 +2853,6 @@ r0 = 0, else object (ptr)
 trashes
 all
 ```
-### obj::delete -> sys/mem/free
-```
-inputs
-r0 = address (ptr)
-trashes
-r0-r2
-```
 ### obj::deinit -> class/obj/null
 ### obj::hash -> class/obj/hash
 ```
@@ -2874,7 +2868,6 @@ all but r0
 Super Class: obj
 ### pair::vtable -> class/pair/vtable
 ### pair::create -> class/pair/create
-### pair::new -> class/pair/new
 ### pair::init -> class/pair/init
 ```
 inputs
@@ -2953,7 +2946,6 @@ all but r0
 Super Class: obj
 ### pipe::vtable -> class/pipe/vtable
 ### pipe::create -> class/pipe/create
-### pipe::new -> class/pipe/new
 ### pipe::init -> class/pipe/init
 ```
 inputs
@@ -3547,7 +3539,6 @@ r1 = return value object (ptr)
 Super Class: view
 ### progress::vtable -> gui/progress/vtable
 ### progress::create -> gui/progress/create
-### progress::new -> gui/progress/new
 ### progress::pref_size -> gui/progress/pref_size
 ```
 inputs
@@ -3710,7 +3701,6 @@ r1-r14
 ## scroll
 Super Class: view
 ### scroll::vtable -> gui/scroll/vtable
-### scroll::new -> gui/scroll/new
 ### scroll::create -> gui/scroll/create
 ### scroll::init -> gui/scroll/init
 ```
@@ -3777,7 +3767,6 @@ Super Class: obj
 Super Class: obj
 ### slave::vtable -> class/slave/vtable
 ### slave::create -> class/slave/create
-### slave::new -> class/slave/new
 ### slave::init -> class/slave/init
 ```
 inputs
@@ -3825,7 +3814,6 @@ r1 = return value object (ptr)
 Super Class: view
 ### slider::vtable -> gui/slider/vtable
 ### slider::create -> gui/slider/create
-### slider::new -> gui/slider/new
 ### slider::init -> gui/slider/init
 ```
 inputs
@@ -3923,7 +3911,6 @@ r1 = return value object (ptr)
 Super Class: obj
 ### stream::vtable -> class/stream/vtable
 ### stream::create -> class/stream/create
-### stream::new -> class/stream/new
 ### stream::init -> class/stream/init
 ```
 inputs
@@ -4106,7 +4093,6 @@ r1
 Super Class: stream
 ### stream_str::vtable -> class/stream_str/vtable
 ### stream_str::create -> class/stream_str/create
-### stream_str::new -> class/stream_str/new
 ### stream_str::init -> class/stream_str/init
 ```
 inputs
@@ -4205,15 +4191,6 @@ outputs
 r0 = 0 if error, else new string object (ptr)
 trashes
 r1-r6
-```
-### string::new -> class/string/new
-```
-inputs
-r0 = object size (bytes)
-outputs
-r0 = 0 if error, else object (ptr)
-trashes
-r1-r3
 ```
 ### string::init -> class/string/init
 ```
@@ -5317,7 +5294,6 @@ r1 = return value object (ptr)
 Super Class: view
 ### text::vtable -> gui/text/vtable
 ### text::create -> gui/text/create
-### text::new -> gui/text/new
 ### text::init -> gui/text/init
 ```
 inputs
@@ -5363,7 +5339,6 @@ all but r0
 Super Class: obj
 ### texture::vtable -> gui/texture/vtable
 ### texture::create -> gui/texture/create
-### texture::new -> gui/texture/new
 ### texture::init -> gui/texture/init
 ```
 inputs
@@ -5397,7 +5372,6 @@ all but r0
 Super Class: label
 ### title::vtable -> gui/title/vtable
 ### title::create -> gui/title/create
-### title::new -> gui/title/new
 ### title::init -> gui/title/init
 ```
 inputs
@@ -5427,7 +5401,6 @@ all but r0
 Super Class: view
 ### vdu::vtable -> gui/vdu/vtable
 ### vdu::create -> gui/vdu/create
-### vdu::new -> gui/vdu/new
 ### vdu::init -> gui/vdu/init
 ```
 inputs
@@ -5599,7 +5572,6 @@ r1-r11
 Super Class: component
 ### view::vtable -> gui/view/vtable
 ### view::create -> gui/view/create
-### view::new -> gui/view/new
 ### view::init -> gui/view/init
 ```
 inputs
@@ -6083,7 +6055,6 @@ all but r0
 ## window
 Super Class: view
 ### window::vtable -> gui/window/vtable
-### window::new -> gui/window/new
 ### window::create -> gui/window/create
 ### window::init -> gui/window/init
 ```

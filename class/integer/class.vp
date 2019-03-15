@@ -1,6 +1,5 @@
 (include 'sys/func.inc)
 (include 'class/integer/class.inc)
 
-(gen-new 'integer)
 (gen-create 'integer)
-(gen-class 'integer)
+(gen-vtable 'integer)

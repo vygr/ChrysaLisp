@@ -3,9 +3,8 @@
 (include 'class/msg_out/class.inc)
 (include 'sys/link/class.inc)
 
-(gen-new 'msg_out)
 (gen-create 'msg_out)
-(gen-class 'msg_out)
+(gen-vtable 'msg_out)
 
 (def-method 'msg_out 'init)
 	;inputs

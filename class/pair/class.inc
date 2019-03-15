@@ -3,7 +3,6 @@
 (def-class 'pair 'obj)
 (dec-method 'vtable 'class/pair/vtable)
 (dec-method 'create 'class/pair/create 'static '(r0 r1) '(r0))
-(dec-method 'new 'class/pair/new 'static nil '(r0))
 (dec-method 'init 'class/pair/init 'static '(r0 r1 r2 r3))
 (dec-method 'ref_first 'class/pair/ref_first 'static '(r0) '(r0 r1))
 (dec-method 'ref_second 'class/pair/ref_second 'static '(r0) '(r0 r1))

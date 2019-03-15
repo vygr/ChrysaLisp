@@ -5,9 +5,8 @@
 (include 'class/stream/class.inc)
 (include 'class/stream_str/class.inc)
 
-(gen-new 'stream)
 (gen-create 'stream)
-(gen-class 'stream)
+(gen-vtable 'stream)
 
 (def-method 'stream 'init)
 	;inputs

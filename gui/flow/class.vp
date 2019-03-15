@@ -1,9 +1,8 @@
 (include 'sys/func.inc)
 (include 'gui/flow/class.inc)
 
-(gen-new 'flow)
 (gen-create 'flow)
-(gen-class 'flow)
+(gen-vtable 'flow)
 
 (def-method 'flow 'layout)
 	;inputs

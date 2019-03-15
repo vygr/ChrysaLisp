@@ -3,7 +3,6 @@
 (def-class 'hash_map 'hash_set)
 (dec-method 'vtable 'class/hash_map/vtable)
 (dec-method 'create 'class/hash_map/create)
-(dec-method 'new 'class/hash_map/new)
 (dec-method 'init 'class/hash_map/init)
 (dec-method 'find 'class/hash_map/find)
 (dec-method 'copy 'class/hash_map/copy)

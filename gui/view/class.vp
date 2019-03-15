@@ -5,8 +5,7 @@
 (include 'gui/view/class.inc)
 
 (gen-create 'view)
-(gen-new 'view)
-(gen-class 'view)
+(gen-vtable 'view)
 
 (def-method 'view 'init)
 	;inputs

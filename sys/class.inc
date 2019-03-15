@@ -441,7 +441,7 @@
 	(each (lambda (_)
 		(vp-short (list 'sub (label-sym (link-sym (fn-find-link (f-path _ 'vtable)))) '*pc*))) _))
 
-(defcfun gen-class (_1)
+(defcfun gen-vtable (_1)
 	;_1 = class name
 	(def-func (f-path _1 'vtable))
 		(vtable-emit _1)
@@ -460,25 +460,15 @@
 		;trashes
 		;depends on init method
 		(assign _3 _4)
-		(call _1 'new nil '(r0))
+		(call 'sys_mem 'alloc `(,(sym-cat _1 "_size")) '(r0 _))
 		(vpif '(r0 != 0))
 			;init the object
 			(call _1 (if _2 (sym-cat "init_" _2) 'init) `(r0 (@ ,(f-path _1 'vtable)) ~_4) '(r0 r1))
 			(vpif '(r1 == 0))
 				;error with init
-				(call _1 'delete '(r0) nil r1)
+				(call 'sys_mem 'free '(r0))
 				(vp-xor-rr r0 r0)
 			(endif)
 		(endif)
 		(vp-ret)
-	(def-func-end))
-
-(defcfun gen-new (_1)
-	;_1 = class name
-	(def-func (f-path _1 'new))
-		;outputs
-		;r0 = 0 if error, else object (ptr)
-		;trashes
-		;r1-r2
-		(jump 'sys_mem 'alloc `(,(sym-cat _1 "_size")))
 	(def-func-end))

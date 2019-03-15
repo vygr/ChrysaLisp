@@ -3,7 +3,6 @@
 (def-class 'slider 'view)
 (dec-method 'vtable 'gui/slider/vtable)
 (dec-method 'create 'gui/slider/create 'static '() '(r0))
-(dec-method 'new 'gui/slider/new)
 (dec-method 'init 'gui/slider/init)
 (dec-method 'connect_value 'gui/slider/connect_value 'static '(r0 r1) '(r0))
 

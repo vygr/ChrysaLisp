@@ -4,9 +4,8 @@
 (include 'gui/flow/class.inc)
 (include 'class/array/class.inc)
 
-(gen-new 'button)
 (gen-create 'button)
-(gen-class 'button)
+(gen-vtable 'button)
 
 (def-method 'button 'init)
 	;inputs

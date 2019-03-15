@@ -11,7 +11,6 @@
 (dec-method 'ref_if 'class/obj/ref_if 'static '(r0) '(r0))
 (dec-method 'deref_if 'class/obj/deref_if 'static '(r0) '(r0))
 
-(dec-method 'delete 'sys/mem/free 'final '(r0))
 (dec-method 'deinit 'class/obj/null 'virtual '(r0) '(r0))
 (dec-method 'hash 'class/obj/hash 'virtual '(r0) '(r0 r1))
 

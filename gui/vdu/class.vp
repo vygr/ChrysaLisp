@@ -8,9 +8,8 @@
 (include 'gui/vdu/class.inc)
 (include 'class/vector/class.inc)
 
-(gen-new 'vdu)
 (gen-create 'vdu)
-(gen-class 'vdu)
+(gen-vtable 'vdu)
 
 (def-method 'vdu 'init)
 	;inputs

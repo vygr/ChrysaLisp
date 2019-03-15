@@ -3,7 +3,7 @@
 (include 'class/hash_set/class.inc)
 (include 'class/vector/class.inc)
 
-(gen-class 'symbol)
+(gen-vtable 'symbol)
 
 (def-method 'symbol 'statics)
 	;info

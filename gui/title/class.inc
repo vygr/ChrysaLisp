@@ -3,7 +3,6 @@
 (def-class 'title 'label)
 (dec-method 'vtable 'gui/title/vtable)
 (dec-method 'create 'gui/title/create)
-(dec-method 'new 'gui/title/new)
 (dec-method 'init 'gui/title/init)
 
 (dec-method 'mouse_down 'gui/title/mouse_down 'final)

@@ -7,8 +7,7 @@
 (include 'class/pair/class.inc)
 (include 'gui/ctx/class.inc)
 
-(gen-new 'canvas)
-(gen-class 'canvas)
+(gen-vtable 'canvas)
 (gen-create 'canvas)
 (gen-create 'canvas 'shared)
 

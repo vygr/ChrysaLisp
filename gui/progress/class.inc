@@ -3,7 +3,6 @@
 (def-class 'progress 'view)
 (dec-method 'vtable 'gui/progress/vtable)
 (dec-method 'create 'gui/progress/create 'static '() '(r0))
-(dec-method 'new 'gui/progress/new 'static nil '(r0))
 
 (dec-method 'pref_size 'gui/progress/pref_size 'final)
 (dec-method 'draw 'gui/progress/draw 'final)

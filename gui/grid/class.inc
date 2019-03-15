@@ -3,7 +3,6 @@
 (def-class 'grid 'view)
 (dec-method 'vtable 'gui/grid/vtable)
 (dec-method 'create 'gui/grid/create 'static '() '(r0))
-(dec-method 'new 'gui/grid/new)
 
 (dec-method 'pref_size 'gui/grid/pref_size 'final)
 (dec-method 'layout 'gui/grid/layout 'final)

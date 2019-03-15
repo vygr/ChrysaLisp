@@ -3,7 +3,6 @@
 (def-class 'array 'sequence)
 (dec-method 'vtable 'class/array/vtable)
 (dec-method 'create 'class/array/create 'static nil '(r0))
-(dec-method 'new 'class/array/new 'static nil '(r0))
 (dec-method 'init 'class/array/init)
 (dec-method 'get_capacity 'class/array/get_capacity 'static '(r0) '(r0 r1))
 (dec-method 'set_capacity 'class/array/set_capacity 'static '(r0 r1)'(r0))

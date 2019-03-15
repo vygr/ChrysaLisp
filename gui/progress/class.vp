@@ -3,9 +3,8 @@
 (include 'gui/ctx/class.inc)
 (include 'gui/progress/class.inc)
 
-(gen-new 'progress)
 (gen-create 'progress)
-(gen-class 'progress)
+(gen-vtable 'progress)
 
 (def-method 'progress 'draw)
 	;inputs

@@ -3,7 +3,6 @@
 (def-class 'label 'view)
 (dec-method 'vtable 'gui/label/vtable)
 (dec-method 'create 'gui/label/create 'static '() '(r0))
-(dec-method 'new 'gui/label/new 'static nil '(r0))
 (dec-method 'init 'gui/label/init)
 
 (dec-method 'pref_size 'gui/label/pref_size 'override)

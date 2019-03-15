@@ -6,8 +6,7 @@
 (include 'gui/ctx/class.inc)
 
 (gen-create 'slider)
-(gen-new 'slider)
-(gen-class 'slider)
+(gen-vtable 'slider)
 
 (def-method 'slider 'init)
 	;inputs

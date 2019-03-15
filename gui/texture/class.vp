@@ -2,9 +2,8 @@
 (include 'gui/texture/class.inc)
 (include 'sys/pii/class.inc)
 
-(gen-new 'texture)
 (gen-create 'texture)
-(gen-class 'texture)
+(gen-vtable 'texture)
 
 (def-method 'texture 'deinit)
 	;inputs

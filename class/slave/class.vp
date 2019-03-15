@@ -5,9 +5,8 @@
 (include 'class/string/class.inc)
 (include 'class/slave/class.inc)
 
-(gen-new 'slave)
 (gen-create 'slave)
-(gen-class 'slave)
+(gen-vtable 'slave)
 
 (def-method 'slave 'init)
 	;inputs
