@@ -362,15 +362,13 @@
 
 (def-method 'canvas 'to_premul)
 	;inputs
-	;r0 = canvas object (ptr)
 	;r1 = color (argb)
 	;outputs
-	;r0 = canvas object (ptr)
 	;r1 = color premul (argb)
 	;trashes
 	;r2-r3
 
-	(entry 'canvas 'to_premul '(r0 r1))
+	(entry 'canvas 'to_premul '(r1))
 
 	(vp-cpy-rr r1 r2)
 	(vp-cpy-rr r1 r3)
@@ -387,22 +385,20 @@
 	(vp-add-rr r2 r1)
 	(vp-add-rr r3 r1)
 
-	(exit 'canvas 'to_premul '(r0 r1))
+	(exit 'canvas 'to_premul '(r1))
 	(vp-ret)
 
 (def-func-end)
 
 (def-method 'canvas 'to_argb)
 	;inputs
-	;r0 = canvas object (ptr)
 	;r1 = color premul (argb)
 	;outputs
-	;r0 = canvas object (ptr)
 	;r1 = color (argb)
 	;trashes
 	;r2-r4
 
-	(entry 'canvas 'to_argb '(r0 r1))
+	(entry 'canvas 'to_argb '(r1))
 
 	(vp-cpy-rr r1 r3)
 	(vp-shr-cr 24 r3)
@@ -430,7 +426,7 @@
 		(endif)
 	(endif)
 
-	(exit 'canvas 'to_argb '(r0 r1))
+	(exit 'canvas 'to_argb '(r1))
 	(vp-ret)
 
 (def-func-end)
@@ -446,7 +442,7 @@
 
 	(entry 'canvas 'fill '(r0 r1))
 
-	(call 'canvas 'to_premul '(r0 r1) '(r0 r1))
+	(call 'canvas 'to_premul '(r1) '(r1))
 	(vp-cpy-ir r0 canvas_array r2)
 	(vp-cpy-ir r2 array_array r2)
 	(vp-cpy-ir-ui r0 canvas_stride r3)
@@ -488,7 +484,7 @@
 		(vp-cpy-ir-ui r7 0 r1)
 		(vpif '(r1 != r8))
 			(vp-cpy-rr r1 r8)
-			(call 'canvas 'to_argb '(r0 r1) '(r0 r9))
+			(call 'canvas 'to_argb '(r1) '(r9))
 		(endif)
 		(vp-cpy-ri-i r9 r5 0)
 		(vp-add-cr int_size r5)
@@ -525,7 +521,7 @@
 		(vp-cpy-ir-ui r6 0 r1)
 		(vpif '(r1 != r7))
 			(vp-cpy-rr r1 r7)
-			(call 'canvas 'to_premul '(r0 r1) '(r0 r8))
+			(call 'canvas 'to_premul '(r1) '(r8))
 		(endif)
 		(vp-cpy-ri-i r8 r5 0)
 		(vp-add-cr int_size r5)
@@ -610,7 +606,7 @@
 	(vp-shr-cr 7 r1)
 	(vp-shl-cr 24 r1)
 	(vp-add-rr r3 r1)
-	(call 'canvas 'to_premul '(r0 r1) '(r0 r1))
+	(call 'canvas 'to_premul '(r1) '(r1))
 	(vp-cpy-rr r1 r2)
 	(vp-shr-cr 24 r2)
 	(breakif '(r2 == 0))
@@ -740,7 +736,7 @@
 		(vp-shl-cr (log2 int_size) r7)
 		(vp-add-rr r8 r2)
 		(vp-cpy-dr-i r2 r7 r1)
-		(jump 'canvas 'to_argb '(r0 r1))
+		(jump 'canvas 'to_argb '(r1))
 	(endswitch)
 	(vp-xor-rr r1 r1)
 
@@ -772,7 +768,7 @@
 	(breakif '(r7 >= r5))
 	(breakif '(r8 >= r6))
 	(vp-cpy-ir-ui r0 canvas_color r1)
-	(call 'canvas 'to_premul '(r0 r1) '(r0 r1))
+	(call 'canvas 'to_premul '(r1) '(r1))
 	(vp-cpy-rr r1 r2)
 	(vp-shr-cr 24 r2)
 	(breakif '(r2 == 0))

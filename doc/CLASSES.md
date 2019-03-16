@@ -520,10 +520,8 @@ r2-r4
 ### canvas::to_premul -> gui/canvas/to_premul
 ```
 inputs
-r0 = canvas object (ptr)
 r1 = color (argb)
 outputs
-r0 = canvas object (ptr)
 r1 = color premul (argb)
 trashes
 r2-r3
@@ -531,10 +529,8 @@ r2-r3
 ### canvas::to_argb -> gui/canvas/to_argb
 ```
 inputs
-r0 = canvas object (ptr)
 r1 = color premul (argb)
 outputs
-r0 = canvas object (ptr)
 r1 = color (argb)
 trashes
 r2-r4
