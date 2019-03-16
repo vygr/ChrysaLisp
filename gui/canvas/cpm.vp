@@ -25,7 +25,6 @@
 	(ptr 'this 'stream)
 	(puint 'data 'data_end)
 	(struct 'header 'cpm)
-	(long 'col)
 	(int 'length)
 
 	;save inputs
@@ -42,44 +41,56 @@
 			;create canvas
 			(call 'canvas 'create {header.cpm_width, header.cpm_height, 1} {this})
 			(vpif {this})
+				;fill with transparent
 				(call 'canvas 'fill {this, 0})
-				;decode acording to version
 				(assign {this->canvas_array->array_array} {data})
 				(assign {data + this->canvas_height * this->canvas_stride} {data_end})
+
+				;decode acording to version
+				(vp-def (col len trans data data_end))
 				(loop-start)
 					;get token
 					(call 'stream 'read_char {stream} {_, length})
 					(gotoif {length == -1} 'error)
 					(vpif {length >= 128})
 						;run of a pixel
-						(call 'canvas 'read_pixel {stream, header.cpm_type} {col})
-						(gotoif {col == -1} 'error)
+						(call 'canvas 'read_pixel {stream, header.cpm_type} (list col))
+						(gotoif `(,col == -1) 'error)
 
 						;fill or skip
-						(assign {length - 127} {length})
-						(vpif {col != header.cpm_trans})
+						(assign {length - 127, header.cpm_trans, data, data_end}
+							(list len trans data data_end))
+						(vpif `(,col != ,trans))
 							(loop-start)
-								(gotoif {data >= data_end} 'error)
-								(assign {col} {*data})
-								(assign {data + int_size} {data})
-							(loop-untilnot {length - 1 => length})
+								(gotoif `(,data >= ,data_end) 'error)
+								(vp-cpy-ri-i col data 0)
+								(vp-sub-cr 1 len)
+								(vp-add-cr int_size data)
+							(loop-until `(,len == 0))
 						(else)
-							(assign {data + length * int_size} {data})
+							(vp-shl-cr (log2 int_size) len)
+							(vp-add-rr len data)
 						(endif)
 					(else)
 						;block of pixels
-						(assign {length + 1} {length})
+						(assign {length + 1} (list len))
 						(loop-start)
-							(call 'canvas 'read_pixel {stream, header.cpm_type} {col})
-							(gotoif {col == -1} 'error)
-							(gotoif {data >= data_end} 'error)
-							(vpif {col != header.cpm_trans})
-								(assign {col} {*data})
+							(assign (list len) {length})
+							(call 'canvas 'read_pixel {stream, header.cpm_type} (list col))
+							(gotoif `(,col == -1) 'error)
+							(assign {length, header.cpm_trans, data, data_end}
+								(list len trans data data_end))
+							(gotoif `(,data >= ,data_end) 'error)
+							(vpif `(,col != ,trans))
+								(vp-cpy-ri-i col data 0)
 							(endif)
-							(assign {data + int_size} {data})
-						(loop-untilnot {length - 1 => length})
+							(vp-sub-cr 1 len)
+							(vp-add-cr int_size data)
+							(assign (list data) {data})
+						(loop-until `(,len == 0))
 					(endif)
-				(loop-until {data == data_end})
+					(assign (list data) {data})
+				(loop-until `(,data == ,data_end))
 			(endif)
 		(endif)
 	(endif)
