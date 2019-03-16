@@ -723,6 +723,8 @@ r0 = stream object (ptr)
 r1 = pixel type (uint)
 outputs
 r0 = -1 if error, else pixel (long)
+trashes
+all
 ```
 ### canvas::to_argb32 -> gui/canvas/to_argb32
 ```
@@ -731,6 +733,8 @@ r0 = col (uint)
 r1 = pixel type (uint)
 outputs
 r0 = col (uint)
+trashes
+r1-r7
 ```
 ### canvas::deinit -> gui/canvas/deinit
 ```
