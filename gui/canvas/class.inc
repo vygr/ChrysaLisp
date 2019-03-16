@@ -29,6 +29,7 @@
 
 (dec-method 'load 'gui/canvas/load 'static '(r0 r1) '(r0))
 (dec-method 'load_cpm 'gui/canvas/load_cpm 'static '(r0) '(r0))
+(dec-method 'next_frame 'gui/canvas/next_frame 'static '(r0) '(r0))
 (dec-method 'read_pixel 'gui/canvas/read_pixel 'static '(r0 r1) '(r0))
 (dec-method 'to_argb32 'gui/canvas/to_argb32 'static '(r0 r1) '(r0))
 
@@ -38,6 +39,7 @@
 
 (dec-method 'lisp_create 'gui/canvas/lisp_create 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_load 'gui/canvas/lisp_load 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_next_frame 'gui/canvas/lisp_next_frame 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_swap 'gui/canvas/lisp_swap 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_fill 'gui/canvas/lisp_fill 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_set_color 'gui/canvas/lisp_set_color 'static '(r0 r1) '(r0 r1))
@@ -52,10 +54,13 @@
 	(ptr 'edges)
 	(pptr 'edges_start)
 	(pubyte 'coverage)
+	(ptr 'stream)
+	(ptr 'bufp)
 	(int 'scale)
 	(uint 'width)
 	(uint 'height)
 	(uint 'stride)
+	(uint 'type)
 	(uint 'cx)
 	(uint 'cy)
 	(uint 'cx1)
@@ -75,6 +80,7 @@
 
 (def-bit 'load_flag)
 	(bit 'shared)
+	(bit 'film)
 (def-bit-end)
 
 ;;;;;;;;;;;;;;;;

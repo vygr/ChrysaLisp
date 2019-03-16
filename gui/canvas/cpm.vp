@@ -43,6 +43,7 @@
 			(vpif {this})
 				;fill with transparent
 				(call 'canvas 'fill {this, 0})
+				(assign {header.cpm_type} {this->canvas_type})
 				(assign {this->canvas_array->array_array} {data})
 				(assign {data + this->canvas_height * this->canvas_stride} {data_end})
 
@@ -50,15 +51,17 @@
 				(vp-def (col len trans data data_end))
 				(loop-start)
 					;get token
-					(call 'stream 'read_char {stream} {_, length})
-					(gotoif {length == -1} 'error)
-					(vpif {length >= 128})
+					(call 'stream 'read_char {stream} (list '_ len))
+					(gotoif `(,len == -1) 'error)
+					(vpif `(,len >= 128))
 						;run of a pixel
+						(vp-sub-cr 127 len)
+						(assign (list len) {length})
 						(call 'canvas 'read_pixel {stream, header.cpm_type} (list col))
 						(gotoif `(,col == -1) 'error)
 
 						;fill or skip
-						(assign {length - 127, header.cpm_trans, data, data_end}
+						(assign {length, header.cpm_trans, data, data_end}
 							(list len trans data data_end))
 						(vpif `(,col != ,trans))
 							(loop-start)
@@ -73,7 +76,7 @@
 						(endif)
 					(else)
 						;block of pixels
-						(assign {length + 1} (list len))
+						(vp-add-cr 1 len)
 						(loop-start)
 							(assign (list len) {length})
 							(call 'canvas 'read_pixel {stream, header.cpm_type} (list col))
@@ -106,6 +109,69 @@
 	(goto 'funcexit)
 
 	(pop-scope-syms)
+
+(def-func-end)
+
+(def-method 'canvas 'next_frame)
+	;inputs
+	;r0 = canvas object (ptr)
+	;outputs
+	;r0 = canvas object (ptr)
+	;trashes
+	;all
+
+	(ptr 'this)
+	(puint 'data 'data_end)
+	(int 'length)
+
+	;save inputs
+	(push-scope)
+	(entry 'canvas 'next_frame {this})
+
+	(vpif {this->canvas_stream})
+		;fill with transparent
+		(assign {this->canvas_array->array_array} {data})
+		(assign {data + this->canvas_height * this->canvas_stride} {data_end})
+
+		;decode acording to version
+		(vp-def (col len data data_end))
+		(loop-start)
+			;get token, loop back if stream end
+			(loop-start)
+				(call 'stream 'read_char {this->canvas_stream} (list '_ len))
+				(breakif `(,len != -1))
+				(assign {this->canvas_bufp} {this->canvas_stream->stream_bufp})
+			(loop-end)
+
+			;decode next token
+			(vpif `(,len >= 128))
+				;skip
+				(assign {data, data_end} (list data data_end))
+				(vp-sub-cr 256 len)
+				(vp-mul-cr (neg int_size) len)
+				(vp-add-rr len data)
+			(else)
+				;block of pixels
+				(loop-start)
+					(assign (list len) {length})
+					(call 'canvas 'read_pixel {this->canvas_stream, this->canvas_type} (list col))
+					(gotoif `(,col == -1) 'error)
+					(assign {length, data, data_end} (list len data data_end))
+					(gotoif `(,data >= ,data_end) 'error)
+					(vp-cpy-ri-i col data 0)
+					(vp-sub-cr 1 len)
+					(vp-add-cr int_size data)
+					(assign (list data) {data})
+				(loop-until `(,len == 0))
+			(endif)
+			(assign (list data) {data})
+		(loop-until `(,data == ,data_end))
+	(endif)
+
+(vp-label 'error)
+	(exit 'canvas 'next_frame {this})
+	(pop-scope)
+	(return)
 
 (def-func-end)
 

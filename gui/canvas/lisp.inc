@@ -7,4 +7,5 @@
 (ffi canvas-fbox "gui/canvas/lisp_fbox" 0)
 (ffi canvas-fpoly "gui/canvas/lisp_fpoly" 0)
 (ffi canvas-plot "gui/canvas/lisp_plot" 0)
+(ffi canvas-next-frame "gui/canvas/lisp_next_frame" 0)
 (ffi create-canvas "gui/canvas/lisp_create" 0)

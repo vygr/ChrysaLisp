@@ -15,7 +15,7 @@
 				'color argb_green 'font (create-font "fonts/Entypo.otf" 32))
 			(button-connect-click (ui-element _ (create-button) ('text "")) event_win_prev)
 			(button-connect-click (ui-element _ (create-button) ('text "")) event_win_next))
-		(ui-element frame (canvas-load (elem index images) 0))))
+		(ui-element frame (canvas-load (elem index images) load_flag_film))))
 
 (window-set-title window (elem index images))
 (window-connect-close window event_win_close)
@@ -24,7 +24,7 @@
 
 (defun win-refresh (_)
 	(view-sub frame)
-	(setq index _ frame (canvas-load (elem index images) 0))
+	(setq index _ frame (canvas-load (elem index images) load_flag_film))
 	(view-layout (view-add-back image_flow frame))
 	(view-dirty (window-set-title window (elem index images)))
 	(bind '(x y _ _) (view-get-bounds window))
@@ -32,11 +32,14 @@
 	(view-dirty-all (view-change window x y w h)))
 
 (while id
-	(cond
-		((eq (setq id (get-long (defq msg (mail-mymail)) ev_msg_target_id)) event_win_close)
-			(setq id nil))
-		((eq id event_win_next)
-			(win-refresh (mod (inc index) (length images))))
-		((eq id event_win_prev)
-			(win-refresh (mod (add (dec index) (length images)) (length images))))
-		(t (view-event window msg))))
+	(task-sleep 40000)
+	(canvas-swap (canvas-next-frame frame))
+	(while (defq msg (mail-trymail))
+		(cond
+			((eq (setq id (get-long msg ev_msg_target_id)) event_win_close)
+				(setq id nil))
+			((eq id event_win_next)
+				(win-refresh (mod (inc index) (length images))))
+			((eq id event_win_prev)
+				(win-refresh (mod (add (dec index) (length images)) (length images))))
+			(t (view-event window msg)))))

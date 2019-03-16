@@ -222,6 +222,42 @@
 
 (def-func-end)
 
+(def-method 'canvas 'lisp_next_frame)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(ptr 'this 'args 'value)
+	(ulong 'arg0)
+
+	(push-scope)
+	(entry 'canvas 'lisp_next_frame {this, args})
+
+(errorcases
+	(call 'lisp 'env_args_type {args, $sig, 1})
+	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+
+	(call 'lisp 'env_args_set {args, &arg0, 0})
+	(call 'canvas 'next_frame {arg0})
+	(call 'obj 'ref {arg0} {value})
+
+(vp-label 'funcexit)
+	(exit 'canvas 'lisp_next_frame {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(call 'lisp 'repl_error {this, "(canvas-next-frame canvas)", error_msg_wrong_types, args} {_, value})
+	(goto 'funcexit)
+	(signature 'sig 'canvas))
+
+	(pop-scope-syms)
+
+(def-func-end)
+
 (def-method 'canvas 'lisp_plot)
 	;inputs
 	;r0 = lisp object (ptr)

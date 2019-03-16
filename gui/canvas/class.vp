@@ -36,11 +36,10 @@
 	;init parent
 	(s-call 'canvas 'init {this, vtable} {_, ok})
 	(vpif {ok})
-		(assign {0} {this->canvas_texture})
-		(assign {0} {this->canvas_cx})
-		(assign {0} {this->canvas_cy})
+		(assign {0 => this->canvas_cx => this->canvas_cy
+				=> this->canvas_flags => this->canvas_stream => this->canvas_bufp}
+				{this->canvas_texture})
 		(assign {argb_black} {this->canvas_color})
-		(assign {0} {this->canvas_flags})
 
 		(assign {this->canvas_scale * this->canvas_width} {this->canvas_width})
 		(assign {this->canvas_scale * this->canvas_height} {this->canvas_height})
@@ -55,8 +54,7 @@
 
 		;edge arrays
 		(call 'array 'create nil {this->canvas_edges})
-		(assign {0} {this->canvas_edges_start})
-		(assign {0} {this->canvas_coverage})
+		(assign {0 => this->canvas_edges_start} {this->canvas_coverage})
 	(endif)
 
 	(exit 'canvas 'init {this, ok})
@@ -88,11 +86,10 @@
 	;init parent
 	(s-call 'canvas 'init {this, vtable} {_, ok})
 	(vpif {ok})
-		(assign {0} {this->canvas_texture})
-		(assign {0} {this->canvas_cx})
-		(assign {0} {this->canvas_cy})
+		(assign {0 => this->canvas_cx => this->canvas_cy
+				=> this->canvas_flags => this->canvas_stream => this->canvas_bufp}
+				{this->canvas_texture})
 		(assign {argb_black} {this->canvas_color})
-		(assign {0} {this->canvas_flags})
 
 		(assign {src->canvas_scale} {this->canvas_scale})
 		(assign {src->canvas_width} {this->canvas_width})
@@ -107,8 +104,7 @@
 
 		;edge arrays
 		(call 'array 'create nil {this->canvas_edges})
-		(assign {0} {this->canvas_edges_start})
-		(assign {0} {this->canvas_coverage})
+		(assign {0 => this->canvas_edges_start} {this->canvas_coverage})
 	(endif)
 
 	(exit 'canvas 'init_shared {this, ok})
@@ -125,8 +121,9 @@
 	;trashes
 	;all but r0
 
-	;kernel callback
 	(vp-push r0)
+	(call 'stream 'deref_if '((r0 canvas_stream)))
+	(vp-cpy-ir rsp 0 r0)
 	(call 'sys_task 'callback '(r0 ($ callback)))
 	(vp-pop r0)
 	(s-jump 'canvas 'deinit '(r0))
@@ -234,7 +231,12 @@
 		(breakifnot {this})
 		(call 'stream_str 'create {this} {stream})
 		(call 'canvas 'load_cpm {stream} {this})
-		(call 'stream_str 'deref {stream})
+		(vpif {flags & load_flag_film})
+			(assign {stream} {this->canvas_stream})
+			(assign {stream->stream_bufp} {this->canvas_bufp})
+		(else)
+			(call 'stream_str 'deref {stream})
+		(endif)
 	(endif)
 
 	(exit 'canvas 'load {this})
