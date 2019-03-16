@@ -41,6 +41,8 @@
 ### (canvas-fpoly canvas x y mode list)
 ## canvas-load
 ### (canvas-load path flags)
+## canvas-next-frame
+### (canvas-next-frame canvas)
 ## canvas-plot
 ### (canvas-plot canvas x y)
 ## canvas-set-color

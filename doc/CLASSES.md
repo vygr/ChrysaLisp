@@ -707,6 +707,15 @@ r0 = 0 if error, else canvas object (ptr)
 trashes
 all
 ```
+### canvas::next_frame -> gui/canvas/next_frame
+```
+inputs
+r0 = canvas object (ptr)
+outputs
+r0 = canvas object (ptr)
+trashes
+all but r0
+```
 ### canvas::read_pixel -> gui/canvas/read_pixel
 ```
 inputs
@@ -763,6 +772,15 @@ r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
 ### canvas::lisp_load -> gui/canvas/lisp_load
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### canvas::lisp_next_frame -> gui/canvas/lisp_next_frame
 ```
 inputs
 r0 = lisp object (ptr)

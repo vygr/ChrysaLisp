@@ -118,7 +118,7 @@
 	;outputs
 	;r0 = canvas object (ptr)
 	;trashes
-	;all
+	;all but r0
 
 	(ptr 'this)
 	(puint 'data 'data_end)
@@ -129,11 +129,9 @@
 	(entry 'canvas 'next_frame {this})
 
 	(vpif {this->canvas_stream})
-		;fill with transparent
+		;decode acording to version
 		(assign {this->canvas_array->array_array} {data})
 		(assign {data + this->canvas_height * this->canvas_stride} {data_end})
-
-		;decode acording to version
 		(vp-def (col len data data_end))
 		(loop-start)
 			;get token, loop back if stream end
@@ -143,13 +141,13 @@
 				(assign {this->canvas_bufp} {this->canvas_stream->stream_bufp})
 			(loop-end)
 
-			;decode next token
+			;decode token
 			(vpif `(,len >= 128))
 				;skip
 				(assign {data, data_end} (list data data_end))
 				(vp-sub-cr 256 len)
-				(vp-mul-cr (neg int_size) len)
-				(vp-add-rr len data)
+				(vp-shl-cr (log2 int_size) len)
+				(vp-sub-rr len data)
 			(else)
 				;block of pixels
 				(loop-start)
