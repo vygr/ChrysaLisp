@@ -70,7 +70,7 @@ Visual Studio project and compile the main.c bootstrap yourself. Enjoy.
 After a successful `make` of the platform bootstrap you can now run the TUI
 (Text User Interface) or the GUI (Graphical User Interface) and try the demos.
 
-For a TUI type or GUI:
+For a TUI or GUI type:
 
 ```
 ./run_tui.sh

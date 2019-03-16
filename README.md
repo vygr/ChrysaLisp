@@ -166,7 +166,7 @@ Or get them via your package manager.
 sudo apt-get install libsdl2-ttf-dev
 ```
 
-## Make/Run
+## Make/Run/Stop
 
 Take a look at the `doc/INTRO.md` for platform specific instructions. The
 following is for OSX and Linux systems. Windows has a pre-built main.exe
@@ -231,6 +231,8 @@ to Transputer meshes. CPU 0 launches a GUI.
 
 Cube connected network. Each CPU has links to 6 adjacent CPU's. This is similar
 to TMS320C40 meshes. CPU 0 launches a GUI.
+
+### Stop
 
 Stop with:
 
