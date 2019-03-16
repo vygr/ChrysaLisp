@@ -60,7 +60,7 @@
 	(uint 'width)
 	(uint 'height)
 	(uint 'stride)
-	(uint 'type)
+	(uint 'stream_type)
 	(uint 'cx)
 	(uint 'cy)
 	(uint 'cx1)

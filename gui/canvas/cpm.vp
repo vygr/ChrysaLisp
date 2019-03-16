@@ -43,11 +43,11 @@
 			(vpif {this})
 				;fill with transparent
 				(call 'canvas 'fill {this, 0})
-				(assign {header.cpm_type} {this->canvas_type})
+				(assign {header.cpm_type} {this->canvas_stream_type})
 				(assign {this->canvas_array->array_array} {data})
 				(assign {data + this->canvas_height * this->canvas_stride} {data_end})
 
-				;decode acording to version
+				;decode acording to type
 				(vp-def (col len trans data data_end))
 				(loop-start)
 					;get token
@@ -128,8 +128,8 @@
 	(push-scope)
 	(entry 'canvas 'next_frame {this})
 
-	(vpif {this->canvas_stream})
-		;decode acording to version
+	(vpif {this->canvas_stream} 'error)
+		;decode acording to type
 		(assign {this->canvas_array->array_array} {data})
 		(assign {data + this->canvas_height * this->canvas_stride} {data_end})
 		(vp-def (col len data data_end))
@@ -152,10 +152,10 @@
 				;block of pixels
 				(loop-start)
 					(assign (list len) {length})
-					(call 'canvas 'read_pixel {this->canvas_stream, this->canvas_type} (list col))
-					(gotoif `(,col == -1) 'error)
+					(call 'canvas 'read_pixel {this->canvas_stream, this->canvas_stream_type} (list col))
+					(breakif `(,col == -1) 'error)
 					(assign {length, data, data_end} (list len data data_end))
-					(gotoif `(,data >= ,data_end) 'error)
+					(breakif `(,data >= ,data_end) 'error)
 					(vp-cpy-ri-i col data 0)
 					(vp-sub-cr 1 len)
 					(vp-add-cr int_size data)
@@ -166,7 +166,6 @@
 		(loop-until `(,data == ,data_end))
 	(endif)
 
-(vp-label 'error)
 	(exit 'canvas 'next_frame {this})
 	(pop-scope)
 	(return)
@@ -179,6 +178,8 @@
 	;r1 = pixel type (uint)
 	;outputs
 	;r0 = -1 if error, else pixel (long)
+	;trashes
+	;all
 
 	(vp-def (col pix stream) '(r0 r1))
 
@@ -222,6 +223,8 @@
 	;r1 = pixel type (uint)
 	;outputs
 	;r0 = col (uint)
+	;trashes
+	;r1-r7
 
 	(vp-def (col pix rh rl gh gl bh bl) '(r0 r1))
 
