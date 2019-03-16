@@ -231,7 +231,7 @@
 		(breakifnot {this})
 		(call 'stream_str 'create {this} {stream})
 		(call 'canvas 'load_cpm {stream} {this})
-		(vpif {flags & load_flag_film})
+		(vpif {this && (flags & load_flag_film)})
 			(assign {stream} {this->canvas_stream})
 			(assign {stream->stream_bufp} {this->canvas_bufp})
 		(else)
