@@ -24,7 +24,6 @@ Welcome to ChrysaLisp's documentation!
    STRUCTURE
    FUNCTIONS
    CLASSES
-   TUTORIAL
    TODO
    TAOS
 
