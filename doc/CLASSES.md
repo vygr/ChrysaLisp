@@ -1921,6 +1921,15 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
+### lisp::func_undef -> class/lisp/func_undef
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
 ### lisp::func_set -> class/lisp/func_set
 ```
 inputs

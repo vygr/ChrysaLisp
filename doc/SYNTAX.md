@@ -451,6 +451,8 @@
 ### (trim-start str [str])
 ## type?
 ### (type? obj)
+## undef
+### (undef env var [var] ...)
 ## unless
 ### (unless tst body)
 ## until
