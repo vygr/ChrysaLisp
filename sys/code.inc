@@ -68,7 +68,7 @@
 	(push *switch-stk* *switch*)
 	(setq *switch* *switch-nxt* *switch-nxt* (inc *switch-nxt*))
 	(defcvar (cnt-sym) 0)
-	(if _ (setfvar (llb-sym _) (end-sym))))
+	(if _ (def *func-env* (llb-sym _) (end-sym))))
 
 (defcfun default ()
 	(vp-label (loc-sym (defq s (cnt-sym) c (eval s))))
@@ -88,13 +88,13 @@
 	(gotoif e (loc-sym (eval (cnt-sym)))))
 
 (defcfun break (&optional _)
-	(goto (if _ (getfvar (llb-sym _)) (end-sym))))
+	(goto (if _ (eval (llb-sym _) *func-env*) (end-sym))))
 
 (defcfun breakif (e &optional _)
-	(gotoif e (if _ (getfvar (llb-sym _)) (end-sym))))
+	(gotoif e (if _ (eval (llb-sym _) *func-env*) (end-sym))))
 
 (defcfun breakifnot (e &optional _)
-	(gotoifnot e (if _ (getfvar (llb-sym _)) (end-sym))))
+	(gotoifnot e (if _ (eval (llb-sym _) *func-env*) (end-sym))))
 
 (defcfun continue ()
 	(goto (beg-sym)))
