@@ -19,7 +19,22 @@
 ; functions
 ;;;;;;;;;;;
 
-(defcvar '*func-name* nil '*strings* nil '*paths* nil '*links* nil '*func-align* nil)
+(defcvar '*func-name* nil '*strings* nil '*paths* nil '*links* nil '*func-align* nil '*func-env* nil)
+
+(defcfun setfvar (s v)
+	(defq e *func-env*)
+	(cond
+		((defq _ (find s (elem 0 e)))
+			(elem-set _ (elem 1 e) v))
+		(t
+			(push (elem 0 e) s)
+			(push (elem 1 e) v))))
+
+(defcfun getfvar (s)
+	(defq e *func-env*)
+	(if (defq _ (find s (elem 0 e)))
+		(elem _ (elem 1 e))
+		(throw "Function variable not found !" s)))
 
 (defcfun link-sym (p)
 	(cat "ref_link_" (str p)))
@@ -39,7 +54,7 @@
 	(print "-> " (cat "obj/" *os* "/" *cpu* "/" (str *name*)))
 	(emit-reset)
 	(setq *func-name* *name* *switch-nxt* 0 *strings* (list) *paths* (list)
-		*links* (list) *func-align* (opt falign stack_align))
+		*links* (list) *func-align* (opt falign stack_align) *func-env* (list (list) (list)))
 (vp-label 'func_start)
 	(vp-long -1)
 	(vp-short (list 'sub (label-sym 'func_end) (label-sym 'func_start))

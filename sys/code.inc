@@ -16,6 +16,9 @@
 (defmacro cnt-sym ()
 	'(sym-cat "cnt_" (str *switch*)))
 
+(defmacro llb-sym (_)
+	`(sym-cat "llb_" _))
+
 (defcfun goto (l)
 	(vp-jmp l))
 
@@ -65,7 +68,7 @@
 	(push *switch-stk* *switch*)
 	(setq *switch* *switch-nxt* *switch-nxt* (inc *switch-nxt*))
 	(defcvar (cnt-sym) 0)
-	(if _ (defcvar _ (end-sym))))
+	(if _ (setfvar (llb-sym _) (end-sym))))
 
 (defcfun default ()
 	(vp-label (loc-sym (defq s (cnt-sym) c (eval s))))
@@ -85,13 +88,13 @@
 	(gotoif e (loc-sym (eval (cnt-sym)))))
 
 (defcfun break (&optional _)
-	(goto (if _ _ (end-sym))))
+	(goto (if _ (getfvar (llb-sym _)) (end-sym))))
 
 (defcfun breakif (e &optional _)
-	(gotoif e (if _ _ (end-sym))))
+	(gotoif e (if _ (getfvar (llb-sym _)) (end-sym))))
 
 (defcfun breakifnot (e &optional _)
-	(gotoifnot e (if _ _ (end-sym))))
+	(gotoifnot e (if _ (getfvar (llb-sym _)) (end-sym))))
 
 (defcfun continue ()
 	(goto (beg-sym)))

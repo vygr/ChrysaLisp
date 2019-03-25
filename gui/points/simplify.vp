@@ -58,7 +58,7 @@
 					(assign {last} {rlast})
 					(assign {index} {last})
 					(call 'points 'push_back2 {stack, rspan, span})
-					(break out)
+					(break 'out)
 				(endif)
 			(default)
 				;output point

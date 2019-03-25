@@ -219,7 +219,7 @@
 			(call 'pair 'create {sym, this} {iter})
 			(call 'vector 'push_back {bucket, iter})
 			(call 'canvas 'create_shared {this} {this})
-			(break funcexit)
+			(break 'funcexit)
 		(default)
 			(call 'pair 'get_second {*iter} {_, this})
 			(call 'canvas 'create_shared {this} {this})

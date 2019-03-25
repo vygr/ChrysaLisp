@@ -38,7 +38,7 @@
 			(endif)
 			(loop-start)
 				(vp-add-cr (mul 2 long_size) i)
-				(breakif `(,i == ,e) outer_loop)
+				(breakif `(,i == ,e) 'outer_loop)
 				(vec-load-long 2 j)
 				(vec-load-long 2 i)
 				(vec-fdistance-squared 2)
