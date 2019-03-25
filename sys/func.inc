@@ -23,13 +23,13 @@
 	'*func-align* nil '*func-syms* (list))
 
 (defcfun link-sym (p)
-	(cat "_rl_" (str p)))
+	(cat "rl_" (str p)))
 
 (defcfun path-sym (p)
-	(cat "_rp_" (str p)))
+	(cat "rp_" (str p)))
 
 (defcfun string-sym (p)
-	(cat "_rs_" (str p)))
+	(cat "rs_" (str p)))
 
 (defmacro trace_starts_with (_)
 	`(and (ge (length *name*) ,(length _)) (eql (slice 0 ,(length _) *name*) ,_)))

@@ -5,19 +5,19 @@
 (defcvar '*switch* nil '*switch-nxt* nil '*switch-stk* (list))
 
 (defmacro beg-sym ()
-	'(sym-cat "_b_" (str *switch*)))
+	'(sym-cat "b_" (str *switch*)))
 
 (defmacro end-sym ()
-	'(sym-cat "_e_" (str *switch*)))
+	'(sym-cat "e_" (str *switch*)))
 
 (defmacro loc-sym (n)
-	`(sym-cat "_o_" (str *switch*) "_" (str ,n)))
+	`(sym-cat "o_" (str *switch*) "_" (str ,n)))
 
 (defmacro cnt-sym ()
-	'(sym-cat "_c_" (str *switch*)))
+	'(sym-cat "c_" (str *switch*)))
 
 (defmacro llb-sym (_)
-	`(sym-cat "_s_" _))
+	`(sym-cat "s_" _))
 
 (defcfun goto (l)
 	(vp-jmp l))
