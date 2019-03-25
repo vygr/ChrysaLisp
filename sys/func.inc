@@ -19,7 +19,8 @@
 ; functions
 ;;;;;;;;;;;
 
-(defcvar '*func-name* nil '*strings* nil '*paths* nil '*links* nil '*func-align* nil '*func-env* nil)
+(defcvar '*func-name* nil '*strings* nil '*paths* nil '*links* nil '*func-align* nil
+	'*func-env* nil '*func-syms* nil)
 
 (defcfun link-sym (p)
 	(cat "ref_link_" (str p)))
@@ -39,7 +40,7 @@
 	(print "-> " (cat "obj/" *os* "/" *cpu* "/" (str *name*)))
 	(emit-reset)
 	(setq *func-name* *name* *switch-nxt* 0 *strings* (list) *paths* (list)
-		*links* (list) *func-align* (opt falign stack_align) *func-env* (env -1))
+		*links* (list) *func-align* (opt falign stack_align) *func-env* (env -1) *func-syms* (list))
 (vp-label 'func_start)
 	(vp-long -1)
 	(vp-short (list 'sub (label-sym 'func_end) (label-sym 'func_start))
@@ -90,6 +91,7 @@
 	(when debug_emit
 		(each print-emit *emit-buffer*))
 	(emit-passes)
+	(apply undef (cat (list *compile-env*) *func-syms*))
 	(save *out-buffer* (cat "obj/" *os* "/" *cpu* "/" (str *func-name*))))
 
 (defcfun fn-add-string (s)

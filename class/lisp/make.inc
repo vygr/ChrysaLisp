@@ -24,6 +24,7 @@
 (include 'class/lisp/func_cond.vp)
 (include 'class/lisp/func_copy.vp)
 (include 'class/lisp/func_def.vp)
+(include 'class/lisp/func_undef.vp)
 (include 'class/lisp/func_defined.vp)
 (include 'class/lisp/func_defmacro.vp)
 (include 'class/lisp/func_defq.vp)

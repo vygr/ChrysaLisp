@@ -69,6 +69,7 @@
 (ffi macroexpand "class/lisp/func_macroexpand" 0)
 (ffi macroexpand-1 "class/lisp/func_macroexpand_1" 0)
 (ffi def "class/lisp/func_def" 0)
+(ffi undef "class/lisp/func_undef" 0)
 (ffi set "class/lisp/func_set" 0)
 (ffi def? "class/lisp/func_defined" 0)
 (ffi bind "class/lisp/func_bind" 0)

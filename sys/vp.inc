@@ -215,7 +215,8 @@
 (defcfun label-sym (s)
 	(sym-cat "_lb_" s))
 
-(defcfun vp-label (l) (setq l (label-sym l)) (emit (list 'emit-label (list 'quote l))) (defcvar l 0))
+(defcfun vp-label (l) (setq l (label-sym l))
+	(emit (list 'emit-label (list 'quote l))) (push *func-syms* l) (defcvar l 0))
 (defcfun vp-align (a &optional b) (emit (list 'emit-align a b)))
 (defcfun vp-string (s) (emit (list 'emit-string s)))
 (defcfun vp-byte (&rest b) (emit (cat (list 'emit-byte) b)))
