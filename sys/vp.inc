@@ -212,9 +212,7 @@
 		((eq i lisp_type_string) 's)
 		(t nil)))
 
-(defcfun label-sym (s)
-	(sym-cat "_lb_" s))
-
+(defcfun label-sym (s) (sym-cat "_l_" s))
 (defcfun vp-label (l) (setq l (label-sym l))
 	(emit (list 'emit-label (list 'quote l))) (push *func-syms* l) (defcvar l 0))
 (defcfun vp-align (a &optional b) (emit (list 'emit-align a b)))
