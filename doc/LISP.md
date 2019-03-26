@@ -156,6 +156,7 @@ sym
 throw
 time
 type?
+undef
 unquote
 unquote-splicing
 while
