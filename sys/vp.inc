@@ -184,9 +184,10 @@
 	(defcvar _ _)) '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 rsp))
 
 (defcmacro vp-def (_ &optional l)
-	(setq l (if l (merge-sym (cat (eval l)) '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14))
-		'(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14)))
-	`(bind ',_ ',(slice 0 (length _) l)))
+	(defq v '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14))
+	(setq l (apply cat (map (lambda (x y)
+		(list (list 'quote x) y)) _ (if l (merge-sym (cat (eval l)) v) v))))
+	`(progn (defcvar ~l) (apply push (cat (list *func-syms*) ',_))))
 
 (defcfun type (o)
 	(defq i (type? o))
