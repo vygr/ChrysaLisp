@@ -14,10 +14,10 @@
 	`(sym-cat "o_" (str *switch*) "_" (str ,n)))
 
 (defmacro cnt-sym ()
-	'(sym-cat "c_" (str *switch*)))
+	'(sym-cat "_c_" (str *switch*)))
 
 (defmacro llb-sym (_)
-	`(sym-cat "s_" _))
+	`(sym-cat "_s_" _))
 
 (defcfun goto (l)
 	(vp-jmp l))
@@ -67,10 +67,11 @@
 (defcfun switch (&optional _)
 	(push *switch-stk* *switch*)
 	(setq *switch* *switch-nxt* *switch-nxt* (inc *switch-nxt*))
-	(defcvar (cnt-sym) 0)
 	(when _
-		(push *func-syms* (setq _ (llb-sym _)))
-		(defcvar _ (end-sym))))
+		(defcvar (setq _ (llb-sym _)) (end-sym))
+		(push *func-syms* _))
+	(defcvar (setq _ (cnt-sym)) 0)
+	(push *func-syms* _))
 
 (defcfun default ()
 	(vp-label (loc-sym (defq s (cnt-sym) c (eval s))))
