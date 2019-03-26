@@ -1,1 +1,1 @@
-@taskkill /IM main.exe /F
+@taskkill /IM main.exe /F >nul 2>&1
