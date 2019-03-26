@@ -4,6 +4,12 @@
 
 ------
 
+Created a list of symbols, `*func-syms*`, that get undef'd at the close of each
+function in order to avoid cross contamination between labels and symbols and
+raise errors at compilation time when such happens.
+
+------
+
 Added the shared memory link driver code for Windows platform and created
 run.bat, run_tui.bat and run_mesh.bat launch scripts. Windows seams a little
 slow on starting up the 64 CPU mesh compared to MacOS or Linux, but it does run
