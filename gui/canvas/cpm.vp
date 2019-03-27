@@ -50,7 +50,7 @@
 
 		;decode acording to type
 		(vp-def (col len trans data data_end))
-		(loop-start 'error)
+		(loop-start)
 			;get token
 			(call 'stream 'read_char {stream} (list '_ len))
 			(gotoif `(,len == -1) 'error)
