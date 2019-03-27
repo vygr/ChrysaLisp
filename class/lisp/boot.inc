@@ -436,15 +436,15 @@
 
 (defun trim-start (s &optional c)
 	;(trim-start str [str])
-	(setd c " ")
-	(while (and (ne 0 (length s)) (eql (elem 0 s) c))
-		(setq s (slice 1 -1 s))) s)
+	(defq c (if c (code c) (ascii " ")) i -1)
+	(while (and (ne (setq i (inc i)) (length s)) (eql (code s 1 i) c)))
+	(slice i -1 s))
 
 (defun trim-end (s &optional c)
 	;(trim-end str [str])
-	(setd c " ")
-	(while (and (ne 0 (length s)) (eql (elem -2 s) c))
-		(setq s (slice 0 -2 s))) s)
+	(defq c (if c (code c) (ascii " ")) i (length s))
+	(while (and (ne (setq i (dec i)) -1) (eql (code s 1 i) c)))
+	(slice 0 (inc i) s))
 
 (defun trim (s &optional c)
 	;(trim str [str])
