@@ -37,14 +37,18 @@
 	(vpif (list len '> 2))
 		(vp-cpy-ir iter_begin (mul 2 ptr_size) index)
 		(vp-cpy-ir index integer_value index)
-		(errorif (list index '< 0) 'error1)
+	(endif)
+
+	(vp-cpy-ir-ui value string_length len)
+	(vpif (list index '< 0))
+		(vp-add-rr len index)
+		(vp-add-cr 1 index)
 	(endif)
 
 (errorcases
-	(vp-cpy-ir-ui value string_length len)
+	(errorif (list index '< 0) 'error1)
 	(vp-sub-rr width len)
-	(vp-sub-rr index len)
-	(errorif (list len '< 0) 'error1))
+	(errorif (list index '> len) 'error1))
 
 	(vp-add-cr string_data value)
 	(vp-xor-rr len len)
