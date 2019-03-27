@@ -604,10 +604,14 @@
 	;r2-r6
 
 	(vp-push r0)
-	(vp-add-cr string_data r0)
+	(vp-cpy-ir-ui r0 string_length r3)
 	(vp-sub-rr r1 r2)
-	(vp-add-rr r1 r0)
-	(call 'string 'create_from_buffer '(r0 r2) '(r1))
+	(vpif '(r2 == r3))
+		(call 'string 'ref '(r0) '(r1))
+	(else)
+		(vp-add-cr string_data r0)
+		(call 'string 'create_from_buffer '((& r0 r1) r2) '(r1))
+	(endif)
 	(vp-pop r0)
 	(vp-ret)
 
