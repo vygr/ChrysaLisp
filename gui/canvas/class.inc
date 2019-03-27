@@ -30,7 +30,7 @@
 (dec-method 'load 'gui/canvas/load 'static '(r0 r1) '(r0))
 (dec-method 'load_cpm 'gui/canvas/load_cpm 'static '(r0) '(r0))
 (dec-method 'next_frame 'gui/canvas/next_frame 'static '(r0) '(r0))
-(dec-method 'read_pixel 'gui/canvas/read_pixel 'static '(r0 r1) '(r0))
+(dec-method 'read_pixel 'gui/canvas/read_pixel 'static '(r0 r1 r2 r3) '(r0 r1 r2))
 (dec-method 'to_argb32 'gui/canvas/to_argb32 'static '(r0 r1) '(r0))
 
 (dec-method 'deinit 'gui/canvas/deinit 'override)

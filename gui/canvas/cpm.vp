@@ -24,8 +24,10 @@
 
 	(ptr 'this 'stream)
 	(puint 'data 'data_end)
+	(ulong 'bit_pool)
 	(struct 'header 'cpm)
-	(int 'length)
+	(int 'length 'bit_pool_size)
+	(ulong 'col)
 
 	;save inputs
 	(push-scope)
@@ -47,18 +49,21 @@
 		(assign {header.cpm_type} {this->canvas_stream_type})
 		(assign {this->canvas_array->array_array} {data})
 		(assign {data + this->canvas_height * this->canvas_stride} {data_end})
+		(assign {0, 0} {bit_pool, bit_pool_size})
 
 		;decode acording to type
 		(vp-def (col len trans data data_end))
 		(loop-start)
 			;get token
-			(call 'stream 'read_char {stream} (list '_ len))
+			(call 'stream 'read_bits {stream, 8, bit_pool, bit_pool_size} {_, length, bit_pool, bit_pool_size})
+			(assign {length} (list len))
 			(gotoif `(,len == -1) 'error)
 			(vpif `(,len >= 128))
 				;run of a pixel
 				(vp-sub-cr 127 len)
 				(assign (list len) {length})
-				(call 'canvas 'read_pixel {stream, header.cpm_type} (list col))
+				(call 'canvas 'read_pixel {stream, header.cpm_type, bit_pool, bit_pool_size} {col, bit_pool, bit_pool_size})
+				(assign {col} (list col))
 				(gotoif `(,col == -1) 'error)
 
 				;fill or skip
@@ -80,7 +85,8 @@
 				(vp-add-cr 1 len)
 				(loop-start)
 					(assign (list len) {length})
-					(call 'canvas 'read_pixel {stream, header.cpm_type} (list col))
+					(call 'canvas 'read_pixel {stream, header.cpm_type, bit_pool, bit_pool_size} {col, bit_pool, bit_pool_size})
+					(assign {col} (list col))
 					(gotoif `(,col == -1) 'error)
 					(assign {length, header.cpm_trans, data, data_end}
 						(list len trans data data_end))
@@ -121,6 +127,7 @@
 	(ptr 'this)
 	(puint 'data 'data_end)
 	(int 'length)
+	(ulong 'col)
 
 	;save inputs
 	(push-scope)
@@ -150,7 +157,8 @@
 				;block of pixels
 				(loop-start)
 					(assign (list len) {length})
-					(call 'canvas 'read_pixel {this->canvas_stream, this->canvas_stream_type} (list col))
+					(call 'canvas 'read_pixel {this->canvas_stream, this->canvas_stream_type, 0, 0} {col, _, _})
+					(assign {col} (list col))
 					(breakif `(,col == -1) 'error)
 					(assign {length, data, data_end} (list len data data_end))
 					(breakif `(,data >= ,data_end) 'error)
@@ -174,41 +182,25 @@
 	;inputs
 	;r0 = stream object (ptr)
 	;r1 = pixel type (uint)
+	;r2 = bit pool (ulong)
+	;r3 = bit pool size (uint)
 	;outputs
 	;r0 = -1 if error, else pixel (long)
+	;r1 = bit pool (ulong)
+	;r2 = bit pool size (uint)
 	;trashes
 	;all
 
-	(vp-def (col pix stream) '(r0 r1))
+	(entry 'canvas 'read_pixel '(r0 r1 r2 r3))
 
-	(entry (list stream pix))
+	(vp-push r1)
+	(call 'stream 'read_bits '(r0 r1 r2 r3) '(_ r0 r1 r2))
+	(vp-pop r3)
+	(vp-push r1 r2)
+	(call 'canvas 'to_argb32 '(r0 r3) '(r0))
+	(vp-pop r1 r2)
 
-	(vp-xor-rr col col)
-	(vp-push col)
-	(switch)
-	(case `(,pix == 32))
-		(call 'stream 'read (list stream rsp int_size) (list '_ pix))
-		(breakif `(,pix == -1))
-		(vp-pop col)
-		(vp-cpy-cr 32 pix)
-		(jump 'canvas 'to_argb32 (list col pix))
-	(case `(,pix == 24))
-		(call 'stream 'read (list stream rsp 3) (list '_ pix))
-		(breakif `(,pix == -1))
-		(vp-pop col)
-		(vp-cpy-cr 24 pix)
-		(jump 'canvas 'to_argb32 (list col pix))
-	(case `(,pix == 16))
-		(call 'stream 'read (list stream rsp short_size) (list '_ pix))
-		(breakif `(,pix == -1))
-		(vp-pop col)
-		(vp-cpy-cr 16 pix)
-		(jump 'canvas 'to_argb32 (list col pix))
-	(endswitch)
-	(vp-pop col)
-	(vp-cpy-cr -1 col)
-
-	(exit (list col))
+	(exit 'canvas 'read_pixel '(r0 r1 r2))
 	(vp-ret)
 
 (def-func-end)
@@ -224,7 +216,7 @@
 
 	(vp-def (col pix rh rl gh gl bh bl) '(r0 r1))
 
-	(entry (list col pix))
+	(entry 'canvas 'to_argb32 (list col pix))
 
 	(switch)
 	(case `(,pix == 32))
@@ -235,7 +227,7 @@
 		(vp-cpy-cr argb_black pix)
 		(vp-add-rr pix col)
 		(break)
-	(default)
+	(case `(,pix == 16))
 		(vp-cpy-rr col rh)
 		(vp-cpy-rr col rl)
 		(vp-cpy-rr col gh)
@@ -261,9 +253,16 @@
 		(vp-add-rr rl col)
 		(vp-add-rr gl col)
 		(vp-add-rr bl col)
+		(break)
+	(default)
+		(vpif '(col == 0))
+			(vp-cpy-cr argb_black col)
+		(else)
+			(vp-cpy-cr argb_white col)
+		(endif)
 	(endswitch)
 
-	(exit (list col))
+	(exit 'canvas 'to_argb32 (list col))
 	(vp-ret)
 
 (def-func-end)
