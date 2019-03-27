@@ -717,8 +717,12 @@ all but r0
 inputs
 r0 = stream object (ptr)
 r1 = pixel type (uint)
+r2 = bit pool (ulong)
+r3 = bit pool size (uint)
 outputs
 r0 = -1 if error, else pixel (long)
+r1 = bit pool (ulong)
+r2 = bit pool size (uint)
 trashes
 all
 ```
@@ -3962,6 +3966,21 @@ r0 = stream object (ptr)
 r1 = available space (bytes)
 trashes
 r2
+```
+### stream::read_bits -> class/stream/read_bits
+```
+inputs
+r0 = stream object (ptr)
+r1 = num bits (uint)
+r2 = bit pool (ulong)
+r3 = bit pool size (uint)
+outputs
+r0 = stream object (ptr)
+r1 = -1 if eof, else data (long)
+r2 = bit pool (ulong)
+r3 = bit pool size (uint)
+trashes
+all but r0
 ```
 ### stream::read_char -> class/stream/read_char
 ```
