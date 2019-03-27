@@ -402,3 +402,46 @@
 	(jump 'stream 'write_flush '(r0))
 
 (def-func-end)
+
+(def-method 'stream 'read_bits)
+	;inputs
+	;r0 = stream object (ptr)
+	;r1 = num bits (uint)
+	;r2 = bit pool (ulong)
+	;r3 = bit pool size (uint)
+	;outputs
+	;r0 = stream object (ptr)
+	;r1 = -1 if eof, else data (long)
+	;r2 = bit pool (ulong)
+	;r3 = bit pool size (uint)
+	;trashes
+	;all but r0
+
+	(ptr 'this)
+	(ulong 'bit_pool 'data)
+	(uint 'bit_pool_size 'num_bits)
+
+	(push-scope)
+	(entry 'stream 'read_bits {this, num_bits, bit_pool, bit_pool_size})
+
+	;fill bit pool with data
+	(loop-while {num_bits > bit_pool_size})
+		(call 'stream 'read_char {this} {_, data})
+		(gotoif {data == -1} 'eof)
+		(assign {(data << bit_pool_size) + bit_pool} {bit_pool})
+		(assign {bit_pool_size + 8} {bit_pool_size})
+	(loop-end)
+
+	;extact bits from bit pool
+	(assign {bit_pool & ((-1 << num_bits) ^ -1)} {data})
+	(assign {bit_pool >> num_bits, bit_pool_size - num_bits} {bit_pool, bit_pool_size})
+
+	(exit 'stream 'read_bits {this, data, bit_pool, bit_pool_size})
+	(return)
+
+(vp-label 'eof)
+	(exit 'stream 'read_bits {this, -1, 0, 0})
+	(pop-scope)
+	(return)
+
+(def-func-end)
