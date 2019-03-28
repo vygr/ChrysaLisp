@@ -4,6 +4,13 @@
 
 ------
 
+Added support for type 1 pixel types to the .CPM loader. This enabled me to
+load the shadow file for the Boing demo. This also means that the stream class
+now supports a read_bits method for varibale length data reading. write_bits
+method will come along soon as part of the .CPM saving routines.
+
+------
+
 Created a list of symbols, `*func-syms*`, that get undef'd at the close of each
 function in order to avoid cross contamination between labels and symbols and
 raise errors at compilation time when such happens.

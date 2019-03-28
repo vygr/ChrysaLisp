@@ -126,8 +126,8 @@
 
 	(ptr 'this)
 	(puint 'data 'data_end)
-	(int 'length)
 	(ulong 'col)
+	(int 'length)
 
 	;save inputs
 	(push-scope)
@@ -137,6 +137,7 @@
 		;decode acording to type
 		(assign {this->canvas_array->array_array} {data})
 		(assign {data + this->canvas_height * this->canvas_stride} {data_end})
+
 		(vp-def (col len data data_end))
 		(loop-start)
 			;get token, loop back if stream end
