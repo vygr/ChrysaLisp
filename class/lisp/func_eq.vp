@@ -7,7 +7,7 @@
 	(entry 'lisp _ (list r_this r_args))
 (errorcases
 	(call 'lisp 'env_args_type `(,r_args (@ ,(f-path 'integer 'vtable)) -2))
-	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
 	(call 'vector 'get_iters (list r_args) (list '_ r_iter_begin r_iter_end))
 	(vp-cpy-ir r_iter_begin 0 r_num)
 	(vp-add-cr ptr_size r_iter_begin)
@@ -36,7 +36,7 @@
 
 	(compare 'func_eq '(gotoif (list r_num1 '!= r_num) 'fail))
 (errorcases
-(vp-label 'error1)
+(vp-label 'error)
 	(jump 'lisp 'repl_error (list r_this "(eq num num ...)" error_msg_wrong_types r_args)))
 
 (def-func-end)
@@ -54,7 +54,7 @@
 			(gotoif (list r_num1 '> r_num) 'fail)
 			(vp-cpy-rr r_num1 r_num)))
 (errorcases
-(vp-label 'error1)
+(vp-label 'error)
 	(jump 'lisp 'repl_error (list r_this "(ge num num ...)" error_msg_wrong_types r_args)))
 
 (def-func-end)
@@ -72,7 +72,7 @@
 			(gotoif (list r_num1 '>= r_num) 'fail)
 			(vp-cpy-rr r_num1 r_num)))
 (errorcases
-(vp-label 'error1)
+(vp-label 'error)
 	(jump 'lisp 'repl_error (list r_this "(gt num num ...)" error_msg_wrong_types r_args)))
 
 (def-func-end)
@@ -90,7 +90,7 @@
 			(gotoif (list r_num1 '< r_num) 'fail)
 			(vp-cpy-rr r_num1 r_num)))
 (errorcases
-(vp-label 'error1)
+(vp-label 'error)
 	(jump 'lisp 'repl_error (list r_this "(le num num ...)" error_msg_wrong_types r_args)))
 
 (def-func-end)
@@ -108,7 +108,7 @@
 			(gotoif (list r_num1 '<= r_num) 'fail)
 			(vp-cpy-rr r_num1 r_num)))
 (errorcases
-(vp-label 'error1)
+(vp-label 'error)
 	(jump 'lisp 'repl_error (list r_this "(lt num num ...)" error_msg_wrong_types r_args)))
 
 (def-func-end)
