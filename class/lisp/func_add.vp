@@ -2,22 +2,13 @@
 (include 'class/integer/class.inc)
 (include 'class/lisp/class.inc)
 
-(def-method 'lisp 'func_add)
-	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
-	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
-
+;generic arith op
+(defun arith (_ p)
 	(vp-def (r_this r_args r_num r_value r_iter_begin r_iter_end r_num1) '(r6 r7))
-
-	(entry 'lisp 'func_add (list r_this r_args))
-
+	(entry 'lisp _ (list r_this r_args))
 (errorcases
 	(call 'lisp 'env_args_type `(,r_args (@ ,(f-path 'integer 'vtable)) -2))
-	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
-
+	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
 	(call 'vector 'get_iters (list r_args) (list '_ r_iter_begin r_iter_end))
 	(vp-cpy-ir r_iter_begin 0 r_num)
 	(vp-add-cr ptr_size r_iter_begin)
@@ -26,15 +17,136 @@
 		(vp-cpy-ir r_iter_begin 0 r_num1)
 		(vp-add-cr ptr_size r_iter_begin)
 		(vp-cpy-ir r_num1 integer_value r_num1)
-		(vp-add-rr r_num1 r_num)
+		(eval p)
 	(loop-until (list r_iter_begin '== r_iter_end))
 	(call 'integer 'create (list r_num) (list r_value))
+	(exit 'lisp _ (list r_this r_value))
+	(vp-ret))
 
-	(exit 'lisp 'func_add (list r_this r_value))
-	(vp-ret)
+(def-method 'lisp 'func_add)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
 
+	(arith 'func_add '(vp-add-rr r_num1 r_num))
 (errorcases
-(vp-label 'error1)
+(vp-label 'error)
 	(jump 'lisp 'repl_error (list r_this "(add num num ...)" error_msg_wrong_types r_args)))
+
+(def-func-end)
+
+(def-method 'lisp 'func_sub)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(arith 'func_sub '(vp-sub-rr r_num1 r_num))
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error (list r_this "(sub num num ...)" error_msg_wrong_types r_args)))
+
+(def-func-end)
+
+(def-method 'lisp 'func_mul)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(arith 'func_mul '(vp-mul-rr r_num1 r_num))
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error (list r_this "(mul num num ...)" error_msg_wrong_types r_args)))
+
+(def-func-end)
+
+(def-method 'lisp 'func_band)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(arith 'func_band '(vp-and-rr r_num1 r_num))
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error (list r_this "(bit-and num num ...)" error_msg_wrong_types r_args)))
+
+(def-func-end)
+
+(def-method 'lisp 'func_bor)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(arith 'func_bor '(vp-or-rr r_num1 r_num))
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error (list r_this "(bit-or num num ...)" error_msg_wrong_types r_args)))
+
+(def-func-end)
+
+(def-method 'lisp 'func_bxor)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(arith 'func_bxor '(vp-xor-rr r_num1 r_num))
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error (list r_this "(bit-xor num num ...)" error_msg_wrong_types r_args)))
+
+(def-func-end)
+
+(def-method 'lisp 'func_min)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(arith 'func_min
+		'(progn
+			(vpif (list r_num1 '< r_num))
+				(vp-cpy-rr r_num1 r_num)
+			(endif)))
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error (list r_this "(min num num ...)" error_msg_wrong_types r_args)))
+
+(def-func-end)
+
+(def-method 'lisp 'func_max)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(arith 'func_max
+		'(progn
+			(vpif (list r_num1 '> r_num))
+				(vp-cpy-rr r_num1 r_num)
+			(endif)))
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error (list r_this "(max num num ...)" error_msg_wrong_types r_args)))
 
 (def-func-end)
