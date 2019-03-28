@@ -16,7 +16,7 @@ masks, field offsets and types. They just declare Lisp symbols within the
 Allow you to define a set of incrementing constants. You can set the first
 value and each subsequent symbol gets the current value plus one.
 
-```
+```lisp
 (def-enum 'bert 24)
 	(enum 'a 'b 'c)
 	(enum 'd)
@@ -28,7 +28,7 @@ This example will start the enum count at 24, this is an optional value, and
 will default to 0 if not present. The end result is a set of symbols and
 assigned values of:
 
-```
+```lisp
 bert_a -> 24
 bert_b -> 25
 bert_c -> 26
@@ -42,7 +42,7 @@ bert_f -> 29
 Allow you to define a set of bit masks. Again you can set the initial bit
 offset and for each subsequent bit the mask is shifted left by 1.
 
-```
+```lisp
 (def-bit 'alf 2)
 	(bit 'a 'b 'c)
 	(bit 'd)
@@ -71,7 +71,7 @@ starting offset can be provided allowing inheritance from a previous structure.
 Field offsets are aligned to the natural alignment for that type ! The size of
 the entire structure is not aligned.
 
-```
+```lisp
 (def-struct 'sue)
 	(byte 'a 'b 'c)
 (def-struct-end)
@@ -158,17 +158,17 @@ computer do this stuff for you !
 `(switch)`, `(case)`, `(default)`, `(endswitch)` and `(break)` are the
 primitives that all the other structured coding functions are based upon.
 
-```
+```lisp
 	(switch ['name])
 	(case exp1)
 		...
-		(break [name])
+		(break ['name])
 	(case exp2)
 		...
-		(break [name])
+		(break ['name])
 	(case exp3)
 		...
-		(break [name])
+		(break ['name])
 	(default)
 		...
 	(endswitch)
@@ -187,12 +187,12 @@ test and act accordingly.
 
 There are various flavours of `(case)` and `(break)`.
 
-```
+```lisp
 	(case exp)
 	(casenot exp)
-	(break [name])
-	(breakif exp [name])
-	(breakifnot exp [name])
+	(break ['name])
+	(breakif exp ['name])
+	(breakifnot exp ['name])
 ```
 
 ### If
@@ -202,18 +202,18 @@ There are various flavours of `(case)` and `(break)`.
 corresponding `(endif)` although you may use named break statements to jump to
 a named `(endif)`.
 
-```
+```lisp
 	(vpif exp ['name])
 		...
-		[(break [name])]
+		[(break ['name])]
 		...
 	(elseif exp)
 		...
-		[(breakif exp [name])]
+		[(breakif exp ['name])]
 		...
 	(else)
 		...
-		[(breakifnot exp [name])]
+		[(breakifnot exp ['name])]
 		...
 	(endif)
 
@@ -242,12 +242,12 @@ The flavours of `(break)` will exit the current loop or optionally the named
 loop. The flavours of `(continue)` allow you to jump back to the loop start, if
 the loop start statement has a condition then that condition is tested again.
 
-```
+```lisp
 	(loop-start ['name])
 		...
-		[(break [name])]
-		[(breakif exp [name])]
-		[(breakifnot exp [name])]
+		[(break ['name])]
+		[(breakif exp ['name])]
+		[(breakifnot exp ['name])]
 		[(continue)]
 		[(continueif exp)]
 		[(continueifnot exp)]
@@ -288,7 +288,7 @@ reclaimed.
 
 ### Lifecycle
 
-```
+```lisp
 	(call 'xxx 'create)
 		(call 'sys_mem 'alloc)
 			(call 'xxx 'init)
@@ -333,7 +333,7 @@ The `destroy` method just calls `deinit` folowed by `free`.
 
 This is an example from the `class/pair/class.inc` file.
 
-```
+```lisp
 (include 'class/obj/class.inc)
 
 (def-class 'pair 'obj)
@@ -403,7 +403,7 @@ use of the helper method generators `(gen-create 'pair)` and `(gen-vtable
 the method code for you. Take a look in `sys/class.inc` for the implementation
 of these.
 
-```
+```lisp
 (include 'sys/func.inc)
 (include 'class/pair/class.inc)
 

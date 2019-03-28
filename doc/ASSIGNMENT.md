@@ -24,14 +24,14 @@ operators to emit `(vp-cpy-xxx)` instructions for you.
 
 Let's start with a simple example.
 
-```
+```lisp
 	(assign '(r0 r1 42) '(r1 r2 r3))
 ```
 
 We wish to assign register r0 to r1 and register r1 to r2 and the constant 42
 to r3. Sounds simple enough. So we just emit:
 
-```
+```lisp
 	(vp-cpy-rr r0 r1)
 	(vp-cpy-rr r1 r2)
 	(vp-cpy-cr 42 r3)
@@ -46,7 +46,7 @@ occasionally you will need to break the cycle with a temp register.
 
 The above example actually gets emitted as:
 
-```
+```lisp
 	(vp-cpy-rr r1 r2)
 	(vp-cpy-rr r0 r1)
 	(vp-cpy-cr 42 r3)
@@ -54,7 +54,7 @@ The above example actually gets emitted as:
 
 An example of a cycle that needs user intervention would be:
 
-```
+```lisp
 	(assign '(r0 r1 r2) '(r1 r2 r0))
 ```
 
@@ -64,13 +64,13 @@ stack. It's there to make your life easier, not to be a full blown compiler !
 
 You can use all of the VP addressing modes as well as registers.
 
-```
+```lisp
 	(assign '(r0 (r1 64 i) (r3 r2 us)) '((r2 8) r1 r5))
 ```
 
 This will emit:
 
-```
+```lisp
 	(vp-cpy-dr-us r3 r2 r5)
 	(vp-cpy-ri r0 r2 8)
 	(vp-cpy-ir-i r1 64 r1)
@@ -84,7 +84,7 @@ output a parameter list or string that `(assign)` can consume. This is where
 the real power of the Lisp based assembler kicks in ! You have access to one of
 the worlds most powerful languages as your assembler macro system !
 
-```
+```lisp
 	(vp-def (x y z))
 1)	(assign `(,x ,y) `(,z ,x))
 2)	(assign (list x y) (list z x))
@@ -95,7 +95,7 @@ the worlds most powerful languages as your assembler macro system !
 You can add operators to your parameters which assignment emits effective
 address or resource binding instructions for.
 
-```
+```lisp
 	(assign '((& r0 6)) '(r1))
 	(assign '((& r0 r1)) '(r2))
 	(assign '(($ label)) '(r0))
@@ -106,7 +106,7 @@ address or resource binding instructions for.
 
 Will emit:
 
-```
+```lisp
 	(vp-lea-i r0 6 r1)
 	(vp-lea-d r0 r1 r2)
 	(vp-lea-p label r0)
@@ -130,7 +130,7 @@ output will be searched for in these variable scopes. These variables are not
 the same as Lisp level symbols, they are managed by a few scope creation and
 variable declaration functions.
 
-```
+```lisp
 	(byte 'x 'y ...)
 	(ubyte 'x 'y ...)
 	(short 'x 'y ...)
@@ -167,7 +167,7 @@ A special helper function `(return)` is provided that will emit any required
 You can add resource operator prefixes to your C-Script string parameters too.
 These are in addition to the C/C++ style operators.
 
-```
+```lisp
 	(assign {&var1, &var2} {p_var1, p_var2})
 	(assign {$label} {p_label})
 	(assign {"Hello", "World"} {p_str1, p_str2})
@@ -183,14 +183,14 @@ This is the system level mailbox declaration function. `sys_mail::declare`
 Register inputs and outputs are declared in the `sys/mail/class.inc` file just
 as with a VP function.
 
-```
+```lisp
 (def-class 'sys_mail)
 (dec-method 'declare 'sys/mail/declare 'static '(r0 r1))
 ```
 
 Implementation of the function is defined in the `sys/mail/class.vp` file.
 
-```
+```lisp
 (def-method 'sys_mail 'declare)
 	;inputs
 	;r0 = mailbox name c string (pubyte)
@@ -238,13 +238,13 @@ function to turn emit printing off.
 
 This is the output from wrapping the 'hash_map 'insert line above:
 
-```
+```lisp
 	(setq debug_inst t)
 	(call 'hash_map 'insert {mail_statics->ml_statics_declare_map, name, id})
 	(setq debug_inst nil)
 ```
 
-```
+```lisp
 -> obj/Darwin/x86_64/sys/mail/declare
 pre opt:
 (vp-lea-i rsp 0 _v0)
