@@ -11,35 +11,35 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(vp-def (this args len value iter_begin iter_end width) '(r7 r8 r9))
+	(vp-def (r_this r_args r_len r_value r_iter_begin r_iter_end r_width) '(r7 r8 r9))
 
-	(entry 'lisp 'func_char (list this args))
+	(entry 'lisp 'func_char (list r_this r_args))
 
-	(vp-cpy-ir-ui args array_length len)
+	(vp-cpy-ir-ui r_args array_length r_len)
 
 (errorcases
-	(errorif (list len '< 1) 'error1)
-	(errorif (list len '> 2) 'error1)
-	(call 'lisp 'env_args_type `(,args (@ ,(f-path 'integer 'vtable)) 0))
+	(errorif (list r_len '< 1) 'error1)
+	(errorif (list r_len '> 2) 'error1)
+	(call 'lisp 'env_args_type `(,r_args (@ ,(f-path 'integer 'vtable)) 0))
 	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
-	(vp-cpy-ir args array_array iter_begin)
-	(vp-cpy-cr 1 width)
-	(vp-cpy-ir iter_begin 0 value)
-	(vpif (list len '> 1))
-		(vp-cpy-ir iter_begin ptr_size width)
-		(vp-cpy-ir width integer_value width)
-		(vp-sub-cr 1 width)
-		(vp-and-cr (dec long_size) width)
-		(vp-add-cr 1 width)
+	(vp-cpy-ir r_args array_array r_iter_begin)
+	(vp-cpy-cr 1 r_width)
+	(vp-cpy-ir r_iter_begin 0 r_value)
+	(vpif (list r_len '> 1))
+		(vp-cpy-ir r_iter_begin ptr_size r_width)
+		(vp-cpy-ir r_width integer_value r_width)
+		(vp-sub-cr 1 r_width)
+		(vp-and-cr (dec long_size) r_width)
+		(vp-add-cr 1 r_width)
 	(endif)
-	(call 'string 'create_from_buffer (list (list '& value integer_value) width) (list value))
+	(call 'string 'create_from_buffer (list (list '& r_value integer_value) r_width) (list r_value))
 
-	(exit 'lisp 'func_char (list this value))
+	(exit 'lisp 'func_char (list r_this r_value))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error1)
-	(jump 'lisp 'repl_error (list this "(char num [width])" error_msg_wrong_types args)))
+	(jump 'lisp 'repl_error (list r_this "(char num [width])" error_msg_wrong_types r_args)))
 
 (def-func-end)

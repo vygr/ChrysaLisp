@@ -10,33 +10,33 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(vp-def (this args num value numhi iter_begin iter_end num1) '(r6 r7))
+	(vp-def (r_this r_args r_num r_value r_numhi r_iter_begin r_iter_end r_num1) '(r6 r7))
 
-	(entry 'lisp 'func_fdiv (list this args))
+	(entry 'lisp 'func_fdiv (list r_this r_args))
 
 (errorcases
-	(call 'lisp 'env_args_type `(,args (@ ,(f-path 'integer 'vtable)) -2))
+	(call 'lisp 'env_args_type `(,r_args (@ ,(f-path 'integer 'vtable)) -2))
 	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
-	(call 'vector 'get_iters (list args) (list '_ iter_begin iter_end))
-	(vp-cpy-ir iter_begin 0 num)
-	(vp-add-cr ptr_size iter_begin)
-	(vp-cpy-ir num integer_value num)
+	(call 'vector 'get_iters (list r_args) (list '_ r_iter_begin r_iter_end))
+	(vp-cpy-ir r_iter_begin 0 r_num)
+	(vp-add-cr ptr_size r_iter_begin)
+	(vp-cpy-ir r_num integer_value r_num)
 	(loop-start)
-		(vp-cpy-ir iter_begin 0 num1)
-		(vp-add-cr ptr_size iter_begin)
-		(vp-cpy-ir num1 integer_value num1)
-		(vp-shl-cr fp_shift num)
-		(vp-ext-rr num numhi)
-		(vp-div-rrr num1 numhi num)
-	(loop-until (list iter_begin '== iter_end))
-	(call 'integer 'create (list num) (list value))
+		(vp-cpy-ir r_iter_begin 0 r_num1)
+		(vp-add-cr ptr_size r_iter_begin)
+		(vp-cpy-ir r_num1 integer_value r_num1)
+		(vp-shl-cr fp_shift r_num)
+		(vp-ext-rr r_num r_numhi)
+		(vp-div-rrr r_num1 r_numhi r_num)
+	(loop-until (list r_iter_begin '== r_iter_end))
+	(call 'integer 'create (list r_num) (list r_value))
 
-	(exit 'lisp 'func_fdiv (list this value))
+	(exit 'lisp 'func_fdiv (list r_this r_value))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error1)
-	(jump 'lisp 'repl_error (list this "(fdiv num num ...)" error_msg_wrong_types args)))
+	(jump 'lisp 'repl_error (list r_this "(fdiv num num ...)" error_msg_wrong_types r_args)))
 
 (def-func-end)

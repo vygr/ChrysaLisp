@@ -10,28 +10,28 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(vp-def (this args num value iter_begin) '(r6 r7))
+	(vp-def (r_this r_args r_num r_value r_iter_begin) '(r6 r7))
 
-	(entry 'lisp 'func_bshl (list this args))
+	(entry 'lisp 'func_bshl (list r_this r_args))
 
 (errorcases
-	(call 'lisp 'env_args_type `(,args ($ sig) 2))
+	(call 'lisp 'env_args_type `(,r_args ($ sig) 2))
 	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
-	(vp-cpy-ir args array_array iter_begin)
-	(vp-cpy-ir iter_begin 0 num)
-	(vp-cpy-ir iter_begin ptr_size value)
-	(vp-cpy-ir num integer_value num)
-	(vp-cpy-ir value integer_value value)
-	(vp-shl-rr value num)
-	(call 'integer 'create (list num) (list value))
+	(vp-cpy-ir r_args array_array r_iter_begin)
+	(vp-cpy-ir r_iter_begin 0 r_num)
+	(vp-cpy-ir r_iter_begin ptr_size r_value)
+	(vp-cpy-ir r_num integer_value r_num)
+	(vp-cpy-ir r_value integer_value r_value)
+	(vp-shl-rr r_value r_num)
+	(call 'integer 'create (list r_num) (list r_value))
 
-	(exit 'lisp 'func_bshl (list this value))
+	(exit 'lisp 'func_bshl (list r_this r_value))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error1)
-	(jump 'lisp 'repl_error (list this "(bit-shl num cnt)" error_msg_wrong_types args))
+	(jump 'lisp 'repl_error (list r_this "(bit-shl num cnt)" error_msg_wrong_types r_args))
 	(signature 'sig 'integer 'integer))
 
 (def-func-end)

@@ -11,26 +11,26 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(vp-def (this args value) '(r6 r7))
+	(vp-def (r_this r_args r_value) '(r6 r7))
 
-	(entry 'lisp 'func_fsin (list this args))
+	(entry 'lisp 'func_fsin (list r_this r_args))
 
 (errorcases
-	(call 'lisp 'env_args_type `(,args ($ sig) 1))
+	(call 'lisp 'env_args_type `(,r_args ($ sig) 1))
 	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
-	(vp-cpy-ir args array_array value)
-	(vp-cpy-ir value 0 value)
-	(vp-cpy-ir value integer_value value)
-	(call 'sys_math 'fsin (list value) (list value))
-	(call 'integer 'create (list value) (list value))
+	(vp-cpy-ir r_args array_array r_value)
+	(vp-cpy-ir r_value 0 r_value)
+	(vp-cpy-ir r_value integer_value r_value)
+	(call 'sys_math 'fsin (list r_value) (list r_value))
+	(call 'integer 'create (list r_value) (list r_value))
 
-	(exit 'lisp 'func_fsin (list this value))
+	(exit 'lisp 'func_fsin (list r_this r_value))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error1)
-	(jump 'lisp 'repl_error (list this "(fsin angle)" error_msg_wrong_types args))
+	(jump 'lisp 'repl_error (list r_this "(fsin angle)" error_msg_wrong_types r_args))
 	(signature 'sig 'integer))
 
 (def-func-end)

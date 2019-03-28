@@ -13,23 +13,23 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(vp-def (this args value) '(r6 r7))
+	(vp-def (r_this r_args r_value) '(r6 r7))
 
-	(entry 'sys_mail 'lisp_mymail (list this args))
+	(entry 'sys_mail 'lisp_mymail (list r_this r_args))
 
 (errorcases
-	(d-call 'vector 'get_length (list args))
+	(d-call 'vector 'get_length (list r_args))
 	(errorif (list (method-output 'vector 'get_length 1) '!= 0) 'error1))
 
-	(call 'sys_mail 'mymail nil (list value '_))
-	(call 'sys_mail 'free_obj (list value) (list value '_ '_))
+	(call 'sys_mail 'mymail nil (list r_value '_))
+	(call 'sys_mail 'free_obj (list r_value) (list r_value '_ '_))
 
-	(exit 'sys_mail 'lisp_mymail (list this value))
+	(exit 'sys_mail 'lisp_mymail (list r_this r_value))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error1)
-	(jump 'lisp 'repl_error (list this "(mail-mymail)" error_msg_wrong_types args)))
+	(jump 'lisp 'repl_error (list r_this "(mail-mymail)" error_msg_wrong_types r_args)))
 
 (def-func-end)
 
@@ -41,27 +41,27 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(vp-def (this args value) '(r6 r7))
+	(vp-def (r_this r_args r_value) '(r6 r7))
 
-	(entry 'sys_mail 'lisp_trymail (list this args))
+	(entry 'sys_mail 'lisp_trymail (list r_this r_args))
 
 (errorcases
-	(d-call 'vector 'get_length (list args))
+	(d-call 'vector 'get_length (list r_args))
 	(errorif (list (method-output 'vector 'get_length 1) '!= 0) 'error1))
 
-	(call 'sys_mail 'trymail nil (list value '_))
-	(vpif (list value '!= 0))
-		(call 'sys_mail 'free_obj (list value) (list value '_ '_))
+	(call 'sys_mail 'trymail nil (list r_value '_))
+	(vpif (list r_value '!= 0))
+		(call 'sys_mail 'free_obj (list r_value) (list r_value '_ '_))
 	(else)
-		(call 'obj 'ref (list (list this lisp_sym_nil)) (list value))
+		(call 'obj 'ref (list (list r_this lisp_sym_nil)) (list r_value))
 	(endif)
 
-	(exit 'sys_mail 'lisp_trymail (list this value))
+	(exit 'sys_mail 'lisp_trymail (list r_this r_value))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error1)
-	(jump 'lisp 'repl_error (list this "(mail-trymail)" error_msg_wrong_types args)))
+	(jump 'lisp 'repl_error (list r_this "(mail-trymail)" error_msg_wrong_types r_args)))
 
 (def-func-end)
 
