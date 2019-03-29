@@ -417,31 +417,34 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this)
-	(ulong 'bit_pool 'data)
-	(uint 'bit_pool_size 'num_bits)
+	(vp-def (r_this r_num_bits r_bit_pool r_bit_pool_size r_data))
 
-	(push-scope)
-	(entry 'stream 'read_bits {this, num_bits, bit_pool, bit_pool_size})
+	(entry 'stream 'read_bits (list r_this r_num_bits r_bit_pool r_bit_pool_size))
 
 	;fill bit pool with data
-	(loop-while {num_bits > bit_pool_size})
-		(call 'stream 'read_char {this} {_, data})
-		(gotoif {data == -1} 'eof)
-		(assign {(data << bit_pool_size) + bit_pool} {bit_pool})
-		(assign {bit_pool_size + 8} {bit_pool_size})
+	(loop-while (list r_num_bits '> r_bit_pool_size))
+		(vp-push r_num_bits r_bit_pool r_bit_pool_size)
+		(call 'stream 'read_char (list r_this) (list r_this r_data))
+		(vp-pop r_num_bits r_bit_pool r_bit_pool_size)
+		(gotoif (list r_data '== -1) 'eof)
+		(vp-shl-rr r_bit_pool_size r_data)
+		(vp-add-cr 8 r_bit_pool_size)
+		(vp-add-rr r_data r_bit_pool)
 	(loop-end)
 
 	;extact bits from bit pool
-	(assign {bit_pool & ((-1 << num_bits) ^ -1)} {data})
-	(assign {bit_pool >> num_bits, bit_pool_size - num_bits} {bit_pool, bit_pool_size})
+	(vp-cpy-cr -1 r_data)
+	(vp-shl-rr r_num_bits r_data)
+	(vp-xor-cr -1 r_data)
+	(vp-and-rr r_bit_pool r_data)
+	(vp-shr-rr r_num_bits r_bit_pool)
+	(vp-sub-rr r_num_bits r_bit_pool_size)
 
-	(exit 'stream 'read_bits {this, data, bit_pool, bit_pool_size})
-	(return)
+	(exit 'stream 'read_bits (list r_this r_data r_bit_pool r_bit_pool_size))
+	(vp-ret)
 
 (vp-label 'eof)
-	(exit 'stream 'read_bits {this, -1, 0, 0})
-	(pop-scope)
-	(return)
+	(exit 'stream 'read_bits (list r_this -1 0 0))
+	(vp-ret)
 
 (def-func-end)
