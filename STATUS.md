@@ -4,9 +4,14 @@
 
 ------
 
+Tidied up the source trying to keep to a consistent style for register equated
+source with (list) format rather than quasi-quote format.
+
+------
+
 Added support for type 1 pixel types to the .CPM loader. This enabled me to
 load the shadow file for the Boing demo. This also means that the stream class
-now supports a read_bits method for varibale length data reading. write_bits
+now supports a read_bits method for variable length data reading. write_bits
 method will come along soon as part of the .CPM saving routines.
 
 ------
