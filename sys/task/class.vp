@@ -226,7 +226,7 @@
 	;resume new task, check for first
 	(vp-def (r_tcb r_current_tcb r_tmp r_task_statics))
 	(assign {tcb, task_statics->tk_statics_current_tcb, task_statics} (list r_tcb r_current_tcb r_task_statics))
-	(vpif `(,r_current_tcb == 0))
+	(vpif (list r_current_tcb '== 0))
 		(vp-cpy-ri r_tcb r_task_statics tk_statics_current_tcb)
 		(ln-set-succ r_tcb r_tcb)
 		(ln-set-pred r_tcb r_tcb)
