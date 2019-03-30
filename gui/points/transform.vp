@@ -37,7 +37,7 @@
 	(vec-load 2 {trx, try})
 	(defq tr (vec-top 2))
 
-	(loop-while `(,i != ,e))
+	(loop-while (list i '!= e))
 		(vec-load-long 2 i)
 		(defq xy (vec-top 2))
 

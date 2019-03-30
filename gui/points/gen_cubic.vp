@@ -82,7 +82,7 @@
 
 		(vec-load 1 {eps})
 		(bind '(d e) (vec-pop 2))
-		(vpif `(,d <= ,e))
+		(vpif (list d '<= e))
 			;output point
 			(call 'points 'push_back2 {this, p1234x, p1234y})
 		(else)

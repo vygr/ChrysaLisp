@@ -65,7 +65,7 @@
 		(vec-fdistance-squared 2)
 		(vec-load 1 {eps})
 		(bind '(d e) (vec-pop 2))
-		(vpif `(,d <= ,e))
+		(vpif (list d '<= e))
 			;output point
 			(vec-load 2 {bvx, bvy} {cx, cy})
 			(vec-add 2)
