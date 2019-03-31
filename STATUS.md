@@ -4,6 +4,12 @@
 
 ------
 
+Reorganised the obj/ folder to take advantage of the now common abi binaries !
+Saved nearly 100KB on the snapshot.zip file as a result of the shared binaries
+between Darwin and Linux x86_64 platforms.
+
+------
+
 Tidied up the source trying to keep to a consistent style for register equated
 source with (list) format rather than quasi-quote format.
 
