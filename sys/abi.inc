@@ -5,7 +5,7 @@
 ;;;;;;;;;;;;;;;;;;;;
 
 (cond
-	((eql *os* 'Darwin)
+	((eql *abi* 'AMD64)
 		(cond
 			((eql *cpu* 'x86_64)
 				(defmacro abi-trashed () ''(r1 r2 r5 r6 r7 r8 r9 r10))
@@ -23,8 +23,27 @@
 							(apply emit-push x)
 							(emit-call-jump-i 0x10 b c)
 							(emit-cpy-ir rsp (mul ptr_size (sub (length x) 2)) rsp)))))
-			(t (throw "Unknown CPU for Darwin !" *cpu*))))
-	((eql *os* 'Windows)
+			(t (throw "Unknown CPU for AMD64 !" *cpu*))))
+	((eql *abi* 'ARM64)
+		(cond
+			((eql *cpu* 'aarch64)
+				(defmacro abi-trashed () ''(r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14))
+				(defcmacro abi-args (&optional _ o) (setd _ 8 o 0) `',(slice o (add o _) '(r0 r1 r2 r3 r4 r5 r6 r7 r8)))
+				(defcfun emit-call-abi (r b c &rest x)
+					(setq x (cat '(r30) x))
+					(apply emit-push x)
+					(emit-cpy-ir b c r29)
+					(emit-int (add 0xd63f0000 (bit-shl (reg r29) 5)))
+					(cond
+						((eq 1 (defq l (length x)))
+							(emit-pop r30))
+						((eq 2 l) 
+							(emit-pop r30 r29))
+						(t
+							(emit-cpy-ir rsp (mul ptr_size (dec l)) r30)
+							(emit-free (mul ptr_size l))))))
+			(t (throw "Unknown CPU for ARM64 !" *cpu*))))
+	((eql *abi* 'WIN64)
 		(cond
 			((eql *cpu* 'x86_64)
 				(defmacro abi-trashed () ''(r1 r2 r7 r8 r9 r10))
@@ -43,43 +62,8 @@
 							(emit-sub-cr 32 rsp)
 							(emit-call-jump-i 0x10 b c)
 							(emit-cpy-ir rsp (mul ptr_size (add (length x) 4)) rsp)))))
-			(t (throw "Unknown CPU for Windows !" *cpu*))))
-	((eql *os* 'Linux)
-		(cond
-			((eql *cpu* 'x86_64)
-				(defmacro abi-trashed () ''(r1 r2 r5 r6 r7 r8 r9 r10))
-				(defcmacro abi-args (&optional _ o) (setd _ 6 o 0) `',(slice o (add o _) '(r6 r5 r2 r1 r7 r8 r0 r3 r4)))
-				(defcfun emit-call-abi (r b c &rest x)
-					(cond
-						((eq *func-align* 16)
-							(apply emit-push x)
-							(emit-call-jump-i 0x10 b c)
-							(emit-add-cr (mul ptr_size (length x)) rsp))
-						(t
-							(setq x (cat (list r r) x))
-							(emit-cpy-rr rsp r)
-							(emit-and-cr -16 rsp)
-							(apply emit-push x)
-							(emit-call-jump-i 0x10 b c)
-							(emit-cpy-ir rsp (mul ptr_size (sub (length x) 2)) rsp)))))
-			((eql *cpu* 'aarch64)
-				(defmacro abi-trashed () ''(r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14))
-				(defcmacro abi-args (&optional _ o) (setd _ 8 o 0) `',(slice o (add o _) '(r0 r1 r2 r3 r4 r5 r6 r7 r8)))
-				(defcfun emit-call-abi (r b c &rest x)
-					(setq x (cat '(r30) x))
-					(apply emit-push x)
-					(emit-cpy-ir b c r29)
-					(emit-int (add 0xd63f0000 (bit-shl (reg r29) 5)))
-					(cond
-						((eq 1 (defq l (length x)))
-							(emit-pop r30))
-						((eq 2 l) 
-							(emit-pop r30 r29))
-						(t
-							(emit-cpy-ir rsp (mul ptr_size (dec l)) r30)
-							(emit-free (mul ptr_size l))))))
-			(t (throw "Unknown CPU for Linux !" *cpu*))))
-	(t (throw "Unknown OS !" *os*)))
+			(t (throw "Unknown CPU for WIN64 !" *cpu*))))
+	(t (throw "Unknown ABI !" *abi*)))
 
 (defcmacro abi-push-trashed (&rest b) (merge-sym b (abi-trashed)) `(vp-push ~b))
 (defcmacro abi-pop-trashed (&rest b) (merge-sym b (abi-trashed)) `(vp-pop ~b))

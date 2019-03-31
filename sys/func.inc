@@ -37,7 +37,7 @@
 	`(and (ge (length *name*) ,(length _)) (eql (slice ,(neg (inc (length _))) -1 *name*) ,_)))
 
 (defcfun def-func (*name* &optional falign fstack)
-	(print "-> " (cat "obj/" *os* "/" *cpu* "/" (str *name*)))
+	(print "-> " (cat "obj/" *cpu* "/" *abi* "/" (str *name*)))
 	(emit-reset)
 	(setq *func-name* *name* *switch-nxt* 0 *func-align* (opt falign stack_align))
 	(clear *strings* *paths* *links* *func-syms*)
@@ -92,7 +92,7 @@
 		(each print-emit *emit-buffer*))
 	(emit-passes)
 	(apply undef (cat (list *compile-env*) *func-syms*))
-	(save *out-buffer* (cat "obj/" *os* "/" *cpu* "/" (str *func-name*))))
+	(save *out-buffer* (cat "obj/" *cpu* "/" *abi* "/" (str *func-name*))))
 
 (defcfun fn-add-string (s)
 	(defq i -1)

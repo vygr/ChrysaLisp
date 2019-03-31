@@ -572,10 +572,10 @@
 	(when (defq f (file-stream 'arch))
 		(bind '(o _) (read f 32))) o)
 
-(defun platform ()
-	;(platform)
-	(defq o 'Darwin)
-	(when (defq f (file-stream 'platform))
+(defun abi ()
+	;(abi)
+	(defq o 'AMD64)
+	(when (defq f (file-stream 'abi))
 		(bind '(o _) (read f 32))) o)
 
 (defun within-compile-env (_)

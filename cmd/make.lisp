@@ -3,7 +3,7 @@
 (import 'cmd/asm.inc)
 
 (defun make-doc ()
-	(defq *os* (platform) *cpu* (cpu))
+	(defq *abi* (abi) *cpu* (cpu))
 	(defun trim-whitespace (_)
 		(trim-start (trim-start _ (char 9)) " "))
 	(defun trim-cruft (_)

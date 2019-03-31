@@ -2,6 +2,7 @@
 
 OS=`cat platform`
 CPU=`cat arch`
+ABI=`cat abi`
 
 function zero_pad
 {
@@ -48,9 +49,9 @@ function boot_cpu_gui
 #	if [ $1 -lt 2 ]
 	if [ $1 -lt 1 ]
 	then
-		./obj/$OS/$CPU/main obj/$OS/$CPU/sys/boot_image -cpu $1 $2 -run gui/gui/gui &
+		./obj/$CPU/$ABI/$OS/main obj/$CPU/$ABI/sys/boot_image -cpu $1 $2 -run gui/gui/gui &
 	else
-		./obj/$OS/$CPU/main obj/$OS/$CPU/sys/boot_image -cpu $1 $2 &
+		./obj/$CPU/$ABI/$OS/main obj/$CPU/$ABI/sys/boot_image -cpu $1 $2 &
 	fi
 	echo -cpu $1 $2
 }
@@ -59,9 +60,9 @@ function boot_cpu_tui
 {
 	if [ $1 -lt 1 ]
 	then
-		./obj/$OS/$CPU/main obj/$OS/$CPU/sys/boot_image -cpu $1 $2 -run apps/terminal/tui
+		./obj/$CPU/$ABI/$OS/main obj/$CPU/$ABI/sys/boot_image -cpu $1 $2 -run apps/terminal/tui
 	else
-		./obj/$OS/$CPU/main obj/$OS/$CPU/sys/boot_image -cpu $1 $2 &
+		./obj/$CPU/$ABI/$OS/main obj/$CPU/$ABI/sys/boot_image -cpu $1 $2 &
 	fi
 	echo -cpu $1 $2
 }

@@ -1,4 +1,6 @@
 # Syntax
+## abi
+### (abi)
 ## abs
 ### (abs num)
 ## add
@@ -305,8 +307,6 @@
 ### (pipe-read pipe)
 ## pipe-write
 ### (pipe-write pipe str)
-## platform
-### (platform)
 ## points
 ### (points [form ...])
 ## points-abs
