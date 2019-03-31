@@ -243,12 +243,6 @@ Stop with:
 Snapshot with:
 
 ```
-make snapshot
-```
-
-This will create a *snapshot.zip* file of the *obj/* directory.
-
-```
 make boot
 ```
 
