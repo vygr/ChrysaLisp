@@ -30,11 +30,28 @@
 (defun trans (_)
 	(add (bit-and 0xffffff _) 0xa0000000))
 
+(defun circle (r)
+	(defq k (sym-cat (str r)))
+	(if (defq i (find k cache_key)) (elem i cache_poly)
+		(progn
+			(push cache_key k)
+			(push cache_poly (list (points-gen-arc stack 0 0 0 fp_2pi r eps (points))))
+			(elem -2 cache_poly))))
+
+(defun oval (r s)
+	(defq k (sym-cat (str r) ":" (str s)))
+	(if (defq i (find k cache_key)) (elem i cache_poly)
+		(progn
+			(push cache_key k)
+			(push cache_poly (points-stroke-polylines stack r eps
+				join-bevel cap-round cap-round (list s) (list)))
+			(elem -2 cache_poly))))
+
 (defun pcb-load (path scale)
 	(bind '(pcb _) (read (file-stream path) (ascii " ")))
 	(bind '(pcb_width pcb_height pcb_depth) (elem 0 pcb))
 	(defq canvas (create-canvas (mul pcb_width scale) (mul pcb_height scale) canvas_scale)
-		scale (mul scale canvas_scale)
+		scale (mul scale canvas_scale) cache_key (list) cache_poly (list)
 		colors (map trans (list argb_red argb_green argb_blue argb_yellow argb_cyan argb_magenta)))
 	(canvas-fill (canvas-set-flags canvas 1) argb_black)
 	(each (lambda ((id track_radius via_radius track_gap pads paths))
@@ -60,11 +77,9 @@
 			;draw vias
 			(each (lambda ((x y))
 				(canvas-set-color canvas (const (trans argb_white)))
-				(canvas-fpoly canvas x y 0
-					(list (points-gen-arc stack 0 0 0 fp_2pi via_radius eps (points))))
+				(canvas-fpoly canvas x y 0 (circle via_radius))
 				(canvas-set-color canvas (const (trans argb_black)))
-				(canvas-fpoly canvas x y 0
-					(list (points-gen-arc stack 0 0 0 fp_2pi (div via_radius 2) eps (points))))
+				(canvas-fpoly canvas x y 0 (circle (div via_radius 2)))
 				) vias))
 		;draw pads
 		(each (lambda ((pad_radius pad_gap (pad_x pad_y pad_z) pad_shape))
@@ -76,13 +91,10 @@
 			(cond
 				((eq (length pad_shape) 0)
 					;circular pad
-					(canvas-fpoly canvas pad_x pad_y 0
-						(list (points-gen-arc stack 0 0 0 fp_2pi pad_radius eps (points)))))
+					(canvas-fpoly canvas pad_x pad_y 0 (circle pad_radius)))
 				((eq (length pad_shape) 4)
 					;oval pad
-					(canvas-fpoly canvas pad_x pad_y 0
-						(points-stroke-polylines stack pad_radius eps join-bevel cap-round cap-round
-							(list pad_shape) (list))))
+					(canvas-fpoly canvas pad_x pad_y 0 (oval pad_radius pad_shape)))
 				(t
 					;polygon pad
 					(canvas-fpoly canvas pad_x pad_y 0 (list pad_shape))))
