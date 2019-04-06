@@ -72,17 +72,20 @@
 		(setq track_radius (mul scale track_radius) via_radius (mul scale via_radius)
 			track_gap (mul scale track_gap))
 		(when (ne track_radius 0)
-			;draw path layers
-			(defq paths (map batch paths) paths_2d (map batch_to_2d paths))
+			;draw layers
+			(defq paths (map batch paths) paths_2d (map batch_to_2d paths)
+				layers (list (list) (list) (list) (list) (list) (list)))
 			(each (lambda (path path_2d)
 				(each (lambda (seg seg_2d)
 					(when (gt (length seg) 1)
-						(canvas-set-color canvas (elem (mod (bit-shr (elem 2 (elem 0 seg)) fp_shift) (length colors)) colors))
-						(canvas-fpoly canvas 0.0 0.0 0
-							(points-stroke-polylines stack track_radius eps join-round cap-round cap-round
-								(list seg_2d) (list))))
+						(points-stroke-polylines stack track_radius eps join-round cap-round cap-round
+							(list seg_2d) (elem (mod (bit-shr (elem 2 (elem 0 seg)) fp_shift) (length layers)) layers)))
 					) path path_2d)
 				) paths paths_2d)
+			(each (lambda (layer color)
+				(canvas-set-color canvas color)
+				(canvas-fpoly canvas 0.0 0.0 1 layer)
+				) layers colors)
 			;draw vias
 			(each (lambda (path_2d)
 				(each! 1 nil nil (lambda (seg_2d)
@@ -92,8 +95,7 @@
 					(canvas-set-color canvas (const (trans argb_black)))
 					(canvas-fpoly canvas x y 0 (circle (div via_radius 2)))
 					) (list path_2d))
-				) paths_2d)
-		)
+				) paths_2d))
 		;draw pads
 		(each (lambda ((pad_radius pad_gap (pad_x pad_y pad_z) pad_shape))
 			(setq pad_radius (mul scale pad_radius) pad_gap (mul scale pad_gap)
