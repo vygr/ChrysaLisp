@@ -79,13 +79,13 @@
 				(each (lambda (seg seg_2d)
 					(when (gt (length seg) 1)
 						(points-stroke-polylines stack track_radius eps join-round cap-round cap-round
-							(list seg_2d) (elem (mod (bit-shr (elem 2 (elem 0 seg)) fp_shift) (length layers)) layers)))
+							(list seg_2d) (elem (mod (bit-shr (elem 2 (elem 0 seg)) fp_shift) pcb_depth) layers)))
 					) path path_2d)
 				) paths paths_2d)
-			(each (lambda (layer color)
+			(each! 0 pcb_depth nil (lambda (layer color)
 				(canvas-set-color canvas color)
 				(canvas-fpoly canvas 0.0 0.0 1 layer)
-				) layers colors)
+				) (list layers colors))
 			;draw vias
 			(each (lambda (path_2d)
 				(each! 1 nil nil (lambda (seg_2d)
