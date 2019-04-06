@@ -98,7 +98,7 @@ You can enable a guard page memory allocator if chasing a buffer overrun bug.
 Look in the *sys/heap/heap.vp* file alloc function and enable the guard page
 version and rebuild with `(remake)`. Also enable the `printf` in the *main.c*
 file in order to be able to calculate the instruction offset from the crash
-dumps IP. Then you can load up *obj/os/cpu/sys/boot_image* into any hex dump
+dumps IP. Then you can load up *obj/cpu/abi/sys/boot_image* into any hex dump
 and find exactly which instruction is faulting. Sometimes it's the only way to
 find them!
 
