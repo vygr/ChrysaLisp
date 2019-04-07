@@ -87,7 +87,7 @@
 
 (defun pcb-draw-normal ()
 	(defq colors (map trans (list argb_red argb_green argb_blue argb_yellow argb_cyan argb_magenta)))
-	(each (lambda ((id track_radius via_radius track_gap pads paths))
+	(each! 1 -2 nil (lambda ((id track_radius via_radius track_gap pads paths))
 		(setq track_radius (mul zoom track_radius) via_radius (mul zoom via_radius)
 			track_gap (mul zoom track_gap))
 		(when (ne track_radius 0)
@@ -136,7 +136,7 @@
 						;polygon pad
 						(canvas-fpoly canvas pad_x pad_y 0 (list pad_shape)))))
 			) pads)
-		) (slice 1 -2 pcb)))
+		) (list pcb)))
 
 (defun pcb-draw-gerber ()
 	;first draw in white with gaps
@@ -147,7 +147,7 @@
 	(pcb-draw-layer nil))
 
 (defun pcb-draw-layer (with_gaps)
-	(each (lambda ((id track_radius via_radius track_gap pads paths))
+	(each! 1 -2 nil (lambda ((id track_radius via_radius track_gap pads paths))
 		(defq track_radius (mul zoom track_radius) via_radius (mul zoom via_radius)
 			track_gap (mul zoom track_gap))
 		(when (ne track_radius 0)
@@ -191,7 +191,7 @@
 							(canvas-fpoly canvas pad_x pad_y 0
 								(list pad_shape))))))
 			) pads)
-		) (slice 1 -2 pcb)))
+		) (list pcb)))
 
 (defun win-refresh (_)
 	(view-layout (view-add-child pcb_scroll (pcb-load (elem (setq index _) pcbs))))
