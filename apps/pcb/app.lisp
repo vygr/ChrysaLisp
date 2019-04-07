@@ -7,8 +7,8 @@
 
 (structure 'event 0
 	(byte 'win_close)
-	(byte 'win_next)
 	(byte 'win_prev)
+	(byte 'win_next)
 	(byte 'win_scale_down)
 	(byte 'win_scale_up)
 	(byte 'win_mode_normal)
@@ -21,7 +21,7 @@
 	(byte 'win_show_5)
 	(byte 'win_show_6))
 
-(defq pcbs '(apps/pcb/test1.pcb apps/pcb/test2.pcb) index 0 id t canvas_scale 3
+(defq pcbs '(apps/pcb/test1.pcb apps/pcb/test2.pcb apps/pcb/test3.pcb) index 0 id t canvas_scale 3
 	mode 0 show -1 max_zoom 15 min_zoom 5 zoom (div (add min_zoom max_zoom) 2)
 	stack (array) eps 0.025)
 
@@ -31,7 +31,7 @@
 		(ui-element _ (create-flow) ('flow_flags (bit-or flow_flag_right flow_flag_fillh))
 			(each (lambda (l)
 				(button-connect-click (ui-element __ (create-button)
-					('text l 'color argb_green 'font (create-font "fonts/Entypo.otf" 32))) (add event_win_next _)))
+					('text l 'color argb_green 'font (create-font "fonts/Entypo.otf" 32))) (add event_win_prev _)))
 						'("" "" "" "" "" ""))
 			(each (lambda (l)
 				(button-connect-click (ui-element __ (create-button)
@@ -75,10 +75,10 @@
 	(map to-2d _))
 
 (defun pcb-load (_)
-	(bind '(pcb _) (read (file-stream _) (ascii " ")))
+	(bind '(pcb _) (read (string-stream (cat "(" (load _) ")")) (ascii " ")))
 	(bind '(pcb_width pcb_height pcb_depth) (elem 0 pcb))
-	(defq canvas (create-canvas (mul pcb_width zoom) (mul pcb_height zoom) canvas_scale)
-		zoom (mul zoom canvas_scale) cache_key (list) cache_poly (list))
+	(defq canvas (create-canvas (mul (add pcb_width 4) zoom) (mul (add pcb_height 4) zoom) canvas_scale)
+		zoom (mul zoom canvas_scale) pcb_border (mul 2.0 zoom) cache_key (list) cache_poly (list))
 	(canvas-fill (canvas-set-flags canvas 1) (const argb_black))
 	(if (eq mode 1)
 		(pcb-draw-gerber)
@@ -105,12 +105,13 @@
 				) batched_paths batched_paths_2d)
 			(each! 0 pcb_depth nil (lambda (layer color)
 				(canvas-set-color canvas color)
-				(canvas-fpoly canvas 0.0 0.0 1 layer)
+				(canvas-fpoly canvas pcb_border pcb_border 1 layer)
 				) (list layers colors))
 			;draw vias
 			(each (lambda (path_2d)
 				(each! 1 nil nil (lambda (seg_2d)
 					(bind '(x y) (slice 0 2 seg_2d))
+					(setq x (add x pcb_border) y (add y pcb_border))
 					(canvas-set-color canvas (const (trans argb_white)))
 					(canvas-fpoly canvas x y 0 (circle via_radius))
 					(canvas-set-color canvas (const (trans argb_black)))
@@ -121,7 +122,7 @@
 		(each (lambda ((pad_radius pad_gap (pad_x pad_y pad_z) pad_shape))
 			(when (or (eq show (bit-shr pad_z fp_shift)) (eq show -1))
 				(setq pad_radius (mul zoom pad_radius) pad_gap (mul zoom pad_gap)
-					pad_x (mul zoom pad_x) pad_y (mul zoom pad_y)
+					pad_x (add (mul zoom pad_x) pcb_border) pad_y (add (mul zoom pad_y) pcb_border)
 					pad_shape (to-2d pad_shape))
 				(canvas-set-color canvas (const (trans argb_white)))
 				(cond
@@ -135,7 +136,7 @@
 						;polygon pad
 						(canvas-fpoly canvas pad_x pad_y 0 (list pad_shape)))))
 			) pads)
-		) (slice 1 -1 pcb)))
+		) (slice 1 -2 pcb)))
 
 (defun pcb-draw-gerber ()
 	;first draw in white with gaps
@@ -160,11 +161,12 @@
 							(list seg_2d) layer))
 					) path path_2d)
 				) batched_paths batched_paths_2d)
-			(canvas-fpoly canvas 0.0 0.0 1 layer)
+			(canvas-fpoly canvas pcb_border pcb_border 1 layer)
 			;draw vias
 			(each (lambda (path_2d)
 				(each! 1 nil nil (lambda (seg_2d)
 					(bind '(x y) (slice 0 2 seg_2d))
+					(setq x (add x pcb_border) y (add y pcb_border))
 					(canvas-fpoly canvas x y 0 (circle (add via_radius (if with_gaps track_gap 0))))
 					) (list path_2d))
 				) batched_paths_2d))
@@ -172,7 +174,7 @@
 		(each (lambda ((pad_radius pad_gap (pad_x pad_y pad_z) pad_shape))
 			(when (eq show (bit-shr pad_z fp_shift))
 				(setq pad_radius (mul zoom pad_radius) pad_gap (mul zoom pad_gap)
-					pad_x (mul zoom pad_x) pad_y (mul zoom pad_y)
+					pad_x (add (mul zoom pad_x) pcb_border) pad_y (add (mul zoom pad_y) pcb_border)
 					pad_shape (to-2d pad_shape))
 				(cond
 					((eq (length pad_shape) 0)
@@ -186,9 +188,10 @@
 						(if with_gaps
 							(canvas-fpoly canvas pad_x pad_y 0
 								(points-stroke-polygons stack pad_gap eps join-round (list pad_shape) (list)))
-							(canvas-fpoly canvas pad_x pad_y 0 (list pad_shape))))))
+							(canvas-fpoly canvas pad_x pad_y 0
+								(list pad_shape))))))
 			) pads)
-		) (slice 1 -1 pcb)))
+		) (slice 1 -2 pcb)))
 
 (defun win-refresh (_)
 	(view-layout (view-add-child pcb_scroll (pcb-load (elem (setq index _) pcbs))))
