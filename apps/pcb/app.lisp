@@ -7,19 +7,10 @@
 
 (structure 'event 0
 	(byte 'win_close)
-	(byte 'win_prev)
-	(byte 'win_next)
-	(byte 'win_scale_down)
-	(byte 'win_scale_up)
-	(byte 'win_mode_normal)
-	(byte 'win_mode_gerber)
-	(byte 'win_show_all)
-	(byte 'win_show_1)
-	(byte 'win_show_2)
-	(byte 'win_show_3)
-	(byte 'win_show_4)
-	(byte 'win_show_5)
-	(byte 'win_show_6))
+	(byte 'win_prev 'win_next)
+	(byte 'win_scale_down 'win_scale_up)
+	(byte 'win_mode_normal 'win_mode_gerber)
+	(byte 'win_show_all 'win_show_1 'win_show_2 'win_show_3 'win_show_4 'win_show_5 'win_show_6))
 
 (defq pcbs '(apps/pcb/test1.pcb apps/pcb/test2.pcb apps/pcb/test3.pcb) index 0 id t canvas_scale 3
 	mode 0 show -1 max_zoom 15 min_zoom 5 zoom (div (add min_zoom max_zoom) 2)
@@ -120,7 +111,7 @@
 				) batched_paths_2d))
 		;draw pads
 		(each (lambda ((pad_radius pad_gap (pad_x pad_y pad_z) pad_shape))
-			(when (or (eq show (bit-shr pad_z fp_shift)) (eq show -1))
+			(when (or (eq show -1) (eq show (bit-shr pad_z fp_shift)))
 				(setq pad_radius (mul zoom pad_radius) pad_gap (mul zoom pad_gap)
 					pad_x (add (mul zoom pad_x) pcb_border) pad_y (add (mul zoom pad_y) pcb_border)
 					pad_shape (to-2d pad_shape))
