@@ -99,7 +99,7 @@
 		(else)
 			;boot env is my parent env
 			(call 'obj 'ref {ptr($boot_env)} {this->lisp_environment})
-			(call 'hash_map 'create {this->lisp_environment->hash_set_key_callback, 101} {func})
+			(call 'hash_map 'create {this->lisp_environment->hash_set_key_callback, 31} {func})
 			(call 'hash_map 'set_parent {func, this->lisp_environment} {this->lisp_environment})
 
 			;local defines and symbols
