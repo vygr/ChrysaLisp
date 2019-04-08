@@ -87,9 +87,8 @@
 				layers (list (list) (list) (list) (list) (list) (list)))
 			(each (lambda (path path_2d)
 				(each (lambda (seg seg_2d)
-					(when (and (gt (length seg) 1)
-							(or (eq show (defq z (mod (bit-shr (elem 2 (elem 0 seg)) fp_shift) pcb_depth)))
-								(eq show -1)))
+					(when (or (eq show (defq z (mod (bit-shr (elem 2 (elem 0 seg)) fp_shift) pcb_depth)))
+								(eq show -1))
 						(points-stroke-polylines stack track_radius eps join-round cap-round cap-round
 							(list seg_2d) (elem z layers)))
 					) path path_2d)
@@ -146,8 +145,7 @@
 			(defq batched_paths (map batch paths) batched_paths_2d (map batch-to-2d batched_paths) layer (list))
 			(each (lambda (path path_2d)
 				(each (lambda (seg seg_2d)
-					(when (and (gt (length seg) 1)
-							(eq show (defq z (mod (bit-shr (elem 2 (elem 0 seg)) fp_shift) pcb_depth))))
+					(when (eq show (defq z (mod (bit-shr (elem 2 (elem 0 seg)) fp_shift) pcb_depth)))
 						(points-stroke-polylines stack (add track_radius (if with_gaps track_gap 0)) eps join-round cap-round cap-round
 							(list seg_2d) layer))
 					) path path_2d)
