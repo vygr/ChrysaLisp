@@ -18,7 +18,7 @@
 ;read args from parent and init globals
 (bind '(display clock clock_size clock_scale) (mail-mymail))
 (defq hours 0 minutes 0 seconds 0 stack (array) face (list)
-	scale (fmul clock_size clock_scale) eps 0.125)
+	scale (fmul clock_size clock_scale) eps 0.25)
 
 ;create static clock face
 (points-stroke-polylines stack (fmul scale 0.01) eps join-miter cap-butt cap-butt

@@ -31,11 +31,6 @@
 	(entry 'points 'gen_clerp {this, stack, cx, cy, v1x, v1y, v2x, v2y, radius, eps})
 
 	(vec-set 0)
-	(vec-load 1 {256.0} {eps})
-	(vec-fmul 1)
-	(vec-load 1 {64.0})
-	(vec-max 2)
-	(vec-store 1 {eps})
 
 	;output first point
 	(vec-load 2 {cx, cy} {v1x, v1y})
@@ -61,8 +56,20 @@
 		(vec-store 2 {bvx, bvy})
 
 		;flatness test
-		(vec-load 2 {v1x, v1y} {v2x, v2y})
-		(vec-fdistance-squared 2)
+		;flatness test
+		(vec-load 1 {v1x} {v2x})
+		(vec-add 1)
+		(vec-load 1 {bvx})
+		(vec-dup 1)
+		(vec-dif 3)
+		(vec-load 1 {v1y} {v2y})
+		(vec-add 1)
+		(vec-load 1 {bvy})
+		(vec-dup 1)
+		(vec-dif 3)
+		(vec-abs 2)
+		(vec-sum 2)
+
 		(vec-load 1 {eps})
 		(bind '(d e) (vec-pop 2))
 		(vpif (list d '<= e))
