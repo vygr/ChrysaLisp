@@ -19,10 +19,11 @@
 
 ;create child and send args
 (mail-send (list canvas (mul canvas_width 1.0) (mul canvas_height 1.0) (mul canvas_scale 1.0))
-	(open-child "apps/canvas/child.lisp" kn_call_open))
+	(defq mbox (open-child "apps/canvas/child.lisp" kn_call_open)))
 
 (while id
 	(cond
 		((eq (setq id (get-long (defq msg (mail-mymail)) ev_msg_target_id)) event_win_close)
+			(mail-send "" mbox)
 			(setq id nil))
 		(t (view-event window msg))))

@@ -88,7 +88,8 @@
 
 	(canvas-swap canvas))
 
-(while (lt angle fp_2pi)
+;until quit
+(until (mail-trymail)
 	(redraw)
 	(task-sleep 10000)
 	(setq angle (add angle 0.0025)))
