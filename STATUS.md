@@ -4,6 +4,12 @@
 
 ------
 
+Implemented a Lisp version of my PCB viewer app. Used it to thrash out some
+issues with the circle drawing flatness tests. Plus it's a great demo of what
+200 lines of Lisp can do. :)
+
+------
+
 Reorganised the obj/ folder to take advantage of the now common abi binaries !
 Saved nearly 100KB on the snapshot.zip file as a result of the shared binaries
 between Darwin and Linux x86_64 platforms.

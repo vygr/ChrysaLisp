@@ -8,6 +8,7 @@ C-Script compiler, Lisp interpreter, Debugger, and more...
 ![](./screen_shot_1.png)
 ![](./screen_shot_2.png)
 ![](./screen_shot_3.png)
+![](./screen_shot_4.png)
 
 
 -------
