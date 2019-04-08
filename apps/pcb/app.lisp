@@ -39,17 +39,15 @@
 	(if (defq i (find k cache_key)) (elem i cache_poly)
 		(progn
 			(push cache_key k)
-			(push cache_poly (list (points-gen-arc stack 0 0 0 fp_2pi r eps (points))))
-			(elem -2 cache_poly))))
+			(elem -2 (push cache_poly (list (points-gen-arc stack 0 0 0 fp_2pi r eps (points))))))))
 
 (defun oval (r s)
 	(defq k (sym-cat (str r) ":" (str s)))
 	(if (defq i (find k cache_key)) (elem i cache_poly)
 		(progn
 			(push cache_key k)
-			(push cache_poly (points-stroke-polylines stack r eps
-				join-bevel cap-round cap-round (list s) (list)))
-			(elem -2 cache_poly))))
+			(elem -2 (push cache_poly (points-stroke-polylines stack r eps
+				join-bevel cap-round cap-round (list s) (list)))))))
 
 (defun batch (path)
 	(defq s 0 e 0 b (list))
