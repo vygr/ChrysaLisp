@@ -24,6 +24,8 @@
 (while id
 	(cond
 		((eq (setq id (get-long (defq msg (mail-mymail)) ev_msg_target_id)) event_win_close)
-			(mail-send "" mbox)
 			(setq id nil))
 		(t (view-event window msg))))
+
+;close child
+(mail-send "" mbox)
