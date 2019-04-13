@@ -171,7 +171,7 @@
 	;outputs
 	;r0 = button object (ptr)
 	;trashes
-	;all but r0
+	;r2-r5
 
 	(vp-push r0)
 	(call 'array 'push_back '((r0 button_click_targets) r1))

@@ -129,27 +129,27 @@
 	;r0 = vector object (ptr)
 	;r1 = slice vector object (ptr)
 	;trashes
-	;r1-r10
+	;r1-r8
 
 	;save inputs
-	(entry 'vector 'slice '(r8 r9 r10))
+	(entry 'vector 'slice '(r6 r7 r8))
 
 	;create new vector
 	(call 'vector 'create '() '(r0))
-	(vp-cpy-rr r10 r1)
-	(vp-sub-rr r9 r1)
+	(vp-cpy-rr r8 r1)
+	(vp-sub-rr r7 r1)
 	(vp-cpy-ri-i r1 r0 array_length)
 	(call 'vector 'set_capacity '(r0 r1) '(r1))
-	(vp-cpy-rr r8 r0)
+	(vp-cpy-rr r6 r0)
 
 	;copy and ref elements
-	(vpif '(r9 != r10))
+	(vpif '(r7 != r8))
 		(vp-cpy-ir r0 array_array r2)
 		(vp-cpy-ir r1 array_array r3)
-		(vp-shl-cr (log2 ptr_size) r9)
-		(vp-shl-cr (log2 ptr_size) r10)
-		(vp-add-rr r2 r10)
-		(vp-add-rr r9 r2)
+		(vp-shl-cr (log2 ptr_size) r7)
+		(vp-shl-cr (log2 ptr_size) r8)
+		(vp-add-rr r2 r8)
+		(vp-add-rr r7 r2)
 		(loop-start)
 			(vp-cpy-ir r2 0 r4)
 			(vp-add-cr ptr_size r2)
@@ -158,7 +158,7 @@
 			(vp-add-cr ptr_size r3)
 			(vp-add-cr 1 r5)
 			(vp-cpy-ri-i r5 r4 obj_count)
-		(loop-until '(r2 == r10))
+		(loop-until '(r2 == r8))
 	(endif)
 
 	(exit 'vector 'slice '(r0 r1))
@@ -175,29 +175,29 @@
 	;outputs
 	;r0 = vector object (ptr)
 	;trashes
-	;r1-r11
+	;r1-r9
 
 	;save inputs
-	(entry 'vector 'append '(r0 r8 r9 r10))
+	(entry 'vector 'append '(r0 r6 r7 r8))
 
 	;extend vector
-	(vp-cpy-ir-ui r0 array_length r11)
-	(vp-cpy-rr r10 r2)
-	(vp-sub-rr r9 r2)
-	(vp-lea-d r2 r11 r1)
+	(vp-cpy-ir-ui r0 array_length r9)
+	(vp-cpy-rr r8 r2)
+	(vp-sub-rr r7 r2)
+	(vp-lea-d r2 r9 r1)
 	(vp-cpy-ri-i r1 r0 array_length)
 	(call 'vector 'set_capacity '(r0 r1))
 
 	;append and ref elements
-	(vpif '(r9 != r10))
+	(vpif '(r7 != r8))
 		(vp-cpy-ir r0 array_array r3)
-		(vp-cpy-ir r8 array_array r2)
+		(vp-cpy-ir r6 array_array r2)
+		(vp-shl-cr (log2 ptr_size) r7)
+		(vp-shl-cr (log2 ptr_size) r8)
 		(vp-shl-cr (log2 ptr_size) r9)
-		(vp-shl-cr (log2 ptr_size) r10)
-		(vp-shl-cr (log2 ptr_size) r11)
-		(vp-add-rr r2 r10)
-		(vp-add-rr r9 r2)
-		(vp-add-rr r11 r3)
+		(vp-add-rr r2 r8)
+		(vp-add-rr r7 r2)
+		(vp-add-rr r9 r3)
 		(loop-start)
 			(vp-cpy-ir r2 0 r4)
 			(vp-add-cr ptr_size r2)
@@ -206,7 +206,7 @@
 			(vp-add-cr ptr_size r3)
 			(vp-add-cr 1 r5)
 			(vp-cpy-ri-i r5 r4 obj_count)
-		(loop-until '(r2 == r10))
+		(loop-until '(r2 == r8))
 	(endif)
 
 	(exit 'vector 'append '(r0))

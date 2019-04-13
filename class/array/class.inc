@@ -57,7 +57,7 @@
 	;r0 = array object (ptr)
 	;r1 = 0 if error, else ok
 	;trashes
-	;all but r0
+	;r2
 	(vp-xor-rr r2 r2)
 	(vp-cpy-ri-i r2 r0 array_length)
 	(vp-cpy-cr (bit-shr (sub array_size array_e0) (log2 long_size)) r2)

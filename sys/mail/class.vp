@@ -57,7 +57,7 @@
 	;r0 = mailbox id (uint)
 	;r1 = mailbox address (ptr)
 	;trashes
-	;r2-r7
+	;r2-r5
 
 	(f-bind 'sys_mail 'statics r4)
 	(d-call 'array 'get_length '((r4 ml_statics_mbox_free_array)) '(r0 r1))
@@ -85,7 +85,7 @@
 	;inputs
 	;r0 = mailbox id (uint)
 	;trashes
-	;r0-r7
+	;r0-r5
 
 	(entry 'sys_mail 'free_mbox '(r1))
 

@@ -12,7 +12,7 @@ outputs
 r0 = array object (ptr)
 r1 = 0 if error, else ok
 trashes
-all but r0
+r2
 ```
 ### array::get_capacity -> class/array/get_capacity
 ```
@@ -30,7 +30,7 @@ r1 = capacity (uint)
 outputs
 r0 = array object (ptr)
 trashes
-r1-r7
+r1-r5
 ```
 ### array::set_length -> class/array/set_length
 ```
@@ -181,7 +181,7 @@ outputs
 r0 = array object (ptr)
 r1 = element (long)
 trashes
-r2-r7
+r2-r5
 ```
 ### array::get_iter -> class/array/get_iter
 ```
@@ -272,7 +272,7 @@ r3 = element end index (uint)
 outputs
 r0 = array object (ptr)
 trashes
-r1-r7
+r1-r5
 ```
 ### array::deinit -> class/array/deinit
 ```
@@ -310,7 +310,7 @@ outputs
 r0 = array object (ptr)
 r1 = slice array object (ptr)
 trashes
-r1-r11
+r1-r9
 ```
 ## backdrop
 Super Class: view
@@ -371,7 +371,7 @@ r1 = target id (long)
 outputs
 r0 = button object (ptr)
 trashes
-all but r0
+r2-r5
 ```
 ### button::deinit -> gui/button/deinit
 ```
@@ -1430,7 +1430,7 @@ outputs
 r0 = hash_set object (ptr)
 r1 = 0 if error, else ok
 trashes
-r2-r7
+r2-r5
 ```
 ### hash_set::num_buckets -> class/hash_set/num_buckets
 ```
@@ -2844,6 +2844,8 @@ r0 = object (ptr)
 r1 = vtable (pptr)
 outputs
 r1 = 0 if error, else ok
+trashes
+none
 ```
 ### obj::inst_of -> class/obj/inst_of
 ```
@@ -3066,7 +3068,7 @@ r0 = points object (ptr)
 r1 = element1 (long)
 r2 = element2 (long)
 trashes
-r2-r7
+r3-r5
 ```
 ### points::pop_back2 -> gui/points/pop_back2
 ```
@@ -3862,7 +3864,7 @@ r1 = target id (long)
 outputs
 r0 = slider object (ptr)
 trashes
-all but r0
+r2-r5
 ```
 ### slider::deinit -> gui/slider/deinit
 ```
@@ -4567,14 +4569,14 @@ outputs
 r0 = mailbox id (uint)
 r1 = mailbox address (ptr)
 trashes
-r2-r7
+r2-r5
 ```
 ### sys_mail::free_mbox -> sys/mail/free_mbox
 ```
 inputs
 r0 = mailbox id (uint)
 trashes
-r0-r7
+r0-r5
 ```
 ### sys_mail::mbox_addr -> sys/mail/mbox_addr
 ```
@@ -4923,7 +4925,7 @@ outputs
 r0 = new block address (ptr)
 r1 = new block size (bytes)
 trashes
-r2-r7
+r2-r5
 ```
 ### sys_mem::recalloc -> sys/mem/recalloc
 ```
@@ -5561,7 +5563,7 @@ outputs
 r0 = vector object (ptr)
 r1 = slice vector object (ptr)
 trashes
-r1-r10
+r1-r8
 ```
 ### vector::clear -> class/vector/clear
 ```
@@ -5612,7 +5614,7 @@ r3 = element end index (uint)
 outputs
 r0 = vector object (ptr)
 trashes
-r1-r11
+r1-r9
 ```
 ## view
 Super Class: component
@@ -6134,7 +6136,7 @@ r1 = reciever id (long)
 outputs
 r0 = window object (ptr)
 trashes
-all but r0
+r2-r5
 ```
 ### window::connect_close -> gui/window/connect_close
 ```

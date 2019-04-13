@@ -151,7 +151,7 @@
 	;r0 = new block address (ptr)
 	;r1 = new block size (bytes)
 	;trashes
-	;r2-r7
+	;r2-r5
 
 	(entry 'sys_mem 'realloc '(r4 r5 r2))
 
@@ -162,23 +162,23 @@
 		(vp-cpy-rr r2 r0)
 		(vp-cpy-rr r2 r1)
 	(endif)
-	(vp-cpy-rr r0 r6)
-	(vp-cpy-rr r1 r7)
 
 	(vpif '(r5 != 0))
-		(vpif '(r7 != 0))
+		(vp-push r0 r1)
+		(vpif '(r1 != 0))
 			;copy over old data
-			(vpif '(r7 < r5))
-				(vp-cpy-rr r7 r5)
+			(vpif '(r1 < r5))
+				(vp-cpy-rr r1 r5)
 			(endif)
-			(call 'sys_mem 'copy '(r4 r6 r5))
+			(call 'sys_mem 'copy '(r4 r0 r5))
 		(endif)
 
 		;free existing
 		(call 'sys_mem 'free '(r4))
+		(vp-pop r0 r1)
 	(endif)
 
-	(exit 'sys_mem 'realloc '(r6 r7))
+	(exit 'sys_mem 'realloc '(r0 r1))
 	(vp-ret)
 
 (def-func-end)

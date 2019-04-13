@@ -15,7 +15,7 @@
 	;r1 = element1 (long)
 	;r2 = element2 (long)
 	;trashes
-	;r2-r7
+	;r3-r5
 
 	;increase capacity ?
 	(vp-cpy-ir-ui r0 array_length r3)
