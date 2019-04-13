@@ -63,45 +63,44 @@
 
 (def-func-end)
 
-(defmacro for-each-visible-rect (&rest b)
-	`(progn
-		;for each rect on the dirty region
+(defun for-each-visible-rect (_)
+	;for each rect on the dirty region
+	(vp-cpy-ir rsp local_ctx r0)
+	(vp-cpy-ir r0 ctx_dirty_region r0)
+	(loop-flist r0 0 r0 r0)
+		(vp-cpy-ri r0 rsp local_dirty_rect)
+
+		;continue if out of bounds
+		(vp-cpy-ir-i r0 rect_x r7)
+		(vp-cpy-ir-i r0 rect_y r8)
+		(vp-cpy-ir-i r0 rect_x1 r9)
+		(vp-cpy-ir-i r0 rect_y1 r10)
+		(vp-cpy-ir-i rsp (add local_drect sdl_rect_x) r11)
+		(vp-cpy-ir-i rsp (add local_drect sdl_rect_y) r12)
+		(vp-cpy-ir-i rsp (add local_drect sdl_rect_w) r13)
+		(vp-cpy-ir-i rsp (add local_drect sdl_rect_h) r14)
+		(vp-add-rr r11 r13)
+		(vp-add-rr r12 r14)
+		(continueif '(r9 <= r11))
+		(continueif '(r10 <= r12))
+		(continueif '(r7 >= r13))
+		(continueif '(r8 >= r14))
+
+		;set clip region to this region
+		(vp-sub-rr r7 r9)
+		(vp-sub-rr r8 r10)
+		(vp-cpy-ri-i r7 rsp (add local_clip_rect sdl_rect_x))
+		(vp-cpy-ri-i r8 rsp (add local_clip_rect sdl_rect_y))
+		(vp-cpy-ri-i r9 rsp (add local_clip_rect sdl_rect_w))
+		(vp-cpy-ri-i r10 rsp (add local_clip_rect sdl_rect_h))
 		(vp-cpy-ir rsp local_ctx r0)
-		(vp-cpy-ir r0 ctx_dirty_region r0)
-		(loop-flist r0 0 r0 r0)
-			(vp-cpy-ri r0 rsp local_dirty_rect)
+		(host-call 'host 'sdl_render_set_clip_rect '((r0 ctx_sdl_ctx) (& rsp local_clip_rect)))
 
-			;continue if out of bounds
-			(vp-cpy-ir-i r0 rect_x r7)
-			(vp-cpy-ir-i r0 rect_y r8)
-			(vp-cpy-ir-i r0 rect_x1 r9)
-			(vp-cpy-ir-i r0 rect_y1 r10)
-			(vp-cpy-ir-i rsp (add local_drect sdl_rect_x) r11)
-			(vp-cpy-ir-i rsp (add local_drect sdl_rect_y) r12)
-			(vp-cpy-ir-i rsp (add local_drect sdl_rect_w) r13)
-			(vp-cpy-ir-i rsp (add local_drect sdl_rect_h) r14)
-			(vp-add-rr r11 r13)
-			(vp-add-rr r12 r14)
-			(continueif '(r9 <= r11))
-			(continueif '(r10 <= r12))
-			(continueif '(r7 >= r13))
-			(continueif '(r8 >= r14))
+		;eval body
+		(eval _)
 
-			;set clip region to this region
-			(vp-sub-rr r7 r9)
-			(vp-sub-rr r8 r10)
-			(vp-cpy-ri-i r7 rsp (add local_clip_rect sdl_rect_x))
-			(vp-cpy-ri-i r8 rsp (add local_clip_rect sdl_rect_y))
-			(vp-cpy-ri-i r9 rsp (add local_clip_rect sdl_rect_w))
-			(vp-cpy-ri-i r10 rsp (add local_clip_rect sdl_rect_h))
-			(vp-cpy-ir rsp local_ctx r0)
-			(host-call 'host 'sdl_render_set_clip_rect '((r0 ctx_sdl_ctx) (& rsp local_clip_rect)))
-
-			;run body
-			~b
-
-			(vp-cpy-ir rsp local_dirty_rect r0)
-		(loop-end)))
+		(vp-cpy-ir rsp local_dirty_rect r0)
+	(loop-end))
 
 (def-method 'ctx 'blit 16)
 	;inputs
@@ -158,10 +157,10 @@
 	(host-call 'host 'sdl_set_texture_color_mod '((rsp local_texture) r3 r2 r4))
 
 	(for-each-visible-rect
-		;blit the texture
-		(vp-cpy-ir rsp local_ctx r0)
-		(host-call 'host 'sdl_render_copy '((r0 ctx_sdl_ctx) (rsp local_texture) (& rsp local_srect) (& rsp local_drect)))
-	)
+		'(progn
+			;blit the texture
+			(vp-cpy-ir rsp local_ctx r0)
+			(host-call 'host 'sdl_render_copy '((r0 ctx_sdl_ctx) (rsp local_texture) (& rsp local_srect) (& rsp local_drect)))))
 
 	(vp-cpy-ir rsp local_old_stack rsp)
 	(vp-ret)
@@ -203,10 +202,10 @@
 	(vp-cpy-ri-i r10 rsp (add local_rect sdl_rect_h))
 
 	(for-each-visible-rect
-		;draw the rectangle
-		(vp-cpy-ir rsp local_ctx r0)
-		(host-call 'host 'sdl_render_draw_rect '((r0 ctx_sdl_ctx) (& rsp local_rect)))
-	)
+		'(progn
+			;draw the rectangle
+			(vp-cpy-ir rsp local_ctx r0)
+			(host-call 'host 'sdl_render_draw_rect '((r0 ctx_sdl_ctx) (& rsp local_rect)))))
 
 	(vp-cpy-ir rsp local_old_stack rsp)
 	(vp-ret)
@@ -248,10 +247,10 @@
 	(vp-cpy-ri-i r10 rsp (add local_rect sdl_rect_h))
 
 	(for-each-visible-rect
-		;draw the rectangle
-		(vp-cpy-ir rsp local_ctx r0)
-		(host-call 'host 'sdl_render_fill_rect '((r0 ctx_sdl_ctx) (& rsp local_rect)))
-	)
+		'(progn
+			;draw the rectangle
+			(vp-cpy-ir rsp local_ctx r0)
+			(host-call 'host 'sdl_render_fill_rect '((r0 ctx_sdl_ctx) (& rsp local_rect)))))
 
 	(vp-cpy-ir rsp local_old_stack rsp)
 	(vp-ret)
