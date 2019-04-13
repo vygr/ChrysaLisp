@@ -40,11 +40,8 @@
 				=> this->canvas_flags => this->canvas_stream => this->canvas_bufp}
 				{this->canvas_texture})
 		(assign {argb_black} {this->canvas_color})
-
-		(assign {this->canvas_scale * this->canvas_width} {this->canvas_width})
-		(assign {this->canvas_scale * this->canvas_height} {this->canvas_height})
-		(assign {this->canvas_width} {this->canvas_cx1})
-		(assign {this->canvas_height} {this->canvas_cy1})
+		(assign {this->canvas_scale * this->canvas_width => this->canvas_width} {this->canvas_cx1})
+		(assign {this->canvas_scale * this->canvas_height => this->canvas_height} {this->canvas_cy1})
 		(assign {this->canvas_width * int_size} {this->canvas_stride})
 		(call 'canvas 'pref_size {this} {_, this->view_w, this->view_h})
 
@@ -90,13 +87,10 @@
 				=> this->canvas_flags => this->canvas_stream => this->canvas_bufp}
 				{this->canvas_texture})
 		(assign {argb_black} {this->canvas_color})
-
-		(assign {src->canvas_scale} {this->canvas_scale})
-		(assign {src->canvas_width} {this->canvas_width})
-		(assign {src->canvas_height} {this->canvas_height})
-		(assign {src->canvas_width} {this->canvas_cx1})
-		(assign {src->canvas_height} {this->canvas_cy1})
+		(assign {src->canvas_width => this->canvas_width} {this->canvas_cx1})
+		(assign {src->canvas_height => this->canvas_height} {this->canvas_cy1})
 		(assign {src->canvas_stride} {this->canvas_stride})
+		(assign {src->canvas_scale} {this->canvas_scale})
 		(call 'canvas 'pref_size {this} {_, this->view_w, this->view_h})
 
 		;ref src pixel array
