@@ -12,21 +12,18 @@
 	;r1 = return value object (ptr)
 
 	(ptr 'this 'args)
-	(uint 'length)
 
-	(vp-def (r_value r_iter_begin r_iter_end r_args r_elem r_length) '(r10 r11 r12 r6))
+	(vp-def (r_value r_iter_begin r_iter_end r_args r_length r_this r_elem) '(r10 r11 r12 r6 r7))
 
 	(push-scope)
 	(entry 'lisp 'func_cat {this, args})
 
 	(d-call 'vector 'get_length {args} (list r_args r_length))
 	(errorif (list r_length '== 0) 'error)
-	(assign (list r_length) {length})
 
 	(call 'vector 'get_iters (list r_args) (list '_ r_iter_begin r_iter_end))
 	(call 'lisp 'env_args_type (list r_args `(@ ,(f-path 'string 'vtable)) -1))
 	(vpif (list (method-output 'lisp 'env_args_type 0) '!= 0))
-		(assign {length} (list r_length))
 		(vpif (list r_length '== 2))
 			(call 'string 'append `((,r_iter_begin 0) (,r_iter_begin ptr_size)) (list r_value))
 		(else)
@@ -56,15 +53,15 @@
 			(endif)
 		(endif)
 	(endif)
-	(assign {this} (list r0))
+	(assign {this} (list r_this))
 
 (vp-label 'funcexit)
-	(exit 'lisp 'func_cat (list r0 r_value))
+	(exit 'lisp 'func_cat (list r_this r_value))
 	(return)
 
 (errorcases
 (vp-label 'error)
-	(call 'lisp 'repl_error {this, "(cat seq ...)", error_msg_wrong_types, args} (list r0 r_value))
+	(call 'lisp 'repl_error {this, "(cat seq ...)", error_msg_wrong_types, args} (list r_this r_value))
 	(goto 'funcexit))
 
 	(pop-scope-syms)
