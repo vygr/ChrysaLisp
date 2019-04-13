@@ -146,17 +146,11 @@
 	(vp-cpy-ir rsp local_this r0)
 	(call 'array 'deref '((r0 canvas_edges)))
 	(vp-cpy-ir rsp local_this r0)
-	(vp-cpy-ir r0 canvas_edges_start r0)
-	(vpif '(r0 != 0))
-		(call 'sys_mem 'free '(r0))
-	(endif)
+	(call 'sys_mem 'free '((r0 canvas_edges_start)))
 
 	;free alias buffers
 	(vp-cpy-ir rsp local_this r0)
-	(vp-cpy-ir r0 canvas_coverage r0)
-	(vpif '(r0 != 0))
-		(call 'sys_mem 'free '(r0))
-	(endif)
+	(call 'sys_mem 'free '((r0 canvas_coverage)))
 
 	;free any pixel buffer
 	(vp-cpy-ir rsp local_this r0)
