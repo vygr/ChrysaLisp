@@ -49,7 +49,7 @@
 		(assign {header.cpm_type} {this->canvas_stream_type})
 		(assign {this->canvas_array->array_array} {data})
 		(assign {data + this->canvas_height * this->canvas_stride} {data_end})
-		(assign {0, 0} {bit_pool, bit_pool_size})
+		(assign {0 => bit_pool} {bit_pool_size})
 
 		;decode acording to type
 		(vp-def (r_col r_len r_trans r_data r_data_end))
