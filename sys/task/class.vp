@@ -246,7 +246,8 @@
 	;stop current task, switch to next task
 
 	(ptr 'task_statics 'tcb 'next_tcb)
-	(pptr 'stack 'stack_end)
+(errorcases
+	(pptr 'stack 'stack_end))
 
 	(push-scope)
 
