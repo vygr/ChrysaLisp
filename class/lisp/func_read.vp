@@ -31,14 +31,13 @@
 	(call 'vector 'push_back {value, form})
 	(call 'vector 'push_back {value, args})
 
-(vp-label 'funcexit)
 	(exit 'lisp 'func_read {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(read stream last_char)", error_msg_wrong_types, args} {_, value})
-	(goto 'funcexit)
+	(call 'lisp 'repl_error {this, "(read stream last_char)", error_msg_wrong_types, args})
+	(return)
 	(signature 'sig 'stream 'integer))
 
 	(pop-scope-syms)

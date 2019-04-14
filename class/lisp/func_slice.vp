@@ -38,17 +38,16 @@
 	(errorif {start > end || start < 0 || end > length} 'error2)
 	(call 'sequence 'slice {slc, start, end} {_, value1})
 
-(vp-label 'funcexit)
 	(exit 'lisp 'func_slice {this, value1})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(slice start end seq)", error_msg_wrong_types, args} {_, value1})
-	(goto 'funcexit)
+	(call 'lisp 'repl_error {this, "(slice start end seq)", error_msg_wrong_types, args})
+	(return)
 (vp-label 'error2)
-	(call 'lisp 'repl_error {this, "(slice start end seq)", error_msg_not_valid_index, args} {_, value1})
-	(goto 'funcexit)
+	(call 'lisp 'repl_error {this, "(slice start end seq)", error_msg_not_valid_index, args})
+	(return)
 	(signature 'sig 'integer 'integer 'sequence))
 
 	(pop-scope-syms)

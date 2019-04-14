@@ -39,20 +39,19 @@
 	(loop-until {(&iter_begin[ptr_size] => iter_begin) == iter_end})
 	(call 'obj 'ref {this->lisp_sym_nil} {var})
 
-(vp-label 'funcexit)
 	(exit 'lisp 'func_undef {this, var})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(undef env var [var] ...)", error_msg_wrong_num_of_args, args} {_, var})
-	(goto 'funcexit)
+	(call 'lisp 'repl_error {this, "(undef env var [var] ...)", error_msg_wrong_num_of_args, args})
+	(return)
 (vp-label 'error2)
-	(call 'lisp 'repl_error {this, "(undef env var [var] ...)", error_msg_not_an_environment, args} {_, var})
-	(goto 'funcexit)
+	(call 'lisp 'repl_error {this, "(undef env var [var] ...)", error_msg_not_an_environment, args})
+	(return)
 (vp-label 'error3)
-	(call 'lisp 'repl_error {this, "(undef env var [var] ...)", error_msg_not_a_symbol, args} {_, var})
-	(goto 'funcexit))
+	(call 'lisp 'repl_error {this, "(undef env var [var] ...)", error_msg_not_a_symbol, args})
+	(return))
 
 	(pop-scope-syms)
 

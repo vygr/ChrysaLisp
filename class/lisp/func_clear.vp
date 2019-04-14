@@ -26,14 +26,13 @@
 	(loop-until {(iter_begin + ptr_size => iter_begin) == iter_end})
 	(call 'obj 'ref {value})
 
-(vp-label 'funcexit)
 	(exit 'lisp 'func_clear {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error)
-	(call 'lisp 'repl_error {this, "(clear array ...)", error_msg_wrong_types, args} {_, value})
-	(goto 'funcexit))
+	(call 'lisp 'repl_error {this, "(clear array ...)", error_msg_wrong_types, args})
+	(return))
 
 	(pop-scope-syms)
 

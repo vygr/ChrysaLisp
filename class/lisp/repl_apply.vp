@@ -63,17 +63,16 @@
 
 (vp-label 'exit1)
 	(call 'lisp 'env_pop {this})
-(vp-label 'funcexit)
 	(exit 'lisp 'repl_apply {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(lambda ([arg ...]) body)", error_msg_wrong_num_of_args, func} {_, value})
-	(goto 'funcexit)
+	(call 'lisp 'repl_error {this, "(lambda ([arg ...]) body)", error_msg_wrong_num_of_args, func})
+	(return)
 (vp-label 'error2)
-	(call 'lisp 'repl_error {this, "(lambda ([arg ...]) body)", error_msg_not_a_lambda, func} {_, value})
-	(goto 'funcexit))
+	(call 'lisp 'repl_error {this, "(lambda ([arg ...]) body)", error_msg_not_a_lambda, func})
+	(return))
 
 	(pop-scope-syms)
 

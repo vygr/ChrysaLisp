@@ -27,14 +27,13 @@
 	(assign {iter_begin[0], iter_begin[ptr_size]} {str, value})
 	(call 'string 'split {str, ubyte(value->string_data)} {_, value})
 
-(vp-label 'funcexit)
 	(exit 'lisp 'func_split {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(split str char)", error_msg_wrong_types, args} {_, value})
-	(goto 'funcexit)
+	(call 'lisp 'repl_error {this, "(split str char)", error_msg_wrong_types, args})
+	(return)
 	(signature 'sig 'string 'string))
 
 	(pop-scope-syms)

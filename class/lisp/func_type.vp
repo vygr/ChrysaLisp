@@ -48,14 +48,13 @@
 	(endswitch)
 	(call 'integer 'create (list r_value) {args})
 
-(vp-label 'funcexit)
 	(exit 'lisp 'func_type {this, args})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(type? obj)", error_msg_wrong_num_of_args, args} {_, args})
-	(goto 'funcexit))
+	(call 'lisp 'repl_error {this, "(type? obj)", error_msg_wrong_num_of_args, args})
+	(return))
 
 	(pop-scope-syms)
 

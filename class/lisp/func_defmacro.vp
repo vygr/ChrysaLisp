@@ -30,20 +30,19 @@
 	(call 'hash_map 'insert {this->lisp_environment, value, args})
 	(call 'obj 'deref {args})
 
-(vp-label 'funcexit)
 	(exit 'lisp 'func_defmacro {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(defmacro name ([arg ...]) body)", error_msg_wrong_num_of_args, args} {_, value})
-	(goto 'funcexit)
+	(call 'lisp 'repl_error {this, "(defmacro name ([arg ...]) body)", error_msg_wrong_num_of_args, args})
+	(return)
 (vp-label 'error2)
-	(call 'lisp 'repl_error {this, "(defmacro name ([arg ...]) body)", error_msg_not_a_list, args} {_, value})
-	(goto 'funcexit)
+	(call 'lisp 'repl_error {this, "(defmacro name ([arg ...]) body)", error_msg_not_a_list, args})
+	(return)
 (vp-label 'error3)
-	(call 'lisp 'repl_error {this, "(defmacro name ([arg ...]) body)", error_msg_not_a_symbol, args} {_, value})
-	(goto 'funcexit))
+	(call 'lisp 'repl_error {this, "(defmacro name ([arg ...]) body)", error_msg_not_a_symbol, args})
+	(return))
 
 	(pop-scope-syms)
 

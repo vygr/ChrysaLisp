@@ -40,14 +40,13 @@
 	(loop-end)
 	(call 'obj 'ref {list1})
 
-(vp-label 'funcexit)
 	(exit 'lisp 'func_merge {this, list1})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(merge-sym list list)", error_msg_wrong_types, args} {_, list1})
-	(goto 'funcexit)
+	(call 'lisp 'repl_error {this, "(merge-sym list list)", error_msg_wrong_types, args})
+	(return)
 	(signature 'sig 'vector 'vector))
 
 	(pop-scope-syms)

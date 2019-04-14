@@ -43,14 +43,14 @@
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(setq var val [var val] ...)", error_msg_wrong_num_of_args, args} {_, val})
-	(goto 'funcexit)
+	(call 'lisp 'repl_error {this, "(setq var val [var val] ...)", error_msg_wrong_num_of_args, args})
+	(return)
 (vp-label 'error2)
-	(call 'lisp 'repl_error {this, "(setq var val [var val] ...)", error_msg_not_a_symbol, args} {_, val})
-	(goto 'funcexit)
+	(call 'lisp 'repl_error {this, "(setq var val [var val] ...)", error_msg_not_a_symbol, args})
+	(return)
 (vp-label 'error3)
-	(call 'lisp 'repl_error {this, "(setq var val [var val] ...)", error_msg_symbol_not_bound, args} {_, val})
-	(goto 'funcexit))
+	(call 'lisp 'repl_error {this, "(setq var val [var val] ...)", error_msg_symbol_not_bound, args})
+	(return))
 
 	(pop-scope-syms)
 

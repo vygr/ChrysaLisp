@@ -28,14 +28,13 @@
 	(call 'obj 'deref {args})
 	(call 'symbol 'intern {value} {value})
 
-(vp-label 'funcexit)
 	(exit 'lisp 'func_gensym {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(gensym)", error_msg_wrong_num_of_args, args} {_, value})
-	(goto 'funcexit))
+	(call 'lisp 'repl_error {this, "(gensym)", error_msg_wrong_num_of_args, args})
+	(return))
 
 	(pop-scope-syms)
 

@@ -32,16 +32,16 @@
 	(call 'sys_pii 'close {handle})
 	(call 'obj 'ref {value})
 
-(vp-label 'funcexit)
 	(exit 'lisp 'func_save {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(save str path)", error_msg_wrong_types, args} {_, value})
+	(call 'lisp 'repl_error {this, "(save str path)", error_msg_wrong_types, args})
+	(return)
 (vp-label 'error2)
-	(call 'lisp 'repl_error {this, "(save str path)", error_msg_open_error, args} {_, value})
-	(goto 'funcexit)
+	(call 'lisp 'repl_error {this, "(save str path)", error_msg_open_error, args})
+	(return)
 	(signature 'sig 'string 'string))
 
 	(pop-scope-syms)

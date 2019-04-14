@@ -31,14 +31,13 @@
 	(vec-store 1 {num})
 	(call 'integer 'create {num} {value})
 
-(vp-label 'funcexit)
 	(exit 'lisp 'func_floor {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(floor num)", error_msg_wrong_types, args} {_, value})
-	(goto 'funcexit)
+	(call 'lisp 'repl_error {this, "(floor num)", error_msg_wrong_types, args})
+	(return)
 	(signature 'sig 'integer))
 
 	(pop-scope-syms)

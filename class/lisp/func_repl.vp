@@ -73,20 +73,19 @@
 	(call 'hash_map 'set {this->lisp_environment, this->lisp_sym_stream_line, old_line})
 	(call 'obj 'deref {old_line})
 
-(vp-label 'funcexit)
 	(exit 'lisp 'func_repl {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(repl stream path)", error_msg_wrong_num_of_args, args} {_, value})
-	(goto 'funcexit)
+	(call 'lisp 'repl_error {this, "(repl stream path)", error_msg_wrong_num_of_args, args})
+	(return)
 (vp-label 'error2)
-	(call 'lisp 'repl_error {this, "(repl stream path)", error_msg_not_a_stream, args} {_, value})
-	(goto 'funcexit)
+	(call 'lisp 'repl_error {this, "(repl stream path)", error_msg_not_a_stream, args})
+	(return)
 (vp-label 'error3)
-	(call 'lisp 'repl_error {this, "(repl stream path)", error_msg_not_a_string, args} {_, value})
-	(goto 'funcexit))
+	(call 'lisp 'repl_error {this, "(repl stream path)", error_msg_not_a_string, args})
+	(return))
 
 	(pop-scope-syms)
 

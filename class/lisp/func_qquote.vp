@@ -35,14 +35,13 @@
 		(call 'obj 'ref {args} {value})
 	(endif)
 
-(vp-label 'funcexit)
 	(exit 'lisp 'func_qquote {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(quasi-quote form)", error_msg_wrong_num_of_args, args} {_, value})
-	(goto 'funcexit))
+	(call 'lisp 'repl_error {this, "(quasi-quote form)", error_msg_wrong_num_of_args, args})
+	(return))
 
 	(pop-scope-syms)
 

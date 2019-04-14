@@ -40,23 +40,22 @@
 		(call 'obj 'ref {val})
 	(loop-until {(&iter_begin[ptr_size * 2] => iter_begin) == iter_end})
 
-(vp-label 'funcexit)
 	(exit 'lisp 'func_set {this, val})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(set env var val [var val] ...)", error_msg_wrong_num_of_args, args} {_, val})
-	(goto 'funcexit)
+	(call 'lisp 'repl_error {this, "(set env var val [var val] ...)", error_msg_wrong_num_of_args, args})
+	(return)
 (vp-label 'error2)
-	(call 'lisp 'repl_error {this, "(set env var val [var val] ...)", error_msg_not_an_environment, args} {_, val})
-	(goto 'funcexit)
+	(call 'lisp 'repl_error {this, "(set env var val [var val] ...)", error_msg_not_an_environment, args})
+	(return)
 (vp-label 'error3)
-	(call 'lisp 'repl_error {this, "(set env var val [var val] ...)", error_msg_not_a_symbol, args} {_, val})
-	(goto 'funcexit)
+	(call 'lisp 'repl_error {this, "(set env var val [var val] ...)", error_msg_not_a_symbol, args})
+	(return)
 (vp-label 'error4)
-	(call 'lisp 'repl_error {this, "(set env var val [var val] ...)", error_msg_symbol_not_bound, args} {_, val})
-	(goto 'funcexit))
+	(call 'lisp 'repl_error {this, "(set env var val [var val] ...)", error_msg_symbol_not_bound, args})
+	(return))
 
 	(pop-scope-syms)
 

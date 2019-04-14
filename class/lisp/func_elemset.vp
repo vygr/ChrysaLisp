@@ -33,16 +33,16 @@
 	(call 'obj 'ref {value})
 	(d-call 'vector 'set_element {seq, value, index})
 
-(vp-label 'funcexit)
 	(exit 'lisp 'func_elemset {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(elem-set index list val)", error_msg_wrong_types, args} {_, value})
+	(call 'lisp 'repl_error {this, "(elem-set index list val)", error_msg_wrong_types, args})
+	(return)
 (vp-label 'error2)
-	(call 'lisp 'repl_error {this, "(elem-set index list val)", error_msg_not_valid_index, args} {_, value})
-	(goto 'funcexit)
+	(call 'lisp 'repl_error {this, "(elem-set index list val)", error_msg_not_valid_index, args})
+	(return)
 	(signature 'sig 'integer 'vector 'obj))
 
 	(pop-scope-syms)

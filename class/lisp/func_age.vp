@@ -31,14 +31,13 @@
 	(endif)
 	(call 'integer 'create {age} {value})
 
-(vp-label 'funcexit)
 	(exit 'lisp 'func_age {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(age path)", error_msg_wrong_types, value} {_, value})
-	(goto 'funcexit)
+	(call 'lisp 'repl_error {this, "(age path)", error_msg_wrong_types, value})
+	(return)
 	(signature 'sig 'string))
 
 	(pop-scope-syms)

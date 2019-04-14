@@ -28,14 +28,13 @@
 	(assign {iter_begin[0], iter_begin[ptr_size]} {str, value})
 	(call 'lisp 'repl_error {this, &str->string_data, 0, value} {_, value})
 
-(vp-label 'funcexit)
 	(exit 'lisp 'func_error {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(throw str form)", error_msg_wrong_types, args} {_, value})
-	(goto 'funcexit)
+	(call 'lisp 'repl_error {this, "(throw str form)", error_msg_wrong_types, args})
+	(return)
 	(signature 'sig 'string 'obj))
 
 	(pop-scope-syms)

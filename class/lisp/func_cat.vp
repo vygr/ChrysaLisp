@@ -52,13 +52,11 @@
 		(endif)
 	(endif)
 
-(vp-label 'funcexit)
 	(exit 'lisp 'func_cat (list r_this r_value))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(call 'lisp 'repl_error (list r_this "(cat seq ...)" error_msg_wrong_types r_args) (list r_this r_value))
-	(goto 'funcexit))
+	(jump 'lisp 'repl_error (list r_this "(cat seq ...)" error_msg_wrong_types r_args)))
 
 (def-func-end)

@@ -23,14 +23,13 @@
 	(d-call 'vector 'ref_element {args, 0} {_, value})
 	(call 'stream_str 'create {value} {value})
 
-(vp-label 'funcexit)
 	(exit 'lisp 'func_strstream {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(string-stream str)", error_msg_wrong_types, args} {_, value})
-	(goto 'funcexit)
+	(call 'lisp 'repl_error {this, "(string-stream str)", error_msg_wrong_types, args})
+	(return)
 	(signature 'sig 'string))
 
 	(pop-scope-syms)

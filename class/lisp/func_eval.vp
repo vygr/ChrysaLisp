@@ -33,17 +33,16 @@
 		(assign {old} {this->lisp_environment})
 	(endif)
 
-(vp-label 'funcexit)
 	(exit 'lisp 'func_eval {this, args})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(eval form [env])", error_msg_wrong_num_of_args, args} {_, args})
-	(goto 'funcexit)
+	(call 'lisp 'repl_error {this, "(eval form [env])", error_msg_wrong_num_of_args, args})
+	(return)
 (vp-label 'error2)
-	(call 'lisp 'repl_error {this, "(eval form [env])", error_msg_not_an_environment, args} {_, args})
-	(goto 'funcexit))
+	(call 'lisp 'repl_error {this, "(eval form [env])", error_msg_not_an_environment, args})
+	(return))
 
 	(pop-scope-syms)
 

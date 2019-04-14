@@ -65,11 +65,11 @@
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(cond (tst body) ...)", error_msg_wrong_num_of_args, args} (list r_this r_value))
-	(goto 'funcexit1)
+	(call 'lisp 'repl_error {this, "(cond (tst body) ...)", error_msg_wrong_num_of_args, args})
+	(return)
 (vp-label 'error2)
-	(call 'lisp 'repl_error {this, "(cond (tst body) ...)", error_msg_not_a_list, args} (list r_this r_value))
-	(goto 'funcexit1))
+	(call 'lisp 'repl_error {this, "(cond (tst body) ...)", error_msg_not_a_list, args})
+	(return))
 
 	(pop-scope-syms)
 

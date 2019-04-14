@@ -34,14 +34,13 @@
 		(call 'integer 'create {0} {value})
 	(endif)
 
-(vp-label 'funcexit)
 	(exit 'lisp 'func_cmp {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(cmp str str)", error_msg_wrong_types, args} {_, value})
-	(goto 'funcexit)
+	(call 'lisp 'repl_error {this, "(cmp str str)", error_msg_wrong_types, args})
+	(return)
 	(signature 'sig 'string 'string))
 
 	(pop-scope-syms)

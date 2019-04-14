@@ -33,17 +33,16 @@
 	(errorif {index < 0 || index >= length} 'error2)
 	(call 'sequence 'ref_element {seq, index} {_, value})
 
-(vp-label 'funcexit)
 	(exit 'lisp 'func_elem {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(elem index seq)", error_msg_wrong_types, args} {_, value})
-	(goto 'funcexit)
+	(call 'lisp 'repl_error {this, "(elem index seq)", error_msg_wrong_types, args})
+	(return)
 (vp-label 'error2)
-	(call 'lisp 'repl_error {this, "(elem index seq)", error_msg_not_valid_index, args} {_, value})
-	(goto 'funcexit)
+	(call 'lisp 'repl_error {this, "(elem index seq)", error_msg_not_valid_index, args})
+	(return)
 	(signature 'sig 'integer 'sequence))
 
 	(pop-scope-syms)

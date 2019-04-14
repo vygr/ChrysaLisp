@@ -25,14 +25,13 @@
 		(call 'obj 'ref {this->lisp_sym_nil} {value})
 	(endif)
 
-(vp-label 'funcexit)
 	(exit 'lisp 'func_load {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(load path)", error_msg_wrong_types, args} {_, value})
-	(goto 'funcexit)
+	(call 'lisp 'repl_error {this, "(load path)", error_msg_wrong_types, args})
+	(return)
 	(signature 'sig 'string))
 
 	(pop-scope-syms)

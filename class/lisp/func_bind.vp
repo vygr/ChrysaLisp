@@ -23,14 +23,13 @@
 	(call 'vector 'get_begin {args} {_, iter_begin})
 	(call 'lisp 'env_bind {this, iter_begin[0], iter_begin[ptr_size]} {_, args})
 
-(vp-label 'funcexit)
 	(exit 'lisp 'func_bind {this, args})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(bind (param ...) seq)", error_msg_wrong_num_of_args, args} {_, args})
-	(goto 'funcexit))
+	(call 'lisp 'repl_error {this, "(bind (param ...) seq)", error_msg_wrong_num_of_args, args})
+	(return))
 
 	(pop-scope-syms)
 

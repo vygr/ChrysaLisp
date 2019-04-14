@@ -28,14 +28,13 @@
 	(call 'obj 'ref {value})
 	(call 'stream_str 'write {stream, &value->string_data, value->string_length})
 
-(vp-label 'funcexit)
 	(exit 'lisp 'func_write {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(write stream str)", error_msg_wrong_types, args} {_, value})
-	(goto 'funcexit)
+	(call 'lisp 'repl_error {this, "(write stream str)", error_msg_wrong_types, args})
+	(return)
 	(signature 'sig 'stream 'string))
 
 	(pop-scope-syms)
