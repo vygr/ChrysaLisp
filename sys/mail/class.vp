@@ -325,11 +325,12 @@
 		;going off chip
 		(f-bind 'sys_mail 'statics r1)
 		(vp-cpy-ir-ui r2 msg_length r0)
-		(vpif '(r0 > lk_data_size))
+		(switch)
+		(case '(r0 > lk_data_size))
 			;must use postman task
 			(vp-cpy-ir r1 ml_statics_out_mbox_addr r1)
 			(vp-jmp 'post_it)
-		(else)
+		(default)
 			;queue it on the outgoing packet list
 			(vp-lea-i r1 ml_statics_offchip_list r1)
 			(lh-add-at-tail r1 r2 r0)
