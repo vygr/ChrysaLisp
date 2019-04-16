@@ -9,21 +9,19 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(ptr 'this 'args)
-	(uint 'length)
+	(entry 'lisp 'func_progn '(r3 r1))
 
-	(push-scope)
-	(entry 'lisp 'func_progn {this, args})
-
-	(d-call 'vector 'get_length {args} {_, length})
-	(vpif {length})
-		(d-call 'vector 'ref_back {args} {_, args})
+	(call 'vector 'get_iters '(r1) '(_ r1 r2))
+	(vpif '(r1 != r2))
+		(vp-cpy-ir r2 (neg ptr_size) r1)
 	(else)
-		(call 'obj 'ref {this->lisp_sym_nil} {args})
+		(vp-cpy-ir r3 lisp_sym_nil r1)
 	(endif)
+	(vp-cpy-ir-ui r1 obj_count r2)
+	(vp-add-cr 1 r2)
+	(vp-cpy-ri-i r2 r1 obj_count)
 
-	(exit 'lisp 'func_progn {this, args})
-	(pop-scope)
-	(return)
+	(exit 'lisp 'func_progn '(r3 r1))
+	(vp-ret)
 
 (def-func-end)
