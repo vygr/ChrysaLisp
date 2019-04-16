@@ -22,8 +22,9 @@
 	(assign `((,r_seq obj_vtable) (@ ,(f-path 'string 'vtable))) (list r_vtable r_cmp))
 	(switch)
 	(case (list r_vtable '== r_cmp))
+	(errorcases
 		(vp-cpy-ir r_elem obj_vtable r_vtable)
-		(errorif (list r_vtable '!= r_cmp) 'error2)
+		(errorif (list r_vtable '!= r_cmp) 'error2))
 		(call 'string 'find `(,r_seq (,r_elem string_data ub)) (list '_ r_length))
 		(goto 'ok)
 	(default)
