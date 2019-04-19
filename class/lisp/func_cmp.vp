@@ -11,38 +11,29 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(ptr 'this 'value 'arg1)
-	(union
-		'(pptr 'iter_begin)
-		'(ptr 'args)
-		'(ptr 'arg2)
-		'(int 'result))
+	(vp-def (r_this r_args r_value r_iter_begin r_arg1 r_arg2) '(r6 r7))
 
-	(push-scope)
-	(entry 'lisp 'func_cmp {this, args})
+	(entry 'lisp 'func_cmp (list r_this r_args))
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 2})
-	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(call 'lisp 'env_args_type `(,r_args ($ sig) 2))
+	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
 
-	(call 'vector 'get_begin {args} {_, iter_begin})
-	(assign {iter_begin[0], iter_begin[ptr_size]} {arg1, arg2})
-	(vpif {arg1 != arg2})
-		(call 'string 'compare {arg1, arg2} {_, result})
-		(call 'integer 'create {result} {value})
-	(else)
-		(call 'integer 'create {0} {value})
+	(call 'vector 'get_begin (list r_args) (list '_ r_iter_begin))
+	(vp-cpy-ir r_iter_begin 0 r_arg1)
+	(vp-cpy-ir r_iter_begin ptr_size r_arg2)
+	(vp-xor-rr r_value r_value)
+	(vpif (list r_arg1 '!= r_arg2))
+		(call 'string 'compare (list r_arg1 r_arg2) (list '_ r_value))
 	(endif)
+	(call 'integer 'create (list r_value) (list r_value))
 
-	(exit 'lisp 'func_cmp {this, value})
-	(return)
+	(exit 'lisp 'func_cmp (list r_this r_value))
+	(vp-ret)
 
 (errorcases
-(vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(cmp str str)", error_msg_wrong_types, args})
-	(return)
+(vp-label 'error)
+	(jump 'lisp 'repl_error (list r_this "(cmp str str)" error_msg_wrong_types r_args))
 	(signature 'sig 'string 'string))
-
-	(pop-scope-syms)
 
 (def-func-end)

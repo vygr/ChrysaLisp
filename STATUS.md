@@ -9,7 +9,7 @@ some critical Lisp functions. A little extra performance and helps to keep the
 size of the boot image in check. Can always knock out a few VP conversions if
 time won't allow anything more substantial.
 
-I decide to change the 'sys_mem 'realloc to not trash r7-r8. Thoughts on this
+I decide to change the 'sys_mem 'realloc to not trash r6-r7. Thoughts on this
 are that if your going to end up doing the memory copy then the 2 registers
 push/pop is no big deal, but the functions that use this can benefit from
 having there iterators held in registers and not stack variables and that is a
