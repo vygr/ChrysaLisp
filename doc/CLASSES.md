@@ -272,7 +272,7 @@ r3 = element end index (uint)
 outputs
 r0 = array object (ptr)
 trashes
-r1-r5
+r1-r9
 ```
 ### array::deinit -> class/array/deinit
 ```
@@ -310,7 +310,7 @@ outputs
 r0 = array object (ptr)
 r1 = slice array object (ptr)
 trashes
-r1-r9
+r1-r8
 ```
 ## backdrop
 Super Class: view

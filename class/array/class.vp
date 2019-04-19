@@ -23,56 +23,6 @@
 
 (def-func-end)
 
-(def-method 'array 'append)
-	;inputs
-	;r0 = array object (ptr)
-	;r1 = source array object (ptr)
-	;r2 = element start index (uint)
-	;r3 = element end index (uint)
-	;outputs
-	;r0 = array object (ptr)
-	;trashes
-	;r1-r5
-
-	(def-struct 'local)
-		(ptr 'this)
-		(ptr 'source)
-		(uint 'start)
-		(uint 'end)
-	(def-struct-end)
-
-	;save inputs
-	(vp-alloc local_size)
-	(entry 'array 'append '((rsp local_this) (rsp local_source) (rsp local_start i) (rsp local_end i)))
-
-	;extend existing array
-	(vp-cpy-ir-ui r0 array_length r1)
-	(vp-sub-rr r2 r3)
-	(vp-add-rr r3 r1)
-	(call 'array 'set_capacity '(r0 r1) '(r0))
-
-	;copy elements
-	(assign '((rsp local_source) (rsp local_start ui) (rsp local_end ui)) '(r3 r1 r2))
-	(vp-cpy-ir-ui r0 array_length r4)
-	(vp-sub-rr r1 r2)
-	(vp-cpy-rr r4 r5)
-	(vp-shl-cr (log2 long_size) r4)
-	(vp-add-rr r2 r5)
-	(vp-cpy-ir r3 array_array r3)
-	(vp-cpy-ri-i r5 r0 array_length)
-	(vp-cpy-ir r0 array_array r5)
-	(vp-shl-cr (log2 long_size) r1)
-	(vp-shl-cr (log2 long_size) r2)
-	(vp-add-rr r5 r4)
-	(vp-add-rr r3 r1)
-	(call 'sys_mem 'copy '(r1 r4 r2))
-
-	(exit 'array 'append '((rsp local_this)))
-	(vp-free local_size)
-	(vp-ret)
-
-(def-func-end)
-
 (def-method 'array 'clear)
 	;inputs
 	;r0 = array object (ptr)
@@ -344,40 +294,6 @@
 
 (def-func-end)
 
-(def-method 'array 'slice)
-	;inputs
-	;r0 = array object (ptr)
-	;r1 = element start index (uint)
-	;r2 = element end index (uint)
-	;outputs
-	;r0 = array object (ptr)
-	;r1 = slice array object (ptr)
-	;trashes
-	;r1-r9
-
-	;save inputs
-	(entry 'array 'slice '(r6 r7 r8))
-
-	;create new array
-	(call 'array 'create '() '(r9))
-	(vp-cpy-rr r8 r1)
-	(vp-sub-rr r7 r1)
-	(vp-cpy-ri-i r1 r0 array_length)
-	(call 'array 'set_capacity '(r0 r1))
-
-	;copy elements
-	(vp-cpy-ir r9 array_array r1)
-	(vp-cpy-ir r6 array_array r0)
-	(vp-shl-cr (log2 long_size) r7)
-	(vp-shl-cr (log2 long_size) r8)
-	(vp-sub-rr r7 r8)
-	(call 'sys_mem 'copy '((& r0 r7) r1 r8))
-
-	(exit 'array 'slice '(r6 r9))
-	(vp-ret)
-
-(def-func-end)
-
 (def-method 'array 'partition)
 	;inputs
 	;r0 = array object (ptr)
@@ -505,5 +421,93 @@
 	(exit 'array 'sort {this})
 	(pop-scope)
 	(return)
+
+(def-func-end)
+
+(def-method 'array 'slice)
+	;inputs
+	;r0 = array object (ptr)
+	;r1 = element start index (uint)
+	;r2 = element end index (uint)
+	;outputs
+	;r0 = array object (ptr)
+	;r1 = slice array object (ptr)
+	;trashes
+	;r1-r8
+
+	;save inputs
+	(entry 'array 'slice '(r6 r7 r8))
+
+	;create new array
+	(call 'array 'create '() '(r0))
+	(vp-cpy-rr r8 r1)
+	(vp-sub-rr r7 r1)
+	(vp-cpy-ri-i r1 r0 array_length)
+	(call 'array 'set_capacity '(r0 r1) '(r1))
+	(vp-cpy-rr r6 r0)
+
+	;copy elements
+	(vpif '(r7 != r8))
+		(vp-cpy-ir r0 array_array r2)
+		(vp-cpy-ir r1 array_array r3)
+		(vp-shl-cr (log2 ptr_size) r7)
+		(vp-shl-cr (log2 ptr_size) r8)
+		(vp-add-rr r2 r8)
+		(vp-add-rr r7 r2)
+		(loop-start)
+			(vp-cpy-ir r2 0 r4)
+			(vp-add-cr ptr_size r2)
+			(vp-cpy-ri r4 r3 0)
+			(vp-add-cr ptr_size r3)
+		(loop-until '(r2 == r8))
+	(endif)
+
+	(exit 'array 'slice '(r0 r1))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'array 'append)
+	;inputs
+	;r0 = array object (ptr)
+	;r1 = source array object (ptr)
+	;r2 = element start index (uint)
+	;r3 = element end index (uint)
+	;outputs
+	;r0 = array object (ptr)
+	;trashes
+	;r1-r9
+
+	;save inputs
+	(entry 'array 'append '(r0 r6 r7 r8))
+
+	;extend array
+	(vp-cpy-ir-ui r0 array_length r9)
+	(vp-cpy-rr r8 r2)
+	(vp-sub-rr r7 r2)
+	(vp-lea-d r2 r9 r1)
+	(vp-cpy-ri-i r1 r0 array_length)
+	(call 'array 'set_capacity '(r0 r1))
+
+	;append elements
+	(vpif '(r7 != r8))
+		(vp-cpy-ir r0 array_array r3)
+		(vp-cpy-ir r6 array_array r2)
+		(vp-shl-cr (log2 ptr_size) r7)
+		(vp-shl-cr (log2 ptr_size) r8)
+		(vp-shl-cr (log2 ptr_size) r9)
+		(vp-add-rr r2 r8)
+		(vp-add-rr r7 r2)
+		(vp-add-rr r9 r3)
+		(loop-start)
+			(vp-cpy-ir r2 0 r4)
+			(vp-add-cr ptr_size r2)
+			(vp-cpy-ri r4 r3 0)
+			(vp-add-cr ptr_size r3)
+		(loop-until '(r2 == r8))
+	(endif)
+
+	(exit 'array 'append '(r0))
+	(vp-ret)
 
 (def-func-end)
