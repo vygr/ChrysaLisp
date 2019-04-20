@@ -179,19 +179,23 @@
 	;trashes
 	;r1-r9
 
-	;save inputs
-	(entry 'vector 'append '(r0 r6 r7 r8))
+	(entry 'vector 'append '(r0 r1 r2 r3))
 
-	;extend vector
-	(vp-cpy-ir-ui r0 array_length r9)
-	(vp-cpy-rr r8 r2)
-	(vp-sub-rr r7 r2)
-	(vp-lea-d r2 r9 r1)
-	(vp-cpy-ri-i r1 r0 array_length)
-	(call 'vector 'set_capacity '(r0 r1))
+	(vpif '(r2 != r3))
+		;save inputs
+		(vp-cpy-rr r1 r6)
+		(vp-cpy-rr r2 r7)
+		(vp-cpy-rr r3 r8)
 
-	;append and ref elements
-	(vpif '(r7 != r8))
+		;extend vector
+		(vp-cpy-ir-ui r0 array_length r9)
+		(vp-cpy-rr r8 r2)
+		(vp-sub-rr r7 r2)
+		(vp-lea-d r2 r9 r1)
+		(vp-cpy-ri-i r1 r0 array_length)
+		(call 'vector 'set_capacity '(r0 r1) '(r0))
+
+		;append and ref elements
 		(vp-cpy-ir r0 array_array r3)
 		(vp-cpy-ir r6 array_array r2)
 		(vp-shl-cr (log2 ptr_size) r7)
