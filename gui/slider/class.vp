@@ -154,7 +154,6 @@
 	;all but r0
 
 	(ptr 'this 'evt)
-	(long 'val 'max)
 	(uint 'width 'height)
 
 	(push-scope)
@@ -162,16 +161,10 @@
 
 	;slider drag offset, so no jaring first move ?
 	(call 'slider 'get_bounds {this} {_, _, _, width, height})
-	(call 'slider 'get_long_prop {this, prop_maximum} {_, max})
-	(call 'slider 'get_long_prop {this, prop_value} {_, val})
-	(assign {0} {this->slider_offset})
-	(vpif {max > 0})
-		(vpif {width > height})
-			(assign {(val * width // max) - evt->ev_msg_mouse_rx} {max})
-		(else)
-			(assign {(val * height // max) - evt->ev_msg_mouse_ry} {max})
-		(endif)
-		(assign {max} {this->slider_offset})
+	(call 'slider 'get_long_prop {this, prop_value} {_, this->slider_old_val})
+	(assign {evt->ev_msg_mouse_rx} {this->slider_offset})
+	(vpif {height > width})
+		(assign {evt->ev_msg_mouse_ry} {this->slider_offset})
 	(endif)
 	(call 'slider 'mouse_move {this, evt})
 
@@ -190,7 +183,7 @@
 
 	(ptr 'this 'evt)
 	(ulong 'old_state)
-	(long 'val 'max 'new_val)
+	(long 'val 'max 'portion 'new_val)
 	(uint 'hit 'width 'height)
 	(int 'rx 'ry)
 
@@ -214,27 +207,17 @@
 	;emit new value signal ?
 	(call 'slider 'get_bounds {this} {_, _, _, width, height})
 	(call 'slider 'get_long_prop {this, prop_maximum} {_, max})
+	(call 'slider 'get_long_prop {this, prop_portion} {_, portion})
 	(call 'slider 'get_long_prop {this, prop_value} {_, val})
 	(vpif {width > height})
-		(assign {rx + this->slider_offset} {rx})
-		(vpif {rx < 0})
-			(assign {0} {rx})
-		(endif)
-		(vpif {rx > width})
-			(assign {width} {rx})
-		(endif)
-		(assign {rx * (max + 1) // width} {new_val})
+		(assign {(rx - this->slider_offset) * (max + portion) // width} {new_val})
 	(else)
-		(assign {ry + this->slider_offset} {ry})
-		(vpif {ry < 0})
-			(assign {0} {ry})
-		(endif)
-		(vpif {ry > height})
-			(assign {height} {ry})
-		(endif)
-		(assign {ry * (max + 1) // height} {new_val})
+		(assign {(ry - this->slider_offset) * (max + portion) // height} {new_val})
 	(endif)
-	(vpif {new_val > max})
+	(assign {new_val + this->slider_old_val} {new_val})
+	(vpif {new_val < 0})
+		(assign {0} {new_val})
+	(elseif {new_val > max})
 		(assign {max} {new_val})
 	(endif)
 

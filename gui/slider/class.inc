@@ -24,5 +24,6 @@
 (def-struct 'slider 'view)
 	(ulong 'state)
 	(ulong 'offset)
+	(ulong 'old_val)
 	(ptr 'value_targets)
 (def-struct-end)
