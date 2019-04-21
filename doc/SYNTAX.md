@@ -264,7 +264,7 @@
 ## merge
 ### (merge list str) -> list
 ## merge-sym
-### (merge-sym list1 list2) -> list1
+### (merge-sym dlist slist) -> dlist
 ## min
 ### (min num num ...)
 ## minus

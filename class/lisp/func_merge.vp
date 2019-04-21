@@ -10,7 +10,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(vp-def (r_this r_args r_iter_begin r_iter_end r_list1 r_list2 r_length r_vtable r_cmp)
+	(vp-def (r_this r_args r_iter_begin r_iter_end r_dlist r_slist r_length r_vtable r_cmp)
 		'(r6 r7 r8 r9 r10))
 
 	(entry 'lisp 'func_merge (list r_this r_args))
@@ -19,30 +19,30 @@
 	(call 'lisp 'env_args_type `(,r_args ($ sig) 2))
 	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
 
-	(call 'vector 'get_first (list r_args) (list '_ r_list1))
-	(call 'vector 'get_second (list r_args) (list '_ r_list2))
-	(call 'vector 'get_iters (list r_list2) (list r_list2 r_iter_begin r_iter_end))
-	(d-call 'vector 'get_length (list r_list2) (list '_ r_length))
-	(call 'vector 'set_capacity (list r_list1 r_length))
+	(call 'vector 'get_first (list r_args) (list '_ r_dlist))
+	(call 'vector 'get_second (list r_args) (list '_ r_slist))
+	(call 'vector 'get_iters (list r_slist) (list r_slist r_iter_begin r_iter_end))
+	(d-call 'vector 'get_length (list r_slist) (list '_ r_length))
+	(call 'vector 'set_capacity (list r_dlist r_length))
 	(loop-while (list r_iter_begin '!= r_iter_end))
 		(vp-cpy-ir r_iter_begin 0 r_args)
 		(vp-add-cr ptr_size r_iter_begin)
 	(errorcases
 		(assign `((,r_args obj_vtable) (@ ,(f-path 'symbol 'vtable))) (list r_vtable r_cmp))
 		(errorif (list r_vtable '!= r_cmp) 'error))
-		(call 'vector 'find (list r_list1 r_args) (list '_ r_length))
+		(call 'vector 'find (list r_dlist r_args) (list '_ r_length))
 		(continueif (list r_length '!= -1))
 		(call 'obj 'ref (list r_args))
-		(call 'vector 'push_back (list r_list1 r_args))
+		(call 'vector 'push_back (list r_dlist r_args))
 	(loop-end)
-	(call 'obj 'ref (list r_list1))
+	(call 'obj 'ref (list r_dlist))
 
-	(exit 'lisp 'func_merge (list r_this r_list1))
+	(exit 'lisp 'func_merge (list r_this r_dlist))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error (list r_this "(merge-sym list1 list2) -> list1" error_msg_wrong_types r_args))
+	(jump 'lisp 'repl_error (list r_this "(merge-sym dlist slist) -> dlist" error_msg_wrong_types r_args))
 	(signature 'sig 'vector 'vector))
 
 (def-func-end)

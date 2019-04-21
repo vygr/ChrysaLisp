@@ -1,5 +1,20 @@
 (include 'sys/func.inc)
 (include 'class/lisp/class.inc)
+(include 'gui/points/class.inc)
+
+(defun to-array (_)
+	(vp-def (r_this r_value r_args r_length) '(r6 r7 r8 r1))
+
+	(entry 'lisp (sym-cat "func_" _) (list r_this r_args))
+
+	(call _ 'create nil (list r_value))
+	(vp-cpy-ir-ui r_args array_length r_length)
+	(vp-cpy-ri-i r_length r_value array_length)
+	(call _ 'set_capacity (list r_value r_length))
+	(call 'lisp 'env_args_set `(,r_args (,r_value array_array) 0))
+
+	(exit 'lisp (sym-cat "func_" _) (list r_this r_value))
+	(vp-ret))
 
 (def-method 'lisp 'func_array)
 	;inputs
@@ -9,23 +24,18 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(ptr 'this 'args 'value)
-	(union
-		'(pptr 'iter_begin)
-		'(uint 'length))
+	(to-array 'array)
 
-	(push-scope)
-	(entry 'lisp 'func_array {this, args})
+(def-func-end)
 
-	(call 'array 'create nil {value})
-	(d-call 'vector 'get_length {args} {_, length})
-	(call 'array 'set_capacity {value, length})
-	(call 'array 'set_length {value, length})
-	(call 'array 'get_begin {value} {_, iter_begin})
-	(call 'lisp 'env_args_set {args, iter_begin, 0})
+(def-method 'lisp 'func_points)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
 
-	(exit 'lisp 'func_array {this, value})
-	(pop-scope)
-	(return)
+	(to-array 'points)
 
 (def-func-end)

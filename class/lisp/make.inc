@@ -55,7 +55,6 @@
 (include 'class/lisp/func_ne.vp)
 (include 'class/lisp/func_part.vp)
 (include 'class/lisp/func_pipe.vp)
-(include 'class/lisp/func_points.vp)
 (include 'class/lisp/func_pop.vp)
 (include 'class/lisp/func_prin.vp)
 (include 'class/lisp/func_print.vp)
