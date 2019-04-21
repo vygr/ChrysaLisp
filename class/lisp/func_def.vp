@@ -3,6 +3,45 @@
 (include 'class/symbol/class.inc)
 (include 'class/lisp/class.inc)
 
+(defun defset (_ p)
+	(vp-def (r_env r_length r_var r_val r_iter_begin r_iter_end r_vtable r_cmp)
+		'(r0 r1 r1 r2))
+	(ptr 'this 'args 'env 'val)
+	(pptr 'iter_begin 'iter_end)
+	(push-scope)
+	(entry 'lisp (sym-cat "func_" _) {this, args})
+	(d-call 'vector 'get_length {args} (list '_ r_length))
+(errorcases
+	(errorif (list r_length '< 3) 'error1)
+	(vp-and-cr 1 r_length)
+	(errorif (list r_length '== 0) 'error1))
+	(call 'vector 'get_iters {args} (list '_ r_iter_begin r_iter_end))
+	(assign (list r_iter_begin r_iter_end) {iter_begin, iter_end})
+	(vp-cpy-ir r_iter_begin 0 r_env)
+	(assign (list r_env) {env})
+(errorcases
+	(call 'obj 'inst_of `(,r_env (@ ,(f-path 'hash_map 'vtable))))
+	(errorif (list (method-output 'obj 'inst_of 1) '== 0) 'error2))
+	(assign {iter_begin} (list r_iter_begin))
+	(vp-add-cr ptr_size r_iter_begin)
+	(loop-start)
+		(assign (list r_iter_begin) {iter_begin})
+		(vp-cpy-ir r_iter_begin 0 r_var)
+	(errorcases
+		(vp-cpy-ir r_var obj_vtable r_vtable)
+		(assign `((@ ,(f-path 'symbol 'vtable))) (list r_cmp))
+		(errorif (list r_vtable '!= r_cmp) 'error3))
+		(vp-cpy-ir r_iter_begin ptr_size r_val)
+		(assign {env} (list r_env))
+		(assign (list r_val) {val})
+		(eval (macroexpand p))
+		(assign {iter_begin, iter_end} (list r_iter_begin r_iter_end))
+		(vp-add-cr (mul ptr_size 2) r_iter_begin)
+	(loop-until (list r_iter_begin '== r_iter_end))
+	(call 'obj 'ref {val})
+	(exit 'lisp (sym-cat "func_" _) {this, val})
+	(return))
+
 (def-method 'lisp 'func_def)
 	;inputs
 	;r0 = lisp object (ptr)
@@ -11,35 +50,9 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(ptr 'this 'args 'env 'var 'val)
-	(union
-		'(pptr 'iter_begin 'iter_end)
-		'(uint 'length))
-
-	(push-scope)
-	(entry 'lisp 'func_def {this, args})
-
-	(d-call 'vector 'get_length {args} {_, length})
-	(errorif {length < 3 || !(length & 1)} 'error1)
-	(call 'vector 'get_iters {args} {_, iter_begin, iter_end})
-	(assign {iter_begin[ptr_size * 0]} {env})
-
-(errorcases
-	(call 'obj 'inst_of (cat {env, @} (f-path 'hash_map 'vtable)))
-	(errorif (list (method-output 'obj 'inst_of 1) '== 0) 'error2))
-
-	(assign {&iter_begin[ptr_size * 1]} {iter_begin})
-	(assign {0} {val})
-	(loop-start)
-		(call 'obj 'deref_if {val})
-		(assign {iter_begin[ptr_size * 0]} {var})
-		(errorif (cat {var->obj_vtable != @} (f-path 'symbol 'vtable)) 'error3)
-		(call 'obj 'ref {iter_begin[ptr_size * 1]} {val})
-		(call 'hash_map 'insert {env, var, val})
-	(loop-until {(&iter_begin[ptr_size * 2] => iter_begin) == iter_end})
-
-	(exit 'lisp 'func_def {this, val})
-	(return)
+	(defset 'def
+		'(progn
+			(call 'hash_map 'insert (list r_env r_var r_val))))
 
 (errorcases
 (vp-label 'error1)
@@ -50,6 +63,37 @@
 	(return)
 (vp-label 'error3)
 	(call 'lisp 'repl_error {this, "(def env var val [var val] ...)", error_msg_not_a_symbol, args})
+	(return))
+
+	(pop-scope-syms)
+
+(def-func-end)
+
+(def-method 'lisp 'func_set)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(defset 'set
+		'(progn
+			(call 'hash_map 'set (list r_env r_var r_val))
+			(errorif (list (method-output 'hash_map 'set 1) '== 0) 'error4)))
+
+(errorcases
+(vp-label 'error1)
+	(call 'lisp 'repl_error {this, "(set env var val [var val] ...)", error_msg_wrong_num_of_args, args})
+	(return)
+(vp-label 'error2)
+	(call 'lisp 'repl_error {this, "(set env var val [var val] ...)", error_msg_not_an_environment, args})
+	(return)
+(vp-label 'error3)
+	(call 'lisp 'repl_error {this, "(set env var val [var val] ...)", error_msg_not_a_symbol, args})
+	(return)
+(vp-label 'error4)
+	(call 'lisp 'repl_error {this, "(set env var val [var val] ...)", error_msg_symbol_not_bound, args})
 	(return))
 
 	(pop-scope-syms)

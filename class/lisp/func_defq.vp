@@ -27,8 +27,8 @@
 		(vp-cpy-ir r_var obj_vtable r_vtable)
 		(assign `((@ ,(f-path 'symbol 'vtable))) (list r_cmp))
 		(errorif (list r_vtable '!= r_cmp) 'error2))
-		(assign (list r_var) {var})
 		(assign {this} (list r_this))
+		(assign (list r_var) {var})
 		(call 'lisp 'repl_eval `(,r_this (,r_iter_begin ptr_size)) (list r_this r_val))
 		(assign (list r_val) {val})
 	(errorcases
