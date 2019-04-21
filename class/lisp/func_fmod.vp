@@ -26,7 +26,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type (cat {args, @} (f-path 'integer 'vtable) {, -2}))
-	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'vector 'get_iters {args} {_, iter_begin, iter_end})
 	(call 'integer 'get_value {*iter_begin} {_, accum})

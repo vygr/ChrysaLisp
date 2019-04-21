@@ -20,19 +20,18 @@
 
 (errorcases
 	(call 'lisp 'env_args_type {args, $sig, 1})
-	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'window 'create {arg0} {value})
 
-(vp-label 'funcexit)
 	(exit 'window 'lisp_create {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(create-window flags)", error_msg_wrong_types, args} {_, value})
-	(goto 'funcexit)
+	(call 'lisp 'repl_error {this, "(create-window flags)", error_msg_wrong_types, args})
+	(return)
 	(signature 'sig 'integer))
 
 	(pop-scope-syms)
@@ -55,20 +54,19 @@
 
 (errorcases
 	(call 'lisp 'env_args_type {args, $sig, 2})
-	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'window 'connect_layout {arg0, arg1})
 	(call 'window 'ref {arg0} {value})
 
-(vp-label 'funcexit)
 	(exit 'window 'lisp_connect_layout {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(window-connect-layout window id)", error_msg_wrong_types, args} {_, value})
-	(goto 'funcexit)
+	(call 'lisp 'repl_error {this, "(window-connect-layout window id)", error_msg_wrong_types, args})
+	(return)
 	(signature 'sig 'window 'integer))
 
 	(pop-scope-syms)
@@ -91,20 +89,19 @@
 
 (errorcases
 	(call 'lisp 'env_args_type {args, $sig, 2})
-	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'window 'connect_close {arg0, arg1})
 	(call 'window 'ref {arg0} {value})
 
-(vp-label 'funcexit)
 	(exit 'window 'lisp_connect_close {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(window-connect-close window id)", error_msg_wrong_types, args} {_, value})
-	(goto 'funcexit)
+	(call 'lisp 'repl_error {this, "(window-connect-close window id)", error_msg_wrong_types, args})
+	(return)
 	(signature 'sig 'window 'integer))
 
 	(pop-scope-syms)
@@ -127,20 +124,19 @@
 
 (errorcases
 	(call 'lisp 'env_args_type {args, $sig, 2})
-	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'window 'connect_min {arg0, arg1})
 	(call 'window 'ref {arg0} {value})
 
-(vp-label 'funcexit)
 	(exit 'window 'lisp_connect_min {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(window-connect-min window id)", error_msg_wrong_types, args} {_, value})
-	(goto 'funcexit)
+	(call 'lisp 'repl_error {this, "(window-connect-min window id)", error_msg_wrong_types, args})
+	(return)
 	(signature 'sig 'window 'integer))
 
 	(pop-scope-syms)
@@ -163,20 +159,19 @@
 
 (errorcases
 	(call 'lisp 'env_args_type {args, $sig, 2})
-	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'window 'connect_max {arg0, arg1})
 	(call 'window 'ref {arg0} {value})
 
-(vp-label 'funcexit)
 	(exit 'window 'lisp_connect_max {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(window-connect-max window id)", error_msg_wrong_types, args} {_, value})
-	(goto 'funcexit)
+	(call 'lisp 'repl_error {this, "(window-connect-max window id)", error_msg_wrong_types, args})
+	(return)
 	(signature 'sig 'window 'integer))
 
 	(pop-scope-syms)
@@ -199,20 +194,19 @@
 
 (errorcases
 	(call 'lisp 'env_args_type {args, $sig, 2})
-	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'window 'set_status {arg0, &arg1->string_data})
 	(call 'window 'ref {arg0} {value})
 
-(vp-label 'funcexit)
 	(exit 'window 'lisp_set_status {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(window-set-status window str)", error_msg_wrong_types, args} {_, value})
-	(goto 'funcexit)
+	(call 'lisp 'repl_error {this, "(window-set-status window str)", error_msg_wrong_types, args})
+	(return)
 	(signature 'sig 'window 'string))
 
 	(pop-scope-syms)
@@ -235,20 +229,19 @@
 
 (errorcases
 	(call 'lisp 'env_args_type {args, $sig, 2})
-	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'window 'set_title {arg0, &arg1->string_data})
 	(call 'window 'ref {arg0} {value})
 
-(vp-label 'funcexit)
 	(exit 'window 'lisp_set_title {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(window-set-title window str)", error_msg_wrong_types, args} {_, value})
-	(goto 'funcexit)
+	(call 'lisp 'repl_error {this, "(window-set-title window str)", error_msg_wrong_types, args})
+	(return)
 	(signature 'sig 'window 'string))
 
 	(pop-scope-syms)

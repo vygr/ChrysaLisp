@@ -20,20 +20,19 @@
 
 (errorcases
 	(call 'lisp 'env_args_type {args, $sig, 1})
-	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'sys_task 'sleep {arg0})
 	(call 'obj 'ref {this->lisp_sym_t} {value})
 
-(vp-label 'funcexit)
 	(exit 'sys_task 'lisp_sleep {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(task-sleep usec)", error_msg_wrong_types, args} {_, value})
-	(goto 'funcexit)
+	(call 'lisp 'repl_error {this, "(task-sleep usec)", error_msg_wrong_types, args})
+	(return)
 	(signature 'sig 'integer))
 
 	(pop-scope-syms)
@@ -54,7 +53,7 @@
 
 (errorcases
 	(d-call 'vector 'get_length (list r_args))
-	(errorif (list (method-output 'vector 'get_length 1) '!= 0) 'error1))
+	(gotoif (list (method-output 'vector 'get_length 1) '!= 0) 'error1))
 
 	(call 'sys_task 'mailbox nil (list r_value))
 	(call 'integer 'create (list r_value) (list r_value))
@@ -84,20 +83,19 @@
 
 (errorcases
 	(call 'lisp 'env_args_type {args, $sig, 2})
-	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'sys_task 'open_child {&arg0->string_data, arg1} {arg0})
 	(call 'integer 'create {arg0} {value})
 
-(vp-label 'funcexit)
 	(exit 'sys_task 'lisp_open_child {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(open-child path mode)", error_msg_wrong_types, args} {_, value})
-	(goto 'funcexit)
+	(call 'lisp 'repl_error {this, "(open-child path mode)", error_msg_wrong_types, args})
+	(return)
 	(signature 'sig 'string 'integer))
 
 	(pop-scope-syms)
@@ -120,20 +118,19 @@
 
 (errorcases
 	(call 'lisp 'env_args_type {args, $sig, 3})
-	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'sys_task 'open_remote {&arg0->string_data, arg1, arg2} {arg0})
 	(call 'integer 'create {arg0} {value})
 
-(vp-label 'funcexit)
 	(exit 'sys_task 'lisp_open_remote {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(open-remote path cpu mode)", error_msg_wrong_types, args} {_, value})
-	(goto 'funcexit)
+	(call 'lisp 'repl_error {this, "(open-remote path cpu mode)", error_msg_wrong_types, args})
+	(return)
 	(signature 'sig 'string 'integer 'integer))
 
 	(pop-scope-syms)
@@ -156,19 +153,18 @@
 
 (errorcases
 	(call 'lisp 'env_args_type {args, $sig, 3})
-	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'sys_task 'open_farm {&arg0->string_data, arg1, arg2} {value})
 
-(vp-label 'funcexit)
 	(exit 'sys_task 'lisp_open_farm {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(open-farm path num mode)", error_msg_wrong_types, args} {_, value})
-	(goto 'funcexit)
+	(call 'lisp 'repl_error {this, "(open-farm path num mode)", error_msg_wrong_types, args})
+	(return)
 	(signature 'sig 'string 'integer 'integer))
 
 	(pop-scope-syms)
@@ -191,24 +187,23 @@
 
 (errorcases
 	(call 'lisp 'env_args_type {args, $sig, 1})
-	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 
 (errorcases
 	(call 'lisp 'env_args_type (cat {arg0, @} (f-path 'string 'vtable) {, -1}))
-	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'sys_task 'open_pipe {arg0} {value})
 
-(vp-label 'funcexit)
 	(exit 'sys_task 'lisp_open_pipe {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(open-pipe paths)", error_msg_wrong_types, args} {_, value})
-	(goto 'funcexit)
+	(call 'lisp 'repl_error {this, "(open-pipe paths)", error_msg_wrong_types, args})
+	(return)
 	(signature 'sig 'vector))
 
 	(pop-scope-syms)

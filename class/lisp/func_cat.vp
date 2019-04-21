@@ -46,7 +46,7 @@
 			(default)
 			(errorcases
 				(call 'lisp 'env_args_type (list r_args `(@ ,(f-path 'points 'vtable)) -1))
-				(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
+				(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
 				(call 'points 'create nil (list r_value))
 				(goto 'docat)
 			(endswitch)

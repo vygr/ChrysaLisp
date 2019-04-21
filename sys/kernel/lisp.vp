@@ -18,7 +18,7 @@
 
 (errorcases
 	(d-call 'vector 'get_length (list r_args) (list '_ r_len))
-	(errorif (list r_len '!= 0) 'error1))
+	(gotoif (list r_len '!= 0) 'error1))
 
 	(call 'sys_kernel 'total nil (list r_value))
 	(call 'integer 'create (list r_value) (list r_value))
@@ -48,20 +48,19 @@
 
 (errorcases
 	(call 'lisp 'env_args_type {args, $sig, 2})
-	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'sys_kernel 'declare {&arg0->string_data, arg1})
 	(call 'obj 'ref {arg0} {value})
 
-(vp-label 'funcexit)
 	(exit 'sys_kernel 'lisp_declare {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(kernel-declare name mbox)", error_msg_wrong_types, args} {_, value})
-	(goto 'funcexit)
+	(call 'lisp 'repl_error {this, "(kernel-declare name mbox)", error_msg_wrong_types, args})
+	(return)
 	(signature 'sig 'string 'integer))
 
 	(pop-scope-syms)
@@ -84,20 +83,19 @@
 
 (errorcases
 	(call 'lisp 'env_args_type {args, $sig, 1})
-	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'sys_kernel 'debug {&arg0->string_data})
 	(call 'obj 'ref {arg0} {value})
 
-(vp-label 'funcexit)
 	(exit 'sys_kernel 'lisp_debug {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(kernel-debug str)", error_msg_wrong_types, args} {_, value})
-	(goto 'funcexit)
+	(call 'lisp 'repl_error {this, "(kernel-debug str)", error_msg_wrong_types, args})
+	(return)
 	(signature 'sig 'string))
 
 	(pop-scope-syms)

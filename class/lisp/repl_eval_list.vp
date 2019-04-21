@@ -26,7 +26,7 @@
 	(errorcases
 		(vp-cpy-ir r_value obj_vtable r_vtable)
 		(f-bind 'error 'vtable r_error)
-		(errorif (list r_error '== r_vtable) 'funcexit))
+		(gotoif (list r_error '== r_vtable) 'funcexit))
 		(assign (list r_value) {value})
 		(call 'obj 'deref {*iter_begin})
 		(assign {value, iter_begin, iter_end, this} (list r_value r_iter_begin r_iter_end r_this))

@@ -19,7 +19,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type {value, $sig, 1})
-	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(assign (cat {@} (f-path 'sys_load 'statics) {.ld_statics_stat_buffer}) {stat_buf})
 	(call 'vector 'get_first {value} {_, value})

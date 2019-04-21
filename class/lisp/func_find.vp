@@ -24,13 +24,13 @@
 	(case (list r_vtable '== r_cmp))
 	(errorcases
 		(vp-cpy-ir r_elem obj_vtable r_vtable)
-		(errorif (list r_vtable '!= r_cmp) 'error2))
+		(gotoif (list r_vtable '!= r_cmp) 'error2))
 		(call 'string 'find `(,r_seq (,r_elem string_data ub)) (list '_ r_length))
 		(goto 'ok)
 	(default)
 	(errorcases
 		(assign `((@ ,(f-path 'vector 'vtable))) (list r_cmp))
-		(errorif (list r_vtable '!= r_cmp) 'error2))
+		(gotoif (list r_vtable '!= r_cmp) 'error2))
 		(call 'vector 'find (list r_seq r_elem) (list '_ r_length))
 	(vp-label 'ok)
 		(vpif (list r_length '== -1))

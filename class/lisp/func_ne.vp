@@ -18,7 +18,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type `(,r_args (@ ,(f-path 'integer 'vtable)) -2))
-	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'vector 'get_iters (list r_args) (list '_ r_iter_begin r_iter_end))
 	(vp-lea-i r_iter_end (neg ptr_size) r_iter_stop)

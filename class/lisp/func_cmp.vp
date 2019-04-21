@@ -17,7 +17,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type `(,r_args ($ sig) 2))
-	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
 
 	(call 'vector 'get_begin (list r_args) (list '_ r_iter_begin))
 	(vp-cpy-ir r_iter_begin 0 r_arg1)

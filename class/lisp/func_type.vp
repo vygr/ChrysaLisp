@@ -18,7 +18,7 @@
 
 (errorcases
 	(d-call 'vector 'get_length {args} '(_ r1))
-	(errorif '(r1 != 1) 'error1))
+	(gotoif '(r1 != 1) 'error1))
 
 	(vp-def (r_value r_obj r_vtable))
 	(call 'vector 'get_first {args} (list '_ r_obj))

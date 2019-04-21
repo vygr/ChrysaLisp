@@ -19,7 +19,7 @@
 
 (errorcases
 	(d-call 'vector 'get_length {args} {_, length})
-	(errorif {length} 'error1))
+	(gotoif {length} 'error1))
 
 	(call 'slave 'create nil {value})
 	(vpifnot {value})
@@ -37,14 +37,13 @@
 		(call 'obj 'deref {stderr})
 	(endif)
 
-(vp-label 'funcexit)
 	(exit 'slave 'lisp_create {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(create-slave)", error_msg_wrong_types, args} {_, value})
-	(goto 'funcexit))
+	(call 'lisp 'repl_error {this, "(create-slave)", error_msg_wrong_types, args})
+	(return))
 
 	(pop-scope-syms)
 
@@ -66,7 +65,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type {args, $sig, 1})
-	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'slave 'get_args {arg0} {_, arg0})
@@ -75,14 +74,13 @@
 	(endif)
 	(call 'obj 'ref {arg0} {value})
 
-(vp-label 'funcexit)
 	(exit 'slave 'lisp_get_args {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(slave-get-args slave)", error_msg_wrong_types, args} {_, value})
-	(goto 'funcexit)
+	(call 'lisp 'repl_error {this, "(slave-get-args slave)", error_msg_wrong_types, args})
+	(return)
 	(signature 'sig 'slave))
 
 	(pop-scope-syms)

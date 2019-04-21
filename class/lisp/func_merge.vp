@@ -17,7 +17,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type `(,r_args ($ sig) 2))
-	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
 
 	(call 'vector 'get_first (list r_args) (list '_ r_dlist))
 	(call 'vector 'get_second (list r_args) (list '_ r_slist))
@@ -29,7 +29,7 @@
 		(vp-add-cr ptr_size r_iter_begin)
 	(errorcases
 		(assign `((,r_args obj_vtable) (@ ,(f-path 'symbol 'vtable))) (list r_vtable r_cmp))
-		(errorif (list r_vtable '!= r_cmp) 'error))
+		(gotoif (list r_vtable '!= r_cmp) 'error))
 		(call 'vector 'find (list r_dlist r_args) (list '_ r_length))
 		(continueif (list r_length '!= -1))
 		(call 'obj 'ref (list r_args))

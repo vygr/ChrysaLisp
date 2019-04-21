@@ -18,7 +18,7 @@
 
 (errorcases
 	(d-call 'vector 'get_length (list r_args))
-	(errorif (list (method-output 'vector 'get_length 1) '!= 0) 'error1))
+	(gotoif (list (method-output 'vector 'get_length 1) '!= 0) 'error1))
 
 	(call 'view 'create nil (list r_value))
 
@@ -47,20 +47,19 @@
 
 (errorcases
 	(call 'lisp 'env_args_type {args, $sig, 2})
-	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'view 'event {arg0, &arg1->string_data})
 	(call 'obj 'ref {arg0} {value})
 
-(vp-label 'funcexit)
 	(exit 'view 'lisp_event {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(view-event view str)", error_msg_wrong_types, args} {_, value})
-	(goto 'funcexit)
+	(call 'lisp 'repl_error {this, "(view-event view str)", error_msg_wrong_types, args})
+	(return)
 	(signature 'sig 'view 'string))
 
 	(pop-scope-syms)
@@ -83,20 +82,19 @@
 
 (errorcases
 	(call 'lisp 'env_args_type {args, $sig, 1})
-	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'view 'layout {arg0})
 	(call 'obj 'ref {arg0} {value})
 
-(vp-label 'funcexit)
 	(exit 'view 'lisp_layout {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(view-layout view)", error_msg_wrong_types, args} {_, value})
-	(goto 'funcexit)
+	(call 'lisp 'repl_error {this, "(view-layout view)", error_msg_wrong_types, args})
+	(return)
 	(signature 'sig 'view))
 
 	(pop-scope-syms)
@@ -119,7 +117,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type {args, $sig, 2})
-	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'view 'find_id {arg0, arg1} {_, arg0})
@@ -128,14 +126,13 @@
 	(endif)
 	(call 'obj 'ref {arg0} {value})
 
-(vp-label 'funcexit)
 	(exit 'view 'lisp_find_id {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(view-find-id view id)", error_msg_wrong_types, args} {_, value})
-	(goto 'funcexit)
+	(call 'lisp 'repl_error {this, "(view-find-id view id)", error_msg_wrong_types, args})
+	(return)
 	(signature 'sig 'view 'integer))
 
 	(pop-scope-syms)
@@ -158,19 +155,18 @@
 
 (errorcases
 	(call 'lisp 'env_args_type {args, $sig, 1})
-	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'view 'sub {arg0} {value})
 
-(vp-label 'funcexit)
 	(exit 'view 'lisp_sub {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(view-sub view)", error_msg_wrong_types, args} {_, value})
-	(goto 'funcexit)
+	(call 'lisp 'repl_error {this, "(view-sub view)", error_msg_wrong_types, args})
+	(return)
 	(signature 'sig 'view))
 
 	(pop-scope-syms)
@@ -193,21 +189,20 @@
 
 (errorcases
 	(call 'lisp 'env_args_type {args, $sig, 2})
-	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'view 'add_child {arg0, arg1})
 	(call 'obj 'ref {arg1})
 	(call 'obj 'ref {arg0} {value})
 
-(vp-label 'funcexit)
 	(exit 'view 'lisp_add_child {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(view-add-child parent child)", error_msg_wrong_types, args} {_, value})
-	(goto 'funcexit)
+	(call 'lisp 'repl_error {this, "(view-add-child parent child)", error_msg_wrong_types, args})
+	(return)
 	(signature 'sig 'view 'view))
 
 	(pop-scope-syms)
@@ -230,21 +225,20 @@
 
 (errorcases
 	(call 'lisp 'env_args_type {args, $sig, 2})
-	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'view 'add_front {arg0, arg1})
 	(call 'obj 'ref {arg1})
 	(call 'obj 'ref {arg0} {value})
 
-(vp-label 'funcexit)
 	(exit 'view 'lisp_add_front {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(view-add-front parent child)", error_msg_wrong_types, args} {_, value})
-	(goto 'funcexit)
+	(call 'lisp 'repl_error {this, "(view-add-front parent child)", error_msg_wrong_types, args})
+	(return)
 	(signature 'sig 'view 'view))
 
 	(pop-scope-syms)
@@ -267,21 +261,20 @@
 
 (errorcases
 	(call 'lisp 'env_args_type {args, $sig, 2})
-	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'view 'add_back {arg0, arg1})
 	(call 'obj 'ref {arg1})
 	(call 'obj 'ref {arg0} {value})
 
-(vp-label 'funcexit)
 	(exit 'view 'lisp_add_back {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(view-add-back parent child)", error_msg_wrong_types, args} {_, value})
-	(goto 'funcexit)
+	(call 'lisp 'repl_error {this, "(view-add-back parent child)", error_msg_wrong_types, args})
+	(return)
 	(signature 'sig 'view 'view))
 
 	(pop-scope-syms)
@@ -304,7 +297,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type {args, $sig, 1})
-	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'view 'pref_size {arg0} {_, arg1, arg2})
@@ -314,14 +307,13 @@
 	(call 'vector 'push_back {value, arg1})
 	(call 'vector 'push_back {value, arg2})
 
-(vp-label 'funcexit)
 	(exit 'view 'lisp_pref_size {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(view-pref-size view)", error_msg_wrong_types, args} {_, value})
-	(goto 'funcexit)
+	(call 'lisp 'repl_error {this, "(view-pref-size view)", error_msg_wrong_types, args})
+	(return)
 	(signature 'sig 'view))
 
 	(pop-scope-syms)
@@ -344,20 +336,19 @@
 
 (errorcases
 	(call 'lisp 'env_args_type {args, $sig, 5} {value})
-	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'view 'change {arg0, arg1, arg2, arg3, arg4})
 	(call 'obj 'ref {arg0} {value})
 
-(vp-label 'funcexit)
 	(exit 'view 'lisp_change {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(view-change view x y w h)", error_msg_wrong_types, args} {_, value})
-	(goto 'funcexit)
+	(call 'lisp 'repl_error {this, "(view-change view x y w h)", error_msg_wrong_types, args})
+	(return)
 	(signature 'sig 'view 'integer 'integer 'integer 'integer))
 
 	(pop-scope-syms)
@@ -380,20 +371,19 @@
 
 (errorcases
 	(call 'lisp 'env_args_type {args, $sig, 5} {value})
-	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'view 'set_bounds {arg0, arg1, arg2, arg3, arg4})
 	(call 'obj 'ref {arg0} {value})
 
-(vp-label 'funcexit)
 	(exit 'view 'lisp_set_bounds {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(view-set-bounds view x y w h)", error_msg_wrong_types, args} {_, value})
-	(goto 'funcexit)
+	(call 'lisp 'repl_error {this, "(view-set-bounds view x y w h)", error_msg_wrong_types, args})
+	(return)
 	(signature 'sig 'view 'integer 'integer 'integer 'integer))
 
 	(pop-scope-syms)
@@ -416,7 +406,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type {args, $sig, 1})
-	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'view 'get_bounds {arg0} {_, arg1, arg2, arg3, arg4})
@@ -430,14 +420,13 @@
 	(call 'vector 'push_back {value, arg3})
 	(call 'vector 'push_back {value, arg4})
 
-(vp-label 'funcexit)
 	(exit 'view 'lisp_get_bounds {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(view-get-bounds view)", error_msg_wrong_types, args} {_, value})
-	(goto 'funcexit)
+	(call 'lisp 'repl_error {this, "(view-get-bounds view)", error_msg_wrong_types, args})
+	(return)
 	(signature 'sig 'view))
 
 	(pop-scope-syms)
@@ -460,20 +449,19 @@
 
 (errorcases
 	(call 'lisp 'env_args_type {args, $sig, 5} {value})
-	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'view 'add_opaque {arg0, arg1, arg2, arg3, arg4})
 	(call 'obj 'ref {arg0} {value})
 
-(vp-label 'funcexit)
 	(exit 'view 'lisp_add_opaque {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(view-add-opaque view x y w h)", error_msg_wrong_types, args} {_, value})
-	(goto 'funcexit)
+	(call 'lisp 'repl_error {this, "(view-add-opaque view x y w h)", error_msg_wrong_types, args})
+	(return)
 	(signature 'sig 'view 'integer 'integer 'integer 'integer))
 
 	(pop-scope-syms)
@@ -496,20 +484,19 @@
 
 (errorcases
 	(call 'lisp 'env_args_type {args, $sig, 5} {value})
-	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'view 'sub_opaque {arg0, arg1, arg2, arg3, arg4})
 	(call 'obj 'ref {arg0} {value})
 
-(vp-label 'funcexit)
 	(exit 'view 'lisp_sub_opaque {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(view-sub-opaque view x y w h)", error_msg_wrong_types, args} {_, value})
-	(goto 'funcexit)
+	(call 'lisp 'repl_error {this, "(view-sub-opaque view x y w h)", error_msg_wrong_types, args})
+	(return)
 	(signature 'sig 'view 'integer 'integer 'integer 'integer))
 
 	(pop-scope-syms)
@@ -532,20 +519,19 @@
 
 (errorcases
 	(call 'lisp 'env_args_type {args, $sig, 1})
-	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'view 'opaque {arg0})
 	(call 'obj 'ref {arg0} {value})
 
-(vp-label 'funcexit)
 	(exit 'view 'lisp_opaque {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(view-opaque view)", error_msg_wrong_types, args} {_, value})
-	(goto 'funcexit)
+	(call 'lisp 'repl_error {this, "(view-opaque view)", error_msg_wrong_types, args})
+	(return)
 	(signature 'sig 'view))
 
 	(pop-scope-syms)
@@ -568,20 +554,19 @@
 
 (errorcases
 	(call 'lisp 'env_args_type {args, $sig, 5} {value})
-	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'view 'add_dirty {arg0, arg1, arg2, arg3, arg4})
 	(call 'obj 'ref {arg0} {value})
 
-(vp-label 'funcexit)
 	(exit 'view 'lisp_add_dirty {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(view-add-dirty view x y w h)", error_msg_wrong_types, args} {_, value})
-	(goto 'funcexit)
+	(call 'lisp 'repl_error {this, "(view-add-dirty view x y w h)", error_msg_wrong_types, args})
+	(return)
 	(signature 'sig 'view 'integer 'integer 'integer 'integer))
 
 	(pop-scope-syms)
@@ -604,20 +589,19 @@
 
 (errorcases
 	(call 'lisp 'env_args_type {args, $sig, 1})
-	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'view 'dirty {arg0})
 	(call 'obj 'ref {arg0} {value})
 
-(vp-label 'funcexit)
 	(exit 'view 'lisp_dirty {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(view-dirty view)", error_msg_wrong_types, args} {_, value})
-	(goto 'funcexit)
+	(call 'lisp 'repl_error {this, "(view-dirty view)", error_msg_wrong_types, args})
+	(return)
 	(signature 'sig 'view))
 
 	(pop-scope-syms)
@@ -640,20 +624,19 @@
 
 (errorcases
 	(call 'lisp 'env_args_type {args, $sig, 1})
-	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'view 'dirty_all {arg0})
 	(call 'obj 'ref {arg0} {value})
 
-(vp-label 'funcexit)
 	(exit 'view 'lisp_dirty_all {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(view-dirty-all view)", error_msg_wrong_types, args} {_, value})
-	(goto 'funcexit)
+	(call 'lisp 'repl_error {this, "(view-dirty-all view)", error_msg_wrong_types, args})
+	(return)
 	(signature 'sig 'view))
 
 	(pop-scope-syms)

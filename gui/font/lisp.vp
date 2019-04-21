@@ -20,21 +20,21 @@
 
 (errorcases
 	(call 'lisp 'env_args_type {args, $sig, 2})
-	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'font 'open {&arg0->string_data, arg1} {value})
-	(gotoif {value} 'funcexit)
-	(call 'obj 'ref {this->lisp_sym_nil} {value})
+	(vpifnot {value})
+		(call 'obj 'ref {this->lisp_sym_nil} {value})
+	(endif)
 
-(vp-label 'funcexit)
 	(exit 'font 'lisp_create {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(create-font name points)", error_msg_wrong_types, args} {_, value})
-	(goto 'funcexit)
+	(call 'lisp 'repl_error {this, "(create-font name points)", error_msg_wrong_types, args})
+	(return)
 	(signature 'sig 'string 'integer))
 
 	(pop-scope-syms)

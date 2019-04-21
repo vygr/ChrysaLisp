@@ -20,7 +20,7 @@
 
 (errorcases
 	(d-call 'vector 'get_length (list r_args))
-	(errorif (list (method-output 'vector 'get_length 1) '< 2) 'error))
+	(gotoif (list (method-output 'vector 'get_length 1) '< 2) 'error))
 
 	(call 'sys_task 'yield)
 (vp-label 'again)
@@ -35,7 +35,7 @@
 	(errorcases
 		(f-bind 'error 'vtable r_nil)
 		(vp-cpy-ir r_value obj_vtable r_vtable)
-		(errorif (list r_vtable '== r_nil) 'funcexit))
+		(gotoif (list r_vtable '== r_nil) 'funcexit))
 		(call 'obj 'deref (list r_value))
 		(assign {iter_begin, iter_end} (list r_iter_begin r_iter_end))
 		(vp-add-cr ptr_size r_iter_begin)

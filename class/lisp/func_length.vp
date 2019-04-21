@@ -16,7 +16,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type `(,r_args ($ sig) 1))
-	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(vp-cpy-ir r_args array_array r_value)
 	(vp-cpy-ir r_value 0 r_value)

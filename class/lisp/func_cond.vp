@@ -27,7 +27,7 @@
 		(vp-cpy-ir r_iter_begin 0 r_value)
 	(errorcases
 		(assign `((,r_value obj_vtable) (@ ,(f-path 'vector 'vtable))) (list r_vtable r_cmp))
-		(errorif (list r_vtable '!= r_cmp) 'error2))
+		(gotoif (list r_vtable '!= r_cmp) 'error2))
 		(call 'vector 'get_iters (list r_value) (list '_ r_clause_iter_begin r_clause_iter_end))
 		(errorif (list r_clause_iter_begin '== r_clause_iter_end) 'error1)
 		(assign (list r_clause_iter_begin r_clause_iter_end) {clause_iter_begin, clause_iter_end})
@@ -37,7 +37,7 @@
 		(vpif (list r_value '!= r_cmp))
 		(errorcases
 			(assign `((,r_value obj_vtable) (@ ,(f-path 'error 'vtable))) (list r_vtable r_cmp))
-			(errorif (list r_vtable '== r_cmp) 'funcexit1))
+			(gotoif (list r_vtable '== r_cmp) 'funcexit1))
 			(call 'obj 'deref (list r_value))
 			(call 'obj 'ref {this->lisp_sym_nil} (list r_value))
 			(loop-start)
@@ -49,7 +49,7 @@
 				(call 'lisp 'repl_eval {this, *clause_iter_begin} (list r_this r_value))
 			(errorcases
 				(assign `((,r_value obj_vtable) (@ ,(f-path 'error 'vtable))) (list r_vtable r_cmp))
-				(errorif (list r_vtable '== r_cmp) 'funcexit1))
+				(gotoif (list r_vtable '== r_cmp) 'funcexit1))
 			(loop-end)
 		(endif)
 		(call 'obj 'deref (list r_value))

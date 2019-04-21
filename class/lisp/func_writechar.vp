@@ -26,7 +26,7 @@
 
 (errorcases
 	(call 'obj 'inst_of (cat {stream, @} (f-path 'stream 'vtable)))
-	(errorif (list (method-output 'obj 'inst_of 1) '== 0) 'error2))
+	(gotoif (list (method-output 'obj 'inst_of 1) '== 0) 'error2))
 
 	(assign {1} {width})
 	(vpif {length == 3})

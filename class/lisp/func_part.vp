@@ -32,7 +32,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type {args, $sig, 4})
-	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'vector 'get_begin {args} {_, iter_begin})
 	(assign {iter_begin[0]} {func})
@@ -41,7 +41,7 @@
 	(call 'integer 'get_value {iter_begin[ptr_size * 3]} {_, end})
 (errorcases
 	(d-call 'vector 'get_length {list} {_, length})
-	(errorif {start < 0 || start >= end || end > length} 'error2))
+	(gotoif {start < 0 || start >= end || end > length} 'error2))
 
 	(call 'vector 'create nil {params})
 	(call 'vector 'get_iter {list, start} {_, liter})

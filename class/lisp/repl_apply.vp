@@ -37,16 +37,16 @@
 
 	;lambda ?
 (errorcases
-	(errorif (cat {func->obj_vtable != @} (f-path 'vector 'vtable)) 'error2)
+	(gotoif (cat {func->obj_vtable != @} (f-path 'vector 'vtable)) 'error2)
 	(d-call 'vector 'get_length {func} {_, length})
-	(errorif {length < 2} 'error1))
+	(gotoif {length < 2} 'error1))
 
 	(call 'vector 'get_iters {func} {_, iter_begin, iter_end})
 
 (errorcases
 	(assign {iter_begin[ptr_size * 0]} {value})
 	(vpif {value != this->lisp_sym_lambda})
-		(errorif {value != this->lisp_sym_macro} 'error2)
+		(gotoif {value != this->lisp_sym_macro} 'error2)
 	(endif))
 
 	(call 'lisp 'env_push {this})
