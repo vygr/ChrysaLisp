@@ -30,12 +30,12 @@
 		(assign (list r_var) {var})
 		(assign {this} (list r_this))
 		(call 'lisp 'repl_eval `(,r_this (,r_iter_begin ptr_size)) (list r_this r_val))
+		(assign (list r_val) {val})
 	(errorcases
 		(vp-cpy-ir r_val obj_vtable r_vtable)
 		(assign `((@ ,(f-path 'error 'vtable))) (list r_cmp))
 		(errorif (list r_vtable '== r_cmp) 'funcexit))
 		(assign {var} (list r_var))
-		(assign (list r_val) {val})
 		(eval (macroexpand p))
 		(assign {iter_begin, iter_end} (list r_iter_begin r_iter_end))
 		(vp-add-cr (mul ptr_size 2) r_iter_begin)
