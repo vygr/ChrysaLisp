@@ -81,7 +81,6 @@
 (ffi read-char "class/lisp/func_readchar" 0)
 (ffi read-line "class/lisp/func_readline" 0)
 (ffi write-char "class/lisp/func_writechar" 0)
-(ffi write-line "class/lisp/func_writeline" 0)
 (ffi write "class/lisp/func_write" 0)
 (ffi pipe "class/lisp/func_pipe" 0)
 (ffi pipe-read "class/lisp/func_rpipe" 0)
@@ -387,6 +386,10 @@
 	`(unless (find ,_ *file-includes*)
 		(push *file-includes* ,_)
 		(repl (file-stream ,_) ,_)))
+
+(defun write-line (s _)
+	;(write-line stream str) -> str
+	(write s _) (write s (const (char 10))) _)
 
 ;;;;;;;;;;;
 ; Utilities

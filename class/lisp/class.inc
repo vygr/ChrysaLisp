@@ -76,7 +76,6 @@
 (dec-method 'func_readchar 'class/lisp/func_readchar 'static '(r0 r1) '(r0 r1))
 (dec-method 'func_readline 'class/lisp/func_readline 'static '(r0 r1) '(r0 r1))
 (dec-method 'func_writechar 'class/lisp/func_writechar 'static '(r0 r1) '(r0 r1))
-(dec-method 'func_writeline 'class/lisp/func_writeline 'static '(r0 r1) '(r0 r1))
 (dec-method 'func_write 'class/lisp/func_write 'static '(r0 r1) '(r0 r1))
 (dec-method 'func_char 'class/lisp/func_char 'static '(r0 r1) '(r0 r1))
 (dec-method 'func_code 'class/lisp/func_code 'static '(r0 r1) '(r0 r1))

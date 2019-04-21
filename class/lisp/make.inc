@@ -83,7 +83,6 @@
 (include 'class/lisp/func_wpipe.vp)
 (include 'class/lisp/func_write.vp)
 (include 'class/lisp/func_writechar.vp)
-(include 'class/lisp/func_writeline.vp)
 (include 'class/lisp/init.vp)
 (include 'class/lisp/class.vp)
 (include 'class/lisp/read_char.vp)

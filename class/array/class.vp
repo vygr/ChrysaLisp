@@ -489,9 +489,8 @@
 
 		;extend array
 		(vp-cpy-ir-ui r0 array_length r9)
-		(vp-cpy-rr r8 r2)
-		(vp-sub-rr r7 r2)
-		(vp-lea-d r2 r9 r1)
+		(vp-sub-rr r2 r3)
+		(vp-lea-d r3 r9 r1)
 		(vp-cpy-ri-i r1 r0 array_length)
 		(call 'array 'set_capacity '(r0 r1) '(r0))
 

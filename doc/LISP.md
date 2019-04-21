@@ -162,7 +162,6 @@ unquote-splicing
 while
 write
 write-char
-write-line
 ```
 
 ### boot.inc symbols
@@ -266,6 +265,7 @@ to-num
 trim
 trim-end
 trim-start
+write-line
 within-compile-env
 ```
 
