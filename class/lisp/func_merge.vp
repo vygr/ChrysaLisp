@@ -42,7 +42,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error (list r_this "(merge-sym list list)" error_msg_wrong_types r_args))
+	(jump 'lisp 'repl_error (list r_this "(merge-sym list1 list2) -> list1" error_msg_wrong_types r_args))
 	(signature 'sig 'vector 'vector))
 
 (def-func-end)

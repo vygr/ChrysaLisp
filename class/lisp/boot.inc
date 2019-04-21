@@ -140,10 +140,10 @@
 	`(eq (type? ,_) ,lisp_type_symbol))
 
 (defmacro inc (_)
-	;(inc num)
+	;(inc num) -> num
 	(list 'add _ 1))
 (defmacro dec (_)
-	;(dec num)
+	;(dec num) -> num
 	(list 'sub _ 1))
 
 (defmacro opt (x y &optional z)
@@ -157,7 +157,7 @@
 
 (defmacro debug (&rest _)
 	;(debug [form ...])
-	`(kernel-debug (apply cat (map str (list ~_ (char 10))))))
+	`(kernel-debug (apply cat (map str (list ~_ ,(char 10))))))
 
 ;;;;;;;;
 ; Scopes
@@ -212,20 +212,20 @@
 ;;;;;;;;;;;;
 
 (defmacro curry (f &rest _)
-	;(curry lambda var ...)
+	;(curry lambda var ...) -> lambda
 	`(lambda (&rest _) (apply ,f (cat (list ~_) _))))
 
 (defmacro rcurry (f &rest _)
-	;(rcurry lambda var ...)
+	;(rcurry lambda var ...) -> lambda
 	`(lambda (&rest _) (apply ,f (cat _ (list ~_)))))
 
 (defmacro compose (&rest _)
-	;(compose lambda lambda)
+	;(compose lambda lambda) -> lambda
 	`(lambda (_) ,(reduce (lambda (x y)
 		(list y x)) _ '_)))
 
 (defun range (b e &optional s)
-	;(range start end [step])
+	;(range start end [step]) -> list
 	(defq l (list) s (opt s 1 (abs s)))
 	(if (le b e)
 		(while (lt b e)
@@ -254,19 +254,19 @@
 	(each! -1 0 nil _f _))
 
 (defun map (_f &rest _)
-	;(map lambda seq ...)
+	;(map lambda seq ...) -> list
 	(defq _l (list))
 	(each! nil nil (lambda (_)
 		(push _l _)) _f _) _l)
 
 (defun map-rev (_f &rest _)
-	;(map-rev lambda seq ...)
+	;(map-rev lambda seq ...) -> list
 	(defq _l (list))
 	(each! -1 0 (lambda (_)
 		(push _l _)) _f _) _l)
 
 (defun filter (_f _b)
-	;(filter lambda seq)
+	;(filter lambda seq) -> seq
 	(defq _l (list))
 	(each! nil nil (lambda (_p)
 		(if _p (push _l (elem _ _b)))) _f (list _b)) _l)
@@ -310,7 +310,7 @@
 ;;;;;;;;;;;;
 
 (defun equalp (x y)
-	;(equalp form form)
+	;(equalp form form) -> bool
 	(eql (str x) (str y)))
 
 ;;;;;;;;;;;;;;;;
@@ -321,38 +321,38 @@
 	min_int (bit-shl -1 31) max_int (bit-shr -1 33))
 
 (defun sign (_)
-	;(sign num)
+	;(sign num) -> num
 	(cond
 		((eq _ 0) 0)
 		((lt _ 0) -1)
 		(t 1)))
 
 (defmacro minus (_)
-	;(minus num)
+	;(minus num) -> num
 	(neg _))
 
 (defun neg (_)
-	;(neg num)
+	;(neg num) -> num
 	(sub 0 _))
 
 (defun abs (_)
-	;(abs num)
+	;(abs num) -> num
 	(if (lt _ 0) (neg _) _))
 
 (defun squared (_)
-	;(squared num)
+	;(squared num) -> num
 	(mul _ _))
 
 (defun cubed (_)
-	;(cubed num)
+	;(cubed num) -> num
 	(mul _ _ _))
 
 (defun divmod (x y)
-	;(divmod num num)
+	;(divmod num num) -> list
 	(list (div x y) (mod x y)))
 
 (defun bit-not (_)
-	;(bit-not num)
+	;(bit-not num) -> num
 	(bit-xor _ -1))
 
 ;;;;;;;;;;;;;;;;;;
@@ -376,10 +376,10 @@
 	;(each-pipe-line lambda pipe)
 	(defq _d "" _v t)
 	(while (and _p _v)
-		(defq _d (cat _d (pipe-read _p)) _i (find (char 10) _d))
+		(defq _d (cat _d (pipe-read _p)) _i (find (const (char 10)) _d))
 		(when _i
 			(defq _i (inc _i) _l (slice 0 _i _d) _d (slice _i -1 _d)
-				_v (every _f (split _l (char 10)))))))
+				_v (every _f (split _l (const (char 10))))))))
 
 (defmacro import (_)
 	;(import path)
@@ -396,19 +396,19 @@
 ;;;;;;;;;;;
 
 (defun align (_ _a)
-	;(align num pow2)
+	;(align num pow2) -> num
 	(bit-and (add _ (dec _a)) (neg _a)))
 
 (defmacro ascii (_)
-	;(ascii str)
+	;(ascii str) -> num
 	(code _))
 
 (defun to-base-char (_)
-	;(to-base-char num)
+	;(to-base-char num) -> str
 	(elem _ "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"))
 
 (defun from-base-char (_)
-	;(from-base-char str)
+	;(from-base-char str) -> num
 	(setq _ (code _))
 	(cond
 		((ge _ (ascii "a"))
@@ -418,7 +418,7 @@
 		(t (sub _ (ascii "0")))))
 
 (defun to-num (_)
-	;(to-num str)
+	;(to-num str) -> num
 	(defq n 0 b 10)
 	(when (gt (length _) 1)
 		(defq i (elem 1 _))
@@ -438,36 +438,36 @@
 	(if (eq f 0) n (fdiv n f)))
 
 (defun trim-start (s &optional c)
-	;(trim-start str [str])
+	;(trim-start str [str]) -> str
 	(defq c (if c (code c) (ascii " ")) i -1)
 	(while (and (ne (setq i (inc i)) (length s)) (eql (code s 1 i) c)))
 	(slice i -1 s))
 
 (defun trim-end (s &optional c)
-	;(trim-end str [str])
+	;(trim-end str [str]) -> str
 	(defq c (if c (code c) (ascii " ")) i (length s))
 	(while (and (ne (setq i (dec i)) -1) (eql (code s 1 i) c)))
 	(slice 0 (inc i) s))
 
 (defun trim (s &optional c)
-	;(trim str [str])
+	;(trim str [str]) -> str
 	(trim-start (trim-end s c) c))
 
 (defun pad (v c &optional f)
-	;(pad form width [str])
+	;(pad form width [str]) -> str
 	(defq f (opt f " ") v (str v) l (length v) c (sub (max c l) l))
 	(while (gt c (length f)) (setq f (cat f f)))
 	(cat (slice 0 c f) v))
 
 (defun log2 (_)
-	;(log2 num)
+	;(log2 num) -> num
 	(when (and (not (eq 0 _)) (eq _ (bit-and _ (neg _))))
 		(defq i 0)
 		(while (ne 0 (setq _ (bit-shr _ 1)))
 			(setq i (inc i))) i))
 
 (defun count-trailing-zeros (_)
-	;(count-trailing-zeros num)
+	;(count-trailing-zeros num) -> num
 	(if (eq _ 0) 64)
 		(progn
 			(defq c 0)
@@ -475,7 +475,7 @@
 				(setq _ (bit-shr _ 1) c (inc c))) c))
 
 (defun count-trailing-ones (_)
-	;(count-trailing-ones num)
+	;(count-trailing-ones num) -> num
 	(if (eq _ -1) 64)
 		(progn
 			(defq c 0)
@@ -483,7 +483,7 @@
 				(setq _ (bit-shr _ 1) c (inc c))) c))
 
 (defun count-leading-ones (_)
-	;(count-leading-ones num)
+	;(count-leading-ones num) -> num
 	(if (eq _ -1) 64)
 		(progn
 			(defq c 0)
@@ -491,31 +491,31 @@
 				(setq _ (bit-shl _ 1) c (inc c))) c))
 
 (defun insert (x y)
-	;(insert list str)
-	(when (notany (lambda (x) (eql x y)) x)
-		(push x y)))
+	;(insert list str) -> list
+	(if (notany (lambda (x) (eql x y)) x)
+		(push x y) x))
 
 (defun merge (x y)
-	;(merge list str)
+	;(merge list str) -> list
 	(each (lambda (y)
 		(when (notany (lambda (x) (eql x y)) x)
-			(push x y))) y))
+			(push x y))) y) x)
 
 (defun insert-sym (x &rest y)
-	;(insert-sym list sym)
+	;(insert-sym list sym) -> list
 	(merge-sym x y))
 
 (defmacro sym-cat (&rest _)
-	;(sym-cat str ...)
+	;(sym-cat str ...) -> sym
 	`(sym (cat ~_)))
 
 (defun shuffled (_a &optional _l _h)
-	;(shuffled list [start end])
+	;(shuffled list [start end]) -> list
 	(setd _l 0 _h (length _a))
 	(shuffle (slice _l _h _a)))
 
 (defun shuffle (_a &optional _l _h)
-	;(shuffle list [start end])
+	;(shuffle list [start end]) -> list
 	(setd _l 0 _h (length _a))
 	(defq _s (time))
 	(defun get-next ()
@@ -526,12 +526,12 @@
 		(swap _a _ (get-val (inc _)))) (list _a)) _a)
 
 (defun sorted (_f _a &optional _l _h)
-	;(sorted list [start end])
+	;(sorted list [start end]) -> list
 	(setd _l 0 _h (length _a))
 	(sort _f (slice _l _h _a)))
 
 (defun sort (_f _a &optional _l _h)
-	;(sort list [start end])
+	;(sort list [start end]) -> list
 	(setd _l 0 _h (length _a))
 	(defq _q (list _l _h))
 	(while (setq _h (pop _q) _l (pop _q))
@@ -570,13 +570,13 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun cpu ()
-	;(cpu)
+	;(cpu) -> sym
 	(defq o 'x86_64)
 	(when (defq f (file-stream 'arch))
 		(bind '(o _) (read f 32))) o)
 
 (defun abi ()
-	;(abi)
+	;(abi) -> sym
 	(defq o 'AMD64)
 	(when (defq f (file-stream 'abi))
 		(bind '(o _) (read f 32))) o)

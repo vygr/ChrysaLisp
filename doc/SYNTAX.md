@@ -1,14 +1,14 @@
 # Syntax
 ## abi
-### (abi)
+### (abi) -> sym
 ## abs
-### (abs num)
+### (abs num) -> num
 ## add
 ### (add num num ...)
 ## age
 ### (age path)
 ## align
-### (align num pow2)
+### (align num pow2) -> num
 ## and
 ### (and tst ...)
 ## apply
@@ -16,7 +16,7 @@
 ## array
 ### (array [form ...])
 ## ascii
-### (ascii str)
+### (ascii str) -> num
 ## bind
 ### (bind (param ...) seq)
 ## bit-and
@@ -24,7 +24,7 @@
 ## bit-asr
 ### (bit-asr num cnt)
 ## bit-not
-### (bit-not num)
+### (bit-not num) -> num
 ## bit-or
 ### (bit-or num num ...)
 ## bit-shl
@@ -66,7 +66,7 @@
 ## code
 ### (code str [width index])
 ## compose
-### (compose lambda lambda)
+### (compose lambda lambda) -> lambda
 ## cond
 ### (cond (tst body) ...)
 ## const
@@ -74,13 +74,13 @@
 ## copy
 ### (copy form)
 ## count-leading-ones
-### (count-leading-ones num)
+### (count-leading-ones num) -> num
 ## count-trailing-ones
-### (count-trailing-ones num)
+### (count-trailing-ones num) -> num
 ## count-trailing-zeros
-### (count-trailing-zeros num)
+### (count-trailing-zeros num) -> num
 ## cpu
-### (cpu)
+### (cpu) -> sym
 ## create-backdrop
 ### (create-backdrop)
 ## create-button
@@ -110,13 +110,13 @@
 ## create-window
 ### (create-window flags)
 ## cubed
-### (cubed num)
+### (cubed num) -> num
 ## curry
-### (curry lambda var ...)
+### (curry lambda var ...) -> lambda
 ## debug
 ### (debug [form ...])
 ## dec
-### (dec num)
+### (dec num) -> num
 ## def
 ### (def env var val [var val] ...)
 ## def?
@@ -130,7 +130,7 @@
 ## div
 ### (div num num ...)
 ## divmod
-### (divmod num num)
+### (divmod num num) -> list
 ## each
 ### (each lambda seq ...)
 ## each!
@@ -156,7 +156,7 @@
 ## eql
 ### (eql form form)
 ## equalp
-### (equalp form form)
+### (equalp form form) -> bool
 ## eval
 ### (eval form [env])
 ## every
@@ -170,7 +170,7 @@
 ## file-stream
 ### (file-stream path)
 ## filter
-### (filter lambda seq)
+### (filter lambda seq) -> seq
 ## find
 ### (find elem seq)
 ## floor
@@ -182,7 +182,7 @@
 ## frac
 ### (frac num)
 ## from-base-char
-### (from-base-char str)
+### (from-base-char str) -> num
 ## fsin
 ### (fsin angle)
 ## fsqrt
@@ -210,11 +210,11 @@
 ## import
 ### (import path)
 ## inc
-### (inc num)
+### (inc num) -> num
 ## insert
-### (insert list str)
+### (insert list str) -> list
 ## insert-sym
-### (insert-sym list sym)
+### (insert-sym list sym) -> list
 ## kernel-debug
 ### (kernel-debug str)
 ## kernel-declare
@@ -234,7 +234,7 @@
 ## load
 ### (load path)
 ## log2
-### (log2 num)
+### (log2 num) -> num
 ## lst?
 ### (lst? form)
 ## lt
@@ -254,21 +254,21 @@
 ## mail-trymail
 ### (mail-trymail)
 ## map
-### (map lambda seq ...)
+### (map lambda seq ...) -> list
 ## map-rev
-### (map-rev lambda seq ...)
+### (map-rev lambda seq ...) -> list
 ## match?
 ### (match? list list)
 ## max
 ### (max num num ...)
 ## merge
-### (merge list str)
+### (merge list str) -> list
 ## merge-sym
-### (merge-sym list list)
+### (merge-sym list1 list2) -> list1
 ## min
 ### (min num num ...)
 ## minus
-### (minus num)
+### (minus num) -> num
 ## mod
 ### (mod num num ...)
 ## mul
@@ -276,7 +276,7 @@
 ## ne
 ### (ne num num ...)
 ## neg
-### (neg num)
+### (neg num) -> num
 ## not
 ### (not form)
 ## notany
@@ -298,7 +298,7 @@
 ## or
 ### (or tst ...)
 ## pad
-### (pad form width [str])
+### (pad form width [str]) -> str
 ## partition
 ### (partition lambda list start end)
 ## pipe
@@ -362,9 +362,9 @@
 ## quote
 ### (quote form)
 ## range
-### (range start end [step])
+### (range start end [step]) -> list
 ## rcurry
-### (rcurry lambda var ...)
+### (rcurry lambda var ...) -> lambda
 ## read
 ### (read stream last_char)
 ## read-char
@@ -386,11 +386,11 @@
 ## setq
 ### (setq var val [var val] ...)
 ## shuffle
-### (shuffle list [start end])
+### (shuffle list [start end]) -> list
 ## shuffled
-### (shuffled list [start end])
+### (shuffled list [start end]) -> list
 ## sign
-### (sign num)
+### (sign num) -> num
 ## slave-get-args
 ### (slave-get-args slave)
 ## slice
@@ -402,13 +402,13 @@
 ## some!
 ### (some! start|nil end|nil mode lambda (seq ...))
 ## sort
-### (sort list [start end])
+### (sort list [start end]) -> list
 ## sorted
-### (sorted list [start end])
+### (sorted list [start end]) -> list
 ## split
 ### (split str char)
 ## squared
-### (squared num)
+### (squared num) -> num
 ## str
 ### (str form)
 ## str?
@@ -426,7 +426,7 @@
 ## sym
 ### (sym form)
 ## sym-cat
-### (sym-cat str ...)
+### (sym-cat str ...) -> sym
 ## sym?
 ### (sym? form)
 ## task-mailbox
@@ -440,15 +440,15 @@
 ## times
 ### (times num body)
 ## to-base-char
-### (to-base-char num)
+### (to-base-char num) -> str
 ## to-num
-### (to-num str)
+### (to-num str) -> num
 ## trim
-### (trim str [str])
+### (trim str [str]) -> str
 ## trim-end
-### (trim-end str [str])
+### (trim-end str [str]) -> str
 ## trim-start
-### (trim-start str [str])
+### (trim-start str [str]) -> str
 ## type?
 ### (type? obj)
 ## undef
@@ -516,4 +516,4 @@
 ## write-char
 ### (write-char stream list|num [width])
 ## write-line
-### (write-line stream str)
+### (write-line stream str) -> str
