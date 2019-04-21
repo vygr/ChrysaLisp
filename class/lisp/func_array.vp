@@ -4,15 +4,12 @@
 
 (defun to-array (_)
 	(vp-def (r_this r_value r_args r_length) '(r6 r7 r8 r1))
-
 	(entry 'lisp (sym-cat "func_" _) (list r_this r_args))
-
 	(call _ 'create nil (list r_value))
 	(vp-cpy-ir-ui r_args array_length r_length)
 	(vp-cpy-ri-i r_length r_value array_length)
 	(call _ 'set_capacity (list r_value r_length))
 	(call 'lisp 'env_args_set `(,r_args (,r_value array_array) 0))
-
 	(exit 'lisp (sym-cat "func_" _) (list r_this r_value))
 	(vp-ret))
 

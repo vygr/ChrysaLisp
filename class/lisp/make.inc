@@ -69,7 +69,6 @@
 (include 'class/lisp/func_rpipe.vp)
 (include 'class/lisp/func_save.vp)
 (include 'class/lisp/func_set.vp)
-(include 'class/lisp/func_setq.vp)
 (include 'class/lisp/func_slice.vp)
 (include 'class/lisp/func_some.vp)
 (include 'class/lisp/func_split.vp)

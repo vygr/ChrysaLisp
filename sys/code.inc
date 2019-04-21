@@ -53,16 +53,13 @@
 		(t (throw "No such compare mode" c))))
 
 (defcmacro errorif (e l)
-	(if debug_mode
-		(list 'gotoif e l)))
+	(if debug_mode (list 'gotoif e l)))
 
 (defcmacro errorifnot (e l)
-	(if debug_mode
-		(list 'gotoifnot e l)))
+	(if debug_mode (list 'gotoifnot e l)))
 
 (defcmacro errorcases (&rest e)
-	(if debug_mode
-		(cat '(progn) e)))
+	(if debug_mode (cat '(progn) e)))
 
 (defcfun switch (&optional _)
 	(push *switch-stk* *switch*)
