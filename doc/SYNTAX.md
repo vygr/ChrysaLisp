@@ -161,6 +161,8 @@
 ### (eval form [env])
 ## every
 ### (every lambda seq ...)
+## exec
+### (exec ast)
 ## fcos
 ### (fcos angle)
 ## fdiv

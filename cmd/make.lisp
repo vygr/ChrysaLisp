@@ -46,7 +46,7 @@
 							(setq state 'y)
 							(push docs (list))
 							(push functions (trim-cruft (elem 1 s))))
-						((and (or (eql _ "(call") (eql _ "(jump")) (eql (elem 2 s) "'repl_error"))
+						((and (or (eql _ "(chain") (eql _ "(call") (eql _ "(jump")) (eql (elem 2 s) "'repl_error"))
 							(if (setq l (chop l))
 								(insert-sym syntax l)))))) _)) *imports*)))
 	;create classes docs
