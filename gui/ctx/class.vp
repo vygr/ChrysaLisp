@@ -97,7 +97,7 @@
 		(host-call 'host 'sdl_render_set_clip_rect '((r0 ctx_sdl_ctx) (& rsp local_clip_rect)))
 
 		;eval body
-		(eval _)
+		(exec _)
 
 		(vp-cpy-ir rsp local_dirty_rect r0)
 	(loop-end))

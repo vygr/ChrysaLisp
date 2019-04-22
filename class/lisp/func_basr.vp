@@ -13,7 +13,7 @@
 	(vp-cpy-ir r_iter_begin ptr_size r_value)
 	(vp-cpy-ir r_num integer_value r_num)
 	(vp-cpy-ir r_value integer_value r_value)
-	(eval (macroexpand p))
+	(exec p)
 	(call 'integer 'create (list r_num) (list r_value))
 	(exit 'lisp _ (list r_this r_value))
 	(vp-ret))

@@ -34,7 +34,7 @@
 		(vp-cpy-ir r_iter_begin ptr_size r_val)
 		(assign {env} (list r_env))
 		(assign (list r_val) {val})
-		(eval (macroexpand p))
+		(exec p)
 		(assign {iter_begin, iter_end} (list r_iter_begin r_iter_end))
 		(vp-add-cr (mul ptr_size 2) r_iter_begin)
 	(loop-until (list r_iter_begin '== r_iter_end))

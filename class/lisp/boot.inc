@@ -116,6 +116,10 @@
 	;(const form)
 	(eval _))
 
+(defmacro exec (_)
+	;(exec ast)
+	`(eval (macroexpand ,_)))
+
 (defmacro defun (n a &rest _)
 	;(defun name ([arg ...]) body)
 	;(list [form ...])
