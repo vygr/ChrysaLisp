@@ -78,14 +78,11 @@
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(repl stream path)", error_msg_wrong_num_of_args, args})
-	(return)
+	(chain 'lisp 'repl_error {this, "(repl stream path)", error_msg_wrong_num_of_args, args})
 (vp-label 'error2)
-	(call 'lisp 'repl_error {this, "(repl stream path)", error_msg_not_a_stream, args})
-	(return)
+	(chain 'lisp 'repl_error {this, "(repl stream path)", error_msg_not_a_stream, args})
 (vp-label 'error3)
-	(call 'lisp 'repl_error {this, "(repl stream path)", error_msg_not_a_string, args})
-	(return))
+	(chain 'lisp 'repl_error {this, "(repl stream path)", error_msg_not_a_string, args}))
 
 	(pop-scope-syms)
 

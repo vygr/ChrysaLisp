@@ -43,11 +43,9 @@
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(slice start end seq)", error_msg_wrong_types, args})
-	(return)
+	(chain 'lisp 'repl_error {this, "(slice start end seq)", error_msg_wrong_types, args})
 (vp-label 'error2)
-	(call 'lisp 'repl_error {this, "(slice start end seq)", error_msg_not_valid_index, args})
-	(return)
+	(chain 'lisp 'repl_error {this, "(slice start end seq)", error_msg_not_valid_index, args})
 	(signature 'sig 'integer 'integer 'sequence))
 
 	(pop-scope-syms)

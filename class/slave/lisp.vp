@@ -42,8 +42,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(create-slave)", error_msg_wrong_types, args})
-	(return))
+	(chain 'lisp 'repl_error {this, "(create-slave)", error_msg_wrong_types, args}))
 
 	(pop-scope-syms)
 
@@ -79,8 +78,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(slave-get-args slave)", error_msg_wrong_types, args})
-	(return)
+	(chain 'lisp 'repl_error {this, "(slave-get-args slave)", error_msg_wrong_types, args})
 	(signature 'sig 'slave))
 
 	(pop-scope-syms)

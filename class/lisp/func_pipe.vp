@@ -30,11 +30,9 @@
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(pipe str)", error_msg_wrong_types, args})
-	(return)
+	(chain 'lisp 'repl_error {this, "(pipe str)", error_msg_wrong_types, args})
 (vp-label 'error2)
-	(call 'lisp 'repl_error {this, "(pipe str)", error_msg_open_error, args})
-	(return)
+	(chain 'lisp 'repl_error {this, "(pipe str)", error_msg_open_error, args})
 	(signature 'sig 'string))
 
 	(pop-scope-syms)

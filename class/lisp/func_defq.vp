@@ -58,11 +58,9 @@
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(defq var val [var val] ...)", error_msg_wrong_num_of_args, args})
-	(return)
+	(chain 'lisp 'repl_error {this, "(defq var val [var val] ...)", error_msg_wrong_num_of_args, args})
 (vp-label 'error2)
-	(call 'lisp 'repl_error {this, "(defq var val [var val] ...)", error_msg_not_a_symbol, args})
-	(return))
+	(chain 'lisp 'repl_error {this, "(defq var val [var val] ...)", error_msg_not_a_symbol, args}))
 
 	(pop-scope-syms)
 
@@ -83,15 +81,12 @@
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(setq var val [var val] ...)", error_msg_wrong_num_of_args, args})
-	(return)
+	(chain 'lisp 'repl_error {this, "(setq var val [var val] ...)", error_msg_wrong_num_of_args, args})
 (vp-label 'error2)
-	(call 'lisp 'repl_error {this, "(setq var val [var val] ...)", error_msg_not_a_symbol, args})
-	(return)
+	(chain 'lisp 'repl_error {this, "(setq var val [var val] ...)", error_msg_not_a_symbol, args})
 (vp-label 'error3)
 	(call 'obj 'deref {val})
-	(call 'lisp 'repl_error {this, "(setq var val [var val] ...)", error_msg_symbol_not_bound, args})
-	(return))
+	(chain 'lisp 'repl_error {this, "(setq var val [var val] ...)", error_msg_symbol_not_bound, args}))
 
 	(pop-scope-syms)
 

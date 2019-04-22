@@ -39,8 +39,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(ffi sym path flags)", error_msg_wrong_types, args})
-	(return)
+	(chain 'lisp 'repl_error {this, "(ffi sym path flags)", error_msg_wrong_types, args})
 	(signature 'sig 'obj 'symbol 'string 'integer))
 
 	(pop-scope-syms)

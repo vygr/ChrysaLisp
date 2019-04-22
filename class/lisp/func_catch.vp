@@ -41,8 +41,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(catch form eform)", error_msg_wrong_num_of_args, args})
-	(return))
+	(chain 'lisp 'repl_error {this, "(catch form eform)", error_msg_wrong_num_of_args, args}))
 
 	(pop-scope-syms)
 

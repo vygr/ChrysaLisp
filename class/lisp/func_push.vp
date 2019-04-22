@@ -39,8 +39,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(push array form ...)", error_msg_wrong_types, args})
-	(return))
+	(chain 'lisp 'repl_error {this, "(push array form ...)", error_msg_wrong_types, args}))
 
 	(pop-scope-syms)
 

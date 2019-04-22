@@ -26,15 +26,11 @@
 
 	(call 'vector 'get_begin {args} {_, iter_begin})
 	(assign {iter_begin[0], iter_begin[ptr_size]} {str, value})
-	(call 'lisp 'repl_error {this, &str->string_data, 0, value} {_, value})
-
-	(exit 'lisp 'func_error {this, value})
-	(return)
+	(chain 'lisp 'repl_error {this, &str->string_data, 0, value})
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(throw str form)", error_msg_wrong_types, args})
-	(return)
+	(chain 'lisp 'repl_error {this, "(throw str form)", error_msg_wrong_types, args})
 	(signature 'sig 'string 'obj))
 
 	(pop-scope-syms)

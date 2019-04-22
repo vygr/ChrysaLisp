@@ -57,11 +57,9 @@
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(partition lambda list start end)", error_msg_wrong_types, args})
-	(return)
+	(chain 'lisp 'repl_error {this, "(partition lambda list start end)", error_msg_wrong_types, args})
 (vp-label 'error2)
-	(call 'lisp 'repl_error {this, "(partition lambda list start end)", error_msg_not_valid_index, args})
-	(return)
+	(chain 'lisp 'repl_error {this, "(partition lambda list start end)", error_msg_not_valid_index, args})
 	(signature 'sig 'obj 'vector 'integer 'integer))
 
 	(pop-scope-syms)

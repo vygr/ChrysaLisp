@@ -33,8 +33,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(create-font name points)", error_msg_wrong_types, args})
-	(return)
+	(chain 'lisp 'repl_error {this, "(create-font name points)", error_msg_wrong_types, args})
 	(signature 'sig 'string 'integer))
 
 	(pop-scope-syms)

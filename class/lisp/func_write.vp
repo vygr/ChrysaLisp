@@ -33,8 +33,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(write stream str)", error_msg_wrong_types, args})
-	(return)
+	(chain 'lisp 'repl_error {this, "(write stream str)", error_msg_wrong_types, args})
 	(signature 'sig 'stream 'string))
 
 	(pop-scope-syms)

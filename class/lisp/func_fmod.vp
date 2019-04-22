@@ -47,8 +47,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(fmod num num ...)", error_msg_wrong_types, args})
-	(return))
+	(chain 'lisp 'repl_error {this, "(fmod num num ...)", error_msg_wrong_types, args}))
 
 	(pop-scope-syms)
 

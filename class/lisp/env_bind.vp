@@ -90,19 +90,15 @@
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(bind (param ...) seq)", error_msg_not_a_list, vars})
-	(return)
+	(chain 'lisp 'repl_error {this, "(bind (param ...) seq)", error_msg_not_a_list, vars})
 (vp-label 'error2)
-	(call 'lisp 'repl_error {this, "(bind (param ...) seq)", error_msg_not_a_sequence, vals})
-	(return)
+	(chain 'lisp 'repl_error {this, "(bind (param ...) seq)", error_msg_not_a_sequence, vals})
 (vp-label 'error3)
-	(call 'lisp 'repl_error {this, "(bind (param ...) seq)", error_msg_not_a_symbol, vars})
-	(return)
+	(chain 'lisp 'repl_error {this, "(bind (param ...) seq)", error_msg_not_a_symbol, vars})
 (vp-label 'error4)
 	(call 'obj 'deref {value})
 (vp-label 'error)
-	(call 'lisp 'repl_error {this, "(bind (param ...) seq)", error_msg_wrong_num_of_args, vals})
-	(return))
+	(chain 'lisp 'repl_error {this, "(bind (param ...) seq)", error_msg_wrong_num_of_args, vals}))
 
 	(pop-scope-syms)
 
