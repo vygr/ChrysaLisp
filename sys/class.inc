@@ -272,6 +272,7 @@
 	(unless (eql (elem 1 m) 'static)
 		(throw "Method is not static ! Use v-jump ?" (list _1 _2)))
 	(assign _3 (elem 2 m))
+	(unwind)
 	(fn-jump (elem 0 m)))
 
 (defcfun f-bind (_1 _2 _3)
@@ -305,6 +306,7 @@
 		(unless (eql _2 'init)
 			(throw "Method is static !" (list (eval (super-sym _1)) _2))))
 	(assign _3 (elem 2 m))
+	(unwind)
 	(fn-jump (elem 0 m)))
 
 (defcfun s-bind (_1 _2 _3)
@@ -348,6 +350,7 @@
 		(throw "Dispatch register conflicts with arg !" (list _4 _)))
 	(assign _3 _)
 	(vp-cpy-ir r0 obj_vtable _4)
+	(unwind)
 	(vp-jmp-i _4 (elem 4 m)))
 
 (defcfun v-bind (_1 _2 &optional _3)
@@ -381,6 +384,7 @@
 	(if (eql (elem 1 m) 'static)
 		(throw "Method is static ! Use f-jmp ?" (list _1 _2)))
 	(assign _3 (elem 2 m))
+	(unwind)
 	(fn-jump (elem 0 m)))
 
 (defcfun d-bind (_1 _2 _3)
@@ -416,6 +420,7 @@
 	(if (find _4 _)
 		(throw "Dispatch register conflicts with arg !" (list _4 _)))
 	(assign _3 (cat _ (list _4)))
+	(unwind)
 	(vp-jmp-r _4))
 
 (defcfun l-call (_1 &optional _2 _3)

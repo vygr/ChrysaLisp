@@ -59,10 +59,10 @@
 	;free mailbox
 	(call 'sys_mail 'free_mbox {this->msg_in_mbox_id})
 
-	;parent deinit
-	(exit 'msg_in 'deinit {this})
-	(pop-scope)
-	(s-jump 'msg_in 'deinit '(r0))
+	;deinit parent
+	(s-jump 'msg_in 'deinit {this})
+
+	(pop-scope-syms)
 
 (def-func-end)
 

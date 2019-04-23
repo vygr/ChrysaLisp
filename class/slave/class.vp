@@ -101,8 +101,8 @@
 	(call 'vector 'deref {this->slave_args})
 
 	;deinit parent
-	(exit 'slave 'deinit {this})
-	(pop-scope)
-	(s-jump 'slave 'deinit '(r0))
+	(s-jump 'slave 'deinit {this})
+
+	(pop-scope-syms)
 
 (def-func-end)

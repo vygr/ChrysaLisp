@@ -24,8 +24,8 @@
 	(call 'symbol 'flush)
 
 	;deinit parent
-	(exit 'lisp 'deinit {this})
-	(pop-scope)
-	(s-jump 'lisp 'deinit '(r0))
+	(s-jump 'lisp 'deinit {this})
+
+	(pop-scope-syms)
 
 (def-func-end)

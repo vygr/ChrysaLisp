@@ -147,9 +147,10 @@
 	(call 'string 'deref {this->font_name})
 	(call 'sys_task 'callback {this, $close_callback})
 
-	(exit 'font 'deinit {this})
-	(pop-scope)
-	(s-jump 'font 'deinit '(r0))
+	;deinit parent
+	(s-jump 'font 'deinit {this})
+
+	(pop-scope-syms)
 
 (vp-label 'close_callback)
 	;inputs

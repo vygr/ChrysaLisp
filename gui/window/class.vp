@@ -129,9 +129,9 @@
 	(call 'array 'deref {this->window_layout_targets})
 
 	;deinit parent
-	(exit 'window 'deinit {this})
-	(pop-scope)
-	(s-jump 'window 'deinit '(r0))
+	(s-jump 'window 'deinit {this})
+
+	(pop-scope-syms)
 
 (def-func-end)
 

@@ -63,10 +63,10 @@
 	;free ack mailbox
 	(call 'sys_mail 'free_mbox {this->msg_out_ack_mbox_id})
 
-	;parent deinit
-	(exit 'msg_out 'deinit {this})
-	(pop-scope)
-	(s-jump 'msg_out 'deinit '(r0))
+	;deinit parent
+	(s-jump 'msg_out 'deinit {this})
+
+	(pop-scope-syms)
 
 (def-func-end)
 

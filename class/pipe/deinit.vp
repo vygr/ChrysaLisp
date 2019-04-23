@@ -47,8 +47,8 @@
 	(call 'sys_mem 'free {this->pipe_select_array})
 
 	;deinit parent
-	(exit 'pipe 'deinit {this})
-	(pop-scope)
-	(s-jump 'pipe 'deinit '(r0))
+	(s-jump 'pipe 'deinit {this})
+
+	(pop-scope-syms)
 
 (def-func-end)
