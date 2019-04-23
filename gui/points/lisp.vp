@@ -30,7 +30,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(chain 'lisp 'repl_error {this, "(points-transform dst src m1x m1y m2x m2y trx try)", error_msg_wrong_types, args})
+	(jump 'lisp 'repl_error {this, "(points-transform dst src m1x m1y m2x m2y trx try)", error_msg_wrong_types, args})
 	(signature 'sig 'points 'points 'integer 'integer 'integer 'integer 'integer 'integer))
 
 	(pop-scope-syms)
@@ -64,7 +64,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(chain 'lisp 'repl_error {this, "(points-simplify dst src stack tol)", error_msg_wrong_types, args})
+	(jump 'lisp 'repl_error {this, "(points-simplify dst src stack tol)", error_msg_wrong_types, args})
 	(signature 'sig 'points 'points 'array 'integer))
 
 	(pop-scope-syms)
@@ -98,7 +98,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(chain 'lisp 'repl_error {this, "(points-gen-quadratic stack p1x p1y p2x p2y p3x p3y tol dst) -> dst", error_msg_wrong_types, args})
+	(jump 'lisp 'repl_error {this, "(points-gen-quadratic stack p1x p1y p2x p2y p3x p3y tol dst) -> dst", error_msg_wrong_types, args})
 	(signature 'sig 'array 'integer 'integer 'integer 'integer 'integer 'integer 'integer 'points))
 
 	(pop-scope-syms)
@@ -132,7 +132,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(chain 'lisp 'repl_error {this, "(points-gen-cubic stack p1x p1y p2x p2y p3x p3y p4x p4y tol dst) -> dst", error_msg_wrong_types, args})
+	(jump 'lisp 'repl_error {this, "(points-gen-cubic stack p1x p1y p2x p2y p3x p3y p4x p4y tol dst) -> dst", error_msg_wrong_types, args})
 	(signature 'sig 'array 'integer 'integer 'integer 'integer 'integer 'integer 'integer 'integer 'integer 'points))
 
 	(pop-scope-syms)
@@ -166,7 +166,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(chain 'lisp 'repl_error {this, "(points-gen-arc stack cx cy start end radius tol dst) ->", error_msg_wrong_types, args})
+	(jump 'lisp 'repl_error {this, "(points-gen-arc stack cx cy start end radius tol dst) ->", error_msg_wrong_types, args})
 	(signature 'sig 'array 'integer 'integer 'integer 'integer 'integer 'integer 'points))
 
 	(pop-scope-syms)
@@ -200,7 +200,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(chain 'lisp 'repl_error {this, "(points-stroke-polylines stack radius tol join cap1 cap2 src dst) -> dst", error_msg_wrong_types, args})
+	(jump 'lisp 'repl_error {this, "(points-stroke-polylines stack radius tol join cap1 cap2 src dst) -> dst", error_msg_wrong_types, args})
 	(signature 'sig 'array 'integer 'integer 'integer 'integer 'integer 'vector 'vector))
 
 	(pop-scope-syms)
@@ -234,7 +234,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(chain 'lisp 'repl_error {this, "(points-stroke-polygons stack radius tol join src dst) -> dst", error_msg_wrong_types, args})
+	(jump 'lisp 'repl_error {this, "(points-stroke-polygons stack radius tol join src dst) -> dst", error_msg_wrong_types, args})
 	(signature 'sig 'array 'integer 'integer 'integer 'vector 'vector))
 
 	(pop-scope-syms)
@@ -544,7 +544,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(chain 'lisp 'repl_error {this, "(points-sum points)", error_msg_wrong_types, args})
+	(jump 'lisp 'repl_error {this, "(points-sum points)", error_msg_wrong_types, args})
 	(signature 'sig 'points))
 
 	(pop-scope-syms)
@@ -590,7 +590,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(chain 'lisp 'repl_error {this, "(points-fscale points scale [points])", error_msg_wrong_types, args})
+	(jump 'lisp 'repl_error {this, "(points-fscale points scale [points])", error_msg_wrong_types, args})
 	(signature 'sig 'points 'integer 'points))
 
 	(pop-scope-syms)

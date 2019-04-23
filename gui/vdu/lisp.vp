@@ -57,7 +57,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(chain 'lisp 'repl_error {this, "(vdu-print vdu str)", error_msg_wrong_types, args})
+	(jump 'lisp 'repl_error {this, "(vdu-print vdu str)", error_msg_wrong_types, args})
 	(signature 'sig 'vdu 'string))
 
 	(pop-scope-syms)

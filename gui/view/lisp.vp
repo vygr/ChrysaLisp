@@ -58,7 +58,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(chain 'lisp 'repl_error {this, "(view-event view str)", error_msg_wrong_types, args})
+	(jump 'lisp 'repl_error {this, "(view-event view str)", error_msg_wrong_types, args})
 	(signature 'sig 'view 'string))
 
 	(pop-scope-syms)
@@ -92,7 +92,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(chain 'lisp 'repl_error {this, "(view-layout view)", error_msg_wrong_types, args})
+	(jump 'lisp 'repl_error {this, "(view-layout view)", error_msg_wrong_types, args})
 	(signature 'sig 'view))
 
 	(pop-scope-syms)
@@ -129,7 +129,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(chain 'lisp 'repl_error {this, "(view-find-id view id)", error_msg_wrong_types, args})
+	(jump 'lisp 'repl_error {this, "(view-find-id view id)", error_msg_wrong_types, args})
 	(signature 'sig 'view 'integer))
 
 	(pop-scope-syms)
@@ -162,7 +162,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(chain 'lisp 'repl_error {this, "(view-sub view)", error_msg_wrong_types, args})
+	(jump 'lisp 'repl_error {this, "(view-sub view)", error_msg_wrong_types, args})
 	(signature 'sig 'view))
 
 	(pop-scope-syms)
@@ -197,7 +197,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(chain 'lisp 'repl_error {this, "(view-add-child parent child)", error_msg_wrong_types, args})
+	(jump 'lisp 'repl_error {this, "(view-add-child parent child)", error_msg_wrong_types, args})
 	(signature 'sig 'view 'view))
 
 	(pop-scope-syms)
@@ -232,7 +232,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(chain 'lisp 'repl_error {this, "(view-add-front parent child)", error_msg_wrong_types, args})
+	(jump 'lisp 'repl_error {this, "(view-add-front parent child)", error_msg_wrong_types, args})
 	(signature 'sig 'view 'view))
 
 	(pop-scope-syms)
@@ -267,7 +267,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(chain 'lisp 'repl_error {this, "(view-add-back parent child)", error_msg_wrong_types, args})
+	(jump 'lisp 'repl_error {this, "(view-add-back parent child)", error_msg_wrong_types, args})
 	(signature 'sig 'view 'view))
 
 	(pop-scope-syms)
@@ -305,7 +305,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(chain 'lisp 'repl_error {this, "(view-pref-size view)", error_msg_wrong_types, args})
+	(jump 'lisp 'repl_error {this, "(view-pref-size view)", error_msg_wrong_types, args})
 	(signature 'sig 'view))
 
 	(pop-scope-syms)
@@ -339,7 +339,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(chain 'lisp 'repl_error {this, "(view-change view x y w h)", error_msg_wrong_types, args})
+	(jump 'lisp 'repl_error {this, "(view-change view x y w h)", error_msg_wrong_types, args})
 	(signature 'sig 'view 'integer 'integer 'integer 'integer))
 
 	(pop-scope-syms)
@@ -373,7 +373,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(chain 'lisp 'repl_error {this, "(view-set-bounds view x y w h)", error_msg_wrong_types, args})
+	(jump 'lisp 'repl_error {this, "(view-set-bounds view x y w h)", error_msg_wrong_types, args})
 	(signature 'sig 'view 'integer 'integer 'integer 'integer))
 
 	(pop-scope-syms)
@@ -415,7 +415,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(chain 'lisp 'repl_error {this, "(view-get-bounds view)", error_msg_wrong_types, args})
+	(jump 'lisp 'repl_error {this, "(view-get-bounds view)", error_msg_wrong_types, args})
 	(signature 'sig 'view))
 
 	(pop-scope-syms)
@@ -449,7 +449,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(chain 'lisp 'repl_error {this, "(view-add-opaque view x y w h)", error_msg_wrong_types, args})
+	(jump 'lisp 'repl_error {this, "(view-add-opaque view x y w h)", error_msg_wrong_types, args})
 	(signature 'sig 'view 'integer 'integer 'integer 'integer))
 
 	(pop-scope-syms)
@@ -483,7 +483,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(chain 'lisp 'repl_error {this, "(view-sub-opaque view x y w h)", error_msg_wrong_types, args})
+	(jump 'lisp 'repl_error {this, "(view-sub-opaque view x y w h)", error_msg_wrong_types, args})
 	(signature 'sig 'view 'integer 'integer 'integer 'integer))
 
 	(pop-scope-syms)
@@ -517,7 +517,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(chain 'lisp 'repl_error {this, "(view-opaque view)", error_msg_wrong_types, args})
+	(jump 'lisp 'repl_error {this, "(view-opaque view)", error_msg_wrong_types, args})
 	(signature 'sig 'view))
 
 	(pop-scope-syms)
@@ -551,7 +551,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(chain 'lisp 'repl_error {this, "(view-add-dirty view x y w h)", error_msg_wrong_types, args})
+	(jump 'lisp 'repl_error {this, "(view-add-dirty view x y w h)", error_msg_wrong_types, args})
 	(signature 'sig 'view 'integer 'integer 'integer 'integer))
 
 	(pop-scope-syms)
@@ -585,7 +585,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(chain 'lisp 'repl_error {this, "(view-dirty view)", error_msg_wrong_types, args})
+	(jump 'lisp 'repl_error {this, "(view-dirty view)", error_msg_wrong_types, args})
 	(signature 'sig 'view))
 
 	(pop-scope-syms)
@@ -619,7 +619,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(chain 'lisp 'repl_error {this, "(view-dirty-all view)", error_msg_wrong_types, args})
+	(jump 'lisp 'repl_error {this, "(view-dirty-all view)", error_msg_wrong_types, args})
 	(signature 'sig 'view))
 
 	(pop-scope-syms)

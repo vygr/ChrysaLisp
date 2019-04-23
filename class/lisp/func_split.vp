@@ -32,7 +32,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(chain 'lisp 'repl_error {this, "(split str char)", error_msg_wrong_types, args})
+	(jump 'lisp 'repl_error {this, "(split str char)", error_msg_wrong_types, args})
 	(signature 'sig 'string 'string))
 
 	(pop-scope-syms)

@@ -149,25 +149,6 @@
 	(cond
 		((eql (elem 1 m) 'static)
 			(assign _3 (elem 2 m))
-			(fn-jump (elem 0 m)))
-		(t
-			(setd _4 r14)
-			(defq _ (elem 2 m))
-			(if (find _4 _)
-				(throw "Dispatch register conflicts with arg !" (list _4 _)))
-			(assign _3 _)
-			(vp-cpy-ir r0 obj_vtable _4)
-			(vp-jmp-i _4 (elem 4 m)))))
-
-(defcfun chain (_1 _2 &optional _3 _4)
-	;_1 = class name
-	;_2 = member name
-	;_3 = in parameters
-	;_4 = dispatch reg
-	(defq m (method-lookup _1 _2))
-	(cond
-		((eql (elem 1 m) 'static)
-			(assign _3 (elem 2 m))
 			(unwind)
 			(fn-jump (elem 0 m)))
 		(t

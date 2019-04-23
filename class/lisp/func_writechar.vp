@@ -58,11 +58,11 @@
 
 (errorcases
 (vp-label 'error1)
-	(chain 'lisp 'repl_error {this, "(write-char stream list|num [width])", error_msg_wrong_num_of_args, args})
+	(jump 'lisp 'repl_error {this, "(write-char stream list|num [width])", error_msg_wrong_num_of_args, args})
 (vp-label 'error2)
-	(chain 'lisp 'repl_error {this, "(write-char stream list|num [width])", error_msg_not_a_stream, args})
+	(jump 'lisp 'repl_error {this, "(write-char stream list|num [width])", error_msg_not_a_stream, args})
 (vp-label 'error3)
-	(chain 'lisp 'repl_error {this, "(write-char stream list|num [width])", error_msg_not_a_number, args}))
+	(jump 'lisp 'repl_error {this, "(write-char stream list|num [width])", error_msg_not_a_number, args}))
 
 	(pop-scope-syms)
 

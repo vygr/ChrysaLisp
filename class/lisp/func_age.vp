@@ -36,7 +36,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(chain 'lisp 'repl_error {this, "(age path)", error_msg_wrong_types, value})
+	(jump 'lisp 'repl_error {this, "(age path)", error_msg_wrong_types, value})
 	(signature 'sig 'string))
 
 	(pop-scope-syms)

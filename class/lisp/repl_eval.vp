@@ -60,9 +60,9 @@
 
 (errorcases
 (vp-label 'error1)
-	(chain 'lisp 'repl_error {this, "(lambda ([arg ...]) body)", error_msg_not_a_lambda, form})
+	(jump 'lisp 'repl_error {this, "(lambda ([arg ...]) body)", error_msg_not_a_lambda, form})
 (vp-label 'error2)
-	(chain 'lisp 'repl_error {this, "(eval form [env])", error_msg_symbol_not_bound, form}))
+	(jump 'lisp 'repl_error {this, "(eval form [env])", error_msg_symbol_not_bound, form}))
 
 	(pop-scope-syms)
 

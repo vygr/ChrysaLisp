@@ -279,8 +279,9 @@
 	;free our task control block
 	(call 'sys_mem 'free {tcb})
 	(assign {next_tcb} '(r14))
-	(pop-scope)
 	(jump 'sys_task 'restore)
+
+	(pop-scope-syms)
 
 (def-func-end)
 

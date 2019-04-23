@@ -36,7 +36,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(chain 'lisp 'repl_error {this, "(frac num)", error_msg_wrong_types, args})
+	(jump 'lisp 'repl_error {this, "(frac num)", error_msg_wrong_types, args})
 	(signature 'sig 'integer))
 
 	(pop-scope-syms)

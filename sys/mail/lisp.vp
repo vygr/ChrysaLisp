@@ -109,7 +109,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(chain 'lisp 'repl_error {this, "(mail-send obj mbox)", error_msg_wrong_types, args})
+	(jump 'lisp 'repl_error {this, "(mail-send obj mbox)", error_msg_wrong_types, args})
 	(signature 'sig 'obj 'integer))
 
 	(pop-scope-syms)
@@ -143,7 +143,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(chain 'lisp 'repl_error {this, "(mail-declare name mbox)", error_msg_wrong_types, args})
+	(jump 'lisp 'repl_error {this, "(mail-declare name mbox)", error_msg_wrong_types, args})
 	(signature 'sig 'string 'integer))
 
 	(pop-scope-syms)
@@ -181,7 +181,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(chain 'lisp 'repl_error {this, "(mail-enquire name)", error_msg_wrong_types, args})
+	(jump 'lisp 'repl_error {this, "(mail-enquire name)", error_msg_wrong_types, args})
 	(signature 'sig 'string))
 
 	(pop-scope-syms)

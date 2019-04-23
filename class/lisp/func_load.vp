@@ -30,7 +30,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(chain 'lisp 'repl_error {this, "(load path)", error_msg_wrong_types, args})
+	(jump 'lisp 'repl_error {this, "(load path)", error_msg_wrong_types, args})
 	(signature 'sig 'string))
 
 	(pop-scope-syms)

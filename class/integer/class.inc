@@ -7,7 +7,7 @@
 (dec-method 'get_value 'class/integer/get_value 'static '(r0) '(r0 r1))
 
 (def-struct 'integer 'obj)
-	(ptr 'value)
+	(long 'value)
 (def-struct-end)
 
 ;;;;;;;;;;;;;;;

@@ -68,9 +68,9 @@
 
 (errorcases
 (vp-label 'error1)
-	(chain 'lisp 'repl_error {this, "(lambda ([arg ...]) body)", error_msg_wrong_num_of_args, func})
+	(jump 'lisp 'repl_error {this, "(lambda ([arg ...]) body)", error_msg_wrong_num_of_args, func})
 (vp-label 'error2)
-	(chain 'lisp 'repl_error {this, "(lambda ([arg ...]) body)", error_msg_not_a_lambda, func}))
+	(jump 'lisp 'repl_error {this, "(lambda ([arg ...]) body)", error_msg_not_a_lambda, func}))
 
 	(pop-scope-syms)
 

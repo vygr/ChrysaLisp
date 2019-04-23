@@ -39,7 +39,7 @@
 	(if (lt x 0) (setq x 0 xv (abs xv)))
 	(if (gt x (sub backdrop_width w)) (setq x (sub backdrop_width w) xv (neg (abs xv))))
 	(view-set-bounds frame x y w h)
-	(view-set-bounds sframe (add x 16) (add y 16) sw sh)
+	(view-set-bounds sframe (add x 8) (add y 64) sw sh)
 	(view-sub old_sframe)
 	(view-sub old_frame)
 	(view-add-front (view-add-back backdrop sframe) frame)

@@ -31,7 +31,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(chain 'lisp 'repl_error {this, "(task-sleep usec)", error_msg_wrong_types, args})
+	(jump 'lisp 'repl_error {this, "(task-sleep usec)", error_msg_wrong_types, args})
 	(signature 'sig 'integer))
 
 	(pop-scope-syms)
@@ -93,7 +93,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(chain 'lisp 'repl_error {this, "(open-child path mode)", error_msg_wrong_types, args})
+	(jump 'lisp 'repl_error {this, "(open-child path mode)", error_msg_wrong_types, args})
 	(signature 'sig 'string 'integer))
 
 	(pop-scope-syms)
@@ -127,7 +127,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(chain 'lisp 'repl_error {this, "(open-remote path cpu mode)", error_msg_wrong_types, args})
+	(jump 'lisp 'repl_error {this, "(open-remote path cpu mode)", error_msg_wrong_types, args})
 	(signature 'sig 'string 'integer 'integer))
 
 	(pop-scope-syms)
@@ -160,7 +160,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(chain 'lisp 'repl_error {this, "(open-farm path num mode)", error_msg_wrong_types, args})
+	(jump 'lisp 'repl_error {this, "(open-farm path num mode)", error_msg_wrong_types, args})
 	(signature 'sig 'string 'integer 'integer))
 
 	(pop-scope-syms)
@@ -198,7 +198,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(chain 'lisp 'repl_error {this, "(open-pipe paths)", error_msg_wrong_types, args})
+	(jump 'lisp 'repl_error {this, "(open-pipe paths)", error_msg_wrong_types, args})
 	(signature 'sig 'vector))
 
 	(pop-scope-syms)

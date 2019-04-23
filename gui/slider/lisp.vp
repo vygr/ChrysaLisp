@@ -57,7 +57,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(chain 'lisp 'repl_error {this, "(slider-connect-value slider id)", error_msg_wrong_types, args})
+	(jump 'lisp 'repl_error {this, "(slider-connect-value slider id)", error_msg_wrong_types, args})
 	(signature 'sig 'slider 'integer))
 
 	(pop-scope-syms)

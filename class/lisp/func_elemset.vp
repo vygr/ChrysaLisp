@@ -38,9 +38,9 @@
 
 (errorcases
 (vp-label 'error1)
-	(chain 'lisp 'repl_error {this, "(elem-set index list val)", error_msg_wrong_types, args})
+	(jump 'lisp 'repl_error {this, "(elem-set index list val)", error_msg_wrong_types, args})
 (vp-label 'error2)
-	(chain 'lisp 'repl_error {this, "(elem-set index list val)", error_msg_not_valid_index, args})
+	(jump 'lisp 'repl_error {this, "(elem-set index list val)", error_msg_not_valid_index, args})
 	(signature 'sig 'integer 'vector 'obj))
 
 	(pop-scope-syms)

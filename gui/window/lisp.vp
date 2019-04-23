@@ -30,7 +30,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(chain 'lisp 'repl_error {this, "(create-window flags)", error_msg_wrong_types, args})
+	(jump 'lisp 'repl_error {this, "(create-window flags)", error_msg_wrong_types, args})
 	(signature 'sig 'integer))
 
 	(pop-scope-syms)
@@ -64,7 +64,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(chain 'lisp 'repl_error {this, "(window-connect-layout window id)", error_msg_wrong_types, args})
+	(jump 'lisp 'repl_error {this, "(window-connect-layout window id)", error_msg_wrong_types, args})
 	(signature 'sig 'window 'integer))
 
 	(pop-scope-syms)
@@ -98,7 +98,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(chain 'lisp 'repl_error {this, "(window-connect-close window id)", error_msg_wrong_types, args})
+	(jump 'lisp 'repl_error {this, "(window-connect-close window id)", error_msg_wrong_types, args})
 	(signature 'sig 'window 'integer))
 
 	(pop-scope-syms)
@@ -132,7 +132,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(chain 'lisp 'repl_error {this, "(window-connect-min window id)", error_msg_wrong_types, args})
+	(jump 'lisp 'repl_error {this, "(window-connect-min window id)", error_msg_wrong_types, args})
 	(signature 'sig 'window 'integer))
 
 	(pop-scope-syms)
@@ -166,7 +166,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(chain 'lisp 'repl_error {this, "(window-connect-max window id)", error_msg_wrong_types, args})
+	(jump 'lisp 'repl_error {this, "(window-connect-max window id)", error_msg_wrong_types, args})
 	(signature 'sig 'window 'integer))
 
 	(pop-scope-syms)
@@ -200,7 +200,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(chain 'lisp 'repl_error {this, "(window-set-status window str)", error_msg_wrong_types, args})
+	(jump 'lisp 'repl_error {this, "(window-set-status window str)", error_msg_wrong_types, args})
 	(signature 'sig 'window 'string))
 
 	(pop-scope-syms)
@@ -234,7 +234,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(chain 'lisp 'repl_error {this, "(window-set-title window str)", error_msg_wrong_types, args})
+	(jump 'lisp 'repl_error {this, "(window-set-title window str)", error_msg_wrong_types, args})
 	(signature 'sig 'window 'string))
 
 	(pop-scope-syms)

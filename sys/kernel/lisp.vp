@@ -59,7 +59,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(chain 'lisp 'repl_error {this, "(kernel-declare name mbox)", error_msg_wrong_types, args})
+	(jump 'lisp 'repl_error {this, "(kernel-declare name mbox)", error_msg_wrong_types, args})
 	(signature 'sig 'string 'integer))
 
 	(pop-scope-syms)
@@ -93,7 +93,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(chain 'lisp 'repl_error {this, "(kernel-debug str)", error_msg_wrong_types, args})
+	(jump 'lisp 'repl_error {this, "(kernel-debug str)", error_msg_wrong_types, args})
 	(signature 'sig 'string))
 
 	(pop-scope-syms)

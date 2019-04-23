@@ -44,11 +44,11 @@
 
 (errorcases
 (vp-label 'error1)
-	(chain 'lisp 'repl_error {this, "(undef env var [var] ...)", error_msg_wrong_num_of_args, args})
+	(jump 'lisp 'repl_error {this, "(undef env var [var] ...)", error_msg_wrong_num_of_args, args})
 (vp-label 'error2)
-	(chain 'lisp 'repl_error {this, "(undef env var [var] ...)", error_msg_not_an_environment, args})
+	(jump 'lisp 'repl_error {this, "(undef env var [var] ...)", error_msg_not_an_environment, args})
 (vp-label 'error3)
-	(chain 'lisp 'repl_error {this, "(undef env var [var] ...)", error_msg_not_a_symbol, args}))
+	(jump 'lisp 'repl_error {this, "(undef env var [var] ...)", error_msg_not_a_symbol, args}))
 
 	(pop-scope-syms)
 
