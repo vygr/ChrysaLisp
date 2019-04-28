@@ -66,9 +66,9 @@
 
 	;free reply mail and temp mailbox
 	(call 'sys_mail 'free_mbox {mbox_id})
-	(assign {msg} '(r0))
-	(pop-scope)
-	(jump 'sys_mail 'free '(r0))
+	(jump 'sys_mail 'free {msg})
+
+	(pop-scope-syms)
 
 (def-func-end)
 
@@ -102,6 +102,8 @@
 	;info
 	;restore next task
 
+	(entry 'sys_task 'restore '(r14))
+
 	;restore old task
 	(f-bind 'sys_task 'statics r0)
 	(vp-cpy-ri r14 r0 tk_statics_current_tcb)
@@ -132,7 +134,7 @@
 	(ln-set-succ r0 r1)
 
 	;restore next task
-	(jump 'sys_task 'restore)
+	(jump 'sys_task 'restore '(r14))
 
 (def-func-end)
 
@@ -186,7 +188,7 @@
 	(ln-add-node-before r4 r1 r0)
 
 	;restore next task
-	(jump 'sys_task 'restore)
+	(jump 'sys_task 'restore '(r14))
 
 (def-func-end)
 
@@ -278,8 +280,7 @@
 
 	;free our task control block
 	(call 'sys_mem 'free {tcb})
-	(assign {next_tcb} '(r14))
-	(jump 'sys_task 'restore)
+	(jump 'sys_task 'restore {next_tcb})
 
 	(pop-scope-syms)
 
@@ -309,7 +310,7 @@
 
 	;get next task control block
 	(ln-get-succ r14 0 r14)
-	(jump 'sys_task 'restore)
+	(jump 'sys_task 'restore '(r14))
 
 (def-func-end)
 
