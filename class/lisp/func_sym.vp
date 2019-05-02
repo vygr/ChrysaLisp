@@ -11,33 +11,35 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(vp-def (r_this r_args r_value r_form r_vtable r_cmp) '(r6 r7))
-
-	(entry 'lisp 'func_sym (list r_this r_args))
+	(entry 'lisp 'func_sym '(r0 r1))
 
 (errorcases
-	(d-call 'vector 'get_length (list r_args))
-	(gotoif (list (method-output 'vector 'get_length 1) '!= 1) 'error1))
+	(vp-cpy-ir-ui r1 array_length r2)
+	(gotoif '(r2 != 1) 'error1))
 
-	(call 'vector 'get_first (list r_args) (list '_ r_form))
-	(assign `((,r_form obj_vtable) (@ ,(f-path 'symbol 'vtable))) (list r_vtable r_cmp))
-	(vpif (list r_vtable '== r_cmp))
-		(call 'obj 'ref (list r_form) (list r_value))
+	(vp-cpy-rr r0 r4)
+	(call 'vector 'get_first '(r1) '(r0 r1))
+	(assign `((,r1 obj_vtable) (@ ,(f-path 'symbol 'vtable))) '(r2 r3))
+	(vpif '(r2 == r3))
+		(vp-push r4)
+		(call 'obj 'ref '(r1) '(r1))
 	(else)
 	(errorcases
-		(assign `((@ ,(f-path 'string 'vtable))) (list r_cmp))
-		(gotoif (list r_vtable '!= r_cmp) 'error2))
-		(call 'symbol 'create_from_buffer `((& ,r_form string_data) (,r_form string_length ui)) (list r_value))
-		(call 'symbol 'intern (list r_value) (list r_value))
+		(assign `((@ ,(f-path 'string 'vtable))) '(r3))
+		(gotoif '(r2 != r3) 'error2))
+		(vp-push r4)
+		(call 'symbol 'create_from_buffer `((& ,r1 string_data) (,r1 string_length ui)) '(r0))
+		(call 'symbol 'intern '(r0) '(r1))
 	(endif)
+	(vp-pop r0)
 
-	(exit 'lisp 'func_sym (list r_this r_value))
+	(exit 'lisp 'func_sym '(r0 r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error1)
-	(jump 'lisp 'repl_error (list r_this "(sym form)" error_msg_wrong_num_of_args r_args))
+	(jump 'lisp 'repl_error '(r0 "(sym form)" error_msg_wrong_num_of_args r1))
 (vp-label 'error2)
-	(jump 'lisp 'repl_error (list r_this "(sym form)" error_msg_not_a_string r_args)))
+	(jump 'lisp 'repl_error '(r4 "(sym form)" error_msg_not_a_string r0)))
 
 (def-func-end)
