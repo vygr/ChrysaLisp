@@ -137,6 +137,8 @@
 	;outputs
 	;r0 = string object (ptr)
 	;r1 = 0 if error, else ok
+	;trashes
+	;r1-r6
 
 	(entry 'string 'init '(r0 r1 r2 r3))
 
@@ -173,6 +175,8 @@
 	;outputs
 	;r0 = string object (ptr)
 	;r1 = 0 if error, else ok
+	;trashes
+	;r1-r6
 
 	(entry 'string 'init1 '(r0 r1 r2 r3))
 
@@ -210,6 +214,8 @@
 	;outputs
 	;r0 = string object (ptr)
 	;r1 = 0 if error, else ok
+	;trashes
+	;r1-r6
 
 	(entry 'string 'init2 '(r0 r1 r2 r3))
 
@@ -251,6 +257,8 @@
 	;outputs
 	;r0 = string object (ptr)
 	;r1 = 0 if error, else ok
+	;trashes
+	;r1-r6
 
 	(entry 'string 'init3 '(r0 r1 r2))
 

@@ -4241,6 +4241,8 @@ r3 = buffer length (uint)
 outputs
 r0 = string object (ptr)
 r1 = 0 if error, else ok
+trashes
+r1-r6
 ```
 ### string::init1 -> class/string/init1
 ```
@@ -4252,6 +4254,8 @@ r3 = string object (ptr)
 outputs
 r0 = string object (ptr)
 r1 = 0 if error, else ok
+trashes
+r1-r6
 ```
 ### string::init2 -> class/string/init2
 ```
@@ -4263,6 +4267,8 @@ r3 = file length (uint)
 outputs
 r0 = string object (ptr)
 r1 = 0 if error, else ok
+trashes
+r1-r6
 ```
 ### string::init3 -> class/string/init3
 ```
@@ -4273,6 +4279,8 @@ r2 = vector of string objects (ptr)
 outputs
 r0 = string object (ptr)
 r1 = 0 if error, else ok
+trashes
+r1-r6
 ```
 ### string::split -> class/string/split
 ```
