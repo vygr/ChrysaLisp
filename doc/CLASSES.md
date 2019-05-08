@@ -4239,6 +4239,7 @@ r1 = vtable (pptr)
 r2 = 0 else, buffer (pubyte)
 r3 = buffer length (uint)
 outputs
+r0 = string object (ptr)
 r1 = 0 if error, else ok
 ```
 ### string::init1 -> class/string/init1
@@ -4249,6 +4250,7 @@ r1 = vtable (pptr)
 r2 = string object (ptr)
 r3 = string object (ptr)
 outputs
+r0 = string object (ptr)
 r1 = 0 if error, else ok
 ```
 ### string::init2 -> class/string/init2
@@ -4259,6 +4261,7 @@ r1 = vtable (pptr)
 r2 = file name c string (pubyte)
 r3 = file length (uint)
 outputs
+r0 = string object (ptr)
 r1 = 0 if error, else ok
 ```
 ### string::init3 -> class/string/init3
@@ -4268,6 +4271,7 @@ r0 = string object (ptr)
 r1 = vtable (pptr)
 r2 = vector of string objects (ptr)
 outputs
+r0 = string object (ptr)
 r1 = 0 if error, else ok
 ```
 ### string::split -> class/string/split

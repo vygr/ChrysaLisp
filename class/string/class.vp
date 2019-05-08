@@ -135,42 +135,31 @@
 	;r2 = 0 else, buffer (pubyte)
 	;r3 = buffer length (uint)
 	;outputs
+	;r0 = string object (ptr)
 	;r1 = 0 if error, else ok
 
-	(def-struct 'local)
-		(ptr 'this)
-		(long 'data)
-		(long 'length)
-	(def-struct-end)
-
-	;save inputs
-	(vp-alloc local_size)
-	(assign '(r2 r3) '((rsp local_data) (rsp local_length)))
+	(entry 'string 'init '(r0 r1 r2 r3))
 
 	;init parent
 	(s-call 'string 'init '(r0 r1) '(r0 r1))
 	(vpif '(r1 != 0))
-		(vp-cpy-ri r0 rsp local_this)
-		(vp-xor-rr r1 r1)
-		(vp-cpy-ri-i r1 r0 string_hashcode)
-
 		;init myself
-		(vp-cpy-ir rsp local_length r2)
-		(vp-cpy-ri-i r2 r0 string_length)
-		(vp-cpy-ir rsp local_data r3)
-		(vpif '(r3 != 0))
-			(call 'sys_mem 'copy '(r3 (& r0 string_data) r2) '(_ r1))
+		(vp-xor-rr r1 r1)
+		(vp-cpy-rr r0 r6)
+		(vp-cpy-ri-i r1 r0 string_hashcode)
+		(vp-cpy-ri-i r3 r0 string_length)
+		(vp-lea-i r0 string_data r1)
+		(vpif '(r2 != 0))
+			(call 'sys_mem 'copy '(r2 r1 r3) '(_ r1))
 		(else)
-			(vp-lea-i r0 string_data r1)
-			(vp-add-rr r2 r1)
+			(vp-add-rr r3 r1)
 		(endif)
 		(vp-xor-rr r0 r0)
 		(vp-cpy-ri-b r0 r1 0)
-
-		(vp-cpy-ir rsp local_this r0)
+		(vp-cpy-rr r6 r0)
 	(endif)
 
-	(vp-free local_size)
+	(exit 'string 'init '(r0 r1))
 	(vp-ret)
 
 (def-func-end)
@@ -182,41 +171,32 @@
 	;r2 = string object (ptr)
 	;r3 = string object (ptr)
 	;outputs
+	;r0 = string object (ptr)
 	;r1 = 0 if error, else ok
 
-	(def-struct 'local)
-		(ptr 'this)
-		(long 'string1)
-		(long 'string2)
-	(def-struct-end)
-
-	;save inputs
-	(vp-alloc local_size)
-	(assign '(r2 r3) '((rsp local_string1) (rsp local_string2)))
+	(entry 'string 'init1 '(r0 r1 r2 r3))
 
 	;init parent
 	(s-call 'string 'init '(r0 r1) '(r0 r1))
 	(vpif '(r1 != 0))
 		;init myself
-		(vp-cpy-ri r0 rsp local_this)
 		(vp-xor-rr r1 r1)
+		(vp-cpy-rr r0 r6)
 		(vp-cpy-ri-i r1 r0 string_hashcode)
-
-		(vp-cpy-ir rsp local_string1 r5)
-		(vp-cpy-ir rsp local_string2 r6)
-		(vp-cpy-ir-ui r5 string_length r1)
-		(vp-cpy-ir-ui r6 string_length r2)
+		(vp-cpy-rr r2 r4)
+		(vp-cpy-rr r3 r5)
+		(vp-cpy-ir-ui r4 string_length r1)
+		(vp-cpy-ir-ui r5 string_length r2)
 		(vp-add-rr r2 r1)
 		(vp-cpy-ri-i r1 r0 string_length)
-		(call 'sys_mem 'copy '((& r5 string_data) (& r0 string_data) (r5 string_length ui)) '(_ r1))
-		(vp-cpy-ir-ui r6 string_length r2)
+		(call 'sys_mem 'copy '((& r4 string_data) (& r0 string_data) (r4 string_length ui)) '(_ r1))
+		(vp-cpy-ir-ui r5 string_length r2)
 		(vp-add-cr byte_size r2)
-		(call 'sys_mem 'copy '((& r6 string_data) r1 r2))
-
-		(vp-cpy-ir rsp local_this r0)
+		(call 'sys_mem 'copy '((& r5 string_data) r1 r2))
+		(vp-cpy-rr r6 r0)
 	(endif)
 
-	(vp-free local_size)
+	(exit 'string 'init1 '(r0 r1))
 	(vp-ret)
 
 (def-func-end)
@@ -228,45 +208,37 @@
 	;r2 = file name c string (pubyte)
 	;r3 = file length (uint)
 	;outputs
+	;r0 = string object (ptr)
 	;r1 = 0 if error, else ok
 
-	(def-struct 'local)
-		(ptr 'this)
-		(ptr 'filename)
-	(def-struct-end)
-
-	;save inputs
-	(vp-alloc local_size)
-	(assign '(r2 r3) '((rsp local_filename) (r0 string_length i)))
+	(entry 'string 'init2 '(r0 r1 r2 r3))
 
 	;init parent
 	(s-call 'string 'init '(r0 r1) '(r0 r1))
 	(vpif '(r1 != 0))
 		;init myself
-		(vp-cpy-ri r0 rsp local_this)
 		(vp-xor-rr r1 r1)
+		(vp-cpy-rr r0 r6)
 		(vp-cpy-ri-i r1 r0 string_hashcode)
+		(vp-cpy-ri-i r3 r0 string_length)
 
 		;open file
-		(call 'sys_pii 'open '((rsp local_filename) file_open_read) '(r3))
+		(call 'sys_pii 'open '(r2 file_open_read) '(r4))
 
 		;read into buffer
-		(vp-cpy-ir rsp local_this r0)
-		(vp-cpy-ir-ui r0 string_length r1)
-		(vp-add-cr string_data r0)
+		(vp-lea-i r6 string_data r0)
 		(vp-xor-rr r2 r2)
-		(vp-cpy-rd-b r2 r0 r1)
-		(vp-push r3)
-		(call 'sys_pii 'read '(r3 r0 r1))
-		(vp-pop r3)
+		(vp-cpy-rd-b r2 r0 r3)
+		(call 'sys_pii 'read '(r4 r0 r3))
 
 		;close file
-		(call 'sys_pii 'close '(r3))
+		(call 'sys_pii 'close '(r4))
 
-		(vp-cpy-ir rsp local_this r0)
-		(vp-cpy-rr r0 r1)
+		(vp-cpy-rr r6 r0)
+		(vp-cpy-rr r6 r1)
 	(endif)
-	(vp-free local_size)
+
+	(exit 'string 'init2 '(r0 r1))
 	(vp-ret)
 
 (def-func-end)
@@ -277,54 +249,35 @@
 	;r1 = vtable (pptr)
 	;r2 = vector of string objects (ptr)
 	;outputs
+	;r0 = string object (ptr)
 	;r1 = 0 if error, else ok
 
-	(def-struct 'local)
-		(ptr 'this)
-		(ptr 'vector)
-		(ptr 'next)
-	(def-struct-end)
-
-	;save inputs
-	(vp-alloc local_size)
-	(assign '(r2) '((rsp local_vector)))
+	(entry 'string 'init3 '(r0 r1 r2))
 
 	;init parent
 	(s-call 'string 'init '(r0 r1) '(r0 r1))
 	(vpif '(r1 != 0))
 		;init myself
-		(vp-cpy-ri r0 rsp local_this)
 		(vp-xor-rr r1 r1)
+		(vp-cpy-rr r0 r6)
 		(vp-cpy-ri-i r1 r0 string_hashcode)
-
-		(vp-add-cr string_data r0)
-		(vp-cpy-ri r0 rsp local_next)
-		(vp-cpy-ir rsp local_vector r0)
-		(call 'vector 'for_each '(r0 0 (r0 array_length ui) ($ callback) rsp) '(_ r1))
-
-		(vp-cpy-ir rsp local_next r2)
-		(vp-cpy-ri-b r1 r2 0)
-		(vp-cpy-ir rsp local_this r0)
-		(vp-lea-i r0 string_data r3)
-		(vp-sub-rr r3 r2)
-		(vp-cpy-ri-i r2 r0 string_length)
-		(vp-add-cr 1 r1)
+		(call 'vector 'get_iters '(r2) '(_ r4 r5))
+		(vp-lea-i r6 string_data r1)
+		(loop-while '(r4 != r5))
+			(vp-cpy-ir r4 0 r0)
+			(call 'sys_mem 'copy '((& r0 string_data) r1 (r0 string_length ui)) '(_ r1))
+			(vp-add-cr ptr_size r4)
+		(loop-end)
+		(vp-xor-rr r0 r0)
+		(vp-cpy-ri-b r0 r1 0)
+		(vp-lea-i r6 string_data r2)
+		(vp-sub-rr r2 r1)
+		(vp-cpy-ri-i r1 r6 string_length)
+		(vp-cpy-rr r6 r1)
+		(vp-cpy-rr r6 r0)
 	(endif)
 
-	(vp-free local_size)
-	(vp-ret)
-
-(vp-label 'callback)
-	;inputs
-	;r0 = predicate data (ptr)
-	;r1 = element iterator (ptr)
-	;outputs
-	;r1 = 0 if break, else not
-
-	(vp-cpy-rr r0 r4)
-	(vp-cpy-ir r1 0 r1)
-	(call 'sys_mem 'copy '((& r1 string_data) (r4 local_next) (r1 string_length ui)) '(_ r1))
-	(vp-cpy-ri r1 r4 local_next)
+	(exit 'string 'init3 '(r0 r1))
 	(vp-ret)
 
 (def-func-end)
@@ -358,6 +311,8 @@
 			(vp-xor-rr r0 r0)
 		(endif)
 	(endif)
+
+	(exit 'string 'append '(r0))
 	(vp-ret)
 
 (def-func-end)
@@ -370,22 +325,21 @@
 	;trashes
 	;r1-r6
 
-	(def-struct 'local)
-		(long 'length)
-	(def-struct-end)
+	(entry 'string 'cat '(r0))
+	(vp-cpy-rr r0 r5)
 
-	;save inputs
-	(vp-alloc local_size)
-	(vp-cpy-cr (add string_size byte_size) r1)
-	(assign '(r0 r1) '(r5 (rsp local_length)))
-
-	;get size of strings
-	(call 'vector 'for_each '(r0 0 (r0 array_length ui) ($ callback) rsp))
-	(vp-cpy-ir rsp local_length r0)
-	(vp-free local_size)
+	;get total size of strings
+	(call 'vector 'get_iters '(r0) '(_ r1 r2))
+	(vp-cpy-cr (add string_size byte_size) r3)
+	(loop-while '(r1 != r2))
+		(vp-cpy-ir r1 0 r0)
+		(vp-cpy-ir-ui r0 string_length r0)
+		(vp-add-cr ptr_size r1)
+		(vp-add-rr r0 r3)
+	(loop-end)
 
 	;create new string object
-	(call 'sys_mem 'alloc '(r0) '(r0 _))
+	(call 'sys_mem 'alloc '(r3) '(r0 _))
 	(vpif '(r0 != 0))
 		;init the object
 		(call 'string 'init3 `(r0 (@ ,(f-path 'string 'vtable)) r5) '(r0 r1))
@@ -395,20 +349,8 @@
 			(vp-xor-rr r0 r0)
 		(endif)
 	(endif)
-	(vp-ret)
 
-(vp-label 'callback)
-	;inputs
-	;r0 = predicate data (ptr)
-	;r1 = element iterator (ptr)
-	;outputs
-	;r1 = 0 if break, else not
-
-	(vp-cpy-ir r0 local_length r2)
-	(vp-cpy-ir r1 0 r1)
-	(vp-cpy-ir-ui r1 string_length r1)
-	(vp-add-rr r2 r1)
-	(vp-cpy-ri r1 r0 local_length)
+	(exit 'string 'cat '(r0))
 	(vp-ret)
 
 (def-func-end)
