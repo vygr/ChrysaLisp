@@ -5163,6 +5163,8 @@ inputs
 r0 = number (ulong)
 r1 = c string buffer (pubyte)
 r2 = base (ulong)
+outputs
+r0 = c string buffer end (pubyte)
 trashes
 r0-r4
 ```

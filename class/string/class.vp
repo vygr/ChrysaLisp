@@ -119,8 +119,9 @@
 	(else)
 		(vp-mul-cr -1 r1)
 	(endif)
-	(call 'sys_string 'from_long '(r0 r3 r1))
-	(call 'string 'create_from_cstr '(r5) '(r0))
+	(call 'sys_string 'from_long '(r0 r3 r1) '(r0))
+	(vp-sub-rr r5 r0)
+	(call 'string 'create_from_buffer '(r5 r0) '(r0))
 
 	(exit 'string 'create_from_long '(r0))
 	(vp-ret)

@@ -9,4 +9,4 @@
 (dec-method 'copy 'sys/string/copy 'static '(r0 r1) '(r0 r1))
 (dec-method 'compare 'sys/string/compare 'static '(r0 r1) '(r0))
 (dec-method 'to_long 'sys/string/to_long 'static '(r0 r1) '(r0))
-(dec-method 'from_long 'sys/string/from_long 'static '(r0 r1 r2))
+(dec-method 'from_long 'sys/string/from_long 'static '(r0 r1 r2) '(r0))
