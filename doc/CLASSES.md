@@ -1602,7 +1602,7 @@ Super Class: obj
 inputs
 r0 = integer object (ptr)
 r1 = vtable (pptr)
-r2 = initial value (ptr)
+r2 = initial value (long)
 outputs
 r0 = integer object (ptr)
 r1 = 0 if error, else ok
@@ -1613,7 +1613,7 @@ inputs
 r0 = integer object (ptr)
 outputs
 r0 = integer object (ptr)
-r1 = value (ptr)
+r1 = value (long)
 ```
 ## label
 Super Class: view
@@ -4180,7 +4180,7 @@ inputs
 r0 = buffer (pubyte)
 r1 = buffer length (uint)
 outputs
-r0 = 0 if error, else object (ptr)
+r0 = 0 if error, else string object (ptr)
 trashes
 r1-r6
 ```
@@ -4189,7 +4189,7 @@ r1-r6
 inputs
 r0 = c string (pubyte)
 outputs
-r0 = 0 if error, else object (ptr)
+r0 = 0 if error, else string object (ptr)
 trashes
 r1-r6
 ```
@@ -4198,7 +4198,7 @@ r1-r6
 inputs
 r0 = file name c string (pubyte)
 outputs
-r0 = 0 if error, else object (ptr)
+r0 = 0 if error, else string object (ptr)
 trashes
 r1-r6
 ```
@@ -4208,9 +4208,9 @@ inputs
 r0 = number (long)
 r1 = base, - for unsigned, (long)
 outputs
-r0 = 0 if error, else object (ptr)
+r0 = 0 if error, else string object (ptr)
 trashes
-all
+r1-r6
 ```
 ### string::append -> class/string/append
 ```

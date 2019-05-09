@@ -18,7 +18,7 @@
 	;inputs
 	;r0 = integer object (ptr)
 	;r1 = vtable (pptr)
-	;r2 = initial value (ptr)
+	;r2 = initial value (long)
 	;outputs
 	;r0 = integer object (ptr)
 	;r1 = 0 if error, else ok
@@ -30,5 +30,5 @@
 	;r0 = integer object (ptr)
 	;outputs
 	;r0 = integer object (ptr)
-	;r1 = value (ptr)
+	;r1 = value (long)
 	(vp-cpy-ir r0 integer_value r1))
