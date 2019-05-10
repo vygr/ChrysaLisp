@@ -373,6 +373,8 @@
 	;trashes
 	;r2-r7
 
+	(entry 'string 'compare '(r0 r1))
+
 	(switch 'lbreak)
 		(vpif '(r0 != r1))
 			(vp-cpy-ir-ui r0 string_length r2)
@@ -397,6 +399,8 @@
 		(endif)
 		(vp-xor-rr r1 r1)
 	(endswitch)
+
+	(exit 'string 'compare '(r0 r1))
 	(vp-ret)
 
 (def-func-end)
@@ -410,6 +414,8 @@
 	;r1 = 0 if same
 	;trashes
 	;r2-r6
+
+	(entry 'string 'same '(r0 r1))
 
 	(switch 'lbreak)
 		(vpif '(r0 != r1) 'same)
@@ -464,6 +470,8 @@
 		(endif)
 		(vp-xor-rr r1 r1)
 	(endswitch)
+
+	(exit 'string 'same '(r0 r1))
 	(vp-ret)
 
 (def-func-end)
@@ -487,9 +495,10 @@
 	;r0 = string object (ptr)
 	;r1 = hash code (ulong)
 	;trashes
-	;all but r0
+	;r2-r4
 
-	;save inputs
+	(entry 'string 'hash '(r0))
+
 	(vp-cpy-ir-ui r0 string_hashcode r1)
 	(vpif '(r1 == 0))
 		(vp-cpy-ir-ui r0 string_length r4)
@@ -522,6 +531,8 @@
 		(vp-and-rr r2 r1)
 		(vp-cpy-ri-i r1 r0 string_hashcode)
 	(endif)
+
+	(exit 'string 'hash '(r0 r1))
 	(vp-ret)
 
 (def-func-end)
@@ -533,11 +544,17 @@
 	;outputs
 	;r0 = string object (ptr)
 	;r1 = char string object (ptr)
+	;trashes
+	;r2-r7
 
-	(vp-push r0)
+	(entry 'string 'ref_element '(r0 r1))
+
+	(vp-cpy-rr r0 r7)
 	(vp-add-cr string_data r1)
 	(call 'string 'create_from_buffer '((& r0 r1) byte_size) '(r1))
-	(vp-pop r0)
+	(vp-cpy-rr r7 r0)
+
+	(exit 'string 'ref_element '(r0 r1))
 	(vp-ret)
 
 (def-func-end)
@@ -551,9 +568,11 @@
 	;r0 = string object (ptr)
 	;r1 = string slice object (ptr)
 	;trashes
-	;r2-r6
+	;r2-r7
 
-	(vp-push r0)
+	(entry 'string 'slice '(r0 r1 r2))
+
+	(vp-cpy-rr r0 r7)
 	(vp-cpy-ir-ui r0 string_length r3)
 	(vp-sub-rr r1 r2)
 	(vpif '(r2 == r3))
@@ -562,7 +581,9 @@
 		(vp-add-cr string_data r0)
 		(call 'string 'create_from_buffer '((& r0 r1) r2) '(r1))
 	(endif)
-	(vp-pop r0)
+	(vp-cpy-rr r7 r0)
+
+	(exit 'string 'slice '(r0 r1))
 	(vp-ret)
 
 (def-func-end)
@@ -577,21 +598,23 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this 'splits 'stream)
-	(uint 'char)
+	(ptr 'this 'splits)
+	(uint 'schar)
 
-	;save inputs
 	(push-scope)
-	(entry 'string 'split {this, char})
+	(entry 'string 'split '(r0 r1))
 
 	;create string split
-	(call 'stream 'create {0, 0, &this->string_data, this->string_length} {stream})
-	(call 'stream 'split {stream, char} {_, splits})
-	(call 'stream 'deref {stream})
+	(assign '(r0 r1) {this, schar})
+	(call 'stream 'create '(0 0 (& r0 string_data) (r0 string_length ui)) '(r0))
+	(assign {schar} '(r1))
+	(call 'stream 'split '(r0 r1) '(r0 r1))
+	(assign '(r1) {splits})
+	(call 'stream 'deref '(r0))
 
 	(exit 'string 'split {this, splits})
 	(pop-scope)
-	(return)
+	(vp-ret)
 
 (def-func-end)
 
@@ -605,6 +628,8 @@
 	;trashes
 	;r2-r4
 
+	(entry 'string 'find '(r0 r1))
+
 	(vp-lea-i r0 string_data r2)
 	(vp-cpy-ir-ui r0 string_length r3)
 	(loop-start)
@@ -613,6 +638,8 @@
 		(vp-cpy-dr-ub r2 r3 r4)
 	(loop-until '(r1 == r4))
 	(vp-cpy-rr r3 r1)
+
+	(exit 'string 'find '(r0 r1))
 	(vp-ret)
 
 (def-func-end)

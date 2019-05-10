@@ -4334,7 +4334,7 @@ outputs
 r0 = string object (ptr)
 r1 = hash code (ulong)
 trashes
-all but r0
+r2-r4
 ```
 ### string::get_length -> class/string/get_length
 ```
@@ -4352,6 +4352,8 @@ r1 = char index (uint)
 outputs
 r0 = string object (ptr)
 r1 = char string object (ptr)
+trashes
+r2-r7
 ```
 ### string::slice -> class/string/slice
 ```
@@ -4363,7 +4365,7 @@ outputs
 r0 = string object (ptr)
 r1 = string slice object (ptr)
 trashes
-r2-r6
+r2-r7
 ```
 ## symbol
 Super Class: string
