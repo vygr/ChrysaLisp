@@ -18,14 +18,11 @@
 	;trashes
 	;r2-r7
 
-	;init parent
-	(s-call 'hash_map 'init '(r0 r1 r2 r3) '(r0 r1))
-	(vpif '(r1 != 0))
-		;init myself
-		(vp-xor-rr r2 r2)
-		(vp-cpy-ri r2 r0 hash_map_parent)
-	(endif)
-	(vp-ret)
+	(entry 'hash_map 'init '(r0 r1 r2 r3))
+
+	(vp-xor-rr r4 r4)
+	(vp-cpy-ri r4 r0 hash_map_parent)
+	(s-jump 'hash_map 'init '(r0 r1 r2 r3))
 
 (def-func-end)
 
@@ -35,11 +32,11 @@
 	;trashes
 	;all but r0
 
+	(entry 'hash_map 'deinit '(r0))
+
 	(vp-push r0)
 	(call 'hash_map 'deref_if '((r0 hash_map_parent)))
 	(vp-pop r0)
-
-	;deinit parent
 	(s-jump 'hash_map 'deinit '(r0))
 
 (def-func-end)
@@ -53,11 +50,15 @@
 	;trashes
 	;all but r0
 
+	(entry 'hash_map 'set_parent '(r0 r1))
+
 	(vp-push r0)
 	(vp-cpy-ir r0 hash_map_parent r2)
 	(vp-cpy-ri r1 r0 hash_map_parent)
 	(call 'hash_map 'deref_if '(r2))
 	(vp-pop r0)
+
+	(exit 'hash_map 'set_parent '(r0))
 	(vp-ret)
 
 (def-func-end)
@@ -79,7 +80,8 @@
 
 	;save inputs
 	(vp-alloc local_size)
-	(entry 'hash_map 'copy '((rsp local_this) r1))
+	(entry 'hash_map 'copy '(r0 r1))
+	(assign '(r0) '((rsp local_this)))
 
 	(call 'hash_map 'create '((r0 hash_set_key_callback) r1) '((rsp local_obj)))
 	(call 'hash_map 'get_parent '((rsp local_this)) '(_ r0))
@@ -97,6 +99,8 @@
 	;r1 = element iterator (ptr)
 	;outputs
 	;r1 = 0 if break, else not
+
+	(entry 'vector 'each_callback '(r0 r1))
 
 	(vp-cpy-ir r0 0 r2)
 	(call 'obj 'ref '((r1 0)))
@@ -125,7 +129,8 @@
 
 	;save inputs
 	(vp-alloc local_size)
-	(entry 'hash_map 'find '(r0 (rsp local_key)))
+	(entry 'hash_map 'find '(r0 r1))
+	(assign '(r1) '((rsp local_key)))
 
 	(vp-cpy-ir r0 hash_set_key_callback r2)
 	(vpif '(r2 == 0) 'lbreak)
@@ -162,6 +167,8 @@
 	;outputs
 	;r1 = 0 if break, else not
 
+	(entry 'vector 'each_callback '(r0 r1))
+
 	(vp-cpy-ir r1 0 r1)
 	(vp-cpy-ir r0 local_this r2)
 	(vp-cpy-ir r0 local_key r0)
@@ -193,7 +200,8 @@
 
 	;save inputs
 	(vp-alloc local_size)
-	(entry 'hash_map 'insert '((rsp local_this) (rsp local_key) (rsp local_value)))
+	(entry 'hash_map 'insert '(r0 r1 (rsp local_value)))
+	(assign '(r0 r1) '((rsp local_this) (rsp local_key)))
 
 	;search hash bucket
 	(call 'hash_map 'find '(r0 r1) '(r0 r1 r2))

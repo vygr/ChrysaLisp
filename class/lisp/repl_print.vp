@@ -169,14 +169,14 @@
 	(pptr 'iter)
 
 	(push-scope)
-	(entry 'array 'each_callback {pdata, iter})
+	(entry 'vector 'each_callback {pdata, iter})
 
 	(call 'lisp 'repl_print {pdata->local_this, pdata->local_stream, *iter})
 	(vpif {pdata->local_iter_end != iter})
 		(call 'stream 'write_char {pdata->local_stream, char_space})
 	(endif)
 
-	(exit 'array 'each_callback '(-1))
+	(exit 'vector 'each_callback '(-1))
 	(pop-scope)
 	(return)
 
