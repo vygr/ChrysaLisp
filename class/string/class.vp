@@ -69,6 +69,8 @@
 	(vp-label 'funcexit)
 		;no such file
 		(vp-xor-rr r0 r0)
+
+		(exit 'string 'create_from_file '(r0))
 		(vp-ret)
 	(endif)
 
@@ -463,9 +465,12 @@
 					(vp-add-cr byte_size r4)
 					(vp-add-cr byte_size r5)
 				(loop-until '(r4 == r2))
+
+				(exit 'string 'same '(r0 r1))
 				(vp-ret)
 			(endif)
-			(vp-cpy-rr r3 r1)
+
+			(exit 'string 'same '(r0 r3))
 			(vp-ret)
 		(endif)
 		(vp-xor-rr r1 r1)
@@ -598,22 +603,23 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this 'splits)
-	(uint 'schar)
+	(def-struct 'local)
+		(ptr 'this)
+		(ptr 'splits)
+		(uint 'schar)
+	(def-struct-end)
 
-	(push-scope)
+	(vp-alloc local_size)
 	(entry 'string 'split '(r0 r1))
 
 	;create string split
-	(assign '(r0 r1) {this, schar})
+	(assign '(r0 r1) '((rsp local_this) (rsp local_schar i)))
 	(call 'stream 'create '(0 0 (& r0 string_data) (r0 string_length ui)) '(r0))
-	(assign {schar} '(r1))
-	(call 'stream 'split '(r0 r1) '(r0 r1))
-	(assign '(r1) {splits})
+	(call 'stream 'split '(r0 (rsp local_schar ui)) '(r0 (rsp local_splits)))
 	(call 'stream 'deref '(r0))
 
-	(exit 'string 'split {this, splits})
-	(pop-scope)
+	(exit 'string 'split '((rsp local_this) (rsp local_splits)))
+	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)
