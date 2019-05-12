@@ -380,7 +380,7 @@
 	;(each-pipe-line lambda pipe)
 	(defq _d "" _v t)
 	(while (and _p _v)
-		(defq _d (cat _d (pipe-read _p)) _i (find (const (char 10)) _d))
+		(defq _d (cat _d (pipe-read _p nil)) _i (find (const (char 10)) _d))
 		(when _i
 			(defq _i (inc _i) _l (slice 0 _i _d) _d (slice _i -1 _d)
 				_v (every _f (split _l (const (char 10))))))))

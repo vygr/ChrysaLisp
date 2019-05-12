@@ -306,7 +306,7 @@
 ## pipe
 ### (pipe str)
 ## pipe-read
-### (pipe-read pipe)
+### (pipe-read pipe bool)
 ## pipe-write
 ### (pipe-write pipe str)
 ## points

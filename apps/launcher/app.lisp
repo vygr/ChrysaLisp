@@ -6,7 +6,7 @@
 	(byte 'win_button))
 
 (defq app_list '(
-	"apps/terminal/app"
+	"apps/terminal/app.lisp"
 	"apps/debug/app.lisp"
 	"apps/help/app.lisp"
 	"apps/netmon/app.lisp"

@@ -75,6 +75,8 @@
 	;r0 = 0, else next stream msg (ptr)
 	;r1 = 0, else string data (pubyte)
 
+	(entry 'msg_in 'next_seq '(r0 r1 r2))
+
 	;save any new msg
 	(vpif '(r1 != 0))
 		(lh-add-at-tail r0 r1 r3)
@@ -87,13 +89,14 @@
 	(loop-until '(r2 == r3))
 	(vpif '(r1 == 0))
 		;not found
-		(vp-cpy-rr r1 r0)
+		(exit 'msg_in 'next_seq '(r1 r1))
 		(vp-ret)
 	(endif)
 	;remove found from list
 	(vp-cpy-rr r0 r1)
 	(ln-remove-node r1 r2)
-	(vp-cpy-ir r0 msg_parcel_data r1)
+
+	(exit 'msg_in 'next_seq '(r0 (r0 msg_parcel_data)))
 	(vp-ret)
 
 (def-func-end)
@@ -178,12 +181,16 @@
 	;trashes
 	;all but r0
 
+	(entry 'msg_in 'read_ready '(r0))
+
 	;extend test to include mailbox
 	(s-call 'msg_in 'read_ready '(r0) '(r0 r1))
 	(vpif '(r1 == 0))
 		(vp-cpy-ir r0 (add msg_in_list lh_list_head) r1)
 		(vp-cpy-ir r1 ln_node_succ r1)
 	(endif)
+
+	(exit 'msg_in 'read_ready '(r0 r1))
 	(vp-ret)
 
 (def-func-end)
