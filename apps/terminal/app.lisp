@@ -49,7 +49,7 @@
 								(pop history))
 							(setq history_index (length history))
 							;new pipe
-							(if (setq cmd (pipe buffer))
+							(if (catch (progn (setq cmd (pipe buffer))) (progn (setq cmd nil) t))
 								(view-dirty-all (window-set-status window "Busy"))))
 						(t
 							(vdu-print vdu ">")))))
