@@ -49,10 +49,11 @@
 								(pop history))
 							(setq history_index (length history))
 							;new pipe
-							(if (catch (progn (setq cmd (pipe buffer))) (progn (setq cmd nil) t))
-								(view-dirty-all (window-set-status window "Busy"))))
-						(t
-							(vdu-print vdu ">")))))
+							(catch (setq cmd (pipe buffer)) (progn (setq cmd nil) t))
+							(if cmd
+								(view-dirty-all (window-set-status window "Busy"))
+								(vdu-print vdu (cat "Pipe Error !" (char 10) ">"))))
+						(t (vdu-print vdu ">")))))
 			(setq buffer ""))
 		((eq c 27)
 			;esc
