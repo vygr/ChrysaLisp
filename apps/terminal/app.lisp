@@ -98,8 +98,8 @@
 					(setq id nil))
 				(t
 					(view-event window msg)
-					(when (and (eq (get-long msg ev_msg_type) ev_type_key)
-							(gt (get-int msg ev_msg_key_keycode) 0))
+					(and (eq (get-long msg ev_msg_type) ev_type_key)
+						(gt (get-int msg ev_msg_key_keycode) 0)
 						(terminal-input (get-int msg ev_msg_key_key))))))
 		((eql data nil)
 			;pipe is closed

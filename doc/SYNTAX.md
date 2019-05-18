@@ -7,10 +7,12 @@
 ### (add num num ...)
 ## age
 ### (age path)
+## aif
+### (aif form form [form])
 ## align
 ### (align num pow2) -> num
 ## and
-### (and tst ...)
+### (and [form] ...)
 ## apply
 ### (apply lambda list)
 ## array
@@ -208,7 +210,7 @@
 ## gui-add
 ### (gui-add view)
 ## if
-### (if tst form [form])
+### (if form form [form])
 ## import
 ### (import path)
 ## inc
@@ -298,7 +300,7 @@
 ## opt
 ### (opt var val [cond])
 ## or
-### (or tst ...)
+### (or [form] ...)
 ## pad
 ### (pad form width [str]) -> str
 ## partition
@@ -456,9 +458,9 @@
 ## undef
 ### (undef env var [var] ...)
 ## unless
-### (unless tst body)
+### (unless form body)
 ## until
-### (until tst body)
+### (until form body)
 ## vdu-print
 ### (vdu-print vdu str)
 ## view-add-back
@@ -496,7 +498,7 @@
 ## view-sub-opaque
 ### (view-sub-opaque view x y w h)
 ## when
-### (when tst body)
+### (when form body)
 ## while
 ### (while tst body)
 ## window-connect-close

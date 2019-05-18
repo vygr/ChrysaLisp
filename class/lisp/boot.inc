@@ -176,35 +176,39 @@
 ;;;;;;;;;;;;;;
 
 (defmacro if (x y &rest _)
-	;(if tst form [form])
+	;(if form form [form])
 	(cond ((eq 0 (length _)) `(cond (,x ,y)))
 		(t `(cond (,x ,y) (t ~_)))))
 
-(defmacro not (x)
+(defmacro not (_)
 	;(not form)
-	`(cond (,x nil) (t t)))
+	`(cond (,_ nil) (t t)))
 
 (defmacro when (x &rest _)
-	;(when tst body)
+	;(when form body)
 	`(cond (,x ~_)))
 
 (defmacro unless (x &rest _)
-	;(unless tst body)
+	;(unless form body)
 	`(cond (,x nil) (t ~_)))
 
 (defmacro until (x &rest _)
-	;(until tst body)
+	;(until form body)
 	`(while (not ,x) ~_))
 
-(defmacro or (x &rest _)
-	;(or tst ...)
-	(if (eq 0 (length _)) x
-		`(if (defq ,(defq _x (gensym)) ,x) ,_x (or ~_))))
+(defmacro or (&rest _)
+	;(or [form] ...)
+	(cond
+		((eq (length _) 0) nil)
+		((eq (length _) 1) (elem 0 _))
+		(t `(if (defq ,(defq _x (gensym)) ,(elem 0 _)) ,_x (or ~(slice 1 -1 _))))))
 
-(defmacro and (x &rest _)
-	;(and tst ...)
-	(if (eq 0 (length _)) x
-		`(if ,x (and ~_) nil)))
+(defmacro and (&rest _)
+	;(and [form] ...)
+	(cond
+		((eq (length _) 0) t)
+		((eq (length _) 1) (elem 0 _))
+		(t `(if ,(elem 0 _) (and ~(slice 1 -1 _))))))
 
 (defmacro times (c &rest _)
 	;(times num body)
@@ -568,6 +572,15 @@
 	(while (ne 0 (get-byte s o))
 		(setq o (inc o)))
 	(slice k o s))
+
+;;;;;;;;;;;;;;;;;;
+; Anaphoric macros
+;;;;;;;;;;;;;;;;;;
+
+(defmacro aif (x y &optional z)
+	;(aif form form [form])
+   `(let ((it ,x))
+          (if it ,y ,z)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Compilation environment
