@@ -589,8 +589,19 @@
 
 (defmacro awhile (x &rest _)
 	;(awhile form body)
-	`(while (let ((it ,x))
-		(when it ~_ t))))
+	(list 'while `(defq ,(defq _x (gensym)) ,x) `(let ((it ,_x)) ~_)))
+
+(defmacro aand (&rest _)
+	;(aand [form] ...)
+	(cond
+		((eq (length _) 0) t)
+		((eq (length _) 1) (elem 0 _))
+		(t `(aif ,(elem 0 _) (aand ~(slice 1 -1 _))))))
+
+(defmacro acond (&rest _)
+	;(acond (tst body) ...)
+	(cat (list 'cond) (map (lambda (_)
+		(list `(defq ,(defq _x (gensym)) ,(elem 0 _)) `(let ((it ,_x)) ~(slice 1 -1 _)))) _)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Compilation environment
