@@ -582,6 +582,16 @@
    `(let ((it ,x))
           (if it ,y ,z)))
 
+(defmacro awhen (x &rest _)
+	;(awhen form body)
+	`(let ((it ,x))
+		(when it ~_)))
+
+(defmacro awhile (x &rest _)
+	;(awhile form body)
+	`(while (let ((it ,x))
+		(when it ~_ t))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Compilation environment
 ;;;;;;;;;;;;;;;;;;;;;;;;;
