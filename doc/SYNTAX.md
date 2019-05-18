@@ -1,8 +1,12 @@
 # Syntax
+## aand
+### (aand [form] ...)
 ## abi
 ### (abi) -> sym
 ## abs
 ### (abs num) -> num
+## acond
+### (acond (tst body) ...)
 ## add
 ### (add num num ...)
 ## age
@@ -19,6 +23,10 @@
 ### (array [form ...])
 ## ascii
 ### (ascii str) -> num
+## awhen
+### (awhen form body)
+## awhile
+### (awhile form body)
 ## bind
 ### (bind (param ...) seq)
 ## bit-and
