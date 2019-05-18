@@ -281,17 +281,21 @@
 
 (defun reduce (_f _l &optional _a)
 	;(reduce lambda seq [accum])
-	(if _a (defq _ -1)
-		(defq _ 0 _a (elem 0 _l)))
-	(while (lt (setq _ (inc _)) (length _l))
-		(setq _a (_f _a (elem _ _l)))) _a)
+	(cond
+		(_a (each! nil nil nil (lambda (_p)
+				(setq _a (_f _a _p))) (list _l)))
+		(t (setq _a (elem 0 _l))
+			(each! 1 nil nil (lambda (_p)
+				(setq _a (_f _a _p))) (list _l)))) _a)
 
 (defun reduce-rev (_f _l &optional _a)
 	;(reduce-rev lambda seq [accum])
-	(if _a (defq _ (length _l))
-		(defq _ (dec (length _l)) _a (elem -2 _l)))
-	(while (ge (setq _ (dec _)) 0)
-		(setq _a (_f _a (elem _ _l)))) _a)
+	(cond
+		(_a (each! -1 0 nil (lambda (_p)
+				(setq _a (_f _a _p))) (list _l)))
+		(t (setq _a (elem -2 _l))
+			(each! -2 0 nil (lambda (_p)
+				(setq _a (_f _a _p))) (list _l)))) _a)
 
 ;;;;;;;;;;;;
 ; Predicates
@@ -579,8 +583,8 @@
 
 (defmacro aif (x y &optional z)
 	;(aif form form [form])
-   `(let ((it ,x))
-          (if it ,y ,z)))
+	`(let ((it ,x))
+		(if it ,y ,z)))
 
 (defmacro awhen (x &rest _)
 	;(awhen form body)
@@ -589,7 +593,8 @@
 
 (defmacro awhile (x &rest _)
 	;(awhile form body)
-	(list 'while `(defq ,(defq _x (gensym)) ,x) `(let ((it ,_x)) ~_)))
+	`(while (defq ,(defq _x (gensym)) ,x)
+		(let ((it ,_x)) ~_)))
 
 (defmacro aand (&rest _)
 	;(aand [form] ...)
@@ -600,8 +605,9 @@
 
 (defmacro acond (&rest _)
 	;(acond (tst body) ...)
-	(cat (list 'cond) (map (lambda (_)
-		(list `(defq ,(defq _x (gensym)) ,(elem 0 _)) `(let ((it ,_x)) ~(slice 1 -1 _)))) _)))
+	(reduce (lambda (x _)
+		(push x `((defq ,(defq _x (gensym)) ,(elem 0 _)) (let ((it ,_x)) ~(slice 1 -1 _)))))
+			_ (list 'cond)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Compilation environment
