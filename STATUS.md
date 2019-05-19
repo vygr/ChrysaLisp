@@ -4,6 +4,18 @@
 
 ------
 
+Last of the GUI apps, the terminal, converted over to Lisp. I'm going to have
+to sort out a better way to handle the mailbox select functionality for Lisp
+eventually, the change to pipe::select to get the Terminal app over to Lisp is
+a bit of a bodge.
+
+On prompting from no-identd I took a look at Anaphoric macros and agree that
+they can be useful but folks should be aware of what the issues are if you use
+them. So I've added the obvious ones to boot.inc. Maybe they should be going in
+a separate class/lisp/anaphoric.inc file ?
+
+------
+
 Not had a huge amount of free time so did a few conversions to VP level code on
 some critical Lisp functions. A little extra performance and helps to keep the
 size of the boot image in check. Can always knock out a few VP conversions if
