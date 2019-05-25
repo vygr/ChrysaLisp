@@ -23,7 +23,7 @@
 
 (dec-method 'read_ready 'class/stream/read_ready 'virtual '(r0) '(r0 r1))
 (dec-method 'read_next 'class/stream/read_next 'virtual '(r0) '(r0 r1))
-(dec-method 'write_next 'class/stream/write_next 'virtual '(r0) '(r0))
+(dec-method 'write_next 'class/stream/write_flush 'virtual '(r0) '(r0))
 (dec-method 'write_flush 'class/stream/write_flush 'virtual '(r0) '(r0))
 
 (def-struct 'stream 'obj)

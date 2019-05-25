@@ -2733,6 +2733,8 @@ r2 = seqnum (ulong)
 outputs
 r0 = 0, else next stream msg (ptr)
 r1 = 0, else string data (pubyte)
+trashes
+r0-r3
 ```
 ### msg_in::next_msg -> class/msg_in/next_msg
 ```
@@ -4043,6 +4045,8 @@ all but r0
 inputs
 r0 = stream object (ptr)
 r1 = char to skip (uint)
+outputs
+r0 = stream object (ptr)
 trashes
 all but r0
 ```
@@ -4051,6 +4055,8 @@ all but r0
 inputs
 r0 = stream object (ptr)
 r1 = char to not skip (uint)
+outputs
+r0 = stream object (ptr)
 trashes
 all but r0
 ```
@@ -4110,14 +4116,14 @@ r1 = -1 for EOF, else more data
 trashes
 all but r0
 ```
-### stream::write_next -> class/stream/write_next
+### stream::write_next -> class/stream/write_flush
 ```
 inputs
 r0 = stream object (ptr)
 outputs
 r0 = stream object (ptr)
 trashes
-all but r0
+r1
 ```
 ### stream::write_flush -> class/stream/write_flush
 ```

@@ -22,12 +22,14 @@
 	;trashes
 	;all but r0
 
-	;save inputs
-	(vp-add-rr r4 r5)
-	(assign '(r2 r3 r4 r5) '((r0 stream_object) (r0 stream_buffer) (r0 stream_bufp) (r0 stream_bufe)))
+	(entry 'stream 'init '(r0 r1 r2 r3 r4 r5))
 
 	;init parent
+	(vp-add-rr r4 r5)
+	(assign '(r2 r3 r4 r5) '((r0 stream_object) (r0 stream_buffer) (r0 stream_bufp) (r0 stream_bufe)))
 	(s-call 'stream 'init '(r0 r1) '(r0 r1))
+
+	(exit 'stream 'init '(r0 r1))
 	(vp-ret)
 
 (def-func-end)
@@ -37,6 +39,8 @@
 	;r0 = stream object (ptr)
 	;trashes
 	;all but r0
+
+	(entry 'stream 'deinit '(r0))
 
 	;deref any buffer object
 	(vp-push r0)
@@ -88,6 +92,7 @@
 	(else)
 		(assign {this, char} '(r0 r1))
 	(endif)
+
 	(pop-scope)
 	(return)
 
@@ -102,6 +107,8 @@
 	;trashes
 	;all but r0
 
+	(entry 'stream 'read_char '(r0))
+
 	(vp-cpy-ir r0 stream_bufp r2)
 	(vp-cpy-ir r0 stream_bufe r1)
 	(vpif '(r1 == r2))
@@ -115,7 +122,9 @@
 	(vp-cpy-ir-ub r2 0 r1)
 	(vp-add-cr byte_size r2)
 	(vp-cpy-ri r2 r0 stream_bufp)
+
 (vp-label 'eof)
+	(exit 'stream 'read_char '(r0 r1))
 	(vp-ret)
 
 (def-func-end)
@@ -129,24 +138,27 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this)
-	(union
-		'(ptr 'str_stream 'value)
-		'(pubyte 'bufp 'bufe))
+	(ptr 'this 'str_stream 'value)
 	(int 'char)
 
 	(push-scope)
 	(entry 'stream 'read_line {this})
 
 	(switch)
-		(assign {this->stream_bufp, this->stream_bufe} {bufp, bufe})
+		(vp-def (r_this r_bufp r_bufe r_char r_bufps))
+		(assign {this} (list r_this))
+		(vp-cpy-ir r_this stream_bufp r_bufp)
+		(vp-cpy-ir r_this stream_bufe r_bufe)
+		(vp-cpy-rr r_bufp r_bufps)
 		(loop-start)
-			(gotoif {bufp == bufe} 'slow_but_sure)
-			(assign {*bufp} {char})
-			(assign {bufp + byte_size} {bufp})
-		(loop-until {char == char_lf})
-		(call 'string 'create_from_buffer {this->stream_bufp, bufp - this->stream_bufp - byte_size} {value})
-		(assign {bufp} {this->stream_bufp})
+			(gotoif (list r_bufp '== r_bufe) 'slow_but_sure)
+			(vp-cpy-ir-ub r_bufp 0 r_char)
+			(vp-add-cr byte_size r_bufp)
+		(loop-until (list r_char '== char_lf))
+		(vp-cpy-ri r_bufp r_this stream_bufp)
+		(vp-sub-rr r_bufps r_bufp)
+		(vp-sub-cr byte_size r_bufp)
+		(call 'string 'create_from_buffer (list r_bufps r_bufp) {value})
 		(break)
 	(default)
 	(vp-label 'slow_but_sure)
@@ -178,7 +190,8 @@
 	;trashes
 	;all but r0
 
-	(vp-cpy-cr -1 r1)
+	(entry 'stream 'read_next '(r0))
+	(exit 'stream 'read_next '(r0 -1))
 	(vp-ret)
 
 (def-func-end)
@@ -192,7 +205,11 @@
 	;trashes
 	;all but r0
 
+	(entry 'stream 'read_ready '(r0))
+
 	(call 'stream 'available '(r0) '(r0 r1))
+
+	(exit 'stream 'read_ready '(r0 r1))
 	(vp-ret)
 
 (def-func-end)
@@ -201,8 +218,12 @@
 	;inputs
 	;r0 = stream object (ptr)
 	;r1 = char to skip (uint)
+	;outputs
+	;r0 = stream object (ptr)
 	;trashes
 	;all but r0
+
+	(entry 'stream 'skip '(r0 r1))
 
 	(vp-cpy-ir r0 stream_bufp r2)
 	(vp-cpy-ir r0 stream_bufe r3)
@@ -221,7 +242,9 @@
 		(vp-add-cr byte_size r2)
 	(loop-end)
 	(vp-cpy-ri r2 r0 stream_bufp)
+
 (vp-label 'funcexit)
+	(exit 'stream 'skip '(r0))
 	(vp-ret)
 
 (def-func-end)
@@ -230,8 +253,12 @@
 	;inputs
 	;r0 = stream object (ptr)
 	;r1 = char to not skip (uint)
+	;outputs
+	;r0 = stream object (ptr)
 	;trashes
 	;all but r0
+
+	(entry 'stream 'skip_not '(r0 r1))
 
 	(vp-cpy-ir r0 stream_bufp r2)
 	(vp-cpy-ir r0 stream_bufe r3)
@@ -250,7 +277,9 @@
 		(vp-add-cr byte_size r2)
 	(loop-end)
 	(vp-cpy-ri r2 r0 stream_bufp)
+
 (vp-label 'funcexit)
+	(exit 'stream 'skip_not '(r0))
 	(vp-ret)
 
 (def-func-end)
@@ -345,6 +374,8 @@
 	;trashes
 	;all but r0
 
+	(entry 'stream 'write_char '(r0 r1))
+
 	(vp-cpy-ir r0 stream_bufp r2)
 	(vp-cpy-ir r0 stream_bufe r3)
 	(vpif '(r2 == r3))
@@ -358,7 +389,9 @@
 	(vp-cpy-ri-b r1 r2 0)
 	(vp-add-cr byte_size r2)
 	(vp-cpy-ri r2 r0 stream_bufp)
+
 (vp-label 'eof)
+	(exit 'stream 'write_char '(r0))
 	(vp-ret)
 
 (def-func-end)
@@ -372,7 +405,8 @@
 	;trashes
 	;all but r0
 
-	(vp-cpy-rr r0 r3)
+	(entry 'stream 'write_cstr '(r3 r1))
+
 	(call 'sys_string 'length '(r1) '(r0 r1))
 	(jump 'stream 'write '(r3 r0 r1))
 
@@ -386,20 +420,12 @@
 	;trashes
 	;all but r0
 
+	(entry 'stream 'write_flush '(r0))
+
 	(class/stream/write_flush)
+
+	(exit 'stream 'write_flush '(r0))
 	(vp-ret)
-
-(def-func-end)
-
-(def-method 'stream 'write_next)
-	;inputs
-	;r0 = stream object (ptr)
-	;outputs
-	;r0 = stream object (ptr)
-	;trashes
-	;all but r0
-
-	(jump 'stream 'write_flush '(r0))
 
 (def-func-end)
 
