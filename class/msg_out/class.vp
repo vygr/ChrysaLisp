@@ -17,27 +17,28 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this)
-	(union
-		'(ptr 'vtable)
-		'(ulong 'ok))
-
-	;save inputs
-	(push-scope)
-	(entry 'msg_out 'init {this, vtable, this->msg_out_id.id_id})
+	(entry 'msg_out 'init '(r0 r1 r2))
+	(vp-cpy-ri r2 r0 (add msg_out_id id_id))
 
 	;init parent
-	(s-call 'msg_out 'init {this, vtable, 0, 0, 0, 0} {_, ok})
-	(vpif {ok})
+	(s-call 'msg_out 'init '(r0 r1 0 0 0 0) '(r0 r1))
+	(vpif '(r1 != 0))
 		;init myself
-		(assign {0 => this->msg_out_seqnum} {this->msg_out_ack_seqnum})
-		(assign {stream_mail_state_started} {this->msg_out_state})
-		(call 'sys_mail 'alloc_mbox nil {this->msg_out_ack_mbox_id, this->msg_out_ack_mbox_addr})
+		(vp-xor-rr r2 r2)
+		(vp-cpy-ri r2 r0 msg_out_seqnum)
+		(vp-cpy-ri r2 r0 msg_out_ack_seqnum)
+		(vp-cpy-cr stream_mail_state_started r2)
+		(vp-cpy-ri r2 r0 msg_out_state)
+		(vp-push r0)
+		(call 'sys_mail 'alloc_mbox nil '(r2 r1))
+		(vp-pop r0)
+		(vp-cpy-ri-i r2 r0 msg_out_ack_mbox_id)
+		(vp-cpy-ri r1 r0 msg_out_ack_mbox_addr)
+		(vp-cpy-rr r0 r1)
 	(endif)
 
-	(exit 'msg_out 'init {this, ok})
-	(pop-scope)
-	(return)
+	(exit 'msg_out 'init '(r0 r1))
+	(vp-ret)
 
 (def-func-end)
 
@@ -47,26 +48,27 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this 'msg)
-
-	(push-scope)
-	(entry 'msg_out 'deinit {this})
+	(entry 'msg_out 'deinit'(r0))
 
 	;wait for final ack
-	(call 'sys_mail 'read {this->msg_out_ack_mbox_addr} {msg, _})
-	(call 'sys_mail 'free {msg})
+	(vp-push r0)
+	(call 'sys_mail 'read '((r0 msg_out_ack_mbox_addr)) '(r0 _))
+	(call 'sys_mail 'free '(r0))
 
 	;free any stream mail buffer
-	(call 'sys_mail 'free {this->stream_buffer})
-	(assign {0} {this->stream_buffer})
+	(vp-cpy-ir rsp 0 r2)
+	(vp-xor-rr r1 r1)
+	(vp-cpy-ir r2 stream_buffer r0)
+	(vp-cpy-ri r1 r2 stream_buffer)
+	(call 'sys_mail 'free '(r0))
 
 	;free ack mailbox
-	(call 'sys_mail 'free_mbox {this->msg_out_ack_mbox_id})
+	(vp-cpy-ir rsp 0 r0)
+	(call 'sys_mail 'free_mbox '((r0 msg_out_ack_mbox_id ui)))
 
 	;deinit parent
-	(s-jump 'msg_out 'deinit {this})
-
-	(pop-scope-syms)
+	(vp-pop r0)
+	(s-jump 'msg_out 'deinit '(r0))
 
 (def-func-end)
 
@@ -78,41 +80,61 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this 'msg 'data)
+	(entry 'msg_out 'write_flush '(r0))
 
-	(push-scope)
-	(entry 'msg_out 'write_flush {this})
+	(vp-cpy-ir r0 stream_buffer r1)
+	(vpif '(r1 != 0))
+		(vp-push r0)
+		(vp-xor-rr r2 r2)
+		(vp-cpy-ri r2 r0 stream_buffer)
 
-	(assign {this->stream_buffer} {msg})
-	(vpif {msg})
 		;send current buffer
-		(assign {msg->msg_parcel_data} {data})
-		(assign {this->stream_bufp - data} {msg->msg_length})
-		(assign {this->msg_out_id.id_id} {msg->msg_dest.id_id})
-		(assign {this->msg_out_seqnum} {data->stream_msg_seqnum})
-		(assign {this->msg_out_state} {data->stream_msg_state})
-		(assign {this->msg_out_ack_mbox_id} {data->stream_msg_ack_id.id_mbox})
-		(call 'sys_kernel 'id nil {data->stream_msg_ack_id.id_cpu})
-		(call 'sys_mail 'send {msg})
-		(assign {0} {this->stream_buffer})
+		(vp-cpy-ir r1 msg_parcel_data r2)
+		(vp-cpy-ir r0 stream_bufp r3)
+		(vp-sub-rr r2 r3)
+		(vp-cpy-ri r3 r1 msg_length)
+
+		(vp-cpy-ir r0 (add msg_out_id id_id) r3)
+		(vp-cpy-ir r0 msg_out_seqnum r4)
+		(vp-cpy-ir r0 msg_out_state r5)
+		(vp-cpy-ir-ui r0 msg_out_ack_mbox_id r6)
+
+		(vp-cpy-ri r3 r1 (add msg_dest id_id))
+		(vp-cpy-ri r4 r2 stream_msg_seqnum)
+		(vp-cpy-ri r5 r2 stream_msg_state)
+		(vp-cpy-ri-i r6 r2 (add stream_msg_ack_id id_mbox))
+
+		(call 'sys_kernel 'id nil '((r2 (add stream_msg_ack_id id_cpu) i)))
+		(call 'sys_mail 'send '(r1))
 
 		;wait for an ack ?
-		(vpif {this->msg_out_seqnum >> msg_out_ack_shift != this->msg_out_ack_seqnum})
-			(call 'sys_mail 'read {this->msg_out_ack_mbox_addr} {msg, _})
-			(call 'sys_mail 'free {msg})
-			(assign {this->msg_out_ack_seqnum + 1} {this->msg_out_ack_seqnum})
+		(vp-cpy-ir rsp 0 r0)
+		(vp-cpy-ir r0 msg_out_seqnum r1)
+		(vp-cpy-ir r0 msg_out_ack_seqnum r2)
+		(vp-shr-cr msg_out_ack_shift r1)
+		(vpif '(r1 != r2))
+			(call 'sys_mail 'read '((r0 msg_out_ack_mbox_addr)) '(r0 _))
+			(call 'sys_mail 'free '(r0))
+
+			;next ack seq num
+			(vp-cpy-ir rsp 0 r0)
+			(vp-cpy-ir r0 msg_out_ack_seqnum r1)
+			(vp-add-cr 1 r1)
+			(vp-cpy-ri r1 r0 msg_out_ack_seqnum)
 		(endif)
 
 		;next seq num
-		(assign {this->msg_out_seqnum + 1} {this->msg_out_seqnum})
+		(vp-pop r0)
+		(vp-cpy-ir r0 msg_out_seqnum r1)
+		(vp-add-cr 1 r1)
+		(vp-cpy-ri r1 r0 msg_out_seqnum)
 
 		;parent actions
-		(s-call 'msg_out 'write_flush {this})
+		(s-call 'msg_out 'write_flush '(r0))
 	(endif)
 
-	(exit 'msg_out 'write_flush {this})
-	(pop-scope)
-	(return)
+	(exit 'msg_out 'write_flush '(r0))
+	(vp-ret)
 
 (def-func-end)
 
@@ -124,19 +146,19 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this 'msg 'data)
+	(entry 'msg_out 'write_next '(r0))
 
-	(push-scope)
-	(entry 'msg_out 'write_next {this})
+	(vp-push r0)
+	(call 'stream 'write_flush '(r0))
+	(call 'sys_mail 'alloc '(lk_data_size) '(r2 r1))
+	(vp-pop r0)
+	(vp-add-cr stream_msg_data r1)
+	(vp-cpy-ri r2 r0 stream_buffer)
+	(vp-cpy-ri r1 r0 stream_bufp)
+	(vp-add-cr (sub lk_data_size - stream_msg_data) r1)
+	(vp-cpy-ri r1 r0 stream_bufe)
 
-	(call 'stream 'write_flush {this})
-	(call 'sys_mail 'alloc {lk_data_size} {msg, data})
-	(assign {&data->stream_msg_data} {this->stream_bufp})
-	(assign {&data->stream_msg_data + lk_data_size - stream_msg_data} {this->stream_bufe})
-	(assign {msg} {this->stream_buffer})
-
-	(exit 'msg_out 'write_next {this})
-	(pop-scope)
-	(return)
+	(exit 'msg_out 'write_next '(r0))
+	(vp-ret)
 
 (def-func-end)
