@@ -44,6 +44,8 @@
 	;trashes
 	;r1-r6
 
+	(entry 'string 'create_from_cstr '(r0))
+
 	;get size of string
 	(call 'sys_string 'length '(r0) '(r0 r1))
 	(jump 'string 'create_from_buffer '(r0 r1))

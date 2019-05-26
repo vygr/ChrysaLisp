@@ -333,35 +333,39 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this)
-	(pubyte 'buffer)
-	(uint 'length 'gap)
+	(entry 'stream 'write '(r0 r1 r2))
 
 	;check if 1 char
 	(vpif '(r2 == 1))
 		(jump 'stream 'write_char '(r0 (r1 0 ub)))
 	(endif)
 
-	;save inputs
-	(push-scope)
-	(entry 'stream 'write {this, buffer, length})
+	(assign '(r0 r1 r2) '(r5 r0 r4))
 
-	(loop-while {length})
-		(assign {this->stream_bufe - this->stream_bufp} {gap})
-		(vpif {gap})
-			(vpif {gap > length})
-				(assign {length} {gap})
+	(vp-cpy-ir r5 stream_bufp r1)
+	(vp-cpy-ir r5 stream_bufe r2)
+	(loop-while '(r4 != 0) 'exit)
+		(vpif '(r2 != r1))
+			(vp-sub-rr r1 r2)
+			(vpif '(r2 > r4))
+				(vp-cpy-rr r4 r2)
 			(endif)
-			(call 'sys_mem 'copy {buffer, this->stream_bufp, gap} {buffer, this->stream_bufp})
-			(assign {length - gap} {length})
+			(vp-sub-rr r2 r4)
+			(call 'sys_mem 'copy '(r0 r1 r2) '(r0 r1))
+			(vp-cpy-ri r1 r5 stream_bufp)
+			(vp-cpy-ir r5 stream_bufe r2)
 		(else)
-			(call 'stream 'write_next {this})
+			(vp-push r0 r4)
+			(call 'stream 'write_next '(r5) '(r5))
+			(vp-pop r0 r4)
+			(vp-cpy-ir r5 stream_bufp r1)
+			(vp-cpy-ir r5 stream_bufe r2)
+			(breakif '(r2 == r1) 'exit)
 		(endif)
 	(loop-end)
 
-	(exit 'stream 'write {this})
-	(pop-scope)
-	(return)
+	(exit 'stream 'write '(r5))
+	(vp-ret)
 
 (def-func-end)
 
@@ -380,7 +384,7 @@
 	(vp-cpy-ir r0 stream_bufe r3)
 	(vpif '(r2 == r3))
 		(vp-push r1)
-		(call 'stream 'write_next '(r0))
+		(call 'stream 'write_next '(r0) '(r0))
 		(vp-pop r1)
 		(vp-cpy-ir r0 stream_bufp r2)
 		(vp-cpy-ir r0 stream_bufe r3)
