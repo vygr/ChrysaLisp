@@ -2724,18 +2724,6 @@ r1 = 0 if error, else ok
 trashes
 all but r0
 ```
-### msg_in::next_seq -> class/msg_in/next_seq
-```
-inputs
-r0 = list head (ptr)
-r1 = 0, else new stream msg (ptr)
-r2 = seqnum (ulong)
-outputs
-r0 = 0, else next stream msg (ptr)
-r1 = 0, else string data (pubyte)
-trashes
-r0-r3
-```
 ### msg_in::next_msg -> class/msg_in/next_msg
 ```
 inputs
