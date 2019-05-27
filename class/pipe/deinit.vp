@@ -11,34 +11,36 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this 'stream)
+	(ptr 'this)
 	(uint 'length)
 
 	(push-scope)
 	(entry 'pipe 'deinit {this})
 
 	;flush remaining
-	(call 'pipe 'get_input {this} {_, stream})
-	(call 'msg_out 'write_flush {stream})
+	(call 'pipe 'get_input {this} '(_ r0))
+	(call 'msg_out 'write_flush '(r0) '(r0))
 
 	;send stopping
-	(call 'msg_out 'set_state {stream, stream_mail_state_stopping})
-	(call 'msg_out 'write_next {stream})
-	(call 'msg_out 'write_flush {stream})
+	(call 'msg_out 'set_state '(r0 stream_mail_state_stopping) '(r0))
+	(call 'msg_out 'write_next '(r0) '(r0))
+	(call 'msg_out 'write_flush '(r0) '(r0))
 
 	;send stopped
-	(call 'msg_out 'set_state {stream, stream_mail_state_stopped})
-	(call 'msg_out 'write_next {stream})
-	(call 'msg_out 'write_flush {stream})
+	(call 'msg_out 'set_state '(r0 stream_mail_state_stopped) '(r0))
+	(call 'msg_out 'write_next '(r0) '(r0))
+	(call 'msg_out 'write_flush '(r0) '(r0))
 
 	;wait for all stopped, starting with the pipe output, then the error streams
 	(d-call 'vector 'get_length {this->pipe_streams} {_, length})
 	(loop-start)
 		(assign {length - 1} {length})
 		(breakifnot {length})
-		(call 'vector 'get_element {this->pipe_streams, length} {_, stream})
-		(loop-while {stream->msg_in_state != stream_mail_state_stopped})
-			(call 'msg_in 'next_msg {stream})
+		(call 'vector 'get_element {this->pipe_streams, length} '(_ r0))
+		(loop-start)
+			(vp-cpy-ir r0 msg_in_state r1)
+			(breakif '(r1 == stream_mail_state_stopped))
+			(call 'msg_in 'next_msg '(r0) '(r0))
 		(loop-end)
 	(loop-end)
 
