@@ -4,7 +4,6 @@
 (dec-method 'vtable 'class/msg_in/vtable)
 (dec-method 'create 'class/msg_in/create 'static '() '(r0))
 (dec-method 'init 'class/msg_in/init 'static '(r0 r1))
-(dec-method 'next_seq 'class/msg_in/next_seq 'static '(r0 r1 r2) '(r0 r1))
 (dec-method 'next_msg 'class/msg_in/next_msg 'static '(r0) '(r0))
 
 (dec-method 'deinit 'class/msg_in/deinit 'final)
