@@ -2982,7 +2982,7 @@ outputs
 r0 = pipe object (ptr)
 r1 = mailbox index (uint)
 trashes
-all but r0
+r0-r5
 ```
 ### pipe::get_state -> class/pipe/get_state
 ```

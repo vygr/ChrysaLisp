@@ -152,11 +152,11 @@
 	(call 'stream 'write_flush '(r0))
 	(call 'sys_mail 'alloc '(lk_data_size) '(r2 r1))
 	(vp-pop r0)
+	(vp-lea-i r1 lk_data_size r3)
 	(vp-add-cr stream_msg_data r1)
 	(vp-cpy-ri r2 r0 stream_buffer)
 	(vp-cpy-ri r1 r0 stream_bufp)
-	(vp-add-cr (sub lk_data_size - stream_msg_data) r1)
-	(vp-cpy-ri r1 r0 stream_bufe)
+	(vp-cpy-ri r3 r0 stream_bufe)
 
 	(exit 'msg_out 'write_next '(r0))
 	(vp-ret)
