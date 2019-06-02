@@ -2610,52 +2610,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
-### lisp::func_fsqrt -> class/lisp/func_fsqrt
-```
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-```
 ### lisp::func_fmod -> class/lisp/func_fmod
-```
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-```
-### lisp::func_frac -> class/lisp/func_frac
-```
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-```
-### lisp::func_floor -> class/lisp/func_floor
-```
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-```
-### lisp::func_fsin -> class/lisp/func_fsin
-```
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-```
-### lisp::func_fcos -> class/lisp/func_fcos
 ```
 inputs
 r0 = lisp object (ptr)
@@ -4836,6 +4791,51 @@ outputs
 r0 = distance squared (16.16)
 trashes
 all
+```
+### sys_math::lisp_fsin -> sys/math/lisp_fsin
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### sys_math::lisp_fcos -> sys/math/lisp_fcos
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### sys_math::lisp_fsqrt -> sys/math/lisp_fsqrt
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### sys_math::lisp_frac -> sys/math/lisp_frac
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### sys_math::lisp_floor -> sys/math/lisp_floor
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
 ```
 ## sys_mem
 Super Class: null
