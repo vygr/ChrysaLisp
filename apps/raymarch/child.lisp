@@ -1,5 +1,6 @@
 ;math tools etc
 (import 'sys/lisp.inc)
+(import 'sys/math/lisp.inc)
 (import 'apps/math.inc)
 
 (structure 'work 0

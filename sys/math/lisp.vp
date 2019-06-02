@@ -1,0 +1,115 @@
+(include 'sys/func.inc)
+(include 'sys/math/class.inc)
+(include 'class/integer/class.inc)
+(include 'class/lisp/class.inc)
+
+;generic fixed math op
+(defun mathop (_ p)
+	(vp-def (r_this r_args r_value) '(r6 r7 r0))
+	(entry 'sys_math _ (list r_this r_args))
+(errorcases
+	(call 'lisp 'env_args_type `(,r_args ($ sig) 1))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
+	(vp-cpy-ir r_args array_array r_value)
+	(vp-cpy-ir r_value 0 r_value)
+	(vp-cpy-ir r_value integer_value r_value)
+	(exec p)
+	(call 'integer 'create (list r_value) (list r_value))
+	(exit 'sys_math _ (list r_this r_value))
+	(vp-ret))
+
+(def-method 'sys_math 'lisp_fsin)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(mathop 'lisp_fsin
+		'(call 'sys_math 'fsin (list r_value) (list r_value)))
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error (list r_this "(fsin angle)" error_msg_wrong_types r_args))
+	(signature 'sig 'integer))
+
+(def-func-end)
+
+(def-method 'sys_math 'lisp_fcos)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(mathop 'lisp_fcos
+		'(call 'sys_math 'fcos (list r_value) (list r_value)))
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error (list r_this "(fcos angle)" error_msg_wrong_types r_args))
+	(signature 'sig 'integer))
+
+(def-func-end)
+
+(def-method 'sys_math 'lisp_fsqrt)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(mathop 'lisp_fsqrt
+		'(progn
+			(errorif (list r_value '< 0) 'error)
+			(call 'sys_math 'fsqrt (list r_value) (list r_value))))
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error (list r_this "(fsqrt num)" error_msg_wrong_types r_args))
+	(signature 'sig 'integer))
+
+(def-func-end)
+
+(def-method 'sys_math 'lisp_frac)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(mathop 'lisp_frac
+		'(progn
+			(vec-set 1)
+			(vec-frac 1)))
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error (list r_this "(frac num)" error_msg_wrong_types r_args))
+	(signature 'sig 'integer))
+
+(def-func-end)
+
+(def-method 'sys_math 'lisp_floor)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(mathop 'lisp_floor
+		'(progn
+			(vec-set 1)
+			(vec-floor 1)))
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error (list r_this "(floor num)" error_msg_wrong_types r_args))
+	(signature 'sig 'integer))
+
+(def-func-end)

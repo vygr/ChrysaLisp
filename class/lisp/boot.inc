@@ -13,11 +13,6 @@
 (ffi fmul "class/lisp/func_fmul" 0)
 (ffi fdiv "class/lisp/func_fdiv" 0)
 (ffi fmod "class/lisp/func_fmod" 0)
-(ffi frac "class/lisp/func_frac" 0)
-(ffi floor "class/lisp/func_floor" 0)
-(ffi fsin "class/lisp/func_fsin" 0)
-(ffi fcos "class/lisp/func_fcos" 0)
-(ffi fsqrt "class/lisp/func_fsqrt" 0)
 
 (ffi eq "class/lisp/func_eq" 0)
 (ffi ne "class/lisp/func_ne" 0)

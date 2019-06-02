@@ -13,6 +13,12 @@
 (dec-method 'intersect 'sys/math/intersect 'static '(r0 r1 r2 r3 r4 r5 r6 r7) '(r0 r1))
 (dec-method 'distance_sqd 'sys/math/distance_sqd 'static '(r0 r1 r2 r3 r4 r5) '(r0))
 
+(dec-method 'lisp_fsin 'sys/math/lisp_fsin 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_fcos 'sys/math/lisp_fcos 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_fsqrt 'sys/math/lisp_fsqrt 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_frac 'sys/math/lisp_frac 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_floor 'sys/math/lisp_floor 'static '(r0 r1) '(r0 r1))
+
 ;;;;;;;;;;;;;;;;
 ; inline methods
 ;;;;;;;;;;;;;;;;
