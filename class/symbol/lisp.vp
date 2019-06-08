@@ -1,9 +1,8 @@
 (include 'sys/func.inc)
-(include 'class/string/class.inc)
 (include 'class/symbol/class.inc)
 (include 'class/lisp/class.inc)
 
-(def-method 'lisp 'func_sym)
+(def-method 'symbol 'lisp_sym)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -11,7 +10,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(entry 'lisp 'func_sym '(r0 r1))
+	(entry 'symbol 'lisp_sym '(r0 r1))
 
 (errorcases
 	(vp-cpy-ir-ui r1 array_length r2)
@@ -33,7 +32,7 @@
 	(endif)
 	(vp-pop r0)
 
-	(exit 'lisp 'func_sym '(r0 r1))
+	(exit 'symbol 'lisp_sym '(r0 r1))
 	(vp-ret)
 
 (errorcases
@@ -41,5 +40,42 @@
 	(jump 'lisp 'repl_error '(r0 "(sym form)" error_msg_wrong_num_of_args r1))
 (vp-label 'error2)
 	(jump 'lisp 'repl_error '(r4 "(sym form)" error_msg_not_a_string r0)))
+
+(def-func-end)
+
+(def-method 'symbol 'lisp_gensym)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(ptr 'this 'args 'prefix 'value)
+(errorcases
+	(uint 'length))
+
+	(push-scope)
+	(entry 'symbol 'lisp_gensym {this, args})
+
+(errorcases
+	(d-call 'vector 'get_length {args} {_, length})
+	(gotoif {length} 'error1))
+
+	(call 'symbol 'create_from_long {this->lisp_nextsym + 1 => this->lisp_nextsym, 10} {args})
+	(call 'symbol 'create_from_cstr {"G"} {prefix})
+	(call 'symbol 'append {prefix, args} {value})
+	(call 'obj 'deref {prefix})
+	(call 'obj 'deref {args})
+	(call 'symbol 'intern {value} {value})
+
+	(exit 'symbol 'lisp_gensym {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(jump 'lisp 'repl_error {this, "(gensym)", error_msg_wrong_num_of_args, args}))
+
+	(pop-scope-syms)
 
 (def-func-end)

@@ -331,17 +331,18 @@
 
 (def-method 'string 'cat)
 	;inputs
-	;r0 = vector of string objects (ptr)
+	;r0 = string object (ptr)
+	;r1 = vector of string objects (ptr)
 	;outputs
 	;r0 = 0 if error, else new string object (ptr)
 	;trashes
 	;r1-r6
 
-	(entry 'string 'cat '(r0))
-	(vp-cpy-rr r0 r5)
+	(entry 'string 'cat '(_ r1))
+	(vp-cpy-rr r1 r5)
 
 	;get total size of strings
-	(call 'vector 'get_iters '(r0) '(_ r1 r2))
+	(call 'vector 'get_iters '(r1) '(_ r1 r2))
 	(vp-cpy-cr (add string_size byte_size) r3)
 	(loop-while '(r1 != r2))
 		(vp-cpy-ir r1 0 r0)

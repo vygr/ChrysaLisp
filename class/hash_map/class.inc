@@ -15,6 +15,14 @@
 
 (dec-method 'deinit 'class/hash_map/deinit 'override)
 
+(dec-method 'lisp_env 'class/hash_map/lisp_env 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_def 'class/hash_map/lisp_def 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_defq 'class/hash_map/lisp_defq 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_set 'class/hash_map/lisp_set 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_setq 'class/hash_map/lisp_setq 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_defined 'class/hash_map/lisp_defined 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_undef 'class/hash_map/lisp_undef 'static '(r0 r1) '(r0 r1))
+
 (def-struct 'hash_map 'hash_set)
 	(ptr 'parent)
 (def-struct-end)

@@ -69,7 +69,7 @@
 				(call 'stream 'skip_not {stream, char_space})
 				(call 'string 'create_from_buffer {start, stream->stream_bufp - start} {string})
 				(d-call 'vector 'set_element {command, string, 1})
-				(call 'string 'cat {command} {cmd})
+				(d-call 'string 'cat {string, command} {cmd})
 				(call 'vector 'push_back {commands, cmd})
 				(call 'stream 'deref {stream})
 				(assign {index + 1} {index})

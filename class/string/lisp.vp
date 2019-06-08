@@ -1,0 +1,299 @@
+(include 'sys/func.inc)
+(include 'class/integer/class.inc)
+(include 'class/symbol/class.inc)
+(include 'class/stream_str/class.inc)
+(include 'class/lisp/class.inc)
+
+(def-method 'string 'lisp_split)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(entry 'string 'lisp_split '(r0 r1))
+
+	(vp-cpy-rr r0 r6)
+	(vp-cpy-rr r1 r7)
+
+(errorcases
+	(call 'lisp 'env_args_type '(r1 ($ sig) 2))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+
+	(call 'vector 'get_begin '(r7) '(_ r1))
+	(vp-cpy-ir r1 ptr_size r2)
+	(vp-push r6)
+	(call 'string 'split '((r1 0) (r2 string_data ub)) '(_ r1))
+	(vp-pop r0)
+
+	(exit 'string 'lisp_split '(r0 r1))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error1)
+	(jump 'lisp 'repl_error '(r6 "(split str char)" error_msg_wrong_types r7))
+	(signature 'sig 'string 'string))
+
+(def-func-end)
+
+(def-method 'string 'lisp_code)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(vp-def (r_this r_args r_len r_value r_iter_begin r_width r_index) '(r6 r7 r8))
+
+	(entry 'string 'lisp_code (list r_this r_args))
+
+	(vp-cpy-ir-ui r_args array_length r_len)
+
+(errorcases
+	(gotoif (list r_len '< 1) 'error1)
+	(gotoif (list r_len '> 3) 'error1)
+	(call 'lisp 'env_args_type (list r_args '($ sig) r_len))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+
+	(vp-cpy-ir r_args array_array r_iter_begin)
+	(vp-cpy-cr 1 r_width)
+	(vp-xor-rr r_index r_index)
+	(vp-cpy-ir r_iter_begin 0 r_value)
+	(vpif (list r_len '> 1))
+		(vp-cpy-ir r_iter_begin ptr_size r_width)
+		(vp-cpy-ir r_width integer_value r_width)
+		(vp-sub-cr 1 r_width)
+		(vp-and-cr (dec long_size) r_width)
+		(vp-add-cr 1 r_width)
+	(endif)
+	(vpif (list r_len '> 2))
+		(vp-cpy-ir r_iter_begin (mul 2 ptr_size) r_index)
+		(vp-cpy-ir r_index integer_value r_index)
+	(endif)
+
+	(vp-cpy-ir-ui r_value string_length r_len)
+	(vpif (list r_index '< 0))
+		(vp-add-rr r_len r_index)
+		(vp-add-cr 1 r_index)
+	(endif)
+
+(errorcases
+	(gotoif (list r_index '< 0) 'error1)
+	(vp-sub-rr r_width r_len)
+	(gotoif (list r_index '> r_len) 'error1))
+
+	(vp-add-cr string_data r_value)
+	(vp-xor-rr r_len r_len)
+	(vp-add-rr r_index r_value)
+	(vp-push r_len)
+	(call 'sys_mem 'copy (list r_value rsp r_width))
+	(vp-pop r_value)
+	(call 'integer 'create (list r_value) (list r_value))
+
+	(exit 'string 'lisp_code (list r_this r_value))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error1)
+	(jump 'lisp 'repl_error (list r_this "(code str [width index])" error_msg_wrong_types r_args))
+	(signature 'sig 'string 'integer 'integer))
+
+(def-func-end)
+
+(def-method 'string 'lisp_char)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(vp-def (r_this r_args r_len r_value r_iter_begin r_iter_end r_width) '(r7 r8 r9))
+
+	(entry 'string 'lisp_char (list r_this r_args))
+
+	(vp-cpy-ir-ui r_args array_length r_len)
+
+(errorcases
+	(gotoif (list r_len '< 1) 'error1)
+	(gotoif (list r_len '> 2) 'error1)
+	(call 'lisp 'env_args_type `(,r_args (@ ,(f-path 'integer 'vtable)) 0))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+
+	(vp-cpy-ir r_args array_array r_iter_begin)
+	(vp-cpy-cr 1 r_width)
+	(vp-cpy-ir r_iter_begin 0 r_value)
+	(vpif (list r_len '> 1))
+		(vp-cpy-ir r_iter_begin ptr_size r_width)
+		(vp-cpy-ir r_width integer_value r_width)
+		(vp-sub-cr 1 r_width)
+		(vp-and-cr (dec long_size) r_width)
+		(vp-add-cr 1 r_width)
+	(endif)
+	(call 'string 'create_from_buffer (list (list '& r_value integer_value) r_width) (list r_value))
+
+	(exit 'string 'lisp_char (list r_this r_value))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error1)
+	(jump 'lisp 'repl_error (list r_this "(char num [width])" error_msg_wrong_types r_args)))
+
+(def-func-end)
+
+(def-method 'string 'lisp_cmp)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(vp-def (r_this r_args r_value r_iter_begin r_arg1 r_arg2) '(r6 r7))
+
+	(entry 'string 'lisp_cmp (list r_this r_args))
+
+(errorcases
+	(call 'lisp 'env_args_type `(,r_args ($ sig) 2))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
+
+	(call 'vector 'get_begin (list r_args) (list '_ r_iter_begin))
+	(vp-cpy-ir r_iter_begin 0 r_arg1)
+	(vp-cpy-ir r_iter_begin ptr_size r_arg2)
+	(vp-xor-rr r_value r_value)
+	(vpif (list r_arg1 '!= r_arg2))
+		(call 'string 'compare (list r_arg1 r_arg2) (list '_ r_value))
+	(endif)
+	(call 'integer 'create (list r_value) (list r_value))
+
+	(exit 'string 'lisp_cmp (list r_this r_value))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error (list r_this "(cmp str str)" error_msg_wrong_types r_args))
+	(signature 'sig 'string 'string))
+
+(def-func-end)
+
+(def-method 'string 'lisp_save)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(ptr 'this 'args 'value)
+	(union
+		'(pptr 'iter_begin)
+		'(long 'handle)
+		'(ptr 'name))
+
+	(push-scope)
+	(entry 'string 'lisp_save {this, args})
+
+(errorcases
+	(call 'lisp 'env_args_type {args, $sig, 2})
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+
+	(call 'vector 'get_begin {args} {_, iter_begin})
+	(assign {iter_begin[0], iter_begin[ptr_size]} {value, name})
+	(call 'sys_pii 'open {&name->string_data, file_open_write} {handle})
+	(errorif {handle < 3} 'error2)
+	(call 'sys_pii 'write {handle, &value->string_data, value->string_length})
+	(call 'sys_pii 'close {handle})
+	(call 'obj 'ref {value})
+
+	(exit 'string 'lisp_save {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(jump 'lisp 'repl_error {this, "(save str path)", error_msg_wrong_types, args})
+(vp-label 'error2)
+	(jump 'lisp 'repl_error {this, "(save str path)", error_msg_open_error, args})
+	(signature 'sig 'string 'string))
+
+	(pop-scope-syms)
+
+(def-func-end)
+
+(def-method 'string 'lisp_load)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(ptr 'this 'args 'value)
+
+	(push-scope)
+	(entry 'string 'lisp_load {this, args})
+
+(errorcases
+	(call 'lisp 'env_args_type {args, $sig, 1})
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+
+	(call 'vector 'get_first {args} {_, value})
+	(call 'string 'create_from_file {&value->string_data} {value})
+	(vpifnot {value})
+		(call 'obj 'ref {this->lisp_sym_nil} {value})
+	(endif)
+
+	(exit 'string 'lisp_load {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(jump 'lisp 'repl_error {this, "(load path)", error_msg_wrong_types, args})
+	(signature 'sig 'string))
+
+	(pop-scope-syms)
+
+(def-func-end)
+
+(def-method 'string 'lisp_str)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(ptr 'this 'args 'value 'stream)
+	(uint 'length)
+
+	(push-scope)
+	(entry 'string 'lisp_str {this, args})
+
+	(d-call 'vector 'get_length {args} {_, length})
+	(errorif {length != 1} 'error1)
+	(call 'vector 'get_first {args} {_, args})
+	(vpif (cat {args->obj_vtable == @} (f-path 'string 'vtable)))
+		(call 'obj 'ref {args} {value})
+	(elseif (cat {args->obj_vtable == @} (f-path 'symbol 'vtable)))
+		(call 'string 'create_from_buffer {args->string_data, args->string_length} {value})
+	(elseif (cat {args->obj_vtable == @} (f-path 'stream_str 'vtable)))
+		(call 'stream_str 'ref_string {args} {_, value})
+	(else)
+		(call 'string 'create_from_buffer {0, string_gap} {value})
+		(call 'stream_str 'create {value} {stream})
+		(call 'lisp 'repl_print {this, stream, args})
+		(call 'stream_str 'ref_string {stream} {_, value})
+		(call 'obj 'deref {stream})
+	(endif)
+
+	(exit 'string 'lisp_str {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(jump 'lisp 'repl_error {this, "(str form)", error_msg_wrong_num_of_args, args}))
+
+	(pop-scope-syms)
+
+(def-func-end)

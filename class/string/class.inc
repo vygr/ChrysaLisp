@@ -7,7 +7,6 @@
 (dec-method 'create_from_file 'class/string/create_from_file 'static '(r0) '(r0))
 (dec-method 'create_from_long 'class/string/create_from_long 'static '(r0 r1) '(r0))
 (dec-method 'append 'class/string/append 'static '(r0 r1) '(r0))
-(dec-method 'cat 'class/string/cat 'static '(r0) '(r0))
 (dec-method 'init 'class/string/init 'static '(r0 r1 r2 r3))
 (dec-method 'init1 'class/string/init1 'static '(r0 r1 r2 r3) '(r0 r1))
 (dec-method 'init2 'class/string/init2 'static '(r0 r1 r2 r3) '(r0 r1))
@@ -21,6 +20,15 @@
 (dec-method 'get_length 'class/string/get_length 'final)
 (dec-method 'ref_element 'class/string/ref_element 'final)
 (dec-method 'slice 'class/string/slice 'final)
+(dec-method 'cat 'class/string/cat 'final)
+
+(dec-method 'lisp_str 'class/string/lisp_str 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_split 'class/string/lisp_split 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_code 'class/string/lisp_code 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_char 'class/string/lisp_char 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_cmp 'class/string/lisp_cmp 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_save 'class/string/lisp_save 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_load 'class/string/lisp_load 'static '(r0 r1) '(r0 r1))
 
 (def-struct 'string 'sequence)
 	(uint 'length)

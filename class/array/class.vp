@@ -560,3 +560,29 @@
 	(vp-ret)
 
 (def-func-end)
+
+(def-method 'array 'cat)
+	;inputs
+	;r0 = array object (ptr)
+	;r1 = vector of array objects (ptr)
+	;outputs
+	;r0 = 0 if error, else new array object (ptr)
+	;trashes
+	;r0-r11
+
+	(entry 'array 'cat '(_ r1))
+
+	(call 'array 'get_iters '(r1) '(_ r10 r11))
+	(call 'array 'create nil '(r0))
+	(vpif '(r0 != 0))
+		(loop-start)
+			(vp-cpy-ir r10 0 r1)
+			(call 'array 'append '(r0 r1 0 (r1 array_length ui)) '(r0))
+			(vp-add-cr ptr_size r10)
+		(loop-until (list r10 '== r11))
+	(endif)
+
+	(exit 'array 'cat '(r0))
+	(vp-ret)
+
+(def-func-end)

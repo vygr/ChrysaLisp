@@ -7,6 +7,9 @@
 (dec-method 'intern 'class/symbol/intern 'static '(r0) '(r0))
 (dec-method 'intern_cstr 'class/symbol/intern_cstr 'static '(r0) '(r0))
 
+(dec-method 'lisp_sym 'class/symbol/lisp_sym 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_gensym 'class/symbol/lisp_gensym 'static '(r0 r1) '(r0 r1))
+
 (def-struct 'symbol_statics)
 	(ptr 'intern)
 (def-struct-end)

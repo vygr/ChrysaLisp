@@ -5,6 +5,32 @@
 (gen-create 'points)
 (gen-vtable 'points)
 
+(def-method 'points 'cat)
+	;inputs
+	;r0 = points object (ptr)
+	;r1 = vector of points objects (ptr)
+	;outputs
+	;r0 = 0 if error, else new points object (ptr)
+	;trashes
+	;r0-r11
+
+	(entry 'points 'cat '(_ r1))
+
+	(call 'points 'get_iters '(r1) '(_ r10 r11))
+	(call 'points 'create nil '(r0))
+	(vpif '(r0 != 0))
+		(loop-start)
+			(vp-cpy-ir r10 0 r1)
+			(call 'points 'append '(r0 r1 0 (r1 array_length ui)) '(r0))
+			(vp-add-cr ptr_size r10)
+		(loop-until (list r10 '== r11))
+	(endif)
+
+	(exit 'points 'cat '(r0))
+	(vp-ret)
+
+(def-func-end)
+
 (def-method 'points 'push_back2)
 	;inputs
 	;r0 = points object (ptr)

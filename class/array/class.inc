@@ -35,6 +35,7 @@
 (dec-method 'get_length 'class/array/get_length 'override)
 (dec-method 'ref_element 'class/array/ref_element 'override)
 (dec-method 'slice 'class/array/slice 'override)
+(dec-method 'cat 'class/array/cat 'override)
 
 (dec-method 'lisp_clear 'class/array/lisp_clear 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_push 'class/array/lisp_push 'static '(r0 r1) '(r0 r1))

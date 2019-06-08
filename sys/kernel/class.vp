@@ -551,7 +551,7 @@
 			(call 'string 'ref {line} {line})
 			(call 'vector 'push_back {lines, line})
 		(loop-until {(iter + ptr_size => iter) > &reg15})
-		(call 'string 'cat {lines} {line})
+		(d-call 'string 'cat {sp, lines} {line})
 		(call 'sys_kernel 'debug {&line->string_data})
 		(call 'vector 'deref {lines})
 		(call 'string 'deref {line})
