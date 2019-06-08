@@ -1,0 +1,126 @@
+(include 'sys/func.inc)
+(include 'class/lisp/class.inc)
+
+(def-method 'array 'lisp_clear)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(ptr 'this 'args)
+	(pptr 'iter_begin 'iter_end)
+
+	(vp-def (r_value r_iter_begin r_iter_end r_this))
+
+	(push-scope)
+	(entry 'array 'lisp_clear {this, args})
+
+(errorcases
+	(call 'lisp 'env_args_type (cat {args, @} (f-path 'array 'vtable) {, -1}))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
+
+	(call 'vector 'get_iters {args} (list '_ r_iter_begin r_iter_end))
+	(loop-start)
+		(assign (list r_iter_begin) {iter_begin})
+		(call 'array 'clear `((,r_iter_begin 0)) (list r_value))
+		(assign {iter_begin, iter_end} (list r_iter_begin r_iter_end))
+		(vp-add-cr ptr_size r_iter_begin)
+	(loop-until (list r_iter_begin '== r_iter_end))
+	(call 'obj 'ref (list r_value) (list r_value))
+	(assign {this} (list r_this))
+
+	(exit 'array 'lisp_clear (list r_this r_value))
+	(return)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error {this, "(clear array ...)", error_msg_wrong_types, args}))
+
+	(pop-scope-syms)
+
+(def-func-end)
+
+(def-method 'array 'lisp_pop)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(ptr 'this 'args 'value)
+	(int 'length)
+
+	(push-scope)
+	(entry 'array 'lisp_pop {this, args})
+
+(errorcases
+	(call 'lisp 'env_args_type {args, $sig, 1})
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+
+	(call 'vector 'get_first {args} {_, args})
+	(call 'array 'get_length {args} {_, length})
+	(vpif {length})
+		(call 'array 'ref_back {args} {_, value})
+		(call 'array 'pop_back {args})
+	(else)
+		(call 'obj 'ref {this->lisp_sym_nil} {value})
+	(endif)
+
+	(exit 'array 'lisp_pop {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(jump 'lisp 'repl_error {this, "(pop array)", error_msg_wrong_types, args})
+	(signature 'sig 'array))
+
+	(pop-scope-syms)
+
+(def-func-end)
+
+(def-method 'array 'lisp_push)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(ptr 'this 'args 'value)
+	(pptr 'iter_end)
+	(uint 'length 'alength)
+
+	(push-scope)
+	(entry 'array 'lisp_push {this, args})
+
+	(d-call 'vector 'get_length {args} {_, length})
+	(errorif {length < 2} 'error1)
+	(call 'vector 'get_first {args} {_, value})
+	(vpif (cat {value->obj_vtable == @} (f-path 'vector 'vtable)))
+		(d-call 'vector 'append {value, args, 1, length})
+	(else)
+	(errorcases
+		(call 'obj 'inst_of (cat {value, @} (f-path 'array 'vtable)))
+		(gotoif (list (method-output 'obj 'inst_of 1) '== 0) 'error1))
+		(d-call 'array 'get_length {value} {_, alength})
+		(assign {alength + length - 1} {alength})
+		(call 'array 'set_capacity {value, alength})
+		(call 'array 'get_end {value} {_, iter_end})
+		(call 'array 'set_length {value, alength})
+		(call 'lisp 'env_args_set {args, iter_end, 1})
+	(endif)
+	(call 'obj 'ref {value})
+
+	(exit 'array 'lisp_push {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(jump 'lisp 'repl_error {this, "(push array form ...)", error_msg_wrong_types, args}))
+
+	(pop-scope-syms)
+
+(def-func-end)

@@ -1,0 +1,527 @@
+(include 'sys/func.inc)
+(include 'sys/math/class.inc)
+(include 'class/integer/class.inc)
+(include 'class/lisp/class.inc)
+
+(defun arithop-1 (_ p)
+	(vp-def (r_this r_args r_num r_value r_numhi r_iter_begin r_iter_end r_num1) '(r6 r7))
+	(entry 'integer _ (list r_this r_args))
+(errorcases
+	(call 'lisp 'env_args_type `(,r_args (@ ,(f-path 'integer 'vtable)) -2))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
+	(call 'vector 'get_iters (list r_args) (list '_ r_iter_begin r_iter_end))
+	(vp-cpy-ir r_iter_begin 0 r_num)
+	(vp-add-cr ptr_size r_iter_begin)
+	(vp-cpy-ir r_num integer_value r_num)
+	(loop-start)
+		(vp-cpy-ir r_iter_begin 0 r_num1)
+		(vp-add-cr ptr_size r_iter_begin)
+		(vp-cpy-ir r_num1 integer_value r_num1)
+		(exec p)
+	(loop-until (list r_iter_begin '== r_iter_end))
+	(call 'integer 'create (list r_num) (list r_value))
+	(exit 'integer _ (list r_this r_value))
+	(vp-ret))
+
+(def-method 'integer 'lisp_add)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(arithop-1 'lisp_add
+		'(vp-add-rr r_num1 r_num))
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error (list r_this "(add num num ...)" error_msg_wrong_types r_args)))
+
+(def-func-end)
+
+(def-method 'integer 'lisp_sub)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(arithop-1 'lisp_sub
+		'(vp-sub-rr r_num1 r_num))
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error (list r_this "(sub num num ...)" error_msg_wrong_types r_args)))
+
+(def-func-end)
+
+(def-method 'integer 'lisp_mul)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(arithop-1 'lisp_mul
+		'(vp-mul-rr r_num1 r_num))
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error (list r_this "(mul num num ...)" error_msg_wrong_types r_args)))
+
+(def-func-end)
+
+(def-method 'integer 'lisp_band)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(arithop-1 'lisp_band
+		'(vp-and-rr r_num1 r_num))
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error (list r_this "(bit-and num num ...)" error_msg_wrong_types r_args)))
+
+(def-func-end)
+
+(def-method 'integer 'lisp_bor)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(arithop-1 'lisp_bor
+		'(vp-or-rr r_num1 r_num))
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error (list r_this "(bit-or num num ...)" error_msg_wrong_types r_args)))
+
+(def-func-end)
+
+(def-method 'integer 'lisp_bxor)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(arithop-1 'lisp_bxor
+		'(vp-xor-rr r_num1 r_num))
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error (list r_this "(bit-xor num num ...)" error_msg_wrong_types r_args)))
+
+(def-func-end)
+
+(def-method 'integer 'lisp_min)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(arithop-1 'lisp_min
+		'(progn
+			(vpif (list r_num1 '< r_num))
+				(vp-cpy-rr r_num1 r_num)
+			(endif)))
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error (list r_this "(min num num ...)" error_msg_wrong_types r_args)))
+
+(def-func-end)
+
+(def-method 'integer 'lisp_max)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(arithop-1 'lisp_max
+		'(progn
+			(vpif (list r_num1 '> r_num))
+				(vp-cpy-rr r_num1 r_num)
+			(endif)))
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error (list r_this "(max num num ...)" error_msg_wrong_types r_args)))
+
+(def-func-end)
+
+(def-method 'integer 'lisp_div)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(arithop-1 'lisp_div
+		'(progn
+			(vp-ext-rr r_num r_numhi)
+			(vp-div-rrr r_num1 r_numhi r_num)))
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error (list r_this "(div num num ...)" error_msg_wrong_types r_args)))
+
+(def-func-end)
+
+(def-method 'integer 'lisp_mod)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(arithop-1 'lisp_mod
+		'(progn
+			(vp-ext-rr r_num r_numhi)
+			(vp-div-rrr r_num1 r_numhi r_num)
+			(vp-cpy-rr r_numhi r_num)))
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error (list r_this "(mod num num ...)" error_msg_wrong_types r_args)))
+
+(def-func-end)
+
+(def-method 'integer 'lisp_fmul)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(arithop-1 'lisp_fmul
+		'(progn
+			(vp-mul-rr r_num1 r_num)
+			(vp-asr-cr fp_shift r_num)))
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error (list r_this "(fmul num num ...)" error_msg_wrong_types r_args)))
+
+(def-func-end)
+
+(def-method 'integer 'lisp_fdiv)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(arithop-1 'lisp_fdiv
+		'(progn
+			(vp-shl-cr fp_shift r_num)
+			(vp-ext-rr r_num r_numhi)
+			(vp-div-rrr r_num1 r_numhi r_num)))
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error (list r_this "(fdiv num num ...)" error_msg_wrong_types r_args)))
+
+(def-func-end)
+
+(def-method 'integer 'lisp_fmod)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(ptr 'this)
+	(pptr 'iter_begin)
+	(union
+		'(ptr 'args)
+		'(pptr 'iter_end))
+	(union
+		'(ptr 'value)
+		'(long 'num))
+	(long 'accum)
+
+	(push-scope)
+	(entry 'integer 'lisp_fmod {this, args})
+
+(errorcases
+	(call 'lisp 'env_args_type (cat {args, @} (f-path 'integer 'vtable) {, -2}))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
+
+	(call 'vector 'get_iters {args} {_, iter_begin, iter_end})
+	(call 'integer 'get_value {*iter_begin} {_, accum})
+	(loop-start)
+		(assign {iter_begin + ptr_size} {iter_begin})
+		(breakif {iter_begin == iter_end})
+		(call 'integer 'get_value {*iter_begin} {_, num})
+		(errorifnot {num} 'error)
+		(vec-set 0)
+		(vec-load 2 {accum, num})
+		(vec-fmod 1)
+		(vec-store 1 {accum})
+	(loop-end)
+	(call 'integer 'create {accum} {value})
+
+	(exit 'integer 'lisp_fmod {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error {this, "(fmod num num ...)", error_msg_wrong_types, args}))
+
+	(pop-scope-syms)
+
+(def-func-end)
+
+(defun arithop-2 (_ p)
+	(vp-def (r_this r_args r_num r_value r_iter_begin) '(r6 r7))
+	(entry 'integer _ (list r_this r_args))
+(errorcases
+	(call 'lisp 'env_args_type `(,r_args ($ sig) 2))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
+	(vp-cpy-ir r_args array_array r_iter_begin)
+	(vp-cpy-ir r_iter_begin 0 r_num)
+	(vp-cpy-ir r_iter_begin ptr_size r_value)
+	(vp-cpy-ir r_num integer_value r_num)
+	(vp-cpy-ir r_value integer_value r_value)
+	(exec p)
+	(call 'integer 'create (list r_num) (list r_value))
+	(exit 'integer _ (list r_this r_value))
+	(vp-ret))
+
+(def-method 'integer 'lisp_basr)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(arithop-2 'lisp_basr
+		'(vp-asr-rr r_value r_num))
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error (list r_this "(bit-asr num cnt)" error_msg_wrong_types r_args))
+	(signature 'sig 'integer 'integer))
+
+(def-func-end)
+
+(def-method 'integer 'lisp_bshl)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(arithop-2 'lisp_bshl
+		'(vp-shl-rr r_value r_num))
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error (list r_this "(bit-shl num cnt)" error_msg_wrong_types r_args))
+	(signature 'sig 'integer 'integer))
+
+(def-func-end)
+
+(def-method 'integer 'lisp_bshr)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(arithop-2 'lisp_bshr
+		'(vp-shr-rr r_value r_num))
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error (list r_this "(bit-shr num cnt)" error_msg_wrong_types r_args))
+	(signature 'sig 'integer 'integer))
+
+(def-func-end)
+
+(defun compare (_ p)
+	(vp-def (r_this r_args r_num r_value r_iter_begin r_iter_end r_num1) '(r6 r7))
+	(entry 'integer _ (list r_this r_args))
+(errorcases
+	(call 'lisp 'env_args_type `(,r_args (@ ,(f-path 'integer 'vtable)) -2))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
+	(call 'vector 'get_iters (list r_args) (list '_ r_iter_begin r_iter_end))
+	(vp-cpy-ir r_iter_begin 0 r_num)
+	(vp-add-cr ptr_size r_iter_begin)
+	(vp-cpy-ir r_num integer_value r_num)
+	(loop-start)
+		(vp-cpy-ir r_iter_begin 0 r_num1)
+		(vp-add-cr ptr_size r_iter_begin)
+		(vp-cpy-ir r_num1 integer_value r_num1)
+		(exec p)
+	(loop-until (list r_iter_begin '== r_iter_end))
+	(call 'obj 'ref (list (list r_this lisp_sym_t)) (list r_value))
+	(exit 'integer _ (list r_this r_value))
+	(vp-ret)
+(vp-label 'fail)
+	(call 'obj 'ref (list (list r_this lisp_sym_nil)) (list r_value))
+	(exit 'integer _ (list r_this r_value))
+	(vp-ret))
+
+(def-method 'integer 'lisp_eq)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(compare 'lisp_eq
+		'(gotoif (list r_num1 '!= r_num) 'fail))
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error (list r_this "(eq num num ...)" error_msg_wrong_types r_args)))
+
+(def-func-end)
+
+(def-method 'integer 'lisp_ge)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(compare 'lisp_ge
+		'(progn
+			(gotoif (list r_num1 '> r_num) 'fail)
+			(vp-cpy-rr r_num1 r_num)))
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error (list r_this "(ge num num ...)" error_msg_wrong_types r_args)))
+
+(def-func-end)
+
+(def-method 'integer 'lisp_gt)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(compare 'lisp_gt
+		'(progn
+			(gotoif (list r_num1 '>= r_num) 'fail)
+			(vp-cpy-rr r_num1 r_num)))
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error (list r_this "(gt num num ...)" error_msg_wrong_types r_args)))
+
+(def-func-end)
+
+(def-method 'integer 'lisp_le)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(compare 'lisp_le
+		'(progn
+			(gotoif (list r_num1 '< r_num) 'fail)
+			(vp-cpy-rr r_num1 r_num)))
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error (list r_this "(le num num ...)" error_msg_wrong_types r_args)))
+
+(def-func-end)
+
+(def-method 'integer 'lisp_lt)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(compare 'lisp_lt
+		'(progn
+			(gotoif (list r_num1 '<= r_num) 'fail)
+			(vp-cpy-rr r_num1 r_num)))
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error (list r_this "(lt num num ...)" error_msg_wrong_types r_args)))
+
+(def-func-end)
+
+(def-method 'integer 'lisp_ne)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(vp-def (r_this r_args r_num r_value r_iter_begin r_iter_end r_num1 r_iter r_iter_stop) '(r6 r7))
+
+	(entry 'integer 'lisp_ne (list r_this r_args))
+
+(errorcases
+	(call 'lisp 'env_args_type `(,r_args (@ ,(f-path 'integer 'vtable)) -2))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
+
+	(call 'vector 'get_iters (list r_args) (list '_ r_iter_begin r_iter_end))
+	(vp-lea-i r_iter_end (neg ptr_size) r_iter_stop)
+	(loop-start)
+		(vp-cpy-ir r_iter_begin 0 r_num)
+		(vp-add-cr ptr_size r_iter_begin)
+		(vp-cpy-rr r_iter_begin r_iter)
+		(vp-cpy-ir r_num integer_value r_num)
+		(loop-start)
+			(vp-cpy-ir r_iter 0 r_num1)
+			(vp-add-cr ptr_size r_iter)
+			(vp-cpy-ir r_num1 integer_value r_num1)
+			(gotoif (list r_num1 '== r_num) 'fail)
+		(loop-until (list r_iter '== r_iter_end))
+	(loop-until (list r_iter_begin '== r_iter_stop))
+
+	(call 'obj 'ref (list (list r_this lisp_sym_t)) (list r_value))
+	(exit 'integer 'lisp_ne (list r_this r_value))
+	(vp-ret)
+
+(vp-label 'fail)
+	(call 'obj 'ref (list (list r_this lisp_sym_nil)) (list r_value))
+	(exit 'integer 'lisp_ne (list r_this r_value))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error (list r_this "(ne num num ...)" error_msg_wrong_types r_args)))
+
+(def-func-end)

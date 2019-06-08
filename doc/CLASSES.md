@@ -312,6 +312,33 @@ r1 = slice array object (ptr)
 trashes
 r1-r8
 ```
+### array::lisp_clear -> class/array/lisp_clear
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### array::lisp_push -> class/array/lisp_push
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### array::lisp_pop -> class/array/lisp_pop
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
 ## backdrop
 Super Class: view
 ### backdrop::vtable -> apps/boing/backdrop/vtable
@@ -1615,6 +1642,204 @@ outputs
 r0 = integer object (ptr)
 r1 = value (long)
 ```
+### integer::lisp_add -> class/integer/lisp_add
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### integer::lisp_sub -> class/integer/lisp_sub
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### integer::lisp_mul -> class/integer/lisp_mul
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### integer::lisp_div -> class/integer/lisp_div
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### integer::lisp_mod -> class/integer/lisp_mod
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### integer::lisp_fmul -> class/integer/lisp_fmul
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### integer::lisp_fdiv -> class/integer/lisp_fdiv
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### integer::lisp_fmod -> class/integer/lisp_fmod
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### integer::lisp_band -> class/integer/lisp_band
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### integer::lisp_bor -> class/integer/lisp_bor
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### integer::lisp_bxor -> class/integer/lisp_bxor
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### integer::lisp_bshr -> class/integer/lisp_bshr
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### integer::lisp_basr -> class/integer/lisp_basr
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### integer::lisp_bshl -> class/integer/lisp_bshl
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### integer::lisp_min -> class/integer/lisp_min
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### integer::lisp_max -> class/integer/lisp_max
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### integer::lisp_eq -> class/integer/lisp_eq
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### integer::lisp_ne -> class/integer/lisp_ne
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### integer::lisp_lt -> class/integer/lisp_lt
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### integer::lisp_gt -> class/integer/lisp_gt
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### integer::lisp_le -> class/integer/lisp_le
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### integer::lisp_ge -> class/integer/lisp_ge
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
 ## label
 Super Class: view
 ### label::vtable -> gui/label/vtable
@@ -1979,142 +2204,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
-### lisp::func_add -> class/lisp/func_add
-```
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-```
-### lisp::func_sub -> class/lisp/func_sub
-```
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-```
-### lisp::func_mul -> class/lisp/func_mul
-```
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-```
-### lisp::func_fmul -> class/lisp/func_fmul
-```
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-```
-### lisp::func_div -> class/lisp/func_div
-```
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-```
-### lisp::func_fdiv -> class/lisp/func_fdiv
-```
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-```
-### lisp::func_mod -> class/lisp/func_mod
-```
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-```
-### lisp::func_min -> class/lisp/func_min
-```
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-```
-### lisp::func_max -> class/lisp/func_max
-```
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-```
 ### lisp::func_eql -> class/lisp/func_eql
-```
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-```
-### lisp::func_eq -> class/lisp/func_eq
-```
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-```
-### lisp::func_ne -> class/lisp/func_ne
-```
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-```
-### lisp::func_lt -> class/lisp/func_lt
-```
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-```
-### lisp::func_gt -> class/lisp/func_gt
-```
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-```
-### lisp::func_le -> class/lisp/func_le
-```
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-```
-### lisp::func_ge -> class/lisp/func_ge
 ```
 inputs
 r0 = lisp object (ptr)
@@ -2133,15 +2223,6 @@ r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
 ### lisp::func_progn -> class/lisp/func_progn
-```
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-```
-### lisp::func_length -> class/lisp/func_length
 ```
 inputs
 r0 = lisp object (ptr)
@@ -2196,24 +2277,6 @@ r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
 ### lisp::func_str -> class/lisp/func_str
-```
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-```
-### lisp::func_cat -> class/lisp/func_cat
-```
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-```
-### lisp::func_elem -> class/lisp/func_elem
 ```
 inputs
 r0 = lisp object (ptr)
@@ -2313,87 +2376,6 @@ r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
 ### lisp::func_code -> class/lisp/func_code
-```
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-```
-### lisp::func_slice -> class/lisp/func_slice
-```
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-```
-### lisp::func_bshr -> class/lisp/func_bshr
-```
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-```
-### lisp::func_basr -> class/lisp/func_basr
-```
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-```
-### lisp::func_bshl -> class/lisp/func_bshl
-```
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-```
-### lisp::func_band -> class/lisp/func_band
-```
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-```
-### lisp::func_bor -> class/lisp/func_bor
-```
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-```
-### lisp::func_bxor -> class/lisp/func_bxor
-```
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-```
-### lisp::func_push -> class/lisp/func_push
-```
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-```
-### lisp::func_pop -> class/lisp/func_pop
 ```
 inputs
 r0 = lisp object (ptr)
@@ -2538,34 +2520,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
-### lisp::func_clear -> class/lisp/func_clear
-```
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-```
 ### lisp::func_match -> class/lisp/func_match
-```
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-```
-### lisp::func_each -> class/lisp/func_each
-```
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-```
-### lisp::func_some -> class/lisp/func_some
 ```
 inputs
 r0 = lisp object (ptr)
@@ -2602,15 +2557,6 @@ r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
 ### lisp::func_points -> class/lisp/func_points
-```
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-```
-### lisp::func_fmod -> class/lisp/func_fmod
 ```
 inputs
 r0 = lisp object (ptr)
@@ -3732,6 +3678,60 @@ Super Class: obj
 ### sequence::get_length -> class/obj/null
 ### sequence::ref_element -> class/obj/null
 ### sequence::slice -> class/obj/null
+### sequence::lisp_length -> class/sequence/lisp_length
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### sequence::lisp_elem -> class/sequence/lisp_elem
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### sequence::lisp_slice -> class/sequence/lisp_slice
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### sequence::lisp_cat -> class/sequence/lisp_cat
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### sequence::lisp_each -> class/sequence/lisp_each
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### sequence::lisp_some -> class/sequence/lisp_some
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
 ## slave
 Super Class: obj
 ### slave::vtable -> class/slave/vtable
