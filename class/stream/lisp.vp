@@ -43,7 +43,7 @@
 	(vpif '(r0 != 0))
 		(call 'stream_str 'create '(r0) '(r0))
 	(else)
-		(call 'obj 'ref '((r6 lisp_sym_nil)) '(r0))
+		(call 'obj 'ref '((r8 lisp_sym_nil)) '(r0))
 	(endif)
 
 (vp-label 'funcexit)
