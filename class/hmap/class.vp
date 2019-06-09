@@ -1,0 +1,345 @@
+(include 'sys/func.inc)
+(include 'class/vector/class.inc)
+(include 'class/pair/class.inc)
+(include 'class/hmap/class.inc)
+
+(gen-create 'hmap)
+(gen-vtable 'hmap)
+
+(def-method 'hmap 'init)
+	;inputs
+	;r0 = hash_map object (ptr)
+	;r1 = vtable (pptr)
+	;r2 = 0, else key compare callback (ptr)
+	;r3 = num buckets (uint)
+	;outputs
+	;r0 = hash_map object (ptr)
+	;r1 = 0 if error, else ok
+	;trashes
+	;r2-r7
+
+	(entry 'hmap 'init '(r0 r1 r2 r3))
+
+	(vp-xor-rr r4 r4)
+	(vp-cpy-ri r4 r0 hmap_parent)
+	(s-jump 'hmap 'init '(r0 r1 r2 r3))
+
+(def-func-end)
+
+(def-method 'hmap 'deinit)
+	;inputs
+	;r0 = hash_map object (ptr)
+	;trashes
+	;all but r0
+
+	(entry 'hmap 'deinit '(r0))
+
+	(vp-push r0)
+	(call 'hmap 'deref_if '((r0 hmap_parent)))
+	(vp-pop r0)
+	(s-jump 'hmap 'deinit '(r0))
+
+(def-func-end)
+
+(def-method 'hmap 'set_parent)
+	;inputs
+	;r0 = hash_map object (ptr)
+	;r1 = 0, else hash_map parent object (ptr)
+	;outputs
+	;r0 = hash_map object (ptr)
+	;trashes
+	;all but r0
+
+	(entry 'hmap 'set_parent '(r0 r1))
+
+	(vp-push r0)
+	(vp-cpy-ir r0 hmap_parent r2)
+	(vp-cpy-ri r1 r0 hmap_parent)
+	(call 'hmap 'deref_if '(r2))
+	(vp-pop r0)
+
+	(exit 'hmap 'set_parent '(r0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'hmap 'copy)
+	;inputs
+	;r0 = hash_map object (ptr)
+	;r1 = num buckets (uint)
+	;outputs
+	;r0 = hash_map object (ptr)
+	;r1 = hash_map copy object (ptr)
+	;trashes
+	;all but r0
+
+	(def-struct 'local)
+		(ptr 'obj)	;must be first
+		(ptr 'this)
+	(def-struct-end)
+
+	;save inputs
+	(vp-alloc local_size)
+	(entry 'hmap 'copy '(r0 r1))
+	(assign '(r0) '((rsp local_this)))
+
+	(call 'hmap 'create '((r0 hset_key_callback) r1) '((rsp local_obj)))
+	(call 'hmap 'get_parent '((rsp local_this)) '(_ r0))
+	(call 'hmap 'ref_if '(r0) '(r0))
+	(call 'hmap 'set_parent '((rsp local_obj) r0))
+	(call 'hmap 'for_each '((rsp local_this) ($ callback) rsp))
+
+	(exit 'hmap 'copy '(r0 (rsp local_obj)))
+	(vp-free local_size)
+	(vp-ret)
+
+(vp-label 'callback)
+	;inputs
+	;r0 = predicate data (ptr)
+	;r1 = element iterator (ptr)
+	;outputs
+	;r1 = 0 if break, else not
+
+	(entry 'vector 'each_callback '(r0 r1))
+
+	(vp-cpy-ir r0 0 r2)
+	(call 'obj 'ref '((r1 0)))
+	(vp-push r0)
+	(call 'hmap 'get_bucket '(r2 (r0 pair_first)) '(_ r0))
+	(vp-pop r1)
+	(jump 'vector 'push_back '(r0 r1))
+
+(def-func-end)
+
+(def-method 'hmap 'find)
+	;inputs
+	;r0 = hash_map object (ptr)
+	;r1 = key object (ptr)
+	;outputs
+	;r0 = hash_map object (ptr)
+	;r1 = 0, else found iterator (pptr)
+	;r2 = bucket vector (ptr)
+	;trashes
+	;all but r0
+
+	(def-struct 'local)
+		(ptr 'this)
+		(ptr 'key)
+	(def-struct-end)
+
+	;save inputs
+	(vp-alloc local_size)
+	(entry 'hmap 'find '(r0 r1))
+	(assign '(r1) '((rsp local_key)))
+
+	(vp-cpy-ir r0 hset_key_callback r2)
+	(vpif '(r2 == 0) 'lbreak)
+		;search hash bucket
+		(call 'hmap 'get_bucket '(r0 r1) '(r0 r2))
+		(vp-cpy-ir-ui r2 array_length r3)
+		(vp-cpy-ir r2 array_array r1)
+		(vp-shl-cr (log2 long_size) r3)
+		(vp-add-rr r1 r3)
+		(vp-cpy-ir rsp local_key r4)
+		(loop-while '(r1 != r3))
+			(vp-cpy-ir r1 0 r5)
+			(vp-cpy-ir r5 pair_first r5)
+			(breakif '(r4 == r5) 'lbreak)
+			(vp-add-cr long_size r1)
+		(loop-end)
+		(vp-xor-rr r1 r1)
+	(else)
+		;search hash bucket
+		(vp-cpy-ri r0 rsp local_this)
+		(call 'hmap 'get_bucket '(r0 r1) '(_ r0))
+		(call 'vector 'for_each '(r0 0 (r0 array_length ui) ($ callback) rsp) '(r2 r1))
+		(vp-cpy-ir rsp local_this r0)
+	(endif)
+
+	(exit 'hmap 'find '(r0 r1 r2))
+	(vp-free local_size)
+	(vp-ret)
+
+(vp-label 'callback)
+	;inputs
+	;r0 = predicate data (ptr)
+	;r1 = element iterator (ptr)
+	;outputs
+	;r1 = 0 if break, else not
+
+	(entry 'vector 'each_callback '(r0 r1))
+
+	(vp-cpy-ir r1 0 r1)
+	(vp-cpy-ir r0 local_this r2)
+	(vp-cpy-ir r0 local_key r0)
+	(vp-cpy-ir r1 pair_first r1)
+	(vp-jmp-i r2 hset_key_callback)
+
+(def-func-end)
+
+(def-method 'hmap 'insert)
+	;inputs
+	;r0 = hash_map object (ptr)
+	;r1 = key object (ptr)
+	;r2 = value object (ptr)
+	;outputs
+	;r0 = hash_map object (ptr)
+	;r1 = iterator (pptr)
+	;r2 = bucket vector (ptr)
+	;trashes
+	;all but r0
+
+	(def-struct 'local)
+		(ptr 'this)
+		(ptr 'key)
+		(ptr 'value)
+		(ptr 'iter)
+		(ptr 'bucket)
+		(ptr 'pair)
+	(def-struct-end)
+
+	;save inputs
+	(vp-alloc local_size)
+	(entry 'hmap 'insert '(r0 r1 (rsp local_value)))
+	(assign '(r0 r1) '((rsp local_this) (rsp local_key)))
+
+	;search hash bucket
+	(call 'hmap 'find '(r0 r1) '(r0 r1 r2))
+	(vp-cpy-ri r2 rsp local_bucket)
+	(vpif '(r1 == 0))
+		;new key, (key could be same as value !)
+		(vp-cpy-ir rsp local_key r0)
+		(vp-cpy-ir rsp local_value r1)
+		(vp-cpy-ir-ui r0 obj_count r2)
+		(vp-add-cr 1 r2)
+		(vp-cpy-ri-i r2 r0 obj_count)
+		(vp-cpy-ir-ui r1 obj_count r2)
+		(vp-add-cr 1 r2)
+		(vp-cpy-ri-i r2 r1 obj_count)
+		(call 'pair 'create '(r0 r1) '(r0))
+		(call 'vector 'push_back '((rsp local_bucket) r0) '(r0 _))
+		(vp-cpy-rr r0 r2)
+		(vp-cpy-ir-ui r0 array_length r1)
+		(vp-cpy-ir r0 array_array r0)
+		(vp-shl-cr (log2 ptr_size) r1)
+		(vp-add-rr r1 r0)
+		(vp-lea-i r0 (neg ptr_size) r1)
+	(else)
+		;old key
+		(vp-cpy-ri r1 rsp local_iter)
+		(vp-cpy-ir r1 0 r2)
+		(vp-cpy-ri r2 rsp local_pair)
+		(call 'obj 'ref '((rsp local_value)))
+		(call 'obj 'deref '((r2 pair_second)))
+		(vp-cpy-ir rsp local_value r0)
+		(vp-cpy-ir rsp local_pair r2)
+		(vp-cpy-ri r0 r2 pair_second)
+		(vp-cpy-ir rsp local_iter r1)
+		(vp-cpy-ir rsp local_bucket r2)
+	(endif)
+
+	(exit 'hmap 'insert '((rsp local_this) r1 r2))
+	(vp-free local_size)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'hmap 'search)
+	;inputs
+	;r0 = hash_map object (ptr)
+	;r1 = key object (ptr)
+	;outputs
+	;r0 = hash_map object (ptr)
+	;r1 = 0, else iterator (pptr)
+	;r2 = bucket vector (ptr)
+	;trashes
+	;all but r0
+
+	(def-struct 'local)
+		(ptr 'this)
+		(ptr 'key)
+	(def-struct-end)
+
+	(vp-alloc local_size)
+	(entry 'hmap 'search '(r0 r1))
+
+	(vp-cpy-ri r0 rsp local_this)
+	(vp-cpy-ri r1 rsp local_key)
+	(loop-start)
+		(call 'hmap 'find '(r0 r1) '(r0 r1 r2))
+		(breakif '(r1 != 0))
+		(call 'hmap 'get_parent '(r0) '(r0 r1))
+		(breakif '(r1 == 0))
+		(vp-cpy-rr r1 r0)
+		(vp-cpy-ir rsp local_key r1)
+	(loop-end)
+
+	(exit 'hmap 'search '((rsp local_this) r1 r2))
+	(vp-free local_size)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'hmap 'set)
+	;inputs
+	;r0 = hash_map object (ptr)
+	;r1 = key object (ptr)
+	;r2 = value object (ptr)
+	;outputs
+	;r0 = hash_map object (ptr)
+	;r1 = 0 if not found, else value object (ptr)
+	;trashes
+	;all but r0
+
+	(def-struct 'local)
+		(ptr 'this)
+		(ptr 'value)
+	(def-struct-end)
+
+	(vp-alloc local_size)
+	(entry 'hmap 'set '(r0 r1 (rsp local_value)))
+
+	(call 'hmap 'search '(r0 r1) '(r0 r1 _))
+	(vpif '(r1 != 0))
+		(vp-cpy-ri r0 rsp local_this)
+		(vp-cpy-ir r1 0 r0)
+		(vp-cpy-ir rsp local_value r1)
+		(vp-cpy-ir-ui r1 obj_count r2)
+		(vp-add-cr 1 r2)
+		(vp-cpy-ri-i r2 r1 obj_count)
+		(call 'pair 'set_second '(r0 r1))
+		(vp-cpy-ir rsp local_this r0)
+		(vp-cpy-ir rsp local_value r1)
+	(endif)
+
+	(exit 'hmap 'set '(r0 r1))
+	(vp-free local_size)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'hmap 'get)
+	;inputs
+	;r0 = hash_map object (ptr)
+	;r1 = key object (ptr)
+	;outputs
+	;r0 = hash_map object (ptr)
+	;r1 = 0 if not found, else value object (ptr)
+	;trashes
+	;all but r0
+
+	(entry 'hmap 'get '(r0 r1))
+
+	(call 'hmap 'search '(r0 r1) '(r0 r1 _))
+	(vpif '(r1 != 0))
+		(vp-cpy-ir r1 0 r1)
+		(vp-cpy-ir r1 pair_second r1)
+		(vp-cpy-ir-ui r1 obj_count r2)
+		(vp-add-cr 1 r2)
+		(vp-cpy-ri-i r2 r1 obj_count)
+	(endif)
+
+	(exit 'hmap 'get '(r0 r1))
+	(vp-ret)
+
+(def-func-end)

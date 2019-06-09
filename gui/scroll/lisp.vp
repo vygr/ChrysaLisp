@@ -1,7 +1,7 @@
 (include 'sys/func.inc)
 (include 'gui/scroll/class.inc)
-(include 'class/string/class.inc)
-(include 'class/integer/class.inc)
+(include 'class/str/class.inc)
+(include 'class/num/class.inc)
 (include 'class/lisp/class.inc)
 
 (def-method 'scroll 'lisp_create)
@@ -31,7 +31,7 @@
 (errorcases
 (vp-label 'error1)
 	(jump 'lisp 'repl_error {this, "(create-scroll flags)", error_msg_wrong_types, args})
-	(signature 'sig 'integer))
+	(signature 'sig 'num))
 
 	(pop-scope-syms)
 

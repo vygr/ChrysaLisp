@@ -1,6 +1,6 @@
 (include 'sys/func.inc)
 (include 'class/array/class.inc)
-(include 'class/integer/class.inc)
+(include 'class/num/class.inc)
 
 (gen-create 'array)
 (gen-vtable 'array)
@@ -244,7 +244,7 @@
 	(vp-sub-cr 1 r1)
 	(vp-shl-cr (log2 long_size) r1)
 	(vp-push r0)
-	(call 'integer 'create '((r2 r1)) '(r1))
+	(call 'num 'create '((r2 r1)) '(r1))
 	(vp-pop r0)
 
 	(exit 'array 'ref_back '(r0 r1))
@@ -267,7 +267,7 @@
 	(vp-cpy-ir r0 array_array r2)
 	(vp-shl-cr (log2 long_size) r1)
 	(vp-push r0)
-	(call 'integer 'create '((r2 r1)) '(r1))
+	(call 'num 'create '((r2 r1)) '(r1))
 	(vp-pop r0)
 
 	(exit 'array 'ref_element '(r0 r1))

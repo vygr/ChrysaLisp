@@ -1,7 +1,7 @@
 (include 'sys/func.inc)
 (include 'sys/kernel/class.inc)
-(include 'class/integer/class.inc)
-(include 'class/string/class.inc)
+(include 'class/num/class.inc)
+(include 'class/str/class.inc)
 (include 'class/lisp/class.inc)
 
 (def-method 'sys_kernel 'lisp_total)
@@ -21,7 +21,7 @@
 	(gotoif (list r_len '!= 0) 'error1))
 
 	(call 'sys_kernel 'total nil (list r_value))
-	(call 'integer 'create (list r_value) (list r_value))
+	(call 'num 'create (list r_value) (list r_value))
 
 	(exit 'sys_kernel 'lisp_total (list r_this r_value))
 	(vp-ret)
@@ -51,7 +51,7 @@
 	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
-	(call 'sys_kernel 'declare {&arg0->string_data, arg1})
+	(call 'sys_kernel 'declare {&arg0->str_data, arg1})
 	(call 'obj 'ref {arg0} {value})
 
 	(exit 'sys_kernel 'lisp_declare {this, value})
@@ -60,7 +60,7 @@
 (errorcases
 (vp-label 'error1)
 	(jump 'lisp 'repl_error {this, "(kernel-declare name mbox)", error_msg_wrong_types, args})
-	(signature 'sig 'string 'integer))
+	(signature 'sig 'str 'num))
 
 	(pop-scope-syms)
 
@@ -85,7 +85,7 @@
 	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
-	(call 'sys_kernel 'debug {&arg0->string_data})
+	(call 'sys_kernel 'debug {&arg0->str_data})
 	(call 'obj 'ref {arg0} {value})
 
 	(exit 'sys_kernel 'lisp_debug {this, value})
@@ -94,7 +94,7 @@
 (errorcases
 (vp-label 'error1)
 	(jump 'lisp 'repl_error {this, "(kernel-debug str)", error_msg_wrong_types, args})
-	(signature 'sig 'string))
+	(signature 'sig 'str))
 
 	(pop-scope-syms)
 

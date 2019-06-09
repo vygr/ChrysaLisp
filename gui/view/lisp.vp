@@ -1,7 +1,7 @@
 (include 'sys/func.inc)
 (include 'gui/view/class.inc)
-(include 'class/integer/class.inc)
-(include 'class/string/class.inc)
+(include 'class/num/class.inc)
+(include 'class/str/class.inc)
 (include 'class/lisp/class.inc)
 
 (def-method 'view 'lisp_create)
@@ -50,7 +50,7 @@
 	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
-	(call 'view 'event {arg0, &arg1->string_data})
+	(call 'view 'event {arg0, &arg1->str_data})
 	(call 'obj 'ref {arg0} {value})
 
 	(exit 'view 'lisp_event {this, value})
@@ -59,7 +59,7 @@
 (errorcases
 (vp-label 'error1)
 	(jump 'lisp 'repl_error {this, "(view-event view str)", error_msg_wrong_types, args})
-	(signature 'sig 'view 'string))
+	(signature 'sig 'view 'str))
 
 	(pop-scope-syms)
 
@@ -130,7 +130,7 @@
 (errorcases
 (vp-label 'error1)
 	(jump 'lisp 'repl_error {this, "(view-find-id view id)", error_msg_wrong_types, args})
-	(signature 'sig 'view 'integer))
+	(signature 'sig 'view 'num))
 
 	(pop-scope-syms)
 
@@ -295,8 +295,8 @@
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'view 'pref_size {arg0} {_, arg1, arg2})
 	(call 'vector 'create nil {value})
-	(call 'integer 'create {arg1} {arg1})
-	(call 'integer 'create {arg2} {arg2})
+	(call 'num 'create {arg1} {arg1})
+	(call 'num 'create {arg2} {arg2})
 	(call 'vector 'push_back {value, arg1})
 	(call 'vector 'push_back {value, arg2})
 
@@ -340,7 +340,7 @@
 (errorcases
 (vp-label 'error1)
 	(jump 'lisp 'repl_error {this, "(view-change view x y w h)", error_msg_wrong_types, args})
-	(signature 'sig 'view 'integer 'integer 'integer 'integer))
+	(signature 'sig 'view 'num 'num 'num 'num))
 
 	(pop-scope-syms)
 
@@ -374,7 +374,7 @@
 (errorcases
 (vp-label 'error1)
 	(jump 'lisp 'repl_error {this, "(view-set-bounds view x y w h)", error_msg_wrong_types, args})
-	(signature 'sig 'view 'integer 'integer 'integer 'integer))
+	(signature 'sig 'view 'num 'num 'num 'num))
 
 	(pop-scope-syms)
 
@@ -401,10 +401,10 @@
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'view 'get_bounds {arg0} {_, arg1, arg2, arg3, arg4})
 	(call 'vector 'create nil {value})
-	(call 'integer 'create {arg1} {arg1})
-	(call 'integer 'create {arg2} {arg2})
-	(call 'integer 'create {arg3} {arg3})
-	(call 'integer 'create {arg4} {arg4})
+	(call 'num 'create {arg1} {arg1})
+	(call 'num 'create {arg2} {arg2})
+	(call 'num 'create {arg3} {arg3})
+	(call 'num 'create {arg4} {arg4})
 	(call 'vector 'push_back {value, arg1})
 	(call 'vector 'push_back {value, arg2})
 	(call 'vector 'push_back {value, arg3})
@@ -450,7 +450,7 @@
 (errorcases
 (vp-label 'error1)
 	(jump 'lisp 'repl_error {this, "(view-add-opaque view x y w h)", error_msg_wrong_types, args})
-	(signature 'sig 'view 'integer 'integer 'integer 'integer))
+	(signature 'sig 'view 'num 'num 'num 'num))
 
 	(pop-scope-syms)
 
@@ -484,7 +484,7 @@
 (errorcases
 (vp-label 'error1)
 	(jump 'lisp 'repl_error {this, "(view-sub-opaque view x y w h)", error_msg_wrong_types, args})
-	(signature 'sig 'view 'integer 'integer 'integer 'integer))
+	(signature 'sig 'view 'num 'num 'num 'num))
 
 	(pop-scope-syms)
 
@@ -552,7 +552,7 @@
 (errorcases
 (vp-label 'error1)
 	(jump 'lisp 'repl_error {this, "(view-add-dirty view x y w h)", error_msg_wrong_types, args})
-	(signature 'sig 'view 'integer 'integer 'integer 'integer))
+	(signature 'sig 'view 'num 'num 'num 'num))
 
 	(pop-scope-syms)
 

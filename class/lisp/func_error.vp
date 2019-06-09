@@ -1,6 +1,6 @@
 (include 'sys/func.inc)
-(include 'class/string/class.inc)
-(include 'class/integer/class.inc)
+(include 'class/str/class.inc)
+(include 'class/num/class.inc)
 (include 'class/lisp/class.inc)
 
 (def-method 'lisp 'func_error)
@@ -26,12 +26,12 @@
 
 	(call 'vector 'get_begin {args} {_, iter_begin})
 	(assign {iter_begin[0], iter_begin[ptr_size]} {str, value})
-	(jump 'lisp 'repl_error {this, &str->string_data, 0, value})
+	(jump 'lisp 'repl_error {this, &str->str_data, 0, value})
 
 (errorcases
 (vp-label 'error1)
 	(jump 'lisp 'repl_error {this, "(throw str form)", error_msg_wrong_types, args})
-	(signature 'sig 'string 'obj))
+	(signature 'sig 'str 'obj))
 
 	(pop-scope-syms)
 

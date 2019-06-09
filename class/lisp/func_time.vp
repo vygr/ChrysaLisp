@@ -1,5 +1,5 @@
 (include 'sys/func.inc)
-(include 'class/integer/class.inc)
+(include 'class/num/class.inc)
 (include 'class/lisp/class.inc)
 
 (def-method 'lisp 'func_time)
@@ -19,7 +19,7 @@
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length} 'error1)
 	(call 'sys_pii 'time nil {length})
-	(call 'integer 'create {length} {args})
+	(call 'num 'create {length} {args})
 
 	(exit 'lisp 'func_time {this, args})
 	(return)

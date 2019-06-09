@@ -1,0 +1,475 @@
+(include 'sys/func.inc)
+(include 'class/vector/class.inc)
+(include 'class/hset/class.inc)
+
+(gen-create 'hset)
+(gen-vtable 'hset)
+
+(def-method 'hset 'init)
+	;inputs
+	;r0 = hash_set object (ptr)
+	;r1 = vtable (pptr)
+	;r2 = 0, else key compare callback (ptr)
+	;r3 = num buckets (uint)
+	;outputs
+	;r0 = hash_set object (ptr)
+	;r1 = 0 if error, else ok
+	;trashes
+	;r2-r5
+
+	(def-struct 'local)
+		(ptr 'this)
+	(def-struct-end)
+
+	;save inputs
+	(vp-alloc local_size)
+	(entry 'hset 'init '(r0 r1 r2 r3))
+	(assign '(r0 r2 r3) '((rsp local_this) (r0 hset_key_callback) (r0 hset_num_buckets i)))
+
+	;init parent
+	(s-call 'hset 'init '(r0 r1) '(r0 r1))
+	(vpif '(r1 != 0))
+		;init myself
+		(call 'vector 'create '() '(r0))
+		(vp-cpy-ir rsp local_this r1)
+		(vp-cpy-ri r0 r1 hset_buckets)
+		(vp-cpy-ir-ui r1 hset_num_buckets r1)
+		(vpif '(r1 != 1))
+			(vp-cpy-ri-i r1 r0 array_length)
+			(call 'vector 'set_capacity '(r0 r1))
+			(call 'vector 'for_each '(r0 0 (r0 array_length ui) ($ callback) 0) '(_ r1))
+			(vp-add-cr 1 r1)
+		(endif)
+		(vp-cpy-ir rsp local_this r0)
+	(endif)
+
+	(exit 'hset 'init '(r0 r1))
+	(vp-free local_size)
+	(vp-ret)
+
+(vp-label 'callback)
+	;inputs
+	;r0 = predicate data (ptr)
+	;r1 = element iterator (pptr)
+	;outputs
+	;r1 = 0 if break, else not
+
+	(entry 'vector 'each_callback '(r0 r1))
+
+	(vp-push r1)
+	(call 'vector 'create '() '(r1))
+	(vp-pop r0)
+	(vp-cpy-ri r1 r0 0)
+
+	(exit 'vector 'each_callback '(r1))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'hset 'deinit)
+	;inputs
+	;r0 = hash_set object (ptr)
+	;trashes
+	;all but r0
+
+	(entry 'hset 'deinit '(r0))
+
+	(vp-push r0)
+	(call 'vector 'deref '((r0 hset_buckets)))
+	(vp-pop r0)
+	(s-jump 'hset 'deinit '(r0))
+
+(def-func-end)
+
+(def-method 'hset 'clear)
+	;inputs
+	;r0 = hash_set object (ptr)
+	;outputs
+	;r0 = hash_set object (ptr)
+	;trashes
+	;all but r0
+
+	(entry 'hset 'clear '(r0))
+
+	;clear all buckets
+	(vp-push r0)
+	(vp-cpy-ir-ui r0 hset_num_buckets r1)
+	(vp-cpy-ir r0 hset_buckets r0)
+	(vpif '(r1 == 1))
+		(d-call 'vector 'clear '(r0))
+	(else)
+		(call 'vector 'for_each '(r0 0 r1 ($ callback) 0))
+	(endif)
+	(vp-pop r0)
+
+	(exit 'hset 'clear '(r0))
+	(vp-ret)
+
+(vp-label 'callback)
+	;inputs
+	;r0 = predicate data (ptr)
+	;r1 = element iterator (pptr)
+	;outputs
+	;r1 = 0 if break, else not
+
+	(entry 'vector 'each_callback '(r0 r1))
+
+	(d-call 'vector 'clear '((r1 0)) '(r1))
+
+	(exit 'vector 'each_callback '(r1))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'hset 'copy)
+	;inputs
+	;r0 = hash_set object (ptr)
+	;r1 = num buckets (uint)
+	;outputs
+	;r0 = hash_set object (ptr)
+	;r1 = hash_set copy object (ptr)
+	;trashes
+	;all but r0
+
+	(entry 'hset 'copy '(r0 r1))
+
+	(vp-cpy-rr r0 r8)
+	(call 'hset 'create '((r0 hset_key_callback) r1) '(r0))
+	(vp-push r0)
+	(call 'hset 'for_each '(r8 ($ callback) rsp))
+	(vp-pop r1)
+
+	(exit 'hset 'copy '(r0 r1))
+	(vp-ret)
+
+(vp-label 'callback)
+	;inputs
+	;r0 = predicate data (ptr)
+	;r1 = element iterator (pptr)
+	;outputs
+	;r1 = 0 if break, else not
+
+	(entry 'vector 'each_callback '(r0 r1))
+
+	(vp-cpy-ir r0 0 r2)
+	(call 'obj 'ref '((r1 0)))
+	(vp-push r0)
+	(call 'hset 'get_bucket '(r2 r0) '(_ r0))
+	(vp-pop r1)
+	(jump 'vector 'push_back '(r0 r1))
+
+(def-func-end)
+
+(def-method 'hset 'erase)
+	;inputs
+	;r0 = hash_set object (ptr)
+	;r1 = element iterator (pptr)
+	;r2 = bucket vector object (ptr)
+	;outputs
+	;r0 = hash_set object (ptr)
+	;trashes
+	;all but r0
+
+	(def-struct 'local)
+		(ptr 'this)
+		(ptr 'iter)
+		(ptr 'bucket)
+	(def-struct-end)
+
+	;save inputs
+	(vp-alloc local_size)
+	(entry 'hset 'erase '((rsp local_this) r1 (rsp local_bucket)))
+	(assign '(r1) '((rsp local_iter)))
+
+	;swap last entry for erased entry
+	(call 'obj 'deref '((r1 0)))
+	(vp-cpy-ir rsp local_bucket r0)
+	(vp-cpy-ir-ui r0 array_length r1)
+	(vp-sub-cr 1 r1)
+	(vp-cpy-ri-i r1 r0 array_length)
+	(vp-shl-cr (log2 ptr_size) r1)
+	(vp-cpy-ir r0 array_array r0)
+	(vp-add-rr r0 r1)
+	(vp-cpy-ir rsp local_iter r0)
+	(vpif '(r1 != r0))
+		(vp-cpy-ir r1 0 r1)
+		(vp-cpy-ri r1 r0 0)
+	(endif)
+
+	(exit 'hset 'erase '((rsp local_this)))
+	(vp-free local_size)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'hset 'find)
+	;inputs
+	;r0 = hash_set object (ptr)
+	;r1 = key object (ptr)
+	;outputs
+	;r0 = hash_set object (ptr)
+	;r1 = 0, else found iterator (pptr)
+	;r2 = bucket vector object (ptr)
+	;trashes
+	;all but r0
+
+	(def-struct 'local)
+		(ptr 'this)
+		(ptr 'key)
+	(def-struct-end)
+
+	;save inputs
+	(vp-alloc local_size)
+	(entry 'hset 'find '(r0 (rsp local_key)))
+
+	(vp-cpy-ir r0 hset_key_callback r2)
+	(vpif '(r2 == 0) 'lbreak)
+		;search hash bucket
+		(call 'hset 'get_bucket '(r0 r1) '(r0 r2))
+		(vp-cpy-ir-ui r2 array_length r3)
+		(vp-cpy-ir r2 array_array r1)
+		(vp-shl-cr (log2 long_size) r3)
+		(vp-add-rr r1 r3)
+		(vp-cpy-ir rsp local_key r4)
+		(loop-while '(r1 != r3))
+			(vp-cpy-ir r1 0 r5)
+			(breakif '(r4 == r5) 'lbreak)
+			(vp-add-cr long_size r1)
+		(loop-end)
+		(vp-xor-rr r1 r1)
+	(else)
+		;search hash bucket
+		(vp-cpy-ri r0 rsp local_this)
+		(call 'hset 'get_bucket '(r0 r1) '(_ r0))
+		(call 'vector 'for_each '(r0 0 (r0 array_length ui) ($ callback) rsp) '(r2 r1))
+		(vp-cpy-ir rsp local_this r0)
+	(endif)
+
+	(exit 'hset 'find '(r0 r1 r2))
+	(vp-free local_size)
+	(vp-ret)
+
+(vp-label 'callback)
+	;inputs
+	;r0 = predicate data (ptr)
+	;r1 = element iterator (pptr)
+	;outputs
+	;r1 = 0 if break, else not
+
+	(entry 'vector 'each_callback '(r0 r1))
+
+	(vp-cpy-ir r1 0 r1)
+	(vp-cpy-ir r0 local_this r2)
+	(vp-cpy-ir r0 local_key r0)
+	(vp-jmp-i r2 hset_key_callback)
+
+(def-func-end)
+
+(def-method 'hset 'for_each)
+	;inputs
+	;r0 = hash_set object (ptr)
+	;r1 = predicate function (ptr)
+	;r2 = predicate data (ptr)
+	;outputs
+	;r0 = hash_set object (ptr)
+	;r1 = 0, else break iterator (pptr)
+	;r2 = 0, else bucket vector object (ptr)
+	;trashes
+	;all but r0
+		;callback predicate
+		;inputs
+		;r0 = predicate data (ptr)
+		;r1 = element iterator (pptr)
+		;outputs
+		;r1 = 0 if break, else not
+		;trashes
+		;all but r0
+
+	(def-struct 'local)
+		(ptr 'this)
+		(ptr 'predicate)
+		(ptr 'predicate_data)
+		(ptr 'iter)
+	(def-struct-end)
+
+	;save inputs
+	(vp-alloc local_size)
+	(entry 'hset 'for_each '((rsp local_this) r1 r2))
+
+	;for all buckets
+	(vp-cpy-ir-ui r0 hset_num_buckets r3)
+	(vp-cpy-ir r0 hset_buckets r0)
+	(vpif '(r3 == 1))
+		(call 'vector 'for_each '(r0 0 (r0 array_length ui) r1 r2) '(r0 r2))
+		(vpif '(r2 != 0))
+			(vp-cpy-rr r0 r2)
+		(endif)
+	(else)
+		(assign '(r1 r2) '((rsp local_predicate) (rsp local_predicate_data)))
+		(call 'vector 'for_each '(r0 0 r3 ($ callback) rsp) '(_ r2))
+		(vpif '(r2 != 0))
+			(vp-cpy-ir r2 0 r2)
+			(vp-cpy-ir rsp local_iter r1)
+		(endif)
+	(endif)
+
+	(exit 'hset 'for_each '((rsp local_this) r1 r2))
+	(vp-free local_size)
+	(vp-ret)
+
+(vp-label 'callback)
+	;inputs
+	;r0 = predicate data (ptr)
+	;r1 = element iterator (pptr)
+	;outputs
+	;r1 = 0 if break, else not
+
+	(entry 'vector 'each_callback '(r0 r1))
+
+	(vp-push r0)
+	(vp-cpy-rr r0 r2)
+	(vp-cpy-ir r1 0 r0)
+	(call 'vector 'for_each '(r0 0 (r0 array_length ui) (r2 local_predicate) (r2 local_predicate_data)) '(_ r1))
+	(vp-pop r0)
+	(vp-cpy-ri r1 r0 local_iter)
+	(vpif '(r1 == 0))
+		(vp-add-cr 1 r1)
+		(vp-ret)
+	(endif)
+	(vp-xor-rr r1 r1)
+
+	(exit 'vector 'each_callback '(r1))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'hset 'get_bucket)
+	;inputs
+	;r0 = hash_set object (ptr)
+	;r1 = key object (ptr)
+	;outputs
+	;r0 = hash_set object (ptr)
+	;r1 = bucket vector object (ptr)
+	;trashes
+	;all but r0
+
+	(def-struct 'local)
+		(ptr 'this)
+		(uint 'length)
+	(def-struct-end)
+
+	(entry 'hset 'get_bucket '(r0 r1))
+
+	;search hash bucket
+	(vp-cpy-ir-ui r0 hset_num_buckets r2)
+	(vpif '(r2 != 1))
+		;save inputs
+		(vp-alloc local_size)
+		(assign '(r0 r2) '((rsp local_this) (rsp local_length i)))
+
+		(call 'obj 'hash '(r1) '(_ r0))
+		(vp-cpy-ir-ui rsp local_length r1)
+		(vp-xor-rr r2 r2)
+		(vp-div-rrr-u r1 r2 r0)
+		(vp-cpy-ir rsp local_this r0)
+		(call 'vector 'get_element '((r0 hset_buckets) r2) '(_ r1))
+
+		(exit 'hset 'get_bucket '((rsp local_this) r1))
+		(vp-free local_size)
+		(vp-ret)
+	(endif)
+
+	(exit 'hset 'get_bucket '(r0 (r0 hset_buckets)))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'hset 'insert)
+	;inputs
+	;r0 = hash_set object (ptr)
+	;r1 = key object (ptr)
+	;outputs
+	;r0 = hash_set object (ptr)
+	;r1 = element iterator (pptr)
+	;r2 = bucket vector object (ptr)
+	;trashes
+	;all but r0
+
+	(def-struct 'local)
+		(ptr 'this)
+		(ptr 'key)
+	(def-struct-end)
+
+	;save inputs
+	(vp-alloc local_size)
+	(entry 'hset 'insert '(r0 r1))
+	(assign '(r1) '((rsp local_key)))
+
+	;search hash bucket
+	(call 'hset 'find '(r0 r1) '(r0 r1 r2))
+	(vpif '(r1 == 0))
+		;new key
+		(vp-cpy-ir rsp local_key r1)
+		(vp-cpy-ri r0 rsp local_this)
+		(vp-cpy-rr r2 r0)
+		(vp-cpy-ir-ui r1 obj_count r2)
+		(vp-add-cr 1 r2)
+		(vp-cpy-ri-i r2 r1 obj_count)
+		(call 'vector 'push_back '(r0 r1) '(r0 _))
+		(vp-cpy-rr r0 r2)
+		(vp-cpy-ir-ui r0 array_length r1)
+		(vp-cpy-ir r0 array_array r0)
+		(vp-shl-cr (log2 ptr_size) r1)
+		(vp-add-rr r1 r0)
+		(vp-lea-i r0 (neg ptr_size) r1)
+		(vp-cpy-ir rsp local_this r0)
+	(endif)
+
+	(exit 'hset 'insert '(r0 r1 r2))
+	(vp-free local_size)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'hset 'get_iters)
+	;inputs
+	;r0 = hash_set object (ptr)
+	;outputs
+	;r0 = hash_set object (ptr)
+	;r1 = begin iter pointer (pptr)
+	;r2 = end iter pointer (pptr)
+	;trashes
+	;r3-r4
+
+	(entry 'hset 'get_iters '(r0))
+
+	(vp-cpy-ir r0 hset_buckets r1)
+	(vp-cpy-ir-ui r0 hset_num_buckets r3)
+	(vp-cpy-ir-ui r1 array_length r2)
+	(vp-cpy-ir r1 array_array r1)
+	(vp-shl-cr (log2 ptr_size) r2)
+	(vp-add-rr r1 r2)
+	(vpif '(r3 != 1) 'lbreak)
+		(loop-start)
+			(vp-cpy-ir r1 0 r3)
+			(vp-cpy-ir-ui r3 array_length r4)
+			(vpif '(r4 != 0))
+				(vp-cpy-ir r3 array_array r1)
+				(loop-start)
+					(vp-cpy-ir r2 (neg ptr_size) r3)
+					(vp-sub-cr ptr_size r2)
+					(vp-cpy-ir-ui r3 array_length r4)
+				(loop-until '(r4 != 0))
+				(vp-cpy-ir r3 array_array r2)
+				(vp-shl-cr (log2 ptr_size) r4)
+				(vp-add-rr r4 r2)
+				(break 'lbreak)
+			(endif)
+			(vp-add-cr ptr_size r1)
+		(loop-until '(r1 == r2))
+	(endif)
+
+	(exit 'hset 'get_iters '(r0 r1 r2))
+	(vp-ret)
+
+(def-func-end)

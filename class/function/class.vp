@@ -1,5 +1,0 @@
-(include 'sys/func.inc)
-(include 'class/function/class.inc)
-
-(gen-create 'function)
-(gen-vtable 'function)

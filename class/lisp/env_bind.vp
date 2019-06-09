@@ -1,6 +1,6 @@
 (include 'sys/func.inc)
-(include 'class/hash_map/class.inc)
-(include 'class/symbol/class.inc)
+(include 'class/hmap/class.inc)
+(include 'class/sym/class.inc)
 (include 'class/lisp/class.inc)
 
 (def-method 'lisp 'env_bind)
@@ -20,13 +20,13 @@
 
 (errorcases
 	(gotoif (cat {vars->obj_vtable != @} (f-path 'vector 'vtable)) 'error1)
-	(call 'obj 'inst_of (cat {vals, @} (f-path 'sequence 'vtable)))
+	(call 'obj 'inst_of (cat {vals, @} (f-path 'seq 'vtable)))
 	(gotoif (list (method-output 'obj 'inst_of 1) '== 0) 'error2))
 
 	(assign {0 => index_vars => index_vals} {state})
 	(call 'obj 'ref {this->lisp_sym_nil} {value})
 	(d-call 'vector 'get_length {vars} {_, len_vars})
-	(call 'sequence 'get_length {vals} {_, len_vals})
+	(call 'seq 'get_length {vals} {_, len_vals})
 	(loop-while {index_vars != len_vars})
 		;next symbol and state
 		(vp-def (r_this r_state r_symbol r_index_vars r_len_vars r_rest r_optional))
@@ -46,13 +46,13 @@
 
 		(call 'obj 'deref {value})
 		(call 'vector 'get_element {vars, index_vars} {_, symbol})
-		(vpif (cat {symbol->obj_vtable == @} (f-path 'symbol 'vtable)))
+		(vpif (cat {symbol->obj_vtable == @} (f-path 'sym 'vtable)))
 			;standard symbol
 			(vp-def (r_vals r_index_vals r_len_vals r_value r_index_vars r_len_vars r_state))
 			(assign {vals, index_vals, len_vals, state} (list r_vals r_index_vals r_len_vals r_state))
 			(vpif (list r_state '== 1))
 				;rest
-				(call 'sequence 'slice (list r_vals r_index_vals r_len_vals) (list '_ r_value))
+				(call 'seq 'slice (list r_vals r_index_vals r_len_vals) (list '_ r_value))
 				(assign {len_vals} (list r_index_vals))
 			(elseif (list r_state '== 2))
 				;optional
@@ -63,19 +63,19 @@
 				;normal
 				(errorif (list r_index_vals '== r_len_vals) 'error)
 			(vp-label 'normal)
-				(call 'sequence 'ref_element (list r_vals r_index_vals) (list '_ r_value))
+				(call 'seq 'ref_element (list r_vals r_index_vals) (list '_ r_value))
 				(assign {index_vals} (list r_index_vals))
 				(vp-add-cr 1 r_index_vals)
 			(endif)
 			(assign {index_vars} (list r_index_vars))
 			(vp-add-cr 1 r_index_vars)
 			(assign (list r_index_vars r_index_vals r_value) {index_vars, index_vals, value})
-			(call 'hash_map 'insert {this->lisp_environment, symbol, value})
+			(call 'hmap 'insert {this->lisp_environment, symbol, value})
 		(else)
 			;destructureing ?
 			(errorif (cat {symbol->obj_vtable != @} (f-path 'vector 'vtable)) 'error3)
 			(errorif {index_vals == len_vals} 'error)
-			(call 'sequence 'ref_element {vals, index_vals} {_, args})
+			(call 'seq 'ref_element {vals, index_vals} {_, args})
 			(assign {index_vars + 1, index_vals + 1} {index_vars, index_vals})
 			(call 'lisp 'env_bind {this, symbol, args} {_, value})
 			(call 'obj 'deref {args})

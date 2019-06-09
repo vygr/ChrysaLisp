@@ -48,7 +48,7 @@
 	;trashes
 	;all but r0
 
-	(entry 'msg_out 'deinit'(r0))
+	(entry 'msg_out 'deinit '(r0))
 
 	;wait for final ack
 	(vp-push r0)

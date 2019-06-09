@@ -2,7 +2,7 @@
 (include 'sys/mail/make.inc)
 (include 'sys/heap/make.inc)
 (include 'sys/mem/make.inc)
-(include 'sys/string/make.inc)
+(include 'sys/str/make.inc)
 (include 'sys/kernel/make.inc)
 (include 'sys/link/make.inc)
 (include 'sys/task/make.inc)

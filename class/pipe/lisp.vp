@@ -1,0 +1,153 @@
+(include 'sys/func.inc)
+(include 'class/str/class.inc)
+(include 'class/pipe/class.inc)
+(include 'class/msg_in/class.inc)
+(include 'class/msg_out/class.inc)
+(include 'class/stream_str/class.inc)
+(include 'class/lisp/class.inc)
+
+(def-method 'pipe 'lisp_create)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(ptr 'this 'args 'value)
+
+	(push-scope)
+	(entry 'pipe 'lisp_create {this, args})
+
+(errorcases
+	(call 'lisp 'env_args_type {args, $sig, 1})
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+
+	(call 'vector 'get_first {args} {_, value})
+	(call 'pipe 'create {&value->str_data, value->str_length} {value})
+	(errorifnot {value} 'error2)
+
+	(exit 'pipe 'lisp_create {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(jump 'lisp 'repl_error {this, "(pipe str)", error_msg_wrong_types, args})
+(vp-label 'error2)
+	(jump 'lisp 'repl_error {this, "(pipe str)", error_msg_open_error, args})
+	(signature 'sig 'str))
+
+	(pop-scope-syms)
+
+(def-func-end)
+
+(def-method 'pipe 'lisp_read)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(ptr 'this 'args 'value 'pipe 'stream 'str_stream 'my_mbox_addr)
+	(uint 'state 'index 'my_mbox_id)
+	(int 'char 'ready)
+
+	(push-scope)
+	(entry 'pipe 'lisp_read {this, args})
+
+(errorcases
+	(call 'lisp 'env_args_type {args, $sig, 2})
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+
+	(call 'vector 'get_first {args} {_, pipe})
+	(call 'pipe 'get_state {pipe} {_, state})
+	(vpif {state == stream_mail_state_started})
+		(assign {0} {my_mbox_addr})
+		(call 'vector 'get_second {args} {_, args})
+		(vpif {args != this->lisp_sym_nil})
+			(call 'sys_task 'mailbox nil {my_mbox_id})
+			(call 'sys_mail 'mbox_addr {my_mbox_id} {my_mbox_addr})
+		(endif)
+		(call 'pipe 'select {pipe, my_mbox_addr} {_, index})
+		(vpif {index})
+			;pipe mailbox event
+			(call 'vector 'get_element {pipe->pipe_streams, index} {_, stream})
+			(call 'str 'create_from_buffer {0, str_gap} {value})
+			(call 'stream_str 'create {value} {str_stream})
+			(loop-start)
+				(call 'stream 'read_char {stream} {_, char})
+				(breakif {char == -1})
+				(call 'stream 'write_char {str_stream, char})
+				(call 'stream 'read_ready {stream} {_, ready})
+			(loop-untilnot {ready})
+			(vpif {char == -1})
+				;EOF
+				(call 'pipe 'set_state {pipe, stream_mail_state_stopping})
+			(endif)
+			(call 'stream_str 'ref_string {str_stream} {_, value})
+			(call 'obj 'deref {str_stream})
+		(else)
+			;process mailbox event
+			(call 'obj 'ref {this->lisp_sym_t} {value})
+		(endif)
+	(else)
+		;closed
+		(call 'obj 'ref {this->lisp_sym_nil} {value})
+	(endif)
+
+	(exit 'pipe 'lisp_read {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(jump 'lisp 'repl_error {this, "(pipe-read pipe bool)", error_msg_wrong_types, args})
+	(signature 'sig 'pipe 'obj))
+
+	(pop-scope-syms)
+
+(def-func-end)
+
+(def-method 'pipe 'lisp_write)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(ptr 'this 'args 'value 'pipe)
+	(union
+		'(pptr 'iter_begin)
+		'(ptr 'stream)
+		'(uint 'state))
+
+	(push-scope)
+	(entry 'pipe 'lisp_write {this, args})
+
+(errorcases
+	(call 'lisp 'env_args_type {args, $sig, 2})
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+
+	(call 'vector 'get_begin {args} {_, iter_begin})
+	(assign {iter_begin[0], iter_begin[ptr_size]} {pipe, value})
+	(call 'pipe 'get_state {pipe} {_, state})
+	(errorif {state != stream_mail_state_started} 'error2)
+	(call 'pipe 'get_input {pipe} {_, stream})
+	(call 'stream 'write {stream, &value->str_data, value->str_length})
+	(call 'stream 'write_flush {stream})
+	(call 'obj 'ref {value})
+
+	(exit 'pipe 'lisp_write {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(jump 'lisp 'repl_error {this, "(pipe-write pipe str)", error_msg_wrong_types, args})
+(vp-label 'error2)
+	(jump 'lisp 'repl_error {this, "(pipe-write pipe str)", error_msg_open_error, args})
+	(signature 'sig 'pipe 'str))
+
+	(pop-scope-syms)
+
+(def-func-end)

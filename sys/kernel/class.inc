@@ -28,7 +28,7 @@
 (def-struct 'kn_msg)
 	(ulong 'user)
 	(struct 'reply_id 'id)
-	(ulong 'function)
+	(ulong 'func)
 (def-struct-end)
 
 (def-struct 'kn_msg_callback 'kn_msg)

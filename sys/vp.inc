@@ -192,12 +192,12 @@
 (defcfun type (o)
 	(defq i (type? o))
 	(cond
-		((eq i lisp_type_symbol)
+		((eq i lisp_type_sym)
 			(cond
 				((reg o) 'r)
 				(t 'c)))
-		((eq i lisp_type_integer) 'c)
-		((eq i lisp_type_list)
+		((eq i lisp_type_int) 'c)
+		((eq i lisp_type_lst)
 			(setq i (elem 0 o))
 			(cond
 				((reg i)
@@ -210,7 +210,7 @@
 					(if (reg (elem 1 o))
 						(if (reg (elem 2 o)) '&d '&i) nil))
 				(t 'c)))
-		((eq i lisp_type_string) 's)
+		((eq i lisp_type_str) 's)
 		(t nil)))
 
 (defcfun label-sym (s) (sym-cat "_l_" s))

@@ -1,7 +1,7 @@
 (include 'sys/func.inc)
-(include 'class/symbol/class.inc)
-(include 'class/function/class.inc)
-(include 'class/hash_map/class.inc)
+(include 'class/sym/class.inc)
+(include 'class/func/class.inc)
+(include 'class/hmap/class.inc)
 (include 'class/lisp/class.inc)
 
 (def-method 'lisp 'repl_eval)
@@ -20,9 +20,9 @@
 	;evaluate based on type
 	(assign {form->obj_vtable} {func})
 	(switch)
-	(case (cat {func == @} (f-path 'symbol 'vtable)))
+	(case (cat {func == @} (f-path 'sym 'vtable)))
 		;eval to symbol value
-		(call 'hash_map 'get {this->lisp_environment, form} {_, value})
+		(call 'hmap 'get {this->lisp_environment, form} {_, value})
 		(errorifnot {value} 'error2)
 		(break)
 	(case (cat {func == @} (f-path 'vector 'vtable)))
@@ -33,8 +33,8 @@
 		(errorif (cat {value->obj_vtable == @} (f-path 'error 'vtable)) 'funcexit)
 		(assign {value} {func})
 		(switch)
-		(case (cat {func->obj_vtable == @} (f-path 'function 'vtable)))
-			(gotoifnot {func->integer_value & 7} 'args_eval)
+		(case (cat {func->obj_vtable == @} (f-path 'func 'vtable)))
+			(gotoifnot {func->num_value & 7} 'args_eval)
 			(call 'lisp 'repl_apply {this, form, func} {_, value})
 			(break)
 		(default)

@@ -1,0 +1,5 @@
+(include 'sys/func.inc)
+(include 'class/num/class.inc)
+
+(gen-create 'num)
+(gen-vtable 'num)

@@ -1,7 +1,7 @@
 (include 'sys/func.inc)
 (include 'gui/font/class.inc)
-(include 'class/string/class.inc)
-(include 'class/integer/class.inc)
+(include 'class/str/class.inc)
+(include 'class/num/class.inc)
 (include 'class/lisp/class.inc)
 
 (def-method 'font 'lisp_create)
@@ -23,7 +23,7 @@
 	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
-	(call 'font 'open {&arg0->string_data, arg1} {value})
+	(call 'font 'open {&arg0->str_data, arg1} {value})
 	(vpifnot {value})
 		(call 'obj 'ref {this->lisp_sym_nil} {value})
 	(endif)
@@ -34,7 +34,7 @@
 (errorcases
 (vp-label 'error1)
 	(jump 'lisp 'repl_error {this, "(create-font name points)", error_msg_wrong_types, args})
-	(signature 'sig 'string 'integer))
+	(signature 'sig 'str 'num))
 
 	(pop-scope-syms)
 

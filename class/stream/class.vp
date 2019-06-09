@@ -1,7 +1,7 @@
 (include 'sys/func.inc)
-(include 'sys/string/class.inc)
+(include 'sys/str/class.inc)
 (include 'class/vector/class.inc)
-(include 'class/string/class.inc)
+(include 'class/str/class.inc)
 (include 'class/stream/class.inc)
 (include 'class/stream_str/class.inc)
 
@@ -184,14 +184,14 @@
 		(vp-cpy-ri r_bufp r_this stream_bufp)
 		(vp-sub-rr r_bufps r_bufp)
 		(vp-sub-cr byte_size r_bufp)
-		(call 'string 'create_from_buffer (list r_bufps r_bufp) {value})
+		(call 'str 'create_from_buffer (list r_bufps r_bufp) {value})
 		(break)
 	(default)
 	(vp-label 'slow_but_sure)
 		(call 'stream 'read_char {this} {_, char})
 		(assign {0} {value})
 		(breakif {char == -1})
-		(call 'string 'create_from_buffer {0, string_gap} {value})
+		(call 'str 'create_from_buffer {0, str_gap} {value})
 		(call 'stream_str 'create {value} {str_stream})
 		(loop-whilenot {char == char_lf || char == -1})
 			(call 'stream 'write_char {str_stream, char})
@@ -339,7 +339,7 @@
 		(call 'stream 'skip_not {this, char})
 		(assign {this->stream_bufp - start} {length})
 		(breakifnot {length})
-		(call 'string 'create_from_buffer {start, length} {string})
+		(call 'str 'create_from_buffer {start, length} {string})
 		(call 'vector 'push_back {splits, string})
 	(loop-end)
 
@@ -437,7 +437,7 @@
 
 	(entry 'stream 'write_cstr '(r3 r1))
 
-	(call 'sys_string 'length '(r1) '(r0 r1))
+	(call 'sys_str 'length '(r1) '(r0 r1))
 	(jump 'stream 'write '(r3 r0 r1))
 
 (def-func-end)

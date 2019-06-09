@@ -1,5 +1,5 @@
 (include 'sys/func.inc)
-(include 'class/integer/class.inc)
+(include 'class/num/class.inc)
 (include 'class/lisp/class.inc)
 
 (def-method 'lisp 'env_args_set)
@@ -14,12 +14,12 @@
 
 	(call 'vector 'get_iter '(r0 r1) '(r0 r4))
 	(call 'vector 'get_end '(r0) '(_ r5))
-	(fn-bind (f-path 'integer 'vtable) r2)
+	(fn-bind (f-path 'num 'vtable) r2)
 	(loop-while '(r4 != r5))
 		(vp-cpy-ir r4 0 r0)
 		(vp-cpy-ir r0 obj_vtable r1)
 		(vpif '(r1 == r2))
-			(call 'integer 'get_value '(r0) '(_ r0))
+			(call 'num 'get_value '(r0) '(_ r0))
 		(endif)
 		(vp-cpy-ri r0 r3 0)
 		(vp-add-cr ptr_size r4)

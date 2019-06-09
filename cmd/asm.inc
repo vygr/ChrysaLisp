@@ -144,8 +144,8 @@
 				;must be third function !
 				'sys/load/statics
 				;must be included, as bind uses them !
-				'sys/string/copy
-				'sys/string/length
+				'sys/str/copy
+				'sys/str/length
 				'sys/pii/exit
 				'sys/pii/mmap
 				'sys/pii/stat

@@ -1,5 +1,5 @@
 (include 'sys/func.inc)
-(include 'class/integer/class.inc)
+(include 'class/num/class.inc)
 (include 'class/stream/class.inc)
 (include 'class/lisp/class.inc)
 
@@ -23,10 +23,10 @@
 
 	(call 'vector 'get_first {args} {_, value})
 	(call 'vector 'get_second {args} {_, args})
-	(call 'integer 'get_value {args} {_, next_char})
+	(call 'num 'get_value {args} {_, next_char})
 	(call 'lisp 'read {this, value, next_char} {_, form, next_char})
 
-	(call 'integer 'create {next_char} {args})
+	(call 'num 'create {next_char} {args})
 	(call 'vector 'create nil {value})
 	(call 'vector 'push_back {value, form})
 	(call 'vector 'push_back {value, args})
@@ -37,7 +37,7 @@
 (errorcases
 (vp-label 'error1)
 	(jump 'lisp 'repl_error {this, "(read stream last_char)", error_msg_wrong_types, args})
-	(signature 'sig 'stream 'integer))
+	(signature 'sig 'stream 'num))
 
 	(pop-scope-syms)
 

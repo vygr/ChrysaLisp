@@ -1,10 +1,10 @@
 (include 'sys/func.inc)
-(include 'sys/string/class.inc)
+(include 'sys/str/class.inc)
 (include 'gui/font/class.inc)
 (include 'gui/texture/class.inc)
-(include 'class/symbol/class.inc)
+(include 'class/sym/class.inc)
 (include 'class/vector/class.inc)
-(include 'class/hash_map/class.inc)
+(include 'class/hmap/class.inc)
 (include 'class/pair/class.inc)
 (include 'sys/pii/class.inc)
 (include 'gui/gui/class.inc)
@@ -44,8 +44,8 @@
 	(loop-while {iter_begin != iter_end})
 		(assign {*iter_begin} {this})
 		(vpif {this->font_points == points})
-			(call 'sys_string 'compare {this->font_name->string_data, name})
-			(gotoif (list (method-output 'sys_string 'compare 0) '== 0) 'found)
+			(call 'sys_str 'compare {this->font_name->str_data, name})
+			(gotoif (list (method-output 'sys_str 'compare 0) '== 0) 'found)
 		(endif)
 		(assign {iter_begin + ptr_size} {iter_begin})
 	(loop-end)
@@ -88,14 +88,14 @@
 	(vpif {ok})
 		;init state
 		(assign {0, points} {this->font_chars, this->font_points})
-		(call 'symbol 'intern_cstr {name} {this->font_name})
-		(call 'hash_map 'create (cat {@} (f-path 'symbol 'same) {, 61}) {this->font_word_map})
+		(call 'sym 'intern_cstr {name} {this->font_name})
+		(call 'hmap 'create (cat {@} (f-path 'sym 'same) {, 61}) {this->font_word_map})
 
 		;kernel callback for open
 		(call 'sys_task 'callback {this, $open_callback})
 		(vpifnot {this->font_handle})
-			(call 'string 'deref {this->font_name})
-			(call 'hash_map 'deref {this->font_word_map})
+			(call 'str 'deref {this->font_name})
+			(call 'hmap 'deref {this->font_word_map})
 			(assign {0} {ok})
 		(endif)
 	(endif)
@@ -115,7 +115,7 @@
 	(vp-and-cr -16 rsp)
 	(entry {user, old_stack})
 
-	(host-call 'host 'ttf_open_font {&user->font_name->string_data, user->font_points} {user->font_handle})
+	(host-call 'host 'ttf_open_font {&user->font_name->str_data, user->font_points} {user->font_handle})
 	(vpif {user->font_handle})
 		;fill in ascent, descent and height
 		(host-call 'host 'ttf_font_ascent {user->font_handle} {user->font_ascent})
@@ -143,8 +143,8 @@
 	(entry 'font 'deinit {this})
 
 	(call 'vector 'deref_if {this->font_chars})
-	(call 'hash_map 'deref {this->font_word_map})
-	(call 'string 'deref {this->font_name})
+	(call 'hmap 'deref {this->font_word_map})
+	(call 'str 'deref {this->font_name})
 	(call 'sys_task 'callback {this, $close_callback})
 
 	;deinit parent
@@ -184,11 +184,11 @@
 	(entry 'font 'ref_word {this, word})
 
 	;look up string in word map
-	(call 'hash_map 'find {this->font_word_map, word} {_, iter, bucket})
+	(call 'hmap 'find {this->font_word_map, word} {_, iter, bucket})
 	(vpifnot {iter})
 		;create new entry
 		(call 'texture 'create {0, 0, 0} {txt})
-		(call 'symbol 'ref {word})
+		(call 'sym 'ref {word})
 		(call 'pair 'create {word, txt} {iter})
 		(call 'vector 'push_back {bucket, iter})
 		(call 'texture 'ref {txt})
@@ -222,7 +222,7 @@
 	(vp-and-cr -16 rsp)
 	(entry {user, old_stack})
 
-	(host-call 'host 'ttf_render_utf8_blended {user->local_this->font_handle, &user->local_word->string_data, 0xffffff} {surface})
+	(host-call 'host 'ttf_render_utf8_blended {user->local_this->font_handle, &user->local_word->str_data, 0xffffff} {surface})
 	(vpif {surface})
 		;create word texture
 		(host-call 'host 'sdl_create_texture_from_surface (cat {@} (f-path 'gui 'statics) {.gui_statics_renderer, surface}) {handle})
@@ -264,10 +264,10 @@
 		(call 'vector 'set_capacity {chars, 127 - 33})
 		(assign {33} {code})
 		(loop-start)
-			(call 'symbol 'intern_cstr {&code} {word})
+			(call 'sym 'intern_cstr {&code} {word})
 			(call 'font 'ref_word {this, word} {_, txt})
 			(call 'vector 'push_back {chars, txt})
-			(call 'symbol 'deref {word})
+			(call 'sym 'deref {word})
 		(loop-until {(code + 1 => code) == 127})
 		(vpif {this->font_chars})
 			;another thread got to it during a flush_cache !
@@ -307,13 +307,13 @@
 				(call 'vector 'deref {tmp})
 			(endif)
 		(endif)
-		(call 'hash_map 'create {font->font_word_map->hash_set_key_callback,
-			font->font_word_map->hash_set_num_buckets} {new_map})
-		(call 'hash_map 'for_each {font->font_word_map, $flush_callback, &new_map})
+		(call 'hmap 'create {font->font_word_map->hset_key_callback,
+			font->font_word_map->hset_num_buckets} {new_map})
+		(call 'hmap 'for_each {font->font_word_map, $flush_callback, &new_map})
 		;during deref font_word_map could be written to !
 		(assign {font->font_word_map} {tmp})
 		(assign {new_map} {font->font_word_map})
-		(call 'hash_map 'deref {tmp})
+		(call 'hmap 'deref {tmp})
 		(assign {index + 1} {index})
 	(loop-end)
 
@@ -335,7 +335,7 @@
 		(vp-cpy-ir r0 0 r2)
 		(call 'obj 'ref '(r1) '(r0))
 		(vp-push r0)
-		(call 'hash_set 'get_bucket '(r2 r0) '(_ r0))
+		(call 'hset 'get_bucket '(r2 r0) '(_ r0))
 		(vp-pop r1)
 		(jump 'vector 'push_back '(r0 r1))
 	(default)

@@ -1,8 +1,96 @@
 (include 'sys/func.inc)
+(include 'sys/str/class.inc)
+(include 'class/str/class.inc)
 (include 'class/stream/class.inc)
+(include 'class/stream_str/class.inc)
 (include 'class/slave/class.inc)
-(include 'class/integer/class.inc)
+(include 'class/num/class.inc)
 (include 'class/lisp/class.inc)
+
+(def-method 'stream 'lisp_filestream)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(ptr 'this 'args 'value)
+
+	(push-scope)
+	(entry 'stream 'lisp_filestream {this, args})
+
+(errorcases
+	(call 'lisp 'env_args_type {args, $sig, 1})
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+
+	(call 'vector 'get_first {args} {_, value})
+	(call 'sys_str 'compare {&value->str_data, "stdin"})
+	(vpif (list (method-output 'sys_str 'compare 0) '== 0))
+		(call 'obj 'ref {this->lisp_stdin} {value})
+		(goto 'funcexit)
+	(endif)
+	(call 'sys_str 'compare {&value->str_data, "stdout"})
+	(vpif (list (method-output 'sys_str 'compare 0) '== 0))
+		(call 'obj 'ref {this->lisp_stdout} {value})
+		(goto 'funcexit)
+	(endif)
+	(call 'sys_str 'compare {&value->str_data, "stderr"})
+	(vpif (list (method-output 'sys_str 'compare 0) '== 0))
+		(call 'obj 'ref {this->lisp_stderr} {value})
+		(goto 'funcexit)
+	(endif)
+	(call 'str 'create_from_file {&value->str_data} {value})
+	(vpif {value})
+		(call 'stream_str 'create {value} {value})
+	(else)
+		(call 'obj 'ref {this->lisp_sym_nil} {value})
+	(endif)
+
+(vp-label 'funcexit)
+	(exit 'stream 'lisp_filestream {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(jump 'lisp 'repl_error {this, "(file-stream path)", error_msg_wrong_types, args})
+	(signature 'sig 'str))
+
+	(pop-scope-syms)
+
+(def-func-end)
+
+(def-method 'stream 'lisp_strstream)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(ptr 'this 'args 'value)
+
+	(push-scope)
+	(entry 'stream 'lisp_strstream {this, args})
+
+(errorcases
+	(call 'lisp 'env_args_type {args, $sig, 1})
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+
+	(d-call 'vector 'ref_element {args, 0} {_, value})
+	(call 'stream_str 'create {value} {value})
+
+	(exit 'stream 'lisp_strstream {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(jump 'lisp 'repl_error {this, "(string-stream str)", error_msg_wrong_types, args})
+	(signature 'sig 'str))
+
+	(pop-scope-syms)
+
+(def-func-end)
 
 (def-method 'stream 'lisp_available)
 	;inputs
@@ -24,7 +112,7 @@
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'stream 'available {arg0} {_, arg0})
-	(call 'integer 'create {arg0} {value})
+	(call 'num 'create {arg0} {value})
 
 	(exit 'stream 'lisp_available {this, value})
 	(return)
@@ -33,6 +121,204 @@
 (vp-label 'error1)
 	(jump 'lisp 'repl_error {this, "(stream-available stream)", error_msg_wrong_types, args})
 	(signature 'sig 'stream))
+
+	(pop-scope-syms)
+
+(def-func-end)
+
+(def-method 'stream 'lisp_readchar)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(ptr 'this 'args 'value)
+	(pptr 'iter_begin)
+	(pubyte 'chars)
+	(int 'length)
+	(uint 'width)
+
+	(push-scope)
+	(entry 'stream 'lisp_readchar {this, args})
+
+	(d-call 'vector 'get_length {args} {_, length})
+	(errorifnot {length == 1 || length == 2} 'error1)
+	(call 'vector 'get_begin {args} {_, iter_begin})
+
+(errorcases
+	(call 'obj 'inst_of (cat {iter_begin[0], @} (f-path 'stream 'vtable)))
+	(gotoif (list (method-output 'obj 'inst_of 1) '== 0) 'error2))
+
+	(assign {1} {width})
+	(vpif {length == 2})
+		(assign {iter_begin[ptr_size]} {value})
+		(errorif (cat {value->obj_vtable != @} (f-path 'num 'vtable)) 'error3)
+		(call 'num 'get_value {value} {_, width})
+		(assign {((width - 1) & 7) + 1} {width})
+	(endif)
+
+	(call 'num 'create {0} {value})
+	(assign {&value->num_value} {chars})
+	(loop-start)
+		(call 'stream_str 'read_char {iter_begin[0]} {_, length})
+		(vpif {length == -1})
+			(call 'obj 'deref {value})
+			(call 'obj 'ref {this->lisp_sym_nil} {value})
+			(break)
+		(endif)
+		(assign {length} {*chars})
+		(assign {chars + 1} {chars})
+	(loop-untilnot {width - 1 => width})
+
+	(exit 'stream 'lisp_readchar {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(jump 'lisp 'repl_error {this, "(read-char stream [width])", error_msg_wrong_num_of_args, args})
+(vp-label 'error2)
+	(jump 'lisp 'repl_error {this, "(read-char stream [width])", error_msg_not_a_stream, args})
+(vp-label 'error3)
+	(jump 'lisp 'repl_error {this, "(read-char stream [width])", error_msg_not_a_number, args}))
+
+	(pop-scope-syms)
+
+(def-func-end)
+
+(def-method 'stream 'lisp_readline)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(ptr 'this 'args 'value)
+
+	(push-scope)
+	(entry 'stream 'lisp_readline {this, args})
+
+(errorcases
+	(call 'lisp 'env_args_type {args, $sig, 1})
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+
+	(call 'vector 'get_first {args} {_, value})
+	(call 'stream_str 'read_line {value} {_, value})
+	(vpifnot {value})
+		(call 'obj 'ref {this->lisp_sym_nil} {value})
+	(endif)
+
+	(exit 'stream 'lisp_readline {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(jump 'lisp 'repl_error {this, "(read-line stream)", error_msg_wrong_types, args})
+	(signature 'sig 'stream))
+
+	(pop-scope-syms)
+
+(def-func-end)
+
+(def-method 'stream 'lisp_write)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(ptr 'this 'args 'value)
+	(union
+		'(pptr 'iter_begin)
+		'(ptr 'stream))
+
+	(push-scope)
+	(entry 'stream 'lisp_write {this, args})
+
+(errorcases
+	(call 'lisp 'env_args_type {args, $sig, 2})
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+
+	(call 'vector 'get_begin {args} {_, iter_begin})
+	(assign {iter_begin[0], iter_begin[ptr_size]} {stream, value})
+	(call 'obj 'ref {value})
+	(call 'stream_str 'write {stream, &value->str_data, value->str_length})
+
+	(exit 'stream 'lisp_write {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(jump 'lisp 'repl_error {this, "(write stream str)", error_msg_wrong_types, args})
+	(signature 'sig 'stream 'str))
+
+	(pop-scope-syms)
+
+(def-func-end)
+
+(def-method 'stream 'lisp_writechar)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(ptr 'this 'args 'value 'stream)
+	(pptr 'iter_begin 'iter_end)
+	(ulong 'length)
+	(uint 'width)
+
+	(push-scope)
+	(entry 'stream 'lisp_writechar {this, args})
+
+	(d-call 'vector 'get_length {args} {_, length})
+	(errorifnot {length == 2 || length == 3} 'error1)
+	(call 'vector 'get_begin {args} {_, iter_begin})
+	(assign {iter_begin[0]} {stream})
+
+(errorcases
+	(call 'obj 'inst_of (cat {stream, @} (f-path 'stream 'vtable)))
+	(gotoif (list (method-output 'obj 'inst_of 1) '== 0) 'error2))
+
+	(assign {1} {width})
+	(vpif {length == 3})
+		(assign {iter_begin[ptr_size * 2]} {value})
+		(errorif (cat {value->obj_vtable != @} (f-path 'num 'vtable)) 'error3)
+		(call 'num 'get_value {value} {_, width})
+		(assign {((width - 1) & 7) + 1} {width})
+	(endif)
+
+	(assign {iter_begin[ptr_size]} {value})
+	(vpif (cat {value->obj_vtable == @} (f-path 'vector 'vtable)))
+		(call 'vector 'get_iters {value} {_, iter_begin, iter_end})
+		(errorif {iter_begin == iter_end} 'error1)
+		(loop-start)
+			(assign {*iter_begin} {value})
+			(errorif (cat {value->obj_vtable != @} (f-path 'num 'vtable)) 'error3)
+			(call 'num 'get_value {value} {_, length})
+			(call 'stream_str 'write {stream, &length, width})
+		(loop-until {(iter_begin + ptr_size => iter_begin) == iter_end})
+	(else)
+		(errorif (cat {value->obj_vtable != @} (f-path 'num 'vtable)) 'error3)
+		(call 'num 'get_value {value} {_, length})
+		(call 'stream_str 'write {stream, &length, width})
+	(endif)
+	(call 'obj 'ref {value})
+
+	(exit 'stream 'lisp_writechar {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(jump 'lisp 'repl_error {this, "(write-char stream list|num [width])", error_msg_wrong_num_of_args, args})
+(vp-label 'error2)
+	(jump 'lisp 'repl_error {this, "(write-char stream list|num [width])", error_msg_not_a_stream, args})
+(vp-label 'error3)
+	(jump 'lisp 'repl_error {this, "(write-char stream list|num [width])", error_msg_not_a_number, args}))
 
 	(pop-scope-syms)
 

@@ -4,7 +4,7 @@
 (include 'sys/pii/class.inc)
 (include 'gui/gui/class.inc)
 (include 'gui/label/class.inc)
-(include 'class/string/class.inc)
+(include 'class/str/class.inc)
 (include 'gui/region/class.inc)
 (include 'gui/ctx/class.inc)
 (include 'apps/boing/backdrop/class.inc)
@@ -426,7 +426,7 @@
 
 		;first copy any opaque region
 		(assign '((r1 view_x i) (r1 view_y i)) '(r7 r8))
-		(vp-cpy-ir r1 hash_map_parent r2)
+		(vp-cpy-ir r1 hmap_parent r2)
 		(assign '((r2 view_w i) (r2 view_h i)) '(r9 r10))
 		(vp-mul-cr -1 r7)
 		(vp-mul-cr -1 r8)
@@ -439,7 +439,7 @@
 		;remove from ancestors
 		(vp-cpy-ir rsp vis_this r1)
 		(loop-start)
-			(vp-cpy-ir r1 hash_map_parent r2)
+			(vp-cpy-ir r1 hmap_parent r2)
 			(vp-cpy-ri r2 rsp vis_next)
 
 			;exit if clipped away
@@ -473,7 +473,7 @@
 
 	;clip local dirty region with parent bounds if not root
 	(vp-cpy-ir rsp vis_this r1)
-	(vp-cpy-ir r1 hash_map_parent r2)
+	(vp-cpy-ir r1 hmap_parent r2)
 	(vp-cpy-ir rsp vis_root r3)
 	(vpif '(r1 == r3))
 		(vp-cpy-rr r1 r2)
@@ -491,7 +491,7 @@
 	(vp-cpy-ir rsp vis_root r3)
 	(vpif '(r1 != r3))
 		(assign '((r1 view_x i) (r1 view_y i)) '(r7 r8))
-		(vp-cpy-ir r1 hash_map_parent r2)
+		(vp-cpy-ir r1 hmap_parent r2)
 		(vp-add-cr view_dirty_region r1)
 		(vp-add-cr view_dirty_region r2)
 		(call 'region 'paste_region '(r0 r1 r2 r7 r8) '(r0))
@@ -527,7 +527,7 @@
 	(vp-cpy-ir r1 local_root r3)
 	(vpif '(r2 != r3))
 		;copy my area from parent
-		(vp-cpy-ir r2 hash_map_parent r1)
+		(vp-cpy-ir r2 hmap_parent r1)
 		(assign '((r2 view_ctx_x i) (r2 view_ctx_y i) (r2 view_w i) (r2 view_h i)) '(r7 r8 r9 r10))
 		(vp-add-rr r7 r9)
 		(vp-add-rr r8 r10)
@@ -541,7 +541,7 @@
 		(vpif '(r1 != 0))
 			;remove my opaque region from parent
 			(vp-cpy-ir rsp dist_this r2)
-			(vp-cpy-ir r2 hash_map_parent r2)
+			(vp-cpy-ir r2 hmap_parent r2)
 
 			(vp-cpy-ir rsp dist_this r1)
 			(assign '((r1 view_ctx_x i) (r1 view_ctx_y i)) '(r7 r8))

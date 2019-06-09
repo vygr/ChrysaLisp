@@ -1,6 +1,6 @@
 (include 'sys/func.inc)
 (include 'gui/vdu/class.inc)
-(include 'class/string/class.inc)
+(include 'class/str/class.inc)
 (include 'class/lisp/class.inc)
 
 (def-method 'vdu 'lisp_create)
@@ -49,7 +49,7 @@
 	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
-	(call 'vdu 'print_cstr {arg0, &arg1->string_data})
+	(call 'vdu 'print_cstr {arg0, &arg1->str_data})
 	(call 'obj 'ref {arg0} {value})
 
 	(exit 'vdu 'lisp_print {this, value})
@@ -58,7 +58,7 @@
 (errorcases
 (vp-label 'error1)
 	(jump 'lisp 'repl_error {this, "(vdu-print vdu str)", error_msg_wrong_types, args})
-	(signature 'sig 'vdu 'string))
+	(signature 'sig 'vdu 'str))
 
 	(pop-scope-syms)
 

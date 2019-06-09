@@ -1,6 +1,6 @@
 (include 'sys/func.inc)
 (include 'gui/button/class.inc)
-(include 'class/integer/class.inc)
+(include 'class/num/class.inc)
 (include 'class/lisp/class.inc)
 
 (def-method 'button 'lisp_create)
@@ -58,7 +58,7 @@
 (errorcases
 (vp-label 'error1)
 	(jump 'lisp 'repl_error {this, "(button-connect-click button id)", error_msg_wrong_types, args})
-	(signature 'sig 'button 'integer))
+	(signature 'sig 'button 'num))
 
 	(pop-scope-syms)
 

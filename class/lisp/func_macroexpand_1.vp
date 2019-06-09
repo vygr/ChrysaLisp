@@ -1,5 +1,5 @@
 (include 'sys/func.inc)
-(include 'class/hash_map/class.inc)
+(include 'class/hmap/class.inc)
 (include 'class/pair/class.inc)
 (include 'class/lisp/class.inc)
 

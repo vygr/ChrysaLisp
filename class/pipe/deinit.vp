@@ -1,5 +1,5 @@
 (include 'sys/func.inc)
-(include 'class/string/class.inc)
+(include 'class/str/class.inc)
 (include 'class/msg_out/class.inc)
 (include 'class/msg_in/class.inc)
 (include 'class/slave/class.inc)

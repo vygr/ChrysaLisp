@@ -5,7 +5,7 @@
 (include 'gui/texture/class.inc)
 (include 'class/vector/class.inc)
 (include 'gui/text/class.inc)
-(include 'class/string/class.inc)
+(include 'class/str/class.inc)
 
 (gen-create 'text)
 (gen-vtable 'text)
@@ -154,7 +154,7 @@
 
 	;create new split words
 	(call 'vector 'deref_if {this->text_words})
-	(call 'string 'split {this->text_string, char_space} {_, this->text_words})
+	(call 'str 'split {this->text_string, char_space} {_, this->text_words})
 
 	(entry 'text 'switch_text {this})
 	(pop-scope)

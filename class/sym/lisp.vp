@@ -1,0 +1,81 @@
+(include 'sys/func.inc)
+(include 'class/sym/class.inc)
+(include 'class/lisp/class.inc)
+
+(def-method 'sym 'lisp_sym)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(entry 'sym 'lisp_sym '(r0 r1))
+
+(errorcases
+	(vp-cpy-ir-ui r1 array_length r2)
+	(gotoif '(r2 != 1) 'error1))
+
+	(vp-cpy-rr r0 r4)
+	(call 'vector 'get_first '(r1) '(r0 r1))
+	(assign `((,r1 obj_vtable) (@ ,(f-path 'sym 'vtable))) '(r2 r3))
+	(vpif '(r2 == r3))
+		(vp-push r4)
+		(call 'obj 'ref '(r1) '(r1))
+	(else)
+	(errorcases
+		(assign `((@ ,(f-path 'str 'vtable))) '(r3))
+		(gotoif '(r2 != r3) 'error2))
+		(vp-push r4)
+		(call 'sym 'create_from_buffer `((& ,r1 str_data) (,r1 str_length ui)) '(r0))
+		(call 'sym 'intern '(r0) '(r1))
+	(endif)
+	(vp-pop r0)
+
+	(exit 'sym 'lisp_sym '(r0 r1))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error1)
+	(jump 'lisp 'repl_error '(r0 "(sym form)" error_msg_wrong_num_of_args r1))
+(vp-label 'error2)
+	(jump 'lisp 'repl_error '(r4 "(sym form)" error_msg_not_a_string r0)))
+
+(def-func-end)
+
+(def-method 'sym 'lisp_gensym)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(ptr 'this 'args 'prefix 'value)
+(errorcases
+	(uint 'length))
+
+	(push-scope)
+	(entry 'sym 'lisp_gensym {this, args})
+
+(errorcases
+	(d-call 'vector 'get_length {args} {_, length})
+	(gotoif {length} 'error1))
+
+	(call 'sym 'create_from_long {this->lisp_nextsym + 1 => this->lisp_nextsym, 10} {args})
+	(call 'sym 'create_from_cstr {"G"} {prefix})
+	(call 'sym 'append {prefix, args} {value})
+	(call 'obj 'deref {prefix})
+	(call 'obj 'deref {args})
+	(call 'sym 'intern {value} {value})
+
+	(exit 'sym 'lisp_gensym {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(jump 'lisp 'repl_error {this, "(gensym)", error_msg_wrong_num_of_args, args}))
+
+	(pop-scope-syms)
+
+(def-func-end)

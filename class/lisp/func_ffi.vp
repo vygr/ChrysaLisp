@@ -1,8 +1,8 @@
 (include 'sys/func.inc)
 (include 'sys/load/class.inc)
-(include 'class/function/class.inc)
-(include 'class/symbol/class.inc)
-(include 'class/hash_map/class.inc)
+(include 'class/func/class.inc)
+(include 'class/sym/class.inc)
+(include 'class/hmap/class.inc)
 (include 'class/lisp/class.inc)
 
 (def-method 'lisp 'func_ffi)
@@ -26,13 +26,13 @@
 	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'vector 'get_third {args} {_, value})
-	(call 'sys_load 'bind {&value->string_data} {value})
+	(call 'sys_load 'bind {&value->str_data} {value})
 	(errorifnot {value} 'error1)
 	(call 'vector 'get_second {args} {_, name})
 	(call 'vector 'get_forth {args} {_, args})
-	(call 'integer 'get_value {args} {_, flags})
-	(call 'function 'create {value | flags} {value})
-	(call 'hash_map 'insert {this->lisp_environment, name, value})
+	(call 'num 'get_value {args} {_, flags})
+	(call 'func 'create {value | flags} {value})
+	(call 'hmap 'insert {this->lisp_environment, name, value})
 
 	(exit 'lisp 'func_ffi {this, value})
 	(return)
@@ -40,7 +40,7 @@
 (errorcases
 (vp-label 'error1)
 	(jump 'lisp 'repl_error {this, "(ffi sym path flags)", error_msg_wrong_types, args})
-	(signature 'sig 'obj 'symbol 'string 'integer))
+	(signature 'sig 'obj 'sym 'str 'num))
 
 	(pop-scope-syms)
 

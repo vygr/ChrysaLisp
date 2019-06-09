@@ -1,0 +1,108 @@
+(include 'sys/func.inc)
+(include 'class/sym/class.inc)
+(include 'class/hset/class.inc)
+(include 'class/vector/class.inc)
+
+(gen-vtable 'sym)
+
+(def-method 'sym 'statics)
+	;info
+	;symbol static data
+	(times sym_statics_size (vp-byte 0))
+(def-func-end)
+
+(def-method 'sym 'intern)
+	;inputs
+	;r0 = symbol object (ptr)
+	;outputs
+	;r0 = interned symbol object (ptr)
+	;trashes
+	;all
+
+	(def-struct 'local)
+		(ptr 'this)
+		(pptr 'iter)
+	(def-struct-end)
+
+	(vp-alloc local_size)
+	(entry 'sym 'intern '((rsp local_this)))
+
+	(fn-bind (f-path 'sym 'statics) r0)
+	(vp-cpy-ir r0 sym_statics_intern r0)
+	(vpif '(r0 == 0))
+		(call 'hset 'create `((@ ,(f-path 'sym 'same)) 101) '(r0))
+		(fn-bind (f-path 'sym 'statics) r1)
+		(vp-cpy-ri r0 r1 sym_statics_intern)
+	(endif)
+	(call 'hset 'insert '(r0 (rsp local_this)) '(_ (rsp local_iter) _))
+	(call 'obj 'deref '((rsp local_this)))
+	(vp-cpy-ir rsp local_iter r0)
+	(call 'obj 'ref '((r0 0)) '(r0))
+	(assign `((@ ,(f-path 'sym 'vtable))) '(r1))
+	(vp-cpy-ri r1 r0 obj_vtable)
+
+	(exit 'sym 'intern '(r0))
+	(vp-free local_size)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'sym 'intern_cstr)
+	;inputs
+	;r0 = c string (ptr)
+	;outputs
+	;r0 = interned symbol object (ptr)
+	;trashes
+	;all
+
+	(entry 'sym 'intern_cstr '(r0))
+	(call 'sym 'create_from_cstr '(r0) '(r0))
+	(jump 'sym 'intern '(r0))
+
+(def-func-end)
+
+(def-method 'sym 'flush)
+	;trashes
+	;all
+
+	(def-struct 'local)
+		(ptr 'new_set)
+	(def-struct-end)
+
+	(vp-alloc local_size)
+
+	(fn-bind (f-path 'sym 'statics) r0)
+	(vp-cpy-ir r0 sym_statics_intern r0)
+	(call 'hset 'create '((r0 hset_key_callback) (r0 hset_num_buckets ui)) '(r0))
+	(vp-cpy-ri r0 rsp local_new_set)
+	(fn-bind (f-path 'sym 'statics) r0)
+	(vp-cpy-ir r0 sym_statics_intern r0)
+	(call 'hset 'for_each '(r0 ($ flush_callback) (& rsp local_new_set)) '(r0 _ _))
+	(call 'hset 'deref '(r0))
+	(vp-cpy-ir rsp local_new_set r0)
+	(fn-bind (f-path 'sym 'statics) r1)
+	(vp-cpy-ri r0 r1 sym_statics_intern)
+
+	(vp-free local_size)
+	(vp-ret)
+
+(vp-label 'flush_callback)
+	;inputs
+	;r0 = predicate data (ptr)
+	;r1 = element iterator (pptr)
+	;outputs
+	;r1 = 0 if break, else not
+
+	(vp-cpy-ir r1 0 r1)
+	(vp-cpy-ir-ui r1 obj_count r2)
+	(vpif '(r2 != 1))
+		(vp-cpy-ir r0 0 r2)
+		(call 'obj 'ref '(r1) '(r0))
+		(vp-push r0)
+		(call 'hset 'get_bucket '(r2 r0) '(_ r0))
+		(vp-pop r1)
+		(jump 'vector 'push_back '(r0 r1))
+	(endif)
+	(vp-ret)
+
+(def-func-end)

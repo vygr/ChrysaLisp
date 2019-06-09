@@ -79,7 +79,7 @@
 	(call 'view 'sub '(r1))
 
 	;add to parent
-	(vp-cpy-ri r3 r0 hash_map_parent)
+	(vp-cpy-ri r3 r0 hmap_parent)
 	(vp-lea-i r0 view_node r2)
 	(vp-cpy-rr r3 r0)
 	(vp-add-cr view_list r3)
@@ -125,7 +125,7 @@
 	(call 'view 'sub '(r1))
 
 	;add to parent
-	(vp-cpy-ri r3 r0 hash_map_parent)
+	(vp-cpy-ri r3 r0 hmap_parent)
 	(vp-lea-i r0 view_node r2)
 	(vp-cpy-rr r3 r0)
 	(vp-add-cr view_list r3)
@@ -267,7 +267,7 @@
 		(gotoif '(r2 != 0) 'down_loop_ctx)
 
 		;up to parent
-		(vp-cpy-ir r0 hash_map_parent r0)
+		(vp-cpy-ir r0 hmap_parent r0)
 	(loop-end)
 
 	(vp-free local_size)
@@ -581,7 +581,7 @@
 		(gotoif '(r2 != 0) 'down_loop_ctx)
 
 		;up to parent
-		(vp-cpy-ir r0 hash_map_parent r0)
+		(vp-cpy-ir r0 hmap_parent r0)
 	(loop-end)
 
 	(vp-free local_size)
@@ -666,7 +666,7 @@
 		(vp-cpy-ir-i r2 view_y r10)
 		(vp-add-rr r9 r7)
 		(vp-add-rr r10 r8)
-		(vp-cpy-ir r2 hash_map_parent r2)
+		(vp-cpy-ir r2 hmap_parent r2)
 		(assert '(r2 != 0))
 	(loop-end)
 	(vp-ret)
@@ -822,11 +822,11 @@
 	;r1-r2
 
 	;test parent
-	(vp-cpy-ir r0 hash_map_parent r1)
+	(vp-cpy-ir r0 hmap_parent r1)
 	(vpif '(r1 != 0))
 		;clear parent field
 		(vp-xor-rr r2 r2)
-		(vp-cpy-ri r2 r0 hash_map_parent)
+		(vp-cpy-ri r2 r0 hmap_parent)
 
 		;remove from parent list
 		(vp-lea-i r0 view_node r2)
@@ -871,7 +871,7 @@
 	(ln-is-first r0 view_node r1)
 	(vpif '(r1 != 0))
 		(vp-push r0)
-		(call 'view 'add_front '((r0 hash_map_parent) r0))
+		(call 'view 'add_front '((r0 hmap_parent) r0))
 		(vp-pop r0)
 		(jump 'view 'dirty_all '(r0))
 	(endif)

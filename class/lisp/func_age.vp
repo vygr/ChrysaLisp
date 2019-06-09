@@ -1,6 +1,6 @@
 (include 'sys/func.inc)
-(include 'class/string/class.inc)
-(include 'class/integer/class.inc)
+(include 'class/str/class.inc)
+(include 'class/num/class.inc)
 (include 'class/lisp/class.inc)
 
 (def-method 'lisp 'func_age)
@@ -23,13 +23,13 @@
 
 	(assign (cat {@} (f-path 'sys_load 'statics) {.ld_statics_stat_buffer}) {stat_buf})
 	(call 'vector 'get_first {value} {_, value})
-	(call 'sys_pii 'stat {&value->string_data, stat_buf} {age})
+	(call 'sys_pii 'stat {&value->str_data, stat_buf} {age})
 	(vpifnot {age})
 		(assign {stat_buf->stat_mtime} {age})
 	(else)
 		(assign {0} {age})
 	(endif)
-	(call 'integer 'create {age} {value})
+	(call 'num 'create {age} {value})
 
 	(exit 'lisp 'func_age {this, value})
 	(return)
@@ -37,7 +37,7 @@
 (errorcases
 (vp-label 'error1)
 	(jump 'lisp 'repl_error {this, "(age path)", error_msg_wrong_types, value})
-	(signature 'sig 'string))
+	(signature 'sig 'str))
 
 	(pop-scope-syms)
 

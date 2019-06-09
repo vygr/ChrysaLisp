@@ -46,7 +46,7 @@
 	;trashes
 	;all but r0
 
-	(entry 'msg_in 'deinit'(r0))
+	(entry 'msg_in 'deinit '(r0))
 
 	;free any stream mail buffer
 	(vp-push r0)

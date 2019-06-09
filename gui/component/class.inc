@@ -1,7 +1,7 @@
 (include 'sys/list/class.inc)
-(include 'class/hash_map/class.inc)
+(include 'class/hmap/class.inc)
 
-(def-class 'component 'hash_map)
+(def-class 'component 'hmap)
 (dec-method 'vtable 'gui/component/vtable)
 (dec-method 'init 'gui/component/init 'static '(r0 r1))
 (dec-method 'find_owner 'gui/component/find_owner 'static '(r0) '(r0 r1))
@@ -12,9 +12,9 @@
 (dec-method 'set_long_prop 'gui/component/set_long_prop 'static '(r0 r1 r2) '(r0))
 (dec-method 'get_long_prop 'gui/component/get_long_prop 'static '(r0 r1) '(r0 r1))
 (dec-method 'set_font_prop 'gui/component/set_font_prop 'static '(r0 r1 r2 r3) '(r0))
-(dec-method 'set_string_prop 'gui/component/set_string_prop 'static '(r0 r1 r2) '(r0))
+(dec-method 'set_str_prop 'gui/component/set_str_prop 'static '(r0 r1 r2) '(r0))
 
-(def-struct 'component 'hash_map)
+(def-struct 'component 'hmap)
 	(ptr 'tcb)
 	(long 'id)
 (def-struct-end)

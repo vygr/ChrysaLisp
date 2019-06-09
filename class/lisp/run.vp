@@ -1,6 +1,6 @@
 (include 'sys/func.inc)
 (include 'sys/mail/class.inc)
-(include 'class/string/class.inc)
+(include 'class/str/class.inc)
 (include 'class/stream_str/class.inc)
 (include 'class/lisp/class.inc)
 
@@ -19,7 +19,7 @@
 	(call 'sys_mail 'free_obj {script} {script, _, _})
 
 	;string output stream
-	(call 'string 'create_from_buffer {0, string_gap} {value})
+	(call 'str 'create_from_buffer {0, str_gap} {value})
 	(call 'stream_str 'create {value} {stream})
 
 	;create lisp class
@@ -27,12 +27,12 @@
 	(call 'obj 'deref {stream})
 	(vpif {lisp})
 		;run lisp file
-		(call 'string 'create_from_file {&script->string_data} {file})
+		(call 'str 'create_from_file {&script->str_data} {file})
 		(vpif {file})
 			;REPL from file stream
 			(call 'vector 'create nil {args})
 			(call 'stream_str 'create {file} {stream})
-			(call 'string 'ref {script})
+			(call 'str 'ref {script})
 			(call 'vector 'push_back {args, stream})
 			(call 'vector 'push_back {args, script})
 			(call 'lisp 'func_repl {lisp, args} {_, value})
@@ -46,7 +46,7 @@
 		(endif)
 		(call 'lisp 'deref {lisp})
 	(endif)
-	(call 'string 'deref {script})
+	(call 'str 'deref {script})
 
 	(pop-scope)
 	(return)

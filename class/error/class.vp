@@ -1,6 +1,6 @@
 (include 'sys/func.inc)
-(include 'sys/string/class.inc)
-(include 'class/string/class.inc)
+(include 'sys/str/class.inc)
+(include 'class/str/class.inc)
 (include 'class/error/class.inc)
 
 (gen-create 'error)
@@ -34,10 +34,10 @@
 	(s-call 'error 'init '(r0 r1) '(r0 r1))
 	(vpif '(r1 != 0))
 		;init self
-		(call 'string 'create_from_cstr '((r0 error_description)) '(r0))
+		(call 'str 'create_from_cstr '((r0 error_description)) '(r0))
 		(vp-cpy-ir rsp local_this r1)
 		(vp-cpy-ri r0 r1 error_description)
-		(call 'string 'create_from_cstr '((r1 error_file)) '(r0))
+		(call 'str 'create_from_cstr '((r1 error_file)) '(r0))
 		(vp-cpy-ir rsp local_this r1)
 		(vp-cpy-ri r0 r1 error_file)
 		(call 'obj 'ref '((r1 error_object)))
@@ -87,7 +87,7 @@
 	(assign {"", $msgs, this->error_msg} {msg, next, cnt})
 	(loop-while {*next && cnt})
 		(assign {next} {msg})
-		(call 'sys_string 'length {next} {_, length})
+		(call 'sys_str 'length {next} {_, length})
 		(assign {next + length + byte_size, cnt - 1} {next, cnt})
 	(loop-end)
 

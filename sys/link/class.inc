@@ -1,6 +1,6 @@
 (include 'sys/list/class.inc)
 (include 'sys/mail/class.inc)
-(include 'class/string/class.inc)
+(include 'class/str/class.inc)
 
 (def-class 'sys_link)
 (dec-method 'init 'sys/link/init)
@@ -10,7 +10,7 @@
 ; link structures
 ;;;;;;;;;;;;;;;;;
 
-(defcvar 'lk_data_size (sub 512 string_size ptr_size long_size))
+(defcvar 'lk_data_size (sub 512 str_size ptr_size long_size))
 
 (def-enum 'lk_chan_status)
 	(enum 'ready 'busy)

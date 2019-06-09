@@ -1,7 +1,7 @@
 (include 'sys/func.inc)
 (include 'gui/canvas/class.inc)
-(include 'class/string/class.inc)
-(include 'class/integer/class.inc)
+(include 'class/str/class.inc)
+(include 'class/num/class.inc)
 (include 'class/lisp/class.inc)
 
 (def-method 'canvas 'lisp_create)
@@ -31,7 +31,7 @@
 (errorcases
 (vp-label 'error1)
 	(jump 'lisp 'repl_error {this, "(create-canvas width height aa_scale)", error_msg_wrong_types, args})
-	(signature 'sig 'integer 'integer 'integer))
+	(signature 'sig 'num 'num 'num))
 
 	(pop-scope-syms)
 
@@ -56,7 +56,7 @@
 	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
-	(call 'canvas 'load {&arg0->string_data, arg1} {value})
+	(call 'canvas 'load {&arg0->str_data, arg1} {value})
 	(vpifnot {value})
 		(call 'obj 'ref {this->lisp_sym_nil} {value})
 	(endif)
@@ -67,7 +67,7 @@
 (errorcases
 (vp-label 'error1)
 	(jump 'lisp 'repl_error {this, "(canvas-load path flags)", error_msg_wrong_types, args})
-	(signature 'sig 'string 'integer))
+	(signature 'sig 'str 'num))
 
 	(pop-scope-syms)
 
@@ -101,7 +101,7 @@
 (errorcases
 (vp-label 'error1)
 	(jump 'lisp 'repl_error {this, "(canvas-fill canvas argb)", error_msg_wrong_types, args})
-	(signature 'sig 'canvas 'integer))
+	(signature 'sig 'canvas 'num))
 
 	(pop-scope-syms)
 
@@ -135,7 +135,7 @@
 (errorcases
 (vp-label 'error1)
 	(jump 'lisp 'repl_error {this, "(canvas-set-color canvas argb)", error_msg_wrong_types, args})
-	(signature 'sig 'canvas 'integer))
+	(signature 'sig 'canvas 'num))
 
 	(pop-scope-syms)
 
@@ -169,7 +169,7 @@
 (errorcases
 (vp-label 'error1)
 	(jump 'lisp 'repl_error {this, "(canvas-set-flags canvas flags)", error_msg_wrong_types, args})
-	(signature 'sig 'canvas 'integer))
+	(signature 'sig 'canvas 'num))
 
 	(pop-scope-syms)
 
@@ -272,7 +272,7 @@
 (errorcases
 (vp-label 'error1)
 	(jump 'lisp 'repl_error {this, "(canvas-plot canvas x y)", error_msg_wrong_types, args})
-	(signature 'sig 'canvas 'integer 'integer))
+	(signature 'sig 'canvas 'num 'num))
 
 	(pop-scope-syms)
 
@@ -306,7 +306,7 @@
 (errorcases
 (vp-label 'error1)
 	(jump 'lisp 'repl_error {this, "(canvas-fbox canvas x y w h)", error_msg_wrong_types, args})
-	(signature 'sig 'canvas 'integer 'integer 'integer 'integer))
+	(signature 'sig 'canvas 'num 'num 'num 'num))
 
 	(pop-scope-syms)
 
@@ -340,7 +340,7 @@
 (errorcases
 (vp-label 'error1)
 	(jump 'lisp 'repl_error {this, "(canvas-fpoly canvas x y mode list)", error_msg_wrong_types, args})
-	(signature 'sig 'canvas 'integer 'integer 'integer 'vector))
+	(signature 'sig 'canvas 'num 'num 'num 'vector))
 
 	(pop-scope-syms)
 

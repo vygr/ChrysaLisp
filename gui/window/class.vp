@@ -6,7 +6,7 @@
 (include 'gui/button/class.inc)
 (include 'gui/flow/class.inc)
 (include 'gui/ctx/class.inc)
-(include 'class/string/class.inc)
+(include 'class/str/class.inc)
 (include 'class/array/class.inc)
 
 (gen-create 'window)
@@ -61,7 +61,7 @@
 		(call 'button 'create nil {this->window_close})
 		(call 'button 'set_font_prop {this->window_close, prop_font, "fonts/Entypo.otf", 22})
 		(call 'flow 'add_child {title_flow, this->window_close})
-		(call 'button 'set_string_prop {this->window_close, prop_text, ""})
+		(call 'button 'set_str_prop {this->window_close, prop_text, ""})
 		(call 'button 'pref_size {this->window_close} {_, min_width, _})
 		(call 'flow 'set_long_prop {title_flow, prop_min_width, min_width})
 		(vpifnot {flags & window_flag_close})
@@ -74,7 +74,7 @@
 			(call 'button 'create nil {this->window_max})
 			(call 'button 'set_font_prop {this->window_max, prop_font, "fonts/Entypo.otf", 22})
 			(call 'flow 'add_child {title_flow, this->window_max})
-			(call 'button 'set_string_prop {this->window_max, prop_text, ""})
+			(call 'button 'set_str_prop {this->window_max, prop_text, ""})
 		(endif)
 
 		;add min button
@@ -82,7 +82,7 @@
 			(call 'button 'create nil {this->window_min})
 			(call 'button 'set_font_prop {this->window_min, prop_font, "fonts/Entypo.otf", 22})
 			(call 'flow 'add_child {title_flow, this->window_min})
-			(call 'button 'set_string_prop {this->window_min, prop_text, ""})
+			(call 'button 'set_str_prop {this->window_min, prop_text, ""})
 		(endif)
 
 		;add title
@@ -396,7 +396,7 @@
 	(entry 'window 'set_status {this, str})
 
 	(vpif {this->window_status})
-		(call 'label 'set_string_prop {this->window_status, prop_text, str})
+		(call 'label 'set_str_prop {this->window_status, prop_text, str})
 		(call 'label 'layout {this->window_status})
 	(endif)
 
@@ -416,7 +416,7 @@
 	(push-scope)
 	(entry 'window 'set_status {this, str})
 
-	(call 'title 'set_string_prop {this->window_title, prop_text, str})
+	(call 'title 'set_str_prop {this->window_title, prop_text, str})
 	(call 'title 'layout {this->window_title})
 
 	(exit 'window 'set_status {this})

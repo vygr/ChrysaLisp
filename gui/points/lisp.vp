@@ -1,6 +1,6 @@
 (include 'sys/func.inc)
 (include 'gui/points/class.inc)
-(include 'class/integer/class.inc)
+(include 'class/num/class.inc)
 (include 'class/lisp/class.inc)
 
 (def-method 'points 'lisp_transform)
@@ -31,7 +31,7 @@
 (errorcases
 (vp-label 'error1)
 	(jump 'lisp 'repl_error {this, "(points-transform dst src m1x m1y m2x m2y trx try)", error_msg_wrong_types, args})
-	(signature 'sig 'points 'points 'integer 'integer 'integer 'integer 'integer 'integer))
+	(signature 'sig 'points 'points 'num 'num 'num 'num 'num 'num))
 
 	(pop-scope-syms)
 
@@ -65,7 +65,7 @@
 (errorcases
 (vp-label 'error1)
 	(jump 'lisp 'repl_error {this, "(points-simplify dst src stack tol)", error_msg_wrong_types, args})
-	(signature 'sig 'points 'points 'array 'integer))
+	(signature 'sig 'points 'points 'array 'num))
 
 	(pop-scope-syms)
 
@@ -99,7 +99,7 @@
 (errorcases
 (vp-label 'error1)
 	(jump 'lisp 'repl_error {this, "(points-gen-quadratic stack p1x p1y p2x p2y p3x p3y tol dst) -> dst", error_msg_wrong_types, args})
-	(signature 'sig 'array 'integer 'integer 'integer 'integer 'integer 'integer 'integer 'points))
+	(signature 'sig 'array 'num 'num 'num 'num 'num 'num 'num 'points))
 
 	(pop-scope-syms)
 
@@ -133,7 +133,7 @@
 (errorcases
 (vp-label 'error1)
 	(jump 'lisp 'repl_error {this, "(points-gen-cubic stack p1x p1y p2x p2y p3x p3y p4x p4y tol dst) -> dst", error_msg_wrong_types, args})
-	(signature 'sig 'array 'integer 'integer 'integer 'integer 'integer 'integer 'integer 'integer 'integer 'points))
+	(signature 'sig 'array 'num 'num 'num 'num 'num 'num 'num 'num 'num 'points))
 
 	(pop-scope-syms)
 
@@ -167,7 +167,7 @@
 (errorcases
 (vp-label 'error1)
 	(jump 'lisp 'repl_error {this, "(points-gen-arc stack cx cy start end radius tol dst) ->", error_msg_wrong_types, args})
-	(signature 'sig 'array 'integer 'integer 'integer 'integer 'integer 'integer 'points))
+	(signature 'sig 'array 'num 'num 'num 'num 'num 'num 'points))
 
 	(pop-scope-syms)
 
@@ -201,7 +201,7 @@
 (errorcases
 (vp-label 'error1)
 	(jump 'lisp 'repl_error {this, "(points-stroke-polylines stack radius tol join cap1 cap2 src dst) -> dst", error_msg_wrong_types, args})
-	(signature 'sig 'array 'integer 'integer 'integer 'integer 'integer 'vector 'vector))
+	(signature 'sig 'array 'num 'num 'num 'num 'num 'vector 'vector))
 
 	(pop-scope-syms)
 
@@ -235,7 +235,7 @@
 (errorcases
 (vp-label 'error1)
 	(jump 'lisp 'repl_error {this, "(points-stroke-polygons stack radius tol join src dst) -> dst", error_msg_wrong_types, args})
-	(signature 'sig 'array 'integer 'integer 'integer 'vector 'vector))
+	(signature 'sig 'array 'num 'num 'num 'vector 'vector))
 
 	(pop-scope-syms)
 
@@ -537,7 +537,7 @@
 	(vpif {length})
 		(call 'points 'sum {value} {_, length})
 	(endif)
-	(call 'integer 'create {length} {value})
+	(call 'num 'create {length} {value})
 
 	(exit 'points 'lisp_sum {this, value})
 	(return)
@@ -591,7 +591,7 @@
 (errorcases
 (vp-label 'error1)
 	(jump 'lisp 'repl_error {this, "(points-fscale points scale [points])", error_msg_wrong_types, args})
-	(signature 'sig 'points 'integer 'points))
+	(signature 'sig 'points 'num 'points))
 
 	(pop-scope-syms)
 

@@ -1,7 +1,7 @@
 (include 'sys/func.inc)
 (include 'sys/task/class.inc)
-(include 'class/integer/class.inc)
-(include 'class/string/class.inc)
+(include 'class/num/class.inc)
+(include 'class/str/class.inc)
 (include 'class/lisp/class.inc)
 
 (def-method 'sys_task 'lisp_sleep)
@@ -32,7 +32,7 @@
 (errorcases
 (vp-label 'error1)
 	(jump 'lisp 'repl_error {this, "(task-sleep usec)", error_msg_wrong_types, args})
-	(signature 'sig 'integer))
+	(signature 'sig 'num))
 
 	(pop-scope-syms)
 
@@ -55,7 +55,7 @@
 	(gotoif (list (method-output 'vector 'get_length 1) '!= 0) 'error1))
 
 	(call 'sys_task 'mailbox nil (list r_value))
-	(call 'integer 'create (list r_value) (list r_value))
+	(call 'num 'create (list r_value) (list r_value))
 
 	(exit 'sys_task 'lisp_mailbox (list r_this r_value))
 	(vp-ret)
@@ -85,8 +85,8 @@
 	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
-	(call 'sys_task 'open_child {&arg0->string_data, arg1} {arg0})
-	(call 'integer 'create {arg0} {value})
+	(call 'sys_task 'open_child {&arg0->str_data, arg1} {arg0})
+	(call 'num 'create {arg0} {value})
 
 	(exit 'sys_task 'lisp_open_child {this, value})
 	(return)
@@ -94,7 +94,7 @@
 (errorcases
 (vp-label 'error1)
 	(jump 'lisp 'repl_error {this, "(open-child path mode)", error_msg_wrong_types, args})
-	(signature 'sig 'string 'integer))
+	(signature 'sig 'str 'num))
 
 	(pop-scope-syms)
 
@@ -119,8 +119,8 @@
 	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
-	(call 'sys_task 'open_remote {&arg0->string_data, arg1, arg2} {arg0})
-	(call 'integer 'create {arg0} {value})
+	(call 'sys_task 'open_remote {&arg0->str_data, arg1, arg2} {arg0})
+	(call 'num 'create {arg0} {value})
 
 	(exit 'sys_task 'lisp_open_remote {this, value})
 	(return)
@@ -128,7 +128,7 @@
 (errorcases
 (vp-label 'error1)
 	(jump 'lisp 'repl_error {this, "(open-remote path cpu mode)", error_msg_wrong_types, args})
-	(signature 'sig 'string 'integer 'integer))
+	(signature 'sig 'str 'num 'num))
 
 	(pop-scope-syms)
 
@@ -153,7 +153,7 @@
 	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
-	(call 'sys_task 'open_farm {&arg0->string_data, arg1, arg2} {value})
+	(call 'sys_task 'open_farm {&arg0->str_data, arg1, arg2} {value})
 
 	(exit 'sys_task 'lisp_open_farm {this, value})
 	(return)
@@ -161,7 +161,7 @@
 (errorcases
 (vp-label 'error1)
 	(jump 'lisp 'repl_error {this, "(open-farm path num mode)", error_msg_wrong_types, args})
-	(signature 'sig 'string 'integer 'integer))
+	(signature 'sig 'str 'num 'num))
 
 	(pop-scope-syms)
 
@@ -188,7 +188,7 @@
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 
 (errorcases
-	(call 'lisp 'env_args_type (cat {arg0, @} (f-path 'string 'vtable) {, -1}))
+	(call 'lisp 'env_args_type (cat {arg0, @} (f-path 'str 'vtable) {, -1}))
 	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'sys_task 'open_pipe {arg0} {value})

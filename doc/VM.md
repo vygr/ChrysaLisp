@@ -249,20 +249,20 @@ feature.
 
 This is the system level string compare function. `sys_string::compare`
 
-Register inputs and outputs are declared in the `sys/string/class.inc` file.
+Register inputs and outputs are declared in the `sys/str/class.inc` file.
 
 ```lisp
 (def-class 'sys_string)
-(dec-method 'compare 'sys/string/compare 'static '(r0 r1) '(r0))
+(dec-method 'compare 'sys/str/compare 'static '(r0 r1) '(r0))
 ```
 
 So this function will take the C style input char*'s in registers r0 and r1,
 and will return the comparison value in register r0.
 
-Implementation of the function is defined in the `sys/string/class.vp` file.
+Implementation of the function is defined in the `sys/str/class.vp` file.
 
 ```lisp
-(def-method 'sys_string 'compare)
+(def-method 'sys_str 'compare)
 	;inputs
 	;r0 = c string1 (pubyte)
 	;r1 = c string2 (pubyte)
@@ -271,7 +271,7 @@ Implementation of the function is defined in the `sys/string/class.vp` file.
 	;trashes
 	;r0-r3
 
-	(entry 'sys_string 'compare '(r0 r1))
+	(entry 'sys_str 'compare '(r0 r1))
 	(loop-start)
 		(vp-cpy-ir-ub r0 0 r2)
 		(vp-cpy-ir-ub r1 0 r3)
@@ -281,7 +281,7 @@ Implementation of the function is defined in the `sys/string/class.vp` file.
 		(vp-add-cr byte_size r0)
 		(vp-add-cr byte_size r1)
 	(loop-end)
-	(exit 'sys_string 'compare '(r2))
+	(exit 'sys_str 'compare '(r2))
 	(vp-ret)
 
 (def-func-end)
@@ -289,7 +289,7 @@ Implementation of the function is defined in the `sys/string/class.vp` file.
 
 So let's go through the important lines in this function.
 
-First of all the `(def-method 'sys_string 'compare)` is doing the same job as a
+First of all the `(def-method 'sys_str 'compare)` is doing the same job as a
 `(def-func)` would do, it's a wrapper function to simplify writing the
 `(def-func)` that also does some extra checks to make sure you actually do have
 a `(dec-method)` for it in the include file. The `(def-func-end)` just wraps
@@ -301,7 +301,7 @@ Next there is a section of documentation, this format can be parsed out by the
 `make doc` command line tool. Parsed documentation ends up in the
 `doc/CLASSES.md` file.
 
-The `(entry 'sys_string 'compare '(r0 r1))` and `(exit 'sys_string 'compare
+The `(entry 'sys_str 'compare '(r0 r1))` and `(exit 'sys_str 'compare
 '(r2))` calls are helpers to make sure input and output parameters get copied
 to the correct registers. They enforce the `(def-method)` input and output
 register declarations by use of two `(assign)` calls. The register lists

@@ -1,6 +1,6 @@
-(include 'class/sequence/class.inc)
+(include 'class/seq/class.inc)
 
-(def-class 'array 'sequence)
+(def-class 'array 'seq)
 (dec-method 'vtable 'class/array/vtable)
 (dec-method 'create 'class/array/create 'static nil '(r0))
 (dec-method 'init 'class/array/init)
@@ -41,7 +41,7 @@
 (dec-method 'lisp_push 'class/array/lisp_push 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_pop 'class/array/lisp_pop 'static '(r0 r1) '(r0 r1))
 
-(def-struct 'array 'sequence)
+(def-struct 'array 'seq)
 	(pulong 'array)
 	(uint 'length)
 	(uint 'capacity)

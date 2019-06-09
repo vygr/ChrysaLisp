@@ -1,9 +1,9 @@
 (include 'sys/func.inc)
 (include 'class/stream/class.inc)
-(include 'class/symbol/class.inc)
-(include 'class/integer/class.inc)
+(include 'class/sym/class.inc)
+(include 'class/num/class.inc)
 (include 'class/pair/class.inc)
-(include 'class/hash_map/class.inc)
+(include 'class/hmap/class.inc)
 (include 'class/lisp/class.inc)
 
 (def-method 'lisp 'read_char)
@@ -23,10 +23,10 @@
 	(entry 'lisp 'read_char {this, stream, char})
 
 	(vpif {char == char_lf})
-		(call 'hash_map 'search {this->lisp_environment, this->lisp_sym_stream_line} {_, iter, _})
+		(call 'hmap 'search {this->lisp_environment, this->lisp_sym_stream_line} {_, iter, _})
 		(breakifnot {iter})
 		(call 'pair 'get_second {*iter} {_, line})
-		(assign {line->integer_value + 1} {line->integer_value})
+		(assign {line->num_value + 1} {line->num_value})
 	(endif)
 
 	(call 'stream 'read_char {stream} {_, char})

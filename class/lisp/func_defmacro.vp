@@ -1,6 +1,6 @@
 (include 'sys/func.inc)
-(include 'class/hash_map/class.inc)
-(include 'class/symbol/class.inc)
+(include 'class/hmap/class.inc)
+(include 'class/sym/class.inc)
 (include 'class/lisp/class.inc)
 
 (def-method 'lisp 'func_defmacro)
@@ -22,12 +22,12 @@
 	(call 'vector 'get_third {args} {_, vars})
 	(errorif (cat {vars->obj_vtable != @} (f-path 'vector 'vtable)) 'error2)
 	(call 'vector 'get_second {args} {_, value})
-	(errorif (cat {value->obj_vtable != @} (f-path 'symbol 'vtable)) 'error3)
+	(errorif (cat {value->obj_vtable != @} (f-path 'sym 'vtable)) 'error3)
 	(call 'obj 'ref {value})
 	(call 'obj 'ref {this->lisp_sym_macro} {vars})
 	(d-call 'vector 'slice {args, 1, length} {_, args})
 	(d-call 'vector 'set_element {args, vars, 0})
-	(call 'hash_map 'insert {this->lisp_environment, value, args})
+	(call 'hmap 'insert {this->lisp_environment, value, args})
 	(call 'obj 'deref {args})
 
 	(exit 'lisp 'func_defmacro {this, value})

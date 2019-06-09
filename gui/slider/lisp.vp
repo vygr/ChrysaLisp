@@ -1,6 +1,6 @@
 (include 'sys/func.inc)
 (include 'gui/slider/class.inc)
-(include 'class/integer/class.inc)
+(include 'class/num/class.inc)
 (include 'class/lisp/class.inc)
 
 (def-method 'slider 'lisp_create)
@@ -58,7 +58,7 @@
 (errorcases
 (vp-label 'error1)
 	(jump 'lisp 'repl_error {this, "(slider-connect-value slider id)", error_msg_wrong_types, args})
-	(signature 'sig 'slider 'integer))
+	(signature 'sig 'slider 'num))
 
 	(pop-scope-syms)
 

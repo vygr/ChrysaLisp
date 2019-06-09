@@ -1,6 +1,6 @@
 (include 'sys/func.inc)
 (include 'sys/math/class.inc)
-(include 'class/integer/class.inc)
+(include 'class/num/class.inc)
 (include 'class/lisp/class.inc)
 
 ;generic fixed math op
@@ -12,9 +12,9 @@
 	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
 	(vp-cpy-ir r_args array_array r_value)
 	(vp-cpy-ir r_value 0 r_value)
-	(vp-cpy-ir r_value integer_value r_value)
+	(vp-cpy-ir r_value num_value r_value)
 	(exec p)
-	(call 'integer 'create (list r_value) (list r_value))
+	(call 'num 'create (list r_value) (list r_value))
 	(exit 'sys_math _ (list r_this r_value))
 	(vp-ret))
 
@@ -32,7 +32,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error (list r_this "(fsin angle)" error_msg_wrong_types r_args))
-	(signature 'sig 'integer))
+	(signature 'sig 'num))
 
 (def-func-end)
 
@@ -50,7 +50,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error (list r_this "(fcos angle)" error_msg_wrong_types r_args))
-	(signature 'sig 'integer))
+	(signature 'sig 'num))
 
 (def-func-end)
 
@@ -70,7 +70,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error (list r_this "(fsqrt num)" error_msg_wrong_types r_args))
-	(signature 'sig 'integer))
+	(signature 'sig 'num))
 
 (def-func-end)
 
@@ -90,7 +90,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error (list r_this "(frac num)" error_msg_wrong_types r_args))
-	(signature 'sig 'integer))
+	(signature 'sig 'num))
 
 (def-func-end)
 
@@ -110,6 +110,6 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error (list r_this "(floor num)" error_msg_wrong_types r_args))
-	(signature 'sig 'integer))
+	(signature 'sig 'num))
 
 (def-func-end)

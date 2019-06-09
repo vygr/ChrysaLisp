@@ -1,10 +1,10 @@
 (include 'sys/func.inc)
 (include 'sys/task/class.inc)
-(include 'class/hash_set/class.inc)
-(include 'class/hash_map/class.inc)
+(include 'class/hset/class.inc)
+(include 'class/hmap/class.inc)
 (include 'class/stream_str/class.inc)
-(include 'class/function/class.inc)
-(include 'class/symbol/class.inc)
+(include 'class/func/class.inc)
+(include 'class/sym/class.inc)
 (include 'class/lisp/class.inc)
 
 (def-struct 'built_in)
@@ -60,18 +60,18 @@
 			(assign {-1} {ptr($boot_env)})
 
 			;intern standard built in symbols
-			(call 'hash_map 'create {0, 101} {this->lisp_environment})
+			(call 'hmap 'create {0, 101} {this->lisp_environment})
 
 			;local defines and symbols
 			(call 'create_env_info {this})
 
 			;run any boot.inc
-			(call 'string 'create_from_file {"class/lisp/boot.inc"} {file})
+			(call 'str 'create_from_file {"class/lisp/boot.inc"} {file})
 			(vpif {file})
 				;REPL from file stream
 				(call 'vector 'create nil {repl_args})
 				(call 'stream_str 'create {file} {stream})
-				(call 'string 'create_from_cstr {"class/lisp/boot.inc"} {file})
+				(call 'str 'create_from_cstr {"class/lisp/boot.inc"} {file})
 				(call 'vector 'push_back {repl_args, stream})
 				(call 'vector 'push_back {repl_args, file})
 				(call 'lisp 'func_repl {this, repl_args} {_, value})
@@ -93,14 +93,14 @@
 			(else)
 				;save shared boot env
 				(call 'obj 'ref {this->lisp_environment} {ptr($boot_env)})
-				(call 'hash_map 'create {this->lisp_environment->hash_set_key_callback, 101} {func})
-				(call 'hash_map 'set_parent {func, this->lisp_environment} {this->lisp_environment})
+				(call 'hmap 'create {this->lisp_environment->hset_key_callback, 101} {func})
+				(call 'hmap 'set_parent {func, this->lisp_environment} {this->lisp_environment})
 			(endif)
 		(else)
 			;boot env is my parent env
 			(call 'obj 'ref {ptr($boot_env)} {this->lisp_environment})
-			(call 'hash_map 'create {this->lisp_environment->hash_set_key_callback, 31} {func})
-			(call 'hash_map 'set_parent {func, this->lisp_environment} {this->lisp_environment})
+			(call 'hmap 'create {this->lisp_environment->hset_key_callback, 31} {func})
+			(call 'hmap 'set_parent {func, this->lisp_environment} {this->lisp_environment})
 
 			;local defines and symbols
 			(call 'create_env_info {this})
@@ -120,23 +120,23 @@
 	;look up standard built in symbols
 	(assign {$built_ins} {table})
 	(loop-while {table->built_in_symbol})
-		(call 'symbol 'intern_cstr {&table->built_in_symbol + table->built_in_symbol} {symbol})
+		(call 'sym 'intern_cstr {&table->built_in_symbol + table->built_in_symbol} {symbol})
 		(assign {symbol} {ptr(this + table->built_in_field)})
 		(assign {table + built_in_size} {table})
 	(loop-end)
 
 	;defines
-	(call 'string 'create_from_cstr {"ChrysaLisp"} {symbol})
-	(call 'hash_map 'insert {this->lisp_environment, this->lisp_sym_stream_name, symbol})
+	(call 'str 'create_from_cstr {"ChrysaLisp"} {symbol})
+	(call 'hmap 'insert {this->lisp_environment, this->lisp_sym_stream_name, symbol})
 	(call 'obj 'deref {symbol})
-	(call 'integer 'create {0} {symbol})
-	(call 'hash_map 'insert {this->lisp_environment, this->lisp_sym_stream_line, symbol})
+	(call 'num 'create {0} {symbol})
+	(call 'hmap 'insert {this->lisp_environment, this->lisp_sym_stream_line, symbol})
 	(call 'obj 'deref {symbol})
 	(call 'vector 'create nil {symbol})
-	(call 'hash_map 'insert {this->lisp_environment, this->lisp_sym_file_includes, symbol})
+	(call 'hmap 'insert {this->lisp_environment, this->lisp_sym_file_includes, symbol})
 	(call 'obj 'deref {symbol})
-	(call 'function 'create (cat {@} (f-path 'lisp 'func_ffi) {+ func_type_args_raw}) {symbol})
-	(call 'hash_map 'insert {this->lisp_environment, this->lisp_sym_ffi, symbol})
+	(call 'func 'create (cat {@} (f-path 'lisp 'func_ffi) {+ func_type_args_raw}) {symbol})
+	(call 'hmap 'insert {this->lisp_environment, this->lisp_sym_ffi, symbol})
 	(call 'obj 'deref {symbol})
 
 	(pop-scope)

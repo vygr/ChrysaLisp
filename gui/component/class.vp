@@ -1,10 +1,10 @@
 (include 'sys/func.inc)
 (include 'sys/kernel/class.inc)
-(include 'sys/string/class.inc)
+(include 'sys/str/class.inc)
 (include 'gui/gui/class.inc)
 (include 'gui/component/class.inc)
-(include 'class/symbol/class.inc)
-(include 'class/integer/class.inc)
+(include 'class/sym/class.inc)
+(include 'class/num/class.inc)
 (include 'gui/font/class.inc)
 (include 'class/vector/class.inc)
 
@@ -46,7 +46,7 @@
 	(vp-cpy-rr r0 r2)
 	(loop-start)
 		(vp-cpy-ir r2 component_tcb r1)
-		(vp-cpy-ir r2 hash_map_parent r2)
+		(vp-cpy-ir r2 hmap_parent r2)
 		(breakif '(r1 != 0))
 	(loop-until '(r2 == 0))
 	(vp-ret)
@@ -112,9 +112,9 @@
 		(call 'vector 'set_capacity (cat {syms, } (str (length *props*))))
 		(assign {$props} {next})
 		(loop-start)
-			(call 'symbol 'intern_cstr {next} {sym})
+			(call 'sym 'intern_cstr {next} {sym})
 			(call 'vector 'push_back {syms, sym})
-			(call 'sys_string 'length {next} {_, length})
+			(call 'sys_str 'length {next} {_, length})
 		(loop-until {(next + length + byte_size => next) == $props_end})
 		(assign {syms} {ptr($symbols)})
 	(endif)
@@ -213,9 +213,9 @@
 	(entry 'component 'set_long_prop {this, num, value})
 
 	(call 'component 'get_prop_sym {this, num} {_, sym})
-	(call 'integer 'create {value} {prop})
+	(call 'num 'create {value} {prop})
 	(call 'component 'insert {this, sym, prop})
-	(call 'integer 'deref {prop})
+	(call 'num 'deref {prop})
 
 	(exit 'component 'set_long_prop {this})
 	(pop-scope)
@@ -248,8 +248,8 @@
 	(call 'component 'get {this, sym} {_, prop})
 	(assign {0} {value})
 	(vpif {prop})
-		(call 'integer 'get_value {prop} {_, value})
-		(call 'integer 'deref {prop})
+		(call 'num 'get_value {prop} {_, value})
+		(call 'num 'deref {prop})
 	(endif)
 
 	(exit 'component 'get_long_prop {this, value})
@@ -291,7 +291,7 @@
 
 (def-func-end)
 
-(def-method 'component 'set_string_prop)
+(def-method 'component 'set_str_prop)
 	;inputs
 	;r0 = component object (ptr)
 	;r1 = property num (uint)
@@ -305,14 +305,14 @@
 	(uint 'num)
 
 	(push-scope)
-	(entry 'component 'set_string_prop {this, num, str})
+	(entry 'component 'set_str_prop {this, num, str})
 
 	(call 'component 'get_prop_sym {this, num} {_, sym})
-	(call 'string 'create_from_cstr {str} {str})
+	(call 'str 'create_from_cstr {str} {str})
 	(call 'component 'insert {this, sym, str})
-	(call 'string 'deref {str})
+	(call 'str 'deref {str})
 
-	(exit 'component 'set_string_prop {this})
+	(exit 'component 'set_str_prop {this})
 	(pop-scope)
 	(return)
 

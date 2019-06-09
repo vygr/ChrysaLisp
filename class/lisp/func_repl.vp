@@ -1,9 +1,9 @@
 (include 'sys/func.inc)
 (include 'class/stream/class.inc)
-(include 'class/hash_map/class.inc)
-(include 'class/integer/class.inc)
+(include 'class/hmap/class.inc)
+(include 'class/num/class.inc)
 (include 'class/lisp/class.inc)
-(include 'class/symbol/class.inc)
+(include 'class/sym/class.inc)
 
 (def-method 'lisp 'func_repl)
 	;inputs
@@ -31,15 +31,15 @@
 	(call 'vector 'get_second {args} {_, value})
 
 (errorcases
-	(call 'obj 'inst_of (cat {value, @} (f-path 'string 'vtable)))
+	(call 'obj 'inst_of (cat {value, @} (f-path 'str 'vtable)))
 	(gotoif (list (method-output 'obj 'inst_of 1) '== 0) 'error3))
 
 	;push old file and line, set to this stream info
-	(call 'hash_map 'get {this->lisp_environment, this->lisp_sym_stream_name} {_, old_file})
-	(call 'hash_map 'get {this->lisp_environment, this->lisp_sym_stream_line} {_, old_line})
-	(call 'hash_map 'set {this->lisp_environment, this->lisp_sym_stream_name, value})
-	(call 'integer 'create {1} {value})
-	(call 'hash_map 'set {this->lisp_environment, this->lisp_sym_stream_line, value})
+	(call 'hmap 'get {this->lisp_environment, this->lisp_sym_stream_name} {_, old_file})
+	(call 'hmap 'get {this->lisp_environment, this->lisp_sym_stream_line} {_, old_line})
+	(call 'hmap 'set {this->lisp_environment, this->lisp_sym_stream_name, value})
+	(call 'num 'create {1} {value})
+	(call 'hmap 'set {this->lisp_environment, this->lisp_sym_stream_line, value})
 	(call 'obj 'deref {value})
 
 	(call 'stream 'read_char {stream} {_, char})
@@ -68,9 +68,9 @@
 
 (vp-label 'exit1)
 	;pop old file and line info
-	(call 'hash_map 'set {this->lisp_environment, this->lisp_sym_stream_name, old_file})
+	(call 'hmap 'set {this->lisp_environment, this->lisp_sym_stream_name, old_file})
 	(call 'obj 'deref {old_file})
-	(call 'hash_map 'set {this->lisp_environment, this->lisp_sym_stream_line, old_line})
+	(call 'hmap 'set {this->lisp_environment, this->lisp_sym_stream_line, old_line})
 	(call 'obj 'deref {old_line})
 
 	(exit 'lisp 'func_repl {this, value})

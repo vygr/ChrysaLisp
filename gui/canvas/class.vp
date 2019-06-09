@@ -2,7 +2,7 @@
 (include 'sys/pii/class.inc)
 (include 'gui/canvas/class.inc)
 (include 'class/vector/class.inc)
-(include 'class/symbol/class.inc)
+(include 'class/sym/class.inc)
 (include 'class/stream_str/class.inc)
 (include 'class/pair/class.inc)
 (include 'gui/ctx/class.inc)
@@ -188,17 +188,17 @@
 		;create hash map ?
 		(assign {ptr($canvass)} {hash})
 		(vpifnot {hash})
-			(call 'hash_map 'create {0, 1} {hash})
+			(call 'hmap 'create {0, 1} {hash})
 			(assign {hash} {ptr($canvass)})
 		(endif)
 
 		;create interned name, lookup in map
-		(call 'symbol 'intern_cstr {name} {sym})
-		(call 'hash_map 'find {hash, sym} {_, iter, bucket})
+		(call 'sym 'intern_cstr {name} {sym})
+		(call 'hmap 'find {hash, sym} {_, iter, bucket})
 		(switch)
 		(casenot {iter})
 			;open file stream
-			(call 'string 'create_from_file {name} {this})
+			(call 'str 'create_from_file {name} {this})
 			(breakifnot {this})
 			(call 'stream_str 'create {this} {stream})
 			(call 'canvas 'load_cpm {stream} {this})
@@ -212,10 +212,10 @@
 			(call 'pair 'get_second {*iter} {_, this})
 			(call 'canvas 'create_shared {this} {this})
 		(endswitch)
-		(call 'symbol 'deref {sym})
+		(call 'sym 'deref {sym})
 	(else)
 		;open file stream
-		(call 'string 'create_from_file {name} {this})
+		(call 'str 'create_from_file {name} {this})
 		(breakifnot {this})
 		(call 'stream_str 'create {this} {stream})
 		(call 'canvas 'load_cpm {stream} {this})

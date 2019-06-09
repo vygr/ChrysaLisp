@@ -2,7 +2,7 @@
 (include 'sys/link/class.inc)
 (include 'sys/load/class.inc)
 (include 'sys/kernel/class.inc)
-(include 'sys/string/class.inc)
+(include 'sys/str/class.inc)
 (include 'class/vector/class.inc)
 (include 'sys/pii/class.inc)
 (include 'gui/gui/class.inc)
@@ -77,7 +77,7 @@
 			(breakifnot {msg})
 
 			;(switch) on kernel call number
-			(assign {data->kn_msg_function} {num})
+			(assign {data->kn_msg_func} {num})
 			(switch)
 			(case {num == kn_call_open})
 			(vp-label 'run_here)
@@ -86,9 +86,9 @@
 				(assign {0} {data->kn_msg_reply_id.id_id})
 
 				;is this a lisp file
-				(call 'sys_string 'length {&data->kn_msg_open_pathname} {_, length})
+				(call 'sys_str 'length {&data->kn_msg_open_pathname} {_, length})
 				(vpif {length >= 5})
-					(call 'sys_string 'compare {&data->kn_msg_open_pathname + length - 5, ".lisp"} {length})
+					(call 'sys_str 'compare {&data->kn_msg_open_pathname + length - 5, ".lisp"} {length})
 				(endif)
 				(vpifnot {length})
 					;yup it's a .lisp file, check it exists
@@ -96,11 +96,11 @@
 					(breakif {func})
 					;start lisp run task and send args
 					(call 'sys_task 'start {@class/lisp/run} {_, data->kn_msg_reply_id.id_id, _})
-					(call 'string 'create_from_cstr {&data->kn_msg_open_pathname} {pathname})
-					(call 'sys_mail 'alloc_obj {pathname, &pathname->string_data, pathname->string_length} {new_msg})
+					(call 'str 'create_from_cstr {&data->kn_msg_open_pathname} {pathname})
+					(call 'sys_mail 'alloc_obj {pathname, &pathname->str_data, pathname->str_length} {new_msg})
 					(assign {data->kn_msg_reply_id.id_id} {new_msg->msg_dest.id_id})
 					(call 'sys_mail 'send {new_msg})
-					(call 'string 'deref {pathname})
+					(call 'str 'deref {pathname})
 				(else)
 					;open as raw task and return mailbox ID
 					(call 'sys_load 'bind {&data->kn_msg_open_pathname} {func})
@@ -343,15 +343,15 @@
 			(assign {*table} {offset})
 			(breakifnot {offset})
 			(assign {table + ptr_size} {table})
-			(call 'sys_string 'compare {table, arg})
-			(vpif (list (method-output 'sys_string 'compare 0) '== 0))
+			(call 'sys_str 'compare {table, arg})
+			(vpif (list (method-output 'sys_str 'compare 0) '== 0))
 				(assign {*argv} {arg})
 				(breakifnot {arg} 'next_arg)
 				(assign {arg, $options_table + offset} '(r0 r1))
 				(vp-call-r r1)
 				(break 'next_arg)
 			(endif)
-			(call 'sys_string 'length {table} {_, len})
+			(call 'sys_str 'length {table} {_, len})
 			(assign {(table + len + ptr_size) & - ptr_size} {table})
 		(loop-end)
 	(loop-end)
@@ -369,7 +369,7 @@
 	(entry {arg})
 
 	;set cpu ID
-	(call 'sys_string 'to_long {arg, 10} (cat {@} (f-path 'sys_task 'statics) {.tk_statics_cpu_id}))
+	(call 'sys_str 'to_long {arg, 10} (cat {@} (f-path 'sys_task 'statics) {.tk_statics_cpu_id}))
 
 	(pop-scope)
 	(return)
@@ -408,7 +408,7 @@
 	;params message
 	(call 'sys_mail 'alloc {7 + 1} {msg, data})
 	(assign {mbox.id_id} {msg->msg_dest.id_id})
-	(call 'sys_string 'copy {arg, data} {_, data})
+	(call 'sys_str 'copy {arg, data} {_, data})
 
 	;send to link task
 	(call 'sys_mail 'send {msg})
@@ -446,11 +446,11 @@
 	(push-scope)
 	(entry 'sys_kernel 'declare {name, id})
 
-	(call 'sys_string 'length {name} {_, length})
+	(call 'sys_str 'length {name} {_, length})
 	(call 'sys_mail 'alloc {length + 1 + kn_msg_declare_size} {msg, data})
 	(assign {0} {msg->msg_dest.id_mbox})
 	(call 'sys_kernel 'id nil {msg->msg_dest.id_cpu})
-	(assign {kn_call_declare} {data->kn_msg_function})
+	(assign {kn_call_declare} {data->kn_msg_func})
 	(assign {id} {data->kn_msg_reply_id.id_id})
 	(assign {-1} {data->kn_msg_flood_via})
 	(call 'sys_mem 'copy {name, &data->kn_msg_declare_name, length + 1})
@@ -481,7 +481,7 @@
 		(call 'sys_mail 'alloc_mbox nil {mbox_id, mailbox})
 
 		;send debug data
-		(call 'sys_string 'length {debug_data} {_, length})
+		(call 'sys_str 'length {debug_data} {_, length})
 		(call 'sys_mail 'alloc {length + 1 + kn_debug_size} {msg, data})
 		(assign {service.id_id} {msg->msg_dest.id_id})
 		(assign {0} {data->kn_debug_command})
@@ -528,19 +528,19 @@
 		;build debug data for reg dump
 		(call 'vector 'create nil {lines})
 		(call 'vector 'set_capacity {lines, 5 * 16 + 2})
-		(call 'string 'create_from_cstr {reg14} {line})
+		(call 'str 'create_from_cstr {reg14} {line})
 		(call 'vector 'push_back {lines, line})
-		(call 'string 'create_from_cstr (list (char 10)) {lf})
+		(call 'str 'create_from_cstr (list (char 10)) {lf})
 		(call 'vector 'push_back {lines, lf})
-		(call 'string 'create_from_cstr '(" ") {sp})
+		(call 'str 'create_from_cstr '(" ") {sp})
 		(assign {&reg0} {iter})
 		(loop-start)
-			(call 'string 'create_from_long {(iter - &reg0) >> 3, 10} {num})
-			(call 'string 'create_from_buffer {"R00", 3 - num->string_length} {line})
+			(call 'str 'create_from_long {(iter - &reg0) >> 3, 10} {num})
+			(call 'str 'create_from_buffer {"R00", 3 - num->str_length} {line})
 			(call 'vector 'push_back {lines, line})
 			(call 'vector 'push_back {lines, num})
-			(call 'string 'create_from_long {*iter, -16} {num})
-			(call 'string 'create_from_buffer {": 0x0000000000000000", 20 - num->string_length} {line})
+			(call 'str 'create_from_long {*iter, -16} {num})
+			(call 'str 'create_from_buffer {": 0x0000000000000000", 20 - num->str_length} {line})
 			(call 'vector 'push_back {lines, line})
 			(call 'vector 'push_back {lines, num})
 			(vpif {(iter - &reg0) & 8})
@@ -548,14 +548,14 @@
 			(else)
 				(assign {sp} {line})
 			(endif)
-			(call 'string 'ref {line} {line})
+			(call 'str 'ref {line} {line})
 			(call 'vector 'push_back {lines, line})
 		(loop-until {(iter + ptr_size => iter) > &reg15})
-		(d-call 'string 'cat {sp, lines} {line})
-		(call 'sys_kernel 'debug {&line->string_data})
+		(d-call 'str 'cat {sp, lines} {line})
+		(call 'sys_kernel 'debug {&line->str_data})
 		(call 'vector 'deref {lines})
-		(call 'string 'deref {line})
-		(call 'string 'deref {sp})
+		(call 'str 'deref {line})
+		(call 'str 'deref {sp})
 	(endif)
 
 	(assign {reg0, reg1, reg2, reg3, reg4, reg5, reg6, reg7,

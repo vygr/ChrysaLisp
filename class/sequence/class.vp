@@ -1,4 +1,0 @@
-(include 'sys/func.inc)
-(include 'class/sequence/class.inc)
-
-(gen-vtable 'sequence)

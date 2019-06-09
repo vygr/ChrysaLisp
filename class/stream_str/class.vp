@@ -1,5 +1,5 @@
 (include 'sys/func.inc)
-(include 'class/string/class.inc)
+(include 'class/str/class.inc)
 (include 'class/stream_str/class.inc)
 
 (gen-create 'stream_str)
@@ -18,7 +18,7 @@
 	(entry 'stream_str 'init '(r0 r1 r2))
 
 	;init parent
-	(s-jump 'stream_str 'init '(r0 r1 r2 0 (& r2 string_data) (r2 string_length ui)))
+	(s-jump 'stream_str 'init '(r0 r1 r2 0 (& r2 str_data) (r2 str_length ui)))
 
 (def-func-end)
 
@@ -38,11 +38,11 @@
 	(vp-xor-rr r2 r2)
 	(vp-cpy-ri-b r2 r1 0)
 	(vp-cpy-ir r0 stream_object r0)
-	(vp-cpy-ri-i r2 r0 string_hashcode)
-	(vp-lea-i r0 string_data r2)
+	(vp-cpy-ri-i r2 r0 str_hashcode)
+	(vp-lea-i r0 str_data r2)
 	(vp-sub-rr r2 r1)
-	(vp-cpy-ri-i r1 r0 string_length)
-	(call 'string 'ref '(r0) '(r1))
+	(vp-cpy-ri-i r1 r0 str_length)
+	(call 'str 'ref '(r0) '(r1))
 	(vp-pop r0)
 
 	(exit 'stream_str 'ref_string '(r0 r1))
@@ -69,7 +69,7 @@
 	(call 'sys_mem 'copy {this->stream_object, new_str, length} {_, this->stream_bufp})
 	(assign {new_str + new_length - 1} {this->stream_bufe})
 	(assign {1} {new_str->obj_count})
-	(call 'string 'deref {this->stream_object})
+	(call 'str 'deref {this->stream_object})
 	(assign {new_str} {this->stream_object})
 
 	(exit 'stream_str 'write_next {this})
@@ -94,7 +94,7 @@
 	(vp-cpy-ri-b r2 r1 0)
 
 	(vp-cpy-ir r0 stream_object r2)
-	(vp-add-cr string_data r2)
+	(vp-add-cr str_data r2)
 	(vpif '(r1 > r2))
 		(vp-cpy-ri r2 r0 stream_bufp)
 		(vp-cpy-rr r0 r3)

@@ -4,7 +4,7 @@
 (include 'gui/region/class.inc)
 (include 'gui/font/class.inc)
 (include 'gui/texture/class.inc)
-(include 'class/symbol/class.inc)
+(include 'class/sym/class.inc)
 (include 'gui/vdu/class.inc)
 (include 'class/vector/class.inc)
 

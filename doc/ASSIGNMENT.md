@@ -101,7 +101,7 @@ address or resource binding instructions for.
 	(assign '(($ label)) '(r0))
 	(assign '("Hello world") '(r0))
 	(assign '((@ "sys/mem/alloc")) '(r0))
-	(assign `((@ ,(f-path 'integer 'vtable))) '(r0))
+	(assign `((@ ,(f-path 'num 'vtable))) '(r0))
 ```
 
 Will emit:
@@ -112,7 +112,7 @@ Will emit:
 	(vp-lea-p label r0)
 	(fn-string "Hello world" r0)
 	(fn-bind "sys/mem/alloc" r0)
-	(fn-bind "class/integer/vtable" r0)
+	(fn-bind "class/num/vtable" r0)
 ```
 
 ## C-Script Assignment
@@ -173,7 +173,7 @@ These are in addition to the C/C++ style operators.
 	(assign {"Hello", "World"} {p_str1, p_str2})
 	(assign {"Hello", "World"} '(r2 r3))
 	(assign {@sys/mem/alloc} {p_alloc})
-	(assign (cat {@} (f-path 'integer 'vtable)) {p_vtable})
+	(assign (cat {@} (f-path 'num 'vtable)) {p_vtable})
 ```
 
 ## C-Script function example
@@ -205,11 +205,11 @@ Implementation of the function is defined in the `sys/mail/class.vp` file.
 	(entry 'sys_mail 'declare {name, id})
 
 	(assign (cat {@} (f-path 'sys_mail 'statics)) {mail_statics})
-	(call 'symbol 'intern_cstr {name} {name})
-	(call 'integer 'create {id} {id})
-	(call 'hash_map 'insert {mail_statics->ml_statics_declare_map, name, id})
-	(call 'symbol 'deref {name})
-	(call 'integer 'deref {id})
+	(call 'sym 'intern_cstr {name} {name})
+	(call 'num 'create {id} {id})
+	(call 'hmap 'insert {mail_statics->ml_statics_declare_map, name, id})
+	(call 'sym 'deref {name})
+	(call 'num 'deref {id})
 
 	(pop-scope)
 	(return)
@@ -236,11 +236,11 @@ printing of the entire functions final instructions. Be sure to `(setq
 debug_inst nil)` and `(setq debug_emit nil)` after the section of code or
 function to turn emit printing off.
 
-This is the output from wrapping the 'hash_map 'insert line above:
+This is the output from wrapping the 'hmap 'insert line above:
 
 ```lisp
 	(setq debug_inst t)
-	(call 'hash_map 'insert {mail_statics->ml_statics_declare_map, name, id})
+	(call 'hmap 'insert {mail_statics->ml_statics_declare_map, name, id})
 	(setq debug_inst nil)
 ```
 

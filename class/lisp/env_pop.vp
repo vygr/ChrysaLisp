@@ -1,5 +1,5 @@
 (include 'sys/func.inc)
-(include 'class/hash_map/class.inc)
+(include 'class/hmap/class.inc)
 (include 'class/lisp/class.inc)
 
 (def-method 'lisp 'env_pop)
@@ -17,7 +17,7 @@
 	(vp-alloc local_size)
 	(entry 'lisp 'env_pop '((rsp local_this)))
 
-	(call 'hash_map 'get_parent '((r0 lisp_environment)) '((rsp local_env) r1))
+	(call 'hmap 'get_parent '((r0 lisp_environment)) '((rsp local_env) r1))
 	(assign '(r1) '((rsp local_new_env)))
 	(call 'obj 'ref '(r1))
 	(call 'obj 'deref '((rsp local_env)))

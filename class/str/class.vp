@@ -1,0 +1,654 @@
+(include 'sys/func.inc)
+(include 'sys/str/class.inc)
+(include 'sys/load/class.inc)
+(include 'class/str/class.inc)
+(include 'class/stream/class.inc)
+(include 'class/vector/class.inc)
+
+(gen-vtable 'str)
+
+(def-method 'str 'create_from_buffer)
+	;inputs
+	;r0 = buffer (pubyte)
+	;r1 = buffer length (uint)
+	;outputs
+	;r0 = 0 if error, else string object (ptr)
+	;trashes
+	;r1-r6
+
+	;save size of data
+	(entry 'str 'create_from_buffer '(r5 r6))
+
+	;create new string object
+	(call 'sys_mem 'alloc '((& r1 (add str_size byte_size))) '(r0 _))
+	(vpif '(r0 != 0))
+		;init the object
+		(call 'str 'init `(r0 (@ ,(f-path 'str 'vtable)) r5 r6) '(r0 r1))
+		(vpif '(r1 == 0))
+			;error with init
+			(call 'sys_mem 'free '(r0))
+			(vp-xor-rr r0 r0)
+		(endif)
+	(endif)
+
+	(exit 'str 'create_from_buffer '(r0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'str 'create_from_cstr)
+	;inputs
+	;r0 = c string (pubyte)
+	;outputs
+	;r0 = 0 if error, else string object (ptr)
+	;trashes
+	;r1-r6
+
+	(entry 'str 'create_from_cstr '(r0))
+
+	;get size of string
+	(call 'sys_str 'length '(r0) '(r0 r1))
+	(jump 'str 'create_from_buffer '(r0 r1))
+
+(def-func-end)
+
+(def-method 'str 'create_from_file)
+	;inputs
+	;r0 = file name c string (pubyte)
+	;outputs
+	;r0 = 0 if error, else string object (ptr)
+	;trashes
+	;r1-r6
+
+	;save c string pointer
+	(entry 'str 'create_from_file '(r5))
+
+	;get size of string from file size
+	(f-bind 'sys_load 'statics r6)
+	(vp-cpy-ir r6 ld_statics_stat_buffer r6)
+	(call 'sys_pii 'stat '(r0 r6) '(r0))
+	(vpif '(r0 != 0))
+	(vp-label 'funcexit)
+		;no such file
+		(vp-xor-rr r0 r0)
+
+		(exit 'str 'create_from_file '(r0))
+		(vp-ret)
+	(endif)
+
+	;test for regular file only
+	(vp-cpy-ir-us r6 stat_mode r0)
+	(vp-and-cr s_ifmt r0)
+	(gotoif '(r0 != s_ifreg) 'funcexit)
+
+	;create new string object
+	(vp-cpy-ir r6 stat_fsize r1)
+	(call 'sys_mem 'alloc '((& r1 (add str_size byte_size))) '(r0 _))
+	(vpif '(r0 != 0))
+		;init the object
+		(call 'str 'init2 `(r0 (@ ,(f-path 'str 'vtable)) r5 (r6 stat_fsize)) '(r0 r1))
+		(vpif '(r1 == 0))
+			;error with init
+			(call 'sys_mem 'free '(r0))
+			(vp-xor-rr r0 r0)
+		(endif)
+	(endif)
+
+	(exit 'str 'create_from_file '(r0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'str 'create_from_long)
+	;inputs
+	;r0 = number (long)
+	;r1 = base, - for unsigned, (long)
+	;outputs
+	;r0 = 0 if error, else string object (ptr)
+	;trashes
+	;r1-r6
+
+	(entry 'str 'create_from_long '(r0 r1))
+
+	(assign `((@ ,(f-path 'sys_load 'statics))) '(r2))
+	(vp-cpy-ir r2 ld_statics_reloc_buffer r5)
+	(vp-cpy-rr r5 r3)
+	(vpif '(r1 >= 0))
+		(vpif '(r0 < 0))
+			(vp-cpy-cr char_minus r4)
+			(vp-cpy-ri-b r4 r3 0)
+			(vp-add-cr byte_size r3)
+			(vp-mul-cr -1 r0)
+		(endif)
+	(else)
+		(vp-mul-cr -1 r1)
+	(endif)
+	(call 'sys_str 'from_long '(r0 r3 r1) '(r0))
+	(vp-sub-rr r5 r0)
+	(call 'str 'create_from_buffer '(r5 r0) '(r0))
+
+	(exit 'str 'create_from_long '(r0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'str 'init)
+	;inputs
+	;r0 = string object (ptr)
+	;r1 = vtable (pptr)
+	;r2 = 0 else, buffer (pubyte)
+	;r3 = buffer length (uint)
+	;outputs
+	;r0 = string object (ptr)
+	;r1 = 0 if error, else ok
+	;trashes
+	;r1-r6
+
+	(entry 'str 'init '(r0 r1 r2 r3))
+
+	;init parent
+	(s-call 'str 'init '(r0 r1) '(r0 r1))
+	(vpif '(r1 != 0))
+		;init myself
+		(vp-xor-rr r1 r1)
+		(vp-cpy-rr r0 r6)
+		(vp-cpy-ri-i r1 r0 str_hashcode)
+		(vp-cpy-ri-i r3 r0 str_length)
+		(vp-lea-i r0 str_data r1)
+		(vpif '(r2 != 0))
+			(call 'sys_mem 'copy '(r2 r1 r3) '(_ r1))
+		(else)
+			(vp-add-rr r3 r1)
+		(endif)
+		(vp-xor-rr r0 r0)
+		(vp-cpy-ri-b r0 r1 0)
+		(vp-cpy-rr r6 r0)
+	(endif)
+
+	(exit 'str 'init '(r0 r1))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'str 'init1)
+	;inputs
+	;r0 = string object (ptr)
+	;r1 = vtable (pptr)
+	;r2 = string object (ptr)
+	;r3 = string object (ptr)
+	;outputs
+	;r0 = string object (ptr)
+	;r1 = 0 if error, else ok
+	;trashes
+	;r1-r6
+
+	(entry 'str 'init1 '(r0 r1 r2 r3))
+
+	;init parent
+	(s-call 'str 'init '(r0 r1) '(r0 r1))
+	(vpif '(r1 != 0))
+		;init myself
+		(vp-xor-rr r1 r1)
+		(vp-cpy-rr r0 r6)
+		(vp-cpy-ri-i r1 r0 str_hashcode)
+		(vp-cpy-rr r2 r4)
+		(vp-cpy-rr r3 r5)
+		(vp-cpy-ir-ui r4 str_length r1)
+		(vp-cpy-ir-ui r5 str_length r2)
+		(vp-add-rr r2 r1)
+		(vp-cpy-ri-i r1 r0 str_length)
+		(call 'sys_mem 'copy '((& r4 str_data) (& r0 str_data) (r4 str_length ui)) '(_ r1))
+		(vp-cpy-ir-ui r5 str_length r2)
+		(vp-add-cr byte_size r2)
+		(call 'sys_mem 'copy '((& r5 str_data) r1 r2))
+		(vp-cpy-rr r6 r0)
+	(endif)
+
+	(exit 'str 'init1 '(r0 r1))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'str 'init2)
+	;inputs
+	;r0 = string object (ptr)
+	;r1 = vtable (pptr)
+	;r2 = file name c string (pubyte)
+	;r3 = file length (uint)
+	;outputs
+	;r0 = string object (ptr)
+	;r1 = 0 if error, else ok
+	;trashes
+	;r1-r6
+
+	(entry 'str 'init2 '(r0 r1 r2 r3))
+
+	;init parent
+	(s-call 'str 'init '(r0 r1) '(r0 r1))
+	(vpif '(r1 != 0))
+		;init myself
+		(vp-xor-rr r1 r1)
+		(vp-cpy-rr r0 r6)
+		(vp-cpy-ri-i r1 r0 str_hashcode)
+		(vp-cpy-ri-i r3 r0 str_length)
+
+		;open file
+		(call 'sys_pii 'open '(r2 file_open_read) '(r4))
+
+		;read into buffer
+		(vp-lea-i r6 str_data r0)
+		(vp-xor-rr r2 r2)
+		(vp-cpy-rd-b r2 r0 r3)
+		(call 'sys_pii 'read '(r4 r0 r3))
+
+		;close file
+		(call 'sys_pii 'close '(r4))
+
+		(vp-cpy-rr r6 r0)
+		(vp-cpy-rr r6 r1)
+	(endif)
+
+	(exit 'str 'init2 '(r0 r1))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'str 'init3)
+	;inputs
+	;r0 = string object (ptr)
+	;r1 = vtable (pptr)
+	;r2 = vector of string objects (ptr)
+	;outputs
+	;r0 = string object (ptr)
+	;r1 = 0 if error, else ok
+	;trashes
+	;r1-r6
+
+	(entry 'str 'init3 '(r0 r1 r2))
+
+	;init parent
+	(s-call 'str 'init '(r0 r1) '(r0 r1))
+	(vpif '(r1 != 0))
+		;init myself
+		(vp-xor-rr r1 r1)
+		(vp-cpy-rr r0 r6)
+		(vp-cpy-ri-i r1 r0 str_hashcode)
+		(call 'vector 'get_iters '(r2) '(_ r4 r5))
+		(vp-lea-i r6 str_data r1)
+		(loop-while '(r4 != r5))
+			(vp-cpy-ir r4 0 r0)
+			(call 'sys_mem 'copy '((& r0 str_data) r1 (r0 str_length ui)) '(_ r1))
+			(vp-add-cr ptr_size r4)
+		(loop-end)
+		(vp-xor-rr r0 r0)
+		(vp-cpy-ri-b r0 r1 0)
+		(vp-lea-i r6 str_data r2)
+		(vp-sub-rr r2 r1)
+		(vp-cpy-ri-i r1 r6 str_length)
+		(vp-cpy-rr r6 r1)
+		(vp-cpy-rr r6 r0)
+	(endif)
+
+	(exit 'str 'init3 '(r0 r1))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'str 'append)
+	;inputs
+	;r0 = string object (ptr)
+	;r1 = string object (ptr)
+	;outputs
+	;r0 = 0 if error, else new string object (ptr)
+	;trashes
+	;r1-r6
+
+	;save inputs
+	(entry 'str 'append '(r5 r6))
+
+	;get size of strings
+	(vp-cpy-ir-ui r0 str_length r0)
+	(vp-cpy-ir-ui r1 str_length r2)
+	(vp-add-rr r2 r0)
+	(vp-add-cr (add str_size byte_size) r0)
+
+	;create new string object
+	(call 'sys_mem 'alloc '(r0) '(r0 _))
+	(vpif '(r0 != 0))
+		;init the object
+		(call 'str 'init1 `(r0 (@ ,(f-path 'str 'vtable)) r5 r6) '(r0 r1))
+		(vpif '(r1 == 0))
+			;error with init
+			(call 'sys_mem 'free '(r0))
+			(vp-xor-rr r0 r0)
+		(endif)
+	(endif)
+
+	(exit 'str 'append '(r0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'str 'cat)
+	;inputs
+	;r0 = string object (ptr)
+	;r1 = vector of string objects (ptr)
+	;outputs
+	;r0 = 0 if error, else new string object (ptr)
+	;trashes
+	;r1-r6
+
+	(entry 'str 'cat '(_ r1))
+	(vp-cpy-rr r1 r5)
+
+	;get total size of strings
+	(call 'vector 'get_iters '(r1) '(_ r1 r2))
+	(vp-cpy-cr (add str_size byte_size) r3)
+	(loop-while '(r1 != r2))
+		(vp-cpy-ir r1 0 r0)
+		(vp-cpy-ir-ui r0 str_length r0)
+		(vp-add-cr ptr_size r1)
+		(vp-add-rr r0 r3)
+	(loop-end)
+
+	;create new string object
+	(call 'sys_mem 'alloc '(r3) '(r0 _))
+	(vpif '(r0 != 0))
+		;init the object
+		(call 'str 'init3 `(r0 (@ ,(f-path 'str 'vtable)) r5) '(r0 r1))
+		(vpif '(r1 == 0))
+			;error with init
+			(call 'sys_mem 'free '(r0))
+			(vp-xor-rr r0 r0)
+		(endif)
+	(endif)
+
+	(exit 'str 'cat '(r0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'str 'compare)
+	;inputs
+	;r0 = string object (ptr)
+	;r1 = string object (ptr)
+	;outputs
+	;r0 = string object (ptr)
+	;r1 = 0 if same, else -, +
+	;trashes
+	;r2-r7
+
+	(entry 'str 'compare '(r0 r1))
+
+	(switch 'lbreak)
+		(vpif '(r0 != r1))
+			(vp-cpy-ir-ui r0 str_length r2)
+			(vp-cpy-ir-ui r1 str_length r3)
+			(vpif '(r2 != 0))
+				(breakif '(r3 == 0))
+				(vp-lea-i r0 str_data r4)
+				(vp-lea-i r1 str_data r5)
+				(vp-xor-rr r6 r6)
+				(loop-start)
+					(vp-cpy-dr-ub r4 r6 r1)
+					(vp-cpy-dr-ub r5 r6 r7)
+					(vp-sub-rr r7 r1)
+					(breakif '(r1 != 0) 'lbreak)
+					(vp-add-cr byte_size r6)
+					(breakif '(r6 == r2))
+				(loop-until '(r6 == r3))
+			(endif)
+			(vp-cpy-rr r2 r1)
+			(vp-sub-rr r3 r1)
+			(vp-ret)
+		(endif)
+		(vp-xor-rr r1 r1)
+	(endswitch)
+
+	(exit 'str 'compare '(r0 r1))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'str 'same)
+	;inputs
+	;r0 = string object (ptr)
+	;r1 = string object (ptr)
+	;outputs
+	;r0 = string object (ptr)
+	;r1 = 0 if same
+	;trashes
+	;r2-r6
+
+	(entry 'str 'same '(r0 r1))
+
+	(switch 'lbreak)
+		(vpif '(r0 != r1) 'same)
+			(vp-cpy-ir-ui r0 str_length r2)
+			(vp-cpy-ir-ui r1 str_length r3)
+			(vp-sub-rr r2 r3)
+			(vpif '(r3 == 0))
+				(breakif '(r2 == 0) 'same)
+				(vp-cpy-rr r2 r6)
+				(vp-lea-i r0 str_data r4)
+				(vp-lea-i r1 str_data r5)
+				(vp-add-rr r4 r2)
+				(vpif '(r6 >= (sub (mul long_size 2) 1)))
+					(vp-lea-i r4 (dec long_size) r3)
+					(vp-and-cr (neg long_size) r3)
+					(vpif '(r4 != r3))
+						(loop-start)
+							(vp-cpy-ir-b r4 0 r6)
+							(vp-cpy-ir-b r5 0 r1)
+							(vp-sub-rr r6 r1)
+							(breakif '(r1 != 0) 'lbreak)
+							(vp-add-cr byte_size r4)
+							(vp-add-cr byte_size r5)
+						(loop-until '(r4 == r3))
+					(endif)
+					(vp-cpy-rr r2 r3)
+					(vp-and-cr (neg long_size) r3)
+					(vpif '(r4 != r3))
+						(loop-start)
+							(vp-cpy-ir r4 0 r6)
+							(vp-cpy-ir r5 0 r1)
+							(vp-sub-rr r6 r1)
+							(breakif '(r1 != 0) 'lbreak)
+							(vp-add-cr long_size r4)
+							(vp-add-cr long_size r5)
+						(loop-until '(r4 == r3))
+					(endif)
+					(breakif '(r4 == r2) 'lbreak)
+				(endif)
+				(loop-start)
+					(vp-cpy-ir-b r4 0 r6)
+					(vp-cpy-ir-b r5 0 r1)
+					(vp-sub-rr r6 r1)
+					(breakif '(r1 != 0))
+					(vp-add-cr byte_size r4)
+					(vp-add-cr byte_size r5)
+				(loop-until '(r4 == r2))
+
+				(exit 'str 'same '(r0 r1))
+				(vp-ret)
+			(endif)
+
+			(exit 'str 'same '(r0 r3))
+			(vp-ret)
+		(endif)
+		(vp-xor-rr r1 r1)
+	(endswitch)
+
+	(exit 'str 'same '(r0 r1))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'str 'get_length)
+	;inputs
+	;r0 = string object (ptr)
+	;outputs
+	;r0 = string object (ptr)
+	;r1 = string length (bytes)
+
+	(class/str/get_length)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'str 'hash)
+	;inputs
+	;r0 = string object (ptr)
+	;outputs
+	;r0 = string object (ptr)
+	;r1 = hash code (ulong)
+	;trashes
+	;r2-r4
+
+	(entry 'str 'hash '(r0))
+
+	(vp-cpy-ir-ui r0 str_hashcode r1)
+	(vpif '(r1 == 0))
+		(vp-cpy-ir-ui r0 str_length r4)
+		(vp-lea-i r0 str_data r3)
+		(vp-add-rr r3 r4)
+		(vp-xor-rr r1 r1)
+		(vpif '(r3 != r4))
+			(loop-start)
+				(vp-cpy-ir-ub r3 0 r2)
+				(vp-add-cr byte_size r3)
+				(vp-add-rr r2 r1)
+				(vp-cpy-rr r1 r2)
+				(vp-shl-cr 10 r1)
+				(vp-add-rr r1 r2)
+				(vp-cpy-rr r2 r1)
+				(vp-shr-cr 6 r2)
+				(vp-xor-rr r2 r1)
+			(loop-until '(r3 == r4))
+		(endif)
+		(vp-cpy-rr r1 r2)
+		(vp-shl-cr 3 r1)
+		(vp-add-rr r1 r2)
+		(vp-cpy-rr r2 r1)
+		(vp-shr-cr 11 r2)
+		(vp-xor-rr r1 r2)
+		(vp-cpy-rr r2 r1)
+		(vp-shl-cr 15 r2)
+		(vp-add-rr r2 r1)
+		(vp-cpy-cr 0xffffffff r2)
+		(vp-and-rr r2 r1)
+		(vp-cpy-ri-i r1 r0 str_hashcode)
+	(endif)
+
+	(exit 'str 'hash '(r0 r1))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'str 'ref_element)
+	;inputs
+	;r0 = string object (ptr)
+	;r1 = char index (uint)
+	;outputs
+	;r0 = string object (ptr)
+	;r1 = char string object (ptr)
+	;trashes
+	;r2-r7
+
+	(entry 'str 'ref_element '(r0 r1))
+
+	(vp-cpy-rr r0 r7)
+	(vp-add-cr str_data r1)
+	(call 'str 'create_from_buffer '((& r0 r1) byte_size) '(r1))
+	(vp-cpy-rr r7 r0)
+
+	(exit 'str 'ref_element '(r0 r1))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'str 'slice)
+	;inputs
+	;r0 = string object (ptr)
+	;r1 = element start index (uint)
+	;r2 = element end index (uint)
+	;outputs
+	;r0 = string object (ptr)
+	;r1 = string slice object (ptr)
+	;trashes
+	;r2-r7
+
+	(entry 'str 'slice '(r0 r1 r2))
+
+	(vp-cpy-rr r0 r7)
+	(vp-cpy-ir-ui r0 str_length r3)
+	(vp-sub-rr r1 r2)
+	(vpif '(r2 == r3))
+		(call 'str 'ref '(r0) '(r1))
+	(else)
+		(vp-add-cr str_data r0)
+		(call 'str 'create_from_buffer '((& r0 r1) r2) '(r1))
+	(endif)
+	(vp-cpy-rr r7 r0)
+
+	(exit 'str 'slice '(r0 r1))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'str 'split)
+	;inputs
+	;r0 = string object (ptr)
+	;r1 = split char (uint)
+	;outputs
+	;r0 = string object (ptr)
+	;r1 = vector of string objects (ptr)
+	;trashes
+	;all but r0
+
+	(def-struct 'local)
+		(ptr 'this)
+		(ptr 'splits)
+		(uint 'schar)
+	(def-struct-end)
+
+	(vp-alloc local_size)
+	(entry 'str 'split '(r0 r1))
+
+	;create string split
+	(assign '(r0 r1) '((rsp local_this) (rsp local_schar i)))
+	(call 'stream 'create '(0 0 (& r0 str_data) (r0 str_length ui)) '(r0))
+	(call 'stream 'split '(r0 (rsp local_schar ui)) '(r0 (rsp local_splits)))
+	(call 'stream 'deref '(r0))
+
+	(exit 'str 'split '((rsp local_this) (rsp local_splits)))
+	(vp-free local_size)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'str 'find)
+	;inputs
+	;r0 = string object (ptr)
+	;r1 = search char (uint)
+	;outputs
+	;r0 = string object (ptr)
+	;r1 = -1, else position (int)
+	;trashes
+	;r2-r4
+
+	(entry 'str 'find '(r0 r1))
+
+	(vp-lea-i r0 str_data r2)
+	(vp-cpy-ir-ui r0 str_length r3)
+	(loop-start)
+		(vp-sub-cr byte_size r3)
+		(breakif '(r3 < 0))
+		(vp-cpy-dr-ub r2 r3 r4)
+	(loop-until '(r1 == r4))
+	(vp-cpy-rr r3 r1)
+
+	(exit 'str 'find '(r0 r1))
+	(vp-ret)
+
+(def-func-end)

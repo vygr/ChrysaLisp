@@ -12,6 +12,10 @@
 
 (dec-method 'deinit 'class/pipe/deinit 'final)
 
+(dec-method 'lisp_create 'class/pipe/lisp_create 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_read 'class/pipe/lisp_read 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_write 'class/pipe/lisp_write 'static '(r0 r1) '(r0 r1))
+
 (def-struct 'pipe 'obj)
 	(local-align)
 	(offset 'start)

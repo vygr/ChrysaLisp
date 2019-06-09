@@ -1,8 +1,8 @@
 (include 'sys/func.inc)
 (include 'sys/load/class.inc)
-(include 'sys/string/class.inc)
+(include 'sys/str/class.inc)
 (include 'sys/kernel/class.inc)
-(include 'class/string/class.inc)
+(include 'class/str/class.inc)
 (include 'sys/pii/class.inc)
 
 (def-method 'sys_load 'statics)
@@ -80,7 +80,7 @@
 				(vp-cpy-ir r0 0 r3)
 				(vp-add-rr r3 r0)
 				(vp-cpy-rr r0 r3)
-				(vp-call 'string_skip)
+				(vp-call 'str_skip)
 				(vp-sub-rr r3 r1)
 				(host-call-table 'host 'write r14 '(2 r3 r1) '(_))
 				(host-call-table 'host 'write r14 '(2 ($ bind_error_end) 1) '(_))
@@ -103,7 +103,7 @@
 	(vp-cpy-cr 0 r0)
 	(vp-ret)
 
-(vp-label 'string_skip)
+(vp-label 'str_skip)
 	(loop-start)
 		(vp-cpy-ir-ub r0 0 r1)
 		(vp-add-cr byte_size r0)
@@ -139,7 +139,7 @@
 	(loop-flist r7 ld_statics_function_flist r5 r5)
 		(vp-cpy-rr r6 r0)
 		(vp-lea-i r5 fn_header_pathname r1)
-		(vp-call 'string_compare)
+		(vp-call 'str_compare)
 	(loop-until '(r0 == 0))
 	(vpif '(r5 != 0))
 		;found function already loaded
@@ -153,9 +153,9 @@
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 	;create filename
-	(call 'sys_string 'copy `(,(cat "obj/" *cpu* "/" *abi* "/") (r7 ld_statics_name_buffer)) '(_ r1))
+	(call 'sys_str 'copy `(,(cat "obj/" *cpu* "/" *abi* "/") (r7 ld_statics_name_buffer)) '(_ r1))
 	(vp-sub-cr 1 r1)
-	(call 'sys_string 'copy '(r6 r1))
+	(call 'sys_str 'copy '(r6 r1))
 	(vp-cpy-ir r7 ld_statics_name_buffer r6)
 
 	;get length of function on disk
@@ -308,7 +308,7 @@
 	(vp-add-rr r3 r0)
 	(vp-ret)
 
-(vp-label 'string_compare)
+(vp-label 'str_compare)
 	(loop-start)
 		(vp-cpy-ir-ub r0 0 r2)
 		(vp-cpy-ir-ub r1 0 r3)

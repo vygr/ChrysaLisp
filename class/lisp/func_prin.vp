@@ -1,5 +1,5 @@
 (include 'sys/func.inc)
-(include 'class/string/class.inc)
+(include 'class/str/class.inc)
 (include 'class/stream/class.inc)
 (include 'class/lisp/class.inc)
 
@@ -27,8 +27,8 @@
 		(call 'vector 'get_iters {args} {_, iter_begin, iter_end})
 		(loop-start)
 			(assign {*iter_begin} {value})
-			(vpif (cat {value->obj_vtable == @} (f-path 'string 'vtable)))
-				(call 'stream 'write {this->lisp_stdout, &value->string_data, value->string_length})
+			(vpif (cat {value->obj_vtable == @} (f-path 'str 'vtable)))
+				(call 'stream 'write {this->lisp_stdout, &value->str_data, value->str_length})
 			(else)
 				(call 'lisp 'repl_print {this, this->lisp_stdout, value})
 			(endif)

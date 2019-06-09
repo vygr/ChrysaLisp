@@ -1,5 +1,5 @@
 (include 'sys/func.inc)
-(include 'class/function/class.inc)
+(include 'class/func/class.inc)
 (include 'class/lisp/class.inc)
 
 (def-method 'lisp 'repl_apply)
@@ -15,10 +15,10 @@
 
 	(entry 'lisp 'repl_apply '(r0 r1 r2))
 
-	(assign `((r2 obj_vtable) (@ ,(f-path 'function 'vtable))) '(r3 r4))
+	(assign `((r2 obj_vtable) (@ ,(f-path 'func 'vtable))) '(r3 r4))
 	(vpif '(r3 == r4))
 		;built in or compiled function
-		(vp-cpy-ir r2 integer_value r2)
+		(vp-cpy-ir r2 num_value r2)
 		(vp-and-cr (neg ptr_size) r2)
 		(vp-jmp-r r2)
 	(endif)

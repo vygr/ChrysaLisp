@@ -1,7 +1,7 @@
 (include 'sys/func.inc)
 (include 'gui/window/class.inc)
-(include 'class/string/class.inc)
-(include 'class/integer/class.inc)
+(include 'class/str/class.inc)
+(include 'class/num/class.inc)
 (include 'class/lisp/class.inc)
 
 (def-method 'window 'lisp_create)
@@ -31,7 +31,7 @@
 (errorcases
 (vp-label 'error1)
 	(jump 'lisp 'repl_error {this, "(create-window flags)", error_msg_wrong_types, args})
-	(signature 'sig 'integer))
+	(signature 'sig 'num))
 
 	(pop-scope-syms)
 
@@ -65,7 +65,7 @@
 (errorcases
 (vp-label 'error1)
 	(jump 'lisp 'repl_error {this, "(window-connect-layout window id)", error_msg_wrong_types, args})
-	(signature 'sig 'window 'integer))
+	(signature 'sig 'window 'num))
 
 	(pop-scope-syms)
 
@@ -99,7 +99,7 @@
 (errorcases
 (vp-label 'error1)
 	(jump 'lisp 'repl_error {this, "(window-connect-close window id)", error_msg_wrong_types, args})
-	(signature 'sig 'window 'integer))
+	(signature 'sig 'window 'num))
 
 	(pop-scope-syms)
 
@@ -133,7 +133,7 @@
 (errorcases
 (vp-label 'error1)
 	(jump 'lisp 'repl_error {this, "(window-connect-min window id)", error_msg_wrong_types, args})
-	(signature 'sig 'window 'integer))
+	(signature 'sig 'window 'num))
 
 	(pop-scope-syms)
 
@@ -167,7 +167,7 @@
 (errorcases
 (vp-label 'error1)
 	(jump 'lisp 'repl_error {this, "(window-connect-max window id)", error_msg_wrong_types, args})
-	(signature 'sig 'window 'integer))
+	(signature 'sig 'window 'num))
 
 	(pop-scope-syms)
 
@@ -192,7 +192,7 @@
 	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
-	(call 'window 'set_status {arg0, &arg1->string_data})
+	(call 'window 'set_status {arg0, &arg1->str_data})
 	(call 'window 'ref {arg0} {value})
 
 	(exit 'window 'lisp_set_status {this, value})
@@ -201,7 +201,7 @@
 (errorcases
 (vp-label 'error1)
 	(jump 'lisp 'repl_error {this, "(window-set-status window str)", error_msg_wrong_types, args})
-	(signature 'sig 'window 'string))
+	(signature 'sig 'window 'str))
 
 	(pop-scope-syms)
 
@@ -226,7 +226,7 @@
 	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
-	(call 'window 'set_title {arg0, &arg1->string_data})
+	(call 'window 'set_title {arg0, &arg1->str_data})
 	(call 'window 'ref {arg0} {value})
 
 	(exit 'window 'lisp_set_title {this, value})
@@ -235,7 +235,7 @@
 (errorcases
 (vp-label 'error1)
 	(jump 'lisp 'repl_error {this, "(window-set-title window str)", error_msg_wrong_types, args})
-	(signature 'sig 'window 'string))
+	(signature 'sig 'window 'str))
 
 	(pop-scope-syms)
 

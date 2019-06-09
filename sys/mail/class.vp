@@ -2,10 +2,10 @@
 (include 'sys/link/class.inc)
 (include 'sys/kernel/class.inc)
 (include 'class/array/class.inc)
-(include 'class/symbol/class.inc)
-(include 'class/hash_map/class.inc)
+(include 'class/sym/class.inc)
+(include 'class/hmap/class.inc)
 (include 'class/pair/class.inc)
-(include 'class/integer/class.inc)
+(include 'class/num/class.inc)
 
 (def-method 'sys_mail 'statics)
 	;info
@@ -45,7 +45,7 @@
 	(call 'array 'create nil '((r12 ml_statics_links_array)))
 
 	;create declare map
-	(call 'hash_map 'create '(0 1) '((r12 ml_statics_declare_map)))
+	(call 'hmap 'create '(0 1) '((r12 ml_statics_declare_map)))
 
 	;init header heap
 	(jump 'sys_heap 'init '((& r12 ml_statics_msg_heap) msg_size (mul msg_size 64)))
@@ -152,11 +152,11 @@
 	(entry 'sys_mail 'alloc '(r7))
 
 	(vp-xor-rr r0 r0)
-	(call 'string 'create_from_buffer '(r0 r7) '(r4))
+	(call 'str 'create_from_buffer '(r0 r7) '(r4))
 	(f-bind 'sys_mail 'statics r0)
 	(call 'sys_heap 'alloc '((& r0 ml_statics_msg_heap)) '(_ r0))
 	(vp-xor-rr r2 r2)
-	(vp-lea-i r4 string_data r1)
+	(vp-lea-i r4 str_data r1)
 	(vp-cpy-ri r4 r0 msg_parcel_obj)
 	(vp-cpy-ri r1 r0 msg_parcel_data)
 	(vp-cpy-ri-i r7 r0 msg_length)
@@ -203,7 +203,7 @@
 
 	(vpif '(r0 != 0))
 		(vp-push r0)
-		(call 'string 'deref '((r0 msg_parcel_obj)))
+		(call 'str 'deref '((r0 msg_parcel_obj)))
 		(f-bind 'sys_mail 'statics r0)
 		(vp-pop r1)
 		(call 'sys_heap 'free '((& r0 ml_statics_msg_heap) r1))
@@ -414,11 +414,11 @@
 	(push-scope)
 	(entry 'sys_mail 'declare {name, id})
 
-	(call 'symbol 'intern_cstr {name} {name})
-	(call 'integer 'create {id} {id})
-	(call 'hash_map 'insert (cat {@} (f-path 'sys_mail 'statics) {.ml_statics_declare_map, name, id}))
-	(call 'symbol 'deref {name})
-	(call 'integer 'deref {id})
+	(call 'sym 'intern_cstr {name} {name})
+	(call 'num 'create {id} {id})
+	(call 'hmap 'insert (cat {@} (f-path 'sys_mail 'statics) {.ml_statics_declare_map, name, id}))
+	(call 'sym 'deref {name})
+	(call 'num 'deref {id})
 
 	(pop-scope)
 	(return)
@@ -441,13 +441,13 @@
 	(push-scope)
 	(entry 'sys_mail 'enquire {name})
 
-	(call 'symbol 'intern_cstr {name} {name})
-	(call 'hash_map 'find (cat {@} (f-path 'sys_mail 'statics) {.ml_statics_declare_map, name}) {_, iter, _})
+	(call 'sym 'intern_cstr {name} {name})
+	(call 'hmap 'find (cat {@} (f-path 'sys_mail 'statics) {.ml_statics_declare_map, name}) {_, iter, _})
 	(vpif {iter})
 		(call 'pair 'get_second {*iter} {_, id})
-		(call 'integer 'get_value {id} {_, id})
+		(call 'num 'get_value {id} {_, id})
 	(endif)
-	(call 'symbol 'deref {name})
+	(call 'sym 'deref {name})
 
 	(exit 'sys_mail 'enquire {id})
 	(pop-scope)
@@ -467,12 +467,12 @@
 	(push-scope)
 	(entry 'sys_mail 'forget {name})
 
-	(call 'symbol 'intern_cstr {name} {name})
-	(call 'hash_map 'find (cat {@} (f-path 'sys_mail 'statics) {.ml_statics_declare_map, name}) {_, iter, bucket})
+	(call 'sym 'intern_cstr {name} {name})
+	(call 'hmap 'find (cat {@} (f-path 'sys_mail 'statics) {.ml_statics_declare_map, name}) {_, iter, bucket})
 	(vpif {iter})
-		(call 'hash_map 'erase (cat {@} (f-path 'sys_mail 'statics) {.ml_statics_declare_map, iter, bucket}))
+		(call 'hmap 'erase (cat {@} (f-path 'sys_mail 'statics) {.ml_statics_declare_map, iter, bucket}))
 	(endif)
-	(call 'symbol 'deref {name})
+	(call 'sym 'deref {name})
 
 	(pop-scope)
 	(return)

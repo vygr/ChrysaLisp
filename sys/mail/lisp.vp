@@ -1,8 +1,8 @@
 (include 'sys/func.inc)
 (include 'sys/mail/class.inc)
-(include 'class/string/class.inc)
+(include 'class/str/class.inc)
 (include 'class/array/class.inc)
-(include 'class/integer/class.inc)
+(include 'class/num/class.inc)
 (include 'class/lisp/class.inc)
 
 (def-method 'sys_mail 'lisp_mymail)
@@ -84,9 +84,9 @@
 	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
-	(call 'obj 'inst_of (cat {arg0, @} (f-path 'string 'vtable)))
+	(call 'obj 'inst_of (cat {arg0, @} (f-path 'str 'vtable)))
 	(vpif (list (method-output 'obj 'inst_of 1) '!= 0))
-		(call 'sys_mail 'alloc_obj {arg0, &arg0->string_data, arg0->string_length} {arg2})
+		(call 'sys_mail 'alloc_obj {arg0, &arg0->str_data, arg0->str_length} {arg2})
 		(goto 'sendit)
 	(endif)
 	(call 'obj 'inst_of (cat {arg0, @} (f-path 'vector 'vtable)))
@@ -96,8 +96,8 @@
 	(endif)
 	(call 'obj 'inst_of (cat {arg0, @} (f-path 'array 'vtable)))
 	(errorif (list (method-output 'obj 'inst_of 1) '== 0) 'error1)
-	(call 'string 'create_from_buffer {arg0->array_array, arg0->array_length * long_size} {value})
-	(call 'sys_mail 'alloc_obj {value, &value->string_data, value->string_length} {arg2})
+	(call 'str 'create_from_buffer {arg0->array_array, arg0->array_length * long_size} {value})
+	(call 'sys_mail 'alloc_obj {value, &value->str_data, value->str_length} {arg2})
 	(call 'obj 'deref {value})
 (vp-label 'sendit)
 	(assign {arg1} {arg2->msg_dest.id_id})
@@ -110,7 +110,7 @@
 (errorcases
 (vp-label 'error1)
 	(jump 'lisp 'repl_error {this, "(mail-send obj mbox)", error_msg_wrong_types, args})
-	(signature 'sig 'obj 'integer))
+	(signature 'sig 'obj 'num))
 
 	(pop-scope-syms)
 
@@ -135,7 +135,7 @@
 	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
-	(call 'sys_mail 'declare {&arg0->string_data, arg1})
+	(call 'sys_mail 'declare {&arg0->str_data, arg1})
 	(call 'obj 'ref {arg0} {value})
 
 	(exit 'sys_mail 'lisp_declare {this, value})
@@ -144,7 +144,7 @@
 (errorcases
 (vp-label 'error1)
 	(jump 'lisp 'repl_error {this, "(mail-declare name mbox)", error_msg_wrong_types, args})
-	(signature 'sig 'string 'integer))
+	(signature 'sig 'str 'num))
 
 	(pop-scope-syms)
 
@@ -169,9 +169,9 @@
 	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
-	(call 'sys_mail 'enquire {&arg0->string_data} {value})
+	(call 'sys_mail 'enquire {&arg0->str_data} {value})
 	(vpif {value})
-		(call 'integer 'create {value} {value})
+		(call 'num 'create {value} {value})
 	(else)
 		(call 'obj 'ref {this->lisp_sym_nil} {value})
 	(endif)
@@ -182,7 +182,7 @@
 (errorcases
 (vp-label 'error1)
 	(jump 'lisp 'repl_error {this, "(mail-enquire name)", error_msg_wrong_types, args})
-	(signature 'sig 'string))
+	(signature 'sig 'str))
 
 	(pop-scope-syms)
 
