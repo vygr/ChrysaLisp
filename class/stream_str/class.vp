@@ -11,9 +11,10 @@
 	;r1 = vtable (pptr)
 	;r2 = string object (ptr)
 	;outputs
+	;r0 = stream_str object (ptr)
 	;r1 = 0 if error, else ok
 	;trashes
-	;all but r0
+	;r1-r5
 
 	(entry 'stream_str 'init '(r0 r1 r2))
 

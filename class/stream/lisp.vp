@@ -15,48 +15,45 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(ptr 'this 'args 'value)
-
-	(push-scope)
-	(entry 'stream 'lisp_filestream {this, args})
+	(entry 'stream 'lisp_filestream '(r0 r1))
+	(assign '(r0 r1) '(r8 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 1})
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(call 'lisp 'env_args_type '(r1 ($ sig) 1))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
 
-	(call 'vector 'get_first {args} {_, value})
-	(call 'sys_str 'compare {&value->str_data, "stdin"})
-	(vpif (list (method-output 'sys_str 'compare 0) '== 0))
-		(call 'obj 'ref {this->lisp_stdin} {value})
+	(call 'vector 'get_first '(r7) '(_ r5))
+	(vp-add-cr str_data r5)
+	(call 'sys_str 'compare '(r5 "stdin") '(r0))
+	(vpif '(r0 == 0))
+		(call 'obj 'ref '((r8 lisp_stdin)) '(r0))
 		(goto 'funcexit)
 	(endif)
-	(call 'sys_str 'compare {&value->str_data, "stdout"})
-	(vpif (list (method-output 'sys_str 'compare 0) '== 0))
-		(call 'obj 'ref {this->lisp_stdout} {value})
+	(call 'sys_str 'compare '(r5 "stdout") '(r0))
+	(vpif '(r0 == 0))
+		(call 'obj 'ref '((r8 lisp_stdout)) '(r0))
 		(goto 'funcexit)
 	(endif)
-	(call 'sys_str 'compare {&value->str_data, "stderr"})
-	(vpif (list (method-output 'sys_str 'compare 0) '== 0))
-		(call 'obj 'ref {this->lisp_stderr} {value})
+	(call 'sys_str 'compare '(r5 "stderr") '(r0))
+	(vpif '(r0 == 0))
+		(call 'obj 'ref '((r8 lisp_stderr)) '(r0))
 		(goto 'funcexit)
 	(endif)
-	(call 'str 'create_from_file {&value->str_data} {value})
-	(vpif {value})
-		(call 'stream_str 'create {value} {value})
+	(call 'str 'create_from_file '(r5) '(r0))
+	(vpif '(r0 != 0))
+		(call 'stream_str 'create '(r0) '(r0))
 	(else)
-		(call 'obj 'ref {this->lisp_sym_nil} {value})
+		(call 'obj 'ref '((r6 lisp_sym_nil)) '(r0))
 	(endif)
 
 (vp-label 'funcexit)
-	(exit 'stream 'lisp_filestream {this, value})
-	(return)
+	(exit 'stream 'lisp_filestream '(r8 r0))
+	(vp-ret)
 
 (errorcases
-(vp-label 'error1)
-	(jump 'lisp 'repl_error {this, "(file-stream path)", error_msg_wrong_types, args})
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r8 "(file-stream path)" error_msg_wrong_types r7))
 	(signature 'sig 'str))
-
-	(pop-scope-syms)
 
 (def-func-end)
 
@@ -68,27 +65,23 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(ptr 'this 'args 'value)
-
-	(push-scope)
-	(entry 'stream 'lisp_strstream {this, args})
+	(entry 'stream 'lisp_strstream '(r0 r1))
+	(assign '(r0 r1) '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 1})
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(call 'lisp 'env_args_type '(r1 ($ sig) 1))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
 
-	(d-call 'vector 'ref_element {args, 0} {_, value})
-	(call 'stream_str 'create {value} {value})
+	(d-call 'vector 'ref_element '(r7 0) '(_ r0))
+	(call 'stream_str 'create '(r0) '(r0))
 
-	(exit 'stream 'lisp_strstream {this, value})
-	(return)
+	(exit 'stream 'lisp_strstream '(r6 r0))
+	(vp-ret)
 
 (errorcases
-(vp-label 'error1)
-	(jump 'lisp 'repl_error {this, "(string-stream str)", error_msg_wrong_types, args})
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r6 "(string-stream str)" error_msg_wrong_types r7))
 	(signature 'sig 'str))
-
-	(pop-scope-syms)
 
 (def-func-end)
 
@@ -108,7 +101,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type {args, $sig, 1})
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'stream 'available {arg0} {_, arg0})
@@ -118,7 +111,7 @@
 	(return)
 
 (errorcases
-(vp-label 'error1)
+(vp-label 'error)
 	(jump 'lisp 'repl_error {this, "(stream-available stream)", error_msg_wrong_types, args})
 	(signature 'sig 'stream))
 
@@ -202,7 +195,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type {args, $sig, 1})
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
 
 	(call 'vector 'get_first {args} {_, value})
 	(call 'stream_str 'read_line {value} {_, value})
@@ -214,7 +207,7 @@
 	(return)
 
 (errorcases
-(vp-label 'error1)
+(vp-label 'error)
 	(jump 'lisp 'repl_error {this, "(read-line stream)", error_msg_wrong_types, args})
 	(signature 'sig 'stream))
 
@@ -240,7 +233,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type {args, $sig, 2})
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
 
 	(call 'vector 'get_begin {args} {_, iter_begin})
 	(assign {iter_begin[0], iter_begin[ptr_size]} {stream, value})
@@ -251,7 +244,7 @@
 	(return)
 
 (errorcases
-(vp-label 'error1)
+(vp-label 'error)
 	(jump 'lisp 'repl_error {this, "(write stream str)", error_msg_wrong_types, args})
 	(signature 'sig 'stream 'str))
 
@@ -340,7 +333,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type {args, $sig, 1})
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'stream 'write_flush {arg0})
@@ -350,7 +343,7 @@
 	(return)
 
 (errorcases
-(vp-label 'error1)
+(vp-label 'error)
 	(jump 'lisp 'repl_error {this, "(stream-write-flush stream)", error_msg_wrong_types, args})
 	(signature 'sig 'stream))
 

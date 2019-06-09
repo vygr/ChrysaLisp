@@ -4003,7 +4003,7 @@ outputs
 r0 = stream object (ptr)
 r1 = 0 if error, else ok
 trashes
-all but r0
+r1-r5
 ```
 ### stream::available -> class/stream/available
 ```
@@ -4252,9 +4252,10 @@ r0 = stream_str object (ptr)
 r1 = vtable (pptr)
 r2 = string object (ptr)
 outputs
+r0 = stream_str object (ptr)
 r1 = 0 if error, else ok
 trashes
-all but r0
+r1-r5
 ```
 ### stream_str::ref_string -> class/stream_str/ref_string
 ```

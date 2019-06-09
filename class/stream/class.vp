@@ -20,7 +20,7 @@
 	;r0 = stream object (ptr)
 	;r1 = 0 if error, else ok
 	;trashes
-	;all but r0
+	;r1-r5
 
 	(entry 'stream 'init '(r0 r1 r2 r3 r4 r5))
 
