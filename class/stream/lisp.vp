@@ -26,27 +26,28 @@
 	(vp-add-cr str_data r5)
 	(call 'sys_str 'compare '(r5 "stdin") '(r0))
 	(vpif '(r0 == 0))
-		(call 'obj 'ref '((r8 lisp_stdin)) '(r0))
+		(vp-cpy-ir r8 lisp_stdin r0)
 		(goto 'funcexit)
 	(endif)
 	(call 'sys_str 'compare '(r5 "stdout") '(r0))
 	(vpif '(r0 == 0))
-		(call 'obj 'ref '((r8 lisp_stdout)) '(r0))
+		(vp-cpy-ir r8 lisp_stdout r0)
 		(goto 'funcexit)
 	(endif)
 	(call 'sys_str 'compare '(r5 "stderr") '(r0))
 	(vpif '(r0 == 0))
-		(call 'obj 'ref '((r8 lisp_stderr)) '(r0))
+		(vp-cpy-ir r8 lisp_stderr r0)
 		(goto 'funcexit)
 	(endif)
 	(call 'str 'create_from_file '(r5) '(r0))
 	(vpif '(r0 != 0))
 		(call 'stream_str 'create '(r0) '(r0))
 	(else)
-		(call 'obj 'ref '((r8 lisp_sym_nil)) '(r0))
+		(vp-cpy-ir r8 lisp_sym_nil r0)
+	(vp-label 'funcexit)
+		(call 'obj 'ref '(r0) '(r0))
 	(endif)
 
-(vp-label 'funcexit)
 	(exit 'stream 'lisp_filestream '(r8 r0))
 	(vp-ret)
 
@@ -93,29 +94,24 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(ptr 'this 'args 'value)
-	(ulong 'arg0)
-
-	(push-scope)
-	(entry 'stream 'lisp_available {this, args})
+	(entry 'stream 'lisp_available '(r0 r1))
+	(assign '(r0 r1) '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 1})
+	(call 'lisp 'env_args_type '(r1 ($ sig) 1))
 	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
 
-	(call 'lisp 'env_args_set {args, &arg0, 0})
-	(call 'stream 'available {arg0} {_, arg0})
-	(call 'num 'create {arg0} {value})
+	(call 'vector 'get_first '(r7) '(_ r1))
+	(call 'stream 'available '(r1) '(_ r1))
+	(call 'num 'create '(r1) '(r0))
 
-	(exit 'stream 'lisp_available {this, value})
-	(return)
+	(exit 'stream 'lisp_available '(r6 r0))
+	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error {this, "(stream-available stream)", error_msg_wrong_types, args})
+	(jump 'lisp 'repl_error '(r6 "(stream-avail stream)" error_msg_wrong_types r7))
 	(signature 'sig 'stream))
-
-	(pop-scope-syms)
 
 (def-func-end)
 
@@ -188,30 +184,28 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(ptr 'this 'args 'value)
-
-	(push-scope)
-	(entry 'stream 'lisp_readline {this, args})
+	(entry 'stream 'lisp_readline '(r0 r1))
+	(assign '(r0 r1) '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 1})
+	(call 'lisp 'env_args_type '(r1 ($ sig) 1))
 	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
 
-	(call 'vector 'get_first {args} {_, value})
-	(call 'stream_str 'read_line {value} {_, value})
-	(vpifnot {value})
-		(call 'obj 'ref {this->lisp_sym_nil} {value})
+	(vp-push r6)
+	(call 'vector 'get_first '(r7) '(_ r1))
+	(call 'stream_str 'read_line '(r1) '(_ r1))
+	(vp-pop r6)
+	(vpif '(r1 == 0))
+		(call 'obj 'ref '((r6 lisp_sym_nil)) '(r1))
 	(endif)
 
-	(exit 'stream 'lisp_readline {this, value})
-	(return)
+	(exit 'stream 'lisp_readline '(r6 r1))
+	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error {this, "(read-line stream)", error_msg_wrong_types, args})
+	(jump 'lisp 'repl_error '(r6 "(read-line stream)" error_msg_wrong_types r7))
 	(signature 'sig 'stream))
-
-	(pop-scope-syms)
 
 (def-func-end)
 

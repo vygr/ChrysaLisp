@@ -23,5 +23,5 @@
 	(while (catch (repl stdin 'stdin) t)
 		(stream-write-flush stdout)
 		(stream-write-flush stderr)
-		(while (ne (stream-available stdin) 0)
+		(while (ne (stream-avail stdin) 0)
 			(read-char stdin))))

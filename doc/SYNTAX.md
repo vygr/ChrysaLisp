@@ -425,8 +425,8 @@
 ### (str form)
 ## str?
 ### (str? form)
-## stream-available
-### (stream-available stream)
+## stream-avail
+### (stream-avail stream)
 ## stream-write-flush
 ### (stream-write-flush stream)
 ## string-stream
