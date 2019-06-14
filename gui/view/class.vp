@@ -766,12 +766,15 @@
 	;all but r0
 
 	;remove any opaque region
-	(call 'view 'sub_opaque '(r0 -1000000 -1000000 2000000 2000000))
+	(vp-push r0)
+	(vp-lea-i r0 view_opaque_region r1)
+	(f-bind 'gui 'statics r0)
+	(vp-add-cr gui_statics_rect_heap r0)
+	(call 'region 'free '(r0 r1))
+	(vp-pop r0)
 
 	;paste opaque region
-	(vp-cpy-ir-i r0 view_w r9)
-	(vp-cpy-ir-i r0 view_h r10)
-	(jump 'view 'add_opaque '(r0 0 0 r9 r10))
+	(jump 'view 'add_opaque '(r0 0 0 (r0 view_w i) (r0 view_h i)))
 
 (def-func-end)
 

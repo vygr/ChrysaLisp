@@ -160,7 +160,7 @@
 	(assign {params[ptr_size * 4]} {lists})
 	(errorif (cat {lists->obj_vtable != @} (f-path 'vector 'vtable)) 'error2)
 
-	(assign {1000000} {length})
+	(assign {max_int} {length})
 	(call 'vector 'get_iters {lists} {_, iter_begin, iter_end})
 	(assign {iter_begin} {iter})
 	(loop-while {iter != iter_end})
@@ -174,7 +174,7 @@
 		(assign {iter + ptr_size} {iter})
 	(loop-end)
 
-	(vpif {length != 1000000})
+	(vpif {length != max_int})
 		(assign {0} {start})
 		(assign {params[ptr_size * 0]} {value})
 		(vpif {value != this->lisp_sym_nil})
@@ -285,7 +285,7 @@
 	(assign {params[ptr_size * 4]} {lists})
 	(errorif (cat {lists->obj_vtable != @} (f-path 'vector 'vtable)) 'error2)
 
-	(assign {1000000} {length})
+	(assign {max_int} {length})
 	(call 'vector 'get_iters {lists} {_, iter_begin, iter_end})
 	(assign {iter_begin} {iter})
 	(loop-while {iter != iter_end})
@@ -301,7 +301,7 @@
 
 	(call 'obj 'ref {this->lisp_sym_nil} {value})
 
-	(vpif {length != 1000000})
+	(vpif {length != max_int})
 		(assign {0} {start})
 		(assign {params[ptr_size * 0]} {type})
 		(vpif {type != this->lisp_sym_nil})
