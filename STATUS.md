@@ -4,6 +4,16 @@
 
 ------
 
+Moved the Lisp class bindings out to the classes that provide the functionality
+being used. I still want to tidy up the Lisp boot.inc file to just include a
+set of finer grained lisp.inc files though.
+
+Lowered the stream class Lisp bindings to VP. Now that the bindings are
+separated out it's going to be easier to get round to doing this to the rest of
+them.
+
+------
+
 Last of the GUI apps, the terminal, converted over to Lisp. I'm going to have
 to sort out a better way to handle the mailbox select functionality for Lisp
 eventually, the change to pipe::select to get the Terminal app over to Lisp is
