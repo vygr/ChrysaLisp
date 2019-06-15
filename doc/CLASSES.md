@@ -2130,7 +2130,6 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
-### lisp::func_error -> class/lisp/func_error
 ### lisp::func_time -> class/lisp/func_time
 ```
 inputs
