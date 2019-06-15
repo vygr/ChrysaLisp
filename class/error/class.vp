@@ -27,8 +27,9 @@
 
 	;save inputs
 	(vp-alloc local_size)
-	(assign '(r0 r2 r3 r4 r5 r6) '((rsp local_this) (r0 error_description) (r0 error_msg i)
-									(r0 error_object) (r0 error_file) (r0 error_line i)))
+	(assign '(r0 r2 r3 r4 r5 r6)
+		'((rsp local_this) (r0 error_description) (r0 error_msg i)
+		(r0 error_object) (r0 error_file) (r0 error_line i)))
 
 	;init parent
 	(s-call 'error 'init '(r0 r1) '(r0 r1))
@@ -73,27 +74,25 @@
 	;r0 = error object (ptr)
 	;outputs
 	;r0 = error object (ptr)
-	;r1 = error string object (ptr)
+	;r1 = error c string (pubyte)
 	;trashes
-	;all but r0
+	;r1-r5
 
-	(ptr 'this 'msg)
-	(pubyte 'next)
-	(uint 'length 'cnt)
+	(entry 'error 'get_msg '(r0))
 
-	(push-scope)
-	(entry 'error 'get_msg {this})
-
-	(assign {"", $msgs, this->error_msg} {msg, next, cnt})
-	(loop-while {*next && cnt})
-		(assign {next} {msg})
-		(call 'sys_str 'length {next} {_, length})
-		(assign {next + length + byte_size, cnt - 1} {next, cnt})
+	(assign '(r0 ($ unknown) (r0 error_msg ui) ($ msgs)) '(r3 r4 r5 r0))
+	(loop-while '(r5 != 0))
+		(vp-cpy-ir-ub r0 0 r1)
+		(breakif '(r1 == 0))
+		(vp-cpy-rr r0 r4)
+		(call 'sys_str 'length '(r0) '(r0 r1))
+		(vp-add-rr r1 r0)
+		(vp-sub-cr 1 r5)
+		(vp-add-cr 1 r0)
 	(loop-end)
 
-	(exit 'error 'get_msg {this, msg})
-	(pop-scope)
-	(return)
+	(exit 'error 'get_msg '(r3 r4))
+	(vp-ret)
 
 (vp-label 'msgs)
 (errorcases

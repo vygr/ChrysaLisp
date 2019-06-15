@@ -1114,9 +1114,9 @@ inputs
 r0 = error object (ptr)
 outputs
 r0 = error object (ptr)
-r1 = error string object (ptr)
+r1 = error c string (pubyte)
 trashes
-all but r0
+r1-r5
 ```
 ### error::get_object -> class/error/get_object
 ```
