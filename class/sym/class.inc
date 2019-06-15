@@ -5,6 +5,7 @@
 (dec-method 'statics 'class/sym/statics)
 (dec-method 'flush 'class/sym/flush)
 (dec-method 'intern 'class/sym/intern 'static '(r0) '(r0))
+(dec-method 'intern_str 'class/sym/intern_str 'static '(r0) '(r0))
 (dec-method 'intern_cstr 'class/sym/intern_cstr 'static '(r0) '(r0))
 
 (dec-method 'lisp_sym 'class/sym/lisp_sym 'static '(r0 r1) '(r0 r1))

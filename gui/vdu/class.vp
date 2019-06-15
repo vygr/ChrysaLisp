@@ -286,7 +286,7 @@
 (def-method 'vdu 'print_cstr)
 	;inputs
 	;r0 = vdu object (ptr)
-	;r1 = c string pointer (pubyte)
+	;r1 = c string (pubyte)
 	;outputs
 	;r0 = vdu object (ptr)
 

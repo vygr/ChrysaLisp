@@ -4307,10 +4307,19 @@ r0 = interned symbol object (ptr)
 trashes
 all
 ```
+### sym::intern_str -> class/sym/intern_str
+```
+inputs
+r0 = string object (ptr)
+outputs
+r0 = interned symbol object (ptr)
+trashes
+all
+```
 ### sym::intern_cstr -> class/sym/intern_cstr
 ```
 inputs
-r0 = c string (ptr)
+r0 = c string pointer (pubyte)
 outputs
 r0 = interned symbol object (ptr)
 trashes
@@ -5472,7 +5481,7 @@ r0 = vdu object (ptr)
 ```
 inputs
 r0 = vdu object (ptr)
-r1 = c string pointer (pubyte)
+r1 = c string (pubyte)
 outputs
 r0 = vdu object (ptr)
 ```

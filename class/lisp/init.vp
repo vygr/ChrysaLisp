@@ -129,7 +129,7 @@
 	(call 'str 'create_from_cstr {"ChrysaLisp"} {symbol})
 	(call 'hmap 'insert {this->lisp_environment, this->lisp_sym_stream_name, symbol})
 	(call 'obj 'deref {symbol})
-	(call 'num 'create {0} {symbol})
+	(call 'num 'create '(0) {symbol})
 	(call 'hmap 'insert {this->lisp_environment, this->lisp_sym_stream_line, symbol})
 	(call 'obj 'deref {symbol})
 	(call 'vector 'create nil {symbol})

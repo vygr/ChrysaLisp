@@ -21,15 +21,15 @@
 	(assign `((,r1 obj_vtable) (@ ,(f-path 'sym 'vtable))) '(r2 r3))
 	(vpif '(r2 == r3))
 		(vp-push r4)
-		(call 'obj 'ref '(r1) '(r1))
+		(call 'obj 'ref '(r1) '(r0))
 	(else)
 	(errorcases
 		(assign `((@ ,(f-path 'str 'vtable))) '(r3))
 		(gotoif '(r2 != r3) 'error2))
 		(vp-push r4)
-		(call 'sym 'create_from_buffer `((& ,r1 str_data) (,r1 str_length ui)) '(r0))
-		(call 'sym 'intern '(r0) '(r1))
+		(call 'sym 'intern_str '(r1) '(r0))
 	(endif)
+	(vp-cpy-rr r0 r1)
 	(vp-pop r0)
 
 	(exit 'sym 'lisp_sym '(r0 r1))
@@ -37,9 +37,9 @@
 
 (errorcases
 (vp-label 'error1)
-	(jump 'lisp 'repl_error '(r0 "(sym form)" error_msg_wrong_num_of_args r1))
+	(jump 'lisp 'repl_error '(r0 "(sym str)" error_msg_wrong_num_of_args r1))
 (vp-label 'error2)
-	(jump 'lisp 'repl_error '(r4 "(sym form)" error_msg_not_a_string r0)))
+	(jump 'lisp 'repl_error '(r4 "(sym str)" error_msg_not_a_string r0)))
 
 (def-func-end)
 

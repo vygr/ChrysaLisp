@@ -436,7 +436,7 @@
 ## swap
 ### (swap list index index)
 ## sym
-### (sym form)
+### (sym str)
 ## sym-cat
 ### (sym-cat str ...) -> sym
 ## sym?

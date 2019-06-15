@@ -147,7 +147,7 @@
 					(call 'array 'get_back {ids} {_, mbox.id_id})
 					(d-call 'array 'pop_back {ids})
 					(continueifnot {mbox.id_mbox})
-					(call 'sys_mail 'alloc {0} {msg, _})
+					(call 'sys_mail 'alloc '(0) {msg, _})
 					(assign {mbox.id_id} {msg->msg_dest.id_id})
 					(call 'sys_mail 'send {msg})
 				(loop-end)

@@ -140,8 +140,7 @@
 	(call 'obj 'inst_of (cat {iter_begin[0], @} (f-path 'stream 'vtable)))
 	(gotoif (list (method-output 'obj 'inst_of 1) '== 0) 'error2))
 
-	(assign '{length} '(r0))
-	(vp-cpy-cr 1 r1)
+	(assign {length, 1} '(r0 r1))
 	(vpif '(r0 == 2))
 		(assign {iter_begin[ptr_size]} '(r0))
 	(errorcases
@@ -154,7 +153,7 @@
 	(endif)
 	(assign '(r1) {width})
 
-	(call 'num 'create {0} {value})
+	(call 'num 'create '(0) {value})
 	(assign {&value->num_value} '(r0))
 	(loop-start 'exit)
 		(assign '(r0) {chars})
@@ -275,8 +274,7 @@
 	(call 'obj 'inst_of (cat {stream, @} (f-path 'stream 'vtable)))
 	(gotoif (list (method-output 'obj 'inst_of 1) '== 0) 'error2))
 
-	(assign '{length} '(r0))
-	(vp-cpy-cr 1 r1)
+	(assign {length, 1} '(r0 r1))
 	(vpif '(r0 == 3))
 		(assign {iter_begin[ptr_size * 2]} '(r0))
 	(errorcases

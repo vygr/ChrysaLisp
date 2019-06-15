@@ -189,7 +189,7 @@
 
 (vp-label 'terminal_output_cstr)
 	;inputs
-	;r0 = c string pointer
+	;r0 = c string (pubyte)
 
 	(pubyte 'charp)
 
@@ -225,7 +225,7 @@
 	;poll stdin and send char to tui
 	(loop-start)
 	(vp-label 'nextchar)
-		(call 'sys_pii 'read_char {0} {char})
+		(call 'sys_pii 'read_char '(0) {char})
 		(vpif {char})
 			(call 'sys_mail 'alloc {stdin_msg_size} {msg, data})
 			(assign {tui_id.id_id} {msg->msg_dest.id_id})

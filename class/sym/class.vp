@@ -34,6 +34,7 @@
 		(fn-bind (f-path 'sym 'statics) r1)
 		(vp-cpy-ri r0 r1 sym_statics_intern)
 	(endif)
+
 	(call 'hset 'insert '(r0 (rsp local_this)) '(_ (rsp local_iter) _))
 	(call 'obj 'deref '((rsp local_this)))
 	(vp-cpy-ir rsp local_iter r0)
@@ -47,9 +48,51 @@
 
 (def-func-end)
 
+(def-method 'sym 'intern_str)
+	;inputs
+	;r0 = string object (ptr)
+	;outputs
+	;r0 = interned symbol object (ptr)
+	;trashes
+	;all
+
+	(def-struct 'local)
+		(ptr 'this)
+	(def-struct-end)
+
+	(vp-alloc local_size)
+	(entry 'sym 'intern_str '((rsp local_this)))
+
+	(fn-bind (f-path 'sym 'statics) r0)
+	(vp-cpy-ir r0 sym_statics_intern r0)
+	(vpif '(r0 == 0))
+		(call 'hset 'create `((@ ,(f-path 'sym 'same)) 101) '(r0))
+		(fn-bind (f-path 'sym 'statics) r1)
+		(vp-cpy-ri r0 r1 sym_statics_intern)
+	(endif)
+
+	(call 'hset 'find '(r0 (rsp local_this)) '(r0 r1 r2))
+	(vpif '(r1 == 0))
+		(assign `((rsp local_this) r2) '(r0 r7))
+		(call 'sym 'create_from_buffer `((& ,r0 str_data) (,r0 str_length ui)) '(r0))
+		(assign `((@ ,(f-path 'sym 'vtable)) r0) '(r1 r6))
+		(vp-cpy-ri r1 r0 obj_vtable)
+		(call 'vector 'push_back '(r7 r0))
+		(vp-cpy-rr r6 r0)
+	(else)
+		(vp-cpy-ir r1 0 r0)
+	(endif)
+	(call 'obj 'ref '(r0) '(r0))
+
+	(exit 'sym 'intern_str '(r0))
+	(vp-free local_size)
+	(vp-ret)
+
+(def-func-end)
+
 (def-method 'sym 'intern_cstr)
 	;inputs
-	;r0 = c string (ptr)
+	;r0 = c string pointer (pubyte)
 	;outputs
 	;r0 = interned symbol object (ptr)
 	;trashes

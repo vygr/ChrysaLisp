@@ -26,7 +26,7 @@
 
 	;any point doing anything ?
 	(d-call 'points 'get_length {that} {_, length})
-	(vpif '{length <= 4})
+	(vpif {length <= 4})
 		;just append to output
 		(d-call 'points 'append {this, that, 0, length})
 	(else)
