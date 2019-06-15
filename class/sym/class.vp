@@ -19,14 +19,9 @@
 	;trashes
 	;all
 
-	(def-struct 'local)
-		(ptr 'this)
-		(pptr 'iter)
-	(def-struct-end)
+	(entry 'sym 'intern '(r0))
 
-	(vp-alloc local_size)
-	(entry 'sym 'intern '((rsp local_this)))
-
+	(vp-push r0)
 	(fn-bind (f-path 'sym 'statics) r0)
 	(vp-cpy-ir r0 sym_statics_intern r0)
 	(vpif '(r0 == 0))
@@ -34,16 +29,14 @@
 		(fn-bind (f-path 'sym 'statics) r1)
 		(vp-cpy-ri r0 r1 sym_statics_intern)
 	(endif)
+	(call 'hset 'insert '(r0 (rsp 0)) '(_ r1 _))
+	(call 'obj 'ref '((r1 0)) '(r3))
+	(assign `((@ ,(f-path 'sym 'vtable))) '(r0))
+	(vp-cpy-ri r0 r3 obj_vtable)
+	(vp-pop r0)
+	(call 'obj 'deref '(r0))
 
-	(call 'hset 'insert '(r0 (rsp local_this)) '(_ (rsp local_iter) _))
-	(call 'obj 'deref '((rsp local_this)))
-	(vp-cpy-ir rsp local_iter r0)
-	(call 'obj 'ref '((r0 0)) '(r0))
-	(assign `((@ ,(f-path 'sym 'vtable))) '(r1))
-	(vp-cpy-ri r1 r0 obj_vtable)
-
-	(exit 'sym 'intern '(r0))
-	(vp-free local_size)
+	(exit 'sym 'intern '(r3))
 	(vp-ret)
 
 (def-func-end)
@@ -56,13 +49,9 @@
 	;trashes
 	;all
 
-	(def-struct 'local)
-		(ptr 'this)
-	(def-struct-end)
+	(entry 'sym 'intern_str '(r0))
 
-	(vp-alloc local_size)
-	(entry 'sym 'intern_str '((rsp local_this)))
-
+	(vp-push r0)
 	(fn-bind (f-path 'sym 'statics) r0)
 	(vp-cpy-ir r0 sym_statics_intern r0)
 	(vpif '(r0 == 0))
@@ -70,10 +59,10 @@
 		(fn-bind (f-path 'sym 'statics) r1)
 		(vp-cpy-ri r0 r1 sym_statics_intern)
 	(endif)
-
-	(call 'hset 'find '(r0 (rsp local_this)) '(r0 r1 r2))
+	(call 'hset 'find '(r0 (rsp 0)) '(_ r1 r2))
+	(vp-pop r0)
 	(vpif '(r1 == 0))
-		(assign `((rsp local_this) r2) '(r0 r7))
+		(vp-cpy-rr r2 r7)
 		(call 'sym 'create_from_buffer `((& ,r0 str_data) (,r0 str_length ui)) '(r0))
 		(assign `((@ ,(f-path 'sym 'vtable)) r0) '(r1 r6))
 		(vp-cpy-ri r1 r0 obj_vtable)
@@ -85,7 +74,6 @@
 	(call 'obj 'ref '(r0) '(r0))
 
 	(exit 'sym 'intern_str '(r0))
-	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)
