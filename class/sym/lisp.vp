@@ -51,31 +51,29 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(ptr 'this 'args 'prefix 'value)
-(errorcases
-	(uint 'length))
-
-	(push-scope)
-	(entry 'sym 'lisp_gensym {this, args})
+	(entry 'sym 'lisp_gensym '(r0 r1))
 
 (errorcases
-	(d-call 'vector 'get_length {args} {_, length})
-	(gotoif {length} 'error1))
+	(vp-cpy-ir-ui r1 array_length r2)
+	(gotoif '(r2 != 0) 'error1))
 
-	(call 'sym 'create_from_long {this->lisp_nextsym + 1 => this->lisp_nextsym, 10} {args})
-	(call 'sym 'create_from_cstr {"G"} {prefix})
-	(call 'sym 'append {prefix, args} {value})
-	(call 'obj 'deref {prefix})
-	(call 'obj 'deref {args})
-	(call 'sym 'intern {value} {value})
+	(vp-push r0)
+	(vp-cpy-ir r0 lisp_nextsym r1)
+	(vp-add-cr 1 r1)
+	(vp-cpy-ri r1 r0 lisp_nextsym)
+	(call 'sym 'create_from_long '(r1 10) '(r7))
+	(call 'sym 'create_from_buffer '("G" 1) '(r8))
+	(call 'sym 'append '(r8 r7) '(r3))
+	(call 'obj 'deref '(r7))
+	(call 'obj 'deref '(r8))
+	(call 'sym 'intern '(r3) '(r1))
+	(vp-pop r0)
 
-	(exit 'sym 'lisp_gensym {this, value})
-	(return)
+	(exit 'sym 'lisp_gensym '(r0 r1))
+	(vp-ret)
 
 (errorcases
 (vp-label 'error1)
-	(jump 'lisp 'repl_error {this, "(gensym)", error_msg_wrong_num_of_args, args}))
-
-	(pop-scope-syms)
+	(jump 'lisp 'repl_error '(r0 "(gensym)" error_msg_wrong_num_of_args r1)))
 
 (def-func-end)

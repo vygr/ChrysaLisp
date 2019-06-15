@@ -50,9 +50,9 @@
 		(vpif {length})
 			;create command prefix/suffix
 			(call 'vector 'create nil {command})
-			(call 'str 'create_from_cstr {"cmd/"} {cmd})
+			(call 'str 'create_from_buffer {"cmd/", 4} {cmd})
 			(call 'vector 'push_back {command, cmd})
-			(call 'str 'create_from_cstr {".lisp"} {cmd})
+			(call 'str 'create_from_buffer {".lisp", 5} {cmd})
 			(call 'str 'ref {cmd})
 			(call 'vector 'push_back {command, cmd})
 			(call 'vector 'push_back {command, cmd})

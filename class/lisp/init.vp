@@ -71,7 +71,7 @@
 				;REPL from file stream
 				(call 'vector 'create nil {repl_args})
 				(call 'stream_str 'create {file} {stream})
-				(call 'str 'create_from_cstr {"class/lisp/boot.inc"} {file})
+				(call 'str 'create_from_buffer {"class/lisp/boot.inc", 19} {file})
 				(call 'vector 'push_back {repl_args, stream})
 				(call 'vector 'push_back {repl_args, file})
 				(call 'lisp 'func_repl {this, repl_args} {_, value})
@@ -126,7 +126,7 @@
 	(loop-end)
 
 	;defines
-	(call 'str 'create_from_cstr {"ChrysaLisp"} {symbol})
+	(call 'str 'create_from_buffer {"ChrysaLisp", 10} {symbol})
 	(call 'hmap 'insert {this->lisp_environment, this->lisp_sym_stream_name, symbol})
 	(call 'obj 'deref {symbol})
 	(call 'num 'create '(0) {symbol})
