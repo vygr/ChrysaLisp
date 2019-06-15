@@ -2,6 +2,8 @@
 ; Primitives
 ;;;;;;;;;;;;
 
+(ffi throw "class/error/lisp_error" 0)
+
 (ffi add "class/num/lisp_add" 0)
 (ffi sub "class/num/lisp_sub" 0)
 (ffi mul "class/num/lisp_mul" 0)
@@ -98,7 +100,6 @@
 (ffi apply "class/lisp/func_apply" 0)
 (ffi repl "class/lisp/func_repl" 0)
 (ffi catch "class/lisp/func_catch" 1)
-(ffi throw "class/lisp/func_error" 0)
 (ffi cond "class/lisp/func_cond" 1)
 (ffi while "class/lisp/func_while" 1)
 (ffi prin "class/lisp/func_prin" 0)

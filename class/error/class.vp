@@ -80,7 +80,7 @@
 
 	(entry 'error 'get_msg '(r0))
 
-	(assign '(r0 ($ unknown) (r0 error_msg ui) ($ msgs)) '(r3 r4 r5 r0))
+	(assign '(r0 "" (r0 error_msg ui) ($ msgs)) '(r3 r4 r5 r0))
 	(loop-while '(r5 != 0))
 		(vp-cpy-ir-ub r0 0 r1)
 		(breakif '(r1 == 0))

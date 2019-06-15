@@ -12,6 +12,8 @@
 
 (dec-method 'deinit 'class/error/deinit 'final)
 
+(dec-method 'lisp_error 'class/error/lisp_error 'static '(r0 r1) '(r0 r1))
+
 (def-struct 'error 'obj)
 	(ptr 'description)
 	(ptr 'object)

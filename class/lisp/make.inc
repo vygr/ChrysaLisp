@@ -13,7 +13,6 @@
 (include 'class/lisp/func_copy.vp)
 (include 'class/lisp/func_defmacro.vp)
 (include 'class/lisp/func_eql.vp)
-(include 'class/lisp/func_error.vp)
 (include 'class/lisp/func_eval.vp)
 (include 'class/lisp/func_ffi.vp)
 (include 'class/lisp/func_lambda.vp)

@@ -1151,6 +1151,15 @@ r0 = error object (ptr)
 trashes
 all but r0
 ```
+### error::lisp_error -> class/error/lisp_error
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
 ## flow
 Super Class: view
 ### flow::vtable -> gui/flow/vtable
@@ -2122,14 +2131,6 @@ r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
 ### lisp::func_error -> class/lisp/func_error
-```
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-```
 ### lisp::func_time -> class/lisp/func_time
 ```
 inputs
