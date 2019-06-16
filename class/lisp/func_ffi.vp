@@ -13,32 +13,27 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(ptr 'this 'value 'name)
-	(union
-		'(ptr 'args)
-		'(uint 'flags))
+	(ptr 'this 'value 'args)
+	(pptr 'iter_begin)
 
 	(push-scope)
 	(entry 'lisp 'func_ffi {this, args})
 
 (errorcases
 	(call 'lisp 'env_args_type {args, $sig, 4})
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
 
-	(call 'vector 'get_third {args} {_, value})
-	(call 'sys_load 'bind {&value->str_data} {value})
-	(errorifnot {value} 'error1)
-	(call 'vector 'get_second {args} {_, name})
-	(call 'vector 'get_forth {args} {_, args})
-	(call 'num 'get_value {args} {_, flags})
-	(call 'func 'create {value | flags} {value})
-	(call 'hmap 'insert {this->lisp_environment, name, value})
+	(call 'vector 'get_begin {args} {_, iter_begin})
+	(call 'sys_load 'bind {&iter_begin[ptr_size * 2]->str_data} {value})
+	(errorifnot {value} 'error)
+	(call 'func 'create {value | iter_begin[ptr_size * 3]->num_value} {value})
+	(call 'hmap 'insert {this->lisp_environment, iter_begin[ptr_size], value})
 
 	(exit 'lisp 'func_ffi {this, value})
 	(return)
 
 (errorcases
-(vp-label 'error1)
+(vp-label 'error)
 	(jump 'lisp 'repl_error {this, "(ffi sym path flags)", error_msg_wrong_types, args})
 	(signature 'sig 'obj 'sym 'str 'num))
 
