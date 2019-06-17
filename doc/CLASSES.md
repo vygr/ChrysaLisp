@@ -224,7 +224,7 @@ outputs
 r0 = array object (ptr)
 r1 = integer object (ptr)
 trashes
-all but r0
+r1-r3
 ```
 ### array::pop_back -> class/array/pop_back
 ```
@@ -282,7 +282,7 @@ outputs
 r0 = array object (ptr)
 r1 = integer object (ptr)
 trashes
-all but r0
+r1-r3
 ```
 ### array::slice -> class/array/slice
 ```

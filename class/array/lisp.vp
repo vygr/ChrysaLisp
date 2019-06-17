@@ -86,34 +86,31 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(ptr 'this 'args 'value)
-	(int 'length)
-
-	(push-scope)
-	(entry 'array 'lisp_pop {this, args})
+	(entry 'array 'lisp_pop '(r0 r1))
+	(assign '(r0 r1) '(r8 r9))
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 1})
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(call 'lisp 'env_args_type '(r1 ($ sig) 1))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
 
-	(call 'vector 'get_first {args} {_, args})
-	(call 'array 'get_length {args} {_, length})
-	(vpif {length})
-		(call 'array 'ref_back {args} {_, value})
-		(call 'array 'pop_back {args})
+	(vp-cpy-ir r9 array_array r0)
+	(vp-cpy-ir r0 0 r9)
+	(vp-cpy-ir-ui r9 array_length r1)
+	(vpif '(r1 != 0))
+		(call 'array 'ref_back '(r9) '(_ r10))
+		(call 'array 'pop_back '(r9))
+		(vp-cpy-rr r10 r1)
 	(else)
-		(call 'obj 'ref {this->lisp_sym_nil} {value})
+		(call 'obj 'ref '((r8 lisp_sym_nil)) '(r1))
 	(endif)
 
-	(exit 'array 'lisp_pop {this, value})
-	(return)
+	(exit 'array 'lisp_pop '(r8 r1))
+	(vp-ret)
 
 (errorcases
-(vp-label 'error1)
-	(jump 'lisp 'repl_error {this, "(pop array)", error_msg_wrong_types, args})
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r8 "(pop array)" error_msg_wrong_types r9))
 	(signature 'sig 'array))
-
-	(pop-scope-syms)
 
 (def-func-end)
 
