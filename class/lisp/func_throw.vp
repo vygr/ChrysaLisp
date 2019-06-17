@@ -3,7 +3,7 @@
 (include 'class/num/class.inc)
 (include 'class/lisp/class.inc)
 
-(def-method 'error 'lisp_error)
+(def-method 'lisp 'func_throw)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -11,7 +11,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(entry 'error 'lisp_error '(r0 r1))
+	(entry 'lisp 'func_throw '(r0 r1))
 	(assign '(r0 r1) '(r6 r7))
 
 (errorcases

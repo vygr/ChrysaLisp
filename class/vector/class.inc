@@ -14,6 +14,7 @@
 (dec-method 'set_element 'class/vector/set_element 'final)
 (dec-method 'append 'class/vector/append 'final)
 
+(dec-method 'lisp_list 'class/vector/lisp_list 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_elemset 'class/vector/lisp_elemset 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_merge 'class/vector/lisp_merge 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_part 'class/vector/lisp_part 'static '(r0 r1) '(r0 r1))

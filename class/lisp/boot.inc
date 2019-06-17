@@ -2,8 +2,6 @@
 ; Primitives
 ;;;;;;;;;;;;
 
-(ffi throw "class/error/lisp_error" 0)
-
 (ffi add "class/num/lisp_add" 0)
 (ffi sub "class/num/lisp_sub" 0)
 (ffi mul "class/num/lisp_mul" 0)
@@ -77,9 +75,9 @@
 (ffi write-char "class/stream/lisp_writechar" 0)
 (ffi write "class/stream/lisp_write" 0)
 
-(ffi list "class/lisp/func_list" 0)
-(ffi array "class/lisp/func_array" 0)
-(ffi points "class/lisp/func_points" 0)
+(ffi list "class/vector/lisp_list" 0)
+(ffi array "class/array/lisp_array" 0)
+(ffi points "class/array/lisp_points" 0)
 
 (ffi type? "class/lisp/func_type" 0)
 (ffi eql "class/lisp/func_eql" 0)
@@ -89,6 +87,7 @@
 (ffi macroexpand "class/lisp/func_macroexpand" 0)
 (ffi macroexpand-1 "class/lisp/func_macroexpand_1" 0)
 
+(ffi throw "class/lisp/func_throw" 0)
 (ffi bind "class/lisp/func_bind" 0)
 (ffi read "class/lisp/func_read" 0)
 (ffi quote "class/lisp/func_quote" 1)

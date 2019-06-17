@@ -145,22 +145,6 @@ outputs
 r0 = array object (ptr)
 r1 = element (long)
 ```
-### array::get_third -> class/array/get_third
-```
-inputs
-r0 = array object (ptr)
-outputs
-r0 = array object (ptr)
-r1 = element (long)
-```
-### array::get_forth -> class/array/get_forth
-```
-inputs
-r0 = array object (ptr)
-outputs
-r0 = array object (ptr)
-r1 = element (long)
-```
 ### array::get_element -> class/array/get_element
 ```
 inputs
@@ -321,6 +305,24 @@ outputs
 r0 = 0 if error, else new array object (ptr)
 trashes
 r0-r11
+```
+### array::lisp_array -> class/array/lisp_array
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### array::lisp_points -> class/array/lisp_points
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
 ```
 ### array::lisp_clear -> class/array/lisp_clear
 ```
@@ -1150,15 +1152,6 @@ outputs
 r0 = error object (ptr)
 trashes
 all but r0
-```
-### error::lisp_error -> class/error/lisp_error
-```
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
 ```
 ## flow
 Super Class: view
@@ -2111,6 +2104,15 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
+### lisp::func_throw -> class/lisp/func_throw
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
 ### lisp::func_catch -> class/lisp/func_catch
 ```
 inputs
@@ -2131,33 +2133,6 @@ r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
 ### lisp::func_time -> class/lisp/func_time
-```
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-```
-### lisp::func_list -> class/lisp/func_list
-```
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-```
-### lisp::func_array -> class/lisp/func_array
-```
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-```
-### lisp::func_points -> class/lisp/func_points
 ```
 inputs
 r0 = lisp object (ptr)
@@ -5622,6 +5597,15 @@ outputs
 r0 = vector object (ptr)
 trashes
 r1-r9
+```
+### vector::lisp_list -> class/vector/lisp_list
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
 ```
 ### vector::lisp_elemset -> class/vector/lisp_elemset
 ```

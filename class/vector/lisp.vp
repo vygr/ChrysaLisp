@@ -3,6 +3,23 @@
 (include 'class/sym/class.inc)
 (include 'class/lisp/class.inc)
 
+(def-method 'vector 'lisp_list)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(entry 'vector 'lisp_list '(r9 r1))
+
+	(d-call 'vector 'slice '(r1 0 (r1 array_length ui)) '(_ r1))
+
+	(exit 'vector 'lisp_list '(r9 r1))
+	(vp-ret)
+
+(def-func-end)
+
 (def-method 'vector 'lisp_elemset)
 	;inputs
 	;r0 = lisp object (ptr)
