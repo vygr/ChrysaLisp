@@ -167,6 +167,16 @@ r1 = element (long)
 trashes
 r2-r5
 ```
+### array::pop_back -> class/array/pop_back
+```
+inputs
+r0 = array object (ptr)
+outputs
+r0 = array object (ptr)
+r1 = element (long)
+trashes
+r1-r2
+```
 ### array::get_iter -> class/array/get_iter
 ```
 inputs
@@ -225,15 +235,6 @@ r0 = array object (ptr)
 r1 = integer object (ptr)
 trashes
 r1-r3
-```
-### array::pop_back -> class/array/pop_back
-```
-inputs
-r0 = array object (ptr)
-outputs
-r0 = array object (ptr)
-trashes
-r1
 ```
 ### array::set_element -> class/array/set_element
 ```
@@ -2733,6 +2734,8 @@ outputs
 r0 = points object (ptr)
 r1 = element1 (long)
 r2 = element2 (long)
+trashes
+r1-r2
 ```
 ### points::get_element2 -> gui/points/get_element2
 ```
@@ -2743,6 +2746,8 @@ outputs
 r0 = points object (ptr)
 r1 = element1 (long)
 r2 = element2 (long)
+trashes
+r1-r2
 ```
 ### points::push_back2 -> gui/points/push_back2
 ```
@@ -2763,8 +2768,10 @@ inputs
 r0 = points object (ptr)
 outputs
 r0 = points object (ptr)
+r1 = element1 (long)
+r2 = element2 (long)
 trashes
-r1
+r1-r2
 ```
 ### points::add -> gui/points/add
 ```
@@ -5556,24 +5563,15 @@ r0 = vector object (ptr)
 trashes
 all but r0
 ```
-### vector::ref_back -> class/vector/ref_back
+### vector::ref_back -> class/array/pop_back
 ```
 inputs
-r0 = vector object (ptr)
+r0 = array object (ptr)
 outputs
-r0 = vector object (ptr)
-r1 = element object (ptr)
+r0 = array object (ptr)
+r1 = element (long)
 trashes
-r2
-```
-### vector::pop_back -> class/vector/pop_back
-```
-inputs
-r0 = vector object (ptr)
-outputs
-r0 = vector object (ptr)
-trashes
-all but r0
+r1-r2
 ```
 ### vector::set_element -> class/vector/set_element
 ```

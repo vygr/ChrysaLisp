@@ -69,8 +69,7 @@
 			;next span
 			(d-call 'array 'get_length {stack} {_, length})
 			(breakif {length == start})
-			(call 'array 'get_back {stack} {_, span})
-			(d-call 'array 'pop_back {stack})
+			(call 'array 'pop_back {stack} {_, span})
 		(loop-end)
 	(endif)
 

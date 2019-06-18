@@ -174,23 +174,6 @@
 
 (def-func-end)
 
-(def-method 'array 'pop_back)
-	;inputs
-	;r0 = array object (ptr)
-	;outputs
-	;r0 = array object (ptr)
-	;trashes
-	;r1
-
-	(entry 'array 'pop_back '(r0))
-
-	(class/array/pop_back)
-
-	(exit 'array 'pop_back '(r0))
-	(vp-ret)
-
-(def-func-end)
-
 (def-method 'array 'push_back)
 	;inputs
 	;r0 = array object (ptr)
@@ -228,6 +211,28 @@
 
 (def-func-end)
 
+(def-method 'array 'pop_back)
+	;inputs
+	;r0 = array object (ptr)
+	;outputs
+	;r0 = array object (ptr)
+	;r1 = element (long)
+	;trashes
+	;r1-r2
+
+	(entry 'array 'pop_back '(r0))
+
+	(vp-cpy-ir-ui r0 array_length r1)
+	(vp-cpy-ir r0 array_array r2)
+	(vp-sub-cr 1 r1)
+	(vp-cpy-ri-i r1 r0 array_length)
+	(vp-shl-cr (log2 long_size) r1)
+
+	(exit 'array 'pop_back '(r0 (r2 r1)))
+	(vp-ret)
+
+(def-func-end)
+
 (def-method 'array 'ref_back)
 	;inputs
 	;r0 = array object (ptr)
@@ -242,6 +247,7 @@
 	(vp-cpy-ir-ui r0 array_length r1)
 	(vp-cpy-ir r0 array_array r2)
 	(vp-sub-cr 1 r1)
+	(vp-cpy-ri-i r1 r0 array_length)
 	(vp-shl-cr (log2 long_size) r1)
 	(vp-cpy-rr r0 r3)
 	(call 'num 'create '((r2 r1)) '(r0))
@@ -457,8 +463,7 @@
 		(endif)
 		(d-call 'array 'get_length {stack} {_, length})
 		(breakif {length == start})
-		(call 'array 'get_back {stack} {_, interval})
-		(d-call 'array 'pop_back {stack})
+		(call 'array 'pop_back {stack} {_, interval})
 	(loop-end)
 
 	(exit 'array 'sort {this})

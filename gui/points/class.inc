@@ -6,7 +6,7 @@
 (dec-method 'get_first2 'gui/points/get_first2 'static '(r0) '(r0 r1 r2))
 (dec-method 'get_element2 'gui/points/get_element2 'static '(r0 r1) '(r0 r1 r2))
 (dec-method 'push_back2 'gui/points/push_back2 'static '(r0 r1 r2) '(r0 r1 r2))
-(dec-method 'pop_back2 'gui/points/pop_back2 'static '(r0) '(r0))
+(dec-method 'pop_back2 'gui/points/pop_back2 'static '(r0) '(r0 r1 r2))
 (dec-method 'add 'gui/points/add 'static '(r0 r1 r2) '(r0))
 (dec-method 'sub 'gui/points/sub 'static '(r0 r1 r2) '(r0))
 (dec-method 'mul 'gui/points/mul 'static '(r0 r1 r2) '(r0))
@@ -82,6 +82,8 @@
 	;r0 = points object (ptr)
 	;r1 = element1 (long)
 	;r2 = element2 (long)
+	;trashes
+	;r1-r2
 	(vp-cpy-ir r0 array_array r2)
 	(vp-cpy-ir r2 0 r1)
 	(vp-cpy-ir r2 long_size r2))
@@ -94,6 +96,8 @@
 	;r0 = points object (ptr)
 	;r1 = element1 (long)
 	;r2 = element2 (long)
+	;trashes
+	;r1-r2
 	(vp-cpy-ir r0 array_array r2)
 	(vp-shl-cr (log2 long_size) r1)
 	(vp-add-rr r1 r2)
@@ -105,8 +109,15 @@
 	;r0 = points object (ptr)
 	;outputs
 	;r0 = points object (ptr)
+	;r1 = element1 (long)
+	;r2 = element2 (long)
 	;trashes
-	;r1
+	;r1-r2
 	(vp-cpy-ir-ui r0 array_length r1)
+	(vp-cpy-ir r0 array_array r2)
 	(vp-sub-cr 2 r1)
-	(vp-cpy-ri-i r1 r0 array_length))
+	(vp-cpy-ri-i r1 r0 array_length)
+	(vp-shl-cr (log2 long_size) r1)
+	(vp-add-rr r1 r2)
+	(vp-cpy-ir r2 0 r1)
+	(vp-cpy-ir r2 long_size r2))

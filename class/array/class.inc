@@ -16,6 +16,7 @@
 (dec-method 'get_second 'class/array/get_second 'static '(r0) '(r0 r1))
 (dec-method 'get_element 'class/array/get_element 'static '(r0 r1) '(r0 r1))
 (dec-method 'push_back 'class/array/push_back 'static '(r0 r1) '(r0 r1))
+(dec-method 'pop_back 'class/array/pop_back 'static '(r0) '(r0 r1))
 (dec-method 'get_iter 'class/array/get_iter 'static '(r0 r1) '(r0 r1))
 (dec-method 'get_iters 'class/array/get_iters 'static '(r0) '(r0 r1 r2))
 (dec-method 'get_begin 'class/array/get_begin 'static '(r0) '(r0 r1))
@@ -25,7 +26,6 @@
 
 (dec-method 'clear 'class/array/clear 'virtual '(r0) '(r0))
 (dec-method 'ref_back 'class/array/ref_back 'virtual '(r0) '(r0 r1))
-(dec-method 'pop_back 'class/array/pop_back 'virtual '(r0) '(r0))
 (dec-method 'set_element 'class/array/set_element 'virtual '(r0 r1 r2) '(r0))
 (dec-method 'append 'class/array/append 'virtual '(r0 r1 r2 r3) '(r0))
 
@@ -178,17 +178,6 @@
 	;trashes
 	;r2
 	(call 'array 'get_iter '(r0 (r0 array_length ui))))
-
-(defcfun class/array/pop_back ()
-	;inputs
-	;r0 = array object (ptr)
-	;outputs
-	;r0 = array object (ptr)
-	;trashes
-	;r1
-	(vp-cpy-ir-ui r0 array_length r1)
-	(vp-sub-cr 1 r1)
-	(vp-cpy-ri-i r1 r0 array_length))
 
 (defcfun class/array/set_element ()
 	;inputs
