@@ -29,7 +29,7 @@
 	;r0 = error object (ptr)
 	;outputs
 	;r0 = error object (ptr)
-	;r1 = string object (ptr)
+	;r1 = str object (ptr)
 	(vp-cpy-ir r0 error_description r1))
 
 (defcfun class/error/get_file ()
@@ -37,7 +37,7 @@
 	;r0 = error object (ptr)
 	;outputs
 	;r0 = error object (ptr)
-	;r1 = string object (ptr)
+	;r1 = str object (ptr)
 	(vp-cpy-ir r0 error_file r1))
 
 (defcfun class/error/get_object ()

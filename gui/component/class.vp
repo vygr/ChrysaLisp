@@ -95,7 +95,7 @@
 	;r1 = property num (uint)
 	;outputs
 	;r0 = component object (ptr)
-	;r1 = property symbol object (ptr)
+	;r1 = property sym object (ptr)
 	;trashes
 	;all but r0
 

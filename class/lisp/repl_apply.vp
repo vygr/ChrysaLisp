@@ -6,7 +6,7 @@
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
-	;r2 = function object (ptr)
+	;r2 = func object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)

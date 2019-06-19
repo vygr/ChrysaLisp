@@ -9,7 +9,7 @@
 	;inputs
 	;r0 = stream_str object (ptr)
 	;r1 = vtable (pptr)
-	;r2 = string object (ptr)
+	;r2 = str object (ptr)
 	;outputs
 	;r0 = stream_str object (ptr)
 	;r1 = 0 if error, else ok
@@ -28,7 +28,7 @@
 	;r0 = stream_str object (ptr)
 	;outputs
 	;r0 = stream_str object (ptr)
-	;r1 = string object (ptr)
+	;r1 = str object (ptr)
 	;trashes
 	;r2
 

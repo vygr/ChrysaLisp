@@ -42,19 +42,19 @@
 
 (defcfun class/num/init ()
 	;inputs
-	;r0 = integer object (ptr)
+	;r0 = num object (ptr)
 	;r1 = vtable (pptr)
 	;r2 = initial value (long)
 	;outputs
-	;r0 = integer object (ptr)
+	;r0 = num object (ptr)
 	;r1 = 0 if error, else ok
 	(vp-cpy-ri r2 r0 num_value)
 	(s-call 'num 'init '(r0 r1) '(r0 r1)))
 
 (defcfun class/num/get_value ()
 	;inputs
-	;r0 = integer object (ptr)
+	;r0 = num object (ptr)
 	;outputs
-	;r0 = integer object (ptr)
+	;r0 = num object (ptr)
 	;r1 = value (long)
 	(vp-cpy-ir r0 num_value r1))

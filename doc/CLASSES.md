@@ -232,7 +232,7 @@ inputs
 r0 = array object (ptr)
 outputs
 r0 = array object (ptr)
-r1 = integer object (ptr)
+r1 = num object (ptr)
 trashes
 r1-r3
 ```
@@ -281,7 +281,7 @@ r0 = array object (ptr)
 r1 = element index (uint)
 outputs
 r0 = array object (ptr)
-r1 = integer object (ptr)
+r1 = num object (ptr)
 trashes
 r1-r3
 ```
@@ -935,7 +935,7 @@ r0 = component object (ptr)
 r1 = property num (uint)
 outputs
 r0 = component object (ptr)
-r1 = property symbol object (ptr)
+r1 = property sym object (ptr)
 trashes
 all but r0
 ```
@@ -1109,7 +1109,7 @@ inputs
 r0 = error object (ptr)
 outputs
 r0 = error object (ptr)
-r1 = string object (ptr)
+r1 = str object (ptr)
 ```
 ### error::get_msg -> class/error/get_msg
 ```
@@ -1135,7 +1135,7 @@ inputs
 r0 = error object (ptr)
 outputs
 r0 = error object (ptr)
-r1 = string object (ptr)
+r1 = str object (ptr)
 ```
 ### error::get_line -> class/error/get_line
 ```
@@ -1227,7 +1227,7 @@ all
 ```
 inputs
 r0 = font object (ptr)
-r1 = string object (ptr)
+r1 = str object (ptr)
 outputs
 r0 = font object (ptr)
 r1 = texture object (ptr)
@@ -1789,7 +1789,7 @@ r0 = lisp object (ptr)
 inputs
 r0 = lisp object (ptr)
 r1 = vars list object (ptr)
-r2 = vals sequence object (ptr)
+r2 = vals seq object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -1841,7 +1841,7 @@ inputs
 r0 = lisp object (ptr)
 r1 = stream object (ptr)
 r2 = next char (uint)
-r3 = symbol object (ptr) 
+r3 = sym object (ptr) 
 outputs
 r0 = lisp object (ptr)
 r1 = list vector object (ptr)
@@ -1878,7 +1878,7 @@ r2 = next char (uint)
 r3 = closing char (uint)
 outputs
 r0 = lisp object (ptr)
-r1 = string object (ptr)
+r1 = str object (ptr)
 r2 = next char (uint)
 ```
 ### lisp::read_num -> class/lisp/read_num
@@ -1889,7 +1889,7 @@ r1 = stream object (ptr)
 r2 = next char (uint)
 outputs
 r0 = lisp object (ptr)
-r1 = integer object (ptr)
+r1 = num object (ptr)
 r2 = next char (uint)
 ```
 ### lisp::repl_eval -> class/lisp/repl_eval
@@ -1915,7 +1915,7 @@ r1 = return value object (ptr)
 inputs
 r0 = lisp object (ptr)
 r1 = args vector object (ptr)
-r2 = function object (ptr)
+r2 = func object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -2274,19 +2274,19 @@ Super Class: obj
 ### num::init -> class/num/init
 ```
 inputs
-r0 = integer object (ptr)
+r0 = num object (ptr)
 r1 = vtable (pptr)
 r2 = initial value (long)
 outputs
-r0 = integer object (ptr)
+r0 = num object (ptr)
 r1 = 0 if error, else ok
 ```
 ### num::get_value -> class/num/get_value
 ```
 inputs
-r0 = integer object (ptr)
+r0 = num object (ptr)
 outputs
-r0 = integer object (ptr)
+r0 = num object (ptr)
 r1 = value (long)
 ```
 ### num::lisp_add -> class/num/lisp_add
@@ -3717,7 +3717,7 @@ inputs
 r0 = buffer (pubyte)
 r1 = buffer length (uint)
 outputs
-r0 = 0 if error, else string object (ptr)
+r0 = 0 if error, else str object (ptr)
 trashes
 r1-r6
 ```
@@ -3726,7 +3726,7 @@ r1-r6
 inputs
 r0 = c string (pubyte)
 outputs
-r0 = 0 if error, else string object (ptr)
+r0 = 0 if error, else str object (ptr)
 trashes
 r1-r6
 ```
@@ -3735,7 +3735,7 @@ r1-r6
 inputs
 r0 = file name c string (pubyte)
 outputs
-r0 = 0 if error, else string object (ptr)
+r0 = 0 if error, else str object (ptr)
 trashes
 r1-r6
 ```
@@ -3745,29 +3745,29 @@ inputs
 r0 = number (long)
 r1 = base, - for unsigned, (long)
 outputs
-r0 = 0 if error, else string object (ptr)
+r0 = 0 if error, else str object (ptr)
 trashes
 r1-r6
 ```
 ### str::append -> class/str/append
 ```
 inputs
-r0 = string object (ptr)
-r1 = string object (ptr)
+r0 = str object (ptr)
+r1 = str object (ptr)
 outputs
-r0 = 0 if error, else new string object (ptr)
+r0 = 0 if error, else new str object (ptr)
 trashes
 r1-r6
 ```
 ### str::init -> class/str/init
 ```
 inputs
-r0 = string object (ptr)
+r0 = str object (ptr)
 r1 = vtable (pptr)
 r2 = 0 else, buffer (pubyte)
 r3 = buffer length (uint)
 outputs
-r0 = string object (ptr)
+r0 = str object (ptr)
 r1 = 0 if error, else ok
 trashes
 r1-r6
@@ -3775,12 +3775,12 @@ r1-r6
 ### str::init1 -> class/str/init1
 ```
 inputs
-r0 = string object (ptr)
+r0 = str object (ptr)
 r1 = vtable (pptr)
-r2 = string object (ptr)
-r3 = string object (ptr)
+r2 = str object (ptr)
+r3 = str object (ptr)
 outputs
-r0 = string object (ptr)
+r0 = str object (ptr)
 r1 = 0 if error, else ok
 trashes
 r1-r6
@@ -3788,12 +3788,12 @@ r1-r6
 ### str::init2 -> class/str/init2
 ```
 inputs
-r0 = string object (ptr)
+r0 = str object (ptr)
 r1 = vtable (pptr)
 r2 = file name c string (pubyte)
 r3 = file length (uint)
 outputs
-r0 = string object (ptr)
+r0 = str object (ptr)
 r1 = 0 if error, else ok
 trashes
 r1-r6
@@ -3801,11 +3801,11 @@ r1-r6
 ### str::init3 -> class/str/init3
 ```
 inputs
-r0 = string object (ptr)
+r0 = str object (ptr)
 r1 = vtable (pptr)
-r2 = vector of string objects (ptr)
+r2 = vector of str objects (ptr)
 outputs
-r0 = string object (ptr)
+r0 = str object (ptr)
 r1 = 0 if error, else ok
 trashes
 r1-r6
@@ -3813,21 +3813,21 @@ r1-r6
 ### str::split -> class/str/split
 ```
 inputs
-r0 = string object (ptr)
+r0 = str object (ptr)
 r1 = split char (uint)
 outputs
-r0 = string object (ptr)
-r1 = vector of string objects (ptr)
+r0 = str object (ptr)
+r1 = vector of str objects (ptr)
 trashes
 all but r0
 ```
 ### str::compare -> class/str/compare
 ```
 inputs
-r0 = string object (ptr)
-r1 = string object (ptr)
+r0 = str object (ptr)
+r1 = str object (ptr)
 outputs
-r0 = string object (ptr)
+r0 = str object (ptr)
 r1 = 0 if same, else -, +
 trashes
 r2-r7
@@ -3835,10 +3835,10 @@ r2-r7
 ### str::same -> class/str/same
 ```
 inputs
-r0 = string object (ptr)
-r1 = string object (ptr)
+r0 = str object (ptr)
+r1 = str object (ptr)
 outputs
-r0 = string object (ptr)
+r0 = str object (ptr)
 r1 = 0 if same
 trashes
 r2-r6
@@ -3846,10 +3846,10 @@ r2-r6
 ### str::find -> class/str/find
 ```
 inputs
-r0 = string object (ptr)
+r0 = str object (ptr)
 r1 = search char (uint)
 outputs
-r0 = string object (ptr)
+r0 = str object (ptr)
 r1 = -1, else position (int)
 trashes
 r2-r4
@@ -3857,9 +3857,9 @@ r2-r4
 ### str::hash -> class/str/hash
 ```
 inputs
-r0 = string object (ptr)
+r0 = str object (ptr)
 outputs
-r0 = string object (ptr)
+r0 = str object (ptr)
 r1 = hash code (ulong)
 trashes
 r2-r4
@@ -3867,30 +3867,30 @@ r2-r4
 ### str::get_length -> class/str/get_length
 ```
 inputs
-r0 = string object (ptr)
+r0 = str object (ptr)
 outputs
-r0 = string object (ptr)
+r0 = str object (ptr)
 r1 = string length (bytes)
 ```
 ### str::ref_element -> class/str/ref_element
 ```
 inputs
-r0 = string object (ptr)
+r0 = str object (ptr)
 r1 = char index (uint)
 outputs
-r0 = string object (ptr)
-r1 = char string object (ptr)
+r0 = str object (ptr)
+r1 = char str object (ptr)
 trashes
 r2-r7
 ```
 ### str::slice -> class/str/slice
 ```
 inputs
-r0 = string object (ptr)
+r0 = str object (ptr)
 r1 = element start index (uint)
 r2 = element end index (uint)
 outputs
-r0 = string object (ptr)
+r0 = str object (ptr)
 r1 = string slice object (ptr)
 trashes
 r2-r7
@@ -3898,10 +3898,10 @@ r2-r7
 ### str::cat -> class/str/cat
 ```
 inputs
-r0 = string object (ptr)
-r1 = vector of string objects (ptr)
+r0 = str object (ptr)
+r1 = vector of str objects (ptr)
 outputs
-r0 = 0 if error, else new string object (ptr)
+r0 = 0 if error, else new str object (ptr)
 trashes
 r1-r6
 ```
@@ -4028,7 +4028,7 @@ inputs
 r0 = stream object (ptr)
 outputs
 r0 = stream object (ptr)
-r1 = 0 for EOF, else string object (ptr)
+r1 = 0 for EOF, else str object (ptr)
 trashes
 all but r0
 ```
@@ -4232,7 +4232,7 @@ Super Class: stream
 inputs
 r0 = stream_str object (ptr)
 r1 = vtable (pptr)
-r2 = string object (ptr)
+r2 = str object (ptr)
 outputs
 r0 = stream_str object (ptr)
 r1 = 0 if error, else ok
@@ -4245,7 +4245,7 @@ inputs
 r0 = stream_str object (ptr)
 outputs
 r0 = stream_str object (ptr)
-r1 = string object (ptr)
+r1 = str object (ptr)
 trashes
 r2
 ```
@@ -4283,18 +4283,18 @@ all
 ### sym::intern -> class/sym/intern
 ```
 inputs
-r0 = symbol object (ptr)
+r0 = sym object (ptr)
 outputs
-r0 = interned symbol object (ptr)
+r0 = interned sym object (ptr)
 trashes
 all
 ```
 ### sym::intern_str -> class/sym/intern_str
 ```
 inputs
-r0 = string object (ptr)
+r0 = str object (ptr)
 outputs
-r0 = interned symbol object (ptr)
+r0 = interned sym object (ptr)
 trashes
 all
 ```
@@ -4303,7 +4303,7 @@ all
 inputs
 r0 = c string pointer (pubyte)
 outputs
-r0 = interned symbol object (ptr)
+r0 = interned sym object (ptr)
 trashes
 all
 ```
@@ -5257,7 +5257,7 @@ all
 ### sys_task::open_pipe -> sys/task/open_pipe
 ```
 inputs
-r0 = vector of string objects (ptr)
+r0 = vector of str objects (ptr)
 outputs
 r0 = mailbox id's array object (ptr)
 trashes

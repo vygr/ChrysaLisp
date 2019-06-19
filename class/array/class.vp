@@ -238,7 +238,7 @@
 	;r0 = array object (ptr)
 	;outputs
 	;r0 = array object (ptr)
-	;r1 = integer object (ptr)
+	;r1 = num object (ptr)
 	;trashes
 	;r1-r3
 
@@ -263,7 +263,7 @@
 	;r1 = element index (uint)
 	;outputs
 	;r0 = array object (ptr)
-	;r1 = integer object (ptr)
+	;r1 = num object (ptr)
 	;trashes
 	;r1-r3
 

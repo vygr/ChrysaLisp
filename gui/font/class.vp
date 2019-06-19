@@ -164,7 +164,7 @@
 (def-method 'font 'ref_word 16)
 	;inputs
 	;r0 = font object (ptr)
-	;r1 = string object (ptr)
+	;r1 = str object (ptr)
 	;outputs
 	;r0 = font object (ptr)
 	;r1 = texture object (ptr)

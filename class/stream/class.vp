@@ -160,7 +160,7 @@
 	;r0 = stream object (ptr)
 	;outputs
 	;r0 = stream object (ptr)
-	;r1 = 0 for EOF, else string object (ptr)
+	;r1 = 0 for EOF, else str object (ptr)
 	;trashes
 	;all but r0
 

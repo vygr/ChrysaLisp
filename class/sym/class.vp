@@ -13,9 +13,9 @@
 
 (def-method 'sym 'intern)
 	;inputs
-	;r0 = symbol object (ptr)
+	;r0 = sym object (ptr)
 	;outputs
-	;r0 = interned symbol object (ptr)
+	;r0 = interned sym object (ptr)
 	;trashes
 	;all
 
@@ -43,9 +43,9 @@
 
 (def-method 'sym 'intern_str)
 	;inputs
-	;r0 = string object (ptr)
+	;r0 = str object (ptr)
 	;outputs
-	;r0 = interned symbol object (ptr)
+	;r0 = interned sym object (ptr)
 	;trashes
 	;all
 
@@ -82,7 +82,7 @@
 	;inputs
 	;r0 = c string pointer (pubyte)
 	;outputs
-	;r0 = interned symbol object (ptr)
+	;r0 = interned sym object (ptr)
 	;trashes
 	;all
 

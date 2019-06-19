@@ -7,7 +7,7 @@
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = vars list object (ptr)
-	;r2 = vals sequence object (ptr)
+	;r2 = vals seq object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)

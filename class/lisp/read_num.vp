@@ -13,7 +13,7 @@
 	;r2 = next char (uint)
 	;outputs
 	;r0 = lisp object (ptr)
-	;r1 = integer object (ptr)
+	;r1 = num object (ptr)
 	;r2 = next char (uint)
 
 	(ptr 'this 'stream 'str_stream 'string 'num)

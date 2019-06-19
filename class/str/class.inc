@@ -84,8 +84,8 @@
 
 (defcfun class/str/get_length ()
 	;inputs
-	;r0 = string object (ptr)
+	;r0 = str object (ptr)
 	;outputs
-	;r0 = string object (ptr)
+	;r0 = str object (ptr)
 	;r1 = string length (bytes)
 	(vp-cpy-ir-ui r0 str_length r1))
