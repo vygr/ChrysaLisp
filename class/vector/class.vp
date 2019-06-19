@@ -28,25 +28,18 @@
 	(entry 'vector 'clear '(r0))
 
 	;deref all elements
-	(call 'vector 'for_each '(r0 0 (r0 array_length ui) ($ callback) 0) '(r0 _))
+	(call 'vector 'get_iters '(r0) '(r0 r1 r2))
+	(vp-push r0)
+	(loop-while '(r1 != r2))
+		(vp-push r1 r2)
+		(call 'obj 'deref '((r1 0)))
+		(vp-pop r1 r2)
+		(vp-add-cr ptr_size r1)
+	(loop-end)
+	(vp-pop r0)
 	(s-call 'vector 'clear '(r0) '(r0))
 
 	(exit 'vector 'clear '(r0))
-	(vp-ret)
-
-(vp-label 'callback)
-	;inputs
-	;r0 = predicate data (ptr)
-	;r1 = element iterator (pptr)
-	;outputs
-	;r1 = 0 if break, else not
-
-	(entry 'vector 'each_callback '(r0 r1))
-
-	(call 'obj 'deref '((r1 0)))
-	(vp-cpy-cr 1 r1)
-
-	(exit 'vector 'each_callback '(r1))
 	(vp-ret)
 
 (def-func-end)
