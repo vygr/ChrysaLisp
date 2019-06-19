@@ -64,8 +64,8 @@
 	(call 'sym 'create_from_long '(r1 10) '(r7))
 	(call 'sym 'create_from_buffer '("G" 1) '(r8))
 	(call 'sym 'append '(r8 r7) '(r3))
-	(call 'obj 'deref '(r7))
-	(call 'obj 'deref '(r8))
+	(call 'sym 'destroy '(r7))
+	(call 'sym 'destroy '(r8))
 	(call 'sym 'intern '(r3) '(r1))
 	(vp-pop r0)
 

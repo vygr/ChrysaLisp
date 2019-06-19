@@ -43,7 +43,7 @@
 			(call 'stream 'read_char {stream} {_, char})
 		(loop-end)
 		(call 'stream_str 'ref_string {str_stream} {_, value})
-		(call 'obj 'deref {str_stream})
+		(call 'stream_str 'destroy {str_stream})
 	(endswitch)
 	(call 'sym 'intern {value} {value})
 

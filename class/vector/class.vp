@@ -43,7 +43,8 @@
 
 	(entry 'vector 'each_callback '(r0 r1))
 
-	(call 'obj 'deref '((r1 0)) '(r1))
+	(call 'obj 'deref '((r1 0)))
+	(vp-cpy-cr 1 r1)
 
 	(exit 'vector 'each_callback '(r1))
 	(vp-ret)
