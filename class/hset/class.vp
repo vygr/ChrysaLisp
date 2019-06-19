@@ -7,12 +7,12 @@
 
 (def-method 'hset 'init)
 	;inputs
-	;r0 = hash_set object (ptr)
+	;r0 = hset object (ptr)
 	;r1 = vtable (pptr)
 	;r2 = 0, else key compare callback (ptr)
 	;r3 = num buckets (uint)
 	;outputs
-	;r0 = hash_set object (ptr)
+	;r0 = hset object (ptr)
 	;r1 = 0 if error, else ok
 	;trashes
 	;r2-r5
@@ -68,7 +68,7 @@
 
 (def-method 'hset 'deinit)
 	;inputs
-	;r0 = hash_set object (ptr)
+	;r0 = hset object (ptr)
 	;trashes
 	;all but r0
 
@@ -83,9 +83,9 @@
 
 (def-method 'hset 'clear)
 	;inputs
-	;r0 = hash_set object (ptr)
+	;r0 = hset object (ptr)
 	;outputs
-	;r0 = hash_set object (ptr)
+	;r0 = hset object (ptr)
 	;trashes
 	;all but r0
 
@@ -123,11 +123,11 @@
 
 (def-method 'hset 'copy)
 	;inputs
-	;r0 = hash_set object (ptr)
+	;r0 = hset object (ptr)
 	;r1 = num buckets (uint)
 	;outputs
-	;r0 = hash_set object (ptr)
-	;r1 = hash_set copy object (ptr)
+	;r0 = hset object (ptr)
+	;r1 = hset copy object (ptr)
 	;trashes
 	;all but r0
 
@@ -162,11 +162,11 @@
 
 (def-method 'hset 'erase)
 	;inputs
-	;r0 = hash_set object (ptr)
+	;r0 = hset object (ptr)
 	;r1 = element iterator (pptr)
 	;r2 = bucket vector object (ptr)
 	;outputs
-	;r0 = hash_set object (ptr)
+	;r0 = hset object (ptr)
 	;trashes
 	;all but r0
 
@@ -204,10 +204,10 @@
 
 (def-method 'hset 'find)
 	;inputs
-	;r0 = hash_set object (ptr)
+	;r0 = hset object (ptr)
 	;r1 = key object (ptr)
 	;outputs
-	;r0 = hash_set object (ptr)
+	;r0 = hset object (ptr)
 	;r1 = 0, else found iterator (pptr)
 	;r2 = bucket vector object (ptr)
 	;trashes
@@ -267,11 +267,11 @@
 
 (def-method 'hset 'for_each)
 	;inputs
-	;r0 = hash_set object (ptr)
+	;r0 = hset object (ptr)
 	;r1 = predicate function (ptr)
 	;r2 = predicate data (ptr)
 	;outputs
-	;r0 = hash_set object (ptr)
+	;r0 = hset object (ptr)
 	;r1 = 0, else break iterator (pptr)
 	;r2 = 0, else bucket vector object (ptr)
 	;trashes
@@ -345,10 +345,10 @@
 
 (def-method 'hset 'get_bucket)
 	;inputs
-	;r0 = hash_set object (ptr)
+	;r0 = hset object (ptr)
 	;r1 = key object (ptr)
 	;outputs
-	;r0 = hash_set object (ptr)
+	;r0 = hset object (ptr)
 	;r1 = bucket vector object (ptr)
 	;trashes
 	;all but r0
@@ -386,10 +386,10 @@
 
 (def-method 'hset 'insert)
 	;inputs
-	;r0 = hash_set object (ptr)
+	;r0 = hset object (ptr)
 	;r1 = key object (ptr)
 	;outputs
-	;r0 = hash_set object (ptr)
+	;r0 = hset object (ptr)
 	;r1 = element iterator (pptr)
 	;r2 = bucket vector object (ptr)
 	;trashes
@@ -433,9 +433,9 @@
 
 (def-method 'hset 'get_iters)
 	;inputs
-	;r0 = hash_set object (ptr)
+	;r0 = hset object (ptr)
 	;outputs
-	;r0 = hash_set object (ptr)
+	;r0 = hset object (ptr)
 	;r1 = begin iter pointer (pptr)
 	;r2 = end iter pointer (pptr)
 	;trashes

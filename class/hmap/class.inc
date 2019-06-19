@@ -33,8 +33,8 @@
 
 (defcfun class/hmap/get_parent ()
 	;inputs
-	;r0 = hash_map object (ptr)
+	;r0 = hmap object (ptr)
 	;outputs
-	;r0 = hash_map object (ptr)
-	;r1 = 0, else hash_map parent object (ptr)
+	;r0 = hmap object (ptr)
+	;r1 = 0, else hmap parent object (ptr)
 	(vp-cpy-ir r0 hmap_parent r1))

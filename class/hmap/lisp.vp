@@ -227,7 +227,7 @@
 	;r1 = args vector object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
-	;r1 = environment hash_map object (ptr)
+	;r1 = environment hmap object (ptr)
 
 	(ptr 'this 'args 'value)
 	(uint 'length)

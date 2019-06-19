@@ -1349,12 +1349,12 @@ Super Class: hset
 ### hmap::init -> class/hmap/init
 ```
 inputs
-r0 = hash_map object (ptr)
+r0 = hmap object (ptr)
 r1 = vtable (pptr)
 r2 = 0, else key compare callback (ptr)
 r3 = num buckets (uint)
 outputs
-r0 = hash_map object (ptr)
+r0 = hmap object (ptr)
 r1 = 0 if error, else ok
 trashes
 r2-r7
@@ -1362,10 +1362,10 @@ r2-r7
 ### hmap::find -> class/hmap/find
 ```
 inputs
-r0 = hash_map object (ptr)
+r0 = hmap object (ptr)
 r1 = key object (ptr)
 outputs
-r0 = hash_map object (ptr)
+r0 = hmap object (ptr)
 r1 = 0, else found iterator (pptr)
 r2 = bucket vector (ptr)
 trashes
@@ -1374,22 +1374,22 @@ all but r0
 ### hmap::copy -> class/hmap/copy
 ```
 inputs
-r0 = hash_map object (ptr)
+r0 = hmap object (ptr)
 r1 = num buckets (uint)
 outputs
-r0 = hash_map object (ptr)
-r1 = hash_map copy object (ptr)
+r0 = hmap object (ptr)
+r1 = hmap copy object (ptr)
 trashes
 all but r0
 ```
 ### hmap::insert -> class/hmap/insert
 ```
 inputs
-r0 = hash_map object (ptr)
+r0 = hmap object (ptr)
 r1 = key object (ptr)
 r2 = value object (ptr)
 outputs
-r0 = hash_map object (ptr)
+r0 = hmap object (ptr)
 r1 = iterator (pptr)
 r2 = bucket vector (ptr)
 trashes
@@ -1398,10 +1398,10 @@ all but r0
 ### hmap::search -> class/hmap/search
 ```
 inputs
-r0 = hash_map object (ptr)
+r0 = hmap object (ptr)
 r1 = key object (ptr)
 outputs
-r0 = hash_map object (ptr)
+r0 = hmap object (ptr)
 r1 = 0, else iterator (pptr)
 r2 = bucket vector (ptr)
 trashes
@@ -1410,11 +1410,11 @@ all but r0
 ### hmap::set -> class/hmap/set
 ```
 inputs
-r0 = hash_map object (ptr)
+r0 = hmap object (ptr)
 r1 = key object (ptr)
 r2 = value object (ptr)
 outputs
-r0 = hash_map object (ptr)
+r0 = hmap object (ptr)
 r1 = 0 if not found, else value object (ptr)
 trashes
 all but r0
@@ -1422,10 +1422,10 @@ all but r0
 ### hmap::get -> class/hmap/get
 ```
 inputs
-r0 = hash_map object (ptr)
+r0 = hmap object (ptr)
 r1 = key object (ptr)
 outputs
-r0 = hash_map object (ptr)
+r0 = hmap object (ptr)
 r1 = 0 if not found, else value object (ptr)
 trashes
 all but r0
@@ -1433,25 +1433,25 @@ all but r0
 ### hmap::get_parent -> class/hmap/get_parent
 ```
 inputs
-r0 = hash_map object (ptr)
+r0 = hmap object (ptr)
 outputs
-r0 = hash_map object (ptr)
-r1 = 0, else hash_map parent object (ptr)
+r0 = hmap object (ptr)
+r1 = 0, else hmap parent object (ptr)
 ```
 ### hmap::set_parent -> class/hmap/set_parent
 ```
 inputs
-r0 = hash_map object (ptr)
-r1 = 0, else hash_map parent object (ptr)
+r0 = hmap object (ptr)
+r1 = 0, else hmap parent object (ptr)
 outputs
-r0 = hash_map object (ptr)
+r0 = hmap object (ptr)
 trashes
 all but r0
 ```
 ### hmap::deinit -> class/hmap/deinit
 ```
 inputs
-r0 = hash_map object (ptr)
+r0 = hmap object (ptr)
 trashes
 all but r0
 ```
@@ -1462,7 +1462,7 @@ r0 = lisp object (ptr)
 r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
-r1 = environment hash_map object (ptr)
+r1 = environment hmap object (ptr)
 ```
 ### hmap::lisp_def -> class/hmap/lisp_def
 ```
@@ -1572,12 +1572,12 @@ Super Class: obj
 ### hset::init -> class/hset/init
 ```
 inputs
-r0 = hash_set object (ptr)
+r0 = hset object (ptr)
 r1 = vtable (pptr)
 r2 = 0, else key compare callback (ptr)
 r3 = num buckets (uint)
 outputs
-r0 = hash_set object (ptr)
+r0 = hset object (ptr)
 r1 = 0 if error, else ok
 trashes
 r2-r5
@@ -1585,18 +1585,18 @@ r2-r5
 ### hset::num_buckets -> class/hset/num_buckets
 ```
 inputs
-r0 = hash_set object (ptr)
+r0 = hset object (ptr)
 outputs
-r0 = hash_set object (ptr)
+r0 = hset object (ptr)
 r1 = num buckets (uint)
 ```
 ### hset::get_bucket -> class/hset/get_bucket
 ```
 inputs
-r0 = hash_set object (ptr)
+r0 = hset object (ptr)
 r1 = key object (ptr)
 outputs
-r0 = hash_set object (ptr)
+r0 = hset object (ptr)
 r1 = bucket vector object (ptr)
 trashes
 all but r0
@@ -1604,20 +1604,20 @@ all but r0
 ### hset::clear -> class/hset/clear
 ```
 inputs
-r0 = hash_set object (ptr)
+r0 = hset object (ptr)
 outputs
-r0 = hash_set object (ptr)
+r0 = hset object (ptr)
 trashes
 all but r0
 ```
 ### hset::for_each -> class/hset/for_each
 ```
 inputs
-r0 = hash_set object (ptr)
+r0 = hset object (ptr)
 r1 = predicate function (ptr)
 r2 = predicate data (ptr)
 outputs
-r0 = hash_set object (ptr)
+r0 = hset object (ptr)
 r1 = 0, else break iterator (pptr)
 r2 = 0, else bucket vector object (ptr)
 trashes
@@ -1634,10 +1634,10 @@ all but r0
 ### hset::find -> class/hset/find
 ```
 inputs
-r0 = hash_set object (ptr)
+r0 = hset object (ptr)
 r1 = key object (ptr)
 outputs
-r0 = hash_set object (ptr)
+r0 = hset object (ptr)
 r1 = 0, else found iterator (pptr)
 r2 = bucket vector object (ptr)
 trashes
@@ -1646,10 +1646,10 @@ all but r0
 ### hset::insert -> class/hset/insert
 ```
 inputs
-r0 = hash_set object (ptr)
+r0 = hset object (ptr)
 r1 = key object (ptr)
 outputs
-r0 = hash_set object (ptr)
+r0 = hset object (ptr)
 r1 = element iterator (pptr)
 r2 = bucket vector object (ptr)
 trashes
@@ -1658,31 +1658,31 @@ all but r0
 ### hset::erase -> class/hset/erase
 ```
 inputs
-r0 = hash_set object (ptr)
+r0 = hset object (ptr)
 r1 = element iterator (pptr)
 r2 = bucket vector object (ptr)
 outputs
-r0 = hash_set object (ptr)
+r0 = hset object (ptr)
 trashes
 all but r0
 ```
 ### hset::copy -> class/hset/copy
 ```
 inputs
-r0 = hash_set object (ptr)
+r0 = hset object (ptr)
 r1 = num buckets (uint)
 outputs
-r0 = hash_set object (ptr)
-r1 = hash_set copy object (ptr)
+r0 = hset object (ptr)
+r1 = hset copy object (ptr)
 trashes
 all but r0
 ```
 ### hset::get_iters -> class/hset/get_iters
 ```
 inputs
-r0 = hash_set object (ptr)
+r0 = hset object (ptr)
 outputs
-r0 = hash_set object (ptr)
+r0 = hset object (ptr)
 r1 = begin iter pointer (pptr)
 r2 = end iter pointer (pptr)
 trashes
@@ -1692,7 +1692,7 @@ r3-r4
 ### hset::deinit -> class/hset/deinit
 ```
 inputs
-r0 = hash_set object (ptr)
+r0 = hset object (ptr)
 trashes
 all but r0
 ```

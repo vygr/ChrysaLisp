@@ -29,8 +29,8 @@
 
 (defcfun class/hset/num_buckets ()
 	;inputs
-	;r0 = hash_set object (ptr)
+	;r0 = hset object (ptr)
 	;outputs
-	;r0 = hash_set object (ptr)
+	;r0 = hset object (ptr)
 	;r1 = num buckets (uint)
 	(vp-cpy-ir-ui r0 hset_num_buckets r1))
