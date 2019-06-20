@@ -4,6 +4,12 @@
 
 ------
 
+Did a few more class lib tidy ups and VP lowering. Plus converted the TUI to
+be written in Lisp ! That one has been on my mind for a while and it got back
+around 1.5KB of boot image !
+
+------
+
 Moved the Lisp class bindings out to the classes that provide the functionality
 being used. I still want to tidy up the Lisp boot.inc file to just include a
 set of finer grained lisp.inc files though.
