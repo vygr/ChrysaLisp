@@ -1,0 +1,63 @@
+(include 'sys/func.inc)
+(include 'class/num/class.inc)
+(include 'class/lisp/class.inc)
+
+(def-method 'sys_pii 'lisp_readchar)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(entry 'sys_pii 'lisp_readchar '(r0 r1))
+	(assign '(r0 r1) '(r6 r7))
+
+(errorcases
+	(call 'lisp 'env_args_type `(r1 (@ ,(f-path 'num 'vtable)) -1))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
+
+	(vp-cpy-ir r7 array_array r0)
+	(vp-cpy-ir r0 0 r0)
+	(call 'sys_pii 'read_char '((r0 num_value)) '(r0))
+	(call 'num 'create '(r0) '(r1))
+
+	(exit 'sys_pii 'lisp_readchar '(r6 r1))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r6 "(pii-read-char fd)" error_msg_wrong_types r7)))
+
+(def-func-end)
+
+(def-method 'sys_pii 'lisp_writechar)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(entry 'sys_pii 'lisp_writechar '(r0 r1))
+	(assign '(r0 r1) '(r6 r7))
+
+(errorcases
+	(call 'lisp 'env_args_type `(r1 (@ ,(f-path 'num 'vtable)) -2))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
+
+	(vp-cpy-ir r7 array_array r1)
+	(vp-cpy-ir r1 0 r0)
+	(vp-cpy-ir r1 ptr_size r1)
+	(call 'sys_pii 'write_char '((r0 num_value) (r1 num_value)))
+	(vp-cpy-ir r7 array_array r0)
+	(call 'obj 'ref '((r0 ptr_size)) '(r0))
+
+	(exit 'sys_pii 'lisp_writechar '(r6 r0))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r6 "(pii-write-char fd char)" error_msg_wrong_types r7)))
+
+(def-func-end)

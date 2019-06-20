@@ -20,12 +20,12 @@
 	(union
 		'(ptr 'argv)
 		'(ptr 'link 'mbox_addr))
-	(ptr 'task_statics 'mail_statics 'load_statics 'func)
-	(ptr 'msg 'data 'new_msg 'pathname)
+	(ptr 'task_statics 'mail_statics)
+	(ptr 'msg 'data)
 	(pptr 'iter_begin 'iter_end)
 	(ulong 'service)
 	(struct 'routes 'lk_table)
-	(uint 'id 'num 'best_cnt 'best_id 'route_index 'hops 'new_hops 'length 'mbox_id)
+	(uint 'id 'num 'best_cnt 'best_id 'route_index 'hops 'new_hops 'mbox_id)
 
 	(push-scope)
 	(entry {argv})
@@ -43,7 +43,6 @@
 	(call 'sys_mail 'init)
 
 	;start kernel task (get's mailbox id of 0 !)
-	(assign (cat {@} (f-path 'sys_load 'statics)) {load_statics})
 	(assign (cat {@} (f-path 'sys_task 'statics)) {task_statics})
 	(assign (cat {@} (f-path 'sys_mail 'statics)) {mail_statics})
 	(call 'sys_task 'start {$func_entry} {task_statics->tk_statics_kernel_tcb, mbox_id, mbox_addr})
@@ -51,15 +50,15 @@
 	;init mailer
 	(call 'sys_mail 'init1)
 
+	;allocate for kernel routing table
+	(assign {0 => routes.lk_table_array} {routes.lk_table_array_size})
+
 	;process command options
-	(call 'sys_kernel 'opts {argv})
+	(call 'opts {argv})
 
 	;fill in num cpu's with at least mine + 1
 	(call 'sys_kernel 'id nil {id})
 	(assign {id + 1} {task_statics->tk_statics_cpu_total})
-
-	;allocate for kernel routing table
-	(assign {0 => routes.lk_table_array} {routes.lk_table_array_size})
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ; main kernel task loop
@@ -83,31 +82,7 @@
 			(vp-label 'run_here)
 				;fill in reply ID, user field is left alone !
 				(assign {data->kn_msg_reply_id.id_id} {msg->msg_dest.id_id})
-				(assign {0} {data->kn_msg_reply_id.id_id})
-
-				;is this a lisp file
-				(call 'sys_str 'length {&data->kn_msg_open_pathname} {_, length})
-				(vpif {length >= 5})
-					(call 'sys_str 'compare {&data->kn_msg_open_pathname + length - 5, ".lisp"} {length})
-				(endif)
-				(vpifnot {length})
-					;yup it's a .lisp file, check it exists
-					(call 'sys_pii 'stat {&data->kn_msg_open_pathname, load_statics->ld_statics_stat_buffer} {func})
-					(breakif {func})
-					;start lisp run task and send args
-					(call 'sys_task 'start {@class/lisp/run} {_, data->kn_msg_reply_id.id_id, _})
-					(call 'str 'create_from_cstr {&data->kn_msg_open_pathname} {pathname})
-					(call 'sys_mail 'alloc_obj {pathname, &pathname->str_data, pathname->str_length} {new_msg})
-					(assign {data->kn_msg_reply_id.id_id} {new_msg->msg_dest.id_id})
-					(call 'sys_mail 'send {new_msg})
-					(call 'str 'deref {pathname})
-				(else)
-					;open as raw task and return mailbox ID
-					(call 'sys_load 'bind {&data->kn_msg_open_pathname} {func})
-					(breakifnot {func})
-					;start this function as task
-					(call 'sys_task 'start {func} {_, data->kn_msg_reply_id.id_id, _})
-				(endif)
+				(call 'opt_run {&data->kn_msg_open_pathname} {data->kn_msg_reply_id.id_id})
 				(call 'sys_mail 'send {msg})
 				(break)
 			(case {num == kn_call_child})
@@ -295,29 +270,7 @@
 	(pop-scope)
 	(return)
 
-(def-func-end)
-
-(def-method 'sys_kernel 'id)
-	;outputs
-	;r0 = cpu ID (uint)
-
-	(f-bind 'sys_task 'statics r0)
-	(exit 'sys_kernel 'id '((r0 tk_statics_cpu_id ui)))
-	(vp-ret)
-
-(def-func-end)
-
-(def-method 'sys_kernel 'total)
-	;outputs
-	;r0 = cpu total (uint)
-
-	(f-bind 'sys_task 'statics r0)
-	(exit 'sys_kernel 'total '((r0 tk_statics_cpu_total ui)))
-	(vp-ret)
-
-(def-func-end)
-
-(def-method 'sys_kernel 'opts)
+(vp-label 'opts)
 	;inputs
 	;r0 = argv array (pptr)
 	;trashes
@@ -377,17 +330,41 @@
 (vp-label 'opt_run)
 	;inputs
 	;r0 = argv pointer (pubyte)
+	;outputs
+	;r0 = 0 if error, else id (ulong)
 
-	(ptr 'arg)
+	(ptr 'arg 'func 'msg)
+	(ulong 'id)
+	(uint 'length)
 
 	(push-scope)
 	(entry {arg})
 
-	;load and run task
-	(call 'sys_load 'bind {arg} {arg})
-	(vpif {arg})
-		(call 'sys_task 'start {arg})
+	;is this a lisp file
+	(assign {0} {id})
+	(call 'sys_str 'length {arg} {_, length})
+	(vpif {length >= 5})
+		(call 'sys_str 'compare {arg + length - 5, ".lisp"} {length})
 	(endif)
+	(vpifnot {length})
+		;yup it's a .lisp file, check it exists
+		(call 'sys_pii 'stat (cat {arg, @} (f-path 'sys_load 'statics) {.ld_statics_stat_buffer}) {func})
+		(breakif {func})
+		;start lisp run task and send args
+		(call 'sys_task 'start {@class/lisp/run} {_, id, _})
+		(call 'str 'create_from_cstr {arg} {arg})
+		(call 'sys_mail 'alloc_obj {arg, &arg->str_data, arg->str_length} {msg})
+		(assign {id} {msg->msg_dest.id_id})
+		(call 'sys_mail 'send {msg})
+		(call 'str 'deref {arg})
+	(else)
+		;open as raw task and return mailbox ID
+		(call 'sys_load 'bind {arg} {func})
+		(breakifnot {func})
+		;start this function as task
+		(call 'sys_task 'start {func} {_, id, _})
+	(endif)
+	(assign {id} '(r0))
 
 	(pop-scope)
 	(return)
@@ -428,6 +405,26 @@
 		(vp-string "-l") (vp-byte 0)
 		(vp-align ptr_size)
 	(vp-long 0)
+
+(def-func-end)
+
+(def-method 'sys_kernel 'id)
+	;outputs
+	;r0 = cpu ID (uint)
+
+	(f-bind 'sys_task 'statics r0)
+	(exit 'sys_kernel 'id '((r0 tk_statics_cpu_id ui)))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'sys_kernel 'total)
+	;outputs
+	;r0 = cpu total (uint)
+
+	(f-bind 'sys_task 'statics r0)
+	(exit 'sys_kernel 'total '((r0 tk_statics_cpu_total ui)))
+	(vp-ret)
 
 (def-func-end)
 

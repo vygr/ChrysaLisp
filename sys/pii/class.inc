@@ -237,6 +237,9 @@
 (dec-method 'read_char 'sys/pii/read_char 'static '(r0) '(r0))
 (dec-method 'time 'sys/pii/time 'static nil '(r0))
 
+(dec-method 'lisp_readchar 'sys/pii/lisp_readchar 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_writechar 'sys/pii/lisp_writechar 'static '(r0 r1) '(r0 r1))
+
 ;debug helpers
 (defcfun debug-num (s n)
 	(when debug_mode

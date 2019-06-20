@@ -313,6 +313,10 @@
 ### (pad form width [str]) -> str
 ## partition
 ### (partition lambda list start end)
+## pii-read-char
+### (pii-read-char fd)
+## pii-write-char
+### (pii-write-char fd char)
 ## pipe
 ### (pipe str)
 ## pipe-read

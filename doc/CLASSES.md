@@ -4379,14 +4379,6 @@ outputs
 r0 = cpu total (uint)
 ```
 ### sys_kernel::opts -> sys/kernel/opts
-```
-inputs
-r0 = argv array (pptr)
-trashes
-all
-info
-process command options
-```
 ### sys_kernel::declare -> sys/kernel/declare
 ```
 inputs
@@ -5087,6 +5079,24 @@ outputs
 r0 = time in usec (ulong)
 trashes
 none
+```
+### sys_pii::lisp_readchar -> sys/pii/lisp_readchar
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### sys_pii::lisp_writechar -> sys/pii/lisp_writechar
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
 ```
 ## sys_str
 Super Class: null

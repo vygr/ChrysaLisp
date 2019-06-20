@@ -39,3 +39,5 @@
 (ffi task-sleep "sys/task/lisp_sleep" 0)
 (ffi kernel-declare "sys/kernel/lisp_declare" 0)
 (ffi kernel-total "sys/kernel/lisp_total" 0)
+(ffi pii-read-char "sys/pii/lisp_readchar" 0)
+(ffi pii-write-char "sys/pii/lisp_writechar" 0)
