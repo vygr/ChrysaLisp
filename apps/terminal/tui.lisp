@@ -1,21 +1,21 @@
 ;import settings
 (import 'sys/lisp.inc)
 
-(defun pii-output (_)
-	(each (lambda (_) (pii-write-char 1 (code _))) _))
-
-(defun terminal-output (c)
-	(if (eq c 13) (setq c 10))
-	(cond
-		;print char
-		((eq c 9)
-			(pii-output "    "))
-		(t
-			(pii-output (char c)))))
+(defun terminal-output (_)
+	(each (lambda (c)
+		(setq c (code c))
+		(if (eq c 13) (setq c 10))
+		(cond
+			;print char
+			((eq c 9)
+				(pii-write-char 1 (ascii " "))
+				(pii-write-char 1 (ascii " "))
+				(pii-write-char 1 (ascii " "))
+				(pii-write-char 1 (ascii " ")))
+			(t
+				(pii-write-char 1 c)))) _))
 
 (defun terminal-input (c)
-	;echo char to terminal
-	;(terminal-output c)
 	(cond
 		;send line ?
 		((or (eq c 10) (eq c 13))
@@ -30,8 +30,8 @@
 						((ne (length buffer) 0)
 							;new pipe
 							(catch (setq cmd (pipe buffer)) (progn (setq cmd nil) t))
-							(unless cmd (pii-output (cat "Pipe Error !" (char 10) ">"))))
-						(t (pii-output ">")))))
+							(unless cmd (terminal-output (cat "Pipe Error !" (char 10) ">"))))
+						(t (terminal-output ">")))))
 			(setq buffer ""))
 		((eq c 27)
 			;esc
@@ -40,7 +40,7 @@
 				(when (ne (length buffer) 0)
 					(pipe-write cmd buffer))
 				(setq cmd nil buffer "")
-				(pii-output (cat (char 10) ">"))))
+				(terminal-output (cat (char 10) ">"))))
 		((and (eq c 8) (ne (length buffer) 0))
 			;backspace
 			(setq buffer (slice 0 -2 buffer)))
@@ -49,7 +49,7 @@
 			(setq buffer (cat buffer (char c))))))
 
 ;sign on msg
-(pii-output (cat "ChrysaLisp Terminal 1.4" (char 10) ">"))
+(terminal-output (cat "ChrysaLisp Terminal 1.4" (char 10) ">"))
 
 ;create child and send args
 (mail-send (list (task-mailbox)) (open-child "apps/terminal/tui_child.lisp" kn_call_open))
@@ -65,7 +65,7 @@
 		((eql data nil)
 			;pipe is closed
 			(setq cmd nil)
-			(pii-output (cat (char 10) ">")))
+			(terminal-output (cat (char 10) ">")))
 		(t
 			;string from pipe
-			(pii-output data))))
+			(terminal-output data))))
