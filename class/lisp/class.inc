@@ -55,6 +55,8 @@
 (dec-method 'func_read 'class/lisp/func_read 'static '(r0 r1) '(r0 r1))
 (dec-method 'func_type 'class/lisp/func_type 'static '(r0 r1) '(r0 r1))
 
+(dec-method 'run 'class/lisp/run)
+
 (def-enum 'func_type)
 	(enum 'args_eval 'args_raw)
 (def-enum-end)

@@ -3,9 +3,9 @@
 (include 'sys/load/class.inc)
 (include 'sys/kernel/class.inc)
 (include 'sys/str/class.inc)
-(include 'class/vector/class.inc)
 (include 'sys/pii/class.inc)
 (include 'gui/gui/class.inc)
+(include 'class/lisp/class.inc)
 
 ;;;;;;;;;;;;;
 ; kernel task
@@ -50,15 +50,15 @@
 	;init mailer
 	(call 'sys_mail 'init1)
 
-	;allocate for kernel routing table
-	(assign {0 => routes.lk_table_array} {routes.lk_table_array_size})
-
 	;process command options
 	(call 'opts {argv})
 
 	;fill in num cpu's with at least mine + 1
 	(call 'sys_kernel 'id nil {id})
 	(assign {id + 1} {task_statics->tk_statics_cpu_total})
+
+	;allocate for kernel routing table
+	(assign {0 => routes.lk_table_array} {routes.lk_table_array_size})
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ; main kernel task loop
@@ -246,29 +246,26 @@
 	;r1 = flood msg
 	;r2 = flood data
 	;r3 = kernel id
+	;trashes
+	;r0-r11
 
-	(ptr 'mail_statics 'msg 'data 'link 'new_msg)
-	(pptr 'iter_begin 'iter_end)
-	(uint 'id 'via)
+	(entry '(r0 r7 r8 r3))
 
-	(push-scope)
-	(entry {mail_statics, msg, data, id})
-
-	(assign {data->kn_msg_flood_via} {via})
-	(assign {id} {data->kn_msg_flood_via})
-	(call 'array 'get_iters {mail_statics->ml_statics_links_array} {_, iter_begin, iter_end})
-	(loop-while {iter_begin != iter_end})
-		(assign {*iter_begin} {link})
-		(vpif {link->lk_node_cpu_id != via})
-			(call 'sys_mail 'alloc_obj {msg->msg_parcel_obj, data, msg->msg_length} {new_msg})
-			(assign {link->lk_node_cpu_id << 32} {new_msg->msg_dest.id_id})
-			(call 'sys_mail 'send {new_msg})
+	(vp-cpy-ir-ui r8 kn_msg_flood_via r9)
+	(vp-cpy-ri-i r3 r8 kn_msg_flood_via)
+	(call 'array 'get_iters '((r0 ml_statics_links_array)) '(_ r10 r11))
+	(loop-while '(r10 != r11))
+		(vp-cpy-ir r10 0 r6)
+		(vp-cpy-ir-ui r6 lk_node_cpu_id r6)
+		(vpif '(r6 != r9))
+			(call 'sys_mail 'alloc_obj '((r7 msg_parcel_obj) r8 (r7 msg_length ui)) '(r0))
+			(vp-shl-cr 32 r6)
+			(vp-cpy-ri r6 r0 (add msg_dest id_id))
+			(call 'sys_mail 'send '(r0))
 		(endif)
-		(assign {iter_begin + ptr_size} {iter_begin})
+		(vp-add-cr ptr_size r10)
 	(loop-end)
-
-	(pop-scope)
-	(return)
+	(vp-ret)
 
 (vp-label 'opts)
 	;inputs
@@ -315,23 +312,24 @@
 (vp-label 'opt_cpu)
 	;inputs
 	;r0 = argv pointer (pubyte)
+	;trashes
+	;r0-r4
 
-	(ptr 'arg)
-
-	(push-scope)
-	(entry {arg})
+	(entry '(r0))
 
 	;set cpu ID
-	(call 'sys_str 'to_long {arg, 10} (cat {@} (f-path 'sys_task 'statics) {.tk_statics_cpu_id}))
-
-	(pop-scope)
-	(return)
+	(call 'sys_str 'to_long '(r0 10) '(r0))
+	(fn-bind (f-path 'sys_task 'statics) r1)
+	(vp-cpy-ri-i r0 r1 tk_statics_cpu_id)
+	(vp-ret)
 
 (vp-label 'opt_run)
 	;inputs
 	;r0 = argv pointer (pubyte)
 	;outputs
 	;r0 = 0 if error, else id (ulong)
+	;trashes
+	;all
 
 	(ptr 'arg 'func 'msg)
 	(ulong 'id)
@@ -351,7 +349,7 @@
 		(call 'sys_pii 'stat (cat {arg, @} (f-path 'sys_load 'statics) {.ld_statics_stat_buffer}) {func})
 		(breakif {func})
 		;start lisp run task and send args
-		(call 'sys_task 'start {@class/lisp/run} {_, id, _})
+		(call 'sys_task 'start `((@ ,(f-path 'lisp 'run))) {_, id, _})
 		(call 'str 'create_from_cstr {arg} {arg})
 		(call 'sys_mail 'alloc_obj {arg, &arg->str_data, arg->str_length} {msg})
 		(assign {id} {msg->msg_dest.id_id})
@@ -364,34 +362,31 @@
 		;start this function as task
 		(call 'sys_task 'start {func} {_, id, _})
 	(endif)
-	(assign {id} '(r0))
 
+	(exit {id})
 	(pop-scope)
 	(return)
 
 (vp-label 'opt_link)
 	;inputs
 	;r0 = argv pointer (pubyte)
+	;trashes
+	;r0-r9
 
-	(ptr 'arg 'msg 'data)
-	(struct 'mbox 'id)
-
-	(push-scope)
-	(entry {arg})
+	(entry '(r8))
 
 	;start link
-	(call 'sys_task 'start (cat {@} (f-path 'sys_link 'link)) {_, mbox.id_id, _})
+	(call 'sys_task 'start `((@ ,(f-path 'sys_link 'link))) '(_ r9 _))
 
 	;params message
-	(call 'sys_mail 'alloc {7 + 1} {msg, data})
-	(assign {mbox.id_id} {msg->msg_dest.id_id})
-	(call 'sys_str 'copy {arg, data} {_, data})
+	(call 'sys_mail 'alloc '(8) '(r0 r1))
+	(vp-cpy-ri r9 r0 (add msg_dest id_id))
+	(vp-cpy-rr r0 r3)
+	(call 'sys_str 'copy '(r8 r1))
 
 	;send to link task
-	(call 'sys_mail 'send {msg})
-
-	(pop-scope)
-	(return)
+	(call 'sys_mail 'send '(r3))
+	(vp-ret)
 
 	(vp-align ptr_size)
 (vp-label 'options_table)
