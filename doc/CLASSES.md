@@ -2169,6 +2169,12 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
+### lisp::run -> class/lisp/run
+```
+lisp run loop task
+inputs
+msg of lisp filename
+```
 ## msg_in
 Super Class: stream
 ### msg_in::vtable -> class/msg_in/vtable
@@ -4385,7 +4391,7 @@ inputs
 r0 = mailbox name c string (pubyte)
 r1 = mailbox id (ulong)
 trashes
-all
+r0-r10
 ```
 ### sys_kernel::kernel -> sys/kernel/kernel
 ```

@@ -4,6 +4,15 @@
 
 ------
 
+A couple of improvements to the Kernel class code, specifically the opts
+processing code that now gets used as part of the general process launch
+handling as well as the -run boot option.
+
+Will be out of action a few days due to suffering a Vertical Root Fracture and
+emergency dental extraction ! Ouch. :(
+
+------
+
 Did a few more class lib tidy ups and VP lowering. Plus converted the TUI to
 be written in Lisp ! That one has been on my mind for a while and it got back
 around 1.5KB of boot image !
