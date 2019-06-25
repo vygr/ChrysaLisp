@@ -14,11 +14,11 @@ snapshot:
 
 boot:
 			rm -f snapshot.zip
-			zip -9q snapshot.zip `find obj -type d` `find obj -name "boot_image"` `find obj -name "main"` `find obj -name "main.exe"`
+			zip -9q snapshot.zip `find obj -type d` `find obj -name "boot_image"` `find obj -name "main.exe"`
 
 obj/$(CPU)/$(ABI)/$(OS)/main:	obj/$(CPU)/$(ABI)/$(OS)/main.o
 ifeq ($(OS),Darwin)
-			cc -o $@-d $@.o -F/Library/Frameworks -Wl,-framework,SDL2 -Wl,-framework,SDL2_ttf
+			cc -o $@ $@.o -F/Library/Frameworks -Wl,-framework,SDL2 -Wl,-framework,SDL2_ttf
 endif
 ifeq ($(OS),Linux)
 			cc -o $@ $@.o $(shell sdl2-config --libs) -lSDL2_ttf

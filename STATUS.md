@@ -4,6 +4,12 @@
 
 ------
 
+Looks like SDL 2.0.9 fixes the 2.0.8 red screen on Mojave problem !!! So I'm
+removing the temp fix for that problem. Thanks SDL crew for sorting this out in
+this release.
+
+------
+
 A couple of improvements to the Kernel class code, specifically the opts
 processing code that now gets used as part of the general process launch
 handling as well as the -run boot option.
