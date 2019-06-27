@@ -426,7 +426,7 @@
 ## squared
 ### (squared num) -> num
 ## str
-### (str form)
+### (str [form ...])
 ## str?
 ### (str? form)
 ## stream-avail

@@ -130,6 +130,7 @@
 	;(points [form ...])
 	;(prin [form ...])
 	;(print [form ...])
+	;(str [form ...])
 	`(defq ,n (lambda ,a ~_)))
 
 (defmacro lst? (_)
