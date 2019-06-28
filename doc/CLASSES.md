@@ -1218,7 +1218,7 @@ r1 = 0 if error, else ok
 trashes
 all but r0
 ```
-### font::flush_cache -> gui/font/flush_cache
+### font::flush -> gui/font/flush
 ```
 trashes
 all

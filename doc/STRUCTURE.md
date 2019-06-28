@@ -498,5 +498,5 @@ Note that the `init` and `deinit` methods make an `(s-call)` and `(s-jump)` to
 the superclass `init` and `deinit` methods !
 
 Although this is a very simple class, one that just holds references to two
-other objects (for use by the `hash_set` and `hash_map` classes), it covers all
-the basic requirements of any class.
+other objects (for use by the `hset` and `hmap` classes), it covers all the
+basic requirements of any class.
