@@ -9,7 +9,7 @@
 	;trashes
 	;all
 
-	(call 'obj 'deinit '(r0))
+	(call 'obj 'deinit '(r0) '(r0))
 	(jump 'sys_mem 'free '(r0))
 
 (def-func-end)
@@ -63,15 +63,15 @@
 	;trashes
 	;all
 
-	;dec ref count
+	;destroy if 1
 	(vp-cpy-ir-ui r0 obj_count r1)
-	(vp-sub-cr 1 r1)
-	(vp-cpy-ri-i r1 r0 obj_count)
-
-	;destroy if 0
-	(vpif '(r1 == 0))
+	(vpif '(r1 == 1))
 		(jump 'obj 'destroy '(r0))
 	(endif)
+
+	;dec ref count
+	(vp-sub-cr 1 r1)
+	(vp-cpy-ri-i r1 r0 obj_count)
 	(vp-ret)
 
 (def-func-end)

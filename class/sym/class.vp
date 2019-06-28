@@ -96,25 +96,17 @@
 	;trashes
 	;all
 
-	(def-struct 'local)
-		(ptr 'new_set)
-	(def-struct-end)
-
-	(vp-alloc local_size)
-
 	(fn-bind (f-path 'sym 'statics) r0)
 	(vp-cpy-ir r0 sym_statics_intern r0)
 	(call 'hset 'create '((r0 hset_key_callback) (r0 hset_num_buckets ui)) '(r0))
-	(vp-cpy-ri r0 rsp local_new_set)
+	(vp-push r0)
 	(fn-bind (f-path 'sym 'statics) r0)
 	(vp-cpy-ir r0 sym_statics_intern r0)
-	(call 'hset 'for_each '(r0 ($ flush_callback) (& rsp local_new_set)) '(r0 _ _))
+	(call 'hset 'for_each '(r0 ($ flush_callback) rsp) '(r0 _ _))
 	(call 'hset 'deref '(r0))
-	(vp-cpy-ir rsp local_new_set r0)
+	(vp-pop r0)
 	(fn-bind (f-path 'sym 'statics) r1)
 	(vp-cpy-ri r0 r1 sym_statics_intern)
-
-	(vp-free local_size)
 	(vp-ret)
 
 (vp-label 'flush_callback)
