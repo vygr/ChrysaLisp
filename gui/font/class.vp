@@ -199,7 +199,7 @@
 		;flush cache ?
 		(assign (cat {@} (f-path 'font 'statics)) {font_statics})
 		(vpif {(font_statics->font_statics_count + 1 => font_statics->font_statics_count) >= font_max_word_cache})
-			(call 'font 'flush_cache)
+			(call 'font 'flush)
 		(endif)
 	(else)
 		(call 'pair 'get_second {*iter} {_, txt})
@@ -259,7 +259,7 @@
 
 	;lazy create char textures
 	(vpifnot {this->font_chars})
-		;note, don't write to member var yet in case flush_cache gets called !
+		;note, don't write to member var yet in case flush gets called !
 		(call 'vector 'create nil {chars})
 		(call 'vector 'set_capacity {chars, 127 - 33})
 		(assign {33} {code})
@@ -270,7 +270,7 @@
 			(call 'sym 'deref {word})
 		(loop-until {(code + 1 => code) == 127})
 		(vpif {this->font_chars})
-			;another thread got to it during a flush_cache !
+			;another thread got to it during a flush !
 			(call 'vector 'deref {chars})
 		(else)
 			(assign {chars} {this->font_chars})
@@ -284,7 +284,7 @@
 
 (def-func-end)
 
-(def-method 'font 'flush_cache)
+(def-method 'font 'flush)
 	;trashes
 	;all
 

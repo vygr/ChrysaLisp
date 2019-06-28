@@ -6,7 +6,7 @@
 (dec-method 'open 'gui/font/open 'static '(r0 r1) '(r0))
 (dec-method 'create 'gui/font/create 'static '(r0 r1) '(r0))
 (dec-method 'init 'gui/font/init 'static '(r0 r1 r2 r3))
-(dec-method 'flush_cache 'gui/font/flush_cache)
+(dec-method 'flush 'gui/font/flush)
 (dec-method 'ref_word 'gui/font/ref_word 'static '(r0 r1) '(r0 r1))
 (dec-method 'ref_chars 'gui/font/ref_chars 'static '(r0) '(r0 r1))
 (dec-method 'get_metrics 'gui/font/get_metrics 'static '(r0) '(r0 r1 r2 r3))
