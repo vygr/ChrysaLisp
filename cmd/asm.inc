@@ -125,8 +125,9 @@
 			(defun load-func (_)
 				(or (def? (defq s (func-sym _)))
 					(progn
-						(defq b (load (func-obj _))
-							h (slice fn_header_entry (defq l (get-short b fn_header_links)) b)
+						(unless (defq b (load (func-obj _)))
+							(throw "No such file !" (func-obj _)))
+						(defq h (slice fn_header_entry (defq l (get-short b fn_header_links)) b)
 							l (slice l (defq p (get-short b fn_header_paths)) b))
 						(def *env* s (list (cat (char -1 8) (char p 2) h) l (read-paths b))))))
 			(defun read-paths (_)
