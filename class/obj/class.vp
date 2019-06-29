@@ -9,6 +9,8 @@
 	;trashes
 	;all
 
+	(entry 'obj 'destroy '(r0))
+
 	(call 'obj 'deinit '(r0) '(r0))
 	(jump 'sys_mem 'free '(r0))
 
@@ -23,8 +25,8 @@
 	;trashes
 	;all but r0
 
-	;save inputs
-	(vp-cpy-rr r0 r1)
+	(entry 'obj 'hash '(r0))
+	(exit 'obj 'hash '(r0 r0))
 	(vp-ret)
 
 (def-func-end)
@@ -39,7 +41,8 @@
 	;trashes
 	;r2
 
-	(vp-cpy-rr r1 r2)
+	(entry 'obj 'inst_of '(r0 r2))
+
 	(vp-lea-i r0 obj_vtable r1)
 	(loop-start)
 		(vp-cpy-ir r1 ln_fnode_next r1)
@@ -47,6 +50,8 @@
 	(loop-until '(r1 == r2))
 	(vp-cpy-ir r0 obj_vtable r1)
 (vp-label 'funcexit)
+
+	(exit 'obj 'inst_of '(r0 r1))
 	(vp-ret)
 
 (def-func-end)
@@ -62,6 +67,8 @@
 	;r0 = object (ptr)
 	;trashes
 	;all
+
+	(entry 'obj 'deref '(r0))
 
 	;destroy if 1
 	(vp-cpy-ir-ui r0 obj_count r1)
@@ -82,6 +89,8 @@
 	;trashes
 	;all
 
+	(entry 'obj 'deref_if '(r0))
+
 	(vpif '(r0 != 0))
 		(jump 'obj 'deref '(r0))
 	(endif)
@@ -95,10 +104,14 @@
 	;trashes
 	;r1
 
+	(entry 'obj 'ref_if '(r0))
+
 	;inc ref count
 	(vpif '(r0 != 0))
 		(call 'obj 'ref '(r0) '(r0))
 	(endif)
+
+	(exit 'obj 'ref_if '(r0))
 	(vp-ret)
 
 (def-func-end)
