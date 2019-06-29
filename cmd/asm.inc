@@ -143,28 +143,20 @@
 				;must be second function !
 				'sys/load/bind
 				;must be third function !
-				'sys/load/statics
-				;must be included, as bind uses them !
-				'sys/str/copy
-				'sys/str/length
-				'sys/pii/exit
-				'sys/pii/mmap
-				'sys/pii/stat
-				'sys/pii/open
-				'sys/pii/close
-				'sys/pii/read
-				'sys/pii/write
-				'sys/pii/write_str
-				'sys/pii/write_char))
+				'sys/load/statics))
+			;load all loader dependents
+			(each-mergeable (lambda (_)
+				(merge-sym f (elem 2 (load-func _)))) f)
+			(defq fs (length f))
+			;load up all extra functions requested
 			(merge-sym f (map sym *funcs*))
-			;load up all functions requested
 			(each load-func f)
 			;if recursive then load up all dependents
 			(when r
 				(each-mergeable (lambda (_)
 					(merge-sym f (elem 2 (load-func _)))) f))
-			;sort into order
-			(sort cmp f 3)
+			;sort into order, leaving the loader dependents first !
+			(sort cmp f fs)
 			;list of all function bodies and links in order, list of offsets of header and link sections
 			;and offset of new strings section
 			(defq b (map (lambda (_) (eval (func-sym _))) f)
