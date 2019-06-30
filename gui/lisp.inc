@@ -6,10 +6,10 @@
 	flow_flag_align_vcenter flow_flag_align_vtop flow_flag_align_vbottom
 	window_flag_close window_flag_min window_flag_max window_flag_status
 	scroll_flag_vertical scroll_flag_horizontal ev_msg_target_id
-	ev_msg_action_source_id ev_msg_type ev_type_key ev_msg_key_keycode ev_msg_key_key
-	argb_black argb_white argb_red argb_green argb_blue
-	argb_yellow argb_cyan argb_magenta argb_grey1 argb_grey2 argb_grey3 argb_grey4
-	argb_grey5 argb_grey6 argb_grey7 argb_grey8 argb_grey9 argb_grey10 argb_grey11
+	ev_msg_action_source_id ev_msg_type ev_type_key ev_msg_key_keycode
+	ev_msg_key_key argb_black argb_white argb_red argb_green argb_blue argb_yellow
+	argb_cyan argb_magenta argb_grey1 argb_grey2 argb_grey3 argb_grey4 argb_grey5
+	argb_grey6 argb_grey7 argb_grey8 argb_grey9 argb_grey10 argb_grey11
 	argb_grey12 argb_grey13 argb_grey14 argb_grey15))
 	(within-compile-env (lambda ()
 		(include 'gui/gui/class.inc)

@@ -12,27 +12,23 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(ptr 'this 'args 'value)
-	(ulong 'arg0)
-
-	(push-scope)
-	(entry 'scroll 'lisp_create {this, args})
+	(entry 'scroll 'lisp_create '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 1})
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 1))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
 
-	(call 'lisp 'env_args_set {args, &arg0, 0})
-	(call 'scroll 'create {arg0} {value})
+	(vp-push r6)
+	(call 'vector 'get_first '(r7) '(_ r1))
+	(call 'scroll 'create '((r1 num_value)) '(r1))
+	(vp-pop r0)
 
-	(exit 'scroll 'lisp_create {this, value})
-	(return)
+	(exit 'scroll 'lisp_create '(r0 r1))
+	(vp-ret)
 
 (errorcases
-(vp-label 'error1)
-	(jump 'lisp 'repl_error {this, "(create-scroll flags)", error_msg_wrong_types, args})
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r6 "(create-scroll flags)" error_msg_wrong_types r7))
 	(signature 'sig 'num))
-
-	(pop-scope-syms)
 
 (def-func-end)

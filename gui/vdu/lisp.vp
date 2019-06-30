@@ -11,22 +11,22 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(vp-def (r_this r_args r_value) '(r6 r7))
-
-	(entry 'vdu 'lisp_create (list r_this r_args))
+	(entry 'vdu 'lisp_create '(r0 r1))
 
 (errorcases
-	(d-call 'vector 'get_length (list r_args))
-	(gotoif (list (method-output 'vector 'get_length 1) '!= 0) 'error1))
+	(vp-cpy-ir-ui r1 array_length r2)
+	(gotoif '(r2 != 0) 'error))
 
-	(call 'vdu 'create nil (list r_value))
+	(vp-push r0)
+	(call 'vdu 'create nil '(r1))
+	(vp-pop r0)
 
-	(exit 'vdu 'lisp_create (list r_this r_value))
+	(exit 'vdu 'lisp_create '(r0 r1))
 	(vp-ret)
 
 (errorcases
-(vp-label 'error1)
-	(jump 'lisp 'repl_error (list r_this "(create-vdu)" error_msg_wrong_types r_args)))
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r0 "(create-vdu)" error_msg_wrong_num_of_args r1)))
 
 (def-func-end)
 

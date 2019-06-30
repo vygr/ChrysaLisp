@@ -11,22 +11,22 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(vp-def (r_this r_args r_value) '(r6 r7))
-
-	(entry 'button 'lisp_create (list r_this r_args))
+	(entry 'button 'lisp_create '(r0 r1))
 
 (errorcases
-	(d-call 'vector 'get_length (list r_args))
-	(gotoif (list (method-output 'vector 'get_length 1) '!= 0) 'error1))
+	(vp-cpy-ir-ui r1 array_length r2)
+	(gotoif '(r2 != 0) 'error))
 
-	(call 'button 'create nil (list r_value))
+	(vp-push r0)
+	(call 'button 'create nil '(r1))
+	(vp-pop r0)
 
-	(exit 'button 'lisp_create (list r_this r_value))
+	(exit 'button 'lisp_create '(r0 r1))
 	(vp-ret)
 
 (errorcases
-(vp-label 'error1)
-	(jump 'lisp 'repl_error (list r_this "(create-button)" error_msg_wrong_types r_args)))
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r0 "(create-button)" error_msg_wrong_num_of_args r1)))
 
 (def-func-end)
 
@@ -38,28 +38,24 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(ptr 'this 'args 'value)
-	(ulong 'arg0 'arg1)
-
-	(push-scope)
-	(entry 'button 'lisp_connect_click {this, args})
+	(entry 'button 'lisp_connect_click '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 2})
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 2))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
 
-	(call 'lisp 'env_args_set {args, &arg0, 0})
-	(call 'button 'connect_click {arg0, arg1})
-	(call 'button 'ref {arg0} {value})
+	(call 'vector 'get_begin '(r7) '(_ r1))
+	(vp-cpy-ir r1 0 r0)
+	(vp-cpy-ir r1 ptr_size r1)
+	(call 'button 'connect_click '(r0 (r1 num_value)) '(r0))
+	(call 'button 'ref '(r0) '(r0))
 
-	(exit 'button 'lisp_connect_click {this, value})
-	(return)
+	(exit 'button 'lisp_connect_click '(r6 r0))
+	(vp-ret)
 
 (errorcases
-(vp-label 'error1)
-	(jump 'lisp 'repl_error {this, "(button-connect-click button id)", error_msg_wrong_types, args})
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r6 "(button-connect-click button id)" error_msg_wrong_types r7))
 	(signature 'sig 'button 'num))
-
-	(pop-scope-syms)
 
 (def-func-end)

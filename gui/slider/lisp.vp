@@ -11,22 +11,22 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(vp-def (r_this r_args r_value) '(r6 r7))
-
-	(entry 'slider 'lisp_create (list r_this r_args))
+	(entry 'slider 'lisp_create '(r0 r1))
 
 (errorcases
-	(d-call 'vector 'get_length (list r_args))
-	(gotoif (list (method-output 'vector 'get_length 1) '!= 0) 'error1))
+	(vp-cpy-ir-ui r1 array_length r2)
+	(gotoif '(r2 != 0) 'error))
 
-	(call 'slider 'create nil (list r_value))
+	(vp-push r0)
+	(call 'slider 'create nil '(r1))
+	(vp-pop r0)
 
-	(exit 'slider 'lisp_create (list r_this r_value))
+	(exit 'slider 'lisp_create '(r0 r1))
 	(vp-ret)
 
 (errorcases
-(vp-label 'error1)
-	(jump 'lisp 'repl_error (list r_this "(create-slider)" error_msg_wrong_types r_args)))
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r0 "(create-slider)" error_msg_wrong_num_of_args r1)))
 
 (def-func-end)
 
@@ -38,28 +38,24 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(ptr 'this 'args 'value)
-	(ulong 'arg0 'arg1)
-
-	(push-scope)
-	(entry 'slider 'lisp_connect_value {this, args})
+	(entry 'slider 'lisp_connect_value '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 2})
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 2))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
 
-	(call 'lisp 'env_args_set {args, &arg0, 0})
-	(call 'slider 'connect_value {arg0, arg1})
-	(call 'slider 'ref {arg0} {value})
+	(call 'vector 'get_begin '(r7) '(_ r1))
+	(vp-cpy-ir r1 0 r0)
+	(vp-cpy-ir r1 ptr_size r1)
+	(call 'slider 'connect_value '(r0 (r1 num_value)) '(r0))
+	(call 'slider 'ref '(r0) '(r0))
 
-	(exit 'slider 'lisp_connect_value {this, value})
-	(return)
+	(exit 'slider 'lisp_connect_value '(r6 r0))
+	(vp-ret)
 
 (errorcases
-(vp-label 'error1)
-	(jump 'lisp 'repl_error {this, "(slider-connect-value slider id)", error_msg_wrong_types, args})
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r6 "(slider-connect-value slider id)" error_msg_wrong_types r7))
 	(signature 'sig 'slider 'num))
-
-	(pop-scope-syms)
 
 (def-func-end)

@@ -1,9 +1,7 @@
 ;import sys settings
 (bind (defq _syms_ '(
-	byte_size short_size int_size long_size ptr_size
-	kn_call_open kn_call_child lk_data_size id_size))
+	byte_size short_size int_size long_size ptr_size kn_call_open kn_call_child))
 	(within-compile-env (lambda ()
-		(include 'sys/link/class.inc)
 		(include 'sys/kernel/class.inc)
 		(map eval _syms_))))
 

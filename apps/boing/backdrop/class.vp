@@ -53,7 +53,7 @@
 	(call 'backdrop 'get_long_prop '(r0 prop_color) '(r0 r1))
 	(vp-shr-cr 24 r1)
 	(vpif '(r1 == 0xff))
-		(call 'backdrop 'opaque '(r0) '(r0))
+		(jump 'backdrop 'opaque '(r0))
 	(endif)
 
 	(exit 'backdrop 'layout '(r0))
