@@ -113,7 +113,7 @@
 	(call 'view 'find_id '(r0 (r1 num_value)) '(_ r0))
 	(vpif '(r0 == 0))
 		(vp-cpy-ir rsp 0 r0)
-		(assign '((r0 lisp_sym_nil)) '(r0))
+		(vp-cpy-ir r0 lisp_sym_nil r0)
 	(endif)
 	(call 'view 'ref '(r0) '(r1))
 	(vp-pop r0)
@@ -256,33 +256,29 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(ptr 'this 'args 'value)
-	(ulong 'arg0 'arg1 'arg2)
-
-	(push-scope)
-	(entry 'view 'lisp_pref_size {this, args})
+	(entry 'view 'lisp_pref_size '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 1})
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 1))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
 
-	(call 'lisp 'env_args_set {args, &arg0, 0})
-	(call 'view 'pref_size {arg0} {_, arg1, arg2})
-	(call 'vector 'create nil {value})
-	(call 'num 'create {arg1} {arg1})
-	(call 'num 'create {arg2} {arg2})
-	(call 'vector 'push_back {value, arg1})
-	(call 'vector 'push_back {value, arg2})
+	(vp-push r6)
+	(call 'vector 'get_first '(r7) '(_ r0))
+	(call 'view 'pref_size '(r0) '(_ r9 r10))
+	(call 'num 'create '(r9) '(r9))
+	(call 'num 'create '(r10) '(r10))
+	(call 'vector 'create nil '(r0))
+	(call 'vector 'push_back '(r0 r9) '(r0 _))
+	(call 'vector 'push_back '(r0 r10) '(r1 _))
+	(vp-pop r0)
 
-	(exit 'view 'lisp_pref_size {this, value})
-	(return)
+	(exit 'view 'lisp_pref_size '(r0 r1))
+	(vp-ret)
 
 (errorcases
-(vp-label 'error1)
-	(jump 'lisp 'repl_error {this, "(view-pref-size view)", error_msg_wrong_types, args})
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r6 "(view-pref-size view)" error_msg_wrong_types r7))
 	(signature 'sig 'view))
-
-	(pop-scope-syms)
 
 (def-func-end)
 
@@ -364,37 +360,33 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(ptr 'this 'args 'value)
-	(ulong 'arg0 'arg1 'arg2 'arg3 'arg4)
-
-	(push-scope)
-	(entry 'view 'lisp_get_bounds {this, args})
+	(entry 'view 'lisp_get_bounds '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 1})
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 1))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
 
-	(call 'lisp 'env_args_set {args, &arg0, 0})
-	(call 'view 'get_bounds {arg0} {_, arg1, arg2, arg3, arg4})
-	(call 'vector 'create nil {value})
-	(call 'num 'create {arg1} {arg1})
-	(call 'num 'create {arg2} {arg2})
-	(call 'num 'create {arg3} {arg3})
-	(call 'num 'create {arg4} {arg4})
-	(call 'vector 'push_back {value, arg1})
-	(call 'vector 'push_back {value, arg2})
-	(call 'vector 'push_back {value, arg3})
-	(call 'vector 'push_back {value, arg4})
+	(vp-push r6)
+	(call 'vector 'get_first '(r7) '(_ r0))
+	(call 'view 'get_bounds '(r0) '(_ r7 r8 r9 r10))
+	(call 'num 'create '(r7) '(r7))
+	(call 'num 'create '(r8) '(r8))
+	(call 'num 'create '(r9) '(r9))
+	(call 'num 'create '(r10) '(r10))
+	(call 'vector 'create nil '(r0))
+	(call 'vector 'push_back '(r0 r7) '(r0 _))
+	(call 'vector 'push_back '(r0 r8) '(r0 _))
+	(call 'vector 'push_back '(r0 r9) '(r0 _))
+	(call 'vector 'push_back '(r0 r10) '(r1 _))
+	(vp-pop r0)
 
-	(exit 'view 'lisp_get_bounds {this, value})
-	(return)
+	(exit 'view 'lisp_get_bounds '(r0 r1))
+	(vp-ret)
 
 (errorcases
-(vp-label 'error1)
-	(jump 'lisp 'repl_error {this, "(view-get-bounds view)", error_msg_wrong_types, args})
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r6 "(view-get-bounds view)" error_msg_wrong_types r7))
 	(signature 'sig 'view))
-
-	(pop-scope-syms)
 
 (def-func-end)
 

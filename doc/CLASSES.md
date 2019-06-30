@@ -5927,6 +5927,58 @@ r1 = 0 if empty, else last child view object (ptr)
 trashes
 r2
 ```
+### view::deinit -> gui/view/deinit
+```
+inputs
+r0 = view object (ptr)
+trashes
+all but r0
+```
+### view::add_child -> gui/view/add_back
+```
+inputs
+r0 = view object (ptr)
+r1 = child view object (ptr)
+trashes
+r1-r3
+```
+### view::draw -> class/obj/null
+### view::hit -> gui/view/hit
+```
+inputs
+r0 = view object (ptr)
+r7 = x (pixels)
+r8 = y (pixels)
+outputs
+r0 = view object (ptr)
+r1 = 0 if not, else hit
+```
+### view::pref_size -> gui/view/pref_size
+```
+inputs
+r0 = view object (ptr)
+outputs
+r9 = preferred width (pixels)
+r10 = preferred height (pixels)
+trashes
+all but r0
+```
+### view::layout -> class/obj/null
+### view::event -> gui/view/event
+```
+inputs
+r0 = view object (ptr)
+r1 = event data (ptr)
+trashes
+all but r0
+```
+### view::mouse_down -> class/obj/null
+### view::mouse_up -> class/obj/null
+### view::mouse_move -> class/obj/null
+### view::mouse_hover -> class/obj/null
+### view::key_down -> class/obj/null
+### view::key_up -> class/obj/null
+### view::action -> class/obj/null
 ### view::lisp_create -> gui/view/lisp_create
 ```
 inputs
@@ -6089,58 +6141,6 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
-### view::deinit -> gui/view/deinit
-```
-inputs
-r0 = view object (ptr)
-trashes
-all but r0
-```
-### view::add_child -> gui/view/add_back
-```
-inputs
-r0 = view object (ptr)
-r1 = child view object (ptr)
-trashes
-r1-r3
-```
-### view::draw -> class/obj/null
-### view::hit -> gui/view/hit
-```
-inputs
-r0 = view object (ptr)
-r7 = x (pixels)
-r8 = y (pixels)
-outputs
-r0 = view object (ptr)
-r1 = 0 if not, else hit
-```
-### view::pref_size -> gui/view/pref_size
-```
-inputs
-r0 = view object (ptr)
-outputs
-r9 = preferred width (pixels)
-r10 = preferred height (pixels)
-trashes
-all but r0
-```
-### view::layout -> class/obj/null
-### view::event -> gui/view/event
-```
-inputs
-r0 = view object (ptr)
-r1 = event data (ptr)
-trashes
-all but r0
-```
-### view::mouse_down -> class/obj/null
-### view::mouse_up -> class/obj/null
-### view::mouse_move -> class/obj/null
-### view::mouse_hover -> class/obj/null
-### view::key_down -> class/obj/null
-### view::key_up -> class/obj/null
-### view::action -> class/obj/null
 ## window
 Super Class: view
 ### window::vtable -> gui/window/vtable
