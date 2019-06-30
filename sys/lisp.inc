@@ -1,11 +1,11 @@
 ;import sys settings
-(bind '(byte_size short_size int_size long_size ptr_size
-	kn_call_open kn_call_child lk_data_size id_size)
+(bind (defq _syms_ '(
+	byte_size short_size int_size long_size ptr_size
+	kn_call_open kn_call_child lk_data_size id_size))
 	(within-compile-env (lambda ()
 		(include 'sys/link/class.inc)
 		(include 'sys/kernel/class.inc)
-		(list byte_size short_size int_size long_size ptr_size
-			kn_call_open kn_call_child lk_data_size id_size))))
+		(map eval _syms_))))
 
 ;some simple structure helpers
 (defmacro structure (n o &rest b)
