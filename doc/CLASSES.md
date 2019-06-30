@@ -6162,12 +6162,16 @@ all but r0-r1
 inputs
 r0 = window object (ptr)
 r1 = title c string (pubyte)
+trashes
+all but r0
 ```
 ### window::set_status -> gui/window/set_status
 ```
 inputs
 r0 = window object (ptr)
 r1 = status c string (pubyte)
+trashes
+all but r0
 ```
 ### window::connect_layout -> gui/window/connect_layout
 ```
@@ -6187,7 +6191,7 @@ r1 = reciever id (long)
 outputs
 r0 = window object (ptr)
 trashes
-all but r0
+r2-r5
 ```
 ### window::connect_max -> gui/window/connect_max
 ```
@@ -6197,7 +6201,7 @@ r1 = reciever id (long)
 outputs
 r0 = window object (ptr)
 trashes
-all but r0
+r2-r5
 ```
 ### window::connect_min -> gui/window/connect_min
 ```
@@ -6207,7 +6211,7 @@ r1 = reciever id (long)
 outputs
 r0 = window object (ptr)
 trashes
-all but r0
+r2-r5
 ```
 ### window::deinit -> gui/window/deinit
 ```

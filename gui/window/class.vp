@@ -389,6 +389,8 @@
 	;inputs
 	;r0 = window object (ptr)
 	;r1 = status c string (pubyte)
+	;trashes
+	;all but r0
 
 	(ptr 'this 'str)
 
@@ -410,6 +412,8 @@
 	;inputs
 	;r0 = window object (ptr)
 	;r1 = title c string (pubyte)
+	;trashes
+	;all but r0
 
 	(ptr 'this 'str)
 
@@ -448,7 +452,7 @@
 	;outputs
 	;r0 = window object (ptr)
 	;trashes
-	;all but r0
+	;r2-r5
 
 	(vp-push r0)
 	(vp-cpy-ir r0 window_close r0)
@@ -467,7 +471,7 @@
 	;outputs
 	;r0 = window object (ptr)
 	;trashes
-	;all but r0
+	;r2-r5
 
 	(vp-push r0)
 	(vp-cpy-ir r0 window_max r0)
@@ -486,7 +490,7 @@
 	;outputs
 	;r0 = window object (ptr)
 	;trashes
-	;all but r0
+	;r2-r5
 
 	(vp-push r0)
 	(vp-cpy-ir r0 window_min r0)
