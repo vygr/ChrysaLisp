@@ -12,30 +12,30 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(ptr 'this 'args 'value)
-	(ulong 'arg0 'arg1)
-
-	(push-scope)
-	(entry 'font 'lisp_create {this, args})
+	(entry 'font 'lisp_create '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 2})
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 2))
+	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
 
-	(call 'lisp 'env_args_set {args, &arg0, 0})
-	(call 'font 'open {&arg0->str_data, arg1} {value})
-	(vpifnot {value})
-		(call 'obj 'ref {this->lisp_sym_nil} {value})
+	(vp-push r6)
+	(call 'vector 'get_begin '(r7) '(_ r1))
+	(vp-cpy-ir r1 0 r0)
+	(vp-cpy-ir r1 ptr_size r1)
+	(call 'font 'open '((& r0 str_data) (r1 num_value)) '(r0))
+	(vpif '(r0 == 0))
+		(vp-cpy-ir rsp 0 r0)
+		(call 'obj 'ref '((r0 lisp_sym_nil)) '(r0))
 	(endif)
+	(vp-cpy-rr r0 r1)
+	(vp-pop r0)
 
-	(exit 'font 'lisp_create {this, value})
-	(return)
+	(exit 'font 'lisp_create '(r0 r1))
+	(vp-ret)
 
 (errorcases
-(vp-label 'error1)
-	(jump 'lisp 'repl_error {this, "(create-font name points)", error_msg_wrong_types, args})
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r6 "(create-font name points)" error_msg_wrong_types r7))
 	(signature 'sig 'str 'num))
-
-	(pop-scope-syms)
 
 (def-func-end)
