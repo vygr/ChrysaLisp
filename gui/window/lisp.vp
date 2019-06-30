@@ -47,7 +47,7 @@
 	(call 'lisp 'env_args_type '(r7 ($ sig) 2))
 	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
 
-	(call 'vector 'get_begin '(r7) '(_ r1))
+	(vp-cpy-ir r7 array_array r1)
 	(vp-cpy-ir r1 0 r0)
 	(vp-cpy-ir r1 ptr_size r1)
 	(call 'window 'connect_layout '(r0 (r1 num_value)) '(r0))
@@ -77,7 +77,7 @@
 	(call 'lisp 'env_args_type '(r7 ($ sig) 2))
 	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
 
-	(call 'vector 'get_begin '(r7) '(_ r1))
+	(vp-cpy-ir r7 array_array r1)
 	(vp-cpy-ir r1 0 r0)
 	(vp-cpy-ir r1 ptr_size r1)
 	(call 'window 'connect_close '(r0 (r1 num_value)) '(r0))
@@ -107,7 +107,7 @@
 	(call 'lisp 'env_args_type '(r7 ($ sig) 2))
 	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
 
-	(call 'vector 'get_begin '(r7) '(_ r1))
+	(vp-cpy-ir r7 array_array r1)
 	(vp-cpy-ir r1 0 r0)
 	(vp-cpy-ir r1 ptr_size r1)
 	(call 'window 'connect_min '(r0 (r1 num_value)) '(r0))
@@ -137,7 +137,7 @@
 	(call 'lisp 'env_args_type '(r7 ($ sig) 2))
 	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
 
-	(call 'vector 'get_begin '(r7) '(_ r1))
+	(vp-cpy-ir r7 array_array r1)
 	(vp-cpy-ir r1 0 r0)
 	(vp-cpy-ir r1 ptr_size r1)
 	(call 'window 'connect_max '(r0 (r1 num_value)) '(r0))
@@ -168,7 +168,7 @@
 	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
 
 	(vp-push r6)
-	(call 'vector 'get_begin '(r7) '(_ r1))
+	(vp-cpy-ir r7 array_array r1)
 	(vp-cpy-ir r1 0 r0)
 	(vp-cpy-ir r1 ptr_size r1)
 	(call 'window 'set_status '(r0 (& r1 str_data)) '(r0))
@@ -200,7 +200,7 @@
 	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
 
 	(vp-push r6)
-	(call 'vector 'get_begin '(r7) '(_ r1))
+	(vp-cpy-ir r7 array_array r1)
 	(vp-cpy-ir r1 0 r0)
 	(vp-cpy-ir r1 ptr_size r1)
 	(call 'window 'set_title '(r0 (& r1 str_data)) '(r0))

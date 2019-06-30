@@ -11,14 +11,13 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(entry 'lisp 'func_throw '(r0 r1))
-	(assign '(r0 r1) '(r6 r7))
+	(entry 'lisp 'func_throw '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r1 ($ sig) 2))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 2))
 	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
 
-	(call 'vector 'get_begin '(r7) '(_ r1))
+	(vp-cpy-ir r7 array_array r1)
 	(vp-cpy-ir r1 0 r2)
 	(jump 'lisp 'repl_error '(r6 (& r2 str_data) 0 (r1 ptr_size)))
 

@@ -46,7 +46,7 @@
 	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
 
 	(vp-push r6)
-	(call 'vector 'get_begin '(r7) '(_ r1))
+	(vp-cpy-ir r7 array_array r1)
 	(vp-cpy-ir r1 0 r0)
 	(vp-cpy-ir r1 ptr_size r1)
 	(call 'view 'event '(r0 (& r1 str_data)) '(r0))
@@ -107,7 +107,7 @@
 	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
 
 	(vp-push r6)
-	(call 'vector 'get_begin '(r7) '(_ r1))
+	(vp-cpy-ir r7 array_array r1)
 	(vp-cpy-ir r1 0 r0)
 	(vp-cpy-ir r1 ptr_size r1)
 	(call 'view 'find_id '(r0 (r1 num_value)) '(_ r0))
@@ -170,7 +170,7 @@
 	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
 
 	(vp-push r6)
-	(call 'vector 'get_begin '(r7) '(_ r7))
+	(vp-cpy-ir r7 array_array r7)
 	(call 'obj 'ref '((r7 ptr_size)) '(r3))
 	(call 'obj 'ref '((r7 0)) '(r0))
 	(call 'view 'add_child '(r0 r3) '(r1))
@@ -201,7 +201,7 @@
 	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
 
 	(vp-push r6)
-	(call 'vector 'get_begin '(r7) '(_ r7))
+	(vp-cpy-ir r7 array_array r7)
 	(call 'obj 'ref '((r7 ptr_size)) '(r3))
 	(call 'obj 'ref '((r7 0)) '(r0))
 	(call 'view 'add_front '(r0 r3) '(r1))
@@ -232,7 +232,7 @@
 	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
 
 	(vp-push r6)
-	(call 'vector 'get_begin '(r7) '(_ r7))
+	(vp-cpy-ir r7 array_array r7)
 	(call 'obj 'ref '((r7 ptr_size)) '(r3))
 	(call 'obj 'ref '((r7 0)) '(r0))
 	(call 'view 'add_back '(r0 r3) '(r1))
@@ -297,7 +297,7 @@
 	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
 
 	(vp-push r6)
-	(call 'vector 'get_begin '(r7) '(_ r1))
+	(vp-cpy-ir r7 array_array r1)
 	(vp-cpy-ir r1 0 r0)
 	(vp-cpy-ir r1 ptr_size r2)
 	(vp-cpy-ir r1 (mul ptr_size 2) r3)
@@ -332,7 +332,7 @@
 	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
 
 	(vp-push r6)
-	(call 'vector 'get_begin '(r7) '(_ r1))
+	(vp-cpy-ir r7 array_array r1)
 	(vp-cpy-ir r1 0 r0)
 	(vp-cpy-ir r1 ptr_size r2)
 	(vp-cpy-ir r1 (mul ptr_size 2) r3)
@@ -405,7 +405,7 @@
 	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
 
 	(vp-push r6)
-	(call 'vector 'get_begin '(r7) '(_ r1))
+	(vp-cpy-ir r7 array_array r1)
 	(vp-cpy-ir r1 0 r0)
 	(vp-cpy-ir r1 ptr_size r2)
 	(vp-cpy-ir r1 (mul ptr_size 2) r3)
@@ -440,7 +440,7 @@
 	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
 
 	(vp-push r6)
-	(call 'vector 'get_begin '(r7) '(_ r1))
+	(vp-cpy-ir r7 array_array r1)
 	(vp-cpy-ir r1 0 r0)
 	(vp-cpy-ir r1 ptr_size r2)
 	(vp-cpy-ir r1 (mul ptr_size 2) r3)
@@ -504,7 +504,7 @@
 	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
 
 	(vp-push r6)
-	(call 'vector 'get_begin '(r7) '(_ r1))
+	(vp-cpy-ir r7 array_array r1)
 	(vp-cpy-ir r1 0 r0)
 	(vp-cpy-ir r1 ptr_size r2)
 	(vp-cpy-ir r1 (mul ptr_size 2) r3)

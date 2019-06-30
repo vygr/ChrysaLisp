@@ -19,7 +19,7 @@
 	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
 
 	(vp-push r6)
-	(call 'vector 'get_begin '(r7) '(_ r1))
+	(vp-cpy-ir r7 array_array r1)
 	(vp-cpy-ir r1 0 r0)
 	(vp-cpy-ir r1 ptr_size r1)
 	(call 'font 'open '((& r0 str_data) (r1 num_value)) '(r0))

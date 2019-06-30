@@ -10,11 +10,10 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(entry 'sys_pii 'lisp_readchar '(r0 r1))
-	(assign '(r0 r1) '(r6 r7))
+	(entry 'sys_pii 'lisp_readchar '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type `(r1 (@ ,(f-path 'num 'vtable)) -1))
+	(call 'lisp 'env_args_type `(r7 (@ ,(f-path 'num 'vtable)) -1))
 	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
 
 	(vp-cpy-ir r7 array_array r0)
@@ -39,11 +38,10 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(entry 'sys_pii 'lisp_writechar '(r0 r1))
-	(assign '(r0 r1) '(r6 r7))
+	(entry 'sys_pii 'lisp_writechar '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type `(r1 (@ ,(f-path 'num 'vtable)) -2))
+	(call 'lisp 'env_args_type `(r7 (@ ,(f-path 'num 'vtable)) -2))
 	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
 
 	(vp-cpy-ir r7 array_array r1)

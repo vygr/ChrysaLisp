@@ -386,16 +386,14 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(entry 'seq 'lisp_cat '(r0 r1))
-
-	(assign '(r0 r1) '(r6 r7))
+	(entry 'seq 'lisp_cat '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type `(r1 (@ ,(f-path 'seq 'vtable)) -1))
+	(call 'lisp 'env_args_type `(r7 (@ ,(f-path 'seq 'vtable)) -1))
 	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
 
-	(vp-cpy-ir r7 array_array r0)
 	(vp-push r6)
+	(vp-cpy-ir r7 array_array r0)
 	(call 'seq 'cat `((r0 0) r7) '(r1))
 	(vp-pop r0)
 
