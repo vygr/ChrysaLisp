@@ -4,6 +4,11 @@
 
 ------
 
+Worked through allmost all the Lisp bindings to convert to VP. Saved several KB
+on the boot image size as a result. Plus a small but worthwhile speed up.
+
+------
+
 Looks like SDL 2.0.9 fixes the 2.0.8 red screen on Mojave problem !!! So I'm
 removing the temp fix for that problem. Thanks SDL crew for sorting this out in
 this release.
