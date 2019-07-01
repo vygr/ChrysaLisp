@@ -63,8 +63,8 @@
 	(entry 'slave 'lisp_get_args {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 1})
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(call 'lisp 'env_args_type {args, $sig, 1} '(r1))
+	(gotoif '(r1 == 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'slave 'get_args {arg0} {_, arg0})

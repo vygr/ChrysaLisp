@@ -20,8 +20,8 @@
 	(entry 'lisp 'func_ffi {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 4})
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
+	(call 'lisp 'env_args_type {args, $sig, 4} '(r1))
+	(gotoif '(r1 == 0) 'error))
 
 	(call 'vector 'get_begin {args} {_, iter_begin})
 	(call 'sys_load 'bind {&iter_begin[ptr_size * 2]->str_data} {value})

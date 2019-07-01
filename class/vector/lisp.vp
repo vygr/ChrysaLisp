@@ -36,8 +36,8 @@
 	(entry 'vector 'lisp_elemset {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 3})
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(call 'lisp 'env_args_type {args, $sig, 3} '(r1))
+	(gotoif '(r1 == 0) 'error1))
 
 	(call 'vector 'get_begin {args} {_, iter_begin})
 	(assign {iter_begin[0], iter_begin[ptr_size]} {value, seq})
@@ -79,8 +79,8 @@
 	(entry 'vector 'lisp_merge (list r_this r_args))
 
 (errorcases
-	(call 'lisp 'env_args_type `(,r_args ($ sig) 2))
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
+	(call 'lisp 'env_args_type `(,r_args ($ sig) 2) '(r1))
+	(gotoif '(r1 == 0) 'error))
 
 	(call 'vector 'get_first (list r_args) (list '_ r_dlist))
 	(call 'vector 'get_second (list r_args) (list '_ r_slist))
@@ -139,8 +139,8 @@
 	(entry 'vector 'lisp_part {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 4})
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(call 'lisp 'env_args_type {args, $sig, 4} '(r1))
+	(gotoif '(r1 == 0) 'error1))
 
 	(call 'vector 'get_begin {args} {_, iter_begin})
 	(assign {iter_begin[0]} {func})
@@ -215,8 +215,8 @@
 	(entry 'vector 'lisp_match (list r_this r_args))
 
 (errorcases
-	(call 'lisp 'env_args_type `(,r_args ($ sig) 2))
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(call 'lisp 'env_args_type `(,r_args ($ sig) 2) '(r1))
+	(gotoif '(r1 == 0) 'error1))
 
 	(vp-cpy-ir r_args array_array r_iter_begin)
 	(vp-cpy-ir r_iter_begin 0 r_value1)

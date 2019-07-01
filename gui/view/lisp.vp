@@ -42,8 +42,8 @@
 	(entry 'view 'lisp_event '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 2))
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 2) '(r1))
+	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
 	(vp-cpy-ir r7 array_array r1)
@@ -74,8 +74,8 @@
 	(entry 'view 'lisp_layout '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 1))
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 1) '(r1))
+	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
 	(call 'vector 'ref_element '(r7 0) '(_ r0))
@@ -103,8 +103,8 @@
 	(entry 'view 'lisp_find_id '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 2))
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 2) '(r1))
+	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
 	(vp-cpy-ir r7 array_array r1)
@@ -139,8 +139,8 @@
 	(entry 'view 'lisp_sub '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 1))
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 1) '(r1))
+	(gotoif '(r1 == 0) 'error))
 
 	(call 'vector 'get_first '(r7) '(_ r0))
 	(call 'view 'sub '(r0) '(r0))
@@ -166,8 +166,8 @@
 	(entry 'view 'lisp_add_child '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 2))
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 2) '(r1))
+	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
 	(vp-cpy-ir r7 array_array r7)
@@ -197,8 +197,8 @@
 	(entry 'view 'lisp_add_front '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 2))
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 2) '(r1))
+	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
 	(vp-cpy-ir r7 array_array r7)
@@ -228,8 +228,8 @@
 	(entry 'view 'lisp_add_back '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 2))
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 2) '(r1))
+	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
 	(vp-cpy-ir r7 array_array r7)
@@ -259,8 +259,8 @@
 	(entry 'view 'lisp_pref_size '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 1))
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 1) '(r1))
+	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
 	(call 'vector 'get_first '(r7) '(_ r0))
@@ -293,8 +293,8 @@
 	(entry 'view 'lisp_change '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 5))
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 5) '(r1))
+	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
 	(vp-cpy-ir r7 array_array r1)
@@ -328,8 +328,8 @@
 	(entry 'view 'lisp_set_bounds '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 5))
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 5) '(r1))
+	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
 	(vp-cpy-ir r7 array_array r1)
@@ -363,8 +363,8 @@
 	(entry 'view 'lisp_get_bounds '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 1))
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 1) '(r1))
+	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
 	(call 'vector 'get_first '(r7) '(_ r0))
@@ -401,8 +401,8 @@
 	(entry 'view 'lisp_add_opaque '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 5))
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 5) '(r1))
+	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
 	(vp-cpy-ir r7 array_array r1)
@@ -436,8 +436,8 @@
 	(entry 'view 'lisp_sub_opaque '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 5))
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 5) '(r1))
+	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
 	(vp-cpy-ir r7 array_array r1)
@@ -471,8 +471,8 @@
 	(entry 'view 'lisp_opaque '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 1))
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 1) '(r1))
+	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
 	(call 'vector 'ref_element '(r7 0) '(_ r0))
@@ -500,8 +500,8 @@
 	(entry 'view 'lisp_add_dirty '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 5))
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 5) '(r1))
+	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
 	(vp-cpy-ir r7 array_array r1)
@@ -535,8 +535,8 @@
 	(entry 'view 'lisp_dirty '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 1))
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 1) '(r1))
+	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
 	(call 'vector 'ref_element '(r7 0) '(_ r0))
@@ -564,8 +564,8 @@
 	(entry 'view 'lisp_dirty_all '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 1))
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 1) '(r1))
+	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
 	(call 'vector 'ref_element '(r7 0) '(_ r0))

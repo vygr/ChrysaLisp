@@ -8,8 +8,8 @@
 	(vp-def (r_this r_args r_value) '(r6 r7 r0))
 	(entry 'sys_math _ (list r_this r_args))
 (errorcases
-	(call 'lisp 'env_args_type `(,r_args ($ sig) 1))
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
+	(call 'lisp 'env_args_type `(,r_args ($ sig) 1) '(r1))
+	(gotoif '(r1 == 0) 'error))
 	(vp-cpy-ir r_args array_array r_value)
 	(vp-cpy-ir r_value 0 r_value)
 	(vp-cpy-ir r_value num_value r_value)

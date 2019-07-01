@@ -7,8 +7,8 @@
 	(vp-def (r_this r_args r_num r_value r_numhi r_iter_begin r_iter_end r_num1) '(r6 r7))
 	(entry 'num _ (list r_this r_args))
 (errorcases
-	(call 'lisp 'env_args_type `(,r_args (@ ,(f-path 'num 'vtable)) -2))
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
+	(call 'lisp 'env_args_type `(,r_args (@ ,(f-path 'num 'vtable)) -2) '(r1))
+	(gotoif '(r1 == 0) 'error))
 	(call 'vector 'get_iters (list r_args) (list '_ r_iter_begin r_iter_end))
 	(vp-cpy-ir r_iter_begin 0 r_num)
 	(vp-add-cr ptr_size r_iter_begin)
@@ -265,8 +265,8 @@
 	(entry 'num 'lisp_fmod {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type (cat {args, @} (f-path 'num 'vtable) {, -2}))
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
+	(call 'lisp 'env_args_type (cat {args, @} (f-path 'num 'vtable) {, -2}) '(r1))
+	(gotoif '(r1 == 0) 'error))
 
 	(call 'vector 'get_iters {args} {_, iter_begin, iter_end})
 	(call 'num 'get_value {*iter_begin} {_, accum})
@@ -297,8 +297,8 @@
 	(vp-def (r_this r_args r_num r_value r_iter_begin) '(r6 r7))
 	(entry 'num _ (list r_this r_args))
 (errorcases
-	(call 'lisp 'env_args_type `(,r_args ($ sig) 2))
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
+	(call 'lisp 'env_args_type `(,r_args ($ sig) 2) '(r1))
+	(gotoif '(r1 == 0) 'error))
 	(vp-cpy-ir r_args array_array r_iter_begin)
 	(vp-cpy-ir r_iter_begin 0 r_num)
 	(vp-cpy-ir r_iter_begin ptr_size r_value)
@@ -367,8 +367,8 @@
 	(vp-def (r_this r_args r_num r_value r_iter_begin r_iter_end r_num1) '(r6 r7))
 	(entry 'num _ (list r_this r_args))
 (errorcases
-	(call 'lisp 'env_args_type `(,r_args (@ ,(f-path 'num 'vtable)) -2))
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
+	(call 'lisp 'env_args_type `(,r_args (@ ,(f-path 'num 'vtable)) -2) '(r1))
+	(gotoif '(r1 == 0) 'error))
 	(call 'vector 'get_iters (list r_args) (list '_ r_iter_begin r_iter_end))
 	(vp-cpy-ir r_iter_begin 0 r_num)
 	(vp-add-cr ptr_size r_iter_begin)
@@ -493,8 +493,8 @@
 	(entry 'num 'lisp_ne (list r_this r_args))
 
 (errorcases
-	(call 'lisp 'env_args_type `(,r_args (@ ,(f-path 'num 'vtable)) -2))
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
+	(call 'lisp 'env_args_type `(,r_args (@ ,(f-path 'num 'vtable)) -2) '(r1))
+	(gotoif '(r1 == 0) 'error))
 
 	(call 'vector 'get_iters (list r_args) (list '_ r_iter_begin r_iter_end))
 	(vp-lea-i r_iter_end (neg ptr_size) r_iter_stop)

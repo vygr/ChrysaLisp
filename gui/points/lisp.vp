@@ -18,8 +18,8 @@
 	(entry 'points 'lisp_transform {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 8})
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(call 'lisp 'env_args_type {args, $sig, 8} '(r1))
+	(gotoif '(r1 == 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'points 'transform {arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7})
@@ -52,8 +52,8 @@
 	(entry 'points 'lisp_simplify {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 4})
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(call 'lisp 'env_args_type {args, $sig, 4} '(r1))
+	(gotoif '(r1 == 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'points 'simplify {arg0, arg1, arg2, arg3})
@@ -86,8 +86,8 @@
 	(entry 'points 'lisp_gen_quadratic {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 9})
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(call 'lisp 'env_args_type {args, $sig, 9} '(r1))
+	(gotoif '(r1 == 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'points 'gen_quadratic {arg8, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7})
@@ -120,8 +120,8 @@
 	(entry 'points 'lisp_gen_cubic {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 11})
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(call 'lisp 'env_args_type {args, $sig, 11} '(r1))
+	(gotoif '(r1 == 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'points 'gen_cubic {arg10, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9})
@@ -154,8 +154,8 @@
 	(entry 'points 'lisp_gen_arc {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 8})
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(call 'lisp 'env_args_type {args, $sig, 8} '(r1))
+	(gotoif '(r1 == 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'points 'gen_arc {arg7, arg0, arg1, arg2, arg3, arg4, arg5, arg6})
@@ -188,8 +188,8 @@
 	(entry 'points 'lisp_stroke_polylines {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 8})
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(call 'lisp 'env_args_type {args, $sig, 8} '(r1))
+	(gotoif '(r1 == 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'points 'stroke_polylines {arg7, arg0, arg6, arg1, arg2, arg3, arg4, arg5})
@@ -222,8 +222,8 @@
 	(entry 'points 'lisp_stroke_polygons {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 6})
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(call 'lisp 'env_args_type {args, $sig, 6} '(r1))
+	(gotoif '(r1 == 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'points 'stroke_polygons {arg5, arg0, arg4, arg1, arg2, arg3})
@@ -261,8 +261,8 @@
 (errorcases
 	(gotoif {length < 2} 'error1)
 	(gotoif {length > 3} 'error1)
-	(call 'lisp 'env_args_type (cat {args, @} (f-path 'points 'vtable) {, 0}))
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(call 'lisp 'env_args_type (cat {args, @} (f-path 'points 'vtable) {, 0}) '(r1))
+	(gotoif '(r1 == 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'points 'get_length {arg0} {_, veclen})
@@ -310,8 +310,8 @@
 (errorcases
 	(gotoif {length < 1} 'error1)
 	(gotoif {length > 2} 'error1)
-	(call 'lisp 'env_args_type (cat {args, @} (f-path 'points 'vtable) {, 0}))
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(call 'lisp 'env_args_type (cat {args, @} (f-path 'points 'vtable) {, 0}) '(r1))
+	(gotoif '(r1 == 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'points 'get_length {arg0} {_, veclen})
@@ -529,8 +529,8 @@
 	(entry 'points 'lisp_sum {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 1})
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(call 'lisp 'env_args_type {args, $sig, 1} '(r1))
+	(gotoif '(r1 == 0) 'error1))
 
 	(call 'vector 'get_first {args} {_, value})
 	(call 'points 'get_length {value} {_, length})
@@ -570,8 +570,8 @@
 (errorcases
 	(gotoif {length < 2} 'error1)
 	(gotoif {length > 3} 'error1)
-	(call 'lisp 'env_args_type {args, $sig, length})
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(call 'lisp 'env_args_type {args, $sig, length} '(r1))
+	(gotoif '(r1 == 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'points 'get_length {arg0} {_, veclen})

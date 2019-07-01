@@ -15,8 +15,8 @@
 	(entry 'scroll 'lisp_create '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 1))
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 1) '(r1))
+	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
 	(call 'vector 'get_first '(r7) '(_ r1))

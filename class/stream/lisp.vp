@@ -19,8 +19,8 @@
 	(assign '(r0 r1) '(r8 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r1 ($ sig) 1))
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
+	(call 'lisp 'env_args_type '(r1 ($ sig) 1) '(r1))
+	(gotoif '(r1 == 0) 'error))
 
 	(call 'vector 'get_first '(r7) '(_ r5))
 	(vp-add-cr str_data r5)
@@ -69,8 +69,8 @@
 	(entry 'stream 'lisp_strstream '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 1))
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 1) '(r1))
+	(gotoif '(r1 == 0) 'error))
 
 	(d-call 'vector 'ref_element '(r7 0) '(_ r0))
 	(call 'stream_str 'create '(r0) '(r0))
@@ -96,8 +96,8 @@
 	(entry 'stream 'lisp_available '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 1))
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 1) '(r1))
+	(gotoif '(r1 == 0) 'error))
 
 	(call 'vector 'get_first '(r7) '(_ r1))
 	(call 'stream 'available '(r1) '(_ r1))
@@ -194,8 +194,8 @@
 	(entry 'stream 'lisp_readline '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 1))
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 1) '(r1))
+	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
 	(call 'vector 'get_first '(r7) '(_ r1))
@@ -226,8 +226,8 @@
 	(entry 'stream 'lisp_write '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 2))
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 2) '(r1))
+	(gotoif '(r1 == 0) 'error))
 
 	(vp-cpy-ir r7 array_array r3)
 	(call 'obj 'ref '((r3 ptr_size)) '(r0))
@@ -327,8 +327,8 @@
 	(entry 'stream 'lisp_write_flush '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 1))
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 1) '(r1))
+	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
 	(call 'vector 'ref_element '(r7 0) '(_ r0))

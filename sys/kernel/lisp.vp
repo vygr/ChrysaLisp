@@ -12,23 +12,22 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(vp-def (r_this r_args r_value r_len) '(r3 r4))
-
-	(entry 'sys_kernel 'lisp_total (list r_this r_args))
+	(entry 'sys_kernel 'lisp_total '(r0 r1))
 
 (errorcases
-	(d-call 'vector 'get_length (list r_args) (list '_ r_len))
-	(gotoif (list r_len '!= 0) 'error1))
+	(vp-cpy-ir-ui r1 array_length r2)
+	(gotoif '(r2 != 0) 'error))
 
-	(call 'sys_kernel 'total nil (list r_value))
-	(call 'num 'create (list r_value) (list r_value))
+	(vp-cpy-rr r0 r6)
+	(call 'sys_kernel 'total nil '(r0))
+	(call 'num 'create '(r0) '(r0))
 
-	(exit 'sys_kernel 'lisp_total (list r_this r_value))
+	(exit 'sys_kernel 'lisp_total '(r6 r0))
 	(vp-ret)
 
 (errorcases
-(vp-label 'error1)
-	(jump 'lisp 'repl_error (list r_this "(kernel-total)" error_msg_wrong_types r_args)))
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r0 "(kernel-total)" error_msg_wrong_types r1)))
 
 (def-func-end)
 
@@ -40,29 +39,25 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(ptr 'this 'args 'value)
-	(ulong 'arg0 'arg1)
-
-	(push-scope)
-	(entry 'sys_kernel 'lisp_declare {this, args})
+	(entry 'sys_kernel 'lisp_declare '(r11 r12))
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 2})
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(call 'lisp 'env_args_type '(r12 ($ sig) 2) '(r1))
+	(gotoif '(r1 == 0) 'error))
 
-	(call 'lisp 'env_args_set {args, &arg0, 0})
-	(call 'sys_kernel 'declare {&arg0->str_data, arg1})
-	(call 'obj 'ref {arg0} {value})
+	(vp-cpy-ir r12 array_array r1)
+	(vp-cpy-ir r1 0 r12)
+	(vp-cpy-ir r1 ptr_size r1)
+	(call 'sys_kernel 'declare '((& r12 str_data) (r1 num_value)))
+	(call 'obj 'ref '(r12) '(r0))
 
-	(exit 'sys_kernel 'lisp_declare {this, value})
-	(return)
+	(exit 'sys_kernel 'lisp_declare '(r11 r0))
+	(vp-ret)
 
 (errorcases
-(vp-label 'error1)
-	(jump 'lisp 'repl_error {this, "(kernel-declare name mbox)", error_msg_wrong_types, args})
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r11 "(kernel-declare name mbox)" error_msg_wrong_types r12))
 	(signature 'sig 'str 'num))
-
-	(pop-scope-syms)
 
 (def-func-end)
 
@@ -74,28 +69,25 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(ptr 'this 'args 'value)
-	(ulong 'arg0)
-
-	(push-scope)
-	(entry 'sys_kernel 'lisp_debug {this, args})
+	(entry 'sys_kernel 'lisp_debug '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 1})
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 1) '(r1))
+	(gotoif '(r1 == 0) 'error))
 
-	(call 'lisp 'env_args_set {args, &arg0, 0})
-	(call 'sys_kernel 'debug {&arg0->str_data})
-	(call 'obj 'ref {arg0} {value})
+	(vp-cpy-ir r7 array_array r1)
+	(vp-cpy-ir r1 0 r0)
+	(vp-push r6 r0)
+	(call 'sys_kernel 'debug '((& r0 str_data)))
+	(vp-pop r6 r0)
+	(call 'obj 'ref '(r0)'(r0))
 
-	(exit 'sys_kernel 'lisp_debug {this, value})
-	(return)
+	(exit 'sys_kernel 'lisp_debug '(r6 r0))
+	(vp-ret)
 
 (errorcases
-(vp-label 'error1)
-	(jump 'lisp 'repl_error {this, "(kernel-debug str)", error_msg_wrong_types, args})
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r6 "(kernel-debug str)" error_msg_wrong_types r7))
 	(signature 'sig 'str))
-
-	(pop-scope-syms)
 
 (def-func-end)

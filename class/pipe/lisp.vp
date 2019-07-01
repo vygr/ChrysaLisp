@@ -20,8 +20,8 @@
 	(entry 'pipe 'lisp_create {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 1})
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(call 'lisp 'env_args_type {args, $sig, 1} '(r1))
+	(gotoif '(r1 == 0) 'error1))
 
 	(call 'vector 'get_first {args} {_, value})
 	(call 'pipe 'create {&value->str_data, value->str_length} {value})
@@ -57,8 +57,8 @@
 	(entry 'pipe 'lisp_read {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 2})
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(call 'lisp 'env_args_type {args, $sig, 2} '(r1))
+	(gotoif '(r1 == 0) 'error1))
 
 	(call 'vector 'get_first {args} {_, pipe})
 	(call 'pipe 'get_state {pipe} {_, state})
@@ -126,8 +126,8 @@
 	(entry 'pipe 'lisp_write {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 2})
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(call 'lisp 'env_args_type {args, $sig, 2} '(r1))
+	(gotoif '(r1 == 0) 'error1))
 
 	(call 'vector 'get_begin {args} {_, iter_begin})
 	(assign {iter_begin[0], iter_begin[ptr_size]} {pipe, value})

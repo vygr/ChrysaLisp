@@ -12,29 +12,24 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(ptr 'this 'args 'value)
-	(ulong 'arg0)
-
-	(push-scope)
-	(entry 'sys_task 'lisp_sleep {this, args})
+	(entry 'sys_task 'lisp_sleep '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 1})
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 1) '(r1))
+	(gotoif '(r1 == 0) 'error))
 
-	(call 'lisp 'env_args_set {args, &arg0, 0})
-	(call 'sys_task 'sleep {arg0})
-	(call 'obj 'ref {this->lisp_sym_t} {value})
+	(vp-cpy-ir r7 array_array r0)
+	(vp-cpy-ir r0 0 r0)
+	(call 'sys_task 'sleep '((r0 num_value)))
+	(call 'obj 'ref '((r6 lisp_sym_t)) '(r0))
 
-	(exit 'sys_task 'lisp_sleep {this, value})
-	(return)
+	(exit 'sys_task 'lisp_sleep '(r6 r0))
+	(vp-ret)
 
 (errorcases
-(vp-label 'error1)
-	(jump 'lisp 'repl_error {this, "(task-sleep usec)", error_msg_wrong_types, args})
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r6 "(task-sleep usec)" error_msg_wrong_types r7))
 	(signature 'sig 'num))
-
-	(pop-scope-syms)
 
 (def-func-end)
 
@@ -46,23 +41,22 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(vp-def (r_this r_args r_value) '(r6 r7))
-
-	(entry 'sys_task 'lisp_mailbox (list r_this r_args))
+	(entry 'sys_task 'lisp_mailbox '(r0 r1))
 
 (errorcases
-	(d-call 'vector 'get_length (list r_args))
-	(gotoif (list (method-output 'vector 'get_length 1) '!= 0) 'error1))
+	(vp-cpy-ir-ui r1 array_length r2)
+	(gotoif '(r2 != 0) 'error))
 
-	(call 'sys_task 'mailbox nil (list r_value))
-	(call 'num 'create (list r_value) (list r_value))
+	(vp-cpy-rr r0 r6)
+	(call 'sys_task 'mailbox nil '(r0))
+	(call 'num 'create '(r0) '(r0))
 
-	(exit 'sys_task 'lisp_mailbox (list r_this r_value))
+	(exit 'sys_task 'lisp_mailbox '(r6 r0))
 	(vp-ret)
 
 (errorcases
-(vp-label 'error1)
-	(jump 'lisp 'repl_error (list r_this "(task-mailbox)" error_msg_wrong_types r_args)))
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r0 "(task-mailbox)" error_msg_wrong_types r1)))
 
 (def-func-end)
 
@@ -74,29 +68,27 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(ptr 'this 'args 'value)
-	(ulong 'arg0 'arg1)
-
-	(push-scope)
-	(entry 'sys_task 'lisp_open_child {this, args})
+	(entry 'sys_task 'lisp_open_child '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 2})
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 2) '(r1))
+	(gotoif '(r1 == 0) 'error))
 
-	(call 'lisp 'env_args_set {args, &arg0, 0})
-	(call 'sys_task 'open_child {&arg0->str_data, arg1} {arg0})
-	(call 'num 'create {arg0} {value})
+	(vp-push r6)
+	(vp-cpy-ir r7 array_array r1)
+	(vp-cpy-ir r1 0 r0)
+	(vp-cpy-ir r1 ptr_size r1)
+	(call 'sys_task 'open_child '((& r0 str_data) (r1 num_value)) '(r0))
+	(call 'num 'create '(r0) '(r1))
+	(vp-pop r0)
 
-	(exit 'sys_task 'lisp_open_child {this, value})
-	(return)
+	(exit 'sys_task 'lisp_open_child '(r0 r1))
+	(vp-ret)
 
 (errorcases
-(vp-label 'error1)
-	(jump 'lisp 'repl_error {this, "(open-child path mode)", error_msg_wrong_types, args})
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r6 "(open-child path mode)" error_msg_wrong_types r7))
 	(signature 'sig 'str 'num))
-
-	(pop-scope-syms)
 
 (def-func-end)
 
@@ -108,29 +100,28 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(ptr 'this 'args 'value)
-	(ulong 'arg0 'arg1 'arg2)
-
-	(push-scope)
-	(entry 'sys_task 'lisp_open_remote {this, args})
+	(entry 'sys_task 'lisp_open_remote '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 3})
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 3) '(r1))
+	(gotoif '(r1 == 0) 'error))
 
-	(call 'lisp 'env_args_set {args, &arg0, 0})
-	(call 'sys_task 'open_remote {&arg0->str_data, arg1, arg2} {arg0})
-	(call 'num 'create {arg0} {value})
+	(vp-push r6)
+	(vp-cpy-ir r7 array_array r2)
+	(vp-cpy-ir r2 0 r0)
+	(vp-cpy-ir r2 ptr_size r1)
+	(vp-cpy-ir r2 (mul ptr_size 2) r2)
+	(call 'sys_task 'open_remote '((& r0 str_data) (r1 num_value) (r2 num_value)) '(r0))
+	(call 'num 'create '(r0) '(r1))
+	(vp-pop r0)
 
-	(exit 'sys_task 'lisp_open_remote {this, value})
-	(return)
+	(exit 'sys_task 'lisp_open_remote '(r0 r1))
+	(vp-ret)
 
 (errorcases
-(vp-label 'error1)
-	(jump 'lisp 'repl_error {this, "(open-remote path cpu mode)", error_msg_wrong_types, args})
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r6 "(open-remote path cpu mode)" error_msg_wrong_types r7))
 	(signature 'sig 'str 'num 'num))
-
-	(pop-scope-syms)
 
 (def-func-end)
 
@@ -142,28 +133,27 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(ptr 'this 'args 'value)
-	(ulong 'arg0 'arg1 'arg2)
-
-	(push-scope)
-	(entry 'sys_task 'lisp_open_farm {this, args})
+	(entry 'sys_task 'lisp_open_farm '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 3})
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 3) '(r1))
+	(gotoif '(r1 == 0) 'error))
 
-	(call 'lisp 'env_args_set {args, &arg0, 0})
-	(call 'sys_task 'open_farm {&arg0->str_data, arg1, arg2} {value})
+	(vp-push r6)
+	(vp-cpy-ir r7 array_array r2)
+	(vp-cpy-ir r2 0 r0)
+	(vp-cpy-ir r2 ptr_size r1)
+	(vp-cpy-ir r2 (mul ptr_size 2) r2)
+	(call 'sys_task 'open_farm '((& r0 str_data) (r1 num_value) (r2 num_value)) '(r1))
+	(vp-pop r0)
 
-	(exit 'sys_task 'lisp_open_farm {this, value})
-	(return)
+	(exit 'sys_task 'lisp_open_farm '(r0 r1))
+	(vp-ret)
 
 (errorcases
-(vp-label 'error1)
-	(jump 'lisp 'repl_error {this, "(open-farm path num mode)", error_msg_wrong_types, args})
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r6 "(open-farm path num mode)" error_msg_wrong_types r7))
 	(signature 'sig 'str 'num 'num))
-
-	(pop-scope-syms)
 
 (def-func-end)
 
@@ -175,32 +165,29 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(ptr 'this 'args 'value)
-	(ulong 'arg0)
-
-	(push-scope)
-	(entry 'sys_task 'lisp_open_pipe {this, args})
+	(entry 'sys_task 'lisp_open_pipe '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 1})
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 1) '(r1))
+	(gotoif '(r1 == 0) 'error))
 
-	(call 'lisp 'env_args_set {args, &arg0, 0})
-
-(errorcases
-	(call 'lisp 'env_args_type (cat {arg0, @} (f-path 'str 'vtable) {, -1}))
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
-
-	(call 'sys_task 'open_pipe {arg0} {value})
-
-	(exit 'sys_task 'lisp_open_pipe {this, value})
-	(return)
+	(vp-cpy-ir r7 array_array r8)
+	(vp-cpy-ir r8 0 r8)
 
 (errorcases
-(vp-label 'error1)
-	(jump 'lisp 'repl_error {this, "(open-pipe paths)", error_msg_wrong_types, args})
+	(call 'lisp 'env_args_type `(r8 (@ ,(f-path 'str 'vtable)) -1) '(r1))
+	(gotoif '(r1 == 0) 'error))
+
+	(vp-push r6)
+	(call 'sys_task 'open_pipe '(r8) '(r1))
+	(vp-pop r0)
+
+	(exit 'sys_task 'lisp_open_pipe '(r0 r1))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r6 "(open-pipe paths)" error_msg_wrong_types r7))
 	(signature 'sig 'vector))
-
-	(pop-scope-syms)
 
 (def-func-end)

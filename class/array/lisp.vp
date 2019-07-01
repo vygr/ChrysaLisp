@@ -54,8 +54,8 @@
 	(entry 'array 'lisp_clear {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type (cat {args, @} (f-path 'array 'vtable) {, -1}))
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
+	(call 'lisp 'env_args_type (cat {args, @} (f-path 'array 'vtable) {, -1}) '(r1))
+	(gotoif '(r1 == 0) 'error))
 
 	(call 'vector 'get_iters {args} (list '_ r_iter_begin r_iter_end))
 	(loop-start)
@@ -86,28 +86,27 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(entry 'array 'lisp_pop '(r0 r1))
-	(assign '(r0 r1) '(r8 r9))
+	(entry 'array 'lisp_pop '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r1 ($ sig) 1))
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 1) '(r1))
+	(gotoif '(r1 == 0) 'error))
 
-	(vp-cpy-ir r9 array_array r0)
-	(vp-cpy-ir r0 0 r9)
-	(vp-cpy-ir-ui r9 array_length r1)
+	(vp-cpy-ir r7 array_array r0)
+	(vp-cpy-ir r0 0 r7)
+	(vp-cpy-ir-ui r7 array_length r1)
 	(vpif '(r1 != 0))
-		(call 'array 'ref_back '(r9) '(_ r1))
+		(call 'array 'ref_back '(r7) '(_ r1))
 	(else)
-		(call 'obj 'ref '((r8 lisp_sym_nil)) '(r1))
+		(call 'obj 'ref '((r6 lisp_sym_nil)) '(r1))
 	(endif)
 
-	(exit 'array 'lisp_pop '(r8 r1))
+	(exit 'array 'lisp_pop '(r6 r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r8 "(pop array)" error_msg_wrong_types r9))
+	(jump 'lisp 'repl_error '(r6 "(pop array)" error_msg_wrong_types r7))
 	(signature 'sig 'array))
 
 (def-func-end)

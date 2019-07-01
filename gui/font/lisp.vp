@@ -15,8 +15,8 @@
 	(entry 'font 'lisp_create '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 2))
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 2) '(r1))
+	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
 	(vp-cpy-ir r7 array_array r1)

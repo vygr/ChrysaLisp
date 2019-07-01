@@ -19,8 +19,8 @@
 	(entry 'canvas 'lisp_create {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 3})
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(call 'lisp 'env_args_type {args, $sig, 3} '(r1))
+	(gotoif '(r1 == 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'canvas 'create {arg0, arg1, arg2} {value})
@@ -52,8 +52,8 @@
 	(entry 'canvas 'lisp_load {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 2})
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(call 'lisp 'env_args_type {args, $sig, 2} '(r1))
+	(gotoif '(r1 == 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'canvas 'load {&arg0->str_data, arg1} {value})
@@ -88,8 +88,8 @@
 	(entry 'canvas 'lisp_fill {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 2})
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(call 'lisp 'env_args_type {args, $sig, 2} '(r1))
+	(gotoif '(r1 == 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'canvas 'fill {arg0, arg1})
@@ -122,8 +122,8 @@
 	(entry 'canvas 'lisp_set_color {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 2})
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(call 'lisp 'env_args_type {args, $sig, 2} '(r1))
+	(gotoif '(r1 == 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'canvas 'set_color {arg0, arg1})
@@ -156,8 +156,8 @@
 	(entry 'canvas 'lisp_set_flags {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 2})
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(call 'lisp 'env_args_type {args, $sig, 2} '(r1))
+	(gotoif '(r1 == 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'canvas 'set_flags {arg0, arg1})
@@ -190,8 +190,8 @@
 	(entry 'canvas 'lisp_swap {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 1})
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(call 'lisp 'env_args_type {args, $sig, 1} '(r1))
+	(gotoif '(r1 == 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'canvas 'swap {arg0})
@@ -225,8 +225,8 @@
 	(entry 'canvas 'lisp_next_frame {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 1})
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(call 'lisp 'env_args_type {args, $sig, 1} '(r1))
+	(gotoif '(r1 == 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'canvas 'next_frame {arg0})
@@ -259,8 +259,8 @@
 	(entry 'canvas 'lisp_plot {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 3})
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(call 'lisp 'env_args_type {args, $sig, 3} '(r1))
+	(gotoif '(r1 == 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'canvas 'plot {arg0, arg1, arg2})
@@ -293,8 +293,8 @@
 	(entry 'canvas 'lisp_fbox {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 5})
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(call 'lisp 'env_args_type {args, $sig, 5} '(r1))
+	(gotoif '(r1 == 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'canvas 'fbox {arg0, arg1, arg2, arg3, arg4})
@@ -327,8 +327,8 @@
 	(entry 'canvas 'lisp_fpoly {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 5})
-	(gotoif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
+	(call 'lisp 'env_args_type {args, $sig, 5} '(r1))
+	(gotoif '(r1 == 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'canvas 'fpoly {arg0, arg1, arg2, arg3, arg4})
