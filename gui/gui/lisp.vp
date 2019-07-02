@@ -11,28 +11,23 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(ptr 'this 'args 'value)
-	(ulong 'arg0)
-
-	(push-scope)
-	(entry 'gui 'lisp_add {this, args})
+	(entry 'gui 'lisp_add '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 1} '(r1))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 1) '(r1))
 	(gotoif '(r1 == 0) 'error1))
 
-	(call 'lisp 'env_args_set {args, &arg0, 0})
-	(call 'gui 'add {arg0})
-	(call 'obj 'ref {arg0} {value})
+	(vp-cpy-ir r7 array_array r0)
+	(vp-cpy-ir r0 0 r0)
+	(call 'gui 'add '(r0) '(r0))
+	(call 'obj 'ref '(r0) '(r0))
 
-	(exit 'gui 'lisp_add {this, value})
-	(return)
+	(exit 'gui 'lisp_add '(r6 r0))
+	(vp-ret)
 
 (errorcases
 (vp-label 'error1)
-	(jump 'lisp 'repl_error {this, "(gui-add view)", error_msg_wrong_types, args})
+	(jump 'lisp 'repl_error '(r6 "(gui-add view)" error_msg_wrong_types r7))
 	(signature 'sig 'view))
-
-	(pop-scope-syms)
 
 (def-func-end)

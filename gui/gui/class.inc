@@ -13,7 +13,7 @@
 (dec-method 'statics 'gui/gui/statics)
 (dec-method 'init 'gui/gui/init)
 (dec-method 'update 'gui/gui/update 'static '(r0))
-(dec-method 'add 'gui/gui/add 'static '(r0))
+(dec-method 'add 'gui/gui/add 'static '(r0) '(r0))
 (dec-method 'gui 'gui/gui/gui)
 
 (dec-method 'lisp_add 'gui/gui/lisp_add 'static '(r0 r1) '(r0 r1))

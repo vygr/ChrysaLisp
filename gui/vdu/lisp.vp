@@ -38,28 +38,24 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(ptr 'this 'args 'value)
-	(ulong 'arg0 'arg1)
-
-	(push-scope)
-	(entry 'vdu 'lisp_print {this, args})
+	(entry 'vdu 'lisp_print '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 2} '(r1))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 2) '(r1))
 	(gotoif '(r1 == 0) 'error1))
 
-	(call 'lisp 'env_args_set {args, &arg0, 0})
-	(call 'vdu 'print_cstr {arg0, &arg1->str_data})
-	(call 'obj 'ref {arg0} {value})
+	(vp-cpy-ir r7 array_array r1)
+	(vp-cpy-ir r1 0 r0)
+	(vp-cpy-ir r1 ptr_size r1)
+	(call 'vdu 'print_cstr '(r0 (& r1 str_data)) '(r0))
+	(call 'obj 'ref '(r0) '(r0))
 
-	(exit 'vdu 'lisp_print {this, value})
-	(return)
+	(exit 'vdu 'lisp_print '(r6 r0))
+	(vp-ret)
 
 (errorcases
 (vp-label 'error1)
-	(jump 'lisp 'repl_error {this, "(vdu-print vdu str)", error_msg_wrong_types, args})
+	(jump 'lisp 'repl_error '(r6 "(vdu-print vdu str)" error_msg_wrong_types r7))
 	(signature 'sig 'vdu 'str))
-
-	(pop-scope-syms)
 
 (def-func-end)

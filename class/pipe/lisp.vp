@@ -14,30 +14,28 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(ptr 'this 'args 'value)
-
-	(push-scope)
-	(entry 'pipe 'lisp_create {this, args})
+	(entry 'pipe 'lisp_create '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 1} '(r1))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 1) '(r1))
 	(gotoif '(r1 == 0) 'error1))
 
-	(call 'vector 'get_first {args} {_, value})
-	(call 'pipe 'create {&value->str_data, value->str_length} {value})
-	(errorifnot {value} 'error2)
+	(vp-push r6 r7)
+	(vp-cpy-ir r7 array_array r0)
+	(vp-cpy-ir r0 0 r0)
+	(call 'pipe 'create '((& r0 str_data) (r0 str_length ui)) '(r1))
+	(vp-pop r0 r7)
+	(errorif '(r1 == 0) 'error2)
 
-	(exit 'pipe 'lisp_create {this, value})
-	(return)
+	(exit 'pipe 'lisp_create '(r0 r1))
+	(vp-ret)
 
 (errorcases
 (vp-label 'error1)
-	(jump 'lisp 'repl_error {this, "(pipe str)", error_msg_wrong_types, args})
+	(jump 'lisp 'repl_error '(r6 "(pipe str)" error_msg_wrong_types r7))
 (vp-label 'error2)
-	(jump 'lisp 'repl_error {this, "(pipe str)", error_msg_open_error, args})
+	(jump 'lisp 'repl_error '(r0 "(pipe str)" error_msg_open_error r7))
 	(signature 'sig 'str))
-
-	(pop-scope-syms)
 
 (def-func-end)
 
