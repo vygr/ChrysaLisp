@@ -96,7 +96,7 @@
 ## create-button
 ### (create-button)
 ## create-canvas
-### (create-canvas width height aa_scale)
+### (create-canvas width height scale)
 ## create-flow
 ### (create-flow)
 ## create-font
@@ -342,7 +342,7 @@
 ## points-fscale
 ### (points-fscale points scale [points])
 ## points-gen-arc
-### (points-gen-arc stack cx cy start end radius tol dst) ->
+### (points-gen-arc stack cx cy start end radius tol dst) -> dst
 ## points-gen-cubic
 ### (points-gen-cubic stack p1x p1y p2x p2y p3x p3y p4x p4y tol dst) -> dst
 ## points-gen-quadratic

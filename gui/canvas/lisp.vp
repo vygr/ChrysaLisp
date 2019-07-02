@@ -12,28 +12,27 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(ptr 'this 'args 'value)
-	(ulong 'arg0 'arg1 'arg2)
-
-	(push-scope)
-	(entry 'canvas 'lisp_create {this, args})
+	(entry 'canvas 'lisp_create '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 3} '(r1))
-	(gotoif '(r1 == 0) 'error1))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 3) '(r1))
+	(gotoif '(r1 == 0) 'error))
 
-	(call 'lisp 'env_args_set {args, &arg0, 0})
-	(call 'canvas 'create {arg0, arg1, arg2} {value})
+	(vp-push r6)
+	(vp-cpy-ir r7 array_array r2)
+	(vp-cpy-ir r2 0 r0)
+	(vp-cpy-ir r2 ptr_size r1)
+	(vp-cpy-ir r2 (mul ptr_size 2) r2)
+	(call 'canvas 'create'((r0 num_value) (r1 num_value) (r2 num_value)) '(r1))
+	(vp-pop r0)
 
-	(exit 'canvas 'lisp_create {this, value})
-	(return)
+	(exit 'canvas 'lisp_create '(r0 r1))
+	(vp-ret)
 
 (errorcases
-(vp-label 'error1)
-	(jump 'lisp 'repl_error {this, "(create-canvas width height aa_scale)", error_msg_wrong_types, args})
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r6 "(create-canvas width height scale)" error_msg_wrong_types r7))
 	(signature 'sig 'num 'num 'num))
-
-	(pop-scope-syms)
 
 (def-func-end)
 
@@ -45,31 +44,31 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(ptr 'this 'args 'value)
-	(ulong 'arg0 'arg1)
-
-	(push-scope)
-	(entry 'canvas 'lisp_load {this, args})
+	(entry 'canvas 'lisp_load '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 2} '(r1))
-	(gotoif '(r1 == 0) 'error1))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 2) '(r1))
+	(gotoif '(r1 == 0) 'error))
 
-	(call 'lisp 'env_args_set {args, &arg0, 0})
-	(call 'canvas 'load {&arg0->str_data, arg1} {value})
-	(vpifnot {value})
-		(call 'obj 'ref {this->lisp_sym_nil} {value})
+	(vp-push r6)
+	(vp-cpy-ir r7 array_array r2)
+	(vp-cpy-ir r2 0 r0)
+	(vp-cpy-ir r2 ptr_size r1)
+	(call 'canvas 'load '((& r0 str_data) (r1 num_value)) '(r0))
+	(vpif '(r0 == 0))
+		(vp-cpy-ir rsp 0 r0)
+		(call 'obj 'ref '((r0 lisp_sym_nil)) '(r0))
 	(endif)
+	(vp-cpy-rr r0 r1)
+	(vp-pop r0)
 
-	(exit 'canvas 'lisp_load {this, value})
-	(return)
+	(exit 'canvas 'lisp_load '(r0 r1))
+	(vp-ret)
 
 (errorcases
-(vp-label 'error1)
-	(jump 'lisp 'repl_error {this, "(canvas-load path flags)", error_msg_wrong_types, args})
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r6 "(canvas-load path flags)" error_msg_wrong_types r7))
 	(signature 'sig 'str 'num))
-
-	(pop-scope-syms)
 
 (def-func-end)
 
@@ -81,29 +80,25 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(ptr 'this 'args 'value)
-	(ulong 'arg0 'arg1)
-
-	(push-scope)
-	(entry 'canvas 'lisp_fill {this, args})
+	(entry 'canvas 'lisp_fill '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 2} '(r1))
-	(gotoif '(r1 == 0) 'error1))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 2) '(r1))
+	(gotoif '(r1 == 0) 'error))
 
-	(call 'lisp 'env_args_set {args, &arg0, 0})
-	(call 'canvas 'fill {arg0, arg1})
-	(call 'obj 'ref {arg0} {value})
+	(vp-cpy-ir r7 array_array r2)
+	(vp-cpy-ir r2 0 r0)
+	(vp-cpy-ir r2 ptr_size r1)
+	(call 'canvas 'fill '(r0 (r1 num_value)) '(r0))
+	(call 'obj 'ref '(r0) '(r0))
 
-	(exit 'canvas 'lisp_fill {this, value})
-	(return)
+	(exit 'canvas 'lisp_fill '(r6 r0))
+	(vp-ret)
 
 (errorcases
-(vp-label 'error1)
-	(jump 'lisp 'repl_error {this, "(canvas-fill canvas argb)", error_msg_wrong_types, args})
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r6 "(canvas-fill canvas argb)" error_msg_wrong_types r7))
 	(signature 'sig 'canvas 'num))
-
-	(pop-scope-syms)
 
 (def-func-end)
 
@@ -115,29 +110,25 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(ptr 'this 'args 'value)
-	(ulong 'arg0 'arg1)
-
-	(push-scope)
-	(entry 'canvas 'lisp_set_color {this, args})
+	(entry 'canvas 'lisp_set_color '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 2} '(r1))
-	(gotoif '(r1 == 0) 'error1))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 2) '(r1))
+	(gotoif '(r1 == 0) 'error))
 
-	(call 'lisp 'env_args_set {args, &arg0, 0})
-	(call 'canvas 'set_color {arg0, arg1})
-	(call 'obj 'ref {arg0} {value})
+	(vp-cpy-ir r7 array_array r2)
+	(vp-cpy-ir r2 0 r0)
+	(vp-cpy-ir r2 ptr_size r1)
+	(call 'canvas 'set_color '(r0 (r1 num_value)) '(r0))
+	(call 'obj 'ref '(r0) '(r0))
 
-	(exit 'canvas 'lisp_set_color {this, value})
-	(return)
+	(exit 'canvas 'lisp_set_color '(r6 r0))
+	(vp-ret)
 
 (errorcases
-(vp-label 'error1)
-	(jump 'lisp 'repl_error {this, "(canvas-set-color canvas argb)", error_msg_wrong_types, args})
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r6 "(canvas-set-color canvas argb)" error_msg_wrong_types r7))
 	(signature 'sig 'canvas 'num))
-
-	(pop-scope-syms)
 
 (def-func-end)
 
@@ -149,29 +140,25 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(ptr 'this 'args 'value)
-	(ulong 'arg0 'arg1)
-
-	(push-scope)
-	(entry 'canvas 'lisp_set_flags {this, args})
+	(entry 'canvas 'lisp_set_flags '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 2} '(r1))
-	(gotoif '(r1 == 0) 'error1))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 2) '(r1))
+	(gotoif '(r1 == 0) 'error))
 
-	(call 'lisp 'env_args_set {args, &arg0, 0})
-	(call 'canvas 'set_flags {arg0, arg1})
-	(call 'obj 'ref {arg0} {value})
+	(vp-cpy-ir r7 array_array r2)
+	(vp-cpy-ir r2 0 r0)
+	(vp-cpy-ir r2 ptr_size r1)
+	(call 'canvas 'set_flags '(r0 (r1 num_value)) '(r0))
+	(call 'obj 'ref '(r0) '(r0))
 
-	(exit 'canvas 'lisp_set_flags {this, value})
-	(return)
+	(exit 'canvas 'lisp_set_flags '(r6 r0))
+	(vp-ret)
 
 (errorcases
-(vp-label 'error1)
-	(jump 'lisp 'repl_error {this, "(canvas-set-flags canvas flags)", error_msg_wrong_types, args})
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r6 "(canvas-set-flags canvas flags)" error_msg_wrong_types r7))
 	(signature 'sig 'canvas 'num))
-
-	(pop-scope-syms)
 
 (def-func-end)
 
@@ -183,30 +170,27 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(ptr 'this 'args 'value)
-	(ulong 'arg0)
-
-	(push-scope)
-	(entry 'canvas 'lisp_swap {this, args})
+	(entry 'canvas 'lisp_swap '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 1} '(r1))
-	(gotoif '(r1 == 0) 'error1))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 1) '(r1))
+	(gotoif '(r1 == 0) 'error))
 
-	(call 'lisp 'env_args_set {args, &arg0, 0})
-	(call 'canvas 'swap {arg0})
-	(call 'canvas 'dirty {arg0})
-	(call 'obj 'ref {arg0} {value})
+	(vp-push r6)
+	(vp-cpy-ir r7 array_array r2)
+	(vp-cpy-ir r2 0 r0)
+	(call 'canvas 'swap '(r0) '(r0))
+	(call 'canvas 'dirty '(r0) '(r0))
+	(call 'obj 'ref '(r0) '(r1))
+	(vp-pop r0)
 
-	(exit 'canvas 'lisp_swap {this, value})
-	(return)
+	(exit 'canvas 'lisp_swap '(r0 r1))
+	(vp-ret)
 
 (errorcases
-(vp-label 'error1)
-	(jump 'lisp 'repl_error {this, "(canvas-swap canvas)", error_msg_wrong_types, args})
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r6 "(canvas-swap canvas)" error_msg_wrong_types r7))
 	(signature 'sig 'canvas))
-
-	(pop-scope-syms)
 
 (def-func-end)
 
@@ -218,29 +202,24 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(ptr 'this 'args 'value)
-	(ulong 'arg0)
-
-	(push-scope)
-	(entry 'canvas 'lisp_next_frame {this, args})
+	(entry 'canvas 'lisp_next_frame '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 1} '(r1))
-	(gotoif '(r1 == 0) 'error1))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 1) '(r1))
+	(gotoif '(r1 == 0) 'error))
 
-	(call 'lisp 'env_args_set {args, &arg0, 0})
-	(call 'canvas 'next_frame {arg0})
-	(call 'obj 'ref {arg0} {value})
+	(vp-cpy-ir r7 array_array r2)
+	(vp-cpy-ir r2 0 r0)
+	(call 'canvas 'next_frame '(r0) '(r0))
+	(call 'obj 'ref '(r0) '(r0))
 
-	(exit 'canvas 'lisp_next_frame {this, value})
-	(return)
+	(exit 'canvas 'lisp_next_frame '(r6 r0))
+	(vp-ret)
 
 (errorcases
-(vp-label 'error1)
-	(jump 'lisp 'repl_error {this, "(canvas-next-frame canvas)", error_msg_wrong_types, args})
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r6 "(canvas-next-frame canvas)" error_msg_wrong_types r7))
 	(signature 'sig 'canvas))
-
-	(pop-scope-syms)
 
 (def-func-end)
 
@@ -252,29 +231,28 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(ptr 'this 'args 'value)
-	(ulong 'arg0 'arg1 'arg2)
-
-	(push-scope)
-	(entry 'canvas 'lisp_plot {this, args})
+	(entry 'canvas 'lisp_plot '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 3} '(r1))
-	(gotoif '(r1 == 0) 'error1))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 3) '(r1))
+	(gotoif '(r1 == 0) 'error))
 
-	(call 'lisp 'env_args_set {args, &arg0, 0})
-	(call 'canvas 'plot {arg0, arg1, arg2})
-	(call 'obj 'ref {arg0} {value})
+	(vp-push r6)
+	(vp-cpy-ir r7 array_array r2)
+	(vp-cpy-ir r2 0 r0)
+	(vp-cpy-ir r2 ptr_size r1)
+	(vp-cpy-ir r2 (mul ptr_size 2) r2)
+	(call 'canvas 'plot '(r0 (r1 num_value) (r2 num_value)) '(r0))
+	(call 'obj 'ref '(r0) '(r1))
+	(vp-pop r0)
 
-	(exit 'canvas 'lisp_plot {this, value})
-	(return)
+	(exit 'canvas 'lisp_plot '(r0 r1))
+	(vp-ret)
 
 (errorcases
-(vp-label 'error1)
-	(jump 'lisp 'repl_error {this, "(canvas-plot canvas x y)", error_msg_wrong_types, args})
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r6 "(canvas-plot canvas x y)" error_msg_wrong_types r7))
 	(signature 'sig 'canvas 'num 'num))
-
-	(pop-scope-syms)
 
 (def-func-end)
 
@@ -286,29 +264,30 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(ptr 'this 'args 'value)
-	(ulong 'arg0 'arg1 'arg2 'arg3 'arg4)
-
-	(push-scope)
-	(entry 'canvas 'lisp_fbox {this, args})
+	(entry 'canvas 'lisp_fbox '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 5} '(r1))
-	(gotoif '(r1 == 0) 'error1))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 5) '(r1))
+	(gotoif '(r1 == 0) 'error))
 
-	(call 'lisp 'env_args_set {args, &arg0, 0})
-	(call 'canvas 'fbox {arg0, arg1, arg2, arg3, arg4})
-	(call 'obj 'ref {arg0} {value})
+	(vp-push r6)
+	(vp-cpy-ir r7 array_array r4)
+	(vp-cpy-ir r4 0 r0)
+	(vp-cpy-ir r4 ptr_size r1)
+	(vp-cpy-ir r4 (mul ptr_size 2) r2)
+	(vp-cpy-ir r4 (mul ptr_size 3) r3)
+	(vp-cpy-ir r4 (mul ptr_size 4) r4)
+	(call 'canvas 'fbox '(r0 (r1 num_value) (r2 num_value) (r3 num_value) (r4 num_value)) '(r0))
+	(call 'obj 'ref '(r0) '(r1))
+	(vp-pop r0)
 
-	(exit 'canvas 'lisp_fbox {this, value})
-	(return)
+	(exit 'canvas 'lisp_fbox '(r0 r1))
+	(vp-ret)
 
 (errorcases
-(vp-label 'error1)
-	(jump 'lisp 'repl_error {this, "(canvas-fbox canvas x y w h)", error_msg_wrong_types, args})
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r6 "(canvas-fbox canvas x y w h)" error_msg_wrong_types r7))
 	(signature 'sig 'canvas 'num 'num 'num 'num))
-
-	(pop-scope-syms)
 
 (def-func-end)
 
@@ -320,28 +299,29 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(ptr 'this 'args 'value)
-	(ulong 'arg0 'arg1 'arg2 'arg3 'arg4)
-
-	(push-scope)
-	(entry 'canvas 'lisp_fpoly {this, args})
+	(entry 'canvas 'lisp_fpoly '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 5} '(r1))
-	(gotoif '(r1 == 0) 'error1))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 5) '(r1))
+	(gotoif '(r1 == 0) 'error))
 
-	(call 'lisp 'env_args_set {args, &arg0, 0})
-	(call 'canvas 'fpoly {arg0, arg1, arg2, arg3, arg4})
-	(call 'obj 'ref {arg0} {value})
+	(vp-push r6)
+	(vp-cpy-ir r7 array_array r4)
+	(vp-cpy-ir r4 0 r0)
+	(vp-cpy-ir r4 ptr_size r1)
+	(vp-cpy-ir r4 (mul ptr_size 2) r2)
+	(vp-cpy-ir r4 (mul ptr_size 3) r3)
+	(vp-cpy-ir r4 (mul ptr_size 4) r4)
+	(call 'canvas 'fpoly '(r0 (r1 num_value) (r2 num_value) (r3 num_value) r4) '(r0))
+	(call 'obj 'ref '(r0) '(r1))
+	(vp-pop r0)
 
-	(exit 'canvas 'lisp_fpoly {this, value})
-	(return)
+	(exit 'canvas 'lisp_fpoly '(r0 r1))
+	(vp-ret)
 
 (errorcases
-(vp-label 'error1)
-	(jump 'lisp 'repl_error {this, "(canvas-fpoly canvas x y mode list)", error_msg_wrong_types, args})
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r6 "(canvas-fpoly canvas x y mode list)" error_msg_wrong_types r7))
 	(signature 'sig 'canvas 'num 'num 'num 'vector))
-
-	(pop-scope-syms)
 
 (def-func-end)

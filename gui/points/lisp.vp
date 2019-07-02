@@ -11,29 +11,34 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(ptr 'this 'args 'value)
-	(ulong 'arg0 'arg1 'arg2 'arg3 'arg4 'arg5 'arg6 'arg7)
-
-	(push-scope)
-	(entry 'points 'lisp_transform {this, args})
+	(entry 'points 'lisp_transform '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 8} '(r1))
-	(gotoif '(r1 == 0) 'error1))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 8) '(r1))
+	(gotoif '(r1 == 0) 'error))
 
-	(call 'lisp 'env_args_set {args, &arg0, 0})
-	(call 'points 'transform {arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7})
-	(call 'obj 'ref {arg0} {value})
+	(vp-push r6)
+	(vp-cpy-ir r7 array_array r7)
+	(vp-cpy-ir r7 0 r0)
+	(vp-cpy-ir r7 ptr_size r1)
+	(vp-cpy-ir r7 (mul ptr_size 2) r2)
+	(vp-cpy-ir r7 (mul ptr_size 3) r3)
+	(vp-cpy-ir r7 (mul ptr_size 4) r4)
+	(vp-cpy-ir r7 (mul ptr_size 5) r5)
+	(vp-cpy-ir r7 (mul ptr_size 6) r6)
+	(vp-cpy-ir r7 (mul ptr_size 7) r7)
+	(call 'points 'transform '(r0 r1 (r2 num_value) (r3 num_value) (r4 num_value)
+							(r5 num_value) (r6 num_value) (r7 num_value)) '(r0))
+	(call 'obj 'ref '(r0) '(r1))
+	(vp-pop r0)
 
-	(exit 'points 'lisp_transform {this, value})
-	(return)
+	(exit 'points 'lisp_transform '(r0 r1))
+	(vp-ret)
 
 (errorcases
-(vp-label 'error1)
-	(jump 'lisp 'repl_error {this, "(points-transform dst src m1x m1y m2x m2y trx try)", error_msg_wrong_types, args})
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r6 "(points-transform dst src m1x m1y m2x m2y trx try)" error_msg_wrong_types r7))
 	(signature 'sig 'points 'points 'num 'num 'num 'num 'num 'num))
-
-	(pop-scope-syms)
 
 (def-func-end)
 
@@ -45,29 +50,29 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(ptr 'this 'args 'value)
-	(ulong 'arg0 'arg1 'arg2 'arg3)
-
-	(push-scope)
-	(entry 'points 'lisp_simplify {this, args})
+	(entry 'points 'lisp_simplify '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 4} '(r1))
-	(gotoif '(r1 == 0) 'error1))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 4) '(r1))
+	(gotoif '(r1 == 0) 'error))
 
-	(call 'lisp 'env_args_set {args, &arg0, 0})
-	(call 'points 'simplify {arg0, arg1, arg2, arg3})
-	(call 'obj 'ref {arg0} {value})
+	(vp-push r6)
+	(vp-cpy-ir r7 array_array r7)
+	(vp-cpy-ir r7 0 r0)
+	(vp-cpy-ir r7 ptr_size r1)
+	(vp-cpy-ir r7 (mul ptr_size 2) r2)
+	(vp-cpy-ir r7 (mul ptr_size 3) r3)
+	(call 'points 'simplify '(r0 r1 r2 (r3 num_value)) '(r0))
+	(call 'obj 'ref '(r0) '(r1))
+	(vp-pop r0)
 
-	(exit 'points 'lisp_simplify {this, value})
-	(return)
+	(exit 'points 'lisp_simplify '(r0 r1))
+	(vp-ret)
 
 (errorcases
-(vp-label 'error1)
-	(jump 'lisp 'repl_error {this, "(points-simplify dst src stack tol)", error_msg_wrong_types, args})
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r6 "(points-simplify dst src stack tol)" error_msg_wrong_types r7))
 	(signature 'sig 'points 'points 'array 'num))
-
-	(pop-scope-syms)
 
 (def-func-end)
 
@@ -79,29 +84,35 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(ptr 'this 'args 'value)
-	(ulong 'arg0 'arg1 'arg2 'arg3 'arg4 'arg5 'arg6 'arg7 'arg8)
-
-	(push-scope)
-	(entry 'points 'lisp_gen_quadratic {this, args})
+	(entry 'points 'lisp_gen_quadratic '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 9} '(r1))
-	(gotoif '(r1 == 0) 'error1))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 9) '(r1))
+	(gotoif '(r1 == 0) 'error))
 
-	(call 'lisp 'env_args_set {args, &arg0, 0})
-	(call 'points 'gen_quadratic {arg8, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7})
-	(call 'obj 'ref {arg8} {value})
+	(vp-push r6)
+	(vp-cpy-ir r7 array_array r0)
+	(vp-cpy-ir r0 0 r1)
+	(vp-cpy-ir r0 ptr_size r2)
+	(vp-cpy-ir r0 (mul ptr_size 2) r3)
+	(vp-cpy-ir r0 (mul ptr_size 3) r4)
+	(vp-cpy-ir r0 (mul ptr_size 4) r5)
+	(vp-cpy-ir r0 (mul ptr_size 5) r6)
+	(vp-cpy-ir r0 (mul ptr_size 6) r7)
+	(vp-cpy-ir r0 (mul ptr_size 7) r8)
+	(vp-cpy-ir r0 (mul ptr_size 8) r0)
+	(call 'points 'gen_quadratic '(r0 r1 (r2 num_value) (r3 num_value) (r4 num_value)
+					(r5 num_value) (r6 num_value) (r7 num_value) (r8 num_value)) '(r0))
+	(call 'obj 'ref '(r0) '(r1))
+	(vp-pop r0)
 
-	(exit 'points 'lisp_gen_quadratic {this, value})
-	(return)
+	(exit 'points 'lisp_gen_quadratic '(r0 r1))
+	(vp-ret)
 
 (errorcases
-(vp-label 'error1)
-	(jump 'lisp 'repl_error {this, "(points-gen-quadratic stack p1x p1y p2x p2y p3x p3y tol dst) -> dst", error_msg_wrong_types, args})
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r6 "(points-gen-quadratic stack p1x p1y p2x p2y p3x p3y tol dst) -> dst" error_msg_wrong_types r7))
 	(signature 'sig 'array 'num 'num 'num 'num 'num 'num 'num 'points))
-
-	(pop-scope-syms)
 
 (def-func-end)
 
@@ -113,29 +124,38 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(ptr 'this 'args 'value)
-	(ulong 'arg0 'arg1 'arg2 'arg3 'arg4 'arg5 'arg6 'arg7 'arg8 'arg9 'arg10)
-
-	(push-scope)
-	(entry 'points 'lisp_gen_cubic {this, args})
+	(entry 'points 'lisp_gen_cubic '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 11} '(r1))
-	(gotoif '(r1 == 0) 'error1))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 11) '(r1))
+	(gotoif '(r1 == 0) 'error))
 
-	(call 'lisp 'env_args_set {args, &arg0, 0})
-	(call 'points 'gen_cubic {arg10, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9})
-	(call 'obj 'ref {arg10} {value})
+	(vp-push r6)
+	(vp-cpy-ir r7 array_array r0)
+	(vp-cpy-ir r0 0 r1)
+	(vp-cpy-ir r0 ptr_size r2)
+	(vp-cpy-ir r0 (mul ptr_size 2) r3)
+	(vp-cpy-ir r0 (mul ptr_size 3) r4)
+	(vp-cpy-ir r0 (mul ptr_size 4) r5)
+	(vp-cpy-ir r0 (mul ptr_size 5) r6)
+	(vp-cpy-ir r0 (mul ptr_size 6) r7)
+	(vp-cpy-ir r0 (mul ptr_size 7) r8)
+	(vp-cpy-ir r0 (mul ptr_size 8) r9)
+	(vp-cpy-ir r0 (mul ptr_size 9) r10)
+	(vp-cpy-ir r0 (mul ptr_size 10) r0)
+	(call 'points 'gen_cubic '(r0 r1 (r2 num_value) (r3 num_value) (r4 num_value)
+					(r5 num_value) (r6 num_value) (r7 num_value) (r8 num_value)
+					(r9 num_value) (r10 num_value)) '(r0))
+	(call 'obj 'ref '(r0) '(r1))
+	(vp-pop r0)
 
-	(exit 'points 'lisp_gen_cubic {this, value})
-	(return)
+	(exit 'points 'lisp_gen_cubic '(r0 r1))
+	(vp-ret)
 
 (errorcases
-(vp-label 'error1)
-	(jump 'lisp 'repl_error {this, "(points-gen-cubic stack p1x p1y p2x p2y p3x p3y p4x p4y tol dst) -> dst", error_msg_wrong_types, args})
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r6 "(points-gen-cubic stack p1x p1y p2x p2y p3x p3y p4x p4y tol dst) -> dst" error_msg_wrong_types r7))
 	(signature 'sig 'array 'num 'num 'num 'num 'num 'num 'num 'num 'num 'points))
-
-	(pop-scope-syms)
 
 (def-func-end)
 
@@ -147,29 +167,34 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(ptr 'this 'args 'value)
-	(ulong 'arg0 'arg1 'arg2 'arg3 'arg4 'arg5 'arg6 'arg7)
-
-	(push-scope)
-	(entry 'points 'lisp_gen_arc {this, args})
+	(entry 'points 'lisp_gen_arc '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 8} '(r1))
-	(gotoif '(r1 == 0) 'error1))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 8) '(r1))
+	(gotoif '(r1 == 0) 'error))
 
-	(call 'lisp 'env_args_set {args, &arg0, 0})
-	(call 'points 'gen_arc {arg7, arg0, arg1, arg2, arg3, arg4, arg5, arg6})
-	(call 'obj 'ref {arg7} {value})
+	(vp-push r6)
+	(vp-cpy-ir r7 array_array r0)
+	(vp-cpy-ir r0 0 r1)
+	(vp-cpy-ir r0 ptr_size r2)
+	(vp-cpy-ir r0 (mul ptr_size 2) r3)
+	(vp-cpy-ir r0 (mul ptr_size 3) r4)
+	(vp-cpy-ir r0 (mul ptr_size 4) r5)
+	(vp-cpy-ir r0 (mul ptr_size 5) r6)
+	(vp-cpy-ir r0 (mul ptr_size 6) r7)
+	(vp-cpy-ir r0 (mul ptr_size 7) r0)
+	(call 'points 'gen_arc '(r0 r1 (r2 num_value) (r3 num_value) (r4 num_value)
+					(r5 num_value) (r6 num_value) (r7 num_value)) '(r0))
+	(call 'obj 'ref '(r0) '(r1))
+	(vp-pop r0)
 
-	(exit 'points 'lisp_gen_arc {this, value})
-	(return)
+	(exit 'points 'lisp_gen_arc '(r0 r1))
+	(vp-ret)
 
 (errorcases
-(vp-label 'error1)
-	(jump 'lisp 'repl_error {this, "(points-gen-arc stack cx cy start end radius tol dst) ->", error_msg_wrong_types, args})
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r6 "(points-gen-arc stack cx cy start end radius tol dst) -> dst" error_msg_wrong_types r7))
 	(signature 'sig 'array 'num 'num 'num 'num 'num 'num 'points))
-
-	(pop-scope-syms)
 
 (def-func-end)
 
@@ -181,29 +206,34 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(ptr 'this 'args 'value)
-	(ulong 'arg0 'arg1 'arg2 'arg3 'arg4 'arg5 'arg6 'arg7)
-
-	(push-scope)
-	(entry 'points 'lisp_stroke_polylines {this, args})
+	(entry 'points 'lisp_stroke_polylines '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 8} '(r1))
-	(gotoif '(r1 == 0) 'error1))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 8) '(r1))
+	(gotoif '(r1 == 0) 'error))
 
-	(call 'lisp 'env_args_set {args, &arg0, 0})
-	(call 'points 'stroke_polylines {arg7, arg0, arg6, arg1, arg2, arg3, arg4, arg5})
-	(call 'obj 'ref {arg7} {value})
+	(vp-push r6)
+	(vp-cpy-ir r7 array_array r0)
+	(vp-cpy-ir r0 0 r1)
+	(vp-cpy-ir r0 ptr_size r3)
+	(vp-cpy-ir r0 (mul ptr_size 2) r4)
+	(vp-cpy-ir r0 (mul ptr_size 3) r5)
+	(vp-cpy-ir r0 (mul ptr_size 4) r6)
+	(vp-cpy-ir r0 (mul ptr_size 5) r7)
+	(vp-cpy-ir r0 (mul ptr_size 6) r2)
+	(vp-cpy-ir r0 (mul ptr_size 7) r0)
+	(call 'points 'stroke_polylines '(r0 r1 r2 (r3 num_value) (r4 num_value)
+					(r5 num_value) (r6 num_value) (r7 num_value)) '(r0))
+	(call 'obj 'ref '(r0) '(r1))
+	(vp-pop r0)
 
-	(exit 'points 'lisp_stroke_polylines {this, value})
-	(return)
+	(exit 'points 'lisp_stroke_polylines '(r0 r1))
+	(vp-ret)
 
 (errorcases
-(vp-label 'error1)
-	(jump 'lisp 'repl_error {this, "(points-stroke-polylines stack radius tol join cap1 cap2 src dst) -> dst", error_msg_wrong_types, args})
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r6 "(points-stroke-polylines stack radius tol join cap1 cap2 src dst) -> dst" error_msg_wrong_types r7))
 	(signature 'sig 'array 'num 'num 'num 'num 'num 'vector 'vector))
-
-	(pop-scope-syms)
 
 (def-func-end)
 
@@ -215,29 +245,31 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(ptr 'this 'args 'value)
-	(ulong 'arg0 'arg1 'arg2 'arg3 'arg4 'arg5)
-
-	(push-scope)
-	(entry 'points 'lisp_stroke_polygons {this, args})
+	(entry 'points 'lisp_stroke_polygons '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 6} '(r1))
-	(gotoif '(r1 == 0) 'error1))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 6) '(r1))
+	(gotoif '(r1 == 0) 'error))
 
-	(call 'lisp 'env_args_set {args, &arg0, 0})
-	(call 'points 'stroke_polygons {arg5, arg0, arg4, arg1, arg2, arg3})
-	(call 'obj 'ref {arg5} {value})
+	(vp-push r6)
+	(vp-cpy-ir r7 array_array r0)
+	(vp-cpy-ir r0 0 r1)
+	(vp-cpy-ir r0 ptr_size r3)
+	(vp-cpy-ir r0 (mul ptr_size 2) r4)
+	(vp-cpy-ir r0 (mul ptr_size 3) r5)
+	(vp-cpy-ir r0 (mul ptr_size 4) r2)
+	(vp-cpy-ir r0 (mul ptr_size 5) r0)
+	(call 'points 'stroke_polygons '(r0 r1 r2 (r3 num_value) (r4 num_value) (r5 num_value)) '(r0))
+	(call 'obj 'ref '(r0) '(r1))
+	(vp-pop r0)
 
-	(exit 'points 'lisp_stroke_polygons {this, value})
-	(return)
+	(exit 'points 'lisp_stroke_polygons '(r0 r1))
+	(vp-ret)
 
 (errorcases
-(vp-label 'error1)
-	(jump 'lisp 'repl_error {this, "(points-stroke-polygons stack radius tol join src dst) -> dst", error_msg_wrong_types, args})
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r6 "(points-stroke-polygons stack radius tol join src dst) -> dst" error_msg_wrong_types r7))
 	(signature 'sig 'array 'num 'num 'num 'vector 'vector))
-
-	(pop-scope-syms)
 
 (def-func-end)
 
@@ -259,22 +291,22 @@
 
 	(call 'vector 'get_length {args} {_, length})
 (errorcases
-	(gotoif {length < 2} 'error1)
-	(gotoif {length > 3} 'error1)
+	(gotoif {length < 2} 'error)
+	(gotoif {length > 3} 'error)
 	(call 'lisp 'env_args_type (cat {args, @} (f-path 'points 'vtable) {, 0}) '(r1))
-	(gotoif '(r1 == 0) 'error1))
+	(gotoif '(r1 == 0) 'error))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'points 'get_length {arg0} {_, veclen})
-	(errorif {veclen == 0} 'error1)
-	(errorif {veclen != arg1->array_length} 'error1)
+	(errorif {veclen == 0} 'error)
+	(errorif {veclen != arg1->array_length} 'error)
 
 	(vpif {length == 2})
 		(call 'points 'create nil {value})
 		(call 'points 'set_capacity {value, veclen})
 		(call 'points 'set_length {value, veclen})
 	(else)
-		(errorif {veclen != value->array_length} 'error1)
+		(errorif {veclen != value->array_length} 'error)
 		(call 'obj 'ref {value})
 	(endif)
 	(r-call 'points 'add {value, arg0, arg1, func})
@@ -282,7 +314,7 @@
 	(exit 'points 'lisp_vecop1 {this, value})
 	(return)
 
-(vp-label 'error1)
+(vp-label 'error)
 	(exit 'points 'lisp_vecop1 {this, 0})
 	(return)
 
@@ -308,10 +340,10 @@
 
 	(call 'vector 'get_length {args} {_, length})
 (errorcases
-	(gotoif {length < 1} 'error1)
-	(gotoif {length > 2} 'error1)
+	(gotoif {length < 1} 'error)
+	(gotoif {length > 2} 'error)
 	(call 'lisp 'env_args_type (cat {args, @} (f-path 'points 'vtable) {, 0}) '(r1))
-	(gotoif '(r1 == 0) 'error1))
+	(gotoif '(r1 == 0) 'error))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'points 'get_length {arg0} {_, veclen})
@@ -320,7 +352,7 @@
 		(call 'points 'set_capacity {value, veclen})
 		(call 'points 'set_length {value, veclen})
 	(else)
-		(errorif {veclen != value->array_length} 'error1)
+		(errorif {veclen != value->array_length} 'error)
 		(call 'obj 'ref {value})
 	(endif)
 	(r-call 'points 'abs {value, arg0, func})
@@ -328,7 +360,7 @@
 	(exit 'points 'lisp_vecop1 {this, value})
 	(return)
 
-(vp-label 'error1)
+(vp-label 'error)
 	(exit 'points 'lisp_vecop1 {this, 0})
 	(return)
 
@@ -345,15 +377,17 @@
 	;r1 = return value object (ptr)
 
 	(entry 'points 'lisp_add '(r0 r1))
+
 	(vp-push r1)
 	(call 'points 'lisp_vecop1 `(r0 r1 (@ ,(f-path 'points 'add))) '(r0 r1))
 	(vp-pop r3)
-	(errorif '(r1 == 0) 'error1)
+	(errorif '(r1 == 0) 'error)
+
 	(exit 'points 'lisp_add '(r0 r1))
 	(vp-ret)
 
 (errorcases
-(vp-label 'error1)
+(vp-label 'error)
 	(jump 'lisp 'repl_error '(r0 "(points-add points points [points])" error_msg_wrong_types r3)))
 
 (def-func-end)
@@ -367,15 +401,17 @@
 	;r1 = return value object (ptr)
 
 	(entry 'points 'lisp_sub '(r0 r1))
+
 	(vp-push r1)
 	(call 'points 'lisp_vecop1 `(r0 r1 (@ ,(f-path 'points 'sub))) '(r0 r1))
 	(vp-pop r3)
-	(errorif '(r1 == 0) 'error1)
+	(errorif '(r1 == 0) 'error)
+
 	(exit 'points 'lisp_sub '(r0 r1))
 	(vp-ret)
 
 (errorcases
-(vp-label 'error1)
+(vp-label 'error)
 	(jump 'lisp 'repl_error '(r0 "(points-sub points points [points])" error_msg_wrong_types r3)))
 
 (def-func-end)
@@ -389,15 +425,17 @@
 	;r1 = return value object (ptr)
 
 	(entry 'points 'lisp_mul '(r0 r1))
+
 	(vp-push r1)
 	(call 'points 'lisp_vecop1 `(r0 r1 (@ ,(f-path 'points 'mul))) '(r0 r1))
 	(vp-pop r3)
-	(errorif '(r1 == 0) 'error1)
+	(errorif '(r1 == 0) 'error)
+
 	(exit 'points 'lisp_mul '(r0 r1))
 	(vp-ret)
 
 (errorcases
-(vp-label 'error1)
+(vp-label 'error)
 	(jump 'lisp 'repl_error '(r0 "(points-mul points points [points])" error_msg_wrong_types r3)))
 
 (def-func-end)
@@ -411,15 +449,17 @@
 	;r1 = return value object (ptr)
 
 	(entry 'points 'lisp_div '(r0 r1))
+
 	(vp-push r1)
 	(call 'points 'lisp_vecop1 `(r0 r1 (@ ,(f-path 'points 'div))) '(r0 r1))
 	(vp-pop r3)
-	(errorif '(r1 == 0) 'error1)
+	(errorif '(r1 == 0) 'error)
+
 	(exit 'points 'lisp_div '(r0 r1))
 	(vp-ret)
 
 (errorcases
-(vp-label 'error1)
+(vp-label 'error)
 	(jump 'lisp 'repl_error '(r0 "(points-div points points [points])" error_msg_wrong_types r3)))
 
 (def-func-end)
@@ -433,15 +473,17 @@
 	;r1 = return value object (ptr)
 
 	(entry 'points 'lisp_mod '(r0 r1))
+
 	(vp-push r1)
 	(call 'points 'lisp_vecop1 `(r0 r1 (@ ,(f-path 'points 'mod))) '(r0 r1))
 	(vp-pop r3)
-	(errorif '(r1 == 0) 'error1)
+	(errorif '(r1 == 0) 'error)
+
 	(exit 'points 'lisp_mod '(r0 r1))
 	(vp-ret)
 
 (errorcases
-(vp-label 'error1)
+(vp-label 'error)
 	(jump 'lisp 'repl_error '(r0 "(points-mod points points [points])" error_msg_wrong_types r3)))
 
 (def-func-end)
@@ -455,15 +497,17 @@
 	;r1 = return value object (ptr)
 
 	(entry 'points 'lisp_fmul '(r0 r1))
+
 	(vp-push r1)
 	(call 'points 'lisp_vecop1 `(r0 r1 (@ ,(f-path 'points 'fmul))) '(r0 r1))
 	(vp-pop r3)
-	(errorif '(r1 == 0) 'error1)
+	(errorif '(r1 == 0) 'error)
+
 	(exit 'points 'lisp_fmul '(r0 r1))
 	(vp-ret)
 
 (errorcases
-(vp-label 'error1)
+(vp-label 'error)
 	(jump 'lisp 'repl_error '(r0 "(points-fmul points points [points])" error_msg_wrong_types r3)))
 
 (def-func-end)
@@ -477,15 +521,17 @@
 	;r1 = return value object (ptr)
 
 	(entry 'points 'lisp_fdiv '(r0 r1))
+
 	(vp-push r1)
 	(call 'points 'lisp_vecop1 `(r0 r1 (@ ,(f-path 'points 'fdiv))) '(r0 r1))
 	(vp-pop r3)
-	(errorif '(r1 == 0) 'error1)
+	(errorif '(r1 == 0) 'error)
+
 	(exit 'points 'lisp_fdiv '(r0 r1))
 	(vp-ret)
 
 (errorcases
-(vp-label 'error1)
+(vp-label 'error)
 	(jump 'lisp 'repl_error '(r0 "(points-fdiv points points [points])" error_msg_wrong_types r3)))
 
 (def-func-end)
@@ -499,15 +545,17 @@
 	;r1 = return value object (ptr)
 
 	(entry 'points 'lisp_fmod '(r0 r1))
+
 	(vp-push r1)
 	(call 'points 'lisp_vecop1 `(r0 r1 (@ ,(f-path 'points 'fmod))) '(r0 r1))
 	(vp-pop r3)
-	(errorif '(r1 == 0) 'error1)
+	(errorif '(r1 == 0) 'error)
+
 	(exit 'points 'lisp_fmod '(r0 r1))
 	(vp-ret)
 
 (errorcases
-(vp-label 'error1)
+(vp-label 'error)
 	(jump 'lisp 'repl_error '(r0 "(points-fmod points points [points])" error_msg_wrong_types r3)))
 
 (def-func-end)
@@ -530,7 +578,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type {args, $sig, 1} '(r1))
-	(gotoif '(r1 == 0) 'error1))
+	(gotoif '(r1 == 0) 'error))
 
 	(call 'vector 'get_first {args} {_, value})
 	(call 'points 'get_length {value} {_, length})
@@ -543,7 +591,7 @@
 	(return)
 
 (errorcases
-(vp-label 'error1)
+(vp-label 'error)
 	(jump 'lisp 'repl_error {this, "(points-sum points)", error_msg_wrong_types, args})
 	(signature 'sig 'points))
 
@@ -568,10 +616,10 @@
 
 	(call 'vector 'get_length {args} {_, length})
 (errorcases
-	(gotoif {length < 2} 'error1)
-	(gotoif {length > 3} 'error1)
+	(gotoif {length < 2} 'error)
+	(gotoif {length > 3} 'error)
 	(call 'lisp 'env_args_type {args, $sig, length} '(r1))
-	(gotoif '(r1 == 0) 'error1))
+	(gotoif '(r1 == 0) 'error))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'points 'get_length {arg0} {_, veclen})
@@ -580,7 +628,7 @@
 		(call 'points 'set_capacity {value, veclen})
 		(call 'points 'set_length {value, veclen})
 	(else)
-		(errorif {veclen != value->array_length} 'error1)
+		(errorif {veclen != value->array_length} 'error)
 		(call 'obj 'ref {value})
 	(endif)
 	(call 'points 'fscale {value, arg0, arg1})
@@ -589,7 +637,7 @@
 	(return)
 
 (errorcases
-(vp-label 'error1)
+(vp-label 'error)
 	(jump 'lisp 'repl_error {this, "(points-fscale points scale [points])", error_msg_wrong_types, args})
 	(signature 'sig 'points 'num 'points))
 
@@ -606,15 +654,17 @@
 	;r1 = return value object (ptr)
 
 	(entry 'points 'lisp_abs '(r0 r1))
+
 	(vp-push r1)
 	(call 'points 'lisp_vecop2 `(r0 r1 (@ ,(f-path 'points 'abs))) '(r0 r1))
 	(vp-pop r3)
-	(errorif '(r1 == 0) 'error1)
+	(errorif '(r1 == 0) 'error)
+
 	(exit 'points 'lisp_abs '(r0 r1))
 	(vp-ret)
 
 (errorcases
-(vp-label 'error1)
+(vp-label 'error)
 	(jump 'lisp 'repl_error '(r0 "(points-abs points [points])" error_msg_wrong_types r3)))
 
 (def-func-end)
@@ -628,15 +678,17 @@
 	;r1 = return value object (ptr)
 
 	(entry 'points 'lisp_frac '(r0 r1))
+
 	(vp-push r1)
 	(call 'points 'lisp_vecop2 `(r0 r1 (@ ,(f-path 'points 'frac))) '(r0 r1))
 	(vp-pop r3)
-	(errorif '(r1 == 0) 'error1)
+	(errorif '(r1 == 0) 'error)
+
 	(exit 'points 'lisp_frac '(r0 r1))
 	(vp-ret)
 
 (errorcases
-(vp-label 'error1)
+(vp-label 'error)
 	(jump 'lisp 'repl_error '(r0 "(points-frac points [points])" error_msg_wrong_types r3)))
 
 (def-func-end)
