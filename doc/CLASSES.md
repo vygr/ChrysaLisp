@@ -2788,7 +2788,7 @@ r2 = source2 points object, can be same (ptr)
 outputs
 r0 = points object (ptr)
 trashes
-all but r0
+r1-r6
 ```
 ### points::sub -> gui/points/sub
 ```
@@ -2799,7 +2799,7 @@ r2 = source2 points object, can be same (ptr)
 outputs
 r0 = points object (ptr)
 trashes
-all but r0
+r1-r6
 ```
 ### points::mul -> gui/points/mul
 ```
@@ -2810,7 +2810,7 @@ r2 = source2 points object, can be same (ptr)
 outputs
 r0 = points object (ptr)
 trashes
-all but r0
+r1-r6
 ```
 ### points::div -> gui/points/div
 ```
@@ -2821,7 +2821,7 @@ r2 = source2 points object, can be same (ptr)
 outputs
 r0 = points object (ptr)
 trashes
-all but r0
+r1-r8
 ```
 ### points::mod -> gui/points/mod
 ```
@@ -2832,7 +2832,7 @@ r2 = source2 points object, can be same (ptr)
 outputs
 r0 = points object (ptr)
 trashes
-all but r0
+r1-r8
 ```
 ### points::sum -> gui/points/sum
 ```
@@ -2842,7 +2842,7 @@ outputs
 r0 = points object (ptr)
 r1 = sum (long)
 trashes
-all but r0
+r1-r4
 ```
 ### points::fmul -> gui/points/fmul
 ```
@@ -2853,7 +2853,7 @@ r2 = source2 points object, can be same (ptr)
 outputs
 r0 = points object (ptr)
 trashes
-all but r0
+r1-r6
 ```
 ### points::fdiv -> gui/points/fdiv
 ```
@@ -2864,7 +2864,7 @@ r2 = source2 points object, can be same (ptr)
 outputs
 r0 = points object (ptr)
 trashes
-all but r0
+r1-r8
 ```
 ### points::fmod -> gui/points/fmod
 ```
@@ -2875,7 +2875,7 @@ r2 = source2 points object, can be same (ptr)
 outputs
 r0 = points object (ptr)
 trashes
-all but r0
+r1-r8
 ```
 ### points::fscale -> gui/points/fscale
 ```
@@ -2886,7 +2886,7 @@ r2 = scale (16.16)
 outputs
 r0 = points object (ptr)
 trashes
-all but r0
+r1-r5
 ```
 ### points::abs -> gui/points/abs
 ```
@@ -2896,7 +2896,7 @@ r1 = source points object, can be same (ptr)
 outputs
 r0 = points object (ptr)
 trashes
-all but r0
+r1-r4
 ```
 ### points::frac -> gui/points/frac
 ```
@@ -2906,7 +2906,7 @@ r1 = source points object, can be same (ptr)
 outputs
 r0 = points object (ptr)
 trashes
-all but r0
+r1-r5
 ```
 ### points::filter_polyline -> gui/points/filter_polyline
 ```

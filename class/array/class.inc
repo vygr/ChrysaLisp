@@ -5,7 +5,7 @@
 (dec-method 'create 'class/array/create 'static nil '(r0))
 (dec-method 'init 'class/array/init)
 (dec-method 'get_capacity 'class/array/get_capacity 'static '(r0) '(r0 r1))
-(dec-method 'set_capacity 'class/array/set_capacity 'static '(r0 r1)'(r0))
+(dec-method 'set_capacity 'class/array/set_capacity 'static '(r0 r1) '(r0))
 (dec-method 'set_length 'class/array/set_length 'static '(r0 r1) '(r0))
 (dec-method 'find 'class/array/find 'static '(r0 r1) '(r0 r1))
 (dec-method 'for_each 'class/array/for_each 'static '(r0 r1 r2 r3 r4) '(r0 r1))

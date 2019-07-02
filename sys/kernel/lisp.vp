@@ -80,7 +80,7 @@
 	(vp-push r6 r0)
 	(call 'sys_kernel 'debug '((& r0 str_data)))
 	(vp-pop r6 r0)
-	(call 'obj 'ref '(r0)'(r0))
+	(call 'obj 'ref '(r0) '(r0))
 
 	(exit 'sys_kernel 'lisp_debug '(r6 r0))
 	(vp-ret)

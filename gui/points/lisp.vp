@@ -282,43 +282,41 @@
 	;r0 = lisp object (ptr)
 	;r1 = 0 if error, else value object (ptr)
 
-	(ptr 'this 'args 'func)
-	(ptr 'arg0 'arg1 'value)
-	(uint 'length 'veclen)
+	(entry 'points 'lisp_vecop1 '(r9 r10 r11))
 
-	(push-scope)
-	(entry 'points 'lisp_vecop1 {this, args, func})
-
-	(call 'vector 'get_length {args} {_, length})
+	(vp-cpy-ir-ui r10 array_length r12)
 (errorcases
-	(gotoif {length < 2} 'error)
-	(gotoif {length > 3} 'error)
-	(call 'lisp 'env_args_type (cat {args, @} (f-path 'points 'vtable) {, 0}) '(r1))
+	(gotoif '(r12 < 2) 'error)
+	(gotoif '(r12 > 3) 'error)
+	(call 'lisp 'env_args_type `(r10 (@ ,(f-path 'points 'vtable)) 0) '(r1))
 	(gotoif '(r1 == 0) 'error))
-
-	(call 'lisp 'env_args_set {args, &arg0, 0})
-	(call 'points 'get_length {arg0} {_, veclen})
-	(errorif {veclen == 0} 'error)
-	(errorif {veclen != arg1->array_length} 'error)
-
-	(vpif {length == 2})
-		(call 'points 'create nil {value})
-		(call 'points 'set_capacity {value, veclen})
-		(call 'points 'set_length {value, veclen})
+	(vp-cpy-ir r10 array_array r1)
+	(vp-cpy-ir r1 0 r6)
+	(vp-cpy-ir r1 ptr_size r7)
+	(vp-cpy-ir-ui r6 array_length r13)
+(errorcases
+	(gotoif '(r13 == 0) 'error)
+	(vp-cpy-ir-ui r7 array_length r14)
+	(gotoif '(r13 != r14) 'error))
+	(vpif '(r12 == 2))
+		(call 'points 'create nil '(r0))
+		(call 'points 'set_capacity '(r0 r13) '(r0))
+		(call 'points 'set_length '(r0 r13) '(r0))
 	(else)
-		(errorif {veclen != value->array_length} 'error)
-		(call 'obj 'ref {value})
+		(vp-cpy-ir r1 (mul ptr_size 2) r0)
+	(errorcases
+		(vp-cpy-ir-ui r0 array_length r14)
+		(gotoif '(r13 != r14) 'error))
+		(call 'obj 'ref '(r0) '(r0))
 	(endif)
-	(r-call 'points 'add {value, arg0, arg1, func})
+	(r-call 'points 'add '(r0 r6 r7 r11) '(r0))
 
-	(exit 'points 'lisp_vecop1 {this, value})
-	(return)
+	(exit 'points 'lisp_vecop1 '(r9 r0))
+	(vp-ret)
 
 (vp-label 'error)
-	(exit 'points 'lisp_vecop1 {this, 0})
-	(return)
-
-	(pop-scope-syms)
+	(exit 'points 'lisp_vecop1 '(r9 0))
+	(vp-ret)
 
 (def-func-end)
 
@@ -331,40 +329,38 @@
 	;r0 = lisp object (ptr)
 	;r1 = 0 if error, else value object (ptr)
 
-	(ptr 'this 'args 'func)
-	(ptr 'arg0 'value)
-	(uint 'length 'veclen)
+	(entry 'points 'lisp_vecop2 '(r9 r10 r11))
 
-	(push-scope)
-	(entry 'points 'lisp_vecop2 {this, args, func})
-
-	(call 'vector 'get_length {args} {_, length})
+	(vp-cpy-ir-ui r10 array_length r12)
 (errorcases
-	(gotoif {length < 1} 'error)
-	(gotoif {length > 2} 'error)
-	(call 'lisp 'env_args_type (cat {args, @} (f-path 'points 'vtable) {, 0}) '(r1))
+	(gotoif '(r12 < 1) 'error)
+	(gotoif '(r12 > 2) 'error)
+	(call 'lisp 'env_args_type `(r10 (@ ,(f-path 'points 'vtable)) 0) '(r1))
 	(gotoif '(r1 == 0) 'error))
-
-	(call 'lisp 'env_args_set {args, &arg0, 0})
-	(call 'points 'get_length {arg0} {_, veclen})
-	(vpif {length == 1})
-		(call 'points 'create nil {value})
-		(call 'points 'set_capacity {value, veclen})
-		(call 'points 'set_length {value, veclen})
+	(vp-cpy-ir r10 array_array r1)
+	(vp-cpy-ir r1 0 r6)
+	(vp-cpy-ir-ui r6 array_length r13)
+(errorcases
+	(gotoif '(r13 == 0) 'error))
+	(vpif '(r12 == 1))
+		(call 'points 'create nil '(r0))
+		(call 'points 'set_capacity '(r0 r13) '(r0))
+		(call 'points 'set_length '(r0 r13) '(r0))
 	(else)
-		(errorif {veclen != value->array_length} 'error)
-		(call 'obj 'ref {value})
+		(vp-cpy-ir r1 ptr_size r0)
+	(errorcases
+		(vp-cpy-ir-ui r0 array_length r14)
+		(gotoif '(r13 != r14) 'error))
+		(call 'obj 'ref '(r0) '(r0))
 	(endif)
-	(r-call 'points 'abs {value, arg0, func})
+	(r-call 'points 'abs '(r0 r6 r11) '(r0))
 
-	(exit 'points 'lisp_vecop1 {this, value})
-	(return)
+	(exit 'points 'lisp_vecop2 '(r9 r0))
+	(vp-ret)
 
 (vp-label 'error)
-	(exit 'points 'lisp_vecop1 {this, 0})
-	(return)
-
-	(pop-scope-syms)
+	(exit 'points 'lisp_vecop2 '(r9 0))
+	(vp-ret)
 
 (def-func-end)
 
@@ -568,34 +564,23 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(ptr 'this 'value)
-	(union
-		'(ptr 'args)
-		'(long 'length))
-
-	(push-scope)
-	(entry 'points 'lisp_sum {this, args})
+	(entry 'points 'lisp_sum '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 1} '(r1))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 1) '(r1))
 	(gotoif '(r1 == 0) 'error))
 
-	(call 'vector 'get_first {args} {_, value})
-	(call 'points 'get_length {value} {_, length})
-	(vpif {length})
-		(call 'points 'sum {value} {_, length})
-	(endif)
-	(call 'num 'create {length} {value})
+	(vp-cpy-ir r7 array_array r0)
+	(call 'points 'sum '((r0 0)) '(_ r0))
+	(call 'num 'create'(r0) '(r0))
 
-	(exit 'points 'lisp_sum {this, value})
-	(return)
+	(exit 'points 'lisp_sum '(r6 r0))
+	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error {this, "(points-sum points)", error_msg_wrong_types, args})
+	(jump 'lisp 'repl_error '(r6 "(points-sum points)" error_msg_wrong_types r7))
 	(signature 'sig 'points))
-
-	(pop-scope-syms)
 
 (def-func-end)
 
@@ -607,41 +592,40 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(ptr 'this 'args)
-	(ptr 'arg0 'arg1 'value)
-	(uint 'length 'veclen)
+	(entry 'points 'lisp_fscale '(r9 r10))
 
-	(push-scope)
-	(entry 'points 'lisp_fscale {this, args})
-
-	(call 'vector 'get_length {args} {_, length})
+	(vp-cpy-ir-ui r10 array_length r12)
 (errorcases
-	(gotoif {length < 2} 'error)
-	(gotoif {length > 3} 'error)
-	(call 'lisp 'env_args_type {args, $sig, length} '(r1))
+	(gotoif '(r12 < 2) 'error)
+	(gotoif '(r12 > 3) 'error)
+	(call 'lisp 'env_args_type `(r10 ($ sig) r12) '(r1))
 	(gotoif '(r1 == 0) 'error))
-
-	(call 'lisp 'env_args_set {args, &arg0, 0})
-	(call 'points 'get_length {arg0} {_, veclen})
-	(vpif {length == 2})
-		(call 'points 'create nil {value})
-		(call 'points 'set_capacity {value, veclen})
-		(call 'points 'set_length {value, veclen})
+	(vp-cpy-ir r10 array_array r1)
+	(vp-cpy-ir r1 0 r6)
+	(vp-cpy-ir r1 ptr_size r7)
+	(vp-cpy-ir-ui r6 array_length r13)
+(errorcases
+	(gotoif '(r13 == 0) 'error))
+	(vpif '(r12 == 2))
+		(call 'points 'create nil '(r0))
+		(call 'points 'set_capacity '(r0 r13) '(r0))
+		(call 'points 'set_length '(r0 r13) '(r0))
 	(else)
-		(errorif {veclen != value->array_length} 'error)
-		(call 'obj 'ref {value})
+		(vp-cpy-ir r1 (mul ptr_size 2) r0)
+	(errorcases
+		(vp-cpy-ir-ui r0 array_length r14)
+		(gotoif '(r13 != r14) 'error))
+		(call 'obj 'ref '(r0) '(r0))
 	(endif)
-	(call 'points 'fscale {value, arg0, arg1})
+	(call 'points 'fscale '(r0 r6 (r7 num_value)) '(r0))
 
-	(exit 'points 'lisp_fscale {this, value})
-	(return)
+	(exit 'points 'lisp_fscale '(r9 r0))
+	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error {this, "(points-fscale points scale [points])", error_msg_wrong_types, args})
+	(jump 'lisp 'repl_error '(r9 "(points-fscale points scale [points])" error_msg_wrong_types r10))
 	(signature 'sig 'points 'num 'points))
-
-	(pop-scope-syms)
 
 (def-func-end)
 

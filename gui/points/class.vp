@@ -23,7 +23,7 @@
 			(vp-cpy-ir r10 0 r1)
 			(call 'points 'append '(r0 r1 0 (r1 array_length ui)) '(r0))
 			(vp-add-cr ptr_size r10)
-		(loop-until (list r10 '== r11))
+		(loop-until '(r10 == r11))
 	(endif)
 
 	(exit 'points 'cat '(r0))
@@ -68,79 +68,70 @@
 (def-func-end)
 
 (defun vecop1 (_)
-	(vp-def (r_this r_iter_that1 r_iter_that2 r_iter_this r_iter_end))
-
-	(entry 'points _ (list r_this r_iter_that1 r_iter_that2))
-
-	(vp-cpy-ir r_this array_array r_iter_this)
-	(vp-cpy-ir-ui r_this array_length r_iter_end)
-	(vp-cpy-ir r_iter_that1 array_array r_iter_that1)
-	(vp-cpy-ir r_iter_that2 array_array r_iter_that2)
-	(vp-shl-cr (log2 long_size) r_iter_end)
-	(vp-add-rr r_iter_this r_iter_end)
-
+	;trashes
+	;r1-r6+
+	(entry 'points _ '(r0 r1 r2))
+	(vp-cpy-ir r0 array_array r3)
+	(vp-cpy-ir-ui r0 array_length r4)
+	(vp-cpy-ir r1 array_array r1)
+	(vp-cpy-ir r2 array_array r2)
+	(vp-shl-cr (log2 long_size) r4)
+	(vp-add-rr r3 r4)
 	(vec-set 5)
 	(loop-start)
-		(vec-load-long 1 r_iter_that1)
-		(vec-load-long 1 r_iter_that2)
+		(vec-load-long 1 r1)
+		(vec-load-long 1 r2)
 		((eval (sym-cat "vec-" _)) 1)
-		(vec-store-long 1 r_iter_this)
-		(vp-add-cr long_size r_iter_this)
-		(vp-add-cr long_size r_iter_that1)
-		(vp-add-cr long_size r_iter_that2)
-	(loop-until (list r_iter_this '== r_iter_end))
-
-	(exit 'points _ (list r_this))
+		(vec-store-long 1 r3)
+		(vp-add-cr long_size r3)
+		(vp-add-cr long_size r1)
+		(vp-add-cr long_size r2)
+	(loop-until '(r3 == r4))
+	(exit 'points _ '(r0))
 	(vp-ret))
 
 (defun vecop2 (_)
-	(vp-def (r_t0 r_t1 r_t2 r_t3 r_this r_iter_that1 r_iter_that2 r_iter_this r_iter_end))
-
-	(entry 'points _ (list r_t0 r_t1 r_t2))
-
-	(vp-cpy-rr r_t0 r_this)
-	(vp-cpy-ir r_t0 array_array r_iter_this)
-	(vp-cpy-ir-ui r_t0 array_length r_iter_end)
-	(vp-cpy-ir r_t1 array_array r_iter_that1)
-	(vp-cpy-ir r_t2 array_array r_iter_that2)
-	(vp-shl-cr (log2 long_size) r_iter_end)
-	(vp-add-rr r_iter_this r_iter_end)
-
+	;trashes
+	;r1-r8+
+	(entry 'points _ '(r0 r1 r2))
+	(vp-cpy-rr r0 r4)
+	(vp-cpy-ir r0 array_array r7)
+	(vp-cpy-ir-ui r0 array_length r8)
+	(vp-cpy-ir r1 array_array r5)
+	(vp-cpy-ir r2 array_array r6)
+	(vp-shl-cr (log2 long_size) r8)
+	(vp-add-rr r7 r8)
 	(vec-set 0)
 	(loop-start)
-		(vec-load-long 1 r_iter_that1)
-		(vec-load-long 1 r_iter_that2)
+		(vec-load-long 1 r5)
+		(vec-load-long 1 r6)
 		((eval (sym-cat "vec-" _)) 1)
-		(vec-store-long 1 r_iter_this)
-		(vp-add-cr long_size r_iter_this)
-		(vp-add-cr long_size r_iter_that1)
-		(vp-add-cr long_size r_iter_that2)
-	(loop-until (list r_iter_this '== r_iter_end))
-
-	(exit 'points _ (list r_this))
+		(vec-store-long 1 r7)
+		(vp-add-cr long_size r7)
+		(vp-add-cr long_size r5)
+		(vp-add-cr long_size r6)
+	(loop-until '(r7 == r8))
+	(exit 'points _ '(r4))
 	(vp-ret))
 
 (defun vecop3 (_)
-	(vp-def (r_this r_iter_that r_iter_this r_iter_end))
-
-	(entry 'points _ (list r_this r_iter_that))
-
-	(vp-cpy-ir r_this array_array r_iter_this)
-	(vp-cpy-ir-ui r_this array_length r_iter_end)
-	(vp-cpy-ir r_iter_that array_array r_iter_that)
-	(vp-shl-cr (log2 long_size) r_iter_end)
-	(vp-add-rr r_iter_this r_iter_end)
-
+	;trashes
+	;r1-r4+
+	(entry 'points _ '(r0 r1))
+	(vp-cpy-ir r0 array_array r2)
+	(vp-cpy-ir-ui r0 array_length r3)
+	(vp-cpy-ir r1 array_array r1)
+	(vp-shl-cr (log2 long_size) r3)
+	(vp-add-rr r2 r3)
 	(vec-set 4)
 	(loop-start)
-		(vec-load-long 1 r_iter_that)
+		(vec-load-long 1 r1)
 		((eval (sym-cat "vec-" _)) 1)
-		(vec-store-long 1 r_iter_this)
-		(vp-add-cr long_size r_iter_this)
-		(vp-add-cr long_size r_iter_that)
-	(loop-until (list r_iter_this '== r_iter_end))
-
-	(exit 'points _ (list r_this))
+		(vec-store-long 1 r2)
+		(vp-add-cr long_size r2)
+		(vp-add-cr long_size r1)
+	(loop-until '(r2 == r3))
+	(exit 'points _ '(r0))
 	(vp-ret))
 
 (def-method 'points 'add)
@@ -151,7 +142,7 @@
 	;outputs
 	;r0 = points object (ptr)
 	;trashes
-	;all but r0
+	;r1-r6
 
 	(vecop1 'add)
 
@@ -165,7 +156,7 @@
 	;outputs
 	;r0 = points object (ptr)
 	;trashes
-	;all but r0
+	;r1-r6
 
 	(vecop1 'sub)
 
@@ -179,7 +170,7 @@
 	;outputs
 	;r0 = points object (ptr)
 	;trashes
-	;all but r0
+	;r1-r6
 
 	(vecop1 'mul)
 
@@ -193,7 +184,7 @@
 	;outputs
 	;r0 = points object (ptr)
 	;trashes
-	;all but r0
+	;r1-r8
 
 	(vecop2 'div)
 
@@ -207,7 +198,7 @@
 	;outputs
 	;r0 = points object (ptr)
 	;trashes
-	;all but r0
+	;r1-r8
 
 	(vecop2 'mod)
 
@@ -221,7 +212,7 @@
 	;outputs
 	;r0 = points object (ptr)
 	;trashes
-	;all but r0
+	;r1-r6
 
 	(vecop1 'fmul)
 
@@ -235,7 +226,7 @@
 	;outputs
 	;r0 = points object (ptr)
 	;trashes
-	;all but r0
+	;r1-r8
 
 	(vecop2 'fdiv)
 
@@ -249,7 +240,7 @@
 	;outputs
 	;r0 = points object (ptr)
 	;trashes
-	;all but r0
+	;r1-r8
 
 	(vecop2 'fmod)
 
@@ -262,22 +253,19 @@
 	;r0 = points object (ptr)
 	;r1 = sum (long)
 	;trashes
-	;all but r0
+	;r1-r4
 
-	(vp-def (r_this r_iter_this r_iter_end r_value r_num))
+	(entry 'points 'sum '(r0))
 
-	(entry 'points 'sum (list r_this))
+	(call 'points 'get_iters '(r0) '(r0 r1 r2))
+	(vp-xor-rr r3 r3)
+	(loop-while '(r1 != r2))
+		(vp-cpy-ir r1 0 r4)
+		(vp-add-cr long_size r1)
+		(vp-add-rr r4 r3)
+	(loop-end)
 
-	(call 'points 'get_iters (list r_this) (list r_this r_iter_this r_iter_end))
-	(vp-cpy-ir r_iter_this 0 r_value)
-	(vp-add-cr long_size r_iter_this)
-	(loop-start)
-		(vp-cpy-ir r_iter_this 0 r_num)
-		(vp-add-cr long_size r_iter_this)
-		(vp-add-rr r_num r_value)
-	(loop-until (list r_iter_this '== r_iter_end))
-
-	(exit 'points 'sum (list r_this r_value))
+	(exit 'points 'sum '(r0 r3))
 	(vp-ret)
 
 (def-func-end)
@@ -290,28 +278,25 @@
 	;outputs
 	;r0 = points object (ptr)
 	;trashes
-	;all but r0
+	;r1-r5
 
-	(vp-def (r_this r_iter_that r_scale r_iter_this r_iter_end))
+	(entry 'points 'fscale '(r0 r1 r2))
 
-	(entry 'points 'fscale (list r_this r_iter_that r_scale))
-
-	(vp-cpy-ir r_this array_array r_iter_this)
-	(vp-cpy-ir-ui r_this array_length r_iter_end)
-	(vp-cpy-ir r_iter_that array_array r_iter_that)
-	(vp-shl-cr (log2 long_size) r_iter_end)
-	(vp-add-rr r_iter_this r_iter_end)
-
+	(vp-cpy-ir r0 array_array r3)
+	(vp-cpy-ir-ui r0 array_length r4)
+	(vp-cpy-ir r1 array_array r1)
+	(vp-shl-cr (log2 long_size) r4)
+	(vp-add-rr r3 r4)
 	(vec-set 5)
 	(loop-start)
-		(vec-load-long 1 r_iter_that)
-		(vec-fmul 1 (list r_scale))
-		(vec-store-long 1 r_iter_this)
-		(vp-add-cr long_size r_iter_this)
-		(vp-add-cr long_size r_iter_that)
-	(loop-until (list r_iter_this '== r_iter_end))
+		(vec-load-long 1 r1)
+		(vec-fmul 1 '(r2))
+		(vec-store-long 1 r3)
+		(vp-add-cr long_size r3)
+		(vp-add-cr long_size r1)
+	(loop-until '(r3 == r4))
 
-	(exit 'points 'fscale (list r_this))
+	(exit 'points 'fscale '(r0))
 	(vp-ret)
 
 (def-func-end)
@@ -323,7 +308,7 @@
 	;outputs
 	;r0 = points object (ptr)
 	;trashes
-	;all but r0
+	;r1-r4
 
 	(vecop3 'abs)
 
@@ -336,7 +321,7 @@
 	;outputs
 	;r0 = points object (ptr)
 	;trashes
-	;all but r0
+	;r1-r5
 
 	(vecop3 'frac)
 
