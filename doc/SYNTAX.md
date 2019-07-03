@@ -224,9 +224,7 @@
 ## inc
 ### (inc num) -> num
 ## insert
-### (insert list str) -> list
-## insert-sym
-### (insert-sym list sym) -> list
+### (insert list form) -> list
 ## kernel-debug
 ### (kernel-debug str)
 ## kernel-declare
@@ -274,9 +272,7 @@
 ## max
 ### (max num num ...)
 ## merge
-### (merge list str) -> list
-## merge-sym
-### (merge-sym dlist slist) -> dlist
+### (merge dlist slist) -> dlist
 ## min
 ### (min num num ...)
 ## minus

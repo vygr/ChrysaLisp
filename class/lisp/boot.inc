@@ -41,7 +41,7 @@
 (ffi pop "class/array/lisp_pop" 0)
 
 (ffi elem-set "class/vector/lisp_elemset" 0)
-(ffi merge-sym "class/vector/lisp_merge" 0)
+(ffi merge "class/vector/lisp_merge" 0)
 (ffi partition "class/vector/lisp_part" 0)
 (ffi match? "class/vector/lisp_match" 0)
 
@@ -506,20 +506,9 @@
 			(while (gt 0 _)
 				(setq _ (bit-shl _ 1) c (inc c))) c))
 
-(defun insert (x y)
-	;(insert list str) -> list
-	(if (notany (lambda (x) (eql x y)) x)
-		(push x y) x))
-
-(defun merge (x y)
-	;(merge list str) -> list
-	(each (lambda (y)
-		(when (notany (lambda (x) (eql x y)) x)
-			(push x y))) y) x)
-
-(defun insert-sym (x &rest y)
-	;(insert-sym list sym) -> list
-	(merge-sym x y))
+(defun insert (x &rest y)
+	;(insert list form) -> list
+	(merge x y))
 
 (defmacro sym-cat (&rest _)
 	;(sym-cat str ...) -> sym

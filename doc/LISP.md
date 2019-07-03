@@ -122,7 +122,7 @@ macroexpand
 macroexpand-1
 match?
 max
-merge-sym
+merge
 min
 mod
 mul
@@ -229,7 +229,6 @@ each-pipe-line
 filter
 from-base-char
 insert
-insert-sym
 log2
 lst?
 map

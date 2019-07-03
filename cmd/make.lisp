@@ -32,7 +32,7 @@
 					(defq s (split l " ") _ (elem 0 s))
 					(cond
 						((eql _ "(include")
-							(insert-sym *imports* (trim-cruft (elem 1 s))))
+							(insert *imports* (trim-cruft (elem 1 s))))
 						((eql _ "(def-class")
 							(push classes (list (trim-cruft (elem 1 s))
 								(if (eq 3 (length s)) (trim-cruft (elem 2 s)) 'null))))
@@ -48,7 +48,7 @@
 							(push functions (trim-cruft (elem 1 s))))
 						((and (or (eql _ "(call") (eql _ "(jump")) (eql (elem 2 s) "'repl_error"))
 							(if (setq l (chop l))
-								(insert-sym syntax l)))))) _)) *imports*)))
+								(insert syntax l)))))) _)) *imports*)))
 	;create classes docs
 	(sort (lambda (x y)
 		(cmp (elem 0 x) (elem 0 y))) classes)
@@ -74,7 +74,7 @@
 		(defq l (trim-whitespace _))
 		(when (eql state 'y)
 			(if (and (ge (length l) 1) (eql (elem 0 l) ";"))
-				(insert-sym syntax (sym (slice 1 -1 l)))
+				(insert syntax (sym (slice 1 -1 l)))
 				(setq state 'x)))
 		(when (and (eql state 'x) (ge (length l) 10) (eql "(" (elem 0 l)))
 			(defq s (split l " ") _ (elem 0 s))

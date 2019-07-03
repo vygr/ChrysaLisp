@@ -82,13 +82,7 @@
 
 	(vp-cpy-ir r7 array_array r1)
 	(vp-cpy-ir r1 0 r10)
-	(vp-cpy-ir r1 ptr_size r7)
-
-(errorcases
-	(call 'lisp 'env_args_type `(r7 (@ ,(f-path 'sym 'vtable)) 0) '(r1))
-	(gotoif '(r1 == 0) 'error))
-
-	(call 'vector 'get_iters '(r7) '(r0 r8 r7))
+	(call 'vector 'get_iters '((r1 ptr_size)) '(r0 r8 r7))
 	(call 'vector 'set_capacity '(r10 (r0 array_length ui)) '(r0))
 	(loop-while '(r8 != r7))
 		(vp-cpy-ir r8 0 r1)
@@ -107,7 +101,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(merge-sym dlist slist) -> dlist" error_msg_wrong_types r7))
+	(jump 'lisp 'repl_error '(r6 "(merge dlist slist) -> dlist" error_msg_wrong_types r7))
 	(signature 'sig 'vector 'vector))
 
 (def-func-end)

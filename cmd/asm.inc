@@ -97,7 +97,7 @@
 				(each-mergeable (lambda (_)
 					(defq i (make-info _))
 					(bind '(d p) i)
-					(merge-sym *imports* d)
+					(merge *imports* d)
 					(elem-set 1 i (map func-obj p))
 					(def *env* (make-sym _) i)) *imports*)))
 			;filter to only the .vp files
@@ -107,7 +107,7 @@
 			(setq *imports* (filter (lambda (_)
 				(defq d (eval (make-sym _)) p (reduce min (map make-time (elem 1 d))) d (elem 0 d))
 				(each-mergeable (lambda (_)
-					(merge-sym d (elem 0 (eval (make-sym _))))) d)
+					(merge d (elem 0 (eval (make-sym _))))) d)
 				(some (lambda (_) (ge _ p)) (map make-time d))) *imports*))
 			;drop the make environment, return the list to compile
 			(setq *env* nil) *imports*) (setq *env* nil)))) *abi* *cpu*))
@@ -146,15 +146,15 @@
 				'sys/load/statics))
 			;load all loader dependents
 			(each-mergeable (lambda (_)
-				(merge-sym f (elem 2 (load-func _)))) f)
+				(merge f (elem 2 (load-func _)))) f)
 			(defq fs (length f))
 			;load up all extra functions requested
-			(merge-sym f (map sym *funcs*))
+			(merge f (map sym *funcs*))
 			(each load-func f)
 			;if recursive then load up all dependents
 			(when r
 				(each-mergeable (lambda (_)
-					(merge-sym f (elem 2 (load-func _)))) f))
+					(merge f (elem 2 (load-func _)))) f))
 			;sort into order, leaving the loader dependents first !
 			(sort cmp f fs)
 			;list of all function bodies and links in order, list of offsets of header and link sections
@@ -167,7 +167,7 @@
 			;list of all strings that will appear in new strings section, and list of all new string offsets
 			(each (lambda (_)
 				(each (lambda (_)
-					(unless (find _ f) (insert-sym ns _))) (elem 2 (eval (func-sym _))))) f)
+					(unless (find _ f) (insert ns _))) (elem 2 (eval (func-sym _))))) f)
 			(reduce (lambda (x y)
 				(push nso x)
 				(add x (length y) 1)) ns 0)
@@ -196,14 +196,14 @@
 			;lists of all file imports and products
 			(each-mergeable (lambda (_)
 				(bind '(d p) (make-info _))
-				(merge-sym *imports* d)
-				(merge-sym *prods* p)) *imports*) *prods*)) *abi* *cpu*))
+				(merge *imports* d)
+				(merge *prods* p)) *imports*) *prods*)) *abi* *cpu*))
 
 (defun all-vp-files ()
 	(defq *imports* (list 'make.inc))
 	;list of all file imports
 	(each-mergeable (lambda (_)
-		(merge-sym *imports* (make-imports _))) *imports*)
+		(merge *imports* (make-imports _))) *imports*)
 	;filter to only the .vp files
 	(filter (lambda (_)
 		(and (ge (length _) 3) (eql ".vp" (slice -4 -1 _)))) *imports*))
@@ -212,7 +212,7 @@
 	(defq *imports* (list 'make.inc))
 	;list of all file imports
 	(each-mergeable (lambda (_)
-		(merge-sym *imports* (make-imports _))) *imports*)
+		(merge *imports* (make-imports _))) *imports*)
 	;filter to only the class.inc files
 	(filter (lambda (_)
 		(and (ge (length _) 9) (eql "class.inc" (slice -10 -1 _)))) *imports*))
