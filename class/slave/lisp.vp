@@ -10,41 +10,53 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(ptr 'this 'args 'value 'stdin 'stdout 'stderr)
+	(def-struct 'local)
+		(ptr 'this)
+		(ptr 'val)
+		(ptr 'stdin)
+		(ptr 'stdout)
+		(ptr 'stderr)
+	(def-struct-end)
+
+	(entry 'slave 'lisp_create '(r0 r1))
+
 (errorcases
-	(uint 'length))
+	(vp-cpy-ir-ui r1 array_length r2)
+	(gotoif '(r2 != 0) 'error))
 
-	(push-scope)
-	(entry 'slave 'lisp_create {this, args})
-
-(errorcases
-	(d-call 'vector 'get_length {args} {_, length})
-	(gotoif {length} 'error1))
-
-	(call 'slave 'create nil {value})
-	(vpifnot {value})
-		(call 'obj 'ref {this->lisp_sym_nil} {value})
+	(vp-alloc local_size)
+	(vp-cpy-ri r0 rsp local_this)
+	(call 'slave 'create nil '(r0))
+	(vpif '(r0 == 0))
+		(vp-cpy-ir rsp local_this r0)
+		(call 'obj 'ref '((r0 lisp_sym_nil)) '(r1))
 	(else)
 		;redirect lisp io
-		(assign {this->lisp_stdin} {stdin})
-		(assign {this->lisp_stdout} {stdout})
-		(assign {this->lisp_stderr} {stderr})
-		(call 'obj 'ref {value->slave_stdin} {this->lisp_stdin})
-		(call 'obj 'ref {value->slave_stdout} {this->lisp_stdout})
-		(call 'obj 'ref {value->slave_stderr} {this->lisp_stderr})
-		(call 'obj 'deref {stdin})
-		(call 'obj 'deref {stdout})
-		(call 'obj 'deref {stderr})
+		(vp-cpy-ri r0 rsp local_val)
+		(vp-cpy-ir rsp local_this r5)
+		(vp-cpy-rr r0 r6)
+		(vp-cpy-ir r5 lisp_stdin r0)
+		(vp-cpy-ir r5 lisp_stdout r1)
+		(vp-cpy-ir r5 lisp_stderr r2)
+		(vp-cpy-ri r0 rsp local_stdin)
+		(vp-cpy-ri r1 rsp local_stdout)
+		(vp-cpy-ri r2 rsp local_stderr)
+		(call 'obj 'ref '((r6 slave_stdin)) '((r5 lisp_stdin)))
+		(call 'obj 'ref '((r6 slave_stdout)) '((r5 lisp_stdout)))
+		(call 'obj 'ref '((r6 slave_stderr)) '((r5 lisp_stderr)))
+		(call 'obj 'deref '((rsp local_stdin)))
+		(call 'obj 'deref '((rsp local_stdout)))
+		(call 'obj 'deref '((rsp local_stderr)))
+		(vp-cpy-ir rsp local_val r1)
 	(endif)
 
-	(exit 'slave 'lisp_create {this, value})
-	(return)
+	(exit 'slave 'lisp_create '((rsp local_this) r1))
+	(vp-free local_size)
+	(vp-ret)
 
 (errorcases
-(vp-label 'error1)
-	(jump 'lisp 'repl_error {this, "(create-slave)", error_msg_wrong_types, args}))
-
-	(pop-scope-syms)
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r0 "(create-slave)" error_msg_wrong_types r1)))
 
 (def-func-end)
 

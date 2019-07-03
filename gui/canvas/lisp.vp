@@ -23,7 +23,7 @@
 	(vp-cpy-ir r2 0 r0)
 	(vp-cpy-ir r2 ptr_size r1)
 	(vp-cpy-ir r2 (mul ptr_size 2) r2)
-	(call 'canvas 'create'((r0 num_value) (r1 num_value) (r2 num_value)) '(r1))
+	(call 'canvas 'create '((r0 num_value) (r1 num_value) (r2 num_value)) '(r1))
 	(vp-pop r0)
 
 	(exit 'canvas 'lisp_create '(r0 r1))

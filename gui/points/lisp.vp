@@ -572,7 +572,7 @@
 
 	(vp-cpy-ir r7 array_array r0)
 	(call 'points 'sum '((r0 0)) '(_ r0))
-	(call 'num 'create'(r0) '(r0))
+	(call 'num 'create '(r0) '(r0))
 
 	(exit 'points 'lisp_sum '(r6 r0))
 	(vp-ret)
