@@ -1799,7 +1799,7 @@ r1 = return value object (ptr)
 inputs
 r0 = args vector object (ptr)
 r3 = args dest (ptr)
-r1 = args offset (uint)
+r4 = args offset (uint)
 trashes
 r0-r5
 ```
