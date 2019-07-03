@@ -47,9 +47,10 @@ r0 = array object (ptr)
 r1 = element (long)
 outputs
 r0 = array object (ptr)
-r1 = -1, else index (int)
+r1 = element (long)
+r2 = -1, else index (int)
 trashes
-r1-r4
+r2-r4
 ```
 ### array::for_each -> class/array/for_each
 ```
@@ -3856,7 +3857,8 @@ r0 = str object (ptr)
 r1 = search char (uint)
 outputs
 r0 = str object (ptr)
-r1 = -1, else position (int)
+r1 = search char (uint)
+r2 = -1, else position (int)
 trashes
 r2-r4
 ```

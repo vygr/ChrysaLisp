@@ -428,13 +428,13 @@
 	(errorcases
 		(vp-cpy-ir r_elem obj_vtable r_vtable)
 		(gotoif (list r_vtable '!= r_cmp) 'error2))
-		(call 'str 'find `(,r_seq (,r_elem str_data ub)) (list '_ r_length))
+		(call 'str 'find `(,r_seq (,r_elem str_data ub)) (list '_ '_ r_length))
 		(goto 'ok)
 	(default)
 	(errorcases
 		(assign `((@ ,(f-path 'vector 'vtable))) (list r_cmp))
 		(gotoif (list r_vtable '!= r_cmp) 'error2))
-		(call 'vector 'find (list r_seq r_elem) (list '_ r_length))
+		(call 'vector 'find (list r_seq r_elem) (list '_ '_ r_length))
 	(vp-label 'ok)
 		(vpif (list r_length '== -1))
 			(call 'obj 'ref `((,r_this lisp_sym_nil)) (list r_value))

@@ -635,21 +635,22 @@
 	;r1 = search char (uint)
 	;outputs
 	;r0 = str object (ptr)
-	;r1 = -1, else position (int)
+	;r1 = search char (uint)
+	;r2 = -1, else position (int)
 	;trashes
 	;r2-r4
 
 	(entry 'str 'find '(r0 r1))
 
-	(vp-lea-i r0 str_data r2)
-	(vp-cpy-ir-ui r0 str_length r3)
+	(vp-cpy-ir-ui r0 str_length r2)
+	(vp-lea-i r0 str_data r3)
 	(loop-start)
-		(vp-sub-cr byte_size r3)
-		(breakif '(r3 < 0))
-		(vp-cpy-dr-ub r2 r3 r4)
+		(vp-sub-cr byte_size r2)
+		(breakif '(r2 < 0))
+		(vp-cpy-dr-ub r3 r2 r4)
 	(loop-until '(r1 == r4))
 
-	(exit 'str 'find '(r0 r3))
+	(exit 'str 'find '(r0 r1 r2))
 	(vp-ret)
 
 (def-func-end)
