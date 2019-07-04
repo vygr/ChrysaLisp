@@ -196,6 +196,8 @@
 		(vp-cpy-ir r1 0 r3)
 		(vp-add-cr ptr_size r1)
 		(vp-cpy-ir r3 num_value r3)
+	(errorcases
+		(gotoif '(r3 == 0) 'error))
 		(exec p)
 	(loop-until '(r1 == r4))
 	(call 'num 'create '(r0) '(r0))
