@@ -271,45 +271,32 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(ptr 'this)
-	(pptr 'iter_begin)
-	(union
-		'(ptr 'args)
-		'(pptr 'iter_end))
-	(union
-		'(ptr 'value)
-		'(long 'num))
-	(long 'accum)
-
-	(push-scope)
-	(entry 'num 'lisp_fmod {this, args})
+	(entry 'num 'lisp_fmod '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type (cat {args, @} (f-path 'num 'vtable) {, -2}) '(r1))
+	(call 'lisp 'env_args_type `(r7 (@ ,(f-path 'num 'vtable)) -2) '(r1))
 	(gotoif '(r1 == 0) 'error))
 
-	(call 'vector 'get_iters {args} {_, iter_begin, iter_end})
-	(call 'num 'get_value {*iter_begin} {_, accum})
+	(call 'vector 'get_iters '(r7) '(_ r4 r5))
+	(vp-cpy-ir r4 0 r0)
+	(vp-add-cr ptr_size r4)
+	(vp-cpy-ir r0 num_value r0)
 	(loop-start)
-		(assign {iter_begin + ptr_size} {iter_begin})
-		(breakif {iter_begin == iter_end})
-		(call 'num 'get_value {*iter_begin} {_, num})
-		(errorifnot {num} 'error)
-		(vec-set 0)
-		(vec-load 2 {accum, num})
+		(vp-cpy-ir r4 0 r1)
+		(vp-add-cr ptr_size r4)
+		(vp-cpy-ir r1 num_value r1)
+	(errorcases
+		(gotoif '(r1 == 0) 'error))
+		(vec-set 2)
 		(vec-fmod 1)
-		(vec-store 1 {accum})
-	(loop-end)
-	(call 'num 'create {accum} {value})
-
-	(exit 'num 'lisp_fmod {this, value})
-	(return)
+	(loop-until '(r4 == r5))
+	(call 'num 'create '(r0) '(r0))
+	(exit 'num 'lisp_fmod '(r6 r0))
+	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error {this, "(fmod num num ...)", error_msg_wrong_types, args}))
-
-	(pop-scope-syms)
+	(jump 'lisp 'repl_error '(r6 "(fmod num num ...)" error_msg_wrong_types r7)))
 
 (def-func-end)
 
