@@ -158,13 +158,11 @@
 ; enums
 ;;;;;;;
 
-(defcvar '*enum* nil '*enum-offset* nil)
-
 (defcfun def-enum (_1 &optional _2)
-	(setq *enum* _1 *enum-offset* (opt _2 0)))
+	(defcvar '*enum* _1 '*enum-offset* (opt _2 0)))
 
 (defcfun def-enum-end ()
-	(setq *enum* nil *enum-offset* nil))
+	(undefc '*enum* '*enum-offset*))
 
 (defcfun enum (&rest _)
 	(each (lambda (_)
@@ -178,13 +176,11 @@
 ; bits
 ;;;;;;
 
-(defcvar '*bit* nil '*bit-offset* nil)
-
 (defcfun def-bit (_1 &optional _2)
-	(setq *bit* _1 *bit-offset* (opt _2 0)))
+	(defcvar '*bit* _1 '*bit-offset* (opt _2 0)))
 
 (defcfun def-bit-end ()
-	(setq *bit* nil *bit-offset* nil))
+	(undefc '*bit* '*bit-offset*))
 
 (defcfun bit (&rest _)
 	(each (lambda (_)

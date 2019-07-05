@@ -623,6 +623,8 @@
 	(defq *compile-env* (env 307) *compile-includes* (list))
 	(defmacro defcvar (&rest b)
 		`(def *compile-env* ~b))
+	(defmacro undefc (&rest b)
+		`(undef *compile-env* ~b))
 	(defmacro defcfun (n a &rest b)
 		`(def *compile-env* ',n (lambda ,a ~b)))
 	(defmacro defcmacro (n a &rest b)

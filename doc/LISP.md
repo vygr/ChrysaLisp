@@ -312,6 +312,7 @@ remake-platforms
 defcvar
 defcfun
 defcmacro
+undefc
 ```
 
 ### `*compile-env*` functions
