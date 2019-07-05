@@ -510,10 +510,6 @@
 	;(insert list form) -> list
 	(merge x y))
 
-(defmacro sym-cat (&rest _)
-	;(sym-cat str ...) -> sym
-	`(sym (cat ~_)))
-
 (defun shuffled (_a &optional _l _h)
 	;(shuffled list [start end]) -> list
 	(setd _l 0 _h (length _a))

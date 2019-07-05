@@ -437,8 +437,6 @@
 ### (swap list index index)
 ## sym
 ### (sym str)
-## sym-cat
-### (sym-cat str ...) -> sym
 ## sym?
 ### (sym? form)
 ## task-mailbox

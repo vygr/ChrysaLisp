@@ -198,7 +198,6 @@ or
 rcurry
 run
 setd
-sym-cat
 times
 unless
 until

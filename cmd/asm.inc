@@ -72,7 +72,7 @@
 					(push p (f-path (trim-cruft (elem 1 s)) 'vtable)))
 				((eql _ "(gen-create")
 					(push p (f-path (trim-cruft (elem 1 s))
-						(if (gt (length s) 2) (sym-cat "create_" (trim-cruft (elem 2 s))) 'create))))
+						(if (gt (length s) 2) (sym (cat "create_" (trim-cruft (elem 2 s)))) 'create))))
 				((eql _ "(def-func")
 					(push p (trim-cruft (elem 1 s))))))) _)
 	(list d p))
@@ -85,10 +85,10 @@
 			(defun func-obj (_)
 				(cat "obj/" *cpu* "/" *abi* "/" _))
 			(defun make-sym (_)
-				(sym-cat "_dep_" _))
+				(sym (cat "_dep_" _)))
 			(defun make-time (_)
 				;modification time of a file, cached
-				(defq s (sym-cat "_age_" _))
+				(defq s (sym (cat "_age_" _)))
 				(or (def? s) (def *env* s (age _))))
 			;list of all file imports while defining dependencies and products
 			(within-compile-env (lambda ()
@@ -119,7 +119,7 @@
 		(catch (progn
 			(include 'sys/func.inc)
 			(defun func-sym (_)
-				(sym-cat 'f_ _))
+				(sym (cat 'f_ _)))
 			(defun func-obj (_)
 				(cat "obj/" *cpu* "/" *abi* "/" _))
 			(defun load-func (_)

@@ -5,10 +5,10 @@
 (include 'sys/code.inc)
 
 (defmacro class-sym (_)
-	`(sym-cat "_class_" ,_))
+	`(sym (cat "_class_" ,_)))
 
 (defmacro super-sym (_)
-	`(sym-cat "_super_" ,_))
+	`(sym (cat "_super_" ,_)))
 
 (defcvar '*class* nil (class-sym 'null) '(()()0) '*args* (list))
 (each (lambda (_) (push *args* (list))) (range 0 16))
@@ -457,9 +457,9 @@
 (defcfun gen-create (_1 &optional _2)
 	;_1 = class name
 	;_2 = create/init name
-	(defq m (method-lookup _1 (if _2 (sym-cat "create_" _2) 'create)) _3 (opt (elem 2 m) '())
+	(defq m (method-lookup _1 (if _2 (sym (cat "create_" _2)) 'create)) _3 (opt (elem 2 m) '())
 		_4 (slice 0 (length _3) '(r14 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13)))
-	(def-func (f-path _1 (if _2 (sym-cat "create_" _2) 'create)))
+	(def-func (f-path _1 (if _2 (sym (cat "create_" _2)) 'create)))
 		;inputs
 		;depends on init method
 		;outputs
@@ -467,10 +467,10 @@
 		;trashes
 		;depends on init method
 		(assign _3 _4)
-		(call 'sys_mem 'alloc `(,(sym-cat _1 "_size")) '(r0 _))
+		(call 'sys_mem 'alloc `(,(sym (cat _1 "_size"))) '(r0 _))
 		(vpif '(r0 != 0))
 			;init the object
-			(call _1 (if _2 (sym-cat "init_" _2) 'init) `(r0 (@ ,(f-path _1 'vtable)) ~_4) '(r0 r1))
+			(call _1 (if _2 (sym (cat "init_" _2)) 'init) `(r0 (@ ,(f-path _1 'vtable)) ~_4) '(r0 r1))
 			(vpif '(r1 == 0))
 				;error with init
 				(call 'sys_mem 'free '(r0))

@@ -5,19 +5,19 @@
 (defcvar '*switch* nil '*switch-nxt* nil '*switch-stk* (list))
 
 (defmacro beg-sym ()
-	'(sym-cat "b_" (str *switch*)))
+	'(sym (str "b_" *switch*)))
 
 (defmacro end-sym ()
-	'(sym-cat "e_" (str *switch*)))
+	'(sym (str "e_" *switch*)))
 
 (defmacro loc-sym (n)
-	`(sym-cat "o_" (str *switch*) "_" (str ,n)))
+	`(sym (str "o_" *switch* "_" ,n)))
 
 (defmacro cnt-sym ()
-	'(sym-cat "_c_" (str *switch*)))
+	'(sym (str "_c_" *switch*)))
 
 (defmacro llb-sym (_)
-	`(sym-cat "_s_" _))
+	`(sym (cat "_s_" _)))
 
 (defcfun goto (l)
 	(vp-jmp l))
@@ -168,7 +168,7 @@
 
 (defcfun enum (&rest _)
 	(each (lambda (_)
-		(setq _ (sym-cat *enum* "_" _))
+		(setq _ (sym (cat *enum* "_" _)))
 		(if (def? _)
 			(throw "Enum redefined !" _))
 		(defcvar _ *enum-offset*)
@@ -188,7 +188,7 @@
 
 (defcfun bit (&rest _)
 	(each (lambda (_)
-		(setq _ (sym-cat *bit* "_" _))
+		(setq _ (sym (cat *bit* "_" _)))
 		(if (def? _)
 			(throw "Bit redefined !" _))
 		(defcvar _ (bit-shl 1 *bit-offset*))
@@ -288,10 +288,10 @@
 	'null_size 0 'byte_size 1 'short_size 2 'int_size 4 'long_size 8 'ptr_size 8)
 
 (defmacro type-sym (_)
-	`(sym-cat "_t_" (str ,_)))
+	`(sym (str "_t_" ,_)))
 
 (defmacro struct-sym (_)
-	`(sym-cat *struct* "_" ,_))
+	`(sym (cat *struct* "_" ,_)))
 
 (defcfun check-field (_)
 	(setq _ (struct-sym _))
@@ -306,10 +306,10 @@
 		(setq *sym-sp* (align *sym-sp* _))))
 
 (defcfun def-struct (s &optional o)
-	(setq *struct* s *struct-sp* (eval (sym-cat (opt o "null") "_size"))))
+	(setq *struct* s *struct-sp* (eval (sym (cat (opt o "null") "_size")))))
 
 (defcfun def-struct-end ()
-	(defcvar (sym-cat *struct* "_size") *struct-sp*)
+	(defcvar (sym (cat *struct* "_size")) *struct-sp*)
 	(setq *struct* nil *struct-sp* nil))
 
 (defmacro def-type (n s y)
@@ -353,7 +353,7 @@
 			(throw "Attempt to define offset into local stack !" _))))
 
 (defcfun struct (_ s)
-	(if (sym? s) (setq s (eval (sym-cat s "_size"))))
+	(if (sym? s) (setq s (eval (sym (cat s "_size")))))
 	(cond
 		(*struct*
 			(setq _ (check-field _))

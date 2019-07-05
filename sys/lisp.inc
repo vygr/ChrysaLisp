@@ -7,9 +7,9 @@
 
 ;some simple structure helpers
 (defmacro structure (n o &rest b)
-	`(progn (defq _e (env) _n ,n _o ,(eval o)) ~b (def _e (sym-cat _n "_size") _o '_e nil)))
+	`(progn (defq _e (env) _n ,n _o ,(eval o)) ~b (def _e (sym (cat _n "_size")) _o '_e nil)))
 (defun struct (s &rest b)
-	(each (lambda (_) (def _e (sym-cat _n "_" _) _o) (setq _o (add _o s))) b))
+	(each (lambda (_) (def _e (sym (cat _n "_" _)) _o) (setq _o (add _o s))) b))
 (defun offset (&rest b)
 	(apply struct (cat (list 0) b)))
 (defun ptr (&rest b)

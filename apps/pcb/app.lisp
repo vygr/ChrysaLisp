@@ -35,14 +35,14 @@
 	(add (bit-and 0xffffff _) 0xa0000000))
 
 (defun circle (r)
-	(defq k (sym-cat (str r)))
+	(defq k (sym (str r)))
 	(if (defq i (find k cache_key)) (elem i cache_poly)
 		(progn
 			(push cache_key k)
 			(elem -2 (push cache_poly (list (points-gen-arc stack 0 0 0 fp_2pi r eps (points))))))))
 
 (defun oval (r s)
-	(defq k (sym-cat (str r) ":" (str s)))
+	(defq k (sym (str r ":" s)))
 	(if (defq i (find k cache_key)) (elem i cache_poly)
 		(progn
 			(push cache_key k)

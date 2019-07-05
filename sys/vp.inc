@@ -203,7 +203,7 @@
 				((reg i)
 					(if (reg (elem 1 o)) 'd
 						(if (eq 2 (length o)) 'i
-							(sym-cat "i" (elem 2 o)))))
+							(sym (cat "i" (elem 2 o))))))
 				((eql i '@) i)
 				((eql i '$) i)
 				((eql i '&)
@@ -213,7 +213,7 @@
 		((eq i lisp_type_str) 's)
 		(t nil)))
 
-(defcfun label-sym (s) (sym-cat "_l_" s))
+(defcfun label-sym (s) (sym (cat "_l_" s)))
 (defcfun vp-label (l) (setq l (label-sym l))
 	(emit (list 'emit-label (list 'quote l))) (push *func-syms* l) (defcvar l 0))
 (defcfun vp-align (a &optional b) (emit (list 'emit-align a b)))

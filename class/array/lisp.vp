@@ -3,13 +3,13 @@
 (include 'gui/points/class.inc)
 
 (defun to-array (_)
-	(entry 'array (sym-cat "lisp_" _) '(r6 r8))
+	(entry 'array (sym (cat "lisp_" _)) '(r6 r8))
 	(call _ 'create nil '(r7))
 	(vp-cpy-ir-ui r8 array_length r1)
 	(vp-cpy-ri-i r1 r7 array_length)
 	(call _ 'set_capacity '(r7 r1))
 	(call 'lisp 'env_args_set '(r8 (r7 array_array) 0))
-	(exit 'array (sym-cat "lisp_" _) '(r6 r7))
+	(exit 'array (sym (cat "lisp_" _)) '(r6 r7))
 	(vp-ret))
 
 (def-method 'array 'lisp_array)
