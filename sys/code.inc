@@ -166,11 +166,9 @@
 
 (defcfun enum (&rest _)
 	(each (lambda (_)
-		(setq _ (sym (cat *enum* "_" _)))
-		(if (def? _)
+		(if (def? (setq _ (sym (cat *enum* "_" _))))
 			(throw "Enum redefined !" _))
-		(defcvar _ *enum-offset*)
-		(setq *enum-offset* (inc *enum-offset*))) _))
+		(defcvar _ *enum-offset* '*enum-offset* (inc *enum-offset*))) _))
 
 ;;;;;;
 ; bits
@@ -184,11 +182,9 @@
 
 (defcfun bit (&rest _)
 	(each (lambda (_)
-		(setq _ (sym (cat *bit* "_" _)))
-		(if (def? _)
+		(if (def? (setq _ (sym (cat *bit* "_" _))))
 			(throw "Bit redefined !" _))
-		(defcvar _ (bit-shl 1 *bit-offset*))
-		(setq *bit-offset* (inc *bit-offset*))) _))
+		(defcvar _ (bit-shl 1 *bit-offset*) '*bit-offset* (inc *bit-offset*))) _))
 
 ;;;;;;;;;;;;;;
 ; symbol table
@@ -305,8 +301,7 @@
 	(setq *struct* s *struct-sp* (eval (sym (cat (opt o "null") "_size")))))
 
 (defcfun def-struct-end ()
-	(defcvar (sym (cat *struct* "_size")) *struct-sp*)
-	(setq *struct* nil *struct-sp* nil))
+	(defcvar (sym (cat *struct* "_size")) *struct-sp* '*struct* nil '*struct-sp* nil))
 
 (defmacro def-type (n s y)
 	`(defcfun ,n (&rest f)
@@ -315,8 +310,7 @@
 			(cond
 				(*struct*
 					(setq _ (check-field _))
-					(defcvar _ *struct-sp* (type-sym _) ,y)
-					(setq *struct-sp* (add *struct-sp* ,s)))
+					(defcvar _ *struct-sp* (type-sym _) ,y '*struct-sp* (add *struct-sp* ,s)))
 				(t
 					(def-sym _ 'var *sym-sp* ,y)
 					(setq *sym-sp* (add *sym-sp* ,s))))) f)))
@@ -343,8 +337,7 @@
 (defcfun offset (_)
 	(cond
 		(*struct*
-			(setq _ (check-field _))
-			(defcvar _ *struct-sp*))
+			(defcvar (check-field _) *struct-sp*))
 		(t
 			(throw "Attempt to define offset into local stack !" _))))
 
@@ -352,9 +345,8 @@
 	(if (sym? s) (setq s (eval (sym (cat s "_size")))))
 	(cond
 		(*struct*
-			(setq _ (check-field _))
-			(defcvar _ *struct-sp* (type-sym _) nil)
-			(setq *struct-sp* (add *struct-sp* s)))
+			(defcvar (setq _ (check-field _)) *struct-sp* (type-sym _) nil
+				'*struct-sp* (add *struct-sp* s)))
 		(t
 			(def-sym _ 'var *sym-sp* 0 "")
 			(setq *sym-sp* (add *sym-sp* s)))))
