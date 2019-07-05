@@ -221,8 +221,7 @@
 	(elem 0 s))
 
 (defcfun pop-scope ()
-	(defq _ (pop-scope-syms))
-	(when (ne _ 0)
+	(when (ne (defq _ (pop-scope-syms)) 0)
 		(when debug_inst
 			(print "(vp-free " _ ")"))
 		(vp-free _)))
@@ -248,8 +247,7 @@
 	;_1 name
 	;_2 type
 	;_3 values
-	(setq _1 (sym _1))
-	(if (find _1 (elem 1 (defq _ (pop *syms*))))
+	(if (find (setq _1 (sym _1)) (elem 1 (defq _ (pop *syms*))))
 		(throw "Symbol redefined !" _1))
 	(push (elem 1 _) _1)
 	(push (elem 2 _) (cat (list (length *syms*) _2) _3 '(nil)))
@@ -309,8 +307,8 @@
 			(local-align ,s)
 			(cond
 				(*struct*
-					(setq _ (check-field _))
-					(defcvar _ *struct-sp* (type-sym _) ,y '*struct-sp* (add *struct-sp* ,s)))
+					(defcvar (setq _ (check-field _)) *struct-sp* (type-sym _) ,y
+						'*struct-sp* (add *struct-sp* ,s)))
 				(t
 					(def-sym _ 'var *sym-sp* ,y)
 					(setq *sym-sp* (add *sym-sp* ,s))))) f)))
@@ -380,14 +378,15 @@
 	(setq *src* s *dst* d))
 
 (defcfun assign-match-any (d s)
-	(defq i (lst? d) j (lst? s))
 	(cond
-		(i (cond
-			(j (throw "Illegal src/dst !" (list s d)))
-			(t (find s d))))
-		(j (cond
-			(i (throw "Illegal src/dst !" (list s d)))
-			(t (find d s))))
+		((defq j (lst? s) i (lst? d))
+			(cond
+				(j (throw "Illegal src/dst !" (list s d)))
+				(t (find s d))))
+		(j
+			(cond
+				(i (throw "Illegal src/dst !" (list s d)))
+				(t (find d s))))
 		(t (eql s d))))
 
 (defcfun assign-find-later-src (i)
@@ -406,8 +405,7 @@
 (defcfun assign-topology-sort ()
 	(defq i 0 c 1000 l (length *dst*))
 	(while (and (ne i l) (ne c 0))
-		(defq j (assign-find-later-src i))
-		(if (gt j i)
+		(if (gt (defq j (assign-find-later-src i)) i)
 			(progn
 				(assign-rotate i j)
 				(setq c (dec c)))
@@ -422,12 +420,10 @@
 	(when (ne 0 (length *dst*))
 		(assign-topology-sort)
 		(each (lambda (x y)
-			(defq i (type x))
 			(cond
-				((eql i 'r)
-					(setq i (type y))
+				((eql (defq i (type x)) 'r)
 					(cond
-						((eql i 'r) (vp-cpy-rr x y))
+						((eql (setq i (type y)) 'r) (vp-cpy-rr x y))
 						((eql i 'ii) (vp-cpy-ri-i x (elem 0 y) (elem 1 y)))
 						((eql i 'i) (vp-cpy-ri x (elem 0 y) (elem 1 y)))
 						((eql i 'ib) (vp-cpy-ri-b x (elem 0 y) (elem 1 y)))
@@ -557,8 +553,7 @@
 			(t (throw "Unknown parse mode !" m)))
 		(unless c (setq i (inc i))))
 	(unless (eq p i)
-		(token-push (slice p i l) m))
-	tokens)
+		(token-push (slice p i l) m)) tokens)
 
 ;;;;;;;;;;;;;;;;
 ; reverse polish
@@ -595,8 +590,7 @@
 			(t ;number, symbol, string, symbol, bind, label
 				(rpn-push k c)))) tokens)
 	(while (defq _ (pop o))
-		(rpn-push _ -1))
-	rpn)
+		(rpn-push _ -1)) rpn)
 
 ;;;;;;;;;;;;;
 ; compilation
@@ -633,8 +627,7 @@
 		(set (env) _ r)) (list *vreg* (if (ne 0 (length l)) (merge l _) _))))
 
 (defcfun push-reg (_)
-	(defq r (vreg-sym (length *vregt*)))
-	(push *vregt* _) r)
+	(vreg-sym (dec (length (push *vregt* _)))))
 
 (defcfun pop-reg ()
 	(list (vreg-sym (dec (length *vregt*))) (pop *vregt*)))
@@ -657,16 +650,14 @@
 	(add-inst (list 'vp-cpy-cr _ (push-reg nil))))
 
 (defcfun compile-arrow (&optional _)
-	(bind '(y w) (pop-reg))
-	(defq x (pop-value))
+	(bind '((y w) x) (list (pop-reg) (pop-value)))
 	(if _ (push-reg nil))
 	(setq w (elem (find w "bBsSiIlLp") '(vp-cpy-ri-b vp-cpy-ri-b vp-cpy-ri-s vp-cpy-ri-s
 										vp-cpy-ri-i vp-cpy-ri-i vp-cpy-ri vp-cpy-ri vp-cpy-ri)))
 	(add-inst (list w x y 0)))
 
 (defcfun compile-deref ()
-	(defq x (top-reg) w (get-type))
-	(if w
+	(if (defq x (top-reg) w (get-type))
 		(defq z (slice 1 -1 w) z (if (eql z "") nil z) w (elem 0 w))
 		(throw "No type info !" x))
 	(set-type z)
@@ -702,23 +693,23 @@
 		(throw "Unknown type cast" _)))
 
 (defcfun compile-member (_)
-	(bind '(y w) (pop-reg))
+	(bind '(_ w) (pop-reg))
 	(compile-deref)
 	(set-type w)
-	(add-inst (list 'vp-add-rr y (top-reg))))
+	(add-inst (list 'vp-add-rr _ (top-reg))))
 
 (defcfun compile-uaddrof (_)
 	(set-type nil))
 
 (defcfun compile-field (_)
-	(bind '(y w) (pop-reg))
+	(bind '(_ w) (pop-reg))
 	(set-type w)
-	(add-inst (list 'vp-add-rr y (top-reg))))
+	(add-inst (list 'vp-add-rr _ (top-reg))))
 
 (defcfun compile-index (_)
-	(defq y (pop-value))
+	(defq _ (pop-value))
 	(compile-deref)
-	(add-inst (list 'vp-add-rr y (top-reg))))
+	(add-inst (list 'vp-add-rr _ (top-reg))))
 
 (defcfun compile-uminus (_)
 	(add-inst (list 'vp-mul-cr -1 (top-value))))
@@ -733,43 +724,42 @@
 	(add-inst (list 'vp-mul-rr (pop-value) (top-value))))
 
 (defcfun compile-fmul (_)
-	(defq x (pop-value) y (top-value))
 	(add-inst
-		(list 'vp-mul-rr x y)
-		(list 'vp-asr-cr 16 y)))
+		(list 'vp-mul-rr (pop-value) (defq _ (top-value)))
+		(list 'vp-asr-cr 16 _)))
 
 (defcfun compile-divu (_)
-	(defq y (tmp-reg) z (pop-value) x (top-value))
+	(defq _ (tmp-reg) z (pop-value) x (top-value))
 	(add-inst
-		(list 'vp-ext-rr x y)
-		(list 'vp-div-rrr-u z y x)))
+		(list 'vp-ext-rr x _)
+		(list 'vp-div-rrr-u z _ x)))
 
 (defcfun compile-remu (_)
-	(defq y (tmp-reg) z (pop-value) x (top-value))
+	(defq _ (tmp-reg) z (pop-value) x (top-value))
 	(add-inst
-		(list 'vp-ext-rr x y)
-		(list 'vp-div-rrr-u z y x)
-		(list 'vp-cpy-rr y x)))
+		(list 'vp-ext-rr x _)
+		(list 'vp-div-rrr-u z _ x)
+		(list 'vp-cpy-rr _ x)))
 
 (defcfun compile-div (_)
-	(defq y (tmp-reg) z (pop-value) x (top-value))
+	(defq _ (tmp-reg) z (pop-value) x (top-value))
 	(add-inst
-		(list 'vp-ext-rr x y)
-		(list 'vp-div-rrr z y x)))
+		(list 'vp-ext-rr x _)
+		(list 'vp-div-rrr z _ x)))
 
 (defcfun compile-fdiv (_)
-	(defq y (tmp-reg) z (pop-value) x (top-value))
+	(defq _ (tmp-reg) z (pop-value) x (top-value))
 	(add-inst
 		(list 'vp-shl-cr 16 x)
-		(list 'vp-ext-rr x y)
-		(list 'vp-div-rrr z y x)))
+		(list 'vp-ext-rr x _)
+		(list 'vp-div-rrr z _ x)))
 
 (defcfun compile-rem (_)
-	(defq y (tmp-reg) z (pop-value) x (top-value))
+	(defq _ (tmp-reg) z (pop-value) x (top-value))
 	(add-inst
-		(list 'vp-ext-rr x y)
-		(list 'vp-div-rrr z y x)
-		(list 'vp-cpy-rr y x)))
+		(list 'vp-ext-rr x _)
+		(list 'vp-div-rrr z _ x)
+		(list 'vp-cpy-rr _ x)))
 
 (defcfun compile-plus (_)
 	(add-inst (list 'vp-add-rr (pop-value) (top-value))))
@@ -787,9 +777,9 @@
 	(add-inst (list 'vp-asr-rr (pop-value) (top-value))))
 
 (defcfun compile-cmp (_)
-	(defq z (elem (find _ '(== != <= >= > <))
-		'(vp-seq-rr vp-sne-rr vp-sle-rr vp-sge-rr vp-sgt-rr vp-slt-rr)))
-	(add-inst (list z (pop-value) (top-value))))
+	(add-inst (list (elem (find _ '(== != <= >= > <))
+		'(vp-seq-rr vp-sne-rr vp-sle-rr vp-sge-rr vp-sgt-rr vp-slt-rr))
+		(pop-value) (top-value))))
 
 (defcfun compile-and (_)
 	(add-inst (list 'vp-and-rr (pop-value) (top-value))))
@@ -1012,8 +1002,7 @@
 	(and (lst? _) (not (eql (elem 0 _) 'lambda)) (print _)))
 
 (defcfun assign-asm-to-script (*src* *dst* _)
-	(setq *dst* (map trim (split *dst* ",")))
-	(unless (eq (length *src*) (length *dst*))
+	(unless (eq (length *src*) (length (setq *dst* (map trim (split *dst* ",")))))
 		(throw "Mismatching number of src/dst parameters !" (list *src* *dst*)))
 	(assign-remove-ignored)
 	(when (ne 0 (length *dst*))
@@ -1032,8 +1021,7 @@
 		(eval *inst* *compile-env*)))
 
 (defcfun assign-script-to-asm (*src* *dst* _)
-	(setq *src* (split *src* ","))
-	(unless (eq (length *src*) (length *dst*))
+	(unless (eq (length (setq *src* (split *src* ","))) (length *dst*))
 		(throw "Mismatching number of src/dst parameters !" (list *src* *dst*)))
 	(assign-remove-ignored)
 	(when (ne 0 (length *dst*))
@@ -1074,10 +1062,8 @@
 		(eval *inst* *compile-env*)))
 
 (defcfun assign (&optional _1 _2 _3)
-	(setd _1 '() _2 '())
-	(defq s (str? _1) d (str? _2))
 	(cond
-		((and s (not d))
+		((and (defq d (str? (setq _2 (opt _2 '()))) s (str? (setq _1 (opt _1 '())))) (not d))
 			;script -> asm
 			(assign-script-to-asm _1 _2 _3))
 		((and (not s) (not d))
