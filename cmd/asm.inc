@@ -45,7 +45,7 @@
 	;create list of immediate dependencies
 	(defq d (list 'cmd/asm.inc 'class/lisp/boot.inc _))
 	(each-line (lambda (_)
-		(setq _ (trim-end _ (char 13)))
+		(setq _ (trim-end _ (ascii-char 13)))
 		(when (and (ge (length _) 10) (eql "(" (elem 0 _))
 				(eq 2 (length (defq s (split _ " ")))))
 			(defq _ (elem 0 s))
@@ -59,7 +59,7 @@
 	(defun trim-cruft (_)
 		(sym (trim-start (trim-end _ ")") "'")))
 	(each-line (lambda (_)
-		(setq _ (trim-end _ (char 13)))
+		(setq _ (trim-end _ (ascii-char 13)))
 		(when (and (ge (length _) 10) (eql "(" (elem 0 _))
 				(le 2 (length (defq s (split _ " "))) 4))
 			(defq _ (elem 0 s))
@@ -181,7 +181,7 @@
 			;build list of all sections of boot image
 			;concatenate all sections and save
 			(save (setq f (apply cat (reduce (lambda (x y)
-				(push x (cat y (char 0)))) ns (push (reduce (lambda (x y)
+				(push x (cat y (ascii-char 0)))) ns (push (reduce (lambda (x y)
 					(push x (elem 0 y) (elem 1 y))) b (list)) z)))) (func-obj 'sys/boot_image))
 			(print "image -> " (func-obj 'sys/boot_image) " (" (length f) ")")
 			(setq *env* nil)) (setq *env* nil)))))

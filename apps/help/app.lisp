@@ -11,14 +11,14 @@
 (defun populate-help ()
 	(defq state t vdu_width 1 k (list) v (list))
 	(each-line (lambda (_)
-		(setq _ (trim-end _ (char 13)))
+		(setq _ (trim-end _ (ascii-char 13)))
 		(defq s (split _ " ") f (elem 0 s))
 		(cond
 			(state (cond
 				((eql f "###") (push k (sym (elem 1 s))) (push v ""))
 				((eql f "```") (setq state nil))))
 			((eql f "```") (setq state t))
-			(t (elem-set -2 v (cat (elem -2 v) _ (char 10)))))) "doc/CLASSES.md")
+			(t (elem-set -2 v (cat (elem -2 v) _ (ascii-char 10)))))) "doc/CLASSES.md")
 	(each (lambda (k v)
 		(when (ne 0 (length v))
 			(defq _ (split k ":"))
@@ -32,7 +32,7 @@
 		(view-add-child index (button-connect-click b event_win_button))) keys)
 	(def vdu 'vdu_width
 		(reduce max (map (lambda (_)
-			(reduce max (map length (split _ (char 10))))) vals))))
+			(reduce max (map length (split _ (ascii-char 10))))) vals))))
 
 (ui-tree window (create-window window_flag_close) ('color argb_black)
 	(ui-element _ (create-flow) ('flow_flags (bit-or flow_flag_right flow_flag_fillh flow_flag_lastw)
@@ -57,10 +57,10 @@
 		((eq id event_win_button)
 			(defq _ (find (sym (get (view-find-id window (get-long msg ev_msg_action_source_id)) 'text)) keys))
 			(when _
-				(vdu-print vdu "----------------------") (vdu-print vdu (char 10))
-				(vdu-print vdu (elem _ keys)) (vdu-print vdu (char 10))
-				(vdu-print vdu "----------------------") (vdu-print vdu (char 10))
+				(vdu-print vdu "----------------------") (vdu-print vdu (ascii-char 10))
+				(vdu-print vdu (elem _ keys)) (vdu-print vdu (ascii-char 10))
+				(vdu-print vdu "----------------------") (vdu-print vdu (ascii-char 10))
 				(vdu-print vdu (elem _ vals))
-				(vdu-print vdu "----------------------") (vdu-print vdu (char 10))
-				(vdu-print vdu (char 10))))
+				(vdu-print vdu "----------------------") (vdu-print vdu (ascii-char 10))
+				(vdu-print vdu (ascii-char 10))))
 		(t (view-event window msg))))

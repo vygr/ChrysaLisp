@@ -518,7 +518,7 @@
 		(call 'vector 'set_capacity {lines, 5 * 16 + 2})
 		(call 'str 'create_from_cstr {reg14} {line})
 		(call 'vector 'push_back {lines, line})
-		(call 'str 'create_from_buffer (list (char 10) 1) {lf})
+		(call 'str 'create_from_buffer (list (ascii-char 10) 1) {lf})
 		(call 'vector 'push_back {lines, lf})
 		(call 'str 'create_from_buffer '(" " 1) {sp})
 		(assign {&reg0} {iter})

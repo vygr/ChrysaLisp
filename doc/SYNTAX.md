@@ -21,8 +21,10 @@
 ### (apply lambda list)
 ## array
 ### (array [form ...])
-## ascii
-### (ascii str) -> num
+## ascii-char
+### (ascii-char num) -> char
+## ascii-code
+### (ascii-code char) -> num
 ## awhen
 ### (awhen form body)
 ## awhile

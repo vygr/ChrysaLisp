@@ -64,7 +64,7 @@
 	(map to-2d _))
 
 (defun pcb-load (_)
-	(bind '(pcb _) (read (string-stream (cat "(" (load _) ")")) (ascii " ")))
+	(bind '(pcb _) (read (string-stream (cat "(" (load _) ")")) (ascii-code " ")))
 	(bind '(pcb_width pcb_height pcb_depth) (elem 0 pcb))
 	(defq canvas (create-canvas (mul (add pcb_width 4) zoom) (mul (add pcb_height 4) zoom) canvas_scale)
 		zoom (mul zoom canvas_scale) pcb_border (mul 2.0 zoom) cache_key (list) cache_poly (list))

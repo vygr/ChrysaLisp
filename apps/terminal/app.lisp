@@ -16,14 +16,14 @@
 (window-connect-close window event_win_close)
 (bind '(w h) (view-pref-size window))
 (gui-add (view-change window 0 0 w h))
-(vdu-print vdu (cat "ChrysaLisp Terminal 1.4" (char 10) ">"))
+(vdu-print vdu (cat "ChrysaLisp Terminal 1.4" (ascii-char 10) ">"))
 
 (defun terminal-output (c)
 	(if (eq c 13) (setq c 10))
 	(cond
 		;cursor up/down
 		((le 0x40000051 c 0x40000052)
-			(vdu-print vdu (char 129)))
+			(vdu-print vdu (ascii-char 129)))
 		;print char
 		(t
 			(vdu-print vdu (char c)))))
@@ -38,7 +38,7 @@
 			(cond
 				(cmd
 					;feed active pipe
-					(pipe-write cmd (cat buffer (char 10))))
+					(pipe-write cmd (cat buffer (ascii-char 10))))
 				(t
 					;start new pipe
 					(cond
@@ -52,7 +52,7 @@
 							(catch (setq cmd (pipe buffer)) (progn (setq cmd nil) t))
 							(if cmd
 								(view-dirty-all (window-set-status window "Busy"))
-								(vdu-print vdu (cat "Pipe Error !" (char 10) ">"))))
+								(vdu-print vdu (cat "Pipe Error !" (ascii-char 10) ">"))))
 						(t (vdu-print vdu ">")))))
 			(setq buffer ""))
 		((eq c 27)
@@ -62,7 +62,7 @@
 				(when (ne (length buffer) 0)
 					(pipe-write cmd buffer))
 				(setq cmd nil buffer "")
-				(vdu-print vdu (cat (char 10) ">"))
+				(vdu-print vdu (cat (ascii-char 10) ">"))
 				(view-dirty-all (window-set-status window "Ready"))))
 		((eq c 0x40000052)
 			;cursor up
@@ -104,7 +104,7 @@
 		((eql data nil)
 			;pipe is closed
 			(setq cmd nil)
-			(vdu-print vdu (cat (char 10) ">"))
+			(vdu-print vdu (cat (ascii-char 10) ">"))
 			(view-dirty-all (window-set-status window "Ready")))
 		(t
 			;string from pipe

@@ -162,10 +162,6 @@
 	(while (lt (setq i (add i 2)) (length _))
 		(push l (elem i _) `(opt ,(elem i _) ,(elem (inc i) _)))) l)
 
-(defmacro debug (&rest _)
-	;(debug [form ...])
-	`(kernel-debug (apply cat (map str (list ~_ ,(char 10))))))
-
 ;;;;;;;;
 ; Scopes
 ;;;;;;;;
@@ -377,36 +373,6 @@
 (defq fp_shift 16 fp_2pi 411774 fp_pi 205887 fp_hpi 102943 fp_qpi 51471 fp_rpi 20861
 	fp_int_mask (bit-shl -1 fp_shift) fp_frac_mask (bit-not fp_int_mask))
 
-;;;;;;;;;
-; Streams
-;;;;;;;;;
-
-(defun each-line (_f _)
-	;(each-line lambda path)
-	(unless (defq _s (file-stream _))
-		(throw "No such file !" _))
-	(while (defq _l (read-line _s))
-		(_f _l)))
-
-(defun each-pipe-line (_f _p)
-	;(each-pipe-line lambda pipe)
-	(defq _d "" _v t)
-	(while (and _p _v)
-		(defq _d (cat _d (pipe-read _p nil)) _i (find (const (char 10)) _d))
-		(when _i
-			(defq _i (inc _i) _l (slice 0 _i _d) _d (slice _i -1 _d)
-				_v (every _f (split _l (const (char 10))))))))
-
-(defmacro import (_)
-	;(import path)
-	`(unless (find ,_ *file-includes*)
-		(push *file-includes* ,_)
-		(repl (file-stream ,_) ,_)))
-
-(defun write-line (s _)
-	;(write-line stream str) -> str
-	(write s _) (write s (const (char 10))) _)
-
 ;;;;;;;;;;;
 ; Utilities
 ;;;;;;;;;;;
@@ -415,9 +381,13 @@
 	;(align num pow2) -> num
 	(bit-and (add _ (dec _a)) (neg _a)))
 
-(defmacro ascii (_)
-	;(ascii str) -> num
+(defmacro ascii-code (_)
+	;(ascii-code char) -> num
 	(code _))
+
+(defmacro ascii-char (_)
+	;(ascii-char num) -> char
+	(char _))
 
 (defun to-base-char (_)
 	;(to-base-char num) -> str
@@ -427,11 +397,11 @@
 	;(from-base-char str) -> num
 	(setq _ (code _))
 	(cond
-		((ge _ (ascii "a"))
-			(sub _ (ascii "a") -10))
-		((ge _ (ascii "A"))
-			(sub _ (ascii "A") -10))
-		(t (sub _ (ascii "0")))))
+		((ge _ (ascii-code "a"))
+			(sub _ (ascii-code "a") -10))
+		((ge _ (ascii-code "A"))
+			(sub _ (ascii-code "A") -10))
+		(t (sub _ (ascii-code "0")))))
 
 (defun to-num (_)
 	;(to-num str) -> num
@@ -455,13 +425,13 @@
 
 (defun trim-start (s &optional c)
 	;(trim-start str [str]) -> str
-	(defq c (if c (code c) (ascii " ")) i -1)
+	(defq c (if c (code c) (ascii-code " ")) i -1)
 	(while (and (ne (setq i (inc i)) (length s)) (eql (code s 1 i) c)))
 	(slice i -1 s))
 
 (defun trim-end (s &optional c)
 	;(trim-end str [str]) -> str
-	(defq c (if c (code c) (ascii " ")) i (length s))
+	(defq c (if c (code c) (ascii-code " ")) i (length s))
 	(while (and (ne (setq i (dec i)) -1) (eql (code s 1 i) c)))
 	(slice 0 (inc i) s))
 
@@ -566,6 +536,10 @@
 		(setq o (inc o)))
 	(slice k o s))
 
+(defmacro debug (&rest _)
+	;(debug [form ...])
+	`(kernel-debug (apply cat (map str (list ~_ ,(ascii-char 10))))))
+
 ;;;;;;;;;;;;;;;;;;
 ; Anaphoric macros
 ;;;;;;;;;;;;;;;;;;
@@ -597,6 +571,36 @@
 	(reduce (lambda (x _)
 		(push x `((defq ,(defq _x (gensym)) ,(elem 0 _)) (let ((it ,_x)) ~(slice 1 -1 _)))))
 			_ (list 'cond)))
+
+;;;;;;;;;
+; Streams
+;;;;;;;;;
+
+(defun each-line (_f _)
+	;(each-line lambda path)
+	(unless (defq _s (file-stream _))
+		(throw "No such file !" _))
+	(while (defq _l (read-line _s))
+		(_f _l)))
+
+(defun each-pipe-line (_f _p)
+	;(each-pipe-line lambda pipe)
+	(defq _d "" _v t)
+	(while (and _p _v)
+		(defq _d (cat _d (pipe-read _p nil)) _i (find (ascii-char 10) _d))
+		(when _i
+			(defq _i (inc _i) _l (slice 0 _i _d) _d (slice _i -1 _d)
+				_v (every _f (split _l (ascii-char 10)))))))
+
+(defmacro import (_)
+	;(import path)
+	`(unless (find ,_ *file-includes*)
+		(push *file-includes* ,_)
+		(repl (file-stream ,_) ,_)))
+
+(defun write-line (s _)
+	;(write-line stream str) -> str
+	(write s _) (write s (ascii-char 10)) _)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Compilation environment

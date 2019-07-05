@@ -5,7 +5,7 @@
 (defun make-doc ()
 	(defq *abi* (abi) *cpu* (cpu))
 	(defun trim-whitespace (_)
-		(trim-start (trim-start _ (char 9)) " "))
+		(trim-start (trim-start _ (ascii-char 9)) " "))
 	(defun trim-cruft (_)
 		(sym (trim-start (trim-end _ ")") "'")))
 	(defun trim-parens (_)
@@ -22,7 +22,7 @@
 		(each include (all-class-files))
 		(each-mergeable (lambda (_)
 			(each-line (lambda (_)
-				(setq _ (trim-end _ (char 13)))
+				(setq _ (trim-end _ (ascii-char 13)))
 				(defq l (trim-whitespace _))
 				(when (eql state 'y)
 					(if (and (ge (length l) 1) (eql (elem 0 l) ";"))
@@ -70,7 +70,7 @@
 
 	;create lisp syntax docs
 	(each-line (lambda (_)
-		(setq _ (trim-end _ (char 13)))
+		(setq _ (trim-end _ (ascii-char 13)))
 		(defq l (trim-whitespace _))
 		(when (eql state 'y)
 			(if (and (ge (length l) 1) (eql (elem 0 l) ";"))
