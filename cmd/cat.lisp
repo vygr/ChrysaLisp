@@ -1,4 +1,4 @@
-;import settings
+;imports
 (import 'class/lisp.inc)
 
 ;cat a file to stdout

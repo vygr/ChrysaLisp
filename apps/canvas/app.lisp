@@ -1,4 +1,4 @@
-;import settings
+;imports
 (import 'sys/lisp.inc)
 (import 'gui/lisp.inc)
 

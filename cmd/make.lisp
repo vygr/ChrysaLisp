@@ -1,4 +1,4 @@
-;import settings
+;imports
 (import 'class/lisp.inc)
 (import 'cmd/asm.inc)
 

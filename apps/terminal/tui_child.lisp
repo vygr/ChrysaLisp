@@ -1,4 +1,4 @@
-;import settings
+;imports
 (import 'sys/lisp.inc)
 
 ;read args from parent

@@ -1,4 +1,4 @@
-;import settings
+;imports
 (import 'class/lisp.inc)
 
 ;initialize pipe details and command args, abort on error

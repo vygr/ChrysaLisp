@@ -2124,7 +2124,6 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
-### lisp::func_inst_of -> class/lisp/func_inst_of
 ### lisp::func_age -> class/lisp/func_age
 ```
 inputs

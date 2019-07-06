@@ -1,4 +1,4 @@
-;import settings
+;imports
 (import 'class/lisp.inc)
 
 ;read up to chunk_size chars from stream

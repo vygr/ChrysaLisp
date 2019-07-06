@@ -1,4 +1,4 @@
-;import settings
+;imports
 (import 'sys/lisp.inc)
 
 (defun terminal-output (_)

@@ -48,7 +48,6 @@
 (dec-method 'func_eval 'class/lisp/func_eval 'static '(r0 r1) '(r0 r1))
 (dec-method 'func_throw 'class/lisp/func_throw 'static '(r0 r1) '(r0 r1))
 (dec-method 'func_catch 'class/lisp/func_catch 'static '(r0 r1) '(r0 r1))
-(dec-method 'func_inst_of 'class/lisp/func_inst_of 'static '(r0 r1) '(r0 r1))
 (dec-method 'func_age 'class/lisp/func_age 'static '(r0 r1) '(r0 r1))
 (dec-method 'func_time 'class/lisp/func_time 'static '(r0 r1) '(r0 r1))
 (dec-method 'func_bind 'class/lisp/func_bind 'static '(r0 r1) '(r0 r1))

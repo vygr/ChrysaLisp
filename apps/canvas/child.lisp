@@ -1,8 +1,6 @@
-;import settings
+;imports
 (import 'sys/lisp.inc)
 (import 'gui/lisp.inc)
-
-;math tools
 (import 'apps/math.inc)
 
 ;read args from parent
