@@ -372,9 +372,25 @@
 ; parameter handling
 ;;;;;;;;;;;;;;;;;;;;
 
-(defcfun assign-remove-ignored ()
+(defcfun assign-ignored-asm-to-asm ()
 	(defq s (list) d (list))
-	(each (lambda (x y) (unless (or (eql x y) (eql y '_) (eql y "_")) (push s x) (push d y))) *src* *dst*)
+	(each! nil nil nil (lambda (x y)
+		(unless (or (eql x y) (eql y '_))
+			(push s x) (push d y))) (list *src* *dst*))
+	(setq *src* s *dst* d))
+
+(defcfun assign-ignored-script-to-asm ()
+	(defq s (list) d (list))
+	(each! nil nil nil (lambda (x y)
+		(unless (eql y '_)
+			(push s x) (push d y))) (list *src* *dst*))
+	(setq *src* s *dst* d))
+
+(defcfun assign-ignored-to-script ()
+	(defq s (list) d (list))
+	(each! nil nil nil (lambda (x y)
+		(unless (eql y "_")
+			(push s x) (push d y))) (list *src* *dst*))
 	(setq *src* s *dst* d))
 
 (defcfun assign-match-any (d s)
@@ -416,7 +432,7 @@
 (defcfun assign-asm-to-asm (*src* *dst*)
 	(when (ne (length *src*) (length *dst*))
 		(throw "Mismatching number of src/dst parameters !" (list *src* *dst*)))
-	(assign-remove-ignored)
+	(assign-ignored-asm-to-asm)
 	(when (ne 0 (length *dst*))
 		(assign-topology-sort)
 		(each (lambda (x y)
@@ -1004,7 +1020,7 @@
 (defcfun assign-asm-to-script (*src* *dst* _)
 	(unless (eq (length *src*) (length (setq *dst* (map trim (split *dst* ",")))))
 		(throw "Mismatching number of src/dst parameters !" (list *src* *dst*)))
-	(assign-remove-ignored)
+	(assign-ignored-to-script)
 	(when (ne 0 (length *dst*))
 		(reset-reg-stack (length *src*))
 		(each! nil nil nil (lambda (_)
@@ -1023,7 +1039,7 @@
 (defcfun assign-script-to-asm (*src* *dst* _)
 	(unless (eq (length (setq *src* (split *src* ","))) (length *dst*))
 		(throw "Mismatching number of src/dst parameters !" (list *src* *dst*)))
-	(assign-remove-ignored)
+	(assign-ignored-script-to-asm)
 	(when (ne 0 (length *dst*))
 		(reset-reg-stack 0)
 		(each! nil nil nil (lambda (_)
@@ -1043,7 +1059,7 @@
 	(setq *src* (split *src* ",") *dst* (map trim (split *dst* ",")))
 	(unless (eq (length *src*) (length *dst*))
 		(throw "Mismatching number of src/dst parameters !" (list *src* *dst*)))
-	(assign-remove-ignored)
+	(assign-ignored-to-script)
 	(when (ne 0 (length *dst*))
 		(reset-reg-stack 0)
 		(each! nil nil nil (lambda (_)
@@ -1064,13 +1080,9 @@
 (defcfun assign (&optional _1 _2 _3)
 	(cond
 		((and (defq d (str? (setq _2 (opt _2 '()))) s (str? (setq _1 (opt _1 '())))) (not d))
-			;script -> asm
 			(assign-script-to-asm _1 _2 _3))
 		((and (not s) (not d))
-			;asm -> asm
 			(assign-asm-to-asm _1 _2))
 		((and (not s) d)
-			;asm -> script
 			(assign-asm-to-script _1 _2 _3))
-		(t ;script -> script
-			(assign-script-to-script _1 _2 _3))))
+		(t (assign-script-to-script _1 _2 _3))))
