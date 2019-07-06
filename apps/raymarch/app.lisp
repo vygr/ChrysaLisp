@@ -39,7 +39,7 @@
 		((eq (setq id (get-long (defq msg (mail-mymail)) ev_msg_target_id)) event_win_close)
 			(setq id nil))
 		((gt id 0)
-			;draw result line on the canvas
+			(setq sc (dec sc))
 			(defq x -1 y (get-int msg reply_y))
 			(while (lt (setq x (inc x)) sw)
 				(canvas-set-color canvas (get-int msg (add reply_data (mul x int_size))))
@@ -49,17 +49,18 @@
 				((lt sy sh)
 					;can pass out more work
 					(mail-send (array (task-mailbox) sw sh sy) id)
-					(setq sy (inc sy)))
-				(t
-					;done so multi-cast exit command
-					(defq exit (char 0 long_size) sc 0)
+					(setq sc (inc sc) sy (inc sy)))
+				((eq sc 0)
+					;send out multi-cast exit command
+					(defq exit (char 0 long_size))
 					(while (defq mbox (pop farm))
 						(mail-send exit mbox)))))
 		(t (view-event window msg))))
 
 ;wait for outstanding replies
+(setq window nil)
 (while (ne sc 0)
-	(if (gt (get-long (mail-mymail) ev_msg_target_id) 0)
+	(if (gt (get-long (defq msg (mail-mymail)) ev_msg_target_id) 0)
 		(setq sc (dec sc))))
 
 ;send out multi-cast exit command

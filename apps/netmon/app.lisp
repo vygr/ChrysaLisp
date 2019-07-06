@@ -77,6 +77,7 @@
 		(t (view-event window msg))))
 
 ;wait for outstanding replies
+(setq window nil)
 (while (ne cpu_count cpu_total)
 	(if (eq (get-long (mail-mymail) ev_msg_target_id) event_win_sample)
 		(setq cpu_count (inc cpu_count))))
