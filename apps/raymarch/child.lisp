@@ -1,4 +1,4 @@
-;math tools etc
+;imports
 (import 'sys/lisp.inc)
 (import 'sys/math/lisp.inc)
 (import 'apps/math.inc)
@@ -7,7 +7,12 @@
 	(long 'parent_id)
 	(long 'width)
 	(long 'height)
-	(offset 'ys))
+	(int 'y))
+
+(structure 'reply 0
+	(long 'child_id)
+	(int 'y)
+	(offset 'data))
 
 (defq
 	eps 0.02
@@ -94,7 +99,8 @@
 			(vec-clamp color 0.0 0.999))))
 
 (defun line (parent w h y)
-	(defq w2 (div w 2) h2 (div h 2) x -1 reply (char y int_size))
+	(defq w2 (div w 2) h2 (div h 2) x -1
+		reply (cat (char (task-mailbox) long_size) (char y int_size)))
 	(while (lt (setq x (inc x)) w)
 		(defq
 			ray_origin (const (points 0 0 -3.0))
@@ -108,18 +114,6 @@
 		(while nil))
 	(mail-send reply parent))
 
-(cond
-	(t
-		;take a lines work, then migrate
-		(when (gt (length (defq msg (mail-mymail))) work_ys)
-			(line (get-long msg work_parent_id) (get-long msg work_width) (get-long msg work_height)
-				(get-long msg (sub (length msg) long_size)))
-			(when (gt (length (setq msg (slice 0 (sub (length msg) long_size) msg))) work_ys)
-				(mail-send msg (open-child "apps/raymarch/child.lisp" kn_call_child)))))
-	(t
-		;take all the work, don't migrate
-		(when (gt (length (defq msg (mail-mymail))) work_ys)
-			(while (gt (length msg) work_ys)
-				(line (get-long msg work_parent_id) (get-long msg work_width) (get-long msg work_height)
-					(get-long msg (sub (length msg) long_size)))
-				(setq msg (slice 0 (sub (length msg) long_size) msg))))))
+;read work request or exit
+(while (ne 0 (defq parent (get-long (defq msg (mail-mymail)) work_parent_id)))
+	(line parent (get-long msg work_width) (get-long msg work_height) (get-int msg work_y)))
