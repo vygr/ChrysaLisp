@@ -29,6 +29,7 @@
 	(def-struct 'local)
 		(ptr 'statics)
 		(ulong 'mouse_id)
+		(ulong 'key_id)
 		(uint 'mouse_buttons)
 		(ubyte 'quit)
 	(def-struct-end)
@@ -38,11 +39,8 @@
 	;init vars
 	(push-scope)
 	(assign (cat {@} (f-path 'gui 'statics)) {locals.local_statics})
-	(assign {0 => locals.local_mouse_id => locals.local_mouse_buttons} {locals.local_quit})
-
-	;kernel callback for first update
-	;this will init SDL etc
-	(call 'sys_task 'callback {&locals, $update_callback})
+	(assign {0 => locals.local_mouse_id => locals.local_key_id
+		=> locals.local_mouse_buttons} {locals.local_quit})
 
 	;allocate background view for screen
 	(call 'backdrop 'create nil {locals.local_statics->gui_statics_screen})
@@ -105,7 +103,7 @@
 	(endif)
 
 	;update screen
-	(vpif {user->local_statics->gui_statics_screen && user->local_statics->gui_statics_dirty_flag})
+	(vpif {user->local_statics->gui_statics_dirty_flag})
 		;update the screen and refresh
 		(call 'gui 'update {user->local_statics->gui_statics_screen})
 		(host-call 'host 'sdl_render_present {user->local_statics->gui_statics_renderer})
@@ -119,8 +117,11 @@
 		(host-call 'host 'sdl_poll_event {&event})
 		(switch)
 		(case {event.sdl_common_event_type == SDL_MOUSEMOTION})
-			;update mouse state
+			;update mouse state and keyboard id
 			(assign {event.sdl_mouse_motion_event_state} {user->local_mouse_buttons})
+			(call 'view 'hit_tree {user->local_statics->gui_statics_screen,
+				event.sdl_mouse_button_event_x, event.sdl_mouse_button_event_y} {_, view, _, _})
+			(assign {view->component_id} {user->local_key_id})
 
 			;send event message
 		(vp-label 'send_event)
@@ -159,8 +160,7 @@
 			(goto 'send_event)
 		(case {event.sdl_common_event_type == SDL_KEYDOWN})
 			;find view for keys
-			(call 'view 'hit_tree {user->local_statics->gui_statics_screen,
-				event.sdl_mouse_button_event_x, event.sdl_mouse_button_event_y} {_, view, _, _})
+			(call 'view 'find_id {user->local_statics->gui_statics_screen, user->local_key_id} {_, view})
 			(breakifnot {view})
 			(call 'view 'find_owner {view} {_, owner})
 			(breakifnot {owner})
