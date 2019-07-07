@@ -28,12 +28,7 @@
 
 	(def-struct 'local)
 		(ptr 'statics)
-		(ptr 'key_view)
-		(ptr 'mouse_view)
-		(ulong 'mouse_mbox_id)
-		(ulong 'key_mbox_id)
-		(int 'mouse_x)
-		(int 'mouse_y)
+		(ulong 'mouse_id)
 		(uint 'mouse_buttons)
 		(ubyte 'quit)
 	(def-struct-end)
@@ -43,8 +38,7 @@
 	;init vars
 	(push-scope)
 	(assign (cat {@} (f-path 'gui 'statics)) {locals.local_statics})
-	(assign {0 => locals.local_key_view => locals.local_mouse_view => locals.local_mouse_buttons
-				=> locals.local_mouse_x => locals.local_mouse_y} {locals.local_quit})
+	(assign {0 => locals.local_mouse_id => locals.local_mouse_buttons} {locals.local_quit})
 
 	;kernel callback for first update
 	;this will init SDL etc
@@ -81,7 +75,7 @@
 	;r0 = user data
 
 	(ptr 'user 'owner 'msg 'data 'view 'old_stack)
-	(int 'flag 'key)
+	(int 'flag)
 	(struct 'event 256)
 
 	(vp-cpy-rr rsp r1)
@@ -126,80 +120,60 @@
 		(switch)
 		(case {event.sdl_common_event_type == SDL_MOUSEMOTION})
 			;update mouse state
-			(assign {event.sdl_mouse_motion_event_x} {user->local_mouse_x})
-			(assign {event.sdl_mouse_motion_event_y} {user->local_mouse_y})
 			(assign {event.sdl_mouse_motion_event_state} {user->local_mouse_buttons})
-			(breakifnot {user->local_mouse_view})
 
 			;send event message
 		(vp-label 'send_event)
-			(assign {user->local_mouse_view} {view})
-		(vp-label 'send_event1)
+			(breakifnot {user->local_mouse_id})
+			(call 'view 'find_id {user->local_statics->gui_statics_screen, user->local_mouse_id} {_, view})
+			(breakifnot {view})
+			(call 'view 'find_owner {view} {_, owner})
+			(breakifnot {owner})
 			(call 'sys_mail 'alloc {ev_msg_mouse_size} {msg, data})
 			(assign {ev_type_mouse} {data->ev_msg_type})
-			(assign {user->local_mouse_mbox_id} {msg->msg_dest.id_mbox})
-			(call 'sys_kernel 'id nil {msg->msg_dest.id_cpu})
 			(assign {view->component_id} {data->ev_msg_target_id})
+			(assign {owner->tk_node_mbox_id} {msg->msg_dest.id_mbox})
+			(call 'sys_kernel 'id nil {msg->msg_dest.id_cpu})
 			(assign {user->local_mouse_buttons} {data->ev_msg_mouse_buttons})
-			(assign {user->local_mouse_x} {data->ev_msg_mouse_x})
-			(assign {user->local_mouse_y} {data->ev_msg_mouse_y})
-			(assign {user->local_mouse_x - view->view_ctx_x} {data->ev_msg_mouse_rx})
-			(assign {user->local_mouse_y - view->view_ctx_y} {data->ev_msg_mouse_ry})
+			(assign {(event.sdl_mouse_button_event_x => data->ev_msg_mouse_x) - view->view_ctx_x} {data->ev_msg_mouse_rx})
+			(assign {(event.sdl_mouse_button_event_y => data->ev_msg_mouse_y) - view->view_ctx_y} {data->ev_msg_mouse_ry})
 			(call 'sys_mail 'send {msg})
+			(breakif {user->local_mouse_buttons})
+			(assign {0} {user->local_mouse_id})
 			(break)
 		(case {event.sdl_common_event_type == SDL_MOUSEBUTTONDOWN})
 			;update mouse state
-			(assign {event.sdl_mouse_button_event_x} {user->local_mouse_x})
-			(assign {event.sdl_mouse_button_event_y} {user->local_mouse_y})
 			(assign {event.sdl_mouse_button_event_button | user->local_mouse_buttons} {user->local_mouse_buttons})
 
 			;find view affinity
 			(call 'view 'hit_tree {user->local_statics->gui_statics_screen,
-				user->local_mouse_x, user->local_mouse_y} {_, user->local_mouse_view, _, _})
-			(vpif {user->local_mouse_view == user->local_statics->gui_statics_screen})
-				(assign {0} {user->local_mouse_view})
+				event.sdl_mouse_button_event_x, event.sdl_mouse_button_event_y} {_, view, _, _})
+			(assign {view->component_id} {user->local_mouse_id})
+			(vpif {view == user->local_statics->gui_statics_screen})
+				(assign {0} {user->local_mouse_id})
 			(endif)
-			(breakifnot {user->local_mouse_view})
-
-			;lookup view owner mailbox
-			(call 'view 'find_owner {user->local_mouse_view} {_, owner})
-			(breakifnot {owner})
-			(assign {owner->tk_node_mbox_id} {user->local_mouse_mbox_id})
 			(goto 'send_event)
 		(case {event.sdl_common_event_type == SDL_MOUSEBUTTONUP})
 			;update mouse state
-			(assign {event.sdl_mouse_button_event_x} {user->local_mouse_x})
-			(assign {event.sdl_mouse_button_event_y} {user->local_mouse_y})
 			(assign {event.sdl_mouse_button_event_button ^ user->local_mouse_buttons} {user->local_mouse_buttons})
-			(breakifnot {user->local_mouse_view})
-			(assign {user->local_mouse_view} {view})
-			(assign {0} {user->local_mouse_view})
-			(goto 'send_event1)
+			(goto 'send_event)
 		(case {event.sdl_common_event_type == SDL_KEYDOWN})
 			;find view for keys
 			(call 'view 'hit_tree {user->local_statics->gui_statics_screen,
-				user->local_mouse_x, user->local_mouse_y} {_, user->local_key_view, _, _})
-			(breakifnot {user->local_key_view})
-
-			;lookup view owner mailbox
-			(call 'view 'find_owner {user->local_key_view} {_, owner})
+				event.sdl_mouse_button_event_x, event.sdl_mouse_button_event_y} {_, view, _, _})
+			(breakifnot {view})
+			(call 'view 'find_owner {view} {_, owner})
 			(breakifnot {owner})
 
-			;save owner mailbox
-			(assign {owner->tk_node_mbox_id} {user->local_key_mbox_id})
-
-			;cook key based on mods (very crude for now)
-			(call 'cook_key {event.sdl_keyboard_event_keysym.sdl_keysym_sym,
-				event.sdl_keyboard_event_keysym.sdl_keysym_mod} {key})
-			
 			;send event message
 			(call 'sys_mail 'alloc {ev_msg_key_size} {msg, data})
 			(assign {ev_type_key} {data->ev_msg_type})
-			(assign {user->local_key_mbox_id} {msg->msg_dest.id_mbox})
+			(assign {owner->tk_node_mbox_id} {msg->msg_dest.id_mbox})
 			(call 'sys_kernel 'id nil {msg->msg_dest.id_cpu})
-			(assign {user->local_key_view->component_id} {data->ev_msg_target_id})
+			(assign {view->component_id} {data->ev_msg_target_id})
 			(assign {event.sdl_keyboard_event_keysym.sdl_keysym_scancode} {data->ev_msg_key_keycode})
-			(assign {key} {data->ev_msg_key_key})
+			(call 'cook_key {event.sdl_keyboard_event_keysym.sdl_keysym_sym,
+				event.sdl_keyboard_event_keysym.sdl_keysym_mod} {data->ev_msg_key_key})
 			(call 'sys_mail 'send {msg})
 			(break)
 		(case {event.sdl_common_event_type == SDL_QUIT})
