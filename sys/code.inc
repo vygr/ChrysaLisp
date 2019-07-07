@@ -372,17 +372,10 @@
 ; parameter handling
 ;;;;;;;;;;;;;;;;;;;;
 
-(defcfun assign-ignored-asm-to-asm ()
+(defcfun assign-ignored-to-asm ()
 	(defq s (list) d (list))
 	(each! nil nil nil (lambda (x y)
 		(unless (or (eql x y) (eql y '_))
-			(push s x) (push d y))) (list *src* *dst*))
-	(setq *src* s *dst* d))
-
-(defcfun assign-ignored-script-to-asm ()
-	(defq s (list) d (list))
-	(each! nil nil nil (lambda (x y)
-		(unless (eql y '_)
 			(push s x) (push d y))) (list *src* *dst*))
 	(setq *src* s *dst* d))
 
@@ -432,7 +425,7 @@
 (defcfun assign-asm-to-asm (*src* *dst*)
 	(when (ne (length *src*) (length *dst*))
 		(throw "Mismatching number of src/dst parameters !" (list *src* *dst*)))
-	(assign-ignored-asm-to-asm)
+	(assign-ignored-to-asm)
 	(when (ne 0 (length *dst*))
 		(assign-topology-sort)
 		(each (lambda (x y)
@@ -1033,13 +1026,12 @@
 		(when debug_inst
 			(print "post opt:")
 			(each print-inst *inst*))
-		(set-reg-map (reduce-rev (lambda (x y) (push x y)) *src* (list)))
+		(set-reg-map (reduce-rev (lambda (x y) (push x y)) *src* (list)) _)
 		(eval *inst* *compile-env*)))
 
 (defcfun assign-script-to-asm (*src* *dst* _)
 	(unless (eq (length (setq *src* (split *src* ","))) (length *dst*))
 		(throw "Mismatching number of src/dst parameters !" (list *src* *dst*)))
-	(assign-ignored-script-to-asm)
 	(when (ne 0 (length *dst*))
 		(reset-reg-stack 0)
 		(each! nil nil nil (lambda (_)
@@ -1052,7 +1044,7 @@
 		(when debug_inst
 			(print "post opt:")
 			(each print-inst *inst*))
-		(set-reg-map *dst* _)
+		(set-reg-map (cat *dst*) _)
 		(eval *inst* *compile-env*)))
 
 (defcfun assign-script-to-script (*src* *dst* _)
@@ -1078,6 +1070,7 @@
 		(eval *inst* *compile-env*)))
 
 (defcfun assign (&optional _1 _2 _3)
+	;optional src, dst, compiler regs
 	(cond
 		((and (defq d (str? (setq _2 (opt _2 '()))) s (str? (setq _1 (opt _1 '())))) (not d))
 			(assign-script-to-asm _1 _2 _3))

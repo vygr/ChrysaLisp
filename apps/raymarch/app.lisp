@@ -59,9 +59,8 @@
 
 ;wait for outstanding replies
 (setq window nil)
-(while (ne sc 0)
-	(if (gt (get-long (defq msg (mail-mymail)) ev_msg_target_id) 0)
-		(setq sc (dec sc))))
+(while (and (ne sc 0) (gt (get-long (defq msg (mail-mymail)) ev_msg_target_id) 0))
+	(setq sc (dec sc)))
 
 ;send out multi-cast exit command
 (defq exit (char 0 long_size))
