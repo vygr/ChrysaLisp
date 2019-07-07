@@ -34,39 +34,43 @@
 		(ubyte 'quit)
 	(def-struct-end)
 
-	(struct 'locals 'local)
-
 	;init vars
-	(push-scope)
-	(assign (cat {@} (f-path 'gui 'statics)) {locals.local_statics})
-	(assign {0 => locals.local_mouse_id => locals.local_key_id
-		=> locals.local_mouse_buttons} {locals.local_quit})
+	(vp-alloc local_size)
+	(fn-bind (f-path 'gui 'statics) r0)
+	(vp-cpy-ri r0 rsp local_statics)
+	(vp-xor-rr r0 r0)
+	(vp-cpy-ri r0 rsp local_mouse_id)
+	(vp-cpy-ri r0 rsp local_key_id)
+	(vp-cpy-ri-i r0 rsp local_mouse_buttons)
+	(vp-cpy-ri-b r0 rsp local_quit)
 
 	;allocate background view for screen
-	(call 'backdrop 'create nil {locals.local_statics->gui_statics_screen})
+	(call 'backdrop 'create nil '(r0))
+	(vp-cpy-ir rsp local_statics r1)
+	(vp-cpy-ri r0 r1 gui_statics_screen)
 
 	;size, color and opaque
-	(call 'backdrop 'change {locals.local_statics->gui_statics_screen, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT})
-	(call 'backdrop 'set_long_prop {locals.local_statics->gui_statics_screen, prop_color, argb_grey1})
-	(call 'backdrop 'set_long_prop {locals.local_statics->gui_statics_screen, prop_ink_color, argb_black})
-	(call 'backdrop 'dirty_all {locals.local_statics->gui_statics_screen})
+	(call 'backdrop 'change '(r0 0 0 SCREEN_WIDTH SCREEN_HEIGHT) '(r0))
+	(call 'backdrop 'set_long_prop '(r0 prop_color argb_grey1) '(r0))
+	(call 'backdrop 'set_long_prop '(r0 prop_ink_color argb_black) '(r0))
+	(call 'backdrop 'dirty_all '(r0))
 
 	;for now fire up the launcher
-	(call 'sys_task 'open_child {"apps/launcher/app.lisp", kn_call_open})
+	(call 'sys_task 'open_child '("apps/launcher/app.lisp" kn_call_open))
 
 	;gui event loop
 	(loop-start)
 		;kernel callback for update
-		(call 'sys_task 'callback {&locals, $update_callback})
-
+		(call 'sys_task 'callback '(rsp ($ update_callback)))
 		;frame rate of gui updates
-		(call 'sys_task 'sleep {1000000/30})
-	(loop-until {locals.local_quit})
+		(call 'sys_task 'sleep '((div 1000000 30)))
+		(vp-cpy-ir-ub rsp local_quit r0)
+	(loop-until '(r0 != 0))
 
 	;deinit
-	(call 'sys_task 'callback {&locals, $deinit_callback})
-	(pop-scope)
-	(return)
+	(call 'sys_task 'callback '(rsp ($ deinit_callback)))
+	(vp-free local_size)
+	(vp-ret)
 
 (vp-label 'update_callback)
 	;inputs
@@ -150,9 +154,6 @@
 			(call 'view 'hit_tree {user->local_statics->gui_statics_screen,
 				event.sdl_mouse_button_event_x, event.sdl_mouse_button_event_y} {_, view, _, _})
 			(assign {view->component_id} {user->local_mouse_id})
-			(vpif {view == user->local_statics->gui_statics_screen})
-				(assign {0} {user->local_mouse_id})
-			(endif)
 			(goto 'send_event)
 		(case {event.sdl_common_event_type == SDL_MOUSEBUTTONUP})
 			;update mouse state
@@ -223,27 +224,27 @@
 	;r1 = mod
 	;inputs
 	;r0 = cooked key
+	;trashes
+	;r0-r2
 
-	(uint 'key 'mod)
-	(pubyte 'codes)
+	(entry '(r0 r1))
 
-	(push-scope)
-	(entry {key, mod})
-
-	(vpif {mod & 0x2003})
-		(assign {$shifted} {codes})
-		(loop-while {*codes})
-			(vpif {*codes == key})
-				(assign {codes[1]} {key})
+	(vp-and-cr 0x2003 r1)
+	(vpif '(r1 != 0))
+		(assign '(($ shifted)) '(r2))
+		(loop-start)
+			(vp-cpy-ir-ub r2 0 r1)
+			(breakif '(r1 == 0))
+			(vpif '(r1 == r0))
+				(vp-cpy-ir-ub r2 1 r0)
 				(break)
 			(endif)
-			(assign {codes + 2} {codes})
+			(vp-add-cr short_size r2)
 		(loop-end)
 	(endif)
 
-	(exit {key})
-	(pop-scope)
-	(return)
+	(exit '(r0))
+	(vp-ret)
 
 (vp-label 'title)
 	(vp-string "ChrysaLisp GUI Window") (vp-byte 0)

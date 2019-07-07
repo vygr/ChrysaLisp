@@ -81,8 +81,7 @@
 						(fmul canvas_width -0.2) (fmul canvas_height -0.2) 4.0 2.0
 						(fmul canvas_width 0o0.1) eps (points)))
 				(list)) (list)) angle)))
-	(fpoly 0xa0ffffff 0
-		(list (elem 1 polygons) (elem 3 polygons)))
+	(fpoly 0xa0ffffff 0 (list (elem 1 polygons) (elem 3 polygons)))
 
 	(canvas-swap canvas))
 
