@@ -155,18 +155,18 @@ computer do this stuff for you !
 
 ### Switch
 
-`(switch)`, `(case)`, `(default)`, `(endswitch)` and `(break)` are the
+`(switch)`, `(vpcase)`, `(default)`, `(endswitch)` and `(break)` are the
 primitives that all the other structured coding functions are based upon.
 
 ```lisp
 	(switch ['name])
-	(case exp1)
+	(vpcase exp1)
 		...
 		(break ['name])
-	(case exp2)
+	(vpcase exp2)
 		...
 		(break ['name])
-	(case exp3)
+	(vpcase exp3)
 		...
 		(break ['name])
 	(default)
@@ -179,17 +179,17 @@ expression, eg `'(r0 >= r3)` or `'(r4 == 56)`, which is parsed to a VP branch
 instruction. Or a C-Script string that is evaluated, eg `{length + 23 >
 buf_len}`, with the result tested against 0 with a VP branch instruction.
 
-Each `(case exp)` statement emits a comparison test and jumps to the next case
-if the comparison fails to be true. You do not need to place a `(break)` after
-each case, this will fall through to the next `(case)` statement or the
-`(default)`. Be aware that falling through will execute the following `(case)`
-test and act accordingly.
+Each `(vpcase exp)` statement emits a comparison test and jumps to the next
+case if the comparison fails to be true. You do not need to place a `(break)`
+after each case, this will fall through to the next `(vpcase)` statement or the
+`(default)`. Be aware that falling through will execute the following
+`(vpcase)` test and act accordingly.
 
-There are various flavours of `(case)` and `(break)`.
+There are various flavours of `(vpcase)` and `(break)`.
 
 ```lisp
-	(case exp)
-	(casenot exp)
+	(vpcase exp)
+	(vpcasenot exp)
 	(break ['name])
 	(breakif exp ['name])
 	(breakifnot exp ['name])
@@ -305,9 +305,8 @@ reclaimed.
 ```
 
 For any given class there are `create` methods for that class that take any
-construction parameters and return a fully initialised instance. If the `new`
-or `init` methods fail then they will tidy up and return 0 to indicate a
-problem.
+construction parameters and return a fully initialised instance. If the `alloc`
+or `init` methods fail then it will tidy up and return 0 to indicate a problem.
 
 The `init` method is responsible for taking an allocated chunk of memory and
 setting the fields of that object to the initial state, allocating any

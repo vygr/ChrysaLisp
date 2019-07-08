@@ -424,7 +424,7 @@
 	(call 'vector 'get_second (list r_args) (list r_args r_seq))
 	(assign `((,r_seq obj_vtable) (@ ,(f-path 'str 'vtable))) (list r_vtable r_cmp))
 	(switch)
-	(case (list r_vtable '== r_cmp))
+	(vpcase (list r_vtable '== r_cmp))
 	(errorcases
 		(vp-cpy-ir r_elem obj_vtable r_vtable)
 		(gotoif (list r_vtable '!= r_cmp) 'error2))

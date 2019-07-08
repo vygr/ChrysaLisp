@@ -73,7 +73,7 @@
 	(vpif '(r2 < 1))
 		;check if 1 char
 		(switch)
-		(case '(r2 == 1))
+		(vpcase '(r2 == 1))
 			(vp-push r1)
 			(call 'stream 'read_char '(r0) '(r0 r1))
 			(vp-pop r2)

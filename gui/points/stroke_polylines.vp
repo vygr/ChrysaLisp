@@ -67,11 +67,11 @@
 						(assign {cap2_style} {c})
 					(endif)
 					(switch)
-					(case {c == cap_butt})
+					(vpcase {c == cap_butt})
 						;butt cap
 						(vec-load 2 {p1x, p1y})
 						(vec-goto 'out_cap)
-					(case {c == cap_square})
+					(vpcase {c == cap_square})
 						;square cap
 						(vec-load 2 {p1x, p1y} {l2_rvx, l2_rvy})
 						(vec-perp)
@@ -81,7 +81,7 @@
 						(vec-dup 4)
 						(vec-sub 2)
 						(vec-goto 'store_p3p4)
-					(case {c == cap_tri})
+					(vpcase {c == cap_tri})
 						;triangle cap
 						(vec-load 2 {p1x, p1y} {l2_rvx, l2_rvy})
 						(vec-dup 4)
@@ -95,7 +95,7 @@
 						(vec-store 2 {p4x, p4y})
 						(call 'points 'push_back2 {out_points, p1x, p1y})
 						(goto 'out_p3p4)
-					(case {c == cap_arrow})
+					(vpcase {c == cap_arrow})
 						;arrow cap
 						(vec-load 2 {l2_rvx, l2_rvy})
 						(vec-shl 2 1)
@@ -161,7 +161,7 @@
 						(vec-store 1 {c})
 
 						(switch)
-						(case {c <= 0 || join_style == join_miter})
+						(vpcase {c <= 0 || join_style == join_miter})
 							;mitre join
 							(vec-load 2 {p1x, p1y})
 							(vec-dup 2)
@@ -170,7 +170,7 @@
 							(vec-store 4 {p3x, p3y, p1x, p1y})
 							(call 'sys_math 'intersect {p3x, p3y, p1x, p1y, l1_vx, l1_vy, l2_vx, l2_vy} {p1x, p1y})
 							(goto 'out_p1)
-						(case {join_style == join_bevel})
+						(vpcase {join_style == join_bevel})
 							;bevel join
 							(vec-load 2 {p1x, p1y})
 							(vec-dup 2)

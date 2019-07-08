@@ -20,12 +20,12 @@
 	;evaluate based on type
 	(assign {form->obj_vtable} {func})
 	(switch)
-	(case (cat {func == @} (f-path 'sym 'vtable)))
+	(vpcase (cat {func == @} (f-path 'sym 'vtable)))
 		;eval to symbol value
 		(call 'hmap 'get {this->lisp_environment, form} {_, value})
 		(errorifnot {value} 'error2)
 		(break)
-	(case (cat {func == @} (f-path 'vector 'vtable)))
+	(vpcase (cat {func == @} (f-path 'vector 'vtable)))
 		;apply function, eval args if needed
 		(errorifnot {form->array_length} 'error1)
 		(call 'vector 'get_first {form} {_, func})
@@ -33,7 +33,7 @@
 		(errorif (cat {value->obj_vtable == @} (f-path 'error 'vtable)) 'funcexit)
 		(assign {value} {func})
 		(switch)
-		(case (cat {func->obj_vtable == @} (f-path 'func 'vtable)))
+		(vpcase (cat {func->obj_vtable == @} (f-path 'func 'vtable)))
 			(gotoifnot {func->num_value & 7} 'args_eval)
 			(call 'lisp 'repl_apply {this, form, func} {_, value})
 			(break)

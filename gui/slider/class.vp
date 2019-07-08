@@ -223,11 +223,11 @@
 
 	;dirty ?
 	(switch)
-	(case {new_val != val})
+	(vpcase {new_val != val})
 		(call 'slider 'set_long_prop {this, prop_value, new_val})
 		(call 'slider 'emit {this, this->slider_value_targets})
 		(goto 'isdirty)
-	(case {old_state != this->slider_state})
+	(vpcase {old_state != this->slider_state})
 	(vp-label 'isdirty)
 		(call 'slider 'dirty {this})
 	(endif)

@@ -40,7 +40,7 @@
 		(d-call 'array 'get_length {stack} {_, start})
 		(loop-start)
 			(switch 'out)
-			(case {last - first > 2})
+			(vpcase {last - first > 2})
 				;find max distance point
 				(assign {eps, first + 2} {max, length})
 				(call 'points 'get_element2 {that, first} {_, p2x, p2y})

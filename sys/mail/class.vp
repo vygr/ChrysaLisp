@@ -325,7 +325,7 @@
 		(f-bind 'sys_mail 'statics r1)
 		(vp-cpy-ir-ui r2 msg_length r0)
 		(switch)
-		(case '(r0 > lk_data_size))
+		(vpcase '(r0 > lk_data_size))
 			;must use postman task
 			(vp-cpy-ir r1 ml_statics_out_mbox_addr r1)
 			(vp-jmp 'post_it)

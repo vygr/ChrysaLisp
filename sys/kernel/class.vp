@@ -78,14 +78,14 @@
 			;(switch) on kernel call number
 			(assign {data->kn_msg_func} {num})
 			(switch)
-			(case {num == kn_call_open})
+			(vpcase {num == kn_call_open})
 			(vp-label 'run_here)
 				;fill in reply ID, user field is left alone !
 				(assign {data->kn_msg_reply_id.id_id} {msg->msg_dest.id_id})
 				(call 'opt_run {&data->kn_msg_open_pathname} {data->kn_msg_reply_id.id_id})
 				(call 'sys_mail 'send {msg})
 				(break)
-			(case {num == kn_call_child})
+			(vpcase {num == kn_call_child})
 				;find best cpu to run task
 				(assign {task_statics->tk_statics_task_count, id} {best_cnt, best_id})
 				(call 'array 'get_iters {mail_statics->ml_statics_links_array} {_, iter_begin, iter_end})
@@ -103,7 +103,7 @@
 				(assign {best_id} {msg->msg_dest.id_cpu})
 				(call 'sys_mail 'send {msg})
 				(break)
-			(case {num == kn_call_declare})
+			(vpcase {num == kn_call_declare})
 				;declare service if not found
 				(call 'sys_mail 'enquire {&data->kn_msg_declare_name} {service})
 				(vpifnot {service})
@@ -112,7 +112,7 @@
 					(call 'flood {mail_statics, msg, data, id})
 				(endif)
 				(vp-jmp 'drop_msg)
-			(case {num == kn_call_route})
+			(vpcase {num == kn_call_route})
 				;increase size of network ?
 				(vpif {data->kn_msg_route_origin >= task_statics->tk_statics_cpu_total})
 					(assign {data->kn_msg_route_origin + 1} {task_statics->tk_statics_cpu_total})
@@ -129,7 +129,7 @@
 				(assign {(routes.lk_table_array)[route_index].lk_route_hops} {hops})
 				(assign {data->kn_msg_route_hops} {new_hops})
 				(switch)
-				(case {!hops || new_hops < hops})
+				(vpcase {!hops || new_hops < hops})
 				(vp-label 'better_route)
 					;better or first time route
 					(assign {new_hops} {(routes.lk_table_array)[route_index].lk_route_hops})
@@ -153,7 +153,7 @@
 						(assign {iter_begin + ptr_size} {iter_begin})
 					(loop-end)
 					(break)
-				(case {new_hops == hops})
+				(vpcase {new_hops == hops})
 					;new hops is equal, so additional route
 					(call 'array 'get_iters {mail_statics->ml_statics_links_array} {_, iter_begin, iter_end})
 					(loop-while {iter_begin != iter_end})
@@ -183,7 +183,7 @@
 			(vp-label 'drop_msg)
 				(call 'sys_mail 'free {msg})
 				(break)
-			(case {num == kn_call_callback})
+			(vpcase {num == kn_call_callback})
 				;call callback with this thread/stack
 				(assign {data->kn_msg_user, data->kn_msg_callback_addr} '(r0 r1))
 				(vp-call-r r1)

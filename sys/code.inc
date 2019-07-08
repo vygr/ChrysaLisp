@@ -79,11 +79,11 @@
 	(default)
 	(setq *switch* (pop *switch-stk*)))
 
-(defcfun case (e)
+(defcfun vpcase (e)
 	(default)
 	(gotoifnot e (loc-sym (eval (cnt-sym)))))
 
-(defcfun casenot (e)
+(defcfun vpcasenot (e)
 	(default)
 	(gotoif e (loc-sym (eval (cnt-sym)))))
 
@@ -141,11 +141,11 @@
 
 (defcfun elseif (e)
 	(break)
-	(case e))
+	(vpcase e))
 
 (defcfun elseifnot (e)
 	(break)
-	(casenot e))
+	(vpcasenot e))
 
 (defcfun else ()
 	(break)

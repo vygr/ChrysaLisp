@@ -120,7 +120,7 @@
 		(breakifnot {flag})
 		(host-call 'host 'sdl_poll_event {&event})
 		(switch)
-		(case {event.sdl_common_event_type == SDL_MOUSEMOTION})
+		(vpcase {event.sdl_common_event_type == SDL_MOUSEMOTION})
 			;update mouse state and keyboard id
 			(assign {event.sdl_mouse_motion_event_state} {user->local_mouse_buttons})
 			(call 'view 'hit_tree {user->local_statics->gui_statics_screen,
@@ -146,7 +146,7 @@
 			(breakif {user->local_mouse_buttons})
 			(assign {0} {user->local_mouse_id})
 			(break)
-		(case {event.sdl_common_event_type == SDL_MOUSEBUTTONDOWN})
+		(vpcase {event.sdl_common_event_type == SDL_MOUSEBUTTONDOWN})
 			;update mouse state
 			(assign {event.sdl_mouse_button_event_button | user->local_mouse_buttons} {user->local_mouse_buttons})
 
@@ -155,11 +155,11 @@
 				event.sdl_mouse_button_event_x, event.sdl_mouse_button_event_y} {_, view, _, _})
 			(assign {view->component_id} {user->local_mouse_id})
 			(goto 'send_event)
-		(case {event.sdl_common_event_type == SDL_MOUSEBUTTONUP})
+		(vpcase {event.sdl_common_event_type == SDL_MOUSEBUTTONUP})
 			;update mouse state
 			(assign {event.sdl_mouse_button_event_button ^ user->local_mouse_buttons} {user->local_mouse_buttons})
 			(goto 'send_event)
-		(case {event.sdl_common_event_type == SDL_KEYDOWN})
+		(vpcase {event.sdl_common_event_type == SDL_KEYDOWN})
 			;find view for keys
 			(call 'view 'find_id {user->local_statics->gui_statics_screen, user->local_key_id} {_, view})
 			(breakifnot {view})
@@ -177,7 +177,7 @@
 				event.sdl_keyboard_event_keysym.sdl_keysym_mod} {data->ev_msg_key_key})
 			(call 'sys_mail 'send {msg})
 			(break)
-		(case {event.sdl_common_event_type == SDL_QUIT})
+		(vpcase {event.sdl_common_event_type == SDL_QUIT})
 			;(assign {-1} {user->local_quit})
 		(endswitch)
 	(loop-end)
