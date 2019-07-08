@@ -20,7 +20,7 @@
 	id t max_tasks 0 max_memory 0)
 
 (ui-tree window (create-window (add window_flag_close window_flag_min window_flag_max)) nil
-	(ui-element _ (create-grid) ('grid_width 2 'grid_height 1 'flow_flags (bit-or flow_flag_down flow_flag_fillw) 'maximum 100 'value 0)
+	(ui-element _ (create-grid) ('grid_width 2 'grid_height 1 'flow_flags (logior flow_flag_down flow_flag_fillw) 'maximum 100 'value 0)
 		(ui-element _ (create-flow) ('color argb_green)
 			(ui-element _ (create-label) ('text "Tasks" 'color argb_white))
 			(times cpu_total (push task_bars (ui-element _ (create-progress)))))

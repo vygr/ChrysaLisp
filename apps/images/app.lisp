@@ -16,13 +16,13 @@
 	apps/images/vermin.cpm) index 0 id t)
 
 (ui-tree window (create-window window_flag_close) nil
-	(ui-element _ (create-flow) ('flow_flags (bit-or flow_flag_down flow_flag_fillw flow_flag_lasth)
+	(ui-element _ (create-flow) ('flow_flags (logior flow_flag_down flow_flag_fillw flow_flag_lasth)
 			'color argb_green)
-		(ui-element _ (create-flow) ('flow_flags (bit-or flow_flag_right flow_flag_fillh)
+		(ui-element _ (create-flow) ('flow_flags (logior flow_flag_right flow_flag_fillh)
 				'font (create-font "fonts/Entypo.otf" 32))
 			(button-connect-click (ui-element _ (create-button) ('text "")) event_win_prev)
 			(button-connect-click (ui-element _ (create-button) ('text "")) event_win_next))
-		(ui-element image_scroll (create-scroll (bit-or scroll_flag_vertical scroll_flag_horizontal))
+		(ui-element image_scroll (create-scroll (logior scroll_flag_vertical scroll_flag_horizontal))
 			('min_width 256 'min_height 256))))
 
 (defun win-refresh (_)

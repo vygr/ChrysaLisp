@@ -502,7 +502,7 @@
 						((find c ")(][")
 							;)(][
 							(token-push c s)
-							(setq p (inc i) u (bit-and (sub s 12) 1)))
+							(setq p (inc i) u (logand (sub s 12) 1)))
 						((ge s 5)
 							;-*~!+.?^</%&|=>
 							(setq m s))
@@ -909,10 +909,10 @@
 	''(vp-add-cr vp-sub-cr vp-mul-cr vp-and-cr vp-or-cr vp-xor-cr vp-shl-cr vp-shr-cr vp-asr-cr))
 
 (defmacro opt-fold-cpy-ops ()
-	''(add sub mul bit-and bit-or bit-xor bit-shl bit-shr bit-asr))
+	''(add sub mul logand logior logxor bit-shl bit-shr bit-asr))
 
 (defmacro opt-fold-cr-ops ()
-	''(add add mul bit-and bit-or bit-xor add add add))
+	''(add add mul logand logior logxor add add add))
 
 (defmacro opt-cr-fuse-ops ()
 	''(vp-add-cr vp-sub-cr))

@@ -17,9 +17,9 @@
 (ffi bit-shr "class/num/lisp_bshr" 0)
 (ffi bit-asr "class/num/lisp_basr" 0)
 (ffi bit-shl "class/num/lisp_bshl" 0)
-(ffi bit-and "class/num/lisp_band" 0)
-(ffi bit-or "class/num/lisp_bor" 0)
-(ffi bit-xor "class/num/lisp_bxor" 0)
+(ffi logand "class/num/lisp_band" 0)
+(ffi logior "class/num/lisp_bor" 0)
+(ffi logxor "class/num/lisp_bxor" 0)
 
 (ffi eq "class/num/lisp_eq" 0)
 (ffi ne "class/num/lisp_ne" 0)
@@ -364,7 +364,7 @@
 
 (defun bit-not (_)
 	;(bit-not num) -> num
-	(bit-xor _ -1))
+	(logxor _ -1))
 
 ;;;;;;;;;;;;;;;;;;
 ; Fixed point math
@@ -379,7 +379,7 @@
 
 (defun align (_ _a)
 	;(align num pow2) -> num
-	(bit-and (add _ (dec _a)) (neg _a)))
+	(logand (add _ (dec _a)) (neg _a)))
 
 (defmacro ascii-code (_)
 	;(ascii-code char) -> num
@@ -447,7 +447,7 @@
 
 (defun log2 (_)
 	;(log2 num) -> num
-	(when (and (not (eq 0 _)) (eq _ (bit-and _ (neg _))))
+	(when (and (not (eq 0 _)) (eq _ (logand _ (neg _))))
 		(defq i 0)
 		(while (ne 0 (setq _ (bit-shr _ 1)))
 			(setq i (inc i))) i))
@@ -457,7 +457,7 @@
 	(if (eq _ 0) 64)
 		(progn
 			(defq c 0)
-			(while (eq 0 (bit-and _ 1))
+			(while (eq 0 (logand _ 1))
 				(setq _ (bit-shr _ 1) c (inc c))) c))
 
 (defun count-trailing-ones (_)
@@ -465,7 +465,7 @@
 	(if (eq _ -1) 64)
 		(progn
 			(defq c 0)
-			(while (ne 0 (bit-and _ 1))
+			(while (ne 0 (logand _ 1))
 				(setq _ (bit-shr _ 1) c (inc c))) c))
 
 (defun count-leading-ones (_)
@@ -490,7 +490,7 @@
 	(setd _l 0 _h (length _a))
 	(defq _s (time))
 	(defun get-next ()
-		(setq _s (abs (bit-xor 0xa5a5a5a5a5a5a5a5 (mul _s 0x1574937f)))))
+		(setq _s (abs (logxor 0xa5a5a5a5a5a5a5a5 (mul _s 0x1574937f)))))
 	(defun get-val (_)
 		(if (gt _ 0) (mod (get-next) _) 0))
 	(each! _h _l nil (lambda (x)

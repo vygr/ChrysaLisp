@@ -19,14 +19,14 @@
 (defcfun emit-ret () (emit-byte 0xc3))
 
 (defcfun emit-rr (o s d)
-	(defq s (reg s) sl (bit-and 7 s) sh (bit-shr s 3)
-		d (reg d) dl (bit-and 7 d) dh (bit-shr d 3))
+	(defq s (reg s) sl (logand 7 s) sh (bit-shr s 3)
+		d (reg d) dl (logand 7 d) dh (bit-shr d 3))
 	(emit-byte (add 0x48 (bit-shl sh 2) dh) o (add 0xc0 (bit-shl sl 3) dl)))
 
 (defcfun emit-dr (o s1 s2 d)
-	(defq s1 (reg s1) s1l (bit-and 7 s1) s1h (bit-shr s1 3)
-		s2 (reg s2) s2l (bit-and 7 s2) s2h (bit-shr s2 3)
-		d (reg d) dl (bit-and 7 d) dh (bit-shr d 3))
+	(defq s1 (reg s1) s1l (logand 7 s1) s1h (bit-shr s1 3)
+		s2 (reg s2) s2l (logand 7 s2) s2h (bit-shr s2 3)
+		d (reg d) dl (logand 7 d) dh (bit-shr d 3))
 	(emit-byte (add 0x48 (bit-shl dh 2) (bit-shl s2h 1) s1h) o)
 	(cond
 		((and (ne s1 5) (ne s1 13))
@@ -35,9 +35,9 @@
 			(emit-byte (add 0x44 (bit-shl dl 3)) (add (bit-shl s2l 3) s1l) 0))))
 
 (defcfun emit-dr-bs (o s1 s2 d)
-	(defq s1 (reg s1) s1l (bit-and 7 s1) s1h (bit-shr s1 3)
-		s2 (reg s2) s2l (bit-and 7 s2) s2h (bit-shr s2 3)
-		d (reg d) dl (bit-and 7 d) dh (bit-shr d 3))
+	(defq s1 (reg s1) s1l (logand 7 s1) s1h (bit-shr s1 3)
+		s2 (reg s2) s2l (logand 7 s2) s2h (bit-shr s2 3)
+		d (reg d) dl (logand 7 d) dh (bit-shr d 3))
 	(emit-byte (add 0x48 (bit-shl dh 2) (bit-shl s2h 1) s1h) 0xf o)
 	(cond
 		((and (ne s1 5) (ne s1 13))
@@ -46,8 +46,8 @@
 			(emit-byte (add 0x44 (bit-shl dl 3)) (add (bit-shl s2l 3) s1l) 0))))
 
 (defcfun emit-ir (o s c d)
-	(defq s (reg s) sl (bit-and 7 s) sh (bit-shr s 3)
-		d (reg d) dl (bit-and 7 d) dh (bit-shr d 3))
+	(defq s (reg s) sl (logand 7 s) sh (bit-shr s 3)
+		d (reg d) dl (logand 7 d) dh (bit-shr d 3))
 	(emit-byte (add 0x48 (bit-shl dh 2) sh) o)
 	(cond
 		((and (eq c 0) (ne s 5) (ne s 13))
@@ -64,8 +64,8 @@
 		(t (throw "emit-ir constant out of range !" c))))
 
 (defcfun emit-ir-bs (o s c d)
-	(defq s (reg s) sl (bit-and 7 s) sh (bit-shr s 3)
-		d (reg d) dl (bit-and 7 d) dh (bit-shr d 3))
+	(defq s (reg s) sl (logand 7 s) sh (bit-shr s 3)
+		d (reg d) dl (logand 7 d) dh (bit-shr d 3))
 	(emit-byte (add 0x48 (bit-shl dh 2) sh) 0x0f o)
 	(cond
 		((and (eq c 0) (ne s 5) (ne s 13))
@@ -82,7 +82,7 @@
 		(t (throw "emit-ir-bs constant out of range !" c))))
 
 (defcfun emit-pr (o c d)
-	(defq d (reg d) dl (bit-and 7 d) dh (bit-shr d 3) c (sub c 7))
+	(defq d (reg d) dl (logand 7 d) dh (bit-shr d 3) c (sub c 7))
 	(cond
 		((le -0x80000000 c 0x7fffffff)
 			(emit-byte (add 0x48 (bit-shl dh 2)) o (add 0x5 (bit-shl dl 3)))
@@ -91,7 +91,7 @@
 
 (defcfun emit-shift-cr (o c d)
 	(unless (eq c 0)
-		(defq d (reg d) dl (bit-and 7 d) dh (bit-shr d 3))
+		(defq d (reg d) dl (logand 7 d) dh (bit-shr d 3))
 		(emit-byte (add 0x48 dh))
 		(cond
 			((eq c 1)
@@ -103,10 +103,10 @@
 (defcfun emit-shift-rr (o s d)
 	(cond
 		((eql s r1)
-			(defq d (reg d) dl (bit-and 7 d) dh (bit-shr d 3))
+			(defq d (reg d) dl (logand 7 d) dh (bit-shr d 3))
 			(emit-byte (add 0x48 dh) 0xd3 (add o dl)))
 		((eql d r1)
-			(defq sn (reg s) sl (bit-and 7 sn) sh (bit-shr sn 3))
+			(defq sn (reg s) sl (logand 7 sn) sh (bit-shr sn 3))
 			(emit-swp-rr s d)
 			(emit-byte (add 0x48 sh) 0xd3 (add o sl))
 			(emit-swp-rr s d))
@@ -123,12 +123,12 @@
 	(emit-int (sub c 6)))
 
 (defcfun emit-call-jump-r (o d)
-	(defq d (reg d) dl (bit-and 7 d))
+	(defq d (reg d) dl (logand 7 d))
 	(if (ge d 8) (emit-byte 0x41))
 	(emit-byte 0xff (add o dl)))
 
 (defcfun emit-call-jump-i (o d c)
-	(defq d (reg d) dl (bit-and 7 d))
+	(defq d (reg d) dl (logand 7 d))
 	(if (ge d 8) (emit-byte 0x41))
 	(emit-byte 0xff)
 	(cond
@@ -235,7 +235,7 @@
 	(if (eq c 0)
 		(emit-xor-rr r r)
 		(progn
-			(defq rn (reg r) rl (bit-and rn 7) rh (bit-shr rn 3))
+			(defq rn (reg r) rl (logand rn 7) rh (bit-shr rn 3))
 			(cond
 				((eq -1 c)
 					(emit-or-cr -1 r))
@@ -256,8 +256,8 @@
 (defcfun emit-cpy-pr (l d) (emit-pr 0x8b (sub l *pc*) d))
 
 (defcfun emit-cpy-ri (s d c)
-	(defq s (reg s) sl (bit-and 7 s) sh (bit-shr s 3)
-		d (reg d) dl (bit-and 7 d) dh (bit-shr d 3))
+	(defq s (reg s) sl (logand 7 s) sh (bit-shr s 3)
+		d (reg d) dl (logand 7 d) dh (bit-shr d 3))
 	(cond
 		((and (eq c 0) (ne d 5) (ne d 13))
 			(emit-byte (add 0x48 (bit-shl sh 2) dh) 0x89 (add (bit-shl sl 3) dl))
@@ -273,9 +273,9 @@
 		(t (throw "emit-cpy-ri constant out of range !" c))))
 
 (defcfun emit-cpy-rd (d s1 s2)
-	(defq s1 (reg s1) s1l (bit-and 7 s1) s1h (bit-shr s1 3)
-		s2 (reg s2) s2l (bit-and 7 s2) s2h (bit-shr s2 3)
-		d (reg d) dl (bit-and 7 d) dh (bit-shr d 3))
+	(defq s1 (reg s1) s1l (logand 7 s1) s1h (bit-shr s1 3)
+		s2 (reg s2) s2l (logand 7 s2) s2h (bit-shr s2 3)
+		d (reg d) dl (logand 7 d) dh (bit-shr d 3))
 	(emit-byte (add 0x48 (bit-shl dh 2) (bit-shl s2h 1) s1h) 0x89)
 	(cond
 		((and (ne s1 5) (ne s1 13))
@@ -284,7 +284,7 @@
 			(emit-byte (add 0x44 (bit-shl dl 3)) (add (bit-shl s2l 3) s1l) 0))))
 
 (defcfun emit-cpy-rp (d l)
-	(defq d (reg d) dl (bit-and 7 d) dh (bit-shr d 3) c (sub l *pc* 7))
+	(defq d (reg d) dl (logand 7 d) dh (bit-shr d 3) c (sub l *pc* 7))
 	(cond
 		((le -0x80000000 c 0x7fffffff)
 			(emit-byte (add 0x48 (bit-shl dh 2)) 0x89 (add 0x5 (bit-shl dl 3)))
@@ -301,8 +301,8 @@
 (defcfun emit-cpy-dr-us (s1 s2 d) (emit-dr-bs 0xb7 s1 s2 d))
 
 (defcfun emit-cpy-ir-i (s c d)
-	(defq s (reg s) sl (bit-and 7 s) sh (bit-shr s 3)
-		d (reg d) dl (bit-and 7 d) dh (bit-shr d 3))
+	(defq s (reg s) sl (logand 7 s) sh (bit-shr s 3)
+		d (reg d) dl (logand 7 d) dh (bit-shr d 3))
 	(emit-byte (add 0x48 (bit-shl dh 2) sh) 0x63)
 	(cond
 		((and (eq c 0) (ne s 5) (ne s 13))
@@ -319,9 +319,9 @@
 		(t (throw "emit-cpy-ir-i constant out of range !" c))))
 
 (defcfun emit-cpy-dr-i (s1 s2 d)
-	(defq s1 (reg s1) s1l (bit-and 7 s1) s1h (bit-shr s1 3)
-		s2 (reg s2) s2l (bit-and 7 s2) s2h (bit-shr s2 3)
-		d (reg d) dl (bit-and 7 d) dh (bit-shr d 3))
+	(defq s1 (reg s1) s1l (logand 7 s1) s1h (bit-shr s1 3)
+		s2 (reg s2) s2l (logand 7 s2) s2h (bit-shr s2 3)
+		d (reg d) dl (logand 7 d) dh (bit-shr d 3))
 	(emit-byte (add 0x48 (bit-shl dh 2) (bit-shl s2h 1) s1h) 0x63)
 	(cond
 		((and (ne s1 5) (ne s1 13))
@@ -330,8 +330,8 @@
 			(emit-byte (add 0x44 (bit-shl dl 3)) (add (bit-shl s2l 3) s1l) 0))))
 
 (defcfun emit-cpy-ir-ui (s c d)
-	(defq s (reg s) sl (bit-and 7 s) sh (bit-shr s 3)
-		d (reg d) dl (bit-and 7 d) dh (bit-shr d 3))
+	(defq s (reg s) sl (logand 7 s) sh (bit-shr s 3)
+		d (reg d) dl (logand 7 d) dh (bit-shr d 3))
 	(if (or (ge s 8) (ge d 8)) (emit-byte (add 0x40 (bit-shl dh 2) sh)))
 	(emit-byte 0x8b)
 	(cond
@@ -349,9 +349,9 @@
 		(t (throw "emit-cpy-ir-ui constant out of range !" c))))
 
 (defcfun emit-cpy-dr-ui (s1 s2 d)
-	(defq s1 (reg s1) s1l (bit-and 7 s1) s1h (bit-shr s1 3)
-		s2 (reg s2) s2l (bit-and 7 s2) s2h (bit-shr s2 3)
-		d (reg d) dl (bit-and 7 d) dh (bit-shr d 3))
+	(defq s1 (reg s1) s1l (logand 7 s1) s1h (bit-shr s1 3)
+		s2 (reg s2) s2l (logand 7 s2) s2h (bit-shr s2 3)
+		d (reg d) dl (logand 7 d) dh (bit-shr d 3))
 	(if (or (ge s1 8) (ge s2 8) (ge d 8)) (emit-byte (add 0x40 (bit-shl dh 2) (bit-shl s2h 1) s1h)))
 	(emit-byte 0x8b)
 	(cond
@@ -361,8 +361,8 @@
 			(emit-byte (add 0x44 (bit-shl dl 3)) (add (bit-shl s2l 3) s1l) 0))))
 
 (defcfun emit-cpy-ri-b (s d c)
-	(defq s (reg s) sl (bit-and 7 s) sh (bit-shr s 3)
-		d (reg d) dl (bit-and 7 d) dh (bit-shr d 3))
+	(defq s (reg s) sl (logand 7 s) sh (bit-shr s 3)
+		d (reg d) dl (logand 7 d) dh (bit-shr d 3))
 	(if (or (ge s 4) (ge d 8)) (emit-byte (add 0x40 (bit-shl sh 2) dh)))
 	(emit-byte 0x88)
 	(cond
@@ -380,9 +380,9 @@
 		(t (throw "emit-cpy-ri-b constant out of range !" c))))
 
 (defcfun emit-cpy-rd-b (r s1 s2)
-	(defq s1 (reg s1) s1l (bit-and 7 s1) s1h (bit-shr s1 3)
-		s2 (reg s2) s2l (bit-and 7 s2) s2h (bit-shr s2 3)
-		r (reg r) rl (bit-and 7 r) rh (bit-shr r 3))
+	(defq s1 (reg s1) s1l (logand 7 s1) s1h (bit-shr s1 3)
+		s2 (reg s2) s2l (logand 7 s2) s2h (bit-shr s2 3)
+		r (reg r) rl (logand 7 r) rh (bit-shr r 3))
 	(if (or (ge s1 8) (ge s2 8) (ge r 4)) (emit-byte (add 0x40 (bit-shl rh 2) (bit-shl s2h 1) s1h)))
 	(emit-byte 0x88)
 	(cond
@@ -392,8 +392,8 @@
 			(emit-byte (add 0x44 (bit-shl rl 3)) (add (bit-shl s2l 3) s1l) 0))))
 
 (defcfun emit-cpy-ri-s (s d c)
-	(defq s (reg s) sl (bit-and 7 s) sh (bit-shr s 3)
-		d (reg d) dl (bit-and 7 d) dh (bit-shr d 3))
+	(defq s (reg s) sl (logand 7 s) sh (bit-shr s 3)
+		d (reg d) dl (logand 7 d) dh (bit-shr d 3))
 	(emit-byte 0x66)
 	(if (or (ge s 8) (ge d 8)) (emit-byte (add 0x40 (bit-shl sh 2) dh)))
 	(emit-byte 0x89)
@@ -412,9 +412,9 @@
 		(t (throw "emit-cpy-ri-s constant out of range !" c))))
 
 (defcfun emit-cpy-rd-s (r s1 s2)
-	(defq s1 (reg s1) s1l (bit-and 7 s1) s1h (bit-shr s1 3)
-		s2 (reg s2) s2l (bit-and 7 s2) s2h (bit-shr s2 3)
-		r (reg r) rl (bit-and 7 r) rh (bit-shr r 3))
+	(defq s1 (reg s1) s1l (logand 7 s1) s1h (bit-shr s1 3)
+		s2 (reg s2) s2l (logand 7 s2) s2h (bit-shr s2 3)
+		r (reg r) rl (logand 7 r) rh (bit-shr r 3))
 	(emit-byte 0x66)
 	(if (or (ge s1 8) (ge s2 8) (ge r 8)) (emit-byte (add 0x40 (bit-shl rh 2) (bit-shl s2h 1) s1h)))
 	(emit-byte 0x89)
@@ -425,8 +425,8 @@
 			(emit-byte (add 0x44 (bit-shl rl 3)) (add (bit-shl s2l 3) s1l) 0))))
 
 (defcfun emit-cpy-ri-i (s d c)
-	(defq s (reg s) sl (bit-and 7 s) sh (bit-shr s 3)
-		d (reg d) dl (bit-and 7 d) dh (bit-shr d 3))
+	(defq s (reg s) sl (logand 7 s) sh (bit-shr s 3)
+		d (reg d) dl (logand 7 d) dh (bit-shr d 3))
 	(if (or (ge s 8) (ge d 8)) (emit-byte (add 0x40 (bit-shl sh 2) dh)))
 	(emit-byte 0x89)
 	(cond
@@ -444,9 +444,9 @@
 		(t (throw "emit-cpy-ri-i constant out of range !" c))))
 
 (defcfun emit-cpy-rd-i (r s1 s2)
-	(defq s1 (reg s1) s1l (bit-and 7 s1) s1h (bit-shr s1 3)
-		s2 (reg s2) s2l (bit-and 7 s2) s2h (bit-shr s2 3)
-		r (reg r) rl (bit-and 7 r) rh (bit-shr r 3))
+	(defq s1 (reg s1) s1l (logand 7 s1) s1h (bit-shr s1 3)
+		s2 (reg s2) s2l (logand 7 s2) s2h (bit-shr s2 3)
+		r (reg r) rl (logand 7 r) rh (bit-shr r 3))
 	(if (or (ge s1 8) (ge s2 8) (ge r 8)) (emit-byte (add 0x40 (bit-shl rh 2) (bit-shl s2h 1) s1h)))
 	(emit-byte 0x89)
 	(cond
@@ -457,7 +457,7 @@
 
 (defcfun emit-add-cr (c r)
 	(unless (eq c 0)
-		(defq r (reg r) rl (bit-and 7 r) rh (bit-shr r 3))
+		(defq r (reg r) rl (logand 7 r) rh (bit-shr r 3))
 		(emit-byte (add 0x48 rh))
 		(cond
 			((eq 1 c)
@@ -475,7 +475,7 @@
 
 (defcfun emit-sub-cr (c r)
 	(unless (eq c 0)
-		(defq r (reg r) rl (bit-and 7 r) rh (bit-shr r 3))
+		(defq r (reg r) rl (logand 7 r) rh (bit-shr r 3))
 		(emit-byte (add 0x48 rh))
 		(cond
 			((eq 1 c)
@@ -494,7 +494,7 @@
 (defcfun emit-cmp-cr (c r)
 	(if (eq c 0) (emit-rr 0x85 r r)
 		(progn
-			(defq r (reg r) rl (bit-and 7 r) rh (bit-shr r 3))
+			(defq r (reg r) rl (logand 7 r) rh (bit-shr r 3))
 			(emit-byte (add 0x48 rh))
 			(cond
 				((le -0x80 c 0x7f)
@@ -513,7 +513,7 @@
 		(if (eq c 0)
 			(emit-xor-rr r r)
 			(progn
-				(defq r (reg r) rl (bit-and 7 r) rh (bit-shr r 3))
+				(defq r (reg r) rl (logand 7 r) rh (bit-shr r 3))
 				(emit-byte (add 0x48 rh))
 				(cond
 					((le -0x80 c 0x7f)
@@ -529,7 +529,7 @@
 
 (defcfun emit-or-cr (c r)
 	(unless (eq c 0)
-		(defq r (reg r) rl (bit-and 7 r) rh (bit-shr r 3))
+		(defq r (reg r) rl (logand 7 r) rh (bit-shr r 3))
 		(emit-byte (add 0x48 rh))
 		(cond
 			((le -0x80 c 0x7f)
@@ -545,7 +545,7 @@
 
 (defcfun emit-xor-cr (c r)
 	(unless (eq c 0)
-		(defq r (reg r) rl (bit-and 7 r) rh (bit-shr r 3))
+		(defq r (reg r) rl (logand 7 r) rh (bit-shr r 3))
 		(emit-byte (add 0x48 rh))
 		(cond
 			((le -0x80 c 0x7f)
@@ -589,7 +589,7 @@
 	(if (eq c 0)
 		(emit-xor-rr r r)
 		(progn
-			(defq r (reg r) rl (bit-and r 7) rh (bit-shr r 3))
+			(defq r (reg r) rl (logand r 7) rh (bit-shr r 3))
 			(cond
 				((eq 1 c))
 				((eq -1 c)
@@ -602,15 +602,15 @@
 				(t (throw "emit-mul-cr constant out of range !" c))))))
 
 (defcfun emit-mul-rr (s d)
-	(defq s (reg s) sl (bit-and 7 s) sh (bit-shr s 3)
-		d (reg d) dl (bit-and 7 d) dh (bit-shr d 3))
+	(defq s (reg s) sl (logand 7 s) sh (bit-shr s 3)
+		d (reg d) dl (logand 7 d) dh (bit-shr d 3))
 	(emit-byte (add 0x48 (bit-shl dh 2) sh) 0x0f 0xaf (add 0xc0 (bit-shl dl 3) sl)))
 
 (defcfun emit-swp-rr (s d)
 	(unless (eql s d)
 		(if (eql s r0) (setq s d d r0))
-		(defq s (reg s) sl (bit-and 7 s) sh (bit-shr s 3)
-			d (reg d) dl (bit-and 7 d) dh (bit-shr d 3))
+		(defq s (reg s) sl (logand 7 s) sh (bit-shr s 3)
+			d (reg d) dl (logand 7 d) dh (bit-shr d 3))
 		(if (eq d 0)
 			(emit-byte (add 0x48 sh) (add 0x90 sl))
 			(emit-byte (add 0x48 (bit-shl sh 2) dh) 0x87 (add 0xc0 (bit-shl sl 3) dl)))))
@@ -628,10 +628,10 @@
 (defcfun emit-div-rrr (s d1 d2)
 	(cond
 		((and (eql d1 r2) (eql d2 r0))
-			(defq s (reg s) sl (bit-and 7 s) sh (bit-shr s 3))
+			(defq s (reg s) sl (logand 7 s) sh (bit-shr s 3))
 			(emit-byte (add 0x48 sh) 0xF7 (add 0xF8 sl)))
 		((and (eql d1 r0) (eql d2 r2) (not (eql s r0)) (not (eql s r2)))
-			(defq s (reg s) sl (bit-and 7 s) sh (bit-shr s 3))
+			(defq s (reg s) sl (logand 7 s) sh (bit-shr s 3))
 			(emit-byte 0x48 0x92 (add 0x48 sh) 0xF7 (add 0xF8 sl) 0x48 0x92))
 		(t
 			(emit-push d2 d1 s r2 r1 r0)
@@ -646,10 +646,10 @@
 (defcfun emit-div-rrr-u (s d1 d2)
 	(cond
 		((and (eql d1 r2) (eql d2 r0))
-			(defq s (reg s) sl (bit-and 7 s) sh (bit-shr s 3))
+			(defq s (reg s) sl (logand 7 s) sh (bit-shr s 3))
 			(emit-byte (add 0x48 sh) 0xF7 (add 0xF0 sl)))
 		((and (eql d1 r0) (eql d2 r2) (not (eql s r0)) (not (eql s r2)))
-			(defq s (reg s) sl (bit-and 7 s) sh (bit-shr s 3))
+			(defq s (reg s) sl (logand 7 s) sh (bit-shr s 3))
 			(emit-byte 0x48 0x92 (add 0x48 sh) 0xF7 (add 0xF0 sl) 0x48 0x92))
 		(t
 			(emit-push d2 d1 s r2 r1 r0)

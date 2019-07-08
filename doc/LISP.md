@@ -71,12 +71,12 @@ age
 apply
 array
 bind
-bit-and
+logand
 bit-asr
-bit-or
+logior
 bit-shl
 bit-shr
-bit-xor
+logxor
 cat
 catch
 char

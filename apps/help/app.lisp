@@ -28,17 +28,17 @@
 				(t (push keys k) (push vals v))))) k v)
 	(each (lambda (_)
 		(def (defq b (create-button)) 'text _ 'border 0
-			'flow_flags (bit-or flow_flag_align_vcenter flow_flag_align_hleft))
+			'flow_flags (logior flow_flag_align_vcenter flow_flag_align_hleft))
 		(view-add-child index (button-connect-click b event_win_button))) keys)
 	(def vdu 'vdu_width
 		(reduce max (map (lambda (_)
 			(reduce max (map length (split _ (ascii-char 10))))) vals))))
 
 (ui-tree window (create-window window_flag_close) ('color argb_black)
-	(ui-element _ (create-flow) ('flow_flags (bit-or flow_flag_right flow_flag_fillh flow_flag_lastw)
+	(ui-element _ (create-flow) ('flow_flags (logior flow_flag_right flow_flag_fillh flow_flag_lastw)
 		'font (create-font "fonts/Hack-Regular.ttf" 16))
 		(ui-element index_scroll (create-scroll scroll_flag_vertical) ('color argb_green)
-			(ui-element index (create-flow) ('flow_flags (bit-or flow_flag_down flow_flag_fillw)
+			(ui-element index (create-flow) ('flow_flags (logior flow_flag_down flow_flag_fillw)
 				'color argb_white)))
 		(ui-element vdu (create-vdu) ('vdu_height vdu_height 'ink_color argb_cyan))))
 

@@ -8,8 +8,8 @@
 (structure 'work 0
 	(long 'parent_id)
 	(long 'width)
-	(long 'heigth)
-	(offset 'ys))
+	(long 'height)
+	(long 'y))
 
 (structure 'reply 0
 	(long 'child_id)

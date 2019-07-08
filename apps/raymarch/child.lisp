@@ -7,7 +7,7 @@
 	(long 'parent_id)
 	(long 'width)
 	(long 'height)
-	(int 'y))
+	(long 'y))
 
 (structure 'reply 0
 	(long 'child_id)
@@ -108,12 +108,12 @@
 				(points (div (mul (sub x w2) 1.0) w2) (div (mul (sub y h2) 1.0) h2) 0.0)
 				ray_origin)))
 		(bind '(r g b) (scene-ray ray_origin ray_dir))
-		(setq reply (cat reply (char (add (bit-shr b 8) (bit-and g 0xff00)
-			(bit-shl (bit-and r 0xff00) 8) 0xff000000) int_size)))
+		(setq reply (cat reply (char (add (bit-shr b 8) (logand g 0xff00)
+			(bit-shl (logand r 0xff00) 8) 0xff000000) int_size)))
 		;while does a yield call !
 		(while nil))
 	(mail-send reply parent))
 
 ;read work request or exit
 (while (ne 0 (defq parent (get-long (defq msg (mail-mymail)) work_parent_id)))
-	(line parent (get-long msg work_width) (get-long msg work_height) (get-int msg work_y)))
+	(line parent (get-long msg work_width) (get-long msg work_height) (get-long msg work_y)))

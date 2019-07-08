@@ -73,57 +73,6 @@
 
 (def-func-end)
 
-(def-method 'num 'lisp_band)
-	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
-	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
-
-	(addop 'lisp_band
-		'(vp-and-rr r3 r0))
-
-(errorcases
-(vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(bit-and num num ...)" error_msg_wrong_types r7)))
-
-(def-func-end)
-
-(def-method 'num 'lisp_bor)
-	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
-	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
-
-	(addop 'lisp_bor
-		'(vp-or-rr r3 r0))
-
-(errorcases
-(vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(bit-or num num ...)" error_msg_wrong_types r7)))
-
-(def-func-end)
-
-(def-method 'num 'lisp_bxor)
-	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
-	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
-
-	(addop 'lisp_bxor
-		'(vp-xor-rr r3 r0))
-
-(errorcases
-(vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(bit-xor num num ...)" error_msg_wrong_types r7)))
-
-(def-func-end)
-
 (def-method 'num 'lisp_min)
 	;inputs
 	;r0 = lisp object (ptr)
@@ -180,6 +129,76 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r6 "(fmul num num ...)" error_msg_wrong_types r7)))
+
+(def-func-end)
+
+(defun andop (_ i p)
+	(entry 'num _ '(r6 r7))
+(errorcases
+	(call 'lisp 'env_args_type `(r7 (@ ,(f-path 'num 'vtable)) 0) '(r1))
+	(gotoif '(r1 == 0) 'error))
+	(call 'vector 'get_iters '(r7) '(_ r1 r2))
+	(vp-cpy-cr i r0)
+	(vpif '(r1 != r2))
+		(loop-start)
+			(vp-cpy-ir r1 0 r3)
+			(vp-add-cr ptr_size r1)
+			(vp-cpy-ir r3 num_value r3)
+			(exec p)
+		(loop-until '(r1 == r2))
+	(endif)
+	(call 'num 'create '(r0) '(r0))
+	(exit 'num _ '(r6 r0))
+	(vp-ret))
+
+(def-method 'num 'lisp_band)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(andop 'lisp_band -1
+		'(vp-and-rr r3 r0))
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r6 "(logand [num] ...)" error_msg_wrong_types r7)))
+
+(def-func-end)
+
+(def-method 'num 'lisp_bor)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(andop 'lisp_bor 0
+		'(vp-or-rr r3 r0))
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r6 "(logior [num] ...)" error_msg_wrong_types r7)))
+
+(def-func-end)
+
+(def-method 'num 'lisp_bxor)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(andop 'lisp_bxor 0
+		'(vp-xor-rr r3 r0))
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r6 "(logxor [num] ...)" error_msg_wrong_types r7)))
 
 (def-func-end)
 

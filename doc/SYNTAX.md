@@ -31,20 +31,14 @@
 ### (awhile form body)
 ## bind
 ### (bind (param ...) seq)
-## bit-and
-### (bit-and num num ...)
 ## bit-asr
 ### (bit-asr num cnt)
 ## bit-not
 ### (bit-not num) -> num
-## bit-or
-### (bit-or num num ...)
 ## bit-shl
 ### (bit-shl num cnt)
 ## bit-shr
 ### (bit-shr num cnt)
-## bit-xor
-### (bit-xor num num ...)
 ## button-connect-click
 ### (button-connect-click button id)
 ## canvas-fbox
@@ -247,6 +241,12 @@
 ### (load path)
 ## log2
 ### (log2 num) -> num
+## logand
+### (logand [num] ...)
+## logior
+### (logior [num] ...)
+## logxor
+### (logxor [num] ...)
 ## lst?
 ### (lst? form)
 ## lt

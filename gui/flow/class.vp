@@ -150,7 +150,7 @@
 	(endif)
 
 	(vp-cpy-ir r1 local_flags r3)
-	(vp-and-cr (bit-or flow_flag_align_hcenter flow_flag_align_hleft flow_flag_align_hright) r3)
+	(vp-and-cr (logior flow_flag_align_hcenter flow_flag_align_hleft flow_flag_align_hright) r3)
 	(vpif '(r3 != 0))
 		(vp-cpy-ir-i r2 view_w r7)
 		(vp-sub-rr r9 r7)
@@ -164,7 +164,7 @@
 	(endif)
 
 	(vp-cpy-ir r1 local_flags r3)
-	(vp-and-cr (bit-or flow_flag_align_vcenter flow_flag_align_vtop flow_flag_align_vbottom) r3)
+	(vp-and-cr (logior flow_flag_align_vcenter flow_flag_align_vtop flow_flag_align_vbottom) r3)
 	(vpif '(r3 != 0))
 		(vp-cpy-ir-i r2 view_h r8)
 		(vp-sub-rr r10 r8)
@@ -219,7 +219,7 @@
 	(vp-pop r1)
 	(vp-cpy-ir r0 hmap_parent r2)
 	(vp-cpy-ir r1 local_flags r3)
-	(vp-and-cr (bit-or flow_flag_up flow_flag_down) r3)
+	(vp-and-cr (logior flow_flag_up flow_flag_down) r3)
 	(vpif '(r3 != 0))
 		;flow down or up
 		(vp-cpy-ir-i r1 local_h r3)
@@ -227,7 +227,7 @@
 		(vp-cpy-ri-i r3 r1 local_h)
 	(endif)
 	(vp-cpy-ir r1 local_flags r3)
-	(vp-and-cr (bit-or flow_flag_left flow_flag_right) r3)
+	(vp-and-cr (logior flow_flag_left flow_flag_right) r3)
 	(vpif '(r3 != 0))
 		;flow left or right
 		(vp-cpy-ir-i r1 local_w r3)

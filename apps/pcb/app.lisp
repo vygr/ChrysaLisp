@@ -15,9 +15,9 @@
 	stack (array) eps 0.25)
 
 (ui-tree window (create-window window_flag_close) nil
-	(ui-element _ (create-flow) ('flow_flags (bit-or flow_flag_down flow_flag_fillw flow_flag_lasth)
+	(ui-element _ (create-flow) ('flow_flags (logior flow_flag_down flow_flag_fillw flow_flag_lasth)
 			'color argb_green)
-		(ui-element _ (create-flow) ('flow_flags (bit-or flow_flag_right flow_flag_fillh))
+		(ui-element _ (create-flow) ('flow_flags (logior flow_flag_right flow_flag_fillh))
 			(each (lambda (l)
 				(button-connect-click (ui-element __ (create-button)
 					('text l 'color argb_green 'font (create-font "fonts/Entypo.otf" 32))) (add event_win_prev _)))
@@ -26,11 +26,11 @@
 				(button-connect-click (ui-element __ (create-button)
 					('text l 'color argb_cyan 'font (create-font "fonts/OpenSans-Regular.ttf" 24))) (add event_win_show_all _)))
 						'("0" "1" "2" "3" "4" "5" "6")))
-		(ui-element pcb_scroll (create-scroll (bit-or scroll_flag_vertical scroll_flag_horizontal))
+		(ui-element pcb_scroll (create-scroll (logior scroll_flag_vertical scroll_flag_horizontal))
 			('min_width 512 'min_height 256))))
 
 (defun trans (_)
-	(add (bit-and 0xffffff _) 0xa0000000))
+	(add (logand 0xffffff _) 0xa0000000))
 
 (defun circle (r)
 	(defq k (sym (str r)))

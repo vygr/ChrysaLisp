@@ -27,8 +27,8 @@
 (defq vdu_width 60 vdu_height 30 vdu_index nil vdu_keys (list) vdu_list (list))
 
 (ui-tree window (create-window window_flag_status) ('color 0xc0000000)
-	(ui-element vdu_flow (create-flow) ('flow_flags (bit-or flow_flag_down flow_flag_fillw))
-		(ui-element _ (create-flow) ('flow_flags (bit-or flow_flag_right flow_flag_fillh)
+	(ui-element vdu_flow (create-flow) ('flow_flags (logior flow_flag_down flow_flag_fillw))
+		(ui-element _ (create-flow) ('flow_flags (logior flow_flag_right flow_flag_fillh)
 				'font (create-font "fonts/Entypo.otf" 32))
 			(each (lambda (l)
 				(button-connect-click (ui-element __ (create-button)

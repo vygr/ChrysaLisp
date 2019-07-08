@@ -27,7 +27,7 @@
 	(open-child _ kn_call_open)) auto_app_list)
 
 (ui-tree window (create-window 0) nil
-	(ui-element _ (create-flow) ('flow_flags (bit-or flow_flag_down flow_flag_fillw) 'color argb_yellow)
+	(ui-element _ (create-flow) ('flow_flags (logior flow_flag_down flow_flag_fillw) 'color argb_yellow)
 		(each (lambda (path)
 			(button-connect-click (ui-element _ (create-button) ('text path)) event_win_button)) app_list)))
 
