@@ -24,7 +24,7 @@
 					(each-pipe-line (lambda (l)
 						(defq k (elem 0 (split l " ")))
 						(cond
-							((eql k "Done"))
+							((eql k "Done") nil)
 							((eql k "Error:") (push e l) nil)
 							(t (print l)))) p)) q)
 				(each print e))

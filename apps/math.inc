@@ -286,22 +286,22 @@
 		axc (vec-det-2d av cv)
 		cxb (vec-det-2d cv bv))
 	(cond
-		((eq axb 0))
+		((eq axb 0) nil)
 		((gt axb 0)
 			(cond
-				((or (lt axc 0) (gt axc axb)))
-				((or (lt cxb 0) (gt cxb axb)))
+				((or (lt axc 0) (gt axc axb)) nil)
+				((or (lt cxb 0) (gt cxb axb)) nil)
 				(t t)))
 		(t
 			(cond
-				((or (gt axc 0) (lt axc axb)))
-				((or (gt cxb 0) (lt cxb axb)))
+				((or (gt axc 0) (lt axc axb)) nil)
+				((or (gt cxb 0) (lt cxb axb)) nil)
 				(t t)))))
 
 (defun vec-collide-thick-lines-2d (l1_p1 l1_p2 l2_p1 tl2_p2 r)
 	(cond
-		((vec-collide-lines-2d l1_p1 l1_p2 l2_p1 l2_p2) t)
-		((le (distance-squared-to-line-2d l2_p1 l1_p1 l1_p2) (setq r (fmul r r))) t)
-		((le (distance-squared-to-line-2d l2_p2 l1_p1 l1_p2) r) t)
-		((le (distance-squared-to-line-2d l2_p1 l1_p1 l1_p2) r) t)
-		((le (distance-squared-to-line-2d l2_p2 l1_p1 l1_p2) r) t)))
+		((vec-collide-lines-2d l1_p1 l1_p2 l2_p1 l2_p2))
+		((le (distance-squared-to-line-2d l2_p1 l1_p1 l1_p2) (setq r (fmul r r))))
+		((le (distance-squared-to-line-2d l2_p2 l1_p1 l1_p2) r))
+		((le (distance-squared-to-line-2d l2_p1 l1_p1 l1_p2) r))
+		((le (distance-squared-to-line-2d l2_p2 l1_p1 l1_p2) r))))

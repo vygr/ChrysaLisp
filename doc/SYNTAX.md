@@ -68,7 +68,7 @@
 ## compose
 ### (compose lambda lambda) -> lambda
 ## cond
-### (cond (tst body) ...)
+### (cond [(tst body)] ...)
 ## const
 ### (const form)
 ## copy

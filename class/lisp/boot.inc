@@ -181,7 +181,7 @@
 
 (defmacro not (_)
 	;(not form)
-	`(cond (,_ nil) (t t)))
+	`(cond (,_ nil) (t)))
 
 (defmacro when (x &rest _)
 	;(when form body)
@@ -205,7 +205,7 @@
 (defmacro and (&rest _)
 	;(and [form] ...)
 	(cond
-		((eq (length _) 0) t)
+		((eq (length _) 0))
 		((eq (length _) 1) (elem 0 _))
 		(t `(if ,(elem 0 _) (and ~(slice 1 -1 _))))))
 
@@ -562,7 +562,7 @@
 (defmacro aand (&rest _)
 	;(aand [form] ...)
 	(cond
-		((eq (length _) 0) t)
+		((eq (length _) 0))
 		((eq (length _) 1) (elem 0 _))
 		(t `(aif ,(elem 0 _) (aand ~(slice 1 -1 _))))))
 

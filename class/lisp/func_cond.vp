@@ -38,8 +38,6 @@
 		(errorcases
 			(assign `((,r_value obj_vtable) (@ ,(f-path 'error 'vtable))) (list r_vtable r_cmp))
 			(gotoif (list r_vtable '== r_cmp) 'funcexit1))
-			(call 'obj 'deref (list r_value))
-			(call 'obj 'ref {this->lisp_sym_nil} (list r_value))
 			(loop-start)
 				(assign {clause_iter_begin, clause_iter_end} (list r_clause_iter_begin r_clause_iter_end))
 				(vp-add-cr ptr_size r_clause_iter_begin)
@@ -65,9 +63,9 @@
 
 (errorcases
 (vp-label 'error1)
-	(jump 'lisp 'repl_error {this, "(cond (tst body) ...)", error_msg_wrong_num_of_args, args})
+	(jump 'lisp 'repl_error {this, "(cond [(tst body)] ...)", error_msg_wrong_num_of_args, args})
 (vp-label 'error2)
-	(jump 'lisp 'repl_error {this, "(cond (tst body) ...)", error_msg_not_a_list, args}))
+	(jump 'lisp 'repl_error {this, "(cond [(tst body)] ...)", error_msg_not_a_list, args}))
 
 	(pop-scope-syms)
 
