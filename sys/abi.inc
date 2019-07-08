@@ -33,7 +33,7 @@
 					(setq x (cat '(r30) x))
 					(apply emit-push x)
 					(emit-cpy-ir b c r29)
-					(emit-int (add 0xd63f0000 (bit-shl (reg r29) 5)))
+					(emit-int (add 0xd63f0000 (shl (reg r29) 5)))
 					(cond
 						((eq 1 (defq l (length x)))
 							(emit-pop r30))

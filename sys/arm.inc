@@ -3,20 +3,20 @@
 ;;;;;;;;;;;;;;;;;;;;
 
 (defmacro emit-ux (x s d)
-	`(emit-int (add 0xd3400000 (bit-shl ,x 10) (bit-shl (reg ,s) 5) (reg ,d))))
+	`(emit-int (add 0xd3400000 (shl ,x 10) (shl (reg ,s) 5) (reg ,d))))
 
 (defmacro emit-bf (o x y s d)
-	`(emit-int (add ,o (bit-shl ,x 16) (bit-shl ,y 10) (bit-shl (reg ,s) 5) (reg ,d))))
+	`(emit-int (add ,o (shl ,x 16) (shl ,y 10) (shl (reg ,s) 5) (reg ,d))))
 
 (defmacro emit-rrr (o m n d)
-	`(emit-int (add ,o (bit-shl (reg ,m) 16) (bit-shl (reg ,n) 5) (reg ,d))))
+	`(emit-int (add ,o (shl (reg ,m) 16) (shl (reg ,n) 5) (reg ,d))))
 
 (defmacro emit-ri (w o s d c)
 	`(cond
 		((le -0x100 ,c 0xff)
-			(emit-int (add ,o (bit-shl (logand ,c 0x1ff) 12) (bit-shl (reg ,d) 5) (reg ,s))))
-		((le 0 ,c (bit-shl 0xfff ,w))
-			(emit-int (add 0x1000000 ,o (bit-shl ,c (sub 10 ,w)) (bit-shl (reg ,d) 5) (reg ,s))))
+			(emit-int (add ,o (shl (logand ,c 0x1ff) 12) (shl (reg ,d) 5) (reg ,s))))
+		((le 0 ,c (shl 0xfff ,w))
+			(emit-int (add 0x1000000 ,o (shl ,c (sub 10 ,w)) (shl (reg ,d) 5) (reg ,s))))
 		(t (throw "emit-ri/ir constant out of range !" ,c))))
 
 (defmacro emit-ir (w o s c d)
@@ -29,10 +29,10 @@
 		(if (eql ,s ,d) (emit-ux ,(elem w '(7 15 31)) ,d ,d))))
 
 (defmacro emit-rd (o s d1 d2)
-	`(emit-int (add ,o (bit-shl (reg ,d2) 16) (bit-shl (reg ,d1) 5) (reg ,s))))
+	`(emit-int (add ,o (shl (reg ,d2) 16) (shl (reg ,d1) 5) (reg ,s))))
 
 (defmacro emit-dr (o s1 s2 d)
-	`(emit-int (add ,o (bit-shl (reg ,s2) 16) (bit-shl (reg ,s1) 5) (reg ,d))))
+	`(emit-int (add ,o (shl (reg ,s2) 16) (shl (reg ,s1) 5) (reg ,d))))
 
 (defmacro emit-dru (o x s1 s2 d)
 	`(progn
@@ -43,7 +43,7 @@
 (defmacro emit-branch (o l)
 	`(cond
 		((le -0x100000 (defq ,(defq c (gensym)) (sub ,l *pc*)) 0xffffc)
-			(emit-int (add 0x54000000 (bit-shl (logand ,c 0x1ffffc) 3) ,o)))
+			(emit-int (add 0x54000000 (shl (logand ,c 0x1ffffc) 3) ,o)))
 		(t (throw "emit-branch constant out of range !" ,c))))
 
 (defmacro emit-is-mask (_)
@@ -57,31 +57,31 @@
 		(progn
 			(defq s 64 e t)
 			(while e
-				(defq s (bit-shr s 1) m (dec (bit-shl 1 s)))
-				(if (ne (logand _ m) (logand (bit-shr _ s) m))
+				(defq s (shr s 1) m (dec (shl 1 s)))
+				(if (ne (logand _ m) (logand (shr _ s) m))
 					(setq s (mul s 2) e nil)
 					(if (le s 2)
 						(setq e nil))))
-			(defq m (bit-shr -1 (sub 64 s)) _ (logand _ m))
+			(defq m (shr -1 (sub 64 s)) _ (logand _ m))
 			(if (emit-is-shifted-mask _)
 				(progn
 					(defq i (count-trailing-zeros _))
 					(if (ge i 64)
 						(setq e t)
-						(defq cto (count-trailing-ones (bit-shr _ i)))))
+						(defq cto (count-trailing-ones (shr _ i)))))
 				(progn
-					(setq _ (logior _ (bit-not m)))
-					(if (not (emit-is-shifted-mask (bit-not _)))
+					(setq _ (logior _ (lognot m)))
+					(if (not (emit-is-shifted-mask (lognot _)))
 						(setq e t)
 						(defq clo (count-leading-ones _) i (sub 64 clo)
 							cto (sub (add clo (count-trailing-ones _)) (sub 64 s))))))
 			(if (or e (le s i)) -1
 				(progn
 					(defq _r (logand (sub s i) (dec s))
-						_s (bit-shl (bit-not (dec s)) 1)
+						_s (shl (lognot (dec s)) 1)
 						_s (logior _s (dec cto))
-						n (logxor (logand (bit-shr _s 6) 1) 1))
-					(add (bit-shl n 12) (bit-shl _r 6) (logand _s 0x3f)))))))
+						n (logxor (logand (shr _s 6) 1) 1))
+					(add (shl n 12) (shl _r 6) (logand _s 0x3f)))))))
 
 (defcfun reg (r)
 	(find r '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 r15
@@ -113,31 +113,31 @@
 	(cond
 		((eq 0 (defq l (length b))))
 		((eq 1 l)
-			(emit-int (add 0xf81f0c00 (bit-shl (reg rsp) 5) (reg (elem 0 b)))))
+			(emit-int (add 0xf81f0c00 (shl (reg rsp) 5) (reg (elem 0 b)))))
 		((eq 2 l)
 			(emit-int (add 0xa9bf0000
-				(bit-shl (reg (elem 0 b)) 10) (bit-shl (reg rsp) 5) (reg (elem 1 b)))))
+				(shl (reg (elem 0 b)) 10) (shl (reg rsp) 5) (reg (elem 1 b)))))
 		(t
 			(emit-sub-cr (align (mul ptr_size l) stack_align) rsp)
 			(defq _ l)
 			(while (ge (setq _ (sub _ 2)) 0)
-				(emit-int (add 0xa9000000 (bit-shl (sub l _ 2) 15)
-					(bit-shl (reg (elem _ b)) 10) (bit-shl (reg rsp) 5) (reg (elem (inc _) b)))))
+				(emit-int (add 0xa9000000 (shl (sub l _ 2) 15)
+					(shl (reg (elem _ b)) 10) (shl (reg rsp) 5) (reg (elem (inc _) b)))))
 			(if (ne -2 _) (emit-cpy-ri (elem 0 b) rsp (mul ptr_size (dec l)))))))
 
 (defcfun emit-pop (&rest b)
 	(cond
 		((eq 0 (defq l (length b))))
 		((eq 1 l)
-			(emit-int (add 0xf8410400 (bit-shl (reg rsp) 5) (reg (elem 0 b)))))
+			(emit-int (add 0xf8410400 (shl (reg rsp) 5) (reg (elem 0 b)))))
 		((eq 2 l)
 			(emit-int (add 0xa8c10000
-				(bit-shl (reg (elem 0 b)) 10) (bit-shl (reg rsp) 5) (reg (elem 1 b)))))
+				(shl (reg (elem 0 b)) 10) (shl (reg rsp) 5) (reg (elem 1 b)))))
 		(t
 			(defq _ l)
 			(while (ge (setq _ (sub _ 2)) 0)
-				(emit-int (add 0xa9400000 (bit-shl (sub l _ 2) 15)
-					(bit-shl (reg (elem _ b)) 10) (bit-shl (reg rsp) 5) (reg (elem (inc _) b)))))
+				(emit-int (add 0xa9400000 (shl (sub l _ 2) 15)
+					(shl (reg (elem _ b)) 10) (shl (reg rsp) 5) (reg (elem (inc _) b)))))
 			(if (ne -2 _) (emit-cpy-ir rsp (mul ptr_size (dec l)) (elem 0 b)))
 			(emit-add-cr (align (mul ptr_size l) stack_align) rsp))))
 
@@ -178,13 +178,13 @@
 	(emit-push r30)
 	(cond
 		((le -0x8000000 (defq c (sub l *pc*)) 0x7fffffc)
-			(emit-int (add 0x94000000 (bit-shr (logand c 0xfffffff) 2))))
+			(emit-int (add 0x94000000 (shr (logand c 0xfffffff) 2))))
 		(t (throw "emit-call constant out of range !" c)))
 	(emit-pop r30))
 
 (defcfun emit-call-r (r)
 	(emit-push r30)
-	(emit-int (add 0xd63f0000 (bit-shl (reg r) 5)))
+	(emit-int (add 0xd63f0000 (shl (reg r) 5)))
 	(emit-pop r30))
 
 (defcfun emit-call-i (d c)
@@ -198,11 +198,11 @@
 (defcfun emit-jmp (l d)
 	(cond
 		((le -0x8000000 (defq c (sub l *pc*)) 0x7fffffc)
-			(emit-int (add 0x14000000 (bit-shr (logand c 0xfffffff) 2))))
+			(emit-int (add 0x14000000 (shr (logand c 0xfffffff) 2))))
 		(t (throw "emit-jmp constant out of range !" c))))
 
 (defcfun emit-jmp-r (r)
-	(emit-int (add 0xd61f0000 (bit-shl (reg r) 5))))
+	(emit-int (add 0xd61f0000 (shl (reg r) 5))))
 
 (defcfun emit-jmp-i (d c)
 	(emit-cpy-ir d c r29)
@@ -217,8 +217,8 @@
 		((and (eq c 0) (eql s d)))
 		((le -0x1000 c 0xfff)
 			(if (ge c 0)
-				(emit-int (add 0x91000000 (bit-shl (logand c 0xfff) 10) (bit-shl (reg s) 5) (reg d)))
-				(emit-int (add 0xd1000000 (bit-shl (logand (neg c) 0xfff) 10) (bit-shl (reg s) 5) (reg d)))))
+				(emit-int (add 0x91000000 (shl (logand c 0xfff) 10) (shl (reg s) 5) (reg d)))
+				(emit-int (add 0xd1000000 (shl (logand (neg c) 0xfff) 10) (shl (reg s) 5) (reg d)))))
 		(t (throw "emit-lea-i constant out of range !" c))))
 
 (defcfun emit-lea-d (s1 s2 d) (emit-rrr 0x8b000000 s1 s2 d))
@@ -226,7 +226,7 @@
 (defcfun emit-lea-p (l d)
 	(cond
 		((le -0x100000 (defq c (sub l *pc*)) 0xfffff)
-			(emit-int (add 0x10000000 (bit-shl (logand c 0x3) 29) (bit-shl (logand c 0x1ffffc) 3) (reg d))))
+			(emit-int (add 0x10000000 (shl (logand c 0x3) 29) (shl (logand c 0x1ffffc) 3) (reg d))))
 		(t (throw "emit-lea-p constant out of range !" c))))
 
 (defcfun emit-cpy-ir (s c d)
@@ -274,12 +274,12 @@
 (defcfun emit-cpy-pr (l d)
 	(cond
 		((le -0x100000 (defq c (sub l *pc*)) 0xffffc)
-			(emit-int (add 0x58000000 (bit-shl (logand c 0x1fffff) 3) (reg d))))
+			(emit-int (add 0x58000000 (shl (logand c 0x1fffff) 3) (reg d))))
 		(t (throw "emit-cpy-pr constant out of range !" c))))
 
 (defcfun emit-cpy-cr (c r)
 	(if (ne -1 (defq i (emit-limm c)))
-		(emit-int (add 0xb2000000 (bit-shl i 10) (bit-shl (reg rsp) 5) (reg r)))
+		(emit-int (add 0xb2000000 (shl i 10) (shl (reg rsp) 5) (reg r)))
 		(emit-mov-cr c r)))
 
 (defcfun emit-mov-cr (c r)
@@ -287,34 +287,34 @@
 	(if (lt c 0)
 		(cond
 			((ge c -0x10000)
-				(emit-int (add 0x92800000 (bit-shl (bit-not c) 5) r)))
+				(emit-int (add 0x92800000 (shl (lognot c) 5) r)))
 			((ge c -0x100000000)
-				(emit-int (add 0x92a00000 (bit-shr (logand (bit-not c) 0xffff0000) 11) r))
-				(if (ne z 0xffff) (emit-int (add 0xf2800000 (bit-shl z 5) r))))
+				(emit-int (add 0x92a00000 (shr (logand (lognot c) 0xffff0000) 11) r))
+				(if (ne z 0xffff) (emit-int (add 0xf2800000 (shl z 5) r))))
 			((ge c -0x1000000000000)
-				(emit-int (add 0x92c00000 (bit-shr (logand (bit-not c) 0xffff00000000) 27) r))
-				(if (ne y 0xffff0000) (emit-int (add 0xf2a00000 (bit-shr y 11) r)))
-				(if (ne z 0xffff) (emit-int (add 0xf2800000 (bit-shl z 5) r))))
+				(emit-int (add 0x92c00000 (shr (logand (lognot c) 0xffff00000000) 27) r))
+				(if (ne y 0xffff0000) (emit-int (add 0xf2a00000 (shr y 11) r)))
+				(if (ne z 0xffff) (emit-int (add 0xf2800000 (shl z 5) r))))
 			(t
-				(emit-int (add 0x92e00000 (bit-shr (logand (bit-not c) 0xffff000000000000) 43) r))
-				(if (ne x 0xffff00000000) (emit-int (add 0xf2c00000 (bit-shr x 27) r)))
-				(if (ne y 0xffff0000) (emit-int (add 0xf2a00000 (bit-shr y 11) r)))
-				(if (ne z 0xffff) (emit-int (add 0xf2800000 (bit-shl z 5) r)))))
+				(emit-int (add 0x92e00000 (shr (logand (lognot c) 0xffff000000000000) 43) r))
+				(if (ne x 0xffff00000000) (emit-int (add 0xf2c00000 (shr x 27) r)))
+				(if (ne y 0xffff0000) (emit-int (add 0xf2a00000 (shr y 11) r)))
+				(if (ne z 0xffff) (emit-int (add 0xf2800000 (shl z 5) r)))))
 		(cond
 			((le c 0xffff)
-				(emit-int (add 0xd2800000 (bit-shl c 5) r)))
+				(emit-int (add 0xd2800000 (shl c 5) r)))
 			((le c 0xffffffff)
-				(emit-int (add 0xd2a00000 (bit-shr (logand c 0xffff0000) 11) r))
-				(if (ne z 0) (emit-int (add 0xf2800000 (bit-shl z 5) r))))
+				(emit-int (add 0xd2a00000 (shr (logand c 0xffff0000) 11) r))
+				(if (ne z 0) (emit-int (add 0xf2800000 (shl z 5) r))))
 			((le c 0xffffffffffff)
-				(emit-int (add 0xd2c00000 (bit-shr (logand c 0xffff00000000) 27) r))
-				(if (ne y 0) (emit-int (add 0xf2a00000 (bit-shr y 11) r)))
-				(if (ne z 0) (emit-int (add 0xf2800000 (bit-shl z 5) r))))
+				(emit-int (add 0xd2c00000 (shr (logand c 0xffff00000000) 27) r))
+				(if (ne y 0) (emit-int (add 0xf2a00000 (shr y 11) r)))
+				(if (ne z 0) (emit-int (add 0xf2800000 (shl z 5) r))))
 			(t
-				(emit-int (add 0xd2e00000 (bit-shr (logand c 0xffff000000000000) 43) r))
-				(if (ne x 0) (emit-int (add 0xf2c00000 (bit-shr x 27) r)))
-				(if (ne y 0) (emit-int (add 0xf2a00000 (bit-shr y 11) r)))
-				(if (ne z 0) (emit-int (add 0xf2800000 (bit-shl z 5) r)))))))
+				(emit-int (add 0xd2e00000 (shr (logand c 0xffff000000000000) 43) r))
+				(if (ne x 0) (emit-int (add 0xf2c00000 (shr x 27) r)))
+				(if (ne y 0) (emit-int (add 0xf2a00000 (shr y 11) r)))
+				(if (ne z 0) (emit-int (add 0xf2800000 (shl z 5) r)))))))
 
 (defcfun emit-add-cr (c r)
 	(cond
@@ -324,9 +324,9 @@
 		((le c 0xffffff)
 			(defq f (logand c 0xfff) c (logand c 0xfff000))
 			(if (ne 0 f)
-				(emit-int (add 0x91000000 (bit-shl f 10) (bit-shl (reg r) 5) (reg r))))
+				(emit-int (add 0x91000000 (shl f 10) (shl (reg r) 5) (reg r))))
 			(if (ne 0 c)
-				(emit-int (add 0x91400000 (bit-shr c 2) (bit-shl (reg r) 5) (reg r)))))
+				(emit-int (add 0x91400000 (shr c 2) (shl (reg r) 5) (reg r)))))
 		(t (throw "emit-add-cr constant out of range !" c))))
 
 (defcfun emit-sub-cr (c r)
@@ -337,17 +337,17 @@
 		((le c 0xffffff)
 			(defq f (logand c 0xfff) c (logand c 0xfff000))
 			(if (ne 0 f)
-				(emit-int (add 0xd1000000 (bit-shl f 10) (bit-shl (reg r) 5) (reg r))))
+				(emit-int (add 0xd1000000 (shl f 10) (shl (reg r) 5) (reg r))))
 			(if (ne 0 c)
-				(emit-int (add 0xd1400000 (bit-shr c 2) (bit-shl (reg r) 5) (reg r)))))
+				(emit-int (add 0xd1400000 (shr c 2) (shl (reg r) 5) (reg r)))))
 		(t (throw "emit-sub-cr constant out of range !" c))))
 
 (defcfun emit-cmp-cr (c r)
 	(cond
 		((le 0 c 0xfff)
-			(emit-int (add 0xf100001f (bit-shl c 10) (bit-shl (reg r) 5))))
+			(emit-int (add 0xf100001f (shl c 10) (shl (reg r) 5))))
 		((le -0xfff c 0)
-			(emit-int (add 0xb100001f (bit-shl (neg c) 10) (bit-shl (reg r) 5))))
+			(emit-int (add 0xb100001f (shl (neg c) 10) (shl (reg r) 5))))
 		(t (emit-cpy-cr c r29)
 			(emit-cmp-rr r29 r))))
 
@@ -360,13 +360,13 @@
 			(if (ne -1 (defq i (emit-limm c)))
 				(progn
 					(emit-cpy-rr rsp r29)
-					(emit-int (add 0x92000000 (bit-shl i 10) (bit-shl (reg r29) 5) (reg r))))
+					(emit-int (add 0x92000000 (shl i 10) (shl (reg r29) 5) (reg r))))
 				(progn
 					(emit-mov-cr c r29)
 					(emit-and-rr r29 r))))
 		(t (defq i (emit-limm c))
 			(if (ne i -1)
-				(emit-int (add 0x92000000 (bit-shl i 10) (bit-shl (reg r) 5) (reg r)))
+				(emit-int (add 0x92000000 (shl i 10) (shl (reg r) 5) (reg r)))
 				(progn
 					(emit-mov-cr c r29)
 					(emit-and-rr r29 r))))))
@@ -378,7 +378,7 @@
 			(emit-cpy-cr -1 r))
 		(t (defq i (emit-limm c))
 			(if (ne i -1)
-				(emit-int (add 0xb2000000 (bit-shl i 10) (bit-shl (reg r) 5) (reg r)))
+				(emit-int (add 0xb2000000 (shl i 10) (shl (reg r) 5) (reg r)))
 				(progn
 					(emit-mov-cr c r29)
 					(emit-or-rr r29 r))))))
@@ -388,7 +388,7 @@
 		((eq c 0))
 		(t (defq i (emit-limm c))
 			(if (ne i -1)
-				(emit-int (add 0xd2000000 (bit-shl i 10) (bit-shl (reg r) 5) (reg r)))
+				(emit-int (add 0xd2000000 (shl i 10) (shl (reg r) 5) (reg r)))
 				(progn
 					(emit-mov-cr c r29)
 					(emit-or-rr r29 r))))))
@@ -397,8 +397,8 @@
 	(cond
 		((eql s d))
 		((or (eql s rsp) (eql d rsp))
-			(emit-int (add 0x91000000 (bit-shl (reg s) 5) (reg d))))
-		(t (emit-int (add 0xaa0003e0 (bit-shl (reg s) 16) (reg d))))))
+			(emit-int (add 0x91000000 (shl (reg s) 5) (reg d))))
+		(t (emit-int (add 0xaa0003e0 (shl (reg s) 16) (reg d))))))
 
 (defcfun emit-add-rr (s d) (if (eql s rsp) (emit-rrr 0x8b206000 d s d) (emit-rrr 0x8b206000 s d d)))
 
@@ -440,7 +440,7 @@
 
 (defcfun emit-land-rr (s d)
 	(emit-cmp-cr 0 d)
-	(emit-int (add 0xfa401804 (bit-shl (reg s) 5)))
+	(emit-int (add 0xfa401804 (shl (reg s) 5)))
 	(emit-int (add 0x9a9f07e0 (reg d))))
 
 (defmacro emit-shift-cr (e o c x y r)
@@ -475,7 +475,7 @@
 		((eq c 0)
 			(emit-xor-rr r r))
 		((eq c -1)
-			(emit-int (add 0xcb000000 (bit-shl (reg r) 16) (bit-shl 31 5) (reg r))))
+			(emit-int (add 0xcb000000 (shl (reg r) 16) (shl 31 5) (reg r))))
 		(t
 			(emit-cpy-cr c r29)
 			(emit-mul-rr r29 r))))
@@ -483,18 +483,18 @@
 (defcfun emit-mul-rr (s d)
 	(if (or (eql s rsp) (eql d rsp))
 		(throw "emit-mul-rr src/dst can't be rsp !" (list s d)))
-	(emit-int (add 0x9b000000 (bit-shl (reg d) 16) (bit-shl 31 10) (bit-shl (reg s) 5) (reg d))))
+	(emit-int (add 0x9b000000 (shl (reg d) 16) (shl 31 10) (shl (reg s) 5) (reg d))))
 
 (defcfun emit-ext-rr (s d)
 	(unless (eql s d) (emit-cpy-rr s d))
 	(emit-asr-cr 63 d))
 
 (defcfun emit-div-rrr (s d1 d2)
-	(emit-int (add 0x9ac00c00 (bit-shl (reg s) 16) (bit-shl (reg d2) 5) (reg r29)))
-	(emit-int (add 0x9b008000 (bit-shl (reg r29) 16) (bit-shl (reg d2) 10) (bit-shl (reg s) 5) (reg d1)))
+	(emit-int (add 0x9ac00c00 (shl (reg s) 16) (shl (reg d2) 5) (reg r29)))
+	(emit-int (add 0x9b008000 (shl (reg r29) 16) (shl (reg d2) 10) (shl (reg s) 5) (reg d1)))
 	(emit-cpy-rr r29 d2))
 
 (defcfun emit-div-rrr-u (s d1 d2)
-	(emit-int (add 0x9ac00800 (bit-shl (reg s) 16) (bit-shl (reg d2) 5) (reg r29)))
-	(emit-int (add 0x9b008000 (bit-shl (reg r29) 16) (bit-shl (reg d2) 10) (bit-shl (reg s) 5) (reg d1)))
+	(emit-int (add 0x9ac00800 (shl (reg s) 16) (shl (reg d2) 5) (reg r29)))
+	(emit-int (add 0x9b008000 (shl (reg r29) 16) (shl (reg d2) 10) (shl (reg s) 5) (reg d1)))
 	(emit-cpy-rr r29 d2))

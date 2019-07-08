@@ -83,7 +83,7 @@
 				layers (list (list) (list) (list) (list) (list) (list)))
 			(each (lambda (path path_2d)
 				(each (lambda (seg seg_2d)
-					(when (or (eq show (defq z (mod (bit-shr (elem 2 (elem 0 seg)) fp_shift) pcb_depth)))
+					(when (or (eq show (defq z (mod (shr (elem 2 (elem 0 seg)) fp_shift) pcb_depth)))
 								(eq show -1))
 						(points-stroke-polylines stack track_radius eps join-round cap-round cap-round
 							(list seg_2d) (elem z layers)))
@@ -106,7 +106,7 @@
 				) batched_paths_2d))
 		;draw pads
 		(each (lambda ((pad_radius pad_gap (pad_x pad_y pad_z) pad_shape))
-			(when (or (eq show -1) (eq show (bit-shr pad_z fp_shift)))
+			(when (or (eq show -1) (eq show (shr pad_z fp_shift)))
 				(setq pad_radius (mul zoom pad_radius) pad_gap (mul zoom pad_gap)
 					pad_x (add (mul zoom pad_x) pcb_border) pad_y (add (mul zoom pad_y) pcb_border)
 					pad_shape (to-2d pad_shape))
@@ -141,7 +141,7 @@
 			(defq batched_paths (map batch paths) batched_paths_2d (map batch-to-2d batched_paths) layer (list))
 			(each (lambda (path path_2d)
 				(each (lambda (seg seg_2d)
-					(when (eq show (defq z (mod (bit-shr (elem 2 (elem 0 seg)) fp_shift) pcb_depth)))
+					(when (eq show (defq z (mod (shr (elem 2 (elem 0 seg)) fp_shift) pcb_depth)))
 						(points-stroke-polylines stack (add track_radius (if with_gaps track_gap 0)) eps join-round cap-round cap-round
 							(list seg_2d) layer))
 					) path path_2d)
@@ -157,7 +157,7 @@
 				) batched_paths_2d))
 		;draw pads
 		(each (lambda ((pad_radius pad_gap (pad_x pad_y pad_z) pad_shape))
-			(when (eq show (bit-shr pad_z fp_shift))
+			(when (eq show (shr pad_z fp_shift))
 				(setq pad_radius (mul zoom pad_radius) pad_gap (mul zoom pad_gap)
 					pad_x (add (mul zoom pad_x) pcb_border) pad_y (add (mul zoom pad_y) pcb_border)
 					pad_shape (to-2d pad_shape))

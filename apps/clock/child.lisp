@@ -6,9 +6,9 @@
 (defun make-time ()
 	(defq sec (mul (div (time) 1000000) 1.0))
 	(setq seconds (fmod sec 60.0) minutes (fmod (div sec 60) 60.0) hours (fmod (div sec 3600) 24.0))
-	(cat (pad (bit-shr hours fp_shift) 2 "0")
-		":" (pad (bit-shr minutes fp_shift) 2 "0")
-		":" (pad (bit-shr seconds fp_shift) 2 "0")))
+	(cat (pad (shr hours fp_shift) 2 "0")
+		":" (pad (shr minutes fp_shift) 2 "0")
+		":" (pad (shr seconds fp_shift) 2 "0")))
 
 (defun transform (_ a s &optional x y)
 	(defq sa (fsin a) ca (fcos a) x (opt x 0) y (opt y 0))
@@ -50,7 +50,7 @@
 	(canvas-fpoly clock 0.0 0.0 1 _)
 	;second hand
 	(setq _ (points-stroke-polylines stack (const (fmul scale 0.01)) eps join-miter cap-round cap-tri
-		(list (transform (points 0.0 0.04 0.0 -0.34) (div (mul (bit-shr seconds fp_shift) fp_2pi) 60) scale))
+		(list (transform (points 0.0 0.04 0.0 -0.34) (div (mul (shr seconds fp_shift) fp_2pi) 60) scale))
 		(list)))
 	(canvas-set-color clock 0xa0000000)
 	(canvas-fpoly clock (const (fmul scale 0.01)) (const (fmul scale 0.01)) 0 _)

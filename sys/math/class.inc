@@ -315,7 +315,7 @@
 	(vpif (list l '== 0))
 		(vec-clr n)
 	(else)
-		(vp-cpy-cr (bit-shl 1.0 fp_shift) rl)
+		(vp-cpy-cr (shl 1.0 fp_shift) rl)
 		(vp-xor-rr rh rh)
 		(vp-div-rrr l rh rl)
 		(vec-fscale n rl)

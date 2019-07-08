@@ -184,7 +184,7 @@
 	(each (lambda (_)
 		(if (def? (setq _ (sym (cat *bit* "_" _))))
 			(throw "Bit redefined !" _))
-		(defcvar _ (bit-shl 1 *bit-offset*) '*bit-offset* (inc *bit-offset*))) _))
+		(defcvar _ (shl 1 *bit-offset*) '*bit-offset* (inc *bit-offset*))) _))
 
 ;;;;;;;;;;;;;;
 ; symbol table
@@ -909,7 +909,7 @@
 	''(vp-add-cr vp-sub-cr vp-mul-cr vp-and-cr vp-or-cr vp-xor-cr vp-shl-cr vp-shr-cr vp-asr-cr))
 
 (defmacro opt-fold-cpy-ops ()
-	''(add sub mul logand logior logxor bit-shl bit-shr bit-asr))
+	''(add sub mul logand logior logxor shl shr asr))
 
 (defmacro opt-fold-cr-ops ()
 	''(add add mul logand logior logxor add add add))

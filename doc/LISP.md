@@ -70,13 +70,8 @@ add
 age
 apply
 array
+asr
 bind
-logand
-bit-asr
-logior
-bit-shl
-bit-shr
-logxor
 cat
 catch
 char
@@ -116,6 +111,9 @@ le
 length
 list
 load
+logand
+logior
+logxor
 lt
 macro
 macroexpand
@@ -146,6 +144,8 @@ repl
 save
 set
 setq
+shl
+shr
 slice
 some!
 split
@@ -209,7 +209,7 @@ when
 ```lisp
 abs
 align
-bit-not
+lognot
 count-leading-ones
 count-trailing-ones
 count-trailing-zeros

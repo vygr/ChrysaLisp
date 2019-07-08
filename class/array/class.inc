@@ -65,7 +65,7 @@
 	;r2
 	(vp-xor-rr r2 r2)
 	(vp-cpy-ri-i r2 r0 array_length)
-	(vp-cpy-cr (bit-shr (sub array_size array_e0) (log2 long_size)) r2)
+	(vp-cpy-cr (shr (sub array_size array_e0) (log2 long_size)) r2)
 	(vp-cpy-ri-i r2 r0 array_capacity)
 	(vp-lea-i r0 array_e0 r2)
 	(vp-cpy-ri r2 r0 array_array)

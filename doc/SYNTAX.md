@@ -25,20 +25,14 @@
 ### (ascii-char num) -> char
 ## ascii-code
 ### (ascii-code char) -> num
+## asr
+### (asr num cnt)
 ## awhen
 ### (awhen form body)
 ## awhile
 ### (awhile form body)
 ## bind
 ### (bind (param ...) seq)
-## bit-asr
-### (bit-asr num cnt)
-## bit-not
-### (bit-not num) -> num
-## bit-shl
-### (bit-shl num cnt)
-## bit-shr
-### (bit-shr num cnt)
 ## button-connect-click
 ### (button-connect-click button id)
 ## canvas-fbox
@@ -245,6 +239,8 @@
 ### (logand [num] ...)
 ## logior
 ### (logior [num] ...)
+## lognot
+### (lognot num) -> num
 ## logxor
 ### (logxor [num] ...)
 ## lst?
@@ -399,6 +395,10 @@
 ### (setd var val [var val] ...)
 ## setq
 ### (setq var val [var val] ...)
+## shl
+### (shl num cnt)
+## shr
+### (shr num cnt)
 ## shuffle
 ### (shuffle list [start end]) -> list
 ## shuffled

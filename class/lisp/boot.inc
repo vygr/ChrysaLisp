@@ -14,9 +14,9 @@
 (ffi fdiv "class/num/lisp_fdiv" 0)
 (ffi fmod "class/num/lisp_fmod" 0)
 
-(ffi bit-shr "class/num/lisp_bshr" 0)
-(ffi bit-asr "class/num/lisp_basr" 0)
-(ffi bit-shl "class/num/lisp_bshl" 0)
+(ffi shr "class/num/lisp_bshr" 0)
+(ffi asr "class/num/lisp_basr" 0)
+(ffi shl "class/num/lisp_bshl" 0)
 (ffi logand "class/num/lisp_band" 0)
 (ffi logior "class/num/lisp_bor" 0)
 (ffi logxor "class/num/lisp_bxor" 0)
@@ -109,10 +109,10 @@
 (ffi kernel-debug "sys/kernel/lisp_debug" 0)
 
 (defq t 't nil 'nil
-	lisp_type_lst (bit-shl 1 0)
-	lisp_type_int (bit-shl 1 1)
-	lisp_type_str (bit-shl 1 2)
-	lisp_type_sym (bit-shl 1 3))
+	lisp_type_lst (shl 1 0)
+	lisp_type_int (shl 1 1)
+	lisp_type_str (shl 1 2)
+	lisp_type_sym (shl 1 3))
 
 (defmacro const (_)
 	;(const form)
@@ -328,8 +328,8 @@
 ; Math functions
 ;;;;;;;;;;;;;;;;
 
-(defq min_long (bit-shl -1 63) max_long (bit-shr -1 1)
-	min_int (bit-shl -1 31) max_int (bit-shr -1 33))
+(defq min_long (shl -1 63) max_long (shr -1 1)
+	min_int (shl -1 31) max_int (shr -1 33))
 
 (defun sign (_)
 	;(sign num) -> num
@@ -362,8 +362,8 @@
 	;(divmod num num) -> list
 	(list (div x y) (mod x y)))
 
-(defun bit-not (_)
-	;(bit-not num) -> num
+(defun lognot (_)
+	;(lognot num) -> num
 	(logxor _ -1))
 
 ;;;;;;;;;;;;;;;;;;
@@ -371,7 +371,7 @@
 ;;;;;;;;;;;;;;;;;;
 
 (defq fp_shift 16 fp_2pi 411774 fp_pi 205887 fp_hpi 102943 fp_qpi 51471 fp_rpi 20861
-	fp_int_mask (bit-shl -1 fp_shift) fp_frac_mask (bit-not fp_int_mask))
+	fp_int_mask (shl -1 fp_shift) fp_frac_mask (lognot fp_int_mask))
 
 ;;;;;;;;;;;
 ; Utilities
@@ -449,7 +449,7 @@
 	;(log2 num) -> num
 	(when (and (not (eq 0 _)) (eq _ (logand _ (neg _))))
 		(defq i 0)
-		(while (ne 0 (setq _ (bit-shr _ 1)))
+		(while (ne 0 (setq _ (shr _ 1)))
 			(setq i (inc i))) i))
 
 (defun count-trailing-zeros (_)
@@ -458,7 +458,7 @@
 		(progn
 			(defq c 0)
 			(while (eq 0 (logand _ 1))
-				(setq _ (bit-shr _ 1) c (inc c))) c))
+				(setq _ (shr _ 1) c (inc c))) c))
 
 (defun count-trailing-ones (_)
 	;(count-trailing-ones num) -> num
@@ -466,7 +466,7 @@
 		(progn
 			(defq c 0)
 			(while (ne 0 (logand _ 1))
-				(setq _ (bit-shr _ 1) c (inc c))) c))
+				(setq _ (shr _ 1) c (inc c))) c))
 
 (defun count-leading-ones (_)
 	;(count-leading-ones num) -> num
@@ -474,7 +474,7 @@
 		(progn
 			(defq c 0)
 			(while (gt 0 _)
-				(setq _ (bit-shl _ 1) c (inc c))) c))
+				(setq _ (shl _ 1) c (inc c))) c))
 
 (defun insert (x &rest y)
 	;(insert list form) -> list

@@ -11,13 +11,13 @@
 
 ;hex strings of number
 (defun as-hex-byte (_)
-	(cat (to-base-char (logand (bit-shr _ 4) 0xf)) (to-base-char (logand _ 0xf))))
+	(cat (to-base-char (logand (shr _ 4) 0xf)) (to-base-char (logand _ 0xf))))
 (defun as-hex-short (_)
-	(cat (as-hex-byte (bit-shr _ 8)) (as-hex-byte (logand _ 0xff))))
+	(cat (as-hex-byte (shr _ 8)) (as-hex-byte (logand _ 0xff))))
 (defun as-hex-int (_)
-	(cat (as-hex-short (bit-shr _ 16)) (as-hex-short (logand _ 0xffff))))
+	(cat (as-hex-short (shr _ 16)) (as-hex-short (logand _ 0xffff))))
 (defun as-hex-long (_)
-	(cat (as-hex-int (bit-shr _ 32)) (as-hex-int (logand _ 0xffffffff))))
+	(cat (as-hex-int (shr _ 32)) (as-hex-int (logand _ 0xffffffff))))
 
 ;dump a file to stdout
 (defun dump-file (_)

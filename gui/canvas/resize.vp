@@ -250,7 +250,7 @@
 	(entry 'canvas 'resize_3 (list r_this r_source))
 
 	(assign `((,r_this canvas_array) (,r_source canvas_array)) `(,r_data , r_sdata))
-	(assign `(,(div (bit-shl 1 32) 9) (,r_data array_array) (,r_sdata array_array) (,r_source canvas_stride ui)
+	(assign `(,(div (shl 1 32) 9) (,r_data array_array) (,r_sdata array_array) (,r_source canvas_stride ui)
 		(,r_source canvas_height ui) 0xff00ff00 0xff00ff) (list r_q r_data r_sdata r_sw r_ydata r_mga r_mrb))
 
 	(vp-mul-rr r_sw r_ydata)
