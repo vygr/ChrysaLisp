@@ -4,7 +4,22 @@
 
 ------
 
-Worked through allmost all the Lisp bindings to convert to VP. Saved several KB
+Making some attempts to rename functions and macros to better fit with Common
+Lisp. I'm not trying to duplicate the exact functionality, but at least make
+things a little more familiar where it makes sense.
+
+Added the (case) macro that helps with building a jump table dispatched case
+clauses. Nice use of Lisp macros that one.
+
+Updated the C++ ChrysaLisp to be able to build the latest OS image.
+
+After all the lowering to VP work the MacBook build is now benchmarking at 0.7s
+and the Raspberry PI3 build time has dropped from 12.5s to 9.2s, that's a great
+result for the effort.
+
+------
+
+Worked through almost all the Lisp bindings to convert to VP. Saved several KB
 on the boot image size as a result. Plus a small but worthwhile speed up.
 
 ------
