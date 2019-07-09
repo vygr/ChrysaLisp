@@ -142,9 +142,9 @@
 (defmacro str? (_)
 	;(str? form)
 	`(eq (type-of ,_) ,lisp_type_str))
-(defun sym? (_)
+(defmacro sym? (_)
 	;(sym? form)
-	(eq (type-of _) (const lisp_type_sym)))
+	`(eq (type-of ,_) ,lisp_type_sym))
 
 (defmacro inc (_)
 	;(inc num) -> num
@@ -213,7 +213,8 @@
 	;(case form [(key body)] ...)
 	(defq _ (reduce-rev (lambda (x (_ &rest y))
 		(unless (lst? _) (setq _ (list _)))
-		(if (notevery sym? _)
+		(if (notevery (lambda (_)
+				(eq (type-of _) (const lisp_type_sym))) _)
 			(throw "Key not symbol !" _))
 		(each! nil nil nil (lambda (_)
 			(push (elem 0 x) _)
