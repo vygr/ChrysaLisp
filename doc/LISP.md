@@ -276,7 +276,6 @@ within-compile-env
 debug_mode
 debug_emit
 debug_inst
-debug_trace
 ```
 
 ### asm.inc functions

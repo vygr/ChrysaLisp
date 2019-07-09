@@ -80,11 +80,7 @@
 			(static
 				(push (elem 0 *class*) _1)
 				(push (elem 1 *class*) (list _2 _3 (intern-args _4) (intern-args _5))))
-			(virtual
-				(push (elem 0 *class*) _1)
-				(push (elem 1 *class*) (list _2 _3 (intern-args _4) (intern-args _5)
-					(elem-set 2 *class* (add (elem 2 *class*) ptr_size)))))
-			(final
+			((virtual final)
 				(push (elem 0 *class*) _1)
 				(push (elem 1 *class*) (list _2 _3 (intern-args _4) (intern-args _5)
 					(elem-set 2 *class* (add (elem 2 *class*) ptr_size)))))

@@ -53,23 +53,7 @@
 	(vp-byte 0 (list 'sub (label-sym 'func_entry) (label-sym 'func_name_start)))
 	(vp-align ptr_size (list 'sub (label-sym 'func_entry) (label-sym 'func_name_start)))
 (vp-label 'func_entry)
-	(push-scope)
-	(when (and debug_trace debug_mode
-			(not (trace_ends_with "/statics"))				;not statics
-			(not (trace_ends_with "/vtable"))				;not vtables
-			(not (trace_starts_with "sys/pii/"))			;not pii functions
-			(not (trace_starts_with "sys/load/"))			;not load functions
-			(not (trace_starts_with "sys/kernel/"))			;not kernel functions
-			(not (trace_starts_with "sys/link/"))			;not link functions
-			(not (trace_starts_with "sys/task/"))			;not task functions
-			(or
-				(trace_starts_with "class/")
-				(trace_starts_with "gui/")))
-		(debug-str (cat "entry: " *name*))
-		(vp-call 'func_entry_1)
-		(debug-str (cat "exit: " *name*))
-		(vp-ret)
-	(vp-label 'func_entry_1)))
+	(push-scope))
 
 (defcfun def-func-end ()
 	(pop-scope-checked)
