@@ -53,7 +53,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(jump 'lisp 'repl_error {this, "(type? obj)", error_msg_wrong_num_of_args, args}))
+	(jump 'lisp 'repl_error {this, "(type-of obj)", error_msg_wrong_num_of_args, args}))
 
 	(pop-scope-syms)
 

@@ -463,8 +463,8 @@
 ### (trim-end str [str]) -> str
 ## trim-start
 ### (trim-start str [str]) -> str
-## type?
-### (type? obj)
+## type-of
+### (type-of obj)
 ## undef
 ### (undef env var [var] ...)
 ## unless

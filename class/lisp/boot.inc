@@ -79,7 +79,7 @@
 (ffi array "class/array/lisp_array" 0)
 (ffi points "class/array/lisp_points" 0)
 
-(ffi type? "class/lisp/func_type" 0)
+(ffi type-of "class/lisp/func_type" 0)
 (ffi eql "class/lisp/func_eql" 0)
 (ffi copy "class/lisp/func_copy" 0)
 
@@ -135,16 +135,16 @@
 
 (defmacro lst? (_)
 	;(lst? form)
-	`(eq (type? ,_) ,lisp_type_lst))
+	`(eq (type-of ,_) ,lisp_type_lst))
 (defmacro num? (_)
 	;(num? form)
-	`(eq (type? ,_) ,lisp_type_int))
+	`(eq (type-of ,_) ,lisp_type_int))
 (defmacro str? (_)
 	;(str? form)
-	`(eq (type? ,_) ,lisp_type_str))
+	`(eq (type-of ,_) ,lisp_type_str))
 (defun sym? (_)
 	;(sym? form)
-	(eq (type? _) (const lisp_type_sym)))
+	(eq (type-of _) (const lisp_type_sym)))
 
 (defmacro inc (_)
 	;(inc num) -> num

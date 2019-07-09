@@ -155,7 +155,7 @@ sub
 sym
 throw
 time
-type?
+type-of
 undef
 unquote
 unquote-splicing
@@ -186,6 +186,7 @@ fp_frac_mask
 ```lisp
 and
 ascii
+case
 compose
 curry
 dec

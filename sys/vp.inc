@@ -190,7 +190,7 @@
 	`(progn (defcvar ~l) (apply push (cat (list *func-syms*) ',_))))
 
 (defcfun vp-type (o)
-	(defq i (type? o))
+	(defq i (type-of o))
 	(cond
 		((eq i lisp_type_sym)
 			(cond
