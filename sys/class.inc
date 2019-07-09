@@ -51,46 +51,46 @@
 		(if _4 (elem-set 2 m (intern-args _4)))
 		(if _5 (elem-set 3 m (intern-args _5))))
 	(if m
-		(cond
+		(case _3
 			;existing method
-			((eql _3 'static)
+			(static
 				(if (eql (elem 1 m) 'static)
 					(override)
 					(throw "Virtual method already exists !" _1)))
-			((eql _3 'final)
-				(cond
-					((eql (elem 1 m) 'virtual)
+			(final
+				(case (elem 1 m)
+					(virtual
 						(override)
 						(elem-set 1 m _3))
-					((eql (elem 1 m) 'final)
+					(final
 						(throw "Virtual method is final !" _1))
-					(t (throw "Static method already exists !" _1))))
-			((eql _3 'override)
-				(cond
-					((eql (elem 1 m) 'virtual)
+					(otherwise (throw "Static method already exists !" _1))))
+			(override
+				(case (elem 1 m)
+					(virtual
 						(override))
-					((eql (elem 1 m) 'final)
+					(final
 						(throw "Virtual method is final !" _1))
-					(t (throw "Static method already exists !" _1))))
-			((eql _3 'virtual)
+					(otherwise (throw "Static method already exists !" _1))))
+			(virtual
 				(throw "Method already exists !, use override ?" _1))
-			(t (throw "Must use static, virtual, final or override ! " _3)))
-		(cond
+			(otherwise (throw "Must use static, virtual, final or override ! " _3)))
+		(case _3
 			;new method
-			((eql _3 'static)
+			(static
 				(push (elem 0 *class*) _1)
 				(push (elem 1 *class*) (list _2 _3 (intern-args _4) (intern-args _5))))
-			((eql _3 'virtual)
+			(virtual
 				(push (elem 0 *class*) _1)
 				(push (elem 1 *class*) (list _2 _3 (intern-args _4) (intern-args _5)
 					(elem-set 2 *class* (add (elem 2 *class*) ptr_size)))))
-			((eql _3 'final)
+			(final
 				(push (elem 0 *class*) _1)
 				(push (elem 1 *class*) (list _2 _3 (intern-args _4) (intern-args _5)
 					(elem-set 2 *class* (add (elem 2 *class*) ptr_size)))))
-			((eql _3 'override)
+			(override
 				(throw "Method does not exist !" _1))
-			(t (throw "Must use static, virtual, final or override ! " _3)))))
+			(otherwise (throw "Must use static, virtual, final or override ! " _3)))))
 
 (defcfun def-method (_1 _2 &optional _3)
 	;_1 = class name

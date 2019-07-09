@@ -189,7 +189,7 @@
 		(list (list 'quote x) y)) _ (if l (merge (cat (eval l)) v) v))))
 	`(progn (defcvar ~l) (apply push (cat (list *func-syms*) ',_))))
 
-(defcfun type (o)
+(defcfun vp-type (o)
 	(defq i (type? o))
 	(cond
 		((eq i lisp_type_sym)
@@ -358,9 +358,7 @@
 ; Arch Emit Functions
 ;;;;;;;;;;;;;;;;;;;;;
 
-(cond
-((eql *cpu* 'x86_64)
-(include 'sys/x64.inc))
-((eql *cpu* 'aarch64)
-(include 'sys/arm.inc))
-(t (throw "No such CPU !" *cpu*)))
+(case *cpu*
+(x86_64 (include 'sys/x64.inc))
+(aarch64 (include 'sys/arm.inc))
+(otherwise (throw "No such CPU !" *cpu*)))

@@ -4,10 +4,10 @@
 ; host abi call info
 ;;;;;;;;;;;;;;;;;;;;
 
-(cond
-	((eql *abi* 'AMD64)
-		(cond
-			((eql *cpu* 'x86_64)
+(case *abi*
+	(AMD64
+		(case *cpu*
+			(x86_64
 				(defmacro abi-trashed () ''(r1 r2 r5 r6 r7 r8 r9 r10))
 				(defcmacro abi-args (&optional _ o) (setd _ 6 o 0) `',(slice o (add o _) '(r6 r5 r2 r1 r7 r8 r0 r3 r4)))
 				(defcfun emit-call-abi (r b c &rest x)
@@ -23,10 +23,10 @@
 							(apply emit-push x)
 							(emit-call-jump-i 0x10 b c)
 							(emit-cpy-ir rsp (mul ptr_size (sub (length x) 2)) rsp)))))
-			(t (throw "Unknown CPU for AMD64 !" *cpu*))))
-	((eql *abi* 'ARM64)
-		(cond
-			((eql *cpu* 'aarch64)
+			(otherwise (throw "Unknown CPU for AMD64 !" *cpu*))))
+	(ARM64
+		(case *cpu*
+			(aarch64
 				(defmacro abi-trashed () ''(r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14))
 				(defcmacro abi-args (&optional _ o) (setd _ 8 o 0) `',(slice o (add o _) '(r0 r1 r2 r3 r4 r5 r6 r7 r8)))
 				(defcfun emit-call-abi (r b c &rest x)
@@ -42,10 +42,10 @@
 						(t
 							(emit-cpy-ir rsp (mul ptr_size (dec l)) r30)
 							(emit-free (mul ptr_size l))))))
-			(t (throw "Unknown CPU for ARM64 !" *cpu*))))
-	((eql *abi* 'WIN64)
-		(cond
-			((eql *cpu* 'x86_64)
+			(otherwise (throw "Unknown CPU for ARM64 !" *cpu*))))
+	(WIN64
+		(case *cpu*
+			(x86_64
 				(defmacro abi-trashed () ''(r1 r2 r7 r8 r9 r10))
 				(defcmacro abi-args (&optional _ o) (setd _ 4 o 0) `',(slice o (add o _) '(r1 r2 r7 r8 r0 r3 r4 r5 r6)))
 				(defcfun emit-call-abi (r b c &rest x)
@@ -62,8 +62,8 @@
 							(emit-sub-cr 32 rsp)
 							(emit-call-jump-i 0x10 b c)
 							(emit-cpy-ir rsp (mul ptr_size (add (length x) 4)) rsp)))))
-			(t (throw "Unknown CPU for WIN64 !" *cpu*))))
-	(t (throw "Unknown ABI !" *abi*)))
+			(otherwise (throw "Unknown CPU for WIN64 !" *cpu*))))
+	(otherwise (throw "Unknown ABI !" *abi*)))
 
 (defcmacro abi-push-trashed (&rest b) (merge b (abi-trashed)) `(vp-push ~b))
 (defcmacro abi-pop-trashed (&rest b) (merge b (abi-trashed)) `(vp-pop ~b))
