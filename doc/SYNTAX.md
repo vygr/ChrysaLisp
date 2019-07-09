@@ -53,6 +53,8 @@
 ### (canvas-set-flags canvas flags)
 ## canvas-swap
 ### (canvas-swap canvas)
+## case
+### (case form [(key body)] ...)
 ## cat
 ### (cat seq ...)
 ## catch

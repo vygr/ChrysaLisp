@@ -142,9 +142,9 @@
 (defmacro str? (_)
 	;(str? form)
 	`(eq (type? ,_) ,lisp_type_str))
-(defmacro sym? (_)
+(defun sym? (_)
 	;(sym? form)
-	`(eq (type? ,_) ,lisp_type_sym))
+	(eq (type? _) (const lisp_type_sym)))
 
 (defmacro inc (_)
 	;(inc num) -> num
@@ -208,6 +208,20 @@
 		((eq (length _) 0))
 		((eq (length _) 1) (elem 0 _))
 		(t `(if ,(elem 0 _) (and ~(slice 1 -1 _))))))
+
+(defmacro case (k &rest b)
+	;(case form [(key body)] ...)
+	(defq b (reduce-rev (lambda (x (y &rest z))
+		(unless (lst? y) (setq y (list y)))
+		(if (notevery sym? y)
+			(throw "Key not symbol !" y))
+		(each (lambda (y)
+			(push (elem 0 x) y)
+			(push (elem 1 x) (macroexpand (cat '(progn) z)))) y) x) b (list (list) (list)))
+		d (find 'otherwise (elem 0 b)))
+	(if d
+		`(eval (elem (or (find ,k ',(elem 0 b)) ,d) ',(elem 1 b)))
+		`(if (defq ,(defq i (gensym)) (find ,k ',(elem 0 b))) (eval (elem ,i ',(elem 1 b))))))
 
 (defmacro times (c &rest _)
 	;(times num body)
