@@ -59,22 +59,21 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this 'ctx)
-	(uint 'depth)
-
-	(push-scope)
-	(entry 'button 'draw {this, ctx})
+	(entry 'button 'draw '(r0 r1))
 
 	;draw panel, in or out
-	(call 'button 'get_long_prop {this, prop_border} {_, depth})
-	(vpif {this->button_state & button_state_pressed})
-		(assign {-depth} {depth})
+	(vp-push r1)
+	(call 'button 'get_long_prop '(r0 prop_border) '(r0 r1))
+	(vp-cpy-ir r0 button_state r2)
+	(vp-and-cr button_state_pressed r2)
+	(vpif '(r2 != 0))
+		(vp-mul-cr -1 r1)
 	(endif)
-	(call 'button 'draw_panel {this, ctx, 1, depth})
+	(vp-pop r2)
+	(call 'button 'draw_panel '(r0 r2 1 r1) '(r0))
 
-	(exit 'button 'draw {this})
-	(pop-scope)
-	(return)
+	(exit 'button 'draw '(r0))
+	(vp-ret)
 
 (def-func-end)
 
@@ -84,24 +83,28 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this)
-	(uint 'depth 'offset)
-
-	(push-scope)
-	(entry 'button 'layout {this})
+	(entry 'button 'layout '(r0))
 
 	;contents offset or not
-	(call 'button 'get_long_prop {this, prop_border} {_, depth})
-	(assign {depth} {offset})
-	(vpif {this->button_state & button_state_pressed})
-		(assign {depth + offset} {offset})
+	(call 'button 'get_long_prop '(r0 prop_border) '(r0 r1))
+	(vp-cpy-ir r0 button_state r2)
+	(vp-cpy-rr r1 r3)
+	(vp-and-cr button_state_pressed r2)
+	(vpif '(r2 != 0))
+		(vp-add-rr r1 r1)
 	(endif)
-	(call 'button 'change {this->label_flow, offset, offset, this->view_w - (depth * 2), this->view_h - (depth * 2)})
-	(call 'button 'opaque {this})
+	(vp-add-rr r3 r3)
+	(vp-cpy-ir-ui r0 view_w r9)
+	(vp-cpy-ir-ui r0 view_h r10)
+	(vp-sub-rr r3 r9)
+	(vp-sub-rr r3 r10)
+	(vp-push r0)
+	(call 'flow 'change '((r0 label_flow) r1 r1 r9 r10))
+	(vp-pop r0)
+	(call 'button 'opaque '(r0) '(r0))
 
-	(exit 'button 'layout {this})
-	(pop-scope)
-	(return)
+	(exit 'button 'layout '(r0))
+	(vp-ret)
 
 (def-func-end)
 
@@ -111,6 +114,8 @@
 	;r1 = mouse event data (ptr)
 	;trashes
 	;all but r0
+
+	(entry 'button 'mouse_up '(r0 r1))
 
 	(vp-cpy-ir r0 button_state r1)
 	(vp-push r1)
@@ -129,6 +134,8 @@
 	(vpif '(r1 != 0))
 		(jump 'button 'emit '(r0 (r0 button_click_targets)))
 	(endif)
+
+	(exit 'button 'mouse_up '(r0))
 	(vp-ret)
 
 (def-func-end)
@@ -139,6 +146,8 @@
 	;r1 = mouse event data (ptr)
 	;trashes
 	;all but r0
+
+	(entry 'button 'mouse_move '(r0 r1))
 
 	;hit ?
 	(call 'button 'hit '(r0 (r1 ev_msg_mouse_rx i) (r1 ev_msg_mouse_ry i)) '(r0 r1))
@@ -160,6 +169,8 @@
 		(call 'button 'layout '(r0))
 		(jump 'button 'dirty '(r0))
 	(endif)
+
+	(exit 'button 'mouse_move '(r0))
 	(vp-ret)
 
 (def-func-end)
@@ -173,9 +184,13 @@
 	;trashes
 	;r2-r5
 
+	(entry 'button 'connect_click '(r0 r1))
+
 	(vp-push r0)
 	(call 'array 'push_back '((r0 button_click_targets) r1))
 	(vp-pop r0)
+
+	(exit 'button 'connect_click '(r0))
 	(vp-ret)
 
 (def-func-end)

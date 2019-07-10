@@ -52,19 +52,16 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this 'ctx)
-	(uint 'depth)
+	(entry 'label 'draw '(r0 r1))
 
-	(push-scope)
-	(entry 'label 'draw {this, ctx})
+	;draw panel, in or out
+	(vp-push r1)
+	(call 'label 'get_long_prop '(r0 prop_border) '(r0 r1))
+	(vp-pop r2)
+	(call 'label 'draw_panel '(r0 r2 1 r1) '(r0))
 
-	;draw panel
-	(call 'label 'get_long_prop {this, prop_border} {_, depth})
-	(call 'label 'draw_panel {this, ctx, 1, depth})
-
-	(exit 'label 'draw {this})
-	(pop-scope)
-	(return)
+	(exit 'label 'draw '(r0))
+	(vp-ret)
 
 (def-func-end)
 
@@ -74,27 +71,27 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this)
-	(union
-		'(uint 'col)
-		'(uint 'depth))
+	(entry 'label 'layout '(r0))
 
-	(push-scope)
-	(entry 'label 'layout {this})
-
-	(call 'label 'get_long_prop {this, prop_border} {_, depth})
-	(call 'flow 'set_bounds {this->label_flow, depth, depth,
-		this->view_w - (depth * 2), this->view_h - (depth * 2)})
-	(call 'flow 'layout {this->label_flow})
-
-	(call 'label 'get_long_prop {this, prop_color} {_, col})
-	(vpif {col >> 24 == 0xff})
-		(call 'label 'opaque {this})
+	(call 'label 'get_long_prop '(r0 prop_border) '(r0 r1))
+	(vp-cpy-ir-ui r0 view_w r9)
+	(vp-cpy-ir-ui r0 view_h r10)
+	(vp-cpy-rr r1 r2)
+	(vp-add-rr r2 r2)
+	(vp-sub-rr r2 r9)
+	(vp-sub-rr r2 r10)
+	(vp-push r0)
+	(call 'flow 'change '((r0 label_flow) r1 r1 r9 r10) '(r0))
+	(call 'flow 'layout '(r0))
+	(vp-pop r0)
+	(call 'label 'get_long_prop '(r0 prop_color) '(r0 r1))
+	(vp-shr-cr 24 r1)
+	(vpif '(r1 == 0xff))
+		(call 'label 'opaque '(r0) '(r0))
 	(endif)
 
-	(exit 'label 'layout {this})
-	(pop-scope)
-	(return)
+	(exit 'label 'layout '(r0))
+	(vp-ret)
 
 (def-func-end)
 
@@ -107,26 +104,34 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this)
-	(uint 'depth 'w 'h 'mw 'mh)
+	(def-struct 'local)
+		(ptr 'this)
+		(uint 'depth 'mw 'mh)
+	(def-struct-end)
 
-	(push-scope)
-	(entry 'label 'pref_size {this})
+	(vp-alloc local_size)
+	(entry 'label 'pref_size '(r0))
 
-	(call 'label 'get_long_prop {this, prop_border} {_, depth})
-	(call 'label 'get_long_prop {this, prop_min_width} {_, mw})
-	(call 'label 'get_long_prop {this, prop_min_height} {_, mh})
-
-	(call 'flow 'pref_size {this->label_flow} {_, w, h})
-	(vpif {mw > w})
-		(assign {mw} {w})
+	(vp-cpy-ri r0 rsp local_this)
+	(call 'label 'get_long_prop '(r0 prop_border) '(r0 (rsp local_depth i)))
+	(call 'label 'get_long_prop '(r0 prop_min_width) '(r0 (rsp local_mw i)))
+	(call 'label 'get_long_prop '(r0 prop_min_height) '(r0 (rsp local_mh i)))
+	(call 'flow 'pref_size '((r0 label_flow)) '(_ r9 r10))
+	(vp-cpy-ir-ui rsp local_mw r7)
+	(vp-cpy-ir-ui rsp local_mh r8)
+	(vp-cpy-ir-ui rsp local_depth r1)
+	(vpif '(r7 > r9))
+		(vp-cpy-rr r7 r9)
 	(endif)
-	(vpif {mh > h})
-		(assign {mh} {h})
+	(vpif '(r8 > r10))
+		(vp-cpy-rr r8 r10)
 	(endif)
+	(vp-add-rr r1 r1)
+	(vp-add-rr r1 r9)
+	(vp-add-rr r1 r10)
 
-	(exit 'label 'pref_size {this, w + (depth * 2), h + (depth * 2)})
-	(pop-scope)
-	(return)
+	(exit 'label 'pref_size '((rsp local_this) r9 r10))
+	(vp-free local_size)
+	(vp-ret)
 
 (def-func-end)

@@ -448,7 +448,7 @@
 				(ius (vp-cpy-ir-us (elem 0 x) (elem 1 x) y))
 				(is (vp-cpy-ir-s (elem 0 x) (elem 1 x) y))
 				(ib (vp-cpy-ir-b (elem 0 x) (elem 1 x) y))
-				(otherwsie (throw "Invalid src parameter !" (vp-type x))))) *src* *dst*)))
+				(otherwise (throw "Invalid src parameter !" (vp-type x))))) *src* *dst*)))
 
 ;;;;;;;;;;
 ; tokenize
