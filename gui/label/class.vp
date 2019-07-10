@@ -16,32 +16,33 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this)
-	(union
-		'(ptr 'vtable)
-		'(ulong 'ok))
-
-	(push-scope)
-	(entry 'label 'init {this, vtable})
+	(entry 'label 'init '(r0 r1))
 
 	;init parent
-	(s-call 'label 'init {this, vtable} {_, ok})
-	(vpif {ok})
+	(s-call 'label 'init '(r0 r1) '(r0 r1))
+	(vpif '(r1 != 0))
 		;add my flow
-		(call 'flow 'create nil {this->label_flow})
-		(assign {0} {this->label_flow->view_flags})
-		(call 'label 'add_child {this, this->label_flow})
-		(call 'label 'set_long_prop {this, prop_flow_flags, flow_flag_right | flow_flag_align_vcenter})
-		(call 'label 'set_long_prop {this, prop_border, 0})
+		(vp-push r0)
+		(call 'flow 'create nil '(r1))
+		(vp-cpy-ir rsp 0 r0)
+		(vp-cpy-ri r1 r0 label_flow)
+		(vp-xor-rr r2 r2)
+		(vp-cpy-ri r2 r1 view_flags)
+		(call 'label 'add_child '(r0 r1) '(r0))
+		(call 'label 'set_long_prop '(r0 prop_flow_flags (logior flow_flag_right flow_flag_align_vcenter)) '(r0))
+		(call 'label 'set_long_prop '(r0 prop_border 0) '(r0))
 
 		;add my text object
-		(call 'text 'create nil {this->label_text})
-		(call 'flow 'add_child {this->label_flow, this->label_text})
+		(call 'text 'create nil '(r1))
+		(vp-cpy-ir rsp 0 r0)
+		(vp-cpy-ri r1 r0 label_text)
+		(call 'label 'add_child '((r0 label_flow) r1))
+		(vp-pop r0)
+		(vp-cpy-cr 1 r1)
 	(endif)
 
-	(exit 'label 'init {this, ok})
-	(pop-scope)
-	(return)
+	(exit 'label 'init '(r0 r1))
+	(vp-ret)
 
 (def-func-end)
 

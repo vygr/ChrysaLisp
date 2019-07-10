@@ -16,24 +16,18 @@
 	;r0 = title object (ptr)
 	;r1 = 0 if error, else ok
 
-	(ptr 'this)
-	(union
-		'(ptr 'vtable)
-		'(ulong 'ok))
-
-	(push-scope)
-	(entry 'title 'init {this, vtable})
+	(entry 'title 'init '(r0 r1))
 
 	;init parent
-	(s-call 'title 'init {this, vtable} {_, ok})
-	(vpif {ok})
+	(s-call 'title 'init '(r0 r1) '(r0 r1))
+	(vpif '(r1 != 0))
 		;init myself
-		(call 'title 'set_long_prop {this, prop_border, 1})
+		(call 'title 'set_long_prop '(r0 prop_border 1) '(r0))
+		(vp-cpy-cr 1 r1)
 	(endif)
 
-	(exit 'title 'init {this, ok})
-	(pop-scope)
-	(return)
+	(exit 'title 'init '(r0 r1))
+	(vp-ret)
 
 (def-func-end)
 
@@ -43,6 +37,8 @@
 	;r1 = mouse event data (ptr)
 	;trashes
 	;all but r0
+
+	(entry 'title 'mouse_down '(r0 r1))
 
 	(vp-push r0)
 	(vp-cpy-ir-i r1 ev_msg_mouse_rx r7)
@@ -56,6 +52,8 @@
 	(loop-until '(r2 == r1))
 	(call 'window 'to_front '(r0))
 	(vp-pop r0)
+
+	(exit 'title 'mouse_down '(r0))
 	(vp-ret)
 
 (def-func-end)
@@ -77,6 +75,8 @@
 
 	;save old window bounds
 	(vp-alloc local_size)
+	(entry 'title 'mouse_move '(r0 r1))
+
 	(vp-cpy-ri r0 rsp local_this)
 	(vp-cpy-ri r1 rsp local_event)
 	(assign `((@ ,(f-path 'window 'vtable))) '(r1))
@@ -120,7 +120,7 @@
 	(call 'region 'translate '(r1 r7 r8))
 	(call 'window 'dirty_all '((rsp local_window)))
 
-	(vp-cpy-ir rsp local_this r0)
+	(exit 'title 'mouse_move '((rsp local_this)))
 	(vp-free local_size)
 	(vp-ret)
 

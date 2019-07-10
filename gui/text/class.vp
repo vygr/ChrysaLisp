@@ -18,15 +18,17 @@
 	;r0 = text object (ptr)
 	;r1 = 0 if error, else ok
 
-	;init parent
+	(entry 'text 'init '(r0 r1))
+
 	(s-call 'text 'init '(r0 r1) '(r0 r1))
 	(vpif '(r1 != 0))
 		;init myself
-		(vp-xor-rr r1 r1)
-		(vp-cpy-ri r1 r0 text_string)
-		(vp-cpy-ri r1 r0 text_words)
-		(vp-cpy-rr r0 r1)
+		(vp-xor-rr r2 r2)
+		(vp-cpy-ri r2 r0 text_string)
+		(vp-cpy-ri r2 r0 text_words)
 	(endif)
+
+	(exit 'text 'init '(r0 r1))
 	(vp-ret)
 
 (def-func-end)
@@ -37,13 +39,11 @@
 	;trashes
 	;all but r0
 
-	;save object
-	(vp-push r0)
+	(entry 'text 'deinit '(r0))
 
 	;deref any words
+	(vp-push r0)
 	(call 'vector 'deref_if '((r0 text_words)))
-
-	;deinit parent
 	(vp-pop r0)
 	(s-jump 'text 'deinit '(r0))
 
@@ -147,17 +147,17 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this)
-
-	(push-scope)
-	(entry 'text 'switch_text {this})
+	(entry 'text 'switch_text '(r0))
 
 	;create new split words
-	(call 'vector 'deref_if {this->text_words})
-	(call 'str 'split {this->text_string, char_space} {_, this->text_words})
+	(vp-push r0)
+	(call 'vector 'deref_if '((r0 text_words)))
+	(vp-cpy-ir rsp 0 r0)
+	(call 'str 'split '((r0 text_string) char_space) '(_ r1))
+	(vp-pop r0)
+	(vp-cpy-ri r1 r0 text_words)
 
-	(entry 'text 'switch_text {this})
-	(pop-scope)
-	(return)
+	(entry 'text 'switch_text '(r0))
+	(vp-ret)
 
 (def-func-end)

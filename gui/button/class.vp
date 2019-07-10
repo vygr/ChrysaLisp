@@ -15,27 +15,25 @@
 	;r0 = button object (ptr)
 	;r1 = 0 if error, else ok
 
-	(ptr 'this)
-	(union
-		'(ptr 'vtable)
-		'(ulong 'ok))
-
-	(push-scope)
-	(entry 'button 'init {this, vtable})
+	(entry 'button 'init '(r0 r1))
 
 	;init parent
-	(s-call 'button 'init {this, vtable} {_, ok})
-	(vpif {ok})
+	(s-call 'button 'init '(r0 r1) '(r0 r1))
+	(vpif '(r1 != 0))
 		;init myself
-		(assign {0} {this->button_state})
-		(call 'array 'create nil {this->button_click_targets})
-		(call 'button 'set_long_prop {this, prop_border, 2})
-		(call 'button 'set_long_prop {this, prop_flow_flags, flow_flag_down | flow_flag_align_hcenter | flow_flag_align_vcenter})
+		(vp-push r0)
+		(vp-xor-rr r2 r2)
+		(vp-cpy-ri r2 r0 button_state)
+		(call 'array 'create nil '(r1))
+		(vp-pop r0)
+		(vp-cpy-ri r1 r0 button_click_targets)
+		(call 'button 'set_long_prop '(r0 prop_border 2))
+		(call 'button 'set_long_prop '(r0 prop_flow_flags (logior flow_flag_down flow_flag_align_hcenter flow_flag_align_vcenter)) '(r0))
+		(vp-cpy-cr 1 r1)
 	(endif)
 
-	(exit 'button 'init {this, ok})
-	(pop-scope)
-	(return)
+	(exit 'button 'init '(r0 r1))
+	(vp-ret)
 
 (def-func-end)
 
@@ -63,14 +61,14 @@
 
 	;draw panel, in or out
 	(vp-push r1)
-	(call 'button 'get_long_prop '(r0 prop_border) '(r0 r1))
-	(vp-cpy-ir r0 button_state r2)
-	(vp-and-cr button_state_pressed r2)
-	(vpif '(r2 != 0))
-		(vp-mul-cr -1 r1)
+	(call 'button 'get_long_prop '(r0 prop_border) '(r0 r3))
+	(vp-cpy-ir r0 button_state r1)
+	(vp-and-cr button_state_pressed r1)
+	(vpif '(r1 != 0))
+		(vp-mul-cr -1 r3)
 	(endif)
-	(vp-pop r2)
-	(call 'button 'draw_panel '(r0 r2 1 r1) '(r0))
+	(vp-pop r1)
+	(call 'button 'draw_panel '(r0 r1 1 r3) '(r0))
 
 	(exit 'button 'draw '(r0))
 	(vp-ret)
