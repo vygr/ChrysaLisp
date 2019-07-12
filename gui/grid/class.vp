@@ -91,18 +91,19 @@
 	(def-struct-end)
 
 	(vp-alloc local_size)
+	(entry 'grid 'pref_size '(r0))
+
 	(vp-xor-rr r1 r1)
 	(vp-cpy-ri-i r1 rsp local_w)
 	(vp-cpy-ri-i r1 rsp local_h)
-
 	(call 'grid 'forward '(r0 rsp ($ callback)))
-
 	(call 'grid 'get_long_prop '(r0 prop_grid_width) '(r0 (rsp local_width i)))
 	(call 'grid 'get_long_prop '(r0 prop_grid_height) '(r0 (rsp local_height i)))
-
 	(assign '((rsp local_width ui) (rsp local_height ui) (rsp local_w i) (rsp local_h i)) '(r7 r8 r9 r10))
 	(vp-mul-rr r7 r9)
 	(vp-mul-rr r8 r10)
+
+	(exit 'grid 'pref_size '(r0 r9 r10))
 	(vp-free local_size)
 	(vp-ret)
 

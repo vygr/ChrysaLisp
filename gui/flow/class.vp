@@ -20,13 +20,12 @@
 
 	(vp-alloc local_size)
 	(entry 'flow 'layout '(r0))
+
 	(vp-xor-rr r1 r1)
 	(vp-cpy-ri-i r1 rsp local_x)
 	(vp-cpy-ri-i r1 rsp local_y)
-
 	(call 'flow 'get_long_prop '(r0 prop_flow_flags) '(r0 r1))
 	(vp-cpy-ri r1 rsp local_flags)
-
 	(vp-and-cr flow_flag_left r1)
 	(vpif '(r1 != 0))
 		(vp-cpy-ir-i r0 view_w r1)
@@ -38,8 +37,9 @@
 		(vp-cpy-ir-i r0 view_h r1)
 		(vp-cpy-ri-i r1 rsp local_y)
 	(endif)
-
 	(call 'flow 'forward '(r0 rsp ($ callback)) '(r0))
+
+	(exit 'flow 'layout '(r0))
 	(vp-free local_size)
 	(vp-ret)
 
@@ -203,15 +203,14 @@
 
 	(vp-alloc local_size)
 	(entry 'flow 'pref_size '(r0))
+
 	(vp-xor-rr r1 r1)
 	(vp-cpy-ri-i r1 rsp local_w)
 	(vp-cpy-ri-i r1 rsp local_h)
-
 	(call 'flow 'get_long_prop '(r0 prop_flow_flags) '(r0 (rsp local_flags)))
 	(call 'flow 'forward '(r0 rsp ($ callback)) '(r0))
 
-	(vp-cpy-ir-i rsp local_w r9)
-	(vp-cpy-ir-i rsp local_h r10)
+	(exit 'flow 'pref_size '(r0 (rsp local_w i) (rsp local_h i)))
 	(vp-free local_size)
 	(vp-ret)
 
@@ -246,6 +245,8 @@
 	(vpif '(r10 > r3))
 		(vp-cpy-ri-i r10 r1 local_h)
 	(endif)
+
+	(exit 'view 'forward_callback '(r0))
 	(vp-ret)
 
 (def-func-end)
