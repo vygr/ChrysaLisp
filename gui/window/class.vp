@@ -25,25 +25,23 @@
 
 	(ptr 'this 'title_flow)
 	(ulong 'flags)
-	(uint 'min_width)
-	(union
-		'(ptr 'vtable)
-		'(ulong 'ok))
 
 	(push-scope)
-	(entry 'window 'init {this, vtable, flags})
+	(entry 'window 'init '(r0 r1 r2))
+	(assign '(r2) {flags})
 
 	;init parent
-	(s-call 'window 'init {this, vtable} {_, ok})
-	(vpif {ok})
+	(s-call 'window 'init '(r0 r1) '(r0 r1))
+	(vpif '(r1 != 0))
 		;init myself
-		(call 'sys_mem 'clear {&this->window_start, window_size - window_start})
-		(call 'window 'set_font_prop {this, prop_font, "fonts/OpenSans-Regular.ttf", 18})
-		(call 'window 'set_long_prop {this, prop_ink_color, argb_black})
-		(call 'window 'set_long_prop {this, prop_color, 0xffc0c0c0})
-		(call 'window 'set_long_prop {this, prop_border, 5})
-		(call 'window 'set_long_prop {this, prop_min_width, 0})
-		(call 'window 'set_long_prop {this, prop_min_height, 0})
+		(assign '(r0) {this})
+		(call 'window 'set_font_prop '(r0 prop_font "fonts/OpenSans-Regular.ttf" 18) '(r0))
+		(call 'window 'set_long_prop '(r0 prop_ink_color argb_black) '(r0))
+		(call 'window 'set_long_prop '(r0 prop_color 0xffc0c0c0) '(r0))
+		(call 'window 'set_long_prop '(r0 prop_border 5) '(r0))
+		(call 'window 'set_long_prop '(r0 prop_min_width 0) '(r0))
+		(call 'window 'set_long_prop '(r0 prop_min_height 0) '(r0))
+		(call 'sys_mem 'clear '((& r0 window_start) (sub window_size window_start)))
 		(call 'array 'create nil {this->window_layout_targets})
 
 		;add flow panel
@@ -53,36 +51,32 @@
 
 		;add title flow panel
 		(call 'flow 'create nil {title_flow})
-		(call 'flow 'set_long_prop {title_flow, prop_flow_flags, flow_flag_left | flow_flag_fillh | flow_flag_lastw})
-		(call 'flow 'set_long_prop {title_flow, prop_color, 0xffd0d0d0})
+		(call 'flow 'set_long_prop {title_flow, prop_flow_flags, flow_flag_left | flow_flag_fillh | flow_flag_lastw} '(r0))
+		(call 'flow 'set_long_prop '(r0 prop_color 0xffd0d0d0))
 		(call 'flow 'add_child {this->window_flow, title_flow})
 
 		;add close button ?
-		(call 'button 'create nil {this->window_close})
-		(call 'button 'set_font_prop {this->window_close, prop_font, "fonts/Entypo.otf", 22})
-		(call 'flow 'add_child {title_flow, this->window_close})
-		(call 'button 'set_str_prop {this->window_close, prop_text, ""})
-		(call 'button 'pref_size {this->window_close} {_, min_width, _})
-		(call 'flow 'set_long_prop {title_flow, prop_min_width, min_width})
-		(vpifnot {flags & window_flag_close})
-			(call 'button 'deref {this->window_close})
-			(assign {0} {this->window_close})
+		(vpif {flags & window_flag_close})
+			(call 'button 'create nil {this->window_close})
+			(call 'button 'set_font_prop {this->window_close, prop_font, "fonts/Entypo.otf", 22} '(r0))
+			(call 'button 'set_str_prop '(r0 prop_text ""))
+			(call 'flow 'add_child {title_flow, this->window_close})
 		(endif)
 
 		;add max button
 		(vpif {flags & window_flag_max})
 			(call 'button 'create nil {this->window_max})
-			(call 'button 'set_font_prop {this->window_max, prop_font, "fonts/Entypo.otf", 22})
+			(call 'button 'set_font_prop {this->window_max, prop_font, "fonts/Entypo.otf", 22} '(r0))
+			(call 'button 'set_str_prop '(r0 prop_text ""))
 			(call 'flow 'add_child {title_flow, this->window_max})
-			(call 'button 'set_str_prop {this->window_max, prop_text, ""})
 		(endif)
 
 		;add min button
 		(vpif {flags & window_flag_min})
 			(call 'button 'create nil {this->window_min})
-			(call 'button 'set_font_prop {this->window_min, prop_font, "fonts/Entypo.otf", 22})
+			(call 'button 'set_font_prop {this->window_min, prop_font, "fonts/Entypo.otf", 22} '(r0))
+			(call 'button 'set_str_prop '(r0 prop_text ""))
 			(call 'flow 'add_child {title_flow, this->window_min})
-			(call 'button 'set_str_prop {this->window_min, prop_text, ""})
 		(endif)
 
 		;add title
@@ -101,9 +95,11 @@
 			(call 'label 'set_long_prop {this->window_status, prop_color, 0xff808080})
 			(call 'flow 'add_child {this->window_panel, this->window_status})
 		(endif)
+
+		(assign {this, 1} '(r0 r1))
 	(endif)
 
-	(exit 'window 'init {this, ok})
+	(exit 'window 'init '(r0 r1))
 	(pop-scope)
 	(return)
 
@@ -115,23 +111,18 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this 'screen)
-
-	(push-scope)
-	(entry 'window 'deinit {this})
+	(entry 'window 'deinit '(r0))
 
 	;dirty my area on parent
-	(call 'window 'get_parent {this} {_, screen})
-	(vpif {screen})
-		(call 'view 'dirty_all {screen})
+	(vp-push r0)
+	(call 'window 'get_parent '(r0) '(_ r1))
+	(vpif '(r1 != 0))
+		(call 'view 'dirty_all '(r1))
+		(vp-cpy-ir rsp 0 r0)
 	(endif)
-
-	(call 'array 'deref {this->window_layout_targets})
-
-	;deinit parent
-	(s-jump 'window 'deinit {this})
-
-	(pop-scope-syms)
+	(call 'array 'deref '((r0 window_layout_targets)))
+	(vp-pop r0)
+	(s-jump 'window 'deinit '(r0))
 
 (def-func-end)
 
@@ -142,9 +133,13 @@
 	;trashes
 	;all but r0
 
+	(entry 'window 'add_child '(r0 r1))
+
 	(vp-push r0)
 	(call 'flow 'add_child '((r0 window_panel) r1))
 	(vp-pop r0)
+
+	(exit 'window 'add_child '(r0))
 	(vp-ret)
 
 (def-func-end)
@@ -156,19 +151,16 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this 'ctx)
-	(uint 'depth)
-
-	(push-scope)
-	(entry 'window 'draw {this, ctx})
+	(entry 'window 'draw '(r0 r1))
 
 	;draw panel
-	(call 'window 'get_long_prop {this, prop_border} {_, depth})
-	(call 'window 'draw_panel {this, ctx, 1, depth})
+	(vp-push r1)
+	(call 'window 'get_long_prop '(r0 prop_border) '(r0 r3))
+	(vp-pop r1)
+	(call 'window 'draw_panel '(r0 r1 1 r3) '(r0))
 
-	(exit 'window 'draw {this})
-	(pop-scope)
-	(return)
+	(exit 'window 'draw '(r0))
+	(vp-ret)
 
 (def-func-end)
 
@@ -178,28 +170,27 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this)
-	(union
-		'(uint 'col)
-		'(uint 'depth))
+	(entry 'window 'layout '(r0))
 
-	(push-scope)
-	(entry 'window 'layout {this})
-
-	(call 'window 'get_long_prop {this, prop_border} {_, depth})
-	(call 'flow 'change {this->window_flow, depth, depth,
-		this->view_w - (depth * 2), this->view_h - (depth * 2)})
-
-	(call 'window 'get_long_prop {this, prop_color} {_, col})
-	(vpif {col >> 24 == 0xff})
-		(call 'window 'opaque {this})
+	(call 'window 'get_long_prop '(r0 prop_border) '(r0 r1))
+	(vp-cpy-ir-ui r0 view_w r9)
+	(vp-cpy-ir-ui r0 view_h r10)
+	(vp-sub-rr r1 r9)
+	(vp-sub-rr r1 r10)
+	(vp-sub-rr r1 r9)
+	(vp-sub-rr r1 r10)
+	(vp-push r0)
+	(call 'flow 'change '((r0 window_flow) r1 r1 r9 r10))
+	(vp-pop r0)
+	(call 'window 'get_long_prop '(r0 prop_color) '(r0 r1))
+	(vp-shr-cr 24 r1)
+	(vpif '(r1 == 0xff))
+		(call 'window 'opaque '(r0) '(r0))
 	(endif)
+	(call 'window 'emit '(r0 (r0 window_layout_targets)) '(r0))
 
-	(call 'window 'emit {this, this->window_layout_targets})
-
-	(exit 'window 'layout {this})
-	(pop-scope)
-	(return)
+	(exit 'window 'layout '(r0))
+	(vp-ret)
 
 (def-func-end)
 
@@ -210,40 +201,44 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this 'evt)
-	(uint 'depth 'mode)
-	(int 'rx 'ry)
+	(entry 'window 'mouse_down '(r0 r1))
 
-	(push-scope)
-	(entry 'window 'mouse_down {this, evt})
-
-	(call 'window 'get_long_prop {this, prop_border} {_, depth})
-	(assign {0, evt->ev_msg_mouse_rx, evt->ev_msg_mouse_ry} {mode, rx, ry})
-	(vpif {rx < depth})
+	(vp-push r1)
+	(call 'window 'get_long_prop '(r0 prop_border) '(r0 r1))
+	(vp-pop r2)
+	(vp-cpy-ir-i r2 ev_msg_mouse_rx r3)
+	(vp-cpy-ir-i r2 ev_msg_mouse_ry r4)
+	(vp-xor-rr r2 r2)
+	(vpif '(r3 < r1))
 		;left edge
-		(assign {mode | window_drag_left} {mode})
+		(vp-or-cr window_drag_left r2)
 	(endif)
-	(vpif {rx >= (this->view_w - depth)})
+	(vp-cpy-ir-ui r0 view_w r5)
+	(vp-cpy-rr r5 r6)
+	(vp-sub-rr r1 r6)
+	(vpif '(r3 >= r6))
 		;right edge
-		(assign {mode | window_drag_right} {mode})
-		(assign {rx - this->view_w} {rx})
+		(vp-or-cr window_drag_right r2)
+		(vp-sub-rr r5 r3)
 	(endif)
-	(vpif {ry < depth})
+	(vpif '(r4 < r1))
 		;top edge
-		(assign {mode | window_drag_top} {mode})
+		(vp-or-cr window_drag_top r2)
 	(endif)
-	(vpif {ry >= (this->view_h - depth)})
-		;bottom edge
-		(assign {mode | window_drag_bottom} {mode})
-		(assign {ry - this->view_h} {ry})
+	(vp-cpy-ir-ui r0 view_h r5)
+	(vp-cpy-rr r5 r6)
+	(vp-sub-rr r1 r6)
+	(vpif '(r4 >= r6))
+		;right edge
+		(vp-or-cr window_drag_bottom r2)
+		(vp-sub-rr r5 r4)
 	(endif)
-	(assign {mode} {this->window_drag_mode})
-	(assign {rx} {this->window_offset_x})
-	(assign {ry} {this->window_offset_y})
+	(vp-cpy-ri-i r2 r0 window_drag_mode)
+	(vp-cpy-ri-i r3 r0 window_offset_x)
+	(vp-cpy-ri-i r4 r0 window_offset_y)
 
-	(exit 'window 'mouse_down {this})
-	(pop-scope)
-	(return)
+	(exit 'window 'mouse_down '(r0))
+	(vp-ret)
 
 (def-func-end)
 
@@ -263,7 +258,8 @@
 
 	;save inputs
 	(vp-alloc local_size)
-	(entry 'window 'mouse_move '((rsp local_this) (rsp local_event)))
+	(entry 'window 'mouse_move '(r0 (rsp local_event)))
+	(vp-cpy-ri r0 rsp local_this)
 
 	;dirty old area
 	(call 'window 'dirty '(r0))
@@ -370,18 +366,18 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this)
-	(uint 'depth 'w 'h)
+	(entry 'window 'pref_size '(r0))
 
-	(push-scope)
-	(entry 'window 'pref_size {this})
+	(call 'window 'get_long_prop '(r0 prop_border) '(r0 r1))
+	(vp-push r0 r1)
+	(call 'flow 'pref_size '((r0 window_flow)) '(_ r9 r10))
+	(vp-pop r0 r1)
+	(vp-add-rr r1 r1)
+	(vp-add-rr r1 r9)
+	(vp-add-rr r1 r10)
 
-	(call 'window 'get_long_prop {this, prop_border} {_, depth})
-	(call 'flow 'pref_size {this->window_flow} {_, w, h})
-
-	(exit 'window 'pref_size {this, w + (depth * 2), h + (depth * 2)})
-	(pop-scope)
-	(return)
+	(exit 'window 'pref_size '(r0 r9 r10))
+	(vp-ret)
 
 (def-func-end)
 
@@ -392,19 +388,18 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this 'str)
+	(entry 'window 'set_status '(r0 r1))
 
-	(push-scope)
-	(entry 'window 'set_status {this, str})
-
-	(vpif {this->window_status})
-		(call 'label 'set_str_prop {this->window_status, prop_text, str})
-		(call 'label 'layout {this->window_status})
+	(vp-cpy-ir r0 window_status r2)
+	(vpif '(r2 != 0))
+		(vp-push r0)
+		(call 'title 'set_str_prop '(r2 prop_text r1) '(r0))
+		(call 'title 'layout '(r0))
+		(vp-pop r0)
 	(endif)
 
-	(exit 'window 'set_status {this})
-	(pop-scope)
-	(return)
+	(exit 'window 'set_status '(r0))
+	(vp-ret)
 
 (def-func-end)
 
@@ -415,17 +410,15 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this 'str)
+	(entry 'window 'set_title '(r0 r1))
 
-	(push-scope)
-	(entry 'window 'set_status {this, str})
+	(vp-push r0)
+	(call 'title 'set_str_prop '((r0 window_title) prop_text r1) '(r0))
+	(call 'title 'layout '(r0))
+	(vp-pop r0)
 
-	(call 'title 'set_str_prop {this->window_title, prop_text, str})
-	(call 'title 'layout {this->window_title})
-
-	(exit 'window 'set_status {this})
-	(pop-scope)
-	(return)
+	(exit 'window 'set_title '(r0))
+	(vp-ret)
 
 (def-func-end)
 
@@ -438,9 +431,13 @@
 	;trashes
 	;r2-r5
 
+	(entry 'window 'connect_layout '(r0 r1))
+
 	(vp-push r0)
 	(call 'array 'push_back '((r0 window_layout_targets) r1))
 	(vp-pop r0)
+
+	(exit 'window 'connect_layout '(r0))
 	(vp-ret)
 
 (def-func-end)
@@ -454,12 +451,16 @@
 	;trashes
 	;r2-r5
 
+	(entry 'window 'connect_close '(r0 r1))
+
 	(vp-push r0)
 	(vp-cpy-ir r0 window_close r0)
 	(vpif '(r0 != 0))
 		(call 'button 'connect_click '(r0 r1))
 	(endif)
 	(vp-pop r0)
+
+	(exit 'window 'connect_close '(r0))
 	(vp-ret)
 
 (def-func-end)
@@ -473,12 +474,16 @@
 	;trashes
 	;r2-r5
 
+	(entry 'window 'connect_max '(r0 r1))
+
 	(vp-push r0)
 	(vp-cpy-ir r0 window_max r0)
 	(vpif '(r0 != 0))
 		(call 'button 'connect_click '(r0 r1))
 	(endif)
 	(vp-pop r0)
+
+	(exit 'window 'connect_max '(r0))
 	(vp-ret)
 
 (def-func-end)
@@ -492,12 +497,16 @@
 	;trashes
 	;r2-r5
 
+	(entry 'window 'connect_min '(r0 r1))
+
 	(vp-push r0)
 	(vp-cpy-ir r0 window_min r0)
 	(vpif '(r0 != 0))
 		(call 'button 'connect_click '(r0 r1))
 	(endif)
 	(vp-pop r0)
+
+	(exit 'window 'connect_min '(r0))
 	(vp-ret)
 
 (def-func-end)
