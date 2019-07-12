@@ -222,7 +222,7 @@
 	;inputs
 	;r0 = key
 	;r1 = mod
-	;inputs
+	;outputs
 	;r0 = cooked key
 	;trashes
 	;r0-r2

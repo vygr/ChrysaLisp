@@ -8,6 +8,8 @@
 (def-method 'pipe 'deinit)
 	;inputs
 	;r0 = pipe object (ptr)
+	;outputs
+	;r0 = pipe object (ptr)
 	;trashes
 	;all but r0
 

@@ -40,6 +40,8 @@
 (def-method 'button 'deinit)
 	;inputs
 	;r0 = button object (ptr)
+	;outputs
+	;r0 = button object (ptr)
 	;trashes
 	;all but r0
 
@@ -54,6 +56,8 @@
 	;inputs
 	;r0 = button object (ptr)
 	;r1 = draw ctx (ptr)
+	;outputs
+	;r0 = button object (ptr)
 	;trashes
 	;all but r0
 
@@ -77,6 +81,8 @@
 
 (def-method 'button 'layout)
 	;inputs
+	;r0 = button object (ptr)
+	;outputs
 	;r0 = button object (ptr)
 	;trashes
 	;all but r0
@@ -110,6 +116,8 @@
 	;inputs
 	;r0 = button object (ptr)
 	;r1 = mouse event data (ptr)
+	;outputs
+	;r0 = button object (ptr)
 	;trashes
 	;all but r0
 
@@ -142,6 +150,8 @@
 	;inputs
 	;r0 = button object (ptr)
 	;r1 = mouse event data (ptr)
+	;outputs
+	;r0 = button object (ptr)
 	;trashes
 	;all but r0
 

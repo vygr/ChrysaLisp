@@ -37,6 +37,8 @@
 (def-method 'stream 'deinit)
 	;inputs
 	;r0 = stream object (ptr)
+	;outputs
+	;r0 = stream object (ptr)
 	;trashes
 	;all but r0
 

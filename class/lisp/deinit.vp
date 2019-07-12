@@ -5,6 +5,8 @@
 (def-method 'lisp 'deinit)
 	;inputs
 	;r0 = lisp object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
 	;trashes
 	;all but r0
 

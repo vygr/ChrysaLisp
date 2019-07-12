@@ -387,6 +387,8 @@
 	;inputs
 	;_1 = node
 	;_2 = last
+	;outputs
+	;_2 = last
 	;trashes
 	;_1
 

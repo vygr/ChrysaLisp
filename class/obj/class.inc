@@ -38,6 +38,8 @@
 (defcfun class/obj/ref ()
 	;inputs
 	;r0 = object (ptr)
+	;outputs
+	;r0 = object (ptr)
 	;trashes
 	;r1
 	(vp-cpy-ir-ui r0 obj_count r1)

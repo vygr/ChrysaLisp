@@ -29,6 +29,8 @@
 (def-method 'hmap 'deinit)
 	;inputs
 	;r0 = hmap object (ptr)
+	;outputs
+	;r0 = hmap object (ptr)
 	;trashes
 	;all but r0
 

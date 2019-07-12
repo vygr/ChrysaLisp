@@ -295,10 +295,13 @@
 	;trashes
 	;all but r0
 
-	;kernel callback
+	(entry 'canvas 'swap '(r0))
+
 	(vp-push r0)
 	(call 'sys_task 'callback '(r0 ($ callback)))
 	(vp-pop r0)
+
+	(exit 'canvas 'swap '(r0))
 	(vp-ret)
 
 (vp-label 'callback)

@@ -13,6 +13,7 @@
 	;r0 = slave object (ptr)
 	;r1 = vtable (pptr)
 	;outputs
+	;r0 = slave object (ptr)
 	;r1 = 0 if error, else ok
 	;trashes
 	;all but r0
@@ -61,6 +62,8 @@
 
 (def-method 'slave 'deinit)
 	;inputs
+	;r0 = slave object (ptr)
+	;outputs
 	;r0 = slave object (ptr)
 	;trashes
 	;all but r0

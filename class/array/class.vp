@@ -8,6 +8,8 @@
 (def-method 'array 'deinit)
 	;inputs
 	;r0 = array object (ptr)
+	;outputs
+	;r0 = array object (ptr)
 	;trashes
 	;all but r0
 

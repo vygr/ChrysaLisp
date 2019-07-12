@@ -36,6 +36,8 @@
 (def-method 'text 'deinit)
 	;inputs
 	;r0 = text object (ptr)
+	;outputs
+	;r0 = text object (ptr)
 	;trashes
 	;all but r0
 
@@ -53,6 +55,8 @@
 	;inputs
 	;r0 = view object (ptr)
 	;r1 = draw ctx (ptr)
+	;outputs
+	;r0 = view object (ptr)
 	;trashes
 	;all but r0
 
@@ -100,6 +104,7 @@
 	;inputs
 	;r0 = text object (ptr)
 	;outputs
+	;r0 = text object (ptr)
 	;r9 = preferred width (pixels)
 	;r10 = preferred height (pixels)
 	;trashes
@@ -143,6 +148,8 @@
 
 (def-method 'text 'switch_text)
 	;inputs
+	;r0 = text object (ptr)
+	;outputs
 	;r0 = text object (ptr)
 	;trashes
 	;all but r0

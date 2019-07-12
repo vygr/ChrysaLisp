@@ -43,6 +43,8 @@
 (def-method 'msg_in 'deinit)
 	;inputs
 	;r0 = msg_in object (ptr)
+	;outputs
+	;r0 = msg_in object (ptr)
 	;trashes
 	;all but r0
 

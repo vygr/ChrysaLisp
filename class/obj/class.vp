@@ -101,6 +101,8 @@
 (def-method 'obj 'ref_if)
 	;inputs
 	;r0 = 0, else object (ptr)
+	;outputs
+	;r0 = 0, else object (ptr)
 	;trashes
 	;r1
 

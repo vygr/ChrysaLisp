@@ -45,6 +45,8 @@
 (def-method 'msg_out 'deinit)
 	;inputs
 	;r0 = msg_out object (ptr)
+	;outputs
+	;r0 = msg_out object (ptr)
 	;trashes
 	;all but r0
 

@@ -69,6 +69,8 @@
 (def-method 'hset 'deinit)
 	;inputs
 	;r0 = hset object (ptr)
+	;outputs
+	;r0 = hset object (ptr)
 	;trashes
 	;all but r0
 

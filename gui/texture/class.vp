@@ -8,6 +8,8 @@
 (def-method 'texture 'deinit)
 	;inputs
 	;r0 = texture object (ptr)
+	;outputs
+	;r0 = texture object (ptr)
 	;trashes
 	;all but r0
 
@@ -24,6 +26,8 @@
 (vp-label 'close_callback)
 	;inputs
 	;r0 = user data (ptr)
+
+	(entry 'sys_task 'task_callback '(r0))
 
 	(host-call 'host 'sdl_destroy_texture '(r0))
 	(vp-ret)

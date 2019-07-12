@@ -35,6 +35,8 @@
 (def-method 'vdu 'deinit)
 	;inputs
 	;r0 = vdu object (ptr)
+	;outputs
+	;r0 = vdu object (ptr)
 	;trashes
 	;all but r0
 
@@ -55,6 +57,8 @@
 	;inputs
 	;r0 = view object (ptr)
 	;r1 = draw ctx (ptr)
+	;outputs
+	;r0 = view object (ptr)
 	;trashes
 	;all but r0
 
@@ -123,6 +127,7 @@
 	;inputs
 	;r0 = vdu object (ptr)
 	;outputs
+	;r0 = vdu object (ptr)
 	;r9 = preferred width (pixels)
 	;r10 = preferred height (pixels)
 	;trashes
@@ -159,6 +164,8 @@
 (def-method 'vdu 'switch_font)
 	;inputs
 	;r0 = vdu object (ptr)
+	;outputs
+	;r0 = vdu object (ptr)
 	;trashes
 	;all but r0
 
@@ -184,6 +191,8 @@
 
 (def-method 'vdu 'switch_size)
 	;inputs
+	;r0 = vdu object (ptr)
+	;outputs
 	;r0 = vdu object (ptr)
 	;trashes
 	;all but r0

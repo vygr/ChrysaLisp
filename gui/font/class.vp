@@ -156,6 +156,8 @@
 	;inputs
 	;r0 = user data
 
+	(entry 'sys_task 'task_callback '(r0))
+
 	(host-call 'host 'ttf_close_font '((r0 font_handle)))
 	(vp-ret)
 

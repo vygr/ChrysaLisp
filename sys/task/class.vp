@@ -141,6 +141,8 @@
 (def-method 'sys_task 'resume)
 	;inputs
 	;r0 = task control node to resume (ptr)
+	;outputs
+	;r0 = task control node to resume (ptr)
 	;trashes
 	;r1-r2
 

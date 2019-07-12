@@ -9,6 +9,9 @@
 	;r8 = y (pixels)
 	;r9 = x1 (pixels)
 	;r10 = y1 (pixels)
+	;outputs
+	;r0 = region heap (ptr)
+	;r1 = source region listhead (ptr)
 	;trashes
 	;r4-r14
 
@@ -69,6 +72,8 @@
 	;r8 = y (pixels)
 	;r9 = x1 (pixels)
 	;r10 = y1 (pixels)
+	;outputs
+	;r0 = region heap (ptr)
 	;trashes
 	;r1-r2, r4-r14
 
@@ -225,6 +230,8 @@
 	;r3 = copy region listhead (ptr)
 	;r7 = x translation (pixels)
 	;r8 = y translation (pixels)
+	;outputs
+	;r0 = region heap (ptr)
 	;trashes
 	;r1-r14
 
@@ -599,6 +606,8 @@
 	;inputs
 	;r0 = region heap (ptr)
 	;r1 = source region listhead (ptr)
+	;outputs
+	;r0 = region heap (ptr)
 	;trashes
 	;r1-r3
 
@@ -622,6 +631,8 @@
 	;r8 = y (pixels)
 	;r9 = x1 (pixels)
 	;r10 = y1 (pixels)
+	;outputs
+	;r0 = region heap (ptr)
 	;trashes
 	;r1-r14
 
@@ -825,6 +836,8 @@
 	;r2 = dest region listhead (ptr)
 	;r7 = x translation (pixels)
 	;r8 = y translation (pixels)
+	;outputs
+	;r0 = region heap (ptr)
 	;trashes
 	;r1-r14
 
@@ -868,6 +881,8 @@
 	;r8 = y (pixels)
 	;r9 = x1 (pixels)
 	;r10 = y1 (pixels)
+	;outputs
+	;r0 = region heap (ptr)
 	;trashes
 	;r1-r2, r4-r14
 
@@ -1121,6 +1136,8 @@
 	;r2 = dest region listhead (ptr)
 	;r7 = x translation (pixels)
 	;r8 = y translation (pixels)
+	;outputs
+	;r0 = region heap (ptr)
 	;trashes
 	;r1-r14
 
@@ -1186,6 +1203,8 @@
 	;r8 = y (pixels)
 	;r9 = x1 (pixels)
 	;r10 = y1 (pixels)
+	;outputs
+	;r0 = region heap (ptr)
 	;trashes
 	;r1, r11-r14
 

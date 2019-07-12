@@ -50,6 +50,8 @@
 	;inputs
 	;r0 = view object (ptr)
 	;r1 = draw ctx (ptr)
+	;outputs
+	;r0 = view object (ptr)
 	;trashes
 	;all but r0
 
@@ -68,6 +70,8 @@
 
 (def-method 'label 'layout)
 	;inputs
+	;r0 = label object (ptr)
+	;outputs
 	;r0 = label object (ptr)
 	;trashes
 	;all but r0

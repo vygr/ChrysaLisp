@@ -7,6 +7,8 @@
 (def-method 'vector 'deinit)
 	;inputs
 	;r0 = vector object (ptr)
+	;outputs
+	;r0 = vector object (ptr)
 	;trashes
 	;all but r0
 

@@ -29,6 +29,9 @@
 	;inputs
 	;r0 = heap (ptr)
 	;r1 = cell (ptr)
+	;outputs
+	;r0 = heap (ptr)
+	;r1 = cell (ptr)
 	;trashes
 	;r2
 	(hp-freecell r0 r1 r2))

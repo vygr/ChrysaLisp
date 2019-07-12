@@ -264,6 +264,8 @@ r1-r9
 ```
 inputs
 r0 = array object (ptr)
+outputs
+r0 = array object (ptr)
 trashes
 all but r0
 ```
@@ -372,12 +374,16 @@ r9-r10
 inputs
 r0 = view object (ptr)
 r1 = draw ctx (ptr)
+outputs
+r0 = view object (ptr)
 trashes
 all but r0
 ```
 ### backdrop::layout -> apps/boing/backdrop/layout
 ```
 inputs
+r0 = backdrop object (ptr)
+outputs
 r0 = backdrop object (ptr)
 trashes
 all but r0
@@ -418,6 +424,8 @@ r2-r5
 ```
 inputs
 r0 = button object (ptr)
+outputs
+r0 = button object (ptr)
 trashes
 all but r0
 ```
@@ -426,12 +434,16 @@ all but r0
 inputs
 r0 = button object (ptr)
 r1 = draw ctx (ptr)
+outputs
+r0 = button object (ptr)
 trashes
 all but r0
 ```
 ### button::layout -> gui/button/layout
 ```
 inputs
+r0 = button object (ptr)
+outputs
 r0 = button object (ptr)
 trashes
 all but r0
@@ -441,6 +453,8 @@ all but r0
 inputs
 r0 = button object (ptr)
 r1 = mouse event data (ptr)
+outputs
+r0 = button object (ptr)
 trashes
 all but r0
 ```
@@ -449,6 +463,8 @@ all but r0
 inputs
 r0 = button object (ptr)
 r1 = mouse event data (ptr)
+outputs
+r0 = button object (ptr)
 trashes
 all but r0
 ```
@@ -457,6 +473,8 @@ all but r0
 inputs
 r0 = button object (ptr)
 r1 = mouse event data (ptr)
+outputs
+r0 = button object (ptr)
 trashes
 all but r0
 ```
@@ -1453,6 +1471,8 @@ all but r0
 ```
 inputs
 r0 = hmap object (ptr)
+outputs
+r0 = hmap object (ptr)
 trashes
 all but r0
 ```
@@ -1694,6 +1714,8 @@ r3-r4
 ```
 inputs
 r0 = hset object (ptr)
+outputs
+r0 = hset object (ptr)
 trashes
 all but r0
 ```
@@ -1727,12 +1749,16 @@ all but r0
 inputs
 r0 = view object (ptr)
 r1 = draw ctx (ptr)
+outputs
+r0 = view object (ptr)
 trashes
 all but r0
 ```
 ### label::layout -> gui/label/layout
 ```
 inputs
+r0 = label object (ptr)
+outputs
 r0 = label object (ptr)
 trashes
 all but r0
@@ -1767,6 +1793,8 @@ all
 ### lisp::deinit -> class/lisp/deinit
 ```
 inputs
+r0 = lisp object (ptr)
+outputs
 r0 = lisp object (ptr)
 trashes
 all but r0
@@ -2203,6 +2231,8 @@ all but r0
 ```
 inputs
 r0 = msg_in object (ptr)
+outputs
+r0 = msg_in object (ptr)
 trashes
 all but r0
 ```
@@ -2251,6 +2281,8 @@ r1 = stream state (ulong)
 ### msg_out::deinit -> class/msg_out/deinit
 ```
 inputs
+r0 = msg_out object (ptr)
+outputs
 r0 = msg_out object (ptr)
 trashes
 all but r0
@@ -2529,6 +2561,8 @@ r2
 ```
 inputs
 r0 = object (ptr)
+outputs
+r0 = object (ptr)
 trashes
 r1
 ```
@@ -2542,6 +2576,8 @@ all
 ### obj::ref_if -> class/obj/ref_if
 ```
 inputs
+r0 = 0, else object (ptr)
+outputs
 r0 = 0, else object (ptr)
 trashes
 r1
@@ -2639,6 +2675,8 @@ all but r0
 ```
 inputs
 r0 = pair object (ptr)
+outputs
+r0 = pair object (ptr)
 trashes
 all but r0
 ```
@@ -2697,6 +2735,8 @@ r1 = input stream object (ptr)
 ### pipe::deinit -> class/pipe/deinit
 ```
 inputs
+r0 = pipe object (ptr)
+outputs
 r0 = pipe object (ptr)
 trashes
 all but r0
@@ -3287,6 +3327,7 @@ Super Class: view
 inputs
 r0 = progress object (ptr)
 outputs
+r0 = progress object (ptr)
 r9 = preferred width (pixels)
 r10 = preferred height (pixels)
 trashes
@@ -3297,12 +3338,16 @@ r9-r10
 inputs
 r0 = window object (ptr)
 r1 = draw ctx (ptr)
+outputs
+r0 = window object (ptr)
 trashes
 all but r0
 ```
 ### progress::layout -> gui/view/opaque
 ```
 inputs
+r0 = view object (ptr)
+outputs
 r0 = view object (ptr)
 trashes
 all but r0
@@ -3336,6 +3381,8 @@ r7 = x (pixels)
 r8 = y (pixels)
 r9 = x1 (pixels)
 r10 = y1 (pixels)
+outputs
+r0 = region heap (ptr)
 trashes
 r1, r11-r14
 ```
@@ -3348,6 +3395,9 @@ r7 = x (pixels)
 r8 = y (pixels)
 r9 = x1 (pixels)
 r10 = y1 (pixels)
+outputs
+r0 = region heap (ptr)
+r1 = source region listhead (ptr)
 trashes
 r4-r14
 ```
@@ -3360,6 +3410,8 @@ r7 = x (pixels)
 r8 = y (pixels)
 r9 = x1 (pixels)
 r10 = y1 (pixels)
+outputs
+r0 = region heap (ptr)
 trashes
 r1-r2, r4-r14
 ```
@@ -3384,6 +3436,8 @@ r7 = x (pixels)
 r8 = y (pixels)
 r9 = x1 (pixels)
 r10 = y1 (pixels)
+outputs
+r0 = region heap (ptr)
 trashes
 r1-r2, r4-r14
 ```
@@ -3396,6 +3450,8 @@ r7 = x (pixels)
 r8 = y (pixels)
 r9 = x1 (pixels)
 r10 = y1 (pixels)
+outputs
+r0 = region heap (ptr)
 trashes
 r1-r14
 ```
@@ -3404,6 +3460,8 @@ r1-r14
 inputs
 r0 = region heap (ptr)
 r1 = source region listhead (ptr)
+outputs
+r0 = region heap (ptr)
 trashes
 r1-r3
 ```
@@ -3416,6 +3474,8 @@ r2 = dest region listhead (ptr)
 r3 = copy region listhead (ptr)
 r7 = x translation (pixels)
 r8 = y translation (pixels)
+outputs
+r0 = region heap (ptr)
 trashes
 r1-r14
 ```
@@ -3427,6 +3487,8 @@ r1 = source region listhead (ptr)
 r2 = dest region listhead (ptr)
 r7 = x translation (pixels)
 r8 = y translation (pixels)
+outputs
+r0 = region heap (ptr)
 trashes
 r1-r14
 ```
@@ -3438,6 +3500,8 @@ r1 = source region listhead (ptr)
 r2 = dest region listhead (ptr)
 r7 = x translation (pixels)
 r8 = y translation (pixels)
+outputs
+r0 = region heap (ptr)
 trashes
 r1-r14
 ```
@@ -3462,12 +3526,16 @@ all but r0
 inputs
 r0 = scroll object (ptr)
 r1 = child view object (ptr)
+outputs
+r0 = scroll object (ptr)
 trashes
 all but r0
 ```
 ### scroll::layout -> gui/scroll/layout
 ```
 inputs
+r0 = scroll object (ptr)
+outputs
 r0 = scroll object (ptr)
 trashes
 all but r0
@@ -3481,13 +3549,15 @@ r0 = scroll object (ptr)
 r9 = preferred width (pixels)
 r10 = preferred height (pixels)
 trashes
-r7-r10
+all but r0
 ```
 ### scroll::action -> gui/scroll/action
 ```
 inputs
 r0 = scroll object (ptr)
 r1 = event data (ptr)
+outputs
+r0 = scroll object (ptr)
 trashes
 all but r0
 ```
@@ -3580,6 +3650,7 @@ inputs
 r0 = slave object (ptr)
 r1 = vtable (pptr)
 outputs
+r0 = slave object (ptr)
 r1 = 0 if error, else ok
 trashes
 all but r0
@@ -3595,6 +3666,8 @@ r1 = command args
 ### slave::deinit -> class/slave/deinit
 ```
 inputs
+r0 = slave object (ptr)
+outputs
 r0 = slave object (ptr)
 trashes
 all but r0
@@ -3644,6 +3717,8 @@ r2-r5
 ```
 inputs
 r0 = slider object (ptr)
+outputs
+r0 = slider object (ptr)
 trashes
 all but r0
 ```
@@ -3652,6 +3727,7 @@ all but r0
 inputs
 r0 = slider object (ptr)
 outputs
+r0 = slider object (ptr)
 r9 = preferred width (pixels)
 r10 = preferred height (pixels)
 trashes
@@ -3662,12 +3738,16 @@ r9-r10
 inputs
 r0 = window object (ptr)
 r1 = draw ctx (ptr)
+outputs
+r0 = window object (ptr)
 trashes
 all but r0
 ```
 ### slider::layout -> gui/view/opaque
 ```
 inputs
+r0 = view object (ptr)
+outputs
 r0 = view object (ptr)
 trashes
 all but r0
@@ -3677,6 +3757,8 @@ all but r0
 inputs
 r0 = slider object (ptr)
 r1 = mouse event data (ptr)
+outputs
+r0 = slider object (ptr)
 trashes
 all but r0
 ```
@@ -3685,6 +3767,8 @@ all but r0
 inputs
 r0 = slider object (ptr)
 r1 = mouse event data (ptr)
+outputs
+r0 = slider object (ptr)
 trashes
 all but r0
 ```
@@ -3693,6 +3777,8 @@ all but r0
 inputs
 r0 = slider object (ptr)
 r1 = mouse event data (ptr)
+outputs
+r0 = slider object (ptr)
 trashes
 all but r0
 ```
@@ -4117,6 +4203,8 @@ all but r0
 ```
 inputs
 r0 = stream object (ptr)
+outputs
+r0 = stream object (ptr)
 trashes
 all but r0
 ```
@@ -4368,6 +4456,9 @@ r2
 ### sys_heap::free -> sys/heap/free
 ```
 inputs
+r0 = heap (ptr)
+r1 = cell (ptr)
+outputs
 r0 = heap (ptr)
 r1 = cell (ptr)
 trashes
@@ -5236,6 +5327,8 @@ suspend current task, switch to next task
 ```
 inputs
 r0 = task control node to resume (ptr)
+outputs
+r0 = task control node to resume (ptr)
 trashes
 r1-r2
 ```
@@ -5280,6 +5373,7 @@ r0 = mailbox id's array object (ptr)
 trashes
 all
 ```
+### sys_task::task_callback -> class/obj/null
 ### sys_task::lisp_sleep -> sys/task/lisp_sleep
 ```
 inputs
@@ -5351,12 +5445,16 @@ r1 = 0 if error, else ok
 ```
 inputs
 r0 = text object (ptr)
+outputs
+r0 = text object (ptr)
 trashes
 all but r0
 ```
 ### text::deinit -> gui/text/deinit
 ```
 inputs
+r0 = text object (ptr)
+outputs
 r0 = text object (ptr)
 trashes
 all but r0
@@ -5366,6 +5464,7 @@ all but r0
 inputs
 r0 = text object (ptr)
 outputs
+r0 = text object (ptr)
 r9 = preferred width (pixels)
 r10 = preferred height (pixels)
 trashes
@@ -5376,6 +5475,8 @@ all but r0
 inputs
 r0 = view object (ptr)
 r1 = draw ctx (ptr)
+outputs
+r0 = view object (ptr)
 trashes
 all but r0
 ```
@@ -5409,6 +5510,8 @@ r3 = height (pixels)
 ```
 inputs
 r0 = texture object (ptr)
+outputs
+r0 = texture object (ptr)
 trashes
 all but r0
 ```
@@ -5430,6 +5533,8 @@ r1 = 0 if error, else ok
 inputs
 r0 = title object (ptr)
 r1 = mouse event data (ptr)
+outputs
+r0 = title object (ptr)
 trashes
 all but r0
 ```
@@ -5438,6 +5543,8 @@ all but r0
 inputs
 r0 = title object (ptr)
 r1 = mouse event data (ptr)
+outputs
+r0 = title object (ptr)
 trashes
 all but r0
 ```
@@ -5458,12 +5565,16 @@ r1 = 0 if error, else ok
 ```
 inputs
 r0 = vdu object (ptr)
+outputs
+r0 = vdu object (ptr)
 trashes
 all but r0
 ```
 ### vdu::switch_size -> gui/vdu/switch_size
 ```
 inputs
+r0 = vdu object (ptr)
+outputs
 r0 = vdu object (ptr)
 trashes
 all but r0
@@ -5506,6 +5617,8 @@ r1 = return value object (ptr)
 ```
 inputs
 r0 = vdu object (ptr)
+outputs
+r0 = vdu object (ptr)
 trashes
 all but r0
 ```
@@ -5514,6 +5627,7 @@ all but r0
 inputs
 r0 = vdu object (ptr)
 outputs
+r0 = vdu object (ptr)
 r9 = preferred width (pixels)
 r10 = preferred height (pixels)
 trashes
@@ -5524,6 +5638,8 @@ all but r0
 inputs
 r0 = view object (ptr)
 r1 = draw ctx (ptr)
+outputs
+r0 = view object (ptr)
 trashes
 all but r0
 ```
@@ -5534,6 +5650,8 @@ Super Class: array
 ### vector::deinit -> class/vector/deinit
 ```
 inputs
+r0 = vector object (ptr)
+outputs
 r0 = vector object (ptr)
 trashes
 all but r0
@@ -5676,6 +5794,8 @@ r1 = 0 if error, else ok
 inputs
 r0 = view object (ptr)
 r1 = parent view object (ptr)
+outputs
+r0 = view object (ptr)
 trashes
 r1-r3
 ```
@@ -5684,12 +5804,16 @@ r1-r3
 inputs
 r0 = view object (ptr)
 r1 = child view object (ptr)
+outputs
+r0 = view object (ptr)
 trashes
 r1-r3
 ```
 ### view::sub -> gui/view/sub
 ```
 inputs
+r0 = view object (ptr)
+outputs
 r0 = view object (ptr)
 trashes
 r1-r2
@@ -5711,6 +5835,8 @@ r7 = x (pixels)
 r8 = y (pixels)
 r9 = width (pixels)
 r10 = height (pixels)
+outputs
+r0 = view object (ptr)
 trashes
 all but r0
 ```
@@ -5722,6 +5848,8 @@ r7 = x (pixels)
 r8 = y (pixels)
 r9 = width (pixels)
 r10 = height (pixels)
+outputs
+r0 = view object (ptr)
 trashes
 all but r0
 ```
@@ -5733,6 +5861,8 @@ r7 = x (pixels)
 r8 = y (pixels)
 r9 = width (pixels)
 r10 = height (pixels)
+outputs
+r0 = view object (ptr)
 trashes
 all but r0
 ```
@@ -5753,6 +5883,8 @@ r2, r9-r10
 ```
 inputs
 r0 = view object (ptr)
+outputs
+r0 = view object (ptr)
 trashes
 all but r0
 ```
@@ -5760,12 +5892,16 @@ all but r0
 ```
 inputs
 r0 = view object (ptr)
+outputs
+r0 = view object (ptr)
 trashes
 all but r0
 ```
 ### view::opaque -> gui/view/opaque
 ```
 inputs
+r0 = view object (ptr)
+outputs
 r0 = view object (ptr)
 trashes
 all but r0
@@ -5850,6 +5986,8 @@ r7 = new x (pixels)
 r8 = new y (pixels)
 r9 = new w (pixels)
 r10 = new h (pixels)
+outputs
+r0 = view object (ptr)
 trashes
 all but r0
 ```
@@ -5885,6 +6023,8 @@ r0 = view object (ptr)
 r1 = draw ctx (ptr)
 r2 = flags (ulong)
 r3 = depth (int)
+outputs
+r0 = view object (ptr)
 trashes
 all but r0
 ```
@@ -5928,9 +6068,13 @@ r1 = 0 if empty, else last child view object (ptr)
 trashes
 r2
 ```
+### view::forward_callback -> class/obj/null
+### view::forward_tree_callback -> class/obj/null
 ### view::deinit -> gui/view/deinit
 ```
 inputs
+r0 = view object (ptr)
+outputs
 r0 = view object (ptr)
 trashes
 all but r0
@@ -5940,6 +6084,8 @@ all but r0
 inputs
 r0 = view object (ptr)
 r1 = child view object (ptr)
+outputs
+r0 = view object (ptr)
 trashes
 r1-r3
 ```
@@ -5959,6 +6105,7 @@ r1 = 0 if not, else hit
 inputs
 r0 = view object (ptr)
 outputs
+r0 = view object (ptr)
 r9 = preferred width (pixels)
 r10 = preferred height (pixels)
 trashes
@@ -5970,6 +6117,8 @@ all but r0
 inputs
 r0 = view object (ptr)
 r1 = event data (ptr)
+outputs
+r0 = view object (ptr)
 trashes
 all but r0
 ```
@@ -6163,6 +6312,8 @@ all but r0
 inputs
 r0 = window object (ptr)
 r1 = title c string (pubyte)
+outputs
+r0 = window object (ptr)
 trashes
 all but r0
 ```
@@ -6171,6 +6322,8 @@ all but r0
 inputs
 r0 = window object (ptr)
 r1 = status c string (pubyte)
+outputs
+r0 = window object (ptr)
 trashes
 all but r0
 ```
@@ -6218,6 +6371,8 @@ r2-r5
 ```
 inputs
 r0 = window object (ptr)
+outputs
+r0 = window object (ptr)
 trashes
 all but r0
 ```
@@ -6226,6 +6381,8 @@ all but r0
 inputs
 r0 = window object (ptr)
 r1 = child view object (ptr)
+outputs
+r0 = window object (ptr)
 trashes
 all but r0
 ```
@@ -6252,6 +6409,8 @@ all but r0
 inputs
 r0 = window object (ptr)
 r1 = draw ctx (ptr)
+outputs
+r0 = window object (ptr)
 trashes
 all but r0
 ```
@@ -6260,6 +6419,8 @@ all but r0
 inputs
 r0 = window object (ptr)
 r1 = mouse event data (ptr)
+outputs
+r0 = window object (ptr)
 trashes
 all but r0
 ```
@@ -6268,6 +6429,8 @@ all but r0
 inputs
 r0 = window object (ptr)
 r1 = mouse event data (ptr)
+outputs
+r0 = window object (ptr)
 trashes
 all but r0
 ```

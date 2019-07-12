@@ -7,6 +7,8 @@
 (def-method 'pair 'deinit)
 	;inputs
 	;r0 = pair object (ptr)
+	;outputs
+	;r0 = pair object (ptr)
 	;trashes
 	;all but r0
 
