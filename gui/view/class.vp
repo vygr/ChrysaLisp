@@ -678,6 +678,8 @@
 	;r7 = view x (pixels)
 	;r8 = view y (pixels)
 	;outputs
+	;r0 = view object (ptr)
+	;r1 = ancestor view object (ptr)
 	;r7 = relative x (pixels)
 	;r8 = relative y (pixels)
 	;trashes

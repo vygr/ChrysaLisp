@@ -173,6 +173,8 @@
 (def-method 'window 'layout)
 	;inputs
 	;r0 = window object (ptr)
+	;outputs
+	;r0 = window object (ptr)
 	;trashes
 	;all but r0
 
