@@ -11,14 +11,14 @@
 (defun populate-help ()
 	(defq state t vdu_width 1 k (list) v (list))
 	(each-line (lambda (_)
-		(setq _ (trim-end _ (ascii-char 13)))
-		(defq s (split _ " ") f (elem 0 s))
-		(cond
-			(state (cond
-				((eql f "###") (push k (sym (elem 1 s))) (push v ""))
-				((eql f "```") (setq state nil))))
-			((eql f "```") (setq state t))
-			(t (elem-set -2 v (cat (elem -2 v) _ (ascii-char 10)))))) "doc/CLASSES.md")
+		(when (ne 0 (length (defq s (split (setq _ (trim-end _ (ascii-char 13))) " "))))
+			(defq f (elem 0 s))
+			(cond
+				(state (cond
+					((eql f "###") (push k (sym (elem 1 s))) (push v ""))
+					((eql f "```") (setq state nil))))
+				((eql f "```") (setq state t))
+				(t (elem-set -2 v (cat (elem -2 v) _ (ascii-char 10))))))) "doc/CLASSES.md")
 	(each (lambda (k v)
 		(when (ne 0 (length v))
 			(defq _ (split k ":"))
