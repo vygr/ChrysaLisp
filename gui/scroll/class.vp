@@ -14,45 +14,58 @@
 	;r0 = scroll object (ptr)
 	;r1 = 0 if error, else ok
 	;trashes
-	;all but r0-r1
+	;all but r0
 
-	(ptr 'this)
-	(ulong 'flags)
-	(union
-		'(ptr 'vtable)
-		'(ulong 'ok))
+	(def-struct 'local)
+		(ptr 'this)
+		(ulong 'flags)
+	(def-struct-end)
 
-	(push-scope)
-	(entry 'scroll 'init {this, vtable, flags})
+	(vp-alloc local_size)
+	(entry 'scroll 'init '(r0 r1 (rsp local_flags)))
 
 	;init parent
-	(s-call 'scroll 'init {this, vtable} {_, ok})
-	(vpif {ok})
+	(s-call 'scroll 'init '(r0 r1) '(r0 r1))
+	(vpif '(r1 != 0))
 		;init myself
-		(assign {0 => this->scroll_child => this->scroll_vslider} {this->scroll_hslider})
+		(vp-cpy-ri r0 rsp local_this)
+		(vp-xor-rr r1 r1)
+		(vp-cpy-ri r1 r0 scroll_child)
+		(vp-cpy-ri r1 r0 scroll_vslider)
+		(vp-cpy-ri r1 r0 scroll_hslider)
 
-		(vpif {flags & scroll_flag_vertical})
-			(call 'slider 'create nil {this->scroll_vslider})
-			(call 'slider 'set_long_prop {this->scroll_vslider, prop_maximum, 0})
-			(call 'slider 'set_long_prop {this->scroll_vslider, prop_portion, 0})
-			(call 'slider 'set_long_prop {this->scroll_vslider, prop_value, 0})
-			(call 'slider 'connect_value {this->scroll_vslider, this->component_id})
-			(call 'scroll 'add_front {this, this->scroll_vslider})
+		(vp-cpy-ir rsp local_flags r1)
+		(vp-and-cr scroll_flag_vertical r1)
+		(vpif '(r1 != 0))
+			(call 'slider 'create nil '(r0))
+			(call 'slider 'set_long_prop '(r0 prop_maximum 0) '(r0))
+			(call 'slider 'set_long_prop '(r0 prop_portion 0) '(r0))
+			(call 'slider 'set_long_prop '(r0 prop_value 0) '(r0))
+			(vp-cpy-ir rsp local_this r6)
+			(vp-cpy-ri r0 r6 scroll_vslider)
+			(call 'slider 'connect_value '(r0 (r6 component_id)) '(r0))
+			(call 'scroll 'add_front '(r6 r0) '(r0))
 		(endif)
 
-		(vpif {flags & scroll_flag_horizontal})
-			(call 'slider 'create nil {this->scroll_hslider})
-			(call 'slider 'set_long_prop {this->scroll_hslider, prop_maximum, 0})
-			(call 'slider 'set_long_prop {this->scroll_hslider, prop_portion, 0})
-			(call 'slider 'set_long_prop {this->scroll_hslider, prop_value, 0})
-			(call 'slider 'connect_value {this->scroll_hslider, this->component_id})
-			(call 'scroll 'add_front {this, this->scroll_hslider})
+		(vp-cpy-ir rsp local_flags r1)
+		(vp-and-cr scroll_flag_horizontal r1)
+		(vpif '(r1 != 0))
+			(call 'slider 'create nil '(r0))
+			(call 'slider 'set_long_prop '(r0 prop_maximum 0) '(r0))
+			(call 'slider 'set_long_prop '(r0 prop_portion 0) '(r0))
+			(call 'slider 'set_long_prop '(r0 prop_value 0) '(r0))
+			(vp-cpy-ir rsp local_this r6)
+			(vp-cpy-ri r0 r6 scroll_hslider)
+			(call 'slider 'connect_value '(r0 (r6 component_id)) '(r0))
+			(call 'scroll 'add_front '(r6 r0) '(r0))
 		(endif)
+
+		(vp-cpy-cr 1 r1)
 	(endif)
 
-	(exit 'scroll 'init {this, ok})
-	(pop-scope)
-	(return)
+	(exit 'scroll 'init '(r0 r1))
+	(vp-free local_size)
+	(vp-ret)
 
 (def-func-end)
 
@@ -63,22 +76,21 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this 'child)
+	(entry 'scroll 'add_child '(r0 r1))
 
-	(push-scope)
-	(entry 'scroll 'add_child {this, child})
-
-	(vpif {this->scroll_child})
-		(call 'view 'sub {this->scroll_child})
-		(call 'view 'deref {this->scroll_child})
+	(vp-cpy-ir r0 scroll_child r2)
+	(vpif '(r2 != 0))
+		(vp-push r0 r1)
+		(call 'view 'sub '(r2) '(r0))
+		(call 'view 'deref '(r0))
+		(vp-pop r0 r1)
 	(endif)
-	(call 'view 'add_back {this, child})
-	(assign {child} {this->scroll_child})
+	(vp-cpy-ri r1 r0 scroll_child)
+	(call 'view 'add_back '(r0 r1) '(r0))
 
 	;deinit parent
-	(exit 'scroll 'add_child {this})
-	(pop-scope)
-	(return)
+	(exit 'scroll 'add_child '(r0))
+	(vp-ret)
 
 (def-func-end)
 
@@ -154,27 +166,27 @@
 	;r9 = preferred width (pixels)
 	;r10 = preferred height (pixels)
 	;trashes
-	;all but r0
+	;r7-r10
 
-	(ptr 'this)
-	(uint 'w 'h 'sw)
+	(entry 'scroll 'pref_size '(r0))
 
-	(push-scope)
-	(entry 'scroll 'pref_size {this})
-
-	(s-call 'scroll 'pref_size {this} {_, w, h})
-	(vpif {this->scroll_vslider})
-		(call 'slider 'pref_size {this->scroll_vslider} {_, sw, _})
-		(assign {w + sw} {w})
+	(vp-push r0)
+	(s-call 'scroll 'pref_size '(r0) '(r0 r7 r8))
+	(vp-cpy-ir r0 scroll_vslider r0)
+	(vpif '(r0 != 0))
+		(call 'slider 'pref_size '(r0) '(_ r9 _))
+		(vp-add-rr r9 r7)
 	(endif)
-	(vpif {this->scroll_hslider})
-		(call 'slider 'pref_size {this->scroll_hslider} {_, sw, _})
-		(assign {h + sw} {h})
+	(vp-cpy-ir rsp 0 r0)
+	(vp-cpy-ir r0 scroll_hslider r0)
+	(vpif '(r0 != 0))
+		(call 'slider 'pref_size '(r0) '(_ r9 _))
+		(vp-add-rr r9 r8)
 	(endif)
+	(vp-pop r0)
 
-	(exit 'scroll 'pref_size {this, w, h})
-	(pop-scope)
-	(return)
+	(exit 'scroll 'pref_size '(r0 r7 r8))
+	(vp-ret)
 
 (def-func-end)
 
@@ -185,16 +197,12 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this 'data)
+	(entry 'scroll 'event '(r0 r1))
 
-	(push-scope)
-	(entry 'scroll 'event {this, data})
+	(call 'scroll 'layout '(r0) '(r0))
+	(call 'scroll 'dirty_all '(r0) '(r0))
 
-	(call 'scroll 'layout {this})
-	(call 'scroll 'dirty_all {this})
-
-	(exit 'scroll 'event {this})
-	(pop-scope)
-	(return)
+	(exit 'scroll 'event '(r0))
+	(vp-ret)
 
 (def-func-end)

@@ -21,7 +21,7 @@
 	;r0 = window object (ptr)
 	;r1 = 0 if error, else ok
 	;trashes
-	;all but r0-r1
+	;all but r0
 
 	(ptr 'this 'title_flow)
 	(ulong 'flags)

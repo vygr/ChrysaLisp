@@ -68,7 +68,7 @@
 	;r9 = preferred width (pixels)
 	;r10 = preferred height (pixels)
 	;trashes
-	;all but r0
+	;r9-r10
 
 	(entry 'backdrop 'pref_size '(r0))
 	(exit 'backdrop 'pref_size '(r0 640 480))

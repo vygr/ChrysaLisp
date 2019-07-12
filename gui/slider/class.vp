@@ -119,7 +119,7 @@
 	;r9 = preferred width (pixels)
 	;r10 = preferred height (pixels)
 	;trashes
-	;all but r0
+	;r9-r10
 
 	(entry 'slider 'pref_size '(r0))
 	(exit 'slider 'pref_size '(r0 10 10))

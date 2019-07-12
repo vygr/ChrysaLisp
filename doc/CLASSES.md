@@ -365,7 +365,7 @@ outputs
 r9 = preferred width (pixels)
 r10 = preferred height (pixels)
 trashes
-all but r0
+r9-r10
 ```
 ### backdrop::draw -> apps/boing/backdrop/draw
 ```
@@ -3290,7 +3290,7 @@ outputs
 r9 = preferred width (pixels)
 r10 = preferred height (pixels)
 trashes
-all but r0
+r9-r10
 ```
 ### progress::draw -> gui/progress/draw
 ```
@@ -3455,7 +3455,7 @@ outputs
 r0 = scroll object (ptr)
 r1 = 0 if error, else ok
 trashes
-all but r0-r1
+all but r0
 ```
 ### scroll::add_child -> gui/scroll/add_child
 ```
@@ -3481,7 +3481,7 @@ r0 = scroll object (ptr)
 r9 = preferred width (pixels)
 r10 = preferred height (pixels)
 trashes
-all but r0
+r7-r10
 ```
 ### scroll::action -> gui/scroll/action
 ```
@@ -3655,7 +3655,7 @@ outputs
 r9 = preferred width (pixels)
 r10 = preferred height (pixels)
 trashes
-all but r0
+r9-r10
 ```
 ### slider::draw -> gui/slider/draw
 ```
@@ -6156,7 +6156,7 @@ outputs
 r0 = window object (ptr)
 r1 = 0 if error, else ok
 trashes
-all but r0-r1
+all but r0
 ```
 ### window::set_title -> gui/window/set_title
 ```

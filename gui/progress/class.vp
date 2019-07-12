@@ -55,7 +55,7 @@
 	;r9 = preferred width (pixels)
 	;r10 = preferred height (pixels)
 	;trashes
-	;all but r0
+	;r9-r10
 
 	(entry 'progress 'pref_size '(r0))
 	(exit 'progress 'pref_size '(r0 256 10))
