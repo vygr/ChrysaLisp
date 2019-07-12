@@ -44,6 +44,8 @@
 	(vp-ret)
 
 (vp-label 'callback)
+	(entry 'view 'forward_callback '(r0 r1))
+
 	(vp-push r1)
 	(call 'view 'pref_size '(r0) '(r0 r9 r10))
 	(vp-pop r1)
@@ -214,6 +216,8 @@
 	(vp-ret)
 
 (vp-label 'callback)
+	(entry 'view 'forward_callback '(r0 r1))
+
 	(vp-push r1)
 	(call 'view 'pref_size '(r0) '(r0 r9 r10))
 	(vp-pop r1)

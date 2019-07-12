@@ -24,6 +24,7 @@
 (dec-method 'open_remote 'sys/task/open_remote 'static '(r0 r1 r2) '(r0))
 (dec-method 'open_farm 'sys/task/open_farm 'static '(r0 r1 r2) '(r0))
 (dec-method 'open_pipe 'sys/task/open_pipe 'static '(r0) '(r0))
+(dec-method 'task_callback 'class/obj/null 'static '(r0))
 
 (dec-method 'lisp_sleep 'sys/task/lisp_sleep 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_mailbox 'sys/task/lisp_mailbox 'static '(r0 r1) '(r0 r1))

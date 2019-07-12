@@ -455,6 +455,8 @@
 	(vp-ret)
 
 (vp-label 'down_callback)
+	(entry 'view 'forward_tree_callback '(r0 r1))
+
 	(vp-cpy-ir r1 local_view r2)
 	(vpif '(r2 == 0))
 		(vp-cpy-ir r0 component_id r2)
@@ -466,7 +468,9 @@
 	(else)
 		(vp-xor-rr r1 r1)
 	(endif)
+
 (vp-label 'up_callback)
+	(exit 'view 'forward_tree_callback '(r0 r1))
 	(vp-ret)
 
 (def-func-end)

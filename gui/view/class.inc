@@ -27,6 +27,8 @@
 (dec-method 'set_bounds 'gui/view/set_bounds 'static '(r0 r7 r8 r9 r10) '(r0))
 (dec-method 'get_first 'gui/view/get_first 'static '(r0) '(r0 r1))
 (dec-method 'get_last 'gui/view/get_last 'static '(r0) '(r0 r1))
+(dec-method 'forward_callback 'class/obj/null 'static '(r0 r1) '(r0))
+(dec-method 'forward_tree_callback 'class/obj/null 'static '(r0 r1) '(r0 r1))
 
 (dec-method 'deinit 'gui/view/deinit 'override)
 
