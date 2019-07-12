@@ -223,7 +223,6 @@ each-line
 each-mergeable
 each-mergeable-rev
 each-rev
-equalp
 every
 each-pipe-line
 filter
@@ -240,7 +239,6 @@ notevery
 num?
 partition
 platform
-prin-base
 range
 reduce
 reduce-rev

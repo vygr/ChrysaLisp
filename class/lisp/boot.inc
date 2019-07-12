@@ -329,14 +329,6 @@
 	;(notevery lambda seq ...)
 	(not (some! nil nil nil _f _)))
 
-;;;;;;;;;;;;
-; Comparison
-;;;;;;;;;;;;
-
-(defun equalp (x y)
-	;(equalp form form) -> bool
-	(eql (str x) (str y)))
-
 ;;;;;;;;;;;;;;;;
 ; Math functions
 ;;;;;;;;;;;;;;;;

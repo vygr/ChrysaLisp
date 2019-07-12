@@ -316,10 +316,6 @@
 
 (eql form form)
 
-## equalp
-
-(equalp form form) -> bool
-
 ## eval
 
 (eval form [env])
