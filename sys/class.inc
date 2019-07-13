@@ -290,8 +290,9 @@
 		(unless (eql _2 'init)
 			(throw "Method is static !" (list (eval (super-sym _1)) _2))))
 	(assign _3 (elem 2 m))
-	(fn-call (elem 0 m))
-	(if _4 (assign (elem 3 m) _4)))
+	(unless (eql (elem 0 m) 'class/obj/null)
+		(fn-call (elem 0 m))
+		(if _4 (assign (elem 3 m) _4))))
 
 (defcfun s-jump (_1 _2 &optional _3)
 	;_1 = class name
@@ -303,7 +304,9 @@
 			(throw "Method is static !" (list (eval (super-sym _1)) _2))))
 	(assign _3 (elem 2 m))
 	(unwind)
-	(fn-jump (elem 0 m)))
+	(if (eql (elem 0 m) 'class/obj/null)
+		(vp-ret)
+		(fn-jump (elem 0 m))))
 
 (defcfun s-bind (_1 _2 _3)
 	;_1 = class name
