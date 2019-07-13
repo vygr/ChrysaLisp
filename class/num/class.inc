@@ -48,6 +48,8 @@
 	;outputs
 	;r0 = num object (ptr)
 	;r1 = 0 if error, else ok
+	;trashes
+	;r1
 	(vp-cpy-ri r2 r0 num_value)
 	(s-call 'num 'init '(r0 r1) '(r0 r1)))
 
@@ -57,4 +59,6 @@
 	;outputs
 	;r0 = num object (ptr)
 	;r1 = value (long)
+	;trashes
+	;r1
 	(vp-cpy-ir r0 num_value r1))

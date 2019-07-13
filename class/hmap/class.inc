@@ -37,4 +37,6 @@
 	;outputs
 	;r0 = hmap object (ptr)
 	;r1 = 0, else hmap parent object (ptr)
+	;trashes
+	;r1
 	(vp-cpy-ir r0 hmap_parent r1))

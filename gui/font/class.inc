@@ -45,6 +45,8 @@
 	;r1 = ascent (pixels)
 	;r2 = descent (pixels)
 	;r3 = height (pixels)
+	;trashes
+	;r1-r3
 	(vp-cpy-ir-i r0 font_ascent r1)
 	(vp-cpy-ir-i r0 font_descent r2)
 	(vp-cpy-ir-i r0 font_height r3))

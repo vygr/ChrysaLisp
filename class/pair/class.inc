@@ -31,6 +31,8 @@
 	;outputs
 	;r0 = pair object (ptr)
 	;r1 = 0 if error, else ok
+	;trashes
+	;r1
 	(vp-cpy-ri r2 r0 pair_first)
 	(vp-cpy-ri r3 r0 pair_second)
 	(s-call 'pair 'init '(r0 r1) '(r0 r1)))
@@ -41,6 +43,8 @@
 	;outputs
 	;r0 = pair object (ptr)
 	;r1 = object (ptr)
+	;trashes
+	;r1
 	(vp-cpy-ir r0 pair_first r1))
 
 (defcfun class/pair/get_second ()
@@ -49,4 +53,6 @@
 	;outputs
 	;r0 = pair object (ptr)
 	;r1 = object (ptr)
+	;trashes
+	;r1
 	(vp-cpy-ir r0 pair_second r1))

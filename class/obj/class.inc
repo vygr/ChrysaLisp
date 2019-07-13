@@ -28,9 +28,10 @@
 	;r0 = object (ptr)
 	;r1 = vtable (pptr)
 	;outputs
+	;r0 = object (ptr)
 	;r1 = 0 if error, else ok
 	;trashes
-	;none
+	;r1
 	(vp-cpy-ri r1 r0 obj_vtable)
 	(vp-cpy-cr 1 r1)
 	(vp-cpy-ri-i r1 r0 obj_count))

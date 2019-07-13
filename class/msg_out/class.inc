@@ -40,4 +40,8 @@
 	;inputs
 	;r0 = msg_out object (ptr)
 	;r1 = stream state (ulong)
+	;outputs
+	;r0 = msg_out object (ptr)
+	;trashes
+	;none
 	(vp-cpy-ri r1 r0 msg_out_state))

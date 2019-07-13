@@ -28,6 +28,8 @@
 	;outputs
 	;r0 = texture object (ptr)
 	;r1 = 0 if error, else ok
+	;trashes
+	;r1
 	(entry 'texture 'init '(r0 r1 (r0 texture_handle) (r0 texture_width i) (r0 texture_height i)))
 	(s-call 'texture 'init '(r0 r1) '(r0 r1))
 	(exit 'texture 'init '(r0 r1))
@@ -41,6 +43,8 @@
 	;r1 = texture handle (ulong)
 	;r2 = width (pixels)
 	;r3 = height (pixels)
+	;trashes
+	;r1-r3
 	(vp-cpy-ir r0 texture_handle r1)
 	(vp-cpy-ir-ui r0 texture_width r2)
 	(vp-cpy-ir-ui r0 texture_height r3))

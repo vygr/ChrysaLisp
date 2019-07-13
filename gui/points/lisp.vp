@@ -315,7 +315,7 @@
 	(vpif '(r12 == 2))
 		(call 'points 'create nil '(r0))
 		(call 'points 'set_capacity '(r0 r13) '(r0))
-		(call 'points 'set_length '(r0 r13) '(r0))
+		(call 'points 'set_length '(r0 r13) '(r0 _))
 	(else)
 		(vp-cpy-ir r1 (mul ptr_size 2) r0)
 	(errorcases
@@ -359,7 +359,7 @@
 	(vpif '(r12 == 1))
 		(call 'points 'create nil '(r0))
 		(call 'points 'set_capacity '(r0 r13) '(r0))
-		(call 'points 'set_length '(r0 r13) '(r0))
+		(call 'points 'set_length '(r0 r13) '(r0 _))
 	(else)
 		(vp-cpy-ir r1 ptr_size r0)
 	(errorcases
@@ -643,7 +643,7 @@
 	(vpif '(r12 == 2))
 		(call 'points 'create nil '(r0))
 		(call 'points 'set_capacity '(r0 r13) '(r0))
-		(call 'points 'set_length '(r0 r13) '(r0))
+		(call 'points 'set_length '(r0 r13) '(r0 _))
 	(else)
 		(vp-cpy-ir r1 (mul ptr_size 2) r0)
 	(errorcases

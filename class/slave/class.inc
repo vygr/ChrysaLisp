@@ -36,4 +36,6 @@
 	;outputs
 	;r0 = slave object (ptr)
 	;r1 = command args
+	;trashes
+	;r1
 	(vp-cpy-ir r0 slave_args r1))

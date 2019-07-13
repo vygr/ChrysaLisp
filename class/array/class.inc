@@ -6,7 +6,7 @@
 (dec-method 'init 'class/array/init)
 (dec-method 'get_capacity 'class/array/get_capacity 'static '(r0) '(r0 r1))
 (dec-method 'set_capacity 'class/array/set_capacity 'static '(r0 r1) '(r0))
-(dec-method 'set_length 'class/array/set_length 'static '(r0 r1) '(r0))
+(dec-method 'set_length 'class/array/set_length 'static '(r0 r1) '(r0 r1))
 (dec-method 'find 'class/array/find 'static '(r0 r1) '(r0 r1 r2))
 (dec-method 'for_each 'class/array/for_each 'static '(r0 r1 r2 r3 r4) '(r0 r1))
 (dec-method 'sort 'class/array/sort 'static '(r0 r1 r2 r3 r4 r5) '(r0))
@@ -87,6 +87,8 @@
 	;outputs
 	;r0 = array object (ptr)
 	;r1 = capacity (uint)
+	;trashes
+	;r1
 	(vp-cpy-ir-ui r0 array_capacity r1))
 
 (defcfun class/array/get_length ()
@@ -95,6 +97,8 @@
 	;outputs
 	;r0 = array object (ptr)
 	;r1 = length (uint)
+	;trashes
+	;r1
 	(vp-cpy-ir-ui r0 array_length r1))
 
 (defcfun class/array/set_length ()
@@ -103,6 +107,9 @@
 	;r1 = length (uint)
 	;outputs
 	;r0 = array object (ptr)
+	;r1 = length (uint)
+	;trashes
+	;none
 	(vp-cpy-ri-i r1 r0 array_length))
 
 (defcfun class/array/get_first ()
@@ -111,6 +118,8 @@
 	;outputs
 	;r0 = array object (ptr)
 	;r1 = element (long)
+	;trashes
+	;r1
 	(vp-cpy-ir r0 array_array r1)
 	(vp-cpy-ir r1 0 r1))
 
@@ -120,6 +129,8 @@
 	;outputs
 	;r0 = array object (ptr)
 	;r1 = element (long)
+	;trashes
+	;r1
 	(vp-cpy-ir r0 array_array r1)
 	(vp-cpy-ir r1 long_size r1))
 
@@ -156,6 +167,8 @@
 	;r0 = array object (ptr)
 	;r1 = begin element iter (plong)
 	;r2 = end element iter (plong)
+	;trashes
+	;r1-r2
 	(vp-cpy-ir-ui r0 array_length r2)
 	(vp-cpy-ir r0 array_array r1)
 	(vp-shl-cr (log2 long_size) r2)
@@ -167,6 +180,8 @@
 	;outputs
 	;r0 = array object (ptr)
 	;r1 = begin element iter (plong)
+	;trashes
+	;r1
 	(vp-cpy-ir r0 array_array r1))
 
 (defcfun class/array/get_end ()
@@ -176,7 +191,7 @@
 	;r0 = array object (ptr)
 	;r1 = end element iter (plong)
 	;trashes
-	;r2
+	;r1-r2
 	(call 'array 'get_iter '(r0 (r0 array_length ui))))
 
 (defcfun class/array/set_element ()

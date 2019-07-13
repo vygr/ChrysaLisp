@@ -127,7 +127,7 @@
 	(vp-cpy-ir r7 array_array r2)
 	(vp-cpy-ir r2 0 r0)
 	(vp-cpy-ir r2 ptr_size r1)
-	(call 'canvas 'set_color '(r0 (r1 num_value)) '(r0))
+	(call 'canvas 'set_color '(r0 (r1 num_value)) '(r0 _))
 	(call 'obj 'ref '(r0) '(r0))
 
 	(exit 'canvas 'lisp_set_color '(r6 r0))
@@ -159,7 +159,7 @@
 	(vp-cpy-ir r7 array_array r2)
 	(vp-cpy-ir r2 0 r0)
 	(vp-cpy-ir r2 ptr_size r1)
-	(call 'canvas 'set_flags '(r0 (r1 num_value)) '(r0))
+	(call 'canvas 'set_flags '(r0 (r1 num_value)) '(r0 _))
 	(call 'obj 'ref '(r0) '(r0))
 
 	(exit 'canvas 'lisp_set_flags '(r6 r0))

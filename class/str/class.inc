@@ -88,4 +88,6 @@
 	;outputs
 	;r0 = str object (ptr)
 	;r1 = string length (bytes)
+	;trashes
+	;r1
 	(vp-cpy-ir-ui r0 str_length r1))

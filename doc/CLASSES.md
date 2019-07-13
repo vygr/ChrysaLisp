@@ -29,6 +29,8 @@ r0 = array object (ptr)
 outputs
 r0 = array object (ptr)
 r1 = capacity (uint)
+trashes
+r1
 ```
 
 ### array::set_capacity -> class/array/set_capacity
@@ -51,6 +53,9 @@ r0 = array object (ptr)
 r1 = length (uint)
 outputs
 r0 = array object (ptr)
+r1 = length (uint)
+trashes
+none
 ```
 
 ### array::find -> class/array/find
@@ -161,6 +166,8 @@ r0 = array object (ptr)
 outputs
 r0 = array object (ptr)
 r1 = element (long)
+trashes
+r1
 ```
 
 ### array::get_second -> class/array/get_second
@@ -171,6 +178,8 @@ r0 = array object (ptr)
 outputs
 r0 = array object (ptr)
 r1 = element (long)
+trashes
+r1
 ```
 
 ### array::get_element -> class/array/get_element
@@ -233,6 +242,8 @@ outputs
 r0 = array object (ptr)
 r1 = begin element iter (plong)
 r2 = end element iter (plong)
+trashes
+r1-r2
 ```
 
 ### array::get_begin -> class/array/get_begin
@@ -243,6 +254,8 @@ r0 = array object (ptr)
 outputs
 r0 = array object (ptr)
 r1 = begin element iter (plong)
+trashes
+r1
 ```
 
 ### array::get_end -> class/array/get_end
@@ -254,7 +267,7 @@ outputs
 r0 = array object (ptr)
 r1 = end element iter (plong)
 trashes
-r2
+r1-r2
 ```
 
 ### array::each_callback -> class/obj/null
@@ -330,6 +343,8 @@ r0 = array object (ptr)
 outputs
 r0 = array object (ptr)
 r1 = length (uint)
+trashes
+r1
 ```
 
 ### array::ref_element -> class/array/ref_element
@@ -807,6 +822,7 @@ r0 = canvas object (ptr)
 r1 = color (argb)
 outputs
 r0 = canvas object (ptr)
+r1 = color (argb)
 trashes
 none
 ```
@@ -819,6 +835,7 @@ r0 = canvas object (ptr)
 r1 = flags (uint)
 outputs
 r0 = canvas object (ptr)
+r1 = flags (uint)
 trashes
 none
 ```
@@ -1593,6 +1610,8 @@ r0 = font object (ptr)
 r1 = ascent (pixels)
 r2 = descent (pixels)
 r3 = height (pixels)
+trashes
+r1-r3
 ```
 
 ### font::deinit -> gui/font/deinit
@@ -1833,6 +1852,8 @@ r0 = hmap object (ptr)
 outputs
 r0 = hmap object (ptr)
 r1 = 0, else hmap parent object (ptr)
+trashes
+r1
 ```
 
 ### hmap::set_parent -> class/hmap/set_parent
@@ -2072,6 +2093,8 @@ r0 = hset object (ptr)
 outputs
 r0 = hset object (ptr)
 r1 = num buckets (uint)
+trashes
+r1
 ```
 
 ### hset::get_bucket -> class/hset/get_bucket
@@ -2949,6 +2972,10 @@ all but r0
 inputs
 r0 = msg_out object (ptr)
 r1 = stream state (ulong)
+outputs
+r0 = msg_out object (ptr)
+trashes
+none
 ```
 
 ### msg_out::deinit -> class/msg_out/deinit
@@ -3002,6 +3029,8 @@ r2 = initial value (long)
 outputs
 r0 = num object (ptr)
 r1 = 0 if error, else ok
+trashes
+r1
 ```
 
 ### num::get_value -> class/num/get_value
@@ -3012,6 +3041,8 @@ r0 = num object (ptr)
 outputs
 r0 = num object (ptr)
 r1 = value (long)
+trashes
+r1
 ```
 
 ### num::lisp_add -> class/num/lisp_add
@@ -3324,9 +3355,10 @@ inputs
 r0 = object (ptr)
 r1 = vtable (pptr)
 outputs
+r0 = object (ptr)
 r1 = 0 if error, else ok
 trashes
-none
+r1
 ```
 
 ### obj::inst_of -> class/obj/inst_of
@@ -3415,6 +3447,8 @@ r3 = second object (ptr)
 outputs
 r0 = pair object (ptr)
 r1 = 0 if error, else ok
+trashes
+r1
 ```
 
 ### pair::ref_first -> class/pair/ref_first
@@ -3449,6 +3483,8 @@ r0 = pair object (ptr)
 outputs
 r0 = pair object (ptr)
 r1 = object (ptr)
+trashes
+r1
 ```
 
 ### pair::get_second -> class/pair/get_second
@@ -3459,6 +3495,8 @@ r0 = pair object (ptr)
 outputs
 r0 = pair object (ptr)
 r1 = object (ptr)
+trashes
+r1
 ```
 
 ### pair::set_first -> class/pair/set_first
@@ -3540,6 +3578,8 @@ r0 = pipe object (ptr)
 outputs
 r0 = pipe object (ptr)
 r1 = current state (ulong)
+trashes
+r1
 ```
 
 ### pipe::set_state -> class/pipe/set_state
@@ -3550,6 +3590,9 @@ r0 = pipe object (ptr)
 r1 = current state (ulong)
 outputs
 r0 = pipe object (ptr)
+r1 = current state (ulong)
+trashes
+none
 ```
 
 ### pipe::get_input -> class/pipe/get_input
@@ -3560,6 +3603,8 @@ r0 = pipe object (ptr)
 outputs
 r0 = pipe object (ptr)
 r1 = input stream object (ptr)
+trashes
+r1
 ```
 
 ### pipe::deinit -> class/pipe/deinit
@@ -4744,6 +4789,8 @@ r0 = slave object (ptr)
 outputs
 r0 = slave object (ptr)
 r1 = command args
+trashes
+r1
 ```
 
 ### slave::deinit -> class/slave/deinit
@@ -5119,6 +5166,8 @@ r0 = str object (ptr)
 outputs
 r0 = str object (ptr)
 r1 = string length (bytes)
+trashes
+r1
 ```
 
 ### str::ref_element -> class/str/ref_element
@@ -7103,6 +7152,8 @@ r4 = texture height (pixels)
 outputs
 r0 = texture object (ptr)
 r1 = 0 if error, else ok
+trashes
+r1
 ```
 
 ### texture::get_metrics -> gui/texture/get_metrics
@@ -7115,6 +7166,8 @@ r0 = texture object (ptr)
 r1 = texture handle (ulong)
 r2 = width (pixels)
 r3 = height (pixels)
+trashes
+r1-r3
 ```
 
 ### texture::deinit -> gui/texture/deinit

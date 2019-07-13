@@ -33,4 +33,6 @@
 	;outputs
 	;r0 = hset object (ptr)
 	;r1 = num buckets (uint)
+	;trashes
+	;r1
 	(vp-cpy-ir-ui r0 hset_num_buckets r1))

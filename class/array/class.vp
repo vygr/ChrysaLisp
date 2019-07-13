@@ -11,7 +11,7 @@
 	;outputs
 	;r0 = array object (ptr)
 	;trashes
-	;r0-r2
+	;all but r0
 
 	(entry 'array 'deinit '(r0))
 
