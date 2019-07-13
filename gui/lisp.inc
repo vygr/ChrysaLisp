@@ -49,6 +49,7 @@
 (import 'gui/view/lisp.inc)
 (import 'gui/window/lisp.inc)
 (import 'sys/math/lisp.inc)
+(ffi create-backdrop "gui/backdrop/lisp_create" 0)
 (ffi button-connect-click "gui/button/lisp_connect_click" 0)
 (ffi create-button "gui/button/lisp_create" 0)
 (ffi create-flow "gui/flow/lisp_create" 0)

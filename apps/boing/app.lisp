@@ -2,8 +2,6 @@
 (import 'sys/lisp.inc)
 (import 'gui/lisp.inc)
 
-(ffi create-backdrop "apps/boing/backdrop/lisp_create" 0)
-
 (structure 'event 0
 	(byte 'win_close)
 	(byte 'win_min)

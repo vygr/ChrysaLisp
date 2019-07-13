@@ -1,4 +1,5 @@
 (include 'gui/gui/make.inc)
+(include 'gui/backdrop/make.inc)
 (include 'gui/ctx/make.inc)
 (include 'gui/region/make.inc)
 (include 'gui/button/make.inc)

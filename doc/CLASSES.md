@@ -455,11 +455,11 @@ all but r0
 
 Super Class: view
 
-### backdrop::vtable -> apps/boing/backdrop/vtable
+### backdrop::vtable -> gui/backdrop/vtable
 
-### backdrop::create -> apps/boing/backdrop/create
+### backdrop::create -> gui/backdrop/create
 
-### backdrop::pref_size -> apps/boing/backdrop/pref_size
+### backdrop::pref_size -> gui/backdrop/pref_size
 
 ```lisp
 inputs
@@ -472,7 +472,7 @@ trashes
 r9-r10
 ```
 
-### backdrop::draw -> apps/boing/backdrop/draw
+### backdrop::draw -> gui/backdrop/draw
 
 ```lisp
 inputs
@@ -484,7 +484,7 @@ trashes
 all but r0
 ```
 
-### backdrop::layout -> apps/boing/backdrop/layout
+### backdrop::layout -> gui/backdrop/layout
 
 ```lisp
 inputs
@@ -495,7 +495,7 @@ trashes
 all but r0
 ```
 
-### backdrop::lisp_create -> apps/boing/backdrop/lisp_create
+### backdrop::lisp_create -> gui/backdrop/lisp_create
 
 ```lisp
 inputs

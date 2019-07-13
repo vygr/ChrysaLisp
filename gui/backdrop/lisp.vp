@@ -1,5 +1,5 @@
 (include 'sys/func.inc)
-(include 'apps/boing/backdrop/class.inc)
+(include 'gui/backdrop/class.inc)
 (include 'class/lisp/class.inc)
 
 (def-method 'backdrop 'lisp_create)

@@ -7,7 +7,7 @@
 (include 'class/str/class.inc)
 (include 'gui/region/class.inc)
 (include 'gui/ctx/class.inc)
-(include 'apps/boing/backdrop/class.inc)
+(include 'gui/backdrop/class.inc)
 
 (defcvar 'dual_buffers t)
 

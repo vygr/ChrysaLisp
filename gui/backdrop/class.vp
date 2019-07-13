@@ -1,6 +1,6 @@
 (include 'sys/func.inc)
 (include 'gui/ctx/class.inc)
-(include 'apps/boing/backdrop/class.inc)
+(include 'gui/backdrop/class.inc)
 
 (gen-vtable 'backdrop)
 (gen-create 'backdrop)
