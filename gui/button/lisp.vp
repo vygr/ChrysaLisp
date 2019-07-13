@@ -10,6 +10,8 @@
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
 
 	(entry 'button 'lisp_create '(r0 r1))
 
@@ -37,6 +39,8 @@
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
 
 	(entry 'button 'lisp_connect_click '(r6 r7))
 

@@ -11,6 +11,8 @@
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
 
 	(entry 'font 'lisp_create '(r6 r7))
 

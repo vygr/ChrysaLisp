@@ -12,6 +12,8 @@
 	;r1 = return value object (ptr)
 	;trashes
 	;all but r0
+	;trashes
+	;all but r0
 
 	(entry 'lisp 'repl_apply '(r0 r1 r2))
 

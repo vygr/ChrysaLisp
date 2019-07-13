@@ -11,6 +11,8 @@
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
 
 	(entry 'window 'lisp_create '(r6 r7))
 
@@ -40,6 +42,8 @@
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
 
 	(entry 'window 'lisp_connect_layout '(r6 r7))
 
@@ -70,6 +74,8 @@
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
 
 	(entry 'window 'lisp_connect_close '(r6 r7))
 
@@ -100,6 +106,8 @@
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
 
 	(entry 'window 'lisp_connect_min '(r6 r7))
 
@@ -130,6 +138,8 @@
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
 
 	(entry 'window 'lisp_connect_max '(r6 r7))
 
@@ -160,6 +170,8 @@
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
 
 	(entry 'window 'lisp_set_status '(r6 r7))
 
@@ -192,6 +204,8 @@
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
 
 	(entry 'window 'lisp_set_title '(r6 r7))
 

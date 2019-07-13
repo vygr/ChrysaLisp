@@ -13,6 +13,8 @@
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
 
 	(vp-def (r_this r_args r_value) '(r6 r7))
 
@@ -44,6 +46,8 @@
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
 
 	(ptr 'this 'args 'value)
 	(int 'length 'index)
@@ -89,6 +93,8 @@
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
 
 	(ptr 'this 'args 'slc 'value1 'value2)
 	(union
@@ -138,6 +144,8 @@
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
 
 	(ptr 'this 'args 'value 'accum)
 	(union
@@ -262,6 +270,8 @@
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
 
 	(ptr 'this 'args 'value 'mode)
 	(union
@@ -385,6 +395,8 @@
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
 
 	(entry 'seq 'lisp_cat '(r6 r7))
 
@@ -413,6 +425,8 @@
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
 
 	(vp-def (r_args r_value r_length r_vtable r_cmp r_seq r_elem r_this))
 

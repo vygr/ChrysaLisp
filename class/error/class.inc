@@ -30,6 +30,8 @@
 	;outputs
 	;r0 = error object (ptr)
 	;r1 = str object (ptr)
+	;trashes
+	;r1
 	(vp-cpy-ir r0 error_description r1))
 
 (defcfun class/error/get_file ()
@@ -38,6 +40,8 @@
 	;outputs
 	;r0 = error object (ptr)
 	;r1 = str object (ptr)
+	;trashes
+	;r1
 	(vp-cpy-ir r0 error_file r1))
 
 (defcfun class/error/get_object ()
@@ -46,6 +50,8 @@
 	;outputs
 	;r0 = error object (ptr)
 	;r1 = error payload object (ptr)
+	;trashes
+	;r1
 	(vp-cpy-ir r0 error_object r1))
 
 (defcfun class/error/get_line ()
@@ -54,6 +60,8 @@
 	;outputs
 	;r0 = error object (ptr)
 	;r1 = line number (uint)
+	;trashes
+	;r1
 	(vp-cpy-ir-ui r0 error_line r1))
 
 ;;;;;;;;;;;;

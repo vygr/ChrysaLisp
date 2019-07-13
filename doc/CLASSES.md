@@ -380,6 +380,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### array::lisp_points -> class/array/lisp_points
@@ -391,6 +393,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### array::lisp_clear -> class/array/lisp_clear
@@ -402,6 +406,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### array::lisp_push -> class/array/lisp_push
@@ -413,6 +419,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### array::lisp_pop -> class/array/lisp_pop
@@ -424,6 +432,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ## backdrop
@@ -440,6 +450,7 @@ Super Class: view
 inputs
 r0 = backdrop object (ptr)
 outputs
+r0 = backdrop object (ptr)
 r9 = preferred width (pixels)
 r10 = preferred height (pixels)
 trashes
@@ -478,6 +489,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ## button
@@ -590,6 +603,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### button::lisp_connect_click -> gui/button/lisp_connect_click
@@ -601,6 +616,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ## canvas
@@ -1004,6 +1021,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### canvas::lisp_load -> gui/canvas/lisp_load
@@ -1015,6 +1034,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### canvas::lisp_next_frame -> gui/canvas/lisp_next_frame
@@ -1026,6 +1047,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### canvas::lisp_swap -> gui/canvas/lisp_swap
@@ -1037,6 +1060,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### canvas::lisp_fill -> gui/canvas/lisp_fill
@@ -1048,6 +1073,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### canvas::lisp_set_color -> gui/canvas/lisp_set_color
@@ -1059,6 +1086,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### canvas::lisp_set_flags -> gui/canvas/lisp_set_flags
@@ -1070,6 +1099,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### canvas::lisp_plot -> gui/canvas/lisp_plot
@@ -1081,6 +1112,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### canvas::lisp_fbox -> gui/canvas/lisp_fbox
@@ -1092,6 +1125,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### canvas::lisp_fpoly -> gui/canvas/lisp_fpoly
@@ -1103,6 +1138,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ## component
@@ -1317,7 +1354,7 @@ r1 = color (argb)
 outputs
 r1 = brighter color (argb)
 trashes
-r2, r3
+r2-r3
 ```
 
 ### ctx::darker -> gui/ctx/darker
@@ -1328,7 +1365,7 @@ r1 = color (argb)
 outputs
 r1 = darker color (argb)
 trashes
-r2, r3
+r2-r3
 ```
 
 ## error
@@ -1365,6 +1402,8 @@ r0 = error object (ptr)
 outputs
 r0 = error object (ptr)
 r1 = str object (ptr)
+trashes
+r1
 ```
 
 ### error::get_msg -> class/error/get_msg
@@ -1387,6 +1426,8 @@ r0 = error object (ptr)
 outputs
 r0 = error object (ptr)
 r1 = error payload object (ptr)
+trashes
+r1
 ```
 
 ### error::get_file -> class/error/get_file
@@ -1397,6 +1438,8 @@ r0 = error object (ptr)
 outputs
 r0 = error object (ptr)
 r1 = str object (ptr)
+trashes
+r1
 ```
 
 ### error::get_line -> class/error/get_line
@@ -1407,6 +1450,8 @@ r0 = error object (ptr)
 outputs
 r0 = error object (ptr)
 r1 = line number (uint)
+trashes
+r1
 ```
 
 ### error::deinit -> class/error/deinit
@@ -1461,6 +1506,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ## font
@@ -1568,6 +1615,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ## func
@@ -1619,6 +1668,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ## gui
@@ -1664,6 +1715,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ## hmap
@@ -1825,6 +1878,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### hmap::lisp_defq -> class/hmap/lisp_defq
@@ -1836,6 +1891,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### hmap::lisp_set -> class/hmap/lisp_set
@@ -1847,6 +1904,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### hmap::lisp_setq -> class/hmap/lisp_setq
@@ -1858,6 +1917,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### hmap::lisp_defined -> class/hmap/lisp_defined
@@ -1869,6 +1930,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### hmap::lisp_undef -> class/hmap/lisp_undef
@@ -1880,6 +1943,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ## host
@@ -2163,6 +2228,7 @@ all but r0
 inputs
 r0 = label object (ptr)
 outputs
+r0 = label object (ptr)
 r9 = preferred width (pixels)
 r10 = preferred height (pixels)
 trashes
@@ -2201,6 +2267,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ## lisp
@@ -2266,6 +2334,8 @@ r2 = vals seq object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### lisp::env_args_set -> class/lisp/env_args_set
@@ -2354,6 +2424,8 @@ r2 = next char (uint)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 r2 = next char (uint)
 ```
 
@@ -2393,6 +2465,8 @@ r1 = form object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### lisp::repl_eval_list -> class/lisp/repl_eval_list
@@ -2404,6 +2478,8 @@ r1 = list vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### lisp::repl_apply -> class/lisp/repl_apply
@@ -2416,6 +2492,8 @@ r2 = func object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 trashes
 all but r0
 ```
@@ -2465,6 +2543,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### lisp::func_macroexpand_1 -> class/lisp/func_macroexpand_1
@@ -2476,6 +2556,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### lisp::func_macroexpand -> class/lisp/func_macroexpand
@@ -2487,6 +2569,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### lisp::func_defmacro -> class/lisp/func_defmacro
@@ -2498,6 +2582,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### lisp::func_lambda -> class/lisp/func_lambda
@@ -2509,6 +2595,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### lisp::func_quote -> class/lisp/func_quote
@@ -2520,6 +2608,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### lisp::func_qquote -> class/lisp/func_qquote
@@ -2531,6 +2621,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### lisp::func_eql -> class/lisp/func_eql
@@ -2542,6 +2634,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### lisp::func_cond -> class/lisp/func_cond
@@ -2553,6 +2647,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### lisp::func_progn -> class/lisp/func_progn
@@ -2564,6 +2660,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### lisp::func_while -> class/lisp/func_while
@@ -2575,6 +2673,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### lisp::func_print -> class/lisp/func_print
@@ -2586,6 +2686,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### lisp::func_prin -> class/lisp/func_prin
@@ -2597,6 +2699,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### lisp::func_copy -> class/lisp/func_copy
@@ -2608,6 +2712,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### lisp::func_apply -> class/lisp/func_apply
@@ -2619,6 +2725,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### lisp::func_repl -> class/lisp/func_repl
@@ -2630,6 +2738,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### lisp::func_eval -> class/lisp/func_eval
@@ -2641,6 +2751,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### lisp::func_throw -> class/lisp/func_throw
@@ -2652,6 +2764,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### lisp::func_catch -> class/lisp/func_catch
@@ -2663,6 +2777,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### lisp::func_age -> class/lisp/func_age
@@ -2674,6 +2790,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### lisp::func_time -> class/lisp/func_time
@@ -2685,6 +2803,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### lisp::func_bind -> class/lisp/func_bind
@@ -2696,6 +2816,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### lisp::func_read -> class/lisp/func_read
@@ -2707,6 +2829,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### lisp::func_type -> class/lisp/func_type
@@ -2718,6 +2842,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### lisp::run -> class/lisp/run
@@ -2897,6 +3023,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### num::lisp_sub -> class/num/lisp_sub
@@ -2908,6 +3036,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### num::lisp_mul -> class/num/lisp_mul
@@ -2919,6 +3049,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### num::lisp_div -> class/num/lisp_div
@@ -2930,6 +3062,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### num::lisp_mod -> class/num/lisp_mod
@@ -2941,6 +3075,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### num::lisp_fmul -> class/num/lisp_fmul
@@ -2952,6 +3088,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### num::lisp_fdiv -> class/num/lisp_fdiv
@@ -2963,6 +3101,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### num::lisp_fmod -> class/num/lisp_fmod
@@ -2974,6 +3114,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### num::lisp_band -> class/num/lisp_band
@@ -2985,6 +3127,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### num::lisp_bor -> class/num/lisp_bor
@@ -2996,6 +3140,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### num::lisp_bxor -> class/num/lisp_bxor
@@ -3007,6 +3153,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### num::lisp_bshr -> class/num/lisp_bshr
@@ -3018,6 +3166,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### num::lisp_basr -> class/num/lisp_basr
@@ -3029,6 +3179,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### num::lisp_bshl -> class/num/lisp_bshl
@@ -3040,6 +3192,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### num::lisp_min -> class/num/lisp_min
@@ -3051,6 +3205,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### num::lisp_max -> class/num/lisp_max
@@ -3062,6 +3218,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### num::lisp_eq -> class/num/lisp_eq
@@ -3073,6 +3231,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### num::lisp_ne -> class/num/lisp_ne
@@ -3084,6 +3244,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### num::lisp_lt -> class/num/lisp_lt
@@ -3095,6 +3257,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### num::lisp_gt -> class/num/lisp_gt
@@ -3106,6 +3270,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### num::lisp_le -> class/num/lisp_le
@@ -3117,6 +3283,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### num::lisp_ge -> class/num/lisp_ge
@@ -3128,6 +3296,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ## obj
@@ -3412,6 +3582,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### pipe::lisp_read -> class/pipe/lisp_read
@@ -3423,6 +3595,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### pipe::lisp_write -> class/pipe/lisp_write
@@ -3434,6 +3608,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ## points
@@ -3888,6 +4064,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### points::lisp_sub -> gui/points/lisp_sub
@@ -3899,6 +4077,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### points::lisp_mul -> gui/points/lisp_mul
@@ -3910,6 +4090,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### points::lisp_div -> gui/points/lisp_div
@@ -3921,6 +4103,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### points::lisp_mod -> gui/points/lisp_mod
@@ -3932,6 +4116,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### points::lisp_sum -> gui/points/lisp_sum
@@ -3943,6 +4129,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### points::lisp_fmul -> gui/points/lisp_fmul
@@ -3954,6 +4142,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### points::lisp_fdiv -> gui/points/lisp_fdiv
@@ -3965,6 +4155,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### points::lisp_fmod -> gui/points/lisp_fmod
@@ -3976,6 +4168,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### points::lisp_fscale -> gui/points/lisp_fscale
@@ -3987,6 +4181,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### points::lisp_abs -> gui/points/lisp_abs
@@ -3998,6 +4194,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### points::lisp_frac -> gui/points/lisp_frac
@@ -4009,6 +4207,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### points::lisp_transform -> gui/points/lisp_transform
@@ -4020,6 +4220,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### points::lisp_simplify -> gui/points/lisp_simplify
@@ -4031,6 +4233,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### points::lisp_gen_quadratic -> gui/points/lisp_gen_quadratic
@@ -4042,6 +4246,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### points::lisp_gen_cubic -> gui/points/lisp_gen_cubic
@@ -4053,6 +4259,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### points::lisp_gen_arc -> gui/points/lisp_gen_arc
@@ -4064,6 +4272,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### points::lisp_stroke_polylines -> gui/points/lisp_stroke_polylines
@@ -4075,6 +4285,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### points::lisp_stroke_polygons -> gui/points/lisp_stroke_polygons
@@ -4086,6 +4298,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ## progress
@@ -4141,6 +4355,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ## region
@@ -4390,6 +4606,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ## seq
@@ -4415,6 +4633,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### seq::lisp_elem -> class/seq/lisp_elem
@@ -4426,6 +4646,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### seq::lisp_find -> class/seq/lisp_find
@@ -4437,6 +4659,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### seq::lisp_slice -> class/seq/lisp_slice
@@ -4448,6 +4672,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### seq::lisp_cat -> class/seq/lisp_cat
@@ -4459,6 +4685,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### seq::lisp_each -> class/seq/lisp_each
@@ -4470,6 +4698,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### seq::lisp_some -> class/seq/lisp_some
@@ -4481,6 +4711,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ## slave
@@ -4534,6 +4766,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### slave::lisp_get_args -> class/slave/lisp_get_args
@@ -4545,6 +4779,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ## slider
@@ -4670,6 +4906,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### slider::lisp_connect_value -> gui/slider/lisp_connect_value
@@ -4681,6 +4919,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ## str
@@ -4929,6 +5169,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### str::lisp_split -> class/str/lisp_split
@@ -4940,6 +5182,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### str::lisp_code -> class/str/lisp_code
@@ -4951,6 +5195,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### str::lisp_char -> class/str/lisp_char
@@ -4962,6 +5208,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### str::lisp_cmp -> class/str/lisp_cmp
@@ -4973,6 +5221,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### str::lisp_save -> class/str/lisp_save
@@ -4984,6 +5234,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### str::lisp_load -> class/str/lisp_load
@@ -4995,6 +5247,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ## stream
@@ -5229,6 +5483,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### stream::lisp_strstream -> class/stream/lisp_strstream
@@ -5240,6 +5496,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### stream::lisp_available -> class/stream/lisp_available
@@ -5251,6 +5509,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### stream::lisp_readchar -> class/stream/lisp_readchar
@@ -5262,6 +5522,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### stream::lisp_readline -> class/stream/lisp_readline
@@ -5273,6 +5535,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### stream::lisp_writechar -> class/stream/lisp_writechar
@@ -5284,6 +5548,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### stream::lisp_write -> class/stream/lisp_write
@@ -5295,6 +5561,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### stream::lisp_write_flush -> class/stream/lisp_write_flush
@@ -5306,6 +5574,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ## stream_str
@@ -5426,6 +5696,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### sym::lisp_gensym -> class/sym/lisp_gensym
@@ -5437,6 +5709,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ## sys_heap
@@ -5559,6 +5833,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### sys_kernel::lisp_declare -> sys/kernel/lisp_declare
@@ -5570,6 +5846,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### sys_kernel::lisp_debug -> sys/kernel/lisp_debug
@@ -5581,6 +5859,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ## sys_link
@@ -5856,6 +6136,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### sys_mail::lisp_trymail -> sys/mail/lisp_trymail
@@ -5867,6 +6149,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### sys_mail::lisp_send -> sys/mail/lisp_send
@@ -5878,6 +6162,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### sys_mail::lisp_declare -> sys/mail/lisp_declare
@@ -5889,6 +6175,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### sys_mail::lisp_enquire -> sys/mail/lisp_enquire
@@ -5900,6 +6188,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ## sys_math
@@ -6005,6 +6295,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### sys_math::lisp_fcos -> sys/math/lisp_fcos
@@ -6016,6 +6308,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### sys_math::lisp_fsqrt -> sys/math/lisp_fsqrt
@@ -6027,6 +6321,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### sys_math::lisp_frac -> sys/math/lisp_frac
@@ -6038,6 +6334,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### sys_math::lisp_floor -> sys/math/lisp_floor
@@ -6049,6 +6347,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ## sys_mem
@@ -6395,6 +6695,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### sys_pii::lisp_writechar -> sys/pii/lisp_writechar
@@ -6406,6 +6708,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ## sys_str
@@ -6644,6 +6948,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### sys_task::lisp_mailbox -> sys/task/lisp_mailbox
@@ -6655,6 +6961,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### sys_task::lisp_open_child -> sys/task/lisp_open_child
@@ -6666,6 +6974,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### sys_task::lisp_open_remote -> sys/task/lisp_open_remote
@@ -6677,6 +6987,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### sys_task::lisp_open_farm -> sys/task/lisp_open_farm
@@ -6688,6 +7000,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### sys_task::lisp_open_pipe -> sys/task/lisp_open_pipe
@@ -6699,6 +7013,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ## text
@@ -6925,6 +7241,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### vdu::lisp_print -> gui/vdu/lisp_print
@@ -6936,6 +7254,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### vdu::deinit -> gui/vdu/deinit
@@ -7091,6 +7411,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### vector::lisp_elemset -> class/vector/lisp_elemset
@@ -7102,6 +7424,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### vector::lisp_merge -> class/vector/lisp_merge
@@ -7113,6 +7437,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### vector::lisp_part -> class/vector/lisp_part
@@ -7124,6 +7450,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### vector::lisp_match -> class/vector/lisp_match
@@ -7135,6 +7463,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ## view
@@ -7574,6 +7904,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### view::lisp_sub -> gui/view/lisp_sub
@@ -7585,6 +7917,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### view::lisp_add_child -> gui/view/lisp_add_child
@@ -7596,6 +7930,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### view::lisp_add_front -> gui/view/lisp_add_front
@@ -7607,6 +7943,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### view::lisp_add_back -> gui/view/lisp_add_back
@@ -7618,6 +7956,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### view::lisp_pref_size -> gui/view/lisp_pref_size
@@ -7629,6 +7969,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### view::lisp_change -> gui/view/lisp_change
@@ -7640,6 +7982,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### view::lisp_set_bounds -> gui/view/lisp_set_bounds
@@ -7651,6 +7995,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### view::lisp_get_bounds -> gui/view/lisp_get_bounds
@@ -7662,6 +8008,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### view::lisp_add_opaque -> gui/view/lisp_add_opaque
@@ -7673,6 +8021,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### view::lisp_sub_opaque -> gui/view/lisp_sub_opaque
@@ -7684,6 +8034,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### view::lisp_opaque -> gui/view/lisp_opaque
@@ -7695,6 +8047,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### view::lisp_add_dirty -> gui/view/lisp_add_dirty
@@ -7706,6 +8060,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### view::lisp_dirty -> gui/view/lisp_dirty
@@ -7717,6 +8073,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### view::lisp_dirty_all -> gui/view/lisp_dirty_all
@@ -7728,6 +8086,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### view::lisp_layout -> gui/view/lisp_layout
@@ -7739,6 +8099,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### view::lisp_event -> gui/view/lisp_event
@@ -7750,6 +8112,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### view::lisp_find_id -> gui/view/lisp_find_id
@@ -7761,6 +8125,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ## window
@@ -7949,6 +8315,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### window::lisp_connect_layout -> gui/window/lisp_connect_layout
@@ -7960,6 +8328,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### window::lisp_connect_close -> gui/window/lisp_connect_close
@@ -7971,6 +8341,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### window::lisp_connect_min -> gui/window/lisp_connect_min
@@ -7982,6 +8354,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### window::lisp_connect_max -> gui/window/lisp_connect_max
@@ -7993,6 +8367,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### window::lisp_set_status -> gui/window/lisp_set_status
@@ -8004,6 +8380,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ### window::lisp_set_title -> gui/window/lisp_set_title
@@ -8015,5 +8393,7 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+all but r0
 ```
 

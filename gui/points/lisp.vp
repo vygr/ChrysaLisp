@@ -10,6 +10,8 @@
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
 
 	(entry 'points 'lisp_transform '(r6 r7))
 
@@ -49,6 +51,8 @@
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
 
 	(entry 'points 'lisp_simplify '(r6 r7))
 
@@ -83,6 +87,8 @@
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
 
 	(entry 'points 'lisp_gen_quadratic '(r6 r7))
 
@@ -123,6 +129,8 @@
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
 
 	(entry 'points 'lisp_gen_cubic '(r6 r7))
 
@@ -166,6 +174,8 @@
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
 
 	(entry 'points 'lisp_gen_arc '(r6 r7))
 
@@ -205,6 +215,8 @@
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
 
 	(entry 'points 'lisp_stroke_polylines '(r6 r7))
 
@@ -244,6 +256,8 @@
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
 
 	(entry 'points 'lisp_stroke_polygons '(r6 r7))
 
@@ -371,6 +385,8 @@
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
 
 	(entry 'points 'lisp_add '(r0 r1))
 
@@ -395,6 +411,8 @@
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
 
 	(entry 'points 'lisp_sub '(r0 r1))
 
@@ -419,6 +437,8 @@
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
 
 	(entry 'points 'lisp_mul '(r0 r1))
 
@@ -443,6 +463,8 @@
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
 
 	(entry 'points 'lisp_div '(r0 r1))
 
@@ -467,6 +489,8 @@
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
 
 	(entry 'points 'lisp_mod '(r0 r1))
 
@@ -491,6 +515,8 @@
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
 
 	(entry 'points 'lisp_fmul '(r0 r1))
 
@@ -515,6 +541,8 @@
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
 
 	(entry 'points 'lisp_fdiv '(r0 r1))
 
@@ -539,6 +567,8 @@
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
 
 	(entry 'points 'lisp_fmod '(r0 r1))
 
@@ -563,6 +593,8 @@
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
 
 	(entry 'points 'lisp_sum '(r6 r7))
 
@@ -591,6 +623,8 @@
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
 
 	(entry 'points 'lisp_fscale '(r9 r10))
 
@@ -636,6 +670,8 @@
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
 
 	(entry 'points 'lisp_abs '(r0 r1))
 
@@ -660,6 +696,8 @@
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
 
 	(entry 'points 'lisp_frac '(r0 r1))
 

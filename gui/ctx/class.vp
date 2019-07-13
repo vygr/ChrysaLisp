@@ -32,7 +32,7 @@
 	;outputs
 	;r1 = brighter color (argb)
 	;trashes
-	;r2, r3
+	;r2-r3
 
 	(vp-cpy-rr r1 r2)
 	(vp-cpy-cr argb_black r3)
@@ -51,7 +51,7 @@
 	;outputs
 	;r1 = darker color (argb)
 	;trashes
-	;r2, r3
+	;r2-r3
 
 	(vp-cpy-rr r1 r2)
 	(vp-cpy-cr argb_black r3)

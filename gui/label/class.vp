@@ -104,6 +104,7 @@
 	;inputs
 	;r0 = label object (ptr)
 	;outputs
+	;r0 = label object (ptr)
 	;r9 = preferred width (pixels)
 	;r10 = preferred height (pixels)
 	;trashes

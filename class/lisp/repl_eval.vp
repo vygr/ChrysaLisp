@@ -11,6 +11,8 @@
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
 
 	(ptr 'this 'form 'value 'func 'args)
 

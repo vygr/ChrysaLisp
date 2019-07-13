@@ -10,6 +10,8 @@
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
 
 	(entry 'vector 'lisp_list '(r9 r1))
 
@@ -27,6 +29,8 @@
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
 
 	(entry 'vector 'lisp_elemset '(r6 r7))
 
@@ -73,6 +77,8 @@
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
 
 	(entry 'vector 'lisp_merge '(r6 r7))
 
@@ -113,6 +119,8 @@
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
 
 	(def-struct 'pdata)
 		(ptr 'this)
@@ -205,6 +213,8 @@
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
 
 	(entry 'vector 'lisp_match '(r6 r7))
 

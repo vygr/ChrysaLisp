@@ -9,6 +9,8 @@
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
 
 	(entry 'label 'lisp_create '(r0 r1))
 

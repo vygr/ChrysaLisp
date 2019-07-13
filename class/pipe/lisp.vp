@@ -13,6 +13,8 @@
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
 
 	(entry 'pipe 'lisp_create '(r6 r7))
 
@@ -46,6 +48,8 @@
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
 
 	(ptr 'this 'args 'value 'pipe 'stream 'str_stream 'my_mbox_addr)
 	(uint 'state 'index 'my_mbox_id)
@@ -113,6 +117,8 @@
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
 
 	(ptr 'this 'args 'value 'pipe)
 	(union

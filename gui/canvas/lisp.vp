@@ -11,6 +11,8 @@
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
 
 	(entry 'canvas 'lisp_create '(r6 r7))
 
@@ -43,6 +45,8 @@
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
 
 	(entry 'canvas 'lisp_load '(r6 r7))
 
@@ -79,6 +83,8 @@
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
 
 	(entry 'canvas 'lisp_fill '(r6 r7))
 
@@ -109,6 +115,8 @@
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
 
 	(entry 'canvas 'lisp_set_color '(r6 r7))
 
@@ -139,6 +147,8 @@
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
 
 	(entry 'canvas 'lisp_set_flags '(r6 r7))
 
@@ -169,6 +179,8 @@
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
 
 	(entry 'canvas 'lisp_swap '(r6 r7))
 
@@ -201,6 +213,8 @@
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
 
 	(entry 'canvas 'lisp_next_frame '(r6 r7))
 
@@ -230,6 +244,8 @@
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
 
 	(entry 'canvas 'lisp_plot '(r6 r7))
 
@@ -263,6 +279,8 @@
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
 
 	(entry 'canvas 'lisp_fbox '(r6 r7))
 
@@ -298,6 +316,8 @@
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
 
 	(entry 'canvas 'lisp_fpoly '(r6 r7))
 
