@@ -92,21 +92,21 @@
 		((find (elem 0 ,e) (opt-emit-two-out-ops)) (eql ,r (elem -3 ,e)))
 		((find (elem 0 ,e) (opt-emit-multi-out-ops)) (find ,r ,e))))
 
-(defcfun opt-emit-trashes-without-calls? (r e)
+(defcfun-pre-bound opt-emit-trashes-without-calls? (r e)
 	(opt-trashes? r e))
 
-(defcfun opt-emit-trashes-with-calls? (r e)
+(defcfun-pre-bound opt-emit-trashes-with-calls? (r e)
 	(cond
 		((find (elem 0 e) (opt-emit-call-ops)) t)
 		(t (opt-trashes? r e))))
 
-(defcfun opt-emit-trashes-with-kills? (r e)
+(defcfun-pre-bound opt-emit-trashes-with-kills? (r e)
 	(cond
 		((find (elem 0 e) (opt-emit-kills-ops)) t)
 		((find (elem 0 e) (opt-emit-call-ops)) t)
 		(t (opt-trashes? r e))))
 
-(defcfun opt-emit-find-rw (k _ r w b i)
+(defcfun-pre-bound opt-emit-find-rw (k _ r w b i)
 	(defq _ (some! _ 0 t (lambda (e)
 		(cond
 			((and (eql w (elem 0 e))
@@ -121,7 +121,7 @@
 			((k b e) -1))) (list *emit-buffer*)))
 	(and _ (ne _ -1) _))
 
-(defcfun opt-emit-find-rw1 (k _ ra rb w b i)
+(defcfun-pre-bound opt-emit-find-rw1 (k _ ra rb w b i)
 	(defq _ (some! _ 0 t (lambda (e)
 		(cond
 			((and (eql w (elem 0 e))
@@ -136,7 +136,7 @@
 			((k b e) -1))) (list *emit-buffer*)))
 	(and _ (ne _ -1) _))
 
-(defcfun opt-emit-find-rr (k _ rs rd)
+(defcfun-pre-bound opt-emit-find-rr (k _ rs rd)
 	(defq _ (some! _ 0 t (lambda (e)
 		(cond
 			((match? e (list 'emit-cpy-rr rs rd)) _)
@@ -144,7 +144,7 @@
 			((k rd e) -1))) (list *emit-buffer*)))
 	(and _ (ne _ -1) _))
 
-(defcfun opt-emit-buffer ()
+(defcfun-pre-bound opt-emit-buffer ()
 	(each! 2 nil nil (lambda (e)
 		(cond
 			;read after read/write

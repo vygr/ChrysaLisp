@@ -1,5 +1,5 @@
 (include 'sys/func.inc)
-(include 'class/num/class.inc)
+(include 'class/func/class.inc)
 (include 'class/sym/class.inc)
 (include 'class/lisp/class.inc)
 
@@ -44,6 +44,11 @@
 		(fn-bind (f-path 'str 'vtable) r_vtable)
 		(vpif (list r_obj '== r_vtable))
 			(vp-cpy-cr lisp_type_str r_value)
+			(break 'done)
+		(endif)
+		(fn-bind (f-path 'func 'vtable) r_vtable)
+		(vpif (list r_obj '== r_vtable))
+			(vp-cpy-cr lisp_type_fnc r_value)
 			(break 'done)
 		(endif)
 		(vp-cpy-cr 0 r_value)

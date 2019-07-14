@@ -1,5 +1,6 @@
 ;generic distance metric stuff
 (import 'gui/points/lisp.inc)
+(import 'sys/math/lisp.inc)
 
 (defun vec-manhattan-distance (p1 p2)
 	(defq _ (points-sub p1 p2))
@@ -73,10 +74,10 @@
 		(list 'fsqrt (list 'vec-dot p p _))
 		(list 'fsqrt (list 'vec-dot p p))))
 
-(defun vec-norm (p &optional _)
+(defun-pre-bound vec-norm (p &optional _)
 	(if _
-		(defq l (fsqrt (points-sum (vec-mul p p _))))
-		(defq _ (vec-mul p p) l (fsqrt (points-sum _))))
+		(defq l (fsqrt (points-sum (points-fmul p p _))))
+		(defq _ (points-fmul p p) l (fsqrt (points-sum _))))
 	(if (eq l 0)
 		(points-fscale p 0 _)
 		(points-fscale p (fdiv 1.0 l) _)))

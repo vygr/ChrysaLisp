@@ -1,6 +1,5 @@
 ;imports
 (import 'sys/lisp.inc)
-(import 'sys/math/lisp.inc)
 (import 'apps/math.inc)
 
 (structure 'work 0
@@ -31,13 +30,13 @@
 ;	(sub (vec-length (vec-sub p c)) r))
 
 ;the scene
-(defun scene (p)
+(defun-pre-bound scene (p)
 	(sub (vec-length
 		(points-sub
 			(defq _ (points-frac p))
 			(const (points 0.5 0.5 0.5)) _)) 0.35))
 
-(defun ray-march (ray_origin ray_dir l max_l min_distance march_factor)
+(defun-pre-bound ray-march (ray_origin ray_dir l max_l min_distance march_factor)
 	(defq i -1 d 1.0 _ (points 0 0 0))
 	(while (and (lt (setq i (inc i)) 1000)
 				(gt d min_distance)
@@ -50,13 +49,13 @@
 (ffi scene "apps/raymarch/scene" 0)
 (ffi ray-march "apps/raymarch/ray-march" 0)
 
-(defun get-normal ((x y z))
+(defun-pre-bound get-normal ((x y z))
 	(vec-norm (points
 		(sub (scene (points (add x eps) y z)) (scene (points (sub x eps) y z)))
 		(sub (scene (points x (add y eps) z)) (scene (points x (sub y eps) z)))
 		(sub (scene (points x y (add z eps))) (scene (points x y (sub z eps)))))))
 
-(defun shadow (ray_origin ray_dir l max_l k)
+(defun-pre-bound shadow (ray_origin ray_dir l max_l k)
 	(defq s 1.0 i 1000 _ (points 0 0 0))
 	(while (gt (setq i (dec i)) 0)
 		(defq h (scene (vec-add ray_origin (vec-scale ray_dir l _) _))
@@ -66,7 +65,7 @@
 			(setq l (add l h))))
 	(max s 0.1))
 
-(defun lighting (surface_pos surface_norm cam_pos)
+(defun-pre-bound lighting (surface_pos surface_norm cam_pos)
 	(defq _ (points 0 0 0) obj_color (vec-floor (vec-mod surface_pos 2.0))
 		light_vec (vec-sub light_pos surface_pos)
 		light_dis (vec-length light_vec)
@@ -82,8 +81,7 @@
 		obj_color (vec-add obj_color (points specular specular specular) _))
 	(vec-mul obj_color light_col _))
 
-(defun scene-ray (ray_origin ray_dir)
-	(defq add add sub sub mul mul div div fmul fmul fdiv fdiv)
+(defun-pre-bound scene-ray (ray_origin ray_dir)
 	(defq l (ray-march ray_origin ray_dir 0.0 clipfar min_distance march_factor))
 	(if (ge l clipfar)
 		(const (points 0.0 0.0 0.0))
@@ -104,7 +102,7 @@
 						r (fmul r ref_coef)))
 			(vec-clamp color 0.0 0.999))))
 
-(defun line (parent w h y)
+(defun-pre-bound line (parent w h y)
 	(defq w2 (div w 2) h2 (div h 2) x -1
 		reply (cat (char (task-mailbox) long_size) (char y int_size)))
 	(while (lt (setq x (inc x)) w)

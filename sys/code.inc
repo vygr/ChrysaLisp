@@ -19,6 +19,15 @@
 (defmacro llb-sym (_)
 	`(sym (cat "_s_" _)))
 
+(defcmacro errorif (e l)
+	(if debug_mode (list 'gotoif e l)))
+
+(defcmacro errorifnot (e l)
+	(if debug_mode (list 'gotoifnot e l)))
+
+(defcmacro errorcases (&rest e)
+	(if debug_mode (cat '(progn) e)))
+
 (defcfun goto (l)
 	(vp-jmp l))
 
@@ -47,15 +56,6 @@
 		(r (if e ((eval (elem e '(vp-beq-rr vp-bne-rr vp-ble-rr vp-bge-rr vp-bgt-rr vp-blt-rr))) s d l)
 			(throw "No such comparator" o)))
 		(otherwise (throw "No such compare mode" (vp-type s)))))
-
-(defcmacro errorif (e l)
-	(if debug_mode (list 'gotoif e l)))
-
-(defcmacro errorifnot (e l)
-	(if debug_mode (list 'gotoifnot e l)))
-
-(defcmacro errorcases (&rest e)
-	(if debug_mode (cat '(progn) e)))
 
 (defcfun switch (&optional _)
 	(push *switch-stk* *switch*)
@@ -368,21 +368,21 @@
 ; parameter handling
 ;;;;;;;;;;;;;;;;;;;;
 
-(defcfun assign-ignored-to-asm ()
+(defcfun-pre-bound assign-ignored-to-asm ()
 	(defq s (list) d (list))
 	(each! nil nil nil (lambda (x y)
 		(unless (or (eql x y) (eql y '_))
 			(push s x) (push d y))) (list *src* *dst*))
 	(setq *src* s *dst* d))
 
-(defcfun assign-ignored-to-script ()
+(defcfun-pre-bound assign-ignored-to-script ()
 	(defq s (list) d (list))
 	(each! nil nil nil (lambda (x y)
 		(unless (eql y "_")
 			(push s x) (push d y))) (list *src* *dst*))
 	(setq *src* s *dst* d))
 
-(defcfun assign-match-any (d s)
+(defcfun-pre-bound assign-match-any (d s)
 	(cond
 		((defq j (lst? s) i (lst? d))
 			(cond
@@ -394,20 +394,20 @@
 				(t (find d s))))
 		(t (eql s d))))
 
-(defcfun assign-find-later-src (i)
+(defcfun-pre-bound assign-find-later-src (i)
 	(defq j (dec (length (defq s *src*))) d (elem i *dst*))
 	(while (ne j i)
 		(if (assign-match-any d (elem j s))
 			(setq i j)
 			(setq j (dec j)))) j)
 
-(defcfun assign-rotate (i j)
+(defcfun-pre-bound assign-rotate (i j)
 	(setq *src* (cat (slice 0 i (defq s *src*)) (slice j (inc j) s)
 				(slice i j s) (slice (inc j) (length s) s))
 		*dst* (cat (slice 0 i (defq s *dst*)) (slice j (inc j) s)
 				(slice i j s) (slice (inc j) (length s) s))))
 
-(defcfun assign-topology-sort ()
+(defcfun-pre-bound assign-topology-sort ()
 	(defq i 0 c 1000 l (length *dst*))
 	(while (and (ne i l) (ne c 0))
 		(if (gt (defq j (assign-find-later-src i)) i)
@@ -418,7 +418,7 @@
 	(when (ne i l)
 		(throw "Copy cycle detected !" (list *src* *dst*))))
 
-(defcfun assign-asm-to-asm (*src* *dst*)
+(defcfun-pre-bound assign-asm-to-asm (*src* *dst*)
 	(when (ne (length *src*) (length *dst*))
 		(throw "Mismatching number of src/dst parameters !" (list *src* *dst*)))
 	(assign-ignored-to-asm)
@@ -472,7 +472,7 @@
 (defmacro token-push (k c)
 	`(push tokens (list ,k ,c)))
 
-(defcfun token-parse (l)
+(defcfun-pre-bound token-parse (l)
 	(defq m -1 u 1 i 0 p 0 tokens (list))
 	(while (lt i (length l))
 		(defq c (elem i l)
@@ -566,7 +566,7 @@
 (defmacro rpn-push (s v)
 	`(push rpn (list (sym ,s) ,v)))
 
-(defcfun rpn-parse (tokens)
+(defcfun-pre-bound rpn-parse (tokens)
 	(defq o (list) rpn (list))
 	(each (lambda ((k c))
 		(cond
@@ -625,7 +625,7 @@
 	`(defq *vreg* *vreg* *inst* (push (clear *inst*) progn)
 		*vregt* (slice 0 ,_ '(nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil))))
 
-(defcfun set-reg-map (l &optional _)
+(defcfun-pre-bound set-reg-map (l &optional _)
 	(setd _ '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14))
 	(each! nil nil nil (lambda (_ r)
 		(set (env) _ r)) (list *vreg* (if (ne 0 (length l)) (merge l _) _))))
@@ -915,14 +915,14 @@
 (defmacro opt-uses (r _)
 	`(find ,r ,_))
 
-(defcfun opt-find-1 (_ r x)
+(defcfun-pre-bound opt-find-1 (_ r x)
 	(setq _ (some! _ 0 t (lambda (e)
 				(cond
 					((match? e x) _)
 					((opt-uses r e) -1))) (list *inst*))
 		p (and _ (ne _ -1) _)))
 
-(defcfun opt-find-2 (_ r x y)
+(defcfun-pre-bound opt-find-2 (_ r x y)
 	(setq _ (some! _ 0 t (lambda (e)
 				(cond
 					((match? e x) (setq m 0) _)
@@ -930,7 +930,7 @@
 					((opt-uses r e) -1))) (list *inst*))
 		p (and _ (ne _ -1) _)))
 
-(defcfun opt-inst-list ()
+(defcfun-pre-bound opt-inst-list ()
 	(defq i 0 p nil m nil)
 	(while (lt (setq i (inc i)) (length *inst*))
 		(cond
@@ -1005,7 +1005,7 @@
 (defcfun print-inst (_)
 	(and (lst? _) (not (eql (elem 0 _) 'lambda)) (print _)))
 
-(defcfun assign-asm-to-script (*src* *dst* _)
+(defcfun-pre-bound assign-asm-to-script (*src* *dst* _)
 	(unless (eq (length *src*) (length (setq *dst* (map trim (split *dst* ",")))))
 		(throw "Mismatching number of src/dst parameters !" (list *src* *dst*)))
 	(assign-ignored-to-script)
@@ -1024,7 +1024,7 @@
 		(set-reg-map (reduce-rev (lambda (x y) (push x y)) *src* (list)) _)
 		(eval *inst* *compile-env*)))
 
-(defcfun assign-script-to-asm (*src* *dst* _)
+(defcfun-pre-bound assign-script-to-asm (*src* *dst* _)
 	(unless (eq (length (setq *src* (split *src* ","))) (length *dst*))
 		(throw "Mismatching number of src/dst parameters !" (list *src* *dst*)))
 	(when (ne 0 (length *dst*))
@@ -1042,7 +1042,7 @@
 		(set-reg-map (cat *dst*) _)
 		(eval *inst* *compile-env*)))
 
-(defcfun assign-script-to-script (*src* *dst* _)
+(defcfun-pre-bound assign-script-to-script (*src* *dst* _)
 	(setq *src* (split *src* ",") *dst* (map trim (split *dst* ",")))
 	(unless (eq (length *src*) (length *dst*))
 		(throw "Mismatching number of src/dst parameters !" (list *src* *dst*)))
@@ -1064,7 +1064,7 @@
 		(set-reg-map '() _)
 		(eval *inst* *compile-env*)))
 
-(defcfun assign (&optional _1 _2 _3)
+(defcfun-pre-bound assign (&optional _1 _2 _3)
 	;optional src, dst, compiler regs
 	(cond
 		((and (defq d (str? (setq _2 (opt _2 '()))) s (str? (setq _1 (opt _1 '())))) (not d))
