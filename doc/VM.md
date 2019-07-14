@@ -247,12 +247,12 @@ feature.
 
 ## VP function example
 
-This is the system level string compare function. `sys_string::compare`
+This is the system level string compare function. `sys_str::compare`
 
 Register inputs and outputs are declared in the `sys/str/class.inc` file.
 
 ```lisp
-(def-class 'sys_string)
+(def-class 'sys_str)
 (dec-method 'compare 'sys/str/compare 'static '(r0 r1) '(r0))
 ```
 

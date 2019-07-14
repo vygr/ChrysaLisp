@@ -29,6 +29,7 @@
 ;field equation for a sphere
 ;(defun sphere (p c r)
 ;	(sub (vec-length (vec-sub p c)) r))
+
 ;the scene
 (defun scene (p)
 	(sub (vec-length
@@ -36,13 +37,7 @@
 			(defq _ (points-frac p))
 			(const (points 0.5 0.5 0.5)) _)) 0.35))
 
-(defun get-normal ((x y z))
-	(vec-norm (points
-		(sub (scene (points (add x eps) y z)) (scene (points (sub x eps) y z)))
-		(sub (scene (points x (add y eps) z)) (scene (points x (sub y eps) z)))
-		(sub (scene (points x y (add z eps))) (scene (points x y (sub z eps)))))))
-
-(defun ray-march (ray_origin ray_dir l max_l)
+(defun ray-march (ray_origin ray_dir l max_l min_distance march_factor)
 	(defq i -1 d 1.0 _ (points 0 0 0))
 	(while (and (lt (setq i (inc i)) 1000)
 				(gt d min_distance)
@@ -50,6 +45,16 @@
 		(defq d (scene (vec-add ray_origin (vec-scale ray_dir l _) _))
 			l (add l (fmul d march_factor))))
 	(if (gt d min_distance) max_l l))
+
+;native versions
+;(ffi scene "apps/raymarch/scene" 0)
+;(ffi ray-march "apps/raymarch/ray-march" 0)
+
+(defun get-normal ((x y z))
+	(vec-norm (points
+		(sub (scene (points (add x eps) y z)) (scene (points (sub x eps) y z)))
+		(sub (scene (points x (add y eps) z)) (scene (points x (sub y eps) z)))
+		(sub (scene (points x y (add z eps))) (scene (points x y (sub z eps)))))))
 
 (defun shadow (ray_origin ray_dir l max_l k)
 	(defq s 1.0 i 1000 _ (points 0 0 0))
@@ -79,7 +84,7 @@
 
 (defun scene-ray (ray_origin ray_dir)
 	(defq add add sub sub mul mul div div fmul fmul fdiv fdiv)
-	(defq l (ray-march ray_origin ray_dir 0.0 clipfar))
+	(defq l (ray-march ray_origin ray_dir 0.0 clipfar min_distance march_factor))
 	(if (ge l clipfar)
 		(const (points 0.0 0.0 0.0))
 		(progn
@@ -90,7 +95,8 @@
 			(while (and (ge (setq i (dec i)) 0)
 						(lt (defq ray_origin surface_pos
 								ray_dir (vec-reflect ray_dir surface_norm)
-								l (ray-march ray_origin ray_dir (fmul min_distance 2.0) clipfar)) clipfar))
+								l (ray-march ray_origin ray_dir (fmul min_distance 2.0)
+									clipfar min_distance march_factor)) clipfar))
 					(defq surface_pos (vec-add ray_origin (vec-scale ray_dir l))
 						surface_norm (get-normal surface_pos)
 						color (vec-add (vec-scale color (sub 1.0 r))

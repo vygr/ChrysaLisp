@@ -1,0 +1,126 @@
+(include 'sys/func.inc)
+(include 'sys/math/class.inc)
+(include 'class/num/class.inc)
+(include 'gui/points/class.inc)
+(include 'class/lisp/class.inc)
+
+(defun scene ()
+	(vec-frac 3)
+	(vec-load 3 {0.5, 0.5, 0.5})
+	(vec-sub 3)
+	(vec-flength 3)
+	(vec-load 1 {0.35})
+	(vec-sub 1))
+
+(def-func 'apps/raymarch/scene)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
+
+	(entry '(r6 r7))
+
+(errorcases
+	(call 'lisp 'env_args_type '(r7 ($ sig) 1) '(r1))
+	(gotoif '(r1 == 0) 'error))
+
+	(vp-cpy-ir r7 array_array r2)
+	(vp-cpy-ir r2 (mul 0 ptr_size) r2)
+
+(errorcases
+	(vp-cpy-ir-ui r2 array_length r0)
+	(gotoif '(r0 != 3) 'error))
+
+	(vp-push r6)
+	(vp-cpy-ir r2 array_array r2)
+	(vec-set 0)
+	(vec-load-long 3 r2)
+	(scene)
+	(call 'num 'create '(r0) '(r1))
+	(vp-pop r0)
+
+	(exit '(r0 r1))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r6 "(scene points)" error_msg_wrong_types r7))
+	(signature 'sig 'points))
+
+(def-func-end)
+
+(def-func 'apps/raymarch/ray-march)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
+
+	(entry '(r13 r14))
+
+(errorcases
+	(call 'lisp 'env_args_type '(r14 ($ sig) 6) '(r1))
+	(gotoif '(r1 == 0) 'error))
+
+	(vp-cpy-ir r14 array_array r12)
+	(vp-cpy-ir r12 (mul 0 ptr_size) r0)
+	(vp-cpy-ir r12 (mul 1 ptr_size) r1)
+
+(errorcases
+	(vp-cpy-ir-ui r0 array_length r2)
+	(gotoif '(r2 != 3) 'error)
+	(vp-cpy-ir-ui r1 array_length r2)
+	(gotoif '(r2 != 3) 'error))
+
+	(vp-push r13)
+	(vp-cpy-ir r12 (mul 2 ptr_size) r2)
+	(vp-cpy-ir r12 (mul 3 ptr_size) r3)
+	(vp-cpy-ir r12 (mul 4 ptr_size) r4)
+	(vp-cpy-ir r12 (mul 5 ptr_size) r5)
+	(vp-cpy-ir r0 array_array r0)
+	(vp-cpy-ir r1 array_array r1)
+	(vp-cpy-ir r2 num_value r2)
+	(vp-cpy-ir r3 num_value r3)
+	(vp-cpy-ir r4 num_value r4)
+	(vp-cpy-ir r5 num_value r5)
+	(vp-cpy-cr 1000 r6)
+	(vp-cpy-cr 1.0 r7)
+
+	(vec-set 7)
+	(loop-start)
+		(breakif '(r6 == 0))
+		(breakif '(r2 >= r3))
+		(breakif '(r7 <= r4))
+		(vp-sub-cr 1 r6)
+		(vec-load-long 3 r0)
+		(vec-load-long 3 r1)
+		(vec-fscale 3 r2)
+		(vec-add 3)
+		(scene)
+		(vec-dup 1)
+		(vec-fmul 1 '(r5))
+		(vp-add-rr (elem 0 (vec-pop 1)) r2)
+	(loop-end)
+	(vp-cpy-rr r2 r0)
+	(vpif '(r7 > r4))
+		(vp-cpy-rr r3 r0)
+	(endif)
+	(call 'num 'create '(r0) '(r1))
+	(vp-pop r0)
+
+	(exit '(r0 r1))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r13 "(ray-march points points num num num num)" error_msg_wrong_types r14))
+	(signature 'sig 'points 'points 'num 'num 'num 'num))
+
+(def-func-end)

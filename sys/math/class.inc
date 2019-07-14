@@ -298,7 +298,7 @@
 
 (defcfun vec-flength (n)
 	(vec-flength-squared n)
-	(defq r (slice 0 (dec (if (ge *vsp* 4) 4 *vsp*)) *vr*))
+	(defq r (slice 0 (dec (if (ge *vsp* 4) 5 *vsp*)) *vr*))
 	(if (ne (length r) 0) (apply vp-push r))
 	(call 'sys_math 'fsqrt (vec-top 1) (vec-top 1))
 	(if (ne (length r) 0) (apply vp-pop r)))

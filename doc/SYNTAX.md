@@ -748,6 +748,10 @@
 
 (range start end [step]) -> list
 
+## ray-march
+
+(ray-march points points num num num num)
+
 ## rcurry
 
 (rcurry lambda var ...) -> lambda
@@ -779,6 +783,10 @@
 ## save
 
 (save str path)
+
+## scene
+
+(scene points)
 
 ## set
 
