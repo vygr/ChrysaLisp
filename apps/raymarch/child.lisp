@@ -47,8 +47,8 @@
 	(if (gt d min_distance) max_l l))
 
 ;native versions
-;(ffi scene "apps/raymarch/scene" 0)
-;(ffi ray-march "apps/raymarch/ray-march" 0)
+(ffi scene "apps/raymarch/scene" 0)
+(ffi ray-march "apps/raymarch/ray-march" 0)
 
 (defun get-normal ((x y z))
 	(vec-norm (points
