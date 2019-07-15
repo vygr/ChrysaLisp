@@ -168,7 +168,7 @@
 
 (defmacro defun-pre-bound (n a &rest _)
 	;(defun-pre-bound name ([arg ...]) body)
-	`(defq ,n (lambda ,a ~(bind-funcs (macroexpand _)))))
+	`(defq ,n (lambda ,a ~(bind-funcs _))))
 
 ;;;;;;;;
 ; Scopes
@@ -237,16 +237,15 @@
 
 (defun bind-funcs (_)
 	;(bind-funcs list) -> list
-	(defq _l (list))
-	(each! nil nil nil (lambda (_)
-		(push _l
+	(defq _s (list (setq _ (macroexpand _))))
+	(while (defq _l (pop _s))
+		(each! nil nil nil (lambda (_e)
 			(cond
-				((and (lst? _) (ne 0 (length _)) (not (eql 'quote (elem 0 _))))
-					(bind-funcs _))
-				((and (sym? _) (not (eql 'lambda _)) (defq f (def? _))
-					(or (fnc? f) (and (lst? f) (ne 0 (length f)) (eql 'lambda (elem 0 f)))))
-					f)
-				(t _)))) (list _)) _l)
+				((and (lst? _e) (ne 0 (length _e)) (not (eql 'quote (elem 0 _e))))
+					(push _s _e))
+				((and (sym? _e) (not (eql 'lambda _e)) (defq _f (def? _e))
+					(or (fnc? _f) (and (lst? _f) (ne 0 (length _f)) (eql 'lambda (elem 0 _f)))))
+					(elem-set _ _l _f)))) (list _l))) _)
 ;to disable pre binding uncomment folowing line
 ;(defun bind-funcs (_) _)
 
@@ -656,7 +655,7 @@
 	(defmacro defcfun (n a &rest b)
 		`(def *compile-env* ',n (lambda ,a ~b)))
 	(defmacro defcfun-pre-bound (n a &rest b)
-		`(def *compile-env* ',n (lambda ,a ~(bind-funcs (macroexpand b)))))
+		`(def *compile-env* ',n (lambda ,a ~(bind-funcs b))))
 	(defmacro defcmacro (n a &rest b)
 		`(def *compile-env* ',n (macro ,a ~b)))
 	(defun-pre-bound include (_)
