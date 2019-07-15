@@ -4,6 +4,10 @@
 
 (aand [form] ...)
 
+## abi
+
+(abi) -> sym
+
 ## abs
 
 (abs num) -> num
@@ -23,6 +27,10 @@
 ## aif
 
 (aif form form [form])
+
+## align
+
+(align num pow2) -> num
 
 ## and
 
@@ -59,6 +67,10 @@
 ## bind
 
 (bind (param ...) seq)
+
+## bind-funcs
+
+(bind-funcs list) -> list
 
 ## button-connect-click
 
@@ -143,6 +155,22 @@
 ## copy
 
 (copy form)
+
+## count-leading-ones
+
+(count-leading-ones num) -> num
+
+## count-trailing-ones
+
+(count-trailing-ones num) -> num
+
+## count-trailing-zeros
+
+(count-trailing-zeros num) -> num
+
+## cpu
+
+(cpu) -> sym
 
 ## create-backdrop
 
@@ -248,9 +276,33 @@
 
 (divmod num num) -> list
 
+## each
+
+(each lambda seq ...)
+
 ## each!
 
 (each! start|nil end|nil lambda|nil lambda (seq ...))
+
+## each-line
+
+(each-line lambda path)
+
+## each-mergeable
+
+(each-mergeable lambda seq)
+
+## each-mergeable-rev
+
+(each-mergeable-rev lambda seq)
+
+## each-pipe-line
+
+(each-pipe-line lambda pipe)
+
+## each-rev
+
+(each-rev lambda seq ...)
 
 ## elem
 
@@ -276,6 +328,10 @@
 
 (eval form [env])
 
+## every
+
+(every lambda seq ...)
+
 ## exec
 
 (exec ast)
@@ -295,6 +351,10 @@
 ## file-stream
 
 (file-stream path)
+
+## filter
+
+(filter lambda seq) -> seq
 
 ## find
 
@@ -320,6 +380,10 @@
 
 (frac num)
 
+## from-base-char
+
+(from-base-char str) -> num
+
 ## fsin
 
 (fsin angle)
@@ -339,6 +403,10 @@
 ## get-byte
 
 (get-byte str index) -> num
+
+## get-cstr
+
+(get-cstr str index) -> str
 
 ## get-int
 
@@ -371,6 +439,10 @@
 ## inc
 
 (inc num) -> num
+
+## insert
+
+(insert list form) -> list
 
 ## kernel-debug
 
@@ -407,6 +479,10 @@
 ## load
 
 (load path)
+
+## log2
+
+(log2 num) -> num
 
 ## logand
 
@@ -460,9 +536,13 @@
 
 (mail-trymail)
 
-## map-funcs
+## map
 
-(map-funcs list) -> list
+(map lambda seq ...) -> list
+
+## map-rev
+
+(map-rev lambda seq ...) -> list
 
 ## match?
 
@@ -504,6 +584,14 @@
 
 (not form)
 
+## notany
+
+(notany lambda seq ...)
+
+## notevery
+
+(notevery lambda seq ...)
+
 ## num?
 
 (num? form)
@@ -531,6 +619,10 @@
 ## or
 
 (or [form] ...)
+
+## pad
+
+(pad form width [str]) -> str
 
 ## partition
 
@@ -664,6 +756,10 @@
 
 (quote form)
 
+## range
+
+(range start end [step]) -> list
+
 ## ray-march
 
 (ray-march points points num num num num)
@@ -683,6 +779,14 @@
 ## read-line
 
 (read-line stream)
+
+## reduce
+
+(reduce lambda seq [accum])
+
+## reduce-rev
+
+(reduce-rev lambda seq [accum])
 
 ## repl
 
@@ -716,6 +820,14 @@
 
 (shr num cnt)
 
+## shuffle
+
+(shuffle list [start end]) -> list
+
+## shuffled
+
+(shuffled list [start end]) -> list
+
 ## sign
 
 (sign num) -> num
@@ -732,9 +844,21 @@
 
 (slider-connect-value slider id)
 
+## some
+
+(some lambda seq ...)
+
 ## some!
 
 (some! start|nil end|nil mode lambda (seq ...))
+
+## sort
+
+(sort list [start end]) -> list
+
+## sorted
+
+(sorted list [start end]) -> list
 
 ## split
 
@@ -768,6 +892,10 @@
 
 (sub num num ...)
 
+## swap
+
+(swap list index index)
+
 ## sym
 
 (sym str)
@@ -795,6 +923,26 @@
 ## times
 
 (times num body)
+
+## to-base-char
+
+(to-base-char num) -> str
+
+## to-num
+
+(to-num str) -> num
+
+## trim
+
+(trim str [str]) -> str
+
+## trim-end
+
+(trim-end str [str]) -> str
+
+## trim-start
+
+(trim-start str [str]) -> str
 
 ## type-of
 
@@ -927,4 +1075,8 @@
 ## write-char
 
 (write-char stream list|num [width])
+
+## write-line
+
+(write-line stream str) -> str
 

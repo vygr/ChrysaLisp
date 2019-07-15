@@ -236,16 +236,16 @@
 		(while (le 0 (setq ,_c (dec ,_c))) ~_)))
 
 (defun bind-funcs (_)
-	;(map-funcs list) -> list
+	;(bind-funcs list) -> list
 	(defq _l (list))
 	(each! nil nil nil (lambda (_)
 		(push _l
 			(cond
 				((and (lst? _) (ne 0 (length _)) (not (eql 'quote (elem 0 _))))
-					(setq _ (bind-funcs _)))
+					(bind-funcs _))
 				((and (sym? _) (not (eql 'lambda _)) (defq f (def? _))
-						(or (fnc? f) (and (lst? f) (ne 0 (length f)) (eql 'lambda (elem 0 f)))))
-					(setq _ f))
+					(or (fnc? f) (and (lst? f) (ne 0 (length f)) (eql 'lambda (elem 0 f)))))
+					f)
 				(t _)))) (list _)) _l)
 ;to disable pre binding uncomment folowing line
 ;(defun bind-funcs (_) _)
