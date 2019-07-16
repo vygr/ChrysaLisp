@@ -168,11 +168,8 @@
 
 	;loop over all blocks
 	(vp-cpy-ir-ui this hp_heap_cellsize cel_size)
-	(vp-lea-i this hp_heap_block_flist blk)
-	(loop-start)
-	(vp-label 'next_blk)
-		(ln-next-fnode blk blk_last)
-		;clear list
+	(loop-flist this hp_heap_block_flist blk blk_last 'block_loop)
+		;clear list headers
 		(vp-xor-rr r0 r0)
 		(vp-cpy-ri r0 blk hp_block_free_flist)
 		(vp-cpy-ri r0 blk hp_block_free_flist_tail)
@@ -183,7 +180,12 @@
 		(vp-add-rr blk blk_end)
 
 		;loop over free cells
-		(loop-flist this hp_heap_free_flist cel cel_last)
+		(vp-lea-i this hp_heap_free_flist cel)
+		(loop-start)
+			(vp-cpy-rr cel cel_last)
+			(vp-cpy-ir cel ln_fnode_next cel)
+			(continueif `(,cel == 0) 'block_loop)
+
 			;is free cell within this block
 			(continueif `(,cel < ,blk))
 			(continueif `(,cel >= ,blk_end))
@@ -201,16 +203,17 @@
 			(vp-add-rr cel_size blk_begin)
 			(vp-cpy-rr blk_end r0)
 			(vp-sub-rr blk_begin r0)
-			(vpif `(r0 < ,cel_size))
-				(vp-cpy-rr blk r0)
-				(vp-cpy-ir-ui blk hp_block_blocksize r1)
-				(ln-remove-fnode blk blk_last)
-				(vp-sub-rr r1 total)
-				(call 'sys_pii 'munmap '(r0 r1 mmap_data))
-				(goto 'next_blk)
-			(endif)
-		(loop-end)
-	(loop-end)
+			(continueif `(r0 >= ,cel_size))
+
+			;free the block
+			(vp-cpy-rr blk r0)
+			(vp-cpy-ir-ui blk hp_block_blocksize r1)
+			(ln-remove-fnode blk blk_last)
+			(vp-sub-rr r1 total)
+			(call 'sys_pii 'munmap '(r0 r1 mmap_data))
+			(continue 'block_loop)
+		(endswitch)
+	(endswitch)
 
 	;loop over all blocks
 	(loop-flist this hp_heap_block_flist blk blk)

@@ -248,9 +248,9 @@ the loop start statement has a condition then that condition is tested again.
 		[(break ['name])]
 		[(breakif exp ['name])]
 		[(breakifnot exp ['name])]
-		[(continue)]
-		[(continueif exp)]
-		[(continueifnot exp)]
+		[(continue ['name])]
+		[(continueif exp ['name])]
+		[(continueifnot exp ['name])]
 		...
 	(loop-end)
 

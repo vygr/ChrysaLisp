@@ -319,7 +319,7 @@
 ; list loop macros
 ;;;;;;;;;;;;;;;;;;
 
-(defcfun loop-list-forward (_1 _2 _3 _4)
+(defcfun loop-list-forward (_1 _2 _3 _4 &optional _5)
 	;inputs
 	;_1 = list head
 	;_2 = offset
@@ -331,12 +331,12 @@
 	;_4 = list node look ahead
 
 	(lh-get-head _1 _2 _4)
-	(loop-start)
+	(loop-start _5)
 		(vp-cpy-rr _4 _3)
 		(ln-get-succ _4 0 _4)
 		(breakif (list _4 '== 0)))
 
-(defcfun loop-list-backward (_1 _2 _3 _4)
+(defcfun loop-list-backward (_1 _2 _3 _4 &optional _5)
 	;inputs
 	;_1 = list head
 	;_2 = offset
@@ -348,12 +348,12 @@
 	;_4 = list node look ahead
 
 	(lh-get-tail _1 _2 _4)
-	(loop-start)
+	(loop-start _5)
 		(vp-cpy-rr _4 _3)
 		(ln-get-pred _4 0 _4)
 		(breakif (list _4 '== 0)))
 
-(defcfun loop-flist (_1 _2 _3 _4)
+(defcfun loop-flist (_1 _2 _3 _4 &optional _5)
 	;inputs
 	;_1 = list head
 	;_2 = offset
@@ -365,7 +365,7 @@
 	;_4 = list last
 
 	(vp-lea-i _1 _2 _3)
-	(loop-start)
+	(loop-start _5)
 		(ln-next-fnode _3 _4))
 
 ;;;;;;;;;;;;;;;;;;;;;

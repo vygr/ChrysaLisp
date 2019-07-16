@@ -17,7 +17,10 @@
 	'(sym (str "_c_" *switch*)))
 
 (defmacro llb-sym (_)
-	`(sym (cat "_s_" _)))
+	`(sym (cat "_b_" ,_)))
+
+(defmacro lle-sym (_)
+	`(sym (cat "_e_" ,_)))
 
 (defcmacro errorif (e l)
 	(if debug_mode (list 'gotoif e l)))
@@ -61,9 +64,9 @@
 	(push *switch-stk* *switch*)
 	(setq *switch* *switch-nxt* *switch-nxt* (inc *switch-nxt*))
 	(when _
-		(defcvar (setq _ (llb-sym _)) (end-sym))
-		(push *func-syms* _))
-	(defcvar (setq _ (cnt-sym)) 0)
+		(defcvar (defq _b (llb-sym _)) (beg-sym) (defq _e (lle-sym _)) (end-sym))
+		(push *func-syms* _b _e))
+	(defcvar (defq _ (cnt-sym)) 0)
 	(push *func-syms* _))
 
 (defcfun default ()
@@ -84,22 +87,22 @@
 	(gotoif e (loc-sym (eval (cnt-sym)))))
 
 (defcfun break (&optional _)
-	(goto (if _ (eval (llb-sym _)) (end-sym))))
+	(goto (if _ (eval (lle-sym _)) (end-sym))))
 
 (defcfun breakif (e &optional _)
-	(gotoif e (if _ (eval (llb-sym _)) (end-sym))))
+	(gotoif e (if _ (eval (lle-sym _)) (end-sym))))
 
 (defcfun breakifnot (e &optional _)
-	(gotoifnot e (if _ (eval (llb-sym _)) (end-sym))))
+	(gotoifnot e (if _ (eval (lle-sym _)) (end-sym))))
 
-(defcfun continue ()
-	(goto (beg-sym)))
+(defcfun continue (&optional _)
+	(goto (if _ (eval (llb-sym _)) (beg-sym))))
 
-(defcfun continueif (e)
-	(gotoif e (beg-sym)))
+(defcfun continueif (e &optional _)
+	(gotoif e (if _ (eval (llb-sym _)) (beg-sym))))
 
-(defcfun continueifnot (e)
-	(gotoifnot e (beg-sym)))
+(defcfun continueifnot (e &optional _)
+	(gotoifnot e (if _ (eval (llb-sym _)) (beg-sym))))
 
 (defcfun loop-start (&optional _)
 	(switch _)
