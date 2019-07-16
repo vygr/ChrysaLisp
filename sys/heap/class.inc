@@ -1,3 +1,4 @@
+(include 'sys/list/class.inc)
 (include 'sys/mem/class.inc)
 
 ;;;;;;;;;;;;;;;;;;;
@@ -9,6 +10,7 @@
 (dec-method 'deinit 'sys/heap/deinit 'static '(r0) '(r0))
 (dec-method 'alloc 'sys/heap/alloc 'static '(r0) '(r0 r1))
 (dec-method 'free 'sys/heap/free 'static '(r0 r1))
+(dec-method 'collect 'sys/heap/collect 'static '(r0) '(r0))
 
 ;;;;;;;;;;;;;;;;;
 ; heap structures
@@ -19,6 +21,13 @@
 	(ptr 'block_flist)
 	(uint 'cellsize)
 	(uint 'blocksize)
+(def-struct-end)
+
+(def-struct 'hp_block 'ln_fnode)
+	(ptr 'free_flist)
+	(ptr 'free_flist_tail)
+	(uint 'blocksize)
+	(local-align)
 (def-struct-end)
 
 ;;;;;;;;;;;;;;;;

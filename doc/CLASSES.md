@@ -5772,12 +5772,12 @@ Super Class: null
 inputs
 r0 = heap (ptr)
 r1 = cell size (bytes)
-r2 = block size (bytes)
+r2 = num cells (uint)
 outputs
 r0 = heap (ptr)
 r1 = cell size (bytes)
 trashes
-r2-r3
+r2
 ```
 
 ### sys_heap::deinit -> sys/heap/deinit
@@ -5788,7 +5788,7 @@ r0 = heap (ptr)
 outputs
 r0 = heap (ptr)
 trashes
-r1-r3
+r1-r4
 ```
 
 ### sys_heap::alloc -> sys/heap/alloc
@@ -5814,6 +5814,17 @@ r0 = heap (ptr)
 r1 = cell (ptr)
 trashes
 r2
+```
+
+### sys_heap::collect -> sys/heap/collect
+
+```lisp
+inputs
+r0 = heap (ptr)
+outputs
+r0 = heap (ptr)
+trashes
+r1-r11
 ```
 
 ## sys_kernel
@@ -6525,11 +6536,22 @@ trashes
 r2-r7
 ```
 
+### sys_mem::collect -> sys/mem/collect
+
+```lisp
+trashes
+all
+info
+free all unused blocks
+```
+
 ### sys_mem::used -> sys/mem/used
 
 ```lisp
 outputs
 r0 = amount (bytes)
+trashes
+r0
 ```
 
 ## sys_pii

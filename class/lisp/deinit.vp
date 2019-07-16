@@ -1,6 +1,5 @@
 (include 'sys/func.inc)
 (include 'class/lisp/class.inc)
-(include 'class/sym/class.inc)
 
 (def-method 'lisp 'deinit)
 	;inputs
@@ -21,9 +20,6 @@
 	(loop-start)
 		(call 'obj 'deref {*iter})
 	(loop-until {(iter + ptr_size => iter) == &this->lisp_nextsym})
-
-	;flush interned symbols
-	(call 'sym 'flush)
 
 	;deinit parent
 	(s-jump 'lisp 'deinit {this})

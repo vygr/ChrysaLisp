@@ -16,4 +16,5 @@
 (dec-method 'copy 'sys/mem/copy 'static '(r0 r1 r2) '(r0 r1))
 (dec-method 'realloc 'sys/mem/realloc 'static '(r0 r1 r2) '(r0 r1))
 (dec-method 'recalloc 'sys/mem/recalloc 'static '(r0 r1 r2) '(r0 r1))
+(dec-method 'collect 'sys/mem/collect)
 (dec-method 'used 'sys/mem/used 'static nil '(r0))

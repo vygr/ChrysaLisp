@@ -1,8 +1,8 @@
 (include 'sys/func.inc)
 (include 'sys/mail/class.inc)
-(include 'class/str/class.inc)
 (include 'class/stream_str/class.inc)
 (include 'class/lisp/class.inc)
+(include 'class/sym/class.inc)
 
 (def-func 'class/lisp/run nil 8192)
 	;lisp run loop task
@@ -47,6 +47,10 @@
 		(call 'lisp 'deref {lisp})
 	(endif)
 	(call 'str 'deref {script})
+
+	;flush interned symbols and mem blocks
+	(call 'sym 'flush)
+	(call 'sys_mem 'collect)
 
 	(pop-scope)
 	(return)

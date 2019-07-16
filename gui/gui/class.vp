@@ -19,7 +19,7 @@
 
 	;init region heap
 	(f-bind 'gui 'statics r4)
-	(jump 'sys_heap 'init '((& r4 gui_statics_rect_heap) rect_size (mul rect_size 32)))
+	(jump 'sys_heap 'init '((& r4 gui_statics_rect_heap) rect_size 32))
 
 (def-func-end)
 
