@@ -4,6 +4,18 @@
 
 ------
 
+Finally got round to implementing a heap collector ! You can clearly see the
+effect by watching the Netmon app while running builds and so forth etc.
+
+What I didn't expect was the performance gain from this. I suspect this is down
+to the collector sorting the free lists into batches that map to each block, as
+well as freeing up page table space on the host.
+
+Seeing 0.55s builds now on the MacBook, and 7s builds on the Raspberry PI3. But
+most importantly, memory is now freed back to the host OS during runtime !
+
+------
+
 Making some attempts to rename functions and macros to better fit with Common
 Lisp. I'm not trying to duplicate the exact functionality, but at least make
 things a little more familiar where it makes sense.
