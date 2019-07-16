@@ -16,7 +16,7 @@
 	(int 'y)
 	(offset 'data))
 
-(defq canvas_width 600 canvas_height 600 canvas_scale 1 id t)
+(defq canvas_width 800 canvas_height 800 canvas_scale 1 id t)
 
 (ui-tree window (create-window window_flag_close) nil
 	(ui-element canvas (create-canvas canvas_width canvas_height canvas_scale)))
@@ -25,7 +25,7 @@
 (window-connect-close window event_win_close)
 (view-opaque (canvas-fill canvas argb_black))
 (bind '(sw sh) (view-pref-size window))
-(gui-add (view-change window 512 256 sw sh))
+(gui-add (view-change window 320 64 sw sh))
 
 ;open farm and send out first batch of work
 (defq sw (mul canvas_width canvas_scale) sh (mul canvas_height canvas_scale) sy 0 sc 0
