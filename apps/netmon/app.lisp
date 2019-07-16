@@ -16,8 +16,8 @@
 	(byte 'win_max))
 
 (defq task_bars (list) memory_bars (list)
-	cpu_total (kernel-total) cpu_count cpu_total
-	id t max_tasks 0 max_memory 0)
+	cpu_total (kernel-total) cpu_count cpu_total id t
+	max_tasks 0 max_memory 0 last_max_tasks 0 last_max_memory 0)
 
 (ui-tree window (create-window (add window_flag_close window_flag_min window_flag_max)) nil
 	(ui-element _ (create-grid) ('grid_width 2 'grid_height 1 'flow_flags (logior flow_flag_down flow_flag_fillw) 'maximum 100 'value 0)
@@ -41,7 +41,8 @@
 
 (while id
 	;new batch of samples ?
-	(if (eq cpu_count cpu_total)
+	(when (eq cpu_count cpu_total)
+		(setq last_max_tasks max_tasks last_max_memory max_memory max_tasks 0 max_memory 0)
 		;send out multi-cast sample command
 		(while (ne cpu_count 0)
 			(setq cpu_count (dec cpu_count))
@@ -54,8 +55,8 @@
 				memory_val (get-long msg sample_reply_msg_mem_used)
 				task_bar (elem cpu task_bars) memory_bar (elem cpu memory_bars))
 			(setq max_tasks (max max_tasks task_val) max_memory (max max_memory memory_val))
-			(def task_bar 'maximum max_tasks 'value task_val)
-			(def memory_bar 'maximum max_memory 'value memory_val)
+			(def task_bar 'maximum last_max_tasks 'value task_val)
+			(def memory_bar 'maximum last_max_memory 'value memory_val)
 			(view-dirty task_bar)
 			(view-dirty memory_bar)
 
