@@ -15,7 +15,7 @@
 	(byte 'win_min)
 	(byte 'win_max))
 
-(defq task_bars (list) memory_bars (list)
+(defq task_bars (list) memory_bars (list) task_scale (list) memory_scale (list)
 	cpu_total (kernel-total) cpu_count cpu_total id t
 	max_tasks 1 max_memory 1 last_max_tasks 0 last_max_memory 0)
 
@@ -23,9 +23,15 @@
 	(ui-element _ (create-grid) ('grid_width 2 'grid_height 1 'flow_flags (logior flow_flag_down flow_flag_fillw) 'maximum 100 'value 0)
 		(ui-element _ (create-flow) ('color argb_green)
 			(ui-element _ (create-label) ('text "Tasks" 'color argb_white))
+			(ui-element _ (create-grid) ('grid_width 4 'grid_height 1 'color argb_white
+					'font (create-font "fonts/Hack-Regular.ttf" 14))
+				(times 4 (push task_scale (ui-element _ (create-label) ('text "0|" 'flow_flags flow_flag_align_hright)))))
 			(times cpu_total (push task_bars (ui-element _ (create-progress)))))
 		(ui-element _ (create-flow) ('color argb_red)
 			(ui-element _ (create-label) ('text "Memory" 'color argb_white))
+			(ui-element _ (create-grid) ('grid_width 4 'grid_height 1 'color argb_white
+					'font (create-font "fonts/Hack-Regular.ttf" 14))
+				(times 4 (push memory_scale (ui-element _ (create-label) ('text "0|" 'flow_flags flow_flag_align_hright)))))
 			(times cpu_total (push memory_bars (ui-element _ (create-progress)))))))
 
 (window-set-title window "Network Monitor")
@@ -42,7 +48,18 @@
 (while id
 	;new batch of samples ?
 	(when (eq cpu_count cpu_total)
+		;set scale
 		(setq last_max_tasks max_tasks last_max_memory max_memory max_tasks 1 max_memory 1)
+		(each (lambda (st sm vt vm)
+			(def st 'text (str (div vt 1.0) "." (div (mul (logand vt fp_frac_mask) 10) 1.0) "|"))
+			(def sm 'text (str (div vm 1024) "|"))
+			(view-dirty (view-layout st))
+			(view-dirty (view-layout sm)))
+			task_scale memory_scale
+			(list (fdiv last_max_tasks 4) (fdiv last_max_tasks 2)
+				(add (fdiv last_max_tasks 4) (fdiv last_max_tasks 2)) (mul last_max_tasks 1.0))
+			(list (div last_max_memory 4) (div last_max_memory 2)
+				(add (div last_max_memory 4) (div last_max_memory 2)) last_max_memory))
 		;send out multi-cast sample command
 		(while (ne cpu_count 0)
 			(setq cpu_count (dec cpu_count))
