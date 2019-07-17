@@ -27,7 +27,7 @@
 	(ptr 'free_flist)
 	(ptr 'free_flist_tail)
 	(uint 'blocksize)
-	(local-align)
+	(uint 'cellcnt)
 (def-struct-end)
 
 ;;;;;;;;;;;;;;;;
