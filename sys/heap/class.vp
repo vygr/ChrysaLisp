@@ -159,7 +159,7 @@
 	;trashes
 	;r1-r11
 
-	(vp-def (this blk blk_last blk_end cell_cnt cel cel_last cel_size total)
+	(vp-def (this blk blk_last blk_end cel_cnt cel cel_last cel_size total)
 		'(r3 r4 r5 r6 r7 r8 r9 r10 r11))
 
 	(entry 'sys_heap 'collect `(,this))
@@ -175,7 +175,7 @@
 		(vp-xor-rr r0 r0)
 		(vp-cpy-ri r0 blk hp_block_free_flist)
 		(vp-cpy-ri r0 blk hp_block_free_flist_tail)
-		(vp-cpy-ir-ui blk hp_block_cellcnt cell_cnt)
+		(vp-cpy-ir-ui blk hp_block_cellcnt cel_cnt)
 
 		;range of this block
 		(vp-cpy-ir-ui blk hp_block_blocksize blk_end)
@@ -202,8 +202,8 @@
 			(endif)
 
 			;count down cells, do we have them all
-			(vp-sub-cr 1 cell_cnt)
-			(continueif `(,cell_cnt != 0))
+			(vp-sub-cr 1 cel_cnt)
+			(continueif `(,cel_cnt != 0))
 
 			;free the block
 			(vp-cpy-rr blk r0)
