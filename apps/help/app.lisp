@@ -8,7 +8,7 @@
 
 (defq id t keys (list) vals (list) vdu_height 40)
 
-(defun-pre-bound populate-help ()
+(defun-bind populate-help ()
 	(defq state t vdu_width 1 k (list) v (list))
 	(each-line (lambda (_)
 		(when (ne 0 (length (defq s (split (setq _ (trim-end _ (ascii-char 13))) " "))))

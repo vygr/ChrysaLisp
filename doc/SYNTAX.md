@@ -264,9 +264,9 @@
 
 (defun name ([arg ...]) body)
 
-## defun-pre-bound
+## defun-bind
 
-(defun-pre-bound name ([arg ...]) body)
+(defun-bind name ([arg ...]) body)
 
 ## div
 

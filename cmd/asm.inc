@@ -4,7 +4,7 @@
 
 (defq debug_mode t debug_emit nil debug_inst nil)
 
-(defun compile (*files* &optional *abi* *cpu* *pipes*)
+(defun-bind compile (*files* &optional *abi* *cpu* *pipes*)
 	(setd *abi* (abi) *cpu* (cpu) *pipes* 16)
 	(defq q (list) e (list))
 	(unless (lst? *files*)
@@ -32,7 +32,7 @@
 		(compile-pipe *files* *abi* *cpu*))
 	nil)
 
-(defun compile-pipe (*files* *abi* *cpu*)
+(defun-bind compile-pipe (*files* *abi* *cpu*)
 	(within-compile-env (lambda ()
 		(each include *files*)
 		(print "Done"))))
@@ -41,7 +41,7 @@
 ; make system
 ;;;;;;;;;;;;;
 
-(defun make-imports (_)
+(defun-bind make-imports (_)
 	;create list of immediate dependencies
 	(defq d (list 'cmd/asm.inc 'class/lisp/boot.inc _))
 	(each-line (lambda (_)
@@ -53,10 +53,10 @@
 				((eql _ "(include")
 					(push d (sym (trim-start (trim-end (elem 1 s) ")") "'"))))))) _) d)
 
-(defun make-info (_)
+(defun-bind make-info (_)
 	;create lists of immediate dependencies and products
 	(defq d (list 'cmd/asm.inc 'class/lisp/boot.inc _) p (list))
-	(defun trim-cruft (_)
+	(defun-bind trim-cruft (_)
 		(sym (trim-start (trim-end _ ")") "'")))
 	(each-line (lambda (_)
 		(setq _ (trim-end _ (ascii-char 13)))
@@ -77,16 +77,16 @@
 					(push p (trim-cruft (elem 1 s))))))) _)
 	(list d p))
 
-(defun make (&optional *abi* *cpu*)
+(defun-bind make (&optional *abi* *cpu*)
 	(setd *abi* (abi) *cpu* (cpu))
 	(compile ((lambda ()
 		(defq *env* (env 101) *imports* (list 'make.inc))
 		(catch (progn
-			(defun func-obj (_)
+			(defun-bind func-obj (_)
 				(cat "obj/" *cpu* "/" *abi* "/" _))
-			(defun make-sym (_)
+			(defun-bind make-sym (_)
 				(sym (cat "_dep_" _)))
-			(defun make-time (_)
+			(defun-bind make-time (_)
 				;modification time of a file, cached
 				(defq s (sym (cat "_age_" _)))
 				(or (def? s) (def *env* s (age _))))
@@ -112,17 +112,17 @@
 			;drop the make environment, return the list to compile
 			(setq *env* nil) *imports*) (setq *env* nil)))) *abi* *cpu*))
 
-(defun make-boot (&optional r *funcs* *abi* *cpu*)
+(defun-bind make-boot (&optional r *funcs* *abi* *cpu*)
 	(within-compile-env (lambda ()
 		(setd *funcs* (list) *abi* (abi) *cpu* (cpu))
 		(defq *env* (env 31) z (cat (char 0 8) (char 0 4)))
 		(catch (progn
 			(include 'sys/func.inc)
-			(defun func-sym (_)
+			(defun-bind func-sym (_)
 				(sym (cat 'f_ _)))
-			(defun func-obj (_)
+			(defun-bind func-obj (_)
 				(cat "obj/" *cpu* "/" *abi* "/" _))
-			(defun load-func (_)
+			(defun-bind load-func (_)
 				(or (def? (defq s (func-sym _)))
 					(progn
 						(unless (defq b (load (func-obj _)))
@@ -130,7 +130,7 @@
 						(defq h (slice fn_header_entry (defq l (get-short b fn_header_links)) b)
 							l (slice l (defq p (get-short b fn_header_paths)) b))
 						(def *env* s (list (cat (char -1 8) (char p 2) h) l (read-paths b))))))
-			(defun read-paths (_)
+			(defun-bind read-paths (_)
 				(defq l (list) i (get-short _ fn_header_links) e (get-short _ fn_header_paths))
 				(while (ne i e)
 					(push l (sym (get-cstr _ (add (get-long _ i) i))))
@@ -186,7 +186,7 @@
 			(print "image -> " (func-obj 'sys/boot_image) " (" (length f) ")")
 			(setq *env* nil)) (setq *env* nil)))))
 
-(defun make-boot-all (&optional *abi* *cpu*)
+(defun-bind make-boot-all (&optional *abi* *cpu*)
 	(setd *abi* (abi) *cpu* (cpu))
 	(make-boot nil
 		(within-compile-env (lambda ()
@@ -199,7 +199,7 @@
 				(merge *imports* d)
 				(merge *prods* p)) *imports*) *prods*)) *abi* *cpu*))
 
-(defun all-vp-files ()
+(defun-bind all-vp-files ()
 	(defq *imports* (list 'make.inc))
 	;list of all file imports
 	(each-mergeable (lambda (_)
@@ -208,7 +208,7 @@
 	(filter (lambda (_)
 		(and (ge (length _) 3) (eql ".vp" (slice -4 -1 _)))) *imports*))
 
-(defun all-class-files ()
+(defun-bind all-class-files ()
 	(defq *imports* (list 'make.inc))
 	;list of all file imports
 	(each-mergeable (lambda (_)
@@ -217,16 +217,16 @@
 	(filter (lambda (_)
 		(and (ge (length _) 9) (eql "class.inc" (slice -10 -1 _)))) *imports*))
 
-(defun make-all (&optional *abi* *cpu*)
+(defun-bind make-all (&optional *abi* *cpu*)
 	(setd *abi* (abi) *cpu* (cpu))
 	(compile (all-vp-files) *abi* *cpu*))
 
-(defun remake (&optional *abi* *cpu*)
+(defun-bind remake (&optional *abi* *cpu*)
 	(setd *abi* (abi) *cpu* (cpu))
 	(make *abi* *cpu*)
 	(make-boot-all *abi* *cpu*))
 
-(defun remake-all (&optional *abi* *cpu*)
+(defun-bind remake-all (&optional *abi* *cpu*)
 	(setd *abi* (abi) *cpu* (cpu))
 	(make-all *abi* *cpu*)
 	(make-boot-all *abi* *cpu*))
@@ -235,22 +235,22 @@
 ; cross platform make
 ;;;;;;;;;;;;;;;;;;;;;
 
-(defun make-platforms ()
+(defun-bind make-platforms ()
 	(make 'AMD64 'x86_64)
 	(make 'WIN64 'x86_64)
 	(make 'ARM64 'aarch64))
 
-(defun make-all-platforms ()
+(defun-bind make-all-platforms ()
 	(make-all 'AMD64 'x86_64)
 	(make-all 'WIN64 'x86_64)
 	(make-all 'ARM64 'aarch64))
 
-(defun remake-platforms ()
+(defun-bind remake-platforms ()
 	(remake 'AMD64 'x86_64)
 	(remake 'WIN64 'x86_64)
 	(remake 'ARM64 'aarch64))
 
-(defun remake-all-platforms ()
+(defun-bind remake-all-platforms ()
 	(remake-all 'AMD64 'x86_64)
 	(remake-all 'WIN64 'x86_64)
 	(remake-all 'ARM64 'aarch64))
@@ -259,11 +259,10 @@
 ; compile and make tests
 ;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun make-test (&optional i &optional *abi* *cpu*)
+(defun-bind make-test (&optional i &optional *abi* *cpu*)
 	(setd *abi* (abi) *cpu* (cpu))
-	(defun time-in-seconds (_)
-		(defq f (str (mod _ 1000000)))
-		(cat (str (div _ 1000000)) "." (slice 0 (sub 6 (length f)) "00000") f))
+	(defun-bind time-in-seconds (_)
+		(str (div _ 1000000) "." (pad (mod _ 1000000) 6 "00000")))
 	(defq b 1000000000 a 0 c 0)
 	(times (opt i 10)
 		(defq _ (time))
@@ -274,7 +273,7 @@
 		(print "Best time " (time-in-seconds (setq b (min b _))) " seconds"))
 	nil)
 
-(defun compile-test (&optional *abi* *cpu*)
+(defun-bind compile-test (&optional *abi* *cpu*)
 	(setd *abi* (abi) *cpu* (cpu))
 	(defq f (all-vp-files))
 	(each (lambda (_)

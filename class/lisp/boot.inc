@@ -166,8 +166,8 @@
 	;(str [form ...])
 	`(defq ,n (lambda ,a ~_)))
 
-(defmacro defun-pre-bound (n a &rest _)
-	;(defun-pre-bound name ([arg ...]) body)
+(defmacro defun-bind (n a &rest _)
+	;(defun-bind name ([arg ...]) body)
 	`(defq ,n (lambda ,a ~(bind-funcs _))))
 
 ;;;;;;;;
@@ -266,7 +266,7 @@
 	`(lambda (_) ,(reduce (lambda (x y)
 		(list y x)) _ '_)))
 
-(defun-pre-bound range (b e &optional s)
+(defun-bind range (b e &optional s)
 	;(range start end [step]) -> list
 	(defq l (list) s (opt s 1 (abs s)))
 	(if (le b e)
@@ -277,43 +277,43 @@
 			(push l b)
 			(setq b (sub b s)))) l)
 
-(defun-pre-bound each-mergeable (_f _l)
+(defun-bind each-mergeable (_f _l)
 	;(each-mergeable lambda seq)
 	(defq _ -1)
 	(while (lt (setq _ (inc _)) (length _l))
 		(_f (elem _ _l))))
 
-(defun-pre-bound each-mergeable-rev (_f _l)
+(defun-bind each-mergeable-rev (_f _l)
 	;(each-mergeable-rev lambda seq)
 	(each! -1 0 nil _f (list _l)))
 
-(defun-pre-bound each (_f &rest _)
+(defun-bind each (_f &rest _)
 	;(each lambda seq ...)
 	(each! nil nil nil _f _))
 
-(defun-pre-bound each-rev (_f &rest _)
+(defun-bind each-rev (_f &rest _)
 	;(each-rev lambda seq ...)
 	(each! -1 0 nil _f _))
 
-(defun-pre-bound map (_f &rest _)
+(defun-bind map (_f &rest _)
 	;(map lambda seq ...) -> list
 	(defq _l (list))
 	(each! nil nil (lambda (_)
 		(push _l _)) _f _) _l)
 
-(defun-pre-bound map-rev (_f &rest _)
+(defun-bind map-rev (_f &rest _)
 	;(map-rev lambda seq ...) -> list
 	(defq _l (list))
 	(each! -1 0 (lambda (_)
 		(push _l _)) _f _) _l)
 
-(defun-pre-bound filter (_f _b)
+(defun-bind filter (_f _b)
 	;(filter lambda seq) -> seq
 	(defq _l (list))
 	(each! nil nil (lambda (_p)
 		(if _p (push _l (elem _ _b)))) _f (list _b)) _l)
 
-(defun-pre-bound reduce (_f _l &optional _a)
+(defun-bind reduce (_f _l &optional _a)
 	;(reduce lambda seq [accum])
 	(cond
 		(_a (each! nil nil nil (lambda (_p)
@@ -322,7 +322,7 @@
 			(each! 1 nil nil (lambda (_p)
 				(setq _a (_f _a _p))) (list _l)))) _a)
 
-(defun-pre-bound reduce-rev (_f _l &optional _a)
+(defun-bind reduce-rev (_f _l &optional _a)
 	;(reduce-rev lambda seq [accum])
 	(cond
 		(_a (each! -1 0 nil (lambda (_p)
@@ -335,19 +335,19 @@
 ; Predicates
 ;;;;;;;;;;;;
 
-(defun-pre-bound some (_f &rest _)
+(defun-bind some (_f &rest _)
 	;(some lambda seq ...)
 	(some! nil nil t _f _))
 
-(defun-pre-bound every (_f &rest _)
+(defun-bind every (_f &rest _)
 	;(every lambda seq ...)
 	(some! nil nil nil _f _))
 
-(defun-pre-bound notany (_f &rest _)
+(defun-bind notany (_f &rest _)
 	;(notany lambda seq ...)
 	(not (some! nil nil t _f _)))
 
-(defun-pre-bound notevery (_f &rest _)
+(defun-bind notevery (_f &rest _)
 	;(notevery lambda seq ...)
 	(not (some! nil nil nil _f _)))
 
@@ -412,15 +412,15 @@
 	;(ascii-char num) -> char
 	(char _))
 
-(defun-pre-bound align (_ _a)
+(defun-bind align (_ _a)
 	;(align num pow2) -> num
 	(logand (add _ (dec _a)) (neg _a)))
 
-(defun-pre-bound to-base-char (_)
+(defun-bind to-base-char (_)
 	;(to-base-char num) -> str
 	(elem _ "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"))
 
-(defun-pre-bound from-base-char (_)
+(defun-bind from-base-char (_)
 	;(from-base-char str) -> num
 	(setq _ (code _))
 	(cond
@@ -430,7 +430,7 @@
 			(sub _ (ascii-code "A") -10))
 		(t (sub _ (ascii-code "0")))))
 
-(defun-pre-bound to-num (_)
+(defun-bind to-num (_)
 	;(to-num str) -> num
 	(defq n 0 b 10)
 	(when (gt (length _) 1)
@@ -450,36 +450,36 @@
 			(defq d (from-base-char c) n (add (mul n b) d) f (mul f b))))
 	(if (eq f 0) n (fdiv n f)))
 
-(defun-pre-bound trim-start (s &optional c)
+(defun-bind trim-start (s &optional c)
 	;(trim-start str [str]) -> str
 	(defq c (if c (code c) (ascii-code " ")) i -1)
 	(while (and (ne (setq i (inc i)) (length s)) (eql (code s 1 i) c)))
 	(slice i -1 s))
 
-(defun-pre-bound trim-end (s &optional c)
+(defun-bind trim-end (s &optional c)
 	;(trim-end str [str]) -> str
 	(defq c (if c (code c) (ascii-code " ")) i (length s))
 	(while (and (ne (setq i (dec i)) -1) (eql (code s 1 i) c)))
 	(slice 0 (inc i) s))
 
-(defun-pre-bound trim (s &optional c)
+(defun-bind trim (s &optional c)
 	;(trim str [str]) -> str
 	(trim-start (trim-end s c) c))
 
-(defun-pre-bound pad (v c &optional f)
+(defun-bind pad (v c &optional f)
 	;(pad form width [str]) -> str
 	(defq f (opt f " ") v (str v) l (length v) c (sub (max c l) l))
 	(while (gt c (length f)) (setq f (cat f f)))
 	(cat (slice 0 c f) v))
 
-(defun-pre-bound log2 (_)
+(defun-bind log2 (_)
 	;(log2 num) -> num
 	(when (and (not (eq 0 _)) (eq _ (logand _ (neg _))))
 		(defq i 0)
 		(while (ne 0 (setq _ (shr _ 1)))
 			(setq i (inc i))) i))
 
-(defun-pre-bound count-trailing-zeros (_)
+(defun-bind count-trailing-zeros (_)
 	;(count-trailing-zeros num) -> num
 	(if (eq _ 0) 64)
 		(progn
@@ -487,7 +487,7 @@
 			(while (eq 0 (logand _ 1))
 				(setq _ (shr _ 1) c (inc c))) c))
 
-(defun-pre-bound count-trailing-ones (_)
+(defun-bind count-trailing-ones (_)
 	;(count-trailing-ones num) -> num
 	(if (eq _ -1) 64)
 		(progn
@@ -495,7 +495,7 @@
 			(while (ne 0 (logand _ 1))
 				(setq _ (shr _ 1) c (inc c))) c))
 
-(defun-pre-bound count-leading-ones (_)
+(defun-bind count-leading-ones (_)
 	;(count-leading-ones num) -> num
 	(if (eq _ -1) 64)
 		(progn
@@ -503,32 +503,32 @@
 			(while (gt 0 _)
 				(setq _ (shl _ 1) c (inc c))) c))
 
-(defun-pre-bound insert (x &rest y)
+(defun-bind insert (x &rest y)
 	;(insert list form) -> list
 	(merge x y))
 
-(defun-pre-bound shuffled (_a &optional _l _h)
+(defun-bind shuffled (_a &optional _l _h)
 	;(shuffled list [start end]) -> list
 	(setd _l 0 _h (length _a))
 	(shuffle (slice _l _h _a)))
 
-(defun-pre-bound shuffle (_a &optional _l _h)
+(defun-bind shuffle (_a &optional _l _h)
 	;(shuffle list [start end]) -> list
 	(setd _l 0 _h (length _a))
 	(defq _s (time))
-	(defun-pre-bound get-next ()
+	(defun-bind get-next ()
 		(setq _s (abs (logxor 0xa5a5a5a5a5a5a5a5 (mul _s 0x1574937f)))))
-	(defun-pre-bound get-val (_)
+	(defun-bind get-val (_)
 		(if (gt _ 0) (mod (get-next) _) 0))
 	(each! _h _l nil (lambda (x)
 		(swap _a _ (get-val (inc _)))) (list _a)) _a)
 
-(defun-pre-bound sorted (_f _a &optional _l _h)
+(defun-bind sorted (_f _a &optional _l _h)
 	;(sorted list [start end]) -> list
 	(setd _l 0 _h (length _a))
 	(sort _f (slice _l _h _a)))
 
-(defun-pre-bound sort (_f _a &optional _l _h)
+(defun-bind sort (_f _a &optional _l _h)
 	;(sort list [start end]) -> list
 	(setd _l 0 _h (length _a))
 	(defq _q (list _l _h))
@@ -537,7 +537,7 @@
 			(defq _p (partition _f _a _l _h))
 			(push (push _q _l _p) (inc _p) _h))) _a)
 
-(defun-pre-bound swap (_ _1 _2)
+(defun-bind swap (_ _1 _2)
 	;(swap list index index)
 	(when (ne _1 _2)
 		(defq _t (elem _1 _))
@@ -556,7 +556,7 @@
 (defmacro get-long (s o)
 	;(get-long str index) -> num
 	(list 'code s 8 o))
-(defun-pre-bound get-cstr (s o)
+(defun-bind get-cstr (s o)
 	;(get-cstr str index) -> str
 	(defq k o)
 	(while (ne 0 (get-byte s o))
@@ -603,14 +603,14 @@
 ; Streams
 ;;;;;;;;;
 
-(defun-pre-bound each-line (_f _)
+(defun-bind each-line (_f _)
 	;(each-line lambda path)
 	(unless (defq _s (file-stream _))
 		(throw "No such file !" _))
 	(while (defq _l (read-line _s))
 		(_f _l)))
 
-(defun-pre-bound each-pipe-line (_f _p)
+(defun-bind each-pipe-line (_f _p)
 	;(each-pipe-line lambda pipe)
 	(defq _d "" _v t)
 	(while (and _p _v)
@@ -625,7 +625,7 @@
 		(push *file-includes* ,_)
 		(repl (file-stream ,_) ,_)))
 
-(defun-pre-bound write-line (s _)
+(defun-bind write-line (s _)
 	;(write-line stream str) -> str
 	(write s _) (write s (ascii-char 10)) _)
 
@@ -633,13 +633,13 @@
 ; Compilation environment
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun-pre-bound cpu ()
+(defun-bind cpu ()
 	;(cpu) -> sym
 	(defq o 'x86_64)
 	(when (defq f (file-stream 'arch))
 		(bind '(o _) (read f 32))) o)
 
-(defun-pre-bound abi ()
+(defun-bind abi ()
 	;(abi) -> sym
 	(defq o 'AMD64)
 	(when (defq f (file-stream 'abi))
@@ -658,7 +658,7 @@
 		`(def *compile-env* ',n (lambda ,a ~(bind-funcs b))))
 	(defmacro defcmacro (n a &rest b)
 		`(def *compile-env* ',n (macro ,a ~b)))
-	(defun-pre-bound include (_)
+	(defun-bind include (_)
 		(unless (find _ *compile-includes*)
 			(push *compile-includes* _)
 			(unless (defq __ (file-stream _)) (throw "No such file !" _))

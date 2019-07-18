@@ -74,7 +74,7 @@
 		(list 'fsqrt (list 'vec-dot p p _))
 		(list 'fsqrt (list 'vec-dot p p))))
 
-(defun-pre-bound vec-norm (p &optional _)
+(defun-bind vec-norm (p &optional _)
 	(if _
 		(defq l (fsqrt (points-sum (points-fmul p p _))))
 		(defq _ (points-fmul p p) l (fsqrt (points-sum _))))

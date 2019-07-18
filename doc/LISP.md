@@ -210,25 +210,32 @@ when
 ```lisp
 abs
 align
-lognot
+bind-funcs
 count-leading-ones
 count-trailing-ones
 count-trailing-zeros
 cpu
 cubed
 defun
+defun-bind
 divmod
 each
 each-line
 each-mergeable
 each-mergeable-rev
+each-pipe-line
 each-rev
 every
-each-pipe-line
 filter
 from-base-char
+get-byte
+get-cstr
+get-int
+get-long
+get-short
 insert
 log2
+lognot
 lst?
 map
 map-rev
@@ -242,11 +249,6 @@ platform
 range
 reduce
 reduce-rev
-get-byte
-get-short
-get-int
-get-long
-get-cstr
 shuffle
 shuffled
 sign
@@ -262,8 +264,8 @@ to-num
 trim
 trim-end
 trim-start
-write-line
 within-compile-env
+write-line
 ```
 
 ## Within any cmd/lisp.lisp instance

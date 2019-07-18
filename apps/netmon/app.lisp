@@ -53,7 +53,7 @@
 		(each (lambda (st sm)
 			(defq vt (mul (inc _) (div (mul last_max_tasks 100) (length task_scale)))
 				vm (mul (inc _) (div (mul last_max_memory 100) (length memory_scale))))
-			(def st 'text (str (div vt 100) "." (slice 0 (sub 2 (length (defq f (str (mod vt 100))))) "0") f "|"))
+			(def st 'text (str (div vt 100) "." (pad (mod vt 100) 2 "0") "|"))
 			(def sm 'text (str (div vm 102400) "|"))
 			(view-dirty (view-layout st))
 			(view-dirty (view-layout sm))) task_scale memory_scale)
