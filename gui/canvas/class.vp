@@ -138,7 +138,7 @@
 
 	;free edge arrays
 	(vp-cpy-ir rsp local_this r0)
-	(call 'array 'deref '((r0 canvas_edges)))
+	(call 'array 'destroy '((r0 canvas_edges)))
 	(vp-cpy-ir rsp local_this r0)
 	(call 'sys_mem 'free '((r0 canvas_edges_start)))
 

@@ -31,6 +31,8 @@
 		(ulong 'mouse_id)
 		(ulong 'key_id)
 		(uint 'mouse_buttons)
+		(int 'mouse_x)
+		(int 'mouse_y)
 		(ubyte 'quit)
 	(def-struct-end)
 
@@ -121,11 +123,10 @@
 		(host-call 'host 'sdl_poll_event {&event})
 		(switch)
 		(vpcase {event.sdl_common_event_type == SDL_MOUSEMOTION})
-			;update mouse state and keyboard id
+			;update mouse state
 			(assign {event.sdl_mouse_motion_event_state} {user->local_mouse_buttons})
-			(call 'view 'hit_tree {user->local_statics->gui_statics_screen,
-				event.sdl_mouse_button_event_x, event.sdl_mouse_button_event_y} {_, view, _, _})
-			(assign {view->component_id} {user->local_key_id})
+			(assign {event.sdl_mouse_button_event_x} {user->local_mouse_x})
+			(assign {event.sdl_mouse_button_event_y} {user->local_mouse_y})
 
 			;send event message
 		(vp-label 'send_event)
@@ -160,6 +161,11 @@
 			(assign {event.sdl_mouse_button_event_button ^ user->local_mouse_buttons} {user->local_mouse_buttons})
 			(goto 'send_event)
 		(vpcase {event.sdl_common_event_type == SDL_KEYDOWN})
+			;find keyboard id
+			(call 'view 'hit_tree {user->local_statics->gui_statics_screen,
+				user->local_mouse_x, user->local_mouse_y} {_, view, _, _})
+			(assign {view->component_id} {user->local_key_id})
+
 			;find view for keys
 			(call 'view 'find_id {user->local_statics->gui_statics_screen, user->local_key_id} {_, view})
 			(breakifnot {view})
