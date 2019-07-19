@@ -488,7 +488,7 @@
 
 (def-func-end)
 
-(def-method 'view 'lisp_opaque)
+(def-method 'view 'lisp_set_flags)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -498,24 +498,28 @@
 	;trashes
 	;all but r0
 
-	(entry 'view 'lisp_opaque '(r6 r7))
+	(entry 'view 'lisp_set_flags '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 1) '(r1))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 3) '(r1))
 	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
-	(call 'vector 'ref_element '(r7 0) '(_ r0))
-	(call 'view 'opaque '(r0) '(r1))
+	(vp-cpy-ir r7 array_array r7)
+	(vp-cpy-ir r7 0 r0)
+	(vp-cpy-ir r7 ptr_size r1)
+	(vp-cpy-ir r7 (mul 2 ptr_size) r2)
+	(call 'view 'set_flags '(r0 (r1 num_value) (r2 num_value)) '(r0 _))
+	(call 'view 'ref '(r0) '(r1))
 	(vp-pop r0)
 
-	(exit 'view 'lisp_opaque '(r0 r1))
+	(exit 'view 'lisp_set_flags '(r0 r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(view-opaque view)" error_msg_wrong_types r7))
-	(signature 'sig 'view))
+	(jump 'lisp 'repl_error '(r6 "(view-set-flags view flags mask)" error_msg_wrong_types r7))
+	(signature 'sig 'view 'num 'num))
 
 (def-func-end)
 
@@ -583,37 +587,6 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r6 "(view-dirty view)" error_msg_wrong_types r7))
-	(signature 'sig 'view))
-
-(def-func-end)
-
-(def-method 'view 'lisp_dirty_all)
-	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
-	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
-	;trashes
-	;all but r0
-
-	(entry 'view 'lisp_dirty_all '(r6 r7))
-
-(errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 1) '(r1))
-	(gotoif '(r1 == 0) 'error))
-
-	(vp-push r6)
-	(call 'vector 'ref_element '(r7 0) '(_ r0))
-	(call 'view 'dirty_all '(r0) '(r1))
-	(vp-pop r0)
-
-	(exit 'view 'lisp_dirty_all '(r0 r1))
-	(vp-ret)
-
-(errorcases
-(vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(view-dirty-all view)" error_msg_wrong_types r7))
 	(signature 'sig 'view))
 
 (def-func-end)

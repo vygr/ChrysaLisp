@@ -26,10 +26,9 @@
 	(view-sub frame)
 	(setq index _ frame (canvas-load (elem index images) load_flag_film))
 	(view-layout (view-add-back image_flow frame))
-	(view-dirty (window-set-title window (elem index images)))
-	(bind '(x y _ _) (view-get-bounds window))
+	(bind '(x y _ _) (view-get-bounds (window-set-title window (elem index images))))
 	(bind '(w h) (view-pref-size window))
-	(view-dirty-all (view-change window x y w h)))
+	(view-dirty-all (view-change (view-dirty window) x y w h)))
 
 (while id
 	(task-sleep 40000)

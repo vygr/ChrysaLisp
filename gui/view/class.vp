@@ -142,6 +142,29 @@
 
 (def-func-end)
 
+(def-method 'view 'clr_opaque)
+	;inputs
+	;r0 = view object (ptr)
+	;outputs
+	;r0 = view object (ptr)
+	;trashes
+	;all but r0
+
+	(entry 'view 'clr_opaque '(r0))
+
+	;remove any opaque region
+	(vp-push r0)
+	(vp-lea-i r0 view_opaque_region r1)
+	(f-bind 'gui 'statics r0)
+	(vp-add-cr gui_statics_rect_heap r0)
+	(call 'region 'free '(r0 r1))
+	(vp-pop r0)
+
+	(exit 'view 'clr_opaque '(r0))
+	(vp-ret)
+
+(def-func-end)
+
 (def-method 'view 'add_opaque)
 	;inputs
 	;r0 = view object (ptr)
@@ -326,25 +349,6 @@
 	(vp-cpy-ir-i r0 view_w r9)
 	(vp-cpy-ir-i r0 view_h r10)
 	(jump 'view 'add_dirty '(r0 0 0 r9 r10))
-
-(def-func-end)
-
-(def-method 'view 'dirty_all)
-	;inputs
-	;r0 = view object (ptr)
-	;outputs
-	;r0 = view object (ptr)
-	;trashes
-	;all but r0
-
-	;iterate through views
-	;dirty all
-	(jump 'view 'forward_tree '(r0 r0 ($ dirty_down_callback) ($ null_up_callback)))
-
-(vp-label 'dirty_down_callback)
-	(call 'view 'dirty '(r0) '(r1))
-(vp-label 'null_up_callback)
-	(vp-ret)
 
 (def-func-end)
 
@@ -785,27 +789,6 @@
 
 (def-func-end)
 
-(def-method 'view 'opaque)
-	;inputs
-	;r0 = view object (ptr)
-	;outputs
-	;r0 = view object (ptr)
-	;trashes
-	;all but r0
-
-	;remove any opaque region
-	(vp-push r0)
-	(vp-lea-i r0 view_opaque_region r1)
-	(f-bind 'gui 'statics r0)
-	(vp-add-cr gui_statics_rect_heap r0)
-	(call 'region 'free '(r0 r1))
-	(vp-pop r0)
-
-	;paste opaque region
-	(jump 'view 'add_opaque '(r0 0 0 (r0 view_w i) (r0 view_h i)))
-
-(def-func-end)
-
 (def-method 'view 'pref_size)
 	;inputs
 	;r0 = view object (ptr)
@@ -909,8 +892,36 @@
 		(vp-push r0)
 		(call 'view 'add_front '((r0 hmap_parent) r0))
 		(vp-pop r0)
-		(jump 'view 'dirty_all '(r0))
+		(jump 'view 'set_flags '(r0 view_flag_dirty_all view_flag_dirty_all))
 	(endif)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'view 'set_flags)
+	;inputs
+	;r0 = view object (ptr)
+	;r1 = flag values (ulong)
+	;r2 = flag mask (ulong)
+	;outputs
+	;r0 = view object (ptr)
+	;r1 = new flag values (ulong)
+	;trashes
+	;r2-r3
+
+	(entry 'view 'set_flags '(r0 r1 r2))
+
+	(vp-cpy-ir r0 view_flags r3)
+	(vp-xor-cr -1 r2)
+	(vp-and-rr r2 r3)
+	(vp-or-rr r3 r1)
+	(vp-cpy-rr r1 r3)
+	(vp-cpy-ri r1 r0 view_flags)
+	(f-bind 'gui 'statics r2)
+	(vp-and-cr view_flag_dirty_all r3)
+	(vp-cpy-ri-i r3 r2 gui_statics_dirty_flag)
+
+	(exit 'view 'set_flags '(r0 r1))
 	(vp-ret)
 
 (def-func-end)

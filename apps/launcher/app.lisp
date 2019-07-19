@@ -9,6 +9,7 @@
 	"apps/terminal/app.lisp"
 	"apps/debug/app.lisp"
 	"apps/help/app.lisp"
+	"apps/docs/app.lisp"
 	"apps/netmon/app.lisp"
 	"apps/boing/app.lisp"
 	"apps/images/app.lisp"

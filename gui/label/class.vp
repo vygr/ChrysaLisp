@@ -92,7 +92,7 @@
 	(call 'label 'get_long_prop '(r0 prop_color) '(r0 r1))
 	(vp-shr-cr 24 r1)
 	(vpif '(r1 == 0xff))
-		(call 'label 'opaque '(r0) '(r0))
+		(jump 'view 'set_flags '(r0 view_flag_opaque view_flag_opaque))
 	(endif)
 
 	(exit 'label 'layout '(r0))

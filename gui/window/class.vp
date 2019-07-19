@@ -119,7 +119,7 @@
 	(vp-push r0)
 	(call 'window 'get_parent '(r0) '(_ r1))
 	(vpif '(r1 != 0))
-		(call 'view 'dirty_all '(r1))
+		(call 'view 'set_flags '(r1 view_flag_dirty_all view_flag_dirty_all))
 		(vp-cpy-ir rsp 0 r0)
 	(endif)
 	(call 'array 'deref '((r0 window_layout_targets)))
@@ -193,7 +193,7 @@
 	(call 'window 'get_long_prop '(r0 prop_color) '(r0 r1))
 	(vp-shr-cr 24 r1)
 	(vpif '(r1 == 0xff))
-		(call 'window 'opaque '(r0) '(r0))
+		(call 'view 'set_flags '(r0 view_flag_opaque view_flag_opaque) '(r0 _))
 	(endif)
 	(call 'window 'emit '(r0 (r0 window_layout_targets)) '(r0))
 
@@ -362,9 +362,9 @@
 	(vp-lea-i r0 view_dirty_region r1)
 	(call 'region 'translate '(r1 r7 r8))
 
-	(vp-cpy-ir rsp local_this r0)
+	(call 'window 'set_flags '((rsp local_this) view_flag_dirty_all view_flag_dirty_all))
 	(vp-free local_size)
-	(jump 'window 'dirty_all '(r0))
+	(vp-ret)
 
 (def-func-end)
 

@@ -75,28 +75,28 @@
 	;outputs
 	;r0 = region heap (ptr)
 	;trashes
-	;r1-r2, r4-r14
+	;r1-r4, r11-r14
 
 	;check for any obvious errors in inputs
 	(entry 'region 'copy_rect '(r0 r1 r2 r7 r8 r9 r10))
 	(vpif '(r9 > r7))
 		(vpif '(r10 > r8))
 			;run through source region list
-			(vp-cpy-rr r2 r4)
-			(loop-flist r1 0 r6 r6)
+			(vp-cpy-rr r2 r3)
+			(loop-flist r1 0 r4 r4)
 				;not in contact ?
-				(vp-cpy-ir-i r6 rect_x r11)
+				(vp-cpy-ir-i r4 rect_x r11)
 				(continueif '(r11 >= r9))
-				(vp-cpy-ir-i r6 rect_y r12)
+				(vp-cpy-ir-i r4 rect_y r12)
 				(continueif '(r12 >= r10))
-				(vp-cpy-ir-i r6 rect_x1 r13)
+				(vp-cpy-ir-i r4 rect_x1 r13)
 				(continueif '(r7 >= r13))
-				(vp-cpy-ir-i r6 rect_y1 r14)
+				(vp-cpy-ir-i r4 rect_y1 r14)
 				(continueif '(r8 >= r14))
 
 				(call 'sys_heap 'alloc '(r0) '(r0 r1))
 				;(continueif '(r1 == 0))
-				(ln-add-fnode r4 0 r1 r2)
+				(ln-add-fnode r3 0 r1 r2)
 
 				;jump to correct splitting code
 				(gotoif '(r11 >= r7) 'copy_split1)
@@ -277,6 +277,10 @@
 	;r8 = y (pixels)
 	;r9 = x1 (pixels)
 	;r10 = y1 (pixels)
+	;outputs
+	;r0 = region heap (ptr)
+	;trashes
+	;r1-r5, r11-r14
 
 	;check for any obvious errors in inputs
 	(entry 'region 'cut_rect '(r0 r1 r2 r7 r8 r9 r10))
@@ -286,17 +290,17 @@
 			(vp-cpy-rr r2 r4)
 			(vp-cpy-rr r1 r5)
 			(vp-alloc ptr_size)
-			(loop-flist r1 0 r6 r2)
+			(loop-flist r1 0 r3 r2)
 				(vp-cpy-ri r2 rsp 0)
 
 				;not in contact ?
-				(vp-cpy-ir-i r6 rect_x r11)
+				(vp-cpy-ir-i r3 rect_x r11)
 				(continueif '(r11 >= r9))
-				(vp-cpy-ir-i r6 rect_y r12)
+				(vp-cpy-ir-i r3 rect_y r12)
 				(continueif '(r12 >= r10))
-				(vp-cpy-ir-i r6 rect_x1 r13)
+				(vp-cpy-ir-i r3 rect_x1 r13)
 				(continueif '(r7 >= r13))
-				(vp-cpy-ir-i r6 rect_y1 r14)
+				(vp-cpy-ir-i r3 rect_y1 r14)
 				(continueif '(r8 >= r14))
 
 				;jump to correct splitting code
@@ -308,7 +312,7 @@
 			(vp-label 'cut_xyx1y1)
 				;r7 + r8 + r9 + r10 inside
 				;bottom part
-				(assign '(r10) '((r6 rect_y i)))
+				(assign '(r10) '((r3 rect_y i)))
 				;cut part
 				(call 'sys_heap 'alloc '(r0) '(r0 r1))
 				;(continueif '(r1 == 0))
@@ -340,7 +344,7 @@
 			(vp-label 'cut_yx1y1)
 				;r8 + r9 + r10 inside
 				;bottom part
-				(assign '(r10) '((r6 rect_y i)))
+				(assign '(r10) '((r3 rect_y i)))
 				;cut part
 				(call 'sys_heap 'alloc '(r0) '(r0 r1))
 				;(continueif '(r1 == 0))
@@ -366,7 +370,7 @@
 			(vp-label 'cut_xx1y1)
 				;r7 + r9 + r10 inside
 				;bottom part
-				(assign '(r10) '((r6 rect_y i)))
+				(assign '(r10) '((r3 rect_y i)))
 				;cut part
 				(call 'sys_heap 'alloc '(r0) '(r0 r1))
 				;(continueif '(r1 == 0))
@@ -392,7 +396,7 @@
 			(vp-label 'cut_x1y1)
 				;r9 + r10 inside
 				;bottom part
-				(assign '(r10) '((r6 rect_y i)))
+				(assign '(r10) '((r3 rect_y i)))
 				;cut part
 				(call 'sys_heap 'alloc '(r0) '(r0 r1))
 				;(continueif '(r1 == 0))
@@ -412,7 +416,7 @@
 			(vp-label 'cut_xyy1)
 				;r7 + r8 + r10 inside
 				;bottom part
-				(assign '(r10) '((r6 rect_y i)))
+				(assign '(r10) '((r3 rect_y i)))
 				;cut part
 				(call 'sys_heap 'alloc '(r0) '(r0 r1))
 				;(continueif '(r1 == 0))
@@ -437,7 +441,7 @@
 			(vp-label 'cut_yy1)
 				;r8 + r10 inside
 				;bottom part
-				(assign '(r10) '((r6 rect_y i)))
+				(assign '(r10) '((r3 rect_y i)))
 				;cut part
 				(call 'sys_heap 'alloc '(r0) '(r0 r1))
 				;(continueif '(r1 == 0))
@@ -457,7 +461,7 @@
 			(vp-label 'cut_xy1)
 				;r7 + r10 inside
 				;bottom part
-				(assign '(r10) '((r6 rect_y i)))
+				(assign '(r10) '((r3 rect_y i)))
 				;cut part
 				(call 'sys_heap 'alloc '(r0) '(r0 r1))
 				;(continueif '(r1 == 0))
@@ -477,7 +481,7 @@
 			(vp-label 'cut_y1)
 				;r10 inside
 				;bottom part
-				(assign '(r10) '((r6 rect_y i)))
+				(assign '(r10) '((r3 rect_y i)))
 				;cut part
 				(call 'sys_heap 'alloc '(r0) '(r0 r1))
 				;(continueif '(r1 == 0))
@@ -488,7 +492,7 @@
 			(vp-label 'cut_xyx1)
 				;r7 + r8 + r9 inside
 				;left part
-				(assign '(r8 r7) '((r6 rect_y i) (r6 rect_x1 i)))
+				(assign '(r8 r7) '((r3 rect_y i) (r3 rect_x1 i)))
 				;cut part
 				(call 'sys_heap 'alloc '(r0) '(r0 r1))
 				;(continueif '(r1 == 0))
@@ -508,16 +512,16 @@
 
 			(vp-label 'cut_encl)
 				;region is enclosed
-				(vp-cpy-rr r6 r1)
+				(vp-cpy-rr r3 r1)
 				(vp-cpy-ir rsp 0 r2)
-				(ln-remove-fnode r6 r2)
+				(ln-remove-fnode r3 r2)
 				(ln-add-fnode r4 0 r1 r2)
 				(continue)
 
 			(vp-label 'cut_x)
 				;r7 inside
 				;left part
-				(assign '(r7) '((r6 rect_x1 i)))
+				(assign '(r7) '((r3 rect_x1 i)))
 				;cut part
 				(call 'sys_heap 'alloc '(r0) '(r0 r1))
 				;(continueif '(r1 == 0))
@@ -528,7 +532,7 @@
 			(vp-label 'cut_y)
 				;r8 inside
 				;top part
-				(assign '(r8) '((r6 rect_y1 i)))
+				(assign '(r8) '((r3 rect_y1 i)))
 				;cut part
 				(call 'sys_heap 'alloc '(r0) '(r0 r1))
 				;(continueif '(r1 == 0))
@@ -539,7 +543,7 @@
 			(vp-label 'cut_xy)
 				;r7 + r8 inside
 				;left part
-				(assign '(r8 r7) '((r6 rect_y i) (r6 rect_x1 i)))
+				(assign '(r8 r7) '((r3 rect_y i) (r3 rect_x1 i)))
 				;cut part
 				(call 'sys_heap 'alloc '(r0) '(r0 r1))
 				;(continueif '(r1 == 0))
@@ -555,7 +559,7 @@
 			(vp-label 'cut_x1)
 				;r9 inside
 				;right part
-				(assign '(r9) '((r6 rect_x i)))
+				(assign '(r9) '((r3 rect_x i)))
 				;cut part
 				(call 'sys_heap 'alloc '(r0) '(r0 r1))
 				;(continueif '(r1 == 0))
@@ -566,7 +570,7 @@
 			(vp-label 'cut_xx1)
 				;r7 + r9 inside
 				;right part
-				(assign '(r9) '((r6 rect_x i)))
+				(assign '(r9) '((r3 rect_x i)))
 				;cut part
 				(call 'sys_heap 'alloc '(r0) '(r0 r1))
 				;(continueif '(r1 == 0))
@@ -582,7 +586,7 @@
 			(vp-label 'cut_yx1)
 				;r8 + r9 inside
 				;right part
-				(assign '(r9 r8) '((r6 rect_x i) (r6 rect_y i)))
+				(assign '(r9 r8) '((r3 rect_x i) (r3 rect_y i)))
 				;cut part
 				(call 'sys_heap 'alloc '(r0) '(r0 r1))
 				;(continueif '(r1 == 0))

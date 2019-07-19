@@ -25,13 +25,15 @@
 			(ui-element _ (create-label) ('text "Tasks" 'color argb_white))
 			(ui-element _ (create-grid) ('grid_width 4 'grid_height 1 'color argb_white
 					'font (create-font "fonts/Hack-Regular.ttf" 14))
-				(times 4 (push task_scale (ui-element _ (create-label) ('text "|" 'flow_flags flow_flag_align_hright)))))
+				(times 4 (push task_scale (ui-element _ (create-label)
+					('text "|" 'flow_flags (logior flow_flag_align_vcenter flow_flag_align_hright))))))
 			(times cpu_total (push task_bars (ui-element _ (create-progress)))))
 		(ui-element _ (create-flow) ('color argb_red)
 			(ui-element _ (create-label) ('text "Memory (kb)" 'color argb_white))
 			(ui-element _ (create-grid) ('grid_width 4 'grid_height 1 'color argb_white
 					'font (create-font "fonts/Hack-Regular.ttf" 14))
-				(times 4 (push memory_scale (ui-element _ (create-label) ('text "|" 'flow_flags flow_flag_align_hright)))))
+				(times 4 (push memory_scale (ui-element _ (create-label)
+					('text "|" 'flow_flags (logior flow_flag_align_vcenter flow_flag_align_hright))))))
 			(times cpu_total (push memory_bars (ui-element _ (create-progress)))))))
 
 (window-set-title window "Network Monitor")
@@ -55,8 +57,8 @@
 				vm (mul (inc _) (div (mul last_max_memory 100) (length memory_scale))))
 			(def st 'text (str (div vt 100) "." (pad (mod vt 100) 2 "0") "|"))
 			(def sm 'text (str (div vm 102400) "|"))
-			(view-dirty (view-layout st))
-			(view-dirty (view-layout sm))) task_scale memory_scale)
+			(view-layout st) (view-layout sm)) task_scale memory_scale)
+		(view-dirty-all window)
 		;send out multi-cast sample command
 		(while (ne cpu_count 0)
 			(setq cpu_count (dec cpu_count))
@@ -71,8 +73,6 @@
 			(setq max_tasks (max max_tasks task_val) max_memory (max max_memory memory_val))
 			(def task_bar 'maximum last_max_tasks 'value task_val)
 			(def memory_bar 'maximum last_max_memory 'value memory_val)
-			(view-dirty task_bar)
-			(view-dirty memory_bar)
 
 			;count up replies
 			(setq cpu_count (inc cpu_count)))

@@ -4380,13 +4380,13 @@ trashes
 all but r0
 ```
 
-### progress::layout -> gui/view/opaque
+### progress::layout -> gui/backdrop/layout
 
 ```lisp
 inputs
-r0 = view object (ptr)
+r0 = backdrop object (ptr)
 outputs
-r0 = view object (ptr)
+r0 = backdrop object (ptr)
 trashes
 all but r0
 ```
@@ -4479,6 +4479,10 @@ r7 = x (pixels)
 r8 = y (pixels)
 r9 = x1 (pixels)
 r10 = y1 (pixels)
+outputs
+r0 = region heap (ptr)
+trashes
+r1-r5, r11-r14
 ```
 
 ### region::copy_rect -> gui/region/copy_rect
@@ -4495,7 +4499,7 @@ r10 = y1 (pixels)
 outputs
 r0 = region heap (ptr)
 trashes
-r1-r2, r4-r14
+r1-r4, r11-r14
 ```
 
 ### region::paste_rect -> gui/region/paste_rect
@@ -4897,13 +4901,13 @@ trashes
 all but r0
 ```
 
-### slider::layout -> gui/view/opaque
+### slider::layout -> gui/backdrop/layout
 
 ```lisp
 inputs
-r0 = view object (ptr)
+r0 = backdrop object (ptr)
 outputs
-r0 = view object (ptr)
+r0 = backdrop object (ptr)
 trashes
 all but r0
 ```
@@ -7622,6 +7626,17 @@ trashes
 all but r0
 ```
 
+### view::clr_opaque -> gui/view/clr_opaque
+
+```lisp
+inputs
+r0 = view object (ptr)
+outputs
+r0 = view object (ptr)
+trashes
+all but r0
+```
+
 ### view::add_opaque -> gui/view/add_opaque
 
 ```lisp
@@ -7670,28 +7685,6 @@ r2, r9-r10
 ```
 
 ### view::dirty -> gui/view/dirty
-
-```lisp
-inputs
-r0 = view object (ptr)
-outputs
-r0 = view object (ptr)
-trashes
-all but r0
-```
-
-### view::dirty_all -> gui/view/dirty_all
-
-```lisp
-inputs
-r0 = view object (ptr)
-outputs
-r0 = view object (ptr)
-trashes
-all but r0
-```
-
-### view::opaque -> gui/view/opaque
 
 ```lisp
 inputs
@@ -7862,6 +7855,20 @@ r7 = x (pixels)
 r8 = y (pixels)
 r9 = width (pixels)
 r10 = height (pixels)
+```
+
+### view::set_flags -> gui/view/set_flags
+
+```lisp
+inputs
+r0 = view object (ptr)
+r1 = flag values (ulong)
+r2 = flag mask (ulong)
+outputs
+r0 = view object (ptr)
+r1 = new flag values (ulong)
+trashes
+r2-r3
 ```
 
 ### view::get_first -> gui/view/get_first
@@ -8113,7 +8120,7 @@ trashes
 all but r0
 ```
 
-### view::lisp_opaque -> gui/view/lisp_opaque
+### view::lisp_set_flags -> gui/view/lisp_set_flags
 
 ```lisp
 inputs
@@ -8140,19 +8147,6 @@ all but r0
 ```
 
 ### view::lisp_dirty -> gui/view/lisp_dirty
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-all but r0
-```
-
-### view::lisp_dirty_all -> gui/view/lisp_dirty_all
 
 ```lisp
 inputs

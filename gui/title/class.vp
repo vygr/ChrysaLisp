@@ -122,7 +122,7 @@
 	(vp-mul-cr -1 r8)
 	(vp-lea-i r0 view_dirty_region r1)
 	(call 'region 'translate '(r1 r7 r8))
-	(call 'window 'dirty_all '((rsp local_window)))
+	(call 'window 'set_flags '((rsp local_window) view_flag_dirty_all view_flag_dirty_all))
 
 	(exit 'title 'mouse_move '((rsp local_this)))
 	(vp-free local_size)

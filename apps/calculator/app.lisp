@@ -57,8 +57,7 @@
 						(t (setq num (to-num (cat (str num) op)))))
 					(setq value num)))
 			(set display 'text (str value))
-			(view-layout display)
-			(view-dirty display))
+			(view-dirty (view-layout display)))
 		((eq id event_win_close)
 			;close button
 			(setq id nil))

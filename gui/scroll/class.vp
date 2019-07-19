@@ -206,7 +206,7 @@
 	(entry 'scroll 'event '(r0 r1))
 
 	(call 'scroll 'layout '(r0) '(r0))
-	(call 'scroll 'dirty_all '(r0) '(r0))
+	(call 'scroll 'set_flags '(r0 view_flag_dirty_all view_flag_dirty_all) '(r0 _))
 
 	(exit 'scroll 'event '(r0))
 	(vp-ret)

@@ -992,10 +992,6 @@
 
 (view-dirty view)
 
-## view-dirty-all
-
-(view-dirty-all view)
-
 ## view-event
 
 (view-event view str)
@@ -1012,10 +1008,6 @@
 
 (view-layout view)
 
-## view-opaque
-
-(view-opaque view)
-
 ## view-pref-size
 
 (view-pref-size view)
@@ -1023,6 +1015,10 @@
 ## view-set-bounds
 
 (view-set-bounds view x y w h)
+
+## view-set-flags
+
+(view-set-flags view flags mask)
 
 ## view-sub
 
