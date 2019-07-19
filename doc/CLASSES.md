@@ -4429,10 +4429,8 @@ r7 = x (pixels)
 r8 = y (pixels)
 r9 = x1 (pixels)
 r10 = y1 (pixels)
-outputs
-r0 = region heap (ptr)
 trashes
-r1, r11-r14
+r1, r7-r14
 ```
 
 ### region::clip_rect -> gui/region/clip_rect
@@ -4447,9 +4445,8 @@ r9 = x1 (pixels)
 r10 = y1 (pixels)
 outputs
 r0 = region heap (ptr)
-r1 = source region listhead (ptr)
 trashes
-r4-r14
+r1-r3, r11-r14
 ```
 
 ### region::remove_rect -> gui/region/remove_rect
@@ -4465,7 +4462,7 @@ r10 = y1 (pixels)
 outputs
 r0 = region heap (ptr)
 trashes
-r1-r2, r4-r14
+r1-r5, r11-r14
 ```
 
 ### region::cut_rect -> gui/region/cut_rect
@@ -4482,7 +4479,7 @@ r10 = y1 (pixels)
 outputs
 r0 = region heap (ptr)
 trashes
-r1-r5, r11-r14
+r1-r6, r11-r14
 ```
 
 ### region::copy_rect -> gui/region/copy_rect
@@ -4515,7 +4512,7 @@ r10 = y1 (pixels)
 outputs
 r0 = region heap (ptr)
 trashes
-r1-r14
+all but r0
 ```
 
 ### region::free -> gui/region/free
@@ -4543,7 +4540,7 @@ r8 = y translation (pixels)
 outputs
 r0 = region heap (ptr)
 trashes
-r1-r14
+all but r0
 ```
 
 ### region::paste_region -> gui/region/paste_region
@@ -4558,7 +4555,7 @@ r8 = y translation (pixels)
 outputs
 r0 = region heap (ptr)
 trashes
-r1-r14
+all but r0
 ```
 
 ### region::remove_region -> gui/region/remove_region
@@ -4573,7 +4570,7 @@ r8 = y translation (pixels)
 outputs
 r0 = region heap (ptr)
 trashes
-r1-r14
+all but r0
 ```
 
 ## scroll

@@ -468,8 +468,7 @@
 		(loop-until '(r1 == r2))
 
 		;free any temp region
-		(vp-lea-i rsp vis_region r1)
-		(call 'region 'free '(r0 r1) '(r0))
+		(call 'region 'free '(r0 (& rsp vis_region)) '(r0))
 	(endif)
 
 	;clip local dirty region with parent bounds
