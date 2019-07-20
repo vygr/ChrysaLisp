@@ -6,7 +6,7 @@
 	(byte 'win_close)
 	(byte 'win_button))
 
-(defq id t doc_list '("VM" "ASSIGNMENT" "FUNCTIONS" "LISP" "SYNTAX" "CLASSES" "TODO"))
+(defq id t doc_list '("VM" "ASSIGNMENT" "STRUCTURE" "FUNCTIONS" "LISP" "SYNTAX" "CLASSES" "TODO"))
 
 (defun-bind populate-page (_)
 	(def (defq state 'normal page (create-flow)) 'flow_flags (logior flow_flag_down flow_flag_fillw)

@@ -4,6 +4,18 @@
 
 ------
 
+Implemented a simple docs browser, and that lead to a lot of rework on the GUI
+compositor to better deal with idiotic amounts of components being placed in a
+flow ! The eventual form of the docs browser needs a new GUI component to
+handle blocks of text, but still it did end up with the compositor being better
+so I can't complain too much.
+
+Lowered and thought through the macro expansion code again. Can improve this
+further eventually by not using recursion on the stack but this version is far
+better than before.
+
+------
+
 Finally got round to implementing a heap collector ! You can clearly see the
 effect by watching the Netmon app while running builds and so forth etc.
 
