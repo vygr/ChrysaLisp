@@ -11,19 +11,11 @@
 	;r2 = 0
 	;outputs
 	;r0 = lisp object (ptr)
-	;r1 = expansion count (ulong)
+	;r1 = expansion count (uint)
 
-	(def-struct 'local)
-		(ptr 'this)
-		(ulong 'cnt)
-	(def-struct-end)
-
-	(ptr 'this)
-	(ulong 'cnt)
-
-	(ptr 'macro 'form 'args)
-	(pptr 'iter 'miter)
-	(uint 'length)
+	(ptr 'this 'macro 'form 'args)
+	(pptr 'iter 'iter_begin 'iter_end)
+	(uint 'cnt 'length)
 
 	(push-scope)
 	(entry 'lisp 'repl_expand {this, iter, cnt})
@@ -35,9 +27,9 @@
 		(call 'vector 'get_first {form} {_, macro})
 		(breakif {macro == this->lisp_sym_quote})
 		(vpif (cat {macro->obj_vtable == @} (f-path 'sym 'vtable)))
-			(call 'hmap 'search {this->lisp_environment, macro} {_, miter, _})
-			(gotoifnot {miter} 'decend)
-			(call 'pair 'get_second {*miter} {_, macro})
+			(call 'hmap 'search {this->lisp_environment, macro} {_, iter_begin, _})
+			(gotoifnot {iter_begin} 'decend)
+			(call 'pair 'get_second {*iter_begin} {_, macro})
 			(gotoif (cat {macro->obj_vtable != @} (f-path 'vector 'vtable)) 'decend)
 			(call 'vector 'get_first {macro} {_, args})
 			(gotoif {args != this->lisp_sym_macro} 'decend)
@@ -48,30 +40,15 @@
 			(assign {form, cnt + 1} {*iter, cnt})
 		(else)
 		(vp-label 'decend)
-			(call 'vector 'for_each {form, 0, length, $callback2, &this})
+			(call 'vector 'get_iters {form} {_, iter_begin, iter_end})
+			(loop-while {iter_begin != iter_end})
+				(call 'lisp 'repl_expand {this, iter_begin, cnt} {_, cnt})
+				(assign {iter_begin + ptr_size} {iter_begin})
+			(loop-end)
 		(endif)
 	(endif)
 
 	(exit 'lisp 'repl_expand {this, cnt})
-	(pop-scope)
-	(return)
-
-(vp-label 'callback2)
-	;inputs
-	;r0 = predicate data (ptr)
-	;r1 = element iterator (ptr)
-	;outputs
-	;r1 = 0 if break, else not
-
-	(pptr 'iter)
-	(ptr 'pdata)
-
-	(push-scope)
-	(entry 'array 'each_callback {pdata, iter})
-
-	(call 'lisp 'repl_expand {pdata->local_this, iter, pdata->local_cnt} {_, pdata->local_cnt})
-
-	(exit 'array 'each_callback '(-1))
 	(pop-scope)
 	(return)
 

@@ -11,57 +11,55 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this 'args)
-	(uint 'length)
-
-	(push-scope)
-	(entry 'lisp 'func_copy {this, args})
-
-	(d-call 'vector 'get_length {args} {_, length})
-	(errorif {length != 1} 'error1)
-	(call 'vector 'get_first {args} {_, args})
-	(vpif (cat {args->obj_vtable == @} (f-path 'vector 'vtable)))
-		(d-call 'vector 'get_length {args} {_, length})
-		(d-call 'vector 'slice {args, 0, length} {_, args})
-		(call 'vector 'for_each {args, 0, length, $callback, 0})
-	(else)
-		(call 'obj 'ref {args})
-	(endif)
-
-	(exit 'lisp 'func_copy {this, args})
-	(return)
+	(entry 'lisp 'func_copy '(r0 r1))
 
 (errorcases
-(vp-label 'error1)
-	(jump 'lisp 'repl_error {this, "(copy form)", error_msg_wrong_num_of_args, args}))
+	(vp-cpy-ir-ui r1 array_length r2)
+	(gotoif '(r2 != 1) 'error))
 
-	(pop-scope-syms)
+	(vp-cpy-ir r1 array_array r1)
+	(vp-cpy-ir r1 0 r1)
+	(vp-cpy-ir-ui r1 obj_count r2)
+	(vp-add-cr 1 r2)
+	(vp-cpy-ri-i r2 r1 obj_count)
+	(vp-push r0 r1)
+	(vp-cpy-rr rsp r1)
+	(vp-call 'copy_elem)
+	(vp-pop r0 r1)
 
-(vp-label 'callback)
+	(exit 'lisp 'func_copy '(r0 r1))
+	(vp-ret)
+
+(vp-label 'copy_elem)
 	;inputs
-	;r0 = predicate data (ptr)
-	;r1 = element iterator (ptr)
+	;r1 = element iterator (pptr)
 	;outputs
-	;r1 = 0 if break, else not
+	;r1 = element iterator (pptr)
 
-	(pptr 'iter)
-	(ptr 'pdata)
-	(uint 'length)
-
-	(push-scope)
-	(entry 'array 'each_callback {pdata, iter})
-
-	(assign {*iter} {pdata})
-	(vpif (cat {pdata->obj_vtable == @} (f-path 'vector 'vtable)))
-		(d-call 'vector 'get_length {pdata} {_, length})
-		(d-call 'vector 'slice {pdata, 0, length} {_, pdata})
-		(call 'vector 'for_each {pdata, 0, length, $callback, 0})
-		(call 'obj 'deref {*iter})
-		(assign {pdata} {*iter})
+	(vp-cpy-ir r1 0 r0)
+	(fn-bind (f-path 'vector 'vtable) r2)
+	(vp-cpy-ir r0 obj_vtable r3)
+	(vpif '(r2 == r3))
+		(vp-push r1)
+		(d-call 'vector 'slice '(r0 0 (r0 array_length ui)) '(r0 r1))
+		(vp-push r1)
+		(call 'vector 'deref '(r0))
+		(vp-pop r0)
+		(vp-cpy-ir rsp 0 r1)
+		(vp-cpy-ri r0 r1 0)
+		(call 'vector 'get_iters '(r0) '(_ r1 r2))
+		(loop-while '(r1 != r2))
+			(vp-push r2)
+			(vp-call 'copy_elem)
+			(vp-add-cr ptr_size r1)
+			(vp-pop r2)
+		(loop-end)
+		(vp-pop r1)
 	(endif)
+	(vp-ret)
 
-	(exit 'array 'each_callback '(-1))
-	(pop-scope)
-	(return)
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r0 "(copy form)" error_msg_wrong_num_of_args r1)))
 
 (def-func-end)
