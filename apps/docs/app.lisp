@@ -16,24 +16,23 @@
 		(case state
 			(normal
 				(cond
-					((and (ge (length _) 3) (eql "```" (slice 0 3 _)))
+					((starts-with "```" _)
 						(setq state 'code _ nil))
-					((and (ge (length _) 4) (eql "####" (slice 0 4 _)))
+					((starts-with "####" _)
 						(setq _ (slice 4 -1 _))
 						(def l 'font (create-font "fonts/OpenSans-Regular.ttf" 22)))
-					((and (ge (length _) 3) (eql "###" (slice 0 3 _)))
+					((starts-with "###" _)
 						(setq _ (slice 3 -1 _))
 						(def l 'font (create-font "fonts/OpenSans-Regular.ttf" 26)))
-					((and (ge (length _) 2) (eql "##" (slice 0 2 _)))
+					((starts-with "##" _)
 						(setq _ (slice 2 -1 _))
 						(def l 'font (create-font "fonts/OpenSans-Regular.ttf" 30)))
-					((and (ge (length _) 1) (eql "#" (slice 0 1 _)))
+					((starts-with "#" _)
 						(setq _ (slice 1 -1 _))
-						(def l 'font (create-font "fonts/OpenSans-Regular.ttf" 34)))
-					))
+						(def l 'font (create-font "fonts/OpenSans-Regular.ttf" 34)))))
 			(code
 				(cond
-					((and (ge (length _) 3) (eql "```" (slice 0 3 _)))
+					((starts-with "```" _)
 						(setq state 'normal _ nil))
 					(t
 						(def l 'font (create-font "fonts/Hack-Regular.ttf" 16) 'ink_color argb_blue)))))

@@ -290,11 +290,11 @@
 
 ## each-mergeable
 
-(each-mergeable lambda seq)
+(each-mergeable lambda seq) -> seq
 
 ## each-mergeable-rev
 
-(each-mergeable-rev lambda seq)
+(each-mergeable-rev lambda seq) -> seq
 
 ## each-pipe-line
 
@@ -311,6 +311,10 @@
 ## elem-set
 
 (elem-set index list val)
+
+## ends-with
+
+(ends-with str str)
 
 ## env
 
@@ -354,7 +358,7 @@
 
 ## filter
 
-(filter lambda seq) -> seq
+(filter lambda seq) -> list
 
 ## find
 
@@ -867,6 +871,10 @@
 ## squared
 
 (squared num) -> num
+
+## starts-with
+
+(starts-with str str)
 
 ## str
 

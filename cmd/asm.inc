@@ -102,7 +102,7 @@
 					(def *env* (make-sym _) i)) *imports*)))
 			;filter to only the .vp files
 			(setq *imports* (filter (lambda (_)
-				(and (ge (length _) 3) (eql ".vp" (slice -4 -1 _)))) *imports*))
+				(ends-with ".vp" _)) *imports*))
 			;filter to only the files who's oldest product is older than any dependency
 			(setq *imports* (filter (lambda (_)
 				(defq d (eval (make-sym _)) p (reduce min (map make-time (elem 1 d))) d (elem 0 d))
@@ -192,30 +192,25 @@
 		(within-compile-env (lambda ()
 			(include 'sys/func.inc)
 			(each include (all-class-files))
-			(defq *imports* (list 'make.inc) *prods* (list))
+			(defq *prods* (list))
 			;lists of all file imports and products
 			(each-mergeable (lambda (_)
-				(bind '(d p) (make-info _))
-				(merge *imports* d)
-				(merge *prods* p)) *imports*) *prods*)) *abi* *cpu*))
+				(merge *prods* (bind '(d _) (make-info _)))
+				(merge _l d)) (list 'make.inc)) *prods*)) *abi* *cpu*))
 
 (defun-bind all-vp-files ()
-	(defq *imports* (list 'make.inc))
-	;list of all file imports
-	(each-mergeable (lambda (_)
-		(merge *imports* (make-imports _))) *imports*)
 	;filter to only the .vp files
-	(filter (lambda (_)
-		(and (ge (length _) 3) (eql ".vp" (slice -4 -1 _)))) *imports*))
+	(filter (lambda (_) (ends-with ".vp" _))
+		;the list of all file imports
+		(each-mergeable (lambda (_)
+			(merge _l (make-imports _))) (list 'make.inc))))
 
 (defun-bind all-class-files ()
-	(defq *imports* (list 'make.inc))
-	;list of all file imports
-	(each-mergeable (lambda (_)
-		(merge *imports* (make-imports _))) *imports*)
 	;filter to only the class.inc files
-	(filter (lambda (_)
-		(and (ge (length _) 9) (eql "class.inc" (slice -10 -1 _)))) *imports*))
+	(filter (lambda (_) (ends-with "class.inc" _))
+		;the list of all file imports
+		(each-mergeable (lambda (_)
+			(merge _l (make-imports _))) (list 'make.inc))))
 
 (defun-bind make-all (&optional *abi* *cpu*)
 	(setd *abi* (abi) *cpu* (cpu))
@@ -275,7 +270,6 @@
 
 (defun-bind compile-test (&optional *abi* *cpu*)
 	(setd *abi* (abi) *cpu* (cpu))
-	(defq f (all-vp-files))
 	(each (lambda (_)
-		(compile _ *abi* *cpu*)) f)
+		(compile _ *abi* *cpu*)) (defq f (all-vp-files)))
 	(compile f *abi* *cpu* 1))

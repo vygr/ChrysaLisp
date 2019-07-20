@@ -278,14 +278,14 @@
 			(setq b (sub b s)))) l)
 
 (defun-bind each-mergeable (_f _l)
-	;(each-mergeable lambda seq)
+	;(each-mergeable lambda seq) -> seq
 	(defq _ -1)
 	(while (lt (setq _ (inc _)) (length _l))
-		(_f (elem _ _l))))
+		(_f (elem _ _l))) _l)
 
 (defun-bind each-mergeable-rev (_f _l)
-	;(each-mergeable-rev lambda seq)
-	(each! -1 0 nil _f (list _l)))
+	;(each-mergeable-rev lambda seq) -> seq
+	(each! -1 0 nil _f (list _l)) _l)
 
 (defun-bind each (_f &rest _)
 	;(each lambda seq ...)
@@ -308,7 +308,7 @@
 		(push _l _)) _f _) _l)
 
 (defun-bind filter (_f _b)
-	;(filter lambda seq) -> seq
+	;(filter lambda seq) -> list
 	(defq _l (list))
 	(each! nil nil (lambda (_p)
 		(if _p (push _l (elem _ _b)))) _f (list _b)) _l)
@@ -411,6 +411,14 @@
 (defmacro ascii-char (_)
 	;(ascii-char num) -> char
 	(char _))
+
+(defmacro starts-with (p _)
+	;(starts-with str str)
+	`(and (ge (length ,_) ,(length p)) (eql ,p (slice 0 ,(length p) ,_))))
+
+(defmacro ends-with (p _)
+	;(ends-with str str)
+	`(and (ge (length ,_) ,(length p)) (eql ,p (slice ,(dec (neg (length p))) -1 ,_))))
 
 (defun-bind align (_ _a)
 	;(align num pow2) -> num

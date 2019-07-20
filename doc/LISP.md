@@ -190,6 +190,7 @@ case
 compose
 curry
 dec
+ends-with
 if
 inc
 let
@@ -199,6 +200,7 @@ or
 rcurry
 run
 setd
+starts-with
 times
 unless
 until
