@@ -516,10 +516,6 @@
 
 (macroexpand form)
 
-## macroexpand-1
-
-(macroexpand-1 form)
-
 ## mail-declare
 
 (mail-declare name mbox)

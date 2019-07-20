@@ -2538,10 +2538,8 @@ r0 = lisp object (ptr)
 inputs
 r0 = lisp object (ptr)
 r1 = form object iter (pptr)
-r2 = 0
 outputs
 r0 = lisp object (ptr)
-r1 = expansion count (ulong)
 ```
 
 ### lisp::repl_error -> class/lisp/repl_error
@@ -2558,19 +2556,6 @@ r1 = error object (ptr)
 ```
 
 ### lisp::func_ffi -> class/lisp/func_ffi
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-all but r0
-```
-
-### lisp::func_macroexpand_1 -> class/lisp/func_macroexpand_1
 
 ```lisp
 inputs

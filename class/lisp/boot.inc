@@ -85,7 +85,6 @@
 
 (ffi defmacro "class/lisp/func_defmacro" 1)
 (ffi macroexpand "class/lisp/func_macroexpand" 0)
-(ffi macroexpand-1 "class/lisp/func_macroexpand_1" 0)
 
 (ffi throw "class/lisp/func_throw" 0)
 (ffi bind "class/lisp/func_bind" 0)

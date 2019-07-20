@@ -16,7 +16,7 @@
 	;all but r0
 
 	(ptr 'this 'args 'stream 'ast 'value 'old_file 'old_line)
-	(ulong 'char 'cnt)
+	(int 'char)
 	(uint 'length)
 
 	(push-scope)
@@ -48,21 +48,15 @@
 	(loop-start)
 		(call 'stream 'write_flush {this->lisp_stdout})
 		(call 'stream 'write_flush {this->lisp_stderr})
-
 		(call 'lisp 'read {this, stream, char} {_, ast, char})
 		(breakif {char == -1})
-
-		(loop-start)
-			(call 'lisp 'repl_expand {this, &ast, 0} {_, cnt})
-		(loop-untilnot {cnt})
-
+		(call 'lisp 'repl_expand {this, &ast})
 		(call 'lisp 'repl_eval {this, ast} {_, value})
 		(call 'obj 'deref {ast})
 		(vpif {stream == this->lisp_stdin})
 			(call 'lisp 'repl_print {this, this->lisp_stdout, value})
 			(call 'stream 'write_char {this->lisp_stdout, char_lf})
 		(endif)
-
 		(errorif (cat {value->obj_vtable == @} (f-path 'error 'vtable)) 'exit1)
 		(call 'obj 'deref {value})
 	(loop-end)
