@@ -11,46 +11,93 @@
 	;outputs
 	;r0 = lisp object (ptr)
 
-	(ptr 'this 'form)
-	(pptr 'iter)
-	(union
-		'(pptr 'iter_begin 'iter_end)
-		'(ptr 'args 'macro))
-	(uint 'length)
+	(def-struct 'local)
+		(ptr 'this 'form)
+		(pptr 'iter)
+		(union
+			'(pptr 'iter_begin 'iter_end)
+			'(ptr 'args 'macro))
+	(def-struct-end)
 
-	(push-scope)
-	(entry 'lisp 'repl_expand {this, iter})
+	(vp-alloc local_size)
+	(entry 'lisp 'repl_expand '(r0 r1))
 
-	(assign {*iter} {form})
+	(vp-cpy-ri r1 rsp local_iter)
+	(vp-cpy-ir r1 0 r1)
+	(vp-cpy-ri r0 rsp local_this)
+	(vp-cpy-ri r1 rsp local_form)
 	(loop-start 'try_expand)
-		(breakif (cat {form->obj_vtable != @} (f-path 'vector 'vtable)))
-		(d-call 'vector 'get_length {form} {_, length})
-		(breakifnot {length})
-		(call 'vector 'get_first {form} {_, macro})
-		(breakif {macro == this->lisp_sym_quote})
-		(vpif (cat {macro->obj_vtable == @} (f-path 'sym 'vtable)))
-			(call 'hmap 'search {this->lisp_environment, macro} {_, iter_begin, _})
-			(breakifnot {iter_begin})
-			(call 'pair 'get_second {*iter_begin} {_, macro})
-			(breakif (cat {macro->obj_vtable != @} (f-path 'vector 'vtable)))
-			(call 'vector 'get_first {macro} {_, args})
-			(breakif {args != this->lisp_sym_macro})
-			(d-call 'vector 'slice {form, 1, length} {_, args})
-			(call 'obj 'deref {form})
-			(call 'lisp 'repl_apply {this, args, macro} {_, form})
-			(call 'obj 'deref {args})
-			(assign {form} {*iter})
+		;is list ?
+		(fn-bind (f-path 'vector 'vtable) r2)
+		(vp-cpy-ir r1 obj_vtable r3)
+		(breakif '(r2 != r3))
+
+		;not 0 length ?
+		(vp-cpy-ir-ui r1 array_length r4)
+		(breakif '(r4 == 0))
+
+		;not a quote ?
+		(vp-cpy-ir r1 array_array r4)
+		(vp-cpy-ir r4 0 r4)
+		(vp-cpy-ir r0 lisp_sym_quote r3)
+		(breakif '(r4 == r3))
+
+		;not a quote ?
+		(vp-cpy-ir r4 obj_vtable r3)
+		(fn-bind (f-path 'sym 'vtable) r2)
+		(vpif '(r2 == r3))
+			;is defined ?
+			(call 'hmap 'search '((r0 lisp_environment) r4) '(_ r1 _))
+			(breakif '(r1 == 0))
+
+			;is list ?
+			(vp-cpy-ir r1 0 r4)
+			(vp-cpy-ir r4 pair_second r4)
+			(vp-cpy-ir r4 obj_vtable r3)
+			(fn-bind (f-path 'vector 'vtable) r2)
+			(breakif '(r2 != r3))
+
+			;not 0 length ?
+			(vp-cpy-ir-ui r4 array_length r5)
+			(breakif '(r5 == 0))
+
+			;is a macro ?
+			(vp-cpy-ir r4 array_array r5)
+			(vp-cpy-ir r5 0 r5)
+			(vp-cpy-ir rsp local_this r0)
+			(vp-cpy-ir r0 lisp_sym_macro r3)
+			(breakif '(r5 != r3))
+
+			;replace form with macro expantion
+			(vp-cpy-ir rsp local_form r0)
+			(vp-cpy-ri r4 rsp local_macro)
+			(d-call 'vector 'slice '(r0 1 (r0 array_length ui)) '(r0 (rsp local_args)))
+			(call 'obj 'deref '(r0))
+			(call 'lisp 'repl_apply '((rsp local_this) (rsp local_args) (rsp local_macro)) '(_ r1))
+			(vp-cpy-ri r1 rsp local_form)
+			(vp-cpy-ir rsp local_iter r0)
+			(vp-cpy-ri r1 r0 0)
+			(call 'obj 'deref '((rsp local_args)))
+			(vp-cpy-ir rsp local_this r0)
+			(vp-cpy-ir rsp local_form r1)
 			(continue 'try_expand)
 		(endif)
-		(call 'vector 'get_iters {form} {_, iter_begin, iter_end})
-		(loop-while {iter_begin != iter_end})
-			(call 'lisp 'repl_expand {this, iter_begin})
-			(assign {iter_begin + ptr_size} {iter_begin})
+
+		;try expand all elements of this list
+		(call 'vector 'get_iters '((rsp local_form)) '(_ r1 r2))
+		(vp-cpy-ir rsp local_this r0)
+		(vp-cpy-ri r2 rsp local_iter_end)
+		(loop-while '(r1 != r2))
+			(vp-cpy-ri r1 rsp local_iter_begin)
+			(call 'lisp 'repl_expand '(r0 r1) '(r0))
+			(vp-cpy-ir rsp local_iter_begin r1)
+			(vp-cpy-ir rsp local_iter_end r2)
+			(vp-add-cr ptr_size r1)
 		(loop-end)
 	(endswitch)
 
-	(exit 'lisp 'repl_expand {this})
-	(pop-scope)
-	(return)
+	(exit 'lisp 'repl_expand '(r0))
+	(vp-free local_size)
+	(vp-ret)
 
 (def-func-end)
