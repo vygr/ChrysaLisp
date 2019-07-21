@@ -190,6 +190,9 @@ case
 compose
 curry
 dec
+defmacro-bind
+defun
+defun-bind
 ends-with
 if
 inc
@@ -212,14 +215,12 @@ when
 ```lisp
 abs
 align
-bind-funcs
+bind-fun
 count-leading-ones
 count-trailing-ones
 count-trailing-zeros
 cpu
 cubed
-defun
-defun-bind
 divmod
 each
 each-line
@@ -314,6 +315,8 @@ remake-platforms
 defcvar
 defcfun
 defcmacro
+defcfun-bind
+defcmacro-bind
 undefc
 ```
 

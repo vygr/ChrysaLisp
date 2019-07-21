@@ -68,9 +68,9 @@
 
 (bind (param ...) seq)
 
-## bind-funcs
+## bind-fun
 
-(bind-funcs list) -> list
+(bind-fun list) -> list
 
 ## button-connect-click
 
@@ -255,6 +255,10 @@
 ## defmacro
 
 (defmacro name ([arg ...]) body)
+
+## defmacro-bind
+
+(defmacro-bind name ([arg ...]) body)
 
 ## defq
 

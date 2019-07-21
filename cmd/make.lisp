@@ -79,7 +79,7 @@
 		(when (and (eql state 'x) (ge (length l) 10) (eql "(" (elem 0 l)))
 			(defq s (split l " ") _ (elem 0 s))
 			(cond
-				((or (eql _ "(defun") (eql _ "(defun-bind") (eql _ "(defmacro"))
+				((or (eql _ "(defun") (eql _ "(defmacro") (eql _ "(defun-bind") (eql _ "(defmacro-bind"))
 					(setq state 'y))))) 'class/lisp/boot.inc)
 	(sort cmp syntax)
 	(defq stream (string-stream (cat "")))
