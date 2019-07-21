@@ -2,10 +2,11 @@
 ; VP Assembler
 ;;;;;;;;;;;;;;
 
+(ffi kernel-total "sys/kernel/lisp_total" 0)
 (defq debug_mode t debug_emit nil debug_inst nil)
 
 (defun-bind compile (*files* &optional *abi* *cpu* *pipes*)
-	(setd *abi* (abi) *cpu* (cpu) *pipes* 16)
+	(setd *abi* (abi) *cpu* (cpu) *pipes* (max 1 (dec (kernel-total))))
 	(defq q (list) e (list))
 	(unless (lst? *files*)
 		(setq *files* (list *files*)))
@@ -122,6 +123,11 @@
 				(sym (cat 'f_ _)))
 			(defun-bind func-obj (_)
 				(cat "obj/" *cpu* "/" *abi* "/" _))
+			(defun-bind read-paths (_)
+				(defq l (list) i (get-short _ fn_header_links) e (get-short _ fn_header_paths))
+				(while (ne i e)
+					(push l (sym (get-cstr _ (add (get-long _ i) i))))
+					(setq i (add i 8))) l)
 			(defun-bind load-func (_)
 				(or (def? (defq s (func-sym _)))
 					(progn
@@ -130,11 +136,6 @@
 						(defq h (slice fn_header_entry (defq l (get-short b fn_header_links)) b)
 							l (slice l (defq p (get-short b fn_header_paths)) b))
 						(def *env* s (list (cat (char -1 8) (char p 2) h) l (read-paths b))))))
-			(defun-bind read-paths (_)
-				(defq l (list) i (get-short _ fn_header_links) e (get-short _ fn_header_paths))
-				(while (ne i e)
-					(push l (sym (get-cstr _ (add (get-long _ i) i))))
-					(setq i (add i 8))) l)
 			(unless (lst? *funcs*)
 				(setq *funcs* (list *funcs*)))
 			(defq f (list
@@ -212,18 +213,18 @@
 		(each-mergeable (lambda (_)
 			(merge _l (make-imports _))) (list 'make.inc))))
 
-(defun-bind make-all (&optional *abi* *cpu*)
+(defun-bind make-all (&optional *abi* *cpu* *files*)
 	(setd *abi* (abi) *cpu* (cpu))
-	(compile (all-vp-files) *abi* *cpu*))
+	(compile (opt *files* (all-vp-files)) *abi* *cpu*))
 
 (defun-bind remake (&optional *abi* *cpu*)
 	(setd *abi* (abi) *cpu* (cpu))
 	(make *abi* *cpu*)
 	(make-boot-all *abi* *cpu*))
 
-(defun-bind remake-all (&optional *abi* *cpu*)
+(defun-bind remake-all (&optional *abi* *cpu* *files*)
 	(setd *abi* (abi) *cpu* (cpu))
-	(make-all *abi* *cpu*)
+	(make-all *abi* *cpu* *files*)
 	(make-boot-all *abi* *cpu*))
 
 ;;;;;;;;;;;;;;;;;;;;;
@@ -236,9 +237,10 @@
 	(make 'ARM64 'aarch64))
 
 (defun-bind make-all-platforms ()
-	(make-all 'AMD64 'x86_64)
-	(make-all 'WIN64 'x86_64)
-	(make-all 'ARM64 'aarch64))
+	(defq *files* (all-vp-files))
+	(make-all 'AMD64 'x86_64 *files*)
+	(make-all 'WIN64 'x86_64 *files*)
+	(make-all 'ARM64 'aarch64 *files*))
 
 (defun-bind remake-platforms ()
 	(remake 'AMD64 'x86_64)
@@ -246,9 +248,10 @@
 	(remake 'ARM64 'aarch64))
 
 (defun-bind remake-all-platforms ()
-	(remake-all 'AMD64 'x86_64)
-	(remake-all 'WIN64 'x86_64)
-	(remake-all 'ARM64 'aarch64))
+	(defq *files* (all-vp-files))
+	(remake-all 'AMD64 'x86_64 *files*)
+	(remake-all 'WIN64 'x86_64 *files*)
+	(remake-all 'ARM64 'aarch64 *files*))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ; compile and make tests
@@ -258,14 +261,15 @@
 	(setd *abi* (abi) *cpu* (cpu))
 	(defun-bind time-in-seconds (_)
 		(str (div _ 1000000) "." (pad (mod _ 1000000) 6 "00000")))
-	(defq b 1000000000 a 0 c 0)
+	(defq b 1000000000 w 0 a 0 c 0 files (all-vp-files))
 	(times (opt i 10)
 		(defq _ (time))
-		(compile (all-vp-files) *abi* *cpu*)
+		(compile files *abi* *cpu*)
 		(setq _ (sub (time) _) a (add a _) c (inc c))
 		(print "Time " (time-in-seconds _) " seconds")
 		(print "Mean time " (time-in-seconds (div a c)) " seconds")
-		(print "Best time " (time-in-seconds (setq b (min b _))) " seconds"))
+		(print "Best time " (time-in-seconds (setq b (min b _))) " seconds")
+		(print "Worst time " (time-in-seconds (setq w (max w _))) " seconds"))
 	nil)
 
 (defun-bind compile-test (&optional *abi* *cpu*)

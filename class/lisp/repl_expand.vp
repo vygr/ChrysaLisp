@@ -37,24 +37,24 @@
 		(breakif '(r4 == 0))
 
 		;not a quote ?
-		(vp-cpy-ir r1 array_array r4)
-		(vp-cpy-ir r4 0 r4)
+		(vp-cpy-ir r1 array_array r1)
 		(vp-cpy-ir r0 lisp_sym_quote r3)
-		(breakif '(r4 == r3))
+		(vp-cpy-ir r1 0 r1)
+		(breakif '(r1 == r3))
 
-		;not a quote ?
-		(vp-cpy-ir r4 obj_vtable r3)
+		;is a symbol ?
+		(vp-cpy-ir r1 obj_vtable r3)
 		(fn-bind (f-path 'sym 'vtable) r2)
 		(vpif '(r2 == r3))
 			;is defined ?
-			(call 'hmap 'search '((r0 lisp_environment) r4) '(_ r1 _))
+			(call 'hmap 'search '((r0 lisp_environment) r1) '(_ r1 _))
 			(breakif '(r1 == 0))
 
 			;is list ?
 			(vp-cpy-ir r1 0 r4)
 			(vp-cpy-ir r4 pair_second r4)
-			(vp-cpy-ir r4 obj_vtable r3)
 			(fn-bind (f-path 'vector 'vtable) r2)
+			(vp-cpy-ir r4 obj_vtable r3)
 			(breakif '(r2 != r3))
 
 			;not 0 length ?
@@ -63,8 +63,8 @@
 
 			;is a macro ?
 			(vp-cpy-ir r4 array_array r5)
-			(vp-cpy-ir r5 0 r5)
 			(vp-cpy-ir rsp local_this r0)
+			(vp-cpy-ir r5 0 r5)
 			(vp-cpy-ir r0 lisp_sym_macro r3)
 			(breakif '(r5 != r3))
 
@@ -89,7 +89,7 @@
 		(vp-cpy-ri r2 rsp local_iter_end)
 		(loop-while '(r1 != r2))
 			(vp-cpy-ri r1 rsp local_iter_begin)
-			(call 'lisp 'repl_expand '(r0 r1) '(r0))
+			(call 'func_entry '(r0 r1) '(r0))
 			(vp-cpy-ir rsp local_iter_begin r1)
 			(vp-cpy-ir rsp local_iter_end r2)
 			(vp-add-cr ptr_size r1)

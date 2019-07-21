@@ -22,21 +22,16 @@
 (defcvar '*func-name* nil '*strings* (list) '*paths* (list) '*links* (list)
 	'*func-align* nil '*func-syms* (list))
 
-(defcfun link-sym (p)
-	(cat "rl_" (str p)))
+(defcfun-bind link-sym (_)
+	(str "rl_" _))
 
-(defcfun path-sym (p)
-	(cat "rp_" (str p)))
+(defcfun-bind path-sym (_)
+	(str "rp_" _))
 
-(defcfun string-sym (p)
-	(cat "rs_" (str p)))
+(defcfun string-sym (_)
+	(str "rs_" _))
 
-(defmacro trace_starts_with (_)
-	`(and (ge (length *name*) ,(length _)) (eql (slice 0 ,(length _) *name*) ,_)))
-(defmacro trace_ends_with (_)
-	`(and (ge (length *name*) ,(length _)) (eql (slice ,(neg (inc (length _))) -1 *name*) ,_)))
-
-(defcfun def-func (*name* &optional falign fstack)
+(defcfun-bind def-func (*name* &optional falign fstack)
 	(print "-> " (cat "obj/" *cpu* "/" *abi* "/" (str *name*)))
 	(emit-reset)
 	(setq *func-name* *name* *switch-nxt* 0 *func-align* (opt falign stack_align))
@@ -55,7 +50,7 @@
 (vp-label 'func_entry)
 	(push-scope))
 
-(defcfun def-func-end ()
+(defcfun-bind def-func-end ()
 	(pop-scope-checked)
 	(each (lambda (s)
 	(vp-label (string-sym _))
@@ -78,35 +73,35 @@
 	(apply undef (cat (list *compile-env*) *func-syms*))
 	(save *out-buffer* (cat "obj/" *cpu* "/" *abi* "/" (str *func-name*))))
 
-(defcfun fn-add-string (s)
+(defcfun-bind fn-add-string (s)
 	(defq i -1)
 	(while (and (lt (setq i (inc i)) (length *strings*)) (not (eql s (elem i *strings*)))))
 	(if (eq i (length *strings*)) (push *strings* s)) i)
 
-(defcfun fn-add-path (p)
+(defcfun-bind fn-add-path (p)
 	(if (defq i (find p *paths*)) i
 		(dec (length (push *paths* p)))))
 
-(defcfun fn-add-link (p)
+(defcfun-bind fn-add-link (p)
 	(push *links* (fn-add-path p)))
 
-(defcfun fn-find-link (p)
+(defcfun-bind fn-find-link (p)
 	(defq i -1)
 	(while (and (lt (setq i (inc i)) (length *links*)) (not (eql p (elem (elem i *links*) *paths*)))))
 	(if (eq i (length *links*)) (fn-add-link p)) i)
 
-(defcfun fn-string (s r)
+(defcfun-bind fn-string (s r)
 	(vp-lea-p (string-sym (fn-add-string s)) r))
 
-(defcfun fn-bind (p r)
+(defcfun-bind fn-bind (p r)
 	(if (def? p) (throw "Can't bind to inline function !" p)
 		(vp-cpy-pr (link-sym (fn-find-link p)) r)))
 
-(defcfun fn-call (p)
+(defcfun-bind fn-call (p)
 	(if (def? p) ((eval p))
 		(vp-call-p (link-sym (fn-find-link p)))))
 
-(defcfun fn-jump (p)
+(defcfun-bind fn-jump (p)
 	(if (def? p) (throw "Can't jump to inline function !" p)
 		(vp-jmp-p (link-sym (fn-find-link p)))))
 

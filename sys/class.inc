@@ -13,7 +13,7 @@
 (defcvar '*class* nil (class-sym 'null) '(()()0) '*args* (list))
 (each (lambda (_) (push *args* (list))) (range 0 16))
 
-(defcfun intern-args (l)
+(defcfun-bind intern-args (l)
 	(when l
 		(defq _ (some! nil nil t (lambda (_)
 			(and (match? _ l) _)) (list (defq b (elem (length l) *args*)))))
@@ -36,7 +36,14 @@
 	(setq *class* (list (cat (elem 0 _)) (cat (elem 1 _)) (elem 2 _)))
 	(defcvar (super-sym _1) _2 (class-sym _1) *class*))
 
-(defcfun dec-method (_1 _2 &optional _3 _4 _5)
+(defcfun-bind override ()
+	(setq m (cat m))
+	(elem-set 0 m _2)
+	(elem-set s (elem 1 *class*) m)
+	(if _4 (elem-set 2 m (intern-args _4)))
+	(if _5 (elem-set 3 m (intern-args _5))))
+
+(defcfun-bind dec-method (_1 _2 &optional _3 _4 _5)
 	;_1 = member name
 	;_2 = member function
 	;_3 = mode (static/virtual/final/override)
@@ -44,12 +51,6 @@
 	;_5 = out regs
 	(setd _3 'static)
 	(defq m (if (defq s (find _1 (elem 0 *class*))) (elem s (elem 1 *class*))))
-	(defun override ()
-		(setq m (cat m))
-		(elem-set 0 m _2)
-		(elem-set s (elem 1 *class*) m)
-		(if _4 (elem-set 2 m (intern-args _4)))
-		(if _5 (elem-set 3 m (intern-args _5))))
 	(if m
 		(case _3
 			;existing method
@@ -98,7 +99,7 @@
 ; function helpers
 ;;;;;;;;;;;;;;;;;;
 
-(defcfun call (_1 _2 &optional _3 _4 _5)
+(defcfun-bind call (_1 _2 &optional _3 _4 _5)
 	;_1 = class name
 	;_2 = member name
 	;_3 = in parameters
@@ -183,7 +184,7 @@
 ; class calling
 ;;;;;;;;;;;;;;;
 
-(defcfun method-lookup (_1 _2)
+(defcfun-bind method-lookup (_1 _2)
 	;_1 = class name
 	;_2 = member name
 	(defq c (eval (class-sym _1)) _ (find _2 (elem 0 c)))
@@ -206,7 +207,7 @@
 		(elem _3 (elem 3 (method-lookup _1 _2)))
 		(elem 3 (method-lookup _1 _2))))
 
-(defcfun f-path (_1 _2)
+(defcfun-bind f-path (_1 _2)
 	;_1 = class name
 	;_2 = slot method name
 	(elem 0 (method-lookup _1 _2)))

@@ -53,7 +53,7 @@ function boot_cpu_gui
 	else
 		./obj/$CPU/$ABI/$OS/main obj/$CPU/$ABI/sys/boot_image -cpu $1 $2 &
 	fi
-	echo -cpu $1 $2
+#	echo -cpu $1 $2
 }
 
 function boot_cpu_tui
@@ -64,7 +64,7 @@ function boot_cpu_tui
 	else
 		./obj/$CPU/$ABI/$OS/main obj/$CPU/$ABI/sys/boot_image -cpu $1 $2 &
 	fi
-	echo -cpu $1 $2
+#	echo -cpu $1 $2
 }
 
 ./stop.sh
