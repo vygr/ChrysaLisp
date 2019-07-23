@@ -228,10 +228,6 @@
 
 (create-window flags)
 
-## cubed
-
-(cubed num) -> num
-
 ## curry
 
 (curry lambda var ...) -> lambda
@@ -275,10 +271,6 @@
 ## div
 
 (div num num ...)
-
-## divmod
-
-(divmod num num) -> list
 
 ## each
 
@@ -867,10 +859,6 @@
 ## split
 
 (split str char)
-
-## squared
-
-(squared num) -> num
 
 ## starts-with
 

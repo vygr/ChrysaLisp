@@ -117,7 +117,6 @@ logxor
 lt
 macro
 macroexpand
-macroexpand-1
 match?
 max
 merge
@@ -220,8 +219,6 @@ count-leading-ones
 count-trailing-ones
 count-trailing-zeros
 cpu
-cubed
-divmod
 each
 each-line
 each-mergeable
@@ -258,7 +255,6 @@ sign
 some
 sort
 sorted
-squared
 str?
 swap
 sym?

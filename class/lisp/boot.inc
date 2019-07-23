@@ -143,42 +143,42 @@
 				((cond ((eq (type-of _e) lisp_type_lst) (cond ((ne 0 (length _e))
 				(cond ((eql 'quote (elem 0 _e)) nil) (t))))))
 					(push _s _e))
-				((cond ((eq (type-of _e) lisp_type_sym) (cond ((cond ((eql 'lambda _e) nil) (t))
-				(cond ((defq _f (def? _e)) (cond ((eq (type-of _f) lisp_type_fnc) t)
-				(t (cond ((eq (type-of _f) lisp_type_lst) (cond ((ne 0 (length _f))
-				(eql 'lambda (elem 0 _f))))))))))))))
+				((cond ((eq (type-of _e) lisp_type_sym) (cond ((cond ((eql 'lambda _e) nil)
+				((eql 'macro _e) nil) (t)) (cond ((defq _f (def? _e))
+				(cond ((eq (type-of _f) lisp_type_fnc) t) (t (cond ((eq (type-of _f) lisp_type_lst)
+				(cond ((ne 0 (length _f)) (eql 'lambda (elem 0 _f))))))))))))))
 					(elem-set _ _l _f)))) (list _l))) _)
 ;to disable function pre binding uncomment folowing line
 ;(defun bind-fun (_) _)
 
-(defmacro const (_)
+(defmacro-bind const (_)
 	;(const form)
 	(eval _))
 
-(defmacro exec (_)
+(defmacro-bind exec (_)
 	;(exec ast)
 	`(eval (macroexpand ,_)))
 
-(defmacro lst? (_)
+(defmacro-bind lst? (_)
 	;(lst? form)
 	`(eq (type-of ,_) ,lisp_type_lst))
-(defmacro num? (_)
+(defmacro-bind num? (_)
 	;(num? form)
 	`(eq (type-of ,_) ,lisp_type_int))
-(defmacro fnc? (_)
+(defmacro-bind fnc? (_)
 	;(fnc? form)
 	`(eq (type-of ,_) ,lisp_type_fnc))
-(defmacro str? (_)
+(defmacro-bind str? (_)
 	;(str? form)
 	`(eq (type-of ,_) ,lisp_type_str))
-(defmacro sym? (_)
+(defmacro-bind sym? (_)
 	;(sym? form)
 	`(eq (type-of ,_) ,lisp_type_sym))
 
-(defmacro inc (_)
+(defmacro-bind inc (_)
 	;(inc num) -> num
 	(list 'add _ 1))
-(defmacro dec (_)
+(defmacro-bind dec (_)
 	;(dec num) -> num
 	(list 'sub _ 1))
 
@@ -195,7 +195,7 @@
 ; Scopes
 ;;;;;;;;
 
-(defmacro let (l &rest _)
+(defmacro-bind let (l &rest _)
 	;(let [(var val) ...])
 	`((lambda ,(map (lambda (_) (elem 0 _)) l) ~_) ~(map (lambda (_) (elem 1 _)) l)))
 
@@ -260,15 +260,15 @@
 ; Functional
 ;;;;;;;;;;;;
 
-(defmacro curry (f &rest _)
+(defmacro-bind curry (f &rest _)
 	;(curry lambda var ...) -> lambda
 	`(lambda (&rest _) (apply ,f (cat (list ~_) _))))
 
-(defmacro rcurry (f &rest _)
+(defmacro-bind rcurry (f &rest _)
 	;(rcurry lambda var ...) -> lambda
 	`(lambda (&rest _) (apply ,f (cat _ (list ~_)))))
 
-(defmacro compose (&rest _)
+(defmacro-bind compose (&rest _)
 	;(compose lambda lambda) -> lambda
 	`(lambda (_) ,(reduce (lambda (x y)
 		(list y x)) _ '_)))
@@ -365,38 +365,26 @@
 (defq min_long (shl -1 63) max_long (shr -1 1)
 	min_int (shl -1 31) max_int (shr -1 33))
 
-(defun sign (_)
+(defun-bind sign (_)
 	;(sign num) -> num
 	(cond
 		((eq _ 0) 0)
 		((lt _ 0) -1)
 		(t 1)))
 
-(defmacro minus (_)
-	;(minus num) -> num
-	(neg _))
-
-(defun neg (_)
+(defun-bind neg (_)
 	;(neg num) -> num
 	(sub 0 _))
 
-(defun abs (_)
+(defmacro-bind minus (_)
+	;(minus num) -> num
+	(neg _))
+
+(defun-bind abs (_)
 	;(abs num) -> num
 	(if (lt _ 0) (neg _) _))
 
-(defun squared (_)
-	;(squared num) -> num
-	(mul _ _))
-
-(defun cubed (_)
-	;(cubed num) -> num
-	(mul _ _ _))
-
-(defun divmod (x y)
-	;(divmod num num) -> list
-	(list (div x y) (mod x y)))
-
-(defun lognot (_)
+(defun-bind lognot (_)
 	;(lognot num) -> num
 	(logxor _ -1))
 
@@ -411,19 +399,19 @@
 ; Utilities
 ;;;;;;;;;;;
 
-(defmacro ascii-code (_)
+(defun-bind ascii-code (_)
 	;(ascii-code char) -> num
 	(code _))
 
-(defmacro ascii-char (_)
+(defun-bind ascii-char (_)
 	;(ascii-char num) -> char
 	(char _))
 
-(defmacro starts-with (p _)
+(defmacro-bind starts-with (p _)
 	;(starts-with str str)
 	`(and (ge (length ,_) ,(length p)) (eql ,p (slice 0 ,(length p) ,_))))
 
-(defmacro ends-with (p _)
+(defmacro-bind ends-with (p _)
 	;(ends-with str str)
 	`(and (ge (length ,_) ,(length p)) (eql ,p (slice ,(dec (neg (length p))) -1 ,_))))
 
@@ -559,16 +547,16 @@
 		(elem-set _1 _ (elem _2 _))
 		(elem-set _2 _ _t)))
 
-(defmacro get-byte (s o)
+(defmacro-bind get-byte (s o)
 	;(get-byte str index) -> num
 	(list 'code s 1 o))
-(defmacro get-short (s o)
+(defmacro-bind get-short (s o)
 	;(get-short str index) -> num
 	(list 'code s 2 o))
-(defmacro get-int (s o)
+(defmacro-bind get-int (s o)
 	;(get-int str index) -> num
 	(list 'code s 4 o))
-(defmacro get-long (s o)
+(defmacro-bind get-long (s o)
 	;(get-long str index) -> num
 	(list 'code s 8 o))
 (defun-bind get-cstr (s o)
@@ -578,7 +566,7 @@
 		(setq o (inc o)))
 	(slice k o s))
 
-(defmacro debug (&rest _)
+(defmacro-bind debug (&rest _)
 	;(debug [form ...])
 	`(kernel-debug (apply cat (map str (list ~_ ,(ascii-char 10))))))
 
@@ -586,29 +574,29 @@
 ; Anaphoric macros
 ;;;;;;;;;;;;;;;;;;
 
-(defmacro aif (x y &optional z)
+(defmacro-bind aif (x y &optional z)
 	;(aif form form [form])
 	`(let ((it ,x))
 		(if it ,y ,z)))
 
-(defmacro awhen (x &rest _)
+(defmacro-bind awhen (x &rest _)
 	;(awhen form body)
 	`(let ((it ,x))
 		(when it ~_)))
 
-(defmacro awhile (x &rest _)
+(defmacro-bind awhile (x &rest _)
 	;(awhile form body)
 	`(while (defq ,(defq _x (gensym)) ,x)
 		(let ((it ,_x)) ~_)))
 
-(defmacro aand (&rest _)
+(defmacro-bind aand (&rest _)
 	;(aand [form] ...)
 	(cond
 		((eq (length _) 0))
 		((eq (length _) 1) (elem 0 _))
 		(t `(aif ,(elem 0 _) (aand ~(slice 1 -1 _))))))
 
-(defmacro acond (&rest _)
+(defmacro-bind acond (&rest _)
 	;(acond (tst body) ...)
 	(reduce (lambda (x _)
 		(push x `((defq ,(defq _x (gensym)) ,(elem 0 _)) (let ((it ,_x)) ~(slice 1 -1 _)))))
@@ -662,20 +650,20 @@
 
 (defq profile nil)
 
-(defun within-compile-env (_)
+(defun-bind within-compile-env (_)
 	;(within-compile-env lambda)
 	(defq *compile-env* (env 307) *compile-includes* (list))
-	(defmacro defcvar (&rest b)
+	(defmacro-bind defcvar (&rest b)
 		`(def *compile-env* ~b))
-	(defmacro undefc (&rest b)
+	(defmacro-bind undefc (&rest b)
 		`(undef *compile-env* ~b))
-	(defmacro defcfun (n a &rest b)
+	(defmacro-bind defcfun (n a &rest b)
 		`(def *compile-env* ',n (lambda ,a ~b)))
-	(defmacro defcmacro (n a &rest b)
+	(defmacro-bind defcmacro (n a &rest b)
 		`(def *compile-env* ',n (macro ,a ~b)))
-	(defmacro defcfun-bind (n a &rest b)
+	(defmacro-bind defcfun-bind (n a &rest b)
 		`(def *compile-env* ',n (lambda ,a ~(bind-fun b))))
-	(defmacro defcmacro-bind (n a &rest b)
+	(defmacro-bind defcmacro-bind (n a &rest b)
 		`(def *compile-env* ',n (macro ,a ~(bind-fun b))))
 	(defun-bind include (_)
 		(unless (find _ *compile-includes*)
@@ -683,11 +671,11 @@
 			(unless (defq __ (file-stream _)) (throw "No such file !" _))
 			(repl __ _)))
 (when profile
-	(defmacro defcmacro (n a &rest b)
+	(defmacro-bind defcmacro (n a &rest b)
 		`(def *compile-env* ',n (macro ,a (count-call ,(insert-call-count n)) ~b)))
-	(defmacro defcfun (n a &rest b)
+	(defmacro-bind defcfun (n a &rest b)
 		`(def *compile-env* ',n (lambda ,a (count-call ,(insert-call-count n)) ~b)))
-	(defmacro defcfun-bind (n a &rest b)
+	(defmacro-bind defcfun-bind (n a &rest b)
 		`(def *compile-env* ',n (lambda ,a (count-call ,(insert-call-count n t)) ~(bind-fun b)))))
 	(catch (progn (setq _ (_) *compile-env* nil) _) (setq *compile-env* nil)))
 
@@ -701,16 +689,16 @@
 	(defun-bind count-call (_)
 		(defq c (elem _ call-counts))
 		(elem-set 1 c (inc (elem 1 c))))
-	(defun print-call-counts ()
+	(defmacro-bind print-call-counts ()
 		(sort (lambda (x y)
 			(if (lt (elem 1 x) (elem 1 y)) -1 0)) call-counts)
 		(each print call-counts) nil)
-	(defun call-test ()
+	(defmacro-bind call-test ()
 		(compile (all-vp-files))
 		(print-call-counts))
-	(defmacro defun (n a &rest b)
+	(defmacro-bind defun (n a &rest b)
 		`(defq ,n (lambda ,a (count-call ,(insert-call-count n)) ~b)))
-	(defmacro defun-bind (n a &rest b)
+	(defmacro-bind defun-bind (n a &rest b)
 		`(defq ,n (lambda ,a (count-call ,(insert-call-count n t)) ~(bind-fun b))))
-	(defmacro demacro-bind (n a &rest b)
+	(defmacro-bind demacro-bind (n a &rest b)
 		`(defq ,n (macro ,a (count-call ,(insert-call-count n t)) ~(bind-fun b)))))
