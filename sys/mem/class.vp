@@ -40,7 +40,7 @@
 	(vp-cpy-cr mem_cell_min_size r1)	;start object size
 	(vp-cpy-cr max_cell_count r3)		;start cell count
 	(loop-start)
-		(call 'sys_heap 'init '(r0 r1 r3))
+		(call 'sys_heap 'init '(r0 r1 r3) '(r0 r1))
 		(vp-add-cr hp_heap_size r0)
 		(vp-add-rr r1 r1)
 		(vp-shr-cr 1 r3)
@@ -58,7 +58,7 @@
 	(vp-cpy-cr mem_cell_min_size r5)
 	(vp-add-cr long_size r0)
 	(loop-start)
-		(call 'sys_heap 'deinit '(r0))
+		(call 'sys_heap 'deinit '(r0) '(r0))
 		(vp-add-cr hp_heap_size r0)
 		(vp-add-rr r5 r5)
 	(loop-until `(r5 > ,mem_cell_max_size))
@@ -76,7 +76,7 @@
 	(vp-cpy-cr mem_cell_min_size r12)
 	(vp-add-cr long_size r0)
 	(loop-start)
-		(call 'sys_heap 'collect '(r0))
+		(call 'sys_heap 'collect '(r0) '(r0))
 		(vp-add-cr hp_heap_size r0)
 		(vp-add-rr r12 r12)
 	(loop-until `(r12 > ,mem_cell_max_size))
@@ -280,6 +280,8 @@
 					(vp-cpy-ri r2 r0 0)
 					(vp-add-cr ptr_size r0)
 				(loop-until '(r0 == r1))
+
+				(exit 'sys_mem 'clear '(r0))
 				(vp-ret)
 			(endif)
 		(endif)
@@ -329,6 +331,8 @@
 						(vp-add-cr ptr_size r0)
 						(vp-add-cr ptr_size r1)
 					(loop-until '(r0 == r2))
+
+					(exit 'sys_mem 'copy '(r0 r1))
 					(vp-ret)
 				(endif)
 			(endif)
@@ -384,6 +388,8 @@
 					(vp-cpy-ri r2 r0 0)
 					(vp-add-cr ptr_size r0)
 				(loop-until '(r0 == r1))
+
+				(exit 'sys_mem 'fill '(r0))
 				(vp-ret)
 			(endif)
 		(endif)
