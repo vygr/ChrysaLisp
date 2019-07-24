@@ -83,7 +83,6 @@
 (ffi eql "class/lisp/func_eql" 0)
 (ffi copy "class/lisp/func_copy" 0)
 
-(ffi defmacro "class/lisp/func_defmacro" 1)
 (ffi macroexpand "class/lisp/func_macroexpand" 0)
 
 (ffi throw "class/lisp/func_throw" 0)
@@ -112,7 +111,9 @@
 	lisp_type_int (shl 1 1)
 	lisp_type_str (shl 1 2)
 	lisp_type_sym (shl 1 3)
-	lisp_type_fnc (shl 1 4))
+	lisp_type_fnc (shl 1 4)
+ 	defmacro `(macro (n a &rest _)
+		(,list ,defq n (,cat '(macro) (,list a) _))))
 
 (defmacro defun (n a &rest _)
 	;(defun name ([arg ...]) body)
@@ -123,17 +124,18 @@
 	;(prin [form ...])
 	;(print [form ...])
 	;(str [form ...])
-	`(defq ,n (lambda ,a ~_)))
+	(list (eval defq) n (cat '(lambda) (list a) _)))
 
 (defmacro defun-bind (n a &rest _)
 	;(defun-bind name ([arg ...]) body)
-	`(defq ,n (lambda ,a ~(bind-fun _))))
+	(list (eval defq) n (cat '(lambda) (list a) (bind-fun _))))
 
 (defmacro defmacro-bind (n a &rest _)
+	;(defmacro name ([arg ...]) body)
 	;(defmacro-bind name ([arg ...]) body)
-	`(defq ,n (macro ,a ~(bind-fun _))))
+	(list (eval defq) n (cat '(macro) (list a) (bind-fun _))))
 
-;defined early without any use of macro expantion !!!
+;defined early without use of macro expantions !
 (defun bind-fun (_)
 	;(bind-fun list) -> list
 	(defq _s (list (setq _ (macroexpand _))))
@@ -148,8 +150,13 @@
 				(cond ((eq (type-of _f) lisp_type_fnc) t) (t (cond ((eq (type-of _f) lisp_type_lst)
 				(cond ((ne 0 (length _f)) (eql 'lambda (elem 0 _f))))))))))))))
 					(elem-set _ _l _f)))) (list _l))) _)
-;to disable function pre binding uncomment folowing line
+;to disable pre binding uncomment folowing line
 ;(defun bind-fun (_) _)
+
+;pre bind the previous !
+(defq bind-fun (bind-fun bind-fun)
+	defun (bind-fun defun) defmacro (bind-fun defmacro)
+	defun-bind (bind-fun defun-bind) defmacro-bind (bind-fun defmacro-bind))
 
 (defmacro-bind const (_)
 	;(const form)

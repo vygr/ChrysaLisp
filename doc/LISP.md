@@ -82,7 +82,6 @@ cond
 copy
 def
 def?
-defmacro
 defq
 div
 each!
@@ -188,7 +187,9 @@ ascii
 case
 compose
 curry
+const
 dec
+defmacro
 defmacro-bind
 defun
 defun-bind

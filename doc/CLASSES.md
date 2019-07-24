@@ -2581,19 +2581,6 @@ trashes
 all but r0
 ```
 
-### lisp::func_defmacro -> class/lisp/func_defmacro
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-all but r0
-```
-
 ### lisp::func_lambda -> class/lisp/func_lambda
 
 ```lisp

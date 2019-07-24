@@ -10,7 +10,6 @@
 (include 'class/lisp/func_catch.vp)
 (include 'class/lisp/func_cond.vp)
 (include 'class/lisp/func_copy.vp)
-(include 'class/lisp/func_defmacro.vp)
 (include 'class/lisp/func_eql.vp)
 (include 'class/lisp/func_throw.vp)
 (include 'class/lisp/func_eval.vp)

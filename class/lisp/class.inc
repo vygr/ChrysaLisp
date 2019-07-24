@@ -31,7 +31,6 @@
 
 (dec-method 'func_ffi 'class/lisp/func_ffi 'static '(r0 r1) '(r0 r1))
 (dec-method 'func_macroexpand 'class/lisp/func_macroexpand 'static '(r0 r1) '(r0 r1))
-(dec-method 'func_defmacro 'class/lisp/func_defmacro 'static '(r0 r1) '(r0 r1))
 (dec-method 'func_lambda 'class/lisp/func_lambda 'static '(r0 r1) '(r0 r1))
 (dec-method 'func_quote 'class/lisp/func_quote 'static '(r0 r1) '(r0 r1))
 (dec-method 'func_qquote 'class/lisp/func_qquote 'static '(r0 r1) '(r0 r1))
