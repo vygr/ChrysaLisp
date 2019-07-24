@@ -489,29 +489,29 @@
 		(while (ne 0 (setq _ (shr _ 1)))
 			(setq i (inc i))) i))
 
-(defun-bind count-trailing-zeros (_)
-	;(count-trailing-zeros num) -> num
-	(if (eq _ 0) 64)
-		(progn
-			(defq c 0)
-			(while (eq 0 (logand _ 1))
-				(setq _ (shr _ 1) c (inc c))) c))
+(defun-bind ntz (_)
+	;(ntz num) -> num
+	(defq n 64)
+	(while (ne _ 0)
+		(setq n (dec n) _ (shl _ 1))) n)
 
-(defun-bind count-trailing-ones (_)
-	;(count-trailing-ones num) -> num
-	(if (eq _ -1) 64)
-		(progn
-			(defq c 0)
-			(while (ne 0 (logand _ 1))
-				(setq _ (shr _ 1) c (inc c))) c))
+(defun-bind nto (_)
+	;(nto num) -> num
+	(defq n 64 _ (lognot _))
+	(while (ne _ 0)
+		(setq n (dec n) _ (shl _ 1))) n)
 
-(defun-bind count-leading-ones (_)
-	;(count-leading-ones num) -> num
-	(if (eq _ -1) 64)
-		(progn
-			(defq c 0)
-			(while (gt 0 _)
-				(setq _ (shl _ 1) c (inc c))) c))
+(defun-bind nlz (_)
+	;(nlz num) -> num
+	(defq n 0)
+	(while (gt _ 0)
+		(setq n (inc n) _ (shl _ 1))) n)
+
+(defun-bind nlo (_)
+	;(nlo num) -> num
+	(defq n 0 _ (lognot _))
+	(while (gt _ 0)
+		(setq n (inc n) _ (shl _ 1))) n)
 
 (defun-bind insert (x &rest y)
 	;(insert list form) -> list

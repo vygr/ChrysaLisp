@@ -216,9 +216,10 @@ when
 abs
 align
 bind-fun
-count-leading-ones
-count-trailing-ones
-count-trailing-zeros
+nlo
+nlz
+nto
+ntz
 cpu
 each
 each-line

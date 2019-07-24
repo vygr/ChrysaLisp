@@ -156,18 +156,6 @@
 
 (copy form)
 
-## count-leading-ones
-
-(count-leading-ones num) -> num
-
-## count-trailing-ones
-
-(count-trailing-ones num) -> num
-
-## count-trailing-zeros
-
-(count-trailing-zeros num) -> num
-
 ## cpu
 
 (cpu) -> sym
@@ -576,6 +564,14 @@
 
 (neg num) -> num
 
+## nlo
+
+(nlo num) -> num
+
+## nlz
+
+(nlz num) -> num
+
 ## not
 
 (not form)
@@ -587,6 +583,14 @@
 ## notevery
 
 (notevery lambda seq ...)
+
+## nto
+
+(nto num) -> num
+
+## ntz
+
+(ntz num) -> num
 
 ## num?
 

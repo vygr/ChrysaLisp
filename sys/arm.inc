@@ -65,16 +65,16 @@
 			(defq m (shr -1 (sub 64 s)) _ (logand _ m))
 			(if (emit-is-shifted-mask _)
 				(progn
-					(defq i (count-trailing-zeros _))
+					(defq i (ntz _))
 					(if (ge i 64)
 						(setq e t)
-						(defq cto (count-trailing-ones (shr _ i)))))
+						(defq cto (nto (shr _ i)))))
 				(progn
 					(setq _ (logior _ (lognot m)))
 					(if (not (emit-is-shifted-mask (lognot _)))
 						(setq e t)
-						(defq clo (count-leading-ones _) i (sub 64 clo)
-							cto (sub (add clo (count-trailing-ones _)) (sub 64 s))))))
+						(defq clo (nlo _) i (sub 64 clo)
+							cto (sub (add clo (nto _)) (sub 64 s))))))
 			(if (or e (le s i)) -1
 				(progn
 					(defq _r (logand (sub s i) (dec s))
