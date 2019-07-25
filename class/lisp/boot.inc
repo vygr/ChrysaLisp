@@ -102,8 +102,8 @@
 (ffi prin "class/lisp/func_prin" 0)
 (ffi print "class/lisp/func_print" 0)
 
-(ffi time "class/lisp/func_time" 0)
-(ffi age "class/lisp/func_age" 0)
+(ffi time "sys/pii/lisp_time" 0)
+(ffi age "sys/pii/lisp_age" 0)
 (ffi kernel-debug "sys/kernel/lisp_debug" 0)
 
 (defq t 't nil 'nil

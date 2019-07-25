@@ -1,5 +1,6 @@
 (include 'sys/func.inc)
 (include 'class/num/class.inc)
+(include 'class/str/class.inc)
 (include 'class/lisp/class.inc)
 
 (def-method 'sys_pii 'lisp_readchar)
@@ -61,5 +62,73 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r6 "(pii-write-char fd char)" error_msg_wrong_types r7)))
+
+(def-func-end)
+
+(def-method 'sys_pii 'lisp_time)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
+
+	(entry 'sys_pii 'lisp_time '(r0 r1))
+
+(errorcases
+	(vp-cpy-ir-ui r1 array_length r2)
+	(gotoif '(r2 != 0) 'error))
+
+	(vp-push r0)
+	(call 'sys_pii 'time nil '(r0))
+	(call 'num 'create '(r0) '(r1))
+	(vp-pop r0)
+
+	(exit 'sys_pii 'lisp_time '(r0 r1))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r0 "(time)" error_msg_wrong_num_of_args r1)))
+
+(def-func-end)
+
+(def-method 'sys_pii 'lisp_age)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
+
+	(entry 'sys_pii 'lisp_age '(r6 r7))
+
+(errorcases
+	(call 'lisp 'env_args_type '(r7 ($ sig) 1) '(r1))
+	(gotoif '(r1 == 0) 'error))
+
+	(vp-cpy-ir r7 array_array r0)
+	(f-bind 'sys_load 'statics r1)
+	(vp-cpy-ir r0 0 r0)
+	(vp-cpy-ir r1 ld_statics_stat_buffer r1)
+	(call 'sys_pii 'stat '((& r0 str_data) r1) '(r0))
+	(vpif '(r0 == 0))
+		(vp-cpy-ir r1 stat_mtime r0)
+	(else)
+		(vp-xor-rr r0 r0)
+	(endif)
+	(call 'num 'create '(r0) '(r0))
+
+	(exit 'sys_pii 'lisp_age '(r6 r0))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r6 "(age path)" error_msg_wrong_types r7))
+	(signature 'sig 'str))
 
 (def-func-end)

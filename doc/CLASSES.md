@@ -2776,32 +2776,6 @@ trashes
 all but r0
 ```
 
-### lisp::func_age -> class/lisp/func_age
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-all but r0
-```
-
-### lisp::func_time -> class/lisp/func_time
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-all but r0
-```
-
 ### lisp::func_bind -> class/lisp/func_bind
 
 ```lisp
@@ -6744,6 +6718,32 @@ all but r0
 ```
 
 ### sys_pii::lisp_writechar -> sys/pii/lisp_writechar
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+all but r0
+```
+
+### sys_pii::lisp_time -> sys/pii/lisp_time
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+all but r0
+```
+
+### sys_pii::lisp_age -> sys/pii/lisp_age
 
 ```lisp
 inputs
