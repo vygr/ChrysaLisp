@@ -38,7 +38,7 @@
 
 	;init vars
 	(vp-alloc local_size)
-	(fn-bind (f-path 'gui 'statics) r0)
+	(f-bind 'gui 'statics r0)
 	(vp-cpy-ri r0 rsp local_statics)
 	(vp-xor-rr r0 r0)
 	(vp-cpy-ri r0 rsp local_mouse_id)

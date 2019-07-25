@@ -22,11 +22,11 @@
 	(entry 'sym 'intern '(r0))
 
 	(vp-push r0)
-	(fn-bind (f-path 'sym 'statics) r0)
+	(f-bind 'sym 'statics r0)
 	(vp-cpy-ir r0 sym_statics_intern r0)
 	(vpif '(r0 == 0))
 		(call 'hset 'create `((@ ,(f-path 'sym 'same)) 101) '(r0))
-		(fn-bind (f-path 'sym 'statics) r1)
+		(f-bind 'sym 'statics r1)
 		(vp-cpy-ri r0 r1 sym_statics_intern)
 	(endif)
 	(call 'hset 'insert '(r0 (rsp 0)) '(_ r1 _))
@@ -52,11 +52,11 @@
 	(entry 'sym 'intern_str '(r0))
 
 	(vp-push r0)
-	(fn-bind (f-path 'sym 'statics) r0)
+	(f-bind 'sym 'statics r0)
 	(vp-cpy-ir r0 sym_statics_intern r0)
 	(vpif '(r0 == 0))
 		(call 'hset 'create `((@ ,(f-path 'sym 'same)) 101) '(r0))
-		(fn-bind (f-path 'sym 'statics) r1)
+		(f-bind 'sym 'statics r1)
 		(vp-cpy-ri r0 r1 sym_statics_intern)
 	(endif)
 	(call 'hset 'find '(r0 (rsp 0)) '(_ r1 r2))
@@ -96,16 +96,16 @@
 	;trashes
 	;all
 
-	(fn-bind (f-path 'sym 'statics) r0)
+	(f-bind 'sym 'statics r0)
 	(vp-cpy-ir r0 sym_statics_intern r0)
 	(call 'hset 'create '((r0 hset_key_callback) (r0 hset_num_buckets ui)) '(r0))
 	(vp-push r0)
-	(fn-bind (f-path 'sym 'statics) r0)
+	(f-bind 'sym 'statics r0)
 	(vp-cpy-ir r0 sym_statics_intern r0)
 	(call 'hset 'for_each '(r0 ($ flush_callback) rsp) '(r0 _ _))
 	(call 'hset 'deref '(r0))
 	(vp-pop r0)
-	(fn-bind (f-path 'sym 'statics) r1)
+	(f-bind 'sym 'statics r1)
 	(vp-cpy-ri r0 r1 sym_statics_intern)
 	(vp-ret)
 

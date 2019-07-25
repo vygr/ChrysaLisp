@@ -23,8 +23,8 @@
 
 	;evaluate based on type
 	(vp-cpy-ir r1 obj_vtable r2)
-	(fn-bind (f-path 'sym 'vtable) r3)
-	(fn-bind (f-path 'vector 'vtable) r4)
+	(f-bind 'sym 'vtable r3)
+	(f-bind 'vector 'vtable r4)
 	(switch)
 	(vpcase '(r2 == r3))
 		;eval to symbol value
@@ -48,11 +48,11 @@
 		(vp-cpy-ir r1 obj_vtable r2)
 
 	(errorcases
-		(fn-bind (f-path 'error 'vtable) r3)
+		(f-bind 'error 'vtable r3)
 		(gotoif '(r2 == r3) 'funcexit))
 
 		(vp-cpy-ri r1 rsp local_func)
-		(fn-bind (f-path 'func 'vtable) r3)
+		(f-bind 'func 'vtable r3)
 		(switch)
 		(vpcase '(r2 == r3))
 			(vp-cpy-ir r1 num_value r2)
@@ -68,7 +68,7 @@
 
 		(errorcases
 			(vp-cpy-ir r1 obj_vtable r2)
-			(fn-bind (f-path 'error 'vtable) r3)
+			(f-bind 'error 'vtable r3)
 			(vp-cpy-ri r1 rsp local_value)
 			(gotoif '(r2 == r3) 'error))
 

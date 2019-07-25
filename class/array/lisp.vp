@@ -135,7 +135,7 @@
 	(errorif '(r3 < 2) 'error)
 	(vp-cpy-ir r7 array_array r0)
 	(vp-cpy-ir r0 0 r0)
-	(fn-bind (f-path 'vector 'vtable) r1)
+	(f-bind 'vector 'vtable r1)
 	(vp-cpy-ir r0 obj_vtable r2)
 	(vpif '(r1 == r2))
 		(d-call 'vector 'append '(r0 r7 1 r3) '(r0))

@@ -37,7 +37,7 @@
 	;r1 = element iterator (pptr)
 
 	(vp-cpy-ir r1 0 r0)
-	(fn-bind (f-path 'vector 'vtable) r2)
+	(f-bind 'vector 'vtable r2)
 	(vp-cpy-ir r0 obj_vtable r3)
 	(vpif '(r2 == r3))
 		(vp-push r1)

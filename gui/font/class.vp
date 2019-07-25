@@ -341,7 +341,7 @@
 		(vp-pop r1)
 		(jump 'vector 'push_back '(r0 r1))
 	(default)
-		(fn-bind (f-path 'font 'statics) r0)
+		(f-bind 'font 'statics r0)
 		(vp-cpy-ir r0 font_statics_count r2)
 		(vp-sub-cr 1 r2)
 		(vp-cpy-ri r2 r0 font_statics_count)

@@ -318,7 +318,7 @@
 
 	;set cpu ID
 	(call 'sys_str 'to_long '(r0 10) '(r0))
-	(fn-bind (f-path 'sys_task 'statics) r1)
+	(f-bind 'sys_task 'statics r1)
 	(vp-cpy-ri-i r0 r1 tk_statics_cpu_id)
 	(vp-ret)
 

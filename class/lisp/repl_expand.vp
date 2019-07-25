@@ -28,7 +28,7 @@
 	(vp-cpy-ri r1 rsp local_form)
 	(loop-start 'try_expand)
 		;is list ?
-		(fn-bind (f-path 'vector 'vtable) r2)
+		(f-bind 'vector 'vtable r2)
 		(vp-cpy-ir r1 obj_vtable r3)
 		(breakif '(r2 != r3))
 
@@ -44,7 +44,7 @@
 
 		;is a symbol ?
 		(vp-cpy-ir r1 obj_vtable r3)
-		(fn-bind (f-path 'sym 'vtable) r2)
+		(f-bind 'sym 'vtable r2)
 		(vpif '(r2 == r3))
 			;is defined ?
 			(call 'hmap 'search '((r0 lisp_environment) r1) '(_ r1 _))
@@ -53,7 +53,7 @@
 			;is list ?
 			(vp-cpy-ir r1 0 r4)
 			(vp-cpy-ir r4 pair_second r4)
-			(fn-bind (f-path 'vector 'vtable) r2)
+			(f-bind 'vector 'vtable r2)
 			(vp-cpy-ir r4 obj_vtable r3)
 			(breakif '(r2 != r3))
 
