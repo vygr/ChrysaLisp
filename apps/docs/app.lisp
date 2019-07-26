@@ -9,9 +9,10 @@
 (defq id t doc_list '("VM" "ASSIGNMENT" "STRUCTURE" "FUNCTIONS" "LISP" "SYNTAX" "CLASSES" "TODO"))
 
 (defun-bind populate-page (file)
-	(def (defq state 'normal page_widget (create-flow)) 'flow_flags (logior flow_flag_down flow_flag_fillw)
+	(def (defq page_flow (create-flow)) 'flow_flags (logior flow_flag_right flow_flag_fillh)
 		'font (create-font "fonts/OpenSans-Regular.ttf" 18) 'color argb_white)
-	(defq word_cnt 0)
+	(def (defq page_widget (create-flow)) 'flow_flags (logior flow_flag_down flow_flag_fillw))
+	(defq state 'normal word_cnt 0)
 	(each-line (lambda (line_str)
 		(while nil)
 		(defq line_str (trim-end line_str (ascii-char 13)) line_widget nil)
@@ -49,12 +50,24 @@
 				(cond
 					((starts-with "```" line_str)
 						(setq state 'normal word_cnt 0))
+					((defq tab_pos (find (ascii-char 9) line_str))
+						(def (setq line_widget (create-flow)) 'flow_flags (logior flow_flag_right flow_flag_fillh flow_flag_lastw))
+						(def (defq tab_widget (create-label)) 'min_width (mul (inc tab_pos) 48))
+						(def (defq code_widget (create-label)) 'text (slice (inc tab_pos) -1 line_str)
+							'font (create-font "fonts/Hack-Regular.ttf" 16) 'ink_color argb_blue)
+						(view-add-back line_widget tab_widget)
+						(view-add-back line_widget code_widget))
 					(t
 						(def (setq line_widget (create-label)) 'text line_str
 							'font (create-font "fonts/Hack-Regular.ttf" 16) 'ink_color argb_blue)))))
 		(if line_widget (view-add-child page_widget line_widget))) (cat "doc/" file ".md"))
-	(bind '(w h) (view-pref-size page_widget))
-	(view-layout (view-add-child page_scroll (view-change page_widget 0 0 w h)))
+	(def (defq left_margin (create-label)) 'min_width 32)
+	(def (defq right_margin (create-label)) 'min_width 32)
+	(view-add-child page_flow left_margin)
+	(view-add-child page_flow page_widget)
+	(view-add-child page_flow right_margin)
+	(bind '(w h) (view-pref-size page_flow))
+	(view-layout (view-add-child page_scroll (view-change page_flow 0 0 w h)))
 	(view-dirty-all (view-layout doc_flow)))
 
 (ui-tree window (create-window window_flag_close) nil
@@ -64,13 +77,13 @@
 			(each (lambda (path)
 				(button-connect-click (ui-element _ (create-button)
 					('text path 'flow_flags (logior flow_flag_align_vcenter flow_flag_align_hleft))) event_win_button)) doc_list))
-		(ui-element page_scroll (create-scroll scroll_flag_vertical) ('min_width 800 'min_height 800 'color argb_green))))
+		(ui-element page_scroll (create-scroll scroll_flag_vertical) ('min_width 848 'min_height 800 'color argb_green))))
 
 (populate-page (elem 0 doc_list))
 (window-set-title window "Docs")
 (window-connect-close window event_win_close)
 (bind '(w h) (view-pref-size window))
-(gui-add (view-change window 300 64 w h))
+(gui-add (view-change window 280 64 w h))
 
 (while id
 	(cond
