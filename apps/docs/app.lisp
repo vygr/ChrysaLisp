@@ -8,38 +8,53 @@
 
 (defq id t doc_list '("VM" "ASSIGNMENT" "STRUCTURE" "FUNCTIONS" "LISP" "SYNTAX" "CLASSES" "TODO"))
 
-(defun-bind populate-page (_)
-	(def (defq state 'normal page (create-flow)) 'flow_flags (logior flow_flag_down flow_flag_fillw)
+(defun-bind populate-page (file)
+	(def (defq state 'normal page_widget (create-flow)) 'flow_flags (logior flow_flag_down flow_flag_fillw)
 		'font (create-font "fonts/OpenSans-Regular.ttf" 18) 'color argb_white)
-	(each-line (lambda (_)
-		(defq l (create-label) _ (trim-end _ (ascii-char 13)))
+	(defq word_cnt 0)
+	(each-line (lambda (line_str)
+		(while nil)
+		(defq line_str (trim-end line_str (ascii-char 13)) line_widget nil)
 		(case state
 			(normal
 				(cond
-					((starts-with "```" _)
-						(setq state 'code _ nil))
-					((starts-with "####" _)
-						(setq _ (slice 4 -1 _))
-						(def l 'font (create-font "fonts/OpenSans-Regular.ttf" 22)))
-					((starts-with "###" _)
-						(setq _ (slice 3 -1 _))
-						(def l 'font (create-font "fonts/OpenSans-Regular.ttf" 26)))
-					((starts-with "##" _)
-						(setq _ (slice 2 -1 _))
-						(def l 'font (create-font "fonts/OpenSans-Regular.ttf" 30)))
-					((starts-with "#" _)
-						(setq _ (slice 1 -1 _))
-						(def l 'font (create-font "fonts/OpenSans-Regular.ttf" 34)))))
+					((starts-with "```" line_str)
+						(setq state 'code))
+					((starts-with "####" line_str)
+						(def (setq line_widget (create-label)) 'text (slice 4 -1 line_str)
+							'font (create-font "fonts/OpenSans-Regular.ttf" 22)))
+					((starts-with "###" line_str)
+						(def (setq line_widget (create-label)) 'text (slice 3 -1 line_str)
+							'font (create-font "fonts/OpenSans-Regular.ttf" 26)))
+					((starts-with "##" line_str)
+						(def (setq line_widget (create-label)) 'text (slice 2 -1 line_str)
+							'font (create-font "fonts/OpenSans-Regular.ttf" 30)))
+					((starts-with "#" line_str)
+						(def (setq line_widget (create-label)) 'text (slice 1 -1 line_str)
+							'font (create-font "fonts/OpenSans-Regular.ttf" 34)))
+					(t
+						(cond
+							((defq s (find "`" line_str))
+								(def (setq line_widget (create-flow)) 'flow_flags (logior flow_flag_right flow_flag_fillh flow_flag_lastw))
+								(defq word_lst (split (cat " " line_str " ") "`"))
+								(each (lambda (word)
+									(if (eq 0 (logand (setq word_cnt (inc word_cnt)) 1))
+										(def (defq word_widget (create-label)) 'text (cat "`" word "`") 'ink_color argb_blue)
+										(def (defq word_widget (create-label)) 'text word 'ink_color argb_black))
+									(view-add-back line_widget word_widget)) word_lst)
+								(setq word_cnt (inc word_cnt)))
+							(t
+								(def (setq line_widget (create-label)) 'text line_str))))))
 			(code
 				(cond
-					((starts-with "```" _)
-						(setq state 'normal _ nil))
+					((starts-with "```" line_str)
+						(setq state 'normal word_cnt 0))
 					(t
-						(def l 'font (create-font "fonts/Hack-Regular.ttf" 16) 'ink_color argb_blue)))))
-		(if _ (def l 'text _))
-		(view-add-child page l)) (cat "doc/" _ ".md"))
-	(bind '(w h) (view-pref-size page))
-	(view-layout (view-add-child page_scroll (view-change page 0 0 w h)))
+						(def (setq line_widget (create-label)) 'text line_str
+							'font (create-font "fonts/Hack-Regular.ttf" 16) 'ink_color argb_blue)))))
+		(if line_widget (view-add-child page_widget line_widget))) (cat "doc/" file ".md"))
+	(bind '(w h) (view-pref-size page_widget))
+	(view-layout (view-add-child page_scroll (view-change page_widget 0 0 w h)))
 	(view-dirty-all (view-layout doc_flow)))
 
 (ui-tree window (create-window window_flag_close) nil
