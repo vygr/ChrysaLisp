@@ -86,8 +86,8 @@ the worlds most powerful languages as your assembler macro system !
 
 ```lisp
 	(vp-def (r_x r_y r_z))
-1)	(assign `(,r_x ,r_y) `(,r_z ,r_x))
-2)	(assign (list r_x r_y) (list r_z r_x))
+	(assign `(,r_x ,r_y) `(,r_z ,r_x))
+	(assign (list r_x r_y) (list r_z r_x))
 ```
 
 ## VP Resource operators
@@ -247,18 +247,18 @@ This is the output from wrapping the 'hmap 'insert line above:
 ```lisp
 -> obj/Darwin/x86_64/sys/mail/declare
 pre opt:
-(vp-lea-i rsp 0 _v0)
-(vp-cpy-cr ml_statics_declare_map _v1)
-(vp-cpy-ir _v0 0 _v0)
-(vp-add-rr _v1 _v0)
-(vp-cpy-ir _v0 0 _v0)
-(vp-lea-i rsp 8 _v1)
-(vp-cpy-ir _v1 0 _v1)
-(vp-lea-i rsp 16 _v2)
-(vp-cpy-ir _v2 0 _v2)
+	(vp-lea-i rsp 0 _v0)
+	(vp-cpy-cr ml_statics_declare_map _v1)
+	(vp-cpy-ir _v0 0 _v0)
+	(vp-add-rr _v1 _v0)
+	(vp-cpy-ir _v0 0 _v0)
+	(vp-lea-i rsp 8 _v1)
+	(vp-cpy-ir _v1 0 _v1)
+	(vp-lea-i rsp 16 _v2)
+	(vp-cpy-ir _v2 0 _v2)
 post opt:
-(vp-cpy-ir rsp (add 0 0) _v0)
-(vp-cpy-ir _v0 (add ml_statics_declare_map 0) _v0)
-(vp-cpy-ir rsp (add 8 0) _v1)
-(vp-cpy-ir rsp (add 16 0) _v2)
+	(vp-cpy-ir rsp (add 0 0) _v0)
+	(vp-cpy-ir _v0 (add ml_statics_declare_map 0) _v0)
+	(vp-cpy-ir rsp (add 8 0) _v1)
+	(vp-cpy-ir rsp (add 16 0) _v2)
 ```
