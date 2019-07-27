@@ -12,7 +12,7 @@
 (ui-tree window (create-window window_flag_close) nil
 	(ui-element image_flow (create-flow) ('flow_flags (logior flow_flag_down flow_flag_fillw))
 		(ui-element _ (create-flow) ('flow_flags (logior flow_flag_right flow_flag_fillh)
-				'color argb_green 'font (create-font "fonts/Entypo.otf" 32))
+				'color toolbar_col 'font (create-font "fonts/Entypo.otf" 32))
 			(button-connect-click (ui-element _ (create-button) ('text "")) event_win_prev)
 			(button-connect-click (ui-element _ (create-button) ('text "")) event_win_next))
 		(ui-element frame (canvas-load (elem index images) load_flag_film))))

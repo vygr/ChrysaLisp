@@ -37,7 +37,7 @@
 		(assign '(r0) {this})
 		(call 'window 'set_font_prop '(r0 prop_font "fonts/OpenSans-Regular.ttf" 18) '(r0))
 		(call 'window 'set_long_prop '(r0 prop_ink_color argb_black) '(r0))
-		(call 'window 'set_long_prop '(r0 prop_color 0xffc0c0c0) '(r0))
+		(call 'window 'set_long_prop '(r0 prop_color window_col) '(r0))
 		(call 'window 'set_long_prop '(r0 prop_border 5) '(r0))
 		(call 'window 'set_long_prop '(r0 prop_min_width 0) '(r0))
 		(call 'window 'set_long_prop '(r0 prop_min_height 0) '(r0))
@@ -52,7 +52,7 @@
 		;add title flow panel
 		(call 'flow 'create nil {title_flow})
 		(call 'flow 'set_long_prop {title_flow, prop_flow_flags, flow_flag_left | flow_flag_fillh | flow_flag_lastw} '(r0))
-		(call 'flow 'set_long_prop '(r0 prop_color 0xffd0d0d0))
+		(call 'flow 'set_long_prop '(r0 prop_color title_col))
 		(call 'flow 'add_child {this->window_flow, title_flow})
 
 		;add close button ?
@@ -81,7 +81,6 @@
 
 		;add title
 		(call 'title 'create nil {this->window_title})
-		(call 'title 'set_long_prop {this->window_title, prop_color, 0xffc0c0c0})
 		(call 'flow 'add_child {title_flow, this->window_title})
 
 		;add status panel
@@ -92,7 +91,7 @@
 		;add status label ?
 		(vpif {flags & window_flag_status})
 			(call 'label 'create nil {this->window_status})
-			(call 'label 'set_long_prop {this->window_status, prop_color, 0xff808080})
+			(call 'label 'set_long_prop {this->window_status, prop_color, status_col})
 			(call 'flow 'add_child {this->window_panel, this->window_status})
 		(endif)
 

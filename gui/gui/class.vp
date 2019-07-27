@@ -53,8 +53,8 @@
 
 	;size, color and opaque
 	(call 'backdrop 'change '(r0 0 0 SCREEN_WIDTH SCREEN_HEIGHT) '(r0))
-	(call 'backdrop 'set_long_prop '(r0 prop_color argb_grey1) '(r0))
-	(call 'backdrop 'set_long_prop '(r0 prop_ink_color argb_black) '(r0))
+	(call 'backdrop 'set_long_prop '(r0 prop_color argb_grey2) '(r0))
+	(call 'backdrop 'set_long_prop '(r0 prop_ink_color argb_grey1) '(r0))
 	(call 'backdrop 'set_flags '(r0 view_flag_dirty_all view_flag_dirty_all))
 
 	;for now fire up the launcher

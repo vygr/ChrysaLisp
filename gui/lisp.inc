@@ -11,7 +11,7 @@
 	argb_red argb_green argb_blue argb_yellow argb_cyan argb_magenta argb_grey1
 	argb_grey2 argb_grey3 argb_grey4 argb_grey5 argb_grey6 argb_grey7 argb_grey8
 	argb_grey9 argb_grey10 argb_grey11 argb_grey12 argb_grey13 argb_grey14
-	argb_grey15))
+	argb_grey15 window_col title_col toolbar_col toolbar2_col slider_col status_col))
 	(within-compile-env (lambda ()
 		(include 'gui/gui/class.inc)
 		(include 'gui/ctx/class.inc)

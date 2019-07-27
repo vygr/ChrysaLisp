@@ -1,6 +1,17 @@
 # ChrysaLisp
 
-![](./screen_shot_1.png)
+![](./screen_shot_5.png)
+
+------
+
+Some more work on the docs browser to add margins and highlight code words
+within paragraphs plus structure the code a bit better.
+
+Added a set of colour themes and used them everywhere, currently a subtle grey
+shades look.
+
+Continued to lower functions to VP, and made pre-binding throughout boot.inc
+the standard and elsewhere a simple call profiler showed would benafit.
 
 ------
 

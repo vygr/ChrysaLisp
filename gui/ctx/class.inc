@@ -40,3 +40,10 @@
 (defcvar 'argb_grey13 0xffd0d0d0)
 (defcvar 'argb_grey14 0xffe0e0e0)
 (defcvar 'argb_grey15 0xfff0f0f0)
+
+(defcvar 'window_col argb_grey12)
+(defcvar 'title_col argb_grey14)
+(defcvar 'slider_col argb_grey14)
+(defcvar 'status_col argb_grey4)
+(defcvar 'toolbar_col argb_grey12)
+(defcvar 'toolbar2_col argb_grey10)
