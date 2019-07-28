@@ -11,14 +11,12 @@
 	(ui-element vdu (create-vdu) ('vdu_width vdu_width 'vdu_height vdu_height 'ink_color argb_green
 		'font (create-font "fonts/Hack-Regular.ttf" 16))))
 
-(window-set-title window "Terminal")
-(window-set-status window "Ready")
-(window-connect-close window event_win_close)
-(bind '(w h) (view-pref-size window))
-(gui-add (view-change window 0 0 w h))
+(gui-add (apply view-change (cat (list window 0 0)
+	(view-pref-size (window-set-title (window-set-status
+		(window-connect-close window event_win_close) "Ready") "Terminal")))))
 (vdu-print vdu (cat "ChrysaLisp Terminal 1.4" (ascii-char 10) ">"))
 
-(defun terminal-output (c)
+(defun-bind terminal-output (c)
 	(if (eq c 13) (setq c 10))
 	(cond
 		;cursor up/down
@@ -28,7 +26,7 @@
 		(t
 			(vdu-print vdu (char c)))))
 
-(defun terminal-input (c)
+(defun-bind terminal-input (c)
 	;echo char to terminal
 	(terminal-output c)
 	(cond

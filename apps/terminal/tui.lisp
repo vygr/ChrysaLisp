@@ -1,7 +1,7 @@
 ;imports
 (import 'sys/lisp.inc)
 
-(defun terminal-output (_)
+(defun-bind terminal-output (_)
 	(each (lambda (c)
 		(setq c (code c))
 		(if (eq c 13) (setq c 10))
@@ -15,7 +15,7 @@
 			(t
 				(pii-write-char 1 c)))) _))
 
-(defun terminal-input (c)
+(defun-bind terminal-input (c)
 	(cond
 		;send line ?
 		((or (eq c 10) (eq c 13))

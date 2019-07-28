@@ -29,17 +29,17 @@
 		(ui-element pcb_scroll (create-scroll (logior scroll_flag_vertical scroll_flag_horizontal))
 			('min_width 512 'min_height 256))))
 
-(defun trans (_)
+(defun-bind trans (_)
 	(add (logand 0xffffff _) 0xa0000000))
 
-(defun circle (r)
+(defun-bind circle (r)
 	(defq k (sym (str r)))
 	(if (defq i (find k cache_key)) (elem i cache_poly)
 		(progn
 			(push cache_key k)
 			(elem -2 (push cache_poly (list (points-gen-arc stack 0 0 0 fp_2pi r eps (points))))))))
 
-(defun oval (r s)
+(defun-bind oval (r s)
 	(defq k (sym (str r ":" s)))
 	(if (defq i (find k cache_key)) (elem i cache_poly)
 		(progn
@@ -47,21 +47,21 @@
 			(elem -2 (push cache_poly (points-stroke-polylines stack r eps
 				join-bevel cap-round cap-round (list s) (list)))))))
 
-(defun batch (path)
+(defun-bind batch (path)
 	(defq s 0 e 0 b (list))
 	(while (le (setq e (inc e)) (length path))
 		(when (or (eq e (length path)) (ne (elem 2 (elem s path)) (elem 2 (elem e path))))
 			(push b (slice s e path))
 			(setq s e))) b)
 
-(defun to-2d (_)
+(defun-bind to-2d (_)
 	(reduce (lambda (p _)
 		(push p (mul zoom (elem 0 _)) (mul zoom (elem 1 _)))) _ (points)))
 
-(defun batch-to-2d (_)
+(defun-bind batch-to-2d (_)
 	(map to-2d _))
 
-(defun pcb-load (_)
+(defun-bind pcb-load (_)
 	(bind '(pcb _) (read (string-stream (cat "(" (load _) ")")) (ascii-code " ")))
 	(bind '(pcb_width pcb_height pcb_depth) (elem 0 pcb))
 	(defq canvas (create-canvas (mul (add pcb_width 4) zoom) (mul (add pcb_height 4) zoom) canvas_scale)
@@ -70,9 +70,9 @@
 	(if (eq mode 1)
 		(pcb-draw-gerber)
 		(pcb-draw-normal))
-	canvas)
+	(canvas-swap canvas))
 
-(defun pcb-draw-normal ()
+(defun-bind pcb-draw-normal ()
 	(defq colors (map trans (list argb_red argb_green argb_blue argb_yellow argb_cyan argb_magenta)))
 	(each! 1 -2 nil (lambda ((id track_radius via_radius track_gap pads paths))
 		(setq track_radius (mul zoom track_radius) via_radius (mul zoom via_radius)
@@ -124,7 +124,7 @@
 			) pads)
 		) (list pcb)))
 
-(defun pcb-draw-gerber ()
+(defun-bind pcb-draw-gerber ()
 	;first draw in white with gaps
 	(canvas-set-color canvas (const argb_white))
 	(pcb-draw-layer t)
@@ -132,7 +132,7 @@
 	(canvas-set-color canvas (const argb_black))
 	(pcb-draw-layer nil))
 
-(defun pcb-draw-layer (with_gaps)
+(defun-bind pcb-draw-layer (with_gaps)
 	(each! 1 -2 nil (lambda ((id track_radius via_radius track_gap pads paths))
 		(defq track_radius (mul zoom track_radius) via_radius (mul zoom via_radius)
 			track_gap (mul zoom track_gap))
@@ -178,13 +178,12 @@
 			) pads)
 		) (list pcb)))
 
-(defun win-refresh (_)
+(defun-bind win-refresh (_)
 	(view-layout (view-add-child pcb_scroll (pcb-load (elem (setq index _) pcbs))))
 	(view-dirty-all (view-layout (window-set-title window (elem _ pcbs)))))
 
-(window-connect-close window event_win_close)
-(bind '(w h) (view-pref-size (win-refresh index)))
-(gui-add (view-change window 64 256 w h))
+(gui-add (apply view-change (cat (list window 64 256)
+	(view-pref-size (window-connect-close (win-refresh index) event_win_close)))))
 
 (while id
 	(cond

@@ -8,7 +8,7 @@
 
 (defq stack (array) eps 0.25 angle 0.0)
 
-(defun transform (_ angle)
+(defun-bind transform (_ angle)
 	(defq sa (fsin angle) ca (fcos angle))
 	(map (lambda (_)
 		(points-transform _ _
@@ -16,7 +16,7 @@
 			(fmul canvas_scale sa) (fmul canvas_scale ca)
 			(fmul canvas_width canvas_scale 0.5) (fmul canvas_height canvas_scale 0.5))) _))
 
-(defun transform-norm (_ angle)
+(defun-bind transform-norm (_ angle)
 	(defq sa (fsin angle) ca (fcos angle))
 	(map (lambda (_)
 		(points-transform _ _
@@ -24,11 +24,11 @@
 			(fmul canvas_width canvas_scale sa) (fmul canvas_height canvas_scale ca)
 			(fmul canvas_width canvas_scale 0.5) (fmul canvas_height canvas_scale 0.5))) _))
 
-(defun fpoly (col mode _)
+(defun-bind fpoly (col mode _)
 	(canvas-set-color canvas col)
 	(canvas-fpoly canvas 0 0 mode _))
 
-(defun redraw ()
+(defun-bind redraw ()
 	(canvas-fill canvas 0)
 
 	(fpoly argb_red 0 (transform-norm (list

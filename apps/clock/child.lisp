@@ -3,14 +3,14 @@
 (import 'gui/lisp.inc)
 (import 'apps/math.inc)
 
-(defun make-time ()
+(defun-bind make-time ()
 	(defq sec (mul (div (time) 1000000) 1.0))
 	(setq seconds (fmod sec 60.0) minutes (fmod (div sec 60) 60.0) hours (fmod (div sec 3600) 24.0))
 	(cat (pad (shr hours fp_shift) 2 "0")
 		":" (pad (shr minutes fp_shift) 2 "0")
 		":" (pad (shr seconds fp_shift) 2 "0")))
 
-(defun transform (_ a s &optional x y)
+(defun-bind transform (_ a s &optional x y)
 	(defq sa (fsin a) ca (fcos a) x (opt x 0) y (opt y 0))
 	(points-transform _ _
 		(fmul s ca) (fmul s (neg sa)) (fmul s sa) (fmul s ca) (fmul s (add x 0.5)) (fmul s (add y 0.5))))

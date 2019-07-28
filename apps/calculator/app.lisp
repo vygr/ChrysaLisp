@@ -19,12 +19,9 @@
 					(ui-element _ (create-button) ('text (if (eql text "C") "AC" text)))
 					event_win_button)) "789/456*123-0=C+"))))
 
-(window-set-title window "Calculator")
-(window-connect-close window event_win_close)
-(window-connect-min window event_win_min)
-(window-connect-max window event_win_max)
-(bind '(w h) (view-pref-size window))
-(gui-add (view-change window 920 48 w h))
+(gui-add (apply view-change (cat (list window 920 48)
+	(view-pref-size (window-set-title (window-connect-close (window-connect-min
+		(window-connect-max window event_win_max) event_win_min) event_win_close) "Calculator")))))
 
 (defun do_lastop ()
 	(cond

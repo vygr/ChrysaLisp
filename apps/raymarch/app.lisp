@@ -21,11 +21,9 @@
 (ui-tree window (create-window window_flag_close) nil
 	(ui-element canvas (create-canvas canvas_width canvas_height canvas_scale)))
 
-(window-set-title window "Raymarch")
-(window-connect-close window event_win_close)
-(view-set-flags (canvas-fill canvas argb_black) view_flag_opaque view_flag_opaque)
-(bind '(sw sh) (view-pref-size window))
-(gui-add (view-change window 320 64 sw sh))
+(view-set-flags (canvas-swap (canvas-fill canvas argb_black)) view_flag_opaque view_flag_opaque)
+(gui-add (apply view-change (cat (list window 310 64)
+	(view-pref-size (window-set-title (window-connect-close window event_win_close) "Raymarch")))))
 
 ;open farm and send out first batch of work
 (defq sw (mul canvas_width canvas_scale) sh (mul canvas_height canvas_scale) sy 0 sc 0

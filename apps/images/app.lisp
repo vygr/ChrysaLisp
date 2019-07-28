@@ -29,9 +29,8 @@
 	(view-layout (view-add-child image_scroll (canvas-load (elem (setq index _) images) 0)))
 	(view-dirty-all (view-layout (window-set-title window (elem _ images)))))
 
-(window-connect-close window event_win_close)
-(bind '(w h) (view-pref-size (win-refresh index)))
-(gui-add (view-change window 64 64 w h))
+(gui-add (apply view-change (cat (list window 64 64)
+	(view-pref-size (window-connect-close (win-refresh index) event_win_close)))))
 
 (while id
 	(cond

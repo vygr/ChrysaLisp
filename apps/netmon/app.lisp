@@ -36,12 +36,9 @@
 					('text "|" 'flow_flags (logior flow_flag_align_vcenter flow_flag_align_hright))))))
 			(times cpu_total (push memory_bars (ui-element _ (create-progress)))))))
 
-(window-set-title window "Network Monitor")
-(window-connect-close window event_win_close)
-(window-connect-min window event_win_min)
-(window-connect-max window event_win_max)
-(bind '(w h) (view-pref-size window))
-(gui-add (view-change window 320 32 w h))
+(gui-add (apply view-change (cat (list window 320 32)
+	(view-pref-size (window-set-title (window-connect-close (window-connect-min
+		(window-connect-max window event_win_max) event_win_min) event_win_close) "Network Monitor")))))
 
 ;open global farm, create multi-cast sample command
 (defq ids (open-farm "apps/netmon/child" cpu_total kn_call_open)
