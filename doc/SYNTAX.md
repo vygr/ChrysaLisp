@@ -220,10 +220,6 @@
 
 (curry lambda var ...) -> lambda
 
-## debug
-
-(debug [form ...])
-
 ## dec
 
 (dec num) -> num

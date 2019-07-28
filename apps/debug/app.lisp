@@ -76,16 +76,16 @@
 				"Toolbar1 buttons act on a single task." (ascii-char 10)
 				"Toolbar2 buttons act on all tasks." (ascii-char 10)
 				"Slider to switch between tasks." (ascii-char 10) (ascii-char 10)
-				"Add (debug [form ...]) statements to your Lisp code." (ascii-char 10)
-				"Or try (debug (env)) in Lisp functions !" (ascii-char 10)
-				"Add (debug-reg) in VP code." (ascii-char 10))))))
+				"In Lisp files:" (ascii-char 10)
+				"add (import 'class/lisp/debug.inc)" (ascii-char 10)
+				"then use (defun-debug name ([arg ...]) body)" (ascii-char 10) (ascii-char 10)
+				"In VP files:" (ascii-char 10)
+				"use (debug-reg)" (ascii-char 10))))))
 	(set-slider-values))
 
 (reset)
-(window-set-title window "Debug")
-(window-set-status window "Ready")
-(bind '(w h) (view-pref-size window))
-(gui-add (view-change window 0 0 w h))
+(gui-add (apply view-change (cat (list window 640 16)
+	(view-pref-size (window-set-title (window-set-status window "Ready") "Debug")))))
 
 (while t
 	(cond
