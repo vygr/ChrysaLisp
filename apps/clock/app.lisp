@@ -7,7 +7,7 @@
 
 ;define events we will use
 (structure 'event 0
-	(byte 'close))
+	(byte 'win_close))
 
 ;create a window with a label
 (ui-tree window (create-window window_flag_close) nil
@@ -17,16 +17,9 @@
 	(ui-element clock (create-canvas clock_size clock_size clock_scale)))
 
 ;set a name to the window and clear clock face
-(window-set-title window "Clock")
-(canvas-fill clock 0)
-(canvas-set-flags clock 1)
-
-;bind events
-(window-connect-close window event_close)
-
-;window width
-(bind '(w h) (view-pref-size window))
-(gui-add (view-change window 290 16 w h))
+(canvas-set-flags (canvas-fill clock 0) 1)
+(gui-add (apply view-change (cat (list window 290 16)
+	(view-pref-size (window-set-title (window-connect-close window event_win_close) "Clock")))))
 
 ;create child and send args
 (mail-send (list display clock (mul clock_size 1.0) (mul clock_scale 1.0))
@@ -35,7 +28,7 @@
 ;main app loop
 (while id
 	(cond
-		((eq (setq id (get-long (defq msg (mail-mymail)) ev_msg_target_id)) event_close)
+		((eq (setq id (get-long (defq msg (mail-mymail)) ev_msg_target_id)) event_win_close)
 			(mail-send "" child_id)
 			(setq id nil))
 		(t (view-event window msg))))

@@ -16,12 +16,9 @@
 		(ui-element sframe (elem 0 sframes))
 		(ui-element frame (elem 0 frames))))
 
-(window-set-title window "Boing")
-(window-connect-close window event_win_close)
-(window-connect-min window event_win_min)
-(window-connect-max window event_win_max)
-(bind '(w h) (view-pref-size window))
-(gui-add (view-change window 64 64 w h))
+(gui-add (apply view-change (cat (list window 64 64)
+	(view-pref-size (window-set-title (window-connect-close (window-connect-min
+		(window-connect-max window event_win_max) event_win_min) event_win_close) "Boing")))))
 
 (while id
 	(bind '(_ _ backdrop_width backdrop_height) (view-get-bounds backdrop))

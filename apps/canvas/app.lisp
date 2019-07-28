@@ -10,12 +10,9 @@
 (ui-tree window (create-window window_flag_close) nil
 	(ui-element canvas (create-canvas canvas_width canvas_height canvas_scale)))
 
-(canvas-fill canvas 0)
-(canvas-set-flags canvas 1)
-(window-set-title window "Canvas")
-(window-connect-close window event_win_close)
-(bind '(w h) (view-pref-size window))
-(gui-add (view-change window 512 256 w h))
+(canvas-set-flags (canvas-fill canvas 0) 1)
+(gui-add (apply view-change (cat (list window 512 256)
+	(view-pref-size (window-set-title (window-connect-close window event_win_close) "Canvas")))))
 
 ;create child and send args
 (mail-send (list canvas (mul canvas_width 1.0) (mul canvas_height 1.0) (mul canvas_scale 1.0))
