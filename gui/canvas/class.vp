@@ -6,6 +6,7 @@
 (include 'class/stream_str/class.inc)
 (include 'class/pair/class.inc)
 (include 'gui/ctx/class.inc)
+(include 'gui/gui/class.inc)
 
 (gen-vtable 'canvas)
 (gen-create 'canvas)
@@ -226,6 +227,9 @@
 			(call 'stream_str 'deref {stream})
 		(endif)
 	(endif)
+	(vpif {this})
+		(call 'canvas 'swap {this} {this})
+	(endif)
 
 	(exit 'canvas 'load {this})
 	(pop-scope)
@@ -241,7 +245,7 @@
 
 (def-func-end)
 
-(def-method 'canvas 'draw 16)
+(def-method 'canvas 'draw)
 	;inputs
 	;r0 = canvas object (ptr)
 	;r1 = draw ctx (ptr)
@@ -250,39 +254,19 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this 'ctx 'surface 'temp_canvas 'old_stack)
+	(ptr 'this 'ctx)
 
-	(vp-cpy-rr rsp r2)
 	(push-scope)
-	(vp-and-cr -16 rsp)
-	(entry {this, ctx, old_stack})
+	(entry 'canvas 'draw {this, ctx})
 
-	;if no texture then create from pixel buffer
-	(vpifnot {this->canvas_texture})
-		;create SDL surface from pixel buffer, convert to texture
-		(call 'canvas 'create {this->canvas_width / this->canvas_scale, this->canvas_height / this->canvas_scale, 1} {temp_canvas})
-		(vpif {this->canvas_scale == 1})
-			(call 'canvas 'as_argb {temp_canvas, this})
-		(else)
-			(call 'canvas 'resize {temp_canvas, this})
-			(call 'canvas 'as_argb {temp_canvas, temp_canvas})
-		(endif)
-		(host-call 'host 'sdl_create_rgb_surface_from {temp_canvas->canvas_array->array_array,
-			temp_canvas->canvas_width, temp_canvas->canvas_height, 32,
-			temp_canvas->canvas_stride, 0xff0000, 0xff00, 0xff, 0xff000000} {surface})
-		(host-call 'host 'sdl_create_texture_from_surface {ctx->ctx_sdl_ctx, surface} {this->canvas_texture})
-		(host-call 'host 'sdl_free_surface {surface})
-		(call 'canvas 'deref {temp_canvas})
-	(endif)
-
-	;blit texture
+	;blit any texture
 	(vpif {this->canvas_texture})
 		(call 'ctx 'blit {ctx, this->canvas_texture, 0xffffff, 0, 0,
 			this->canvas_width / this->canvas_scale, this->canvas_height / this->canvas_scale})
 	(endif)
 
-	(assign {old_stack} '(rsp))
-	(pop-scope-syms)
+	(exit 'canvas 'draw {this})
+	(pop-scope)
 	(return)
 
 (def-func-end)
@@ -308,25 +292,38 @@
 	;inputs
 	;r0 = user data
 
-	(def-struct 'local)
-		(ptr 'old_stack)
-	(def-struct-end)
+	(ptr 'this 'surface 'temp_canvas 'old_stack)
 
 	(vp-cpy-rr rsp r1)
-	(vp-alloc local_size)
+	(push-scope)
 	(vp-and-cr -16 rsp)
-	(entry '(r0 (rsp local_old_stack)))
+	(entry {this, old_stack})
 
 	;free any sdl texture
-	(vp-cpy-ir r0 canvas_texture r1)
-	(vpif '(r1 != 0))
-		(vp-xor-rr r2 r2)
-		(vp-cpy-ri r2 r0 canvas_texture)
-		(host-call 'host 'sdl_destroy_texture '(r1))
+	(vpif {this->canvas_texture})
+		(host-call 'host 'sdl_destroy_texture {this->canvas_texture})
+		(assign {0} {this->canvas_texture})
 	(endif)
 
-	(vp-cpy-ir rsp local_old_stack rsp)
-	(vp-ret)
+	;create SDL surface from pixel buffer, convert to texture
+	(call 'canvas 'create {this->canvas_width / this->canvas_scale, this->canvas_height / this->canvas_scale, 1} {temp_canvas})
+	(vpif {this->canvas_scale == 1})
+		(call 'canvas 'as_argb {temp_canvas, this})
+	(else)
+		(call 'canvas 'resize {temp_canvas, this})
+		(call 'canvas 'as_argb {temp_canvas, temp_canvas})
+	(endif)
+	(host-call 'host 'sdl_create_rgb_surface_from {temp_canvas->canvas_array->array_array,
+		temp_canvas->canvas_width, temp_canvas->canvas_height, 32,
+		temp_canvas->canvas_stride, 0xff0000, 0xff00, 0xff, 0xff000000} {surface})
+	(host-call 'host 'sdl_create_texture_from_surface (cat {@} (f-path 'gui 'statics) {.gui_statics_renderer, surface})
+		{this->canvas_texture})
+	(host-call 'host 'sdl_free_surface {surface})
+	(call 'canvas 'deref {temp_canvas})
+
+	(assign {old_stack} '(rsp))
+	(pop-scope-syms)
+	(return)
 
 (def-func-end)
 
