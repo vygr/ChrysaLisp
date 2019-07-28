@@ -104,7 +104,6 @@
 
 (ffi time "sys/pii/lisp_time" 0)
 (ffi age "sys/pii/lisp_age" 0)
-(ffi kernel-debug "sys/kernel/lisp_debug" 0)
 
 (defq t 't nil 'nil
 	lisp_type_lst (shl 1 0)
@@ -572,10 +571,6 @@
 	(while (ne 0 (get-byte s o))
 		(setq o (inc o)))
 	(slice k o s))
-
-(defmacro-bind debug (&rest _)
-	;(debug [form ...])
-	`(kernel-debug (apply cat (map str (list ~_ ,(ascii-char 10))))))
 
 ;;;;;;;;;;;;;;;;;;
 ; Anaphoric macros
