@@ -30,6 +30,7 @@
 (dec-method 'repl_error 'class/lisp/repl_error 'static '(r0 r1 r2 r3) '(r0 r1))
 
 (dec-method 'func_ffi 'class/lisp/func_ffi 'static '(r0 r1) '(r0 r1))
+(dec-method 'func_bindfun 'class/lisp/func_bindfun 'static '(r0 r1) '(r0 r1))
 (dec-method 'func_macroexpand 'class/lisp/func_macroexpand 'static '(r0 r1) '(r0 r1))
 (dec-method 'func_lambda 'class/lisp/func_lambda 'static '(r0 r1) '(r0 r1))
 (dec-method 'func_quote 'class/lisp/func_quote 'static '(r0 r1) '(r0 r1))

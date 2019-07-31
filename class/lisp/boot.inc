@@ -101,6 +101,7 @@
 (ffi while "class/lisp/func_while" 1)
 (ffi prin "class/lisp/func_prin" 0)
 (ffi print "class/lisp/func_print" 0)
+(ffi bind-fun "class/lisp/func_bindfun" 0)
 
 (ffi time "sys/pii/lisp_time" 0)
 (ffi age "sys/pii/lisp_age" 0)
@@ -134,27 +135,11 @@
 	;(defmacro-bind name ([arg ...]) body)
 	(list (eval defq) n (cat '(macro) (list a) (bind-fun _))))
 
-;defined early without use of macro expantions !
-(defun bind-fun (_)
-	;(bind-fun list) -> list
-	(defq _s (list (setq _ (macroexpand _))))
-	(while (defq _l (pop _s))
-		(each! nil nil nil (lambda (_e)
-			(cond
-				((cond ((eq (type-of _e) lisp_type_lst) (cond ((ne 0 (length _e))
-				(cond ((eql 'quote (elem 0 _e)) nil) (t))))))
-					(push _s _e))
-				((cond ((eq (type-of _e) lisp_type_sym) (cond ((cond ((eql 'lambda _e) nil)
-				((eql 'macro _e) nil) (t)) (cond ((defq _f (def? _e))
-				(cond ((eq (type-of _f) lisp_type_fnc) t) (t (cond ((eq (type-of _f) lisp_type_lst)
-				(cond ((ne 0 (length _f)) (eql 'lambda (elem 0 _f))))))))))))))
-					(elem-set _ _l _f)))) (list _l))) _)
 ;to disable pre binding uncomment folowing line
 ;(defun bind-fun (_) _)
 
 ;pre bind the previous !
-(defq bind-fun (bind-fun bind-fun)
-	defun (bind-fun defun) defmacro (bind-fun defmacro)
+(defq defun (bind-fun defun) defmacro (bind-fun defmacro)
 	defun-bind (bind-fun defun-bind) defmacro-bind (bind-fun defmacro-bind))
 
 (defmacro-bind const (_)
@@ -571,38 +556,6 @@
 	(while (ne 0 (get-byte s o))
 		(setq o (inc o)))
 	(slice k o s))
-
-;;;;;;;;;;;;;;;;;;
-; Anaphoric macros
-;;;;;;;;;;;;;;;;;;
-
-(defmacro-bind aif (x y &optional z)
-	;(aif form form [form])
-	`(let ((it ,x))
-		(if it ,y ,z)))
-
-(defmacro-bind awhen (x &rest _)
-	;(awhen form body)
-	`(let ((it ,x))
-		(when it ~_)))
-
-(defmacro-bind awhile (x &rest _)
-	;(awhile form body)
-	`(while (defq ,(defq _x (gensym)) ,x)
-		(let ((it ,_x)) ~_)))
-
-(defmacro-bind aand (&rest _)
-	;(aand [form] ...)
-	(cond
-		((eq (length _) 0))
-		((eq (length _) 1) (elem 0 _))
-		(t `(aif ,(elem 0 _) (aand ~(slice 1 -1 _))))))
-
-(defmacro-bind acond (&rest _)
-	;(acond (tst body) ...)
-	(reduce (lambda (x _)
-		(push x `((defq ,(defq _x (gensym)) ,(elem 0 _)) (let ((it ,_x)) ~(slice 1 -1 _)))))
-			_ (list 'cond)))
 
 ;;;;;;;;;
 ; Streams

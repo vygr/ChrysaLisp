@@ -15,6 +15,7 @@
 (include 'class/lisp/func_ffi.vp)
 (include 'class/lisp/func_lambda.vp)
 (include 'class/lisp/func_macroexpand.vp)
+(include 'class/lisp/func_bindfun.vp)
 (include 'class/lisp/func_prin.vp)
 (include 'class/lisp/func_print.vp)
 (include 'class/lisp/func_progn.vp)
