@@ -72,6 +72,7 @@ apply
 array
 asr
 bind
+bind-fun
 cat
 catch
 char
@@ -215,7 +216,6 @@ when
 ```lisp
 abs
 align
-bind-fun
 nlo
 nlz
 nto

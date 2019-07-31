@@ -2568,6 +2568,19 @@ trashes
 all but r0
 ```
 
+### lisp::func_bindfun -> class/lisp/func_bindfun
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+all but r0
+```
+
 ### lisp::func_macroexpand -> class/lisp/func_macroexpand
 
 ```lisp

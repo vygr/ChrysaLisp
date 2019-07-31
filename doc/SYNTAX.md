@@ -70,7 +70,7 @@
 
 ## bind-fun
 
-(bind-fun list) -> list
+(bind-fun form) -> form
 
 ## button-connect-click
 
@@ -220,6 +220,14 @@
 
 (curry lambda var ...) -> lambda
 
+## debug
+
+(debug form)
+
+## debug-fun
+
+(debug-fun list) -> list
+
 ## dec
 
 (dec num) -> num
@@ -251,6 +259,10 @@
 ## defun-bind
 
 (defun-bind name ([arg ...]) body)
+
+## defun-debug
+
+(defun-debug name ([arg ...]) body)
 
 ## div
 
