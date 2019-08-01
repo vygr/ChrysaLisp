@@ -32,6 +32,7 @@
 	(mail-send (array (task-mailbox) sw sh sy) (elem sy farm))
 	(setq sc (inc sc) sy (inc sy)))
 
+(defq then (time))
 (while id
 	(cond
 		((eq (setq id (get-long (defq msg (mail-mymail)) ev_msg_target_id)) event_win_close)
@@ -40,15 +41,17 @@
 			(setq sc (dec sc))
 			(defq x -1 y (get-int msg reply_y))
 			(while (lt (setq x (inc x)) sw)
-				(canvas-set-color canvas (get-int msg (add reply_data (mul x int_size))))
-				(canvas-plot canvas x y))
-			(canvas-swap canvas)
+				(canvas-plot (canvas-set-color canvas (get-int msg (add reply_data (mul x int_size)))) x y))
+			(when (gt (sub (defq now (time)) then) 1000000)
+				(setq then now)
+				(canvas-swap canvas))
 			(cond
 				((lt sy sh)
 					;can pass out more work
 					(mail-send (array (task-mailbox) sw sh sy) id)
 					(setq sc (inc sc) sy (inc sy)))
 				((eq sc 0)
+					(canvas-swap canvas)
 					;send out multi-cast exit command
 					(defq exit (char 0 long_size))
 					(while (defq mbox (pop farm))
