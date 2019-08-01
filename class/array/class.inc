@@ -206,3 +206,18 @@
 	(vp-cpy-ir r0 array_array r3)
 	(vp-shl-cr (log2 long_size) r2)
 	(vp-cpy-rd r1 r3 r2))
+
+(defcfun class/array/pop_back ()
+	;inputs
+	;r0 = array object (ptr)
+	;outputs
+	;r0 = array object (ptr)
+	;r1 = element (long)
+	;trashes
+	;r1-r2
+	(vp-cpy-ir-ui r0 array_length r1)
+	(vp-cpy-ir r0 array_array r2)
+	(vp-sub-cr 1 r1)
+	(vp-cpy-ri-i r1 r0 array_length)
+	(vp-shl-cr (log2 long_size) r1)
+	(vp-cpy-dr r2 r1 r1))

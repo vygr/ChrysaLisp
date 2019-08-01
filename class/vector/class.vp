@@ -70,6 +70,24 @@
 
 (def-func-end)
 
+(def-method 'vector 'ref_back)
+	;inputs
+	;r0 = vector object (ptr)
+	;outputs
+	;r0 = vector object (ptr)
+	;r1 = element object (ptr)
+	;trashes
+	;r1-r2
+
+	(entry 'vector 'ref_back '(r0))
+
+	(call 'vector 'pop_back '(r0) '(r0 r1))
+
+	(exit 'vector 'ref_back '(r0 r1))
+	(vp-ret)
+
+(def-func-end)
+
 (def-method 'vector 'set_element)
 	;inputs
 	;r0 = vector object (ptr)

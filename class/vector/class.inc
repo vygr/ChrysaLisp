@@ -9,7 +9,7 @@
 (dec-method 'slice 'class/vector/slice 'final)
 (dec-method 'cat 'class/vector/cat 'final)
 (dec-method 'clear 'class/vector/clear 'final)
-(dec-method 'ref_back 'class/array/pop_back 'final)
+(dec-method 'ref_back 'class/vector/ref_back 'final)
 (dec-method 'set_element 'class/vector/set_element 'final)
 (dec-method 'append 'class/vector/append 'final)
 
