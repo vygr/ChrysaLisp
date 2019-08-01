@@ -7424,14 +7424,14 @@ trashes
 all but r0
 ```
 
-### vector::ref_back -> class/array/pop_back
+### vector::ref_back -> class/vector/ref_back
 
 ```lisp
 inputs
-r0 = array object (ptr)
+r0 = vector object (ptr)
 outputs
-r0 = array object (ptr)
-r1 = element (long)
+r0 = vector object (ptr)
+r1 = element object (ptr)
 trashes
 r1-r2
 ```

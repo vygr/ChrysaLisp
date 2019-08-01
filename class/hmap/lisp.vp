@@ -202,32 +202,32 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this 'args 'value)
-
-	(push-scope)
-	(entry 'hmap 'lisp_defined {this, args})
+	(entry 'hmap 'lisp_defined '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 1} '(r1))
-	(gotoif '(r1 == 0) 'error1))
+	(vp-cpy-ir-ui r1 array_length r2)
+	(gotoif '(r2 != 1) 'error))
 
-	(call 'vector 'get_first {args} {_, value})
-	(call 'hmap 'search {this->lisp_environment, value} {_, value, _})
-	(vpif {value})
-		(call 'pair 'ref_second {ptr(*value)} {_, value})
+	(vp-cpy-ir r1 array_array r1)
+	(vp-push r0)
+	(call 'hmap 'search '((r0 lisp_environment) (r1 0)) '(_ r1 _))
+	(vp-pop r0)
+	(vpif '(r1 != 0))
+		(vp-cpy-ir r1 0 r1)
+		(vp-cpy-ir r1 pair_second r1)
 	(else)
-		(call 'obj 'ref {this->lisp_sym_nil} {value})
+		(vp-cpy-ir r0 lisp_sym_nil r1)
 	(endif)
+	(vp-cpy-ir-ui r1 obj_count r2)
+	(vp-add-cr 1 r2)
+	(vp-cpy-ri-i r2 r1 obj_count)
 
-	(exit 'hmap 'lisp_defined {this, value})
-	(return)
+	(exit 'hmap 'lisp_defined '(r0 r1))
+	(vp-ret)
 
 (errorcases
-(vp-label 'error1)
-	(jump 'lisp 'repl_error {this, "(def? var)", error_msg_wrong_types, args})
-	(signature 'sig 'sym))
-
-	(pop-scope-syms)
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r0 "(def? form)" error_msg_wrong_num_of_args r1)))
 
 (def-func-end)
 

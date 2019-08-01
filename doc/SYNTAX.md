@@ -238,7 +238,7 @@
 
 ## def?
 
-(def? var)
+(def? form)
 
 ## defmacro
 
