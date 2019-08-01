@@ -57,15 +57,15 @@
 	(entry 'points 'lisp_simplify '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 4) '(r1))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 3) '(r1))
 	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
 	(vp-cpy-ir r7 array_array r7)
-	(vp-cpy-ir r7 0 r0)
-	(vp-cpy-ir r7 ptr_size r1)
-	(vp-cpy-ir r7 (mul ptr_size 2) r2)
-	(vp-cpy-ir r7 (mul ptr_size 3) r3)
+	(vp-cpy-ir r7 (mul ptr_size 0) r0)
+	(vp-cpy-ir r7 (mul ptr_size 1) r1)
+	(vp-cpy-ir r6 lisp_stack r2)
+	(vp-cpy-ir r7 (mul ptr_size 2) r3)
 	(call 'points 'simplify '(r0 r1 r2 (r3 num_value)) '(r0))
 	(call 'obj 'ref '(r0) '(r1))
 	(vp-pop r0)
@@ -75,8 +75,8 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(points-simplify dst src stack tol)" error_msg_wrong_types r7))
-	(signature 'sig 'points 'points 'array 'num))
+	(jump 'lisp 'repl_error '(r6 "(points-simplify dst src tol)" error_msg_wrong_types r7))
+	(signature 'sig 'points 'points 'num))
 
 (def-func-end)
 
@@ -93,20 +93,20 @@
 	(entry 'points 'lisp_gen_quadratic '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 9) '(r1))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 8) '(r1))
 	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
 	(vp-cpy-ir r7 array_array r0)
-	(vp-cpy-ir r0 0 r1)
-	(vp-cpy-ir r0 ptr_size r2)
-	(vp-cpy-ir r0 (mul ptr_size 2) r3)
-	(vp-cpy-ir r0 (mul ptr_size 3) r4)
-	(vp-cpy-ir r0 (mul ptr_size 4) r5)
-	(vp-cpy-ir r0 (mul ptr_size 5) r6)
-	(vp-cpy-ir r0 (mul ptr_size 6) r7)
-	(vp-cpy-ir r0 (mul ptr_size 7) r8)
-	(vp-cpy-ir r0 (mul ptr_size 8) r0)
+	(vp-cpy-ir r6 lisp_stack r1)
+	(vp-cpy-ir r0 (mul ptr_size 0) r2)
+	(vp-cpy-ir r0 (mul ptr_size 1) r3)
+	(vp-cpy-ir r0 (mul ptr_size 2) r4)
+	(vp-cpy-ir r0 (mul ptr_size 3) r5)
+	(vp-cpy-ir r0 (mul ptr_size 4) r6)
+	(vp-cpy-ir r0 (mul ptr_size 5) r7)
+	(vp-cpy-ir r0 (mul ptr_size 6) r8)
+	(vp-cpy-ir r0 (mul ptr_size 7) r0)
 	(call 'points 'gen_quadratic '(r0 r1 (r2 num_value) (r3 num_value) (r4 num_value)
 					(r5 num_value) (r6 num_value) (r7 num_value) (r8 num_value)) '(r0))
 	(call 'obj 'ref '(r0) '(r1))
@@ -117,8 +117,8 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(points-gen-quadratic stack p1x p1y p2x p2y p3x p3y tol dst) -> dst" error_msg_wrong_types r7))
-	(signature 'sig 'array 'num 'num 'num 'num 'num 'num 'num 'points))
+	(jump 'lisp 'repl_error '(r6 "(points-gen-quadratic p1x p1y p2x p2y p3x p3y tol dst) -> dst" error_msg_wrong_types r7))
+	(signature 'sig 'num 'num 'num 'num 'num 'num 'num 'points))
 
 (def-func-end)
 
@@ -135,22 +135,22 @@
 	(entry 'points 'lisp_gen_cubic '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 11) '(r1))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 10) '(r1))
 	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
 	(vp-cpy-ir r7 array_array r0)
-	(vp-cpy-ir r0 0 r1)
-	(vp-cpy-ir r0 ptr_size r2)
-	(vp-cpy-ir r0 (mul ptr_size 2) r3)
-	(vp-cpy-ir r0 (mul ptr_size 3) r4)
-	(vp-cpy-ir r0 (mul ptr_size 4) r5)
-	(vp-cpy-ir r0 (mul ptr_size 5) r6)
-	(vp-cpy-ir r0 (mul ptr_size 6) r7)
-	(vp-cpy-ir r0 (mul ptr_size 7) r8)
-	(vp-cpy-ir r0 (mul ptr_size 8) r9)
-	(vp-cpy-ir r0 (mul ptr_size 9) r10)
-	(vp-cpy-ir r0 (mul ptr_size 10) r0)
+	(vp-cpy-ir r6 lisp_stack r1)
+	(vp-cpy-ir r0 (mul ptr_size 0) r2)
+	(vp-cpy-ir r0 (mul ptr_size 1) r3)
+	(vp-cpy-ir r0 (mul ptr_size 2) r4)
+	(vp-cpy-ir r0 (mul ptr_size 3) r5)
+	(vp-cpy-ir r0 (mul ptr_size 4) r6)
+	(vp-cpy-ir r0 (mul ptr_size 5) r7)
+	(vp-cpy-ir r0 (mul ptr_size 6) r8)
+	(vp-cpy-ir r0 (mul ptr_size 7) r9)
+	(vp-cpy-ir r0 (mul ptr_size 8) r10)
+	(vp-cpy-ir r0 (mul ptr_size 9) r0)
 	(call 'points 'gen_cubic '(r0 r1 (r2 num_value) (r3 num_value) (r4 num_value)
 					(r5 num_value) (r6 num_value) (r7 num_value) (r8 num_value)
 					(r9 num_value) (r10 num_value)) '(r0))
@@ -162,8 +162,8 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(points-gen-cubic stack p1x p1y p2x p2y p3x p3y p4x p4y tol dst) -> dst" error_msg_wrong_types r7))
-	(signature 'sig 'array 'num 'num 'num 'num 'num 'num 'num 'num 'num 'points))
+	(jump 'lisp 'repl_error '(r6 "(points-gen-cubic p1x p1y p2x p2y p3x p3y p4x p4y tol dst) -> dst" error_msg_wrong_types r7))
+	(signature 'sig 'num 'num 'num 'num 'num 'num 'num 'num 'num 'points))
 
 (def-func-end)
 
@@ -180,19 +180,19 @@
 	(entry 'points 'lisp_gen_arc '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 8) '(r1))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 7) '(r1))
 	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
 	(vp-cpy-ir r7 array_array r0)
-	(vp-cpy-ir r0 0 r1)
-	(vp-cpy-ir r0 ptr_size r2)
-	(vp-cpy-ir r0 (mul ptr_size 2) r3)
-	(vp-cpy-ir r0 (mul ptr_size 3) r4)
-	(vp-cpy-ir r0 (mul ptr_size 4) r5)
-	(vp-cpy-ir r0 (mul ptr_size 5) r6)
-	(vp-cpy-ir r0 (mul ptr_size 6) r7)
-	(vp-cpy-ir r0 (mul ptr_size 7) r0)
+	(vp-cpy-ir r6 lisp_stack r1)
+	(vp-cpy-ir r0 (mul ptr_size 0) r2)
+	(vp-cpy-ir r0 (mul ptr_size 1) r3)
+	(vp-cpy-ir r0 (mul ptr_size 2) r4)
+	(vp-cpy-ir r0 (mul ptr_size 3) r5)
+	(vp-cpy-ir r0 (mul ptr_size 4) r6)
+	(vp-cpy-ir r0 (mul ptr_size 5) r7)
+	(vp-cpy-ir r0 (mul ptr_size 6) r0)
 	(call 'points 'gen_arc '(r0 r1 (r2 num_value) (r3 num_value) (r4 num_value)
 					(r5 num_value) (r6 num_value) (r7 num_value)) '(r0))
 	(call 'obj 'ref '(r0) '(r1))
@@ -203,8 +203,8 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(points-gen-arc stack cx cy start end radius tol dst) -> dst" error_msg_wrong_types r7))
-	(signature 'sig 'array 'num 'num 'num 'num 'num 'num 'points))
+	(jump 'lisp 'repl_error '(r6 "(points-gen-arc cx cy start end radius tol dst) -> dst" error_msg_wrong_types r7))
+	(signature 'sig 'num 'num 'num 'num 'num 'num 'points))
 
 (def-func-end)
 
@@ -221,19 +221,19 @@
 	(entry 'points 'lisp_stroke_polylines '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 8) '(r1))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 7) '(r1))
 	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
 	(vp-cpy-ir r7 array_array r0)
-	(vp-cpy-ir r0 0 r1)
-	(vp-cpy-ir r0 ptr_size r3)
-	(vp-cpy-ir r0 (mul ptr_size 2) r4)
-	(vp-cpy-ir r0 (mul ptr_size 3) r5)
-	(vp-cpy-ir r0 (mul ptr_size 4) r6)
-	(vp-cpy-ir r0 (mul ptr_size 5) r7)
-	(vp-cpy-ir r0 (mul ptr_size 6) r2)
-	(vp-cpy-ir r0 (mul ptr_size 7) r0)
+	(vp-cpy-ir r6 lisp_stack r1)
+	(vp-cpy-ir r0 (mul ptr_size 0) r3)
+	(vp-cpy-ir r0 (mul ptr_size 1) r4)
+	(vp-cpy-ir r0 (mul ptr_size 2) r5)
+	(vp-cpy-ir r0 (mul ptr_size 3) r6)
+	(vp-cpy-ir r0 (mul ptr_size 4) r7)
+	(vp-cpy-ir r0 (mul ptr_size 5) r2)
+	(vp-cpy-ir r0 (mul ptr_size 6) r0)
 	(call 'points 'stroke_polylines '(r0 r1 r2 (r3 num_value) (r4 num_value)
 					(r5 num_value) (r6 num_value) (r7 num_value)) '(r0))
 	(call 'obj 'ref '(r0) '(r1))
@@ -244,8 +244,8 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(points-stroke-polylines stack radius tol join cap1 cap2 src dst) -> dst" error_msg_wrong_types r7))
-	(signature 'sig 'array 'num 'num 'num 'num 'num 'vector 'vector))
+	(jump 'lisp 'repl_error '(r6 "(points-stroke-polylines radius tol join cap1 cap2 src dst) -> dst" error_msg_wrong_types r7))
+	(signature 'sig 'num 'num 'num 'num 'num 'vector 'vector))
 
 (def-func-end)
 
@@ -262,17 +262,17 @@
 	(entry 'points 'lisp_stroke_polygons '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 6) '(r1))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 5) '(r1))
 	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
 	(vp-cpy-ir r7 array_array r0)
-	(vp-cpy-ir r0 0 r1)
-	(vp-cpy-ir r0 ptr_size r3)
-	(vp-cpy-ir r0 (mul ptr_size 2) r4)
-	(vp-cpy-ir r0 (mul ptr_size 3) r5)
-	(vp-cpy-ir r0 (mul ptr_size 4) r2)
-	(vp-cpy-ir r0 (mul ptr_size 5) r0)
+	(vp-cpy-ir r6 lisp_stack r1)
+	(vp-cpy-ir r0 (mul ptr_size 0) r3)
+	(vp-cpy-ir r0 (mul ptr_size 1) r4)
+	(vp-cpy-ir r0 (mul ptr_size 2) r5)
+	(vp-cpy-ir r0 (mul ptr_size 3) r2)
+	(vp-cpy-ir r0 (mul ptr_size 4) r0)
 	(call 'points 'stroke_polygons '(r0 r1 r2 (r3 num_value) (r4 num_value) (r5 num_value)) '(r0))
 	(call 'obj 'ref '(r0) '(r1))
 	(vp-pop r0)
@@ -282,8 +282,8 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(points-stroke-polygons stack radius tol join src dst) -> dst" error_msg_wrong_types r7))
-	(signature 'sig 'array 'num 'num 'num 'vector 'vector))
+	(jump 'lisp 'repl_error '(r6 "(points-stroke-polygons radius tol join src dst) -> dst" error_msg_wrong_types r7))
+	(signature 'sig 'num 'num 'num 'vector 'vector))
 
 (def-func-end)
 

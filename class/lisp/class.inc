@@ -62,6 +62,7 @@
 	(ptr 'stdout)
 	(ptr 'stderr)
 	(ptr 'environment)
+	(ptr 'stack)
 	(ptr 'sym_optional)
 	(ptr 'sym_rest)
 	(ptr 'sym_nil)

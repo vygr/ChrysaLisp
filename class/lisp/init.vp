@@ -47,6 +47,7 @@
 		(call 'obj 'ref {stdin} {this->lisp_stdin})
 		(call 'obj 'ref {stdout} {this->lisp_stdout})
 		(call 'obj 'ref {stderr} {this->lisp_stderr})
+		(call 'array 'create nil {this->lisp_stack})
 		(assign {0} {this->lisp_nextsym})
 
 		;spin lock if boot env busy

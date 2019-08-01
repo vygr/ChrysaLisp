@@ -694,15 +694,15 @@
 
 ## points-gen-arc
 
-(points-gen-arc stack cx cy start end radius tol dst) -> dst
+(points-gen-arc cx cy start end radius tol dst) -> dst
 
 ## points-gen-cubic
 
-(points-gen-cubic stack p1x p1y p2x p2y p3x p3y p4x p4y tol dst) -> dst
+(points-gen-cubic p1x p1y p2x p2y p3x p3y p4x p4y tol dst) -> dst
 
 ## points-gen-quadratic
 
-(points-gen-quadratic stack p1x p1y p2x p2y p3x p3y tol dst) -> dst
+(points-gen-quadratic p1x p1y p2x p2y p3x p3y tol dst) -> dst
 
 ## points-mod
 
@@ -714,15 +714,15 @@
 
 ## points-simplify
 
-(points-simplify dst src stack tol)
+(points-simplify dst src tol)
 
 ## points-stroke-polygons
 
-(points-stroke-polygons stack radius tol join src dst) -> dst
+(points-stroke-polygons radius tol join src dst) -> dst
 
 ## points-stroke-polylines
 
-(points-stroke-polylines stack radius tol join cap1 cap2 src dst) -> dst
+(points-stroke-polylines radius tol join cap1 cap2 src dst) -> dst
 
 ## points-sub
 

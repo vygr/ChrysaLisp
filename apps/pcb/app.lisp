@@ -12,7 +12,7 @@
 
 (defq pcbs '(apps/pcb/test1.pcb apps/pcb/test2.pcb apps/pcb/test3.pcb) index 0 id t canvas_scale 1
 	mode 0 show -1 max_zoom 15 min_zoom 5 zoom (div (add min_zoom max_zoom) 2)
-	stack (array) eps 0.25)
+	eps 0.25)
 
 (ui-tree window (create-window window_flag_close) nil
 	(ui-element _ (create-flow) ('flow_flags (logior flow_flag_down flow_flag_fillw flow_flag_lasth)
@@ -37,14 +37,14 @@
 	(if (defq i (find k cache_key)) (elem i cache_poly)
 		(progn
 			(push cache_key k)
-			(elem -2 (push cache_poly (list (points-gen-arc stack 0 0 0 fp_2pi r eps (points))))))))
+			(elem -2 (push cache_poly (list (points-gen-arc 0 0 0 fp_2pi r eps (points))))))))
 
 (defun-bind oval (r s)
 	(defq k (sym (str r ":" s)))
 	(if (defq i (find k cache_key)) (elem i cache_poly)
 		(progn
 			(push cache_key k)
-			(elem -2 (push cache_poly (points-stroke-polylines stack r eps
+			(elem -2 (push cache_poly (points-stroke-polylines r eps
 				join-bevel cap-round cap-round (list s) (list)))))))
 
 (defun-bind batch (path)
@@ -85,7 +85,7 @@
 				(each (lambda (seg seg_2d)
 					(when (or (eq show (defq z (mod (shr (elem 2 (elem 0 seg)) fp_shift) pcb_depth)))
 								(eq show -1))
-						(points-stroke-polylines stack track_radius eps join-round cap-round cap-round
+						(points-stroke-polylines track_radius eps join-round cap-round cap-round
 							(list seg_2d) (elem z layers)))
 					) path path_2d)
 				) batched_paths batched_paths_2d)
@@ -142,7 +142,7 @@
 			(each (lambda (path path_2d)
 				(each (lambda (seg seg_2d)
 					(when (eq show (defq z (mod (shr (elem 2 (elem 0 seg)) fp_shift) pcb_depth)))
-						(points-stroke-polylines stack (add track_radius (if with_gaps track_gap 0)) eps join-round cap-round cap-round
+						(points-stroke-polylines (add track_radius (if with_gaps track_gap 0)) eps join-round cap-round cap-round
 							(list seg_2d) layer))
 					) path path_2d)
 				) batched_paths batched_paths_2d)
@@ -172,7 +172,7 @@
 						;polygon pad
 						(if with_gaps
 							(canvas-fpoly canvas pad_x pad_y 0
-								(points-stroke-polygons stack pad_gap eps join-round (list pad_shape) (list)))
+								(points-stroke-polygons pad_gap eps join-round (list pad_shape) (list)))
 							(canvas-fpoly canvas pad_x pad_y 0
 								(list pad_shape))))))
 			) pads)
