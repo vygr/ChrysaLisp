@@ -40,7 +40,7 @@
 	(endif)
 
 	;intern font
-	(call 'vector 'get_iters {flat_set} {_, iter_begin, iter_end})
+	(call 'vector 'get_both {flat_set} {_, iter_begin, iter_end})
 	(loop-while {iter_begin != iter_end})
 		(assign {*iter_begin} {this})
 		(vpif {this->font_points == points})
@@ -330,7 +330,7 @@
 	;r1 = 0 if break, else not
 
 	(vp-cpy-ir r1 0 r1)
-	(vp-cpy-ir r1 pair_second r2)
+	(class/pair/get_second r1 r2)
 	(vp-cpy-ir-ui r2 obj_count r2)
 	(switch)
 	(vpcase '(r2 != 1))

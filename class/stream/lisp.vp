@@ -24,7 +24,7 @@
 	(call 'lisp 'env_args_type '(r1 ($ sig) 1) '(r1))
 	(gotoif '(r1 == 0) 'error))
 
-	(call 'vector 'get_first '(r7) '(_ r5))
+	(class/array/get_first r7 r5)
 	(vp-add-cr str_data r5)
 	(call 'sys_str 'compare '(r5 "stdin") '(r0))
 	(vpif '(r0 == 0))
@@ -105,7 +105,7 @@
 	(call 'lisp 'env_args_type '(r7 ($ sig) 1) '(r1))
 	(gotoif '(r1 == 0) 'error))
 
-	(call 'vector 'get_first '(r7) '(_ r1))
+	(class/array/get_first r7 r1)
 	(call 'stream 'available '(r1) '(_ r1))
 	(call 'num 'create '(r1) '(r0))
 
@@ -152,7 +152,7 @@
 	(errorcases
 		(assign `((@ ,(f-path 'num 'vtable)) (r0 obj_vtable)) '(r1 r2))
 		(gotoif '(r1 != r2) 'error3))
-		(call 'num 'get_value '(r0) '(_ r1))
+		(class/num/get_value r0 r1)
 		(vp-sub-cr 1 r1)
 		(vp-and-cr 7 r1)
 		(vp-add-cr 1 r1)
@@ -208,7 +208,7 @@
 	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
-	(call 'vector 'get_first '(r7) '(_ r1))
+	(class/array/get_first r7 r1)
 	(call 'stream_str 'read_line '(r1) '(_ r1))
 	(vp-pop r6)
 	(vpif '(r1 == 0))
@@ -241,7 +241,7 @@
 	(call 'lisp 'env_args_type '(r7 ($ sig) 2) '(r1))
 	(gotoif '(r1 == 0) 'error))
 
-	(vp-cpy-ir r7 array_array r3)
+	(class/array/get_begin r7 r3)
 	(call 'obj 'ref '((r3 ptr_size)) '(r0))
 	(vp-push r6 r0)
 	(call 'stream_str 'write '((r3 0) (& r0 str_data) (r0 str_length ui)))
@@ -290,7 +290,7 @@
 	(errorcases
 		(assign `((@ ,(f-path 'num 'vtable)) (r0 obj_vtable)) '(r1 r2))
 		(gotoif '(r1 != r2) 'error3))
-		(call 'num 'get_value '(r0) '(_ r1))
+		(class/num/get_value r0 r1)
 		(vp-sub-cr 1 r1)
 		(vp-and-cr 7 r1)
 		(vp-add-cr 1 r1)
@@ -299,7 +299,7 @@
 
 	(assign {iter_begin[ptr_size]} {value})
 	(vpif (cat {value->obj_vtable == @} (f-path 'vector 'vtable)))
-		(call 'vector 'get_iters {value} {_, iter_begin, iter_end})
+		(call 'vector 'get_both {value} {_, iter_begin, iter_end})
 		(errorif {iter_begin == iter_end} 'error1)
 		(loop-start)
 			(assign {stream, *iter_begin, width} '(r0 r1 r2))

@@ -17,6 +17,7 @@
 	(def-struct-end)
 
 	(ptr 'this 'cat_list 'args 'value)
+	(pptr 'iter_begin 'iter_end)
 	(uint 'length)
 
 	(push-scope)
@@ -29,8 +30,11 @@
 		(call 'vector 'create nil {cat_list})
 		(call 'obj 'ref {this->lisp_sym_cat} {value})
 		(call 'vector 'push_back {cat_list, value})
-		(d-call 'vector 'get_length {args} {_, length})
-		(call 'vector 'for_each {args, 0, length, $callback, &this})
+		(call 'vector 'get_both {args} {_, iter_begin, iter_end})
+		(loop-while {iter_begin != iter_end})
+			(call 'callback {&this, iter_begin})
+			(assign {iter_begin + ptr_size} {iter_begin})
+		(loop-end)
 		(call 'lisp 'repl_eval {this, cat_list} {_, value})
 		(call 'obj 'deref {cat_list})
 	(else)
@@ -54,11 +58,11 @@
 	;r1 = 0 if break, else not
 
 	(ptr 'pdata 'elem 'list 'sym 'quote_list)
-	(pptr 'iter)
+	(pptr 'iter 'iter_begin 'iter_end)
 	(uint 'length)
 
 	(push-scope)
-	(entry 'array 'each_callback {pdata, iter})
+	(entry {pdata, iter})
 
 	(assign {*iter} {elem})
 	(vpif (cat {elem->obj_vtable == @} (f-path 'vector 'vtable)))
@@ -83,7 +87,11 @@
 			(call 'vector 'create nil {pdata1.local_cat_list})
 			(call 'obj 'ref {pdata->local_this->lisp_sym_cat} {sym})
 			(call 'vector 'push_back {pdata1.local_cat_list, sym})
-			(call 'vector 'for_each {elem, 0, length, $callback, &pdata1})
+			(call 'vector 'get_both {elem} {_, iter_begin, iter_end})
+			(loop-while {iter_begin != iter_end})
+				(call 'callback {&pdata1, iter_begin})
+				(assign {iter_begin + ptr_size} {iter_begin})
+			(loop-end)
 			(call 'lisp 'repl_eval {pdata->local_this, pdata1.local_cat_list} {_, elem})
 			(call 'obj 'deref {pdata1.local_cat_list})
 			(pop-scope)
@@ -104,7 +112,6 @@
 	(endif)
 	(call 'vector 'push_back {pdata->local_cat_list, list})
 
-	(exit 'array 'each_callback '(-1))
 	(pop-scope)
 	(return)
 

@@ -20,7 +20,7 @@
 	(push-scope)
 	(entry 'lisp 'func_cond {this, args})
 
-	(call 'vector 'get_iters {args} (list '_ r_iter_begin r_iter_end))
+	(call 'vector 'get_both {args} (list '_ r_iter_begin r_iter_end))
 	(assign (list r_iter_end) {iter_end})
 	(loop-start)
 		(vp-add-cr ptr_size r_iter_begin)
@@ -30,7 +30,7 @@
 	(errorcases
 		(assign `((,r_value obj_vtable) (@ ,(f-path 'vector 'vtable))) (list r_vtable r_cmp))
 		(gotoif (list r_vtable '!= r_cmp) 'error2))
-		(call 'vector 'get_iters (list r_value) (list '_ r_clause_iter_begin r_clause_iter_end))
+		(call 'vector 'get_both (list r_value) (list '_ r_clause_iter_begin r_clause_iter_end))
 		(errorif (list r_clause_iter_begin '== r_clause_iter_end) 'error1)
 		(assign (list r_clause_iter_begin r_clause_iter_end) {clause_iter_begin, clause_iter_end})
 		(assign {this} (list r_this))

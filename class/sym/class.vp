@@ -102,7 +102,7 @@
 	(vp-push r0)
 	(f-bind 'sym 'statics r0)
 	(vp-cpy-ir r0 sym_statics_intern r0)
-	(call 'hset 'for_each '(r0 ($ flush_callback) rsp) '(r0 _ _))
+	(call 'hset 'for_each '(r0 ($ flush_callback) rsp) '(r0))
 	(call 'hset 'deref '(r0))
 	(vp-pop r0)
 	(f-bind 'sym 'statics r1)
@@ -115,6 +115,8 @@
 	;r1 = element iterator (pptr)
 	;outputs
 	;r1 = 0 if break, else not
+
+	(entry 'hset 'each_callback '(r0 r1))
 
 	(vp-cpy-ir r1 0 r1)
 	(vp-cpy-ir-ui r1 obj_count r2)

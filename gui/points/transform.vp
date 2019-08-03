@@ -24,7 +24,7 @@
 	(push-scope)
 	(entry 'points 'transform {this, that, m1x, m1y, m2x, m2y, trx, try})
 
-	(call 'points 'get_iters {that} {_, iter_begin, iter_end})
+	(call 'points 'get_both {that} {_, iter_begin, iter_end})
 	(call 'points 'get_begin {this} {_, iter_this})
 
 	(vec-set 0)

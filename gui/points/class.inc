@@ -71,9 +71,9 @@
 	(enum 'butt 'square 'tri 'arrow 'round)
 (def-enum-end)
 
-;;;;;;;;;;;;;;;
-;inline methods
-;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;
+; inline methods
+;;;;;;;;;;;;;;;;
 
 (defcfun gui/points/get_first2 ()
 	;inputs
@@ -84,7 +84,7 @@
 	;r2 = element2 (long)
 	;trashes
 	;r1-r2
-	(vp-cpy-ir r0 array_array r2)
+	(class/array/get_begin r0 r2)
 	(vp-cpy-ir r2 0 r1)
 	(vp-cpy-ir r2 long_size r2))
 
@@ -98,7 +98,7 @@
 	;r2 = element2 (long)
 	;trashes
 	;r1-r2
-	(vp-cpy-ir r0 array_array r2)
+	(class/array/get_begin r0 r2)
 	(vp-shl-cr (log2 long_size) r1)
 	(vp-add-rr r1 r2)
 	(vp-cpy-ir r2 0 r1)
@@ -113,10 +113,10 @@
 	;r2 = element2 (long)
 	;trashes
 	;r1-r2
-	(vp-cpy-ir-ui r0 array_length r1)
-	(vp-cpy-ir r0 array_array r2)
+	(class/array/get_length r0 r1)
+	(class/array/get_begin r0 r2)
 	(vp-sub-cr 2 r1)
-	(vp-cpy-ri-i r1 r0 array_length)
+	(class/array/set_length r0 r1)
 	(vp-shl-cr (log2 long_size) r1)
 	(vp-add-rr r1 r2)
 	(vp-cpy-ir r2 0 r1)

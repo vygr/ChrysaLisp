@@ -18,7 +18,7 @@
 	(entry 'sys_mail 'lisp_mymail '(r0 r1))
 
 (errorcases
-	(vp-cpy-ir-ui r1 array_length r2)
+	(class/array/get_length r1 r2)
 	(gotoif '(r2 != 0) 'error))
 
 	(vp-cpy-rr r0 r6)
@@ -47,7 +47,7 @@
 	(entry 'sys_mail 'lisp_trymail '(r0 r1))
 
 (errorcases
-	(vp-cpy-ir-ui r1 array_length r2)
+	(class/array/get_length r1 r2)
 	(gotoif '(r2 != 0) 'error))
 
 	(vp-cpy-rr r0 r6)
@@ -95,12 +95,12 @@
 	(endif)
 	(call 'obj 'inst_of (cat {arg0, @} (f-path 'vector 'vtable)))
 	(vpif (list (method-output 'obj 'inst_of 1) '!= 0))
-		(call 'sys_mail 'alloc_obj {arg0, arg0->array_array, arg0->array_length * long_size} {arg2})
+		(call 'sys_mail 'alloc_obj {arg0, arg0->array_begin, arg0->array_length * long_size} {arg2})
 		(goto 'sendit)
 	(endif)
 	(call 'obj 'inst_of (cat {arg0, @} (f-path 'array 'vtable)))
 	(errorif (list (method-output 'obj 'inst_of 1) '== 0) 'error1)
-	(call 'str 'create_from_buffer {arg0->array_array, arg0->array_length * long_size} {value})
+	(call 'str 'create_from_buffer {arg0->array_begin, arg0->array_length * long_size} {value})
 	(call 'sys_mail 'alloc_obj {value, &value->str_data, value->str_length} {arg2})
 	(call 'obj 'deref {value})
 (vp-label 'sendit)
@@ -136,7 +136,7 @@
 	(call 'lisp 'env_args_type '(r7 ($ sig) 2) '(r1))
 	(gotoif '(r1 == 0) 'error))
 
-	(vp-cpy-ir r7 array_array r2)
+	(class/array/get_begin r7 r2)
 	(call 'obj 'ref '((r2 0)) '(r0))
 	(vp-cpy-ir r2 ptr_size r1)
 	(vp-push r6 r0)
@@ -170,7 +170,7 @@
 	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
-	(vp-cpy-ir r7 array_array r0)
+	(class/array/get_begin r7 r0)
 	(vp-cpy-ir r0 0 r0)
 	(call 'sys_mail 'enquire '((& r0 str_data)) '(r0))
 	(vpif '(r0 != 0))

@@ -18,9 +18,9 @@
 	(ptr 'second)
 (def-struct-end)
 
-;;;;;;;;;;;;;;;;
-;;inline methods
-;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;
+; inline methods
+;;;;;;;;;;;;;;;;;
 
 (defcfun class/pair/init ()
 	;inputs
@@ -37,7 +37,7 @@
 	(vp-cpy-ri r3 r0 pair_second)
 	(s-call 'pair 'init '(r0 r1) '(r0 r1)))
 
-(defcfun class/pair/get_first ()
+(defcfun-bind class/pair/get_first (&optional o e)
 	;inputs
 	;r0 = pair object (ptr)
 	;outputs
@@ -45,9 +45,10 @@
 	;r1 = object (ptr)
 	;trashes
 	;r1
-	(vp-cpy-ir r0 pair_first r1))
+	(setd o r0 e r1)
+	(vp-cpy-ir o pair_first e))
 
-(defcfun class/pair/get_second ()
+(defcfun-bind class/pair/get_second (&optional o e)
 	;inputs
 	;r0 = pair object (ptr)
 	;outputs
@@ -55,4 +56,5 @@
 	;r1 = object (ptr)
 	;trashes
 	;r1
-	(vp-cpy-ir r0 pair_second r1))
+	(setd o r0 e r1)
+	(vp-cpy-ir o pair_second e))

@@ -20,7 +20,7 @@
 	(assign `((r2 obj_vtable) (@ ,(f-path 'func 'vtable))) '(r3 r4))
 	(vpif '(r3 == r4))
 		;built in or compiled function
-		(vp-cpy-ir r2 num_value r2)
+		(class/num/get_value r2 r2)
 		(vp-and-cr (neg ptr_size) r2)
 		(vp-jmp-r r2)
 	(endif)
@@ -43,7 +43,7 @@
 	(d-call 'vector 'get_length {func} {_, length})
 	(gotoif {length < 2} 'error1))
 
-	(call 'vector 'get_iters {func} {_, iter_begin, iter_end})
+	(call 'vector 'get_both {func} {_, iter_begin, iter_end})
 
 (errorcases
 	(assign {iter_begin[ptr_size * 0]} {value})

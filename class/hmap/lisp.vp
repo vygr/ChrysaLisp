@@ -17,7 +17,7 @@
 	(gotoif (list r_length '< 3) 'error1)
 	(vp-and-cr 1 r_length)
 	(gotoif (list r_length '== 0) 'error1))
-	(call 'vector 'get_iters {args} (list '_ r_iter_begin r_iter_end))
+	(call 'vector 'get_both {args} (list '_ r_iter_begin r_iter_end))
 	(assign (list r_iter_begin r_iter_end) {iter_begin, iter_end})
 	(vp-cpy-ir r_iter_begin 0 r_env)
 	(assign (list r_env) {env})
@@ -110,7 +110,7 @@
 	(gotoif (list r_length '< 3) 'error1)
 	(vp-and-cr 1 r_length)
 	(gotoif (list r_length '== 0) 'error1))
-	(call 'vector 'get_iters {args} (list '_ r_iter_begin r_iter_end))
+	(call 'vector 'get_both {args} (list '_ r_iter_begin r_iter_end))
 	(vp-add-cr ptr_size r_iter_begin)
 	(vp-xor-rr r_val r_val)
 	(assign (list r_val r_iter_end) {val, iter_end})
@@ -205,22 +205,20 @@
 	(entry 'hmap 'lisp_defined '(r0 r1))
 
 (errorcases
-	(vp-cpy-ir-ui r1 array_length r2)
+	(class/array/get_length r1 r2)
 	(gotoif '(r2 != 1) 'error))
 
-	(vp-cpy-ir r1 array_array r1)
+	(class/array/get_begin r1 r1)
 	(vp-push r0)
 	(call 'hmap 'search '((r0 lisp_environment) (r1 0)) '(_ r1 _))
 	(vp-pop r0)
 	(vpif '(r1 != 0))
 		(vp-cpy-ir r1 0 r1)
-		(vp-cpy-ir r1 pair_second r1)
+		(class/pair/get_second r1 r1)
 	(else)
 		(vp-cpy-ir r0 lisp_sym_nil r1)
 	(endif)
-	(vp-cpy-ir-ui r1 obj_count r2)
-	(vp-add-cr 1 r2)
-	(vp-cpy-ri-i r2 r1 obj_count)
+	(class/obj/ref r1 r2)
 
 	(exit 'hmap 'lisp_defined '(r0 r1))
 	(vp-ret)
@@ -253,8 +251,6 @@
 		(call 'num 'get_value {value} {_, value})
 		(errorifnot {value} 'error2)
 		(vpif {value > 0})
-			(call 'hmap 'num_buckets {this->lisp_environment} {_, length})
-			(gotoif {value == length} 'justref)
 			(call 'hmap 'copy {this->lisp_environment, value} {_, value})
 			(call 'obj 'deref {this->lisp_environment})
 			(call 'obj 'ref {value} {this->lisp_environment})
@@ -262,7 +258,6 @@
 			(call 'hmap 'create {0, -value} {value})
 		(endif)
 	(else)
-	(vp-label 'justref)
 		(call 'obj 'ref {this->lisp_environment} {value})
 	(endif)
 
@@ -299,7 +294,7 @@
 
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length < 2} 'error1)
-	(call 'vector 'get_iters {args} {_, iter_begin, iter_end})
+	(call 'vector 'get_both {args} {_, iter_begin, iter_end})
 	(assign {iter_begin[ptr_size * 0]} {env})
 
 (errorcases

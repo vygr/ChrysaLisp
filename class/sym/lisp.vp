@@ -15,7 +15,7 @@
 	(entry 'sym 'lisp_sym '(r0 r1))
 
 (errorcases
-	(vp-cpy-ir-ui r1 array_length r2)
+	(class/array/get_length r1 r2)
 	(gotoif '(r2 != 1) 'error1))
 
 	(vp-cpy-rr r0 r4)
@@ -58,7 +58,7 @@
 	(entry 'sym 'lisp_gensym '(r0 r1))
 
 (errorcases
-	(vp-cpy-ir-ui r1 array_length r2)
+	(class/array/get_length r1 r2)
 	(gotoif '(r2 != 0) 'error1))
 
 	(vp-push r0)

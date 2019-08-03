@@ -33,9 +33,9 @@
 	;fill edges, find min and max xy, clip edges not visible or redundant
 	(assign {yscale * this->canvas_cy, yscale * this->canvas_cy1} {cy, cy1})
 	(assign {x + 0.5, y + 0.5, max_int, min_int, max_int, min_int, 0} {x, y, xs, xe, ys, ye, length})
-	(call 'vector 'get_iters {polygons} {_, iter_begin_polygons, iter_end_polygons})
+	(call 'vector 'get_both {polygons} {_, iter_begin_polygons, iter_end_polygons})
 	(loop-while {iter_begin_polygons != iter_end_polygons})
-		(call 'points 'get_iters {*iter_begin_polygons} {_, iter_begin_polygon, iter_end_polygon})
+		(call 'points 'get_both {*iter_begin_polygons} {_, iter_begin_polygon, iter_end_polygon})
 		(call 'array 'set_capacity {this->canvas_edges, length + ((iter_end_polygon - iter_begin_polygon) >> 4) * (edge_size >> 3)})
 		(call 'array 'get_begin {this->canvas_edges} {_, iter_edge1})
 		(assign {iter_edge1 + length * long_size} {iter_edge2})
@@ -152,7 +152,7 @@
 		(endif)
 
 		;edge pointers into edge starts
-		(call 'array 'get_iters {this->canvas_edges} {_, tracker_node, tracker_last})
+		(call 'array 'get_both {this->canvas_edges} {_, tracker_node, tracker_last})
 		(vp-def (r_edges_start r_edge_node r_edge_last r_edge_tmp r_edge_list_head))
 		(assign {this->canvas_edges_start, tracker_node, tracker_last}
 			(list r_edges_start r_edge_node r_edge_last))

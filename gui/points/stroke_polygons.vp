@@ -26,10 +26,10 @@
 	(entry 'points 'stroke_polygons {this, stack, in_polygons, radius, eps, join_style})
 
 	(vpif {radius >= 0.5})
-		(call 'vector 'get_iters {in_polygons} {_, iter_begin_polygons, iter_end_polygons})
+		(call 'vector 'get_both {in_polygons} {_, iter_begin_polygons, iter_end_polygons})
 		(loop-while {iter_begin_polygons != iter_end_polygons})
 			(call 'points 'filter_polygon {*iter_begin_polygons, *iter_begin_polygons, 0.5})
-			(call 'vector 'get_iters {*iter_begin_polygons} {_, iter_begin_polyline, iter_end_polyline})
+			(call 'vector 'get_both {*iter_begin_polygons} {_, iter_begin_polyline, iter_end_polyline})
 			(call 'points 'create nil {polygon})
 			(call 'points 'stroke_joints {polygon, stack, iter_begin_polyline, iter_end_polyline,
 				iter_end_polyline[-long_size * 4], iter_end_polyline[-long_size * 3],

@@ -19,7 +19,7 @@
 	(push-scope)
 	(entry 'points 'filter_polyline {this, that, eps})
 
-	(call 'points 'get_iters {that} {_, iter_begin, iter_end})
+	(call 'points 'get_both {that} {_, iter_begin, iter_end})
 	(call 'points 'get_begin {this} {_, iter_this})
 
 	(vec-set 0)

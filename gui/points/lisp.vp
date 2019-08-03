@@ -20,7 +20,7 @@
 	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
-	(vp-cpy-ir r7 array_array r7)
+	(class/array/get_begin r7 r7)
 	(vp-cpy-ir r7 0 r0)
 	(vp-cpy-ir r7 ptr_size r1)
 	(vp-cpy-ir r7 (mul ptr_size 2) r2)
@@ -61,7 +61,7 @@
 	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
-	(vp-cpy-ir r7 array_array r7)
+	(class/array/get_begin r7 r7)
 	(vp-cpy-ir r7 (mul ptr_size 0) r0)
 	(vp-cpy-ir r7 (mul ptr_size 1) r1)
 	(vp-cpy-ir r6 lisp_stack r2)
@@ -97,7 +97,7 @@
 	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
-	(vp-cpy-ir r7 array_array r0)
+	(class/array/get_begin r7 r0)
 	(vp-cpy-ir r6 lisp_stack r1)
 	(vp-cpy-ir r0 (mul ptr_size 0) r2)
 	(vp-cpy-ir r0 (mul ptr_size 1) r3)
@@ -139,7 +139,7 @@
 	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
-	(vp-cpy-ir r7 array_array r0)
+	(class/array/get_begin r7 r0)
 	(vp-cpy-ir r6 lisp_stack r1)
 	(vp-cpy-ir r0 (mul ptr_size 0) r2)
 	(vp-cpy-ir r0 (mul ptr_size 1) r3)
@@ -184,7 +184,7 @@
 	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
-	(vp-cpy-ir r7 array_array r0)
+	(class/array/get_begin r7 r0)
 	(vp-cpy-ir r6 lisp_stack r1)
 	(vp-cpy-ir r0 (mul ptr_size 0) r2)
 	(vp-cpy-ir r0 (mul ptr_size 1) r3)
@@ -225,7 +225,7 @@
 	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
-	(vp-cpy-ir r7 array_array r0)
+	(class/array/get_begin r7 r0)
 	(vp-cpy-ir r6 lisp_stack r1)
 	(vp-cpy-ir r0 (mul ptr_size 0) r3)
 	(vp-cpy-ir r0 (mul ptr_size 1) r4)
@@ -266,7 +266,7 @@
 	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
-	(vp-cpy-ir r7 array_array r0)
+	(class/array/get_begin r7 r0)
 	(vp-cpy-ir r6 lisp_stack r1)
 	(vp-cpy-ir r0 (mul ptr_size 0) r3)
 	(vp-cpy-ir r0 (mul ptr_size 1) r4)
@@ -298,19 +298,19 @@
 
 	(entry 'points 'lisp_vecop1 '(r9 r10 r11))
 
-	(vp-cpy-ir-ui r10 array_length r12)
+	(class/array/get_length r10 r12)
 (errorcases
 	(gotoif '(r12 < 2) 'error)
 	(gotoif '(r12 > 3) 'error)
 	(call 'lisp 'env_args_type `(r10 (@ ,(f-path 'points 'vtable)) 0) '(r1))
 	(gotoif '(r1 == 0) 'error))
-	(vp-cpy-ir r10 array_array r1)
+	(class/array/get_begin r10 r1)
 	(vp-cpy-ir r1 0 r6)
 	(vp-cpy-ir r1 ptr_size r7)
-	(vp-cpy-ir-ui r6 array_length r13)
+	(class/array/get_length r6 r13)
 (errorcases
 	(gotoif '(r13 == 0) 'error)
-	(vp-cpy-ir-ui r7 array_length r14)
+	(class/array/get_length r7 r14)
 	(gotoif '(r13 != r14) 'error))
 	(vpif '(r12 == 2))
 		(call 'points 'create nil '(r0))
@@ -319,7 +319,7 @@
 	(else)
 		(vp-cpy-ir r1 (mul ptr_size 2) r0)
 	(errorcases
-		(vp-cpy-ir-ui r0 array_length r14)
+		(class/array/get_length r0 r14)
 		(gotoif '(r13 != r14) 'error))
 		(call 'obj 'ref '(r0) '(r0))
 	(endif)
@@ -345,15 +345,15 @@
 
 	(entry 'points 'lisp_vecop2 '(r9 r10 r11))
 
-	(vp-cpy-ir-ui r10 array_length r12)
+	(class/array/get_length r10 r12)
 (errorcases
 	(gotoif '(r12 < 1) 'error)
 	(gotoif '(r12 > 2) 'error)
 	(call 'lisp 'env_args_type `(r10 (@ ,(f-path 'points 'vtable)) 0) '(r1))
 	(gotoif '(r1 == 0) 'error))
-	(vp-cpy-ir r10 array_array r1)
+	(class/array/get_begin r10 r1)
 	(vp-cpy-ir r1 0 r6)
-	(vp-cpy-ir-ui r6 array_length r13)
+	(class/array/get_length r6 r13)
 (errorcases
 	(gotoif '(r13 == 0) 'error))
 	(vpif '(r12 == 1))
@@ -363,7 +363,7 @@
 	(else)
 		(vp-cpy-ir r1 ptr_size r0)
 	(errorcases
-		(vp-cpy-ir-ui r0 array_length r14)
+		(class/array/get_length r0 r14)
 		(gotoif '(r13 != r14) 'error))
 		(call 'obj 'ref '(r0) '(r0))
 	(endif)
@@ -602,7 +602,7 @@
 	(call 'lisp 'env_args_type '(r7 ($ sig) 1) '(r1))
 	(gotoif '(r1 == 0) 'error))
 
-	(vp-cpy-ir r7 array_array r0)
+	(class/array/get_begin r7 r0)
 	(call 'points 'sum '((r0 0)) '(_ r0))
 	(call 'num 'create '(r0) '(r0))
 
@@ -628,16 +628,16 @@
 
 	(entry 'points 'lisp_fscale '(r9 r10))
 
-	(vp-cpy-ir-ui r10 array_length r12)
+	(class/array/get_length r10 r12)
 (errorcases
 	(gotoif '(r12 < 2) 'error)
 	(gotoif '(r12 > 3) 'error)
 	(call 'lisp 'env_args_type `(r10 ($ sig) r12) '(r1))
 	(gotoif '(r1 == 0) 'error))
-	(vp-cpy-ir r10 array_array r1)
+	(class/array/get_begin r10 r1)
 	(vp-cpy-ir r1 0 r6)
 	(vp-cpy-ir r1 ptr_size r7)
-	(vp-cpy-ir-ui r6 array_length r13)
+	(class/array/get_length r6 r13)
 (errorcases
 	(gotoif '(r13 == 0) 'error))
 	(vpif '(r12 == 2))
@@ -647,7 +647,7 @@
 	(else)
 		(vp-cpy-ir r1 (mul ptr_size 2) r0)
 	(errorcases
-		(vp-cpy-ir-ui r0 array_length r14)
+		(class/array/get_length r0 r14)
 		(gotoif '(r13 != r14) 'error))
 		(call 'obj 'ref '(r0) '(r0))
 	(endif)

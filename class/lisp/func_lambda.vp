@@ -13,9 +13,7 @@
 
 	(entry 'lisp 'func_lambda '(r0 r1))
 
-	(vp-cpy-ir-ui r1 obj_count r2)
-	(vp-add-cr 1 r2)
-	(vp-cpy-ri-i r2 r1 obj_count)
+	(class/obj/ref r1 r2)
 
 	(exit 'lisp 'func_lambda '(r0 r1))
 	(vp-ret)

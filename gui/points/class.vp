@@ -16,7 +16,7 @@
 
 	(entry 'points 'cat '(_ r1))
 
-	(call 'points 'get_iters '(r1) '(_ r10 r11))
+	(class/array/get_both r1 r10 r11)
 	(call 'points 'create nil '(r0))
 	(vpif '(r0 != 0))
 		(loop-start)
@@ -44,25 +44,23 @@
 	;r3-r5
 
 	;increase capacity ?
-	(vp-cpy-ir-ui r0 array_length r3)
-	(vp-cpy-ir-ui r0 array_capacity r4)
+	(class/array/get_length r0 r3)
+	(class/array/get_capacity r0 r4)
 	(vp-add-cr 2 r3)
-	(vp-cpy-ri-i r3 r0 array_length)
+	(class/array/set_length r0 r3)
 	(vpif '(r3 > r4))
 		;double the capacity
 		(vp-add-rr r4 r4)
 		(vp-push r1 r2)
 		(call 'array 'set_capacity '(r0 r4) '(r0))
-		(vp-cpy-ir-ui r0 array_length r3)
+		(class/array/get_length r0 r3)
 		(vp-pop r1 r2)
 	(endif)
 
 	;save object
-	(vp-cpy-ir r0 array_array r4)
-	(vp-shl-cr (log2 long_size) r3)
-	(vp-add-rr r3 r4)
-	(vp-cpy-ri r1 r4 (mul -2 long_size))
-	(vp-cpy-ri r2 r4 (neg long_size))
+	(class/array/get_iter r0 r3 r4)
+	(vp-cpy-ri r1 r3 (mul -2 long_size))
+	(vp-cpy-ri r2 r3 (neg long_size))
 	(vp-ret)
 
 (def-func-end)
@@ -71,12 +69,9 @@
 	;trashes
 	;r1-r6+
 	(entry 'points _ '(r0 r1 r2))
-	(vp-cpy-ir r0 array_array r3)
-	(vp-cpy-ir-ui r0 array_length r4)
-	(vp-cpy-ir r1 array_array r1)
-	(vp-cpy-ir r2 array_array r2)
-	(vp-shl-cr (log2 long_size) r4)
-	(vp-add-rr r3 r4)
+	(class/array/get_both r0 r3 r4)
+	(class/array/get_begin r1 r1)
+	(class/array/get_begin r2 r2)
 	(vec-set 5)
 	(loop-start)
 		(vec-load-long 1 r1)
@@ -95,12 +90,9 @@
 	;r1-r8+
 	(entry 'points _ '(r0 r1 r2))
 	(vp-cpy-rr r0 r4)
-	(vp-cpy-ir r0 array_array r7)
-	(vp-cpy-ir-ui r0 array_length r8)
-	(vp-cpy-ir r1 array_array r5)
-	(vp-cpy-ir r2 array_array r6)
-	(vp-shl-cr (log2 long_size) r8)
-	(vp-add-rr r7 r8)
+	(class/array/get_both r0 r7 r8)
+	(class/array/get_begin r1 r5)
+	(class/array/get_begin r2 r6)
 	(vec-set 0)
 	(loop-start)
 		(vec-load-long 1 r5)
@@ -118,11 +110,8 @@
 	;trashes
 	;r1-r4+
 	(entry 'points _ '(r0 r1))
-	(vp-cpy-ir r0 array_array r2)
-	(vp-cpy-ir-ui r0 array_length r3)
-	(vp-cpy-ir r1 array_array r1)
-	(vp-shl-cr (log2 long_size) r3)
-	(vp-add-rr r2 r3)
+	(class/array/get_both r0 r2 r3)
+	(class/array/get_begin r1 r1)
 	(vec-set 4)
 	(loop-start)
 		(vec-load-long 1 r1)
@@ -257,7 +246,7 @@
 
 	(entry 'points 'sum '(r0))
 
-	(call 'points 'get_iters '(r0) '(r0 r1 r2))
+	(call 'points 'get_both '(r0) '(r0 r1 r2))
 	(vp-xor-rr r3 r3)
 	(loop-while '(r1 != r2))
 		(vp-cpy-ir r1 0 r4)
@@ -282,11 +271,8 @@
 
 	(entry 'points 'fscale '(r0 r1 r2))
 
-	(vp-cpy-ir r0 array_array r3)
-	(vp-cpy-ir-ui r0 array_length r4)
-	(vp-cpy-ir r1 array_array r1)
-	(vp-shl-cr (log2 long_size) r4)
-	(vp-add-rr r3 r4)
+	(class/array/get_both r0 r3 r4)
+	(class/array/get_begin r1 r1)
 	(vec-set 5)
 	(loop-start)
 		(vec-load-long 1 r1)

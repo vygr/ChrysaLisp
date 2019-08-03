@@ -21,7 +21,7 @@
 	(gotoif '(r1 == 0) 'error1))
 
 	(vp-push r6)
-	(vp-cpy-ir r7 array_array r1)
+	(class/array/get_begin r7 r1)
 	(vp-cpy-ir r1 ptr_size r2)
 	(call 'str 'split '((r1 0) (r2 str_data ub)) '(_ r1))
 	(vp-pop r0)
@@ -50,7 +50,7 @@
 
 	(entry 'str 'lisp_code (list r_this r_args))
 
-	(vp-cpy-ir-ui r_args array_length r_len)
+	(class/array/get_length r_args r_len)
 
 (errorcases
 	(gotoif (list r_len '< 1) 'error1)
@@ -58,20 +58,20 @@
 	(call 'lisp 'env_args_type (list r_args '($ sig) r_len) '(r1))
 	(gotoif '(r1 == 0) 'error1))
 
-	(vp-cpy-ir r_args array_array r_iter_begin)
+	(class/array/get_begin r_args r_iter_begin)
 	(vp-cpy-cr 1 r_width)
 	(vp-xor-rr r_index r_index)
 	(vp-cpy-ir r_iter_begin 0 r_value)
 	(vpif (list r_len '> 1))
 		(vp-cpy-ir r_iter_begin ptr_size r_width)
-		(vp-cpy-ir r_width num_value r_width)
+		(class/num/get_value r_width r_width)
 		(vp-sub-cr 1 r_width)
 		(vp-and-cr (dec long_size) r_width)
 		(vp-add-cr 1 r_width)
 	(endif)
 	(vpif (list r_len '> 2))
 		(vp-cpy-ir r_iter_begin (mul 2 ptr_size) r_index)
-		(vp-cpy-ir r_index num_value r_index)
+		(class/num/get_value r_index r_index)
 	(endif)
 
 	(vp-cpy-ir-ui r_value str_length r_len)
@@ -117,7 +117,7 @@
 
 	(entry 'str 'lisp_char (list r_this r_args))
 
-	(vp-cpy-ir-ui r_args array_length r_len)
+	(class/array/get_length r_args r_len)
 
 (errorcases
 	(gotoif (list r_len '< 1) 'error1)
@@ -125,12 +125,12 @@
 	(call 'lisp 'env_args_type `(,r_args (@ ,(f-path 'num 'vtable)) 0) '(r1))
 	(gotoif '(r1 == 0) 'error1))
 
-	(vp-cpy-ir r_args array_array r_iter_begin)
+	(class/array/get_begin r_args r_iter_begin)
 	(vp-cpy-cr 1 r_width)
 	(vp-cpy-ir r_iter_begin 0 r_value)
 	(vpif (list r_len '> 1))
 		(vp-cpy-ir r_iter_begin ptr_size r_width)
-		(vp-cpy-ir r_width num_value r_width)
+		(class/num/get_value r_width r_width)
 		(vp-sub-cr 1 r_width)
 		(vp-and-cr (dec long_size) r_width)
 		(vp-add-cr 1 r_width)
@@ -286,7 +286,7 @@
 
 	(call 'str 'create_from_buffer '(0 str_gap) '(r0))
 	(call 'stream_str 'create '(r0) {stream})
-	(call 'vector 'get_iters {args} '(_ r1 r2))
+	(call 'vector 'get_both {args} '(_ r1 r2))
 	(assign '(r2) {iter_end})
 	(loop-while '(r1 != r2))
 		(vp-cpy-ir r1 0 r0)

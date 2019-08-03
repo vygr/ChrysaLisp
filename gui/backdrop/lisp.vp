@@ -12,21 +12,21 @@
 	;trashes
 	;all but r0
 
-	(vp-def (r_this r_args r_value) '(r6 r7))
-
-	(entry 'backdrop 'lisp_create (list r_this r_args))
+	(entry 'backdrop 'lisp_create '(r0 r1))
 
 (errorcases
-	(d-call 'vector 'get_length (list r_args))
-	(gotoif (list (method-output 'vector 'get_length 1) '!= 0) 'error1))
+	(class/array/get_length r1 r2)
+	(gotoif '(r2 != 0) 'error))
 
-	(call 'backdrop 'create nil (list r_value))
+	(vp-push r0)
+	(call 'backdrop 'create nil '(r1))
+	(vp-pop r0)
 
-	(exit 'backdrop 'lisp_create (list r_this r_value))
+	(exit 'backdrop 'lisp_create '(r0 r1))
 	(vp-ret)
 
 (errorcases
-(vp-label 'error1)
-	(jump 'lisp 'repl_error (list r_this "(create-backdrop)" error_msg_wrong_types r_args)))
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r0 "(create-backdrop)" error_msg_wrong_types r1)))
 
 (def-func-end)

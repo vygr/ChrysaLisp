@@ -21,13 +21,13 @@
 	scale (fmul clock_size clock_scale) eps 0.25)
 
 ;create static clock face
-(points-stroke-polylines (fmul scale 0.01) eps join-miter cap-butt cap-butt
+(points-stroke-polylines (fmul scale 0.01) eps join_miter cap_butt cap_butt
 	(reduce (lambda (l a)
 		(push l (transform (points 0.0 0.35 0.0 0.44) (div (mul a fp_2pi) 12) scale))) (range 0 12) (list))
-	(points-stroke-polylines (fmul scale 0.03) eps join-miter cap-butt cap-butt
+	(points-stroke-polylines (fmul scale 0.03) eps join_miter cap_butt cap_butt
 		(reduce (lambda (l a)
 			(push l (transform (points 0.0 0.35 0.0 0.44) (mul a fp_hpi) scale))) (range 0 4) (list))
-		(points-stroke-polygons (fmul scale 0.02) eps join-miter
+		(points-stroke-polygons (fmul scale 0.02) eps join_miter
 			(list (points-gen-arc (fmul scale 0.5) (fmul scale 0.5) 0 fp_2pi (fmul scale 0.48) eps (points)))
 			face)))
 
@@ -40,7 +40,7 @@
 	(canvas-set-color clock argb_black)
 	(canvas-fpoly clock 0.0 0.0 0 face)
 	;hour and minute hands
-	(defq _ (points-stroke-polylines (const (fmul scale 0.02)) eps join-miter cap-round cap-tri
+	(defq _ (points-stroke-polylines (const (fmul scale 0.02)) eps join_miter cap_round cap_tri
 		(list (transform (points 0.0 0.04 0.0 -0.22) (div (fmul hours fp_2pi) 12) scale)
 			(transform (points 0.0 0.04 0.0 -0.38) (div (fmul minutes fp_2pi) 60) scale))
 		(list)))
@@ -49,7 +49,7 @@
 	(canvas-set-color clock argb_green)
 	(canvas-fpoly clock 0.0 0.0 1 _)
 	;second hand
-	(setq _ (points-stroke-polylines (const (fmul scale 0.01)) eps join-miter cap-round cap-tri
+	(setq _ (points-stroke-polylines (const (fmul scale 0.01)) eps join_miter cap_round cap_tri
 		(list (transform (points 0.0 0.04 0.0 -0.34) (div (mul (shr seconds fp_shift) fp_2pi) 60) scale))
 		(list)))
 	(canvas-set-color clock 0xa0000000)

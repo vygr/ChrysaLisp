@@ -40,10 +40,10 @@
 		(vp-cpy-ri r1 rsp local_form)
 
 	(errorcases
-		(vp-cpy-ir-ui r1 array_length r2)
+		(class/array/get_length r1 r2)
 		(gotoif '(r2 == 0) 'error1))
 
-		(vp-cpy-ir r1 array_array r1)
+		(class/array/get_begin r1 r1)
 		(call 'lisp 'repl_eval '(r0 (r1 0)) '(r0 r1))
 		(vp-cpy-ir r1 obj_vtable r2)
 
@@ -55,7 +55,7 @@
 		(f-bind 'func 'vtable r3)
 		(switch)
 		(vpcase '(r2 == r3))
-			(vp-cpy-ir r1 num_value r2)
+			(class/num/get_value r1 r2)
 			(vp-and-cr 7 r2)
 			(gotoif '(r2 == 0) 'args_eval)
 			(call 'lisp 'repl_apply '(r0 (rsp local_form) r1) '(_ (rsp local_value)))
@@ -83,9 +83,7 @@
 		(break)
 	(default)
 		;eval to self
-		(vp-cpy-ir-ui r1 obj_count r2)
-		(vp-add-cr 1 r2)
-		(vp-cpy-ri-i r2 r1 obj_count)
+		(class/obj/ref r1 r2)
 	(endswitch)
 
 (vp-label 'funcexit)

@@ -22,7 +22,7 @@
 	(entry 'lisp 'func_prin {this, args})
 
 	(assign {this->lisp_sym_nil} {value})
-	(call 'vector 'get_iters {args} '(_ r1 r2))
+	(call 'vector 'get_both {args} '(_ r1 r2))
 	(assign '(r2) {iter_end})
 	(loop-while '(r1 != r2))
 		(vp-cpy-ir r1 0 r0)

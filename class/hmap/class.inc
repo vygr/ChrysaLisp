@@ -27,9 +27,9 @@
 	(ptr 'parent)
 (def-struct-end)
 
-;;;;;;;;;;;;;;;
-;inline methods
-;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;
+; inline methods
+;;;;;;;;;;;;;;;;
 
 (defcfun class/hmap/get_parent ()
 	;inputs

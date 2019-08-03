@@ -36,9 +36,9 @@
 	(long 'value)
 (def-struct-end)
 
-;;;;;;;;;;;;;;;
-;inline methods
-;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;
+; inline methods
+;;;;;;;;;;;;;;;;
 
 (defcfun class/num/init ()
 	;inputs
@@ -53,7 +53,7 @@
 	(vp-cpy-ri r2 r0 num_value)
 	(s-call 'num 'init '(r0 r1) '(r0 r1)))
 
-(defcfun class/num/get_value ()
+(defcfun class/num/get_value (&optional o n)
 	;inputs
 	;r0 = num object (ptr)
 	;outputs
@@ -61,4 +61,5 @@
 	;r1 = value (long)
 	;trashes
 	;r1
-	(vp-cpy-ir r0 num_value r1))
+	(setd o r0 n r1)
+	(vp-cpy-ir o num_value n))

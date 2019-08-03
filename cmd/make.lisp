@@ -42,7 +42,7 @@
 							(setq state 'y)
 							(push docs (list))
 							(push functions (f-path (trim-cruft (elem 1 s)) (trim-cruft (elem 2 s)))))
-						((or (eql _ "(def-func") (eql _ "(defcfun"))
+						((or (eql _ "(def-func") (eql _ "(defcfun") (eql _ "(defcfun-bind"))
 							(setq state 'y)
 							(push docs (list))
 							(push functions (trim-cruft (elem 1 s))))

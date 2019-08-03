@@ -35,7 +35,7 @@
 		(points -0.5 -0.5 -0.25 0.5 0 -0.5 0.25 0.5 0.5 -0.5 -0.05 0.5)) (mul angle 2)))
 
 	(fpoly 0xff0ff0ff 0 (transform
-		(points-stroke-polylines (fmul canvas_width 0.05) eps join-bevel cap-square cap-square
+		(points-stroke-polylines (fmul canvas_width 0.05) eps join_bevel cap_square cap_square
 			(list (points-gen-quadratic
 				(fmul canvas_width -0.4) (fmul canvas_height 0.4)
 				(fmul canvas_width -0.2) (fmul canvas_height -1.1)
@@ -44,15 +44,15 @@
 			(list)) (neg angle)))
 
 	(fpoly 0xc000ff00 0 (transform
-		(points-stroke-polylines (fmul canvas_width 0x0.1) eps join-round cap-round cap-round
+		(points-stroke-polylines (fmul canvas_width 0x0.1) eps join_round cap_round cap_round
 			(list (points (fmul canvas_width -0.4) (fmul canvas_height -0.4)
 				(fmul canvas_width 0.3) (fmul canvas_height -0.3)
 				(fmul canvas_width 0.4) (fmul canvas_height 0.4)))
 			(list)) angle))
 
 	(fpoly argb_yellow 0 (defq p (transform
-		(points-stroke-polygons (fmul canvas_width 0.011) eps join-miter
-			(points-stroke-polylines (fmul canvas_width 0.033) eps join-bevel cap-round cap-arrow
+		(points-stroke-polygons (fmul canvas_width 0.011) eps join_miter
+			(points-stroke-polylines (fmul canvas_width 0.033) eps join_bevel cap_round cap_arrow
 				(list (points-gen-cubic
 					(fmul canvas_width -0.45) (fmul canvas_height 0.3)
 					(fmul canvas_width -0.3) (fmul canvas_height -0.3)
@@ -63,7 +63,7 @@
 	(fpoly 0x80000000 0 (slice 1 2 p))
 
 	(fpoly 0xd0ff00ff 0 (defq p (transform
-		(points-stroke-polygons (fmul canvas_width 0.02) eps join-miter
+		(points-stroke-polygons (fmul canvas_width 0.02) eps join_miter
 			(list (points-gen-arc
 				(fmul canvas_width 0.2) (fmul canvas_height 0.3) 0 fp_2pi
 				(fmul canvas_width 0.125) eps (points)))
@@ -71,8 +71,8 @@
 	(fpoly 0x60000000 0 (slice 0 1 p))
 
 	(fpoly 0xc00000ff 0 (defq polygons (transform
-		(points-stroke-polygons (fmul canvas_width 0.025) eps join-miter
-			(points-stroke-polylines (fmul canvas_width 0.05) eps join-bevel cap-square cap-tri
+		(points-stroke-polygons (fmul canvas_width 0.025) eps join_miter
+			(points-stroke-polylines (fmul canvas_width 0.05) eps join_bevel cap_square cap_tri
 				(list
 					(points-gen-arc
 						(fmul canvas_width -0.1) (fmul canvas_height -0.2) 0.9 1.5

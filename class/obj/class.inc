@@ -36,13 +36,14 @@
 	(vp-cpy-cr 1 r1)
 	(vp-cpy-ri-i r1 r0 obj_count))
 
-(defcfun class/obj/ref ()
+(defcfun class/obj/ref (&optional o c x)
 	;inputs
 	;r0 = object (ptr)
 	;outputs
 	;r0 = object (ptr)
 	;trashes
 	;r1
-	(vp-cpy-ir-ui r0 obj_count r1)
-	(vp-add-cr 1 r1)
-	(vp-cpy-ri-i r1 r0 obj_count))
+	(setd o r0 c r1 x 1)
+	(vp-cpy-ir-ui o obj_count c)
+	(vp-add-cr x c)
+	(vp-cpy-ri-i c o obj_count))

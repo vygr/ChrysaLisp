@@ -354,7 +354,7 @@ This is an example from the `class/pair/class.inc` file.
 (def-struct-end)
 
 ;;;;;;;;;;;;;;;;
-;;inline methods
+; inline methods
 ;;;;;;;;;;;;;;;;
 
 (defcfun class/pair/init ()
@@ -376,7 +376,7 @@ This is an example from the `class/pair/class.inc` file.
 	;outputs
 	;r0 = pair object (ptr)
 	;r1 = object (ptr)
-	(vp-cpy-ir r0 pair_first r1))
+	(class/pair/get_first r0 r1))
 
 (defcfun class/pair/get_second ()
 	;inputs
@@ -384,7 +384,7 @@ This is an example from the `class/pair/class.inc` file.
 	;outputs
 	;r0 = pair object (ptr)
 	;r1 = object (ptr)
-	(vp-cpy-ir r0 pair_second r1))
+	(class/pair/get_second r0 r1))
 ```
 
 The `(def-class)` declares the class name and which class it inherits its
@@ -466,7 +466,7 @@ of these.
 	;all but r0
 
 	(vp-push r0)
-	(vp-cpy-ir r0 pair_first r2)
+	(class/pair/get_first r0 r2)
 	(vp-cpy-ri r1 r0 pair_first)
 	(call 'obj 'deref '(r2))
 	(vp-pop r0)
@@ -484,7 +484,7 @@ of these.
 	;all but r0
 
 	(vp-push r0)
-	(vp-cpy-ir r0 pair_second r2)
+	(class/pair/get_second r0 r2)
 	(vp-cpy-ri r1 r0 pair_second)
 	(call 'obj 'deref '(r2))
 	(vp-pop r0)

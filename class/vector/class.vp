@@ -30,7 +30,7 @@
 	(entry 'vector 'clear '(r0))
 
 	;deref all elements
-	(call 'vector 'get_iters '(r0) '(r0 r1 r2))
+	(class/array/get_both r0 r1 r2)
 	(vp-push r0)
 	(loop-while '(r1 != r2))
 		(vp-push r1 r2)
@@ -58,12 +58,8 @@
 
 	(entry 'vector 'ref_element '(r0 r1))
 
-	(vp-cpy-ir r0 array_array r2)
-	(vp-shl-cr (log2 ptr_size) r1)
-	(vp-cpy-dr r2 r1 r1)
-	(vp-cpy-ir-ui r1 obj_count r2)
-	(vp-add-cr 1 r2)
-	(vp-cpy-ri-i r2 r1 obj_count)
+	(class/array/get_element r0 r1 r1 r2)
+	(class/obj/ref r1 r2)
 
 	(exit 'vector 'ref_element '(r0 r1))
 	(vp-ret)
@@ -100,7 +96,7 @@
 
 	(entry 'vector 'set_element '(r0 r1 r2))
 
-	(vp-cpy-ir r0 array_array r3)
+	(class/array/get_begin r0 r3)
 	(vp-shl-cr (log2 ptr_size) r2)
 	(vp-push r0)
 	(vp-cpy-dr r2 r3 r0)
@@ -131,27 +127,21 @@
 	(call 'vector 'create '() '(r0))
 	(vp-cpy-rr r8 r1)
 	(vp-sub-rr r7 r1)
-	(vp-cpy-ri-i r1 r0 array_length)
+	(class/array/set_length r0 r1)
 	(call 'vector 'set_capacity '(r0 r1) '(r1))
 	(vp-cpy-rr r6 r0)
 
 	;copy and ref elements
 	(vpif '(r7 != r8))
-		(vp-cpy-ir r0 array_array r2)
-		(vp-cpy-ir r1 array_array r3)
-		(vp-shl-cr (log2 ptr_size) r7)
-		(vp-shl-cr (log2 ptr_size) r8)
-		(vp-add-rr r2 r8)
-		(vp-add-rr r7 r2)
+		(class/array/get_iters r0 r7 r8 r2)
+		(class/array/get_begin r1 r3)
 		(loop-start)
-			(vp-cpy-ir r2 0 r4)
-			(vp-add-cr ptr_size r2)
-			(vp-cpy-ir-ui r4 obj_count r5)
-			(vp-cpy-ri r4 r3 0)
+			(vp-cpy-ir r7 0 r2)
+			(vp-add-cr ptr_size r7)
+			(vp-cpy-ri r2 r3 0)
 			(vp-add-cr ptr_size r3)
-			(vp-add-cr 1 r5)
-			(vp-cpy-ri-i r5 r4 obj_count)
-		(loop-until '(r2 == r8))
+			(class/obj/ref r2 r4)
+		(loop-until '(r7 == r8))
 	(endif)
 
 	(exit 'vector 'slice '(r0 r1))
@@ -179,30 +169,22 @@
 		(vp-cpy-rr r3 r8)
 
 		;extend vector
-		(vp-cpy-ir-ui r0 array_length r9)
+		(class/array/get_length r0 r9)
 		(vp-sub-rr r2 r3)
 		(vp-lea-d r3 r9 r1)
-		(vp-cpy-ri-i r1 r0 array_length)
+		(class/array/set_length r0 r1)
 		(call 'vector 'set_capacity '(r0 r1) '(r0))
 
 		;append and ref elements
-		(vp-cpy-ir r0 array_array r3)
-		(vp-cpy-ir r6 array_array r2)
-		(vp-shl-cr (log2 ptr_size) r7)
-		(vp-shl-cr (log2 ptr_size) r8)
-		(vp-shl-cr (log2 ptr_size) r9)
-		(vp-add-rr r2 r8)
-		(vp-add-rr r7 r2)
-		(vp-add-rr r9 r3)
+		(class/array/get_iters r6 r7 r8 r2)
+		(class/array/get_iter r0 r9 r3)
 		(loop-start)
-			(vp-cpy-ir r2 0 r4)
-			(vp-add-cr ptr_size r2)
-			(vp-cpy-ir-ui r4 obj_count r5)
-			(vp-cpy-ri r4 r3 0)
-			(vp-add-cr ptr_size r3)
-			(vp-add-cr 1 r5)
-			(vp-cpy-ri-i r5 r4 obj_count)
-		(loop-until '(r2 == r8))
+			(vp-cpy-ir r7 0 r2)
+			(vp-add-cr ptr_size r7)
+			(vp-cpy-ri r2 r9 0)
+			(vp-add-cr ptr_size r9)
+			(class/obj/ref r2 r4)
+		(loop-until '(r7 == r8))
 	(endif)
 
 	(exit 'vector 'append '(r0))
@@ -221,7 +203,7 @@
 
 	(entry 'vector 'cat '(_ r1))
 
-	(call 'vector 'get_iters '(r1) '(_ r10 r11))
+	(class/array/get_both r1 r10 r11)
 	(call 'vector 'create nil '(r0))
 	(vpif '(r0 != 0))
 		(loop-start)

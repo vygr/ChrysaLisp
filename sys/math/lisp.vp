@@ -10,9 +10,9 @@
 (errorcases
 	(call 'lisp 'env_args_type `(,r_args ($ sig) 1) '(r1))
 	(gotoif '(r1 == 0) 'error))
-	(vp-cpy-ir r_args array_array r_value)
+	(class/array/get_begin r_args r_value)
 	(vp-cpy-ir r_value 0 r_value)
-	(vp-cpy-ir r_value num_value r_value)
+	(class/num/get_value r_value r_value)
 	(exec p)
 	(call 'num 'create (list r_value) (list r_value))
 	(exit 'sys_math _ (list r_this r_value))

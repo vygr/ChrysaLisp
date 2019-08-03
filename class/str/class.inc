@@ -78,9 +78,9 @@
 (defcvar 'char_b (ascii-code "b"))
 (defcvar 'char_o (ascii-code "o"))
 
-;;;;;;;;;;;;;;;
-;inline methods
-;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;
+; inline methods
+;;;;;;;;;;;;;;;;
 
 (defcfun class/str/get_length ()
 	;inputs

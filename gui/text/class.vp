@@ -81,7 +81,7 @@
 
 	;draw text
 	(vpif {this->text_string && font})
-		(call 'vector 'get_iters {this->text_words} {_, words, words_end})
+		(call 'vector 'get_both {this->text_words} {_, words, words_end})
 		(vpif {words != words_end})
 			(assign {0} {x})
 			(loop-start)
@@ -132,7 +132,7 @@
 	(assign {0 => width} {height})
 	(vpif {this->text_string && font})
 		(call 'font 'get_metrics {font} {_, _, _, height})
-		(call 'vector 'get_iters {this->text_words} {_, words, words_end})
+		(call 'vector 'get_both {this->text_words} {_, words, words_end})
 		(vpif {words != words_end})
 			(loop-start)
 				(call 'font 'ref_word {font, *words} {_, txt})

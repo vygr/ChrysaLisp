@@ -34,10 +34,8 @@
 
 	(entry 'pair 'ref_first '(r0))
 
-	(vp-cpy-ir r0 pair_first r1)
-	(vp-cpy-ir-ui r1 obj_count r2)
-	(vp-add-cr 1 r2)
-	(vp-cpy-ri-i r2 r1 obj_count)
+	(class/pair/get_first r0 r1)
+	(class/obj/ref r1 r2)
 
 	(exit 'pair 'ref_first '(r0 r1))
 	(vp-ret)
@@ -55,10 +53,8 @@
 
 	(entry 'pair 'ref_second '(r0))
 
-	(vp-cpy-ir r0 pair_second r1)
-	(vp-cpy-ir-ui r1 obj_count r2)
-	(vp-add-cr 1 r2)
-	(vp-cpy-ri-i r2 r1 obj_count)
+	(class/pair/get_second r0 r1)
+	(class/obj/ref r1 r2)
 
 	(exit 'pair 'ref_second '(r0 r1))
 	(vp-ret)
@@ -77,7 +73,7 @@
 	(entry 'pair 'set_first '(r0 r1))
 
 	(vp-push r0)
-	(vp-cpy-ir r0 pair_first r2)
+	(class/pair/get_first r0 r2)
 	(vp-cpy-ri r1 r0 pair_first)
 	(call 'obj 'deref '(r2))
 	(vp-pop r0)
@@ -99,7 +95,7 @@
 	(entry 'pair 'set_second '(r0 r1))
 
 	(vp-push r0)
-	(vp-cpy-ir r0 pair_second r2)
+	(class/pair/get_second r0 r2)
 	(vp-cpy-ri r1 r0 pair_second)
 	(call 'obj 'deref '(r2))
 	(vp-pop r0)

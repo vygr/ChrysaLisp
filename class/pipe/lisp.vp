@@ -23,7 +23,7 @@
 	(gotoif '(r1 == 0) 'error1))
 
 	(vp-push r6 r7)
-	(vp-cpy-ir r7 array_array r0)
+	(class/array/get_begin r7 r0)
 	(vp-cpy-ir r0 0 r0)
 	(call 'pipe 'create '((& r0 str_data) (r0 str_length ui)) '(r1))
 	(vp-pop r0 r7)

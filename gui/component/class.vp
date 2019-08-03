@@ -70,7 +70,7 @@
 
 	(call 'component 'find_owner {this} {_, tcb})
 	(vpif {tcb})
-		(call 'array 'get_iters {ids} {_, iter_begin, iter_end})
+		(call 'array 'get_both {ids} {_, iter_begin, iter_end})
 		(loop-while {iter_begin != iter_end})
 			(call 'sys_mail 'alloc {ev_msg_action_size} {msg, data})
 			(assign {tcb->tk_node_mbox_id} {msg->msg_dest.id_mbox})

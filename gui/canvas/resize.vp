@@ -51,7 +51,7 @@
 	(loop-end)
 	(assign {source->canvas_width * 256} {(buf)[x2 * int_size]})
 
-	(assign {this->canvas_array->array_array} {data})
+	(assign {this->canvas_array->array_begin} {data})
 	(assign {0} {y2})
 	(loop-while {y2 < this->canvas_height})
 		(assign {y2 *> fh} {y1a})
@@ -85,7 +85,7 @@
 				(endif)
 				(assign (list r_weight_y) {weight_y})
 
-				(assign {&(source->canvas_array->array_array)[(y * source->canvas_width + x1c) * int_size]} {sdata})
+				(assign {&(source->canvas_array->array_begin)[(y * source->canvas_width + x1c) * int_size]} {sdata})
 				(assign {x1c} {x})
 				(loop-while {x <= x1d})
 					(vp-def (r_weight_x r_x1c r_x1d r_x r_x1a r_x1b))
@@ -180,7 +180,7 @@
 	(entry 'canvas 'resize_2 (list r_this r_source))
 
 	(assign `((,r_this canvas_array) (,r_source canvas_array)) `(,r_data , r_sdata))
-	(assign `((,r_data array_array) (,r_sdata array_array) (,r_source canvas_stride ui)
+	(assign `((,r_data array_begin) (,r_sdata array_begin) (,r_source canvas_stride ui)
 		(,r_source canvas_height ui) 0xff00ff00 0xff00ff) (list r_data r_sdata r_sw r_ydata r_mga r_mrb))
 
 	(vp-mul-rr r_sw r_ydata)
@@ -250,7 +250,7 @@
 	(entry 'canvas 'resize_3 (list r_this r_source))
 
 	(assign `((,r_this canvas_array) (,r_source canvas_array)) `(,r_data , r_sdata))
-	(assign `(,(div (shl 1 32) 9) (,r_data array_array) (,r_sdata array_array) (,r_source canvas_stride ui)
+	(assign `(,(div (shl 1 32) 9) (,r_data array_begin) (,r_sdata array_begin) (,r_source canvas_stride ui)
 		(,r_source canvas_height ui) 0xff00ff00 0xff00ff) (list r_q r_data r_sdata r_sw r_ydata r_mga r_mrb))
 
 	(vp-mul-rr r_sw r_ydata)

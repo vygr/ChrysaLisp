@@ -18,6 +18,3 @@
 (ffi points-sub "gui/points/lisp_sub" 0)
 (ffi points-sum "gui/points/lisp_sum" 0)
 (ffi points-transform "gui/points/lisp_transform" 0)
-
-(defq join-miter 0 join-bevel 1 join-round 2
-	cap-butt 0 cap-square 1 cap-tri 2 cap-arrow 3 cap-round 4)

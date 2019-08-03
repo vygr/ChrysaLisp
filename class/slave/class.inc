@@ -26,9 +26,9 @@
 	(offset 'args)
 (def-struct-end)
 
-;;;;;;;;;;;;;;;
-;inline methods
-;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;
+; inline methods
+;;;;;;;;;;;;;;;;
 
 (defcfun class/slave/get_args ()
 	;inputs

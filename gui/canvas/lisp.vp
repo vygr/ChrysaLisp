@@ -21,7 +21,7 @@
 	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
-	(vp-cpy-ir r7 array_array r2)
+	(class/array/get_begin r7 r2)
 	(vp-cpy-ir r2 0 r0)
 	(vp-cpy-ir r2 ptr_size r1)
 	(vp-cpy-ir r2 (mul ptr_size 2) r2)
@@ -55,7 +55,7 @@
 	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
-	(vp-cpy-ir r7 array_array r2)
+	(class/array/get_begin r7 r2)
 	(vp-cpy-ir r2 0 r0)
 	(vp-cpy-ir r2 ptr_size r1)
 	(call 'canvas 'load '((& r0 str_data) (r1 num_value)) '(r0))
@@ -92,7 +92,7 @@
 	(call 'lisp 'env_args_type '(r7 ($ sig) 2) '(r1))
 	(gotoif '(r1 == 0) 'error))
 
-	(vp-cpy-ir r7 array_array r2)
+	(class/array/get_begin r7 r2)
 	(vp-cpy-ir r2 0 r0)
 	(vp-cpy-ir r2 ptr_size r1)
 	(call 'canvas 'fill '(r0 (r1 num_value)) '(r0))
@@ -124,7 +124,7 @@
 	(call 'lisp 'env_args_type '(r7 ($ sig) 2) '(r1))
 	(gotoif '(r1 == 0) 'error))
 
-	(vp-cpy-ir r7 array_array r2)
+	(class/array/get_begin r7 r2)
 	(vp-cpy-ir r2 0 r0)
 	(vp-cpy-ir r2 ptr_size r1)
 	(call 'canvas 'set_color '(r0 (r1 num_value)) '(r0 _))
@@ -156,7 +156,7 @@
 	(call 'lisp 'env_args_type '(r7 ($ sig) 2) '(r1))
 	(gotoif '(r1 == 0) 'error))
 
-	(vp-cpy-ir r7 array_array r2)
+	(class/array/get_begin r7 r2)
 	(vp-cpy-ir r2 0 r0)
 	(vp-cpy-ir r2 ptr_size r1)
 	(call 'canvas 'set_flags '(r0 (r1 num_value)) '(r0 _))
@@ -189,7 +189,7 @@
 	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
-	(vp-cpy-ir r7 array_array r2)
+	(class/array/get_begin r7 r2)
 	(vp-cpy-ir r2 0 r0)
 	(call 'canvas 'swap '(r0) '(r0))
 	(call 'canvas 'dirty '(r0) '(r0))
@@ -222,7 +222,7 @@
 	(call 'lisp 'env_args_type '(r7 ($ sig) 1) '(r1))
 	(gotoif '(r1 == 0) 'error))
 
-	(vp-cpy-ir r7 array_array r2)
+	(class/array/get_begin r7 r2)
 	(vp-cpy-ir r2 0 r0)
 	(call 'canvas 'next_frame '(r0) '(r0))
 	(call 'obj 'ref '(r0) '(r0))
@@ -254,7 +254,7 @@
 	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
-	(vp-cpy-ir r7 array_array r2)
+	(class/array/get_begin r7 r2)
 	(vp-cpy-ir r2 0 r0)
 	(vp-cpy-ir r2 ptr_size r1)
 	(vp-cpy-ir r2 (mul ptr_size 2) r2)
@@ -289,7 +289,7 @@
 	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
-	(vp-cpy-ir r7 array_array r4)
+	(class/array/get_begin r7 r4)
 	(vp-cpy-ir r4 0 r0)
 	(vp-cpy-ir r4 ptr_size r1)
 	(vp-cpy-ir r4 (mul ptr_size 2) r2)
@@ -326,7 +326,7 @@
 	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
-	(vp-cpy-ir r7 array_array r4)
+	(class/array/get_begin r7 r4)
 	(vp-cpy-ir r4 0 r0)
 	(vp-cpy-ir r4 ptr_size r1)
 	(vp-cpy-ir r4 (mul ptr_size 2) r2)

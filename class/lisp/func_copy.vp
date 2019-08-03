@@ -14,14 +14,12 @@
 	(entry 'lisp 'func_copy '(r0 r1))
 
 (errorcases
-	(vp-cpy-ir-ui r1 array_length r2)
+	(class/array/get_length r1 r2)
 	(gotoif '(r2 != 1) 'error))
 
-	(vp-cpy-ir r1 array_array r1)
+	(class/array/get_begin r1 r1)
 	(vp-cpy-ir r1 0 r1)
-	(vp-cpy-ir-ui r1 obj_count r2)
-	(vp-add-cr 1 r2)
-	(vp-cpy-ri-i r2 r1 obj_count)
+	(class/obj/ref r1 r2)
 	(vp-push r0 r1)
 	(vp-cpy-rr rsp r1)
 	(vp-call 'copy_elem)
@@ -47,7 +45,7 @@
 		(vp-pop r0)
 		(vp-cpy-ir rsp 0 r1)
 		(vp-cpy-ri r0 r1 0)
-		(call 'vector 'get_iters '(r0) '(_ r1 r2))
+		(class/array/get_both r0 r1 r2)
 		(loop-while '(r1 != r2))
 			(vp-push r2)
 			(vp-call 'copy_elem)

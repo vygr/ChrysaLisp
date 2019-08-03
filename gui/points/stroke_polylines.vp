@@ -35,11 +35,11 @@
 
 	(vpif {radius >= 0.5})
 		(vec-set 0)
-		(call 'vector 'get_iters {iter_end_polylines} {_, iter_begin_polylines, iter_end_polylines})
+		(call 'vector 'get_both {iter_end_polylines} {_, iter_begin_polylines, iter_end_polylines})
 		(loop-while {iter_begin_polylines != iter_end_polylines})
 			(assign {*iter_begin_polylines} {iter_begin})
 			(call 'points 'filter_polyline {iter_begin, iter_begin, 0.5})
-			(call 'points 'get_iters {iter_begin} {_, iter, iter_end})
+			(call 'points 'get_both {iter_begin} {_, iter, iter_end})
 			(vpif {iter_end - iter >= 4 * ptr_size})
 				(call 'points 'create nil {out_points})
 				(assign {iter - (2 * long_size), (2 * long_size)} {iter_begin, step})

@@ -16,7 +16,7 @@
 	(entry 'button 'lisp_create '(r0 r1))
 
 (errorcases
-	(vp-cpy-ir-ui r1 array_length r2)
+	(class/array/get_length r1 r2)
 	(gotoif '(r2 != 0) 'error))
 
 	(vp-push r0)
@@ -48,7 +48,7 @@
 	(call 'lisp 'env_args_type '(r7 ($ sig) 2) '(r1))
 	(gotoif '(r1 == 0) 'error))
 
-	(vp-cpy-ir r7 array_array r1)
+	(class/array/get_begin r7 r1)
 	(vp-cpy-ir r1 0 r0)
 	(vp-cpy-ir r1 ptr_size r1)
 	(call 'button 'connect_click '(r0 (r1 num_value)) '(r0))

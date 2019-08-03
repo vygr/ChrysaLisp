@@ -19,7 +19,7 @@
 	(call 'lisp 'env_args_type '(r7 ($ sig) 2) '(r1))
 	(gotoif '(r1 == 0) 'error))
 
-	(vp-cpy-ir r7 array_array r1)
+	(class/array/get_begin r7 r1)
 	(vp-cpy-ir r1 0 r2)
 	(jump 'lisp 'repl_error '(r6 (& r2 str_data) 0 (r1 ptr_size)))
 

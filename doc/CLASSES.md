@@ -72,30 +72,6 @@ trashes
 r2-r4
 ```
 
-### array::for_each -> class/array/for_each
-
-```lisp
-inputs
-r0 = array object (ptr)
-r1 = element start index (uint)
-r2 = element end index (uint)
-r3 = predicate function (ptr)
-r4 = predicate data (ptr)
-outputs
-r0 = array object (ptr)
-r1 = 0, else break iterator (plong)
-trashes
-all but r0
-callback predicate
-inputs
-r0 = predicate data (ptr)
-r1 = element iterator (plong)
-outputs
-r1 = 0 if break, else not
-trashes
-all
-```
-
 ### array::sort -> class/array/sort
 
 ```lisp
@@ -146,18 +122,6 @@ trashes
 all
 ```
 
-### array::get_back -> class/array/get_back
-
-```lisp
-inputs
-r0 = array object (ptr)
-outputs
-r0 = array object (ptr)
-r1 = element (long)
-trashes
-r2
-```
-
 ### array::get_first -> class/array/get_first
 
 ```lisp
@@ -192,7 +156,7 @@ outputs
 r0 = array object (ptr)
 r1 = element (long)
 trashes
-r2
+r1-r2
 ```
 
 ### array::push_back -> class/array/push_back
@@ -204,6 +168,7 @@ r1 = element (long)
 outputs
 r0 = array object (ptr)
 r1 = element (long)
+r2 = end element iter (plong)
 trashes
 r2-r5
 ```
@@ -230,7 +195,7 @@ outputs
 r0 = array object (ptr)
 r1 = element iter (plong)
 trashes
-r2
+r1-r2
 ```
 
 ### array::get_iters -> class/array/get_iters
@@ -238,12 +203,14 @@ r2
 ```lisp
 inputs
 r0 = array object (ptr)
+r1 = begin index (uint)
+r2 = end index (uint)
 outputs
 r0 = array object (ptr)
 r1 = begin element iter (plong)
 r2 = end element iter (plong)
 trashes
-r1-r2
+r1-r3
 ```
 
 ### array::get_begin -> class/array/get_begin
@@ -270,7 +237,18 @@ trashes
 r1-r2
 ```
 
-### array::each_callback -> class/obj/null
+### array::get_both -> class/array/get_both
+
+```lisp
+inputs
+r0 = array object (ptr)
+outputs
+r0 = array object (ptr)
+r1 = begin element iter (plong)
+r2 = end element iter (plong)
+trashes
+r1-r2
+```
 
 ### array::sort_callback -> class/obj/null
 
@@ -2085,18 +2063,6 @@ trashes
 r2-r5
 ```
 
-### hset::num_buckets -> class/hset/num_buckets
-
-```lisp
-inputs
-r0 = hset object (ptr)
-outputs
-r0 = hset object (ptr)
-r1 = num buckets (uint)
-trashes
-r1
-```
-
 ### hset::get_bucket -> class/hset/get_bucket
 
 ```lisp
@@ -2130,18 +2096,14 @@ r1 = predicate function (ptr)
 r2 = predicate data (ptr)
 outputs
 r0 = hset object (ptr)
-r1 = 0, else break iterator (pptr)
-r2 = 0, else bucket vector object (ptr)
 trashes
-all but r0
+r1-r2...
 callback predicate
 inputs
 r0 = predicate data (ptr)
 r1 = element iterator (pptr)
-outputs
-r1 = 0 if break, else not
 trashes
-all but r0
+depends on the callback
 ```
 
 ### hset::find -> class/hset/find
@@ -2198,7 +2160,7 @@ trashes
 all but r0
 ```
 
-### hset::get_iters -> class/hset/get_iters
+### hset::get_both -> class/hset/get_both
 
 ```lisp
 inputs
@@ -2212,6 +2174,8 @@ r3-r4
 ```
 
 ### hset::key_callback -> class/obj/null
+
+### hset::each_callback -> class/obj/null
 
 ### hset::deinit -> class/hset/deinit
 
@@ -2366,8 +2330,8 @@ all but r0
 ```lisp
 inputs
 r0 = args vector object (ptr)
-r3 = args dest (ptr)
-r4 = args offset (uint)
+r1 = args dest (ptr)
+r2 = args offset (uint)
 trashes
 r0-r5
 ```
