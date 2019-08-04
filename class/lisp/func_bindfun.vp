@@ -40,7 +40,7 @@
 		(vp-cpy-ir r0 lisp_stack r0)
 		(class/array/get_length r0 r1)
 		(vp-cpy-ri-i r1 rsp local_start)
-		(call 'array 'push_back '(r0 (rsp local_form)) '(r0 _ _))
+		(call 'array 'push_back '(r0 (rsp local_form)) '(r0 _ _ _))
 		(loop-start)
 			;pop back stack
 			(class/array/get_length r0 r1)

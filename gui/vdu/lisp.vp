@@ -48,9 +48,8 @@
 	(call 'lisp 'env_args_type '(r7 ($ sig) 2) '(r1))
 	(gotoif '(r1 == 0) 'error1))
 
-	(class/array/get_begin r7 r1)
-	(vp-cpy-ir r1 0 r0)
-	(vp-cpy-ir r1 ptr_size r1)
+	(class/array/get_begin r7 r7)
+	(class/array/get_args r7 r0 r1)
 	(call 'vdu 'print_cstr '(r0 (& r1 str_data)) '(r0))
 	(call 'obj 'ref '(r0) '(r0))
 

@@ -13,7 +13,7 @@
 (dec-method 'get_first 'class/array/get_first 'static '(r0) '(r0 r1))
 (dec-method 'get_second 'class/array/get_second 'static '(r0) '(r0 r1))
 (dec-method 'get_element 'class/array/get_element 'static '(r0 r1) '(r0 r1))
-(dec-method 'push_back 'class/array/push_back 'static '(r0 r1) '(r0 r1 r2))
+(dec-method 'push_back 'class/array/push_back 'static '(r0 r1) '(r0 r1 r2 r3))
 (dec-method 'pop_back 'class/array/pop_back 'static '(r0) '(r0 r1))
 (dec-method 'get_iter 'class/array/get_iter 'static '(r0 r1) '(r0 r1))
 (dec-method 'get_iters 'class/array/get_iters 'static '(r0 r1 r2) '(r0 r1 r2))
@@ -259,3 +259,13 @@
 	;r1
 	(vp-xor-rr r1 r1)
 	(class/array/set_length r0 r1))
+
+;;;;;;;;;;;;;;;;;;
+; paramater macros
+;;;;;;;;;;;;;;;;;;
+
+(defcfun-bind class/array/set_args (i &rest _)
+	(assign _ (map (lambda (p) (list i (mul ptr_size _))) _)))
+
+(defcfun-bind class/array/get_args (i &rest _)
+	(assign (map (lambda (p) (list i (mul ptr_size _))) _) _))

@@ -164,9 +164,7 @@
 
 	(vpif '(r2 != r3))
 		;save inputs
-		(vp-cpy-rr r1 r6)
-		(vp-cpy-rr r2 r7)
-		(vp-cpy-rr r3 r8)
+		(assign '(r1 r2 r3) '(r6 r7 r8))
 
 		;extend vector
 		(class/array/get_length r0 r9)
@@ -176,14 +174,14 @@
 		(call 'vector 'set_capacity '(r0 r1) '(r0))
 
 		;append and ref elements
-		(class/array/get_iters r6 r7 r8 r2)
-		(class/array/get_iter r0 r9 r3)
+		(class/array/get_iters r6 r7 r8 r1)
+		(class/array/get_iter r0 r9 r1)
 		(loop-start)
-			(vp-cpy-ir r7 0 r2)
+			(vp-cpy-ir r7 0 r1)
 			(vp-add-cr ptr_size r7)
-			(vp-cpy-ri r2 r9 0)
+			(vp-cpy-ri r1 r9 0)
 			(vp-add-cr ptr_size r9)
-			(class/obj/ref r2 r4)
+			(class/obj/ref r1 r2)
 		(loop-until '(r7 == r8))
 	(endif)
 
@@ -208,7 +206,8 @@
 	(vpif '(r0 != 0))
 		(loop-start)
 			(vp-cpy-ir r10 0 r1)
-			(call 'vector 'append '(r0 r1 0 (r1 array_length ui)) '(r0))
+			(class/array/get_length r1 r3)
+			(call 'vector 'append '(r0 r1 0 r3) '(r0))
 			(vp-add-cr ptr_size r10)
 		(loop-until '(r10 == r11))
 	(endif)

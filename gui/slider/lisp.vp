@@ -48,9 +48,8 @@
 	(call 'lisp 'env_args_type '(r7 ($ sig) 2) '(r1))
 	(gotoif '(r1 == 0) 'error))
 
-	(class/array/get_begin r7 r1)
-	(vp-cpy-ir r1 0 r0)
-	(vp-cpy-ir r1 ptr_size r1)
+	(class/array/get_begin r7 r7)
+	(class/array/get_args r7 r0 r1)
 	(call 'slider 'connect_value '(r0 (r1 num_value)) '(r0))
 	(call 'slider 'ref '(r0) '(r0))
 

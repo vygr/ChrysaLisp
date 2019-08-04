@@ -221,8 +221,8 @@
 		(class/obj/ref r0 r2)
 		(class/obj/ref r1 r2)
 		(call 'pair 'create '(r0 r1) '(r0))
-		(call 'vector 'push_back '((rsp local_bucket) r0) '(r0 _ r2))
-		(vp-lea-i r2 (neg ptr_size) r1)
+		(call 'vector 'push_back '((rsp local_bucket) r0) '(r0 _ _ r3))
+		(vp-lea-i r3 (neg ptr_size) r1)
 		(vp-cpy-rr r0 r2)
 	(else)
 		;old key

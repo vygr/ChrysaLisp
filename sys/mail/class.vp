@@ -70,7 +70,7 @@
 	(else)
 		(call 'sys_heap 'alloc '((& r4 ml_statics_mbox_heap)) '(_ r1))
 		(ml-init r1 r2 r0)
-		(call 'array 'push_back '((r4 ml_statics_mbox_array) r1) '(r0 r1 _))
+		(call 'array 'push_back '((r4 ml_statics_mbox_array) r1) '(r0 r1 _ _))
 		(class/array/get_length r0 r0)
 		(vp-sub-cr 1 r0)
 

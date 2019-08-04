@@ -11,27 +11,18 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this 'args)
-	(pptr 'iter_begin)
-
-	(push-scope)
-	(entry 'lisp 'func_apply {this, args})
+	(entry 'lisp 'func_apply '(r6 r7))
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 2} '(r1))
-	(gotoif '(r1 == 0) 'error1))
+	(call 'lisp 'env_args_type '(r7 ($ sig) 2) '(r1))
+	(gotoif '(r1 == 0) 'error))
 
-	(call 'vector 'get_begin {args} {_, iter_begin})
-	(call 'lisp 'repl_apply {this, iter_begin[ptr_size], iter_begin[0]} {_, args})
-
-	(exit 'lisp 'func_apply {this, args})
-	(return)
+	(class/array/get_begin r7 r1)
+	(jump 'lisp 'repl_apply '(r6 (r1 ptr_size) (r1 0)))
 
 (errorcases
-(vp-label 'error1)
-	(jump 'lisp 'repl_error {this, "(apply lambda list)", error_msg_wrong_types, args})
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r6 "(apply lambda list)" error_msg_wrong_types r7))
 	(signature 'sig 'obj 'vector))
-
-	(pop-scope-syms)
 
 (def-func-end)
