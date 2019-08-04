@@ -264,8 +264,15 @@
 ; paramater macros
 ;;;;;;;;;;;;;;;;;;
 
-(defcfun-bind class/array/set_args (i &rest _)
-	(assign _ (map (lambda (p) (list i (mul ptr_size _))) _)))
+(defcfun-bind class/array/set_args (i regs)
+	(assign-asm-to-asm regs (map (lambda (r) (list i (mul long_size _))) regs)))
 
-(defcfun-bind class/array/get_args (i &rest _)
-	(assign (map (lambda (p) (list i (mul ptr_size _))) _) _))
+(defcfun-bind class/array/get_args (i regs)
+	(assign-asm-to-asm (map (lambda (r) (list i (mul long_size _))) regs) regs))
+
+(defcfun-bind class/array/bind_args (a regs)
+	(class/array/get_begin a (elem -2 regs))
+	(class/array/get_args (elem -2 regs) regs))
+
+(defcfun-bind class/array/get_values (regs)
+	(each! nil nil nil (lambda (_) (class/num/get_value _ _)) (list regs)))

@@ -21,8 +21,9 @@
 	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
-	(class/array/get_first r7 r1)
-	(call 'window 'create '((r1 num_value)) '(r1))
+	(class/array/get_first r7 r0)
+	(class/array/get_values '(r0))
+	(call 'window 'create '(r0) '(r1))
 	(vp-pop r0)
 
 	(exit 'window 'lisp_create '(r0 r1))
@@ -51,9 +52,9 @@
 	(call 'lisp 'env_args_type '(r7 ($ sig) 2) '(r1))
 	(gotoif '(r1 == 0) 'error))
 
-	(class/array/get_begin r7 r7)
-	(class/array/get_args r7 r0 r1)
-	(call 'window 'connect_layout '(r0 (r1 num_value)) '(r0))
+	(class/array/bind_args r7 '(r0 r1))
+	(class/array/get_values '(r1))
+	(call 'window 'connect_layout '(r0 r1) '(r0))
 	(call 'window 'ref '(r0) '(r0))
 
 	(exit 'window 'lisp_connect_layout '(r6 r0))
@@ -82,9 +83,9 @@
 	(call 'lisp 'env_args_type '(r7 ($ sig) 2) '(r1))
 	(gotoif '(r1 == 0) 'error))
 
-	(class/array/get_begin r7 r7)
-	(class/array/get_args r7 r0 r1)
-	(call 'window 'connect_close '(r0 (r1 num_value)) '(r0))
+	(class/array/bind_args r7 '(r0 r1))
+	(class/array/get_values '(r1))
+	(call 'window 'connect_close '(r0 r1) '(r0))
 	(call 'window 'ref '(r0) '(r0))
 
 	(exit 'window 'lisp_connect_close '(r6 r0))
@@ -113,9 +114,9 @@
 	(call 'lisp 'env_args_type '(r7 ($ sig) 2) '(r1))
 	(gotoif '(r1 == 0) 'error))
 
-	(class/array/get_begin r7 r7)
-	(class/array/get_args r7 r0 r1)
-	(call 'window 'connect_min '(r0 (r1 num_value)) '(r0))
+	(class/array/bind_args r7 '(r0 r1))
+	(class/array/get_values '(r1))
+	(call 'window 'connect_min '(r0 r1) '(r0))
 	(call 'window 'ref '(r0) '(r0))
 
 	(exit 'window 'lisp_connect_min '(r6 r0))
@@ -144,9 +145,9 @@
 	(call 'lisp 'env_args_type '(r7 ($ sig) 2) '(r1))
 	(gotoif '(r1 == 0) 'error))
 
-	(class/array/get_begin r7 r7)
-	(class/array/get_args r7 r0 r1)
-	(call 'window 'connect_max '(r0 (r1 num_value)) '(r0))
+	(class/array/bind_args r7 '(r0 r1))
+	(class/array/get_values '(r1))
+	(call 'window 'connect_max '(r0 r1) '(r0))
 	(call 'window 'ref '(r0) '(r0))
 
 	(exit 'window 'lisp_connect_max '(r6 r0))
@@ -176,8 +177,7 @@
 	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
-	(class/array/get_begin r7 r7)
-	(class/array/get_args r7 r0 r1)
+	(class/array/bind_args r7 '(r0 r1))
 	(call 'window 'set_status '(r0 (& r1 str_data)) '(r0))
 	(call 'window 'ref '(r0) '(r1))
 	(vp-pop r0)
@@ -209,8 +209,7 @@
 	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
-	(class/array/get_begin r7 r7)
-	(class/array/get_args r7 r0 r1)
+	(class/array/bind_args r7 '(r0 r1))
 	(call 'window 'set_title '(r0 (& r1 str_data)) '(r0))
 	(call 'window 'ref '(r0) '(r1))
 	(vp-pop r0)

@@ -21,8 +21,9 @@
 	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
-	(class/array/get_first r7 r1)
-	(call 'scroll 'create '((r1 num_value)) '(r1))
+	(class/array/get_first r7 r0)
+	(class/array/get_values '(r0))
+	(call 'scroll 'create '(r0) '(r1))
 	(vp-pop r0)
 
 	(exit 'scroll 'lisp_create '(r0 r1))

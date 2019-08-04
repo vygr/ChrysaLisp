@@ -28,8 +28,7 @@
 	(call 'lisp 'env_args_type '(r7 ($ sig) 1) '(r1))
 	(gotoif '(r1 == 0) 'error))
 
-	(class/array/get_begin r7 r2)
-	(vp-cpy-ir r2 (mul 0 ptr_size) r2)
+	(class/array/bind_args r7 '(r2))
 
 (errorcases
 	(class/array/get_length r2 r0)
@@ -69,8 +68,7 @@
 	(call 'lisp 'env_args_type '(r14 ($ sig) 6) '(r1))
 	(gotoif '(r1 == 0) 'error))
 
-	(class/array/get_begin r14 r5)
-	(class/array/get_args r5 r0 r1 r2 r3 r4 r5)
+	(class/array/bind_args r14 '(r0 r1 r2 r3 r4 r5))
 
 (errorcases
 	(class/array/get_length r0 r6)
@@ -81,10 +79,7 @@
 	(vp-push r13)
 	(class/array/get_begin r0 r0)
 	(class/array/get_begin r1 r1)
-	(class/num/get_value r2 r2)
-	(class/num/get_value r3 r3)
-	(class/num/get_value r4 r4)
-	(class/num/get_value r5 r5)
+	(class/array/get_values '(r2 r3 r4 r5))
 	(vp-cpy-cr 1000 r6)
 	(vp-cpy-cr 1.0 r7)
 

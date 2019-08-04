@@ -49,9 +49,9 @@
 	(call 'lisp 'env_args_type '(r12 ($ sig) 2) '(r1))
 	(gotoif '(r1 == 0) 'error))
 
-	(class/array/get_begin r12 r12)
-	(class/array/get_args r12 r12 r1)
-	(call 'sys_kernel 'declare '((& r12 str_data) (r1 num_value)))
+	(class/array/bind_args r12 '(r12 r1))
+	(class/array/get_values '(r1))
+	(call 'sys_kernel 'declare '((& r12 str_data) r1))
 	(call 'obj 'ref '(r12) '(r0))
 
 	(exit 'sys_kernel 'lisp_declare '(r11 r0))
@@ -80,8 +80,7 @@
 	(call 'lisp 'env_args_type '(r7 ($ sig) 1) '(r1))
 	(gotoif '(r1 == 0) 'error))
 
-	(class/array/get_begin r7 r7)
-	(class/array/get_args r7 r0)
+	(class/array/bind_args r7 '(r0))
 	(vp-push r6 r0)
 	(call 'sys_kernel 'debug '((& r0 str_data)))
 	(vp-pop r6 r0)

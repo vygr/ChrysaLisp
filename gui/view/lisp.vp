@@ -50,8 +50,7 @@
 	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
-	(class/array/get_begin r7 r7)
-	(class/array/get_args r7 r0 r1)
+	(class/array/bind_args r7 '(r0 r1))
 	(call 'view 'event '(r0 (& r1 str_data)) '(r0))
 	(call 'view 'ref '(r0) '(r1))
 	(vp-pop r0)
@@ -114,9 +113,10 @@
 	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
-	(class/array/get_begin r7 r7)
-	(class/array/get_args r7 r0 r1)
-	(call 'view 'find_id '(r0 (r1 num_value)) '(_ r0))
+	(defq in (method-input 'view 'find_id))
+	(class/array/bind_args r7 in)
+	(class/array/get_values (slice 1 -1 in))
+	(call 'view 'find_id in '(_ r0))
 	(vpif '(r0 == 0))
 		(vp-cpy-ir rsp 0 r0)
 		(vp-cpy-ir r0 lisp_sym_nil r0)
@@ -315,9 +315,10 @@
 	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
-	(class/array/get_begin r7 r7)
-	(class/array/get_args r7 r0 r1 r2 r3 r4)
-	(call 'view 'change '(r0 (r1 num_value) (r2 num_value) (r3 num_value) (r4 num_value)) '(r0))
+	(defq in (method-input 'view 'change))
+	(class/array/bind_args r7 in)
+	(class/array/get_values (slice 1 -1 in))
+	(call 'view 'change in '(r0))
 	(call 'obj 'ref '(r0) '(r1))
 	(vp-pop r0)
 
@@ -348,9 +349,10 @@
 	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
-	(class/array/get_begin r7 r7)
-	(class/array/get_args r7 r0 r1 r2 r3 r4)
-	(call 'view 'set_bounds '(r0 (r1 num_value) (r2 num_value) (r3 num_value) (r4 num_value)) '(r0))
+	(defq in (method-input 'view 'set_bounds))
+	(class/array/bind_args r7 in)
+	(class/array/get_values (slice 1 -1 in))
+	(call 'view 'set_bounds in '(r0))
 	(call 'obj 'ref '(r0) '(r1))
 	(vp-pop r0)
 
@@ -391,7 +393,7 @@
 	(call 'vector 'set_capacity '(r0 4) '(r0))
 	(call 'vector 'set_length '(r0 4) '(r1 _))
 	(class/array/get_begin r1 r0)
-	(class/array/set_args r0 r7 r8 r9 r10)
+	(class/array/set_args r0 '(r7 r8 r9 r10))
 	(vp-pop r0)
 
 	(exit 'view 'lisp_get_bounds '(r0 r1))
@@ -421,9 +423,10 @@
 	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
-	(class/array/get_begin r7 r7)
-	(class/array/get_args r7 r0 r1 r2 r3 r4)
-	(call 'view 'add_opaque '(r0 (r1 num_value) (r2 num_value) (r3 num_value) (r4 num_value)) '(r0))
+	(defq in (method-input 'view 'add_opaque))
+	(class/array/bind_args r7 in)
+	(class/array/get_values (slice 1 -1 in))
+	(call 'view 'add_opaque in '(r0))
 	(call 'obj 'ref '(r0) '(r1))
 	(vp-pop r0)
 
@@ -454,9 +457,10 @@
 	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
-	(class/array/get_begin r7 r7)
-	(class/array/get_args r7 r0 r1 r2 r3 r4)
-	(call 'view 'sub_opaque '(r0 (r1 num_value) (r2 num_value) (r3 num_value) (r4 num_value)) '(r0))
+	(defq in (method-input 'view 'sub_opaque))
+	(class/array/bind_args r7 in)
+	(class/array/get_values (slice 1 -1 in))
+	(call 'view 'sub_opaque in '(r0))
 	(call 'obj 'ref '(r0) '(r1))
 	(vp-pop r0)
 
@@ -487,9 +491,9 @@
 	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
-	(class/array/get_begin r7 r7)
-	(class/array/get_args r7 r0 r1 r2)
-	(call 'view 'set_flags '(r0 (r1 num_value) (r2 num_value)) '(r0 _))
+	(class/array/bind_args r7 '(r0 r1 r2))
+	(class/array/get_values '(r1 r2))
+	(call 'view 'set_flags '(r0 r1 r2) '(r0 _))
 	(call 'view 'ref '(r0) '(r1))
 	(vp-pop r0)
 
@@ -520,9 +524,10 @@
 	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
-	(class/array/get_begin r7 r7)
-	(class/array/get_args r7 r0 r1 r2 r3 r4)
-	(call 'view 'add_dirty '(r0 (r1 num_value) (r2 num_value) (r3 num_value) (r4 num_value)) '(r0))
+	(defq in (method-input 'view 'add_dirty))
+	(class/array/bind_args r7 in)
+	(class/array/get_values (slice 1 -1 in))
+	(call 'view 'add_dirty in '(r0))
 	(call 'obj 'ref '(r0) '(r1))
 	(vp-pop r0)
 

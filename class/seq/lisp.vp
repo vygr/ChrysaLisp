@@ -405,8 +405,8 @@
 	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
-	(class/array/get_begin r7 r0)
-	(call 'seq 'cat `((r0 0) r7) '(r1))
+	(class/array/bind_args r7 '(r0))
+	(call 'seq 'cat '(r0 r7) '(r1))
 	(vp-pop r0)
 
 	(exit 'seq 'lisp_cat '(r0 r1))

@@ -21,9 +21,10 @@
 	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
-	(class/array/get_begin r7 r2)
-	(class/array/get_args r2 r0 r1 r2)
-	(call 'canvas 'create '((r0 num_value) (r1 num_value) (r2 num_value)) '(r1))
+	(defq in (method-input 'canvas 'create))
+	(class/array/bind_args r7 in)
+	(class/array/get_values in)
+	(call 'canvas 'create in '(r1))
 	(vp-pop r0)
 
 	(exit 'canvas 'lisp_create '(r0 r1))
@@ -53,9 +54,9 @@
 	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
-	(class/array/get_begin r7 r2)
-	(class/array/get_args r2 r0 r1)
-	(call 'canvas 'load '((& r0 str_data) (r1 num_value)) '(r0))
+	(class/array/bind_args r7 '(r0 r1))
+	(class/array/get_values '(r1))
+	(call 'canvas 'load '((& r0 str_data) r1) '(r0))
 	(vpif '(r0 == 0))
 		(vp-cpy-ir rsp 0 r0)
 		(call 'obj 'ref '((r0 lisp_sym_nil)) '(r0))
@@ -89,9 +90,10 @@
 	(call 'lisp 'env_args_type '(r7 ($ sig) 2) '(r1))
 	(gotoif '(r1 == 0) 'error))
 
-	(class/array/get_begin r7 r2)
-	(class/array/get_args r2 r0 r1)
-	(call 'canvas 'fill '(r0 (r1 num_value)) '(r0))
+	(defq in (method-input 'canvas 'fill))
+	(class/array/bind_args r7 in)
+	(class/array/get_values (slice 1 -1 in))
+	(call 'canvas 'fill in '(r0))
 	(call 'obj 'ref '(r0) '(r0))
 
 	(exit 'canvas 'lisp_fill '(r6 r0))
@@ -120,9 +122,10 @@
 	(call 'lisp 'env_args_type '(r7 ($ sig) 2) '(r1))
 	(gotoif '(r1 == 0) 'error))
 
-	(class/array/get_begin r7 r2)
-	(class/array/get_args r2 r0 r1)
-	(call 'canvas 'set_color '(r0 (r1 num_value)) '(r0 _))
+	(defq in (method-input 'canvas 'set_color))
+	(class/array/bind_args r7 in)
+	(class/array/get_values (slice 1 -1 in))
+	(call 'canvas 'set_color in '(r0 _))
 	(call 'obj 'ref '(r0) '(r0))
 
 	(exit 'canvas 'lisp_set_color '(r6 r0))
@@ -151,9 +154,10 @@
 	(call 'lisp 'env_args_type '(r7 ($ sig) 2) '(r1))
 	(gotoif '(r1 == 0) 'error))
 
-	(class/array/get_begin r7 r2)
-	(class/array/get_args r2 r0 r1)
-	(call 'canvas 'set_flags '(r0 (r1 num_value)) '(r0 _))
+	(defq in (method-input 'canvas 'set_flags))
+	(class/array/bind_args r7 in)
+	(class/array/get_values (slice 1 -1 in))
+	(call 'canvas 'set_flags in '(r0 _))
 	(call 'obj 'ref '(r0) '(r0))
 
 	(exit 'canvas 'lisp_set_flags '(r6 r0))
@@ -183,8 +187,7 @@
 	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
-	(class/array/get_begin r7 r2)
-	(class/array/get_args r2 r0)
+	(class/array/bind_args r7 '(r0))
 	(call 'canvas 'swap '(r0) '(r0))
 	(call 'canvas 'dirty '(r0) '(r0))
 	(call 'obj 'ref '(r0) '(r1))
@@ -216,8 +219,7 @@
 	(call 'lisp 'env_args_type '(r7 ($ sig) 1) '(r1))
 	(gotoif '(r1 == 0) 'error))
 
-	(class/array/get_begin r7 r2)
-	(class/array/get_args r2 r0)
+	(class/array/bind_args r7 '(r0))
 	(call 'canvas 'next_frame '(r0) '(r0))
 	(call 'obj 'ref '(r0) '(r0))
 
@@ -248,9 +250,10 @@
 	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
-	(class/array/get_begin r7 r2)
-	(class/array/get_args r2 r0 r1 r2)
-	(call 'canvas 'plot '(r0 (r1 num_value) (r2 num_value)) '(r0))
+	(defq in (method-input 'canvas 'plot))
+	(class/array/bind_args r7 in)
+	(class/array/get_values (slice 1 -1 in))
+	(call 'canvas 'plot in '(r0))
 	(call 'obj 'ref '(r0) '(r1))
 	(vp-pop r0)
 
@@ -281,9 +284,10 @@
 	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
-	(class/array/get_begin r7 r7)
-	(class/array/get_args r7 r0 r1 r2 r3 r4)
-	(call 'canvas 'fbox '(r0 (r1 num_value) (r2 num_value) (r3 num_value) (r4 num_value)) '(r0))
+	(defq in (method-input 'canvas 'fbox))
+	(class/array/bind_args r7 in)
+	(class/array/get_values (slice 1 -1 in))
+	(call 'canvas 'fbox in '(r0))
 	(call 'obj 'ref '(r0) '(r1))
 	(vp-pop r0)
 
@@ -314,9 +318,10 @@
 	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
-	(class/array/get_begin r7 r7)
-	(class/array/get_args r7 r0 r1 r2 r3 r4)
-	(call 'canvas 'fpoly '(r0 (r1 num_value) (r2 num_value) (r3 num_value) r4) '(r0))
+	(defq in (method-input 'canvas 'fpoly))
+	(class/array/bind_args r7 in)
+	(class/array/get_values (slice 1 -2 in))
+	(call 'canvas 'fpoly in '(r0))
 	(call 'obj 'ref '(r0) '(r1))
 	(vp-pop r0)
 

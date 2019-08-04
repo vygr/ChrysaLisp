@@ -20,10 +20,10 @@
 	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
-	(class/array/get_begin r7 r7)
-	(class/array/get_args r7 r0 r1 r2 r3 r4 r5 r6 r7)
-	(call 'points 'transform '(r0 r1 (r2 num_value) (r3 num_value) (r4 num_value)
-							(r5 num_value) (r6 num_value) (r7 num_value)) '(r0))
+	(defq in (method-input 'points 'transform))
+	(class/array/bind_args r7 in)
+	(class/array/get_values (slice 2 -1 in))
+	(call 'points 'transform in '(r0))
 	(call 'obj 'ref '(r0) '(r1))
 	(vp-pop r0)
 
@@ -55,9 +55,10 @@
 
 	(vp-push r6)
 	(vp-cpy-ir r6 lisp_stack r2)
-	(class/array/get_begin r7 r7)
-	(class/array/get_args r7 r0 r1 r3)
-	(call 'points 'simplify '(r0 r1 r2 (r3 num_value)) '(r0))
+	(defq in (method-input 'points 'simplify))
+	(class/array/bind_args r7 (cat (slice 0 2 in) (slice 3 -1 in)))
+	(class/array/get_values (slice 3 -1 in))
+	(call 'points 'simplify in '(r0))
 	(call 'obj 'ref '(r0) '(r1))
 	(vp-pop r0)
 
@@ -89,10 +90,10 @@
 
 	(vp-push r6)
 	(vp-cpy-ir r6 lisp_stack r1)
-	(class/array/get_begin r7 r0)
-	(class/array/get_args r0 r2 r3 r4 r5 r6 r7 r8 r0)
-	(call 'points 'gen_quadratic '(r0 r1 (r2 num_value) (r3 num_value) (r4 num_value)
-					(r5 num_value) (r6 num_value) (r7 num_value) (r8 num_value)) '(r0))
+	(defq in (method-input 'points 'gen_quadratic))
+	(class/array/bind_args r7 (cat (slice 2 -1 in) (slice 0 1 in)))
+	(class/array/get_values (slice 2 -1 in))
+	(call 'points 'gen_quadratic in '(r0))
 	(call 'obj 'ref '(r0) '(r1))
 	(vp-pop r0)
 
@@ -124,11 +125,10 @@
 
 	(vp-push r6)
 	(vp-cpy-ir r6 lisp_stack r1)
-	(class/array/get_begin r7 r0)
-	(class/array/get_args r0 r2 r3 r4 r5 r6 r7 r8 r9 r10 r0)
-	(call 'points 'gen_cubic '(r0 r1 (r2 num_value) (r3 num_value) (r4 num_value)
-					(r5 num_value) (r6 num_value) (r7 num_value) (r8 num_value)
-					(r9 num_value) (r10 num_value)) '(r0))
+	(defq in (method-input 'points 'gen_cubic))
+	(class/array/bind_args r7 (cat (slice 2 -1 in) (slice 0 1 in)))
+	(class/array/get_values (slice 2 -1 in))
+	(call 'points 'gen_cubic in '(r0))
 	(call 'obj 'ref '(r0) '(r1))
 	(vp-pop r0)
 
@@ -160,10 +160,10 @@
 
 	(vp-push r6)
 	(vp-cpy-ir r6 lisp_stack r1)
-	(class/array/get_begin r7 r0)
-	(class/array/get_args r0 r2 r3 r4 r5 r6 r7 r0)
-	(call 'points 'gen_arc '(r0 r1 (r2 num_value) (r3 num_value) (r4 num_value)
-					(r5 num_value) (r6 num_value) (r7 num_value)) '(r0))
+	(defq in (method-input 'points 'gen_arc))
+	(class/array/bind_args r7 (cat (slice 2 -1 in) (slice 0 1 in)))
+	(class/array/get_values (slice 2 -1 in))
+	(call 'points 'gen_arc in '(r0))
 	(call 'obj 'ref '(r0) '(r1))
 	(vp-pop r0)
 
@@ -195,10 +195,10 @@
 
 	(vp-push r6)
 	(vp-cpy-ir r6 lisp_stack r1)
-	(class/array/get_begin r7 r0)
-	(class/array/get_args r0 r3 r4 r5 r6 r7 r2 r0)
-	(call 'points 'stroke_polylines '(r0 r1 r2 (r3 num_value) (r4 num_value)
-					(r5 num_value) (r6 num_value) (r7 num_value)) '(r0))
+	(defq in (method-input 'points 'stroke_polylines))
+	(class/array/bind_args r7 (cat (slice 3 -1 in) (slice 2 3 in) (slice 0 1 in)))
+	(class/array/get_values (slice 3 -1 in))
+	(call 'points 'stroke_polylines in '(r0))
 	(call 'obj 'ref '(r0) '(r1))
 	(vp-pop r0)
 
@@ -230,9 +230,10 @@
 
 	(vp-push r6)
 	(vp-cpy-ir r6 lisp_stack r1)
-	(class/array/get_begin r7 r0)
-	(class/array/get_args r0 r3 r4 r5 r2 r0)
-	(call 'points 'stroke_polygons '(r0 r1 r2 (r3 num_value) (r4 num_value) (r5 num_value)) '(r0))
+	(defq in (method-input 'points 'stroke_polygons))
+	(class/array/bind_args r7 (cat (slice 3 -1 in) (slice 2 3 in) (slice 0 1 in)))
+	(class/array/get_values (slice 3 -1 in))
+	(call 'points 'stroke_polygons in '(r0))
 	(call 'obj 'ref '(r0) '(r1))
 	(vp-pop r0)
 
@@ -264,8 +265,7 @@
 	(call 'lisp 'env_args_type `(r10 (@ ,(f-path 'points 'vtable)) 0) '(r1))
 	(gotoif '(r1 == 0) 'error))
 	(class/array/get_begin r10 r1)
-	(vp-cpy-ir r1 0 r6)
-	(vp-cpy-ir r1 ptr_size r7)
+	(class/array/get_args r1 '(r6 r7))
 	(class/array/get_length r6 r13)
 (errorcases
 	(gotoif '(r13 == 0) 'error)
@@ -561,8 +561,8 @@
 	(call 'lisp 'env_args_type '(r7 ($ sig) 1) '(r1))
 	(gotoif '(r1 == 0) 'error))
 
-	(class/array/get_begin r7 r0)
-	(call 'points 'sum '((r0 0)) '(_ r0))
+	(class/array/bind_args r7 '(r0))
+	(call 'points 'sum '(r0) '(_ r0))
 	(call 'num 'create '(r0) '(r0))
 
 	(exit 'points 'lisp_sum '(r6 r0))
@@ -594,8 +594,7 @@
 	(call 'lisp 'env_args_type `(r10 ($ sig) r12) '(r1))
 	(gotoif '(r1 == 0) 'error))
 	(class/array/get_begin r10 r1)
-	(vp-cpy-ir r1 0 r6)
-	(vp-cpy-ir r1 ptr_size r7)
+	(class/array/get_args r1 '(r6 r7))
 	(class/array/get_length r6 r13)
 (errorcases
 	(gotoif '(r13 == 0) 'error))

@@ -168,7 +168,8 @@ r1 = element (long)
 outputs
 r0 = array object (ptr)
 r1 = element (long)
-r2 = end element iter (plong)
+r2 = begin element iter (plong)
+r3 = end element iter (plong)
 trashes
 r2-r5
 ```

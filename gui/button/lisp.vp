@@ -48,9 +48,9 @@
 	(call 'lisp 'env_args_type '(r7 ($ sig) 2) '(r1))
 	(gotoif '(r1 == 0) 'error))
 
-	(class/array/get_begin r7 r1)
-	(class/array/get_args r1 r0 r1)
-	(call 'button 'connect_click '(r0 (r1 num_value)) '(r0))
+	(class/array/bind_args r7 '(r0 r1))
+	(class/array/get_values '(r1))
+	(call 'button 'connect_click '(r0 r1) '(r0))
 	(call 'button 'ref '(r0) '(r0))
 
 	(exit 'button 'lisp_connect_click '(r6 r0))

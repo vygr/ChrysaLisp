@@ -350,8 +350,7 @@
 (errorcases
 	(call 'lisp 'env_args_type '(r7 ($ sig) 2) '(r1))
 	(gotoif '(r1 == 0) 'error))
-	(class/array/get_begin r7 r1)
-	(class/array/get_args r1 r0 r1)
+	(class/array/bind_args r7 '(r0 r1))
 	(class/num/get_value r0 r0)
 	(class/num/get_value r1 r1)
 	(exec p)

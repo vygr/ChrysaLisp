@@ -19,9 +19,9 @@
 	(call 'lisp 'env_args_type `(r7 (@ ,(f-path 'num 'vtable)) -1) '(r1))
 	(gotoif '(r1 == 0) 'error))
 
-	(class/array/get_begin r7 r7)
-	(class/array/get_args r7 r0)
-	(call 'sys_pii 'read_char '((r0 num_value)) '(r0))
+	(class/array/bind_args r7 '(r0))
+	(class/array/get_values '(r0))
+	(call 'sys_pii 'read_char '(r0) '(r0))
 	(call 'num 'create '(r0) '(r0))
 
 	(exit 'sys_pii 'lisp_readchar '(r6 r0))
@@ -49,9 +49,9 @@
 	(call 'lisp 'env_args_type `(r7 (@ ,(f-path 'num 'vtable)) -2) '(r1))
 	(gotoif '(r1 == 0) 'error))
 
-	(class/array/get_begin r7 r1)
-	(class/array/get_args r1 r0 r1)
-	(call 'sys_pii 'write_char '((r0 num_value) (r1 num_value)))
+	(class/array/bind_args r7 '(r0 r1))
+	(class/array/get_values '(r0 r1))
+	(call 'sys_pii 'write_char '(r0 r1))
 	(class/array/get_begin r7 r0)
 	(call 'obj 'ref '((r0 ptr_size)) '(r0))
 

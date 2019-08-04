@@ -84,8 +84,7 @@
 	;r2 = element2 (long)
 	;trashes
 	;r1-r2
-	(class/array/get_begin r0 r2)
-	(class/array/get_args r2 r1 r2))
+	(class/array/bind_args r0 '(r1 r2)))
 
 (defcfun gui/points/get_element2 ()
 	;inputs
@@ -100,7 +99,7 @@
 	(class/array/get_begin r0 r2)
 	(vp-shl-cr (log2 long_size) r1)
 	(vp-add-rr r1 r2)
-	(class/array/get_args r2 r1 r2))
+	(class/array/get_args r2 '(r1 r2)))
 
 (defcfun gui/points/pop_back2 ()
 	;inputs
@@ -117,4 +116,4 @@
 	(class/array/set_length r0 r1)
 	(vp-shl-cr (log2 long_size) r1)
 	(vp-add-rr r1 r2)
-	(class/array/get_args r2 r1 r2))
+	(class/array/get_args r2 '(r1 r2)))
