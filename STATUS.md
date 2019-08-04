@@ -4,6 +4,15 @@
 
 ------
 
+Added a better way of binding parameters from array values to function call
+parameters. Worked through most of the Lisp bindings and used them to make the
+code much simpler and easier to follow.
+
+Various optimisations as I went along and revisited the source for all these
+functions.
+
+------
+
 Some more work on the docs browser to add margins and highlight code words
 within paragraphs plus structure the code a bit better.
 
@@ -11,7 +20,7 @@ Added a set of colour themes and used them everywhere, currently a subtle grey
 shades look.
 
 Continued to lower functions to VP, and made pre-binding throughout boot.inc
-the standard and elsewhere a simple call profiler showed would benafit.
+the standard and elsewhere a simple call profiler showed would benefit.
 
 ------
 
