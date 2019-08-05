@@ -19,8 +19,9 @@
 	(call 'lisp 'env_args_type '(r7 ($ sig) 1) '(r1))
 	(gotoif '(r1 == 0) 'error1))
 
-	(class/array/bind_args r7 '(r0))
-	(call 'gui 'add '(r0) '(r0))
+	(defq in (method-input 'gui 'add))
+	(class/vector/bind_args r7 in '(view))
+	(call 'gui 'add in '(r0))
 	(call 'obj 'ref '(r0) '(r0))
 
 	(exit 'gui 'lisp_add '(r6 r0))
@@ -29,6 +30,6 @@
 (errorcases
 (vp-label 'error1)
 	(jump 'lisp 'repl_error '(r6 "(gui-add view)" error_msg_wrong_types r7))
-	(signature 'sig 'view))
+	(signature '(view)))
 
 (def-func-end)

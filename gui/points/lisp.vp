@@ -21,8 +21,7 @@
 
 	(vp-push r6)
 	(defq in (method-input 'points 'transform))
-	(class/array/bind_args r7 in)
-	(class/array/get_values (slice 2 -1 in))
+	(class/vector/bind_args r7 in '(points points num num num num num num))
 	(call 'points 'transform in '(r0))
 	(call 'obj 'ref '(r0) '(r1))
 	(vp-pop r0)
@@ -33,7 +32,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r6 "(points-transform dst src m1x m1y m2x m2y trx try)" error_msg_wrong_types r7))
-	(signature 'sig 'points 'points 'num 'num 'num 'num 'num 'num))
+	(signature '(points points num num num num num num)))
 
 (def-func-end)
 
@@ -56,8 +55,7 @@
 	(vp-push r6)
 	(vp-cpy-ir r6 lisp_stack r2)
 	(defq in (method-input 'points 'simplify))
-	(class/array/bind_args r7 (cat (slice 0 2 in) (slice 3 -1 in)))
-	(class/array/get_values (slice 3 -1 in))
+	(class/vector/bind_args r7 (cat (slice 0 2 in) (slice 3 -1 in)) '(points points num))
 	(call 'points 'simplify in '(r0))
 	(call 'obj 'ref '(r0) '(r1))
 	(vp-pop r0)
@@ -68,7 +66,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r6 "(points-simplify dst src tol)" error_msg_wrong_types r7))
-	(signature 'sig 'points 'points 'num))
+	(signature '(points points num)))
 
 (def-func-end)
 
@@ -91,8 +89,8 @@
 	(vp-push r6)
 	(vp-cpy-ir r6 lisp_stack r1)
 	(defq in (method-input 'points 'gen_quadratic))
-	(class/array/bind_args r7 (cat (slice 2 -1 in) (slice 0 1 in)))
-	(class/array/get_values (slice 2 -1 in))
+	(class/vector/bind_args r7 (cat (slice 2 -1 in) (slice 0 1 in))
+		'(num num num num num num num points))
 	(call 'points 'gen_quadratic in '(r0))
 	(call 'obj 'ref '(r0) '(r1))
 	(vp-pop r0)
@@ -103,7 +101,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r6 "(points-gen-quadratic p1x p1y p2x p2y p3x p3y tol dst) -> dst" error_msg_wrong_types r7))
-	(signature 'sig 'num 'num 'num 'num 'num 'num 'num 'points))
+	(signature '(num num num num num num num points)))
 
 (def-func-end)
 
@@ -126,8 +124,8 @@
 	(vp-push r6)
 	(vp-cpy-ir r6 lisp_stack r1)
 	(defq in (method-input 'points 'gen_cubic))
-	(class/array/bind_args r7 (cat (slice 2 -1 in) (slice 0 1 in)))
-	(class/array/get_values (slice 2 -1 in))
+	(class/vector/bind_args r7 (cat (slice 2 -1 in) (slice 0 1 in))
+		'(num num num num num num num num num points))
 	(call 'points 'gen_cubic in '(r0))
 	(call 'obj 'ref '(r0) '(r1))
 	(vp-pop r0)
@@ -138,7 +136,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r6 "(points-gen-cubic p1x p1y p2x p2y p3x p3y p4x p4y tol dst) -> dst" error_msg_wrong_types r7))
-	(signature 'sig 'num 'num 'num 'num 'num 'num 'num 'num 'num 'points))
+	(signature '(num num num num num num num num num points)))
 
 (def-func-end)
 
@@ -161,8 +159,8 @@
 	(vp-push r6)
 	(vp-cpy-ir r6 lisp_stack r1)
 	(defq in (method-input 'points 'gen_arc))
-	(class/array/bind_args r7 (cat (slice 2 -1 in) (slice 0 1 in)))
-	(class/array/get_values (slice 2 -1 in))
+	(class/vector/bind_args r7 (cat (slice 2 -1 in) (slice 0 1 in))
+		'(num num num num num num points))
 	(call 'points 'gen_arc in '(r0))
 	(call 'obj 'ref '(r0) '(r1))
 	(vp-pop r0)
@@ -173,7 +171,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r6 "(points-gen-arc cx cy start end radius tol dst) -> dst" error_msg_wrong_types r7))
-	(signature 'sig 'num 'num 'num 'num 'num 'num 'points))
+	(signature '(num num num num num num points)))
 
 (def-func-end)
 
@@ -196,8 +194,8 @@
 	(vp-push r6)
 	(vp-cpy-ir r6 lisp_stack r1)
 	(defq in (method-input 'points 'stroke_polylines))
-	(class/array/bind_args r7 (cat (slice 3 -1 in) (slice 2 3 in) (slice 0 1 in)))
-	(class/array/get_values (slice 3 -1 in))
+	(class/vector/bind_args r7 (cat (slice 3 -1 in) (slice 2 3 in) (slice 0 1 in))
+		'(num num num num num vector vector))
 	(call 'points 'stroke_polylines in '(r0))
 	(call 'obj 'ref '(r0) '(r1))
 	(vp-pop r0)
@@ -208,7 +206,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r6 "(points-stroke-polylines radius tol join cap1 cap2 src dst) -> dst" error_msg_wrong_types r7))
-	(signature 'sig 'num 'num 'num 'num 'num 'vector 'vector))
+	(signature '(num num num num num vector vector)))
 
 (def-func-end)
 
@@ -231,8 +229,8 @@
 	(vp-push r6)
 	(vp-cpy-ir r6 lisp_stack r1)
 	(defq in (method-input 'points 'stroke_polygons))
-	(class/array/bind_args r7 (cat (slice 3 -1 in) (slice 2 3 in) (slice 0 1 in)))
-	(class/array/get_values (slice 3 -1 in))
+	(class/vector/bind_args r7 (cat (slice 3 -1 in) (slice 2 3 in) (slice 0 1 in))
+		'(num num num vector vector))
 	(call 'points 'stroke_polygons in '(r0))
 	(call 'obj 'ref '(r0) '(r1))
 	(vp-pop r0)
@@ -243,7 +241,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r6 "(points-stroke-polygons radius tol join src dst) -> dst" error_msg_wrong_types r7))
-	(signature 'sig 'num 'num 'num 'vector 'vector))
+	(signature '(num num num vector vector)))
 
 (def-func-end)
 
@@ -571,7 +569,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r6 "(points-sum points)" error_msg_wrong_types r7))
-	(signature 'sig 'points))
+	(signature '(points)))
 
 (def-func-end)
 
@@ -617,7 +615,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r9 "(points-fscale points scale [points])" error_msg_wrong_types r10))
-	(signature 'sig 'points 'num 'points))
+	(signature '(points num points)))
 
 (def-func-end)
 

@@ -21,9 +21,9 @@
 	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
-	(class/array/get_first r7 r0)
-	(class/array/get_values '(r0))
-	(call 'window 'create '(r0) '(r1))
+	(defq in (method-input 'window 'create))
+	(class/vector/bind_args r7 in '(num))
+	(call 'window 'create in '(r1))
 	(vp-pop r0)
 
 	(exit 'window 'lisp_create '(r0 r1))
@@ -32,7 +32,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r6 "(create-window flags)" error_msg_wrong_types r7))
-	(signature 'sig 'num))
+	(signature '(num)))
 
 (def-func-end)
 
@@ -52,9 +52,9 @@
 	(call 'lisp 'env_args_type '(r7 ($ sig) 2) '(r1))
 	(gotoif '(r1 == 0) 'error))
 
-	(class/array/bind_args r7 '(r0 r1))
-	(class/array/get_values '(r1))
-	(call 'window 'connect_layout '(r0 r1) '(r0))
+	(defq in (method-input 'window 'connect_layout))
+	(class/vector/bind_args r7 in '(window num))
+	(call 'window 'connect_layout in '(r0))
 	(call 'window 'ref '(r0) '(r0))
 
 	(exit 'window 'lisp_connect_layout '(r6 r0))
@@ -63,7 +63,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r6 "(window-connect-layout window id)" error_msg_wrong_types r7))
-	(signature 'sig 'window 'num))
+	(signature '(window num)))
 
 (def-func-end)
 
@@ -83,9 +83,9 @@
 	(call 'lisp 'env_args_type '(r7 ($ sig) 2) '(r1))
 	(gotoif '(r1 == 0) 'error))
 
-	(class/array/bind_args r7 '(r0 r1))
-	(class/array/get_values '(r1))
-	(call 'window 'connect_close '(r0 r1) '(r0))
+	(defq in (method-input 'window 'connect_close))
+	(class/vector/bind_args r7 in '(window num))
+	(call 'window 'connect_close in '(r0))
 	(call 'window 'ref '(r0) '(r0))
 
 	(exit 'window 'lisp_connect_close '(r6 r0))
@@ -94,7 +94,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r6 "(window-connect-close window id)" error_msg_wrong_types r7))
-	(signature 'sig 'window 'num))
+	(signature '(window num)))
 
 (def-func-end)
 
@@ -114,9 +114,9 @@
 	(call 'lisp 'env_args_type '(r7 ($ sig) 2) '(r1))
 	(gotoif '(r1 == 0) 'error))
 
-	(class/array/bind_args r7 '(r0 r1))
-	(class/array/get_values '(r1))
-	(call 'window 'connect_min '(r0 r1) '(r0))
+	(defq in (method-input 'window 'connect_min))
+	(class/vector/bind_args r7 in '(window num))
+	(call 'window 'connect_min in '(r0))
 	(call 'window 'ref '(r0) '(r0))
 
 	(exit 'window 'lisp_connect_min '(r6 r0))
@@ -125,7 +125,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r6 "(window-connect-min window id)" error_msg_wrong_types r7))
-	(signature 'sig 'window 'num))
+	(signature '(window num)))
 
 (def-func-end)
 
@@ -145,9 +145,9 @@
 	(call 'lisp 'env_args_type '(r7 ($ sig) 2) '(r1))
 	(gotoif '(r1 == 0) 'error))
 
-	(class/array/bind_args r7 '(r0 r1))
-	(class/array/get_values '(r1))
-	(call 'window 'connect_max '(r0 r1) '(r0))
+	(defq in (method-input 'window 'connect_max))
+	(class/vector/bind_args r7 in '(window num))
+	(call 'window 'connect_max in '(r0))
 	(call 'window 'ref '(r0) '(r0))
 
 	(exit 'window 'lisp_connect_max '(r6 r0))
@@ -156,7 +156,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r6 "(window-connect-max window id)" error_msg_wrong_types r7))
-	(signature 'sig 'window 'num))
+	(signature '(window num)))
 
 (def-func-end)
 
@@ -177,8 +177,9 @@
 	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
-	(class/array/bind_args r7 '(r0 r1))
-	(call 'window 'set_status '(r0 (& r1 str_data)) '(r0))
+	(defq in (method-input 'window 'set_status))
+	(class/vector/bind_args r7 in '(window str))
+	(call 'window 'set_status in '(r0))
 	(call 'window 'ref '(r0) '(r1))
 	(vp-pop r0)
 
@@ -188,7 +189,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r6 "(window-set-status window str)" error_msg_wrong_types r7))
-	(signature 'sig 'window 'str))
+	(signature '(window str)))
 
 (def-func-end)
 
@@ -209,8 +210,9 @@
 	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
-	(class/array/bind_args r7 '(r0 r1))
-	(call 'window 'set_title '(r0 (& r1 str_data)) '(r0))
+	(defq in (method-input 'window 'set_title))
+	(class/vector/bind_args r7 in '(window str))
+	(call 'window 'set_title in '(r0))
 	(call 'window 'ref '(r0) '(r1))
 	(vp-pop r0)
 
@@ -220,6 +222,6 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r6 "(window-set-title window str)" error_msg_wrong_types r7))
-	(signature 'sig 'window 'str))
+	(signature '(window str)))
 
 (def-func-end)

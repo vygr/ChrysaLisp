@@ -3472,8 +3472,7 @@ Super Class: obj
 inputs
 r0 = pipe object (ptr)
 r1 = vtable (pptr)
-r2 = command buffer (pubyte)
-r3 = command buffer length (bytes)
+r2 = command c string (pubyte)
 outputs
 r0 = pipe object (ptr)
 r1 = 0 if error, else ok

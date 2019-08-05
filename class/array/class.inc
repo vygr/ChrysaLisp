@@ -273,6 +273,3 @@
 (defcfun-bind class/array/bind_args (a regs)
 	(class/array/get_begin a (elem -2 regs))
 	(class/array/get_args (elem -2 regs) regs))
-
-(defcfun-bind class/array/get_values (regs)
-	(each! nil nil nil (lambda (_) (class/num/get_value _ _)) (list regs)))

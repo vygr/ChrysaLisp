@@ -100,12 +100,13 @@
 	(call 'lisp 'env_args_type '(r7 ($ sig) 1) '(r1))
 	(gotoif '(r1 == 0) 'error))
 
-	(class/array/bind_args r7 '(r7))
-	(class/array/get_length r7 r1)
+	(class/array/bind_args r7 '(r0))
+	(class/array/get_length r0 r1)
 	(vpif '(r1 != 0))
-		(call 'array 'ref_back '(r7) '(_ r1))
+		(call 'array 'ref_back '(r0) '(_ r1))
 	(else)
-		(call 'obj 'ref '((r6 lisp_sym_nil)) '(r1))
+		(vp-cpy-ir r6 lisp_sym_nil r1)
+		(class/obj/ref r1 r2)
 	(endif)
 
 	(exit 'array 'lisp_pop '(r6 r1))
@@ -114,7 +115,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r6 "(pop array)" error_msg_wrong_types r7))
-	(signature 'sig 'array))
+	(signature '(array)))
 
 (def-func-end)
 

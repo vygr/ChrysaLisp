@@ -50,8 +50,9 @@
 	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
-	(class/array/bind_args r7 '(r0 r1))
-	(call 'view 'event '(r0 (& r1 str_data)) '(r0))
+	(defq in (method-input 'view 'event))
+	(class/vector/bind_args r7 in '(view str))
+	(call 'view 'event in '(r0))
 	(call 'view 'ref '(r0) '(r1))
 	(vp-pop r0)
 
@@ -61,7 +62,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r6 "(view-event view str)" error_msg_wrong_types r7))
-	(signature 'sig 'view 'str))
+	(signature '(view str)))
 
 (def-func-end)
 
@@ -92,7 +93,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r6 "(view-layout view)" error_msg_wrong_types r7))
-	(signature 'sig 'view))
+	(signature '(view)))
 
 (def-func-end)
 
@@ -114,14 +115,13 @@
 
 	(vp-push r6)
 	(defq in (method-input 'view 'find_id))
-	(class/array/bind_args r7 in)
-	(class/array/get_values (slice 1 -1 in))
+	(class/vector/bind_args r7 in '(view num))
 	(call 'view 'find_id in '(_ r0))
 	(vpif '(r0 == 0))
 		(vp-cpy-ir rsp 0 r0)
 		(vp-cpy-ir r0 lisp_sym_nil r0)
 	(endif)
-	(call 'view 'ref '(r0) '(r1))
+	(call 'obj 'ref '(r0) '(r1))
 	(vp-pop r0)
 
 	(exit 'view 'lisp_find_id '(r0 r1))
@@ -130,7 +130,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r6 "(view-find-id view id)" error_msg_wrong_types r7))
-	(signature 'sig 'view 'num))
+	(signature '(view num)))
 
 (def-func-end)
 
@@ -159,7 +159,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r6 "(view-sub view)" error_msg_wrong_types r7))
-	(signature 'sig 'view))
+	(signature '(view)))
 
 (def-func-end)
 
@@ -192,7 +192,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r6 "(view-add-child parent child)" error_msg_wrong_types r7))
-	(signature 'sig 'view 'view))
+	(signature '(view view)))
 
 (def-func-end)
 
@@ -225,7 +225,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r6 "(view-add-front parent child)" error_msg_wrong_types r7))
-	(signature 'sig 'view 'view))
+	(signature '(view view)))
 
 (def-func-end)
 
@@ -258,7 +258,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r6 "(view-add-back parent child)" error_msg_wrong_types r7))
-	(signature 'sig 'view 'view))
+	(signature '(view view)))
 
 (def-func-end)
 
@@ -294,7 +294,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r6 "(view-pref-size view)" error_msg_wrong_types r7))
-	(signature 'sig 'view))
+	(signature '(view)))
 
 (def-func-end)
 
@@ -316,8 +316,7 @@
 
 	(vp-push r6)
 	(defq in (method-input 'view 'change))
-	(class/array/bind_args r7 in)
-	(class/array/get_values (slice 1 -1 in))
+	(class/vector/bind_args r7 in '(view num num num num))
 	(call 'view 'change in '(r0))
 	(call 'obj 'ref '(r0) '(r1))
 	(vp-pop r0)
@@ -328,7 +327,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r6 "(view-change view x y w h)" error_msg_wrong_types r7))
-	(signature 'sig 'view 'num 'num 'num 'num))
+	(signature '(view num num num num)))
 
 (def-func-end)
 
@@ -350,8 +349,7 @@
 
 	(vp-push r6)
 	(defq in (method-input 'view 'set_bounds))
-	(class/array/bind_args r7 in)
-	(class/array/get_values (slice 1 -1 in))
+	(class/vector/bind_args r7 in '(view num num num num))
 	(call 'view 'set_bounds in '(r0))
 	(call 'obj 'ref '(r0) '(r1))
 	(vp-pop r0)
@@ -362,7 +360,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r6 "(view-set-bounds view x y w h)" error_msg_wrong_types r7))
-	(signature 'sig 'view 'num 'num 'num 'num))
+	(signature '(view num num num num)))
 
 (def-func-end)
 
@@ -402,7 +400,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r6 "(view-get-bounds view)" error_msg_wrong_types r7))
-	(signature 'sig 'view))
+	(signature '(view)))
 
 (def-func-end)
 
@@ -424,8 +422,7 @@
 
 	(vp-push r6)
 	(defq in (method-input 'view 'add_opaque))
-	(class/array/bind_args r7 in)
-	(class/array/get_values (slice 1 -1 in))
+	(class/vector/bind_args r7 in '(view num num num num))
 	(call 'view 'add_opaque in '(r0))
 	(call 'obj 'ref '(r0) '(r1))
 	(vp-pop r0)
@@ -436,7 +433,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r6 "(view-add-opaque view x y w h)" error_msg_wrong_types r7))
-	(signature 'sig 'view 'num 'num 'num 'num))
+	(signature '(view num num num num)))
 
 (def-func-end)
 
@@ -458,8 +455,7 @@
 
 	(vp-push r6)
 	(defq in (method-input 'view 'sub_opaque))
-	(class/array/bind_args r7 in)
-	(class/array/get_values (slice 1 -1 in))
+	(class/vector/bind_args r7 in '(view num num num num))
 	(call 'view 'sub_opaque in '(r0))
 	(call 'obj 'ref '(r0) '(r1))
 	(vp-pop r0)
@@ -470,7 +466,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r6 "(view-sub-opaque view x y w h)" error_msg_wrong_types r7))
-	(signature 'sig 'view 'num 'num 'num 'num))
+	(signature '(view num num num num)))
 
 (def-func-end)
 
@@ -491,9 +487,9 @@
 	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
-	(class/array/bind_args r7 '(r0 r1 r2))
-	(class/array/get_values '(r1 r2))
-	(call 'view 'set_flags '(r0 r1 r2) '(r0 _))
+	(defq in (method-input 'view 'set_flags))
+	(class/vector/bind_args r7 in '(view num num))
+	(call 'view 'set_flags in '(r0 _))
 	(call 'view 'ref '(r0) '(r1))
 	(vp-pop r0)
 
@@ -503,7 +499,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r6 "(view-set-flags view flags mask)" error_msg_wrong_types r7))
-	(signature 'sig 'view 'num 'num))
+	(signature '(view num num)))
 
 (def-func-end)
 
@@ -525,8 +521,7 @@
 
 	(vp-push r6)
 	(defq in (method-input 'view 'add_dirty))
-	(class/array/bind_args r7 in)
-	(class/array/get_values (slice 1 -1 in))
+	(class/vector/bind_args r7 in '(view num num num num))
 	(call 'view 'add_dirty in '(r0))
 	(call 'obj 'ref '(r0) '(r1))
 	(vp-pop r0)
@@ -537,7 +532,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r6 "(view-add-dirty view x y w h)" error_msg_wrong_types r7))
-	(signature 'sig 'view 'num 'num 'num 'num))
+	(signature '(view num num num num)))
 
 (def-func-end)
 
@@ -568,6 +563,6 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r6 "(view-dirty view)" error_msg_wrong_types r7))
-	(signature 'sig 'view))
+	(signature '(view)))
 
 (def-func-end)

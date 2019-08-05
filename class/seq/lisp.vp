@@ -35,7 +35,7 @@
 (errorcases
 (vp-label 'error1)
 	(jump 'lisp 'repl_error (list r_this "(length seq)" error_msg_wrong_types r_args))
-	(signature 'sig 'seq))
+	(signature '(seq)))
 
 (def-func-end)
 
@@ -80,7 +80,7 @@
 	(jump 'lisp 'repl_error {this, "(elem index seq)", error_msg_wrong_types, args})
 (vp-label 'error2)
 	(jump 'lisp 'repl_error {this, "(elem index seq)", error_msg_not_valid_index, args})
-	(signature 'sig 'num 'seq))
+	(signature '(num seq)))
 
 	(pop-scope-syms)
 
@@ -131,7 +131,7 @@
 	(jump 'lisp 'repl_error {this, "(slice start end seq)", error_msg_wrong_types, args})
 (vp-label 'error2)
 	(jump 'lisp 'repl_error {this, "(slice start end seq)", error_msg_not_valid_index, args})
-	(signature 'sig 'num 'num 'seq))
+	(signature '(num num seq)))
 
 	(pop-scope-syms)
 

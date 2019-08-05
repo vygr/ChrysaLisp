@@ -23,6 +23,6 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r6 "(apply lambda list)" error_msg_wrong_types r7))
-	(signature 'sig 'obj 'vector))
+	(signature '(obj vector)))
 
 (def-func-end)

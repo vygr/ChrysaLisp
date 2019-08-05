@@ -56,7 +56,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r8 "(file-stream path)" error_msg_wrong_types r7))
-	(signature 'sig 'str))
+	(signature '(str)))
 
 (def-func-end)
 
@@ -85,7 +85,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r6 "(string-stream str)" error_msg_wrong_types r7))
-	(signature 'sig 'str))
+	(signature '(str)))
 
 (def-func-end)
 
@@ -115,7 +115,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r6 "(stream-avail stream)" error_msg_wrong_types r7))
-	(signature 'sig 'stream))
+	(signature '(stream)))
 
 (def-func-end)
 
@@ -221,7 +221,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r6 "(read-line stream)" error_msg_wrong_types r7))
-	(signature 'sig 'stream))
+	(signature '(stream)))
 
 (def-func-end)
 
@@ -253,7 +253,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r6 "(write stream str)" error_msg_wrong_types r7))
-	(signature 'sig 'stream 'str))
+	(signature '(stream str)))
 
 (def-func-end)
 
@@ -357,6 +357,6 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r6 "(stream-write-flush stream)" error_msg_wrong_types r7))
-	(signature 'sig 'stream))
+	(signature '(stream)))
 
 (def-func-end)

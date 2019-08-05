@@ -22,8 +22,7 @@
 
 	(vp-push r6)
 	(defq in (method-input 'canvas 'create))
-	(class/array/bind_args r7 in)
-	(class/array/get_values in)
+	(class/vector/bind_args r7 in '(num num num))
 	(call 'canvas 'create in '(r1))
 	(vp-pop r0)
 
@@ -33,7 +32,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r6 "(create-canvas width height scale)" error_msg_wrong_types r7))
-	(signature 'sig 'num 'num 'num))
+	(signature '(num num num)))
 
 (def-func-end)
 
@@ -54,9 +53,9 @@
 	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
-	(class/array/bind_args r7 '(r0 r1))
-	(class/array/get_values '(r1))
-	(call 'canvas 'load '((& r0 str_data) r1) '(r0))
+	(defq in (method-input 'canvas 'load))
+	(class/vector/bind_args r7 in '(str num))
+	(call 'canvas 'load in '(r0))
 	(vpif '(r0 == 0))
 		(vp-cpy-ir rsp 0 r0)
 		(call 'obj 'ref '((r0 lisp_sym_nil)) '(r0))
@@ -70,7 +69,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r6 "(canvas-load path flags)" error_msg_wrong_types r7))
-	(signature 'sig 'str 'num))
+	(signature '(str num)))
 
 (def-func-end)
 
@@ -91,8 +90,7 @@
 	(gotoif '(r1 == 0) 'error))
 
 	(defq in (method-input 'canvas 'fill))
-	(class/array/bind_args r7 in)
-	(class/array/get_values (slice 1 -1 in))
+	(class/vector/bind_args r7 in '(canvas num))
 	(call 'canvas 'fill in '(r0))
 	(call 'obj 'ref '(r0) '(r0))
 
@@ -102,7 +100,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r6 "(canvas-fill canvas argb)" error_msg_wrong_types r7))
-	(signature 'sig 'canvas 'num))
+	(signature '(canvas num)))
 
 (def-func-end)
 
@@ -123,8 +121,7 @@
 	(gotoif '(r1 == 0) 'error))
 
 	(defq in (method-input 'canvas 'set_color))
-	(class/array/bind_args r7 in)
-	(class/array/get_values (slice 1 -1 in))
+	(class/vector/bind_args r7 in '(canvas num))
 	(call 'canvas 'set_color in '(r0 _))
 	(call 'obj 'ref '(r0) '(r0))
 
@@ -134,7 +131,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r6 "(canvas-set-color canvas argb)" error_msg_wrong_types r7))
-	(signature 'sig 'canvas 'num))
+	(signature '(canvas num)))
 
 (def-func-end)
 
@@ -155,8 +152,7 @@
 	(gotoif '(r1 == 0) 'error))
 
 	(defq in (method-input 'canvas 'set_flags))
-	(class/array/bind_args r7 in)
-	(class/array/get_values (slice 1 -1 in))
+	(class/vector/bind_args r7 in '(canvas num))
 	(call 'canvas 'set_flags in '(r0 _))
 	(call 'obj 'ref '(r0) '(r0))
 
@@ -166,7 +162,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r6 "(canvas-set-flags canvas flags)" error_msg_wrong_types r7))
-	(signature 'sig 'canvas 'num))
+	(signature '(canvas num)))
 
 (def-func-end)
 
@@ -187,8 +183,9 @@
 	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
-	(class/array/bind_args r7 '(r0))
-	(call 'canvas 'swap '(r0) '(r0))
+	(defq in (method-input 'canvas 'swap))
+	(class/vector/bind_args r7 in '(canvas))
+	(call 'canvas 'swap in '(r0))
 	(call 'canvas 'dirty '(r0) '(r0))
 	(call 'obj 'ref '(r0) '(r1))
 	(vp-pop r0)
@@ -199,7 +196,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r6 "(canvas-swap canvas)" error_msg_wrong_types r7))
-	(signature 'sig 'canvas))
+	(signature '(canvas)))
 
 (def-func-end)
 
@@ -219,8 +216,9 @@
 	(call 'lisp 'env_args_type '(r7 ($ sig) 1) '(r1))
 	(gotoif '(r1 == 0) 'error))
 
-	(class/array/bind_args r7 '(r0))
-	(call 'canvas 'next_frame '(r0) '(r0))
+	(defq in (method-input 'canvas 'next_frame))
+	(class/vector/bind_args r7 in '(canvas))
+	(call 'canvas 'next_frame in '(r0))
 	(call 'obj 'ref '(r0) '(r0))
 
 	(exit 'canvas 'lisp_next_frame '(r6 r0))
@@ -229,7 +227,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r6 "(canvas-next-frame canvas)" error_msg_wrong_types r7))
-	(signature 'sig 'canvas))
+	(signature '(canvas)))
 
 (def-func-end)
 
@@ -251,8 +249,7 @@
 
 	(vp-push r6)
 	(defq in (method-input 'canvas 'plot))
-	(class/array/bind_args r7 in)
-	(class/array/get_values (slice 1 -1 in))
+	(class/vector/bind_args r7 in '(canvas num num))
 	(call 'canvas 'plot in '(r0))
 	(call 'obj 'ref '(r0) '(r1))
 	(vp-pop r0)
@@ -263,7 +260,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r6 "(canvas-plot canvas x y)" error_msg_wrong_types r7))
-	(signature 'sig 'canvas 'num 'num))
+	(signature '(canvas num num)))
 
 (def-func-end)
 
@@ -285,8 +282,7 @@
 
 	(vp-push r6)
 	(defq in (method-input 'canvas 'fbox))
-	(class/array/bind_args r7 in)
-	(class/array/get_values (slice 1 -1 in))
+	(class/vector/bind_args r7 in '(canvas num num num num))
 	(call 'canvas 'fbox in '(r0))
 	(call 'obj 'ref '(r0) '(r1))
 	(vp-pop r0)
@@ -297,7 +293,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r6 "(canvas-fbox canvas x y w h)" error_msg_wrong_types r7))
-	(signature 'sig 'canvas 'num 'num 'num 'num))
+	(signature '(canvas num num num num)))
 
 (def-func-end)
 
@@ -319,8 +315,7 @@
 
 	(vp-push r6)
 	(defq in (method-input 'canvas 'fpoly))
-	(class/array/bind_args r7 in)
-	(class/array/get_values (slice 1 -2 in))
+	(class/vector/bind_args r7 in '(canvas num num num vector))
 	(call 'canvas 'fpoly in '(r0))
 	(call 'obj 'ref '(r0) '(r1))
 	(vp-pop r0)
@@ -331,6 +326,6 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r6 "(canvas-fpoly canvas x y mode list)" error_msg_wrong_types r7))
-	(signature 'sig 'canvas 'num 'num 'num 'vector))
+	(signature '(canvas num num num vector)))
 
 (def-func-end)

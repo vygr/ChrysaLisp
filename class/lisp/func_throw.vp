@@ -25,6 +25,6 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r6 "(throw str form)" error_msg_wrong_types r7))
-	(signature 'sig 'str 'obj))
+	(signature '(str obj)))
 
 (def-func-end)

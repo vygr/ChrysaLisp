@@ -21,9 +21,9 @@
 	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
-	(class/array/bind_args r7 '(r0 r1))
-	(class/array/get_values '(r1))
-	(call 'font 'open '((& r0 str_data) r1) '(r0))
+	(defq in (method-input 'font 'create))
+	(class/vector/bind_args r7 in '(str num))
+	(call 'font 'open in '(r0))
 	(vpif '(r0 == 0))
 		(vp-cpy-ir rsp 0 r0)
 		(call 'obj 'ref '((r0 lisp_sym_nil)) '(r0))
@@ -37,6 +37,6 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r6 "(create-font name points)" error_msg_wrong_types r7))
-	(signature 'sig 'str 'num))
+	(signature '(str num)))
 
 (def-func-end)

@@ -34,7 +34,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error (list r_this "(fsin angle)" error_msg_wrong_types r_args))
-	(signature 'sig 'num))
+	(signature '(num)))
 
 (def-func-end)
 
@@ -54,7 +54,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error (list r_this "(fcos angle)" error_msg_wrong_types r_args))
-	(signature 'sig 'num))
+	(signature '(num)))
 
 (def-func-end)
 
@@ -76,7 +76,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error (list r_this "(fsqrt num)" error_msg_wrong_types r_args))
-	(signature 'sig 'num))
+	(signature '(num)))
 
 (def-func-end)
 
@@ -98,7 +98,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error (list r_this "(frac num)" error_msg_wrong_types r_args))
-	(signature 'sig 'num))
+	(signature '(num)))
 
 (def-func-end)
 
@@ -120,6 +120,6 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error (list r_this "(floor num)" error_msg_wrong_types r_args))
-	(signature 'sig 'num))
+	(signature '(num)))
 
 (def-func-end)

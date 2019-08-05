@@ -37,7 +37,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error {this, "(ffi sym path flags)", error_msg_wrong_types, args})
-	(signature 'sig 'obj 'sym 'str 'num))
+	(signature '(obj sym str num)))
 
 	(pop-scope-syms)
 

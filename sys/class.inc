@@ -442,9 +442,9 @@
 ; generic class construction
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defcfun signature (l &rest _)
+(defcfun signature (_)
 	(vp-align short_size)
-(vp-label l)
+(vp-label 'sig)
 	(each (lambda (_)
 		(vp-short (list 'sub (label-sym (link-sym (fn-find-link (f-path _ 'vtable)))) '*pc*))) _))
 

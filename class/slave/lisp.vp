@@ -78,8 +78,9 @@
 	(call 'lisp 'env_args_type '(r7 ($ sig) 1) '(r1))
 	(gotoif '(r1 == 0) 'error1))
 
-	(class/array/bind_args r7 '(r0))
-	(call 'slave 'get_args '(r0) '(_ r0))
+	(defq in (method-input 'slave 'get_args))
+	(class/vector/bind_args r7 in '(slave))
+	(call 'slave 'get_args in '(_ r0))
 	(vpif '(r0 == 0))
 		(vp-cpy-ir r6 lisp_sym_nil r0)
 	(endif)
@@ -91,6 +92,6 @@
 (errorcases
 (vp-label 'error1)
 	(jump 'lisp 'repl_error '(r6 "(slave-get-args slave)" error_msg_wrong_types r7))
-	(signature 'sig 'slave))
+	(signature '(slave)))
 
 (def-func-end)

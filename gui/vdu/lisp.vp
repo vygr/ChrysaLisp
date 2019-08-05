@@ -48,8 +48,9 @@
 	(call 'lisp 'env_args_type '(r7 ($ sig) 2) '(r1))
 	(gotoif '(r1 == 0) 'error1))
 
-	(class/array/bind_args r7 '(r0 r1))
-	(call 'vdu 'print_cstr '(r0 (& r1 str_data)) '(r0))
+	(defq in (method-input 'vdu 'print_cstr))
+	(class/vector/bind_args r7 in '(vdu str))
+	(call 'vdu 'print_cstr in '(r0))
 	(call 'obj 'ref '(r0) '(r0))
 
 	(exit 'vdu 'lisp_print '(r6 r0))
@@ -58,6 +59,6 @@
 (errorcases
 (vp-label 'error1)
 	(jump 'lisp 'repl_error '(r6 "(vdu-print vdu str)" error_msg_wrong_types r7))
-	(signature 'sig 'vdu 'str))
+	(signature '(vdu str)))
 
 (def-func-end)

@@ -21,9 +21,9 @@
 	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
-	(class/array/get_first r7 r0)
-	(class/array/get_values '(r0))
-	(call 'scroll 'create '(r0) '(r1))
+	(defq in (method-input 'scroll 'create))
+	(class/vector/bind_args r7 in '(num))
+	(call 'scroll 'create in '(r1))
 	(vp-pop r0)
 
 	(exit 'scroll 'lisp_create '(r0 r1))
@@ -32,6 +32,6 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r6 "(create-scroll flags)" error_msg_wrong_types r7))
-	(signature 'sig 'num))
+	(signature '(num)))
 
 (def-func-end)

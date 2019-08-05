@@ -50,7 +50,7 @@
 	(gotoif '(r1 == 0) 'error))
 
 	(class/array/bind_args r12 '(r12 r1))
-	(class/array/get_values '(r1))
+	(class/num/get_values '(r1))
 	(call 'sys_kernel 'declare '((& r12 str_data) r1))
 	(call 'obj 'ref '(r12) '(r0))
 
@@ -60,7 +60,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r11 "(kernel-declare name mbox)" error_msg_wrong_types r12))
-	(signature 'sig 'str 'num))
+	(signature '(str num)))
 
 (def-func-end)
 
@@ -80,18 +80,20 @@
 	(call 'lisp 'env_args_type '(r7 ($ sig) 1) '(r1))
 	(gotoif '(r1 == 0) 'error))
 
-	(class/array/bind_args r7 '(r0))
-	(vp-push r6 r0)
-	(call 'sys_kernel 'debug '((& r0 str_data)))
-	(vp-pop r6 r0)
-	(call 'obj 'ref '(r0) '(r0))
+	(defq in (method-input 'sys_kernel 'debug))
+	(class/array/bind_args r7 in)
+	(vp-push r6 (elem 0 in))
+	(class/vector/cast_args in '(str))
+	(call 'sys_kernel 'debug in)
+	(vp-pop r0 r1)
+	(class/obj/ref r1 r2)
 
-	(exit 'sys_kernel 'lisp_debug '(r6 r0))
+	(exit 'sys_kernel 'lisp_debug '(r0 r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r6 "(kernel-debug str)" error_msg_wrong_types r7))
-	(signature 'sig 'str))
+	(signature '(str)))
 
 (def-func-end)

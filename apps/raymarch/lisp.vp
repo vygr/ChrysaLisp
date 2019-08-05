@@ -48,7 +48,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r6 "(scene points)" error_msg_wrong_types r7))
-	(signature 'sig 'points))
+	(signature '(points)))
 
 (def-func-end)
 
@@ -79,9 +79,8 @@
 	(vp-push r13)
 	(class/array/get_begin r0 r0)
 	(class/array/get_begin r1 r1)
-	(class/array/get_values '(r2 r3 r4 r5))
-	(vp-cpy-cr 1000 r6)
-	(vp-cpy-cr 1.0 r7)
+	(class/num/get_values '(r2 r3 r4 r5))
+	(assign '(1000 1.0) '(r6 r7))
 
 	(vec-set 7)
 	(loop-start)
@@ -111,6 +110,6 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r13 "(ray-march points points num num num num)" error_msg_wrong_types r14))
-	(signature 'sig 'points 'points 'num 'num 'num 'num))
+	(signature '(points points num num num num)))
 
 (def-func-end)

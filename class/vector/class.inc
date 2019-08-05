@@ -21,3 +21,19 @@
 
 (def-struct 'vector 'array)
 (def-struct-end)
+
+;;;;;;;;;;;;;;;;;;
+; paramater macros
+;;;;;;;;;;;;;;;;;;
+
+(defcfun-bind class/vector/cast_args (regs tp)
+	(assign-asm-to-asm (map (lambda (r _)
+		(case _
+			(num (list r num_value))
+			(str (list '& r str_data))
+			(char (list r str_data 'ub))
+			(otherwise r))) regs tp) regs))
+
+(defcfun-bind class/vector/bind_args (i regs tp)
+	(class/array/bind_args i regs)
+	(class/vector/cast_args regs tp))

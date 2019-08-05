@@ -20,18 +20,19 @@
 	(call 'lisp 'env_args_type '(r7 ($ sig) 1) '(r1))
 	(gotoif '(r1 == 0) 'error))
 
-	(class/array/bind_args r7 '(r0))
-	(class/array/get_values '(r0))
-	(call 'sys_task 'sleep '(r0))
-	(call 'obj 'ref '((r6 lisp_sym_t)) '(r0))
+	(defq in (method-input 'sys_task 'sleep))
+	(class/vector/bind_args r7 in '(num))
+	(call 'sys_task 'sleep in)
+	(vp-cpy-ir r6 lisp_sym_t r1)
+	(class/obj/ref r1 r2)
 
-	(exit 'sys_task 'lisp_sleep '(r6 r0))
+	(exit 'sys_task 'lisp_sleep '(r6 r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r6 "(task-sleep usec)" error_msg_wrong_types r7))
-	(signature 'sig 'num))
+	(signature '(num)))
 
 (def-func-end)
 
@@ -81,9 +82,9 @@
 	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
-	(class/array/bind_args r7 '(r0 r1))
-	(class/array/get_values '(r1))
-	(call 'sys_task 'open_child '((& r0 str_data) r1) '(r0))
+	(defq in (method-input 'sys_task 'open_child))
+	(class/vector/bind_args r7 in '(str num))
+	(call 'sys_task 'open_child in '(r0))
 	(call 'num 'create '(r0) '(r1))
 	(vp-pop r0)
 
@@ -93,7 +94,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r6 "(open-child path mode)" error_msg_wrong_types r7))
-	(signature 'sig 'str 'num))
+	(signature '(str num)))
 
 (def-func-end)
 
@@ -114,9 +115,9 @@
 	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
-	(class/array/bind_args r7 '(r0 r1 r2))
-	(class/array/get_values '(r1 r2))
-	(call 'sys_task 'open_remote '((& r0 str_data) r1 r2) '(r0))
+	(defq in (method-input 'sys_task 'open_remote))
+	(class/vector/bind_args r7 in '(str num num))
+	(call 'sys_task 'open_remote in '(r0))
 	(call 'num 'create '(r0) '(r1))
 	(vp-pop r0)
 
@@ -126,7 +127,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r6 "(open-remote path cpu mode)" error_msg_wrong_types r7))
-	(signature 'sig 'str 'num 'num))
+	(signature '(str num num)))
 
 (def-func-end)
 
@@ -147,9 +148,9 @@
 	(gotoif '(r1 == 0) 'error))
 
 	(vp-push r6)
-	(class/array/bind_args r7 '(r0 r1 r2))
-	(class/array/get_values '(r1 r2))
-	(call 'sys_task 'open_farm '((& r0 str_data) r1 r2) '(r1))
+	(defq in (method-input 'sys_task 'open_farm))
+	(class/vector/bind_args r7 in '(str num num))
+	(call 'sys_task 'open_farm in '(r1))
 	(vp-pop r0)
 
 	(exit 'sys_task 'lisp_open_farm '(r0 r1))
@@ -158,7 +159,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r6 "(open-farm path num mode)" error_msg_wrong_types r7))
-	(signature 'sig 'str 'num 'num))
+	(signature '(str num num)))
 
 (def-func-end)
 
@@ -194,6 +195,6 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r6 "(open-pipe paths)" error_msg_wrong_types r7))
-	(signature 'sig 'vector))
+	(signature '(vector)))
 
 (def-func-end)

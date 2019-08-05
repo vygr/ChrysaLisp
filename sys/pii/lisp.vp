@@ -19,9 +19,9 @@
 	(call 'lisp 'env_args_type `(r7 (@ ,(f-path 'num 'vtable)) -1) '(r1))
 	(gotoif '(r1 == 0) 'error))
 
-	(class/array/bind_args r7 '(r0))
-	(class/array/get_values '(r0))
-	(call 'sys_pii 'read_char '(r0) '(r0))
+	(defq in (method-input 'sys_pii 'read_char))
+	(class/vector/bind_args r7 in '(num))
+	(call 'sys_pii 'read_char in '(r0))
 	(call 'num 'create '(r0) '(r0))
 
 	(exit 'sys_pii 'lisp_readchar '(r6 r0))
@@ -49,13 +49,15 @@
 	(call 'lisp 'env_args_type `(r7 (@ ,(f-path 'num 'vtable)) -2) '(r1))
 	(gotoif '(r1 == 0) 'error))
 
-	(class/array/bind_args r7 '(r0 r1))
-	(class/array/get_values '(r0 r1))
-	(call 'sys_pii 'write_char '(r0 r1))
-	(class/array/get_begin r7 r0)
-	(call 'obj 'ref '((r0 ptr_size)) '(r0))
+	(defq in (method-input 'sys_pii 'write_char))
+	(class/array/bind_args r7 in)
+	(vp-cpy-rr (elem 1 in) r7)
+	(class/vector/cast_args in '(num num))
+	(call 'sys_pii 'write_char in)
+	(vp-cpy-rr r7 r1)
+	(class/obj/ref r1 r2)
 
-	(exit 'sys_pii 'lisp_writechar '(r6 r0))
+	(exit 'sys_pii 'lisp_writechar '(r6 r1))
 	(vp-ret)
 
 (errorcases
@@ -128,6 +130,6 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r6 "(age path)" error_msg_wrong_types r7))
-	(signature 'sig 'str))
+	(signature '(str)))
 
 (def-func-end)

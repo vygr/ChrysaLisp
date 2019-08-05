@@ -23,8 +23,9 @@
 	(gotoif '(r1 == 0) 'error1))
 
 	(vp-push r6 r7)
-	(class/array/bind_args r7 '(r0))
-	(call 'pipe 'create '((& r0 str_data) (r0 str_length ui)) '(r1))
+	(defq in (method-input 'pipe 'create))
+	(class/vector/bind_args r7 in '(str))
+	(call 'pipe 'create in '(r1))
 	(vp-pop r0 r7)
 	(errorif '(r1 == 0) 'error2)
 
@@ -36,7 +37,7 @@
 	(jump 'lisp 'repl_error '(r6 "(pipe str)" error_msg_wrong_types r7))
 (vp-label 'error2)
 	(jump 'lisp 'repl_error '(r0 "(pipe str)" error_msg_open_error r7))
-	(signature 'sig 'str))
+	(signature '(str)))
 
 (def-func-end)
 
@@ -103,7 +104,7 @@
 (errorcases
 (vp-label 'error1)
 	(jump 'lisp 'repl_error {this, "(pipe-read pipe bool)", error_msg_wrong_types, args})
-	(signature 'sig 'pipe 'obj))
+	(signature '(pipe obj)))
 
 	(pop-scope-syms)
 
@@ -149,7 +150,7 @@
 	(jump 'lisp 'repl_error {this, "(pipe-write pipe str)", error_msg_wrong_types, args})
 (vp-label 'error2)
 	(jump 'lisp 'repl_error {this, "(pipe-write pipe str)", error_msg_open_error, args})
-	(signature 'sig 'pipe 'str))
+	(signature '(pipe str)))
 
 	(pop-scope-syms)
 

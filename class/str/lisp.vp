@@ -21,8 +21,9 @@
 	(gotoif '(r1 == 0) 'error1))
 
 	(vp-push r6)
-	(class/array/bind_args r7 '(r1 r2))
-	(call 'str 'split '(r1 (r2 str_data ub)) '(_ r1))
+	(defq in (method-input 'str 'split))
+	(class/vector/bind_args r7 in '(obj char))
+	(call 'str 'split in '(_ r1))
 	(vp-pop r0)
 
 	(exit 'str 'lisp_split '(r0 r1))
@@ -31,7 +32,7 @@
 (errorcases
 (vp-label 'error1)
 	(jump 'lisp 'repl_error '(r6 "(split str char)" error_msg_wrong_types r7))
-	(signature 'sig 'str 'str))
+	(signature '(str str)))
 
 (def-func-end)
 
@@ -98,7 +99,7 @@
 (errorcases
 (vp-label 'error1)
 	(jump 'lisp 'repl_error (list r_this "(code str [width index])" error_msg_wrong_types r_args))
-	(signature 'sig 'str 'num 'num))
+	(signature '(str num num)))
 
 (def-func-end)
 
@@ -178,7 +179,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error (list r_this "(cmp str str)" error_msg_wrong_types r_args))
-	(signature 'sig 'str 'str))
+	(signature '(str str)))
 
 (def-func-end)
 
@@ -221,7 +222,7 @@
 	(jump 'lisp 'repl_error {this, "(save str path)", error_msg_wrong_types, args})
 (vp-label 'error2)
 	(jump 'lisp 'repl_error {this, "(save str path)", error_msg_open_error, args})
-	(signature 'sig 'str 'str))
+	(signature '(str str)))
 
 	(pop-scope-syms)
 
@@ -258,7 +259,7 @@
 (errorcases
 (vp-label 'error1)
 	(jump 'lisp 'repl_error {this, "(load path)", error_msg_wrong_types, args})
-	(signature 'sig 'str))
+	(signature '(str)))
 
 	(pop-scope-syms)
 

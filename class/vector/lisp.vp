@@ -61,7 +61,7 @@
 	(jump 'lisp 'repl_error '(r6 "(elem-set index list val)" error_msg_wrong_types r7))
 (vp-label 'error2)
 	(jump 'lisp 'repl_error '(r6 "(elem-set index list val)" error_msg_not_valid_index r7))
-	(signature 'sig 'num 'vector 'obj))
+	(signature '(num vector obj)))
 
 (def-func-end)
 
@@ -101,7 +101,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r6 "(merge dlist slist) -> dlist" error_msg_wrong_types r7))
-	(signature 'sig 'vector 'vector))
+	(signature '(vector vector)))
 
 (def-func-end)
 
@@ -165,7 +165,7 @@
 	(jump 'lisp 'repl_error {this, "(partition lambda list start end)", error_msg_wrong_types, args})
 (vp-label 'error2)
 	(jump 'lisp 'repl_error {this, "(partition lambda list start end)", error_msg_not_valid_index, args})
-	(signature 'sig 'obj 'vector 'num 'num))
+	(signature '(obj vector num num)))
 
 	(pop-scope-syms)
 
@@ -248,6 +248,6 @@
 (errorcases
 (vp-label 'error1)
 	(jump 'lisp 'repl_error '(r6 "(match? list list)" error_msg_wrong_types r7))
-	(signature 'sig 'vector 'vector))
+	(signature '(vector vector)))
 
 (def-func-end)

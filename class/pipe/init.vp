@@ -1,5 +1,6 @@
 (include 'sys/func.inc)
 (include 'sys/kernel/class.inc)
+(include 'sys/str/class.inc)
 (include 'class/str/class.inc)
 (include 'class/msg_out/class.inc)
 (include 'class/msg_in/class.inc)
@@ -10,8 +11,7 @@
 	;inputs
 	;r0 = pipe object (ptr)
 	;r1 = vtable (pptr)
-	;r2 = command buffer (pubyte)
-	;r3 = command buffer length (bytes)
+	;r2 = command c string (pubyte)
 	;outputs
 	;r0 = pipe object (ptr)
 	;r1 = 0 if error, else ok
@@ -26,7 +26,7 @@
 
 	;read init args
 	(push-scope)
-	(entry 'pipe 'init {this, vtable, buffer, length})
+	(entry 'pipe 'init {this, vtable, buffer})
 
 	;init parent
 	(s-call 'pipe 'init {this, vtable} {_, ok})
@@ -43,6 +43,7 @@
 
 		(push-scope)
 		;split pipe into separate commands and args
+		(call 'sys_str 'length {buffer} {_, length})
 		(call 'stream 'create {0, 0, buffer, length} {stream})
 		(call 'stream 'split {stream, char_pipe} {_, args})
 		(call 'stream 'deref {stream})
