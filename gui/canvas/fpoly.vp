@@ -372,8 +372,8 @@
 		(sub o 0.5)) '(0.25 0.875 0.5 0.125 0.75 0.375 0 0.625)))
 
 (vp-label 'mask_to_coverage)
-	(apply vp-byte (eval (bind-fun '(map (lambda (m)
+	(apply vp-byte (map (lambda (m)
 		(div (mul 0x80 (apply add (map (lambda (s)
-			(logand 1 (shr m s))) (const (push (list quote) (range 0 8)))))) 8)) (range 0 256)))))
+			(logand 1 (shr m s))) (const (push (list quote) (range 0 8)))))) 8)) (range 0 256)))
 
 (def-func-end)
