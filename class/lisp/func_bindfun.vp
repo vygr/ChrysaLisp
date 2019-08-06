@@ -27,8 +27,9 @@
 	(class/array/get_length r1 r2)
 	(gotoif '(r2 != 1) 'error))
 
-	;deep copy form
-	(call 'lisp 'func_copy '(r0 r1) '(r0 r1))
+	;ref the form and bind it
+	(class/array/bind_args r1 '(r1))
+	(class/obj/ref r1 r2)
 	(f-bind 'vector 'vtable r2)
 	(vp-cpy-ir r1 obj_vtable r3)
 	(vpif '(r2 == r3))

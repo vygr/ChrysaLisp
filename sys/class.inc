@@ -166,8 +166,8 @@
 	;or
 	;_1 = in parameters
 	(if (eq (length _) 1)
-		(cat (list 'l-entry) _)
-		(cat (list 'f-entry) _)))
+		(cat '(l-entry) _)
+		(cat '(f-entry) _)))
 
 (defcmacro exit (&rest _)
 	;either
@@ -177,8 +177,8 @@
 	;or
 	;_1 = out parameters
 	(if (eq (length _) 1)
-		(cat (list 'l-exit) _)
-		(cat (list 'f-exit) _)))
+		(cat '(l-exit) _)
+		(cat '(f-exit) _)))
 
 ;;;;;;;;;;;;;;;
 ; class calling

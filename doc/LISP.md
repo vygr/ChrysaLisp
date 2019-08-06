@@ -228,6 +228,7 @@ each-mergeable-rev
 each-pipe-line
 each-rev
 every
+exec
 filter
 from-base-char
 get-byte

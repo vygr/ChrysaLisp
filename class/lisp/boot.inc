@@ -135,20 +135,19 @@
 	;(defmacro-bind name ([arg ...]) body)
 	(list (eval defq) n (cat '(macro) (list a) (bind-fun _))))
 
-;to disable pre binding uncomment folowing line
+;to disable pre binding uncomment this line
 ;(defun bind-fun (_) _)
 
 ;pre bind the previous !
-(defq defun (bind-fun defun) defmacro (bind-fun defmacro)
-	defun-bind (bind-fun defun-bind) defmacro-bind (bind-fun defmacro-bind))
+(each! nil nil nil bind-fun (list (list defun defmacro defun-bind defmacro-bind)))
 
 (defmacro-bind const (_)
 	;(const form)
 	(eval _))
 
-(defmacro-bind exec (_)
+(defun-bind exec (_)
 	;(exec ast)
-	`(eval (macroexpand ,_)))
+	(eval (macroexpand _)))
 
 (defmacro-bind lst? (_)
 	;(lst? form)
@@ -617,9 +616,9 @@
 	(defmacro-bind defcmacro (n a &rest b)
 		`(def *compile-env* ',n (macro ,a ~b)))
 	(defmacro-bind defcfun-bind (n a &rest b)
-		`(def *compile-env* ',n (lambda ,a ~(bind-fun b))))
+		`(def *compile-env* ',n (lambda ,a ~(bind-fun (copy b)))))
 	(defmacro-bind defcmacro-bind (n a &rest b)
-		`(def *compile-env* ',n (macro ,a ~(bind-fun b))))
+		`(def *compile-env* ',n (macro ,a ~(bind-fun (copy b)))))
 	(defun-bind include (_)
 		(unless (find _ *compile-includes*)
 			(push *compile-includes* _)
@@ -631,7 +630,7 @@
 	(defmacro-bind defcfun (n a &rest b)
 		`(def *compile-env* ',n (lambda ,a (count-call ,(insert-call-count n)) ~b)))
 	(defmacro-bind defcfun-bind (n a &rest b)
-		`(def *compile-env* ',n (lambda ,a (count-call ,(insert-call-count n t)) ~(bind-fun b)))))
+		`(def *compile-env* ',n (lambda ,a (count-call ,(insert-call-count n t)) ~(bind-fun (copy b))))))
 	(catch (progn (setq _ (_) *compile-env* nil) _) (setq *compile-env* nil)))
 
 (when profile
@@ -654,6 +653,6 @@
 	(defmacro-bind defun (n a &rest b)
 		`(defq ,n (lambda ,a (count-call ,(insert-call-count n)) ~b)))
 	(defmacro-bind defun-bind (n a &rest b)
-		`(defq ,n (lambda ,a (count-call ,(insert-call-count n t)) ~(bind-fun b))))
+		`(defq ,n (lambda ,a (count-call ,(insert-call-count n t)) ~(bind-fun (copy b)))))
 	(defmacro-bind demacro-bind (n a &rest b)
-		`(defq ,n (macro ,a (count-call ,(insert-call-count n t)) ~(bind-fun b)))))
+		`(defq ,n (macro ,a (count-call ,(insert-call-count n t)) ~(bind-fun (copy b))))))
