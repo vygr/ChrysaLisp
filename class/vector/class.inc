@@ -26,14 +26,19 @@
 ; paramater macros
 ;;;;;;;;;;;;;;;;;;
 
-(defcfun-bind class/vector/cast_args (regs tp)
+(defcfun-bind class/vector/cast_args (regs types)
 	(assign-asm-to-asm (map (lambda (r _)
 		(case _
 			(num (list r num_value))
 			(str (list '& r str_data))
 			(char (list r str_data 'ub))
-			(otherwise r))) regs tp) regs))
+			(otherwise r))) regs types) regs))
 
-(defcfun-bind class/vector/bind_args (i regs tp)
-	(class/array/bind_args i regs)
-	(class/vector/cast_args regs tp))
+(defcfun-bind class/vector/bind_args (a regs types)
+	(defq rl (list) tp (list))
+	(each! nil nil nil (lambda (x y)
+		(when (not (eql '_ y))
+			(push rl x)
+			(push tp y))) (list regs types))
+	(class/array/bind_args a rl)
+	(class/vector/cast_args rl tp))

@@ -270,6 +270,11 @@
 (defcfun-bind class/array/get_args (i regs)
 	(assign-asm-to-asm (map (lambda (r) (list i (mul long_size _))) regs) regs))
 
+(defcfun-bind class/array/map_args (regs pos)
+	(defq out (cat regs))
+	(each! nil nil nil (lambda (r p)
+		(elem-set p out r)) (list regs pos)) out)
+
 (defcfun-bind class/array/bind_args (a regs)
 	(class/array/get_begin a (elem -2 regs))
 	(class/array/get_args (elem -2 regs) regs))

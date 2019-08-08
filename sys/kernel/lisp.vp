@@ -49,9 +49,11 @@
 	(call 'lisp 'env_args_type '(r12 ($ sig) 2) '(r1))
 	(gotoif '(r1 == 0) 'error))
 
-	(class/array/bind_args r12 '(r12 r1))
-	(class/num/get_values '(r1))
-	(call 'sys_kernel 'declare '((& r12 str_data) r1))
+	(defq in (method-input 'sys_kernel 'declare))
+	(class/array/bind_args r12 in)
+	(vp-cpy-rr (elem 0 in) r12)
+	(class/vector/cast_args in '(str num))
+	(call 'sys_kernel 'declare in)
 	(call 'obj 'ref '(r12) '(r0))
 
 	(exit 'sys_kernel 'lisp_declare '(r11 r0))
