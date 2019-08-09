@@ -56,7 +56,6 @@
 		(vec-store 2 {bvx, bvy})
 
 		;flatness test
-		;flatness test
 		(vec-load 1 {v1x} {v2x})
 		(vec-add 1)
 		(vec-load 1 {bvx})

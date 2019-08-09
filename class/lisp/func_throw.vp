@@ -19,8 +19,11 @@
 	(call 'lisp 'env_args_type '(r7 ($ sig) 2) '(r1))
 	(gotoif '(r1 == 0) 'error))
 
-	(class/array/bind_args r7 '(r1 r3))
-	(jump 'lisp 'repl_error '(r6 (& r1 str_data) 0 r3))
+	(defq in (method-input 'lisp 'repl_error))
+	(vp-cpy-rr r6 (elem 0 in))
+	(vp-xor-rr (elem 2 in) (elem 2 in))
+	(class/vector/bind_args r7 in '(_ str _ obj))
+	(jump 'lisp 'repl_error in)
 
 (errorcases
 (vp-label 'error)
