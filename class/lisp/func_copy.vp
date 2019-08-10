@@ -11,48 +11,71 @@
 	;trashes
 	;all but r0
 
+	(def-struct 'local)
+		(ptr 'this 'form 'copy)
+		(pptr 'iter)
+		(uint 'start)
+	(def-struct-end)
+
 	(entry 'lisp 'func_copy '(r0 r1))
 
 (errorcases
 	(class/array/get_length r1 r2)
 	(gotoif '(r2 != 1) 'error))
 
+	;ref and copy if list
 	(class/array/bind_args r1 '(r1))
 	(class/obj/ref r1 r2)
-	(vp-push r0 r1)
-	(vp-cpy-rr rsp r1)
-	(vp-call 'copy_elem)
-	(vp-pop r0 r1)
+	(f-bind 'vector 'vtable r3)
+	(vp-cpy-ir r1 obj_vtable r2)
+	(vpif '(r2 == r3))
+		(vp-alloc local_size)
+		(vp-cpy-ir r0 lisp_stack r3)
+		(vp-cpy-ri r0 rsp local_this)
+		(vp-cpy-ri r1 rsp local_form)
+		(vp-lea-i rsp local_form r1)
+		(class/array/get_length r3 r3)
+		(vp-cpy-ri-i r3 rsp local_start)
+		(loop-start)
+			;replace form with copy
+			(vp-cpy-ri r1 rsp local_iter)
+			(vp-cpy-ir r1 0 r0)
+			(d-call 'vector 'slice '(r0 0 (r0 array_length ui)) '(r0 r1))
+			(vp-cpy-ri r1 rsp local_copy)
+			(call 'obj 'deref '(r0))
+			(vp-cpy-ir rsp local_iter r0)
+			(vp-cpy-ir rsp local_copy r1)
+			(vp-cpy-ri r1 r0 0)
+
+			;down this lists branches
+			(vp-cpy-ir rsp local_this r0)
+			(class/array/get_both r1 r1 r6)
+			(vp-cpy-ir r0 lisp_stack r0)
+			(f-bind 'vector 'vtable r7)
+			(loop-start)
+				(vp-cpy-ir r1 0 r2)
+				(vp-cpy-ir r2 obj_vtable r2)
+				(vpif '(r2 == r7))
+					(call 'array 'push_back '(r0 r1) '(r0 r1 _ _))
+				(endif)
+				(vp-add-cr ptr_size r1)
+			(loop-until '(r1 == r6))
+
+			;pop back stack
+			(vp-cpy-ir-ui rsp local_start r3)
+			(class/array/get_length r0 r1)
+			(breakif '(r1 == r3))
+			(vp-sub-cr 1 r1)
+			(class/array/set_length r0 r1)
+			(class/array/get_element r0 r1 r1 r2)
+		(loop-end)
+
+		(vp-cpy-ir rsp local_this r0)
+		(vp-cpy-ir rsp local_form r1)
+		(vp-free local_size)
+	(endif)
 
 	(exit 'lisp 'func_copy '(r0 r1))
-	(vp-ret)
-
-(vp-label 'copy_elem)
-	;inputs
-	;r1 = element iterator (pptr)
-	;outputs
-	;r1 = element iterator (pptr)
-
-	(vp-cpy-ir r1 0 r0)
-	(f-bind 'vector 'vtable r2)
-	(vp-cpy-ir r0 obj_vtable r3)
-	(vpif '(r2 == r3))
-		(vp-push r1)
-		(d-call 'vector 'slice '(r0 0 (r0 array_length ui)) '(r0 r1))
-		(vp-push r1)
-		(call 'vector 'deref '(r0))
-		(vp-pop r0)
-		(vp-cpy-ir rsp 0 r1)
-		(vp-cpy-ri r0 r1 0)
-		(class/array/get_both r0 r1 r2)
-		(loop-while '(r1 != r2))
-			(vp-push r2)
-			(vp-call 'copy_elem)
-			(vp-add-cr ptr_size r1)
-			(vp-pop r2)
-		(loop-end)
-		(vp-pop r1)
-	(endif)
 	(vp-ret)
 
 (errorcases
