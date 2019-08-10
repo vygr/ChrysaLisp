@@ -4,6 +4,28 @@
 
 ------
 
+Big push on the consistency and ease of doing Lisp bindings to native VP code.
+Anything that helps avoid finger trouble and produces tighter code.
+
+Changed the env_arg_type checker function to not trash the Lisp object and args
+regs. This allows the release build code to not have to do extra copies just to
+allow the debug version to work, plus it gives better code even in debug builds
+!.
+
+Ongoing drive to avoid recursive functions. (bind-fun) and (macroexpand) now
+avoid this, but (copy) and (quasiquote) still do so. They will be recode soon
+to not do so. And then I will lower the default task stack size.
+
+MacBook full build now at 0.35s, Raspberry PI3 6.0s. :)
+
+Debug boot image sizes:
+
+AMD64 158508 bytes
+WIN64 158860 bytes
+ARM64 189244 bytes
+
+------
+
 Added a better way of binding parameters from array values to function call
 parameters. Worked through most of the Lisp bindings and used them to make the
 code much simpler and easier to follow.
