@@ -11,12 +11,6 @@
 	;trashes
 	;all but r0
 
-	(def-struct 'local)
-		(ptr 'this 'form 'copy)
-		(pptr 'iter)
-		(uint 'start)
-	(def-struct-end)
-
 	(entry 'lisp 'func_copy '(r0 r1))
 
 (errorcases
@@ -29,28 +23,21 @@
 	(f-bind 'vector 'vtable r3)
 	(vp-cpy-ir r1 obj_vtable r2)
 	(vpif '(r2 == r3))
-		(vp-alloc local_size)
-		(vp-cpy-ir r0 lisp_stack r3)
-		(vp-cpy-ri r0 rsp local_this)
-		(vp-cpy-ri r1 rsp local_form)
-		(vp-lea-i rsp local_form r1)
-		(class/array/get_length r3 r3)
-		(vp-cpy-ri-i r3 rsp local_start)
+		(vp-push r1)
+		(vp-cpy-rr r0 r8)
+		(vp-cpy-ir r0 lisp_stack r9)
+		(vp-lea-i rsp 0 r10)
+		(class/array/get_length r9 r9)
 		(loop-start)
-			;replace form with copy
-			(vp-cpy-ri r1 rsp local_iter)
-			(vp-cpy-ir r1 0 r0)
+			;replace form with copy, deref can't cause destroy !
+			(vp-cpy-ir r10 0 r0)
 			(d-call 'vector 'slice '(r0 0 (r0 array_length ui)) '(r0 r1))
-			(vp-cpy-ri r1 rsp local_copy)
-			(call 'obj 'deref '(r0))
-			(vp-cpy-ir rsp local_iter r0)
-			(vp-cpy-ir rsp local_copy r1)
-			(vp-cpy-ri r1 r0 0)
+			(class/obj/ref r0 r2 -1)
+			(vp-cpy-ri r1 r10 0)
 
 			;down this lists branches
-			(vp-cpy-ir rsp local_this r0)
 			(class/array/get_both r1 r1 r6)
-			(vp-cpy-ir r0 lisp_stack r0)
+			(vp-cpy-ir r8 lisp_stack r0)
 			(f-bind 'vector 'vtable r7)
 			(loop-start)
 				(vp-cpy-ir r1 0 r2)
@@ -62,17 +49,15 @@
 			(loop-until '(r1 == r6))
 
 			;pop back stack
-			(vp-cpy-ir-ui rsp local_start r3)
 			(class/array/get_length r0 r1)
-			(breakif '(r1 == r3))
+			(breakif '(r1 == r9))
 			(vp-sub-cr 1 r1)
 			(class/array/set_length r0 r1)
-			(class/array/get_element r0 r1 r1 r2)
+			(class/array/get_element r0 r1 r10 r2)
 		(loop-end)
 
-		(vp-cpy-ir rsp local_this r0)
-		(vp-cpy-ir rsp local_form r1)
-		(vp-free local_size)
+		(vp-cpy-rr r8 r0)
+		(vp-pop r1)
 	(endif)
 
 	(exit 'lisp 'func_copy '(r0 r1))
