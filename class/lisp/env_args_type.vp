@@ -7,12 +7,14 @@
 	;r3 = type/sig pointer
 	;r4 = - or 0 all same type check, else + for type signature check
 	;outputs
-	;r1 = 0 if error, else ok
+	;r2 = 0 if error, else ok
 	;trashes
-	;r0-r5
+	;r2-r7
 
 	(entry 'lisp 'env_args_type '(r1 r3 r4))
 
+	(vp-cpy-rr r0 r6)
+	(vp-cpy-rr r1 r7)
 	(class/array/get_length r1 r2)
 	(switch 'fail1)
 		(switch 'fail2)
@@ -37,13 +39,17 @@
 					(vp-add-cr short_size r3)
 				(loop-end)
 			(endif)
-			(vp-cpy-cr -1 r1)
-			(exit 'lisp 'env_args_type '(r1))
+			(vp-cpy-cr -1 r2)
+			(vp-cpy-rr r6 r0)
+			(vp-cpy-rr r7 r1)
+			(exit 'lisp 'env_args_type '(r2))
 			(vp-ret)
 		(endswitch)
-		(vp-xor-rr r1 r1)
+		(vp-xor-rr r2 r2)
 	(endswitch)
-	(exit 'lisp 'env_args_type '(r1))
+	(vp-cpy-rr r6 r0)
+	(vp-cpy-rr r7 r1)
+	(exit 'lisp 'env_args_type '(r2))
 	(vp-ret)
 
 (def-func-end)

@@ -20,11 +20,12 @@
 	(class/array/get_length r1 r2)
 	(gotoif '(r2 != 0) 'error))
 
-	(vp-cpy-rr r0 r6)
+	(vp-push r0)
 	(call 'sys_kernel 'total nil '(r0))
-	(call 'num 'create '(r0) '(r0))
+	(call 'num 'create '(r0) '(r1))
+	(vp-pop r0)
 
-	(exit 'sys_kernel 'lisp_total '(r6 r0))
+	(exit 'sys_kernel 'lisp_total '(r0 r1))
 	(vp-ret)
 
 (errorcases
@@ -46,8 +47,8 @@
 	(entry 'sys_kernel 'lisp_declare '(r11 r12))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r12 ($ sig) 2) '(r1))
-	(gotoif '(r1 == 0) 'error))
+	(call 'lisp 'env_args_type '(r12 ($ sig) 2) '(r2))
+	(gotoif '(r2 == 0) 'error))
 
 	(defq in (method-input 'sys_kernel 'declare))
 	(class/array/bind_args r12 in)
@@ -76,26 +77,28 @@
 	;trashes
 	;all but r0
 
-	(entry 'sys_kernel 'lisp_debug '(r6 r7))
+	(entry 'sys_kernel 'lisp_debug '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 1) '(r1))
-	(gotoif '(r1 == 0) 'error))
+	(call 'lisp 'env_args_type '(r1 ($ sig) 1) '(r2))
+	(gotoif '(r2 == 0) 'error))
 
+	(vp-push r0)
 	(defq in (method-input 'sys_kernel 'debug))
-	(class/array/bind_args r7 in)
-	(vp-push r6 (elem 0 in))
+	(class/array/bind_args r1 in)
+	(vp-push (elem 0 in))
 	(class/vector/cast_args in '(str))
 	(call 'sys_kernel 'debug in)
-	(vp-pop r0 r1)
+	(vp-pop r1)
 	(class/obj/ref r1 r2)
+	(vp-pop r0)
 
 	(exit 'sys_kernel 'lisp_debug '(r0 r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(kernel-debug str)" error_msg_wrong_types r7))
+	(jump 'lisp 'repl_error '(r0 "(kernel-debug str)" error_msg_wrong_types r1))
 	(signature '(str)))
 
 (def-func-end)

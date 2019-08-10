@@ -14,24 +14,26 @@
 	;trashes
 	;all but r0
 
-	(entry 'sys_task 'lisp_sleep '(r6 r7))
+	(entry 'sys_task 'lisp_sleep '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 1) '(r1))
-	(gotoif '(r1 == 0) 'error))
+	(call 'lisp 'env_args_type '(r1 ($ sig) 1) '(r2))
+	(gotoif '(r2 == 0) 'error))
 
+	(vp-push r0)
 	(defq in (method-input 'sys_task 'sleep))
-	(class/vector/bind_args r7 in '(num))
+	(class/vector/bind_args r1 in '(num))
 	(call 'sys_task 'sleep in)
-	(vp-cpy-ir r6 lisp_sym_t r1)
+	(vp-pop r0)
+	(vp-cpy-ir r0 lisp_sym_t r1)
 	(class/obj/ref r1 r2)
 
-	(exit 'sys_task 'lisp_sleep '(r6 r1))
+	(exit 'sys_task 'lisp_sleep '(r0 r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(task-sleep usec)" error_msg_wrong_types r7))
+	(jump 'lisp 'repl_error '(r0 "(task-sleep usec)" error_msg_wrong_types r1))
 	(signature '(num)))
 
 (def-func-end)
@@ -52,11 +54,12 @@
 	(class/array/get_length r1 r2)
 	(gotoif '(r2 != 0) 'error))
 
-	(vp-cpy-rr r0 r6)
+	(vp-push r0)
 	(call 'sys_task 'mailbox nil '(r0))
-	(call 'num 'create '(r0) '(r0))
+	(call 'num 'create '(r0) '(r1))
+	(vp-pop r0)
 
-	(exit 'sys_task 'lisp_mailbox '(r6 r0))
+	(exit 'sys_task 'lisp_mailbox '(r0 r1))
 	(vp-ret)
 
 (errorcases
@@ -75,15 +78,15 @@
 	;trashes
 	;all but r0
 
-	(entry 'sys_task 'lisp_open_child '(r6 r7))
+	(entry 'sys_task 'lisp_open_child '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 2) '(r1))
-	(gotoif '(r1 == 0) 'error))
+	(call 'lisp 'env_args_type '(r1 ($ sig) 2) '(r2))
+	(gotoif '(r2 == 0) 'error))
 
-	(vp-push r6)
+	(vp-push r0)
 	(defq in (method-input 'sys_task 'open_child))
-	(class/vector/bind_args r7 in '(str num))
+	(class/vector/bind_args r1 in '(str num))
 	(call 'sys_task 'open_child in '(r0))
 	(call 'num 'create '(r0) '(r1))
 	(vp-pop r0)
@@ -93,7 +96,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(open-child path mode)" error_msg_wrong_types r7))
+	(jump 'lisp 'repl_error '(r0 "(open-child path mode)" error_msg_wrong_types r1))
 	(signature '(str num)))
 
 (def-func-end)
@@ -108,15 +111,15 @@
 	;trashes
 	;all but r0
 
-	(entry 'sys_task 'lisp_open_remote '(r6 r7))
+	(entry 'sys_task 'lisp_open_remote '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 3) '(r1))
-	(gotoif '(r1 == 0) 'error))
+	(call 'lisp 'env_args_type '(r1 ($ sig) 3) '(r2))
+	(gotoif '(r2 == 0) 'error))
 
-	(vp-push r6)
+	(vp-push r0)
 	(defq in (method-input 'sys_task 'open_remote))
-	(class/vector/bind_args r7 in '(str num num))
+	(class/vector/bind_args r1 in '(str num num))
 	(call 'sys_task 'open_remote in '(r0))
 	(call 'num 'create '(r0) '(r1))
 	(vp-pop r0)
@@ -126,7 +129,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(open-remote path cpu mode)" error_msg_wrong_types r7))
+	(jump 'lisp 'repl_error '(r0 "(open-remote path cpu mode)" error_msg_wrong_types r1))
 	(signature '(str num num)))
 
 (def-func-end)
@@ -141,15 +144,15 @@
 	;trashes
 	;all but r0
 
-	(entry 'sys_task 'lisp_open_farm '(r6 r7))
+	(entry 'sys_task 'lisp_open_farm '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 3) '(r1))
-	(gotoif '(r1 == 0) 'error))
+	(call 'lisp 'env_args_type '(r1 ($ sig) 3) '(r2))
+	(gotoif '(r2 == 0) 'error))
 
-	(vp-push r6)
+	(vp-push r0)
 	(defq in (method-input 'sys_task 'open_farm))
-	(class/vector/bind_args r7 in '(str num num))
+	(class/vector/bind_args r1 in '(str num num))
 	(call 'sys_task 'open_farm in '(r1))
 	(vp-pop r0)
 
@@ -158,7 +161,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(open-farm path num mode)" error_msg_wrong_types r7))
+	(jump 'lisp 'repl_error '(r0 "(open-farm path num mode)" error_msg_wrong_types r1))
 	(signature '(str num num)))
 
 (def-func-end)
@@ -173,20 +176,20 @@
 	;trashes
 	;all but r0
 
-	(entry 'sys_task 'lisp_open_pipe '(r6 r7))
+	(entry 'sys_task 'lisp_open_pipe '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 1) '(r1))
-	(gotoif '(r1 == 0) 'error))
+	(call 'lisp 'env_args_type '(r1 ($ sig) 1) '(r2))
+	(gotoif '(r2 == 0) 'error))
 
-	(class/array/bind_args r7 '(r8))
+	(class/array/bind_args r7 '(r1))
 
 (errorcases
-	(call 'lisp 'env_args_type `(r8 (@ ,(f-path 'str 'vtable)) -1) '(r1))
-	(gotoif '(r1 == 0) 'error))
+	(call 'lisp 'env_args_type `(r1 (@ ,(f-path 'str 'vtable)) -1) '(r2))
+	(gotoif '(r2 == 0) 'error))
 
-	(vp-push r6)
-	(call 'sys_task 'open_pipe '(r8) '(r1))
+	(vp-push r0)
+	(call 'sys_task 'open_pipe '(r1) '(r1))
 	(vp-pop r0)
 
 	(exit 'sys_task 'lisp_open_pipe '(r0 r1))
@@ -194,7 +197,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(open-pipe paths)" error_msg_wrong_types r7))
+	(jump 'lisp 'repl_error '(r0 "(open-pipe paths)" error_msg_wrong_types r1))
 	(signature '(vector)))
 
 (def-func-end)

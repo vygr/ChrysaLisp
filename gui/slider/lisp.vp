@@ -42,23 +42,25 @@
 	;trashes
 	;all but r0
 
-	(entry 'slider 'lisp_connect_value '(r6 r7))
+	(entry 'slider 'lisp_connect_value '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 2) '(r1))
-	(gotoif '(r1 == 0) 'error))
+	(call 'lisp 'env_args_type '(r1 ($ sig) 2) '(r2))
+	(gotoif '(r2 == 0) 'error))
 
+	(vp-push r0)
 	(defq in (method-input 'slider 'connect_value))
-	(class/vector/bind_args r7 in '(slider num))
+	(class/vector/bind_args r1 in '(slider num))
 	(call 'slider 'connect_value in '(r0))
-	(call 'slider 'ref '(r0) '(r0))
+	(call 'slider 'ref '(r0) '(r1))
+	(vp-pop r0)
 
-	(exit 'slider 'lisp_connect_value '(r6 r0))
+	(exit 'slider 'lisp_connect_value '(r0 r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(slider-connect-value slider id)" error_msg_wrong_types r7))
+	(jump 'lisp 'repl_error '(r0 "(slider-connect-value slider id)" error_msg_wrong_types r1))
 	(signature '(slider num)))
 
 (def-func-end)

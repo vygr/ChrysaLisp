@@ -21,11 +21,12 @@
 	(class/array/get_length r1 r2)
 	(gotoif '(r2 != 0) 'error))
 
-	(vp-cpy-rr r0 r6)
+	(vp-push r0)
 	(call 'sys_mail 'mymail nil '(r0 _))
-	(call 'sys_mail 'free_obj '(r0) '(r0 _ _))
+	(call 'sys_mail 'free_obj '(r0) '(r1 _ _))
+	(vp-pop r0)
 
-	(exit 'sys_mail 'lisp_mymail '(r6 r0))
+	(exit 'sys_mail 'lisp_mymail '(r0 r1))
 	(vp-ret)
 
 (errorcases
@@ -50,15 +51,18 @@
 	(class/array/get_length r1 r2)
 	(gotoif '(r2 != 0) 'error))
 
-	(vp-cpy-rr r0 r6)
+	(vp-push r0)
 	(call 'sys_mail 'trymail nil '(r0 _))
 	(vpif '(r0 != 0))
-		(call 'sys_mail 'free_obj '(r0) '(r0 _ _))
+		(call 'sys_mail 'free_obj '(r0) '(r1 _ _))
 	(else)
-		(call 'obj 'ref '((r6 lisp_sym_nil)) '(r0))
+		(vp-cpy-ir rsp 0 r1)
+		(vp-cpy-ir r1 lisp_sym_nil r1)
+		(class/obj/ref r1 r2)
 	(endif)
+	(vp-pop r0)
 
-	(exit 'sys_mail 'lisp_trymail '(r6 r0))
+	(exit 'sys_mail 'lisp_trymail '(r0 r1))
 	(vp-ret)
 
 (errorcases
@@ -84,8 +88,8 @@
 	(entry 'sys_mail 'lisp_send {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 2} '(r1))
-	(gotoif '(r1 == 0) 'error1))
+	(call 'lisp 'env_args_type {args, $sig, 2} '(r2))
+	(gotoif '(r2 == 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'obj 'inst_of (cat {arg0, @} (f-path 'str 'vtable)))
@@ -130,26 +134,28 @@
 	;trashes
 	;all but r0
 
-	(entry 'sys_mail 'lisp_declare '(r6 r7))
+	(entry 'sys_mail 'lisp_declare '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 2) '(r1))
-	(gotoif '(r1 == 0) 'error))
+	(call 'lisp 'env_args_type '(r1 ($ sig) 2) '(r2))
+	(gotoif '(r2 == 0) 'error))
 
+	(vp-push r0)
 	(defq in (method-input 'sys_mail 'declare))
-	(class/array/bind_args r7 in)
-	(vp-push r6 (elem 0 in))
+	(class/array/bind_args r1 in)
+	(vp-push (elem 0 in))
 	(class/vector/cast_args in '(str num))
 	(call 'sys_mail 'declare in)
-	(vp-pop r0 r1)
+	(vp-pop r1)
 	(class/obj/ref r1 r2)
+	(vp-pop r0)
 
 	(exit 'sys_mail 'lisp_declare '(r0 r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(mail-declare name mbox)" error_msg_wrong_types r7))
+	(jump 'lisp 'repl_error '(r0 "(mail-declare name mbox)" error_msg_wrong_types r1))
 	(signature '(str num)))
 
 (def-func-end)
@@ -164,23 +170,23 @@
 	;trashes
 	;all but r0
 
-	(entry 'sys_mail 'lisp_enquire '(r6 r7))
+	(entry 'sys_mail 'lisp_enquire '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 1) '(r1))
-	(gotoif '(r1 == 0) 'error))
+	(call 'lisp 'env_args_type '(r1 ($ sig) 1) '(r2))
+	(gotoif '(r2 == 0) 'error))
 
-	(vp-push r6)
+	(vp-push r0)
 	(defq in (method-input 'sys_mail 'enquire))
-	(class/vector/bind_args r7 in '(str))
+	(class/vector/bind_args r1 in '(str))
 	(call 'sys_mail 'enquire in '(r0))
 	(vpif '(r0 != 0))
-		(call 'num 'create '(r0) '(r0))
+		(call 'num 'create '(r0) '(r1))
 	(else)
-		(vp-cpy-ir rsp 0 r0)
-		(call 'obj 'ref '((r0 lisp_sym_nil)) '(r0))
+		(vp-cpy-ir rsp 0 r1)
+		(vp-cpy-ir r1 lisp_sym_nil r1)
+		(class/obj/ref r1 r2)
 	(endif)
-	(vp-cpy-rr r0 r1)
 	(vp-pop r0)
 
 	(exit 'sys_mail 'lisp_enquire '(r0 r1))
@@ -188,7 +194,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(mail-enquire name)" error_msg_wrong_types r7))
+	(jump 'lisp 'repl_error '(r0 "(mail-enquire name)" error_msg_wrong_types r1))
 	(signature '(str)))
 
 (def-func-end)

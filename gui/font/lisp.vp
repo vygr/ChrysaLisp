@@ -14,15 +14,15 @@
 	;trashes
 	;all but r0
 
-	(entry 'font 'lisp_create '(r6 r7))
+	(entry 'font 'lisp_create '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 2) '(r1))
-	(gotoif '(r1 == 0) 'error))
+	(call 'lisp 'env_args_type '(r1 ($ sig) 2) '(r2))
+	(gotoif '(r2 == 0) 'error))
 
-	(vp-push r6)
+	(vp-push r0)
 	(defq in (method-input 'font 'create))
-	(class/vector/bind_args r7 in '(str num))
+	(class/vector/bind_args r1 in '(str num))
 	(call 'font 'open in '(r0))
 	(vpif '(r0 == 0))
 		(vp-cpy-ir rsp 0 r0)
@@ -36,7 +36,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(create-font name points)" error_msg_wrong_types r7))
+	(jump 'lisp 'repl_error '(r0 "(create-font name points)" error_msg_wrong_types r1))
 	(signature '(str num)))
 
 (def-func-end)

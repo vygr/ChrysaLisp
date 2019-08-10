@@ -16,25 +16,24 @@
 	;trashes
 	;all but r0
 
-	(vp-def (r_this r_args r_value) '(r6 r7))
-
-	(entry 'seq 'lisp_length (list r_this r_args))
+	(entry 'seq 'lisp_length '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type `(,r_args ($ sig) 1) '(r1))
-	(gotoif '(r1 == 0) 'error1))
+	(call 'lisp 'env_args_type '(r1 ($ sig) 1) '(r2))
+	(gotoif '(r2 == 0) 'error1))
 
-	(class/array/get_begin r_args r_value)
-	(vp-cpy-ir r_value 0 r_value)
-	(call 'seq 'get_length (list r_value) (list '_ r_value))
-	(call 'num 'create (list r_value) (list r_value))
+	(vp-push r0)
+	(class/array/bind_args r1 '(r0))
+	(call 'seq 'get_length '(r0) '(_ r0))
+	(call 'num 'create '(r0) '(r1))
+	(vp-pop r0)
 
-	(exit 'seq 'lisp_length (list r_this r_value))
+	(exit 'seq 'lisp_length '(r0 r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error1)
-	(jump 'lisp 'repl_error (list r_this "(length seq)" error_msg_wrong_types r_args))
+	(jump 'lisp 'repl_error '(r0 "(length seq)" error_msg_wrong_types r1))
 	(signature '(seq)))
 
 (def-func-end)
@@ -59,8 +58,8 @@
 	(entry 'seq 'lisp_elem {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 2} '(r1))
-	(gotoif '(r1 == 0) 'error1))
+	(call 'lisp 'env_args_type {args, $sig, 2} '(r2))
+	(gotoif '(r2 == 0) 'error1))
 
 	(call 'vector 'get_begin {args} {_, iter_begin})
 	(assign {iter_begin[0], iter_begin[ptr_size]} {value, seq})
@@ -105,8 +104,8 @@
 	(entry 'seq 'lisp_slice {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 3} '(r1))
-	(gotoif '(r1 == 0) 'error1))
+	(call 'lisp 'env_args_type {args, $sig, 3} '(r2))
+	(gotoif '(r2 == 0) 'error1))
 
 	(call 'vector 'get_begin {args} {_, iter_begin})
 	(assign {iter_begin[0], iter_begin[ptr_size], iter_begin[ptr_size * 2]} {value1, value2, slc})
@@ -398,15 +397,15 @@
 	;trashes
 	;all but r0
 
-	(entry 'seq 'lisp_cat '(r6 r7))
+	(entry 'seq 'lisp_cat '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type `(r7 (@ ,(f-path 'seq 'vtable)) -1) '(r1))
-	(gotoif '(r1 == 0) 'error))
+	(call 'lisp 'env_args_type `(r1 (@ ,(f-path 'seq 'vtable)) -1) '(r2))
+	(gotoif '(r2 == 0) 'error))
 
-	(vp-push r6)
-	(class/array/bind_args r7 '(r0))
-	(call 'seq 'cat '(r0 r7) '(r1))
+	(vp-push r0)
+	(class/array/bind_args r1 '(r0))
+	(call 'seq 'cat '(r0 r1) '(r1))
 	(vp-pop r0)
 
 	(exit 'seq 'lisp_cat '(r0 r1))
@@ -414,7 +413,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(cat seq ...)" error_msg_wrong_types r7)))
+	(jump 'lisp 'repl_error '(r0 "(cat seq ...)" error_msg_wrong_types r1)))
 
 (def-func-end)
 

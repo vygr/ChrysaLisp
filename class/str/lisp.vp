@@ -14,15 +14,15 @@
 	;trashes
 	;all but r0
 
-	(entry 'str 'lisp_split '(r6 r7))
+	(entry 'str 'lisp_split '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 2) '(r1))
-	(gotoif '(r1 == 0) 'error1))
+	(call 'lisp 'env_args_type '(r1 ($ sig) 2) '(r2))
+	(gotoif '(r2 == 0) 'error1))
 
-	(vp-push r6)
+	(vp-push r0)
 	(defq in (method-input 'str 'split))
-	(class/vector/bind_args r7 in '(obj char))
+	(class/vector/bind_args r1 in '(obj char))
 	(call 'str 'split in '(_ r1))
 	(vp-pop r0)
 
@@ -31,7 +31,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(jump 'lisp 'repl_error '(r6 "(split str char)" error_msg_wrong_types r7))
+	(jump 'lisp 'repl_error '(r0 "(split str char)" error_msg_wrong_types r1))
 	(signature '(str str)))
 
 (def-func-end)
@@ -55,8 +55,8 @@
 (errorcases
 	(gotoif (list r_len '< 1) 'error1)
 	(gotoif (list r_len '> 3) 'error1)
-	(call 'lisp 'env_args_type (list r_args '($ sig) r_len) '(r1))
-	(gotoif '(r1 == 0) 'error1))
+	(call 'lisp 'env_args_type (list r_args '($ sig) r_len) '(r2))
+	(gotoif '(r2 == 0) 'error1))
 
 	(class/array/get_begin r_args r_iter_begin)
 	(vp-cpy-cr 1 r_width)
@@ -122,8 +122,8 @@
 (errorcases
 	(gotoif (list r_len '< 1) 'error1)
 	(gotoif (list r_len '> 2) 'error1)
-	(call 'lisp 'env_args_type `(,r_args (@ ,(f-path 'num 'vtable)) 0) '(r1))
-	(gotoif '(r1 == 0) 'error1))
+	(call 'lisp 'env_args_type `(,r_args (@ ,(f-path 'num 'vtable)) 0) '(r2))
+	(gotoif '(r2 == 0) 'error1))
 
 	(class/array/get_begin r_args r_iter_begin)
 	(vp-cpy-cr 1 r_width)
@@ -161,8 +161,8 @@
 	(entry 'str 'lisp_cmp (list r_this r_args))
 
 (errorcases
-	(call 'lisp 'env_args_type `(,r_args ($ sig) 2) '(r1))
-	(gotoif '(r1 == 0) 'error))
+	(call 'lisp 'env_args_type `(,r_args ($ sig) 2) '(r2))
+	(gotoif '(r2 == 0) 'error))
 
 	(call 'vector 'get_begin (list r_args) (list '_ r_iter_begin))
 	(vp-cpy-ir r_iter_begin 0 r_arg1)
@@ -203,8 +203,8 @@
 	(entry 'str 'lisp_save {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 2} '(r1))
-	(gotoif '(r1 == 0) 'error1))
+	(call 'lisp 'env_args_type {args, $sig, 2} '(r2))
+	(gotoif '(r2 == 0) 'error1))
 
 	(call 'vector 'get_begin {args} {_, iter_begin})
 	(assign {iter_begin[0], iter_begin[ptr_size]} {value, name})
@@ -244,8 +244,8 @@
 	(entry 'str 'lisp_load {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 1} '(r1))
-	(gotoif '(r1 == 0) 'error1))
+	(call 'lisp 'env_args_type {args, $sig, 1} '(r2))
+	(gotoif '(r2 == 0) 'error1))
 
 	(call 'vector 'get_first {args} {_, value})
 	(call 'str 'create_from_file {&value->str_data} {value})

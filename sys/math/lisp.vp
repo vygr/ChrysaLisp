@@ -5,17 +5,16 @@
 
 ;generic fixed math op
 (defun mathop (_ p)
-	(vp-def (r_this r_args r_value) '(r6 r7 r0))
-	(entry 'sys_math _ (list r_this r_args))
+	(entry 'sys_math _ '(r0 r1))
 (errorcases
-	(call 'lisp 'env_args_type `(,r_args ($ sig) 1) '(r1))
-	(gotoif '(r1 == 0) 'error))
-	(class/array/get_begin r_args r_value)
-	(vp-cpy-ir r_value 0 r_value)
-	(class/num/get_value r_value r_value)
+	(call 'lisp 'env_args_type '(r1 ($ sig) 1) '(r2))
+	(gotoif '(r2 == 0) 'error))
+	(vp-push r0)
+	(class/vector/bind_args r1 '(r0) '(num))
 	(exec p)
-	(call 'num 'create (list r_value) (list r_value))
-	(exit 'sys_math _ (list r_this r_value))
+	(call 'num 'create '(r0) '(r1))
+	(vp-pop r0)
+	(exit 'sys_math _ '(r0 r1))
 	(vp-ret))
 
 (def-method 'sys_math 'lisp_fsin)
@@ -29,11 +28,11 @@
 	;all but r0
 
 	(mathop 'lisp_fsin
-		'(call 'sys_math 'fsin (list r_value) (list r_value)))
+		'(call 'sys_math 'fsin '(r0) '(r0)))
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error (list r_this "(fsin angle)" error_msg_wrong_types r_args))
+	(jump 'lisp 'repl_error '(r0 "(fsin angle)" error_msg_wrong_types r1))
 	(signature '(num)))
 
 (def-func-end)
@@ -49,11 +48,11 @@
 	;all but r0
 
 	(mathop 'lisp_fcos
-		'(call 'sys_math 'fcos (list r_value) (list r_value)))
+		'(call 'sys_math 'fcos '(r0) '(r0)))
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error (list r_this "(fcos angle)" error_msg_wrong_types r_args))
+	(jump 'lisp 'repl_error '(r0 "(fcos angle)" error_msg_wrong_types r1))
 	(signature '(num)))
 
 (def-func-end)
@@ -70,12 +69,13 @@
 
 	(mathop 'lisp_fsqrt
 		'(progn
-			(errorif (list r_value '< 0) 'error)
-			(call 'sys_math 'fsqrt (list r_value) (list r_value))))
+			(errorif '(r0 < 0) 'error)
+			(call 'sys_math 'fsqrt '(r0) '(r0))))
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error (list r_this "(fsqrt num)" error_msg_wrong_types r_args))
+	(vp-pop r0)
+	(jump 'lisp 'repl_error '(r0 "(fsqrt num)" error_msg_wrong_types r1))
 	(signature '(num)))
 
 (def-func-end)
@@ -97,7 +97,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error (list r_this "(frac num)" error_msg_wrong_types r_args))
+	(jump 'lisp 'repl_error '(r0 "(frac num)" error_msg_wrong_types r1))
 	(signature '(num)))
 
 (def-func-end)
@@ -119,7 +119,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error (list r_this "(floor num)" error_msg_wrong_types r_args))
+	(jump 'lisp 'repl_error '(r0 "(floor num)" error_msg_wrong_types r1))
 	(signature '(num)))
 
 (def-func-end)

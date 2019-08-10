@@ -14,15 +14,15 @@
 	;trashes
 	;all but r0
 
-	(entry 'canvas 'lisp_create '(r6 r7))
+	(entry 'canvas 'lisp_create '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 3) '(r1))
-	(gotoif '(r1 == 0) 'error))
+	(call 'lisp 'env_args_type '(r1 ($ sig) 3) '(r2))
+	(gotoif '(r2 == 0) 'error))
 
-	(vp-push r6)
+	(vp-push r0)
 	(defq in (method-input 'canvas 'create))
-	(class/vector/bind_args r7 in '(num num num))
+	(class/vector/bind_args r1 in '(num num num))
 	(call 'canvas 'create in '(r1))
 	(vp-pop r0)
 
@@ -31,7 +31,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(create-canvas width height scale)" error_msg_wrong_types r7))
+	(jump 'lisp 'repl_error '(r0 "(create-canvas width height scale)" error_msg_wrong_types r1))
 	(signature '(num num num)))
 
 (def-func-end)
@@ -46,15 +46,15 @@
 	;trashes
 	;all but r0
 
-	(entry 'canvas 'lisp_load '(r6 r7))
+	(entry 'canvas 'lisp_load '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 2) '(r1))
-	(gotoif '(r1 == 0) 'error))
+	(call 'lisp 'env_args_type '(r1 ($ sig) 2) '(r2))
+	(gotoif '(r2 == 0) 'error))
 
-	(vp-push r6)
+	(vp-push r0)
 	(defq in (method-input 'canvas 'load))
-	(class/vector/bind_args r7 in '(str num))
+	(class/vector/bind_args r1 in '(str num))
 	(call 'canvas 'load in '(r0))
 	(vpif '(r0 == 0))
 		(vp-cpy-ir rsp 0 r0)
@@ -68,7 +68,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(canvas-load path flags)" error_msg_wrong_types r7))
+	(jump 'lisp 'repl_error '(r0 "(canvas-load path flags)" error_msg_wrong_types r1))
 	(signature '(str num)))
 
 (def-func-end)
@@ -83,23 +83,25 @@
 	;trashes
 	;all but r0
 
-	(entry 'canvas 'lisp_fill '(r6 r7))
+	(entry 'canvas 'lisp_fill '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 2) '(r1))
-	(gotoif '(r1 == 0) 'error))
+	(call 'lisp 'env_args_type '(r1 ($ sig) 2) '(r2))
+	(gotoif '(r2 == 0) 'error))
 
+	(vp-push r0)
 	(defq in (method-input 'canvas 'fill))
-	(class/vector/bind_args r7 in '(canvas num))
+	(class/vector/bind_args r1 in '(canvas num))
 	(call 'canvas 'fill in '(r0))
-	(call 'obj 'ref '(r0) '(r0))
+	(call 'obj 'ref '(r0) '(r1))
+	(vp-pop r0)
 
-	(exit 'canvas 'lisp_fill '(r6 r0))
+	(exit 'canvas 'lisp_fill '(r0 r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(canvas-fill canvas argb)" error_msg_wrong_types r7))
+	(jump 'lisp 'repl_error '(r0 "(canvas-fill canvas argb)" error_msg_wrong_types r1))
 	(signature '(canvas num)))
 
 (def-func-end)
@@ -114,23 +116,25 @@
 	;trashes
 	;all but r0
 
-	(entry 'canvas 'lisp_set_color '(r6 r7))
+	(entry 'canvas 'lisp_set_color '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 2) '(r1))
-	(gotoif '(r1 == 0) 'error))
+	(call 'lisp 'env_args_type '(r1 ($ sig) 2) '(r2))
+	(gotoif '(r2 == 0) 'error))
 
+	(vp-push r0)
 	(defq in (method-input 'canvas 'set_color))
-	(class/vector/bind_args r7 in '(canvas num))
+	(class/vector/bind_args r1 in '(canvas num))
 	(call 'canvas 'set_color in '(r0 _))
-	(call 'obj 'ref '(r0) '(r0))
+	(call 'obj 'ref '(r0) '(r1))
+	(vp-pop r0)
 
-	(exit 'canvas 'lisp_set_color '(r6 r0))
+	(exit 'canvas 'lisp_set_color '(r0 r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(canvas-set-color canvas argb)" error_msg_wrong_types r7))
+	(jump 'lisp 'repl_error '(r0 "(canvas-set-color canvas argb)" error_msg_wrong_types r1))
 	(signature '(canvas num)))
 
 (def-func-end)
@@ -145,23 +149,25 @@
 	;trashes
 	;all but r0
 
-	(entry 'canvas 'lisp_set_flags '(r6 r7))
+	(entry 'canvas 'lisp_set_flags '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 2) '(r1))
-	(gotoif '(r1 == 0) 'error))
+	(call 'lisp 'env_args_type '(r1 ($ sig) 2) '(r2))
+	(gotoif '(r2 == 0) 'error))
 
+	(vp-push r0)
 	(defq in (method-input 'canvas 'set_flags))
-	(class/vector/bind_args r7 in '(canvas num))
+	(class/vector/bind_args r1 in '(canvas num))
 	(call 'canvas 'set_flags in '(r0 _))
-	(call 'obj 'ref '(r0) '(r0))
+	(call 'obj 'ref '(r0) '(r1))
+	(vp-pop r0)
 
-	(exit 'canvas 'lisp_set_flags '(r6 r0))
+	(exit 'canvas 'lisp_set_flags '(r0 r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(canvas-set-flags canvas flags)" error_msg_wrong_types r7))
+	(jump 'lisp 'repl_error '(r0 "(canvas-set-flags canvas flags)" error_msg_wrong_types r1))
 	(signature '(canvas num)))
 
 (def-func-end)
@@ -176,15 +182,15 @@
 	;trashes
 	;all but r0
 
-	(entry 'canvas 'lisp_swap '(r6 r7))
+	(entry 'canvas 'lisp_swap '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 1) '(r1))
-	(gotoif '(r1 == 0) 'error))
+	(call 'lisp 'env_args_type '(r1 ($ sig) 1) '(r2))
+	(gotoif '(r2 == 0) 'error))
 
-	(vp-push r6)
+	(vp-push r0)
 	(defq in (method-input 'canvas 'swap))
-	(class/vector/bind_args r7 in '(canvas))
+	(class/vector/bind_args r1 in '(canvas))
 	(call 'canvas 'swap in '(r0))
 	(call 'canvas 'dirty '(r0) '(r0))
 	(call 'obj 'ref '(r0) '(r1))
@@ -195,7 +201,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(canvas-swap canvas)" error_msg_wrong_types r7))
+	(jump 'lisp 'repl_error '(r0 "(canvas-swap canvas)" error_msg_wrong_types r1))
 	(signature '(canvas)))
 
 (def-func-end)
@@ -210,23 +216,25 @@
 	;trashes
 	;all but r0
 
-	(entry 'canvas 'lisp_next_frame '(r6 r7))
+	(entry 'canvas 'lisp_next_frame '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 1) '(r1))
-	(gotoif '(r1 == 0) 'error))
+	(call 'lisp 'env_args_type '(r1 ($ sig) 1) '(r2))
+	(gotoif '(r2 == 0) 'error))
 
+	(vp-push r0)
 	(defq in (method-input 'canvas 'next_frame))
-	(class/vector/bind_args r7 in '(canvas))
+	(class/vector/bind_args r1 in '(canvas))
 	(call 'canvas 'next_frame in '(r0))
-	(call 'obj 'ref '(r0) '(r0))
+	(call 'obj 'ref '(r0) '(r1))
+	(vp-pop r0)
 
-	(exit 'canvas 'lisp_next_frame '(r6 r0))
+	(exit 'canvas 'lisp_next_frame '(r0 r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(canvas-next-frame canvas)" error_msg_wrong_types r7))
+	(jump 'lisp 'repl_error '(r0 "(canvas-next-frame canvas)" error_msg_wrong_types r1))
 	(signature '(canvas)))
 
 (def-func-end)
@@ -241,13 +249,13 @@
 	;trashes
 	;all but r0
 
-	(entry 'canvas 'lisp_plot '(r6 r7))
+	(entry 'canvas 'lisp_plot '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 3) '(r1))
-	(gotoif '(r1 == 0) 'error))
+	(call 'lisp 'env_args_type '(r1 ($ sig) 3) '(r2))
+	(gotoif '(r2 == 0) 'error))
 
-	(vp-push r6)
+	(vp-push r0)
 	(defq in (method-input 'canvas 'plot))
 	(class/vector/bind_args r7 in '(canvas num num))
 	(call 'canvas 'plot in '(r0))
@@ -259,7 +267,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(canvas-plot canvas x y)" error_msg_wrong_types r7))
+	(jump 'lisp 'repl_error '(r0 "(canvas-plot canvas x y)" error_msg_wrong_types r1))
 	(signature '(canvas num num)))
 
 (def-func-end)
@@ -274,15 +282,15 @@
 	;trashes
 	;all but r0
 
-	(entry 'canvas 'lisp_fbox '(r6 r7))
+	(entry 'canvas 'lisp_fbox '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 5) '(r1))
-	(gotoif '(r1 == 0) 'error))
+	(call 'lisp 'env_args_type '(r1 ($ sig) 5) '(r2))
+	(gotoif '(r2 == 0) 'error))
 
-	(vp-push r6)
+	(vp-push r0)
 	(defq in (method-input 'canvas 'fbox))
-	(class/vector/bind_args r7 in '(canvas num num num num))
+	(class/vector/bind_args r1 in '(canvas num num num num))
 	(call 'canvas 'fbox in '(r0))
 	(call 'obj 'ref '(r0) '(r1))
 	(vp-pop r0)
@@ -292,7 +300,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(canvas-fbox canvas x y w h)" error_msg_wrong_types r7))
+	(jump 'lisp 'repl_error '(r0 "(canvas-fbox canvas x y w h)" error_msg_wrong_types r1))
 	(signature '(canvas num num num num)))
 
 (def-func-end)
@@ -307,15 +315,15 @@
 	;trashes
 	;all but r0
 
-	(entry 'canvas 'lisp_fpoly '(r6 r7))
+	(entry 'canvas 'lisp_fpoly '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 5) '(r1))
-	(gotoif '(r1 == 0) 'error))
+	(call 'lisp 'env_args_type '(r1 ($ sig) 5) '(r2))
+	(gotoif '(r2 == 0) 'error))
 
-	(vp-push r6)
+	(vp-push r0)
 	(defq in (method-input 'canvas 'fpoly))
-	(class/vector/bind_args r7 in '(canvas num num num vector))
+	(class/vector/bind_args r1 in '(canvas num num num vector))
 	(call 'canvas 'fpoly in '(r0))
 	(call 'obj 'ref '(r0) '(r1))
 	(vp-pop r0)
@@ -325,7 +333,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(canvas-fpoly canvas x y mode list)" error_msg_wrong_types r7))
+	(jump 'lisp 'repl_error '(r0 "(canvas-fpoly canvas x y mode list)" error_msg_wrong_types r1))
 	(signature '(canvas num num num vector)))
 
 (def-func-end)

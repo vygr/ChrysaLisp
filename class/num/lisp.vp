@@ -4,11 +4,12 @@
 (include 'class/lisp/class.inc)
 
 (defun addop (_ p)
-	(entry 'num _ '(r6 r7))
+	(entry 'num _ '(r0 r1))
 (errorcases
-	(call 'lisp 'env_args_type `(r7 (@ ,(f-path 'num 'vtable)) -2) '(r1))
-	(gotoif '(r1 == 0) 'error))
-	(class/array/get_both r7 r1 r2)
+	(call 'lisp 'env_args_type `(r1 (@ ,(f-path 'num 'vtable)) -2) '(r2))
+	(gotoif '(r2 == 0) 'error))
+	(vp-push r0)
+	(class/array/get_both r1 r1 r2)
 	(vp-cpy-ir r1 0 r0)
 	(vp-add-cr ptr_size r1)
 	(class/num/get_value r0 r0)
@@ -18,8 +19,9 @@
 		(class/num/get_value r3 r3)
 		(exec p)
 	(loop-until '(r1 == r2))
-	(call 'num 'create '(r0) '(r0))
-	(exit 'num _ '(r6 r0))
+	(call 'num 'create '(r0) '(r1))
+	(vp-pop r0)
+	(exit 'num _ '(r0 r1))
 	(vp-ret))
 
 (def-method 'num 'lisp_add)
@@ -37,7 +39,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(add num num ...)" error_msg_wrong_types r7)))
+	(jump 'lisp 'repl_error '(r0 "(add num num ...)" error_msg_wrong_types r1)))
 
 (def-func-end)
 
@@ -56,7 +58,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(sub num num ...)" error_msg_wrong_types r7)))
+	(jump 'lisp 'repl_error '(r0 "(sub num num ...)" error_msg_wrong_types r1)))
 
 (def-func-end)
 
@@ -75,7 +77,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(mul num num ...)" error_msg_wrong_types r7)))
+	(jump 'lisp 'repl_error '(r0 "(mul num num ...)" error_msg_wrong_types r1)))
 
 (def-func-end)
 
@@ -97,7 +99,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(min num num ...)" error_msg_wrong_types r7)))
+	(jump 'lisp 'repl_error '(r0 "(min num num ...)" error_msg_wrong_types r1)))
 
 (def-func-end)
 
@@ -119,7 +121,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(max num num ...)" error_msg_wrong_types r7)))
+	(jump 'lisp 'repl_error '(r0 "(max num num ...)" error_msg_wrong_types r1)))
 
 (def-func-end)
 
@@ -140,16 +142,17 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(fmul num num ...)" error_msg_wrong_types r7)))
+	(jump 'lisp 'repl_error '(r0 "(fmul num num ...)" error_msg_wrong_types r1)))
 
 (def-func-end)
 
 (defun andop (_ i p)
-	(entry 'num _ '(r6 r7))
+	(entry 'num _ '(r0 r1))
 (errorcases
-	(call 'lisp 'env_args_type `(r7 (@ ,(f-path 'num 'vtable)) 0) '(r1))
-	(gotoif '(r1 == 0) 'error))
-	(class/array/get_both r7 r1 r2)
+	(call 'lisp 'env_args_type `(r1 (@ ,(f-path 'num 'vtable)) 0) '(r2))
+	(gotoif '(r2 == 0) 'error))
+	(vp-push r0)
+	(class/array/get_both r1 r1 r2)
 	(vp-cpy-cr i r0)
 	(vpif '(r1 != r2))
 		(loop-start)
@@ -159,8 +162,9 @@
 			(exec p)
 		(loop-until '(r1 == r2))
 	(endif)
-	(call 'num 'create '(r0) '(r0))
-	(exit 'num _ '(r6 r0))
+	(call 'num 'create '(r0) '(r1))
+	(vp-pop r0)
+	(exit 'num _ '(r0 r1))
 	(vp-ret))
 
 (def-method 'num 'lisp_band)
@@ -178,7 +182,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(logand [num] ...)" error_msg_wrong_types r7)))
+	(jump 'lisp 'repl_error '(r0 "(logand [num] ...)" error_msg_wrong_types r1)))
 
 (def-func-end)
 
@@ -197,7 +201,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(logior [num] ...)" error_msg_wrong_types r7)))
+	(jump 'lisp 'repl_error '(r0 "(logior [num] ...)" error_msg_wrong_types r1)))
 
 (def-func-end)
 
@@ -216,16 +220,17 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(logxor [num] ...)" error_msg_wrong_types r7)))
+	(jump 'lisp 'repl_error '(r0 "(logxor [num] ...)" error_msg_wrong_types r1)))
 
 (def-func-end)
 
 (defun divop (_ p)
-	(entry 'num _ '(r6 r7))
+	(entry 'num _ '(r0 r1))
 (errorcases
-	(call 'lisp 'env_args_type `(r7 (@ ,(f-path 'num 'vtable)) -2) '(r1))
-	(gotoif '(r1 == 0) 'error))
-	(class/array/get_both r7 r1 r4)
+	(call 'lisp 'env_args_type `(r1 (@ ,(f-path 'num 'vtable)) -2) '(r2))
+	(gotoif '(r2 == 0) 'error))
+	(vp-push r0 r1)
+	(class/array/get_both r1 r1 r4)
 	(vp-cpy-ir r1 0 r0)
 	(vp-add-cr ptr_size r1)
 	(class/num/get_value r0 r0)
@@ -237,8 +242,9 @@
 		(gotoif '(r3 == 0) 'error))
 		(exec p)
 	(loop-until '(r1 == r4))
-	(call 'num 'create '(r0) '(r0))
-	(exit 'num _ '(r6 r0))
+	(call 'num 'create '(r0) '(r1))
+	(vp-pop r0 r2)
+	(exit 'num _ '(r0 r1))
 	(vp-ret))
 
 (def-method 'num 'lisp_div)
@@ -258,7 +264,8 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(div num num ...)" error_msg_wrong_types r7)))
+	(vp-pop r0 r1)
+	(jump 'lisp 'repl_error '(r0 "(div num num ...)" error_msg_wrong_types r1)))
 
 (def-func-end)
 
@@ -280,7 +287,8 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(mod num num ...)" error_msg_wrong_types r7)))
+	(vp-pop r0 r1)
+	(jump 'lisp 'repl_error '(r0 "(mod num num ...)" error_msg_wrong_types r1)))
 
 (def-func-end)
 
@@ -302,7 +310,8 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(fdiv num num ...)" error_msg_wrong_types r7)))
+	(vp-pop r0 r1)
+	(jump 'lisp 'repl_error '(r0 "(fdiv num num ...)" error_msg_wrong_types r1)))
 
 (def-func-end)
 
@@ -316,13 +325,14 @@
 	;trashes
 	;all but r0
 
-	(entry 'num 'lisp_fmod '(r6 r7))
+	(entry 'num 'lisp_fmod '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type `(r7 (@ ,(f-path 'num 'vtable)) -2) '(r1))
-	(gotoif '(r1 == 0) 'error))
+	(call 'lisp 'env_args_type `(r1 (@ ,(f-path 'num 'vtable)) -2) '(r2))
+	(gotoif '(r2 == 0) 'error))
 
-	(class/array/get_both r7 r4 r5)
+	(vp-push r0 r1)
+	(class/array/get_both r1 r4 r5)
 	(vp-cpy-ir r4 0 r0)
 	(vp-add-cr ptr_size r4)
 	(class/num/get_value r0 r0)
@@ -335,27 +345,29 @@
 		(vec-set 2)
 		(vec-fmod 1)
 	(loop-until '(r4 == r5))
-	(call 'num 'create '(r0) '(r0))
-	(exit 'num 'lisp_fmod '(r6 r0))
+	(call 'num 'create '(r0) '(r1))
+	(vp-pop r0 r2)
+	(exit 'num 'lisp_fmod '(r0 r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(fmod num num ...)" error_msg_wrong_types r7)))
+	(vp-pop r0 r1)
+	(jump 'lisp 'repl_error '(r0 "(fmod num num ...)" error_msg_wrong_types r1)))
 
 (def-func-end)
 
 (defun shift (_ p)
-	(entry 'num _ '(r6 r7))
+	(entry 'num _ '(r0 r1))
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 2) '(r1))
-	(gotoif '(r1 == 0) 'error))
-	(class/array/bind_args r7 '(r0 r1))
-	(class/num/get_value r0 r0)
-	(class/num/get_value r1 r1)
+	(call 'lisp 'env_args_type '(r1 ($ sig) 2) '(r2))
+	(gotoif '(r2 == 0) 'error))
+	(vp-push r0)
+	(class/vector/bind_args r1 '(r0 r1) '(num num))
 	(exec p)
-	(call 'num 'create '(r0) '(r0))
-	(exit 'num _ '(r6 r0))
+	(call 'num 'create '(r0) '(r1))
+	(vp-pop r0)
+	(exit 'num _ '(r0 r1))
 	(vp-ret))
 
 (def-method 'num 'lisp_basr)
@@ -373,7 +385,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(asr num cnt)" error_msg_wrong_types r7))
+	(jump 'lisp 'repl_error '(r0 "(asr num cnt)" error_msg_wrong_types r7))
 	(signature '(num num)))
 
 (def-func-end)
@@ -393,7 +405,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(shl num cnt)" error_msg_wrong_types r7))
+	(jump 'lisp 'repl_error '(r0 "(shl num cnt)" error_msg_wrong_types r7))
 	(signature '(num num)))
 
 (def-func-end)
@@ -413,17 +425,18 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(shr num cnt)" error_msg_wrong_types r7))
+	(jump 'lisp 'repl_error '(r0 "(shr num cnt)" error_msg_wrong_types r7))
 	(signature '(num num)))
 
 (def-func-end)
 
 (defun compare (_ p)
-	(entry 'num _ '(r6 r7))
+	(entry 'num _ '(r0 r1))
 (errorcases
-	(call 'lisp 'env_args_type `(r7 (@ ,(f-path 'num 'vtable)) -2) '(r1))
-	(gotoif '(r1 == 0) 'error))
-	(class/array/get_both r7 r1 r2)
+	(call 'lisp 'env_args_type `(r1 (@ ,(f-path 'num 'vtable)) -2) '(r2))
+	(gotoif '(r2 == 0) 'error))
+	(vp-push r0)
+	(class/array/get_both r1 r1 r2)
 	(vp-cpy-ir r1 0 r0)
 	(vp-add-cr ptr_size r1)
 	(class/num/get_value r0 r0)
@@ -433,12 +446,16 @@
 		(class/num/get_value r3 r3)
 		(exec p)
 	(loop-until '(r1 == r2))
-	(call 'obj 'ref '((r6 lisp_sym_t)) '(r0))
-	(exit 'num _ '(r6 r0))
+	(vp-pop r0)
+	(vp-cpy-ir r0 lisp_sym_t r1)
+	(class/obj/ref r1 r2)
+	(exit 'num _ '(r0 r1))
 	(vp-ret)
 (vp-label 'fail)
-	(call 'obj 'ref '((r6 lisp_sym_nil)) '(r0))
-	(exit 'num _ '(r6 r0))
+	(vp-pop r0)
+	(vp-cpy-ir r0 lisp_sym_nil r1)
+	(class/obj/ref r1 r2)
+	(exit 'num _ '(r0 r1))
 	(vp-ret))
 
 (def-method 'num 'lisp_eq)
@@ -456,7 +473,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(eq num num ...)" error_msg_wrong_types r7)))
+	(jump 'lisp 'repl_error '(r0 "(eq num num ...)" error_msg_wrong_types r1)))
 
 (def-func-end)
 
@@ -477,7 +494,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(ge num num ...)" error_msg_wrong_types r7)))
+	(jump 'lisp 'repl_error '(r0 "(ge num num ...)" error_msg_wrong_types r1)))
 
 (def-func-end)
 
@@ -498,7 +515,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(gt num num ...)" error_msg_wrong_types r7)))
+	(jump 'lisp 'repl_error '(r0 "(gt num num ...)" error_msg_wrong_types r1)))
 
 (def-func-end)
 
@@ -519,7 +536,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(le num num ...)" error_msg_wrong_types r7)))
+	(jump 'lisp 'repl_error '(r0 "(le num num ...)" error_msg_wrong_types r1)))
 
 (def-func-end)
 
@@ -540,7 +557,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(lt num num ...)" error_msg_wrong_types r7)))
+	(jump 'lisp 'repl_error '(r0 "(lt num num ...)" error_msg_wrong_types r1)))
 
 (def-func-end)
 
@@ -554,13 +571,14 @@
 	;trashes
 	;all but r0
 
-	(entry 'num 'lisp_ne '(r6 r7))
+	(entry 'num 'lisp_ne '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type `(r7 (@ ,(f-path 'num 'vtable)) -2) '(r1))
-	(gotoif '(r1 == 0) 'error))
+	(call 'lisp 'env_args_type `(r1 (@ ,(f-path 'num 'vtable)) -2) '(r2))
+	(gotoif '(r2 == 0) 'error))
 
-	(class/array/get_both r7 r1 r2)
+	(vp-push r0)
+	(class/array/get_both r1 r1 r2)
 	(vp-lea-i r2 (neg ptr_size) r5)
 	(loop-start)
 		(vp-cpy-ir r1 0 r0)
@@ -575,17 +593,21 @@
 		(loop-until '(r4 == r2))
 	(loop-until '(r1 == r5))
 
-	(call 'obj 'ref '((r6 lisp_sym_t)) '(r0))
-	(exit 'num 'lisp_ne '(r6 r0))
+	(vp-pop r0)
+	(vp-cpy-ir r0 lisp_sym_t r1)
+	(class/obj/ref r1 r2)
+	(exit 'num 'lisp_ne '(r0 r1))
 	(vp-ret)
 
 (vp-label 'fail)
-	(call 'obj 'ref '((r6 lisp_sym_nil)) '(r0))
-	(exit 'num 'lisp_ne '(r6 r0))
+	(vp-pop r0)
+	(vp-cpy-ir r0 lisp_sym_nil r1)
+	(class/obj/ref r1 r2)
+	(exit 'num 'lisp_ne '(r0 r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(ne num num ...)" error_msg_wrong_types r7)))
+	(jump 'lisp 'repl_error '(r0 "(ne num num ...)" error_msg_wrong_types r1)))
 
 (def-func-end)

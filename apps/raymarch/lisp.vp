@@ -22,19 +22,19 @@
 	;trashes
 	;all but r0
 
-	(entry '(r6 r7))
+	(entry '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 1) '(r1))
-	(gotoif '(r1 == 0) 'error))
+	(call 'lisp 'env_args_type '(r1 ($ sig) 1) '(r2))
+	(gotoif '(r2 == 0) 'error))
 
-	(class/array/bind_args r7 '(r2))
+	(class/array/bind_args r1 '(r2))
 
 (errorcases
-	(class/array/get_length r2 r0)
-	(gotoif '(r0 != 3) 'error))
+	(class/array/get_length r2 r1)
+	(gotoif '(r1 != 3) 'error))
 
-	(vp-push r6)
+	(vp-push r0)
 	(class/array/get_begin r2 r2)
 	(vec-set 0)
 	(vec-load-long 3 r2)
@@ -47,7 +47,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(scene points)" error_msg_wrong_types r7))
+	(jump 'lisp 'repl_error '(r0 "(scene points)" error_msg_wrong_types r1))
 	(signature '(points)))
 
 (def-func-end)
@@ -65,8 +65,8 @@
 	(entry '(r13 r14))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r14 ($ sig) 6) '(r1))
-	(gotoif '(r1 == 0) 'error))
+	(call 'lisp 'env_args_type '(r14 ($ sig) 6) '(r2))
+	(gotoif '(r2 == 0) 'error))
 
 	(class/array/bind_args r14 '(r0 r1 r2 r3 r4 r5))
 

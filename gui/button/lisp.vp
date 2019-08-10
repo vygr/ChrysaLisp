@@ -42,14 +42,14 @@
 	;trashes
 	;all but r0
 
-	(entry 'button 'lisp_connect_click '(r6 r7))
+	(entry 'button 'lisp_connect_click '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 2) '(r1))
-	(gotoif '(r1 == 0) 'error))
+	(call 'lisp 'env_args_type '(r1 ($ sig) 2) '(r2))
+	(gotoif '(r2 == 0) 'error))
 
 	(defq in (method-input 'button 'connect_click))
-	(class/vector/bind_args r7 in '(button num))
+	(class/vector/bind_args r1 in '(button num))
 	(call 'button 'connect_click in '(r0))
 	(call 'button 'ref '(r0) '(r0))
 
@@ -58,7 +58,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(button-connect-click button id)" error_msg_wrong_types r7))
+	(jump 'lisp 'repl_error '(r0 "(button-connect-click button id)" error_msg_wrong_types r1))
 	(signature '(button num)))
 
 (def-func-end)

@@ -42,23 +42,25 @@
 	;trashes
 	;all but r0
 
-	(entry 'vdu 'lisp_print '(r6 r7))
+	(entry 'vdu 'lisp_print '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 2) '(r1))
-	(gotoif '(r1 == 0) 'error1))
+	(call 'lisp 'env_args_type '(r1 ($ sig) 2) '(r2))
+	(gotoif '(r2 == 0) 'error1))
 
+	(vp-push r0)
 	(defq in (method-input 'vdu 'print_cstr))
-	(class/vector/bind_args r7 in '(vdu str))
+	(class/vector/bind_args r1 in '(vdu str))
 	(call 'vdu 'print_cstr in '(r0))
-	(call 'obj 'ref '(r0) '(r0))
+	(call 'obj 'ref '(r0) '(r1))
+	(vp-pop r0)
 
-	(exit 'vdu 'lisp_print '(r6 r0))
+	(exit 'vdu 'lisp_print '(r0 r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error1)
-	(jump 'lisp 'repl_error '(r6 "(vdu-print vdu str)" error_msg_wrong_types r7))
+	(jump 'lisp 'repl_error '(r0 "(vdu-print vdu str)" error_msg_wrong_types r1))
 	(signature '(vdu str)))
 
 (def-func-end)

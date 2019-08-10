@@ -13,23 +13,25 @@
 	;trashes
 	;all but r0
 
-	(entry 'gui 'lisp_add '(r6 r7))
+	(entry 'gui 'lisp_add '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 1) '(r1))
-	(gotoif '(r1 == 0) 'error1))
+	(call 'lisp 'env_args_type '(r1 ($ sig) 1) '(r2))
+	(gotoif '(r2 == 0) 'error1))
 
+	(vp-push r0)
 	(defq in (method-input 'gui 'add))
-	(class/vector/bind_args r7 in '(view))
+	(class/vector/bind_args r1 in '(view))
 	(call 'gui 'add in '(r0))
-	(call 'obj 'ref '(r0) '(r0))
+	(call 'obj 'ref '(r0) '(r1))
+	(vp-pop r0)
 
-	(exit 'gui 'lisp_add '(r6 r0))
+	(exit 'gui 'lisp_add '(r0 r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error1)
-	(jump 'lisp 'repl_error '(r6 "(gui-add view)" error_msg_wrong_types r7))
+	(jump 'lisp 'repl_error '(r0 "(gui-add view)" error_msg_wrong_types r1))
 	(signature '(view)))
 
 (def-func-end)

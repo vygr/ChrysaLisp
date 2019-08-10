@@ -2345,9 +2345,9 @@ r1 = args vector object (ptr) vector
 r3 = type/sig pointer
 r4 = - or 0 all same type check, else + for type signature check
 outputs
-r1 = 0 if error, else ok
+r2 = 0 if error, else ok
 trashes
-r0-r5
+r2-r7
 ```
 
 ### lisp::read -> class/lisp/read

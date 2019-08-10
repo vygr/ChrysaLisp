@@ -43,15 +43,15 @@
 	;trashes
 	;all but r0
 
-	(entry 'view 'lisp_event '(r6 r7))
+	(entry 'view 'lisp_event '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 2) '(r1))
-	(gotoif '(r1 == 0) 'error))
+	(call 'lisp 'env_args_type '(r1 ($ sig) 2) '(r2))
+	(gotoif '(r2 == 0) 'error))
 
-	(vp-push r6)
+	(vp-push r0)
 	(defq in (method-input 'view 'event))
-	(class/vector/bind_args r7 in '(view str))
+	(class/vector/bind_args r1 in '(view str))
 	(call 'view 'event in '(r0))
 	(call 'view 'ref '(r0) '(r1))
 	(vp-pop r0)
@@ -61,7 +61,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(view-event view str)" error_msg_wrong_types r7))
+	(jump 'lisp 'repl_error '(r0 "(view-event view str)" error_msg_wrong_types r1))
 	(signature '(view str)))
 
 (def-func-end)
@@ -76,14 +76,14 @@
 	;trashes
 	;all but r0
 
-	(entry 'view 'lisp_layout '(r6 r7))
+	(entry 'view 'lisp_layout '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 1) '(r1))
-	(gotoif '(r1 == 0) 'error))
+	(call 'lisp 'env_args_type '(r1 ($ sig) 1) '(r2))
+	(gotoif '(r2 == 0) 'error))
 
-	(vp-push r6)
-	(call 'vector 'ref_element '(r7 0) '(_ r0))
+	(vp-push r0)
+	(call 'vector 'ref_element '(r1 0) '(_ r0))
 	(call 'view 'layout '(r0) '(r1))
 	(vp-pop r0)
 
@@ -92,7 +92,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(view-layout view)" error_msg_wrong_types r7))
+	(jump 'lisp 'repl_error '(r0 "(view-layout view)" error_msg_wrong_types r1))
 	(signature '(view)))
 
 (def-func-end)
@@ -107,15 +107,15 @@
 	;trashes
 	;all but r0
 
-	(entry 'view 'lisp_find_id '(r6 r7))
+	(entry 'view 'lisp_find_id '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 2) '(r1))
-	(gotoif '(r1 == 0) 'error))
+	(call 'lisp 'env_args_type '(r1 ($ sig) 2) '(r2))
+	(gotoif '(r2 == 0) 'error))
 
-	(vp-push r6)
+	(vp-push r0)
 	(defq in (method-input 'view 'find_id))
-	(class/vector/bind_args r7 in '(view num))
+	(class/vector/bind_args r1 in '(view num))
 	(call 'view 'find_id in '(_ r0))
 	(vpif '(r0 == 0))
 		(vp-cpy-ir rsp 0 r0)
@@ -129,7 +129,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(view-find-id view id)" error_msg_wrong_types r7))
+	(jump 'lisp 'repl_error '(r0 "(view-find-id view id)" error_msg_wrong_types r1))
 	(signature '(view num)))
 
 (def-func-end)
@@ -144,21 +144,23 @@
 	;trashes
 	;all but r0
 
-	(entry 'view 'lisp_sub '(r6 r7))
+	(entry 'view 'lisp_sub '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 1) '(r1))
-	(gotoif '(r1 == 0) 'error))
+	(call 'lisp 'env_args_type '(r1 ($ sig) 1) '(r2))
+	(gotoif '(r2 == 0) 'error))
 
-	(class/array/get_first r7 r0)
-	(call 'view 'sub '(r0) '(r0))
+	(vp-push r0)
+	(class/array/get_first r1 r0)
+	(call 'view 'sub '(r0) '(r1))
+	(vp-pop r0)
 
-	(exit 'view 'lisp_sub '(r6 r0))
+	(exit 'view 'lisp_sub '(r0 r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(view-sub view)" error_msg_wrong_types r7))
+	(jump 'lisp 'repl_error '(r0 "(view-sub view)" error_msg_wrong_types r1))
 	(signature '(view)))
 
 (def-func-end)
@@ -173,16 +175,16 @@
 	;trashes
 	;all but r0
 
-	(entry 'view 'lisp_add_child '(r6 r7))
+	(entry 'view 'lisp_add_child '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 2) '(r1))
-	(gotoif '(r1 == 0) 'error))
+	(call 'lisp 'env_args_type '(r1 ($ sig) 2) '(r2))
+	(gotoif '(r2 == 0) 'error))
 
-	(vp-push r6)
-	(class/array/get_begin r7 r7)
-	(call 'obj 'ref '((r7 ptr_size)) '(r3))
-	(call 'obj 'ref '((r7 0)) '(r0))
+	(vp-push r0)
+	(class/array/get_begin r1 r4)
+	(call 'obj 'ref '((r4 ptr_size)) '(r3))
+	(call 'obj 'ref '((r4 0)) '(r0))
 	(call 'view 'add_child '(r0 r3) '(r1))
 	(vp-pop r0)
 
@@ -191,7 +193,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(view-add-child parent child)" error_msg_wrong_types r7))
+	(jump 'lisp 'repl_error '(r0 "(view-add-child parent child)" error_msg_wrong_types r1))
 	(signature '(view view)))
 
 (def-func-end)
@@ -206,16 +208,16 @@
 	;trashes
 	;all but r0
 
-	(entry 'view 'lisp_add_front '(r6 r7))
+	(entry 'view 'lisp_add_front '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 2) '(r1))
-	(gotoif '(r1 == 0) 'error))
+	(call 'lisp 'env_args_type '(r1 ($ sig) 2) '(r2))
+	(gotoif '(r2 == 0) 'error))
 
-	(vp-push r6)
-	(class/array/get_begin r7 r7)
-	(call 'obj 'ref '((r7 ptr_size)) '(r3))
-	(call 'obj 'ref '((r7 0)) '(r0))
+	(vp-push r0)
+	(class/array/get_begin r1 r4)
+	(call 'obj 'ref '((r4 ptr_size)) '(r3))
+	(call 'obj 'ref '((r4 0)) '(r0))
 	(call 'view 'add_front '(r0 r3) '(r1))
 	(vp-pop r0)
 
@@ -224,7 +226,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(view-add-front parent child)" error_msg_wrong_types r7))
+	(jump 'lisp 'repl_error '(r0 "(view-add-front parent child)" error_msg_wrong_types r1))
 	(signature '(view view)))
 
 (def-func-end)
@@ -239,16 +241,16 @@
 	;trashes
 	;all but r0
 
-	(entry 'view 'lisp_add_back '(r6 r7))
+	(entry 'view 'lisp_add_back '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 2) '(r1))
-	(gotoif '(r1 == 0) 'error))
+	(call 'lisp 'env_args_type '(r1 ($ sig) 2) '(r2))
+	(gotoif '(r2 == 0) 'error))
 
-	(vp-push r6)
-	(class/array/get_begin r7 r7)
-	(call 'obj 'ref '((r7 ptr_size)) '(r3))
-	(call 'obj 'ref '((r7 0)) '(r0))
+	(vp-push r0)
+	(class/array/get_begin r1 r4)
+	(call 'obj 'ref '((r4 ptr_size)) '(r3))
+	(call 'obj 'ref '((r4 0)) '(r0))
 	(call 'view 'add_back '(r0 r3) '(r1))
 	(vp-pop r0)
 
@@ -257,7 +259,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(view-add-back parent child)" error_msg_wrong_types r7))
+	(jump 'lisp 'repl_error '(r0 "(view-add-back parent child)" error_msg_wrong_types r1))
 	(signature '(view view)))
 
 (def-func-end)
@@ -272,14 +274,14 @@
 	;trashes
 	;all but r0
 
-	(entry 'view 'lisp_pref_size '(r6 r7))
+	(entry 'view 'lisp_pref_size '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 1) '(r1))
-	(gotoif '(r1 == 0) 'error))
+	(call 'lisp 'env_args_type '(r1 ($ sig) 1) '(r2))
+	(gotoif '(r2 == 0) 'error))
 
-	(vp-push r6)
-	(class/array/get_first r7 r0)
+	(vp-push r0)
+	(class/array/get_first r1 r0)
 	(call 'view 'pref_size '(r0) '(_ r9 r10))
 	(call 'num 'create '(r9) '(r9))
 	(call 'num 'create '(r10) '(r10))
@@ -293,7 +295,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(view-pref-size view)" error_msg_wrong_types r7))
+	(jump 'lisp 'repl_error '(r0 "(view-pref-size view)" error_msg_wrong_types r1))
 	(signature '(view)))
 
 (def-func-end)
@@ -308,15 +310,15 @@
 	;trashes
 	;all but r0
 
-	(entry 'view 'lisp_change '(r6 r7))
+	(entry 'view 'lisp_change '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 5) '(r1))
-	(gotoif '(r1 == 0) 'error))
+	(call 'lisp 'env_args_type '(r1 ($ sig) 5) '(r2))
+	(gotoif '(r2 == 0) 'error))
 
-	(vp-push r6)
+	(vp-push r0)
 	(defq in (method-input 'view 'change))
-	(class/vector/bind_args r7 in '(view num num num num))
+	(class/vector/bind_args r1 in '(view num num num num))
 	(call 'view 'change in '(r0))
 	(call 'obj 'ref '(r0) '(r1))
 	(vp-pop r0)
@@ -326,7 +328,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(view-change view x y w h)" error_msg_wrong_types r7))
+	(jump 'lisp 'repl_error '(r0 "(view-change view x y w h)" error_msg_wrong_types r1))
 	(signature '(view num num num num)))
 
 (def-func-end)
@@ -341,15 +343,15 @@
 	;trashes
 	;all but r0
 
-	(entry 'view 'lisp_set_bounds '(r6 r7))
+	(entry 'view 'lisp_set_bounds '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 5) '(r1))
-	(gotoif '(r1 == 0) 'error))
+	(call 'lisp 'env_args_type '(r1 ($ sig) 5) '(r2))
+	(gotoif '(r2 == 0) 'error))
 
-	(vp-push r6)
+	(vp-push r0)
 	(defq in (method-input 'view 'set_bounds))
-	(class/vector/bind_args r7 in '(view num num num num))
+	(class/vector/bind_args r1 in '(view num num num num))
 	(call 'view 'set_bounds in '(r0))
 	(call 'obj 'ref '(r0) '(r1))
 	(vp-pop r0)
@@ -359,7 +361,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(view-set-bounds view x y w h)" error_msg_wrong_types r7))
+	(jump 'lisp 'repl_error '(r0 "(view-set-bounds view x y w h)" error_msg_wrong_types r1))
 	(signature '(view num num num num)))
 
 (def-func-end)
@@ -374,14 +376,14 @@
 	;trashes
 	;all but r0
 
-	(entry 'view 'lisp_get_bounds '(r6 r7))
+	(entry 'view 'lisp_get_bounds '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 1) '(r1))
-	(gotoif '(r1 == 0) 'error))
+	(call 'lisp 'env_args_type '(r1 ($ sig) 1) '(r2))
+	(gotoif '(r2 == 0) 'error))
 
-	(vp-push r6)
-	(class/array/get_first r7 r0)
+	(vp-push r0)
+	(class/array/get_first r1 r0)
 	(call 'view 'get_bounds '(r0) '(_ r7 r8 r9 r10))
 	(call 'num 'create '(r7) '(r7))
 	(call 'num 'create '(r8) '(r8))
@@ -399,7 +401,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(view-get-bounds view)" error_msg_wrong_types r7))
+	(jump 'lisp 'repl_error '(r0 "(view-get-bounds view)" error_msg_wrong_types r1))
 	(signature '(view)))
 
 (def-func-end)
@@ -414,15 +416,15 @@
 	;trashes
 	;all but r0
 
-	(entry 'view 'lisp_add_opaque '(r6 r7))
+	(entry 'view 'lisp_add_opaque '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 5) '(r1))
-	(gotoif '(r1 == 0) 'error))
+	(call 'lisp 'env_args_type '(r1 ($ sig) 5) '(r2))
+	(gotoif '(r2 == 0) 'error))
 
-	(vp-push r6)
+	(vp-push r0)
 	(defq in (method-input 'view 'add_opaque))
-	(class/vector/bind_args r7 in '(view num num num num))
+	(class/vector/bind_args r1 in '(view num num num num))
 	(call 'view 'add_opaque in '(r0))
 	(call 'obj 'ref '(r0) '(r1))
 	(vp-pop r0)
@@ -432,7 +434,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(view-add-opaque view x y w h)" error_msg_wrong_types r7))
+	(jump 'lisp 'repl_error '(r0 "(view-add-opaque view x y w h)" error_msg_wrong_types r1))
 	(signature '(view num num num num)))
 
 (def-func-end)
@@ -447,15 +449,15 @@
 	;trashes
 	;all but r0
 
-	(entry 'view 'lisp_sub_opaque '(r6 r7))
+	(entry 'view 'lisp_sub_opaque '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 5) '(r1))
-	(gotoif '(r1 == 0) 'error))
+	(call 'lisp 'env_args_type '(r1 ($ sig) 5) '(r2))
+	(gotoif '(r2 == 0) 'error))
 
-	(vp-push r6)
+	(vp-push r0)
 	(defq in (method-input 'view 'sub_opaque))
-	(class/vector/bind_args r7 in '(view num num num num))
+	(class/vector/bind_args r1 in '(view num num num num))
 	(call 'view 'sub_opaque in '(r0))
 	(call 'obj 'ref '(r0) '(r1))
 	(vp-pop r0)
@@ -465,7 +467,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(view-sub-opaque view x y w h)" error_msg_wrong_types r7))
+	(jump 'lisp 'repl_error '(r0 "(view-sub-opaque view x y w h)" error_msg_wrong_types r1))
 	(signature '(view num num num num)))
 
 (def-func-end)
@@ -480,15 +482,15 @@
 	;trashes
 	;all but r0
 
-	(entry 'view 'lisp_set_flags '(r6 r7))
+	(entry 'view 'lisp_set_flags '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 3) '(r1))
-	(gotoif '(r1 == 0) 'error))
+	(call 'lisp 'env_args_type '(r1 ($ sig) 3) '(r2))
+	(gotoif '(r2 == 0) 'error))
 
-	(vp-push r6)
+	(vp-push r0)
 	(defq in (method-input 'view 'set_flags))
-	(class/vector/bind_args r7 in '(view num num))
+	(class/vector/bind_args r1 in '(view num num))
 	(call 'view 'set_flags in '(r0 _))
 	(call 'view 'ref '(r0) '(r1))
 	(vp-pop r0)
@@ -498,7 +500,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(view-set-flags view flags mask)" error_msg_wrong_types r7))
+	(jump 'lisp 'repl_error '(r0 "(view-set-flags view flags mask)" error_msg_wrong_types r1))
 	(signature '(view num num)))
 
 (def-func-end)
@@ -513,15 +515,15 @@
 	;trashes
 	;all but r0
 
-	(entry 'view 'lisp_add_dirty '(r6 r7))
+	(entry 'view 'lisp_add_dirty '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 5) '(r1))
-	(gotoif '(r1 == 0) 'error))
+	(call 'lisp 'env_args_type '(r1 ($ sig) 5) '(r2))
+	(gotoif '(r2 == 0) 'error))
 
-	(vp-push r6)
+	(vp-push r0)
 	(defq in (method-input 'view 'add_dirty))
-	(class/vector/bind_args r7 in '(view num num num num))
+	(class/vector/bind_args r1 in '(view num num num num))
 	(call 'view 'add_dirty in '(r0))
 	(call 'obj 'ref '(r0) '(r1))
 	(vp-pop r0)
@@ -531,7 +533,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(view-add-dirty view x y w h)" error_msg_wrong_types r7))
+	(jump 'lisp 'repl_error '(r0 "(view-add-dirty view x y w h)" error_msg_wrong_types r1))
 	(signature '(view num num num num)))
 
 (def-func-end)
@@ -546,14 +548,14 @@
 	;trashes
 	;all but r0
 
-	(entry 'view 'lisp_dirty '(r6 r7))
+	(entry 'view 'lisp_dirty '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r7 ($ sig) 1) '(r1))
-	(gotoif '(r1 == 0) 'error))
+	(call 'lisp 'env_args_type '(r1 ($ sig) 1) '(r2))
+	(gotoif '(r2 == 0) 'error))
 
-	(vp-push r6)
-	(call 'vector 'ref_element '(r7 0) '(_ r0))
+	(vp-push r0)
+	(call 'vector 'ref_element '(r1 0) '(_ r0))
 	(call 'view 'dirty '(r0) '(r1))
 	(vp-pop r0)
 
@@ -562,7 +564,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(view-dirty view)" error_msg_wrong_types r7))
+	(jump 'lisp 'repl_error '(r0 "(view-dirty view)" error_msg_wrong_types r1))
 	(signature '(view)))
 
 (def-func-end)
