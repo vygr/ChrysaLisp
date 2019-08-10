@@ -212,7 +212,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'stream 'read_line))
-	(class/vector/bind_args r7 in '(stream))
+	(class/vector/bind_args r1 in '(stream))
 	(call 'stream 'read_line in '(_ r1))
 	(vp-pop r0)
 	(vpif '(r1 == 0))

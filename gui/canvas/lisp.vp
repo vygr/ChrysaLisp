@@ -257,7 +257,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'canvas 'plot))
-	(class/vector/bind_args r7 in '(canvas num num))
+	(class/vector/bind_args r1 in '(canvas num num))
 	(call 'canvas 'plot in '(r0))
 	(call 'obj 'ref '(r0) '(r1))
 	(vp-pop r0)
