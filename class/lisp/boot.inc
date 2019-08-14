@@ -112,8 +112,7 @@
 	lisp_type_str (shl 1 2)
 	lisp_type_sym (shl 1 3)
 	lisp_type_fnc (shl 1 4)
- 	defmacro `(macro (n a &rest _)
-		(,list ,defq n (,cat '(macro) (,list a) _))))
+ 	defmacro '(macro (n a &rest _) `(defq ,n (macro ,a ~_))))
 
 (defmacro defun (n a &rest _)
 	;(defun name ([arg ...]) body)
@@ -124,16 +123,16 @@
 	;(prin [form ...])
 	;(print [form ...])
 	;(str [form ...])
-	(list (eval defq) n (cat '(lambda) (list a) _)))
+	`(defq ,n (lambda ,a ~_)))
 
 (defmacro defun-bind (n a &rest _)
 	;(defun-bind name ([arg ...]) body)
-	(list (eval defq) n (cat '(lambda) (list a) (bind-fun (macroexpand _)))))
+	`(defq ,n (lambda ,a ~(bind-fun (macroexpand _)))))
 
 (defmacro defmacro-bind (n a &rest _)
 	;(defmacro name ([arg ...]) body)
 	;(defmacro-bind name ([arg ...]) body)
-	(list (eval defq) n (cat '(macro) (list a) (bind-fun (macroexpand _)))))
+	`(defq ,n (macro ,a ~(bind-fun (macroexpand _)))))
 
 ;to disable pre binding uncomment this line
 ;(defun bind-fun (_) _)
@@ -167,10 +166,10 @@
 
 (defmacro-bind inc (_)
 	;(inc num) -> num
-	(list 'add _ 1))
+	`(add ,_ 1))
 (defmacro-bind dec (_)
 	;(dec num) -> num
-	(list 'sub _ 1))
+	`(sub ,_ 1))
 
 (defmacro-bind opt (x y &optional z)
 	;(opt var val [cond])
