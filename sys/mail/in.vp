@@ -15,24 +15,24 @@
 
 	;look up parcel in mailbox
 	(call 'sys_mail 'mbox_addr {rx_msg->lk_msg_stamp.msg_dest.id_mbox} {mbox_addr})
-	(vp-def (r_next r_node r_src r_id r_psrc r_pid))
+	(vp-def (next node src id psrc pid))
 	(assign {mbox_addr, rx_msg->lk_msg_stamp.msg_parcel_src, rx_msg->lk_msg_stamp.msg_parcel_id}
-		(list r_next r_src r_id))
-	(loop-list-forward r_next mbox_parcel_list r_node r_next)
-		(vp-cpy-ir r_node msg_parcel_src r_psrc)
-		(continueif (list r_src '!= r_psrc))
-		(vp-cpy-ir-ui r_node msg_parcel_id r_pid)
-	(loop-until (list r_id '== r_pid))
-	(assign (list r_node) {msg})
-	(vpif (list r_next '== 0))
+		(list next src id))
+	(loop-list-forward next mbox_parcel_list node next)
+		(vp-cpy-ir node msg_parcel_src psrc)
+		(continueif `(,src != ,psrc))
+		(vp-cpy-ir-ui node msg_parcel_id pid)
+	(loop-until `(,id == ,pid))
+	(assign (list node) {msg})
+	(vpif `(,next == 0))
 		;new parcel
 		(call 'sys_mail 'alloc {rx_msg->lk_msg_stamp.msg_parcel_length} {msg, _})
 		(assign {rx_msg->lk_msg_stamp.msg_parcel_length} {msg->msg_parcel_length})
 		(assign {rx_msg->lk_msg_stamp.msg_dest.id_id} {msg->msg_dest.id_id})
 		(assign {rx_msg->lk_msg_stamp.msg_parcel_src} {msg->msg_parcel_src})
 		(assign {rx_msg->lk_msg_stamp.msg_parcel_id} {msg->msg_parcel_id})
-		(assign {mbox_addr->mbox_parcel_list, msg} (list r_next r_node))
-		(lh-add-at-tail r_next r_node r_src)
+		(assign {mbox_addr->mbox_parcel_list, msg} (list next node))
+		(lh-add-at-tail next node src)
 	(endif)
 
 	;copy fragment data
@@ -48,8 +48,8 @@
 	;got all needed ?
 	(vpifnot {msg->msg_parcel_length})
 		;yes, remove parcel and post it
-		(assign {msg} (list r_node))
-		(ln-remove-node r_node r_next)
+		(assign {msg} (list node))
+		(ln-remove-node node next)
 		(call 'sys_mail 'send {msg})
 	(endif)
 

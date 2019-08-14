@@ -147,7 +147,7 @@
 
 (errorcases
 	(call 'obj 'inst_of (cat {iter_begin[0], @} (f-path 'stream 'vtable)))
-	(gotoif (list (method-output 'obj 'inst_of 1) '== 0) 'error2))
+	(gotoif `(,(method-output 'obj 'inst_of 1) == 0) 'error2))
 
 	(assign {length, 1} '(r0 r1))
 	(vpif '(r0 == 2))
@@ -292,7 +292,7 @@
 
 (errorcases
 	(call 'obj 'inst_of (cat {stream, @} (f-path 'stream 'vtable)))
-	(gotoif (list (method-output 'obj 'inst_of 1) '== 0) 'error2))
+	(gotoif `(,(method-output 'obj 'inst_of 1) == 0) 'error2))
 
 	(assign {length, 1} '(r0 r1))
 	(vpif '(r0 == 3))

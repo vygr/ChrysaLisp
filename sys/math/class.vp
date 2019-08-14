@@ -380,7 +380,7 @@
 	(vec-fdet 2)
 	(defq axb (vec-top 1))
 
-	(vpif (list (elem 0 axb) '!= 0))
+	(vpif `(,(elem 0 axb) != 0))
 		(vec-dup 2 (cat da v1x))
 		(vec-fdet 2 (cat db v2x))
 		(vec-dup 2 (cat da v1y))
@@ -433,12 +433,12 @@
 	(vec-fdot 2 lv)
 	(bind '(c1) (vec-top 1))
 
-	(vpif (list c1 '> 0))
+	(vpif `(,c1 > 0))
 		(vec-dup 2 lv)
 		(vec-fdot 2 lv)
 		(bind '(c2) (vec-top 1))
 
-		(vpif (list c2 '<= c1))
+		(vpif `(,c2 <= ,c1))
 			(vec-cpy 2 p2 p1)
 		(else)
 			(vec-fdiv 1)

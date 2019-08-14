@@ -46,59 +46,59 @@
 	;trashes
 	;all but r0
 
-	(vp-def (r_this r_args r_len r_value r_iter_begin r_width r_index) '(r6 r7 r8))
+	(vp-def (this args len value iter_begin width index) '(r6 r7 r8))
 
-	(entry 'str 'lisp_code (list r_this r_args))
+	(entry 'str 'lisp_code (list this args))
 
-	(class/array/get_length r_args r_len)
+	(class/array/get_length args len)
 
 (errorcases
-	(gotoif (list r_len '< 1) 'error1)
-	(gotoif (list r_len '> 3) 'error1)
-	(call 'lisp 'env_args_type (list r_args '($ sig) r_len) '(r2))
+	(gotoif `(,len < 1) 'error1)
+	(gotoif `(,len > 3) 'error1)
+	(call 'lisp 'env_args_type (list args '($ sig) len) '(r2))
 	(gotoif '(r2 == 0) 'error1))
 
-	(class/array/get_begin r_args r_iter_begin)
-	(vp-cpy-cr 1 r_width)
-	(vp-xor-rr r_index r_index)
-	(vp-cpy-ir r_iter_begin 0 r_value)
-	(vpif (list r_len '> 1))
-		(vp-cpy-ir r_iter_begin ptr_size r_width)
-		(class/num/get_value r_width r_width)
-		(vp-sub-cr 1 r_width)
-		(vp-and-cr (dec long_size) r_width)
-		(vp-add-cr 1 r_width)
+	(class/array/get_begin args iter_begin)
+	(vp-cpy-cr 1 width)
+	(vp-xor-rr index index)
+	(vp-cpy-ir iter_begin 0 value)
+	(vpif `(,len > 1))
+		(vp-cpy-ir iter_begin ptr_size width)
+		(class/num/get_value width width)
+		(vp-sub-cr 1 width)
+		(vp-and-cr (dec long_size) width)
+		(vp-add-cr 1 width)
 	(endif)
-	(vpif (list r_len '> 2))
-		(vp-cpy-ir r_iter_begin (mul 2 ptr_size) r_index)
-		(class/num/get_value r_index r_index)
+	(vpif `(,len > 2))
+		(vp-cpy-ir iter_begin (mul 2 ptr_size) index)
+		(class/num/get_value index index)
 	(endif)
 
-	(vp-cpy-ir-ui r_value str_length r_len)
-	(vpif (list r_index '< 0))
-		(vp-add-rr r_len r_index)
-		(vp-add-cr 1 r_index)
+	(vp-cpy-ir-ui value str_length len)
+	(vpif `(,index < 0))
+		(vp-add-rr len index)
+		(vp-add-cr 1 index)
 	(endif)
 
 (errorcases
-	(gotoif (list r_index '< 0) 'error1)
-	(vp-sub-rr r_width r_len)
-	(gotoif (list r_index '> r_len) 'error1))
+	(gotoif `(,index < 0) 'error1)
+	(vp-sub-rr width len)
+	(gotoif `(,index > ,len) 'error1))
 
-	(vp-add-cr str_data r_value)
-	(vp-xor-rr r_len r_len)
-	(vp-add-rr r_index r_value)
-	(vp-push r_len)
-	(call 'sys_mem 'copy (list r_value rsp r_width))
-	(vp-pop r_value)
-	(call 'num 'create (list r_value) (list r_value))
+	(vp-add-cr str_data value)
+	(vp-xor-rr len len)
+	(vp-add-rr index value)
+	(vp-push len)
+	(call 'sys_mem 'copy (list value rsp width))
+	(vp-pop value)
+	(call 'num 'create (list value) (list value))
 
-	(exit 'str 'lisp_code (list r_this r_value))
+	(exit 'str 'lisp_code (list this value))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error1)
-	(jump 'lisp 'repl_error (list r_this "(code str [width index])" error_msg_wrong_types r_args))
+	(jump 'lisp 'repl_error (list this "(code str [width index])" error_msg_wrong_types args))
 	(signature '(str num num)))
 
 (def-func-end)
@@ -113,36 +113,36 @@
 	;trashes
 	;all but r0
 
-	(vp-def (r_this r_args r_len r_value r_iter_begin r_iter_end r_width) '(r7 r8 r9))
+	(vp-def (this args len value iter_begin iter_end width) '(r7 r8 r9))
 
-	(entry 'str 'lisp_char (list r_this r_args))
+	(entry 'str 'lisp_char (list this args))
 
-	(class/array/get_length r_args r_len)
+	(class/array/get_length args len)
 
 (errorcases
-	(gotoif (list r_len '< 1) 'error1)
-	(gotoif (list r_len '> 2) 'error1)
-	(call 'lisp 'env_args_type `(,r_args (@ ,(f-path 'num 'vtable)) 0) '(r2))
+	(gotoif `(,len < 1) 'error1)
+	(gotoif `(,len > 2) 'error1)
+	(call 'lisp 'env_args_type `(,args (@ ,(f-path 'num 'vtable)) 0) '(r2))
 	(gotoif '(r2 == 0) 'error1))
 
-	(class/array/get_begin r_args r_iter_begin)
-	(vp-cpy-cr 1 r_width)
-	(vp-cpy-ir r_iter_begin 0 r_value)
-	(vpif (list r_len '> 1))
-		(vp-cpy-ir r_iter_begin ptr_size r_width)
-		(class/num/get_value r_width r_width)
-		(vp-sub-cr 1 r_width)
-		(vp-and-cr (dec long_size) r_width)
-		(vp-add-cr 1 r_width)
+	(class/array/get_begin args iter_begin)
+	(vp-cpy-cr 1 width)
+	(vp-cpy-ir iter_begin 0 value)
+	(vpif `(,len > 1))
+		(vp-cpy-ir iter_begin ptr_size width)
+		(class/num/get_value width width)
+		(vp-sub-cr 1 width)
+		(vp-and-cr (dec long_size) width)
+		(vp-add-cr 1 width)
 	(endif)
-	(call 'str 'create_from_buffer (list (list '& r_value num_value) r_width) (list r_value))
+	(call 'str 'create_from_buffer (list (list '& value num_value) width) (list value))
 
-	(exit 'str 'lisp_char (list r_this r_value))
+	(exit 'str 'lisp_char (list this value))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error1)
-	(jump 'lisp 'repl_error (list r_this "(char num [width])" error_msg_wrong_types r_args)))
+	(jump 'lisp 'repl_error (list this "(char num [width])" error_msg_wrong_types args)))
 
 (def-func-end)
 
@@ -156,29 +156,29 @@
 	;trashes
 	;all but r0
 
-	(vp-def (r_this r_args r_value r_iter_begin r_arg1 r_arg2) '(r6 r7))
+	(vp-def (this args value iter_begin arg1 arg2) '(r6 r7))
 
-	(entry 'str 'lisp_cmp (list r_this r_args))
+	(entry 'str 'lisp_cmp (list this args))
 
 (errorcases
-	(call 'lisp 'env_args_type `(,r_args ($ sig) 2) '(r2))
+	(call 'lisp 'env_args_type `(,args ($ sig) 2) '(r2))
 	(gotoif '(r2 == 0) 'error))
 
-	(call 'vector 'get_begin (list r_args) (list '_ r_iter_begin))
-	(vp-cpy-ir r_iter_begin 0 r_arg1)
-	(vp-cpy-ir r_iter_begin ptr_size r_arg2)
-	(vp-xor-rr r_value r_value)
-	(vpif (list r_arg1 '!= r_arg2))
-		(call 'str 'compare (list r_arg1 r_arg2) (list '_ r_value))
+	(call 'vector 'get_begin (list args) (list '_ iter_begin))
+	(vp-cpy-ir iter_begin 0 arg1)
+	(vp-cpy-ir iter_begin ptr_size arg2)
+	(vp-xor-rr value value)
+	(vpif `(,arg1 != ,arg2))
+		(call 'str 'compare (list arg1 arg2) (list '_ value))
 	(endif)
-	(call 'num 'create (list r_value) (list r_value))
+	(call 'num 'create (list value) (list value))
 
-	(exit 'str 'lisp_cmp (list r_this r_value))
+	(exit 'str 'lisp_cmp (list this value))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error (list r_this "(cmp str str)" error_msg_wrong_types r_args))
+	(jump 'lisp 'repl_error (list this "(cmp str str)" error_msg_wrong_types args))
 	(signature '(str str)))
 
 (def-func-end)

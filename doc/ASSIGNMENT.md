@@ -85,9 +85,9 @@ the real power of the Lisp based assembler kicks in ! You have access to one of
 the worlds most powerful languages as your assembler macro system !
 
 ```lisp
-	(vp-def (r_x r_y r_z))
-	(assign `(,r_x ,r_y) `(,r_z ,r_x))
-	(assign (list r_x r_y) (list r_z r_x))
+	(vp-def (x y z))
+	(assign `(,x ,y) `(,z ,x))
+	(assign (list x y) (list z x))
 ```
 
 ## VP Resource operators

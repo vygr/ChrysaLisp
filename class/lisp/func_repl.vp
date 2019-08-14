@@ -28,13 +28,13 @@
 
 (errorcases
 	(call 'obj 'inst_of (cat {stream, @} (f-path 'stream 'vtable)))
-	(gotoif (list (method-output 'obj 'inst_of 1) '== 0) 'error2))
+	(gotoif `(,(method-output 'obj 'inst_of 1) == 0) 'error2))
 
 	(call 'vector 'get_second {args} {_, value})
 
 (errorcases
 	(call 'obj 'inst_of (cat {value, @} (f-path 'str 'vtable)))
-	(gotoif (list (method-output 'obj 'inst_of 1) '== 0) 'error3))
+	(gotoif `(,(method-output 'obj 'inst_of 1) == 0) 'error3))
 
 	;push old file and line, set to this stream info
 	(call 'hmap 'get {this->lisp_environment, this->lisp_sym_stream_name} {_, old_file})

@@ -45,7 +45,7 @@
 		(assign {*iter_begin} {this})
 		(vpif {this->font_points == points})
 			(call 'sys_str 'compare {this->font_name->str_data, name})
-			(gotoif (list (method-output 'sys_str 'compare 0) '== 0) 'found)
+			(gotoif `(,(method-output 'sys_str 'compare 0) == 0) 'found)
 		(endif)
 		(assign {iter_begin + ptr_size} {iter_begin})
 	(loop-end)
