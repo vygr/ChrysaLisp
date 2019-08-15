@@ -15,7 +15,7 @@
 
 (defcfun-bind intern-args (l)
 	(when l
-		(defq _ (some! nil nil t (lambda (_)
+		(defq _ (some! 0 -1 t (lambda (_)
 			(and (match? _ l) _)) (list (defq b (elem (length l) *args*)))))
 		(if _ _ (progn (push b l) l))))
 

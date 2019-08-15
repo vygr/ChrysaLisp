@@ -95,7 +95,7 @@
 				) (list layers colors))
 			;draw vias
 			(each (lambda (path_2d)
-				(each! 1 nil nil (lambda (seg_2d)
+				(each! 1 -1 nil (lambda (seg_2d)
 					(bind '(x y) (slice 0 2 seg_2d))
 					(setq x (add x pcb_border) y (add y pcb_border))
 					(canvas-set-color canvas (const (trans argb_white)))
@@ -149,7 +149,7 @@
 			(canvas-fpoly canvas pcb_border pcb_border 1 layer)
 			;draw vias
 			(each (lambda (path_2d)
-				(each! 1 nil nil (lambda (seg_2d)
+				(each! 1 -1 nil (lambda (seg_2d)
 					(bind '(x y) (slice 0 2 seg_2d))
 					(setq x (add x pcb_border) y (add y pcb_border))
 					(canvas-fpoly canvas x y 0 (circle (add via_radius (if with_gaps track_gap 0))))

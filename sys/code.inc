@@ -211,7 +211,7 @@
 (defcfun-bind pop-scope-syms ()
 	(pop *syms*)
 	(defq u (list))
-	(each! nil nil nil (lambda (a)
+	(each! 0 -1 nil (lambda (a)
 		(unless (elem -2 a) (push u (elem _ (elem 1 s))))) (list (elem 2 (defq s (pop *syms*)))))
 	(if (ne 0 (length u))
 		(throw "Unused symbols !" u))
@@ -373,14 +373,14 @@
 
 (defcfun-bind assign-ignored-to-asm ()
 	(defq s (list) d (list))
-	(each! nil nil nil (lambda (x y)
+	(each! 0 -1 nil (lambda (x y)
 		(unless (or (eql x y) (eql y '_))
 			(push s x) (push d y))) (list *src* *dst*))
 	(setq *src* s *dst* d))
 
 (defcfun-bind assign-ignored-to-script ()
 	(defq s (list) d (list))
-	(each! nil nil nil (lambda (x y)
+	(each! 0 -1 nil (lambda (x y)
 		(unless (eql y "_")
 			(push s x) (push d y))) (list *src* *dst*))
 	(setq *src* s *dst* d))
@@ -630,7 +630,7 @@
 
 (defcfun-bind set-reg-map (l &optional _)
 	(setd _ '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14))
-	(each! nil nil nil (lambda (_ r)
+	(each! 0 -1 nil (lambda (_ r)
 		(set (env) _ r)) (list *vreg* (if (ne 0 (length l)) (merge l _) _))))
 
 (defcfun-bind push-reg (_)
@@ -1014,7 +1014,7 @@
 	(assign-ignored-to-script)
 	(when (ne 0 (length *dst*))
 		(reset-reg-stack (length *src*))
-		(each! nil nil nil (lambda (_)
+		(each! 0 -1 nil (lambda (_)
 			(compile-rpn-list (rpn-parse (token-parse _)))
 			(compile-arrow)) (list *dst*))
 		(when debug_inst
@@ -1032,7 +1032,7 @@
 		(throw "Mismatching number of src/dst parameters !" (list *src* *dst*)))
 	(when (ne 0 (length *dst*))
 		(reset-reg-stack 0)
-		(each! nil nil nil (lambda (_)
+		(each! 0 -1 nil (lambda (_)
 			(compile-rpn-list (rpn-parse (token-parse _)))
 			(compile-deref?)) (list *src*))
 		(when debug_inst
@@ -1052,7 +1052,7 @@
 	(assign-ignored-to-script)
 	(when (ne 0 (length *dst*))
 		(reset-reg-stack 0)
-		(each! nil nil nil (lambda (_)
+		(each! 0 -1 nil (lambda (_)
 			(compile-rpn-list (rpn-parse (token-parse _)))) (list *src*))
 		(each! -1 0 nil (lambda (_)
 			(compile-rpn-list (rpn-parse (token-parse _)))

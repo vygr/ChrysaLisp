@@ -161,12 +161,12 @@
 	(entry 'seq 'lisp_each {this, args})
 	(call 'lisp 'env_push {this})
 
-	(d-call 'vector 'get_length {args} {_, length})
-	(errorif {length != 5} 'error1)
+(errorcases
+	(call 'lisp 'env_args_type '{args, $sig, 5} '(r2))
+	(gotoif '(r2 == 0) 'error1))
+
 	(call 'vector 'get_begin {args} {_, params})
 	(assign {params[ptr_size * 4]} {lists})
-	(errorif (cat {lists->obj_vtable != @} (f-path 'vector 'vtable)) 'error2)
-
 	(assign {max_int} {length})
 	(call 'vector 'get_both {lists} {_, iter_begin, iter_end})
 	(assign {iter_begin} {iter})
@@ -182,18 +182,8 @@
 	(loop-end)
 
 	(vpif {length != max_int})
-		(assign {0} {start})
-		(assign {params[ptr_size * 0]} {value})
-		(vpif {value != this->lisp_sym_nil})
-			(errorif (cat {value->obj_vtable != @} (f-path 'num 'vtable)) 'error4)
-			(call 'num 'get_value {value} {_, start})
-		(endif)
-		(assign {length} {end})
-		(assign {params[ptr_size * 1]} {value})
-		(vpif {value != this->lisp_sym_nil})
-			(errorif (cat {value->obj_vtable != @} (f-path 'num 'vtable)) 'error4)
-			(call 'num 'get_value {value} {_, end})
-		(endif)
+		(call 'num 'get_value {params[ptr_size * 0]} {_, start})
+		(call 'num 'get_value {params[ptr_size * 1]} {_, end})
 		(vpif {start < 0})
 			(assign {length + start + 1} {start})
 		(endif)
@@ -243,20 +233,18 @@
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(each! start|nil end|nil lambda|nil lambda (seq ...))", error_msg_wrong_num_of_args, args} {_, value})
-	(goto 'funcexit)
-(vp-label 'error2)
-	(call 'lisp 'repl_error {this, "(each! start|nil end|nil lambda|nil lambda (seq ...))", error_msg_not_a_list, args} {_, value})
+	(call 'lisp 'repl_error {this, "(each! start end lambda|nil lambda (seq ...))", error_msg_wrong_num_of_args, args} {_, value})
 	(goto 'funcexit)
 (vp-label 'error3)
-	(call 'lisp 'repl_error {this, "(each! start|nil end|nil lambda|nil lambda (seq ...))", error_msg_not_a_sequence, args} {_, value})
+	(call 'lisp 'repl_error {this, "(each! start end lambda|nil lambda (seq ...))", error_msg_not_a_sequence, args} {_, value})
 	(goto 'funcexit)
 (vp-label 'error4)
-	(call 'lisp 'repl_error {this, "(each! start|nil end|nil lambda|nil lambda (seq ...))", error_msg_not_valid_index, args} {_, value})
+	(call 'lisp 'repl_error {this, "(each! start end lambda|nil lambda (seq ...))", error_msg_not_valid_index, args} {_, value})
 	(goto 'funcexit)
 (vp-label 'error5)
 	(call 'vector 'deref {params})
-	(goto 'funcexit))
+	(goto 'funcexit)
+	(signature '(num num obj obj vector)))
 
 	(pop-scope-syms)
 
@@ -275,8 +263,7 @@
 	(ptr 'this 'args 'value 'mode)
 	(union
 		'(ptr 'lists)
-		'(ptr 'func)
-		'(ptr 'type))
+		'(ptr 'func))
 	(pptr 'iter 'iter_begin 'iter_end 'params)
 	(int 'start 'end)
 	(union
@@ -288,12 +275,12 @@
 	(entry 'seq 'lisp_some {this, args})
 	(call 'lisp 'env_push {this})
 
-	(d-call 'vector 'get_length {args} {_, length})
-	(errorif {length != 5} 'error1)
+(errorcases
+	(call 'lisp 'env_args_type '{args, $sig, 5} '(r2))
+	(gotoif '(r2 == 0) 'error1))
+
 	(call 'vector 'get_begin {args} {_, params})
 	(assign {params[ptr_size * 4]} {lists})
-	(errorif (cat {lists->obj_vtable != @} (f-path 'vector 'vtable)) 'error2)
-
 	(assign {max_int} {length})
 	(call 'vector 'get_both {lists} {_, iter_begin, iter_end})
 	(assign {iter_begin} {iter})
@@ -311,18 +298,8 @@
 	(call 'obj 'ref {this->lisp_sym_nil} {value})
 
 	(vpif {length != max_int})
-		(assign {0} {start})
-		(assign {params[ptr_size * 0]} {type})
-		(vpif {type != this->lisp_sym_nil})
-			(errorif (cat {type->obj_vtable != @} (f-path 'num 'vtable)) 'error4)
-			(call 'num 'get_value {type} {_, start})
-		(endif)
-		(assign {length} {end})
-		(assign {params[ptr_size * 1]} {type})
-		(vpif {type != this->lisp_sym_nil})
-			(errorif (cat {type->obj_vtable != @} (f-path 'num 'vtable)) 'error4)
-			(call 'num 'get_value {type} {_, end})
-		(endif)
+		(call 'num 'get_value {params[ptr_size * 0]} {_, start})
+		(call 'num 'get_value {params[ptr_size * 1]} {_, end})
 		(vpif {start < 0})
 			(assign {length + start + 1} {start})
 		(endif)
@@ -352,12 +329,13 @@
 			(call 'obj 'deref {value})
 
 			(call 'lisp 'repl_apply {this, params, func} {_, value})
-			(errorif (cat {value->obj_vtable == @} (f-path 'error 'vtable)) 'error5)
+			(errorif (cat {value->obj_vtable == @} (f-path 'error 'vtable)) 'funcexit1)
 			(breakif {mode != this->lisp_sym_nil && value != this->lisp_sym_nil})
 			(breakif {mode == this->lisp_sym_nil && value == this->lisp_sym_nil})
 			(d-call 'vector 'clear {params})
 			(assign {start + dir} {start})
 		(loop-end)
+	(vp-label 'funcexit1)
 		(call 'vector 'deref {params})
 	(endif)
 
@@ -368,20 +346,15 @@
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(some! start|nil end|nil mode lambda (seq ...))", error_msg_wrong_num_of_args, args} {_, value})
-	(goto 'funcexit)
-(vp-label 'error2)
-	(call 'lisp 'repl_error {this, "(some! start|nil end|nil mode lambda (seq ...))", error_msg_not_a_list, args} {_, value})
+	(call 'lisp 'repl_error {this, "(some! start end mode lambda (seq ...))", error_msg_wrong_num_of_args, args} {_, value})
 	(goto 'funcexit)
 (vp-label 'error3)
-	(call 'lisp 'repl_error {this, "(some! start|nil end|nil mode lambda (seq ...))", error_msg_not_a_sequence, args} {_, value})
+	(call 'lisp 'repl_error {this, "(some! start end mode lambda (seq ...))", error_msg_not_a_sequence, args} {_, value})
 	(goto 'funcexit)
 (vp-label 'error4)
-	(call 'lisp 'repl_error {this, "(some! start|nil end|nil mode lambda (seq ...))", error_msg_not_valid_index, args} {_, value})
+	(call 'lisp 'repl_error {this, "(some! start end mode lambda (seq ...))", error_msg_not_valid_index, args} {_, value})
 	(goto 'funcexit)
-(vp-label 'error5)
-	(call 'vector 'deref {params})
-	(goto 'funcexit))
+	(signature '(num num obj obj vector)))
 
 	(pop-scope-syms)
 

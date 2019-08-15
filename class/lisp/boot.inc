@@ -138,7 +138,7 @@
 ;(defun bind-fun (_) _)
 
 ;pre bind the previous !
-(each! nil nil nil bind-fun (list (list defun defmacro defun-bind defmacro-bind)))
+(each! 0 -1 nil bind-fun (list (list defun defmacro defun-bind defmacro-bind)))
 
 (defmacro-bind const (_)
 	;(const form)
@@ -149,19 +149,19 @@
 	(eval (macroexpand _)))
 
 (defmacro-bind lst? (_)
-	;(lst? form)
+	;(lst? form) -> bool
 	`(eq (type-of ,_) ,lisp_type_lst))
 (defmacro-bind num? (_)
-	;(num? form)
+	;(num? form) -> bool
 	`(eq (type-of ,_) ,lisp_type_int))
 (defmacro-bind fnc? (_)
-	;(fnc? form)
+	;(fnc? form) -> bool
 	`(eq (type-of ,_) ,lisp_type_fnc))
 (defmacro-bind str? (_)
-	;(str? form)
+	;(str? form) -> bool
 	`(eq (type-of ,_) ,lisp_type_str))
 (defmacro-bind sym? (_)
-	;(sym? form)
+	;(sym? form) -> bool
 	`(eq (type-of ,_) ,lisp_type_sym))
 
 (defmacro-bind inc (_)
@@ -233,7 +233,7 @@
 			(unless (lst? _) (setq _ (list _)))
 			(if (notevery (lambda (_) (eq (type-of _) (const lisp_type_sym))) _)
 				(throw "Key not symbol !" _))
-			(each! nil nil nil (lambda (_)
+			(each! 0 -1 nil (lambda (_)
 				(push (elem 0 _x) _)
 				(push (elem 1 _x) (macroexpand (cat '(progn) _y)))) (list _)) _x) _ (list (list) (list)))
 			_o (find 'otherwise (elem 0 _)))
@@ -285,7 +285,7 @@
 
 (defun-bind each (_f &rest _)
 	;(each lambda seq ...)
-	(each! nil nil nil _f _))
+	(each! 0 -1 nil _f _))
 
 (defun-bind each-rev (_f &rest _)
 	;(each-rev lambda seq ...)
@@ -294,7 +294,7 @@
 (defun-bind map (_f &rest _)
 	;(map lambda seq ...) -> list
 	(defq _l (list))
-	(each! nil nil (lambda (_)
+	(each! 0 -1 (lambda (_)
 		(push _l _)) _f _) _l)
 
 (defun-bind map-rev (_f &rest _)
@@ -306,16 +306,16 @@
 (defun-bind filter (_f _b)
 	;(filter lambda seq) -> list
 	(defq _l (list))
-	(each! nil nil (lambda (_p)
+	(each! 0 -1 (lambda (_p)
 		(if _p (push _l (elem _ _b)))) _f (list _b)) _l)
 
 (defun-bind reduce (_f _l &optional _a)
 	;(reduce lambda seq [accum])
 	(cond
-		(_a (each! nil nil nil (lambda (_p)
+		(_a (each! 0 -1 nil (lambda (_p)
 				(setq _a (_f _a _p))) (list _l)))
 		(t (setq _a (elem 0 _l))
-			(each! 1 nil nil (lambda (_p)
+			(each! 1 -1 nil (lambda (_p)
 				(setq _a (_f _a _p))) (list _l)))) _a)
 
 (defun-bind reduce-rev (_f _l &optional _a)
@@ -333,19 +333,19 @@
 
 (defun-bind some (_f &rest _)
 	;(some lambda seq ...)
-	(some! nil nil t _f _))
+	(some! 0 -1 t _f _))
 
 (defun-bind every (_f &rest _)
 	;(every lambda seq ...)
-	(some! nil nil nil _f _))
+	(some! 0 -1 nil _f _))
 
 (defun-bind notany (_f &rest _)
 	;(notany lambda seq ...)
-	(not (some! nil nil t _f _)))
+	(not (some! 0 -1 t _f _)))
 
 (defun-bind notevery (_f &rest _)
 	;(notevery lambda seq ...)
-	(not (some! nil nil nil _f _)))
+	(not (some! 0 -1 nil _f _)))
 
 ;;;;;;;;;;;;;;;;
 ; Math functions

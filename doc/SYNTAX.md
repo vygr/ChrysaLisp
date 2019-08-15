@@ -274,7 +274,7 @@
 
 ## each!
 
-(each! start|nil end|nil lambda|nil lambda (seq ...))
+(each! start end lambda|nil lambda (seq ...))
 
 ## each-line
 
@@ -370,7 +370,7 @@
 
 ## fnc?
 
-(fnc? form)
+(fnc? form) -> bool
 
 ## frac
 
@@ -498,7 +498,7 @@
 
 ## lst?
 
-(lst? form)
+(lst? form) -> bool
 
 ## lt
 
@@ -602,7 +602,7 @@
 
 ## num?
 
-(num? form)
+(num? form) -> bool
 
 ## open-child
 
@@ -858,7 +858,7 @@
 
 ## some!
 
-(some! start|nil end|nil mode lambda (seq ...))
+(some! start end mode lambda (seq ...))
 
 ## sort
 
@@ -882,7 +882,7 @@
 
 ## str?
 
-(str? form)
+(str? form) -> bool
 
 ## stream-avail
 
@@ -910,7 +910,7 @@
 
 ## sym?
 
-(sym? form)
+(sym? form) -> bool
 
 ## task-mailbox
 
