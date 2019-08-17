@@ -13,11 +13,11 @@
 	;trashes
 	;all but r0
 
-	(entry 'vector 'lisp_list '(r9 r1))
+	(entry 'vector 'lisp_list '(r0 r1))
 
-	(d-call 'vector 'slice '(r1 0 (r1 array_length ui)) '(_ r1))
+	(class/obj/ref r1 r2)
 
-	(exit 'vector 'lisp_list '(r9 r1))
+	(exit 'vector 'lisp_list '(r0 r1))
 	(vp-ret)
 
 (def-func-end)
