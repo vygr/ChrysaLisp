@@ -15,9 +15,14 @@
 	;trashes
 	;all but r0
 
+	(def-struct 'local)
+		(ptr 'this 'value 'iter_begin 'iter_end)
+	(def-struct-end)
+
 	(entry 'lisp 'repl_apply '(r0 r1 r2))
 
-	(assign `((r2 obj_vtable) (@ ,(f-path 'func 'vtable))) '(r3 r4))
+	(vp-cpy-ir r2 obj_vtable r3)
+	(f-bind 'func 'vtable r4)
 	(vpif '(r3 == r4))
 		;built in or compiled function
 		(class/num/get_value r2 r2)
@@ -25,55 +30,58 @@
 		(vp-jmp-r r2)
 	(endif)
 
-	(ptr 'this 'args)
-	(union
-		'(ptr 'func)
-		'(pptr 'iter_end))
-	(ptr 'value)
-	(pptr 'iter_begin)
 (errorcases
-	(uint 'length))
+	(f-bind 'vector 'vtable r4)
+	(gotoif '(r3 != r4) 'error2)
+	(class/array/get_length r2 r3)
+	(gotoif '(r3 < 2) 'error1))
 
-	(push-scope)
-	(assign '(r0 r1 r2) {this, args, func})
-
-	;lambda ?
-(errorcases
-	(gotoif (cat {func->obj_vtable != @} (f-path 'vector 'vtable)) 'error2)
-	(d-call 'vector 'get_length {func} {_, length})
-	(gotoif {length < 2} 'error1))
-
-	(call 'vector 'get_both {func} {_, iter_begin, iter_end})
+	(class/array/get_both r2 r3 r4)
 
 (errorcases
-	(assign {iter_begin[ptr_size * 0]} {value})
-	(vpif {value != this->lisp_sym_lambda})
-		(gotoif {value != this->lisp_sym_macro} 'error2)
+	(class/array/get_args r3 '(r5))
+	(vp-cpy-ir r0 lisp_sym_lambda r6)
+	(vpif '(r5 != r6))
+		(vp-cpy-ir r0 lisp_sym_macro r6)
+		(gotoif '(r5 != r6) 'error2)
 	(endif))
 
-	(call 'lisp 'env_push {this})
-	(call 'lisp 'env_bind {this, iter_begin[ptr_size * 1], args} {_, value})
-	(errorif (cat {value->obj_vtable == @} (f-path 'error 'vtable)) 'exit1)
+	(vp-alloc local_size)
+	(vp-add-cr ptr_size r3)
+	(vp-cpy-ri r0 rsp local_this)
+	(vp-cpy-ri r1 rsp local_value)
+	(vp-cpy-ri r3 rsp local_iter_begin)
+	(vp-cpy-ri r4 rsp local_iter_end)
 
-	(assign {&iter_begin[ptr_size * 2]} {iter_begin})
-	(loop-while {iter_begin != iter_end})
-		(call 'obj 'deref {value})
-		(call 'lisp 'repl_eval {this, *iter_begin} {_, value})
-		(errorif (cat {value->obj_vtable == @} (f-path 'error 'vtable)) 'exit1)
-		(assign {iter_begin + ptr_size} {iter_begin})
+	(call 'lisp 'env_push '(r0) '(r0))
+	(vp-cpy-ir rsp local_iter_begin r1)
+	(call 'lisp 'env_bind '(r0 (r1 0) (rsp local_value)) '(r0 r1))
+	(vp-cpy-ri r1 rsp local_value)
+	(loop-start)
+	(errorcases
+		(vp-cpy-ir r1 obj_vtable r3)
+		(f-bind 'error 'vtable r4)
+		(breakif '(r3 == r4)))
+		(vp-cpy-ir rsp local_iter_begin r2)
+		(vp-cpy-ir rsp local_iter_end r3)
+		(vp-add-cr ptr_size r2)
+		(breakif '(r2 == r3))
+		(vp-cpy-ri r2 rsp local_iter_begin)
+		(call 'obj 'deref '(r1))
+		(vp-cpy-ir rsp local_iter_begin r2)
+		(call 'lisp 'repl_eval '((rsp local_this) (r2 0)) '(r0 r1))
+		(vp-cpy-ri r1 rsp local_value)
 	(loop-end)
+	(call 'lisp 'env_pop '(r0) '(r0))
 
-(vp-label 'exit1)
-	(call 'lisp 'env_pop {this})
-	(exit 'lisp 'repl_apply {this, value})
-	(return)
+	(exit 'lisp 'repl_apply '(r0 (rsp local_value)))
+	(vp-free local_size)
+	(vp-ret)
 
 (errorcases
 (vp-label 'error1)
-	(jump 'lisp 'repl_error {this, "(lambda ([arg ...]) body)", error_msg_wrong_num_of_args, func})
+	(jump 'lisp 'repl_error '(r0 "(lambda ([arg ...]) body)" error_msg_wrong_num_of_args r2))
 (vp-label 'error2)
-	(jump 'lisp 'repl_error {this, "(lambda ([arg ...]) body)", error_msg_not_a_lambda, func}))
-
-	(pop-scope-syms)
+	(jump 'lisp 'repl_error '(r0 "(lambda ([arg ...]) body)" error_msg_not_a_lambda r2)))
 
 (def-func-end)
