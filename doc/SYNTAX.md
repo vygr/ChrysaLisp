@@ -274,7 +274,7 @@
 
 ## each!
 
-(each! start end lambda|nil lambda (seq ...))
+(each! start end lambda (seq ...))
 
 ## each-line
 

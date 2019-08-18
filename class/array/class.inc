@@ -272,7 +272,7 @@
 
 (defcfun-bind class/array/map_args (regs pos)
 	(defq out (cat regs))
-	(each! 0 -1 nil (lambda (r p)
+	(each! 0 -1 (lambda (r p)
 		(elem-set p out r)) (list regs pos)) out)
 
 (defcfun-bind class/array/bind_args (a regs)

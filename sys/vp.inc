@@ -145,7 +145,7 @@
 	(and _ (ne _ -1) _))
 
 (defcfun-bind opt-emit-buffer ()
-	(each! 2 -1 nil (lambda (e)
+	(each! 2 -1 (lambda (e)
 		(cond
 			;read after read/write
 			((defq c (find (defq o (elem 0 e)) (opt-emit-read-ops)))

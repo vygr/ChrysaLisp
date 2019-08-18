@@ -74,7 +74,7 @@
 
 (defun-bind pcb-draw-normal ()
 	(defq colors (map trans (list argb_red argb_green argb_blue argb_yellow argb_cyan argb_magenta)))
-	(each! 1 -2 nil (lambda ((id track_radius via_radius track_gap pads paths))
+	(each! 1 -2 (lambda ((id track_radius via_radius track_gap pads paths))
 		(setq track_radius (mul zoom track_radius) via_radius (mul zoom via_radius)
 			track_gap (mul zoom track_gap))
 		(when (ne track_radius 0)
@@ -89,13 +89,13 @@
 							(list seg_2d) (elem z layers)))
 					) path path_2d)
 				) batched_paths batched_paths_2d)
-			(each! 0 pcb_depth nil (lambda (layer color)
+			(each! 0 pcb_depth (lambda (layer color)
 				(canvas-set-color canvas color)
 				(canvas-fpoly canvas pcb_border pcb_border 1 layer)
 				) (list layers colors))
 			;draw vias
 			(each (lambda (path_2d)
-				(each! 1 -1 nil (lambda (seg_2d)
+				(each! 1 -1 (lambda (seg_2d)
 					(bind '(x y) (slice 0 2 seg_2d))
 					(setq x (add x pcb_border) y (add y pcb_border))
 					(canvas-set-color canvas (const (trans argb_white)))
@@ -133,7 +133,7 @@
 	(pcb-draw-layer nil))
 
 (defun-bind pcb-draw-layer (with_gaps)
-	(each! 1 -2 nil (lambda ((id track_radius via_radius track_gap pads paths))
+	(each! 1 -2 (lambda ((id track_radius via_radius track_gap pads paths))
 		(defq track_radius (mul zoom track_radius) via_radius (mul zoom via_radius)
 			track_gap (mul zoom track_gap))
 		(when (ne track_radius 0)
@@ -149,7 +149,7 @@
 			(canvas-fpoly canvas pcb_border pcb_border 1 layer)
 			;draw vias
 			(each (lambda (path_2d)
-				(each! 1 -1 nil (lambda (seg_2d)
+				(each! 1 -1 (lambda (seg_2d)
 					(bind '(x y) (slice 0 2 seg_2d))
 					(setq x (add x pcb_border) y (add y pcb_border))
 					(canvas-fpoly canvas x y 0 (circle (add via_radius (if with_gaps track_gap 0))))

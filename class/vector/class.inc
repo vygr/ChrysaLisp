@@ -36,7 +36,7 @@
 
 (defcfun-bind class/vector/bind_args (a regs types)
 	(defq rl (list) tp (list))
-	(each! 0 -1 nil (lambda (x y)
+	(each! 0 -1 (lambda (x y)
 		(when (not (eql '_ y))
 			(push rl x)
 			(push tp y))) (list regs types))

@@ -28,7 +28,7 @@
 	;(debug-fun list) -> list
 	(defq _s (list (setq _ (copy _))))
 	(while (defq _l (pop _s))
-		(each! 0 -1 nil (lambda (_e)
+		(each! 0 -1 (lambda (_e)
 			(when (is-debug-fun _e)
 				(elem-set _ _l (cat '(debug) (list _e)))
 				(push _s _e))) (list _l))) _)

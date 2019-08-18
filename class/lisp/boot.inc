@@ -138,7 +138,7 @@
 ;(defun bind-fun (_) _)
 
 ;pre bind the previous !
-(each! 0 -1 nil bind-fun (list (list defun defmacro defun-bind defmacro-bind)))
+(each! 0 -1 bind-fun (list (list defun defmacro defun-bind defmacro-bind)))
 
 (defmacro-bind const (_)
 	;(const form)
@@ -233,7 +233,7 @@
 			(unless (lst? _) (setq _ (list _)))
 			(if (notevery (lambda (_) (eq (type-of _) (const lisp_type_sym))) _)
 				(throw "Key not symbol !" _))
-			(each! 0 -1 nil (lambda (_)
+			(each! 0 -1 (lambda (_)
 				(push (elem 0 _x) _)
 				(push (elem 1 _x) (macroexpand (cat '(progn) _y)))) (list _)) _x) _ (list (list) (list)))
 			_o (find 'otherwise (elem 0 _)))
@@ -281,50 +281,50 @@
 
 (defun-bind each-mergeable-rev (_f _l)
 	;(each-mergeable-rev lambda seq) -> seq
-	(each! -1 0 nil _f (list _l)) _l)
+	(each! -1 0 _f (list _l)) _l)
 
 (defun-bind each (_f &rest _)
 	;(each lambda seq ...)
-	(each! 0 -1 nil _f _))
+	(each! 0 -1 _f _))
 
 (defun-bind each-rev (_f &rest _)
 	;(each-rev lambda seq ...)
-	(each! -1 0 nil _f _))
+	(each! -1 0 _f _))
 
 (defun-bind map (_f &rest _)
 	;(map lambda seq ...) -> list
 	(defq _l (list))
-	(each! 0 -1 (lambda (_)
-		(push _l _)) _f _) _l)
+	(each! 0 -1 (lambda (&rest _p)
+		(push _l (apply _f _p))) _) _l)
 
 (defun-bind map-rev (_f &rest _)
 	;(map-rev lambda seq ...) -> list
 	(defq _l (list))
-	(each! -1 0 (lambda (_)
-		(push _l _)) _f _) _l)
+	(each! -1 0 (lambda (&rest _p)
+		(push _l (apply _f _p))) _) _l)
 
 (defun-bind filter (_f _b)
 	;(filter lambda seq) -> list
 	(defq _l (list))
-	(each! 0 -1 (lambda (_p)
-		(if _p (push _l (elem _ _b)))) _f (list _b)) _l)
+	(each! 0 -1 (lambda (&rest _p)
+		(if (apply _f _p) (push _l (elem _ _b)))) (list _b)) _l)
 
 (defun-bind reduce (_f _l &optional _a)
 	;(reduce lambda seq [accum])
 	(cond
-		(_a (each! 0 -1 nil (lambda (_p)
+		(_a (each! 0 -1 (lambda (_p)
 				(setq _a (_f _a _p))) (list _l)))
 		(t (setq _a (elem 0 _l))
-			(each! 1 -1 nil (lambda (_p)
+			(each! 1 -1 (lambda (_p)
 				(setq _a (_f _a _p))) (list _l)))) _a)
 
 (defun-bind reduce-rev (_f _l &optional _a)
 	;(reduce-rev lambda seq [accum])
 	(cond
-		(_a (each! -1 0 nil (lambda (_p)
+		(_a (each! -1 0 (lambda (_p)
 				(setq _a (_f _a _p))) (list _l)))
 		(t (setq _a (elem -2 _l))
-			(each! -2 0 nil (lambda (_p)
+			(each! -2 0 (lambda (_p)
 				(setq _a (_f _a _p))) (list _l)))) _a)
 
 ;;;;;;;;;;;;
@@ -512,7 +512,7 @@
 		(setq _s (abs (logxor 0xa5a5a5a5a5a5a5a5 (mul _s 0x1574937f)))))
 	(defun-bind get-val (_)
 		(if (gt _ 0) (mod (get-next) _) 0))
-	(each! _h _l nil (lambda (x)
+	(each! _h _l (lambda (x)
 		(swap _a _ (get-val (inc _)))) (list _a)) _a)
 
 (defun-bind sorted (_f _a &optional _l _h)

@@ -4,6 +4,11 @@
 
 ------
 
+Revisit the seq Lisp bindings, lowered to VP and removed the second function
+param to (each!).
+
+------
+
 Big push on the consistency and ease of doing Lisp bindings to native VP code.
 Anything that helps avoid finger trouble and produces tighter code.
 
