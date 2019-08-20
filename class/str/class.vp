@@ -400,6 +400,8 @@
 			(endif)
 			(vp-cpy-rr r2 r1)
 			(vp-sub-rr r3 r1)
+
+			(exit 'str 'compare '(r0 r1))
 			(vp-ret)
 		(endif)
 		(vp-xor-rr r1 r1)

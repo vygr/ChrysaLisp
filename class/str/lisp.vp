@@ -156,29 +156,24 @@
 	;trashes
 	;all but r0
 
-	(vp-def (this args value iter_begin arg1 arg2) '(r6 r7))
-
-	(entry 'str 'lisp_cmp (list this args))
+	(entry 'str 'lisp_cmp '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type `(,args ($ sig) 2) '(r2))
+	(call 'lisp 'env_args_type '(r1 ($ sig) 2) '(r2))
 	(gotoif '(r2 == 0) 'error))
 
-	(call 'vector 'get_begin (list args) (list '_ iter_begin))
-	(vp-cpy-ir iter_begin 0 arg1)
-	(vp-cpy-ir iter_begin ptr_size arg2)
-	(vp-xor-rr value value)
-	(vpif `(,arg1 != ,arg2))
-		(call 'str 'compare (list arg1 arg2) (list '_ value))
-	(endif)
-	(call 'num 'create (list value) (list value))
+	(vp-cpy-rr r0 r13)
+	(defq in (method-input 'str 'compare))
+	(class/array/bind_args r1 in)
+	(call 'str 'compare in '(_ r1))
+	(call 'num 'create '(r1) '(r0))
 
-	(exit 'str 'lisp_cmp (list this value))
+	(exit 'str 'lisp_cmp '(r13 r0))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error (list this "(cmp str str)" error_msg_wrong_types args))
+	(jump 'lisp 'repl_error '(r0 "(cmp str str)" error_msg_wrong_types r1))
 	(signature '(str str)))
 
 (def-func-end)
@@ -193,38 +188,32 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this 'args 'value)
-	(union
-		'(pptr 'iter_begin)
-		'(long 'handle)
-		'(ptr 'name))
-
-	(push-scope)
-	(entry 'str 'lisp_save {this, args})
+	(entry 'str 'lisp_save '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 2} '(r2))
+	(call 'lisp 'env_args_type '(r1 ($ sig) 2) '(r2))
 	(gotoif '(r2 == 0) 'error1))
 
-	(call 'vector 'get_begin {args} {_, iter_begin})
-	(assign {iter_begin[0], iter_begin[ptr_size]} {value, name})
-	(call 'sys_pii 'open {&name->str_data, file_open_write} {handle})
-	(errorif {handle < 3} 'error2)
-	(call 'sys_pii 'write {handle, &value->str_data, value->str_length})
-	(call 'sys_pii 'close {handle})
-	(call 'obj 'ref {value})
+	(vp-cpy-rr r0 r12)
+	(vp-cpy-rr r1 r13)
+	(class/array/bind_args r1 '(r11 r0))
+	(call 'sys_pii 'open '((& r0 str_data) file_open_write) '(r0))
+	(errorif '(r0 < 3) 'error2)
+	(vp-cpy-rr r0 r9)
+	(vp-cpy-rr r11 r10)
+	(call 'sys_pii 'write '(r0 (& r11 str_data) (r11 str_length ui)))
+	(call 'sys_pii 'close '(r9))
+	(class/obj/ref r10 r2)
 
-	(exit 'str 'lisp_save {this, value})
-	(return)
+	(exit 'str 'lisp_save '(r12 r10))
+	(vp-ret)
 
 (errorcases
 (vp-label 'error1)
-	(jump 'lisp 'repl_error {this, "(save str path)", error_msg_wrong_types, args})
+	(jump 'lisp 'repl_error '(r0 "(save str path)" error_msg_wrong_types r1))
 (vp-label 'error2)
-	(jump 'lisp 'repl_error {this, "(save str path)", error_msg_open_error, args})
+	(jump 'lisp 'repl_error '(r12 "(save str path)" error_msg_open_error r13))
 	(signature '(str str)))
-
-	(pop-scope-syms)
 
 (def-func-end)
 
@@ -238,30 +227,27 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this 'args 'value)
-
-	(push-scope)
-	(entry 'str 'lisp_load {this, args})
+	(entry 'str 'lisp_load '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 1} '(r2))
-	(gotoif '(r2 == 0) 'error1))
+	(call 'lisp 'env_args_type '(r1 ($ sig) 1) '(r2))
+	(gotoif '(r2 == 0) 'error))
 
-	(call 'vector 'get_first {args} {_, value})
-	(call 'str 'create_from_file {&value->str_data} {value})
-	(vpifnot {value})
-		(call 'obj 'ref {this->lisp_sym_nil} {value})
+	(vp-cpy-rr r0 r13)
+	(defq in (method-input 'str 'create_from_file))
+	(class/vector/bind_args r1 in '(str))
+	(call 'str 'create_from_file in '(r0))
+	(vpif '(r0 == 0))
+		(call 'obj 'ref '((r13 lisp_sym_nil)) '(r0))
 	(endif)
 
-	(exit 'str 'lisp_load {this, value})
-	(return)
+	(exit 'str 'lisp_load '(r13 r0))
+	(vp-ret)
 
 (errorcases
-(vp-label 'error1)
-	(jump 'lisp 'repl_error {this, "(load path)", error_msg_wrong_types, args})
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r0 "(load path)" error_msg_wrong_types r1))
 	(signature '(str)))
-
-	(pop-scope-syms)
 
 (def-func-end)
 
@@ -275,45 +261,51 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this 'stream 'data)
-	(union
-		'(ptr 'args)
-		'(ptr 'value))
-	(pptr 'iter_begin 'iter_end)
+	(def-struct 'local)
+		(ptr 'this 'stream)
+		(pptr 'iter_begin 'iter_end)
+	(def-struct-end)
 
-	(push-scope)
-	(entry 'str 'lisp_str {this, args})
+	(vp-alloc local_size)
+	(entry 'str 'lisp_str '(r0 r1))
 
+	(class/array/get_both r1 r1 r2)
+	(vp-cpy-ri r0 rsp local_this)
+	(vp-cpy-ri r1 rsp local_iter_begin)
+	(vp-cpy-ri r2 rsp local_iter_end)
 	(call 'str 'create_from_buffer '(0 str_gap) '(r0))
-	(call 'stream_str 'create '(r0) {stream})
-	(call 'vector 'get_both {args} '(_ r1 r2))
-	(assign '(r2) {iter_end})
+	(call 'stream_str 'create '(r0) '((rsp local_stream)))
+	(vp-cpy-ir rsp local_iter_begin r1)
+	(vp-cpy-ir rsp local_iter_end r2)
 	(loop-while '(r1 != r2))
-		(vp-cpy-ir r1 0 r0)
-		(assign '(r1 r0) {iter_begin, value})
-		(vp-cpy-ir r0 obj_vtable r1)
-		(f-bind 'str 'vtable r2)
+		(vp-cpy-ir r1 0 r2)
+		(vp-cpy-ir r2 obj_vtable r1)
+		(f-bind 'str 'vtable r4)
 		(f-bind 'stream_str 'vtable r3)
 		(switch)
-		(vpcase '(r1 == r2))
-			(call 'stream 'write {stream, &value->str_data, value->str_length})
+		(vpcase '(r1 == r4))
+			(call 'stream 'write '((rsp local_stream) (& r2 str_data) (r2 str_length ui)))
 			(break)
 		(vpcase '(r1 == r3))
-			(assign {&value->stream_object->str_data} {data})
-			(call 'stream 'write {stream, data, value->stream_bufp - data})
+			(vp-cpy-ir r2 stream_object r1)
+			(vp-cpy-ir r2 stream_bufp r2)
+			(vp-add-cr str_data r1)
+			(vp-sub-rr r1 r2)
+			(call 'stream 'write '((rsp local_stream) r1 r2))
 			(break)
 		(default)
-			(call 'lisp 'repl_print {this, stream, value})
+			(call 'lisp 'repl_print '((rsp local_this) (rsp local_stream) r2))
 		(endswitch)
-		(assign {iter_begin, iter_end} '(r1 r2))
+		(vp-cpy-ir rsp local_iter_begin r1)
+		(vp-cpy-ir rsp local_iter_end r2)
 		(vp-add-cr ptr_size r1)
+		(vp-cpy-ri r1 rsp local_iter_begin)
 	(loop-end)
-	(call 'stream_str 'ref_string {stream} {_, value})
-	(call 'obj 'destroy {stream})
+	(call 'stream_str 'ref_string '((rsp local_stream)) '(r0 (rsp local_stream)))
+	(call 'obj 'destroy '(r0))
 
-	(exit 'str 'lisp_str {this, value})
-	(return)
-
-	(pop-scope)
+	(exit 'str 'lisp_str '((rsp local_this) (rsp local_stream)))
+	(vp-free local_size)
+	(vp-ret)
 
 (def-func-end)
