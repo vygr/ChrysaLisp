@@ -33,15 +33,15 @@
 	(add (logand 0xffffff _) 0xa0000000))
 
 (defun-bind circle (r)
-	(defq k (sym (str r)))
-	(if (defq i (find k cache_key)) (elem i cache_poly)
+	(if (defq i (find (defq k (sym (str r))) cache_key))
+		(elem i cache_poly)
 		(progn
 			(push cache_key k)
 			(elem -2 (push cache_poly (list (points-gen-arc 0 0 0 fp_2pi r eps (points))))))))
 
 (defun-bind oval (r s)
-	(defq k (sym (str r ":" s)))
-	(if (defq i (find k cache_key)) (elem i cache_poly)
+	(if (defq i (find (defq k (sym (str r ":" s))) cache_key))
+		(elem i cache_poly)
 		(progn
 			(push cache_key k)
 			(elem -2 (push cache_poly (points-stroke-polylines r eps
@@ -194,10 +194,10 @@
 		((eq id event_win_prev)
 			(win-refresh (mod (add (dec index) (length pcbs)) (length pcbs))))
 		((eq id event_win_scale_down)
-			(setq zoom (if (eq zoom min_zoom) min_zoom (dec zoom)))
+			(setq zoom (max min_zoom (dec zoom)))
 			(win-refresh index))
 		((eq id event_win_scale_up)
-			(setq zoom (if (eq zoom max_zoom) max_zoom (inc zoom)))
+			(setq zoom (min max_zoom (inc zoom)))
 			(win-refresh index))
 		((le event_win_show_all id event_win_show_6)
 			(setq show (sub id event_win_show_all 1))
