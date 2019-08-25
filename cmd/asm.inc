@@ -2,7 +2,10 @@
 ; VP Assembler
 ;;;;;;;;;;;;;;
 
-(ffi kernel-total "sys/kernel/lisp_total" 0)
+(if (def? 'pipe)
+	(ffi kernel-total "sys/kernel/lisp_total" 0)
+	;C++ ChrysaLisp !
+	(defun kernel-total () 1))
 (defq debug_mode t debug_emit nil debug_inst nil)
 
 (defun-bind compile (*files* &optional *abi* *cpu* *pipes*)
@@ -30,6 +33,7 @@
 							(t (print l)))) p)) q)
 				(each print e))
 			(print "Done"))
+		;C++ ChrysaLisp !
 		(compile-pipe *files* *abi* *cpu*))
 	nil)
 

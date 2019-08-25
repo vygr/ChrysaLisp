@@ -134,8 +134,13 @@
 	;(defmacro-bind name ([arg ...]) body)
 	`(defq ,n (macro ,a ~(bind-fun (macroexpand _)))))
 
-;to disable pre binding uncomment this line
-;(defun bind-fun (_) _)
+(cond
+	((def? 'pipe)
+		;to disable pre binding uncomment this line
+		;(defun bind-fun (_) _)
+	)(t
+		;C++ ChrysaLisp !
+		(defun bind-fun (_) _)))
 
 ;pre bind the previous !
 (each! 0 -1 bind-fun (list (list defun defmacro defun-bind defmacro-bind)))
