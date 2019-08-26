@@ -8,9 +8,9 @@
 	(byte 'win_prev 'win_next)
 	(byte 'win_scale_down 'win_scale_up)
 	(byte 'win_mode_normal 'win_mode_gerber)
-	(byte 'win_show_all 'win_show_1 'win_show_2 'win_show_3 'win_show_4 'win_show_5 'win_show_6))
+	(byte 'win_show_all 'win_show_1 'win_show_2 'win_show_3 'win_show_4))
 
-(defq pcbs '(apps/pcb/test1.pcb apps/pcb/test2.pcb apps/pcb/test3.pcb) index 0 id t canvas_scale 1
+(defq pcbs '(apps/pcb/test1.pcb apps/pcb/test2.pcb apps/pcb/test3.pcb) index 1 id t canvas_scale 1
 	mode 0 show -1 max_zoom 15 min_zoom 5 zoom (div (add min_zoom max_zoom) 2)
 	eps 0.25)
 
@@ -25,7 +25,7 @@
 			(each (lambda (l)
 				(button-connect-click (ui-element __ (create-button)
 					('text l 'color toolbar2_col 'font (create-font "fonts/OpenSans-Regular.ttf" 24))) (add event_win_show_all _)))
-						'("0" "1" "2" "3" "4" "5" "6")))
+						'("0" "1" "2" "3" "4")))
 		(ui-element pcb_scroll (create-scroll (logior scroll_flag_vertical scroll_flag_horizontal))
 			('min_width 512 'min_height 256))))
 
@@ -199,7 +199,7 @@
 		((eq id event_win_scale_up)
 			(setq zoom (min max_zoom (inc zoom)))
 			(win-refresh index))
-		((le event_win_show_all id event_win_show_6)
+		((le event_win_show_all id event_win_show_4)
 			(setq show (sub id event_win_show_all 1))
 			(win-refresh index))
 		((le event_win_mode_normal id event_win_mode_gerber)
