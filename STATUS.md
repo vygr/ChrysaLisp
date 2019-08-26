@@ -4,6 +4,13 @@
 
 ------
 
+Lower all the hmap Lisp bindings to VP, so (def) (defq) (set) (setq) (undef)
+(env) are all a little faster, plus this took the boot image size down over 1KB
+! Really must get around to using the (env) functions more exotic uses to do
+some OOPS stuff at the Lisp level.
+
+------
+
 Revisit the seq Lisp bindings, lowered to VP and removed the second function
 param to (each!).
 
