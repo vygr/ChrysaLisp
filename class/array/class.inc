@@ -265,16 +265,36 @@
 ;;;;;;;;;;;;;;;;;;
 
 (defcfun-bind class/array/set_args (i regs)
+	;inputs
+	;iter
+	;(reg ...)
+	;outputs
+	;load register list from iter
 	(assign-asm-to-asm regs (map (lambda (r) (list i (mul long_size _))) regs)))
 
 (defcfun-bind class/array/get_args (i regs)
+	;inputs
+	;iter
+	;(reg ...)
+	;outputs
+	;save register list to iter
 	(assign-asm-to-asm (map (lambda (r) (list i (mul long_size _))) regs) regs))
 
 (defcfun-bind class/array/map_args (regs pos)
+	;inputs
+	;(reg reg ...)
+	;(p1 p2 ...)
+	;outputs
+	;reordered register list
 	(defq out (cat regs))
 	(each! 0 -1 (lambda (r p)
 		(elem-set p out r)) (list regs pos)) out)
 
 (defcfun-bind class/array/bind_args (a regs)
+	;inputs
+	;array object
+	;(reg ...)
+	;outputs
+	;load register list from array
 	(class/array/get_begin a (elem -2 regs))
 	(class/array/get_args (elem -2 regs) regs))
