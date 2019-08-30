@@ -22,7 +22,7 @@
 	(push-scope)
 	(entry 'lisp 'read_char {this, stream, char})
 
-	(vpif {char == char_lf})
+	(vpif {char = char_lf})
 		(call 'hmap 'search {this->lisp_environment, this->lisp_sym_stream_line} {_, iter, _})
 		(breakifnot {iter})
 		(call 'pair 'get_second {*iter} {_, line})

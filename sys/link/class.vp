@@ -32,7 +32,7 @@
 	(assign {((pdata[0] - 0x30) * 100) + ((pdata[1] - 0x30) * 10) + (pdata[2] - 0x30)} {lo_id})
 	(assign {((pdata[4] - 0x30) * 100) + ((pdata[5] - 0x30) * 10) + (pdata[6] - 0x30)} {hi_id})
 	(call 'sys_kernel 'id nil {id})
-	(vpif {id == lo_id})
+	(vpif {id = lo_id})
 		(assign {hi_id} {lk_node.lk_node_cpu_id})
 		(assign {lk_buffer_chan_1} {tx})
 		(assign {lk_buffer_chan_2} {rx})
@@ -82,21 +82,21 @@
 			(assign {mail_statics, lk_node.lk_node_cpu_id, lk_node.lk_node_table.lk_table_array}
 				(list next id table))
 			(loop-list-forward next ml_statics_offchip_list node next)
-				(vp-cpy-ir-ui node (add msg_dest id_cpu) mid)
-				(breakif `(,id == ,mid))
-				(continueif `(,table == 0))
+				(vp-cpy-ir-ui node (+ msg_dest id_cpu) mid)
+				(breakif `(,id = ,mid))
+				(continueif `(,table = 0))
 				(vp-mul-cr lk_route_size mid)
 				(vp-add-rr table mid)
 				(vp-cpy-ir-ui mid lk_route_hops mid)
-			(loop-until `(,mid != 0))
-			(vpif `(,next != 0))
+			(loop-until `(,mid /= 0))
+			(vpif `(,next /= 0))
 				(assign (list node) {out_msg})
 				(ln-remove-node node next)
 			(endif)
 		(endif)
 
 		;if we have a message to send then see if we can send it
-		(vpif {out_msg && tx_msg->lk_msg_status == lk_chan_status_ready})
+		(vpif {out_msg && tx_msg->lk_msg_status = lk_chan_status_ready})
 			;copy message data
 			(call 'sys_mem 'copy {out_msg + ln_node_size, &tx_msg->lk_msg_stamp + ln_node_size, msg_stamp_size - ln_node_size})
 			(call 'sys_mem 'copy {out_msg->msg_parcel_data, &tx_msg->lk_msg_data, (out_msg->msg_length + long_size - 1) & - long_size})
@@ -110,16 +110,16 @@
 
 			;move on to next msg chan
 			(assign {&tx_msg->lk_msg_size} {tx_msg})
-			(vpif {tx_msg == &tx->lk_chan_size})
+			(vpif {tx_msg = &tx->lk_chan_size})
 				(assign {&tx->lk_chan_msg0} {tx_msg})
 			(endif)
 			(vp-jmp 'more_output)
 		(endif)
 
 		;check for received message
-		(vpif {rx_msg->lk_msg_status == lk_chan_status_busy})
+		(vpif {rx_msg->lk_msg_status = lk_chan_status_busy})
 			;is this msg part of a parcel for this cpu
-			(vpif {rx_msg->lk_msg_stamp.msg_parcel_length && rx_msg->lk_msg_stamp.msg_dest.id_cpu == id})
+			(vpif {rx_msg->lk_msg_stamp.msg_parcel_length && rx_msg->lk_msg_stamp.msg_dest.id_cpu = id})
 				;copy direct from link buffer to parcel !
 				(call 'sys_mail 'in {rx_msg})
 			(else)
@@ -137,7 +137,7 @@
 
 			;move on to next msg chan
 			(assign {&rx_msg->lk_msg_size} {rx_msg})
-			(vpif {rx_msg == &rx->lk_chan_size})
+			(vpif {rx_msg = &rx->lk_chan_size})
 				(assign {&rx->lk_chan_msg0} {rx_msg})
 			(endif)
 		(endif)
@@ -146,14 +146,14 @@
 		(call 'sys_task 'yield)
 
 		;are we in a quiet period
-		(continueif {rx_msg->lk_msg_status == lk_chan_status_busy})
-		(continueif {out_msg && (tx_msg->lk_msg_status == lk_chan_status_ready)})
+		(continueif {rx_msg->lk_msg_status = lk_chan_status_busy})
+		(continueif {out_msg && (tx_msg->lk_msg_status = lk_chan_status_ready)})
 
 		;small sleep if so
 		(call 'sys_task 'sleep {1000})
 
 		;exit if signaled by kernel
-	(loop-until {lk_node.lk_node_cpu_id == 0xffffffff})
+	(loop-until {lk_node.lk_node_cpu_id = 0xffffffff})
 
 	;unmap object
 	(call 'sys_pii 'munmap {mem, lk_buffer_size, mmap_shared})

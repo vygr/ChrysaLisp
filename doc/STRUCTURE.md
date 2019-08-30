@@ -175,7 +175,7 @@ primitives that all the other structured coding functions are based upon.
 ```
 
 The switch name is optional and the case expression can be a VP list
-expression, eg `'(r0 >= r3)` or `'(r4 == 56)`, which is parsed to a VP branch
+expression, eg `'(r0 >= r3)` or `'(r4 = 56)`, which is parsed to a VP branch
 instruction. Or a C-Script string that is evaluated, eg `{length + 23 >
 buf_len}`, with the result tested against 0 with a VP branch instruction.
 

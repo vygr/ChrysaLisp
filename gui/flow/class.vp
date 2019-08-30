@@ -27,13 +27,13 @@
 	(call 'flow 'get_long_prop '(r0 prop_flow_flags) '(r0 r1))
 	(vp-cpy-ri r1 rsp local_flags)
 	(vp-and-cr flow_flag_left r1)
-	(vpif '(r1 != 0))
+	(vpif '(r1 /= 0))
 		(vp-cpy-ir-i r0 view_w r1)
 		(vp-cpy-ri-i r1 rsp local_x)
 	(endif)
 	(vp-cpy-ir rsp local_flags r1)
 	(vp-and-cr flow_flag_up r1)
-	(vpif '(r1 != 0))
+	(vpif '(r1 /= 0))
 		(vp-cpy-ir-i r0 view_h r1)
 		(vp-cpy-ri-i r1 rsp local_y)
 	(endif)
@@ -57,14 +57,14 @@
 	(vp-cpy-ir r0 hmap_parent r2)
 	(vp-cpy-ir r1 local_flags r3)
 	(vp-and-cr flow_flag_down r3)
-	(vpif '(r3 != 0))
+	(vpif '(r3 /= 0))
 		;flow down
 		(vp-lea-d r8 r10 r12)
 	(endif)
 
 	(vp-cpy-ir r1 local_flags r3)
 	(vp-and-cr flow_flag_up r3)
-	(vpif '(r3 != 0))
+	(vpif '(r3 /= 0))
 		;flow up
 		(vp-sub-rr r10 r8)
 		(vp-cpy-rr r8 r12)
@@ -72,14 +72,14 @@
 
 	(vp-cpy-ir r1 local_flags r3)
 	(vp-and-cr flow_flag_right r3)
-	(vpif '(r3 != 0))
+	(vpif '(r3 /= 0))
 		;flow right
 		(vp-lea-d r7 r9 r11)
 	(endif)
 
 	(vp-cpy-ir r1 local_flags r3)
 	(vp-and-cr flow_flag_left r3)
-	(vpif '(r3 != 0))
+	(vpif '(r3 /= 0))
 		;flow left
 		(vp-sub-rr r9 r7)
 		(vp-cpy-rr r7 r11)
@@ -87,7 +87,7 @@
 
 	(vp-cpy-ir r1 local_flags r3)
 	(vp-and-cr flow_flag_fillw r3)
-	(vpif '(r3 != 0))
+	(vpif '(r3 /= 0))
 		;fill width of parent
 		(vp-cpy-ir-i r2 view_w r9)
 		(vp-xor-rr r7 r7)
@@ -95,7 +95,7 @@
 
 	(vp-cpy-ir r1 local_flags r3)
 	(vp-and-cr flow_flag_fillh r3)
-	(vpif '(r3 != 0))
+	(vpif '(r3 /= 0))
 		;fill height of parent
 		(vp-cpy-ir-i r2 view_h r10)
 		(vp-xor-rr r8 r8)
@@ -103,13 +103,13 @@
 
 	(vp-cpy-ir r1 local_flags r3)
 	(vp-and-cr flow_flag_lastw r3)
-	(vpif '(r3 != 0))
+	(vpif '(r3 /= 0))
 		;last one fills width gap of parent
 		(ln-is-last r0 view_node r3)
-		(vpif '(r3 == 0))
+		(vpif '(r3 = 0))
 			(vp-cpy-ir r1 local_flags r3)
 			(vp-and-cr flow_flag_right r3)
-			(vpif '(r3 != 0))
+			(vpif '(r3 /= 0))
 				;flow right
 				(vp-lea-d r7 r9 r14)
 				(vp-cpy-ir-i r2 view_w r3)
@@ -118,7 +118,7 @@
 			(endif)
 			(vp-cpy-ir r1 local_flags r3)
 			(vp-and-cr flow_flag_left r3)
-			(vpif '(r3 != 0))
+			(vpif '(r3 /= 0))
 				;flow left
 				(vp-add-rr r7 r9)
 				(vp-xor-rr r7 r7)
@@ -128,13 +128,13 @@
 
 	(vp-cpy-ir r1 local_flags r3)
 	(vp-and-cr flow_flag_lasth r3)
-	(vpif '(r3 != 0))
+	(vpif '(r3 /= 0))
 		;last one fills height gap of parent
 		(ln-is-last r0 view_node r3)
-		(vpif '(r3 == 0))
+		(vpif '(r3 = 0))
 			(vp-cpy-ir r1 local_flags r3)
 			(vp-and-cr flow_flag_down r3)
-			(vpif '(r3 != 0))
+			(vpif '(r3 /= 0))
 				;flow down
 				(vp-lea-d r8 r10 r14)
 				(vp-cpy-ir-i r2 view_h r3)
@@ -143,7 +143,7 @@
 			(endif)
 			(vp-cpy-ir r1 local_flags r3)
 			(vp-and-cr flow_flag_up r3)
-			(vpif '(r3 != 0))
+			(vpif '(r3 /= 0))
 				;flow up
 				(vp-add-rr r8 r10)
 				(vp-xor-rr r8 r8)
@@ -153,28 +153,28 @@
 
 	(vp-cpy-ir r1 local_flags r3)
 	(vp-and-cr (logior flow_flag_align_hcenter flow_flag_align_hleft flow_flag_align_hright) r3)
-	(vpif '(r3 != 0))
+	(vpif '(r3 /= 0))
 		(vp-cpy-ir-i r2 view_w r7)
 		(vp-sub-rr r9 r7)
 		(switch)
-		(vpcase '(r3 == flow_flag_align_hcenter))
+		(vpcase '(r3 = flow_flag_align_hcenter))
 			(vp-shr-cr 1 r7)
 			(break)
-		(vpcase '(r3 == flow_flag_align_hleft))
+		(vpcase '(r3 = flow_flag_align_hleft))
 			(vp-xor-rr r7 r7)
 		(endswitch)
 	(endif)
 
 	(vp-cpy-ir r1 local_flags r3)
 	(vp-and-cr (logior flow_flag_align_vcenter flow_flag_align_vtop flow_flag_align_vbottom) r3)
-	(vpif '(r3 != 0))
+	(vpif '(r3 /= 0))
 		(vp-cpy-ir-i r2 view_h r8)
 		(vp-sub-rr r10 r8)
 		(switch)
-		(vpcase '(r3 == flow_flag_align_vcenter))
+		(vpcase '(r3 = flow_flag_align_vcenter))
 			(vp-shr-cr 1 r8)
 			(break)
-		(vpcase '(r3 == flow_flag_align_vtop))
+		(vpcase '(r3 = flow_flag_align_vtop))
 			(vp-xor-rr r8 r8)
 		(endswitch)
 	(endif)
@@ -223,7 +223,7 @@
 	(vp-cpy-ir r0 hmap_parent r2)
 	(vp-cpy-ir r1 local_flags r3)
 	(vp-and-cr (logior flow_flag_up flow_flag_down) r3)
-	(vpif '(r3 != 0))
+	(vpif '(r3 /= 0))
 		;flow down or up
 		(vp-cpy-ir-i r1 local_h r3)
 		(vp-add-rr r10 r3)
@@ -231,7 +231,7 @@
 	(endif)
 	(vp-cpy-ir r1 local_flags r3)
 	(vp-and-cr (logior flow_flag_left flow_flag_right) r3)
-	(vpif '(r3 != 0))
+	(vpif '(r3 /= 0))
 		;flow left or right
 		(vp-cpy-ir-i r1 local_w r3)
 		(vp-add-rr r9 r3)

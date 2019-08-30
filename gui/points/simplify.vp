@@ -51,7 +51,7 @@
 					(vpif {dist > max})
 						(assign {dist, length} {max, index})
 					(endif)
-				(loop-until {(length + 2 => length) == last})
+				(loop-until {(length + 2 => length) = last})
 
 				;continue subdivision ?
 				(vpif {max > eps})
@@ -68,7 +68,7 @@
 
 			;next span
 			(d-call 'array 'get_length {stack} {_, length})
-			(breakif {length == start})
+			(breakif {length = start})
 			(call 'array 'pop_back {stack} {_, span})
 		(loop-end)
 	(endif)

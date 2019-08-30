@@ -3,20 +3,20 @@
 ;;;;;;;;;;;;;;;;;;;;
 
 (defmacro emit-ux (x s d)
-	`(emit-int (add 0xd3400000 (shl ,x 10) (shl (reg ,s) 5) (reg ,d))))
+	`(emit-int (+ 0xd3400000 (shl ,x 10) (shl (reg ,s) 5) (reg ,d))))
 
 (defmacro emit-bf (o x y s d)
-	`(emit-int (add ,o (shl ,x 16) (shl ,y 10) (shl (reg ,s) 5) (reg ,d))))
+	`(emit-int (+ ,o (shl ,x 16) (shl ,y 10) (shl (reg ,s) 5) (reg ,d))))
 
 (defmacro emit-rrr (o m n d)
-	`(emit-int (add ,o (shl (reg ,m) 16) (shl (reg ,n) 5) (reg ,d))))
+	`(emit-int (+ ,o (shl (reg ,m) 16) (shl (reg ,n) 5) (reg ,d))))
 
 (defmacro emit-ri (w o s d c)
 	`(cond
-		((le -0x100 ,c 0xff)
-			(emit-int (add ,o (shl (logand ,c 0x1ff) 12) (shl (reg ,d) 5) (reg ,s))))
-		((le 0 ,c (shl 0xfff ,w))
-			(emit-int (add 0x1000000 ,o (shl ,c (sub 10 ,w)) (shl (reg ,d) 5) (reg ,s))))
+		((<= -0x100 ,c 0xff)
+			(emit-int (+ ,o (shl (logand ,c 0x1ff) 12) (shl (reg ,d) 5) (reg ,s))))
+		((<= 0 ,c (shl 0xfff ,w))
+			(emit-int (+ 0x1000000 ,o (shl ,c (- 10 ,w)) (shl (reg ,d) 5) (reg ,s))))
 		(t (throw "emit-ri/ir constant out of range !" ,c))))
 
 (defmacro emit-ir (w o s c d)
@@ -29,10 +29,10 @@
 		(if (eql ,s ,d) (emit-ux ,(elem w '(7 15 31)) ,d ,d))))
 
 (defmacro emit-rd (o s d1 d2)
-	`(emit-int (add ,o (shl (reg ,d2) 16) (shl (reg ,d1) 5) (reg ,s))))
+	`(emit-int (+ ,o (shl (reg ,d2) 16) (shl (reg ,d1) 5) (reg ,s))))
 
 (defmacro emit-dr (o s1 s2 d)
-	`(emit-int (add ,o (shl (reg ,s2) 16) (shl (reg ,s1) 5) (reg ,d))))
+	`(emit-int (+ ,o (shl (reg ,s2) 16) (shl (reg ,s1) 5) (reg ,d))))
 
 (defmacro emit-dru (o x s1 s2 d)
 	`(progn
@@ -42,46 +42,46 @@
 
 (defmacro emit-branch (o l)
 	`(cond
-		((le -0x100000 (defq ,(defq c (gensym)) (sub ,l *pc*)) 0xffffc)
-			(emit-int (add 0x54000000 (shl (logand ,c 0x1ffffc) 3) ,o)))
+		((<= -0x100000 (defq ,(defq c (gensym)) (- ,l *pc*)) 0xffffc)
+			(emit-int (+ 0x54000000 (shl (logand ,c 0x1ffffc) 3) ,o)))
 		(t (throw "emit-branch constant out of range !" ,c))))
 
 (defmacro emit-is-mask (_)
-	`(and (ne 0 ,_) (eq 0 (logand ,_ (inc ,_)))))
+	`(and (/= 0 ,_) (= 0 (logand ,_ (inc ,_)))))
 
 (defmacro emit-is-shifted-mask (_)
-	`(and (ne 0 ,_) (emit-is-mask (logior ,_ (dec ,_)))))
+	`(and (/= 0 ,_) (emit-is-mask (logior ,_ (dec ,_)))))
 
 (defcfun emit-limm (_)
-	(if (or (eq 0 _) (eq -1 _)) -1
+	(if (or (= 0 _) (= -1 _)) -1
 		(progn
 			(defq s 64 e t)
 			(while e
 				(defq s (shr s 1) m (dec (shl 1 s)))
-				(if (ne (logand _ m) (logand (shr _ s) m))
-					(setq s (mul s 2) e nil)
-					(if (le s 2)
+				(if (/= (logand _ m) (logand (shr _ s) m))
+					(setq s (* s 2) e nil)
+					(if (<= s 2)
 						(setq e nil))))
-			(defq m (shr -1 (sub 64 s)) _ (logand _ m))
+			(defq m (shr -1 (- 64 s)) _ (logand _ m))
 			(if (emit-is-shifted-mask _)
 				(progn
 					(defq i (ntz _))
-					(if (ge i 64)
+					(if (>= i 64)
 						(setq e t)
 						(defq cto (nto (shr _ i)))))
 				(progn
 					(setq _ (logior _ (lognot m)))
 					(if (not (emit-is-shifted-mask (lognot _)))
 						(setq e t)
-						(defq clo (nlo _) i (sub 64 clo)
-							cto (sub (add clo (nto _)) (sub 64 s))))))
-			(if (or e (le s i)) -1
+						(defq clo (nlo _) i (- 64 clo)
+							cto (- (+ clo (nto _)) (- 64 s))))))
+			(if (or e (<= s i)) -1
 				(progn
-					(defq _r (logand (sub s i) (dec s))
+					(defq _r (logand (- s i) (dec s))
 						_s (shl (lognot (dec s)) 1)
 						_s (logior _s (dec cto))
 						n (logxor (logand (shr _s 6) 1) 1))
-					(add (shl n 12) (shl _r 6) (logand _s 0x3f)))))))
+					(+ (shl n 12) (shl _r 6) (logand _s 0x3f)))))))
 
 (defcfun-bind reg (r)
 	(find r '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 r15
@@ -91,12 +91,12 @@
 (defcvar 'stack_align 16 'stack_state '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 r30))
 
 (defcfun stack-init ()
-	(defq tk_state_size (mul ptr_size (length stack_state)))
+	(defq tk_state_size (* ptr_size (length stack_state)))
 	(vp-and-cr (neg stack_align) r1)
 	(vp-sub-cr tk_state_size r1)
 	(f-bind 'sys_task 'stop r2)
-	(vp-cpy-ri r4 r1 (sub tk_state_size ptr_size))
-	(vp-cpy-ri r2 r1 (sub tk_state_size (mul ptr_size 2)))
+	(vp-cpy-ri r4 r1 (- tk_state_size ptr_size))
+	(vp-cpy-ri r2 r1 (- tk_state_size (* ptr_size 2)))
 	(vp-lea-p 'start r4)
 	(vp-cpy-ri r4 r1 0)
 	(goto 'funcexit)
@@ -107,35 +107,35 @@
 
 (defcfun-bind emit-push (&rest b)
 	(cond
-		((eq 0 (defq l (length b))))
-		((eq 1 l)
-			(emit-int (add 0xf81f0c00 (shl (reg rsp) 5) (reg (elem 0 b)))))
-		((eq 2 l)
-			(emit-int (add 0xa9bf0000
+		((= 0 (defq l (length b))))
+		((= 1 l)
+			(emit-int (+ 0xf81f0c00 (shl (reg rsp) 5) (reg (elem 0 b)))))
+		((= 2 l)
+			(emit-int (+ 0xa9bf0000
 				(shl (reg (elem 0 b)) 10) (shl (reg rsp) 5) (reg (elem 1 b)))))
 		(t
-			(emit-sub-cr (align (mul ptr_size l) stack_align) rsp)
+			(emit-sub-cr (align (* ptr_size l) stack_align) rsp)
 			(defq _ l)
-			(while (ge (setq _ (sub _ 2)) 0)
-				(emit-int (add 0xa9000000 (shl (sub l _ 2) 15)
+			(while (>= (setq _ (- _ 2)) 0)
+				(emit-int (+ 0xa9000000 (shl (- l _ 2) 15)
 					(shl (reg (elem _ b)) 10) (shl (reg rsp) 5) (reg (elem (inc _) b)))))
-			(if (ne -2 _) (emit-cpy-ri (elem 0 b) rsp (mul ptr_size (dec l)))))))
+			(if (/= -2 _) (emit-cpy-ri (elem 0 b) rsp (* ptr_size (dec l)))))))
 
 (defcfun-bind emit-pop (&rest b)
 	(cond
-		((eq 0 (defq l (length b))))
-		((eq 1 l)
-			(emit-int (add 0xf8410400 (shl (reg rsp) 5) (reg (elem 0 b)))))
-		((eq 2 l)
-			(emit-int (add 0xa8c10000
+		((= 0 (defq l (length b))))
+		((= 1 l)
+			(emit-int (+ 0xf8410400 (shl (reg rsp) 5) (reg (elem 0 b)))))
+		((= 2 l)
+			(emit-int (+ 0xa8c10000
 				(shl (reg (elem 0 b)) 10) (shl (reg rsp) 5) (reg (elem 1 b)))))
 		(t
 			(defq _ l)
-			(while (ge (setq _ (sub _ 2)) 0)
-				(emit-int (add 0xa9400000 (shl (sub l _ 2) 15)
+			(while (>= (setq _ (- _ 2)) 0)
+				(emit-int (+ 0xa9400000 (shl (- l _ 2) 15)
 					(shl (reg (elem _ b)) 10) (shl (reg rsp) 5) (reg (elem (inc _) b)))))
-			(if (ne -2 _) (emit-cpy-ir rsp (mul ptr_size (dec l)) (elem 0 b)))
-			(emit-add-cr (align (mul ptr_size l) stack_align) rsp))))
+			(if (/= -2 _) (emit-cpy-ir rsp (* ptr_size (dec l)) (elem 0 b)))
+			(emit-add-cr (align (* ptr_size l) stack_align) rsp))))
 
 (defcfun-bind emit-beq (l d) (emit-branch 0x0 l))
 (defcfun-bind emit-bne (l d) (emit-branch 0x1 l))
@@ -173,14 +173,14 @@
 (defcfun emit-call (l)
 	(emit-push r30)
 	(cond
-		((le -0x8000000 (defq c (sub l *pc*)) 0x7fffffc)
-			(emit-int (add 0x94000000 (shr (logand c 0xfffffff) 2))))
+		((<= -0x8000000 (defq c (- l *pc*)) 0x7fffffc)
+			(emit-int (+ 0x94000000 (shr (logand c 0xfffffff) 2))))
 		(t (throw "emit-call constant out of range !" c)))
 	(emit-pop r30))
 
 (defcfun emit-call-r (r)
 	(emit-push r30)
-	(emit-int (add 0xd63f0000 (shl (reg r) 5)))
+	(emit-int (+ 0xd63f0000 (shl (reg r) 5)))
 	(emit-pop r30))
 
 (defcfun emit-call-i (d c)
@@ -193,12 +193,12 @@
 
 (defcfun-bind emit-jmp (l d)
 	(cond
-		((le -0x8000000 (defq c (sub l *pc*)) 0x7fffffc)
-			(emit-int (add 0x14000000 (shr (logand c 0xfffffff) 2))))
+		((<= -0x8000000 (defq c (- l *pc*)) 0x7fffffc)
+			(emit-int (+ 0x14000000 (shr (logand c 0xfffffff) 2))))
 		(t (throw "emit-jmp constant out of range !" c))))
 
 (defcfun emit-jmp-r (r)
-	(emit-int (add 0xd61f0000 (shl (reg r) 5))))
+	(emit-int (+ 0xd61f0000 (shl (reg r) 5))))
 
 (defcfun emit-jmp-i (d c)
 	(emit-cpy-ir d c r29)
@@ -210,19 +210,19 @@
 
 (defcfun emit-lea-i (s c d)
 	(cond
-		((and (eq c 0) (eql s d)))
-		((le -0x1000 c 0xfff)
-			(if (ge c 0)
-				(emit-int (add 0x91000000 (shl (logand c 0xfff) 10) (shl (reg s) 5) (reg d)))
-				(emit-int (add 0xd1000000 (shl (logand (neg c) 0xfff) 10) (shl (reg s) 5) (reg d)))))
+		((and (= c 0) (eql s d)))
+		((<= -0x1000 c 0xfff)
+			(if (>= c 0)
+				(emit-int (+ 0x91000000 (shl (logand c 0xfff) 10) (shl (reg s) 5) (reg d)))
+				(emit-int (+ 0xd1000000 (shl (logand (neg c) 0xfff) 10) (shl (reg s) 5) (reg d)))))
 		(t (throw "emit-lea-i constant out of range !" c))))
 
 (defcfun emit-lea-d (s1 s2 d) (emit-rrr 0x8b000000 s1 s2 d))
 
 (defcfun-bind emit-lea-p (l d)
 	(cond
-		((le -0x100000 (defq c (sub l *pc*)) 0xfffff)
-			(emit-int (add 0x10000000 (shl (logand c 0x3) 29) (shl (logand c 0x1ffffc) 3) (reg d))))
+		((<= -0x100000 (defq c (- l *pc*)) 0xfffff)
+			(emit-int (+ 0x10000000 (shl (logand c 0x3) 29) (shl (logand c 0x1ffffc) 3) (reg d))))
 		(t (throw "emit-lea-p constant out of range !" c))))
 
 (defcfun emit-cpy-ir (s c d)
@@ -269,122 +269,122 @@
 
 (defcfun-bind emit-cpy-pr (l d)
 	(cond
-		((le -0x100000 (defq c (sub l *pc*)) 0xffffc)
-			(emit-int (add 0x58000000 (shl (logand c 0x1fffff) 3) (reg d))))
+		((<= -0x100000 (defq c (- l *pc*)) 0xffffc)
+			(emit-int (+ 0x58000000 (shl (logand c 0x1fffff) 3) (reg d))))
 		(t (throw "emit-cpy-pr constant out of range !" c))))
 
 (defcfun emit-mov-cr (c r)
 	(defq r (reg r) x (logand c 0xffff00000000) y (logand c 0xffff0000) z (logand c 0xffff))
-	(if (lt c 0)
+	(if (< c 0)
 		(cond
-			((ge c -0x10000)
-				(emit-int (add 0x92800000 (shl (lognot c) 5) r)))
-			((ge c -0x100000000)
-				(emit-int (add 0x92a00000 (shr (logand (lognot c) 0xffff0000) 11) r))
-				(if (ne z 0xffff) (emit-int (add 0xf2800000 (shl z 5) r))))
-			((ge c -0x1000000000000)
-				(emit-int (add 0x92c00000 (shr (logand (lognot c) 0xffff00000000) 27) r))
-				(if (ne y 0xffff0000) (emit-int (add 0xf2a00000 (shr y 11) r)))
-				(if (ne z 0xffff) (emit-int (add 0xf2800000 (shl z 5) r))))
+			((>= c -0x10000)
+				(emit-int (+ 0x92800000 (shl (lognot c) 5) r)))
+			((>= c -0x100000000)
+				(emit-int (+ 0x92a00000 (shr (logand (lognot c) 0xffff0000) 11) r))
+				(if (/= z 0xffff) (emit-int (+ 0xf2800000 (shl z 5) r))))
+			((>= c -0x1000000000000)
+				(emit-int (+ 0x92c00000 (shr (logand (lognot c) 0xffff00000000) 27) r))
+				(if (/= y 0xffff0000) (emit-int (+ 0xf2a00000 (shr y 11) r)))
+				(if (/= z 0xffff) (emit-int (+ 0xf2800000 (shl z 5) r))))
 			(t
-				(emit-int (add 0x92e00000 (shr (logand (lognot c) 0xffff000000000000) 43) r))
-				(if (ne x 0xffff00000000) (emit-int (add 0xf2c00000 (shr x 27) r)))
-				(if (ne y 0xffff0000) (emit-int (add 0xf2a00000 (shr y 11) r)))
-				(if (ne z 0xffff) (emit-int (add 0xf2800000 (shl z 5) r)))))
+				(emit-int (+ 0x92e00000 (shr (logand (lognot c) 0xffff000000000000) 43) r))
+				(if (/= x 0xffff00000000) (emit-int (+ 0xf2c00000 (shr x 27) r)))
+				(if (/= y 0xffff0000) (emit-int (+ 0xf2a00000 (shr y 11) r)))
+				(if (/= z 0xffff) (emit-int (+ 0xf2800000 (shl z 5) r)))))
 		(cond
-			((le c 0xffff)
-				(emit-int (add 0xd2800000 (shl c 5) r)))
-			((le c 0xffffffff)
-				(emit-int (add 0xd2a00000 (shr (logand c 0xffff0000) 11) r))
-				(if (ne z 0) (emit-int (add 0xf2800000 (shl z 5) r))))
-			((le c 0xffffffffffff)
-				(emit-int (add 0xd2c00000 (shr (logand c 0xffff00000000) 27) r))
-				(if (ne y 0) (emit-int (add 0xf2a00000 (shr y 11) r)))
-				(if (ne z 0) (emit-int (add 0xf2800000 (shl z 5) r))))
+			((<= c 0xffff)
+				(emit-int (+ 0xd2800000 (shl c 5) r)))
+			((<= c 0xffffffff)
+				(emit-int (+ 0xd2a00000 (shr (logand c 0xffff0000) 11) r))
+				(if (/= z 0) (emit-int (+ 0xf2800000 (shl z 5) r))))
+			((<= c 0xffffffffffff)
+				(emit-int (+ 0xd2c00000 (shr (logand c 0xffff00000000) 27) r))
+				(if (/= y 0) (emit-int (+ 0xf2a00000 (shr y 11) r)))
+				(if (/= z 0) (emit-int (+ 0xf2800000 (shl z 5) r))))
 			(t
-				(emit-int (add 0xd2e00000 (shr (logand c 0xffff000000000000) 43) r))
-				(if (ne x 0) (emit-int (add 0xf2c00000 (shr x 27) r)))
-				(if (ne y 0) (emit-int (add 0xf2a00000 (shr y 11) r)))
-				(if (ne z 0) (emit-int (add 0xf2800000 (shl z 5) r)))))))
+				(emit-int (+ 0xd2e00000 (shr (logand c 0xffff000000000000) 43) r))
+				(if (/= x 0) (emit-int (+ 0xf2c00000 (shr x 27) r)))
+				(if (/= y 0) (emit-int (+ 0xf2a00000 (shr y 11) r)))
+				(if (/= z 0) (emit-int (+ 0xf2800000 (shl z 5) r)))))))
 
 (defcfun-bind emit-cpy-cr (c r)
-	(if (ne -1 (defq i (emit-limm c)))
-		(emit-int (add 0xb2000000 (shl i 10) (shl (reg rsp) 5) (reg r)))
+	(if (/= -1 (defq i (emit-limm c)))
+		(emit-int (+ 0xb2000000 (shl i 10) (shl (reg rsp) 5) (reg r)))
 		(emit-mov-cr c r)))
 
 (defcfun-bind emit-add-cr (c r)
 	(cond
-		((eq c 0))
-		((lt c 0)
+		((= c 0))
+		((< c 0)
 			(emit-sub-cr (neg c) r))
-		((le c 0xffffff)
+		((<= c 0xffffff)
 			(defq f (logand c 0xfff) c (logand c 0xfff000))
-			(if (ne 0 f)
-				(emit-int (add 0x91000000 (shl f 10) (shl (reg r) 5) (reg r))))
-			(if (ne 0 c)
-				(emit-int (add 0x91400000 (shr c 2) (shl (reg r) 5) (reg r)))))
+			(if (/= 0 f)
+				(emit-int (+ 0x91000000 (shl f 10) (shl (reg r) 5) (reg r))))
+			(if (/= 0 c)
+				(emit-int (+ 0x91400000 (shr c 2) (shl (reg r) 5) (reg r)))))
 		(t (throw "emit-add-cr constant out of range !" c))))
 
 (defcfun-bind emit-sub-cr (c r)
 	(cond
-		((eq c 0))
-		((lt c 0)
+		((= c 0))
+		((< c 0)
 			(emit-add-cr (neg c) r))
-		((le c 0xffffff)
+		((<= c 0xffffff)
 			(defq f (logand c 0xfff) c (logand c 0xfff000))
-			(if (ne 0 f)
-				(emit-int (add 0xd1000000 (shl f 10) (shl (reg r) 5) (reg r))))
-			(if (ne 0 c)
-				(emit-int (add 0xd1400000 (shr c 2) (shl (reg r) 5) (reg r)))))
+			(if (/= 0 f)
+				(emit-int (+ 0xd1000000 (shl f 10) (shl (reg r) 5) (reg r))))
+			(if (/= 0 c)
+				(emit-int (+ 0xd1400000 (shr c 2) (shl (reg r) 5) (reg r)))))
 		(t (throw "emit-sub-cr constant out of range !" c))))
 
 (defcfun emit-cmp-cr (c r)
 	(cond
-		((le 0 c 0xfff)
-			(emit-int (add 0xf100001f (shl c 10) (shl (reg r) 5))))
-		((le -0xfff c 0)
-			(emit-int (add 0xb100001f (shl (neg c) 10) (shl (reg r) 5))))
+		((<= 0 c 0xfff)
+			(emit-int (+ 0xf100001f (shl c 10) (shl (reg r) 5))))
+		((<= -0xfff c 0)
+			(emit-int (+ 0xb100001f (shl (neg c) 10) (shl (reg r) 5))))
 		(t (emit-cpy-cr c r29)
 			(emit-cmp-rr r29 r))))
 
 (defcfun-bind emit-and-cr (c r)
 	(cond
-		((eq c -1))
-		((eq c 0)
+		((= c -1))
+		((= c 0)
 			(emit-xor-rr r r))
 		((eql r rsp)
-			(if (ne -1 (defq i (emit-limm c)))
+			(if (/= -1 (defq i (emit-limm c)))
 				(progn
 					(emit-cpy-rr rsp r29)
-					(emit-int (add 0x92000000 (shl i 10) (shl (reg r29) 5) (reg r))))
+					(emit-int (+ 0x92000000 (shl i 10) (shl (reg r29) 5) (reg r))))
 				(progn
 					(emit-mov-cr c r29)
 					(emit-and-rr r29 r))))
 		(t (defq i (emit-limm c))
-			(if (ne i -1)
-				(emit-int (add 0x92000000 (shl i 10) (shl (reg r) 5) (reg r)))
+			(if (/= i -1)
+				(emit-int (+ 0x92000000 (shl i 10) (shl (reg r) 5) (reg r)))
 				(progn
 					(emit-mov-cr c r29)
 					(emit-and-rr r29 r))))))
 
 (defcfun-bind emit-or-cr (c r)
 	(cond
-		((eq c 0))
-		((eq c -1)
+		((= c 0))
+		((= c -1)
 			(emit-cpy-cr -1 r))
 		(t (defq i (emit-limm c))
-			(if (ne i -1)
-				(emit-int (add 0xb2000000 (shl i 10) (shl (reg r) 5) (reg r)))
+			(if (/= i -1)
+				(emit-int (+ 0xb2000000 (shl i 10) (shl (reg r) 5) (reg r)))
 				(progn
 					(emit-mov-cr c r29)
 					(emit-or-rr r29 r))))))
 
 (defcfun emit-xor-cr (c r)
 	(cond
-		((eq c 0))
+		((= c 0))
 		(t (defq i (emit-limm c))
-			(if (ne i -1)
-				(emit-int (add 0xd2000000 (shl i 10) (shl (reg r) 5) (reg r)))
+			(if (/= i -1)
+				(emit-int (+ 0xd2000000 (shl i 10) (shl (reg r) 5) (reg r)))
 				(progn
 					(emit-mov-cr c r29)
 					(emit-or-rr r29 r))))))
@@ -393,8 +393,8 @@
 	(cond
 		((eql s d))
 		((or (eql s rsp) (eql d rsp))
-			(emit-int (add 0x91000000 (shl (reg s) 5) (reg d))))
-		(t (emit-int (add 0xaa0003e0 (shl (reg s) 16) (reg d))))))
+			(emit-int (+ 0x91000000 (shl (reg s) 5) (reg d))))
+		(t (emit-int (+ 0xaa0003e0 (shl (reg s) 16) (reg d))))))
 
 (defcfun-bind emit-add-rr (s d) (if (eql s rsp) (emit-rrr 0x8b206000 d s d) (emit-rrr 0x8b206000 s d d)))
 
@@ -432,21 +432,21 @@
 
 (defcfun emit-lnot-rr (r d)
 	(emit-cmp-cr 0 d)
-	(emit-int (add 0x9a9f17e0 (reg d))))
+	(emit-int (+ 0x9a9f17e0 (reg d))))
 
 (defcfun emit-land-rr (s d)
 	(emit-cmp-cr 0 d)
-	(emit-int (add 0xfa401804 (shl (reg s) 5)))
-	(emit-int (add 0x9a9f07e0 (reg d))))
+	(emit-int (+ 0xfa401804 (shl (reg s) 5)))
+	(emit-int (+ 0x9a9f07e0 (reg d))))
 
 (defmacro emit-shift-cr (e o c x y r)
 	`(cond
-		((eq ,c 0))
+		((= ,c 0))
 		((eql ,r rsp)
 			(throw ,(cat "emit-" e "-cr dst can't be rsp !") (list ,c ,r)))
 		(t (emit-bf ,o ,x ,y ,r ,r))))
 
-(defcfun-bind emit-shl-cr (c r) (emit-shift-cr "shl" 0xd3400000 c (logand (sub 64 c) 63) (sub 63 c) r))
+(defcfun-bind emit-shl-cr (c r) (emit-shift-cr "shl" 0xd3400000 c (logand (- 64 c) 63) (- 63 c) r))
 (defcfun emit-shr-cr (c r) (emit-shift-cr "shr" 0xd3400000 c c 63 r))
 (defcfun emit-asr-cr (c r) (emit-shift-cr "asr" 0x93400000 c c 63 r))
 
@@ -468,10 +468,10 @@
 
 (defcfun emit-mul-cr (c r)
 	(cond
-		((eq c 0)
+		((= c 0)
 			(emit-xor-rr r r))
-		((eq c -1)
-			(emit-int (add 0xcb000000 (shl (reg r) 16) (shl 31 5) (reg r))))
+		((= c -1)
+			(emit-int (+ 0xcb000000 (shl (reg r) 16) (shl 31 5) (reg r))))
 		(t
 			(emit-cpy-cr c r29)
 			(emit-mul-rr r29 r))))
@@ -479,20 +479,20 @@
 (defcfun-bind emit-mul-rr (s d)
 	(if (or (eql s rsp) (eql d rsp))
 		(throw "emit-mul-rr src/dst can't be rsp !" (list s d)))
-	(emit-int (add 0x9b000000 (shl (reg d) 16) (shl 31 10) (shl (reg s) 5) (reg d))))
+	(emit-int (+ 0x9b000000 (shl (reg d) 16) (shl 31 10) (shl (reg s) 5) (reg d))))
 
 (defcfun emit-ext-rr (s d)
 	(unless (eql s d) (emit-cpy-rr s d))
 	(emit-asr-cr 63 d))
 
 (defcfun emit-div-rrr (s d1 d2)
-	(emit-int (add 0x9ac00c00 (shl (reg s) 16) (shl (reg d2) 5) (reg r29)))
-	(emit-int (add 0x9b008000 (shl (reg r29) 16) (shl (reg d2) 10) (shl (reg s) 5) (reg d1)))
+	(emit-int (+ 0x9ac00c00 (shl (reg s) 16) (shl (reg d2) 5) (reg r29)))
+	(emit-int (+ 0x9b008000 (shl (reg r29) 16) (shl (reg d2) 10) (shl (reg s) 5) (reg d1)))
 	(emit-cpy-rr r29 d2))
 
 (defcfun emit-div-rrr-u (s d1 d2)
-	(emit-int (add 0x9ac00800 (shl (reg s) 16) (shl (reg d2) 5) (reg r29)))
-	(emit-int (add 0x9b008000 (shl (reg r29) 16) (shl (reg d2) 10) (shl (reg s) 5) (reg d1)))
+	(emit-int (+ 0x9ac00800 (shl (reg s) 16) (shl (reg d2) 5) (reg r29)))
+	(emit-int (+ 0x9b008000 (shl (reg r29) 16) (shl (reg d2) 10) (shl (reg s) 5) (reg d1)))
 	(emit-cpy-rr r29 d2))
 
 (defcfun-bind emit-alloc (c) (emit-sub-cr (align c stack_align) rsp))

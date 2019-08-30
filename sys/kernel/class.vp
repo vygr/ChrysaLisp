@@ -78,18 +78,18 @@
 			;(switch) on kernel call number
 			(assign {data->kn_msg_func} {num})
 			(switch)
-			(vpcase {num == kn_call_open})
+			(vpcase {num = kn_call_open})
 			(vp-label 'run_here)
 				;fill in reply ID, user field is left alone !
 				(assign {data->kn_msg_reply_id.id_id} {msg->msg_dest.id_id})
 				(call 'opt_run {&data->kn_msg_open_pathname} {data->kn_msg_reply_id.id_id})
 				(call 'sys_mail 'send {msg})
 				(break)
-			(vpcase {num == kn_call_child})
+			(vpcase {num = kn_call_child})
 				;find best cpu to run task
 				(assign {task_statics->tk_statics_task_count, id} {best_cnt, best_id})
 				(call 'array 'get_both {mail_statics->ml_statics_links_array} {_, iter_begin, iter_end})
-				(loop-while {iter_begin != iter_end})
+				(loop-while {iter_begin /= iter_end})
 					(assign {*iter_begin} {link})
 					(vpif {link->lk_node_task_count < best_cnt})
 						(assign {link->lk_node_task_count} {best_cnt})
@@ -97,13 +97,13 @@
 					(endif)
 					(assign {iter_begin + ptr_size} {iter_begin})
 				(loop-end)
-				(gotoif {best_id == id} 'run_here)
+				(gotoif {best_id = id} 'run_here)
 
 				;send to better kernel
 				(assign {best_id} {msg->msg_dest.id_cpu})
 				(call 'sys_mail 'send {msg})
 				(break)
-			(vpcase {num == kn_call_declare})
+			(vpcase {num = kn_call_declare})
 				;declare service if not found
 				(call 'sys_mail 'enquire {&data->kn_msg_declare_name} {service})
 				(vpifnot {service})
@@ -112,7 +112,7 @@
 					(call 'flood {mail_statics, msg, data, id})
 				(endif)
 				(vp-jmp 'drop_msg)
-			(vpcase {num == kn_call_route})
+			(vpcase {num = kn_call_route})
 				;increase size of network ?
 				(vpif {data->kn_msg_route_origin >= task_statics->tk_statics_cpu_total})
 					(assign {data->kn_msg_route_origin + 1} {task_statics->tk_statics_cpu_total})
@@ -136,14 +136,14 @@
 
 					;fill in via route and remove other routes
 					(call 'array 'get_both {mail_statics->ml_statics_links_array} {_, iter_begin, iter_end})
-					(loop-while {iter_begin != iter_end})
+					(loop-while {iter_begin /= iter_end})
 						(assign {*iter_begin} {link})
 						;new link route table ?
 						(vpif {route_index + lk_route_size > link->lk_node_table.lk_table_array_size})
 							(call 'sys_mem 'recalloc {link->lk_node_table.lk_table_array, link->lk_node_table.lk_table_array_size, route_index + lk_route_size}
 								{link->lk_node_table.lk_table_array, link->lk_node_table.lk_table_array_size})
 						(endif)
-						(vpif {link->lk_node_cpu_id == data->kn_msg_flood_via})
+						(vpif {link->lk_node_cpu_id = data->kn_msg_flood_via})
 							;via route
 							(assign {new_hops} {(link->lk_node_table.lk_table_array)[route_index].lk_route_hops})
 						(else)
@@ -153,17 +153,17 @@
 						(assign {iter_begin + ptr_size} {iter_begin})
 					(loop-end)
 					(break)
-				(vpcase {new_hops == hops})
+				(vpcase {new_hops = hops})
 					;new hops is equal, so additional route
 					(call 'array 'get_both {mail_statics->ml_statics_links_array} {_, iter_begin, iter_end})
-					(loop-while {iter_begin != iter_end})
+					(loop-while {iter_begin /= iter_end})
 						(assign {*iter_begin} {link})
 						;new link route table ?
 						(vpif {route_index + lk_route_size > link->lk_node_table.lk_table_array_size})
 							(call 'sys_mem 'recalloc {link->lk_node_table.lk_table_array, link->lk_node_table.lk_table_array_size, route_index + lk_route_size}
 								{link->lk_node_table.lk_table_array, link->lk_node_table.lk_table_array_size})
 						(endif)
-						(vpif {link->lk_node_cpu_id == data->kn_msg_flood_via})
+						(vpif {link->lk_node_cpu_id = data->kn_msg_flood_via})
 							;via route
 							(assign {new_hops} {(link->lk_node_table.lk_table_array)[route_index].lk_route_hops})
 						(endif)
@@ -183,7 +183,7 @@
 			(vp-label 'drop_msg)
 				(call 'sys_mail 'free {msg})
 				(break)
-			(vpcase {num == kn_call_callback})
+			(vpcase {num = kn_call_callback})
 				;call callback with this thread/stack
 				(assign {data->kn_msg_user, data->kn_msg_callback_addr} '(r0 r1))
 				(vp-call-r r1)
@@ -210,12 +210,12 @@
 
 		;next task if other ready tasks
 		(ln-get-succ r14 0 r1)
-		(continueif '(r14 != r1))
+		(continueif '(r14 /= r1))
 
 		;exit if no task waiting for timer
-		(vp-cpy-ir r3 (add tk_statics_timer_list lh_list_head) r2)
+		(vp-cpy-ir r3 (+ tk_statics_timer_list lh_list_head) r2)
 		(ln-get-succ r2 0 r1)
-		(breakif '(r1 == 0))
+		(breakif '(r1 = 0))
 
 		;sleep till next wake time
 		(vp-swp-rr r0 r2)
@@ -254,14 +254,14 @@
 	(vp-cpy-ir-ui r8 kn_msg_flood_via r9)
 	(vp-cpy-ri-i r3 r8 kn_msg_flood_via)
 	(call 'array 'get_both '((r0 ml_statics_links_array)) '(_ r10 r11))
-	(loop-while '(r10 != r11))
+	(loop-while '(r10 /= r11))
 		(vp-cpy-ir r10 0 r6)
 		(vp-add-cr ptr_size r10)
 		(vp-cpy-ir-ui r6 lk_node_cpu_id r6)
-		(continueif '(r6 == r9))
+		(continueif '(r6 = r9))
 		(call 'sys_mail 'alloc_obj '((r7 msg_parcel_obj) r8 (r7 msg_length ui)) '(r0))
 		(vp-shl-cr 32 r6)
-		(vp-cpy-ri r6 r0 (add msg_dest id_id))
+		(vp-cpy-ri r6 r0 (+ msg_dest id_id))
 		(call 'sys_mail 'send '(r0))
 	(loop-end)
 	(vp-ret)
@@ -293,7 +293,7 @@
 			(breakifnot {offset})
 			(assign {table + ptr_size} {table})
 			(call 'sys_str 'compare {table, arg})
-			(vpif `(,(method-output 'sys_str 'compare 0) == 0))
+			(vpif `(,(method-output 'sys_str 'compare 0) = 0))
 				(assign {*argv} {arg})
 				(breakifnot {arg} 'next_arg)
 				(assign {arg, $options_table + offset} '(r0 r1))
@@ -379,7 +379,7 @@
 
 	;params message
 	(call 'sys_mail 'alloc '(8) '(r0 r1))
-	(vp-cpy-ri r9 r0 (add msg_dest id_id))
+	(vp-cpy-ri r9 r0 (+ msg_dest id_id))
 	(vp-cpy-rr r0 r3)
 	(call 'sys_str 'copy '(r8 r1))
 
@@ -389,13 +389,13 @@
 
 	(vp-align ptr_size)
 (vp-label 'options_table)
-	(vp-long (list 'sub (label-sym 'opt_cpu) (label-sym 'options_table)))
+	(vp-long `(- ,(label-sym 'opt_cpu) ,(label-sym 'options_table)))
 		(vp-string "-cpu") (vp-byte 0)
 		(vp-align ptr_size)
-	(vp-long (list 'sub (label-sym 'opt_run) (label-sym 'options_table)))
+	(vp-long `(- ,(label-sym 'opt_run) ,(label-sym 'options_table)))
 		(vp-string "-run") (vp-byte 0)
 		(vp-align ptr_size)
-	(vp-long (list 'sub (label-sym 'opt_link) (label-sym 'options_table)))
+	(vp-long `(- ,(label-sym 'opt_link) ,(label-sym 'options_table)))
 		(vp-string "-l") (vp-byte 0)
 		(vp-align ptr_size)
 	(vp-long 0)
@@ -433,12 +433,12 @@
 
 	(vp-cpy-rr r0 r8) 
 	(call 'sys_str 'length '(r0) '(_ r10))
-	(call 'sys_mail 'alloc '((& r10 (add kn_msg_declare_size 1))) '(r5 r1))
+	(call 'sys_mail 'alloc '((& r10 (+ kn_msg_declare_size 1))) '(r5 r1))
 	(vp-xor-rr r0 r0)
-	(vp-cpy-ri-i r0 r5 (add msg_dest id_mbox))
+	(vp-cpy-ri-i r0 r5 (+ msg_dest id_mbox))
 	(call 'sys_kernel 'id nil '(r0))
-	(vp-cpy-ri-i r0 r5 (add msg_dest id_cpu))
-	(vp-cpy-ri r9 r1 (add kn_msg_reply_id id_id))
+	(vp-cpy-ri-i r0 r5 (+ msg_dest id_cpu))
+	(vp-cpy-ri r9 r1 (+ kn_msg_reply_id id_id))
 	(vp-cpy-cr kn_call_declare r0)
 	(vp-cpy-ri-i r0 r1 kn_msg_func)
 	(vp-cpy-cr -1 r0)

@@ -15,10 +15,10 @@
 ;;;;;;;;;;;;;;;;;
 
 (defcvar 'ld_page_size 4096)
-(defcvar 'ld_block_size (mul 64 1024))
-(defcvar 'ld_reloc_buf_size (mul ld_page_size 2))
+(defcvar 'ld_block_size (* 64 1024))
+(defcvar 'ld_reloc_buf_size (* ld_page_size 2))
 (defcvar 'ld_name_size 128)
-(defcvar 'ld_reloc_size (sub ld_reloc_buf_size ld_name_size stat_size))
+(defcvar 'ld_reloc_size (- ld_reloc_buf_size ld_name_size stat_size))
 
 (def-struct 'ld_statics)
 	(ptr 'host_funcs)

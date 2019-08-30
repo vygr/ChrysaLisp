@@ -4,10 +4,10 @@
 (defun-bind terminal-output (_)
 	(each (lambda (c)
 		(setq c (code c))
-		(if (eq c 13) (setq c 10))
+		(if (= c 13) (setq c 10))
 		(cond
 			;print char
-			((eq c 9)
+			((= c 9)
 				(pii-write-char 1 (ascii-code " "))
 				(pii-write-char 1 (ascii-code " "))
 				(pii-write-char 1 (ascii-code " "))
@@ -18,7 +18,7 @@
 (defun-bind terminal-input (c)
 	(cond
 		;send line ?
-		((or (eq c 10) (eq c 13))
+		((or (= c 10) (= c 13))
 			;what state ?
 			(cond
 				(cmd
@@ -27,24 +27,24 @@
 				(t
 					;start new pipe
 					(cond
-						((ne (length buffer) 0)
+						((/= (length buffer) 0)
 							;new pipe
 							(catch (setq cmd (pipe buffer)) (progn (setq cmd nil) t))
 							(unless cmd (terminal-output (cat "Pipe Error !" (ascii-char 10) ">"))))
 						(t (terminal-output ">")))))
 			(setq buffer ""))
-		((eq c 27)
+		((= c 27)
 			;esc
 			(when cmd
 				;feed active pipe, then EOF
-				(when (ne (length buffer) 0)
+				(when (/= (length buffer) 0)
 					(pipe-write cmd buffer))
 				(setq cmd nil buffer "")
 				(terminal-output (cat (ascii-char 10) ">"))))
-		((and (eq c 8) (ne (length buffer) 0))
+		((and (= c 8) (/= (length buffer) 0))
 			;backspace
 			(setq buffer (slice 0 -2 buffer)))
-		((le 32 c 127)
+		((<= 32 c 127)
 			;buffer the char
 			(setq buffer (cat buffer (char c))))))
 

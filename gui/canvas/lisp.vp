@@ -18,7 +18,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type '(r1 ($ sig) 3) '(r2))
-	(gotoif '(r2 == 0) 'error))
+	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
 	(defq in (method-input 'canvas 'create))
@@ -50,13 +50,13 @@
 
 (errorcases
 	(call 'lisp 'env_args_type '(r1 ($ sig) 2) '(r2))
-	(gotoif '(r2 == 0) 'error))
+	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
 	(defq in (method-input 'canvas 'load))
 	(class/vector/bind_args r1 in '(str num))
 	(call 'canvas 'load in '(r0))
-	(vpif '(r0 == 0))
+	(vpif '(r0 = 0))
 		(vp-cpy-ir rsp 0 r0)
 		(call 'obj 'ref '((r0 lisp_sym_nil)) '(r0))
 	(endif)
@@ -87,7 +87,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type '(r1 ($ sig) 2) '(r2))
-	(gotoif '(r2 == 0) 'error))
+	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
 	(defq in (method-input 'canvas 'fill))
@@ -120,7 +120,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type '(r1 ($ sig) 2) '(r2))
-	(gotoif '(r2 == 0) 'error))
+	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
 	(defq in (method-input 'canvas 'set_color))
@@ -153,7 +153,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type '(r1 ($ sig) 2) '(r2))
-	(gotoif '(r2 == 0) 'error))
+	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
 	(defq in (method-input 'canvas 'set_flags))
@@ -186,7 +186,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type '(r1 ($ sig) 1) '(r2))
-	(gotoif '(r2 == 0) 'error))
+	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
 	(defq in (method-input 'canvas 'swap))
@@ -220,7 +220,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type '(r1 ($ sig) 1) '(r2))
-	(gotoif '(r2 == 0) 'error))
+	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
 	(defq in (method-input 'canvas 'next_frame))
@@ -253,7 +253,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type '(r1 ($ sig) 3) '(r2))
-	(gotoif '(r2 == 0) 'error))
+	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
 	(defq in (method-input 'canvas 'plot))
@@ -286,7 +286,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type '(r1 ($ sig) 5) '(r2))
-	(gotoif '(r2 == 0) 'error))
+	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
 	(defq in (method-input 'canvas 'fbox))
@@ -319,7 +319,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type '(r1 ($ sig) 5) '(r2))
-	(gotoif '(r2 == 0) 'error))
+	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
 	(defq in (method-input 'canvas 'fpoly))

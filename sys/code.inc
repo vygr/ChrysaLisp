@@ -37,9 +37,9 @@
 (defcfun gotoif (e l)
 	(when (str? e)
 		(assign e '(r0))
-		(setq e '(r0 != 0)))
+		(setq e '(r0 /= 0)))
 	(bind '(d o s) e)
-	(defq e (find o '(== != <= >= > <)))
+	(defq e (find o '(= /= <= >= > <)))
 	(case (vp-type s)
 		(c (if e ((eval (elem e '(vp-beq-cr vp-bne-cr vp-ble-cr vp-bge-cr vp-bgt-cr vp-blt-cr))) s d l)
 			(throw "No such comparator" o)))
@@ -50,9 +50,9 @@
 (defcfun gotoifnot (e l)
 	(when (str? e)
 		(assign e '(r0))
-		(setq e '(r0 != 0)))
+		(setq e '(r0 /= 0)))
 	(bind '(d o s) e)
-	(defq e (find o '(!= == > < <= >=)))
+	(defq e (find o '(/= = > < <= >=)))
 	(case (vp-type s)
 		(c (if e ((eval (elem e '(vp-beq-cr vp-bne-cr vp-ble-cr vp-bge-cr vp-bgt-cr vp-blt-cr))) s d l)
 			(throw "No such comparator" o)))
@@ -197,12 +197,12 @@
 (defcfun-bind get-scope (_)
 	(defq o 0)
 	(each! (inc _) -2 (lambda (_)
-			(setq o (add o (elem 0 _)))) (list *syms*)) o)
+			(setq o (+ o (elem 0 _)))) (list *syms*)) o)
 
 (defcfun-bind push-scope ()
 	(local-align stack_align)
 	(elem-set 0 (elem -3 (new-scope)) *sym-sp*)
-	(when (ne *sym-sp* 0)
+	(when (/= *sym-sp* 0)
 		(when debug_inst
 			(print "(vp-alloc " *sym-sp* ")"))
 		(vp-alloc *sym-sp*)
@@ -213,25 +213,25 @@
 	(defq u (list))
 	(each! 0 -1 (lambda (a)
 		(unless (elem -2 a) (push u (elem _ (elem 1 s))))) (list (elem 2 (defq s (pop *syms*)))))
-	(if (ne 0 (length u))
+	(if (/= 0 (length u))
 		(throw "Unused symbols !" u))
 	(new-scope)
 	(setq *sym-sp* 0)
 	(elem 0 s))
 
 (defcfun pop-scope ()
-	(when (ne (defq _ (pop-scope-syms)) 0)
+	(when (/= (defq _ (pop-scope-syms)) 0)
 		(when debug_inst
 			(print "(vp-free " _ ")"))
 		(vp-free _)))
 
 (defcfun-bind pop-scope-checked ()
 	(defq _ (pop-scope-syms))
-	(when (ne (length *syms*) 2)
+	(when (/= (length *syms*) 2)
 		(throw "Unbalanced scopes !" _)))
 
 (defcfun unwind ()
-	(when (ne (defq _ (get-scope -1)) 0)
+	(when (/= (defq _ (get-scope -1)) 0)
 		(when debug_inst
 			(print "(vp-free " _ ")"))
 		(vp-free _)))
@@ -267,7 +267,7 @@
 	;_2 precedence
 	;_3 associativity
 	;_4 compile macro
-	(def-sym _1 'op (mul _2 2) (opt _3 0) (opt _4 compile-null)))
+	(def-sym _1 'op (* _2 2) (opt _3 0) (opt _4 compile-null)))
 
 ;;;;;;;;;;;;;;;;;
 ; data structures
@@ -307,10 +307,10 @@
 			(cond
 				(*struct*
 					(defcvar (setq _ (check-field _)) *struct-sp* (type-sym _) ,y
-						'*struct-sp* (add *struct-sp* ,s)))
+						'*struct-sp* (+ *struct-sp* ,s)))
 				(t
 					(def-sym _ 'var *sym-sp* ,y)
-					(setq *sym-sp* (add *sym-sp* ,s))))) f)))
+					(setq *sym-sp* (+ *sym-sp* ,s))))) f)))
 
 (def-type byte byte_size "b")
 (def-type ubyte byte_size "B")
@@ -343,10 +343,10 @@
 	(cond
 		(*struct*
 			(defcvar (setq _ (check-field _)) *struct-sp* (type-sym _) nil
-				'*struct-sp* (add *struct-sp* s)))
+				'*struct-sp* (+ *struct-sp* s)))
 		(t
 			(def-sym _ 'var *sym-sp* 0 "")
-			(setq *sym-sp* (add *sym-sp* s)))))
+			(setq *sym-sp* (+ *sym-sp* s)))))
 
 (defcfun union (&rest _)
 	(if (notevery lst? _)
@@ -399,7 +399,7 @@
 
 (defcfun-bind assign-find-later-src (i)
 	(defq j (dec (length (defq s *src*))) d (elem i *dst*))
-	(while (ne j i)
+	(while (/= j i)
 		(if (assign-match-any d (elem j s))
 			(setq i j)
 			(setq j (dec j)))) j)
@@ -412,20 +412,20 @@
 
 (defcfun-bind assign-topology-sort ()
 	(defq i 0 c 1000 l (length *dst*))
-	(while (and (ne i l) (ne c 0))
-		(if (gt (defq j (assign-find-later-src i)) i)
+	(while (and (/= i l) (/= c 0))
+		(if (> (defq j (assign-find-later-src i)) i)
 			(progn
 				(assign-rotate i j)
 				(setq c (dec c)))
 			(setq i (inc i))))
-	(when (ne i l)
+	(when (/= i l)
 		(throw "Copy cycle detected !" (list *src* *dst*))))
 
 (defcfun-bind assign-asm-to-asm (*src* *dst*)
-	(when (ne (length *src*) (length *dst*))
+	(when (/= (length *src*) (length *dst*))
 		(throw "Mismatching number of src/dst parameters !" (list *src* *dst*)))
 	(assign-ignored-to-asm)
-	(when (ne 0 (length *dst*))
+	(when (/= 0 (length *dst*))
 		(assign-topology-sort)
 		(each (lambda (x y)
 			(case (vp-type x)
@@ -458,7 +458,7 @@
 ;;;;;;;;;;
 
 (defmacro is_white_space_char (_)
-	`(not (lt (ascii-code " ") (code ,_) 127)))
+	`(not (< (ascii-code " ") (code ,_) 127)))
 
 (defmacro is_symbol_char (_)
 	(list 'find _ "ABCDEFGHIJKLMNOPQRSTUVWXYZ_/0123456789abcdefghijklmnopqrstuvwxyz"))
@@ -477,12 +477,12 @@
 
 (defcfun-bind token-parse (l)
 	(defq m -1 u 1 i 0 p 0 tokens (list))
-	(while (lt i (length l))
+	(while (< i (length l))
 		(defq c (elem i l)
 			s (find c {@$"-*~!+.^)(][</%&|=>}) ;"
-			s (if s (add s 2) 0))
+			s (if s (+ s 2) 0))
 		(cond
-			((eq m 1)
+			((= m 1)
 				;symbol mode
 				(if (is_symbol_char c)
 					(setq c nil)
@@ -492,7 +492,7 @@
 							(token-push s 5)
 							(token-push s m))
 						(setq p i u 0 m -1))))
-			((eq m -1)
+			((= m -1)
 				;scanning
 				(if (is_white_space_char c)
 					(setq p (inc i))
@@ -500,24 +500,24 @@
 						((find c ")(][")
 							;)(][
 							(token-push c s)
-							(setq p (inc i) u (logand (sub s 12) 1)))
-						((ge s 5)
+							(setq p (inc i) u (logand (- s 12) 1)))
+						((>= s 5)
 							;-*~!+.?^</%&|=>
 							(setq m s))
-						((eq s 0)
+						((= s 0)
 							;not whitespace
 							(setq m (if (is_numeral_char c) 0 1)))
 						(t
 							;@$?"
 							(setq p (inc i) m s))))
 				(setq c nil))
-			((ge m 5)
+			((>= m 5)
 				;op mode
 				(cond
-					((or (is_white_space_char c) (lt s 16))
+					((or (is_white_space_char c) (< s 16))
 						;white space, )([]
 						(cond
-							((eq u 1)
+							((= u 1)
 								;unary operator
 								(if (setq s (find (slice p i l) "-*&~!"))
 									(token-push (elem s "_#:~!") m)
@@ -529,28 +529,28 @@
 						(setq p i m -1))
 					(t
 						(setq c nil))))
-			((eq m 4)
+			((= m 4)
 				;string mode
-				(if (ne s 4)
+				(if (/= s 4)
 					(setq c nil)
 					(progn
 						(token-push (slice p i l) m)
 						(setq p (inc i) u 0 m -1))))
-			((eq m 2)
+			((= m 2)
 				;bind
 				(if (is_symbol_char c)
 					(setq c nil)
 					(progn
 						(token-push (slice p i l) m)
 						(setq p i u 0 m -1))))
-			((eq m 3)
+			((= m 3)
 				;label
 				(if (is_label_char c)
 					(setq c nil)
 					(progn
 						(token-push (slice p i l) m)
 						(setq p i u 0 m -1))))
-			((eq m 0)
+			((= m 0)
 				;number mode
 				(if (is_allowed_number_char c)
 					(setq c nil)
@@ -559,7 +559,7 @@
 						(setq p i u 0 m -1))))
 			(t (throw "Unknown parse mode !" m)))
 		(unless c (setq i (inc i))))
-	(unless (eq p i)
+	(unless (= p i)
 		(token-push (slice p i l) m)) tokens)
 
 ;;;;;;;;;;;;;;;;
@@ -573,7 +573,7 @@
 	(defq o (list) rpn (list))
 	(each (lambda ((k c))
 		(cond
-			((ge c 5) ;operator
+			((>= c 5) ;operator
 				(cond
 					((find k "([")
 						(push o k))
@@ -587,10 +587,10 @@
 					(t  ;precedence
 						(unless (defq s (get-sym k))
 							(throw "Operator not defined !" k))
-						(defq v (sub (elem 2 s) (elem 3 s)) x t)
-						(while (and x (ne 0 (length o)))
+						(defq v (- (elem 2 s) (elem 3 s)) x t)
+						(while (and x (/= 0 (length o)))
 							(setq s (get-sym (elem -2 o)))
-							(if (ge v (elem 2 s))
+							(if (>= v (elem 2 s))
 								(rpn-push (pop o) -1)
 								(setq x nil)))
 						(push o k))))
@@ -631,7 +631,7 @@
 (defcfun-bind set-reg-map (l &optional _)
 	(setd _ '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14))
 	(each! 0 -1 (lambda (_ r)
-		(set (env) _ r)) (list *vreg* (if (ne 0 (length l)) (merge l _) _))))
+		(set (env) _ r)) (list *vreg* (if (/= 0 (length l)) (merge l _) _))))
 
 (defcfun-bind push-reg (_)
 	(vreg-sym (dec (length (push *vregt* _)))))
@@ -690,7 +690,7 @@
 				(t (throw "Symbol not defined !" _))))
 		((eql 'var (elem 1 s))
 			;variable
-			(add-inst (list 'vp-lea-i rsp (add (get-scope (elem 0 s)) (elem 2 s))
+			(add-inst (list 'vp-lea-i rsp (+ (get-scope (elem 0 s)) (elem 2 s))
 									(push-reg (elem 3 s)))))
 		(t (throw "Symbol not a variable !" _))))
 
@@ -784,7 +784,7 @@
 	(add-inst (list 'vp-asr-rr (pop-value) (top-value))))
 
 (defcfun compile-cmp (_)
-	(add-inst (list (elem (find _ '(== != <= >= > <))
+	(add-inst (list (elem (find _ '(= /= <= >= > <))
 		'(vp-seq-rr vp-sne-rr vp-sle-rr vp-sge-rr vp-sgt-rr vp-slt-rr))
 		(pop-value) (top-value))))
 
@@ -826,7 +826,7 @@
 
 (defcfun-bind compile-rpn-list (rpn)
 	(each (lambda ((k c))
-		(if (le -1 c 4)
+		(if (<= -1 c 4)
 			(eval (elem (inc c)
 				'((compile-operator k)
 				(compile-const (to-num k))
@@ -870,8 +870,8 @@
 (operator ">" 6 0 compile-cmp)
 (operator "<=" 6 0 compile-cmp)
 (operator ">=" 6 0 compile-cmp)
-(operator "==" 7 0 compile-cmp)
-(operator "!=" 7 0 compile-cmp)
+(operator "=" 7 0 compile-cmp)
+(operator "/=" 7 0 compile-cmp)
 (operator "&" 8 0 compile-and)
 (operator "^" 9 0 compile-xor)
 (operator "|" 10 0 compile-or)
@@ -907,10 +907,10 @@
 	''(vp-add-cr vp-sub-cr vp-mul-cr vp-and-cr vp-or-cr vp-xor-cr vp-shl-cr vp-shr-cr vp-asr-cr))
 
 (defmacro opt-fold-cpy-ops ()
-	''(add sub mul logand logior logxor shl shr asr))
+	''(+ - * logand logior logxor shl shr asr))
 
 (defmacro opt-fold-cr-ops ()
-	''(add add mul logand logior logxor add add add))
+	''(+ + * logand logior logxor + + +))
 
 (defmacro opt-cr-fuse-ops ()
 	''(vp-add-cr vp-sub-cr))
@@ -923,7 +923,7 @@
 				(cond
 					((match? e x) _)
 					((opt-uses r e) -1))) (list *inst*))
-		p (and _ (ne _ -1) _)))
+		p (and _ (/= _ -1) _)))
 
 (defcfun-bind opt-find-2 (_ r x y)
 	(setq _ (some! _ 0 t (lambda (e)
@@ -931,32 +931,32 @@
 					((match? e x) (setq m 0) _)
 					((match? e y) (setq m 1) _)
 					((opt-uses r e) -1))) (list *inst*))
-		p (and _ (ne _ -1) _)))
+		p (and _ (/= _ -1) _)))
 
 (defcfun-bind opt-inst-list ()
 	(defq i 0 p nil m nil)
-	(while (lt (setq i (inc i)) (length *inst*))
+	(while (< (setq i (inc i)) (length *inst*))
 		(cond
 			;variable loading and offset folding
 			((find (defq e (elem i *inst*) o (elem 0 e)) (opt-read-ops))
-				(when (opt-find-2 i (defq r (elem 1 e)) (list 'vp-lea-i rsp '_ r) (list 'vp-add-cr '_ r))
+				(when (opt-find-2 i (defq r (elem 1 e)) `(vp-lea-i rsp _ ,r) `(vp-add-cr _ ,r))
 					(cond
-						((eq m 0)
+						((= m 0)
 							(elem-set 1 e rsp)
-							(elem-set 2 e (list 'add (elem 2 (elem p *inst*)) (elem 2 e))))
-						((eq m 1)
-							(elem-set 2 e (list 'add (elem 1 (elem p *inst*)) (elem 2 e)))
+							(elem-set 2 e `(+ ,(elem 2 (elem p *inst*)) ,(elem 2 e))))
+						((= m 1)
+							(elem-set 2 e `(+ ,(elem 1 (elem p *inst*)) ,(elem 2 e)))
 							(setq i (dec i))))
 					(elem-set p *inst* (lambda))))
 			;variable writing and offset folding
 			((find o (opt-write-ops))
-				(when (opt-find-2 i (defq r (elem 2 e)) (list 'vp-lea-i rsp '_ r) (list 'vp-add-cr '_ r))
+				(when (opt-find-2 i (defq r (elem 2 e)) `(vp-lea-i rsp _ ,r) `(vp-add-cr _ ,r))
 					(cond
-						((eq m 0)
+						((= m 0)
 							(elem-set 2 e rsp)
-							(elem-set 3 e (list 'add (elem 2 (elem p *inst*)) (elem 3 e))))
-						((eq m 1)
-							(elem-set 3 e (list 'add (elem 1 (elem p *inst*)) (elem 3 e)))
+							(elem-set 3 e `(+ ,(elem 2 (elem p *inst*)) ,(elem 3 e))))
+						((= m 1)
+							(elem-set 3 e `(+ ,(elem 1 (elem p *inst*)) ,(elem 3 e)))
 							(setq i (dec i))))
 					(elem-set p *inst* (lambda))))
 			;strength reduction
@@ -966,36 +966,36 @@
 				(setq i (dec i)))
 			;constant propagation
 			((defq c (find o (opt-rr-ops)))
-				(when (opt-find-1 i (defq r (elem 1 e)) (list 'vp-cpy-cr '_ r))
+				(when (opt-find-1 i (defq r (elem 1 e)) `(vp-cpy-cr _ ,r))
 					(elem-set 0 e (elem c (opt-cr-ops)))
 					(elem-set 1 e (elem 1 (elem p *inst*)))
 					(elem-set p *inst* (lambda))
 					(setq i (dec i))))
 			;arithmetic reassignment and constant folding
 			((and (defq c (find o (opt-cr-ops)))
-				(opt-find-2 i (defq r (elem 2 e)) (list 'vp-cpy-cr '_ r) (list o '_ r)))
+				(opt-find-2 i (defq r (elem 2 e)) `(vp-cpy-cr _ ,r) (list o '_ r)))
 					(cond
-						((eq m 0)
+						((= m 0)
 							(setq c (elem c (opt-fold-cpy-ops)))
 							(elem-set 0 e 'vp-cpy-cr))
-						((eq m 1)
+						((= m 1)
 							(setq c (elem c (opt-fold-cr-ops)))))
 					(elem-set 1 e (list c (elem 1 (elem p *inst*)) (elem 1 e)))
 					(elem-set p *inst* (lambda)))
 			;constant fusion
 			((and (defq c (find o (opt-cr-fuse-ops)))
-				(opt-find-2 i (defq r (elem 2 e)) (list 'vp-add-cr '_ r) (list 'vp-sub-cr '_ r)))
+				(opt-find-2 i (defq r (elem 2 e)) `(vp-add-cr _ ,r) `(vp-sub-cr _ ,r)))
 					(cond
-						((eq m 0)
-							(setq c (elem c '(add sub))))
-						((eq m 1)
-							(setq c (elem c '(sub add)))))
+						((= m 0)
+							(setq c (elem c '(+ -))))
+						((= m 1)
+							(setq c (elem c '(- +)))))
 					(elem-set 1 e (list c (elem 1 e) (elem 1 (elem p *inst*))))
 					(elem-set p *inst* (lambda)))
 			;compare constant forwarding
 			((and (defq c (find o (opt-sxx-rr-ops)))
-				(opt-find-1 i (defq r (elem 1 e)) (list 'vp-cpy-cr '_ r))
-				(le -0x80000000 (defq v (eval (elem 1 (elem p *inst*)))) 0x7fffffff))
+				(opt-find-1 i (defq r (elem 1 e)) `(vp-cpy-cr _ ,r))
+				(<= -0x80000000 (defq v (eval (elem 1 (elem p *inst*)))) 0x7fffffff))
 					(elem-set 0 e (elem c (opt-sxx-cr-ops)))
 					(elem-set 1 e v)
 					(elem-set p *inst* (lambda)))
@@ -1009,10 +1009,10 @@
 	(and (lst? _) (not (eql (elem 0 _) 'lambda)) (print _)))
 
 (defcfun-bind assign-asm-to-script (*src* *dst* _)
-	(unless (eq (length *src*) (length (setq *dst* (map trim (split *dst* ",")))))
+	(unless (= (length *src*) (length (setq *dst* (map trim (split *dst* ",")))))
 		(throw "Mismatching number of src/dst parameters !" (list *src* *dst*)))
 	(assign-ignored-to-script)
-	(when (ne 0 (length *dst*))
+	(when (/= 0 (length *dst*))
 		(reset-reg-stack (length *src*))
 		(each! 0 -1 (lambda (_)
 			(compile-rpn-list (rpn-parse (token-parse _)))
@@ -1028,9 +1028,9 @@
 		(eval *inst* *compile-env*)))
 
 (defcfun-bind assign-script-to-asm (*src* *dst* _)
-	(unless (eq (length (setq *src* (split *src* ","))) (length *dst*))
+	(unless (= (length (setq *src* (split *src* ","))) (length *dst*))
 		(throw "Mismatching number of src/dst parameters !" (list *src* *dst*)))
-	(when (ne 0 (length *dst*))
+	(when (/= 0 (length *dst*))
 		(reset-reg-stack 0)
 		(each! 0 -1 (lambda (_)
 			(compile-rpn-list (rpn-parse (token-parse _)))
@@ -1047,10 +1047,10 @@
 
 (defcfun assign-script-to-script (*src* *dst* _)
 	(setq *src* (split *src* ",") *dst* (map trim (split *dst* ",")))
-	(unless (eq (length *src*) (length *dst*))
+	(unless (= (length *src*) (length *dst*))
 		(throw "Mismatching number of src/dst parameters !" (list *src* *dst*)))
 	(assign-ignored-to-script)
-	(when (ne 0 (length *dst*))
+	(when (/= 0 (length *dst*))
 		(reset-reg-stack 0)
 		(each! 0 -1 (lambda (_)
 			(compile-rpn-list (rpn-parse (token-parse _)))) (list *src*))

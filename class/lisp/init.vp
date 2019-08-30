@@ -16,7 +16,7 @@
 	;s = symbol
 	;f = field
 	(vp-short
-		(list 'sub (label-sym (string-sym (fn-add-string s))) '*pc*) f))
+		`(- ,(label-sym (string-sym (fn-add-string s))) *pc*) f))
 
 (def-method 'lisp 'init)
 	;inputs
@@ -51,7 +51,7 @@
 		(assign {0} {this->lisp_nextsym})
 
 		;spin lock if boot env busy
-		(loop-while {ptr($boot_env) == -1})
+		(loop-while {ptr($boot_env) = -1})
 			(call 'sys_task 'sleep {100})
 		(loop-end)
 
@@ -76,7 +76,7 @@
 				(call 'vector 'push_back {repl_args, stream})
 				(call 'vector 'push_back {repl_args, file})
 				(call 'lisp 'func_repl {this, repl_args} {_, value})
-				(vpif {value != this->lisp_sym_nil})
+				(vpif {value /= this->lisp_sym_nil})
 					(call 'lisp 'repl_print {this, this->lisp_stderr, value})
 					(call 'stream 'write_char {this->lisp_stderr, char_lf})
 					(call 'stream 'write_flush {this->lisp_stderr})

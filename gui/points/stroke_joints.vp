@@ -35,7 +35,7 @@
 	(used-syms 'l2_pv 'l1_vx 'l1_vy 'p3)
 	(entry 'points 'stroke_joints {this, stack, iter_i, iter_j, p1x, p1y, p2x, p2y, radius, eps, join_style})
 
-	(vpif {iter_i != iter_j})
+	(vpif {iter_i /= iter_j})
 		(vpif {iter_j > iter_i})
 			(assign {2 * long_size} {step})
 		(else)
@@ -78,7 +78,7 @@
 			(vec-store 1 {c})
 
 			(switch)
-			(vpcase {c <= 0 || join_style == join_miter})
+			(vpcase {c <= 0 || join_style = join_miter})
 				;mitre join
 				(vec-load 2 {p1x, p1y})
 				(vec-dup 2)
@@ -87,7 +87,7 @@
 				(vec-store 4 {p3x, p3y, p1x, p1y})
 				(call 'sys_math 'intersect {p3x, p3y, p1x, p1y, l1_vx, l1_vy, l2_vx, l2_vy} {p1x, p1y})
 				(goto 'out_p1)
-			(vpcase {join_style == join_bevel})
+			(vpcase {join_style = join_bevel})
 				;bevel join
 				(vec-load 2 {p1x, p1y})
 				(vec-dup 2)
@@ -102,7 +102,7 @@
 				;rounded join
 				(call 'points 'gen_clerp {this, stack, p1x, p1y, l1_rvx, l1_rvy, l2_rvx, l2_rvy, radius, eps})
 			(endswitch)
-		(loop-until {iter_i == iter_j})
+		(loop-until {iter_i = iter_j})
 	(endif)
 
 	(exit 'points 'stroke_joints {this})

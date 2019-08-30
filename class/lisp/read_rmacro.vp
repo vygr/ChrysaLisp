@@ -24,7 +24,7 @@
 
 	(call 'stream 'read_char {stream} {_, char})
 	(call 'lisp 'read {this, stream, char} {_, value, char})
-	(errorif (cat {value->obj_vtable == @} (f-path 'error 'vtable)) 'funcexit)
+	(errorif (cat {value->obj_vtable = @} (f-path 'error 'vtable)) 'funcexit)
 	(call 'vector 'create nil {list})
 	(call 'obj 'ref {sym})
 	(call 'vector 'push_back {list, sym})

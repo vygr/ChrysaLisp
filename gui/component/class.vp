@@ -20,7 +20,7 @@
 
 	;init parent
 	(s-call 'component 'init '(r0 r1 0 1) '(r0 r1))
-	(vpif '(r1 != 0))
+	(vpif '(r1 /= 0))
 		(f-bind 'gui 'statics r1)
 		(vp-cpy-ir r1 gui_statics_next_id r2)
 		(vp-sub-cr 1 r2)
@@ -47,8 +47,8 @@
 	(loop-start)
 		(vp-cpy-ir r2 component_tcb r1)
 		(vp-cpy-ir r2 hmap_parent r2)
-		(breakif '(r1 != 0))
-	(loop-until '(r2 == 0))
+		(breakif '(r1 /= 0))
+	(loop-until '(r2 = 0))
 	(vp-ret)
 
 (def-func-end)
@@ -71,7 +71,7 @@
 	(call 'component 'find_owner {this} {_, tcb})
 	(vpif {tcb})
 		(call 'array 'get_both {ids} {_, iter_begin, iter_end})
-		(loop-while {iter_begin != iter_end})
+		(loop-while {iter_begin /= iter_end})
 			(call 'sys_mail 'alloc {ev_msg_action_size} {msg, data})
 			(assign {tcb->tk_node_mbox_id} {msg->msg_dest.id_mbox})
 			(call 'sys_kernel 'id nil {msg->msg_dest.id_cpu})
@@ -115,7 +115,7 @@
 			(call 'sym 'intern_cstr {next} {sym})
 			(call 'vector 'push_back {syms, sym})
 			(call 'sys_str 'length {next} {_, length})
-		(loop-until {(next + length + byte_size => next) == $props_end})
+		(loop-until {(next + length + byte_size => next) = $props_end})
 		(assign {syms} {ptr($symbols)})
 	(endif)
 	(call 'vector 'get_element {syms, num} {_, sym})

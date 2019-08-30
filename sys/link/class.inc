@@ -10,7 +10,7 @@
 ; link structures
 ;;;;;;;;;;;;;;;;;
 
-(defcvar 'lk_data_size (sub 512 str_size ptr_size long_size))
+(defcvar 'lk_data_size (- 512 str_size ptr_size long_size))
 
 (def-enum 'lk_chan_status)
 	(enum 'ready 'busy)

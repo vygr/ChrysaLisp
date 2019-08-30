@@ -18,11 +18,11 @@
 	;all but r0
 
 	(entry 'msg_out 'init '(r0 r1 r2))
-	(vp-cpy-ri r2 r0 (add msg_out_id id_id))
+	(vp-cpy-ri r2 r0 (+ msg_out_id id_id))
 
 	;init parent
 	(s-call 'msg_out 'init '(r0 r1 0 0 0 0) '(r0 r1))
-	(vpif '(r1 != 0))
+	(vpif '(r1 /= 0))
 		;init myself
 		(vp-xor-rr r2 r2)
 		(vp-cpy-ri r2 r0 msg_out_seqnum)
@@ -85,7 +85,7 @@
 	(entry 'msg_out 'write_flush '(r0))
 
 	(vp-cpy-ir r0 stream_buffer r1)
-	(vpif '(r1 != 0))
+	(vpif '(r1 /= 0))
 		(vp-push r0)
 		(vp-xor-rr r2 r2)
 		(vp-cpy-ri r2 r0 stream_buffer)
@@ -96,17 +96,17 @@
 		(vp-sub-rr r2 r3)
 		(vp-cpy-ri r3 r1 msg_length)
 
-		(vp-cpy-ir r0 (add msg_out_id id_id) r3)
+		(vp-cpy-ir r0 (+ msg_out_id id_id) r3)
 		(vp-cpy-ir r0 msg_out_seqnum r4)
 		(vp-cpy-ir r0 msg_out_state r5)
 		(vp-cpy-ir-ui r0 msg_out_ack_mbox_id r6)
 
-		(vp-cpy-ri r3 r1 (add msg_dest id_id))
+		(vp-cpy-ri r3 r1 (+ msg_dest id_id))
 		(vp-cpy-ri r4 r2 stream_msg_seqnum)
 		(vp-cpy-ri r5 r2 stream_msg_state)
-		(vp-cpy-ri-i r6 r2 (add stream_msg_ack_id id_mbox))
+		(vp-cpy-ri-i r6 r2 (+ stream_msg_ack_id id_mbox))
 
-		(call 'sys_kernel 'id nil '((r2 (add stream_msg_ack_id id_cpu) i)))
+		(call 'sys_kernel 'id nil '((r2 (+ stream_msg_ack_id id_cpu) i)))
 		(call 'sys_mail 'send '(r1))
 
 		;wait for an ack ?
@@ -114,7 +114,7 @@
 		(vp-cpy-ir r0 msg_out_seqnum r1)
 		(vp-cpy-ir r0 msg_out_ack_seqnum r2)
 		(vp-shr-cr msg_out_ack_shift r1)
-		(vpif '(r1 != r2))
+		(vpif '(r1 /= r2))
 			(call 'sys_mail 'read '((r0 msg_out_ack_mbox_addr)) '(r0 _))
 			(call 'sys_mail 'free '(r0))
 

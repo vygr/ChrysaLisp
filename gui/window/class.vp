@@ -32,7 +32,7 @@
 
 	;init parent
 	(s-call 'window 'init '(r0 r1) '(r0 r1))
-	(vpif '(r1 != 0))
+	(vpif '(r1 /= 0))
 		;init myself
 		(assign '(r0) {this})
 		(call 'window 'set_font_prop '(r0 prop_font "fonts/OpenSans-Regular.ttf" 18) '(r0))
@@ -41,7 +41,7 @@
 		(call 'window 'set_long_prop '(r0 prop_border 5) '(r0))
 		(call 'window 'set_long_prop '(r0 prop_min_width 0) '(r0))
 		(call 'window 'set_long_prop '(r0 prop_min_height 0) '(r0))
-		(call 'sys_mem 'clear '((& r0 window_start) (sub window_size window_start)))
+		(call 'sys_mem 'clear '((& r0 window_start) (- window_size window_start)))
 		(call 'array 'create nil {this->window_layout_targets})
 
 		;add flow panel
@@ -117,7 +117,7 @@
 	;dirty my area on parent
 	(vp-push r0)
 	(call 'window 'get_parent '(r0) '(_ r1))
-	(vpif '(r1 != 0))
+	(vpif '(r1 /= 0))
 		(call 'view 'set_flags '(r1 view_flag_dirty_all view_flag_dirty_all))
 		(vp-cpy-ir rsp 0 r0)
 	(endif)
@@ -191,7 +191,7 @@
 	(vp-pop r0)
 	(call 'window 'get_long_prop '(r0 prop_color) '(r0 r1))
 	(vp-shr-cr 24 r1)
-	(vpif '(r1 == 0xff))
+	(vpif '(r1 = 0xff))
 		(call 'view 'set_flags '(r0 view_flag_opaque view_flag_opaque) '(r0 _))
 	(endif)
 	(call 'window 'emit '(r0 (r0 window_layout_targets)) '(r0))
@@ -291,7 +291,7 @@
 	(vp-cpy-ir rsp local_event r1)
 	(vp-cpy-ir-ui r0 window_drag_mode r14)
 	(vp-and-cr window_drag_left r14)
-	(vpif '(r14 != 0))
+	(vpif '(r14 /= 0))
 		;drag left edge
 		(vp-cpy-ir-i r1 ev_msg_mouse_x r7)
 		(vp-cpy-ir-i r0 window_offset_x r14)
@@ -305,7 +305,7 @@
 	(endif)
 	(vp-cpy-ir-ui r0 window_drag_mode r14)
 	(vp-and-cr window_drag_right r14)
-	(vpif '(r14 != 0))
+	(vpif '(r14 /= 0))
 		;drag right edge
 		(vp-cpy-ir-i r1 ev_msg_mouse_x r9)
 		(vp-cpy-ir-i r0 window_offset_x r14)
@@ -319,7 +319,7 @@
 	(endif)
 	(vp-cpy-ir-ui r0 window_drag_mode r14)
 	(vp-and-cr window_drag_top r14)
-	(vpif '(r14 != 0))
+	(vpif '(r14 /= 0))
 		;drag top edge
 		(vp-cpy-ir-i r1 ev_msg_mouse_y r8)
 		(vp-cpy-ir-i r0 window_offset_y r14)
@@ -333,7 +333,7 @@
 	(endif)
 	(vp-cpy-ir-ui r0 window_drag_mode r14)
 	(vp-and-cr window_drag_bottom r14)
-	(vpif '(r14 != 0))
+	(vpif '(r14 /= 0))
 		;drag bottom edge
 		(vp-cpy-ir-i r1 ev_msg_mouse_y r10)
 		(vp-cpy-ir-i r0 window_offset_y r14)
@@ -404,7 +404,7 @@
 	(entry 'window 'set_status '(r0 r1))
 
 	(vp-cpy-ir r0 window_status r2)
-	(vpif '(r2 != 0))
+	(vpif '(r2 /= 0))
 		(vp-push r0)
 		(call 'title 'set_str_prop '(r2 prop_text r1) '(r0))
 		(call 'title 'layout '(r0))
@@ -470,7 +470,7 @@
 
 	(vp-push r0)
 	(vp-cpy-ir r0 window_close r0)
-	(vpif '(r0 != 0))
+	(vpif '(r0 /= 0))
 		(call 'button 'connect_click '(r0 r1))
 	(endif)
 	(vp-pop r0)
@@ -493,7 +493,7 @@
 
 	(vp-push r0)
 	(vp-cpy-ir r0 window_max r0)
-	(vpif '(r0 != 0))
+	(vpif '(r0 /= 0))
 		(call 'button 'connect_click '(r0 r1))
 	(endif)
 	(vp-pop r0)
@@ -516,7 +516,7 @@
 
 	(vp-push r0)
 	(vp-cpy-ir r0 window_min r0)
-	(vpif '(r0 != 0))
+	(vpif '(r0 /= 0))
 		(call 'button 'connect_click '(r0 r1))
 	(endif)
 	(vp-pop r0)

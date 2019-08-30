@@ -4,10 +4,10 @@
 ;read up to chunk_size chars from stream
 (defun read-chunk (_)
 	(defq chunk (list))
-	(while (and (ne chunk_size (length chunk))
+	(while (and (/= chunk_size (length chunk))
 			(defq c (read-char _))
 			(push chunk c)))
-	(if (ne 0 (length chunk)) chunk))
+	(if (/= 0 (length chunk)) chunk))
 
 ;hex strings of number
 (defun as-hex-byte (_)
@@ -26,14 +26,14 @@
 		(while (defq c (read-chunk _))
 			(prin (as-hex-int adr) " " (apply cat (map (lambda (_)
 				(cat (as-hex-byte _) " ")) c)))
-			(times (sub chunk_size (length c)) (prin "   "))
+			(times (- chunk_size (length c)) (prin "   "))
 			(print (apply cat (map (lambda (_)
-				(if (le 32 _ 126) (char _) ".")) c)))
-			(setq adr (add adr chunk_size)))))
+				(if (<= 32 _ 126) (char _) ".")) c)))
+			(setq adr (+ adr chunk_size)))))
 
 ;initialize pipe details and command args, abort on error
 (when (defq chunk_size 8 slave (create-slave))
-	(if (le (length (defq args (slave-get-args slave))) 1)
+	(if (<= (length (defq args (slave-get-args slave))) 1)
 		;dump from stdin
 		(dump-file 'stdin)
 		;dump from args as files

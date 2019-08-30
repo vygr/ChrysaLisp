@@ -21,16 +21,16 @@
 
 (errorcases
 	(d-call 'vector 'get_length {args} {_, length})
-	(gotoif {length != 3} 'error1))
+	(gotoif {length /= 3} 'error1))
 
 	(call 'vector 'get_begin {args} {_, iter_begin})
 	(call 'lisp 'repl_eval {this, iter_begin[ptr_size * 1]} {_, value})
-	(vpif (cat {value->obj_vtable == @} (f-path 'error 'vtable)))
+	(vpif (cat {value->obj_vtable = @} (f-path 'error 'vtable)))
 		(call 'lisp 'repl_eval {this, iter_begin[ptr_size * 2]} {_, args})
-		(vpif (cat {args->obj_vtable == @} (f-path 'error 'vtable)))
+		(vpif (cat {args->obj_vtable = @} (f-path 'error 'vtable)))
 			(call 'obj 'deref {value})
 			(assign {args} {value})
-		(elseif {args != this->lisp_sym_nil})
+		(elseif {args /= this->lisp_sym_nil})
 			(call 'obj 'deref {value})
 			(assign {args} {value})
 		(else)

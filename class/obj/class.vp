@@ -46,8 +46,8 @@
 	(vp-lea-i r0 obj_vtable r1)
 	(loop-start)
 		(vp-cpy-ir r1 ln_fnode_next r1)
-		(gotoif '(r1 == 0) 'funcexit)
-	(loop-until '(r1 == r2))
+		(gotoif '(r1 = 0) 'funcexit)
+	(loop-until '(r1 = r2))
 	(vp-cpy-ir r0 obj_vtable r1)
 (vp-label 'funcexit)
 
@@ -72,7 +72,7 @@
 
 	;destroy if 1
 	(vp-cpy-ir-ui r0 obj_count r1)
-	(vpif '(r1 == 1))
+	(vpif '(r1 = 1))
 		(jump 'obj 'destroy '(r0))
 	(endif)
 
@@ -91,7 +91,7 @@
 
 	(entry 'obj 'deref_if '(r0))
 
-	(vpif '(r0 != 0))
+	(vpif '(r0 /= 0))
 		(jump 'obj 'deref '(r0))
 	(endif)
 	(vp-ret)
@@ -109,7 +109,7 @@
 	(entry 'obj 'ref_if '(r0))
 
 	;inc ref count
-	(vpif '(r0 != 0))
+	(vpif '(r0 /= 0))
 		(call 'obj 'ref '(r0) '(r0))
 	(endif)
 

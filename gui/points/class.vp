@@ -18,12 +18,12 @@
 
 	(class/array/get_both r1 r10 r11)
 	(call 'points 'create nil '(r0))
-	(vpif '(r0 != 0))
+	(vpif '(r0 /= 0))
 		(loop-start)
 			(vp-cpy-ir r10 0 r1)
 			(call 'points 'append '(r0 r1 0 (r1 array_length ui)) '(r0))
 			(vp-add-cr ptr_size r10)
-		(loop-until '(r10 == r11))
+		(loop-until '(r10 = r11))
 	(endif)
 
 	(exit 'points 'cat '(r0))
@@ -59,7 +59,7 @@
 
 	;save object
 	(class/array/get_iter r0 r3 r4)
-	(vp-cpy-ri r1 r3 (mul -2 long_size))
+	(vp-cpy-ri r1 r3 (* -2 long_size))
 	(vp-cpy-ri r2 r3 (neg long_size))
 	(vp-ret)
 
@@ -81,7 +81,7 @@
 		(vp-add-cr long_size r3)
 		(vp-add-cr long_size r1)
 		(vp-add-cr long_size r2)
-	(loop-until '(r3 == r4))
+	(loop-until '(r3 = r4))
 	(exit 'points _ '(r0))
 	(vp-ret))
 
@@ -102,7 +102,7 @@
 		(vp-add-cr long_size r7)
 		(vp-add-cr long_size r5)
 		(vp-add-cr long_size r6)
-	(loop-until '(r7 == r8))
+	(loop-until '(r7 = r8))
 	(exit 'points _ '(r4))
 	(vp-ret))
 
@@ -119,7 +119,7 @@
 		(vec-store-long 1 r2)
 		(vp-add-cr long_size r2)
 		(vp-add-cr long_size r1)
-	(loop-until '(r2 == r3))
+	(loop-until '(r2 = r3))
 	(exit 'points _ '(r0))
 	(vp-ret))
 
@@ -248,7 +248,7 @@
 
 	(call 'points 'get_both '(r0) '(r0 r1 r2))
 	(vp-xor-rr r3 r3)
-	(loop-while '(r1 != r2))
+	(loop-while '(r1 /= r2))
 		(vp-cpy-ir r1 0 r4)
 		(vp-add-cr long_size r1)
 		(vp-add-rr r4 r3)
@@ -280,7 +280,7 @@
 		(vec-store-long 1 r3)
 		(vp-add-cr long_size r3)
 		(vp-add-cr long_size r1)
-	(loop-until '(r3 == r4))
+	(loop-until '(r3 = r4))
 
 	(exit 'points 'fscale '(r0))
 	(vp-ret)

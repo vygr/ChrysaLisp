@@ -29,29 +29,29 @@
 
 (defcfun-bind emit-byte (&rest _)
 	(write-char *out-stream* _ 1)
-	(setq *pc* (add *pc* (length _))))
+	(setq *pc* (+ *pc* (length _))))
 
 (defcfun-bind emit-short (&rest _)
 	(write-char *out-stream* _ 2)
-	(setq *pc* (add *pc* (mul (length _) 2))))
+	(setq *pc* (+ *pc* (* (length _) 2))))
 
 (defcfun-bind emit-int (&rest _)
 	(write-char *out-stream* _ 4)
-	(setq *pc* (add *pc* (mul (length _) 4))))
+	(setq *pc* (+ *pc* (* (length _) 4))))
 
 (defcfun-bind emit-long (&rest _)
 	(write-char *out-stream* _ 8)
-	(setq *pc* (add *pc* (mul (length _) 8))))
+	(setq *pc* (+ *pc* (* (length _) 8))))
 
 (defcfun-bind emit-string (_)
 	(write *out-stream* _)
-	(setq *pc* (add *pc* (length _))))
+	(setq *pc* (+ *pc* (length _))))
 
 (defcfun-bind emit-align (a &optional b)
-	(when (ne *pass* 0)
+	(when (/= *pass* 0)
 		(defq p *pc* b (opt b 0) s *out-stream*)
 		(setq *pc* (align p a))
-		(while (le (setq p (inc p)) *pc*)
+		(while (<= (setq p (inc p)) *pc*)
 			(write-char s b))))
 
 ;;;;;;;;;;;;;;;;;;;;
@@ -111,30 +111,30 @@
 		(cond
 			((and (eql w (elem 0 e))
 				(eql b (elem 2 e))
-				(eq i (eval (elem 3 e))))
+				(= i (eval (elem 3 e))))
 				(setq c 1) _)
 			((and (eql r (elem 0 e))
 				(eql b (elem 1 e))
 				(not (eql b (elem 3 e)))
-				(eq i (eval (elem 2 e))))
+				(= i (eval (elem 2 e))))
 				(setq c 3) _)
 			((k b e) -1))) (list *emit-buffer*)))
-	(and _ (ne _ -1) _))
+	(and _ (/= _ -1) _))
 
 (defcfun-bind opt-emit-find-rw1 (k _ ra rb w b i)
 	(defq _ (some! _ 0 t (lambda (e)
 		(cond
 			((and (eql w (elem 0 e))
 				(eql b (elem 2 e))
-				(eq i (eval (elem 3 e))))
+				(= i (eval (elem 3 e))))
 				(setq c 1) _)
 			((and (or (eql ra (elem 0 e)) (eql rb (elem 0 e)))
 				(eql b (elem 1 e))
 				(not (eql b (elem 3 e)))
-				(eq i (eval (elem 2 e))))
+				(= i (eval (elem 2 e))))
 				(setq c 3) _)
 			((k b e) -1))) (list *emit-buffer*)))
-	(and _ (ne _ -1) _))
+	(and _ (/= _ -1) _))
 
 (defcfun-bind opt-emit-find-rr (k _ rs rd)
 	(defq _ (some! _ 0 t (lambda (e)
@@ -142,7 +142,7 @@
 			((match? e `(emit-cpy-rr ,rs ,rd)) _)
 			((opt-trashes? rs e) -1)
 			((k rd e) -1))) (list *emit-buffer*)))
-	(and _ (ne _ -1) _))
+	(and _ (/= _ -1) _))
 
 (defcfun-bind opt-emit-buffer ()
 	(each! 2 -1 (lambda (e)
@@ -167,7 +167,7 @@
 								(elem c (opt-emit-read-ops2))
 								(elem c (opt-emit-write-ops1))
 								(elem 2 e) (eval (elem 3 e))))
-					(when (eq c 1)
+					(when (= c 1)
 						(elem-set w *emit-buffer* (lambda)))))
 			;redundant copies
 			((eql o 'emit-cpy-rr)
@@ -192,17 +192,17 @@
 (defcfun-bind vp-type (o)
 	(defq i (type-of o))
 	(cond
-		((eq i lisp_type_sym)
+		((= i lisp_type_sym)
 			(cond
 				((reg o) 'r)
 				(t 'c)))
-		((eq i lisp_type_int) 'c)
-		((eq i lisp_type_lst)
+		((= i lisp_type_int) 'c)
+		((= i lisp_type_lst)
 			(setq i (elem 0 o))
 			(cond
 				((reg i)
 					(if (reg (elem 1 o)) 'd
-						(if (eq 2 (length o)) 'i
+						(if (= 2 (length o)) 'i
 							(sym (cat "i" (elem 2 o))))))
 				((eql i '@) i)
 				((eql i '$) i)
@@ -210,7 +210,7 @@
 					(if (reg (elem 1 o))
 						(if (reg (elem 2 o)) '&d '&i) nil))
 				(t 'c)))
-		((eq i lisp_type_str) 's)
+		((= i lisp_type_str) 's)
 		(t nil)))
 
 (defcfun-bind label-sym (s) (sym (cat "_l_" s)))

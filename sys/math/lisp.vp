@@ -8,7 +8,7 @@
 	(entry 'sys_math _ '(r0 r1))
 (errorcases
 	(call 'lisp 'env_args_type '(r1 ($ sig) 1) '(r2))
-	(gotoif '(r2 == 0) 'error))
+	(gotoif '(r2 = 0) 'error))
 	(vp-push r0)
 	(class/vector/bind_args r1 '(r0) '(num))
 	(exec p)

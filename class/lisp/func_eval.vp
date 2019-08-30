@@ -19,15 +19,15 @@
 	(entry 'lisp 'func_eval {this, args})
 
 	(d-call 'vector 'get_length {args} {_, length})
-	(vpif {length == 1})
+	(vpif {length = 1})
 		(call 'vector 'get_first {args} {_, args})
 		(call 'lisp 'repl_eval {this, args} {_, args})
 	(else)
-		(errorif {length != 2} 'error1)
+		(errorif {length /= 2} 'error1)
 		(call 'vector 'get_second {args} {_, env})
 	(errorcases
 		(call 'obj 'inst_of (cat {env, @} (f-path 'hmap 'vtable)))
-		(gotoif `(,(method-output 'obj 'inst_of 1) == 0) 'error2))
+		(gotoif `(,(method-output 'obj 'inst_of 1) = 0) 'error2))
 		(assign {this->lisp_environment} {old})
 		(assign {env} {this->lisp_environment})
 		(call 'vector 'get_first {args} {_, args})

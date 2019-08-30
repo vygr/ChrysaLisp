@@ -6,6 +6,6 @@
 
 ;pole pii stdin
 (while t
-	(while (ne 0 (defq c (pii-read-char 0)))
+	(while (/= 0 (defq c (pii-read-char 0)))
 		(mail-send (char c) mbox))
 	(task-sleep 10000))

@@ -23,7 +23,7 @@
 
 	(vp-cpy-ir r2 obj_vtable r3)
 	(f-bind 'func 'vtable r4)
-	(vpif '(r3 == r4))
+	(vpif '(r3 = r4))
 		;built in or compiled function
 		(class/num/get_value r2 r2)
 		(vp-and-cr (neg ptr_size) r2)
@@ -32,7 +32,7 @@
 
 (errorcases
 	(f-bind 'vector 'vtable r4)
-	(gotoif '(r3 != r4) 'error2)
+	(gotoif '(r3 /= r4) 'error2)
 	(class/array/get_length r2 r3)
 	(gotoif '(r3 < 2) 'error1))
 
@@ -41,9 +41,9 @@
 (errorcases
 	(class/array/get_args r3 '(r5))
 	(vp-cpy-ir r0 lisp_sym_lambda r6)
-	(vpif '(r5 != r6))
+	(vpif '(r5 /= r6))
 		(vp-cpy-ir r0 lisp_sym_macro r6)
-		(gotoif '(r5 != r6) 'error2)
+		(gotoif '(r5 /= r6) 'error2)
 	(endif))
 
 	(vp-alloc local_size)
@@ -61,11 +61,11 @@
 	(errorcases
 		(vp-cpy-ir r1 obj_vtable r3)
 		(f-bind 'error 'vtable r4)
-		(breakif '(r3 == r4)))
+		(breakif '(r3 = r4)))
 		(vp-cpy-ir rsp local_iter_begin r2)
 		(vp-cpy-ir rsp local_iter_end r3)
 		(vp-add-cr ptr_size r2)
-		(breakif '(r2 == r3))
+		(breakif '(r2 = r3))
 		(vp-cpy-ri r2 rsp local_iter_begin)
 		(call 'obj 'deref '(r1))
 		(vp-cpy-ir rsp local_iter_begin r2)

@@ -62,9 +62,9 @@
 	(if (or (find _5 s) (find _6 s))
 		(throw "Dispatch/Temp register conflicts with arg !" (list _5 _6 s)))
 	(assign _3 s)
-	(when (gt (defq ls (length s)) (defq la (length (abi-args))))
+	(when (> (defq ls (length s)) (defq la (length (abi-args))))
 		(setq x (reduce-rev (lambda (x y) (push x y)) (slice la ls s) (list))))
-	(vp-call-abi _6 _5 (sub (elem 4 m) ptr_size) x)
+	(vp-call-abi _6 _5 (- (elem 4 m) ptr_size) x)
 	(if _4 (assign (elem 3 m) _4)))
 
 (defcfun host-call (_1 _2 &optional _3 _4 _5 _6)

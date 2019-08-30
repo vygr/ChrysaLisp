@@ -26,22 +26,22 @@
 	(f-bind 'sym 'vtable r3)
 	(f-bind 'vector 'vtable r4)
 	(switch)
-	(vpcase '(r2 == r3))
+	(vpcase '(r2 = r3))
 		;eval to symbol value
 		(vp-cpy-ri r0 rsp local_this)
 		(vp-cpy-ri r1 rsp local_form)
 		(call 'hmap 'get '((r0 lisp_environment) r1) '(_ r1))
-		(errorif '(r1 == 0) 'error2)
+		(errorif '(r1 = 0) 'error2)
 		(vp-cpy-ir rsp local_this r0)
 		(break)
-	(vpcase '(r2 == r4))
+	(vpcase '(r2 = r4))
 		;apply function, eval args if needed
 		(vp-cpy-ri r0 rsp local_this)
 		(vp-cpy-ri r1 rsp local_form)
 
 	(errorcases
 		(class/array/get_length r1 r2)
-		(gotoif '(r2 == 0) 'error1))
+		(gotoif '(r2 = 0) 'error1))
 
 		(class/array/get_begin r1 r1)
 		(call 'lisp 'repl_eval '(r0 (r1 0)) '(r0 r1))
@@ -49,15 +49,15 @@
 
 	(errorcases
 		(f-bind 'error 'vtable r3)
-		(gotoif '(r2 == r3) 'funcexit))
+		(gotoif '(r2 = r3) 'funcexit))
 
 		(vp-cpy-ri r1 rsp local_func)
 		(f-bind 'func 'vtable r3)
 		(switch)
-		(vpcase '(r2 == r3))
+		(vpcase '(r2 = r3))
 			(class/num/get_value r1 r2)
 			(vp-and-cr 7 r2)
-			(gotoif '(r2 == 0) 'args_eval)
+			(gotoif '(r2 = 0) 'args_eval)
 			(call 'lisp 'repl_apply '(r0 (rsp local_form) r1) '(_ (rsp local_value)))
 			(break)
 		(default)
@@ -70,7 +70,7 @@
 			(vp-cpy-ir r1 obj_vtable r2)
 			(f-bind 'error 'vtable r3)
 			(vp-cpy-ri r1 rsp local_value)
-			(gotoif '(r2 == r3) 'error))
+			(gotoif '(r2 = r3) 'error))
 
 			(call 'obj 'deref '(r1))
 			(call 'lisp 'repl_apply '((rsp local_this) (rsp local_args) (rsp local_func)) '(_ (rsp local_value)))

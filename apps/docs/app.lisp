@@ -7,7 +7,7 @@
 	(byte 'win_button))
 
 (defq id t doc_list '("VM" "ASSIGNMENT" "STRUCTURE" "FUNCTIONS" "LISP" "SYNTAX" "CLASSES" "TODO")
-	space_width 8 tab_width (mul space_width 4) margin_width (mul space_width 3))
+	space_width 8 tab_width (* space_width 4) margin_width (* space_width 3))
 
 (defun-bind normal-line ()
 	(cond
@@ -32,7 +32,7 @@
 				(setq word_cnt (inc word_cnt))
 				(unless (eql word " ")
 					(cond
-						((eq 0 (logand word_cnt 1))
+						((= 0 (logand word_cnt 1))
 							(def (defq space_widget1 (create-label)) 'min_width space_width)
 							(def (defq word_widget (create-label)) 'text word 'ink_color argb_blue)
 							(def (defq space_widget2 (create-label)) 'min_width space_width)
@@ -52,7 +52,7 @@
 			(setq state 'normal word_cnt 0))
 		((defq tab_pos (find (ascii-char 9) line_str))
 			(def (setq line_widget (create-flow)) 'flow_flags (logior flow_flag_right flow_flag_fillh flow_flag_lastw))
-			(def (defq tab_widget (create-label)) 'min_width (mul (inc tab_pos) tab_width))
+			(def (defq tab_widget (create-label)) 'min_width (* (inc tab_pos) tab_width))
 			(def (defq code_widget (create-label)) 'text (slice (inc tab_pos) -1 line_str)
 				'font (create-font "fonts/Hack-Regular.ttf" 16) 'ink_color argb_blue)
 			(view-add-back line_widget tab_widget)
@@ -93,8 +93,8 @@
 
 (while id
 	(cond
-		((eq (setq id (get-long (defq msg (mail-mymail)) ev_msg_target_id)) event_win_close)
+		((= (setq id (get-long (defq msg (mail-mymail)) ev_msg_target_id)) event_win_close)
 			(setq id nil))
-		((eq id event_win_button)
+		((= id event_win_button)
 			(populate-page (get (view-find-id window (get-long msg ev_msg_action_source_id)) 'text)))
 		(t (view-event window msg))))

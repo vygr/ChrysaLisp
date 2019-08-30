@@ -23,7 +23,7 @@
 	(vp-cpy-ir r1 0 r2)
 	(f-bind 'vector 'vtable r3)
 	(vp-cpy-ir r2 obj_vtable r4)
-	(vpif '(r4 == r3))
+	(vpif '(r4 = r3))
 		(vp-alloc local_size)
 		(vp-cpy-ir r0 lisp_stack r3)
 		(vp-cpy-ri r0 rsp local_this)
@@ -35,35 +35,35 @@
 				(switch)
 				;not 0 length ?
 				(class/array/get_length r2 r3)
-				(breakif '(r3 == 0) 'next_iter)
+				(breakif '(r3 = 0) 'next_iter)
 				;not quoted list ?
 				(class/array/bind_args r2 '(r3))
 				(vp-cpy-ir r0 lisp_sym_quote r4)
-				(breakif '(r4 == r3) 'next_iter)
+				(breakif '(r4 = r3) 'next_iter)
 
 				;is a symbol ?
 				(vp-cpy-ri r1 rsp local_iter)
 				(vp-cpy-ri r2 rsp local_form)
 				(f-bind 'sym 'vtable r4)
 				(vp-cpy-ir r3 obj_vtable r5)
-				(breakif '(r4 != r5))
+				(breakif '(r4 /= r5))
 				;is defined ?
 				(call 'hmap 'search '((r0 lisp_environment) r3) '(_ r1 _))
-				(breakif '(r1 == 0))
+				(breakif '(r1 = 0))
 				;is a list ?
 				(vp-cpy-ir r1 0 r1)
 				(class/pair/get_second r1 r1)
 				(f-bind 'vector 'vtable r2)
 				(vp-cpy-ir r1 obj_vtable r3)
-				(breakif '(r2 != r3))
+				(breakif '(r2 /= r3))
 				;not 0 length ?
 				(class/array/get_length r1 r2)
-				(breakif '(r2 == 0))
+				(breakif '(r2 = 0))
 				;is a macro ?
 				(vp-cpy-ir rsp local_this r0)
 				(class/array/bind_args r1 '(r2))
 				(vp-cpy-ir r0 lisp_sym_macro r3)
-				(breakif '(r2 != r3))
+				(breakif '(r2 /= r3))
 				(default)
 					;replace form with macro expantion
 					(vp-cpy-ir rsp local_form r0)
@@ -79,7 +79,7 @@
 					(vp-cpy-ir r1 0 r2)
 					(f-bind 'vector 'vtable r3)
 					(vp-cpy-ir r2 obj_vtable r4)
-					(continueif '(r4 == r3) 'try_expand)
+					(continueif '(r4 = r3) 'try_expand)
 					(break 'next_iter)
 				(endswitch)
 
@@ -92,11 +92,11 @@
 				(loop-start)
 					(vp-cpy-ir r1 0 r2)
 					(vp-cpy-ir r2 obj_vtable r2)
-					(vpif '(r2 == r7))
+					(vpif '(r2 = r7))
 						(call 'array 'push_back '(r0 r1) '(r0 r1 _ _))
 					(endif)
 					(vp-add-cr ptr_size r1)
-				(loop-until '(r1 == r6))
+				(loop-until '(r1 = r6))
 			(endswitch)
 
 			;pop back stack
@@ -104,7 +104,7 @@
 			(vp-cpy-ir-ui rsp local_start r3)
 			(vp-cpy-ir r0 lisp_stack r2)
 			(class/array/get_length r2 r1)
-			(breakif '(r1 == r3))
+			(breakif '(r1 = r3))
 			(vp-sub-cr 1 r1)
 			(class/array/set_length r2 r1)
 			(class/array/get_element r2 r1 r1 r2)

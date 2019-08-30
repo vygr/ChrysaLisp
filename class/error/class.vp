@@ -33,7 +33,7 @@
 
 	;init parent
 	(s-call 'error 'init '(r0 r1) '(r0 r1))
-	(vpif '(r1 != 0))
+	(vpif '(r1 /= 0))
 		;init self
 		(call 'str 'create_from_cstr '((r0 error_description)) '(r0))
 		(vp-cpy-ir rsp local_this r1)
@@ -81,9 +81,9 @@
 	(entry 'error 'get_msg '(r0))
 
 	(assign '(r0 "" (r0 error_msg ui) ($ msgs)) '(r3 r4 r5 r0))
-	(loop-while '(r5 != 0))
+	(loop-while '(r5 /= 0))
 		(vp-cpy-ir-ub r0 0 r1)
-		(breakif '(r1 == 0))
+		(breakif '(r1 = 0))
 		(vp-cpy-rr r0 r4)
 		(call 'sys_str 'length '(r0) '(r0 r1))
 		(vp-add-rr r1 r0)

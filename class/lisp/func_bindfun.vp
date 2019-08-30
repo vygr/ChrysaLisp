@@ -25,14 +25,14 @@
 
 (errorcases
 	(class/array/get_length r1 r2)
-	(gotoif '(r2 != 1) 'error))
+	(gotoif '(r2 /= 1) 'error))
 
 	;ref the form and bind it
 	(class/array/bind_args r1 '(r1))
 	(class/obj/ref r1 r2)
 	(f-bind 'vector 'vtable r2)
 	(vp-cpy-ir r1 obj_vtable r3)
-	(vpif '(r2 == r3))
+	(vpif '(r2 = r3))
 		;is a list so down we go
 		(vp-alloc local_size)
 		(vp-cpy-ri r0 rsp local_this)
@@ -44,7 +44,7 @@
 			;loop form elements
 			(class/array/get_both r1 r1 r2)
 			(vp-cpy-ri r2 rsp local_iter_end)
-			(loop-while '(r1 != r2))
+			(loop-while '(r1 /= r2))
 				(vp-cpy-ri r1 rsp local_iter_begin)
 				(vp-cpy-ir r1 0 r1)
 
@@ -53,14 +53,14 @@
 					(switch)
 					(f-bind 'vector 'vtable r2)
 					(vp-cpy-ir r1 obj_vtable r3)
-					(breakif '(r2 != r3))
+					(breakif '(r2 /= r3))
 					;not 0 length ?
 					(class/array/get_length r1 r2)
-					(breakif '(r2 == 0) 'next_elem)
+					(breakif '(r2 = 0) 'next_elem)
 					;not quoted list ?
 					(class/array/bind_args r1 '(r2))
 					(vp-cpy-ir r0 lisp_sym_quote r3)
-					(breakif '(r2 == r3) 'next_elem)
+					(breakif '(r2 = r3) 'next_elem)
 					(default)
 						;come back to this branch
 						(call 'array 'push_back '((r0 lisp_stack) r1))
@@ -70,33 +70,33 @@
 					;is a symbol ?
 					(switch)
 					(f-bind 'sym 'vtable r2)
-					(breakif '(r2 != r3))
+					(breakif '(r2 /= r3))
 					;not lambda ?
 					(vp-cpy-ir r0 lisp_sym_lambda r3)
-					(breakif '(r1 == r3))
+					(breakif '(r1 = r3))
 					;not macro ?
 					(vp-cpy-ir r0 lisp_sym_macro r3)
-					(breakif '(r1 == r3))
+					(breakif '(r1 = r3))
 					;is defined ?
 					(call 'hmap 'search '((r0 lisp_environment) r1) '(_ r1 _))
-					(breakif '(r1 == 0))
+					(breakif '(r1 = 0))
 					;is a function ?
 					(vp-cpy-ir r1 0 r1)
 					(f-bind 'func 'vtable r2)
 					(class/pair/get_second r1 r1)
 					(vp-cpy-ir r1 obj_vtable r3)
-					(gotoif '(r2 == r3) 'bind_it)
+					(gotoif '(r2 = r3) 'bind_it)
 					;is a list ?
 					(f-bind 'vector 'vtable r2)
-					(breakif '(r2 != r3))
+					(breakif '(r2 /= r3))
 					;not 0 length ?
 					(class/array/get_length r1 r2)
-					(breakif '(r2 == 0))
+					(breakif '(r2 = 0))
 					;is a lambda ?
 					(vp-cpy-ir rsp local_this r0)
 					(class/array/bind_args r1 '(r2))
 					(vp-cpy-ir r0 lisp_sym_lambda r3)
-					(breakif '(r2 != r3))
+					(breakif '(r2 /= r3))
 					(default)
 					(vp-label 'bind_it)
 						(class/obj/ref r1 r2)
@@ -117,7 +117,7 @@
 			(vp-cpy-ir r0 lisp_stack r2)
 			(vp-cpy-ir-ui rsp local_start r3)
 			(class/array/get_length r2 r1)
-			(breakif '(r1 == r3))
+			(breakif '(r1 = r3))
 			(vp-sub-cr 1 r1)
 			(class/array/set_length r2 r1)
 			(class/array/get_element r2 r1 r1 r2)

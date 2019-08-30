@@ -23,7 +23,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type {args, $sig, 4} '(r2))
-	(gotoif '(r2 == 0) 'error))
+	(gotoif '(r2 = 0) 'error))
 
 	(call 'vector 'get_begin {args} {_, iter_begin})
 	(call 'sys_load 'bind {&iter_begin[ptr_size * 2]->str_data} {value})

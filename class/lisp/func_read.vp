@@ -21,7 +21,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type {args, $sig, 2} '(r2))
-	(gotoif '(r2 == 0) 'error1))
+	(gotoif '(r2 = 0) 'error1))
 
 	(call 'vector 'get_first {args} {_, value})
 	(call 'vector 'get_second {args} {_, args})

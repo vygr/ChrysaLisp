@@ -41,7 +41,7 @@
 		(call 'vector 'get_element {this->pipe_streams, length} '(_ r0))
 		(loop-start)
 			(vp-cpy-ir r0 msg_in_state r1)
-			(breakif '(r1 == stream_mail_state_stopped))
+			(breakif '(r1 = stream_mail_state_stopped))
 			(call 'msg_in 'next_msg '(r0) '(r0))
 		(loop-end)
 	(loop-end)

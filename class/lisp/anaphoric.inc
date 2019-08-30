@@ -20,8 +20,8 @@
 (defmacro-bind aand (&rest _)
 	;(aand [form] ...)
 	(cond
-		((eq (length _) 0))
-		((eq (length _) 1) (elem 0 _))
+		((= (length _) 0))
+		((= (length _) 1) (elem 0 _))
 		(t `(aif ,(elem 0 _) (aand ~(slice 1 -1 _))))))
 
 (defmacro-bind acond (&rest _)

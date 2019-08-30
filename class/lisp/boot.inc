@@ -2,11 +2,18 @@
 ; Primitives
 ;;;;;;;;;;;;
 
-(ffi add "class/num/lisp_add" 0)
-(ffi sub "class/num/lisp_sub" 0)
-(ffi mul "class/num/lisp_mul" 0)
-(ffi div "class/num/lisp_div" 0)
-(ffi mod "class/num/lisp_mod" 0)
+(ffi = "class/num/lisp_eq" 0)
+(ffi /= "class/num/lisp_ne" 0)
+(ffi < "class/num/lisp_lt" 0)
+(ffi > "class/num/lisp_gt" 0)
+(ffi <= "class/num/lisp_le" 0)
+(ffi >= "class/num/lisp_ge" 0)
+
+(ffi + "class/num/lisp_add" 0)
+(ffi - "class/num/lisp_sub" 0)
+(ffi * "class/num/lisp_mul" 0)
+(ffi / "class/num/lisp_div" 0)
+(ffi % "class/num/lisp_mod" 0)
 (ffi min "class/num/lisp_min" 0)
 (ffi max "class/num/lisp_max" 0)
 
@@ -20,13 +27,6 @@
 (ffi logand "class/num/lisp_band" 0)
 (ffi logior "class/num/lisp_bor" 0)
 (ffi logxor "class/num/lisp_bxor" 0)
-
-(ffi eq "class/num/lisp_eq" 0)
-(ffi ne "class/num/lisp_ne" 0)
-(ffi lt "class/num/lisp_lt" 0)
-(ffi gt "class/num/lisp_gt" 0)
-(ffi le "class/num/lisp_le" 0)
-(ffi ge "class/num/lisp_ge" 0)
 
 (ffi length "class/seq/lisp_length" 0)
 (ffi elem "class/seq/lisp_elem" 0)
@@ -155,26 +155,26 @@
 
 (defmacro-bind lst? (_)
 	;(lst? form) -> bool
-	`(eq (type-of ,_) ,lisp_type_lst))
+	`(= (type-of ,_) ,lisp_type_lst))
 (defmacro-bind num? (_)
 	;(num? form) -> bool
-	`(eq (type-of ,_) ,lisp_type_int))
+	`(= (type-of ,_) ,lisp_type_int))
 (defmacro-bind fnc? (_)
 	;(fnc? form) -> bool
-	`(eq (type-of ,_) ,lisp_type_fnc))
+	`(= (type-of ,_) ,lisp_type_fnc))
 (defmacro-bind str? (_)
 	;(str? form) -> bool
-	`(eq (type-of ,_) ,lisp_type_str))
+	`(= (type-of ,_) ,lisp_type_str))
 (defmacro-bind sym? (_)
 	;(sym? form) -> bool
-	`(eq (type-of ,_) ,lisp_type_sym))
+	`(= (type-of ,_) ,lisp_type_sym))
 
 (defmacro-bind inc (_)
 	;(inc num) -> num
-	`(add ,_ 1))
+	`(+ ,_ 1))
 (defmacro-bind dec (_)
 	;(dec num) -> num
-	`(sub ,_ 1))
+	`(- ,_ 1))
 
 (defmacro-bind opt (x y &optional z)
 	;(opt var val [cond])
@@ -182,7 +182,7 @@
 (defmacro-bind setd (&rest _)
 	;(setd var val [var val] ...)
 	(defq i -2 l (list 'setq))
-	(while (lt (setq i (add i 2)) (length _))
+	(while (< (setq i (+ i 2)) (length _))
 		(push l (elem i _) `(opt ,(elem i _) ,(elem (inc i) _)))) l)
 
 ;;;;;;;;
@@ -199,7 +199,7 @@
 
 (defmacro-bind if (x y &rest _)
 	;(if form form [form])
-	(cond ((eq 0 (length _)) `(cond (,x ,y)))
+	(cond ((= 0 (length _)) `(cond (,x ,y)))
 		(t `(cond (,x ,y) (t ~_)))))
 
 (defmacro-bind not (_)
@@ -221,22 +221,22 @@
 (defmacro-bind or (&rest _)
 	;(or [form] ...)
 	(cond
-		((eq (length _) 0) nil)
-		((eq (length _) 1) (elem 0 _))
+		((= (length _) 0) nil)
+		((= (length _) 1) (elem 0 _))
 		(t `(if (defq ,(defq _x (gensym)) ,(elem 0 _)) ,_x (or ~(slice 1 -1 _))))))
 
 (defmacro-bind and (&rest _)
 	;(and [form] ...)
 	(cond
-		((eq (length _) 0))
-		((eq (length _) 1) (elem 0 _))
+		((= (length _) 0))
+		((= (length _) 1) (elem 0 _))
 		(t `(if ,(elem 0 _) (and ~(slice 1 -1 _))))))
 
 (defmacro-bind case (_k &rest _)
 	;(case form [(key body)] ...)
 	(if (defq _ (reduce-rev (lambda (_x (_ &rest _y))
 			(unless (lst? _) (setq _ (list _)))
-			(if (notevery (lambda (_) (eq (type-of _) (const lisp_type_sym))) _)
+			(if (notevery (lambda (_) (= (type-of _) (const lisp_type_sym))) _)
 				(throw "Key not symbol !" _))
 			(each! 0 -1 (lambda (_)
 				(push (elem 0 _x) _)
@@ -248,7 +248,7 @@
 (defmacro-bind times (c &rest _)
 	;(times num body)
 	`(progn (defq ,(defq _c (gensym)) ,c)
-		(while (le 0 (setq ,_c (dec ,_c))) ~_)))
+		(while (<= 0 (setq ,_c (dec ,_c))) ~_)))
 
 ;;;;;;;;;;;;
 ; Functional
@@ -270,18 +270,18 @@
 (defun-bind range (b e &optional s)
 	;(range start end [step]) -> list
 	(defq l (list) s (opt s 1 (abs s)))
-	(if (le b e)
-		(while (lt b e)
+	(if (<= b e)
+		(while (< b e)
 			(push l b)
-			(setq b (add b s)))
-		(while (gt b e)
+			(setq b (+ b s)))
+		(while (> b e)
 			(push l b)
-			(setq b (sub b s)))) l)
+			(setq b (- b s)))) l)
 
 (defun-bind each-mergeable (_f _l)
 	;(each-mergeable lambda seq) -> seq
 	(defq _ -1)
-	(while (lt (setq _ (inc _)) (length _l))
+	(while (< (setq _ (inc _)) (length _l))
 		(_f (elem _ _l))) _l)
 
 (defun-bind each-mergeable-rev (_f _l)
@@ -362,13 +362,13 @@
 (defun-bind sign (_)
 	;(sign num) -> num
 	(cond
-		((eq _ 0) 0)
-		((lt _ 0) -1)
+		((= _ 0) 0)
+		((< _ 0) -1)
 		(t 1)))
 
 (defun-bind neg (_)
 	;(neg num) -> num
-	(sub 0 _))
+	(- 0 _))
 
 (defmacro-bind minus (_)
 	;(minus num) -> num
@@ -376,7 +376,7 @@
 
 (defun-bind abs (_)
 	;(abs num) -> num
-	(if (lt _ 0) (neg _) _))
+	(if (< _ 0) (neg _) _))
 
 (defun-bind lognot (_)
 	;(lognot num) -> num
@@ -403,15 +403,15 @@
 
 (defmacro-bind starts-with (p _)
 	;(starts-with str str)
-	`(and (ge (length ,_) ,(length p)) (eql ,p (slice 0 ,(length p) ,_))))
+	`(and (>= (length ,_) ,(length p)) (eql ,p (slice 0 ,(length p) ,_))))
 
 (defmacro-bind ends-with (p _)
 	;(ends-with str str)
-	`(and (ge (length ,_) ,(length p)) (eql ,p (slice ,(dec (neg (length p))) -1 ,_))))
+	`(and (>= (length ,_) ,(length p)) (eql ,p (slice ,(dec (neg (length p))) -1 ,_))))
 
 (defun-bind align (_ _a)
 	;(align num pow2) -> num
-	(logand (add _ (dec _a)) (neg _a)))
+	(logand (+ _ (dec _a)) (neg _a)))
 
 (defun-bind to-base-char (_)
 	;(to-base-char num) -> str
@@ -421,16 +421,16 @@
 	;(from-base-char str) -> num
 	(setq _ (code _))
 	(cond
-		((ge _ (ascii-code "a"))
-			(sub _ (ascii-code "a") -10))
-		((ge _ (ascii-code "A"))
-			(sub _ (ascii-code "A") -10))
-		(t (sub _ (ascii-code "0")))))
+		((>= _ (ascii-code "a"))
+			(- _ (ascii-code "a") -10))
+		((>= _ (ascii-code "A"))
+			(- _ (ascii-code "A") -10))
+		(t (- _ (ascii-code "0")))))
 
 (defun-bind to-num (_)
 	;(to-num str) -> num
 	(defq n 0 b 10)
-	(when (gt (length _) 1)
+	(when (> (length _) 1)
 		(defq i (elem 1 _))
 		(cond
 			((eql i "x")
@@ -440,23 +440,23 @@
 			((eql i "b")
 				(setq b 2 _ (slice 2 -1 _)))))
 	(defq i -1 f 0)
-	(while (lt (setq i (inc i)) (length _))
+	(while (< (setq i (inc i)) (length _))
 		(defq c (elem i _))
 		(if (eql c ".")
 			(setq f 1)
-			(defq d (from-base-char c) n (add (mul n b) d) f (mul f b))))
-	(if (eq f 0) n (fdiv n f)))
+			(defq d (from-base-char c) n (+ (* n b) d) f (* f b))))
+	(if (= f 0) n (fdiv n f)))
 
 (defun-bind trim-start (s &optional c)
 	;(trim-start str [str]) -> str
 	(defq c (if c (code c) (ascii-code " ")) i -1)
-	(while (and (ne (setq i (inc i)) (length s)) (eql (code s 1 i) c)))
+	(while (and (/= (setq i (inc i)) (length s)) (eql (code s 1 i) c)))
 	(slice i -1 s))
 
 (defun-bind trim-end (s &optional c)
 	;(trim-end str [str]) -> str
 	(defq c (if c (code c) (ascii-code " ")) i (length s))
-	(while (and (ne (setq i (dec i)) -1) (eql (code s 1 i) c)))
+	(while (and (/= (setq i (dec i)) -1) (eql (code s 1 i) c)))
 	(slice 0 (inc i) s))
 
 (defun-bind trim (s &optional c)
@@ -465,39 +465,39 @@
 
 (defun-bind pad (v c &optional f)
 	;(pad form width [str]) -> str
-	(defq f (opt f " ") v (str v) l (length v) c (sub (max c l) l))
-	(while (gt c (length f)) (setq f (cat f f)))
+	(defq f (opt f " ") v (str v) l (length v) c (- (max c l) l))
+	(while (> c (length f)) (setq f (cat f f)))
 	(cat (slice 0 c f) v))
 
 (defun-bind log2 (_)
 	;(log2 num) -> num
-	(when (and (not (eq 0 _)) (eq _ (logand _ (neg _))))
+	(when (and (not (= 0 _)) (= _ (logand _ (neg _))))
 		(defq i 0)
-		(while (ne 0 (setq _ (shr _ 1)))
+		(while (/= 0 (setq _ (shr _ 1)))
 			(setq i (inc i))) i))
 
 (defun-bind ntz (_)
 	;(ntz num) -> num
 	(defq n 64)
-	(while (ne _ 0)
+	(while (/= _ 0)
 		(setq n (dec n) _ (shl _ 1))) n)
 
 (defun-bind nto (_)
 	;(nto num) -> num
 	(defq n 64 _ (lognot _))
-	(while (ne _ 0)
+	(while (/= _ 0)
 		(setq n (dec n) _ (shl _ 1))) n)
 
 (defun-bind nlz (_)
 	;(nlz num) -> num
 	(defq n 0)
-	(while (gt _ 0)
+	(while (> _ 0)
 		(setq n (inc n) _ (shl _ 1))) n)
 
 (defun-bind nlo (_)
 	;(nlo num) -> num
 	(defq n 0 _ (lognot _))
-	(while (gt _ 0)
+	(while (> _ 0)
 		(setq n (inc n) _ (shl _ 1))) n)
 
 (defun-bind insert (x &rest y)
@@ -514,9 +514,9 @@
 	(setd _l 0 _h (length _a))
 	(defq _s (time))
 	(defun-bind get-next ()
-		(setq _s (abs (logxor 0xa5a5a5a5a5a5a5a5 (mul _s 0x1574937f)))))
+		(setq _s (abs (logxor 0xa5a5a5a5a5a5a5a5 (* _s 0x1574937f)))))
 	(defun-bind get-val (_)
-		(if (gt _ 0) (mod (get-next) _) 0))
+		(if (> _ 0) (% (get-next) _) 0))
 	(each! _h _l (lambda (x)
 		(swap _a _ (get-val (inc _)))) (list _a)) _a)
 
@@ -530,13 +530,13 @@
 	(setd _l 0 _h (length _a))
 	(defq _q (list _l _h))
 	(while (setq _h (pop _q) _l (pop _q))
-		(when (lt _l _h)
+		(when (< _l _h)
 			(defq _p (partition _f _a _l _h))
 			(push (push _q _l _p) (inc _p) _h))) _a)
 
 (defun-bind swap (_ _1 _2)
 	;(swap list index index)
-	(when (ne _1 _2)
+	(when (/= _1 _2)
 		(defq _t (elem _1 _))
 		(elem-set _1 _ (elem _2 _))
 		(elem-set _2 _ _t)))
@@ -556,7 +556,7 @@
 (defun-bind get-cstr (s o)
 	;(get-cstr str index) -> str
 	(defq k o)
-	(while (ne 0 (get-byte s o))
+	(while (/= 0 (get-byte s o))
 		(setq o (inc o)))
 	(slice k o s))
 
@@ -649,7 +649,7 @@
 		(elem-set 1 c (inc (elem 1 c))))
 	(defmacro-bind print-call-counts ()
 		(sort (lambda (x y)
-			(if (lt (elem 1 x) (elem 1 y)) -1 0)) call-counts)
+			(if (< (elem 1 x) (elem 1 y)) -1 0)) call-counts)
 		(each print call-counts) nil)
 	(defmacro-bind call-test ()
 		(compile (all-vp-files))

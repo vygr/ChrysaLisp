@@ -18,7 +18,7 @@
 	;free any dynamic array
 	(class/array/get_begin r0 r2)
 	(vp-lea-i r0 array_e0 r1)
-	(vpif '(r2 != r1))
+	(vpif '(r2 /= r1))
 		(vp-cpy-rr r0 r3)
 		(call 'sys_mem 'free '(r2))
 		(vp-cpy-rr r3 r0)
@@ -63,7 +63,7 @@
 		(vp-sub-cr long_size r2)
 		(breakif '(r2 < r3))
 		(vp-cpy-ir r2 0 r4)
-	(loop-until '(r1 == r4))
+	(loop-until '(r1 = r4))
 	(vp-sub-rr r3 r2)
 	(vp-asr-cr (log2 long_size) r2)
 
@@ -189,15 +189,15 @@
 		(vp-shl-cr (log2 long_size) r1)
 		(vp-lea-i r0 array_e0 r3)
 		(class/array/get_begin r0 r0)
-		(vpif '(r0 == r3))
+		(vpif '(r0 = r3))
 			(call 'sys_mem 'alloc '(r1) '(r1 r2))
 			(vp-pop r0)
 			(vp-cpy-ir r0 array_e0 r3)
 			(vp-cpy-ir r0 array_e1 r4)
 			(vp-cpy-ir r0 array_e2 r5)
-			(vp-cpy-ri r3 r1 (sub array_e0 array_e0))
-			(vp-cpy-ri r4 r1 (sub array_e1 array_e0))
-			(vp-cpy-ri r5 r1 (sub array_e2 array_e0))
+			(vp-cpy-ri r3 r1 (- array_e0 array_e0))
+			(vp-cpy-ri r4 r1 (- array_e1 array_e0))
+			(vp-cpy-ri r5 r1 (- array_e2 array_e0))
 		(else)
 			(vp-shl-cr (log2 long_size) r2)
 			(vp-swp-rr r1 r2)
@@ -284,7 +284,7 @@
 		(vp-cpy-ir rsp local_pivot r0)
 		(vp-add-cr long_size r0)
 		(vp-cpy-ri r0 rsp local_pivot)
-		(continueif '(r0 == r1))
+		(continueif '(r0 = r1))
 		(vp-cpy-ir r0 0 r3)
 		(vp-cpy-ir r1 0 r4)
 		(vp-cpy-ri r3 r1 0)
@@ -292,7 +292,7 @@
 	(loop-end)
 	(vp-cpy-ir rsp local_pivot r1)
 	(vp-cpy-ir rsp local_lower r0)
-	(vpif '(r1 != r0))
+	(vpif '(r1 /= r0))
 		(vp-cpy-ir r0 0 r2)
 		(vp-cpy-ir r1 0 r3)
 		(vp-cpy-ri r2 r1 0)
@@ -353,7 +353,7 @@
 			(call 'array 'push_back {stack, interval})
 		(endif)
 		(d-call 'array 'get_length {stack} {_, length})
-		(breakif {length == start})
+		(breakif {length = start})
 		(call 'array 'pop_back {stack} {_, interval})
 	(loop-end)
 
@@ -386,7 +386,7 @@
 	(vp-cpy-rr r6 r0)
 
 	;copy elements
-	(vpif '(r7 != r8))
+	(vpif '(r7 /= r8))
 		(class/array/get_iters r0 r7 r8 r2)
 		(class/array/get_begin r1 r3)
 		(loop-start)
@@ -394,7 +394,7 @@
 			(vp-add-cr ptr_size r7)
 			(vp-cpy-ri r2 r3 0)
 			(vp-add-cr ptr_size r3)
-		(loop-until '(r7 == r8))
+		(loop-until '(r7 = r8))
 	(endif)
 
 	(exit 'array 'slice '(r0 r1))
@@ -416,7 +416,7 @@
 	;save inputs
 	(entry 'array 'append '(r0 r1 r2 r3))
 
-	(vpif '(r2 != r3))
+	(vpif '(r2 /= r3))
 		;save inputs
 		(assign '(r1 r2 r3) '(r6 r7 r8))
 
@@ -435,7 +435,7 @@
 			(vp-add-cr ptr_size r7)
 			(vp-cpy-ri r1 r9 0)
 			(vp-add-cr ptr_size r9)
-		(loop-until '(r7 == r8))
+		(loop-until '(r7 = r8))
 	(endif)
 
 	(exit 'array 'append '(r0))
@@ -456,13 +456,13 @@
 
 	(class/array/get_both r1 r10 r11)
 	(call 'array 'create nil '(r0))
-	(vpif '(r0 != 0))
+	(vpif '(r0 /= 0))
 		(loop-start)
 			(vp-cpy-ir r10 0 r1)
 			(class/array/get_length r1 r3)
 			(call 'array 'append '(r0 r1 0 r3) '(r0))
 			(vp-add-cr ptr_size r10)
-		(loop-until '(r10 == r11))
+		(loop-until '(r10 = r11))
 	(endif)
 
 	(exit 'array 'cat '(r0))

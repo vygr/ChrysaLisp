@@ -18,7 +18,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type '(r1 ($ sig) 1) '(r2))
-	(gotoif '(r2 == 0) 'error))
+	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
 	(defq in (method-input 'sys_task 'sleep))
@@ -52,7 +52,7 @@
 
 (errorcases
 	(class/array/get_length r1 r2)
-	(gotoif '(r2 != 0) 'error))
+	(gotoif '(r2 /= 0) 'error))
 
 	(vp-push r0)
 	(call 'sys_task 'mailbox nil '(r0))
@@ -82,7 +82,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type '(r1 ($ sig) 2) '(r2))
-	(gotoif '(r2 == 0) 'error))
+	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
 	(defq in (method-input 'sys_task 'open_child))
@@ -115,7 +115,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type '(r1 ($ sig) 3) '(r2))
-	(gotoif '(r2 == 0) 'error))
+	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
 	(defq in (method-input 'sys_task 'open_remote))
@@ -148,7 +148,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type '(r1 ($ sig) 3) '(r2))
-	(gotoif '(r2 == 0) 'error))
+	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
 	(defq in (method-input 'sys_task 'open_farm))
@@ -180,13 +180,13 @@
 
 (errorcases
 	(call 'lisp 'env_args_type '(r1 ($ sig) 1) '(r2))
-	(gotoif '(r2 == 0) 'error))
+	(gotoif '(r2 = 0) 'error))
 
 	(class/array/bind_args r7 '(r1))
 
 (errorcases
 	(call 'lisp 'env_args_type `(r1 (@ ,(f-path 'str 'vtable)) -1) '(r2))
-	(gotoif '(r2 == 0) 'error))
+	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
 	(call 'sys_task 'open_pipe '(r1) '(r1))

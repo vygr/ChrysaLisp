@@ -66,7 +66,17 @@ t
 ### Built in functions
 
 ```lisp
-add
+-
+*
+/
+/=
+%
++
+<
+<=
+=
+>
+>=
 age
 apply
 array
@@ -84,12 +94,10 @@ copy
 def
 def?
 defq
-div
 each!
 elem
 elem-set
 env
-eq
 eql
 eval
 fcos
@@ -103,27 +111,20 @@ fmul
 frac
 fsin
 fsqrt
-ge
 gensym
-gt
 lambda
-le
 length
 list
 load
 logand
 logior
 logxor
-lt
 macro
 macroexpand
 match?
 max
 merge
 min
-mod
-mul
-ne
 not
 pipe
 pipe-read
@@ -150,7 +151,6 @@ some!
 split
 str
 string-stream
-sub
 sym
 throw
 time

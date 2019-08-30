@@ -20,14 +20,14 @@
 
 (errorcases
 	(call 'lisp 'env_args_type '(r1 ($ sig) 1) '(r2))
-	(gotoif '(r2 == 0) 'error1))
+	(gotoif '(r2 = 0) 'error1))
 
 	(vp-push r0 r1)
 	(defq in (method-input 'pipe 'create))
 	(class/vector/bind_args r1 in '(str))
 	(call 'pipe 'create in '(r1))
 	(vp-pop r0 r3)
-	(errorif '(r1 == 0) 'error2)
+	(errorif '(r1 = 0) 'error2)
 
 	(exit 'pipe 'lisp_create '(r0 r1))
 	(vp-ret)
@@ -60,14 +60,14 @@
 
 (errorcases
 	(call 'lisp 'env_args_type {args, $sig, 2} '(r2))
-	(gotoif '(r2 == 0) 'error1))
+	(gotoif '(r2 = 0) 'error1))
 
 	(call 'vector 'get_first {args} {_, pipe})
 	(call 'pipe 'get_state {pipe} {_, state})
-	(vpif {state == stream_mail_state_started})
+	(vpif {state = stream_mail_state_started})
 		(assign {0} {my_mbox_addr})
 		(call 'vector 'get_second {args} {_, args})
-		(vpif {args != this->lisp_sym_nil})
+		(vpif {args /= this->lisp_sym_nil})
 			(call 'sys_task 'mailbox nil {my_mbox_id})
 			(call 'sys_mail 'mbox_addr {my_mbox_id} {my_mbox_addr})
 		(endif)
@@ -79,11 +79,11 @@
 			(call 'stream_str 'create {value} {str_stream})
 			(loop-start)
 				(call 'stream 'read_char {stream} {_, char})
-				(breakif {char == -1})
+				(breakif {char = -1})
 				(call 'stream 'write_char {str_stream, char})
 				(call 'stream 'read_ready {stream} {_, ready})
 			(loop-untilnot {ready})
-			(vpif {char == -1})
+			(vpif {char = -1})
 				;EOF
 				(call 'pipe 'set_state {pipe, stream_mail_state_stopping})
 			(endif)
@@ -131,12 +131,12 @@
 
 (errorcases
 	(call 'lisp 'env_args_type {args, $sig, 2} '(r2))
-	(gotoif '(r2 == 0) 'error1))
+	(gotoif '(r2 = 0) 'error1))
 
 	(call 'vector 'get_begin {args} {_, iter_begin})
 	(assign {iter_begin[0], iter_begin[ptr_size]} {pipe, value})
 	(call 'pipe 'get_state {pipe} {_, state})
-	(errorif {state != stream_mail_state_started} 'error2)
+	(errorif {state /= stream_mail_state_started} 'error2)
 	(call 'pipe 'get_input {pipe} {_, stream})
 	(call 'stream 'write {stream, &value->str_data, value->str_length})
 	(call 'stream 'write_flush {stream})

@@ -17,7 +17,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type '(r1 ($ sig) 8) '(r2))
-	(gotoif '(r2 == 0) 'error))
+	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
 	(defq in (method-input 'points 'transform))
@@ -50,7 +50,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type '(r1 ($ sig) 3) '(r2))
-	(gotoif '(r2 == 0) 'error))
+	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
 	(defq in (method-input 'points 'simplify))
@@ -85,7 +85,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type '(r1 ($ sig) 8) '(r2))
-	(gotoif '(r2 == 0) 'error))
+	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
 	(defq in (method-input 'points 'gen_quadratic))
@@ -121,7 +121,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type '(r1 ($ sig) 10) '(r2))
-	(gotoif '(r2 == 0) 'error))
+	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
 	(defq in (method-input 'points 'gen_cubic))
@@ -157,7 +157,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type '(r1 ($ sig) 7) '(r2))
-	(gotoif '(r2 == 0) 'error))
+	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
 	(defq in (method-input 'points 'gen_arc))
@@ -193,7 +193,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type '(r1 ($ sig) 7) '(r2))
-	(gotoif '(r2 == 0) 'error))
+	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
 	(defq in (method-input 'points 'stroke_polylines))
@@ -229,7 +229,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type '(r1 ($ sig) 5) '(r2))
-	(gotoif '(r2 == 0) 'error))
+	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
 	(defq in (method-input 'points 'stroke_polygons))
@@ -267,23 +267,23 @@
 	(gotoif '(r12 < 2) 'error)
 	(gotoif '(r12 > 3) 'error)
 	(call 'lisp 'env_args_type `(r10 (@ ,(f-path 'points 'vtable)) 0) '(r2))
-	(gotoif '(r2 == 0) 'error))
+	(gotoif '(r2 = 0) 'error))
 	(class/array/get_begin r10 r1)
 	(class/array/get_args r1 '(r6 r7))
 	(class/array/get_length r6 r13)
 (errorcases
-	(gotoif '(r13 == 0) 'error)
+	(gotoif '(r13 = 0) 'error)
 	(class/array/get_length r7 r14)
-	(gotoif '(r13 != r14) 'error))
-	(vpif '(r12 == 2))
+	(gotoif '(r13 /= r14) 'error))
+	(vpif '(r12 = 2))
 		(call 'points 'create nil '(r0))
 		(call 'points 'set_capacity '(r0 r13) '(r0))
 		(call 'points 'set_length '(r0 r13) '(r0 _))
 	(else)
-		(vp-cpy-ir r1 (mul ptr_size 2) r0)
+		(vp-cpy-ir r1 (* ptr_size 2) r0)
 	(errorcases
 		(class/array/get_length r0 r14)
-		(gotoif '(r13 != r14) 'error))
+		(gotoif '(r13 /= r14) 'error))
 		(call 'obj 'ref '(r0) '(r0))
 	(endif)
 	(r-call 'points 'add '(r0 r6 r7 r11) '(r0))
@@ -313,13 +313,13 @@
 	(gotoif '(r12 < 1) 'error)
 	(gotoif '(r12 > 2) 'error)
 	(call 'lisp 'env_args_type `(r10 (@ ,(f-path 'points 'vtable)) 0) '(r2))
-	(gotoif '(r2 == 0) 'error))
+	(gotoif '(r2 = 0) 'error))
 	(class/array/get_begin r10 r1)
 	(vp-cpy-ir r1 0 r6)
 	(class/array/get_length r6 r13)
 (errorcases
-	(gotoif '(r13 == 0) 'error))
-	(vpif '(r12 == 1))
+	(gotoif '(r13 = 0) 'error))
+	(vpif '(r12 = 1))
 		(call 'points 'create nil '(r0))
 		(call 'points 'set_capacity '(r0 r13) '(r0))
 		(call 'points 'set_length '(r0 r13) '(r0 _))
@@ -327,7 +327,7 @@
 		(vp-cpy-ir r1 ptr_size r0)
 	(errorcases
 		(class/array/get_length r0 r14)
-		(gotoif '(r13 != r14) 'error))
+		(gotoif '(r13 /= r14) 'error))
 		(call 'obj 'ref '(r0) '(r0))
 	(endif)
 	(r-call 'points 'abs '(r0 r6 r11) '(r0))
@@ -356,7 +356,7 @@
 	(vp-push r1)
 	(call 'points 'lisp_vecop1 `(r0 r1 (@ ,(f-path 'points 'add))) '(r0 r1))
 	(vp-pop r3)
-	(errorif '(r1 == 0) 'error)
+	(errorif '(r1 = 0) 'error)
 
 	(exit 'points 'lisp_add '(r0 r1))
 	(vp-ret)
@@ -382,7 +382,7 @@
 	(vp-push r1)
 	(call 'points 'lisp_vecop1 `(r0 r1 (@ ,(f-path 'points 'sub))) '(r0 r1))
 	(vp-pop r3)
-	(errorif '(r1 == 0) 'error)
+	(errorif '(r1 = 0) 'error)
 
 	(exit 'points 'lisp_sub '(r0 r1))
 	(vp-ret)
@@ -408,7 +408,7 @@
 	(vp-push r1)
 	(call 'points 'lisp_vecop1 `(r0 r1 (@ ,(f-path 'points 'mul))) '(r0 r1))
 	(vp-pop r3)
-	(errorif '(r1 == 0) 'error)
+	(errorif '(r1 = 0) 'error)
 
 	(exit 'points 'lisp_mul '(r0 r1))
 	(vp-ret)
@@ -434,7 +434,7 @@
 	(vp-push r1)
 	(call 'points 'lisp_vecop1 `(r0 r1 (@ ,(f-path 'points 'div))) '(r0 r1))
 	(vp-pop r3)
-	(errorif '(r1 == 0) 'error)
+	(errorif '(r1 = 0) 'error)
 
 	(exit 'points 'lisp_div '(r0 r1))
 	(vp-ret)
@@ -460,7 +460,7 @@
 	(vp-push r1)
 	(call 'points 'lisp_vecop1 `(r0 r1 (@ ,(f-path 'points 'mod))) '(r0 r1))
 	(vp-pop r3)
-	(errorif '(r1 == 0) 'error)
+	(errorif '(r1 = 0) 'error)
 
 	(exit 'points 'lisp_mod '(r0 r1))
 	(vp-ret)
@@ -486,7 +486,7 @@
 	(vp-push r1)
 	(call 'points 'lisp_vecop1 `(r0 r1 (@ ,(f-path 'points 'fmul))) '(r0 r1))
 	(vp-pop r3)
-	(errorif '(r1 == 0) 'error)
+	(errorif '(r1 = 0) 'error)
 
 	(exit 'points 'lisp_fmul '(r0 r1))
 	(vp-ret)
@@ -512,7 +512,7 @@
 	(vp-push r1)
 	(call 'points 'lisp_vecop1 `(r0 r1 (@ ,(f-path 'points 'fdiv))) '(r0 r1))
 	(vp-pop r3)
-	(errorif '(r1 == 0) 'error)
+	(errorif '(r1 = 0) 'error)
 
 	(exit 'points 'lisp_fdiv '(r0 r1))
 	(vp-ret)
@@ -538,7 +538,7 @@
 	(vp-push r1)
 	(call 'points 'lisp_vecop1 `(r0 r1 (@ ,(f-path 'points 'fmod))) '(r0 r1))
 	(vp-pop r3)
-	(errorif '(r1 == 0) 'error)
+	(errorif '(r1 = 0) 'error)
 
 	(exit 'points 'lisp_fmod '(r0 r1))
 	(vp-ret)
@@ -563,7 +563,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type '(r1 ($ sig) 1) '(r2))
-	(gotoif '(r2 == 0) 'error))
+	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
 	(class/array/bind_args r1 '(r0))
@@ -598,21 +598,21 @@
 	(gotoif '(r12 < 2) 'error)
 	(gotoif '(r12 > 3) 'error)
 	(call 'lisp 'env_args_type `(r10 ($ sig) r12) '(r2))
-	(gotoif '(r2 == 0) 'error))
+	(gotoif '(r2 = 0) 'error))
 	(class/array/get_begin r10 r1)
 	(class/array/get_args r1 '(r6 r7))
 	(class/array/get_length r6 r13)
 (errorcases
-	(gotoif '(r13 == 0) 'error))
-	(vpif '(r12 == 2))
+	(gotoif '(r13 = 0) 'error))
+	(vpif '(r12 = 2))
 		(call 'points 'create nil '(r0))
 		(call 'points 'set_capacity '(r0 r13) '(r0))
 		(call 'points 'set_length '(r0 r13) '(r0 _))
 	(else)
-		(vp-cpy-ir r1 (mul ptr_size 2) r0)
+		(vp-cpy-ir r1 (* ptr_size 2) r0)
 	(errorcases
 		(class/array/get_length r0 r14)
-		(gotoif '(r13 != r14) 'error))
+		(gotoif '(r13 /= r14) 'error))
 		(call 'obj 'ref '(r0) '(r0))
 	(endif)
 	(call 'points 'fscale '(r0 r6 (r7 num_value)) '(r0))
@@ -642,7 +642,7 @@
 	(vp-push r1)
 	(call 'points 'lisp_vecop2 `(r0 r1 (@ ,(f-path 'points 'abs))) '(r0 r1))
 	(vp-pop r3)
-	(errorif '(r1 == 0) 'error)
+	(errorif '(r1 = 0) 'error)
 
 	(exit 'points 'lisp_abs '(r0 r1))
 	(vp-ret)
@@ -668,7 +668,7 @@
 	(vp-push r1)
 	(call 'points 'lisp_vecop2 `(r0 r1 (@ ,(f-path 'points 'frac))) '(r0 r1))
 	(vp-pop r3)
-	(errorif '(r1 == 0) 'error)
+	(errorif '(r1 = 0) 'error)
 
 	(exit 'points 'lisp_frac '(r0 r1))
 	(vp-ret)

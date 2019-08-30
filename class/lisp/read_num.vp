@@ -1,7 +1,7 @@
 (include 'sys/func.inc)
 (include 'sys/load/class.inc)
 (include 'sys/str/class.inc)
-(include 'class/str/class.inc)
+(include 'class/sym/class.inc)
 (include 'class/stream_str/class.inc)
 (include 'class/num/class.inc)
 (include 'class/lisp/class.inc)
@@ -25,13 +25,16 @@
 	(entry 'lisp 'read_num {this, stream, char})
 
 	(assign {char} {sign})
-	(vpif {char == char_minus})
+	(vpif {char = char_minus})
 		(call 'stream 'read_char {stream} {_, char})
+		(breakif {char >= char_0})
+		(call 'sym 'intern_cstr {"-"} {num})
+		(goto 'exit)
 	(endif)
 
 	(call 'str 'create_from_buffer {0, str_gap} {string})
 	(call 'stream_str 'create {string} {str_stream})
-	(loop-while {char == char_dot
+	(loop-while {char = char_dot
 				|| char >= char_0 && char <= char_9
 				|| char >= char_a && char <= char_z
 				|| char >= char_A && char <= char_Z})
@@ -44,11 +47,11 @@
 	;pick base
 	(assign {&string->str_data} {buffer})
 	(assign {ubyte(buffer + 1)} {val})
-	(vpif {val == char_x})
+	(vpif {val = char_x})
 		(assign {buffer + 2, 16} {buffer, val})
-	(elseif {val == char_o})
+	(elseif {val = char_o})
 		(assign {buffer + 2, 8} {buffer, val})
-	(elseif {val == char_b})
+	(elseif {val = char_b})
 		(assign {buffer + 2, 2} {buffer, val})
 	(else)
 		(assign {10} {val})
@@ -56,12 +59,13 @@
 
 	;create the number
 	(call 'sys_str 'to_long {buffer, val} {val})
-	(vpif {sign == char_minus})
+	(vpif {sign = char_minus})
 		(assign {-val} {val})
 	(endif)
 	(call 'num 'create {val} {num})
 	(call 'str 'destroy {string})
 
+(vp-label 'exit)
 	(exit 'lisp 'read_num {this, num, char})
 	(pop-scope)
 	(return)

@@ -20,7 +20,7 @@
 
 	;init parent
 	(s-call 'label 'init '(r0 r1) '(r0 r1))
-	(vpif '(r1 != 0))
+	(vpif '(r1 /= 0))
 		;add my flow
 		(vp-push r0)
 		(call 'flow 'create nil '(r1))
@@ -91,7 +91,7 @@
 	(vp-pop r0)
 	(call 'label 'get_long_prop '(r0 prop_color) '(r0 r1))
 	(vp-shr-cr 24 r1)
-	(vpif '(r1 == 0xff))
+	(vpif '(r1 = 0xff))
 		(jump 'view 'set_flags '(r0 view_flag_opaque view_flag_opaque))
 	(endif)
 

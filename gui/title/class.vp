@@ -20,7 +20,7 @@
 
 	;init parent
 	(s-call 'title 'init '(r0 r1) '(r0 r1))
-	(vpif '(r1 != 0))
+	(vpif '(r1 /= 0))
 		;init myself
 		(call 'title 'set_long_prop '(r0 prop_border 1) '(r0))
 		(vp-cpy-cr 1 r1)
@@ -51,7 +51,7 @@
 	(loop-start)
 		(vp-cpy-ir r0 hmap_parent r0)
 		(vp-cpy-ir r0 obj_vtable r2)
-	(loop-until '(r2 == r1))
+	(loop-until '(r2 = r1))
 	(call 'window 'to_front '(r0))
 	(vp-pop r0)
 
@@ -87,7 +87,7 @@
 	(loop-start)
 		(vp-cpy-ir r0 hmap_parent r0)
 		(vp-cpy-ir r0 obj_vtable r2)
-	(loop-until '(r2 == r1))
+	(loop-until '(r2 = r1))
 	(vp-cpy-ri r0 rsp local_window)
 	(vp-cpy-ir-i r0 view_x r7)
 	(vp-cpy-ir-i r0 view_y r8)

@@ -59,7 +59,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type `(r1 (@ ,(f-path 'array 'vtable)) -1) '(r2))
-	(gotoif '(r2 == 0) 'error))
+	(gotoif '(r2 = 0) 'error))
 
 	(vp-alloc local_size)
 	(class/array/get_both r1 r1 r2)
@@ -71,7 +71,7 @@
 		(vp-cpy-ir rsp local_iter_begin r1)
 		(vp-cpy-ir rsp local_iter_end r2)
 		(vp-add-cr ptr_size r1)
-	(loop-until '(r1 == r2))
+	(loop-until '(r1 = r2))
 	(call 'obj 'ref '(r0) '(r0))
 
 	(exit 'array 'lisp_clear '((rsp local_this) r0))
@@ -98,12 +98,12 @@
 
 (errorcases
 	(call 'lisp 'env_args_type '(r1 ($ sig) 1) '(r2))
-	(gotoif '(r2 == 0) 'error))
+	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
 	(class/array/bind_args r1 '(r0))
 	(class/array/get_length r0 r1)
-	(vpif '(r1 != 0))
+	(vpif '(r1 /= 0))
 		(call 'array 'ref_back '(r0) '(_ r1))
 	(else)
 		(vp-cpy-ir rsp 0 r1)
@@ -139,12 +139,12 @@
 	(class/array/bind_args r7 '(r0))
 	(f-bind 'vector 'vtable r1)
 	(vp-cpy-ir r0 obj_vtable r2)
-	(vpif '(r1 == r2))
+	(vpif '(r1 = r2))
 		(d-call 'vector 'append '(r0 r7 1 r3) '(r0))
 	(else)
 	(errorcases
 		(call 'obj 'inst_of `(r0 (@ ,(f-path 'array 'vtable))) '(r0 r1))
-		(gotoif '(r1 == 0) 'error))
+		(gotoif '(r1 = 0) 'error))
 		(class/array/get_length r0 r8)
 		(vp-add-rr r3 r8)
 		(vp-sub-cr 1 r8)

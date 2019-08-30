@@ -17,7 +17,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type '(r1 ($ sig) 1) '(r2))
-	(gotoif '(r2 == 0) 'error1))
+	(gotoif '(r2 = 0) 'error1))
 
 	(vp-push r0)
 	(defq in (method-input 'gui 'add))

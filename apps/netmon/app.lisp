@@ -19,7 +19,7 @@
 	cpu_total (kernel-total) cpu_count cpu_total id t
 	max_tasks 1 max_memory 1 last_max_tasks 0 last_max_memory 0)
 
-(ui-tree window (create-window (add window_flag_close window_flag_min window_flag_max)) nil
+(ui-tree window (create-window (+ window_flag_close window_flag_min window_flag_max)) nil
 	(ui-element _ (create-grid) ('grid_width 2 'grid_height 1 'flow_flags (logior flow_flag_down flow_flag_fillw) 'maximum 100 'value 0)
 		(ui-element _ (create-flow) ('color argb_green)
 			(ui-element _ (create-label) ('text "Tasks" 'color argb_white))
@@ -46,22 +46,22 @@
 
 (while id
 	;new batch of samples ?
-	(when (eq cpu_count cpu_total)
+	(when (= cpu_count cpu_total)
 		;set scales
 		(setq last_max_tasks max_tasks last_max_memory max_memory max_tasks 1 max_memory 1)
 		(each (lambda (st sm)
-			(defq vt (mul (inc _) (div (mul last_max_tasks 100) (length task_scale)))
-				vm (mul (inc _) (div (mul last_max_memory 100) (length memory_scale))))
-			(def st 'text (str (div vt 100) "." (pad (mod vt 100) 2 "0") "|"))
-			(def sm 'text (str (div vm 102400) "|"))
+			(defq vt (* (inc _) (/ (* last_max_tasks 100) (length task_scale)))
+				vm (* (inc _) (/ (* last_max_memory 100) (length memory_scale))))
+			(def st 'text (str (/ vt 100) "." (pad (% vt 100) 2 "0") "|"))
+			(def sm 'text (str (/ vm 102400) "|"))
 			(view-layout st) (view-layout sm)) task_scale memory_scale)
 		(view-dirty-all window)
 		;send out multi-cast sample command
-		(while (ne cpu_count 0)
+		(while (/= cpu_count 0)
 			(setq cpu_count (dec cpu_count))
 			(mail-send sample_msg (elem cpu_count ids))))
 	(cond
-		((eq (setq id (get-long (defq msg (mail-mymail)) ev_msg_target_id)) event_win_sample)
+		((= (setq id (get-long (defq msg (mail-mymail)) ev_msg_target_id)) event_win_sample)
 			;reply from cpu
 			(defq cpu (get-long msg sample_reply_msg_cpu)
 				task_val (get-long msg sample_reply_msg_task_count)
@@ -73,15 +73,15 @@
 
 			;count up replies
 			(setq cpu_count (inc cpu_count)))
-		((eq id event_win_close)
+		((= id event_win_close)
 			;close button
 			(setq id nil))
-		((eq id event_win_min)
+		((= id event_win_min)
 			;min button
 			(bind '(x y _ _) (view-get-bounds (view-dirty window)))
 			(bind '(w h) (view-pref-size window))
 			(view-dirty-all (view-change window x y w h)))
-		((eq id event_win_max)
+		((= id event_win_max)
 			;max button
 			(bind '(x y _ _) (view-get-bounds (view-dirty window)))
 			(bind '(w h) (view-pref-size window))
@@ -90,8 +90,8 @@
 
 ;wait for outstanding replies
 (setq window nil)
-(while (ne cpu_count cpu_total)
-	(if (eq (get-long (mail-mymail) ev_msg_target_id) event_win_sample)
+(while (/= cpu_count cpu_total)
+	(if (= (get-long (mail-mymail) ev_msg_target_id) event_win_sample)
 		(setq cpu_count (inc cpu_count))))
 
 ;send out multi-cast exit command

@@ -62,7 +62,7 @@
 			(call 'vector 'create nil {commands})
 			(call 'vector 'set_capacity {commands, length})
 			(assign {0} {index})
-			(loop-while {index != length})
+			(loop-while {index /= length})
 				(call 'vector 'get_element {args, index} {_, string})
 				(call 'stream 'create {0, 0, &string->str_data, string->str_length} {stream})
 				(call 'stream 'skip {stream, char_space})
@@ -83,7 +83,7 @@
 
 			;count how many started
 			(assign {0 => started} {index})
-			(loop-while {index != length})
+			(loop-while {index /= length})
 				(call 'array 'get_element {ids, index} {_, mbox.id_id})
 				(vpif {mbox.id_mbox})
 					(assign {started + 1} {started})
@@ -92,13 +92,13 @@
 			(loop-end)
 
 			;all started ?
-			(vpif {started == length})
+			(vpif {started = length})
 				;create streams, mailboxes and select array
 				(call 'vector 'create nil {this->pipe_streams})
 				(call 'vector 'set_capacity {this->pipe_streams, length + 2})
 				(call 'sys_mem 'alloc {(length + 2) * ptr_size} {this->pipe_select_array, _})
 				(assign {0} {index})
-				(loop-while {index != (length + 2)})
+				(loop-while {index /= (length + 2)})
 					(call 'msg_in 'create nil {stream})
 					(assign {stream->msg_in_mbox_addr} {(this->pipe_select_array)[index * ptr_size]})
 					(call 'vector 'push_back {this->pipe_streams, stream})

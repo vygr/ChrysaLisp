@@ -1,5 +1,49 @@
 # Syntax
 
+## %
+
+(% num num ...)
+
+## *
+
+(* num num ...)
+
+## +
+
+(+ num num ...)
+
+## -
+
+(- num num ...)
+
+## /
+
+(/ num num ...)
+
+## /=
+
+(/= num num ...)
+
+## <
+
+(< num num ...)
+
+## <=
+
+(<= num num ...)
+
+## =
+
+(= num num ...)
+
+## >
+
+(> num num ...)
+
+## >=
+
+(>= num num ...)
+
 ## aand
 
 (aand [form] ...)
@@ -15,10 +59,6 @@
 ## acond
 
 (acond (tst body) ...)
-
-## add
-
-(add num num ...)
 
 ## age
 
@@ -264,10 +304,6 @@
 
 (defun-debug name ([arg ...]) body)
 
-## div
-
-(div num num ...)
-
 ## each
 
 (each lambda seq ...)
@@ -311,10 +347,6 @@
 ## env
 
 (env [num])
-
-## eq
-
-(eq num num ...)
 
 ## eql
 
@@ -388,10 +420,6 @@
 
 (fsqrt num)
 
-## ge
-
-(ge num num ...)
-
 ## gensym
 
 (gensym)
@@ -415,10 +443,6 @@
 ## get-short
 
 (get-short str index) -> num
-
-## gt
-
-(gt num num ...)
 
 ## gui-add
 
@@ -455,10 +479,6 @@
 ## lambda
 
 (lambda ([arg ...]) body)
-
-## le
-
-(le num num ...)
 
 ## length
 
@@ -499,10 +519,6 @@
 ## lst?
 
 (lst? form) -> bool
-
-## lt
-
-(lt num num ...)
 
 ## macroexpand
 
@@ -555,18 +571,6 @@
 ## minus
 
 (minus num) -> num
-
-## mod
-
-(mod num num ...)
-
-## mul
-
-(mul num num ...)
-
-## ne
-
-(ne num num ...)
 
 ## neg
 
@@ -895,10 +899,6 @@
 ## string-stream
 
 (string-stream str)
-
-## sub
-
-(sub num num ...)
 
 ## swap
 

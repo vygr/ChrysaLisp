@@ -20,11 +20,11 @@
 	(entry 'str 'create_from_buffer '(r5 r6))
 
 	;create new str object
-	(call 'sys_mem 'alloc '((& r1 (add str_size byte_size))) '(r0 _))
-	(vpif '(r0 != 0))
+	(call 'sys_mem 'alloc '((& r1 (+ str_size byte_size))) '(r0 _))
+	(vpif '(r0 /= 0))
 		;init the object
 		(call 'str 'init `(r0 (@ ,(f-path 'str 'vtable)) r5 r6) '(r0 r1))
-		(vpif '(r1 == 0))
+		(vpif '(r1 = 0))
 			;error with init
 			(call 'sys_mem 'free '(r0))
 			(vp-xor-rr r0 r0)
@@ -67,7 +67,7 @@
 	(f-bind 'sys_load 'statics r6)
 	(vp-cpy-ir r6 ld_statics_stat_buffer r6)
 	(call 'sys_pii 'stat '(r0 r6) '(r0))
-	(vpif '(r0 != 0))
+	(vpif '(r0 /= 0))
 	(vp-label 'funcexit)
 		;no such file
 		(vp-xor-rr r0 r0)
@@ -79,15 +79,15 @@
 	;test for regular file only
 	(vp-cpy-ir-us r6 stat_mode r0)
 	(vp-and-cr s_ifmt r0)
-	(gotoif '(r0 != s_ifreg) 'funcexit)
+	(gotoif '(r0 /= s_ifreg) 'funcexit)
 
 	;create new str object
 	(vp-cpy-ir r6 stat_fsize r1)
-	(call 'sys_mem 'alloc '((& r1 (add str_size byte_size))) '(r0 _))
-	(vpif '(r0 != 0))
+	(call 'sys_mem 'alloc '((& r1 (+ str_size byte_size))) '(r0 _))
+	(vpif '(r0 /= 0))
 		;init the object
 		(call 'str 'init2 `(r0 (@ ,(f-path 'str 'vtable)) r5 (r6 stat_fsize)) '(r0 r1))
-		(vpif '(r1 == 0))
+		(vpif '(r1 = 0))
 			;error with init
 			(call 'sys_mem 'free '(r0))
 			(vp-xor-rr r0 r0)
@@ -148,14 +148,14 @@
 
 	;init parent
 	(s-call 'str 'init '(r0 r1) '(r0 r1))
-	(vpif '(r1 != 0))
+	(vpif '(r1 /= 0))
 		;init myself
 		(vp-xor-rr r1 r1)
 		(vp-cpy-rr r0 r6)
 		(vp-cpy-ri-i r1 r0 str_hashcode)
 		(vp-cpy-ri-i r3 r0 str_length)
 		(vp-lea-i r0 str_data r1)
-		(vpif '(r2 != 0))
+		(vpif '(r2 /= 0))
 			(call 'sys_mem 'copy '(r2 r1 r3) '(_ r1))
 		(else)
 			(vp-add-rr r3 r1)
@@ -186,7 +186,7 @@
 
 	;init parent
 	(s-call 'str 'init '(r0 r1) '(r0 r1))
-	(vpif '(r1 != 0))
+	(vpif '(r1 /= 0))
 		;init myself
 		(vp-xor-rr r1 r1)
 		(vp-cpy-rr r0 r6)
@@ -225,7 +225,7 @@
 
 	;init parent
 	(s-call 'str 'init '(r0 r1) '(r0 r1))
-	(vpif '(r1 != 0))
+	(vpif '(r1 /= 0))
 		;init myself
 		(vp-xor-rr r1 r1)
 		(vp-cpy-rr r0 r6)
@@ -268,14 +268,14 @@
 
 	;init parent
 	(s-call 'str 'init '(r0 r1) '(r0 r1))
-	(vpif '(r1 != 0))
+	(vpif '(r1 /= 0))
 		;init myself
 		(vp-xor-rr r1 r1)
 		(vp-cpy-rr r0 r6)
 		(vp-cpy-ri-i r1 r0 str_hashcode)
 		(class/array/get_both r2 r4 r5)
 		(vp-lea-i r6 str_data r1)
-		(loop-while '(r4 != r5))
+		(loop-while '(r4 /= r5))
 			(vp-cpy-ir r4 0 r0)
 			(call 'sys_mem 'copy '((& r0 str_data) r1 (r0 str_length ui)) '(_ r1))
 			(vp-add-cr ptr_size r4)
@@ -310,14 +310,14 @@
 	(vp-cpy-ir-ui r0 str_length r0)
 	(vp-cpy-ir-ui r1 str_length r2)
 	(vp-add-rr r2 r0)
-	(vp-add-cr (add str_size byte_size) r0)
+	(vp-add-cr (+ str_size byte_size) r0)
 
 	;create new str object
 	(call 'sys_mem 'alloc '(r0) '(r0 _))
-	(vpif '(r0 != 0))
+	(vpif '(r0 /= 0))
 		;init the object
 		(call 'str 'init1 `(r0 (@ ,(f-path 'str 'vtable)) r5 r6) '(r0 r1))
-		(vpif '(r1 == 0))
+		(vpif '(r1 = 0))
 			;error with init
 			(call 'sys_mem 'free '(r0))
 			(vp-xor-rr r0 r0)
@@ -343,8 +343,8 @@
 
 	;get total size of strings
 	(class/array/get_both r1 r1 r2)
-	(vp-cpy-cr (add str_size byte_size) r3)
-	(loop-while '(r1 != r2))
+	(vp-cpy-cr (+ str_size byte_size) r3)
+	(loop-while '(r1 /= r2))
 		(vp-cpy-ir r1 0 r0)
 		(vp-cpy-ir-ui r0 str_length r0)
 		(vp-add-cr ptr_size r1)
@@ -353,10 +353,10 @@
 
 	;create new str object
 	(call 'sys_mem 'alloc '(r3) '(r0 _))
-	(vpif '(r0 != 0))
+	(vpif '(r0 /= 0))
 		;init the object
 		(call 'str 'init3 `(r0 (@ ,(f-path 'str 'vtable)) r5) '(r0 r1))
-		(vpif '(r1 == 0))
+		(vpif '(r1 = 0))
 			;error with init
 			(call 'sys_mem 'free '(r0))
 			(vp-xor-rr r0 r0)
@@ -381,11 +381,11 @@
 	(entry 'str 'compare '(r0 r1))
 
 	(switch 'exit)
-		(vpif '(r0 != r1))
+		(vpif '(r0 /= r1))
 			(vp-cpy-ir-ui r0 str_length r2)
 			(vp-cpy-ir-ui r1 str_length r3)
-			(vpif '(r2 != 0))
-				(breakif '(r3 == 0))
+			(vpif '(r2 /= 0))
+				(breakif '(r3 = 0))
 				(vp-lea-i r0 str_data r4)
 				(vp-lea-i r1 str_data r5)
 				(vp-xor-rr r6 r6)
@@ -393,10 +393,10 @@
 					(vp-cpy-dr-ub r4 r6 r1)
 					(vp-cpy-dr-ub r5 r6 r7)
 					(vp-sub-rr r7 r1)
-					(breakif '(r1 != 0) 'exit)
+					(breakif '(r1 /= 0) 'exit)
 					(vp-add-cr byte_size r6)
-					(breakif '(r6 == r2))
-				(loop-until '(r6 == r3))
+					(breakif '(r6 = r2))
+				(loop-until '(r6 = r3))
 			(endif)
 			(vp-cpy-rr r2 r1)
 			(vp-sub-rr r3 r1)
@@ -425,51 +425,51 @@
 	(entry 'str 'same '(r0 r1))
 
 	(switch 'exit)
-		(vpif '(r0 != r1) 'same)
+		(vpif '(r0 /= r1) 'same)
 			(vp-cpy-ir-ui r0 str_length r2)
 			(vp-cpy-ir-ui r1 str_length r3)
 			(vp-sub-rr r2 r3)
-			(vpif '(r3 == 0))
-				(breakif '(r2 == 0) 'same)
+			(vpif '(r3 = 0))
+				(breakif '(r2 = 0) 'same)
 				(vp-cpy-rr r2 r6)
 				(vp-lea-i r0 str_data r4)
 				(vp-lea-i r1 str_data r5)
 				(vp-add-rr r4 r2)
-				(vpif '(r6 >= (sub (mul long_size 2) 1)))
+				(vpif '(r6 >= (- (* long_size 2) 1)))
 					(vp-lea-i r4 (dec long_size) r3)
 					(vp-and-cr (neg long_size) r3)
-					(vpif '(r4 != r3))
+					(vpif '(r4 /= r3))
 						(loop-start)
 							(vp-cpy-ir-b r4 0 r6)
 							(vp-cpy-ir-b r5 0 r1)
 							(vp-sub-rr r6 r1)
-							(breakif '(r1 != 0) 'exit)
+							(breakif '(r1 /= 0) 'exit)
 							(vp-add-cr byte_size r4)
 							(vp-add-cr byte_size r5)
-						(loop-until '(r4 == r3))
+						(loop-until '(r4 = r3))
 					(endif)
 					(vp-cpy-rr r2 r3)
 					(vp-and-cr (neg long_size) r3)
-					(vpif '(r4 != r3))
+					(vpif '(r4 /= r3))
 						(loop-start)
 							(vp-cpy-ir r4 0 r6)
 							(vp-cpy-ir r5 0 r1)
 							(vp-sub-rr r6 r1)
-							(breakif '(r1 != 0) 'exit)
+							(breakif '(r1 /= 0) 'exit)
 							(vp-add-cr long_size r4)
 							(vp-add-cr long_size r5)
-						(loop-until '(r4 == r3))
+						(loop-until '(r4 = r3))
 					(endif)
-					(breakif '(r4 == r2) 'exit)
+					(breakif '(r4 = r2) 'exit)
 				(endif)
 				(loop-start)
 					(vp-cpy-ir-b r4 0 r6)
 					(vp-cpy-ir-b r5 0 r1)
 					(vp-sub-rr r6 r1)
-					(breakif '(r1 != 0))
+					(breakif '(r1 /= 0))
 					(vp-add-cr byte_size r4)
 					(vp-add-cr byte_size r5)
-				(loop-until '(r4 == r2))
+				(loop-until '(r4 = r2))
 
 				(exit 'str 'same '(r0 r1))
 				(vp-ret)
@@ -514,12 +514,12 @@
 	(entry 'str 'hash '(r0))
 
 	(vp-cpy-ir-ui r0 str_hashcode r1)
-	(vpif '(r1 == 0))
+	(vpif '(r1 = 0))
 		(vp-cpy-ir-ui r0 str_length r4)
 		(vp-lea-i r0 str_data r3)
 		(vp-add-rr r3 r4)
 		(vp-xor-rr r1 r1)
-		(vpif '(r3 != r4))
+		(vpif '(r3 /= r4))
 			(loop-start)
 				(vp-cpy-ir-ub r3 0 r2)
 				(vp-add-cr byte_size r3)
@@ -530,7 +530,7 @@
 				(vp-cpy-rr r2 r1)
 				(vp-shr-cr 6 r2)
 				(vp-xor-rr r2 r1)
-			(loop-until '(r3 == r4))
+			(loop-until '(r3 = r4))
 		(endif)
 		(vp-cpy-rr r1 r2)
 		(vp-shl-cr 3 r1)
@@ -588,7 +588,7 @@
 	(vp-cpy-rr r0 r7)
 	(vp-cpy-ir-ui r0 str_length r3)
 	(vp-sub-rr r1 r2)
-	(vpif '(r2 == r3))
+	(vpif '(r2 = r3))
 		(call 'str 'ref '(r0) '(r0))
 	(else)
 		(vp-add-cr str_data r0)
@@ -650,7 +650,7 @@
 		(vp-sub-cr byte_size r2)
 		(breakif '(r2 < 0))
 		(vp-cpy-dr-ub r3 r2 r4)
-	(loop-until '(r1 == r4))
+	(loop-until '(r1 = r4))
 
 	(exit 'str 'find '(r0 r1 r2))
 	(vp-ret)

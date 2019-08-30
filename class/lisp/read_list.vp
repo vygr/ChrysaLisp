@@ -22,20 +22,20 @@
 	;skip "(" and white space
 	(loop-start)
 		(call 'lisp 'read_char {this, stream, char} {_, char})
-	(loop-until {char > char_space || char == -1})
+	(loop-until {char > char_space || char = -1})
 
 	(call 'vector 'create nil {list})
-	(loop-whilenot {char == -1 || char == char_rrb})
+	(loop-whilenot {char = -1 || char = char_rrb})
 		(call 'lisp 'read {this, stream, char} {_, ast, char})
-		(errorif (cat {ast->obj_vtable == @} (f-path 'error 'vtable)) 'error)
+		(errorif (cat {ast->obj_vtable = @} (f-path 'error 'vtable)) 'error)
 		(call 'vector 'push_back {list, ast})
 
 		;skip white space/comments
 		(loop-start)
-			(loop-whilenot {char > char_space || char == -1})
+			(loop-whilenot {char > char_space || char = -1})
 				(call 'lisp 'read_char {this, stream, char} {_, char})
 			(loop-end)
-			(breakif {char != char_semi})
+			(breakif {char /= char_semi})
 			(call 'stream 'skip_not {stream, char_lf})
 			(call 'stream 'read_char {stream} {_, char})
 		(loop-end)

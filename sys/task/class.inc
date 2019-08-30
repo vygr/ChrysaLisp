@@ -37,7 +37,7 @@
 ; task structures
 ;;;;;;;;;;;;;;;;;
 
-(defcvar 'tk_stack_size (mul 1024 4))
+(defcvar 'tk_stack_size (* 1024 4))
 
 (def-struct 'tk_node 'ln_node)
 	(ptr 'stack)

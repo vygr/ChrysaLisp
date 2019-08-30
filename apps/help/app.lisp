@@ -11,7 +11,7 @@
 (defun-bind populate-help ()
 	(defq state t vdu_width 1 k (list) v (list))
 	(each-line (lambda (_)
-		(when (ne 0 (length (defq s (split (setq _ (trim-end _ (ascii-char 13))) " "))))
+		(when (/= 0 (length (defq s (split (setq _ (trim-end _ (ascii-char 13))) " "))))
 			(defq f (elem 0 s))
 			(cond
 				(state (cond
@@ -20,11 +20,11 @@
 				((eql f "```") (setq state t))
 				(t (elem-set -2 v (cat (elem -2 v) _ (ascii-char 10))))))) "doc/CLASSES.md")
 	(each (lambda (k v)
-		(when (ne 0 (length v))
+		(when (/= 0 (length v))
 			(defq _ (split k ":"))
 			(cond
-				((and (ge (length (elem 0 _)) 4) (eql "lisp" (slice 0 4 (elem 0 _)))))
-				((and (ge (length (elem 1 _)) 5) (eql "lisp_" (slice 0 5 (elem 1 _)))))
+				((and (>= (length (elem 0 _)) 4) (eql "lisp" (slice 0 4 (elem 0 _)))))
+				((and (>= (length (elem 1 _)) 5) (eql "lisp_" (slice 0 5 (elem 1 _)))))
 				(t (push keys k) (push vals v))))) k v)
 	(each (lambda (_)
 		(def (defq b (create-button)) 'text _ 'border 0
@@ -50,9 +50,9 @@
 
 (while id
 	(cond
-		((eq (setq id (get-long (defq msg (mail-mymail)) ev_msg_target_id)) event_win_close)
+		((= (setq id (get-long (defq msg (mail-mymail)) ev_msg_target_id)) event_win_close)
 			(setq id nil))
-		((eq id event_win_button)
+		((= id event_win_button)
 			(defq _ (find (sym (get (view-find-id window (get-long msg ev_msg_action_source_id)) 'text)) keys))
 			(when _
 				(vdu-print vdu "----------------------") (vdu-print vdu (ascii-char 10))

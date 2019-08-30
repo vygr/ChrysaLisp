@@ -61,7 +61,7 @@
 
 	(f-bind 'sys_mail 'statics r4)
 	(d-call 'array 'get_length '((r4 ml_statics_mbox_free_array)) '(r0 r1))
-	(vpif '(r1 != 0))
+	(vpif '(r1 /= 0))
 		(call 'array 'pop_back '(r0) '(r0 r3))
 		(call 'array 'get_element '((r4 ml_statics_mbox_array) r3) '(_ r1))
 
@@ -200,7 +200,7 @@
 
 	(entry 'sys_mail 'free '(r0))
 
-	(vpif '(r0 != 0))
+	(vpif '(r0 /= 0))
 		(vp-push r0)
 		(call 'str 'deref '((r0 msg_parcel_obj)))
 		(f-bind 'sys_mail 'statics r0)
@@ -223,7 +223,7 @@
 
 	(entry 'sys_mail 'free_obj '(r0))
 
-	(vpif '(r0 != 0))
+	(vpif '(r0 /= 0))
 		(vp-cpy-ir r0 msg_parcel_obj r3)
 		(vp-cpy-ir r0 msg_parcel_data r4)
 		(vp-cpy-ir-ui r0 msg_length r5)
@@ -253,7 +253,7 @@
 	(entry 'sys_mail 'read '(r0))
 
 	(lh-is-empty r0 0 r2)
-	(vpif '(r2 == 0))
+	(vpif '(r2 = 0))
 		(f-bind 'sys_task 'statics r1)
 		(vp-cpy-ir r1 tk_statics_current_tcb r1)
 		(vp-cpy-ri r1 r0 mbox_tcb)
@@ -282,7 +282,7 @@
 	(lh-get-head r0 0 r0)
 	(vp-cpy-rr r0 r1)
 	(ln-get-succ r0 0 r0)
-	(vpif '(r0 != 0))
+	(vpif '(r0 /= 0))
 		(vp-cpy-rr r1 r0)
 		(ln-remove-node r1 r2)
 		(vp-cpy-ir r0 msg_parcel_data r1)
@@ -303,11 +303,11 @@
 	(entry 'sys_mail 'send '(r2))
 
 	(call 'sys_kernel 'id '() '(r0))
-	(vp-cpy-ir-ui r2 (add msg_dest id_cpu) r1)
-	(vpif '(r0 == r1))
+	(vp-cpy-ir-ui r2 (+ msg_dest id_cpu) r1)
+	(vpif '(r0 = r1))
 		;on this chip
 		(f-bind 'sys_mail 'statics r0)
-		(vp-cpy-ir-ui r2 (add msg_dest id_mbox) r1)
+		(vp-cpy-ir-ui r2 (+ msg_dest id_mbox) r1)
 		(vp-cpy-ir r0 ml_statics_mbox_array r0)
 		(vp-shl-cr (log2 ptr_size) r1)
 		(class/array/get_begin r0 r0)
@@ -315,7 +315,7 @@
 	(vp-label 'post_it)
 		(lh-add-at-tail r1 r2 r0)
 		(vp-cpy-ir r1 mbox_tcb r0)
-		(vpif '(r0 != 0))
+		(vpif '(r0 /= 0))
 			(vp-xor-rr r2 r2)
 			(vp-cpy-ri r2 r1 mbox_tcb)
 			(call 'sys_task 'resume '(r0))
@@ -358,9 +358,9 @@
 		(vp-cpy-rr r3 r0)
 		(loop-start)
 			(vp-cpy-ir r0 0 r2)
-			(vpif '(r2 != 0))
+			(vpif '(r2 /= 0))
 				(lh-is-empty r2 0 r2)
-				(vpif '(r2 != 0))
+				(vpif '(r2 /= 0))
 					;return first mailbox not empty
 					(vp-sub-rr r3 r0)
 					(vp-shr-cr (log2 ptr_size) r0)
@@ -370,7 +370,7 @@
 				(endif)
 			(endif)
 			(vp-add-cr ptr_size r0)
-		(loop-until '(r0 == r1))
+		(loop-until '(r0 = r1))
 
 		;fill in all tcb's and suspend
 		(f-bind 'sys_task 'statics r4)
@@ -378,11 +378,11 @@
 		(vp-cpy-rr r3 r0)
 		(loop-start)
 			(vp-cpy-ir r0 0 r2)
-			(vpif '(r2 != 0))
+			(vpif '(r2 /= 0))
 				(vp-cpy-ri r4 r2 mbox_tcb)
 			(endif)
 			(vp-add-cr ptr_size r0)
-		(loop-until '(r0 == r1))
+		(loop-until '(r0 = r1))
 
 		(call 'sys_task 'suspend)
 
@@ -391,11 +391,11 @@
 		(vp-cpy-rr r3 r0)
 		(loop-start)
 			(vp-cpy-ir r0 0 r2)
-			(vpif '(r2 != 0))
+			(vpif '(r2 /= 0))
 				(vp-cpy-ri r4 r2 mbox_tcb)
 			(endif)
 			(vp-add-cr ptr_size r0)
-		(loop-until '(r0 == r1))
+		(loop-until '(r0 = r1))
 	(loop-end)
 
 (def-func-end)

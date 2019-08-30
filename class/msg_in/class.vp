@@ -19,7 +19,7 @@
 
 	;init parent
 	(s-call 'msg_in 'init '(r0 r1 0 0 0 0) '(r0 r1))
-	(vpif '(r1 != 0))
+	(vpif '(r1 /= 0))
 		;init myself
 		(vp-xor-rr r1 r1)
 		(vp-cpy-ri r1 r0 msg_in_seqnum)
@@ -86,7 +86,7 @@
 	(vp-xor-rr r0 r0)
 	(loop-start)
 		(call 'next_seq '((& r9 msg_in_list) r0 (r9 msg_in_seqnum)) '(r0 r8))
-		(breakif '(r0 != 0))
+		(breakif '(r0 /= 0))
 		(call 'sys_mail 'read '((r9 msg_in_mbox_addr)) '(r0 _))
 	(loop-end)
 	(vp-cpy-ir r9 msg_in_seqnum r2)
@@ -107,10 +107,10 @@
 	(vp-cpy-ir r8 stream_msg_seqnum r2)
 	(vp-cpy-ir r9 msg_in_ack_seqnum r3)
 	(vp-shr-cr msg_out_ack_shift r2)
-	(vpif '(r3 == r2))
+	(vpif '(r3 = r2))
 		(call 'sys_mail 'alloc '(0) '(r0 _))
-		(vp-cpy-ir r8 (add stream_msg_ack_id id_id) r2)
-		(vp-cpy-ri r2 r0 (add msg_dest id_id))
+		(vp-cpy-ir r8 (+ stream_msg_ack_id id_id) r2)
+		(vp-cpy-ri r2 r0 (+ msg_dest id_id))
 		(call 'sys_mail 'send '(r0))
 
 		;next ack seq num
@@ -137,7 +137,7 @@
 	(entry '(r0 r1 r2))
 
 	;save any new msg
-	(vpif '(r1 != 0))
+	(vpif '(r1 /= 0))
 		(lh-add-at-tail r0 r1 r3)
 	(endif)
 
@@ -145,8 +145,8 @@
 	(loop-list-forward r0 0 r0 r1)
 		(vp-cpy-ir r0 msg_parcel_data r3)
 		(vp-cpy-ir r3 stream_msg_seqnum r3)
-	(loop-until '(r2 == r3))
-	(vpif '(r1 == 0))
+	(loop-until '(r2 = r3))
+	(vpif '(r1 = 0))
 		;not found
 		(exit '(r1 r1))
 		(vp-ret)
@@ -174,16 +174,16 @@
 	;if started state
 	(loop-start)
 		(vp-cpy-ir r0 msg_in_state r1)
-		(breakif '(r1 != stream_mail_state_started))
+		(breakif '(r1 /= stream_mail_state_started))
 		(call 'msg_in 'next_msg '(r0) '(r0))
 		(vp-cpy-ir r0 stream_bufp r1)
 		(vp-cpy-ir r0 stream_bufe r2)
-	(loop-until '(r1 != r2))
+	(loop-until '(r1 /= r2))
 
 	;return -1 if not in started state
 	(vp-cpy-ir r0 msg_in_state r2)
 	(vp-xor-rr r1 r1)
-	(vpif '(r2 != stream_mail_state_started))
+	(vpif '(r2 /= stream_mail_state_started))
 		(vp-cpy-cr -1 r1)
 	(endif)
 
@@ -205,8 +205,8 @@
 
 	;extend test to include mailbox
 	(s-call 'msg_in 'read_ready '(r0) '(r0 r1))
-	(vpif '(r1 == 0))
-		(vp-cpy-ir r0 (add msg_in_list lh_list_head) r1)
+	(vpif '(r1 = 0))
+		(vp-cpy-ir r0 (+ msg_in_list lh_list_head) r1)
 		(vp-cpy-ir r1 ln_node_succ r1)
 	(endif)
 

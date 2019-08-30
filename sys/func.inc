@@ -38,15 +38,15 @@
 	(clear *strings* *paths* *links* *func-syms*)
 (vp-label 'func_start)
 	(vp-long -1)
-	(vp-short (list 'sub (label-sym 'func_end) (label-sym 'func_start))
-		(list 'sub (label-sym 'func_entry) (label-sym 'func_start))
-		(list 'sub (label-sym 'func_links) (label-sym 'func_start))
-		(list 'sub (label-sym 'func_paths) (label-sym 'func_start))
+	(vp-short `(- ,(label-sym 'func_end) ,(label-sym 'func_start))
+		`(- ,(label-sym 'func_entry) ,(label-sym 'func_start))
+		`(- ,(label-sym 'func_links) ,(label-sym 'func_start))
+		`(- ,(label-sym 'func_paths) ,(label-sym 'func_start))
 		(opt fstack tk_stack_size))
 (vp-label 'func_name_start)
 	(vp-string (str *name*))
-	(vp-byte 0 (list 'sub (label-sym 'func_entry) (label-sym 'func_name_start)))
-	(vp-align ptr_size (list 'sub (label-sym 'func_entry) (label-sym 'func_name_start)))
+	(vp-byte 0 `(- ,(label-sym 'func_entry) ,(label-sym 'func_name_start)))
+	(vp-align ptr_size `(- ,(label-sym 'func_entry) ,(label-sym 'func_name_start)))
 (vp-label 'func_entry)
 	(push-scope))
 
@@ -59,7 +59,7 @@
 (vp-label 'func_links)
 	(each (lambda (s)
 	(vp-label (link-sym _))
-		(vp-long (list 'sub (label-sym (path-sym s)) '*pc*))) *links*)
+		(vp-long `(- ,(label-sym (path-sym s)) *pc*))) *links*)
 (vp-label 'func_paths)
 	(each (lambda (s)
 	(vp-label (path-sym _))
@@ -75,8 +75,8 @@
 
 (defcfun-bind fn-add-string (s)
 	(defq i -1)
-	(while (and (lt (setq i (inc i)) (length *strings*)) (not (eql s (elem i *strings*)))))
-	(if (eq i (length *strings*)) (push *strings* s)) i)
+	(while (and (< (setq i (inc i)) (length *strings*)) (not (eql s (elem i *strings*)))))
+	(if (= i (length *strings*)) (push *strings* s)) i)
 
 (defcfun-bind fn-add-path (p)
 	(if (defq i (find p *paths*)) i
@@ -87,8 +87,8 @@
 
 (defcfun-bind fn-find-link (p)
 	(defq i -1)
-	(while (and (lt (setq i (inc i)) (length *links*)) (not (eql p (elem (elem i *links*) *paths*)))))
-	(if (eq i (length *links*)) (fn-add-link p)) i)
+	(while (and (< (setq i (inc i)) (length *links*)) (not (eql p (elem (elem i *links*) *paths*)))))
+	(if (= i (length *links*)) (fn-add-link p)) i)
 
 (defcfun-bind fn-string (s r)
 	(vp-lea-p (string-sym (fn-add-string s)) r))

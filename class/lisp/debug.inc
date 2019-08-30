@@ -18,11 +18,11 @@
 	`(defq ,n (lambda ,a ~(debug-fun _))))
 
 (defun-bind is-debug-fun (_)
-	(and (eq (type-of _) lisp_type_lst) (ne 0 (length _))
+	(and (= (type-of _) lisp_type_lst) (/= 0 (length _))
 		(not (or (eql 'quote (elem 0 _)) (eql 'debug (elem 0 _))))
-		(eq (type-of (elem 0 _)) lisp_type_sym) (setq _ (def? (elem 0 _)))
-		(or (eq (type-of _) lisp_type_fnc)
-			(and (eq (type-of _) lisp_type_lst) (ne 0 (length _)) (eql 'lambda (elem 0 _))))))
+		(= (type-of (elem 0 _)) lisp_type_sym) (setq _ (def? (elem 0 _)))
+		(or (= (type-of _) lisp_type_fnc)
+			(and (= (type-of _) lisp_type_lst) (/= 0 (length _)) (eql 'lambda (elem 0 _))))))
 
 (defun-bind debug-fun (_)
 	;(debug-fun list) -> list

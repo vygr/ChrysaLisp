@@ -63,7 +63,7 @@
 	;r2
 	(vp-xor-rr r2 r2)
 	(class/array/set_length r0 r2)
-	(vp-cpy-cr (shr (sub array_size array_e0) (log2 long_size)) r2)
+	(vp-cpy-cr (shr (- array_size array_e0) (log2 long_size)) r2)
 	(vp-cpy-ri-i r2 r0 array_capacity)
 	(vp-lea-i r0 array_e0 r2)
 	(vp-cpy-ri r2 r0 array_begin)
@@ -270,7 +270,7 @@
 	;(reg ...)
 	;outputs
 	;load register list from iter
-	(assign-asm-to-asm regs (map (lambda (r) (list i (mul long_size _))) regs)))
+	(assign-asm-to-asm regs (map (lambda (r) (list i (* long_size _))) regs)))
 
 (defcfun-bind class/array/get_args (i regs)
 	;inputs
@@ -278,7 +278,7 @@
 	;(reg ...)
 	;outputs
 	;save register list to iter
-	(assign-asm-to-asm (map (lambda (r) (list i (mul long_size _))) regs) regs))
+	(assign-asm-to-asm (map (lambda (r) (list i (* long_size _))) regs) regs))
 
 (defcfun-bind class/array/map_args (regs pos)
 	;inputs

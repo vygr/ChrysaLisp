@@ -19,7 +19,7 @@
 
 	;init parent
 	(s-call 'button 'init '(r0 r1) '(r0 r1))
-	(vpif '(r1 != 0))
+	(vpif '(r1 /= 0))
 		;init myself
 		(vp-push r0)
 		(vp-xor-rr r2 r2)
@@ -68,7 +68,7 @@
 	(call 'button 'get_long_prop '(r0 prop_border) '(r0 r3))
 	(vp-cpy-ir r0 button_state r1)
 	(vp-and-cr button_state_pressed r1)
-	(vpif '(r1 != 0))
+	(vpif '(r1 /= 0))
 		(vp-mul-cr -1 r3)
 	(endif)
 	(vp-pop r1)
@@ -94,7 +94,7 @@
 	(vp-cpy-ir r0 button_state r2)
 	(vp-cpy-rr r1 r3)
 	(vp-and-cr button_state_pressed r2)
-	(vpif '(r2 != 0))
+	(vpif '(r2 /= 0))
 		(vp-add-rr r1 r1)
 	(endif)
 	(vp-add-rr r3 r3)
@@ -126,7 +126,7 @@
 	(vp-cpy-rr r1 r2)
 	(vp-and-cr (lognot button_state_pressed) r1)
 	(vp-cpy-ri r1 r0 button_state)
-	(vpif '(r1 != r2))
+	(vpif '(r1 /= r2))
 		(call 'button 'layout '(r0))
 		(call 'button 'dirty '(r0))
 	(endif)
@@ -134,7 +134,7 @@
 	;emit pressed signal ?
 	(vp-pop r1)
 	(vp-and-cr button_state_pressed r1)
-	(vpif '(r1 != 0))
+	(vpif '(r1 /= 0))
 		(jump 'button 'emit '(r0 (r0 button_click_targets)))
 	(endif)
 
@@ -160,7 +160,7 @@
 	;is mouse over button ?
 	(vp-cpy-ir r0 button_state r2)
 	(vp-cpy-rr r2 r3)
-	(vpif '(r1 != 0))
+	(vpif '(r1 /= 0))
 		;state pressed
 		(vp-or-cr button_state_pressed r2)
 	(else)
@@ -170,7 +170,7 @@
 	(vp-cpy-ri r2 r0 button_state)
 
 	;if state changed then dirty
-	(vpif '(r2 != r3))
+	(vpif '(r2 /= r3))
 		(call 'button 'layout '(r0))
 		(jump 'button 'dirty '(r0))
 	(endif)

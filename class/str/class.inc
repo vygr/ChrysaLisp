@@ -37,7 +37,7 @@
 	(offset 'data)
 (def-struct-end)
 
-(defcvar 'str_gap (sub 64 str_data ptr_size byte_size))
+(defcvar 'str_gap (- 64 str_data ptr_size byte_size))
 
 (defcvar 'char_backspace 8)
 (defcvar 'char_tab 9)

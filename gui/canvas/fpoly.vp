@@ -34,7 +34,7 @@
 	(assign {yscale * this->canvas_cy, yscale * this->canvas_cy1} {cy, cy1})
 	(assign {x + 0.5, y + 0.5, max_int, min_int, max_int, min_int, 0} {x, y, xs, xe, ys, ye, length})
 	(call 'vector 'get_both {polygons} {_, iter_begin_polygons, iter_end_polygons})
-	(loop-while {iter_begin_polygons != iter_end_polygons})
+	(loop-while {iter_begin_polygons /= iter_end_polygons})
 		(call 'points 'get_both {*iter_begin_polygons} {_, iter_begin_polygon, iter_end_polygon})
 		(call 'array 'set_capacity {this->canvas_edges, length + ((iter_end_polygon - iter_begin_polygon) >> 4) * (edge_size >> 3)})
 		(call 'array 'get_begin {this->canvas_edges} {_, iter_edge1})
@@ -47,7 +47,7 @@
 				(assign {x1, y1, xs, xe, ys, ye, cy, cy1, iter_edge2,
 					iter_begin_polygon[0] + x, (iter_begin_polygon[long_size] + y) * yscale >>> fp_shift}
 					(list x1 y1 xs xe ys ye cy cy1 iter_edge2 x2 y2))
-				(vpif `(,y1 != ,y2))
+				(vpif `(,y1 /= ,y2))
 					(vp-cpy-rr x2 x)
 					(vp-asr-cr fp_shift x)
 					(vpif `(,x < ,xs))
@@ -93,7 +93,7 @@
 				(endif)
 				(assign {iter_begin_polygon[0] + x} {x1})
 				(assign {(iter_begin_polygon[long_size] + y) * yscale >>> fp_shift} {y1})
-			(loop-until {(iter_begin_polygon + long_size * 2 => iter_begin_polygon) == iter_end_polygon})
+			(loop-until {(iter_begin_polygon + long_size * 2 => iter_begin_polygon) = iter_end_polygon})
 			(assign {(iter_edge2 - iter_edge1) >> 3} {length})
 		(endif)
 		(assign {iter_begin_polygons + ptr_size} {iter_begin_polygons})
@@ -162,7 +162,7 @@
 			(vp-add-rr edges_start edge_list_head)
 			(ln-add-fnode edge_list_head 0 edge_node edge_tmp)
 			(vp-add-cr edge_size edge_node)
-		(loop-until `(,edge_node == ,edge_last))
+		(loop-until `(,edge_node = ,edge_last))
 
 		;for each scanline
 		(loop-while {ys < ye})
@@ -173,7 +173,7 @@
 			(loop-start)
 				(ln-next-fnode starts_node starts_last)
 				(vp-cpy-ir-i starts_node edge_ys y)
-				(continueif `(,y != ,ys))
+				(continueif `(,y /= ,ys))
 				(vp-cpy-rr starts_node starts_new)
 				(ln-remove-fnode starts_node starts_last)
 				(ln-add-fnode tracker_list_head 0 starts_new starts_tmp)
@@ -205,7 +205,7 @@
 				(assign {&tracker_list, this->canvas_coverage, int($sample_offsets + ((ys & 7) << 2)),
 					1 << (ys & 7), this->canvas_cx << fp_shift, (this->canvas_cx1 - 1) << fp_shift, min_x, max_x, mode}
 					(list tracker_node mask xo xm cx cx1 min_x max_x v))
-				(vpif `(,v == 0))
+				(vpif `(,v = 0))
 					;odd even
 					(loop-start)
 						(ln-next-fnode tracker_node tracker_node)
@@ -250,7 +250,7 @@
 							(vp-cpy-ir tracker_node ln_fnode_next tracker_node)
 							(vp-cpy-ir-i tracker_node edge_w v)
 							(vp-add-rr v w)
-						(loop-until `(,w == 0))
+						(loop-until `(,w = 0))
 						(vp-cpy-ir-i tracker_node edge_x x)
 						(vp-add-rr xo x)
 						(vpif `(,x < ,cx))
@@ -270,8 +270,8 @@
 				(assign (list min_x max_x) {min_x, max_x})
 
 				;flush coverage mask to scan line
-				(gotoif {(ys & 7) == 7} 'flush_mask)
-				(gotoif {ys + 1 == ye} 'flush_mask)
+				(gotoif {(ys & 7) = 7} 'flush_mask)
+				(gotoif {ys + 1 = ye} 'flush_mask)
 				(breakif {ys + 1 < cy1})
 			(vp-label 'flush_mask)
 				(vp-def (this c x y x1 mask m om max_x mask_to_coverage v)
@@ -291,7 +291,7 @@
 						(vp-add-cr 1 x1)
 						(vp-xor-rr c m)
 						(breakif `(,x1 >= ,max_x))
-					(loop-until `(,m != ,om))
+					(loop-until `(,m /= ,om))
 					(vp-lea-i x1 -1 v)
 					(vp-xor-rr c c)
 					(vp-cpy-rd-b c mask v)
@@ -305,7 +305,7 @@
 				;draw spans for mode
 				(vp-def (this c x1 ys x2 w v tracker_node) (method-input 'canvas 'span))
 				(assign {mode, this, &tracker_list} (list v this tracker_node))
-				(vpif `(,v == 0))
+				(vpif `(,v = 0))
 					;odd even
 					(loop-start)
 						(ln-next-fnode tracker_node tracker_node)
@@ -330,7 +330,7 @@
 							(vp-cpy-ir tracker_node ln_fnode_next tracker_node)
 							(vp-cpy-ir-i tracker_node edge_w v)
 							(vp-add-rr v w)
-						(loop-until `(,w == 0))
+						(loop-until `(,w = 0))
 						(vp-cpy-ir-i tracker_node edge_x x2)
 						(vp-asr-cr fp_shift x1)
 						(vp-asr-cr fp_shift x2)
@@ -351,7 +351,7 @@
 			(vp-label 'start)
 				(ln-next-fnode tracker_node tracker_last)
 				(vp-cpy-ir-i tracker_node edge_ye x)
-				(vpif `(,x != ,ys))
+				(vpif `(,x /= ,ys))
 					(vp-cpy-ir-i tracker_node edge_x x)
 					(vp-cpy-ir-i tracker_node edge_dda dda)
 					(vp-add-rr dda x)
@@ -369,11 +369,11 @@
 
 (vp-label 'sample_offsets)
 	(apply vp-int (map (lambda (o)
-		(sub o 0.5)) '(0.25 0.875 0.5 0.125 0.75 0.375 0 0.625)))
+		(- o 0.5)) '(0.25 0.875 0.5 0.125 0.75 0.375 0 0.625)))
 
 (vp-label 'mask_to_coverage)
 	(apply vp-byte (map (lambda (m)
-		(div (mul 0x80 (apply add (map (lambda (s)
+		(/ (* 0x80 (apply + (map (lambda (s)
 			(logand 1 (shr m s))) (const (push (list quote) (range 0 8)))))) 8)) (range 0 256)))
 
 (def-func-end)

@@ -18,7 +18,7 @@
 
 (errorcases
 	(class/array/get_length r1 r2)
-	(gotoif '(r2 != 0) 'error))
+	(gotoif '(r2 /= 0) 'error))
 
 	(vp-push r0)
 	(call 'sys_kernel 'total nil '(r0))
@@ -48,7 +48,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type '(r12 ($ sig) 2) '(r2))
-	(gotoif '(r2 == 0) 'error))
+	(gotoif '(r2 = 0) 'error))
 
 	(defq in (method-input 'sys_kernel 'declare))
 	(class/array/bind_args r12 in)
@@ -81,7 +81,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type '(r1 ($ sig) 1) '(r2))
-	(gotoif '(r2 == 0) 'error))
+	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
 	(defq in (method-input 'sys_kernel 'debug))

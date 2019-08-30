@@ -32,7 +32,7 @@
 				'font (create-font "fonts/Entypo.otf" 32))
 			(each (lambda (l)
 				(button-connect-click (ui-element __ (create-button)
-					('text l 'color (if (ge _ 4) toolbar2_col toolbar_col))) (add event_win_play _)))
+					('text l 'color (if (>= _ 4) toolbar2_col toolbar_col))) (+ event_win_play _)))
 						'("" "" "" "" "" "" "" "")))
 		(slider-connect-value (ui-element hslider (create-slider) ('value 0 'color slider_col)) event_win_hvalue)
 		(ui-element vdu (create-view))))
@@ -57,7 +57,7 @@
 
 (defun reset (&optional _)
 	(setd _ -1)
-	(if (le 0 _ (dec (length vdu_list)))
+	(if (<= 0 _ (dec (length vdu_list)))
 		(progn
 			(def hslider 'value _)
 			(view-sub vdu)
@@ -90,7 +90,7 @@
 (while t
 	(cond
 		;new debug msg
-		((eq (defq id (get-long (defq msg (mail-mymail)) ev_msg_target_id)) event_win_debug)
+		((= (defq id (get-long (defq msg (mail-mymail)) ev_msg_target_id)) event_win_debug)
 			(defq reply_id (get-long msg debug_msg_reply_id)
 				tcb (get-long msg debug_msg_tcb)
 				data (sym (get-cstr msg debug_msg_data))
@@ -107,39 +107,39 @@
 				(mail-send "" reply_id)
 				(elem-set 2 vdu_rec reply_id)))
 		;moved task slider
-		((eq id event_win_hvalue)
+		((= id event_win_hvalue)
 			(when vdu_index
 				(reset (get hslider 'value))))
 		;pressed play button
-		((eq id event_win_play)
+		((= id event_win_play)
 			(when vdu_index
 				(play (elem vdu_index vdu_list))))
 		;pressed pause button
-		((eq id event_win_pause)
+		((= id event_win_pause)
 			(when vdu_index
 				(pause (elem vdu_index vdu_list))))
 		;pressed step button
-		((eq id event_win_step)
+		((= id event_win_step)
 			(when vdu_index
 				(step (elem vdu_index vdu_list))))
 		;pressed clear button
-		((eq id event_win_clear)
+		((= id event_win_clear)
 			(when vdu_index
 				(step (elem vdu_index vdu_list))
 				(setq vdu_keys (cat (slice 0 vdu_index vdu_keys) (slice (inc vdu_index) -1 vdu_keys)))
 				(setq vdu_list (cat (slice 0 vdu_index vdu_list) (slice (inc vdu_index) -1 vdu_list)))
 				(reset (min vdu_index (dec (length vdu_list))))))
 		;pressed play all button
-		((eq id event_win_play_all)
+		((= id event_win_play_all)
 			(each play vdu_list))
 		;pressed pause all button
-		((eq id event_win_pause_all)
+		((= id event_win_pause_all)
 			(each pause vdu_list))
 		;pressed step all button
-		((eq id event_win_step_all)
+		((= id event_win_step_all)
 			(each step vdu_list))
 		;pressed clear all button
-		((eq id event_win_clear_all)
+		((= id event_win_clear_all)
 			(each step vdu_list)
 			(reset))
 		;otherwise

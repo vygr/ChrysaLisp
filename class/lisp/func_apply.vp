@@ -15,7 +15,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type '(r1 ($ sig) 2) '(r2))
-	(gotoif '(r2 == 0) 'error))
+	(gotoif '(r2 = 0) 'error))
 
 	(class/array/bind_args r1 '(r2 r1))
 	(jump 'lisp 'repl_apply '(r0 r1 r2))

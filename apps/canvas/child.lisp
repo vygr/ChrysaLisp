@@ -32,7 +32,7 @@
 	(canvas-fill canvas 0)
 
 	(fpoly argb_red 0 (transform-norm (list
-		(points -0.5 -0.5 -0.25 0.5 0 -0.5 0.25 0.5 0.5 -0.5 -0.05 0.5)) (mul angle 2)))
+		(points -0.5 -0.5 -0.25 0.5 0 -0.5 0.25 0.5 0.5 -0.5 -0.05 0.5)) (* angle 2)))
 
 	(fpoly 0xff0ff0ff 0 (transform
 		(points-stroke-polylines (fmul canvas_width 0.05) eps join_bevel cap_square cap_square
@@ -59,7 +59,7 @@
 					(fmul canvas_width 0.45) (fmul canvas_height 0.6)
 					(fmul canvas_width 0.4) (fmul canvas_height -0.4)
 					eps (points)))
-				(list)) (list)) (mul angle -2))))
+				(list)) (list)) (* angle -2))))
 	(fpoly 0x80000000 0 (slice 1 2 p))
 
 	(fpoly 0xd0ff00ff 0 (defq p (transform
@@ -89,4 +89,4 @@
 (until (mail-trymail)
 	(redraw)
 	(task-sleep 10000)
-	(setq angle (add angle 0.0025)))
+	(setq angle (+ angle 0.0025)))

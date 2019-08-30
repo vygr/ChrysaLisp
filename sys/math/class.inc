@@ -48,16 +48,16 @@
 	`(assign ,_1 ,_2 (slice *vsp* -1 *vr*)))
 
 (defcfun vec-push (n)
-	(slice *vsp* (setq *vsp* (add *vsp* n)) *vr*))
+	(slice *vsp* (setq *vsp* (+ *vsp* n)) *vr*))
 
 (defcfun vec-pop (n)
-	(slice (setq *vsp* (sub *vsp* n)) (add *vsp* n) *vr*))
+	(slice (setq *vsp* (- *vsp* n)) (+ *vsp* n) *vr*))
 
 (defcfun vec-top (n)
-	(slice (sub *vsp* n) *vsp* *vr*))
+	(slice (- *vsp* n) *vsp* *vr*))
 
 (defcfun vec-tmp (n)
-	(slice *vsp* (add *vsp* n) *vr*))
+	(slice *vsp* (+ *vsp* n) *vr*))
 
 (defcfun vec-load (n &rest _)
 	(each (lambda (_)
@@ -74,22 +74,22 @@
 (defcfun vec-load-int (n r &optional i)
 	(setd i 0)
 	(each (lambda (v)
-		(vp-cpy-ir-i r (add i (mul _ int_size)) v)) (vec-push n)))
+		(vp-cpy-ir-i r (+ i (* _ int_size)) v)) (vec-push n)))
 
 (defcfun vec-store-int (n r &optional i)
 	(setd i 0)
 	(each (lambda (v)
-		(vp-cpy-ri-i v r (add i (mul _ int_size)))) (vec-pop n)))
+		(vp-cpy-ri-i v r (+ i (* _ int_size)))) (vec-pop n)))
 
 (defcfun vec-load-long (n r &optional i)
 	(setd i 0)
 	(each (lambda (v)
-		(vp-cpy-ir r (add i (mul _ long_size)) v)) (vec-push n)))
+		(vp-cpy-ir r (+ i (* _ long_size)) v)) (vec-push n)))
 
 (defcfun vec-store-long (n r &optional i)
 	(setd i 0)
 	(each (lambda (v)
-		(vp-cpy-ri v r (add i (mul _ long_size)))) (vec-pop n)))
+		(vp-cpy-ri v r (+ i (* _ long_size)))) (vec-pop n)))
 
 (defcfun vec-clr (n &optional v)
 	(setd v (vec-top n))
@@ -288,7 +288,7 @@
 (defcfun vec-fdet (n &optional v2)
 	(setd v2 (vec-pop n))
 	(each (lambda (v)
-		(vp-mul-rr (elem (sub n _ 1) v2) v)) (vec-top n))
+		(vp-mul-rr (elem (- n _ 1) v2) v)) (vec-top n))
 	(vec-asr n fp_shift)
 	(vec-dif n))
 
@@ -298,10 +298,10 @@
 
 (defcfun vec-flength (n)
 	(vec-flength-squared n)
-	(defq r (slice 0 (dec (if (ge *vsp* 4) 5 *vsp*)) *vr*))
-	(if (ne (length r) 0) (apply vp-push r))
+	(defq r (slice 0 (dec (if (>= *vsp* 4) 5 *vsp*)) *vr*))
+	(if (/= (length r) 0) (apply vp-push r))
 	(call 'sys_math 'fsqrt (vec-top 1) (vec-top 1))
-	(if (ne (length r) 0) (apply vp-pop r)))
+	(if (/= (length r) 0) (apply vp-pop r)))
 
 (defcfun vec-fdistance-squared (n)
 	(vec-sub n)
@@ -312,7 +312,7 @@
 	(vec-flength n)
 	(bind '(rl rh) (vec-tmp 2))
 	(bind '(l) (vec-pop 1))
-	(vpif `(,l == 0))
+	(vpif `(,l = 0))
 		(vec-clr n)
 	(else)
 		(vp-cpy-cr (shl 1.0 fp_shift) rl)

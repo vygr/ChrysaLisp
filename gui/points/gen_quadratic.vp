@@ -77,7 +77,7 @@
 		(endif)
 
 		(d-call 'array 'get_length {stack} {_, length})
-		(breakif {length == start})
+		(breakif {length = start})
 		(call 'array 'set_length {stack, length - 3})
 		(call 'array 'get_end {stack} {_, iter_end})
 		(vec-load 1 {iter_end})

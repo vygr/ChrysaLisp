@@ -26,31 +26,31 @@
 	(view-pref-size (window-set-title (window-connect-close window event_win_close) "Raymarch")))))
 
 ;open farm and send out first batch of work
-(defq sw (mul canvas_width canvas_scale) sh (mul canvas_height canvas_scale) sy 0 sc 0
-	farm (open-farm "apps/raymarch/child.lisp" (mul (kernel-total) 2) kn_call_child))
-(while (and (lt sy sh) (lt sy (length farm)))
+(defq sw (* canvas_width canvas_scale) sh (* canvas_height canvas_scale) sy 0 sc 0
+	farm (open-farm "apps/raymarch/child.lisp" (* (kernel-total) 2) kn_call_child))
+(while (and (< sy sh) (< sy (length farm)))
 	(mail-send (array (task-mailbox) sw sh sy) (elem sy farm))
 	(setq sc (inc sc) sy (inc sy)))
 
 (defq then (time))
 (while id
 	(cond
-		((eq (setq id (get-long (defq msg (mail-mymail)) ev_msg_target_id)) event_win_close)
+		((= (setq id (get-long (defq msg (mail-mymail)) ev_msg_target_id)) event_win_close)
 			(setq id nil))
-		((gt id 0)
+		((> id 0)
 			(setq sc (dec sc))
 			(defq x -1 y (get-int msg reply_y))
-			(while (lt (setq x (inc x)) sw)
-				(canvas-plot (canvas-set-color canvas (get-int msg (add reply_data (mul x int_size)))) x y))
-			(when (gt (sub (defq now (time)) then) 1000000)
+			(while (< (setq x (inc x)) sw)
+				(canvas-plot (canvas-set-color canvas (get-int msg (+ reply_data (* x int_size)))) x y))
+			(when (> (- (defq now (time)) then) 1000000)
 				(setq then now)
 				(canvas-swap canvas))
 			(cond
-				((lt sy sh)
+				((< sy sh)
 					;can pass out more work
 					(mail-send (array (task-mailbox) sw sh sy) id)
 					(setq sc (inc sc) sy (inc sy)))
-				((eq sc 0)
+				((= sc 0)
 					(canvas-swap canvas)
 					;send out multi-cast exit command
 					(defq exit (char 0 long_size))
@@ -60,8 +60,8 @@
 
 ;wait for outstanding replies
 (setq window nil)
-(while (ne sc 0)
-	(if (gt (get-long (defq msg (mail-mymail)) ev_msg_target_id) 0)
+(while (/= sc 0)
+	(if (> (get-long (defq msg (mail-mymail)) ev_msg_target_id) 0)
 		(setq sc (dec sc))))
 
 ;send out multi-cast exit command

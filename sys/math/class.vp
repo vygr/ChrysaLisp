@@ -45,7 +45,7 @@
 	(loop-while '(r2 > r1))
 		(vp-shr-cr 2 r2)
 	(loop-end)
-	(loop-while '(r2 != 0))
+	(loop-while '(r2 /= 0))
 		(vp-lea-d r0 r2 r3)
 		(vpif '(r1 > r3))
 			(vp-cpy-rr r2 r3)
@@ -380,7 +380,7 @@
 	(vec-fdet 2)
 	(defq axb (vec-top 1))
 
-	(vpif `(,(elem 0 axb) != 0))
+	(vpif `(,(elem 0 axb) /= 0))
 		(vec-dup 2 (cat da v1x))
 		(vec-fdet 2 (cat db v2x))
 		(vec-dup 2 (cat da v1y))

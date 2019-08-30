@@ -75,10 +75,10 @@
 		(vp-cpy-ir-i r0 rect_y r8)
 		(vp-cpy-ir-i r0 rect_x1 r9)
 		(vp-cpy-ir-i r0 rect_y1 r10)
-		(vp-cpy-ir-i rsp (add local_drect sdl_rect_x) r11)
-		(vp-cpy-ir-i rsp (add local_drect sdl_rect_y) r12)
-		(vp-cpy-ir-i rsp (add local_drect sdl_rect_w) r13)
-		(vp-cpy-ir-i rsp (add local_drect sdl_rect_h) r14)
+		(vp-cpy-ir-i rsp (+ local_drect sdl_rect_x) r11)
+		(vp-cpy-ir-i rsp (+ local_drect sdl_rect_y) r12)
+		(vp-cpy-ir-i rsp (+ local_drect sdl_rect_w) r13)
+		(vp-cpy-ir-i rsp (+ local_drect sdl_rect_h) r14)
 		(vp-add-rr r11 r13)
 		(vp-add-rr r12 r14)
 		(continueif '(r9 <= r11))
@@ -89,10 +89,10 @@
 		;set clip region to this region
 		(vp-sub-rr r7 r9)
 		(vp-sub-rr r8 r10)
-		(vp-cpy-ri-i r7 rsp (add local_clip_rect sdl_rect_x))
-		(vp-cpy-ri-i r8 rsp (add local_clip_rect sdl_rect_y))
-		(vp-cpy-ri-i r9 rsp (add local_clip_rect sdl_rect_w))
-		(vp-cpy-ri-i r10 rsp (add local_clip_rect sdl_rect_h))
+		(vp-cpy-ri-i r7 rsp (+ local_clip_rect sdl_rect_x))
+		(vp-cpy-ri-i r8 rsp (+ local_clip_rect sdl_rect_y))
+		(vp-cpy-ri-i r9 rsp (+ local_clip_rect sdl_rect_w))
+		(vp-cpy-ri-i r10 rsp (+ local_clip_rect sdl_rect_h))
 		(vp-cpy-ir rsp local_ctx r0)
 		(host-call 'host 'sdl_render_set_clip_rect '((r0 ctx_sdl_ctx) (& rsp local_clip_rect)))
 
@@ -136,15 +136,15 @@
 	(vp-cpy-ir-i r0 ctx_y r12)
 	(vp-add-rr r11 r7)
 	(vp-add-rr r12 r8)
-	(vp-cpy-ri-i r7 rsp (add local_drect sdl_rect_x))
-	(vp-cpy-ri-i r8 rsp (add local_drect sdl_rect_y))
-	(vp-cpy-ri-i r9 rsp (add local_drect sdl_rect_w))
-	(vp-cpy-ri-i r10 rsp (add local_drect sdl_rect_h))
+	(vp-cpy-ri-i r7 rsp (+ local_drect sdl_rect_x))
+	(vp-cpy-ri-i r8 rsp (+ local_drect sdl_rect_y))
+	(vp-cpy-ri-i r9 rsp (+ local_drect sdl_rect_w))
+	(vp-cpy-ri-i r10 rsp (+ local_drect sdl_rect_h))
 	(vp-xor-rr r7 r7)
-	(vp-cpy-ri-i r7 rsp (add local_srect sdl_rect_x))
-	(vp-cpy-ri-i r7 rsp (add local_srect sdl_rect_y))
-	(vp-cpy-ri-i r9 rsp (add local_srect sdl_rect_w))
-	(vp-cpy-ri-i r10 rsp (add local_srect sdl_rect_h))
+	(vp-cpy-ri-i r7 rsp (+ local_srect sdl_rect_x))
+	(vp-cpy-ri-i r7 rsp (+ local_srect sdl_rect_y))
+	(vp-cpy-ri-i r9 rsp (+ local_srect sdl_rect_w))
+	(vp-cpy-ri-i r10 rsp (+ local_srect sdl_rect_h))
 
 	;set the color mod
 	(vp-cpy-rr r2 r3)
@@ -196,10 +196,10 @@
 	(vp-cpy-ir-i r0 ctx_y r12)
 	(vp-add-rr r11 r7)
 	(vp-add-rr r12 r8)
-	(vp-cpy-ri-i r7 rsp (add local_rect sdl_rect_x))
-	(vp-cpy-ri-i r8 rsp (add local_rect sdl_rect_y))
-	(vp-cpy-ri-i r9 rsp (add local_rect sdl_rect_w))
-	(vp-cpy-ri-i r10 rsp (add local_rect sdl_rect_h))
+	(vp-cpy-ri-i r7 rsp (+ local_rect sdl_rect_x))
+	(vp-cpy-ri-i r8 rsp (+ local_rect sdl_rect_y))
+	(vp-cpy-ri-i r9 rsp (+ local_rect sdl_rect_w))
+	(vp-cpy-ri-i r10 rsp (+ local_rect sdl_rect_h))
 
 	(for-each-visible-rect
 		'(progn
@@ -241,10 +241,10 @@
 	(vp-cpy-ir-i r0 ctx_y r12)
 	(vp-add-rr r11 r7)
 	(vp-add-rr r12 r8)
-	(vp-cpy-ri-i r7 rsp (add local_rect sdl_rect_x))
-	(vp-cpy-ri-i r8 rsp (add local_rect sdl_rect_y))
-	(vp-cpy-ri-i r9 rsp (add local_rect sdl_rect_w))
-	(vp-cpy-ri-i r10 rsp (add local_rect sdl_rect_h))
+	(vp-cpy-ri-i r7 rsp (+ local_rect sdl_rect_x))
+	(vp-cpy-ri-i r8 rsp (+ local_rect sdl_rect_y))
+	(vp-cpy-ri-i r9 rsp (+ local_rect sdl_rect_w))
+	(vp-cpy-ri-i r10 rsp (+ local_rect sdl_rect_h))
 
 	(for-each-visible-rect
 		'(progn
@@ -286,7 +286,7 @@
 	(assign '(r0 r1 r2 r3) '((rsp local_ctx) (rsp local_color i) (rsp local_flags) (rsp local_depth i)))
 	(assign '(r7 r8 r9 r10) '((rsp local_x i) (rsp local_y i) (rsp local_w i) (rsp local_h i)))
 
-	(vpif '(r2 != 0))
+	(vpif '(r2 /= 0))
 		;fill middle
 		(call 'ctx 'set_color '(r0 r1))
 

@@ -32,7 +32,7 @@
 	;deref all elements
 	(class/array/get_both r0 r1 r2)
 	(vp-push r0)
-	(loop-while '(r1 != r2))
+	(loop-while '(r1 /= r2))
 		(vp-push r1 r2)
 		(call 'obj 'deref '((r1 0)))
 		(vp-pop r1 r2)
@@ -132,7 +132,7 @@
 	(vp-cpy-rr r6 r0)
 
 	;copy and ref elements
-	(vpif '(r7 != r8))
+	(vpif '(r7 /= r8))
 		(class/array/get_iters r0 r7 r8 r2)
 		(class/array/get_begin r1 r3)
 		(loop-start)
@@ -141,7 +141,7 @@
 			(vp-cpy-ri r2 r3 0)
 			(vp-add-cr ptr_size r3)
 			(class/obj/ref r2 r4)
-		(loop-until '(r7 == r8))
+		(loop-until '(r7 = r8))
 	(endif)
 
 	(exit 'vector 'slice '(r0 r1))
@@ -162,7 +162,7 @@
 
 	(entry 'vector 'append '(r0 r1 r2 r3))
 
-	(vpif '(r2 != r3))
+	(vpif '(r2 /= r3))
 		;save inputs
 		(assign '(r1 r2 r3) '(r6 r7 r8))
 
@@ -182,7 +182,7 @@
 			(vp-cpy-ri r1 r9 0)
 			(vp-add-cr ptr_size r9)
 			(class/obj/ref r1 r2)
-		(loop-until '(r7 == r8))
+		(loop-until '(r7 = r8))
 	(endif)
 
 	(exit 'vector 'append '(r0))
@@ -203,13 +203,13 @@
 
 	(class/array/get_both r1 r10 r11)
 	(call 'vector 'create nil '(r0))
-	(vpif '(r0 != 0))
+	(vpif '(r0 /= 0))
 		(loop-start)
 			(vp-cpy-ir r10 0 r1)
 			(class/array/get_length r1 r3)
 			(call 'vector 'append '(r0 r1 0 r3) '(r0))
 			(vp-add-cr ptr_size r10)
-		(loop-until '(r10 == r11))
+		(loop-until '(r10 = r11))
 	(endif)
 
 	(exit 'vector 'cat '(r0))

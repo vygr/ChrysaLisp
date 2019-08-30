@@ -34,7 +34,7 @@
 	(f-bind 'sys_task 'statics r2)
 	(vp-cpy-ir r2 tk_statics_current_tcb r3)
 	(vp-cpy-ir r2 tk_statics_kernel_tcb r2)
-	(vpif '(r2 == r3))
+	(vpif '(r2 = r3))
 		;yes we can just do local call
 		(vp-jmp-r r1)
 	(endif)
@@ -148,7 +148,7 @@
 
 	;are we in suspend state ?
 	(ln-get-succ r0 0 r1)
-	(vpif '(r1 == 0))
+	(vpif '(r1 = 0))
 		;add to task list
 		(f-bind 'sys_task 'statics r1)
 		(vp-cpy-ir r1 tk_statics_current_tcb r1)
@@ -230,7 +230,7 @@
 	;resume new task, check for first
 	(vp-def (tcb current_tcb tmp task_statics))
 	(assign {tcb, task_statics->tk_statics_current_tcb, task_statics} (list tcb current_tcb task_statics))
-	(vpif `(,current_tcb == 0))
+	(vpif `(,current_tcb = 0))
 		(vp-cpy-ri tcb task_statics tk_statics_current_tcb)
 		(ln-set-succ tcb tcb)
 		(ln-set-pred tcb tcb)
@@ -273,8 +273,8 @@
 	;test stack space canary
 	(assign {&tcb->tk_node_stackspace} {stack})
 	(assign {stack + 1024} {stack_end})
-	(loop-while {stack != stack_end})
-		(vpif {*stack != 0})
+	(loop-while {stack /= stack_end})
+		(vpif {*stack /= 0})
 			(abort "Stack overrun !")
 		(endif)
 		(assign {stack + ptr_size} {stack})
@@ -422,7 +422,7 @@
 	(endif)
 	(assign {0} {index})
 	(call 'sys_str 'length {name} {_, length})
-	(loop-while {index != index_end})
+	(loop-while {index /= index_end})
 		(call 'sys_mail 'alloc {length + 1 + kn_msg_open_size} {msg, data})
 		(assign {0} {msg->msg_dest.id_mbox})
 		(assign {(index + offset) % total} {msg->msg_dest.id_cpu})
@@ -480,7 +480,7 @@
 	;start all tasks, starting on kernel of this chip
 	(call 'sys_kernel 'id nil {cpu})
 	(assign {0} {index})
-	(loop-while {index != length})
+	(loop-while {index /= length})
 		(call 'vector 'get_element {tasks, index} {_, name})
 		(call 'sys_mail 'alloc {name->str_length + 1 + kn_msg_open_size} {msg, data})
 		(assign {0} {msg->msg_dest.id_mbox})

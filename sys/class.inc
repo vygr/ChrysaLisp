@@ -84,7 +84,7 @@
 			((virtual final)
 				(push (elem 0 *class*) _1)
 				(push (elem 1 *class*) (list _2 _3 (intern-args _4) (intern-args _5)
-					(elem-set 2 *class* (add (elem 2 *class*) ptr_size)))))
+					(elem-set 2 *class* (+ (elem 2 *class*) ptr_size)))))
 			(override
 				(throw "Method does not exist !" _1))
 			(otherwise (throw "Must use static, virtual, final or override ! " _3)))))
@@ -165,7 +165,7 @@
 	;_3 = in parameters
 	;or
 	;_1 = in parameters
-	(if (eq (length _) 1)
+	(if (= (length _) 1)
 		(cat '(l-entry) _)
 		(cat '(f-entry) _)))
 
@@ -176,7 +176,7 @@
 	;_3 = out parameters
 	;or
 	;_1 = out parameters
-	(if (eq (length _) 1)
+	(if (= (length _) 1)
 		(cat '(l-exit) _)
 		(cat '(f-exit) _)))
 
@@ -446,7 +446,7 @@
 	(vp-align short_size)
 (vp-label 'sig)
 	(each (lambda (_)
-		(vp-short (list 'sub (label-sym (link-sym (fn-find-link (f-path _ 'vtable)))) '*pc*))) _))
+		(vp-short `(- ,(label-sym (link-sym (fn-find-link (f-path _ 'vtable)))) *pc*))) _))
 
 (defcfun gen-vtable (_1)
 	;_1 = class name
@@ -468,10 +468,10 @@
 		;depends on init method
 		(assign _3 _4)
 		(call 'sys_mem 'alloc `(,(sym (cat _1 "_size"))) '(r0 _))
-		(vpif '(r0 != 0))
+		(vpif '(r0 /= 0))
 			;init the object
 			(call _1 (if _2 (sym (cat "init_" _2)) 'init) `(r0 (@ ,(f-path _1 'vtable)) ~_4) '(r0 r1))
-			(vpif '(r1 == 0))
+			(vpif '(r1 = 0))
 				;error with init
 				(call 'sys_mem 'free '(r0))
 				(vp-xor-rr r0 r0)

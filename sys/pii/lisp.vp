@@ -17,7 +17,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type `(r1 (@ ,(f-path 'num 'vtable)) -1) '(r2))
-	(gotoif '(r2 == 0) 'error))
+	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
 	(defq in (method-input 'sys_pii 'read_char))
@@ -49,7 +49,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type `(r1 (@ ,(f-path 'num 'vtable)) -2) '(r2))
-	(gotoif '(r2 == 0) 'error))
+	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
 	(defq in (method-input 'sys_pii 'write_char))
@@ -84,7 +84,7 @@
 
 (errorcases
 	(class/array/get_length r1 r2)
-	(gotoif '(r2 != 0) 'error))
+	(gotoif '(r2 /= 0) 'error))
 
 	(vp-push r0)
 	(call 'sys_pii 'time nil '(r0))
@@ -114,7 +114,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type '(r1 ($ sig) 1) '(r2))
-	(gotoif '(r2 == 0) 'error))
+	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
 	(class/array/get_begin r1 r0)
@@ -122,7 +122,7 @@
 	(vp-cpy-ir r0 0 r0)
 	(vp-cpy-ir r1 ld_statics_stat_buffer r1)
 	(call 'sys_pii 'stat '((& r0 str_data) r1) '(r0))
-	(vpif '(r0 == 0))
+	(vpif '(r0 = 0))
 		(vp-cpy-ir r1 stat_mtime r0)
 	(else)
 		(vp-xor-rr r0 r0)

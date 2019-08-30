@@ -19,7 +19,7 @@
 
 (errorcases
 	(class/array/get_length r1 r2)
-	(gotoif '(r2 != 0) 'error))
+	(gotoif '(r2 /= 0) 'error))
 
 	(vp-push r0)
 	(call 'sys_mail 'mymail nil '(r0 _))
@@ -49,11 +49,11 @@
 
 (errorcases
 	(class/array/get_length r1 r2)
-	(gotoif '(r2 != 0) 'error))
+	(gotoif '(r2 /= 0) 'error))
 
 	(vp-push r0)
 	(call 'sys_mail 'trymail nil '(r0 _))
-	(vpif '(r0 != 0))
+	(vpif '(r0 /= 0))
 		(call 'sys_mail 'free_obj '(r0) '(r1 _ _))
 	(else)
 		(vp-cpy-ir rsp 0 r1)
@@ -89,21 +89,21 @@
 
 (errorcases
 	(call 'lisp 'env_args_type {args, $sig, 2} '(r2))
-	(gotoif '(r2 == 0) 'error1))
+	(gotoif '(r2 = 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'obj 'inst_of (cat {arg0, @} (f-path 'str 'vtable)))
-	(vpif `(,(method-output 'obj 'inst_of 1) != 0))
+	(vpif `(,(method-output 'obj 'inst_of 1) /= 0))
 		(call 'sys_mail 'alloc_obj {arg0, &arg0->str_data, arg0->str_length} {arg2})
 		(goto 'sendit)
 	(endif)
 	(call 'obj 'inst_of (cat {arg0, @} (f-path 'vector 'vtable)))
-	(vpif `(,(method-output 'obj 'inst_of 1) != 0))
+	(vpif `(,(method-output 'obj 'inst_of 1) /= 0))
 		(call 'sys_mail 'alloc_obj {arg0, arg0->array_begin, arg0->array_length * long_size} {arg2})
 		(goto 'sendit)
 	(endif)
 	(call 'obj 'inst_of (cat {arg0, @} (f-path 'array 'vtable)))
-	(errorif `(,(method-output 'obj 'inst_of 1) == 0) 'error1)
+	(errorif `(,(method-output 'obj 'inst_of 1) = 0) 'error1)
 	(call 'str 'create_from_buffer {arg0->array_begin, arg0->array_length * long_size} {value})
 	(call 'sys_mail 'alloc_obj {value, &value->str_data, value->str_length} {arg2})
 	(call 'obj 'deref {value})
@@ -138,7 +138,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type '(r1 ($ sig) 2) '(r2))
-	(gotoif '(r2 == 0) 'error))
+	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
 	(defq in (method-input 'sys_mail 'declare))
@@ -174,13 +174,13 @@
 
 (errorcases
 	(call 'lisp 'env_args_type '(r1 ($ sig) 1) '(r2))
-	(gotoif '(r2 == 0) 'error))
+	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
 	(defq in (method-input 'sys_mail 'enquire))
 	(class/vector/bind_args r1 in '(str))
 	(call 'sys_mail 'enquire in '(r0))
-	(vpif '(r0 != 0))
+	(vpif '(r0 /= 0))
 		(call 'num 'create '(r0) '(r1))
 	(else)
 		(vp-cpy-ir rsp 0 r1)

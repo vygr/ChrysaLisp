@@ -14,7 +14,7 @@
 	(entry 'lisp 'func_progn '(r0 r1))
 
 	(class/array/get_length r1 r2)
-	(vpif '(r2 == 0))
+	(vpif '(r2 = 0))
 		(vp-cpy-ir r0 lisp_sym_nil r1)
 	(else)
 		(vp-sub-cr 1 r2)

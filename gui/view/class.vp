@@ -17,10 +17,10 @@
 
 	;init parent
 	(s-call 'view 'init '(r0 r1) '(r0 r1))
-	(vpif '(r1 != 0))
+	(vpif '(r1 /= 0))
 		;init myself
 		(vp-push r0)
-		(call 'sys_mem 'clear '((& r0 view_start) (sub view_size view_start)))
+		(call 'sys_mem 'clear '((& r0 view_start) (- view_size view_start)))
 		(vp-pop r0)
 		(vp-cpy-cr view_flag_solid r1)
 		(vp-cpy-ri-i r1 r0 view_flags)
@@ -220,7 +220,7 @@
 	(lh-get-tail r0 view_list r0)
 	(loop-start)
 		(ln-get-pred r0 0 r1)
-		(breakif '(r1 == 0))
+		(breakif '(r1 = 0))
 
 		;callback
 		(vp-sub-cr view_node r0)
@@ -275,14 +275,14 @@
 		;down callback
 		(vp-cpy-ir rsp local_data r1)
 		(vp-call-i rsp local_down)
-		(breakif '(r1 == 0))
+		(breakif '(r1 = 0))
 
 		;down to child
 		(lh-get-tail r0 view_list r1)
 		(vp-sub-cr view_node r1)
 
 		(ln-get-pred r1 view_node r2)
-	(loop-until '(r2 == 0))
+	(loop-until '(r2 = 0))
 	(loop-start)
 		;up callback
 		(vp-cpy-ir rsp local_data r1)
@@ -290,14 +290,14 @@
 
 		;back at root ?
 		(vp-cpy-ir rsp local_this r2)
-		(breakif '(r0 == r2))
+		(breakif '(r0 = r2))
 
 		;across to sibling
 		(ln-get-pred r0 view_node r1)
 		(vp-sub-cr view_node r1)
 
 		(ln-get-pred r1 view_node r2)
-		(gotoif '(r2 != 0) 'down_loop_ctx)
+		(gotoif '(r2 /= 0) 'down_loop_ctx)
 
 		;up to parent
 		(vp-cpy-ir r0 hmap_parent r0)
@@ -328,8 +328,8 @@
 	(call 'view 'set_bounds '(r0 r7 r8 r9 r10))
 
 	;layout if changed size
-	(vpif '(r9 == r11))
-		(vpif '(r10 == r12))
+	(vpif '(r9 = r11))
+		(vpif '(r10 = r12))
 			(vp-ret)
 		(endif)
 	(endif)
@@ -399,18 +399,18 @@
 
 	;find target view
 	(call 'view 'find_id '(r0 (r1 ev_msg_target_id)) '(_ r0))
-	(vpif '(r0 != 0))
+	(vpif '(r0 /= 0))
 		;what type of event ?
 		(vp-cpy-ir rsp local_data r1)
 		(vp-cpy-ir r1 ev_msg_type r2)
 		(switch)
-		(vpcase '(r2 == ev_type_mouse))
+		(vpcase '(r2 = ev_type_mouse))
 			;so what state are we in ?
 			(vp-cpy-ir-ui r1 ev_msg_mouse_buttons r2)
 			(vp-cpy-ir-ui r0 view_last_buttons r3)
-			(vpif '(r3 != 0))
+			(vpif '(r3 /= 0))
 				;was down previously
-				(vpif '(r2 != 0))
+				(vpif '(r2 /= 0))
 					;is down now, so move
 					(call 'view 'mouse_move '(r0 r1))
 				(else)
@@ -420,7 +420,7 @@
 				(endif)
 			(else)
 				;was not down previously
-				(vpif '(r2 != 0))
+				(vpif '(r2 /= 0))
 					;is down now, so first down
 					(vp-cpy-ri-i r2 r0 view_last_buttons)
 					(call 'view 'mouse_down '(r0 r1))
@@ -430,7 +430,7 @@
 				(endif)
 			(endif)
 			(break)
-		(vpcase '(r2 == ev_type_key))
+		(vpcase '(r2 = ev_type_key))
 			(vp-cpy-ir-ui r1 ev_msg_key_keycode r2)
 			(vpif '(r2 >= 0))
 				(call 'view 'key_down '(r0 r1))
@@ -438,7 +438,7 @@
 				(call 'view 'key_up '(r0 r1))
 			(endif)
 			(break)
-		(vpcase '(r2 == ev_type_action))
+		(vpcase '(r2 = ev_type_action))
 			(call 'view 'action '(r0 r1))
 		(endswitch)
 	(endif)
@@ -482,10 +482,10 @@
 	(entry 'view 'forward_tree_callback '(r0 r1))
 
 	(vp-cpy-ir r1 local_view r2)
-	(vpif '(r2 == 0))
+	(vpif '(r2 = 0))
 		(vp-cpy-ir r0 component_id r2)
 		(vp-cpy-ir r1 local_id r3)
-		(vpif '(r2 == r3))
+		(vpif '(r2 = r3))
 			(vp-cpy-ri r0 r1 local_view)
 			(vp-xor-rr r1 r1)
 		(endif)
@@ -529,7 +529,7 @@
 	(lh-get-head r0 view_list r0)
 	(loop-start)
 		(ln-get-succ r0 0 r1)
-		(breakif '(r1 == 0))
+		(breakif '(r1 = 0))
 
 		;callback
 		(vp-sub-cr view_node r0)
@@ -584,14 +584,14 @@
 		;down callback
 		(vp-cpy-ir rsp local_data r1)
 		(vp-call-i rsp local_down)
-		(breakif '(r1 == 0))
+		(breakif '(r1 = 0))
 
 		;down to child
 		(lh-get-head r0 view_list r1)
 		(vp-sub-cr view_node r1)
 
 		(ln-get-succ r1 view_node r2)
-	(loop-until '(r2 == 0))
+	(loop-until '(r2 = 0))
 	(loop-start)
 		;up callback
 		(vp-cpy-ir rsp local_data r1)
@@ -599,14 +599,14 @@
 
 		;back at root ?
 		(vp-cpy-ir rsp local_this r2)
-		(breakif '(r0 == r2))
+		(breakif '(r0 = r2))
 
 		;across to sibling
 		(ln-get-succ r0 view_node r1)
 		(vp-sub-cr view_node r1)
 
 		(ln-get-succ r1 view_node r2)
-		(gotoif '(r2 != 0) 'down_loop_ctx)
+		(gotoif '(r2 /= 0) 'down_loop_ctx)
 
 		;up to parent
 		(vp-cpy-ir r0 hmap_parent r0)
@@ -646,7 +646,7 @@
 
 	(lh-get-head r0 view_list r1)
 	(ln-get-succ r1 0 r2)
-	(vpif '(r2 == 0))
+	(vpif '(r2 = 0))
 		(vp-cpy-rr r2 r1)
 	(else)
 		(vp-sub-cr view_node r1)
@@ -666,7 +666,7 @@
 
 	(lh-get-tail r0 view_list r1)
 	(ln-get-pred r1 0 r2)
-	(vpif '(r2 == 0))
+	(vpif '(r2 = 0))
 		(vp-cpy-rr r2 r1)
 	(else)
 		(vp-sub-cr view_node r1)
@@ -691,13 +691,13 @@
 
 	;walk up tree to parent
 	(vp-cpy-rr r0 r2)
-	(loop-while '(r2 != r1))
+	(loop-while '(r2 /= r1))
 		(vp-cpy-ir-i r2 view_x r9)
 		(vp-cpy-ir-i r2 view_y r10)
 		(vp-add-rr r9 r7)
 		(vp-add-rr r10 r8)
 		(vp-cpy-ir r2 hmap_parent r2)
-		(assert '(r2 != 0))
+		(assert '(r2 /= 0))
 	(loop-end)
 	(vp-ret)
 
@@ -773,9 +773,9 @@
 (vp-label 'hit_up_callback)
 	(vp-cpy-rr r1 r2)
 	(vp-cpy-ir r1 local_hit r1)
-	(vpif '(r1 == 0))
+	(vpif '(r1 = 0))
 		(call 'view 'hit '(r0 r7 r8) '(r0 r1))
-		(vpif '(r1 != 0))
+		(vpif '(r1 /= 0))
 			(vp-cpy-ri r0 r2 local_hit)
 			(vp-ret)
 		(endif)
@@ -840,7 +840,7 @@
 
 	;test parent
 	(vp-cpy-ir r0 hmap_parent r1)
-	(vpif '(r1 != 0))
+	(vpif '(r1 /= 0))
 		;clear parent field
 		(vp-xor-rr r2 r2)
 		(vp-cpy-ri r2 r0 hmap_parent)
@@ -888,7 +888,7 @@
 
 	;are we already front ?
 	(ln-is-first r0 view_node r1)
-	(vpif '(r1 != 0))
+	(vpif '(r1 /= 0))
 		(vp-push r0)
 		(call 'view 'add_front '((r0 hmap_parent) r0))
 		(vp-pop r0)

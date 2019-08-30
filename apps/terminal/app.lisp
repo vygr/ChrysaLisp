@@ -17,10 +17,10 @@
 (vdu-print vdu (cat "ChrysaLisp Terminal 1.4" (ascii-char 10) ">"))
 
 (defun-bind terminal-output (c)
-	(if (eq c 13) (setq c 10))
+	(if (= c 13) (setq c 10))
 	(cond
 		;cursor up/down
-		((le 0x40000051 c 0x40000052)
+		((<= 0x40000051 c 0x40000052)
 			(vdu-print vdu (ascii-char 129)))
 		;print char
 		(t
@@ -31,7 +31,7 @@
 	(terminal-output c)
 	(cond
 		;send line ?
-		((or (eq c 10) (eq c 13))
+		((or (= c 10) (= c 13))
 			;what state ?
 			(cond
 				(cmd
@@ -40,9 +40,9 @@
 				(t
 					;start new pipe
 					(cond
-						((ne (length buffer) 0)
+						((/= (length buffer) 0)
 							;push new history entry if not same as last entry
-							(and (gt (length (push history buffer)) 1)
+							(and (> (length (push history buffer)) 1)
 								(eql (elem -3 history) buffer)
 								(pop history))
 							(setq history_index (length history))
@@ -53,35 +53,35 @@
 								(vdu-print vdu (cat "Pipe Error !" (ascii-char 10) ">"))))
 						(t (vdu-print vdu ">")))))
 			(setq buffer ""))
-		((eq c 27)
+		((= c 27)
 			;esc
 			(when cmd
 				;feed active pipe, then EOF
-				(when (ne (length buffer) 0)
+				(when (/= (length buffer) 0)
 					(pipe-write cmd buffer))
 				(setq cmd nil buffer "")
 				(vdu-print vdu (cat (ascii-char 10) ">"))
 				(view-dirty-all (window-set-status window "Ready"))))
-		((eq c 0x40000052)
+		((= c 0x40000052)
 			;cursor up
 			(unless cmd
 				(vdu-print vdu ">")
-				(setq buffer "" history_index (if (le history_index 0) 0 (dec history_index)))
-				(when (lt history_index (length history))
+				(setq buffer "" history_index (if (<= history_index 0) 0 (dec history_index)))
+				(when (< history_index (length history))
 					(setq buffer (elem history_index history))
 					(vdu-print vdu buffer))))
-		((eq c 0x40000051)
+		((= c 0x40000051)
 			;cursor down
 			(unless cmd
 				(vdu-print vdu ">")
 				(setq buffer "" history_index (min (inc history_index) (length history)))
-				(when (lt history_index (length history))
+				(when (< history_index (length history))
 					(setq buffer (elem history_index history))
 					(vdu-print vdu buffer))))
-		((and (eq c 8) (ne (length buffer) 0))
+		((and (= c 8) (/= (length buffer) 0))
 			;backspace
 			(setq buffer (slice 0 -2 buffer)))
-		((le 32 c 127)
+		((<= 32 c 127)
 			;buffer the char
 			(setq buffer (cat buffer (char c))))))
 
@@ -92,12 +92,12 @@
 		((eql data t)
 			;normal mailbox event
 			(cond
-				((eq (setq id (get-long (defq msg (mail-mymail)) ev_msg_target_id)) event_win_close)
+				((= (setq id (get-long (defq msg (mail-mymail)) ev_msg_target_id)) event_win_close)
 					(setq id nil))
 				(t
 					(view-event window msg)
-					(and (eq (get-long msg ev_msg_type) ev_type_key)
-						(gt (get-int msg ev_msg_key_keycode) 0)
+					(and (= (get-long msg ev_msg_type) ev_type_key)
+						(> (get-int msg ev_msg_key_keycode) 0)
 						(terminal-input (get-int msg ev_msg_key_key))))))
 		((eql data nil)
 			;pipe is closed

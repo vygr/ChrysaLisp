@@ -21,7 +21,7 @@
 
 	;init parent
 	(s-call 'vdu 'init '(r0 r1) '(r0 r1))
-	(vpif '(r1 != 0))
+	(vpif '(r1 /= 0))
 		;init myself
 		(vp-xor-rr r2 r2)
 		(assign '(r2 r2 r2 r2 r2 r2 r2)
@@ -76,11 +76,11 @@
 	(call 'vdu 'get_long_prop {this, prop_vdu_width} {_, w})
 	(call 'vdu 'get_long_prop {this, prop_vdu_height} {_, h})
 	(call 'vdu 'get_prop {this, prop_font} {_, font})
-	(vpif {font && font != this->vdu_font})
+	(vpif {font && font /= this->vdu_font})
 		(assign {font} {this->vdu_font})
 		(call 'vdu 'switch_font {this})
 	(endif)
-	(vpif {w != this->vdu_width || h != this->vdu_height})
+	(vpif {w /= this->vdu_width || h /= this->vdu_height})
 		(assign {w, h} {this->vdu_width, this->vdu_height})
 		(call 'vdu 'switch_size {this})
 	(endif)
@@ -144,11 +144,11 @@
 	(call 'vdu 'get_long_prop {this, prop_vdu_width} {_, w})
 	(call 'vdu 'get_long_prop {this, prop_vdu_height} {_, h})
 	(call 'vdu 'ref_prop {this, prop_font} {_, font})
-	(vpif {font && font != this->vdu_font})
+	(vpif {font && font /= this->vdu_font})
 		(assign {font} {this->vdu_font})
 		(call 'vdu 'switch_font {this})
 	(endif)
-	(vpif {w != this->vdu_width || h != this->vdu_height})
+	(vpif {w /= this->vdu_width || h /= this->vdu_height})
 		(assign {w, h} {this->vdu_width, this->vdu_height})
 		(call 'vdu 'switch_size {this})
 	(endif)
@@ -247,17 +247,17 @@
 			(call 'vdu 'dirty {this})
 		(endif)
 
-		(vpif {char == char_lf})
+		(vpif {char = char_lf})
 			;line feed
 			(assign {0} {this->vdu_cursor_x})
 			(assign {this->vdu_cursor_y + 1} {this->vdu_cursor_y})
-		(elseif {char == char_tab})
+		(elseif {char = char_tab})
 			;tab
 			(assign {4 - (this->vdu_cursor_x & 3)} {char})
 			(loop-start)
 				(call 'vdu 'print_char {this, 32})
 			(loop-untilnot {char - 1 => char})
-		(elseif {char == char_backspace})
+		(elseif {char = char_backspace})
 			;backspace
 			(vpif {this->vdu_cursor_x})
 				(assign {this->vdu_cursor_x - 1} {this->vdu_cursor_x})
@@ -265,7 +265,7 @@
 				(call 'vdu 'add_dirty {this, this->vdu_cursor_x * this->vdu_char_width,
 					this->vdu_cursor_y * this->vdu_char_height, this->vdu_char_width, this->vdu_char_height})
 			(endif)
-		(elseif {char == 129})
+		(elseif {char = 129})
 			;clear line
 			(vpif {this->vdu_cursor_x})
 				(call 'sys_mem 'fill {this->vdu_chars + this->vdu_cursor_y * this->vdu_width, this->vdu_width, char_space})

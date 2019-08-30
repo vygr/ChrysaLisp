@@ -257,8 +257,8 @@ pre opt:
 	(vp-lea-i rsp 16 _v2)
 	(vp-cpy-ir _v2 0 _v2)
 post opt:
-	(vp-cpy-ir rsp (add 0 0) _v0)
-	(vp-cpy-ir _v0 (add ml_statics_declare_map 0) _v0)
-	(vp-cpy-ir rsp (add 8 0) _v1)
-	(vp-cpy-ir rsp (add 16 0) _v2)
+	(vp-cpy-ir rsp (+ 0 0) _v0)
+	(vp-cpy-ir _v0 (+ ml_statics_declare_map 0) _v0)
+	(vp-cpy-ir rsp (+ 8 0) _v1)
+	(vp-cpy-ir rsp (+ 16 0) _v2)
 ```

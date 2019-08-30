@@ -15,7 +15,7 @@
 
 (errorcases
 	(class/array/get_length r1 r2)
-	(gotoif '(r2 != 1) 'error))
+	(gotoif '(r2 /= 1) 'error))
 
 	(class/array/bind_args r1 '(r1))
 	(class/obj/ref r1 r2)
