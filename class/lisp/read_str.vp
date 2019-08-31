@@ -8,12 +8,13 @@
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = stream object (ptr)
-	;r2 = next char (uint)
-	;r3 = closing char (uint)
+	;r2 = close char (uint)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = str object (ptr)
 	;r2 = next char (uint)
+	;trashes
+	;all but r0
 
 	(ptr 'this 'stream)
 	(union
@@ -22,7 +23,7 @@
 	(int 'char 'cchar)
 
 	(push-scope)
-	(entry 'lisp 'read_str {this, stream, char, cchar})
+	(entry 'lisp 'read_str {this, stream, cchar})
 
 	(switch)
 		(assign {stream->stream_bufp, stream->stream_bufe} {bufp, bufe})

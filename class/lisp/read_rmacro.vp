@@ -12,28 +12,34 @@
 	;r0 = lisp object (ptr)
 	;r1 = list vector object (ptr)
 	;r2 = next char (uint)
+	;trashes
+	;all but r0
 
-	(ptr 'this 'sym 'list)
-	(union
-		'(ptr 'stream)
-		'(ptr 'value))
-	(int 'char)
+	(def-struct 'local)
+		(ptr 'this 'sym)
+	(def-struct-end)
 
-	(push-scope)
-	(entry 'lisp 'read_rmacro {this, stream, char, sym})
+	(vp-alloc local_size)
+	(entry 'lisp 'read_rmacro '((rsp local_this) r1 r2 (rsp local_sym)))
 
-	(call 'stream 'read_char {stream} {_, char})
-	(call 'lisp 'read {this, stream, char} {_, value, char})
-	(errorif (cat {value->obj_vtable = @} (f-path 'error 'vtable)) 'funcexit)
-	(call 'vector 'create nil {list})
-	(call 'obj 'ref {sym})
-	(call 'vector 'push_back {list, sym})
-	(call 'vector 'push_back {list, value})
-	(assign {list} {value})
+	(call 'stream 'read_char '(r1) '(r0 r1))
+	(call 'lisp 'read '((rsp local_this) r0 r1) '(r0 r1 r2))
+	(switch)
+	(errorcases
+		(vp-cpy-ir r1 obj_vtable r3)
+		(f-bind 'error 'vtable r4)
+		(breakif '(r3 = r4)))
+		(assign '(r1 r2) '(r12 r13))
+		(call 'vector 'create nil '(r0))
+		(vp-cpy-ir rsp local_sym r1)
+		(class/obj/ref r1 r2)
+		(call 'vector 'push_back '(r0 r1) '(r0 _ _ _))
+		(call 'vector 'push_back '(r0 r12) '(r0 _ _ _))
+		(assign '((rsp local_this) r0 r13) '(r0 r1 r2))
+	(endswitch)
 
-(vp-label 'funcexit)
-	(exit 'lisp 'read_rmacro {this, value, char})
-	(pop-scope)
-	(return)
+	(exit 'lisp 'read_rmacro '(r0 r1 r2))
+	(vp-free local_size)
+	(vp-ret)
 
 (def-func-end)

@@ -5,6 +5,7 @@
 (dec-method 'create 'class/num/create 'static '(r0) '(r0))
 (dec-method 'init 'class/num/init 'static '(r0 r1 r2))
 (dec-method 'get_value 'class/num/get_value 'static '(r0) '(r0 r1))
+(dec-method 'set_value 'class/num/set_value 'static '(r0 r1) '(r0 r1))
 
 (dec-method 'lisp_add 'class/num/lisp_add 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_sub 'class/num/lisp_sub 'static '(r0 r1) '(r0 r1))
@@ -63,6 +64,16 @@
 	;r1
 	(setd o r0 n r1)
 	(vp-cpy-ir o num_value n))
+
+(defcfun class/num/set_value (&optional o n)
+	;inputs
+	;r0 = num object (ptr)
+	;r1 = value (long)
+	;outputs
+	;r0 = num object (ptr)
+	;r1 = value (long)
+	(setd o r0 n r1)
+	(vp-cpy-ri n o num_value))
 
 ;;;;;;;;;;;;;;;;;;
 ; paramater macros

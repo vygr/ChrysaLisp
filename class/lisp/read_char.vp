@@ -1,6 +1,6 @@
 (include 'sys/func.inc)
 (include 'class/stream/class.inc)
-(include 'class/sym/class.inc)
+(include 'class/str/class.inc)
 (include 'class/num/class.inc)
 (include 'class/pair/class.inc)
 (include 'class/hmap/class.inc)
@@ -14,25 +14,33 @@
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = next char (uint)
+	;trashes
+	;all but r0
 
-	(ptr 'this 'stream 'line)
-	(pptr 'iter)
-	(ulong 'char)
+	(def-struct 'local)
+		(ptr 'this 'stream)
+	(def-struct-end)
 
-	(push-scope)
-	(entry 'lisp 'read_char {this, stream, char})
+	(vp-alloc local_size)
+	(entry 'lisp 'read_char '(r0 r1 r2))
 
-	(vpif {char = char_lf})
-		(call 'hmap 'search {this->lisp_environment, this->lisp_sym_stream_line} {_, iter, _})
-		(breakifnot {iter})
-		(call 'pair 'get_second {*iter} {_, line})
-		(assign {line->num_value + 1} {line->num_value})
+	(vp-cpy-ri r0 rsp local_this)
+	(vpif '(r2 = char_lf))
+		(vp-cpy-ri r1 rsp local_stream)
+		(call 'hmap 'search '((r0 lisp_environment) (r0 lisp_sym_stream_line)) '(_ r1 _))
+		(vpif '(r1 /= 0))
+			(vp-cpy-ir r1 0 r1)
+			(class/pair/get_second r1 r1)
+			(class/num/get_value r1 r2)
+			(vp-add-cr 1 r2)
+			(class/num/set_value r1 r2)
+		(endif)
+		(vp-cpy-ir rsp local_stream r1)
 	(endif)
+	(call 'stream 'read_char '(r1) '(_ r1))
 
-	(call 'stream 'read_char {stream} {_, char})
-
-	(exit 'lisp 'read_char {this, char})
-	(pop-scope)
-	(return)
+	(exit 'lisp 'read_char '((rsp local_this) r1))
+	(vp-free local_size)
+	(vp-ret)
 
 (def-func-end)
