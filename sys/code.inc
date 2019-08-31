@@ -78,13 +78,11 @@
 	(default)
 	(setq *switch* (pop *switch-stk*)))
 
-(defcfun vpcase (e)
-	(default)
-	(gotoifnot e (loc-sym (eval (cnt-sym)))))
-
-(defcfun vpcasenot (e)
-	(default)
+(defcfun nextcaseif (e)
 	(gotoif e (loc-sym (eval (cnt-sym)))))
+
+(defcfun nextcaseifnot (e)
+	(gotoifnot e (loc-sym (eval (cnt-sym)))))
 
 (defcfun break (&optional _)
 	(goto (if _ (eval (lle-sym _)) (end-sym))))
@@ -103,6 +101,14 @@
 
 (defcfun continueifnot (e &optional _)
 	(gotoifnot e (if _ (eval (llb-sym _)) (beg-sym))))
+
+(defcfun vpcase (&rest e)
+	(default)
+	(each! 0 -1 nextcaseifnot (list e)))
+
+(defcfun vpcasenot (&rest e)
+	(default)
+	(each! 0 -1 nextcaseif (list e)))
 
 (defcfun loop-start (&optional _)
 	(switch _)
@@ -132,11 +138,11 @@
 
 (defcfun vpif (e &optional _)
 	(switch _)
-	(gotoifnot e (loc-sym (eval (cnt-sym)))))
+	(nextcaseifnot e))
 
 (defcfun vpifnot (e &optional _)
 	(switch _)
-	(gotoif e (loc-sym (eval (cnt-sym)))))
+	(nextcaseif e))
 
 (defcfun elseif (e)
 	(break)
