@@ -2359,8 +2359,10 @@ r1 = stream object (ptr)
 r2 = next char (uint)
 outputs
 r0 = lisp object (ptr)
-r1 = ast vector (ptr)
+r1 = form object (ptr)
 r2 = next char (uint)
+trashes
+all but r0
 ```
 
 ### lisp::read_char -> class/lisp/read_char
@@ -2373,6 +2375,8 @@ r2 = last char (uint)
 outputs
 r0 = lisp object (ptr)
 r1 = next char (uint)
+trashes
+all but r0
 ```
 
 ### lisp::read_rmacro -> class/lisp/read_rmacro
@@ -2387,6 +2391,8 @@ outputs
 r0 = lisp object (ptr)
 r1 = list vector object (ptr)
 r2 = next char (uint)
+trashes
+all but r0
 ```
 
 ### lisp::read_list -> class/lisp/read_list
@@ -2423,12 +2429,13 @@ r2 = next char (uint)
 inputs
 r0 = lisp object (ptr)
 r1 = stream object (ptr)
-r2 = next char (uint)
-r3 = closing char (uint)
+r2 = close char (uint)
 outputs
 r0 = lisp object (ptr)
 r1 = str object (ptr)
 r2 = next char (uint)
+trashes
+all but r0
 ```
 
 ### lisp::read_num -> class/lisp/read_num
@@ -2967,6 +2974,17 @@ r0 = num object (ptr)
 r1 = value (long)
 trashes
 r1
+```
+
+### num::set_value -> class/num/set_value
+
+```lisp
+inputs
+r0 = num object (ptr)
+r1 = value (long)
+outputs
+r0 = num object (ptr)
+r1 = value (long)
 ```
 
 ### num::lisp_add -> class/num/lisp_add
