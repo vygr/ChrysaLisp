@@ -134,6 +134,19 @@ trashes
 r1
 ```
 
+### array::get_first2 -> class/array/get_first2
+
+```lisp
+inputs
+r0 = array object (ptr)
+outputs
+r0 = array object (ptr)
+r1 = element1 (long)
+r2 = element2 (long)
+trashes
+r1-r2
+```
+
 ### array::get_second -> class/array/get_second
 
 ```lisp
@@ -159,6 +172,20 @@ trashes
 r1-r2
 ```
 
+### array::get_element2 -> class/array/get_element2
+
+```lisp
+inputs
+r0 = array object (ptr)
+r1 = element index (uint)
+outputs
+r0 = array object (ptr)
+r1 = element1 (long)
+r2 = element2 (long)
+trashes
+r1-r2
+```
+
 ### array::push_back -> class/array/push_back
 
 ```lisp
@@ -174,6 +201,23 @@ trashes
 r2-r5
 ```
 
+### array::push_back2 -> class/array/push_back2
+
+```lisp
+inputs
+r0 = array object (ptr)
+r1 = element1 (long)
+r2 = element2 (long)
+outputs
+r0 = array object (ptr)
+r1 = element1 (long)
+r2 = element2 (long)
+r3 = begin element iter (plong)
+r4 = end element iter (plong)
+trashes
+r3-r5
+```
+
 ### array::pop_back -> class/array/pop_back
 
 ```lisp
@@ -182,6 +226,19 @@ r0 = array object (ptr)
 outputs
 r0 = array object (ptr)
 r1 = element (long)
+trashes
+r1-r2
+```
+
+### array::pop_back2 -> class/array/pop_back2
+
+```lisp
+inputs
+r0 = array object (ptr)
+outputs
+r0 = array object (ptr)
+r1 = element1 (long)
+r2 = element2 (long)
 trashes
 r1-r2
 ```
@@ -3605,61 +3662,6 @@ Super Class: array
 ### points::vtable -> gui/points/vtable
 
 ### points::create -> gui/points/create
-
-### points::get_first2 -> gui/points/get_first2
-
-```lisp
-inputs
-r0 = points object (ptr)
-outputs
-r0 = points object (ptr)
-r1 = element1 (long)
-r2 = element2 (long)
-trashes
-r1-r2
-```
-
-### points::get_element2 -> gui/points/get_element2
-
-```lisp
-inputs
-r0 = points object (ptr)
-r1 = element index (uint)
-outputs
-r0 = points object (ptr)
-r1 = element1 (long)
-r2 = element2 (long)
-trashes
-r1-r2
-```
-
-### points::push_back2 -> gui/points/push_back2
-
-```lisp
-inputs
-r0 = points object (ptr)
-r1 = element1 (long)
-r2 = element2 (long)
-outputs
-r0 = points object (ptr)
-r1 = element1 (long)
-r2 = element2 (long)
-trashes
-r3-r5
-```
-
-### points::pop_back2 -> gui/points/pop_back2
-
-```lisp
-inputs
-r0 = points object (ptr)
-outputs
-r0 = points object (ptr)
-r1 = element1 (long)
-r2 = element2 (long)
-trashes
-r1-r2
-```
 
 ### points::add -> gui/points/add
 
