@@ -84,9 +84,7 @@
 
 	(vec-set 7)
 	(loop-start)
-		(breakif '(r6 = 0))
-		(breakif '(r2 >= r3))
-		(breakif '(r7 <= r4))
+		(breakif '(r6 = 0) '(r2 >= r3) '(r7 <= r4))
 		(vp-sub-cr 1 r6)
 		(vec-load-long 3 r0)
 		(vec-load-long 3 r1)

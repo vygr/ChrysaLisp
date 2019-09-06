@@ -146,8 +146,8 @@
 		(call 'sys_task 'yield)
 
 		;are we in a quiet period
-		(continueif {rx_msg->lk_msg_status = lk_chan_status_busy})
-		(continueif {out_msg && (tx_msg->lk_msg_status = lk_chan_status_ready)})
+		(continueif {(rx_msg->lk_msg_status = lk_chan_status_busy) ||
+			(out_msg && (tx_msg->lk_msg_status = lk_chan_status_ready))})
 
 		;small sleep if so
 		(call 'sys_task 'sleep {1000})

@@ -831,7 +831,7 @@ r9 = x1 (pixels)
 outputs
 r0 = canvas object (ptr)
 trashes
-r1-r3, r7-r9
+r1-r9
 info
 coverage is 0x0 to 0x80
 ```
@@ -848,7 +848,7 @@ r9 = x1 (pixels)
 outputs
 r0 = canvas object (ptr)
 trashes
-r1-r3, r7-r9
+r1-r9
 info
 coverage is 0x0 to 0x80
 ```

@@ -160,13 +160,13 @@ primitives that all the other structured coding functions are based upon.
 
 ```lisp
 	(switch ['name])
-	(vpcase exp1)
+	(vpcase exp ...)
 		...
 		(break ['name])
-	(vpcase exp2)
+	(vpcase exp ...)
 		...
 		(break ['name])
-	(vpcase exp3)
+	(vpcase exp ...)
 		...
 		(break ['name])
 	(default)
@@ -188,11 +188,11 @@ after each case, this will fall through to the next `(vpcase)` statement or the
 There are various flavours of `(vpcase)` and `(break)`.
 
 ```lisp
-	(vpcase exp)
-	(vpcasenot exp)
+	(vpcase exp ...)
+	(vpcasenot exp ...)
 	(break ['name])
-	(breakif exp ['name])
-	(breakifnot exp ['name])
+	(breakif exp ... ['name])
+	(breakifnot exp ... ['name])
 ```
 
 ### If
@@ -203,23 +203,23 @@ corresponding `(endif)` although you may use named break statements to jump to
 a named `(endif)`.
 
 ```lisp
-	(vpif exp ['name])
+	(vpif exp ... ['name])
 		...
 		[(break ['name])]
 		...
-	(elseif exp)
+	(elseif exp ...)
 		...
-		[(breakif exp ['name])]
+		[(breakif exp ... ['name])]
 		...
 	(else)
 		...
-		[(breakifnot exp ['name])]
+		[(breakifnot exp ... ['name])]
 		...
 	(endif)
 
-	(vpifnot exp ['name])
+	(vpifnot exp ... ['name])
 		...
-	(elseifnot exp)
+	(elseifnot exp ...)
 		...
 	(else)
 		...
@@ -246,37 +246,37 @@ the loop start statement has a condition then that condition is tested again.
 	(loop-start ['name])
 		...
 		[(break ['name])]
-		[(breakif exp ['name])]
-		[(breakifnot exp ['name])]
+		[(breakif exp ... ['name])]
+		[(breakifnot exp ... ['name])]
 		[(continue ['name])]
-		[(continueif exp ['name])]
-		[(continueifnot exp ['name])]
+		[(continueif exp ... ['name])]
+		[(continueifnot exp ... ['name])]
 		...
 	(loop-end)
 
-	(loop-while exp ['name])
+	(loop-while exp ... ['name])
 		...
 	(loop-end)
 
-	(loop-whilenot exp ['name])
+	(loop-whilenot exp ... ['name])
 		...
 	(loop-end)
 
 	(loop-start ['name])
 		...
-	(loop-until exp)
+	(loop-until exp ...)
 
 	(loop-start ['name])
 		...
-	(loop-untilnot exp)
+	(loop-untilnot exp ...)
 
-	(loop-while exp ['name])
+	(loop-while exp ... ['name])
 		...
-	(loop-until exp)
+	(loop-until exp ...)
 
-	(loop-whilenot exp ['name])
+	(loop-whilenot exp ... ['name])
 		...
-	(loop-untilnot exp)
+	(loop-untilnot exp ...)
 ```
 
 ## Object Structures

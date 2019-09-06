@@ -17,39 +17,32 @@
 	(entry 'region 'clip_rect '(r0 r1 r7 r8 r9 r10))
 
 	;check for any obvious errors in inputs
-	(vpif '(r9 > r7))
-		(vpif '(r10 > r8))
-			;run through source region list
-			(loop-flist r1 0 r1 r3 'node_loop)
-				(switch)
-					(assign '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)) '(r11 r12 r13 r14))
-					(breakif '(r11 >= r9))
-					(breakif '(r12 >= r10))
-					(breakif '(r13 <= r7))
-					(breakif '(r14 <= r8))
+	(vpif '(r9 > r7) '(r10 > r8))
+		;run through source region list
+		(loop-flist r1 0 r1 r3 'node_loop)
+			(assign '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)) '(r11 r12 r13 r14))
+			(vpif '(r11 < r9) '(r12 < r10) '(r13 > r7) '(r14 > r8))
+				;clip region
+				(vpif '(r11 < r7))
+					(assign '(r7) '((r1 rect_x i)))
+				(endif)
+				(vpif '(r12 < r8))
+					(assign '(r8) '((r1 rect_y i)))
+				(endif)
+				(vpif '(r13 > r9))
+					(assign '(r9) '((r1 rect_x1 i)))
+				(endif)
+				(vpif '(r14 > r10))
+					(assign '(r10) '((r1 rect_y1 i)))
+				(endif)
+				(continue 'node_loop)
+			(endif)
 
-					;clip region
-					(vpif '(r11 < r7))
-						(assign '(r7) '((r1 rect_x i)))
-					(endif)
-					(vpif '(r12 < r8))
-						(assign '(r8) '((r1 rect_y i)))
-					(endif)
-					(vpif '(r13 > r9))
-						(assign '(r9) '((r1 rect_x1 i)))
-					(endif)
-					(vpif '(r14 > r10))
-						(assign '(r10) '((r1 rect_y1 i)))
-					(endif)
-					(continue 'node_loop)
-				(endswitch)
-
-				;region is outside
-				(vp-cpy-rr r1 r2)
-				(ln-remove-fnode r1 r3)
-				(hp-freecell r0 r2 r3)
-			(loop-end)
-		(endif)
+			;region is outside
+			(vp-cpy-rr r1 r2)
+			(ln-remove-fnode r1 r3)
+			(hp-freecell r0 r2 r3)
+		(loop-end)
 	(endif)
 
 	(exit 'region 'clip_rect '(r0))
@@ -74,140 +67,135 @@
 	(entry 'region 'copy_rect '(r0 r1 r2 r7 r8 r9 r10))
 
 	;check for any obvious errors in inputs
-	(vpif '(r9 > r7))
-		(vpif '(r10 > r8))
-			;run through source region list
-			(vp-cpy-rr r2 r3)
-			(loop-flist r1 0 r4 r4)
-				;not in contact ?
-				(assign '((r4 rect_x i) (r4 rect_y i) (r4 rect_x1 i) (r4 rect_y1 i)) '(r11 r12 r13 r14))
-				(continueif '(r11 >= r9))
-				(continueif '(r12 >= r10))
-				(continueif '(r7 >= r13))
-				(continueif '(r8 >= r14))
+	(vpif '(r9 > r7) '(r10 > r8))
+		;run through source region list
+		(vp-cpy-rr r2 r3)
+		(loop-flist r1 0 r4 r4)
+			;not in contact ?
+			(assign '((r4 rect_x i) (r4 rect_y i) (r4 rect_x1 i) (r4 rect_y1 i)) '(r11 r12 r13 r14))
+			(continueif '(r11 >= r9) '(r12 >= r10) '(r7 >= r13) '(r8 >= r14))
 
-				(call 'sys_heap 'alloc '(r0) '(r0 r1))
-				;(continueif '(r1 = 0))
-				(ln-add-fnode r3 0 r1 r2)
+			(call 'sys_heap 'alloc '(r0) '(r0 r1))
+			;(continueif '(r1 = 0))
+			(ln-add-fnode r3 0 r1 r2)
 
-				;jump to correct splitting code
-				(gotoif '(r11 >= r7) 'copy_split1)
-				(gotoif '(r12 >= r8) 'copy_split2)
-				(gotoif '(r9 >= r13) 'copy_split4)
-				(gotoif '(r10 >= r14) 'copy_xyx1)
+			;jump to correct splitting code
+			(gotoif '(r11 >= r7) 'copy_split1)
+			(gotoif '(r12 >= r8) 'copy_split2)
+			(gotoif '(r9 >= r13) 'copy_split4)
+			(gotoif '(r10 >= r14) 'copy_xyx1)
 
-			(vp-label 'copy_xyx1y1)
-				;r7 + r8 + r9 + r10 inside
-				(assign '(r7 r8 r9 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				(continue)
+		(vp-label 'copy_xyx1y1)
+			;r7 + r8 + r9 + r10 inside
+			(assign '(r7 r8 r9 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			(continue)
 
-			(vp-label 'copy_split1)
-				;jump to correct splitting code
-				(gotoif '(r12 >= r8) 'copy_split3)
-				(gotoif '(r9 >= r13) 'copy_split5)
-				(gotoif '(r10 >= r14) 'copy_yx1)
+		(vp-label 'copy_split1)
+			;jump to correct splitting code
+			(gotoif '(r12 >= r8) 'copy_split3)
+			(gotoif '(r9 >= r13) 'copy_split5)
+			(gotoif '(r10 >= r14) 'copy_yx1)
 
-			(vp-label 'copy_yx1y1)
-				;r8 + r9 + r10 inside
-				(assign '(r11 r8 r9 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				(continue)
+		(vp-label 'copy_yx1y1)
+			;r8 + r9 + r10 inside
+			(assign '(r11 r8 r9 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			(continue)
 
-			(vp-label 'copy_split2)
-				;jump to correct splitting code
-				(gotoif '(r9 >= r13) 'copy_split6)
-				(gotoif '(r10 >= r14) 'copy_xx1)
+		(vp-label 'copy_split2)
+			;jump to correct splitting code
+			(gotoif '(r9 >= r13) 'copy_split6)
+			(gotoif '(r10 >= r14) 'copy_xx1)
 
-			(vp-label 'copy_xx1y1)
-				;r7 + r9 + r10 inside
-				(assign '(r7 r12 r9 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				(continue)
+		(vp-label 'copy_xx1y1)
+			;r7 + r9 + r10 inside
+			(assign '(r7 r12 r9 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			(continue)
 
-			(vp-label 'copy_split3)
-				;jump to correct splitting code
-				(gotoif '(r9 >= r13) 'copy_split7)
-				(gotoif '(r10 >= r14) 'copy_x1)
+		(vp-label 'copy_split3)
+			;jump to correct splitting code
+			(gotoif '(r9 >= r13) 'copy_split7)
+			(gotoif '(r10 >= r14) 'copy_x1)
 
-			(vp-label 'copy_x1y1)
-				;r9 + r10 inside
-				(assign '(r11 r12 r9 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				(continue)
+		(vp-label 'copy_x1y1)
+			;r9 + r10 inside
+			(assign '(r11 r12 r9 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			(continue)
 
-			(vp-label 'copy_split4)
-				;jump to correct splitting code
-				(gotoif '(r10 >= r14) 'copy_xy)
+		(vp-label 'copy_split4)
+			;jump to correct splitting code
+			(gotoif '(r10 >= r14) 'copy_xy)
 
-			(vp-label 'copy_xyy1)
-				;r7 + r8 + r10 inside
-				(assign '(r7 r8 r13 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				(continue)
+		(vp-label 'copy_xyy1)
+			;r7 + r8 + r10 inside
+			(assign '(r7 r8 r13 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			(continue)
 
-			(vp-label 'copy_split5)
-				;jump to correct splitting code
-				(gotoif '(r10 >= r14) 'copy_y)
+		(vp-label 'copy_split5)
+			;jump to correct splitting code
+			(gotoif '(r10 >= r14) 'copy_y)
 
-			(vp-label 'copy_yy1)
-				;r8 + r10 inside
-				(assign '(r11 r8 r13 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				(continue)
+		(vp-label 'copy_yy1)
+			;r8 + r10 inside
+			(assign '(r11 r8 r13 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			(continue)
 
-			(vp-label 'copy_split6)
-				;jump to correct splitting code
-				(gotoif '(r10 >= r14) 'copy_x)
+		(vp-label 'copy_split6)
+			;jump to correct splitting code
+			(gotoif '(r10 >= r14) 'copy_x)
 
-			(vp-label 'copy_xy1)
-				;r7 + r10 inside
-				(assign '(r7 r12 r13 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				(continue)
+		(vp-label 'copy_xy1)
+			;r7 + r10 inside
+			(assign '(r7 r12 r13 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			(continue)
 
-			(vp-label 'copy_split7)
-				;jump to correct splitting code
-				(gotoif '(r10 >= r14) 'copy_encl)
+		(vp-label 'copy_split7)
+			;jump to correct splitting code
+			(gotoif '(r10 >= r14) 'copy_encl)
 
-			(vp-label 'copy_y1)
-				;r10 inside
-				(assign '(r11 r12 r13 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				(continue)
+		(vp-label 'copy_y1)
+			;r10 inside
+			(assign '(r11 r12 r13 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			(continue)
 
-			(vp-label 'copy_xyx1)
-				;r7 + r8 + r9 inside
-				(assign '(r7 r8 r9 r14) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				(continue)
+		(vp-label 'copy_xyx1)
+			;r7 + r8 + r9 inside
+			(assign '(r7 r8 r9 r14) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			(continue)
 
-			(vp-label 'copy_encl)
-				;region is enclosed
-				(assign '(r11 r12 r13 r14) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				(continue)
+		(vp-label 'copy_encl)
+			;region is enclosed
+			(assign '(r11 r12 r13 r14) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			(continue)
 
-			(vp-label 'copy_x)
-				;r7 inside
-				(assign '(r7 r12 r13 r14) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				(continue)
+		(vp-label 'copy_x)
+			;r7 inside
+			(assign '(r7 r12 r13 r14) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			(continue)
 
-			(vp-label 'copy_y)
-				;r8 inside
-				(assign '(r11 r8 r13 r14) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				(continue)
+		(vp-label 'copy_y)
+			;r8 inside
+			(assign '(r11 r8 r13 r14) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			(continue)
 
-			(vp-label 'copy_xy)
-				;r7 + r8 inside
-				(assign '(r7 r8 r13 r14) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				(continue)
+		(vp-label 'copy_xy)
+			;r7 + r8 inside
+			(assign '(r7 r8 r13 r14) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			(continue)
 
-			(vp-label 'copy_x1)
-				;r9 inside
-				(assign '(r11 r12 r9 r14) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				(continue)
+		(vp-label 'copy_x1)
+			;r9 inside
+			(assign '(r11 r12 r9 r14) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			(continue)
 
-			(vp-label 'copy_xx1)
-				;r7 + r9 inside
-				(assign '(r7 r12 r9 r14) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				(continue)
+		(vp-label 'copy_xx1)
+			;r7 + r9 inside
+			(assign '(r7 r12 r9 r14) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			(continue)
 
-			(vp-label 'copy_yx1)
-				;r8 + r9 inside
-				(assign '(r11 r8 r9 r14) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-			(loop-end)
-		(endif)
+		(vp-label 'copy_yx1)
+			;r8 + r9 inside
+			(assign '(r11 r8 r9 r14) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+		(loop-end)
 	(endif)
 
 	(exit 'region 'copy_rect '(r0))
@@ -272,314 +260,309 @@
 	(entry 'region 'cut_rect '(r0 r1 r2 r7 r8 r9 r10))
 
 	;check for any obvious errors in inputs
-	(vpif '(r9 > r7))
-		(vpif '(r10 > r8))
-			;run through source region list
-			(vp-cpy-rr r2 r4)
-			(vp-cpy-rr r1 r5)
-			(loop-flist r1 0 r3 r6)
-				;not in contact ?
-				(assign '((r3 rect_x i) (r3 rect_y i) (r3 rect_x1 i) (r3 rect_y1 i)) '(r11 r12 r13 r14))
-				(continueif '(r11 >= r9))
-				(continueif '(r12 >= r10))
-				(continueif '(r7 >= r13))
-				(continueif '(r8 >= r14))
+	(vpif '(r9 > r7) '(r10 > r8))
+		;run through source region list
+		(vp-cpy-rr r2 r4)
+		(vp-cpy-rr r1 r5)
+		(loop-flist r1 0 r3 r6)
+			;not in contact ?
+			(assign '((r3 rect_x i) (r3 rect_y i) (r3 rect_x1 i) (r3 rect_y1 i)) '(r11 r12 r13 r14))
+			(continueif '(r11 >= r9) '(r12 >= r10) '(r7 >= r13) '(r8 >= r14))
 
-				;jump to correct splitting code
-				(gotoif '(r11 >= r7) 'cut_split1)
-				(gotoif '(r12 >= r8) 'cut_split2)
-				(gotoif '(r9 >= r13) 'cut_split4)
-				(gotoif '(r10 >= r14) 'cut_xyx1)
+			;jump to correct splitting code
+			(gotoif '(r11 >= r7) 'cut_split1)
+			(gotoif '(r12 >= r8) 'cut_split2)
+			(gotoif '(r9 >= r13) 'cut_split4)
+			(gotoif '(r10 >= r14) 'cut_xyx1)
 
-			(vp-label 'cut_xyx1y1)
-				;r7 + r8 + r9 + r10 inside
-				;bottom part
-				(assign '(r10) '((r3 rect_y i)))
-				;cut part
-				(call 'sys_heap 'alloc '(r0) '(r0 r1))
-				;(continueif '(r1 = 0))
-				(ln-add-fnode r4 0 r1 r6)
-				(assign '(r7 r8 r9 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				;right part
-				(call 'sys_heap 'alloc '(r0) '(r0 r1))
-				;(continueif '(r1 = 0))
-				(ln-add-fnode r5 0 r1 r6)
-				(assign '(r9 r8 r13 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				;left part
-				(call 'sys_heap 'alloc '(r0) '(r0 r1))
-				;(continueif '(r1 = 0))
-				(ln-add-fnode r5 0 r1 r6)
-				(assign '(r11 r8 r7 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				;top part
-				(call 'sys_heap 'alloc '(r0) '(r0 r1))
-				;(continueif '(r1 = 0))
-				(ln-add-fnode r5 0 r1 r6)
-				(assign '(r11 r12 r13 r8) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				(continue)
+		(vp-label 'cut_xyx1y1)
+			;r7 + r8 + r9 + r10 inside
+			;bottom part
+			(assign '(r10) '((r3 rect_y i)))
+			;cut part
+			(call 'sys_heap 'alloc '(r0) '(r0 r1))
+			;(continueif '(r1 = 0))
+			(ln-add-fnode r4 0 r1 r6)
+			(assign '(r7 r8 r9 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			;right part
+			(call 'sys_heap 'alloc '(r0) '(r0 r1))
+			;(continueif '(r1 = 0))
+			(ln-add-fnode r5 0 r1 r6)
+			(assign '(r9 r8 r13 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			;left part
+			(call 'sys_heap 'alloc '(r0) '(r0 r1))
+			;(continueif '(r1 = 0))
+			(ln-add-fnode r5 0 r1 r6)
+			(assign '(r11 r8 r7 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			;top part
+			(call 'sys_heap 'alloc '(r0) '(r0 r1))
+			;(continueif '(r1 = 0))
+			(ln-add-fnode r5 0 r1 r6)
+			(assign '(r11 r12 r13 r8) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			(continue)
 
-			(vp-label 'cut_split1)
-				;jump to correct splitting code
-				(gotoif '(r12 >= r8) 'cut_split3)
-				(gotoif '(r9 >= r13) 'cut_split5)
-				(gotoif '(r10 >= r14) 'cut_yx1)
+		(vp-label 'cut_split1)
+			;jump to correct splitting code
+			(gotoif '(r12 >= r8) 'cut_split3)
+			(gotoif '(r9 >= r13) 'cut_split5)
+			(gotoif '(r10 >= r14) 'cut_yx1)
 
-			(vp-label 'cut_yx1y1)
-				;r8 + r9 + r10 inside
-				;bottom part
-				(assign '(r10) '((r3 rect_y i)))
-				;cut part
-				(call 'sys_heap 'alloc '(r0) '(r0 r1))
-				;(continueif '(r1 = 0))
-				(ln-add-fnode r4 0 r1 r6)
-				(assign '(r11 r8 r9 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				;right part
-				(call 'sys_heap 'alloc '(r0) '(r0 r1))
-				;(continueif '(r1 = 0))
-				(ln-add-fnode r5 0 r1 r6)
-				(assign '(r9 r8 r13 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				;top part
-				(call 'sys_heap 'alloc '(r0) '(r0 r1))
-				;(continueif '(r1 = 0))
-				(ln-add-fnode r5 0 r1 r6)
-				(assign '(r11 r12 r13 r8) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				(continue)
+		(vp-label 'cut_yx1y1)
+			;r8 + r9 + r10 inside
+			;bottom part
+			(assign '(r10) '((r3 rect_y i)))
+			;cut part
+			(call 'sys_heap 'alloc '(r0) '(r0 r1))
+			;(continueif '(r1 = 0))
+			(ln-add-fnode r4 0 r1 r6)
+			(assign '(r11 r8 r9 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			;right part
+			(call 'sys_heap 'alloc '(r0) '(r0 r1))
+			;(continueif '(r1 = 0))
+			(ln-add-fnode r5 0 r1 r6)
+			(assign '(r9 r8 r13 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			;top part
+			(call 'sys_heap 'alloc '(r0) '(r0 r1))
+			;(continueif '(r1 = 0))
+			(ln-add-fnode r5 0 r1 r6)
+			(assign '(r11 r12 r13 r8) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			(continue)
 
-			(vp-label 'cut_split2)
-				;jump to correct splitting code
-				(gotoif '(r9 >= r13) 'cut_split6)
-				(gotoif '(r10 >= r14) 'cut_xx1)
+		(vp-label 'cut_split2)
+			;jump to correct splitting code
+			(gotoif '(r9 >= r13) 'cut_split6)
+			(gotoif '(r10 >= r14) 'cut_xx1)
 
-			(vp-label 'cut_xx1y1)
-				;r7 + r9 + r10 inside
-				;bottom part
-				(assign '(r10) '((r3 rect_y i)))
-				;cut part
-				(call 'sys_heap 'alloc '(r0) '(r0 r1))
-				;(continueif '(r1 = 0))
-				(ln-add-fnode r4 0 r1 r6)
-				(assign '(r7 r12 r9 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				;right part
-				(call 'sys_heap 'alloc '(r0) '(r0 r1))
-				;(continueif '(r1 = 0))
-				(ln-add-fnode r5 0 r1 r6)
-				(assign '(r9 r12 r13 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				;left part
-				(call 'sys_heap 'alloc '(r0) '(r0 r1))
-				;(continueif '(r1 = 0))
-				(ln-add-fnode r5 0 r1 r6)
-				(assign '(r11 r12 r7 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				(continue)
+		(vp-label 'cut_xx1y1)
+			;r7 + r9 + r10 inside
+			;bottom part
+			(assign '(r10) '((r3 rect_y i)))
+			;cut part
+			(call 'sys_heap 'alloc '(r0) '(r0 r1))
+			;(continueif '(r1 = 0))
+			(ln-add-fnode r4 0 r1 r6)
+			(assign '(r7 r12 r9 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			;right part
+			(call 'sys_heap 'alloc '(r0) '(r0 r1))
+			;(continueif '(r1 = 0))
+			(ln-add-fnode r5 0 r1 r6)
+			(assign '(r9 r12 r13 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			;left part
+			(call 'sys_heap 'alloc '(r0) '(r0 r1))
+			;(continueif '(r1 = 0))
+			(ln-add-fnode r5 0 r1 r6)
+			(assign '(r11 r12 r7 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			(continue)
 
-			(vp-label 'cut_split3)
-				;jump to correct splitting code
-				(gotoif '(r9 >= r13) 'cut_split7)
-				(gotoif '(r10 >= r14) 'cut_x1)
+		(vp-label 'cut_split3)
+			;jump to correct splitting code
+			(gotoif '(r9 >= r13) 'cut_split7)
+			(gotoif '(r10 >= r14) 'cut_x1)
 
-			(vp-label 'cut_x1y1)
-				;r9 + r10 inside
-				;bottom part
-				(assign '(r10) '((r3 rect_y i)))
-				;cut part
-				(call 'sys_heap 'alloc '(r0) '(r0 r1))
-				;(continueif '(r1 = 0))
-				(ln-add-fnode r4 0 r1 r6)
-				(assign '(r11 r12 r9 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				;right part
-				(call 'sys_heap 'alloc '(r0) '(r0 r1))
-				;(continueif '(r1 = 0))
-				(ln-add-fnode r5 0 r1 r6)
-				(assign '(r9 r12 r13 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				(continue)
+		(vp-label 'cut_x1y1)
+			;r9 + r10 inside
+			;bottom part
+			(assign '(r10) '((r3 rect_y i)))
+			;cut part
+			(call 'sys_heap 'alloc '(r0) '(r0 r1))
+			;(continueif '(r1 = 0))
+			(ln-add-fnode r4 0 r1 r6)
+			(assign '(r11 r12 r9 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			;right part
+			(call 'sys_heap 'alloc '(r0) '(r0 r1))
+			;(continueif '(r1 = 0))
+			(ln-add-fnode r5 0 r1 r6)
+			(assign '(r9 r12 r13 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			(continue)
 
-			(vp-label 'cut_split4)
-				;jump to correct splitting code
-				(gotoif '(r10 >= r14) 'cut_xy)
+		(vp-label 'cut_split4)
+			;jump to correct splitting code
+			(gotoif '(r10 >= r14) 'cut_xy)
 
-			(vp-label 'cut_xyy1)
-				;r7 + r8 + r10 inside
-				;bottom part
-				(assign '(r10) '((r3 rect_y i)))
-				;cut part
-				(call 'sys_heap 'alloc '(r0) '(r0 r1))
-				;(continueif '(r1 = 0))
-				(ln-add-fnode r4 0 r1 r6)
-				(assign '(r7 r8 r13 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				;left part
-				(call 'sys_heap 'alloc '(r0) '(r0 r1))
-				;(continueif '(r1 = 0))
-				(ln-add-fnode r5 0 r1 r6)
-				(assign '(r11 r8 r7 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				;top part
-				(call 'sys_heap 'alloc '(r0) '(r0 r1))
-				;(continueif '(r1 = 0))
-				(ln-add-fnode r5 0 r1 r6)
-				(assign '(r11 r12 r13 r8) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				(continue)
+		(vp-label 'cut_xyy1)
+			;r7 + r8 + r10 inside
+			;bottom part
+			(assign '(r10) '((r3 rect_y i)))
+			;cut part
+			(call 'sys_heap 'alloc '(r0) '(r0 r1))
+			;(continueif '(r1 = 0))
+			(ln-add-fnode r4 0 r1 r6)
+			(assign '(r7 r8 r13 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			;left part
+			(call 'sys_heap 'alloc '(r0) '(r0 r1))
+			;(continueif '(r1 = 0))
+			(ln-add-fnode r5 0 r1 r6)
+			(assign '(r11 r8 r7 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			;top part
+			(call 'sys_heap 'alloc '(r0) '(r0 r1))
+			;(continueif '(r1 = 0))
+			(ln-add-fnode r5 0 r1 r6)
+			(assign '(r11 r12 r13 r8) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			(continue)
 
-			(vp-label 'cut_split5)
-				;jump to correct splitting code
-				(gotoif '(r10 >= r14) 'cut_y)
+		(vp-label 'cut_split5)
+			;jump to correct splitting code
+			(gotoif '(r10 >= r14) 'cut_y)
 
-			(vp-label 'cut_yy1)
-				;r8 + r10 inside
-				;bottom part
-				(assign '(r10) '((r3 rect_y i)))
-				;cut part
-				(call 'sys_heap 'alloc '(r0) '(r0 r1))
-				;(continueif '(r1 = 0))
-				(ln-add-fnode r4 0 r1 r6)
-				(assign '(r11 r8 r13 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				;top part
-				(call 'sys_heap 'alloc '(r0) '(r0 r1))
-				;(continueif '(r1 = 0))
-				(ln-add-fnode r5 0 r1 r6)
-				(assign '(r11 r12 r13 r8) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				(continue)
+		(vp-label 'cut_yy1)
+			;r8 + r10 inside
+			;bottom part
+			(assign '(r10) '((r3 rect_y i)))
+			;cut part
+			(call 'sys_heap 'alloc '(r0) '(r0 r1))
+			;(continueif '(r1 = 0))
+			(ln-add-fnode r4 0 r1 r6)
+			(assign '(r11 r8 r13 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			;top part
+			(call 'sys_heap 'alloc '(r0) '(r0 r1))
+			;(continueif '(r1 = 0))
+			(ln-add-fnode r5 0 r1 r6)
+			(assign '(r11 r12 r13 r8) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			(continue)
 
-			(vp-label 'cut_split6)
-				;jump to correct splitting code
-				(gotoif '(r10 >= r14) 'cut_x)
+		(vp-label 'cut_split6)
+			;jump to correct splitting code
+			(gotoif '(r10 >= r14) 'cut_x)
 
-			(vp-label 'cut_xy1)
-				;r7 + r10 inside
-				;bottom part
-				(assign '(r10) '((r3 rect_y i)))
-				;cut part
-				(call 'sys_heap 'alloc '(r0) '(r0 r1))
-				;(continueif '(r1 = 0))
-				(ln-add-fnode r4 0 r1 r6)
-				(assign '(r7 r12 r13 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				;left part
-				(call 'sys_heap 'alloc '(r0) '(r0 r1))
-				;(continueif '(r1 = 0))
-				(ln-add-fnode r5 0 r1 r6)
-				(assign '(r11 r12 r7 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				(continue)
+		(vp-label 'cut_xy1)
+			;r7 + r10 inside
+			;bottom part
+			(assign '(r10) '((r3 rect_y i)))
+			;cut part
+			(call 'sys_heap 'alloc '(r0) '(r0 r1))
+			;(continueif '(r1 = 0))
+			(ln-add-fnode r4 0 r1 r6)
+			(assign '(r7 r12 r13 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			;left part
+			(call 'sys_heap 'alloc '(r0) '(r0 r1))
+			;(continueif '(r1 = 0))
+			(ln-add-fnode r5 0 r1 r6)
+			(assign '(r11 r12 r7 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			(continue)
 
-			(vp-label 'cut_split7)
-				;jump to correct splitting code
-				(gotoif '(r10 >= r14) 'cut_encl)
+		(vp-label 'cut_split7)
+			;jump to correct splitting code
+			(gotoif '(r10 >= r14) 'cut_encl)
 
-			(vp-label 'cut_y1)
-				;r10 inside
-				;bottom part
-				(assign '(r10) '((r3 rect_y i)))
-				;cut part
-				(call 'sys_heap 'alloc '(r0) '(r0 r1))
-				;(continueif '(r1 = 0))
-				(ln-add-fnode r4 0 r1 r6)
-				(assign '(r11 r12 r13 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				(continue)
+		(vp-label 'cut_y1)
+			;r10 inside
+			;bottom part
+			(assign '(r10) '((r3 rect_y i)))
+			;cut part
+			(call 'sys_heap 'alloc '(r0) '(r0 r1))
+			;(continueif '(r1 = 0))
+			(ln-add-fnode r4 0 r1 r6)
+			(assign '(r11 r12 r13 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			(continue)
 
-			(vp-label 'cut_xyx1)
-				;r7 + r8 + r9 inside
-				;left part
-				(assign '(r8 r7) '((r3 rect_y i) (r3 rect_x1 i)))
-				;cut part
-				(call 'sys_heap 'alloc '(r0) '(r0 r1))
-				;(continueif '(r1 = 0))
-				(ln-add-fnode r4 0 r1 r6)
-				(assign '(r7 r8 r9 r14) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				;right part
-				(call 'sys_heap 'alloc '(r0) '(r0 r1))
-				;(continueif '(r1 = 0))
-				(ln-add-fnode r5 0 r1 r6)
-				(assign '(r9 r8 r13 r14) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				;top part
-				(call 'sys_heap 'alloc '(r0) '(r0 r1))
-				;(continueif '(r1 = 0))
-				(ln-add-fnode r5 0 r1 r6)
-				(assign '(r11 r12 r13 r8) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				(continue)
+		(vp-label 'cut_xyx1)
+			;r7 + r8 + r9 inside
+			;left part
+			(assign '(r8 r7) '((r3 rect_y i) (r3 rect_x1 i)))
+			;cut part
+			(call 'sys_heap 'alloc '(r0) '(r0 r1))
+			;(continueif '(r1 = 0))
+			(ln-add-fnode r4 0 r1 r6)
+			(assign '(r7 r8 r9 r14) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			;right part
+			(call 'sys_heap 'alloc '(r0) '(r0 r1))
+			;(continueif '(r1 = 0))
+			(ln-add-fnode r5 0 r1 r6)
+			(assign '(r9 r8 r13 r14) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			;top part
+			(call 'sys_heap 'alloc '(r0) '(r0 r1))
+			;(continueif '(r1 = 0))
+			(ln-add-fnode r5 0 r1 r6)
+			(assign '(r11 r12 r13 r8) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			(continue)
 
-			(vp-label 'cut_encl)
-				;region is enclosed
-				(vp-cpy-rr r3 r1)
-				(ln-remove-fnode r3 r6)
-				(ln-add-fnode r4 0 r1 r6)
-				(continue)
+		(vp-label 'cut_encl)
+			;region is enclosed
+			(vp-cpy-rr r3 r1)
+			(ln-remove-fnode r3 r6)
+			(ln-add-fnode r4 0 r1 r6)
+			(continue)
 
-			(vp-label 'cut_x)
-				;r7 inside
-				;left part
-				(assign '(r7) '((r3 rect_x1 i)))
-				;cut part
-				(call 'sys_heap 'alloc '(r0) '(r0 r1))
-				;(continueif '(r1 = 0))
-				(ln-add-fnode r4 0 r1 r6)
-				(assign '(r7 r12 r13 r14) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				(continue)
+		(vp-label 'cut_x)
+			;r7 inside
+			;left part
+			(assign '(r7) '((r3 rect_x1 i)))
+			;cut part
+			(call 'sys_heap 'alloc '(r0) '(r0 r1))
+			;(continueif '(r1 = 0))
+			(ln-add-fnode r4 0 r1 r6)
+			(assign '(r7 r12 r13 r14) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			(continue)
 
-			(vp-label 'cut_y)
-				;r8 inside
-				;top part
-				(assign '(r8) '((r3 rect_y1 i)))
-				;cut part
-				(call 'sys_heap 'alloc '(r0) '(r0 r1))
-				;(continueif '(r1 = 0))
-				(ln-add-fnode r4 0 r1 r6)
-				(assign '(r11 r8 r13 r14) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				(continue)
+		(vp-label 'cut_y)
+			;r8 inside
+			;top part
+			(assign '(r8) '((r3 rect_y1 i)))
+			;cut part
+			(call 'sys_heap 'alloc '(r0) '(r0 r1))
+			;(continueif '(r1 = 0))
+			(ln-add-fnode r4 0 r1 r6)
+			(assign '(r11 r8 r13 r14) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			(continue)
 
-			(vp-label 'cut_xy)
-				;r7 + r8 inside
-				;left part
-				(assign '(r8 r7) '((r3 rect_y i) (r3 rect_x1 i)))
-				;cut part
-				(call 'sys_heap 'alloc '(r0) '(r0 r1))
-				;(continueif '(r1 = 0))
-				(ln-add-fnode r4 0 r1 r6)
-				(assign '(r7 r8 r13 r14) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				;top part
-				(call 'sys_heap 'alloc '(r0) '(r0 r1))
-				;(continueif '(r1 = 0))
-				(ln-add-fnode r5 0 r1 r6)
-				(assign '(r11 r12 r13 r8) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				(continue)
+		(vp-label 'cut_xy)
+			;r7 + r8 inside
+			;left part
+			(assign '(r8 r7) '((r3 rect_y i) (r3 rect_x1 i)))
+			;cut part
+			(call 'sys_heap 'alloc '(r0) '(r0 r1))
+			;(continueif '(r1 = 0))
+			(ln-add-fnode r4 0 r1 r6)
+			(assign '(r7 r8 r13 r14) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			;top part
+			(call 'sys_heap 'alloc '(r0) '(r0 r1))
+			;(continueif '(r1 = 0))
+			(ln-add-fnode r5 0 r1 r6)
+			(assign '(r11 r12 r13 r8) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			(continue)
 
-			(vp-label 'cut_x1)
-				;r9 inside
-				;right part
-				(assign '(r9) '((r3 rect_x i)))
-				;cut part
-				(call 'sys_heap 'alloc '(r0) '(r0 r1))
-				;(continueif '(r1 = 0))
-				(ln-add-fnode r4 0 r1 r6)
-				(assign '(r11 r12 r9 r14) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				(continue)
+		(vp-label 'cut_x1)
+			;r9 inside
+			;right part
+			(assign '(r9) '((r3 rect_x i)))
+			;cut part
+			(call 'sys_heap 'alloc '(r0) '(r0 r1))
+			;(continueif '(r1 = 0))
+			(ln-add-fnode r4 0 r1 r6)
+			(assign '(r11 r12 r9 r14) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			(continue)
 
-			(vp-label 'cut_xx1)
-				;r7 + r9 inside
-				;right part
-				(assign '(r9) '((r3 rect_x i)))
-				;cut part
-				(call 'sys_heap 'alloc '(r0) '(r0 r1))
-				;(continueif '(r1 = 0))
-				(ln-add-fnode r4 0 r1 r6)
-				(assign '(r7 r12 r9 r14) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				;left part
-				(call 'sys_heap 'alloc '(r0) '(r0 r1))
-				;(continueif '(r1 = 0))
-				(ln-add-fnode r5 0 r1 r6)
-				(assign '(r11 r12 r7 r14) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				(continue)
+		(vp-label 'cut_xx1)
+			;r7 + r9 inside
+			;right part
+			(assign '(r9) '((r3 rect_x i)))
+			;cut part
+			(call 'sys_heap 'alloc '(r0) '(r0 r1))
+			;(continueif '(r1 = 0))
+			(ln-add-fnode r4 0 r1 r6)
+			(assign '(r7 r12 r9 r14) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			;left part
+			(call 'sys_heap 'alloc '(r0) '(r0 r1))
+			;(continueif '(r1 = 0))
+			(ln-add-fnode r5 0 r1 r6)
+			(assign '(r11 r12 r7 r14) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			(continue)
 
-			(vp-label 'cut_yx1)
-				;r8 + r9 inside
-				;right part
-				(assign '(r9 r8) '((r3 rect_x i) (r3 rect_y i)))
-				;cut part
-				(call 'sys_heap 'alloc '(r0) '(r0 r1))
-				;(continueif '(r1 = 0))
-				(ln-add-fnode r4 0 r1 r6)
-				(assign '(r11 r8 r9 r14) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				;top part
-				(call 'sys_heap 'alloc '(r0) '(r0 r1))
-				;(continueif '(r1 = 0))
-				(ln-add-fnode r5 0 r1 r6)
-				(assign '(r11 r12 r13 r8) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-			(loop-end)
-		(endif)
+		(vp-label 'cut_yx1)
+			;r8 + r9 inside
+			;right part
+			(assign '(r9 r8) '((r3 rect_x i) (r3 rect_y i)))
+			;cut part
+			(call 'sys_heap 'alloc '(r0) '(r0 r1))
+			;(continueif '(r1 = 0))
+			(ln-add-fnode r4 0 r1 r6)
+			(assign '(r11 r8 r9 r14) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			;top part
+			(call 'sys_heap 'alloc '(r0) '(r0 r1))
+			;(continueif '(r1 = 0))
+			(ln-add-fnode r5 0 r1 r6)
+			(assign '(r11 r12 r13 r8) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+		(loop-end)
 	(endif)
 
 	(exit 'region 'cut_rect '(r0))
@@ -626,187 +609,180 @@
 	(entry 'region 'paste_rect '(r0 r1 r7 r8 r9 r10))
 
 	;check for any obvious errors in inputs
-	(vpif '(r9 > r7))
-		(vpif '(r10 > r8))
-			;run through source region list
-			(vp-cpy-rr r1 r4)
-			(loop-flist r1 0 r6 r5)
-				;not in contact ?
-				(assign '((r6 rect_x i) (r6 rect_y i) (r6 rect_x1 i) (r6 rect_y1 i)) '(r11 r12 r13 r14))
-				(continueif '(r11 >= r9))
-				(continueif '(r12 >= r10))
-				(continueif '(r7 >= r13))
-				(continueif '(r8 >= r14))
+	(vpif '(r9 > r7) '(r10 > r8))
+		;run through source region list
+		(vp-cpy-rr r1 r4)
+		(loop-flist r1 0 r6 r5)
+			;not in contact ?
+			(assign '((r6 rect_x i) (r6 rect_y i) (r6 rect_x1 i) (r6 rect_y1 i)) '(r11 r12 r13 r14))
+			(continueif '(r11 >= r9) '(r12 >= r10) '(r7 >= r13) '(r8 >= r14))
 
-				;jump to correct splitting code
-				(gotoif '(r11 >= r7) 'paste_split1)
-				(gotoif '(r12 >= r8) 'paste_split2)
-				(gotoif '(r9 >= r13) 'paste_split4)
-				(gotoif '(r10 >= r14) 'paste_xyx1)
+			;jump to correct splitting code
+			(gotoif '(r11 >= r7) 'paste_split1)
+			(gotoif '(r12 >= r8) 'paste_split2)
+			(gotoif '(r9 >= r13) 'paste_split4)
+			(gotoif '(r10 >= r14) 'paste_xyx1)
 
-			(vp-label 'paste_xyx1y1)
-				;r7 + r8 + r9 + r10 inside
-				(vp-ret)
+		(vp-label 'paste_xyx1y1)
+			;r7 + r8 + r9 + r10 inside
+			(vp-ret)
 
-			(vp-label 'paste_split1)
-				;jump to correct splitting code
-				(gotoif '(r12 >= r8) 'paste_split3)
-				(gotoif '(r9 >= r13) 'paste_split5)
-				(gotoif '(r10 >= r14) 'paste_yx1)
+		(vp-label 'paste_split1)
+			;jump to correct splitting code
+			(gotoif '(r12 >= r8) 'paste_split3)
+			(gotoif '(r9 >= r13) 'paste_split5)
+			(gotoif '(r10 >= r14) 'paste_yx1)
 
-			(vp-label 'paste_yx1y1)
-				;r8 + r9 + r10 inside
-				(vp-cpy-rr r11 r9)
-				(continue)
+		(vp-label 'paste_yx1y1)
+			;r8 + r9 + r10 inside
+			(vp-cpy-rr r11 r9)
+			(continue)
 
-			(vp-label 'paste_split2)
-				;jump to correct splitting code
-				(gotoif '(r9 >= r13) 'paste_split6)
-				(gotoif '(r10 >= r14) 'paste_xx1)
+		(vp-label 'paste_split2)
+			;jump to correct splitting code
+			(gotoif '(r9 >= r13) 'paste_split6)
+			(gotoif '(r10 >= r14) 'paste_xx1)
 
-			(vp-label 'paste_xx1y1)
-				;r7 + r9 + r10 inside
-				(vp-cpy-rr r12 r10)
-				(continue)
+		(vp-label 'paste_xx1y1)
+			;r7 + r9 + r10 inside
+			(vp-cpy-rr r12 r10)
+			(continue)
 
-			(vp-label 'paste_split3)
-				;jump to correct splitting code
-				(gotoif '(r9 >= r13) 'paste_split7)
-				(gotoif '(r10 >= r14) 'paste_x1)
+		(vp-label 'paste_split3)
+			;jump to correct splitting code
+			(gotoif '(r9 >= r13) 'paste_split7)
+			(gotoif '(r10 >= r14) 'paste_x1)
 
-			(vp-label 'paste_x1y1)
-				;r9 + r10 inside
-				;bottom part
-				(assign '(r10) '((r6 rect_y i)))
-				;right part
-				(call 'sys_heap 'alloc '(r0) '(r0 r1))
-				;(continueif '(r1 = 0))
-				(ln-add-fnode r4 0 r1 r2)
-				(assign '(r9 r12 r13 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				(continue)
+		(vp-label 'paste_x1y1)
+			;r9 + r10 inside
+			;bottom part
+			(assign '(r10) '((r6 rect_y i)))
+			;right part
+			(call 'sys_heap 'alloc '(r0) '(r0 r1))
+			;(continueif '(r1 = 0))
+			(ln-add-fnode r4 0 r1 r2)
+			(assign '(r9 r12 r13 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			(continue)
 
-			(vp-label 'paste_split4)
-				;jump to correct splitting code
-				(gotoif '(r10 >= r14) 'paste_xy)
+		(vp-label 'paste_split4)
+			;jump to correct splitting code
+			(gotoif '(r10 >= r14) 'paste_xy)
 
-			(vp-label 'paste_xyy1)
-				;r7 + r8 + r10 inside
-				(vp-cpy-rr r13 r7)
-				(continue)
+		(vp-label 'paste_xyy1)
+			;r7 + r8 + r10 inside
+			(vp-cpy-rr r13 r7)
+			(continue)
 
-			(vp-label 'paste_split5)
-				;jump to correct splitting code
-				(gotoif '(r10 >= r14) 'paste_y)
+		(vp-label 'paste_split5)
+			;jump to correct splitting code
+			(gotoif '(r10 >= r14) 'paste_y)
 
-			(vp-label 'paste_yy1)
-				;r8 + r10 inside
-				;bottom part
-				(assign '(r10) '((r6 rect_y i)))
-				;top part
-				(call 'sys_heap 'alloc '(r0) '(r0 r1))
-				;(continueif '(r1 = 0))
-				(ln-add-fnode r4 0 r1 r2)
-				(assign '(r11 r12 r13 r8) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				(continue)
+		(vp-label 'paste_yy1)
+			;r8 + r10 inside
+			;bottom part
+			(assign '(r10) '((r6 rect_y i)))
+			;top part
+			(call 'sys_heap 'alloc '(r0) '(r0 r1))
+			;(continueif '(r1 = 0))
+			(ln-add-fnode r4 0 r1 r2)
+			(assign '(r11 r12 r13 r8) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			(continue)
 
-			(vp-label 'paste_split6)
-				;jump to correct splitting code
-				(gotoif '(r10 >= r14) 'paste_x)
+		(vp-label 'paste_split6)
+			;jump to correct splitting code
+			(gotoif '(r10 >= r14) 'paste_x)
 
-			(vp-label 'paste_xy1)
-				;r7 + r10 inside
-				;bottom part
-				(assign '(r10) '((r6 rect_y i)))
-				;left part
-				(call 'sys_heap 'alloc '(r0) '(r0 r1))
-				;(continueif '(r1 = 0))
-				(ln-add-fnode r4 0 r1 r2)
-				(assign '(r11 r12 r7 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				(continue)
+		(vp-label 'paste_xy1)
+			;r7 + r10 inside
+			;bottom part
+			(assign '(r10) '((r6 rect_y i)))
+			;left part
+			(call 'sys_heap 'alloc '(r0) '(r0 r1))
+			;(continueif '(r1 = 0))
+			(ln-add-fnode r4 0 r1 r2)
+			(assign '(r11 r12 r7 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			(continue)
 
-			(vp-label 'paste_split7)
-				;jump to correct splitting code
-				(gotoif '(r10 >= r14) 'paste_encl)
+		(vp-label 'paste_split7)
+			;jump to correct splitting code
+			(gotoif '(r10 >= r14) 'paste_encl)
 
-			(vp-label 'paste_y1)
-				;r10 inside
-				;bottom part
-				(assign '(r10) '((r6 rect_y i)))
-				(continue)
+		(vp-label 'paste_y1)
+			;r10 inside
+			;bottom part
+			(assign '(r10) '((r6 rect_y i)))
+			(continue)
 
-			(vp-label 'paste_xyx1)
-				;r7 + r8 + r9 inside
-				(vp-cpy-rr r14 r8)
-				(continue)
+		(vp-label 'paste_xyx1)
+			;r7 + r8 + r9 inside
+			(vp-cpy-rr r14 r8)
+			(continue)
 
-			(vp-label 'paste_encl)
-				;region is enclosed
-				(vp-cpy-rr r6 r1)
-				(ln-remove-fnode r6 r5)
-				(hp-freecell r0 r1 r2)
-				(continue)
+		(vp-label 'paste_encl)
+			;region is enclosed
+			(vp-cpy-rr r6 r1)
+			(ln-remove-fnode r6 r5)
+			(hp-freecell r0 r1 r2)
+			(continue)
 
-			(vp-label 'paste_x)
-				;r7 inside
-				;left part
-				(assign '(r7) '((r6 rect_x1 i)))
-				(continue)
+		(vp-label 'paste_x)
+			;r7 inside
+			;left part
+			(assign '(r7) '((r6 rect_x1 i)))
+			(continue)
 
-			(vp-label 'paste_y)
-				;r8 inside
-				;top part
-				(assign '(r8) '((r6 rect_y1 i)))
-				(continue)
+		(vp-label 'paste_y)
+			;r8 inside
+			;top part
+			(assign '(r8) '((r6 rect_y1 i)))
+			(continue)
 
-			(vp-label 'paste_xy)
-				;r7 + r8 inside
-				;left part
-				(assign '(r8 r7) '((r6 rect_y i) (r6 rect_x1 i)))
-				;top part
-				(call 'sys_heap 'alloc '(r0) '(r0 r1))
-				;(continueif '(r1 = 0))
-				(ln-add-fnode r4 0 r1 r2)
-				(assign '(r11 r12 r13 r8) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				(continue)
+		(vp-label 'paste_xy)
+			;r7 + r8 inside
+			;left part
+			(assign '(r8 r7) '((r6 rect_y i) (r6 rect_x1 i)))
+			;top part
+			(call 'sys_heap 'alloc '(r0) '(r0 r1))
+			;(continueif '(r1 = 0))
+			(ln-add-fnode r4 0 r1 r2)
+			(assign '(r11 r12 r13 r8) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			(continue)
 
-			(vp-label 'paste_x1)
-				;r9 inside
-				;right part
-				(assign '(r9) '((r6 rect_x i)))
-				(continue)
+		(vp-label 'paste_x1)
+			;r9 inside
+			;right part
+			(assign '(r9) '((r6 rect_x i)))
+			(continue)
 
-			(vp-label 'paste_xx1)
-				;r7 + r9 inside
-				;right part
-				(assign '(r9) '((r6 rect_x i)))
-				;left part
-				(call 'sys_heap 'alloc '(r0) '(r0 r1))
-				;(continueif '(r1 = 0))
-				(ln-add-fnode r4 0 r1 r2)
-				(assign '(r11 r12 r7 r14) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				(continue)
+		(vp-label 'paste_xx1)
+			;r7 + r9 inside
+			;right part
+			(assign '(r9) '((r6 rect_x i)))
+			;left part
+			(call 'sys_heap 'alloc '(r0) '(r0 r1))
+			;(continueif '(r1 = 0))
+			(ln-add-fnode r4 0 r1 r2)
+			(assign '(r11 r12 r7 r14) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			(continue)
 
-			(vp-label 'paste_yx1)
-				;r8 + r9 inside
-				;right part
-				(assign '(r9 r8) '((r6 rect_x i) (r6 rect_y i)))
-				;top part
-				(call 'sys_heap 'alloc '(r0) '(r0 r1))
-				;(continueif '(r1 = 0))
-				(ln-add-fnode r4 0 r1 r2)
-				(assign '(r11 r12 r13 r8) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-			(loop-end)
+		(vp-label 'paste_yx1)
+			;r8 + r9 inside
+			;right part
+			(assign '(r9 r8) '((r6 rect_x i) (r6 rect_y i)))
+			;top part
+			(call 'sys_heap 'alloc '(r0) '(r0 r1))
+			;(continueif '(r1 = 0))
+			(ln-add-fnode r4 0 r1 r2)
+			(assign '(r11 r12 r13 r8) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+		(loop-end)
 
-			;create new region ?
-			(switch)
-				(breakif '(r7 = r9))
-				(breakif '(r8 = r10))
-				(call 'sys_heap 'alloc '(r0) '(r0 r1))
-				;(breakif '(r1 = 0))
+		;create new region ?
+		(vpif '(r7 /= r9) '(r8 /= r10))
+			(call 'sys_heap 'alloc '(r0) '(r0 r1))
+			;(breakif '(r1 = 0))
 
-				(ln-add-fnode r4 0 r1 r2)
-				(assign '(r7 r8 r9 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-			(endswitch)
+			(ln-add-fnode r4 0 r1 r2)
+			(assign '(r7 r8 r9 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
 		(endif)
 	(endif)
 
@@ -873,238 +849,233 @@
 	(entry 'region 'remove_rect '(r0 r1 r7 r8 r9 r10))
 
 	;check for any obvious errors in inputs
-	(vpif '(r9 > r7))
-		(vpif '(r10 > r8))
-			;run through source region list
-			(vp-cpy-rr r1 r4)
-			(loop-flist r1 0 r3 r5)
-				;not in contact ?
-				(assign '((r3 rect_x i) (r3 rect_y i) (r3 rect_x1 i) (r3 rect_y1 i)) '(r11 r12 r13 r14))
-				(continueif '(r11 >= r9))
-				(continueif '(r12 >= r10))
-				(continueif '(r7 >= r13))
-				(continueif '(r8 >= r14))
+	(vpif '(r9 > r7) '(r10 > r8))
+		;run through source region list
+		(vp-cpy-rr r1 r4)
+		(loop-flist r1 0 r3 r5)
+			;not in contact ?
+			(assign '((r3 rect_x i) (r3 rect_y i) (r3 rect_x1 i) (r3 rect_y1 i)) '(r11 r12 r13 r14))
+			(continueif '(r11 >= r9) '(r12 >= r10) '(r7 >= r13) '(r8 >= r14))
 
-				;jump to correct splitting code
-				(gotoif '(r11 >= r7) 'rem_split1)
-				(gotoif '(r12 >= r8) 'rem_split2)
-				(gotoif '(r9 >= r13) 'rem_split4)
-				(gotoif '(r10 >= r14) 'rem_xyx1)
+			;jump to correct splitting code
+			(gotoif '(r11 >= r7) 'rem_split1)
+			(gotoif '(r12 >= r8) 'rem_split2)
+			(gotoif '(r9 >= r13) 'rem_split4)
+			(gotoif '(r10 >= r14) 'rem_xyx1)
 
-			(vp-label 'rem_xyx1y1)
-				;r7 + r8 + r9 + r10 inside
-				;bottom part
-				(assign '(r10) '((r3 rect_y i)))
-				;right part
-				(call 'sys_heap 'alloc '(r0) '(r0 r1))
-				;(continueif '(r1 = 0))
-				(ln-add-fnode r4 0 r1 r2)
-				(assign '(r9 r8 r13 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				;left part
-				(call 'sys_heap 'alloc '(r0) '(r0 r1))
-				;(continueif '(r1 = 0))
-				(ln-add-fnode r4 0 r1 r2)
-				(assign '(r11 r8 r7 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				;top part
-				(call 'sys_heap 'alloc '(r0) '(r0 r1))
-				;(continueif '(r1 = 0))
-				(ln-add-fnode r4 0 r1 r2)
-				(assign '(r11 r12 r13 r8) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				(continue)
+		(vp-label 'rem_xyx1y1)
+			;r7 + r8 + r9 + r10 inside
+			;bottom part
+			(assign '(r10) '((r3 rect_y i)))
+			;right part
+			(call 'sys_heap 'alloc '(r0) '(r0 r1))
+			;(continueif '(r1 = 0))
+			(ln-add-fnode r4 0 r1 r2)
+			(assign '(r9 r8 r13 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			;left part
+			(call 'sys_heap 'alloc '(r0) '(r0 r1))
+			;(continueif '(r1 = 0))
+			(ln-add-fnode r4 0 r1 r2)
+			(assign '(r11 r8 r7 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			;top part
+			(call 'sys_heap 'alloc '(r0) '(r0 r1))
+			;(continueif '(r1 = 0))
+			(ln-add-fnode r4 0 r1 r2)
+			(assign '(r11 r12 r13 r8) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			(continue)
 
-			(vp-label 'rem_split1)
-				;jump to correct splitting code
-				(gotoif '(r12 >= r8) 'rem_split3)
-				(gotoif '(r9 >= r13) 'rem_split5)
-				(gotoif '(r10 >= r14) 'rem_yx1)
+		(vp-label 'rem_split1)
+			;jump to correct splitting code
+			(gotoif '(r12 >= r8) 'rem_split3)
+			(gotoif '(r9 >= r13) 'rem_split5)
+			(gotoif '(r10 >= r14) 'rem_yx1)
 
-			(vp-label 'rem_yx1y1)
-				;r8 + r9 + r10 inside
-				;bottom part
-				(assign '(r10) '((r3 rect_y i)))
-				;right part
-				(call 'sys_heap 'alloc '(r0) '(r0 r1))
-				;(continueif '(r1 = 0))
-				(ln-add-fnode r4 0 r1 r2)
-				(assign '(r9 r8 r13 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				;top part
-				(call 'sys_heap 'alloc '(r0) '(r0 r1))
-				;(continueif '(r1 = 0))
-				(ln-add-fnode r4 0 r1 r2)
-				(assign '(r11 r12 r13 r8) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				(continue)
+		(vp-label 'rem_yx1y1)
+			;r8 + r9 + r10 inside
+			;bottom part
+			(assign '(r10) '((r3 rect_y i)))
+			;right part
+			(call 'sys_heap 'alloc '(r0) '(r0 r1))
+			;(continueif '(r1 = 0))
+			(ln-add-fnode r4 0 r1 r2)
+			(assign '(r9 r8 r13 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			;top part
+			(call 'sys_heap 'alloc '(r0) '(r0 r1))
+			;(continueif '(r1 = 0))
+			(ln-add-fnode r4 0 r1 r2)
+			(assign '(r11 r12 r13 r8) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			(continue)
 
-			(vp-label 'rem_split2)
-				;jump to correct splitting code
-				(gotoif '(r9 >= r13) 'rem_split6)
-				(gotoif '(r10 >= r14) 'rem_xx1)
+		(vp-label 'rem_split2)
+			;jump to correct splitting code
+			(gotoif '(r9 >= r13) 'rem_split6)
+			(gotoif '(r10 >= r14) 'rem_xx1)
 
-			(vp-label 'rem_xx1y1)
-				;r7 + r9 + r10 inside
-				;bottom part
-				(assign '(r10) '((r3 rect_y i)))
-				;right part
-				(call 'sys_heap 'alloc '(r0) '(r0 r1))
-				;(continueif '(r1 = 0))
-				(ln-add-fnode r4 0 r1 r2)
-				(assign '(r9 r12 r13 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				;left part
-				(call 'sys_heap 'alloc '(r0) '(r0 r1))
-				;(continueif '(r1 = 0))
-				(ln-add-fnode r4 0 r1 r2)
-				(assign '(r11 r12 r7 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				(continue)
+		(vp-label 'rem_xx1y1)
+			;r7 + r9 + r10 inside
+			;bottom part
+			(assign '(r10) '((r3 rect_y i)))
+			;right part
+			(call 'sys_heap 'alloc '(r0) '(r0 r1))
+			;(continueif '(r1 = 0))
+			(ln-add-fnode r4 0 r1 r2)
+			(assign '(r9 r12 r13 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			;left part
+			(call 'sys_heap 'alloc '(r0) '(r0 r1))
+			;(continueif '(r1 = 0))
+			(ln-add-fnode r4 0 r1 r2)
+			(assign '(r11 r12 r7 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			(continue)
 
-			(vp-label 'rem_split3)
-				;jump to correct splitting code
-				(gotoif '(r9 >= r13) 'rem_split7)
-				(gotoif '(r10 >= r14) 'rem_x1)
+		(vp-label 'rem_split3)
+			;jump to correct splitting code
+			(gotoif '(r9 >= r13) 'rem_split7)
+			(gotoif '(r10 >= r14) 'rem_x1)
 
-			(vp-label 'rem_x1y1)
-				;r9 + r10 inside
-				;bottom part
-				(assign '(r10) '((r3 rect_y i)))
-				;right part
-				(call 'sys_heap 'alloc '(r0) '(r0 r1))
-				;(continueif '(r1 = 0))
-				(ln-add-fnode r4 0 r1 r2)
-				(assign '(r9 r12 r13 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				(continue)
+		(vp-label 'rem_x1y1)
+			;r9 + r10 inside
+			;bottom part
+			(assign '(r10) '((r3 rect_y i)))
+			;right part
+			(call 'sys_heap 'alloc '(r0) '(r0 r1))
+			;(continueif '(r1 = 0))
+			(ln-add-fnode r4 0 r1 r2)
+			(assign '(r9 r12 r13 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			(continue)
 
-			(vp-label 'rem_split4)
-				;jump to correct splitting code
-				(gotoif '(r10 >= r14) 'rem_xy)
+		(vp-label 'rem_split4)
+			;jump to correct splitting code
+			(gotoif '(r10 >= r14) 'rem_xy)
 
-			(vp-label 'rem_xyy1)
-				;r7 + r8 + r10 inside
-				;bottom part
-				(assign '(r10) '((r3 rect_y i)))
-				;left part
-				(call 'sys_heap 'alloc '(r0) '(r0 r1))
-				;(continueif '(r1 = 0))
-				(ln-add-fnode r4 0 r1 r2)
-				(assign '(r11 r8 r7 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				;top part
-				(call 'sys_heap 'alloc '(r0) '(r0 r1))
-				;(continueif '(r1 = 0))
-				(ln-add-fnode r4 0 r1 r2)
-				(assign '(r11 r12 r13 r8) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				(continue)
+		(vp-label 'rem_xyy1)
+			;r7 + r8 + r10 inside
+			;bottom part
+			(assign '(r10) '((r3 rect_y i)))
+			;left part
+			(call 'sys_heap 'alloc '(r0) '(r0 r1))
+			;(continueif '(r1 = 0))
+			(ln-add-fnode r4 0 r1 r2)
+			(assign '(r11 r8 r7 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			;top part
+			(call 'sys_heap 'alloc '(r0) '(r0 r1))
+			;(continueif '(r1 = 0))
+			(ln-add-fnode r4 0 r1 r2)
+			(assign '(r11 r12 r13 r8) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			(continue)
 
-			(vp-label 'rem_split5)
-				;jump to correct splitting code
-				(gotoif '(r10 >= r14) 'rem_y)
+		(vp-label 'rem_split5)
+			;jump to correct splitting code
+			(gotoif '(r10 >= r14) 'rem_y)
 
-			(vp-label 'rem_yy1)
-				;r8 + r10 inside
-				;bottom part
-				(assign '(r10) '((r3 rect_y i)))
-				;top part
-				(call 'sys_heap 'alloc '(r0) '(r0 r1))
-				;(continueif '(r1 = 0))
-				(ln-add-fnode r4 0 r1 r2)
-				(assign '(r11 r12 r13 r8) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				(continue)
+		(vp-label 'rem_yy1)
+			;r8 + r10 inside
+			;bottom part
+			(assign '(r10) '((r3 rect_y i)))
+			;top part
+			(call 'sys_heap 'alloc '(r0) '(r0 r1))
+			;(continueif '(r1 = 0))
+			(ln-add-fnode r4 0 r1 r2)
+			(assign '(r11 r12 r13 r8) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			(continue)
 
-			(vp-label 'rem_split6)
-				;jump to correct splitting code
-				(gotoif '(r10 >= r14) 'rem_x)
+		(vp-label 'rem_split6)
+			;jump to correct splitting code
+			(gotoif '(r10 >= r14) 'rem_x)
 
-			(vp-label 'rem_xy1)
-				;r7 + r10 inside
-				;bottom part
-				(assign '(r10) '((r3 rect_y i)))
-				;left part
-				(call 'sys_heap 'alloc '(r0) '(r0 r1))
-				;(continueif '(r1 = 0))
-				(ln-add-fnode r4 0 r1 r2)
-				(assign '(r11 r12 r7 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				(continue)
+		(vp-label 'rem_xy1)
+			;r7 + r10 inside
+			;bottom part
+			(assign '(r10) '((r3 rect_y i)))
+			;left part
+			(call 'sys_heap 'alloc '(r0) '(r0 r1))
+			;(continueif '(r1 = 0))
+			(ln-add-fnode r4 0 r1 r2)
+			(assign '(r11 r12 r7 r10) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			(continue)
 
-			(vp-label 'rem_split7)
-				;jump to correct splitting code
-				(gotoif '(r10 >= r14) 'rem_encl)
+		(vp-label 'rem_split7)
+			;jump to correct splitting code
+			(gotoif '(r10 >= r14) 'rem_encl)
 
-			(vp-label 'rem_y1)
-				;r10 inside
-				;bottom part
-				(assign '(r10) '((r3 rect_y i)))
-				(continue)
+		(vp-label 'rem_y1)
+			;r10 inside
+			;bottom part
+			(assign '(r10) '((r3 rect_y i)))
+			(continue)
 
-			(vp-label 'rem_xyx1)
-				;r7 + r8 + r9 inside
-				;left part
-				(assign '(r8 r7) '((r3 rect_y i) (r3 rect_x1 i)))
-				;right part
-				(call 'sys_heap 'alloc '(r0) '(r0 r1))
-				;(continueif '(r1 = 0))
-				(ln-add-fnode r4 0 r1 r2)
-				(assign '(r9 r8 r13 r14) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				;top part
-				(call 'sys_heap 'alloc '(r0) '(r0 r1))
-				;(continueif '(r1 = 0))
-				(ln-add-fnode r4 0 r1 r2)
-				(assign '(r11 r12 r13 r8) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				(continue)
+		(vp-label 'rem_xyx1)
+			;r7 + r8 + r9 inside
+			;left part
+			(assign '(r8 r7) '((r3 rect_y i) (r3 rect_x1 i)))
+			;right part
+			(call 'sys_heap 'alloc '(r0) '(r0 r1))
+			;(continueif '(r1 = 0))
+			(ln-add-fnode r4 0 r1 r2)
+			(assign '(r9 r8 r13 r14) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			;top part
+			(call 'sys_heap 'alloc '(r0) '(r0 r1))
+			;(continueif '(r1 = 0))
+			(ln-add-fnode r4 0 r1 r2)
+			(assign '(r11 r12 r13 r8) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			(continue)
 
-			(vp-label 'rem_encl)
-				;region is enclosed
-				(vp-cpy-rr r3 r1)
-				(ln-remove-fnode r3 r5)
-				(hp-freecell r0 r1 r2)
-				(continue)
+		(vp-label 'rem_encl)
+			;region is enclosed
+			(vp-cpy-rr r3 r1)
+			(ln-remove-fnode r3 r5)
+			(hp-freecell r0 r1 r2)
+			(continue)
 
-			(vp-label 'rem_x)
-				;r7 inside
-				;left part
-				(assign '(r7) '((r3 rect_x1 i)))
-				(continue)
+		(vp-label 'rem_x)
+			;r7 inside
+			;left part
+			(assign '(r7) '((r3 rect_x1 i)))
+			(continue)
 
-			(vp-label 'rem_y)
-				;r8 inside
-				;top part
-				(assign '(r8) '((r3 rect_y1 i)))
-				(continue)
+		(vp-label 'rem_y)
+			;r8 inside
+			;top part
+			(assign '(r8) '((r3 rect_y1 i)))
+			(continue)
 
-			(vp-label 'rem_xy)
-				;r7 + r8 inside
-				;left part
-				(assign '(r8 r7) '((r3 rect_y i) (r3 rect_x1 i)))
-				;top part
-				(call 'sys_heap 'alloc '(r0) '(r0 r1))
-				;(continueif '(r1 = 0))
-				(ln-add-fnode r4 0 r1 r2)
-				(assign '(r11 r12 r13 r8) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				(continue)
+		(vp-label 'rem_xy)
+			;r7 + r8 inside
+			;left part
+			(assign '(r8 r7) '((r3 rect_y i) (r3 rect_x1 i)))
+			;top part
+			(call 'sys_heap 'alloc '(r0) '(r0 r1))
+			;(continueif '(r1 = 0))
+			(ln-add-fnode r4 0 r1 r2)
+			(assign '(r11 r12 r13 r8) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			(continue)
 
-			(vp-label 'rem_x1)
-				;r9 inside
-				;right part
-				(assign '(r9) '((r3 rect_x i)))
-				(continue)
+		(vp-label 'rem_x1)
+			;r9 inside
+			;right part
+			(assign '(r9) '((r3 rect_x i)))
+			(continue)
 
-			(vp-label 'rem_xx1)
-				;r7 + r9 inside
-				;right part
-				(assign '(r9) '((r3 rect_x i)))
-				;left part
-				(call 'sys_heap 'alloc '(r0) '(r0 r1))
-				;(continueif '(r1 = 0))
-				(ln-add-fnode r4 0 r1 r2)
-				(assign '(r11 r12 r7 r14) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-				(continue)
+		(vp-label 'rem_xx1)
+			;r7 + r9 inside
+			;right part
+			(assign '(r9) '((r3 rect_x i)))
+			;left part
+			(call 'sys_heap 'alloc '(r0) '(r0 r1))
+			;(continueif '(r1 = 0))
+			(ln-add-fnode r4 0 r1 r2)
+			(assign '(r11 r12 r7 r14) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+			(continue)
 
-			(vp-label 'rem_yx1)
-				;r8 + r9 inside
-				;right part
-				(assign '(r9 r8) '((r3 rect_x i) (r3 rect_y i)))
-				;top part
-				(call 'sys_heap 'alloc '(r0) '(r0 r1))
-				;(continueif '(r1 = 0))
-				(ln-add-fnode r4 0 r1 r2)
-				(assign '(r11 r12 r13 r8) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
-			(loop-end)
-		(endif)
+		(vp-label 'rem_yx1)
+			;r8 + r9 inside
+			;right part
+			(assign '(r9 r8) '((r3 rect_x i) (r3 rect_y i)))
+			;top part
+			(call 'sys_heap 'alloc '(r0) '(r0 r1))
+			;(continueif '(r1 = 0))
+			(ln-add-fnode r4 0 r1 r2)
+			(assign '(r11 r12 r13 r8) '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)))
+		(loop-end)
 	(endif)
 
 	(exit 'region 'remove_rect '(r0))

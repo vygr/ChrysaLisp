@@ -81,10 +81,7 @@
 		(vp-cpy-ir-i rsp (+ local_drect sdl_rect_h) r14)
 		(vp-add-rr r11 r13)
 		(vp-add-rr r12 r14)
-		(continueif '(r9 <= r11))
-		(continueif '(r10 <= r12))
-		(continueif '(r7 >= r13))
-		(continueif '(r8 >= r14))
+		(continueif '(r9 <= r11) '(r10 <= r12) '(r7 >= r13) '(r8 >= r14))
 
 		;set clip region to this region
 		(vp-sub-rr r7 r9)

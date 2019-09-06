@@ -328,10 +328,8 @@
 	(call 'view 'set_bounds '(r0 r7 r8 r9 r10))
 
 	;layout if changed size
-	(vpif '(r9 = r11))
-		(vpif '(r10 = r12))
-			(vp-ret)
-		(endif)
+	(vpif '(r9 = r11) '(r10 = r12))
+		(vp-ret)
 	(endif)
 	(jump 'view 'layout '(r0))
 
@@ -712,17 +710,15 @@
 	;r0 = view object (ptr)
 	;r1 = 0 if not, else hit
 
-	(vpif '(r7 >= 0))
-		(vpif '(r8 >= 0))
-			(vp-cpy-ir-i r0 view_w r1)
-			(vpif '(r7 < r1))
-				(vp-cpy-ir-i r0 view_h r1)
-				(vpif '(r8 < r1))
-					;hit ?
-					(vp-cpy-ir-ui r0 view_flags r1)
-					(vp-and-cr view_flag_solid r1)
-					(vp-ret)
-				(endif)
+	(vpif '(r7 >= 0) '(r8 >= 0))
+		(vp-cpy-ir-i r0 view_w r1)
+		(vpif '(r7 < r1))
+			(vp-cpy-ir-i r0 view_h r1)
+			(vpif '(r8 < r1))
+				;hit ?
+				(vp-cpy-ir-ui r0 view_flags r1)
+				(vp-and-cr view_flag_solid r1)
+				(vp-ret)
 			(endif)
 		(endif)
 	(endif)

@@ -189,8 +189,7 @@
 			(continueif `(,cel = 0) 'block_loop)
 
 			;is free cell within this block
-			(continueif `(,cel < ,blk))
-			(continueif `(,cel >= ,blk_end))
+			(continueif `(,cel < ,blk) `(,cel >= ,blk_end))
 
 			;transfer to blocks free list
 			(vp-cpy-rr cel r0)
