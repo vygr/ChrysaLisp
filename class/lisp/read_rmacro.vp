@@ -33,8 +33,7 @@
 		(call 'vector 'create nil '(r0))
 		(vp-cpy-ir rsp local_sym r1)
 		(class/obj/ref r1 r2)
-		(call 'vector 'push_back '(r0 r1) '(r0 _ _ _))
-		(call 'vector 'push_back '(r0 r12) '(r0 _ _ _))
+		(call 'vector 'push_back2 '(r0 r1 r12) '(r0 _ _ _ _))
 		(assign '((rsp local_this) r0 r13) '(r0 r1 r2))
 	(endswitch)
 

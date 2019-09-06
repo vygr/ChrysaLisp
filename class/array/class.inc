@@ -11,10 +11,14 @@
 (dec-method 'sort 'class/array/sort 'static '(r0 r1 r2 r3 r4 r5) '(r0))
 (dec-method 'partition 'class/array/partition 'static '(r0 r1 r2 r3 r4) '(r0 r1))
 (dec-method 'get_first 'class/array/get_first 'static '(r0) '(r0 r1))
+(dec-method 'get_first2 'class/array/get_first2 'static '(r0) '(r0 r1 r2))
 (dec-method 'get_second 'class/array/get_second 'static '(r0) '(r0 r1))
 (dec-method 'get_element 'class/array/get_element 'static '(r0 r1) '(r0 r1))
+(dec-method 'get_element2 'class/array/get_element2 'static '(r0 r1) '(r0 r1 r2))
 (dec-method 'push_back 'class/array/push_back 'static '(r0 r1) '(r0 r1 r2 r3))
+(dec-method 'push_back2 'class/array/push_back2 'static '(r0 r1 r2) '(r0 r1 r2 r3 r4))
 (dec-method 'pop_back 'class/array/pop_back 'static '(r0) '(r0 r1))
+(dec-method 'pop_back2 'class/array/pop_back2 'static '(r0) '(r0 r1 r2))
 (dec-method 'get_iter 'class/array/get_iter 'static '(r0 r1) '(r0 r1))
 (dec-method 'get_iters 'class/array/get_iters 'static '(r0 r1 r2) '(r0 r1 r2))
 (dec-method 'get_begin 'class/array/get_begin 'static '(r0) '(r0 r1))
@@ -250,6 +254,23 @@
 	(vp-shl-cr (log2 long_size) r1)
 	(vp-cpy-dr r2 r1 r1))
 
+(defcfun class/array/pop_back2 ()
+	;inputs
+	;r0 = array object (ptr)
+	;outputs
+	;r0 = array object (ptr)
+	;r1 = element1 (long)
+	;r2 = element2 (long)
+	;trashes
+	;r1-r2
+	(class/array/get_length r0 r1)
+	(class/array/get_begin r0 r2)
+	(vp-sub-cr 2 r1)
+	(class/array/set_length r0 r1)
+	(vp-shl-cr (log2 long_size) r1)
+	(vp-add-rr r1 r2)
+	(class/array/get_args r2 '(r1 r2)))
+
 (defcfun class/array/clear ()
 	;inputs
 	;r0 = array object (ptr)
@@ -259,6 +280,32 @@
 	;r1
 	(vp-xor-rr r1 r1)
 	(class/array/set_length r0 r1))
+
+(defcfun class/array/get_first2 ()
+	;inputs
+	;r0 = array object (ptr)
+	;outputs
+	;r0 = array object (ptr)
+	;r1 = element1 (long)
+	;r2 = element2 (long)
+	;trashes
+	;r1-r2
+	(class/array/bind_args r0 '(r1 r2)))
+
+(defcfun class/array/get_element2 ()
+	;inputs
+	;r0 = array object (ptr)
+	;r1 = element index (uint)
+	;outputs
+	;r0 = array object (ptr)
+	;r1 = element1 (long)
+	;r2 = element2 (long)
+	;trashes
+	;r1-r2
+	(class/array/get_begin r0 r2)
+	(vp-shl-cr (log2 long_size) r1)
+	(vp-add-rr r1 r2)
+	(class/array/get_args r2 '(r1 r2)))
 
 ;;;;;;;;;;;;;;;;;;
 ; paramater macros

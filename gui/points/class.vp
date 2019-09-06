@@ -31,40 +31,6 @@
 
 (def-func-end)
 
-(def-method 'points 'push_back2)
-	;inputs
-	;r0 = points object (ptr)
-	;r1 = element1 (long)
-	;r2 = element2 (long)
-	;outputs
-	;r0 = points object (ptr)
-	;r1 = element1 (long)
-	;r2 = element2 (long)
-	;trashes
-	;r3-r5
-
-	;increase capacity ?
-	(class/array/get_length r0 r3)
-	(class/array/get_capacity r0 r4)
-	(vp-add-cr 2 r3)
-	(class/array/set_length r0 r3)
-	(vpif '(r3 > r4))
-		;double the capacity
-		(vp-add-rr r4 r4)
-		(vp-push r1 r2)
-		(call 'array 'set_capacity '(r0 r4) '(r0))
-		(class/array/get_length r0 r3)
-		(vp-pop r1 r2)
-	(endif)
-
-	;save object
-	(class/array/get_iter r0 r3 r4)
-	(vp-cpy-ri r1 r3 (* -2 long_size))
-	(vp-cpy-ri r2 r3 (neg long_size))
-	(vp-ret)
-
-(def-func-end)
-
 (defun vecop1 (_)
 	;trashes
 	;r1-r6+

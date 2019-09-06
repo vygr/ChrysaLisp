@@ -3,10 +3,6 @@
 (def-class 'points 'array)
 (dec-method 'vtable 'gui/points/vtable)
 (dec-method 'create 'gui/points/create)
-(dec-method 'get_first2 'gui/points/get_first2 'static '(r0) '(r0 r1 r2))
-(dec-method 'get_element2 'gui/points/get_element2 'static '(r0 r1) '(r0 r1 r2))
-(dec-method 'push_back2 'gui/points/push_back2 'static '(r0 r1 r2) '(r0 r1 r2))
-(dec-method 'pop_back2 'gui/points/pop_back2 'static '(r0) '(r0 r1 r2))
 (dec-method 'add 'gui/points/add 'static '(r0 r1 r2) '(r0))
 (dec-method 'sub 'gui/points/sub 'static '(r0 r1 r2) '(r0))
 (dec-method 'mul 'gui/points/mul 'static '(r0 r1 r2) '(r0))
@@ -70,50 +66,3 @@
 (def-enum 'cap)
 	(enum 'butt 'square 'tri 'arrow 'round)
 (def-enum-end)
-
-;;;;;;;;;;;;;;;;
-; inline methods
-;;;;;;;;;;;;;;;;
-
-(defcfun gui/points/get_first2 ()
-	;inputs
-	;r0 = points object (ptr)
-	;outputs
-	;r0 = points object (ptr)
-	;r1 = element1 (long)
-	;r2 = element2 (long)
-	;trashes
-	;r1-r2
-	(class/array/bind_args r0 '(r1 r2)))
-
-(defcfun gui/points/get_element2 ()
-	;inputs
-	;r0 = points object (ptr)
-	;r1 = element index (uint)
-	;outputs
-	;r0 = points object (ptr)
-	;r1 = element1 (long)
-	;r2 = element2 (long)
-	;trashes
-	;r1-r2
-	(class/array/get_begin r0 r2)
-	(vp-shl-cr (log2 long_size) r1)
-	(vp-add-rr r1 r2)
-	(class/array/get_args r2 '(r1 r2)))
-
-(defcfun gui/points/pop_back2 ()
-	;inputs
-	;r0 = points object (ptr)
-	;outputs
-	;r0 = points object (ptr)
-	;r1 = element1 (long)
-	;r2 = element2 (long)
-	;trashes
-	;r1-r2
-	(class/array/get_length r0 r1)
-	(class/array/get_begin r0 r2)
-	(vp-sub-cr 2 r1)
-	(class/array/set_length r0 r1)
-	(vp-shl-cr (log2 long_size) r1)
-	(vp-add-rr r1 r2)
-	(class/array/get_args r2 '(r1 r2)))

@@ -125,6 +125,46 @@
 
 (def-func-end)
 
+(def-method 'array 'push_back2)
+	;inputs
+	;r0 = array object (ptr)
+	;r1 = element1 (long)
+	;r2 = element2 (long)
+	;outputs
+	;r0 = array object (ptr)
+	;r1 = element1 (long)
+	;r2 = element2 (long)
+	;r3 = begin element iter (plong)
+	;r4 = end element iter (plong)
+	;trashes
+	;r3-r5
+
+	(entry 'array 'push_back2 '(r0 r1 r2))
+
+	;increase capacity ?
+	(class/array/get_length r0 r4)
+	(class/array/get_capacity r0 r3)
+	(vp-add-cr 2 r4)
+	(class/array/set_length r0 r4)
+	(vpif '(r4 > r3))
+		;double the capacity
+		(vp-add-rr r3 r3)
+		(vp-push r1 r2)
+		(call 'array 'set_capacity '(r0 r3) '(r0))
+		(class/array/get_length r0 r4)
+		(vp-pop r1 r2)
+	(endif)
+
+	;save object
+	(class/array/get_iter r0 r4 r3)
+	(vp-cpy-ri r1 r4 (* -2 long_size))
+	(vp-cpy-ri r2 r4 (neg long_size))
+
+	(exit 'array 'push_back2 '(r0 r1 r2 r3 r4))
+	(vp-ret)
+
+(def-func-end)
+
 (def-method 'array 'ref_back)
 	;inputs
 	;r0 = array object (ptr)
