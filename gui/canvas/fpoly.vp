@@ -373,6 +373,6 @@
 (vp-label 'mask_to_coverage)
 	(apply vp-byte (map (lambda (m)
 		(/ (* 0x80 (apply + (map (lambda (s)
-			(logand 1 (shr m s))) (const (push (list quote) (range 0 8)))))) 8)) (range 0 256)))
+			(logand 1 (>> m s))) (const (push (list quote) (range 0 8)))))) 8)) (range 0 256)))
 
 (def-func-end)

@@ -21,9 +21,9 @@
 (ffi fdiv "class/num/lisp_fdiv" 0)
 (ffi fmod "class/num/lisp_fmod" 0)
 
-(ffi shr "class/num/lisp_bshr" 0)
-(ffi asr "class/num/lisp_basr" 0)
-(ffi shl "class/num/lisp_bshl" 0)
+(ffi >> "class/num/lisp_bshr" 0)
+(ffi >>> "class/num/lisp_basr" 0)
+(ffi << "class/num/lisp_bshl" 0)
 (ffi logand "class/num/lisp_band" 0)
 (ffi logior "class/num/lisp_bor" 0)
 (ffi logxor "class/num/lisp_bxor" 0)
@@ -107,11 +107,11 @@
 (ffi age "sys/pii/lisp_age" 0)
 
 (defq t 't nil 'nil
-	lisp_type_lst (shl 1 0)
-	lisp_type_int (shl 1 1)
-	lisp_type_str (shl 1 2)
-	lisp_type_sym (shl 1 3)
-	lisp_type_fnc (shl 1 4)
+	lisp_type_lst (<< 1 0)
+	lisp_type_int (<< 1 1)
+	lisp_type_str (<< 1 2)
+	lisp_type_sym (<< 1 3)
+	lisp_type_fnc (<< 1 4)
  	defmacro '(macro (n a &rest _) `(defq ,n (macro ,a ~_))))
 
 (defmacro defun (n a &rest _)
@@ -356,8 +356,8 @@
 ; Math functions
 ;;;;;;;;;;;;;;;;
 
-(defq min_long (shl -1 63) max_long (shr -1 1)
-	min_int (shl -1 31) max_int (shr -1 33))
+(defq min_long (<< -1 63) max_long (>> -1 1)
+	min_int (<< -1 31) max_int (>> -1 33))
 
 (defun-bind sign (_)
 	;(sign num) -> num
@@ -387,7 +387,7 @@
 ;;;;;;;;;;;;;;;;;;
 
 (defq fp_shift 16 fp_2pi 411774 fp_pi 205887 fp_hpi 102943 fp_qpi 51471 fp_rpi 20861
-	fp_int_mask (shl -1 fp_shift) fp_frac_mask (lognot fp_int_mask))
+	fp_int_mask (<< -1 fp_shift) fp_frac_mask (lognot fp_int_mask))
 
 ;;;;;;;;;;;
 ; Utilities
@@ -473,32 +473,32 @@
 	;(log2 num) -> num
 	(when (and (not (= 0 _)) (= _ (logand _ (neg _))))
 		(defq i 0)
-		(while (/= 0 (setq _ (shr _ 1)))
+		(while (/= 0 (setq _ (>> _ 1)))
 			(setq i (inc i))) i))
 
 (defun-bind ntz (_)
 	;(ntz num) -> num
 	(defq n 64)
 	(while (/= _ 0)
-		(setq n (dec n) _ (shl _ 1))) n)
+		(setq n (dec n) _ (<< _ 1))) n)
 
 (defun-bind nto (_)
 	;(nto num) -> num
 	(defq n 64 _ (lognot _))
 	(while (/= _ 0)
-		(setq n (dec n) _ (shl _ 1))) n)
+		(setq n (dec n) _ (<< _ 1))) n)
 
 (defun-bind nlz (_)
 	;(nlz num) -> num
 	(defq n 0)
 	(while (> _ 0)
-		(setq n (inc n) _ (shl _ 1))) n)
+		(setq n (inc n) _ (<< _ 1))) n)
 
 (defun-bind nlo (_)
 	;(nlo num) -> num
 	(defq n 0 _ (lognot _))
 	(while (> _ 0)
-		(setq n (inc n) _ (shl _ 1))) n)
+		(setq n (inc n) _ (<< _ 1))) n)
 
 (defun-bind insert (x &rest y)
 	;(insert list form) -> list

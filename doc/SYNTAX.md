@@ -28,6 +28,10 @@
 
 (< num num ...)
 
+## <<
+
+(<< num cnt)
+
 ## <=
 
 (<= num num ...)
@@ -43,6 +47,14 @@
 ## >=
 
 (>= num num ...)
+
+## >>
+
+(>> num cnt)
+
+## >>>
+
+(>>> num cnt)
 
 ## aand
 
@@ -91,10 +103,6 @@
 ## ascii-code
 
 (ascii-code char) -> num
-
-## asr
-
-(asr num cnt)
 
 ## awhen
 
@@ -823,14 +831,6 @@
 ## setq
 
 (setq var val [var val] ...)
-
-## shl
-
-(shl num cnt)
-
-## shr
-
-(shr num cnt)
 
 ## shuffle
 

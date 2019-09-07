@@ -385,7 +385,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r0 "(asr num cnt)" error_msg_wrong_types r7))
+	(jump 'lisp 'repl_error '(r0 "(>>> num cnt)" error_msg_wrong_types r7))
 	(signature '(num num)))
 
 (def-func-end)
@@ -405,7 +405,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r0 "(shl num cnt)" error_msg_wrong_types r7))
+	(jump 'lisp 'repl_error '(r0 "(<< num cnt)" error_msg_wrong_types r7))
 	(signature '(num num)))
 
 (def-func-end)
@@ -425,7 +425,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r0 "(shr num cnt)" error_msg_wrong_types r7))
+	(jump 'lisp 'repl_error '(r0 "(>> num cnt)" error_msg_wrong_types r7))
 	(signature '(num num)))
 
 (def-func-end)

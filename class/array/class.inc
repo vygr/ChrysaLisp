@@ -67,7 +67,7 @@
 	;r2
 	(vp-xor-rr r2 r2)
 	(class/array/set_length r0 r2)
-	(vp-cpy-cr (shr (- array_size array_e0) (log2 long_size)) r2)
+	(vp-cpy-cr (>> (- array_size array_e0) (log2 long_size)) r2)
 	(vp-cpy-ri-i r2 r0 array_capacity)
 	(vp-lea-i r0 array_e0 r2)
 	(vp-cpy-ri r2 r0 array_begin)

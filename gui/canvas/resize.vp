@@ -250,7 +250,7 @@
 	(entry 'canvas 'resize_3 (list this source))
 
 	(assign `((,this canvas_array) (,source canvas_array)) `(,data , sdata))
-	(assign `(,(/ (shl 1 32) 9) (,data array_begin) (,sdata array_begin) (,source canvas_stride ui)
+	(assign `(,(/ (<< 1 32) 9) (,data array_begin) (,sdata array_begin) (,source canvas_stride ui)
 		(,source canvas_height ui) 0xff00ff00 0xff00ff) (list q data sdata sw ydata mga mrb))
 
 	(vp-mul-rr sw ydata)
