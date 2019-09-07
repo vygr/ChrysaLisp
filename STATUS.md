@@ -4,6 +4,17 @@
 
 ------
 
+Control statements can now take compounds expressions !
+
+Swap to using standard Lisp syntax for <, >, >=, <=, =, /=, +, -, *, / and %.
+
+Purchased a Raspberry PI4 and checked to make sure everything runs fine on it.
+Running a CloudKernels 64bit 18.04 Ubuntu image on it everything worked and it
+turns in a full build time of 2.1 seconds ! Not bad at all PI folks. PI3 is
+currently managing about 5.2 seconds.
+
+------
+
 Lower all the hmap Lisp bindings to VP, so (def) (defq) (set) (setq) (undef)
 (env) are all a little faster, plus this took the boot image size down over 1KB
 ! Really must get around to using the (env) functions more exotic uses to do
