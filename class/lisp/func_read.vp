@@ -30,8 +30,7 @@
 
 	(call 'num 'create {next_char} {args})
 	(call 'vector 'create nil {value})
-	(call 'vector 'push_back {value, form})
-	(call 'vector 'push_back {value, args})
+	(call 'vector 'push_back2 {value, form, args})
 
 	(exit 'lisp 'func_read {this, value})
 	(return)

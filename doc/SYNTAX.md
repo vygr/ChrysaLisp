@@ -576,10 +576,6 @@
 
 (min num num ...)
 
-## minus
-
-(minus num) -> num
-
 ## neg
 
 (neg num) -> num

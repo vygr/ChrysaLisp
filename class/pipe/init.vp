@@ -55,8 +55,7 @@
 			(call 'vector 'push_back {command, cmd})
 			(call 'str 'create_from_buffer {".lisp", 5} {cmd})
 			(call 'str 'ref {cmd})
-			(call 'vector 'push_back {command, cmd})
-			(call 'vector 'push_back {command, cmd})
+			(call 'vector 'push_back2 {command, cmd, cmd})
 
 			;create command pipeline
 			(call 'vector 'create nil {commands})

@@ -286,8 +286,7 @@
 	(call 'num 'create '(r9) '(r9))
 	(call 'num 'create '(r10) '(r10))
 	(call 'vector 'create nil '(r0))
-	(call 'vector 'push_back '(r0 r9) '(r0 _ _ _))
-	(call 'vector 'push_back '(r0 r10) '(r1 _ _ _))
+	(call 'vector 'push_back2 '(r0 r9 r10) '(r1 _ _ _ _))
 	(vp-pop r0)
 
 	(exit 'view 'lisp_pref_size '(r0 r1))

@@ -370,10 +370,6 @@
 	;(neg num) -> num
 	(- 0 _))
 
-(defmacro-bind minus (_)
-	;(minus num) -> num
-	(neg _))
-
 (defun-bind abs (_)
 	;(abs num) -> num
 	(if (< _ 0) (neg _) _))
