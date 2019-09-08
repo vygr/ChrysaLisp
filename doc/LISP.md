@@ -73,14 +73,16 @@ t
 %
 +
 <
+<<
 <=
 =
 >
 >=
+>>
+>>>
 age
 apply
 array
-asr
 bind
 bind-fun
 cat
@@ -144,8 +146,6 @@ repl
 save
 set
 setq
-shl
-shr
 slice
 some!
 split

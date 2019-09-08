@@ -53,10 +53,6 @@
 
 (dec-method 'run 'class/lisp/run)
 
-(def-enum 'func_type)
-	(enum 'args_eval 'args_raw)
-(def-enum-end)
-
 (def-struct 'lisp 'obj)
 	(ptr 'stdin)
 	(ptr 'stdout)
