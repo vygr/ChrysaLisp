@@ -132,7 +132,7 @@
 	(class/array/get_begin o e)
 	(vp-cpy-ir e 0 e))
 
-(defcfun class/array/get_second ()
+(defcfun class/array/get_second (&optional o e)
 	;inputs
 	;r0 = array object (ptr)
 	;outputs
@@ -140,8 +140,9 @@
 	;r1 = element (long)
 	;trashes
 	;r1
-	(class/array/get_begin r0 r1)
-	(vp-cpy-ir r1 long_size r1))
+	(setd o r0 e r1)
+	(class/array/get_begin o e)
+	(vp-cpy-ir e long_size e))
 
 (defcfun-bind class/array/get_iter (&optional o ei b)
 	;inputs
