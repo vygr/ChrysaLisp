@@ -13,8 +13,8 @@
 
 (ui-tree window (create-window (+ window_flag_close window_flag_min window_flag_max)) nil
 	(ui-element backdrop (create-backdrop) ('color argb_black 'ink_color argb_white)
-		(ui-element sframe (elem 0 sframes))
-		(ui-element frame (elem 0 frames))))
+		(ui-element frame (elem 0 frames))
+		(ui-element sframe (elem 0 sframes))))
 
 (gui-add (apply view-change (cat (list window 64 64)
 	(view-pref-size (window-set-title (window-connect-close (window-connect-min
@@ -22,7 +22,6 @@
 
 (while id
 	(bind '(_ _ backdrop_width backdrop_height) (view-get-bounds backdrop))
-	(task-sleep 40000)
 	(defq index (% (inc index) (length frames))
 		old_frame frame frame (elem index frames)
 		old_sframe sframe sframe (elem index sframes))
@@ -54,4 +53,5 @@
 				(bind '(x y _ _) (view-get-bounds (view-dirty window)))
 				(bind '(w h) (view-pref-size window))
 				(view-dirty-all (view-change window x y (fmul w 1.5) (fmul h 1.5))))
-			(t (view-event window msg)))))
+			(t (view-event window msg))))
+	(task-sleep 40000))
