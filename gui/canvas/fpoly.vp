@@ -269,8 +269,7 @@
 				(assign (list min_x max_x) {min_x, max_x})
 
 				;flush coverage mask to scan line
-				(gotoif {(ys & 7) = 7} 'flush_mask)
-				(gotoif {ys + 1 = ye} 'flush_mask)
+				(gotoif {((ys & 7) = 7) || ((ys + 1) = ye)} 'flush_mask)
 				(breakif {ys + 1 < cy1})
 			(vp-label 'flush_mask)
 				(vp-def (this c x y x1 mask m om max_x mask_to_coverage v)
