@@ -2098,6 +2098,8 @@ Super Class: null
 
 ### host::close_shared -> nil
 
+### host::sdl_compose_custom_blend_mode -> nil
+
 ## hset
 
 Super Class: obj
