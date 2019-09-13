@@ -4,6 +4,18 @@
 
 ------
 
+Implemented nested (quasi-quote), made (list) not copy it's args and (some!)
+and (each!) no longer reuse the parmater list within the loop.
+
+Canvas now uses a custom GPU blend mode for the pre-multiplied alpha format so
+that saves an entire buffer copy and format conversion per texture upload !
+Canvas init and init_shared optimised and also made the edge array a shared
+array.
+
+VP instruction are now mostly macro generated.
+
+------
+
 Control statements can now take compounds expressions !
 
 Swap to using standard Lisp syntax for <, >, >=, <=, =, /=, +, -, *, / and %.
