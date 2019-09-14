@@ -4,8 +4,25 @@
 
 ------
 
+Implemented (assign-asm-asm) auto copy type for field access. Now when you
+don't put a type qualifier (i ui b ub s us l ul) as an optional third
+parameter, assign will attempt to lookup the type of the symbol and use the
+correct VP cpy instruction.
+
+This makes things a lot more robust as you don't need to remember what your
+type was, it all comes from the field type in your (def-struct). Plus this
+removes the need for field access macros, something that was annoying me
+somewhat.
+
+So a large amount of source got modified and as I visit more files I will
+convert over to the new way of doing things.
+
+This will make the build time a fraction slower, but it's worth it.
+
+------
+
 Implemented nested (quasi-quote), made (list) not copy it's args and (some!)
-and (each!) no longer reuse the parmater list within the loop.
+and (each!) no longer reuse the parameter list within the loop.
 
 Canvas now uses a custom GPU blend mode for the pre-multiplied alpha format so
 that saves an entire buffer copy and format conversion per texture upload !
