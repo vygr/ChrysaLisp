@@ -63,7 +63,7 @@
 	(vp-pop r0)
 	(vpif '(r1 = 0))
 		(vp-cpy-rr r2 r7)
-		(call 'sym 'create_from_buffer `((& ,r0 str_data) (,r0 str_length ui)) '(r0))
+		(call 'sym 'create_from_buffer `((& ,r0 str_data) (,r0 str_length)) '(r0))
 		(assign `((@ ,(f-path 'sym 'vtable)) r0) '(r1 r6))
 		(vp-cpy-ri r1 r0 obj_vtable)
 		(call 'vector 'push_back '(r7 r0))
@@ -98,7 +98,7 @@
 
 	(f-bind 'sym 'statics r0)
 	(vp-cpy-ir r0 sym_statics_intern r0)
-	(call 'hset 'create '((r0 hset_key_callback) (r0 hset_num_buckets ui)) '(r0))
+	(call 'hset 'create '((r0 hset_key_callback) (r0 hset_num_buckets)) '(r0))
 	(vp-push r0)
 	(f-bind 'sym 'statics r0)
 	(vp-cpy-ir r0 sym_statics_intern r0)
@@ -119,7 +119,7 @@
 	(entry 'hset 'each_callback '(r0 r1))
 
 	(vp-cpy-ir r1 0 r1)
-	(vp-cpy-ir-ui r1 obj_count r2)
+	(assign '((r1 obj_count)) '(r2))
 	(vpif '(r2 /= 1))
 		(vp-cpy-ir r0 0 r2)
 		(call 'obj 'ref '(r1) '(r0))

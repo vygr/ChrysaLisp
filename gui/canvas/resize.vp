@@ -18,7 +18,7 @@
 	(uint 'a 'r 'g 'b 'q 'weight_x 'weight_y)
 	(long 'fw 'fh)
 
-	(assign '((r0 canvas_width ui) (r0 canvas_height ui) (r1 canvas_width ui) (r1 canvas_height ui))
+	(assign '((r0 canvas_width) (r0 canvas_height) (r1 canvas_width) (r1 canvas_height))
 		'(r2 r3 r4 r5))
 	(vp-shl-cr 1 r2)
 	(vp-shl-cr 1 r3)
@@ -176,8 +176,8 @@
 	(entry 'canvas 'resize_2 (list this source))
 
 	(assign `((,this canvas_array) (,source canvas_array)) `(,data , sdata))
-	(assign `((,data array_begin) (,sdata array_begin) (,source canvas_stride ui)
-		(,source canvas_height ui) 0xff00ff00 0xff00ff) (list data sdata sw ydata mga mrb))
+	(assign `((,data array_begin) (,sdata array_begin) (,source canvas_stride)
+		(,source canvas_height) 0xff00ff00 0xff00ff) (list data sdata sw ydata mga mrb))
 
 	(vp-mul-rr sw ydata)
 	(vp-add-rr sdata ydata)
@@ -246,8 +246,8 @@
 	(entry 'canvas 'resize_3 (list this source))
 
 	(assign `((,this canvas_array) (,source canvas_array)) `(,data , sdata))
-	(assign `(,(/ (<< 1 32) 9) (,data array_begin) (,sdata array_begin) (,source canvas_stride ui)
-		(,source canvas_height ui) 0xff00ff00 0xff00ff) (list q data sdata sw ydata mga mrb))
+	(assign `(,(/ (<< 1 32) 9) (,data array_begin) (,sdata array_begin) (,source canvas_stride)
+		(,source canvas_height) 0xff00ff00 0xff00ff) (list q data sdata sw ydata mga mrb))
 
 	(vp-mul-rr sw ydata)
 	(vp-add-rr sdata ydata)

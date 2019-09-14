@@ -155,7 +155,7 @@
 	(entry 'button 'mouse_move '(r0 r1))
 
 	;hit ?
-	(call 'button 'hit '(r0 (r1 ev_msg_mouse_rx i) (r1 ev_msg_mouse_ry i)) '(r0 r1))
+	(call 'button 'hit '(r0 (r1 ev_msg_mouse_rx) (r1 ev_msg_mouse_ry)) '(r0 r1))
 
 	;is mouse over button ?
 	(vp-cpy-ir r0 button_state r2)

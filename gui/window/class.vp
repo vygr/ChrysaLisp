@@ -281,7 +281,7 @@
 	(vp-cpy-rr r10 r12)
 
 	;save old bounds
-	(call 'window 'get_bounds '(r0) '(r0 (rsp local_old_x i) (rsp local_old_y i) r9 r10))
+	(call 'window 'get_bounds '(r0) '(r0 (rsp local_old_x) (rsp local_old_y) r9 r10))
 
 	;get abolute cords of corners
 	(vp-add-rr r7 r9)

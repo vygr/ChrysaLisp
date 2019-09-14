@@ -25,8 +25,8 @@
 		;init myself
 		(vp-xor-rr r2 r2)
 		(assign '(r2 r2 r2 r2 r2 r2 r2)
-			'((r0 vdu_font) (r0 vdu_chars) (r0 vdu_cursor_x i) (r0 vdu_cursor_y i)
-			(r0 vdu_width i) (r0 vdu_height i) (r0 vdu_textures)))
+			'((r0 vdu_font) (r0 vdu_chars) (r0 vdu_cursor_x) (r0 vdu_cursor_y)
+			(r0 vdu_width) (r0 vdu_height) (r0 vdu_textures)))
 	(endif)
 	(vp-ret)
 

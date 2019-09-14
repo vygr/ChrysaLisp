@@ -54,7 +54,7 @@
 		(vp-pop r0)
 		(goto 'skip_white)
 	(vpcase '(r2 = -1))
-		(vp-cpy-ir r0 lisp_sym_nil r1)
+		(assign '((r0 lisp_sym_nil)) '(r1))
 		(class/obj/ref r1 r3)
 		(break)
 (errorcases

@@ -51,10 +51,10 @@
 	;r1 = 0 if error, else ok
 	;trashes
 	;r1
-	(vp-cpy-ri r2 r0 num_value)
+	(assign '(r2) '((r0 num_value)))
 	(s-call 'num 'init '(r0 r1) '(r0 r1)))
 
-(defcfun class/num/get_value (&optional o n)
+(defcfun class/num/get_value ()
 	;inputs
 	;r0 = num object (ptr)
 	;outputs
@@ -62,18 +62,16 @@
 	;r1 = value (long)
 	;trashes
 	;r1
-	(setd o r0 n r1)
-	(vp-cpy-ir o num_value n))
+	(assign '((r0 num_value)) '(r1)))
 
-(defcfun class/num/set_value (&optional o n)
+(defcfun class/num/set_value ()
 	;inputs
 	;r0 = num object (ptr)
 	;r1 = value (long)
 	;outputs
 	;r0 = num object (ptr)
 	;r1 = value (long)
-	(setd o r0 n r1)
-	(vp-cpy-ri n o num_value))
+	(assign '(r1) '((r0 num_value))))
 
 ;;;;;;;;;;;;;;;;;;
 ; paramater macros

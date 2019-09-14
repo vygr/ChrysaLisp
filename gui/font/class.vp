@@ -330,8 +330,8 @@
 	;r1 = 0 if break, else not
 
 	(vp-cpy-ir r1 0 r1)
-	(class/pair/get_second r1 r2)
-	(vp-cpy-ir-ui r2 obj_count r2)
+	(assign '((r1 pair_second)) '(r2))
+	(assign '((r2 obj_count)) '(r2))
 	(switch)
 	(vpcase '(r2 /= 1))
 		(vp-cpy-ir r0 0 r2)

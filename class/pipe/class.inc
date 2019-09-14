@@ -37,7 +37,7 @@
 	;trashes
 	;r1
 	(vp-cpy-ir r0 pipe_streams r1)
-	(class/array/get_begin r1 r1)
+	(assign '((r1 array_begin)) '(r1))
 	(vp-cpy-ir r1 0 r1))
 
 (defcfun class/pipe/get_state ()

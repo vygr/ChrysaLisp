@@ -21,11 +21,11 @@
 
 	(entry 'lisp 'repl_apply '(r0 r1 r2))
 
-	(vp-cpy-ir r2 obj_vtable r3)
+	(assign '((r2 obj_vtable)) '(r3))
 	(f-bind 'func 'vtable r4)
 	(vpif '(r3 = r4))
 		;built in or compiled function
-		(class/num/get_value r2 r2)
+		(assign '((r2 num_value)) '(r2))
 		(vp-and-cr (neg ptr_size) r2)
 		(vp-jmp-r r2)
 	(endif)
@@ -33,7 +33,7 @@
 (errorcases
 	(f-bind 'vector 'vtable r4)
 	(gotoif '(r3 /= r4) 'error2)
-	(class/array/get_length r2 r3)
+	(assign '((r2 array_length)) '(r3))
 	(gotoif '(r3 < 2) 'error1))
 
 	(class/array/get_both r2 r3 r4)
@@ -59,7 +59,7 @@
 	(vp-cpy-ri r1 rsp local_value)
 	(loop-start)
 	(errorcases
-		(vp-cpy-ir r1 obj_vtable r3)
+		(assign '((r1 obj_vtable)) '(r3))
 		(f-bind 'error 'vtable r4)
 		(breakif '(r3 = r4)))
 		(vp-cpy-ir rsp local_iter_begin r2)

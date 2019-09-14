@@ -25,7 +25,7 @@
 	(vp-cpy-ir r0 pipe_select_array r0)
 	(vp-cpy-ri r1 r0 0)
 	(vp-cpy-ir r5 pipe_streams r1)
-	(class/array/get_length r1 r1)
+	(assign '((r1 array_length)) '(r1))
 	(call 'sys_mail 'select '(r0 r1) '(r0))
 
 	(exit 'pipe 'select '(r5 r0))

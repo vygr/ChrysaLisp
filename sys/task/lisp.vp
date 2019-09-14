@@ -25,7 +25,7 @@
 	(class/vector/bind_args r1 in '(num))
 	(call 'sys_task 'sleep in)
 	(vp-pop r0)
-	(vp-cpy-ir r0 lisp_sym_t r1)
+	(assign '((r0 lisp_sym_t)) '(r1))
 	(class/obj/ref r1 r2)
 
 	(exit 'sys_task 'lisp_sleep '(r0 r1))
@@ -51,7 +51,7 @@
 	(entry 'sys_task 'lisp_mailbox '(r0 r1))
 
 (errorcases
-	(class/array/get_length r1 r2)
+	(assign '((r1 array_length)) '(r2))
 	(gotoif '(r2 /= 0) 'error))
 
 	(vp-push r0)

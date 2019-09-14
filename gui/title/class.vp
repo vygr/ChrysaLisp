@@ -50,7 +50,7 @@
 	(assign `((@ ,(f-path 'window 'vtable))) '(r1))
 	(loop-start)
 		(vp-cpy-ir r0 hmap_parent r0)
-		(vp-cpy-ir r0 obj_vtable r2)
+		(assign '((r0 obj_vtable)) '(r2))
 	(loop-until '(r2 = r1))
 	(call 'window 'to_front '(r0))
 	(vp-pop r0)
@@ -86,7 +86,7 @@
 	(assign `((@ ,(f-path 'window 'vtable))) '(r1))
 	(loop-start)
 		(vp-cpy-ir r0 hmap_parent r0)
-		(vp-cpy-ir r0 obj_vtable r2)
+		(assign '((r0 obj_vtable)) '(r2))
 	(loop-until '(r2 = r1))
 	(vp-cpy-ri r0 rsp local_window)
 	(vp-cpy-ir-i r0 view_x r7)
@@ -98,8 +98,8 @@
 	(call 'window 'dirty '(r0))
 
 	;get new window position
-	(vp-cpy-ir rsp local_this r0)
-	(call 'title 'get_relative '(r0 (rsp local_window) (r0 title_last_x i) (r0 title_last_y i)) '(_ r7 r8))
+	(assign '((rsp local_this)) '(r0))
+	(call 'title 'get_relative '(r0 (rsp local_window) (r0 title_last_x) (r0 title_last_y)) '(_ r7 r8))
 	(vp-cpy-ir rsp local_event r1)
 	(vp-cpy-ir-i r1 ev_msg_mouse_x r9)
 	(vp-cpy-ir-i r1 ev_msg_mouse_y r10)

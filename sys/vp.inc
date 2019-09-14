@@ -189,6 +189,13 @@
 		(list (list 'quote x) y)) _ (if l (merge (cat (eval l)) v) v))))
 	`(progn (defcvar ~l) (apply push (cat (list *func-syms*) ',_))))
 
+(defmacro type-sym (_)
+	`(sym (str "_t_" ,_)))
+
+(defcfun-bind vp-type-t (_)
+	(if (setq _ (find (elem 0 _) "bBsSiI"))
+		(elem _ '(b ub s us i ui)) ""))
+
 (defcfun-bind vp-type (o)
 	(defq i (type-of o))
 	(cond
@@ -201,9 +208,17 @@
 			(setq i (elem 0 o))
 			(cond
 				((reg i)
-					(if (reg (elem 1 o)) 'd
-						(if (= 2 (length o)) 'i
-							(sym (cat "i" (elem 2 o))))))
+					(setq i (elem 1 o))
+					(cond
+						((reg i)
+							(if (= 2 (length o)) 'd
+								(sym (cat 'd (elem 2 o)))))
+						((/= 2 (length o))
+							(sym (cat 'i (elem 2 o))))
+						((num? i) 'i)
+						((setq i (def? (type-sym i)))
+							(sym (cat 'i (vp-type-t i))))
+						(t 'i)))
 				((eql i '@) i)
 				((eql i '$) i)
 				((eql i '&)

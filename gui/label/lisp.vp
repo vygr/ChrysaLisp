@@ -15,7 +15,7 @@
 	(entry 'label 'lisp_create '(r0 r1))
 
 (errorcases
-	(class/array/get_length r1 r2)
+	(assign '((r1 array_length)) '(r2))
 	(gotoif '(r2 /= 0) 'error))
 
 	(vp-push r0)

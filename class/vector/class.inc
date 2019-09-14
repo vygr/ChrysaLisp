@@ -28,8 +28,8 @@
 
 (defcfun-bind class/vector/cast_args (regs types)
 	;inputs
-	;(reg reg ...)
-	;'(num str ...)
+	;(reg ...)
+	;'({num str char _} ...)
 	;outputs
 	;cast register list
 	(assign-asm-to-asm (map (lambda (r _)
@@ -42,8 +42,8 @@
 (defcfun-bind class/vector/bind_args (a regs types)
 	;inputs
 	;vector object
-	;(reg reg ...)
-	;'(num str ...)
+	;(reg ...)
+	;'({num str char _} ...)
 	;outputs
 	;load and cast register list from vector
 	(defq rl (list) tp (list))

@@ -331,7 +331,7 @@
 
 	(entry 'sys_task 'open_child '(r0 r1))
 	(f-bind 'sys_task 'statics r3)
-	(jump 'sys_task 'open_remote '(r0 (r3 tk_statics_cpu_id ui) r1))
+	(jump 'sys_task 'open_remote '(r0 (r3 tk_statics_cpu_id) r1))
 
 (def-func-end)
 

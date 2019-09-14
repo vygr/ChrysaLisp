@@ -15,7 +15,7 @@
 
 	(vp-cpy-rr r0 r6)
 	(vp-cpy-rr r1 r7)
-	(class/array/get_length r1 r2)
+	(assign '((r1 array_length)) '(r2))
 	(switch 'fail)
 		(vpif '(r4 <= 0))
 			(vp-mul-cr -1 r4)

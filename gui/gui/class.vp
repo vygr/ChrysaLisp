@@ -314,7 +314,7 @@
 	(vp-xor-rr r1 r1)
 	(vp-push r0 r1)
 	(vp-lea-i r0 view_dirty_region r1)
-	(assign '((r0 view_w i) (r0 view_h i)) '(r9 r10))
+	(assign '((r0 view_w) (r0 view_h)) '(r9 r10))
 	(f-bind 'gui 'statics r0)
 	(vp-add-cr gui_statics_rect_heap r0)
 	(call 'region 'copy_rect '(r0 r1 rsp 0 0 r9 r10))
@@ -347,10 +347,10 @@
 	(loop-flist rsp local_ctx_flist r0 r0)
 		(vp-cpy-ri r0 rsp local_ctx_next)
 		(vp-sub-cr view_ctx_node r0)
-		(assign '((r0 view_ctx_x i) (r0 view_ctx_y i)) '(r7 r8))
+		(assign '((r0 view_ctx_x) (r0 view_ctx_y)) '(r7 r8))
 		(vp-lea-i rsp local_ctx r1)
 		(vp-lea-i r0 view_dirty_region r2)
-		(assign '(r7 r8) '((r1 ctx_x i) (r1 ctx_y i)))
+		(assign '(r7 r8) '((r1 ctx_x) (r1 ctx_y)))
 		(vp-cpy-ri r2 r1 ctx_dirty_region)
 		(call 'view 'draw '(r0 r1))
 		(vp-cpy-ir rsp local_ctx_next r1)
@@ -374,10 +374,10 @@
 (vp-label 'abs_down_callback)
 	(entry 'view 'forward_tree_callback '(r0 r1))
 
-	(assign '((r0 view_x i) (r0 view_y i)) '(r9 r10))
+	(assign '((r0 view_x) (r0 view_y)) '(r9 r10))
 	(vp-add-rr r9 r7)
 	(vp-add-rr r10 r8)
-	(assign '(r7 r8) '((r0 view_ctx_x i) (r0 view_ctx_y i)))
+	(assign '(r7 r8) '((r0 view_ctx_x) (r0 view_ctx_y)))
 
 	(exit 'view 'forward_tree_callback '(r0 r1))
 	(vp-ret)
@@ -385,7 +385,7 @@
 (vp-label 'abs_up_callback)
 	(entry 'view 'forward_tree_callback '(r0 r1))
 
-	(assign '((r0 view_x i) (r0 view_y i)) '(r9 r10))
+	(assign '((r0 view_x) (r0 view_y)) '(r9 r10))
 	(vp-sub-rr r9 r7)
 	(vp-sub-rr r10 r8)
 
@@ -420,14 +420,14 @@
 		(vp-and-cr view_flag_opaque r3)
 		(vpif '(r3 /= 0))
 			;entire view is opaque, so my area is the visble region
-			(assign '((r1 view_w i) (r1 view_h i)) '(r9 r10))
+			(assign '((r1 view_w) (r1 view_h)) '(r9 r10))
 			(vp-lea-i rsp vis_region r1)
 			(call 'region 'paste_rect '(r0 r1 0 0 r9 r10) '(r0))
 		(else)
 			;use opaque region, so my opaque area is the visble region
-			(assign '((r1 view_x i) (r1 view_y i)) '(r7 r8))
+			(assign '((r1 view_x) (r1 view_y)) '(r7 r8))
 			(vp-cpy-ir r1 hmap_parent r2)
-			(assign '((r2 view_w i) (r2 view_h i)) '(r9 r10))
+			(assign '((r2 view_w) (r2 view_h)) '(r9 r10))
 			(vp-mul-cr -1 r7)
 			(vp-mul-cr -1 r8)
 			(vp-add-rr r7 r9)
@@ -448,14 +448,14 @@
 			(breakif '(r3 = 0))
 
 			;translate temp opaque region
-			(assign '((r1 view_x i) (r1 view_y i)) '(r7 r8))
+			(assign '((r1 view_x) (r1 view_y)) '(r7 r8))
 			(vp-lea-i rsp vis_region r1)
 			(call 'region 'translate '(r1 r7 r8))
 
 			;clip temp opaque region
 			(vp-cpy-ir rsp vis_next r2)
 			(vp-lea-i rsp vis_region r1)
-			(call 'region 'clip_rect '(r0 r1 0 0 (r2 view_w i) (r2 view_h i)) '(r0))
+			(call 'region 'clip_rect '(r0 r1 0 0 (r2 view_w) (r2 view_h)) '(r0))
 
 			;remove temp opaque region
 			(vp-lea-i rsp vis_region r1)
@@ -478,7 +478,7 @@
 	(vpif '(r1 = r3))
 		(vp-cpy-rr r1 r2)
 	(endif)
-	(assign '((r1 view_x i) (r1 view_y i) (r2 view_w i) (r2 view_h i)) '(r7 r8 r9 r10))
+	(assign '((r1 view_x) (r1 view_y) (r2 view_w) (r2 view_h)) '(r7 r8 r9 r10))
 	(vp-mul-cr -1 r7)
 	(vp-mul-cr -1 r8)
 	(vp-add-rr r7 r9)
@@ -490,7 +490,7 @@
 	(vp-cpy-ir rsp vis_this r1)
 	(vp-cpy-ir rsp vis_root r3)
 	(vpif '(r1 /= r3))
-		(assign '((r1 view_x i) (r1 view_y i)) '(r7 r8))
+		(assign '((r1 view_x) (r1 view_y)) '(r7 r8))
 		(vp-cpy-ir r1 hmap_parent r2)
 		(vp-add-cr view_dirty_region r1)
 		(vp-add-cr view_dirty_region r2)
@@ -512,7 +512,7 @@
 		(vp-and-cr (lognot view_flag_dirty_all) r3)
 		(vp-cpy-ri r3 r2 view_flags)
 
-		(assign '((r2 view_x i) (r2 view_y i) (r2 view_w i) (r2 view_h i)) '(r7 r8 r9 r10))
+		(assign '((r2 view_x) (r2 view_y) (r2 view_w) (r2 view_h)) '(r7 r8 r9 r10))
 		(vp-add-rr r7 r9)
 		(vp-add-rr r8 r10)
 		(vp-cpy-ir r2 hmap_parent r1)
@@ -551,7 +551,7 @@
 		;remove my opaque region from parent
 		(vp-cpy-ir r2 view_flags r3)
 		(vp-cpy-ir r2 hmap_parent r1)
-		(assign '((r2 view_ctx_x i) (r2 view_ctx_y i) (r2 view_w i) (r2 view_h i)) '(r7 r8 r9 r10))
+		(assign '((r2 view_ctx_x) (r2 view_ctx_y) (r2 view_w) (r2 view_h)) '(r7 r8 r9 r10))
 		(vp-add-rr r7 r9)
 		(vp-add-rr r8 r10)
 		(vp-add-cr view_dirty_region r1)

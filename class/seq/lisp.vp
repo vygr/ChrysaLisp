@@ -167,7 +167,7 @@
 		(vp-add-cr ptr_size r6)
 	(loop-end)
 
-	(vp-cpy-ir rsp local_this r0)
+	(assign '((rsp local_this)) '(r0))
 	(call 'obj 'ref '((r0 lisp_sym_nil)) '((rsp local_value)))
 
 	(vpif '(r8 /= max_int))
@@ -191,7 +191,7 @@
 			(vp-sub-cr 1 r10)
 		(endif)
 
-		(assign '(r8 r9 r10) '((rsp local_dir i) (rsp local_start i) (rsp local_end i)))
+		(assign '(r8 r9 r10) '((rsp local_dir) (rsp local_start) (rsp local_end)))
 		(assign '(r11 r12) '((rsp local_func) (rsp local_args)))
 
 		(loop-while '(r9 /= r10) 'done)
@@ -208,7 +208,7 @@
 			(loop-until '(r10 = r11))
 
 			(call 'num 'create '(r9) '(r2))
-			(vp-cpy-ir rsp local_this r1)
+			(assign '((rsp local_this)) '(r1))
 			(vp-cpy-ri r2 rsp local_value)
 			(call 'hmap 'insert '((r1 lisp_environment) (r1 lisp_sym_underscore) r2))
 			(call 'obj 'deref '((rsp local_value)))
@@ -218,7 +218,7 @@
 		(errorcases
 			(vp-cpy-ir rsp local_value r1)
 			(f-bind 'error 'vtable r4)
-			(vp-cpy-ir r1 obj_vtable r3)
+			(assign '((r1 obj_vtable)) '(r3))
 			(breakif '(r3 = r4) 'done))
 
 			(vp-cpy-ir-i rsp local_dir r8)
@@ -290,7 +290,7 @@
 		(vp-add-cr ptr_size r6)
 	(loop-end)
 
-	(vp-cpy-ir rsp local_this r0)
+	(assign '((rsp local_this)) '(r0))
 	(call 'obj 'ref '((r0 lisp_sym_nil)) '((rsp local_value)))
 
 	(vpif '(r8 /= max_int))
@@ -314,7 +314,7 @@
 			(vp-sub-cr 1 r10)
 		(endif)
 
-		(assign '(r8 r9 r10) '((rsp local_dir i) (rsp local_start i) (rsp local_end i)))
+		(assign '(r8 r9 r10) '((rsp local_dir) (rsp local_start) (rsp local_end)))
 		(assign '(r11 r12 r13) '((rsp local_mode) (rsp local_func) (rsp local_args)))
 
 		(loop-while '(r9 /= r10) 'done)
@@ -331,7 +331,7 @@
 			(loop-until '(r10 = r11))
 
 			(call 'num 'create '(r9) '(r2))
-			(vp-cpy-ir rsp local_this r1)
+			(assign '((rsp local_this)) '(r1))
 			(vp-cpy-ri r2 rsp local_value)
 			(call 'hmap 'insert '((r1 lisp_environment) (r1 lisp_sym_underscore) r2))
 			(call 'obj 'deref '((rsp local_value)))
@@ -341,12 +341,12 @@
 		(errorcases
 			(vp-cpy-ir rsp local_value r1)
 			(f-bind 'error 'vtable r4)
-			(vp-cpy-ir r1 obj_vtable r3)
+			(assign '((r1 obj_vtable)) '(r3))
 			(breakif '(r3 = r4) 'done))
 
-			(vp-cpy-ir rsp local_this r0)
+			(assign '((rsp local_this)) '(r0))
 			(vp-cpy-ir rsp local_mode r2)
-			(vp-cpy-ir r0 lisp_sym_nil r0)
+			(assign '((r0 lisp_sym_nil)) '(r0))
 			(vpif '(r2 = r0))
 				(breakif '(r1 = r0) 'done)
 			(else)
@@ -422,17 +422,17 @@
 	(entry 'seq 'lisp_find '(r0 r1))
 
 (errorcases
-	(class/array/get_length r1 r2)
+	(assign '((r1 array_length)) '(r2))
 	(gotoif '(r2 /= 2) 'error1))
 
 	(vp-cpy-rr r0 r13)
 	(class/array/bind_args r1 '(r6 r5))
-	(vp-cpy-ir r5 obj_vtable r3)
+	(assign '((r5 obj_vtable)) '(r3))
 	(f-bind 'str 'vtable r4)
 	(switch)
 	(vpcase '(r3 = r4))
 	(errorcases
-		(vp-cpy-ir r6 obj_vtable r3)
+		(assign '((r6 obj_vtable)) '(r3))
 		(gotoif '(r3 /= r4) 'error2))
 		(class/vector/cast_args '(r6) '(char))
 		(call 'str 'find '(r5 r6) '(_ _ r2))

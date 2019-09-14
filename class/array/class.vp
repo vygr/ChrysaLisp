@@ -16,8 +16,7 @@
 	(entry 'array 'deinit '(r0))
 
 	;free any dynamic array
-	(class/array/get_begin r0 r2)
-	(vp-lea-i r0 array_e0 r1)
+	(assign '((r0 array_begin) (& r0 array_e0)) '(r2 r1))
 	(vpif '(r2 /= r1))
 		(vp-cpy-rr r0 r3)
 		(call 'sys_mem 'free '(r2))
@@ -81,7 +80,7 @@
 
 	(entry 'array 'get_length '(r0))
 
-	(class/array/get_length r0 r1)
+	(assign '((r0 array_length)) '(r1))
 
 	(exit 'array 'get_length '(r0 r1))
 	(vp-ret)
@@ -103,16 +102,15 @@
 	(entry 'array 'push_back '(r0 r1))
 
 	;increase capacity ?
-	(class/array/get_length r0 r3)
-	(class/array/get_capacity r0 r2)
+	(assign '((r0 array_length) (r0 array_capacity)) '(r3 r2))
 	(vp-add-cr 1 r3)
-	(class/array/set_length r0 r3)
+	(assign '(r3) '((r0 array_length)))
 	(vpif '(r3 > r2))
 		;double the capacity
 		(vp-add-rr r2 r2)
 		(vp-push r1)
 		(call 'array 'set_capacity '(r0 r2) '(r0))
-		(class/array/get_length r0 r3)
+		(assign '((r0 array_length)) '(r3))
 		(vp-pop r1)
 	(endif)
 
@@ -142,23 +140,21 @@
 	(entry 'array 'push_back2 '(r0 r1 r2))
 
 	;increase capacity ?
-	(class/array/get_length r0 r4)
-	(class/array/get_capacity r0 r3)
+	(assign '((r0 array_length) (r0 array_capacity)) '(r4 r3))
 	(vp-add-cr 2 r4)
-	(class/array/set_length r0 r4)
+	(assign '(r4) '((r0 array_length)))
 	(vpif '(r4 > r3))
 		;double the capacity
 		(vp-add-rr r3 r3)
 		(vp-push r1 r2)
 		(call 'array 'set_capacity '(r0 r3) '(r0))
-		(class/array/get_length r0 r4)
+		(assign '((r0 array_length)) '(r4))
 		(vp-pop r1 r2)
 	(endif)
 
 	;save object
 	(class/array/get_iter r0 r4 r3)
-	(vp-cpy-ri r1 r4 (* -2 long_size))
-	(vp-cpy-ri r2 r4 (neg long_size))
+	(assign '(r1 r2) `((r4 ,(* -2 long_size)) (r4 ,(neg long_size))))
 
 	(exit 'array 'push_back2 '(r0 r1 r2 r3 r4))
 	(vp-ret)
@@ -176,10 +172,9 @@
 
 	(entry 'array 'ref_back '(r0))
 
-	(class/array/get_length r0 r1)
-	(class/array/get_begin r0 r2)
+	(assign '((r0 array_length) (r0 array_begin)) '(r1 r2))
 	(vp-sub-cr 1 r1)
-	(class/array/set_length r0 r1)
+	(assign '(r1) '((r0 array_length)))
 	(vp-shl-cr (log2 long_size) r1)
 	(vp-cpy-rr r0 r3)
 	(call 'num 'create '((r2 r1)) '(r0))
@@ -222,22 +217,18 @@
 	(entry 'array 'set_capacity '(r0 r1))
 
 	;do we already have room ?
-	(class/array/get_capacity r0 r2)
+	(assign '((r0 array_capacity)) '(r2))
 	(vpif '(r1 > r2))
 		;realloc the dynamic array
 		(vp-push r0)
+		(assign '((& r0 array_e0) (r0 array_begin)) '(r3 r0))
 		(vp-shl-cr (log2 long_size) r1)
-		(vp-lea-i r0 array_e0 r3)
-		(class/array/get_begin r0 r0)
 		(vpif '(r0 = r3))
 			(call 'sys_mem 'alloc '(r1) '(r1 r2))
 			(vp-pop r0)
-			(vp-cpy-ir r0 array_e0 r3)
-			(vp-cpy-ir r0 array_e1 r4)
-			(vp-cpy-ir r0 array_e2 r5)
-			(vp-cpy-ri r3 r1 (- array_e0 array_e0))
-			(vp-cpy-ri r4 r1 (- array_e1 array_e0))
-			(vp-cpy-ri r5 r1 (- array_e2 array_e0))
+			(assign '((r0 array_e0) (r0 array_e1) (r0 array_e2)) '(r3 r4 r5))
+			(assign '(r3 r4 r5)
+				`((r1 ,(- array_e0 array_e0)) (r1 ,(- array_e1 array_e0)) (r1 ,(- array_e2 array_e0))))
 		(else)
 			(vp-shl-cr (log2 long_size) r2)
 			(vp-swp-rr r1 r2)
@@ -245,8 +236,7 @@
 			(vp-pop r0)
 		(endif)
 		(vp-shr-cr (log2 long_size) r2)
-		(vp-cpy-ri r1 r0 array_begin)
-		(vp-cpy-ri-i r2 r0 array_capacity)
+		(assign '(r1 r2) '((r0 array_begin) (r0 array_capacity)))
 	(endif)
 
 	(exit 'array 'set_capacity '(r0))
@@ -307,36 +297,29 @@
 
 	(vp-alloc local_size)
 	(entry 'array 'partition '(r0 r1 r2 r3 r4))
-	(assign '(r0 r1 r2 r3 r4) '((rsp local_this) (rsp local_lower) (rsp local_upper) (rsp local_func) (rsp local_ctx)))
+	(assign '(r0 r1 r2 r3 r4 r1 r1)
+		'((rsp local_this) (rsp local_lower) (rsp local_upper) (rsp local_func)
+		(rsp local_ctx) (rsp local_pivot) (rsp local_pivot)))
 
-	(vp-cpy-ri r1 rsp local_iter)
-	(vp-cpy-ri r1 rsp local_pivot)
 	(loop-start)
 		(vp-add-cr long_size r1)
 		(breakif '(r1 >= r2))
-		(vp-cpy-ri r1 rsp local_iter)
-		(vp-cpy-ir rsp local_ctx r0)
-		(vp-cpy-ir rsp local_lower r2)
+		(assign '(r1) '((rsp local_iter)))
+		(assign '((rsp local_ctx) (rsp local_lower)) '(r0 r2))
 		(vp-call-i rsp local_func)
-		(vp-cpy-ir rsp local_iter r1)
-		(vp-cpy-ir rsp local_upper r2)
+		(assign '((rsp local_iter) (rsp local_upper)) '(r1 r2))
 		(continueif '(r0 >= 0))
-		(vp-cpy-ir rsp local_pivot r0)
+		(assign '((rsp local_pivot)) '(r0))
 		(vp-add-cr long_size r0)
-		(vp-cpy-ri r0 rsp local_pivot)
+		(assign '(r0) '((rsp local_pivot)))
 		(continueif '(r0 = r1))
-		(vp-cpy-ir r0 0 r3)
-		(vp-cpy-ir r1 0 r4)
-		(vp-cpy-ri r3 r1 0)
-		(vp-cpy-ri r4 r0 0)
+		(assign '((r0 0) (r1 0)) '(r3 r4))
+		(assign '(r3 r4) '((r1 0) (r0 0)))
 	(loop-end)
-	(vp-cpy-ir rsp local_pivot r1)
-	(vp-cpy-ir rsp local_lower r0)
+	(assign '((rsp local_pivot) (rsp local_lower)) '(r1 r0))
 	(vpif '(r1 /= r0))
-		(vp-cpy-ir r0 0 r2)
-		(vp-cpy-ir r1 0 r3)
-		(vp-cpy-ri r2 r1 0)
-		(vp-cpy-ri r3 r0 0)
+		(assign '((r0 0) (r1 0)) '(r2 r3))
+		(assign '(r2 r3) '((r1 0) (r0 0)))
 	(endif)
 
 	(exit 'array 'partition '((rsp local_this) r1))
@@ -421,14 +404,14 @@
 	(call 'array 'create '() '(r0))
 	(vp-cpy-rr r8 r1)
 	(vp-sub-rr r7 r1)
-	(class/array/set_length r0 r1)
+	(assign '(r1) '((r0 array_length)))
 	(call 'array 'set_capacity '(r0 r1) '(r1))
 	(vp-cpy-rr r6 r0)
 
 	;copy elements
 	(vpif '(r7 /= r8))
 		(class/array/get_iters r0 r7 r8 r2)
-		(class/array/get_begin r1 r3)
+		(assign '((r1 array_begin)) '(r3))
 		(loop-start)
 			(vp-cpy-ir r7 0 r2)
 			(vp-add-cr ptr_size r7)
@@ -461,10 +444,10 @@
 		(assign '(r1 r2 r3) '(r6 r7 r8))
 
 		;extend array
-		(class/array/get_length r0 r9)
+		(assign '((r0 array_length)) '(r9))
 		(vp-sub-rr r2 r3)
 		(vp-lea-d r3 r9 r1)
-		(class/array/set_length r0 r1)
+		(assign '(r1) '((r0 array_length)))
 		(call 'array 'set_capacity '(r0 r1) '(r0))
 
 		;append elements
@@ -499,7 +482,7 @@
 	(vpif '(r0 /= 0))
 		(loop-start)
 			(vp-cpy-ir r10 0 r1)
-			(class/array/get_length r1 r3)
+			(assign '((r1 array_length)) '(r3))
 			(call 'array 'append '(r0 r1 0 r3) '(r0))
 			(vp-add-cr ptr_size r10)
 		(loop-until '(r10 = r11))

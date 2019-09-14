@@ -22,7 +22,7 @@
 	(entry 'lisp 'repl_eval '(r0 r1))
 
 	;evaluate based on type
-	(vp-cpy-ir r1 obj_vtable r2)
+	(assign '((r1 obj_vtable)) '(r2))
 	(f-bind 'sym 'vtable r3)
 	(f-bind 'vector 'vtable r4)
 	(switch)
@@ -31,17 +31,17 @@
 		(assign '(r0 r1) '((rsp local_this) (rsp local_form)))
 		(call 'hmap 'get '((r0 lisp_environment) r1) '(_ r1))
 		(errorif '(r1 = 0) 'error2)
-		(vp-cpy-ir rsp local_this r0)
+		(assign '((rsp local_this)) '(r0))
 		(break)
 	(vpcase '(r2 = r4))
 		;apply function, don't eval args if special form
 	(errorcases
-		(class/array/get_length r1 r2)
+		(assign '((r1 array_length)) '(r2))
 		(gotoif '(r2 = 0) 'error1))
 		(assign '(r0 r1) '((rsp local_this) (rsp local_form)))
 		(class/array/bind_args r1 '(r1))
 		(call 'lisp 'repl_eval '(r0 r1) '(r0 r1))
-		(vp-cpy-ir r1 obj_vtable r2)
+		(assign '((r1 obj_vtable)) '(r2))
 	(errorcases
 		(f-bind 'error 'vtable r3)
 		(breakif '(r2 = r3)))
@@ -49,17 +49,17 @@
 		(f-bind 'func 'vtable r3)
 		(vpif '(r2 = r3))
 			;compiled function, check if special form
-			(class/num/get_value r1 r2)
+			(assign '((r1 num_value)) '(r2))
 			(vp-and-cr 7 r2)
 			(nextcaseif '(r2 = 0))
 			(call 'lisp 'repl_apply '(r0 (rsp local_form) r1) '(_ (rsp local_value)))
 		(else)
 			;none compiled function or none special form
 			(vp-cpy-ir rsp local_form r0)
-			(d-call 'vector 'slice '(r0 1 (r0 array_length ui)) '(_ (rsp local_args)))
+			(d-call 'vector 'slice '(r0 1 (r0 array_length)) '(_ (rsp local_args)))
 			(call 'lisp 'repl_eval_list '((rsp local_this) (rsp local_args)) '(_ r1))
 		(errorcases
-			(vp-cpy-ir r1 obj_vtable r2)
+			(assign '((r1 obj_vtable)) '(r2))
 			(f-bind 'error 'vtable r3)
 			(vp-cpy-ri r1 rsp local_value)
 			(gotoif '(r2 = r3) 'error))
@@ -85,7 +85,7 @@
 	(vp-free local_size)
 	(jump 'lisp 'repl_error '(r0 "(eval form [env])" error_msg_not_a_lambda r1))
 (vp-label 'error2)
-	(vp-cpy-ir rsp local_this r0)
+	(assign '((rsp local_this)) '(r0))
 	(vp-cpy-ir rsp local_form r3)
 	(vp-free local_size)
 	(jump 'lisp 'repl_error '(r0 "(eval form [env])" error_msg_symbol_not_bound r3)))

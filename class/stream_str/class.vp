@@ -19,7 +19,7 @@
 	(entry 'stream_str 'init '(r0 r1 r2))
 
 	;init parent
-	(s-jump 'stream_str 'init '(r0 r1 r2 0 (& r2 str_data) (r2 str_length ui)))
+	(s-jump 'stream_str 'init '(r0 r1 r2 0 (& r2 str_data) (r2 str_length)))
 
 (def-func-end)
 

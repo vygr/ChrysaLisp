@@ -82,7 +82,7 @@
 ; inline methods
 ;;;;;;;;;;;;;;;;
 
-(defcfun-bind class/str/get_length (&optional o l)
+(defcfun-bind class/str/get_length ()
 	;inputs
 	;r0 = str object (ptr)
 	;outputs
@@ -90,5 +90,4 @@
 	;r1 = string length (bytes)
 	;trashes
 	;r1
-	(setd o r0 l r1)
-	(vp-cpy-ir-ui o str_length l))
+	(assign '((r0 str_length)) '(r1)))

@@ -17,7 +17,7 @@
 	(entry 'view 'lisp_create '(r0 r1))
 
 (errorcases
-	(class/array/get_length r1 r2)
+	(assign '((r1 array_length)) '(r2))
 	(gotoif '(r2 /= 0) 'error))
 
 	(vp-push r0)
@@ -119,7 +119,7 @@
 	(call 'view 'find_id in '(_ r0))
 	(vpif '(r0 = 0))
 		(vp-cpy-ir rsp 0 r0)
-		(vp-cpy-ir r0 lisp_sym_nil r0)
+		(assign '((r0 lisp_sym_nil)) '(r0))
 	(endif)
 	(call 'obj 'ref '(r0) '(r1))
 	(vp-pop r0)
@@ -151,7 +151,7 @@
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
-	(class/array/get_first r1 r0)
+	(class/array/bind_args r1 '(r0))
 	(call 'view 'sub '(r0) '(r1))
 	(vp-pop r0)
 
@@ -182,7 +182,7 @@
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
-	(class/array/get_begin r1 r4)
+	(assign '((r1 array_begin)) '(r4))
 	(call 'obj 'ref '((r4 ptr_size)) '(r3))
 	(call 'obj 'ref '((r4 0)) '(r0))
 	(call 'view 'add_child '(r0 r3) '(r1))
@@ -215,7 +215,7 @@
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
-	(class/array/get_begin r1 r4)
+	(assign '((r1 array_begin)) '(r4))
 	(call 'obj 'ref '((r4 ptr_size)) '(r3))
 	(call 'obj 'ref '((r4 0)) '(r0))
 	(call 'view 'add_front '(r0 r3) '(r1))
@@ -248,7 +248,7 @@
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
-	(class/array/get_begin r1 r4)
+	(assign '((r1 array_begin)) '(r4))
 	(call 'obj 'ref '((r4 ptr_size)) '(r3))
 	(call 'obj 'ref '((r4 0)) '(r0))
 	(call 'view 'add_back '(r0 r3) '(r1))
@@ -281,7 +281,7 @@
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
-	(class/array/get_first r1 r0)
+	(class/array/bind_args r1 '(r0))
 	(call 'view 'pref_size '(r0) '(_ r9 r10))
 	(call 'num 'create '(r9) '(r9))
 	(call 'num 'create '(r10) '(r10))
@@ -382,7 +382,7 @@
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
-	(class/array/get_first r1 r0)
+	(class/array/bind_args r1 '(r0))
 	(call 'view 'get_bounds '(r0) '(_ r7 r8 r9 r10))
 	(call 'num 'create '(r7) '(r7))
 	(call 'num 'create '(r8) '(r8))
@@ -391,7 +391,7 @@
 	(call 'vector 'create nil '(r0))
 	(call 'vector 'set_capacity '(r0 4) '(r0))
 	(call 'vector 'set_length '(r0 4) '(r1 _))
-	(class/array/get_begin r1 r0)
+	(assign '((r1 array_begin)) '(r0))
 	(class/array/set_args r0 '(r7 r8 r9 r10))
 	(vp-pop r0)
 

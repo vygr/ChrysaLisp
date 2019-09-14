@@ -66,7 +66,7 @@
 
 	;free ack mailbox
 	(vp-cpy-ir rsp 0 r0)
-	(call 'sys_mail 'free_mbox '((r0 msg_out_ack_mbox_id ui)))
+	(call 'sys_mail 'free_mbox '((r0 msg_out_ack_mbox_id)))
 
 	;deinit parent
 	(vp-pop r0)

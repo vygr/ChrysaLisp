@@ -33,11 +33,10 @@
 	;r1 = 0 if error, else ok
 	;trashes
 	;r1
-	(vp-cpy-ri r2 r0 pair_first)
-	(vp-cpy-ri r3 r0 pair_second)
+	(assign '(r2 r3) '((r0 pair_first) (r0 pair_second)))
 	(s-call 'pair 'init '(r0 r1) '(r0 r1)))
 
-(defcfun-bind class/pair/get_first (&optional o e)
+(defcfun-bind class/pair/get_first ()
 	;inputs
 	;r0 = pair object (ptr)
 	;outputs
@@ -45,10 +44,9 @@
 	;r1 = object (ptr)
 	;trashes
 	;r1
-	(setd o r0 e r1)
-	(vp-cpy-ir o pair_first e))
+	(assign '((r0 pair_first)) '(r1)))
 
-(defcfun-bind class/pair/get_second (&optional o e)
+(defcfun-bind class/pair/get_second ()
 	;inputs
 	;r0 = pair object (ptr)
 	;outputs
@@ -56,5 +54,4 @@
 	;r1 = object (ptr)
 	;trashes
 	;r1
-	(setd o r0 e r1)
-	(vp-cpy-ir o pair_second e))
+	(assign '((r0 pair_second)) '(r1)))

@@ -56,7 +56,7 @@
 	(pubyte 'coverage)
 	(ptr 'stream)
 	(ptr 'bufp)
-	(int 'scale)
+	(uint 'scale)
 	(uint 'width)
 	(uint 'height)
 	(uint 'stride)

@@ -66,14 +66,14 @@
 	;trashes
 	;r2
 	(vp-xor-rr r2 r2)
-	(class/array/set_length r0 r2)
+	(assign '(r2) '((r0 array_length)))
 	(vp-cpy-cr (>> (- array_size array_e0) (log2 long_size)) r2)
-	(vp-cpy-ri-i r2 r0 array_capacity)
+	(assign '(r2) '((r0 array_capacity)))
 	(vp-lea-i r0 array_e0 r2)
-	(vp-cpy-ri r2 r0 array_begin)
+	(assign '(r2) '((r0 array_begin)))
 	(s-call 'array 'init '(r0 r1) '(r0 r1)))
 
-(defcfun class/array/get_capacity (&optional o c)
+(defcfun class/array/get_capacity ()
 	;inputs
 	;r0 = array object (ptr)
 	;outputs
@@ -81,10 +81,9 @@
 	;r1 = capacity (uint)
 	;trashes
 	;r1
-	(setd o r0 c r1)
-	(vp-cpy-ir-ui o array_capacity c))
+	(assign '((r0 array_capacity)) '(r1)))
 
-(defcfun-bind class/array/get_length (&optional o l)
+(defcfun-bind class/array/get_length ()
 	;inputs
 	;r0 = array object (ptr)
 	;outputs
@@ -92,10 +91,9 @@
 	;r1 = length (uint)
 	;trashes
 	;r1
-	(setd o r0 l r1)
-	(vp-cpy-ir-ui o array_length l))
+	(assign '((r0 array_length)) '(r1)))
 
-(defcfun class/array/set_length (&optional o l)
+(defcfun class/array/set_length ()
 	;inputs
 	;r0 = array object (ptr)
 	;r1 = length (uint)
@@ -104,12 +102,9 @@
 	;r1 = length (uint)
 	;trashes
 	;none
-	(setd o r0 l r1)
-	(if (eql o l)
-		(throw "Invalid object or length !" (list o l)))
-	(vp-cpy-ri-i l o array_length))
+	(assign '(r1) '((r0 array_length))))
 
-(defcfun-bind class/array/get_begin (&optional o b)
+(defcfun-bind class/array/get_begin ()
 	;inputs
 	;r0 = array object (ptr)
 	;outputs
@@ -117,10 +112,9 @@
 	;r1 = begin element iter (plong)
 	;trashes
 	;r1
-	(setd o r0 b r1)
-	(vp-cpy-ir o array_begin b))
+	(assign '((r0 array_begin)) '(r1)))
 
-(defcfun-bind class/array/get_first (&optional o e)
+(defcfun-bind class/array/get_first ()
 	;inputs
 	;r0 = array object (ptr)
 	;outputs
@@ -128,11 +122,10 @@
 	;r1 = element (long)
 	;trashes
 	;r1
-	(setd o r0 e r1)
-	(class/array/get_begin o e)
-	(vp-cpy-ir e 0 e))
+	(assign '((r0 array_begin)) '(r1))
+	(vp-cpy-ir r1 0 r1))
 
-(defcfun class/array/get_second (&optional o e)
+(defcfun class/array/get_second ()
 	;inputs
 	;r0 = array object (ptr)
 	;outputs
@@ -140,9 +133,8 @@
 	;r1 = element (long)
 	;trashes
 	;r1
-	(setd o r0 e r1)
-	(class/array/get_begin o e)
-	(vp-cpy-ir e long_size e))
+	(assign '((r0 array_begin)) '(r1))
+	(vp-cpy-ir r1 long_size r1))
 
 (defcfun-bind class/array/get_iter (&optional o ei b)
 	;inputs
@@ -156,7 +148,7 @@
 	(setd o r0 ei r1 b r2)
 	(if (or (eql o ei) (eql b ei))
 		(throw "Invalid object, index or base !" (list o ei b)))
-	(class/array/get_begin o b)
+	(assign `((,o array_begin)) `(,b))
 	(vp-shl-cr (log2 long_size) ei)
 	(vp-add-rr b ei))
 
@@ -171,7 +163,7 @@
 	(setd o r0 e r1 b r2)
 	(if (eql o e)
 		(throw "Invalid object, end or base !" (list o e b)))
-	(class/array/get_length o e)
+	(assign `((,o array_length)) `(,e))
 	(class/array/get_iter o e b))
 
 (defcfun-bind class/array/get_both (&optional o b e)
@@ -186,8 +178,7 @@
 	(setd o r0 b r1 e r2)
 	(if (or (eql o e) (eql b e))
 		(throw "Invalid object, begin or end !" (list o b e)))
-	(class/array/get_length o e)
-	(class/array/get_begin o b)
+	(assign `((,o array_length) (,o array_begin)) `(,e ,b))
 	(vp-shl-cr (log2 long_size) e)
 	(vp-add-rr b e))
 
@@ -205,7 +196,7 @@
 	(setd o r0 bi r1 ei r2 b r3)
 	(if (or (eql o bi) (eql o ei) (eql bi ei) (eql b bi) (eql b ei))
 		(throw "Invalid object, begin, end or base !" (list o bi ei b)))
-	(class/array/get_begin o b)
+	(assign `((,o array_begin)) `(,b))
 	(vp-shl-cr (log2 long_size) bi)
 	(vp-shl-cr (log2 long_size) ei)
 	(vp-add-rr b bi)
@@ -223,7 +214,7 @@
 	(setd o r0 ei r1 e r1 b r2)
 	(if (or (eql o ei) (eql b ei))
 		(throw "Invalid object, index, element or base !" (list o ei e b)))
-	(class/array/get_begin o b)
+	(assign `((,o array_begin)) `(,b))
 	(vp-shl-cr (log2 long_size) ei)
 	(vp-cpy-dr b ei e))
 
@@ -236,7 +227,7 @@
 	;r0 = array object (ptr)
 	;trashes
 	;r2-r3
-	(class/array/get_begin r0 r3)
+	(assign '((r0 array_begin)) '(r3))
 	(vp-shl-cr (log2 long_size) r2)
 	(vp-cpy-rd r1 r3 r2))
 
@@ -248,10 +239,9 @@
 	;r1 = element (long)
 	;trashes
 	;r1-r2
-	(class/array/get_length r0 r1)
-	(class/array/get_begin r0 r2)
+	(assign '((r0 array_length) (r0 array_begin)) '(r1 r2))
 	(vp-sub-cr 1 r1)
-	(class/array/set_length r0 r1)
+	(assign '(r1) '((r0 array_length)))
 	(vp-shl-cr (log2 long_size) r1)
 	(vp-cpy-dr r2 r1 r1))
 
@@ -264,10 +254,9 @@
 	;r2 = element2 (long)
 	;trashes
 	;r1-r2
-	(class/array/get_length r0 r1)
-	(class/array/get_begin r0 r2)
+	(assign '((r0 array_length) (r0 array_begin)) '(r1 r2))
 	(vp-sub-cr 2 r1)
-	(class/array/set_length r0 r1)
+	(assign '(r1) '((r0 array_length)))
 	(vp-shl-cr (log2 long_size) r1)
 	(vp-add-rr r1 r2)
 	(class/array/get_args r2 '(r1 r2)))
@@ -280,7 +269,7 @@
 	;trashes
 	;r1
 	(vp-xor-rr r1 r1)
-	(class/array/set_length r0 r1))
+	(assign '(r1) '((r0 array_length))))
 
 (defcfun class/array/get_first2 ()
 	;inputs
@@ -303,7 +292,7 @@
 	;r2 = element2 (long)
 	;trashes
 	;r1-r2
-	(class/array/get_begin r0 r2)
+	(assign '((r0 array_begin)) '(r2))
 	(vp-shl-cr (log2 long_size) r1)
 	(vp-add-rr r1 r2)
 	(class/array/get_args r2 '(r1 r2)))
@@ -344,5 +333,5 @@
 	;(reg ...)
 	;outputs
 	;load register list from array
-	(class/array/get_begin a (elem -2 regs))
+	(assign `((,a array_begin)) `(,(elem -2 regs)))
 	(class/array/get_args (elem -2 regs) regs))

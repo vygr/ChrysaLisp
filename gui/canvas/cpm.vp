@@ -202,10 +202,10 @@
 	(entry 'canvas 'read_pixel '(r0 r1 r2 r3))
 
 	(vp-cpy-ri-i r1 rsp local_type)
-	(call 'stream 'read_bits '(r0 r1 r2 r3) '(_ r0 (rsp local_bit_pool) (rsp local_bit_pool_size i)))
+	(call 'stream 'read_bits '(r0 r1 r2 r3) '(_ r0 (rsp local_bit_pool) (rsp local_bit_pool_size)))
 	(vpif '(r0 /= -1))
-		(call 'canvas 'to_argb32 '(r0 (rsp local_type ui)) '(r0))
-		(exit 'canvas 'read_pixel '(r0 (rsp local_bit_pool) (rsp local_bit_pool_size ui)))
+		(call 'canvas 'to_argb32 '(r0 (rsp local_type)) '(r0))
+		(exit 'canvas 'read_pixel '(r0 (rsp local_bit_pool) (rsp local_bit_pool_size)))
 	(endif)
 	(vp-free local_size)
 	(vp-ret)

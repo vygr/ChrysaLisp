@@ -71,7 +71,7 @@
 		(call 'sys_heap 'alloc '((& r4 ml_statics_mbox_heap)) '(_ r1))
 		(ml-init r1 r2 r0)
 		(call 'array 'push_back '((r4 ml_statics_mbox_array) r1) '(r0 r1 _ _))
-		(class/array/get_length r0 r0)
+		(assign '((r0 array_length)) '(r0))
 		(vp-sub-cr 1 r0)
 
 		(exit 'sys_mail 'alloc_mbox '(r0 r1))
@@ -310,7 +310,7 @@
 		(vp-cpy-ir-ui r2 (+ msg_dest id_mbox) r1)
 		(vp-cpy-ir r0 ml_statics_mbox_array r0)
 		(vp-shl-cr (log2 ptr_size) r1)
-		(class/array/get_begin r0 r0)
+		(assign '((r0 array_begin)) '(r0))
 		(vp-cpy-dr r0 r1 r1)
 	(vp-label 'post_it)
 		(lh-add-at-tail r1 r2 r0)

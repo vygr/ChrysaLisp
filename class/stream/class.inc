@@ -51,8 +51,7 @@
 	;r1 = available space (bytes)
 	;trashes
 	;r2
-	(vp-cpy-ir r0 stream_bufe r1)
-	(vp-cpy-ir r0 stream_bufp r2)
+	(assign '((r0 stream_bufp) (r0 stream_bufe)) '(r2 r1))
 	(vp-sub-rr r2 r1))
 
 (defcfun class/stream/write_flush ()
@@ -63,5 +62,4 @@
 	;trashes
 	;r1
 	(vp-xor-rr r1 r1)
-	(vp-cpy-ri r1 r0 stream_bufp)
-	(vp-cpy-ri r1 r0 stream_bufe))
+	(assign '(r1 r1) '((r0 stream_bufp) (r0 stream_bufe))))

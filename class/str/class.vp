@@ -197,7 +197,7 @@
 		(vp-cpy-ir-ui r5 str_length r2)
 		(vp-add-rr r2 r1)
 		(vp-cpy-ri-i r1 r0 str_length)
-		(call 'sys_mem 'copy '((& r4 str_data) (& r0 str_data) (r4 str_length ui)) '(_ r1))
+		(call 'sys_mem 'copy '((& r4 str_data) (& r0 str_data) (r4 str_length)) '(_ r1))
 		(vp-cpy-ir-ui r5 str_length r2)
 		(vp-add-cr byte_size r2)
 		(call 'sys_mem 'copy '((& r5 str_data) r1 r2))
@@ -277,7 +277,7 @@
 		(vp-lea-i r6 str_data r1)
 		(loop-while '(r4 /= r5))
 			(vp-cpy-ir r4 0 r0)
-			(call 'sys_mem 'copy '((& r0 str_data) r1 (r0 str_length ui)) '(_ r1))
+			(call 'sys_mem 'copy '((& r0 str_data) r1 (r0 str_length)) '(_ r1))
 			(vp-add-cr ptr_size r4)
 		(loop-end)
 		(vp-xor-rr r0 r0)
@@ -495,7 +495,7 @@
 
 	(entry 'str 'get_length '(r0))
 
-	(class/str/get_length)
+	(assign '((r0 str_length)) '(r1))
 
 	(exit 'str 'get_length '(r0 r1))
 	(vp-ret)
@@ -620,9 +620,9 @@
 	(entry 'str 'split '(r0 r1))
 
 	;create string split
-	(assign '(r0 r1) '((rsp local_this) (rsp local_schar i)))
-	(call 'stream 'create '(0 0 (& r0 str_data) (r0 str_length ui)) '(r0))
-	(call 'stream 'split '(r0 (rsp local_schar ui)) '(r0 (rsp local_splits)))
+	(assign '(r0 r1) '((rsp local_this) (rsp local_schar)))
+	(call 'stream 'create '(0 0 (& r0 str_data) (r0 str_length)) '(r0))
+	(call 'stream 'split '(r0 (rsp local_schar)) '(r0 (rsp local_splits)))
 	(call 'stream 'destroy '(r0))
 
 	(exit 'str 'split '((rsp local_this) (rsp local_splits)))

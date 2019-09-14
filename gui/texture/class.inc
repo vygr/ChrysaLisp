@@ -30,7 +30,7 @@
 	;r1 = 0 if error, else ok
 	;trashes
 	;r1
-	(entry 'texture 'init '(r0 r1 (r0 texture_handle) (r0 texture_width i) (r0 texture_height i)))
+	(entry 'texture 'init '(r0 r1 (r0 texture_handle) (r0 texture_width) (r0 texture_height)))
 	(s-call 'texture 'init '(r0 r1) '(r0 r1))
 	(exit 'texture 'init '(r0 r1))
 	(vp-ret))

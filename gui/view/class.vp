@@ -231,7 +231,7 @@
 		(ln-get-pred r0 view_node r0)
 	(loop-end)
 
-	(vp-cpy-ir rsp local_this r0)
+	(assign '((rsp local_this)) '(r0))
 	(vp-free local_size)
 	(vp-ret)
 
@@ -289,7 +289,7 @@
 		(vp-call-i rsp local_up)
 
 		;back at root ?
-		(vp-cpy-ir rsp local_this r2)
+		(assign '((rsp local_this)) '(r2))
 		(breakif '(r0 = r2))
 
 		;across to sibling
@@ -538,7 +538,7 @@
 		(ln-get-succ r0 view_node r0)
 	(loop-end)
 
-	(vp-cpy-ir rsp local_this r0)
+	(assign '((rsp local_this)) '(r0))
 	(vp-free local_size)
 	(vp-ret)
 
@@ -596,7 +596,7 @@
 		(vp-call-i rsp local_up)
 
 		;back at root ?
-		(vp-cpy-ir rsp local_this r2)
+		(assign '((rsp local_this)) '(r2))
 		(breakif '(r0 = r2))
 
 		;across to sibling
@@ -754,7 +754,7 @@
 	;iterate through views front to back
 	(call 'view 'forward_tree '(r0 rsp ($ hit_down_callback) ($ hit_up_callback)))
 
-	(vp-cpy-ir rsp local_this r0)
+	(assign '((rsp local_this)) '(r0))
 	(vp-cpy-ir rsp local_hit r1)
 	(vp-free local_size)
 	(vp-ret)
