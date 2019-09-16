@@ -13,14 +13,11 @@
 ;;;;;;;;;;;;;;;;;
 
 (def-struct 'lh_list)
-	(ptr 'head)
-	(ptr 'tail)
-	(ptr 'tailpred)
+	(ptr 'head 'tail 'tailpred)
 (def-struct-end)
 
 (def-struct 'ln_node)
-	(ptr 'succ)
-	(ptr 'pred)
+	(ptr 'succ 'pred)
 (def-struct-end)
 
 (def-struct 'ln_fnode)

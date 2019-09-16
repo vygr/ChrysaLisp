@@ -62,9 +62,9 @@
 	(gotoif '(r2 /= 0) 'error1))
 
 	(vp-push r0)
-	(vp-cpy-ir r0 lisp_nextsym r1)
+	(assign '((r0 lisp_nextsym)) '(r1))
 	(vp-add-cr 1 r1)
-	(vp-cpy-ri r1 r0 lisp_nextsym)
+	(assign '(r1) '((r0 lisp_nextsym)))
 	(call 'sym 'create_from_long '(r1 10) '(r7))
 	(call 'sym 'create_from_buffer '("G" 1) '(r8))
 	(call 'sym 'append '(r8 r7) '(r3))

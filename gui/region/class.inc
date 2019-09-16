@@ -14,8 +14,5 @@
 (dec-method 'remove_region 'gui/region/remove_region 'static '(r0 r1 r2 r7 r8) '(r0))
 
 (def-struct 'rect 'ln_fnode)
-	(int 'x)
-	(int 'y)
-	(int 'x1)
-	(int 'y1)
+	(int 'x 'y 'x1 'y1)
 (def-struct-end)

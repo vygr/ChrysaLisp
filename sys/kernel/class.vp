@@ -197,9 +197,9 @@
 		;start any tasks ready to restart
 		(call 'sys_pii 'time '() '(r0))
 		(f-bind 'sys_task 'statics r3)
-		(vp-cpy-ir r3 tk_statics_current_tcb r14)
+		(assign '((r3 tk_statics_current_tcb)) '(r14))
 		(loop-list-forward r3 tk_statics_timer_list r1 r2)
-			(vp-cpy-ir r1 tk_node_time r4)
+			(assign '((r1 tk_node_time)) '(r4))
 			(breakif '(r4 > r0))
 
 			;task ready, remove from timer list and place on ready list
@@ -219,7 +219,7 @@
 
 		;sleep till next wake time
 		(vp-swp-rr r0 r2)
-		(vp-cpy-ir r0 tk_node_time r0)
+		(assign '((r0 tk_node_time)) '(r0))
 		(vp-sub-rr r2 r0)
 		(vp-cpy-cr 1000 r3)
 		(vp-xor-rr r2 r2)
@@ -251,13 +251,13 @@
 
 	(entry '(r0 r7 r8 r3))
 
-	(vp-cpy-ir-ui r8 kn_msg_flood_via r9)
-	(vp-cpy-ri-i r3 r8 kn_msg_flood_via)
+	(assign '((r8 kn_msg_flood_via)) '(r9))
+	(assign '(r3) '((r8 kn_msg_flood_via)))
 	(call 'array 'get_both '((r0 ml_statics_links_array)) '(_ r10 r11))
 	(loop-while '(r10 /= r11))
 		(vp-cpy-ir r10 0 r6)
 		(vp-add-cr ptr_size r10)
-		(vp-cpy-ir-ui r6 lk_node_cpu_id r6)
+		(assign '((r6 lk_node_cpu_id)) '(r6))
 		(continueif '(r6 = r9))
 		(call 'sys_mail 'alloc_obj '((r7 msg_parcel_obj) r8 (r7 msg_length)) '(r0))
 		(vp-shl-cr 32 r6)
@@ -319,7 +319,7 @@
 	;set cpu ID
 	(call 'sys_str 'to_long '(r0 10) '(r0))
 	(f-bind 'sys_task 'statics r1)
-	(vp-cpy-ri-i r0 r1 tk_statics_cpu_id)
+	(assign '(r0) '((r1 tk_statics_cpu_id)))
 	(vp-ret)
 
 (vp-label 'opt_run)
@@ -440,9 +440,9 @@
 	(vp-cpy-ri-i r0 r5 (+ msg_dest id_cpu))
 	(vp-cpy-ri r9 r1 (+ kn_msg_reply_id id_id))
 	(vp-cpy-cr kn_call_declare r0)
-	(vp-cpy-ri-i r0 r1 kn_msg_func)
+	(assign '(r0) '((r1 kn_msg_func)))
 	(vp-cpy-cr -1 r0)
-	(vp-cpy-ri-i r0 r1 kn_msg_flood_via)
+	(assign '(r0) '((r1 kn_msg_flood_via)))
 	(call 'sys_mem 'copy '(r8 (& r1 kn_msg_declare_name) (& r10 1)))
 	(call 'sys_mail 'send '(r5))
 	(vp-ret)

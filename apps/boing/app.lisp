@@ -3,9 +3,7 @@
 (import 'gui/lisp.inc)
 
 (structure 'event 0
-	(byte 'win_close)
-	(byte 'win_min)
-	(byte 'win_max))
+	(byte 'win_close 'win_min 'win_max))
 
 (defq id t index 0 xv 4 yv 0
 	frames (map (lambda (_) (canvas-load (cat "apps/boing/taoball_" (str _) ".cpm") load_flag_shared)) (range 1 12))

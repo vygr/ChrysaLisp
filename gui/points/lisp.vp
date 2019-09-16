@@ -324,7 +324,7 @@
 		(call 'points 'set_capacity '(r0 r13) '(r0))
 		(call 'points 'set_length '(r0 r13) '(r0 _))
 	(else)
-		(vp-cpy-ir r1 ptr_size r0)
+		(assign '((r1 ptr_size)) '(r0))
 	(errorcases
 		(assign '((r0 array_length)) '(r14))
 		(gotoif '(r13 /= r14) 'error))

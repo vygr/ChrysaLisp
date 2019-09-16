@@ -147,11 +147,10 @@
 	(gotoif '(r2 = 0) 'error1))
 
 	(vp-alloc local_size)
-	(vp-cpy-ri r0 rsp local_this)
-	(vp-cpy-ri r1 rsp local_args)
+	(assign '(r0 r1) '((rsp local_this) (rsp local_args)))
 	(call 'lisp 'env_push '(r0))
 
-	(vp-cpy-ir rsp local_args r0)
+	(assign '((rsp local_args)) '(r0))
 	(class/vector/bind_args r0 '(r9 r10 r11 r12) '(num num obj vector))
 	(vp-cpy-cr max_int r8)
 	(class/array/get_both r12 r6 r7)
@@ -198,8 +197,7 @@
 			(call 'obj 'deref '((rsp local_value)))
 
 			(call 'vector 'create nil '((rsp local_params)))
-			(vp-cpy-ir rsp local_args r0)
-			(vp-cpy-ir-i rsp local_start r9)
+			(assign '((rsp local_args) (rsp local_start)) '(r0 r9))
 			(class/array/get_both r0 r10 r11)
 			(loop-start)
 				(call 'seq 'ref_element '((r10 0) r9) '(_ r1))
@@ -209,23 +207,21 @@
 
 			(call 'num 'create '(r9) '(r2))
 			(assign '((rsp local_this)) '(r1))
-			(vp-cpy-ri r2 rsp local_value)
+			(assign '(r2) '((rsp local_value)))
 			(call 'hmap 'insert '((r1 lisp_environment) (r1 lisp_sym_underscore) r2))
 			(call 'obj 'deref '((rsp local_value)))
 
 			(call 'lisp 'repl_apply '((rsp local_this) (rsp local_params) (rsp local_func)) '(_ (rsp local_value)))
 			(call 'vector 'deref '((rsp local_params)))
 		(errorcases
-			(vp-cpy-ir rsp local_value r1)
+			(assign '((rsp local_value)) '(r1))
 			(f-bind 'error 'vtable r4)
 			(assign '((r1 obj_vtable)) '(r3))
 			(breakif '(r3 = r4) 'done))
 
-			(vp-cpy-ir-i rsp local_dir r8)
-			(vp-cpy-ir-i rsp local_start r9)
-			(vp-cpy-ir-i rsp local_end r10)
+			(assign '((rsp local_dir) (rsp local_start) (rsp local_end)) '(r8 r9 r10))
 			(vp-add-rr r8 r9)
-			(vp-cpy-ri-i r9 rsp local_start)
+			(assign '(r9) '((rsp local_start)))
 		(loop-end)
 	(endif)
 
@@ -270,11 +266,10 @@
 	(gotoif '(r2 = 0) 'error1))
 
 	(vp-alloc local_size)
-	(vp-cpy-ri r0 rsp local_this)
-	(vp-cpy-ri r1 rsp local_args)
+	(assign '(r0 r1) '((rsp local_this) (rsp local_args)))
 	(call 'lisp 'env_push '(r0))
 
-	(vp-cpy-ir rsp local_args r0)
+	(assign '((rsp local_args)) '(r0))
 	(class/vector/bind_args r0 '(r9 r10 r11 r12 r13) '(num num obj obj vector))
 	(vp-cpy-cr max_int r8)
 	(class/array/get_both r13 r6 r7)
@@ -321,8 +316,7 @@
 			(call 'obj 'deref '((rsp local_value)))
 
 			(call 'vector 'create nil '((rsp local_params)))
-			(vp-cpy-ir rsp local_args r0)
-			(vp-cpy-ir-i rsp local_start r9)
+			(assign '((rsp local_args) (rsp local_start)) '(r0 r9))
 			(class/array/get_both r0 r10 r11)
 			(loop-start)
 				(call 'seq 'ref_element '((r10 0) r9) '(_ r1))
@@ -332,20 +326,19 @@
 
 			(call 'num 'create '(r9) '(r2))
 			(assign '((rsp local_this)) '(r1))
-			(vp-cpy-ri r2 rsp local_value)
+			(assign '(r2) '((rsp local_value)))
 			(call 'hmap 'insert '((r1 lisp_environment) (r1 lisp_sym_underscore) r2))
 			(call 'obj 'deref '((rsp local_value)))
 
 			(call 'lisp 'repl_apply '((rsp local_this) (rsp local_params) (rsp local_func)) '(_ (rsp local_value)))
 			(call 'vector 'deref '((rsp local_params)))
 		(errorcases
-			(vp-cpy-ir rsp local_value r1)
+			(assign '((rsp local_value)) '(r1))
 			(f-bind 'error 'vtable r4)
 			(assign '((r1 obj_vtable)) '(r3))
 			(breakif '(r3 = r4) 'done))
 
-			(assign '((rsp local_this)) '(r0))
-			(vp-cpy-ir rsp local_mode r2)
+			(assign '((rsp local_this) (rsp local_mode)) '(r0 r2))
 			(assign '((r0 lisp_sym_nil)) '(r0))
 			(vpif '(r2 = r0))
 				(breakif '(r1 = r0) 'done)
@@ -353,11 +346,9 @@
 				(breakif '(r1 /= r0) 'done)
 			(endif)
 
-			(vp-cpy-ir-i rsp local_dir r8)
-			(vp-cpy-ir-i rsp local_start r9)
-			(vp-cpy-ir-i rsp local_end r10)
+			(assign '((rsp local_dir) (rsp local_start) (rsp local_end)) '(r8 r9 r10))
 			(vp-add-rr r8 r9)
-			(vp-cpy-ri-i r9 rsp local_start)
+			(assign '(r9) '((rsp local_start)))
 		(loop-end)
 	(endif)
 

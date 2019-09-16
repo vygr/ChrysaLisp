@@ -22,13 +22,9 @@
 
 (def-struct 'font 'obj)
 	(ulong 'handle)
-	(ptr 'word_map)
-	(ptr 'name)
-	(ptr 'chars)
+	(ptr 'word_map 'name 'chars)
 	(uint 'points)
-	(int 'ascent)
-	(int 'descent)
-	(int 'height)
+	(int 'ascent 'descent 'height)
 (def-struct-end)
 
 (defcvar 'font_max_word_cache 1024)
@@ -47,6 +43,4 @@
 	;r3 = height (pixels)
 	;trashes
 	;r1-r3
-	(vp-cpy-ir-i r0 font_ascent r1)
-	(vp-cpy-ir-i r0 font_descent r2)
-	(vp-cpy-ir-i r0 font_height r3))
+	(assign '((r0 font_ascent) (r0 font_descent) (r0 font_height)) '(r1 r2 r3)))

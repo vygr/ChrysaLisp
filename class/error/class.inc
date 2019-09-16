@@ -13,11 +13,8 @@
 (dec-method 'deinit 'class/error/deinit 'final)
 
 (def-struct 'error 'obj)
-	(ptr 'description)
-	(ptr 'object)
-	(ptr 'file)
-	(uint 'msg)
-	(uint 'line)
+	(ptr 'description 'object 'file)
+	(uint 'msg 'line)
 (def-struct-end)
 
 ;;;;;;;;;;;;;;;;
@@ -32,7 +29,7 @@
 	;r1 = str object (ptr)
 	;trashes
 	;r1
-	(vp-cpy-ir r0 error_description r1))
+	(assign '((r0 error_description)) '(r1)))
 
 (defcfun class/error/get_file ()
 	;inputs
@@ -42,7 +39,7 @@
 	;r1 = str object (ptr)
 	;trashes
 	;r1
-	(vp-cpy-ir r0 error_file r1))
+	(assign '((r0 error_file)) '(r1)))
 
 (defcfun class/error/get_object ()
 	;inputs
@@ -52,7 +49,7 @@
 	;r1 = error payload object (ptr)
 	;trashes
 	;r1
-	(vp-cpy-ir r0 error_object r1))
+	(assign '((r0 error_object)) '(r1)))
 
 (defcfun class/error/get_line ()
 	;inputs
@@ -62,7 +59,7 @@
 	;r1 = line number (uint)
 	;trashes
 	;r1
-	(vp-cpy-ir-ui r0 error_line r1))
+	(assign '((r0 error_line)) '(r1)))
 
 ;;;;;;;;;;;;
 ; error msgs

@@ -12,10 +12,7 @@
 (dec-method 'lisp_get_args 'class/slave/lisp_get_args 'static '(r0 r1) '(r0 r1))
 
 (def-struct 'slave 'obj)
-	(ptr 'stdin)
-	(ptr 'stdout)
-	(ptr 'stderr)
-	(ptr 'args)
+	(ptr 'stdin 'stdout 'stderr 'args)
 (def-struct-end)
 
 (def-struct 'slave_msg_init)
@@ -38,4 +35,4 @@
 	;r1 = command args
 	;trashes
 	;r1
-	(vp-cpy-ir r0 slave_args r1))
+	(assign '((r0 slave_args)) '(r1)))

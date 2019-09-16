@@ -11,17 +11,14 @@
 (dec-method 'write_next 'class/msg_out/write_next 'final)
 
 (def-struct 'msg_out 'stream)
-	(ulong 'seqnum)
-	(ulong 'state)
+	(ulong 'seqnum 'state 'ack_seqnum)
 	(struct 'id 'id)
-	(ulong 'ack_seqnum)
 	(ptr 'ack_mbox_addr)
 	(uint 'ack_mbox_id)
 (def-struct-end)
 
 (def-struct 'stream_msg)
-	(ulong 'seqnum)
-	(ulong 'state)
+	(ulong 'seqnum 'state)
 	(struct 'ack_id 'id)
 	(offset 'data)
 (def-struct-end)
@@ -44,4 +41,4 @@
 	;r0 = msg_out object (ptr)
 	;trashes
 	;none
-	(vp-cpy-ri r1 r0 msg_out_state))
+	(assign '(r1) '((r0 msg_out_state))))

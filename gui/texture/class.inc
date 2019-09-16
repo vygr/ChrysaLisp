@@ -10,8 +10,7 @@
 
 (def-struct 'texture 'obj)
 	(ulong 'handle)
-	(uint 'width)
-	(uint 'height)
+	(uint 'width 'height)
 (def-struct-end)
 
 ;;;;;;;;;;;;;;;;
@@ -45,6 +44,4 @@
 	;r3 = height (pixels)
 	;trashes
 	;r1-r3
-	(vp-cpy-ir r0 texture_handle r1)
-	(vp-cpy-ir-ui r0 texture_width r2)
-	(vp-cpy-ir-ui r0 texture_height r3))
+	(assign '((r0 texture_handle) (r0 texture_width) (r0 texture_height)) '(r1 r2 r3)))

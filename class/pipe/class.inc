@@ -36,9 +36,9 @@
 	;r1 = input stream object (ptr)
 	;trashes
 	;r1
-	(vp-cpy-ir r0 pipe_streams r1)
+	(assign '((r0 pipe_streams)) '(r1))
 	(assign '((r1 array_begin)) '(r1))
-	(vp-cpy-ir r1 0 r1))
+	(assign '((r1 0)) '(r1)))
 
 (defcfun class/pipe/get_state ()
 	;inputs
@@ -48,7 +48,7 @@
 	;r1 = current state (ulong)
 	;trashes
 	;r1
-	(vp-cpy-ir r0 pipe_state r1))
+	(assign '((r0 pipe_state)) '(r1)))
 
 (defcfun class/pipe/set_state ()
 	;inputs
@@ -59,4 +59,4 @@
 	;r1 = current state (ulong)
 	;trashes
 	;none
-	(vp-cpy-ri r1 r0 pipe_state))
+	(assign '(r1) '((r0 pipe_state))))

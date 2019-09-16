@@ -17,17 +17,13 @@
 ;;;;;;;;;;;;;;;;;
 
 (def-struct 'hp_heap)
-	(ptr 'free_flist)
-	(ptr 'block_flist)
-	(uint 'cellsize)
-	(uint 'blocksize)
+	(ptr 'free_flist 'block_flist)
+	(uint 'cellsize 'blocksize)
 (def-struct-end)
 
 (def-struct 'hp_block 'ln_fnode)
-	(ptr 'free_flist)
-	(ptr 'free_flist_tail)
-	(uint 'blocksize)
-	(uint 'cellcnt)
+	(ptr 'free_flist 'free_flist_tail)
+	(uint 'blocksize 'cellcnt)
 (def-struct-end)
 
 ;;;;;;;;;;;;;;;;

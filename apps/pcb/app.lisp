@@ -4,8 +4,7 @@
 (import 'apps/math.inc)
 
 (structure 'event 0
-	(byte 'win_close)
-	(byte 'win_prev 'win_next)
+	(byte 'win_close 'win_prev 'win_next)
 	(byte 'win_scale_down 'win_scale_up)
 	(byte 'win_mode_normal 'win_mode_gerber)
 	(byte 'win_show_all 'win_show_1 'win_show_2 'win_show_3 'win_show_4))

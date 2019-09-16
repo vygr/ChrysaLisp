@@ -3,10 +3,7 @@
 (import 'apps/math.inc)
 
 (structure 'work 0
-	(long 'parent_id)
-	(long 'width)
-	(long 'height)
-	(long 'y))
+	(long 'parent_id 'width 'height 'y))
 
 (structure 'reply 0
 	(long 'child_id)

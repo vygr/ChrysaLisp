@@ -150,9 +150,7 @@
 	;all but r0
 
 	(def-struct 'local)
-		(ptr 'this)
-		(ptr 'iter)
-		(ptr 'bucket)
+		(ptr 'this 'iter 'bucket)
 	(def-struct-end)
 
 	;save inputs
@@ -166,8 +164,8 @@
 	(assign '((r0 array_length)) '(r1))
 	(vp-sub-cr 1 r1)
 	(assign '(r1) '((r0 array_length)))
-	(vp-shl-cr (log2 ptr_size) r1)
 	(assign '((r0 array_begin)) '(r0))
+	(vp-shl-cr (log2 ptr_size) r1)
 	(vp-add-rr r0 r1)
 	(assign '((rsp local_iter)) '(r0))
 	(vpif '(r1 /= r0))
@@ -193,11 +191,8 @@
 	;all but r0
 
 	(def-struct 'local)
-		(ptr 'this)
-		(ptr 'key)
-		(ptr 'bucket)
-		(pptr 'iter_begin)
-		(pptr 'iter_end)
+		(ptr 'this 'key 'bucket)
+		(pptr 'iter_begin 'iter_end)
 	(def-struct-end)
 
 	;save inputs
@@ -260,13 +255,8 @@
 		;depends on the callback
 
 	(def-struct 'local)
-		(ptr 'this)
-		(ptr 'predicate)
-		(ptr 'predicate_data)
-		(pptr 'iter_begin)
-		(pptr 'iter_end)
-		(pptr 'iter_begin1)
-		(pptr 'iter_end1)
+		(ptr 'this 'predicate 'predicate_data)
+		(pptr 'iter_begin 'iter_end 'iter_begin1 'iter_end1)
 	(def-struct-end)
 
 	;save inputs
@@ -280,8 +270,8 @@
 		(class/array/get_both r0 r1 r2)
 		(assign '(r2) '((rsp local_iter_end)))
 		(loop-while '(r1 /= r2))
-			(assign '(r1) '((rsp local_iter_begin)))
 			(assign '((rsp local_predicate_data)) '(r0))
+			(assign '(r1) '((rsp local_iter_begin)))
 			(vp-call-i rsp local_predicate)
 			(assign '((rsp local_iter_begin) (rsp local_iter_end)) '(r1 r2))
 			(vp-add-cr ptr_size r1)
@@ -294,8 +284,8 @@
 			(class/array/get_both r0 r1 r2)
 			(assign '(r2) '((rsp local_iter_end1)))
 			(loop-while '(r1 /= r2))
-				(assign '(r1) '((rsp local_iter_begin1)))
 				(assign '((rsp local_predicate_data)) '(r0))
+				(assign '(r1) '((rsp local_iter_begin1)))
 				(vp-call-i rsp local_predicate)
 				(assign '((rsp local_iter_begin1) (rsp local_iter_end1)) '(r1 r2))
 				(vp-add-cr ptr_size r1)
@@ -334,7 +324,6 @@
 		;save inputs
 		(vp-alloc local_size)
 		(assign '(r0 r2) '((rsp local_this) (rsp local_length)))
-
 		(call 'obj 'hash '(r1) '(_ r0))
 		(assign '((rsp local_length)) '(r1))
 		(vp-xor-rr r2 r2)
@@ -364,8 +353,7 @@
 	;all but r0
 
 	(def-struct 'local)
-		(ptr 'this)
-		(ptr 'key)
+		(ptr 'this 'key)
 	(def-struct-end)
 
 	;save inputs

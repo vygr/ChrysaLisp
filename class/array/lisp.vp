@@ -104,7 +104,7 @@
 	(vpif '(r1 /= 0))
 		(call 'array 'ref_back '(r0) '(_ r1))
 	(else)
-		(vp-cpy-ir rsp 0 r1)
+		(assign '((rsp 0)) '(r1))
 		(assign '((r1 lisp_sym_nil)) '(r1))
 		(class/obj/ref r1 r2)
 	(endif)

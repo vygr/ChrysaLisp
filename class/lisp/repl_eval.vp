@@ -45,7 +45,7 @@
 	(errorcases
 		(f-bind 'error 'vtable r3)
 		(breakif '(r2 = r3)))
-		(vp-cpy-ri r1 rsp local_func)
+		(assign '(r1) '((rsp local_func)))
 		(f-bind 'func 'vtable r3)
 		(vpif '(r2 = r3))
 			;compiled function, check if special form
@@ -55,13 +55,13 @@
 			(call 'lisp 'repl_apply '(r0 (rsp local_form) r1) '(_ (rsp local_value)))
 		(else)
 			;none compiled function or none special form
-			(vp-cpy-ir rsp local_form r0)
+			(assign '((rsp local_form)) '(r0))
 			(d-call 'vector 'slice '(r0 1 (r0 array_length)) '(_ (rsp local_args)))
 			(call 'lisp 'repl_eval_list '((rsp local_this) (rsp local_args)) '(_ r1))
 		(errorcases
 			(assign '((r1 obj_vtable)) '(r2))
 			(f-bind 'error 'vtable r3)
-			(vp-cpy-ri r1 rsp local_value)
+			(assign '(r1) '((rsp local_value)))
 			(gotoif '(r2 = r3) 'error))
 			(call 'obj 'deref '(r1))
 			(call 'lisp 'repl_apply '((rsp local_this) (rsp local_args) (rsp local_func)) '(_ (rsp local_value)))
@@ -85,8 +85,7 @@
 	(vp-free local_size)
 	(jump 'lisp 'repl_error '(r0 "(eval form [env])" error_msg_not_a_lambda r1))
 (vp-label 'error2)
-	(assign '((rsp local_this)) '(r0))
-	(vp-cpy-ir rsp local_form r3)
+	(assign '((rsp local_this) (rsp local_form)) '(r0 r3))
 	(vp-free local_size)
 	(jump 'lisp 'repl_error '(r0 "(eval form [env])" error_msg_symbol_not_bound r3)))
 

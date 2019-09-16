@@ -7,22 +7,13 @@
 	(kernel-declare "DEBUG_SERVICE" (task-mailbox))
 
 (structure 'debug_msg 0
-	(long 'command)
-	(long 'reply_id)
-	(long 'tcb)
+	(long 'command 'reply_id 'tcb)
 	(offset 'data))
 
 (structure 'event 0
-	(byte 'win_debug)
-	(byte 'win_play)
-	(byte 'win_pause)
-	(byte 'win_step)
-	(byte 'win_clear)
-	(byte 'win_play_all)
-	(byte 'win_pause_all)
-	(byte 'win_step_all)
-	(byte 'win_clear_all)
-	(byte 'win_hvalue))
+	(byte 'win_debug 'win_hvalue)
+	(byte 'win_play 'win_pause 'win_step 'win_clear)
+	(byte 'win_play_all 'win_pause_all 'win_step_all 'win_clear_all))
 
 (defq vdu_width 60 vdu_height 30 vdu_index nil vdu_keys (list) vdu_list (list))
 

@@ -27,31 +27,30 @@
 
 	;get loader statics and bind function !
 	(vp-lea-p 'func_start r5)
-	(vp-cpy-ir-us r5 fn_header_length r1)
+	(assign '((r5 fn_header_length)) '(r1))
 	(vp-add-rr r1 r5)
 	(vp-cpy-rr r5 r4)
-	(vp-cpy-ir-us r5 fn_header_length r1)
+	(assign '((r5 fn_header_length)) '(r1))
 	(vp-add-rr r1 r5)
-	(vp-cpy-ir-us r5 fn_header_entry r1)
+	(assign '((r5 fn_header_entry)) '(r1))
 	(vp-add-rr r1 r5)
-	(vp-cpy-ir-us r4 fn_header_entry r1)
+	(assign '((r4 fn_header_entry)) '(r1))
 	(vp-add-rr r1 r4)
 
 	;save host function table
-	(vp-cpy-ri r14 r5 ld_statics_host_funcs)
+	(assign '(r14) '((r5 ld_statics_host_funcs)))
 
 	;init reloc buffer address etc
-	(vp-cpy-ri r0 r5 ld_statics_reloc_stack)
-	(vp-cpy-ri r0 r5 ld_statics_reloc_buffer)
+	(assign '(r0 r0) '((r5 ld_statics_reloc_stack) (r5 ld_statics_reloc_buffer)))
 	(vp-add-cr ld_reloc_size r0)
-	(vp-cpy-ri r0 r5 ld_statics_stat_buffer)
+	(assign '(r0) '((r5 ld_statics_stat_buffer)))
 	(vp-add-cr stat_size r0)
-	(vp-cpy-ri r0 r5 ld_statics_name_buffer)
+	(assign '(r0) '((r5 ld_statics_name_buffer)))
 
 	;add all prebound functions to function list
 	(vp-lea-p 'func_start r1)
 	(loop-start)
-		(vp-cpy-ir-us r1 fn_header_length r2)
+		(assign '((r1 fn_header_length)) '(r2))
 		(breakif '(r2 = 0))
 		(ln-add-fnode r5 ld_statics_function_flist r1 r0)
 		(vp-add-rr r2 r1)
@@ -60,10 +59,9 @@
 	;bind all prebound function intra references
 	(vp-lea-p 'func_start r2)
 	(loop-start)
-		(vp-cpy-ir-us r2 fn_header_length r1)
+		(assign '((r2 fn_header_length)) '(r1))
 		(breakif '(r1 = 0))
-		(vp-cpy-ir-us r2 fn_header_links r0)
-		(vp-cpy-ir-us r2 fn_header_paths r3)
+		(assign '((r2 fn_header_links) (r2 fn_header_paths)) '(r0 r3))
 		(vp-add-rr r2 r0)
 		(vp-add-rr r2 r3)
 		(vp-add-rr r1 r2)
@@ -127,9 +125,9 @@
 
 	;get loader statics !
 	(vp-lea-p 'func_start r7)
-	(vp-cpy-ir-us r7 fn_header_length r0)
+	(assign '((r7 fn_header_length)) '(r0))
 	(vp-add-rr r0 r7)
-	(vp-cpy-ir-us r7 fn_header_entry r0)
+	(assign '((r7 fn_header_entry)) '(r0))
 	(vp-add-rr r0 r7)
 
 	;check if function already present !
@@ -147,7 +145,7 @@
 	(loop-until '(r2 = 0))
 	(vpif '(r5 /= 0))
 		;found function already loaded
-		(vp-cpy-ir-us r5 fn_header_entry r0)
+		(assign '((r5 fn_header_entry)) '(r0))
 		(vp-add-rr r5 r0)
 		(vp-ret)
 	(endif)
@@ -160,7 +158,7 @@
 	(call 'sys_str 'copy `(,(cat "obj/" *cpu* "/" *abi* "/") (r7 ld_statics_name_buffer)) '(_ r1))
 	(vp-sub-cr 1 r1)
 	(call 'sys_str 'copy '(r6 r1))
-	(vp-cpy-ir r7 ld_statics_name_buffer r6)
+	(assign '((r7 ld_statics_name_buffer)) '(r6))
 
 	;get length of function on disk
 	(call 'sys_pii 'stat '(r6 (r7 ld_statics_stat_buffer)) '(r0))
@@ -171,17 +169,16 @@
 	(endif)
 
 	;test for regular file only
-	(vp-cpy-ir r7 ld_statics_stat_buffer r0)
-	(vp-cpy-ir-us r0 stat_mode r0)
+	(assign '((r7 ld_statics_stat_buffer)) '(r0))
+	(assign '((r0 stat_mode)) '(r0))
 	(vp-and-cr s_ifmt r0)
 	(gotoif '(r0 /= s_ifreg) 'funcexit)
 
 	;ensure space for new function
-	(vp-cpy-ir r7 ld_statics_block_start r1)
-	(vp-cpy-ir r7 ld_statics_block_end r2)
-	(vp-cpy-ir r7 ld_statics_stat_buffer r0)
+	(assign '((r7 ld_statics_block_start) (r7 ld_statics_block_end) (r7 ld_statics_stat_buffer))
+		'(r1 r2 r0))
 	(vp-sub-rr r1 r2)
-	(vp-cpy-ir r0 stat_fsize r0)
+	(assign '((r0 stat_fsize)) '(r0))
 	(vpif '(r2 < r0))
 		;not enough so allocate new function buffer
 		(call 'sys_pii 'mmap '(ld_block_size -1 mmap_exec) '(r0))
@@ -192,26 +189,24 @@
 
 		;set block pointers for loading
 		(vp-add-cr ptr_size r0)
-		(vp-cpy-ri r0 r7 ld_statics_block_start)
+		(assign '(r0) '((r7 ld_statics_block_start)))
 		(vp-add-cr (- ld_block_size ptr_size) r0)
-		(vp-cpy-ri r0 r7 ld_statics_block_end)
+		(assign '(r0) '((r7 ld_statics_block_end)))
 	(endif)
 
 	;open function file
 	(call 'sys_pii 'open '(r6 file_open_read) '(r6))
 
 	;read into buffer
-	(vp-cpy-ir r7 ld_statics_stat_buffer r2)
+	(assign '((r7 ld_statics_stat_buffer)) '(r2))
 	(call 'sys_pii 'read '(r6 (r7 ld_statics_block_start) (r2 stat_fsize)))
 
 	;close function file
 	(call 'sys_pii 'close '(r6))
 
 	;check loaded length equals file size
-	(vp-cpy-ir r7 ld_statics_block_start r3)
-	(vp-cpy-ir r7 ld_statics_stat_buffer r2)
-	(vp-cpy-ir-us r3 fn_header_length r0)
-	(vp-cpy-ir r2 stat_fsize r1)
+	(assign '((r7 ld_statics_block_start) (r7 ld_statics_stat_buffer)) '(r3 r2))
+	(assign '((r3 fn_header_length) (r2 stat_fsize)) '(r0 r1))
 	(vpif '(r0 /= r1))
 		(call 'sys_pii 'write_str '(2 "Length field error !"))
 		(call 'sys_pii 'exit '(1))
@@ -221,12 +216,11 @@
 	(ln-add-fnode r7 ld_statics_function_flist r3 r0)
 
 	;relocate vtable so we can discard paths
-	(vp-cpy-ir r7 ld_statics_reloc_stack r1)
+	(assign '((r7 ld_statics_reloc_stack)) '(r1))
 	(vp-cpy-rr r1 r5)
 
 	;copy paths to reloc buffer
-	(vp-cpy-ir-us r3 fn_header_paths r0)
-	(vp-cpy-ir-us r3 fn_header_length r2)
+	(assign '((r3 fn_header_paths) (r3 fn_header_length)) '(r0 r2))
 	(vp-add-rr r3 r0)
 	(vp-add-rr r3 r2)
 	(loop-while '(r0 /= r2))
@@ -240,10 +234,10 @@
 	(vp-add-cr (dec (* ptr_size 2)) r1)
 	(vp-and-cr (neg ptr_size) r1)
 	(vp-cpy-ri r5 r1 (neg ptr_size))
-	(vp-cpy-ri r1 r7 ld_statics_reloc_stack)
+	(assign '(r1) '((r7 ld_statics_reloc_stack)))
 
 	;overflow check
-	(vp-cpy-ir r7 ld_statics_reloc_buffer r2)
+	(assign '((r7 ld_statics_reloc_buffer)) '(r2))
 	(vp-add-cr ld_reloc_size r2)
 	(vpif '(r1 > r2))
 		(call 'sys_pii 'write_str '(2 "Reloc buffer overflow !"))
@@ -251,8 +245,7 @@
 	(endif)
 
 	;bind links to paths in reloc buffer
-	(vp-cpy-ir-us r3 fn_header_links r0)
-	(vp-cpy-ir-us r3 fn_header_paths r1)
+	(assign '((r3 fn_header_links) (r3 fn_header_paths)) '(r0 r1))
 	(vp-add-rr r3 r0)
 	(vp-add-rr r3 r1)
 	(vp-sub-rr r1 r5)
@@ -265,18 +258,18 @@
 	(loop-end)
 
 	;adjust block start
-	(vp-cpy-ir-us r3 fn_header_paths r0)
+	(assign '((r3 fn_header_paths)) '(r0))
 	(vp-add-rr r3 r0)
 	(vp-add-cr (dec ptr_size) r0)
 	(vp-and-cr (neg ptr_size) r0)
-	(vp-cpy-ri r0 r7 ld_statics_block_start)
+	(assign '(r0) '((r7 ld_statics_block_start)))
 
 	;load and link function references
 	;now actual addresses of strings in the reloc buffer
-	(vp-cpy-ir-us r3 fn_header_links r0)
+	(assign '((r3 fn_header_links)) '(r0))
 	(vp-add-rr r3 r0)
 	(loop-start)
-		(vp-cpy-ir-us r3 fn_header_paths r1)
+		(assign '((r3 fn_header_paths)) '(r1))
 		(vp-add-rr r3 r1)
 		(breakif '(r0 = r1))
 		(vp-push r3 r0)
@@ -284,7 +277,7 @@
 		(vpif '(r0 = 0))
 			;no such file
 			(call 'sys_pii 'write_str '(2 "Bind error: "))
-			(vp-cpy-ir rsp 0 r0)
+			(assign '((rsp 0)) '(r0))
 			(call 'sys_pii 'write_str '(2 (r0 0)))
 			(call 'sys_pii 'write_char '(2 char_lf))
 			(call 'sys_pii 'exit '(1))
@@ -297,18 +290,18 @@
 
 	;get loader statics !
 	(vp-lea-p 'func_start r7)
-	(vp-cpy-ir-us r7 fn_header_length r0)
+	(assign '((r7 fn_header_length)) '(r0))
 	(vp-add-rr r0 r7)
-	(vp-cpy-ir-us r7 fn_header_entry r0)
+	(assign '((r7 fn_header_entry)) '(r0))
 	(vp-add-rr r0 r7)
 
 	;pop reloc buffer
-	(vp-cpy-ir r7 ld_statics_reloc_stack r0)
+	(assign '((r7 ld_statics_reloc_stack)) '(r0))
 	(vp-cpy-ir r0 (neg ptr_size) r0)
-	(vp-cpy-ri r0 r7 ld_statics_reloc_stack)
+	(assign '(r0) '((r7 ld_statics_reloc_stack)))
 
 	;return function address
-	(vp-cpy-ir-us r3 fn_header_entry r0)
+	(assign '((r3 fn_header_entry)) '(r0))
 	(vp-add-rr r3 r0)
 	(vp-ret)
 

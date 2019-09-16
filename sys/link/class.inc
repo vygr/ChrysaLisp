@@ -23,8 +23,7 @@
 
 (def-struct 'lk_node)
 	(struct 'table 'lk_table)
-	(uint 'cpu_id)
-	(uint 'task_count)
+	(uint 'cpu_id 'task_count)
 (def-struct-end)
 
 (def-struct 'lk_msg)

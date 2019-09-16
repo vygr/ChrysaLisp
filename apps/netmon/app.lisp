@@ -3,17 +3,10 @@
 (import 'gui/lisp.inc)
 
 (structure 'sample_reply_msg 0
-	(long 'command)
-	(long 'cpu)
-	(long 'task_count)
-	(long 'mem_used))
+	(long 'command 'cpu 'task_count 'mem_used))
 
 (structure 'event 0
-	(byte 'win_exit)
-	(byte 'win_sample)
-	(byte 'win_close)
-	(byte 'win_min)
-	(byte 'win_max))
+	(byte 'win_exit 'win_sample 'win_close 'win_min 'win_max))
 
 (defq task_bars (list) memory_bars (list) task_scale (list) memory_scale (list)
 	cpu_total (kernel-total) cpu_count cpu_total id t

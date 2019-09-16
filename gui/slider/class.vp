@@ -24,10 +24,10 @@
 		;init myself
 		(vp-push r0)
 		(vp-xor-rr r1 r1)
-		(vp-cpy-ri r1 r0 slider_state)
+		(assign '(r1) '((r0 slider_state)))
 		(call 'array 'create nil '(r1))
 		(vp-pop r0)
-		(vp-cpy-ri r1 r0 slider_value_targets)
+		(assign '(r1) '((r0 slider_value_targets)))
 	(endif)
 
 	(exit 'slider 'init '(r0 r1))
@@ -143,10 +143,10 @@
 
 	(entry 'slider 'mouse_up '(r0 r1))
 
-	(vp-cpy-ir r0 slider_state r1)
+	(assign '((r0 slider_state)) '(r1))
 	(vp-cpy-rr r1 r2)
 	(vp-and-cr (lognot slider_state_pressed) r1)
-	(vp-cpy-ri r1 r0 slider_state)
+	(assign '(r1) '((r0 slider_state)))
 	(vpif '(r1 /= r2))
 		(jump 'slider 'dirty '(r0))
 	(endif)

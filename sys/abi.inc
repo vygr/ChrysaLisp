@@ -70,15 +70,11 @@
 (defcmacro abi-arg (_) (elem _ (abi-args 6)))
 
 (def-enum 'file_open)
-	(enum 'read)
-	(enum 'write)
-	(enum 'readwrite)
+	(enum 'read 'write 'readwrite)
 (def-enum-end)
 
 (def-enum 'mmap)
-	(enum 'data)
-	(enum 'exec)
-	(enum 'shared)
+	(enum 'data 'exec 'shared)
 (def-enum-end)
 
 (def-enum 'mprotect)
@@ -86,8 +82,7 @@
 (def-enum-end)
 
 (def-struct 'stat)
-	(long 'mtime)
-	(long 'fsize)
+	(long 'mtime 'fsize)
 	(ushort 'mode)
 (def-struct-end)
 

@@ -194,14 +194,13 @@
 
 	(def-struct 'local)
 		(ulong 'bit_pool)
-		(uint 'bit_pool_size)
-		(uint 'type)
+		(uint 'bit_pool_size 'type)
 	(def-struct-end)
 
 	(vp-alloc local_size)
 	(entry 'canvas 'read_pixel '(r0 r1 r2 r3))
 
-	(vp-cpy-ri-i r1 rsp local_type)
+	(assign '(r1) '((rsp local_type)))
 	(call 'stream 'read_bits '(r0 r1 r2 r3) '(_ r0 (rsp local_bit_pool) (rsp local_bit_pool_size)))
 	(vpif '(r0 /= -1))
 		(call 'canvas 'to_argb32 '(r0 (rsp local_type)) '(r0))

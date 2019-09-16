@@ -44,7 +44,7 @@
 	(vp-push r0)
 
 	(call 'sys_mem 'free '((r0 vdu_chars)))
-	(vp-cpy-ir rsp 0 r0)
+	(assign '((rsp 0)) '(r0))
 	(call 'vector 'deref_if '((r0 vdu_textures)))
 
 	;deinit parent

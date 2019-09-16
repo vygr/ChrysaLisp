@@ -24,9 +24,9 @@
 	(vp-alloc local_size)
 	(entry 'lisp 'read_char '(r0 r1 r2))
 
-	(vp-cpy-ri r0 rsp local_this)
+	(assign '(r0) '((rsp local_this)))
 	(vpif '(r2 = char_lf))
-		(vp-cpy-ri r1 rsp local_stream)
+		(assign '(r1) '((rsp local_stream)))
 		(call 'hmap 'search '((r0 lisp_environment) (r0 lisp_sym_stream_line)) '(_ r1 _))
 		(vpif '(r1 /= 0))
 			(vp-cpy-ir r1 0 r1)
@@ -35,7 +35,7 @@
 			(vp-add-cr 1 r2)
 			(assign '(r2) '((r1 num_value)))
 		(endif)
-		(vp-cpy-ir rsp local_stream r1)
+		(assign '((rsp local_stream)) '(r1))
 	(endif)
 	(call 'stream 'read_char '(r1) '(_ r1))
 

@@ -44,8 +44,7 @@
 (def-struct-end)
 
 (def-struct 'kn_msg_route 'kn_msg_flood)
-	(uint 'origin)
-	(uint 'hops)
+	(uint 'origin 'hops)
 (def-struct-end)
 
 (def-struct 'kn_msg_declare 'kn_msg_flood)

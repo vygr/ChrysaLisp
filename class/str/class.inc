@@ -31,8 +31,7 @@
 (dec-method 'lisp_load 'class/str/lisp_load 'static '(r0 r1) '(r0 r1))
 
 (def-struct 'str 'seq)
-	(uint 'length)
-	(uint 'hashcode)
+	(uint 'length 'hashcode)
 	(local-align)
 	(offset 'data)
 (def-struct-end)

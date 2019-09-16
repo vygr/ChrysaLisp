@@ -9,6 +9,5 @@
 (dec-method 'mouse_move 'gui/title/mouse_move 'final)
 
 (def-struct 'title 'label)
-	(int 'last_x)
-	(int 'last_y)
+	(int 'last_x 'last_y)
 (def-struct-end)

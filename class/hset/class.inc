@@ -19,6 +19,5 @@
 
 (def-struct 'hset 'obj)
 	(uint 'num_buckets)
-	(ptr 'buckets)
-	(ptr 'key_callback)
+	(ptr 'buckets 'key_callback)
 (def-struct-end)

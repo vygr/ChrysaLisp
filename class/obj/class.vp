@@ -45,7 +45,7 @@
 
 	(vp-lea-i r0 obj_vtable r1)
 	(loop-start)
-		(vp-cpy-ir r1 ln_fnode_next r1)
+		(assign '((r1 ln_fnode_next)) '(r1))
 		(gotoif '(r1 = 0) 'funcexit)
 	(loop-until '(r1 = r2))
 	(assign '((r0 obj_vtable)) '(r1))
@@ -78,7 +78,7 @@
 
 	;dec ref count
 	(vp-sub-cr 1 r1)
-	(vp-cpy-ri-i r1 r0 obj_count)
+	(assign '(r1) '((r0 obj_count)))
 	(vp-ret)
 
 (def-func-end)

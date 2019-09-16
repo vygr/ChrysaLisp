@@ -21,13 +21,6 @@
 (defcvar 'ld_reloc_size (- ld_reloc_buf_size ld_name_size stat_size))
 
 (def-struct 'ld_statics)
-	(ptr 'host_funcs)
-	(ptr 'function_flist)
-	(ptr 'block_flist)
-	(ptr 'block_start)
-	(ptr 'block_end)
-	(ptr 'reloc_stack)
-	(ptr 'reloc_buffer)
-	(ptr 'stat_buffer)
-	(ptr 'name_buffer)
+	(ptr 'host_funcs 'function_flist 'block_flist 'block_start 'block_end
+		'reloc_stack 'reloc_buffer 'stat_buffer 'name_buffer)
 (def-struct-end)

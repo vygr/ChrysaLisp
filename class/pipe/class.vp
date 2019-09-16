@@ -22,9 +22,9 @@
 
 	;wait on user and pipe mailboxes
 	(vp-cpy-rr r0 r5)
-	(vp-cpy-ir r0 pipe_select_array r0)
+	(assign '((r0 pipe_select_array)) '(r0))
 	(vp-cpy-ri r1 r0 0)
-	(vp-cpy-ir r5 pipe_streams r1)
+	(assign '((r5 pipe_streams)) '(r1))
 	(assign '((r1 array_length)) '(r1))
 	(call 'sys_mail 'select '(r0 r1) '(r0))
 

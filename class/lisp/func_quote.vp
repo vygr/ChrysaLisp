@@ -18,7 +18,7 @@
 	(gotoif '(r2 /= 2) 'error))
 
 	(assign '((r1 array_begin)) '(r1))
-	(vp-cpy-ir r1 ptr_size r1)
+	(assign '((r1 ptr_size)) '(r1))
 	(class/obj/ref r1 r2)
 
 	(exit 'lisp 'func_quote '(r0 r1))

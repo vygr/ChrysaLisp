@@ -366,8 +366,8 @@ This is an example from the `class/pair/class.inc` file.
 	;outputs
 	;r0 = pair object (ptr)
 	;r1 = 0 if error, else ok
-	(vp-cpy-ri r2 r0 pair_first)
-	(vp-cpy-ri r3 r0 pair_second)
+	(assign '(r2) '((r0 pair_first)))
+	(assign '(r3) '((r0 pair_second)))
 	(s-call 'pair 'init '(r0 r1) '(r0 r1)))
 
 (defcfun class/pair/get_first ()
@@ -376,7 +376,7 @@ This is an example from the `class/pair/class.inc` file.
 	;outputs
 	;r0 = pair object (ptr)
 	;r1 = object (ptr)
-	(vp-cpy-ir r0 pair_first r1))
+	(assign '((r0 pair_first)) '(r1)))
 
 (defcfun class/pair/get_second ()
 	;inputs
@@ -384,7 +384,7 @@ This is an example from the `class/pair/class.inc` file.
 	;outputs
 	;r0 = pair object (ptr)
 	;r1 = object (ptr)
-	(vp-cpy-ir r0 pair_second r1))
+	(assign '((r0 pair_second)) '(r1)))
 ```
 
 The `(def-class)` declares the class name and which class it inherits its
@@ -417,7 +417,7 @@ of these.
 
 	(vp-push r0)
 	(call 'obj 'deref '((r0 pair_first)))
-	(vp-cpy-ir rsp 0 r0)
+	(assign '((rsp 0)) '(r0))
 	(call 'obj 'deref '((r0 pair_second)))
 	(vp-pop r0)
 	(s-jump 'pair 'deinit '(r0))
@@ -466,8 +466,8 @@ of these.
 	;all but r0
 
 	(vp-push r0)
-	(vp-cpy-ir r0 pair_first r2)
-	(vp-cpy-ri r1 r0 pair_first)
+	(assign '((r0 pair_first)) '(r2))
+	(assign '(r1) '((r0 pair_first)))
 	(call 'obj 'deref '(r2))
 	(vp-pop r0)
 	(vp-ret)
@@ -484,8 +484,8 @@ of these.
 	;all but r0
 
 	(vp-push r0)
-	(vp-cpy-ir r0 pair_second r2)
-	(vp-cpy-ri r1 r0 pair_second)
+	(assign '((r0 pair_second)) '(r2))
+	(assign '(r1) '((r0 pair_second)))
 	(call 'obj 'deref '(r2))
 	(vp-pop r0)
 	(vp-ret)

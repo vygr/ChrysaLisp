@@ -3,10 +3,7 @@
 (import 'gui/lisp.inc)
 
 (structure 'event 0
-	(byte 'win_close)
-	(byte 'win_min)
-	(byte 'win_max)
-	(byte 'win_button))
+	(byte 'win_close 'win_min 'win_max 'win_button))
 
 (ui-tree window (create-window (+ window_flag_close window_flag_min window_flag_max)) nil
 	(ui-element _ (create-flow) ('flow_flags (logior flow_flag_down flow_flag_fillw flow_flag_lasth))

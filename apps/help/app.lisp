@@ -3,8 +3,7 @@
 (import 'gui/lisp.inc)
 
 (structure 'event 0
-	(byte 'win_close)
-	(byte 'win_button))
+	(byte 'win_close 'win_button))
 
 (defq id t keys (list) vals (list) vdu_height 40)
 

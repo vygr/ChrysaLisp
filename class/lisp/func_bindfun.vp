@@ -35,17 +35,16 @@
 	(vpif '(r2 = r3))
 		;is a list so down we go
 		(vp-alloc local_size)
-		(vp-cpy-ri r0 rsp local_this)
-		(vp-cpy-ri r1 rsp local_form)
-		(vp-cpy-ir r0 lisp_stack r2)
+		(assign '(r0 r1) '((rsp local_this) (rsp local_form)))
+		(assign '((r0 lisp_stack)) '(r2))
 		(assign '((r2 array_length)) '(r2))
-		(vp-cpy-ri-i r2 rsp local_start)
+		(assign '(r2) '((rsp local_start)))
 		(loop-start)
 			;loop form elements
 			(class/array/get_both r1 r1 r2)
-			(vp-cpy-ri r2 rsp local_iter_end)
+			(assign '(r2) '((rsp local_iter_end)))
 			(loop-while '(r1 /= r2))
-				(vp-cpy-ri r1 rsp local_iter_begin)
+				(assign '(r1) '((rsp local_iter_begin)))
 				(vp-cpy-ir r1 0 r1)
 
 				(switch 'next_elem)
@@ -59,7 +58,7 @@
 					(breakif '(r2 = 0) 'next_elem)
 					;not quoted list ?
 					(class/array/bind_args r1 '(r2))
-					(vp-cpy-ir r0 lisp_sym_quote r3)
+					(assign '((r0 lisp_sym_quote)) '(r3))
 					(breakif '(r2 = r3) 'next_elem)
 					(default)
 						;come back to this branch
@@ -72,10 +71,10 @@
 					(f-bind 'sym 'vtable r2)
 					(breakif '(r2 /= r3))
 					;not lambda ?
-					(vp-cpy-ir r0 lisp_sym_lambda r3)
+					(assign '((r0 lisp_sym_lambda)) '(r3))
 					(breakif '(r1 = r3))
 					;not macro ?
-					(vp-cpy-ir r0 lisp_sym_macro r3)
+					(assign '((r0 lisp_sym_macro)) '(r3))
 					(breakif '(r1 = r3))
 					;is defined ?
 					(call 'hmap 'search '((r0 lisp_environment) r1) '(_ r1 _))
@@ -95,35 +94,33 @@
 					;is a lambda ?
 					(assign '((rsp local_this)) '(r0))
 					(class/array/bind_args r1 '(r2))
-					(vp-cpy-ir r0 lisp_sym_lambda r3)
+					(assign '((r0 lisp_sym_lambda)) '(r3))
 					(breakif '(r2 /= r3))
 					(default)
 					(vp-label 'bind_it)
 						(class/obj/ref r1 r2)
-						(vp-cpy-ir rsp local_iter_begin r3)
+						(assign '((rsp local_iter_begin)) '(r3))
 						(vp-cpy-ir r3 0 r0)
 						(vp-cpy-ri r1 r3 0)
 						(call 'obj 'deref '(r0))
 					(endswitch)
 				(endswitch)
 
-				(assign '((rsp local_this)) '(r0))
-				(vp-cpy-ir rsp local_iter_begin r1)
-				(vp-cpy-ir rsp local_iter_end r2)
+				(assign '((rsp local_this) (rsp local_iter_begin) (rsp local_iter_end))
+					'(r0 r1 r2))
 				(vp-add-cr ptr_size r1)
 			(loop-end)
 
 			;pop back stack
-			(vp-cpy-ir r0 lisp_stack r2)
-			(vp-cpy-ir-ui rsp local_start r3)
-			(assign '((r2 array_length)) '(r1))
+			(assign '((r0 lisp_stack)) '(r2))
+			(assign '((rsp local_start) (r2 array_length)) '(r3 r1))
 			(breakif '(r1 = r3))
 			(vp-sub-cr 1 r1)
 			(assign '(r1) '((r2 array_length)))
 			(class/array/get_element r2 r1 r1 r2)
 		(loop-end)
 
-		(vp-cpy-ir rsp local_form r1)
+		(assign '((rsp local_form)) '(r1))
 		(vp-free local_size)
 	(endif)
 

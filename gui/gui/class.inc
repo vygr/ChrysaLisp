@@ -24,11 +24,8 @@
 
 (def-struct 'gui_statics)
 	(struct 'rect_heap 'hp_heap)
-	(ptr 'window)
-	(ptr 'screen)
-	(ulong 'renderer)
-	(ptr 'old_region)
-	(ulong 'next_id)
+	(ptr 'window 'screen 'old_region)
+	(ulong 'renderer 'next_id)
 	(uint 'dirty_flag)
 (def-struct-end)
 
@@ -41,21 +38,16 @@
 (def-enum-end)
 
 (def-struct 'ev_msg)
-	(ulong 'target_id)
-	(ulong 'type)
+	(ulong 'target_id 'type)
 (def-struct-end)
 
 (def-struct 'ev_msg_mouse 'ev_msg)
 	(uint 'buttons)
-	(int 'x)
-	(int 'y)
-	(int 'rx)
-	(int 'ry)
+	(int 'x 'y 'rx 'ry)
 (def-struct-end)
 
 (def-struct 'ev_msg_key 'ev_msg)
-	(uint 'keycode)
-	(uint 'key)
+	(uint 'keycode 'key)
 (def-struct-end)
 
 (def-struct 'ev_msg_action 'ev_msg)

@@ -22,8 +22,6 @@
 (def-bit-end)
 
 (def-struct 'slider 'view)
-	(ulong 'state)
-	(ulong 'offset)
-	(ulong 'old_val)
+	(ulong 'state 'offset 'old_val)
 	(ptr 'value_targets)
 (def-struct-end)

@@ -50,37 +50,20 @@
 
 (def-struct 'canvas 'view)
 	(ulong 'texture)
-	(ptr 'array)
-	(ptr 'edges)
+	(ptr 'array 'edges)
 	(pptr 'edges_start)
 	(pubyte 'coverage)
-	(ptr 'stream)
-	(ptr 'bufp)
-	(uint 'scale)
-	(uint 'width)
-	(uint 'height)
-	(uint 'stride)
-	(uint 'stream_type)
-	(uint 'cx)
-	(uint 'cy)
-	(uint 'cx1)
-	(uint 'cy1)
-	(uint 'color)
-	(uint 'flags)
+	(ptr 'stream 'bufp)
+	(uint 'scale 'width 'height 'stride 'stream_type 'cx 'cy 'cx1 'cy1 'color 'flags)
 (def-struct-end)
 
 (def-struct 'edge 'ln_fnode)
-	(int 'x)
-	(int 'ys)
-	(int 'ye)
-	(int 'w)
-	(int 'dda)
+	(int 'x 'ys 'ye 'w 'dda)
 	(local-align)
 (def-struct-end)
 
 (def-bit 'load_flag)
-	(bit 'shared)
-	(bit 'film)
+	(bit 'shared 'film)
 (def-bit-end)
 
 ;;;;;;;;;;;;;;;;
@@ -96,7 +79,7 @@
 	;r1 = color (argb)
 	;trashes
 	;none
-	(vp-cpy-ri-i r1 r0 canvas_color))
+	(assign '(r1) '((r0 canvas_color))))
 
 (defcfun gui/canvas/set_flags ()
 	;inputs
@@ -107,4 +90,4 @@
 	;r1 = flags (uint)
 	;trashes
 	;none
-	(vp-cpy-ri-i r1 r0 canvas_flags))
+	(assign '(r1) '((r0 canvas_flags))))

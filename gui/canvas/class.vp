@@ -44,23 +44,23 @@
 		(vp-mul-rr r4 r3)
 		(assign '(r2 r3 r2 r3) '((r0 canvas_width) (r0 canvas_height) (r0 canvas_cx1) (r0 canvas_cy1)))
 		(vp-mul-cr int_size r2)
-		(vp-cpy-ri r2 r0 canvas_stride)
+		(assign '(r2) '((r0 canvas_stride)))
 		(call 'canvas 'pref_size '(r0) '(r0 (r0 view_w) (r0 view_h)))
 
 		;alloc pixel array
 		(call 'array 'create nil '(r0))
-		(vp-cpy-ir rsp 0 r1)
+		(assign '((rsp 0)) '(r1))
 		(assign '((r1 canvas_height) (r1 canvas_stride)) '(r1 r2))
 		(vp-mul-rr r2 r1)
 		(vp-shr-cr 3 r1)
 		(call 'array 'set_capacity '(r0 r1) '(r0))
-		(vp-cpy-ir rsp 0 r1)
-		(vp-cpy-ri r0 r1 canvas_array)
+		(assign '((rsp 0)) '(r1))
+		(assign '(r0) '((r1 canvas_array)))
 
 		;edge array
 		(call 'array 'create nil '(r1))
 		(vp-pop r0)
-		(vp-cpy-ri r1 r0 canvas_edges)
+		(assign '(r1) '((r0 canvas_edges)))
 	(endif)
 
 	(exit 'canvas 'init '(r0 r1))
@@ -92,7 +92,7 @@
 			(r0 canvas_edges_start) (r0 canvas_coverage)))
 		(vp-cpy-cr argb_black r1)
 		(assign '(r1) '((r0 canvas_color)))
-		(vp-cpy-ir r0 canvas_array r1)
+		(assign '((r0 canvas_array)) '(r1))
 		(assign '((r1 canvas_width) (r1 canvas_height) (r1 canvas_scale)
 			(r1 canvas_stride) (r1 canvas_array) (r1 canvas_edges))
 			'(r1 r2 r3 r4 r5 r6))
@@ -119,7 +119,7 @@
 
 	(vp-push r0)
 	(call 'stream 'deref_if '((r0 canvas_stream)))
-	(vp-cpy-ir rsp 0 r0)
+	(assign '((rsp 0)) '(r0))
 	(call 'sys_task 'callback '(r0 ($ callback)))
 	(vp-pop r0)
 	(s-jump 'canvas 'deinit '(r0))
@@ -129,8 +129,7 @@
 	;r0 = user data
 
 	(def-struct 'local)
-		(ptr 'this)
-		(ptr 'old_stack)
+		(ptr 'this 'old_stack)
 	(def-struct-end)
 
 	(vp-cpy-rr rsp r1)
@@ -154,7 +153,7 @@
 
 	;free any sdl texture
 	(assign '((rsp local_this)) '(r0))
-	(vp-cpy-ir r0 canvas_texture r1)
+	(assign '((r0 canvas_texture)) '(r1))
 	(vpif '(r1 /= 0))
 		(host-call 'host 'sdl_destroy_texture '(r1))
 	(endif)
@@ -470,10 +469,8 @@
 	(entry 'canvas 'fill '(r0 r1))
 
 	(call 'canvas 'to_premul '(r1) '(r1))
-	(vp-cpy-ir r0 canvas_array r2)
+	(assign '((r0 canvas_array) (r0 canvas_stride) (r0 canvas_height)) '(r2 r3 r4))
 	(assign '((r2 array_begin)) '(r2))
-	(vp-cpy-ir-ui r0 canvas_stride r3)
-	(vp-cpy-ir-ui r0 canvas_height r4)
 	(vp-mul-rr r4 r3)
 	(vp-add-rr r2 r3)
 	(loop-start)
@@ -497,11 +494,9 @@
 
 	(entry 'canvas 'as_argb '(r0 r1))
 
-	(vp-cpy-ir r0 canvas_array r5)
-	(vp-cpy-ir r1 canvas_array r7)
-	(assign '((r5 array_begin) (r7 array_begin)) '(r5 r7))
-	(vp-cpy-ir-ui r0 canvas_stride r6)
-	(vp-cpy-ir-ui r0 canvas_height r1)
+	(assign '((r0 canvas_array) (r1 canvas_array)) '(r5 r7))
+	(assign '((r5 array_begin) (r7 array_begin) (r0 canvas_stride) (r0 canvas_height))
+		'(r5 r7 r6 r1))
 	(vp-mul-rr r1 r6)
 	(vp-add-rr r5 r6)
 	(vp-xor-rr r8 r8)
@@ -533,11 +528,9 @@
 
 	(entry 'canvas 'as_premul '(r0 r1))
 
-	(vp-cpy-ir r0 canvas_array r5)
-	(vp-cpy-ir r1 canvas_array r6)
-	(assign '((r5 array_begin) (r6 array_begin)) '(r5 r6))
-	(vp-cpy-ir-ui r0 canvas_stride r4)
-	(vp-cpy-ir-ui r0 canvas_height r1)
+	(assign '((r0 canvas_array) (r1 canvas_array)) '(r5 r6))
+	(assign '((r5 array_begin) (r6 array_begin) (r0 canvas_stride) (r0 canvas_height))
+		'(r5 r6 r4 r1))
 	(vp-mul-rr r1 r4)
 	(vp-add-rr r5 r4)
 	(vp-xor-rr r7 r7)
@@ -613,7 +606,7 @@
 
 	(switch)
 	(breakif '(r1 = 0))
-	(vp-cpy-ir-ui r0 canvas_color r2)
+	(assign '((r0 canvas_color)) '(r2))
 	(vp-cpy-rr r2 r3)
 	(vp-shr-cr 24 r2)
 	(vp-and-cr 0xffffff r3)
@@ -626,8 +619,7 @@
 	(vp-shr-cr 24 r2)
 	(breakif '(r2 = 0))
 	(vpcase '(r2 = 0xff))
-		(vp-cpy-ir-ui r0 canvas_stride r2)
-		(vp-cpy-ir r0 canvas_array r3)
+		(assign '((r0 canvas_array) (r0 canvas_stride)) '(r3 r2))
 		(assign '((r3 array_begin)) '(r3))
 		(vp-mul-rr r2 r8)
 		(vp-shl-cr (log2 int_size) r7)
@@ -646,8 +638,7 @@
 		(vp-cpy-cr 0xff00ff00 r5)
 		(vp-sub-rr r2 r6)
 
-		(vp-cpy-ir-ui r0 canvas_stride r2)
-		(vp-cpy-ir r0 canvas_array r3)
+		(assign '((r0 canvas_array) (r0 canvas_stride)) '(r3 r2))
 		(assign '((r3 array_begin)) '(r3))
 		(vp-mul-rr r2 r8)
 		(vp-shl-cr (log2 int_size) r7)
@@ -729,8 +720,7 @@
 	;clip check
 	(assign '((r0 canvas_cx) (r0 canvas_cy) (r0 canvas_cx1) (r0 canvas_cy1)) '(r3 r4 r5 r6))
 	(vpif '(r7 >= r3) '(r8 >= r4) '(r7 < r5) '(r8 < r6))
-		(vp-cpy-ir-ui r0 canvas_stride r1)
-		(vp-cpy-ir r0 canvas_array r2)
+		(assign '((r0 canvas_stride) (r0 canvas_array)) '(r1 r2))
 		(vp-mul-rr r1 r8)
 		(assign '((r2 array_begin)) '(r2))
 		(vp-shl-cr (log2 int_size) r7)
@@ -761,14 +751,13 @@
 	(assign '((r0 canvas_cx) (r0 canvas_cy) (r0 canvas_cx1) (r0 canvas_cy1)) '(r3 r4 r5 r6))
 	(switch)
 	(breakif '(r7 < r3) '(r8 < r4) '(r7 >= r5) '(r8 >= r6))
-	(vp-cpy-ir-ui r0 canvas_color r1)
+	(assign '((r0 canvas_color)) '(r1))
 	(call 'canvas 'to_premul '(r1) '(r1))
 	(vp-cpy-rr r1 r2)
 	(vp-shr-cr 24 r2)
 	(breakif '(r2 = 0))
 	(vpcase '(r2 = 0xff))
-		(vp-cpy-ir-ui r0 canvas_stride r2)
-		(vp-cpy-ir r0 canvas_array r3)
+		(assign '((r0 canvas_stride) (r0 canvas_array)) '(r2 r3))
 		(vp-mul-rr r2 r8)
 		(assign '((r3 array_begin)) '(r3))
 		(vp-shl-cr (log2 int_size) r7)
@@ -783,8 +772,7 @@
 		(vp-cpy-cr 0xff00ff00 r5)
 		(vp-sub-rr r2 r6)
 
-		(vp-cpy-ir-ui r0 canvas_stride r2)
-		(vp-cpy-ir r0 canvas_array r3)
+		(assign '((r0 canvas_stride) (r0 canvas_array)) '(r2 r3))
 		(vp-mul-rr r2 r8)
 		(assign '((r3 array_begin)) '(r3))
 		(vp-shl-cr (log2 int_size) r7)

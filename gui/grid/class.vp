@@ -16,10 +16,7 @@
 
 	(def-struct 'local)
 		(ptr 'this)
-		(uint 'width)
-		(uint 'count)
-		(uint 'cell_w)
-		(uint 'cell_h)
+		(uint 'width 'count 'cell_w 'cell_h)
 	(def-struct-end)
 
 	(vp-alloc local_size)
@@ -82,9 +79,7 @@
 	;all but r0
 
 	(def-struct 'local)
-		(uint 'width)
-		(uint 'w)
-		(uint 'h)
+		(uint 'width 'w 'h)
 	(def-struct-end)
 
 	(vp-alloc local_size)

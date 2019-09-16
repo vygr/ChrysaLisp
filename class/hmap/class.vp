@@ -76,8 +76,8 @@
 	;all but r0
 
 	(def-struct 'local)
-		(ptr 'obj)	;must be first
-		(ptr 'this)
+		;obj must be first
+		(ptr 'obj 'this)
 	(def-struct-end)
 
 	;save inputs
@@ -125,11 +125,8 @@
 	;all but r0
 
 	(def-struct 'local)
-		(ptr 'this)
-		(ptr 'key)
-		(ptr 'bucket)
-		(pptr 'iter_begin)
-		(pptr 'iter_end)
+		(ptr 'this 'key 'bucket)
+		(pptr 'iter_begin 'iter_end)
 	(def-struct-end)
 
 	;save inputs
@@ -137,7 +134,7 @@
 	(entry 'hmap 'find '(r0 r1))
 	(assign '(r1) '((rsp local_key)))
 
-	(vp-cpy-ir r0 hset_key_callback r2)
+	(assign '((r0 hset_key_callback)) '(r2))
 	(vpif '(r2 = 0) 'exit)
 		;search hash bucket
 		(call 'hmap 'get_bucket '(r0 r1) '(r0 r2))
@@ -191,12 +188,7 @@
 	;all but r0
 
 	(def-struct 'local)
-		(ptr 'this)
-		(ptr 'key)
-		(ptr 'value)
-		(ptr 'iter)
-		(ptr 'bucket)
-		(ptr 'pair)
+		(ptr 'this 'key 'value 'iter 'bucket 'pair)
 	(def-struct-end)
 
 	;save inputs
@@ -243,8 +235,7 @@
 	;all but r0
 
 	(def-struct 'local)
-		(ptr 'this)
-		(ptr 'key)
+		(ptr 'this 'key)
 	(def-struct-end)
 
 	(vp-alloc local_size)
@@ -278,8 +269,7 @@
 	;all but r0
 
 	(def-struct 'local)
-		(ptr 'this)
-		(ptr 'value)
+		(ptr 'this 'value)
 	(def-struct-end)
 
 	(vp-alloc local_size)

@@ -15,7 +15,7 @@
 
 	(entry 'texture 'deinit '(r0))
 
-	(vp-cpy-ir r0 texture_handle r1)
+	(assign '((r0 texture_handle)) '(r1))
 	(vpif '(r1 /= 0))
 		(vp-push r0)
 		(call 'sys_task 'callback '(r1 ($ close_callback)))

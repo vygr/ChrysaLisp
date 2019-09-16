@@ -45,11 +45,8 @@
 
 (def-struct 'array 'seq)
 	(pulong 'begin)
-	(uint 'length)
-	(uint 'capacity)
-	(ulong 'e0)
-	(ulong 'e1)
-	(ulong 'e2)
+	(uint 'length 'capacity)
+	(ulong 'e0 'e1 'e2)
 (def-struct-end)
 
 ;;;;;;;;;;;;;;;;
@@ -123,7 +120,7 @@
 	;trashes
 	;r1
 	(assign '((r0 array_begin)) '(r1))
-	(vp-cpy-ir r1 0 r1))
+	(assign '((r1 0)) '(r1)))
 
 (defcfun class/array/get_second ()
 	;inputs
@@ -134,7 +131,7 @@
 	;trashes
 	;r1
 	(assign '((r0 array_begin)) '(r1))
-	(vp-cpy-ir r1 long_size r1))
+	(assign '((r1 long_size)) '(r1)))
 
 (defcfun-bind class/array/get_iter (&optional o ei b)
 	;inputs

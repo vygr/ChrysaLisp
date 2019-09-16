@@ -36,7 +36,6 @@
 
 	(entry 'array 'clear '(r0))
 
-	;reset length
 	(class/array/clear)
 
 	(exit 'array 'clear '(r0))
@@ -61,7 +60,7 @@
 	(loop-start)
 		(vp-sub-cr long_size r2)
 		(breakif '(r2 < r3))
-		(vp-cpy-ir r2 0 r4)
+		(assign '((r2 0)) '(r4))
 	(loop-until '(r1 = r4))
 	(vp-sub-rr r3 r2)
 	(vp-asr-cr (log2 long_size) r2)
@@ -80,7 +79,7 @@
 
 	(entry 'array 'get_length '(r0))
 
-	(assign '((r0 array_length)) '(r1))
+	(class/array/get_length)
 
 	(exit 'array 'get_length '(r0 r1))
 	(vp-ret)
@@ -116,7 +115,7 @@
 
 	;save object
 	(class/array/get_iter r0 r3 r2)
-	(vp-cpy-ri r1 r3 (neg long_size))
+	(assign '(r1) `((r3 ,(neg long_size))))
 
 	(exit 'array 'push_back '(r0 r1 r2 r3))
 	(vp-ret)
@@ -286,26 +285,20 @@
 		;all
 
 	(def-struct 'local)
-		(ptr 'this)
-		(ptr 'func)
-		(ptr 'ctx)
-		(ptr 'pivot)
-		(ptr 'iter)
-		(ptr 'lower)
-		(ptr 'upper)
+		(ptr 'this 'func 'ctx 'pivot 'iter 'lower 'upper)
 	(def-struct-end)
 
 	(vp-alloc local_size)
 	(entry 'array 'partition '(r0 r1 r2 r3 r4))
-	(assign '(r0 r1 r2 r3 r4 r1 r1)
+	(assign '(r0 r1 r2 r3 r4 r1)
 		'((rsp local_this) (rsp local_lower) (rsp local_upper) (rsp local_func)
-		(rsp local_ctx) (rsp local_pivot) (rsp local_pivot)))
+		(rsp local_ctx) (rsp local_pivot)))
 
 	(loop-start)
 		(vp-add-cr long_size r1)
 		(breakif '(r1 >= r2))
-		(assign '(r1) '((rsp local_iter)))
 		(assign '((rsp local_ctx) (rsp local_lower)) '(r0 r2))
+		(assign '(r1) '((rsp local_iter)))
 		(vp-call-i rsp local_func)
 		(assign '((rsp local_iter) (rsp local_upper)) '(r1 r2))
 		(continueif '(r0 >= 0))
@@ -413,9 +406,9 @@
 		(class/array/get_iters r0 r7 r8 r2)
 		(assign '((r1 array_begin)) '(r3))
 		(loop-start)
-			(vp-cpy-ir r7 0 r2)
+			(assign '((r7 0)) '(r2))
 			(vp-add-cr ptr_size r7)
-			(vp-cpy-ri r2 r3 0)
+			(assign '(r2) '((r3 0)))
 			(vp-add-cr ptr_size r3)
 		(loop-until '(r7 = r8))
 	(endif)
@@ -446,7 +439,7 @@
 		;extend array
 		(assign '((r0 array_length)) '(r9))
 		(vp-sub-rr r2 r3)
-		(vp-lea-d r3 r9 r1)
+		(assign '((& r3 r9)) '(r1))
 		(assign '(r1) '((r0 array_length)))
 		(call 'array 'set_capacity '(r0 r1) '(r0))
 
@@ -454,9 +447,9 @@
 		(class/array/get_iters r6 r7 r8 r1)
 		(class/array/get_iter r0 r9 r1)
 		(loop-start)
-			(vp-cpy-ir r7 0 r1)
+			(assign '((r7 0)) '(r1))
 			(vp-add-cr ptr_size r7)
-			(vp-cpy-ri r1 r9 0)
+			(assign '(r1) '((r9 0)))
 			(vp-add-cr ptr_size r9)
 		(loop-until '(r7 = r8))
 	(endif)
@@ -481,9 +474,8 @@
 	(call 'array 'create nil '(r0))
 	(vpif '(r0 /= 0))
 		(loop-start)
-			(vp-cpy-ir r10 0 r1)
-			(assign '((r1 array_length)) '(r3))
-			(call 'array 'append '(r0 r1 0 r3) '(r0))
+			(assign '((r10 0)) '(r1))
+			(call 'array 'append '(r0 r1 0 (r1 array_length)) '(r0))
 			(vp-add-cr ptr_size r10)
 		(loop-until '(r10 = r11))
 	(endif)

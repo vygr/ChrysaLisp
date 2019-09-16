@@ -3,8 +3,7 @@
 (import 'gui/lisp.inc)
 
 (structure 'event 0
-	(byte 'win_close)
-	(byte 'win_button))
+	(byte 'win_close 'win_button))
 
 (defq id t doc_list '("VM" "ASSIGNMENT" "STRUCTURE" "FUNCTIONS" "LISP" "SYNTAX" "CLASSES" "TODO")
 	space_width 8 tab_width (* space_width 4) margin_width (* space_width 3))

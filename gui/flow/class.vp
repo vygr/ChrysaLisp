@@ -14,8 +14,7 @@
 
 	(def-struct 'local)
 		(ulong 'flags)
-		(uint 'x)
-		(uint 'y)
+		(uint 'x 'y)
 	(def-struct-end)
 
 	(vp-alloc local_size)
@@ -193,8 +192,7 @@
 
 	(def-struct 'local)
 		(ulong 'flags)
-		(int 'w)
-		(int 'h)
+		(int 'w 'h)
 	(def-struct-end)
 
 	(vp-alloc local_size)

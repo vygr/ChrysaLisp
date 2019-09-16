@@ -3,9 +3,7 @@
 (import 'gui/lisp.inc)
 
 (structure 'event 0
-	(byte 'win_close)
-	(byte 'win_next)
-	(byte 'win_prev))
+	(byte 'win_close 'win_next 'win_prev))
 
 (defq images '(apps/films/captive.flm apps/films/cradle.flm) index 0 id t)
 

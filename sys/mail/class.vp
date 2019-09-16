@@ -36,10 +36,10 @@
 
 	;init out postmen task
 	(vp-xor-rr r0 r0)
-	(vp-cpy-ri-i r0 r12 ml_statics_parcel_id)
+	(assign '(r0) '((r12 ml_statics_parcel_id)))
 	(call 'sys_task 'start `((@ ,(f-path 'sys_mail 'out))) '(_ _ r2))
 	(f-bind 'sys_mail 'statics r12)
-	(vp-cpy-ri r2 r12 ml_statics_out_mbox_addr)
+	(assign '(r2) '((r12 ml_statics_out_mbox_addr)))
 
 	;create link array
 	(call 'array 'create nil '((r12 ml_statics_links_array)))
@@ -121,7 +121,7 @@
 	;r2
 
 	(f-bind 'sys_task 'statics r0)
-	(vp-cpy-ir r0 tk_statics_current_tcb r0)
+	(assign '((r0 tk_statics_current_tcb)) '(r0))
 	(jump 'sys_mail 'read '((r0 tk_node_mbox_addr)))
 
 (def-func-end)
@@ -134,7 +134,7 @@
 	;r2
 
 	(f-bind 'sys_task 'statics r0)
-	(vp-cpy-ir r0 tk_statics_current_tcb r0)
+	(assign '((r0 tk_statics_current_tcb)) '(r0))
 	(jump 'sys_mail 'try_read '((r0 tk_node_mbox_addr)))
 
 (def-func-end)
@@ -156,10 +156,8 @@
 	(call 'sys_heap 'alloc '((& r0 ml_statics_msg_heap)) '(_ r0))
 	(vp-xor-rr r2 r2)
 	(vp-lea-i r4 str_data r1)
-	(vp-cpy-ri r4 r0 msg_parcel_obj)
-	(vp-cpy-ri r1 r0 msg_parcel_data)
-	(vp-cpy-ri-i r7 r0 msg_length)
-	(vp-cpy-ri-i r2 r0 msg_parcel_length)
+	(assign '(r4 r1 r7 r2)
+		'((r0 msg_parcel_obj) (r0 msg_parcel_data) (r0 msg_length) (r0 msg_parcel_length)))
 
 	(exit 'sys_mail 'alloc '(r0 r1))
 	(vp-ret)
@@ -182,10 +180,8 @@
 	(f-bind 'sys_mail 'statics r0)
 	(call 'sys_heap 'alloc '((& r0 ml_statics_msg_heap)) '(_ r0))
 	(vp-xor-rr r1 r1)
-	(vp-cpy-ri r3 r0 msg_parcel_obj)
-	(vp-cpy-ri r4 r0 msg_parcel_data)
-	(vp-cpy-ri-i r5 r0 msg_length)
-	(vp-cpy-ri-i r1 r0 msg_parcel_length)
+	(assign '(r3 r4 r5 r1)
+		'((r0 msg_parcel_obj) (r0 msg_parcel_data) (r0 msg_length) (r0 msg_parcel_length)))
 
 	(exit 'sys_mail 'alloc_obj '(r0))
 	(vp-ret)
@@ -224,13 +220,9 @@
 	(entry 'sys_mail 'free_obj '(r0))
 
 	(vpif '(r0 /= 0))
-		(vp-cpy-ir r0 msg_parcel_obj r3)
-		(vp-cpy-ir r0 msg_parcel_data r4)
-		(vp-cpy-ir-ui r0 msg_length r5)
-
+		(assign '((r0 msg_parcel_obj) (r0 msg_parcel_data) (r0 msg_length)) '(r3 r4 r5))
 		(f-bind 'sys_mail 'statics r2)
 		(call 'sys_heap 'free '((& r2 ml_statics_msg_heap) r0))
-
 		(vp-cpy-rr r3 r0)
 		(vp-cpy-rr r4 r1)
 		(vp-cpy-rr r5 r2)
@@ -255,8 +247,8 @@
 	(lh-is-empty r0 0 r2)
 	(vpif '(r2 = 0))
 		(f-bind 'sys_task 'statics r1)
-		(vp-cpy-ir r1 tk_statics_current_tcb r1)
-		(vp-cpy-ri r1 r0 mbox_tcb)
+		(assign '((r1 tk_statics_current_tcb)) '(r1))
+		(assign '(r1) '((r0 mbox_tcb)))
 		(call 'sys_task 'suspend)
 	(endif)
 	(lh-get-head r0 0 r0)
@@ -285,7 +277,7 @@
 	(vpif '(r0 /= 0))
 		(vp-cpy-rr r1 r0)
 		(ln-remove-node r1 r2)
-		(vp-cpy-ir r0 msg_parcel_data r1)
+		(assign '((r0 msg_parcel_data)) '(r1))
 	(endif)
 
 	(exit 'sys_mail 'try_read '(r0 r1))
@@ -308,26 +300,26 @@
 		;on this chip
 		(f-bind 'sys_mail 'statics r0)
 		(vp-cpy-ir-ui r2 (+ msg_dest id_mbox) r1)
-		(vp-cpy-ir r0 ml_statics_mbox_array r0)
+		(assign '((r0 ml_statics_mbox_array)) '(r0))
 		(vp-shl-cr (log2 ptr_size) r1)
 		(assign '((r0 array_begin)) '(r0))
 		(vp-cpy-dr r0 r1 r1)
 	(vp-label 'post_it)
 		(lh-add-at-tail r1 r2 r0)
-		(vp-cpy-ir r1 mbox_tcb r0)
+		(assign '((r1 mbox_tcb)) '(r0))
 		(vpif '(r0 /= 0))
 			(vp-xor-rr r2 r2)
-			(vp-cpy-ri r2 r1 mbox_tcb)
+			(assign '(r2) '((r1 mbox_tcb)))
 			(call 'sys_task 'resume '(r0))
 		(endif)
 	(else)
 		;going off chip
 		(f-bind 'sys_mail 'statics r1)
-		(vp-cpy-ir-ui r2 msg_length r0)
+		(assign '((r2 msg_length)) '(r0))
 		(switch)
 		(vpcase '(r0 > lk_data_size))
 			;must use postman task
-			(vp-cpy-ir r1 ml_statics_out_mbox_addr r1)
+			(assign '((r1 ml_statics_out_mbox_addr)) '(r1))
 			(vp-jmp 'post_it)
 		(default)
 			;queue it on the outgoing packet list
@@ -374,12 +366,12 @@
 
 		;fill in all tcb's and suspend
 		(f-bind 'sys_task 'statics r4)
-		(vp-cpy-ir r4 tk_statics_current_tcb r4)
+		(assign '((r4 tk_statics_current_tcb)) '(r4))
 		(vp-cpy-rr r3 r0)
 		(loop-start)
 			(vp-cpy-ir r0 0 r2)
 			(vpif '(r2 /= 0))
-				(vp-cpy-ri r4 r2 mbox_tcb)
+				(assign '(r4) '((r2 mbox_tcb)))
 			(endif)
 			(vp-add-cr ptr_size r0)
 		(loop-until '(r0 = r1))
@@ -392,7 +384,7 @@
 		(loop-start)
 			(vp-cpy-ir r0 0 r2)
 			(vpif '(r2 /= 0))
-				(vp-cpy-ri r4 r2 mbox_tcb)
+				(assign '(r4) '((r2 mbox_tcb)))
 			(endif)
 			(vp-add-cr ptr_size r0)
 		(loop-until '(r0 = r1))

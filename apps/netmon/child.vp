@@ -7,10 +7,7 @@
 (def-struct-end)
 
 (def-struct 'sample_reply_msg)
-	(ulong 'command)
-	(ulong 'cpu)
-	(ulong 'task_count)
-	(ulong 'mem_used)
+	(ulong 'command 'cpu 'task_count 'mem_used)
 (def-struct-end)
 
 (def-func 'apps/netmon/child)

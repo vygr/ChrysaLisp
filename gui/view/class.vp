@@ -23,7 +23,7 @@
 		(call 'sys_mem 'clear '((& r0 view_start) (- view_size view_start)))
 		(vp-pop r0)
 		(vp-cpy-cr view_flag_solid r1)
-		(vp-cpy-ri-i r1 r0 view_flags)
+		(assign '(r1) '((r0 view_flags)))
 		(vp-lea-i r0 view_list r1)
 		(lh-init r1 r2)
 	(endif)
@@ -46,7 +46,7 @@
 	(call 'view 'sub '(r0))
 
 	;deref any child views
-	(vp-cpy-ir rsp 0 r0)
+	(assign '((rsp 0)) '(r0))
 	(loop-list-forward r0 view_list r0 r1)
 		(vp-sub-cr view_node r0)
 		(vp-push r1)
@@ -58,9 +58,9 @@
 	;free view object data
 	(f-bind 'gui 'statics r0)
 	(vp-add-cr gui_statics_rect_heap r0)
-	(vp-cpy-ir rsp 0 r1)
+	(assign '((rsp 0)) '(r1))
 	(call 'region 'free '(r0 (& r1 view_dirty_region)))
-	(vp-cpy-ir rsp 0 r1)
+	(assign '((rsp 0)) '(r1))
 	(call 'region 'free '(r0 (& r1 view_opaque_region)))
 
 	;deinit parent
@@ -83,7 +83,7 @@
 	(call 'view 'sub '(r1))
 
 	;add to parent
-	(vp-cpy-ri r3 r0 hmap_parent)
+	(assign '(r3) '((r0 hmap_parent)))
 	(vp-lea-i r0 view_node r2)
 	(vp-cpy-rr r3 r0)
 	(vp-add-cr view_list r3)
@@ -111,7 +111,7 @@
 	(vp-lea-i r0 view_dirty_region r1)
 	(f-bind 'gui 'statics r0)
 	(vp-cpy-cr 1 r2)
-	(vp-cpy-ri-i r2 r0 gui_statics_dirty_flag)
+	(assign '(r2) '((r0 gui_statics_dirty_flag)))
 	(vp-add-cr gui_statics_rect_heap r0)
 	(call 'region 'paste_rect '(r0 r1 r7 r8 r9 r10))
 	(vp-pop r0)
@@ -133,7 +133,7 @@
 	(call 'view 'sub '(r1))
 
 	;add to parent
-	(vp-cpy-ri r3 r0 hmap_parent)
+	(assign '(r3) '((r0 hmap_parent)))
 	(vp-lea-i r0 view_node r2)
 	(vp-cpy-rr r3 r0)
 	(vp-add-cr view_list r3)
@@ -207,15 +207,11 @@
 		;r0 = child view object (ptr)
 
 	(def-struct 'local)
-		(ptr 'this)
-		(ptr 'data)
-		(ptr 'callback)
+		(ptr 'this 'data 'callback)
 	(def-struct-end)
 
 	(vp-alloc local_size)
-	(vp-cpy-ri r0 rsp local_this)
-	(vp-cpy-ri r1 rsp local_data)
-	(vp-cpy-ri r2 rsp local_callback)
+	(assign '(r0 r1 r2) '((rsp local_this) (rsp local_data) (rsp local_callback)))
 
 	(lh-get-tail r0 view_list r0)
 	(loop-start)
@@ -224,7 +220,7 @@
 
 		;callback
 		(vp-sub-cr view_node r0)
-		(vp-cpy-ir rsp local_data r1)
+		(assign '((rsp local_data)) '(r1))
 		(vp-call-i rsp local_callback)
 
 		;across to sibling
@@ -256,24 +252,18 @@
 		;r1 = 0 if should not descend after down callback
 
 	(def-struct 'local)
-		(ptr 'this)
-		(ptr 'data)
-		(ptr 'down)
-		(ptr 'up)
+		(ptr 'this 'data 'down 'up)
 	(def-struct-end)
 
 	(vp-alloc local_size)
-	(vp-cpy-ri r0 rsp local_this)
-	(vp-cpy-ri r1 rsp local_data)
-	(vp-cpy-ri r2 rsp local_down)
-	(vp-cpy-ri r3 rsp local_up)
+	(assign '(r0 r1 r2 r3) '((rsp local_this) (rsp local_data) (rsp local_down) (rsp local_up)))
 	(vp-cpy-rr r0 r1)
 	(loop-start)
 	(vp-label 'down_loop_ctx)
 		(vp-cpy-rr r1 r0)
 
 		;down callback
-		(vp-cpy-ir rsp local_data r1)
+		(assign '((rsp local_data)) '(r1))
 		(vp-call-i rsp local_down)
 		(breakif '(r1 = 0))
 
@@ -285,7 +275,7 @@
 	(loop-until '(r2 = 0))
 	(loop-start)
 		;up callback
-		(vp-cpy-ir rsp local_data r1)
+		(assign '((rsp local_data)) '(r1))
 		(vp-call-i rsp local_up)
 
 		;back at root ?
@@ -300,7 +290,7 @@
 		(gotoif '(r2 /= 0) 'down_loop_ctx)
 
 		;up to parent
-		(vp-cpy-ir r0 hmap_parent r0)
+		(assign '((r0 hmap_parent)) '(r0))
 	(loop-end)
 
 	(vp-free local_size)
@@ -321,8 +311,7 @@
 	;all but r0
 
 	;save old info
-	(vp-cpy-ir-i r0 view_w r11)
-	(vp-cpy-ir-i r0 view_h r12)
+	(assign '((r0 view_w) (r0 view_h)) '(r11 r12))
 
 	;set new info
 	(call 'view 'set_bounds '(r0 r7 r8 r9 r10))
@@ -344,8 +333,7 @@
 	;all but r0
 
 	;paste dirty region
-	(vp-cpy-ir-i r0 view_w r9)
-	(vp-cpy-ir-i r0 view_h r10)
+	(assign '((r0 view_w) (r0 view_h)) '(r9 r10))
 	(jump 'view 'add_dirty '(r0 0 0 r9 r10))
 
 (def-func-end)
@@ -387,8 +375,7 @@
 	;all but r0
 
 	(def-struct 'local)
-		(ptr 'this)
-		(ptr 'data)
+		(ptr 'this 'data)
 	(def-struct-end)
 
 	;save inputs
@@ -399,13 +386,12 @@
 	(call 'view 'find_id '(r0 (r1 ev_msg_target_id)) '(_ r0))
 	(vpif '(r0 /= 0))
 		;what type of event ?
-		(vp-cpy-ir rsp local_data r1)
-		(vp-cpy-ir r1 ev_msg_type r2)
+		(assign '((rsp local_data)) '(r1))
+		(assign '((r1 ev_msg_type)) '(r2))
 		(switch)
 		(vpcase '(r2 = ev_type_mouse))
 			;so what state are we in ?
-			(vp-cpy-ir-ui r1 ev_msg_mouse_buttons r2)
-			(vp-cpy-ir-ui r0 view_last_buttons r3)
+			(assign '((r1 ev_msg_mouse_buttons) (r0 view_last_buttons)) '(r2 r3))
 			(vpif '(r3 /= 0))
 				;was down previously
 				(vpif '(r2 /= 0))
@@ -413,14 +399,14 @@
 					(call 'view 'mouse_move '(r0 r1))
 				(else)
 					;is not down now, so release
-					(vp-cpy-ri-i r2 r0 view_last_buttons)
+					(assign '(r2) '((r0 view_last_buttons)))
 					(call 'view 'mouse_up '(r0 r1))
 				(endif)
 			(else)
 				;was not down previously
 				(vpif '(r2 /= 0))
 					;is down now, so first down
-					(vp-cpy-ri-i r2 r0 view_last_buttons)
+					(assign '(r2) '((r0 view_last_buttons)))
 					(call 'view 'mouse_down '(r0 r1))
 				(else)
 					;is not down now, so hover
@@ -429,7 +415,7 @@
 			(endif)
 			(break)
 		(vpcase '(r2 = ev_type_key))
-			(vp-cpy-ir-ui r1 ev_msg_key_keycode r2)
+			(assign '((r1 ev_msg_key_keycode)) '(r2))
 			(vpif '(r2 >= 0))
 				(call 'view 'key_down '(r0 r1))
 			(else)
@@ -458,8 +444,7 @@
 	;r1-r3
 
 	(def-struct 'local)
-		(ptr 'this)
-		(ptr 'view)
+		(ptr 'this 'view)
 		(ulong 'id)
 	(def-struct-end)
 
@@ -467,7 +452,7 @@
 	(vp-alloc local_size)
 	(entry 'view 'find_id '((rsp local_this) (rsp local_id)))
 	(vp-xor-rr r1 r1)
-	(vp-cpy-ri r1 rsp local_view)
+	(assign '(r1) '((rsp local_view)))
 
 	;iterate through views front to back
 	(call 'view 'forward_tree '(r0 rsp ($ down_callback) ($ up_callback)))
@@ -479,12 +464,11 @@
 (vp-label 'down_callback)
 	(entry 'view 'forward_tree_callback '(r0 r1))
 
-	(vp-cpy-ir r1 local_view r2)
+	(assign '((r1 local_view)) '(r2))
 	(vpif '(r2 = 0))
-		(vp-cpy-ir r0 component_id r2)
-		(vp-cpy-ir r1 local_id r3)
+		(assign '((r0 component_id) (r1 local_id)) '(r2 r3))
 		(vpif '(r2 = r3))
-			(vp-cpy-ri r0 r1 local_view)
+			(assign '(r0) '((r1 local_view)))
 			(vp-xor-rr r1 r1)
 		(endif)
 	(else)
@@ -514,15 +498,11 @@
 		;r0 = child view object (ptr)
 
 	(def-struct 'local)
-		(ptr 'this)
-		(ptr 'data)
-		(ptr 'callback)
+		(ptr 'this 'data 'callback)
 	(def-struct-end)
 
 	(vp-alloc local_size)
-	(vp-cpy-ri r0 rsp local_this)
-	(vp-cpy-ri r1 rsp local_data)
-	(vp-cpy-ri r2 rsp local_callback)
+	(assign '(r0 r1 r2) '((rsp local_this) (rsp local_data) (rsp local_callback)))
 
 	(lh-get-head r0 view_list r0)
 	(loop-start)
@@ -531,7 +511,7 @@
 
 		;callback
 		(vp-sub-cr view_node r0)
-		(vp-cpy-ir rsp local_data r1)
+		(assign '((rsp local_data)) '(r1))
 		(vp-call-i rsp local_callback)
 
 		;across to sibling
@@ -563,24 +543,18 @@
 		;r1 = 0 if should not descend after down callback
 
 	(def-struct 'local)
-		(ptr 'this)
-		(ptr 'data)
-		(ptr 'down)
-		(ptr 'up)
+		(ptr 'this 'data 'down 'up)
 	(def-struct-end)
 
 	(vp-alloc local_size)
-	(vp-cpy-ri r0 rsp local_this)
-	(vp-cpy-ri r1 rsp local_data)
-	(vp-cpy-ri r2 rsp local_down)
-	(vp-cpy-ri r3 rsp local_up)
+	(assign '(r0 r1 r2 r3) '((rsp local_this) (rsp local_data) (rsp local_down) (rsp local_up)))
 	(vp-cpy-rr r0 r1)
 	(loop-start)
 	(vp-label 'down_loop_ctx)
 		(vp-cpy-rr r1 r0)
 
 		;down callback
-		(vp-cpy-ir rsp local_data r1)
+		(assign '((rsp local_data)) '(r1))
 		(vp-call-i rsp local_down)
 		(breakif '(r1 = 0))
 
@@ -592,7 +566,7 @@
 	(loop-until '(r2 = 0))
 	(loop-start)
 		;up callback
-		(vp-cpy-ir rsp local_data r1)
+		(assign '((rsp local_data)) '(r1))
 		(vp-call-i rsp local_up)
 
 		;back at root ?
@@ -607,7 +581,7 @@
 		(gotoif '(r2 /= 0) 'down_loop_ctx)
 
 		;up to parent
-		(vp-cpy-ir r0 hmap_parent r0)
+		(assign '((r0 hmap_parent)) '(r0))
 	(loop-end)
 
 	(vp-free local_size)
@@ -625,10 +599,7 @@
 	;r9 = width (pixels)
 	;r10 = height (pixels)
 
-	(vp-cpy-ir-i r0 view_x r7)
-	(vp-cpy-ir-i r0 view_y r8)
-	(vp-cpy-ir-i r0 view_w r9)
-	(vp-cpy-ir-i r0 view_h r10)
+	(assign '((r0 view_x) (r0 view_y) (r0 view_w) (r0 view_h)) '(r7 r8 r9 r10))
 	(vp-ret)
 
 (def-func-end)
@@ -690,11 +661,10 @@
 	;walk up tree to parent
 	(vp-cpy-rr r0 r2)
 	(loop-while '(r2 /= r1))
-		(vp-cpy-ir-i r2 view_x r9)
-		(vp-cpy-ir-i r2 view_y r10)
+		(assign '((r2 view_x) (r2 view_y)) '(r9 r10))
 		(vp-add-rr r9 r7)
 		(vp-add-rr r10 r8)
-		(vp-cpy-ir r2 hmap_parent r2)
+		(assign '((r2 hmap_parent)) '(r2))
 		(assert '(r2 /= 0))
 	(loop-end)
 	(vp-ret)
@@ -711,12 +681,12 @@
 	;r1 = 0 if not, else hit
 
 	(vpif '(r7 >= 0) '(r8 >= 0))
-		(vp-cpy-ir-i r0 view_w r1)
+		(assign '((r0 view_w)) '(r1))
 		(vpif '(r7 < r1))
-			(vp-cpy-ir-i r0 view_h r1)
+			(assign '((r0 view_h)) '(r1))
 			(vpif '(r8 < r1))
 				;hit ?
-				(vp-cpy-ir-ui r0 view_flags r1)
+				(assign '((r0 view_flags)) '(r1))
 				(vp-and-cr view_flag_solid r1)
 				(vp-ret)
 			(endif)
@@ -741,43 +711,41 @@
 	;r1-r3
 
 	(def-struct 'local)
-		(ptr 'this)
-		(ptr 'hit)
+		(ptr 'this 'hit)
 	(def-struct-end)
 
 	;save inputs
 	(vp-alloc local_size)
-	(vp-cpy-ri r0 rsp local_this)
+	(assign '(r0) '((rsp local_this)))
 	(vp-xor-rr r1 r1)
-	(vp-cpy-ri r1 rsp local_hit)
+	(assign '(r1) '((rsp local_hit)))
 
 	;iterate through views front to back
 	(call 'view 'forward_tree '(r0 rsp ($ hit_down_callback) ($ hit_up_callback)))
 
-	(assign '((rsp local_this)) '(r0))
-	(vp-cpy-ir rsp local_hit r1)
+	(assign '((rsp local_this) (rsp local_hit)) '(r0 r1))
 	(vp-free local_size)
 	(vp-ret)
 
 (vp-label 'hit_down_callback)
-	(vp-cpy-ir-i r0 view_x r1)
+	(assign '((r0 view_x)) '(r1))
 	(vp-sub-rr r1 r7)
-	(vp-cpy-ir-i r0 view_y r1)
+	(assign '((r0 view_y)) '(r1))
 	(vp-sub-rr r1 r8)
 	(d-jump 'view 'hit '(r0 r7 r8))
 
 (vp-label 'hit_up_callback)
 	(vp-cpy-rr r1 r2)
-	(vp-cpy-ir r1 local_hit r1)
+	(assign '((r1 local_hit)) '(r1))
 	(vpif '(r1 = 0))
 		(call 'view 'hit '(r0 r7 r8) '(r0 r1))
 		(vpif '(r1 /= 0))
-			(vp-cpy-ri r0 r2 local_hit)
+			(assign '(r0) '((r2 local_hit)))
 			(vp-ret)
 		(endif)
-		(vp-cpy-ir-i r0 view_x r1)
+		(assign '((r0 view_x)) '(r1))
 		(vp-add-rr r1 r7)
-		(vp-cpy-ir-i r0 view_y r1)
+		(assign '((r0 view_y)) '(r1))
 		(vp-add-rr r1 r8)
 		(vp-xor-rr r1 r1)
 	(endif)
@@ -818,10 +786,7 @@
 	;r9 = width (pixels)
 	;r10 = height (pixels)
 
-	(vp-cpy-ri-i r7 r0 view_x)
-	(vp-cpy-ri-i r8 r0 view_y)
-	(vp-cpy-ri-i r9 r0 view_w)
-	(vp-cpy-ri-i r10 r0 view_h)
+	(assign '(r7 r8 r9 r10) '((r0 view_x) (r0 view_y) (r0 view_w) (r0 view_h)))
 	(vp-ret)
 
 (def-func-end)
@@ -835,11 +800,11 @@
 	;r1-r2
 
 	;test parent
-	(vp-cpy-ir r0 hmap_parent r1)
+	(assign '((r0 hmap_parent)) '(r1))
 	(vpif '(r1 /= 0))
 		;clear parent field
 		(vp-xor-rr r2 r2)
-		(vp-cpy-ri r2 r0 hmap_parent)
+		(assign '(r2) '((r0 hmap_parent)))
 
 		;remove from parent list
 		(vp-lea-i r0 view_node r2)
@@ -907,15 +872,15 @@
 
 	(entry 'view 'set_flags '(r0 r1 r2))
 
-	(vp-cpy-ir r0 view_flags r3)
+	(assign '((r0 view_flags)) '(r3))
 	(vp-xor-cr -1 r2)
 	(vp-and-rr r2 r3)
 	(vp-or-rr r3 r1)
 	(vp-cpy-rr r1 r3)
-	(vp-cpy-ri r1 r0 view_flags)
+	(assign '(r1) '((r0 view_flags)))
 	(f-bind 'gui 'statics r2)
 	(vp-and-cr view_flag_dirty_all r3)
-	(vp-cpy-ri-i r3 r2 gui_statics_dirty_flag)
+	(assign '(r3) '((r2 gui_statics_dirty_flag)))
 
 	(exit 'view 'set_flags '(r0 r1))
 	(vp-ret)

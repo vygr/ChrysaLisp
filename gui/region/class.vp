@@ -218,8 +218,7 @@
 
 	(def-struct 'local)
 		(ptr 'slist)
-		(int 'dx)
-		(int 'dy)
+		(int 'dx 'dy)
 	(def-struct-end)
 
 	;save inputs
@@ -804,10 +803,8 @@
 	;all but r0
 
 	(def-struct 'local)
-		(ptr 'node)
-		(ptr 'dlist)
-		(int 'dx)
-		(int 'dy)
+		(ptr 'node 'dlist)
+		(int 'dx 'dy)
 	(def-struct-end)
 
 	;save inputs
@@ -816,7 +813,7 @@
 
 	;run through source region list
 	(loop-flist r1 0 r1 r1)
-		(vp-cpy-ri r1 rsp local_node)
+		(assign '(r1) '((rsp local_node)))
 		(assign '((rsp local_dx) (rsp local_dy)) '(r11 r12))
 		(assign '((r1 rect_x) (r1 rect_y) (r1 rect_x1) (r1 rect_y1)) '(r7 r8 r9 r10))
 		(vp-add-rr r11 r7)
@@ -824,7 +821,7 @@
 		(vp-add-rr r11 r9)
 		(vp-add-rr r12 r10)
 		(call 'region 'paste_rect '(r0 (rsp local_dlist) r7 r8 r9 r10))
-		(vp-cpy-ir rsp local_node r1)
+		(assign '((rsp local_node)) '(r1))
 	(loop-end)
 
 	(exit 'region 'paste_region '(r0))
@@ -1097,8 +1094,7 @@
 
 	(def-struct 'local)
 		(ptr 'dlist)
-		(int 'dx)
-		(int 'dy)
+		(int 'dx 'dy)
 	(def-struct-end)
 
 	;save inputs
@@ -1159,7 +1155,7 @@
 	;is empty ?
 	(entry 'region 'bounds '(r1))
 
-	(vp-cpy-ir r1 ln_fnode_next r1)
+	(assign '((r1 ln_fnode_next)) '(r1))
 	(vpif '(r1 = 0))
 		(assign '(r1 r1 r1 r1) '(r7 r8 r9 r10))
 	(else)

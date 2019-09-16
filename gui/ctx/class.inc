@@ -10,10 +10,8 @@
 (dec-method 'darker 'gui/ctx/darker 'static '(r1) '(r1))
 
 (def-struct 'ctx)
-	(ptr 'sdl_ctx)
-	(ptr 'dirty_region)
-	(int 'x)
-	(int 'y)
+	(ptr 'sdl_ctx 'dirty_region)
+	(int 'x 'y)
 (def-struct-end)
 
 (defcvar 'argb_black 0xff000000)

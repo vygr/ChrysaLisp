@@ -108,16 +108,14 @@
 		(struct 'drect 'sdl_rect)
 		(struct 'srect 'sdl_rect)
 		(struct 'clip_rect 'sdl_rect)
-		(ptr 'ctx)
 		(ulong 'texture)
-		(ptr 'dirty_rect)
-		(ptr 'old_stack)
+		(ptr 'ctx 'dirty_rect 'old_stack)
 	(def-struct-end)
 
 	(vp-cpy-rr rsp r3)
 	(vp-alloc local_size)
 	(vp-and-cr -16 rsp)
-	(vp-cpy-ri r3 rsp local_old_stack)
+	(assign '(r3) '((rsp local_old_stack)))
 
 	;save draw rectangle info
 	(assign '(r0 r1) '((rsp local_ctx) (rsp local_texture)))
@@ -143,7 +141,7 @@
 	(for-each-visible-rect
 		'(progn
 			;blit the texture
-			(vp-cpy-ir rsp local_ctx r0)
+			(assign '((rsp local_ctx)) '(r0))
 			(host-call 'host 'sdl_render_copy '((r0 ctx_sdl_ctx) (rsp local_texture) (& rsp local_srect) (& rsp local_drect)))))
 
 	(vp-cpy-ir rsp local_old_stack rsp)
@@ -164,15 +162,13 @@
 	(def-struct 'local)
 		(struct 'rect 'sdl_rect)
 		(struct 'clip_rect 'sdl_rect)
-		(ptr 'ctx)
-		(ptr 'dirty_rect)
-		(ptr 'old_stack)
+		(ptr 'ctx 'dirty_rect 'old_stack)
 	(def-struct-end)
 
 	(vp-cpy-rr rsp r3)
 	(vp-alloc local_size)
 	(vp-and-cr -16 rsp)
-	(vp-cpy-ri r3 rsp local_old_stack)
+	(assign '(r3) '((rsp local_old_stack)))
 
 	;save draw rectangle info
 	(assign '(r0) '((rsp local_ctx)))
@@ -185,7 +181,7 @@
 	(for-each-visible-rect
 		'(progn
 			;draw the rectangle
-			(vp-cpy-ir rsp local_ctx r0)
+			(assign '((rsp local_ctx)) '(r0))
 			(host-call 'host 'sdl_render_draw_rect '((r0 ctx_sdl_ctx) (& rsp local_rect)))))
 
 	(vp-cpy-ir rsp local_old_stack rsp)
@@ -206,15 +202,13 @@
 	(def-struct 'local)
 		(struct 'rect 'sdl_rect)
 		(struct 'clip_rect 'sdl_rect)
-		(ptr 'ctx)
-		(ptr 'dirty_rect)
-		(ptr 'old_stack)
+		(ptr 'ctx 'dirty_rect 'old_stack)
 	(def-struct-end)
 
 	(vp-cpy-rr rsp r3)
 	(vp-alloc local_size)
 	(vp-and-cr -16 rsp)
-	(vp-cpy-ri r3 rsp local_old_stack)
+	(assign '(r3) '((rsp local_old_stack)))
 
 	;save draw rectangle info
 	(assign '(r0) '((rsp local_ctx)))
@@ -227,7 +221,7 @@
 	(for-each-visible-rect
 		'(progn
 			;draw the rectangle
-			(vp-cpy-ir rsp local_ctx r0)
+			(assign '((rsp local_ctx)) '(r0))
 			(host-call 'host 'sdl_render_fill_rect '((r0 ctx_sdl_ctx) (& rsp local_rect)))))
 
 	(vp-cpy-ir rsp local_old_stack rsp)
@@ -252,11 +246,7 @@
 		(ptr 'ctx)
 		(long 'flags)
 		(uint 'color)
-		(int 'depth)
-		(int 'x)
-		(int 'y)
-		(int 'w)
-		(int 'h)
+		(int 'depth 'x 'y 'w 'h)
 	(def-struct-end)
 
 	;save inputs
@@ -277,7 +267,7 @@
 		(call 'ctx 'filled_box '((rsp local_ctx) r7 r8 r9 r10))
 	(endif)
 
-	(vp-cpy-ir-i rsp local_depth r11)
+	(assign '((rsp local_depth)) '(r11))
 	(vpif '(r11 > 0))
 		;brighter color
 		(call 'ctx 'brighter '((rsp local_color)) '(r1))
@@ -314,7 +304,7 @@
 	(else)
 		;sunken panel
 		(vp-mul-cr -1 r11)
-		(vp-cpy-ri-i r11 rsp local_depth)
+		(assign '(r11) '((rsp local_depth)))
 
 		;darker color
 		(call 'ctx 'darker '((rsp local_color)) '(r1))

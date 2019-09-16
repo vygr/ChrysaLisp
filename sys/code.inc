@@ -425,41 +425,31 @@
 			(push s x) (push d y))) (list *src* *dst*))
 	(setq *src* s *dst* d))
 
-(defcfun-bind assign-match-any (d s)
-	(cond
-		((defq j (lst? s) i (lst? d))
-			(cond
-				(j (throw "Illegal src/dst !" (list s d)))
-				(t (find s d))))
-		(j
-			(cond
-				(i (throw "Illegal src/dst !" (list s d)))
-				(t (find d s))))
-		(t (eql s d))))
-
-(defcfun-bind assign-find-later-src (i)
-	(defq j (dec (length (defq s *src*))) d (elem i *dst*))
+(defcfun-bind assign-find-dst (s d i)
+	(defq j (dec l))
 	(while (/= j i)
-		(if (assign-match-any d (elem j s))
+		(if (cond
+				((defq m (lst? (defq k (elem j s))) n (lst? d))
+					(if m (throw "Illegal src/dst !" (list k d)))
+					(find k d))
+				(m
+					(if n (throw "Illegal src/dst !" (list k d)))
+					(find d k))
+				(t (eql k d)))
 			(setq i j)
 			(setq j (dec j)))) j)
 
-(defcfun-bind assign-rotate (i j)
-	(setq *src* (cat (slice 0 i (defq s *src*)) (slice j (inc j) s)
-				(slice i j s) (slice (inc j) (length s) s))
-		*dst* (cat (slice 0 i (defq s *dst*)) (slice j (inc j) s)
-				(slice i j s) (slice (inc j) (length s) s))))
-
 (defcfun-bind assign-topology-sort ()
-	(defq i 0 c 1000 l (length *dst*))
+	(defq s *src* d *dst* i 0 c 1000 l (length d))
 	(while (and (/= i l) (/= c 0))
-		(if (> (defq j (assign-find-later-src i)) i)
-			(progn
-				(assign-rotate i j)
-				(setq c (dec c)))
+		(if (> (defq j (assign-find-dst s (elem i d) i)) i)
+			(setq s (cat (slice 0 i s) (slice j (inc j) s) (slice i j s) (slice (inc j) -1 s))
+				d (cat (slice 0 i d) (slice j (inc j) d) (slice i j d) (slice (inc j) -1 d))
+				c (dec c))
 			(setq i (inc i))))
-	(when (/= i l)
-		(throw "Copy cycle detected !" (list *src* *dst*))))
+	(if (= c 0)
+		(throw "Copy cycle detected !" (list s d))
+		(setq *src* s *dst* d)))
 
 (defcfun-bind assign-asm-to-asm (*src* *dst*)
 	(when (/= (length *src*) (length *dst*))
@@ -485,7 +475,7 @@
 						(dui (vp-cpy-rd-i x (elem 0 y) (elem 1 y)))
 						(dus (vp-cpy-rd-s x (elem 0 y) (elem 1 y)))
 						(dub (vp-cpy-rd-b x (elem 0 y) (elem 1 y)))
-						(otherwise (throw "Invalid dst parameter !" (vp-type y)))))
+						(otherwise (throw "Invalid dst parameter !" y))))
 				(c (vp-cpy-cr x y))
 				(i (vp-cpy-ir (elem 0 x) (elem 1 x) y))
 				(ii (vp-cpy-ir-i (elem 0 x) (elem 1 x) y))
@@ -506,7 +496,7 @@
 				(@ (fn-bind (elem 1 x) y))
 				(s (fn-string x y))
 				($ (vp-lea-p (elem 1 x) y))
-				(otherwise (throw "Invalid src parameter !" (vp-type x))))) *src* *dst*)))
+				(otherwise (throw "Invalid src parameter !" x)))) *src* *dst*)))
 
 ;;;;;;;;;;
 ; tokenize

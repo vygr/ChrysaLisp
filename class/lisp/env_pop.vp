@@ -9,9 +9,7 @@
 	;r0 = lisp object (ptr)
 
 	(def-struct 'local)
-		(ptr 'this)
-		(ptr 'env)
-		(ptr 'new_env)
+		(ptr 'this 'env 'new_env)
 	(def-struct-end)
 
 	(vp-alloc local_size)

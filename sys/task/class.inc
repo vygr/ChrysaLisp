@@ -40,21 +40,17 @@
 (defcvar 'tk_stack_size (* 1024 4))
 
 (def-struct 'tk_node 'ln_node)
-	(ptr 'stack)
+	(ptr 'stack 'mbox_addr)
 	(ulong 'time)
-	(ptr 'mbox_addr)
 	(uint 'mbox_id)
 	(local-align)
 	(struct 'stackspace 'tk_stack)
 (def-struct-end)
 
 (def-struct 'tk_statics)
-	(ptr 'current_tcb)
-	(ptr 'kernel_tcb)
+	(ptr 'current_tcb 'kernel_tcb)
 	(struct 'timer_list 'lh_list)
-	(uint 'task_count)
-	(uint 'cpu_total)
-	(uint 'cpu_id)
+	(uint 'task_count 'cpu_total 'cpu_id)
 (def-struct-end)
 
 ;;;;;;;;;;;;;
