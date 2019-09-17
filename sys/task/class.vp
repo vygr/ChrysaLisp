@@ -172,7 +172,7 @@
 	(vp-cpy-rr r0 r1)
 
 	;calculate wake time
-	(call 'sys_pii 'time '() '(r0))
+	(call 'sys_pii 'time nil '(r0))
 	(vp-add-rr r1 r0)
 	(assign '(r0) '((r14 tk_node_time)))
 

@@ -118,8 +118,7 @@
 	(assign '(r3) '((rsp local_old_stack)))
 
 	;save draw rectangle info
-	(assign '(r0 r1) '((rsp local_ctx) (rsp local_texture)))
-	(assign '((r0 ctx_x) (r0 ctx_y)) '(r11 r12))
+	(assign '((r0 ctx_x) (r0 ctx_y) r0 r1) '(r11 r12 (rsp local_ctx) (rsp local_texture)))
 	(vp-add-rr r11 r7)
 	(vp-add-rr r12 r8)
 	(assign '(r7 r8 r9 r10) '((rsp (+ local_drect sdl_rect_x) i) (rsp (+ local_drect sdl_rect_y) i)
@@ -251,14 +250,16 @@
 
 	;save inputs
 	(vp-alloc local_size)
-	(assign '(r0 r1 r2 r3) '((rsp local_ctx) (rsp local_color) (rsp local_flags) (rsp local_depth)))
-	(assign '(r7 r8 r9 r10) '((rsp local_x) (rsp local_y) (rsp local_w) (rsp local_h)))
+	(assign '(r0 r1 r2 r3 r7 r8 r9 r10)
+		'((rsp local_ctx) (rsp local_color) (rsp local_flags) (rsp local_depth)
+		(rsp local_x) (rsp local_y) (rsp local_w) (rsp local_h)))
 
 	(vpif '(r2 /= 0))
 		;fill middle
 		(call 'ctx 'set_color '(r0 r1))
 
-		(assign '((rsp local_x) (rsp local_y) (rsp local_w) (rsp local_h) (rsp local_depth)) '(r7 r8 r9 r10 r11))
+		(assign '((rsp local_x) (rsp local_y) (rsp local_w) (rsp local_h) (rsp local_depth))
+			'(r7 r8 r9 r10 r11))
 		(vp-add-rr r11 r7)
 		(vp-add-rr r11 r8)
 		(vp-shl-cr 1 r11)

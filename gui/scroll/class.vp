@@ -30,9 +30,7 @@
 		;init myself
 		(assign '(r0) '((rsp local_this)))
 		(vp-xor-rr r1 r1)
-		(assign '(r1 r1 r1) '((r0 scroll_child) (r0 scroll_vslider) (r0 scroll_hslider)))
-
-		(assign '((rsp local_flags)) '(r1))
+		(assign '(r1 r1 r1 (rsp local_flags)) '((r0 scroll_child) (r0 scroll_vslider) (r0 scroll_hslider) r1))
 		(vp-and-cr scroll_flag_vertical r1)
 		(vpif '(r1 /= 0))
 			(call 'slider 'create nil '(r0))

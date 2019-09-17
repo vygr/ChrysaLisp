@@ -132,9 +132,8 @@
 	;save inputs
 	(vp-alloc local_size)
 	(entry 'hmap 'find '(r0 r1))
-	(assign '(r1) '((rsp local_key)))
 
-	(assign '((r0 hset_key_callback)) '(r2))
+	(assign '(r1 (r0 hset_key_callback)) '((rsp local_key) r2))
 	(vpif '(r2 = 0) 'exit)
 		;search hash bucket
 		(call 'hmap 'get_bucket '(r0 r1) '(r0 r2))
@@ -277,8 +276,7 @@
 
 	(call 'hmap 'search '(r0 r1) '(r0 r1 _))
 	(vpif '(r1 /= 0))
-		(assign '(r0) '((rsp local_this)))
-		(assign '((r1 0) (rsp local_value)) '(r0 r1))
+		(assign '(r0 (r1 0) (rsp local_value)) '((rsp local_this) r0 r1))
 		(class/obj/ref r1 r2)
 		(call 'pair 'set_second '(r0 r1))
 		(assign '((rsp local_this) (rsp local_value)) '(r0 r1))

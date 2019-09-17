@@ -92,7 +92,6 @@
 	(endif)
 
 	(assign '(r0 r2 0) '(r5 r4 r6))
-
 	(assign '((r5 stream_bufp) (r5 stream_bufe)) '(r0 r2))
 	(loop-while '(r4 /= 0) 'exit)
 		(vpif '(r2 /= r0))
@@ -103,8 +102,7 @@
 			(vp-sub-rr r2 r4)
 			(vp-add-rr r2 r6)
 			(call 'sys_mem 'copy '(r0 r1 r2) '(r0 r1))
-			(assign '(r0) '((r5 stream_bufp)))
-			(assign '((r5 stream_bufe)) '(r2))
+			(assign '(r0 (r5 stream_bufe)) '((r5 stream_bufp) r2))
 		(else)
 			(vp-push r1 r4 r6)
 			(call 'stream 'read_next '(r5) '(r5 r0))
@@ -361,7 +359,6 @@
 	(endif)
 
 	(assign '(r0 r1 r2) '(r5 r0 r4))
-
 	(assign '((r5 stream_bufp) (r5 stream_bufe)) '(r1 r2))
 	(loop-while '(r4 /= 0) 'exit)
 		(vpif '(r2 /= r1))
@@ -371,8 +368,7 @@
 			(endif)
 			(vp-sub-rr r2 r4)
 			(call 'sys_mem 'copy '(r0 r1 r2) '(r0 r1))
-			(assign '(r1) '((r5 stream_bufp)))
-			(assign '((r5 stream_bufe)) '(r2))
+			(assign '(r1 (r5 stream_bufe)) '((r5 stream_bufp) r2))
 		(else)
 			(vp-push r0 r4)
 			(call 'stream 'write_next '(r5) '(r5))

@@ -190,8 +190,8 @@
 			(vp-sub-cr 1 r10)
 		(endif)
 
-		(assign '(r8 r9 r10) '((rsp local_dir) (rsp local_start) (rsp local_end)))
-		(assign '(r11 r12) '((rsp local_func) (rsp local_args)))
+		(assign '(r8 r9 r10 r11 r12)
+			'((rsp local_dir) (rsp local_start) (rsp local_end) (rsp local_func) (rsp local_args)))
 
 		(loop-while '(r9 /= r10) 'done)
 			(call 'obj 'deref '((rsp local_value)))
@@ -206,8 +206,7 @@
 			(loop-until '(r10 = r11))
 
 			(call 'num 'create '(r9) '(r2))
-			(assign '((rsp local_this)) '(r1))
-			(assign '(r2) '((rsp local_value)))
+			(assign '((rsp local_this) r2) '(r1 (rsp local_value)))
 			(call 'hmap 'insert '((r1 lisp_environment) (r1 lisp_sym_underscore) r2))
 			(call 'obj 'deref '((rsp local_value)))
 
@@ -309,8 +308,9 @@
 			(vp-sub-cr 1 r10)
 		(endif)
 
-		(assign '(r8 r9 r10) '((rsp local_dir) (rsp local_start) (rsp local_end)))
-		(assign '(r11 r12 r13) '((rsp local_mode) (rsp local_func) (rsp local_args)))
+		(assign '(r8 r9 r10 r11 r12 r13)
+			'((rsp local_dir) (rsp local_start) (rsp local_end) (rsp local_mode)
+				(rsp local_func) (rsp local_args)))
 
 		(loop-while '(r9 /= r10) 'done)
 			(call 'obj 'deref '((rsp local_value)))
@@ -325,8 +325,7 @@
 			(loop-until '(r10 = r11))
 
 			(call 'num 'create '(r9) '(r2))
-			(assign '((rsp local_this)) '(r1))
-			(assign '(r2) '((rsp local_value)))
+			(assign '((rsp local_this) r2) '(r1 (rsp local_value)))
 			(call 'hmap 'insert '((r1 lisp_environment) (r1 lisp_sym_underscore) r2))
 			(call 'obj 'deref '((rsp local_value)))
 

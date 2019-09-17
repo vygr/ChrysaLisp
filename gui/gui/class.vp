@@ -270,7 +270,7 @@
 	(vp-push r0)
 	(f-bind 'gui 'statics r2)
 	(call 'view 'add_front '((r2 gui_statics_screen) r0))
-	(call 'sys_task 'tcb '() '(r1))
+	(call 'sys_task 'tcb nil '(r1))
 	(vp-pop r0)
 	(assign '(r1) '((r0 component_tcb)))
 	(jump 'view 'set_flags '(r0 view_flag_dirty_all view_flag_dirty_all))
@@ -344,8 +344,7 @@
 		(assign '((r0 view_ctx_x) (r0 view_ctx_y)) '(r7 r8))
 		(vp-lea-i rsp local_ctx r1)
 		(vp-lea-i r0 view_dirty_region r2)
-		(assign '(r7 r8) '((r1 ctx_x) (r1 ctx_y)))
-		(assign '(r2) '((r1 ctx_dirty_region)))
+		(assign '(r7 r8 r2) '((r1 ctx_x) (r1 ctx_y) (r1 ctx_dirty_region)))
 		(call 'view 'draw '(r0 r1))
 		(assign '((rsp local_ctx_next)) '(r1))
 		(vp-sub-cr (- view_ctx_node view_dirty_region) r1)
@@ -404,9 +403,7 @@
 	(vpif '(r1 /= r2))
 		;remove my opaque region from ancestors
 		(vp-xor-rr r2 r2)
-		(assign '(r2) '((rsp vis_region)))
-
-		(assign '((r1 view_flags)) '(r3))
+		(assign '(r2 (r1 view_flags)) '((rsp vis_region) r3))
 		(vp-and-cr view_flag_opaque r3)
 		(vpif '(r3 /= 0))
 			;entire view is opaque, so my area is the visble region
@@ -415,8 +412,7 @@
 			(call 'region 'paste_rect '(r0 r1 0 0 r9 r10) '(r0))
 		(else)
 			;use opaque region, so my opaque area is the visble region
-			(assign '((r1 view_x) (r1 view_y)) '(r7 r8))
-			(assign '((r1 hmap_parent)) '(r2))
+			(assign '((r1 view_x) (r1 view_y) (r1 hmap_parent)) '(r7 r8 r2))
 			(assign '((r2 view_w) (r2 view_h)) '(r9 r10))
 			(vp-mul-cr -1 r7)
 			(vp-mul-cr -1 r8)
@@ -477,8 +473,7 @@
 	;paste local dirty region onto parent if not root
 	(assign '((rsp vis_this) (rsp vis_root)) '(r1 r3))
 	(vpif '(r1 /= r3))
-		(assign '((r1 view_x) (r1 view_y)) '(r7 r8))
-		(assign '((r1 hmap_parent)) '(r2))
+		(assign '((r1 view_x) (r1 view_y) (r1 hmap_parent)) '(r7 r8 r2))
 		(vp-add-cr view_dirty_region r1)
 		(vp-add-cr view_dirty_region r2)
 		(call 'region 'paste_region '(r0 r1 r2 r7 r8) '(r0))
@@ -497,9 +492,7 @@
 		;clear dirty all flag
 		(assign '((r2 view_flags)) '(r3))
 		(vp-and-cr (lognot view_flag_dirty_all) r3)
-		(assign '(r3) '((r2 view_flags)))
-
-		(assign '((r2 view_x) (r2 view_y) (r2 view_w) (r2 view_h)) '(r7 r8 r9 r10))
+		(assign '(r3 (r2 view_x) (r2 view_y) (r2 view_w) (r2 view_h)) '((r2 view_flags) r7 r8 r9 r10))
 		(vp-add-rr r7 r9)
 		(vp-add-rr r8 r10)
 		(assign '((rsp vis_root) (r2 hmap_parent)) '(r3 r1))

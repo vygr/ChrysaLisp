@@ -227,8 +227,8 @@
 
 	;run through copy region list
 	(loop-flist r3 0 r5 r5)
-		(assign '((rsp local_dx) (rsp local_dy)) '(r11 r12))
-		(assign '((r5 rect_x) (r5 rect_y) (r5 rect_x1) (r5 rect_y1)) '(r7 r8 r9 r10))
+		(assign '((rsp local_dx) (rsp local_dy) (r5 rect_x) (r5 rect_y) (r5 rect_x1) (r5 rect_y1))
+			'(r11 r12 r7 r8 r9 r10))
 		(vp-add-rr r11 r7)
 		(vp-add-rr r12 r8)
 		(vp-add-rr r11 r9)
@@ -813,9 +813,8 @@
 
 	;run through source region list
 	(loop-flist r1 0 r1 r1)
-		(assign '(r1) '((rsp local_node)))
-		(assign '((rsp local_dx) (rsp local_dy)) '(r11 r12))
-		(assign '((r1 rect_x) (r1 rect_y) (r1 rect_x1) (r1 rect_y1)) '(r7 r8 r9 r10))
+		(assign '(r1 (rsp local_dx) (rsp local_dy) (r1 rect_x) (r1 rect_y) (r1 rect_x1) (r1 rect_y1))
+			'((rsp local_node) r11 r12 r7 r8 r9 r10))
 		(vp-add-rr r11 r7)
 		(vp-add-rr r12 r8)
 		(vp-add-rr r11 r9)
@@ -1103,8 +1102,8 @@
 
 	;run through source region list
 	(loop-flist r1 0 r6 r6)
-		(assign '((rsp local_dx) (rsp local_dy)) '(r11 r12))
-		(assign '((r6 rect_x) (r6 rect_y) (r6 rect_x1) (r6 rect_y1)) '(r7 r8 r9 r10))
+		(assign '((rsp local_dx) (rsp local_dy) (r6 rect_x) (r6 rect_y) (r6 rect_x1) (r6 rect_y1))
+			'(r11 r12 r7 r8 r9 r10))
 		(vp-add-rr r11 r7)
 		(vp-add-rr r12 r8)
 		(vp-add-rr r11 r9)

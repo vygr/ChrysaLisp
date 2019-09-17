@@ -83,8 +83,7 @@
 		(assign '((r0 hmap_parent)) '(r0))
 		(assign '((r0 obj_vtable)) '(r2))
 	(loop-until '(r2 = r1))
-	(assign '(r0) '((rsp local_window)))
-	(assign '((r0 view_x) (r0 view_y)) '(r7 r8))
+	(assign '(r0 (r0 view_x) (r0 view_y)) '((rsp local_window) r7 r8))
 	(assign '(r7 r8) '((rsp local_old_x) (rsp local_old_y)))
 
 	;dirty old area

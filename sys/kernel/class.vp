@@ -195,7 +195,7 @@
 		(loop-end)
 
 		;start any tasks ready to restart
-		(call 'sys_pii 'time '() '(r0))
+		(call 'sys_pii 'time nil '(r0))
 		(f-bind 'sys_task 'statics r3)
 		(assign '((r3 tk_statics_current_tcb)) '(r14))
 		(loop-list-forward r3 tk_statics_timer_list r1 r2)

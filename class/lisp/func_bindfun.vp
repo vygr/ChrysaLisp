@@ -35,8 +35,7 @@
 	(vpif '(r2 = r3))
 		;is a list so down we go
 		(vp-alloc local_size)
-		(assign '(r0 r1) '((rsp local_this) (rsp local_form)))
-		(assign '((r0 lisp_stack)) '(r2))
+		(assign '((r0 lisp_stack) r0 r1) '(r2 (rsp local_this) (rsp local_form)))
 		(assign '((r2 array_length)) '(r2))
 		(assign '(r2) '((rsp local_start)))
 		(loop-start)

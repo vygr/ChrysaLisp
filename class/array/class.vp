@@ -394,7 +394,7 @@
 	(entry 'array 'slice '(r6 r7 r8))
 
 	;create new array
-	(call 'array 'create '() '(r0))
+	(call 'array 'create nil '(r0))
 	(vp-cpy-rr r8 r1)
 	(vp-sub-rr r7 r1)
 	(assign '(r1) '((r0 array_length)))

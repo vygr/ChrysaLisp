@@ -35,7 +35,7 @@
 
 	(assign (cat {@} (f-path 'font 'statics) {.font_statics_intern}) {flat_set})
 	(vpifnot {flat_set})
-		(call 'vector 'create {} {flat_set})
+		(call 'vector 'create nil {flat_set})
 		(assign {flat_set} (cat {@} (f-path 'font 'statics) {.font_statics_intern}))
 	(endif)
 

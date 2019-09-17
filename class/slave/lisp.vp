@@ -30,8 +30,7 @@
 		(call 'obj 'ref '((r0 lisp_sym_nil)) '(r1))
 	(else)
 		;redirect lisp io
-		(assign '(r0) '((rsp local_val)))
-		(assign '((rsp local_this) r0) '(r5 r6))
+		(assign '((rsp local_this) r0 r0) '(r5 r6 (rsp local_val)))
 		(assign '((r5 lisp_stdin) (r5 lisp_stdout) (r5 lisp_stderr)) '(r0 r1 r2))
 		(assign '(r0 r1 r2) '((rsp local_stdin) (rsp local_stdout) (rsp local_stderr)))
 		(call 'obj 'ref '((r6 slave_stdin)) '((r5 lisp_stdin)))
