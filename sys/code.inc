@@ -45,7 +45,7 @@
 			(throw "No such comparator" o)))
 		(r (if e ((eval (elem e '(vp-beq-rr vp-bne-rr vp-ble-rr vp-bge-rr vp-bgt-rr vp-blt-rr))) s d l)
 			(throw "No such comparator" o)))
-		(otherwise (throw "No such compare mode" (vp-type s)))))
+		(t (throw "No such compare mode" (vp-type s)))))
 
 (defcfun gotoifnot (e l)
 	(when (str? e)
@@ -58,7 +58,7 @@
 			(throw "No such comparator" o)))
 		(r (if e ((eval (elem e '(vp-beq-rr vp-bne-rr vp-ble-rr vp-bge-rr vp-bgt-rr vp-blt-rr))) s d l)
 			(throw "No such comparator" o)))
-		(otherwise (throw "No such compare mode" (vp-type s)))))
+		(t (throw "No such compare mode" (vp-type s)))))
 
 (defcfun-bind switch (&optional _)
 	(push *switch-stk* *switch*)
@@ -464,7 +464,7 @@
 						(dui (vp-cpy-rd-i x (elem 0 y) (elem 1 y)))
 						(dus (vp-cpy-rd-s x (elem 0 y) (elem 1 y)))
 						(dub (vp-cpy-rd-b x (elem 0 y) (elem 1 y)))
-						(otherwise (throw "Invalid dst parameter !" y))))
+						(t (throw "Invalid dst parameter !" y))))
 				(c (vp-cpy-cr x y))
 				(i (vp-cpy-ir (elem 0 x) (elem 1 x) y))
 				(ii (vp-cpy-ir-i (elem 0 x) (elem 1 x) y))
@@ -485,7 +485,7 @@
 				(@ (fn-bind (elem 1 x) y))
 				(s (fn-string x y))
 				($ (vp-lea-p (elem 1 x) y))
-				(otherwise (throw "Invalid src parameter !" x)))) *src* *dst*)))
+				(t (throw "Invalid src parameter !" x)))) *src* *dst*)))
 
 ;;;;;;;;;;
 ; tokenize

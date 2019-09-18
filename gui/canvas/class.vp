@@ -325,7 +325,7 @@
 	(assign {old_stack} '(rsp))
 	(pop-scope-syms)
 	(return))
-(otherwise
+(t
 	(ptr 'this 'surface 'temp_canvas 'old_stack)
 	(uint 'blend_mode)
 

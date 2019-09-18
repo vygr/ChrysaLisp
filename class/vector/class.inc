@@ -37,7 +37,7 @@
 			(num (list r num_value))
 			(str (list '& r str_data))
 			(char (list r str_data 'ub))
-			(otherwise r))) regs types) regs))
+			(t r))) regs types) regs))
 
 (defcfun-bind class/vector/bind_args (a regs types)
 	;inputs

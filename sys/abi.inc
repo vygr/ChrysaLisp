@@ -23,7 +23,7 @@
 							(apply emit-push x)
 							(emit-call-jump-i 0x10 b c)
 							(emit-cpy-ir rsp (* ptr_size (- (length x) 2)) rsp)))))
-			(otherwise (throw "Unknown CPU for AMD64 !" *cpu*))))
+			(t (throw "Unknown CPU for AMD64 !" *cpu*))))
 	(ARM64
 		(case *cpu*
 			(aarch64
@@ -42,7 +42,7 @@
 						(t
 							(emit-cpy-ir rsp (* ptr_size (dec l)) r30)
 							(emit-free (* ptr_size l))))))
-			(otherwise (throw "Unknown CPU for ARM64 !" *cpu*))))
+			(t (throw "Unknown CPU for ARM64 !" *cpu*))))
 	(WIN64
 		(case *cpu*
 			(x86_64
@@ -62,8 +62,8 @@
 							(emit-sub-cr 32 rsp)
 							(emit-call-jump-i 0x10 b c)
 							(emit-cpy-ir rsp (* ptr_size (+ (length x) 4)) rsp)))))
-			(otherwise (throw "Unknown CPU for WIN64 !" *cpu*))))
-	(otherwise (throw "Unknown ABI !" *abi*)))
+			(t (throw "Unknown CPU for WIN64 !" *cpu*))))
+	(t (throw "Unknown ABI !" *abi*)))
 
 (defcmacro abi-push-trashed (&rest b) (merge b (abi-trashed)) `(vp-push ~b))
 (defcmacro abi-pop-trashed (&rest b) (merge b (abi-trashed)) `(vp-pop ~b))
