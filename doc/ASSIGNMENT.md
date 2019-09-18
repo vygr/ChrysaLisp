@@ -265,16 +265,17 @@ post opt:
 
 ## Limitations
 
-The (assign) function has to be very fast, useful in the general cases it has
+The `(assign)` function has to be very fast, useful in the general cases it has
 to deal with, but can't be a full blown compiler. So it has limitations on what
 it attempts to do and what it can guarantee.
 
-Most of the time calling functions requires (assign) to martial parameters from
-memory or registers into the functions input registers or martial the output
-registers into the users registers or memory locations. In these cases it never
-has to deal with memory to memory operations. It doesn't even attempt to sort a
-assignment item if the destination is a memory location, it can't know if that
-might alias with an input etc, it's not doing a full use/def analysis.
+Most of the time calling functions requires `(assign)` to martial parameters
+from memory or registers into the functions input registers or martial the
+output registers into the users registers or memory locations. In these cases
+it never has to deal with memory to memory operations. It doesn't even attempt
+to sort an assignment item if the destination is a memory location, it can't
+know if that might alias with an input etc, it's not doing a full use/def
+analysis.
 
 The main thing it concentrates on is making sure to sort the assignment items
 so that any register destinations do not get written before they are used by
@@ -286,7 +287,7 @@ Things it can't deal with are if you wright to a register and then wright a
 register to a memory location that uses that register as the base etc, eg.
 
 ```lisp
-	(assign '(r0 r1) '(r2 (r2 field))
+	(assign '(r0 r1) '(r2 (r2 field)))
 ```
 
 Although you may think it should do the copy of r1 to (r2 field) first, it
@@ -296,11 +297,11 @@ in the destination, and that's all.
 
 ## Auto typing
 
-If you don't provide a qualifier for the copy type, i ui s us b ub l ul,
-(assign) will attempt to lookup the type as declared in any (def-struct) for
-that field. If not found or not a symbol it will default to a long. If the type
-is found it will use the correct VP cpy instruction that matches the field
-type.
+If you don't provide a qualifier for the copy type, `i ui s us b ub l ul`,
+`(assign)` will attempt to lookup the type as declared in any `(def-struct)`
+for that field. If not found or not a symbol it will default to `ul`. If the
+type is found it will use the correct VP copy instruction that matches the
+field type.
 
 This saves a huge amount of finger trouble with field accesses and is the
 standard way you should access fields unless you have a good reason not to.
