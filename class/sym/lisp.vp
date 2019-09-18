@@ -20,7 +20,7 @@
 
 	(vp-cpy-rr r0 r4)
 	(call 'vector 'get_first '(r1) '(r0 r1))
-	(assign `((,r1 obj_vtable) (@ ,(f-path 'sym 'vtable))) '(r2 r3))
+	(assign `((r1 obj_vtable) (@ ,(f-path 'sym 'vtable))) '(r2 r3))
 	(vpif '(r2 = r3))
 		(vp-push r4)
 		(call 'obj 'ref '(r1) '(r0))
