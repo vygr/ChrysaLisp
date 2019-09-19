@@ -10,9 +10,9 @@ alive. :)
 ------
 
 Implemented (assign-asm-asm) auto copy type for field access. Now when you
-don't put a type qualifier (i ui b ub s us l ul) as an optional third
-parameter, assign will attempt to lookup the type of the symbol and use the
-correct VP cpy instruction.
+don't put a type qualifier (i ui b ub s us) as an optional third parameter,
+assign will attempt to lookup the type of the symbol and use the correct VP cpy
+instruction.
 
 This makes things a lot more robust as you don't need to remember what your
 type was, it all comes from the field type in your (def-struct). Plus this

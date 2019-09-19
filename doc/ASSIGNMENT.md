@@ -271,35 +271,21 @@ it attempts to do and what it can guarantee.
 
 Most of the time calling functions requires `(assign)` to martial parameters
 from memory or registers into the functions input registers or martial the
-output registers into the users registers or memory locations. In these cases
-it never has to deal with memory to memory operations. It doesn't even attempt
-to sort an assignment item if the destination is a memory location, it can't
-know if that might alias with an input etc, it's not doing a full use/def
-analysis.
+functions output registers into the user registers or memory locations. In
+these cases it never has to deal with memory to memory operations. It doesn't
+even attempt to sort an assignment item if the destination is a memory
+location, it can't know if that might alias with an input etc, it's not doing a
+full use/def analysis.
 
-The main thing it concentrates on is making sure to sort the assignment items
-so that any register destinations do not get written before they are used by
-any input items. So it looks to see if any output register is used in a
-register or a memory operation in the sources, and topology sorts the list with
-this in mind.
-
-Things it can't deal with are if you wright to a register and then wright a
-register to a memory location that uses that register as the base etc, eg.
-
-```lisp
-	(assign '(r0 r1) '(r2 (r2 field)))
-```
-
-Although you may think it should do the copy of r1 to (r2 field) first, it
-won't ! It won't even consider that copy in the sort because the destination is
-a memory location ! So just remember that it sorts based on the register items
-in the destination, and that's all.
+The main thing it concentrates on is making sure to sort the assignment list so
+that any register destinations do not get written to before they are used by
+any future source or destination items.
 
 ## Auto typing
 
-If you don't provide a qualifier for the copy type, `i ui s us b ub l ul`,
+If you don't provide a qualifier for the copy type, `i ui s us b ub`,
 `(assign)` will attempt to lookup the type as declared in any `(def-struct)`
-for that field. If not found or not a symbol it will default to `ul`. If the
+for that field. If not found or not a symbol it will default to a long. If the
 type is found it will use the correct VP copy instruction that matches the
 field type.
 
