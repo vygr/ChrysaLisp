@@ -21,12 +21,9 @@
 	(entry 'pipe 'select '(r0 r1))
 
 	;wait on user and pipe mailboxes
-	(vp-cpy-rr r0 r5)
-	(assign '((r0 pipe_select_array)) '(r0))
-	(vp-cpy-ri r1 r0 0)
-	(assign '((r5 pipe_streams)) '(r1))
-	(assign '((r1 array_length)) '(r1))
-	(call 'sys_mail 'select '(r0 r1) '(r0))
+	(assign '(r0 (r0 pipe_select_array)) '(r5 r0))
+	(assign '(r1 (r5 pipe_streams)) '((r0 0) r1))
+	(call 'sys_mail 'select '(r0 (r1 array_length)) '(r0))
 
 	(exit 'pipe 'select '(r5 r0))
 	(vp-ret)

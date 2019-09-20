@@ -314,8 +314,7 @@
 	(gotoif '(r12 > 2) 'error)
 	(call 'lisp 'env_args_type `(r10 (@ ,(f-path 'points 'vtable)) 0) '(r2))
 	(gotoif '(r2 = 0) 'error))
-	(assign '((r10 array_begin)) '(r1))
-	(vp-cpy-ir r1 0 r6)
+	(assign '((r10 array_begin) (r1 0)) '(r1 r6))
 	(assign '((r6 array_length)) '(r13))
 (errorcases
 	(gotoif '(r13 = 0) 'error))

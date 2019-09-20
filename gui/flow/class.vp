@@ -48,10 +48,8 @@
 	(call 'view 'pref_size '(r0) '(r0 r9 r10))
 	(vp-pop r1)
 	(assign '((r1 local_x) (r1 local_y)) '(r7 r8))
-	(vp-cpy-rr r7 r11)
-	(vp-cpy-rr r8 r12)
 
-	(assign '((r0 hmap_parent) (r1 local_flags)) '(r2 r3))
+	(assign '((r0 hmap_parent) (r1 local_flags) r7 r8) '(r2 r3 r11 r12))
 	(vp-and-cr flow_flag_down r3)
 	(vpif '(r3 /= 0))
 		;flow down

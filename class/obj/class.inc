@@ -32,8 +32,7 @@
 	;r1 = 0 if error, else ok
 	;trashes
 	;r1
-	(assign '(r1) '((r0 obj_vtable)))
-	(vp-cpy-cr 1 r1)
+	(assign '(r1 1) '((r0 obj_vtable) r1))
 	(assign '(r1) '((r0 obj_count))))
 
 (defcfun class/obj/ref (&optional o c x)
@@ -45,6 +44,6 @@
 	;r1
 	(setd o r0 c r1 x 1)
 	(if (eql o c) (throw "Invalid object or count !" (list o c)))
-	(vp-cpy-ir-ui o obj_count c)
+	(assign `((,o obj_count)) `(,c))
 	(vp-add-cr x c)
-	(vp-cpy-ri-i c o obj_count))
+	(assign `(,c) `((,o obj_count))))

@@ -549,8 +549,7 @@
 			(assign '((r2 view_dirty_region)) '(r1))
 			(vpif '(r1 /= 0))
 				;remove my opaque region from parent
-				(vp-cpy-rr r2 r1)
-				(assign '((r2 hmap_parent)) '(r2))
+				(assign '(r2 (r2 hmap_parent)) '(r1 r2))
 				(vp-add-cr view_opaque_region r1)
 				(vp-add-cr view_dirty_region r2)
 				(call 'region 'remove_region '(r0 r1 r2 r7 r8) '(r1))

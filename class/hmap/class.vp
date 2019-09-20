@@ -246,8 +246,7 @@
 		(breakif '(r1 /= 0))
 		(call 'hmap 'get_parent '(r0) '(r0 r1))
 		(breakif '(r1 = 0))
-		(vp-cpy-rr r1 r0)
-		(assign '((rsp local_key)) '(r1))
+		(assign '(r1 (rsp local_key)) '(r0 r1))
 	(loop-end)
 
 	(exit 'hmap 'search '((rsp local_this) r1 r2))

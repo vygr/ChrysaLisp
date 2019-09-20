@@ -79,8 +79,7 @@
 	(entry 'label 'layout '(r0))
 
 	(call 'label 'get_long_prop '(r0 prop_border) '(r0 r1))
-	(assign '((r0 view_w) (r0 view_h)) '(r9 r10))
-	(vp-cpy-rr r1 r2)
+	(assign '((r0 view_w) (r0 view_h) r1) '(r9 r10 r2))
 	(vp-add-rr r2 r2)
 	(vp-sub-rr r2 r9)
 	(vp-sub-rr r2 r10)

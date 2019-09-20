@@ -299,8 +299,7 @@
 	(vpif '(r0 = r1))
 		;on this chip
 		(f-bind 'sys_mail 'statics r0)
-		(vp-cpy-ir-ui r2 (+ msg_dest id_mbox) r1)
-		(assign '((r0 ml_statics_mbox_array)) '(r0))
+		(assign `((r2 ,(+ msg_dest id_mbox) ui) (r0 ml_statics_mbox_array)) '(r1 r0))
 		(vp-shl-cr (log2 ptr_size) r1)
 		(assign '((r0 array_begin)) '(r0))
 		(vp-cpy-dr r0 r1 r1)
@@ -366,8 +365,7 @@
 
 		;fill in all tcb's and suspend
 		(f-bind 'sys_task 'statics r4)
-		(assign '((r4 tk_statics_current_tcb)) '(r4))
-		(vp-cpy-rr r3 r0)
+		(assign '((r4 tk_statics_current_tcb) r3) '(r4 r0))
 		(loop-start)
 			(vp-cpy-ir r0 0 r2)
 			(vpif '(r2 /= 0))

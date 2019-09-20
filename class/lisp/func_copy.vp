@@ -24,9 +24,7 @@
 	(assign '((r1 obj_vtable)) '(r2))
 	(vpif '(r2 = r7))
 		(vp-push r1)
-		(vp-cpy-rr r0 r11)
-		(assign '((r0 lisp_stack)) '(r9))
-		(vp-lea-i rsp 0 r10)
+		(assign '((r0 lisp_stack) (& rsp 0) r0) '(r9 r10 r11))
 		(assign '((r9 array_length)) '(r9))
 		(loop-start)
 			;replace form with copy, deref can't cause destroy !

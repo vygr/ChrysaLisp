@@ -22,14 +22,12 @@
 	(vpif '(r1 /= 0))
 		;init myself
 		(vp-xor-rr r1 r1)
-		(assign '(r1 r1) '((r0 msg_in_seqnum) (r0 msg_in_ack_seqnum)))
-		(vp-cpy-cr stream_mail_state_started r1)
+		(assign '(r1 r1 stream_mail_state_started) '((r0 msg_in_seqnum) (r0 msg_in_ack_seqnum) r1))
 		(assign '(r1) '((r0 msg_in_state)))
 		(vp-push r0)
 		(call 'sys_mail 'alloc_mbox nil '(r2 r1))
 		(vp-pop r0)
-		(assign '(r2 r1) '((r0 msg_in_mbox_id) (r0 msg_in_mbox_addr)))
-		(vp-lea-i r0 msg_in_list r1)
+		(assign '(r2 r1 (& r0 msg_in_list)) '((r0 msg_in_mbox_id) (r0 msg_in_mbox_addr) r1))
 		(lh-init r1 r2)
 	(endif)
 

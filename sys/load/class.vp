@@ -29,8 +29,7 @@
 	(vp-lea-p 'func_start r5)
 	(assign '((r5 fn_header_length)) '(r1))
 	(vp-add-rr r1 r5)
-	(vp-cpy-rr r5 r4)
-	(assign '((r5 fn_header_length)) '(r1))
+	(assign '(r5 (r5 fn_header_length)) '(r4 r1))
 	(vp-add-rr r1 r5)
 	(assign '((r5 fn_header_entry)) '(r1))
 	(vp-add-rr r1 r5)
@@ -233,8 +232,7 @@
 	;push reloc buffer entry
 	(vp-add-cr (dec (* ptr_size 2)) r1)
 	(vp-and-cr (neg ptr_size) r1)
-	(vp-cpy-ri r5 r1 (neg ptr_size))
-	(assign '(r1) '((r7 ld_statics_reloc_stack)))
+	(assign '(r5 r1) `((r1 ,(neg ptr_size)) (r7 ld_statics_reloc_stack)))
 
 	;overflow check
 	(assign '((r7 ld_statics_reloc_buffer)) '(r2))

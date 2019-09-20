@@ -43,8 +43,7 @@
 	(entry '(r0 r1 r2 r3))
 
 	(vp-alloc local_size)
-	(vp-cpy-ir r1 0 r4)
-	(assign '(r0 r1 r2 r3) '((rsp local_this) (rsp local_iter) (rsp local_qcnt) (rsp local_ucnt)))
+	(assign '((r1 0) r0 r1 r2 r3) '(r4 (rsp local_this) (rsp local_iter) (rsp local_qcnt) (rsp local_ucnt)))
 	(class/array/get_both r4 r1 r2)
 	(assign '(r1 r2) '((rsp local_iter_begin) (rsp local_iter_end)))
 	(call 'vector 'create nil '(r0))
@@ -109,8 +108,7 @@
 
 	;swap new list with old
 	(assign '((rsp local_iter) (rsp local_list)) '(r1 r2))
-	(vp-cpy-ir r1 0 r0)
-	(vp-cpy-ri r2 r1 0)
+	(assign '((r1 0) r2) '(r0 (r1 0)))
 	(call 'obj 'deref '(r0))
 	(vp-free local_size)
 	(vp-ret)

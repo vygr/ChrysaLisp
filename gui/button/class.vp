@@ -91,8 +91,7 @@
 
 	;contents offset or not
 	(call 'button 'get_long_prop '(r0 prop_border) '(r0 r1))
-	(assign '((r0 button_state)) '(r2))
-	(vp-cpy-rr r1 r3)
+	(assign '((r0 button_state) r1) '(r2 r3))
 	(vp-and-cr button_state_pressed r2)
 	(vpif '(r2 /= 0))
 		(vp-add-rr r1 r1)
