@@ -227,6 +227,7 @@ SDL_RenderCopy,
 SDL_SetTextureBlendMode,
 SDL_SetTextureColorMod,
 SDL_CreateRGBSurfaceFrom,
+SDL_ComposeCustomBlendMode,
 
 TTF_Init,
 TTF_Quit,
@@ -251,8 +252,6 @@ mymprotect,
 gettime,
 myopenshared,
 mycloseshared,
-
-SDL_ComposeCustomBlendMode,
 };
 
 int main(int argc, char *argv[])

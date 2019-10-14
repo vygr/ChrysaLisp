@@ -290,42 +290,6 @@
 	;inputs
 	;r0 = user data
 
-(case *abi*
-(WIN64
-	(ptr 'this 'surface 'temp_canvas 'old_stack)
-
-	(vp-cpy-rr rsp r1)
-	(push-scope)
-	(vp-and-cr -16 rsp)
-	(entry {this, old_stack})
-
-	;free any sdl texture
-	(vpif {this->canvas_texture})
-		(host-call 'host 'sdl_destroy_texture {this->canvas_texture})
-		(assign {0} {this->canvas_texture})
-	(endif)
-
-	;create SDL surface from pixel buffer, convert to texture
-	(call 'canvas 'create {this->canvas_width / this->canvas_scale, this->canvas_height / this->canvas_scale, 1} {temp_canvas})
-	(vpif {this->canvas_scale = 1})
-		(call 'canvas 'as_argb {temp_canvas, this})
-	(else)
-		(call 'canvas 'resize {temp_canvas, this})
-		(call 'canvas 'as_argb {temp_canvas, temp_canvas})
-	(endif)
-	(host-call 'host 'sdl_create_rgb_surface_from {temp_canvas->canvas_array->array_begin,
-		temp_canvas->canvas_width, temp_canvas->canvas_height, 32,
-		temp_canvas->canvas_stride, 0xff0000, 0xff00, 0xff, 0xff000000} {surface})
-	(host-call 'host 'sdl_create_texture_from_surface (cat {@} (f-path 'gui 'statics) {.gui_statics_renderer, surface})
-		{this->canvas_texture})
-	(host-call 'host 'sdl_set_texture_blend_mode {this->canvas_texture, SDL_BLENDMODE_BLEND})
-	(host-call 'host 'sdl_free_surface {surface})
-	(call 'canvas 'deref {temp_canvas})
-
-	(assign {old_stack} '(rsp))
-	(pop-scope-syms)
-	(return))
-(t
 	(ptr 'this 'surface 'temp_canvas 'old_stack)
 	(uint 'blend_mode)
 
@@ -361,7 +325,7 @@
 
 	(assign {old_stack} '(rsp))
 	(pop-scope-syms)
-	(return)))
+	(return)
 
 (def-func-end)
 

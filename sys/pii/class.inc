@@ -24,6 +24,7 @@
 (dec-method 'sdl_set_texture_blend_mode nil 'virtual (abi-args 2) '(r0))
 (dec-method 'sdl_set_texture_color_mod nil 'virtual (abi-args 4) '(r0))
 (dec-method 'sdl_create_rgb_surface_from nil 'virtual (abi-args 9) '(r0))
+(dec-method 'sdl_compose_custom_blend_mode nil 'virtual (abi-args 6) '(r0))
 
 (dec-method 'ttf_init nil 'virtual (abi-args 0) '(r0))
 (dec-method 'ttf_quit nil 'virtual (abi-args 0) '(r0))
@@ -48,8 +49,6 @@
 (dec-method 'gettime nil 'virtual '() '(r0))
 (dec-method 'open_shared nil 'virtual (abi-args 2) '(r0))
 (dec-method 'close_shared nil 'virtual (abi-args 2) '(r0))
-
-(dec-method 'sdl_compose_custom_blend_mode nil 'virtual (abi-args 6) '(r0))
 
 (defcfun host-call-table (_1 _2 _5 &optional _3 _4 _6)
 	;_1 = class name
