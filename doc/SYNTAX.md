@@ -640,13 +640,13 @@
 
 (pad form width [str]) -> str
 
-## parent
-
-(parent env)
-
 ## partition
 
 (partition lambda list start end)
+
+## penv
+
+(penv env)
 
 ## pii-read-char
 

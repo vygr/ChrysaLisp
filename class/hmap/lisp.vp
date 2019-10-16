@@ -380,7 +380,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r0 "(parent env)" error_msg_wrong_types r1))
+	(jump 'lisp 'repl_error '(r0 "(penv env)" error_msg_wrong_types r1))
 	(signature '(hmap)))
 
 (def-func-end)
