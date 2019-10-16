@@ -136,6 +136,7 @@ pop
 prin
 print
 progn
+penv
 push
 quasi-quote
 quote

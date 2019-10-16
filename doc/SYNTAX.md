@@ -640,6 +640,10 @@
 
 (pad form width [str]) -> str
 
+## parent
+
+(parent env)
+
 ## partition
 
 (partition lambda list start end)
@@ -991,6 +995,10 @@
 ## view-change
 
 (view-change view x y w h)
+
+## view-change-dirty
+
+(view-change-dirty view x y w h)
 
 ## view-dirty
 

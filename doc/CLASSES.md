@@ -1880,18 +1880,6 @@ trashes
 all but r0
 ```
 
-### hmap::get_parent -> class/hmap/get_parent
-
-```lisp
-inputs
-r0 = hmap object (ptr)
-outputs
-r0 = hmap object (ptr)
-r1 = 0, else hmap parent object (ptr)
-trashes
-r1
-```
-
 ### hmap::set_parent -> class/hmap/set_parent
 
 ```lisp
@@ -2004,6 +1992,19 @@ trashes
 all but r0
 ```
 
+### hmap::lisp_parent -> class/hmap/lisp_parent
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+all but r0
+```
+
 ## host
 
 Super Class: null
@@ -2054,6 +2055,8 @@ Super Class: null
 
 ### host::sdl_create_rgb_surface_from -> nil
 
+### host::sdl_compose_custom_blend_mode -> nil
+
 ### host::ttf_init -> nil
 
 ### host::ttf_quit -> nil
@@ -2097,8 +2100,6 @@ Super Class: null
 ### host::open_shared -> nil
 
 ### host::close_shared -> nil
-
-### host::sdl_compose_custom_blend_mode -> nil
 
 ## hset
 
@@ -7758,6 +7759,21 @@ trashes
 all but r0
 ```
 
+### view::change_dirty -> gui/view/change_dirty
+
+```lisp
+inputs
+r0 = view object (ptr)
+r7 = new x (pixels)
+r8 = new y (pixels)
+r9 = new w (pixels)
+r10 = new h (pixels)
+outputs
+r0 = view object (ptr)
+trashes
+all but r0
+```
+
 ### view::hit_tree -> gui/view/hit_tree
 
 ```lisp
@@ -8024,6 +8040,19 @@ all but r0
 ```
 
 ### view::lisp_change -> gui/view/lisp_change
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+all but r0
+```
+
+### view::lisp_change_dirty -> gui/view/lisp_change_dirty
 
 ```lisp
 inputs
