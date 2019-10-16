@@ -49,8 +49,7 @@
 (dec-method 'lisp_fpoly 'gui/canvas/lisp_fpoly 'static '(r0 r1) '(r0 r1))
 
 (def-struct 'canvas 'view)
-	(ulong 'texture)
-	(ptr 'array 'edges)
+	(ptr 'array 'edges 'texture)
 	(pptr 'edges_start)
 	(pubyte 'coverage)
 	(ptr 'stream 'bufp)

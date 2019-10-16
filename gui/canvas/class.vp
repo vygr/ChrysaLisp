@@ -6,6 +6,7 @@
 (include 'class/stream_str/class.inc)
 (include 'class/pair/class.inc)
 (include 'gui/ctx/class.inc)
+(include 'gui/texture/class.inc)
 (include 'gui/gui/class.inc)
 
 (gen-vtable 'canvas)
@@ -92,13 +93,16 @@
 		(vp-cpy-cr argb_black r1)
 		(assign '(r1 (r0 canvas_array)) '((r0 canvas_color) r1))
 		(assign '((r1 canvas_width) (r1 canvas_height) (r1 canvas_scale)
-			(r1 canvas_stride) (r1 canvas_array) (r1 canvas_edges))
-			'(r1 r2 r3 r4 r5 r6))
-		(assign '(r1 r2 r1 r2 r3 r4 r5 r6)
+			(r1 canvas_stride) (r1 canvas_array) (r1 canvas_edges) (r1 canvas_texture))
+			'(r1 r2 r3 r4 r5 r6 r7))
+		(assign '(r1 r2 r1 r2 r3 r4 r5 r6 r7)
 			'((r0 canvas_width) (r0 canvas_height) (r0 canvas_cx1) (r0 canvas_cy1)
-			(r0 canvas_scale) (r0 canvas_stride) (r0 canvas_array) (r0 canvas_edges)))
+			(r0 canvas_scale) (r0 canvas_stride) (r0 canvas_array) (r0 canvas_edges) (r0 canvas_texture)))
 		(class/obj/ref r5 r1)
 		(class/obj/ref r6 r1)
+		(vpif '(r7 /= 0))
+			(class/obj/ref r7 r1)
+		(endif)
 		(call 'canvas 'pref_size '(r0) '(r0 (r0 view_w) (r0 view_h)))
 	(endif)
 
@@ -107,7 +111,7 @@
 
 (def-func-end)
 
-(def-method 'canvas 'deinit 16)
+(def-method 'canvas 'deinit)
 	;inputs
 	;r0 = canvas object (ptr)
 	;outputs
@@ -116,48 +120,30 @@
 	;all but r0
 
 	(vp-push r0)
+
+	;free any flm stream
 	(call 'stream 'deref_if '((r0 canvas_stream)))
-	(assign '((rsp 0)) '(r0))
-	(call 'sys_task 'callback '(r0 ($ callback)))
-	(vp-pop r0)
-	(s-jump 'canvas 'deinit '(r0))
-
-(vp-label 'callback)
-	;inputs
-	;r0 = user data
-
-	(def-struct 'local)
-		(ptr 'this 'old_stack)
-	(def-struct-end)
-
-	(vp-cpy-rr rsp r1)
-	(vp-alloc local_size)
-	(vp-and-cr -16 rsp)
-	(entry '((rsp local_this) (rsp local_old_stack)))
 
 	;free edge arrays
-	(assign '((rsp local_this)) '(r0))
+	(assign '((rsp 0)) '(r0))
 	(call 'array 'deref '((r0 canvas_edges)))
-	(assign '((rsp local_this)) '(r0))
+	(assign '((rsp 0)) '(r0))
 	(call 'sys_mem 'free '((r0 canvas_edges_start)))
 
 	;free alias buffers
-	(assign '((rsp local_this)) '(r0))
+	(assign '((rsp 0)) '(r0))
 	(call 'sys_mem 'free '((r0 canvas_coverage)))
 
-	;free any pixel buffer
-	(assign '((rsp local_this)) '(r0))
+	;free pixel buffer
+	(assign '((rsp 0)) '(r0))
 	(call 'array 'deref '((r0 canvas_array)))
 
-	;free any sdl texture
-	(assign '((rsp local_this)) '(r0))
-	(assign '((r0 canvas_texture)) '(r1))
-	(vpif '(r1 /= 0))
-		(host-call 'host 'sdl_destroy_texture '(r1))
-	(endif)
+	;free any texture
+	(assign '((rsp 0)) '(r0))
+	(call 'texture 'deref_if '((r0 canvas_texture)))
 
-	(vp-cpy-ir rsp local_old_stack rsp)
-	(vp-ret)
+	(vp-pop r0)
+	(s-jump 'canvas 'deinit '(r0))
 
 (def-func-end)
 
@@ -203,6 +189,7 @@
 			(call 'canvas 'load_cpm {stream} {this})
 			(call 'stream_str 'deref {stream})
 			(breakifnot {this})
+			(call 'canvas 'swap {this} {this})
 			(call 'pair 'create {sym, this} {iter})
 			(call 'vector 'push_back {bucket, iter})
 			(call 'canvas 'create_shared {this} {this})
@@ -218,15 +205,13 @@
 		(breakifnot {this})
 		(call 'stream_str 'create {this} {stream})
 		(call 'canvas 'load_cpm {stream} {this})
+		(call 'canvas 'swap {this} {this})
 		(vpif {this && (flags & load_flag_film)})
 			(assign {stream} {this->canvas_stream})
 			(assign {stream->stream_bufp} {this->canvas_bufp})
 		(else)
 			(call 'stream_str 'deref {stream})
 		(endif)
-	(endif)
-	(vpif {this})
-		(call 'canvas 'swap {this} {this})
 	(endif)
 
 	(exit 'canvas 'load {this})
@@ -259,8 +244,8 @@
 
 	;blit any texture
 	(vpif {this->canvas_texture})
-		(call 'ctx 'blit {ctx, this->canvas_texture, 0xffffff, 0, 0,
-			this->canvas_width / this->canvas_scale, this->canvas_height / this->canvas_scale})
+		(call 'ctx 'blit {ctx, this->canvas_texture->texture_handle, 0xffffff, 0, 0,
+			this->canvas_texture->texture_width, this->canvas_texture->texture_height})
 	(endif)
 
 	(exit 'canvas 'draw {this})
@@ -291,6 +276,7 @@
 	;r0 = user data
 
 	(ptr 'this 'surface 'temp_canvas 'old_stack)
+	(ulong 'tex_id)
 	(uint 'blend_mode)
 
 	(vp-cpy-rr rsp r1)
@@ -299,10 +285,7 @@
 	(entry {this, old_stack})
 
 	;free any sdl texture
-	(vpif {this->canvas_texture})
-		(host-call 'host 'sdl_destroy_texture {this->canvas_texture})
-		(assign {0} {this->canvas_texture})
-	(endif)
+	(call 'texture 'deref_if {this->canvas_texture})
 
 	;create SDL surface from pixel buffer, convert to texture
 	(vpif {this->canvas_scale = 1})
@@ -315,12 +298,13 @@
 		temp_canvas->canvas_width, temp_canvas->canvas_height, 32,
 		temp_canvas->canvas_stride, 0xff0000, 0xff00, 0xff, 0xff000000} {surface})
 	(host-call 'host 'sdl_create_texture_from_surface (cat {@} (f-path 'gui 'statics) {.gui_statics_renderer, surface})
-		{this->canvas_texture})
+		{tex_id})
 	(host-call 'host 'sdl_compose_custom_blend_mode
 		{SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA, SDL_BLENDOPERATION_ADD,
 		SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA, SDL_BLENDOPERATION_ADD} {blend_mode})
-	(host-call 'host 'sdl_set_texture_blend_mode {this->canvas_texture, blend_mode})
+	(host-call 'host 'sdl_set_texture_blend_mode {tex_id, blend_mode})
 	(host-call 'host 'sdl_free_surface {surface})
+	(call 'texture 'create {tex_id, temp_canvas->canvas_width, temp_canvas->canvas_height} {this->canvas_texture})
 	(call 'canvas 'deref {temp_canvas})
 
 	(assign {old_stack} '(rsp))
