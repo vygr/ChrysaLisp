@@ -332,6 +332,39 @@
 
 (def-func-end)
 
+(def-method 'view 'lisp_change_dirty)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
+
+	(entry 'view 'lisp_change_dirty '(r0 r1))
+
+(errorcases
+	(call 'lisp 'env_args_type '(r1 ($ sig) 5) '(r2))
+	(gotoif '(r2 = 0) 'error))
+
+	(vp-push r0)
+	(defq in (method-input 'view 'change_dirty))
+	(class/vector/bind_args r1 in '(view num num num num))
+	(call 'view 'change_dirty in '(r0))
+	(call 'obj 'ref '(r0) '(r1))
+	(vp-pop r0)
+
+	(exit 'view 'lisp_change_dirty '(r0 r1))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r0 "(view-change-dirty view x y w h)" error_msg_wrong_types r1))
+	(signature '(view num num num num)))
+
+(def-func-end)
+
 (def-method 'view 'lisp_set_bounds)
 	;inputs
 	;r0 = lisp object (ptr)

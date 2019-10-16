@@ -43,13 +43,13 @@
 				(setq id nil))
 			((= id event_win_min)
 				;min button
-				(bind '(x y _ _) (view-get-bounds (view-dirty window)))
+				(bind '(x y _ _) (view-get-bounds window))
 				(bind '(w h) (view-pref-size window))
-				(view-dirty-all (view-change window x y w h)))
+				(view-change-dirty window x y w h))
 			((= id event_win_max)
 				;max button
-				(bind '(x y _ _) (view-get-bounds (view-dirty window)))
+				(bind '(x y _ _) (view-get-bounds window))
 				(bind '(w h) (view-pref-size window))
-				(view-dirty-all (view-change window x y (fmul w 1.5) (fmul h 1.5))))
+				(view-change-dirty window x y (fmul w 1.5) (fmul h 1.5)))
 			(t (view-event window msg))))
 	(task-sleep 40000))

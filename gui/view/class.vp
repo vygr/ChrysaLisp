@@ -320,6 +320,46 @@
 
 (def-func-end)
 
+(def-method 'view 'change_dirty)
+	;inputs
+	;r0 = view object (ptr)
+	;r7 = new x (pixels)
+	;r8 = new y (pixels)
+	;r9 = new w (pixels)
+	;r10 = new h (pixels)
+	;outputs
+	;r0 = view object (ptr)
+	;trashes
+	;all but r0
+
+	(def-struct 'local)
+		(int 'new_x 'new_y 'new_w 'new_h 'old_x 'old_y 'old_w 'old_h)
+	(def-struct-end)
+
+	;save inputs
+	(vp-alloc local_size)
+	(entry 'view 'change_dirty '(r0 (rsp local_new_x) (rsp local_new_y) (rsp local_new_w) (rsp local_new_h)))
+
+	;dirty old area
+	(call 'view 'dirty '(r0) '(r0))
+
+	;save old bounds
+	(call 'view 'get_bounds '(r0) '(r0 (rsp local_old_x) (rsp local_old_y) (rsp local_old_w) (rsp local_old_h)))
+
+	;change window size
+	(call 'view 'change '(r0 (rsp local_new_x) (rsp local_new_y) (rsp local_new_w) (rsp local_new_h)) '(r0))
+
+	;translate old dirty area and dirty all
+	(assign '((rsp local_old_x) (rsp local_old_y) (r0 view_x) (r0 view_y)) '(r7 r8 r9 r10))
+	(vp-free local_size)
+	(vp-sub-rr r9 r7)
+	(vp-sub-rr r10 r8)
+	(vp-lea-i r0 view_dirty_region r1)
+	(call 'region 'translate '(r1 r7 r8))
+	(jump 'view 'set_flags '(r0 view_flag_dirty_all view_flag_dirty_all))
+
+(def-func-end)
+
 (def-method 'view 'dirty)
 	;inputs
 	;r0 = view object (ptr)

@@ -68,9 +68,7 @@
 	;all but r0
 
 	(def-struct 'local)
-		(ptr 'this)
-		(long 'window 'event)
-		(int 'old_x 'old_y)
+		(ptr 'this 'window 'event)
 	(def-struct-end)
 
 	;save old window bounds
@@ -83,11 +81,7 @@
 		(assign '((r0 hmap_parent)) '(r0))
 		(assign '((r0 obj_vtable)) '(r2))
 	(loop-until '(r2 = r1))
-	(assign '(r0 (r0 view_x) (r0 view_y)) '((rsp local_window) r7 r8))
-	(assign '(r7 r8) '((rsp local_old_x) (rsp local_old_y)))
-
-	;dirty old area
-	(call 'window 'dirty '(r0))
+	(assign '(r0) '((rsp local_window)))
 
 	;get new window position
 	(assign '((rsp local_this)) '(r0))
@@ -99,19 +93,9 @@
 	(vp-mul-cr -1 r7)
 	(vp-mul-cr -1 r8)
 
-	;change window position
+	;change window position and dirty
 	(assign '((rsp local_window)) '(r0))
-	(assign '(r7 r8) '((r0 view_x) (r0 view_y)))
-
-	;translate old dirty area and dirty all
-	(assign '((rsp local_old_x) (rsp local_old_y)) '(r9 r10))
-	(vp-sub-rr r9 r7)
-	(vp-sub-rr r10 r8)
-	(vp-mul-cr -1 r7)
-	(vp-mul-cr -1 r8)
-	(vp-lea-i r0 view_dirty_region r1)
-	(call 'region 'translate '(r1 r7 r8))
-	(call 'window 'set_flags '((rsp local_window) view_flag_dirty_all view_flag_dirty_all))
+	(call 'view 'change_dirty '(r0 r7 r8 (r0 view_w) (r0 view_h)))
 
 	(exit 'title 'mouse_move '((rsp local_this)))
 	(vp-free local_size)

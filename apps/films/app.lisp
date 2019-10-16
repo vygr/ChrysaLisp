@@ -24,7 +24,7 @@
 	(view-layout (view-add-back image_flow frame))
 	(bind '(x y _ _) (view-get-bounds (window-set-title window (elem index images))))
 	(bind '(w h) (view-pref-size window))
-	(view-dirty-all (view-change (view-dirty window) x y w h)))
+	(view-change-dirty window x y w h))
 
 (while id
 	(task-sleep 40000)

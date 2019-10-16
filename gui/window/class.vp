@@ -116,11 +116,11 @@
 
 	;dirty my area on parent
 	(vp-push r0)
-	(call 'window 'get_parent '(r0) '(_ r1))
-	(vpif '(r1 /= 0))
-		(call 'view 'set_flags '(r1 view_flag_dirty_all view_flag_dirty_all))
-		(assign '((rsp 0)) '(r0))
+	(assign '((r0 hmap_parent)) '(r0))
+	(vpif '(r0 /= 0))
+		(call 'view 'set_flags '(r0 view_flag_dirty_all view_flag_dirty_all))
 	(endif)
+	(assign '((rsp 0)) '(r0))
 	(call 'array 'deref '((r0 window_layout_targets)))
 	(vp-pop r0)
 	(s-jump 'window 'deinit '(r0))
@@ -256,33 +256,24 @@
 	;trashes
 	;all but r0
 
-	(def-struct 'local)
-		(ptr 'this 'event)
-		(int 'old_x 'old_y)
-	(def-struct-end)
-
-	;save inputs
-	(vp-alloc local_size)
-	(entry 'window 'mouse_move '(r0 (rsp local_event)))
-	(assign '(r0) '((rsp local_this)))
-
-	;dirty old area
-	(call 'window 'dirty '(r0))
+	(entry 'window 'mouse_move '(r0 r1))
 
 	;get smallest size
+	(vp-push r1)
 	(call 'window 'pref_size '(r0) '(r0 r9 r10))
 	(vp-cpy-rr r9 r11)
 	(vp-cpy-rr r10 r12)
 
 	;save old bounds
-	(call 'window 'get_bounds '(r0) '(r0 (rsp local_old_x) (rsp local_old_y) r9 r10))
+	(call 'window 'get_bounds '(r0) '(r0 r7 r8 r9 r10))
 
 	;get abolute cords of corners
 	(vp-add-rr r7 r9)
 	(vp-add-rr r8 r10)
 
 	;drag edges
-	(assign '((rsp local_event) (r0 window_drag_mode)) '(r1 r14))
+	(vp-pop r1)
+	(assign '((r0 window_drag_mode)) '(r14))
 	(vp-and-cr window_drag_left r14)
 	(vpif '(r14 /= 0))
 		;drag left edge
@@ -337,19 +328,8 @@
 	(vp-sub-rr r7 r9)
 	(vp-sub-rr r8 r10)
 
-	;change window size
-	(call 'window 'change '(r0 r7 r8 r9 r10))
-
-	;translate old dirty area and dirty all
-	(assign '((rsp local_old_x) (rsp local_old_y) (r0 view_x) (r0 view_y)) '(r7 r8 r9 r10))
-	(vp-sub-rr r9 r7)
-	(vp-sub-rr r10 r8)
-	(vp-lea-i r0 view_dirty_region r1)
-	(call 'region 'translate '(r1 r7 r8))
-
-	(call 'window 'set_flags '((rsp local_this) view_flag_dirty_all view_flag_dirty_all))
-	(vp-free local_size)
-	(vp-ret)
+	;change window size and dirty
+	(jump 'window 'change_dirty '(r0 r7 r8 r9 r10))
 
 (def-func-end)
 

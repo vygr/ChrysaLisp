@@ -5,6 +5,7 @@
 (ffi view-add-front "gui/view/lisp_add_front" 0)
 (ffi view-add-opaque "gui/view/lisp_add_opaque" 0)
 (ffi view-change "gui/view/lisp_change" 0)
+(ffi view-change-dirty "gui/view/lisp_change_dirty" 0)
 (ffi view-dirty "gui/view/lisp_dirty" 0)
 (ffi view-event "gui/view/lisp_event" 0)
 (ffi view-find-id "gui/view/lisp_find_id" 0)
