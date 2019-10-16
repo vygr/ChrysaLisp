@@ -3,7 +3,7 @@
 (import 'apps/math.inc)
 
 (structure 'work 0
-	(long 'parent_id 'width 'height 'y))
+	(long 'pid 'width 'height 'y))
 
 (structure 'reply 0
 	(long 'child_id)
@@ -99,7 +99,7 @@
 						r (fmul r ref_coef)))
 			(vec-clamp color 0.0 0.999))))
 
-(defun-bind line (parent w h y)
+(defun-bind line (pid w h y)
 	(defq w2 (/ w 2) h2 (/ h 2) x -1
 		reply (cat (char (task-mailbox) long_size) (char y int_size)))
 	(while (< (setq x (inc x)) w)
@@ -113,8 +113,8 @@
 			(<< (logand r 0xff00) 8) 0xff000000) int_size)))
 		;while does a yield call !
 		(while nil))
-	(mail-send reply parent))
+	(mail-send reply pid))
 
 ;read work request or exit
-(while (/= 0 (defq parent (get-long (defq msg (mail-mymail)) work_parent_id)))
-	(line parent (get-long msg work_width) (get-long msg work_height) (get-long msg work_y)))
+(while (/= 0 (defq pid (get-long (defq msg (mail-mymail)) work_pid)))
+	(line pid (get-long msg work_width) (get-long msg work_height) (get-long msg work_y)))

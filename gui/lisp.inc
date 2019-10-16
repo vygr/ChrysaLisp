@@ -7,12 +7,13 @@
 	window_flag_close window_flag_min window_flag_max window_flag_status
 	scroll_flag_vertical scroll_flag_horizontal view_flag_solid view_flag_opaque
 	view_flag_dirty_all ev_msg_target_id ev_msg_action_source_id ev_msg_type
-	ev_type_key ev_msg_key_keycode ev_msg_key_key argb_black argb_white argb_red
-	argb_green argb_blue argb_yellow argb_cyan argb_magenta argb_grey1 argb_grey2
-	argb_grey3 argb_grey4 argb_grey5 argb_grey6 argb_grey7 argb_grey8 argb_grey9
-	argb_grey10 argb_grey11 argb_grey12 argb_grey13 argb_grey14 argb_grey15
-	window_col title_col toolbar_col toolbar2_col slider_col status_col join_miter
-	join_bevel join_round cap_butt cap_square cap_tri cap_arrow cap_round))
+	ev_type_mouse ev_msg_mouse_buttons ev_type_key ev_msg_key_keycode
+	ev_msg_key_key argb_black argb_white argb_red argb_green argb_blue argb_yellow
+	argb_cyan argb_magenta argb_grey1 argb_grey2 argb_grey3 argb_grey4 argb_grey5
+	argb_grey6 argb_grey7 argb_grey8 argb_grey9 argb_grey10 argb_grey11
+	argb_grey12 argb_grey13 argb_grey14 argb_grey15 window_col title_col
+	toolbar_col toolbar2_col slider_col status_col join_miter join_bevel
+	join_round cap_butt cap_square cap_tri cap_arrow cap_round))
 	(within-compile-env (lambda ()
 		(include 'gui/gui/class.inc)
 		(include 'gui/ctx/class.inc)

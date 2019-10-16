@@ -12,6 +12,7 @@
 	"apps/docs/app.lisp"
 	"apps/netmon/app.lisp"
 	"apps/boing/app.lisp"
+	"apps/freeball/app.lisp"
 	"apps/images/app.lisp"
 	"apps/films/app.lisp"
 	"apps/canvas/app.lisp"

@@ -86,7 +86,8 @@
 	(assign '(r0) '((rsp local_this)))
 
 	(call 'hmap 'create '((r0 hset_key_callback) r1) '((rsp local_obj)))
-	(call 'hmap 'get_parent '((rsp local_this)) '(_ r0))
+	(assign '((rsp local_this)) '(r0))
+	(assign '((r0 hmap_parent)) '(r0))
 	(call 'hmap 'ref_if '(r0) '(r0))
 	(call 'hmap 'set_parent '((rsp local_obj) r0))
 	(call 'hmap 'for_each '((rsp local_this) ($ callback) rsp))
@@ -244,7 +245,7 @@
 	(loop-start)
 		(call 'hmap 'find '(r0 r1) '(r0 r1 r2))
 		(breakif '(r1 /= 0))
-		(call 'hmap 'get_parent '(r0) '(r0 r1))
+		(assign '((r0 hmap_parent)) '(r1))
 		(breakif '(r1 = 0))
 		(assign '(r1 (rsp local_key)) '(r0 r1))
 	(loop-end)

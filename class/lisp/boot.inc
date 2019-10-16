@@ -63,6 +63,7 @@
 (ffi def? "class/hmap/lisp_defined" 0)
 (ffi undef "class/hmap/lisp_undef" 0)
 (ffi env "class/hmap/lisp_env" 0)
+(ffi penv "class/hmap/lisp_parent" 0)
 
 (ffi pipe "class/pipe/lisp_create" 0)
 (ffi pipe-read "class/pipe/lisp_read" 0)

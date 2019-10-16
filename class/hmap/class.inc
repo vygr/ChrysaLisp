@@ -10,7 +10,6 @@
 (dec-method 'search 'class/hmap/search 'static '(r0 r1) '(r0 r1 r2))
 (dec-method 'set 'class/hmap/set 'static '(r0 r1 r2) '(r0 r1))
 (dec-method 'get 'class/hmap/get 'static '(r0 r1) '(r0 r1))
-(dec-method 'get_parent 'class/hmap/get_parent 'static '(r0) '(r0 r1))
 (dec-method 'set_parent 'class/hmap/set_parent 'static '(r0 r1) '(r0))
 
 (dec-method 'deinit 'class/hmap/deinit 'override)
@@ -22,21 +21,8 @@
 (dec-method 'lisp_setq 'class/hmap/lisp_setq 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_defined 'class/hmap/lisp_defined 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_undef 'class/hmap/lisp_undef 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_parent 'class/hmap/lisp_parent 'static '(r0 r1) '(r0 r1))
 
 (def-struct 'hmap 'hset)
 	(ptr 'parent)
 (def-struct-end)
-
-;;;;;;;;;;;;;;;;
-; inline methods
-;;;;;;;;;;;;;;;;
-
-(defcfun class/hmap/get_parent ()
-	;inputs
-	;r0 = hmap object (ptr)
-	;outputs
-	;r0 = hmap object (ptr)
-	;r1 = 0, else hmap parent object (ptr)
-	;trashes
-	;r1
-	(assign '((r0 hmap_parent)) '(r1)))

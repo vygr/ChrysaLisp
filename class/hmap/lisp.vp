@@ -351,3 +351,36 @@
 	(jump 'lisp 'repl_error '(r0 "(undef env var [var] ...)" error_msg_not_a_symbol r3)))
 
 (def-func-end)
+
+(def-method 'hmap 'lisp_parent)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
+
+	(entry 'hmap 'lisp_parent '(r0 r1))
+
+(errorcases
+	(call 'lisp 'env_args_type '(r1 ($ sig) 1) '(r2))
+	(gotoif '(r2 = 0) 'error))
+
+	(class/array/bind_args r1 '(r1))
+	(assign '((r1 hmap_parent)) '(r1))
+	(vpif '(r1 = 0))
+		(assign '((r0 lisp_sym_nil)) '(r1))
+	(endif)
+	(class/obj/ref r1 r2)
+
+	(exit 'hmap 'lisp_parent '(r0 r1))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r0 "(parent env)" error_msg_wrong_types r1))
+	(signature '(hmap)))
+
+(def-func-end)
