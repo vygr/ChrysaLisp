@@ -32,3 +32,5 @@
 			(mail-send "" child_id)
 			(setq id nil))
 		(t (view-event window msg))))
+
+(view-hide window)

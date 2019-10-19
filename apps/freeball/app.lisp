@@ -37,5 +37,4 @@
 			(setq id nil)))
 	(task-sleep 40000))
 
-(setq view nil)
-(view-dirty-all screen)
+(view-hide view)

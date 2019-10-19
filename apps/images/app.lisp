@@ -39,3 +39,5 @@
 		((= id event_win_prev)
 			(win-refresh (% (+ (dec index) (length images)) (length images))))
 		(t (view-event window msg))))
+
+(view-hide window)

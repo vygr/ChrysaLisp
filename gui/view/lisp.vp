@@ -165,6 +165,37 @@
 
 (def-func-end)
 
+(def-method 'view 'lisp_hide)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
+
+	(entry 'view 'lisp_hide '(r0 r1))
+
+(errorcases
+	(call 'lisp 'env_args_type '(r1 ($ sig) 1) '(r2))
+	(gotoif '(r2 = 0) 'error))
+
+	(vp-push r0)
+	(class/array/bind_args r1 '(r0))
+	(call 'view 'hide '(r0) '(r1))
+	(vp-pop r0)
+
+	(exit 'view 'lisp_hide '(r0 r1))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r0 "(view-hide view)" error_msg_wrong_types r1))
+	(signature '(view)))
+
+(def-func-end)
+
 (def-method 'view 'lisp_add_child)
 	;inputs
 	;r0 = lisp object (ptr)
@@ -182,10 +213,10 @@
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
-	(assign '((r1 array_begin)) '(r4))
-	(call 'obj 'ref '((r4 ptr_size)) '(r3))
-	(call 'obj 'ref '((r4 0)) '(r0))
-	(call 'view 'add_child '(r0 r3) '(r1))
+	(class/array/bind_args r1 '(r0 r1))
+	(class/obj/ref r0 r2)
+	(class/obj/ref r1 r2)
+	(call 'view 'add_child '(r0 r1) '(r1))
 	(vp-pop r0)
 
 	(exit 'view 'lisp_add_child '(r0 r1))
@@ -215,10 +246,10 @@
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
-	(assign '((r1 array_begin)) '(r4))
-	(call 'obj 'ref '((r4 ptr_size)) '(r3))
-	(call 'obj 'ref '((r4 0)) '(r0))
-	(call 'view 'add_front '(r0 r3) '(r1))
+	(class/array/bind_args r1 '(r0 r1))
+	(class/obj/ref r0 r2)
+	(class/obj/ref r1 r2)
+	(call 'view 'add_front '(r0 r1) '(r1))
 	(vp-pop r0)
 
 	(exit 'view 'lisp_add_front '(r0 r1))
@@ -248,10 +279,10 @@
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
-	(assign '((r1 array_begin)) '(r4))
-	(call 'obj 'ref '((r4 ptr_size)) '(r3))
-	(call 'obj 'ref '((r4 0)) '(r0))
-	(call 'view 'add_back '(r0 r3) '(r1))
+	(class/array/bind_args r1 '(r0 r1))
+	(class/obj/ref r0 r2)
+	(class/obj/ref r1 r2)
+	(call 'view 'add_back '(r0 r1) '(r1))
 	(vp-pop r0)
 
 	(exit 'view 'lisp_add_back '(r0 r1))

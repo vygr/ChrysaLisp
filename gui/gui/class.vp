@@ -5,6 +5,7 @@
 (include 'gui/gui/class.inc)
 (include 'gui/label/class.inc)
 (include 'class/str/class.inc)
+(include 'class/vector/class.inc)
 (include 'gui/region/class.inc)
 (include 'gui/ctx/class.inc)
 (include 'gui/backdrop/class.inc)
@@ -41,6 +42,11 @@
 	(vp-xor-rr r0 r0)
 	(assign '(r0 r0 r0 r0)
 		'((rsp local_mouse_id) (rsp local_key_id) (rsp local_mouse_buttons) (rsp local_quit)))
+
+	;temp objects
+	(call 'vector 'create nil '(r0))
+	(assign '((rsp local_statics)) '(r1))
+	(assign '(r0) '((r1 gui_statics_temps)))
 
 	;allocate background view for screen
 	(call 'backdrop 'create nil '(r0))
@@ -108,6 +114,7 @@
 	(vpif {user->local_statics->gui_statics_dirty_flag})
 		;update the screen and refresh
 		(call 'gui 'update {user->local_statics->gui_statics_screen})
+		(call 'vector 'clear {user->local_statics->gui_statics_temps})
 		(host-call 'host 'sdl_render_present {user->local_statics->gui_statics_renderer})
 		(assign {0} {user->local_statics->gui_statics_dirty_flag})
 	(endif)

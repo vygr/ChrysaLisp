@@ -61,3 +61,5 @@
 				(vdu-print vdu "----------------------") (vdu-print vdu (ascii-char 10))
 				(vdu-print vdu (ascii-char 10))))
 		(t (view-event window msg))))
+
+(view-hide window)

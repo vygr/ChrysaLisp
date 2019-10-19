@@ -15,4 +15,5 @@
 (ffi view-pref-size "gui/view/lisp_pref_size" 0)
 (ffi view-set-bounds "gui/view/lisp_set_bounds" 0)
 (ffi view-sub "gui/view/lisp_sub" 0)
+(ffi view-hide "gui/view/lisp_hide" 0)
 (ffi view-sub-opaque "gui/view/lisp_sub_opaque" 0)

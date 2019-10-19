@@ -52,7 +52,8 @@
 		;send out multi-cast sample command
 		(while (/= cpu_count 0)
 			(setq cpu_count (dec cpu_count))
-			(mail-send sample_msg (elem cpu_count ids))))
+			(mail-send sample_msg (elem cpu_count ids)))
+		(task-sleep 1000))
 	(cond
 		((= (setq id (get-long (defq msg (mail-mymail)) ev_msg_target_id)) event_win_sample)
 			;reply from cpu
@@ -82,7 +83,7 @@
 		(t (view-event window msg))))
 
 ;wait for outstanding replies
-(setq window nil)
+(view-hide window)
 (while (/= cpu_count cpu_total)
 	(if (= (get-long (mail-mymail) ev_msg_target_id) event_win_sample)
 		(setq cpu_count (inc cpu_count))))

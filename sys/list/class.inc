@@ -143,6 +143,22 @@
 	(ln-set-pred _2 _1)
 	(ln-set-succ _1 _2))
 
+(defcfun ln-replace-node (_1 _2 _3)
+	;inputs
+	;_1 = list node
+	;_2 = new list node
+	;_3 = temp
+	;outputs
+	;_1 = list node
+	;_2 = new list node
+
+	(ln-get-succ _1 0 _3)
+	(ln-set-succ _2 _3)
+	(ln-set-pred _3 _2)
+	(ln-get-pred _1 0 _3)
+	(ln-set-pred _2 _3)
+	(ln-set-succ _3 _2))
+
 (defcfun ln-is-first (_1 _2 _3)
 	;inputs
 	;_1 = list node

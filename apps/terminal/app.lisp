@@ -107,3 +107,5 @@
 		(t
 			;string from pipe
 			(vdu-print vdu data))))
+
+(view-hide window)

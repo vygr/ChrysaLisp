@@ -205,3 +205,5 @@
 			(setq mode (- id event_win_mode_normal))
 			(win-refresh index))
 		(t (view-event window msg))))
+
+(view-hide window)

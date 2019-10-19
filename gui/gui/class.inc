@@ -24,7 +24,7 @@
 
 (def-struct 'gui_statics)
 	(struct 'rect_heap 'hp_heap)
-	(ptr 'window 'screen 'old_region)
+	(ptr 'window 'screen 'old_region 'temps)
 	(ulong 'renderer 'next_id)
 	(uint 'dirty_flag)
 (def-struct-end)

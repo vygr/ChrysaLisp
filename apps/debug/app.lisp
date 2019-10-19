@@ -135,4 +135,6 @@
 			(reset))
 		;otherwise
 		(t (view-event window msg))))
+
+(view-hide window)
 )

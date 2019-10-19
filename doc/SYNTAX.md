@@ -1016,6 +1016,10 @@
 
 (view-get-bounds view)
 
+## view-hide
+
+(view-hide view)
+
 ## view-layout
 
 (view-layout view)

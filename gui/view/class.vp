@@ -3,6 +3,7 @@
 (include 'gui/ctx/class.inc)
 (include 'gui/region/class.inc)
 (include 'gui/view/class.inc)
+(include 'class/vector/class.inc)
 
 (gen-create 'view)
 (gen-vtable 'view)
@@ -819,6 +820,8 @@
 	;r8 = y (pixels)
 	;r9 = width (pixels)
 	;r10 = height (pixels)
+	;trashes
+	;none
 
 	(assign '(r7 r8 r9 r10) '((r0 view_x) (r0 view_y) (r0 view_w) (r0 view_h)))
 	(vp-ret)
@@ -843,6 +846,45 @@
 		;remove from parent list
 		(vp-lea-i r0 view_node r2)
 		(ln-remove-node r2 r1)
+	(endif)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'view 'hide)
+	;inputs
+	;r0 = view object (ptr)
+	;outputs
+	;r0 = view object (ptr)
+	;trashes
+	;all but r0
+
+	;test parent
+	(assign '((r0 hmap_parent)) '(r1))
+	(vpif '(r1 /= 0))
+		;add dirty
+		(vp-push r0)
+		(call 'view 'dirty '(r0))
+
+		;temp view for update
+		(call 'view 'create nil '(r1))
+		(f-bind 'gui 'statics r0)
+		(call 'vector 'push_back '((r0 gui_statics_temps) r1) '(_ r1 _ _))
+
+		;remove from parent list and splice in temp
+		(vp-pop r0)
+		(vp-lea-i r0 view_node r2)
+		(vp-lea-i r1 view_node r3)
+		(ln-replace-node r2 r3 r4)
+
+		;splice over dirty region etc
+		(assign '(0 (r0 hmap_parent) (r0 view_dirty_region) (r0 view_x) (r0 view_y) (r0 view_w) (r0 view_h))
+			'(r4 r3 r2 r7 r8 r9 r10))
+		(assign '(r3 r2 r7 r8 r9 r10)
+			'((r1 hmap_parent) (r1 view_dirty_region) (r1 view_x) (r1 view_y) (r1 view_w) (r1 view_h)))
+
+		;clear parent field etc
+		(assign '(r4 r4 r4) '((r1 view_flags) (r0 hmap_parent) (r0 view_dirty_region)))
 	(endif)
 	(vp-ret)
 
@@ -881,13 +923,38 @@
 	;trashes
 	;all but r0
 
-	;are we already front ?
-	(ln-is-first r0 view_node r1)
+	(assign '((r0 hmap_parent)) '(r4))
+	(vpif '(r4 /= 0))
+		;are we already front ?
+		(ln-is-first r0 view_node r1)
+		(vpif '(r1 /= 0))
+			(vp-cpy-rr r0 r5)
+			(call 'view 'add_front '(r4 r0))
+			(jump 'view 'set_flags '(r5 view_flag_dirty_all view_flag_dirty_all))
+		(endif)
+	(endif)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'view 'to_back)
+	;inputs
+	;r0 = view object (ptr)
+	;outputs
+	;r0 = view object (ptr)
+	;trashes
+	;all but r0
+
+	(assign '((r0 hmap_parent)) '(r1))
 	(vpif '(r1 /= 0))
-		(vp-push r0)
-		(call 'view 'add_front '((r0 hmap_parent) r0))
-		(vp-pop r0)
-		(jump 'view 'set_flags '(r0 view_flag_dirty_all view_flag_dirty_all))
+		;are we already back ?
+		(ln-is-last r0 view_node r2)
+		(vpif '(r2 /= 0))
+			(vp-push r0 r1)
+			(call 'view 'hide '(r0) '(r1))
+			(call 'view 'add_back '((rsp 0) r1))
+			(vp-pop r0 r1)
+		(endif)
 	(endif)
 	(vp-ret)
 

@@ -53,3 +53,5 @@
 				(view-change-dirty window x y (fmul w 1.5) (fmul h 1.5)))
 			(t (view-event window msg))))
 	(task-sleep 40000))
+
+(view-hide window)

@@ -97,3 +97,5 @@
 		((= id event_win_button)
 			(populate-page (get (view-find-id window (get-long msg ev_msg_action_source_id)) 'text)))
 		(t (view-event window msg))))
+
+(view-hide window)

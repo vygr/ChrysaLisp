@@ -7569,7 +7569,40 @@ trashes
 r1-r2
 ```
 
+### view::hide -> gui/view/hide
+
+```lisp
+inputs
+r0 = view object (ptr)
+outputs
+r0 = view object (ptr)
+trashes
+all but r0
+```
+
 ### view::to_front -> gui/view/to_front
+
+```lisp
+inputs
+r0 = view object (ptr)
+outputs
+r0 = view object (ptr)
+trashes
+all but r0
+```
+
+### view::to_back -> gui/view/to_back
+
+```lisp
+inputs
+r0 = view object (ptr)
+outputs
+r0 = view object (ptr)
+trashes
+all but r0
+```
+
+### view::dirty -> gui/view/dirty
 
 ```lisp
 inputs
@@ -7651,17 +7684,6 @@ r7 = relative x (pixels)
 r8 = relative y (pixels)
 trashes
 r2, r9-r10
-```
-
-### view::dirty -> gui/view/dirty
-
-```lisp
-inputs
-r0 = view object (ptr)
-outputs
-r0 = view object (ptr)
-trashes
-all but r0
 ```
 
 ### view::forward -> gui/view/forward
@@ -7839,6 +7861,8 @@ r7 = x (pixels)
 r8 = y (pixels)
 r9 = width (pixels)
 r10 = height (pixels)
+trashes
+none
 ```
 
 ### view::set_flags -> gui/view/set_flags
@@ -7975,6 +7999,19 @@ all but r0
 ```
 
 ### view::lisp_sub -> gui/view/lisp_sub
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+all but r0
+```
+
+### view::lisp_hide -> gui/view/lisp_hide
 
 ```lisp
 inputs

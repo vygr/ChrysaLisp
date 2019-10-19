@@ -26,3 +26,5 @@
 
 ;close child
 (mail-send "" mbox)
+
+(view-hide window)

@@ -56,7 +56,7 @@
 		(t (view-event window msg))))
 
 ;wait for outstanding replies
-(setq window nil)
+(view-hide window)
 (while (/= sc 0)
 	(if (> (get-long (defq msg (mail-mymail)) ev_msg_target_id) 0)
 		(setq sc (dec sc))))
