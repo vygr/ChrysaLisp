@@ -184,7 +184,7 @@ long long mymunmap(void *addr, size_t len, int mode)
 	case mmap_data:
 	case mmap_exec:
 	{
-		if (VirtualFree(addr, len, MEM_RELEASE)) return 0;
+		if (VirtualFree(addr, 0, MEM_RELEASE)) return 0;
 		break;
 	}
 	case mmap_shared:
