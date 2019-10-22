@@ -7539,7 +7539,7 @@ r1 = 0 if error, else ok
 ```lisp
 inputs
 r0 = view object (ptr)
-r1 = parent view object (ptr)
+r1 = child view object (ptr)
 outputs
 r0 = view object (ptr)
 trashes
@@ -7877,30 +7877,6 @@ r0 = view object (ptr)
 r1 = new flag values (ulong)
 trashes
 r2-r3
-```
-
-### view::get_first -> gui/view/get_first
-
-```lisp
-inputs
-r0 = view object (ptr)
-outputs
-r0 = view object (ptr)
-r1 = 0 if empty, else first child view object (ptr)
-trashes
-r2
-```
-
-### view::get_last -> gui/view/get_last
-
-```lisp
-inputs
-r0 = view object (ptr)
-outputs
-r0 = view object (ptr)
-r1 = 0 if empty, else last child view object (ptr)
-trashes
-r2
 ```
 
 ### view::forward_callback -> class/obj/null
