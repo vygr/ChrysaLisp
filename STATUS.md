@@ -4,8 +4,22 @@
 
 ------
 
-Won't be able to work on the project for a few weeks ! The project is still
-alive. :)
+Implemented a more generic component connection idea. This gets rid of lots of
+specific UI component code, around 2KB of boot_image ! Its also only allocates
+the target id array if required so saving a small amount of RAM.
+
+Fixed a silly memory leak in the Windows main.c myunmap function.
+
+Finally implemented the view::hide and view::to_back methods with a minimal
+redraw, title drag with the right button now does a to_back and drag.
+
+Added a Freeball demo to thrash the sprite compositing. This shows that you
+don't and never did have to have a Window in order to have content on the
+screen. Any GUI component can be composited directly, nothing about a Window is
+special.
+
+Share GUI textures between canvas's loaded with the load_shared flag. Obvious
+but I wasn't doing it before. Clearly saves a lot of GPU memory.
 
 ------
 
