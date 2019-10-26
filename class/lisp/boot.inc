@@ -191,7 +191,7 @@
 ;;;;;;;;
 
 (defmacro-bind let (l &rest _)
-	;(let [(var val) ...])
+	;(let ([(var val) ...]) body)
 	`((lambda ,(map (lambda (_) (elem 0 _)) l) ~_) ~(map (lambda (_) (elem 1 _)) l)))
 
 ;;;;;;;;;;;;;;

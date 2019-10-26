@@ -1,6 +1,5 @@
 (include 'sys/func.inc)
 (include 'gui/button/class.inc)
-(include 'class/num/class.inc)
 (include 'class/lisp/class.inc)
 
 (def-method 'button 'lisp_create)
@@ -29,36 +28,5 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r0 "(create-button)" error_msg_wrong_num_of_args r1)))
-
-(def-func-end)
-
-(def-method 'button 'lisp_connect_click)
-	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
-	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
-	;trashes
-	;all but r0
-
-	(entry 'button 'lisp_connect_click '(r0 r1))
-
-(errorcases
-	(call 'lisp 'env_args_type '(r1 ($ sig) 2) '(r2))
-	(gotoif '(r2 = 0) 'error))
-
-	(defq in (method-input 'button 'connect_click))
-	(class/vector/bind_args r1 in '(button num))
-	(call 'button 'connect_click in '(r0))
-	(call 'button 'ref '(r0) '(r0))
-
-	(exit 'button 'lisp_connect_click '(r6 r0))
-	(vp-ret)
-
-(errorcases
-(vp-label 'error)
-	(jump 'lisp 'repl_error '(r0 "(button-connect-click button id)" error_msg_wrong_types r1))
-	(signature '(button num)))
 
 (def-func-end)

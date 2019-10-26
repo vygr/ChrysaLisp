@@ -28,7 +28,7 @@
 	(each (lambda (_)
 		(def (defq b (create-button)) 'text _ 'border 0
 			'flow_flags (logior flow_flag_align_vcenter flow_flag_align_hleft))
-		(view-add-child index (button-connect-click b event_win_button))) keys)
+		(view-add-child index (component-connect b event_win_button))) keys)
 	(def vdu 'vdu_width
 		(reduce max (map (lambda (_)
 			(reduce max (map length (split _ (ascii-char 10))))) vals))))

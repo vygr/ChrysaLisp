@@ -11,8 +11,8 @@
 	(ui-element image_flow (create-flow) ('flow_flags (logior flow_flag_down flow_flag_fillw))
 		(ui-element _ (create-flow) ('flow_flags (logior flow_flag_right flow_flag_fillh)
 				'color toolbar_col 'font (create-font "fonts/Entypo.otf" 32))
-			(button-connect-click (ui-element _ (create-button) ('text "")) event_win_prev)
-			(button-connect-click (ui-element _ (create-button) ('text "")) event_win_next))
+			(component-connect (ui-element _ (create-button) ('text "")) event_win_prev)
+			(component-connect (ui-element _ (create-button) ('text "")) event_win_next))
 		(ui-element frame (canvas-load (elem index images) load_flag_film))))
 
 (gui-add (apply view-change (cat (list window 64 512)

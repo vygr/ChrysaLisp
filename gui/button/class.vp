@@ -2,7 +2,6 @@
 (include 'gui/gui/class.inc)
 (include 'gui/button/class.inc)
 (include 'gui/flow/class.inc)
-(include 'class/array/class.inc)
 
 (gen-create 'button)
 (gen-vtable 'button)
@@ -21,12 +20,8 @@
 	(s-call 'button 'init '(r0 r1) '(r0 r1))
 	(vpif '(r1 /= 0))
 		;init myself
-		(vp-push r0)
 		(vp-xor-rr r2 r2)
 		(assign '(r2) '((r0 button_state)))
-		(call 'array 'create nil '(r1))
-		(vp-pop r0)
-		(assign '(r1) '((r0 button_click_targets)))
 		(call 'button 'set_long_prop '(r0 prop_border 2) '(r0))
 		(call 'button 'set_long_prop '(r0 prop_flow_flags (logior flow_flag_down flow_flag_align_hcenter flow_flag_align_vcenter)) '(r0))
 		(vp-cpy-cr 1 r1)
@@ -34,21 +29,6 @@
 
 	(exit 'button 'init '(r0 r1))
 	(vp-ret)
-
-(def-func-end)
-
-(def-method 'button 'deinit)
-	;inputs
-	;r0 = button object (ptr)
-	;outputs
-	;r0 = button object (ptr)
-	;trashes
-	;all but r0
-
-	(vp-push r0)
-	(call 'array 'deref '((r0 button_click_targets)))
-	(vp-pop r0)
-	(s-jump 'button 'deinit '(r0))
 
 (def-func-end)
 
@@ -125,15 +105,15 @@
 	(vp-and-cr (lognot button_state_pressed) r1)
 	(assign '(r1) '((r0 button_state)))
 	(vpif '(r1 /= r2))
-		(call 'button 'layout '(r0))
-		(call 'button 'dirty '(r0))
+		(call 'button 'layout '(r0) '(r0))
+		(call 'button 'dirty '(r0) '(r0))
 	(endif)
 
 	;emit pressed signal ?
 	(vp-pop r1)
 	(vp-and-cr button_state_pressed r1)
 	(vpif '(r1 /= 0))
-		(jump 'button 'emit '(r0 (r0 button_click_targets)))
+		(jump 'button 'emit '(r0))
 	(endif)
 
 	(exit 'button 'mouse_up '(r0))
@@ -169,31 +149,11 @@
 
 	;if state changed then dirty
 	(vpif '(r2 /= r3))
-		(call 'button 'layout '(r0))
+		(call 'button 'layout '(r0) '(r0))
 		(jump 'button 'dirty '(r0))
 	(endif)
 
 	(exit 'button 'mouse_move '(r0))
-	(vp-ret)
-
-(def-func-end)
-
-(def-method 'button 'connect_click)
-	;inputs
-	;r0 = button object (ptr)
-	;r1 = target id (long)
-	;outputs
-	;r0 = button object (ptr)
-	;trashes
-	;r2-r5
-
-	(entry 'button 'connect_click '(r0 r1))
-
-	(vp-push r0)
-	(call 'array 'push_back '((r0 button_click_targets) r1))
-	(vp-pop r0)
-
-	(exit 'button 'connect_click '(r0))
 	(vp-ret)
 
 (def-func-end)

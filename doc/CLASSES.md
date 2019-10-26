@@ -563,29 +563,6 @@ r0 = button object (ptr)
 r1 = 0 if error, else ok
 ```
 
-### button::connect_click -> gui/button/connect_click
-
-```lisp
-inputs
-r0 = button object (ptr)
-r1 = target id (long)
-outputs
-r0 = button object (ptr)
-trashes
-r2-r5
-```
-
-### button::deinit -> gui/button/deinit
-
-```lisp
-inputs
-r0 = button object (ptr)
-outputs
-r0 = button object (ptr)
-trashes
-all but r0
-```
-
 ### button::draw -> gui/button/draw
 
 ```lisp
@@ -646,19 +623,6 @@ all but r0
 ```
 
 ### button::lisp_create -> gui/button/lisp_create
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-all but r0
-```
-
-### button::lisp_connect_click -> gui/button/lisp_connect_click
 
 ```lisp
 inputs
@@ -1224,12 +1188,23 @@ trashes
 r2
 ```
 
+### component::connect -> gui/component/connect
+
+```lisp
+inputs
+r0 = component object (ptr)
+r1 = target id (ulong)
+outputs
+r0 = component object (ptr)
+trashes
+r1-r6
+```
+
 ### component::emit -> gui/component/emit
 
 ```lisp
 inputs
 r0 = component object (ptr)
-r1 = target id array object (ptr)
 outputs
 r0 = component object (ptr)
 trashes
@@ -1324,6 +1299,30 @@ r1 = property num (uint)
 r2 = c string (pubyte)
 outputs
 r0 = component object (ptr)
+trashes
+all but r0
+```
+
+### component::deinit -> gui/component/deinit
+
+```lisp
+inputs
+r0 = component object (ptr)
+outputs
+r0 = component object (ptr)
+trashes
+all but r0
+```
+
+### component::lisp_connect -> gui/component/lisp_connect
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
 trashes
 all but r0
 ```
@@ -1676,11 +1675,25 @@ all but r0
 
 ## func
 
-Super Class: num
+Super Class: obj
 
 ### func::vtable -> class/func/vtable
 
 ### func::create -> class/func/create
+
+### func::init -> class/num/init
+
+```lisp
+inputs
+r0 = num object (ptr)
+r1 = vtable (pptr)
+r2 = initial value (long)
+outputs
+r0 = num object (ptr)
+r1 = 0 if error, else ok
+trashes
+r1
+```
 
 ## grid
 
@@ -4796,29 +4809,6 @@ r0 = slider object (ptr)
 r1 = 0 if error, else ok
 ```
 
-### slider::connect_value -> gui/slider/connect_value
-
-```lisp
-inputs
-r0 = slider object (ptr)
-r1 = target id (long)
-outputs
-r0 = slider object (ptr)
-trashes
-r2-r5
-```
-
-### slider::deinit -> gui/slider/deinit
-
-```lisp
-inputs
-r0 = slider object (ptr)
-outputs
-r0 = slider object (ptr)
-trashes
-all but r0
-```
-
 ### slider::pref_size -> gui/slider/pref_size
 
 ```lisp
@@ -4892,19 +4882,6 @@ all but r0
 ```
 
 ### slider::lisp_create -> gui/slider/lisp_create
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-all but r0
-```
-
-### slider::lisp_connect_value -> gui/slider/lisp_connect_value
 
 ```lisp
 inputs
@@ -8230,89 +8207,6 @@ trashes
 all but r0
 ```
 
-### window::set_title -> gui/window/set_title
-
-```lisp
-inputs
-r0 = window object (ptr)
-r1 = title c string (pubyte)
-outputs
-r0 = window object (ptr)
-trashes
-all but r0
-```
-
-### window::set_status -> gui/window/set_status
-
-```lisp
-inputs
-r0 = window object (ptr)
-r1 = status c string (pubyte)
-outputs
-r0 = window object (ptr)
-trashes
-all but r0
-```
-
-### window::connect_layout -> gui/window/connect_layout
-
-```lisp
-inputs
-r0 = window object (ptr)
-r1 = reciever id (long)
-outputs
-r0 = window object (ptr)
-trashes
-r2-r5
-```
-
-### window::connect_close -> gui/window/connect_close
-
-```lisp
-inputs
-r0 = window object (ptr)
-r1 = reciever id (long)
-outputs
-r0 = window object (ptr)
-trashes
-r2-r5
-```
-
-### window::connect_max -> gui/window/connect_max
-
-```lisp
-inputs
-r0 = window object (ptr)
-r1 = reciever id (long)
-outputs
-r0 = window object (ptr)
-trashes
-r2-r5
-```
-
-### window::connect_min -> gui/window/connect_min
-
-```lisp
-inputs
-r0 = window object (ptr)
-r1 = reciever id (long)
-outputs
-r0 = window object (ptr)
-trashes
-r2-r5
-```
-
-### window::deinit -> gui/window/deinit
-
-```lisp
-inputs
-r0 = window object (ptr)
-outputs
-r0 = window object (ptr)
-trashes
-all but r0
-```
-
 ### window::add_child -> gui/window/add_child
 
 ```lisp
@@ -8386,84 +8280,6 @@ all but r0
 ```
 
 ### window::lisp_create -> gui/window/lisp_create
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-all but r0
-```
-
-### window::lisp_connect_layout -> gui/window/lisp_connect_layout
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-all but r0
-```
-
-### window::lisp_connect_close -> gui/window/lisp_connect_close
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-all but r0
-```
-
-### window::lisp_connect_min -> gui/window/lisp_connect_min
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-all but r0
-```
-
-### window::lisp_connect_max -> gui/window/lisp_connect_max
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-all but r0
-```
-
-### window::lisp_set_status -> gui/window/lisp_set_status
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-all but r0
-```
-
-### window::lisp_set_title -> gui/window/lisp_set_title
 
 ```lisp
 inputs

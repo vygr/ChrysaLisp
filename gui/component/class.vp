@@ -26,9 +26,27 @@
 		(vp-sub-cr 1 r2)
 		(assign '(r2 r2) '((r1 gui_statics_next_id) (r0 component_id)))
 		(vp-xor-rr r2 r2)
-		(assign '(r2) '((r0 component_tcb)))
+		(assign '(r2 r2) '((r0 component_tcb) (r0 component_target_ids)))
 	(endif)
 	(vp-ret)
+
+(def-func-end)
+
+(def-method 'component 'deinit)
+	;inputs
+	;r0 = component object (ptr)
+	;outputs
+	;r0 = component object (ptr)
+	;trashes
+	;all but r0
+
+	(entry 'component 'deinit '(r0))
+
+	(vp-push r0)
+	(assign '((r0 component_target_ids)) '(r0))
+	(call 'array 'deref_if '(r0))
+	(vp-pop r0)
+	(s-jump 'component 'deinit '(r0))
 
 (def-func-end)
 
@@ -54,36 +72,61 @@
 (def-method 'component 'emit)
 	;inputs
 	;r0 = component object (ptr)
-	;r1 = target id array object (ptr)
 	;outputs
 	;r0 = component object (ptr)
 	;trashes
 	;all but r0
 
-	(ptr 'this 'ids 'tcb 'msg 'data)
+	(ptr 'this 'tcb 'msg 'data)
 	(plong 'iter_begin 'iter_end)
 
 	(push-scope)
-	(entry 'component 'emit {this, ids})
+	(entry 'component 'emit {this})
 
-	(call 'component 'find_owner {this} {_, tcb})
-	(vpif {tcb})
-		(call 'array 'get_both {ids} {_, iter_begin, iter_end})
-		(loop-while {iter_begin /= iter_end})
-			(call 'sys_mail 'alloc {ev_msg_action_size} {msg, data})
-			(assign {tcb->tk_node_mbox_id} {msg->msg_dest.id_mbox})
-			(call 'sys_kernel 'id nil {msg->msg_dest.id_cpu})
-			(assign {ev_type_action} {data->ev_msg_type})
-			(assign {*iter_begin} {data->ev_msg_target_id})
-			(assign {this->component_id} {data->ev_msg_action_source_id})
-			(call 'sys_mail 'send {msg})
-			(assign {iter_begin + long_size} {iter_begin})
-		(loop-end)
+	(vpif {this->component_target_ids})
+		(call 'component 'find_owner {this} {_, tcb})
+		(vpif {tcb})
+			(call 'array 'get_both {this->component_target_ids} {_, iter_begin, iter_end})
+			(loop-while {iter_begin /= iter_end})
+				(call 'sys_mail 'alloc {ev_msg_action_size} {msg, data})
+				(assign {tcb->tk_node_mbox_id} {msg->msg_dest.id_mbox})
+				(call 'sys_kernel 'id nil {msg->msg_dest.id_cpu})
+				(assign {ev_type_action} {data->ev_msg_type})
+				(assign {*iter_begin} {data->ev_msg_target_id})
+				(assign {this->component_id} {data->ev_msg_action_source_id})
+				(call 'sys_mail 'send {msg})
+				(assign {iter_begin + long_size} {iter_begin})
+			(loop-end)
+		(endif)
 	(endif)
 
 	(exit 'component 'emit {this})
 	(pop-scope)
 	(return)
+
+(def-func-end)
+
+(def-method 'component 'connect)
+	;inputs
+	;r0 = component object (ptr)
+	;r1 = target id (ulong)
+	;outputs
+	;r0 = component object (ptr)
+	;trashes
+	;r1-r6
+
+	(entry 'component 'connect '(r6 r1))
+
+	(assign '((r6 component_target_ids)) '(r0))
+	(vpif '(r0 = 0))
+		(vp-cpy-rr r1 r5)
+		(call 'array 'create nil '(r0))
+		(assign '(r0 r5) '((r6 component_target_ids) r1))
+	(endif)
+	(call 'array 'push_back '(r0 r1))
+
+	(exit 'component 'connect '(r6))
+	(vp-ret)
 
 (def-func-end)
 

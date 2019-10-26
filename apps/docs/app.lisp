@@ -82,7 +82,7 @@
 			'font (create-font "fonts/OpenSans-Regular.ttf" 18) 'color toolbar_col)
 		(ui-element index (create-flow) ('flow_flags (logior flow_flag_down flow_flag_fillw))
 			(each (lambda (path)
-				(button-connect-click (ui-element _ (create-button)
+				(component-connect (ui-element _ (create-button)
 					('text path 'flow_flags (logior flow_flag_align_vcenter flow_flag_align_hleft))) event_win_button)) doc_list))
 		(ui-element page_scroll (create-scroll scroll_flag_vertical) ('min_width 848 'min_height 800 'color slider_col))))
 

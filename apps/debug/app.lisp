@@ -22,10 +22,10 @@
 		(ui-element _ (create-flow) ('flow_flags (logior flow_flag_right flow_flag_fillh)
 				'font (create-font "fonts/Entypo.otf" 32))
 			(each (lambda (l)
-				(button-connect-click (ui-element __ (create-button)
+				(component-connect (ui-element __ (create-button)
 					('text l 'color (if (>= _ 4) toolbar2_col toolbar_col))) (+ event_win_play _)))
 						'("" "" "" "" "" "" "" "")))
-		(slider-connect-value (ui-element hslider (create-slider) ('value 0 'color slider_col)) event_win_hvalue)
+		(component-connect (ui-element hslider (create-slider) ('value 0 'color slider_col)) event_win_hvalue)
 		(ui-element vdu (create-view))))
 
 (defun set-slider-values ()

@@ -1,7 +1,6 @@
 (include 'sys/func.inc)
 (include 'gui/gui/class.inc)
 (include 'gui/slider/class.inc)
-(include 'gui/flow/class.inc)
 (include 'class/array/class.inc)
 (include 'gui/ctx/class.inc)
 
@@ -22,33 +21,12 @@
 	(s-call 'slider 'init '(r0 r1) '(r0 r1))
 	(vpif '(r1 /= 0))
 		;init myself
-		(vp-push r0)
-		(vp-xor-rr r1 r1)
-		(assign '(r1) '((r0 slider_state)))
-		(call 'array 'create nil '(r1))
-		(vp-pop r0)
-		(assign '(r1) '((r0 slider_value_targets)))
+		(vp-xor-rr r2 r2)
+		(assign '(r2) '((r0 slider_state)))
 	(endif)
 
 	(exit 'slider 'init '(r0 r1))
 	(vp-ret)
-
-(def-func-end)
-
-(def-method 'slider 'deinit)
-	;inputs
-	;r0 = slider object (ptr)
-	;outputs
-	;r0 = slider object (ptr)
-	;trashes
-	;all but r0
-
-	(entry 'slider 'deinit '(r0))
-
-	(vp-push r0)
-	(call 'array 'deref '((r0 slider_value_targets)))
-	(vp-pop r0)
-	(s-jump 'slider 'deinit '(r0))
 
 (def-func-end)
 
@@ -196,9 +174,8 @@
 	;all but r0
 
 	(ptr 'this 'evt)
-	(ulong 'old_state)
 	(long 'val 'max 'portion 'new_val)
-	(uint 'hit 'width 'height)
+	(uint 'hit 'width 'height 'old_state)
 	(int 'rx 'ry)
 
 	(push-scope)
@@ -239,7 +216,7 @@
 	(switch)
 	(vpcase {new_val /= val})
 		(call 'slider 'set_long_prop {this, prop_value, new_val})
-		(call 'slider 'emit {this, this->slider_value_targets})
+		(call 'slider 'emit {this})
 		(goto 'isdirty)
 	(vpcase {old_state /= this->slider_state})
 	(vp-label 'isdirty)
@@ -249,25 +226,5 @@
 	(exit 'slider 'mouse_move {this})
 	(pop-scope)
 	(return)
-
-(def-func-end)
-
-(def-method 'slider 'connect_value)
-	;inputs
-	;r0 = slider object (ptr)
-	;r1 = target id (long)
-	;outputs
-	;r0 = slider object (ptr)
-	;trashes
-	;r2-r5
-
-	(entry 'slider 'connect_value '(r0 r1))
-
-	(vp-push r0)
-	(call 'array 'push_back '((r0 slider_value_targets) r1))
-	(vp-pop r0)
-
-	(exit 'slider 'connect_value '(r0))
-	(vp-ret)
 
 (def-func-end)

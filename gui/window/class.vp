@@ -6,7 +6,7 @@
 (include 'gui/button/class.inc)
 (include 'gui/flow/class.inc)
 (include 'gui/ctx/class.inc)
-(include 'class/str/class.inc)
+(include 'class/sym/class.inc)
 (include 'class/array/class.inc)
 
 (gen-create 'window)
@@ -23,7 +23,7 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this 'title_flow)
+	(ptr 'this 'title_flow 'key 'view)
 	(ulong 'flags)
 
 	(push-scope)
@@ -42,7 +42,6 @@
 		(call 'window 'set_long_prop '(r0 prop_min_width 0) '(r0))
 		(call 'window 'set_long_prop '(r0 prop_min_height 0) '(r0))
 		(call 'sys_mem 'clear '((& r0 window_start) (- window_size window_start)))
-		(call 'array 'create nil {this->window_layout_targets})
 
 		;add flow panel
 		(call 'flow 'create nil {this->window_flow})
@@ -57,31 +56,46 @@
 
 		;add close button ?
 		(vpif {flags & window_flag_close})
-			(call 'button 'create nil {this->window_close})
-			(call 'button 'set_font_prop {this->window_close, prop_font, "fonts/Entypo.otf", 22} '(r0))
+			(call 'button 'create nil {view})
+			(call 'button 'set_font_prop {view, prop_font, "fonts/Entypo.otf", 22} '(r0))
 			(call 'button 'set_str_prop '(r0 prop_text ""))
-			(call 'flow 'add_child {title_flow, this->window_close})
+			(call 'flow 'add_child {title_flow, view})
+
+			(call 'sym 'intern_cstr {"window_close"} {key})
+			(call 'window 'insert {this, key, view})
+			(call 'sym 'deref {key})
 		(endif)
 
 		;add max button
 		(vpif {flags & window_flag_max})
-			(call 'button 'create nil {this->window_max})
-			(call 'button 'set_font_prop {this->window_max, prop_font, "fonts/Entypo.otf", 22} '(r0))
+			(call 'button 'create nil {view})
+			(call 'button 'set_font_prop {view, prop_font, "fonts/Entypo.otf", 22} '(r0))
 			(call 'button 'set_str_prop '(r0 prop_text ""))
-			(call 'flow 'add_child {title_flow, this->window_max})
+			(call 'flow 'add_child {title_flow, view})
+
+			(call 'sym 'intern_cstr {"window_max"} {key})
+			(call 'window 'insert {this, key, view})
+			(call 'sym 'deref {key})
 		(endif)
 
 		;add min button
 		(vpif {flags & window_flag_min})
-			(call 'button 'create nil {this->window_min})
-			(call 'button 'set_font_prop {this->window_min, prop_font, "fonts/Entypo.otf", 22} '(r0))
+			(call 'button 'create nil {view})
+			(call 'button 'set_font_prop {view, prop_font, "fonts/Entypo.otf", 22} '(r0))
 			(call 'button 'set_str_prop '(r0 prop_text ""))
-			(call 'flow 'add_child {title_flow, this->window_min})
+			(call 'flow 'add_child {title_flow, view})
+
+			(call 'sym 'intern_cstr {"window_min"} {key})
+			(call 'window 'insert {this, key, view})
+			(call 'sym 'deref {key})
 		(endif)
 
 		;add title
-		(call 'title 'create nil {this->window_title})
-		(call 'flow 'add_child {title_flow, this->window_title})
+		(call 'title 'create nil {view})
+		(call 'flow 'add_child {title_flow, view})
+		(call 'sym 'intern_cstr {"window_title"} {key})
+		(call 'window 'insert {this, key, view})
+		(call 'sym 'deref {key})
 
 		;add status panel
 		(call 'flow 'create nil {this->window_panel})
@@ -90,9 +104,13 @@
 
 		;add status label ?
 		(vpif {flags & window_flag_status})
-			(call 'label 'create nil {this->window_status})
-			(call 'label 'set_long_prop {this->window_status, prop_color, status_col})
-			(call 'flow 'add_child {this->window_panel, this->window_status})
+			(call 'label 'create nil {view})
+			(call 'label 'set_long_prop {view, prop_color, status_col})
+			(call 'flow 'add_child {this->window_panel, view})
+
+			(call 'sym 'intern_cstr {"window_status"} {key})
+			(call 'window 'insert {this, key, view})
+			(call 'sym 'deref {key})
 		(endif)
 
 		(assign {this, 1} '(r0 r1))
@@ -101,23 +119,6 @@
 	(exit 'window 'init '(r0 r1))
 	(pop-scope)
 	(return)
-
-(def-func-end)
-
-(def-method 'window 'deinit)
-	;inputs
-	;r0 = window object (ptr)
-	;outputs
-	;r0 = window object (ptr)
-	;trashes
-	;all but r0
-
-	(entry 'window 'deinit '(r0))
-
-	(vp-push r0)
-	(call 'array 'deref '((r0 window_layout_targets)))
-	(vp-pop r0)
-	(s-jump 'window 'deinit '(r0))
 
 (def-func-end)
 
@@ -187,7 +188,6 @@
 	(vpif '(r1 = 0xff))
 		(call 'view 'set_flags '(r0 view_flag_opaque view_flag_opaque) '(r0 _))
 	(endif)
-	(call 'window 'emit '(r0 (r0 window_layout_targets)) '(r0))
 
 	(exit 'window 'layout '(r0))
 	(vp-ret)
@@ -348,140 +348,6 @@
 	(vp-add-rr r1 r10)
 
 	(exit 'window 'pref_size '(r0 r9 r10))
-	(vp-ret)
-
-(def-func-end)
-
-(def-method 'window 'set_status)
-	;inputs
-	;r0 = window object (ptr)
-	;r1 = status c string (pubyte)
-	;outputs
-	;r0 = window object (ptr)
-	;trashes
-	;all but r0
-
-	(entry 'window 'set_status '(r0 r1))
-
-	(assign '((r0 window_status)) '(r2))
-	(vpif '(r2 /= 0))
-		(vp-push r0)
-		(call 'title 'set_str_prop '(r2 prop_text r1) '(r0))
-		(call 'title 'layout '(r0))
-		(vp-pop r0)
-	(endif)
-
-	(exit 'window 'set_status '(r0))
-	(vp-ret)
-
-(def-func-end)
-
-(def-method 'window 'set_title)
-	;inputs
-	;r0 = window object (ptr)
-	;r1 = title c string (pubyte)
-	;outputs
-	;r0 = window object (ptr)
-	;trashes
-	;all but r0
-
-	(entry 'window 'set_title '(r0 r1))
-
-	(vp-push r0)
-	(call 'title 'set_str_prop '((r0 window_title) prop_text r1) '(r0))
-	(call 'title 'layout '(r0))
-	(vp-pop r0)
-
-	(exit 'window 'set_title '(r0))
-	(vp-ret)
-
-(def-func-end)
-
-(def-method 'window 'connect_layout)
-	;inputs
-	;r0 = window object (ptr)
-	;r1 = reciever id (long)
-	;outputs
-	;r0 = window object (ptr)
-	;trashes
-	;r2-r5
-
-	(entry 'window 'connect_layout '(r0 r1))
-
-	(vp-push r0)
-	(call 'array 'push_back '((r0 window_layout_targets) r1))
-	(vp-pop r0)
-
-	(exit 'window 'connect_layout '(r0))
-	(vp-ret)
-
-(def-func-end)
-
-(def-method 'window 'connect_close)
-	;inputs
-	;r0 = window object (ptr)
-	;r1 = reciever id (long)
-	;outputs
-	;r0 = window object (ptr)
-	;trashes
-	;r2-r5
-
-	(entry 'window 'connect_close '(r0 r1))
-
-	(vp-push r0)
-	(assign '((r0 window_close)) '(r0))
-	(vpif '(r0 /= 0))
-		(call 'button 'connect_click '(r0 r1))
-	(endif)
-	(vp-pop r0)
-
-	(exit 'window 'connect_close '(r0))
-	(vp-ret)
-
-(def-func-end)
-
-(def-method 'window 'connect_max)
-	;inputs
-	;r0 = window object (ptr)
-	;r1 = reciever id (long)
-	;outputs
-	;r0 = window object (ptr)
-	;trashes
-	;r2-r5
-
-	(entry 'window 'connect_max '(r0 r1))
-
-	(vp-push r0)
-	(assign '((r0 window_max)) '(r0))
-	(vpif '(r0 /= 0))
-		(call 'button 'connect_click '(r0 r1))
-	(endif)
-	(vp-pop r0)
-
-	(exit 'window 'connect_max '(r0))
-	(vp-ret)
-
-(def-func-end)
-
-(def-method 'window 'connect_min)
-	;inputs
-	;r0 = window object (ptr)
-	;r1 = reciever id (long)
-	;outputs
-	;r0 = window object (ptr)
-	;trashes
-	;r2-r5
-
-	(entry 'window 'connect_min '(r0 r1))
-
-	(vp-push r0)
-	(assign '((r0 window_min)) '(r0))
-	(vpif '(r0 /= 0))
-		(call 'button 'connect_click '(r0 r1))
-	(endif)
-	(vp-pop r0)
-
-	(exit 'window 'connect_min '(r0))
 	(vp-ret)
 
 (def-func-end)

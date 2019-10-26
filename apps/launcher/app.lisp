@@ -31,7 +31,7 @@
 (ui-tree window (create-window 0) nil
 	(ui-element _ (create-flow) ('flow_flags (logior flow_flag_down flow_flag_fillw) 'color toolbar_col)
 		(each (lambda (path)
-			(button-connect-click (ui-element _ (create-button) ('text path)) event_win_button)) app_list)))
+			(component-connect (ui-element _ (create-button) ('text path)) event_win_button)) app_list)))
 
 (window-set-title window "Launcher")
 (bind '(w h) (view-pref-size window))

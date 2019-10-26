@@ -12,7 +12,7 @@
 		(ui-element _ (create-grid) ('grid_width 4 'grid_height 4 'color toolbar_col
 				'font (create-font "fonts/OpenSans-Regular.ttf" 42))
 			(each (lambda (text)
-				(button-connect-click
+				(component-connect
 					(ui-element _ (create-button) ('text (if (eql text "C") "AC" text)))
 					event_win_button)) "789/456*123-0=C+"))))
 

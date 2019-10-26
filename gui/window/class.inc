@@ -4,14 +4,7 @@
 (dec-method 'vtable 'gui/window/vtable)
 (dec-method 'create 'gui/window/create 'static '(r0) '(r0))
 (dec-method 'init 'gui/window/init 'static '(r0 r1 r2))
-(dec-method 'set_title 'gui/window/set_title 'static '(r0 r1) '(r0))
-(dec-method 'set_status 'gui/window/set_status 'static '(r0 r1) '(r0))
-(dec-method 'connect_layout 'gui/window/connect_layout 'static '(r0 r1) '(r0))
-(dec-method 'connect_close 'gui/window/connect_close 'static '(r0 r1) '(r0))
-(dec-method 'connect_max 'gui/window/connect_max 'static '(r0 r1) '(r0))
-(dec-method 'connect_min 'gui/window/connect_min 'static '(r0 r1) '(r0))
 
-(dec-method 'deinit 'gui/window/deinit 'final)
 (dec-method 'add_child 'gui/window/add_child 'final)
 (dec-method 'pref_size 'gui/window/pref_size 'final)
 (dec-method 'layout 'gui/window/layout 'final)
@@ -20,12 +13,6 @@
 (dec-method 'mouse_move 'gui/window/mouse_move 'final)
 
 (dec-method 'lisp_create 'gui/window/lisp_create 'static '(r0 r1) '(r0 r1))
-(dec-method 'lisp_connect_layout 'gui/window/lisp_connect_layout 'static '(r0 r1) '(r0 r1))
-(dec-method 'lisp_connect_close 'gui/window/lisp_connect_close 'static '(r0 r1) '(r0 r1))
-(dec-method 'lisp_connect_min 'gui/window/lisp_connect_min 'static '(r0 r1) '(r0 r1))
-(dec-method 'lisp_connect_max 'gui/window/lisp_connect_max 'static '(r0 r1) '(r0 r1))
-(dec-method 'lisp_set_status 'gui/window/lisp_set_status 'static '(r0 r1) '(r0 r1))
-(dec-method 'lisp_set_title 'gui/window/lisp_set_title 'static '(r0 r1) '(r0 r1))
 
 (def-bit 'window_drag)
 	(bit 'left 'right 'top 'bottom)
@@ -37,7 +24,7 @@
 
 (def-struct 'window 'view)
 	(offset 'start)
-	(ptr 'layout_targets 'title 'status 'flow 'panel 'close 'max 'min)
+	(ptr 'flow 'panel)
 	(int 'offset_x 'offset_y)
 	(uint 'drag_mode)
 (def-struct-end)

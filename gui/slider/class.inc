@@ -4,9 +4,7 @@
 (dec-method 'vtable 'gui/slider/vtable)
 (dec-method 'create 'gui/slider/create 'static '() '(r0))
 (dec-method 'init 'gui/slider/init)
-(dec-method 'connect_value 'gui/slider/connect_value 'static '(r0 r1) '(r0))
 
-(dec-method 'deinit 'gui/slider/deinit 'final)
 (dec-method 'pref_size 'gui/slider/pref_size 'final)
 (dec-method 'draw 'gui/slider/draw 'final)
 (dec-method 'layout 'gui/backdrop/layout 'final)
@@ -15,13 +13,12 @@
 (dec-method 'mouse_move 'gui/slider/mouse_move 'final)
 
 (dec-method 'lisp_create 'gui/slider/lisp_create 'static '(r0 r1) '(r0 r1))
-(dec-method 'lisp_connect_value 'gui/slider/lisp_connect_value 'static '(r0 r1) '(r0 r1))
 
 (def-bit 'slider_state)
 	(bit 'pressed)
 (def-bit-end)
 
 (def-struct 'slider 'view)
-	(ulong 'state 'offset 'old_val)
-	(ptr 'value_targets)
+	(ulong 'offset 'old_val)
+	(uint 'state)
 (def-struct-end)
