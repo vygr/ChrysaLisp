@@ -4,6 +4,21 @@
 
 ------
 
+Removed task::yield and made task::sleep 0 do the same things. Reduce footprint
+slightly. Plus removed the call to yield from the Lisp while function. This was
+being called far too often, so it's now up to the programmer to sprinkle
+(task_sleep 0) where appropriate.
+
+Add component::ref which lets Lisp code directly reference object fields.. I've
+deliberated allowing this for a while and despite the bad taste it leaves I
+can't shake the fact that it makes the Lisp bindings so much easier and faster.
+This will allow me to push more and more performance insensitive code out into
+the Lisp bindings and reduce the boot_image footprint. Eventually the goal is
+for the GUI to only have the time critical View object core compositing in VP
+code.
+
+------
+
 Implemented a more generic component connection idea. This gets rid of lots of
 specific UI component code, around 2KB of boot_image ! Its also only allocates
 the target id array if required so saving a small amount of RAM.
