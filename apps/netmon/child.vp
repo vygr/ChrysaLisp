@@ -32,7 +32,7 @@
 		(call 'sys_mail 'free {msg})
 
 		;be friendly
-		(call 'sys_task 'yield)
+		(call 'sys_task 'sleep '(0))
 	(loop-end)
 
 	(call 'sys_mail 'free {msg})

@@ -67,7 +67,7 @@
 	;loop till no other tasks running
 	(loop-start)
 		;allow all other tasks to run
-		(call 'sys_task 'yield)
+		(call 'sys_task 'sleep '(0))
 
 		;service all kernel mail
 		(loop-start)

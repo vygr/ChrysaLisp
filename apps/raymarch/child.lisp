@@ -111,8 +111,7 @@
 		(bind '(r g b) (scene-ray ray_origin ray_dir))
 		(setq reply (cat reply (char (+ (>> b 8) (logand g 0xff00)
 			(<< (logand r 0xff00) 8) 0xff000000) int_size)))
-		;while does a yield call !
-		(while nil))
+		(task-sleep 0))
 	(mail-send reply pid))
 
 ;read work request or exit

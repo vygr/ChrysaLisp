@@ -143,7 +143,7 @@
 		(endif)
 
 		;let other links run
-		(call 'sys_task 'yield)
+		(call 'sys_task 'sleep '(0))
 
 		;are we in a quiet period
 		(continueif {(rx_msg->lk_msg_status = lk_chan_status_busy) ||

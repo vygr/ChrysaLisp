@@ -18,8 +18,6 @@
 
 	(entry 'lisp 'func_while '(r0 r1))
 
-	(call 'sys_task 'yield)
-
 	(assign '((r1 array_length)) '(r2))
 	(errorif '(r2 < 2) 'error)
 

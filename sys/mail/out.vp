@@ -53,7 +53,7 @@
 			(lh-add-at-tail head node tmp)
 
 			;let links get at some packets
-			(call 'sys_task 'yield)
+			(call 'sys_task 'sleep '(0))
 		(loop-untilnot {ammount})
 
 		;free parcel

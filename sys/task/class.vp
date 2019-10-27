@@ -158,6 +158,8 @@
 (def-method 'sys_task 'sleep)
 	;inputs
 	;r0 = time delay in usec (ulong)
+	;info
+	;0 for yield
 
 	;push task state
 	(tk-save-state)
@@ -166,6 +168,13 @@
 	(f-bind 'sys_task 'statics r3)
 	(assign '((r3 tk_statics_current_tcb)) '(r14))
 	(vp-cpy-ri rsp r14 tk_node_stack)
+
+	;just yield ?
+	(vpif '(r0 = 0))
+		;get next task control block
+		(ln-get-succ r14 0 r14)
+		(jump 'sys_task 'restore '(r14))
+	(endif)
 
 	;save timeout
 	(vp-cpy-rr r0 r1)
@@ -292,24 +301,6 @@
 	(f-bind 'sys_task 'statics r0)
 	(assign '((r0 tk_statics_current_tcb)) '(r0))
 	(vp-ret)
-
-(def-func-end)
-
-(def-method 'sys_task 'yield)
-	;info
-	;switch to next task
-
-	;push task state
-	(tk-save-state)
-
-	;save old stack pointer
-	(f-bind 'sys_task 'statics r14)
-	(assign '((r14 tk_statics_current_tcb)) '(r14))
-	(vp-cpy-ri rsp r14 tk_node_stack)
-
-	;get next task control block
-	(ln-get-succ r14 0 r14)
-	(jump 'sys_task 'restore '(r14))
 
 (def-func-end)
 

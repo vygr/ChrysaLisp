@@ -157,7 +157,7 @@
 	(call 'vector 'get_begin {list} {_, iter_begin})
 	(call 'num 'create {(liter - iter_begin) >> 3} {value})
 	(call 'vector 'deref {params})
-	(call 'sys_task 'yield)
+	(call 'sys_task 'sleep '(0))
 
 	(exit 'vector 'lisp_part {this, value})
 	(return)
