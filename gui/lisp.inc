@@ -13,7 +13,8 @@
 	argb_grey6 argb_grey7 argb_grey8 argb_grey9 argb_grey10 argb_grey11
 	argb_grey12 argb_grey13 argb_grey14 argb_grey15 window_col title_col
 	toolbar_col toolbar2_col slider_col status_col join_miter join_bevel
-	join_round cap_butt cap_square cap_tri cap_arrow cap_round))
+	join_round cap_butt cap_square cap_tri cap_arrow cap_round
+	window_close window_min window_max window_title window_status))
 	(within-compile-env (lambda ()
 		(include 'gui/gui/class.inc)
 		(include 'gui/ctx/class.inc)
@@ -65,6 +66,7 @@
 (ffi gui-add "gui/gui/lisp_add" 0)
 (ffi vdu-print "gui/vdu/lisp_print" 0)
 (ffi component-connect "gui/component/lisp_connect" 0)
+(ffi component-ref "gui/component/lisp_ref" 0)
 (import 'gui/view/lisp.inc)
 (import 'gui/points/lisp.inc)
 (import 'gui/canvas/lisp.inc)

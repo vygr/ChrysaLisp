@@ -19,19 +19,51 @@
 	(call 'lisp 'env_args_type '(r1 ($ sig) 2) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
-	(vp-push r0)
+	(assign '(r0) '(r13))
 	(defq in (method-input 'component 'connect))
 	(class/vector/bind_args r1 in '(component num))
 	(call 'component 'connect in '(r1))
 	(class/obj/ref r1 r0)
-	(vp-pop r0)
 
-	(exit 'component 'lisp_connect '(r0 r1))
+	(exit 'component 'lisp_connect '(r13 r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r0 "(component-connect component id)" error_msg_wrong_types r1))
+	(signature '(component num)))
+
+(def-func-end)
+
+(def-method 'component 'lisp_ref)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
+
+	(entry 'component 'lisp_ref '(r0 r1))
+
+(errorcases
+	(call 'lisp 'env_args_type '(r1 ($ sig) 2) '(r2))
+	(gotoif '(r2 = 0) 'error))
+
+	(class/vector/bind_args r1 '(r2 r1) '(component num))
+	(assign '((r2 r1)) '(r1))
+	(vpif '(r1 = 0))
+		(assign '((r0 lisp_sym_nil)) '(r1))
+	(endif)
+	(class/obj/ref r1 r2)
+
+	(exit 'component 'lisp_ref '(r0 r1))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r0 "(component-ref component field)" error_msg_wrong_types r1))
 	(signature '(component num)))
 
 (def-func-end)

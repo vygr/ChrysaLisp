@@ -24,7 +24,7 @@
 
 (def-struct 'window 'view)
 	(offset 'start)
-	(ptr 'flow 'panel)
+	(ptr 'flow 'panel 'title 'status 'close 'min 'max)
 	(int 'offset_x 'offset_y)
 	(uint 'drag_mode)
 (def-struct-end)

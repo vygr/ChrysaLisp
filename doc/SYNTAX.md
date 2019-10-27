@@ -188,6 +188,10 @@
 
 (component-connect component id)
 
+## component-ref
+
+(component-ref component field)
+
 ## compose
 
 (compose lambda lambda) -> lambda

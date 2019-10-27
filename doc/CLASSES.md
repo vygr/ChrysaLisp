@@ -1327,6 +1327,19 @@ trashes
 all but r0
 ```
 
+### component::lisp_ref -> gui/component/lisp_ref
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+all but r0
+```
+
 ## ctx
 
 Super Class: null
@@ -6870,13 +6883,6 @@ info
 restore next task
 ```
 
-### sys_task::yield -> sys/task/yield
-
-```lisp
-info
-switch to next task
-```
-
 ### sys_task::count -> sys/task/count
 
 ```lisp
@@ -6889,6 +6895,8 @@ r0 = task count (uint)
 ```lisp
 inputs
 r0 = time delay in usec (ulong)
+info
+0 for yield
 ```
 
 ### sys_task::suspend -> sys/task/suspend

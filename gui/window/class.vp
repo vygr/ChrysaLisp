@@ -6,8 +6,6 @@
 (include 'gui/button/class.inc)
 (include 'gui/flow/class.inc)
 (include 'gui/ctx/class.inc)
-(include 'class/sym/class.inc)
-(include 'class/array/class.inc)
 
 (gen-create 'window)
 (gen-vtable 'window)
@@ -23,7 +21,7 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this 'title_flow 'key 'view)
+	(ptr 'this 'title_flow)
 	(ulong 'flags)
 
 	(push-scope)
@@ -56,46 +54,31 @@
 
 		;add close button ?
 		(vpif {flags & window_flag_close})
-			(call 'button 'create nil {view})
-			(call 'button 'set_font_prop {view, prop_font, "fonts/Entypo.otf", 22} '(r0))
+			(call 'button 'create nil {this->window_close})
+			(call 'button 'set_font_prop {this->window_close, prop_font, "fonts/Entypo.otf", 22} '(r0))
 			(call 'button 'set_str_prop '(r0 prop_text ""))
-			(call 'flow 'add_child {title_flow, view})
-
-			(call 'sym 'intern_cstr {"window_close"} {key})
-			(call 'window 'insert {this, key, view})
-			(call 'sym 'deref {key})
+			(call 'flow 'add_child {title_flow, this->window_close})
 		(endif)
 
 		;add max button
 		(vpif {flags & window_flag_max})
-			(call 'button 'create nil {view})
-			(call 'button 'set_font_prop {view, prop_font, "fonts/Entypo.otf", 22} '(r0))
+			(call 'button 'create nil {this->window_max})
+			(call 'button 'set_font_prop {this->window_max, prop_font, "fonts/Entypo.otf", 22} '(r0))
 			(call 'button 'set_str_prop '(r0 prop_text ""))
-			(call 'flow 'add_child {title_flow, view})
-
-			(call 'sym 'intern_cstr {"window_max"} {key})
-			(call 'window 'insert {this, key, view})
-			(call 'sym 'deref {key})
+			(call 'flow 'add_child {title_flow, this->window_max})
 		(endif)
 
 		;add min button
 		(vpif {flags & window_flag_min})
-			(call 'button 'create nil {view})
-			(call 'button 'set_font_prop {view, prop_font, "fonts/Entypo.otf", 22} '(r0))
+			(call 'button 'create nil {this->window_min})
+			(call 'button 'set_font_prop {this->window_min, prop_font, "fonts/Entypo.otf", 22} '(r0))
 			(call 'button 'set_str_prop '(r0 prop_text ""))
-			(call 'flow 'add_child {title_flow, view})
-
-			(call 'sym 'intern_cstr {"window_min"} {key})
-			(call 'window 'insert {this, key, view})
-			(call 'sym 'deref {key})
+			(call 'flow 'add_child {title_flow, this->window_min})
 		(endif)
 
 		;add title
-		(call 'title 'create nil {view})
-		(call 'flow 'add_child {title_flow, view})
-		(call 'sym 'intern_cstr {"window_title"} {key})
-		(call 'window 'insert {this, key, view})
-		(call 'sym 'deref {key})
+		(call 'title 'create nil {this->window_title})
+		(call 'flow 'add_child {title_flow, this->window_title})
 
 		;add status panel
 		(call 'flow 'create nil {this->window_panel})
@@ -104,13 +87,9 @@
 
 		;add status label ?
 		(vpif {flags & window_flag_status})
-			(call 'label 'create nil {view})
-			(call 'label 'set_long_prop {view, prop_color, status_col})
-			(call 'flow 'add_child {this->window_panel, view})
-
-			(call 'sym 'intern_cstr {"window_status"} {key})
-			(call 'window 'insert {this, key, view})
-			(call 'sym 'deref {key})
+			(call 'label 'create nil {this->window_status})
+			(call 'label 'set_long_prop {this->window_status, prop_color, status_col})
+			(call 'flow 'add_child {this->window_panel, this->window_status})
 		(endif)
 
 		(assign {this, 1} '(r0 r1))
