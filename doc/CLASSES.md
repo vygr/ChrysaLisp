@@ -1631,7 +1631,7 @@ r0 = font object (ptr)
 r1 = str object (ptr)
 outputs
 r0 = font object (ptr)
-r1 = texture object (ptr)
+r1 = 0, else texture object (ptr)
 trashes
 all but r0
 ```

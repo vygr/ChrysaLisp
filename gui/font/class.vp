@@ -169,15 +169,17 @@
 	;r1 = str object (ptr)
 	;outputs
 	;r0 = font object (ptr)
-	;r1 = texture object (ptr)
+	;r1 = 0, else texture object (ptr)
 	;trashes
 	;all but r0
 
 	(def-struct 'local)
 		(ptr 'this 'word 'txt)
+		(uint 'w 'h)
 	(def-struct-end)
 
 	(ptr 'this 'word 'txt)
+	(uint 'w 'h)
 	(union
 		'(ptr 'font_statics)
 		'(pptr 'iter 'bucket))
@@ -188,15 +190,17 @@
 	;look up string in word map
 	(call 'hmap 'find {this->font_word_map, word} {_, iter, bucket})
 	(vpifnot {iter})
+		;kernel callback for word texture creation
+		(assign {0} {txt})
+		(call 'sys_task 'callback {&this, $word_callback})
+		(breakifnot {txt})
+
 		;create new entry
-		(call 'texture 'create {0, 0, 0} {txt})
+		(call 'texture 'create {txt, w, h} {txt})
 		(call 'sym 'ref {word})
 		(call 'pair 'create {word, txt} {iter})
 		(call 'vector 'push_back {bucket, iter})
 		(call 'texture 'ref {txt})
-
-		;kernel callback for word texture creation
-		(call 'sys_task 'callback {&this, $word_callback})
 
 		;flush cache ?
 		(assign (cat {@} (f-path 'font 'statics)) {font_statics})
@@ -204,8 +208,7 @@
 			(call 'font 'flush)
 		(endif)
 	(else)
-		(call 'pair 'get_second {*iter} {_, txt})
-		(call 'texture 'ref {txt})
+		(call 'pair 'ref_second {*iter} {_, txt})
 	(endif)
 
 	(exit 'font 'ref_word {this, txt})
@@ -217,7 +220,6 @@
 	;r0 = user data
 
 	(ptr 'user 'surface 'old_stack)
-	(ulong 'handle)
 
 	(vp-cpy-rr rsp r1)
 	(push-scope)
@@ -227,12 +229,11 @@
 	(host-call 'host 'ttf_render_utf8_blended {user->local_this->font_handle, &user->local_word->str_data, 0xffffff} {surface})
 	(vpif {surface})
 		;create word texture
-		(host-call 'host 'sdl_create_texture_from_surface (cat {@} (f-path 'gui 'statics) {.gui_statics_renderer, surface}) {handle})
-		(vpif {handle})
+		(host-call 'host 'sdl_create_texture_from_surface (cat {@} (f-path 'gui 'statics) {.gui_statics_renderer, surface}) {user->local_txt})
+		(vpif {user->local_txt})
 			;texture blend mode and save details
-			(host-call 'host 'sdl_set_texture_blend_mode {handle, SDL_BLENDMODE_BLEND})
-			(assign {handle, surface->sdl_surface_w, surface->sdl_surface_h}
-				{user->local_txt->texture_handle, user->local_txt->texture_width, user->local_txt->texture_height})
+			(host-call 'host 'sdl_set_texture_blend_mode {user->local_txt, SDL_BLENDMODE_BLEND})
+			(assign {surface->sdl_surface_w, surface->sdl_surface_h} {user->local_w, user->local_h})
 		(endif)
 		(host-call 'host 'sdl_free_surface {surface})
 	(endif)
@@ -268,7 +269,9 @@
 		(loop-start)
 			(call 'sym 'intern_cstr {&code} {word})
 			(call 'font 'ref_word {this, word} {_, txt})
-			(call 'vector 'push_back {chars, txt})
+			(vpif {txt})
+				(call 'vector 'push_back {chars, txt})
+			(endif)
 			(call 'sym 'deref {word})
 		(loop-until {(code + 1 => code) = 127})
 		(vpif {this->font_chars})

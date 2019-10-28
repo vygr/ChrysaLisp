@@ -15,12 +15,9 @@
 
 	(entry 'texture 'deinit '(r0))
 
-	(assign '((r0 texture_handle)) '(r1))
-	(vpif '(r1 /= 0))
-		(vp-push r0)
-		(call 'sys_task 'callback '(r1 ($ close_callback)))
-		(vp-pop r0)
-	(endif)
+	(vp-push r0)
+	(call 'sys_task 'callback '((r0 texture_handle) ($ close_callback)))
+	(vp-pop r0)
 	(s-jump 'texture 'deinit '(r0))
 
 (vp-label 'close_callback)
