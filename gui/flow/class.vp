@@ -1,5 +1,6 @@
 (include 'sys/func.inc)
 (include 'gui/flow/class.inc)
+(include 'class/sym/class.inc)
 
 (gen-create 'flow)
 (gen-vtable 'flow)
@@ -22,7 +23,7 @@
 
 	(vp-xor-rr r1 r1)
 	(assign '(r1 r1) '((rsp local_x) (rsp local_y)))
-	(call 'flow 'get_long_prop '(r0 prop_flow_flags) '(r0 r1))
+	(call 'flow 'get_long_prop '(r0 static_sym_flow_flags) '(r0 r1))
 	(assign '(r1) '((rsp local_flags)))
 	(vp-and-cr flow_flag_left r1)
 	(vpif '(r1 /= 0))
@@ -198,7 +199,7 @@
 
 	(vp-xor-rr r1 r1)
 	(assign '(r1 r1) '((rsp local_w) (rsp local_h)))
-	(call 'flow 'get_long_prop '(r0 prop_flow_flags) '(r0 (rsp local_flags)))
+	(call 'flow 'get_long_prop '(r0 static_sym_flow_flags) '(r0 (rsp local_flags)))
 	(call 'flow 'forward '(r0 rsp ($ callback)) '(r0))
 
 	(exit 'flow 'pref_size '(r0 (rsp local_w) (rsp local_h)))

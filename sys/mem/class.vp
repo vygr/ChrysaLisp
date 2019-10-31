@@ -16,19 +16,7 @@
 
 (def-func-end)
 
-(def-method 'sys_mem 'used)
-	;outputs
-	;r0 = amount (bytes)
-	;trashes
-	;r0
-
-	(f-bind 'sys_mem 'statics r0)
-	(exit 'sys_mem 'used '((r0 0)))
-	(vp-ret)
-
-(def-func-end)
-
-(def-method 'sys_mem 'init)
+(def-method 'sys_mem 'statics_init)
 	;info
 	;init mem statics
 
@@ -49,7 +37,7 @@
 
 (def-func-end)
 
-(def-method 'sys_mem 'deinit)
+(def-method 'sys_mem 'statics_deinit)
 	;info
 	;deinit mem statics
 
@@ -62,6 +50,18 @@
 		(vp-add-cr hp_heap_size r0)
 		(vp-add-rr r5 r5)
 	(loop-until `(r5 > ,mem_cell_max_size))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'sys_mem 'used)
+	;outputs
+	;r0 = amount (bytes)
+	;trashes
+	;r0
+
+	(f-bind 'sys_mem 'statics r0)
+	(exit 'sys_mem 'used '((r0 0)))
 	(vp-ret)
 
 (def-func-end)

@@ -4,6 +4,7 @@
 (include 'gui/region/class.inc)
 (include 'gui/view/class.inc)
 (include 'class/vector/class.inc)
+(include 'class/sym/class.inc)
 
 (gen-create 'view)
 (gen-vtable 'view)
@@ -632,7 +633,7 @@
 	(push-scope)
 	(entry 'view 'draw_panel {this, ctx, flags, depth})
 
-	(call 'view 'get_long_prop {this, prop_color} {_, col})
+	(call 'view 'get_long_prop {this, static_sym_color} {_, col})
 	(call 'ctx 'panel {ctx, col, flags, depth, 0, 0, this->view_w, this->view_h})
 
 	(exit 'view 'draw_panel {this})
@@ -881,8 +882,8 @@
 	(push-scope)
 	(entry 'view 'pref_size {this})
 
-	(call 'view 'get_long_prop {this, prop_min_width} {_, mw})
-	(call 'view 'get_long_prop {this, prop_min_height} {_, mh})
+	(call 'view 'get_long_prop {this, static_sym_min_width} {_, mw})
+	(call 'view 'get_long_prop {this, static_sym_min_height} {_, mh})
 
 	(exit 'view 'pref_size {this, mw, mh})
 	(pop-scope)

@@ -2,6 +2,7 @@
 (include 'gui/text/class.inc)
 (include 'gui/label/class.inc)
 (include 'gui/flow/class.inc)
+(include 'class/sym/class.inc)
 
 (gen-create 'label)
 (gen-vtable 'label)
@@ -29,8 +30,8 @@
 		(vp-xor-rr r2 r2)
 		(assign '(r2) '((r1 view_flags)))
 		(call 'label 'add_child '(r0 r1) '(r0))
-		(call 'label 'set_long_prop '(r0 prop_flow_flags (logior flow_flag_right flow_flag_align_vcenter)) '(r0))
-		(call 'label 'set_long_prop '(r0 prop_border 0) '(r0))
+		(call 'label 'set_long_prop '(r0 static_sym_flow_flags (logior flow_flag_right flow_flag_align_vcenter)) '(r0))
+		(call 'label 'set_long_prop '(r0 static_sym_border 0) '(r0))
 
 		;add my text object
 		(call 'text 'create nil '(r1))
@@ -59,7 +60,7 @@
 
 	;draw panel, in or out
 	(vp-push r1)
-	(call 'label 'get_long_prop '(r0 prop_border) '(r0 r1))
+	(call 'label 'get_long_prop '(r0 static_sym_border) '(r0 r1))
 	(vp-pop r2)
 	(call 'label 'draw_panel '(r0 r2 1 r1) '(r0))
 
@@ -78,7 +79,7 @@
 
 	(entry 'label 'layout '(r0))
 
-	(call 'label 'get_long_prop '(r0 prop_border) '(r0 r1))
+	(call 'label 'get_long_prop '(r0 static_sym_border) '(r0 r1))
 	(assign '((r0 view_w) (r0 view_h) r1) '(r9 r10 r2))
 	(vp-add-rr r2 r2)
 	(vp-sub-rr r2 r9)
@@ -87,7 +88,7 @@
 	(call 'flow 'change '((r0 label_flow) r1 r1 r9 r10) '(r0))
 	(call 'flow 'layout '(r0))
 	(vp-pop r0)
-	(call 'label 'get_long_prop '(r0 prop_color) '(r0 r1))
+	(call 'label 'get_long_prop '(r0 static_sym_color) '(r0 r1))
 	(vp-shr-cr 24 r1)
 	(vpif '(r1 = 0xff))
 		(jump 'view 'set_flags '(r0 view_flag_opaque view_flag_opaque))
@@ -117,9 +118,9 @@
 	(entry 'label 'pref_size '(r0))
 
 	(assign '(r0) '((rsp local_this)))
-	(call 'label 'get_long_prop '(r0 prop_border) '(r0 (rsp local_depth)))
-	(call 'label 'get_long_prop '(r0 prop_min_width) '(r0 (rsp local_mw)))
-	(call 'label 'get_long_prop '(r0 prop_min_height) '(r0 (rsp local_mh)))
+	(call 'label 'get_long_prop '(r0 static_sym_border) '(r0 (rsp local_depth)))
+	(call 'label 'get_long_prop '(r0 static_sym_min_width) '(r0 (rsp local_mw)))
+	(call 'label 'get_long_prop '(r0 static_sym_min_height) '(r0 (rsp local_mh)))
 	(call 'flow 'pref_size '((r0 label_flow)) '(_ r9 r10))
 	(assign '((rsp local_mw) (rsp local_mh) (rsp local_depth)) '(r7 r8 r1))
 	(vpif '(r7 > r9))

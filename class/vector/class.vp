@@ -99,8 +99,7 @@
 	(assign '((r0 array_begin)) '(r3))
 	(vp-shl-cr (log2 ptr_size) r2)
 	(vp-push r0)
-	(assign '((r2 r3)) '(r0))
-	(assign '(r1) '((r2 r3)))
+	(assign '((r2 r3) r1) '(r0 (r2 r3)))
 	(call 'obj 'deref '(r0))
 	(vp-pop r0)
 

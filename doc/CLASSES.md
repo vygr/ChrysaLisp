@@ -1211,25 +1211,12 @@ trashes
 all but r0
 ```
 
-### component::get_prop_sym -> gui/component/get_prop_sym
-
-```lisp
-inputs
-r0 = component object (ptr)
-r1 = property num (uint)
-outputs
-r0 = component object (ptr)
-r1 = property sym object (ptr)
-trashes
-all but r0
-```
-
 ### component::get_prop -> gui/component/get_prop
 
 ```lisp
 inputs
 r0 = component object (ptr)
-r1 = property num (uint)
+r1 = static sym num (uint)
 outputs
 r0 = component object (ptr)
 r1 = 0 else, property object (ptr)
@@ -1242,7 +1229,7 @@ all but r0
 ```lisp
 inputs
 r0 = component object (ptr)
-r1 = property num (uint)
+r1 = static sym num (uint)
 outputs
 r0 = component object (ptr)
 r1 = 0 else, property object (ptr)
@@ -1255,7 +1242,7 @@ all but r0
 ```lisp
 inputs
 r0 = component object (ptr)
-r1 = property num (uint)
+r1 = static sym num (uint)
 r2 = property value (long)
 outputs
 r0 = component object (ptr)
@@ -1268,7 +1255,7 @@ all but r0
 ```lisp
 inputs
 r0 = component object (ptr)
-r1 = property num (uint)
+r1 = static sym num (uint)
 outputs
 r0 = component object (ptr)
 r1 = property value (long)
@@ -1281,7 +1268,7 @@ all but r0
 ```lisp
 inputs
 r0 = component object (ptr)
-r1 = property num (uint)
+r1 = static sym num (uint)
 r2 = font c string name (pubyte)
 r3 = font size (points)
 outputs
@@ -1295,7 +1282,7 @@ all but r0
 ```lisp
 inputs
 r0 = component object (ptr)
-r1 = property num (uint)
+r1 = static sym num (uint)
 r2 = c string (pubyte)
 outputs
 r0 = component object (ptr)
@@ -1759,7 +1746,7 @@ Super Class: null
 
 ### gui::statics -> gui/gui/statics
 
-### gui::init -> gui/gui/init
+### gui::statics_init -> gui/gui/statics_init
 
 ### gui::update -> gui/gui/update
 
@@ -5633,6 +5620,24 @@ info
 symbol static data
 ```
 
+### sym::statics_init -> class/sym/statics_init
+
+```lisp
+trashes
+all
+```
+
+### sym::get_static_sym -> class/sym/get_static_sym
+
+```lisp
+inputs
+r0 = static sym num (uint)
+outputs
+r0 = sym object (ptr)
+trashes
+r1
+```
+
 ### sym::flush -> class/sym/flush
 
 ```lisp
@@ -5922,14 +5927,14 @@ info
 mail static data
 ```
 
-### sys_mail::init -> sys/mail/init
+### sys_mail::statics_init -> sys/mail/statics_init
 
 ```lisp
 info
 init the mbox array and mbox free array
 ```
 
-### sys_mail::init1 -> sys/mail/init1
+### sys_mail::statics_init1 -> sys/mail/statics_init1
 
 ```lisp
 info
@@ -6359,14 +6364,14 @@ info
 mem statics data
 ```
 
-### sys_mem::init -> sys/mem/init
+### sys_mem::statics_init -> sys/mem/statics_init
 
 ```lisp
 info
 init mem statics
 ```
 
-### sys_mem::deinit -> sys/mem/deinit
+### sys_mem::statics_deinit -> sys/mem/statics_deinit
 
 ```lisp
 info
@@ -6823,7 +6828,7 @@ info
 task statics data
 ```
 
-### sys_task::init -> sys/task/init
+### sys_task::statics_init -> sys/task/statics_init
 
 ```lisp
 info

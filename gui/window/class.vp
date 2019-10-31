@@ -6,6 +6,7 @@
 (include 'gui/button/class.inc)
 (include 'gui/flow/class.inc)
 (include 'gui/ctx/class.inc)
+(include 'class/sym/class.inc)
 
 (gen-create 'window)
 (gen-vtable 'window)
@@ -33,46 +34,46 @@
 	(vpif '(r1 /= 0))
 		;init myself
 		(assign '(r0) {this})
-		(call 'window 'set_font_prop '(r0 prop_font "fonts/OpenSans-Regular.ttf" 18) '(r0))
-		(call 'window 'set_long_prop '(r0 prop_ink_color argb_black) '(r0))
-		(call 'window 'set_long_prop '(r0 prop_color window_col) '(r0))
-		(call 'window 'set_long_prop '(r0 prop_border 5) '(r0))
-		(call 'window 'set_long_prop '(r0 prop_min_width 0) '(r0))
-		(call 'window 'set_long_prop '(r0 prop_min_height 0) '(r0))
+		(call 'window 'set_font_prop '(r0 static_sym_font "fonts/OpenSans-Regular.ttf" 18) '(r0))
+		(call 'window 'set_long_prop '(r0 static_sym_ink_color argb_black) '(r0))
+		(call 'window 'set_long_prop '(r0 static_sym_color window_col) '(r0))
+		(call 'window 'set_long_prop '(r0 static_sym_border 5) '(r0))
+		(call 'window 'set_long_prop '(r0 static_sym_min_width 0) '(r0))
+		(call 'window 'set_long_prop '(r0 static_sym_min_height 0) '(r0))
 		(call 'sys_mem 'clear '((& r0 window_start) (- window_size window_start)))
 
 		;add flow panel
 		(call 'flow 'create nil {this->window_flow})
-		(call 'flow 'set_long_prop {this->window_flow, prop_flow_flags, flow_flag_down | flow_flag_fillw | flow_flag_lasth})
+		(call 'flow 'set_long_prop {this->window_flow, static_sym_flow_flags, flow_flag_down | flow_flag_fillw | flow_flag_lasth})
 		(call 'window 'add_back {this, this->window_flow})
 
 		;add title flow panel
 		(call 'flow 'create nil {title_flow})
-		(call 'flow 'set_long_prop {title_flow, prop_flow_flags, flow_flag_left | flow_flag_fillh | flow_flag_lastw} '(r0))
-		(call 'flow 'set_long_prop '(r0 prop_color title_col))
+		(call 'flow 'set_long_prop {title_flow, static_sym_flow_flags, flow_flag_left | flow_flag_fillh | flow_flag_lastw} '(r0))
+		(call 'flow 'set_long_prop '(r0 static_sym_color title_col))
 		(call 'flow 'add_child {this->window_flow, title_flow})
 
 		;add close button ?
 		(vpif {flags & window_flag_close})
 			(call 'button 'create nil {this->window_close})
-			(call 'button 'set_font_prop {this->window_close, prop_font, "fonts/Entypo.otf", 22} '(r0))
-			(call 'button 'set_str_prop '(r0 prop_text ""))
+			(call 'button 'set_font_prop {this->window_close, static_sym_font, "fonts/Entypo.otf", 22} '(r0))
+			(call 'button 'set_str_prop '(r0 static_sym_text ""))
 			(call 'flow 'add_child {title_flow, this->window_close})
 		(endif)
 
 		;add max button
 		(vpif {flags & window_flag_max})
 			(call 'button 'create nil {this->window_max})
-			(call 'button 'set_font_prop {this->window_max, prop_font, "fonts/Entypo.otf", 22} '(r0))
-			(call 'button 'set_str_prop '(r0 prop_text ""))
+			(call 'button 'set_font_prop {this->window_max, static_sym_font, "fonts/Entypo.otf", 22} '(r0))
+			(call 'button 'set_str_prop '(r0 static_sym_text ""))
 			(call 'flow 'add_child {title_flow, this->window_max})
 		(endif)
 
 		;add min button
 		(vpif {flags & window_flag_min})
 			(call 'button 'create nil {this->window_min})
-			(call 'button 'set_font_prop {this->window_min, prop_font, "fonts/Entypo.otf", 22} '(r0))
-			(call 'button 'set_str_prop '(r0 prop_text ""))
+			(call 'button 'set_font_prop {this->window_min, static_sym_font, "fonts/Entypo.otf", 22} '(r0))
+			(call 'button 'set_str_prop '(r0 static_sym_text ""))
 			(call 'flow 'add_child {title_flow, this->window_min})
 		(endif)
 
@@ -82,13 +83,13 @@
 
 		;add status panel
 		(call 'flow 'create nil {this->window_panel})
-		(call 'flow 'set_long_prop {this->window_panel, prop_flow_flags, flow_flag_up | flow_flag_fillw | flow_flag_lasth})
+		(call 'flow 'set_long_prop {this->window_panel, static_sym_flow_flags, flow_flag_up | flow_flag_fillw | flow_flag_lasth})
 		(call 'flow 'add_child {this->window_flow, this->window_panel})
 
 		;add status label ?
 		(vpif {flags & window_flag_status})
 			(call 'label 'create nil {this->window_status})
-			(call 'label 'set_long_prop {this->window_status, prop_color, status_col})
+			(call 'label 'set_long_prop {this->window_status, static_sym_color, status_col})
 			(call 'flow 'add_child {this->window_panel, this->window_status})
 		(endif)
 
@@ -134,7 +135,7 @@
 
 	;draw panel
 	(vp-push r1)
-	(call 'window 'get_long_prop '(r0 prop_border) '(r0 r3))
+	(call 'window 'get_long_prop '(r0 static_sym_border) '(r0 r3))
 	(vp-pop r1)
 	(call 'window 'draw_panel '(r0 r1 1 r3) '(r0))
 
@@ -153,7 +154,7 @@
 
 	(entry 'window 'layout '(r0))
 
-	(call 'window 'get_long_prop '(r0 prop_border) '(r0 r1))
+	(call 'window 'get_long_prop '(r0 static_sym_border) '(r0 r1))
 	(assign '((r0 view_w) (r0 view_h)) '(r9 r10))
 	(vp-sub-rr r1 r9)
 	(vp-sub-rr r1 r10)
@@ -162,7 +163,7 @@
 	(vp-push r0)
 	(call 'flow 'change '((r0 window_flow) r1 r1 r9 r10))
 	(vp-pop r0)
-	(call 'window 'get_long_prop '(r0 prop_color) '(r0 r1))
+	(call 'window 'get_long_prop '(r0 static_sym_color) '(r0 r1))
 	(vp-shr-cr 24 r1)
 	(vpif '(r1 = 0xff))
 		(call 'view 'set_flags '(r0 view_flag_opaque view_flag_opaque) '(r0 _))
@@ -185,7 +186,7 @@
 	(entry 'window 'mouse_down '(r0 r1))
 
 	(vp-push r1)
-	(call 'window 'get_long_prop '(r0 prop_border) '(r0 r1))
+	(call 'window 'get_long_prop '(r0 static_sym_border) '(r0 r1))
 	(vp-pop r2)
 	(assign '((r2 ev_msg_mouse_rx) (r2 ev_msg_mouse_ry)) '(r3 r4))
 	(vp-xor-rr r2 r2)
@@ -318,7 +319,7 @@
 
 	(entry 'window 'pref_size '(r0))
 
-	(call 'window 'get_long_prop '(r0 prop_border) '(r0 r1))
+	(call 'window 'get_long_prop '(r0 static_sym_border) '(r0 r1))
 	(vp-push r0 r1)
 	(call 'flow 'pref_size '((r0 window_flow)) '(_ r9 r10))
 	(vp-pop r0 r1)

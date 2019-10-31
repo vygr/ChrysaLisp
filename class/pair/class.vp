@@ -73,8 +73,7 @@
 	(entry 'pair 'set_first '(r0 r1))
 
 	(vp-push r0)
-	(assign '((r0 pair_first)) '(r2))
-	(assign '(r1) '((r0 pair_first)))
+	(assign '((r0 pair_first) r1) '(r2 (r0 pair_first)))
 	(call 'obj 'deref '(r2))
 	(vp-pop r0)
 
@@ -95,8 +94,7 @@
 	(entry 'pair 'set_second '(r0 r1))
 
 	(vp-push r0)
-	(assign '((r0 pair_second)) '(r2))
-	(assign '(r1) '((r0 pair_second)))
+	(assign '((r0 pair_second) r1) '(r2 (r0 pair_second)))
 	(call 'obj 'deref '(r2))
 	(vp-pop r0)
 

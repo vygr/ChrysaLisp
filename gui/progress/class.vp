@@ -2,6 +2,7 @@
 (include 'gui/gui/class.inc)
 (include 'gui/ctx/class.inc)
 (include 'gui/progress/class.inc)
+(include 'class/sym/class.inc)
 
 (gen-create 'progress)
 (gen-vtable 'progress)
@@ -24,9 +25,9 @@
 	(entry 'progress 'draw {this, ctx})
 
 	;get properties
-	(call 'progress 'get_long_prop {this, prop_maximum} {_, max})
-	(call 'progress 'get_long_prop {this, prop_value} {_, val})
-	(call 'progress 'get_long_prop {this, prop_color} {_, col})
+	(call 'progress 'get_long_prop {this, static_sym_maximum} {_, max})
+	(call 'progress 'get_long_prop {this, static_sym_value} {_, val})
+	(call 'progress 'get_long_prop {this, static_sym_color} {_, col})
 
 	;draw outline
 	(call 'ctx 'set_color {ctx, col})

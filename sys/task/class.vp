@@ -11,7 +11,7 @@
 	(times tk_statics_size (vp-byte 0))
 (def-func-end)
 
-(def-method 'sys_task 'init)
+(def-method 'sys_task 'statics_init)
 	;info
 	;init task statics
 

@@ -4,7 +4,7 @@
 (include 'sys/pii/class.inc)
 (include 'gui/gui/class.inc)
 (include 'gui/label/class.inc)
-(include 'class/str/class.inc)
+(include 'class/sym/class.inc)
 (include 'class/vector/class.inc)
 (include 'gui/region/class.inc)
 (include 'gui/ctx/class.inc)
@@ -16,7 +16,7 @@
 	(times gui_statics_size (vp-byte 0))
 (def-func-end)
 
-(def-method 'gui 'init)
+(def-method 'gui 'statics_init)
 
 	;init region heap
 	(f-bind 'gui 'statics r4)
@@ -55,8 +55,8 @@
 
 	;size, color and opaque
 	(call 'backdrop 'change '(r0 0 0 SCREEN_WIDTH SCREEN_HEIGHT) '(r0))
-	(call 'backdrop 'set_long_prop '(r0 prop_color argb_grey2) '(r0))
-	(call 'backdrop 'set_long_prop '(r0 prop_ink_color argb_grey1) '(r0))
+	(call 'backdrop 'set_long_prop '(r0 static_sym_color argb_grey2) '(r0))
+	(call 'backdrop 'set_long_prop '(r0 static_sym_ink_color argb_grey1) '(r0))
 	(call 'backdrop 'set_flags '(r0 view_flag_dirty_all view_flag_dirty_all))
 
 	;for now fire up the launcher

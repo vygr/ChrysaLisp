@@ -7,8 +7,8 @@
 
 (def-class 'sys_mail)
 (dec-method 'statics 'sys/mail/statics)
-(dec-method 'init 'sys/mail/init 'static)
-(dec-method 'init1 'sys/mail/init1 'static)
+(dec-method 'statics_init 'sys/mail/statics_init 'static)
+(dec-method 'statics_init1 'sys/mail/statics_init1 'static)
 (dec-method 'alloc_mbox 'sys/mail/alloc_mbox 'static nil '(r0 r1))
 (dec-method 'free_mbox 'sys/mail/free_mbox 'static '(r0))
 (dec-method 'mbox_addr 'sys/mail/mbox_addr 'static '(r0) '(r0))

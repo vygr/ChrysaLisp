@@ -1,5 +1,6 @@
 (include 'sys/func.inc)
 (include 'gui/grid/class.inc)
+(include 'class/sym/class.inc)
 
 (gen-create 'grid)
 (gen-vtable 'grid)
@@ -22,8 +23,8 @@
 	(vp-alloc local_size)
 	(entry 'grid 'layout '(r0))
 
-	(call 'grid 'get_long_prop '(r0 prop_grid_width) '(r0 (rsp local_width)))
-	(call 'grid 'get_long_prop '(r0 prop_grid_height) '(r0 r1))
+	(call 'grid 'get_long_prop '(r0 static_sym_grid_width) '(r0 (rsp local_width)))
+	(call 'grid 'get_long_prop '(r0 static_sym_grid_height) '(r0 r1))
 	(vp-xor-rr r2 r2)
 	(assign '(r0 r2 (rsp local_width) (r0 view_h) (r0 view_w))
 		'((rsp local_this) (rsp local_count) r3 r4 r0))
@@ -86,8 +87,8 @@
 	(vp-xor-rr r1 r1)
 	(assign '(r1 r1) '((rsp local_w) (rsp local_h)))
 	(call 'grid 'forward '(r0 rsp ($ callback)))
-	(call 'grid 'get_long_prop '(r0 prop_grid_width) '(r0 (rsp local_width)))
-	(call 'grid 'get_long_prop '(r0 prop_grid_height) '(r0 r1))
+	(call 'grid 'get_long_prop '(r0 static_sym_grid_width) '(r0 (rsp local_width)))
+	(call 'grid 'get_long_prop '(r0 static_sym_grid_height) '(r0 r1))
 	(assign '((rsp local_width) (rsp local_w) (rsp local_h)) '(r2 r9 r10))
 	(vp-mul-rr r2 r9)
 	(vp-mul-rr r1 r10)

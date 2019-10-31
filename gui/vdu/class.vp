@@ -72,10 +72,10 @@
 	(entry 'vdu 'draw {this, ctx})
 
 	;get properties, do checks for any changes
-	(call 'vdu 'get_long_prop {this, prop_ink_color} {_, col})
-	(call 'vdu 'get_long_prop {this, prop_vdu_width} {_, w})
-	(call 'vdu 'get_long_prop {this, prop_vdu_height} {_, h})
-	(call 'vdu 'get_prop {this, prop_font} {_, font})
+	(call 'vdu 'get_long_prop {this, static_sym_ink_color} {_, col})
+	(call 'vdu 'get_long_prop {this, static_sym_vdu_width} {_, w})
+	(call 'vdu 'get_long_prop {this, static_sym_vdu_height} {_, h})
+	(call 'vdu 'get_prop {this, static_sym_font} {_, font})
 	(vpif {font && font /= this->vdu_font})
 		(assign {font} {this->vdu_font})
 		(call 'vdu 'switch_font {this})
@@ -141,9 +141,9 @@
 	(entry 'vdu 'pref_size {this})
 
 	;get properties, do checks for any changes
-	(call 'vdu 'get_long_prop {this, prop_vdu_width} {_, w})
-	(call 'vdu 'get_long_prop {this, prop_vdu_height} {_, h})
-	(call 'vdu 'ref_prop {this, prop_font} {_, font})
+	(call 'vdu 'get_long_prop {this, static_sym_vdu_width} {_, w})
+	(call 'vdu 'get_long_prop {this, static_sym_vdu_height} {_, h})
+	(call 'vdu 'ref_prop {this, static_sym_font} {_, font})
 	(vpif {font && font /= this->vdu_font})
 		(assign {font} {this->vdu_font})
 		(call 'vdu 'switch_font {this})

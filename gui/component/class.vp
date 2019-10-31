@@ -130,59 +130,10 @@
 
 (def-func-end)
 
-(def-method 'component 'get_prop_sym)
-	;inputs
-	;r0 = component object (ptr)
-	;r1 = property num (uint)
-	;outputs
-	;r0 = component object (ptr)
-	;r1 = property sym object (ptr)
-	;trashes
-	;all but r0
-
-	(ptr 'this 'sym 'syms)
-	(pubyte 'next)
-	(uint 'num 'length)
-
-	(push-scope)
-	(entry 'component 'get_prop_sym {this, num})
-
-	(assign {ptr($symbols)} {syms})
-	(vpifnot {syms})
-		(call 'vector 'create nil {syms})
-		(call 'vector 'set_capacity (cat {syms, } (str (length *props*))))
-		(assign {$props} {next})
-		(loop-start)
-			(call 'sym 'intern_cstr {next} {sym})
-			(call 'vector 'push_back {syms, sym})
-			(call 'sys_str 'length {next} {_, length})
-		(loop-until {(next + length + byte_size => next) = $props_end})
-		(assign {syms} {ptr($symbols)})
-	(endif)
-	(call 'vector 'get_element {syms, num} {_, sym})
-
-	(exit 'component 'get_prop_sym {this, sym})
-	(pop-scope)
-	(return)
-
-;;;;;;;;;;;;;;;;;;
-; interned symbols
-;;;;;;;;;;;;;;;;;;
-
-	(vp-align ptr_size)
-(vp-label 'symbols)
-	(vp-long 0)
-
-(vp-label 'props)
-	(each (lambda (_) (vp-string _) (vp-byte 0)) *props*)
-(vp-label 'props_end)
-
-(def-func-end)
-
 (def-method 'component 'ref_prop)
 	;inputs
 	;r0 = component object (ptr)
-	;r1 = property num (uint)
+	;r1 = static sym num (uint)
 	;outputs
 	;r0 = component object (ptr)
 	;r1 = 0 else, property object (ptr)
@@ -198,7 +149,7 @@
 	(push-scope)
 	(entry 'component 'ref_prop {this, num})
 
-	(call 'component 'get_prop_sym {this, num} {_, sym})
+	(call 'sym 'get_static_sym {num} {sym})
 	(call 'component 'get {this, sym} {_, obj})
 
 	(exit 'component 'ref_prop {this, obj})
@@ -210,7 +161,7 @@
 (def-method 'component 'get_prop)
 	;inputs
 	;r0 = component object (ptr)
-	;r1 = property num (uint)
+	;r1 = static sym num (uint)
 	;outputs
 	;r0 = component object (ptr)
 	;r1 = 0 else, property object (ptr)
@@ -226,7 +177,7 @@
 	(push-scope)
 	(entry 'component 'get_prop {this, num})
 
-	(call 'component 'get_prop_sym {this, num} {_, sym})
+	(call 'sym 'get_static_sym {num} {sym})
 	(call 'component 'get {this, sym} {_, obj})
 	(call 'obj 'deref_if {obj})
 
@@ -239,7 +190,7 @@
 (def-method 'component 'set_long_prop)
 	;inputs
 	;r0 = component object (ptr)
-	;r1 = property num (uint)
+	;r1 = static sym num (uint)
 	;r2 = property value (long)
 	;outputs
 	;r0 = component object (ptr)
@@ -253,7 +204,7 @@
 	(push-scope)
 	(entry 'component 'set_long_prop {this, num, value})
 
-	(call 'component 'get_prop_sym {this, num} {_, sym})
+	(call 'sym 'get_static_sym {num} {sym})
 	(call 'num 'create {value} {prop})
 	(call 'component 'insert {this, sym, prop})
 	(call 'num 'deref {prop})
@@ -267,7 +218,7 @@
 (def-method 'component 'get_long_prop)
 	;inputs
 	;r0 = component object (ptr)
-	;r1 = property num (uint)
+	;r1 = static sym num (uint)
 	;outputs
 	;r0 = component object (ptr)
 	;r1 = property value (long)
@@ -285,7 +236,7 @@
 	(push-scope)
 	(entry 'component 'get_long_prop {this, num})
 
-	(call 'component 'get_prop_sym {this, num} {_, sym})
+	(call 'sym 'get_static_sym {num} {sym})
 	(call 'component 'get {this, sym} {_, prop})
 	(assign {0} {value})
 	(vpif {prop})
@@ -302,7 +253,7 @@
 (def-method 'component 'set_font_prop)
 	;inputs
 	;r0 = component object (ptr)
-	;r1 = property num (uint)
+	;r1 = static sym num (uint)
 	;r2 = font c string name (pubyte)
 	;r3 = font size (points)
 	;outputs
@@ -319,9 +270,9 @@
 	(push-scope)
 	(entry 'component 'set_font_prop {this, num, name, points})
 
-	(call 'component 'get_prop_sym {this, num} {_, sym})
 	(call 'font 'open {name, points} {font})
 	(vpif {font})
+		(call 'sym 'get_static_sym {num} {sym})
 		(call 'component 'insert {this, sym, font})
 		(call 'font 'deref {font})
 	(endif)
@@ -335,7 +286,7 @@
 (def-method 'component 'set_str_prop)
 	;inputs
 	;r0 = component object (ptr)
-	;r1 = property num (uint)
+	;r1 = static sym num (uint)
 	;r2 = c string (pubyte)
 	;outputs
 	;r0 = component object (ptr)
@@ -348,7 +299,7 @@
 	(push-scope)
 	(entry 'component 'set_str_prop {this, num, str})
 
-	(call 'component 'get_prop_sym {this, num} {_, sym})
+	(call 'sym 'get_static_sym {num} {sym})
 	(call 'str 'create_from_cstr {str} {str})
 	(call 'component 'insert {this, sym, str})
 	(call 'str 'deref {str})

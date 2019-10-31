@@ -7,7 +7,6 @@
 (dec-method 'find_owner 'gui/component/find_owner 'static '(r0) '(r0 r1))
 (dec-method 'connect 'gui/component/connect 'static '(r0 r1) '(r0))
 (dec-method 'emit 'gui/component/emit 'static '(r0) '(r0))
-(dec-method 'get_prop_sym 'gui/component/get_prop_sym 'static '(r0 r1) '(r0 r1))
 (dec-method 'get_prop 'gui/component/get_prop 'static '(r0 r1) '(r0 r1))
 (dec-method 'ref_prop 'gui/component/ref_prop 'static '(r0 r1) '(r0 r1))
 (dec-method 'set_long_prop 'gui/component/set_long_prop 'static '(r0 r1 r2) '(r0))
@@ -24,29 +23,3 @@
 	(ptr 'tcb 'target_ids)
 	(long 'id)
 (def-struct-end)
-
-;;;;;;;;;;;;
-; properties
-;;;;;;;;;;;;
-
-(defcvar '*props* (list))
-(defun defprop (_)
-	(defcvar (sym (cat "prop_" _)) (length *props*))
-	(push *props* _))
-
-(defprop "font")
-(defprop "text")
-(defprop "color")
-(defprop "border")
-(defprop "value")
-(defprop "maximum")
-(defprop "minimum")
-(defprop "portion")
-(defprop "min_width")
-(defprop "min_height")
-(defprop "ink_color")
-(defprop "flow_flags")
-(defprop "grid_width")
-(defprop "grid_height")
-(defprop "vdu_width")
-(defprop "vdu_height")

@@ -8,7 +8,7 @@
 
 (def-class 'sys_task)
 (dec-method 'statics 'sys/task/statics)
-(dec-method 'init 'sys/task/init)
+(dec-method 'statics_init 'sys/task/statics_init)
 (dec-method 'tcb 'sys/task/tcb 'static nil '(r0))
 (dec-method 'mailbox 'sys/task/mailbox 'static nil '(r0))
 (dec-method 'callback 'sys/task/callback 'static '(r0 r1))

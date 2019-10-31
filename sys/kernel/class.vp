@@ -5,6 +5,7 @@
 (include 'sys/str/class.inc)
 (include 'sys/pii/class.inc)
 (include 'gui/gui/class.inc)
+(include 'class/sym/class.inc)
 (include 'class/lisp/class.inc)
 
 ;;;;;;;;;;;;;
@@ -31,16 +32,19 @@
 	(entry {argv})
 
 	;init allocator
-	(call 'sys_mem 'init)
+	(call 'sys_mem 'statics_init)
+
+	;init symbols
+	(call 'sym 'statics_init)
 
 	;init tasks
-	(call 'sys_task 'init)
+	(call 'sys_task 'statics_init)
 
 	;init gui
-	(call 'gui 'init)
+	(call 'gui 'statics_init)
 
 	;init mailer mailbox vector
-	(call 'sys_mail 'init)
+	(call 'sys_mail 'statics_init)
 
 	;start kernel task (get's mailbox id of 0 !)
 	(assign (cat {@} (f-path 'sys_task 'statics)) {task_statics})
@@ -48,7 +52,7 @@
 	(call 'sys_task 'start {$func_entry} {task_statics->tk_statics_kernel_tcb, mbox_id, mbox_addr})
 
 	;init mailer
-	(call 'sys_mail 'init1)
+	(call 'sys_mail 'statics_init1)
 
 	;process command options
 	(call 'opts {argv})
@@ -234,7 +238,7 @@
 	(call 'sys_mem 'free {routes.lk_table_array})
 
 	;deinit allocator
-	(call 'sys_mem 'deinit)
+	(call 'sys_mem 'statics_deinit)
 
 	;exit back to load init
 	(pop-scope)

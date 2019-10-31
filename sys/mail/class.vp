@@ -13,7 +13,7 @@
 	(times ml_statics_size (vp-byte 0))
 (def-func-end)
 
-(def-method 'sys_mail 'init)
+(def-method 'sys_mail 'statics_init)
 	;info
 	;init the mbox array and mbox free array
 
@@ -25,7 +25,7 @@
 
 (def-func-end)
 
-(def-method 'sys_mail 'init1)
+(def-method 'sys_mail 'statics_init1)
 	;info
 	;init the mail system
 

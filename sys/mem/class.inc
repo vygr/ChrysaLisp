@@ -6,8 +6,8 @@
 
 (def-class 'sys_mem)
 (dec-method 'statics 'sys/mem/statics)
-(dec-method 'init 'sys/mem/init)
-(dec-method 'deinit 'sys/mem/deinit)
+(dec-method 'statics_init 'sys/mem/statics_init)
+(dec-method 'statics_deinit 'sys/mem/statics_deinit)
 (dec-method 'alloc 'sys/mem/alloc 'static '(r0) '(r0 r1))
 (dec-method 'calloc 'sys/mem/calloc 'static '(r0) '(r0 r1))
 (dec-method 'free 'sys/mem/free 'static '(r0))

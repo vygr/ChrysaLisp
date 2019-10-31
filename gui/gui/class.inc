@@ -11,7 +11,7 @@
 
 (def-class 'gui)
 (dec-method 'statics 'gui/gui/statics)
-(dec-method 'init 'gui/gui/init)
+(dec-method 'statics_init 'gui/gui/statics_init)
 (dec-method 'update 'gui/gui/update 'static '(r0))
 (dec-method 'add 'gui/gui/add 'static '(r0) '(r0))
 (dec-method 'gui 'gui/gui/gui)

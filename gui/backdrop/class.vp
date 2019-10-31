@@ -1,6 +1,7 @@
 (include 'sys/func.inc)
 (include 'gui/ctx/class.inc)
 (include 'gui/backdrop/class.inc)
+(include 'class/sym/class.inc)
 
 (gen-vtable 'backdrop)
 (gen-create 'backdrop)
@@ -21,8 +22,8 @@
 	(push-scope)
 	(entry 'backdrop 'draw {this, ctx})
 
-	(call 'backdrop 'get_long_prop {this, prop_color} {_, col})
-	(call 'backdrop 'get_long_prop {this, prop_ink_color} {_, ink})
+	(call 'backdrop 'get_long_prop {this, static_sym_color} {_, col})
+	(call 'backdrop 'get_long_prop {this, static_sym_ink_color} {_, ink})
 	(call 'backdrop 'get_bounds {this} {_, _, _, w, h})
 
 	(call 'ctx 'set_color {ctx, col})
@@ -54,7 +55,7 @@
 
 	(entry 'backdrop 'layout '(r0))
 
-	(call 'backdrop 'get_long_prop '(r0 prop_color) '(r0 r1))
+	(call 'backdrop 'get_long_prop '(r0 static_sym_color) '(r0 r1))
 	(vp-shr-cr 24 r1)
 	(vpif '(r1 = 0xff))
 		(jump 'view 'set_flags '(r0 view_flag_opaque view_flag_opaque) '(r0 _))

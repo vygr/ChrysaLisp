@@ -4,6 +4,7 @@
 (include 'gui/window/class.inc)
 (include 'gui/title/class.inc)
 (include 'gui/flow/class.inc)
+(include 'class/sym/class.inc)
 
 (gen-create 'title)
 (gen-vtable 'title)
@@ -22,7 +23,7 @@
 	(s-call 'title 'init '(r0 r1) '(r0 r1))
 	(vpif '(r1 /= 0))
 		;init myself
-		(call 'title 'set_long_prop '(r0 prop_border 1) '(r0))
+		(call 'title 'set_long_prop '(r0 static_sym_border 1) '(r0))
 		(vp-cpy-cr 1 r1)
 	(endif)
 

@@ -2,6 +2,7 @@
 (include 'gui/gui/class.inc)
 (include 'gui/button/class.inc)
 (include 'gui/flow/class.inc)
+(include 'class/sym/class.inc)
 
 (gen-create 'button)
 (gen-vtable 'button)
@@ -22,8 +23,8 @@
 		;init myself
 		(vp-xor-rr r2 r2)
 		(assign '(r2) '((r0 button_state)))
-		(call 'button 'set_long_prop '(r0 prop_border 2) '(r0))
-		(call 'button 'set_long_prop '(r0 prop_flow_flags (logior flow_flag_down flow_flag_align_hcenter flow_flag_align_vcenter)) '(r0))
+		(call 'button 'set_long_prop '(r0 static_sym_border 2) '(r0))
+		(call 'button 'set_long_prop '(r0 static_sym_flow_flags (logior flow_flag_down flow_flag_align_hcenter flow_flag_align_vcenter)) '(r0))
 		(vp-cpy-cr 1 r1)
 	(endif)
 
@@ -45,7 +46,7 @@
 
 	;draw panel, in or out
 	(vp-push r1)
-	(call 'button 'get_long_prop '(r0 prop_border) '(r0 r3))
+	(call 'button 'get_long_prop '(r0 static_sym_border) '(r0 r3))
 	(assign '((r0 button_state)) '(r1))
 	(vp-and-cr button_state_pressed r1)
 	(vpif '(r1 /= 0))
@@ -70,7 +71,7 @@
 	(entry 'button 'layout '(r0))
 
 	;contents offset or not
-	(call 'button 'get_long_prop '(r0 prop_border) '(r0 r1))
+	(call 'button 'get_long_prop '(r0 static_sym_border) '(r0 r1))
 	(assign '((r0 button_state) r1) '(r2 r3))
 	(vp-and-cr button_state_pressed r2)
 	(vpif '(r2 /= 0))

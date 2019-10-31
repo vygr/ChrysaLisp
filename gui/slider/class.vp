@@ -2,6 +2,7 @@
 (include 'gui/gui/class.inc)
 (include 'gui/slider/class.inc)
 (include 'class/array/class.inc)
+(include 'class/sym/class.inc)
 (include 'gui/ctx/class.inc)
 
 (gen-create 'slider)
@@ -48,10 +49,10 @@
 	(entry 'slider 'draw {this, ctx})
 
 	;get properties
-	(call 'slider 'get_long_prop {this, prop_maximum} {_, max})
-	(call 'slider 'get_long_prop {this, prop_portion} {_, portion})
-	(call 'slider 'get_long_prop {this, prop_value} {_, val})
-	(call 'slider 'get_long_prop {this, prop_color} {_, col})
+	(call 'slider 'get_long_prop {this, static_sym_maximum} {_, max})
+	(call 'slider 'get_long_prop {this, static_sym_portion} {_, portion})
+	(call 'slider 'get_long_prop {this, static_sym_value} {_, val})
+	(call 'slider 'get_long_prop {this, static_sym_color} {_, col})
 
 	;draw outline
 	(call 'ctx 'set_color {ctx, 0xff000000})
@@ -151,7 +152,7 @@
 
 	;slider drag offset, so no jaring first move ?
 	(call 'slider 'get_bounds {this} {_, _, _, width, height})
-	(call 'slider 'get_long_prop {this, prop_value} {_, this->slider_old_val})
+	(call 'slider 'get_long_prop {this, static_sym_value} {_, this->slider_old_val})
 	(assign {evt->ev_msg_mouse_rx} {this->slider_offset})
 	(vpif {height > width})
 		(assign {evt->ev_msg_mouse_ry} {this->slider_offset})
@@ -197,9 +198,9 @@
 
 	;emit new value signal ?
 	(call 'slider 'get_bounds {this} {_, _, _, width, height})
-	(call 'slider 'get_long_prop {this, prop_maximum} {_, max})
-	(call 'slider 'get_long_prop {this, prop_portion} {_, portion})
-	(call 'slider 'get_long_prop {this, prop_value} {_, val})
+	(call 'slider 'get_long_prop {this, static_sym_maximum} {_, max})
+	(call 'slider 'get_long_prop {this, static_sym_portion} {_, portion})
+	(call 'slider 'get_long_prop {this, static_sym_value} {_, val})
 	(vpif {width > height})
 		(assign {(rx - this->slider_offset) * (max + portion) // width} {new_val})
 	(else)
@@ -215,7 +216,7 @@
 	;dirty ?
 	(switch)
 	(vpcase {new_val /= val})
-		(call 'slider 'set_long_prop {this, prop_value, new_val})
+		(call 'slider 'set_long_prop {this, static_sym_value, new_val})
 		(call 'slider 'emit {this})
 		(goto 'isdirty)
 	(vpcase {old_state /= this->slider_state})
