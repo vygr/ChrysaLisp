@@ -100,8 +100,6 @@
 	;inputs
 	;r0 = predicate data (ptr)
 	;r1 = element iterator (ptr)
-	;outputs
-	;r1 = 0 if break, else not
 
 	(entry 'hset 'each_callback '(r0 r1))
 
