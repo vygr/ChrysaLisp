@@ -290,7 +290,7 @@
 
 ## def?
 
-(def? form)
+(def? form [env])
 
 ## defmacro
 
