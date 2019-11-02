@@ -185,7 +185,6 @@ fp_frac_mask
 
 ```lisp
 and
-ascii
 case
 compose
 curry
@@ -217,10 +216,10 @@ when
 ```lisp
 abs
 align
-nlo
-nlz
-nto
-ntz
+ascii-char
+ascii-code
+ascii-lower
+ascii-upper
 cpu
 each
 each-line
@@ -245,8 +244,12 @@ map
 map-rev
 merge
 neg
+nlo
+nlz
 notany
 notevery
+nto
+ntz
 num?
 partition
 platform
@@ -263,7 +266,9 @@ str?
 swap
 sym?
 to-base-char
+to-lower
 to-num
+to-upper
 trim
 trim-end
 trim-start

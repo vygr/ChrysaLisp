@@ -10,14 +10,14 @@
 (defun-bind populate-help ()
 	(defq state t vdu_width 1 k (list) v (list))
 	(each-line (lambda (_)
-		(when (/= 0 (length (defq s (split (setq _ (trim-end _ (ascii-char 13))) " "))))
+		(when (/= 0 (length (defq s (split (setq _ (trim-end _ (const (ascii-char 13)))) " "))))
 			(defq f (elem 0 s))
 			(cond
 				(state (cond
 					((eql f "###") (push k (sym (elem 1 s))) (push v ""))
 					((eql f "```lisp") (setq state nil))))
 				((eql f "```") (setq state t))
-				(t (elem-set -2 v (cat (elem -2 v) _ (ascii-char 10))))))) "doc/CLASSES.md")
+				(t (elem-set -2 v (cat (elem -2 v) _ (const (ascii-char 10)))))))) "doc/CLASSES.md")
 	(each (lambda (k v)
 		(when (/= 0 (length v))
 			(defq _ (split k ":"))
@@ -31,7 +31,7 @@
 		(view-add-child index (component-connect b event_win_button))) keys)
 	(def vdu 'vdu_width
 		(reduce max (map (lambda (_)
-			(reduce max (map length (split _ (ascii-char 10))))) vals))))
+			(reduce max (map length (split _ (const (ascii-char 10)))))) vals))))
 
 (ui-tree window (create-window window_flag_close) ('color argb_black)
 	(ui-element _ (create-flow) ('flow_flags (logior flow_flag_right flow_flag_fillh flow_flag_lastw)
@@ -54,12 +54,12 @@
 		((= id event_win_button)
 			(defq _ (find (sym (get (view-find-id window (get-long msg ev_msg_action_source_id)) 'text)) keys))
 			(when _
-				(vdu-print vdu "----------------------") (vdu-print vdu (ascii-char 10))
-				(vdu-print vdu (elem _ keys)) (vdu-print vdu (ascii-char 10))
-				(vdu-print vdu "----------------------") (vdu-print vdu (ascii-char 10))
-				(vdu-print vdu (elem _ vals))
-				(vdu-print vdu "----------------------") (vdu-print vdu (ascii-char 10))
-				(vdu-print vdu (ascii-char 10))))
+				(vdu-print vdu (str
+					"----------------------" (const (ascii-char 10))
+					(elem _ keys) (const (ascii-char 10))
+					"----------------------" (const (ascii-char 10))
+					(elem _ vals)
+					"----------------------" (const (ascii-char 10)) (const (ascii-char 10))))))
 		(t (view-event window msg))))
 
 (view-hide window)

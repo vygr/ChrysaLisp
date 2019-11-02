@@ -148,7 +148,7 @@
 
 (defmacro-bind const (_)
 	;(const form)
-	(eval _))
+	(eval (macroexpand _)))
 
 (defun-bind exec (_)
 	;(exec ast)
@@ -199,42 +199,42 @@
 ;;;;;;;;;;;;;;
 
 (defmacro-bind if (x y &rest _)
-	;(if form form [form])
+	;(if tst form [eform])
 	(cond ((= 0 (length _)) `(cond (,x ,y)))
 		(t `(cond (,x ,y) (t ~_)))))
 
 (defmacro-bind not (_)
-	;(not form)
+	;(not form) -> t|nil
 	`(cond (,_ nil) (t)))
 
 (defmacro-bind when (x &rest _)
-	;(when form body)
+	;(when tst body)
 	`(cond (,x ~_)))
 
 (defmacro-bind unless (x &rest _)
-	;(unless form body)
+	;(unless tst body)
 	`(cond (,x nil) (t ~_)))
 
 (defmacro-bind until (x &rest _)
-	;(until form body)
+	;(until tst body)
 	`(while (not ,x) ~_))
 
 (defmacro-bind or (&rest _)
-	;(or [form] ...)
+	;(or [tst] ...) -> nil|tst
 	(cond
 		((= (length _) 0) nil)
 		((= (length _) 1) (elem 0 _))
 		(t `(if (defq ,(defq _x (gensym)) ,(elem 0 _)) ,_x (or ~(slice 1 -1 _))))))
 
 (defmacro-bind and (&rest _)
-	;(and [form] ...)
+	;(and [tst] ...) -> t|nil|tst
 	(cond
 		((= (length _) 0))
 		((= (length _) 1) (elem 0 _))
 		(t `(if ,(elem 0 _) (and ~(slice 1 -1 _))))))
 
 (defmacro-bind case (_k &rest _)
-	;(case form [(key body)] ...)
+	;(case tst [(key body)] ...)
 	(if (defq _ (reduce-rev (lambda (_x (_ &rest _y))
 			(unless (lst? _) (setq _ (list _)))
 			(if (notevery (lambda (_) (= (type-of _) (const lisp_type_sym))) _)
@@ -316,7 +316,7 @@
 		(if (apply _f _p) (push _l (elem _ _b)))) (list _b)) _l)
 
 (defun-bind reduce (_f _l &optional _a)
-	;(reduce lambda seq [accum])
+	;(reduce lambda seq [accum]) -> form
 	(cond
 		(_a (each! 0 -1 (lambda (_p)
 				(setq _a (_f _a _p))) (list _l)))
@@ -325,7 +325,7 @@
 				(setq _a (_f _a _p))) (list _l)))) _a)
 
 (defun-bind reduce-rev (_f _l &optional _a)
-	;(reduce-rev lambda seq [accum])
+	;(reduce-rev lambda seq [accum]) -> form
 	(cond
 		(_a (each! -1 0 (lambda (_p)
 				(setq _a (_f _a _p))) (list _l)))
@@ -338,37 +338,36 @@
 ;;;;;;;;;;;;
 
 (defun-bind some (_f &rest _)
-	;(some lambda seq ...)
+	;(some lambda seq ...) -> nil|form
 	(some! 0 -1 t _f _))
 
 (defun-bind every (_f &rest _)
-	;(every lambda seq ...)
+	;(every lambda seq ...) -> nil|form
 	(some! 0 -1 nil _f _))
 
 (defun-bind notany (_f &rest _)
-	;(notany lambda seq ...)
+	;(notany lambda seq ...) -> t|nil
 	(not (some! 0 -1 t _f _)))
 
 (defun-bind notevery (_f &rest _)
-	;(notevery lambda seq ...)
+	;(notevery lambda seq ...) -> t|nil
 	(not (some! 0 -1 nil _f _)))
 
 ;;;;;;;;;;;;;;;;
 ; Math functions
 ;;;;;;;;;;;;;;;;
 
-(defq min_long (<< -1 63) max_long (>> -1 1)
-	min_int (<< -1 31) max_int (>> -1 33))
+(defq min_long (<< -1 63) max_long (>> -1 1) min_int (<< -1 31) max_int (>> -1 33))
 
 (defun-bind sign (_)
-	;(sign num) -> num
+	;(sign num) -> -1|0|1
 	(cond
 		((= _ 0) 0)
 		((< _ 0) -1)
 		(t 1)))
 
 (defun-bind neg (_)
-	;(neg num) -> num
+	;(neg num) -> -num
 	(- 0 _))
 
 (defun-bind abs (_)
@@ -398,12 +397,30 @@
 	;(ascii-char num) -> char
 	(char _))
 
+(defun-bind ascii-upper (_)
+	;(ascii-upper num) -> num
+	(if (<= (const (ascii-code "a")) _ (const (ascii-code "z")))
+		(- _ (const (- (ascii-code "a") (ascii-code "A")))) _))
+
+(defun-bind ascii-lower (_)
+	;(ascii-lower num) -> num
+	(if (<= (const (ascii-code "A")) _ (const (ascii-code "Z")))
+		(+ _ (const (- (ascii-code "a") (ascii-code "A")))) _))
+
+(defun-bind to-upper (_)
+	;(to-upper str) -> str
+	(apply cat (map (lambda (_) (char (upper (code _)))) _)))
+
+(defun-bind to-lower (_)
+	;(to-lower str) -> str
+	(apply cat (map (lambda (_) (char (lower (code _)))) _)))
+
 (defmacro-bind starts-with (p _)
-	;(starts-with str str)
+	;(starts-with str str) -> t|nil
 	`(and (>= (length ,_) ,(length p)) (eql ,p (slice 0 ,(length p) ,_))))
 
 (defmacro-bind ends-with (p _)
-	;(ends-with str str)
+	;(ends-with str str) -> t|nil
 	`(and (>= (length ,_) ,(length p)) (eql ,p (slice ,(dec (neg (length p))) -1 ,_))))
 
 (defun-bind align (_ _a)
@@ -418,11 +435,11 @@
 	;(from-base-char str) -> num
 	(setq _ (code _))
 	(cond
-		((>= _ (ascii-code "a"))
-			(- _ (ascii-code "a") -10))
-		((>= _ (ascii-code "A"))
-			(- _ (ascii-code "A") -10))
-		(t (- _ (ascii-code "0")))))
+		((>= _ (const (ascii-code "a")))
+			(- _ (const (- (ascii-code "a") 10))))
+		((>= _ (const (ascii-code "A")))
+			(- _ (const (- (ascii-code "A") 10))))
+		(t (- _ (const (ascii-code "0"))))))
 
 (defun-bind to-num (_)
 	;(to-num str) -> num
@@ -446,13 +463,13 @@
 
 (defun-bind trim-start (s &optional c)
 	;(trim-start str [str]) -> str
-	(defq c (if c (code c) (ascii-code " ")) i -1)
+	(defq c (if c (code c) (const (ascii-code " "))) i -1)
 	(while (and (/= (setq i (inc i)) (length s)) (eql (code s 1 i) c)))
 	(slice i -1 s))
 
 (defun-bind trim-end (s &optional c)
 	;(trim-end str [str]) -> str
-	(defq c (if c (code c) (ascii-code " ")) i (length s))
+	(defq c (if c (code c) (const (ascii-code " "))) i (length s))
 	(while (and (/= (setq i (dec i)) -1) (eql (code s 1 i) c)))
 	(slice 0 (inc i) s))
 
@@ -572,10 +589,10 @@
 	;(each-pipe-line lambda pipe)
 	(defq _d "" _v t)
 	(while (and _p _v)
-		(defq _d (cat _d (pipe-read _p nil)) _i (find (ascii-char 10) _d))
+		(defq _d (cat _d (pipe-read _p nil)) _i (find (const (ascii-char 10)) _d))
 		(when _i
 			(defq _i (inc _i) _l (slice 0 _i _d) _d (slice _i -1 _d)
-				_v (every _f (split _l (ascii-char 10)))))))
+				_v (every _f (split _l (const (ascii-char 10))))))))
 
 (defmacro-bind import (_)
 	;(import path)
@@ -585,7 +602,7 @@
 
 (defun-bind write-line (s _)
 	;(write-line stream str) -> str
-	(write s _) (write s (ascii-char 10)) _)
+	(write s _) (write s (const (ascii-char 10))) _)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Compilation environment

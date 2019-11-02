@@ -86,7 +86,7 @@
 
 ## and
 
-(and [form] ...)
+(and [tst] ...) -> t|nil|tst
 
 ## apply
 
@@ -103,6 +103,14 @@
 ## ascii-code
 
 (ascii-code char) -> num
+
+## ascii-lower
+
+(ascii-lower num) -> num
+
+## ascii-upper
+
+(ascii-upper num) -> num
 
 ## awhen
 
@@ -158,7 +166,7 @@
 
 ## case
 
-(case form [(key body)] ...)
+(case tst [(key body)] ...)
 
 ## cat
 
@@ -354,7 +362,7 @@
 
 ## ends-with
 
-(ends-with str str)
+(ends-with str str) -> t|nil
 
 ## env
 
@@ -370,7 +378,7 @@
 
 ## every
 
-(every lambda seq ...)
+(every lambda seq ...) -> nil|form
 
 ## exec
 
@@ -462,7 +470,7 @@
 
 ## if
 
-(if form form [form])
+(if tst form [eform])
 
 ## import
 
@@ -582,7 +590,7 @@
 
 ## neg
 
-(neg num) -> num
+(neg num) -> -num
 
 ## nlo
 
@@ -594,15 +602,15 @@
 
 ## not
 
-(not form)
+(not form) -> t|nil
 
 ## notany
 
-(notany lambda seq ...)
+(notany lambda seq ...) -> t|nil
 
 ## notevery
 
-(notevery lambda seq ...)
+(notevery lambda seq ...) -> t|nil
 
 ## nto
 
@@ -638,7 +646,7 @@
 
 ## or
 
-(or [form] ...)
+(or [tst] ...) -> nil|tst
 
 ## pad
 
@@ -806,11 +814,11 @@
 
 ## reduce
 
-(reduce lambda seq [accum])
+(reduce lambda seq [accum]) -> form
 
 ## reduce-rev
 
-(reduce-rev lambda seq [accum])
+(reduce-rev lambda seq [accum]) -> form
 
 ## repl
 
@@ -846,7 +854,7 @@
 
 ## sign
 
-(sign num) -> num
+(sign num) -> -1|0|1
 
 ## slave-get-args
 
@@ -858,7 +866,7 @@
 
 ## some
 
-(some lambda seq ...)
+(some lambda seq ...) -> nil|form
 
 ## some!
 
@@ -878,7 +886,7 @@
 
 ## starts-with
 
-(starts-with str str)
+(starts-with str str) -> t|nil
 
 ## str
 
@@ -936,9 +944,17 @@
 
 (to-base-char num) -> str
 
+## to-lower
+
+(to-lower str) -> str
+
 ## to-num
 
 (to-num str) -> num
+
+## to-upper
+
+(to-upper str) -> str
 
 ## trim
 
@@ -962,11 +978,11 @@
 
 ## unless
 
-(unless form body)
+(unless tst body)
 
 ## until
 
-(until form body)
+(until tst body)
 
 ## vdu-print
 
@@ -1046,7 +1062,7 @@
 
 ## when
 
-(when form body)
+(when tst body)
 
 ## while
 

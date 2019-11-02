@@ -62,7 +62,7 @@
 			(def (setq vdu (create-vdu)) 'vdu_width vdu_width 'vdu_height vdu_height 'ink_color argb_yellow
 				'font (create-font "fonts/Hack-Regular.ttf" 16))
 			(view-layout (view-add-back vdu_flow vdu))
-			(view-dirty (vdu-print vdu (cat
+			(view-dirty (vdu-print vdu (const (cat
 				"ChrysaLisp Debug 0.3" (ascii-char 10)
 				"Toolbar1 buttons act on a single task." (ascii-char 10)
 				"Toolbar2 buttons act on all tasks." (ascii-char 10)
@@ -71,7 +71,7 @@
 				"add (import 'class/lisp/debug.inc)" (ascii-char 10)
 				"then use (defun-debug name ([arg ...]) body)" (ascii-char 10) (ascii-char 10)
 				"In VP files:" (ascii-char 10)
-				"use (debug-reg)" (ascii-char 10))))))
+				"use (debug-reg)" (ascii-char 10)))))))
 	(set-slider-values))
 
 (reset)

@@ -353,9 +353,9 @@ This is an example from the `class/pair/class.inc` file.
 	(ptr 'second)
 (def-struct-end)
 
-;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;
 ; inline methods
-;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;
 
 (defcfun class/pair/init ()
 	;inputs
@@ -366,24 +366,29 @@ This is an example from the `class/pair/class.inc` file.
 	;outputs
 	;r0 = pair object (ptr)
 	;r1 = 0 if error, else ok
-	(assign '(r2) '((r0 pair_first)))
-	(assign '(r3) '((r0 pair_second)))
+	;trashes
+	;r1
+	(assign '(r2 r3) '((r0 pair_first) (r0 pair_second)))
 	(s-call 'pair 'init '(r0 r1) '(r0 r1)))
 
-(defcfun class/pair/get_first ()
+(defcfun-bind class/pair/get_first ()
 	;inputs
 	;r0 = pair object (ptr)
 	;outputs
 	;r0 = pair object (ptr)
 	;r1 = object (ptr)
+	;trashes
+	;r1
 	(assign '((r0 pair_first)) '(r1)))
 
-(defcfun class/pair/get_second ()
+(defcfun-bind class/pair/get_second ()
 	;inputs
 	;r0 = pair object (ptr)
 	;outputs
 	;r0 = pair object (ptr)
 	;r1 = object (ptr)
+	;trashes
+	;r1
 	(assign '((r0 pair_second)) '(r1)))
 ```
 
@@ -412,8 +417,12 @@ of these.
 (def-method 'pair 'deinit)
 	;inputs
 	;r0 = pair object (ptr)
+	;outputs
+	;r0 = pair object (ptr)
 	;trashes
 	;all but r0
+
+	(entry 'pair 'deinit '(r0))
 
 	(vp-push r0)
 	(call 'obj 'deref '((r0 pair_first)))
@@ -433,9 +442,12 @@ of these.
 	;trashes
 	;r2
 
-	(vp-cpy-rr r0 r2)
-	(call 'obj 'ref '((r0 pair_first)) '(r1))
-	(vp-cpy-rr r2 r0)
+	(entry 'pair 'ref_first '(r0))
+
+	(assign '((r0 pair_first)) '(r1))
+	(class/obj/ref r1 r2)
+
+	(exit 'pair 'ref_first '(r0 r1))
 	(vp-ret)
 
 (def-func-end)
@@ -449,9 +461,12 @@ of these.
 	;trashes
 	;r2
 
-	(vp-cpy-rr r0 r2)
-	(call 'obj 'ref '((r0 pair_second)) '(r1))
-	(vp-cpy-rr r2 r0)
+	(entry 'pair 'ref_second '(r0))
+
+	(assign '((r0 pair_second)) '(r1))
+	(class/obj/ref r1 r2)
+
+	(exit 'pair 'ref_second '(r0 r1))
 	(vp-ret)
 
 (def-func-end)
@@ -465,11 +480,14 @@ of these.
 	;trashes
 	;all but r0
 
+	(entry 'pair 'set_first '(r0 r1))
+
 	(vp-push r0)
-	(assign '((r0 pair_first)) '(r2))
-	(assign '(r1) '((r0 pair_first)))
+	(assign '((r0 pair_first) r1) '(r2 (r0 pair_first)))
 	(call 'obj 'deref '(r2))
 	(vp-pop r0)
+
+	(exit 'pair 'set_first '(r0))
 	(vp-ret)
 
 (def-func-end)
@@ -483,11 +501,14 @@ of these.
 	;trashes
 	;all but r0
 
+	(entry 'pair 'set_second '(r0 r1))
+
 	(vp-push r0)
-	(assign '((r0 pair_second)) '(r2))
-	(assign '(r1) '((r0 pair_second)))
+	(assign '((r0 pair_second) r1) '(r2 (r0 pair_second)))
 	(call 'obj 'deref '(r2))
 	(vp-pop r0)
+
+	(exit 'pair 'set_second '(r0))
 	(vp-ret)
 
 (def-func-end)

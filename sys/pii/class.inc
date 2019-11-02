@@ -247,7 +247,7 @@
 		(vp-push r0 r1)
 		(if (reg s)
 			(vp-cpy-rr s r1)
-			(fn-string (cat s (ascii-char 10)) r1))
+			(fn-string (cat s (const (ascii-char 10))) r1))
 		(call 'sys_pii 'write_str '(2 r1))
 		(vp-pop r0 r1)))
 

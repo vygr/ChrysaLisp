@@ -494,7 +494,7 @@
 ;;;;;;;;;;
 
 (defmacro is_white_space_char (_)
-	`(not (< (ascii-code " ") (code ,_) 127)))
+	`(not (< (const (ascii-code " ")) (code ,_) 127)))
 
 (defmacro is_symbol_char (_)
 	(list 'find _ "ABCDEFGHIJKLMNOPQRSTUVWXYZ_/0123456789abcdefghijklmnopqrstuvwxyz"))

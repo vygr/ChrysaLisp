@@ -9,8 +9,8 @@
 	;(debug form)
 	`(progn
 		(push *r* ,_)
-		(kernel-debug (str (ascii-char 10) (ascii-char 10)
-			"Environment:" (ascii-char 10) (env) (ascii-char 10)))
+		(kernel-debug (str (const (ascii-char 10)) (const (ascii-char 10))
+			"Environment:" (const (ascii-char 10)) (env) (const (ascii-char 10))))
 		(pop *r*)))
 
 (defmacro-bind defun-debug (n a &rest _)
