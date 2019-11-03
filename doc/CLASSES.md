@@ -5631,11 +5631,11 @@ all
 
 ```lisp
 inputs
-r0 = static sym num (uint)
+r1 = static sym num (uint)
 outputs
-r0 = sym object (ptr)
+r1 = sym object (ptr)
 trashes
-r1
+r3
 ```
 
 ### sym::flush -> class/sym/flush

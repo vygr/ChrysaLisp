@@ -1,12 +1,12 @@
 (include 'sys/func.inc)
 (include 'sys/kernel/class.inc)
-(include 'sys/str/class.inc)
 (include 'gui/gui/class.inc)
 (include 'gui/component/class.inc)
+(include 'gui/font/class.inc)
 (include 'class/sym/class.inc)
 (include 'class/num/class.inc)
-(include 'gui/font/class.inc)
 (include 'class/vector/class.inc)
+(include 'class/pair/class.inc)
 
 (gen-vtable 'component)
 
@@ -43,8 +43,7 @@
 	(entry 'component 'deinit '(r0))
 
 	(vp-push r0)
-	(assign '((r0 component_target_ids)) '(r0))
-	(call 'array 'deref_if '(r0))
+	(call 'array 'deref_if '((r0 component_target_ids)))
 	(vp-pop r0)
 	(s-jump 'component 'deinit '(r0))
 
@@ -83,22 +82,22 @@
 	(push-scope)
 	(entry 'component 'emit {this})
 
-	(vpif {this->component_target_ids})
-		(call 'component 'find_owner {this} {_, tcb})
-		(vpif {tcb})
-			(call 'array 'get_both {this->component_target_ids} {_, iter_begin, iter_end})
-			(loop-while {iter_begin /= iter_end})
-				(call 'sys_mail 'alloc {ev_msg_action_size} {msg, data})
-				(assign {tcb->tk_node_mbox_id} {msg->msg_dest.id_mbox})
-				(call 'sys_kernel 'id nil {msg->msg_dest.id_cpu})
-				(assign {ev_type_action} {data->ev_msg_type})
-				(assign {*iter_begin} {data->ev_msg_target_id})
-				(assign {this->component_id} {data->ev_msg_action_source_id})
-				(call 'sys_mail 'send {msg})
-				(assign {iter_begin + long_size} {iter_begin})
-			(loop-end)
-		(endif)
-	(endif)
+	(switch)
+	(breakifnot {this->component_target_ids})
+	(call 'component 'find_owner {this} {_, tcb})
+	(breakifnot {tcb})
+	(call 'array 'get_both {this->component_target_ids} {_, iter_begin, iter_end})
+	(loop-while {iter_begin /= iter_end})
+		(call 'sys_mail 'alloc {ev_msg_action_size} {msg, data})
+		(assign {tcb->tk_node_mbox_id} {msg->msg_dest.id_mbox})
+		(call 'sys_kernel 'id nil {msg->msg_dest.id_cpu})
+		(assign {ev_type_action} {data->ev_msg_type})
+		(assign {*iter_begin} {data->ev_msg_target_id})
+		(assign {this->component_id} {data->ev_msg_action_source_id})
+		(call 'sys_mail 'send {msg})
+		(assign {iter_begin + long_size} {iter_begin})
+	(loop-end)
+	(endswitch)
 
 	(exit 'component 'emit {this})
 	(pop-scope)
@@ -140,21 +139,13 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this)
-	(union
-		'(ptr 'sym)
-		'(ptr 'obj))
-	(uint 'num)
+	(entry 'component 'ref_prop '(r0 r1))
 
-	(push-scope)
-	(entry 'component 'ref_prop {this, num})
+	(call 'sym 'get_static_sym '(r1) '(r1))
+	(call 'component 'get '(r0 r1) '(r0 r1))
 
-	(call 'sym 'get_static_sym {num} {sym})
-	(call 'component 'get {this, sym} {_, obj})
-
-	(exit 'component 'ref_prop {this, obj})
-	(pop-scope)
-	(return)
+	(exit 'component 'ref_prop '(r0 r1))
+	(vp-ret)
 
 (def-func-end)
 
@@ -168,22 +159,15 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this)
-	(union
-		'(ptr 'sym)
-		'(ptr 'obj))
-	(uint 'num)
+	(entry 'component 'get_prop '(r0 r1))
 
-	(push-scope)
-	(entry 'component 'get_prop {this, num})
+	(call 'component 'ref_prop '(r0 r1) '(r0 r1))
+	(vpif '(r1 /= 0))
+		(class/obj/ref r1 r2 -1)
+	(endif)
 
-	(call 'sym 'get_static_sym {num} {sym})
-	(call 'component 'get {this, sym} {_, obj})
-	(call 'obj 'deref_if {obj})
-
-	(exit 'component 'get_prop {this, obj})
-	(pop-scope)
-	(return)
+	(exit 'component 'get_prop '(r0 r1))
+	(vp-ret)
 
 (def-func-end)
 
@@ -197,21 +181,17 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this 'sym 'prop)
-	(long 'value)
-	(uint 'num)
+	(entry 'component 'set_long_prop '(r5 r1 r2))
 
-	(push-scope)
-	(entry 'component 'set_long_prop {this, num, value})
+	(call 'sym 'get_static_sym '(r1) '(r6))
+	(call 'num 'create '(r2) '(r0))
+	(call 'component 'insert '(r5 r6 r0) '(r0 r1 _))
+	(assign '((r1 0)) '(r1))
+	(assign '((r1 pair_second)) '(r1))
+	(class/obj/ref r1 r2 -1)
 
-	(call 'sym 'get_static_sym {num} {sym})
-	(call 'num 'create {value} {prop})
-	(call 'component 'insert {this, sym, prop})
-	(call 'num 'deref {prop})
-
-	(exit 'component 'set_long_prop {this})
-	(pop-scope)
-	(return)
+	(exit 'component 'set_long_prop '(r0))
+	(vp-ret)
 
 (def-func-end)
 
@@ -225,28 +205,39 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this)
-	(union
-		'(ptr 'sym)
-		'(ptr 'prop))
-	(union
-		'(uint 'num)
-		'(long 'value))
+	(entry 'component 'get_long_prop '(r0 r1))
 
-	(push-scope)
-	(entry 'component 'get_long_prop {this, num})
-
-	(call 'sym 'get_static_sym {num} {sym})
-	(call 'component 'get {this, sym} {_, prop})
-	(assign {0} {value})
-	(vpif {prop})
-		(call 'num 'get_value {prop} {_, value})
-		(call 'num 'deref {prop})
+	(call 'component 'get_prop '(r0 r1) '(r0 r1))
+	(vpif '(r1 /= 0))
+		(assign '((r1 num_value)) '(r1))
 	(endif)
 
-	(exit 'component 'get_long_prop {this, value})
-	(pop-scope)
-	(return)
+	(exit 'component 'get_long_prop '(r0 r1))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'component 'set_str_prop)
+	;inputs
+	;r0 = component object (ptr)
+	;r1 = static sym num (uint)
+	;r2 = c string (pubyte)
+	;outputs
+	;r0 = component object (ptr)
+	;trashes
+	;all but r0
+
+	(entry 'component 'set_str_prop '(r7 r1 r2))
+
+	(call 'sym 'get_static_sym '(r1) '(r8))
+	(call 'str 'create_from_cstr '(r2) '(r0))
+	(call 'component 'insert '(r7 r8 r0) '(r0 r1 _))
+	(assign '((r1 0)) '(r1))
+	(assign '((r1 pair_second)) '(r1))
+	(class/obj/ref r1 r2 -1)
+
+	(exit 'component 'set_str_prop '(r0))
+	(vp-ret)
 
 (def-func-end)
 
@@ -261,51 +252,20 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this 'sym)
-	(union
-		'(ptr 'name)
-		'(ptr 'font))
-	(uint 'num 'points)
+	(entry 'component 'set_font_prop '(r0 r1 r2 r3))
 
-	(push-scope)
-	(entry 'component 'set_font_prop {this, num, name, points})
-
-	(call 'font 'open {name, points} {font})
-	(vpif {font})
-		(call 'sym 'get_static_sym {num} {sym})
-		(call 'component 'insert {this, sym, font})
-		(call 'font 'deref {font})
+	(vp-push r0 r1)
+	(call 'font 'open '(r2 r3) '(r0))
+	(vpif '(r0 /= 0))
+		(call 'sym 'get_static_sym '((rsp 0)) '(r1))
+		(call 'component 'insert '((rsp ptr_size) r1 r0) '(r0 r1 _))
+		(assign '((r1 0)) '(r1))
+		(assign '((r1 pair_second)) '(r1))
+		(class/obj/ref r1 r2 -1)
 	(endif)
+	(vp-pop r0 r1)
 
-	(exit 'component 'set_font_prop {this})
-	(pop-scope)
-	(return)
-
-(def-func-end)
-
-(def-method 'component 'set_str_prop)
-	;inputs
-	;r0 = component object (ptr)
-	;r1 = static sym num (uint)
-	;r2 = c string (pubyte)
-	;outputs
-	;r0 = component object (ptr)
-	;trashes
-	;all but r0
-
-	(ptr 'this 'sym 'str)
-	(uint 'num)
-
-	(push-scope)
-	(entry 'component 'set_str_prop {this, num, str})
-
-	(call 'sym 'get_static_sym {num} {sym})
-	(call 'str 'create_from_cstr {str} {str})
-	(call 'component 'insert {this, sym, str})
-	(call 'str 'deref {str})
-
-	(exit 'component 'set_str_prop {this})
-	(pop-scope)
-	(return)
+	(exit 'component 'set_font_prop '(r0))
+	(vp-ret)
 
 (def-func-end)

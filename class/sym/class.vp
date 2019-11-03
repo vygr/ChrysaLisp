@@ -49,19 +49,19 @@
 
 (def-method 'sym 'get_static_sym)
 	;inputs
-	;r0 = static sym num (uint)
+	;r1 = static sym num (uint)
 	;outputs
-	;r0 = sym object (ptr)
+	;r1 = sym object (ptr)
 	;trashes
-	;r1
+	;r3
 
-	(entry 'sym 'get_static_sym '(r0))
+	(entry 'sym 'get_static_sym '(r1))
 
-	(f-bind 'sym 'statics r1)
-	(assign '((r1 sym_statics_syms)) '(r1))
-	(class/array/get_element r1 r0 r0 r1)
+	(f-bind 'sym 'statics r3)
+	(assign '((r3 sym_statics_syms)) '(r3))
+	(class/array/get_element r3 r1 r1 r3)
 
-	(exit 'sym 'get_static_sym '(r0))
+	(exit 'sym 'get_static_sym '(r1))
 	(vp-ret)
 
 (def-func-end)

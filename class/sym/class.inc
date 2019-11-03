@@ -4,7 +4,7 @@
 (dec-method 'vtable 'class/sym/vtable)
 (dec-method 'statics 'class/sym/statics)
 (dec-method 'statics_init 'class/sym/statics_init)
-(dec-method 'get_static_sym 'class/sym/get_static_sym 'static '(r0) '(r0))
+(dec-method 'get_static_sym 'class/sym/get_static_sym 'static '(r1) '(r1))
 (dec-method 'flush 'class/sym/flush)
 (dec-method 'intern 'class/sym/intern 'static '(r0) '(r0))
 (dec-method 'intern_str 'class/sym/intern_str 'static '(r0) '(r0))
