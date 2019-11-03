@@ -23,7 +23,7 @@
 	(byte 'pieces 'vectors))
 
 ;control paramaters
-(defq max_ply 20 max_chess_moves (/ 218 2) max_score_entries 100000)
+(defq max_ply 10 max_chess_moves (/ 218 2) max_score_entries 100000)
 
 ;piece values, in centipawns
 (defq king_value 20000 queen_value 900 rook_value 500 bishop_value 330
@@ -352,14 +352,14 @@
 
 (defun-bind display-board (board)
 	(defq d (range 0 8))
-	(vdu-print vdu (const (str (ascii-char 10) (ascii-char 10) "  a   b   c   d   e   f   g   h" (ascii-char 10))))
-	(vdu-print vdu (str "+---+---+---+---+---+---+---+---+" (ascii-char 10)))
+	(vdu-print vdu (const (str (ascii-char 128) (ascii-char 10) "    a   b   c   d   e   f   g   h" (ascii-char 10))))
+	(vdu-print vdu (str "  +---+---+---+---+---+---+---+---+" (ascii-char 10)))
 	(each (lambda (row)
-		(vdu-print vdu (str (apply cat (map (lambda (col)
+		(vdu-print vdu (str "  " (apply cat (map (lambda (col)
 			(cat "| " (elem (+ (* 8 row) col) board) " ")) d)) "| " (- 8 row) (ascii-char 10)))
 		(if (/= row 7)
-			(vdu-print vdu (str "|---|---|---|---|---|---|---|---|" (ascii-char 10))))) d)
-	(vdu-print vdu (str "+---+---+---+---+---+---+---+---+" (ascii-char 10))))
+			(vdu-print vdu (str "  |---|---|---|---|---|---|---|---|" (ascii-char 10))))) d)
+	(vdu-print vdu (str "  +---+---+---+---+---+---+---+---+" (ascii-char 10))))
 
 (defun-bind time-in-seconds (_)
 		(str (/ _ 1000000) "." (pad (% _ 1000000) 6 "00000")))
@@ -368,26 +368,33 @@
 	;read args from parent
 	(bind '(vdu max_time_per_move) (mail-mymail))
 	(defq brd "rnbqkbnrpppppppp                                PPPPPPPPRNBQKBNR"
-		history (list) colour white game_start_time (time) king_index 0 quit nil)
+		history (list) colour white game_start_time (time) king_index 0 quit nil flicker 100000)
+	(display-board brd)
 	(until (or (defq msg (mail-trymail)) quit)
-		(display-board brd)
 		(defq elapsed_time (- (time) game_start_time))
 		(vdu-print vdu (str (ascii-char 10) "Elapsed Time: " (time-in-seconds elapsed_time) (ascii-char 10)))
 		(if (= colour white)
 			(vdu-print vdu (str "White to move:" (ascii-char 10)))
 			(vdu-print vdu (str "Black to move:" (ascii-char 10))))
 		(defq new_brd (best-move brd colour history))
-		(when (eql new_brd "")
-			(if (in-check brd colour)
-				(vdu-print vdu (str (ascii-char 10) "** Checkmate **" (ascii-char 10) (ascii-char 10)))
-				(vdu-print vdu (str (ascii-char 10) "** Stalemate **" (ascii-char 10) (ascii-char 10))))
-			(setq quit t))
-		(when (>= (reduce (lambda (cnt past_brd)
-				(if (eql past_brd brd) (inc cnt) cnt)) history 0) 3)
-			(vdu-print vdu (str (ascii-char 10) "** Draw **" (ascii-char 10) (ascii-char 10)))
-			(setq quit t))
-		(push history new_brd)
-		(setq colour (neg colour) brd new_brd))
+		(cond
+			((eql new_brd "")
+				(if (in-check brd colour)
+					(vdu-print vdu (str (ascii-char 10) "** Checkmate **" (ascii-char 10) (ascii-char 10)))
+					(vdu-print vdu (str (ascii-char 10) "** Stalemate **" (ascii-char 10) (ascii-char 10))))
+				(setq quit t))
+			((>= (reduce (lambda (cnt past_brd)
+					(if (eql past_brd brd) (inc cnt) cnt)) history 0) 3)
+				(vdu-print vdu (str (ascii-char 10) "** Draw **" (ascii-char 10) (ascii-char 10)))
+				(setq quit t))
+			(t
+				(each (lambda (_)
+					(display-board brd)
+					(task-sleep flicker)
+					(display-board new_brd)
+					(task-sleep flicker)) (range 0 2))
+				(push history new_brd)
+				(setq colour (neg colour) brd new_brd))))
 	(unless msg (mail-mymail)))
 
 (main)

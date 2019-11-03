@@ -273,6 +273,11 @@
 					this->vdu_cursor_x * this->vdu_char_width, this->vdu_char_height})
 				(assign {0} {this->vdu_cursor_x})
 			(endif)
+		(elseif {char = 128})
+			;clear screen
+			(call 'sys_mem 'fill {this->vdu_chars, this->vdu_width * this->vdu_height, char_space})
+			(call 'vdu 'dirty {this})
+			(assign {0 => this->vdu_cursor_x} {this->vdu_cursor_y})
 		(elseif {char >= char_space && char < 127})
 			;printable char
 			(assign {char} {(this->vdu_chars)[this->vdu_cursor_y * this->vdu_width + this->vdu_cursor_x]})
