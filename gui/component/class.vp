@@ -258,7 +258,7 @@
 	(call 'font 'open '(r2 r3) '(r0))
 	(vpif '(r0 /= 0))
 		(call 'sym 'get_static_sym '((rsp 0)) '(r1))
-		(call 'component 'insert '((rsp ptr_size) r1 r0) '(r0 r1 _))
+		(call 'component 'insert '((rsp ptr_size) r1 r0) '(_ r1 _))
 		(assign '((r1 0)) '(r1))
 		(assign '((r1 pair_second)) '(r1))
 		(class/obj/ref r1 r2 -1)

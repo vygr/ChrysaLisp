@@ -19,6 +19,7 @@
 	"apps/raymarch/app.lisp"
 	"apps/pcb/app.lisp"
 	"apps/calculator/app.lisp"
+	"apps/chess/app.lisp"
 	"apps/clock/app.lisp"))
 
 (defq auto_app_list '(
