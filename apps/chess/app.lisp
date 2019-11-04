@@ -15,7 +15,7 @@
 	(view-pref-size (window-set-title (window-connect-close window event_win_close) "Chess")))))
 
 ;create child and send args
-(mail-send (list vdu 1000000)
+(mail-send (list vdu 5000000)
 	(defq mbox (open-child "apps/chess/child.lisp" kn_call_open)))
 
 (while id

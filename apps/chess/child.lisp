@@ -160,53 +160,50 @@
 
 ;generate all first hit pieces from index position along given vectors
 (defun-bind piece-scans (brd index vectors)
-	(defq yield (list) cx (% index 8) cy (/ index 8))
-	(each (lambda ((dx dy len))
+	(defq yield "" cx (% index 8) cy (/ index 8))
+	(each! 0 -1 (lambda ((dx dy len))
 		(defq x cx y cy)
 		(while (>= (setq len (dec len)) 0)
-			(setq x (+ x dx) y (+ y dy))
-			(when (and (<= 0 x 7) (<= 0 y 7))
-				;still on the board
-				(defq piece (elem (+ (* y 8) x) brd))
-				(unless (eql piece " ")
-					;not empty square so yield piece
-					(push yield piece)
-					(setq len 0))))) vectors)
-	(if (= (length yield) 0) "" (apply cat yield)))
+			(cond
+				((and (<= 0 (setq x (+ x dx)) 7) (<= 0 (setq y (+ y dy)) 7))
+					;still on the board
+					(unless (eql (defq piece (elem (+ (* y 8) x) brd)) " ")
+						;not empty square so yield piece
+						(setq yield (cat yield piece) len 0)))
+				(t	;off the edge
+					(setq len 0))))) (list vectors)) yield)
 
 ;test if king of given colour is in check
 (defun-bind in-check (brd colour)
-	(if (= colour black)
-		(defq king_piece "k" tests black_tests)
-		(defq king_piece "K" tests white_tests))
+	(if (= colour (const black))
+		(defq king_piece "k" tests (list black_tests))
+		(defq king_piece "K" tests (list white_tests)))
 	;find king index on board
-	(unless (eql (elem king_index brd) king_piece)
-		(setq king_index (find king_piece brd)))
-	(some (lambda ((pieces vectors))
-		(defq hit_pieces (piece-scans brd king_index vectors))
-		(some (lambda (piece)
+	(defq king_index (find king_piece brd))
+	(some! 0 -1 t (lambda ((pieces vectors))
+		(defq hit_pieces (piece-scans brd king_index vectors) pieces (list pieces))
+		(some! 0 -1 t (lambda (piece)
 			(find piece hit_pieces)) pieces)) tests))
 
 ;evaluate (score) a board for the colour given
 (defun-bind evaluate (brd colour)
 	(defq black_score 0 white_score 0)
-	(each (lambda (piece)
-		;add score for position on the board, near center, clear lines etc
+	(each! 0 -1 (lambda (piece)
+		;add score for position on the board, pice type, near center, clear lines etc
 		(unless (eql piece " ")
-			(if (> (code piece) (const (code "Z")))
-				(setq black_score (+ black_score (elem (- 63 _) (piece-map piece_positions_map piece))))
-				(setq white_score (+ white_score (elem _ (piece-map piece_positions_map piece)))))
-			;add score for piece type, queen, rook etc
 			(defq values (piece-map piece_values_map piece))
-			(setq black_score (+ black_score (elem 0 values))
-				white_score (+ white_score (elem 1 values))))) brd)
+			(if (> (code piece) (const (code "Z")))
+				(setq black_score (+ black_score (elem 0 values) (elem (- 63 _) (piece-map piece_positions_map piece)))
+					white_score (+ white_score (elem 1 values)))
+				(setq white_score (+ white_score (elem 1 values) (elem _ (piece-map piece_positions_map piece)))
+					black_score (+ black_score (elem 0 values)))))) (list brd))
 	(* (- white_score black_score) colour))
 
 ;generate all boards for a piece index and moves possibility, filtering out boards where king is in check
 (defun-bind piece-moves (yield brd index colour moves)
 	(defq piece (elem index brd) cx (% index 8) cy (/ index 8)
-		promote (if (= colour white) "QRBN" "qrbn"))
-	(each (lambda ((dx dy len flag))
+		promote (if (= colour (const white)) "QRBN" "qrbn"))
+	(each! 0 -1 (lambda ((dx dy len flag))
 		(defq x cx y cy)
 		;special length for pawns so we can adjust for starting 2 hop
 		(when (= len 0)
@@ -215,19 +212,18 @@
 				(if (= y 1) (setq len 2))
 				(if (= y 6) (setq len 2))))
 		(while (>= (setq len (dec len)) 0)
-			(setq x (+ x dx) y (+ y dy))
 			(cond
-				((and (<= 0 x 7) (<= 0 y 7))
+				((and (<= 0 (setq x (+ x dx)) 7) (<= 0 (setq y (+ y dy)) 7))
 					(defq newindex (+ (* y 8) x) newpiece (elem newindex brd)
 						newtype (piece-map piece_type_map newpiece))
 					(cond
 						((= newtype colour)
 							;hit one of our own piece type (black hit black etc)
 							(setq len 0))
-						((and (= flag no_capture) (/= newtype empty))
+						((and (= flag (const no_capture)) (/= newtype (const empty)))
 							;not suposed to capture and not empty square
 							(setq len 0))
-						((and (= flag must_capture) (= newtype empty))
+						((and (= flag (const must_capture)) (= newtype (const empty)))
 							;must capture and got empty square
 							(setq len 0))
 						(t
@@ -244,22 +240,22 @@
 									(setq newbrd (cat (slice 0 newindex newbrd) piece (slice (inc newindex) -1 newbrd)))
 									(unless (in-check newbrd colour)
 										(push yield (list (evaluate newbrd colour) 0 newbrd)))))
-							(if (and (= flag may_capture) (/= newtype empty))
+							(if (and (= flag (const may_capture)) (/= newtype (const empty)))
 								;may capture and we did so !
 								(setq len 0)))))
 				(t ;gone off the board
-					(setq len 0))))) moves))
+					(setq len 0))))) (list moves)))
 
 ;generate all moves (boards) for the given colours turn
 (defun-bind all-moves (brd colour)
 	;enumarate the board square by square
 	(task-sleep 0)
-	(defq yield (list) king_index 0 is_black (= colour black))
-	(each (lambda (piece)
+	(defq yield (list) is_black (= colour (const black)))
+	(each! 0 -1 (lambda (piece)
 		(unless (eql piece " ")
 			(when (eql (> (code piece) (const (code "Z"))) is_black)
 				;one of our pieces ! so gather all boards from possible moves of this piece
-				(piece-moves yield brd _ colour (piece-map moves_map piece))))) brd) yield)
+				(piece-moves yield brd _ colour (piece-map moves_map piece))))) (list brd)) yield)
 
 ;pvs alpha/beta pruning minmax search for given ply
 (defun-bind score-impl (sbrd colour alpha beta ply)
@@ -271,7 +267,7 @@
 				(if (> ply 1)
 					(sort (lambda (x y)
 						(> (elem score_board_score x) (elem score_board_score y))) next_boards))
-				(setq result (some (lambda (score_board)
+				(setq result (some! 0 -1 t (lambda (score_board)
 					(cond
 						((not mate)
 							;not first child so null search window
@@ -285,8 +281,8 @@
 					(cond
 						((> (- (time) start_time) max_time_per_move)
 							;time has expired for this move
-							timeout_value)
-						((>= value mate_value)
+							(const timeout_value))
+						((>= value (const mate_value))
 							;early return if mate
 							value)
 						((>= value beta)
@@ -294,23 +290,23 @@
 							beta)
 						((> value alpha)
 							(setq alpha value)
-							nil))) next_boards)))
+							nil))) (list next_boards))))
 			(cond
 				(result result)
 				((not mate) alpha)
 				((in-check (elem score_board_brd sbrd) colour)
 					;check mate
-					(- (neg mate_value) ply))
+					(- (const (neg mate_value)) ply))
 				(t ;stale mate
-					mate_value)))))
+					(const mate_value))))))
 
 ;best move for given board position for given colour
 (defun-bind best-move (brd colour history)
 	;first ply of boards
 	(defq next_boards (all-moves brd colour))
-	(each (lambda (sbrd)
+	(each! 0 -1 (lambda (sbrd)
 		(elem-set score_board_bias sbrd (neg (* (reduce (lambda (cnt past_brd)
-			(if (eql past_brd brd) (inc cnt) cnt)) history 0) queen_value)))) next_boards)
+			(if (eql past_brd brd) (inc cnt) cnt)) history 0) queen_value)))) (list next_boards))
 	(cond
 		((= (length next_boards) 0) "")
 		((= (length next_boards) 1)
@@ -320,14 +316,14 @@
 				(> (elem score_board_score x) (elem score_board_score y))) next_boards)
 			;start move timer
 			(defq start_time (time))
-			(some (lambda (ply)
+			(some! 0 -1 t (lambda (ply)
 				;iterative deepening of ply so we allways have a best move to go with if the timer expires
 				(vdu-print vdu (str (ascii-char 10) "Ply = " ply (ascii-char 10)))
-				(defq best_index nil alpha (* mate_value -10) beta (* mate_value 10))
-				(some (lambda (score_board)
+				(defq best_index nil alpha (const (* mate_value -10)) beta (const (* mate_value 10)))
+				(some! 0 -1 t (lambda (score_board)
 					(defq score (score-impl score_board (neg colour) (neg beta) (neg alpha) ply))
 					(cond
-						((eql score timeout_value))
+						((eql score (const timeout_value)))
 						(t
 							(elem-set score_board_score score_board
 								(setq score (+ (neg score) (elem score_board_bias score_board))))
@@ -339,7 +335,7 @@
 								(t
 									;just tick off another board
 									(vdu-print vdu ".")))
-							nil))) next_boards)
+							nil))) (list next_boards))
 				(when best_index
 					;promote board to PV
 					(setq next_boards (cat
@@ -347,7 +343,7 @@
 						(slice 0 best_index next_boards)
 						(slice (inc best_index) -1 next_boards))))
 				;don't look further ahead if we allready can force mate
-				(or (>= alpha mate_value) (<= alpha (neg mate_value)))) (range 1 max_ply))
+				(or (>= alpha (const mate_value)) (<= alpha (const (neg mate_value))))) (list (range 1 max_ply)))
 			(elem score_board_brd (elem 0 next_boards)))))
 
 (defun-bind display-board (board)
@@ -368,12 +364,12 @@
 	;read args from parent
 	(bind '(vdu max_time_per_move) (mail-mymail))
 	(defq brd "rnbqkbnrpppppppp                                PPPPPPPPRNBQKBNR"
-		history (list) colour white game_start_time (time) king_index 0 quit nil flicker 100000)
+		history (list) colour (const white) game_start_time (time) quit nil flicker 100000)
 	(display-board brd)
 	(until (or (defq msg (mail-trymail)) quit)
 		(defq elapsed_time (- (time) game_start_time))
 		(vdu-print vdu (str (ascii-char 10) "Elapsed Time: " (time-in-seconds elapsed_time) (ascii-char 10)))
-		(if (= colour white)
+		(if (= colour (const white))
 			(vdu-print vdu (str "White to move:" (ascii-char 10)))
 			(vdu-print vdu (str "Black to move:" (ascii-char 10))))
 		(defq new_brd (best-move brd colour history))
