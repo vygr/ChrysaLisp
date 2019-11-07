@@ -4,6 +4,13 @@
 
 ------
 
+Ported over the simple Chess. This is a bit a trivial fun, but I'll use it to
+optimise some of the Lisp and eventually do a proper GUI front end for it plus
+run the child process remotely and that will force me to sort out some standard
+for that.
+
+------
+
 Removed task::yield and made task::sleep 0 do the same things. Reduce footprint
 slightly. Plus removed the call to yield from the Lisp while function. This was
 being called far too often, so it's now up to the programmer to sprinkle
