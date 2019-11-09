@@ -1,6 +1,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <fcntl.h>
+#include <string.h>
 #ifdef _WIN64
 #define _CRT_SECURE_NO_WARNINGS
 #define DELTA_EPOCH_IN_MICROSECS 11644473600000000Ui64
@@ -23,20 +24,80 @@ enum
 	file_open_readwrite
 };
 
-long long myopen(char *path, int mode)
+#ifdef _WIN64
+static void rmkdir(const char *path)
+{
+	char tmp[256];
+	char *p = NULL;
+	char *ls = strrchr(path, '/');
+	size_t len;
+	if (ls == NULL) len = strlen(path);
+	else len = ls - path;
+	memcpy(tmp, path, len);
+	tmp[len] = 0;
+	for (p = tmp + 1; *p; p++)
+	{
+		if(*p == '/')
+		{
+			*p = 0;
+			mkdir(tmp, _S_IREAD | _S_IWRITE);
+			*p = '/';
+		}
+	}
+	mkdir(tmp, _S_IREAD | _S_IWRITE);
+}
+#else
+static void rmkdir(const char *path)
+{
+	char tmp[128];
+	char *p = NULL;
+	char *ls = strrchr(path, '/');
+	size_t len;
+	if (ls == NULL) len = strlen(path);
+	else len = ls - path;
+	memcpy(tmp, path, len);
+	tmp[len] = 0;
+	for (p = tmp + 1; *p; p++)
+	{
+		if(*p == '/')
+		{
+			*p = 0;
+			mkdir(tmp, S_IRWXU);
+			*p = '/';
+		}
+	}
+	mkdir(tmp, S_IRWXU);
+}
+#endif
+
+long long myopen(const char *path, int mode)
 {
 #ifdef _WIN64
 	switch (mode)
 	{
 	case file_open_read: return open(path, O_RDONLY | O_BINARY);
-	case file_open_write: return open(path, O_CREAT | O_RDWR | O_BINARY | O_TRUNC, _S_IREAD | _S_IWRITE);
+	case file_open_write:
+	{
+		int fd;
+		fd = open(path, O_CREAT | O_RDWR | O_BINARY | O_TRUNC, _S_IREAD | _S_IWRITE);
+		if (fd != -1) return fd;
+		rmkdir(path);
+		return open(path, O_CREAT | O_RDWR | O_BINARY | O_TRUNC, _S_IREAD | _S_IWRITE);
+	}
 	case file_open_readwrite: return open(path, O_CREAT | O_RDWR | O_BINARY);
 	}
 #else
 	switch (mode)
 	{
 	case file_open_read: return open(path, O_RDONLY, 0);
-	case file_open_write: return open(path, O_CREAT | O_RDWR | O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+	case file_open_write:
+	{
+		int fd;
+		fd = open(path, O_CREAT | O_RDWR | O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+		if (fd != -1) return fd;
+		rmkdir(path);
+		return open(path, O_CREAT | O_RDWR | O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+	}
 	case file_open_readwrite: return open(path, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
 	}
 #endif
@@ -45,7 +106,7 @@ long long myopen(char *path, int mode)
 
 char link_buf[128];
 
-long long myopenshared(char *path, size_t len)
+long long myopenshared(const char *path, size_t len)
 {
 #ifdef _WIN64
 	return (long long)CreateFileMapping(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, len, path);
@@ -58,7 +119,7 @@ long long myopenshared(char *path, size_t len)
 #endif
 }
 
-long long mycloseshared(char *path, long long hndl)
+long long mycloseshared(const char *path, long long hndl)
 {
 #ifdef _WIN64
 	if (CloseHandle((HANDLE)hndl)) return 0;
@@ -90,7 +151,7 @@ struct finfo
 	unsigned short mode;
 };
 
-long long mystat(char *path, struct finfo *st)
+long long mystat(const char *path, struct finfo *st)
 {
 	if (stat(path, &fs) != 0) return -1;
 	st->mtime = fs.st_mtime;
