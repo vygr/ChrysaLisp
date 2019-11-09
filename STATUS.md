@@ -4,6 +4,15 @@
 
 ------
 
+Made the host main.c file_open_write case attempt to create folders for any
+path that fails to open. This will allow the snapshot.zip file to not have to
+carry empty folders as the host will create them as required.
+
+Need to test on Windows once I get hold of my Windows laptop again... then I'll
+trim the snapshot.zip file of the empty folders.
+
+------
+
 Removed sys_mail::trymail and sys_mail::tryread. Broke out sys_mail::poll from
 sys_mail::select and standardised on this way of polling an array of mailboxes.
 Made the API directly compatible with Lisp apps....
