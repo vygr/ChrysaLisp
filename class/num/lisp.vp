@@ -228,7 +228,7 @@
 	(entry 'num _ '(r0 r1))
 (errorcases
 	(call 'lisp 'env_args_type `(r1 (@ ,(f-path 'num 'vtable)) -2) '(r2))
-	(gotoif '(r2 = 0) 'error))
+	(gotoif '(r2 = 0) 'error1))
 	(vp-push r0 r1)
 	(class/array/get_both r1 r1 r4)
 	(vp-cpy-ir r1 0 r0)
@@ -265,6 +265,7 @@
 (errorcases
 (vp-label 'error)
 	(vp-pop r0 r1)
+(vp-label 'error1)
 	(jump 'lisp 'repl_error '(r0 "(/ num num ...)" error_msg_wrong_types r1)))
 
 (def-func-end)
@@ -288,6 +289,7 @@
 (errorcases
 (vp-label 'error)
 	(vp-pop r0 r1)
+(vp-label 'error1)
 	(jump 'lisp 'repl_error '(r0 "(% num num ...)" error_msg_wrong_types r1)))
 
 (def-func-end)
@@ -311,6 +313,7 @@
 (errorcases
 (vp-label 'error)
 	(vp-pop r0 r1)
+(vp-label 'error1)
 	(jump 'lisp 'repl_error '(r0 "(fdiv num num ...)" error_msg_wrong_types r1)))
 
 (def-func-end)
@@ -329,7 +332,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type `(r1 (@ ,(f-path 'num 'vtable)) -2) '(r2))
-	(gotoif '(r2 = 0) 'error))
+	(gotoif '(r2 = 0) 'error1))
 
 	(vp-push r0 r1)
 	(class/array/get_both r1 r4 r5)
@@ -353,6 +356,7 @@
 (errorcases
 (vp-label 'error)
 	(vp-pop r0 r1)
+(vp-label 'error1)
 	(jump 'lisp 'repl_error '(r0 "(fmod num num ...)" error_msg_wrong_types r1)))
 
 (def-func-end)
