@@ -51,7 +51,7 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this 'args 'value 'pipe 'stream 'str_stream 'my_mbox_addr)
+	(ptr 'this 'args 'value 'pipe 'stream 'str_stream)
 	(uint 'state 'index 'my_mbox_id)
 	(int 'char 'ready)
 
@@ -65,13 +65,12 @@
 	(call 'vector 'get_first {args} {_, pipe})
 	(call 'pipe 'get_state {pipe} {_, state})
 	(vpif {state = stream_mail_state_started})
-		(assign {0} {my_mbox_addr})
+		(assign {0} {my_mbox_id})
 		(call 'vector 'get_second {args} {_, args})
 		(vpif {args /= this->lisp_sym_nil})
 			(call 'sys_task 'mailbox nil {my_mbox_id})
-			(call 'sys_mail 'mbox_addr {my_mbox_id} {my_mbox_addr})
 		(endif)
-		(call 'pipe 'select {pipe, my_mbox_addr} {_, index})
+		(call 'pipe 'select {pipe, my_mbox_id} {_, index})
 		(vpif {index})
 			;pipe mailbox event
 			(call 'vector 'get_element {pipe->pipe_streams, index} {_, stream})

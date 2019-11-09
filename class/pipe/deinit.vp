@@ -14,7 +14,7 @@
 	;all but r0
 
 	(ptr 'this)
-	(uint 'length)
+	(uint 'len)
 
 	(push-scope)
 	(entry 'pipe 'deinit {this})
@@ -34,11 +34,9 @@
 	(call 'msg_out 'write_flush '(r0) '(r0))
 
 	;wait for all stopped, starting with the pipe output, then the error streams
-	(d-call 'vector 'get_length {this->pipe_streams} {_, length})
-	(loop-start)
-		(assign {length - 1} {length})
-		(breakifnot {length})
-		(call 'vector 'get_element {this->pipe_streams, length} '(_ r0))
+	(d-call 'vector 'get_length {this->pipe_streams} {_, len})
+	(loop-while {(len - 1) => len})
+		(call 'vector 'get_element {this->pipe_streams, len} '(_ r0))
 		(loop-start)
 			(assign '((r0 msg_in_state)) '(r1))
 			(breakif '(r1 = stream_mail_state_stopped))
@@ -46,9 +44,9 @@
 		(loop-end)
 	(loop-end)
 
-	;free streams, select and mailbox array
+	;free streams, select array
 	(call 'vector 'deref {this->pipe_streams})
-	(call 'sys_mem 'free {this->pipe_select_array})
+	(call 'array 'deref {this->pipe_select_array})
 
 	;deinit parent
 	(s-jump 'pipe 'deinit {this})

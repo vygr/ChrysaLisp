@@ -4,10 +4,32 @@
 
 ------
 
-Ported over the simple Chess. This is a bit a trivial fun, but I'll use it to
-optimise some of the Lisp and eventually do a proper GUI front end for it plus
-run the child process remotely and that will force me to sort out some standard
-for that.
+Removed sys_mail::trymail and sys_mail::tryread. Broke out sys_mail::poll from
+sys_mail::select and standardised on this way of polling an array of mailboxes.
+Made the API directly compatible with Lisp apps....
+
+Tidy up of the msg_in and msg_out stream classes in readiness for the Lisp API
+for sequenced streams between Lisp processes. All this is heading in the
+direction of a higher level API for Lisp process message data handling and to
+allow Lisp apps to drive new process communication models.
+
+Eventually I want to remove the pipe and slave classes entirely, they will just
+be a model that the terminal and cmd style Lisp apps employ, but it's driven
+from Lisp and not a native feature in the class library.
+
+First demo of this will be the improved Chess demo, told you there was method
+in porting over that ! :)
+
+Removed the app specific native code from the boot image and made the relevent
+apps Jit compile their native code ! Not quite a virtual binary yet, but not
+bad performance using brute force runtime use of (make) !
+
+------
+
+Ported over the simple Chess. This is a bit of trivial fun, but I'll use it to
+optimise some of the Lisp and eventually do a proper GUI front end for it, plus
+run the child process remotely and that will force me to sort out some better
+standard for that.
 
 ------
 

@@ -92,7 +92,7 @@
 		((eql data t)
 			;normal mailbox event
 			(cond
-				((= (setq id (get-long (defq msg (mail-mymail)) ev_msg_target_id)) event_win_close)
+				((= (setq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_win_close)
 					(setq id nil))
 				(t
 					(view-event window msg)

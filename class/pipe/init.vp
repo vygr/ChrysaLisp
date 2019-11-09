@@ -92,15 +92,16 @@
 
 			;all started ?
 			(vpif {started = length})
-				;create streams, mailboxes and select array
+				;create streams and select array
 				(call 'vector 'create nil {this->pipe_streams})
 				(call 'vector 'set_capacity {this->pipe_streams, length + 2})
-				(call 'sys_mem 'alloc {(length + 2) * ptr_size} {this->pipe_select_array, _})
+				(call 'array 'create nil {this->pipe_select_array})
+				(call 'array 'set_capacity {this->pipe_streams, length + 2})
 				(assign {0} {index})
 				(loop-while {index /= (length + 2)})
 					(call 'msg_in 'create nil {stream})
-					(assign {stream->msg_in_mbox_addr} {(this->pipe_select_array)[index * ptr_size]})
 					(call 'vector 'push_back {this->pipe_streams, stream})
+					(call 'array 'push_back {this->pipe_select_array, stream->msg_in_mbox_id})
 					(assign {index + 1} {index})
 				(loop-end)
 

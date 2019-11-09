@@ -20,11 +20,10 @@
 
 (while id
 	(cond
-		((= (setq id (get-long (defq msg (mail-mymail)) ev_msg_target_id)) event_win_close)
+		((= (setq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_win_close)
 			(setq id nil))
 		(t (view-event window msg))))
 
-;close child
+;close child and window
 (mail-send "" mbox)
-
 (view-hide window)

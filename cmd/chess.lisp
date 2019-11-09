@@ -1,6 +1,10 @@
 ;imports
 (import 'sys/lisp.inc)
 (import 'gui/lisp.inc)
+(import 'class/lisp.inc)
+
+(defun vdu-print (v s)
+	(prin s) (stream-write-flush (file-stream 'stdout)))
 
 ;piece map accses
 (defmacro piece-map (_ i)
@@ -348,7 +352,7 @@
 		(vdu-print vdu (str (ascii-char 10) "Ply = " ply (ascii-char 10)))
 		(defq value min_int alpha min_int beta max_int
 			timeout (some! 0 -1 t (lambda ((ply0_score brd))
-				(defq score (neg (negamax brd (neg colour) (neg beta) (neg alpha) (dec ply))))
+				(defq score (neg (pvs brd (neg colour) (neg beta) (neg alpha) (dec ply))))
 				(cond
 					((or (<= score value) (= score timeout_value))
 						(vdu-print vdu "."))
@@ -365,7 +369,8 @@
 
 (defun-bind display-board (board)
 	(defq d (range 0 8))
-	(vdu-print vdu (const (str (ascii-char 128) (ascii-char 10) "    a   b   c   d   e   f   g   h" (ascii-char 10))))
+;	(vdu-print vdu (const (str (ascii-char 128) (ascii-char 10) "    a   b   c   d   e   f   g   h" (ascii-char 10))))
+	(vdu-print vdu (const (str (ascii-char 10) "    a   b   c   d   e   f   g   h" (ascii-char 10))))
 	(vdu-print vdu (str "  +---+---+---+---+---+---+---+---+" (ascii-char 10)))
 	(each (lambda (row)
 		(vdu-print vdu (str "  " (apply cat (map (lambda (col)
@@ -378,12 +383,11 @@
 		(str (/ _ 1000000) "." (pad (% _ 1000000) 6 "00000")))
 
 (defun-bind main ()
-	;read args from parent
-	(bind '(vdu max_time_per_move) (mail-read (task-mailbox)))
+	(bind '(vdu max_time_per_move) '(nil 10000000))
 	(defq brd "rnbqkbnrpppppppp                                PPPPPPPPRNBQKBNR"
 		history (list) colour (const white) game_start_time (time) quit nil flicker 100000)
 	(display-board brd)
-	(until (or (mail-poll (array (task-mailbox))) quit)
+	(until quit
 		(defq elapsed_time (- (time) game_start_time))
 		(vdu-print vdu (str (ascii-char 10) "Elapsed Time: " (time-in-seconds elapsed_time) (ascii-char 10)))
 		(if (= colour (const white))
@@ -391,7 +395,7 @@
 			(vdu-print vdu (str "Black to move:" (ascii-char 10))))
 		(defq new_brd (best-move brd colour history))
 		(cond
-			((not new_brd)
+			((eql new_brd "")
 				(if (in-check brd colour)
 					(vdu-print vdu (str (ascii-char 10) "** Checkmate **" (ascii-char 10) (ascii-char 10)))
 					(vdu-print vdu (str (ascii-char 10) "** Stalemate **" (ascii-char 10) (ascii-char 10))))
@@ -401,13 +405,9 @@
 				(vdu-print vdu (str (ascii-char 10) "** Draw **" (ascii-char 10) (ascii-char 10)))
 				(setq quit t))
 			(t
-				(each (lambda (_)
-					(display-board brd)
-					(task-sleep flicker)
-					(display-board new_brd)
-					(task-sleep flicker)) (range 0 2))
+				(display-board new_brd)
 				(push history new_brd)
-				(setq colour (neg colour) brd new_brd))))
-	(mail-read (task-mailbox)))
+				(setq colour (neg colour) brd new_brd)))))
 
-(main)
+(when (defq slave (create-slave))
+	(main))

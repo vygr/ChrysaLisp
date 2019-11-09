@@ -23,14 +23,15 @@
 
 ;create child and send args
 (mail-send (list display clock (* clock_size 1.0) (* clock_scale 1.0))
-	(defq child_id (open-child "apps/clock/child.lisp" kn_call_open)))
+	(defq mbox (open-child "apps/clock/child.lisp" kn_call_open)))
 
 ;main app loop
 (while id
 	(cond
-		((= (setq id (get-long (defq msg (mail-mymail)) ev_msg_target_id)) event_win_close)
-			(mail-send "" child_id)
+		((= (setq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_win_close)
 			(setq id nil))
 		(t (view-event window msg))))
 
+;close child and window
+(mail-send "" mbox)
 (view-hide window)

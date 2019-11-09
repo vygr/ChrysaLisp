@@ -4,7 +4,7 @@
 (import 'apps/math.inc)
 
 ;read args from parent
-(bind '(canvas canvas_width canvas_height canvas_scale) (mail-mymail))
+(bind '(canvas canvas_width canvas_height canvas_scale) (mail-read (task-mailbox)))
 
 (defq eps 0.25 angle 0.0)
 
@@ -86,7 +86,8 @@
 	(canvas-swap canvas))
 
 ;until quit
-(until (mail-trymail)
+(until (mail-poll (array (task-mailbox)))
 	(redraw)
 	(task-sleep 10000)
 	(setq angle (+ angle 0.0025)))
+(mail-read (task-mailbox))

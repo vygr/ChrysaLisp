@@ -197,8 +197,7 @@
 	;extend test to include mailbox
 	(s-call 'msg_in 'read_ready '(r0) '(r0 r1))
 	(vpif '(r1 = 0))
-		(vp-cpy-ir r0 (+ msg_in_list lh_list_head) r1)
-		(assign '((r1 ln_node_succ)) '(r1))
+		(lh-is-empty r0 msg_in_list r1)
 	(endif)
 
 	(exit 'msg_in 'read_ready '(r0 r1))

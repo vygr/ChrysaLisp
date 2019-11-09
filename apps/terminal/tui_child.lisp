@@ -2,7 +2,7 @@
 (import 'sys/lisp.inc)
 
 ;read args from parent
-(bind '(mbox) (mail-mymail))
+(bind '(mbox) (mail-read (task-mailbox)))
 
 ;pole pii stdin
 (while t

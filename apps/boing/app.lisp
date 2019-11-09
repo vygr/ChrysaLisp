@@ -37,9 +37,9 @@
 	(view-add-front (view-add-back backdrop sframe) frame)
 	(view-dirty sframe)
 	(view-dirty frame)
-	(while (defq msg (mail-trymail))
+	(while (mail-poll (array (task-mailbox)))
 		(cond
-			((= (setq id (get-long msg ev_msg_target_id)) event_win_close)
+			((= (setq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_win_close)
 				(setq id nil))
 			((= id event_win_min)
 				;min button

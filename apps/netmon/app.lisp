@@ -1,3 +1,8 @@
+;jit compile apps native functions if needed
+(let ()
+	(import 'cmd/asm.inc)
+	(make 'apps/netmon/child.vp))
+
 ;imports
 (import 'sys/lisp.inc)
 (import 'gui/lisp.inc)
@@ -55,7 +60,7 @@
 			(mail-send sample_msg (elem cpu_count ids)))
 		(task-sleep 1000))
 	(cond
-		((= (setq id (get-long (defq msg (mail-mymail)) ev_msg_target_id)) event_win_sample)
+		((= (setq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_win_sample)
 			;reply from cpu
 			(defq cpu (get-long msg sample_reply_msg_cpu)
 				task_val (get-long msg sample_reply_msg_task_count)
@@ -85,7 +90,7 @@
 ;wait for outstanding replies
 (view-hide window)
 (while (/= cpu_count cpu_total)
-	(if (= (get-long (mail-mymail) ev_msg_target_id) event_win_sample)
+	(if (= (get-long (mail-read (task-mailbox)) ev_msg_target_id) event_win_sample)
 		(setq cpu_count (inc cpu_count))))
 
 ;send out multi-cast exit command

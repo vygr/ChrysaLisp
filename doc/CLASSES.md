@@ -3576,12 +3576,12 @@ all but r0
 ```lisp
 inputs
 r0 = pipe object (ptr)
-r1 = user mailbox (ptr)
+r1 = 0 or user mailbox id (uint)
 outputs
 r0 = pipe object (ptr)
 r1 = mailbox index (uint)
 trashes
-r0-r5
+r0-r7
 ```
 
 ### pipe::get_state -> class/pipe/get_state
@@ -6039,28 +6039,29 @@ trashes
 r2
 ```
 
-### sys_mail::try_read -> sys/mail/try_read
+### sys_mail::poll -> sys/mail/poll
 
 ```lisp
 inputs
-r0 = mailbox address (ptr)
+r0 = mailbox id array object (ptr)
 outputs
-r0 = 0, else mail address (ptr)
-r1 = string data (pubyte)
+r0 = -1, else mailbox index (uint)
+r1 = mailbox id array begin iter (pptr)
+r2 = mailbox id array end iter (pptr)
+r3 = mailbox id address begin iter (pptr)
 trashes
-r2
+r0-r4
 ```
 
 ### sys_mail::select -> sys/mail/select
 
 ```lisp
 inputs
-r0 = mailbox address array (pptr)
-r1 = mailbox count (uint)
+r0 = mailbox id array object (ptr)
 outputs
 r0 = mailbox index (uint)
 trashes
-r1-r4
+r1-r6
 ```
 
 ### sys_mail::mymail -> sys/mail/mymail
@@ -6068,16 +6069,6 @@ r1-r4
 ```lisp
 outputs
 r0 = mail address (ptr)
-r1 = string data (pubyte)
-trashes
-r2
-```
-
-### sys_mail::trymail -> sys/mail/trymail
-
-```lisp
-outputs
-r0 = 0, else mail address (ptr)
 r1 = string data (pubyte)
 trashes
 r2
@@ -6129,7 +6120,7 @@ info
 parcels going off chip task
 ```
 
-### sys_mail::lisp_mymail -> sys/mail/lisp_mymail
+### sys_mail::lisp_read -> sys/mail/lisp_read
 
 ```lisp
 inputs
@@ -6142,7 +6133,7 @@ trashes
 all but r0
 ```
 
-### sys_mail::lisp_trymail -> sys/mail/lisp_trymail
+### sys_mail::lisp_poll -> sys/mail/lisp_poll
 
 ```lisp
 inputs

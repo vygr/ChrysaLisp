@@ -11,15 +11,16 @@
 (dec-method 'write_next 'class/msg_out/write_next 'final)
 
 (def-struct 'msg_out 'stream)
-	(ulong 'seqnum 'state 'ack_seqnum)
+	(ulong 'state 'ack_seqnum)
 	(struct 'id 'id)
 	(ptr 'ack_mbox_addr)
-	(uint 'ack_mbox_id)
+	(uint 'ack_mbox_id 'seqnum)
 (def-struct-end)
 
 (def-struct 'stream_msg)
-	(ulong 'seqnum 'state)
+	(ulong 'state)
 	(struct 'ack_id 'id)
+	(uint 'seqnum)
 	(offset 'data)
 (def-struct-end)
 

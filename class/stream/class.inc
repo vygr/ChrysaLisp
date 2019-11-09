@@ -33,10 +33,8 @@
 (dec-method 'lisp_write_flush 'class/stream/lisp_write_flush 'static '(r0 r1) '(r0 r1))
 
 (def-struct 'stream 'obj)
-	(ptr 'object)
-	(ptr 'buffer)
-	(pubyte 'bufp)
-	(pubyte 'bufe)
+	(ptr 'object 'buffer)
+	(pubyte 'bufp 'bufe)
 (def-struct-end)
 
 ;;;;;;;;;;;;;;;;

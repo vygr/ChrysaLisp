@@ -81,7 +81,7 @@
 (while t
 	(cond
 		;new debug msg
-		((= (defq id (get-long (defq msg (mail-mymail)) ev_msg_target_id)) event_win_debug)
+		((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_win_debug)
 			(defq reply_id (get-long msg debug_msg_reply_id)
 				tcb (get-long msg debug_msg_tcb)
 				data (sym (get-cstr msg debug_msg_data))

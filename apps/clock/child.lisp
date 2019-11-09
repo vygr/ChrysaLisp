@@ -16,7 +16,7 @@
 		(fmul s ca) (fmul s (neg sa)) (fmul s sa) (fmul s ca) (fmul s (+ x 0.5)) (fmul s (+ y 0.5))))
 
 ;read args from parent and init globals
-(bind '(display clock clock_size clock_scale) (mail-mymail))
+(bind '(display clock clock_size clock_scale) (mail-read (task-mailbox)))
 (defq hours 0 minutes 0 seconds 0 face (list)
 	scale (fmul clock_size clock_scale) eps 0.25)
 
@@ -32,7 +32,7 @@
 			face)))
 
 ;while not told to quit
-(until (mail-trymail)
+(until (mail-poll (array (task-mailbox)))
 	(set display 'text (make-time))
 	(canvas-fill clock 0)
 	(canvas-set-color clock argb_white)
@@ -59,3 +59,4 @@
 	(canvas-swap clock)
 	(view-dirty display)
 	(task-sleep 1000000))
+(mail-read (task-mailbox))

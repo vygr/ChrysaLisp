@@ -49,7 +49,7 @@
 
 (while id
 	(cond
-		((= (setq id (get-long (defq msg (mail-mymail)) ev_msg_target_id)) event_win_close)
+		((= (setq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_win_close)
 			(setq id nil))
 		((= id event_win_button)
 			(defq _ (find (sym (get (view-find-id window (get-long msg ev_msg_action_source_id)) 'text)) keys))

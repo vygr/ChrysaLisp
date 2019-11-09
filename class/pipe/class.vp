@@ -11,21 +11,21 @@
 (def-method 'pipe 'select)
 	;inputs
 	;r0 = pipe object (ptr)
-	;r1 = user mailbox (ptr)
+	;r1 = 0 or user mailbox id (uint)
 	;outputs
 	;r0 = pipe object (ptr)
 	;r1 = mailbox index (uint)
 	;trashes
-	;r0-r5
+	;r0-r7
 
 	(entry 'pipe 'select '(r0 r1))
 
 	;wait on user and pipe mailboxes
-	(assign '(r0 (r0 pipe_select_array)) '(r5 r0))
-	(assign '(r1 (r5 pipe_streams)) '((r0 0) r1))
-	(call 'sys_mail 'select '(r0 (r1 array_length)) '(r0))
+	(assign '(r0 (r0 pipe_select_array)) '(r7 r0))
+	(call 'array 'set_element '(r0 r1 0) '(r0))
+	(call 'sys_mail 'select '(r0) '(r0))
 
-	(exit 'pipe 'select '(r5 r0))
+	(exit 'pipe 'select '(r7 r0))
 	(vp-ret)
 
 (def-func-end)

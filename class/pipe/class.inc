@@ -19,8 +19,7 @@
 (def-struct 'pipe 'obj)
 	(local-align)
 	(offset 'start)
-	(ptr 'streams)
-	(pptr 'select_array)
+	(ptr 'streams 'select_array)
 	(ulong 'state)
 (def-struct-end)
 

@@ -115,5 +115,5 @@
 	(mail-send reply pid))
 
 ;read work request or exit
-(while (/= 0 (defq pid (get-long (defq msg (mail-mymail)) work_pid)))
+(while (/= 0 (defq pid (get-long (defq msg (mail-read (task-mailbox))) work_pid)))
 	(line pid (get-long msg work_width) (get-long msg work_height) (get-long msg work_y)))

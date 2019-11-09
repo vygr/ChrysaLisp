@@ -61,7 +61,7 @@
 	(cond
 		((eql data t)
 			;normal mailbox event
-			(terminal-input (get-byte (mail-mymail) 0)))
+			(terminal-input (get-byte (mail-read (task-mailbox)) 0)))
 		((eql data nil)
 			;pipe is closed
 			(setq cmd nil)

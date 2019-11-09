@@ -552,17 +552,17 @@
 
 (mail-enquire name)
 
-## mail-mymail
+## mail-poll
 
-(mail-mymail)
+(mail-poll mboxs)
+
+## mail-read
+
+(mail-read mbox)
 
 ## mail-send
 
 (mail-send obj mbox)
-
-## mail-trymail
-
-(mail-trymail)
 
 ## map
 
@@ -792,10 +792,6 @@
 
 (range start end [step]) -> list
 
-## ray-march
-
-(ray-march points points num num num num)
-
 ## rcurry
 
 (rcurry lambda var ...) -> lambda
@@ -827,10 +823,6 @@
 ## save
 
 (save str path)
-
-## scene
-
-(scene points)
 
 ## set
 

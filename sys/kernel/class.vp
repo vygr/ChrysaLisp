@@ -20,9 +20,9 @@
 
 	(union
 		'(ptr 'argv)
-		'(ptr 'link 'mbox_addr))
+		'(ptr 'link))
 	(ptr 'task_statics 'mail_statics)
-	(ptr 'msg 'data)
+	(ptr 'mbox_addr 'msg 'data)
 	(pptr 'iter_begin 'iter_end)
 	(ulong 'service)
 	(struct 'routes 'lk_table)
@@ -76,8 +76,10 @@
 		;service all kernel mail
 		(loop-start)
 			;check if any mail
-			(call 'sys_mail 'try_read {mbox_addr} {msg, data})
-			(breakifnot {msg})
+			(assign {mbox_addr} '(r0))
+			(lh-is-empty r0 0 r1)
+			(breakif '(r1 = 0))
+			(call 'sys_mail 'read '(r0) {msg, data})
 
 			;(switch) on kernel call number
 			(assign {data->kn_msg_func} {num})

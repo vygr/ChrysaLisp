@@ -77,13 +77,14 @@
 					(push p (trim-cruft (elem 1 s))))))) _)
 	(list d p))
 
-(defun-bind make (&optional *abi* *cpu*)
-	(setd *abi* (abi) *cpu* (cpu))
+(defun-bind func-obj (_)
+	(cat "obj/" *cpu* "/" *abi* "/" _))
+
+(defun-bind make (&optional root *abi* *cpu*)
+	(setd root 'make.inc *abi* (abi) *cpu* (cpu))
 	(compile ((lambda ()
-		(defq *env* (env 101) *imports* (list 'make.inc))
+		(defq *env* (env 101) *imports* (list root))
 		(catch (progn
-			(defun-bind func-obj (_)
-				(cat "obj/" *cpu* "/" *abi* "/" _))
 			(defun-bind make-sym (_)
 				(sym (cat "_dep_" _)))
 			(defun-bind make-time (_)
@@ -120,8 +121,6 @@
 			(include 'sys/func.inc)
 			(defun-bind func-sym (_)
 				(sym (cat 'f_ _)))
-			(defun-bind func-obj (_)
-				(cat "obj/" *cpu* "/" *abi* "/" _))
 			(defun-bind read-paths (_)
 				(defq l (list) i (get-short _ fn_header_links) e (get-short _ fn_header_paths))
 				(while (/= i e)
@@ -218,7 +217,7 @@
 
 (defun-bind remake (&optional *abi* *cpu*)
 	(setd *abi* (abi) *cpu* (cpu))
-	(make *abi* *cpu*)
+	(make 'make.inc *abi* *cpu*)
 	(make-boot-all *abi* *cpu*))
 
 (defun-bind remake-all (&optional *abi* *cpu* *files*)
@@ -231,9 +230,9 @@
 ;;;;;;;;;;;;;;;;;;;;;
 
 (defun-bind make-platforms ()
-	(make 'AMD64 'x86_64)
-	(make 'WIN64 'x86_64)
-	(make 'ARM64 'aarch64))
+	(make 'make.inc 'AMD64 'x86_64)
+	(make 'make.inc 'WIN64 'x86_64)
+	(make 'make.inc 'ARM64 'aarch64))
 
 (defun-bind make-all-platforms ()
 	(defq *files* (all-vp-files))

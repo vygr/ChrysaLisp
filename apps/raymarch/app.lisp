@@ -1,3 +1,8 @@
+;jit compile apps native functions if needed
+(let ()
+	(import 'cmd/asm.inc)
+	(make 'apps/raymarch/lisp.vp))
+
 ;imports
 (import 'sys/lisp.inc)
 (import 'gui/lisp.inc)
@@ -32,7 +37,7 @@
 (defq then (time))
 (while id
 	(cond
-		((= (setq id (get-long (defq msg (mail-mymail)) ev_msg_target_id)) event_win_close)
+		((= (setq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_win_close)
 			(setq id nil))
 		((> id 0)
 			(setq sc (dec sc))
@@ -58,7 +63,7 @@
 ;wait for outstanding replies
 (view-hide window)
 (while (/= sc 0)
-	(if (> (get-long (defq msg (mail-mymail)) ev_msg_target_id) 0)
+	(if (> (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id) 0)
 		(setq sc (dec sc))))
 
 ;send out multi-cast exit command
