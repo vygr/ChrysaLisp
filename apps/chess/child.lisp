@@ -221,6 +221,9 @@
 				(t	;off the edge
 					(setq len 0))))) (list vectors)) yield)
 
+;native versions
+(ffi piece-scans "apps/chess/piece-scans" 0)
+
 ;test if king of given colour is in check
 (defun-bind in-check (brd colour)
 	(if (= colour (const black))
@@ -228,10 +231,10 @@
 		(defq king_piece "K" tests (list white_tests)))
 	;find king index on board
 	(defq king_index (find king_piece brd))
-	(some! 0 -1 t (lambda ((pieces vectors))
-		(defq hit_pieces (piece-scans brd king_index vectors) pieces (list pieces))
-		(some! 0 -1 t (lambda (piece)
-			(find piece hit_pieces)) pieces)) tests))
+		(some! 0 -1 t (lambda ((pieces vectors))
+			(defq hit_pieces (piece-scans brd king_index vectors) pieces (list pieces))
+			(some! 0 -1 t (lambda (piece)
+				(find piece hit_pieces)) pieces)) tests))
 
 ;evaluate (score) a board for the colour given
 (defun-bind evaluate (brd colour)
@@ -309,14 +312,12 @@
 			(* timeout_value colour))
 		((= ply 0)
 			(evaluate brd colour))
-		(t
-			(defq next_boards (all-moves brd colour))
+		(t	(defq next_boards (all-moves brd colour))
 			(some! 0 -1 t (lambda (brd)
 				(cond
 					((= _ 0)
 						(defq value (neg (pvs brd (neg colour) (neg beta) (neg alpha) (dec ply)))))
-					(t
-						(defq value (neg (pvs brd (neg colour) (dec (neg alpha)) (neg alpha) (dec ply))))
+					(t	(defq value (neg (pvs brd (neg colour) (dec (neg alpha)) (neg alpha) (dec ply))))
 						(if (< alpha value beta)
 							(setq value (neg (pvs brd (neg colour) (neg beta) (neg value) (dec ply)))))))
 				(>= (setq alpha (max alpha value)) beta)) (list next_boards))
@@ -329,8 +330,7 @@
 			(* timeout_value colour))
 		((= ply 0)
 			(evaluate brd colour))
-		(t
-			(defq value min_int next_boards (all-moves brd colour))
+		(t	(defq value min_int next_boards (all-moves brd colour))
 			(some! 0 -1 t (lambda (brd)
 				(setq value (max value (neg (negamax brd (neg colour) (neg beta) (neg alpha) (dec ply))))
 					alpha (max alpha value))
@@ -352,8 +352,7 @@
 				(cond
 					((or (<= score value) (= score timeout_value))
 						(vdu-print vdu "."))
-					(t
-						(setq value score pbrd brd)
+					(t	(setq value score pbrd brd)
 						(vdu-print vdu "*")))
 				(setq alpha (max alpha value))
 				(cond
@@ -361,7 +360,8 @@
 						timeout_value)
 					((>= alpha beta)))) (list ply0_boards)))
 		(if (num? timeout) t
-			(setq nbrd pbrd pbrd nil))) (list (range 1 max_ply))) nbrd)
+			(setq nbrd pbrd pbrd nil))) (list (range 1 max_ply)))
+	nbrd)
 
 (defun-bind display-board (board)
 	(defq d (range 0 8))

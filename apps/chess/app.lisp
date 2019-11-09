@@ -1,3 +1,8 @@
+;jit compile apps native functions if needed
+(let ()
+	(import 'cmd/asm.inc)
+	(make 'apps/chess/lisp.vp))
+
 ;imports
 (import 'sys/lisp.inc)
 (import 'gui/lisp.inc)
@@ -24,7 +29,6 @@
 			(setq id nil))
 		(t (view-event window msg))))
 
-;close child
+;close child and window
 (mail-send "" mbox)
-
 (view-hide window)

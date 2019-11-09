@@ -1,0 +1,77 @@
+(include 'sys/func.inc)
+(include 'class/num/class.inc)
+(include 'class/str/class.inc)
+(include 'class/lisp/class.inc)
+
+(def-func 'apps/chess/piece-scans)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
+
+	(def-struct 'local)
+		(ptr 'this 'args 'yield)
+	(def-struct-end)
+
+	(vp-def (x y cx cy dx dy len yield_data brd iter_begin iter_end vectors index)
+		'(r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 r0))
+
+	(entry '(r0 r1))
+
+(errorcases
+	(call 'lisp 'env_args_type '(r1 ($ sig) 3) '(r2))
+	(gotoif '(r2 = 0) 'error))
+
+	(vp-alloc local_size)
+	(assign '(r0 r1) '((rsp local_this) (rsp local_args)))
+
+	(call 'str 'create_from_buffer '(0 128) '(r0))
+	(assign '(r0 (& r0 str_data) (rsp local_args)) `((rsp local_yield) ,yield_data r0))
+	(class/vector/bind_args r0 `(,brd ,index ,vectors) '(str num vector))
+
+	(assign `(,index 8) '(r0 r1))
+	(vp-ext-rr r0 r2)
+	(vp-div-rrr r1 r2 r0)
+	(assign '(r2 r0) `(,cx ,cy))
+
+	(class/array/get_both vectors iter_begin iter_end)
+	(loop-start)
+		(assign `((,iter_begin 0)) '(r0))
+		(class/array/bind_args r0 `(,dx ,dy ,len))
+		(assign `(,cx ,cy) `(,x ,y))
+		(loop-start)
+			(vp-sub-cr 1 len)
+			(breakif `(,len < 0))
+			(vp-add-rr dx x)
+			(vp-add-rr dy y)
+			(breakif `(,x < 0) `(,x > 7) `(,y < 0) `(,y > 7))
+			(vp-cpy-rr y r0)
+			(vp-mul-cr 8 r0)
+			(vp-add-rr x r0)
+			(assign `((,brd r0 ub)) '(r0))
+			(continueif `(r0 = ,char_space))
+			(assign '(r0) `((,yield_data 0 ub)))
+			(vp-add-cr byte_size yield_data)
+		(endswitch)
+		(vp-add-cr ptr_size iter_begin)
+	(loop-until `(,iter_begin = ,iter_end))
+
+	(assign '((rsp local_yield) 0) '(r1 r0))
+	(assign `((& r1 str_data) r0) `(r2 (,yield_data 0 ub)))
+	(vp-sub-rr r2 yield_data)
+	(assign `(,yield_data) '((r1 str_length)))
+
+	(exit '((rsp local_this) r1))
+	(vp-free local_size)
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r0 "(piece-scans brd index vectors)" error_msg_wrong_types r1))
+	(signature '(str num vector)))
+
+(def-func-end)
