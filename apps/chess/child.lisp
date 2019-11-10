@@ -2,6 +2,14 @@
 (import 'sys/lisp.inc)
 (import 'gui/lisp.inc)
 
+;sequenced message format
+(structure 'event 0
+	(byte 'win_brd 'win_str 'win_stop))
+
+(structure 'child_msg 0
+	(long 'id 'seq)
+	(offset 'data))
+
 ;piece map accses
 (defmacro piece-map (_ i)
 	`(elem (find ,i ,(elem 0 (eval _))) (elem 1 ,_)))
@@ -208,7 +216,7 @@
 
 ;generate all first hit pieces from index position along given vectors
 (defun-bind piece-scans (brd index vectors)
-	(defq yield "" cx (% index 8) cy (/ index 8))
+	(defq yield "" cx (logand index 7) cy (>> index 3))
 	(each! 0 -1 (lambda ((dx dy len))
 		(defq x cx y cy)
 		(while (>= (setq len (dec len)) 0)
@@ -250,7 +258,7 @@
 
 ;generate all boards for a piece index and moves possibility, filtering out boards where king is in check
 (defun-bind piece-moves (yield brd index colour moves)
-	(defq piece (elem index brd) cx (% index 8) cy (/ index 8)
+	(defq piece (elem index brd) cx (logand index 7) cy (>> index 3)
 		promote (if (= colour (const white)) '("QRBN") '("qrbn")))
 	(each! 0 -1 (lambda ((dx dy len flag))
 		(defq x cx y cy)
@@ -345,15 +353,15 @@
 			(map (lambda (brd) (list (evaluate brd colour) brd)) (all-moves brd colour))))
 	;iterative deepening of ply so we allways have a best move to go with if the time expires
 	(some! 0 -1 t (lambda (ply)
-		(vdu-print vdu (str (ascii-char 10) "Ply = " ply (ascii-char 10)))
+		(print-msg event_win_str (str (ascii-char 10) "Ply = " ply (ascii-char 10)))
 		(defq value min_int alpha min_int beta max_int
 			timeout (some! 0 -1 t (lambda ((ply0_score brd))
 				(defq score (neg (negamax brd (neg colour) (neg beta) (neg alpha) (dec ply))))
 				(cond
 					((or (<= score value) (= score timeout_value))
-						(vdu-print vdu "."))
+						(print-msg event_win_str "."))
 					(t	(setq value score pbrd brd)
-						(vdu-print vdu "*")))
+						(print-msg event_win_str "*")))
 				(setq alpha (max alpha value))
 				(cond
 					((= score timeout_value)
@@ -363,51 +371,46 @@
 			(setq nbrd pbrd pbrd nil))) (list (range 1 max_ply)))
 	nbrd)
 
-(defun-bind display-board (board)
-	(defq d (range 0 8))
-	(vdu-print vdu (const (str (ascii-char 128) (ascii-char 10) "    a   b   c   d   e   f   g   h" (ascii-char 10))))
-	(vdu-print vdu (str "  +---+---+---+---+---+---+---+---+" (ascii-char 10)))
-	(each (lambda (row)
-		(vdu-print vdu (str "  " (apply cat (map (lambda (col)
-			(cat "| " (elem (+ (* 8 row) col) board) " ")) d)) "| " (- 8 row) (ascii-char 10)))
-		(if (/= row 7)
-			(vdu-print vdu (str "  |---+---+---+---+---+---+---+---|" (ascii-char 10))))) d)
-	(vdu-print vdu (str "  +---+---+---+---+---+---+---+---+" (ascii-char 10))))
+;send command string to parent
+(defun-bind print-msg (id s)
+	(mail-send (cat (char id long_size)
+		(char (setq msg_seq (inc msg_seq)) long_size) s) mbox))
 
 (defun-bind time-in-seconds (_)
 		(str (/ _ 1000000) "." (pad (% _ 1000000) 6 "00000")))
 
 (defun-bind main ()
 	;read args from parent
-	(bind '(vdu max_time_per_move) (mail-read (task-mailbox)))
-	(defq brd "rnbqkbnrpppppppp                                PPPPPPPPRNBQKBNR"
-		history (list) colour (const white) game_start_time (time) quit nil flicker 100000)
-	(display-board brd)
+	(defq msg (mail-read (task-mailbox)) mbox (get-long msg 0) max_time_per_move (get-long msg long_size)
+		brd "rnbqkbnrpppppppp                                PPPPPPPPRNBQKBNR"
+		history (list) colour (const white) game_start_time (time) quit nil flicker 100000 msg_seq -1)
+	(print-msg event_win_brd brd)
 	(until (or (mail-poll (array (task-mailbox))) quit)
 		(defq elapsed_time (- (time) game_start_time))
-		(vdu-print vdu (str (ascii-char 10) "Elapsed Time: " (time-in-seconds elapsed_time) (ascii-char 10)))
+		(print-msg event_win_str (str (ascii-char 10) "Elapsed Time: " (time-in-seconds elapsed_time) (ascii-char 10)))
 		(if (= colour (const white))
-			(vdu-print vdu (str "White to move:" (ascii-char 10)))
-			(vdu-print vdu (str "Black to move:" (ascii-char 10))))
+			(print-msg event_win_str (str "White to move:" (ascii-char 10)))
+			(print-msg event_win_str (str "Black to move:" (ascii-char 10))))
 		(defq new_brd (best-move brd colour history))
 		(cond
 			((not new_brd)
 				(if (in-check brd colour)
-					(vdu-print vdu (str (ascii-char 10) "** Checkmate **" (ascii-char 10) (ascii-char 10)))
-					(vdu-print vdu (str (ascii-char 10) "** Stalemate **" (ascii-char 10) (ascii-char 10))))
+					(print-msg event_win_str (str (ascii-char 10) "** Checkmate **" (ascii-char 10) (ascii-char 10)))
+					(print-msg event_win_str (str (ascii-char 10) "** Stalemate **" (ascii-char 10) (ascii-char 10))))
 				(setq quit t))
 			((>= (reduce (lambda (cnt past_brd)
 					(if (eql past_brd brd) (inc cnt) cnt)) history 0) 3)
-				(vdu-print vdu (str (ascii-char 10) "** Draw **" (ascii-char 10) (ascii-char 10)))
+				(print-msg event_win_str (str (ascii-char 10) "** Draw **" (ascii-char 10) (ascii-char 10)))
 				(setq quit t))
 			(t
 				(each (lambda (_)
-					(display-board brd)
+					(print-msg event_win_brd brd)
 					(task-sleep flicker)
-					(display-board new_brd)
+					(print-msg event_win_brd new_brd)
 					(task-sleep flicker)) (range 0 2))
 				(push history new_brd)
 				(setq colour (neg colour) brd new_brd))))
-	(mail-read (task-mailbox)))
+	(mail-read (task-mailbox))
+	(print-msg event_win_stop ""))
 
 (main)

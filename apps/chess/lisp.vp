@@ -33,10 +33,9 @@
 	(assign '(r0 (& r0 str_data) (rsp local_args)) `((rsp local_yield) ,yield_data r0))
 	(class/vector/bind_args r0 `(,brd ,index ,vectors) '(str num vector))
 
-	(assign `(,index 8) '(r0 r1))
-	(vp-ext-rr r0 r2)
-	(vp-div-rrr r1 r2 r0)
-	(assign '(r2 r0) `(,cx ,cy))
+	(assign `(,index ,index) `(,cx ,cy))
+	(vp-and-cr 7 cx)
+	(vp-shr-cr 3 cy)
 
 	(class/array/get_both vectors iter_begin iter_end)
 	(loop-start)
