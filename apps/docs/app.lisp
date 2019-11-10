@@ -5,7 +5,7 @@
 (structure 'event 0
 	(byte 'win_close 'win_button))
 
-(defq id t doc_list '("VM" "ASSIGNMENT" "STRUCTURE" "FUNCTIONS" "LISP" "SYNTAX" "CLASSES" "TODO")
+(defq id t doc_list '("VM" "ASSIGNMENT" "STRUCTURE" "FUNCTIONS" "LISP" "SYNTAX" "CLASSES" "INTRO" "TAOS" "TODO")
 	space_width 8 tab_width (* space_width 4) margin_width (* space_width 3))
 
 (defun-bind normal-line ()
@@ -72,7 +72,7 @@
 		(case state
 			(normal (normal-line))
 			(code (code-line)))
-		(if line_widget (view-add-child page_widget line_widget))) (cat "doc/" file ".md"))
+		(if line_widget (view-add-child page_widget line_widget))) (cat "docs/" file ".md"))
 	(apply view-change (cat (list page_flow 0 0) (view-pref-size page_flow)))
 	(view-layout (view-add-child page_scroll page_flow))
 	(view-dirty-all (view-layout doc_flow)))

@@ -27,7 +27,7 @@ be a model that the terminal and cmd style Lisp apps employ, but it's driven
 from Lisp and not a native feature in the class library.
 
 First demo of this will be the improved Chess demo, told you there was method
-in porting over that ! :)
+in porting that over ! :)
 
 Removed the app specific native code from the boot image and made the relevent
 apps Jit compile their native code ! Not quite a virtual binary yet, but not

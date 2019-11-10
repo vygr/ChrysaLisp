@@ -298,7 +298,7 @@ into what these calls do to get your function compiled and written out, look in
 
 Next there is a section of documentation, this format can be parsed out by the
 `make doc` command line tool. Parsed documentation ends up in the
-`doc/CLASSES.md` file.
+`docs/CLASSES.md` file.
 
 The `(entry 'sys_str 'compare '(r0 r1))` and `(exit 'sys_str 'compare
 '(r2))` calls are helpers to make sure input and output parameters get copied

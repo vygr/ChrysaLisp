@@ -2,7 +2,6 @@ obj/*
 platform
 arch
 abi
-doc/_build/
 chrysalisp*
 *.dll
 .vs/*

@@ -65,8 +65,8 @@
 				(each (lambda (_)
 					(write-line stream _)) (elem i docs))
 				(write-line stream (const (str "```" (ascii-char 10)))))) methods)) classes)
-	(save (str stream) 'doc/CLASSES.md)
-	(print "-> doc/CLASSES.md")
+	(save (str stream) 'docs/CLASSES.md)
+	(print "-> docs/CLASSES.md")
 
 	;create lisp syntax docs
 	(each (lambda (_)
@@ -91,8 +91,8 @@
 		(when (eql "(" (elem 0 (elem 0 s)))
 			(write-line stream (cat "## " form (const (ascii-char 10))))
 			(write-line stream (cat _ (const (ascii-char 10)))))) syntax)
-	(save (str stream) 'doc/SYNTAX.md)
-	(print "-> doc/SYNTAX.md"))
+	(save (str stream) 'docs/SYNTAX.md)
+	(print "-> docs/SYNTAX.md"))
 
 ;initialize pipe details and command args, abort on error
 (when (defq slave (create-slave))

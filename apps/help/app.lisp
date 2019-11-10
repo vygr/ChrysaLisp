@@ -17,7 +17,7 @@
 					((eql f "###") (push k (sym (elem 1 s))) (push v ""))
 					((eql f "```lisp") (setq state nil))))
 				((eql f "```") (setq state t))
-				(t (elem-set -2 v (cat (elem -2 v) _ (const (ascii-char 10)))))))) "doc/CLASSES.md")
+				(t (elem-set -2 v (cat (elem -2 v) _ (const (ascii-char 10)))))))) "docs/CLASSES.md")
 	(each (lambda (k v)
 		(when (/= 0 (length v))
 			(defq _ (split k ":"))
