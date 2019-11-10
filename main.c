@@ -24,49 +24,40 @@ enum
 	file_open_readwrite
 };
 
+char dirbuf[128];
 #ifdef _WIN64
 static void rmkdir(const char *path)
 {
-	char tmp[256];
 	char *p = NULL;
-	char *ls = strrchr(path, '/');
 	size_t len;
-	if (ls == NULL) len = strlen(path);
-	else len = ls - path;
-	memcpy(tmp, path, len);
-	tmp[len] = 0;
-	for (p = tmp + 1; *p; p++)
+	len = strlen(path);
+	memcpy(dirbuf, path, len + 1);
+	for (p = dirbuf + 1; *p; p++)
 	{
 		if(*p == '/')
 		{
 			*p = 0;
-			mkdir(tmp, _S_IREAD | _S_IWRITE);
+			mkdir(dirbuf, _S_IREAD | _S_IWRITE);
 			*p = '/';
 		}
 	}
-	mkdir(tmp, _S_IREAD | _S_IWRITE);
 }
 #else
 static void rmkdir(const char *path)
 {
-	char tmp[128];
 	char *p = NULL;
-	char *ls = strrchr(path, '/');
 	size_t len;
-	if (ls == NULL) len = strlen(path);
-	else len = ls - path;
-	memcpy(tmp, path, len);
-	tmp[len] = 0;
-	for (p = tmp + 1; *p; p++)
+	len = strlen(path);
+	memcpy(dirbuf, path, len + 1);
+	for (p = dirbuf + 1; *p; p++)
 	{
 		if(*p == '/')
 		{
 			*p = 0;
-			mkdir(tmp, S_IRWXU);
+			mkdir(dirbuf, S_IRWXU);
 			*p = '/';
 		}
 	}
-	mkdir(tmp, S_IRWXU);
 }
 #endif
 
