@@ -4,6 +4,20 @@
 
 ------
 
+Chess GUI app now runs the search engine remotely and messages back to the GUI
+parent app via a simple sequence message model. Soon this will start to use the
+msg_in/msg_out classes direct from Lisp and do stream based (read) (write)
+style data exchange !
+
+Fixed the Windows double enter key and esc key problems in the TUI. Plus
+compiled the Windows main.exe bringing it in line with the new recursive folder
+creation on file_open_write case.
+
+As a result of the above, removed most of the empty folders from the
+snapshot.zip file.
+
+------
+
 Made the host main.c file_open_write case attempt to create folders for any
 path that fails to open. This will allow the snapshot.zip file to not have to
 carry empty folders as the host will create them as required.
