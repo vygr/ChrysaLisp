@@ -25,41 +25,27 @@ enum
 };
 
 char dirbuf[128];
+
+static void rmkdir(const char *path)
+{
+	char *p = NULL;
+	size_t len;
+	len = strlen(path);
+	memcpy(dirbuf, path, len + 1);
+	for (p = dirbuf + 1; *p; p++)
+	{
+		if(*p == '/')
+		{
+			*p = 0;
 #ifdef _WIN64
-static void rmkdir(const char *path)
-{
-	char *p = NULL;
-	size_t len;
-	len = strlen(path);
-	memcpy(dirbuf, path, len + 1);
-	for (p = dirbuf + 1; *p; p++)
-	{
-		if(*p == '/')
-		{
-			*p = 0;
 			mkdir(dirbuf, _S_IREAD | _S_IWRITE);
-			*p = '/';
-		}
-	}
-}
 #else
-static void rmkdir(const char *path)
-{
-	char *p = NULL;
-	size_t len;
-	len = strlen(path);
-	memcpy(dirbuf, path, len + 1);
-	for (p = dirbuf + 1; *p; p++)
-	{
-		if(*p == '/')
-		{
-			*p = 0;
 			mkdir(dirbuf, S_IRWXU);
+#endif
 			*p = '/';
 		}
 	}
 }
-#endif
 
 long long myopen(const char *path, int mode)
 {
@@ -124,7 +110,16 @@ long long mycloseshared(const char *path, long long hndl)
 long long myread(int fd, void *addr, size_t len)
 {
 #ifdef _WIN64
-	if (!fd && !kbhit()) return -1;
+	if (!fd)
+	{
+		if (!kbhit()) return -1;
+		int ch = getch();
+		putchar(ch);
+		if (ch == 13) putchar(10);
+		if (ch == 8) putchar(32), putchar(8);
+		*((char*)addr) = ch;
+		return 1;
+	}
 #endif
 	return read(fd, addr, len);
 }
