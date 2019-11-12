@@ -1,5 +1,6 @@
 ;imports
 (import 'sys/lisp.inc)
+(import 'class/lisp.inc)
 (import 'gui/lisp.inc)
 
 ;add event id etc

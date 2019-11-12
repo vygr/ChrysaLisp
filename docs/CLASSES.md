@@ -1314,19 +1314,6 @@ trashes
 all but r0
 ```
 
-### component::lisp_ref -> gui/component/lisp_ref
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-all but r0
-```
-
 ## ctx
 
 Super Class: null
@@ -3443,6 +3430,19 @@ trashes
 all but r0
 ```
 
+### obj::lisp_get_field -> class/obj/lisp_get_field
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+all but r0
+```
+
 ## pair
 
 Super Class: obj
@@ -5473,6 +5473,32 @@ trashes
 all but r0
 ```
 
+### stream::lisp_msginstream -> class/stream/lisp_msginstream
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+all but r0
+```
+
+### stream::lisp_msgoutstream -> class/stream/lisp_msgoutstream
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+all but r0
+```
+
 ### stream::lisp_available -> class/stream/lisp_available
 
 ```lisp
@@ -6134,6 +6160,19 @@ all but r0
 ```
 
 ### sys_mail::lisp_poll -> sys/mail/lisp_poll
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+all but r0
+```
+
+### sys_mail::lisp_select -> sys/mail/lisp_select
 
 ```lisp
 inputs

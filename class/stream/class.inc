@@ -25,6 +25,8 @@
 
 (dec-method 'lisp_filestream 'class/stream/lisp_filestream 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_strstream 'class/stream/lisp_strstream 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_msginstream 'class/stream/lisp_msginstream 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_msgoutstream 'class/stream/lisp_msgoutstream 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_available 'class/stream/lisp_available 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_readchar 'class/stream/lisp_readchar 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_readline 'class/stream/lisp_readline 'static '(r0 r1) '(r0 r1))

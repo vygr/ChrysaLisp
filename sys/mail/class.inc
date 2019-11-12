@@ -29,6 +29,7 @@
 
 (dec-method 'lisp_read 'sys/mail/lisp_read 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_poll 'sys/mail/lisp_poll 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_select 'sys/mail/lisp_select 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_send 'sys/mail/lisp_send 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_declare 'sys/mail/lisp_declare 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_enquire 'sys/mail/lisp_enquire 'static '(r0 r1) '(r0 r1))

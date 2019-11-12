@@ -6,7 +6,7 @@
 	(if (setq _ (file-stream _))
 		(while (defq c (read-char _))
 			(prin (char c)))
-		(stream-write-flush stdout)))
+		(stream-flush stdout)))
 
 ;initialize pipe details and command args, abort on error
 (when (defq slave (create-slave))

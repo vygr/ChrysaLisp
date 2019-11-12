@@ -3,6 +3,8 @@
 (include 'class/str/class.inc)
 (include 'class/stream/class.inc)
 (include 'class/stream_str/class.inc)
+(include 'class/msg_in/class.inc)
+(include 'class/msg_out/class.inc)
 (include 'class/slave/class.inc)
 (include 'class/num/class.inc)
 (include 'class/lisp/class.inc)
@@ -86,6 +88,67 @@
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r0 "(string-stream str)" error_msg_wrong_types r1))
 	(signature '(str)))
+
+(def-func-end)
+
+(def-method 'stream 'lisp_msginstream)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
+
+	(entry 'stream 'lisp_msginstream '(r0 r1))
+
+(errorcases
+	(assign '((r1 array_length)) '(r2))
+	(gotoif '(r2 /= 0) 'error))
+
+	(vp-push r0)
+	(call 'msg_in 'create nil '(r1))
+	(vp-pop r0)
+
+	(exit 'stream 'lisp_msginstream '(r0 r1))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r0 "(msg-in-stream)" error_msg_wrong_types r1)))
+
+(def-func-end)
+
+(def-method 'stream 'lisp_msgoutstream)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
+
+	(entry 'stream 'lisp_msgoutstream '(r0 r1))
+
+(errorcases
+	(call 'lisp 'env_args_type '(r1 ($ sig) 1) '(r2))
+	(gotoif '(r2 = 0) 'error))
+
+	(vp-push r0)
+	(defq in (method-input 'msg_out 'create))
+	(class/vector/bind_args r1 in '(num))
+	(call 'msg_out 'create in '(r1))
+	(vp-pop r0)
+
+	(exit 'stream 'lisp_msgoutstream '(r0 r1))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r0 "(msg-out-stream mbox)" error_msg_wrong_types r1))
+	(signature '(num)))
 
 (def-func-end)
 
@@ -368,7 +431,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r0 "(stream-write-flush stream)" error_msg_wrong_types r1))
+	(jump 'lisp 'repl_error '(r0 "(stream-flush stream)" error_msg_wrong_types r1))
 	(signature '(stream)))
 
 (def-func-end)

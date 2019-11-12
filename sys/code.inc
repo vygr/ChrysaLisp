@@ -325,7 +325,7 @@
 (defcfun check-field (_)
 	(setq _ (struct-sym _))
 	(unless (eql *struct* 'local)
-		(if (def? _)
+		(if (def? (type-sym _))
 			(throw "Field redefined !" _))) _)
 
 (defcfun-bind local-align (&optional _)

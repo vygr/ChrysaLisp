@@ -1,14 +1,12 @@
 ;imports
 (import 'sys/lisp.inc)
-(import 'gui/lisp.inc)
+(import 'class/lisp.inc)
 
-;sequenced message format
-(structure 'event 0
-	(byte 'win_brd 'win_str 'win_stop))
-
-(structure 'child_msg 0
-	(long 'id 'seq)
-	(offset 'data))
+;send command string to parent
+(defun-bind send-msg (id data)
+	(write msg_out (cat
+		(const (ascii-char 34)) id data (const (ascii-char 34)) (const (ascii-char 10))))
+	(stream-flush msg_out))
 
 ;piece map accses
 (defmacro piece-map (_ i)
@@ -353,15 +351,15 @@
 			(map (lambda (brd) (list (evaluate brd colour) brd)) (all-moves brd colour))))
 	;iterative deepening of ply so we allways have a best move to go with if the time expires
 	(some! 0 -1 t (lambda (ply)
-		(print-msg event_win_str (str (ascii-char 10) "Ply = " ply (ascii-char 10)))
+		(send-msg "s" (str (ascii-char 10) "Ply = " ply (ascii-char 10)))
 		(defq value min_int alpha min_int beta max_int
 			timeout (some! 0 -1 t (lambda ((ply0_score brd))
 				(defq score (neg (negamax brd (neg colour) (neg beta) (neg alpha) (dec ply))))
 				(cond
 					((or (<= score value) (= score timeout_value))
-						(print-msg event_win_str "."))
+						(send-msg "s" "."))
 					(t	(setq value score pbrd brd)
-						(print-msg event_win_str "*")))
+						(send-msg "s" "*")))
 				(setq alpha (max alpha value))
 				(cond
 					((= score timeout_value)
@@ -371,46 +369,41 @@
 			(setq nbrd pbrd pbrd nil))) (list (range 1 max_ply)))
 	nbrd)
 
-;send command string to parent
-(defun-bind print-msg (id s)
-	(mail-send (cat (char id long_size)
-		(char (setq msg_seq (inc msg_seq)) long_size) s) mbox))
-
 (defun-bind time-in-seconds (_)
 		(str (/ _ 1000000) "." (pad (% _ 1000000) 6 "00000")))
 
 (defun-bind main ()
 	;read args from parent
-	(defq msg (mail-read (task-mailbox)) mbox (get-long msg 0) max_time_per_move (get-long msg long_size)
-		brd "rnbqkbnrpppppppp                                PPPPPPPPRNBQKBNR"
-		history (list) colour (const white) game_start_time (time) quit nil flicker 100000 msg_seq -1)
-	(print-msg event_win_brd brd)
+	(defq msg (mail-read (task-mailbox)) msg_out (msg-out-stream (get-long msg 0)) max_time_per_move (get-long msg long_size)
+		history (list) colour (const white) game_start_time (time) quit nil flicker 100000
+		brd "rnbqkbnrpppppppp                                PPPPPPPPRNBQKBNR")
+	(send-msg "b" brd)
 	(until (or (mail-poll (array (task-mailbox))) quit)
 		(defq elapsed_time (- (time) game_start_time))
-		(print-msg event_win_str (str (ascii-char 10) "Elapsed Time: " (time-in-seconds elapsed_time) (ascii-char 10)))
+		(send-msg "s" (str (ascii-char 10) "Elapsed Time: " (time-in-seconds elapsed_time) (ascii-char 10)))
 		(if (= colour (const white))
-			(print-msg event_win_str (str "White to move:" (ascii-char 10)))
-			(print-msg event_win_str (str "Black to move:" (ascii-char 10))))
+			(send-msg "s" (str "White to move:" (ascii-char 10)))
+			(send-msg "s" (str "Black to move:" (ascii-char 10))))
 		(defq new_brd (best-move brd colour history))
 		(cond
 			((not new_brd)
 				(if (in-check brd colour)
-					(print-msg event_win_str (str (ascii-char 10) "** Checkmate **" (ascii-char 10) (ascii-char 10)))
-					(print-msg event_win_str (str (ascii-char 10) "** Stalemate **" (ascii-char 10) (ascii-char 10))))
+					(send-msg "s" (str (ascii-char 10) "** Checkmate **" (ascii-char 10) (ascii-char 10)))
+					(send-msg "s" (str (ascii-char 10) "** Stalemate **" (ascii-char 10) (ascii-char 10))))
 				(setq quit t))
 			((>= (reduce (lambda (cnt past_brd)
 					(if (eql past_brd brd) (inc cnt) cnt)) history 0) 3)
-				(print-msg event_win_str (str (ascii-char 10) "** Draw **" (ascii-char 10) (ascii-char 10)))
+				(send-msg "s" (str (ascii-char 10) "** Draw **" (ascii-char 10) (ascii-char 10)))
 				(setq quit t))
 			(t
 				(each (lambda (_)
-					(print-msg event_win_brd brd)
+					(send-msg "b" brd)
 					(task-sleep flicker)
-					(print-msg event_win_brd new_brd)
+					(send-msg "b" new_brd)
 					(task-sleep flicker)) (range 0 2))
 				(push history new_brd)
 				(setq colour (neg colour) brd new_brd))))
 	(mail-read (task-mailbox))
-	(print-msg event_win_stop ""))
+	(send-msg "" ""))
 
 (main)

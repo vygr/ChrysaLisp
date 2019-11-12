@@ -196,10 +196,6 @@
 
 (component-connect component id)
 
-## component-ref
-
-(component-ref component field)
-
 ## compose
 
 (compose lambda lambda) -> lambda
@@ -452,6 +448,10 @@
 
 (get-cstr str index) -> str
 
+## get-field
+
+(get-field obj field size|0)
+
 ## get-int
 
 (get-int str index) -> num
@@ -560,6 +560,10 @@
 
 (mail-read mbox)
 
+## mail-select
+
+(mail-select mboxs)
+
 ## mail-send
 
 (mail-send obj mbox)
@@ -587,6 +591,14 @@
 ## min
 
 (min num num ...)
+
+## msg-in-stream
+
+(msg-in-stream)
+
+## msg-out-stream
+
+(msg-out-stream mbox)
 
 ## neg
 
@@ -892,9 +904,9 @@
 
 (stream-avail stream)
 
-## stream-write-flush
+## stream-flush
 
-(stream-write-flush stream)
+(stream-flush stream)
 
 ## string-stream
 

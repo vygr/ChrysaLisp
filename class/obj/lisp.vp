@@ -1,0 +1,65 @@
+(include 'sys/func.inc)
+(include 'class/num/class.inc)
+(include 'class/lisp/class.inc)
+
+(def-method 'obj 'lisp_get_field)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
+
+	(entry 'obj 'lisp_get_field '(r0 r1))
+
+(errorcases
+	(call 'lisp 'env_args_type '(r1 ($ sig) 3) '(r2))
+	(gotoif '(r2 = 0) 'error))
+
+	(assign '(r0) '(r5))
+	(class/vector/bind_args r1 '(r0 r1 r2) '(obj num num))
+	(switch)
+	(vpcase `(r2 = ,byte_size))
+		(assign '((r0 r1 b)) '(r0))
+		(break)
+	(vpcase `(r2 = ,(neg byte_size)))
+		(assign '((r0 r1 ub)) '(r0))
+		(break)
+	(vpcase `(r2 = ,short_size))
+		(assign '((r0 r1 s)) '(r0))
+		(break)
+	(vpcase `(r2 = ,(neg short_size)))
+		(assign '((r0 r1 us)) '(r0))
+		(break)
+	(vpcase `(r2 = ,int_size))
+		(assign '((r0 r1 i)) '(r0))
+		(break)
+	(vpcase `(r2 = ,(neg int_size)))
+		(assign '((r0 r1 ui)) '(r0))
+		(break)
+	(vpcase `(r2 = ,long_size) `(r2 = ,(neg long_size)))
+		(assign '((r0 r1)) '(r0))
+		(break)
+	(default)
+		(assign '((r0 r1)) '(r1))
+		(vpif '(r1 = 0))
+			(assign '((r5 lisp_sym_nil)) '(r1))
+		(endif)
+		(class/obj/ref r1 r0)
+
+		(exit 'obj 'lisp_get_field '(r5 r1))
+		(vp-ret)
+	(endswitch)
+	(call 'num 'create '(r0) '(r1))
+
+	(exit 'obj 'lisp_get_field '(r5 r1))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r0 "(get-field obj field size|0)" error_msg_wrong_types r1))
+	(signature '(obj num num)))
+
+(def-func-end)

@@ -76,6 +76,38 @@
 
 (def-func-end)
 
+(def-method 'sys_mail 'lisp_select)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
+
+	(entry 'sys_mail 'lisp_select '(r0 r1))
+
+(errorcases
+	(call 'lisp 'env_args_type '(r1 ($ sig) 1) '(r2))
+	(gotoif '(r2 = 0) 'error))
+
+	(vp-push r0)
+	(class/vector/bind_args r1 '(r0) '(array))
+	(call 'sys_mail 'select '(r0) '(r0))
+	(call 'num 'create '(r0) '(r1))
+	(vp-pop r0)
+
+	(exit 'sys_mail 'lisp_select '(r0 r1))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r0 "(mail-select mboxs)" error_msg_wrong_types r1))
+	(signature '(array)))
+
+(def-func-end)
+
 (def-method 'sys_mail 'lisp_send)
 	;inputs
 	;r0 = lisp object (ptr)

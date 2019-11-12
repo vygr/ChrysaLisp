@@ -1,5 +1,6 @@
 ;imports
 (import 'sys/lisp.inc)
+(import 'class/lisp.inc)
 (import 'gui/lisp.inc)
 (import 'apps/math.inc)
 

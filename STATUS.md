@@ -4,6 +4,21 @@
 
 ------
 
+Sequenced message streams now available from Lisp apps ! Chess demo shows how
+you can use them to simplify process to process commms.
+
+New (get-field field size|0) function. (set-field field obj size|0) will come
+at some point...
+
+Tidy up the lisp.inc files into 3 separate main areas, sys/lisp.inc,
+class/lisp.inc and gui/lisp.inc.
+
+Along with the new (mail-select) and (mail-poll) functions this allows a much
+more Lisp centric way of building apps. I'll convert several of the other demos
+over to use this idea as I go forward.
+
+------
+
 Chess GUI app now runs the search engine remotely and messages back to the GUI
 parent app via a simple sequence message model. Soon this will start to use the
 msg_in/msg_out classes direct from Lisp and do stream based (read) (write)

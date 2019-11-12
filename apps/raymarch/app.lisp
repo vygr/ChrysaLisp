@@ -5,6 +5,7 @@
 
 ;imports
 (import 'sys/lisp.inc)
+(import 'class/lisp.inc)
 (import 'gui/lisp.inc)
 
 (structure 'event 0

@@ -1,4 +1,4 @@
-;import ui settings
+;import gui settings
 (bind (defq _syms_ '(
 	load_flag_shared load_flag_film flow_flag_left flow_flag_right flow_flag_up
 	flow_flag_down flow_flag_fillw flow_flag_fillh flow_flag_lastw flow_flag_lasth
@@ -52,23 +52,21 @@
 	`(view-set-flags ,_ view_flag_dirty_all view_flag_dirty_all))
 
 ;lisp bindings
+(ffi component-connect "gui/component/lisp_connect" 0)
 (ffi create-backdrop "gui/backdrop/lisp_create" 0)
 (ffi create-button "gui/button/lisp_create" 0)
-(ffi create-slider "gui/slider/lisp_create" 0)
 (ffi create-flow "gui/flow/lisp_create" 0)
 (ffi create-font "gui/font/lisp_create" 0)
 (ffi create-grid "gui/grid/lisp_create" 0)
 (ffi create-label "gui/label/lisp_create" 0)
 (ffi create-progress "gui/progress/lisp_create" 0)
 (ffi create-scroll "gui/scroll/lisp_create" 0)
+(ffi create-slider "gui/slider/lisp_create" 0)
 (ffi create-vdu "gui/vdu/lisp_create" 0)
 (ffi create-view "gui/view/lisp_create" 0)
 (ffi gui-add "gui/gui/lisp_add" 0)
 (ffi vdu-print "gui/vdu/lisp_print" 0)
-(ffi component-connect "gui/component/lisp_connect" 0)
-(ffi component-ref "gui/component/lisp_ref" 0)
 (import 'gui/view/lisp.inc)
 (import 'gui/points/lisp.inc)
 (import 'gui/canvas/lisp.inc)
-(import 'sys/math/lisp.inc)
 (import 'gui/window/lisp.inc)

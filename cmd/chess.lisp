@@ -4,7 +4,7 @@
 (import 'class/lisp.inc)
 
 (defun vdu-print (v s)
-	(prin s) (stream-write-flush (file-stream 'stdout)))
+	(prin s) (stream-flush (file-stream 'stdout)))
 
 ;piece map accses
 (defmacro piece-map (_ i)

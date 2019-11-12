@@ -5,15 +5,11 @@
 
 ;imports
 (import 'sys/lisp.inc)
+(import 'class/lisp.inc)
 (import 'gui/lisp.inc)
 
 (structure 'event 0
-	(byte 'win_brd 'win_str 'win_stop)
 	(byte 'win_close))
-
-(structure 'child_msg 0
-	(long 'id 'seq)
-	(offset 'data))
 
 (ui-tree window (create-window window_flag_close) ('color argb_black)
 	(ui-element vdu (create-vdu) ('vdu_width 39 'vdu_height 40 'ink_color argb_cyan
@@ -33,43 +29,38 @@
 			(vdu-print vdu (str "  |---+---+---+---+---+---+---+---|" (ascii-char 10))))) d)
 	(vdu-print vdu (str "  +---+---+---+---+---+---+---+---+" (ascii-char 10))))
 
-;create child and send args
-(mail-send (array (task-mailbox) 2000000)
-	(defq mbox (open-child "apps/chess/child.lisp" kn_call_child)))
+;create child and send args etc
+(defq id t msg_in (msg-in-stream) select (array (task-mailbox) (msg-in-mbox msg_in)))
+(mail-send (array (msg-in-mbox msg_in) 2000000)
+	(defq child_mbox (open-child "apps/chess/child.lisp" kn_call_child)))
 
-(defq id t msg_seq 0 msg_que (list))
-
-(defun-bind get-child-msg (msg)
-	(when msg
-		(push msg_que msg)
-		(sort (lambda (x y)
-			(- (get-long x child_msg_seq) (get-long y child_msg_seq))) msg_que))
-	(when (and (/= (length msg_que) 0) (= (get-long (elem -2 msg_que) child_msg_seq) msg_seq))
-		(setq msg_seq (inc msg_seq))
-		(pop msg_que)))
-
+;main event loop
 (while id
+	(defq idx (mail-select select))
 	(cond
-		((= (setq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_win_close)
-			(setq id nil))
-		((<= event_win_brd id event_win_stop)
-			;read sequenced msg que
-			(while (setq msg (get-child-msg msg))
-				(cond
-					((= (setq id (get-long msg ev_msg_target_id)) event_win_brd)
-						(display-board (slice child_msg_data -1 msg)))
-					((= id event_win_str)
-						(vdu-print vdu (slice child_msg_data -1 msg))))
-				(setq msg nil)))
-		(t (view-event window msg))))
+		((= idx 0)
+			;GUI event from main mailbox
+			(cond
+				((= (setq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_win_close)
+					(setq id nil))
+				(t (view-event window msg))))
+		(t	;from child stream
+			(bind '(data _) (read msg_in (const (ascii-code " "))))
+			(cond
+				((eql (setq id (elem 0 data)) "b")
+					(display-board (slice 1 -1 data)))
+				((eql id "s")
+					(vdu-print vdu (slice 1 -1 data)))))))
 
-;close child and window, wait for child to close
-(mail-send "" mbox)
+;close child and window, wait for child stream to close
+(mail-send "" child_mbox)
 (view-hide window)
 (until id
-	(when (<= event_win_brd (get-long (setq msg (mail-read (task-mailbox))) ev_msg_target_id) event_win_stop)
-		;read sequenced msg que
-		(while (setq msg (get-child-msg msg))
-			(if (= (get-long msg ev_msg_target_id) event_win_stop)
-				(setq id t)
-				(setq msg nil)))))
+	(defq idx (mail-select select))
+	(cond
+		((= idx 0)
+			;GUI event from main mailbox
+			(mail-read (task-mailbox)))
+		(t	;from child stream
+			(bind '(data _) (read msg_in (const (ascii-code " "))))
+			(setq id (eql data "")))))
