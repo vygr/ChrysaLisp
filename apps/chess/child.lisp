@@ -350,9 +350,13 @@
 ;best move for given board position for given colour
 (defun-bind best-move (brd colour history)
 	;start move time, sorted ply0 boards
-	(defq start_time (time) nbrd nil pbrd nil
+	(defq start_time (time) nbrd nil pbrd nil bias (list)
 		ply0_boards (sort (lambda (a b) (- (elem 0 b) (elem 0 a)))
 			(map (lambda (brd) (list (evaluate brd colour) brd)) (all-moves brd colour))))
+	;bias against repeat positions
+	(each! 0 -1 (lambda ((ply0_score brd))
+		(push bias (* queen_value (reduce (lambda (cnt past_brd)
+				(if (eql past_brd brd) (inc cnt) cnt)) history 0)))) (list ply0_boards))
 	;iterative deepening of ply so we allways have a best move to go with if the time expires
 	(some! 0 -1 t (lambda (ply)
 		(send-data "s" (LF) "Ply" ply " ")
@@ -360,7 +364,7 @@
 			timeout (some! 0 -1 t (lambda ((ply0_score brd))
 				(defq score (neg (negamax brd (neg colour) (neg beta) (neg alpha) (dec ply))))
 				(cond
-					((or (<= score value) (= (abs score) (const timeout_value)))
+					((or (<= (- score (elem _ bias)) value) (= (abs score) (const timeout_value)))
 						(send-data "s" "."))
 					(t	(setq value score pbrd brd)
 						(send-data "s" "*")))
