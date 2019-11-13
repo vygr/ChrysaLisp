@@ -4,6 +4,12 @@
 
 ------
 
+Added a Chess font and made use of it in the Chess demo app. Some tidy ups to
+the code. Not finished yet, but going to move onto other issues for a while,
+come back to this later to add the fully playable game.
+
+------
+
 Sequenced message streams now available from Lisp apps ! Chess demo shows how
 you can use them to simplify process to process commms.
 
