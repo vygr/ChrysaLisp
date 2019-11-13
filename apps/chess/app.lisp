@@ -18,20 +18,20 @@
 	(ui-element vdu (create-vdu) ('vdu_width 40 'vdu_height 16 'ink_color argb_cyan
 		'font (create-font "fonts/Hack-Regular.ttf" 16)))
 	(ui-element chess_grid (create-grid) ('grid_width 8 'grid_height 8
-			'font (create-font "fonts/Chess.ttf" 42))
+			'font (create-font "fonts/Chess.ttf" 42) 'border 1 'text " ")
 		(each (lambda (i)
 			(if (= (logand (+ i (>> i 3)) 1) 0)
 				(defq paper argb_white ink argb_black)
 				(defq paper argb_black ink argb_white))
-			(push squares (ui-element _ (create-label)
-				('text " " 'color paper 'ink_color ink)))) (range 0 64))))
+			(push squares (ui-element _ (create-button)
+				('color paper 'ink_color ink)))) (range 0 64))))
 
 (gui-add (apply view-change (cat (list window 512 128)
 	(view-pref-size (window-set-title (window-connect-close window event_win_close) "Chess")))))
 
 (defun-bind display-board (board)
 	(each! 0 -1 (lambda (square piece)
-		(set square 'text (elem (find piece "QKRBNPqkrbnp ")
+		(def square 'text (elem (find piece "QKRBNPqkrbnp ")
 			(if (= (logand (+ _ (>> _ 3)) 1) 0) "wltvmoqkrbnp " "qkrbnpwltvmo ")))
 		(view-layout square)) (list squares board))
 	(view-dirty-all chess_grid))

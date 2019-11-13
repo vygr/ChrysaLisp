@@ -82,7 +82,8 @@
 	(vp-sub-rr r3 r9)
 	(vp-sub-rr r3 r10)
 	(vp-push r0)
-	(call 'flow 'change '((r0 label_flow) r1 r1 r9 r10))
+	(call 'flow 'change '((r0 label_flow) r1 r1 r9 r10) '(r0))
+	(call 'flow 'layout '(r0))
 	(vp-pop r0)
 	(jump 'view 'set_flags '(r0 view_flag_opaque view_flag_opaque))
 
