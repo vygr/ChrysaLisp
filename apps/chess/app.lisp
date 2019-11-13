@@ -12,10 +12,13 @@
 	(byte 'win_close)
 	(byte 'win_button))
 
-(defq squares (list))
+;create child and send args etc
+(defq id t  squares (list) data_in (msg-in-stream) select (array (task-mailbox) (msg-in-mbox data_in)))
+(mail-send (array (msg-in-mbox data_in) 10000000)
+	(defq child_mbox (open-child "apps/chess/child.lisp" kn_call_child)))
 
 (ui-tree window (create-window window_flag_close) ('color argb_black)
-	(ui-element vdu (create-vdu) ('vdu_width 40 'vdu_height 16 'ink_color argb_cyan
+	(ui-element vdu (create-vdu) ('vdu_width 38 'vdu_height 12 'ink_color argb_cyan
 		'font (create-font "fonts/Hack-Regular.ttf" 16)))
 	(ui-element chess_grid (create-grid) ('grid_width 8 'grid_height 8
 			'font (create-font "fonts/Chess.ttf" 42) 'border 1 'text " ")
@@ -35,11 +38,6 @@
 			(if (= (logand (+ _ (>> _ 3)) 1) 0) "wltvmoqkrbnp " "qkrbnpwltvmo ")))
 		(view-layout square)) (list squares board))
 	(view-dirty-all chess_grid))
-
-;create child and send args etc
-(defq id t data_in (msg-in-stream) select (array (task-mailbox) (msg-in-mbox data_in)))
-(mail-send (array (msg-in-mbox data_in) 2000000)
-	(defq child_mbox (open-child "apps/chess/child.lisp" kn_call_child)))
 
 ;main event loop
 (while id

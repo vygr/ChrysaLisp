@@ -29,7 +29,7 @@
 	(byte 'pieces 'vectors))
 
 ;control paramaters
-(defq max_ply 10 max_chess_moves (/ 218 2) max_score_entries 100000)
+(defq max_ply 10 max_chess_moves (/ 218 2) max_search_entries 10000)
 
 ;piece values, in centipawns
 (defq king_value 100000 queen_value 900 rook_value 500 bishop_value 330
@@ -334,7 +334,7 @@
 			alpha)))
 
 ;negamax search
-(defun-bind negamax (sbrd colour alpha beta ply)
+(defun-bind negamax (brd colour alpha beta ply)
 	(cond
 		((>= (- (time) start_time) max_time_per_move)
 			(* timeout_value colour))
@@ -355,22 +355,22 @@
 			(map (lambda (brd) (list (evaluate brd colour) brd)) (all-moves brd colour))))
 	;iterative deepening of ply so we allways have a best move to go with if the time expires
 	(some! 0 -1 t (lambda (ply)
-		(send-data "s" (LF) "Ply = " ply (LF))
+		(send-data "s" (LF) "Ply" ply " ")
 		(defq value min_int alpha min_int beta max_int
 			timeout (some! 0 -1 t (lambda ((ply0_score brd))
 				(defq score (neg (negamax brd (neg colour) (neg beta) (neg alpha) (dec ply))))
 				(cond
-					((or (<= score value) (= score timeout_value))
+					((or (<= score value) (= (abs score) (const timeout_value)))
 						(send-data "s" "."))
 					(t	(setq value score pbrd brd)
 						(send-data "s" "*")))
 				(setq alpha (max alpha value))
 				(cond
-					((= score timeout_value)
+					((= (abs score) (const timeout_value))
 						timeout_value)
 					((>= alpha beta)))) (list ply0_boards)))
 		(if (num? timeout) t
-			(setq nbrd pbrd pbrd nil))) (list (range 1 max_ply)))
+			(setq nbrd (if pbrd pbrd nbrd) pbrd nil))) (list (range 1 max_ply)))
 	nbrd)
 
 (defun-bind time-in-seconds (_)
