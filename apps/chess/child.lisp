@@ -2,11 +2,15 @@
 (import 'sys/lisp.inc)
 (import 'class/lisp.inc)
 
-;send command string to parent
-(defun-bind send-msg (id data)
-	(write msg_out (cat
-		(const (ascii-char 34)) id data (const (ascii-char 34)) (const (ascii-char 10))))
-	(stream-flush msg_out))
+;lf macro
+(defmacro-bind LF ()
+	`(ascii-char 10))
+
+;send data packet to parent
+(defmacro-bind send-data (id &rest data)
+	`(progn
+		(write msg_out (str {"} ,id ~data {"} (LF)))
+		(stream-flush msg_out)))
 
 ;piece map accses
 (defmacro piece-map (_ i)
@@ -38,7 +42,7 @@
 (defq no_capture 0 may_capture 1 must_capture 2)
 
 ;map board square contents to piece type/colour
-(defq piece_type_map (list "prnbkqPRNBKQ "
+(defq piece_type_map (list "PRNBKQprnbkq "
 	(list black black black black black black white white white white white white empty)))
 
 ;piece move vectors and capture actions
@@ -61,7 +65,7 @@
 		(array -1 -1 1 may_capture) (array 1 1 1 may_capture) (array -1 1 1 may_capture) (array 1 -1 1 may_capture)))
 
 ;map piece to its movement possibilities
-(defq moves_map (list "pPrRbBnNqQkK"
+(defq moves_map (list "PpRrBbNnQqKk"
 	(list black_pawn_moves white_pawn_moves rook_moves rook_moves bishop_moves bishop_moves
 		knight_moves knight_moves queen_moves queen_moves king_moves king_moves)))
 
@@ -78,12 +82,12 @@
 		(array 0 -1 1) (array -1 0 1) (array 0 1 1) (array 1 0 1)))
 
 ;check tests, piece types given can not be on the vectors given
-(defq white_tests (list
+(defq black_tests (list
 		(list "qb" bishop_vectors) (list "qr" rook_vectors) (list "n" knight_vectors)
-		(list "k" king_vectors) (list "p" white_pawn_vectors))
-	black_tests (list
+		(list "k" king_vectors) (list "p" black_pawn_vectors))
+	white_tests (list
 		(list "QB" bishop_vectors) (list "QR" rook_vectors) (list "N" knight_vectors)
-		(list "K" king_vectors) (list "P" black_pawn_vectors)))
+		(list "K" king_vectors) (list "P" white_pawn_vectors)))
 
 ;pawn values for board evaluation
 (defq white_pawn_eval_values (array
@@ -206,7 +210,7 @@
 	-30 -40 -40 -50 -50 -40 -40 -30 king_value))
 
 ;map piece to evaluation value table
-(defq piece_evaluation_map (list "kqrbnpKQRBNP"
+(defq piece_evaluation_map (list "KQRBNPkqrbnp"
 	(list black_king_eval_values black_queen_eval_values black_rook_eval_values
 		black_bishop_eval_values black_knight_eval_values black_pawn_eval_values
 		white_king_eval_values white_queen_eval_values white_rook_eval_values
@@ -233,8 +237,8 @@
 ;test if king of given colour is in check
 (defun-bind in-check (brd colour)
 	(if (= colour (const black))
-		(defq king_piece "k" tests (list black_tests))
-		(defq king_piece "K" tests (list white_tests)))
+		(defq king_piece "K" tests (list black_tests))
+		(defq king_piece "k" tests (list white_tests)))
 	;find king index on board
 	(defq king_index (find king_piece brd))
 		(some! 0 -1 t (lambda ((pieces vectors))
@@ -250,20 +254,20 @@
 		(unless (eql piece " ")
 			(defq eval_values (piece-map piece_evaluation_map piece))
 			(if (> (code piece) (const (code "Z")))
-				(setq black_score (+ black_score (elem 64 eval_values) (elem _ eval_values)))
-				(setq white_score (+ white_score (elem 64 eval_values) (elem _ eval_values)))))) (list brd))
+				(setq white_score (+ white_score (elem 64 eval_values) (elem _ eval_values)))
+				(setq black_score (+ black_score (elem 64 eval_values) (elem _ eval_values)))))) (list brd))
 	(* (- white_score black_score) colour))
 
 ;generate all boards for a piece index and moves possibility, filtering out boards where king is in check
 (defun-bind piece-moves (yield brd index colour moves)
 	(defq piece (elem index brd) cx (logand index 7) cy (>> index 3)
-		promote (if (= colour (const white)) '("QRBN") '("qrbn")))
+		promote (if (= colour (const black)) '("QRBN") '("qrbn")))
 	(each! 0 -1 (lambda ((dx dy len flag))
 		(defq x cx y cy)
 		;special length for pawns so we can adjust for starting 2 hop
 		(when (= len 0)
 			(setq len 1)
-			(if (eql piece "p")
+			(if (eql piece "P")
 				(if (= y 1) (setq len 2))
 				(if (= y 6) (setq len 2))))
 		(while (>= (setq len (dec len)) 0)
@@ -307,7 +311,7 @@
 	(defq yield (list) is_black (= colour (const black)))
 	(each! 0 -1 (lambda (piece)
 		(unless (eql piece " ")
-			(when (eql (> (code piece) (const (code "Z"))) is_black)
+			(when (eql (< (code piece) (const (code "Z"))) is_black)
 				;one of our pieces ! so gather all boards from possible moves of this piece
 				(piece-moves yield brd _ colour (piece-map moves_map piece))))) (list brd)) yield)
 
@@ -351,15 +355,15 @@
 			(map (lambda (brd) (list (evaluate brd colour) brd)) (all-moves brd colour))))
 	;iterative deepening of ply so we allways have a best move to go with if the time expires
 	(some! 0 -1 t (lambda (ply)
-		(send-msg "s" (str (ascii-char 10) "Ply = " ply (ascii-char 10)))
+		(send-data "s" (LF) "Ply = " ply (LF))
 		(defq value min_int alpha min_int beta max_int
 			timeout (some! 0 -1 t (lambda ((ply0_score brd))
 				(defq score (neg (negamax brd (neg colour) (neg beta) (neg alpha) (dec ply))))
 				(cond
 					((or (<= score value) (= score timeout_value))
-						(send-msg "s" "."))
+						(send-data "s" "."))
 					(t	(setq value score pbrd brd)
-						(send-msg "s" "*")))
+						(send-data "s" "*")))
 				(setq alpha (max alpha value))
 				(cond
 					((= score timeout_value)
@@ -372,38 +376,37 @@
 (defun-bind time-in-seconds (_)
 		(str (/ _ 1000000) "." (pad (% _ 1000000) 6 "00000")))
 
-(defun-bind main ()
-	;read args from parent
-	(defq msg (mail-read (task-mailbox)) msg_out (msg-out-stream (get-long msg 0)) max_time_per_move (get-long msg long_size)
-		history (list) colour (const white) game_start_time (time) quit nil flicker 100000
-		brd "rnbqkbnrpppppppp                                PPPPPPPPRNBQKBNR")
-	(send-msg "b" brd)
-	(until (or (mail-poll (array (task-mailbox))) quit)
-		(defq elapsed_time (- (time) game_start_time))
-		(send-msg "s" (str (ascii-char 10) "Elapsed Time: " (time-in-seconds elapsed_time) (ascii-char 10)))
-		(if (= colour (const white))
-			(send-msg "s" (str "White to move:" (ascii-char 10)))
-			(send-msg "s" (str "Black to move:" (ascii-char 10))))
-		(defq new_brd (best-move brd colour history))
-		(cond
-			((not new_brd)
-				(if (in-check brd colour)
-					(send-msg "s" (str (ascii-char 10) "** Checkmate **" (ascii-char 10) (ascii-char 10)))
-					(send-msg "s" (str (ascii-char 10) "** Stalemate **" (ascii-char 10) (ascii-char 10))))
-				(setq quit t))
-			((>= (reduce (lambda (cnt past_brd)
-					(if (eql past_brd brd) (inc cnt) cnt)) history 0) 3)
-				(send-msg "s" (str (ascii-char 10) "** Draw **" (ascii-char 10) (ascii-char 10)))
-				(setq quit t))
-			(t
-				(each (lambda (_)
-					(send-msg "b" brd)
-					(task-sleep flicker)
-					(send-msg "b" new_brd)
-					(task-sleep flicker)) (range 0 2))
-				(push history new_brd)
-				(setq colour (neg colour) brd new_brd))))
-	(mail-read (task-mailbox))
-	(send-msg "" ""))
+;read args from parent
+(defq msg (mail-read (task-mailbox)) msg_out (msg-out-stream (get-long msg 0)) max_time_per_move (get-long msg long_size)
+	history (list) colour (const white) game_start_time (time) quit nil flicker 100000
+	brd "RNBQKBNRPPPPPPPP                                pppppppprnbqkbnr")
+(send-data "b" brd)
+(until (or (mail-poll (array (task-mailbox))) quit)
+	(defq elapsed_time (- (time) game_start_time))
+	(send-data "s" (const (ascii-char 128)) (LF) "Elapsed Time: " (time-in-seconds elapsed_time) (LF))
+	(if (= colour (const white))
+		(send-data "s" "White to move:" (LF))
+		(send-data "s" "Black to move:" (LF)))
+	(defq new_brd (best-move brd colour history))
+	(cond
+		((not new_brd)
+			(if (in-check brd colour)
+				(send-data "s" (LF) "** Checkmate **" (LF) (LF))
+				(send-data "s" (LF) "** Stalemate **" (LF) (LF)))
+			(setq quit t))
+		((>= (reduce (lambda (cnt past_brd)
+				(if (eql past_brd brd) (inc cnt) cnt)) history 0) 3)
+			(send-data "s" (LF) "** Draw **" (LF) (LF))
+			(setq quit t))
+		(t
+			(each (lambda (_)
+				(send-data "b" brd)
+				(task-sleep flicker)
+				(send-data "b" new_brd)
+				(task-sleep flicker)) (range 0 2))
+			(push history new_brd)
+			(setq colour (neg colour) brd new_brd))))
+(mail-read (task-mailbox))
 
-(main)
+;send data end
+(send-data "" "")

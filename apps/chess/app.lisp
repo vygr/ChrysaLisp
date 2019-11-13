@@ -9,29 +9,36 @@
 (import 'gui/lisp.inc)
 
 (structure 'event 0
-	(byte 'win_close))
+	(byte 'win_close)
+	(byte 'win_button))
+
+(defq squares (list))
 
 (ui-tree window (create-window window_flag_close) ('color argb_black)
-	(ui-element vdu (create-vdu) ('vdu_width 39 'vdu_height 40 'ink_color argb_cyan
-		'font (create-font "fonts/Hack-Regular.ttf" 16))))
+	(ui-element vdu (create-vdu) ('vdu_width 40 'vdu_height 16 'ink_color argb_cyan
+		'font (create-font "fonts/Hack-Regular.ttf" 16)))
+	(ui-element chess_grid (create-grid) ('grid_width 8 'grid_height 8
+			'font (create-font "fonts/Chess.ttf" 42))
+		(each (lambda (i)
+			(if (= (logand (+ i (>> i 3)) 1) 0)
+				(defq paper argb_white ink argb_black)
+				(defq paper argb_black ink argb_white))
+			(push squares (ui-element _ (create-label)
+				('text " " 'color paper 'ink_color ink)))) (range 0 64))))
 
 (gui-add (apply view-change (cat (list window 512 128)
 	(view-pref-size (window-set-title (window-connect-close window event_win_close) "Chess")))))
 
 (defun-bind display-board (board)
-	(defq d (range 0 8))
-	(vdu-print vdu (const (str (ascii-char 128) (ascii-char 10) "    a   b   c   d   e   f   g   h" (ascii-char 10))))
-	(vdu-print vdu (str "  +---+---+---+---+---+---+---+---+" (ascii-char 10)))
-	(each (lambda (row)
-		(vdu-print vdu (str "  " (apply cat (map (lambda (col)
-			(cat "| " (elem (+ (* 8 row) col) board) " ")) d)) "| " (- 8 row) (ascii-char 10)))
-		(if (/= row 7)
-			(vdu-print vdu (str "  |---+---+---+---+---+---+---+---|" (ascii-char 10))))) d)
-	(vdu-print vdu (str "  +---+---+---+---+---+---+---+---+" (ascii-char 10))))
+	(each! 0 -1 (lambda (square piece)
+		(set square 'text (elem (find piece "QKRBNPqkrbnp ")
+			(if (= (logand (+ _ (>> _ 3)) 1) 0) "wltvmoqkrbnp " "qkrbnpwltvmo ")))
+		(view-layout square)) (list squares board))
+	(view-dirty-all chess_grid))
 
 ;create child and send args etc
-(defq id t msg_in (msg-in-stream) select (array (task-mailbox) (msg-in-mbox msg_in)))
-(mail-send (array (msg-in-mbox msg_in) 2000000)
+(defq id t data_in (msg-in-stream) select (array (task-mailbox) (msg-in-mbox data_in)))
+(mail-send (array (msg-in-mbox data_in) 2000000)
 	(defq child_mbox (open-child "apps/chess/child.lisp" kn_call_child)))
 
 ;main event loop
@@ -45,7 +52,7 @@
 					(setq id nil))
 				(t (view-event window msg))))
 		(t	;from child stream
-			(bind '(data _) (read msg_in (const (ascii-code " "))))
+			(bind '(data _) (read data_in (const (ascii-code " "))))
 			(cond
 				((eql (setq id (elem 0 data)) "b")
 					(display-board (slice 1 -1 data)))
@@ -62,5 +69,5 @@
 			;GUI event from main mailbox
 			(mail-read (task-mailbox)))
 		(t	;from child stream
-			(bind '(data _) (read msg_in (const (ascii-code " "))))
+			(bind '(data _) (read data_in (const (ascii-code " "))))
 			(setq id (eql data "")))))
