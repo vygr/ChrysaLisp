@@ -11,8 +11,8 @@
 (dec-method 'read_next 'class/msg_in/read_next 'final)
 
 (def-struct 'msg_in 'stream)
-	(ulong 'state 'ack_seqnum)
 	(struct 'list 'lh_list)
+	(ulong 'ack_seqnum)
 	(ptr 'mbox_addr)
-	(uint 'mbox_id 'seqnum)
+	(uint 'mbox_id 'seqnum 'state)
 (def-struct-end)

@@ -24,12 +24,14 @@
 	(call 'msg_out 'write_flush '(r0) '(r0))
 
 	;send stopping
-	(call 'msg_out 'set_state '(r0 stream_mail_state_stopping) '(r0))
+	(assign '(stream_mail_state_stopping) '(r1))
+	(assign '(r1) '((r0 msg_out_state)))
 	(call 'msg_out 'write_next '(r0) '(r0))
 	(call 'msg_out 'write_flush '(r0) '(r0))
 
 	;send stopped
-	(call 'msg_out 'set_state '(r0 stream_mail_state_stopped) '(r0))
+	(assign '(stream_mail_state_stopped) '(r1))
+	(assign '(r1) '((r0 msg_out_state)))
 	(call 'msg_out 'write_next '(r0) '(r0))
 	(call 'msg_out 'write_flush '(r0) '(r0))
 

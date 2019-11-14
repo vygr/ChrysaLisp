@@ -15,6 +15,7 @@
 (dec-method 'hash 'class/obj/hash 'virtual '(r0) '(r0 r1))
 
 (dec-method 'lisp_get_field 'class/obj/lisp_get_field 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_set_field 'class/obj/lisp_set_field 'static '(r0 r1) '(r0 r1))
 
 (def-struct 'obj)
 	(pptr 'vtable)

@@ -18,8 +18,6 @@
 (dec-method 'as_premul 'gui/canvas/as_premul 'static '(r0 r1) '(r0))
 (dec-method 'set_clip 'gui/canvas/set_clip 'static '(r0 r7 r8 r9 r10) '(r0))
 (dec-method 'set_edges 'gui/canvas/set_edges 'static '(r0 r1 r2 r3 r4) '(r0 r1 r2 r3 r4))
-(dec-method 'set_color 'gui/canvas/set_color 'static '(r0 r1) '(r0 r1))
-(dec-method 'set_flags 'gui/canvas/set_flags 'static '(r0 r1) '(r0 r1))
 (dec-method 'span_noclip 'gui/canvas/span_noclip 'static '(r0 r1 r7 r8 r9) '(r0))
 (dec-method 'span 'gui/canvas/span 'static '(r0 r1 r7 r8 r9) '(r0))
 (dec-method 'pick 'gui/canvas/pick 'static '(r0 r7 r8) '(r0 r1))
@@ -42,8 +40,6 @@
 (dec-method 'lisp_next_frame 'gui/canvas/lisp_next_frame 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_swap 'gui/canvas/lisp_swap 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_fill 'gui/canvas/lisp_fill 'static '(r0 r1) '(r0 r1))
-(dec-method 'lisp_set_color 'gui/canvas/lisp_set_color 'static '(r0 r1) '(r0 r1))
-(dec-method 'lisp_set_flags 'gui/canvas/lisp_set_flags 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_plot 'gui/canvas/lisp_plot 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_fbox 'gui/canvas/lisp_fbox 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_fpoly 'gui/canvas/lisp_fpoly 'static '(r0 r1) '(r0 r1))
@@ -64,29 +60,3 @@
 (def-bit 'load_flag)
 	(bit 'shared 'film)
 (def-bit-end)
-
-;;;;;;;;;;;;;;;;
-; inline methods
-;;;;;;;;;;;;;;;;
-
-(defcfun gui/canvas/set_color ()
-	;inputs
-	;r0 = canvas object (ptr)
-	;r1 = color (argb)
-	;outputs
-	;r0 = canvas object (ptr)
-	;r1 = color (argb)
-	;trashes
-	;none
-	(assign '(r1) '((r0 canvas_color))))
-
-(defcfun gui/canvas/set_flags ()
-	;inputs
-	;r0 = canvas object (ptr)
-	;r1 = flags (uint)
-	;outputs
-	;r0 = canvas object (ptr)
-	;r1 = flags (uint)
-	;trashes
-	;none
-	(assign '(r1) '((r0 canvas_flags))))

@@ -13,7 +13,8 @@
 	(byte 'win_button))
 
 ;create child and send args etc
-(defq id t  squares (list) data_in (msg-in-stream) select (array (task-mailbox) (msg-in-mbox data_in)))
+(defq id t squares (list) next_char (const (ascii-code " "))
+	data_in (msg-in-stream) select (array (task-mailbox) (msg-in-mbox data_in)))
 (mail-send (array (msg-in-mbox data_in) 10000000)
 	(defq child_mbox (open-child "apps/chess/child.lisp" kn_call_child)))
 
@@ -50,7 +51,7 @@
 					(setq id nil))
 				(t (view-event window msg))))
 		(t	;from child stream
-			(bind '(data _) (read data_in (const (ascii-code " "))))
+			(bind '(data next_char) (read data_in next_char))
 			(cond
 				((eql (setq id (elem 0 data)) "b")
 					(display-board (slice 1 -1 data)))
@@ -67,5 +68,5 @@
 			;GUI event from main mailbox
 			(mail-read (task-mailbox)))
 		(t	;from child stream
-			(bind '(data _) (read data_in (const (ascii-code " "))))
+			(bind '(data next_char) (read data_in next_char))
 			(setq id (eql data "")))))

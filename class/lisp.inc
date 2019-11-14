@@ -7,6 +7,7 @@
 
 ;class lisp bindings
 (ffi get-field "class/obj/lisp_get_field" 0)
+(ffi set-field "class/obj/lisp_set_field" 0)
 (ffi create-slave "class/slave/lisp_create" 0)
 (ffi msg-out-stream "class/stream/lisp_msgoutstream" 0)
 (ffi slave-get-args "class/slave/lisp_get_args" 0)

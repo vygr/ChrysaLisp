@@ -814,32 +814,6 @@ trashes
 all but r0
 ```
 
-### canvas::set_color -> gui/canvas/set_color
-
-```lisp
-inputs
-r0 = canvas object (ptr)
-r1 = color (argb)
-outputs
-r0 = canvas object (ptr)
-r1 = color (argb)
-trashes
-none
-```
-
-### canvas::set_flags -> gui/canvas/set_flags
-
-```lisp
-inputs
-r0 = canvas object (ptr)
-r1 = flags (uint)
-outputs
-r0 = canvas object (ptr)
-r1 = flags (uint)
-trashes
-none
-```
-
 ### canvas::span_noclip -> gui/canvas/span_noclip
 
 ```lisp
@@ -1082,32 +1056,6 @@ all but r0
 ```
 
 ### canvas::lisp_fill -> gui/canvas/lisp_fill
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-all but r0
-```
-
-### canvas::lisp_set_color -> gui/canvas/lisp_set_color
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-all but r0
-```
-
-### canvas::lisp_set_flags -> gui/canvas/lisp_set_flags
 
 ```lisp
 inputs
@@ -2957,18 +2905,6 @@ trashes
 all but r0
 ```
 
-### msg_out::set_state -> class/msg_out/set_state
-
-```lisp
-inputs
-r0 = msg_out object (ptr)
-r1 = stream state (ulong)
-outputs
-r0 = msg_out object (ptr)
-trashes
-none
-```
-
 ### msg_out::deinit -> class/msg_out/deinit
 
 ```lisp
@@ -3431,6 +3367,19 @@ all but r0
 ```
 
 ### obj::lisp_get_field -> class/obj/lisp_get_field
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+all but r0
+```
+
+### obj::lisp_set_field -> class/obj/lisp_set_field
 
 ```lisp
 inputs
@@ -8086,32 +8035,6 @@ all but r0
 ```
 
 ### view::lisp_change_dirty -> gui/view/lisp_change_dirty
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-all but r0
-```
-
-### view::lisp_set_bounds -> gui/view/lisp_set_bounds
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-all but r0
-```
-
-### view::lisp_get_bounds -> gui/view/lisp_get_bounds
 
 ```lisp
 inputs

@@ -56,8 +56,6 @@
 (dec-method 'lisp_pref_size 'gui/view/lisp_pref_size 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_change 'gui/view/lisp_change 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_change_dirty 'gui/view/lisp_change_dirty 'static '(r0 r1) '(r0 r1))
-(dec-method 'lisp_set_bounds 'gui/view/lisp_set_bounds 'static '(r0 r1) '(r0 r1))
-(dec-method 'lisp_get_bounds 'gui/view/lisp_get_bounds 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_add_opaque 'gui/view/lisp_add_opaque 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_sub_opaque 'gui/view/lisp_sub_opaque 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_set_flags 'gui/view/lisp_set_flags 'static '(r0 r1) '(r0 r1))

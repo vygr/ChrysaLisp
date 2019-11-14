@@ -152,14 +152,6 @@
 
 (canvas-plot canvas x y)
 
-## canvas-set-color
-
-(canvas-set-color canvas argb)
-
-## canvas-set-flags
-
-(canvas-set-flags canvas flags)
-
 ## canvas-swap
 
 (canvas-swap canvas)
@@ -840,6 +832,10 @@
 
 (set env var val [var val] ...)
 
+## set-field
+
+(set-field obj field size|0 val)
+
 ## setd
 
 (setd var val [var val] ...)
@@ -1032,10 +1028,6 @@
 
 (view-find-id view id)
 
-## view-get-bounds
-
-(view-get-bounds view)
-
 ## view-hide
 
 (view-hide view)
@@ -1047,10 +1039,6 @@
 ## view-pref-size
 
 (view-pref-size view)
-
-## view-set-bounds
-
-(view-set-bounds view x y w h)
 
 ## view-set-flags
 

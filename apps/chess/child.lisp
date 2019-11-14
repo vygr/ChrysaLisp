@@ -4,12 +4,12 @@
 
 ;lf macro
 (defmacro-bind LF ()
-	`(ascii-char 10))
+	(ascii-char 10))
 
 ;send data packet to parent
 (defmacro-bind send-data (id &rest data)
 	`(progn
-		(write msg_out (str {"} ,id ~data {"} (LF)))
+		(write msg_out (str {"} ,id ~data {" }))
 		(stream-flush msg_out)))
 
 ;piece map accses
@@ -318,8 +318,11 @@
 ;pvs search
 (defun-bind pvs (brd colour alpha beta ply)
 	(cond
+		((mail-poll (array (task-mailbox)))
+			(setq quit t)
+			timeout_value)
 		((>= (- (time) start_time) max_time_per_move)
-			(* timeout_value colour))
+			timeout_value)
 		((= ply 0)
 			(evaluate brd colour))
 		(t	(defq next_boards (all-moves brd colour))
@@ -336,8 +339,11 @@
 ;negamax search
 (defun-bind negamax (brd colour alpha beta ply)
 	(cond
+		((mail-poll (array (task-mailbox)))
+			(setq quit t)
+			timeout_value)
 		((>= (- (time) start_time) max_time_per_move)
-			(* timeout_value colour))
+			timeout_value)
 		((= ply 0)
 			(evaluate brd colour))
 		(t	(defq value min_int next_boards (all-moves brd colour))
@@ -385,7 +391,7 @@
 	history (list) colour (const white) game_start_time (time) quit nil flicker 100000
 	brd "RNBQKBNRPPPPPPPP                                pppppppprnbqkbnr")
 (send-data "b" brd)
-(until (or (mail-poll (array (task-mailbox))) quit)
+(until quit
 	(defq elapsed_time (- (time) game_start_time))
 	(send-data "s" (const (ascii-char 128)) (LF) "Elapsed Time: " (time-in-seconds elapsed_time) (LF))
 	(if (= colour (const white))

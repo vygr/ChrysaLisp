@@ -78,7 +78,8 @@
 	(call 'msg_out 'write_flush {this->slave_stdout} '(r0))
 
 	;send stopping on stdout
-	(call 'msg_out 'set_state '(r0 stream_mail_state_stopping) '(r0))
+	(assign '(stream_mail_state_stopping) '(r1))
+	(assign '(r1) '((r0 msg_out_state)))
 	(call 'msg_out 'write_next '(r0) '(r0))
 	(call 'msg_out 'write_flush '(r0) '(r0))
 
@@ -91,10 +92,12 @@
 	(loop-end)
 
 	;send stopped on stdout and stderr
-	(call 'msg_out 'set_state {this->slave_stdout, stream_mail_state_stopped} '(r0))
+	(assign {this->slave_stdout, stream_mail_state_stopped} '(r0 r1))
+	(assign '(r1) '((r0 msg_out_state)))
 	(call 'msg_out 'write_next '(r0) '(r0))
 	(call 'msg_out 'write_flush '(r0) '(r0))
-	(call 'msg_out 'set_state {this->slave_stderr, stream_mail_state_stopped} '(r0))
+	(assign {this->slave_stderr, stream_mail_state_stopped} '(r0 r1))
+	(assign '(r1) '((r0 msg_out_state)))
 	(call 'msg_out 'write_next '(r0) '(r0))
 	(call 'msg_out 'write_flush '(r0) '(r0))
 

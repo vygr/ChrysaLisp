@@ -4,23 +4,21 @@
 (dec-method 'vtable 'class/msg_out/vtable)
 (dec-method 'create 'class/msg_out/create 'static '(r0) '(r0))
 (dec-method 'init 'class/msg_out/init 'static '(r0 r1 r2))
-(dec-method 'set_state 'class/msg_out/set_state 'static '(r0 r1) '(r0))
 
 (dec-method 'deinit 'class/msg_out/deinit 'final)
 (dec-method 'write_flush 'class/msg_out/write_flush 'final)
 (dec-method 'write_next 'class/msg_out/write_next 'final)
 
 (def-struct 'msg_out 'stream)
-	(ulong 'state 'ack_seqnum)
 	(struct 'id 'id)
+	(ulong 'ack_seqnum)
 	(ptr 'ack_mbox_addr)
-	(uint 'ack_mbox_id 'seqnum)
+	(uint 'ack_mbox_id 'seqnum 'state)
 (def-struct-end)
 
 (def-struct 'stream_msg)
-	(ulong 'state)
 	(struct 'ack_id 'id)
-	(uint 'seqnum)
+	(uint 'seqnum 'state)
 	(offset 'data)
 (def-struct-end)
 
@@ -29,17 +27,3 @@
 (def-enum 'stream_mail_state)
 	(enum 'started 'stopping 'stopped)
 (def-enum-end)
-
-;;;;;;;;;;;;;;;;
-; inline methods
-;;;;;;;;;;;;;;;;
-
-(defcfun class/msg_out/set_state ()
-	;inputs
-	;r0 = msg_out object (ptr)
-	;r1 = stream state (ulong)
-	;outputs
-	;r0 = msg_out object (ptr)
-	;trashes
-	;none
-	(assign '(r1) '((r0 msg_out_state))))
