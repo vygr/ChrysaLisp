@@ -8,6 +8,9 @@ Added a Chess font and made use of it in the Chess demo app. Some tidy ups to
 the code. Not finished yet, but going to move onto other issues for a while,
 come back to this later to add the fully playable game.
 
+Added (set-field) and removed several field setting and getting native
+functions with simple Lisp bindings.
+
 ------
 
 Sequenced message streams now available from Lisp apps ! Chess demo shows how
