@@ -85,7 +85,7 @@
 		((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_win_debug)
 			(defq reply_id (get-long msg debug_msg_reply_id)
 				tcb (get-long msg debug_msg_tcb)
-				data (sym (get-cstr msg debug_msg_data))
+				data (get-cstr msg debug_msg_data)
 				key (sym (str (>> reply_id 32) ":" tcb))
 				index (find key vdu_keys))
 			(unless index
