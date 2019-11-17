@@ -1,5 +1,4 @@
 ;imports
-(import 'class/lisp.inc)
 (import 'cmd/asm.inc)
 
 (defun-bind make-doc ()

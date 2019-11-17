@@ -1,5 +1,5 @@
 ;imports
-(import 'class/lisp.inc)
+(import 'cmd/asm.inc)
 
 ;initialize pipe details and command args, abort on error
 (when (defq slave (create-slave))
@@ -9,7 +9,6 @@
 		(progn
 			(print "ChrysaLisp 1.3")
 			(print "Press ESC/Enter to exit.")
-			(import 'cmd/asm.inc)
 			(stream-flush stdout)
 			(stream-flush stderr))
 		;else, include any files given as args (in this enviroment, hence the while loop !)

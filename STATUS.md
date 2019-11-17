@@ -4,6 +4,14 @@
 
 ------
 
+Rework the assembler to not use (pipe) and open a farm of children that send
+results back via (stream-msg-out) streams. Significantly faster !
+
+(catch) now sets the _ symbol to the string forma of the thrown error for use
+by the eform.
+
+------
+
 Added a Chess font and made use of it in the Chess demo app. Some tidy ups to
 the code. Not finished yet, but going to move onto other issues for a while,
 come back to this later to add the fully playable game.

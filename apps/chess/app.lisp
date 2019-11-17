@@ -1,11 +1,8 @@
 ;jit compile apps native functions if needed
-(let ()
-	(import 'cmd/asm.inc)
-	(make 'apps/chess/lisp.vp))
+(import 'cmd/asm.inc)
+(make 'apps/chess/lisp.vp)
 
 ;imports
-(import 'sys/lisp.inc)
-(import 'class/lisp.inc)
 (import 'gui/lisp.inc)
 
 (structure 'event 0

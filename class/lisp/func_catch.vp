@@ -1,4 +1,6 @@
 (include 'sys/func.inc)
+(include 'class/hmap/class.inc)
+(include 'class/str/class.inc)
 (include 'class/lisp/class.inc)
 
 (def-method 'lisp 'func_catch)
@@ -11,7 +13,7 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this 'args 'value)
+	(ptr 'this 'args 'value 'str_args 'str_value)
 	(pptr 'iter_begin)
 (errorcases
 	(uint 'length))
@@ -26,11 +28,17 @@
 	(call 'vector 'get_begin {args} {_, iter_begin})
 	(call 'lisp 'repl_eval {this, iter_begin[ptr_size * 1]} {_, value})
 	(vpif (cat {value->obj_vtable = @} (f-path 'error 'vtable)))
+		(call 'lisp 'env_push {this})
+		(call 'vector 'create nil {str_args})
+		(call 'obj 'ref {value})
+		(call 'vector 'push_back {str_args, value})
+		(call 'str 'lisp_str {this, str_args} {_, str_value})
+		(call 'hmap 'insert {this->lisp_environment, this->lisp_sym_underscore, str_value})
+		(call 'obj 'deref {str_args})
+		(call 'obj 'deref {str_value})
 		(call 'lisp 'repl_eval {this, iter_begin[ptr_size * 2]} {_, args})
-		(vpif (cat {args->obj_vtable = @} (f-path 'error 'vtable)))
-			(call 'obj 'deref {value})
-			(assign {args} {value})
-		(elseif {args /= this->lisp_sym_nil})
+		(call 'lisp 'env_pop {this})
+		(vpif (cat {args->obj_vtable = @} (f-path 'error 'vtable) { || args /= this->lisp_sym_nil}))
 			(call 'obj 'deref {value})
 			(assign {args} {value})
 		(else)

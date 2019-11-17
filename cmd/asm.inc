@@ -2,45 +2,50 @@
 ; VP Assembler
 ;;;;;;;;;;;;;;
 
-(if (def? 'pipe)
-	(ffi kernel-total "sys/kernel/lisp_total" 0)
-	;C++ ChrysaLisp !
+;imports
+(import 'sys/lisp.inc)
+(import 'class/lisp.inc)
+
+;C++ ChrysaLisp ?
+(unless (def? 'pipe)
 	(defun kernel-total () 1))
+
 (defq debug_mode t debug_emit nil debug_inst nil)
 
-(defun-bind compile (*files* &optional *abi* *cpu* *pipes*)
-	(setd *abi* (abi) *cpu* (cpu) *pipes* (max 1 (dec (kernel-total))))
-	(defq q (list) e (list))
+(defun-bind compile (*files* &optional *abi* *cpu* num_child)
+	(setd *abi* (abi) *cpu* (cpu) num_child (max 1 (dec (kernel-total))))
 	(unless (lst? *files*)
 		(setq *files* (list *files*)))
 	(setq *files* (shuffle (map sym *files*)))
 	(if (def? 'pipe)
+		;Native ChrysaLisp
 		(progn
-			(while (> *pipes* 0)
-				(defq i (/ (length *files*) *pipes*) s (slice 0 i *files*) *files* (slice i -1 *files*))
-				(when (/= i 0)
-					(push q (defq p (pipe "lisp cmd/asm.inc")))
-					(pipe-write p (cat "(compile-pipe '" (str s) " '" *abi* " '" *cpu* ") ")))
-				(setq *pipes* (dec *pipes*)))
-			(when (/= 0 (length q))
-				(print "Compiling with " (length q) " instances")
-				(each (lambda (p)
-					(each-pipe-line (lambda (l)
-						(defq k (elem 0 (split l " ")))
-						(cond
-							((eql k "Done") nil)
-							((eql k "Error:") (push e l) nil)
-							(t (print l)))) p)) q)
-				(each print e))
+			(defq data_in (list) select (array) num_child (min num_child (length *files*))
+				child_mboxs (open-farm "class/lisp/compile.lisp" num_child kn_call_child)
+				buckets (map (lambda (_) (list)) (range 0 num_child)) err (list))
+			(each! 0 -1 (lambda (file)
+				(push (elem (% _ num_child) buckets) file)) (list *files*))
+			(each! 0 -1 (lambda (child_mbox)
+				(push data_in (msg-in-stream))
+				(push select (defq inbox (msg-in-mbox (elem -2 data_in))))
+				(mail-send (str (list (pop buckets) *abi* *cpu* inbox debug_mode debug_emit debug_inst))
+					child_mbox)) (list child_mboxs))
+			(while (/= (length select) 0)
+				(defq idx (mail-select select))
+				;read all child data
+				(while (defq data (read-line (elem idx data_in)))
+					(if (starts-with "Error:" data)
+						(push err data)
+						(print data)))
+				;child closed
+				(setq data_in (cat (slice 0 idx data_in) (slice (inc idx) -1 data_in))
+					select (cat (slice 0 idx select) (slice (inc idx) -1 select))))
+			(each! 0 -1 print (list err))
 			(print "Done"))
 		;C++ ChrysaLisp !
-		(compile-pipe *files* *abi* *cpu*))
+		(within-compile-env (lambda ()
+			(each include *files*))))
 	nil)
-
-(defun-bind compile-pipe (*files* *abi* *cpu*)
-	(within-compile-env (lambda ()
-		(each include *files*)
-		(print "Done"))))
 
 ;;;;;;;;;;;;;
 ; make system

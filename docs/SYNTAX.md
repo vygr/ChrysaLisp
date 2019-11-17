@@ -270,11 +270,15 @@
 
 ## debug
 
-(debug form)
+(debug name form)
+
+## debug-format
+
+(debug-format name env)
 
 ## debug-fun
 
-(debug-fun list) -> list
+(debug-fun name list) -> list
 
 ## dec
 
@@ -475,6 +479,10 @@
 ## insert
 
 (insert list form) -> list
+
+## is-debug-fun
+
+(is-debug-fun form)
 
 ## kernel-debug
 

@@ -1,11 +1,8 @@
 ;jit compile apps native functions if needed
-(let ()
-	(import 'cmd/asm.inc)
-	(make 'apps/netmon/child.vp))
+(import 'cmd/asm.inc)
+(make 'apps/netmon/child.vp)
 
 ;imports
-(import 'sys/lisp.inc)
-(import 'class/lisp.inc)
 (import 'gui/lisp.inc)
 
 (structure 'sample_reply_msg 0
