@@ -205,7 +205,7 @@
 
 (defcfun enum (&rest _)
 	(each (lambda (_)
-		(if (def? (setq _ (sym (cat *enum* "_" _))))
+		(and (defq d (def? (setq _ (sym (cat *enum* "_" _))))) (/= d *enum-offset*)
 			(throw "Enum redefined !" _))
 		(defcvar _ *enum-offset* '*enum-offset* (inc *enum-offset*))) _))
 
@@ -325,7 +325,7 @@
 (defcfun check-field (_)
 	(setq _ (struct-sym _))
 	(unless (eql *struct* 'local)
-		(if (def? (type-sym _))
+		(and (defq d (def? _)) (/= d *struct-sp*)
 			(throw "Field redefined !" _))) _)
 
 (defcfun-bind local-align (&optional _)
