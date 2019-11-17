@@ -11,9 +11,8 @@
 
 (def-struct 'msg_out 'stream)
 	(struct 'id 'id)
-	(ulong 'ack_seqnum)
 	(ptr 'ack_mbox_addr)
-	(uint 'ack_mbox_id 'seqnum 'state)
+	(uint 'ack_mbox_id 'ack_seqnum 'seqnum 'state)
 (def-struct-end)
 
 (def-struct 'stream_msg)

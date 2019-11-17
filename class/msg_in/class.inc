@@ -12,7 +12,6 @@
 
 (def-struct 'msg_in 'stream)
 	(struct 'list 'lh_list)
-	(ulong 'ack_seqnum)
 	(ptr 'mbox_addr)
-	(uint 'mbox_id 'seqnum 'state)
+	(uint 'mbox_id 'ack_seqnum 'seqnum 'state)
 (def-struct-end)

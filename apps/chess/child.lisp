@@ -9,7 +9,7 @@
 ;send data packet to parent
 (defmacro-bind send-data (id &rest data)
 	`(progn
-		(write msg_out (str {"} ,id ~data {" }))
+		(write msg_out (str {"} ,id ~data {"}))
 		(stream-flush msg_out)))
 
 ;piece map accses
@@ -418,5 +418,6 @@
 			(setq colour (neg colour) brd new_brd))))
 (mail-read (task-mailbox))
 
-;send data end
+;close data out stream
+(msg-out-set-state msg_out stream_mail_state_stopped)
 (send-data "" "")

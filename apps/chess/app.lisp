@@ -69,4 +69,4 @@
 			(mail-read (task-mailbox)))
 		(t	;from child stream
 			(bind '(data next_char) (read data_in next_char))
-			(setq id (eql data "")))))
+			(setq id (= next_char -1)))))
