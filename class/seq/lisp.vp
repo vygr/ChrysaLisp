@@ -331,8 +331,8 @@
 
 			(call 'lisp 'repl_apply '((rsp local_this) (rsp local_params) (rsp local_func)) '(_ (rsp local_value)))
 			(call 'vector 'deref '((rsp local_params)))
-		(errorcases
 			(assign '((rsp local_value)) '(r1))
+		(errorcases
 			(f-bind 'error 'vtable r4)
 			(assign '((r1 obj_vtable)) '(r3))
 			(breakif '(r3 = r4) 'done))
