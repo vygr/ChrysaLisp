@@ -232,7 +232,7 @@
 
 ;debug helpers
 (defcfun debug-num (s n)
-	(when debug_mode
+	(when *debug_mode*
 		(vp-push r0 r1)
 		(fn-string (cat s ": ") r1)
 		(call 'sys_pii 'write_str '(2 r1))
@@ -243,7 +243,7 @@
 		(vp-pop r0 r1 r2)))
 
 (defcfun debug-str (s)
-	(when debug_mode
+	(when *debug_mode*
 		(vp-push r0 r1)
 		(if (reg s)
 			(vp-cpy-rr s r1)
@@ -252,7 +252,7 @@
 		(vp-pop r0 r1)))
 
 (defcfun debug-reg ()
-	(when debug_mode
+	(when *debug_mode*
 		(vp-push r14)
 		(call 'sys_kernel 'debug_reg (list (cat *stream-name* ":" (str *stream-line*))))
 		(vp-pop r14)))

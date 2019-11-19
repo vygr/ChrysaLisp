@@ -67,7 +67,7 @@
 	(vp-align ptr_size)
 (vp-label 'func_end)
 	(opt-emit-buffer)
-	(when debug_emit
+	(when *debug_emit*
 		(each print-emit *emit-buffer*))
 	(emit-passes)
 	(apply undef (cat (list *compile-env*) *func-syms*))
@@ -110,7 +110,7 @@
 	(jump 'sys_pii 'exit '(1)))
 
 (defcfun assert (b &optional d)
-	(when debug_mode
+	(when *debug_mode*
 		(vpifnot b)
 			(abort (opt d "Assert Failure !"))
 		(endif)))

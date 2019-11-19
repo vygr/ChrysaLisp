@@ -23,13 +23,13 @@
 	`(sym (cat "_e_" ,_)))
 
 (defcmacro errorif (e l)
-	(if debug_mode (list 'gotoif e l)))
+	(if *debug_mode* (list 'gotoif e l)))
 
 (defcmacro errorifnot (e l)
-	(if debug_mode (list 'gotoifnot e l)))
+	(if *debug_mode* (list 'gotoifnot e l)))
 
 (defcmacro errorcases (&rest e)
-	(if debug_mode (cat '(progn) e)))
+	(if *debug_mode* (cat '(progn) e)))
 
 (defcfun goto (l)
 	(vp-jmp l))
@@ -243,7 +243,7 @@
 	(local-align stack_align)
 	(elem-set 0 (elem -3 (new-scope)) *sym-sp*)
 	(when (/= *sym-sp* 0)
-		(when debug_inst
+		(when *debug_inst*
 			(print "(vp-alloc " *sym-sp* ")"))
 		(vp-alloc *sym-sp*)
 		(setq *sym-sp* 0)))
@@ -261,7 +261,7 @@
 
 (defcfun pop-scope ()
 	(when (/= (defq _ (pop-scope-syms)) 0)
-		(when debug_inst
+		(when *debug_inst*
 			(print "(vp-free " _ ")"))
 		(vp-free _)))
 
@@ -272,13 +272,13 @@
 
 (defcfun unwind ()
 	(when (/= (defq _ (get-scope -1)) 0)
-		(when debug_inst
+		(when *debug_inst*
 			(print "(vp-free " _ ")"))
 		(vp-free _)))
 
 (defcfun return ()
 	(unwind)
-	(when debug_inst
+	(when *debug_inst*
 		(print "(vp-ret)"))
 	(vp-ret))
 
@@ -1042,7 +1042,7 @@
 ;;;;;;;;;;;;
 
 (defcfun print-inst (_)
-	(and (lst? _) (not (eql (elem 0 _) 'lambda)) (print _)))
+	(and (lst? _) (not (eql (elem 0 _) 'lambda)) (print (const (ascii-char 9)) _)))
 
 (defcfun-bind assign-asm-to-script (*src* *dst* _)
 	(unless (= (length *src*) (length (setq *dst* (map trim (split *dst* ",")))))
@@ -1053,11 +1053,11 @@
 		(each! 0 -1 (lambda (_)
 			(compile-rpn-list (rpn-parse (token-parse _)))
 			(compile-arrow)) (list *dst*))
-		(when debug_inst
+		(when *debug_inst*
 			(print "pre opt:")
 			(each print-inst *inst*))
 		(opt-inst-list)
-		(when debug_inst
+		(when *debug_inst*
 			(print "post opt:")
 			(each print-inst *inst*))
 		(set-reg-map (reduce-rev (lambda (x y) (push x y)) *src* (list)) _)
@@ -1071,11 +1071,11 @@
 		(each! 0 -1 (lambda (_)
 			(compile-rpn-list (rpn-parse (token-parse _)))
 			(compile-deref?)) (list *src*))
-		(when debug_inst
+		(when *debug_inst*
 			(print "pre opt:")
 			(each print-inst *inst*))
 		(opt-inst-list)
-		(when debug_inst
+		(when *debug_inst*
 			(print "post opt:")
 			(each print-inst *inst*))
 		(set-reg-map (cat *dst*) _)
@@ -1093,11 +1093,11 @@
 		(each! -1 0 (lambda (_)
 			(compile-rpn-list (rpn-parse (token-parse _)))
 			(compile-arrow)) (list *dst*))
-		(when debug_inst
+		(when *debug_inst*
 			(print "pre opt:")
 			(each print-inst *inst*))
 		(opt-inst-list)
-		(when debug_inst
+		(when *debug_inst*
 			(print "post opt:")
 			(each print-inst *inst*))
 		(set-reg-map '() _)

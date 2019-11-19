@@ -281,9 +281,9 @@ write-line
 ### asm.inc symbols
 
 ```lisp
-debug_mode
-debug_emit
-debug_inst
+*debug_mode*
+*debug_emit*
+*debug_inst*
 ```
 
 ### asm.inc functions

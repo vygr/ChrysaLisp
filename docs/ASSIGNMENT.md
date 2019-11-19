@@ -230,18 +230,18 @@ passed to `(assign)`.
 The C-Script compiler emits all the code required to read and write the
 variables, with their correct data type. If you are curious to see the code
 emitted by the compiler you can switch on printing of the emitted code by use
-of the `debug_emit` and `debug_inst` flags. A `(setq debug_inst t)` will enable
-printing of each expression compilation, `(setq debug_emit t)` will enable
-printing of the entire functions final instructions. Be sure to `(setq
-debug_inst nil)` and `(setq debug_emit nil)` after the section of code or
+of the `*debug_emit*` and `*debug_inst*` flags. A `(setq *debug_inst* t)` will
+enable printing of each expression compilation, `(setq *debug_emit* t)` will
+enable printing of the entire functions final instructions. Be sure to `(setq
+*debug_inst* nil)` and `(setq *debug_emit* nil)` after the section of code or
 function to turn emit printing off.
 
 This is the output from wrapping the 'hmap 'insert line above:
 
 ```lisp
-	(setq debug_inst t)
+	(setq *debug_inst* t)
 	(call 'hmap 'insert {mail_statics->ml_statics_declare_map, name, id})
-	(setq debug_inst nil)
+	(setq *debug_inst* nil)
 ```
 
 ```lisp

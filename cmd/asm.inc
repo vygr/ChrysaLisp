@@ -6,30 +6,29 @@
 (import 'sys/lisp.inc)
 (import 'class/lisp.inc)
 
+;compilation options
+(defq *debug_mode* t *debug_emit* nil *debug_inst* nil)
+
 ;C++ ChrysaLisp ?
 (unless (def? 'pipe)
 	(defun kernel-total () 1))
 
-(defq debug_mode t debug_emit nil debug_inst nil)
-
-(defun-bind compile (*files* &optional *abi* *cpu* num_child)
+(defun-bind compile (files &optional *abi* *cpu* num_child)
 	(setd *abi* (abi) *cpu* (cpu) num_child (max 1 (dec (kernel-total))))
-	(unless (lst? *files*)
-		(setq *files* (list *files*)))
-	(setq *files* (shuffle (map sym *files*)))
+	(unless (lst? files)
+		(setq files (list files)))
+	(setq files (shuffle (map sym files)))
 	(if (def? 'pipe)
 		;Native ChrysaLisp
 		(progn
-			(defq data_in (list) select (array) num_child (min num_child (length *files*))
+			(defq data_in (list) select (array) num_child (min num_child (length files))
 				child_mboxs (open-farm "class/lisp/compile.lisp" num_child kn_call_child)
 				buckets (map (lambda (_) (list)) (range 0 num_child)) err (list))
-			(each! 0 -1 (lambda (file)
-				(push (elem (% _ num_child) buckets) file)) (list *files*))
-			(each! 0 -1 (lambda (child_mbox)
-				(push data_in (msg-in-stream))
-				(push select (defq inbox (msg-in-mbox (elem -2 data_in))))
-				(mail-send (str (list (pop buckets) *abi* *cpu* inbox debug_mode debug_emit debug_inst))
-					child_mbox)) (list child_mboxs))
+			(each (lambda (file)
+				(push (elem (% _ num_child) buckets) file)) files)
+			(each (lambda (_)
+				(push select (defq inbox (msg-in-mbox (elem -2 (push data_in (msg-in-stream))))))
+				(mail-send (str (list (pop buckets) inbox *abi* *cpu* *debug_mode* *debug_emit* *debug_inst*)) _)) child_mboxs)
 			(while (/= (length select) 0)
 				(defq idx (mail-select select))
 				;read all child data
@@ -40,12 +39,11 @@
 				;child closed
 				(setq data_in (cat (slice 0 idx data_in) (slice (inc idx) -1 data_in))
 					select (cat (slice 0 idx select) (slice (inc idx) -1 select))))
-			(each! 0 -1 print (list err))
-			(print "Done"))
+			(each print err))
 		;C++ ChrysaLisp !
 		(within-compile-env (lambda ()
-			(each include *files*))))
-	nil)
+			(each include files))))
+	(print "Done") nil)
 
 ;;;;;;;;;;;;;
 ; make system
@@ -216,18 +214,18 @@
 		(each-mergeable (lambda (_)
 			(merge _l (make-imports _))) (list 'make.inc))))
 
-(defun-bind make-all (&optional *abi* *cpu* *files*)
+(defun-bind make-all (&optional *abi* *cpu* files)
 	(setd *abi* (abi) *cpu* (cpu))
-	(compile (opt *files* (all-vp-files)) *abi* *cpu*))
+	(compile (opt files (all-vp-files)) *abi* *cpu*))
 
 (defun-bind remake (&optional *abi* *cpu*)
 	(setd *abi* (abi) *cpu* (cpu))
 	(make 'make.inc *abi* *cpu*)
 	(make-boot-all *abi* *cpu*))
 
-(defun-bind remake-all (&optional *abi* *cpu* *files*)
+(defun-bind remake-all (&optional *abi* *cpu* files)
 	(setd *abi* (abi) *cpu* (cpu))
-	(make-all *abi* *cpu* *files*)
+	(make-all *abi* *cpu* files)
 	(make-boot-all *abi* *cpu*))
 
 ;;;;;;;;;;;;;;;;;;;;;
@@ -240,10 +238,10 @@
 	(make 'make.inc 'ARM64 'aarch64))
 
 (defun-bind make-all-platforms ()
-	(defq *files* (all-vp-files))
-	(make-all 'AMD64 'x86_64 *files*)
-	(make-all 'WIN64 'x86_64 *files*)
-	(make-all 'ARM64 'aarch64 *files*))
+	(defq files (all-vp-files))
+	(make-all 'AMD64 'x86_64 files)
+	(make-all 'WIN64 'x86_64 files)
+	(make-all 'ARM64 'aarch64 files))
 
 (defun-bind remake-platforms ()
 	(remake 'AMD64 'x86_64)
@@ -251,10 +249,10 @@
 	(remake 'ARM64 'aarch64))
 
 (defun-bind remake-all-platforms ()
-	(defq *files* (all-vp-files))
-	(remake-all 'AMD64 'x86_64 *files*)
-	(remake-all 'WIN64 'x86_64 *files*)
-	(remake-all 'ARM64 'aarch64 *files*))
+	(defq files (all-vp-files))
+	(remake-all 'AMD64 'x86_64 files)
+	(remake-all 'WIN64 'x86_64 files)
+	(remake-all 'ARM64 'aarch64 files))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ; compile and make tests
