@@ -326,7 +326,7 @@
 
 ## each-line
 
-(each-line lambda path)
+(each-line lambda stream)
 
 ## each-mergeable
 
@@ -335,10 +335,6 @@
 ## each-mergeable-rev
 
 (each-mergeable-rev lambda seq) -> seq
-
-## each-pipe-line
-
-(each-pipe-line lambda pipe)
 
 ## each-rev
 

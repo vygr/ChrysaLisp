@@ -579,20 +579,9 @@
 ;;;;;;;;;
 
 (defun-bind each-line (_f _)
-	;(each-line lambda path)
-	(unless (defq _s (file-stream _))
-		(throw "No such file !" _))
-	(while (defq _l (read-line _s))
+	;(each-line lambda stream)
+	(while (defq _l (read-line _))
 		(_f _l)))
-
-(defun-bind each-pipe-line (_f _p)
-	;(each-pipe-line lambda pipe)
-	(defq _d "" _v t)
-	(while (and _p _v)
-		(defq _d (cat _d (pipe-read _p nil)) _i (find (const (ascii-char 10)) _d))
-		(when _i
-			(defq _i (inc _i) _l (slice 0 _i _d) _d (slice _i -1 _d)
-				_v (every _f (split _l (const (ascii-char 10))))))))
 
 (defmacro-bind import (_)
 	;(import path)

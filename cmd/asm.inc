@@ -14,7 +14,7 @@
 	(defun kernel-total () 1))
 
 (defun-bind compile (files &optional *abi* *cpu* num_child)
-	(setd *abi* (abi) *cpu* (cpu) num_child (max 1 (dec (kernel-total))))
+	(setd *abi* (abi) *cpu* (cpu) num_child (max 1 (/ (* (kernel-total) 2) 3)))
 	(unless (lst? files)
 		(setq files (list files)))
 	(setq files (shuffle (map sym files)))
@@ -32,10 +32,10 @@
 			(while (/= (length select) 0)
 				(defq idx (mail-select select))
 				;read all child data
-				(while (defq data (read-line (elem idx data_in)))
+				(each-line (lambda (data)
 					(if (starts-with "Error:" data)
 						(push err data)
-						(print data)))
+						(print data))) (elem idx data_in))
 				;child closed
 				(setq data_in (cat (slice 0 idx data_in) (slice (inc idx) -1 data_in))
 					select (cat (slice 0 idx select) (slice (inc idx) -1 select))))
@@ -55,7 +55,7 @@
 	(each-line (lambda (_)
 		(when (starts-with "(include" _)
 			(push d (sym (trim-start (trim-end
-				(elem 1 (split (trim-end _ (const (ascii-char 13))) " ")) ")") "'"))))) _) d)
+				(elem 1 (split (trim-end _ (const (ascii-char 13))) " ")) ")") "'"))))) (file-stream _)) d)
 
 (defun-bind make-info (_)
 	;create lists of immediate dependencies and products
@@ -77,7 +77,7 @@
 					(push p (f-path (trim-cruft (elem 1 s))
 						(if (> (length s) 2) (sym (cat "create_" (trim-cruft (elem 2 s)))) 'create))))
 				((eql _ "(def-func")
-					(push p (trim-cruft (elem 1 s))))))) _)
+					(push p (trim-cruft (elem 1 s))))))) (file-stream _))
 	(list d p))
 
 (defun-bind func-obj (_)

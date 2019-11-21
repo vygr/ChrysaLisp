@@ -73,7 +73,7 @@
 		(case state
 			(normal (normal-line))
 			(code (code-line)))
-		(if line_widget (view-add-child page_widget line_widget))) (cat "docs/" file ".md"))
+		(if line_widget (view-add-child page_widget line_widget))) (file-stream (cat "docs/" file ".md")))
 	(apply view-change (cat (list page_flow 0 0) (view-pref-size page_flow)))
 	(view-layout (view-add-child page_scroll page_flow))
 	(view-dirty-all (view-layout doc_flow)))

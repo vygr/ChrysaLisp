@@ -47,7 +47,7 @@
 							(push functions (trim-cruft (elem 1 s))))
 						((and (or (eql _ "(call") (eql _ "(jump")) (eql (elem 2 s) "'repl_error"))
 							(if (setq l (chop l))
-								(insert syntax l)))))) _)) *imports*)))
+								(insert syntax l)))))) (file-stream _))) *imports*)))
 	;create classes docs
 	(sort (lambda (x y)
 		(cmp (elem 0 x) (elem 0 y))) classes)
@@ -80,7 +80,7 @@
 				(defq s (split l " ") _ (elem 0 s))
 				(cond
 					((or (eql _ "(defun") (eql _ "(defmacro") (eql _ "(defun-bind") (eql _ "(defmacro-bind"))
-						(setq state 'y))))) _))
+						(setq state 'y))))) (file-stream _)))
 		'(class/lisp/boot.inc class/lisp/debug.inc class/lisp/anaphoric.inc))
 	(sort cmp syntax)
 	(defq stream (string-stream (cat "")))
