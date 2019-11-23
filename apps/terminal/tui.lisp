@@ -1,18 +1,18 @@
 ;imports
-(import 'sys/lisp.inc)
+(import 'apps/terminal/pipe.inc)
 
 (defun-bind terminal-output (_)
 	(each (lambda (c)
 		(setq c (code c))
 		(if (= c 13) (setq c 10))
 		(cond
-			;print char
 			((= c 9)
+				;print tab
 				(pii-write-char 1 (const (ascii-code " ")))
 				(pii-write-char 1 (const (ascii-code " ")))
 				(pii-write-char 1 (const (ascii-code " ")))
 				(pii-write-char 1 (const (ascii-code " "))))
-			(t
+			(t	;print char
 				(pii-write-char 1 c)))) _))
 
 (defun-bind terminal-input (c)
@@ -24,12 +24,11 @@
 				(cmd
 					;feed active pipe
 					(pipe-write cmd (cat buffer (const (ascii-char 10)))))
-				(t
-					;start new pipe
+				(t	;start new pipe
 					(cond
 						((/= (length buffer) 0)
 							;new pipe
-							(catch (setq cmd (pipe buffer)) (progn (setq cmd nil) t))
+							(catch (setq cmd (pipe-open buffer)) (progn (setq cmd nil) t))
 							(unless cmd (terminal-output (const (cat "Pipe Error !" (ascii-char 10) ">")))))
 						(t (terminal-output ">")))))
 			(setq buffer ""))
@@ -39,6 +38,7 @@
 				;feed active pipe, then EOF
 				(when (/= (length buffer) 0)
 					(pipe-write cmd buffer))
+				(pipe-close cmd)
 				(setq cmd nil buffer "")
 				(terminal-output (const (cat (ascii-char 10) ">")))))
 		((and (= c 8) (/= (length buffer) 0))
@@ -49,7 +49,7 @@
 			(setq buffer (cat buffer (char c))))))
 
 ;sign on msg
-(terminal-output (const (cat "ChrysaLisp Terminal 1.4" (ascii-char 10) ">")))
+(terminal-output (const (cat "ChrysaLisp Terminal 1.5" (ascii-char 10) ">")))
 
 ;create child and send args
 (mail-send (list (task-mailbox)) (open-child "apps/terminal/tui_child.lisp" kn_call_open))
@@ -57,15 +57,15 @@
 (defq cmd nil buffer "")
 (while t
 	(defq data t)
-	(if cmd (setq data (pipe-read cmd t)))
+	(if cmd (setq data (pipe-read cmd)))
 	(cond
 		((eql data t)
 			;normal mailbox event
 			(terminal-input (get-byte (mail-read (task-mailbox)) 0)))
 		((eql data nil)
 			;pipe is closed
+			(pipe-close cmd)
 			(setq cmd nil)
 			(terminal-output (const (cat (ascii-char 10) ">"))))
-		(t
-			;string from pipe
+		(t	;string from pipe
 			(terminal-output data))))

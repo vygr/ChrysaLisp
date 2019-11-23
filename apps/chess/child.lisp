@@ -8,9 +8,7 @@
 
 ;send data packet to parent
 (defmacro-bind send-data (id &rest data)
-	`(progn
-		(write msg_out (str {"} ,id ~data {"}))
-		(stream-flush msg_out)))
+	`(stream-flush (write msg_out (str {"} ,id ~data {"}))))
 
 ;piece map accses
 (defmacro piece-map (_ i)

@@ -128,9 +128,6 @@ max
 merge
 min
 not
-pipe
-pipe-read
-pipe-write
 points
 pop
 prin
@@ -225,7 +222,6 @@ each
 each-line
 each-mergeable
 each-mergeable-rev
-each-pipe-line
 each-rev
 every
 exec

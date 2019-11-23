@@ -92,6 +92,5 @@
 		(setq cpu_count (inc cpu_count))))
 
 ;send out multi-cast exit command
-(defq exit (char event_win_exit long_size))
 (while (defq mbox (pop ids))
-	(mail-send exit mbox))
+	(mail-send (const (char event_win_exit long_size)) mbox))

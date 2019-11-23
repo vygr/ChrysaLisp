@@ -9,7 +9,6 @@
 (include 'class/msg_out/make.inc)
 (include 'class/obj/make.inc)
 (include 'class/pair/make.inc)
-(include 'class/pipe/make.inc)
 (include 'class/seq/make.inc)
 (include 'class/slave/make.inc)
 (include 'class/stream_str/make.inc)

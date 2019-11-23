@@ -10,32 +10,31 @@
 (defq *debug_mode* t *debug_emit* nil *debug_inst* nil)
 
 ;C++ ChrysaLisp ?
-(unless (def? 'pipe)
+(unless (def? 'points)
 	(defun kernel-total () 1))
 
 (defun-bind compile (files &optional *abi* *cpu* num_child)
-	(setd *abi* (abi) *cpu* (cpu) num_child (max 1 (/ (* (kernel-total) 2) 3)))
+	(setd *abi* (abi) *cpu* (cpu) num_child (max 1 (/ (* (kernel-total) 80) 100)))
 	(unless (lst? files)
 		(setq files (list files)))
 	(setq files (shuffle (map sym files)))
-	(if (def? 'pipe)
+	(if (def? 'points)
 		;Native ChrysaLisp
 		(progn
 			(defq data_in (list) select (array) num_child (min num_child (length files))
 				child_mboxs (open-farm "class/lisp/compile.lisp" num_child kn_call_child)
-				buckets (map (lambda (_) (list)) (range 0 num_child)) err (list))
+				buckets (map (lambda (_) (list)) child_mboxs) err (list))
 			(each (lambda (file)
 				(push (elem (% _ num_child) buckets) file)) files)
 			(each (lambda (_)
 				(push select (defq inbox (msg-in-mbox (elem -2 (push data_in (msg-in-stream))))))
 				(mail-send (str (list (pop buckets) inbox *abi* *cpu* *debug_mode* *debug_emit* *debug_inst*)) _)) child_mboxs)
 			(while (/= (length select) 0)
-				(defq idx (mail-select select))
 				;read all child data
 				(each-line (lambda (data)
 					(if (starts-with "Error:" data)
 						(push err data)
-						(print data))) (elem idx data_in))
+						(print data))) (elem (defq idx (mail-select select)) data_in))
 				;child closed
 				(setq data_in (cat (slice 0 idx data_in) (slice (inc idx) -1 data_in))
 					select (cat (slice 0 idx select) (slice (inc idx) -1 select))))

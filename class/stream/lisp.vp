@@ -293,6 +293,40 @@
 
 (def-func-end)
 
+(def-method 'stream 'lisp_readavail)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
+
+	(entry 'stream 'lisp_readavail '(r0 r1))
+
+(errorcases
+	(call 'lisp 'env_args_type '(r1 ($ sig) 1) '(r2))
+	(gotoif '(r2 = 0) 'error))
+
+	(vp-push r0)
+	(class/vector/bind_args r1 '(r2) '(stream))
+	(assign '((r2 stream_bufp) (r2 stream_bufe)) '(r0 r1))
+	(assign '(r1) '((r2 stream_bufp)))
+	(vp-sub-rr r0 r1)
+	(call 'str 'create_from_buffer '(r0 r1) '(r1))
+	(vp-pop r0)
+
+	(exit 'stream 'lisp_readavail '(r0 r1))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r0 "(read-avail stream)" error_msg_wrong_types r1))
+	(signature '(stream)))
+
+(def-func-end)
+
 (def-method 'stream 'lisp_write)
 	;inputs
 	;r0 = lisp object (ptr)
@@ -312,11 +346,9 @@
 	(vp-push r0)
 	(defq in (method-input 'stream 'write))
 	(class/array/bind_args r1 (slice 0 2 in))
-	(vp-push (elem 1 in))
 	(assign `((,(elem 1 in) str_length)) `(,(elem 2 in)))
 	(class/vector/cast_args in '(stream str _))
-	(call 'stream_str 'write in)
-	(vp-pop r1)
+	(call 'stream_str 'write in '(r1))
 	(class/obj/ref r1 r2)
 	(vp-pop r0)
 
@@ -386,9 +418,9 @@
 		(call 'num 'get_value {value} {_, length})
 		(call 'stream_str 'write {stream, &length, width})
 	(endif)
-	(call 'obj 'ref {value})
+	(call 'obj 'ref {stream})
 
-	(exit 'stream 'lisp_writechar {this, value})
+	(exit 'stream 'lisp_writechar {this, stream})
 	(return)
 
 (errorcases
@@ -432,6 +464,39 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r0 "(stream-flush stream)" error_msg_wrong_types r1))
+	(signature '(stream)))
+
+(def-func-end)
+
+(def-method 'stream 'lisp_write_next)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
+
+	(entry 'stream 'lisp_write_next '(r0 r1))
+
+(errorcases
+	(call 'lisp 'env_args_type '(r1 ($ sig) 1) '(r2))
+	(gotoif '(r2 = 0) 'error))
+
+	(vp-push r0)
+	(defq in (method-input 'stream 'write_next))
+	(class/array/bind_args r1 in)
+	(call 'stream 'write_next in '(r1))
+	(class/obj/ref r1 r2)
+	(vp-pop r0)
+
+	(exit 'stream 'lisp_write_next '(r0 r1))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r0 "(stream-next stream)" error_msg_wrong_types r1))
 	(signature '(stream)))
 
 (def-func-end)

@@ -65,14 +65,11 @@
 (ffi env "class/hmap/lisp_env" 0)
 (ffi penv "class/hmap/lisp_parent" 0)
 
-(ffi pipe "class/pipe/lisp_create" 0)
-(ffi pipe-read "class/pipe/lisp_read" 0)
-(ffi pipe-write "class/pipe/lisp_write" 0)
-
 (ffi file-stream "class/stream/lisp_filestream" 0)
 (ffi string-stream "class/stream/lisp_strstream" 0)
 (ffi read-char "class/stream/lisp_readchar" 0)
 (ffi read-line "class/stream/lisp_readline" 0)
+(ffi read-avail "class/stream/lisp_readavail" 0)
 (ffi write-char "class/stream/lisp_writechar" 0)
 (ffi write "class/stream/lisp_write" 0)
 
@@ -590,8 +587,8 @@
 		(repl (file-stream ,_) ,_)))
 
 (defun-bind write-line (s _)
-	;(write-line stream str) -> str
-	(write s _) (write s (const (ascii-char 10))) _)
+	;(write-line stream str) -> stream
+	(write-char (write s _) 10))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Compilation environment

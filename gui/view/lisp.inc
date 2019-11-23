@@ -17,12 +17,14 @@
 (ffi view-set-flags "gui/view/lisp_set_flags" 0)
 
 (defun-bind view-get-bounds (view)
+	;(view-get-bounds view) -> (x y w h)
 	(list (get-field view (const view_x) (const int_size))
 		(get-field view (const view_y) (const int_size))
 		(get-field view (const view_w) (const int_size))
 		(get-field view (const view_h) (const int_size))))
 
 (defun-bind view-set-bounds (view x y w h)
+	;(view-set-bounds view x y w h) -> view
 	(set-field (set-field (set-field (set-field view
 		(const view_x) (const int_size) x)
 		(const view_y) (const int_size) y)

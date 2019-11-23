@@ -4,6 +4,12 @@
 
 ------
 
+Remove the pipe class and some associated methods ! Now all in Lisp. :) Minor
+slow down on system builds but this save 3KB of boot_image, so going to run
+with it.
+
+------
+
 Rework the assembler to not use (pipe) and open a farm of children that send
 results back via (stream-msg-out) streams. Significantly faster !
 

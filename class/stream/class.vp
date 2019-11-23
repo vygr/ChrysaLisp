@@ -218,24 +218,6 @@
 
 (def-func-end)
 
-(def-method 'stream 'read_ready)
-	;inputs
-	;r0 = stream object (ptr)
-	;outputs
-	;r0 = stream object (ptr)
-	;r1 = 0 if data not available
-	;trashes
-	;all but r0
-
-	(entry 'stream 'read_ready '(r0))
-
-	(call 'stream 'available '(r0) '(r0 r1))
-
-	(exit 'stream 'read_ready '(r0 r1))
-	(vp-ret)
-
-(def-func-end)
-
 (def-method 'stream 'skip)
 	;inputs
 	;r0 = stream object (ptr)

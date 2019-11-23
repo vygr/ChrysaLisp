@@ -18,7 +18,6 @@
 
 (dec-method 'deinit 'class/stream/deinit 'override)
 
-(dec-method 'read_ready 'class/stream/read_ready 'virtual '(r0) '(r0 r1))
 (dec-method 'read_next 'class/stream/read_next 'virtual '(r0) '(r0 r1))
 (dec-method 'write_next 'class/stream/write_flush 'virtual '(r0) '(r0))
 (dec-method 'write_flush 'class/stream/write_flush 'virtual '(r0) '(r0))
@@ -30,9 +29,11 @@
 (dec-method 'lisp_available 'class/stream/lisp_available 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_readchar 'class/stream/lisp_readchar 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_readline 'class/stream/lisp_readline 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_readavail 'class/stream/lisp_readavail 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_writechar 'class/stream/lisp_writechar 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_write 'class/stream/lisp_write 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_write_flush 'class/stream/lisp_write_flush 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_write_next 'class/stream/lisp_write_next 'static '(r0 r1) '(r0 r1))
 
 (def-struct 'stream 'obj)
 	(ptr 'object 'buffer)

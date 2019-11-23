@@ -53,9 +53,8 @@
 				((= sc 0)
 					(canvas-swap canvas)
 					;send out multi-cast exit command
-					(defq exit (char 0 long_size))
 					(while (defq mbox (pop farm))
-						(mail-send exit mbox)))))
+						(mail-send (const (char 0 long_size)) mbox)))))
 		(t (view-event window msg))))
 
 ;wait for outstanding replies
@@ -65,6 +64,5 @@
 		(setq sc (dec sc))))
 
 ;send out multi-cast exit command
-(defq exit (char 0 long_size))
 (while (defq mbox (pop farm))
-	(mail-send exit mbox))
+	(mail-send (const (char 0 long_size)) mbox))

@@ -1,0 +1,36 @@
+(include 'sys/func.inc)
+(include 'class/msg_in/class.inc)
+(include 'class/lisp/class.inc)
+
+(def-method 'msg_in 'lisp_next_msg)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
+
+	(entry 'msg_in 'lisp_next_msg '(r0 r1))
+
+(errorcases
+	(call 'lisp 'env_args_type '(r1 ($ sig) 1) '(r2))
+	(gotoif '(r2 = 0) 'error))
+
+	(vp-push r0)
+	(defq in (method-input 'msg_in 'next_msg))
+	(class/array/bind_args r1 in)
+	(call 'msg_in 'next_msg in '(r1))
+	(class/obj/ref r1 r2)
+	(vp-pop r0)
+
+	(exit 'msg_in 'lisp_next_msg '(r0 r1))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r0 "(msg-in-next-msg msg-in-stream)" error_msg_wrong_types r1))
+	(signature '(msg_in)))
+
+(def-func-end)

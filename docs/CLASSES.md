@@ -2859,18 +2859,6 @@ trashes
 all but r0
 ```
 
-### msg_in::read_ready -> class/msg_in/read_ready
-
-```lisp
-inputs
-r0 = msg_in object (ptr)
-outputs
-r0 = msg_in object (ptr)
-r1 = 0 if data not available
-trashes
-all but r0
-```
-
 ### msg_in::read_next -> class/msg_in/read_next
 
 ```lisp
@@ -2879,6 +2867,19 @@ r0 = msg_in object (ptr)
 outputs
 r0 = msg_in object (ptr)
 r1 = -1 for EOF, else more data
+trashes
+all but r0
+```
+
+### msg_in::lisp_next_msg -> class/msg_in/lisp_next_msg
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
 trashes
 all but r0
 ```
@@ -3494,128 +3495,6 @@ inputs
 r0 = pair object (ptr)
 outputs
 r0 = pair object (ptr)
-trashes
-all but r0
-```
-
-## pipe
-
-Super Class: obj
-
-### pipe::vtable -> class/pipe/vtable
-
-### pipe::create -> class/pipe/create
-
-### pipe::init -> class/pipe/init
-
-```lisp
-inputs
-r0 = pipe object (ptr)
-r1 = vtable (pptr)
-r2 = command c string (pubyte)
-outputs
-r0 = pipe object (ptr)
-r1 = 0 if error, else ok
-trashes
-all but r0
-```
-
-### pipe::select -> class/pipe/select
-
-```lisp
-inputs
-r0 = pipe object (ptr)
-r1 = 0 or user mailbox id (uint)
-outputs
-r0 = pipe object (ptr)
-r1 = mailbox index (uint)
-trashes
-r0-r7
-```
-
-### pipe::get_state -> class/pipe/get_state
-
-```lisp
-inputs
-r0 = pipe object (ptr)
-outputs
-r0 = pipe object (ptr)
-r1 = current state (ulong)
-trashes
-r1
-```
-
-### pipe::set_state -> class/pipe/set_state
-
-```lisp
-inputs
-r0 = pipe object (ptr)
-r1 = current state (ulong)
-outputs
-r0 = pipe object (ptr)
-r1 = current state (ulong)
-trashes
-none
-```
-
-### pipe::get_input -> class/pipe/get_input
-
-```lisp
-inputs
-r0 = pipe object (ptr)
-outputs
-r0 = pipe object (ptr)
-r1 = input stream object (ptr)
-trashes
-r1
-```
-
-### pipe::deinit -> class/pipe/deinit
-
-```lisp
-inputs
-r0 = pipe object (ptr)
-outputs
-r0 = pipe object (ptr)
-trashes
-all but r0
-```
-
-### pipe::lisp_create -> class/pipe/lisp_create
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-all but r0
-```
-
-### pipe::lisp_read -> class/pipe/lisp_read
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-all but r0
-```
-
-### pipe::lisp_write -> class/pipe/lisp_write
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
 trashes
 all but r0
 ```
@@ -5350,18 +5229,6 @@ trashes
 all but r0
 ```
 
-### stream::read_ready -> class/stream/read_ready
-
-```lisp
-inputs
-r0 = stream object (ptr)
-outputs
-r0 = stream object (ptr)
-r1 = 0 if data not available
-trashes
-all but r0
-```
-
 ### stream::read_next -> class/stream/read_next
 
 ```lisp
@@ -5487,6 +5354,19 @@ trashes
 all but r0
 ```
 
+### stream::lisp_readavail -> class/stream/lisp_readavail
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+all but r0
+```
+
 ### stream::lisp_writechar -> class/stream/lisp_writechar
 
 ```lisp
@@ -5514,6 +5394,19 @@ all but r0
 ```
 
 ### stream::lisp_write_flush -> class/stream/lisp_write_flush
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+all but r0
+```
+
+### stream::lisp_write_next -> class/stream/lisp_write_next
 
 ```lisp
 inputs

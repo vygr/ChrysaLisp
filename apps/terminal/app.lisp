@@ -1,7 +1,6 @@
 ;imports
-(import 'sys/lisp.inc)
-(import 'class/lisp.inc)
 (import 'gui/lisp.inc)
+(import 'apps/terminal/pipe.inc)
 
 (structure 'event 0
 	(byte 'win_close))
@@ -15,7 +14,7 @@
 (gui-add (apply view-change (cat (list window 0 0)
 	(view-pref-size (window-set-title (window-set-status
 		(window-connect-close window event_win_close) "Ready") "Terminal")))))
-(vdu-print vdu (const (str "ChrysaLisp Terminal 1.4" (ascii-char 10) ">")))
+(vdu-print vdu (const (str "ChrysaLisp Terminal 1.5" (ascii-char 10) ">")))
 
 (defun-bind terminal-output (c)
 	(if (= c 13) (setq c 10))
@@ -24,8 +23,7 @@
 		((<= 0x40000051 c 0x40000052)
 			(vdu-print vdu (const (ascii-char 129))))
 		;print char
-		(t
-			(vdu-print vdu (char c)))))
+		(t	(vdu-print vdu (char c)))))
 
 (defun-bind terminal-input (c)
 	;echo char to terminal
@@ -38,8 +36,7 @@
 				(cmd
 					;feed active pipe
 					(pipe-write cmd (cat buffer (const (ascii-char 10)))))
-				(t
-					;start new pipe
+				(t	;start new pipe
 					(cond
 						((/= (length buffer) 0)
 							;push new history entry if not same as last entry
@@ -48,7 +45,7 @@
 								(pop history))
 							(setq history_index (length history))
 							;new pipe
-							(catch (setq cmd (pipe buffer)) (progn (setq cmd nil) t))
+							(catch (setq cmd (pipe-open buffer)) (progn (setq cmd nil) t))
 							(if cmd
 								(view-dirty-all (window-set-status window "Busy"))
 								(vdu-print vdu (const (cat "Pipe Error !" (ascii-char 10) ">")))))
@@ -60,6 +57,7 @@
 				;feed active pipe, then EOF
 				(when (/= (length buffer) 0)
 					(pipe-write cmd buffer))
+				(pipe-close cmd)
 				(setq cmd nil buffer "")
 				(vdu-print vdu (const (cat (ascii-char 10) ">")))
 				(view-dirty-all (window-set-status window "Ready"))))
@@ -88,25 +86,26 @@
 
 (while id
 	(defq data t)
-	(if cmd (setq data (pipe-read cmd t)))
+	(if cmd (setq data (pipe-read cmd)))
 	(cond
 		((eql data t)
 			;normal mailbox event
 			(cond
 				((= (setq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_win_close)
 					(setq id nil))
-				(t
-					(view-event window msg)
+				(t	(view-event window msg)
 					(and (= (get-long msg ev_msg_type) ev_type_key)
 						(> (get-int msg ev_msg_key_keycode) 0)
 						(terminal-input (get-int msg ev_msg_key_key))))))
 		((eql data nil)
 			;pipe is closed
+			(pipe-close cmd)
 			(setq cmd nil)
 			(vdu-print vdu (const (cat (ascii-char 10) ">")))
 			(view-dirty-all (window-set-status window "Ready")))
-		(t
-			;string from pipe
+		(t	;string from pipe
 			(vdu-print vdu data))))
 
+;close window and pipe
 (view-hide window)
+(if cmd (pipe-close cmd))

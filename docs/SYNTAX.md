@@ -588,9 +588,25 @@
 
 (min num num ...)
 
+## msg-in-get-state
+
+(msg-in-get-state msg-in-stream) -> num
+
+## msg-in-mbox
+
+(msg-in-mbox msg-in-stream) -> mbox
+
+## msg-in-next-msg
+
+(msg-in-next-msg msg-in-stream)
+
 ## msg-in-stream
 
 (msg-in-stream)
+
+## msg-out-set-state
+
+(msg-out-set-state msg-in-stream num) -> msg-in-stream
 
 ## msg-out-stream
 
@@ -675,18 +691,6 @@
 ## pii-write-char
 
 (pii-write-char fd char)
-
-## pipe
-
-(pipe str)
-
-## pipe-read
-
-(pipe-read pipe bool)
-
-## pipe-write
-
-(pipe-write pipe str)
 
 ## points
 
@@ -808,6 +812,10 @@
 
 (read stream last_char)
 
+## read-avail
+
+(read-avail stream)
+
 ## read-char
 
 (read-char stream [width])
@@ -907,6 +915,10 @@
 ## stream-flush
 
 (stream-flush stream)
+
+## stream-next
+
+(stream-next stream)
 
 ## string-stream
 
@@ -1032,6 +1044,10 @@
 
 (view-find-id view id)
 
+## view-get-bounds
+
+(view-get-bounds view) -> (x y w h)
+
 ## view-hide
 
 (view-hide view)
@@ -1043,6 +1059,10 @@
 ## view-pref-size
 
 (view-pref-size view)
+
+## view-set-bounds
+
+(view-set-bounds view x y w h) -> view
 
 ## view-set-flags
 
@@ -1064,6 +1084,26 @@
 
 (while tst body)
 
+## window-connect-close
+
+(window-connect-close window id) -> window
+
+## window-connect-max
+
+(window-connect-max window id) -> window
+
+## window-connect-min
+
+(window-connect-min window id) -> window
+
+## window-set-status
+
+(window-set-status window txt) -> window
+
+## window-set-title
+
+(window-set-title window txt) -> window
+
 ## within-compile-env
 
 (within-compile-env lambda)
@@ -1078,5 +1118,5 @@
 
 ## write-line
 
-(write-line stream str) -> str
+(write-line stream str) -> stream
 

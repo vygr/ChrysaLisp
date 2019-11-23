@@ -182,25 +182,3 @@
 	(vp-ret)
 
 (def-func-end)
-
-(def-method 'msg_in 'read_ready)
-	;inputs
-	;r0 = msg_in object (ptr)
-	;outputs
-	;r0 = msg_in object (ptr)
-	;r1 = 0 if data not available
-	;trashes
-	;all but r0
-
-	(entry 'msg_in 'read_ready '(r0))
-
-	;extend test to include mailbox
-	(s-call 'msg_in 'read_ready '(r0) '(r0 r1))
-	(vpif '(r1 = 0))
-		(lh-is-empty r0 msg_in_list r1)
-	(endif)
-
-	(exit 'msg_in 'read_ready '(r0 r1))
-	(vp-ret)
-
-(def-func-end)
