@@ -133,7 +133,7 @@
 	`(defq ,n (macro ,a ~(bind-fun (macroexpand _)))))
 
 (cond
-	((def? 'pipe)
+	((def? 'points)
 		;to disable pre binding uncomment this line
 		;(defun bind-fun (_) _)
 	)(t
