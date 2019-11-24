@@ -11,7 +11,7 @@
 	(read (string-stream (mail-read (task-mailbox))) (const (ascii-code " "))))
 
 ;set up reply stream
-(defq msg_out (msg-out-stream mbox))
+(defq msg_out (create-msg-out mbox))
 
 ;redirect print to my msg_out
 (defun-bind print (&rest args)
@@ -23,8 +23,3 @@
 	(within-compile-env (lambda ()
 		(each! 0 -1 include (list files))))
 	(print _))
-
-;close data out stream
-(msg-out-set-state (stream-flush msg_out) stream_mail_state_stopped)
-(print "")
-(stream-flush msg_out)

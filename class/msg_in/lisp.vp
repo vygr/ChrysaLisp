@@ -2,6 +2,35 @@
 (include 'class/msg_in/class.inc)
 (include 'class/lisp/class.inc)
 
+(def-method 'msg_in 'lisp_create)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
+
+	(entry 'msg_in 'lisp_create '(r0 r1))
+
+(errorcases
+	(assign '((r1 array_length)) '(r2))
+	(gotoif '(r2 /= 0) 'error))
+
+	(vp-push r0)
+	(call 'msg_in 'create '(0) '(r1))
+	(vp-pop r0)
+
+	(exit 'msg_in 'lisp_create '(r0 r1))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r0 "(create-msg-in)" error_msg_wrong_types r1)))
+
+(def-func-end)
+
 (def-method 'msg_in 'lisp_next_msg)
 	;inputs
 	;r0 = lisp object (ptr)
@@ -30,7 +59,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r0 "(msg-in-next-msg msg-in-stream)" error_msg_wrong_types r1))
+	(jump 'lisp 'repl_error '(r0 "(msg-in-next-msg msg-in)" error_msg_wrong_types r1))
 	(signature '(msg_in)))
 
 (def-func-end)

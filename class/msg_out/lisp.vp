@@ -1,0 +1,36 @@
+(include 'sys/func.inc)
+(include 'class/msg_out/class.inc)
+(include 'class/num/class.inc)
+(include 'class/lisp/class.inc)
+
+(def-method 'msg_out 'lisp_create)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
+
+	(entry 'msg_out 'lisp_create '(r0 r1))
+
+(errorcases
+	(call 'lisp 'env_args_type '(r1 ($ sig) 1) '(r2))
+	(gotoif '(r2 = 0) 'error))
+
+	(vp-push r0)
+	(defq in (method-input 'msg_out 'create))
+	(class/vector/bind_args r1 in '(num))
+	(call 'msg_out 'create in '(r1))
+	(vp-pop r0)
+
+	(exit 'msg_out 'lisp_create '(r0 r1))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r0 "(create-msg-out mbox)" error_msg_wrong_types r1))
+	(signature '(num)))
+
+(def-func-end)

@@ -480,6 +480,10 @@
 	(while (> c (length f)) (setq f (cat f f)))
 	(cat (slice 0 c f) v))
 
+(defun-bind erase (s b e)
+	;(erase seq start end) -> seq
+	(cat (slice 0 b s) (slice e -1 s)))
+
 (defun-bind log2 (_)
 	;(log2 num) -> num
 	(when (and (not (= 0 _)) (= _ (logand _ (neg _))))

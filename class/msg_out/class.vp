@@ -48,17 +48,42 @@
 
 	(entry 'msg_out 'deinit '(r0))
 
-	;wait for final ack
-	(vp-push r0)
-	(call 'sys_mail 'read '((r0 msg_out_ack_mbox_addr)) '(r0 _))
-	(call 'sys_mail 'free '(r0))
+	;do we need to send stopping ?
+	(assign '((r0 msg_out_state)) '(r1))
+	(vpif '(r1 = stream_mail_state_started))
+		;flush remaining
+		(call 'msg_out 'write_flush '(r0) '(r0))
+
+		;send stopping
+		(assign '(stream_mail_state_stopping) '(r1))
+		(assign '(r1) '((r0 msg_out_state)))
+		(call 'msg_out 'write_next '(r0) '(r0))
+		(call 'msg_out 'write_flush '(r0) '(r0))
+	(endif)
+
+	;do we need to send stopped ?
+	(assign '((r0 msg_out_state)) '(r1))
+	(vpif '(r1 = stream_mail_state_stopping))
+		;send stopped
+		(assign '(stream_mail_state_stopped) '(r1))
+		(assign '(r1) '((r0 msg_out_state)))
+		(call 'msg_out 'write_next '(r0) '(r0))
+		(call 'msg_out 'write_flush '(r0) '(r0))
+	(endif)
+
+	;wait for all outstanding acks
+	(assign '((r0 msg_out_seqnum)) '(r1))
+	(vp-sub-cr 1 r1)
+	(vp-shr-cr msg_out_ack_shift r1)
+	(vp-add-cr 1 r1)
+	(call 'msg_out 'wait_acks '(r0 r1) '(r0))
 
 	;free any stream mail buffer
-	(assign '((rsp 0)) '(r2))
+	(vp-push r0)
 	(vp-xor-rr r1 r1)
-	(assign '((r2 stream_buffer)) '(r0))
-	(assign '(r1) '((r2 stream_buffer)))
-	(call 'sys_mail 'free '(r0))
+	(assign '((r0 stream_buffer)) '(r2))
+	(assign '(r1) '((r0 stream_buffer)))
+	(call 'sys_mail 'free '(r2))
 
 	;free ack mailbox
 	(assign '((rsp 0)) '(r0))
@@ -67,6 +92,35 @@
 	;deinit parent
 	(vp-pop r0)
 	(s-jump 'msg_out 'deinit '(r0))
+
+(def-func-end)
+
+(def-method 'msg_out 'wait_acks)
+	;inputs
+	;r0 = msg_out object (ptr)
+	;r1 = msg ack num (uint)
+	;outputs
+	;r0 = msg_out object (ptr)
+	;trashes
+	;all but r0
+
+	(entry 'msg_out 'wait_acks '(r0 r1))
+
+	(loop-start)
+		(assign '((r0 msg_out_ack_seqnum)) '(r2))
+		(breakif '(r1 = r2))
+		;next ack seq num
+		(vp-add-cr 1 r2)
+		(assign '(r2) '((r0 msg_out_ack_seqnum)))
+		;wait for an ack
+		(vp-push r0 r1)
+		(call 'sys_mail 'read '((r0 msg_out_ack_mbox_addr)) '(r0 _))
+		(call 'sys_mail 'free '(r0))
+		(vp-pop r0 r1)
+	(loop-end)
+
+	(exit 'msg_out 'wait_acks '(r0))
+	(vp-ret)
 
 (def-func-end)
 
@@ -97,23 +151,13 @@
 		(call 'sys_kernel 'id nil '((r2 (+ stream_msg_ack_id id_cpu) i)))
 		(call 'sys_mail 'send '(r1))
 
-		;wait for an ack ?
-		(assign '((rsp 0)) '(r0))
-		(assign '((r0 msg_out_seqnum) (r0 msg_out_ack_seqnum)) '(r1 r2))
+		;wait for acks ?
+		(vp-pop r0)
+		(assign '((r0 msg_out_seqnum)) '(r1))
 		(vp-shr-cr msg_out_ack_shift r1)
-		(vpif '(r1 /= r2))
-			(call 'sys_mail 'read '((r0 msg_out_ack_mbox_addr)) '(r0 _))
-			(call 'sys_mail 'free '(r0))
-
-			;next ack seq num
-			(assign '((rsp 0)) '(r0))
-			(assign '((r0 msg_out_ack_seqnum)) '(r1))
-			(vp-add-cr 1 r1)
-			(assign '(r1) '((r0 msg_out_ack_seqnum)))
-		(endif)
+		(call 'msg_out 'wait_acks '(r0 r1) '(r0))
 
 		;next seq num
-		(vp-pop r0)
 		(assign '((r0 msg_out_seqnum)) '(r1))
 		(vp-add-cr 1 r1)
 		(assign '(r1) '((r0 msg_out_seqnum)))

@@ -385,7 +385,7 @@
 		(str (/ _ 1000000) "." (pad (% _ 1000000) 6 "00000")))
 
 ;read args from parent
-(defq msg (mail-read (task-mailbox)) msg_out (msg-out-stream (get-long msg 0)) max_time_per_move (get-long msg long_size)
+(defq msg (mail-read (task-mailbox)) msg_out (create-msg-out (get-long msg 0)) max_time_per_move (get-long msg long_size)
 	history (list) colour (const white) game_start_time (time) quit nil flicker 100000
 	brd "RNBQKBNRPPPPPPPP                                pppppppprnbqkbnr")
 (send-data "b" brd)
@@ -415,7 +415,3 @@
 			(push history new_brd)
 			(setq colour (neg colour) brd new_brd))))
 (mail-read (task-mailbox))
-
-;close data out stream
-(msg-out-set-state msg_out stream_mail_state_stopped)
-(send-data "" "")

@@ -27,7 +27,7 @@
 			(each (lambda (file)
 				(push (elem (% _ num_child) buckets) file)) files)
 			(each (lambda (_)
-				(push select (defq inbox (msg-in-mbox (elem -2 (push data_in (msg-in-stream))))))
+				(push select (defq inbox (msg-in-mbox (elem -2 (push data_in (create-msg-in))))))
 				(mail-send (str (list (pop buckets) inbox *abi* *cpu* *debug_mode* *debug_emit* *debug_inst*)) _)) child_mboxs)
 			(while (/= (length select) 0)
 				;read all child data
@@ -36,8 +36,7 @@
 						(push err data)
 						(print data))) (elem (defq idx (mail-select select)) data_in))
 				;child closed
-				(setq data_in (cat (slice 0 idx data_in) (slice (inc idx) -1 data_in))
-					select (cat (slice 0 idx select) (slice (inc idx) -1 select))))
+				(setq data_in (erase data_in idx (inc idx)) select (erase select idx (inc idx))))
 			(each print err))
 		;C++ ChrysaLisp !
 		(within-compile-env (lambda ()

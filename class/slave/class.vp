@@ -34,7 +34,8 @@
 		(call 'sys_mail 'mymail nil {msg, data})
 		(vpif {msg->msg_length})
 			;create stdin, stdout, stderr
-			(call 'msg_in 'create nil {this->slave_stdin})
+			(call 'sys_task 'mailbox nil {stream})
+			(call 'msg_in 'create {stream} {this->slave_stdin})
 			(call 'msg_out 'create {data->slave_msg_init_stdout_id.id_id} {this->slave_stdout})
 			(call 'msg_out 'create {data->slave_msg_init_stderr_id.id_id} {this->slave_stderr})
 
@@ -68,14 +69,13 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this)
+	(entry 'slave 'deinit '(r0))
 
-	(push-scope)
-	(entry 'slave 'deinit {this})
-
-	;flush remaining
-	(call 'msg_out 'write_flush {this->slave_stderr})
-	(call 'msg_out 'write_flush {this->slave_stdout} '(r0))
+	;flush remaining stdout, stderr
+	(vp-push r0)
+	(call 'msg_out 'write_flush '((r0 slave_stderr)))
+	(assign '((rsp 0)) '(r0))
+	(call 'msg_out 'write_flush '((r0 slave_stdout)) '(r0))
 
 	;send stopping on stdout
 	(assign '(stream_mail_state_stopping) '(r1))
@@ -83,35 +83,20 @@
 	(call 'msg_out 'write_next '(r0) '(r0))
 	(call 'msg_out 'write_flush '(r0) '(r0))
 
-	;wait for stopped
-	(assign {this->slave_stdin} '(r0))
-	(loop-start)
-		(assign '((r0 msg_in_state)) '(r1))
-		(breakif '(r1 = stream_mail_state_stopped))
-		(call 'msg_in 'next_msg '(r0) '(r0))
-	(loop-end)
-
-	;send stopped on stdout and stderr
-	(assign {this->slave_stdout, stream_mail_state_stopped} '(r0 r1))
-	(assign '(r1) '((r0 msg_out_state)))
-	(call 'msg_out 'write_next '(r0) '(r0))
-	(call 'msg_out 'write_flush '(r0) '(r0))
-	(assign {this->slave_stderr, stream_mail_state_stopped} '(r0 r1))
-	(assign '(r1) '((r0 msg_out_state)))
-	(call 'msg_out 'write_next '(r0) '(r0))
-	(call 'msg_out 'write_flush '(r0) '(r0))
-
 	;free stdin, stdout and stderr
-	(call 'msg_in 'deref {this->slave_stdin})
-	(call 'msg_out 'deref {this->slave_stdout})
-	(call 'msg_out 'deref {this->slave_stderr})
+	(assign '((rsp 0)) '(r0))
+	(call 'msg_in 'deref '((r0 slave_stdin)))
+	(assign '((rsp 0)) '(r0))
+	(call 'msg_out 'deref '((r0 slave_stdout)))
+	(assign '((rsp 0)) '(r0))
+	(call 'msg_out 'deref '((r0 slave_stderr)))
 
 	;free args
-	(call 'vector 'deref {this->slave_args})
+	(assign '((rsp 0)) '(r0))
+	(call 'vector 'deref '((r0 slave_args)))
+	(vp-pop r0)
 
 	;deinit parent
-	(s-jump 'slave 'deinit {this})
-
-	(pop-scope-syms)
+	(s-jump 'slave 'deinit '(r0))
 
 (def-func-end)

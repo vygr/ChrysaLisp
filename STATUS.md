@@ -5,8 +5,18 @@
 ------
 
 Remove the pipe class and some associated methods ! Now all in Lisp. :) Minor
-slow down on system builds but this save 3KB of boot_image, so going to run
+slow down on system builds but this saves 3KB of boot_image, so going to run
 with it.
+
+(pipe-close) waits with a select for all stderr and stdout inputs to stop.
+
+msg_in class can now take an existing mailbox id. This allows the slave class
+to reuse the standard process mailbox for its stdin stream rather than create
+yet another.
+
+Created msg_out::wait_ack in readiness for a non blocking mode. This function
+will allow a stream to catch up with any acks it ignored while in none blocking
+mode and deinit uses it to clear up all outstanding ack messages.
 
 ------
 

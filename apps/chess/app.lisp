@@ -11,7 +11,7 @@
 
 ;create child and send args etc
 (defq id t squares (list) next_char (const (ascii-code " "))
-	data_in (msg-in-stream) select (array (task-mailbox) (msg-in-mbox data_in)))
+	data_in (create-msg-in) select (array (task-mailbox) (msg-in-mbox data_in)))
 (mail-send (array (msg-in-mbox data_in) 10000000)
 	(defq child_mbox (open-child "apps/chess/child.lisp" kn_call_child)))
 

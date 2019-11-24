@@ -9,13 +9,15 @@
 	;inputs
 	;r0 = msg_in object (ptr)
 	;r1 = vtable (pptr)
+	;r2 = 0, else mailbox id (uint)
 	;outputs
 	;r0 = msg_in object (ptr)
 	;r1 = 0 if error, else ok
 	;trashes
 	;all but r0
 
-	(entry 'msg_in 'init '(r0 r1))
+	(entry 'msg_in 'init '(r0 r1 r2))
+	(assign '(r2) '((r0 msg_in_mbox_oid)))
 
 	;init parent
 	(s-call 'msg_in 'init '(r0 r1 0 0 0 0) '(r0 r1))
@@ -23,11 +25,20 @@
 		;init myself
 		(vp-xor-rr r1 r1)
 		(assign '(r1 r1 stream_mail_state_started) '((r0 msg_in_seqnum) (r0 msg_in_ack_seqnum) r1))
-		(assign '(r1) '((r0 msg_in_state)))
 		(vp-push r0)
-		(call 'sys_mail 'alloc_mbox nil '(r2 r1))
-		(vp-pop r0)
-		(assign '(r2 r1 (& r0 msg_in_list)) '((r0 msg_in_mbox_id) (r0 msg_in_mbox_addr) r1))
+		(assign '(r1 (r0 msg_in_mbox_oid)) '((r0 msg_in_state) r1))
+		(vpif '(r1 = 0))
+			;need a new mailbox
+			(call 'sys_mail 'alloc_mbox nil '(r2 r1))
+			(vp-pop r0)
+			(assign '(r2) '((r0 msg_in_mbox_id)))
+		(else)
+			;given an existing mailbox
+			(assign '(r1) '((r0 msg_in_mbox_id)))
+			(call 'sys_mail 'mbox_addr '(r1) '(r1))
+			(vp-pop r0)
+		(endif)
+		(assign '(r1 (& r0 msg_in_list)) '((r0 msg_in_mbox_addr) r1))
 		(lh-init r1 r2)
 	(endif)
 
@@ -46,6 +57,13 @@
 
 	(entry 'msg_in 'deinit '(r0))
 
+	;wait till stopped
+	(loop-start)
+		(assign '((r0 msg_in_state)) '(r1))
+		(breakif '(r1 = stream_mail_state_stopped))
+		(call 'msg_in 'next_msg '(r0) '(r0))
+	(loop-end)
+
 	;free any stream mail buffer
 	(vp-push r0)
 	(vp-xor-rr r1 r1)
@@ -53,9 +71,12 @@
 	(assign '(r1) '((r0 stream_buffer)))
 	(call 'sys_mail 'free '(r2))
 
-	;free mailbox
+	;free any allocated mailbox
 	(assign '((rsp 0)) '(r0))
-	(call 'sys_mail 'free_mbox '((r0 msg_in_mbox_id)))
+	(assign '((r0 msg_in_mbox_oid) (r0 msg_in_mbox_id)) '(r1 r0))
+	(vpif '(r0 /= r1))
+		(call 'sys_mail 'free_mbox '(r0))
+	(endif)
 
 	;deinit parent
 	(vp-pop r0)
@@ -100,15 +121,13 @@
 	(assign '((r8 stream_msg_seqnum) (r9 msg_in_ack_seqnum)) '(r2 r3))
 	(vp-shr-cr msg_out_ack_shift r2)
 	(vpif '(r3 = r2))
+		;next ack seq num
+		(vp-add-cr 1 r3)
+		(assign '(r3) '((r9 msg_in_ack_seqnum)))
 		(call 'sys_mail 'alloc '(0) '(r0 _))
 		(vp-cpy-ir r8 (+ stream_msg_ack_id id_id) r2)
 		(vp-cpy-ri r2 r0 (+ msg_dest id_id))
 		(call 'sys_mail 'send '(r0))
-
-		;next ack seq num
-		(assign '((r9 msg_in_ack_seqnum)) '(r1))
-		(vp-add-cr 1 r1)
-		(assign '(r1) '((r9 msg_in_ack_seqnum)))
 	(endif)
 
 	(vp-pop r0)

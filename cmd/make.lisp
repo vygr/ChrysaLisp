@@ -84,7 +84,7 @@
 		'(class/lisp/boot.inc class/lisp/debug.inc class/lisp/anaphoric.inc sys/lisp.inc
 			sys/math/lisp.inc gui/lisp.inc gui/canvas/lisp.inc gui/window/lisp.inc
 			gui/view/lisp.inc gui/points/lisp.inc class/lisp.inc class/msg_in/lisp.inc
-			class/msg_out/lisp.inc))
+			class/msg_out/lisp.inc class/slave/lisp.inc))
 	(sort cmp syntax)
 	(defq stream (string-stream (cat "")))
 	(write-line stream (const (str "# Syntax" (ascii-char 10))))

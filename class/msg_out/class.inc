@@ -4,10 +4,13 @@
 (dec-method 'vtable 'class/msg_out/vtable)
 (dec-method 'create 'class/msg_out/create 'static '(r0) '(r0))
 (dec-method 'init 'class/msg_out/init 'static '(r0 r1 r2))
+(dec-method 'wait_acks 'class/msg_out/wait_acks 'static '(r0 r1) '(r0))
 
 (dec-method 'deinit 'class/msg_out/deinit 'final)
 (dec-method 'write_flush 'class/msg_out/write_flush 'final)
 (dec-method 'write_next 'class/msg_out/write_next 'final)
+
+(dec-method 'lisp_create 'class/msg_out/lisp_create 'static '(r0 r1) '(r0 r1))
 
 (def-struct 'msg_out 'stream)
 	(struct 'id 'id)
@@ -21,7 +24,7 @@
 	(offset 'data)
 (def-struct-end)
 
-(defcvar 'msg_out_ack_shift 6)
+(defcvar 'msg_out_ack_shift 5)
 
 (def-enum 'stream_mail_state)
 	(enum 'started 'stopping 'stopped)
