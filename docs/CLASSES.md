@@ -2830,6 +2830,7 @@ Super Class: stream
 inputs
 r0 = msg_in object (ptr)
 r1 = vtable (pptr)
+r2 = 0, else mailbox id (uint)
 outputs
 r0 = msg_in object (ptr)
 r1 = 0 if error, else ok
@@ -2871,6 +2872,19 @@ trashes
 all but r0
 ```
 
+### msg_in::lisp_create -> class/msg_in/lisp_create
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+all but r0
+```
+
 ### msg_in::lisp_next_msg -> class/msg_in/lisp_next_msg
 
 ```lisp
@@ -2906,6 +2920,18 @@ trashes
 all but r0
 ```
 
+### msg_out::wait_acks -> class/msg_out/wait_acks
+
+```lisp
+inputs
+r0 = msg_out object (ptr)
+r1 = msg ack num (uint)
+outputs
+r0 = msg_out object (ptr)
+trashes
+all but r0
+```
+
 ### msg_out::deinit -> class/msg_out/deinit
 
 ```lisp
@@ -2935,6 +2961,19 @@ inputs
 r0 = msg_out object (ptr)
 outputs
 r0 = msg_out object (ptr)
+trashes
+all but r0
+```
+
+### msg_out::lisp_create -> class/msg_out/lisp_create
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
 trashes
 all but r0
 ```
@@ -4569,18 +4608,6 @@ trashes
 all but r0
 ```
 
-### slave::get_args -> class/slave/get_args
-
-```lisp
-inputs
-r0 = slave object (ptr)
-outputs
-r0 = slave object (ptr)
-r1 = command args
-trashes
-r1
-```
-
 ### slave::deinit -> class/slave/deinit
 
 ```lisp
@@ -4593,19 +4620,6 @@ all but r0
 ```
 
 ### slave::lisp_create -> class/slave/lisp_create
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-all but r0
-```
-
-### slave::lisp_get_args -> class/slave/lisp_get_args
 
 ```lisp
 inputs
@@ -5289,32 +5303,6 @@ trashes
 all but r0
 ```
 
-### stream::lisp_msginstream -> class/stream/lisp_msginstream
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-all but r0
-```
-
-### stream::lisp_msgoutstream -> class/stream/lisp_msgoutstream
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-all but r0
-```
-
 ### stream::lisp_available -> class/stream/lisp_available
 
 ```lisp
@@ -5407,17 +5395,6 @@ all but r0
 ```
 
 ### stream::lisp_write_next -> class/stream/lisp_write_next
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-all but r0
-```
 
 ## stream_str
 

@@ -236,6 +236,14 @@
 
 (create-label)
 
+## create-msg-in
+
+(create-msg-in)
+
+## create-msg-out
+
+(create-msg-out mbox)
+
 ## create-progress
 
 (create-progress)
@@ -359,6 +367,10 @@
 ## eql
 
 (eql form form)
+
+## erase
+
+(erase seq start end) -> seq
 
 ## eval
 
@@ -590,27 +602,23 @@
 
 ## msg-in-get-state
 
-(msg-in-get-state msg-in-stream) -> num
+(msg-in-get-state msg-in) -> num
 
 ## msg-in-mbox
 
-(msg-in-mbox msg-in-stream) -> mbox
+(msg-in-mbox msg-in) -> mbox
 
 ## msg-in-next-msg
 
-(msg-in-next-msg msg-in-stream)
+(msg-in-next-msg msg-in)
 
-## msg-in-stream
+## msg-in-set-state
 
-(msg-in-stream)
+(msg-in-set-state msg-in num) -> msg-in
 
 ## msg-out-set-state
 
-(msg-out-set-state msg-in-stream num) -> msg-in-stream
-
-## msg-out-stream
-
-(msg-out-stream mbox)
+(msg-out-set-state msg-out num) -> msg-out
 
 ## neg
 
@@ -870,7 +878,7 @@
 
 ## slave-get-args
 
-(slave-get-args slave)
+(slave-get-args slave) -> list
 
 ## slice
 
@@ -915,10 +923,6 @@
 ## stream-flush
 
 (stream-flush stream)
-
-## stream-next
-
-(stream-next stream)
 
 ## string-stream
 
