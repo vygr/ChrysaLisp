@@ -1,7 +1,7 @@
 (include 'sys/func.inc)
 (include 'class/vector/class.inc)
-(include 'class/msg_out/class.inc)
-(include 'class/msg_in/class.inc)
+(include 'class/out/class.inc)
+(include 'class/in/class.inc)
 (include 'class/str/class.inc)
 (include 'class/slave/class.inc)
 
@@ -35,9 +35,9 @@
 		(vpif {msg->msg_length})
 			;create stdin, stdout, stderr
 			(call 'sys_task 'mailbox nil {stream})
-			(call 'msg_in 'create {stream} {this->slave_stdin})
-			(call 'msg_out 'create {data->slave_msg_init_stdout_id.id_id} {this->slave_stdout})
-			(call 'msg_out 'create {data->slave_msg_init_stderr_id.id_id} {this->slave_stderr})
+			(call 'in 'create {stream} {this->slave_stdin})
+			(call 'out 'create {data->slave_msg_init_stdout_id.id_id} {this->slave_stdout})
+			(call 'out 'create {data->slave_msg_init_stderr_id.id_id} {this->slave_stderr})
 
 			;create args
 			(call 'stream 'create {0, 0, &data->slave_msg_init_args, msg->msg_length - slave_msg_init_size} {stream})
@@ -46,7 +46,7 @@
 
 			;send back ack with stdin mailbox
 			(assign {data->slave_msg_init_ack_id.id_id} {msg->msg_dest.id_id})
-			(assign {this->slave_stdin->msg_in_mbox_id} {data->slave_msg_init_stdin_mbox_id})
+			(assign {this->slave_stdin->in_mbox_id} {data->slave_msg_init_stdin_mbox_id})
 			(call 'sys_mail 'send {msg})
 		(else)
 			;abort
@@ -73,23 +73,19 @@
 
 	;flush remaining stdout, stderr
 	(vp-push r0)
-	(call 'msg_out 'write_flush '((r0 slave_stderr)))
-	(assign '((rsp 0)) '(r0))
-	(call 'msg_out 'write_flush '((r0 slave_stdout)) '(r0))
+	(call 'out 'write_flush '((r0 slave_stderr)))
 
 	;send stopping on stdout
-	(assign '(stream_mail_state_stopping) '(r1))
-	(assign '(r1) '((r0 msg_out_state)))
-	(call 'msg_out 'write_next '(r0) '(r0))
-	(call 'msg_out 'write_flush '(r0) '(r0))
+	(assign '((rsp 0)) '(r0))
+	(call 'out 'set_state '((r0 slave_stdout) stream_mail_state_stopping) '(r0))
 
 	;free stdin, stdout and stderr
 	(assign '((rsp 0)) '(r0))
-	(call 'msg_in 'deref '((r0 slave_stdin)))
+	(call 'in 'deref '((r0 slave_stdin)))
 	(assign '((rsp 0)) '(r0))
-	(call 'msg_out 'deref '((r0 slave_stdout)))
+	(call 'out 'deref '((r0 slave_stdout)))
 	(assign '((rsp 0)) '(r0))
-	(call 'msg_out 'deref '((r0 slave_stderr)))
+	(call 'out 'deref '((r0 slave_stderr)))
 
 	;free args
 	(assign '((rsp 0)) '(r0))

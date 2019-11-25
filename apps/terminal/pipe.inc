@@ -23,10 +23,10 @@
 		(t	;wire up pipe and send args
 			(defq select (array) pipe_streams (list))
 			(each (lambda (_)
-				(push pipe_streams (create-msg-in))
-				(push select (msg-in-mbox (elem -2 pipe_streams)))) mboxs)
-			(defq stdout (create-msg-in) stdout_mbox (msg-in-mbox stdout)
-				ack (create-msg-in) ack_mbox (msg-in-mbox ack))
+				(push pipe_streams (in-stream))
+				(push select (in-mbox (elem -2 pipe_streams)))) mboxs)
+			(defq stdout (in-stream) stdout_mbox (in-mbox stdout)
+				ack (in-stream) ack_mbox (in-mbox ack))
 			(each-rev (lambda (mbox arg stderr_mbox)
 				(mail-send (cat
 					(char stdout_mbox (const long_size))
@@ -35,9 +35,9 @@
 					(char 0 (const int_size)) arg) mbox)
 				(setq stdout_mbox (+ (logand mbox 0xffffffff00000000)
 					(get-int (mail-read ack_mbox) (const (* 3 long_size)))))) mboxs args select)
-			(push pipe_streams stdout (create-msg-out stdout_mbox))
-			(push select (msg-in-mbox stdout) (task-mailbox))
-			(msg-in-set-state ack stream_mail_state_stopped)
+			(push pipe_streams stdout (out-stream stdout_mbox))
+			(push select (in-mbox stdout) (task-mailbox))
+			(in-set-state ack stream_mail_state_stopped)
 			(list t select pipe_streams))))
 
 (defun-bind pipe-close (pipe)
@@ -46,7 +46,7 @@
 	(pop select) (pop pipe_streams) (clear pipe)
 	;wait for stdout and stderr streams to stop
 	(while (/= (length select) 0)
-		(if (= (msg-in-get-state (msg-in-next-msg (elem (defq idx (mail-select select)) pipe_streams)))
+		(if (= (in-get-state (in-next-msg (elem (defq idx (mail-select select)) pipe_streams)))
 				(const stream_mail_state_stopped))
 			(setq pipe_streams (erase pipe_streams idx (inc idx)) select (erase select idx (inc idx))))))
 
@@ -60,8 +60,8 @@
 				;t if task mailbox
 				((= (- idx (length (elem (const pipe_select) pipe))) -1))
 				(t	;must be stdout or one of the stderr's
-					(if (/= (msg-in-get-state
-								(msg-in-next-msg
+					(if (/= (in-get-state
+								(in-next-msg
 									(defq msg_in (elem idx (elem (const pipe_streams) pipe)))))
 							(const stream_mail_state_started))
 						(elem-set (const pipe_state) pipe nil))

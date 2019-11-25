@@ -1,67 +1,67 @@
 (include 'sys/func.inc)
-(include 'class/msg_out/class.inc)
-(include 'class/msg_in/class.inc)
+(include 'class/out/class.inc)
+(include 'class/in/class.inc)
 
-(gen-create 'msg_in)
-(gen-vtable 'msg_in)
+(gen-create 'in)
+(gen-vtable 'in)
 
-(def-method 'msg_in 'init)
+(def-method 'in 'init)
 	;inputs
-	;r0 = msg_in object (ptr)
+	;r0 = in object (ptr)
 	;r1 = vtable (pptr)
 	;r2 = 0, else mailbox id (uint)
 	;outputs
-	;r0 = msg_in object (ptr)
+	;r0 = in object (ptr)
 	;r1 = 0 if error, else ok
 	;trashes
 	;all but r0
 
-	(entry 'msg_in 'init '(r0 r1 r2))
-	(assign '(r2) '((r0 msg_in_mbox_oid)))
+	(entry 'in 'init '(r0 r1 r2))
+	(assign '(r2) '((r0 in_mbox_oid)))
 
 	;init parent
-	(s-call 'msg_in 'init '(r0 r1 0 0 0 0) '(r0 r1))
+	(s-call 'in 'init '(r0 r1 0 0 0 0) '(r0 r1))
 	(vpif '(r1 /= 0))
 		;init myself
 		(vp-xor-rr r1 r1)
-		(assign '(r1 r1 stream_mail_state_started) '((r0 msg_in_seqnum) (r0 msg_in_ack_seqnum) r1))
+		(assign '(r1 r1 stream_mail_state_started) '((r0 in_seqnum) (r0 in_ack_seqnum) r1))
 		(vp-push r0)
-		(assign '(r1 (r0 msg_in_mbox_oid)) '((r0 msg_in_state) r1))
+		(assign '(r1 (r0 in_mbox_oid)) '((r0 in_state) r1))
 		(vpif '(r1 = 0))
 			;need a new mailbox
 			(call 'sys_mail 'alloc_mbox nil '(r2 r1))
 			(vp-pop r0)
-			(assign '(r2) '((r0 msg_in_mbox_id)))
+			(assign '(r2) '((r0 in_mbox_id)))
 		(else)
 			;given an existing mailbox
-			(assign '(r1) '((r0 msg_in_mbox_id)))
+			(assign '(r1) '((r0 in_mbox_id)))
 			(call 'sys_mail 'mbox_addr '(r1) '(r1))
 			(vp-pop r0)
 		(endif)
-		(assign '(r1 (& r0 msg_in_list)) '((r0 msg_in_mbox_addr) r1))
+		(assign '(r1 (& r0 in_list)) '((r0 in_mbox_addr) r1))
 		(lh-init r1 r2)
 	(endif)
 
-	(exit 'msg_in 'init '(r0 r1))
+	(exit 'in 'init '(r0 r1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'msg_in 'deinit)
+(def-method 'in 'deinit)
 	;inputs
-	;r0 = msg_in object (ptr)
+	;r0 = in object (ptr)
 	;outputs
-	;r0 = msg_in object (ptr)
+	;r0 = in object (ptr)
 	;trashes
 	;all but r0
 
-	(entry 'msg_in 'deinit '(r0))
+	(entry 'in 'deinit '(r0))
 
 	;wait till stopped
 	(loop-start)
-		(assign '((r0 msg_in_state)) '(r1))
+		(assign '((r0 in_state)) '(r1))
 		(breakif '(r1 = stream_mail_state_stopped))
-		(call 'msg_in 'next_msg '(r0) '(r0))
+		(call 'in 'next_msg '(r0) '(r0))
 	(loop-end)
 
 	;free any stream mail buffer
@@ -73,26 +73,26 @@
 
 	;free any allocated mailbox
 	(assign '((rsp 0)) '(r0))
-	(assign '((r0 msg_in_mbox_oid) (r0 msg_in_mbox_id)) '(r1 r0))
+	(assign '((r0 in_mbox_oid) (r0 in_mbox_id)) '(r1 r0))
 	(vpif '(r0 /= r1))
 		(call 'sys_mail 'free_mbox '(r0))
 	(endif)
 
 	;deinit parent
 	(vp-pop r0)
-	(s-jump 'msg_in 'deinit '(r0))
+	(s-jump 'in 'deinit '(r0))
 
 (def-func-end)
 
-(def-method 'msg_in 'next_msg)
+(def-method 'in 'next_msg)
 	;inputs
-	;r0 = msg_in object (ptr)
+	;r0 = in object (ptr)
 	;outputs
-	;r0 = msg_in object (ptr)
+	;r0 = in object (ptr)
 	;trashes
 	;all but r0
 
-	(entry 'msg_in 'next_msg '(r0))
+	(entry 'in 'next_msg '(r0))
 
 	;free any current msg
 	(vp-push r0)
@@ -102,28 +102,28 @@
 	(assign '((rsp 0)) '(r9))
 	(vp-xor-rr r0 r0)
 	(loop-start)
-		(call 'next_seq '((& r9 msg_in_list) r0 (r9 msg_in_seqnum)) '(r0 r8))
+		(call 'next_seq '((& r9 in_list) r0 (r9 in_seqnum)) '(r0 r8))
 		(breakif '(r0 /= 0))
-		(call 'sys_mail 'read '((r9 msg_in_mbox_addr)) '(r0 _))
+		(call 'sys_mail 'read '((r9 in_mbox_addr)) '(r0 _))
 	(loop-end)
-	(assign '((r9 msg_in_seqnum)) '(r2))
+	(assign '((r9 in_seqnum)) '(r2))
 	(vp-add-cr 1 r2)
-	(assign '(r2) '((r9 msg_in_seqnum)))
+	(assign '(r2) '((r9 in_seqnum)))
 
 	;save msg buffer details
 	(assign '(r0) '((r9 stream_buffer)))
 	(vp-lea-i r8 stream_msg_data r2)
 	(assign '((r0 msg_length) (r8 stream_msg_state)) '(r3 r4))
 	(vp-add-rr r8 r3)
-	(assign '(r2 r3 r4) '((r9 stream_bufp) (r9 stream_bufe) (r9 msg_in_state)))
+	(assign '(r2 r3 r4) '((r9 stream_bufp) (r9 stream_bufe) (r9 in_state)))
 
 	;send ack if needed
-	(assign '((r8 stream_msg_seqnum) (r9 msg_in_ack_seqnum)) '(r2 r3))
-	(vp-shr-cr msg_out_ack_shift r2)
+	(assign '((r8 stream_msg_seqnum) (r9 in_ack_seqnum)) '(r2 r3))
+	(vp-shr-cr out_ack_shift r2)
 	(vpif '(r3 = r2))
 		;next ack seq num
 		(vp-add-cr 1 r3)
-		(assign '(r3) '((r9 msg_in_ack_seqnum)))
+		(assign '(r3) '((r9 in_ack_seqnum)))
 		(call 'sys_mail 'alloc '(0) '(r0 _))
 		(vp-cpy-ir r8 (+ stream_msg_ack_id id_id) r2)
 		(vp-cpy-ri r2 r0 (+ msg_dest id_id))
@@ -131,7 +131,7 @@
 	(endif)
 
 	(vp-pop r0)
-	(exit 'msg_in 'next_msg '(r0))
+	(exit 'in 'next_msg '(r0))
 	(vp-ret)
 
 (vp-label 'next_seq)
@@ -171,33 +171,33 @@
 
 (def-func-end)
 
-(def-method 'msg_in 'read_next)
+(def-method 'in 'read_next)
 	;inputs
-	;r0 = msg_in object (ptr)
+	;r0 = in object (ptr)
 	;outputs
-	;r0 = msg_in object (ptr)
+	;r0 = in object (ptr)
 	;r1 = -1 for EOF, else more data
 	;trashes
 	;all but r0
 
-	(entry 'msg_in 'read_next '(r0))
+	(entry 'in 'read_next '(r0))
 
 	;if started state
 	(loop-start)
-		(assign '((r0 msg_in_state)) '(r1))
+		(assign '((r0 in_state)) '(r1))
 		(breakif '(r1 /= stream_mail_state_started))
-		(call 'msg_in 'next_msg '(r0) '(r0))
+		(call 'in 'next_msg '(r0) '(r0))
 		(assign '((r0 stream_bufp) (r0 stream_bufe)) '(r1 r2))
 	(loop-until '(r1 /= r2))
 
 	;return -1 if not in started state
-	(assign '((r0 msg_in_state)) '(r2))
+	(assign '((r0 in_state)) '(r2))
 	(vp-xor-rr r1 r1)
 	(vpif '(r2 /= stream_mail_state_started))
 		(vp-cpy-cr -1 r1)
 	(endif)
 
-	(exit 'msg_in 'read_next '(r0 r1))
+	(exit 'in 'read_next '(r0 r1))
 	(vp-ret)
 
 (def-func-end)

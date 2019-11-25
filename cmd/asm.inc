@@ -27,7 +27,7 @@
 			(each (lambda (file)
 				(push (elem (% _ num_child) buckets) file)) files)
 			(each (lambda (_)
-				(push select (defq inbox (msg-in-mbox (elem -2 (push data_in (create-msg-in))))))
+				(push select (defq inbox (in-mbox (elem -2 (push data_in (in-stream))))))
 				(mail-send (str (list (pop buckets) inbox *abi* *cpu* *debug_mode* *debug_emit* *debug_inst*)) _)) child_mboxs)
 			(while (/= (length select) 0)
 				;read all child data

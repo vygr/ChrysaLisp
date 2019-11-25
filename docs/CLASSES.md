@@ -2197,6 +2197,88 @@ trashes
 all but r0
 ```
 
+## in
+
+Super Class: stream
+
+### in::vtable -> class/in/vtable
+
+### in::create -> class/in/create
+
+### in::init -> class/in/init
+
+```lisp
+inputs
+r0 = in object (ptr)
+r1 = vtable (pptr)
+r2 = 0, else mailbox id (uint)
+outputs
+r0 = in object (ptr)
+r1 = 0 if error, else ok
+trashes
+all but r0
+```
+
+### in::next_msg -> class/in/next_msg
+
+```lisp
+inputs
+r0 = in object (ptr)
+outputs
+r0 = in object (ptr)
+trashes
+all but r0
+```
+
+### in::deinit -> class/in/deinit
+
+```lisp
+inputs
+r0 = in object (ptr)
+outputs
+r0 = in object (ptr)
+trashes
+all but r0
+```
+
+### in::read_next -> class/in/read_next
+
+```lisp
+inputs
+r0 = in object (ptr)
+outputs
+r0 = in object (ptr)
+r1 = -1 for EOF, else more data
+trashes
+all but r0
+```
+
+### in::lisp_create -> class/in/lisp_create
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+all but r0
+```
+
+### in::lisp_next_msg -> class/in/lisp_next_msg
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+all but r0
+```
+
 ## label
 
 Super Class: view
@@ -2816,168 +2898,6 @@ inputs
 msg of lisp filename
 ```
 
-## msg_in
-
-Super Class: stream
-
-### msg_in::vtable -> class/msg_in/vtable
-
-### msg_in::create -> class/msg_in/create
-
-### msg_in::init -> class/msg_in/init
-
-```lisp
-inputs
-r0 = msg_in object (ptr)
-r1 = vtable (pptr)
-r2 = 0, else mailbox id (uint)
-outputs
-r0 = msg_in object (ptr)
-r1 = 0 if error, else ok
-trashes
-all but r0
-```
-
-### msg_in::next_msg -> class/msg_in/next_msg
-
-```lisp
-inputs
-r0 = msg_in object (ptr)
-outputs
-r0 = msg_in object (ptr)
-trashes
-all but r0
-```
-
-### msg_in::deinit -> class/msg_in/deinit
-
-```lisp
-inputs
-r0 = msg_in object (ptr)
-outputs
-r0 = msg_in object (ptr)
-trashes
-all but r0
-```
-
-### msg_in::read_next -> class/msg_in/read_next
-
-```lisp
-inputs
-r0 = msg_in object (ptr)
-outputs
-r0 = msg_in object (ptr)
-r1 = -1 for EOF, else more data
-trashes
-all but r0
-```
-
-### msg_in::lisp_create -> class/msg_in/lisp_create
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-all but r0
-```
-
-### msg_in::lisp_next_msg -> class/msg_in/lisp_next_msg
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-all but r0
-```
-
-## msg_out
-
-Super Class: stream
-
-### msg_out::vtable -> class/msg_out/vtable
-
-### msg_out::create -> class/msg_out/create
-
-### msg_out::init -> class/msg_out/init
-
-```lisp
-inputs
-r0 = msg_out object (ptr)
-r1 = vtable (pptr)
-r2 = target mailbox id (id)
-outputs
-r0 = msg_out object (ptr)
-r1 = 0 if error, else ok
-trashes
-all but r0
-```
-
-### msg_out::wait_acks -> class/msg_out/wait_acks
-
-```lisp
-inputs
-r0 = msg_out object (ptr)
-r1 = msg ack num (uint)
-outputs
-r0 = msg_out object (ptr)
-trashes
-all but r0
-```
-
-### msg_out::deinit -> class/msg_out/deinit
-
-```lisp
-inputs
-r0 = msg_out object (ptr)
-outputs
-r0 = msg_out object (ptr)
-trashes
-all but r0
-```
-
-### msg_out::write_flush -> class/msg_out/write_flush
-
-```lisp
-inputs
-r0 = msg_out object (ptr)
-outputs
-r0 = msg_out object (ptr)
-trashes
-all but r0
-```
-
-### msg_out::write_next -> class/msg_out/write_next
-
-```lisp
-inputs
-r0 = msg_out object (ptr)
-outputs
-r0 = msg_out object (ptr)
-trashes
-all but r0
-```
-
-### msg_out::lisp_create -> class/msg_out/lisp_create
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-all but r0
-```
-
 ## num
 
 Super Class: obj
@@ -3420,6 +3340,98 @@ all but r0
 ```
 
 ### obj::lisp_set_field -> class/obj/lisp_set_field
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+all but r0
+```
+
+## out
+
+Super Class: stream
+
+### out::vtable -> class/out/vtable
+
+### out::create -> class/out/create
+
+### out::init -> class/out/init
+
+```lisp
+inputs
+r0 = out object (ptr)
+r1 = vtable (pptr)
+r2 = target mailbox id (id)
+outputs
+r0 = out object (ptr)
+r1 = 0 if error, else ok
+trashes
+all but r0
+```
+
+### out::set_state -> class/out/set_state
+
+```lisp
+inputs
+r0 = out object (ptr)
+r1 = state (uint)
+outputs
+r0 = out object (ptr)
+trashes
+all but r0
+```
+
+### out::wait_acks -> class/out/wait_acks
+
+```lisp
+inputs
+r0 = out object (ptr)
+r1 = msg ack num (uint)
+outputs
+r0 = out object (ptr)
+trashes
+all but r0
+```
+
+### out::deinit -> class/out/deinit
+
+```lisp
+inputs
+r0 = out object (ptr)
+outputs
+r0 = out object (ptr)
+trashes
+all but r0
+```
+
+### out::write_flush -> class/out/write_flush
+
+```lisp
+inputs
+r0 = out object (ptr)
+outputs
+r0 = out object (ptr)
+trashes
+all but r0
+```
+
+### out::write_next -> class/out/write_next
+
+```lisp
+inputs
+r0 = out object (ptr)
+outputs
+r0 = out object (ptr)
+trashes
+all but r0
+```
+
+### out::lisp_create -> class/out/lisp_create
 
 ```lisp
 inputs

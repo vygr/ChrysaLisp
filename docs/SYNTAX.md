@@ -236,14 +236,6 @@
 
 (create-label)
 
-## create-msg-in
-
-(create-msg-in)
-
-## create-msg-out
-
-(create-msg-out mbox)
-
 ## create-progress
 
 (create-progress)
@@ -480,6 +472,26 @@
 
 (import path)
 
+## in-get-state
+
+(in-get-state in) -> num
+
+## in-mbox
+
+(in-mbox in) -> mbox
+
+## in-next-msg
+
+(in-next-msg in)
+
+## in-set-state
+
+(in-set-state in num) -> in
+
+## in-stream
+
+(in-stream)
+
 ## inc
 
 (inc num) -> num
@@ -600,26 +612,6 @@
 
 (min num num ...)
 
-## msg-in-get-state
-
-(msg-in-get-state msg-in) -> num
-
-## msg-in-mbox
-
-(msg-in-mbox msg-in) -> mbox
-
-## msg-in-next-msg
-
-(msg-in-next-msg msg-in)
-
-## msg-in-set-state
-
-(msg-in-set-state msg-in num) -> msg-in
-
-## msg-out-set-state
-
-(msg-out-set-state msg-out num) -> msg-out
-
 ## neg
 
 (neg num) -> -num
@@ -679,6 +671,10 @@
 ## or
 
 (or [tst] ...) -> nil|tst
+
+## out-stream
+
+(out-stream mbox)
 
 ## pad
 
