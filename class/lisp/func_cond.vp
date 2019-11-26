@@ -12,9 +12,9 @@
 	;all but r0
 
 	(ptr 'this 'args)
-	(pptr 'iter_begin 'iter_end 'clause_iter_begin 'clause_iter_end)
+	(pptr 'iter_begin 'iter_end)
 
-	(vp-def (this clause_iter_begin clause_iter_end value iter_begin iter_end cmp vtable))
+	(vp-def (this value iter_end iter_begin tmp vtable))
 
 	(push-scope)
 	(entry 'lisp 'func_cond {this, args})
@@ -26,39 +26,49 @@
 		(breakif `(,iter_begin = ,iter_end))
 		(assign (list iter_begin) {iter_begin})
 		(vp-cpy-ir iter_begin 0 value)
+
 	(errorcases
-		(assign `((,value obj_vtable) (@ ,(f-path 'vector 'vtable))) (list vtable cmp))
-		(gotoif `(,vtable /= ,cmp) 'error2))
-		(call 'vector 'get_both (list value) (list '_ clause_iter_begin clause_iter_end))
-		(errorif `(,clause_iter_begin = ,clause_iter_end) 'error1)
-		(assign (list clause_iter_begin clause_iter_end) {clause_iter_begin, clause_iter_end})
+		(assign `((,value obj_vtable) (@ ,(f-path 'vector 'vtable))) (list vtable tmp))
+		(gotoif `(,vtable /= ,tmp) 'error2)
+		(assign `((,value array_length)) `(,tmp))
+		(errorif `(,tmp = 0) 'error1))
+
+		(assign `((,value array_begin)) `(,tmp))
 		(assign {this} (list this))
-		(call 'lisp 'repl_eval `(,this (,clause_iter_begin 0)) (list this value))
-		(vp-cpy-ir this lisp_sym_nil cmp)
-		(vpif `(,value /= ,cmp))
-		(errorcases
-			(assign `((,value obj_vtable) (@ ,(f-path 'error 'vtable))) (list vtable cmp))
-			(gotoif `(,vtable = ,cmp) 'funcexit1))
+		(call 'lisp 'repl_eval `(,this (,tmp 0)) (list this value))
+		(vp-cpy-ir this lisp_sym_nil tmp)
+		(vpif `(,value /= ,tmp))
+
+			(assign {iter_begin} (list tmp))
+			(vp-cpy-ir tmp 0 tmp)
+			(class/array/get_both tmp iter_begin iter_end)
+			(vp-sub-cr ptr_size iter_end)
+			(gotoif `(,iter_begin = ,iter_end) 'funcexit)
+			(assign (list iter_begin iter_end) {iter_begin, iter_end})
 			(loop-start)
-				(assign {clause_iter_begin, clause_iter_end} (list clause_iter_begin clause_iter_end))
-				(vp-add-cr ptr_size clause_iter_begin)
-				(gotoif `(,clause_iter_begin = ,clause_iter_end) 'funcexit)
-				(assign (list clause_iter_begin) {clause_iter_begin})
-				(call 'obj 'deref (list value))
-				(call 'lisp 'repl_eval {this, *clause_iter_begin} (list this value))
+
 			(errorcases
-				(assign `((,value obj_vtable) (@ ,(f-path 'error 'vtable))) (list vtable cmp))
-				(gotoif `(,vtable = ,cmp) 'funcexit1))
+				(assign `((,value obj_vtable) (@ ,(f-path 'error 'vtable))) (list vtable tmp))
+				(gotoif `(,vtable = ,tmp) 'funcexit))
+
+				(vp-add-cr ptr_size iter_begin)
+				(assign (list iter_begin) {iter_begin})
+				(breakif `(,iter_begin = ,iter_end))
+				(call 'obj 'deref (list value))
+				(call 'lisp 'repl_eval {this, *iter_begin} (list this value))
+				(assign {iter_begin, iter_end} (list iter_begin iter_end))
 			(loop-end)
+			(call 'obj 'deref (list value))
+			(jump 'lisp 'repl_eval {this, *iter_begin})
 		(endif)
 		(call 'obj 'deref (list value))
 		(assign {iter_begin, iter_end} (list iter_begin iter_end))
 	(loop-end)
-	(call 'obj 'ref {this->lisp_sym_nil} (list value))
+	(assign {this} (list this))
+	(assign `((,this lisp_sym_nil)) `(,value))
+	(class/obj/ref value tmp)
 
 (vp-label 'funcexit)
-	(assign {this} (list this))
-(vp-label 'funcexit1)
 	(exit 'lisp 'func_cond (list this value))
 	(return)
 

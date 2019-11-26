@@ -12,38 +12,31 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this 'args 'env 'old)
-	(uint 'length)
+	(entry 'lisp 'func_eval '(r0 r1))
 
-	(push-scope)
-	(entry 'lisp 'func_eval {this, args})
-
-	(d-call 'vector 'get_length {args} {_, length})
-	(vpif {length = 1})
-		(call 'vector 'get_first {args} {_, args})
-		(call 'lisp 'repl_eval {this, args} {_, args})
-	(else)
-		(errorif {length /= 2} 'error1)
-		(call 'vector 'get_second {args} {_, env})
-	(errorcases
-		(call 'obj 'inst_of (cat {env, @} (f-path 'hmap 'vtable)))
-		(gotoif `(,(method-output 'obj 'inst_of 1) = 0) 'error2))
-		(assign {this->lisp_environment} {old})
-		(assign {env} {this->lisp_environment})
-		(call 'vector 'get_first {args} {_, args})
-		(call 'lisp 'repl_eval {this, args} {_, args})
-		(assign {old} {this->lisp_environment})
+	(assign '((r1 array_length)) '(r2))
+	(vpif '(r2 = 1))
+		(class/array/bind_args r1 '(r1))
+		(jump 'lisp 'repl_eval '(r0 r1))
 	(endif)
 
-	(exit 'lisp 'func_eval {this, args})
-	(return)
+(errorcases
+	(call 'lisp 'env_args_type '(r1 ($ sig) 2) '(r2))
+	(gotoif '(r2 = 0) 'error))
+
+	(class/array/bind_args r1 '(r1 r2))
+	(assign '((r0 lisp_environment) r2) '(r3 (r0 lisp_environment)))
+	(vp-push r3)
+	(call 'lisp 'repl_eval '(r0 r1) '(r0 r1))
+	(vp-pop r2)
+	(assign '(r2) '((r0 lisp_environment)))
+
+	(exit 'lisp 'func_eval '(r0 r1))
+	(vp-ret)
 
 (errorcases
-(vp-label 'error1)
-	(jump 'lisp 'repl_error {this, "(eval form [env])", error_msg_wrong_num_of_args, args})
-(vp-label 'error2)
-	(jump 'lisp 'repl_error {this, "(eval form [env])", error_msg_not_an_environment, args}))
-
-	(pop-scope-syms)
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r0 "(eval form [env])" error_msg_wrong_types r1))
+	(signature '(obj hmap)))
 
 (def-func-end)
