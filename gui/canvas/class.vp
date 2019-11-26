@@ -158,11 +158,11 @@
 
 	(ptr 'this 'name 'sym)
 	(union
-		'(ptr 'hash)
-		'(ptr 'bucket))
+		(ptr 'hash)
+		(ptr 'bucket))
 	(union
-		'(ptr 'stream)
-		'(pptr 'iter))
+		(ptr 'stream)
+		(pptr 'iter))
 	(uint 'flags)
 
 	(push-scope)

@@ -45,8 +45,8 @@
 
 (def-struct 'id)
 	(union
-		'(ulong 'id)
-		'(uint 'mbox 'cpu))
+		(ulong 'id)
+		(uint 'mbox 'cpu))
 (def-struct-end)
 
 (def-struct 'msg 'ln_node)

@@ -419,8 +419,8 @@
 
 	(ptr 'name)
 	(union
-		'(pptr 'iter)
-		'(ulong 'id))
+		(pptr 'iter)
+		(ulong 'id))
 
 	(push-scope)
 	(entry 'sys_mail 'enquire {name})

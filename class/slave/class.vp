@@ -20,8 +20,8 @@
 
 	(ptr 'this 'stream 'msg 'data)
 	(union
-		'(ptr 'vtable)
-		'(ulong 'ok))
+		(ptr 'vtable)
+		(ulong 'ok))
 
 	;read init args
 	(push-scope)

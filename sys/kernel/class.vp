@@ -19,8 +19,8 @@
 	;loader is already initialized when we get here !
 
 	(union
-		'(ptr 'argv)
-		'(ptr 'link))
+		(ptr 'argv)
+		(ptr 'link))
 	(ptr 'task_statics 'mail_statics)
 	(ptr 'mbox_addr 'msg 'data)
 	(pptr 'iter_begin 'iter_end)
@@ -505,8 +505,8 @@
 	(ulong 'reg0 'reg1 'reg2 'reg3 'reg4 'reg5 'reg6 'reg7
 		'reg8 'reg9 'reg10 'reg11 'reg12 'reg13 'reg14 'reg15)
 	(union
-		'(struct 'service 'id)
-		'(ptr 'num))
+		(struct 'service 'id)
+		(ptr 'num))
 	(ptr 'lines 'line 'lf 'sp)
 	(pulong 'iter)
 

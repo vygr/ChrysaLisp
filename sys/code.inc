@@ -388,7 +388,7 @@
 			(def-sym _ 'var *sym-sp* 0 "")
 			(setq *sym-sp* (+ *sym-sp* s)))))
 
-(defcfun union (&rest _)
+(defcmacro union (&rest _)
 	(if (notevery lst? _)
 		(throw "Union needs lists as parameters !" _))
 	(cond

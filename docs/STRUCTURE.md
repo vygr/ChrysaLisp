@@ -82,8 +82,8 @@ the entire structure is not aligned.
 
 (def-struct 'bob)
 	(union
-		'(struct 'a 'sue)
-		'(struct 'b 'carl))
+		(struct 'a 'sue)
+		(struct 'b 'carl))
 	(short 'c)
 	(int 'd)
 	(offset 'o)

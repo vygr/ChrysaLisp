@@ -21,8 +21,8 @@
 
 	(ptr 'this)
 	(union
-		'(ptr 'polygons)
-		'(pptr 'iter_end_polygons 'iter_begin_polygons))
+		(ptr 'polygons)
+		(pptr 'iter_end_polygons 'iter_begin_polygons))
 	(int 'ys 'ye 'xs 'xe 'x 'y 'x1 'y1)
 	(pint 'iter_edge1 'iter_edge2 'iter_begin_polygon 'iter_end_polygon)
 	(uint 'length 'yscale 'cy 'cy1)
@@ -119,9 +119,9 @@
 
 	(ptr 'this)
 	(union
-		'(ptr 'polygons)
-		'(pint 'sorted_list)
-		'(pint 'tracker_node 'tracker_last 'tracker_list))
+		(ptr 'polygons)
+		(pint 'sorted_list)
+		(pint 'tracker_node 'tracker_last 'tracker_list))
 	(int 'ys 'ye 'xs 'xe 'x 'y 'om 'min_x 'max_x)
 	(uint 'mode 'yscale 'cy 'cy1)
 

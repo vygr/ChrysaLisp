@@ -22,8 +22,8 @@
 	(ptr 'this 'stack)
 	(pulong 'iter_end)
 	(union
-		'(ulong 'v1 'v2 'bv)
-		'(int 'v1x 'v1y 'v2x 'v2y 'bvx 'bvy))
+		(ulong 'v1 'v2 'bv)
+		(int 'v1x 'v1y 'v2x 'v2y 'bvx 'bvy))
 	(int 'cx 'cy 'radius 'eps)
 	(uint 'start 'length)
 

@@ -18,8 +18,8 @@
 
 	(ptr 'this 'stream)
 	(union
-		'(ptr 'str_stream 'value)
-		'(pubyte 'bufp 'bufe))
+		(ptr 'str_stream 'value)
+		(pubyte 'bufp 'bufe))
 	(int 'char 'cchar)
 
 	(push-scope)

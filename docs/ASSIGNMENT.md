@@ -149,7 +149,7 @@ variable declaration functions.
 	(puint 'p_x 'p_y ...)
 	(plong 'p_x 'p_y ...)
 	(pulong 'p_x 'p_y ...)
-	(union '(...) '(...) ...)
+	(union (...) (...) ...)
 ```
 
 After declaring the variables and their types, you follow this with a

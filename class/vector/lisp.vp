@@ -125,8 +125,8 @@
 
 	(ptr 'this 'func)
 	(union
-		'(ptr 'args)
-		'(ptr 'params))
+		(ptr 'args)
+		(ptr 'params))
 
 	(ptr 'value 'list)
 	(pptr 'iter_begin 'liter 'hiter)
@@ -174,11 +174,11 @@
 (vp-label 'callback)
 	(ptr 'pdata)
 	(union
-		'(pptr 'liter)
-		'(ptr 'value))
+		(pptr 'liter)
+		(ptr 'value))
 	(union
-		'(pptr 'hiter)
-		'(int 'result))
+		(pptr 'hiter)
+		(int 'result))
 
 	(push-scope)
 	(entry 'array 'sort_callback {pdata, liter, hiter})

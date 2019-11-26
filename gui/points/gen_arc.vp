@@ -20,8 +20,8 @@
 	(ptr 'this 'stack)
 	(int 'v1x 'v1y 'v2x 'v2y 'cx 'cy 'radius 'eps)
 	(union
-		'(int 'ca1 'ca2 'sa1 'sa2)
-		'(int 'a1 'a2 'ah))
+		(int 'ca1 'ca2 'sa1 'sa2)
+		(int 'a1 'a2 'ah))
 
 	(push-scope)
 	(entry 'points 'gen_arc {this, stack, cx, cy, a1, a2, radius, eps})

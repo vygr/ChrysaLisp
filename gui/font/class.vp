@@ -76,8 +76,8 @@
 
 	(ptr 'this 'name)
 	(union
-		'(ptr 'vtable)
-		'(ulong 'ok))
+		(ptr 'vtable)
+		(ulong 'ok))
 	(uint 'points)
 
 	(push-scope)
@@ -181,8 +181,8 @@
 	(ptr 'this 'word 'txt)
 	(uint 'w 'h)
 	(union
-		'(ptr 'font_statics)
-		'(pptr 'iter 'bucket))
+		(ptr 'font_statics)
+		(pptr 'iter 'bucket))
 
 	(push-scope)
 	(entry 'font 'ref_word {this, word})

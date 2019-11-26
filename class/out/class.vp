@@ -170,7 +170,7 @@
 		(assign '(r1) '((r0 out_seqnum)))
 
 		;parent actions
-		(s-call 'out 'write_flush '(r0))
+		(s-call 'out 'write_flush '(r0) '(r0))
 	(endif)
 
 	(exit 'out 'write_flush '(r0))

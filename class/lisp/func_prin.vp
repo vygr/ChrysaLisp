@@ -15,8 +15,8 @@
 
 	(ptr 'this 'value)
 	(union
-		'(ptr 'args)
-		'(pptr 'iter_begin 'iter_end))
+		(ptr 'args)
+		(pptr 'iter_begin 'iter_end))
 
 	(push-scope)
 	(entry 'lisp 'func_prin {this, args})

@@ -19,8 +19,8 @@
 	;all but r0
 
 	(union
-		'(ulong 'p1 'p2 'p3 'p4 'l2_v 'l2_pv 'l2_npv 'l2_rv 'l1_v 'l1_npv 'l1_rv)
-		'(int 'p1x 'p1y 'p2x 'p2y 'p3x 'p3y 'p4x 'p4y
+		(ulong 'p1 'p2 'p3 'p4 'l2_v 'l2_pv 'l2_npv 'l2_rv 'l1_v 'l1_npv 'l1_rv)
+		(int 'p1x 'p1y 'p2x 'p2y 'p3x 'p3y 'p4x 'p4y
 			'l2_vx 'l2_vy 'l2_pvx 'l2_pvy 'l2_npvx 'l2_npvy 'l2_rvx 'l2_rvy
 			'l1_vx 'l1_vy 'l1_npvx 'l1_npvy 'l1_rvx 'l1_rvy))
 	(plong 'iter 'iter_begin 'iter_end)
