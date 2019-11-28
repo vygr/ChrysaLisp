@@ -16,6 +16,17 @@
 (ffi view-sub-opaque "gui/view/lisp_sub_opaque" 0)
 (ffi view-set-flags "gui/view/lisp_set_flags" 0)
 
+(defun-bind view-get-pos (view)
+	;(view-get-pos view) -> (x y)
+	(list (get-field view (const view_x) (const int_size))
+		(get-field view (const view_y) (const int_size))))
+
+(defun-bind view-set-pos (view x y)
+	;(view-set-pos view x y) -> view
+	(set-field (set-field view
+		(const view_x) (const int_size) x)
+		(const view_y) (const int_size) y))
+
 (defun-bind view-get-bounds (view)
 	;(view-get-bounds view) -> (x y w h)
 	(list (get-field view (const view_x) (const int_size))

@@ -8,7 +8,7 @@
 	;info
 	;mem statics data
 
-	(vp-long 0) ;used memory count
+	(times sys_mem_statics_size (vp-byte 0))
 	(let ((s mem_cell_min_size))
 		(while (<= s mem_cell_max_size)
 			(times hp_heap_size (vp-byte 0))
@@ -20,11 +20,13 @@
 	;info
 	;init mem statics
 
-	;get statics
+	;obj list init
 	(f-bind 'sys_mem 'statics r0)
-	(vp-add-cr long_size r0)
+	(assign '((& r0 sys_mem_statics_obj_list)) '(r1))
+	(lh-init r1 r2)
 
 	;mem_slots heaps
+	(vp-add-cr sys_mem_statics_size r0)
 	(vp-cpy-cr mem_cell_min_size r1)	;start object size
 	(vp-cpy-cr max_cell_count r3)		;start cell count
 	(loop-start)
@@ -44,7 +46,7 @@
 	;free memory heaps
 	(f-bind 'sys_mem 'statics r0)
 	(vp-cpy-cr mem_cell_min_size r5)
-	(vp-add-cr long_size r0)
+	(vp-add-cr sys_mem_statics_size r0)
 	(loop-start)
 		(call 'sys_heap 'deinit '(r0) '(r0))
 		(vp-add-cr hp_heap_size r0)
@@ -61,7 +63,7 @@
 	;r0
 
 	(f-bind 'sys_mem 'statics r0)
-	(exit 'sys_mem 'used '((r0 0)))
+	(exit 'sys_mem 'used '((r0 sys_mem_statics_total)))
 	(vp-ret)
 
 (def-func-end)
@@ -74,7 +76,7 @@
 
 	(f-bind 'sys_mem 'statics r0)
 	(vp-cpy-cr mem_cell_min_size r12)
-	(vp-add-cr long_size r0)
+	(vp-add-cr sys_mem_statics_size r0)
 	(loop-start)
 		(call 'sys_heap 'collect '(r0) '(r0))
 		(vp-add-cr hp_heap_size r0)
@@ -101,7 +103,7 @@
 
 	;find object heap
 	(f-bind 'sys_mem 'statics r0)
-	(vp-add-cr long_size r0)
+	(vp-add-cr sys_mem_statics_size r0)
 	(loop-start)
 		(assign '((r0 hp_heap_cellsize)) '(r2))
 		(breakif '(r1 <= r2))

@@ -1,0 +1,86 @@
+(include 'sys/func.inc)
+(include 'sys/mem/class.inc)
+(include 'class/num/class.inc)
+(include 'class/array/class.inc)
+(include 'class/pair/class.inc)
+(include 'class/str/class.inc)
+(include 'class/lisp/class.inc)
+
+(def-method 'sys_mem 'lisp_stats)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
+
+	(vp-def (next node stats data vtable iter_begin iter_end cnt ent)
+		'(r7 r8 r9 r10 r11 r12 r13))
+
+	(entry 'sys_mem 'lisp_stats '(r0 r1))
+
+(errorcases
+	(call 'lisp 'env_args_type '(r1 ($ sig) 1) '(r2))
+	(gotoif '(r2 = 0) 'error))
+
+(when (> *debug_mode* 1)
+	;loop over all obj and count
+	(vp-push r0)
+	(call 'array 'create nil `(,stats))
+	(f-bind 'sys_mem 'statics next)
+	(loop-list-forward next sys_mem_statics_obj_list node next)
+		;find stats entry
+		(assign `((,node ,(- obj_vtable obj_node))) `(,vtable))
+		(class/array/get_both stats iter_begin iter_end)
+		(loop-while `(,iter_begin /= ,iter_end))
+			(assign `((,iter_begin 0)) `(,ent))
+			(breakif `(,ent = ,vtable))
+			(vp-add-cr (* long_size 2) iter_begin)
+		(loop-end)
+		;not found ?
+		(vpif `(,iter_begin = ,iter_end))
+			(call 'array 'push_back2 `(,stats ,vtable 0) `(_ _ _ _ ,iter_begin))
+			(vp-sub-cr (* long_size 2) iter_begin)
+		(endif)
+		;inc entry count
+		(assign `((,iter_begin long_size)) `(,cnt))
+		(vp-add-cr 1 cnt)
+		(assign `(,cnt) `((,iter_begin long_size)))
+	(loop-end)
+	(call 'vector 'create nil `(,data))
+	(assign `((,stats array_length)) '(r1))
+	(vp-shr-cr 1 r1)
+	(call 'vector 'set_capacity `(,data r1))
+	(class/array/get_both stats iter_begin iter_end)
+	(loop-while `(,iter_begin /= ,iter_end))
+		(assign `((,iter_begin 0)) '(r0))
+		(assign '((r0 -1 ub)) '(r1))
+		(vp-sub-rr r1 r0)
+		(call 'str 'create_from_cstr '(r0) '(r5))
+		(call 'num 'create `((,iter_begin long_size)) '(r6))
+		(call 'pair 'create `(r5 r6) '(r1))
+		(call 'vector 'push_back `(,data r1))
+		(vp-add-cr (* long_size 2) iter_begin)
+	(loop-end)
+	(call 'array 'deref `(,stats))
+	(vp-pop r0))
+(when (< *debug_mode* 2)
+	(vp-push r0)
+	(call 'vector 'create nil `(,data))
+	(call 'str 'create_from_cstr '("No Object Stats Available") '(r5))
+	(call 'num 'create `(0) '(r6))
+	(call 'pair 'create `(r5 r6) '(r1))
+	(call 'vector 'push_back `(,data r1))
+	(vp-pop r0))
+
+	(exit 'sys_mem 'lisp_stats `(r0 ,data))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r0 "(mem-stats options)" error_msg_wrong_types r1))
+	(signature '(num)))
+
+(def-func-end)

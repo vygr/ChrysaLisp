@@ -4,6 +4,24 @@
 
 ------
 
+Add a profiling build option, *debug_mode* 2, that tracks object creation and
+destruction and gathers usage data on object counts.
+
+This could also be used in future for GC by adding a virtual mark method ! I
+will think on this as I'm not keen on GC, but maybe a build option for GC vs
+ref counting might be an idea for the future.
+
+Currently the standard Github build will have *debug_mode* 2 by default. It
+does use slightly more memory and slightly slower though. Swapping between
+builds also needs the C++ ChrysaLisp, to cross compile, because the object
+sizes change as profiling is turned on/off. This needs some further thought as
+I don't like being dependant on the C++ version of the Lisp.
+
+You can view the object stats using the new gui stats app :) Nice to watch the
+build benchmarks running and see no objects leaking :)
+
+------
+
 Remove the pipe class and some associated methods ! Now all in Lisp. :) Minor
 slow down on system builds but this saves 3KB of boot_image, so going to run
 with it.

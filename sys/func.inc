@@ -110,7 +110,7 @@
 	(jump 'sys_pii 'exit '(1)))
 
 (defcfun assert (b &optional d)
-	(when *debug_mode*
+	(when (> *debug_mode* 0)
 		(vpifnot b)
 			(abort (opt d "Assert Failure !"))
 		(endif)))

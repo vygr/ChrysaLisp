@@ -18,3 +18,10 @@
 (dec-method 'recalloc 'sys/mem/recalloc 'static '(r0 r1 r2) '(r0 r1))
 (dec-method 'collect 'sys/mem/collect)
 (dec-method 'used 'sys/mem/used 'static nil '(r0))
+
+(dec-method 'lisp_stats 'sys/mem/lisp_stats 'static '(r0 r1) '(r0 r1))
+
+(def-struct 'sys_mem_statics)
+	(struct 'obj_list 'lh_list)
+	(long 'total)
+(def-struct-end)

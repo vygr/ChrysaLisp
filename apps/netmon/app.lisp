@@ -16,21 +16,23 @@
 	max_tasks 1 max_memory 1 last_max_tasks 0 last_max_memory 0)
 
 (ui-tree window (create-window (+ window_flag_close window_flag_min window_flag_max)) nil
-	(ui-element _ (create-grid) ('grid_width 2 'grid_height 1 'flow_flags (logior flow_flag_down flow_flag_fillw) 'maximum 100 'value 0)
+	(ui-element _ (create-grid) ('grid_width 2 'grid_height 1 'flow_flags (logior flow_flag_down flow_flag_fillw flow_flag_lasth) 'maximum 100 'value 0)
 		(ui-element _ (create-flow) ('color argb_green)
 			(ui-element _ (create-label) ('text "Tasks" 'color argb_white))
 			(ui-element _ (create-grid) ('grid_width 4 'grid_height 1 'color argb_white
 					'font (create-font "fonts/Hack-Regular.ttf" 14))
 				(times 4 (push task_scale (ui-element _ (create-label)
 					('text "|" 'flow_flags (logior flow_flag_align_vcenter flow_flag_align_hright))))))
-			(times cpu_total (push task_bars (ui-element _ (create-progress)))))
+			(ui-element _ (create-grid) ('grid_width 1 'grid_height cpu_total)
+				(times cpu_total (push task_bars (ui-element _ (create-progress))))))
 		(ui-element _ (create-flow) ('color argb_red)
 			(ui-element _ (create-label) ('text "Memory (kb)" 'color argb_white))
 			(ui-element _ (create-grid) ('grid_width 4 'grid_height 1 'color argb_white
 					'font (create-font "fonts/Hack-Regular.ttf" 14))
 				(times 4 (push memory_scale (ui-element _ (create-label)
 					('text "|" 'flow_flags (logior flow_flag_align_vcenter flow_flag_align_hright))))))
-			(times cpu_total (push memory_bars (ui-element _ (create-progress)))))))
+			(ui-element _ (create-grid) ('grid_width 1 'grid_height cpu_total)
+				(times cpu_total (push memory_bars (ui-element _ (create-progress))))))))
 
 (gui-add (apply view-change (cat (list window 320 32)
 	(view-pref-size (window-set-title (window-connect-close (window-connect-min
@@ -56,7 +58,8 @@
 		(while (/= cpu_count 0)
 			(setq cpu_count (dec cpu_count))
 			(mail-send sample_msg (elem cpu_count ids)))
-		(task-sleep 1000))
+		(task-sleep 10000))
+	;next event
 	(cond
 		((= (setq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_win_sample)
 			;reply from cpu

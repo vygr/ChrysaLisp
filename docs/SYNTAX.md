@@ -604,6 +604,10 @@
 
 (max num num ...)
 
+## mem-stats
+
+(mem-stats options)
+
 ## merge
 
 (merge dlist slist) -> dlist
@@ -1048,6 +1052,10 @@
 
 (view-get-bounds view) -> (x y w h)
 
+## view-get-pos
+
+(view-get-pos view) -> (x y)
+
 ## view-hide
 
 (view-hide view)
@@ -1067,6 +1075,10 @@
 ## view-set-flags
 
 (view-set-flags view flags mask)
+
+## view-set-pos
+
+(view-set-pos view x y) -> view
 
 ## view-sub
 

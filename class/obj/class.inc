@@ -11,14 +11,18 @@
 (dec-method 'ref_if 'class/obj/ref_if 'static '(r0) '(r0))
 (dec-method 'deref_if 'class/obj/deref_if 'static '(r0))
 
-(dec-method 'deinit 'class/obj/null 'virtual '(r0) '(r0))
 (dec-method 'hash 'class/obj/hash 'virtual '(r0) '(r0 r1))
+(if (> *debug_mode* 1)
+(dec-method 'deinit 'class/obj/deinit 'virtual '(r0) '(r0))
+(dec-method 'deinit 'class/obj/null 'virtual '(r0) '(r0)))
 
 (dec-method 'lisp_get_field 'class/obj/lisp_get_field 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_set_field 'class/obj/lisp_set_field 'static '(r0 r1) '(r0 r1))
 
 (def-struct 'obj)
 	(pptr 'vtable)
+	(when (> *debug_mode* 1)
+		(struct 'node 'ln_node))
 	(uint 'count)
 (def-struct-end)
 
@@ -36,7 +40,13 @@
 	;trashes
 	;r1
 	(assign '(r1 1) '((r0 obj_vtable) r1))
-	(assign '(r1) '((r0 obj_count))))
+	(assign '(r1) '((r0 obj_count)))
+	(when (> *debug_mode* 1)
+		(vp-push r2 r3 r4)
+		(f-bind 'sys_mem 'statics r2)
+		(assign '((& r0 obj_node) (& r2 sys_mem_statics_obj_list)) '(r3 r2))
+		(lh-add-at-head r2 r3 r4)
+		(vp-pop r2 r3 r4)))
 
 (defcfun class/obj/ref (&optional o c x)
 	;inputs

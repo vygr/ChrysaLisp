@@ -36,7 +36,17 @@
 	(offset 'data)
 (def-struct-end)
 
-(defcvar 'str_gap (- 64 str_data ptr_size byte_size))
+(defun roundup (_)
+	(setq _ (dec _))
+	(setq _ (logior _ (>> _ 32)))
+	(setq _ (logior _ (>> _ 16)))
+	(setq _ (logior _ (>> _ 8)))
+	(setq _ (logior _ (>> _ 4)))
+	(setq _ (logior _ (>> _ 2)))
+	(setq _ (logior _ (>> _ 1)))
+	(inc _))
+
+(defcvar 'str_gap (- (roundup (+ ptr_size str_data byte_size)) (+ ptr_size str_data byte_size)))
 
 (defcvar 'char_backspace 8)
 (defcvar 'char_tab 9)

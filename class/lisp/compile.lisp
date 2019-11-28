@@ -21,5 +21,5 @@
 (catch
 	;compile the file list
 	(within-compile-env (lambda ()
-		(each! 0 -1 include (list files))))
+		(each include files)))
 	(print _))

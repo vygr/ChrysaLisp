@@ -195,10 +195,10 @@
 ; Control flow
 ;;;;;;;;;;;;;;
 
-(defmacro-bind if (x y &rest _)
+(defmacro-bind if (x y &optional _)
 	;(if tst form [eform])
-	(cond ((= 0 (length _)) `(cond (,x ,y)))
-		(t `(cond (,x ,y) (t ~_)))))
+	(cond (_ `(cond (,x ,y) (t ,_)))
+		(t `(cond (,x ,y)))))
 
 (defmacro-bind not (_)
 	;(not form) -> t|nil
@@ -286,13 +286,13 @@
 	;(each-mergeable-rev lambda seq) -> seq
 	(each! -1 0 _f (list _l)) _l)
 
-(defun-bind each (_f &rest _)
+(defmacro-bind each (f &rest _)
 	;(each lambda seq ...)
-	(each! 0 -1 _f _))
+	`(each! 0 -1 ,f (list ~_)))
 
-(defun-bind each-rev (_f &rest _)
+(defmacro-bind each-rev (f &rest _)
 	;(each-rev lambda seq ...)
-	(each! -1 0 _f _))
+	`(each! -1 0 ,f (list ~_)))
 
 (defun-bind map (_f &rest _)
 	;(map lambda seq ...) -> list
@@ -597,6 +597,13 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Compilation environment
 ;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;compilation options
+;debug_mode 0, release, strip all error checking
+;debug_mode 1, normal, with error checking
+;debug_mode 2, profiling, with error checking and object stats
+;debug_mode 3, guarded, with error checking, object stats and guard pages
+(defq *debug_mode* 2 *debug_emit* nil *debug_inst* nil)
 
 (defun-bind cpu ()
 	;(cpu) -> sym

@@ -3,6 +3,23 @@
 
 (gen-vtable 'obj)
 
+(when (> *debug_mode* 1)
+(def-method 'obj 'deinit)
+	;inputs
+	;r0 = object (ptr)
+	;trashes
+	;all
+
+	(entry 'obj 'deinit '(r0))
+
+	(assign '((& r0 obj_node)) '(r1))
+	(ln-remove-node r1 r2)
+
+	(exit 'obj 'deinit '(r0))
+	(vp-ret)
+
+(def-func-end))
+
 (def-method 'obj 'destroy)
 	;inputs
 	;r0 = object (ptr)

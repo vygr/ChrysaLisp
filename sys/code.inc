@@ -23,13 +23,13 @@
 	`(sym (cat "_e_" ,_)))
 
 (defcmacro errorif (e l)
-	(if *debug_mode* (list 'gotoif e l)))
+	(if (> *debug_mode* 0) (list 'gotoif e l)))
 
 (defcmacro errorifnot (e l)
-	(if *debug_mode* (list 'gotoifnot e l)))
+	(if (> *debug_mode* 0) (list 'gotoifnot e l)))
 
 (defcmacro errorcases (&rest e)
-	(if *debug_mode* (cat '(progn) e)))
+	(if (> *debug_mode* 0) (cat '(progn) e)))
 
 (defcfun goto (l)
 	(vp-jmp l))

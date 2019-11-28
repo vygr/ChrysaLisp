@@ -176,6 +176,9 @@ fp_qpi
 fp_rpi
 fp_int_mask
 fp_frac_mask
+*debug_mode*
+*debug_emit*
+*debug_inst*
 ```
 
 ### boot.inc macros
@@ -273,14 +276,6 @@ write-line
 ```
 
 ## Within any cmd/lisp.lisp instance
-
-### asm.inc symbols
-
-```lisp
-*debug_mode*
-*debug_emit*
-*debug_inst*
-```
 
 ### asm.inc functions
 

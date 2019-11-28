@@ -3312,8 +3312,6 @@ trashes
 all
 ```
 
-### obj::deinit -> class/obj/null
-
 ### obj::hash -> class/obj/hash
 
 ```lisp
@@ -3325,6 +3323,17 @@ r1 = hash code (ulong)
 trashes
 all but r0
 ```
+
+### obj::deinit -> class/obj/deinit
+
+```lisp
+inputs
+r0 = object (ptr)
+trashes
+all
+```
+
+### obj::deinit -> class/obj/null
 
 ### obj::lisp_get_field -> class/obj/lisp_get_field
 
@@ -6355,6 +6364,19 @@ outputs
 r0 = amount (bytes)
 trashes
 r0
+```
+
+### sys_mem::lisp_stats -> sys/mem/lisp_stats
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+all but r0
 ```
 
 ## sys_pii

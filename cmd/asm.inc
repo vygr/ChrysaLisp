@@ -6,9 +6,6 @@
 (import 'sys/lisp.inc)
 (import 'class/lisp.inc)
 
-;compilation options
-(defq *debug_mode* t *debug_emit* nil *debug_inst* nil)
-
 ;C++ ChrysaLisp ?
 (unless (def? 'points)
 	(defun kernel-total () 1))

@@ -51,7 +51,7 @@
 	(entry 'sys_heap 'deinit '(r4))
 
 	(f-bind 'sys_mem 'statics r1)
-	(vp-cpy-ir r1 0 r3)
+	(vp-cpy-ir r1 sys_mem_statics_total r3)
 	(loop-flist r4 hp_heap_block_flist r2 r1)
 		(vp-cpy-rr r2 r0)
 		(ln-remove-fnode r2 r1)
@@ -60,7 +60,7 @@
 		(call 'sys_pii 'munmap '(r0 r1 mmap_data))
 	(loop-end)
 	(f-bind 'sys_mem 'statics r1)
-	(vp-cpy-ri r3 r1 0)
+	(vp-cpy-ri r3 r1 sys_mem_statics_total)
 
 	(exit 'sys_heap 'deinit '(r4))
 	(vp-ret)
@@ -88,7 +88,7 @@
 		(vp-ret)
 	(endif)
 	(vp-push r3 r4 r5 r0)
-	(if (and *debug_mode* nil)	;t for guard page allocator
+	(if (> *debug_mode* 2)
 		(progn
 			;guard page allocator
 			(assign '((r0 hp_heap_cellsize)) '(r4))
@@ -98,9 +98,9 @@
 			(call 'sys_pii 'mmap '(r4 -1 mmap_data) '(r5))
 			(errorif '(r5 = 0) 'error)
 			(f-bind 'sys_mem 'statics r1)
-			(assign '(r4 (r1 0)) '((r5 hp_block_blocksize) r2))
+			(assign '(r4 (r1 sys_mem_statics_total)) '((r5 hp_block_blocksize) r2))
 			(vp-add-rr r4 r2)
-			(assign '(r2 ld_page_size) '((r1 0) r1))
+			(assign '(r2 ld_page_size) '((r1 sys_mem_statics_total) r1))
 			(vp-add-rr r5 r4)
 			(vp-sub-rr r1 r4)
 			(call 'sys_pii 'mprotect '(r4 r1 mprotect_none) '(r0))
@@ -116,9 +116,9 @@
 			(call 'sys_pii 'mmap '(r3 -1 mmap_data) '(r5))
 			(errorif '(r5 = 0) 'error)
 			(f-bind 'sys_mem 'statics r1)
-			(assign '(r3 (r1 0)) '((r5 hp_block_blocksize) r2))
+			(assign '(r3 (r1 sys_mem_statics_total)) '((r5 hp_block_blocksize) r2))
 			(vp-add-rr r3 r2)
-			(assign '((rsp 0) r2) '(r0 (r1 0)))
+			(assign '((rsp 0) r2) '(r0 (r1 sys_mem_statics_total)))
 			(ln-add-fnode r0 hp_heap_block_flist r5 r2)
 			(vp-add-rr r5 r3)
 			(vp-lea-i r5 hp_block_size r1)
@@ -157,7 +157,7 @@
 
 	;current total
 	(f-bind 'sys_mem 'statics r0)
-	(vp-cpy-ir r0 0 total)
+	(vp-cpy-ir r0 sys_mem_statics_total total)
 
 	;loop over all blocks
 	(vp-cpy-ir-ui this hp_heap_cellsize cel_size)
@@ -218,7 +218,7 @@
 
 	;current total
 	(f-bind 'sys_mem 'statics r0)
-	(vp-cpy-ri total r0 0)
+	(vp-cpy-ri total r0 sys_mem_statics_total)
 
 	(exit 'sys_heap 'collect `(,this))
 	(vp-ret)
