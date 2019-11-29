@@ -69,9 +69,8 @@
 		(clear stat_data) (setq max_classes 1))
 
 	;wait for next event
-	(defq idx (mail-select select))
 	(cond
-		((= idx 0)
+		((= (defq idx (mail-select select)) 0)
 			;main mailbox
 			(cond
 				((= (setq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_win_close)
@@ -98,9 +97,8 @@
 (view-hide window)
 (in-set-state in stream_mail_state_stopped)
 (while (/= cpu_count cpu_total)
-	(defq idx (mail-select select))
 	(cond
-		((= idx 0)
+		((= (mail-select select) 0)
 			;main mailbox
 			(mail-read (task-mailbox)))
 		(t	;child info

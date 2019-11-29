@@ -183,11 +183,11 @@
 		(vpifnot {iter})
 			;open file stream
 			(call 'str 'create_from_file {name} {this})
-			(breakifnot {this})
+			(breakifnot {this} 'funcexit)
 			(call 'stream_str 'create {this} {stream})
 			(call 'canvas 'load_cpm {stream} {this})
 			(call 'stream_str 'deref {stream})
-			(breakifnot {this})
+			(breakifnot {this} 'funcexit)
 			(call 'canvas 'swap {this} {this})
 			(call 'pair 'create {sym, this} {iter})
 			(call 'vector 'push_back {bucket, iter})

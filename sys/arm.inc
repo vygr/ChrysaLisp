@@ -387,7 +387,7 @@
 				(emit-int (+ 0xd2000000 (<< i 10) (<< (reg r) 5) (reg r)))
 				(progn
 					(emit-mov-cr c r29)
-					(emit-or-rr r29 r))))))
+					(emit-xor-rr r29 r))))))
 
 (defcfun emit-cpy-rr (s d)
 	(cond
