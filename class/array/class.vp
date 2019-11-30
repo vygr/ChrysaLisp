@@ -211,7 +211,7 @@
 	;outputs
 	;r0 = array object (ptr)
 	;trashes
-	;r1-r5
+	;r1-r4
 
 	(entry 'array 'set_capacity '(r0 r1))
 
@@ -225,9 +225,10 @@
 		(vpif '(r0 = r3))
 			(call 'sys_mem 'alloc '(r1) '(r1 r2))
 			(vp-pop r0)
-			(assign '((r0 array_e0) (r0 array_e1) (r0 array_e2)) '(r3 r4 r5))
-			(assign '(r3 r4 r5)
-				`((r1 ,(- array_e0 array_e0)) (r1 ,(- array_e1 array_e0)) (r1 ,(- array_e2 array_e0))))
+			(assign '((r0 array_e0) (r0 array_e1)) '(r3 r4))
+			(assign '(r3 r4) `((r1 ,(- array_e0 array_e0)) (r1 ,(- array_e1 array_e0))))
+			(assign '((r0 array_e2) (r0 array_e3)) '(r3 r4))
+			(assign '(r3 r4) `((r1 ,(- array_e2 array_e0)) (r1 ,(- array_e3 array_e0))))
 		(else)
 			(vp-shl-cr (log2 long_size) r2)
 			(vp-swp-rr r1 r2)

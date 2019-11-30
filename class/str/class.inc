@@ -46,7 +46,7 @@
 	(setq _ (logior _ (>> _ 1)))
 	(inc _))
 
-(defcvar 'str_gap (- (roundup (+ ptr_size str_data byte_size)) (+ ptr_size str_data byte_size)))
+(defcvar 'str_gap (- (* 2 (roundup (+ str_data byte_size))) (+ str_data byte_size)))
 
 (defcvar 'char_backspace 8)
 (defcvar 'char_tab 9)

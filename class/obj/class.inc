@@ -21,8 +21,6 @@
 
 (def-struct 'obj)
 	(pptr 'vtable)
-	(when (> *debug_mode* 1)
-		(struct 'node 'ln_node))
 	(uint 'count)
 (def-struct-end)
 
@@ -44,7 +42,7 @@
 	(when (> *debug_mode* 1)
 		(vp-push r2 r3 r4)
 		(f-bind 'sys_mem 'statics r2)
-		(assign '((& r0 obj_node) (& r2 sys_mem_statics_obj_list)) '(r3 r2))
+		(assign `((& r0 ,(- sys_mem_header_node sys_mem_header_size)) (& r2 sys_mem_statics_obj_list)) '(r3 r2))
 		(lh-add-at-head r2 r3 r4)
 		(vp-pop r2 r3 r4)))
 

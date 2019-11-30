@@ -42,7 +42,7 @@ r1 = capacity (uint)
 outputs
 r0 = array object (ptr)
 trashes
-r1-r5
+r1-r4
 ```
 
 ### array::set_length -> class/array/set_length

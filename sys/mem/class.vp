@@ -30,7 +30,9 @@
 	(vp-cpy-cr mem_cell_min_size r1)	;start object size
 	(vp-cpy-cr max_cell_count r3)		;start cell count
 	(loop-start)
+		(vp-add-cr sys_mem_header_size r1)
 		(call 'sys_heap 'init '(r0 r1 r3) '(r0 r1))
+		(vp-sub-cr sys_mem_header_size r1)
 		(vp-add-cr hp_heap_size r0)
 		(vp-add-rr r1 r1)
 		(vp-shr-cr 1 r3)
@@ -96,10 +98,10 @@
 	;r2
 
 	(entry 'sys_mem 'alloc '(r0))
-	(errorif `(r0 > ,(- mem_cell_max_size ptr_size)) 'error)
+	(errorif `(r0 > ,(- mem_cell_max_size sys_mem_header_size)) 'error)
 
-	;extra bytes for heap pointer
-	(vp-lea-i r0 ptr_size r1)
+	;extra bytes for allocation header
+	(vp-lea-i r0 sys_mem_header_size r1)
 
 	;find object heap
 	(f-bind 'sys_mem 'statics r0)
@@ -112,11 +114,11 @@
 
 	;allocate object from this heap
 	(call 'sys_heap 'alloc '(r0) '(r0 r1))
-	(vp-cpy-ri r0 r1 0)
+	(vp-cpy-ri r0 r1 sys_mem_header_heap)
 	(vp-swp-rr r0 r1)
 	(assign '((r1 hp_heap_cellsize)) '(r1))
-	(vp-add-cr ptr_size r0)
-	(vp-sub-cr ptr_size r1)
+	(vp-add-cr sys_mem_header_size r0)
+	(vp-sub-cr sys_mem_header_size r1)
 	(exit 'sys_mem 'alloc '(r0 r1))
 	(vp-ret)
 
@@ -160,8 +162,8 @@
 	(entry 'sys_mem 'free '(r0))
 
 	(vpif '(r0 /= 0))
-		(vp-cpy-ir r0 (neg ptr_size) r1)
-		(vp-sub-cr ptr_size r0)
+		(vp-cpy-ir r0 (- sys_mem_header_heap sys_mem_header_size) r1)
+		(vp-sub-cr sys_mem_header_size r0)
 		(hp-freecell r1 r0 r2)
 	(endif)
 

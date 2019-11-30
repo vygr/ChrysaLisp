@@ -32,7 +32,7 @@
 	(f-bind 'sys_mem 'statics next)
 	(loop-list-forward next sys_mem_statics_obj_list node next)
 		;find stats entry
-		(assign `((,node ,(- obj_vtable obj_node))) `(,vtable))
+		(assign `((,node ,(+ obj_vtable (- sys_mem_header_size sys_mem_header_node)))) `(,vtable))
 		(class/array/get_both stats iter_begin iter_end)
 		(loop-while `(,iter_begin /= ,iter_end))
 			(assign `((,iter_begin 0)) `(,ent))

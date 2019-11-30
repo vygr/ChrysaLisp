@@ -12,7 +12,7 @@
 
 	(entry 'obj 'deinit '(r0))
 
-	(assign '((& r0 obj_node)) '(r1))
+	(assign '((& r0 (- sys_mem_header_node sys_mem_header_size))) '(r1))
 	(ln-remove-node r1 r2)
 
 	(exit 'obj 'deinit '(r0))

@@ -25,3 +25,9 @@
 	(struct 'obj_list 'lh_list)
 	(long 'total)
 (def-struct-end)
+
+(def-struct 'sys_mem_header)
+	(when (> *debug_mode* 1)
+		(struct 'node 'ln_node))
+	(ptr 'heap)
+(def-struct-end)

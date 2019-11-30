@@ -46,7 +46,7 @@
 (def-struct 'array 'seq)
 	(pulong 'begin)
 	(uint 'length 'capacity)
-	(ulong 'e0 'e1 'e2)
+	(ulong 'e0 'e1 'e2 'e3)
 (def-struct-end)
 
 ;;;;;;;;;;;;;;;;
