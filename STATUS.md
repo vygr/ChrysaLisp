@@ -4,6 +4,16 @@
 
 ------
 
+Moved the object tracking node into the mem block header. This means that there
+is no requirment to use cross compilation to switch build types. You do need to
+restart after you switch the *debug_mode* setting as that is in the cached and
+shared boot enviroment ! So remember to restart before doing the 'make boot'.
+
+As a result there is 8 bytes extra space for use by array classes so they can
+now have an extra short form element !
+
+------
+
 Add a profiling build option, *debug_mode* 2, that tracks object creation and
 destruction and gathers usage data on object counts.
 
