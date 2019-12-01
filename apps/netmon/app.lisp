@@ -5,15 +5,17 @@
 ;imports
 (import 'gui/lisp.inc)
 
-(structure 'sample_reply_msg 0
-	(long 'command 'cpu 'task_count 'mem_used))
+(structure 'sample_reply 0
+	(int 'cpu 'task_count 'mem_used))
 
 (structure 'event 0
-	(byte 'win_exit 'win_sample 'win_close 'win_min 'win_max))
+	(byte 'win_exit)
+	(byte 'win_close 'win_min 'win_max))
 
 (defq task_bars (list) memory_bars (list) task_scale (list) memory_scale (list)
-	cpu_total (kernel-total) cpu_count cpu_total id t
-	max_tasks 1 max_memory 1 last_max_tasks 0 last_max_memory 0)
+	cpu_total (kernel-total) cpu_count cpu_total id t in (in-stream) in_mbox (in-mbox in)
+	max_tasks 1 max_memory 1 last_max_tasks 0 last_max_memory 0 select (array (task-mailbox) in_mbox)
+	ids (open-farm "apps/netmon/child" cpu_total kn_call_open) sample_msg (array in_mbox))
 
 (ui-tree window (create-window (+ window_flag_close window_flag_min window_flag_max)) nil
 	(ui-element _ (create-grid) ('grid_width 2 'grid_height 1 'flow_flags (logior flow_flag_down flow_flag_fillw flow_flag_lasth) 'maximum 100 'value 0)
@@ -38,10 +40,6 @@
 	(view-pref-size (window-set-title (window-connect-close (window-connect-min
 		(window-connect-max window event_win_max) event_win_min) event_win_close) "Network Monitor")))))
 
-;open global farm, create multi-cast sample command
-(defq ids (open-farm "apps/netmon/child" cpu_total kn_call_open)
-	sample_msg (array event_win_sample (task-mailbox)))
-
 (while id
 	;new batch of samples ?
 	(when (= cpu_count cpu_total)
@@ -59,39 +57,43 @@
 			(setq cpu_count (dec cpu_count))
 			(mail-send sample_msg (elem cpu_count ids)))
 		(task-sleep 10000))
+
 	;next event
 	(cond
-		((= (setq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_win_sample)
-			;reply from cpu
-			(defq cpu (get-long msg sample_reply_msg_cpu)
-				task_val (get-long msg sample_reply_msg_task_count)
-				memory_val (get-long msg sample_reply_msg_mem_used)
+		((= (defq idx (mail-select select)) 0)
+			;main mailbox
+			(cond
+				((= (setq id (get-long (defq msg (mail-read (elem idx select))) ev_msg_target_id)) event_win_close)
+					;close button
+					(setq id nil))
+				((= id event_win_min)
+					;min button
+					(bind '(x y _ _) (view-get-bounds window))
+					(bind '(w h) (view-pref-size window))
+					(view-change-dirty window x y w h))
+				((= id event_win_max)
+					;max button
+					(bind '(x y _ _) (view-get-bounds window))
+					(bind '(w h) (view-pref-size window))
+					(view-change-dirty window x y (fmul w 1.75) h))
+				(t (view-event window msg))))
+		(t	;child info
+			(defq cpu (get-int (defq msg (mail-read (elem idx select))) sample_reply_cpu)
+				task_val (get-int msg sample_reply_task_count)
+				memory_val (get-int msg sample_reply_mem_used)
 				task_bar (elem cpu task_bars) memory_bar (elem cpu memory_bars))
 			(setq max_tasks (max max_tasks task_val) max_memory (max max_memory memory_val))
 			(def task_bar 'maximum last_max_tasks 'value task_val)
 			(def memory_bar 'maximum last_max_memory 'value memory_val)
-
 			;count up replies
-			(setq cpu_count (inc cpu_count)))
-		((= id event_win_close)
-			;close button
-			(setq id nil))
-		((= id event_win_min)
-			;min button
-			(bind '(x y _ _) (view-get-bounds window))
-			(bind '(w h) (view-pref-size window))
-			(view-change-dirty window x y w h))
-		((= id event_win_max)
-			;max button
-			(bind '(x y _ _) (view-get-bounds window))
-			(bind '(w h) (view-pref-size window))
-			(view-change-dirty window x y (fmul w 1.75) h))
-		(t (view-event window msg))))
+			(setq cpu_count (inc cpu_count)))))
 
 ;wait for outstanding replies
 (view-hide window)
+(in-set-state in stream_mail_state_stopped)
 (while (/= cpu_count cpu_total)
-	(if (= (get-long (mail-read (task-mailbox)) ev_msg_target_id) event_win_sample)
+	(mail-read (elem (defq idx (mail-select select)) select))
+	(if (/= 0 idx)
 		(setq cpu_count (inc cpu_count))))
 
 ;send out multi-cast exit command

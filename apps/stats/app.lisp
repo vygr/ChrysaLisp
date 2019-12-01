@@ -73,12 +73,12 @@
 		((= (defq idx (mail-select select)) 0)
 			;main mailbox
 			(cond
-				((= (setq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_win_close)
+				((= (setq id (get-long (defq msg (mail-read (elem idx select))) ev_msg_target_id)) event_win_close)
 					;close button
 					(setq id nil))
 				(t (view-event window msg))))
 		(t	;child info, merge with current frames information
-			(bind '(data _) (read (string-stream (mail-read in_mbox)) (const (ascii-code " "))))
+			(bind '(data _) (read (string-stream (mail-read (elem idx select))) (const (ascii-code " "))))
 			(setq max_classes (max max_classes (length data)))
 			(each (lambda (ent)
 				(bind '(name stat) ent)
@@ -97,13 +97,9 @@
 (view-hide window)
 (in-set-state in stream_mail_state_stopped)
 (while (/= cpu_count cpu_total)
-	(cond
-		((= (mail-select select) 0)
-			;main mailbox
-			(mail-read (task-mailbox)))
-		(t	;child info
-			(mail-read in_mbox)
-			(setq cpu_count (inc cpu_count)))))
+	(mail-read (elem (defq idx (mail-select select)) select))
+	(if (/= 0 idx)
+		(setq cpu_count (inc cpu_count))))
 
 ;send out multi-cast exit command
 (while (defq mbox (pop ids))
