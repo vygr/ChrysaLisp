@@ -9,7 +9,6 @@
 	(int 'cpu 'task_count 'mem_used))
 
 (structure 'event 0
-	(byte 'win_exit)
 	(byte 'win_close 'win_min 'win_max))
 
 (defq task_bars (list) memory_bars (list) task_scale (list) memory_scale (list)
@@ -98,4 +97,4 @@
 
 ;send out multi-cast exit command
 (while (defq mbox (pop ids))
-	(mail-send (const (char event_win_exit long_size)) mbox))
+	(mail-send (const (char event_win_close long_size)) mbox))

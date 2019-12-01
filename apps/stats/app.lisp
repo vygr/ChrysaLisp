@@ -4,7 +4,6 @@
 (import 'gui/lisp.inc)
 
 (structure 'event 0
-	(byte 'win_exit)
 	(byte 'win_close))
 
 (defq stat_data (list) stat_scale (list) cpu_total (kernel-total) frame_cnt 0
@@ -103,4 +102,4 @@
 
 ;send out multi-cast exit command
 (while (defq mbox (pop ids))
-	(mail-send (const (char event_win_exit long_size)) mbox))
+	(mail-send (const (char event_win_close long_size)) mbox))

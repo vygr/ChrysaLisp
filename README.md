@@ -12,19 +12,19 @@ C-Script compiler, Lisp interpreter, Debugger, and more...
 ![](./screen_shot_5.png)
 
 
-Runs on OSX, Windows or Linux for x64, PI64 Linux for Aarch64. Will move to
-bare metal eventually but it's useful for now to run hosted while
+It runs on OSX for x64, Windows or Linux for x64, Linux for Aarch64. Will move
+to bare metal eventually but it's useful for now to run hosted while
 experimenting. When time allows I will be doing a VM boot image for UniKernel
 type appliances and a WebAssembly target to play around within the browser.
 
-Allows modelling of various network topologies with point to point links. Each
-CPU in the network is modelled as a separate host process, point to point links
-use shared memory to simulate CPU to CPU, point to point, bi directional
+You can model various network topologies with point to point links. Each CPU in
+the network is modelled as a separate host process, point to point links use
+shared memory to simulate CPU to CPU, point to point, bi directional
 connections. There is no global bus based networking on purpose.
 
-Uses a virtual CPU instruction set to avoid use of x64/ARM native instructions.
-Currently it compiles to native code but there is no reason it can't also go
-via a byte code form and runtime translation.
+There is a virtual CPU instruction set to avoid use of x64/ARM native
+instructions. Currently it compiles to native code but there is no reason it
+can't also go via a byte code form and runtime translation.
 
 Register juggling for parameter passing is eliminated by having all functions
 define their register interface and parameter source and destinations are
@@ -39,13 +39,14 @@ quite as capable as a high level language. Static classes or virtual classes
 with inline, virtual, final, static and override methods can be defined. The
 GUI and Lisp are constructed using this class system.
 
-Has function level dynamic binding and loading. Individual functions are loaded
-and bound on demand as tasks are created and distributed. Currently functions
-are loaded from the CPU file system on which the task finds itself, but these
-will eventually come from the server object that the task was created with and
-functions will be transported across the network as required. Functions are
-shared between all tasks that share the same server object, so only a single
-copy of a function is loaded regardless of how many tasks use that function.
+It has function level dynamic binding and loading. Individual functions are
+loaded and bound on demand as tasks are created and distributed. Currently
+functions are loaded from the CPU file system on which the task finds itself,
+but these will eventually come from the server object that the task was created
+with and functions will be transported across the network as required.
+Functions are shared between all tasks that share the same server object, so
+only a single copy of a function is loaded regardless of how many tasks use
+that function.
 
 The interface to the system functions is provided as a set of static classes,
 easing use and removing the need to remember static function locations, plus
@@ -65,23 +66,22 @@ calculates minimum compile workload, or `(make-all)` to do everything
 regardless, at the Lisp command prompt. This Lisp has a C-Script 'snippets'
 capability to allow mixing of C-Script compiled expressions within assignment
 and function calling code. An elementary optimise pass exists for these
-expressions and more will be done shortly. Both the virtual assembler and
-C-Script compiler are written in Lisp, look in the *sys/code.inc*,
-*sys/func.inc*, *sys/x64.inc*, *sys/arm.inc* and *sys/vp.inc* for how this is
-done. Some of the Lisp primitives are constructed via a boot script that each
-instance of a Lisp class runs on construction, see *class/lisp/boot.inc* for
-details. The compilation and make environment, along with all the compile and
-make commands are created via the Lisp command line tool in *cmd/asm.inc*,
-again this auto runs for each instance of the `lisp` command run from the
-terminal. You can extend this with any number of additional files, just place
-them after the lisp command and they will execute after the *cmd/asm.inc* file
-and before processing of stdin.
+expressions. Both the virtual assembler and C-Script compiler are written in
+Lisp, look in the *sys/code.inc*, *sys/func.inc*, *sys/x64.inc*, *sys/arm.inc*
+and *sys/vp.inc* for how this is done. Some of the Lisp primitives are
+constructed via a boot script that each instance of a Lisp class runs on
+construction, see *class/lisp/boot.inc* for details. The compilation and make
+environment, along with all the compile and make commands are created via the
+Lisp command line tool in *cmd/asm.inc*, again this auto runs for each instance
+of the `lisp` command run from the terminal. You can extend this with any
+number of additional files, just place them after the lisp command and they
+will execute after the *cmd/asm.inc* file and before processing of stdin.
 
 Don't get the idea that due to being coded in interpreted Lisp the assembler
-and compiler will be slow. A full cleaned system build from source, including
+and compiler will be slow. A fully cleaned system build from source, including
 creation of a full recursive pre-bound boot image file, takes on the order of 2
-seconds on a 2014 MacBook Pro ! Dev cycle `(make)` and `(remake)` under 1
-second. It ain't slow.
+seconds on a 2014 MacBook Pro ! Dev cycle `(make)` and `(remake)` under 0.5
+seconds. It ain't slow !
 
 You can enable a guard page memory allocator if chasing a buffer overrun bug.
 Look in the *sys/heap/heap.vp* file alloc function and enable the guard page

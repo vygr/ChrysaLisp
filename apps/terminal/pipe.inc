@@ -55,14 +55,13 @@
 		;nil if pipe closed
 		((elem (const pipe_state) pipe)
 			;pipe is open
-			(defq idx (mail-select (elem (const pipe_select) pipe)))
 			(cond
 				;t if task mailbox
-				((= (- idx (length (elem (const pipe_select) pipe))) -1))
+				((= (- (defq idx (mail-select (elem (const pipe_select) pipe)))
+						(length (elem (const pipe_select) pipe))) -1))
 				(t	;must be stdout or one of the stderr's
-					(if (/= (in-get-state
-								(in-next-msg
-									(defq msg_in (elem idx (elem (const pipe_streams) pipe)))))
+					(if (/= (in-get-state (in-next-msg
+								(defq msg_in (elem idx (elem (const pipe_streams) pipe)))))
 							(const stream_mail_state_started))
 						(elem-set (const pipe_state) pipe nil))
 					(read-avail msg_in))))))
