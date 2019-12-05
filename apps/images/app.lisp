@@ -22,7 +22,7 @@
 			(component-connect (ui-element _ (create-button) ('text "")) event_win_prev)
 			(component-connect (ui-element _ (create-button) ('text "")) event_win_next))
 		(ui-element image_scroll (create-scroll (logior scroll_flag_vertical scroll_flag_horizontal))
-			('min_width 256 'min_height 256'color slider_col))))
+			('min_width 400 'min_height 400 'color slider_col))))
 
 (defun win-refresh (_)
 	(view-layout (view-add-child image_scroll (canvas-load (elem (setq index _) images) 0)))
