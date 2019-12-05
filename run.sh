@@ -3,7 +3,7 @@
 #have we got a paramater ?
 if [ -z ${1+x} ]
 then
-	num_cpu=17
+	num_cpu=10
 else
 	num_cpu=$1
 fi
