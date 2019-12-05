@@ -389,6 +389,8 @@
 	history (list) colour (const white) game_start_time (time) quit nil flicker 100000
 	brd "RNBQKBNRPPPPPPPP                                pppppppprnbqkbnr")
 (send-data "b" brd)
+
+;main event loop
 (until quit
 	(defq elapsed_time (- (time) game_start_time))
 	(send-data "s" (const (ascii-char 128)) (LF) "Elapsed Time: " (time-in-seconds elapsed_time) (LF))
@@ -406,8 +408,7 @@
 				(if (eql past_brd brd) (inc cnt) cnt)) history 0) 3)
 			(send-data "s" (LF) "** Draw **" (LF) (LF))
 			(setq quit t))
-		(t
-			(each (lambda (_)
+		(t	(each (lambda (_)
 				(send-data "b" brd)
 				(task-sleep flicker)
 				(send-data "b" new_brd)

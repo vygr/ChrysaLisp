@@ -8,7 +8,7 @@
 
 (defq stat_data (list) stat_scale (list) cpu_total (kernel-total) frame_cnt 0
 	cpu_count cpu_total id t max_stats 1 last_max_stats 0 in (in-stream) in_mbox (in-mbox in)
-	ids (open-farm "apps/stats/child.lisp" cpu_total kn_call_open) last_max_classes 0 max_classes 1
+	farm (open-farm "apps/stats/child.lisp" cpu_total kn_call_open) last_max_classes 0 max_classes 1
 	sample_msg (array in_mbox) select (array (task-mailbox) in_mbox))
 
 (ui-tree window (create-window window_flag_close) nil
@@ -64,20 +64,21 @@
 		;send out multi-cast sample command
 		(while (/= cpu_count 0)
 			(setq cpu_count (dec cpu_count))
-			(mail-send sample_msg (elem cpu_count ids)))
+			(mail-send sample_msg (elem cpu_count farm)))
 		(clear stat_data) (setq max_classes 1))
 
 	;wait for next event
+	(defq msg (mail-read (elem (defq idx (mail-select select)) select)))
 	(cond
-		((= (defq idx (mail-select select)) 0)
+		((= idx 0)
 			;main mailbox
 			(cond
-				((= (setq id (get-long (defq msg (mail-read (elem idx select))) ev_msg_target_id)) event_win_close)
+				((= (setq id (get-long msg ev_msg_target_id)) event_win_close)
 					;close button
 					(setq id nil))
 				(t (view-event window msg))))
 		(t	;child info, merge with current frames information
-			(bind '(data _) (read (string-stream (mail-read (elem idx select))) (const (ascii-code " "))))
+			(bind '(data _) (read (string-stream msg) (const (ascii-code " "))))
 			(setq max_classes (max max_classes (length data)))
 			(each (lambda (ent)
 				(bind '(name stat) ent)
@@ -101,5 +102,5 @@
 		(setq cpu_count (inc cpu_count))))
 
 ;send out multi-cast exit command
-(while (defq mbox (pop ids))
+(while (defq mbox (pop farm))
 	(mail-send (const (char event_win_close long_size)) mbox))

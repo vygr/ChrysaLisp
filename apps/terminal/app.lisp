@@ -27,7 +27,8 @@
 
 (defun-bind terminal-input (c)
 	;echo char to terminal unless backspace into prompt.
-	(unless (and (= c 8) (= (length buffer) 0)) (terminal-output c))
+	(unless (and (= c 8) (= (length buffer) 0))
+		(terminal-output c))
 	(cond
 		;send line ?
 		((or (= c 10) (= c 13))

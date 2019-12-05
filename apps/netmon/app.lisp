@@ -14,7 +14,7 @@
 (defq task_bars (list) memory_bars (list) task_scale (list) memory_scale (list)
 	cpu_total (kernel-total) cpu_count cpu_total id t in (in-stream) in_mbox (in-mbox in)
 	max_tasks 1 max_memory 1 last_max_tasks 0 last_max_memory 0 select (array (task-mailbox) in_mbox)
-	ids (open-farm "apps/netmon/child" cpu_total kn_call_open) sample_msg (array in_mbox))
+	farm (open-farm "apps/netmon/child" cpu_total kn_call_open) sample_msg (array in_mbox))
 
 (ui-tree window (create-window (+ window_flag_close window_flag_min window_flag_max)) nil
 	(ui-element _ (create-grid) ('grid_width 2 'grid_height 1 'flow_flags (logior flow_flag_down flow_flag_fillw flow_flag_lasth) 'maximum 100 'value 0)
@@ -54,15 +54,16 @@
 		;send out multi-cast sample command
 		(while (/= cpu_count 0)
 			(setq cpu_count (dec cpu_count))
-			(mail-send sample_msg (elem cpu_count ids)))
+			(mail-send sample_msg (elem cpu_count farm)))
 		(task-sleep 10000))
 
 	;next event
+	(defq msg (mail-read (elem (defq idx (mail-select select)) select)))
 	(cond
-		((= (defq idx (mail-select select)) 0)
+		((= idx 0)
 			;main mailbox
 			(cond
-				((= (setq id (get-long (defq msg (mail-read (elem idx select))) ev_msg_target_id)) event_win_close)
+				((= (setq id (get-long msg ev_msg_target_id)) event_win_close)
 					;close button
 					(setq id nil))
 				((= id event_win_min)
@@ -77,7 +78,7 @@
 					(view-change-dirty window x y (fmul w 1.75) h))
 				(t (view-event window msg))))
 		(t	;child info
-			(defq cpu (get-int (defq msg (mail-read (elem idx select))) sample_reply_cpu)
+			(defq cpu (get-int msg sample_reply_cpu)
 				task_val (get-int msg sample_reply_task_count)
 				memory_val (get-int msg sample_reply_mem_used)
 				task_bar (elem cpu task_bars) memory_bar (elem cpu memory_bars))
@@ -96,5 +97,5 @@
 		(setq cpu_count (inc cpu_count))))
 
 ;send out multi-cast exit command
-(while (defq mbox (pop ids))
+(while (defq mbox (pop farm))
 	(mail-send (const (char event_win_close long_size)) mbox))
