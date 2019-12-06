@@ -1,4 +1,5 @@
-![](./chrysalisp_logo512.png)
+![](./chrysalisp_logo256.png)
+
 # ChrysaLisp
 
 Assembler/C-Script/Lisp 64 bit, MIMD, multi CPU, multi threaded, multi core,
