@@ -27,6 +27,17 @@
 		(const view_x) (const int_size) x)
 		(const view_y) (const int_size) y))
 
+(defun-bind view-get-size (view)
+	;(view-get-size view) -> (w h)
+	(list (get-field view (const view_w) (const int_size))
+		(get-field view (const view_h) (const int_size))))
+
+(defun-bind view-set-size (view w h)
+	;(view-set-bounds view w h) -> view
+	(set-field (set-field view
+		(const view_w) (const int_size) w)
+		(const view_h) (const int_size) h))
+
 (defun-bind view-get-bounds (view)
 	;(view-get-bounds view) -> (x y w h)
 	(list (get-field view (const view_x) (const int_size))

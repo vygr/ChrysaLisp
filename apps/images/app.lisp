@@ -22,14 +22,20 @@
 			(component-connect (ui-element _ (create-button) ('text "")) event_win_prev)
 			(component-connect (ui-element _ (create-button) ('text "")) event_win_next))
 		(ui-element image_scroll (create-scroll (logior scroll_flag_vertical scroll_flag_horizontal))
-			('min_width 400 'min_height 400 'color slider_col))))
+			('min_width 32 'min_height 32 'color slider_col))))
 
 (defun win-refresh (_)
-	(view-layout (view-add-child image_scroll (canvas-load (elem (setq index _) images) 0)))
-	(view-dirty-all (view-layout (window-set-title window (elem _ images)))))
+	(bind '(w h) (view-pref-size (defq canvas (canvas-load (elem (setq index _) images) 0))))
+	(set image_scroll 'min_width w 'min_height h)
+	(view-add-child image_scroll canvas)
+	(window-set-title window (elem _ images))
+	(bind '(x y) (view-get-pos window))
+	(bind '(w h) (view-pref-size window))
+	(set image_scroll 'min_width 32 'min_height 32)
+	(view-change-dirty window x y w h))
 
-(gui-add (apply view-change (cat (list window 64 64)
-	(view-pref-size (window-connect-close (win-refresh index) event_win_close)))))
+(gui-add (apply view-change (cat (list window 320 256)
+	(view-get-size (window-connect-close (win-refresh index) event_win_close)))))
 
 (while id
 	(cond
