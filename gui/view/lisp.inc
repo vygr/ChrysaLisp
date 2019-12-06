@@ -33,7 +33,7 @@
 		(get-field view (const view_h) (const int_size))))
 
 (defun-bind view-set-size (view w h)
-	;(view-set-bounds view w h) -> view
+	;(view-set-size view w h) -> view
 	(set-field (set-field view
 		(const view_w) (const int_size) w)
 		(const view_h) (const int_size) h))

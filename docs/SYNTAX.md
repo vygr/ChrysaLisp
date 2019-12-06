@@ -1056,6 +1056,10 @@
 
 (view-get-pos view) -> (x y)
 
+## view-get-size
+
+(view-get-size view) -> (w h)
+
 ## view-hide
 
 (view-hide view)
@@ -1079,6 +1083,10 @@
 ## view-set-pos
 
 (view-set-pos view x y) -> view
+
+## view-set-size
+
+(view-set-size view w h) -> view
 
 ## view-sub
 
