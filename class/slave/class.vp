@@ -51,6 +51,7 @@
 		(else)
 			;abort
 			(call 'sys_mail 'free {msg})
+			(s-call 'slave 'deinit {this})
 			(assign {0} {ok})
 		(endif)
 	(endif)
