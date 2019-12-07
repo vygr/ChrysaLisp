@@ -4,10 +4,20 @@
 
 ------
 
+Fixed an issue with slave class not calling deinit in the pipe abort case. This
+only effected stats gathering builds, but it always was incorrectly not calling
+deinit.
+
+Nuclearfall contributed a fix to the prompt erasing issue with backspace in the
+GUI terminal app. Thank you.
+
+------
+
 Moved the object tracking node into the mem block header. This means that there
-is no requirment to use cross compilation to switch build types. You do need to
-restart after you switch the *debug_mode* setting as that is in the cached and
-shared boot enviroment ! So remember to restart before doing the 'make boot'.
+is no requirement to use cross compilation to switch build types. You do need
+to restart after you switch the *debug_mode* setting as that is in the cached
+and shared boot environment ! So remember to restart before doing the 'make
+boot'.
 
 As a result there is 8 bytes extra space for use by array classes so they can
 now have an extra short form element !
