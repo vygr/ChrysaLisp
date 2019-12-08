@@ -105,7 +105,7 @@
 	all: include all .vp files.
 	boot: create a boot_imge.
 	platforms: for all platforms not just the host.
-	doc: scan source file and create documentation.")
+	doc: scan source files and create documentation.")
 ))
 
 ;initialize pipe details and command args, abort on error
