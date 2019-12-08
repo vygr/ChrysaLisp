@@ -1,6 +1,8 @@
 ;imports
 (import 'class/lisp.inc)
 
+;this is just some experiments !
+
 (defmacro class (name &optional super)
 	(if super
 		`(defq ,name (list (cat (list nil) (slice 1 -1 (elem 0 ,super)))

@@ -15,8 +15,6 @@
 					(eql (elem -3 *line_history*) *line_buf*)
 					(pop *line_history*))
 				(setq *line_history_idx* (length *line_history*))))
-		((= c 27))
-			;esc key
 		((= c 0x40000052)
 			;cursor up key ?
 			(setq *line_buf* "" *line_history_idx* (max 0 (dec *line_history_idx*)))

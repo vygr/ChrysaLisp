@@ -1,5 +1,6 @@
 ;imports
 (import 'cmd/asm.inc)
+(import 'cmd/options.inc)
 
 (defun-bind make-doc ()
 	(defq *abi* (abi) *cpu* (cpu))
@@ -96,9 +97,20 @@
 	(save (str stream) 'docs/SYNTAX.md)
 	(print "-> docs/SYNTAX.md"))
 
+(defq usage `(
+(("-h" "--help")
+"Usage: make [options] [all] [boot] [platforms] [doc]
+	options:
+		-h --help: this help info.
+	all: include all .vp files.
+	boot: create a boot_imge.
+	platforms: for all platforms not just the host.
+	doc: scan source file and create documentation.")
+))
+
 ;initialize pipe details and command args, abort on error
-(when (defq slave (create-slave))
-	(defq args (map sym (slave-get-args slave)) all (find 'all args)
+(when (and (defq slave (create-slave)) (defq args (options slave usage)))
+	(defq args (map sym args) all (find 'all args)
 		boot (find 'boot args) platforms (find 'platforms args) doc (find 'doc args))
 	(cond
 		((and boot all platforms) (remake-all-platforms))

@@ -1,10 +1,20 @@
 ;imports
 (import 'cmd/asm.inc)
+(import 'cmd/options.inc)
+
+(defq usage `(
+(("-h" "--help")
+"Usage: lisp [options] [path] ...
+	options:
+		-h --help: this help info.
+	If no paths given on command line
+	then will REPL from stdin.")
+))
 
 ;initialize pipe details and command args, abort on error
-(when (defq slave (create-slave))
+(when (and (defq slave (create-slave)) (defq args (options slave usage)))
 	(defq stdin (file-stream 'stdin) stdout (file-stream 'stdout) stderr (file-stream 'stderr))
-	(if (<= (length (defq args (slave-get-args slave))) 1)
+	(if (<= (length args) 1)
 		;run asm.inc, and print sign on
 		(progn
 			(print "ChrysaLisp 1.3")

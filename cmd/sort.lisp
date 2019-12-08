@@ -1,10 +1,20 @@
 ;imports
 (import 'class/lisp.inc)
+(import 'cmd/options.inc)
+
+(defq usage `(
+(("-h" "--help")
+"Usage: sort [options] [line] ...
+	options:
+		-h --help: this help info.
+	If no lines given on command line
+	then will sort lines from stdin.")
+))
 
 ;initialize pipe details and command args, abort on error
-(when (defq slave (create-slave))
+(when (and (defq slave (create-slave)) (defq args (options slave usage)))
 	(defq stdin (file-stream 'stdin) lines (list))
-	(if (<= (length (defq args (slave-get-args slave))) 1)
+	(if (<= (length args) 1)
 		;sort stdin
 		(while (defq l (read-line stdin))
 			(push lines l))

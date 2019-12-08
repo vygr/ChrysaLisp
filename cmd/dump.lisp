@@ -1,5 +1,6 @@
 ;imports
 (import 'class/lisp.inc)
+(import 'cmd/options.inc)
 
 ;read up to chunk_size chars from stream
 (defun read-chunk (_)
@@ -31,9 +32,19 @@
 				(if (<= 32 _ 126) (char _) ".")) c)))
 			(setq adr (+ adr chunk_size)))))
 
+(defq usage `(
+(("-h" "--help")
+"Usage: dump [options] [path] ...
+	options:
+		-h --help: this help info.
+	If no paths given on command line
+	then will dump stdin.")
+))
+
 ;initialize pipe details and command args, abort on error
-(when (defq chunk_size 8 slave (create-slave))
-	(if (<= (length (defq args (slave-get-args slave))) 1)
+(when (and (defq slave (create-slave)) (defq args (options slave usage)))
+	(defq chunk_size 8)
+	(if (<= (length args) 1)
 		;dump from stdin
 		(dump-file 'stdin)
 		;dump from args as files
