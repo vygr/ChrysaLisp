@@ -6,13 +6,14 @@
 (structure 'event 0
 	(byte 'win_close 'win_next 'win_prev))
 
-(defq images '(apps/images/frill.cpm apps/images/magicbox.cpm
-	apps/images/captive.cpm apps/images/balls.cpm apps/images/banstand.cpm
-	apps/images/bucky.cpm apps/images/circus.cpm apps/images/cyl_test.cpm
-	apps/images/logo.cpm apps/images/mice.cpm apps/images/molecule.cpm
-	apps/images/nippon3.cpm apps/images/piramid.cpm apps/images/rings.cpm
-	apps/images/sharpend.cpm apps/images/stairs.cpm apps/images/temple.cpm
-	apps/images/vermin.cpm) index 0 id t)
+(defq images '(apps/images/chrysalisp1.tga apps/images/chrysalisp2.tga
+	apps/images/frill.cpm apps/images/magicbox.cpm apps/images/captive.cpm
+	apps/images/balls.cpm apps/images/banstand.cpm apps/images/bucky.cpm
+	apps/images/circus.cpm apps/images/cyl_test.cpm apps/images/logo.cpm
+	apps/images/mice.cpm apps/images/molecule.cpm apps/images/nippon3.cpm
+	apps/images/piramid.cpm apps/images/rings.cpm apps/images/sharpend.cpm
+	apps/images/stairs.cpm apps/images/temple.cpm apps/images/vermin.cpm) index 0
+	id t)
 
 (ui-tree window (create-window window_flag_close) nil
 	(ui-element _ (create-flow) ('flow_flags (logior flow_flag_down flow_flag_fillw flow_flag_lasth)

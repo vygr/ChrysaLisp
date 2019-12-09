@@ -1,5 +1,6 @@
 (include 'sys/func.inc)
 (include 'sys/pii/class.inc)
+(include 'sys/str/class.inc)
 (include 'gui/canvas/class.inc)
 (include 'class/vector/class.inc)
 (include 'class/sym/class.inc)
@@ -149,7 +150,7 @@
 
 (def-method 'canvas 'load)
 	;inputs
-	;r0 = c string (pubyte)
+	;r0 = c string name (pubyte)
 	;r1 = flags (uint)
 	;outputs
 	;r0 = 0 if error, else shared canvas object (ptr)
@@ -185,7 +186,7 @@
 			(call 'str 'create_from_file {name} {this})
 			(breakifnot {this} 'funcexit)
 			(call 'stream_str 'create {this} {stream})
-			(call 'canvas 'load_cpm {stream} {this})
+			(call 'canvas 'load_file {name, stream} {this})
 			(call 'stream_str 'deref {stream})
 			(breakifnot {this} 'funcexit)
 			(call 'canvas 'swap {this} {this})
@@ -202,7 +203,7 @@
 		(call 'str 'create_from_file {name} {this})
 		(breakifnot {this})
 		(call 'stream_str 'create {this} {stream})
-		(call 'canvas 'load_cpm {stream} {this})
+		(call 'canvas 'load_file {name, stream} {this})
 		(vpif {this})
 			(call 'canvas 'swap {this} {this})
 			(breakifnot {flags & load_flag_film})
@@ -224,6 +225,43 @@
 	(vp-align ptr_size)
 (vp-label 'canvass)
 	(vp-long 0)
+
+(def-func-end)
+
+(def-method 'canvas 'load_file)
+	;inputs
+	;r0 = c string (pubyte)
+	;r1 = stream object (ptr)
+	;outputs
+	;r0 = 0 if error, else canvas object (ptr)
+	;trashes
+	;all
+
+	(ptr 'this 'name 'stream)
+	(union
+		(uint 'len)
+		(int 'ok))
+
+	(push-scope)
+	(entry 'canvas 'load_file {name, stream})
+
+	(assign {0} {this})
+	(call 'sys_str 'length {name} {_, len})
+	(switch)
+	(breakif {len < 4})
+		(call 'sys_str 'compare {(name + len - 4) => name, ".cpm"} {ok})
+		(nextcaseif {ok})
+			(call 'canvas 'load_cpm {stream} {this})
+			(break)
+	(default)
+		(call 'sys_str 'compare {name, ".tga"} {ok})
+		(nextcaseif {ok})
+			(call 'canvas 'load_tga {stream} {this})
+	(endswitch)
+
+	(exit 'canvas 'load {this})
+	(pop-scope)
+	(return)
 
 (def-func-end)
 

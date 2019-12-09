@@ -2,7 +2,7 @@ obj/*
 platform
 arch
 abi
-chrysalisp*
+chrysalisp
 *.dll
 .vs/*
 .vscode/*

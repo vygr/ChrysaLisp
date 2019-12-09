@@ -4,6 +4,15 @@
 
 ------
 
+Added a quick and dirty 32bit uncompressed .tga file importer so we can all
+admire Nuclearfall's logo designs :)
+
+I will as a result of this I plan to get the .cpm save routine done and create
+a command line image conversion tool to compress these to .cpm format. But I
+will keep the .tga import tool around.
+
+------
+
 Fixed an issue with slave class not calling deinit in the pipe abort case. This
 only effected stats gathering builds, but it always was incorrectly not calling
 deinit.
