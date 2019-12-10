@@ -152,6 +152,10 @@
 
 (canvas-plot canvas x y)
 
+## canvas-save
+
+(canvas-save canvas path format)
+
 ## canvas-swap
 
 (canvas-swap canvas)

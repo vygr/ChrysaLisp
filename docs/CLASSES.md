@@ -909,7 +909,7 @@ all but r0
 
 ```lisp
 inputs
-r0 = c string (pubyte)
+r0 = c string name (pubyte)
 r1 = flags (uint)
 outputs
 r0 = 0 if error, else shared canvas object (ptr)
@@ -917,7 +917,30 @@ trashes
 all
 ```
 
+### canvas::load_file -> gui/canvas/load_file
+
+```lisp
+inputs
+r0 = c string name (pubyte)
+r1 = stream object (ptr)
+outputs
+r0 = 0 if error, else canvas object (ptr)
+trashes
+all
+```
+
 ### canvas::load_cpm -> gui/canvas/load_cpm
+
+```lisp
+inputs
+r0 = stream object (ptr)
+outputs
+r0 = 0 if error, else canvas object (ptr)
+trashes
+all
+```
+
+### canvas::load_tga -> gui/canvas/load_tga
 
 ```lisp
 inputs
@@ -965,6 +988,58 @@ outputs
 r0 = col (uint)
 trashes
 r1-r7
+```
+
+### canvas::save -> gui/canvas/save
+
+```lisp
+inputs
+r0 = canvas object (ptr)
+r1 = c string name (pubyte)
+r2 = format (uint)
+outputs
+r0 = canvas object (ptr)
+trashes
+all
+```
+
+### canvas::save_file -> gui/canvas/save_file
+
+```lisp
+inputs
+r0 = canvas object (ptr)
+r1 = c string name (pubyte)
+r2 = stream object (ptr)
+r3 = format (uint)
+outputs
+r0 = canvas object (ptr)
+trashes
+all
+```
+
+### canvas::save_cpm -> gui/canvas/save_cpm
+
+```lisp
+inputs
+r0 = canvas object (ptr)
+r1 = stream object (ptr)
+r2 = format (uint)
+outputs
+r0 = canvas object (ptr)
+trashes
+all
+```
+
+### canvas::from_argb32 -> gui/canvas/from_argb32
+
+```lisp
+inputs
+r0 = col (uint)
+r1 = pixel type (uint)
+outputs
+r0 = col (uint)
+trashes
+r1-r3
 ```
 
 ### canvas::deinit -> gui/canvas/deinit
@@ -1017,6 +1092,19 @@ all but r0
 ```
 
 ### canvas::lisp_load -> gui/canvas/lisp_load
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+all but r0
+```
+
+### canvas::lisp_save -> gui/canvas/lisp_save
 
 ```lisp
 inputs
@@ -5137,6 +5225,23 @@ r0 = stream object (ptr)
 r1 = -1 if eof, else data (long)
 r2 = bit pool (ulong)
 r3 = bit pool size (uint)
+trashes
+all but r0
+```
+
+### stream::write_bits -> class/stream/write_bits
+
+```lisp
+inputs
+r0 = stream object (ptr)
+r1 = data (uint)
+r2 = num bits (uint)
+r3 = bit pool (ulong)
+r4 = bit pool size (uint)
+outputs
+r0 = stream object (ptr)
+r1 = bit pool (ulong)
+r2 = bit pool size (uint)
 trashes
 all but r0
 ```
