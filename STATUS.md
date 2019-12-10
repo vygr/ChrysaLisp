@@ -4,6 +4,18 @@
 
 ------
 
+Added the canvas::save_cpm function and various support systems. New tocpm
+command line app for converting and saving to cpm format. Need to optimise this
+over time, but just cranked out a version in the C-Script format for now to get
+things going.
+
+Thanks again to Nuclearfall for pushing me into this in the nicest possible way
+by working on a ChrysaLisp logo :)
+
+Next stop will be direct svg import for the vector rendering...
+
+------
+
 Added a quick and dirty 32bit uncompressed .tga file importer so we can all
 admire Nuclearfall's logo designs :)
 
