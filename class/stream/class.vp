@@ -471,3 +471,40 @@
 	(vp-ret)
 
 (def-func-end)
+
+(def-method 'stream 'write_bits)
+	;inputs
+	;r0 = stream object (ptr)
+	;r1 = data (uint)
+	;r2 = num bits (uint)
+	;r3 = bit pool (ulong)
+	;r4 = bit pool size (uint)
+	;outputs
+	;r0 = stream object (ptr)
+	;r1 = bit pool (ulong)
+	;r2 = bit pool size (uint)
+	;trashes
+	;all but r0
+
+	(vp-def (this data num_bits bit_pool bit_pool_size))
+
+	(entry 'stream 'write_bits (list this data num_bits bit_pool bit_pool_size))
+
+	;append bits to bit pool
+	(vp-shl-rr bit_pool_size data)
+	(vp-or-rr data bit_pool)
+	(vp-add-rr num_bits bit_pool_size)
+
+	;flush bit pool to stream
+	(loop-while `(,bit_pool_size > 8))
+		(vp-push bit_pool bit_pool_size)
+		(call 'stream 'write_char (list this bit_pool) (list this))
+		(vp-pop bit_pool bit_pool_size)
+		(vp-shr-cr 8 bit_pool)
+		(vp-sub-cr 8 bit_pool_size)
+	(loop-end)
+
+	(exit 'stream 'write_bits (list this bit_pool bit_pool_size))
+	(vp-ret)
+
+(def-func-end)

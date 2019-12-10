@@ -6,6 +6,7 @@
 (dec-method 'init 'class/stream/init 'static '(r0 r1 r2 r3 r4 r5))
 (dec-method 'available 'class/stream/available 'static '(r0) '(r0 r1))
 (dec-method 'read_bits 'class/stream/read_bits 'static '(r0 r1 r2 r3) '(r0 r1 r2 r3))
+(dec-method 'write_bits 'class/stream/write_bits 'static '(r0 r1 r2 r3 r4) '(r0 r1 r2))
 (dec-method 'read_char 'class/stream/read_char 'static '(r0) '(r0 r1))
 (dec-method 'read_line 'class/stream/read_line 'static '(r0) '(r0 r1))
 (dec-method 'read 'class/stream/read 'static '(r0 r1 r2) '(r0 r1))

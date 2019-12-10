@@ -189,7 +189,9 @@
 			(call 'canvas 'load_file {name, stream} {this})
 			(call 'stream_str 'deref {stream})
 			(breakifnot {this} 'funcexit)
-			(call 'canvas 'swap {this} {this})
+			(vpifnot {flags & load_flag_noswap})
+				(call 'canvas 'swap {this} {this})
+			(endif)
 			(call 'pair 'create {sym, this} {iter})
 			(call 'vector 'push_back {bucket, iter})
 			(call 'canvas 'create_shared {this} {this})
@@ -205,7 +207,9 @@
 		(call 'stream_str 'create {this} {stream})
 		(call 'canvas 'load_file {name, stream} {this})
 		(vpif {this})
-			(call 'canvas 'swap {this} {this})
+			(vpifnot {flags & load_flag_noswap})
+				(call 'canvas 'swap {this} {this})
+			(endif)
 			(breakifnot {flags & load_flag_film})
 			(assign {stream} {this->canvas_stream})
 			(assign {stream->stream_bufp} {this->canvas_bufp})
@@ -279,13 +283,14 @@
 	;all
 
 	(ptr 'this 'name 'stream 'buffer)
-	(uint 'format 'fd)
+	(uint 'format)
+	(int 'fd)
 
 	(push-scope)
 	(entry 'canvas 'save {this, name, format})
 
 	;open file stream
-	(call 'sys_pii 'open {&name->str_data, file_open_write} {fd})
+	(call 'sys_pii 'open {name, file_open_write} {fd})
 	(vpif {fd >= 3})
 		(call 'str 'create_from_buffer {0, str_gap} {buffer})
 		(call 'stream_str 'create {buffer} {stream})
@@ -293,8 +298,8 @@
 		(call 'stream_str 'ref_string {stream} {_, buffer})
 		(call 'stream_str 'deref {stream})
 		(call 'sys_pii 'write {fd, &buffer->str_data, buffer->str_length})
-		(call 'sys_pii 'close {fd})
 		(call 'str 'deref {buffer})
+		(call 'sys_pii 'close {fd})
 	(endif)
 
 	(exit 'canvas 'save {this})
