@@ -73,6 +73,39 @@
 
 (def-func-end)
 
+(def-method 'canvas 'lisp_save)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
+
+	(entry 'canvas 'lisp_save '(r0 r1))
+
+(errorcases
+	(call 'lisp 'env_args_type '(r1 ($ sig) 3) '(r2))
+	(gotoif '(r2 = 0) 'error))
+
+	(vp-push r0)
+	(defq in (method-input 'canvas 'save))
+	(class/vector/bind_args r1 in '(canvas str num))
+	(call 'canvas 'save in '(r1))
+	(class/obj/ref r1 r2)
+	(vp-pop r0)
+
+	(exit 'canvas 'lisp_save '(r0 r1))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r0 "(canvas-save canvas path format)" error_msg_wrong_types r1))
+	(signature '(canvas str num)))
+
+(def-func-end)
+
 (def-method 'canvas 'lisp_fill)
 	;inputs
 	;r0 = lisp object (ptr)

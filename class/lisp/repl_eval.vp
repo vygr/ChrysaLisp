@@ -70,8 +70,7 @@
 		(endif)
 		(call 'obj 'deref '((rsp local_func)))
 		(assign '((rsp local_this) (rsp local_value)) '(r0 r1))
-		(break)
-	(default)
+	(else)
 		;eval to self
 		(class/obj/ref r1 r2)
 	(endswitch)

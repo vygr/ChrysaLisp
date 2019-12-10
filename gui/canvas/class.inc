@@ -32,6 +32,9 @@
 (dec-method 'next_frame 'gui/canvas/next_frame 'static '(r0) '(r0))
 (dec-method 'read_pixel 'gui/canvas/read_pixel 'static '(r0 r1 r2 r3) '(r0 r1 r2))
 (dec-method 'to_argb32 'gui/canvas/to_argb32 'static '(r0 r1) '(r0))
+(dec-method 'save 'gui/canvas/save 'static '(r0 r1 r2) '(r0))
+(dec-method 'save_file 'gui/canvas/save_file 'static '(r0 r1 r2 r3) '(r0))
+(dec-method 'save_cpm 'gui/canvas/save_cpm 'static '(r0 r1 r2) '(r0))
 
 (dec-method 'deinit 'gui/canvas/deinit 'override)
 (dec-method 'pref_size 'gui/canvas/pref_size 'override)
@@ -39,6 +42,7 @@
 
 (dec-method 'lisp_create 'gui/canvas/lisp_create 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_load 'gui/canvas/lisp_load 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_save 'gui/canvas/lisp_save 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_next_frame 'gui/canvas/lisp_next_frame 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_swap 'gui/canvas/lisp_swap 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_fill 'gui/canvas/lisp_fill 'static '(r0 r1) '(r0 r1))

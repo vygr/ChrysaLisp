@@ -176,19 +176,17 @@
 	(switch l)
 	(each! 0 i nextcaseif (list e)))
 
-(defcfun elseif (&rest e)
-	(break)
-	(default)
-	(each! 0 -1 nextcaseifnot (list e)))
-
-(defcfun elseifnot (&rest e)
-	(break)
-	(default)
-	(each! 0 -1 nextcaseif (list e)))
-
 (defcfun else ()
 	(break)
 	(default))
+
+(defcfun elseif (&rest e)
+	(else)
+	(each! 0 -1 nextcaseifnot (list e)))
+
+(defcfun elseifnot (&rest e)
+	(else)
+	(each! 0 -1 nextcaseif (list e)))
 
 (defcfun endif ()
 	(endswitch))

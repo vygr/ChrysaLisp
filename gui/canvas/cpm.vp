@@ -116,6 +116,29 @@
 
 (def-func-end)
 
+(def-method 'canvas 'save_cpm)
+	;inputs
+	;r0 = canvas object (ptr)
+	;r1 = stream object (ptr)
+	;r2 = format (uint)
+	;outputs
+	;r0 = canvas object (ptr)
+	;trashes
+	;all
+
+	(ptr 'this 'stream)
+	(uint 'format)
+
+	;save inputs
+	(push-scope)
+	(entry 'canvas 'save_cpm {this, stream, format})
+
+	(exit 'canvas 'save_cpm {this})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
 (def-method 'canvas 'next_frame)
 	;inputs
 	;r0 = canvas object (ptr)
@@ -259,8 +282,7 @@
 		(vp-add-rr rl col)
 		(vp-add-rr gl col)
 		(vp-add-rr bl col)
-		(break)
-	(default)
+	(else)
 		(vpif '(col = 0))
 			(vp-cpy-cr argb_black col)
 		(else)

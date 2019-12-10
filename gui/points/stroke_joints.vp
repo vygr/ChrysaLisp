@@ -97,8 +97,7 @@
 				(call 'points 'push_back2 {this, p3x, p3y})
 			(vp-label 'out_p1)
 				(call 'points 'push_back2 {this, p1x, p1y})
-				(break)
-			(default)
+			(else)
 				;rounded join
 				(call 'points 'gen_clerp {this, stack, p1x, p1y, l1_rvx, l1_rvy, l2_rvx, l2_rvy, radius, eps})
 			(endswitch)
