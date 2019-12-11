@@ -8,7 +8,7 @@
 		canvas (canvas-load in_file load_flag_noswap))
 	(canvas-save canvas out_file format)
 	(print in_file " -> " out_file)
-	(stream-flush (file-stream 'stdin)))
+	(stream-flush (file-stream 'stdout)))
 
 (defq usage `(
 (("-h" "--help")
