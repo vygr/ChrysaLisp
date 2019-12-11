@@ -951,33 +951,6 @@ trashes
 all
 ```
 
-### canvas::next_frame -> gui/canvas/next_frame
-
-```lisp
-inputs
-r0 = canvas object (ptr)
-outputs
-r0 = canvas object (ptr)
-trashes
-all but r0
-```
-
-### canvas::read_pixel -> gui/canvas/read_pixel
-
-```lisp
-inputs
-r0 = stream object (ptr)
-r1 = pixel type (uint)
-r2 = bit pool (ulong)
-r3 = bit pool size (uint)
-outputs
-r0 = -1 if error, else pixel (long)
-r1 = bit pool (ulong)
-r2 = bit pool size (uint)
-trashes
-all
-```
-
 ### canvas::to_argb32 -> gui/canvas/to_argb32
 
 ```lisp
@@ -988,6 +961,17 @@ outputs
 r0 = col (uint)
 trashes
 r1-r7
+```
+
+### canvas::next_frame -> gui/canvas/next_frame
+
+```lisp
+inputs
+r0 = canvas object (ptr)
+outputs
+r0 = canvas object (ptr)
+trashes
+all but r0
 ```
 
 ### canvas::save -> gui/canvas/save

@@ -62,7 +62,8 @@
 				;run of a pixel
 				(vp-sub-cr 127 len)
 				(assign (list len) {length})
-				(call 'canvas 'read_pixel {stream, header.cpm_type, bit_pool, bit_pool_size} {col, bit_pool, bit_pool_size})
+				(call 'stream 'read_bits {stream, header.cpm_type, bit_pool, bit_pool_size} {_, col, bit_pool, bit_pool_size})
+				(call 'canvas 'to_argb32 {col, header.cpm_type} {col})
 				(assign {col} (list col))
 				(gotoif `(,col = -1) 'error)
 
@@ -85,7 +86,8 @@
 				(vp-add-cr 1 len)
 				(loop-start)
 					(assign (list len) {length})
-					(call 'canvas 'read_pixel {stream, header.cpm_type, bit_pool, bit_pool_size} {col, bit_pool, bit_pool_size})
+					(call 'stream 'read_bits {stream, header.cpm_type, bit_pool, bit_pool_size} {_, col, bit_pool, bit_pool_size})
+					(call 'canvas 'to_argb32 {col, header.cpm_type} {col})
 					(assign {col} (list col))
 					(gotoif `(,col = -1) 'error)
 					(assign {length, header.cpm_trans, data, data_end}
@@ -252,7 +254,8 @@
 				;block of pixels
 				(loop-start)
 					(assign (list len) {length})
-					(call 'canvas 'read_pixel {this->canvas_stream, this->canvas_stream_type, 0, 0} {col, _, _})
+					(call 'stream 'read_bits {this->canvas_stream, this->canvas_stream_type, 0, 0} {_, col, _, _})
+					(call 'canvas 'to_argb32 {col, this->canvas_stream_type} {col})
 					(assign {col} (list col))
 					(breakif `(,col = -1) 'error)
 					(assign {length, data, data_end} (list len data data_end))
@@ -270,38 +273,6 @@
 	(exit 'canvas 'next_frame {this})
 	(pop-scope)
 	(return)
-
-(def-func-end)
-
-(def-method 'canvas 'read_pixel)
-	;inputs
-	;r0 = stream object (ptr)
-	;r1 = pixel type (uint)
-	;r2 = bit pool (ulong)
-	;r3 = bit pool size (uint)
-	;outputs
-	;r0 = -1 if error, else pixel (long)
-	;r1 = bit pool (ulong)
-	;r2 = bit pool size (uint)
-	;trashes
-	;all
-
-	(def-struct 'local)
-		(ulong 'bit_pool)
-		(uint 'bit_pool_size 'type)
-	(def-struct-end)
-
-	(vp-alloc local_size)
-	(entry 'canvas 'read_pixel '(r0 r1 r2 r3))
-
-	(assign '(r1) '((rsp local_type)))
-	(call 'stream 'read_bits '(r0 r1 r2 r3) '(_ r0 (rsp local_bit_pool) (rsp local_bit_pool_size)))
-	(vpif '(r0 /= -1))
-		(call 'canvas 'to_argb32 '(r0 (rsp local_type)) '(r0))
-		(exit 'canvas 'read_pixel '(r0 (rsp local_bit_pool) (rsp local_bit_pool_size)))
-	(endif)
-	(vp-free local_size)
-	(vp-ret)
 
 (def-func-end)
 
