@@ -9,7 +9,7 @@
 (structure 'pipe 0
 	(byte 'state 'select 'streams))
 
-(defun-bind pipe-open (cmds)
+(defun-bind pipe-open (cmds &optional flag)
 	(defq cmdpipe (list) args (map (lambda (cmd)
 		(defq cmd (split cmd " "))
 		(push cmdpipe (cat "cmd/" (elem 0 cmd) ".lisp"))
@@ -36,7 +36,7 @@
 				(setq stdout_mbox (+ (logand mbox 0xffffffff00000000)
 					(get-int (mail-read ack_mbox) (const (* 3 long_size)))))) mboxs args select)
 			(push pipe_streams stdout (out-stream stdout_mbox))
-			(push select (in-mbox stdout) (task-mailbox))
+			(push select (in-mbox stdout) (if flag 0 (task-mailbox)))
 			(in-set-state ack stream_mail_state_stopped)
 			(list t select pipe_streams))))
 
@@ -68,3 +68,17 @@
 
 (defun-bind pipe-write (pipe s)
 	(stream-flush (write (elem -2 (elem (const pipe_streams) pipe)) s)))
+
+(defun-bind pipe-run (cmdline &optional out)
+	;(pipe-run "echo Testing..Testing... | dump | shuffle" (lambda (_) (vdu-print vdu _)))
+	(setd out print)
+	(defq cmd (pipe-open cmdline t))
+	(while cmd
+		(defq data (pipe-read cmd))
+		(cond
+			((eql data nil)
+				;pipe is closed
+				(pipe-close cmd)
+				(setq cmd nil))
+			(t	;string from pipe
+				(out data)))))
