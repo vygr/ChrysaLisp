@@ -921,8 +921,8 @@ all
 
 ```lisp
 inputs
-r0 = c string name (pubyte)
-r1 = stream object (ptr)
+r4 = c string name (pubyte)
+r5 = stream object (ptr)
 outputs
 r0 = 0 if error, else canvas object (ptr)
 trashes
@@ -933,7 +933,7 @@ all
 
 ```lisp
 inputs
-r0 = stream object (ptr)
+r5 = stream object (ptr)
 outputs
 r0 = 0 if error, else canvas object (ptr)
 trashes
@@ -944,7 +944,7 @@ all
 
 ```lisp
 inputs
-r0 = stream object (ptr)
+r5 = stream object (ptr)
 outputs
 r0 = 0 if error, else canvas object (ptr)
 trashes
@@ -955,12 +955,12 @@ all
 
 ```lisp
 inputs
-r0 = col (uint)
-r1 = pixel type (uint)
+r1 = col (uint)
+r2 = pixel type (uint)
 outputs
-r0 = col (uint)
+r1 = col (uint)
 trashes
-r1-r7
+r1-r8
 ```
 
 ### canvas::next_frame -> gui/canvas/next_frame
@@ -991,12 +991,12 @@ all
 
 ```lisp
 inputs
-r0 = canvas object (ptr)
-r1 = c string name (pubyte)
-r2 = stream object (ptr)
-r3 = format (uint)
+r4 = canvas object (ptr)
+r5 = c string name (pubyte)
+r6 = stream object (ptr)
+r7 = format (uint)
 outputs
-r0 = canvas object (ptr)
+r0 = 0 if error, else canvas object (ptr)
 trashes
 all
 ```
@@ -1005,9 +1005,9 @@ all
 
 ```lisp
 inputs
-r0 = canvas object (ptr)
-r1 = stream object (ptr)
-r2 = format (uint)
+r4 = canvas object (ptr)
+r6 = stream object (ptr)
+r7 = format (uint)
 outputs
 r0 = canvas object (ptr)
 trashes
@@ -1018,12 +1018,12 @@ all
 
 ```lisp
 inputs
-r0 = col (uint)
-r1 = pixel type (uint)
+r1 = col (uint)
+r2 = pixel type (uint)
 outputs
-r0 = col (uint)
+r1 = col (uint)
 trashes
-r1-r3
+r1-r4
 ```
 
 ### canvas::deinit -> gui/canvas/deinit

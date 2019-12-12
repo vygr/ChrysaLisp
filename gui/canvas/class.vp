@@ -234,41 +234,35 @@
 
 (def-method 'canvas 'load_file)
 	;inputs
-	;r0 = c string name (pubyte)
-	;r1 = stream object (ptr)
+	;r4 = c string name (pubyte)
+	;r5 = stream object (ptr)
 	;outputs
 	;r0 = 0 if error, else canvas object (ptr)
 	;trashes
 	;all
 
-	(ptr 'this 'name 'stream)
-	(union
-		(uint 'len)
-		(int 'notsame))
+	(entry 'canvas 'load_file '(r4 r5))
 
-	(push-scope)
-	(entry 'canvas 'load_file {name, stream})
-
-	(assign {0} {this})
-	(call 'sys_str 'length {name} {_, len})
+	(call 'sys_str 'length '(r4) '(_ r1))
 	(switch)
-	(breakif {len < 4})
-	(call 'sys_str 'compare {(name + len - 4) => name, ".cpm"} {notsame})
-	(nextcaseif {notsame})
-		(call 'canvas 'load_cpm {stream} {this})
+	(breakif '(r1 < 4))
+	(vp-add-rr r1 r4)
+	(vp-sub-cr 4 r4)
+	(call 'sys_str 'compare '(r4 ".cpm") '(r0))
+	(nextcaseif '(r0 /= 0))
+		(jump 'canvas 'load_cpm '(r5))
 	(else)
-	(call 'sys_str 'compare {name, ".flm"} {notsame})
-	(nextcaseif {notsame})
-		(call 'canvas 'load_cpm {stream} {this})
+	(call 'sys_str 'compare '(r4 ".flm") '(r0))
+	(nextcaseif '(r0 /= 0))
+		(jump 'canvas 'load_cpm '(r5))
 	(else)
-	(call 'sys_str 'compare {name, ".tga"} {notsame})
-	(nextcaseif {notsame})
-		(call 'canvas 'load_tga {stream} {this})
+	(call 'sys_str 'compare '(r4 ".tga") '(r0))
+	(nextcaseif '(r0 /= 0))
+		(jump 'canvas 'load_tga '(r5))
 	(endswitch)
 
-	(exit 'canvas 'load {this})
-	(pop-scope)
-	(return)
+	(exit 'canvas 'load_file '(0))
+	(vp-ret)
 
 (def-func-end)
 
@@ -310,35 +304,29 @@
 
 (def-method 'canvas 'save_file)
 	;inputs
-	;r0 = canvas object (ptr)
-	;r1 = c string name (pubyte)
-	;r2 = stream object (ptr)
-	;r3 = format (uint)
+	;r4 = canvas object (ptr)
+	;r5 = c string name (pubyte)
+	;r6 = stream object (ptr)
+	;r7 = format (uint)
 	;outputs
-	;r0 = canvas object (ptr)
+	;r0 = 0 if error, else canvas object (ptr)
 	;trashes
 	;all
 
-	(ptr 'this 'name 'stream)
-	(uint 'format)
-	(union
-		(uint 'len)
-		(int 'notsame))
+	(entry 'canvas 'save_file '(r4 r5 r6 r7))
 
-	(push-scope)
-	(entry 'canvas 'save_file {this, name, stream, format})
-
-	(call 'sys_str 'length {name} {_, len})
+	(call 'sys_str 'length '(r5) '(_ r1))
 	(switch)
-	(breakif {len < 4})
-	(call 'sys_str 'compare {(name + len - 4) => name, ".cpm"} {notsame})
-	(nextcaseif {notsame})
-		(call 'canvas 'save_cpm {this, stream, format})
+	(breakif '(r1 < 4))
+	(vp-add-rr r1 r5)
+	(vp-sub-cr 4 r5)
+	(call 'sys_str 'compare '(r5 ".cpm") '(r0))
+	(nextcaseif '(r0 /= 0))
+		(jump 'canvas 'save_cpm '(r4 r6 r7))
 	(endswitch)
 
-	(exit 'canvas 'save {this})
-	(pop-scope)
-	(return)
+	(exit 'canvas 'save_file '(0))
+	(vp-ret)
 
 (def-func-end)
 
