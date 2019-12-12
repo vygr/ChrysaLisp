@@ -7,29 +7,32 @@
 	(byte 'win_button))
 
 (defq app_list '(
-	"apps/terminal/app.lisp"
-	"apps/debug/app.lisp"
-	"apps/help/app.lisp"
-	"apps/docs/app.lisp"
-	"apps/netmon/app.lisp"
-	"apps/stats/app.lisp"
-	"apps/boing/app.lisp"
-	"apps/freeball/app.lisp"
-	"apps/images/app.lisp"
-	"apps/films/app.lisp"
-	"apps/canvas/app.lisp"
-	"apps/raymarch/app.lisp"
-	"apps/pcb/app.lisp"
-	"apps/calculator/app.lisp"
-	"apps/chess/app.lisp"
-	"apps/clock/app.lisp"))
+	"terminal"
+	"debug"
+	"help"
+	"docs"
+	"netmon"
+	"stats"
+	"boing"
+	"freeball"
+	"images"
+	"films"
+	"canvas"
+	"raymarch"
+	"pcb"
+	"calculdator"
+	"chess"
+	"clock"))
 
 (defq auto_app_list '(
-	"apps/clock/app.lisp"))
+	"clock"
+	"terminal"))
 
-;auto start
+; TODO - change above into default lists in a seperate file
+; with a personalized pupa file for users.
+
 (each (lambda (_)
-	(open-child _ kn_call_open)) auto_app_list)
+	(open-child (cat "apps/" _ "/app.lisp") kn_call_open)) auto_app_list)
 
 (ui-tree window (create-window 0) nil
 	(ui-element _ (create-flow) ('flow_flags (logior flow_flag_down flow_flag_fillw) 'color toolbar_col)
@@ -43,7 +46,7 @@
 (while t
 	(cond
 		((= (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id) event_win_button)
-			(open-child (get (view-find-id window (get-long msg ev_msg_action_source_id)) 'text) kn_call_open))
+			(open-child (cat "apps/" (get (view-find-id window (get-long msg ev_msg_action_source_id)) 'text) "/app.lisp") kn_call_open))
 		(t (view-event window msg))))
 
 (view-hide window)
