@@ -42,8 +42,7 @@
 		(each (lambda (path)
 			(component-connect (ui-element _ (create-button) ('text path)) event_win_button)) app_list)))
 
-(window-set-title window "Launcher")
-(bind '(w h) (view-pref-size window))
+(bind '(w h) (view-pref-size (window-set-title window "Launcher")))
 (gui-add (view-change window 16 16 (+ w 32) h))
 
 (while t
