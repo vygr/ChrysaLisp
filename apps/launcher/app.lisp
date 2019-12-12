@@ -6,27 +6,9 @@
 (structure 'event 0
 	(byte 'win_button))
 
-(defq app_list '(
-	"terminal"
-	"debug"
-	"help"
-	"docs"
-	"netmon"
-	"stats"
-	"boing"
-	"freeball"
-	"images"
-	"films"
-	"canvas"
-	"raymarch"
-	"pcb"
-	"calculator"
-	"chess"
-	"clock"))
-
-(defq auto_app_list '(
-	"clock"
-	"terminal"))
+(defq app_list '("terminal" "debug" "help" "docs" "netmon" "stats" "boing" "freeball"
+	"images" "films" "canvas" "raymarch" "pcb" "calculator" "chess" "clock")
+	auto_app_list '("clock" "terminal"))
 
 ; TODO - change above into default lists in a seperate file
 ; with a personalized pupa file for users.
