@@ -20,7 +20,7 @@
 	"canvas"
 	"raymarch"
 	"pcb"
-	"calculdator"
+	"calculator"
 	"chess"
 	"clock"))
 
