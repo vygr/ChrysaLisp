@@ -16,8 +16,8 @@
 	(vdu-print vdu (cat msg enter_key prompt)))
 
 (defq cmd_list '("cat" "dump" "echo" "lisp" "make" "null" "oops" "options"
-	"shuffle" "sort" "tee" "tocpm" "unique")
-	auto_cmd_list '("echo Welcome to Chrysalisp..." "echo Please wipe your feet."))
+	"shuffle" "sort" "tee" "tocpm" "unique"))
+(defq auto_cmd_list '("echo Welcome to Chrysalisp..." "echo Please wipe your feet."))
 
 (ui-tree window (create-window (logior window_flag_close window_flag_status)) ('color 0xc0000000)
 	(ui-element vdu (create-vdu) ('vdu_width vdu_width 'vdu_height vdu_height 'ink_color argb_green
@@ -57,7 +57,7 @@
 					(pipe-write cmd *line_buf*))
 				(pipe-close cmd)
 				(setq cmd nil *line_buf* "")
-				(vdu-print vdu (const (ascii-char 10)))
+				(vdu-print vdu enter_key)
 				(view-dirty-all (window-set-status window "Ready")))))
 	(vdu-print vdu (cat (const (ascii-char 129)) (if cmd "" prompt) *line_buf*)))
 
@@ -78,7 +78,7 @@
 			;pipe is closed
 			(pipe-close cmd)
 			(setq cmd nil)
-			(cmd-prompt "" t)
+			(cmd-prompt "" nil)
 			(view-dirty-all (window-set-status window "Ready")))
 		(t	;string from pipe
 			(vdu-print vdu data))))

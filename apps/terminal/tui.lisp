@@ -9,8 +9,8 @@
 	(terminal-output (cat msg enter_key prompt)))
 
 (defq cmd_list '("cat" "dump" "echo" "lisp" "make" "null" "oops" "options"
-	"shuffle" "sort" "tee" "tocpm" "unique")
-(auto_cmd_list '("echo Welcome to ChrysaLisp..." "echo Please wipe your feet."))
+	"shuffle" "sort" "tee" "tocpm" "unique"))
+(defq auto_cmd_list '("echo Welcome to ChrysaLisp..." "echo Please wipe your feet."))
 
 (defun-bind terminal-output (_)
 	(each (lambda (c)
@@ -77,6 +77,6 @@
 			;pipe is closed
 			(pipe-close cmd)
 			(setq cmd nil)
-			(cmd-prompt "" t))
+			(cmd-prompt "" f))
 		(t	;string from pipe
 			(terminal-output data))))
