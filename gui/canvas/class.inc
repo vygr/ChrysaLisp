@@ -26,16 +26,16 @@
 (dec-method 'fpoly 'gui/canvas/fpoly 'static '(r0 r1 r2 r3 r4) '(r0))
 
 (dec-method 'load 'gui/canvas/load 'static '(r0 r1) '(r0))
-(dec-method 'load_file 'gui/canvas/load_file 'static '(r0 r1) '(r0))
-(dec-method 'load_cpm 'gui/canvas/load_cpm 'static '(r0) '(r0))
-(dec-method 'load_tga 'gui/canvas/load_tga 'static '(r0) '(r0))
-(dec-method 'to_argb32 'gui/canvas/to_argb32 'static '(r0 r1) '(r0))
+(dec-method 'load_file 'gui/canvas/load_file 'static '(r4 r5) '(r0))
+(dec-method 'load_cpm 'gui/canvas/load_cpm 'static '(r5) '(r0))
+(dec-method 'load_tga 'gui/canvas/load_tga 'static '(r5) '(r0))
+(dec-method 'to_argb32 'gui/canvas/to_argb32 'static '(r1 r2) '(r1))
 (dec-method 'next_frame 'gui/canvas/next_frame 'static '(r0) '(r0))
 
 (dec-method 'save 'gui/canvas/save 'static '(r0 r1 r2) '(r0))
-(dec-method 'save_file 'gui/canvas/save_file 'static '(r0 r1 r2 r3) '(r0))
-(dec-method 'save_cpm 'gui/canvas/save_cpm 'static '(r0 r1 r2) '(r0))
-(dec-method 'from_argb32 'gui/canvas/from_argb32 'static '(r0 r1) '(r0))
+(dec-method 'save_file 'gui/canvas/save_file 'static '(r4 r5 r6 r7) '(r0))
+(dec-method 'save_cpm 'gui/canvas/save_cpm 'static '(r4 r6 r7) '(r0))
+(dec-method 'from_argb32 'gui/canvas/from_argb32 'static '(r1 r2) '(r1))
 
 (dec-method 'deinit 'gui/canvas/deinit 'override)
 (dec-method 'pref_size 'gui/canvas/pref_size 'override)

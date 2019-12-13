@@ -20,7 +20,7 @@
 
 (def-method 'canvas 'load_tga)
 	;inputs
-	;r0 = stream object (ptr)
+	;r5 = stream object (ptr)
 	;outputs
 	;r0 = 0 if error, else canvas object (ptr)
 	;trashes

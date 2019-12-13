@@ -16,7 +16,7 @@
 
 (def-method 'canvas 'load_cpm)
 	;inputs
-	;r0 = stream object (ptr)
+	;r5 = stream object (ptr)
 	;outputs
 	;r0 = 0 if error, else canvas object (ptr)
 	;trashes
@@ -52,7 +52,7 @@
 		(assign {0 => bit_pool} {bit_pool_size})
 
 		;decode acording to type
-		(vp-def (col len trans data data_end))
+		(vp-def (len col trans data data_end))
 		(loop-start)
 			;get token
 			(call 'stream 'read_bits {stream, 8, bit_pool, bit_pool_size} {_, length, bit_pool, bit_pool_size})
@@ -120,9 +120,9 @@
 
 (def-method 'canvas 'save_cpm)
 	;inputs
-	;r0 = canvas object (ptr)
-	;r1 = stream object (ptr)
-	;r2 = format (uint)
+	;r4 = canvas object (ptr)
+	;r6 = stream object (ptr)
+	;r7 = format (uint)
 	;outputs
 	;r0 = canvas object (ptr)
 	;trashes
@@ -141,12 +141,11 @@
 
 	;write header
 	(assign (str (code "MPC." 4)) {header.cpm_ident})
-	(assign {0} {header.cpm_bytes})
+	(assign {0 => header.cpm_bytes} {header.cpm_trans})
 	(assign {1} {header.cpm_version})
 	(assign {format} {header.cpm_type})
 	(assign {this->canvas_width} {header.cpm_width})
 	(assign {this->canvas_height} {header.cpm_height})
-	(assign {0} {header.cpm_trans})
 	(call 'stream 'write {stream, &header, cpm_size})
 
 	;save canvas
@@ -154,13 +153,31 @@
 	(assign {this->canvas_height * this->canvas_width} {len})
 	(assign {0 => bit_pool => bit_pool_size => i} {state})
 
-	(loop-while {i < len})
+	(loop-while {i < len} 'pixloop)
 		(switch)
-		(vpcase {state = 1})
+		(vpcase {state = 0})
+			;no state
+			(call 'canvas 'to_argb {data[i * int_size]} {col})
+			(call 'canvas 'from_argb32 {col, format} {col})
+			(assign {i} {j})
+			(assign {i + 1} {i})
+			(vpif {i = len})
+				(call 'stream 'write_bits {stream, 1, 8, bit_pool, bit_pool_size} {_, bit_pool, bit_pool_size})
+				(call 'stream 'write_bits {stream, col, format, bit_pool, bit_pool_size} {_, bit_pool, bit_pool_size})
+				(break 'pixloop)
+			(endif)
+			(call 'canvas 'to_argb {data[i * int_size]} {next_col})
+			(call 'canvas 'from_argb32 {next_col, format} {next_col})
+			(assign {2} {state})
+			(continueif {col /= next_col} 'pixloop)
+			(assign {1} {state})
+			(continue 'pixloop)
+		(default)
 			;repeat state
 			(call 'canvas 'to_argb {data[i * int_size]} {next_col})
 			(call 'canvas 'from_argb32 {next_col, format} {next_col})
 			(assign {i + 1} {i})
+			(nextcaseif {state /= 1})
 			(vpif {i = len || (i - j) = 0x80 || col /= next_col})
 				(vpif {col /= next_col})
 					(assign {i - 1} {i})
@@ -169,14 +186,13 @@
 				(call 'stream 'write_bits {stream, col, format, bit_pool, bit_pool_size} {_, bit_pool, bit_pool_size})
 				(assign {0} {state})
 			(endif)
-			(break)
-		(vpcase {state = 2})
+			(continue 'pixloop)
+		(default)
 			;block state
-			(call 'canvas 'to_argb {data[i * int_size]} {next_col})
-			(call 'canvas 'from_argb32 {next_col, format} {next_col})
-			(assign {i + 1} {i})
-			(vpif {i = len || (i - j) = 0x81 || col = next_col})
-				(assign {i - 2} {i})
+			(vpif {i = len || (i - j) = 0x80 || col = next_col})
+				(vpif {col = next_col})
+					(assign {i - 1} {i})
+				(endif)
 				(call 'stream 'write_bits {stream, i - j - 1, 8, bit_pool, bit_pool_size} {_, bit_pool, bit_pool_size})
 				(assign {&data[j * int_size], &data[i * int_size]} {data1, data2})
 				(loop-start)
@@ -185,26 +201,9 @@
 					(call 'stream 'write_bits {stream, col, format, bit_pool, bit_pool_size} {_, bit_pool, bit_pool_size})
 				(loop-until {(data1 + int_size => data1) = data2})
 				(assign {0} {state})
-			(else)
-				(assign {next_col} {col})
+				(continue 'pixloop)
 			(endif)
-		(else)
-			;no state
-			(assign {i} {j})
-			(call 'canvas 'to_argb {data[i * int_size]} {col})
-			(call 'canvas 'from_argb32 {col, format} {col})
-			(assign {i + 1} {i})
-			(vpif {i = len})
-				(call 'stream 'write_bits {stream, 1, 8, bit_pool, bit_pool_size} {_, bit_pool, bit_pool_size})
-				(call 'stream 'write_bits {stream, col, format, bit_pool, bit_pool_size} {_, bit_pool, bit_pool_size})
-			(else)
-				(call 'canvas 'to_argb {data[i * int_size]} {next_col})
-				(call 'canvas 'from_argb32 {next_col, format} {next_col})
-				(assign {2} {state})
-				(vpif {col = next_col})
-					(assign {1} {state})
-				(endif)
-			(endif)
+			(assign {next_col} {col})
 		(endswitch)
 	(loop-end)
 	(call 'stream 'write_bits {stream, 0, 7, bit_pool, bit_pool_size})
@@ -237,7 +236,7 @@
 		(assign {this->canvas_array->array_begin} {data})
 		(assign {data + this->canvas_height * this->canvas_stride} {data_end})
 
-		(vp-def (col len data data_end))
+		(vp-def (len col data data_end))
 		(loop-start)
 			;get token, loop back if stream end
 			(loop-start)
@@ -281,14 +280,14 @@
 
 (def-method 'canvas 'to_argb32)
 	;inputs
-	;r0 = col (uint)
-	;r1 = pixel type (uint)
+	;r1 = col (uint)
+	;r2 = pixel type (uint)
 	;outputs
-	;r0 = col (uint)
+	;r1 = col (uint)
 	;trashes
-	;r1-r7
+	;r1-r8
 
-	(vp-def (col pix rh rl gh gl bh bl) '(r0 r1))
+	(vp-def (col pix rh rl gh gl bh bl) '(r1 r2 r3 r4 r5 r6 r7 r8))
 
 	(entry 'canvas 'to_argb32 (list col pix))
 
@@ -342,14 +341,14 @@
 
 (def-method 'canvas 'from_argb32)
 	;inputs
-	;r0 = col (uint)
-	;r1 = pixel type (uint)
+	;r1 = col (uint)
+	;r2 = pixel type (uint)
 	;outputs
-	;r0 = col (uint)
+	;r1 = col (uint)
 	;trashes
-	;r1-r3
+	;r1-r4
 
-	(vp-def (col pix g b) '(r0 r1))
+	(vp-def (col pix g b) '(r1 r2 r3 r4))
 
 	(entry 'canvas 'from_argb32 (list col pix))
 
