@@ -1,6 +1,8 @@
 ;imports
 (import 'gui/lisp.inc)
 (import 'apps/terminal/pipe.inc)
+(import 'sys/lisp.inc)
+(import 'class/lisp.inc)
 (import 'apps/terminal/input.inc)
 
 (structure 'event 0
@@ -9,15 +11,21 @@
 (defq id t cmd nil vdu_width 60 vdu_height 40)
 
 (defq prompt ">")
+
 (defq enter_key (const (ascii-char 10)))
+
+ ;abstract printing. Should happen at a lower level?
+ ;at some point refine to catch all text printing.
+(defq prflag 2)
+(defun apr (flag c)
+  (cond
+	  ((= flag 0)(print c))
+		((= flag 1)(terminal-output c))
+		((= flag 2)(vdu-print vdu c))))
 
 (defun cmd-prompt (msg enter)
 	(if (eql enter nil)(setq enter_key ""))
-	(vdu-print vdu (cat msg enter_key prompt)))
-
-(defq cmd_list '("cat" "dump" "echo" "lisp" "make" "null" "oops" "options"
-	"shuffle" "sort" "tee" "tocpm" "unique"))
-(defq auto_cmd_list '("echo Welcome to Chrysalisp..." "echo Please wipe your feet."))
+	(apr prflag (cat msg enter_key prompt)))
 
 (ui-tree window (create-window (logior window_flag_close window_flag_status)) ('color 0xc0000000)
 	(ui-element vdu (create-vdu) ('vdu_width vdu_width 'vdu_height vdu_height 'ink_color argb_green
@@ -28,16 +36,12 @@
 		(window-connect-close window event_win_close) "Ready") "Terminal")))))
 (cmd-prompt "ChrysaLisp Terminal 1.5" t)
 
-(defun-bind terminal-output (c)
-	(if (= c 13) (setq c 10))
-	(vdu-print vdu (char c)))
-
 (defun-bind terminal-input (c)
 	(line-input c)
 	(cond
 		((or (= c 10) (= c 13))
 			;enter key
-			(vdu-print vdu enter_key)
+			(apr prflag enter_key)
 			(cond
 				(cmd
 					;feed active pipe
@@ -57,9 +61,9 @@
 					(pipe-write cmd *line_buf*))
 				(pipe-close cmd)
 				(setq cmd nil *line_buf* "")
-				(vdu-print vdu enter_key)
+				(apr prflag enter_key)
 				(view-dirty-all (window-set-status window "Ready")))))
-	(vdu-print vdu (cat (const (ascii-char 129)) (if cmd "" prompt) *line_buf*)))
+	(apr prflag (cat (const (ascii-char 129)) (if cmd "" prompt) *line_buf*)))
 
 (while id
 	(defq data t)
@@ -81,7 +85,7 @@
 			(cmd-prompt "" nil)
 			(view-dirty-all (window-set-status window "Ready")))
 		(t	;string from pipe
-			(vdu-print vdu data))))
+			(apr prflag data))))
 
 ;close window and pipe
 (view-hide window)

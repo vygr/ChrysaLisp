@@ -14,7 +14,7 @@
 ;initialize pipe details and command args, abort on error
 (when (and (defq slave (create-slave)) (defq args (options slave usage)))
 	(defq stdin (file-stream 'stdin) stdout (file-stream 'stdout) stderr (file-stream 'stderr))
-	(if (<= (length args) 1)
+	(if (= (length args) 0)
 		;run asm.inc, and print sign on
 		(progn
 			(print "ChrysaLisp 1.3")
