@@ -12,7 +12,7 @@
 	(ui-element vdu (create-vdu) ('vdu_width vdu_width 'vdu_height vdu_height 'ink_color argb_green
 		'font (create-font "fonts/Hack-Regular.ttf" 16))))
 
-(gui-add (apply view-change (cat (list window 0 0)
+(gui-add (apply view-change (cat (list window 448 16)
 	(view-pref-size (window-set-title (window-set-status
 		(window-connect-close window event_win_close) "Ready") "Terminal")))))
 (vdu-print vdu (const (str "ChrysaLisp Terminal 1.5" (ascii-char 10) ">")))
