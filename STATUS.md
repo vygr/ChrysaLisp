@@ -4,6 +4,10 @@
 
 ------
 
+Add support for 24bit TGA loading. Support 8bit greyscale .cpm saving.
+
+------
+
 Added the canvas::save_cpm function and various support systems. New tocpm
 command line app for converting and saving to cpm format. Need to optimise this
 over time, but just cranked out a version in the C-Script format for now to get
