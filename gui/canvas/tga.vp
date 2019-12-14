@@ -40,19 +40,23 @@
 	;read header
 	(call 'stream 'read {stream, &header, tga_size} {_, length})
 	(gotoif {length /= tga_size || header.tga_type /= 2} 'error1)
+	(gotoif {header.tga_depth /= 32 && header.tga_depth /= 24} 'error1)
 
 	;create canvas
 	(call 'canvas 'create {header.tga_width, header.tga_height, 1} {this})
 	(vpif {this})
-		(assign {32} {this->canvas_stream_type})
+		(assign {header.tga_depth} {this->canvas_stream_type})
 		(assign {this->canvas_array->array_begin} {data})
 		(assign {data + this->canvas_height * this->canvas_stride} {data_end})
 		(assign {0 => bit_pool} {bit_pool_size})
 
 		;decode acording to type
 		(loop-start)
-			(call 'stream 'read_bits {stream, 32, bit_pool, bit_pool_size} {_, col, bit_pool, bit_pool_size})
+			(call 'stream 'read_bits {stream, header.tga_depth, bit_pool, bit_pool_size} {_, col, bit_pool, bit_pool_size})
 			(gotoif {col = -1} 'error)
+			(vpif {header.tga_depth = 24})
+				(assign {argb_black + col} {col})
+			(endif)
 			(assign {col} {*data})
 		(loop-until {(data + int_size => data) = data_end})
 		(call 'canvas 'as_premul {this, this})
