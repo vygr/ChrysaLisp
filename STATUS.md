@@ -6,6 +6,9 @@
 
 Add support for 24bit TGA loading. Support 8bit greyscale .cpm saving.
 
+Support Host window resize and restore. Can now run fullscreen and the screen
+rebuilds correctly after a restore from minsizing.
+
 ------
 
 Added the canvas::save_cpm function and various support systems. New tocpm
