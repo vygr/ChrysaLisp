@@ -70,7 +70,7 @@
 	(stream-flush (write (elem -2 (elem (const pipe_streams) pipe)) s)))
 
 (defun-bind pipe-run (cmdline &optional out)
-	;(pipe-run "echo Testing..Testing... | dump | shuffle" (lambda (_) (vdu-print vdu _)))
+	;(pipe-run cmdline &optional outfun)
 	(setd out print)
 	(defq cmd (pipe-open cmdline t))
 	(while cmd

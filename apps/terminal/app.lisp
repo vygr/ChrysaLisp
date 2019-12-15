@@ -15,41 +15,59 @@
 (gui-add (apply view-change (cat (list window 448 16)
 	(view-pref-size (window-set-title (window-set-status
 		(window-connect-close window event_win_close) "Ready") "Terminal")))))
-(vdu-print vdu (const (str "ChrysaLisp Terminal 1.5" (ascii-char 10) ">")))
 
-(defun-bind terminal-output (c)
-	(if (= c 13) (setq c 10))
-	(vdu-print vdu (char c)))
+;prompt
+(defun-bind prompt () ">")
+
+;override print for VDU output
+(defun-bind print (_)
+	(vdu-print vdu _))
+
+;print line buf, truncate if needed
+(defun-bind print-line (&optional flag)
+	(defq p (if cmd "" (prompt)) g (- vdu_width (length p) 1)
+		l (if flag *line_buf* (line-with-cursor)))
+	(when (> (length l) g)
+		(defq is (max 0 (- *line_pos* g -1)) ie (min (+ is g) (length l)))
+		(setq l (slice is ie l)))
+	(print (cat (const (ascii-char vdu_clear_line)) p l)))
 
 (defun-bind terminal-input (c)
 	(line-input c)
 	(cond
 		((or (= c 10) (= c 13))
 			;enter key
-			(vdu-print vdu (const (ascii-char 10)))
+			(print-line t)
+			(print (const (ascii-char 10)))
+			(defq cmdline *line_buf*) (line-clear)
 			(cond
 				(cmd
 					;feed active pipe
-					(pipe-write cmd (cat *line_buf* (const (ascii-char 10)))))
-				((/= (length *line_buf*) 0)
+					(pipe-write cmd (cat cmdline (const (ascii-char 10)))))
+				((/= (length cmdline) 0)
 					;new pipe
-					(catch (setq cmd (pipe-open *line_buf*)) (progn (setq cmd nil) t))
-					(if cmd
-						(view-dirty-all (window-set-status window "Busy"))
-						(vdu-print vdu (const (cat "Pipe Error !" (ascii-char 10) ">"))))))
-			(setq *line_buf* ""))
+					(catch (setq cmd (pipe-open cmdline)) (progn (setq cmd nil) t))
+					(cond
+						(cmd
+							(view-dirty-all (window-set-status window "Busy")))
+						(t
+							(print (cat (const (cat "Pipe Error !" (ascii-char 10)))))
+							(print-line))))
+				(t	;empty cmdline
+					(print-line))))
 		((= c 27)
 			;esc key
 			(when cmd
 				;feed active pipe, then EOF
 				(when (/= (length *line_buf*) 0)
 					(pipe-write cmd *line_buf*))
-				(pipe-close cmd)
-				(setq cmd nil *line_buf* "")
-				(vdu-print vdu (const (ascii-char 10)))
-				(view-dirty-all (window-set-status window "Ready")))))
-	(vdu-print vdu (cat (const (ascii-char 129)) (if cmd "" ">") *line_buf*)))
+				(pipe-close cmd) (setq cmd nil) (line-clear)
+				(view-dirty-all (window-set-status window "Ready"))
+				(print-line)))
+		(t	;some key
+			(print-line))))
 
+(print (cat (const (str "ChrysaLisp Terminal 1.5" (ascii-char 10))) (prompt) (line-with-cursor)))
 (while id
 	(defq data t)
 	(if cmd (setq data (pipe-read cmd)))
@@ -67,10 +85,10 @@
 			;pipe is closed
 			(pipe-close cmd)
 			(setq cmd nil)
-			(vdu-print vdu (const (cat (ascii-char 10) ">")))
+			(print (cat (const (ascii-char 10)) (prompt) (line-with-cursor)))
 			(view-dirty-all (window-set-status window "Ready")))
 		(t	;string from pipe
-			(vdu-print vdu data))))
+			(print data))))
 
 ;close window and pipe
 (view-hide window)

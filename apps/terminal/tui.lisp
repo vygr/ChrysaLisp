@@ -1,7 +1,8 @@
 ;imports
 (import 'apps/terminal/pipe.inc)
 
-(defun-bind terminal-output (_)
+;override print for TUI output
+(defun-bind print (_)
 	(each (lambda (c)
 		(setq c (code c))
 		(if (= c 13) (setq c 10))
@@ -14,6 +15,8 @@
 				(pii-write-char 1 (const (ascii-code " "))))
 			(t	;print char
 				(pii-write-char 1 c)))) _))
+
+(defun-bind prompt () ">")
 
 (defun-bind terminal-input (c)
 	(cond
@@ -29,8 +32,8 @@
 						((/= (length buffer) 0)
 							;new pipe
 							(catch (setq cmd (pipe-open buffer)) (progn (setq cmd nil) t))
-							(unless cmd (terminal-output (const (cat "Pipe Error !" (ascii-char 10) ">")))))
-						(t (terminal-output ">")))))
+							(unless cmd (print (cat (const (cat "Pipe Error !" (ascii-char 10))) (prompt)))))
+						(t (print (prompt))))))
 			(setq buffer ""))
 		((= c 27)
 			;esc
@@ -40,7 +43,7 @@
 					(pipe-write cmd buffer))
 				(pipe-close cmd)
 				(setq cmd nil buffer "")
-				(terminal-output (const (cat (ascii-char 10) ">")))))
+				(print (cat (const (ascii-char 10)) (prompt)))))
 		((and (= c 8) (/= (length buffer) 0))
 			;backspace
 			(setq buffer (slice 0 -2 buffer)))
@@ -49,7 +52,7 @@
 			(setq buffer (cat buffer (char c))))))
 
 ;sign on msg
-(terminal-output (const (cat "ChrysaLisp Terminal 1.5" (ascii-char 10) ">")))
+(print (cat (const (cat "ChrysaLisp Terminal 1.5" (ascii-char 10))) (prompt)))
 
 ;create child and send args
 (mail-send (list (task-mailbox)) (open-child "apps/terminal/tui_child.lisp" kn_call_open))
@@ -66,6 +69,6 @@
 			;pipe is closed
 			(pipe-close cmd)
 			(setq cmd nil)
-			(terminal-output (const (cat (ascii-char 10) ">"))))
+			(print (const (cat (ascii-char 10) ">"))))
 		(t	;string from pipe
-			(terminal-output data))))
+			(print data))))
