@@ -19,7 +19,7 @@
 
 ;set a name to the window and clear clock face
 (canvas-set-flags (canvas-fill clock 0) 1)
-(gui-add (apply view-change (cat (list window 290 16)
+(gui-add (apply view-change (cat (list window 164 16)
 	(view-pref-size (window-set-title (window-connect-close window event_win_close) "Clock")))))
 
 ;create child and send args
