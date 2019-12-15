@@ -23,3 +23,6 @@
 	(uint 'width 'height)
 	(ushort 'char_width 'char_height)
 (def-struct-end)
+
+(defcvar 'vdu_clear_screen 128)
+(defcvar 'vdu_clear_line 129)

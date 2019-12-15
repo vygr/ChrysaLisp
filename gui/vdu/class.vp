@@ -64,7 +64,7 @@
 
 	(ptr 'this 'ctx 'txt 'font)
 	(ulong 'handle)
-	(int 'x 'char 'bx 'by 'bx1 'by1)
+	(int 'x 'c 'bx 'by 'bx1 'by1)
 	(uint 'w 'h 'col)
 
 	;save inputs
@@ -101,9 +101,21 @@
 		(loop-while {by <= by1})
 			(assign {bx} {x})
 			(loop-while {x <= bx1})
-				(assign {(this->vdu_chars)[by * this->vdu_width + x]} {char})
-				(vpif {char > 32 && char < 127})
-					(call 'vector 'get_element {this->vdu_textures, char - 33} {_, txt})
+				(assign {(this->vdu_chars)[by * this->vdu_width + x]} {c})
+				(vpif {c > 127})
+					;inverse video char
+					(call 'ctx 'set_color {ctx, col})
+					(call 'ctx 'filled_box {ctx, x * this->vdu_char_width, by * this->vdu_char_height, this->vdu_char_width, this->vdu_char_height})
+					(assign {c & 127} {c})
+					(breakif {c <= char_space})
+					(call 'vector 'get_element {this->vdu_textures, c - 33} {_, txt})
+					(call 'texture 'get_metrics {txt} {_, handle, w ,h})
+					(vpif {handle})
+						(call 'ctx 'blit {ctx, handle, argb_black, x * this->vdu_char_width, by * this->vdu_char_height, w, h})
+					(endif)
+				(elseif {c > char_space})
+					;normal video char
+					(call 'vector 'get_element {this->vdu_textures, c - 33} {_, txt})
 					(call 'texture 'get_metrics {txt} {_, handle, w ,h})
 					(vpif {handle})
 						(call 'ctx 'blit {ctx, handle, col, x * this->vdu_char_width, by * this->vdu_char_height, w, h})
@@ -113,8 +125,6 @@
 			(loop-end)
 			(assign {by + 1} {by})
 		(loop-end)
-		(call 'ctx 'set_color {ctx, col})
-		(call 'ctx 'filled_box {ctx, this->vdu_cursor_x * this->vdu_char_width, this->vdu_cursor_y * this->vdu_char_height, this->vdu_char_width, this->vdu_char_height})
 	(endif)
 
 	(exit 'vdu 'draw {this})
@@ -222,18 +232,13 @@
 	;r0 = vdu object (ptr)
 
 	(ptr 'this)
-	(uint 'char)
+	(uint 'c)
 
 	;save inputs
 	(push-scope)
-	(entry 'vdu 'print_char {this, char})
+	(entry 'vdu 'print_char {this, c})
 
 	(vpif {this->vdu_chars})
-		;dirty old cursor area
-		(call 'vdu 'add_dirty {this, this->vdu_cursor_x * this->vdu_char_width,
-			this->vdu_cursor_y * this->vdu_char_height,
-			this->vdu_char_width, this->vdu_char_height})
-
 		;wrap cursor, maybe scroll
 		(vpif {this->vdu_cursor_x >= this->vdu_width})
 			(assign {0} {this->vdu_cursor_x})
@@ -247,17 +252,17 @@
 			(call 'vdu 'dirty {this})
 		(endif)
 
-		(vpif {char = char_lf})
+		(vpif {c = char_lf || c = 13})
 			;line feed
 			(assign {0} {this->vdu_cursor_x})
 			(assign {this->vdu_cursor_y + 1} {this->vdu_cursor_y})
-		(elseif {char = char_tab})
+		(elseif {c = char_tab})
 			;tab
-			(assign {4 - (this->vdu_cursor_x & 3)} {char})
+			(assign {4 - (this->vdu_cursor_x & 3)} {c})
 			(loop-start)
 				(call 'vdu 'print_char {this, 32})
-			(loop-untilnot {char - 1 => char})
-		(elseif {char = char_backspace})
+			(loop-untilnot {c - 1 => c})
+		(elseif {c = char_backspace})
 			;backspace
 			(vpif {this->vdu_cursor_x})
 				(assign {this->vdu_cursor_x - 1} {this->vdu_cursor_x})
@@ -265,7 +270,7 @@
 				(call 'vdu 'add_dirty {this, this->vdu_cursor_x * this->vdu_char_width,
 					this->vdu_cursor_y * this->vdu_char_height, this->vdu_char_width, this->vdu_char_height})
 			(endif)
-		(elseif {char = 129})
+		(elseif {c = vdu_clear_line})
 			;clear line
 			(vpif {this->vdu_cursor_x})
 				(call 'sys_mem 'fill {this->vdu_chars + this->vdu_cursor_y * this->vdu_width, this->vdu_width, char_space})
@@ -273,22 +278,18 @@
 					this->vdu_cursor_x * this->vdu_char_width, this->vdu_char_height})
 				(assign {0} {this->vdu_cursor_x})
 			(endif)
-		(elseif {char = 128})
+		(elseif {c = vdu_clear_screen})
 			;clear screen
 			(call 'sys_mem 'fill {this->vdu_chars, this->vdu_width * this->vdu_height, char_space})
 			(call 'vdu 'dirty {this})
 			(assign {0 => this->vdu_cursor_x} {this->vdu_cursor_y})
-		(elseif {char >= char_space && char < 127})
+		(elseif {(c & 127) >= char_space && (c & 127) < 127})
 			;printable char
-			(assign {char} {(this->vdu_chars)[this->vdu_cursor_y * this->vdu_width + this->vdu_cursor_x]})
+			(assign {c} {(this->vdu_chars)[this->vdu_cursor_y * this->vdu_width + this->vdu_cursor_x]})
 			(call 'vdu 'add_dirty {this, this->vdu_cursor_x * this->vdu_char_width,
 				this->vdu_cursor_y * this->vdu_char_height, this->vdu_char_width, this->vdu_char_height})
 			(assign {this->vdu_cursor_x + 1} {this->vdu_cursor_x})
 		(endif)
-
-		;dirty new cursor area
-		(call 'vdu 'add_dirty {this, this->vdu_cursor_x * this->vdu_char_width,
-			this->vdu_cursor_y * this->vdu_char_height, this->vdu_char_width, this->vdu_char_height})
 	(endif)
 
 	(exit 'vdu 'print_char {this})
