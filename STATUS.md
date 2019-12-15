@@ -7,7 +7,10 @@
 Add support for 24bit TGA loading. Support 8bit greyscale .cpm saving.
 
 Support Host window resize and restore. Can now run fullscreen and the screen
-rebuilds correctly after a restore from minsizing.
+rebuilds correctly after a restore from min-sizing.
+
+GUI Terminal has support for line editing including left/right keys and
+character insertion etc.
 
 ------
 
