@@ -164,7 +164,7 @@
 			;list of all strings that will appear in new strings section, and list of all new string offsets
 			(each (lambda (_)
 				(each (lambda (_)
-					(unless (find _ f) (insert ns _))) (elem 2 (eval (func-sym _))))) f)
+					(unless (find _ f) (merge ns (list _)))) (elem 2 (eval (func-sym _))))) f)
 			(reduce (lambda (x y)
 				(push nso x)
 				(+ x (length y) 1)) ns 0)

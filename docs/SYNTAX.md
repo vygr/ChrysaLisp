@@ -502,7 +502,7 @@
 
 ## insert
 
-(insert list form) -> list
+(insert seq pos form) -> seq
 
 ## is-debug-fun
 

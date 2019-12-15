@@ -484,6 +484,10 @@
 	;(erase seq start end) -> seq
 	(cat (slice 0 b s) (slice e -1 s)))
 
+(defun-bind insert (s p e)
+	;(insert seq pos form) -> seq
+	(cat (slice 0 p s) e (slice p -1 s)))
+
 (defun-bind log2 (_)
 	;(log2 num) -> num
 	(when (and (not (= 0 _)) (= _ (logand _ (neg _))))
@@ -514,10 +518,6 @@
 	(defq n 0 _ (lognot _))
 	(while (> _ 0)
 		(setq n (inc n) _ (<< _ 1))) n)
-
-(defun-bind insert (x &rest y)
-	;(insert list form) -> list
-	(merge x y))
 
 (defun-bind shuffled (_a &optional _l _h)
 	;(shuffled list [start end]) -> list
