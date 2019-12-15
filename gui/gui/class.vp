@@ -98,7 +98,7 @@
 
 		;create window
 		(host-call 'host 'sdl_create_window
-			{$title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_OPENGL}
+			{$title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE}
 			{user->local_statics->gui_statics_window})
 
 		;create renderer
@@ -186,8 +186,19 @@
 				event.sdl_keyboard_event_keysym.sdl_keysym_mod} {data->ev_msg_key_key})
 			(call 'sys_mail 'send {msg})
 			(break)
-		(vpcase {event.sdl_common_event_type = SDL_QUIT})
-			;(assign {-1} {user->local_quit})
+		(vpcase {event.sdl_common_event_type = SDL_WINDOWEVENT})
+			(switch)
+			(vpcase {event.sdl_window_event_event = SDL_WINDOWEVENT_SIZE_CHANGED})
+				(call 'backdrop 'change '{user->local_statics->gui_statics_screen, 0, 0, event.sdl_window_event_data1, event.sdl_window_event_data2})
+				(call 'backdrop 'set_flags '{user->local_statics->gui_statics_screen, view_flag_dirty_all, view_flag_dirty_all})
+			(vpcase {event.sdl_window_event_event = SDL_WINDOWEVENT_RESTORED})
+				(call 'backdrop 'set_flags '{user->local_statics->gui_statics_screen, view_flag_dirty_all, view_flag_dirty_all})
+				(break)
+			(endswitch)
+		;;	(break)
+		;; (vpcase {event.sdl_common_event_type = SDL_QUIT})
+		;; 	(assign {-1} {user->local_quit})
+		;; 	(break)
 		(endswitch)
 	(loop-end)
 

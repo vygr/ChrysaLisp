@@ -161,12 +161,30 @@
 (defcvar 'SDL_PRESSED 1)
 
 (defcvar 'SDL_QUIT 0x100)
+(defcvar 'SDL_WINDOWEVENT 0x200)
 (defcvar 'SDL_KEYDOWN 0x300)
 (defcvar 'SDL_KEYUP 0x301)
 (defcvar 'SDL_MOUSEMOTION 0x400)
 (defcvar 'SDL_MOUSEBUTTONDOWN 0x401)
 (defcvar 'SDL_MOUSEBUTTONUP 0x402)
 (defcvar 'SDL_MOUSEWHEEL 0x403)
+
+(defcvar 'SDL_WINDOWEVENT_SHOWN 0x1)
+(defcvar 'SDL_WINDOWEVENT_HIDDEN 0x2)
+(defcvar 'SDL_WINDOWEVENT_EXPOSED 0x3)
+(defcvar 'SDL_WINDOWEVENT_MOVED 0x4)
+(defcvar 'SDL_WINDOWEVENT_RESIZED 0x5)
+(defcvar 'SDL_WINDOWEVENT_SIZE_CHANGED 0x6)
+(defcvar 'SDL_WINDOWEVENT_MINIMIZED 0x7)
+(defcvar 'SDL_WINDOWEVENT_MAXIMIZED 0x8)
+(defcvar 'SDL_WINDOWEVENT_RESTORED 0x9)
+(defcvar 'SDL_WINDOWEVENT_ENTER 0xa)
+(defcvar 'SDL_WINDOWEVENT_LEAVE 0xb)
+(defcvar 'SDL_WINDOWEVENT_FOCUS_GAINED 0xc)
+(defcvar 'SDL_WINDOWEVENT_FOCUS_LOST 0xd)
+(defcvar 'SDL_WINDOWEVENT_CLOSE 0xe)
+(defcvar 'SDL_WINDOWEVENT_TAKE_FOCUS 0xf)
+(defcvar 'SDL_WINDOWEVENT_HIT_TEST 0x10)
 
 (def-struct 'sdl_common_event)
 	;SDL_KEYDOWN, SDL_KEYUP etc
@@ -204,6 +222,12 @@
 
 (def-struct 'sdl_quit_event)
 	(uint 'type 'timestamp)
+(def-struct-end)
+
+(def-struct 'sdl_window_event)
+	(uint 'type 'timestamp 'windowid)
+	(ubyte 'event 'padding1 'padding2 'padding3)
+	(int 'data1 'data2)
 (def-struct-end)
 
 (def-class 'sys_pii)
