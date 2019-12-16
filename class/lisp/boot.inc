@@ -488,6 +488,11 @@
 	;(insert seq pos form) -> seq
 	(cat (slice 0 p s) e (slice p -1 s)))
 
+(defun-bind join (l j)
+	;(join lst seq) -> seq
+	(apply cat (map (lambda (x)
+		(if (= _ 0) x (cat j x))) l)))
+
 (defun-bind log2 (_)
 	;(log2 num) -> num
 	(when (and (not (= 0 _)) (= _ (logand _ (neg _))))
