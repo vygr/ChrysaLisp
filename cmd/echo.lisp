@@ -11,4 +11,4 @@
 
 ;initialize pipe details and command args, abort on error
 (when (and (defq slave (create-slave)) (defq args (options slave usage)))
-	(each print (slice 1 -1 args)))
+	(print (join (slice 1 -1 args) " ")))
