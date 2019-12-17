@@ -239,11 +239,7 @@
 	(entry 'vdu 'print_char {this, c})
 
 	(vpif {this->vdu_chars})
-		;wrap cursor, maybe scroll
-		(vpif {this->vdu_cursor_x >= this->vdu_width})
-			(assign {0} {this->vdu_cursor_x})
-			(assign {this->vdu_cursor_y + 1} {this->vdu_cursor_y})
-		(endif)
+		;scroll ?
 		(vpif {this->vdu_cursor_y >= this->vdu_height})
 			(assign {0} {this->vdu_cursor_x})
 			(assign {this->vdu_height - 1} {this->vdu_cursor_y})
@@ -252,17 +248,7 @@
 			(call 'vdu 'dirty {this})
 		(endif)
 
-		(vpif {c = char_lf || c = 13})
-			;line feed
-			(assign {0} {this->vdu_cursor_x})
-			(assign {this->vdu_cursor_y + 1} {this->vdu_cursor_y})
-		(elseif {c = char_tab})
-			;tab
-			(assign {4 - (this->vdu_cursor_x & 3)} {c})
-			(loop-start)
-				(call 'vdu 'print_char {this, 32})
-			(loop-untilnot {c - 1 => c})
-		(elseif {c = char_backspace})
+		(vpif {c = char_backspace})
 			;backspace
 			(vpif {this->vdu_cursor_x})
 				(assign {this->vdu_cursor_x - 1} {this->vdu_cursor_x})
@@ -283,12 +269,30 @@
 			(call 'sys_mem 'fill {this->vdu_chars, this->vdu_width * this->vdu_height, char_space})
 			(call 'vdu 'dirty {this})
 			(assign {0 => this->vdu_cursor_x} {this->vdu_cursor_y})
-		(elseif {(c & 127) >= char_space && (c & 127) < 127})
-			;printable char
-			(assign {c} {(this->vdu_chars)[this->vdu_cursor_y * this->vdu_width + this->vdu_cursor_x]})
-			(call 'vdu 'add_dirty {this, this->vdu_cursor_x * this->vdu_char_width,
-				this->vdu_cursor_y * this->vdu_char_height, this->vdu_char_width, this->vdu_char_height})
-			(assign {this->vdu_cursor_x + 1} {this->vdu_cursor_x})
+		(else)
+			;wrap cursor ?
+			(vpif {this->vdu_cursor_x >= this->vdu_width})
+				(assign {0} {this->vdu_cursor_x})
+				(assign {this->vdu_cursor_y + 1} {this->vdu_cursor_y})
+			(endif)
+
+			(vpif {c = char_lf || c = 13})
+				;line feed
+				(assign {0} {this->vdu_cursor_x})
+				(assign {this->vdu_cursor_y + 1} {this->vdu_cursor_y})
+			(elseif {c = char_tab})
+				;tab
+				(assign {4 - (this->vdu_cursor_x & 3)} {c})
+				(loop-start)
+					(call 'vdu 'print_char {this, 32})
+				(loop-untilnot {c - 1 => c})
+			(elseif {(c & 127) >= char_space && (c & 127) < 127})
+				;printable char
+				(assign {c} {(this->vdu_chars)[this->vdu_cursor_y * this->vdu_width + this->vdu_cursor_x]})
+				(call 'vdu 'add_dirty {this, this->vdu_cursor_x * this->vdu_char_width,
+					this->vdu_cursor_y * this->vdu_char_height, this->vdu_char_width, this->vdu_char_height})
+				(assign {this->vdu_cursor_x + 1} {this->vdu_cursor_x})
+			(endif)
 		(endif)
 	(endif)
 

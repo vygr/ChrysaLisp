@@ -25,7 +25,7 @@
 
 ;print line buf, truncate if needed
 (defun-bind print-line (&optional flag)
-	(defq p (if cmd "" (prompt)) g (- vdu_width (length p) 1)
+	(defq p (if cmd "" (prompt)) g (- vdu_width (length p))
 		l (if flag *line_buf* (line-with-cursor)))
 	(when (> (length l) g)
 		(defq is (max 0 (- *line_pos* g -1)) ie (min (+ is g) (length l)))

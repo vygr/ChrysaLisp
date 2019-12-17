@@ -502,11 +502,15 @@
 
 ## insert
 
-(insert seq pos form) -> seq
+(insert seq pos seq) -> seq
 
 ## is-debug-fun
 
 (is-debug-fun form)
+
+## join
+
+(join list seq) -> seq
 
 ## kernel-debug
 

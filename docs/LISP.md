@@ -228,6 +228,7 @@ each-mergeable-rev
 each-rev
 every
 exec
+erase
 filter
 from-base-char
 get-byte
@@ -236,6 +237,7 @@ get-int
 get-long
 get-short
 insert
+join
 log2
 lognot
 lst?

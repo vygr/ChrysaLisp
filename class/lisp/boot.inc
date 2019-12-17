@@ -350,6 +350,23 @@
 	;(notevery lambda seq ...) -> t|nil
 	(not (some! 0 -1 nil _f _)))
 
+;;;;;;;;;;;
+; Sequences
+;;;;;;;;;;;
+
+(defun-bind erase (s b e)
+	;(erase seq start end) -> seq
+	(cat (slice 0 b s) (slice e -1 s)))
+
+(defun-bind insert (s p e)
+	;(insert seq pos seq) -> seq
+	(cat (slice 0 p s) e (slice p -1 s)))
+
+(defun-bind join (l j)
+	;(join list seq) -> seq
+	(apply cat (map (lambda (x)
+		(if (= _ 0) x (cat j x))) l)))
+
 ;;;;;;;;;;;;;;;;
 ; Math functions
 ;;;;;;;;;;;;;;;;
@@ -479,19 +496,6 @@
 	(defq f (opt f " ") v (str v) l (length v) c (- (max c l) l))
 	(while (> c (length f)) (setq f (cat f f)))
 	(cat (slice 0 c f) v))
-
-(defun-bind erase (s b e)
-	;(erase seq start end) -> seq
-	(cat (slice 0 b s) (slice e -1 s)))
-
-(defun-bind insert (s p e)
-	;(insert seq pos form) -> seq
-	(cat (slice 0 p s) e (slice p -1 s)))
-
-(defun-bind join (l j)
-	;(join lst seq) -> seq
-	(apply cat (map (lambda (x)
-		(if (= _ 0) x (cat j x))) l)))
 
 (defun-bind log2 (_)
 	;(log2 num) -> num
