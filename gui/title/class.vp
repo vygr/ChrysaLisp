@@ -54,7 +54,7 @@
 	(vpif '(r6 = 1))
 		(call 'window 'to_front '(r0))
 	(else)
-		(call 'window 'to_back '(r0))
+;		(call 'window 'to_back '(r0))
 	(endif)
 	(vp-pop r0)
 
