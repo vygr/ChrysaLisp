@@ -208,18 +208,32 @@
 	;trashes
 	;all but r0
 
-	(assign '((r0 hmap_parent)) '(r1))
-	(vpif '(r1 /= 0))
+	(assign '((r0 hmap_parent)) '(r5))
+	(vpif '(r5 /= 0))
 		;are we already back ?
-		(ln-is-last r0 view_node r2)
-		(vpif '(r2 /= 0))
-			(vp-push r0 r1)
-			(call 'view 'hide '(r0) '(r1))
-			(call 'view 'add_back '((rsp 0) r1))
-			(vp-pop r0 r1)
+		(ln-get-succ r0 view_node r3)
+		(vp-cpy-rr r3 r2)
+		(loop-start)
+			(vp-cpy-rr r3 r1)
+			(ln-get-succ r3 0 r3)
+			(breakif '(r3 = 0))
+			(vp-lea-i r1 (neg view_node) r4)
+			(assign '((r4 view_flags)) '(r4))
+			(vp-and-cr view_flag_at_back r4)
+		(loop-until '(r4 /= 0))
+		(vpif '(r1 /= r2))
+			;no, so move to front of back item
+			(vp-push r1 r5)
+			(call 'view 'hide '(r0) '(r0))
+			(vp-pop r1 r5)
+			(vp-lea-i r0 view_node r2)
+			(ln-add-node-before r1 r2 r3)
+			(assign '(r5) '((r0 hmap_parent)))
 		(endif)
 	(endif)
 	(vp-ret)
+
+view_flag_at_back
 
 (def-func-end)
 

@@ -66,7 +66,7 @@
 (dec-method 'lisp_find_id 'gui/view/lisp_find_id 'static '(r0 r1) '(r0 r1))
 
 (def-bit 'view_flag)
-	(bit 'solid 'opaque 'dirty_all)
+	(bit 'solid 'opaque 'dirty_all 'at_back)
 (def-bit-end)
 
 (def-struct 'view 'component)

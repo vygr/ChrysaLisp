@@ -17,9 +17,9 @@
 			(setq err new_err index _))) images_dims)
 	(view-sub wallpaper)
 	(setq wallpaper (canvas-load (elem index images) 0))
-	(gui-add-back wallpaper)
-	(view-change wallpaper 0 0 w h)
-	(view-dirty-all wallpaper))
+	(gui-add-back (view-change (view-dirty-all (view-set-flags wallpaper
+		(const (+ view_flag_at_back view_flag_dirty_all))
+		(const (+ view_flag_at_back view_flag_dirty_all)))) 0 0 w h)))
 
 (defq screen (penv (gui-add-back wallpaper)))
 (refresh-wallpaper)
