@@ -6,7 +6,7 @@
 (structure 'event 0
 	(byte 'win_close 'win_next 'win_prev))
 
-(defq images '(apps/films/captive.flm apps/films/cradle.flm) index 0 id t)
+(defq images '("apps/films/captive.flm" "apps/films/cradle.flm") index 0 id t)
 
 (ui-tree window (create-window window_flag_close) nil
 	(ui-element image_flow (create-flow) ('flow_flags (logior flow_flag_down flow_flag_fillw))

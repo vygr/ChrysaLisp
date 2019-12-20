@@ -10,9 +10,9 @@
 	(byte 'win_mode_normal 'win_mode_gerber)
 	(byte 'win_show_all 'win_show_1 'win_show_2 'win_show_3 'win_show_4))
 
-(defq pcbs '(apps/pcb/test1.pcb apps/pcb/test2.pcb apps/pcb/test3.pcb) index 1 id t canvas_scale 1
-	mode 0 show -1 max_zoom 15 min_zoom 5 zoom (/ (+ min_zoom max_zoom) 2)
-	eps 0.25)
+(defq pcbs '("apps/pcb/test1.pcb" "apps/pcb/test2.pcb" "apps/pcb/test3.pcb")
+	index 1 id t canvas_scale 1 mode 0 show -1 max_zoom 15 min_zoom 5
+	zoom (/ (+ min_zoom max_zoom) 2) eps 0.25)
 
 (ui-tree window (create-window window_flag_close) nil
 	(ui-element _ (create-flow) ('flow_flags (logior flow_flag_down flow_flag_fillw flow_flag_lasth)
