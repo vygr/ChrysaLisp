@@ -4,6 +4,15 @@
 
 ------
 
+GUI process now sends out a ev_type_gui event to all top level components on a
+GUI resize event. This allows apps to resize themselves or in the case of the
+new wallpaper app demo, maybe switch to better fitting assets etc.
+
+Canvas now defaults to centring the texture in the view. Soon I'll add the
+flags to align left/right/top/bottom and stretch.
+
+------
+
 Add support for 24bit TGA loading. Support 8bit greyscale .cpm saving.
 
 Support Host window resize and restore. Can now run fullscreen and the screen
