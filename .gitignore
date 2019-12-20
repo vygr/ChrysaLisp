@@ -12,3 +12,4 @@ main.vcxproj
 main.vcxproj.filters
 main.vcxproj.user
 chrysalisp.exe
+*.DS_Store
