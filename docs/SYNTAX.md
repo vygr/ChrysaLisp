@@ -468,6 +468,10 @@
 
 (gui-add view)
 
+## gui-add-back
+
+(gui-add-back view)
+
 ## if
 
 (if tst form [eform])

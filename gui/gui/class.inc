@@ -13,10 +13,10 @@
 (dec-method 'statics 'gui/gui/statics)
 (dec-method 'statics_init 'gui/gui/statics_init)
 (dec-method 'update 'gui/gui/update 'static '(r0))
-(dec-method 'add 'gui/gui/add 'static '(r0) '(r0))
 (dec-method 'gui 'gui/gui/gui)
 
 (dec-method 'lisp_add 'gui/gui/lisp_add 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_add_back 'gui/gui/lisp_add_back 'static '(r0 r1) '(r0 r1))
 
 ;;;;;;;;;;;;;;;;
 ; gui structures
@@ -34,7 +34,7 @@
 ;;;;;;;;;;;;;;;;;;;;
 
 (def-enum 'ev_type)
-	(enum 'mouse 'key 'action)
+	(enum 'mouse 'key 'action 'gui)
 (def-enum-end)
 
 (def-struct 'ev_msg)
@@ -52,4 +52,7 @@
 
 (def-struct 'ev_msg_action 'ev_msg)
 	(ulong 'source_id)
+(def-struct-end)
+
+(def-struct 'ev_msg_gui 'ev_msg)
 (def-struct-end)

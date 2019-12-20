@@ -51,7 +51,7 @@
 (dec-method 'lisp_sub 'gui/view/lisp_sub 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_hide 'gui/view/lisp_hide 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_add_child 'gui/view/lisp_add_child 'static '(r0 r1) '(r0 r1))
-(dec-method 'lisp_add_front 'gui/view/lisp_add_front 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_add 'gui/view/lisp_add 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_add_back 'gui/view/lisp_add_back 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_pref_size 'gui/view/lisp_pref_size 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_change 'gui/view/lisp_change 'static '(r0 r1) '(r0 r1))

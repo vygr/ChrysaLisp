@@ -20,9 +20,14 @@
 	(gotoif '(r2 = 0) 'error1))
 
 	(vp-push r0)
-	(defq in (method-input 'gui 'add))
-	(class/vector/bind_args r1 in '(view))
-	(call 'gui 'add in '(r1))
+	(class/vector/bind_args r1 '(r0) '(view))
+	(vp-push r0)
+	(f-bind 'gui 'statics r2)
+	(call 'view 'add_front '((r2 gui_statics_screen) r0))
+	(call 'sys_task 'tcb nil '(r1))
+	(vp-pop r0)
+	(assign '(r1) '((r0 component_tcb)))
+	(call 'view 'set_flags '(r0 view_flag_dirty_all view_flag_dirty_all) '(r1 _))
 	(class/obj/ref r1 r2 2)
 	(vp-pop r0)
 
@@ -32,6 +37,44 @@
 (errorcases
 (vp-label 'error1)
 	(jump 'lisp 'repl_error '(r0 "(gui-add view)" error_msg_wrong_types r1))
+	(signature '(view)))
+
+(def-func-end)
+
+(def-method 'gui 'lisp_add_back)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
+
+	(entry 'gui 'lisp_add_back '(r0 r1))
+
+(errorcases
+	(call 'lisp 'env_args_type '(r1 ($ sig) 1) '(r2))
+	(gotoif '(r2 = 0) 'error1))
+
+	(vp-push r0)
+	(class/vector/bind_args r1 '(r0) '(view))
+	(vp-push r0)
+	(f-bind 'gui 'statics r2)
+	(call 'view 'add_back '((r2 gui_statics_screen) r0))
+	(call 'sys_task 'tcb nil '(r1))
+	(vp-pop r0)
+	(assign '(r1) '((r0 component_tcb)))
+	(call 'view 'set_flags '(r0 view_flag_dirty_all view_flag_dirty_all) '(r1 _))
+	(class/obj/ref r1 r2 2)
+	(vp-pop r0)
+
+	(exit 'gui 'lisp_add_back '(r0 r1))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error1)
+	(jump 'lisp 'repl_error '(r0 "(gui-add-back view)" error_msg_wrong_types r1))
 	(signature '(view)))
 
 (def-func-end)

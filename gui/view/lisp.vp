@@ -229,7 +229,7 @@
 
 (def-func-end)
 
-(def-method 'view 'lisp_add_front)
+(def-method 'view 'lisp_add)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -239,7 +239,7 @@
 	;trashes
 	;all but r0
 
-	(entry 'view 'lisp_add_front '(r0 r1))
+	(entry 'view 'lisp_add '(r0 r1))
 
 (errorcases
 	(call 'lisp 'env_args_type '(r1 ($ sig) 2) '(r2))
@@ -252,7 +252,7 @@
 	(call 'view 'add_front '(r0 r1) '(r1))
 	(vp-pop r0)
 
-	(exit 'view 'lisp_add_front '(r0 r1))
+	(exit 'view 'lisp_add '(r0 r1))
 	(vp-ret)
 
 (errorcases

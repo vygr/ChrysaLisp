@@ -190,7 +190,10 @@
 			(switch)
 			(vpcase {event.sdl_window_event_event = SDL_WINDOWEVENT_SIZE_CHANGED})
 				(call 'backdrop 'change '{user->local_statics->gui_statics_screen, 0, 0, event.sdl_window_event_data1, event.sdl_window_event_data2})
+				;send gui event to all top level views
+				(call 'backdrop 'forward {user->local_statics->gui_statics_screen, user, $send_gui_event})
 				(call 'backdrop 'set_flags '{user->local_statics->gui_statics_screen, view_flag_dirty_all, view_flag_dirty_all})
+				(break)
 			(vpcase {event.sdl_window_event_event = SDL_WINDOWEVENT_RESTORED})
 				(call 'backdrop 'set_flags '{user->local_statics->gui_statics_screen, view_flag_dirty_all, view_flag_dirty_all})
 				(break)
@@ -238,6 +241,27 @@
 	(pop-scope-syms)
 	(return)
 
+(vp-label 'send_gui_event)
+	;send gui event
+	(ptr 'this 'user 'msg 'data 'owner)
+
+	(push-scope)
+	(entry {this, user})
+
+	(call 'view 'find_owner {this} {_, owner})
+	(vpif {owner})
+		(call 'sys_mail 'alloc {ev_msg_gui_size} {msg, data})
+		(assign {ev_type_gui} {data->ev_msg_type})
+		(assign {owner->tk_node_mbox_id} {msg->msg_dest.id_mbox})
+		(call 'sys_kernel 'id nil {msg->msg_dest.id_cpu})
+		(assign {this->component_id} {data->ev_msg_target_id})
+		(call 'sys_mail 'send {msg})
+	(endif)
+
+	(exit {this})
+	(pop-scope)
+	(return)
+
 (vp-label 'cook_key)
 	;inputs
 	;r0 = key
@@ -272,26 +296,6 @@
 	(vp-string "qQwWeErRtTyYuUiIoOpPaAsSdDfFgGhHjJkKlLzZxXcCvVbBnNmM")
 	(vp-string "1!2@3#4$5%6^7&8*9(0)§±-_=+[{]};:\|,<.>/?`~'")
 	(vp-byte char_double_quote 0)
-
-(def-func-end)
-
-(def-method 'gui 'add)
-	;inputs
-	;r0 = view object (ptr)
-	;outputs
-	;r0 = view object (ptr)
-	;trashes
-	;all but r0
-
-	(entry 'gui 'add '(r0))
-
-	(vp-push r0)
-	(f-bind 'gui 'statics r2)
-	(call 'view 'add_front '((r2 gui_statics_screen) r0))
-	(call 'sys_task 'tcb nil '(r1))
-	(vp-pop r0)
-	(assign '(r1) '((r0 component_tcb)))
-	(jump 'view 'set_flags '(r0 view_flag_dirty_all view_flag_dirty_all))
 
 (def-func-end)
 

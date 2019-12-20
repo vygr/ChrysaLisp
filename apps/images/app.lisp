@@ -6,7 +6,7 @@
 (structure 'event 0
 	(byte 'win_close 'win_next 'win_prev))
 
-(defq images '( apps/images/wallpaper.cpm apps/images/chrysalisp.cpm
+(defq images '(apps/images/wallpaper.cpm apps/images/chrysalisp.cpm
 	apps/images/frill.cpm apps/images/magicbox.cpm apps/images/captive.cpm
 	apps/images/balls.cpm apps/images/banstand.cpm apps/images/bucky.cpm
 	apps/images/circus.cpm apps/images/cyl_test.cpm apps/images/logo.cpm

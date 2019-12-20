@@ -8,7 +8,7 @@
 
 (defq app_list '("terminal" "debug" "help" "docs" "netmon" "stats" "boing" "freeball"
 	"images" "films" "canvas" "raymarch" "pcb" "calculator" "chess" "clock")
-	auto_app_list '("clock" "terminal"))
+	auto_app_list '("wallpaper" "clock" "terminal"))
 
 ; TODO - change above into default lists in a seperate file
 ; with a personalized pupa file for users.

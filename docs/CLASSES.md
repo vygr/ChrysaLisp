@@ -1764,17 +1764,6 @@ trashes
 all
 ```
 
-### gui::add -> gui/gui/add
-
-```lisp
-inputs
-r0 = view object (ptr)
-outputs
-r0 = view object (ptr)
-trashes
-all but r0
-```
-
 ### gui::gui -> gui/gui/gui
 
 ```lisp
@@ -1782,6 +1771,19 @@ gui process
 ```
 
 ### gui::lisp_add -> gui/gui/lisp_add
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+all but r0
+```
+
+### gui::lisp_add_back -> gui/gui/lisp_add_back
 
 ```lisp
 inputs
@@ -7975,7 +7977,7 @@ trashes
 all but r0
 ```
 
-### view::lisp_add_front -> gui/view/lisp_add_front
+### view::lisp_add -> gui/view/lisp_add
 
 ```lisp
 inputs

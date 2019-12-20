@@ -340,14 +340,16 @@
 	;all but r0
 
 	(ptr 'this 'ctx)
+	(ulong 'handle)
+	(int 'tw 'th)
 
 	(push-scope)
 	(entry 'canvas 'draw {this, ctx})
 
 	;blit any texture
 	(vpif {this->canvas_texture})
-		(call 'ctx 'blit {ctx, this->canvas_texture->texture_handle, 0xffffff, 0, 0,
-			this->canvas_texture->texture_width, this->canvas_texture->texture_height})
+		(call 'texture 'get_metrics {this->canvas_texture} {_, handle, tw, th})
+		(call 'ctx 'blit {ctx, handle, 0xffffff, (this->view_w - tw) >>> 1, (this->view_h - th) >>> 1, tw, th})
 	(endif)
 
 	(exit 'canvas 'draw {this})
