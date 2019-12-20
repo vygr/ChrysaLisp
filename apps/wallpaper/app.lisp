@@ -4,7 +4,7 @@
 (import 'gui/lisp.inc)
 
 (defq images '(apps/images/wallpaper.cpm apps/images/chrysalisp.cpm)
-	images_dims (map (lambda (_) (view-get-size (canvas-load _ 0))) images)
+	images_dims (map (lambda (_) (view-get-size (canvas-load _ load_flag_noswap))) images)
 	wallpaper (create-view))
 
 (defun refresh-wallpaper ()
