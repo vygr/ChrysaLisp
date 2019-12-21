@@ -3,7 +3,7 @@
 (import 'class/lisp.inc)
 (import 'gui/lisp.inc)
 
-(defun refresh-wallpaper ()
+(defun-bind refresh-wallpaper ()
 	;pick nearest wallpaper to screen size
 	(bind '(w h) (view-get-size screen))
 	(defq index 0 err max_int)
@@ -12,8 +12,8 @@
 		(when (< new_err err)
 			(setq err new_err index _))) images_dims)
 	(view-sub wallpaper)
-	(setq wallpaper (create-canvas w h 1))
-	(canvas-swap (canvas-resize wallpaper (canvas-load (elem index images) load_flag_noswap)))
+	(canvas-swap (canvas-resize (setq wallpaper (create-canvas w h 1))
+		(canvas-load (elem index images) load_flag_noswap)))
 	(gui-add-back (view-change (view-set-flags wallpaper
 		(const (+ view_flag_at_back view_flag_dirty_all))
 		(const (+ view_flag_at_back view_flag_dirty_all))) 0 0 w h)))
