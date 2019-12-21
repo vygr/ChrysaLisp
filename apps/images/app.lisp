@@ -12,7 +12,7 @@
 	"apps/images/circus.cpm" "apps/images/cyl_test.cpm" "apps/images/logo.cpm"
 	"apps/images/mice.cpm" "apps/images/molecule.cpm" "apps/images/nippon3.cpm"
 	"apps/images/piramid.cpm" "apps/images/rings.cpm" "apps/images/sharpend.cpm"
-	"apps/images/stairs.cpm apps/images/temple.cpm" "apps/images/vermin.cpm")
+	"apps/images/stairs.cpm" "apps/images/temple.cpm" "apps/images/vermin.cpm")
 	index 0 id t)
 
 (ui-tree window (create-window window_flag_close) nil
