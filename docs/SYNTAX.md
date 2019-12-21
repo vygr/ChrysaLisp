@@ -152,6 +152,10 @@
 
 (canvas-plot canvas x y)
 
+## canvas-resize
+
+(canvas-resize canvas canvas)
+
 ## canvas-save
 
 (canvas-save canvas path format)

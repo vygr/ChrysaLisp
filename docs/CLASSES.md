@@ -1179,6 +1179,19 @@ trashes
 all but r0
 ```
 
+### canvas::lisp_resize -> gui/canvas/lisp_resize
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+all but r0
+```
+
 ## component
 
 Super Class: hmap
