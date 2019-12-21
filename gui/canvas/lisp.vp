@@ -308,3 +308,36 @@
 	(signature '(canvas num num num vector)))
 
 (def-func-end)
+
+(def-method 'canvas 'lisp_resize)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
+
+	(entry 'canvas 'lisp_resize '(r0 r1))
+
+(errorcases
+	(call 'lisp 'env_args_type '(r1 ($ sig) 2) '(r2))
+	(gotoif '(r2 = 0) 'error))
+
+	(vp-push r0)
+	(defq in (method-input 'canvas 'resize))
+	(class/vector/bind_args r1 in '(canvas canvas))
+	(call 'canvas 'resize in '(r0))
+	(call 'obj 'ref '(r0) '(r1))
+	(vp-pop r0)
+
+	(exit 'canvas 'lisp_resize '(r0 r1))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r0 "(canvas-resize canvas canvas)" error_msg_wrong_types r1))
+	(signature '(canvas canvas)))
+
+(def-func-end)
