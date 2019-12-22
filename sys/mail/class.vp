@@ -369,34 +369,30 @@
 
 		;fill in all tcb's
 		(f-bind 'sys_task 'statics tcb)
-		(assign `(,iter_begin (,tcb tk_statics_current_tcb)) `(,iter ,tcb))
-		(loop-start)
-			(switch)
-			(assign `((,iter id_mbox ui)) `(,idx))
-			(breakif `(,idx = 0))
-			(call 'sys_mail 'mbox_addr `(,idx) `(,idx))
-			(breakif `(,idx = 0))
-				(assign `(,tcb) `((,idx mbox_tcb)))
-			(endswitch)
-			(vp-add-cr long_size iter)
-		(loop-until `(,iter = ,iter_end))
+		(assign `((,tcb tk_statics_current_tcb)) `(,tcb))
+		(vp-call 'set_tcbs)
 
 		;suspend till some mail arrives
 		(call 'sys_task 'suspend)
 
 		;clear all tcb's !
-		(assign `(,iter_begin 0) `(,iter ,tcb))
-		(loop-start)
-			(switch)
-			(assign `((,iter id_mbox ui)) `(,idx))
-			(breakif `(,idx = 0))
-			(call 'sys_mail 'mbox_addr `(,idx) `(,idx))
-			(breakif `(,idx = 0))
-				(assign `(,tcb) `((,idx mbox_tcb)))
-			(endswitch)
-			(vp-add-cr long_size iter)
-		(loop-until `(,iter = ,iter_end))
+		(vp-xor-rr tcb tcb)
+		(vp-call 'set_tcbs)
 	(loop-end)
+
+(vp-label 'set_tcbs)
+	(assign `(,iter_begin) `(,iter))
+	(loop-start)
+		(switch)
+		(assign `((,iter id_mbox ui)) `(,idx))
+		(breakif `(,idx = 0))
+		(call 'sys_mail 'mbox_addr `(,idx) `(,idx))
+		(breakif `(,idx = 0))
+			(assign `(,tcb) `((,idx mbox_tcb)))
+		(endswitch)
+		(vp-add-cr long_size iter)
+	(loop-until `(,iter = ,iter_end))
+	(vp-ret)
 
 (def-func-end)
 
