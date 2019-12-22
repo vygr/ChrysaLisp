@@ -1,5 +1,6 @@
 (include 'sys/func.inc)
 (include 'sys/link/class.inc)
+(include 'sys/mail/class.inc)
 
 (def-method 'sys_mail 'in)
 	;inputs
@@ -7,18 +8,18 @@
 	;trashes
 	;all
 
-	(ptr 'rx_msg 'msg 'mbox_addr)
+	(ptr 'rx_msg 'msg 'parcel_list)
 	(uint 'len)
 
 	(push-scope)
 	(entry 'sys_mail 'in {rx_msg})
 
 	;look up parcel in mailbox
-	(call 'sys_mail 'mbox_addr {rx_msg->lk_msg_stamp.msg_dest.id_mbox} {mbox_addr})
+	(assign (cat {@} (f-path 'sys_mail 'statics) {.ml_statics_parcel_list}) {parcel_list})
 	(vp-def (next node src id psrc pid))
-	(assign {mbox_addr, rx_msg->lk_msg_stamp.msg_parcel_src, rx_msg->lk_msg_stamp.msg_parcel_id}
+	(assign {parcel_list, rx_msg->lk_msg_stamp.msg_parcel_src, rx_msg->lk_msg_stamp.msg_parcel_id}
 		(list next src id))
-	(loop-list-forward next mbox_parcel_list node next)
+	(loop-list-forward next 0 node next)
 		(vp-cpy-ir node msg_parcel_src psrc)
 		(continueif `(,src /= ,psrc))
 		(vp-cpy-ir-ui node msg_parcel_id pid)
@@ -31,7 +32,7 @@
 		(assign {rx_msg->lk_msg_stamp.msg_dest.id_id} {msg->msg_dest.id_id})
 		(assign {rx_msg->lk_msg_stamp.msg_parcel_src} {msg->msg_parcel_src})
 		(assign {rx_msg->lk_msg_stamp.msg_parcel_id} {msg->msg_parcel_id})
-		(assign {mbox_addr->mbox_parcel_list, msg} (list next node))
+		(assign {parcel_list, msg} (list next node))
 		(lh-add-at-tail next node src)
 	(endif)
 

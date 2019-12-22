@@ -39,7 +39,6 @@
 ;;;;;;;;;;;;;;;;;
 
 (def-struct 'mbox 'lh_list)
-	(struct 'parcel_list 'lh_list)
 	(ptr 'tcb)
 (def-struct-end)
 
@@ -59,6 +58,7 @@
 
 (def-struct 'ml_statics)
 	(struct 'offchip_list 'lh_list)
+	(struct 'parcel_list 'lh_list)
 	(struct 'msg_heap 'hp_heap)
 	(struct 'mbox_heap 'hp_heap)
 	(ptr 'mbox_array 'mbox_free_array 'links_array 'declare_map 'out_mbox_addr)
@@ -69,18 +69,15 @@
 ; mail macros
 ;;;;;;;;;;;;;
 
-(defcfun ml-init (_1 _2 _3)
+(defcfun ml-init (_1 _2)
 	;inputs
 	;_1 = mailbox
 	;_2 = temp
-	;_3 = temp
 	;outputs
 	;_1 = mailbox
 	;trashes
-	;_2, _3
+	;_2
 
 	(vp-xor-rr _2 _2)
 	(vp-cpy-ri _2 _1 mbox_tcb)
-	(lh-init _1 _2)
-	(vp-lea-i _1 mbox_parcel_list _2)
-	(lh-init _2 _3))
+	(lh-init _1 _2))

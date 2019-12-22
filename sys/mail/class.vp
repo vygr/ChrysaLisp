@@ -29,9 +29,11 @@
 	;info
 	;init the mail system
 
-	;init off chip list
+	;init off chip and fragments list
 	(f-bind 'sys_mail 'statics r12)
 	(vp-lea-i r12 ml_statics_offchip_list r0)
+	(lh-init r0 r1)
+	(vp-lea-i r12 ml_statics_parcel_list r0)
 	(lh-init r0 r1)
 
 	;init out postmen task
@@ -69,7 +71,7 @@
 		(vp-ret)
 	(else)
 		(call 'sys_heap 'alloc '((& r4 ml_statics_mbox_heap)) '(_ r1))
-		(ml-init r1 r2 r0)
+		(ml-init r1 r2)
 		(call 'array 'push_back '((r4 ml_statics_mbox_array) r1) '(r0 r1 _ _))
 		(assign '((r0 array_length)) '(r0))
 		(vp-sub-cr 1 r0)
