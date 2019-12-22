@@ -38,8 +38,10 @@
 ; mail structures
 ;;;;;;;;;;;;;;;;;
 
-(def-struct 'mbox 'lh_list)
+(def-struct 'mbox 'ln_node)
+	(struct 'list 'lh_list)
 	(ptr 'tcb)
+	(uint 'id)
 (def-struct-end)
 
 (def-struct 'id)
@@ -80,4 +82,6 @@
 
 	(vp-xor-rr _2 _2)
 	(vp-cpy-ri _2 _1 mbox_tcb)
-	(lh-init _1 _2))
+	(vp-add-cr mbox_list _1)
+	(lh-init _1 _2)
+	(vp-sub-cr mbox_list _1))

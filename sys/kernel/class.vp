@@ -77,7 +77,7 @@
 		(loop-start)
 			;check if any mail
 			(assign {mbox_addr} '(r0))
-			(lh-is-empty r0 0 r1)
+			(lh-is-empty r0 mbox_list r1)
 			(breakif '(r1 = 0))
 			(call 'sys_mail 'read '(r0) {msg, data})
 

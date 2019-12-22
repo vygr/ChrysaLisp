@@ -36,7 +36,7 @@
 	(vp-lea-i r12 ml_statics_parcel_list r0)
 	(lh-init r0 r1)
 
-	;init out postmen task
+	;init postmen task
 	(vp-xor-rr r0 r0)
 	(assign '(r0) '((r12 ml_statics_parcel_id)))
 	(call 'sys_task 'start `((@ ,(f-path 'sys_mail 'out))) '(_ _ r2))
@@ -234,14 +234,14 @@
 
 	(entry 'sys_mail 'read '(r0))
 
-	(lh-is-empty r0 0 r2)
+	(lh-is-empty r0 mbox_list r2)
 	(vpif '(r2 = 0))
 		(f-bind 'sys_task 'statics r1)
 		(assign '((r1 tk_statics_current_tcb)) '(r1))
 		(assign '(r1) '((r0 mbox_tcb)))
 		(call 'sys_task 'suspend)
 	(endif)
-	(lh-get-head r0 0 r0)
+	(lh-get-head r0 mbox_list r0)
 	(vp-cpy-rr r0 r1)
 	(ln-remove-node r1 r2)
 
@@ -270,11 +270,12 @@
 			(assign '((r1 ml_statics_out_mbox_addr)) '(r1))
 		(endif)
 	(vp-label 'post_it)
+		(vp-add-cr mbox_list r1)
 		(lh-add-at-tail r1 r2 r0)
-		(assign '((r1 mbox_tcb)) '(r0))
+		(assign `((r1 ,(- mbox_tcb mbox_list))) '(r0))
 		(vpif '(r0 /= 0))
 			(vp-xor-rr r2 r2)
-			(assign '(r2) '((r1 mbox_tcb)))
+			(assign '(r2) `((r1 ,(- mbox_tcb mbox_list))))
 			(call 'sys_task 'resume '(r0))
 		(endif)
 	(else)
@@ -288,7 +289,7 @@
 			(vp-jmp 'post_it)
 		(default)
 			;queue it on the outgoing packet list
-			(vp-lea-i r1 ml_statics_offchip_list r1)
+			(vp-add-cr ml_statics_offchip_list r1)
 			(lh-add-at-tail r1 r2 r0)
 		(endif)
 	(endif)
@@ -320,7 +321,7 @@
 		(breakif '(r4 = 0))
 		(vp-shl-cr (log2 long_size) r4)
 		(assign '((r3 r4)) '(r4))
-		(lh-is-empty r4 0 r4)
+		(lh-is-empty r4 mbox_list r4)
 		(breakif '(r4 = 0))
 			;return mailbox index
 			(vp-sub-rr r1 r0)
