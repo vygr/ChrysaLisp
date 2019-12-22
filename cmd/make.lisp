@@ -103,7 +103,7 @@
 	options:
 		-h --help: this help info.
 	all: include all .vp files.
-	boot: create a boot_imge.
+	boot: create a boot image.
 	platforms: for all platforms not just the host.
 	doc: scan source files and create documentation.")
 ))
