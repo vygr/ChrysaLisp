@@ -18,7 +18,7 @@
 (dec-method 'free_obj 'sys/mail/free_obj 'static '(r0) '(r0 r1 r2))
 (dec-method 'send 'sys/mail/send 'static '(r0))
 (dec-method 'read 'sys/mail/read 'static '(r0) '(r0 r1))
-(dec-method 'poll 'sys/mail/poll 'static '(r0) '(r0 r1 r2 r3))
+(dec-method 'poll 'sys/mail/poll 'static '(r0) '(r0 r4 r5))
 (dec-method 'select 'sys/mail/select 'static '(r0) '(r0))
 (dec-method 'mymail 'sys/mail/mymail 'static nil '(r0 r1))
 (dec-method 'declare 'sys/mail/declare 'static '(r0 r1))
@@ -59,29 +59,11 @@
 (def-struct-end)
 
 (def-struct 'ml_statics)
+	(struct 'mbox_list 'lh_list)
 	(struct 'offchip_list 'lh_list)
 	(struct 'parcel_list 'lh_list)
 	(struct 'msg_heap 'hp_heap)
 	(struct 'mbox_heap 'hp_heap)
-	(ptr 'mbox_array 'mbox_free_array 'links_array 'declare_map 'out_mbox_addr)
-	(uint 'parcel_id)
+	(ptr 'links_array 'declare_map 'out_mbox_addr)
+	(uint 'parcel_id 'next_mbox_id)
 (def-struct-end)
-
-;;;;;;;;;;;;;
-; mail macros
-;;;;;;;;;;;;;
-
-(defcfun ml-init (_1 _2)
-	;inputs
-	;_1 = mailbox
-	;_2 = temp
-	;outputs
-	;_1 = mailbox
-	;trashes
-	;_2
-
-	(vp-xor-rr _2 _2)
-	(vp-cpy-ri _2 _1 mbox_tcb)
-	(vp-add-cr mbox_list _1)
-	(lh-init _1 _2)
-	(vp-sub-cr mbox_list _1))

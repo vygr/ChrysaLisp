@@ -5712,7 +5712,7 @@ outputs
 r0 = heap (ptr)
 r1 = cell (ptr)
 trashes
-r2
+r1-r2
 ```
 
 ### sys_heap::free -> sys/heap/free
@@ -5918,7 +5918,7 @@ outputs
 r0 = mailbox id (uint)
 r1 = mailbox address (ptr)
 trashes
-r2-r5
+r0-r4
 ```
 
 ### sys_mail::free_mbox -> sys/mail/free_mbox
@@ -5927,7 +5927,7 @@ r2-r5
 inputs
 r0 = mailbox id (uint)
 trashes
-r0-r5
+r0-r3
 ```
 
 ### sys_mail::mbox_addr -> sys/mail/mbox_addr
@@ -5938,7 +5938,7 @@ r0 = mailbox id (uint)
 outputs
 r0 = 0, else mailbox address (ptr)
 trashes
-r0-r1
+r0-r3
 ```
 
 ### sys_mail::alloc -> sys/mail/alloc
@@ -5994,7 +5994,7 @@ r3-r5
 inputs
 r0 = mail message (ptr)
 trashes
-r0-r2
+r0-r4
 ```
 
 ### sys_mail::read -> sys/mail/read
@@ -6016,11 +6016,10 @@ inputs
 r0 = mailbox id array object (ptr)
 outputs
 r0 = -1, else mailbox index (uint)
-r1 = mailbox id array begin iter (pptr)
-r2 = mailbox id array end iter (pptr)
-r3 = mailbox id address begin iter (pptr)
+r4 = mailbox id array begin iter (pptr)
+r5 = mailbox id array end iter (pptr)
 trashes
-r0-r4
+r0-r6
 ```
 
 ### sys_mail::select -> sys/mail/select
@@ -6031,7 +6030,7 @@ r0 = mailbox id array object (ptr)
 outputs
 r0 = mailbox index (uint)
 trashes
-r1-r6
+r0-r8
 ```
 
 ### sys_mail::mymail -> sys/mail/mymail
@@ -6087,7 +6086,7 @@ all
 
 ```lisp
 info
-parcels going off chip task
+parcels going off chip or junk mail task
 ```
 
 ### sys_mail::lisp_read -> sys/mail/lisp_read

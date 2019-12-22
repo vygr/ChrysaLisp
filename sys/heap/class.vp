@@ -74,7 +74,7 @@
 	;r0 = heap (ptr)
 	;r1 = cell (ptr)
 	;trashes
-	;r2
+	;r1-r2
 
 	(entry 'sys_heap 'alloc '(r0))
 

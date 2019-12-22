@@ -62,7 +62,7 @@
 
 	(vp-push r0)
 	(class/vector/bind_args r1 '(r0) '(array))
-	(call 'sys_mail 'poll '(r0) '(r0 _ _ _))
+	(call 'sys_mail 'poll '(r0) '(r0 _ _))
 	(vpif '(r0 /= -1))
 		(call 'num 'create '(r0) '(r1))
 	(else)

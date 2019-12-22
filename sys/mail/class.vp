@@ -18,9 +18,9 @@
 	;init the mbox array and mbox free array
 
 	(f-bind 'sys_mail 'statics r12)
-	(call 'array 'create nil '(r0))
-	(call 'array 'set_capacity '(r0 32) '((r12 ml_statics_mbox_array)))
-	(call 'array 'create nil '((r12 ml_statics_mbox_free_array)))
+	(vp-xor-rr r0 r0)
+	(assign '(r0 (& r12 ml_statics_mbox_list)) '((r12 ml_statics_next_mbox_id) r0))
+	(lh-init r0 r1)
 	(jump 'sys_heap 'init '((& r12 ml_statics_mbox_heap) mbox_size 32))
 
 (def-func-end)
@@ -59,26 +59,22 @@
 	;r0 = mailbox id (uint)
 	;r1 = mailbox address (ptr)
 	;trashes
-	;r2-r5
+	;r0-r4
 
 	(f-bind 'sys_mail 'statics r4)
-	(d-call 'array 'get_length '((r4 ml_statics_mbox_free_array)) '(r0 r1))
-	(vpif '(r1 /= 0))
-		(call 'array 'pop_back '(r0) '(r0 r3))
-		(call 'array 'get_element '((r4 ml_statics_mbox_array) r3) '(_ r1))
+	(assign '((r4 ml_statics_next_mbox_id)) '(r3))
+	(vp-lea-i r3 1 r0)
+	(assign '(r0) '((r4 ml_statics_next_mbox_id)))
+	(call 'sys_heap 'alloc '((& r4 ml_statics_mbox_heap)) '(_ r1))
+	(vp-xor-rr r2 r2)
+	(assign '(r3 r2) '((r1 mbox_id) (r1 mbox_tcb)))
+	(vp-lea-i r1 mbox_list r0)
+	(lh-init r0 r2)
+	(vp-add-cr ml_statics_mbox_list r4)
+	(lh-add-at-tail r4 r1 r2)
 
-		(exit 'sys_mail 'alloc_mbox '(r3 r1))
-		(vp-ret)
-	(else)
-		(call 'sys_heap 'alloc '((& r4 ml_statics_mbox_heap)) '(_ r1))
-		(ml-init r1 r2)
-		(call 'array 'push_back '((r4 ml_statics_mbox_array) r1) '(r0 r1 _ _))
-		(assign '((r0 array_length)) '(r0))
-		(vp-sub-cr 1 r0)
-
-		(exit 'sys_mail 'alloc_mbox '(r0 r1))
-		(vp-ret)
-	(endif)
+	(exit 'sys_mail 'alloc_mbox '(r3 r1))
+	(vp-ret)
 
 (def-func-end)
 
@@ -86,12 +82,19 @@
 	;inputs
 	;r0 = mailbox id (uint)
 	;trashes
-	;r0-r5
+	;r0-r3
 
-	(entry 'sys_mail 'free_mbox '(r1))
+	(entry 'sys_mail 'free_mbox '(r0))
 
-	(f-bind 'sys_mail 'statics r0)
-	(jump 'array 'push_back '((r0 ml_statics_mbox_free_array) r1))
+	(call 'sys_mail 'mbox_addr '(r0) '(r0))
+	(vpif '(r0 /= 0))
+		(vp-cpy-rr r0 r1)
+		(ln-remove-node r1 r2)
+		(f-bind 'sys_mail 'statics r1)
+		(vp-add-cr ml_statics_mbox_heap r1)
+		(hp-freecell r1 r0 r2)
+	(endif)
+	(vp-ret)
 
 (def-func-end)
 
@@ -101,17 +104,24 @@
 	;outputs
 	;r0 = 0, else mailbox address (ptr)
 	;trashes
-	;r0-r1
+	;r0-r3
 
-	(entry 'sys_mail 'mbox_addr '(r0))
+	(vp-def (node next mid id))
 
-	(f-bind 'sys_mail 'statics r1)
-	(vp-shl-cr 32 r0)
-	(vp-shr-cr 32 r0)
-	(assign '((r1 ml_statics_mbox_array)) '(r1))
-	(class/array/get_element r1 r0 r0 r1)
+	(entry 'sys_mail 'mbox_addr `(,id))
 
-	(exit 'sys_mail 'mbox_addr '(r0))
+	(f-bind 'sys_mail 'statics node)
+	(vp-shl-cr 32 id)
+	(vp-shr-cr 32 id)
+	(loop-list-forward node ml_statics_mbox_list node next)
+		(assign `((,node mbox_id)) `(,mid))
+	(loop-until `(,mid = ,id))
+	(vpif `(,next = 0))
+		;not found
+		(vp-cpy-rr next node)
+	(endif)
+
+	(exit 'sys_mail 'mbox_addr `(,node))
 	(vp-ret)
 
 (def-func-end)
@@ -254,16 +264,16 @@
 	;inputs
 	;r0 = mail message (ptr)
 	;trashes
-	;r0-r2
+	;r0-r4
 
-	(entry 'sys_mail 'send '(r2))
+	(entry 'sys_mail 'send '(r4))
 
 	;on or off chip ?
 	(call 'sys_kernel 'id '() '(r0))
-	(vp-cpy-ir-ui r2 (+ msg_dest id_cpu) r1)
+	(vp-cpy-ir-ui r4 (+ msg_dest id_cpu) r1)
 	(vpif '(r0 = r1))
 		;on this chip
-		(call 'sys_mail 'mbox_addr `((r2 ,(+ msg_dest id_mbox))) '(r1))
+		(call 'sys_mail 'mbox_addr `((r4 ,(+ msg_dest id_mbox))) '(r1))
 		(vpif '(r1 = 0))
 			;must use postman task for junk mail
 			(f-bind 'sys_mail 'statics r1)
@@ -271,17 +281,17 @@
 		(endif)
 	(vp-label 'post_it)
 		(vp-add-cr mbox_list r1)
-		(lh-add-at-tail r1 r2 r0)
+		(lh-add-at-tail r1 r4 r0)
 		(assign `((r1 ,(- mbox_tcb mbox_list))) '(r0))
 		(vpif '(r0 /= 0))
-			(vp-xor-rr r2 r2)
-			(assign '(r2) `((r1 ,(- mbox_tcb mbox_list))))
+			(vp-xor-rr r4 r4)
+			(assign '(r4) `((r1 ,(- mbox_tcb mbox_list))))
 			(call 'sys_task 'resume '(r0))
 		(endif)
 	(else)
 		;going off chip
 		(f-bind 'sys_mail 'statics r1)
-		(assign '((r2 msg_length)) '(r0))
+		(assign '((r4 msg_length)) '(r0))
 		(switch)
 		(vpcase '(r0 > lk_data_size))
 			;must use postman task for parcels
@@ -290,7 +300,7 @@
 		(default)
 			;queue it on the outgoing packet list
 			(vp-add-cr ml_statics_offchip_list r1)
-			(lh-add-at-tail r1 r2 r0)
+			(lh-add-at-tail r1 r4 r0)
 		(endif)
 	(endif)
 	(vp-ret)
@@ -302,37 +312,36 @@
 	;r0 = mailbox id array object (ptr)
 	;outputs
 	;r0 = -1, else mailbox index (uint)
-	;r1 = mailbox id array begin iter (pptr)
-	;r2 = mailbox id array end iter (pptr)
-	;r3 = mailbox id address begin iter (pptr)
+	;r4 = mailbox id array begin iter (pptr)
+	;r5 = mailbox id array end iter (pptr)
 	;trashes
-	;r0-r4
+	;r0-r6
+
+	(vp-def (idx iter_begin iter_end iter) '(r0 r4 r5 r6))
 
 	(entry 'sys_mail 'poll '(r0))
 
 	;check if any have mail
-	(f-bind 'sys_mail 'statics r3)
-	(class/array/get_both r0 r1 r2)
-	(assign '((r3 ml_statics_mbox_array) r1) '(r3 r0))
-	(assign '((r3 array_begin)) '(r3))
+	(class/array/get_both r0 iter iter_end)
+	(vp-cpy-rr iter iter_begin)
 	(loop-start)
 		(switch)
-		(assign '((r0 id_mbox ui)) '(r4))
-		(breakif '(r4 = 0))
-		(vp-shl-cr (log2 long_size) r4)
-		(assign '((r3 r4)) '(r4))
-		(lh-is-empty r4 mbox_list r4)
-		(breakif '(r4 = 0))
+		(assign `((,iter id_mbox ui)) `(,idx))
+		(breakif `(,idx = 0))
+		(call 'sys_mail 'mbox_addr `(,idx) `(,idx))
+		(breakif `(,idx = 0))
+		(lh-is-empty idx mbox_list idx)
+		(breakif `(,idx = 0))
 			;return mailbox index
-			(vp-sub-rr r1 r0)
-			(vp-shr-cr (log2 long_size) r0)
-			(exit 'sys_mail 'poll '(r0 r1 r2 r3))
+			(vp-sub-rr iter_begin iter)
+			(vp-shr-cr (log2 long_size) iter)
+			(exit 'sys_mail 'poll `(,iter ,iter_begin ,iter_end))
 			(vp-ret)
 		(endswitch)
-		(vp-add-cr long_size r0)
-	(loop-until '(r0 = r2))
+		(vp-add-cr long_size iter)
+	(loop-until `(,iter = ,iter_end))
 
-	(exit 'sys_mail 'poll '(-1 r1 r2 r3))
+	(exit 'sys_mail 'poll `(-1 ,iter_begin ,iter_end))
 	(vp-ret)
 
 (def-func-end)
@@ -343,49 +352,50 @@
 	;outputs
 	;r0 = mailbox index (uint)
 	;trashes
-	;r1-r6
+	;r0-r8
 
-	(entry 'sys_mail 'select '(r5))
+	(vp-def (idx iter_begin iter_end iter ids tcb) '(r0 r4 r5 r6 r7 r8))
+
+	(entry 'sys_mail 'select `(,ids))
 
 	(loop-start)
 		;check if any have mail
-		(call 'sys_mail 'poll '(r5) '(r0 r1 r2 r3))
-		(vpif '(r0 /= -1))
+		(call 'sys_mail 'poll `(,ids) `(,idx ,iter_begin ,iter_end))
+		(vpif `(,idx /= -1))
 			;return mailbox index
-			(exit 'sys_mail 'select '(r0))
+			(exit 'sys_mail 'select `(,idx))
 			(vp-ret)
 		(endif)
 
 		;fill in all tcb's
-		(f-bind 'sys_task 'statics r4)
-		(assign '(r1 (r4 tk_statics_current_tcb)) '(r0 r4))
+		(f-bind 'sys_task 'statics tcb)
+		(assign `(,iter_begin (,tcb tk_statics_current_tcb)) `(,iter ,tcb))
 		(loop-start)
-			(assign '((r0 id_mbox ui)) '(r6))
-			(vpif '(r6 /= 0))
-				(vp-shl-cr (log2 long_size) r6)
-				(assign '((r3 r6)) '(r6))
-				(assign '(r4) '((r6 mbox_tcb)))
-			(endif)
-			(vp-add-cr long_size r0)
-		(loop-until '(r0 = r2))
+			(switch)
+			(assign `((,iter id_mbox ui)) `(,idx))
+			(breakif `(,idx = 0))
+			(call 'sys_mail 'mbox_addr `(,idx) `(,idx))
+			(breakif `(,idx = 0))
+				(assign `(,tcb) `((,idx mbox_tcb)))
+			(endswitch)
+			(vp-add-cr long_size iter)
+		(loop-until `(,iter = ,iter_end))
 
 		;suspend till some mail arrives
 		(call 'sys_task 'suspend)
 
-		;clear all tcb's, system mailbox array may have changed while asleep !
-		(f-bind 'sys_mail 'statics r3)
-		(assign '((r3 ml_statics_mbox_array)) '(r3))
-		(vp-xor-rr r4 r4)
-		(assign '((r3 array_begin)) '(r3))
+		;clear all tcb's !
+		(assign `(,iter_begin 0) `(,iter ,tcb))
 		(loop-start)
-			(assign '((r1 id_mbox ui)) '(r0))
-			(vpif '(r0 /= 0))
-				(vp-shl-cr (log2 long_size) r0)
-				(assign '((r3 r0)) '(r0))
-				(assign '(r4) '((r0 mbox_tcb)))
-			(endif)
-			(vp-add-cr long_size r1)
-		(loop-until '(r1 = r2))
+			(switch)
+			(assign `((,iter id_mbox ui)) `(,idx))
+			(breakif `(,idx = 0))
+			(call 'sys_mail 'mbox_addr `(,idx) `(,idx))
+			(breakif `(,idx = 0))
+				(assign `(,tcb) `((,idx mbox_tcb)))
+			(endswitch)
+			(vp-add-cr long_size iter)
+		(loop-until `(,iter = ,iter_end))
 	(loop-end)
 
 (def-func-end)
