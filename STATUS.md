@@ -4,6 +4,16 @@
 
 ------
 
+Local mailbox ids are now never reused ! Plus mailbox destinations are
+validated against the list of currently allocated mailboxes. Any mail sent to a
+freed mailbox is passed onto the postman task to deal with. Currently this mail
+will just be freed, but eventually it may be logged and available as debugging
+aids. But the most important thing is that the system will not crash as a
+result of old messages still to be delivered after a mailbox dies being sent to
+the wrong mailbox !
+
+------
+
 GUI process now sends out a ev_type_gui event to all top level components on a
 GUI resize event. This allows apps to resize themselves or in the case of the
 new wallpaper app demo, maybe switch to better fitting assets etc.
