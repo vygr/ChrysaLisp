@@ -99,16 +99,17 @@
 	;inputs
 	;r0 = mailbox id (uint)
 	;outputs
-	;r0 = mailbox address (ptr)
+	;r0 = 0, else mailbox address (ptr)
 	;trashes
-	;r0-r2
+	;r0-r1
 
 	(entry 'sys_mail 'mbox_addr '(r0))
 
-	(vp-cpy-cr 0xffffffff r1)
-	(vp-and-rr r0 r1)
-	(f-bind 'sys_mail 'statics r0)
-	(call 'array 'get_element '((r0 ml_statics_mbox_array) r1) '(_ r0))
+	(f-bind 'sys_mail 'statics r1)
+	(vp-shl-cr 32 r0)
+	(vp-shr-cr 32 r0)
+	(assign '((r1 ml_statics_mbox_array)) '(r1))
+	(class/array/get_element r1 r0 r0 r1)
 
 	(exit 'sys_mail 'mbox_addr '(r0))
 	(vp-ret)
@@ -255,18 +256,19 @@
 	;trashes
 	;r0-r2
 
-	;on or off chip ?
 	(entry 'sys_mail 'send '(r2))
 
+	;on or off chip ?
 	(call 'sys_kernel 'id '() '(r0))
 	(vp-cpy-ir-ui r2 (+ msg_dest id_cpu) r1)
 	(vpif '(r0 = r1))
 		;on this chip
-		(f-bind 'sys_mail 'statics r0)
-		(assign `((r2 ,(+ msg_dest id_mbox) ui) (r0 ml_statics_mbox_array)) '(r1 r0))
-		(vp-shl-cr (log2 ptr_size) r1)
-		(assign '((r0 array_begin)) '(r0))
-		(vp-cpy-dr r0 r1 r1)
+		(call 'sys_mail 'mbox_addr `((r2 ,(+ msg_dest id_mbox))) '(r1))
+		(vpif '(r1 = 0))
+			;must use postman task for junk mail
+			(f-bind 'sys_mail 'statics r1)
+			(assign '((r1 ml_statics_out_mbox_addr)) '(r1))
+		(endif)
 	(vp-label 'post_it)
 		(lh-add-at-tail r1 r2 r0)
 		(assign '((r1 mbox_tcb)) '(r0))
@@ -281,7 +283,7 @@
 		(assign '((r2 msg_length)) '(r0))
 		(switch)
 		(vpcase '(r0 > lk_data_size))
-			;must use postman task
+			;must use postman task for parcels
 			(assign '((r1 ml_statics_out_mbox_addr)) '(r1))
 			(vp-jmp 'post_it)
 		(default)

@@ -5,7 +5,7 @@
 
 (def-method 'sys_mail 'out)
 	;info
-	;parcels going off chip task
+	;parcels going off chip or junk mail task
 
 	(ptr 'msg 'data 'frag 'mail_statics)
 	(uint 'id 'offset 'ammount 'len)
@@ -15,9 +15,14 @@
 	(call 'sys_kernel 'id nil {id})
 	(assign (cat {@} (f-path 'sys_mail 'statics)) {mail_statics})
 
-	(loop-start)
-		;read parcel
+	(loop-start 'mail_loop)
+		;read parcel or junk mail
 		(call 'sys_mail 'mymail nil {msg, data})
+		(vpif {msg->msg_dest.id_mbox = id})
+			;we got some junk mail, just free it for now
+			(call 'sys_mail 'free {msg})
+			(continue 'mail_loop)
+		(endif)
 
 		;create next parcel id
 		(assign {mail_statics->ml_statics_parcel_id + 1} {mail_statics->ml_statics_parcel_id})

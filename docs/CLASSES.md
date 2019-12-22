@@ -5936,9 +5936,9 @@ r0-r5
 inputs
 r0 = mailbox id (uint)
 outputs
-r0 = mailbox address (ptr)
+r0 = 0, else mailbox address (ptr)
 trashes
-r0-r2
+r0-r1
 ```
 
 ### sys_mail::alloc -> sys/mail/alloc
