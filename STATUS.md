@@ -4,6 +4,12 @@
 
 ------
 
+Looks like the SDL 2.0.10 release introduces a lot of problems ! I recommend
+folks stick to SDL 2.0.9 until I can find out what has changed and report
+problems back to the SDL crew.
+
+------
+
 Local mailbox ids are now never reused ! Plus mailbox destinations are
 validated against the list of currently allocated mailboxes. Any mail sent to a
 freed mailbox is passed onto the postman task to deal with. Currently this mail
