@@ -102,10 +102,15 @@
 			{user->local_statics->gui_statics_window})
 
 		;create renderer and back buffer
+(when dual_buffers
+		(host-call 'host 'sdl_create_renderer
+			{user->local_statics->gui_statics_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC}
+			{user->local_statics->gui_statics_renderer})
+)
+(unless dual_buffers
 		(host-call 'host 'sdl_create_renderer
 			{user->local_statics->gui_statics_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_TARGETTEXTURE}
 			{user->local_statics->gui_statics_renderer})
-(unless dual_buffers
 		(host-call 'host 'sdl_create_texture
 			{user->local_statics->gui_statics_renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_TARGET, SCREEN_WIDTH, SCREEN_HEIGHT}
 			{user->local_statics->gui_statics_texture})
