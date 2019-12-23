@@ -215,6 +215,7 @@ when
 
 ```lisp
 abs
+abi
 align
 ascii-char
 ascii-code
@@ -253,7 +254,6 @@ nto
 ntz
 num?
 partition
-platform
 range
 reduce
 reduce-rev
