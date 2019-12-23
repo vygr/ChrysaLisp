@@ -120,19 +120,17 @@
 (when dual_buffers
 		;no render to texture
 		(call 'gui 'update {user->local_statics->gui_statics_screen})
-		(call 'vector 'clear {user->local_statics->gui_statics_temps})
-		(host-call 'host 'sdl_render_copy {user->local_statics->gui_statics_renderer, user->local_statics->gui_statics_texture, 0, 0})
 )
 (unless dual_buffers
 		;render to back buffer texture
 		(host-call 'host 'sdl_set_render_target {user->local_statics->gui_statics_renderer, user->local_statics->gui_statics_texture})
 		(call 'gui 'update {user->local_statics->gui_statics_screen})
-		(call 'vector 'clear {user->local_statics->gui_statics_temps})
 		(host-call 'host 'sdl_set_render_target {user->local_statics->gui_statics_renderer, 0})
 		(host-call 'host 'sdl_render_copy {user->local_statics->gui_statics_renderer, user->local_statics->gui_statics_texture, 0, 0})
 )
 		(host-call 'host 'sdl_render_present {user->local_statics->gui_statics_renderer})
 		;clear dirty flag
+		(call 'vector 'clear {user->local_statics->gui_statics_temps})
 		(assign {0} {user->local_statics->gui_statics_dirty_flag})
 	(endif)
 
