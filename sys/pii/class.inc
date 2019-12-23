@@ -25,6 +25,9 @@
 (dec-method 'sdl_set_texture_color_mod nil 'virtual (abi-args 4) '(r0))
 (dec-method 'sdl_create_rgb_surface_from nil 'virtual (abi-args 9) '(r0))
 (dec-method 'sdl_compose_custom_blend_mode nil 'virtual (abi-args 6) '(r0))
+(dec-method 'sdl_create_texture nil 'virtual (abi-args 5) '(r0))
+(dec-method 'sdl_set_render_target nil 'virtual (abi-args 2) '(r0))
+(dec-method 'sdl_render_clear nil 'virtual (abi-args 1) '(r0))
 
 (dec-method 'ttf_init nil 'virtual (abi-args 0) '(r0))
 (dec-method 'ttf_quit nil 'virtual (abi-args 0) '(r0))
@@ -140,6 +143,14 @@
 (defcvar 'SDL_BLENDFACTOR_ONE_MINUS_DST_COLOR 0x8)
 (defcvar 'SDL_BLENDFACTOR_DST_ALPHA 0x9)
 (defcvar 'SDL_BLENDFACTOR_ONE_MINUS_DST_ALPHA 0xA)
+
+(defcvar 'SDL_TEXTUREACCESS_STATIC 0x0)
+(defcvar 'SDL_TEXTUREACCESS_STREAMING 0x1)
+(defcvar 'SDL_TEXTUREACCESS_TARGET 0x2)
+
+(defcvar 'SDL_PIXELFORMAT_RGB888 0x16161804)
+(defcvar 'SDL_PIXELFORMAT_RGBA8888 0x16462004)
+(defcvar 'SDL_PIXELFORMAT_ARGB8888 0x16362004)
 
 (def-struct 'sdl_rect)
 	(int 'x 'y 'w 'h)

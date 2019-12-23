@@ -10,7 +10,7 @@
 (include 'gui/ctx/class.inc)
 (include 'gui/backdrop/class.inc)
 
-(defcvar 'dual_buffers t)
+(defcvar 'dual_buffers nil)
 
 (def-method 'gui 'statics)
 	(times gui_statics_size (vp-byte 0))
@@ -101,10 +101,13 @@
 			{$title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE}
 			{user->local_statics->gui_statics_window})
 
-		;create renderer
+		;create renderer and back buffer
 		(host-call 'host 'sdl_create_renderer
-			{user->local_statics->gui_statics_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC}
+			{user->local_statics->gui_statics_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_TARGETTEXTURE}
 			{user->local_statics->gui_statics_renderer})
+		(host-call 'host 'sdl_create_texture
+			{user->local_statics->gui_statics_renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_TARGET, SCREEN_WIDTH, SCREEN_HEIGHT}
+			{user->local_statics->gui_statics_texture})
 
 		;set blend mode
 		(host-call 'host 'sdl_set_render_draw_blend_mode {user->local_statics->gui_statics_renderer, SDL_BLENDMODE_BLEND})
@@ -112,10 +115,15 @@
 
 	;update screen
 	(vpif {user->local_statics->gui_statics_dirty_flag})
-		;update the screen and refresh
+		;update the back buffer
+		(host-call 'host 'sdl_set_render_target {user->local_statics->gui_statics_renderer, user->local_statics->gui_statics_texture})
 		(call 'gui 'update {user->local_statics->gui_statics_screen})
 		(call 'vector 'clear {user->local_statics->gui_statics_temps})
+		;copy to screen and swap
+		(host-call 'host 'sdl_set_render_target {user->local_statics->gui_statics_renderer, 0})
+		(host-call 'host 'sdl_render_copy {user->local_statics->gui_statics_renderer, user->local_statics->gui_statics_texture, 0, 0})
 		(host-call 'host 'sdl_render_present {user->local_statics->gui_statics_renderer})
+		;clear dirty flag
 		(assign {0} {user->local_statics->gui_statics_dirty_flag})
 	(endif)
 
@@ -189,6 +197,11 @@
 		(vpcase {event.sdl_common_event_type = SDL_WINDOWEVENT})
 			(switch)
 			(vpcase {event.sdl_window_event_event = SDL_WINDOWEVENT_SIZE_CHANGED})
+				;resize back buffer and redraw in full
+				(host-call 'host 'sdl_destroy_texture {user->local_statics->gui_statics_texture})
+				(host-call 'host 'sdl_create_texture
+					{user->local_statics->gui_statics_renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_TARGET, event.sdl_window_event_data1, event.sdl_window_event_data2}
+					{user->local_statics->gui_statics_texture})
 				(call 'backdrop 'change '{user->local_statics->gui_statics_screen, 0, 0, event.sdl_window_event_data1, event.sdl_window_event_data2})
 				;send gui event to all top level views
 				(call 'backdrop 'forward {user->local_statics->gui_statics_screen, user, $send_gui_event})
