@@ -61,10 +61,20 @@
 	;trashes
 	;r0-r4
 
+	;pick next id
 	(f-bind 'sys_mail 'statics r4)
 	(assign '((r4 ml_statics_next_mbox_id)) '(r3))
+	(loop-start)
+		(loop-list-forward r4 ml_statics_mbox_list r1 r2)
+			(assign '((r1 mbox_id)) '(r0))
+		(loop-until '(r3 = r0))
+		(breakif '(r2 = 0))
+		(vp-add-cr 1 r3)
+	(loop-end)
 	(vp-lea-i r3 1 r0)
 	(assign '(r0) '((r4 ml_statics_next_mbox_id)))
+
+	;allocate mailbox with this id
 	(call 'sys_heap 'alloc '((& r4 ml_statics_mbox_heap)) '(_ r1))
 	(vp-xor-rr r2 r2)
 	(assign '(r3 r2) '((r1 mbox_id) (r1 mbox_tcb)))
