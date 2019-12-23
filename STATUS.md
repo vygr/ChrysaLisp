@@ -8,6 +8,20 @@ Looks like the SDL 2.0.10 release introduces a lot of problems ! I recommend
 folks stick to SDL 2.0.9 until I can find out what has changed and report
 problems back to the SDL crew.
 
+Issues with 2.0.10:
+
+* MacOS restore from window minimise no longer sends SDL_WINDOWEVENT_RESTORED
+event.
+
+* MacOS virtual screen scrolling freezes SDL application output.
+
+* MacOS switches to triple buffering after full screen switch.
+
+* Win10 crashes on SDL_CreateTexture with SDL_TEXTUREACCESS_TARGET flag.
+
+* Win10 draw state is corrupted by texture upload. Draw Color and/or Texture
+blend modes trashed.
+
 ------
 
 Local mailbox ids are now never reused ! Plus mailbox destinations are
