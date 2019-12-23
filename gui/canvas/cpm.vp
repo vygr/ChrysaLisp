@@ -261,6 +261,7 @@
 					(call 'stream 'read_bits {this->canvas_stream, this->canvas_stream_type, 0, 0} {_, col, _, _})
 					(breakif {col = -1} 'error)
 					(call 'canvas 'to_argb32 {col, this->canvas_stream_type} (list col))
+					(call 'canvas 'to_premul (list col) (list col))
 					(assign {length, data, data_end} (list len data data_end))
 					(breakif `(,data >= ,data_end) 'error)
 					(vp-cpy-ri-i col data 0)
