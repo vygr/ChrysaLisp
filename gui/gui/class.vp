@@ -10,7 +10,7 @@
 (include 'gui/ctx/class.inc)
 (include 'gui/backdrop/class.inc)
 
-(defcvar 'dual_buffers nil)
+(defcvar 'dual_buffers t)
 
 (def-method 'gui 'statics)
 	(times gui_statics_size (vp-byte 0))
