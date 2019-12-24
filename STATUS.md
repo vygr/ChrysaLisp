@@ -15,12 +15,15 @@ event.
 
 * MacOS virtual screen scrolling freezes SDL application output.
 
-* MacOS switches to triple buffering after full screen switch.
+* MacOS switches to triple buffering after full screen switch. This might not
+be a bug but a change from 2.0.9 behaviour.
 
-* Win10 crashes on SDL_CreateTexture with SDL_TEXTUREACCESS_TARGET flag.
+* Win10 crashes on SDL_CreateTexture call, dosn't seam to matter what the
+texture mode flag is.
 
 * Win10 draw state is corrupted by texture upload. Draw Color and/or Texture
-blend modes trashed.
+blend modes and/or blit clip regions trashed. Not 100% sure but drawing is
+corupted.
 
 ------
 
