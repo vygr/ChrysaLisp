@@ -261,7 +261,7 @@
 	(assign {&user->local_statics->gui_statics_old_regions} {iter_begin})
 	(assign {&iter_begin[num_old_regions * ptr_size]} {iter_end})
 	(loop-while {iter_begin /= iter_end})
-		(call 'region 'free {user->local_statics->gui_statics_rect_heap, *iter_begin})
+		(call 'region 'free {user->local_statics->gui_statics_rect_heap, iter_begin})
 		(assign {iter_begin + ptr_size} {iter_end})
 	(loop-end)
 	(call 'sys_heap 'deinit {user->local_statics->gui_statics_rect_heap})
@@ -358,30 +358,21 @@
 	(call 'view 'backward_tree '(r0 r0 ($ null_func_down_callback) ($ visible_up_callback)))
 
 	(when (/= num_old_regions 0)
-		;copy damaged region
+		;copy new damaged region
 		(vp-xor-rr r1 r1)
 		(assign '(r1) '((rsp local_damaged_region)))
 		(f-bind 'gui 'statics r4)
 		(call 'region 'copy_rect '((& r4 gui_statics_rect_heap) (& r0 view_dirty_region)
 			(& rsp local_damaged_region) 0 0 (r0 view_w) (r0 view_h)) '(r0))
 
-		;paste all old damaged regions into root
+		;paste old damaged region into root
 		(f-bind 'gui 'statics r4)
-		(assign '((r4 gui_statics_old_region_index)) '(r2))
-		(loop-start)
-			(assign '(r2 (rsp local_root) (& r4 gui_statics_old_regions)) '((rsp local_index) r3 r1))
-			(call 'region 'paste_region '(r0 (& r1 r2) (& r3 view_dirty_region) 0 0) '(r0))
-			(f-bind 'gui 'statics r4)
-			(assign '((rsp local_index) (r4 gui_statics_old_region_index)) '(r2 r1))
-			(vp-add-cr ptr_size r2)
-			(vpif `(r2 = ,(* num_old_regions ptr_size)))
-				(vp-xor-rr r2 r2)
-			(endif)
-		(loop-until '(r2 = r1))
+		(assign '((& r4 gui_statics_old_regions) (r4 gui_statics_old_region_index) (rsp local_root)) '(r1 r2 r3))
+		(call 'region 'paste_region '(r0 (& r1 r2) (& r3 view_dirty_region) 0 0) '(r0))
 
 		;free old damaged region
 		(f-bind 'gui 'statics r4)
-		(assign '((& r4 gui_statics_old_regions)) '(r1))
+		(assign '((& r4 gui_statics_old_regions) (r4 gui_statics_old_region_index)) '(r1 r2))
 		(call 'region 'free '(r0 (& r1 r2)) '(r0))
 
 		;paste new damaged region into all old damaged regions
