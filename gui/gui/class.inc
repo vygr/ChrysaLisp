@@ -22,11 +22,17 @@
 ; gui structures
 ;;;;;;;;;;;;;;;;
 
+;0 for render to texture, assumes previous rendered frames are destroyed
+;1 for double buffered, 2 for triple buffered etc, but assumes previous rendered frames are intact !
+;when running in buffered modes there may still be issues if SDL does not send EVENT_WINDOW_RESTORED etc
+(defcvar 'num_old_regions 1)
+
 (def-struct 'gui_statics)
 	(struct 'rect_heap 'hp_heap)
-	(ptr 'window 'screen 'old_region 'temps)
+	(ptr 'window 'screen 'temps)
 	(ulong 'renderer 'texture 'next_id)
-	(uint 'dirty_flag)
+	(uint 'dirty_flag 'old_region_index)
+	(struct 'old_regions (* num_old_regions ptr_size))
 (def-struct-end)
 
 ;;;;;;;;;;;;;;;;;;;;

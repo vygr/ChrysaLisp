@@ -18,12 +18,27 @@ event.
 * MacOS switches to triple buffering after full screen switch. This might not
 be a bug but a change from 2.0.9 behaviour.
 
-* Win10 crashes on SDL_CreateTexture call, dosn't seam to matter what the
+* Win10 crashes on SDL_CreateTexture call, doesn't seam to matter what the
 texture mode flag is.
 
 * Win10 draw state is corrupted by texture upload. Draw Color and/or Texture
 blend modes and/or blit clip regions trashed. Not 100% sure but drawing is
-corupted.
+corrupted.
+
+------
+
+Implemented a more general system for repairing damaged regions over any number
+of frames. This can now cope with triple buffering etc, but it still relies on
+the previously rendered frames being available uncorrupted as they come back to
+being the new back buffer !
+
+The setting is now in gui/gui/class.inc, `(defcvar 'num_old_regions 1)`,
+defaults to 1 for double buffered preserved previous frame rendering.
+
+You can set the value to 0, and rebuild the system, if you can't rely on any
+previous frames being preserved, and this will render to a full screen texture
+as an internal back buffer and always draw this to the entire screen area each
+frame.
 
 ------
 

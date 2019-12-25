@@ -10,8 +10,6 @@
 (include 'gui/ctx/class.inc)
 (include 'gui/backdrop/class.inc)
 
-(defcvar 'dual_buffers t)
-
 (def-method 'gui 'statics)
 	(times gui_statics_size (vp-byte 0))
 (def-func-end)
@@ -102,19 +100,18 @@
 			{user->local_statics->gui_statics_window})
 
 		;create renderer and back buffer
-(when dual_buffers
-		(host-call 'host 'sdl_create_renderer
-			{user->local_statics->gui_statics_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC}
-			{user->local_statics->gui_statics_renderer})
-)
-(unless dual_buffers
-		(host-call 'host 'sdl_create_renderer
-			{user->local_statics->gui_statics_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_TARGETTEXTURE}
-			{user->local_statics->gui_statics_renderer})
-		(host-call 'host 'sdl_create_texture
-			{user->local_statics->gui_statics_renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_TARGET, SCREEN_WIDTH, SCREEN_HEIGHT}
-			{user->local_statics->gui_statics_texture})
-)
+		(cond
+			((> num_old_regions 0)
+				(host-call 'host 'sdl_create_renderer
+					{user->local_statics->gui_statics_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC}
+					{user->local_statics->gui_statics_renderer}))
+			(t
+				(host-call 'host 'sdl_create_renderer
+					{user->local_statics->gui_statics_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_TARGETTEXTURE}
+					{user->local_statics->gui_statics_renderer})
+				(host-call 'host 'sdl_create_texture
+					{user->local_statics->gui_statics_renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_TARGET, SCREEN_WIDTH, SCREEN_HEIGHT}
+					{user->local_statics->gui_statics_texture})))
 
 		;set blend mode
 		(host-call 'host 'sdl_set_render_draw_blend_mode {user->local_statics->gui_statics_renderer, SDL_BLENDMODE_BLEND})
@@ -122,19 +119,19 @@
 
 	;update screen
 	(vpif {user->local_statics->gui_statics_dirty_flag})
-(when dual_buffers
-		;no render to texture
-		(call 'gui 'update {user->local_statics->gui_statics_screen})
-)
-(unless dual_buffers
-		;render to back buffer texture
-		(host-call 'host 'sdl_set_render_target {user->local_statics->gui_statics_renderer, user->local_statics->gui_statics_texture})
-		(call 'gui 'update {user->local_statics->gui_statics_screen})
-		(host-call 'host 'sdl_set_render_target {user->local_statics->gui_statics_renderer, 0})
-		(host-call 'host 'sdl_render_copy {user->local_statics->gui_statics_renderer, user->local_statics->gui_statics_texture, 0, 0})
-)
+		(cond
+			((> num_old_regions 0)
+				;no render to texture
+				(call 'gui 'update {user->local_statics->gui_statics_screen}))
+			(t
+				;render to back buffer texture
+				(host-call 'host 'sdl_set_render_target {user->local_statics->gui_statics_renderer, user->local_statics->gui_statics_texture})
+				(call 'gui 'update {user->local_statics->gui_statics_screen})
+				(host-call 'host 'sdl_set_render_target {user->local_statics->gui_statics_renderer, 0})
+				(host-call 'host 'sdl_render_copy {user->local_statics->gui_statics_renderer, user->local_statics->gui_statics_texture, 0, 0})))
+
+		;swap, clear temps and dirty flag
 		(host-call 'host 'sdl_render_present {user->local_statics->gui_statics_renderer})
-		;clear dirty flag
 		(call 'vector 'clear {user->local_statics->gui_statics_temps})
 		(assign {0} {user->local_statics->gui_statics_dirty_flag})
 	(endif)
@@ -209,15 +206,15 @@
 		(vpcase {event.sdl_common_event_type = SDL_WINDOWEVENT})
 			(switch)
 			(vpcase {event.sdl_window_event_event = SDL_WINDOWEVENT_SIZE_CHANGED})
-(unless dual_buffers
+			(when (= num_old_regions 0)
 				;resize back buffer and redraw in full
 				(host-call 'host 'sdl_destroy_texture {user->local_statics->gui_statics_texture})
 				(host-call 'host 'sdl_create_texture
 					{user->local_statics->gui_statics_renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_TARGET, event.sdl_window_event_data1, event.sdl_window_event_data2}
-					{user->local_statics->gui_statics_texture})
-)
+					{user->local_statics->gui_statics_texture}))
+
+				;chnage backdrop size, send gui event to all top level views
 				(call 'backdrop 'change '{user->local_statics->gui_statics_screen, 0, 0, event.sdl_window_event_data1, event.sdl_window_event_data2})
-				;send gui event to all top level views
 				(call 'backdrop 'forward {user->local_statics->gui_statics_screen, user, $send_gui_event})
 				(call 'backdrop 'set_flags '{user->local_statics->gui_statics_screen, view_flag_dirty_all, view_flag_dirty_all})
 				(break)
@@ -240,7 +237,7 @@
 	;inputs
 	;r0 = user data
 
-	(ptr 'user 'old_stack)
+	(ptr 'user 'old_stack 'iter_begin 'iter_end)
 
 	(vp-cpy-rr rsp r1)
 	(push-scope)
@@ -260,8 +257,13 @@
 		(host-call 'host 'sdl_quit)
 	(endif)
 
-	;free old region and deinit region heap
-	(call 'region 'free {user->local_statics->gui_statics_rect_heap, user->local_statics->gui_statics_old_region})
+	;free old regions and deinit region heap
+	(assign {&user->local_statics->gui_statics_old_regions} {iter_begin})
+	(assign {&iter_begin[num_old_regions * ptr_size]} {iter_end})
+	(loop-while {iter_begin /= iter_end})
+		(call 'region 'free {user->local_statics->gui_statics_rect_heap, *iter_begin})
+		(assign {iter_begin + ptr_size} {iter_end})
+	(loop-end)
 	(call 'sys_heap 'deinit {user->local_statics->gui_statics_rect_heap})
 
 	(assign {old_stack} '(rsp))
@@ -335,6 +337,9 @@
 	(def-struct 'local)
 		(ptr 'root 'ctx_flist 'ctx_next)
 		(struct 'ctx 'ctx)
+		(when (/= num_old_regions 0)
+			(ptr 'damaged_region)
+			(uint 'index))
 	(def-struct-end)
 
 	;save inputs
@@ -352,30 +357,56 @@
 	;create visible region at root
 	(call 'view 'backward_tree '(r0 r0 ($ null_func_down_callback) ($ visible_up_callback)))
 
-(when dual_buffers
-	;copy visable region to new region
-	(vp-xor-rr r1 r1)
-	(vp-push r0 r1)
-	(vp-lea-i r0 view_dirty_region r1)
-	(assign '((r0 view_w) (r0 view_h)) '(r9 r10))
-	(f-bind 'gui 'statics r0)
-	(vp-add-cr gui_statics_rect_heap r0)
-	(call 'region 'copy_rect '(r0 r1 rsp 0 0 r9 r10))
+	(when (/= num_old_regions 0)
+		;copy damaged region
+		(vp-xor-rr r1 r1)
+		(assign '(r1) '((rsp local_damaged_region)))
+		(f-bind 'gui 'statics r4)
+		(call 'region 'copy_rect '((& r4 gui_statics_rect_heap) (& r0 view_dirty_region)
+			(& rsp local_damaged_region) 0 0 (r0 view_w) (r0 view_h)) '(r0))
 
-	;paste old visible region into root
-	(assign '((rsp 8)) '(r0))
-	(vp-lea-i r0 view_dirty_region r2)
-	(f-bind 'gui 'statics r1)
-	(vp-lea-i r1 gui_statics_rect_heap r0)
-	(vp-add-cr gui_statics_old_region r1)
-	(call 'region 'paste_region '(r0 r1 r2 0 0) '(r0))
+		;paste all old damaged regions into root
+		(f-bind 'gui 'statics r4)
+		(assign '((r4 gui_statics_old_region_index)) '(r2))
+		(loop-start)
+			(assign '(r2 (rsp local_root) (& r4 gui_statics_old_regions)) '((rsp local_index) r3 r1))
+			(call 'region 'paste_region '(r0 (& r1 r2) (& r3 view_dirty_region) 0 0) '(r0))
+			(f-bind 'gui 'statics r4)
+			(assign '((rsp local_index) (r4 gui_statics_old_region_index)) '(r2 r1))
+			(vp-add-cr ptr_size r2)
+			(vpif `(r2 = ,(* num_old_regions ptr_size)))
+				(vp-xor-rr r2 r2)
+			(endif)
+		(loop-until '(r2 = r1))
 
-	;free old region and splice over new region
-	(f-bind 'gui 'statics r4)
-	(call 'region 'free '(r0 (& r4 gui_statics_old_region)))
-	(vp-pop r0 r1)
-	(assign '(r1) '((r4 gui_statics_old_region)))
-)
+		;free old damaged region
+		(f-bind 'gui 'statics r4)
+		(assign '((& r4 gui_statics_old_regions)) '(r1))
+		(call 'region 'free '(r0 (& r1 r2)) '(r0))
+
+		;paste new damaged region into all old damaged regions
+		(assign '((r4 gui_statics_old_region_index)) '(r2))
+		(loop-start)
+			(vp-add-cr ptr_size r2)
+			(vpif `(r2 = ,(* num_old_regions ptr_size)))
+				(vp-xor-rr r2 r2)
+			(endif)
+			(assign '((& r4 gui_statics_old_regions) (r4 gui_statics_old_region_index)) '(r1 r3))
+			(breakif '(r2 = r3))
+			(assign '(r2) '((rsp local_index)))
+			(call 'region 'paste_region '(r0 (& rsp local_damaged_region) (& r1 r2) 0 0) '(r0))
+			(assign '((rsp local_index)) '(r2))
+			(f-bind 'gui 'statics r4)
+		(loop-end)
+		(assign '((rsp local_damaged_region)) '(r0))
+		(assign '(r0) '((r1 r2)))
+
+		;move on to next old region
+		(vp-add-cr ptr_size r2)
+		(vpif `(r2 = ,(* num_old_regions ptr_size)))
+			(vp-xor-rr r2 r2)
+		(endif)
+		(assign '((rsp local_root) r2) '(r0 (r4 gui_statics_old_region_index))))
 
 	;iterate through views front to back
 	;distribute visible region
