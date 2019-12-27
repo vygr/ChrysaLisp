@@ -1,6 +1,7 @@
 ;lisp bindings
 (ffi canvas-swap "gui/canvas/lisp_swap" 0)
 (ffi canvas-fill "gui/canvas/lisp_fill" 0)
+(ffi canvas-info "gui/canvas/lisp_info" 0)
 (ffi canvas-load "gui/canvas/lisp_load" 0)
 (ffi canvas-save "gui/canvas/lisp_save" 0)
 (ffi canvas-fbox "gui/canvas/lisp_fbox" 0)

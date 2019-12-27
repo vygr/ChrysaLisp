@@ -25,6 +25,11 @@
 (dec-method 'fbox 'gui/canvas/fbox 'static '(r0 r7 r8 r9 r10) '(r0))
 (dec-method 'fpoly 'gui/canvas/fpoly 'static '(r0 r1 r2 r3 r4) '(r0))
 
+(dec-method 'info 'gui/canvas/info 'static '(r0) '(r0 r1 r2))
+(dec-method 'info_file 'gui/canvas/info_file 'static '(r4 r5) '(r0 r1 r2))
+(dec-method 'info_cpm 'gui/canvas/info_cpm 'static '(r5) '(r0 r1 r2))
+(dec-method 'info_tga 'gui/canvas/info_tga 'static '(r5) '(r0 r1 r2))
+
 (dec-method 'load 'gui/canvas/load 'static '(r0 r1) '(r0))
 (dec-method 'load_file 'gui/canvas/load_file 'static '(r4 r5) '(r0))
 (dec-method 'load_cpm 'gui/canvas/load_cpm 'static '(r5) '(r0))
@@ -42,6 +47,7 @@
 (dec-method 'draw 'gui/canvas/draw 'override)
 
 (dec-method 'lisp_create 'gui/canvas/lisp_create 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_info 'gui/canvas/lisp_info 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_load 'gui/canvas/lisp_load 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_save 'gui/canvas/lisp_save 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_next_frame 'gui/canvas/lisp_next_frame 'static '(r0 r1) '(r0 r1))

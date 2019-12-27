@@ -905,6 +905,59 @@ trashes
 all but r0
 ```
 
+### canvas::info -> gui/canvas/info
+
+```lisp
+inputs
+r0 = c string name (pubyte)
+outputs
+r0 = -1 if error, else width (pixels)
+r1 = -1 if error, else height (pixels)
+r2 = -1 if error, else type (uint)
+trashes
+all
+```
+
+### canvas::info_file -> gui/canvas/info_file
+
+```lisp
+inputs
+r4 = c string name (pubyte)
+r5 = stream object (ptr)
+outputs
+r0 = -1 if error, else width (pixels)
+r1 = -1 if error, else height (pixels)
+r2 = -1 if error, else type (uint)
+trashes
+all
+```
+
+### canvas::info_cpm -> gui/canvas/info_cpm
+
+```lisp
+inputs
+r5 = stream object (ptr)
+outputs
+r0 = -1 if error, else width (pixels)
+r1 = -1 if error, else height (pixels)
+r2 = -1 if error, else type (uint)
+trashes
+all
+```
+
+### canvas::info_tga -> gui/canvas/info_tga
+
+```lisp
+inputs
+r5 = stream object (ptr)
+outputs
+r0 = -1 if error, else width (pixels)
+r1 = -1 if error, else height (pixels)
+r2 = -1 if error, else type (uint)
+trashes
+all
+```
+
 ### canvas::load -> gui/canvas/load
 
 ```lisp
@@ -1063,6 +1116,19 @@ all but r0
 ```
 
 ### canvas::lisp_create -> gui/canvas/lisp_create
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+all but r0
+```
+
+### canvas::lisp_info -> gui/canvas/lisp_info
 
 ```lisp
 inputs
@@ -2091,6 +2157,12 @@ Super Class: null
 ### host::sdl_create_rgb_surface_from -> nil
 
 ### host::sdl_compose_custom_blend_mode -> nil
+
+### host::sdl_create_texture -> nil
+
+### host::sdl_set_render_target -> nil
+
+### host::sdl_render_clear -> nil
 
 ### host::ttf_init -> nil
 

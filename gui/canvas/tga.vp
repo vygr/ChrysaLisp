@@ -18,6 +18,40 @@
 	(ubyte 'origin)
 (def-struct-end)
 
+(def-method 'canvas 'info_tga)
+	;inputs
+	;r5 = stream object (ptr)
+	;outputs
+	;r0 = -1 if error, else width (pixels)
+	;r1 = -1 if error, else height (pixels)
+	;r2 = -1 if error, else type (uint)
+	;trashes
+	;all
+
+	(ptr 'stream)
+	(struct 'header 'tga)
+	(int 'length)
+
+	;save inputs
+	(push-scope)
+	(entry 'canvas 'info_tga {stream})
+
+	;read header
+	(call 'stream 'read {stream, &header, tga_size} {_, length})
+	(switch)
+	(breakif {length /= tga_size || header.tga_type /= 2})
+	(breakif {header.tga_depth /= 32 && header.tga_depth /= 24})
+		;return tga info
+		(exit 'canvas 'info_tga {header.tga_width, header.tga_height, header.tga_depth})
+		(return)
+	(endswitch)
+
+	(exit 'canvas 'info_tga {-1, -1, -1})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
 (def-method 'canvas 'load_tga)
 	;inputs
 	;r5 = stream object (ptr)

@@ -140,6 +140,10 @@
 
 (canvas-fpoly canvas x y mode list)
 
+## canvas-info
+
+(canvas-info path)
+
 ## canvas-load
 
 (canvas-load path flags)

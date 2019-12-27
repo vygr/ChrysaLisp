@@ -36,6 +36,44 @@
 
 (def-func-end)
 
+(def-method 'canvas 'lisp_info)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;all but r0
+
+	(entry 'canvas 'lisp_info '(r0 r1))
+
+(errorcases
+	(call 'lisp 'env_args_type '(r1 ($ sig) 1) '(r2))
+	(gotoif '(r2 = 0) 'error))
+
+	(vp-push r0)
+	(defq in (method-input 'canvas 'info))
+	(class/vector/bind_args r1 in '(str))
+	(call 'canvas 'info in '(r0 r12 r13))
+	(call 'num 'create '(r0) '(r11))
+	(call 'num 'create '(r12) '(r12))
+	(call 'num 'create '(r13) '(r13))
+	(call 'vector 'create nil '(r0))
+	(call 'vector 'push_back2 '(r0 r11 r12) '(r0 _ _ _ _))
+	(call 'vector 'push_back '(r0 r13) '(r1 _ _ _))
+	(vp-pop r0)
+
+	(exit 'canvas 'lisp_info '(r0 r1))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r0 "(canvas-info path)" error_msg_wrong_types r1))
+	(signature '(str)))
+
+(def-func-end)
+
 (def-method 'canvas 'lisp_load)
 	;inputs
 	;r0 = lisp object (ptr)

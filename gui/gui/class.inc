@@ -23,7 +23,7 @@
 ;;;;;;;;;;;;;;;;
 
 ;0 for render to texture, assumes previous rendered frames are destroyed
-;1 for double buffered, 2 for triple buffered etc, but assumes previous rendered frames are intact !
+;1 for double buffered, 2 for triple buffered etc, assumes previous rendered frames are intact !
 ;when running in buffered modes there may still be issues if SDL does not send EVENT_WINDOW_RESTORED etc
 (defcvar 'num_old_regions 1)
 

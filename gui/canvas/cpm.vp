@@ -14,6 +14,41 @@
 	(uint 'trans)		;image transparent colour
 (def-struct-end)
 
+(def-method 'canvas 'info_cpm)
+	;inputs
+	;r5 = stream object (ptr)
+	;outputs
+	;r0 = -1 if error, else width (pixels)
+	;r1 = -1 if error, else height (pixels)
+	;r2 = -1 if error, else type (uint)
+	;trashes
+	;all
+
+	(ptr 'stream)
+	(struct 'header 'cpm)
+	(int 'length)
+
+	;save inputs
+	(push-scope)
+	(entry 'canvas 'info_cpm {stream})
+
+	;read header
+	(call 'stream 'read {stream, &header, cpm_size} {_, length})
+	(switch)
+	(breakif {length /= cpm_size})
+	(breakifnot (cat {header.cpm_ident = } (str (code "MPC." 4))
+			{ || header.cpm_ident = } (str (code "MLF." 4))))
+		;return cpm info
+		(exit 'canvas 'info_cpm {header.cpm_width, header.cpm_height, header.cpm_type})
+		(return)
+	(endswitch)
+
+	(exit 'canvas 'info_cpm {-1, -1, -1})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
 (def-method 'canvas 'load_cpm)
 	;inputs
 	;r5 = stream object (ptr)
