@@ -4,22 +4,17 @@
 
 ;imports
 (import 'gui/lisp.inc)
+(import 'apps/raymarch/farm.inc)
 
 (structure 'event 0
 	(byte 'win_close))
 
 (structure 'work 0
-	(long 'parent_id 'width 'height 'y))
+	(long 'width 'height 'y))
 
-(structure 'reply 0
-	(long 'child_id)
-	(int 'y)
-	(offset 'data))
-
-(defq canvas_width 800 canvas_height 800 canvas_scale 1 id t in (in-stream)
-	in_mbox (in-mbox in) select (array (task-mailbox) in_mbox)
+(defq canvas_width 800 canvas_height 800 canvas_scale 1 id t
 	sw (* canvas_width canvas_scale) sh (* canvas_height canvas_scale) sy 0 sc 0
-	farm (open-farm "apps/raymarch/child.lisp" (* (kernel-total) 2) kn_call_child))
+	farm (farm-open "apps/raymarch/child.lisp" (* (kernel-total) 2)))
 
 (ui-tree window (create-window window_flag_close) nil
 	(ui-element canvas (create-canvas canvas_width canvas_height canvas_scale)))
@@ -29,49 +24,40 @@
 	(view-pref-size (window-set-title (window-connect-close window event_win_close) "Raymarch")))))
 
 ;send out first batch of work
-(while (and (< sy sh) (< sy (length farm)))
-	(mail-send (array in_mbox sw sh sy) (elem sy farm))
+(while (and (< sy sh) (< sy (farm-size farm)))
+	(mail-send (array sw sh sy) (farm-child farm sy))
 	(setq sc (inc sc) sy (inc sy)))
 
 (defq then (time))
 (while id
 	;next event
-	(defq msg (mail-read (elem (defq idx (mail-select select)) select)))
+	(defq in (farm-read farm))
 	(cond
-		((= idx 0)
+		((eql in t)
 			;main mailbox
 			(cond
-				((= (setq id (get-long msg ev_msg_target_id)) event_win_close)
+				((= (setq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_win_close)
 					;close button
 					(setq id nil))
 				(t (view-event window msg))))
-		(t	;child info
+		(t	;child stream
 			(setq sc (dec sc))
-			(defq x -1 y (get-int msg reply_y))
+			(defq child (read-char in (const long_size)) x -1 y (read-char in (const int_size)))
 			(while (< (setq x (inc x)) sw)
-				(canvas-plot (canvas-set-color canvas (get-int msg (+ reply_data (* x int_size)))) x y))
+				(canvas-plot (canvas-set-color canvas (read-char in (const int_size))) x y))
 			(when (> (- (defq now (time)) then) 1000000)
 				(setq then now)
 				(canvas-swap canvas))
 			(cond
 				((< sy sh)
 					;can pass out more work
-					(mail-send (array in_mbox sw sh sy) (get-long msg reply_child_id))
+					(mail-send (array sw sh sy) child)
 					(setq sc (inc sc) sy (inc sy)))
 				((= sc 0)
+					;close farm
 					(canvas-swap canvas)
-					;send out multi-cast exit command
-					(while (defq mbox (pop farm))
-						(mail-send (const (char event_win_close long_size)) mbox)))))))
+					(farm-close farm))))))
 
-;wait for outstanding replies
+;wait for close
 (view-hide window)
-(in-set-state in stream_mail_state_stopped)
-(while (/= sc 0)
-	(mail-read (elem (defq idx (mail-select select)) select))
-	(if (/= 0 idx)
-		(setq sc (dec sc))))
-
-;send out multi-cast exit command
-(while (defq mbox (pop farm))
-	(mail-send (const (char event_win_close long_size)) mbox))
+(farm-close farm)

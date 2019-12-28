@@ -152,7 +152,7 @@
 		(vp-sub-rr r2 r3)
 		(assign `(r3 (r0 ,(+ out_id id_id)) (r0 out_seqnum) (r0 out_state)
 			(r0 out_ack_mbox_id)) '((r1 msg_length) r3 r4 r5 r6))
-		(assign '(r3 r4 r5 r6) `((r1 ,(+ msg_dest id_id))(r2 stream_msg_seqnum)
+		(assign '(r3 r4 r5 r6) `((r1 ,(+ msg_dest id_id)) (r2 stream_msg_seqnum)
 			(r2 stream_msg_state) (r2 ,(+ stream_msg_ack_id id_mbox) ui)))
 
 		(call 'sys_kernel 'id nil '((r2 (+ stream_msg_ack_id id_cpu) i)))
