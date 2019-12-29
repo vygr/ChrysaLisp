@@ -52,13 +52,6 @@
 	(call 'out 'set_state '(r0 stream_mail_state_stopping) '(r0))
 	(call 'out 'set_state '(r0 stream_mail_state_stopped) '(r0))
 
-	;wait for all outstanding acks
-	(assign '((r0 out_seqnum)) '(r1))
-	(vp-sub-cr 1 r1)
-	(vp-shr-cr out_ack_shift r1)
-	(vp-add-cr 1 r1)
-	(call 'out 'wait_acks '(r0 r1) '(r0))
-
 	;free any stream mail buffer
 	(vp-push r0)
 	(vp-xor-rr r1 r1)

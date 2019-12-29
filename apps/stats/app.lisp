@@ -93,14 +93,8 @@
 			(task-sleep 10000)
 			(setq cpu_count (inc cpu_count)))))
 
-;wait for outstanding replies
+;close window and children
 (view-hide window)
 (in-set-state in stream_mail_state_stopped)
-(while (/= cpu_count cpu_total)
-	(mail-read (elem (defq idx (mail-select select)) select))
-	(if (/= 0 idx)
-		(setq cpu_count (inc cpu_count))))
-
-;send out multi-cast exit command
 (while (defq mbox (pop farm))
 	(mail-send (const (char event_win_close long_size)) mbox))
