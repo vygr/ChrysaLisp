@@ -5973,7 +5973,7 @@ mail static data
 
 ```lisp
 info
-init the mbox array and mbox free array
+init the mailbox system, heap, buckets and id
 ```
 
 ### sys_mail::statics_init1 -> sys/mail/statics_init1
@@ -5990,7 +5990,7 @@ outputs
 r0 = mailbox id (uint)
 r1 = mailbox address (ptr)
 trashes
-r0-r4
+r0-r5
 ```
 
 ### sys_mail::free_mbox -> sys/mail/free_mbox

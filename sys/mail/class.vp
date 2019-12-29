@@ -15,12 +15,16 @@
 
 (def-method 'sys_mail 'statics_init)
 	;info
-	;init the mbox array and mbox free array
+	;init the mailbox system, heap, buckets and id
 
 	(f-bind 'sys_mail 'statics r12)
 	(vp-xor-rr r0 r0)
-	(assign '(r0 (& r12 ml_statics_mbox_list)) '((r12 ml_statics_next_mbox_id) r0))
-	(lh-init r0 r1)
+	(assign '(r0 (& r12 ml_statics_mbox_buckets)) '((r12 ml_statics_next_mbox_id) r0))
+	(vp-lea-i r0 (* num_mbox_buckets lh_list_size) r1)
+	(loop-start)
+		(lh-init r0 r2)
+		(vp-add-cr lh_list_size r0)
+	(loop-until '(r0 = r1))
 	(jump 'sys_heap 'init '((& r12 ml_statics_mbox_heap) mbox_size 32))
 
 (def-func-end)
@@ -59,13 +63,17 @@
 	;r0 = mailbox id (uint)
 	;r1 = mailbox address (ptr)
 	;trashes
-	;r0-r4
+	;r0-r5
 
 	;pick next id
 	(f-bind 'sys_mail 'statics r4)
 	(assign '((r4 ml_statics_next_mbox_id)) '(r3))
 	(loop-start)
-		(loop-list-forward r4 ml_statics_mbox_list r1 r2)
+		(vp-cpy-rr r3 r5)
+		(vp-and-cr (lognot (<< -1 (log2 num_mbox_buckets))) r5)
+		(vp-mul-cr lh_list_size r5)
+		(vp-add-rr r4 r5)
+		(loop-list-forward r5 ml_statics_mbox_buckets r1 r2)
 			(assign '((r1 mbox_id)) '(r0))
 		(loop-until '(r3 = r0))
 		(breakif '(r2 = 0))
@@ -80,8 +88,8 @@
 	(assign '(r3 r2) '((r1 mbox_id) (r1 mbox_tcb)))
 	(vp-lea-i r1 mbox_list r0)
 	(lh-init r0 r2)
-	(vp-add-cr ml_statics_mbox_list r4)
-	(lh-add-at-tail r4 r1 r2)
+	(vp-add-cr ml_statics_mbox_buckets r5)
+	(lh-add-at-tail r5 r1 r2)
 
 	(exit 'sys_mail 'alloc_mbox '(r3 r1))
 	(vp-ret)
@@ -120,10 +128,14 @@
 
 	(entry 'sys_mail 'mbox_addr `(,id))
 
+	(vp-cpy-rr id next)
 	(f-bind 'sys_mail 'statics node)
+	(vp-and-cr (lognot (<< -1 (log2 num_mbox_buckets))) next)
+	(vp-mul-cr lh_list_size next)
 	(vp-shl-cr 32 id)
 	(vp-shr-cr 32 id)
-	(loop-list-forward node ml_statics_mbox_list node next)
+	(vp-add-rr next node)
+	(loop-list-forward node ml_statics_mbox_buckets node next)
 		(assign `((,node mbox_id)) `(,mid))
 	(loop-until `(,mid = ,id))
 	(vpif `(,next = 0))

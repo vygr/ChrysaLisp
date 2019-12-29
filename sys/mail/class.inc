@@ -58,12 +58,15 @@
 	(ptr 'parcel_obj 'parcel_data)
 (def-struct-end)
 
+;must be power 2
+(defcvar 'num_mbox_buckets 8)
+
 (def-struct 'ml_statics)
-	(struct 'mbox_list 'lh_list)
 	(struct 'offchip_list 'lh_list)
 	(struct 'parcel_list 'lh_list)
 	(struct 'msg_heap 'hp_heap)
 	(struct 'mbox_heap 'hp_heap)
 	(ptr 'links_array 'declare_map 'out_mbox_addr)
 	(uint 'parcel_id 'next_mbox_id)
+	(struct 'mbox_buckets (* num_mbox_buckets lh_list_size))
 (def-struct-end)
