@@ -24,28 +24,32 @@
 	;trashes
 	;all
 
-	(ptr 'stream)
-	(struct 'header 'cpm)
-	(int 'length)
+	(def-struct 'local)
+		(struct 'header 'cpm)
+	(def-struct-end)
 
-	;save inputs
-	(push-scope)
-	(entry 'canvas 'info_cpm {stream})
+	(vp-alloc local_size)
+	(entry 'canvas 'info_cpm '(r0))
 
 	;read header
-	(call 'stream 'read {stream, &header, cpm_size} {_, length})
+	(call 'stream 'read '(r0 rsp cpm_size) '(_ r1))
 	(switch)
-	(breakif {length /= cpm_size})
-	(breakifnot (cat {header.cpm_ident = } (str (code "MPC." 4))
-			{ || header.cpm_ident = } (str (code "MLF." 4))))
-		;return cpm info
-		(exit 'canvas 'info_cpm {header.cpm_width, header.cpm_height, header.cpm_type})
-		(return)
+	(breakif '(r1 /= cpm_size))
+	(assign '((rsp cpm_ident)) '(r0))
+	(vpcase `(r0 = ,(code "MPC." 4)))
+	(vp-label 'okident)
+		;return info
+		(exit 'canvas 'info_cpm '((rsp cpm_width) (rsp cpm_height) (rsp cpm_type)))
+		(vp-free local_size)
+		(vp-ret)
+	(vpcase `(r0 = ,(code "MLF." 4)))
+		(goto 'okident)
 	(endswitch)
 
-	(exit 'canvas 'info_cpm {-1, -1, -1})
-	(pop-scope)
-	(return)
+	;return error
+	(exit 'canvas 'info_cpm '(-1 -1 -1))
+	(vp-free local_size)
+	(vp-ret)
 
 (def-func-end)
 

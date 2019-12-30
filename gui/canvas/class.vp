@@ -158,25 +158,29 @@
 	;trashes
 	;all
 
-	(ptr 'name 'stream)
-	(int 'w 'h)
-	(uint 'type)
+	(def-struct 'local)
+		(ptr 'name 'stream)
+		(int 'w 'h)
+		(uint 'type)
+	(def-struct-end)
 
-	(push-scope)
-	(entry 'canvas 'info {name})
+	(vp-alloc local_size)
+	(entry 'canvas 'info '(r0))
+	(assign '(r0) '((rsp local_name)))
 
-	(call 'str 'create_from_file {name} {stream})
-	(vpif {stream})
-		(call 'stream_str 'create {stream} {stream})
-		(call 'canvas 'info_file {name, stream} {w, h, type})
-		(call 'stream_str 'deref {stream})
-		(exit 'canvas 'info {w, h, type})
+	(call 'str 'create_from_file '(r0) '(r0))
+	(vpif '(r0 /= 0))
+		(call 'stream_str 'create '(r0) '(r0))
+		(assign '(r0) '((rsp local_stream)))
+		(call 'canvas 'info_file '((rsp local_name) r0) '((rsp local_w) (rsp local_h) (rsp local_type)))
+		(call 'stream_str 'deref '((rsp local_stream)))
+		(exit 'canvas 'info '((rsp local_w) (rsp local_h) (rsp local_type)))
 	(else)
-		(exit 'canvas 'info {-1, -1, -1})
+		(exit 'canvas 'info '(-1 -1 -1))
 	(endif)
 
-	(pop-scope)
-	(return)
+	(vp-free local_size)
+	(vp-ret)
 
 (def-func-end)
 

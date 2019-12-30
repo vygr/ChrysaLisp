@@ -28,27 +28,33 @@
 	;trashes
 	;all
 
-	(ptr 'stream)
-	(struct 'header 'tga)
-	(int 'length)
+	(def-struct 'local)
+		(struct 'header 'tga)
+	(def-struct-end)
 
-	;save inputs
-	(push-scope)
-	(entry 'canvas 'info_tga {stream})
+	(vp-alloc local_size)
+	(entry 'canvas 'info_tga '(r0))
 
 	;read header
-	(call 'stream 'read {stream, &header, tga_size} {_, length})
+	(call 'stream 'read '(r0 rsp tga_size) '(_ r1))
 	(switch)
-	(breakif {length /= tga_size || header.tga_type /= 2})
-	(breakif {header.tga_depth /= 32 && header.tga_depth /= 24})
-		;return tga info
-		(exit 'canvas 'info_tga {header.tga_width, header.tga_height, header.tga_depth})
-		(return)
+	(breakif '(r1 /= tga_size))
+	(assign '((rsp tga_depth) (rsp tga_type)) '(r2 r3))
+	(breakif '(r3 /= 2))
+	(vpcase '(r2 = 32))
+	(vp-label 'okdepth)
+		;return info
+		(exit 'canvas 'info_tga '((rsp tga_width) (rsp tga_height) r2))
+		(vp-free local_size)
+		(vp-ret)
+	(vpcase '(r2 = 24))
+		(goto 'okdepth)
 	(endswitch)
 
-	(exit 'canvas 'info_tga {-1, -1, -1})
-	(pop-scope)
-	(return)
+	;return error
+	(exit 'canvas 'info_tga '(-1 -1 -1))
+	(vp-free local_size)
+	(vp-ret)
 
 (def-func-end)
 
