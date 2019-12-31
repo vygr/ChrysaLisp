@@ -94,7 +94,7 @@
 	;r0 = c string (pubyte)
 	;r1 = c string len (bytes)
 	;trashes
-	;r2
+	;r1-r2
 
 	(entry 'sys_str 'length '(r0))
 	(vp-cpy-rr r0 r1)
@@ -116,7 +116,7 @@
 	;outputs
 	;r0 = number (ulong)
 	;trashes
-	;r2-r4
+	;r0-r4
 
 	(entry 'sys_str 'to_long '(r2 r1))
 

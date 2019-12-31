@@ -196,7 +196,7 @@ Implementation of the function is defined in the `sys/mail/class.vp` file.
 	;r0 = mailbox name c string (pubyte)
 	;r1 = mailbox id (ulong)
 	;trashes
-	;all
+	;r0-r14
 
 	(ptr 'mail_statics 'name)
 	(ulong 'id)

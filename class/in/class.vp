@@ -14,7 +14,7 @@
 	;r0 = in object (ptr)
 	;r1 = 0 if error, else ok
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'in 'init '(r0 r1 r2))
 	(assign '(r2) '((r0 in_mbox_oid)))
@@ -53,7 +53,7 @@
 	;outputs
 	;r0 = in object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'in 'deinit '(r0))
 
@@ -90,7 +90,7 @@
 	;outputs
 	;r0 = in object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'in 'next_msg '(r0))
 
@@ -178,7 +178,7 @@
 	;r0 = in object (ptr)
 	;r1 = -1 for EOF, else more data
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'in 'read_next '(r0))
 

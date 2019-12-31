@@ -32,7 +32,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(addop 'lisp_add
 		'(vp-add-rr r3 r0))
@@ -51,7 +51,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(addop 'lisp_sub
 		'(vp-sub-rr r3 r0))
@@ -70,7 +70,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(addop 'lisp_mul
 		'(vp-mul-rr r3 r0))
@@ -89,7 +89,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(addop 'lisp_min
 		'(progn
@@ -111,7 +111,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(addop 'lisp_max
 		'(progn
@@ -133,7 +133,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(addop 'lisp_fmul
 		'(progn
@@ -175,7 +175,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(andop 'lisp_band -1
 		'(vp-and-rr r3 r0))
@@ -194,7 +194,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(andop 'lisp_bor 0
 		'(vp-or-rr r3 r0))
@@ -213,7 +213,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(andop 'lisp_bxor 0
 		'(vp-xor-rr r3 r0))
@@ -255,7 +255,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(divop 'lisp_div
 		'(progn
@@ -278,7 +278,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(divop 'lisp_mod
 		'(progn
@@ -302,7 +302,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(divop 'lisp_fdiv
 		'(progn
@@ -326,7 +326,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'num 'lisp_fmod '(r0 r1))
 
@@ -382,7 +382,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(shift 'lisp_basr
 		'(vp-asr-rr r1 r0))
@@ -402,7 +402,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(shift 'lisp_bshl
 		'(vp-shl-rr r1 r0))
@@ -422,7 +422,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(shift 'lisp_bshr
 		'(vp-shr-rr r1 r0))
@@ -470,7 +470,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(compare 'lisp_eq
 		'(gotoif '(r3 /= r0) 'fail))
@@ -489,7 +489,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(compare 'lisp_ge
 		'(progn
@@ -510,7 +510,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(compare 'lisp_gt
 		'(progn
@@ -531,7 +531,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(compare 'lisp_le
 		'(progn
@@ -552,7 +552,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(compare 'lisp_lt
 		'(progn
@@ -573,7 +573,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'num 'lisp_ne '(r0 r1))
 

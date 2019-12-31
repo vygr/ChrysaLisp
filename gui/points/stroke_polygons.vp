@@ -14,7 +14,7 @@
 	;outputs
 	;r0 = output vector of points objects (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(ptr 'this 'in_polygons 'stack 'polygon)
 	(pptr 'iter_begin_polygons 'iter_end_polygons)

@@ -20,7 +20,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(to-array 'array)
 
@@ -34,7 +34,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(to-array 'points)
 
@@ -48,7 +48,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(def-struct 'local)
 		(ptr 'this)
@@ -90,7 +90,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'array 'lisp_pop '(r0 r1))
 
@@ -128,7 +128,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'array 'lisp_push '(r6 r7))
 

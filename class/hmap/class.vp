@@ -16,7 +16,7 @@
 	;r0 = hmap object (ptr)
 	;r1 = 0 if error, else ok
 	;trashes
-	;r2-r7
+	;r1-r7
 
 	(entry 'hmap 'init '(r0 r1 r2 r3))
 
@@ -32,7 +32,7 @@
 	;outputs
 	;r0 = hmap object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'hmap 'deinit '(r0))
 
@@ -50,7 +50,7 @@
 	;outputs
 	;r0 = hmap object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'hmap 'set_parent '(r0 r1))
 
@@ -73,7 +73,7 @@
 	;r0 = hmap object (ptr)
 	;r1 = hmap copy object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(def-struct 'local)
 		;obj must be first
@@ -121,7 +121,7 @@
 	;r1 = 0, else found iterator (pptr)
 	;r2 = bucket vector (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(def-struct 'local)
 		(ptr 'this 'key 'bucket)
@@ -183,7 +183,7 @@
 	;r1 = iterator (pptr)
 	;r2 = bucket vector (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(def-struct 'local)
 		(ptr 'this 'key 'value 'iter 'bucket 'pair)
@@ -230,7 +230,7 @@
 	;r1 = 0, else iterator (pptr)
 	;r2 = bucket vector (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(def-struct 'local)
 		(ptr 'this 'key)
@@ -263,7 +263,7 @@
 	;r0 = hmap object (ptr)
 	;r1 = 0 if not found, else value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(def-struct 'local)
 		(ptr 'this 'value)
@@ -294,7 +294,7 @@
 	;r0 = hmap object (ptr)
 	;r1 = 0 if not found, else value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'hmap 'get '(r0 r1))
 

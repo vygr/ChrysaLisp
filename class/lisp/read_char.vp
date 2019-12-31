@@ -15,7 +15,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = next char (uint)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(def-struct 'local)
 		(ptr 'this 'stream)

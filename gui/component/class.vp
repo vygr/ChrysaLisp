@@ -17,6 +17,8 @@
 	;outputs
 	;r0 = component object (ptr)
 	;r1 = 0 if error, else ok
+	;trashes
+	;r1-r14
 
 	;init parent
 	(s-call 'component 'init '(r0 r1 0 1) '(r0 r1))
@@ -38,7 +40,7 @@
 	;outputs
 	;r0 = component object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'component 'deinit '(r0))
 
@@ -56,7 +58,7 @@
 	;r0 = component object (ptr)
 	;r1 = 0, else tcb of owner (ptr)
 	;trashes
-	;r2
+	;r1-r2
 
 	;walk up tree to parent
 	(vp-cpy-rr r0 r2)
@@ -74,7 +76,7 @@
 	;outputs
 	;r0 = component object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(ptr 'this 'tcb 'msg 'data)
 	(plong 'iter_begin 'iter_end)
@@ -137,7 +139,7 @@
 	;r0 = component object (ptr)
 	;r1 = 0 else, property object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'component 'ref_prop '(r0 r1))
 
@@ -157,7 +159,7 @@
 	;r0 = component object (ptr)
 	;r1 = 0 else, property object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'component 'get_prop '(r0 r1))
 
@@ -179,7 +181,7 @@
 	;outputs
 	;r0 = component object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'component 'set_long_prop '(r5 r1 r2))
 
@@ -203,7 +205,7 @@
 	;r0 = component object (ptr)
 	;r1 = property value (long)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'component 'get_long_prop '(r0 r1))
 
@@ -225,7 +227,7 @@
 	;outputs
 	;r0 = component object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'component 'set_str_prop '(r7 r1 r2))
 
@@ -250,7 +252,7 @@
 	;outputs
 	;r0 = component object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'component 'set_font_prop '(r0 r1 r2 r3))
 

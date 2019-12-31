@@ -7,7 +7,7 @@
 	;outputs
 	;r0 = random number in range (ulong)
 	;trashes
-	;r1-r2
+	;r0-r2
 
 	(entry 'sys_math 'random '(r0))
 
@@ -36,7 +36,7 @@
 	;outputs
 	;r0 = sqrt (ulong)
 	;trashes
-	;r1-r3
+	;r0-r3
 
 	(entry 'sys_math 'isqrt '(r1))
 
@@ -72,7 +72,7 @@
 	;outputs
 	;r0 = sine (16.16)
 	;trashes
-	;r1-r4
+	;r0-r4
 
 	(entry 'sys_math 'fsin '(r0))
 	(vec-set 1)
@@ -201,7 +201,7 @@
 	;outputs
 	;r0 = cosine (16.16)
 	;trashes
-	;r1-r4
+	;r0-r4
 
 	(entry 'sys_math 'fcos '(r0))
 	(vec-set 1)
@@ -350,7 +350,7 @@
 	;r0 = ix (16.16)
 	;r1 = iy (16.16)
 	;trashes
-	;all
+	;r0-r14
 
 	(vec-set 8)
 	(entry 'sys_math 'intersect (vec-top 8))
@@ -409,7 +409,7 @@
 	;outputs
 	;r0 = distance squared (16.16)
 	;trashes
-	;all
+	;r0-r14
 
 	(int 'px 'py 'p1x 'p1y 'p2x 'p2y)
 

@@ -12,7 +12,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'str 'lisp_split '(r0 r1))
 
@@ -44,7 +44,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(vp-def (this args len value iter_begin width index) '(r6 r7 r8))
 
@@ -110,7 +110,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(vp-def (this args len value iter_begin iter_end width) '(r7 r8 r9))
 
@@ -152,7 +152,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'str 'lisp_cmp '(r0 r1))
 
@@ -184,7 +184,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'str 'lisp_save '(r0 r1))
 
@@ -223,7 +223,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'str 'lisp_load '(r0 r1))
 
@@ -257,7 +257,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(def-struct 'local)
 		(ptr 'this 'stream)

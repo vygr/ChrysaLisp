@@ -29,7 +29,7 @@
 	;outputs
 	;r0 = sqrt (16.16)
 	;trashes
-	;r1-r3
+	;r0-r3
 	(vp-shl-cr fp_shift r0)
 	(call 'sys_math 'isqrt '(r0) '(r0)))
 

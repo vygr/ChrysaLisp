@@ -14,6 +14,8 @@
 	;outputs
 	;r0 = button object (ptr)
 	;r1 = 0 if error, else ok
+	;trashes
+	;r1-r14
 
 	(entry 'button 'init '(r0 r1))
 
@@ -40,7 +42,7 @@
 	;outputs
 	;r0 = button object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'button 'draw '(r0 r1))
 
@@ -66,7 +68,7 @@
 	;outputs
 	;r0 = button object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'button 'layout '(r0))
 
@@ -96,7 +98,7 @@
 	;outputs
 	;r0 = button object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'button 'mouse_up '(r0 r1))
 
@@ -130,7 +132,7 @@
 	;outputs
 	;r0 = button object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'button 'mouse_move '(r0 r1))
 

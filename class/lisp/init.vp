@@ -29,7 +29,7 @@
 	;r0 = lisp object object (ptr)
 	;r1 = 0 if error, else ok
 	;trashes
-	;all
+	;r1-r14
 
 	(ptr 'this)
 	(union

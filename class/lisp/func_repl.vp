@@ -13,7 +13,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(ptr 'this 'args 'stream 'ast 'value 'old_file 'old_line)
 	(int 'char)

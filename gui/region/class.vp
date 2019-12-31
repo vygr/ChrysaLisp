@@ -214,7 +214,7 @@
 	;outputs
 	;r0 = region heap (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(def-struct 'local)
 		(ptr 'slist)
@@ -603,7 +603,7 @@
 	;outputs
 	;r0 = region heap (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'region 'paste_rect '(r0 r1 r7 r8 r9 r10))
 
@@ -800,7 +800,7 @@
 	;outputs
 	;r0 = region heap (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(def-struct 'local)
 		(ptr 'node 'dlist)
@@ -1089,7 +1089,7 @@
 	;outputs
 	;r0 = region heap (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(def-struct 'local)
 		(ptr 'dlist)

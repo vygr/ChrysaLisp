@@ -8,7 +8,7 @@
 	;r0 = draw ctx (ptr)
 	;r1 = color (argb)
 	;trashes
-	;all
+	;r0-r14
 
 	(vp-cpy-rr r1 r7)
 	(vp-cpy-rr r1 r8)
@@ -32,7 +32,7 @@
 	;outputs
 	;r1 = brighter color (argb)
 	;trashes
-	;r2-r3
+	;r1-r3
 
 	(vp-cpy-rr r1 r2)
 	(vp-cpy-cr argb_black r3)
@@ -51,7 +51,7 @@
 	;outputs
 	;r1 = darker color (argb)
 	;trashes
-	;r2-r3
+	;r1-r3
 
 	(vp-cpy-rr r1 r2)
 	(vp-cpy-cr argb_black r3)
@@ -102,7 +102,7 @@
 	;r9 = width (pixels)
 	;r10 = height (pixels)
 	;trashes
-	;all
+	;r0-r14
 
 	(def-struct 'local)
 		(struct 'drect 'sdl_rect)
@@ -156,7 +156,7 @@
 	;r9 = width (pixels)
 	;r10 = height (pixels)
 	;trashes
-	;all
+	;r0-r14
 
 	(def-struct 'local)
 		(struct 'rect 'sdl_rect)
@@ -196,7 +196,7 @@
 	;r9 = width (pixels)
 	;r10 = height (pixels)
 	;trashes
-	;all
+	;r0-r14
 
 	(def-struct 'local)
 		(struct 'rect 'sdl_rect)
@@ -239,7 +239,7 @@
 	;r9 = width (pixels)
 	;r10 = height (pixels)
 	;trashes
-	;all
+	;r0-r14
 
 	(def-struct 'local)
 		(ptr 'ctx)

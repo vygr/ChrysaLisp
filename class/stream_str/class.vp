@@ -30,7 +30,7 @@
 	;r0 = stream_str object (ptr)
 	;r1 = str object (ptr)
 	;trashes
-	;r2
+	;r1-r2
 
 	(entry 'stream_str 'ref_string '(r0))
 
@@ -54,7 +54,7 @@
 	;outputs
 	;r0 = stream_str object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(ptr 'this 'new_str)
 	(uint 'length)
@@ -89,7 +89,7 @@
 	;outputs
 	;r0 = stream_str object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'stream_str 'write_flush '(r0))
 

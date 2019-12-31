@@ -11,7 +11,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'sys_pii 'lisp_readchar '(r0 r1))
 
@@ -43,7 +43,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'sys_pii 'lisp_writechar '(r0 r1))
 
@@ -78,7 +78,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'sys_pii 'lisp_time '(r0 r1))
 
@@ -108,7 +108,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'sys_pii 'lisp_age '(r0 r1))
 

@@ -9,7 +9,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'lisp 'func_quote '(r0 r1))
 

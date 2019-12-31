@@ -61,7 +61,7 @@
 	;r0 = array object (ptr)
 	;r1 = 0 if error, else ok
 	;trashes
-	;r2
+	;r1-r2
 	(vp-xor-rr r2 r2)
 	(assign `(r2 ,(>> (- array_size array_e0) (log2 long_size))) '((r0 array_length) r2))
 	(assign '(r2) '((r0 array_capacity)))

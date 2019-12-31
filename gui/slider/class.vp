@@ -15,6 +15,8 @@
 	;outputs
 	;r0 = slider object (ptr)
 	;r1 = 0 if error, else ok
+	;trashes
+	;r1-r14
 
 	(entry 'slider 'init '(r0 r1))
 
@@ -38,7 +40,7 @@
 	;outputs
 	;r0 = window object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(ptr 'this 'ctx)
 	(long 'max 'val 'portion)
@@ -118,7 +120,7 @@
 	;outputs
 	;r0 = slider object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'slider 'mouse_up '(r0 r1))
 
@@ -142,7 +144,7 @@
 	;outputs
 	;r0 = slider object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(ptr 'this 'evt)
 	(uint 'width 'height)
@@ -172,7 +174,7 @@
 	;outputs
 	;r0 = slider object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(ptr 'this 'evt)
 	(long 'val 'max 'portion 'new_val)

@@ -15,7 +15,7 @@
 	;r0 = label object (ptr)
 	;r1 = 0 if error, else ok
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'label 'init '(r0 r1))
 
@@ -54,7 +54,7 @@
 	;outputs
 	;r0 = view object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'label 'draw '(r0 r1))
 
@@ -75,7 +75,7 @@
 	;outputs
 	;r0 = label object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'label 'layout '(r0))
 
@@ -107,7 +107,7 @@
 	;r9 = preferred width (pixels)
 	;r10 = preferred height (pixels)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(def-struct 'local)
 		(ptr 'this)

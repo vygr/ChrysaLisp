@@ -14,6 +14,8 @@
 	;r2 = value
 	;outputs
 	;r0 = lisp object (ptr)
+	;trashes
+	;r1-r14
 
 	(def-struct 'local)
 		(ptr 'this 'stream 'value)

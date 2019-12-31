@@ -20,7 +20,7 @@
 	;r0 = window object (ptr)
 	;r1 = 0 if error, else ok
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(ptr 'this 'title_flow)
 	(ulong 'flags)
@@ -109,7 +109,7 @@
 	;outputs
 	;r0 = window object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'window 'add_child '(r0 r1))
 
@@ -129,7 +129,7 @@
 	;outputs
 	;r0 = window object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'window 'draw '(r0 r1))
 
@@ -150,7 +150,7 @@
 	;outputs
 	;r0 = window object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'window 'layout '(r0))
 
@@ -181,7 +181,7 @@
 	;outputs
 	;r0 = window object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'window 'mouse_down '(r0 r1))
 
@@ -228,7 +228,7 @@
 	;outputs
 	;r0 = window object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'window 'mouse_move '(r0 r1))
 
@@ -315,7 +315,7 @@
 	;r9 = preferred width (pixels)
 	;r10 = preferred height (pixels)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'window 'pref_size '(r0))
 

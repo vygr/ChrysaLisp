@@ -70,7 +70,7 @@
 	(assign '((r4 ml_statics_next_mbox_id)) '(r3))
 	(loop-start)
 		(vp-cpy-rr r3 r5)
-		(vp-and-cr (lognot (<< -1 (log2 num_mbox_buckets))) r5)
+		(vp-and-cr (dec num_mbox_buckets) r5)
 		(vp-mul-cr lh_list_size r5)
 		(vp-add-rr r4 r5)
 		(loop-list-forward r5 ml_statics_mbox_buckets r1 r2)
@@ -130,7 +130,7 @@
 
 	(vp-cpy-rr id next)
 	(f-bind 'sys_mail 'statics node)
-	(vp-and-cr (lognot (<< -1 (log2 num_mbox_buckets))) next)
+	(vp-and-cr (dec num_mbox_buckets) next)
 	(vp-mul-cr lh_list_size next)
 	(vp-shl-cr 32 id)
 	(vp-shr-cr 32 id)
@@ -153,7 +153,7 @@
 	;r0 = mail address (ptr)
 	;r1 = string data (pubyte)
 	;trashes
-	;r2
+	;r0-r2
 
 	(f-bind 'sys_task 'statics r0)
 	(assign '((r0 tk_statics_current_tcb)) '(r0))
@@ -168,17 +168,16 @@
 	;r0 = mail message (ptr)
 	;r1 = string data (pubyte)
 	;trashes
-	;r2-r7
+	;r0-r4
 
-	(entry 'sys_mail 'alloc '(r7))
+	(entry 'sys_mail 'alloc '(r3))
 
-	(vp-xor-rr r0 r0)
-	(call 'str 'create_from_buffer '(r0 r7) '(r4))
+	(call 'str 'create_from_buffer '(0 r3) '(r4))
 	(f-bind 'sys_mail 'statics r0)
 	(call 'sys_heap 'alloc '((& r0 ml_statics_msg_heap)) '(_ r0))
 	(vp-xor-rr r2 r2)
 	(vp-lea-i r4 str_data r1)
-	(assign '(r4 r1 r7 r2)
+	(assign '(r4 r1 r3 r2)
 		'((r0 msg_parcel_obj) (r0 msg_parcel_data) (r0 msg_length) (r0 msg_parcel_length)))
 
 	(exit 'sys_mail 'alloc '(r0 r1))
@@ -194,7 +193,7 @@
 	;outputs
 	;r0 = mail message (ptr)
 	;trashes
-	;r1-r5
+	;r0-r5
 
 	(entry 'sys_mail 'alloc_obj '(r0 r4 r5))
 
@@ -214,7 +213,7 @@
 	;inputs
 	;r0 = mail message (ptr)
 	;trashes
-	;all
+	;r0-r14
 
 	(entry 'sys_mail 'free '(r0))
 
@@ -237,7 +236,7 @@
 	;r1 = data (pubyte)
 	;r2 = data length (bytes)
 	;trashes
-	;r3-r5
+	;r0-r5
 
 	(entry 'sys_mail 'free_obj '(r0))
 
@@ -262,7 +261,7 @@
 	;r0 = mail address (ptr)
 	;r1 = string data (pubyte)
 	;trashes
-	;r2
+	;r0-r2
 
 	(entry 'sys_mail 'read '(r0))
 
@@ -348,7 +347,7 @@
 	(vp-cpy-rr iter iter_begin)
 	(loop-start)
 		(switch)
-		(assign `((,iter id_mbox ui)) `(,idx))
+		(assign `((,iter id_mbox)) `(,idx))
 		(breakif `(,idx = 0))
 		(call 'sys_mail 'mbox_addr `(,idx) `(,idx))
 		(breakif `(,idx = 0))
@@ -406,7 +405,7 @@
 	(assign `(,iter_begin) `(,iter))
 	(loop-start)
 		(switch)
-		(assign `((,iter id_mbox ui)) `(,idx))
+		(assign `((,iter id_mbox)) `(,idx))
 		(breakif `(,idx = 0))
 		(call 'sys_mail 'mbox_addr `(,idx) `(,idx))
 		(breakif `(,idx = 0))
@@ -423,7 +422,7 @@
 	;r0 = mailbox name c string (pubyte)
 	;r1 = mailbox id (ulong)
 	;trashes
-	;all
+	;r0-r14
 
 	(ptr 'name)
 	(ulong 'id)
@@ -448,7 +447,7 @@
 	;outputs
 	;r0 = 0 if error, else mailbox id (ulong)
 	;trashes
-	;all
+	;r0-r14
 
 	(ptr 'name)
 	(union
@@ -476,7 +475,7 @@
 	;inputs
 	;r0 = mailbox name c string (pubyte)
 	;trashes
-	;all
+	;r0-r14
 
 	(ptr 'name 'bucket)
 	(pptr 'iter)

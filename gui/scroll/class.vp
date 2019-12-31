@@ -15,7 +15,7 @@
 	;r0 = scroll object (ptr)
 	;r1 = 0 if error, else ok
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(def-struct 'local)
 		(ptr 'this)
@@ -73,7 +73,7 @@
 	;outputs
 	;r0 = scroll object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'scroll 'add_child '(r0 r1))
 
@@ -99,7 +99,7 @@
 	;outputs
 	;r0 = scroll object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(ptr 'this)
 	(int 'w 'h 'cw 'ch 'sw 'sh)
@@ -167,7 +167,7 @@
 	;r9 = preferred width (pixels)
 	;r10 = preferred height (pixels)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'scroll 'pref_size '(r0))
 
@@ -198,7 +198,7 @@
 	;outputs
 	;r0 = scroll object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'scroll 'event '(r0 r1))
 

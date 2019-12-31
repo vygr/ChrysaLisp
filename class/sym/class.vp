@@ -14,7 +14,7 @@
 
 (def-method 'sym 'statics_init)
 	;trashes
-	;all
+	;r0-r14
 
 	(ptr 'sym 'syms)
 	(pubyte 'next)
@@ -53,7 +53,7 @@
 	;outputs
 	;r1 = sym object (ptr)
 	;trashes
-	;r3
+	;r1, r3
 
 	(entry 'sym 'get_static_sym '(r1))
 
@@ -72,7 +72,7 @@
 	;outputs
 	;r0 = interned sym object (ptr)
 	;trashes
-	;all
+	;r0-r14
 
 	(entry 'sym 'intern '(r0))
 
@@ -102,7 +102,7 @@
 	;outputs
 	;r0 = interned sym object (ptr)
 	;trashes
-	;all
+	;r0-r14
 
 	(entry 'sym 'intern_str '(r0))
 
@@ -138,7 +138,7 @@
 	;outputs
 	;r0 = interned sym object (ptr)
 	;trashes
-	;all
+	;r0-r14
 
 	(entry 'sym 'intern_cstr '(r0))
 	(call 'sym 'create_from_cstr '(r0) '(r0))
@@ -148,7 +148,7 @@
 
 (def-method 'sym 'flush)
 	;trashes
-	;all
+	;r0-r14
 
 	(f-bind 'sym 'statics r0)
 	(assign '((r0 sym_statics_intern)) '(r0))

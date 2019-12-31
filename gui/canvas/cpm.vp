@@ -22,7 +22,7 @@
 	;r1 = -1 if error, else height (pixels)
 	;r2 = -1 if error, else type (uint)
 	;trashes
-	;all
+	;r0-r14
 
 	(def-struct 'local)
 		(struct 'header 'cpm)
@@ -59,7 +59,7 @@
 	;outputs
 	;r0 = 0 if error, else canvas object (ptr)
 	;trashes
-	;all
+	;r0-r14
 
 	(ptr 'this 'stream)
 	(puint 'data 'data_end)
@@ -163,7 +163,7 @@
 	;outputs
 	;r0 = canvas object (ptr)
 	;trashes
-	;all
+	;r0-r14
 
 	(ptr 'this 'stream)
 	(puint 'data 'data1 'data2)
@@ -261,7 +261,7 @@
 	;outputs
 	;r0 = canvas object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(ptr 'this)
 	(puint 'data 'data_end)

@@ -420,7 +420,7 @@ of these.
 	;outputs
 	;r0 = pair object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'pair 'deinit '(r0))
 
@@ -478,7 +478,7 @@ of these.
 	;outputs
 	;r0 = pair object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'pair 'set_first '(r0 r1))
 
@@ -499,7 +499,7 @@ of these.
 	;outputs
 	;r0 = pair object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'pair 'set_second '(r0 r1))
 

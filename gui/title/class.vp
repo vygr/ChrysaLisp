@@ -16,6 +16,8 @@
 	;outputs
 	;r0 = title object (ptr)
 	;r1 = 0 if error, else ok
+	;trashes
+	;r1-r14
 
 	(entry 'title 'init '(r0 r1))
 
@@ -39,7 +41,7 @@
 	;outputs
 	;r0 = title object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'title 'mouse_down '(r0 r1))
 
@@ -70,7 +72,7 @@
 	;outputs
 	;r0 = title object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(def-struct 'local)
 		(ptr 'this 'window 'event)

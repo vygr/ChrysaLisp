@@ -25,7 +25,7 @@
 	;r0 = canvas object (ptr)
 	;r1 = 0 if error, else ok
 	;trashes
-	;all
+	;r1-r14
 
 	(entry 'canvas 'init '(r0 r1 r2 r3 r4))
 	(assign '(r2 r3 r4) '((r0 canvas_width) (r0 canvas_height) (r0 canvas_scale)))
@@ -78,7 +78,7 @@
 	;r0 = canvas object (ptr)
 	;r1 = 0 if error, else ok
 	;trashes
-	;all
+	;r1-r14
 
 	(entry 'canvas 'init_shared '(r0 r1 r2))
 	(assign '(r2) '((r0 canvas_array)))
@@ -118,7 +118,7 @@
 	;outputs
 	;r0 = canvas object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(vp-push r0)
 
@@ -156,7 +156,7 @@
 	;r1 = -1 if error, else height (pixels)
 	;r2 = -1 if error, else type (uint)
 	;trashes
-	;all
+	;r0-r14
 
 	(def-struct 'local)
 		(ptr 'name 'stream)
@@ -193,7 +193,7 @@
 	;r1 = -1 if error, else height (pixels)
 	;r2 = -1 if error, else type (uint)
 	;trashes
-	;all
+	;r0-r14
 
 	(entry 'canvas 'info_file '(r4 r5))
 
@@ -227,7 +227,7 @@
 	;outputs
 	;r0 = 0 if error, else shared canvas object (ptr)
 	;trashes
-	;all
+	;r0-r14
 
 	(ptr 'this 'name 'sym)
 	(union
@@ -311,7 +311,7 @@
 	;outputs
 	;r0 = 0 if error, else canvas object (ptr)
 	;trashes
-	;all
+	;r0-r14
 
 	(entry 'canvas 'load_file '(r4 r5))
 
@@ -344,9 +344,9 @@
 	;r1 = c string name (pubyte)
 	;r2 = format (uint)
 	;outputs
-	;r0 = canvas object (ptr)
+	;r0 = 0 if error, else canvas object (ptr)
 	;trashes
-	;all
+	;r0-r14
 
 	(ptr 'this 'name 'stream 'buffer)
 	(uint 'format)
@@ -360,7 +360,7 @@
 	(vpif {fd >= 3})
 		(call 'str 'create_from_buffer {0, str_gap} {buffer})
 		(call 'stream_str 'create {buffer} {stream})
-		(call 'canvas 'save_file {this, name, stream, format})
+		(call 'canvas 'save_file {this, name, stream, format} {this})
 		(call 'stream_str 'ref_string {stream} {_, buffer})
 		(call 'stream_str 'deref {stream})
 		(call 'sys_pii 'write {fd, &buffer->str_data, buffer->str_length})
@@ -383,7 +383,7 @@
 	;outputs
 	;r0 = 0 if error, else canvas object (ptr)
 	;trashes
-	;all
+	;r0-r14
 
 	(entry 'canvas 'save_file '(r4 r5 r6 r7))
 
@@ -409,7 +409,7 @@
 	;outputs
 	;r0 = canvas object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(ptr 'this 'ctx)
 	(ulong 'handle)
@@ -436,7 +436,7 @@
 	;outputs
 	;r0 = canvas object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'canvas 'swap '(r0))
 
@@ -497,7 +497,7 @@
 	;r9 = preferred width (pixels)
 	;r10 = preferred height (pixels)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(ptr 'this)
 
@@ -516,7 +516,7 @@
 	;outputs
 	;r1 = color premul (argb)
 	;trashes
-	;r2-r3
+	;r1-r3
 
 	(entry 'canvas 'to_premul '(r1))
 
@@ -546,7 +546,7 @@
 	;outputs
 	;r1 = color (argb)
 	;trashes
-	;r2-r4
+	;r1-r4
 
 	(entry 'canvas 'to_argb '(r1))
 
@@ -835,7 +835,7 @@
 	;r0 = canvas object (ptr)
 	;r1 = color (argb)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'canvas 'pick '(r0 r7 r8))
 
@@ -865,7 +865,7 @@
 	;outputs
 	;r0 = canvas object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'canvas 'plot '(r0 r7 r8))
 
@@ -931,7 +931,7 @@
 	;outputs
 	;r0 = canvas object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(ptr 'this)
 	(int 'x 'y 'w 'h)

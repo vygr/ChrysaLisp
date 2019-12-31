@@ -12,7 +12,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'canvas 'lisp_create '(r0 r1))
 
@@ -44,7 +44,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'canvas 'lisp_info '(r0 r1))
 
@@ -82,7 +82,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'canvas 'lisp_load '(r0 r1))
 
@@ -119,7 +119,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'canvas 'lisp_save '(r0 r1))
 
@@ -156,7 +156,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'canvas 'lisp_fill '(r0 r1))
 
@@ -189,7 +189,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'canvas 'lisp_swap '(r0 r1))
 
@@ -223,7 +223,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'canvas 'lisp_next_frame '(r0 r1))
 
@@ -256,7 +256,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'canvas 'lisp_plot '(r0 r1))
 
@@ -289,7 +289,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'canvas 'lisp_fbox '(r0 r1))
 
@@ -322,7 +322,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'canvas 'lisp_fpoly '(r0 r1))
 
@@ -355,7 +355,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'canvas 'lisp_resize '(r0 r1))
 

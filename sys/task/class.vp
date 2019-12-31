@@ -28,7 +28,7 @@
 	;r0 = user data address (ptr)
 	;r1 = callback address (ptr)
 	;trashes
-	;all
+	;r0-r14
 
 	;test if we are the kernel task
 	(f-bind 'sys_task 'statics r2)
@@ -74,6 +74,8 @@
 (def-method 'sys_task 'count)
 	;outputs
 	;r0 = task count (uint)
+	;trashes
+	;r0
 
 	(f-bind 'sys_task 'statics r0)
 	(assign '((r0 tk_statics_task_count)) '(r0))
@@ -84,6 +86,8 @@
 (def-method 'sys_task 'mailbox)
 	;outputs
 	;r0 = current task mailbox id (id)
+	;trashes
+	;r0
 
 	(f-bind 'sys_task 'statics r0)
 	(assign '((r0 tk_statics_cpu_id) (r0 tk_statics_current_tcb)) '(r1 r0))
@@ -97,6 +101,8 @@
 (def-method 'sys_task 'restore)
 	;inputs
 	;r14 = control block to restore (ptr)
+	;trashes
+	;r0-r14
 	;info
 	;restore next task
 
@@ -208,7 +214,7 @@
 	;r1 = new task mailbox id (id)
 	;r2 = new task mailbox address (ptr)
 	;trashes
-	;all
+	;r0-r14
 
 	(ptr 'func 'task_statics 'tcb)
 	(ulong 'tcb_size)
@@ -297,6 +303,8 @@
 (def-method 'sys_task 'tcb)
 	;outputs
 	;r0 = current task tcb (ptr)
+	;trashes
+	;r0
 
 	(f-bind 'sys_task 'statics r0)
 	(assign '((r0 tk_statics_current_tcb)) '(r0))
@@ -315,7 +323,7 @@
 	;outputs
 	;r0 = mailbox ID (id)
 	;trashes
-	;all
+	;r0-r14
 
 	(entry 'sys_task 'open_child '(r0 r1))
 	(f-bind 'sys_task 'statics r3)
@@ -331,7 +339,7 @@
 	;outputs
 	;r0 = mailbox id (id)
 	;trashes
-	;all
+	;r0-r14
 
 	(ptr 'name 'msg 'data 'mailbox)
 	(uint 'cpu 'type 'mbox_id 'length)
@@ -382,7 +390,7 @@
 	;outputs
 	;r0 = mailbox id's array object (ptr)
 	;trashes
-	;all
+	;r0-r14
 
 	(ptr 'name 'ids 'msg 'data 'mailbox)
 	(uint 'length 'type 'index 'index_end 'cpu 'total 'offset 'mbox_id)
@@ -447,7 +455,7 @@
 	;outputs
 	;r0 = mailbox id's array object (ptr)
 	;trashes
-	;all
+	;r0-r14
 
 	(ptr 'tasks 'ids 'msg 'data 'name 'mailbox)
 	(uint 'cpu 'index 'length 'mbox_id)

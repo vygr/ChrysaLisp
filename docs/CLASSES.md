@@ -18,7 +18,7 @@ outputs
 r0 = array object (ptr)
 r1 = 0 if error, else ok
 trashes
-r2
+r1-r2
 ```
 
 ### array::get_capacity -> class/array/get_capacity
@@ -85,7 +85,7 @@ r5 = sort context (ptr)
 outputs
 r0 = array object (ptr)
 trashes
-all but r0
+r1-r14
 sort callback
 inputs
 r0 = context (ptr)
@@ -94,7 +94,7 @@ r2 = iter2 (plong)
 outputs
 r0 = +, 0, -
 trashes
-all
+r1-r14
 ```
 
 ### array::partition -> class/array/partition
@@ -110,7 +110,7 @@ outputs
 r0 = array object (ptr)
 r1 = partition iter (plong)
 trashes
-all but r0
+r1-r14
 sort callback
 inputs
 r0 = sort context (ptr)
@@ -119,7 +119,7 @@ r2 = iter2 (plong)
 outputs
 r0 = +, 0, -
 trashes
-all
+r1-r14
 ```
 
 ### array::get_first -> class/array/get_first
@@ -368,7 +368,7 @@ r0 = array object (ptr)
 outputs
 r0 = array object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### array::get_length -> class/array/get_length
@@ -432,7 +432,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### array::lisp_points -> class/array/lisp_points
@@ -445,7 +445,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### array::lisp_clear -> class/array/lisp_clear
@@ -458,7 +458,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### array::lisp_push -> class/array/lisp_push
@@ -471,7 +471,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### array::lisp_pop -> class/array/lisp_pop
@@ -484,7 +484,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ## backdrop
@@ -517,7 +517,7 @@ r1 = draw ctx (ptr)
 outputs
 r0 = view object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### backdrop::layout -> gui/backdrop/layout
@@ -528,7 +528,7 @@ r0 = backdrop object (ptr)
 outputs
 r0 = backdrop object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### backdrop::lisp_create -> gui/backdrop/lisp_create
@@ -541,7 +541,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ## button
@@ -561,6 +561,8 @@ r1 = vtable (pptr)
 outputs
 r0 = button object (ptr)
 r1 = 0 if error, else ok
+trashes
+r1-r14
 ```
 
 ### button::draw -> gui/button/draw
@@ -572,7 +574,7 @@ r1 = draw ctx (ptr)
 outputs
 r0 = button object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### button::layout -> gui/button/layout
@@ -583,7 +585,7 @@ r0 = button object (ptr)
 outputs
 r0 = button object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### button::mouse_down -> gui/button/mouse_move
@@ -595,7 +597,7 @@ r1 = mouse event data (ptr)
 outputs
 r0 = button object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### button::mouse_up -> gui/button/mouse_up
@@ -607,7 +609,7 @@ r1 = mouse event data (ptr)
 outputs
 r0 = button object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### button::mouse_move -> gui/button/mouse_move
@@ -619,7 +621,7 @@ r1 = mouse event data (ptr)
 outputs
 r0 = button object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### button::lisp_create -> gui/button/lisp_create
@@ -632,7 +634,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ## canvas
@@ -658,7 +660,7 @@ outputs
 r0 = canvas object (ptr)
 r1 = 0 if error, else ok
 trashes
-all
+r1-r14
 ```
 
 ### canvas::init_shared -> gui/canvas/init_shared
@@ -672,7 +674,7 @@ outputs
 r0 = canvas object (ptr)
 r1 = 0 if error, else ok
 trashes
-all
+r1-r14
 ```
 
 ### canvas::swap -> gui/canvas/swap
@@ -683,7 +685,7 @@ r0 = canvas object (ptr)
 outputs
 r0 = canvas object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### canvas::resize -> gui/canvas/resize
@@ -695,7 +697,7 @@ r1 = source canvas object (ptr)
 outputs
 r0 = canvas object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### canvas::resize_2 -> gui/canvas/resize_2
@@ -707,7 +709,7 @@ r1 = source canvas object (ptr)
 outputs
 r0 = canvas object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### canvas::resize_3 -> gui/canvas/resize_3
@@ -719,7 +721,7 @@ r1 = source canvas object (ptr)
 outputs
 r0 = canvas object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### canvas::fill -> gui/canvas/fill
@@ -742,7 +744,7 @@ r1 = color (argb)
 outputs
 r1 = color premul (argb)
 trashes
-r2-r3
+r1-r3
 ```
 
 ### canvas::to_argb -> gui/canvas/to_argb
@@ -753,7 +755,7 @@ r1 = color premul (argb)
 outputs
 r1 = color (argb)
 trashes
-r2-r4
+r1-r4
 ```
 
 ### canvas::as_argb -> gui/canvas/as_argb
@@ -811,7 +813,7 @@ r2 = min_y (16.16)
 r3 = max_x (16.16)
 r4 = max_y (16.16)
 trashes
-all but r0
+r1-r14
 ```
 
 ### canvas::span_noclip -> gui/canvas/span_noclip
@@ -859,7 +861,7 @@ outputs
 r0 = canvas object (ptr)
 r1 = color (argb)
 trashes
-all but r0
+r1-r14
 ```
 
 ### canvas::plot -> gui/canvas/plot
@@ -872,7 +874,7 @@ r8 = y (pixels)
 outputs
 r0 = canvas object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### canvas::fbox -> gui/canvas/fbox
@@ -887,7 +889,7 @@ r10 = h (pixels)
 outputs
 r0 = canvas object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### canvas::fpoly -> gui/canvas/fpoly
@@ -902,7 +904,7 @@ r4 = vector of points objects (ptr)
 outputs
 r0 = canvas object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### canvas::info -> gui/canvas/info
@@ -915,7 +917,7 @@ r0 = -1 if error, else width (pixels)
 r1 = -1 if error, else height (pixels)
 r2 = -1 if error, else type (uint)
 trashes
-all
+r0-r14
 ```
 
 ### canvas::info_file -> gui/canvas/info_file
@@ -929,7 +931,7 @@ r0 = -1 if error, else width (pixels)
 r1 = -1 if error, else height (pixels)
 r2 = -1 if error, else type (uint)
 trashes
-all
+r0-r14
 ```
 
 ### canvas::info_cpm -> gui/canvas/info_cpm
@@ -942,7 +944,7 @@ r0 = -1 if error, else width (pixels)
 r1 = -1 if error, else height (pixels)
 r2 = -1 if error, else type (uint)
 trashes
-all
+r0-r14
 ```
 
 ### canvas::info_tga -> gui/canvas/info_tga
@@ -955,7 +957,7 @@ r0 = -1 if error, else width (pixels)
 r1 = -1 if error, else height (pixels)
 r2 = -1 if error, else type (uint)
 trashes
-all
+r0-r14
 ```
 
 ### canvas::load -> gui/canvas/load
@@ -967,7 +969,7 @@ r1 = flags (uint)
 outputs
 r0 = 0 if error, else shared canvas object (ptr)
 trashes
-all
+r0-r14
 ```
 
 ### canvas::load_file -> gui/canvas/load_file
@@ -979,7 +981,7 @@ r5 = stream object (ptr)
 outputs
 r0 = 0 if error, else canvas object (ptr)
 trashes
-all
+r0-r14
 ```
 
 ### canvas::load_cpm -> gui/canvas/load_cpm
@@ -990,7 +992,7 @@ r5 = stream object (ptr)
 outputs
 r0 = 0 if error, else canvas object (ptr)
 trashes
-all
+r0-r14
 ```
 
 ### canvas::load_tga -> gui/canvas/load_tga
@@ -1001,7 +1003,7 @@ r5 = stream object (ptr)
 outputs
 r0 = 0 if error, else canvas object (ptr)
 trashes
-all
+r0-r14
 ```
 
 ### canvas::to_argb32 -> gui/canvas/to_argb32
@@ -1024,7 +1026,7 @@ r0 = canvas object (ptr)
 outputs
 r0 = canvas object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### canvas::save -> gui/canvas/save
@@ -1035,9 +1037,9 @@ r0 = canvas object (ptr)
 r1 = c string name (pubyte)
 r2 = format (uint)
 outputs
-r0 = canvas object (ptr)
+r0 = 0 if error, else canvas object (ptr)
 trashes
-all
+r0-r14
 ```
 
 ### canvas::save_file -> gui/canvas/save_file
@@ -1051,7 +1053,7 @@ r7 = format (uint)
 outputs
 r0 = 0 if error, else canvas object (ptr)
 trashes
-all
+r0-r14
 ```
 
 ### canvas::save_cpm -> gui/canvas/save_cpm
@@ -1064,7 +1066,7 @@ r7 = format (uint)
 outputs
 r0 = canvas object (ptr)
 trashes
-all
+r0-r14
 ```
 
 ### canvas::from_argb32 -> gui/canvas/from_argb32
@@ -1087,7 +1089,7 @@ r0 = canvas object (ptr)
 outputs
 r0 = canvas object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### canvas::pref_size -> gui/canvas/pref_size
@@ -1100,7 +1102,7 @@ r0 = canvas object (ptr)
 r9 = preferred width (pixels)
 r10 = preferred height (pixels)
 trashes
-all but r0
+r1-r14
 ```
 
 ### canvas::draw -> gui/canvas/draw
@@ -1112,7 +1114,7 @@ r1 = draw ctx (ptr)
 outputs
 r0 = canvas object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### canvas::lisp_create -> gui/canvas/lisp_create
@@ -1125,7 +1127,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### canvas::lisp_info -> gui/canvas/lisp_info
@@ -1138,7 +1140,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### canvas::lisp_load -> gui/canvas/lisp_load
@@ -1151,7 +1153,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### canvas::lisp_save -> gui/canvas/lisp_save
@@ -1164,7 +1166,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### canvas::lisp_next_frame -> gui/canvas/lisp_next_frame
@@ -1177,7 +1179,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### canvas::lisp_swap -> gui/canvas/lisp_swap
@@ -1190,7 +1192,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### canvas::lisp_fill -> gui/canvas/lisp_fill
@@ -1203,7 +1205,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### canvas::lisp_plot -> gui/canvas/lisp_plot
@@ -1216,7 +1218,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### canvas::lisp_fbox -> gui/canvas/lisp_fbox
@@ -1229,7 +1231,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### canvas::lisp_fpoly -> gui/canvas/lisp_fpoly
@@ -1242,7 +1244,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### canvas::lisp_resize -> gui/canvas/lisp_resize
@@ -1255,7 +1257,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ## component
@@ -1273,6 +1275,8 @@ r1 = vtable (pptr)
 outputs
 r0 = component object (ptr)
 r1 = 0 if error, else ok
+trashes
+r1-r14
 ```
 
 ### component::find_owner -> gui/component/find_owner
@@ -1284,7 +1288,7 @@ outputs
 r0 = component object (ptr)
 r1 = 0, else tcb of owner (ptr)
 trashes
-r2
+r1-r2
 ```
 
 ### component::connect -> gui/component/connect
@@ -1307,7 +1311,7 @@ r0 = component object (ptr)
 outputs
 r0 = component object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### component::get_prop -> gui/component/get_prop
@@ -1320,7 +1324,7 @@ outputs
 r0 = component object (ptr)
 r1 = 0 else, property object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### component::ref_prop -> gui/component/ref_prop
@@ -1333,7 +1337,7 @@ outputs
 r0 = component object (ptr)
 r1 = 0 else, property object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### component::set_long_prop -> gui/component/set_long_prop
@@ -1346,7 +1350,7 @@ r2 = property value (long)
 outputs
 r0 = component object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### component::get_long_prop -> gui/component/get_long_prop
@@ -1359,7 +1363,7 @@ outputs
 r0 = component object (ptr)
 r1 = property value (long)
 trashes
-all but r0
+r1-r14
 ```
 
 ### component::set_font_prop -> gui/component/set_font_prop
@@ -1373,7 +1377,7 @@ r3 = font size (points)
 outputs
 r0 = component object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### component::set_str_prop -> gui/component/set_str_prop
@@ -1386,7 +1390,7 @@ r2 = c string (pubyte)
 outputs
 r0 = component object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### component::deinit -> gui/component/deinit
@@ -1397,7 +1401,7 @@ r0 = component object (ptr)
 outputs
 r0 = component object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### component::lisp_connect -> gui/component/lisp_connect
@@ -1410,7 +1414,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ## ctx
@@ -1427,7 +1431,7 @@ r8 = y (pixels)
 r9 = width (pixels)
 r10 = height (pixels)
 trashes
-all
+r0-r14
 ```
 
 ### ctx::filled_box -> gui/ctx/filled_box
@@ -1440,7 +1444,7 @@ r8 = y (pixels)
 r9 = width (pixels)
 r10 = height (pixels)
 trashes
-all
+r0-r14
 ```
 
 ### ctx::blit -> gui/ctx/blit
@@ -1455,7 +1459,7 @@ r8 = y (pixels)
 r9 = width (pixels)
 r10 = height (pixels)
 trashes
-all
+r0-r14
 ```
 
 ### ctx::set_color -> gui/ctx/set_color
@@ -1465,7 +1469,7 @@ inputs
 r0 = draw ctx (ptr)
 r1 = color (argb)
 trashes
-all
+r0-r14
 ```
 
 ### ctx::panel -> gui/ctx/panel
@@ -1481,7 +1485,7 @@ r8 = y (pixels)
 r9 = width (pixels)
 r10 = height (pixels)
 trashes
-all
+r0-r14
 ```
 
 ### ctx::brighter -> gui/ctx/brighter
@@ -1492,7 +1496,7 @@ r1 = color (argb)
 outputs
 r1 = brighter color (argb)
 trashes
-r2-r3
+r1-r3
 ```
 
 ### ctx::darker -> gui/ctx/darker
@@ -1503,7 +1507,7 @@ r1 = color (argb)
 outputs
 r1 = darker color (argb)
 trashes
-r2-r3
+r1-r3
 ```
 
 ## error
@@ -1600,7 +1604,7 @@ r0 = error object (ptr)
 outputs
 r0 = error object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ## flow
@@ -1621,7 +1625,7 @@ r0 = flow object (ptr)
 r9 = preferred width (pixels)
 r10 = preferred height (pixels)
 trashes
-all but r0
+r1-r14
 ```
 
 ### flow::layout -> gui/flow/layout
@@ -1632,7 +1636,7 @@ r0 = flow object (ptr)
 outputs
 r0 = flow object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### flow::lisp_create -> gui/flow/lisp_create
@@ -1645,7 +1649,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ## font
@@ -1669,7 +1673,7 @@ r1 = font size (points)
 outputs
 r0 = 0 if error, else font object (ptr)
 trashes
-all
+r0-r14
 ```
 
 ### font::create -> gui/font/create
@@ -1686,14 +1690,14 @@ outputs
 r0 = font object (ptr)
 r1 = 0 if error, else ok
 trashes
-all but r0
+r1-r14
 ```
 
 ### font::flush -> gui/font/flush
 
 ```lisp
 trashes
-all
+r0-r14
 ```
 
 ### font::ref_word -> gui/font/ref_word
@@ -1706,7 +1710,7 @@ outputs
 r0 = font object (ptr)
 r1 = 0, else texture object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### font::ref_chars -> gui/font/ref_chars
@@ -1718,7 +1722,7 @@ outputs
 r0 = font object (ptr)
 r1 = char texture vector object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### font::get_metrics -> gui/font/get_metrics
@@ -1743,7 +1747,7 @@ r0 = font object (ptr)
 outputs
 r0 = font object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### font::lisp_create -> gui/font/lisp_create
@@ -1756,7 +1760,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ## func
@@ -1799,7 +1803,7 @@ r0 = grid object (ptr)
 r9 = preferred width (pixels)
 r10 = preferred height (pixels)
 trashes
-all but r0
+r1-r14
 ```
 
 ### grid::layout -> gui/grid/layout
@@ -1810,7 +1814,7 @@ r0 = grid object (ptr)
 outputs
 r0 = grid object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### grid::lisp_create -> gui/grid/lisp_create
@@ -1823,7 +1827,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ## gui
@@ -1840,7 +1844,7 @@ Super Class: null
 inputs
 r0 = root view object (ptr)
 trashes
-all
+r0-r14
 ```
 
 ### gui::gui -> gui/gui/gui
@@ -1859,7 +1863,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### gui::lisp_add_back -> gui/gui/lisp_add_back
@@ -1872,7 +1876,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ## hmap
@@ -1895,7 +1899,7 @@ outputs
 r0 = hmap object (ptr)
 r1 = 0 if error, else ok
 trashes
-r2-r7
+r1-r7
 ```
 
 ### hmap::find -> class/hmap/find
@@ -1909,7 +1913,7 @@ r0 = hmap object (ptr)
 r1 = 0, else found iterator (pptr)
 r2 = bucket vector (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### hmap::copy -> class/hmap/copy
@@ -1922,7 +1926,7 @@ outputs
 r0 = hmap object (ptr)
 r1 = hmap copy object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### hmap::insert -> class/hmap/insert
@@ -1937,7 +1941,7 @@ r0 = hmap object (ptr)
 r1 = iterator (pptr)
 r2 = bucket vector (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### hmap::search -> class/hmap/search
@@ -1951,7 +1955,7 @@ r0 = hmap object (ptr)
 r1 = 0, else iterator (pptr)
 r2 = bucket vector (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### hmap::set -> class/hmap/set
@@ -1965,7 +1969,7 @@ outputs
 r0 = hmap object (ptr)
 r1 = 0 if not found, else value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### hmap::get -> class/hmap/get
@@ -1978,7 +1982,7 @@ outputs
 r0 = hmap object (ptr)
 r1 = 0 if not found, else value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### hmap::set_parent -> class/hmap/set_parent
@@ -1990,7 +1994,7 @@ r1 = 0, else hmap parent object (ptr)
 outputs
 r0 = hmap object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### hmap::deinit -> class/hmap/deinit
@@ -2001,7 +2005,7 @@ r0 = hmap object (ptr)
 outputs
 r0 = hmap object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### hmap::lisp_env -> class/hmap/lisp_env
@@ -2013,6 +2017,8 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = environment hmap object (ptr)
+trashes
+r1-r14
 ```
 
 ### hmap::lisp_def -> class/hmap/lisp_def
@@ -2025,7 +2031,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### hmap::lisp_defq -> class/hmap/lisp_defq
@@ -2038,7 +2044,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### hmap::lisp_set -> class/hmap/lisp_set
@@ -2051,7 +2057,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### hmap::lisp_setq -> class/hmap/lisp_setq
@@ -2064,7 +2070,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### hmap::lisp_defined -> class/hmap/lisp_defined
@@ -2077,7 +2083,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### hmap::lisp_undef -> class/hmap/lisp_undef
@@ -2090,7 +2096,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### hmap::lisp_parent -> class/hmap/lisp_parent
@@ -2103,7 +2109,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ## host
@@ -2228,7 +2234,7 @@ outputs
 r0 = hset object (ptr)
 r1 = 0 if error, else ok
 trashes
-r2-r5
+r1-r5
 ```
 
 ### hset::get_bucket -> class/hset/get_bucket
@@ -2241,7 +2247,7 @@ outputs
 r0 = hset object (ptr)
 r1 = bucket vector object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### hset::clear -> class/hset/clear
@@ -2252,7 +2258,7 @@ r0 = hset object (ptr)
 outputs
 r0 = hset object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### hset::for_each -> class/hset/for_each
@@ -2271,7 +2277,7 @@ inputs
 r0 = predicate data (ptr)
 r1 = element iterator (pptr)
 trashes
-depends on the callback
+...
 ```
 
 ### hset::find -> class/hset/find
@@ -2285,7 +2291,7 @@ r0 = hset object (ptr)
 r1 = 0, else found iterator (pptr)
 r2 = bucket vector object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### hset::insert -> class/hset/insert
@@ -2299,7 +2305,7 @@ r0 = hset object (ptr)
 r1 = element iterator (pptr)
 r2 = bucket vector object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### hset::erase -> class/hset/erase
@@ -2312,7 +2318,7 @@ r2 = bucket vector object (ptr)
 outputs
 r0 = hset object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### hset::copy -> class/hset/copy
@@ -2325,7 +2331,7 @@ outputs
 r0 = hset object (ptr)
 r1 = hset copy object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### hset::get_both -> class/hset/get_both
@@ -2338,7 +2344,7 @@ r0 = hset object (ptr)
 r1 = begin iter pointer (pptr)
 r2 = end iter pointer (pptr)
 trashes
-r3-r4
+r1-r4
 ```
 
 ### hset::key_callback -> class/obj/null
@@ -2353,7 +2359,7 @@ r0 = hset object (ptr)
 outputs
 r0 = hset object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ## in
@@ -2375,7 +2381,7 @@ outputs
 r0 = in object (ptr)
 r1 = 0 if error, else ok
 trashes
-all but r0
+r1-r14
 ```
 
 ### in::next_msg -> class/in/next_msg
@@ -2386,7 +2392,7 @@ r0 = in object (ptr)
 outputs
 r0 = in object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### in::deinit -> class/in/deinit
@@ -2397,7 +2403,7 @@ r0 = in object (ptr)
 outputs
 r0 = in object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### in::read_next -> class/in/read_next
@@ -2409,7 +2415,7 @@ outputs
 r0 = in object (ptr)
 r1 = -1 for EOF, else more data
 trashes
-all but r0
+r1-r14
 ```
 
 ### in::lisp_create -> class/in/lisp_create
@@ -2422,7 +2428,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### in::lisp_next_msg -> class/in/lisp_next_msg
@@ -2435,7 +2441,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ## label
@@ -2456,7 +2462,7 @@ outputs
 r0 = label object (ptr)
 r1 = 0 if error, else ok
 trashes
-all but r0
+r1-r14
 ```
 
 ### label::pref_size -> gui/label/pref_size
@@ -2469,7 +2475,7 @@ r0 = label object (ptr)
 r9 = preferred width (pixels)
 r10 = preferred height (pixels)
 trashes
-all but r0
+r1-r14
 ```
 
 ### label::draw -> gui/label/draw
@@ -2481,7 +2487,7 @@ r1 = draw ctx (ptr)
 outputs
 r0 = view object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### label::layout -> gui/label/layout
@@ -2492,7 +2498,7 @@ r0 = label object (ptr)
 outputs
 r0 = label object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### label::lisp_create -> gui/label/lisp_create
@@ -2505,7 +2511,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ## lisp
@@ -2529,7 +2535,7 @@ outputs
 r0 = lisp object object (ptr)
 r1 = 0 if error, else ok
 trashes
-all
+r1-r14
 ```
 
 ### lisp::deinit -> class/lisp/deinit
@@ -2540,7 +2546,7 @@ r0 = lisp object (ptr)
 outputs
 r0 = lisp object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### lisp::env_push -> class/lisp/env_push
@@ -2550,6 +2556,8 @@ inputs
 r0 = lisp object (ptr)
 outputs
 r0 = lisp object (ptr)
+trashes
+r1-r14
 ```
 
 ### lisp::env_pop -> class/lisp/env_pop
@@ -2559,6 +2567,8 @@ inputs
 r0 = lisp object (ptr)
 outputs
 r0 = lisp object (ptr)
+trashes
+r1-r14
 ```
 
 ### lisp::env_bind -> class/lisp/env_bind
@@ -2572,7 +2582,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### lisp::env_args_set -> class/lisp/env_args_set
@@ -2611,7 +2621,7 @@ r0 = lisp object (ptr)
 r1 = form object (ptr)
 r2 = next char (uint)
 trashes
-all but r0
+r1-r14
 ```
 
 ### lisp::read_char -> class/lisp/read_char
@@ -2625,7 +2635,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = next char (uint)
 trashes
-all but r0
+r1-r14
 ```
 
 ### lisp::read_rmacro -> class/lisp/read_rmacro
@@ -2641,7 +2651,7 @@ r0 = lisp object (ptr)
 r1 = list vector object (ptr)
 r2 = next char (uint)
 trashes
-all but r0
+r1-r14
 ```
 
 ### lisp::read_list -> class/lisp/read_list
@@ -2655,6 +2665,8 @@ outputs
 r0 = lisp object (ptr)
 r1 = list vector object (ptr)
 r2 = next char (uint)
+trashes
+r1-r14
 ```
 
 ### lisp::read_sym -> class/lisp/read_sym
@@ -2668,8 +2680,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
-r2 = next char (uint)
+r1-r14
 ```
 
 ### lisp::read_str -> class/lisp/read_str
@@ -2684,7 +2695,7 @@ r0 = lisp object (ptr)
 r1 = str object (ptr)
 r2 = next char (uint)
 trashes
-all but r0
+r1-r14
 ```
 
 ### lisp::read_num -> class/lisp/read_num
@@ -2698,6 +2709,8 @@ outputs
 r0 = lisp object (ptr)
 r1 = num object (ptr)
 r2 = next char (uint)
+trashes
+r1-r14
 ```
 
 ### lisp::repl_eval -> class/lisp/repl_eval
@@ -2710,7 +2723,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### lisp::repl_eval_list -> class/lisp/repl_eval_list
@@ -2723,7 +2736,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### lisp::repl_apply -> class/lisp/repl_apply
@@ -2737,9 +2750,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
-trashes
-all but r0
+r1-r14
 ```
 
 ### lisp::repl_print -> class/lisp/repl_print
@@ -2751,6 +2762,8 @@ r1 = stream object (ptr)
 r2 = value
 outputs
 r0 = lisp object (ptr)
+trashes
+r1-r14
 ```
 
 ### lisp::repl_expand -> class/lisp/repl_expand
@@ -2761,6 +2774,8 @@ r0 = lisp object (ptr)
 r1 = form object iter (pptr)
 outputs
 r0 = lisp object (ptr)
+trashes
+r1-r14
 ```
 
 ### lisp::repl_error -> class/lisp/repl_error
@@ -2774,6 +2789,8 @@ r3 = error payload object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = error object (ptr)
+trashes
+r1-r14
 ```
 
 ### lisp::func_ffi -> class/lisp/func_ffi
@@ -2786,7 +2803,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### lisp::func_bindfun -> class/lisp/func_bindfun
@@ -2799,7 +2816,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### lisp::func_macroexpand -> class/lisp/func_macroexpand
@@ -2812,7 +2829,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### lisp::func_lambda -> class/lisp/func_lambda
@@ -2825,7 +2842,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### lisp::func_quote -> class/lisp/func_quote
@@ -2838,7 +2855,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### lisp::func_qquote -> class/lisp/func_qquote
@@ -2851,7 +2868,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### lisp::func_eql -> class/lisp/func_eql
@@ -2864,7 +2881,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### lisp::func_cond -> class/lisp/func_cond
@@ -2877,7 +2894,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### lisp::func_progn -> class/lisp/func_progn
@@ -2890,7 +2907,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### lisp::func_while -> class/lisp/func_while
@@ -2903,7 +2920,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### lisp::func_print -> class/lisp/func_print
@@ -2916,7 +2933,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### lisp::func_prin -> class/lisp/func_prin
@@ -2929,7 +2946,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### lisp::func_copy -> class/lisp/func_copy
@@ -2942,7 +2959,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### lisp::func_apply -> class/lisp/func_apply
@@ -2955,7 +2972,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### lisp::func_repl -> class/lisp/func_repl
@@ -2968,7 +2985,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### lisp::func_eval -> class/lisp/func_eval
@@ -2981,7 +2998,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### lisp::func_throw -> class/lisp/func_throw
@@ -2994,7 +3011,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### lisp::func_catch -> class/lisp/func_catch
@@ -3007,7 +3024,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### lisp::func_bind -> class/lisp/func_bind
@@ -3020,7 +3037,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### lisp::func_read -> class/lisp/func_read
@@ -3033,7 +3050,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### lisp::func_type -> class/lisp/func_type
@@ -3046,7 +3063,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### lisp::run -> class/lisp/run
@@ -3100,6 +3117,8 @@ r1 = value (long)
 outputs
 r0 = num object (ptr)
 r1 = value (long)
+trashes
+none
 ```
 
 ### num::lisp_add -> class/num/lisp_add
@@ -3112,7 +3131,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### num::lisp_sub -> class/num/lisp_sub
@@ -3125,7 +3144,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### num::lisp_mul -> class/num/lisp_mul
@@ -3138,7 +3157,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### num::lisp_div -> class/num/lisp_div
@@ -3151,7 +3170,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### num::lisp_mod -> class/num/lisp_mod
@@ -3164,7 +3183,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### num::lisp_fmul -> class/num/lisp_fmul
@@ -3177,7 +3196,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### num::lisp_fdiv -> class/num/lisp_fdiv
@@ -3190,7 +3209,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### num::lisp_fmod -> class/num/lisp_fmod
@@ -3203,7 +3222,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### num::lisp_band -> class/num/lisp_band
@@ -3216,7 +3235,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### num::lisp_bor -> class/num/lisp_bor
@@ -3229,7 +3248,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### num::lisp_bxor -> class/num/lisp_bxor
@@ -3242,7 +3261,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### num::lisp_bshr -> class/num/lisp_bshr
@@ -3255,7 +3274,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### num::lisp_basr -> class/num/lisp_basr
@@ -3268,7 +3287,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### num::lisp_bshl -> class/num/lisp_bshl
@@ -3281,7 +3300,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### num::lisp_min -> class/num/lisp_min
@@ -3294,7 +3313,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### num::lisp_max -> class/num/lisp_max
@@ -3307,7 +3326,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### num::lisp_eq -> class/num/lisp_eq
@@ -3320,7 +3339,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### num::lisp_ne -> class/num/lisp_ne
@@ -3333,7 +3352,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### num::lisp_lt -> class/num/lisp_lt
@@ -3346,7 +3365,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### num::lisp_gt -> class/num/lisp_gt
@@ -3359,7 +3378,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### num::lisp_le -> class/num/lisp_le
@@ -3372,7 +3391,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### num::lisp_ge -> class/num/lisp_ge
@@ -3385,7 +3404,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ## obj
@@ -3402,7 +3421,7 @@ Super Class: null
 inputs
 r0 = object (ptr)
 trashes
-all
+r0-r14
 ```
 
 ### obj::init -> class/obj/init
@@ -3428,7 +3447,7 @@ outputs
 r0 = object (ptr)
 r1 = 0 if not, else vtable of object (ptr)
 trashes
-r2
+r1-r2
 ```
 
 ### obj::ref -> class/obj/ref
@@ -3448,7 +3467,7 @@ r1
 inputs
 r0 = object (ptr)
 trashes
-all
+r0-r14
 ```
 
 ### obj::ref_if -> class/obj/ref_if
@@ -3468,7 +3487,7 @@ r1
 inputs
 r0 = 0, else object (ptr)
 trashes
-all
+r0-r14
 ```
 
 ### obj::hash -> class/obj/hash
@@ -3480,7 +3499,7 @@ outputs
 r0 = object (ptr)
 r1 = hash code (ulong)
 trashes
-all but r0
+r1-r14
 ```
 
 ### obj::deinit -> class/obj/deinit
@@ -3489,7 +3508,7 @@ all but r0
 inputs
 r0 = object (ptr)
 trashes
-all
+r0-r14
 ```
 
 ### obj::deinit -> class/obj/null
@@ -3504,7 +3523,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### obj::lisp_set_field -> class/obj/lisp_set_field
@@ -3517,7 +3536,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ## out
@@ -3539,7 +3558,7 @@ outputs
 r0 = out object (ptr)
 r1 = 0 if error, else ok
 trashes
-all but r0
+r1-r14
 ```
 
 ### out::set_state -> class/out/set_state
@@ -3551,7 +3570,7 @@ r1 = state (uint)
 outputs
 r0 = out object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### out::wait_acks -> class/out/wait_acks
@@ -3563,7 +3582,7 @@ r1 = msg ack num (uint)
 outputs
 r0 = out object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### out::deinit -> class/out/deinit
@@ -3574,7 +3593,7 @@ r0 = out object (ptr)
 outputs
 r0 = out object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### out::write_flush -> class/out/write_flush
@@ -3585,7 +3604,7 @@ r0 = out object (ptr)
 outputs
 r0 = out object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### out::write_next -> class/out/write_next
@@ -3596,7 +3615,7 @@ r0 = out object (ptr)
 outputs
 r0 = out object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### out::lisp_create -> class/out/lisp_create
@@ -3609,7 +3628,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ## pair
@@ -3644,7 +3663,7 @@ outputs
 r0 = pair object (ptr)
 r1 = object (ptr)
 trashes
-r2
+r1-r2
 ```
 
 ### pair::ref_second -> class/pair/ref_second
@@ -3656,7 +3675,7 @@ outputs
 r0 = pair object (ptr)
 r1 = object (ptr)
 trashes
-r2
+r1-r2
 ```
 
 ### pair::get_first -> class/pair/get_first
@@ -3692,7 +3711,7 @@ r1 = object (ptr)
 outputs
 r0 = pair object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### pair::set_second -> class/pair/set_second
@@ -3704,7 +3723,7 @@ r1 = object (ptr)
 outputs
 r0 = pair object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### pair::deinit -> class/pair/deinit
@@ -3715,7 +3734,7 @@ r0 = pair object (ptr)
 outputs
 r0 = pair object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ## points
@@ -3889,7 +3908,7 @@ r2 = tolerance (16.16)
 outputs
 r0 = points object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### points::filter_polygon -> gui/points/filter_polygon
@@ -3902,7 +3921,7 @@ r2 = tolerance (16.16)
 outputs
 r0 = points object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### points::transform -> gui/points/transform
@@ -3920,7 +3939,7 @@ r7 = try (16.16)
 outputs
 r0 = points object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### points::simplify -> gui/points/simplify
@@ -3934,7 +3953,7 @@ r3 = tolerance (16.16)
 outputs
 r0 = points object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### points::gen_clerp -> gui/points/gen_clerp
@@ -3954,7 +3973,7 @@ r9 = tolerance (16.16)
 outputs
 r0 = points object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### points::gen_arc -> gui/points/gen_arc
@@ -3972,7 +3991,7 @@ r7 = tolerance (16.16)
 outputs
 r0 = points object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### points::gen_quadratic -> gui/points/gen_quadratic
@@ -3991,7 +4010,7 @@ r8 = tolerance (16.16)
 outputs
 r0 = points object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### points::gen_cubic -> gui/points/gen_cubic
@@ -4012,7 +4031,7 @@ r10 = tolerance (16.16)
 outputs
 r0 = points object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### points::stroke_joints -> gui/points/stroke_joints
@@ -4033,7 +4052,7 @@ r10 = join style (byte)
 outputs
 r0 = points object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### points::stroke_polylines -> gui/points/stroke_polylines
@@ -4051,7 +4070,7 @@ r7 = cap style2 (byte)
 outputs
 r0 = output vector of points objects (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### points::stroke_polygons -> gui/points/stroke_polygons
@@ -4067,7 +4086,7 @@ r5 = join style (byte)
 outputs
 r0 = output vector of points objects (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### points::cat -> gui/points/cat
@@ -4092,6 +4111,8 @@ r2 = points method (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = 0 if error, else value object (ptr)
+trashes
+r1-r14
 ```
 
 ### points::lisp_vecop2 -> gui/points/lisp_vecop2
@@ -4104,6 +4125,8 @@ r2 = points method (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = 0 if error, else value object (ptr)
+trashes
+r1-r14
 ```
 
 ### points::lisp_add -> gui/points/lisp_add
@@ -4116,7 +4139,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### points::lisp_sub -> gui/points/lisp_sub
@@ -4129,7 +4152,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### points::lisp_mul -> gui/points/lisp_mul
@@ -4142,7 +4165,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### points::lisp_div -> gui/points/lisp_div
@@ -4155,7 +4178,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### points::lisp_mod -> gui/points/lisp_mod
@@ -4168,7 +4191,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### points::lisp_sum -> gui/points/lisp_sum
@@ -4181,7 +4204,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### points::lisp_fmul -> gui/points/lisp_fmul
@@ -4194,7 +4217,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### points::lisp_fdiv -> gui/points/lisp_fdiv
@@ -4207,7 +4230,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### points::lisp_fmod -> gui/points/lisp_fmod
@@ -4220,7 +4243,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### points::lisp_fscale -> gui/points/lisp_fscale
@@ -4233,7 +4256,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### points::lisp_abs -> gui/points/lisp_abs
@@ -4246,7 +4269,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### points::lisp_frac -> gui/points/lisp_frac
@@ -4259,7 +4282,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### points::lisp_transform -> gui/points/lisp_transform
@@ -4272,7 +4295,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### points::lisp_simplify -> gui/points/lisp_simplify
@@ -4285,7 +4308,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### points::lisp_gen_quadratic -> gui/points/lisp_gen_quadratic
@@ -4298,7 +4321,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### points::lisp_gen_cubic -> gui/points/lisp_gen_cubic
@@ -4311,7 +4334,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### points::lisp_gen_arc -> gui/points/lisp_gen_arc
@@ -4324,7 +4347,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### points::lisp_stroke_polylines -> gui/points/lisp_stroke_polylines
@@ -4337,7 +4360,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### points::lisp_stroke_polygons -> gui/points/lisp_stroke_polygons
@@ -4350,7 +4373,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ## progress
@@ -4383,7 +4406,7 @@ r1 = draw ctx (ptr)
 outputs
 r0 = window object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### progress::layout -> gui/backdrop/layout
@@ -4394,7 +4417,7 @@ r0 = backdrop object (ptr)
 outputs
 r0 = backdrop object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### progress::lisp_create -> gui/progress/lisp_create
@@ -4407,7 +4430,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ## region
@@ -4518,7 +4541,7 @@ r10 = y1 (pixels)
 outputs
 r0 = region heap (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### region::free -> gui/region/free
@@ -4546,7 +4569,7 @@ r8 = y translation (pixels)
 outputs
 r0 = region heap (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### region::paste_region -> gui/region/paste_region
@@ -4561,7 +4584,7 @@ r8 = y translation (pixels)
 outputs
 r0 = region heap (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### region::remove_region -> gui/region/remove_region
@@ -4576,7 +4599,7 @@ r8 = y translation (pixels)
 outputs
 r0 = region heap (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ## scroll
@@ -4598,7 +4621,7 @@ outputs
 r0 = scroll object (ptr)
 r1 = 0 if error, else ok
 trashes
-all but r0
+r1-r14
 ```
 
 ### scroll::add_child -> gui/scroll/add_child
@@ -4610,7 +4633,7 @@ r1 = child view object (ptr)
 outputs
 r0 = scroll object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### scroll::layout -> gui/scroll/layout
@@ -4621,7 +4644,7 @@ r0 = scroll object (ptr)
 outputs
 r0 = scroll object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### scroll::pref_size -> gui/scroll/pref_size
@@ -4634,7 +4657,7 @@ r0 = scroll object (ptr)
 r9 = preferred width (pixels)
 r10 = preferred height (pixels)
 trashes
-all but r0
+r1-r14
 ```
 
 ### scroll::action -> gui/scroll/action
@@ -4646,7 +4669,7 @@ r1 = event data (ptr)
 outputs
 r0 = scroll object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### scroll::lisp_create -> gui/scroll/lisp_create
@@ -4659,7 +4682,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ## seq
@@ -4686,7 +4709,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### seq::lisp_elem -> class/seq/lisp_elem
@@ -4699,7 +4722,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### seq::lisp_find -> class/seq/lisp_find
@@ -4712,7 +4735,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### seq::lisp_slice -> class/seq/lisp_slice
@@ -4725,7 +4748,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### seq::lisp_cat -> class/seq/lisp_cat
@@ -4738,7 +4761,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### seq::lisp_each -> class/seq/lisp_each
@@ -4751,7 +4774,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### seq::lisp_some -> class/seq/lisp_some
@@ -4764,7 +4787,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ## slave
@@ -4785,7 +4808,7 @@ outputs
 r0 = slave object (ptr)
 r1 = 0 if error, else ok
 trashes
-all but r0
+r1-r14
 ```
 
 ### slave::deinit -> class/slave/deinit
@@ -4796,7 +4819,7 @@ r0 = slave object (ptr)
 outputs
 r0 = slave object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### slave::lisp_create -> class/slave/lisp_create
@@ -4809,7 +4832,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ## slider
@@ -4829,6 +4852,8 @@ r1 = vtable (pptr)
 outputs
 r0 = slider object (ptr)
 r1 = 0 if error, else ok
+trashes
+r1-r14
 ```
 
 ### slider::pref_size -> gui/slider/pref_size
@@ -4853,7 +4878,7 @@ r1 = draw ctx (ptr)
 outputs
 r0 = window object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### slider::layout -> gui/backdrop/layout
@@ -4864,7 +4889,7 @@ r0 = backdrop object (ptr)
 outputs
 r0 = backdrop object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### slider::mouse_down -> gui/slider/mouse_down
@@ -4876,7 +4901,7 @@ r1 = mouse event data (ptr)
 outputs
 r0 = slider object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### slider::mouse_up -> gui/slider/mouse_up
@@ -4888,7 +4913,7 @@ r1 = mouse event data (ptr)
 outputs
 r0 = slider object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### slider::mouse_move -> gui/slider/mouse_move
@@ -4900,7 +4925,7 @@ r1 = mouse event data (ptr)
 outputs
 r0 = slider object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### slider::lisp_create -> gui/slider/lisp_create
@@ -4913,7 +4938,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ## str
@@ -5049,7 +5074,7 @@ outputs
 r0 = str object (ptr)
 r1 = vector of str objects (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### str::compare -> class/str/compare
@@ -5062,7 +5087,7 @@ outputs
 r0 = str object (ptr)
 r1 = 0 if same, else -, +
 trashes
-r2-r7
+r1-r7
 ```
 
 ### str::same -> class/str/same
@@ -5075,7 +5100,7 @@ outputs
 r0 = str object (ptr)
 r1 = 0 if same
 trashes
-r2-r6
+r1-r6
 ```
 
 ### str::find -> class/str/find
@@ -5101,7 +5126,7 @@ outputs
 r0 = str object (ptr)
 r1 = hash code (ulong)
 trashes
-r2-r4
+r1-r4
 ```
 
 ### str::get_length -> class/str/get_length
@@ -5126,7 +5151,7 @@ outputs
 r0 = str object (ptr)
 r1 = char str object (ptr)
 trashes
-r2-r7
+r1-r7
 ```
 
 ### str::slice -> class/str/slice
@@ -5140,7 +5165,7 @@ outputs
 r0 = str object (ptr)
 r1 = string slice object (ptr)
 trashes
-r2-r7
+r1-r7
 ```
 
 ### str::cat -> class/str/cat
@@ -5165,7 +5190,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### str::lisp_split -> class/str/lisp_split
@@ -5178,7 +5203,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### str::lisp_code -> class/str/lisp_code
@@ -5191,7 +5216,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### str::lisp_char -> class/str/lisp_char
@@ -5204,7 +5229,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### str::lisp_cmp -> class/str/lisp_cmp
@@ -5217,7 +5242,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### str::lisp_save -> class/str/lisp_save
@@ -5230,7 +5255,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### str::lisp_load -> class/str/lisp_load
@@ -5243,7 +5268,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ## stream
@@ -5280,7 +5305,7 @@ outputs
 r0 = stream object (ptr)
 r1 = available space (bytes)
 trashes
-r2
+r1-r2
 ```
 
 ### stream::read_bits -> class/stream/read_bits
@@ -5297,7 +5322,7 @@ r1 = -1 if eof, else data (long)
 r2 = bit pool (ulong)
 r3 = bit pool size (uint)
 trashes
-all but r0
+r1-r14
 ```
 
 ### stream::write_bits -> class/stream/write_bits
@@ -5314,7 +5339,7 @@ r0 = stream object (ptr)
 r1 = bit pool (ulong)
 r2 = bit pool size (uint)
 trashes
-all but r0
+r1-r14
 ```
 
 ### stream::read_char -> class/stream/read_char
@@ -5326,7 +5351,7 @@ outputs
 r0 = stream object (ptr)
 r1 = -1 for EOF, else char read (int)
 trashes
-all but r0
+r1-r14
 ```
 
 ### stream::read_line -> class/stream/read_line
@@ -5338,7 +5363,7 @@ outputs
 r0 = stream object (ptr)
 r1 = 0 for EOF, else str object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### stream::read -> class/stream/read
@@ -5352,7 +5377,7 @@ outputs
 r0 = stream object (ptr)
 r1 = -1 for EOF, else bytes read (int)
 trashes
-all but r0
+r1-r14
 ```
 
 ### stream::write_char -> class/stream/write_char
@@ -5364,7 +5389,7 @@ r1 = char (uint)
 outputs
 r0 = stream object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### stream::write -> class/stream/write
@@ -5377,7 +5402,7 @@ r2 = buffer length (uint)
 outputs
 r0 = stream object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### stream::write_cstr -> class/stream/write_cstr
@@ -5389,7 +5414,7 @@ r1 = buffer (pubyte)
 outputs
 r0 = stream object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### stream::skip -> class/stream/skip
@@ -5401,7 +5426,7 @@ r1 = char to skip (uint)
 outputs
 r0 = stream object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### stream::skip_not -> class/stream/skip_not
@@ -5413,7 +5438,7 @@ r1 = char to not skip (uint)
 outputs
 r0 = stream object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### stream::split -> class/stream/split
@@ -5426,7 +5451,7 @@ outputs
 r0 = stream object (ptr)
 r1 = split strings vector object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### stream::deinit -> class/stream/deinit
@@ -5437,7 +5462,7 @@ r0 = stream object (ptr)
 outputs
 r0 = stream object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### stream::read_next -> class/stream/read_next
@@ -5449,7 +5474,7 @@ outputs
 r0 = stream object (ptr)
 r1 = -1 for EOF, else more data
 trashes
-all but r0
+r1-r14
 ```
 
 ### stream::write_next -> class/stream/write_flush
@@ -5484,7 +5509,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### stream::lisp_strstream -> class/stream/lisp_strstream
@@ -5497,7 +5522,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### stream::lisp_available -> class/stream/lisp_available
@@ -5510,7 +5535,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### stream::lisp_readchar -> class/stream/lisp_readchar
@@ -5523,7 +5548,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### stream::lisp_readline -> class/stream/lisp_readline
@@ -5536,7 +5561,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### stream::lisp_readavail -> class/stream/lisp_readavail
@@ -5549,7 +5574,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### stream::lisp_writechar -> class/stream/lisp_writechar
@@ -5562,7 +5587,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### stream::lisp_write -> class/stream/lisp_write
@@ -5575,7 +5600,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### stream::lisp_write_flush -> class/stream/lisp_write_flush
@@ -5588,7 +5613,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### stream::lisp_write_next -> class/stream/lisp_write_next
@@ -5624,7 +5649,7 @@ outputs
 r0 = stream_str object (ptr)
 r1 = str object (ptr)
 trashes
-r2
+r1-r2
 ```
 
 ### stream_str::write_next -> class/stream_str/write_next
@@ -5635,7 +5660,7 @@ r0 = stream_str object (ptr)
 outputs
 r0 = stream_str object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### stream_str::write_flush -> class/stream_str/write_flush
@@ -5646,7 +5671,7 @@ r0 = stream_str object (ptr)
 outputs
 r0 = stream_str object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ## sym
@@ -5666,7 +5691,7 @@ symbol static data
 
 ```lisp
 trashes
-all
+r0-r14
 ```
 
 ### sym::get_static_sym -> class/sym/get_static_sym
@@ -5677,14 +5702,14 @@ r1 = static sym num (uint)
 outputs
 r1 = sym object (ptr)
 trashes
-r3
+r1, r3
 ```
 
 ### sym::flush -> class/sym/flush
 
 ```lisp
 trashes
-all
+r0-r14
 ```
 
 ### sym::intern -> class/sym/intern
@@ -5695,7 +5720,7 @@ r0 = sym object (ptr)
 outputs
 r0 = interned sym object (ptr)
 trashes
-all
+r0-r14
 ```
 
 ### sym::intern_str -> class/sym/intern_str
@@ -5706,7 +5731,7 @@ r0 = str object (ptr)
 outputs
 r0 = interned sym object (ptr)
 trashes
-all
+r0-r14
 ```
 
 ### sym::intern_cstr -> class/sym/intern_cstr
@@ -5717,7 +5742,7 @@ r0 = c string pointer (pubyte)
 outputs
 r0 = interned sym object (ptr)
 trashes
-all
+r0-r14
 ```
 
 ### sym::lisp_sym -> class/sym/lisp_sym
@@ -5730,7 +5755,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### sym::lisp_gensym -> class/sym/lisp_gensym
@@ -5743,7 +5768,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ## sys_heap
@@ -5761,7 +5786,7 @@ outputs
 r0 = heap (ptr)
 r1 = cell size (bytes)
 trashes
-r2
+r1-r2
 ```
 
 ### sys_heap::deinit -> sys/heap/deinit
@@ -5820,6 +5845,8 @@ Super Class: null
 ```lisp
 outputs
 r0 = cpu ID (uint)
+trashes
+r0
 ```
 
 ### sys_kernel::total -> sys/kernel/total
@@ -5827,6 +5854,8 @@ r0 = cpu ID (uint)
 ```lisp
 outputs
 r0 = cpu total (uint)
+trashes
+r0
 ```
 
 ### sys_kernel::opts -> sys/kernel/opts
@@ -5856,7 +5885,7 @@ loader is already initialized when we get here !
 inputs
 r0 = debug c string (pubyte)
 trashes
-all
+r0-r14
 ```
 
 ### sys_kernel::debug_reg -> sys/kernel/debug_reg
@@ -5878,7 +5907,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### sys_kernel::lisp_declare -> sys/kernel/lisp_declare
@@ -5891,7 +5920,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### sys_kernel::lisp_debug -> sys/kernel/lisp_debug
@@ -5904,7 +5933,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ## sys_link
@@ -6022,7 +6051,7 @@ outputs
 r0 = mail message (ptr)
 r1 = string data (pubyte)
 trashes
-r2-r7
+r0-r4
 ```
 
 ### sys_mail::free -> sys/mail/free
@@ -6031,7 +6060,7 @@ r2-r7
 inputs
 r0 = mail message (ptr)
 trashes
-all
+r0-r14
 ```
 
 ### sys_mail::alloc_obj -> sys/mail/alloc_obj
@@ -6044,7 +6073,7 @@ r2 = data length (bytes)
 outputs
 r0 = mail message (ptr)
 trashes
-r1-r5
+r0-r5
 ```
 
 ### sys_mail::free_obj -> sys/mail/free_obj
@@ -6057,7 +6086,7 @@ r0 = 0 if msg was 0, else object (ptr)
 r1 = data (pubyte)
 r2 = data length (bytes)
 trashes
-r3-r5
+r0-r5
 ```
 
 ### sys_mail::send -> sys/mail/send
@@ -6078,7 +6107,7 @@ outputs
 r0 = mail address (ptr)
 r1 = string data (pubyte)
 trashes
-r2
+r0-r2
 ```
 
 ### sys_mail::poll -> sys/mail/poll
@@ -6112,7 +6141,7 @@ outputs
 r0 = mail address (ptr)
 r1 = string data (pubyte)
 trashes
-r2
+r0-r2
 ```
 
 ### sys_mail::declare -> sys/mail/declare
@@ -6122,7 +6151,7 @@ inputs
 r0 = mailbox name c string (pubyte)
 r1 = mailbox id (ulong)
 trashes
-all
+r0-r14
 ```
 
 ### sys_mail::enquire -> sys/mail/enquire
@@ -6133,7 +6162,7 @@ r0 = mailbox name c string (pubyte)
 outputs
 r0 = 0 if error, else mailbox id (ulong)
 trashes
-all
+r0-r14
 ```
 
 ### sys_mail::forget -> sys/mail/forget
@@ -6142,7 +6171,7 @@ all
 inputs
 r0 = mailbox name c string (pubyte)
 trashes
-all
+r0-r14
 ```
 
 ### sys_mail::in -> sys/mail/in
@@ -6151,7 +6180,7 @@ all
 inputs
 r0 = link input msg buffer (ptr)
 trashes
-all
+r0-r14
 ```
 
 ### sys_mail::out -> sys/mail/out
@@ -6171,7 +6200,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### sys_mail::lisp_poll -> sys/mail/lisp_poll
@@ -6184,7 +6213,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### sys_mail::lisp_select -> sys/mail/lisp_select
@@ -6197,7 +6226,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### sys_mail::lisp_send -> sys/mail/lisp_send
@@ -6210,7 +6239,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### sys_mail::lisp_declare -> sys/mail/lisp_declare
@@ -6223,7 +6252,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### sys_mail::lisp_enquire -> sys/mail/lisp_enquire
@@ -6236,7 +6265,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ## sys_math
@@ -6251,7 +6280,7 @@ r0 = random range (ulong)
 outputs
 r0 = random number in range (ulong)
 trashes
-r1-r2
+r0-r2
 ```
 
 ### sys_math::isqrt -> sys/math/isqrt
@@ -6262,7 +6291,7 @@ r0 = number (ulong)
 outputs
 r0 = sqrt (ulong)
 trashes
-r1-r3
+r0-r3
 ```
 
 ### sys_math::fsqrt -> sys/math/fsqrt
@@ -6273,7 +6302,7 @@ r0 = number (16.16)
 outputs
 r0 = sqrt (16.16)
 trashes
-r1-r3
+r0-r3
 ```
 
 ### sys_math::fsin -> sys/math/fsin
@@ -6284,7 +6313,7 @@ r0 = angle in radians (16.16)
 outputs
 r0 = sine (16.16)
 trashes
-r1-r4
+r0-r4
 ```
 
 ### sys_math::fcos -> sys/math/fcos
@@ -6295,7 +6324,7 @@ r0 = angle in radians (16.16)
 outputs
 r0 = cosine (16.16)
 trashes
-r1-r4
+r0-r4
 ```
 
 ### sys_math::intersect -> sys/math/intersect
@@ -6314,7 +6343,7 @@ outputs
 r0 = ix (16.16)
 r1 = iy (16.16)
 trashes
-all
+r0-r14
 ```
 
 ### sys_math::distance_sqd -> sys/math/distance_sqd
@@ -6330,7 +6359,7 @@ r5 = p2y (16.16)
 outputs
 r0 = distance squared (16.16)
 trashes
-all
+r0-r14
 ```
 
 ### sys_math::lisp_fsin -> sys/math/lisp_fsin
@@ -6343,7 +6372,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### sys_math::lisp_fcos -> sys/math/lisp_fcos
@@ -6356,7 +6385,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### sys_math::lisp_fsqrt -> sys/math/lisp_fsqrt
@@ -6369,7 +6398,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### sys_math::lisp_frac -> sys/math/lisp_frac
@@ -6382,7 +6411,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### sys_math::lisp_floor -> sys/math/lisp_floor
@@ -6395,7 +6424,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ## sys_mem
@@ -6432,7 +6461,7 @@ outputs
 r0 = 0 if failed, else address (ptr)
 r1 = 0 if failed, else size given (bytes)
 trashes
-r2
+r0-r2
 ```
 
 ### sys_mem::calloc -> sys/mem/calloc
@@ -6444,7 +6473,7 @@ outputs
 r0 = 0 if failed, else address (ptr)
 r1 = 0 if failed, else size given (bytes)
 trashes
-r2
+r0-r2
 ```
 
 ### sys_mem::free -> sys/mem/free
@@ -6465,7 +6494,7 @@ r1 = length (bytes)
 outputs
 r0 = address end (ptr)
 trashes
-r1-r2
+r0-r2
 ```
 
 ### sys_mem::fill -> sys/mem/fill
@@ -6478,7 +6507,7 @@ r2 = fill byte (byte)
 outputs
 r0 = address end (ptr)
 trashes
-r1-r3
+r0-r3
 ```
 
 ### sys_mem::copy -> sys/mem/copy
@@ -6492,7 +6521,7 @@ outputs
 r0 = source address end (ptr)
 r1 = destination address end (ptr)
 trashes
-r2-r3
+r0-r3
 ```
 
 ### sys_mem::realloc -> sys/mem/realloc
@@ -6506,7 +6535,7 @@ outputs
 r0 = new block address (ptr)
 r1 = new block size (bytes)
 trashes
-r2-r5
+r0-r5
 ```
 
 ### sys_mem::recalloc -> sys/mem/recalloc
@@ -6520,14 +6549,14 @@ outputs
 r0 = new block address (ptr)
 r1 = new block size (bytes)
 trashes
-r2-r7
+r0-r7
 ```
 
 ### sys_mem::collect -> sys/mem/collect
 
 ```lisp
 trashes
-all
+r0-r14
 info
 free all unused blocks
 ```
@@ -6551,7 +6580,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ## sys_pii
@@ -6575,7 +6604,7 @@ r2 = mode (ulong)
 outputs
 r0 = buffer (ptr)
 trashes
-none
+r0
 ```
 
 ### sys_pii::munmap -> sys/pii/munmap
@@ -6588,7 +6617,7 @@ r2 = mode (ulong)
 outputs
 r0 = error code (ulong)
 trashes
-none
+r0
 ```
 
 ### sys_pii::mprotect -> sys/pii/mprotect
@@ -6601,7 +6630,7 @@ r2 = prot (ulong)
 outputs
 r0 = error code (ulong)
 trashes
-none
+r0
 ```
 
 ### sys_pii::open -> sys/pii/open
@@ -6613,7 +6642,7 @@ r1 = mode (ulong)
 outputs
 r0 = fd (ulong)
 trashes
-none
+r0
 ```
 
 ### sys_pii::close -> sys/pii/close
@@ -6624,7 +6653,7 @@ r0 = fd (ulong)
 outputs
 r0 = error code (ulong)
 trashes
-none
+r0
 ```
 
 ### sys_pii::open_shared -> sys/pii/open_shared
@@ -6636,7 +6665,7 @@ r1 = length (ulong)
 outputs
 r0 = handle (long)
 trashes
-none
+r0
 ```
 
 ### sys_pii::close_shared -> sys/pii/close_shared
@@ -6648,7 +6677,7 @@ r1 = handle (long)
 outputs
 r0 = error code (ulong)
 trashes
-none
+r0
 ```
 
 ### sys_pii::unlink -> sys/pii/unlink
@@ -6659,7 +6688,7 @@ r0 = c string filename (pubyte)
 outputs
 r0 = error code (ulong)
 trashes
-none
+r0
 ```
 
 ### sys_pii::stat -> sys/pii/stat
@@ -6671,7 +6700,7 @@ r1 = stat buf (ptr)
 outputs
 r0 = error code (ulong)
 trashes
-none
+r0
 ```
 
 ### sys_pii::write -> sys/pii/write
@@ -6684,7 +6713,7 @@ r2 = len (ulong)
 outputs
 r0 = error code (ulong)
 trashes
-none
+r0
 ```
 
 ### sys_pii::write_char -> sys/pii/write_char
@@ -6696,7 +6725,7 @@ r1 = char (ulong)
 outputs
 r0 = error code (ulong)
 trashes
-none
+r0
 ```
 
 ### sys_pii::write_str -> sys/pii/write_str
@@ -6708,7 +6737,7 @@ r1 = c string (pubyte)
 outputs
 r0 = error code (ulong)
 trashes
-none
+r0
 ```
 
 ### sys_pii::write_num -> sys/pii/write_num
@@ -6721,7 +6750,7 @@ r2 = base (ulong)
 outputs
 r0 = error code (ulong)
 trashes
-none
+r0
 ```
 
 ### sys_pii::read -> sys/pii/read
@@ -6734,7 +6763,7 @@ r2 = len (ulong)
 outputs
 r0 = error code (ulong)
 trashes
-none
+r0
 ```
 
 ### sys_pii::read_char -> sys/pii/read_char
@@ -6745,7 +6774,7 @@ r0 = fd (ulong)
 outputs
 r0 = char (ulong)
 trashes
-none
+r0
 ```
 
 ### sys_pii::time -> sys/pii/time
@@ -6754,7 +6783,7 @@ none
 outputs
 r0 = time in usec (ulong)
 trashes
-none
+r0
 ```
 
 ### sys_pii::lisp_readchar -> sys/pii/lisp_readchar
@@ -6767,7 +6796,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### sys_pii::lisp_writechar -> sys/pii/lisp_writechar
@@ -6780,7 +6809,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### sys_pii::lisp_time -> sys/pii/lisp_time
@@ -6793,7 +6822,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### sys_pii::lisp_age -> sys/pii/lisp_age
@@ -6806,7 +6835,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ## sys_str
@@ -6822,7 +6851,7 @@ outputs
 r0 = c string (pubyte)
 r1 = c string len (bytes)
 trashes
-r2
+r1-r2
 ```
 
 ### sys_str::copy -> sys/str/copy
@@ -6859,7 +6888,7 @@ r1 = base (ulong)
 outputs
 r0 = number (ulong)
 trashes
-r2-r4
+r0-r4
 ```
 
 ### sys_str::from_long -> sys/str/from_long
@@ -6898,6 +6927,8 @@ init task statics
 ```lisp
 outputs
 r0 = current task tcb (ptr)
+trashes
+r0
 ```
 
 ### sys_task::mailbox -> sys/task/mailbox
@@ -6905,6 +6936,8 @@ r0 = current task tcb (ptr)
 ```lisp
 outputs
 r0 = current task mailbox id (id)
+trashes
+r0
 ```
 
 ### sys_task::callback -> sys/task/callback
@@ -6914,7 +6947,7 @@ inputs
 r0 = user data address (ptr)
 r1 = callback address (ptr)
 trashes
-all
+r0-r14
 ```
 
 ### sys_task::start -> sys/task/start
@@ -6927,7 +6960,7 @@ r0 = new task control block (ptr)
 r1 = new task mailbox id (id)
 r2 = new task mailbox address (ptr)
 trashes
-all
+r0-r14
 ```
 
 ### sys_task::stop -> sys/task/stop
@@ -6942,6 +6975,8 @@ stop current task, switch to next task
 ```lisp
 inputs
 r14 = control block to restore (ptr)
+trashes
+r0-r14
 info
 restore next task
 ```
@@ -6951,6 +6986,8 @@ restore next task
 ```lisp
 outputs
 r0 = task count (uint)
+trashes
+r0
 ```
 
 ### sys_task::sleep -> sys/task/sleep
@@ -6989,7 +7026,7 @@ r1 = spawn type (uint)
 outputs
 r0 = mailbox ID (id)
 trashes
-all
+r0-r14
 ```
 
 ### sys_task::open_remote -> sys/task/open_remote
@@ -7002,7 +7039,7 @@ r2 = spawn type (uint)
 outputs
 r0 = mailbox id (id)
 trashes
-all
+r0-r14
 ```
 
 ### sys_task::open_farm -> sys/task/open_farm
@@ -7015,7 +7052,7 @@ r2 = spawn type (uint)
 outputs
 r0 = mailbox id's array object (ptr)
 trashes
-all
+r0-r14
 ```
 
 ### sys_task::open_pipe -> sys/task/open_pipe
@@ -7026,7 +7063,7 @@ r0 = vector of str objects (ptr)
 outputs
 r0 = mailbox id's array object (ptr)
 trashes
-all
+r0-r14
 ```
 
 ### sys_task::task_callback -> class/obj/null
@@ -7041,7 +7078,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### sys_task::lisp_mailbox -> sys/task/lisp_mailbox
@@ -7054,7 +7091,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### sys_task::lisp_open_child -> sys/task/lisp_open_child
@@ -7067,7 +7104,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### sys_task::lisp_open_remote -> sys/task/lisp_open_remote
@@ -7080,7 +7117,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### sys_task::lisp_open_farm -> sys/task/lisp_open_farm
@@ -7093,7 +7130,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### sys_task::lisp_open_pipe -> sys/task/lisp_open_pipe
@@ -7106,7 +7143,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ## text
@@ -7126,6 +7163,8 @@ r1 = vtable (pptr)
 outputs
 r0 = text object (ptr)
 r1 = 0 if error, else ok
+trashes
+r1-r14
 ```
 
 ### text::switch_text -> gui/text/switch_text
@@ -7136,7 +7175,7 @@ r0 = text object (ptr)
 outputs
 r0 = text object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### text::deinit -> gui/text/deinit
@@ -7147,7 +7186,7 @@ r0 = text object (ptr)
 outputs
 r0 = text object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### text::pref_size -> gui/text/pref_size
@@ -7160,7 +7199,7 @@ r0 = text object (ptr)
 r9 = preferred width (pixels)
 r10 = preferred height (pixels)
 trashes
-all but r0
+r1-r14
 ```
 
 ### text::draw -> gui/text/draw
@@ -7172,7 +7211,7 @@ r1 = draw ctx (ptr)
 outputs
 r0 = view object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ## texture
@@ -7221,7 +7260,7 @@ r0 = texture object (ptr)
 outputs
 r0 = texture object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ## title
@@ -7241,6 +7280,8 @@ r1 = vtable (pptr)
 outputs
 r0 = title object (ptr)
 r1 = 0 if error, else ok
+trashes
+r1-r14
 ```
 
 ### title::mouse_down -> gui/title/mouse_down
@@ -7252,7 +7293,7 @@ r1 = mouse event data (ptr)
 outputs
 r0 = title object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### title::mouse_move -> gui/title/mouse_move
@@ -7264,7 +7305,7 @@ r1 = mouse event data (ptr)
 outputs
 r0 = title object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ## vdu
@@ -7284,6 +7325,8 @@ r1 = vtable (pptr)
 outputs
 r0 = vdu object (ptr)
 r1 = 0 if error, else ok
+trashes
+r1-r14
 ```
 
 ### vdu::switch_font -> gui/vdu/switch_font
@@ -7294,7 +7337,7 @@ r0 = vdu object (ptr)
 outputs
 r0 = vdu object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### vdu::switch_size -> gui/vdu/switch_size
@@ -7305,7 +7348,7 @@ r0 = vdu object (ptr)
 outputs
 r0 = vdu object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### vdu::print_char -> gui/vdu/print_char
@@ -7316,6 +7359,8 @@ r0 = vdu object (ptr)
 r1 = char (uint)
 outputs
 r0 = vdu object (ptr)
+trashes
+r1-r14
 ```
 
 ### vdu::print_cstr -> gui/vdu/print_cstr
@@ -7326,6 +7371,8 @@ r0 = vdu object (ptr)
 r1 = c string (pubyte)
 outputs
 r0 = vdu object (ptr)
+trashes
+r1-r14
 ```
 
 ### vdu::lisp_create -> gui/vdu/lisp_create
@@ -7338,7 +7385,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### vdu::lisp_print -> gui/vdu/lisp_print
@@ -7351,7 +7398,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### vdu::deinit -> gui/vdu/deinit
@@ -7362,7 +7409,7 @@ r0 = vdu object (ptr)
 outputs
 r0 = vdu object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### vdu::pref_size -> gui/vdu/pref_size
@@ -7375,7 +7422,7 @@ r0 = vdu object (ptr)
 r9 = preferred width (pixels)
 r10 = preferred height (pixels)
 trashes
-all but r0
+r1-r14
 ```
 
 ### vdu::draw -> gui/vdu/draw
@@ -7387,7 +7434,7 @@ r1 = draw ctx (ptr)
 outputs
 r0 = view object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ## vector
@@ -7406,7 +7453,7 @@ r0 = vector object (ptr)
 outputs
 r0 = vector object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### vector::ref_element -> class/vector/ref_element
@@ -7419,7 +7466,7 @@ outputs
 r0 = vector object (ptr)
 r1 = element object (ptr)
 trashes
-r2
+r1-r2
 ```
 
 ### vector::slice -> class/vector/slice
@@ -7456,7 +7503,7 @@ r0 = vector object (ptr)
 outputs
 r0 = vector object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### vector::ref_back -> class/vector/ref_back
@@ -7481,7 +7528,7 @@ r2 = element index (uint)
 outputs
 r0 = vector object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### vector::append -> class/vector/append
@@ -7508,7 +7555,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### vector::lisp_elemset -> class/vector/lisp_elemset
@@ -7521,7 +7568,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### vector::lisp_merge -> class/vector/lisp_merge
@@ -7534,7 +7581,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### vector::lisp_part -> class/vector/lisp_part
@@ -7547,7 +7594,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### vector::lisp_match -> class/vector/lisp_match
@@ -7560,7 +7607,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ## view
@@ -7580,6 +7627,8 @@ r1 = vtable (pptr)
 outputs
 r0 = view object (ptr)
 r1 = 0 if error, else ok
+trashes
+r1-r14
 ```
 
 ### view::add_front -> gui/view/add_front
@@ -7625,7 +7674,7 @@ r0 = view object (ptr)
 outputs
 r0 = view object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### view::to_front -> gui/view/to_front
@@ -7636,7 +7685,7 @@ r0 = view object (ptr)
 outputs
 r0 = view object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### view::to_back -> gui/view/to_back
@@ -7647,7 +7696,7 @@ r0 = view object (ptr)
 outputs
 r0 = view object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### view::dirty -> gui/view/dirty
@@ -7658,7 +7707,7 @@ r0 = view object (ptr)
 outputs
 r0 = view object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### view::add_dirty -> gui/view/add_dirty
@@ -7673,7 +7722,7 @@ r10 = height (pixels)
 outputs
 r0 = view object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### view::clr_opaque -> gui/view/clr_opaque
@@ -7684,7 +7733,7 @@ r0 = view object (ptr)
 outputs
 r0 = view object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### view::add_opaque -> gui/view/add_opaque
@@ -7699,7 +7748,7 @@ r10 = height (pixels)
 outputs
 r0 = view object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### view::sub_opaque -> gui/view/sub_opaque
@@ -7714,7 +7763,7 @@ r10 = height (pixels)
 outputs
 r0 = view object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### view::get_relative -> gui/view/get_relative
@@ -7731,7 +7780,7 @@ r1 = ancestor view object (ptr)
 r7 = relative x (pixels)
 r8 = relative y (pixels)
 trashes
-r2, r9-r10
+r2, r7-r10
 ```
 
 ### view::forward -> gui/view/forward
@@ -7744,13 +7793,15 @@ r2 = callback (ptr)
 outputs
 r0 = view object (ptr)
 trashes
-dependant on callback
+...
 callback api
 inputs
 r0 = child view object (ptr)
 r1 = user data pointer (ptr)
 outputs
 r0 = child view object (ptr)
+trashes
+...
 ```
 
 ### view::backward -> gui/view/backward
@@ -7763,13 +7814,15 @@ r2 = callback (ptr)
 outputs
 r0 = view object (ptr)
 trashes
-dependant on callback
+...
 callback api
 inputs
 r0 = child view object (ptr)
 r1 = user data pointer (ptr)
 outputs
 r0 = child view object (ptr)
+trashes
+...
 ```
 
 ### view::forward_tree -> gui/view/forward_tree
@@ -7783,7 +7836,7 @@ r3 = up callback (ptr)
 outputs
 r0 = view object (ptr)
 trashes
-dependant on callbacks
+...
 callback api
 inputs
 r0 = view object (ptr)
@@ -7791,6 +7844,8 @@ r1 = user data pointer (ptr)
 outputs
 r0 = view object (ptr)
 r1 = 0 if should not descend after down callback
+trashes
+...
 ```
 
 ### view::backward_tree -> gui/view/backward_tree
@@ -7804,7 +7859,7 @@ r3 = up callback (ptr)
 outputs
 r0 = view object (ptr)
 trashes
-dependant on callbacks
+...
 callback api
 inputs
 r0 = view object (ptr)
@@ -7812,6 +7867,8 @@ r1 = user data pointer (ptr)
 outputs
 r0 = view object (ptr)
 r1 = 0 if should not descend after down callback
+trashes
+...
 ```
 
 ### view::change -> gui/view/change
@@ -7826,7 +7883,7 @@ r10 = new h (pixels)
 outputs
 r0 = view object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### view::change_dirty -> gui/view/change_dirty
@@ -7841,7 +7898,7 @@ r10 = new h (pixels)
 outputs
 r0 = view object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### view::hit_tree -> gui/view/hit_tree
@@ -7884,7 +7941,7 @@ r3 = depth (int)
 outputs
 r0 = view object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### view::get_bounds -> gui/view/get_bounds
@@ -7898,6 +7955,8 @@ r7 = x (pixels)
 r8 = y (pixels)
 r9 = width (pixels)
 r10 = height (pixels)
+trashes
+r7-r10
 ```
 
 ### view::set_bounds -> gui/view/set_bounds
@@ -7909,6 +7968,8 @@ r7 = x (pixels)
 r8 = y (pixels)
 r9 = width (pixels)
 r10 = height (pixels)
+outputs
+r0 = view object (ptr)
 trashes
 none
 ```
@@ -7924,7 +7985,7 @@ outputs
 r0 = view object (ptr)
 r1 = new flag values (ulong)
 trashes
-r2-r3
+r1-r3
 ```
 
 ### view::forward_callback -> class/obj/null
@@ -7939,7 +8000,7 @@ r0 = view object (ptr)
 outputs
 r0 = view object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### view::add_child -> gui/view/add_back
@@ -7966,6 +8027,8 @@ r8 = y (pixels)
 outputs
 r0 = view object (ptr)
 r1 = 0 if not, else hit
+trashes
+r1
 ```
 
 ### view::pref_size -> gui/view/pref_size
@@ -7978,7 +8041,7 @@ r0 = view object (ptr)
 r9 = preferred width (pixels)
 r10 = preferred height (pixels)
 trashes
-all but r0
+r1-r14
 ```
 
 ### view::layout -> class/obj/null
@@ -7992,7 +8055,7 @@ r1 = event data (ptr)
 outputs
 r0 = view object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### view::mouse_down -> class/obj/null
@@ -8019,7 +8082,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### view::lisp_sub -> gui/view/lisp_sub
@@ -8032,7 +8095,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### view::lisp_hide -> gui/view/lisp_hide
@@ -8045,7 +8108,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### view::lisp_add_child -> gui/view/lisp_add_child
@@ -8058,7 +8121,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### view::lisp_add -> gui/view/lisp_add
@@ -8071,7 +8134,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### view::lisp_add_back -> gui/view/lisp_add_back
@@ -8084,7 +8147,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### view::lisp_pref_size -> gui/view/lisp_pref_size
@@ -8097,7 +8160,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### view::lisp_change -> gui/view/lisp_change
@@ -8110,7 +8173,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### view::lisp_change_dirty -> gui/view/lisp_change_dirty
@@ -8123,7 +8186,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### view::lisp_add_opaque -> gui/view/lisp_add_opaque
@@ -8136,7 +8199,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### view::lisp_sub_opaque -> gui/view/lisp_sub_opaque
@@ -8149,7 +8212,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### view::lisp_set_flags -> gui/view/lisp_set_flags
@@ -8162,7 +8225,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### view::lisp_add_dirty -> gui/view/lisp_add_dirty
@@ -8175,7 +8238,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### view::lisp_dirty -> gui/view/lisp_dirty
@@ -8188,7 +8251,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### view::lisp_layout -> gui/view/lisp_layout
@@ -8201,7 +8264,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### view::lisp_event -> gui/view/lisp_event
@@ -8214,7 +8277,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### view::lisp_find_id -> gui/view/lisp_find_id
@@ -8227,7 +8290,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ## window
@@ -8249,7 +8312,7 @@ outputs
 r0 = window object (ptr)
 r1 = 0 if error, else ok
 trashes
-all but r0
+r1-r14
 ```
 
 ### window::add_child -> gui/window/add_child
@@ -8261,7 +8324,7 @@ r1 = child view object (ptr)
 outputs
 r0 = window object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### window::pref_size -> gui/window/pref_size
@@ -8274,7 +8337,7 @@ r0 = window object (ptr)
 r9 = preferred width (pixels)
 r10 = preferred height (pixels)
 trashes
-all but r0
+r1-r14
 ```
 
 ### window::layout -> gui/window/layout
@@ -8285,7 +8348,7 @@ r0 = window object (ptr)
 outputs
 r0 = window object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### window::draw -> gui/window/draw
@@ -8297,7 +8360,7 @@ r1 = draw ctx (ptr)
 outputs
 r0 = window object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### window::mouse_down -> gui/window/mouse_down
@@ -8309,7 +8372,7 @@ r1 = mouse event data (ptr)
 outputs
 r0 = window object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### window::mouse_move -> gui/window/mouse_move
@@ -8321,7 +8384,7 @@ r1 = mouse event data (ptr)
 outputs
 r0 = window object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 
 ### window::lisp_create -> gui/window/lisp_create
@@ -8334,6 +8397,6 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
-all but r0
+r1-r14
 ```
 

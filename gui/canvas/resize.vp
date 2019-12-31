@@ -9,7 +9,7 @@
 	;outputs
 	;r0 = canvas object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(ptr 'this 'source)
 	(puint 'data 'sdata 'buf)
@@ -169,7 +169,7 @@
 	;outputs
 	;r0 = canvas object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(vp-def (this source sdata xdata ydata data rb ga srb sga sw mga mrb))
 
@@ -239,7 +239,7 @@
 	;outputs
 	;r0 = canvas object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(vp-def (this source sdata xdata ydata data q rb ga srb sga sw mga mrb))
 

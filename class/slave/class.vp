@@ -16,7 +16,7 @@
 	;r0 = slave object (ptr)
 	;r1 = 0 if error, else ok
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(ptr 'this 'stream 'msg 'data)
 	(union
@@ -68,7 +68,7 @@
 	;outputs
 	;r0 = slave object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'slave 'deinit '(r0))
 

@@ -7,6 +7,8 @@
 	;r0 = lisp object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
+	;trashes
+	;r1-r14
 
 	(entry 'lisp 'env_push '(r0))
 

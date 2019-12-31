@@ -11,7 +11,7 @@
 	;outputs
 	;r0 = texture object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'texture 'deinit '(r0))
 

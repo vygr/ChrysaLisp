@@ -332,7 +332,7 @@
 	;inputs
 	;r0 = root view object (ptr)
 	;trashes
-	;all
+	;r0-r14
 
 	(def-struct 'local)
 		(ptr 'root 'ctx_flist 'ctx_next)

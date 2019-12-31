@@ -40,7 +40,7 @@
 	;outputs
 	;r0 = stream object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'stream 'deinit '(r0))
 
@@ -67,7 +67,7 @@
 	;r0 = stream object (ptr)
 	;r1 = -1 for EOF, else bytes read (int)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'stream 'read '(r0 r1 r2))
 
@@ -129,7 +129,7 @@
 	;r0 = stream object (ptr)
 	;r1 = -1 for EOF, else char read (int)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'stream 'read_char '(r0))
 
@@ -158,7 +158,7 @@
 	;r0 = stream object (ptr)
 	;r1 = 0 for EOF, else str object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(ptr 'this 'str_stream 'value)
 	(int 'char)
@@ -209,7 +209,7 @@
 	;r0 = stream object (ptr)
 	;r1 = -1 for EOF, else more data
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'stream 'read_next '(r0))
 	(exit 'stream 'read_next '(r0 -1))
@@ -224,7 +224,7 @@
 	;outputs
 	;r0 = stream object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'stream 'skip '(r0 r1))
 
@@ -257,7 +257,7 @@
 	;outputs
 	;r0 = stream object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'stream 'skip_not '(r0 r1))
 
@@ -291,7 +291,7 @@
 	;r0 = stream object (ptr)
 	;r1 = split strings vector object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(ptr 'this 'splits 'string)
 	(pubyte 'start)
@@ -330,7 +330,7 @@
 	;outputs
 	;r0 = stream object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'stream 'write '(r0 r1 r2))
 
@@ -371,7 +371,7 @@
 	;outputs
 	;r0 = stream object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'stream 'write_char '(r0 r1))
 
@@ -400,7 +400,7 @@
 	;outputs
 	;r0 = stream object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'stream 'write_cstr '(r3 r1))
 
@@ -415,7 +415,7 @@
 	;outputs
 	;r0 = stream object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'stream 'write_flush '(r0))
 
@@ -438,7 +438,7 @@
 	;r2 = bit pool (ulong)
 	;r3 = bit pool size (uint)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(vp-def (this num_bits bit_pool bit_pool_size data))
 
@@ -484,7 +484,7 @@
 	;r1 = bit pool (ulong)
 	;r2 = bit pool size (uint)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(vp-def (this data num_bits bit_pool bit_pool_size))
 

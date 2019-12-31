@@ -12,7 +12,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'sys_task 'lisp_sleep '(r0 r1))
 
@@ -46,7 +46,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'sys_task 'lisp_mailbox '(r0 r1))
 
@@ -76,7 +76,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'sys_task 'lisp_open_child '(r0 r1))
 
@@ -109,7 +109,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'sys_task 'lisp_open_remote '(r0 r1))
 
@@ -142,7 +142,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'sys_task 'lisp_open_farm '(r0 r1))
 
@@ -174,7 +174,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'sys_task 'lisp_open_pipe '(r0 r1))
 

@@ -14,7 +14,7 @@
 	;r1 = str object (ptr)
 	;r2 = next char (uint)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(ptr 'this 'stream)
 	(union

@@ -18,7 +18,7 @@
 	;outputs
 	;r0 = fd (ulong)
 	;trashes
-	;none
+	;r0
 
 	(entry 'sys_pii 'open '(r0 r1))
 	(abi-push-trashed r1 r13 r14)
@@ -35,7 +35,7 @@
 	;outputs
 	;r0 = error code (ulong)
 	;trashes
-	;none
+	;r0
 
 	(entry 'sys_pii 'close '(r0))
 	(abi-push-trashed r13 r14)
@@ -53,7 +53,7 @@
 	;outputs
 	;r0 = handle (long)
 	;trashes
-	;none
+	;r0
 
 	(entry 'sys_pii 'open_shared '(r0 r1))
 	(abi-push-trashed r1 r13 r14)
@@ -71,7 +71,7 @@
 	;outputs
 	;r0 = error code (ulong)
 	;trashes
-	;none
+	;r0
 
 	(entry 'sys_pii 'close_shared '(r0 r1))
 	(abi-push-trashed r1 r13 r14)
@@ -90,7 +90,7 @@
 	;outputs
 	;r0 = error code (ulong)
 	;trashes
-	;none
+	;r0
 
 	(entry 'sys_pii 'write_num '(r0 r1 r2))
 	(abi-push-trashed r1 r2 r3 r4)
@@ -125,7 +125,7 @@
 	;outputs
 	;r0 = error code (ulong)
 	;trashes
-	;none
+	;r0
 
 	(entry 'sys_pii 'write_char '(r0 r1))
 	(abi-push-trashed r1 r13 r14)
@@ -146,7 +146,7 @@
 	;outputs
 	;r0 = error code (ulong)
 	;trashes
-	;none
+	;r0
 
 	(entry 'sys_pii 'write '(r0 r1 r2))
 	(abi-push-trashed r1 r2 r13 r14)
@@ -164,7 +164,7 @@
 	;outputs
 	;r0 = error code (ulong)
 	;trashes
-	;none
+	;r0
 
 	(entry 'sys_pii 'write_str '(r0 r1))
 	(abi-push-trashed r1 r3 r13 r14)
@@ -181,7 +181,7 @@
 	;outputs
 	;r0 = time in usec (ulong)
 	;trashes
-	;none
+	;r0
 
 	(abi-push-trashed r1 r13 r14)
 	(host-call 'host 'gettime nil '(r0))
@@ -199,7 +199,7 @@
 	;outputs
 	;r0 = buffer (ptr)
 	;trashes
-	;none
+	;r0
 
 	(entry 'sys_pii 'mmap '(r0 r1 r2))
 	(abi-push-trashed r1 r2 r13 r14)
@@ -218,7 +218,7 @@
 	;outputs
 	;r0 = error code (ulong)
 	;trashes
-	;none
+	;r0
 
 	(entry 'sys_pii 'munmap '(r0 r1 r2))
 	(abi-push-trashed r1 r2 r13 r14)
@@ -237,7 +237,7 @@
 	;outputs
 	;r0 = error code (ulong)
 	;trashes
-	;none
+	;r0
 
 	(entry 'sys_pii 'mprotect '(r0 r1 r2))
 	(abi-push-trashed r1 r2 r13 r14)
@@ -256,7 +256,7 @@
 	;outputs
 	;r0 = error code (ulong)
 	;trashes
-	;none
+	;r0
 
 	(entry 'sys_pii 'read '(r0 r1 r2))
 	(abi-push-trashed r1 r2 r13 r14)
@@ -273,7 +273,7 @@
 	;outputs
 	;r0 = char (ulong)
 	;trashes
-	;none
+	;r0
 
 	(entry 'sys_pii 'read_char '(r0))
 	(abi-push-trashed r13 r14)
@@ -293,7 +293,7 @@
 	;outputs
 	;r0 = error code (ulong)
 	;trashes
-	;none
+	;r0
 
 	(entry 'sys_pii 'unlink '(r0))
 	(abi-push-trashed r13 r14)
@@ -311,7 +311,7 @@
 	;outputs
 	;r0 = error code (ulong)
 	;trashes
-	;none
+	;r0
 
 	(entry 'sys_pii 'stat '(r0 r1))
 	(abi-push-trashed r1 r13 r14)

@@ -17,7 +17,7 @@
 	;r3 = max_x (16.16)
 	;r4 = max_y (16.16)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(ptr 'this)
 	(union
@@ -115,7 +115,7 @@
 	;outputs
 	;r0 = canvas object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(ptr 'this)
 	(union

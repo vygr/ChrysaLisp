@@ -10,7 +10,7 @@
 	;outputs
 	;r0 = points object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(ptr 'this 'that)
 	(pptr 'iter_begin 'iter_end)

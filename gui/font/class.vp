@@ -24,7 +24,7 @@
 	;outputs
 	;r0 = 0 if error, else font object (ptr)
 	;trashes
-	;all
+	;r0-r14
 
 	(ptr 'this 'name 'flat_set)
 	(pptr 'iter_begin 'iter_end)
@@ -72,7 +72,7 @@
 	;r0 = font object (ptr)
 	;r1 = 0 if error, else ok
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(ptr 'this 'name)
 	(union
@@ -135,7 +135,7 @@
 	;outputs
 	;r0 = font object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(ptr 'this)
 
@@ -171,7 +171,7 @@
 	;r0 = font object (ptr)
 	;r1 = 0, else texture object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(def-struct 'local)
 		(ptr 'this 'word 'txt)
@@ -251,7 +251,7 @@
 	;r0 = font object (ptr)
 	;r1 = char texture vector object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(ptr 'this 'word 'txt 'chars)
 	(uint 'code)
@@ -291,7 +291,7 @@
 
 (def-method 'font 'flush)
 	;trashes
-	;all
+	;r0-r14
 
 	(ptr 'font 'new_map 'flat_set 'tmp)
 	(uint 'length 'index)
@@ -331,6 +331,8 @@
 	;r1 = element iterator (pptr)
 	;outputs
 	;r1 = 0 if break, else not
+	;trashes
+	;r1-r14
 
 	(vp-cpy-ir r1 0 r1)
 	(assign '((r1 pair_second)) '(r2))

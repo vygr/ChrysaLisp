@@ -13,7 +13,7 @@
 	;outputs
 	;r0 = view object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(ptr 'this 'ctx)
 	(int 'x 'y 'w 'h)
@@ -51,7 +51,7 @@
 	;outputs
 	;r0 = backdrop object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'backdrop 'layout '(r0))
 

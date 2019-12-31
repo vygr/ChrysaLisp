@@ -56,7 +56,7 @@
 	;outputs
 	;r0 = error object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(vp-push r0)
 	(call 'obj 'deref '((r0 error_description)))

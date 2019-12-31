@@ -6,7 +6,7 @@
 	;inputs
 	;r0 = link input msg buffer (ptr)
 	;trashes
-	;all
+	;r0-r14
 
 	(ptr 'rx_msg 'msg 'parcel_list)
 	(uint 'len)

@@ -13,7 +13,7 @@
 	;r1 = form object (ptr)
 	;r2 = next char (uint)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'lisp 'read '(r0 r1 r2))
 

@@ -13,7 +13,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'sys_mail 'lisp_read '(r0 r1))
 
@@ -52,7 +52,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'sys_mail 'lisp_poll '(r0 r1))
 
@@ -90,7 +90,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'sys_mail 'lisp_select '(r0 r1))
 
@@ -122,7 +122,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(ptr 'this 'args 'value)
 	(ulong 'arg0 'arg1 'arg2)
@@ -175,7 +175,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'sys_mail 'lisp_declare '(r0 r1))
 
@@ -211,7 +211,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'sys_mail 'lisp_enquire '(r0 r1))
 

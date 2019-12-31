@@ -16,6 +16,8 @@
 	;outputs
 	;r0 = view object (ptr)
 	;r1 = 0 if error, else ok
+	;trashes
+	;r1-r14
 
 	;init parent
 	(s-call 'view 'init '(r0 r1) '(r0 r1))
@@ -38,7 +40,7 @@
 	;outputs
 	;r0 = view object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	;save object
 	(vp-push r0)
@@ -145,7 +147,7 @@
 	;outputs
 	;r0 = view object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	;test parent
 	(assign '((r0 hmap_parent)) '(r1))
@@ -184,7 +186,7 @@
 	;outputs
 	;r0 = view object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(assign '((r0 hmap_parent)) '(r4))
 	(vpif '(r4 /= 0))
@@ -206,7 +208,7 @@
 	;outputs
 	;r0 = view object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(assign '((r0 hmap_parent)) '(r5))
 	(vpif '(r5 /= 0))
@@ -247,7 +249,7 @@ view_flag_at_back
 	;outputs
 	;r0 = view object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	;paste dirty region
 	(vp-push r0)
@@ -268,7 +270,7 @@ view_flag_at_back
 	;outputs
 	;r0 = view object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'view 'clr_opaque '(r0))
 
@@ -295,7 +297,7 @@ view_flag_at_back
 	;outputs
 	;r0 = view object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	;paste opaque region
 	(vp-push r0)
@@ -320,7 +322,7 @@ view_flag_at_back
 	;outputs
 	;r0 = view object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	;cut opaque region
 	(vp-push r0)
@@ -343,13 +345,15 @@ view_flag_at_back
 	;outputs
 	;r0 = view object (ptr)
 	;trashes
-	;dependant on callback
+	;...
 		;callback api
 		;inputs
 		;r0 = child view object (ptr)
 		;r1 = user data pointer (ptr)
 		;outputs
 		;r0 = child view object (ptr)
+		;trashes
+		;...
 
 	(def-struct 'local)
 		(ptr 'this 'data 'callback)
@@ -386,13 +390,15 @@ view_flag_at_back
 	;outputs
 	;r0 = view object (ptr)
 	;trashes
-	;dependant on callback
+	;...
 		;callback api
 		;inputs
 		;r0 = child view object (ptr)
 		;r1 = user data pointer (ptr)
 		;outputs
 		;r0 = child view object (ptr)
+		;trashes
+		;...
 
 	(def-struct 'local)
 		(ptr 'this 'data 'callback)
@@ -430,7 +436,7 @@ view_flag_at_back
 	;outputs
 	;r0 = view object (ptr)
 	;trashes
-	;dependant on callbacks
+	;...
 		;callback api
 		;inputs
 		;r0 = view object (ptr)
@@ -438,6 +444,8 @@ view_flag_at_back
 		;outputs
 		;r0 = view object (ptr)
 		;r1 = 0 if should not descend after down callback
+		;trashes
+		;...
 
 	(def-struct 'local)
 		(ptr 'this 'data 'down 'up)
@@ -494,7 +502,7 @@ view_flag_at_back
 	;outputs
 	;r0 = view object (ptr)
 	;trashes
-	;dependant on callbacks
+	;...
 		;callback api
 		;inputs
 		;r0 = view object (ptr)
@@ -502,6 +510,8 @@ view_flag_at_back
 		;outputs
 		;r0 = view object (ptr)
 		;r1 = 0 if should not descend after down callback
+		;trashes
+		;...
 
 	(def-struct 'local)
 		(ptr 'this 'data 'down 'up)
@@ -559,7 +569,7 @@ view_flag_at_back
 	;outputs
 	;r0 = view object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	;save old info
 	(assign '((r0 view_w) (r0 view_h)) '(r11 r12))
@@ -585,7 +595,7 @@ view_flag_at_back
 	;outputs
 	;r0 = view object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(def-struct 'local)
 		(int 'new_x 'new_y 'new_w 'new_h 'old_x 'old_y 'old_w 'old_h)
@@ -621,7 +631,7 @@ view_flag_at_back
 	;outputs
 	;r0 = view object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	;paste dirty region
 	(assign '((r0 view_w) (r0 view_h)) '(r9 r10))
@@ -638,7 +648,7 @@ view_flag_at_back
 	;outputs
 	;r0 = view object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(ptr 'this 'ctx)
 	(uint 'flags 'depth 'col)
@@ -663,7 +673,7 @@ view_flag_at_back
 	;outputs
 	;r0 = view object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(def-struct 'local)
 		(ptr 'this 'data)
@@ -784,7 +794,7 @@ view_flag_at_back
 	;r7 = relative x (pixels)
 	;r8 = relative y (pixels)
 	;trashes
-	;r2, r9-r10
+	;r2, r7-r10
 
 	;walk up tree to parent
 	(vp-cpy-rr r0 r2)
@@ -807,6 +817,8 @@ view_flag_at_back
 	;outputs
 	;r0 = view object (ptr)
 	;r1 = 0 if not, else hit
+	;trashes
+	;r1
 
 	(vpif '(r7 >= 0) '(r8 >= 0))
 		(assign '((r0 view_w)) '(r1))
@@ -888,7 +900,7 @@ view_flag_at_back
 	;r9 = preferred width (pixels)
 	;r10 = preferred height (pixels)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(ptr 'this)
 	(uint 'mw 'mh)
@@ -914,6 +926,8 @@ view_flag_at_back
 	;r8 = y (pixels)
 	;r9 = width (pixels)
 	;r10 = height (pixels)
+	;trashes
+	;r7-r10
 
 	(assign '((r0 view_x) (r0 view_y) (r0 view_w) (r0 view_h)) '(r7 r8 r9 r10))
 	(vp-ret)
@@ -927,6 +941,8 @@ view_flag_at_back
 	;r8 = y (pixels)
 	;r9 = width (pixels)
 	;r10 = height (pixels)
+	;outputs
+	;r0 = view object (ptr)
 	;trashes
 	;none
 
@@ -944,7 +960,7 @@ view_flag_at_back
 	;r0 = view object (ptr)
 	;r1 = new flag values (ulong)
 	;trashes
-	;r2-r3
+	;r1-r3
 
 	(entry 'view 'set_flags '(r0 r1 r2))
 

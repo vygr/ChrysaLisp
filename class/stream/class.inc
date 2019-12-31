@@ -50,7 +50,7 @@
 	;r0 = stream object (ptr)
 	;r1 = available space (bytes)
 	;trashes
-	;r2
+	;r1-r2
 	(assign '((r0 stream_bufp) (r0 stream_bufe)) '(r2 r1))
 	(vp-sub-rr r2 r1))
 

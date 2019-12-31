@@ -25,7 +25,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(mathop 'lisp_fsin
 		'(call 'sys_math 'fsin '(r0) '(r0)))
@@ -45,7 +45,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(mathop 'lisp_fcos
 		'(call 'sys_math 'fcos '(r0) '(r0)))
@@ -65,7 +65,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(mathop 'lisp_fsqrt
 		'(progn
@@ -88,7 +88,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(mathop 'lisp_frac
 		'(progn
@@ -110,7 +110,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(mathop 'lisp_floor
 		'(progn

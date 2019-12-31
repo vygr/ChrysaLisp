@@ -7,7 +7,7 @@
 	;outputs
 	;r0 = lisp object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(ptr 'this)
 	(pptr 'iter)

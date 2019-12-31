@@ -8,7 +8,7 @@
 	;inputs
 	;r0 = object (ptr)
 	;trashes
-	;all
+	;r0-r14
 
 	(entry 'obj 'deinit '(r0))
 
@@ -24,7 +24,7 @@
 	;inputs
 	;r0 = object (ptr)
 	;trashes
-	;all
+	;r0-r14
 
 	(entry 'obj 'destroy '(r0))
 
@@ -40,7 +40,7 @@
 	;r0 = object (ptr)
 	;r1 = hash code (ulong)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'obj 'hash '(r0))
 	(exit 'obj 'hash '(r0 r0))
@@ -56,7 +56,7 @@
 	;r0 = object (ptr)
 	;r1 = 0 if not, else vtable of object (ptr)
 	;trashes
-	;r2
+	;r1-r2
 
 	(entry 'obj 'inst_of '(r0 r2))
 
@@ -83,7 +83,7 @@
 	;inputs
 	;r0 = object (ptr)
 	;trashes
-	;all
+	;r0-r14
 
 	(entry 'obj 'deref '(r0))
 
@@ -104,7 +104,7 @@
 	;inputs
 	;r0 = 0, else object (ptr)
 	;trashes
-	;all
+	;r0-r14
 
 	(entry 'obj 'deref_if '(r0))
 

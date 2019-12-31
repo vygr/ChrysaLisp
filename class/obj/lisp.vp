@@ -10,7 +10,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'obj 'lisp_get_field '(r0 r1))
 
@@ -74,7 +74,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'obj 'lisp_set_field '(r0 r1))
 

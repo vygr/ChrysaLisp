@@ -15,7 +15,7 @@
 	;r0 = out object (ptr)
 	;r1 = 0 if error, else ok
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'out 'init '(r0 r1 r2))
 	(assign '(r2) `((r0 ,(+ out_id id_id))))
@@ -44,7 +44,7 @@
 	;outputs
 	;r0 = out object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'out 'deinit '(r0))
 
@@ -76,7 +76,7 @@
 	;outputs
 	;r0 = out object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'out 'set_state '(r0 r1))
 
@@ -102,7 +102,7 @@
 	;outputs
 	;r0 = out object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'out 'wait_acks '(r0 r1))
 
@@ -130,7 +130,7 @@
 	;outputs
 	;r0 = out object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'out 'write_flush '(r0))
 
@@ -177,7 +177,7 @@
 	;outputs
 	;r0 = out object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'out 'write_next '(r0))
 

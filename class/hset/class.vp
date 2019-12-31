@@ -15,7 +15,7 @@
 	;r0 = hset object (ptr)
 	;r1 = 0 if error, else ok
 	;trashes
-	;r2-r5
+	;r1-r5
 
 	(def-struct 'local)
 		(ptr 'this)
@@ -58,7 +58,7 @@
 	;outputs
 	;r0 = hset object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'hset 'deinit '(r0))
 
@@ -75,7 +75,7 @@
 	;outputs
 	;r0 = hset object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'hset 'clear '(r0))
 
@@ -108,7 +108,7 @@
 	;r0 = hset object (ptr)
 	;r1 = hset copy object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'hset 'copy '(r0 r1))
 
@@ -145,7 +145,7 @@
 	;outputs
 	;r0 = hset object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(def-struct 'local)
 		(ptr 'this 'iter 'bucket)
@@ -186,7 +186,7 @@
 	;r1 = 0, else found iterator (pptr)
 	;r2 = bucket vector object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(def-struct 'local)
 		(ptr 'this 'key 'bucket)
@@ -250,7 +250,7 @@
 		;r0 = predicate data (ptr)
 		;r1 = element iterator (pptr)
 		;trashes
-		;depends on the callback
+		;...
 
 	(def-struct 'local)
 		(ptr 'this 'predicate 'predicate_data)
@@ -305,7 +305,7 @@
 	;r0 = hset object (ptr)
 	;r1 = bucket vector object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(def-struct 'local)
 		(ptr 'this)
@@ -346,7 +346,7 @@
 	;r1 = element iterator (pptr)
 	;r2 = bucket vector object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(def-struct 'local)
 		(ptr 'this 'key)
@@ -381,7 +381,7 @@
 	;r1 = begin iter pointer (pptr)
 	;r2 = end iter pointer (pptr)
 	;trashes
-	;r3-r4
+	;r1-r4
 
 	(entry 'hset 'get_both '(r0))
 

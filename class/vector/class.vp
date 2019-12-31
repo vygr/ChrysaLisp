@@ -10,7 +10,7 @@
 	;outputs
 	;r0 = vector object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'vector 'deinit '(r0))
 
@@ -25,7 +25,7 @@
 	;outputs
 	;r0 = vector object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'vector 'clear '(r0))
 
@@ -54,7 +54,7 @@
 	;r0 = vector object (ptr)
 	;r1 = element object (ptr)
 	;trashes
-	;r2
+	;r1-r2
 
 	(entry 'vector 'ref_element '(r0 r1))
 
@@ -92,7 +92,7 @@
 	;outputs
 	;r0 = vector object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'vector 'set_element '(r0 r1 r2))
 

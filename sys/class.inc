@@ -461,11 +461,11 @@
 		_4 (slice 0 (length _3) '(r14 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13)))
 	(def-func (f-path _1 (if _2 (sym (cat "create_" _2)) 'create)))
 		;inputs
-		;depends on init method
+		;...
 		;outputs
 		;r0 = 0 if error, else object (ptr)
 		;trashes
-		;depends on init method
+		;...
 		(assign _3 _4)
 		(call 'sys_mem 'alloc `(,(sym (cat _1 "_size"))) '(r0 _))
 		(vpif '(r0 /= 0))

@@ -71,6 +71,8 @@
 	;outputs
 	;r0 = num object (ptr)
 	;r1 = value (long)
+	;trashes
+	;none
 	(assign '(r1) '((r0 num_value))))
 
 ;;;;;;;;;;;;;;;;;;

@@ -13,7 +13,7 @@
 	;r1 = list vector object (ptr)
 	;r2 = next char (uint)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(def-struct 'local)
 		(ptr 'this 'sym)

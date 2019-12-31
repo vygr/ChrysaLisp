@@ -11,7 +11,7 @@
 	;outputs
 	;r0 = array object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'array 'deinit '(r0))
 
@@ -76,6 +76,8 @@
 	;outputs
 	;r0 = array object (ptr)
 	;r1 = array length (uint)
+	;trashes
+	;r1
 
 	(entry 'array 'get_length '(r0))
 
@@ -274,7 +276,7 @@
 	;r0 = array object (ptr)
 	;r1 = partition iter (plong)
 	;trashes
-	;all but r0
+	;r1-r14
 		;sort callback
 		;inputs
 		;r0 = sort context (ptr)
@@ -283,7 +285,7 @@
 		;outputs
 		;r0 = +, 0, -
 		;trashes
-		;all
+		;r1-r14
 
 	(def-struct 'local)
 		(ptr 'this 'func 'ctx 'pivot 'iter 'lower 'upper)
@@ -332,7 +334,7 @@
 	;outputs
 	;r0 = array object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 		;sort callback
 		;inputs
 		;r0 = context (ptr)
@@ -341,7 +343,7 @@
 		;outputs
 		;r0 = +, 0, -
 		;trashes
-		;all
+		;r1-r14
 
 	(ptr 'this 'func 'ctx 'stack)
 	(pptr 'pivot 'iter_begin)

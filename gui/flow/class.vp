@@ -11,7 +11,7 @@
 	;outputs
 	;r0 = flow object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(def-struct 'local)
 		(ulong 'flags)
@@ -187,7 +187,7 @@
 	;r9 = preferred width (pixels)
 	;r10 = preferred height (pixels)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(def-struct 'local)
 		(ulong 'flags)

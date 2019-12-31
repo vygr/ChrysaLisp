@@ -15,7 +15,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'stream 'lisp_filestream '(r0 r1))
 
@@ -64,7 +64,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'stream 'lisp_strstream '(r0 r1))
 
@@ -97,7 +97,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'stream 'lisp_available '(r0 r1))
 
@@ -130,7 +130,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(ptr 'this 'args 'value)
 	(pptr 'iter_begin)
@@ -202,7 +202,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'stream 'lisp_readline '(r0 r1))
 
@@ -238,7 +238,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'stream 'lisp_readavail '(r0 r1))
 
@@ -272,7 +272,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'stream 'lisp_write '(r0 r1))
 
@@ -307,7 +307,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(ptr 'this 'args 'value 'stream)
 	(pptr 'iter_begin 'iter_end)
@@ -380,7 +380,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'stream 'lisp_write_flush '(r0 r1))
 

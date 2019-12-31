@@ -13,8 +13,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
-	;all but r0
-	;r2 = next char (uint)
+	;r1-r14
 
 	(ptr 'this 'stream)
 	(union

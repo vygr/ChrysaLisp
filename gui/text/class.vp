@@ -17,6 +17,8 @@
 	;outputs
 	;r0 = text object (ptr)
 	;r1 = 0 if error, else ok
+	;trashes
+	;r1-r14
 
 	(entry 'text 'init '(r0 r1))
 
@@ -38,7 +40,7 @@
 	;outputs
 	;r0 = text object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'text 'deinit '(r0))
 
@@ -57,7 +59,7 @@
 	;outputs
 	;r0 = view object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(ptr 'this 'ctx 'txt 'font 'str)
 	(pptr 'words 'words_end)
@@ -109,7 +111,7 @@
 	;r9 = preferred width (pixels)
 	;r10 = preferred height (pixels)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(ptr 'this 'txt 'font 'str)
 	(pptr 'words 'words_end)
@@ -158,7 +160,7 @@
 	;outputs
 	;r0 = text object (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(entry 'text 'switch_text '(r0))
 

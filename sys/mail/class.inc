@@ -38,16 +38,16 @@
 ; mail structures
 ;;;;;;;;;;;;;;;;;
 
-(def-struct 'mbox 'ln_node)
-	(struct 'list 'lh_list)
-	(ptr 'tcb)
-	(uint 'id)
-(def-struct-end)
-
 (def-struct 'id)
 	(union
 		(ulong 'id)
 		(uint 'mbox 'cpu))
+(def-struct-end)
+
+(def-struct 'mbox 'ln_node)
+	(struct 'list 'lh_list)
+	(ptr 'tcb)
+	(uint 'id)
 (def-struct-end)
 
 (def-struct 'msg 'ln_node)
@@ -62,11 +62,11 @@
 (defcvar 'num_mbox_buckets 8)
 
 (def-struct 'ml_statics)
-	(struct 'offchip_list 'lh_list)
-	(struct 'parcel_list 'lh_list)
+	(uint 'parcel_id 'next_mbox_id)
+	(ptr 'links_array 'declare_map 'out_mbox_addr)
 	(struct 'msg_heap 'hp_heap)
 	(struct 'mbox_heap 'hp_heap)
-	(ptr 'links_array 'declare_map 'out_mbox_addr)
-	(uint 'parcel_id 'next_mbox_id)
+	(struct 'offchip_list 'lh_list)
+	(struct 'parcel_list 'lh_list)
 	(struct 'mbox_buckets (* num_mbox_buckets lh_list_size))
 (def-struct-end)

@@ -361,7 +361,7 @@
 	;r0 = str object (ptr)
 	;r1 = 0 if same, else -, +
 	;trashes
-	;r2-r7
+	;r1-r7
 
 	(entry 'str 'compare '(r0 r1))
 
@@ -404,7 +404,7 @@
 	;r0 = str object (ptr)
 	;r1 = 0 if same
 	;trashes
-	;r2-r6
+	;r1-r6
 
 	(entry 'str 'same '(r0 r1))
 
@@ -475,6 +475,8 @@
 	;outputs
 	;r0 = str object (ptr)
 	;r1 = string length (bytes)
+	;trashes
+	;r1
 
 	(entry 'str 'get_length '(r0))
 
@@ -492,7 +494,7 @@
 	;r0 = str object (ptr)
 	;r1 = hash code (ulong)
 	;trashes
-	;r2-r4
+	;r1-r4
 
 	(entry 'str 'hash '(r0))
 
@@ -542,7 +544,7 @@
 	;r0 = str object (ptr)
 	;r1 = char str object (ptr)
 	;trashes
-	;r2-r7
+	;r1-r7
 
 	(entry 'str 'ref_element '(r0 r1))
 
@@ -564,7 +566,7 @@
 	;r0 = str object (ptr)
 	;r1 = string slice object (ptr)
 	;trashes
-	;r2-r7
+	;r1-r7
 
 	(entry 'str 'slice '(r0 r1 r2))
 
@@ -590,7 +592,7 @@
 	;r0 = str object (ptr)
 	;r1 = vector of str objects (ptr)
 	;trashes
-	;all but r0
+	;r1-r14
 
 	(def-struct 'local)
 		(ptr 'this 'splits)
