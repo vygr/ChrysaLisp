@@ -33,7 +33,7 @@ debugging purposes.
 ## Messages
 
 Messages consist of two parts, the message header and the message body. The
-message body consists of a referenceable object, most often a string object.
+message body consists of a referenceable object, most often a String object.
 The header is like a postage stamp on the objects data. Large objects will have
 multiple message headers created, by the system, to break up the sending of the
 data into smaller packets. These packets are routed from the source CPU to the
@@ -63,9 +63,9 @@ message header freed, `'sys_mail 'free_obj`.
 ## Sending and Receiving
 
 Once a mail message is allocated and ready for delivery the creating process
-send the message on its way with the `'sys_mail 'send` function. This hands the
-message over to the kernel process and begins the routing of the message to the
-destination mailbox.
+sends the message on its way with the `'sys_mail 'send` function. This hands
+the message over to the link processes and begins the routing of the message to
+the destination mailbox.
 
 A process receives messages by use of the `'sys_mail 'read` function. This
 function retrieves the next available mail message from the mailbox or blocks
@@ -73,14 +73,15 @@ by suspending the process until a message is received.
 
 It is possible to examine a mailbox to see if any mail is available without
 suspending the calling process by use of the `'sys_mail 'poll` function.
+
 Polling of multiple mailboxes and selection from multiple mailboxes is provided
 by `'sys_mail 'poll` and `'sys_mail 'select` function calls.
 
 ## Process Mailbox ID's
 
 A 64 bit Process mailbox ID consists of a combination of the local mailbox ID
-and the CPU ID. CPU ID occupies the upper 32 bits the local mailbox ID occupies
-the lower 32 bits.
+and the CPU ID. CPU ID occupies the upper 32 bits, the local mailbox ID
+occupies the lower 32 bits.
 
 Message routing first of all routes messages from the source CPU to the
 destination CPU and then the local mailbox ID is validated before delivery of
@@ -103,9 +104,11 @@ Functions are also provided to allow mailboxes to be named, either locally
 `'sys_mail 'declare` or globally `'sys_kernel 'declare` throughout the network.
 Such mailboxes are then discoverable by other processes via a call to
 `'sys_mail 'enquire` with the given name. A service entry can be removed with
-the `'sys_mail 'forget` function. The system maintains a directory of these
-service names and the corresponding process mailbox IDs. An example service is
-the current `DEBUG_SERVICE` application `apps/debug/app.lisp`.
+the `'sys_mail 'forget` function.
+
+The system maintains a directory of these service names and the corresponding
+process mailbox IDs. An example service is the current `DEBUG_SERVICE`
+application `apps/debug/app.lisp`.
 
 ### Example
 
@@ -172,4 +175,9 @@ It is possible to send a Lisp list to a process that lives on the same CPU,
 this will just pass an object reference between the processes.
 
 Arrays and Strings can be used as message data and these will always be
-received as String objects, even if the destination is on the same CPU.
+received as String objects, even if the destination is on the same CPU. Arrays
+will have their data copied into a String object before sending.
+
+Senders can martial data for sending via a `(str ...)` or `(str (string-stream
+...))` and Recivers with a `(string-stream msg)` or combined with a `(read
+...)` call on a `(string-stream msg)`, the world is your Lobster have fun.
