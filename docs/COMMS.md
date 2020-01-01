@@ -179,5 +179,5 @@ received as String objects, even if the destination is on the same CPU. Arrays
 will have their data copied into a String object before sending.
 
 Senders can martial data for sending via a `(str ...)` or `(str (string-stream
-...))` and Recivers with a `(string-stream msg)` or combined with a `(read
+...))` and Receivers with a `(string-stream msg)` or combined with a `(read
 ...)` call on a `(string-stream msg)`, the world is your Lobster have fun.
