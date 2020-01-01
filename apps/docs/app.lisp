@@ -6,8 +6,9 @@
 (structure 'event 0
 	(byte 'win_close 'win_button))
 
-(defq id t doc_list '("VM" "ASSIGNMENT" "STRUCTURE" "FUNCTIONS" "LISP" "SYNTAX" "CLASSES" "INTRO" "TAOS" "TODO")
-	space_width 8 tab_width (* space_width 4) margin_width (* space_width 3))
+(defq id t space_width 8 tab_width (* space_width 4) margin_width (* space_width 3)
+	doc_list '("VM" "ASSIGNMENT" "STRUCTURE" "COMMS" "FUNCTIONS"
+	"LISP" "SYNTAX" "CLASSES" "INTRO" "TAOS" "TODO"))
 
 (defun-bind normal-line ()
 	(cond
