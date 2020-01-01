@@ -1,12 +1,15 @@
 # Communications
 
-In Chrysalisp while it is not forbidden for processes to communicate with
+In ChrysaLisp while it is not forbidden for processes to communicate with
 shared memory structures, provided they live on the same CPU, the main means
 that processes use to communicate with each other is via message passing. Each
 process on creation is allocated a main mailbox, processes create messages and
 send these messages between themselves by use of these mailboxes. More
 mailboxes can be allocated, if required, to allow other communication
 structures to be created.
+
+All the mailbox and message header structures can be found in the
+`sys/mail/class.inc` file.
 
 ## Mailboxes
 
@@ -69,7 +72,7 @@ function retrieves the next available mail message from the mailbox or blocks
 by suspending the process until a message is received.
 
 It is possible to examine a mailbox to see if any mail is available without
-suspending the calling process by use of the `'sys_mail 'try_read` function.
+suspending the calling process by use of the `'sys_mail 'poll` function.
 Polling of multiple mailboxes and selection from multiple mailboxes is provided
 by `'sys_mail 'poll` and `'sys_mail 'select` function calls.
 
@@ -157,3 +160,16 @@ current tasks main mailbox.
 
 (def-func-end)
 ```
+
+## Lisp Interface
+
+The included Lisp interpreter interfaces to the messaging system via sending
+and receiving objects. This uses the `'sys_mail 'alloc_obj` and `'sys_mail
+'free_obj` calls within the Lisp bindings, see `sys/lisp.inc` and
+`sys/mail/lisp.vp`.
+
+It is possible to send a Lisp list to a process that lives on the same CPU,
+this will just pass an object reference between the processes.
+
+Arrays and Strings can be used as message data and these will always be
+received as String objects, even if the destination is on the same CPU.
