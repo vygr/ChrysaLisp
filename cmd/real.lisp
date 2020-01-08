@@ -78,6 +78,28 @@
 	;normalise and pack
 	(apply real-pack (real-norm (- e1 e2 (inc (* (- 31 mbits) 2))) (/ (<< m1 (- 63 mbits)) m2))))
 
+(defmacro-bind real-eq (&rest _)
+	`(= ~_))
+
+(defmacro-bind real-ne (&rest _)
+	`(/= ~_))
+
+(defun-bind real-lt (&rest _)
+	(if (reduce (lambda (x y)
+		(if x (if (< (real-sub x y) 0) y))) _) t))
+
+(defun-bind real-le (&rest _)
+	(if (reduce (lambda (x y)
+		(if x (if (<= (real-sub x y) 0) y))) _) t))
+
+(defun-bind real-gt (&rest _)
+	(if (reduce (lambda (x y)
+		(if x (if (> (real-sub x y) 0) y))) _) t))
+
+(defun-bind real-ge (&rest _)
+	(if (reduce (lambda (x y)
+		(if x (if (>= (real-sub x y) 0) y))) _) t))
+
 (defun-bind int-to-real (n)
 	(apply real-pack (real-norm mbits n)))
 
@@ -123,4 +145,18 @@
 	(each (lambda (_)
 		(setq n1 (real-add n1 n2))) (range 0 256))
 	(print "Result Acc: " (array n1) " " (fixed-to-str (real-to-fixed n1)))
+
+	(print (real-eq (int-to-real -2) (int-to-real -2) (int-to-real -2) (int-to-real -2) (int-to-real -2)))
+	(print (real-ne (int-to-real -2) (int-to-real -1) (int-to-real 0) (int-to-real 1) (int-to-real 2)))
+	(print (real-lt (int-to-real -2) (int-to-real -1) (int-to-real 0) (int-to-real 1) (int-to-real 2)))
+	(print (real-le (int-to-real -2) (int-to-real -1) (int-to-real 0) (int-to-real 1) (int-to-real 2)))
+	(print (real-gt (int-to-real 2) (int-to-real 1) (int-to-real 0) (int-to-real -1) (int-to-real -2)))
+	(print (real-ge (int-to-real 2) (int-to-real 1) (int-to-real 0) (int-to-real -1) (int-to-real -2)))
+
+	(print (real-eq (int-to-real -2) (int-to-real -1) (int-to-real 0) (int-to-real 1) (int-to-real 2)))
+	(print (real-ne (int-to-real -2) (int-to-real -1) (int-to-real 2) (int-to-real 1) (int-to-real 2)))
+	(print (real-lt (int-to-real -2) (int-to-real -1) (int-to-real 0) (int-to-real 2) (int-to-real 2)))
+	(print (real-le (int-to-real -2) (int-to-real -3) (int-to-real 0) (int-to-real 1) (int-to-real 2)))
+	(print (real-gt (int-to-real 2) (int-to-real 1) (int-to-real 0) (int-to-real 0) (int-to-real -2)))
+	(print (real-ge (int-to-real 2) (int-to-real 1) (int-to-real 0) (int-to-real 1) (int-to-real -2)))
 )
