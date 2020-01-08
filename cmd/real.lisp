@@ -78,11 +78,11 @@
 	;normalise and pack
 	(apply real-pack (real-norm (- e1 e2 (inc (* (- 31 mbits) 2))) (/ (<< m1 (- 63 mbits)) m2))))
 
-(defmacro-bind real-eq (&rest _)
-	`(= ~_))
+(defun-bind real-eq (&rest _)
+	(apply = _))
 
-(defmacro-bind real-ne (&rest _)
-	`(/= ~_))
+(defun-bind real-ne (&rest _)
+	(apply /= _))
 
 (defun-bind real-lt (&rest _)
 	(if (reduce (lambda (x y)
@@ -146,6 +146,7 @@
 		(setq n1 (real-add n1 n2))) (range 0 256))
 	(print "Result Acc: " (array n1) " " (fixed-to-str (real-to-fixed n1)))
 
+	(print "Cmps:")
 	(print (real-eq (int-to-real -2) (int-to-real -2) (int-to-real -2) (int-to-real -2) (int-to-real -2)))
 	(print (real-ne (int-to-real -2) (int-to-real -1) (int-to-real 0) (int-to-real 1) (int-to-real 2)))
 	(print (real-lt (int-to-real -2) (int-to-real -1) (int-to-real 0) (int-to-real 1) (int-to-real 2)))
@@ -159,4 +160,22 @@
 	(print (real-le (int-to-real -2) (int-to-real -3) (int-to-real 0) (int-to-real 1) (int-to-real 2)))
 	(print (real-gt (int-to-real 2) (int-to-real 1) (int-to-real 0) (int-to-real 0) (int-to-real -2)))
 	(print (real-ge (int-to-real 2) (int-to-real 1) (int-to-real 0) (int-to-real 1) (int-to-real -2)))
+
+	(print "Preds:")
+	(print (some real-eq
+		(list (fixed-to-real 3.9876) (fixed-to-real 3.9875))
+		(list (fixed-to-real 3.9876) (fixed-to-real 3.9875))
+		(list (fixed-to-real 3.9876) (fixed-to-real 3.9876))))
+	(print (some real-ne
+		(list (fixed-to-real 3.9876) (fixed-to-real 3.9874))
+		(list (fixed-to-real 3.9876) (fixed-to-real 3.9875))
+		(list (fixed-to-real 3.9876) (fixed-to-real 3.9876))))
+	(print (some real-lt
+		(list (fixed-to-real 3.9876) (fixed-to-real 3.9875))
+		(list (fixed-to-real 3.9876) (fixed-to-real 3.9876))))
+	(print (every real-gt
+		(list (fixed-to-real 6.9876) (fixed-to-real 23.9875))
+		(list (fixed-to-real 4.9876) (fixed-to-real 13.9875))
+		(list (fixed-to-real 3.9876) (fixed-to-real 9.9876))
+		(list (fixed-to-real -3.9876) (fixed-to-real -9.9876))))
 )
