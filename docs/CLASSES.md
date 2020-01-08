@@ -6362,6 +6362,66 @@ trashes
 r0-r14
 ```
 
+### sys_math::real_pack -> sys/math/real_pack
+
+```lisp
+inputs
+r13 = exponent (long)
+r14 = mantisa (long)
+outputs
+r13 = real (32:32)
+trashes
+r12-r14
+```
+
+### sys_math::real_add -> sys/math/real_add
+
+```lisp
+inputs
+r13 = real (32:32)
+r14 = real (32:32)
+outputs
+r13 = real (32:32)
+trashes
+r11-r14
+```
+
+### sys_math::real_sub -> sys/math/real_sub
+
+```lisp
+inputs
+r13 = real (32:32)
+r14 = real (32:32)
+outputs
+r13 = real (32:32)
+trashes
+r11-r14
+```
+
+### sys_math::real_mul -> sys/math/real_mul
+
+```lisp
+inputs
+r13 = real (32:32)
+r14 = real (32:32)
+outputs
+r13 = real (32:32)
+trashes
+r11-r14
+```
+
+### sys_math::real_div -> sys/math/real_div
+
+```lisp
+inputs
+r13 = real (32:32)
+r14 = real (32:32)
+outputs
+r13 = real (32:32)
+trashes
+r11-r14
+```
+
 ### sys_math::lisp_fsin -> sys/math/lisp_fsin
 
 ```lisp
@@ -6415,6 +6475,19 @@ r1-r14
 ```
 
 ### sys_math::lisp_floor -> sys/math/lisp_floor
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### sys_math::lisp_random -> sys/math/lisp_random
 
 ```lisp
 inputs

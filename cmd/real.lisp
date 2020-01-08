@@ -42,11 +42,11 @@
 	(bind '(e2 m2) (real-unpack n2))
 	(cond
 		;exponents the same
-		((= (defq s (- e1 e2)) 0) (setq m1 (+ m1 m2)))
-		;need to align m2
-		((> s 0) (setq m1 (+ m1 (>>> m2 s))))
+		((= (defq e2 (- e2 e1)) 0) (setq m1 (+ m1 m2)))
 		;need to align m1
-		(t (setq m1 (+ (>>> m1 (neg s)) m2) e1 e2)))
+		((> e2 0) (setq m1 (+ (>>> m1 e2) m2) e1 (+ e1 e2)))
+		;need to align m2
+		(t (setq m1 (+ m1 (>>> m2 (neg e2))))))
 	;normalise and pack
 	(apply real-pack (real-norm e1 m1)))
 
@@ -56,11 +56,11 @@
 	(bind '(e2 m2) (real-unpack n2))
 	(cond
 		;exponents the same
-		((= (defq s (- e1 e2)) 0) (setq m1 (- m1 m2)))
-		;need to align m2
-		((> s 0) (setq m1 (- m1 (>>> m2 s))))
+		((= (defq e2 (- e2 e1)) 0) (setq m1 (- m1 m2)))
 		;need to align m1
-		(t (setq m1 (- (>>> m1 (neg s)) m2) e1 e2)))
+		((> e2 0) (setq m1 (- (>>> m1 e2) m2) e1 (+ e1 e2)))
+		;need to align m2
+		(t (setq m1 (- m1 (>>> m2 (neg e2))))))
 	;normalise and pack
 	(apply real-pack (real-norm e1 m1)))
 

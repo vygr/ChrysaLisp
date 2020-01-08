@@ -13,11 +13,18 @@
 (dec-method 'intersect 'sys/math/intersect 'static '(r0 r1 r2 r3 r4 r5 r6 r7) '(r0 r1))
 (dec-method 'distance_sqd 'sys/math/distance_sqd 'static '(r0 r1 r2 r3 r4 r5) '(r0))
 
+(dec-method 'real_pack 'sys/math/real_pack 'static '(r13 r14) '(r13))
+(dec-method 'real_add 'sys/math/real_add 'static '(r13 r14) '(r13))
+(dec-method 'real_sub 'sys/math/real_sub 'static '(r13 r14) '(r13))
+(dec-method 'real_mul 'sys/math/real_mul 'static '(r13 r14) '(r13))
+(dec-method 'real_div 'sys/math/real_div 'static '(r13 r14) '(r13))
+
 (dec-method 'lisp_fsin 'sys/math/lisp_fsin 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_fcos 'sys/math/lisp_fcos 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_fsqrt 'sys/math/lisp_fsqrt 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_frac 'sys/math/lisp_frac 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_floor 'sys/math/lisp_floor 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_random 'sys/math/lisp_random 'static '(r0 r1) '(r0 r1))
 
 ;;;;;;;;;;;;;;;;
 ; inline methods

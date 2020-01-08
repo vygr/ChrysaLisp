@@ -1,0 +1,184 @@
+(include 'sys/func.inc)
+(include 'sys/math/class.inc)
+
+(defq mbits 31 ebits (- 63 mbits))
+
+(defun real-unpack (rn re rm)
+	(assign `(,rn ,rn) `(,re ,rm))
+	(vp-shl-cr (- 64 ebits) re)
+	(vp-asr-cr ebits rm)
+	(vp-asr-cr (- 64 ebits) re))
+
+(defun real-pack (re rm rn)
+	(vp-shl-cr (- 64 ebits) re)
+	(vp-shl-cr ebits rm)
+	(vp-shr-cr (- 64 ebits) re)
+	(assign `(,re) `(,rn))
+	(vp-add-rr rm rn))
+
+(defun real-norm (re rm rt)
+	(vpif `(,rm > 0) 'exit)
+		(vp-cpy-cr (<< 1 mbits) rt)
+		(vpif `(,rm >= ,rt))
+			(loop-start)
+				(vp-asr-cr 1 rm)
+				(vp-add-cr 1 re)
+			(loop-until `(,rm < ,rt))
+			(break 'exit)
+		(endif)
+		(vp-cpy-cr (<< 1 (dec mbits)) rt)
+		(breakif `(,rm < ,rt))
+		(loop-start)
+			(vp-shl-cr 1 rm)
+			(vp-sub-cr 1 re)
+		(loop-until `(,rm < ,rt))
+	(elseif `(,rm < 0))
+		(vp-cpy-cr (<< -1 mbits) rt)
+		(vpif `(,rm <= ,rt))
+			(loop-start)
+				(vp-asr-cr 1 rm)
+				(vp-add-cr 1 re)
+			(loop-until `(,rm > ,rt))
+			(break 'exit)
+		(endif)
+		(vp-cpy-cr (<< -1 (dec mbits)) rt)
+		(breakif `(,rm >= ,rt))
+		(loop-start)
+			(vp-shl-cr 1 rm)
+			(vp-sub-cr 1 re)
+		(loop-until `(,rm >= ,rt))
+	(else)
+		(vp-xor-rr re re)
+	(endif))
+
+(def-method 'sys_math 'real_pack)
+	;inputs
+	;r13 = exponent (long)
+	;r14 = mantisa (long)
+	;outputs
+	;r13 = real (32:32)
+	;trashes
+	;r12-r14
+
+	(vp-def (e m r) '(r13 r14 r12))
+
+	(entry 'sys_math 'real_pack `(,e ,m))
+
+	(real-norm e m r)
+	(real-pack e m e)
+
+	(exit 'sys_math 'real_pack `(,e))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'sys_math 'real_add)
+	;inputs
+	;r13 = real (32:32)
+	;r14 = real (32:32)
+	;outputs
+	;r13 = real (32:32)
+	;trashes
+	;r11-r14
+
+	(vp-def (n1 n2 e1 m1 e2 m2) '(r13 r14 r13 r14 r11 r12))
+
+	(entry 'sys_math 'real_add `(,n1 ,n2))
+
+	(real-unpack n2 e2 m2)
+	(real-unpack n1 e1 m1)
+	(vp-sub-rr e1 e2)
+	(vpif `(,e2 = 0))
+		(vp-add-rr m2 m1)
+	(elseif `(,e2 > 0))
+		(vp-asr-rr e2 m1)
+		(vp-add-rr e2 e1)
+		(vp-add-rr m2 m1)
+	(else)
+		(vp-mul-cr -1 e2)
+		(vp-asr-rr e2 m2)
+		(vp-add-rr m2 m1)
+	(endif)
+
+	(jump 'sys_math 'real_pack `(,e1 ,m1))
+
+(def-func-end)
+
+(def-method 'sys_math 'real_sub)
+	;inputs
+	;r13 = real (32:32)
+	;r14 = real (32:32)
+	;outputs
+	;r13 = real (32:32)
+	;trashes
+	;r11-r14
+
+	(vp-def (n1 n2 e1 m1 e2 m2) '(r13 r14 r13 r14 r11 r12))
+
+	(entry 'sys_math 'real_sub `(,n1 ,n2))
+
+	(real-unpack n2 e2 m2)
+	(real-unpack n1 e1 m1)
+	(vp-sub-rr e1 e2)
+	(vpif `(,e2 = 0))
+		(vp-sub-rr m2 m1)
+	(elseif `(,e2 > 0))
+		(vp-asr-rr e2 m1)
+		(vp-add-rr e2 e1)
+		(vp-sub-rr m2 m1)
+	(else)
+		(vp-mul-cr -1 e2)
+		(vp-asr-rr e2 m2)
+		(vp-sub-rr m2 m1)
+	(endif)
+
+	(jump 'sys_math 'real_pack `(,e1 ,m1))
+
+(def-func-end)
+
+(def-method 'sys_math 'real_mul)
+	;inputs
+	;r13 = real (32:32)
+	;r14 = real (32:32)
+	;outputs
+	;r13 = real (32:32)
+	;trashes
+	;r11-r14
+
+	(vp-def (n1 n2 e1 m1 e2 m2) '(r13 r14 r13 r14 r11 r12))
+
+	(entry 'sys_math 'real_mul `(,n1 ,n2))
+
+	(real-unpack n2 e2 m2)
+	(real-unpack n1 e1 m1)
+	(vp-mul-rr m2 m1)
+	(vp-add-rr e2 e1)
+	(vp-sub-cr mbits e1)
+
+	(jump 'sys_math 'real_pack `(,e1 ,m1))
+
+(def-func-end)
+
+(def-method 'sys_math 'real_div)
+	;inputs
+	;r13 = real (32:32)
+	;r14 = real (32:32)
+	;outputs
+	;r13 = real (32:32)
+	;trashes
+	;r11-r14
+
+	(vp-def (n1 n2 e1 m1 e2 m2) '(r13 r14 r13 r14 r11 r12))
+
+	(entry 'sys_math 'real_div `(,n1 ,n2))
+
+	(real-unpack n2 e2 m2)
+	(real-unpack n1 e1 m1)
+	(vp-sub-rr e2 e1)
+	(vp-ext-rr m1 e2)
+	(vp-sub-cr (inc (* (- 31 mbits) 2)) e1)
+	(vp-div-rrr m2 e2 m1)
+
+	(jump 'sys_math 'real_pack `(,e1 ,m1))
+
+(def-func-end)
