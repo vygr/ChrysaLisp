@@ -82,10 +82,10 @@
 				(cond
 					((or (eql _ "(defun") (eql _ "(defmacro") (eql _ "(defun-bind") (eql _ "(defmacro-bind"))
 						(setq state 'y))))) (file-stream _)))
-		'(class/lisp/boot.inc class/lisp/debug.inc class/lisp/anaphoric.inc sys/lisp.inc
-			sys/math/lisp.inc gui/lisp.inc gui/canvas/lisp.inc gui/window/lisp.inc
-			gui/view/lisp.inc gui/points/lisp.inc class/lisp.inc class/in/lisp.inc
-			class/out/lisp.inc class/slave/lisp.inc))
+		'(class/in/lisp.inc class/lisp.inc class/lisp/anaphoric.inc class/lisp/boot.inc
+			class/lisp/debug.inc class/out/lisp.inc class/slave/lisp.inc
+			gui/canvas/lisp.inc gui/lisp.inc gui/points/lisp.inc gui/view/lisp.inc
+			gui/window/lisp.inc sys/lisp.inc sys/math/lisp.inc))
 	(sort cmp syntax)
 	(defq stream (string-stream (cat "")))
 	(write-line stream (const (str "# Syntax" (ascii-char 10))))

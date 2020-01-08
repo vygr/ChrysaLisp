@@ -137,6 +137,7 @@ penv
 push
 quasi-quote
 quote
+random
 read
 read-char
 read-line

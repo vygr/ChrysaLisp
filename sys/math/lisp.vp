@@ -123,3 +123,23 @@
 	(signature '(num)))
 
 (def-func-end)
+
+(def-method 'sys_math 'lisp_random)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(mathop 'lisp_random
+		'(call 'sys_math 'random '(r0) '(r0)))
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r0 "(random num)" error_msg_wrong_types r1))
+	(signature '(num)))
+
+(def-func-end)

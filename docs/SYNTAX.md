@@ -828,6 +828,10 @@
 
 (quote form)
 
+## random
+
+(random num)
+
 ## range
 
 (range start end [step]) -> list

@@ -103,6 +103,7 @@
 
 (ffi time "sys/pii/lisp_time" 0)
 (ffi age "sys/pii/lisp_age" 0)
+(ffi random "sys/math/lisp_random" 0)
 
 (defq t 't nil 'nil
 	lisp_type_lst (<< 1 0)
@@ -536,13 +537,8 @@
 (defun-bind shuffle (_a &optional _l _h)
 	;(shuffle list [start end]) -> list
 	(setd _l 0 _h (length _a))
-	(defq _s (time))
-	(defun-bind get-next ()
-		(setq _s (abs (logxor 0xa5a5a5a5a5a5a5a5 (* _s 0x1574937f)))))
-	(defun-bind get-val (_)
-		(if (> _ 0) (% (get-next) _) 0))
 	(each! _h _l (lambda (x)
-		(swap _a _ (get-val (inc _)))) (list _a)) _a)
+		(swap _a _ (random (inc _)))) (list _a)) _a)
 
 (defun-bind sorted (_f _a &optional _l _h)
 	;(sorted list [start end]) -> list
