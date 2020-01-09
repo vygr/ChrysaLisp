@@ -41,4 +41,3 @@
 (ffi task-mailbox "sys/task/lisp_mailbox" 0)
 (ffi task-sleep "sys/task/lisp_sleep" 0)
 (ffi mem-stats "sys/mem/lisp_stats" 0)
-(import 'sys/math/lisp.inc)

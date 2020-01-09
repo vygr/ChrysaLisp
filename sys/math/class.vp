@@ -1,7 +1,7 @@
 (include 'sys/func.inc)
 (include 'sys/math/class.inc)
 
-(def-method 'sys_math 'random)
+(def-method 'sys_math 'i_rand)
 	;inputs
 	;r0 = random range (ulong)
 	;outputs
@@ -9,7 +9,7 @@
 	;trashes
 	;r0-r2
 
-	(entry 'sys_math 'random '(r0))
+	(entry 'sys_math 'i_rand '(r0))
 
 	(vpif '(r0 /= 0))
 		(vp-cpy-rr r0 r1)
@@ -25,7 +25,7 @@
 		(vp-xor-rr r0 r0)
 	(endif)
 
-	(exit 'sys_math 'random '(r0))
+	(exit 'sys_math 'i_rand '(r0))
 	(vp-ret)
 
 	(vp-align ptr_size)
@@ -34,7 +34,7 @@
 
 (def-func-end)
 
-(def-method 'sys_math 'isqrt)
+(def-method 'sys_math 'i_sqrt)
 	;inputs
 	;r0 = number (ulong)
 	;outputs
@@ -42,7 +42,7 @@
 	;trashes
 	;r0-r3
 
-	(entry 'sys_math 'isqrt '(r1))
+	(entry 'sys_math 'i_sqrt '(r1))
 
 	(vp-xor-rr r0 r0)
 	(vp-cpy-cr 0x4000000000000000 r2)
@@ -65,12 +65,12 @@
 		(vp-add-cr 1 r0)
 	(endif)
 
-	(exit 'sys_math 'isqrt '(r0))
+	(exit 'sys_math 'i_sqrt '(r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'sys_math 'fsin)
+(def-method 'sys_math 'f_sin)
 	;inputs
 	;r0 = angle in radians (16.16)
 	;outputs
@@ -78,7 +78,7 @@
 	;trashes
 	;r0-r4
 
-	(entry 'sys_math 'fsin '(r0))
+	(entry 'sys_math 'f_sin '(r0))
 	(vec-set 1)
 	(vec-load 1 '(fp_2pi))
 	(vec-fmod 1)
@@ -194,12 +194,12 @@
 	(vp-asr-cr fp_shift r0)
 	(vp-add-rr r3 r0)
 
-	(exit 'sys_math 'fsin '(r0))
+	(exit 'sys_math 'f_sin '(r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'sys_math 'fcos)
+(def-method 'sys_math 'f_cos)
 	;inputs
 	;r0 = angle in radians (16.16)
 	;outputs
@@ -207,7 +207,7 @@
 	;trashes
 	;r0-r4
 
-	(entry 'sys_math 'fcos '(r0))
+	(entry 'sys_math 'f_cos '(r0))
 	(vec-set 1)
 	(vec-load 1 '(fp_2pi))
 	(vec-fmod 1)
@@ -335,12 +335,12 @@
 	(vp-asr-cr fp_shift r0)
 	(vp-add-rr r3 r0)
 
-	(exit 'sys_math 'fcos '(r0))
+	(exit 'sys_math 'f_cos '(r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'sys_math 'intersect)
+(def-method 'sys_math 'f_intersect)
 	;inputs
 	;r0 = p1x (16.16)
 	;r1 = p1y (16.16)
@@ -357,7 +357,7 @@
 	;r0-r14
 
 	(vec-set 8)
-	(entry 'sys_math 'intersect (vec-top 8))
+	(entry 'sys_math 'f_intersect (vec-top 8))
 
 	(bind '(p1x p1y p2x p2y v1x v1y v2x v2y) (vec-top 8))
 	(defq p1 (list p1x p1y) p2 (list p2x p2y)
@@ -390,19 +390,19 @@
 		(vec-dup 2 (cat da v1y))
 		(vec-fdet 2 (cat db v2y))
 		(vec-fdiv 2 (cat axb axb))
-		(exit 'sys_math 'intersect (vec-pop 2))
+		(exit 'sys_math 'f_intersect (vec-pop 2))
 	(else)
 		(vec-set 4)
 		(vec-add 2)
 		(vec-load 1 {0.5})
 		(vec-fscale 2)
-		(exit 'sys_math 'intersect (vec-pop 2))
+		(exit 'sys_math 'f_intersect (vec-pop 2))
 	(endif)
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'sys_math 'distance_sqd)
+(def-method 'sys_math 'f_dist_sqd)
 	;inputs
 	;r0 = px (16.16)
 	;r1 = py (16.16)
@@ -418,7 +418,7 @@
 	(int 'px 'py 'p1x 'p1y 'p2x 'p2y)
 
 	(push-scope)
-	(entry 'sys_math 'distance_sqd {px, py, p1x, p1y, p2x, p2y})
+	(entry 'sys_math 'f_dist_sqd {px, py, p1x, p1y, p2x, p2y})
 
 	(vec-set 0)
 	(vec-load 2 {px, py})
@@ -453,8 +453,277 @@
 	(vec-set 4)
 	(vec-fdistance-squared 2)
 
-	(exit 'sys_math 'distance_sqd (vec-pop 1))
+	(exit 'sys_math 'f_dist_sqd (vec-pop 1))
 	(pop-scope)
 	(return)
+
+(def-func-end)
+
+(defq mbits 31 ebits (- 63 mbits))
+
+(defun real-unpack (rn re rm)
+	(assign `(,rn ,rn) `(,re ,rm))
+	(vp-shl-cr (- 64 ebits) re)
+	(vp-asr-cr ebits rm)
+	(vp-asr-cr (- 64 ebits) re))
+
+(defun real-pack (re rm rn)
+	(vp-shl-cr (- 64 ebits) re)
+	(vp-shl-cr ebits rm)
+	(vp-shr-cr (- 64 ebits) re)
+	(assign `(,re) `(,rn))
+	(vp-add-rr rm rn))
+
+(defun real-norm (re rm rt)
+	(vpif `(,rm > 0) 'exit)
+		(vp-cpy-cr (<< 1 mbits) rt)
+		(vpif `(,rm >= ,rt))
+			(loop-start)
+				(vp-asr-cr 1 rm)
+				(vp-add-cr 1 re)
+			(loop-until `(,rm < ,rt))
+			(break 'exit)
+		(endif)
+		(vp-cpy-cr (<< 1 (dec mbits)) rt)
+		(breakif `(,rm < ,rt))
+		(loop-start)
+			(vp-shl-cr 1 rm)
+			(vp-sub-cr 1 re)
+		(loop-until `(,rm < ,rt))
+	(elseif `(,rm < 0))
+		(vp-cpy-cr (<< -1 mbits) rt)
+		(vpif `(,rm <= ,rt))
+			(loop-start)
+				(vp-asr-cr 1 rm)
+				(vp-add-cr 1 re)
+			(loop-until `(,rm > ,rt))
+			(break 'exit)
+		(endif)
+		(vp-cpy-cr (<< -1 (dec mbits)) rt)
+		(breakif `(,rm >= ,rt))
+		(loop-start)
+			(vp-shl-cr 1 rm)
+			(vp-sub-cr 1 re)
+		(loop-until `(,rm >= ,rt))
+	(else)
+		(vp-xor-rr re re)
+	(endif))
+
+(def-method 'sys_math 'r_pack)
+	;inputs
+	;r13 = exponent (long)
+	;r14 = mantisa (long)
+	;outputs
+	;r13 = real (32:32)
+	;trashes
+	;r12-r14
+
+	(vp-def (e m r) '(r13 r14 r12))
+
+	(entry 'sys_math 'r_pack `(,e ,m))
+
+	(real-norm e m r)
+	(real-pack e m e)
+
+	(exit 'sys_math 'r_pack `(,e))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'sys_math 'r_add)
+	;inputs
+	;r13 = real (32:32)
+	;r14 = real (32:32)
+	;outputs
+	;r13 = real (32:32)
+	;trashes
+	;r11-r14
+
+	(vp-def (n1 n2 e1 m1 e2 m2) '(r13 r14 r13 r14 r11 r12))
+
+	(entry 'sys_math 'r_add `(,n1 ,n2))
+
+	(real-unpack n2 e2 m2)
+	(real-unpack n1 e1 m1)
+	(vp-sub-rr e1 e2)
+	(vpif `(,e2 = 0))
+		(vp-add-rr m2 m1)
+	(elseif `(,e2 > 0))
+		(vp-asr-rr e2 m1)
+		(vp-add-rr e2 e1)
+		(vp-add-rr m2 m1)
+	(else)
+		(vp-mul-cr -1 e2)
+		(vp-asr-rr e2 m2)
+		(vp-add-rr m2 m1)
+	(endif)
+
+	(jump 'sys_math 'r_pack `(,e1 ,m1))
+
+(def-func-end)
+
+(def-method 'sys_math 'r_sub)
+	;inputs
+	;r13 = real (32:32)
+	;r14 = real (32:32)
+	;outputs
+	;r13 = real (32:32)
+	;trashes
+	;r11-r14
+
+	(vp-def (n1 n2 e1 m1 e2 m2) '(r13 r14 r13 r14 r11 r12))
+
+	(entry 'sys_math 'r_sub `(,n1 ,n2))
+
+	(real-unpack n2 e2 m2)
+	(real-unpack n1 e1 m1)
+	(vp-sub-rr e1 e2)
+	(vpif `(,e2 = 0))
+		(vp-sub-rr m2 m1)
+	(elseif `(,e2 > 0))
+		(vp-asr-rr e2 m1)
+		(vp-add-rr e2 e1)
+		(vp-sub-rr m2 m1)
+	(else)
+		(vp-mul-cr -1 e2)
+		(vp-asr-rr e2 m2)
+		(vp-sub-rr m2 m1)
+	(endif)
+
+	(jump 'sys_math 'r_pack `(,e1 ,m1))
+
+(def-func-end)
+
+(def-method 'sys_math 'r_mul)
+	;inputs
+	;r13 = real (32:32)
+	;r14 = real (32:32)
+	;outputs
+	;r13 = real (32:32)
+	;trashes
+	;r11-r14
+
+	(vp-def (n1 n2 e1 m1 e2 m2) '(r13 r14 r13 r14 r11 r12))
+
+	(entry 'sys_math 'r_mul `(,n1 ,n2))
+
+	(real-unpack n2 e2 m2)
+	(real-unpack n1 e1 m1)
+	(vp-mul-rr m2 m1)
+	(vp-add-rr e2 e1)
+	(vp-sub-cr mbits e1)
+
+	(jump 'sys_math 'r_pack `(,e1 ,m1))
+
+(def-func-end)
+
+(def-method 'sys_math 'r_div)
+	;inputs
+	;r13 = real (32:32)
+	;r14 = real (32:32)
+	;outputs
+	;r13 = real (32:32)
+	;trashes
+	;r11-r14
+
+	(vp-def (n1 n2 e1 m1 e2 m2) '(r13 r14 r13 r14 r11 r12))
+
+	(entry 'sys_math 'r_div `(,n1 ,n2))
+
+	(real-unpack n2 e2 m2)
+	(real-unpack n1 e1 m1)
+	(vp-shl-cr (- 63 mbits) m1)
+	(vp-sub-rr e2 e1)
+	(vp-ext-rr m1 e2)
+	(vp-sub-cr (inc (* (- 31 mbits) 2)) e1)
+	(vp-div-rrr m2 e2 m1)
+
+	(jump 'sys_math 'r_pack `(,e1 ,m1))
+
+(def-func-end)
+
+(def-method 'sys_math 'r_i2r)
+	;inputs
+	;r14 = num (long)
+	;outputs
+	;r13 = real (32:32)
+	;trashes
+	;r12-r14
+
+	(entry 'sys_math 'r_i2r '(r14))
+
+	(jump 'sys_math 'r_pack `(,mbits r14))
+
+(def-func-end)
+
+(def-method 'sys_math 'r_f2r)
+	;inputs
+	;r14 = num (16.16)
+	;outputs
+	;r13 = real (32:32)
+	;trashes
+	;r12-r14
+
+	(entry 'sys_math 'r_f2r '(r14))
+
+	(jump 'sys_math 'r_pack `(,(- mbits fp_shift) r14))
+
+(def-func-end)
+
+(def-method 'sys_math 'r_r2i)
+	;inputs
+	;r13 = real (32:32)
+	;outputs
+	;r14 = num (long)
+	;trashes
+	;r12-r14
+
+	(vp-def (n e m) '(r13 r13 r14))
+
+	(entry 'sys_math 'r_r2i `(,n))
+
+	(real-unpack n e m)
+	(vpif `(,e /= ,mbits))
+		(vpif `(,e < ,mbits))
+			(vp-mul-cr -1 e)
+			(vp-add-cr mbits e)
+			(vp-asr-rr e m)
+		(else)
+			(vp-sub-cr mbits e)
+			(vp-shl-rr e m)
+		(endif)
+	(endif)
+
+	(exit 'sys_math 'r_r2i `(,m))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'sys_math 'r_r2f)
+	;inputs
+	;r13 = real (32:32)
+	;outputs
+	;r14 = num (16.16)
+	;trashes
+	;r12-r14
+
+	(vp-def (n e m) '(r13 r13 r14))
+
+	(entry 'sys_math 'r_r2f `(,n))
+
+	(real-unpack n e m)
+	(vpif `(,e /= ,(- mbits fp_shift)))
+		(vpif `(,e < ,(- mbits fp_shift)))
+			(vp-mul-cr -1 e)
+			(vp-add-cr (- mbits fp_shift) e)
+			(vp-asr-rr e m)
+		(else)
+			(vp-sub-cr (- mbits fp_shift) e)
+			(vp-shl-rr e m)
+		(endif)
+	(endif)
+
+	(exit 'sys_math 'r_r2f `(,m))
+	(vp-ret)
 
 (def-func-end)

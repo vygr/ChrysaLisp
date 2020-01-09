@@ -47,7 +47,7 @@
 				(call 'points 'get_element2 {that, last} {_, p3x, p3y})
 				(loop-start)
 					(call 'points 'get_element2 {that, length} {_, p1x, p1y})
-					(call 'sys_math 'distance_sqd {p1x, p2y, p2x, p2y, p3x, p3y} {dist})
+					(call 'sys_math 'f_dist_sqd {p1x, p2y, p2x, p2y, p3x, p3y} {dist})
 					(vpif {dist > max})
 						(assign {dist, length} {max, index})
 					(endif)

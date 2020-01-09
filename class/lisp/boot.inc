@@ -21,6 +21,22 @@
 (ffi fdiv "class/num/lisp_fdiv" 0)
 (ffi fmod "class/num/lisp_fmod" 0)
 
+(ffi .= "class/real/lisp_eq" 0)
+(ffi ./= "class/real/lisp_ne" 0)
+(ffi .< "class/real/lisp_lt" 0)
+(ffi .> "class/real/lisp_gt" 0)
+(ffi .<= "class/real/lisp_le" 0)
+(ffi .>= "class/real/lisp_ge" 0)
+
+(ffi .+ "class/real/lisp_add" 0)
+(ffi .- "class/real/lisp_sub" 0)
+(ffi .* "class/real/lisp_mul" 0)
+(ffi ./ "class/real/lisp_div" 0)
+(ffi i2r "class/real/lisp_i2r" 0)
+(ffi f2r "class/real/lisp_f2r" 0)
+(ffi r2i "class/real/lisp_r2i" 0)
+(ffi r2f "class/real/lisp_r2f" 0)
+
 (ffi >> "class/num/lisp_bshr" 0)
 (ffi >>> "class/num/lisp_basr" 0)
 (ffi << "class/num/lisp_bshl" 0)
@@ -103,7 +119,7 @@
 
 (ffi time "sys/pii/lisp_time" 0)
 (ffi age "sys/pii/lisp_age" 0)
-(ffi random "sys/math/lisp_random" 0)
+(ffi random "class/num/lisp_random" 0)
 
 (defq t 't nil 'nil
 	lisp_type_lst (<< 1 0)
@@ -497,6 +513,13 @@
 	(defq f (opt f " ") v (str v) l (length v) c (- (max c l) l))
 	(while (> c (length f)) (setq f (cat f f)))
 	(cat (slice 0 c f) v))
+
+(defun-bind fixed-to-str (n)
+	(defq s "")
+	(if (< n 0)
+		(setq s "-" n (neg n)))
+	(defq i (>> n fp_shift) f (fmul (- n (<< i fp_shift)) 100000))
+	(cat s (str i) "." (pad f 5 "00000")))
 
 (defun-bind log2 (_)
 	;(log2 num) -> num

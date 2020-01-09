@@ -111,25 +111,18 @@
 	(bind '(e m) (real-unpack n))
 	;norm to int
 	(cond
-		((= (setq e (- mbits e)) 0) m)
-		((> e 0) (>>> m e))
-		(t (<< m (neg e)))))
+		((= e mbits) m)
+		((< e mbits) (>>> m (+ (neg e) mbits)))
+		(t (<< m (- e mbits)))))
 
 (defun-bind real-to-fixed (n)
 	;unpack
 	(bind '(e m) (real-unpack n))
 	;norm to fixed
 	(cond
-		((= (setq e (- mbits fp_shift e)) 0) m)
-		((> e 0) (>>> m e))
-		(t (<< m (neg e)))))
-
-(defun-bind fixed-to-str (n)
-	(defq s "")
-	(when (< n 0)
-		(setq s "-" n (neg n)))
-	(defq i (>> n fp_shift) f (fmul (- n (<< i fp_shift)) 100000))
-	(cat s (str i) "." (pad f 5 "00000")))
+		((= e (- mbits fp_shift)) m)
+		((< e (- mbits fp_shift)) (>>> m (+ (neg e) (- mbits fp_shift))))
+		(t (<< m (- e (- mbits fp_shift))))))
 
 ;initialize pipe details and command args, abort on error
 (when (and (defq slave (create-slave)) (defq mbits 31 args (options slave usage)))

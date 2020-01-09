@@ -16,6 +16,46 @@
 
 (- num num ...)
 
+## .*
+
+(.* real real ...)
+
+## .+
+
+(.+ real real ...)
+
+## .-
+
+(.- real real ...)
+
+## ./
+
+(./ real real ...)
+
+## ./=
+
+(./= real real ...)
+
+## .<
+
+(.< real real ...)
+
+## .<=
+
+(.<= real real ...)
+
+## .=
+
+(.= real real ...)
+
+## .>
+
+(.> real real ...)
+
+## .>=
+
+(.>= real real ...)
+
 ## /
 
 (/ num num ...)
@@ -388,6 +428,10 @@
 
 (exec ast)
 
+## f2r
+
+(f2r num)
+
 ## fcos
 
 (fcos angle)
@@ -479,6 +523,10 @@
 ## gui-add-back
 
 (gui-add-back view)
+
+## i2r
+
+(i2r num)
 
 ## if
 
@@ -827,6 +875,14 @@
 ## quote
 
 (quote form)
+
+## r2f
+
+(r2f real)
+
+## r2i
+
+(r2i real)
 
 ## random
 

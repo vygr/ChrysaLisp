@@ -3186,45 +3186,6 @@ trashes
 r1-r14
 ```
 
-### num::lisp_fmul -> class/num/lisp_fmul
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### num::lisp_fdiv -> class/num/lisp_fdiv
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### num::lisp_fmod -> class/num/lisp_fmod
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
 ### num::lisp_band -> class/num/lisp_band
 
 ```lisp
@@ -3395,6 +3356,123 @@ r1-r14
 ```
 
 ### num::lisp_ge -> class/num/lisp_ge
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### num::lisp_fmul -> class/num/lisp_fmul
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### num::lisp_fdiv -> class/num/lisp_fdiv
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### num::lisp_fmod -> class/num/lisp_fmod
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### num::lisp_fsin -> class/num/lisp_fsin
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### num::lisp_fcos -> class/num/lisp_fcos
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### num::lisp_fsqrt -> class/num/lisp_fsqrt
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### num::lisp_frac -> class/num/lisp_frac
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### num::lisp_floor -> class/num/lisp_floor
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### num::lisp_random -> class/num/lisp_random
 
 ```lisp
 inputs
@@ -4421,6 +4499,210 @@ r1-r14
 ```
 
 ### progress::lisp_create -> gui/progress/lisp_create
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+## real
+
+Super Class: obj
+
+### real::vtable -> class/real/vtable
+
+### real::create -> class/real/create
+
+### real::init -> class/num/init
+
+```lisp
+inputs
+r0 = num object (ptr)
+r1 = vtable (pptr)
+r2 = initial value (long)
+outputs
+r0 = num object (ptr)
+r1 = 0 if error, else ok
+trashes
+r1
+```
+
+### real::lisp_add -> class/real/lisp_add
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### real::lisp_sub -> class/real/lisp_sub
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### real::lisp_mul -> class/real/lisp_mul
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### real::lisp_div -> class/real/lisp_div
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### real::lisp_eq -> class/real/lisp_eq
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### real::lisp_ne -> class/real/lisp_ne
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### real::lisp_lt -> class/real/lisp_lt
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### real::lisp_gt -> class/real/lisp_gt
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### real::lisp_le -> class/real/lisp_le
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### real::lisp_ge -> class/real/lisp_ge
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### real::lisp_i2r -> class/real/lisp_i2r
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### real::lisp_f2r -> class/real/lisp_f2r
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### real::lisp_r2i -> class/real/lisp_r2i
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### real::lisp_r2f -> class/real/lisp_r2f
 
 ```lisp
 inputs
@@ -6272,7 +6554,7 @@ r1-r14
 
 Super Class: null
 
-### sys_math::random -> sys/math/random
+### sys_math::i_rand -> sys/math/i_rand
 
 ```lisp
 inputs
@@ -6283,7 +6565,7 @@ trashes
 r0-r2
 ```
 
-### sys_math::isqrt -> sys/math/isqrt
+### sys_math::i_sqrt -> sys/math/i_sqrt
 
 ```lisp
 inputs
@@ -6294,7 +6576,7 @@ trashes
 r0-r3
 ```
 
-### sys_math::fsqrt -> sys/math/fsqrt
+### sys_math::f_sqrt -> sys/math/f_sqrt
 
 ```lisp
 inputs
@@ -6305,7 +6587,7 @@ trashes
 r0-r3
 ```
 
-### sys_math::fsin -> sys/math/fsin
+### sys_math::f_sin -> sys/math/f_sin
 
 ```lisp
 inputs
@@ -6316,7 +6598,7 @@ trashes
 r0-r4
 ```
 
-### sys_math::fcos -> sys/math/fcos
+### sys_math::f_cos -> sys/math/f_cos
 
 ```lisp
 inputs
@@ -6327,7 +6609,7 @@ trashes
 r0-r4
 ```
 
-### sys_math::intersect -> sys/math/intersect
+### sys_math::f_intersect -> sys/math/f_intersect
 
 ```lisp
 inputs
@@ -6346,7 +6628,7 @@ trashes
 r0-r14
 ```
 
-### sys_math::distance_sqd -> sys/math/distance_sqd
+### sys_math::f_dist_sqd -> sys/math/f_dist_sqd
 
 ```lisp
 inputs
@@ -6362,7 +6644,7 @@ trashes
 r0-r14
 ```
 
-### sys_math::real_pack -> sys/math/real_pack
+### sys_math::r_pack -> sys/math/r_pack
 
 ```lisp
 inputs
@@ -6374,7 +6656,7 @@ trashes
 r12-r14
 ```
 
-### sys_math::real_add -> sys/math/real_add
+### sys_math::r_add -> sys/math/r_add
 
 ```lisp
 inputs
@@ -6386,7 +6668,7 @@ trashes
 r11-r14
 ```
 
-### sys_math::real_sub -> sys/math/real_sub
+### sys_math::r_sub -> sys/math/r_sub
 
 ```lisp
 inputs
@@ -6398,7 +6680,7 @@ trashes
 r11-r14
 ```
 
-### sys_math::real_mul -> sys/math/real_mul
+### sys_math::r_mul -> sys/math/r_mul
 
 ```lisp
 inputs
@@ -6410,7 +6692,7 @@ trashes
 r11-r14
 ```
 
-### sys_math::real_div -> sys/math/real_div
+### sys_math::r_div -> sys/math/r_div
 
 ```lisp
 inputs
@@ -6422,82 +6704,48 @@ trashes
 r11-r14
 ```
 
-### sys_math::lisp_fsin -> sys/math/lisp_fsin
+### sys_math::r_i2r -> sys/math/r_i2r
 
 ```lisp
 inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r14 = num (long)
 outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
+r13 = real (32:32)
 trashes
-r1-r14
+r12-r14
 ```
 
-### sys_math::lisp_fcos -> sys/math/lisp_fcos
+### sys_math::r_f2r -> sys/math/r_f2r
 
 ```lisp
 inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r14 = num (16.16)
 outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
+r13 = real (32:32)
 trashes
-r1-r14
+r12-r14
 ```
 
-### sys_math::lisp_fsqrt -> sys/math/lisp_fsqrt
+### sys_math::r_r2i -> sys/math/r_r2i
 
 ```lisp
 inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r13 = real (32:32)
 outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
+r14 = num (long)
 trashes
-r1-r14
+r12-r14
 ```
 
-### sys_math::lisp_frac -> sys/math/lisp_frac
+### sys_math::r_r2f -> sys/math/r_r2f
 
 ```lisp
 inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r13 = real (32:32)
 outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
+r14 = num (16.16)
 trashes
-r1-r14
-```
-
-### sys_math::lisp_floor -> sys/math/lisp_floor
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### sys_math::lisp_random -> sys/math/lisp_random
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
+r12-r14
 ```
 
 ## sys_mem

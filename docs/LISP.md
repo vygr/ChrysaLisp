@@ -66,6 +66,16 @@ t
 ### Built in functions
 
 ```lisp
+.-
+.*
+./
+./=
+.+
+.<
+.<=
+.=
+.>
+.>=
 -
 *
 /
@@ -102,11 +112,13 @@ elem-set
 env
 eql
 eval
+f2r
 fcos
 fdiv
 ffi
 file-stream
 find
+fixed-to-str
 floor
 fmod
 fmul
@@ -114,6 +126,7 @@ frac
 fsin
 fsqrt
 gensym
+i2r
 lambda
 length
 list
@@ -128,15 +141,17 @@ max
 merge
 min
 not
+penv
 points
 pop
 prin
 print
 progn
-penv
 push
 quasi-quote
 quote
+r2f
+r2i
 random
 read
 read-char

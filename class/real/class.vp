@@ -1,0 +1,5 @@
+(include 'sys/func.inc)
+(include 'class/real/class.inc)
+
+(gen-create 'real)
+(gen-vtable 'real)
