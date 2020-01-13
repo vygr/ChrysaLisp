@@ -27,6 +27,22 @@ corrupted.
 
 ------
 
+Added a software float number class `class/real/class.*` and low level support
+in `sys/math/class.vp` that suports a 32:32 mantisa:exp format, a good
+compromise between IEEE 32 and 64 bit formats but simple enough to be quick to
+do in software.
+
+As you can see my approach to this was to create a test app `cmd/real.lisp` to
+prove out the idea, then I created the same basic code in VP, folowed by the
+Lisp level funtionality and Lisp bindings in the class library.
+
+There are a few basic extras to add yet, and I'd like to do a demo of this by
+providing an option for the Raymarch demo, or perhaps do somthing like a
+Mandelbrot demo, to use fixed or real math. But I've got some text area support
+to add to the VDU class first for Nuclearfalls's text editor. ;)
+
+------
+
 Implemented a more general system for repairing damaged regions over any number
 of frames. This can now cope with triple buffering etc, but it still relies on
 the previously rendered frames being available uncorrupted as they come back to
