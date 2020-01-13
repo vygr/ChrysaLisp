@@ -35,6 +35,7 @@
 	(assign-asm-to-asm (map (lambda (r _)
 		(case _
 			(num (list r num_value))
+			(real (list r num_value))
 			(str (list '& r str_data))
 			(char (list r str_data 'ub))
 			(t r))) regs types) regs))
