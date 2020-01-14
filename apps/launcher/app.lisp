@@ -7,7 +7,7 @@
 	(byte 'win_button))
 
 (defq app_list '("terminal" "debug" "help" "docs" "netmon" "stats" "boing" "freeball"
-	"images" "films" "canvas" "raymarch" "pcb" "calculator" "chess" "clock")
+	"images" "films" "canvas" "raymarch" "pcb" "calculator" "chess" "clock" "edit")
 	auto_app_list '("wallpaper" "clock" "terminal"))
 
 ; TODO - change above into default lists in a seperate file
