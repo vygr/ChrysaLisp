@@ -8,8 +8,8 @@
 
 (defq id t vdu_width 60 vdu_height 40 cursor_x 0 cursor_y 0 offset_x 0 offset_y 0 text_buf (list))
 
-;this will nee scrollbars etc to change the text offset in the VDU area
-(ui-tree window (create-window (+ window_flag_close window_flag_min window_flag_max))  ('color 0xc0000000)
+;this will need scrollbars etc to change the text offset in the VDU area
+(ui-tree window (create-window (+ window_flag_close window_flag_min window_flag_max)) ('color 0xc0000000)
 	(ui-element vdu (create-vdu) ('vdu_width vdu_width 'vdu_height vdu_height 'ink_color argb_green
 		'font (create-font "fonts/Hack-Regular.ttf" 16))))
 
@@ -21,6 +21,7 @@
 (each-line (lambda (_)
 	(push text_buf _)) (file-stream "gui/make.inc"))
 
+;these cursor funcs will not be needed when the real update-vdu comes along !
 (defun-bind hide-cursor ()
 	(cond
 		;cursor off end ?
@@ -49,9 +50,9 @@
 						line (erase line x (inc x)) line (insert line x (char cursor)))
 					(elem-set y text_buf line))))))
 
-(defun-bind update-vdu (line_list offset_x offset_y)
+(defun-bind update-vdu (line_list offset_x offset_y cursor_x cursor_y)
 	;very crude and stupid, I will do a low level method to do this in a sencible manner !
-	;it will refresh the VDU with the line_buffer taking the text offsets into account
+	;it will refresh the VDU with the line_list taking the text offsets into account
 	(vdu-print vdu (const (ascii-char 128)))
 	(each (lambda (_)
 		(vdu-print vdu (cat _ (const (ascii-char 10))))) line_list))
@@ -101,10 +102,10 @@
 				(push text_buf line)
 				(elem-set cursor_y text_buf line))))
 	(show-cursor)
-	(update-vdu text_buf offset_x offset_y))
+	(update-vdu text_buf offset_x offset_y cursor_x cursor_y))
 
 (show-cursor)
-(update-vdu text_buf offset_x offset_y)
+(update-vdu text_buf offset_x offset_y cursor_x cursor_y)
 (while id
 	(cond
 		((= (setq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_win_close)
