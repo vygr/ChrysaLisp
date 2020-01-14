@@ -56,8 +56,8 @@
 		((= c 8)
 			;backspace key
 			)
-		((<= 32 c 127)
-			;insert the char at cursor or append to end etc
+		((or (= c 9) (<= 32 c 127))
+			;insert the tab/char at cursor or append to end etc
 			(defq line (if (>= cursor_y (length text_buf)) "" (elem cursor_y text_buf))
 				line (insert line (min cursor_x (length line)) (ascii-char c)))
 			(setq cursor_x (inc cursor_x))
