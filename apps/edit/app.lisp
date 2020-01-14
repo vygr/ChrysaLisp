@@ -19,48 +19,11 @@
 
 ;load some temp text for now
 (each-line (lambda (_)
-	(push text_buf _)) (file-stream "gui/make.inc"))
-
-;these cursor funcs will not be needed when the real update-vdu comes along !
-(defun-bind hide-cursor ()
-	(cond
-		;cursor off end ?
-		((>= (defq y (min cursor_y (length text_buf))) (length text_buf)))
-		;not off end
-		(t	(defq line (elem y text_buf))
-			(cond
-				;cursor off side
-				((>= (defq x (min cursor_x (length line))) (length line)))
-				;not off side
-				(t	(defq cursor (logand (code (elem x line)) 127)
-						line (erase line x (inc x)) line (insert line x (char cursor)))
-					(elem-set y text_buf line))))))
-
-(defun-bind show-cursor ()
-	(cond
-		;cursor off end ?
-		((>= (defq y (min cursor_y (length text_buf))) (length text_buf)))
-		;not off end
-		(t	(defq line (elem y text_buf))
-			(cond
-				;cursor off side
-				((>= (defq x (min cursor_x (length line))) (length line)))
-				;not off side
-				(t	(defq cursor (logior (code (elem x line)) 128)
-						line (erase line x (inc x)) line (insert line x (char cursor)))
-					(elem-set y text_buf line))))))
-
-(defun-bind update-vdu (line_list offset_x offset_y cursor_x cursor_y)
-	;very crude and stupid, I will do a low level method to do this in a sencible manner !
-	;it will refresh the VDU with the line_list taking the text offsets into account
-	(vdu-print vdu (const (ascii-char 128)))
-	(each (lambda (_)
-		(vdu-print vdu (cat _ (const (ascii-char 10))))) line_list))
+	(push text_buf _)) (file-stream "apps/edit/app.lisp"))
 
 (defun-bind edit-input (c)
 	;insert at cursor etc, cursor pos char will need to a spare char
 	;for it at the end of line and end of buffer eventually !
-	(hide-cursor)
 	(cond
 		((or (= c 10) (= c 13))
 			;return key
@@ -101,11 +64,9 @@
 			(if (>= cursor_y (length text_buf))
 				(push text_buf line)
 				(elem-set cursor_y text_buf line))))
-	(show-cursor)
-	(update-vdu text_buf offset_x offset_y cursor_x cursor_y))
+	(vdu-load vdu text_buf offset_x offset_y cursor_x cursor_y))
 
-(show-cursor)
-(update-vdu text_buf offset_x offset_y cursor_x cursor_y)
+(vdu-load vdu text_buf offset_x offset_y cursor_x cursor_y)
 (while id
 	(cond
 		((= (setq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_win_close)

@@ -37,12 +37,12 @@
 (ffi r2i "class/real/lisp_r2i" 0)
 (ffi r2f "class/real/lisp_r2f" 0)
 
-(ffi >> "class/num/lisp_bshr" 0)
-(ffi >>> "class/num/lisp_basr" 0)
-(ffi << "class/num/lisp_bshl" 0)
-(ffi logand "class/num/lisp_band" 0)
-(ffi logior "class/num/lisp_bor" 0)
-(ffi logxor "class/num/lisp_bxor" 0)
+(ffi >> "class/num/lisp_shr" 0)
+(ffi >>> "class/num/lisp_asr" 0)
+(ffi << "class/num/lisp_shl" 0)
+(ffi logand "class/num/lisp_and" 0)
+(ffi logior "class/num/lisp_or" 0)
+(ffi logxor "class/num/lisp_xor" 0)
 
 (ffi length "class/seq/lisp_length" 0)
 (ffi elem "class/seq/lisp_elem" 0)

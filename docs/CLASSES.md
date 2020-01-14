@@ -3186,7 +3186,7 @@ trashes
 r1-r14
 ```
 
-### num::lisp_band -> class/num/lisp_band
+### num::lisp_and -> class/num/lisp_and
 
 ```lisp
 inputs
@@ -3199,7 +3199,7 @@ trashes
 r1-r14
 ```
 
-### num::lisp_bor -> class/num/lisp_bor
+### num::lisp_or -> class/num/lisp_or
 
 ```lisp
 inputs
@@ -3212,7 +3212,7 @@ trashes
 r1-r14
 ```
 
-### num::lisp_bxor -> class/num/lisp_bxor
+### num::lisp_xor -> class/num/lisp_xor
 
 ```lisp
 inputs
@@ -3225,7 +3225,7 @@ trashes
 r1-r14
 ```
 
-### num::lisp_bshr -> class/num/lisp_bshr
+### num::lisp_shr -> class/num/lisp_shr
 
 ```lisp
 inputs
@@ -3238,7 +3238,7 @@ trashes
 r1-r14
 ```
 
-### num::lisp_basr -> class/num/lisp_basr
+### num::lisp_asr -> class/num/lisp_asr
 
 ```lisp
 inputs
@@ -3251,7 +3251,7 @@ trashes
 r1-r14
 ```
 
-### num::lisp_bshl -> class/num/lisp_bshl
+### num::lisp_shl -> class/num/lisp_shl
 
 ```lisp
 inputs
@@ -7710,6 +7710,19 @@ r1-r14
 ```
 
 ### vdu::lisp_print -> gui/vdu/lisp_print
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### vdu::lisp_load -> gui/vdu/lisp_load
 
 ```lisp
 inputs

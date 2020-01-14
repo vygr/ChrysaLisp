@@ -69,6 +69,7 @@
 (ffi gui-add "gui/gui/lisp_add" 0)
 (ffi gui-add-back "gui/gui/lisp_add_back" 0)
 (ffi vdu-print "gui/vdu/lisp_print" 0)
+(ffi vdu-load "gui/vdu/lisp_load" 0)
 (import 'gui/view/lisp.inc)
 (import 'gui/points/lisp.inc)
 (import 'gui/canvas/lisp.inc)

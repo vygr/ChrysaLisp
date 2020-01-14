@@ -11,6 +11,7 @@
 
 (dec-method 'lisp_create 'gui/vdu/lisp_create 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_print 'gui/vdu/lisp_print 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_load 'gui/vdu/lisp_load 'static '(r0 r1) '(r0 r1))
 
 (dec-method 'deinit 'gui/vdu/deinit 'final)
 (dec-method 'pref_size 'gui/vdu/pref_size 'final)

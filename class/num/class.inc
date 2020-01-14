@@ -13,12 +13,12 @@
 (dec-method 'lisp_div 'class/num/lisp_div 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_mod 'class/num/lisp_mod 'static '(r0 r1) '(r0 r1))
 
-(dec-method 'lisp_band 'class/num/lisp_band 'static '(r0 r1) '(r0 r1))
-(dec-method 'lisp_bor 'class/num/lisp_bor 'static '(r0 r1) '(r0 r1))
-(dec-method 'lisp_bxor 'class/num/lisp_bxor 'static '(r0 r1) '(r0 r1))
-(dec-method 'lisp_bshr 'class/num/lisp_bshr 'static '(r0 r1) '(r0 r1))
-(dec-method 'lisp_basr 'class/num/lisp_basr 'static '(r0 r1) '(r0 r1))
-(dec-method 'lisp_bshl 'class/num/lisp_bshl 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_and 'class/num/lisp_and 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_or 'class/num/lisp_or 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_xor 'class/num/lisp_xor 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_shr 'class/num/lisp_shr 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_asr 'class/num/lisp_asr 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_shl 'class/num/lisp_shl 'static '(r0 r1) '(r0 r1))
 
 (dec-method 'lisp_min 'class/num/lisp_min 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_max 'class/num/lisp_max 'static '(r0 r1) '(r0 r1))

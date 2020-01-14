@@ -1,6 +1,7 @@
 (include 'sys/func.inc)
 (include 'gui/vdu/class.inc)
 (include 'class/str/class.inc)
+(include 'class/num/class.inc)
 (include 'class/lisp/class.inc)
 
 (def-method 'vdu 'lisp_create)
@@ -62,5 +63,80 @@
 (vp-label 'error1)
 	(jump 'lisp 'repl_error '(r0 "(vdu-print vdu str)" error_msg_wrong_types r1))
 	(signature '(vdu str)))
+
+(def-func-end)
+
+(def-method 'vdu 'lisp_load)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(ptr 'this 'vdu 'lines 'line)
+	(pptr 'iter_begin 'iter_end)
+	(pubyte 'cursor)
+	(uint 'ox 'oy 'cx 'cy)
+	(int 'len)
+
+	(entry 'vdu 'lisp_load '(r0 r1))
+
+(errorcases
+	(call 'lisp 'env_args_type '(r1 ($ sig) 6) '(r2))
+	(gotoif '(r2 = 0) 'error))
+
+	(push-scope)
+	(class/vector/bind_args r1 '(r1 r2 r3 r4 r5 r6) '(vdu vector num num num num))
+	(assign '(r0 r1 r2 r3 r4 r5 r6) {this, vdu, lines, ox, oy, cx, cy})
+
+	;load vdu with line text
+	(call 'vdu 'print_char {vdu, 128})
+	(assign {lines->array_length - oy} {len})
+	(vpif {len > 0})
+		(vpif {len > vdu->vdu_height})
+			(assign {vdu->vdu_height} {len})
+		(endif)
+		(call 'vector 'get_iters {lines, oy, oy + len} {_, iter_begin, iter_end})
+		(assign {vdu->vdu_chars} {cursor})
+		(loop-while {iter_begin /= iter_end})
+			(assign {*iter_begin} {line})
+		(errorcases
+			(gotoif (cat {line->obj_vtable /= @} (f-path 'str 'vtable)) 'exit))
+			(assign {line->str_length - ox} {len})
+			(vpif {len > 0})
+				(vpif {len > vdu->vdu_width})
+					(assign {vdu->vdu_width} {len})
+				(endif)
+				(call 'sys_mem 'copy {&line->str_data + ox, cursor, len})
+			(endif)
+			(assign {iter_begin + ptr_size, cursor + vdu->vdu_width} {iter_begin, cursor})
+		(loop-end)
+	(endif)
+
+	;show cursor as inverse video char
+	(assign {cx - ox, cy - oy} {cx, cy})
+	(switch)
+	(breakif {cx < 0})
+	(breakif {cy < 0})
+	(breakif {cx >= vdu->vdu_width})
+	(breakif {cy >= vdu->vdu_height})
+	(default)
+		(assign {vdu->vdu_chars + cy * vdu->vdu_width + cx} {cursor})
+		(assign {*cursor | 128} {*cursor})
+	(endswitch)
+
+(vp-label 'exit)
+	(exit 'vdu 'lisp_load {this, vdu})
+	(class/obj/ref r1 r2)
+	(pop-scope)
+	(return)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r0 "(vdu-load vdu lines ox oy cx cy)" error_msg_wrong_types r1))
+	(signature '(vdu vector num num num num)))
 
 (def-func-end)

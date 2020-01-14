@@ -167,7 +167,7 @@
 	(exit 'num _ '(r0 r1))
 	(vp-ret))
 
-(def-method 'num 'lisp_band)
+(def-method 'num 'lisp_and)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -177,7 +177,7 @@
 	;trashes
 	;r1-r14
 
-	(andop 'lisp_band -1
+	(andop 'lisp_and -1
 		'(vp-and-rr r3 r0))
 
 (errorcases
@@ -186,7 +186,7 @@
 
 (def-func-end)
 
-(def-method 'num 'lisp_bor)
+(def-method 'num 'lisp_or)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -196,7 +196,7 @@
 	;trashes
 	;r1-r14
 
-	(andop 'lisp_bor 0
+	(andop 'lisp_or 0
 		'(vp-or-rr r3 r0))
 
 (errorcases
@@ -205,7 +205,7 @@
 
 (def-func-end)
 
-(def-method 'num 'lisp_bxor)
+(def-method 'num 'lisp_xor)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -215,7 +215,7 @@
 	;trashes
 	;r1-r14
 
-	(andop 'lisp_bxor 0
+	(andop 'lisp_xor 0
 		'(vp-xor-rr r3 r0))
 
 (errorcases
@@ -374,7 +374,7 @@
 	(exit 'num _ '(r0 r1))
 	(vp-ret))
 
-(def-method 'num 'lisp_basr)
+(def-method 'num 'lisp_asr)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -384,7 +384,7 @@
 	;trashes
 	;r1-r14
 
-	(shift 'lisp_basr
+	(shift 'lisp_asr
 		'(vp-asr-rr r1 r0))
 
 (errorcases
@@ -394,7 +394,7 @@
 
 (def-func-end)
 
-(def-method 'num 'lisp_bshl)
+(def-method 'num 'lisp_shl)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -404,7 +404,7 @@
 	;trashes
 	;r1-r14
 
-	(shift 'lisp_bshl
+	(shift 'lisp_shl
 		'(vp-shl-rr r1 r0))
 
 (errorcases
@@ -414,7 +414,7 @@
 
 (def-func-end)
 
-(def-method 'num 'lisp_bshr)
+(def-method 'num 'lisp_shr)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -424,7 +424,7 @@
 	;trashes
 	;r1-r14
 
-	(shift 'lisp_bshr
+	(shift 'lisp_shr
 		'(vp-shr-rr r1 r0))
 
 (errorcases
