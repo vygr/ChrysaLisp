@@ -64,6 +64,18 @@
 			(if (>= cursor_y (length text_buf))
 				(push text_buf line)
 				(elem-set cursor_y text_buf line))))
+	;set text offsets to ensure cursor visible, maybe add some margin ?
+	(cond
+		((< cursor_x offset_x)
+			(setq offset_x cursor_x))
+		((>= cursor_x (+ offset_x vdu_width))
+			(setq offset_x (- cursor_x vdu_width -1))))
+	(cond
+		((< cursor_y offset_y)
+			(setq offset_y cursor_y))
+		((>= cursor_y (+ offset_y vdu_height))
+			(setq offset_y (- cursor_y vdu_height -1))))
+	;load the vdu display
 	(vdu-load vdu text_buf offset_x offset_y cursor_x cursor_y))
 
 (vdu-load vdu text_buf offset_x offset_y cursor_x cursor_y)
