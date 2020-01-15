@@ -13,7 +13,7 @@
 	(ui-element vdu (create-vdu) ('vdu_width vdu_width 'vdu_height vdu_height 'ink_color argb_green
 		'font (create-font "fonts/Hack-Regular.ttf" 16))))
 
-(gui-add (apply view-change (cat (list window 128 32)
+(gui-add (apply view-change (cat (list window 32 32)
 	(view-pref-size (window-set-title (window-connect-close (window-connect-min
 		(window-connect-max window event_win_max) event_win_min) event_win_close) "Editor - Test code for now !!!")))))
 
@@ -22,8 +22,11 @@
 	(push text_buf _)) (file-stream "apps/edit/app.lisp"))
 
 (defun-bind edit-input (c)
-	;insert at cursor etc, cursor pos char will need to a spare char
-	;for it at the end of line and end of buffer eventually !
+	;insert at cursor etc. Things like char insert and so forth probably want to be
+	;asbstracted into some text_buf commands that can later be scripted and this would just
+	;become key bindings to call things.
+	;'text_buf offset_x offset_y cursor_x cursor_y' could also be abstracted into a text buffer
+	;object and then we can have multiple text buffers and all that good stuff too.
 	(cond
 		((or (= c 10) (= c 13))
 			;return key
@@ -86,14 +89,20 @@
 			(setq id nil))
 		((= id event_win_min)
 			;min button
+			(setq vdu_width 60 vdu_height 40)
+			(set vdu 'vdu_width vdu_width 'vdu_height vdu_height)
 			(bind '(x y _ _) (view-get-bounds window))
 			(bind '(w h) (view-pref-size window))
-			(view-change-dirty window x y w h))
+			(view-change-dirty window x y w h)
+			(vdu-load vdu text_buf offset_x offset_y cursor_x cursor_y))
 		((= id event_win_max)
 			;max button
+			(setq vdu_width 120 vdu_height 40)
+			(set vdu 'vdu_width vdu_width 'vdu_height vdu_height)
 			(bind '(x y _ _) (view-get-bounds window))
 			(bind '(w h) (view-pref-size window))
-			(view-change-dirty window x y (fmul w 1.75) h))
+			(view-change-dirty window x y w h)
+			(vdu-load vdu text_buf offset_x offset_y cursor_x cursor_y))
 		(t	;it's a GUI event
 			(view-event window msg)
 			(and (= (get-long msg ev_msg_type) ev_type_key)
