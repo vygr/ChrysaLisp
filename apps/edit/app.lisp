@@ -4,7 +4,7 @@
 (import 'gui/lisp.inc)
 
 (structure 'event 0
-	(byte 'win_close 'win_min 'win_max))
+  (byte 'win_close 'win_min 'win_max))
 
 (defq id t vdu_width 60 vdu_height 40 cursor_x 0 cursor_y 0 offset_x 0 offset_y 0 text_buf (list))
 
@@ -58,7 +58,18 @@
 			(setq cursor_y (min (inc cursor_y) (length text_buf))))
 		((= c 8)
 			;backspace key
-			)
+      (cond
+				((> cursor_x 0)
+				  (elem-set cursor_y text_buf (erase (elem cursor_y text_buf) (dec cursor_x) cursor_x))
+					(setq cursor_x (dec cursor_x)))
+        ((<= cursor_y 0)
+				  (setq cursor_y 0))
+				((<= cursor_x 0)
+				  ;backspace into previous line
+				  (defq prev_line (elem (dec cursor_y) text_buf) cat_line (cat prev_line (elem cursor_y text_buf)))
+					(setq cursor_x (length prev_line) cursor_y (dec cursor_y))
+					(elem-set cursor_y text_buf cat_line)
+					(setq text_buf (erase text_buf (inc cursor_y) (+ cursor_y 2))))))
 		((or (= c 9) (<= 32 c 127))
 			;insert the tab/char at cursor or append to end etc
 			(defq line (if (>= cursor_y (length text_buf)) "" (elem cursor_y text_buf))
