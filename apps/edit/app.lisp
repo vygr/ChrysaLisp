@@ -46,22 +46,22 @@
 		((= c 0x40000050)
 			;cursor left key
 			(setq cursor_x (max (dec cursor_x) 0))
-      (setq sticky_x cursor_x))
+      			(setq sticky_x cursor_x))
 		((= c 0x4000004f)
 			;cursor right key
 			(defq line (if (>= cursor_y (length text_buf)) "" (elem cursor_y text_buf)))
 			(setq cursor_x (min (inc cursor_x) (length line)))
-      (setq sticky_x cursor_x))
+      			(setq sticky_x cursor_x))
 		((= c 0x40000052)
 			;cursor up key
 			(setq cursor_y (max (dec cursor_y) 0))
-      (setq cursor_x (min sticky_x (length (elem cursor_y text_buf)))))
+      			(setq cursor_x (min sticky_x (length (elem cursor_y text_buf)))))
 		((= c 0x40000051)
 			;cursor down key
-      (if (= cursor_y (dec (length text_buf)))
-        (setq cursor_x (length (elem cursor_y text_buf)) sticky_x cursor_x))
-      (setq cursor_y  (min (inc cursor_y) (dec (length text_buf))))
-      (setq cursor_x (min sticky_x (length (elem cursor_y text_buf)))))
+      			(if (= cursor_y (dec (length text_buf)))
+        		(setq cursor_x (length (elem cursor_y text_buf)) sticky_x cursor_x))
+      			(setq cursor_y  (min (inc cursor_y) (dec (length text_buf))))
+      			(setq cursor_x (min sticky_x (length (elem cursor_y text_buf)))))
 		((= c 8)
 			;backspace key
 			(cond
@@ -97,11 +97,11 @@
 		((>= cursor_y (+ offset_y vdu_height))
 			(setq offset_y (- cursor_y vdu_height -1))))
   ; ensures behavior resembling other text editors when adjusting cursor_x
-  (unless (= cursor_y (dec (length text_buf)))
-    (if (and (> cursor_x sticky_x) (<= sticky_x (length (elem cursor_y text_buf))))
-      (setq cursor_x sticky_x))
-    (if (>= cursor_x (length (elem cursor_y text_buf)))
-      (setq cursor_x (length (elem cursor_y text_buf)))))
+  	(unless (= cursor_y (dec (length text_buf)))
+    		(if (and (> cursor_x sticky_x) (<= sticky_x (length (elem cursor_y text_buf))))
+      			(setq cursor_x sticky_x))
+    		(if (>= cursor_x (length (elem cursor_y text_buf)))
+      			(setq cursor_x (length (elem cursor_y text_buf)))))
 	;load the vdu display
 	(vdu-load vdu text_buf offset_x offset_y cursor_x cursor_y))
 
