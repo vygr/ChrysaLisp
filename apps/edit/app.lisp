@@ -59,7 +59,7 @@
 		((= c 0x40000051)
 			;cursor down key
       (if (= cursor_y (dec (length text_buf)))
-        (setq cursor_x (length (elem cursor_y text_buf))))
+        (setq cursor_x (length (elem cursor_y text_buf)) sticky_x cursor_x))
       (setq cursor_y  (min (inc cursor_y) (dec (length text_buf))))
       (setq cursor_x (min sticky_x (length (elem cursor_y text_buf)))))
 		((= c 8)
