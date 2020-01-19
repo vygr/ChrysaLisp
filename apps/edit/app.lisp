@@ -42,7 +42,7 @@
 					(elem-set cursor_y text_buf line_front)
 					(setq cursor_y (min (inc cursor_y) (length text_buf))
 						text_buf (insert text_buf cursor_y (list line_back)))))
-				(setq cursor_x 0))
+			(setq cursor_x 0))
 		((= c 0x40000050)
 			;cursor left key
 			(setq cursor_x (max (dec cursor_x) 0))
