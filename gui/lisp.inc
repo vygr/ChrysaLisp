@@ -58,7 +58,6 @@
 (ffi create-backdrop "gui/backdrop/lisp_create" 0)
 (ffi create-button "gui/button/lisp_create" 0)
 (ffi create-flow "gui/flow/lisp_create" 0)
-(ffi create-font "gui/font/lisp_create" 0)
 (ffi create-grid "gui/grid/lisp_create" 0)
 (ffi create-label "gui/label/lisp_create" 0)
 (ffi create-progress "gui/progress/lisp_create" 0)
@@ -70,6 +69,10 @@
 (ffi gui-add-back "gui/gui/lisp_add_back" 0)
 (ffi vdu-print "gui/vdu/lisp_print" 0)
 (ffi vdu-load "gui/vdu/lisp_load" 0)
+
+(ffi create-font-ctf "gui/font/lisp_create" 0)
+(ffi font-glyph-paths "gui/font/lisp_glyph_paths" 0)
+
 (import 'gui/view/lisp.inc)
 (import 'gui/points/lisp.inc)
 (import 'gui/canvas/lisp.inc)

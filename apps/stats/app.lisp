@@ -16,13 +16,13 @@
 		(ui-element name_flow (create-flow) ('color argb_grey8)
 			(ui-element _ (create-label) ('text "Class" 'color argb_white))
 			(ui-element _ (create-grid) ('grid_width 1 'grid_height 1 'color argb_white
-					'font (create-font "fonts/Hack-Regular.ttf" 14))
+					'font (create-font-ctf "fonts/Hack-Regular.ctf" 14))
 				(ui-element _ (create-label) ('text "")))
 			(ui-element name_view (create-view)))
 		(ui-element stat_flow (create-flow) ('color argb_red)
 			(ui-element _ (create-label) ('text "Count" 'color argb_white))
 			(ui-element _ (create-grid) ('grid_width 4 'grid_height 1 'color argb_white
-					'font (create-font "fonts/Hack-Regular.ttf" 14))
+					'font (create-font-ctf "fonts/Hack-Regular.ctf" 14))
 				(times 4 (push stat_scale (ui-element _ (create-label)
 					('text "|" 'flow_flags (logior flow_flag_align_vcenter flow_flag_align_hright))))))
 			(ui-element stat_view (create-view)))))

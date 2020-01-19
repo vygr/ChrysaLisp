@@ -21,7 +21,7 @@
 (ui-tree window (create-window window_flag_status) ('color 0xc0000000)
 	(ui-element vdu_flow (create-flow) ('flow_flags (logior flow_flag_down flow_flag_fillw))
 		(ui-element _ (create-flow) ('flow_flags (logior flow_flag_right flow_flag_fillh)
-				'font (create-font "fonts/Entypo.otf" 32))
+				'font (create-font-ctf "fonts/Entypo.ctf" 32))
 			(each (lambda (l)
 				(component-connect (ui-element __ (create-button)
 					('text l 'color (if (>= _ 4) toolbar2_col toolbar_col))) (+ event_win_play _)))
@@ -61,7 +61,7 @@
 			(setq vdu_index nil)
 			(view-sub vdu)
 			(def (setq vdu (create-vdu)) 'vdu_width vdu_width 'vdu_height vdu_height 'ink_color argb_yellow
-				'font (create-font "fonts/Hack-Regular.ttf" 16))
+				'font (create-font-ctf "fonts/Hack-Regular.ctf" 16))
 			(view-layout (view-add-back vdu_flow vdu))
 			(view-dirty (vdu-print vdu (const (cat
 				"ChrysaLisp Debug 0.3" (ascii-char 10)
@@ -90,7 +90,7 @@
 				index (find key vdu_keys))
 			(unless index
 				(def (defq new_vdu (create-vdu)) 'vdu_width vdu_width 'vdu_height vdu_height
-					'ink_color argb_yellow 'font (create-font "fonts/Hack-Regular.ttf" 16))
+					'ink_color argb_yellow 'font (create-font-ctf "fonts/Hack-Regular.ctf" 16))
 				(push vdu_keys key)
 				(push vdu_list (list new_vdu nil nil))
 				(reset (setq index (dec (length vdu_list)))))

@@ -473,8 +473,7 @@
 	(host-call 'host 'sdl_create_rgb_surface_from {temp_canvas->canvas_array->array_begin,
 		temp_canvas->canvas_width, temp_canvas->canvas_height, 32,
 		temp_canvas->canvas_stride, 0xff0000, 0xff00, 0xff, 0xff000000} {surface})
-	(host-call 'host 'sdl_create_texture_from_surface (cat {@} (f-path 'gui 'statics) {.gui_statics_renderer, surface})
-		{tex_id})
+	(host-call 'host 'sdl_create_texture_from_surface (cat {@} (f-path 'gui 'statics) {.gui_statics_renderer, surface}) {tex_id})
 	(host-call 'host 'sdl_compose_custom_blend_mode
 		{SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA, SDL_BLENDOPERATION_ADD,
 		SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA, SDL_BLENDOPERATION_ADD} {blend_mode})

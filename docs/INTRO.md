@@ -14,12 +14,11 @@ develop for ChrysaLisp.
 
 ### Mac
 
-Download and install the SDL frameworks from:
-https://www.libsdl.org/download-2.0.php and
-https://www.libsdl.org/projects/SDL_ttf/
+Download and install the SDL framework from:
+https://www.libsdl.org/download-2.0.php
 
-Get the development *.dmg* files for both frameworks and copy *SDL2.framework*
-and *SDL2_ttf.framework* over into your */Library/Frameworks* folder.
+Get the development *.dmg* file for the framework and copy *SDL2.framework*
+over into your */Library/Frameworks* folder.
 
 ### Linux, PI64
 
@@ -27,7 +26,7 @@ You should be able to use your package manager to install via `apt-get` or
 similar with:
 
 ```
-sudo apt-get install libsdl2-ttf-dev
+sudo apt-get install libsdl2-dev
 ```
 
 ### Windows 64bit
@@ -36,15 +35,12 @@ Unzip the snapshot.zip file with your favourite Zip application. With 7Zip just
 right click on the snapshot.zip file and choose 'Extract Here'.
 
 Download and install the SDL frameworks from:
-https://www.libsdl.org/download-2.0.php and
-https://www.libsdl.org/projects/SDL_ttf/
+https://www.libsdl.org/download-2.0.php
 
 Get the development versions for both frameworks and unzip them somwhere. Copy
 the .dll files from the lib folders into your ChrysaLisp folder.
 
 SDL2.dll
-SDL2_ttf.dll
-libfreetype-6.dll
 zlib1.dll
 
 ## Building the platform bootstrap

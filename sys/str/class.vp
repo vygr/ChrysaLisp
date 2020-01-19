@@ -152,3 +152,78 @@
 	(vp-ret)
 
 (def-func-end)
+
+(def-method 'sys_str 'read_utf8)
+	;inputs
+	;r0 = utf8 data pointer (pubyte)
+	;outputs
+	;r0 = utf8 data pointer (pubyte)
+	;r1 = utf8 char (uint)
+	;trashes
+	;r0-r2
+
+	(entry 'sys_str 'read_utf8 '(r0))
+
+	(vp-cpy-ir-ub r0 0 r1)
+	(vp-add-cr byte_size r0)
+	(vp-cpy-rr r1 r2)
+	(vp-and-cr 0b10000000 r2)
+	(vpif '(r2 /= 0))
+		;not 1 byte
+		(vp-cpy-rr r1 r2)
+		(vp-and-cr 0b11100000 r2)
+		(vpif '(r2 /= 0b11000000))
+			;not 2 byte
+			(vp-cpy-rr r1 r2)
+			(vp-and-cr 0b11110000 r2)
+			(vpif '(r2 /= 0b11100000))
+				;not 3 byte
+				(vp-cpy-rr r1 r2)
+				(vp-and-cr 0b11111000 r2)
+				(vpif '(r2 /= 0b11110000))
+					;not 4 byte
+					(vp-xor-rr r1 r1)
+				(else)
+					(vp-cpy-ir-ub r0 0 r2)
+					(vp-and-cr 0b00000111 r1)
+					(vp-and-cr 0b00111111 r2)
+					(vp-shl-cr 6 r1)
+					(vp-add-rr r2 r1)
+					(vp-cpy-ir-ub r0 1 r2)
+					(vp-shl-cr 6 r1)
+					(vp-and-cr 0b00111111 r2)
+					(vp-add-rr r2 r1)
+					(vp-cpy-ir-ub r0 2 r2)
+					(vp-shl-cr 6 r1)
+					(vp-and-cr 0b00111111 r2)
+					(vp-add-rr r2 r1)
+					(vp-add-cr (* byte_size 3) r0)
+				(endif)
+			(else)
+				;3 byte
+				(vp-cpy-ir-ub r0 0 r2)
+				(vp-and-cr 0b00001111 r1)
+				(vp-and-cr 0b00111111 r2)
+				(vp-shl-cr 6 r1)
+				(vp-add-rr r2 r1)
+				(vp-cpy-ir-ub r0 1 r2)
+				(vp-shl-cr 6 r1)
+				(vp-and-cr 0b00111111 r2)
+				(vp-add-rr r2 r1)
+				(vp-add-cr (* byte_size 2) r0)
+			(endif)
+		(else)
+			;2 byte
+			(vp-cpy-ir-ub r0 0 r2)
+			(vp-and-cr 0b00011111 r1)
+			(vp-and-cr 0b00111111 r2)
+			(vp-shl-cr 6 r1)
+			(vp-add-rr r2 r1)
+			(vp-add-cr byte_size r0)
+		(endif)
+	(endif)
+
+	(exit 'sys_str 'read_utf8 '(r0 r1))
+	(vp-ret)
+
+(def-func-end)

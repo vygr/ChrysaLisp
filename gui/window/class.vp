@@ -34,7 +34,7 @@
 	(vpif '(r1 /= 0))
 		;init myself
 		(assign '(r0) {this})
-		(call 'window 'set_font_prop '(r0 static_sym_font "fonts/OpenSans-Regular.ttf" 18) '(r0))
+		(call 'window 'set_font_prop '(r0 static_sym_font "fonts/OpenSans-Regular.ctf" 18) '(r0))
 		(call 'window 'set_long_prop '(r0 static_sym_ink_color argb_black) '(r0))
 		(call 'window 'set_long_prop '(r0 static_sym_color window_col) '(r0))
 		(call 'window 'set_long_prop '(r0 static_sym_border 5) '(r0))
@@ -56,7 +56,7 @@
 		;add close button ?
 		(vpif {flags & window_flag_close})
 			(call 'button 'create nil {this->window_close})
-			(call 'button 'set_font_prop {this->window_close, static_sym_font, "fonts/Entypo.otf", 22} '(r0))
+			(call 'button 'set_font_prop {this->window_close, static_sym_font, "fonts/Entypo.ctf", 22} '(r0))
 			(call 'button 'set_str_prop '(r0 static_sym_text ""))
 			(call 'flow 'add_child {title_flow, this->window_close})
 		(endif)
@@ -64,7 +64,7 @@
 		;add max button
 		(vpif {flags & window_flag_max})
 			(call 'button 'create nil {this->window_max})
-			(call 'button 'set_font_prop {this->window_max, static_sym_font, "fonts/Entypo.otf", 22} '(r0))
+			(call 'button 'set_font_prop {this->window_max, static_sym_font, "fonts/Entypo.ctf", 22} '(r0))
 			(call 'button 'set_str_prop '(r0 static_sym_text ""))
 			(call 'flow 'add_child {title_flow, this->window_max})
 		(endif)
@@ -72,7 +72,7 @@
 		;add min button
 		(vpif {flags & window_flag_min})
 			(call 'button 'create nil {this->window_min})
-			(call 'button 'set_font_prop {this->window_min, static_sym_font, "fonts/Entypo.otf", 22} '(r0))
+			(call 'button 'set_font_prop {this->window_min, static_sym_font, "fonts/Entypo.ctf", 22} '(r0))
 			(call 'button 'set_str_prop '(r0 static_sym_text ""))
 			(call 'flow 'add_child {title_flow, this->window_min})
 		(endif)

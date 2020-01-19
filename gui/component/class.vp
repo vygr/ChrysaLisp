@@ -248,7 +248,7 @@
 	;r0 = component object (ptr)
 	;r1 = static sym num (uint)
 	;r2 = font c string name (pubyte)
-	;r3 = font size (points)
+	;r3 = font size (pixels)
 	;outputs
 	;r0 = component object (ptr)
 	;trashes

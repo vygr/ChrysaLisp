@@ -236,6 +236,8 @@
 		(host-call 'host 'sdl_delay '(r0))
 	(loop-end)
 
+(debug-str "kernel exit")
+
 	;free any kernel routing table
 	(call 'sys_mem 'free {routes.lk_table_array})
 

@@ -29,16 +29,6 @@
 (dec-method 'sdl_set_render_target nil 'virtual (abi-args 2) '(r0))
 (dec-method 'sdl_render_clear nil 'virtual (abi-args 1) '(r0))
 
-(dec-method 'ttf_init nil 'virtual (abi-args 0) '(r0))
-(dec-method 'ttf_quit nil 'virtual (abi-args 0) '(r0))
-(dec-method 'ttf_open_font nil 'virtual (abi-args 2) '(r0))
-(dec-method 'ttf_close_font nil 'virtual (abi-args 1) '(r0))
-(dec-method 'ttf_size_utf8 nil 'virtual (abi-args 4) '(r0))
-(dec-method 'ttf_font_ascent nil 'virtual (abi-args 1) '(r0))
-(dec-method 'ttf_font_descent nil 'virtual (abi-args 1) '(r0))
-(dec-method 'ttf_font_height nil 'virtual (abi-args 1) '(r0))
-(dec-method 'ttf_render_utf8_blended nil 'virtual (abi-args 3) '(r0))
-
 (dec-method 'exit nil 'virtual (abi-args 1))
 (dec-method 'stat nil 'virtual (abi-args 2) '(r0))
 (dec-method 'open nil 'virtual (abi-args 2) '(r0))
