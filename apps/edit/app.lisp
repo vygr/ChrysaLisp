@@ -6,7 +6,7 @@
 (structure 'event 0
 	(byte 'win_close 'win_min 'win_max))
 
-(defq id t vdu_width 60 vdu_height 40 cursor_x 0 cursor_y 0 offset_x 0 offset_y 0 text_buf (list))
+(defq id t vdu_width 60 vdu_height 40 cursor_x 0 cursor_y 0 offset_x 0 offset_y 0 text_buf (list) sticky_x 0)
 
 ;this will need scrollbars etc to change the text offset in the VDU area
 (ui-tree window (create-window (+ window_flag_close window_flag_min window_flag_max)) ('color 0xc0000000)
@@ -45,17 +45,23 @@
 				(setq cursor_x 0))
 		((= c 0x40000050)
 			;cursor left key
-			(setq cursor_x (max (dec cursor_x) 0)))
+			(setq cursor_x (max (dec cursor_x) 0))
+      (setq sticky_x cursor_x))
 		((= c 0x4000004f)
 			;cursor right key
 			(defq line (if (>= cursor_y (length text_buf)) "" (elem cursor_y text_buf)))
-			(setq cursor_x (min (inc cursor_x) (length line))))
+			(setq cursor_x (min (inc cursor_x) (length line)))
+      (setq sticky_x cursor_x))
 		((= c 0x40000052)
 			;cursor up key
-			(setq cursor_y (max (dec cursor_y) 0)))
+			(setq cursor_y (max (dec cursor_y) 0))
+      (setq cursor_x (min sticky_x (length (elem cursor_y text_buf)))))
 		((= c 0x40000051)
 			;cursor down key
-			(setq cursor_y (min (inc cursor_y) (length text_buf))))
+      (if (= cursor_y (dec (length text_buf)))
+        (setq cursor_x (length (elem cursor_y text_buf))))
+      (setq cursor_y  (min (inc cursor_y) (dec (length text_buf))))
+      (setq cursor_x (min sticky_x (length (elem cursor_y text_buf)))))
 		((= c 8)
 			;backspace key
 			(cond
@@ -66,7 +72,7 @@
 					(setq cursor_y 0))
 				((<= cursor_x 0)
 					;backspace into previous line
-					(defq prev_line (elem (dec cursor_y) text_buf) 
+					(defq prev_line (elem (dec cursor_y) text_buf)
 						cat_line (cat prev_line (elem cursor_y text_buf)))
 					(setq cursor_x (length prev_line) cursor_y (dec cursor_y))
 					(elem-set cursor_y text_buf cat_line)
@@ -90,6 +96,12 @@
 			(setq offset_y cursor_y))
 		((>= cursor_y (+ offset_y vdu_height))
 			(setq offset_y (- cursor_y vdu_height -1))))
+  ; ensures behavior resembling other text editors when adjusting cursor_x
+  (unless (= cursor_y (dec (length text_buf)))
+    (if (and (> cursor_x sticky_x) (<= sticky_x (length (elem cursor_y text_buf))))
+      (setq cursor_x sticky_x))
+    (if (>= cursor_x (length (elem cursor_y text_buf)))
+      (setq cursor_x (length (elem cursor_y text_buf)))))
 	;load the vdu display
 	(vdu-load vdu text_buf offset_x offset_y cursor_x cursor_y))
 
