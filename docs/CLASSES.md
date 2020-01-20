@@ -1728,6 +1728,18 @@ r1-r14
 
 ### font::get_metrics -> gui/font/get_metrics
 
+```lisp
+inputs
+r0 = font object (ptr)
+outputs
+r0 = font object (ptr)
+r1 = ascent (pixels)
+r2 = descent (pixels)
+r3 = height (pixels)
+trashes
+r1-r4
+```
+
 ### font::glyph_data -> gui/font/glyph_data
 
 ```lisp
