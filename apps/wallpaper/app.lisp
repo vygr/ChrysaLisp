@@ -25,8 +25,10 @@
 ;distribution is expressed or implied by the works' original copyright holder.
 
 (defq images '("apps/wallpaper/wallpaper640x480.cpm"
-	"apps/wallpaper/wallpaper1280x1024.cpm" "apps/wallpaper/wallpaper1920x1080.cpm")
-	images_info (map canvas-info images) wallpaper (create-view) screen (penv (gui-add-back wallpaper)))
+	"apps/wallpaper/wallpaper1280x1024.cpm" "apps/wallpaper/wallpaper1920x1080.cpm"))
+
+(import 'user/pupa.inc)
+(defq images_info (map canvas-info images) wallpaper (create-view) screen (penv (gui-add-back wallpaper)))
 
 (refresh-wallpaper)
 (while t

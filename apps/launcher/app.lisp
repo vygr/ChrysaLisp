@@ -10,8 +10,7 @@
 	"images" "films" "canvas" "raymarch" "pcb" "calculator" "chess" "clock" "edit")
 	auto_app_list '("wallpaper" "clock" "terminal"))
 
-; TODO - change above into default lists in a seperate file
-; with a personalized pupa file for users.
+(import 'user/pupa.inc)
 
 (defun-bind app-path (_)
 	(cat "apps/" _ "/app.lisp"))
