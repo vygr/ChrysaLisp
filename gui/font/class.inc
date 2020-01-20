@@ -39,12 +39,19 @@
 (def-struct-end)
 
 (def-struct 'font_path)
-	(uint 'width 'cnt)
+	(uint 'width 'len)
 (def-struct-end)
 
 (def-struct 'font_path_element)
 	(uint 'type)
+(def-struct-end)
+
+(def-struct 'font_line_element 'font_path_element)
 	(int 'x 'y)
+(def-struct-end)
+
+(def-struct 'font_curve_element 'font_line_element)
+	(int 'x1 'y1 'x2 'y2)
 (def-struct-end)
 
 (defcvar 'font_max_word_cache 1024)

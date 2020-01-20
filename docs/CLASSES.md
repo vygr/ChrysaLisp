@@ -1763,7 +1763,7 @@ outputs
 r0 = font object (ptr)
 r1 = glyph info array object (ptr)
 trashes
-r1-r14
+r1-r8
 ```
 
 ### font::glyph_bounds -> gui/font/glyph_bounds

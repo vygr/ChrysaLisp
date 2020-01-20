@@ -195,7 +195,9 @@
 			(assign `((,this font_data)) `(,data))
 			(vp-add-cr str_data data)
 			(vp-add-rr c data)
-			(goto 'exit)
+
+			(exit 'font 'glyph_data `(,this ,data))
+			(vp-ret)
 		(endif)
 		(vp-sub-rr start end)
 		(vp-add-cr 1 end)
@@ -204,7 +206,6 @@
 	(endswitch)
 	(vp-xor-rr data data)
 
-(vp-label 'exit)
 	(exit 'font 'glyph_data `(,this ,data))
 	(vp-ret)
 
@@ -218,28 +219,24 @@
 	;r0 = font object (ptr)
 	;r1 = glyph info array object (ptr)
 	;trashes
-	;r1-r14
+	;r1-r8
 
-	(ptr 'this 'info 'gi)
-	(pubyte 'data)
-	(uint 'len 'c)
+	(vp-def (this utf8 info data c) '(r6 r7 r8 r7 r1))
 
-	(push-scope)
-	(entry 'font 'glyph_info {this, info})
+	(entry 'font 'glyph_info `(,this ,utf8))
 
-	(assign {&info->str_data} {data})
-	(call 'str 'get_length {info} {_, len})
-	(call 'array 'create nil {info})
-	(call 'array 'set_capacity {info, len})
-	(loop-while {*data})
-		(call 'sys_str 'read_utf8 {data} {data, c})
-		(call 'font 'glyph_data {this, c} {_, gi})
-		(call 'array 'push_back {info, gi})
+	(call 'array 'create nil `(,info))
+	(call 'array 'set_capacity `(,info (,utf8 str_length)) `(,info))
+	(assign `((& ,utf8 str_data)) `(,data))
+	(loop-start)
+		(call 'sys_str 'read_utf8 `(,data) `(,data ,c))
+		(breakif `(,c = 0))
+		(call 'font 'glyph_data `(,this ,c) `(_ ,c))
+		(call 'array 'push_back `(,info ,c))
 	(loop-end)
 
-	(exit 'font 'glyph_info {this, info})
-	(pop-scope)
-	(return)
+	(exit 'font 'glyph_info `(,this ,info))
+	(vp-ret)
 
 (def-func-end)
 
@@ -311,41 +308,38 @@
 		(assign {*iter_begin} {data})
 		(vpif {data})
 			(assign {data->font_path_width} {width})
-			(assign {data->font_path_cnt * font_path_element_size} {data_end})
-			(assign {data + font_path_size} {data})
-			(assign {data + data_end} {data_end})
+			(assign {data->font_path_len} {data_end})
+			(assign {((data + font_path_size) => data) + data_end} {data_end})
 			(assign {ox, oy} {pos_x, pos_y})
 			(loop-while {data /= data_end})
 				(assign {data->font_path_element_type} {c})
-				(assign {(data->font_path_element_x + ox) * this->font_pixels >>> 8} {x})
-				(assign {(data->font_path_element_y + oy) * this->font_pixels >>> 8} {y})
-				(assign {data + font_path_element_size} {data})
+				(assign {(data->font_line_element_x + ox) * this->font_pixels >>> 8} {x})
+				(assign {(data->font_line_element_y + oy) * this->font_pixels >>> 8} {y})
 				(switch)
 				(vpcase {c = 0})
 					;moveto
 					(call 'points 'create nil {path})
 					(call 'points 'push_back2 {path, x, y})
 					(call 'vector 'push_back {paths, path})
-					(assign {x, y} {pos_x, pos_y})
+					(assign {x, y, data + font_line_element_size} {pos_x, pos_y, data})
 					(break)
 				(vpcase {c = 1})
 					;lineto
 					(call 'points 'push_back2 {path, x, y})
-					(assign {x, y} {pos_x, pos_y})
+					(assign {x, y, data + font_line_element_size} {pos_x, pos_y, data})
 					(break)
 				(vpcase {c = 2})
 					;curveto
 					(call 'points 'pop_back2 {path})
 					(call 'points 'gen_cubic {path, stack, pos_x, pos_y, x, y,
-						(data->font_path_element_x + ox) * this->font_pixels >>> 8,
-						(data->font_path_element_y + oy) * this->font_pixels >>> 8,
-						((data + font_path_element_size).font_path_element_x + ox) * this->font_pixels >>> 8,
-						((data + font_path_element_size).font_path_element_y + oy) * this->font_pixels >>> 8,
+						(data->font_curve_element_x1 + ox) * this->font_pixels >>> 8,
+						(data->font_curve_element_y1 + oy) * this->font_pixels >>> 8,
+						(data->font_curve_element_x2 + ox) * this->font_pixels >>> 8,
+						(data->font_curve_element_y2 + oy) * this->font_pixels >>> 8,
 						0.25})
-					(assign {data + font_path_element_size} {data})
-					(assign {(data->font_path_element_x + ox) * this->font_pixels >>> 8} {pos_x})
-					(assign {(data->font_path_element_y + oy) * this->font_pixels >>> 8} {pos_y})
-					(assign {data + font_path_element_size} {data})
+					(assign {(data->font_curve_element_x2 + ox) * this->font_pixels >>> 8} {pos_x})
+					(assign {(data->font_curve_element_y2 + oy) * this->font_pixels >>> 8} {pos_y})
+					(assign {data + font_curve_element_size} {data})
 				(endswitch)
 			(loop-end)
 			(assign {ox + width + gap} {ox})
