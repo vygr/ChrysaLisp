@@ -53,7 +53,7 @@
 ; inline methods
 ;;;;;;;;;;;;;;;;
 
-(defcfun class/font/get_metrics ()
+(defcfun gui/font/get_metrics ()
 	;inputs
 	;r0 = font object (ptr)
 	;outputs
@@ -68,7 +68,7 @@
 	(assign '((r3 font_data_ascent) (r3 font_data_descent)) '(r1 r2))
 	(vp-mul-rr r4 r1)
 	(vp-mul-rr r4 r2)
-	(assign '((& r1 r2) '(r3)))
+	(assign '((& r1 r2)) '(r3))
 	(vp-shr-cr 24 r1)
 	(vp-shr-cr 24 r2)
 	(vp-shr-cr 24 r3))

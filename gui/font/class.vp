@@ -122,19 +122,20 @@
 	;trashes
 	;r1-r14
 
-	(ptr 'this)
+	(entry 'font 'deinit '(r0))
 
-	(push-scope)
-	(entry 'font 'deinit {this})
-
-	(call 'vector 'deref_if {this->font_chars})
-	(call 'hmap 'deref {this->font_word_map})
-	(call 'str 'deref {this->font_name})
-	(call 'str 'deref {this->font_data})
+	(vp-push r0)
+	(call 'vector 'deref_if '((r0 font_chars)))
+	(assign '((rsp 0)) '(r0))
+	(call 'hmap 'deref '((r0 font_word_map)))
+	(assign '((rsp 0)) '(r0))
+	(call 'str 'deref '((r0 font_name)))
+	(assign '((rsp 0)) '(r0))
+	(call 'str 'deref '((r0 font_data)))
+	(vp-pop r0)
 
 	;deinit parent
-	(s-jump 'font 'deinit {this})
-	(pop-scope-syms)
+	(s-jump 'font 'deinit '(r0))
 
 (def-func-end)
 
@@ -146,33 +147,38 @@
 	;r0 = font object (ptr)
 	;r1 = 0, else glyph data pointer (ptr)
 	;trashes
-	;r1-r14
+	;r1-r4
 
-	(ptr 'this)
-	(puint 'data)
-	(uint 'c 'start 'end)
+	(vp-def (this data c start end))
 
-	(push-scope)
-	(entry 'font 'glyph_data {this, c})
+	(entry 'font 'glyph_data `(,this ,c))
 
-	(assign {&this->font_data->str_data + font_data_size} {data})
+	(assign `((,this font_data)) `(,data))
+	(vp-add-cr (+ str_data font_data_size) data)
 	(loop-start)
-		(assign {data->font_page_end} {end})
-		(breakifnot {end})
-		(assign {data->font_page_start} {start})
-		(assign {data + font_page_size} {data})
-		(vpifnot {c < start || c > end})
-			(assign {&this->font_data->str_data + data[(c - start) * int_size]} {data})
+		(assign `((,data font_page_end)) `(,end))
+		(breakif `(,end = 0))
+		(assign `((,data font_page_start)) `(,start))
+		(vp-add-cr font_page_size data)
+		(vpif `(,c >= ,start) `(,c <= ,end))
+			(vp-sub-rr start c)
+			(vp-shl-cr (log2 int_size) c)
+			(assign `((,data ,c ui)) `(,c))
+			(assign `((,this font_data)) `(,data))
+			(vp-add-cr str_data data)
+			(vp-add-rr c data)
 			(goto 'exit)
 		(endif)
-		(assign {data + (end - start + 1) * int_size} {data})
+		(vp-sub-rr start end)
+		(vp-add-cr 1 end)
+		(vp-shl-cr (log2 int_size) end)
+		(vp-add-rr end data)
 	(endswitch)
-	(assign {0} {data})
+	(vp-xor-rr data data)
 
 (vp-label 'exit)
-	(exit 'font 'glyph_data {this, data})
-	(pop-scope)
-	(return)
+	(exit 'font 'glyph_data `(,this ,data))
+	(vp-ret)
 
 (def-func-end)
 
@@ -268,7 +274,7 @@
 	(entry 'font 'glyph_paths {this, stack, info})
 
 	(assign {&this->font_data->str_data} {iter_begin})
-	(assign {(iter_begin->font_data_ascent + iter_begin->font_data_descent) >>> 4} {gap})
+	(assign {(iter_begin->font_data_ascent + iter_begin->font_data_descent) >> 4} {gap})
 	(call 'font 'glyph_info {this, info} {_, info})
 	(call 'array 'get_both {info} {_, iter_begin, iter_end})
 	(call 'vector 'create nil {paths})
