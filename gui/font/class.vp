@@ -209,33 +209,6 @@
 
 (def-func-end)
 
-(def-method 'font 'get_metrics)
-	;inputs
-	;r0 = font object (ptr)
-	;outputs
-	;r0 = font object (ptr)
-	;r1 = ascent (pixels)
-	;r2 = descent (pixels)
-	;r3 = height (pixels)
-	;trashes
-	;r1-r14
-
-	(ptr 'this 'data)
-
-	(push-scope)
-	(entry 'font 'get_metrics {this})
-
-	(assign {&this->font_data->str_data} {data})
-
-	(exit 'font 'get_metrics {this,
-		data->font_data_ascent * this->font_pixels >> 24,
-		data->font_data_descent * this->font_pixels >> 24,
-		(data->font_data_ascent + data->font_data_descent) * this->font_pixels >> 24})
-	(pop-scope)
-	(return)
-
-(def-func-end)
-
 (def-method 'font 'glyph_bounds)
 	;inputs
 	;r0 = font object (ptr)
