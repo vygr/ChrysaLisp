@@ -21,7 +21,7 @@
 		(ui-element _ (create-flow) ('color argb_green)
 			(ui-element _ (create-label) ('text "Tasks" 'color argb_white))
 			(ui-element _ (create-grid) ('grid_width 4 'grid_height 1 'color argb_white
-					'font (create-font "fonts/Hack-Regular.ttf" 14))
+					'font (create-font-ctf "fonts/Hack-Regular.ctf" 14))
 				(times 4 (push task_scale (ui-element _ (create-label)
 					('text "|" 'flow_flags (logior flow_flag_align_vcenter flow_flag_align_hright))))))
 			(ui-element _ (create-grid) ('grid_width 1 'grid_height cpu_total)
@@ -29,7 +29,7 @@
 		(ui-element _ (create-flow) ('color argb_red)
 			(ui-element _ (create-label) ('text "Memory (kb)" 'color argb_white))
 			(ui-element _ (create-grid) ('grid_width 4 'grid_height 1 'color argb_white
-					'font (create-font "fonts/Hack-Regular.ttf" 14))
+					'font (create-font-ctf "fonts/Hack-Regular.ctf" 14))
 				(times 4 (push memory_scale (ui-element _ (create-label)
 					('text "|" 'flow_flags (logior flow_flag_align_vcenter flow_flag_align_hright))))))
 			(ui-element _ (create-grid) ('grid_width 1 'grid_height cpu_total)

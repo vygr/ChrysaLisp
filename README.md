@@ -141,18 +141,16 @@ An example network viewed with ps looks like this for a 4x4 mesh network:
 Take a look at the `docs/INTRO.md` for instructions to get started on all the
 supported platforms.
 
-The experimental GUI requires the **SDL2** and **SDL2_TTF** libraries to be
-installed.
+The experimental GUI requires the **SDL2** library to be installed.
 
-Download these from the SDL and SDL_TTF web sites.
+Download these from the SDL web site.
 
 - [SDL](https://www.libsdl.org/download-2.0.php)
-- [SDL_TTF](https://www.libsdl.org/projects/SDL_ttf/)
 
 Or get them via your package manager.
 
 ```
-sudo apt-get install libsdl2-ttf-dev
+sudo apt-get install libsdl2-dev
 ```
 
 ## Make/Run/Stop

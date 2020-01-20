@@ -17,9 +17,9 @@
 
 (ui-tree window (create-window window_flag_close) ('color argb_black)
 	(ui-element vdu (create-vdu) ('vdu_width 38 'vdu_height 12 'ink_color argb_cyan
-		'font (create-font "fonts/Hack-Regular.ttf" 16)))
+		'font (create-font-ctf "fonts/Hack-Regular.ctf" 16)))
 	(ui-element chess_grid (create-grid) ('grid_width 8 'grid_height 8
-			'font (create-font "fonts/Chess.ttf" 42) 'border 1 'text " ")
+			'font (create-font-ctf "fonts/Chess.ctf" 42) 'border 1 'text " ")
 		(each (lambda (i)
 			(if (= (logand (+ i (>> i 3)) 1) 0)
 				(defq paper argb_white ink argb_black)

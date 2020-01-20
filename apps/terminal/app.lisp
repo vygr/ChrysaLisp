@@ -10,7 +10,7 @@
 
 (ui-tree window (create-window (logior window_flag_close window_flag_status)) ('color 0xc0000000)
 	(ui-element vdu (create-vdu) ('vdu_width vdu_width 'vdu_height vdu_height 'ink_color argb_green
-		'font (create-font "fonts/Hack-Regular.ttf" 16))))
+		'font (create-font-ctf "fonts/Hack-Regular.ctf" 16))))
 
 (gui-add (apply view-change (cat (list window 448 16)
 	(view-pref-size (window-set-title (window-set-status

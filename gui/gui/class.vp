@@ -92,7 +92,6 @@
 		;init sdl2
 		(host-call 'host 'sdl_set_main_ready)
 		(host-call 'host 'sdl_init {SDL_INIT_VIDEO | SDL_INIT_EVENTS})
-		(host-call 'host 'ttf_init)
 
 		;create window
 		(host-call 'host 'sdl_create_window
@@ -253,7 +252,6 @@
 	;destroy any window
 	(vpif {user->local_statics->gui_statics_window})
 		(host-call 'host 'sdl_destroy_window {user->local_statics->gui_statics_window})
-		(host-call 'host 'ttf_quit)
 		(host-call 'host 'sdl_quit)
 	(endif)
 

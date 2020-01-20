@@ -21,7 +21,7 @@
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
-	(defq in (method-input 'font 'create))
+	(defq in (method-input 'font 'open))
 	(class/vector/bind_args r1 in '(str num))
 	(call 'font 'open in '(r0))
 	(vpif '(r0 = 0))
@@ -36,7 +36,41 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r0 "(create-font name points)" error_msg_wrong_types r1))
+	(jump 'lisp 'repl_error '(r0 "(create-font-ctf name pixels)" error_msg_wrong_types r1))
 	(signature '(str num)))
+
+(def-func-end)
+
+(def-method 'font 'lisp_glyph_paths)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(entry 'font 'lisp_glyph_paths '(r0 r1))
+
+(errorcases
+	(call 'lisp 'env_args_type '(r1 ($ sig) 2) '(r2))
+	(gotoif '(r2 = 0) 'error))
+
+	(vp-push r0)
+	(defq in (method-input 'font 'glyph_paths))
+	(class/vector/bind_args r1 in '(font _ obj))
+	(assign '((rsp 0)) `(,(elem 1 in)))
+	(assign `((,(elem 1 in) lisp_stack)) `(,(elem 1 in)))
+	(call 'font 'glyph_paths in '(_ r1))
+	(vp-pop r0)
+
+	(exit 'font 'lisp_glyph_paths '(r0 r1))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r0 "(font-glyph-paths font str)" error_msg_wrong_types r1))
+	(signature '(font str)))
 
 (def-func-end)

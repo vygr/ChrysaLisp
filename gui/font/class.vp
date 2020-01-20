@@ -8,6 +8,9 @@
 (include 'class/pair/class.inc)
 (include 'sys/pii/class.inc)
 (include 'gui/gui/class.inc)
+(include 'gui/points/class.inc)
+(include 'gui/canvas/class.inc)
+(include 'gui/ctx/class.inc)
 
 (gen-create 'font)
 (gen-vtable 'font)
@@ -20,18 +23,18 @@
 
 (def-method 'font 'open)
 	;r0 = name c string (pubyte)
-	;r1 = font size (points)
+	;r1 = font size (pixels)
 	;outputs
 	;r0 = 0 if error, else font object (ptr)
 	;trashes
 	;r0-r14
 
-	(ptr 'this 'name 'flat_set)
+	(ptr 'this 'name 'flat_set 'data)
 	(pptr 'iter_begin 'iter_end)
-	(uint 'points)
+	(uint 'pixels)
 
 	(push-scope)
-	(entry 'font 'open {name, points})
+	(entry 'font 'open {name, pixels})
 
 	(assign (cat {@} (f-path 'font 'statics) {.font_statics_intern}) {flat_set})
 	(vpifnot {flat_set})
@@ -41,15 +44,17 @@
 
 	;intern font
 	(call 'vector 'get_both {flat_set} {_, iter_begin, iter_end})
+	(assign {0} {data})
 	(loop-while {iter_begin /= iter_end})
 		(assign {*iter_begin} {this})
-		(vpif {this->font_points = points})
-			(call 'sys_str 'compare {this->font_name->str_data, name})
-			(gotoif `(,(method-output 'sys_str 'compare 0) = 0) 'found)
+		(call 'sys_str 'compare {&this->font_name->str_data, name})
+		(vpif `(,(method-output 'sys_str 'compare 0) = 0))
+			(assign {this->font_data} {data})
+			(gotoif {this->font_pixels = pixels} 'found)
 		(endif)
 		(assign {iter_begin + ptr_size} {iter_begin})
 	(loop-end)
-	(call 'font 'create {name, points} {this})
+	(call 'font 'create {name, data, pixels} {this})
 	(vpif {this})
 		(call 'vector 'push_back {flat_set, this})
 	(vp-label 'found)
@@ -62,69 +67,49 @@
 
 (def-func-end)
 
-(def-method 'font 'init 16)
+(def-method 'font 'init)
 	;inputs
 	;r0 = font object (ptr)
 	;r1 = vtable (pptr)
 	;r2 = name c string (pubyte)
-	;r3 = font size (points)
+	;r3 = 0, else ctf data string object (ptr)
+	;r4 = font size (pixels)
 	;outputs
 	;r0 = font object (ptr)
 	;r1 = 0 if error, else ok
 	;trashes
 	;r1-r14
 
-	(ptr 'this 'name)
+	(ptr 'this 'name 'data)
 	(union
 		(ptr 'vtable)
 		(ulong 'ok))
-	(uint 'points)
+	(uint 'pixels)
 
 	(push-scope)
-	(entry 'font 'init {this, vtable, name, points})
+	(entry 'font 'init {this, vtable, name, data, pixels})
 
 	;init parent
 	(s-call 'font 'init {this, vtable} {_, ok})
 	(vpif {ok})
 		;init state
-		(assign {0, points} {this->font_chars, this->font_points})
+		(assign {0, pixels} {this->font_chars, this->font_pixels})
 		(call 'sym 'intern_cstr {name} {this->font_name})
 		(call 'hmap 'create (cat {@} (f-path 'sym 'same) {, 61}) {this->font_word_map})
-
-		;kernel callback for open
-		(call 'sys_task 'callback {this, $open_callback})
-		(vpifnot {this->font_handle})
-			(call 'str 'deref {this->font_name})
-			(call 'hmap 'deref {this->font_word_map})
-			(assign {0} {ok})
+		(vpif {data})
+			(call 'str 'ref {data} {this->font_data})
+		(else)
+			(call 'str 'create_from_file {name} {this->font_data})
+			(vpifnot {this->font_data})
+				(call 'str 'deref {this->font_name})
+				(call 'hmap 'deref {this->font_word_map})
+				(assign {0} {ok})
+			(endif)
 		(endif)
 	(endif)
 
 	(exit 'font 'init {this, ok})
 	(pop-scope)
-	(return)
-
-(vp-label 'open_callback)
-	;inputs
-	;r0 = user data
-
-	(ptr 'user 'old_stack)
-
-	(vp-cpy-rr rsp r1)
-	(push-scope)
-	(vp-and-cr -16 rsp)
-	(entry {user, old_stack})
-
-	(host-call 'host 'ttf_open_font {&user->font_name->str_data, user->font_points} {user->font_handle})
-	(vpif {user->font_handle})
-		;fill in ascent, descent and height
-		(host-call 'host 'ttf_font_ascent {user->font_handle} {user->font_ascent})
-		(host-call 'host 'ttf_font_descent {user->font_handle} {user->font_descent})
-		(host-call 'host 'ttf_font_height {user->font_handle} {user->font_height})
-	(endif)
-
-	(assign {old_stack} '(rsp))
-	(pop-scope-syms)
 	(return)
 
 (def-func-end)
@@ -137,48 +122,249 @@
 	;trashes
 	;r1-r14
 
-	(ptr 'this)
+	(entry 'font 'deinit '(r0))
 
-	(push-scope)
-	(entry 'font 'deinit {this})
-
-	(call 'vector 'deref_if {this->font_chars})
-	(call 'hmap 'deref {this->font_word_map})
-	(call 'str 'deref {this->font_name})
-	(call 'sys_task 'callback {this, $close_callback})
+	(vp-push r0)
+	(call 'vector 'deref_if '((r0 font_chars)))
+	(assign '((rsp 0)) '(r0))
+	(call 'hmap 'deref '((r0 font_word_map)))
+	(assign '((rsp 0)) '(r0))
+	(call 'str 'deref '((r0 font_name)))
+	(assign '((rsp 0)) '(r0))
+	(call 'str 'deref '((r0 font_data)))
+	(vp-pop r0)
 
 	;deinit parent
-	(s-jump 'font 'deinit {this})
+	(s-jump 'font 'deinit '(r0))
 
-	(pop-scope-syms)
+(def-func-end)
 
-(vp-label 'close_callback)
+(def-method 'font 'get_metrics)
 	;inputs
-	;r0 = user data
+	;r0 = font object (ptr)
+	;outputs
+	;r0 = font object (ptr)
+	;r1 = ascent (pixels)
+	;r2 = descent (pixels)
+	;r3 = height (pixels)
+	;trashes
+	;r1-r4
 
-	(entry 'sys_task 'task_callback '(r0))
+	(entry 'font 'get_metrics '(r0))
 
-	(host-call 'host 'ttf_close_font '((r0 font_handle)))
+	(assign '((r0 font_data) (r0 font_pixels)) '(r3 r4))
+	(vp-add-cr str_data r3)
+	(assign '((r3 font_data_ascent) (r3 font_data_descent)) '(r1 r2))
+	(vp-mul-rr r4 r1)
+	(vp-mul-rr r4 r2)
+	(assign '((& r1 r2)) '(r3))
+	(vp-shr-cr 24 r1)
+	(vp-shr-cr 24 r2)
+	(vp-shr-cr 24 r3)
+
+	(exit 'font 'get_metrics '(r0 r1 r2 r3))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'font 'ref_word 16)
+(def-method 'font 'glyph_data)
 	;inputs
 	;r0 = font object (ptr)
-	;r1 = str object (ptr)
+	;r1 = char code (uint)
+	;outputs
+	;r0 = font object (ptr)
+	;r1 = 0, else glyph data pointer (ptr)
+	;trashes
+	;r1-r4
+
+	(vp-def (this data c start end))
+
+	(entry 'font 'glyph_data `(,this ,c))
+
+	(assign `((,this font_data)) `(,data))
+	(vp-add-cr (+ str_data font_data_size) data)
+	(loop-start)
+		(assign `((,data font_page_end)) `(,end))
+		(breakif `(,end = 0))
+		(assign `((,data font_page_start)) `(,start))
+		(vp-add-cr font_page_size data)
+		(vpif `(,c >= ,start) `(,c <= ,end))
+			(vp-sub-rr start c)
+			(vp-shl-cr (log2 int_size) c)
+			(assign `((,data ,c ui)) `(,c))
+			(assign `((,this font_data)) `(,data))
+			(vp-add-cr str_data data)
+			(vp-add-rr c data)
+
+			(exit 'font 'glyph_data `(,this ,data))
+			(vp-ret)
+		(endif)
+		(vp-sub-rr start end)
+		(vp-add-cr 1 end)
+		(vp-shl-cr (log2 int_size) end)
+		(vp-add-rr end data)
+	(endswitch)
+	(vp-xor-rr data data)
+
+	(exit 'font 'glyph_data `(,this ,data))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'font 'glyph_info)
+	;inputs
+	;r0 = font object (ptr)
+	;r1 = utf8 encoded str object (ptr)
+	;outputs
+	;r0 = font object (ptr)
+	;r1 = glyph info array object (ptr)
+	;trashes
+	;r1-r8
+
+	(vp-def (this utf8 info data c) '(r6 r7 r8 r7 r1))
+
+	(entry 'font 'glyph_info `(,this ,utf8))
+
+	(call 'array 'create nil `(,info))
+	(call 'array 'set_capacity `(,info (,utf8 str_length)) `(,info))
+	(assign `((& ,utf8 str_data)) `(,data))
+	(loop-start)
+		(call 'sys_str 'read_utf8 `(,data) `(,data ,c))
+		(breakif `(,c = 0))
+		(call 'font 'glyph_data `(,this ,c) `(_ ,c))
+		(call 'array 'push_back `(,info ,c))
+	(loop-end)
+
+	(exit 'font 'glyph_info `(,this ,info))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'font 'glyph_bounds)
+	;inputs
+	;r0 = font object (ptr)
+	;r1 = utf8 encoded str object (ptr)
+	;outputs
+	;r0 = font object (ptr)
+	;r1 = width (pixels)
+	;r2 = height (pixels)
+	;trashes
+	;r1-r14
+
+	(ptr 'this 'info)
+	(pptr 'iter_begin 'iter_end)
+	(uint 'w 'h 'gap)
+
+	(push-scope)
+	(entry 'font 'glyph_bounds {this, info})
+
+	(assign {&this->font_data->str_data} {iter_begin})
+	(assign {iter_begin->font_data_ascent + iter_begin->font_data_descent} {h})
+	(assign {h >> 4} {gap})
+	(assign {gap} {w})
+
+	(call 'font 'glyph_info {this, info} {_, info})
+	(call 'array 'get_both {info} {_, iter_begin, iter_end})
+	(loop-while {iter_begin /= iter_end})
+		(vpif {*iter_begin})
+			(assign {w + (*iter_begin)->font_path_width + gap} {w})
+		(endif)
+		(assign {iter_begin + ptr_size} {iter_begin})
+	(loop-end)
+	(call 'array 'deref {info})
+
+	(exit 'font 'glyph_bounds {this, (w * this->font_pixels >>> 24) + 1, h * this->font_pixels >>> 24})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-method 'font 'glyph_paths)
+	;inputs
+	;r0 = font object (ptr)
+	;r1 = stack array object (ptr)
+	;r2 = utf8 encoded str object (ptr)
+	;outputs
+	;r0 = font object (ptr)
+	;r1 = glyph paths vector object (ptr)
+	;trashes
+	;r1-r14
+
+	(ptr 'this 'stack 'paths 'path 'info)
+	(pptr 'iter_begin 'iter_end)
+	(puint 'data 'data_end)
+	(int 'x 'y 'pos_x 'pos_y 'width 'gap 'c 'ox 'oy)
+
+	(push-scope)
+	(entry 'font 'glyph_paths {this, stack, info})
+
+	(assign {&this->font_data->str_data} {iter_begin})
+	(assign {(iter_begin->font_data_ascent + iter_begin->font_data_descent) >> 4} {gap})
+	(call 'font 'glyph_info {this, info} {_, info})
+	(call 'array 'get_both {info} {_, iter_begin, iter_end})
+	(call 'vector 'create nil {paths})
+	(assign {gap, 0} {ox, oy})
+	(loop-while {iter_begin /= iter_end})
+		(assign {*iter_begin} {data})
+		(vpif {data})
+			(assign {data->font_path_width} {width})
+			(assign {data->font_path_len} {data_end})
+			(assign {((data + font_path_size) => data) + data_end} {data_end})
+			(assign {ox, oy} {pos_x, pos_y})
+			(loop-while {data /= data_end})
+				(assign {data->font_path_element_type} {c})
+				(assign {(data->font_line_element_x + ox) * this->font_pixels >>> 8} {x})
+				(assign {(data->font_line_element_y + oy) * this->font_pixels >>> 8} {y})
+				(switch)
+				(vpcase {c = 0})
+					;moveto
+					(call 'points 'create nil {path})
+					(call 'points 'push_back2 {path, x, y})
+					(call 'vector 'push_back {paths, path})
+					(assign {x, y, data + font_line_element_size} {pos_x, pos_y, data})
+					(break)
+				(vpcase {c = 1})
+					;lineto
+					(call 'points 'push_back2 {path, x, y})
+					(assign {x, y, data + font_line_element_size} {pos_x, pos_y, data})
+					(break)
+				(vpcase {c = 2})
+					;curveto
+					(call 'points 'pop_back2 {path})
+					(call 'points 'gen_cubic {path, stack, pos_x, pos_y, x, y,
+						(data->font_curve_element_x1 + ox) * this->font_pixels >>> 8,
+						(data->font_curve_element_y1 + oy) * this->font_pixels >>> 8,
+						(data->font_curve_element_x2 + ox) * this->font_pixels >>> 8,
+						(data->font_curve_element_y2 + oy) * this->font_pixels >>> 8,
+						0.25})
+					(assign {(data->font_curve_element_x2 + ox) * this->font_pixels >>> 8} {pos_x})
+					(assign {(data->font_curve_element_y2 + oy) * this->font_pixels >>> 8} {pos_y})
+					(assign {data + font_curve_element_size} {data})
+				(endswitch)
+			(loop-end)
+			(assign {ox + width + gap} {ox})
+		(endif)
+		(assign {iter_begin + ptr_size} {iter_begin})
+	(loop-end)
+	(call 'array 'deref {info})
+
+	(exit 'font 'glyph_paths {this, paths})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-method 'font 'ref_word)
+	;inputs
+	;r0 = font object (ptr)
+	;r1 = utf8 encoded str object (ptr)
 	;outputs
 	;r0 = font object (ptr)
 	;r1 = 0, else texture object (ptr)
 	;trashes
 	;r1-r14
 
-	(def-struct 'local)
-		(ptr 'this 'word 'txt)
-		(uint 'w 'h)
-	(def-struct-end)
-
-	(ptr 'this 'word 'txt)
+	(ptr 'this 'word 'txt 'word_canvas 'paths 'stack)
 	(uint 'w 'h)
 	(union
 		(ptr 'font_statics)
@@ -190,13 +376,28 @@
 	;look up string in word map
 	(call 'hmap 'find {this->font_word_map, word} {_, iter, bucket})
 	(vpifnot {iter})
-		;kernel callback for word texture creation
-		(assign {0} {txt})
-		(call 'sys_task 'callback {&this, $word_callback})
+		;create word canvas
+		(call 'array 'create nil {stack})
+		(call 'font 'glyph_bounds {this, word} {_, w, h})
+		(call 'canvas 'create {w, h, 1} {word_canvas})
+		(assign {argb_white, 1} {word_canvas->canvas_color, word_canvas->canvas_flags})
+		(call 'font 'glyph_paths {this, stack, word} {_, paths})
+		(call 'canvas 'fill {word_canvas, 0})
+		(call 'font 'get_metrics {this} {_, h, _, _})
+		(call 'canvas 'fpoly {word_canvas, 0, h << fp_shift, 0, paths})
+		(call 'canvas 'swap {word_canvas})
+
+		;take texture from canvas
+		(assign {word_canvas->canvas_texture} {txt})
+		(assign {0} {word_canvas->canvas_texture})
+
+		;free all the gubins
+		(call 'canvas 'deref {word_canvas})
+		(call 'array 'deref {stack})
+		(call 'vector 'deref {paths})
 		(breakifnot {txt})
 
 		;create new entry
-		(call 'texture 'create {txt, w, h} {txt})
 		(call 'sym 'ref {word})
 		(call 'pair 'create {word, txt} {iter})
 		(call 'vector 'push_back {bucket, iter})
@@ -213,33 +414,6 @@
 
 	(exit 'font 'ref_word {this, txt})
 	(pop-scope)
-	(return)
-
-(vp-label 'word_callback)
-	;inputs
-	;r0 = user data
-
-	(ptr 'user 'surface 'old_stack)
-
-	(vp-cpy-rr rsp r1)
-	(push-scope)
-	(vp-and-cr -16 rsp)
-	(entry {user, old_stack})
-
-	(host-call 'host 'ttf_render_utf8_blended {user->local_this->font_handle, &user->local_word->str_data, 0xffffff} {surface})
-	(vpif {surface})
-		;create word texture
-		(host-call 'host 'sdl_create_texture_from_surface (cat {@} (f-path 'gui 'statics) {.gui_statics_renderer, surface}) {user->local_txt})
-		(vpif {user->local_txt})
-			;texture blend mode and save details
-			(host-call 'host 'sdl_set_texture_blend_mode {user->local_txt, SDL_BLENDMODE_BLEND})
-			(assign {surface->sdl_surface_w, surface->sdl_surface_h} {user->local_w, user->local_h})
-		(endif)
-		(host-call 'host 'sdl_free_surface {surface})
-	(endif)
-
-	(assign {old_stack} '(rsp))
-	(pop-scope-syms)
 	(return)
 
 (def-func-end)

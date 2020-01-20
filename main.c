@@ -15,7 +15,6 @@
 #endif
 
 #include <SDL.h>
-#include <SDL_ttf.h>
 
 enum
 {
@@ -278,16 +277,6 @@ SDL_ComposeCustomBlendMode,
 SDL_CreateTexture,
 SDL_SetRenderTarget,
 SDL_RenderClear,
-
-TTF_Init,
-TTF_Quit,
-TTF_OpenFont,
-TTF_CloseFont,
-TTF_SizeUTF8,
-TTF_FontAscent,
-TTF_FontDescent,
-TTF_FontHeight,
-TTF_RenderUTF8_Blended,
 
 exit,
 mystat,

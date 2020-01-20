@@ -19,10 +19,10 @@ boot:
 
 obj/$(CPU)/$(ABI)/$(OS)/main:	obj/$(CPU)/$(ABI)/$(OS)/main.o
 ifeq ($(OS),Darwin)
-			cc -o $@ $@.o -F/Library/Frameworks -Wl,-framework,SDL2 -Wl,-framework,SDL2_ttf
+			cc -o $@ $@.o -F/Library/Frameworks -Wl,-framework,SDL2 -Wl
 endif
 ifeq ($(OS),Linux)
-			cc -o $@ $@.o $(shell sdl2-config --libs) -lSDL2_ttf
+			cc -o $@ $@.o $(shell sdl2-config --libs)
 endif
 
 obj/$(CPU)/$(ABI)/$(OS)/main.o:	main.c Makefile
@@ -33,7 +33,6 @@ obj/$(CPU)/$(ABI)/$(OS)/main.o:	main.c Makefile
 ifeq ($(OS),Darwin)
 			cc -c -nostdlib -fno-exceptions \
 				-I/Library/Frameworks/SDL2.framework/Headers/ \
-				-I/Library/Frameworks/SDL2_ttf.framework/Headers/ \
 				-o $@ $<
 endif
 ifeq ($(OS),Linux)

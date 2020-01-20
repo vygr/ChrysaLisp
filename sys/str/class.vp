@@ -152,3 +152,70 @@
 	(vp-ret)
 
 (def-func-end)
+
+(def-method 'sys_str 'read_utf8)
+	;inputs
+	;r0 = utf8 data pointer (pubyte)
+	;outputs
+	;r0 = utf8 data pointer (pubyte)
+	;r1 = utf8 char (uint)
+	;trashes
+	;r0-r2
+
+	(vp-def (utf8 c m))
+
+	(defun-bind next-utf8 (cnt)
+		(vp-and-cr (>> 0b00111111 cnt) c)
+		(defq i -1)
+		(while (/= (setq i (inc i)) cnt)
+			(vp-cpy-ir-ub utf8 i m)
+			(vp-shl-cr 6 c)
+			(vp-and-cr 0b00111111 m)
+			(vp-add-rr m c))
+		(vp-add-cr (* cnt byte_size) utf8))
+
+	(entry 'sys_str 'read_utf8 `(,utf8))
+
+	(vp-cpy-ir-ub utf8 0 c)
+	(vp-add-cr byte_size utf8)
+	(vp-cpy-rr c m)
+	(vp-and-cr 0b10000000 m)
+	(vpif `(,m /= 0))
+		;not 1 byte
+		(vp-cpy-rr c m)
+		(vp-and-cr 0b11100000 m)
+		(vpif `(,m /= 0b11000000))
+			;not 2 byte
+			(vp-cpy-rr c m)
+			(vp-and-cr 0b11110000 m)
+			(vpif `(,m /= 0b11100000))
+				;not 3 byte
+				(vp-cpy-rr c m)
+				(vp-and-cr 0b11111000 m)
+				(vpif `(,m /= 0b11110000))
+					;not 4 byte
+					(vp-xor-rr c c)
+
+					(exit 'sys_str 'read_utf8 `(,utf8 ,c))
+					(vp-ret)
+				(endif)
+				;4 byte
+				(next-utf8 3)
+
+				(exit 'sys_str 'read_utf8 `(,utf8 ,c))
+				(vp-ret)
+			(endif)
+			;3 byte
+			(next-utf8 2)
+
+			(exit 'sys_str 'read_utf8 `(,utf8 ,c))
+			(vp-ret)
+		(endif)
+		;2 byte
+		(next-utf8 1)
+	(endif)
+
+	(exit 'sys_str 'read_utf8 `(,utf8 ,c))
+	(vp-ret)
+
+(def-func-end)

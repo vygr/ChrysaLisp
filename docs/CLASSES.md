@@ -1373,7 +1373,7 @@ inputs
 r0 = component object (ptr)
 r1 = static sym num (uint)
 r2 = font c string name (pubyte)
-r3 = font size (points)
+r3 = font size (pixels)
 outputs
 r0 = component object (ptr)
 trashes
@@ -1669,7 +1669,7 @@ font static data
 
 ```lisp
 r0 = name c string (pubyte)
-r1 = font size (points)
+r1 = font size (pixels)
 outputs
 r0 = 0 if error, else font object (ptr)
 trashes
@@ -1685,7 +1685,8 @@ inputs
 r0 = font object (ptr)
 r1 = vtable (pptr)
 r2 = name c string (pubyte)
-r3 = font size (points)
+r3 = 0, else ctf data string object (ptr)
+r4 = font size (pixels)
 outputs
 r0 = font object (ptr)
 r1 = 0 if error, else ok
@@ -1705,7 +1706,7 @@ r0-r14
 ```lisp
 inputs
 r0 = font object (ptr)
-r1 = str object (ptr)
+r1 = utf8 encoded str object (ptr)
 outputs
 r0 = font object (ptr)
 r1 = 0, else texture object (ptr)
@@ -1736,7 +1737,61 @@ r1 = ascent (pixels)
 r2 = descent (pixels)
 r3 = height (pixels)
 trashes
-r1-r3
+r1-r4
+```
+
+### font::glyph_data -> gui/font/glyph_data
+
+```lisp
+inputs
+r0 = font object (ptr)
+r1 = char code (uint)
+outputs
+r0 = font object (ptr)
+r1 = 0, else glyph data pointer (ptr)
+trashes
+r1-r4
+```
+
+### font::glyph_info -> gui/font/glyph_info
+
+```lisp
+inputs
+r0 = font object (ptr)
+r1 = utf8 encoded str object (ptr)
+outputs
+r0 = font object (ptr)
+r1 = glyph info array object (ptr)
+trashes
+r1-r8
+```
+
+### font::glyph_bounds -> gui/font/glyph_bounds
+
+```lisp
+inputs
+r0 = font object (ptr)
+r1 = utf8 encoded str object (ptr)
+outputs
+r0 = font object (ptr)
+r1 = width (pixels)
+r2 = height (pixels)
+trashes
+r1-r14
+```
+
+### font::glyph_paths -> gui/font/glyph_paths
+
+```lisp
+inputs
+r0 = font object (ptr)
+r1 = stack array object (ptr)
+r2 = utf8 encoded str object (ptr)
+outputs
+r0 = font object (ptr)
+r1 = glyph paths vector object (ptr)
+trashes
+r1-r14
 ```
 
 ### font::deinit -> gui/font/deinit
@@ -1751,6 +1806,19 @@ r1-r14
 ```
 
 ### font::lisp_create -> gui/font/lisp_create
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### font::lisp_glyph_paths -> gui/font/lisp_glyph_paths
 
 ```lisp
 inputs
@@ -2169,24 +2237,6 @@ Super Class: null
 ### host::sdl_set_render_target -> nil
 
 ### host::sdl_render_clear -> nil
-
-### host::ttf_init -> nil
-
-### host::ttf_quit -> nil
-
-### host::ttf_open_font -> nil
-
-### host::ttf_close_font -> nil
-
-### host::ttf_size_utf8 -> nil
-
-### host::ttf_font_ascent -> nil
-
-### host::ttf_font_descent -> nil
-
-### host::ttf_font_height -> nil
-
-### host::ttf_render_utf8_blended -> nil
 
 ### host::exit -> nil
 
@@ -7223,6 +7273,18 @@ outputs
 r0 = c string buffer end (pubyte)
 trashes
 r0-r4
+```
+
+### sys_str::read_utf8 -> sys/str/read_utf8
+
+```lisp
+inputs
+r0 = utf8 data pointer (pubyte)
+outputs
+r0 = utf8 data pointer (pubyte)
+r1 = utf8 char (uint)
+trashes
+r0-r2
 ```
 
 ## sys_task

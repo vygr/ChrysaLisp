@@ -27,17 +27,35 @@ corrupted.
 
 ------
 
+Implement ChrysaLisp font rendering, decoded TTF/OTF files into new CTF
+ChrysaLisp format glyph data and render using ChrysaLisp's points and canvas
+classes.
+
+I'll publish the TTF/OTF format convertor as a separate Github repo once I tidy
+up the code. I've done that as a C++14, Qt app.
+
+So there is no dependancy on the SDL_ttf or libttf or libfree_type libs
+anymore.
+
+Further work needed to lower some of this code to VP, currently this takes an
+extra 3KB of boot_image and that could come down a little.
+
+As this if very fresh code, baked over a weekend hack, let me know if any odd
+things show up.
+
+------
+
 Added a software float number class `class/real/class.*` and low level support
-in `sys/math/class.vp` that suports a 32:32 mantisa:exp format, a good
+in `sys/math/class.vp` that supports a 32:32 mantisa:exp format, a good
 compromise between IEEE 32 and 64 bit formats but simple enough to be quick to
 do in software.
 
 As you can see my approach to this was to create a test app `cmd/real.lisp` to
-prove out the idea, then I created the same basic code in VP, folowed by the
-Lisp level funtionality and Lisp bindings in the class library.
+prove out the idea, then I created the same basic code in VP, followed by the
+Lisp level functionality and Lisp bindings in the class library.
 
 There are a few basic extras to add yet, and I'd like to do a demo of this by
-providing an option for the Raymarch demo, or perhaps do somthing like a
+providing an option for the Raymarch demo, or perhaps do something like a
 Mandelbrot demo, to use fixed or real math. But I've got some text area support
 to add to the VDU class first for Nuclearfalls's text editor. ;)
 

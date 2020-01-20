@@ -19,7 +19,7 @@
 	(ui-element _ (create-flow) ('flow_flags (logior flow_flag_down flow_flag_fillw flow_flag_lasth)
 			'color toolbar_col)
 		(ui-element _ (create-flow) ('flow_flags (logior flow_flag_right flow_flag_fillh)
-				'font (create-font "fonts/Entypo.otf" 32))
+				'font (create-font-ctf "fonts/Entypo.ctf" 32))
 			(component-connect (ui-element _ (create-button) ('text "")) event_win_prev)
 			(component-connect (ui-element _ (create-button) ('text "")) event_win_next))
 		(ui-element image_scroll (create-scroll (logior scroll_flag_vertical scroll_flag_horizontal))

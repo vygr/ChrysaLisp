@@ -276,9 +276,9 @@
 
 (create-flow)
 
-## create-font
+## create-font-ctf
 
-(create-font name points)
+(create-font-ctf name pixels)
 
 ## create-grid
 
@@ -471,6 +471,10 @@
 ## fnc?
 
 (fnc? form) -> bool
+
+## font-glyph-paths
+
+(font-glyph-paths font str)
 
 ## frac
 
