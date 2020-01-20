@@ -218,6 +218,4 @@
 	(exit 'sys_str 'read_utf8 `(,utf8 ,c))
 	(vp-ret)
 
-(setq *debug_emit* t)
 (def-func-end)
-(setq *debug_emit* nil)
