@@ -214,7 +214,6 @@ ends-with
 if
 inc
 let
-minus
 opt
 or
 rcurry
