@@ -1766,20 +1766,6 @@ trashes
 r1-r8
 ```
 
-### font::glyph_bounds -> gui/font/glyph_bounds
-
-```lisp
-inputs
-r0 = font object (ptr)
-r1 = glyph info array object (ptr)
-outputs
-r0 = font object (ptr)
-r1 = width (pixels)
-r2 = height (pixels)
-trashes
-r1-r14
-```
-
 ### font::glyph_paths -> gui/font/glyph_paths
 
 ```lisp
