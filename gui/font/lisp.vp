@@ -36,7 +36,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r0 "(create-font-ctf name pixels)" error_msg_wrong_types r1))
+	(jump 'lisp 'repl_error '(r0 "(create-font name pixels)" error_msg_wrong_types r1))
 	(signature '(str num)))
 
 (def-func-end)
@@ -51,21 +51,28 @@
 	;trashes
 	;r1-r14
 
+	(def-struct 'local)
+		(ptr 'this 'info 'paths)
+	(def-struct-end)
+
 	(entry 'font 'lisp_glyph_paths '(r0 r1))
 
 (errorcases
 	(call 'lisp 'env_args_type '(r1 ($ sig) 2) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
-	(vp-push r0)
-	(defq in (method-input 'font 'glyph_paths))
-	(class/vector/bind_args r1 in '(font _ obj))
-	(assign '((rsp 0)) `(,(elem 1 in)))
-	(assign `((,(elem 1 in) lisp_stack)) `(,(elem 1 in)))
-	(call 'font 'glyph_paths in '(_ r1))
-	(vp-pop r0)
+	(vp-alloc local_size)
+	(defq in1 (method-input 'font 'glyph_info)
+		in2 (method-input 'font 'glyph_paths))
+	(class/vector/bind_args r1 in1 '(font obj))
+	(call 'font 'glyph_info in1 `(,(elem 0 in2) ,(elem 2 in2)))
+	(assign `((rsp local_this) ,(elem 2 in2)) `(,(elem 1 in2) (rsp local_info)))
+	(assign `((,(elem 1 in2) lisp_stack)) `(,(elem 1 in2)))
+	(call 'font 'glyph_paths in2 '(_ (rsp local_paths) _ _))
+	(call 'array 'deref '((rsp local_info)))
 
-	(exit 'font 'lisp_glyph_paths '(r0 r1))
+	(exit 'font 'lisp_glyph_paths '((rsp local_this) (rsp local_paths)))
+	(vp-free local_size)
 	(vp-ret)
 
 (errorcases

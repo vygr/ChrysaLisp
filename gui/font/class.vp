@@ -243,7 +243,7 @@
 (def-method 'font 'glyph_bounds)
 	;inputs
 	;r0 = font object (ptr)
-	;r1 = utf8 encoded str object (ptr)
+	;r1 = glyph info array object (ptr)
 	;outputs
 	;r0 = font object (ptr)
 	;r1 = width (pixels)
@@ -263,7 +263,6 @@
 	(assign {h >> 4} {gap})
 	(assign {gap} {w})
 
-	(call 'font 'glyph_info {this, info} {_, info})
 	(call 'array 'get_both {info} {_, iter_begin, iter_end})
 	(loop-while {iter_begin /= iter_end})
 		(vpif {*iter_begin})
@@ -271,9 +270,8 @@
 		(endif)
 		(assign {iter_begin + ptr_size} {iter_begin})
 	(loop-end)
-	(call 'array 'deref {info})
 
-	(exit 'font 'glyph_bounds {this, (w * this->font_pixels >>> 24) + 1, h * this->font_pixels >>> 24})
+	(exit 'font 'glyph_bounds {this, (w * this->font_pixels >> 24) + 1, h * this->font_pixels >> 24})
 	(pop-scope)
 	(return)
 
@@ -283,27 +281,29 @@
 	;inputs
 	;r0 = font object (ptr)
 	;r1 = stack array object (ptr)
-	;r2 = utf8 encoded str object (ptr)
+	;r2 = glyph info array object (ptr)
 	;outputs
 	;r0 = font object (ptr)
 	;r1 = glyph paths vector object (ptr)
+	;r2 = width (pixels)
+	;r3 = height (pixels)
 	;trashes
 	;r1-r14
 
 	(ptr 'this 'stack 'paths 'path 'info)
 	(pptr 'iter_begin 'iter_end)
 	(puint 'data 'data_end)
-	(int 'x 'y 'pos_x 'pos_y 'width 'gap 'c 'ox 'oy)
+	(int 'x 'y 'pos_x 'pos_y 'c)
+	(uint 'width 'gap 'ox 'oy)
 
 	(push-scope)
 	(entry 'font 'glyph_paths {this, stack, info})
 
 	(assign {&this->font_data->str_data} {iter_begin})
 	(assign {(iter_begin->font_data_ascent + iter_begin->font_data_descent) >> 4} {gap})
-	(call 'font 'glyph_info {this, info} {_, info})
-	(call 'array 'get_both {info} {_, iter_begin, iter_end})
 	(call 'vector 'create nil {paths})
 	(assign {gap, 0} {ox, oy})
+	(call 'array 'get_both {info} {_, iter_begin, iter_end})
 	(loop-while {iter_begin /= iter_end})
 		(assign {*iter_begin} {data})
 		(vpif {data})
@@ -346,9 +346,9 @@
 		(endif)
 		(assign {iter_begin + ptr_size} {iter_begin})
 	(loop-end)
-	(call 'array 'deref {info})
+	(assign {&this->font_data->str_data} {iter_begin})
 
-	(exit 'font 'glyph_paths {this, paths})
+	(exit 'font 'glyph_paths {this, paths, (ox * this->font_pixels >> 24) + 1, ((iter_begin->font_data_ascent + iter_begin->font_data_descent) * this->font_pixels) >> 24})
 	(pop-scope)
 	(return)
 
@@ -364,7 +364,7 @@
 	;trashes
 	;r1-r14
 
-	(ptr 'this 'word 'txt 'word_canvas 'paths 'stack)
+	(ptr 'this 'word 'txt 'word_canvas 'paths 'stack 'info)
 	(uint 'w 'h)
 	(union
 		(ptr 'font_statics)
@@ -378,22 +378,23 @@
 	(vpifnot {iter})
 		;create word canvas
 		(call 'array 'create nil {stack})
-		(call 'font 'glyph_bounds {this, word} {_, w, h})
+		(call 'font 'glyph_info {this, word} {_, info})
+		(call 'font 'glyph_paths {this, stack, info} {_, paths, w, h})
 		(call 'canvas 'create {w, h, 1} {word_canvas})
-		(assign {argb_white, 1} {word_canvas->canvas_color, word_canvas->canvas_flags})
-		(call 'font 'glyph_paths {this, stack, word} {_, paths})
 		(call 'canvas 'fill {word_canvas, 0})
+		(assign {argb_white, 1} {word_canvas->canvas_color, word_canvas->canvas_flags})
 		(call 'font 'get_metrics {this} {_, h, _, _})
 		(call 'canvas 'fpoly {word_canvas, 0, h << fp_shift, 0, paths})
-		(call 'canvas 'swap {word_canvas})
 
 		;take texture from canvas
+		(call 'canvas 'swap {word_canvas})
 		(assign {word_canvas->canvas_texture} {txt})
 		(assign {0} {word_canvas->canvas_texture})
 
 		;free all the gubins
 		(call 'canvas 'deref {word_canvas})
 		(call 'array 'deref {stack})
+		(call 'array 'deref {info})
 		(call 'vector 'deref {paths})
 		(breakifnot {txt})
 

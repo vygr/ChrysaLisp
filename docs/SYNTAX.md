@@ -276,9 +276,9 @@
 
 (create-flow)
 
-## create-font-ctf
+## create-font
 
-(create-font-ctf name pixels)
+(create-font name pixels)
 
 ## create-grid
 

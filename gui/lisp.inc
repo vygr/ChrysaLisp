@@ -70,7 +70,7 @@
 (ffi vdu-print "gui/vdu/lisp_print" 0)
 (ffi vdu-load "gui/vdu/lisp_load" 0)
 
-(ffi create-font-ctf "gui/font/lisp_create" 0)
+(ffi create-font "gui/font/lisp_create" 0)
 (ffi font-glyph-paths "gui/font/lisp_glyph_paths" 0)
 
 (import 'gui/view/lisp.inc)

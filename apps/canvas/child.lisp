@@ -7,7 +7,19 @@
 ;read args from parent
 (bind '(canvas canvas_width canvas_height canvas_scale) (mail-read (task-mailbox)))
 
-(defq eps 0.25 angle 0.0)
+(defq eps 0.25 angle 0.0 font (create-font "fonts/OpenSans-Regular.ctf" 72)
+	fp1 (font-glyph-paths font "__Glyphs!")
+	fp2 (font-glyph-paths font "__Easy!")
+	fp3 (font-glyph-paths font "__Simple!")
+	fp4 (font-glyph-paths font "__Quality!"))
+
+(defun-bind transform-copy (_ angle)
+	(defq sa (fsin angle) ca (fcos angle))
+	(map (lambda (_)
+		(points-transform (cat _) _
+			(fmul canvas_scale ca) (fmul canvas_scale (neg sa))
+			(fmul canvas_scale sa) (fmul canvas_scale ca)
+			(fmul canvas_width canvas_scale 0.5) (fmul canvas_height canvas_scale 0.5))) _))
 
 (defun-bind transform (_ angle)
 	(defq sa (fsin angle) ca (fcos angle))
@@ -83,6 +95,11 @@
 						(fmul canvas_width 0o0.1) eps (points)))
 				(list)) (list)) angle)))
 	(fpoly 0xa0ffffff 0 (list (elem 1 polygons) (elem 3 polygons)))
+
+	(fpoly 0xff000000 0 (transform-copy fp1 angle))
+	(fpoly 0xff000000 0 (transform-copy fp2 (+ angle fp_pi)))
+	(fpoly 0xffffffff 0 (transform-copy fp3 (+ angle fp_hpi)))
+	(fpoly 0xffffffff 0 (transform-copy fp4 (+ angle (neg fp_hpi))))
 
 	(canvas-swap canvas))
 

@@ -36,7 +36,7 @@
 
 (ui-tree window (create-window window_flag_close) ('color argb_black)
 	(ui-element _ (create-flow) ('flow_flags (logior flow_flag_right flow_flag_fillh flow_flag_lastw)
-		'font (create-font-ctf "fonts/Hack-Regular.ctf" 16))
+		'font (create-font "fonts/Hack-Regular.ctf" 16))
 		(ui-element index_scroll (create-scroll scroll_flag_vertical) ('color slider_col)
 			(ui-element index (create-flow) ('flow_flags (logior flow_flag_down flow_flag_fillw)
 				'color argb_white)))

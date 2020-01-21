@@ -1771,7 +1771,7 @@ r1-r8
 ```lisp
 inputs
 r0 = font object (ptr)
-r1 = utf8 encoded str object (ptr)
+r1 = glyph info array object (ptr)
 outputs
 r0 = font object (ptr)
 r1 = width (pixels)
@@ -1786,10 +1786,12 @@ r1-r14
 inputs
 r0 = font object (ptr)
 r1 = stack array object (ptr)
-r2 = utf8 encoded str object (ptr)
+r2 = glyph info array object (ptr)
 outputs
 r0 = font object (ptr)
 r1 = glyph paths vector object (ptr)
+r2 = width (pixels)
+r3 = height (pixels)
 trashes
 r1-r14
 ```
