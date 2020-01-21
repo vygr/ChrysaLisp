@@ -12,7 +12,6 @@
 (dec-method 'get_metrics 'gui/font/get_metrics 'static '(r0) '(r0 r1 r2 r3))
 (dec-method 'glyph_data 'gui/font/glyph_data 'static '(r0 r1) '(r0 r1))
 (dec-method 'glyph_info 'gui/font/glyph_info 'static '(r0 r1) '(r0 r1))
-(dec-method 'glyph_bounds 'gui/font/glyph_bounds 'static '(r0 r1) '(r0 r1 r2))
 (dec-method 'glyph_paths 'gui/font/glyph_paths 'static '(r0 r1 r2) '(r0 r1 r2 r3))
 
 (dec-method 'deinit 'gui/font/deinit 'final)

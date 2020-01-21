@@ -240,43 +240,6 @@
 
 (def-func-end)
 
-(def-method 'font 'glyph_bounds)
-	;inputs
-	;r0 = font object (ptr)
-	;r1 = glyph info array object (ptr)
-	;outputs
-	;r0 = font object (ptr)
-	;r1 = width (pixels)
-	;r2 = height (pixels)
-	;trashes
-	;r1-r14
-
-	(ptr 'this 'info)
-	(pptr 'iter_begin 'iter_end)
-	(uint 'w 'h 'gap)
-
-	(push-scope)
-	(entry 'font 'glyph_bounds {this, info})
-
-	(assign {&this->font_data->str_data} {iter_begin})
-	(assign {iter_begin->font_data_ascent + iter_begin->font_data_descent} {h})
-	(assign {h >> 4} {gap})
-	(assign {gap} {w})
-
-	(call 'array 'get_both {info} {_, iter_begin, iter_end})
-	(loop-while {iter_begin /= iter_end})
-		(vpif {*iter_begin})
-			(assign {w + (*iter_begin)->font_path_width + gap} {w})
-		(endif)
-		(assign {iter_begin + ptr_size} {iter_begin})
-	(loop-end)
-
-	(exit 'font 'glyph_bounds {this, (w * this->font_pixels >> 24) + 1, h * this->font_pixels >> 24})
-	(pop-scope)
-	(return)
-
-(def-func-end)
-
 (def-method 'font 'glyph_paths)
 	;inputs
 	;r0 = font object (ptr)
@@ -290,10 +253,18 @@
 	;trashes
 	;r1-r14
 
+	(defun-bind trans_xy (rx ry)
+		(vp-add-rr ox rx)
+		(vp-add-rr oy ry)
+		(vp-mul-rr pixels rx)
+		(vp-mul-rr pixels ry)
+		(vp-asr-cr 8 rx)
+		(vp-asr-cr 8 ry))
+
 	(ptr 'this 'stack 'paths 'path 'info)
 	(pptr 'iter_begin 'iter_end)
 	(puint 'data 'data_end)
-	(int 'x 'y 'pos_x 'pos_y 'c)
+	(int 'x 'y 'pos_x 'pos_y)
 	(uint 'width 'gap 'ox 'oy)
 
 	(push-scope)
@@ -307,40 +278,53 @@
 	(loop-while {iter_begin /= iter_end})
 		(assign {*iter_begin} {data})
 		(vpif {data})
-			(assign {data->font_path_width} {width})
-			(assign {data->font_path_len} {data_end})
-			(assign {((data + font_path_size) => data) + data_end} {data_end})
-			(assign {ox, oy} {pos_x, pos_y})
-			(loop-while {data /= data_end})
-				(assign {data->font_path_element_type} {c})
-				(assign {(data->font_line_element_x + ox) * this->font_pixels >>> 8} {x})
-				(assign {(data->font_line_element_y + oy) * this->font_pixels >>> 8} {y})
+			(vp-def (data ox oy data_end width x y c pixels))
+			(assign {data, ox, oy} `(,data ,ox ,oy))
+			(assign `((,data font_path_width) (,data font_path_len)) `(,width ,data_end))
+			(vp-add-cr font_path_size data)
+			(vp-add-rr data data_end)
+			(assign `(,data ,data_end ,ox ,oy ,width) {data, data_end, pos_x, pos_y, width})
+
+			(loop-while `(,data /= ,data_end))
+				(assign {this->font_pixels} `(,pixels))
+				(assign `((,data font_path_element_type) (,data font_line_element_x) (,data font_line_element_y)) `(,c ,x ,y))
+				(trans_xy x y)
+				(assign `(,x ,y) {x, y})
+
 				(switch)
-				(vpcase {c = 0})
+				(vpcase `(,c = 0))
 					;moveto
 					(call 'points 'create nil {path})
 					(call 'points 'push_back2 {path, x, y})
 					(call 'vector 'push_back {paths, path})
 					(assign {x, y, data + font_line_element_size} {pos_x, pos_y, data})
 					(break)
-				(vpcase {c = 1})
+				(vpcase `(,c = 1))
 					;lineto
 					(call 'points 'push_back2 {path, x, y})
 					(assign {x, y, data + font_line_element_size} {pos_x, pos_y, data})
 					(break)
-				(vpcase {c = 2})
+				(vpcase `(,c = 2))
 					;curveto
 					(call 'points 'pop_back2 {path})
-					(call 'points 'gen_cubic {path, stack, pos_x, pos_y, x, y,
-						(data->font_curve_element_x1 + ox) * this->font_pixels >>> 8,
-						(data->font_curve_element_y1 + oy) * this->font_pixels >>> 8,
-						(data->font_curve_element_x2 + ox) * this->font_pixels >>> 8,
-						(data->font_curve_element_y2 + oy) * this->font_pixels >>> 8,
-						0.25})
-					(assign {(data->font_curve_element_x2 + ox) * this->font_pixels >>> 8} {pos_x})
-					(assign {(data->font_curve_element_y2 + oy) * this->font_pixels >>> 8} {pos_y})
-					(assign {data + font_curve_element_size} {data})
+					(vp-def (path stack pos_x pos_y x y x1 y1 x2 y2 eps data ox oy pixels)
+						(method-input 'points 'gen_cubic))
+					(assign {data, path, stack, pos_x, pos_y, x, y, 0.25, ox, oy, this->font_pixels}
+						`(,data ,path ,stack ,pos_x ,pos_y ,x ,y ,eps ,ox ,oy ,pixels))
+					(assign `((,data font_curve_element_x1) (,data font_curve_element_y1)
+						(,data font_curve_element_x2) (,data font_curve_element_y2)) `(,x1 ,y1 ,x2 ,y2))
+					(trans_xy x1 y1)
+					(trans_xy x2 y2)
+					(call 'points 'gen_cubic `(,path ,stack ,pos_x ,pos_y ,x ,y ,x1 ,y1 ,x2 ,y2 ,eps))
+
+					(assign {data, ox, oy, this->font_pixels} `(,data ,ox ,oy ,pixels))
+					(assign `((,data font_curve_element_x2) (,data font_curve_element_y2)) `(,x2 ,y2))
+					(trans_xy x2 y2)
+					(vp-add-cr font_curve_element_size data)
+					(assign `(,x2 ,y2 ,data) {pos_x, pos_y, data})
 				(endswitch)
+				(vp-def (data ox oy data_end))
+				(assign {data, data_end, ox, oy} `(,data ,data_end ,ox ,oy))
 			(loop-end)
 			(assign {ox + width + gap} {ox})
 		(endif)
