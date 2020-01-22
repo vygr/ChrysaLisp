@@ -1,0 +1,79 @@
+(include 'sys/func.inc)
+(include 'gui/gui/class.inc)
+(include 'gui/textfield/class.inc)
+(include 'gui/flow/class.inc)
+(include 'class/sym/class.inc)
+
+(gen-create 'textfield)
+(gen-vtable 'textfield)
+
+(def-method 'textfield 'init)
+	;inputs
+	;r0 = textfield object (ptr)
+	;r1 = vtable (pptr)
+	;outputs
+	;r0 = textfield object (ptr)
+	;r1 = 0 if error, else ok
+	;trashes
+	;r1-r14
+
+	(entry 'textfield 'init '(r0 r1))
+
+	;init parent
+	(s-call 'textfield 'init '(r0 r1) '(r0 r1))
+	(vpif '(r1 /= 0))
+		;init myself
+		(call 'textfield 'set_long_prop '(r0 static_sym_border -2) '(r0))
+		(call 'textfield 'set_long_prop '(r0 static_sym_flow_flags (logior flow_flag_right flow_flag_align_vcenter)) '(r0))
+		(vp-cpy-cr 1 r1)
+	(endif)
+
+	(exit 'textfield 'init '(r0 r1))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'textfield 'key_down)
+	;inputs
+	;r0 = textfield object (ptr)
+	;r1 = mouse event data (ptr)
+	;outputs
+	;r0 = textfield object (ptr)
+	;trashes
+	;r1-r14
+
+	(ptr 'this 'event 'text 'c)
+	(uint 'key)
+
+	(push-scope)
+	(entry 'textfield 'key_down {this, event})
+
+	;edit actions
+	(call 'textfield 'get_prop {this, static_sym_text} {_, text})
+	(assign {event->ev_msg_key_key} {key})
+	(switch)
+	(vpcase {key = 10 || key = 13})
+		;enter action
+		(jump 'textfield 'emit {this})
+	(vpcase {key = 8})
+		;backspace
+		(breakif {text->str_length = 0})
+		(call 'str 'slice {text, 0, text->str_length - 1} {_, text})
+		(goto 'refresh)
+	(vpcase {key >= 32 && key <= 127})
+		;append key
+		(call 'str 'create_from_buffer {&key, 1} {c})
+		(call 'str 'append {text, c} {text})
+		(call 'str 'deref {c})
+	(vp-label 'refresh)
+		(call 'textfield 'set_str_prop {this, static_sym_text, &text->str_data})
+		(call 'str 'deref {text})
+		(call 'textfield 'layout {this})
+		(call 'textfield 'dirty {this})
+	(endswitch)
+
+	(exit 'textfield 'key_down {this})
+	(pop-scope)
+	(return)
+
+(def-func-end)

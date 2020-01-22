@@ -2,27 +2,21 @@
 (import 'sys/lisp.inc)
 (import 'class/lisp.inc)
 (import 'gui/lisp.inc)
+(import 'apps/login/pupa.inc)
 
 (structure 'event 0
 	(byte 'win_button))
-
-(defq app_list '("terminal" "debug" "help" "docs" "netmon" "stats" "boing" "freeball"
-	"images" "films" "canvas" "raymarch" "pcb" "calculator" "chess" "clock" "edit")
-	auto_app_list '("wallpaper" "clock" "terminal"))
-
-; TODO - change above into default lists in a seperate file
-; with a personalized pupa file for users.
 
 (defun-bind app-path (_)
 	(cat "apps/" _ "/app.lisp"))
 
 (each (lambda (_)
-	(open-child (app-path _) kn_call_open)) auto_app_list)
+	(open-child (app-path _) kn_call_open)) *env_launcher_auto_apps*)
 
 (ui-tree window (create-window 0) nil
 	(ui-element _ (create-flow) ('flow_flags (logior flow_flag_down flow_flag_fillw) 'color toolbar_col)
 		(each (lambda (path)
-			(component-connect (ui-element _ (create-button) ('text path)) event_win_button)) app_list)))
+			(component-connect (ui-element _ (create-button) ('text path)) event_win_button)) *env_launcher_apps*)))
 
 (bind '(w h) (view-pref-size (window-set-title window "Launcher")))
 (gui-add (view-change window 16 16 (+ w 32) h))

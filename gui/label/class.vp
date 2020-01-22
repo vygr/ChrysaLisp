@@ -80,6 +80,9 @@
 	(entry 'label 'layout '(r0))
 
 	(call 'label 'get_long_prop '(r0 static_sym_border) '(r0 r1))
+	(vpif '(r1 < 0))
+		(vp-mul-cr -1 r1)
+	(endif)
 	(assign '((r0 view_w) (r0 view_h) r1) '(r9 r10 r2))
 	(vp-add-rr r2 r2)
 	(vp-sub-rr r2 r9)
@@ -111,7 +114,8 @@
 
 	(def-struct 'local)
 		(ptr 'this)
-		(uint 'depth 'mw 'mh)
+		(int 'depth)
+		(uint 'mw 'mh)
 	(def-struct-end)
 
 	(vp-alloc local_size)
@@ -122,7 +126,10 @@
 	(call 'label 'get_long_prop '(r0 static_sym_min_width) '(r0 (rsp local_mw)))
 	(call 'label 'get_long_prop '(r0 static_sym_min_height) '(r0 (rsp local_mh)))
 	(call 'flow 'pref_size '((r0 label_flow)) '(_ r9 r10))
-	(assign '((rsp local_mw) (rsp local_mh) (rsp local_depth)) '(r7 r8 r1))
+	(assign '((rsp local_depth) (rsp local_mw) (rsp local_mh)) '(r1 r7 r8))
+	(vpif '(r1 < 0))
+		(vp-mul-cr -1 r1)
+	(endif)
 	(vpif '(r7 > r9))
 		(vp-cpy-rr r7 r9)
 	(endif)

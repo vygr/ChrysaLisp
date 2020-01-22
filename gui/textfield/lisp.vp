@@ -1,0 +1,32 @@
+(include 'sys/func.inc)
+(include 'gui/textfield/class.inc)
+(include 'class/lisp/class.inc)
+
+(def-method 'textfield 'lisp_create)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(entry 'textfield 'lisp_create '(r0 r1))
+
+(errorcases
+	(assign '((r1 array_length)) '(r2))
+	(gotoif '(r2 /= 0) 'error))
+
+	(vp-push r0)
+	(call 'textfield 'create nil '(r1))
+	(vp-pop r0)
+
+	(exit 'textfield 'lisp_create '(r0 r1))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r0 "(create-textfield)" error_msg_wrong_num_of_args r1)))
+
+(def-func-end)

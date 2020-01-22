@@ -14,6 +14,7 @@
 (include 'gui/slider/make.inc)
 (include 'gui/scroll/make.inc)
 (include 'gui/text/make.inc)
+(include 'gui/textfield/make.inc)
 (include 'gui/texture/make.inc)
 (include 'gui/title/make.inc)
 (include 'gui/vdu/make.inc)

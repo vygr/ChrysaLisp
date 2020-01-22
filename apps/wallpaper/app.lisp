@@ -2,6 +2,7 @@
 (import 'sys/lisp.inc)
 (import 'class/lisp.inc)
 (import 'gui/lisp.inc)
+(import 'apps/login/pupa.inc)
 
 (defun-bind refresh-wallpaper ()
 	;pick nearest wallpaper to screen size
@@ -13,7 +14,7 @@
 			(setq err new_err index _ flag (if (= it 32) 0 view_flag_opaque)))) images_info)
 	(view-sub wallpaper)
 	(canvas-swap (canvas-resize (setq wallpaper (create-canvas w h 1))
-		(canvas-load (elem index images) load_flag_noswap)))
+		(canvas-load (elem index *env_wallpaper_images*) load_flag_noswap)))
 	(gui-add-back (view-change (view-set-flags wallpaper
 		(+ (const (+ view_flag_at_back view_flag_dirty_all)) flag)
 		(const (+ view_flag_at_back view_flag_dirty_all view_flag_opaque))) 0 0 w h)))
@@ -24,9 +25,8 @@
 ;which they appear. No warranty is given, and no liability for use or
 ;distribution is expressed or implied by the works' original copyright holder.
 
-(defq images '("apps/wallpaper/wallpaper640x480.cpm"
-	"apps/wallpaper/wallpaper1280x1024.cpm" "apps/wallpaper/wallpaper1920x1080.cpm")
-	images_info (map canvas-info images) wallpaper (create-view) screen (penv (gui-add-back wallpaper)))
+(defq images_info (map canvas-info *env_wallpaper_images*) wallpaper (create-view)
+	screen (penv (gui-add-back wallpaper)))
 
 (refresh-wallpaper)
 (while t

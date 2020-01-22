@@ -7585,6 +7585,52 @@ trashes
 r1-r14
 ```
 
+## textfield
+
+Super Class: label
+
+### textfield::vtable -> gui/textfield/vtable
+
+### textfield::create -> gui/textfield/create
+
+### textfield::init -> gui/textfield/init
+
+```lisp
+inputs
+r0 = textfield object (ptr)
+r1 = vtable (pptr)
+outputs
+r0 = textfield object (ptr)
+r1 = 0 if error, else ok
+trashes
+r1-r14
+```
+
+### textfield::key_down -> gui/textfield/key_down
+
+```lisp
+inputs
+r0 = textfield object (ptr)
+r1 = mouse event data (ptr)
+outputs
+r0 = textfield object (ptr)
+trashes
+r1-r14
+```
+
+### textfield::lisp_create -> gui/textfield/lisp_create
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
 ## texture
 
 Super Class: obj

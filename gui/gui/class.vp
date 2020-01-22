@@ -57,8 +57,8 @@
 	(call 'backdrop 'set_long_prop '(r0 static_sym_ink_color argb_grey1) '(r0))
 	(call 'backdrop 'set_flags '(r0 view_flag_dirty_all view_flag_dirty_all))
 
-	;for now fire up the launcher
-	(call 'sys_task 'open_child '("apps/launcher/app.lisp" kn_call_open))
+	;fire up the login app
+	(call 'sys_task 'open_child '("apps/login/app.lisp" kn_call_open))
 
 	;gui event loop
 	(loop-start)
