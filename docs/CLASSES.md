@@ -7611,7 +7611,7 @@ r1-r14
 ```lisp
 inputs
 r0 = textfield object (ptr)
-r1 = mouse event data (ptr)
+r1 = key event data (ptr)
 outputs
 r0 = textfield object (ptr)
 trashes

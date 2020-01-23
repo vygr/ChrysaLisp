@@ -2,6 +2,7 @@
 (import 'gui/lisp.inc)
 (import 'apps/terminal/pipe.inc)
 (import 'apps/terminal/input.inc)
+(import 'apps/login/pupa.inc)
 
 (structure 'event 0
 	(byte 'win_close))
@@ -16,16 +17,13 @@
 	(view-pref-size (window-set-title (window-set-status
 		(window-connect-close window event_win_close) "Ready") "Terminal")))))
 
-;prompt
-(defun-bind prompt () ">")
-
 ;override print for VDU output
 (defun-bind print (_)
 	(vdu-print vdu _))
 
 ;print line buf, truncate if needed
 (defun-bind print-line (&optional flag)
-	(defq p (if cmd "" (prompt)) g (- vdu_width (length p))
+	(defq p (if cmd "" *env_terminal_prompt*) g (- vdu_width (length p))
 		l (if flag *line_buf* (line-with-cursor)))
 	(when (> (length l) g)
 		(defq is (max 0 (- *line_pos* g -1)) ie (min (+ is g) (length l)))
@@ -67,7 +65,7 @@
 		(t	;some key
 			(print-line))))
 
-(print (cat (const (str "ChrysaLisp Terminal 1.5" (ascii-char 10))) (prompt) (line-with-cursor)))
+(print (cat (const (str "ChrysaLisp Terminal 1.5" (ascii-char 10))) *env_terminal_prompt* (line-with-cursor)))
 (while id
 	(defq data t)
 	(if cmd (setq data (pipe-read cmd)))
@@ -85,7 +83,7 @@
 			;pipe is closed
 			(pipe-close cmd)
 			(setq cmd nil)
-			(print (cat (const (ascii-char 10)) (prompt) (line-with-cursor)))
+			(print (cat (const (ascii-char 10)) *env_terminal_prompt* (line-with-cursor)))
 			(view-dirty-all (window-set-status window "Ready")))
 		(t	;string from pipe
 			(print data))))

@@ -36,7 +36,7 @@
 (def-method 'textfield 'key_down)
 	;inputs
 	;r0 = textfield object (ptr)
-	;r1 = mouse event data (ptr)
+	;r1 = key event data (ptr)
 	;outputs
 	;r0 = textfield object (ptr)
 	;trashes
@@ -69,7 +69,7 @@
 		(call 'textfield 'set_str_prop {this, static_sym_text, &text->str_data})
 		(call 'str 'deref {text})
 		(call 'textfield 'layout {this})
-		(call 'textfield 'dirty {this})
+		(jump 'textfield 'dirty {this})
 	(endswitch)
 
 	(exit 'textfield 'key_down {this})
