@@ -44,7 +44,7 @@
 
 	(entry 'text 'deinit '(r0))
 
-	;deref any words
+	;deref any syms
 	(vp-push r0)
 	(call 'vector 'deref_if '((r0 text_syms)))
 	(vp-pop r0)
@@ -62,7 +62,7 @@
 	;r1-r14
 
 	(ptr 'this 'ctx 'txt 'font 'str)
-	(pptr 'words 'words_end)
+	(pptr 'syms 'syms_end)
 	(ulong 'handle)
 	(int 'x 'w 'h)
 	(uint 'col)
@@ -82,18 +82,18 @@
 
 	;draw text
 	(vpif {this->text_string && font})
-		(call 'vector 'get_both {this->text_syms} {_, words, words_end})
-		(vpif {words /= words_end})
+		(call 'vector 'get_both {this->text_syms} {_, syms, syms_end})
+		(vpif {syms /= syms_end})
 			(assign {0} {x})
 			(loop-start)
-				(call 'font 'ref_sym {font, *words} {_, txt})
+				(call 'font 'ref_sym {font, *syms} {_, txt})
 				(vpif {txt})
 					(call 'texture 'get_metrics {txt} {_, handle, w, h})
 					(call 'ctx 'blit {ctx, handle, col, x, 0, w, h})
 					(assign {x + w + (h >> 2)} {x})
 					(call 'texture 'deref {txt})
 				(endif)
-			(loop-until {(words + ptr_size => words) = words_end})
+			(loop-until {(syms + ptr_size => syms) = syms_end})
 		(endif)
 	(endif)
 
@@ -164,7 +164,7 @@
 
 	(entry 'text 'switch_text '(r0))
 
-	;create new split words
+	;create new split syms
 	(vp-push r0)
 	(call 'vector 'deref_if '((r0 text_syms)))
 	(assign '((rsp 0)) '(r0))
