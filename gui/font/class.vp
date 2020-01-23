@@ -292,18 +292,6 @@
 				(assign `(,x ,y) {x, y})
 
 				(switch)
-				(vpcase `(,c = 0))
-					;moveto
-					(call 'points 'create nil {path})
-					(call 'points 'push_back2 {path, x, y})
-					(call 'vector 'push_back {paths, path})
-					(assign {x, y, data + font_line_element_size} {pos_x, pos_y, data})
-					(break)
-				(vpcase `(,c = 1))
-					;lineto
-					(call 'points 'push_back2 {path, x, y})
-					(assign {x, y, data + font_line_element_size} {pos_x, pos_y, data})
-					(break)
 				(vpcase `(,c = 2))
 					;curveto
 					(call 'points 'pop_back2 {path})
@@ -322,6 +310,18 @@
 					(trans_xy x2 y2)
 					(vp-add-cr font_curve_element_size data)
 					(assign `(,x2 ,y2 ,data) {pos_x, pos_y, data})
+					(break)
+				(vpcase `(,c = 1))
+					;lineto
+				(vp-label 'lineto)
+					(call 'points 'push_back2 {path, x, y})
+					(assign {x, y, data + font_line_element_size} {pos_x, pos_y, data})
+					(break)
+				(vpcase `(,c = 0))
+					;moveto
+					(call 'points 'create nil {path})
+					(call 'vector 'push_back {paths, path})
+					(goto 'lineto)
 				(endswitch)
 				(vp-def (data ox oy data_end))
 				(assign {data, data_end, ox, oy} `(,data ,data_end ,ox ,oy))
