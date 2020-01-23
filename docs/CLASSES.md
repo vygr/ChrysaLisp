@@ -1701,12 +1701,12 @@ trashes
 r0-r14
 ```
 
-### font::ref_word -> gui/font/ref_word
+### font::ref_sym -> gui/font/ref_sym
 
 ```lisp
 inputs
 r0 = font object (ptr)
-r1 = utf8 encoded str object (ptr)
+r1 = utf8 encoded sym object (ptr)
 outputs
 r0 = font object (ptr)
 r1 = 0, else texture object (ptr)
@@ -6063,6 +6063,17 @@ outputs
 r0 = interned sym object (ptr)
 trashes
 r0-r14
+```
+
+### sym::intern_strs -> class/sym/intern_strs
+
+```lisp
+inputs
+r1 = string objects vector object (ptr)
+outputs
+r1 = sym objects vector object (ptr)
+trashes
+r1-r14
 ```
 
 ### sym::lisp_sym -> class/sym/lisp_sym

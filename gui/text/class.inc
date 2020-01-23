@@ -12,5 +12,5 @@
 
 (def-struct 'text 'view)
 	(ptr 'string)
-	(ptr 'words)
+	(ptr 'syms)
 (def-struct-end)

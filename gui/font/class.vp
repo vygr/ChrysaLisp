@@ -95,14 +95,14 @@
 		;init state
 		(assign {0, pixels} {this->font_chars, this->font_pixels})
 		(call 'sym 'intern_cstr {name} {this->font_name})
-		(call 'hmap 'create (cat {@} (f-path 'sym 'same) {, 61}) {this->font_word_map})
+		(call 'hmap 'create {0, 61} {this->font_sym_map})
 		(vpif {data})
 			(call 'str 'ref {data} {this->font_data})
 		(else)
 			(call 'str 'create_from_file {name} {this->font_data})
 			(vpifnot {this->font_data})
 				(call 'str 'deref {this->font_name})
-				(call 'hmap 'deref {this->font_word_map})
+				(call 'hmap 'deref {this->font_sym_map})
 				(assign {0} {ok})
 			(endif)
 		(endif)
@@ -127,7 +127,7 @@
 	(vp-push r0)
 	(call 'vector 'deref_if '((r0 font_chars)))
 	(assign '((rsp 0)) '(r0))
-	(call 'hmap 'deref '((r0 font_word_map)))
+	(call 'hmap 'deref '((r0 font_sym_map)))
 	(assign '((rsp 0)) '(r0))
 	(call 'str 'deref '((r0 font_name)))
 	(assign '((rsp 0)) '(r0))
@@ -338,53 +338,53 @@
 
 (def-func-end)
 
-(def-method 'font 'ref_word)
+(def-method 'font 'ref_sym)
 	;inputs
 	;r0 = font object (ptr)
-	;r1 = utf8 encoded str object (ptr)
+	;r1 = utf8 encoded sym object (ptr)
 	;outputs
 	;r0 = font object (ptr)
 	;r1 = 0, else texture object (ptr)
 	;trashes
 	;r1-r14
 
-	(ptr 'this 'word 'txt 'word_canvas 'paths 'stack 'info)
+	(ptr 'this 'sym 'txt 'sym_canvas 'paths 'stack 'info)
 	(uint 'w 'h)
 	(union
 		(ptr 'font_statics)
 		(pptr 'iter 'bucket))
 
 	(push-scope)
-	(entry 'font 'ref_word {this, word})
+	(entry 'font 'ref_sym {this, sym})
 
-	;look up string in word map
-	(call 'hmap 'find {this->font_word_map, word} {_, iter, bucket})
+	;look up string in sym map
+	(call 'hmap 'find {this->font_sym_map, sym} {_, iter, bucket})
 	(vpifnot {iter})
-		;create word canvas
+		;create sym canvas
 		(call 'array 'create nil {stack})
-		(call 'font 'glyph_info {this, word} {_, info})
+		(call 'font 'glyph_info {this, sym} {_, info})
 		(call 'font 'glyph_paths {this, stack, info} {_, paths, w, h})
-		(call 'canvas 'create {w, h, 1} {word_canvas})
-		(call 'canvas 'fill {word_canvas, 0})
-		(assign {argb_white, 1} {word_canvas->canvas_color, word_canvas->canvas_flags})
+		(call 'canvas 'create {w, h, 1} {sym_canvas})
+		(call 'canvas 'fill {sym_canvas, 0})
+		(assign {argb_white, 1} {sym_canvas->canvas_color, sym_canvas->canvas_flags})
 		(call 'font 'get_metrics {this} {_, h, _, _})
-		(call 'canvas 'fpoly {word_canvas, 0, h << fp_shift, 0, paths})
+		(call 'canvas 'fpoly {sym_canvas, 0, h << fp_shift, 0, paths})
 
 		;take texture from canvas
-		(call 'canvas 'swap {word_canvas})
-		(assign {word_canvas->canvas_texture} {txt})
-		(assign {0} {word_canvas->canvas_texture})
+		(call 'canvas 'swap {sym_canvas})
+		(assign {sym_canvas->canvas_texture} {txt})
+		(assign {0} {sym_canvas->canvas_texture})
 
 		;free all the gubins
-		(call 'canvas 'deref {word_canvas})
+		(call 'canvas 'deref {sym_canvas})
 		(call 'array 'deref {stack})
 		(call 'array 'deref {info})
 		(call 'vector 'deref {paths})
 		(breakifnot {txt})
 
 		;create new entry
-		(call 'sym 'ref {word})
-		(call 'pair 'create {word, txt} {iter})
+		(call 'sym 'ref {sym})
+		(call 'pair 'create {sym, txt} {iter})
 		(call 'vector 'push_back {bucket, iter})
 		(call 'texture 'ref {txt})
 
@@ -397,7 +397,7 @@
 		(call 'pair 'ref_second {*iter} {_, txt})
 	(endif)
 
-	(exit 'font 'ref_word {this, txt})
+	(exit 'font 'ref_sym {this, txt})
 	(pop-scope)
 	(return)
 
@@ -412,7 +412,7 @@
 	;trashes
 	;r1-r14
 
-	(ptr 'this 'word 'txt 'chars)
+	(ptr 'this 'sym 'txt 'chars)
 	(uint 'code)
 
 	;save inputs
@@ -426,12 +426,12 @@
 		(call 'vector 'set_capacity {chars, 127 - 33})
 		(assign {33} {code})
 		(loop-start)
-			(call 'sym 'intern_cstr {&code} {word})
-			(call 'font 'ref_word {this, word} {_, txt})
+			(call 'sym 'intern_cstr {&code} {sym})
+			(call 'font 'ref_sym {this, sym} {_, txt})
 			(vpif {txt})
 				(call 'vector 'push_back {chars, txt})
 			(endif)
-			(call 'sym 'deref {word})
+			(call 'sym 'deref {sym})
 		(loop-until {(code + 1 => code) = 127})
 		(vpif {this->font_chars})
 			;another thread got to it during a flush !
@@ -471,12 +471,12 @@
 				(call 'vector 'deref {tmp})
 			(endif)
 		(endif)
-		(call 'hmap 'create {font->font_word_map->hset_key_callback,
-			font->font_word_map->hset_num_buckets} {new_map})
-		(call 'hmap 'for_each {font->font_word_map, $flush_callback, &new_map})
-		;during deref font_word_map could be written to !
-		(assign {font->font_word_map} {tmp})
-		(assign {new_map} {font->font_word_map})
+		(call 'hmap 'create {font->font_sym_map->hset_key_callback,
+			font->font_sym_map->hset_num_buckets} {new_map})
+		(call 'hmap 'for_each {font->font_sym_map, $flush_callback, &new_map})
+		;during deref font_sym_map could be written to !
+		(assign {font->font_sym_map} {tmp})
+		(assign {new_map} {font->font_sym_map})
 		(call 'hmap 'deref {tmp})
 		(assign {index + 1} {index})
 	(loop-end)

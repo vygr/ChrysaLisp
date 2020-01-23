@@ -7,7 +7,7 @@
 (dec-method 'create 'gui/font/create 'static '(r0 r1 r2) '(r0))
 (dec-method 'init 'gui/font/init 'static '(r0 r1 r2 r3 r4))
 (dec-method 'flush 'gui/font/flush)
-(dec-method 'ref_word 'gui/font/ref_word 'static '(r0 r1) '(r0 r1))
+(dec-method 'ref_sym 'gui/font/ref_sym 'static '(r0 r1) '(r0 r1))
 (dec-method 'ref_chars 'gui/font/ref_chars 'static '(r0) '(r0 r1))
 (dec-method 'get_metrics 'gui/font/get_metrics 'static '(r0) '(r0 r1 r2 r3))
 (dec-method 'glyph_data 'gui/font/glyph_data 'static '(r0 r1) '(r0 r1))
@@ -25,7 +25,7 @@
 (def-struct-end)
 
 (def-struct 'font 'obj)
-	(ptr 'data 'word_map 'name 'chars)
+	(ptr 'data 'sym_map 'name 'chars)
 	(uint 'pixels)
 (def-struct-end)
 
