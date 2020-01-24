@@ -7,7 +7,7 @@
 ;read args from parent
 (bind '(canvas canvas_width canvas_height canvas_scale) (mail-read (task-mailbox)))
 
-(defq eps 0.25 angle 0.0 font (create-font "fonts/OpenSans-Regular.ctf" 72)
+(defq eps 0.25 angle 0.0 font (create-font "fonts/OpenSans-Regular.ctf" 36)
 	fp1 (font-glyph-paths font "__Glyphs!")
 	fp2 (font-glyph-paths font "__Easy!")
 	fp3 (font-glyph-paths font "__Simple!")

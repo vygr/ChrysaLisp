@@ -21,7 +21,7 @@
 (def-struct 'sym 'str)
 (def-struct-end)
 
-(defcvar 'num_sym_buckets 199)
+(defcvar 'num_sym_buckets 101)
 
 ;;;;;;;;;;;;;;;;
 ; static symbols

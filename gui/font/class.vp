@@ -258,8 +258,8 @@
 		(vp-add-rr oy ry)
 		(vp-mul-rr pixels rx)
 		(vp-mul-rr pixels ry)
-		(vp-asr-cr 8 rx)
-		(vp-asr-cr 8 ry))
+		(vp-asr-cr 7 rx)
+		(vp-asr-cr 7 ry))
 
 	(ptr 'this 'stack 'paths 'path 'info)
 	(pptr 'iter_begin 'iter_end)
@@ -332,7 +332,7 @@
 	(loop-end)
 	(assign {&this->font_data->str_data} {iter_begin})
 
-	(exit 'font 'glyph_paths {this, paths, (ox * this->font_pixels >> 24) + 1, ((iter_begin->font_data_ascent + iter_begin->font_data_descent) * this->font_pixels) >> 24})
+	(exit 'font 'glyph_paths {this, paths, (ox * this->font_pixels >> 23) + 2, ((iter_begin->font_data_ascent + iter_begin->font_data_descent) * this->font_pixels) >> 23})
 	(pop-scope)
 	(return)
 
@@ -364,11 +364,11 @@
 		(call 'font 'glyph_info {this, sym} {_, info})
 		(call 'font 'glyph_paths (cat {this, @} (f-path 'sys_task 'statics)
 			{.tk_statics_current_tcb->tk_node_tls, info}) {_, paths, w, h})
-		(call 'canvas 'create {w, h, 1} {sym_canvas})
+		(call 'canvas 'create {w >> 1, h >> 1, 2} {sym_canvas})
 		(call 'canvas 'fill {sym_canvas, 0})
 		(assign {argb_white, 1} {sym_canvas->canvas_color, sym_canvas->canvas_flags})
 		(call 'font 'get_metrics {this} {_, h, _, _})
-		(call 'canvas 'fpoly {sym_canvas, 0, h << fp_shift, 0, paths})
+		(call 'canvas 'fpoly {sym_canvas, 0, h << (fp_shift + 1), 0, paths})
 
 		;take texture from canvas
 		(call 'canvas 'swap {sym_canvas})

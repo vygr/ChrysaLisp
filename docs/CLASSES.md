@@ -6074,9 +6074,9 @@ r0-r14
 
 ```lisp
 inputs
-r1 = string objects vector object (ptr)
+r1 = vector of string objects (ptr)
 outputs
-r1 = sym objects vector object (ptr)
+r1 = vector of sym objects (ptr)
 trashes
 r1-r14
 ```
