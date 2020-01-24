@@ -6041,6 +6041,9 @@ outputs
 r0 = interned sym object (ptr)
 trashes
 r0-r14
+info
+input sym IS derefed
+vtable MUST be a sym
 ```
 
 ### sym::intern_str -> class/sym/intern_str
@@ -6052,6 +6055,8 @@ outputs
 r0 = interned sym object (ptr)
 trashes
 r0-r14
+info
+input str IS NOT derefed
 ```
 
 ### sym::intern_cstr -> class/sym/intern_cstr

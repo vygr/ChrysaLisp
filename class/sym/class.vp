@@ -73,6 +73,9 @@
 	;r0 = interned sym object (ptr)
 	;trashes
 	;r0-r14
+	;info
+	;input sym IS derefed
+	;vtable MUST be a sym
 
 	(entry 'sym 'intern '(r0))
 
@@ -103,6 +106,8 @@
 	;r0 = interned sym object (ptr)
 	;trashes
 	;r0-r14
+	;info
+	;input str IS NOT derefed
 
 	(entry 'sym 'intern_str '(r0))
 
