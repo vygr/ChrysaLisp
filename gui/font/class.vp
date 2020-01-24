@@ -338,7 +338,45 @@
 
 (def-func-end)
 
-(def-method 'font 'ref_sym)
+(def-method 'font 'glyph_bounds)
+	;inputs
+	;r0 = font object (ptr)
+	;r1 = glyph info array object (ptr)
+	;outputs
+	;r0 = font object (ptr)
+	;r1 = glyph paths vector object (ptr)
+	;r2 = width (pixels)
+	;r3 = height (pixels)
+	;trashes
+	;r1-r14
+
+	(ptr 'this 'info)
+	(pptr 'iter_begin 'iter_end)
+	(uint 'gap 'ox)
+
+	(push-scope)
+	(entry 'font 'glyph_bounds {this, info})
+
+	(assign {&this->font_data->str_data} {iter_begin})
+	(assign {(iter_begin->font_data_ascent + iter_begin->font_data_descent) >> 4} {gap})
+
+	(assign {gap} {ox})
+	(call 'array 'get_both {info} {_, iter_begin, iter_end})
+	(loop-while {iter_begin /= iter_end})
+		(vpif {*iter_begin})
+			(assign {ox + (*iter_begin)->font_path_width + gap} {ox})
+		(endif)
+		(assign {iter_begin + ptr_size} {iter_begin})
+	(loop-end)
+	(assign {&this->font_data->str_data} {iter_begin})
+
+	(exit 'font 'glyph_bounds {this, ((ox * this->font_pixels >> 23) + 2) >> 1, ((iter_begin->font_data_ascent + iter_begin->font_data_descent) * this->font_pixels) >> 24})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-method 'font 'sym_texture)
 	;inputs
 	;r0 = font object (ptr)
 	;r1 = utf8 encoded sym object (ptr)
@@ -355,7 +393,7 @@
 		(pptr 'iter 'bucket))
 
 	(push-scope)
-	(entry 'font 'ref_sym {this, sym})
+	(entry 'font 'sym_texture {this, sym})
 
 	;look up string in sym map
 	(call 'hmap 'find {this->font_sym_map, sym} {_, iter, bucket})
@@ -396,18 +434,18 @@
 		(call 'pair 'ref_second {*iter} {_, txt})
 	(endif)
 
-	(exit 'font 'ref_sym {this, txt})
+	(exit 'font 'sym_texture {this, txt})
 	(pop-scope)
 	(return)
 
 (def-func-end)
 
-(def-method 'font 'ref_chars)
+(def-method 'font 'ascii_textures)
 	;inputs
 	;r0 = font object (ptr)
 	;outputs
 	;r0 = font object (ptr)
-	;r1 = char texture vector object (ptr)
+	;r1 = vector of ascii texture objects (ptr)
 	;trashes
 	;r1-r14
 
@@ -416,7 +454,7 @@
 
 	;save inputs
 	(push-scope)
-	(entry 'font 'ref_chars {this})
+	(entry 'font 'ascii_textures {this})
 
 	;lazy create char textures
 	(vpifnot {this->font_chars})
@@ -426,7 +464,7 @@
 		(assign {33} {code})
 		(loop-start)
 			(call 'sym 'intern_cstr {&code} {sym})
-			(call 'font 'ref_sym {this, sym} {_, txt})
+			(call 'font 'sym_texture {this, sym} {_, txt})
 			(vpif {txt})
 				(call 'vector 'push_back {chars, txt})
 			(endif)
@@ -441,7 +479,7 @@
 	(endif)
 	(call 'vector 'ref {this->font_chars})
 
-	(exit 'font 'ref_chars {this, this->font_chars})
+	(exit 'font 'ascii_textures {this, this->font_chars})
 	(pop-scope)
 	(return)
 

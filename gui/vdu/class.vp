@@ -193,7 +193,7 @@
 
 	;ref char textures
 	(call 'vector 'deref_if {this->vdu_textures})
-	(call 'font 'ref_chars {this->vdu_font} {_, this->vdu_textures})
+	(call 'font 'ascii_textures {this->vdu_font} {_, this->vdu_textures})
 
 	(exit 'vdu 'switch_font {this})
 	(pop-scope)

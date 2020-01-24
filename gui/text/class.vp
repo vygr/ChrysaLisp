@@ -86,7 +86,7 @@
 		(vpif {syms /= syms_end})
 			(assign {0} {x})
 			(loop-start)
-				(call 'font 'ref_sym {font, *syms} {_, txt})
+				(call 'font 'sym_texture {font, *syms} {_, txt})
 				(vpif {txt})
 					(call 'texture 'get_metrics {txt} {_, handle, w, h})
 					(call 'ctx 'blit {ctx, handle, col, x, 0, w, h})
@@ -113,7 +113,7 @@
 	;trashes
 	;r1-r14
 
-	(ptr 'this 'txt 'font 'str)
+	(ptr 'this 'font 'str 'info)
 	(pptr 'syms 'syms_end)
 	(uint 'width 'height 'length 'sym_w)
 
@@ -136,11 +136,9 @@
 		(call 'vector 'get_both {this->text_syms} {_, syms, syms_end})
 		(vpif {syms /= syms_end})
 			(loop-start)
-				(call 'font 'ref_sym {font, *syms} {_, txt})
-				(vpif {txt})
-					(call 'texture 'get_metrics {txt} {_, _, sym_w, height})
-					(call 'texture 'deref {txt})
-				(endif)
+				(call 'font 'glyph_info {font, *syms} {_, info})
+				(call 'font 'glyph_bounds {font, info} {_, sym_w, height})
+				(call 'texture 'deref {info})
 				(assign {width + sym_w} {width})
 			(loop-until {(syms + ptr_size => syms) = syms_end})
 		(endif)

@@ -1701,7 +1701,7 @@ trashes
 r0-r14
 ```
 
-### font::ref_sym -> gui/font/ref_sym
+### font::sym_texture -> gui/font/sym_texture
 
 ```lisp
 inputs
@@ -1714,14 +1714,14 @@ trashes
 r1-r14
 ```
 
-### font::ref_chars -> gui/font/ref_chars
+### font::ascii_textures -> gui/font/ascii_textures
 
 ```lisp
 inputs
 r0 = font object (ptr)
 outputs
 r0 = font object (ptr)
-r1 = char texture vector object (ptr)
+r1 = vector of ascii texture objects (ptr)
 trashes
 r1-r14
 ```
@@ -1773,6 +1773,21 @@ inputs
 r0 = font object (ptr)
 r1 = stack array object (ptr)
 r2 = glyph info array object (ptr)
+outputs
+r0 = font object (ptr)
+r1 = glyph paths vector object (ptr)
+r2 = width (pixels)
+r3 = height (pixels)
+trashes
+r1-r14
+```
+
+### font::glyph_bounds -> gui/font/glyph_bounds
+
+```lisp
+inputs
+r0 = font object (ptr)
+r1 = glyph info array object (ptr)
 outputs
 r0 = font object (ptr)
 r1 = glyph paths vector object (ptr)
