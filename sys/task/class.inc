@@ -39,7 +39,7 @@
 (defcvar 'tk_stack_size (* 1024 4))
 
 (def-struct 'tk_node 'ln_node)
-	(ptr 'stack 'mbox_addr)
+	(ptr 'stack 'mbox_addr 'tls)
 	(ulong 'time)
 	(uint 'mbox_id)
 	(local-align)

@@ -47,8 +47,9 @@
 		(call 'obj 'ref {stdin} {this->lisp_stdin})
 		(call 'obj 'ref {stdout} {this->lisp_stdout})
 		(call 'obj 'ref {stderr} {this->lisp_stderr})
-		(call 'array 'create nil {this->lisp_stack})
 		(assign {0} {this->lisp_nextsym})
+		;tls stack
+		(assign (cat {@} (f-path 'sys_task 'statics) {.tk_statics_current_tcb->tk_node_tls}) {this->lisp_stack})
 
 		;spin lock if boot env busy
 		(loop-while {ptr($boot_env) = -1})

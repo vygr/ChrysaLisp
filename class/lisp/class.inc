@@ -54,9 +54,11 @@
 (dec-method 'run 'class/lisp/run)
 
 (def-struct 'lisp 'obj)
-	(ptr 'stdin 'stdout 'stderr 'environment 'stack 'sym_underscore 'sym_optional
+	;this first block of ptrs gets derefed on deinit
+	(ptr 'stdin 'stdout 'stderr 'environment 'sym_underscore 'sym_optional
 		'sym_rest 'sym_nil 'sym_t 'sym_lambda 'sym_macro 'sym_quote 'sym_qquote
 		'sym_unquote 'sym_splicing 'sym_stream_name 'sym_stream_line 'sym_file_includes
 		'sym_ffi)
+	(ptr 'stack)
 	(ulong 'nextsym)
 (def-struct-end)

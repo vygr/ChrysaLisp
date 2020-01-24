@@ -19,7 +19,7 @@
 	(assign {&this->lisp_stdin} {iter})
 	(loop-start)
 		(call 'obj 'deref {*iter})
-	(loop-until {(iter + ptr_size => iter) = &this->lisp_nextsym})
+	(loop-until {(iter + ptr_size => iter) = &this->lisp_stack})
 
 	;deinit parent
 	(s-jump 'lisp 'deinit {this})

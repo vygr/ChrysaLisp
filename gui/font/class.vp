@@ -348,7 +348,7 @@
 	;trashes
 	;r1-r14
 
-	(ptr 'this 'sym 'txt 'sym_canvas 'paths 'stack 'info)
+	(ptr 'this 'sym 'txt 'sym_canvas 'paths 'info)
 	(uint 'w 'h)
 	(union
 		(ptr 'font_statics)
@@ -361,9 +361,9 @@
 	(call 'hmap 'find {this->font_sym_map, sym} {_, iter, bucket})
 	(vpifnot {iter})
 		;create sym canvas
-		(call 'array 'create nil {stack})
 		(call 'font 'glyph_info {this, sym} {_, info})
-		(call 'font 'glyph_paths {this, stack, info} {_, paths, w, h})
+		(call 'font 'glyph_paths (cat {this, @} (f-path 'sys_task 'statics)
+			{.tk_statics_current_tcb->tk_node_tls, info}) {_, paths, w, h})
 		(call 'canvas 'create {w, h, 1} {sym_canvas})
 		(call 'canvas 'fill {sym_canvas, 0})
 		(assign {argb_white, 1} {sym_canvas->canvas_color, sym_canvas->canvas_flags})
@@ -377,7 +377,6 @@
 
 		;free all the gubins
 		(call 'canvas 'deref {sym_canvas})
-		(call 'array 'deref {stack})
 		(call 'array 'deref {info})
 		(call 'vector 'deref {paths})
 		(breakifnot {txt})

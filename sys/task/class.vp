@@ -231,8 +231,9 @@
 (errorcases
 	(call 'sys_mem 'clear {tcb, tcb_size}))
 
-	;alloc task mailbox
+	;alloc task mailbox and tls
 	(call 'sys_mail 'alloc_mbox nil {tcb->tk_node_mbox_id, tcb->tk_node_mbox_addr})
+	(call 'array 'create nil {tcb->tk_node_tls})
 
 	;init task control block stack, pc and stop address's
 	(assign {tcb, tcb + tcb_size, func} '(r0 r1 r4))
@@ -271,9 +272,10 @@
 	(assign (cat {@} (f-path 'sys_task 'statics)) {task_statics})
 	(assign {task_statics->tk_statics_task_count - 1} {task_statics->tk_statics_task_count})
 
-	;free task mailbox
+	;free task mailbox and tls
 	(assign {task_statics->tk_statics_current_tcb} {tcb})
 	(call 'sys_mail 'free_mbox {tcb->tk_node_mbox_id})
+	(call 'array 'deref {tcb->tk_node_tls})
 
 	;remove task control block
 	(vp-def (tcb next_tcb))
