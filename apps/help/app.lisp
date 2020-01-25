@@ -6,7 +6,7 @@
 (structure 'event 0
 	(byte 'win_close 'win_button))
 
-(defq id t keys (list) vals (list) vdu_height 40)
+(defq id t keys (list) vals (list) vdu_height 40 text_buf (list ""))
 
 (defun-bind populate-help ()
 	(defq state t vdu_width 1 k (list) v (list))
@@ -34,6 +34,18 @@
 		(reduce max (map (lambda (_)
 			(reduce max (map length (split _ (const (ascii-char 10)))))) vals))))
 
+(defun-bind vdu-print (vdu buf s)
+	(each (lambda (c)
+		(cond
+			((eql c (const (ascii-char 10)))
+				;line feed and truncate
+				(push buf "")
+				(if (> (length buf) vdu_height)
+					(setq buf (slice (dec (neg vdu_height)) -1 buf))))
+			(t	;char
+				(elem-set -2 buf (cat (elem -2 buf) c))))) s)
+	(vdu-load vdu buf 0 0 (length (elem -2 buf)) (dec (length buf))) buf)
+
 (ui-tree window (create-window window_flag_close) ('color argb_black)
 	(ui-element _ (create-flow) ('flow_flags (logior flow_flag_right flow_flag_fillh flow_flag_lastw)
 		'font (create-font "fonts/Hack-Regular.ctf" 16))
@@ -55,12 +67,12 @@
 		((= id event_win_button)
 			(defq _ (find (sym (get (view-find-id window (get-long msg ev_msg_action_source_id)) 'text)) keys))
 			(when _
-				(vdu-print vdu (str
+				(setq text_buf (vdu-print vdu text_buf (str
 					"----------------------" (const (ascii-char 10))
 					(elem _ keys) (const (ascii-char 10))
 					"----------------------" (const (ascii-char 10))
 					(elem _ vals)
-					"----------------------" (const (ascii-char 10)) (const (ascii-char 10))))))
+					"----------------------" (const (ascii-char 10)) (const (ascii-char 10)))))))
 		(t (view-event window msg))))
 
 (view-hide window)

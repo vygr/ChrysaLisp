@@ -393,7 +393,7 @@
 ;main event loop
 (until quit
 	(defq elapsed_time (- (time) game_start_time))
-	(send-data "s" (const (ascii-char 128)) (LF) "Elapsed Time: " (time-in-seconds elapsed_time) (LF))
+	(send-data "c" (LF) "Elapsed Time: " (time-in-seconds elapsed_time) (LF))
 	(if (= colour (const white))
 		(send-data "s" "White to move:" (LF))
 		(send-data "s" "Black to move:" (LF)))

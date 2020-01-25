@@ -240,6 +240,44 @@
 
 (def-func-end)
 
+(def-method 'font 'glyph_bounds)
+	;inputs
+	;r0 = font object (ptr)
+	;r1 = glyph info array object (ptr)
+	;outputs
+	;r0 = font object (ptr)
+	;r1 = glyph paths vector object (ptr)
+	;r2 = width (pixels)
+	;r3 = height (pixels)
+	;trashes
+	;r1-r14
+
+	(ptr 'this 'info)
+	(pptr 'iter_begin 'iter_end)
+	(uint 'gap 'ox)
+
+	(push-scope)
+	(entry 'font 'glyph_bounds {this, info})
+
+	(assign {&this->font_data->str_data} {iter_begin})
+	(assign {(iter_begin->font_data_ascent + iter_begin->font_data_descent) >> 4} {gap})
+
+	(assign {gap} {ox})
+	(call 'array 'get_both {info} {_, iter_begin, iter_end})
+	(loop-while {iter_begin /= iter_end})
+		(vpif {*iter_begin})
+			(assign {ox + (*iter_begin)->font_path_width + gap} {ox})
+		(endif)
+		(assign {iter_begin + ptr_size} {iter_begin})
+	(loop-end)
+	(assign {&this->font_data->str_data} {iter_begin})
+
+	(exit 'font 'glyph_bounds {this, (ox * this->font_pixels >> 24) + 1, ((iter_begin->font_data_ascent + iter_begin->font_data_descent) * this->font_pixels) >> 24})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
 (def-method 'font 'glyph_paths)
 	;inputs
 	;r0 = font object (ptr)
@@ -332,45 +370,7 @@
 	(loop-end)
 	(assign {&this->font_data->str_data} {iter_begin})
 
-	(exit 'font 'glyph_paths {this, paths, (ox * this->font_pixels >> 23) + 2, ((iter_begin->font_data_ascent + iter_begin->font_data_descent) * this->font_pixels) >> 23})
-	(pop-scope)
-	(return)
-
-(def-func-end)
-
-(def-method 'font 'glyph_bounds)
-	;inputs
-	;r0 = font object (ptr)
-	;r1 = glyph info array object (ptr)
-	;outputs
-	;r0 = font object (ptr)
-	;r1 = glyph paths vector object (ptr)
-	;r2 = width (pixels)
-	;r3 = height (pixels)
-	;trashes
-	;r1-r14
-
-	(ptr 'this 'info)
-	(pptr 'iter_begin 'iter_end)
-	(uint 'gap 'ox)
-
-	(push-scope)
-	(entry 'font 'glyph_bounds {this, info})
-
-	(assign {&this->font_data->str_data} {iter_begin})
-	(assign {(iter_begin->font_data_ascent + iter_begin->font_data_descent) >> 4} {gap})
-
-	(assign {gap} {ox})
-	(call 'array 'get_both {info} {_, iter_begin, iter_end})
-	(loop-while {iter_begin /= iter_end})
-		(vpif {*iter_begin})
-			(assign {ox + (*iter_begin)->font_path_width + gap} {ox})
-		(endif)
-		(assign {iter_begin + ptr_size} {iter_begin})
-	(loop-end)
-	(assign {&this->font_data->str_data} {iter_begin})
-
-	(exit 'font 'glyph_bounds {this, ((ox * this->font_pixels >> 23) + 2) >> 1, ((iter_begin->font_data_ascent + iter_begin->font_data_descent) * this->font_pixels) >> 24})
+	(exit 'font 'glyph_paths {this, paths, (ox * this->font_pixels >> 24) + 1, ((iter_begin->font_data_ascent + iter_begin->font_data_descent) * this->font_pixels) >> 24})
 	(pop-scope)
 	(return)
 
@@ -402,7 +402,7 @@
 		(call 'font 'glyph_info {this, sym} {_, info})
 		(call 'font 'glyph_paths (cat {this, @} (f-path 'sys_task 'statics)
 			{.tk_statics_current_tcb->tk_node_tls, info}) {_, paths, w, h})
-		(call 'canvas 'create {w >> 1, h >> 1, 2} {sym_canvas})
+		(call 'canvas 'create {w, h, 2} {sym_canvas})
 		(call 'canvas 'fill {sym_canvas, 0})
 		(assign {argb_white, 1} {sym_canvas->canvas_color, sym_canvas->canvas_flags})
 		(call 'font 'get_metrics {this} {_, h, _, _})

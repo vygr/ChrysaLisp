@@ -11,12 +11,14 @@
 
 ;create child and send args etc
 (defq id t squares (list) next_char (const (ascii-code " "))
-	data_in (in-stream) select (array (task-mailbox) (in-mbox data_in)))
+	data_in (in-stream) select (array (task-mailbox) (in-mbox data_in))
+	vdu_width 38 vdu_height 12 text_buf (list ""))
+
 (mail-send (array (in-mbox data_in) 10000000)
 	(defq child_mbox (open-child "apps/chess/child.lisp" kn_call_child)))
 
 (ui-tree window (create-window window_flag_close) ('color argb_black)
-	(ui-element vdu (create-vdu) ('vdu_width 38 'vdu_height 12 'ink_color argb_cyan
+	(ui-element vdu (create-vdu) ('vdu_width vdu_width 'vdu_height vdu_height 'ink_color argb_cyan
 		'font (create-font "fonts/Hack-Regular.ctf" 16)))
 	(ui-element chess_grid (create-grid) ('grid_width 8 'grid_height 8
 			'font (create-font "fonts/Chess.ctf" 42) 'border 1 'text " ")
@@ -37,6 +39,18 @@
 		(view-layout square)) (list squares board))
 	(view-dirty-all chess_grid))
 
+(defun-bind vdu-print (vdu buf s)
+	(each (lambda (c)
+		(cond
+			((eql c (const (ascii-char 10)))
+				;line feed and truncate
+				(push buf "")
+				(if (> (length buf) vdu_height)
+					(setq buf (slice (dec (neg vdu_height)) -1 buf))))
+			(t	;char
+				(elem-set -2 buf (cat (elem -2 buf) c))))) s)
+	(vdu-load vdu buf 0 0 (length (elem -2 buf)) (dec (length buf))) buf)
+
 ;main event loop
 (while id
 	(defq idx (mail-select select))
@@ -52,8 +66,11 @@
 			(cond
 				((eql (setq id (elem 0 data)) "b")
 					(display-board (slice 1 -1 data)))
+				((eql id "c")
+					(setq text_buf (list ""))
+					(vdu-print vdu text_buf (slice 1 -1 data)))
 				((eql id "s")
-					(vdu-print vdu (slice 1 -1 data)))))))
+					(setq text_buf (vdu-print vdu text_buf (slice 1 -1 data))))))))
 
 ;close child and window, wait for child stream to close
 (mail-send "" child_mbox)

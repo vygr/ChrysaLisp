@@ -157,7 +157,7 @@
 	;outputs
 	;r1 = vector of sym objects (ptr)
 	;trashes
-	;r1-r14
+	;r0-r14
 
 	(def-struct 'local)
 		(ptr 'this 'syms 'sym)

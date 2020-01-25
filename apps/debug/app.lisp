@@ -16,10 +16,10 @@
 	(byte 'win_play 'win_pause 'win_step 'win_clear)
 	(byte 'win_play_all 'win_pause_all 'win_step_all 'win_clear_all))
 
-(defq vdu_width 60 vdu_height 30 vdu_index nil vdu_keys (list) vdu_list (list))
+(defq vdu_width 60 vdu_height 30 buf_keys (list) buf_list (list) buf_index nil)
 
 (ui-tree window (create-window window_flag_status) ('color 0xc0000000)
-	(ui-element vdu_flow (create-flow) ('flow_flags (logior flow_flag_down flow_flag_fillw))
+	(ui-element _ (create-flow) ('flow_flags (logior flow_flag_down flow_flag_fillw))
 		(ui-element _ (create-flow) ('flow_flags (logior flow_flag_right flow_flag_fillh)
 				'font (create-font "fonts/Entypo.ctf" 32))
 			(each (lambda (l)
@@ -27,10 +27,23 @@
 					('text l 'color (if (>= _ 4) toolbar2_col toolbar_col))) (+ event_win_play _)))
 						'("" "" "" "" "" "" "" "")))
 		(component-connect (ui-element hslider (create-slider) ('value 0 'color slider_col)) event_win_hvalue)
-		(ui-element vdu (create-view))))
+		(ui-element vdu (create-vdu) ('vdu_width vdu_width 'vdu_height vdu_height 'ink_color argb_yellow
+				'font (create-font "fonts/Hack-Regular.ctf" 16)))))
+
+(defun-bind vdu-print (vdu buf s)
+	(each (lambda (c)
+		(cond
+			((eql c (const (ascii-char 10)))
+				;line feed and truncate
+				(push buf "")
+				(if (> (length buf) vdu_height)
+					(setq buf (slice (dec (neg vdu_height)) -1 buf))))
+			(t	;char
+				(elem-set -2 buf (cat (elem -2 buf) c))))) s)
+	(if vdu (vdu-load vdu buf 0 0 (length (elem -2 buf)) (dec (length buf)))) buf)
 
 (defun set-slider-values ()
-	(defq val (get hslider 'value) mho (max 0 (dec (length vdu_list))))
+	(defq val (get hslider 'value) mho (max 0 (dec (length buf_list))))
 	(def hslider 'maximum mho 'portion 1 'value (min val mho))
 	(view-dirty hslider))
 
@@ -49,35 +62,32 @@
 
 (defun reset (&optional _)
 	(setd _ -1)
-	(if (<= 0 _ (dec (length vdu_list)))
+	(if (<= 0 _ (dec (length buf_list)))
 		(progn
 			(def hslider 'value _)
-			(view-sub vdu)
-			(view-dirty (view-layout (view-add-back vdu_flow
-				(setq vdu (elem 0 (elem (setq vdu_index _) vdu_list)))))))
+			(setq buf_index _)
+			(vdu-print vdu (elem 0 (elem buf_index buf_list)) ""))
 		(progn
-			(clear vdu_list)
-			(clear vdu_keys)
-			(setq vdu_index nil)
-			(view-sub vdu)
-			(def (setq vdu (create-vdu)) 'vdu_width vdu_width 'vdu_height vdu_height 'ink_color argb_yellow
-				'font (create-font "fonts/Hack-Regular.ctf" 16))
-			(view-layout (view-add-back vdu_flow vdu))
-			(view-dirty (vdu-print vdu (const (cat
-				"ChrysaLisp Debug 0.3" (ascii-char 10)
-				"Toolbar1 buttons act on a single task." (ascii-char 10)
-				"Toolbar2 buttons act on all tasks." (ascii-char 10)
-				"Slider to switch between tasks." (ascii-char 10) (ascii-char 10)
-				"In Lisp files:" (ascii-char 10)
-				"add (import 'class/lisp/debug.inc)" (ascii-char 10)
-				"then use (defun-debug name ([arg ...]) body)" (ascii-char 10) (ascii-char 10)
-				"In VP files:" (ascii-char 10)
-				"use (debug-reg)" (ascii-char 10)))))))
+			(clear buf_list)
+			(clear buf_keys)
+			(setq buf_index nil)
+			(vdu-load vdu '(
+				"ChrysaLisp Debug 0.3"
+				"Toolbar1 buttons act on a single task."
+				"Toolbar2 buttons act on all tasks."
+				"Slider to switch between tasks."
+				""
+				"In Lisp files:"
+				"add (import 'class/lisp/debug.inc)"
+				"then use (defun-debug name ([arg ...]) body)"
+				""
+				"In VP files:"
+				"use (debug-reg)") 0 0 0 1000)))
 	(set-slider-values))
 
-(reset)
 (gui-add (apply view-change (cat (list window 640 16)
 	(view-pref-size (window-set-title (window-set-status window "Ready") "Debug")))))
+(reset)
 
 (while t
 	(cond
@@ -87,52 +97,50 @@
 				tcb (get-long msg debug_msg_tcb)
 				data (get-cstr msg debug_msg_data)
 				key (sym (str (>> reply_id 32) ":" tcb))
-				index (find key vdu_keys))
+				index (find key buf_keys))
 			(unless index
-				(def (defq new_vdu (create-vdu)) 'vdu_width vdu_width 'vdu_height vdu_height
-					'ink_color argb_yellow 'font (create-font "fonts/Hack-Regular.ctf" 16))
-				(push vdu_keys key)
-				(push vdu_list (list new_vdu nil nil))
-				(reset (setq index (dec (length vdu_list)))))
-			(vdu-print (elem 0 (defq vdu_rec (elem index vdu_list))) data)
-			(if (elem 1 vdu_rec)
+				(push buf_keys key)
+				(push buf_list (list (list "") nil nil))
+				(reset (setq index (dec (length buf_list)))))
+			(elem-set 0 (defq buf_rec (elem index buf_list))
+				(vdu-print (if (= index buf_index) vdu) (elem 0 buf_rec) data))
+			(if (elem 1 buf_rec)
 				(mail-send "" reply_id)
-				(elem-set 2 vdu_rec reply_id)))
+				(elem-set 2 buf_rec reply_id)))
 		;moved task slider
 		((= id event_win_hvalue)
-			(when vdu_index
-				(reset (get hslider 'value))))
+			(reset (get hslider 'value)))
 		;pressed play button
 		((= id event_win_play)
-			(when vdu_index
-				(play (elem vdu_index vdu_list))))
+			(when buf_index
+				(play (elem buf_index buf_list))))
 		;pressed pause button
 		((= id event_win_pause)
-			(when vdu_index
-				(pause (elem vdu_index vdu_list))))
+			(when buf_index
+				(pause (elem buf_index buf_list))))
 		;pressed step button
 		((= id event_win_step)
-			(when vdu_index
-				(step (elem vdu_index vdu_list))))
+			(when buf_index
+				(step (elem buf_index buf_list))))
 		;pressed clear button
 		((= id event_win_clear)
-			(when vdu_index
-				(step (elem vdu_index vdu_list))
-				(setq vdu_keys (cat (slice 0 vdu_index vdu_keys) (slice (inc vdu_index) -1 vdu_keys)))
-				(setq vdu_list (cat (slice 0 vdu_index vdu_list) (slice (inc vdu_index) -1 vdu_list)))
-				(reset (min vdu_index (dec (length vdu_list))))))
+			(when buf_index
+				(step (elem buf_index buf_list))
+				(setq buf_keys (cat (slice 0 buf_index buf_keys) (slice (inc buf_index) -1 buf_keys)))
+				(setq buf_list (cat (slice 0 buf_index buf_list) (slice (inc buf_index) -1 buf_list)))
+				(reset (min buf_index (dec (length buf_list))))))
 		;pressed play all button
 		((= id event_win_play_all)
-			(each play vdu_list))
+			(each play buf_list))
 		;pressed pause all button
 		((= id event_win_pause_all)
-			(each pause vdu_list))
+			(each pause buf_list))
 		;pressed step all button
 		((= id event_win_step_all)
-			(each step vdu_list))
+			(each step buf_list))
 		;pressed clear all button
 		((= id event_win_clear_all)
-			(each step vdu_list)
+			(each step buf_list)
 			(reset))
 		;otherwise
 		(t (view-event window msg))))
