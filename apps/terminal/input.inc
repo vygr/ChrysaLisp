@@ -43,11 +43,3 @@
 (defun-bind line-clear ()
 	;clear line buffer
 	(setq *line_buf* "" *line_pos* 0))
-
-(defun-bind line-with-cursor ()
-	;line buffer with cursor
-	(if (= (length *line_buf*) *line_pos*)
-		(cat *line_buf* (const (ascii-char (+ 32 128))))
-		(cat (slice 0 *line_pos* *line_buf*)
-			(char (logior 0x80 (code (elem *line_pos* *line_buf*))))
-			(slice (inc *line_pos*) -1 *line_buf*))))

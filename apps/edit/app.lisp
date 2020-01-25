@@ -105,6 +105,14 @@
 	;load the vdu display
 	(vdu-load vdu text_buf offset_x offset_y cursor_x cursor_y))
 
+(defun-bind vdu-resize (w h)
+	(setq vdu_width w vdu_height h)
+	(set vdu 'vdu_width vdu_width 'vdu_height vdu_height)
+	(bind '(x y _ _) (view-get-bounds window))
+	(bind '(w h) (view-pref-size window))
+	(view-change-dirty window x y w h)
+	(vdu-load vdu text_buf offset_x offset_y cursor_x cursor_y))
+
 (vdu-load vdu text_buf offset_x offset_y cursor_x cursor_y)
 (while id
 	(cond
@@ -113,20 +121,10 @@
 			(setq id nil))
 		((= id event_win_min)
 			;min button
-			(setq vdu_width 60 vdu_height 40)
-			(set vdu 'vdu_width vdu_width 'vdu_height vdu_height)
-			(bind '(x y _ _) (view-get-bounds window))
-			(bind '(w h) (view-pref-size window))
-			(view-change-dirty window x y w h)
-			(vdu-load vdu text_buf offset_x offset_y cursor_x cursor_y))
+			(vdu-resize 60 40))
 		((= id event_win_max)
 			;max button
-			(setq vdu_width 120 vdu_height 40)
-			(set vdu 'vdu_width vdu_width 'vdu_height vdu_height)
-			(bind '(x y _ _) (view-get-bounds window))
-			(bind '(w h) (view-pref-size window))
-			(view-change-dirty window x y w h)
-			(vdu-load vdu text_buf offset_x offset_y cursor_x cursor_y))
+			(vdu-resize 120 40))
 		(t	;it's a GUI event
 			(view-event window msg)
 			(and (= (get-long msg ev_msg_type) ev_type_key)

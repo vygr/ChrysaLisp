@@ -1096,10 +1096,6 @@
 
 (vdu-load vdu lines ox oy cx cy)
 
-## vdu-print
-
-(vdu-print vdu str)
-
 ## view-add-back
 
 (view-add-back parent child)

@@ -4,10 +4,6 @@ In no particular order but to just to ensure I get thoughts down. I'll keep
 adding to this as I go along. If anybody would like to try helping out, then
 just get in touch.
 
-* VDU class interface to support VT52/VT100 control codes. At the moment it
-supports some but not all and mostly are specific to ChrysaLisp. Should
-standardise this.
-
 * Add support for FPU to the VM. Scalar float/double support first of all maybe
 eventually create a FPU accelerated version of the vector math DSL.
 

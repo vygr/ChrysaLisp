@@ -26,9 +26,8 @@
 	(vpif '(r1 /= 0))
 		;init myself
 		(vp-xor-rr r2 r2)
-		(assign '(r2 r2 r2 r2 r2 r2 r2)
-			'((r0 vdu_font) (r0 vdu_chars) (r0 vdu_cursor_x) (r0 vdu_cursor_y)
-			(r0 vdu_width) (r0 vdu_height) (r0 vdu_textures)))
+		(assign '(r2 r2 r2 r2 r2)
+			'((r0 vdu_font) (r0 vdu_chars) (r0 vdu_width) (r0 vdu_height) (r0 vdu_textures)))
 	(endif)
 	(vp-ret)
 
@@ -221,114 +220,6 @@
 	(call 'sys_mem 'fill {this->vdu_chars, size, char_space})
 
 	(exit 'vdu 'switch_size {this})
-	(pop-scope)
-	(return)
-
-(def-func-end)
-
-(def-method 'vdu 'print_char)
-	;inputs
-	;r0 = vdu object (ptr)
-	;r1 = char (uint)
-	;outputs
-	;r0 = vdu object (ptr)
-	;trashes
-	;r1-r14
-
-	(ptr 'this)
-	(uint 'c)
-
-	;save inputs
-	(push-scope)
-	(entry 'vdu 'print_char {this, c})
-
-	(vpif {this->vdu_chars})
-		;scroll ?
-		(vpif {this->vdu_cursor_y >= this->vdu_height})
-			(assign {0} {this->vdu_cursor_x})
-			(assign {this->vdu_height - 1} {this->vdu_cursor_y})
-			(call 'sys_mem 'copy {this->vdu_chars + this->vdu_width, this->vdu_chars, (this->vdu_height - 1) * this->vdu_width})
-			(call 'sys_mem 'fill {this->vdu_chars + (this->vdu_height - 1) * this->vdu_width, this->vdu_width, char_space})
-			(call 'vdu 'dirty {this})
-		(endif)
-
-		(vpif {c = char_backspace})
-			;backspace
-			(vpif {this->vdu_cursor_x})
-				(assign {this->vdu_cursor_x - 1} {this->vdu_cursor_x})
-				(assign {32} {(this->vdu_chars)[this->vdu_cursor_y * this->vdu_width + this->vdu_cursor_x]})
-				(call 'vdu 'add_dirty {this, this->vdu_cursor_x * this->vdu_char_width,
-					this->vdu_cursor_y * this->vdu_char_height, this->vdu_char_width, this->vdu_char_height})
-			(endif)
-		(elseif {c = vdu_clear_line})
-			;clear line
-			(vpif {this->vdu_cursor_x})
-				(call 'sys_mem 'fill {this->vdu_chars + this->vdu_cursor_y * this->vdu_width, this->vdu_width, char_space})
-				(call 'vdu 'add_dirty {this, 0, this->vdu_cursor_y * this->vdu_char_height,
-					this->vdu_cursor_x * this->vdu_char_width, this->vdu_char_height})
-				(assign {0} {this->vdu_cursor_x})
-			(endif)
-		(elseif {c = vdu_clear_screen})
-			;clear screen
-			(call 'sys_mem 'fill {this->vdu_chars, this->vdu_width * this->vdu_height, char_space})
-			(call 'vdu 'dirty {this})
-			(assign {0 => this->vdu_cursor_x} {this->vdu_cursor_y})
-		(else)
-			;wrap cursor ?
-			(vpif {this->vdu_cursor_x >= this->vdu_width})
-				(assign {0} {this->vdu_cursor_x})
-				(assign {this->vdu_cursor_y + 1} {this->vdu_cursor_y})
-			(endif)
-
-			(vpif {c = char_lf || c = 13})
-				;line feed
-				(assign {0} {this->vdu_cursor_x})
-				(assign {this->vdu_cursor_y + 1} {this->vdu_cursor_y})
-			(elseif {c = char_tab})
-				;tab
-				(assign {4 - (this->vdu_cursor_x & 3)} {c})
-				(loop-start)
-					(call 'vdu 'print_char {this, 32})
-				(loop-untilnot {c - 1 => c})
-			(elseif {(c & 127) >= char_space && (c & 127) < 127})
-				;printable char
-				(assign {c} {(this->vdu_chars)[this->vdu_cursor_y * this->vdu_width + this->vdu_cursor_x]})
-				(call 'vdu 'add_dirty {this, this->vdu_cursor_x * this->vdu_char_width,
-					this->vdu_cursor_y * this->vdu_char_height, this->vdu_char_width, this->vdu_char_height})
-				(assign {this->vdu_cursor_x + 1} {this->vdu_cursor_x})
-			(endif)
-		(endif)
-	(endif)
-
-	(exit 'vdu 'print_char {this})
-	(pop-scope)
-	(return)
-
-(def-func-end)
-
-(def-method 'vdu 'print_cstr)
-	;inputs
-	;r0 = vdu object (ptr)
-	;r1 = c string (pubyte)
-	;outputs
-	;r0 = vdu object (ptr)
-	;trashes
-	;r1-r14
-
-	(ptr 'this)
-	(pubyte 'charp)
-
-	;save inputs
-	(push-scope)
-	(entry 'vdu 'print_cstr {this, charp})
-
-	;print chars
-	(loop-while {*charp})
-		(call 'vdu 'print_char {this, *charp})
-		(assign {charp + 1} {charp})
-	(loop-end)
-
-	(exit 'vdu 'print_cstr {this})
 	(pop-scope)
 	(return)
 

@@ -33,39 +33,6 @@
 
 (def-func-end)
 
-(def-method 'vdu 'lisp_print)
-	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
-	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
-	;trashes
-	;r1-r14
-
-	(entry 'vdu 'lisp_print '(r0 r1))
-
-(errorcases
-	(call 'lisp 'env_args_type '(r1 ($ sig) 2) '(r2))
-	(gotoif '(r2 = 0) 'error1))
-
-	(vp-push r0)
-	(defq in (method-input 'vdu 'print_cstr))
-	(class/vector/bind_args r1 in '(vdu str))
-	(call 'vdu 'print_cstr in '(r0))
-	(call 'obj 'ref '(r0) '(r1))
-	(vp-pop r0)
-
-	(exit 'vdu 'lisp_print '(r0 r1))
-	(vp-ret)
-
-(errorcases
-(vp-label 'error1)
-	(jump 'lisp 'repl_error '(r0 "(vdu-print vdu str)" error_msg_wrong_types r1))
-	(signature '(vdu str)))
-
-(def-func-end)
-
 (def-method 'vdu 'lisp_load)
 	;inputs
 	;r0 = lisp object (ptr)

@@ -6093,7 +6093,7 @@ r1 = vector of string objects (ptr)
 outputs
 r1 = vector of sym objects (ptr)
 trashes
-r1-r14
+r0-r14
 ```
 
 ### sym::lisp_sym -> class/sym/lisp_sym
@@ -7799,44 +7799,7 @@ trashes
 r1-r14
 ```
 
-### vdu::print_char -> gui/vdu/print_char
-
-```lisp
-inputs
-r0 = vdu object (ptr)
-r1 = char (uint)
-outputs
-r0 = vdu object (ptr)
-trashes
-r1-r14
-```
-
-### vdu::print_cstr -> gui/vdu/print_cstr
-
-```lisp
-inputs
-r0 = vdu object (ptr)
-r1 = c string (pubyte)
-outputs
-r0 = vdu object (ptr)
-trashes
-r1-r14
-```
-
 ### vdu::lisp_create -> gui/vdu/lisp_create
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### vdu::lisp_print -> gui/vdu/lisp_print
 
 ```lisp
 inputs
