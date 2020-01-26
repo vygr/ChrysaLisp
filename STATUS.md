@@ -27,6 +27,15 @@ corrupted.
 
 ------
 
+https://github.com/vygr/QtCTF
+
+Published the QtCTF conversion app for ChrysaLisp font creation. This
+eventually needs to be able to have several char ranges supported, but
+currently only has one. The CTF format supports many, just this app generates
+one for now.
+
+------
+
 Implement ChrysaLisp font rendering, decoded TTF/OTF files into new CTF
 ChrysaLisp format glyph data and render using ChrysaLisp's points and canvas
 classes.
