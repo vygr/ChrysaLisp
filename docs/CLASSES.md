@@ -1790,11 +1790,10 @@ r0 = font object (ptr)
 r1 = glyph info array object (ptr)
 outputs
 r0 = font object (ptr)
-r1 = glyph paths vector object (ptr)
-r2 = width (pixels)
-r3 = height (pixels)
+r1 = width (pixels)
+r2 = height (pixels)
 trashes
-r1-r14
+r1-r7
 ```
 
 ### font::deinit -> gui/font/deinit
