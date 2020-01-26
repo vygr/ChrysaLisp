@@ -11,8 +11,8 @@
 (structure 'work 0
 	(long 'mbox 'x 'y 'x1 'y1 'w 'h))
 
-(defq canvas_width 800 canvas_height 800 id t data_in (in-stream)
-	select (array (task-mailbox) (in-mbox data_in))
+(defq canvas_width 800 canvas_height 800 id t in (in-stream)
+	select (array (task-mailbox) (in-mbox in))
 	child_mbox (open-child "apps/mandelbrot/child.lisp" kn_call_child))
 
 (ui-tree window (create-window window_flag_close) nil
@@ -51,4 +51,5 @@
 				(canvas-swap canvas)))))
 
 ;close
+(in-set-state in stream_mail_state_stopped)
 (view-hide window)
