@@ -246,35 +246,43 @@
 	;r1 = glyph info array object (ptr)
 	;outputs
 	;r0 = font object (ptr)
-	;r1 = glyph paths vector object (ptr)
-	;r2 = width (pixels)
-	;r3 = height (pixels)
+	;r1 = width (pixels)
+	;r2 = height (pixels)
 	;trashes
-	;r1-r14
+	;r1-r7
 
-	(ptr 'this 'info)
-	(pptr 'iter_begin 'iter_end)
-	(uint 'gap 'ox)
+	(vp-def (this w h gap gw iter_begin iter_end info))
 
-	(push-scope)
-	(entry 'font 'glyph_bounds {this, info})
+	(entry 'font 'glyph_bounds `(,this ,info))
 
-	(assign {&this->font_data->str_data} {iter_begin})
-	(assign {(iter_begin->font_data_ascent + iter_begin->font_data_descent) >> 4} {gap})
+	(assign `((,this font_data)) `(,iter_begin))
+	(vp-add-cr str_data iter_begin)
+	(assign `((,iter_begin font_data_ascent) (,iter_begin font_data_descent)) `(,h ,gap))
+	(vp-add-rr gap h)
+	(vp-cpy-rr h gap)
+	(vp-shr-cr 4 gap)
+	(vp-cpy-rr gap w)
 
-	(assign {gap} {ox})
-	(call 'array 'get_both {info} {_, iter_begin, iter_end})
-	(loop-while {iter_begin /= iter_end})
-		(vpif {*iter_begin})
-			(assign {ox + (*iter_begin)->font_path_width + gap} {ox})
+	(class/array/get_both info iter_begin iter_end)
+	(loop-while `(,iter_begin /= ,iter_end))
+		(assign `((,iter_begin 0)) `(,info))
+		(vpif `(,info /= 0))
+			(assign `((,info font_path_width)) `(,gw))
+			(vp-add-rr gw w)
+			(vp-add-rr gap w)
 		(endif)
-		(assign {iter_begin + ptr_size} {iter_begin})
+		(vp-add-cr ptr_size iter_begin)
 	(loop-end)
-	(assign {&this->font_data->str_data} {iter_begin})
 
-	(exit 'font 'glyph_bounds {this, (ox * this->font_pixels >> 24) + 1, ((iter_begin->font_data_ascent + iter_begin->font_data_descent) * this->font_pixels) >> 24})
-	(pop-scope)
-	(return)
+	(assign `((,this font_pixels)) `(,gw))
+	(vp-mul-rr gw w)
+	(vp-mul-rr gw h)
+	(vp-shr-cr 24 w)
+	(vp-shr-cr 24 h)
+	(vp-add-cr 1 w)
+
+	(exit 'font 'glyph_bounds `(,this ,w ,h))
+	(vp-ret)
 
 (def-func-end)
 
