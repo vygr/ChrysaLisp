@@ -15,7 +15,7 @@
 	join_miter join_bevel join_round cap_butt cap_square cap_tri cap_arrow
 	cap_round window_close window_min window_max window_title window_status
 	canvas_color canvas_flags view_flags view_flag_at_back view_flag_dirty_all
-	view_x view_y view_w view_h))
+	view_x view_y view_w view_h component_id))
 	(within-compile-env (lambda ()
 		(include 'gui/gui/class.inc)
 		(include 'gui/ctx/class.inc)
@@ -71,6 +71,7 @@
 (ffi vdu-load "gui/vdu/lisp_load" 0)
 (ffi create-font "gui/font/lisp_create" 0)
 (ffi font-glyph-paths "gui/font/lisp_glyph_paths" 0)
+(import 'gui/component/lisp.inc)
 (import 'gui/view/lisp.inc)
 (import 'gui/points/lisp.inc)
 (import 'gui/canvas/lisp.inc)

@@ -3,9 +3,6 @@
 (import 'class/lisp.inc)
 (import 'gui/lisp.inc)
 
-(structure 'work 0
-	(long 'mbox 'x 'y 'x1 'y1 'w 'h))
-
 (defun-bind depth (x0 y0)
 	(defq i -1 xc 0 yc 0 x2 0 y2 0)
 	(while (and (/= (setq i (inc i)) 255) (< (+ x2 y2) (const (fmul 2.0 2.0))))
@@ -17,9 +14,9 @@
 
 (defun-bind mandel (xp y x1 y1 w h)
 	(defq reply (string-stream (cat "")))
-	(write reply (cat (char mbox (const long_size))
-		(char x (const long_size)) (char y (const long_size))
-		(char x1 (const long_size)) (char y1 (const long_size))))
+	(write reply (cat
+		(char x (const int_size)) (char y (const int_size))
+		(char x1 (const int_size)) (char y1 (const int_size))))
 	(setq y (dec y))
 	(while (/= (setq y (inc y)) y1)
 		(defq x (dec xp))
@@ -42,6 +39,8 @@
 			(mandel x y x1 y1 w h))))
 
 ;read work request
-(defq msg (mail-read (task-mailbox)))
-(rect (get-long msg work_mbox) (get-long msg work_x) (get-long msg work_y)
-	(get-long msg work_x1) (get-long msg work_y1) (get-long msg work_w) (get-long msg work_h))
+(defq msg (string-stream (mail-read (task-mailbox))))
+(rect (read-char msg (const long_size))
+	(read-char msg (const long_size)) (read-char msg (const long_size))
+	(read-char msg (const long_size)) (read-char msg (const long_size))
+	(read-char msg (const long_size)) (read-char msg (const long_size)))
