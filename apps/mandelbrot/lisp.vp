@@ -1,0 +1,61 @@
+(include 'sys/func.inc)
+(include 'class/num/class.inc)
+(include 'class/lisp/class.inc)
+
+(def-func 'apps/mandelbrot/depth)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(vp-def (i x0 y0 xc yc x2 y2 four tmp))
+
+	(entry '(r0 r1))
+
+(errorcases
+	(call 'lisp 'env_args_type '(r1 ($ sig) 2) '(r2))
+	(gotoif '(r2 = 0) 'error))
+
+	(vp-push r0)
+	(class/vector/bind_args r1 `(,x0 ,y0) '(num num))
+	(assign '(0 0 0 0 0 4.0) `(,i ,xc ,yc ,x2 ,y2 ,four))
+	(loop-start)
+		(vp-cpy-rr x2 tmp)
+		(vp-add-rr y2 tmp)
+		(breakif `(,tmp >= ,four))
+
+		(vp-mul-rr xc yc)
+		(vp-asr-cr fp_shift yc)
+		(vp-mul-cr 2.0 yc)
+		(vp-asr-cr fp_shift yc)
+		(vp-add-rr y0 yc)
+
+		(vp-cpy-rr x2 xc)
+		(vp-sub-rr y2 xc)
+		(vp-add-rr x0 xc)
+
+		(vp-cpy-rr xc x2)
+		(vp-cpy-rr yc y2)
+		(vp-mul-rr x2 x2)
+		(vp-mul-rr y2 y2)
+		(vp-asr-cr fp_shift x2)
+		(vp-asr-cr fp_shift y2)
+
+		(vp-add-cr 1 i)
+	(loop-until `(,i = 255))
+	(call 'num 'create `(,i) '(r1))
+	(vp-pop r0)
+
+	(exit '(r0 r1))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r0 "(depth x0 y0)" error_msg_wrong_types r1))
+	(signature '(num num)))
+
+(def-func-end)

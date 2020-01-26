@@ -97,7 +97,7 @@
 	(view-change-dirty window x y w h)
 	(print-edit-line))
 
-(print (str "ChrysaLisp Terminal 1.5" (ascii-char 10)))
+(print (str "ChrysaLisp Terminal 1.6" (ascii-char 10)))
 (print-edit-line)
 (while id
 	(defq data t)

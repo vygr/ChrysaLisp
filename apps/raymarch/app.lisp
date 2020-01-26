@@ -58,6 +58,6 @@
 					(canvas-swap canvas)
 					(farm-close farm))))))
 
-;wait for close
+;close
 (view-hide window)
 (farm-close farm)
