@@ -593,36 +593,57 @@
 	;copy view from parent if not root
 	(assign '((rsp dist_this) (r1 local_root)) '(r2 r3))
 	(vpif '(r2 /= r3))
-		;remove my opaque region from parent
-		(assign '((r2 view_flags) (r2 hmap_parent) (r2 view_ctx_x) (r2 view_ctx_y)
-			(r2 view_w) (r2 view_h)) '(r3 r1 r7 r8 r9 r10))
+		;remove opaque region from ancestors
+		(assign '((r2 hmap_parent) (r2 view_ctx_x) (r2 view_ctx_y)
+			(r2 view_w) (r2 view_h)) '(r1 r7 r8 r9 r10))
 		(vp-add-rr r7 r9)
 		(vp-add-rr r8 r10)
 		(vp-add-cr view_dirty_region r1)
 		(vp-add-cr view_dirty_region r2)
 
-		(vp-and-cr view_flag_opaque r3)
-		(vpif '(r3 /= 0))
-			;entire view is opaque, so cut my area from parent
-			(call 'region 'cut_rect '(r0 r1 r2 r7 r8 r9 r10))
+		;copy my area from parent
+		(call 'region 'copy_rect '(r0 r1 r2 r7 r8 r9 r10) '(r0))
 
-			;did we find any
-			(assign '((rsp dist_this)) '(r2))
-			(assign '((r2 view_dirty_region)) '(r1))
-		(else)
-			;use opaque region, so copy my area from parent
-			(call 'region 'copy_rect '(r0 r1 r2 r7 r8 r9 r10) '(r0))
+		;did we find any opaque region ?
+		(assign '((rsp dist_this)) '(r2))
+		(assign '((r2 view_dirty_region)) '(r1))
+		(vpif '(r1 /= 0))
+			;how is the opaque region represented ?
+			(assign '((r2 view_flags)) '(r3))
+			(vp-and-cr view_flag_opaque r3)
+			(vpif '(r3 /= 0))
+				;remove entire view from ancestors
+				(loop-start)
+					(assign '((r2 hmap_parent)) '(r1))
+					(assign '(r1) '((rsp dist_next)))
 
-			;did we find any
-			(assign '((rsp dist_this)) '(r2))
-			(assign '((r2 view_dirty_region)) '(r1))
-			(vpif '(r1 /= 0))
-				;remove my opaque region from parent
-				(assign '(r2 (r2 hmap_parent)) '(r1 r2))
-				(vp-add-cr view_opaque_region r1)
-				(vp-add-cr view_dirty_region r2)
-				(call 'region 'remove_region '(r0 r1 r2 r7 r8) '(r1))
+					(vp-add-cr view_dirty_region r1)
+					(call 'region 'remove_rect '(r0 r1 r7 r8 r9 r10) '(r0))
+
+					(assign '((rsp dist_data) (rsp dist_next)) '(r1 r2))
+					(assign '((r1 local_root)) '(r1))
+				(loop-until '(r1 = r2))
+			(else)
+				;remove opaque region from ancestors
+				(assign '(r2) '(r1))
+				(loop-start)
+					(assign '((r1 hmap_parent)) '(r2))
+					(assign '(r2) '((rsp dist_next)))
+
+					(assign '((rsp dist_this)) '(r1))
+					(assign '((r1 view_ctx_x) (r1 view_ctx_y)) '(r7 r8))
+					(vp-add-cr view_opaque_region r1)
+					(vp-add-cr view_dirty_region r2)
+					(call 'region 'remove_region '(r0 r1 r2 r7 r8) '(r0))
+
+					(assign '((rsp dist_data) (rsp dist_next)) '(r2 r1))
+					(assign '((r2 local_root)) '(r2))
+				(loop-until '(r1 = r2))
 			(endif)
+
+			;return flag for recursion or not
+			(assign '((rsp dist_this)) '(r2))
+			(assign '((r2 view_dirty_region)) '(r1))
 		(endif)
 	(endif)
 

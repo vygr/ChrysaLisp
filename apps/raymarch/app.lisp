@@ -19,7 +19,7 @@
 (ui-tree window (create-window window_flag_close) nil
 	(ui-element canvas (create-canvas canvas_width canvas_height canvas_scale)))
 
-(canvas-swap (canvas-fill (view-set-flags canvas view_flag_opaque view_flag_opaque) argb_black))
+(canvas-swap (canvas-fill canvas argb_black))
 (gui-add (apply view-change (cat (list window 310 64)
 	(view-pref-size (window-set-title (window-connect-close window event_win_close) "Raymarch")))))
 
