@@ -86,6 +86,10 @@
 		(call 'vdu 'switch_size {this})
 	(endif)
 
+	;debug draw region
+;	(call 'ctx 'set_color {ctx, argb_white})
+;	(call 'ctx 'debug {ctx, 0, 0, this->view_w, this->view_h})
+
 	;draw vdu chars
 	(vpif {this->vdu_font && this->vdu_chars})
 		(call 'region 'bounds {ctx->ctx_dirty_region} {bx, by, bx1, by1})
