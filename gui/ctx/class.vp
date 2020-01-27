@@ -92,45 +92,45 @@
 		(assign '((rsp local_dirty_rect)) '(r0))
 	(loop-end))
 
-(def-method 'ctx 'debug 16)
-	;inputs
-	;r0 = draw ctx (ptr)
-	;r7 = x (pixels)
-	;r8 = y (pixels)
-	;r9 = width (pixels)
-	;r10 = height (pixels)
-	;trashes
-	;r0-r14
+;; (def-method 'ctx 'debug 16)
+;; 	;inputs
+;; 	;r0 = draw ctx (ptr)
+;; 	;r7 = x (pixels)
+;; 	;r8 = y (pixels)
+;; 	;r9 = width (pixels)
+;; 	;r10 = height (pixels)
+;; 	;trashes
+;; 	;r0-r14
 
-	(def-struct 'local)
-		(struct 'drect 'sdl_rect)
-		(struct 'clip_rect 'sdl_rect)
-		(ptr 'ctx 'dirty_rect 'old_stack)
-	(def-struct-end)
+;; 	(def-struct 'local)
+;; 		(struct 'drect 'sdl_rect)
+;; 		(struct 'clip_rect 'sdl_rect)
+;; 		(ptr 'ctx 'dirty_rect 'old_stack)
+;; 	(def-struct-end)
 
-	(vp-cpy-rr rsp r3)
-	(vp-alloc local_size)
-	(vp-and-cr -16 rsp)
-	(assign '(r3) '((rsp local_old_stack)))
+;; 	(vp-cpy-rr rsp r3)
+;; 	(vp-alloc local_size)
+;; 	(vp-and-cr -16 rsp)
+;; 	(assign '(r3) '((rsp local_old_stack)))
 
-	;save debug rectangle info
-	(assign '(r0) '((rsp local_ctx)))
-	(assign '((r0 ctx_x) (r0 ctx_y)) '(r11 r12))
-	(vp-add-rr r11 r7)
-	(vp-add-rr r12 r8)
-	(assign '(r7 r8 r9 r10) '((rsp (+ local_drect sdl_rect_x) i) (rsp (+ local_drect sdl_rect_y) i)
-		(rsp (+ local_drect sdl_rect_w) i) (rsp (+ local_drect sdl_rect_h) i)))
+;; 	;save debug rectangle info
+;; 	(assign '(r0) '((rsp local_ctx)))
+;; 	(assign '((r0 ctx_x) (r0 ctx_y)) '(r11 r12))
+;; 	(vp-add-rr r11 r7)
+;; 	(vp-add-rr r12 r8)
+;; 	(assign '(r7 r8 r9 r10) '((rsp (+ local_drect sdl_rect_x) i) (rsp (+ local_drect sdl_rect_y) i)
+;; 		(rsp (+ local_drect sdl_rect_w) i) (rsp (+ local_drect sdl_rect_h) i)))
 
-	(for-each-visible-rect
-		'(progn
-			;draw the rectangle
-			(assign '((rsp local_ctx)) '(r0))
-			(host-call 'host 'sdl_render_draw_rect '((r0 ctx_sdl_ctx) (& rsp local_clip_rect)))))
+;; 	(for-each-visible-rect
+;; 		'(progn
+;; 			;draw the rectangle
+;; 			(assign '((rsp local_ctx)) '(r0))
+;; 			(host-call 'host 'sdl_render_draw_rect '((r0 ctx_sdl_ctx) (& rsp local_clip_rect)))))
 
-	(vp-cpy-ir rsp local_old_stack rsp)
-	(vp-ret)
+;; 	(vp-cpy-ir rsp local_old_stack rsp)
+;; 	(vp-ret)
 
-(def-func-end)
+;; (def-func-end)
 
 (def-method 'ctx 'blit 16)
 	;inputs

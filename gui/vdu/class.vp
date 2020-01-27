@@ -87,7 +87,7 @@
 	(endif)
 
 	;debug draw region
-;	(call 'ctx 'set_color {ctx, argb_white})
+;	(call 'ctx 'set_color {ctx, argb_red})
 ;	(call 'ctx 'debug {ctx, 0, 0, this->view_w, this->view_h})
 
 	;draw vdu chars
