@@ -7,15 +7,14 @@
 	(byte 'win_close 'win_min 'win_max 'win_button))
 
 (ui-tree window (create-window (+ window_flag_close window_flag_min window_flag_max)) nil
-	(ui-element _ (create-flow) ('flow_flags (logior flow_flag_down flow_flag_fillw flow_flag_lasth))
-		(ui-element display (create-label) ('text "0" 'color argb_white 'flow_flags flow_flag_align_hright
-			'font (create-font "fonts/OpenSans-Regular.ctf" 24)))
-		(ui-element _ (create-grid) ('grid_width 4 'grid_height 4 'color toolbar_col
-				'font (create-font "fonts/OpenSans-Regular.ctf" 42))
-			(each (lambda (text)
-				(component-connect
-					(ui-element _ (create-button) ('text (if (eql text "C") "AC" text)))
-					event_win_button)) "789/456*123-0=C+"))))
+	(ui-element display (create-label) ('text "0" 'color argb_white 'flow_flags flow_flag_align_hright
+		'font (create-font "fonts/OpenSans-Regular.ctf" 24)))
+	(ui-element _ (create-grid) ('grid_width 4 'grid_height 4 'color toolbar_col
+			'font (create-font "fonts/OpenSans-Regular.ctf" 42))
+		(each (lambda (text)
+			(component-connect
+				(ui-element _ (create-button) ('text (if (eql text "C") "AC" text)))
+				event_win_button)) "789/456*123-0=C+")))
 
 (gui-add (apply view-change (cat (list window 920 48)
 	(view-pref-size (window-set-title (window-connect-close (window-connect-min

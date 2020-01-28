@@ -16,14 +16,12 @@
 	index 0 id t)
 
 (ui-tree window (create-window window_flag_close) nil
-	(ui-element _ (create-flow) ('flow_flags (logior flow_flag_down flow_flag_fillw flow_flag_lasth)
-			'color toolbar_col)
-		(ui-element _ (create-flow) ('flow_flags (logior flow_flag_right flow_flag_fillh)
-				'font (create-font "fonts/Entypo.ctf" 32))
-			(component-connect (ui-element _ (create-button) ('text "")) event_win_prev)
-			(component-connect (ui-element _ (create-button) ('text "")) event_win_next))
-		(ui-element image_scroll (create-scroll (logior scroll_flag_vertical scroll_flag_horizontal))
-			('color slider_col))))
+	(ui-element _ (create-flow) ('flow_flags (logior flow_flag_right flow_flag_fillh)
+			'color toolbar_col 'font (create-font "fonts/Entypo.ctf" 32))
+		(component-connect (ui-element _ (create-button) ('text "")) event_win_prev)
+		(component-connect (ui-element _ (create-button) ('text "")) event_win_next))
+	(ui-element image_scroll (create-scroll (logior scroll_flag_vertical scroll_flag_horizontal))
+		('color slider_col)))
 
 (defun win-refresh (_)
 	(bind '(w h) (view-pref-size (defq canvas (canvas-load (elem (setq index _) images) 0))))

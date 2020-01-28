@@ -42,16 +42,28 @@
 		(call 'window 'set_long_prop '(r0 static_sym_min_height 0) '(r0))
 		(call 'sys_mem 'clear '((& r0 window_start) (- window_size window_start)))
 
-		;add flow panel
-		(call 'flow 'create nil {this->window_flow})
-		(call 'flow 'set_long_prop {this->window_flow, static_sym_flow_flags, flow_flag_down | flow_flag_fillw | flow_flag_lasth})
-		(call 'window 'add_back {this, this->window_flow})
+		;add status panel, add_back not add_child !!!
+		(call 'flow 'create nil {this->window_status_panel})
+		(call 'flow 'set_long_prop {this->window_status_panel, static_sym_flow_flags, flow_flag_up | flow_flag_fillw | flow_flag_lasth})
+		(call 'window 'add_back {this, this->window_status_panel})
+
+		;add status label ?
+		(vpif {flags & window_flag_status})
+			(call 'label 'create nil {this->window_status})
+			(call 'label 'set_long_prop {this->window_status, static_sym_color, status_col})
+			(call 'flow 'add_child {this->window_status_panel, this->window_status})
+		(endif)
+
+		;add title panel
+		(call 'flow 'create nil {this->window_title_panel})
+		(call 'flow 'set_long_prop {this->window_title_panel, static_sym_flow_flags, flow_flag_down | flow_flag_fillw | flow_flag_lasth})
+		(call 'flow 'add_child {this->window_status_panel, this->window_title_panel})
 
 		;add title flow panel
 		(call 'flow 'create nil {title_flow})
 		(call 'flow 'set_long_prop {title_flow, static_sym_flow_flags, flow_flag_left | flow_flag_fillh | flow_flag_lastw} '(r0))
 		(call 'flow 'set_long_prop '(r0 static_sym_color title_col))
-		(call 'flow 'add_child {this->window_flow, title_flow})
+		(call 'flow 'add_child {this->window_title_panel, title_flow})
 
 		;add close button ?
 		(vpif {flags & window_flag_close})
@@ -81,18 +93,6 @@
 		(call 'title 'create nil {this->window_title})
 		(call 'flow 'add_child {title_flow, this->window_title})
 
-		;add status panel
-		(call 'flow 'create nil {this->window_panel})
-		(call 'flow 'set_long_prop {this->window_panel, static_sym_flow_flags, flow_flag_up | flow_flag_fillw | flow_flag_lasth})
-		(call 'flow 'add_child {this->window_flow, this->window_panel})
-
-		;add status label ?
-		(vpif {flags & window_flag_status})
-			(call 'label 'create nil {this->window_status})
-			(call 'label 'set_long_prop {this->window_status, static_sym_color, status_col})
-			(call 'flow 'add_child {this->window_panel, this->window_status})
-		(endif)
-
 		(assign {this, 1} '(r0 r1))
 	(endif)
 
@@ -114,7 +114,7 @@
 	(entry 'window 'add_child '(r0 r1))
 
 	(vp-push r0)
-	(call 'flow 'add_child '((r0 window_panel) r1))
+	(call 'flow 'add_child '((r0 window_title_panel) r1))
 	(vp-pop r0)
 
 	(exit 'window 'add_child '(r0))
@@ -161,7 +161,7 @@
 	(vp-sub-rr r1 r9)
 	(vp-sub-rr r1 r10)
 	(vp-push r0)
-	(call 'flow 'change '((r0 window_flow) r1 r1 r9 r10))
+	(call 'flow 'change '((r0 window_status_panel) r1 r1 r9 r10))
 	(vp-pop r0)
 	(call 'window 'get_long_prop '(r0 static_sym_color) '(r0 r1))
 	(vp-shr-cr 24 r1)
@@ -321,7 +321,7 @@
 
 	(call 'window 'get_long_prop '(r0 static_sym_border) '(r0 r1))
 	(vp-push r0 r1)
-	(call 'flow 'pref_size '((r0 window_flow)) '(_ r9 r10))
+	(call 'flow 'pref_size '((r0 window_status_panel)) '(_ r9 r10))
 	(vp-pop r0 r1)
 	(vp-add-rr r1 r1)
 	(vp-add-rr r1 r9)

@@ -9,12 +9,11 @@
 (defq images '("apps/films/captive.flm" "apps/films/cradle.flm") index 0 id t)
 
 (ui-tree window (create-window window_flag_close) nil
-	(ui-element image_flow (create-flow) ('flow_flags (logior flow_flag_down flow_flag_fillw flow_flag_lasth))
-		(ui-element _ (create-flow) ('flow_flags (logior flow_flag_right flow_flag_fillh)
-				'color toolbar_col 'font (create-font "fonts/Entypo.ctf" 32))
-			(component-connect (ui-element _ (create-button) ('text "")) event_win_prev)
-			(component-connect (ui-element _ (create-button) ('text "")) event_win_next))
-		(ui-element frame (canvas-load (elem index images) load_flag_film))))
+	(ui-element _ (create-flow) ('flow_flags (logior flow_flag_right flow_flag_fillh)
+			'color toolbar_col 'font (create-font "fonts/Entypo.ctf" 32))
+		(component-connect (ui-element _ (create-button) ('text "")) event_win_prev)
+		(component-connect (ui-element _ (create-button) ('text "")) event_win_next))
+	(ui-element frame (canvas-load (elem index images) load_flag_film)))
 
 (gui-add (apply view-change (cat (list window 64 512)
 	(view-pref-size (window-set-title (window-connect-close window event_win_close) (elem index images))))))
@@ -22,7 +21,7 @@
 (defun win-refresh (_)
 	(view-sub frame)
 	(setq index _ frame (canvas-load (elem index images) load_flag_film))
-	(view-layout (view-add-back image_flow frame))
+	(view-layout (view-add-child window frame))
 	(bind '(x y _ _) (view-get-bounds (window-set-title window (elem index images))))
 	(bind '(w h) (view-pref-size window))
 	(view-change-dirty window x y w h))

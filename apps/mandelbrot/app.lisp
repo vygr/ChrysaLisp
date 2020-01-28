@@ -40,11 +40,10 @@
 				((and (= id (component-get-id canvas))
 						(= (get-long msg ev_msg_type) ev_type_mouse)
 						(/= (get-int msg ev_msg_mouse_buttons) 0))
-					(print (get-int msg ev_msg_mouse_buttons))
 					;mouse click on the canvas
 					(setq center_x (+ center_x (fmul zoom (/ (* (- (get-int msg ev_msg_mouse_rx) (/ canvas_width 2)) 2.0) canvas_width)))
 						center_y (+ center_y (fmul zoom (/ (* (- (get-int msg ev_msg_mouse_ry) (/ canvas_height 2)) 2.0) canvas_height)))
-						zoom (fmul zoom (if (= 0 (logand (get-int msg ev_msg_mouse_buttons) 2)) 0.5 1.5)))
+						zoom (fmul zoom (if (= 0 (logand (get-int msg ev_msg_mouse_buttons) 2)) 0.5 2.0)))
 					(reset))
 				(t (view-event window msg))))
 		(t	;child msg

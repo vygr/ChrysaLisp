@@ -18,8 +18,6 @@
 	(defq child_mbox (open-child "apps/chess/child.lisp" kn_call_child)))
 
 (ui-tree window (create-window window_flag_close) ('color argb_black)
-	(ui-element vdu (create-vdu) ('vdu_width vdu_width 'vdu_height vdu_height 'ink_color argb_cyan
-		'font (create-font "fonts/Hack-Regular.ctf" 16)))
 	(ui-element chess_grid (create-grid) ('grid_width 8 'grid_height 8
 			'font (create-font "fonts/Chess.ctf" 42) 'border 1 'text " ")
 		(each (lambda (i)
@@ -27,7 +25,9 @@
 				(defq paper argb_white ink argb_black)
 				(defq paper argb_black ink argb_white))
 			(push squares (ui-element _ (create-button)
-				('color paper 'ink_color ink)))) (range 0 64))))
+				('color paper 'ink_color ink)))) (range 0 64)))
+	(ui-element vdu (create-vdu) ('vdu_width vdu_width 'vdu_height vdu_height 'ink_color argb_cyan
+		'font (create-font "fonts/Hack-Regular.ctf" 16))))
 
 (gui-add (apply view-change (cat (list window 512 128)
 	(view-pref-size (window-set-title (window-connect-close window event_win_close) "Chess")))))
