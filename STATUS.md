@@ -27,6 +27,14 @@ corrupted.
 
 ------
 
+Added a simple Mandelbrot demo, fixed point math for now, in order to test the
+32:32 real number format in a more formal setting. Plus Mandelbrots are great
+:)
+
+It's a nice demo of a self decomposing multi-child process app too.
+
+------
+
 https://github.com/vygr/QtCTF
 
 Published the QtCTF conversion app for ChrysaLisp font creation. This
