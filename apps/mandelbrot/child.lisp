@@ -2,12 +2,13 @@
 (import 'sys/lisp.inc)
 (import 'class/lisp.inc)
 (import 'gui/lisp.inc)
+(import 'apps/mandelbrot/mbmath.inc)
 
 (defun-bind depth (x0 y0)
 	(defq i -1 xc 0 yc 0 x2 0 y2 0)
-	(while (and (/= (setq i (inc i)) 255) (< (+ x2 y2) (const (fmul 2.0 2.0))))
-		(setq yc (+ (fmul 2.0 xc yc) y0) xc (+ (- x2 y2) x0)
-			x2 (fmul xc xc) y2 (fmul yc yc))) i)
+	(while (and (/= (setq i (inc i)) 255) (< (+ x2 y2) (mbfp-from-fixed 4.0)))
+		(setq yc (+ (mbfp-mul (mbfp-from-fixed 2.0) xc yc) y0) xc (+ (- x2 y2) x0)
+			x2 (mbfp-mul xc xc) y2 (mbfp-mul yc yc))) i)
 
 ;native versions
 (ffi depth "apps/mandelbrot/depth" 0)
@@ -22,8 +23,8 @@
 		(defq x (dec xp))
 		(while (/= (setq x (inc x)) x1)
 			(write reply (char (depth
-				(+ (fmul z (/ (* (- x (/ w 2)) 2.0) w)) cx)
-				(+ (fmul z (/ (* (- y (/ h 2)) 2.0) h)) cy)))))
+				(+ (mbfp-offset x w z) cx)
+				(+ (mbfp-offset y h z) cy)))))
 		(task-sleep 0))
 	(mail-send (str reply) mbox))
 
