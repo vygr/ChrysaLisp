@@ -8,7 +8,8 @@
 (structure 'event 0
 	(byte 'win_close))
 
-(defq canvas_width 800 canvas_height 800 id t in nil then (time) total 0 select nil)
+(defq canvas_width 800 canvas_height 800 id t in nil then (time) total 0 select nil
+	center_x -0.5 center_y 0.0 zoom 1.0)
 
 (ui-tree window (create-window window_flag_close) nil
 	(ui-element canvas (create-canvas canvas_width canvas_height 1)))
@@ -21,7 +22,8 @@
 	(canvas-swap (canvas-fill canvas argb_black))
 	(setq in (in-stream) then (time) select (array (task-mailbox) (in-mbox in))
 		total (* canvas_width canvas_height))
-	(mail-send (array (elem 1 select) 0 0 canvas_width canvas_height canvas_width canvas_height)
+	(mail-send (array (elem 1 select) 0 0 canvas_width canvas_height
+		canvas_width canvas_height center_x center_y zoom)
 		(open-child "apps/mandelbrot/child.lisp" kn_call_child)))
 
 (reset)
@@ -37,8 +39,12 @@
 					(setq id nil))
 				((and (= id (component-get-id canvas))
 						(= (get-long msg ev_msg_type) ev_type_mouse)
-						(= (get-int msg ev_msg_mouse_buttons) 0))
+						(/= (get-int msg ev_msg_mouse_buttons) 0))
+					(print (get-int msg ev_msg_mouse_buttons))
 					;mouse click on the canvas
+					(setq center_x (+ center_x (fmul zoom (/ (* (- (get-int msg ev_msg_mouse_rx) (/ canvas_width 2)) 2.0) canvas_width)))
+						center_y (+ center_y (fmul zoom (/ (* (- (get-int msg ev_msg_mouse_ry) (/ canvas_height 2)) 2.0) canvas_height)))
+						zoom (fmul zoom (if (= 0 (logand (get-int msg ev_msg_mouse_buttons) 2)) 0.5 1.5)))
 					(reset))
 				(t (view-event window msg))))
 		(t	;child msg
