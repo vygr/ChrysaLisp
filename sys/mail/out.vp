@@ -18,7 +18,7 @@
 	(loop-start 'mail_loop)
 		;read parcel or junk mail
 		(call 'sys_mail 'mymail nil {msg, data})
-		(vpif {msg->msg_dest.id_mbox = id})
+		(vpif {msg->msg_dest.id_cpu = id})
 			;we got some junk mail, just free it for now
 			(call 'sys_mail 'free {msg})
 			(continue 'mail_loop)
