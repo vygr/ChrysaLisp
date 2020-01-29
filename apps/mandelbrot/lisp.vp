@@ -31,22 +31,21 @@
 		(breakif `(,tmp >= ,four))
 
 		(vp-mul-rr xc yc)
-		(vp-asr-cr (- mbfp_shift 1) yc)
-		(vp-add-rr y0 yc)
-
 		(vp-cpy-rr x2 xc)
+		(vp-asr-cr (- mbfp_shift 1) yc)
 		(vp-sub-rr y2 xc)
+		(vp-add-rr y0 yc)
 		(vp-add-rr x0 xc)
 
-		(vp-cpy-rr xc x2)
 		(vp-cpy-rr yc y2)
-		(vp-mul-rr x2 x2)
+		(vp-cpy-rr xc x2)
 		(vp-mul-rr y2 y2)
-		(vp-asr-cr mbfp_shift x2)
-		(vp-asr-cr mbfp_shift y2)
-
+		(vp-mul-rr x2 x2)
 		(vp-add-cr 1 i)
+		(vp-asr-cr mbfp_shift y2)
+		(vp-asr-cr mbfp_shift x2)
 	(loop-until `(,i = 255))
+
 	(call 'num 'create `(,i) '(r1))
 	(vp-pop r0)
 

@@ -41,10 +41,14 @@
 				((and (= id (component-get-id canvas))
 						(= (get-long msg ev_msg_type) ev_type_mouse)
 						(/= (get-int msg ev_msg_mouse_buttons) 0))
-					;mouse click on the canvas
-					(setq center_x (+ center_x (mbfp-offset (get-int msg ev_msg_mouse_rx) canvas_width zoom))
-						center_y (+ center_y (mbfp-offset (get-int msg ev_msg_mouse_ry) canvas_height zoom))
-						zoom (mbfp-mul zoom (if (= 0 (logand (get-int msg ev_msg_mouse_buttons) 2)) (mbfp-from-fixed 0.5) (mbfp-from-fixed 2.0))))
+					;mouse click on the canvas view, zoom in/out, re-center
+					(bind '(w h) (view-get-size canvas))
+					(defq rx (- (get-int msg ev_msg_mouse_rx) (/ (- w canvas_width) 2))
+						ry (- (get-int msg ev_msg_mouse_ry) (/ (- h canvas_height) 2)))
+					(setq center_x (+ center_x (mbfp-offset rx canvas_width zoom))
+						center_y (+ center_y (mbfp-offset ry canvas_height zoom))
+						zoom (mbfp-mul zoom (if (= 0 (logand (get-int msg ev_msg_mouse_buttons) 2))
+							(mbfp-from-fixed 0.5) (mbfp-from-fixed 2.0))))
 					(reset))
 				(t (view-event window msg))))
 		(t	;child msg
@@ -57,7 +61,7 @@
 				(defq x (dec xp))
 				(while (/= (setq x (inc x)) x1)
 					(defq c (read-char reply) c (if (= c 255) 0 c)
-						r (<< (logand c 0x7f) 1) g (<< (logand c 0x3f) 2) b (<< (logand c 0x1f) 3))
+						r c g (<< (logand c 0x7f) 1) b (<< (logand c 0x3f) 2))
 					(canvas-plot (canvas-set-color canvas (+ argb_black (<< r 16) (<< g 8) b)) x y))
 					(task-sleep 0))
 			(when (or (= total 0) (> (- (defq now (time)) then) 1000000))
