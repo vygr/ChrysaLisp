@@ -100,15 +100,32 @@
 	;inputs
 	;r0 = mailbox id (uint)
 	;trashes
-	;r0-r3
+	;r0-r5
 
 	(entry 'sys_mail 'free_mbox '(r0))
 
 	(call 'sys_mail 'mbox_addr '(r0) '(r0))
 	(vpif '(r0 /= 0))
+		;remove mailbox node
 		(vp-cpy-rr r0 r1)
 		(ln-remove-node r1 r2)
-		(f-bind 'sys_mail 'statics r1)
+
+ 		;splice any dead mail to postman
+ 		(f-bind 'sys_mail 'statics r1)
+		(lh-is-empty r0 mbox_list r2)
+		(vpif '(r2 /= 0))
+			(assign '((r1 ml_statics_out_mbox_addr)) '(r2))
+			(lh-get-head r0 mbox_list r3)
+			(lh-get-tail r0 mbox_list r4)
+			(lh-get-tail r2 mbox_list r5)
+			(vp-add-cr (+ mbox_list lh_list_tail) r2)
+			(ln-set-succ r5 r3)
+			(ln-set-pred r3 r5)
+			(ln-set-succ r4 r2)
+			(ln-set-pred r2 r4)
+		(endif)
+
+		;free mailbox node
 		(vp-add-cr ml_statics_mbox_heap r1)
 		(hp-freecell r1 r0 r2)
 	(endif)

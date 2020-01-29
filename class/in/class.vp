@@ -78,6 +78,22 @@
 		(call 'sys_mail 'free_mbox '(r0))
 	(endif)
 
+	;splice any junk sequence mail to postman
+	(assign '((rsp 0)) '(r0))
+	(f-bind 'sys_mail 'statics r1)
+	(lh-is-empty r0 in_list r2)
+	(vpif '(r2 /= 0))
+		(assign '((r1 ml_statics_out_mbox_addr)) '(r2))
+		(lh-get-head r0 in_list r3)
+		(lh-get-tail r0 in_list r4)
+		(lh-get-tail r2 mbox_list r5)
+		(vp-add-cr (+ mbox_list lh_list_tail) r2)
+		(ln-set-succ r5 r3)
+		(ln-set-pred r3 r5)
+		(ln-set-succ r4 r2)
+		(ln-set-pred r2 r4)
+	(endif)
+
 	;deinit parent
 	(vp-pop r0)
 	(s-jump 'in 'deinit '(r0))
