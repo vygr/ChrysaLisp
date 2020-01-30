@@ -100,7 +100,7 @@
 	;inputs
 	;r0 = mailbox id (uint)
 	;trashes
-	;r0-r5
+	;r0-r4
 
 	(entry 'sys_mail 'free_mbox '(r0))
 
@@ -110,24 +110,47 @@
 		(vp-cpy-rr r0 r1)
 		(ln-remove-node r1 r2)
 
- 		;splice any dead mail to postman
- 		(f-bind 'sys_mail 'statics r1)
-		(lh-is-empty r0 mbox_list r2)
-		(vpif '(r2 /= 0))
-			(assign '((r1 ml_statics_out_mbox_addr)) '(r2))
-			(lh-get-head r0 mbox_list r3)
-			(lh-get-tail r0 mbox_list r4)
-			(lh-get-tail r2 mbox_list r5)
-			(vp-add-cr (+ mbox_list lh_list_tail) r2)
-			(ln-set-succ r5 r3)
-			(ln-set-pred r3 r5)
-			(ln-set-succ r4 r2)
-			(ln-set-pred r2 r4)
-		(endif)
-
 		;free mailbox node
+		(f-bind 'sys_task 'statics r1)
 		(vp-add-cr ml_statics_mbox_heap r1)
 		(hp-freecell r1 r0 r2)
+
+ 		;splice any dead mail to postman
+		(call 'sys_mail 'junk_mail '((& r0 mbox_list)))
+	(endif)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'sys_mail 'junk_mail)
+	;inputs
+	;r3 = mail list pointer (ptr)
+	;trashes
+	;r0-r4
+
+	(entry 'sys_mail 'junk_mail '(r3))
+
+	;splice any junk mail to postman
+	(lh-is-empty r3 0 r1)
+	(vpif '(r1 /= 0))
+		;resume postman if needed
+		(f-bind 'sys_mail 'statics r1)
+		(assign '((r1 ml_statics_out_mbox_addr)) '(r4))
+		(assign '((r4 mbox_tcb)) '(r0))
+		(vpif '(r0 /= 0))
+			(vp-xor-rr r1 r1)
+			(assign '(r1) '((r4 mbox_tcb)))
+			(call 'sys_task 'resume '(r0))
+		(endif)
+		;splice junk mail
+		(lh-get-head r3 0 r0)
+		(lh-get-tail r3 0 r1)
+		(lh-get-tail r4 mbox_list r2)
+		(vp-add-cr (+ mbox_list lh_list_tail) r4)
+		(ln-set-succ r2 r0)
+		(ln-set-pred r0 r2)
+		(ln-set-succ r1 r4)
+		(ln-set-pred r4 r1)
 	(endif)
 	(vp-ret)
 

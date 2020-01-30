@@ -6378,7 +6378,7 @@ r0-r5
 inputs
 r0 = mailbox id (uint)
 trashes
-r0-r3
+r0-r4
 ```
 
 ### sys_mail::mbox_addr -> sys/mail/mbox_addr
@@ -6522,6 +6522,15 @@ inputs
 r0 = mailbox name c string (pubyte)
 trashes
 r0-r14
+```
+
+### sys_mail::junk_mail -> sys/mail/junk_mail
+
+```lisp
+inputs
+r3 = mail list pointer (ptr)
+trashes
+r0-r4
 ```
 
 ### sys_mail::in -> sys/mail/in
