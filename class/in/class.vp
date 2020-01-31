@@ -102,22 +102,31 @@
 	(vp-push r0)
 	(call 'sys_mail 'free '((r0 stream_buffer)))
 
-	;read next in sequence
+	;read next in sequence, blocking if not
 	(assign '((rsp 0)) '(r9))
 	(vp-xor-rr r0 r0)
 	(loop-start)
-		(call 'next_seq '((& r9 in_list) r0 (r9 in_seqnum)) '(r0 r8))
-		(breakif '(r0 /= 0))
+		(call 'next_seq '((& r9 in_list) r0 (r9 in_seqnum)) '(r4 r8))
+		(breakif '(r4 /= 0))
 		(call 'sys_mail 'read '((r9 in_mbox_addr)) '(r0 _))
 	(loop-end)
 	(assign '((r9 in_seqnum)) '(r2))
 	(vp-add-cr 1 r2)
 	(assign '(r2) '((r9 in_seqnum)))
 
+	;do we have the next msg allready ?
+	(call 'next_seq '((& r9 in_list) 0 r2) '(r0 _))
+	(vpif '(r0 /= 0))
+		;put it in the mailbox so 'select' or 'poll' will trigger !
+		(assign '((r9 in_mbox_addr)) '(r1))
+		(vp-add-cr mbox_list r1)
+		(lh-add-at-tail r1 r0 r2)
+	(endif)
+
 	;save msg buffer details
-	(assign '(r0) '((r9 stream_buffer)))
+	(assign '(r4) '((r9 stream_buffer)))
 	(vp-lea-i r8 stream_msg_data r2)
-	(assign '((r0 msg_length) (r8 stream_msg_state)) '(r3 r4))
+	(assign '((r4 msg_length) (r8 stream_msg_state)) '(r3 r4))
 	(vp-add-rr r8 r3)
 	(assign '(r2 r3 r4) '((r9 stream_bufp) (r9 stream_bufe) (r9 in_state)))
 
@@ -153,7 +162,7 @@
 
 	;save any new msg
 	(vpif '(r1 /= 0))
-		(lh-add-at-tail r0 r1 r3)
+		(lh-add-at-head r0 r1 r3)
 	(endif)
 
 	;scan for seqnum
