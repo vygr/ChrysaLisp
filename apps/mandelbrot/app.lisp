@@ -24,7 +24,7 @@
 	(setq in (in-stream) then (time) select (array (task-mailbox) (in-mbox in))
 		total (* canvas_width canvas_height canvas_scale canvas_scale))
 	(mail-send (array (elem 1 select) 0 0 (* canvas_width canvas_scale) (* canvas_height canvas_scale)
-		(* canvas_width canvas_scale) (* canvas_height canvas_scale) center_x center_y zoom)
+		(* canvas_width canvas_scale) (* canvas_height canvas_scale) center_x center_y zoom (* (kernel-total) 4))
 		(open-child "apps/mandelbrot/child.lisp" kn_call_child)))
 
 (reset)
@@ -64,7 +64,7 @@
 						r c g (<< (logand c 0x7f) 1) b (<< (logand c 0x3f) 2))
 					(canvas-plot (canvas-set-color canvas (+ argb_black (<< r 16) (<< g 8) b)) x y))
 					(task-sleep 0))
-			(when (or (= total 0) (> (- (defq now (time)) then) 1000000))
+			(when (or (> (- (defq now (time)) then) 1000000) (= total 0))
 				(setq then now)
 				(canvas-swap canvas)))))
 
