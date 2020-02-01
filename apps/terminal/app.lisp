@@ -6,17 +6,21 @@
 (import 'apps/login/pupa.inc)
 
 (structure 'event 0
-	(byte 'win_close 'win_min 'win_max))
+	(byte 'win_close 'win_min 'win_max 'win_layout 'win_scroll))
 
-(defq id t cmd nil vdu_width 60 vdu_height 40 text_buf (list ""))
+(defq id t cmd nil vdu_width 60 vdu_height 40 vdu_min_width 16 vdu_min_height 16 text_buf (list ""))
 
 (ui-tree window (create-window (+ window_flag_close window_flag_min window_flag_max window_flag_status)) ('color 0xc0000000)
-	(ui-element vdu (create-vdu) ('vdu_width vdu_width 'vdu_height vdu_height 'ink_color argb_green
-		'font (create-font "fonts/Hack-Regular.ctf" 16))))
+	(ui-element _ (create-flow) ('flow_flags (logior flow_flag_left flow_flag_fillh flow_flag_lastw))
+		(component-connect (ui-element slider (create-slider) ('color slider_col)) event_win_scroll)
+		(ui-element vdu (create-vdu) ('vdu_width vdu_width 'vdu_height vdu_height 'min_width vdu_width 'min_height vdu_height
+			'ink_color argb_green 'font (create-font "fonts/Hack-Regular.ctf" 16)))))
 
 (gui-add (apply view-change (cat (list window 448 16)
-	(view-pref-size (window-set-title (window-set-status (window-connect-close (window-connect-min
-		(window-connect-max window event_win_max) event_win_min) event_win_close) "Ready") "Terminal")))))
+	(view-pref-size (window-set-title (window-set-status
+		(component-connect (window-connect-close (window-connect-min
+			(window-connect-max window event_win_max) event_win_min) event_win_close) event_win_layout)
+		"Ready") "Terminal")))))
 
 (defun-bind vdu-print (vdu buf s)
 	(each (lambda (c)
@@ -24,8 +28,8 @@
 			((eql c (const (ascii-char 10)))
 				;line feed and truncate
 				(push buf "")
-				(if (> (length buf) vdu_height)
-					(setq buf (slice (dec (neg vdu_height)) -1 buf))))
+				(if (> (length buf) *env_terminal_lines*)
+					(setq buf (slice (dec (neg *env_terminal_lines*)) -1 buf))))
 			((eql c (const (ascii-char 126)))
 				;clear line
 				(elem-set -2 buf ""))
@@ -44,6 +48,9 @@
 			(setq oy cy))
 		((>= cy (+ oy vdu_height))
 			(setq oy (- cy vdu_height -1))))
+	;set slider values
+	(def slider 'maximum (max 0 (- (length buf) vdu_height)) 'portion vdu_height 'value oy)
+	(view-dirty slider)
 	(vdu-load vdu buf ox oy cx cy) buf)
 
 ;override print for VDU output
@@ -89,12 +96,22 @@
 		(t	;some key
 			(print-edit-line))))
 
-(defun-bind vdu-resize (w h)
+(defun-bind window-resize (w h)
 	(setq vdu_width w vdu_height h)
-	(set vdu 'vdu_width vdu_width 'vdu_height vdu_height)
+	(set vdu 'vdu_width w 'vdu_height h 'min_width w 'min_height h)
 	(bind '(x y _ _) (view-get-bounds window))
 	(bind '(w h) (view-pref-size window))
+	(set vdu 'min_width vdu_min_width 'min_height vdu_min_height)
 	(view-change-dirty window x y w h)
+	(print-edit-line))
+
+(defun-bind window-layout (w h)
+	(setq vdu_width w vdu_height h)
+	(set vdu 'vdu_width w 'vdu_height h 'min_width w 'min_height h)
+	(bind '(x y _ _) (view-get-bounds vdu))
+	(bind '(w h) (view-pref-size vdu))
+	(set vdu 'min_width vdu_min_width 'min_height vdu_min_height)
+	(view-change vdu x y w h)
 	(print-edit-line))
 
 (print (str "ChrysaLisp Terminal 1.6" (ascii-char 10)))
@@ -108,13 +125,22 @@
 			(cond
 				((= (setq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_win_close)
 					(setq id nil))
+				((= id event_win_layout)
+					;user window resize
+					(apply window-layout (vdu-max-size vdu)))
 				((= id event_win_min)
 					;min button
-					(vdu-resize 60 40))
+					(window-resize 60 40))
 				((= id event_win_max)
 					;max button
-					(vdu-resize 120 40))
-				(t	(view-event window msg)
+					(window-resize 120 40))
+				((= id event_win_scroll)
+					;user scroll bar
+					(defq cx (if cmd *line_pos* (+ (length *env_terminal_prompt*) *line_pos*))
+						cy (dec (length text_buf)))
+					(vdu-load vdu text_buf 0 (get slider 'value) cx cy))
+				(t	;gui event
+					(view-event window msg)
 					(and (= (get-long msg ev_msg_type) ev_type_key)
 						(> (get-int msg ev_msg_key_keycode) 0)
 						(terminal-input (get-int msg ev_msg_key_key))))))

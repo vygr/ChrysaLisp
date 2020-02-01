@@ -303,7 +303,8 @@
 	(vp-sub-rr r8 r10)
 
 	;change window size and dirty
-	(jump 'window 'change_dirty '(r0 r7 r8 r9 r10))
+	(call 'window 'change_dirty '(r0 r7 r8 r9 r10) '(r0))
+	(jump 'window 'emit '(r0))
 
 (def-func-end)
 

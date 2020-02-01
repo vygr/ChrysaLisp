@@ -27,6 +27,12 @@ corrupted.
 
 ------
 
+GUI terminal app now supports scroll back line history and arbitrary resizing.
+User setting for line history size is `*env_terminal_lines*`. Defaults to 10 *
+40 lines.
+
+------
+
 Added a simple Mandelbrot demo, fixed point math for now, in order to test the
 32:32 real number format in a more formal setting. Plus Mandelbrots are great
 :)

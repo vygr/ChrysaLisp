@@ -149,7 +149,7 @@
 	;r1-r14
 
 	(ptr 'this 'font)
-	(uint 'w 'h)
+	(uint 'w 'h 'mw 'mh)
 
 	;save inputs
 	(push-scope)
@@ -169,8 +169,13 @@
 	(endif)
 	(call 'font 'deref_if {font})
 
-	(exit 'vdu 'pref_size {this, this->vdu_width * this->vdu_char_width,
-		this->vdu_height * this->vdu_char_height})
+	(call 'vdu 'get_long_prop {this, static_sym_min_width} {_, mw})
+	(call 'vdu 'get_long_prop {this, static_sym_min_height} {_, mh})
+	(vpif {mw = 0 || mh = 0})
+		(assign {w, h} {mw, mh})
+	(endif)
+
+	(exit 'vdu 'pref_size {this, mw * this->vdu_char_width, mh * this->vdu_char_height})
 	(pop-scope)
 	(return)
 
