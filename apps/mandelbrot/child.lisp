@@ -22,9 +22,7 @@
 	(while (/= (setq y (inc y)) y1)
 		(defq x (dec xp))
 		(while (/= (setq x (inc x)) x1)
-			(write reply (char (depth
-				(+ (mbfp-offset x w z) cx)
-				(+ (mbfp-offset y h z) cy)))))
+			(write-char reply (depth (+ (mbfp-offset x w z) cx) (+ (mbfp-offset y h z) cy))))
 		(task-sleep 0))
 	(mail-send (str reply) mbox))
 
