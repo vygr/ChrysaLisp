@@ -27,6 +27,24 @@
 		(* canvas_width canvas_scale) (* canvas_height canvas_scale) center_x center_y zoom (* (kernel-total) 4))
 		(open-child "apps/mandelbrot/child.lisp" kn_call_child)))
 
+(defun-bind tile (canvas data)
+	;(tile canvas data) -> area
+	(defq data (string-stream data)
+		x (read-char data (const int_size)) y (read-char data (const int_size))
+		x1 (read-char data (const int_size)) y1 (read-char data (const int_size)))
+	(defq yp (dec y))
+	(while (/= (setq yp (inc yp)) y1)
+		(defq xp (dec x))
+		(while (/= (setq xp (inc xp)) x1)
+			(defq r (read-char data) r (if (= r 255) 0 r)
+				g (<< (logand r 0x7f) 9) b (<< (logand r 0x3f) 2))
+			(canvas-plot (canvas-set-color canvas (+ argb_black (<< r 16) g b)) xp yp))
+		(task-sleep 0))
+	(* (- x1 x) (- y1 y)))
+
+;native versions
+(ffi tile "apps/mandelbrot/tile" 0)
+
 (reset)
 (while id
 	;next event
@@ -51,19 +69,8 @@
 							(mbfp-from-fixed 0.5) (mbfp-from-fixed 2.0))))
 					(reset))
 				(t (view-event window msg))))
-		(t	;child msg
-			(defq reply (string-stream msg)
-				xp (read-char reply (const int_size)) y (read-char reply (const int_size))
-				x1 (read-char reply (const int_size)) y1 (read-char reply (const int_size))
-				total (- total (* (- x1 xp) (- y1 y))))
-			(setq y (dec y))
-			(while (/= (setq y (inc y)) y1)
-				(defq x (dec xp))
-				(while (/= (setq x (inc x)) x1)
-					(defq c (read-char reply) c (if (= c 255) 0 c)
-						r c g (<< (logand c 0x7f) 1) b (<< (logand c 0x3f) 2))
-					(canvas-plot (canvas-set-color canvas (+ argb_black (<< r 16) (<< g 8) b)) x y))
-					(task-sleep 0))
+		(t	;child tile msg
+			(setq total (- total (tile canvas msg)))
 			(when (or (> (- (defq now (time)) then) 1000000) (= total 0))
 				(setq then now)
 				(canvas-swap canvas)))))

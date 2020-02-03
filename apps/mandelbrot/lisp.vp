@@ -1,5 +1,8 @@
 (include 'sys/func.inc)
 (include 'class/num/class.inc)
+(include 'class/str/class.inc)
+(include 'gui/canvas/class.inc)
+(include 'gui/ctx/class.inc)
 (include 'class/lisp/class.inc)
 
 (import 'apps/mandelbrot/mbmath.inc)
@@ -56,5 +59,62 @@
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r0 "(depth x0 y0)" error_msg_wrong_types r1))
 	(signature '(num num)))
+
+(def-func-end)
+
+(def-func 'apps/mandelbrot/tile)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(ptr 'this 'canvas)
+	(pubyte 'data)
+	(uint 'x 'y 'x1 'y1 'xp 'yp 'col)
+
+	(entry '(r0 r1))
+
+(errorcases
+	(call 'lisp 'env_args_type '(r1 ($ sig) 2) '(r2))
+	(gotoif '(r2 = 0) 'error))
+
+	(push-scope)
+	(assign '(r0) {this})
+
+	(class/vector/bind_args r1 '(r0 r1) '(canvas str))
+	(vp-cpy-ir-ui r1 (* 0 int_size) r7)
+	(vp-cpy-ir-ui r1 (* 1 int_size) r8)
+	(vp-cpy-ir-ui r1 (* 2 int_size) r9)
+	(vp-cpy-ir-ui r1 (* 3 int_size) r10)
+	(vp-add-cr (* 4 int_size) r1)
+	(assign '(r0 r1 r7 r8 r9 r10 r8) {canvas, data, x, y, x1, y1, yp})
+	(loop-start)
+		(assign {x} {xp})
+		(loop-start)
+			(assign {*data} {col})
+			(vpif {col = 255})
+				(assign {0} {col})
+			(endif)
+			(assign {argb_black + (col << 16) + ((col & 0x7f) << 9) + ((col & 0x3f) << 2)} {canvas->canvas_color})
+			(call 'canvas 'plot {canvas, xp, yp})
+			(assign {data + byte_size} {data})
+		(loop-until {(xp + 1 => xp) = x1})
+	(loop-until {(yp + 1 => yp) = y1})
+
+	(call 'num 'create {(x1 - x) * (y1 - y)} '(r1))
+
+	(assign {this} '(r0))
+	(exit '(r0 r1))
+	(pop-scope)
+	(return)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r0 "(tile canvas data)" error_msg_wrong_types r1))
+	(signature '(canvas str)))
 
 (def-func-end)
