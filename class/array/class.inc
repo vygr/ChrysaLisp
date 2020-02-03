@@ -297,21 +297,36 @@
 ; paramater macros
 ;;;;;;;;;;;;;;;;;;
 
-(defcfun-bind class/array/set_args (i regs)
+(defun-bind type-to-size (_)
+	(case _
+		((i ui) int_size)
+		((s us) short_size)
+		((b ub) byte_size)
+		(t long_size)))
+
+(defcfun-bind class/array/set_args (i regs &optional type)
 	;inputs
 	;iter
 	;(reg ...)
 	;outputs
 	;load register list from iter
-	(assign-asm-to-asm regs (map (lambda (r) (list i (* long_size _))) regs)))
+	(cond
+		((eql type nil)
+			(assign-asm-to-asm regs (map (lambda (r) (list i (* (const long_size) _))) regs)))
+		(t	(defq s (type-to-size type))
+			(assign-asm-to-asm regs (map (lambda (r) (list i (* s _) type)) regs)))))
 
-(defcfun-bind class/array/get_args (i regs)
+(defcfun-bind class/array/get_args (i regs &optional type)
 	;inputs
 	;iter
 	;(reg ...)
 	;outputs
 	;save register list to iter
-	(assign-asm-to-asm (map (lambda (r) (list i (* long_size _))) regs) regs))
+	(cond
+		((eql type nil)
+			(assign-asm-to-asm (map (lambda (r) (list i (* (const long_size) _))) regs) regs))
+		(t	(defq s (type-to-size type))
+			(assign-asm-to-asm (map (lambda (r) (list i (* s _) type)) regs) regs))))
 
 (defcfun-bind class/array/map_args (regs pos)
 	;inputs
