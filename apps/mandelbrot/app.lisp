@@ -15,12 +15,12 @@
 (ui-tree window (create-window window_flag_close) nil
 	(ui-element canvas (create-canvas canvas_width canvas_height canvas_scale)))
 
+(canvas-swap (canvas-fill canvas argb_black))
 (gui-add (apply view-change (cat (list window 64 64)
 	(view-pref-size (window-set-title (window-connect-close window event_win_close) "Mandelbrot")))))
 
 (defun-bind reset ()
 	(if in (in-set-state in stream_mail_state_stopped))
-	(canvas-swap (canvas-fill canvas argb_black))
 	(setq in (in-stream) then (time) select (array (task-mailbox) (in-mbox in))
 		total (* canvas_width canvas_height canvas_scale canvas_scale))
 	(mail-send (array (elem 1 select) 0 0 (* canvas_width canvas_scale) (* canvas_height canvas_scale)
@@ -31,8 +31,8 @@
 	;(tile canvas data) -> area
 	(defq data (string-stream data)
 		x (read-char data (const int_size)) y (read-char data (const int_size))
-		x1 (read-char data (const int_size)) y1 (read-char data (const int_size)))
-	(defq yp (dec y))
+		x1 (read-char data (const int_size)) y1 (read-char data (const int_size))
+		yp (dec y))
 	(while (/= (setq yp (inc yp)) y1)
 		(defq xp (dec x))
 		(while (/= (setq xp (inc xp)) x1)
