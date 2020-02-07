@@ -107,9 +107,11 @@
 			(down)))
 	; ensures behavior resembling other text editors when adjusting cx
 	(set-sticky)
-	(cursor-visible)
+	(bind '(buffer_ox buffer_oy) (cursor-visible))
+	(set slider 'value buffer_oy)
 	(vdu-load vdu buffer_text 0 (get slider 'value) buffer_cx buffer_cy)
-	(vdu-load vdu buffer_text buffer_ox buffer_oy buffer_cx buffer_cy))
+	(vdu-load vdu buffer_text buffer_ox buffer_oy buffer_cx buffer_cy)
+	(view-dirty slider))
 
 (defq current_buffer (open-buffer sample_path))
 (bind '(buffer_path buffer_text buffer_ox buffer_oy buffer_cx buffer_cy) current_buffer)

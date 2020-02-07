@@ -13,7 +13,8 @@
 		((< buffer_cy buffer_oy)
 			(setq buffer_oy buffer_cy))
 		((>= buffer_cy (+ buffer_oy vdu_height))
-			(setq buffer_oy (- buffer_cy vdu_height -1)))))
+			(setq buffer_oy (- buffer_cy vdu_height -1))))
+	(list buffer_ox buffer_oy))
 
 (defun-bind set-sticky ()
 	(defq line (elem buffer_cy buffer_text))
