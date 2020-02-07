@@ -144,8 +144,8 @@
 			(vdu-load vdu buffer_text 0 (get slider 'value) buffer_cx buffer_cy))
 		(t
 			(view-event window msg)
-			(and (= (get-long msg ev_msg_type) ev_type_key)
-				(> (get-int msg ev_msg_key_keycode) 0)
+			(if (and (= (get-long msg ev_msg_type) ev_type_key)
+				(> (get-int msg ev_msg_key_keycode) 0))
 				(vdu-input (get-int msg ev_msg_key_key))))))
 
 (view-hide window)
