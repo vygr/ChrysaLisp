@@ -299,10 +299,10 @@
 
 (defun-bind type-to-size (_)
 	(case _
-		((i ui) int_size)
-		((s us) short_size)
-		((b ub) byte_size)
-		(t long_size)))
+		((i ui) (const int_size))
+		((s us) (const short_size))
+		((b ub) (const byte_size))
+		(t (const long_size))))
 
 (defcfun-bind class/array/set_args (i regs &optional type)
 	;inputs

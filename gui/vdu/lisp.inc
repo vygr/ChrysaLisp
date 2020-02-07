@@ -7,3 +7,8 @@
 			(get-field vdu (const vdu_char_width) (const (neg short_size))))
 		(/ (get-field vdu (const view_h) (const int_size))
 			(get-field vdu (const vdu_char_height) (const (neg short_size))))))
+
+(defun-bind vdu-char-size (vdu)
+	;(vdu-char-size vdu) -> (w h)
+	(list (get-field vdu (const vdu_char_width) (const (neg short_size)))
+		(get-field vdu (const vdu_char_height) (const (neg short_size)))))
