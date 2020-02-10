@@ -13,10 +13,9 @@
 	(str 'path) (list 'text) (int 'ox 'oy 'cx 'cy))
  
 (defq id t vdu_min_width 40 vdu_min_height 24 vdu_width 60 vdu_height 40 sx 0 buffer_store (list) buf_num 0 tmp_num 0
-	sample_path "apps/edit/app.lisp")
+	sample_path "apps/edit/app.lisp" select nil)
 
-;vdu doesn't play well with textfields.
-(ui-tree window (create-window (+ window_flag_close window_flag_min window_flag_max)) ('color argb_white)
+(ui-tree window (create-window (+ window_flag_close window_flag_min window_flag_max)) ('color argb_grey2)
 	(ui-element _ (create-flow) ('flow_flags (logior flow_flag_down flow_flag_fillw flow_flag_lasth))	
 		(ui-element _ (create-grid) ('grid_width 2 'grid_height 1)
 			(component-connect (ui-element _ (create-button) ('text "New" 'color toolbar_col)) event_new)
@@ -27,7 +26,7 @@
 			(component-connect (ui-element slider (create-slider) ('color slider_col)) event_win_scroll)
 			(ui-element vdu (create-vdu) 
 				('vdu_width vdu_width 'vdu_height vdu_height 'min_width vdu_width 'min_height vdu_height
-				'ink_color argb_black 'font (create-font "fonts/Hack-Regular.ctf" 16))))))
+				'color argb_black 'ink_color argb_white 'font (create-font "fonts/Hack-Regular.ctf" 16))))))
 
 (gui-add (apply view-change (cat (list window 48 16)
 	(view-pref-size (window-set-title
@@ -41,12 +40,8 @@
 	(list path text ox oy cx cy))
 
 (defun-bind open-buffer (path)
-	;if optional pos, implementor must check if it's a valid position.
-	;(if (not pos) (defq pos '(0 0 0 0)))
 	(defq text (list) ox 0 oy 0 cx 0 cy 0)
 	(each-line (lambda (_) (push text _)) (file-stream path))
-	;(push text (ascii-char 10))
-	; (bind '(_ _ _ _) position)
 	(list path text ox oy cx cy))
 
 ;returns -1 if not found or if no buffers are in buffer_store. Otherwise, it returns index.
@@ -107,7 +102,8 @@
 			(down)))
 	; ensures behavior resembling other text editors when adjusting cx
 	(set-sticky)
-	(bind '(buffer_ox buffer_oy) (cursor-visible))
+	(defq new_off (cursor-visible))
+	(setq buffer_ox (elem 0 new_off) buffer_oy (elem 1 new_off))
 	(set slider 'value buffer_oy)
 	(vdu-load vdu buffer_text 0 (get slider 'value) buffer_cx buffer_cy)
 	(vdu-load vdu buffer_text buffer_ox buffer_oy buffer_cx buffer_cy)
@@ -119,9 +115,7 @@
 
 (while id
 	(cond
-		((= (setq id (get-long (defq msg (mail-read (task-mailbox))) 
-			ev_msg_target_id)) event_win_close)
-			;close button
+		((= (setq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_win_close)
 			(setq id nil))
 		((= id event_new)
 			(push buffer_store current_buffer)
@@ -141,13 +135,25 @@
 			(vdu-resize 120 40))
 		((= id event_win_scroll)
 			;user scroll bar
-			(vdu-load vdu buffer_text 0 (get slider 'value) buffer_cx buffer_cy))
+			(vdu-load vdu buffer_text 0 (defq new_oy (get slider 'value)) buffer_cx buffer_cy)
+			(setq buffer_oy new_oy))
 		((= id (component-get-id vdu))
 			(view-event window msg)
-			(and (= (get-long msg ev_msg_type) ev_type_key)
-				(> (get-int msg ev_msg_key_keycode) 0)
-				(vdu-input (get-int msg ev_msg_key_key))))
-		(t
+			(cond 
+				((and (= (get-long msg ev_msg_type) ev_type_key)
+					(> (get-int msg ev_msg_key_keycode) 0))
+					(vdu-input (get-int msg ev_msg_key_key)))
+				((and (= (get-long msg ev_msg_type) ev_type_mouse)
+					(/= (get-int msg ev_msg_mouse_buttons) 0))
+					(setq buffer_cx buffer_ox buffer_cy buffer_oy)
+					(defq rx (get-int msg ev_msg_mouse_rx) ry (get-int msg ev_msg_mouse_ry) 
+						mouse_xy (list rx ry) cur_xy (list buffer_cx buffer_cy)
+						char_xy (vdu-char-size vdu) off_xy (list buffer_ox buffer_oy))
+					;in pixel integers pos/char = char on screen, then add offset 
+					(setq cur_xy (map + (map / mouse_xy char_xy) off_xy))
+					(setq buffer_cx (elem 0 cur_xy) buffer_cy (elem 1 cur_xy))
+					(window-layout vdu_width vdu_height))))
+		(t 
 			(view-event window msg))))
 
 (view-hide window)
