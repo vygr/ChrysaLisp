@@ -142,10 +142,12 @@
 		((= id event_win_scroll)
 			;user scroll bar
 			(vdu-load vdu buffer_text 0 (get slider 'value) buffer_cx buffer_cy))
-		(t
+		((= id (component-get-id vdu))
 			(view-event window msg)
-			(if (and (= (get-long msg ev_msg_type) ev_type_key)
-				(> (get-int msg ev_msg_key_keycode) 0))
-				(vdu-input (get-int msg ev_msg_key_key))))))
+			(and (= (get-long msg ev_msg_type) ev_type_key)
+				(> (get-int msg ev_msg_key_keycode) 0)
+				(vdu-input (get-int msg ev_msg_key_key))))
+		(t
+			(view-event window msg))))
 
 (view-hide window)
