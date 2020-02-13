@@ -3,7 +3,7 @@
 
 ;launcher apps
 (defq *env_launcher_apps* '("terminal" "debug" "help" "docs" "netmon" "stats" "boing" "freeball"
-	"images" "films" "canvas" "raymarch" "mandelbrot" "pcb" "calculator" "chess" "clock" "edit")
+	"images" "films" "canvas" "raymarch" "mandelbrot" "pcb" "calculator" "chess" "clock")
 	*env_launcher_auto_apps* '("wallpaper" "clock" "terminal"))
 
 ;wallpaper images
