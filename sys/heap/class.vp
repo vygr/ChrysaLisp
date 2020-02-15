@@ -46,15 +46,15 @@
 	;outputs
 	;r0 = heap (ptr)
 	;trashes
-	;r1-r4
+	;r1-r5
 
-	(entry 'sys_heap 'deinit '(r4))
+	(entry 'sys_heap 'deinit '(r5))
 
 	(f-bind 'sys_mem 'statics r1)
 	(vp-cpy-ir r1 sys_mem_statics_total r3)
-	(loop-flist r4 hp_heap_block_flist r2 r1)
-		(vp-cpy-rr r2 r0)
-		(ln-remove-fnode r2 r1)
+	(loop-flist r5 hp_heap_block_flist r4 r1)
+		(vp-cpy-rr r4 r0)
+		(ln-remove-fnode r4 r1)
 		(assign '((r0 hp_block_blocksize)) '(r1))
 		(vp-sub-rr r1 r3)
 		(call 'sys_pii 'munmap '(r0 r1 mmap_data))
@@ -62,7 +62,7 @@
 	(f-bind 'sys_mem 'statics r1)
 	(vp-cpy-ri r3 r1 sys_mem_statics_total)
 
-	(exit 'sys_heap 'deinit '(r4))
+	(exit 'sys_heap 'deinit '(r5))
 	(vp-ret)
 
 (def-func-end)

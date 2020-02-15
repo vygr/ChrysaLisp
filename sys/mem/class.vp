@@ -47,13 +47,13 @@
 
 	;free memory heaps
 	(f-bind 'sys_mem 'statics r0)
-	(vp-cpy-cr mem_cell_min_size r5)
+	(vp-cpy-cr mem_cell_min_size r6)
 	(vp-add-cr sys_mem_statics_size r0)
 	(loop-start)
 		(call 'sys_heap 'deinit '(r0) '(r0))
 		(vp-add-cr hp_heap_size r0)
-		(vp-add-rr r5 r5)
-	(loop-until `(r5 > ,mem_cell_max_size))
+		(vp-add-rr r6 r6)
+	(loop-until `(r6 > ,mem_cell_max_size))
 	(vp-ret)
 
 (def-func-end)
