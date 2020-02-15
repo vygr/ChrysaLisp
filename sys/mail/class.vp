@@ -111,7 +111,7 @@
 		(ln-remove-node r1 r2)
 
 		;free mailbox node
-		(f-bind 'sys_task 'statics r1)
+		(f-bind 'sys_mail 'statics r1)
 		(vp-add-cr ml_statics_mbox_heap r1)
 		(hp-freecell r1 r0 r2)
 
