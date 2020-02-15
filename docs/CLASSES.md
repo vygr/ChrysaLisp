@@ -6147,7 +6147,7 @@ r0 = heap (ptr)
 outputs
 r0 = heap (ptr)
 trashes
-r1-r4
+r1-r5
 ```
 
 ### sys_heap::alloc -> sys/heap/alloc
@@ -7383,12 +7383,10 @@ stop current task, switch to next task
 ### sys_task::restore -> sys/task/restore
 
 ```lisp
-inputs
-r14 = control block to restore (ptr)
 trashes
 r0-r14
 info
-restore next task
+restore next ready task
 ```
 
 ### sys_task::count -> sys/task/count
@@ -7425,6 +7423,17 @@ outputs
 r0 = task control node to resume (ptr)
 trashes
 r1-r2
+```
+
+### sys_task::timer -> sys/task/timer
+
+```lisp
+outputs
+r0 = current time (ulong)
+trashes
+r0-r14
+info
+resume tasks ready to run
 ```
 
 ### sys_task::open_child -> sys/task/open_child
