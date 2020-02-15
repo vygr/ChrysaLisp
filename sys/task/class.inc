@@ -14,11 +14,12 @@
 (dec-method 'callback 'sys/task/callback 'static '(r0 r1))
 (dec-method 'start 'sys/task/start 'static '(r0) '(r0 r1 r2))
 (dec-method 'stop 'sys/task/stop)
-(dec-method 'restore 'sys/task/restore 'static '(r14))
+(dec-method 'restore 'sys/task/restore)
 (dec-method 'count 'sys/task/count 'static nil '(r0))
 (dec-method 'sleep 'sys/task/sleep 'static '(r0))
 (dec-method 'suspend 'sys/task/suspend)
 (dec-method 'resume 'sys/task/resume 'static '(r0))
+(dec-method 'timer 'sys/task/timer 'static nil '(r0))
 (dec-method 'open_child 'sys/task/open_child 'static '(r0 r1) '(r0))
 (dec-method 'open_remote 'sys/task/open_remote 'static '(r0 r1 r2) '(r0))
 (dec-method 'open_farm 'sys/task/open_farm 'static '(r0 r1 r2) '(r0))
@@ -41,15 +42,21 @@
 (def-struct 'tk_node 'ln_node)
 	(ptr 'stack 'mbox_addr 'tls)
 	(ulong 'time)
-	(uint 'mbox_id)
+	(uint 'priority 'mbox_id)
 	(local-align)
 	(struct 'stackspace 'tk_stack)
 (def-struct-end)
 
+;number of distinct priorities
+(defcvar 'num_task_lists 1)
+
 (def-struct 'tk_statics)
 	(ptr 'current_tcb 'kernel_tcb)
-	(struct 'timer_list 'lh_list)
 	(uint 'task_count 'cpu_total 'cpu_id)
+	(local-align)
+	;keep these together
+	(struct 'timer_list 'lh_list)
+	(struct 'task_lists (* num_task_lists lh_list_size))
 (def-struct-end)
 
 ;;;;;;;;;;;;;

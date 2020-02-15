@@ -50,6 +50,7 @@
 	(assign (cat {@} (f-path 'sys_task 'statics)) {task_statics})
 	(assign (cat {@} (f-path 'sys_mail 'statics)) {mail_statics})
 	(call 'sys_task 'start {$func_entry} {task_statics->tk_statics_kernel_tcb, mbox_id, mbox_addr})
+	(assign {task_statics->tk_statics_kernel_tcb} {task_statics->tk_statics_current_tcb})
 
 	;init mailer
 	(call 'sys_mail 'statics_init1)
@@ -200,26 +201,18 @@
 			(endswitch)
 		(loop-end)
 
-		;start any tasks ready to restart
-		(call 'sys_pii 'time nil '(r0))
-		(f-bind 'sys_task 'statics r3)
-		(assign '((r3 tk_statics_current_tcb)) '(r14))
-		(loop-list-forward r3 tk_statics_timer_list r1 r2)
-			(assign '((r1 tk_node_time)) '(r4))
-			(breakif '(r4 > r0))
-
-			;task ready, remove from timer list and place on ready list
-			(vp-cpy-rr r1 r4)
-			(ln-remove-node r4 r5)
-			(ln-add-node-before r14 r1 r5)
-		(loop-end)
+		;resume any ready tasks on timer list
+		(call 'sys_task 'timer nil '(r0))
 
 		;next task if other ready tasks
-		(ln-get-succ r14 0 r1)
-		(continueif '(r14 /= r1))
+		(assign {task_statics} '(r3))
+		(assign '((r3 tk_statics_kernel_tcb)) '(r1))
+		(ln-get-succ r1 0 r1)
+		(ln-get-succ r1 0 r1)
+		(continueif '(r1 /= 0))
 
 		;exit if no task waiting for timer
-		(vp-cpy-ir r3 (+ tk_statics_timer_list lh_list_head) r2)
+		(lh-get-head r3 tk_statics_timer_list r2)
 		(ln-get-succ r2 0 r1)
 		(breakif '(r1 = 0))
 
@@ -235,8 +228,6 @@
 		(endif)
 		(host-call 'host 'sdl_delay '(r0))
 	(loop-end)
-
-(debug-str "kernel exit")
 
 	;free any kernel routing table
 	(call 'sys_mem 'free {routes.lk_table_array})
