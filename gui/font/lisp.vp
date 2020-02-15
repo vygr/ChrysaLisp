@@ -64,6 +64,7 @@
 	(vp-alloc local_size)
 	(defq in1 (method-input 'font 'glyph_info)
 		in2 (method-input 'font 'glyph_paths))
+	(assign '(r0) '((rsp local_this)))
 	(class/vector/bind_args r1 in1 '(font obj))
 	(call 'font 'glyph_info in1 `(,(elem 0 in2) ,(elem 2 in2)))
 	(assign `((rsp local_this) ,(elem 2 in2)) `(,(elem 1 in2) (rsp local_info)))
