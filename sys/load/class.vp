@@ -42,9 +42,9 @@
 	;init reloc buffer address etc
 	(assign '(r0 r0) '((r5 ld_statics_reloc_stack) (r5 ld_statics_reloc_buffer)))
 	(vp-add-cr ld_reloc_size r0)
-	(assign '(r0) '((r5 ld_statics_stat_buffer)))
-	(vp-add-cr stat_size r0)
 	(assign '(r0) '((r5 ld_statics_name_buffer)))
+	(vp-add-cr ld_name_size r0)
+	(assign '(r0) '((r5 ld_statics_stat_buffer)))
 
 	;add all prebound functions to function list
 	(vp-lea-p 'func_start r1)
@@ -235,8 +235,7 @@
 	(assign '(r5 r1) `((r1 ,(neg ptr_size)) (r7 ld_statics_reloc_stack)))
 
 	;overflow check
-	(assign '((r7 ld_statics_reloc_buffer)) '(r2))
-	(vp-add-cr ld_reloc_size r2)
+	(assign '((r7 ld_statics_name_buffer)) '(r2))
 	(vpif '(r1 > r2))
 		(call 'sys_pii 'write_str '(2 "Reloc buffer overflow !"))
 		(call 'sys_pii 'exit '(1))
