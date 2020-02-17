@@ -26,7 +26,7 @@
 	(pptr 'iter_begin 'iter_end)
 	(ulong 'service)
 	(struct 'routes 'lk_table)
-	(uint 'id 'num 'best_cnt 'best_id 'route_index 'hops 'new_hops 'mbox_id)
+	(uint 'id 'best_cnt 'best_id 'route_index 'hops 'new_hops 'mbox_id)
 
 	(push-scope)
 	(entry {argv})
@@ -83,16 +83,17 @@
 			(call 'sys_mail 'read '(r0) {msg, data})
 
 			;(switch) on kernel call number
-			(assign {data->kn_msg_func} {num})
+			(assign {data->kn_msg_func} '(r0))
 			(switch)
-			(vpcase {num = kn_call_open})
+			(vpcase '(r0 = kn_call_open))
 			(vp-label 'run_here)
 				;fill in reply ID, user field is left alone !
 				(assign {data->kn_msg_reply_id.id_id} {msg->msg_dest.id_id})
 				(call 'opt_run {&data->kn_msg_open_pathname} {data->kn_msg_reply_id.id_id})
+				(assign {kn_msg_reply_size} {msg->msg_length})
 				(call 'sys_mail 'send {msg})
 				(break)
-			(vpcase {num = kn_call_child})
+			(vpcase '(r0 = kn_call_child))
 				;find best cpu to run task
 				(assign {task_statics->tk_statics_task_count, id} {best_cnt, best_id})
 				(call 'array 'get_both {mail_statics->ml_statics_links_array} {_, iter_begin, iter_end})
@@ -110,7 +111,7 @@
 				(assign {best_id} {msg->msg_dest.id_cpu})
 				(call 'sys_mail 'send {msg})
 				(break)
-			(vpcase {num = kn_call_declare})
+			(vpcase '(r0 = kn_call_declare))
 				;declare service if not found
 				(call 'sys_mail 'enquire {&data->kn_msg_declare_name} {service})
 				(vpifnot {service})
@@ -119,7 +120,7 @@
 					(call 'flood {mail_statics, msg, data, id})
 				(endif)
 				(vp-jmp 'drop_msg)
-			(vpcase {num = kn_call_route})
+			(vpcase '(r0 = kn_call_route))
 				;increase size of network ?
 				(vpif {data->kn_msg_route_origin >= task_statics->tk_statics_cpu_total})
 					(assign {data->kn_msg_route_origin + 1} {task_statics->tk_statics_cpu_total})
@@ -190,7 +191,7 @@
 			(vp-label 'drop_msg)
 				(call 'sys_mail 'free {msg})
 				(break)
-			(vpcase {num = kn_call_callback})
+			(vpcase '(r0 = kn_call_callback))
 				;call callback with this thread/stack
 				(assign {data->kn_msg_user, data->kn_msg_callback_addr} '(r0 r1))
 				(vp-call-r r1)
