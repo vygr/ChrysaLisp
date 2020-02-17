@@ -10,6 +10,8 @@
 ; link structures
 ;;;;;;;;;;;;;;;;;
 
+;msg data area max size when allocated as a string object
+;allowing for heap pointer and null byte, rounded down for faster memcpy
 (defcvar 'lk_data_size (- 512 str_size ptr_size long_size))
 
 (def-enum 'lk_chan_status)

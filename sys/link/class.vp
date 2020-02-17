@@ -64,9 +64,6 @@
 	(assign {mem + tx, mem + rx} {tx, rx})
 	(assign {&tx->lk_chan_msg0, &rx->lk_chan_msg0} {tx_msg, rx_msg})
 
-	;clear tx channel
-	(call 'sys_mem 'clear {tx, lk_chan_size})
-
 	;read and write messages through the shared buffer
 	(assign {0} {out_msg})
 	(loop-start)

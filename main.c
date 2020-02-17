@@ -81,6 +81,7 @@ long long myopen(const char *path, int mode)
 }
 
 char link_buf[128];
+struct stat fs;
 
 long long myopenshared(const char *path, size_t len)
 {
@@ -89,8 +90,18 @@ long long myopenshared(const char *path, size_t len)
 #else
 	strcpy(&link_buf[0], "/tmp/");
 	strcpy(&link_buf[5], path);
-	int hndl = open(link_buf, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
-	ftruncate(hndl, len);
+	int hndl = open(link_buf, O_CREAT | O_EXCL | O_RDWR, S_IRUSR | S_IWUSR);
+	if (hndl == -1)
+	{
+		while (1)
+		{
+			stat(link_buf, &fs);
+			if (fs.st_size == len) break;
+			sleep(0);
+		}
+		hndl = open(link_buf, O_RDWR, S_IRUSR | S_IWUSR);
+	}
+	else ftruncate(hndl, len);
 	return hndl;
 #endif
 }
@@ -128,7 +139,6 @@ long long mywrite(int fd, void *addr, size_t len)
 	return write(fd, addr, len);
 }
 
-struct stat fs;
 struct finfo
 {
 	long long mtime;
