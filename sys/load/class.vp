@@ -199,6 +199,8 @@
 	;read into buffer
 	(assign '((r7 ld_statics_stat_buffer)) '(r2))
 	(call 'sys_pii 'read '(r6 (r7 ld_statics_block_start) (r2 stat_fsize)))
+	(assign '((r7 ld_statics_stat_buffer)) '(r2))
+	(call 'sys_pii 'clear_icache '((r7 ld_statics_block_start) (r2 stat_fsize)))
 
 	;close function file
 	(call 'sys_pii 'close '(r6))

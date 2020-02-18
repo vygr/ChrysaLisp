@@ -248,6 +248,24 @@
 
 (def-func-end)
 
+(def-method 'sys_pii 'clear_icache)
+	;inputs
+	;r0 = address (pubyte)
+	;r1 = length (ulong)
+	;outputs
+	;r0 = error code (ulong)
+	;trashes
+	;r0
+
+	(entry 'sys_pii 'clear_icache '(r0 r1))
+	(abi-push-trashed r1 r13 r14)
+	(host-call 'host 'clear_icache '(r0 r1) '(r0))
+	(abi-pop-trashed r1 r13 r14)
+	(exit 'sys_pii 'clear_icache '(r0))
+	(vp-ret)
+
+(def-func-end)
+
 (def-method 'sys_pii 'read)
 	;inputs
 	;r0 = fd (ulong)

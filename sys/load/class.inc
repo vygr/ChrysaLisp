@@ -15,7 +15,7 @@
 ;;;;;;;;;;;;;;;;;
 
 (defcvar 'ld_page_size 4096)
-(defcvar 'ld_block_size (* 64 1024))
+(defcvar 'ld_block_size (* ld_page_size 64))
 (defcvar 'ld_reloc_buf_size (* ld_page_size 2))
 (defcvar 'ld_name_size 128)
 (defcvar 'ld_reloc_size (- ld_reloc_buf_size (align ld_name_size long_size) (align stat_size long_size)))

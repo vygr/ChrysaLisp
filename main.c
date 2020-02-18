@@ -259,6 +259,18 @@ long long mymunmap(void *addr, size_t len, int mode)
 	return -1;
 }
 
+void *myclearicache(void* addr, size_t len)
+{
+#ifdef _WIN64
+#else
+#ifdef __APPLE__
+#else
+	__clear_cache(addr, addr + len);
+#endif
+#endif
+	return addr;
+}
+
 static void (*host_funcs[]) = {
 SDL_SetMainReady,
 SDL_Init,
@@ -301,6 +313,7 @@ mymprotect,
 gettime,
 myopenshared,
 mycloseshared,
+myclearicache
 };
 
 int main(int argc, char *argv[])
@@ -317,6 +330,7 @@ int main(int argc, char *argv[])
 			if (data)
 			{
 				read(fd, data, data_size);
+				myclearicache(data, data_size);
 				//printf("image start address: 0x%llx\n", (unsigned long long)data);
 #ifndef _WIN64
 				fcntl(0, F_SETFL, fcntl(0, F_GETFL, 0) | O_NONBLOCK);
