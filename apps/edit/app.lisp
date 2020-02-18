@@ -54,7 +54,7 @@
 	(view-change textfield tx ty w th)
 	;set slider and textfield values
 	(def slider 'maximum (max 0 (- (length buffer) vdu_height)) 'portion vdu_height 'value oy)
-	(def textfield 'text buffer_path)
+	(get textfield 'text)
 	(view-dirty slider)
 	(view-dirty textfield)
 	(vdu-load vdu buffer ox oy cx cy))
@@ -64,7 +64,8 @@
 	(defq cursor_xy (list cx cy) char_wh (vdu-char-size vdu) offset_xy (list ox oy))
 	(setq cursor_xy (map + (map / mouse_xy char_wh) offset_xy)
 		cx (elem 0 cursor_xy) cy (elem 1 cursor_xy))
-	(if (>= cx (length (elem cy buffer))) (set-sticky)) (setq sx cx))
+	(setq cy (min cy (dec (length buffer))))
+	(if (> cx (length (elem cy buffer))) (set-sticky)) (setq sx cx))
 
 (defun-bind new-buffer ()
 	(setq buffer_path (cat home_dir "tmp_txt_" (str (setq tmp_num (inc tmp_num)))) 
@@ -76,7 +77,7 @@
 	(each-line (lambda (_) (push buffer _)) (file-stream buffer_path))
 	(list buffer_path buffer pos))
 
-(defun-bind save-buffer ()
+(defun-bind save-buffer (path)
 	(setq buffer_path (str (get textfield 'text)))
 	(save (join buffer (ascii-char 10)) buffer_path))
 
@@ -116,16 +117,17 @@
 			(setq id nil)
 			(window-close))
 		((= id event_new)
-			(window-layout vdu_width vdu_height)
 			(setq current_buffer (new-buffer))
-			(set textfield 'text buffer_path))
+			(set textfield 'text buffer_path)
+			(window-layout vdu_width vdu_height))
 		((= id event_open)
 			(setq buffer_path (get textfield 'text)
-				current_buffer (open-buffer buffer_path)))
+				current_buffer (open-buffer buffer_path))
+			(window-layout vdu_width vdu_height))
 		((= id event_save)
-			(window-layout vdu_width vdu_height)
-			(set textfield 'text buffer_path)
-			(save-buffer))
+			(setq buffer_path (get textfield 'text))
+			(save-buffer buffer_path)
+			(window-layout vdu_width vdu_height))
 		((= id event_win_layout)
 			;user window resize
 			(apply window-layout (vdu-max-size vdu)))
@@ -153,7 +155,6 @@
 					(mouse-cursor mouse_xy)
 					(window-layout vdu_width vdu_height))))
 		(t 
-			(view-event window msg)))	
-	(window-layout vdu_width vdu_height))
+			(view-event window msg))))
 
 (view-hide window)
