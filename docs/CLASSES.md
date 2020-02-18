@@ -2266,6 +2266,8 @@ Super Class: null
 
 ### host::close_shared -> nil
 
+### host::clear_icache -> nil
+
 ## hset
 
 Super Class: obj
@@ -7180,6 +7182,18 @@ r0
 ```lisp
 outputs
 r0 = time in usec (ulong)
+trashes
+r0
+```
+
+### sys_pii::clear_icache -> sys/pii/clear_icache
+
+```lisp
+inputs
+r0 = address (pubyte)
+r1 = length (ulong)
+outputs
+r0 = error code (ulong)
 trashes
 r0
 ```
