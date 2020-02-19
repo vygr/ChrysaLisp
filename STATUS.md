@@ -30,9 +30,9 @@ corrupted.
 Fixed several instabilities shown up by working on the Raspberry PI4 for a few
 days !
 
-Main fix is to make sure that on dynamically loading new function to call a new
-sys_pii::clear_icache call ! ARM does not cope with snooping code loading like
-the x86 does and I was assuming that mmap with the PROT_EXEC flag would be
+Main fix is to make sure that on dynamically loading a new function to call the
+new sys_pii::clear_icache method ! ARM does not cope with snooping code loading
+like the x86 does and I was assuming that mmap with the PROT_EXEC flag would be
 enough, but this is not the case when that buffer is loaded later on with more
 functions ! Silly me.
 
@@ -49,7 +49,7 @@ condition where the link buffer could be cleared while containing live data,
 plus no need to clear the TX buffer from the VP side anymore.
 
 Overall, a lot of fixes thanks to the Raspberry PI ! Certainly worth keeping
-that platform up tp date.
+that platform up to date.
 
 Plus, ground work for a priority based scheduling system !
 
