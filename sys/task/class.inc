@@ -43,8 +43,6 @@
 	(ptr 'stack 'mbox_addr 'tls)
 	(ulong 'time)
 	(uint 'priority 'mbox_id)
-	(local-align)
-	(struct 'stackspace 'tk_stack)
 (def-struct-end)
 
 ;number of distinct priorities
