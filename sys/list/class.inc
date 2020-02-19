@@ -56,25 +56,27 @@
 		(ln-get-tail _1 _1)
 	(endif))
 
-(defcfun ln-set-succ (_1 _2)
+(defcfun ln-set-succ (_1 _2 _3)
 	;inputs
-	;_1 = list node1
-	;_2 = list node2
+	;_1 = list node
+	;_2 = offset
+	;_3 = succ
 	;outputs
-	;_1 = list node1
-	;_2 = list node2
+	;_1 = list node
+	;_3 = succ
 
-	(vp-cpy-ri _2 _1 ln_node_succ))
+	(vp-cpy-ri _3 _1 (+ ln_node_succ _2)))
 
-(defcfun ln-set-pred (_1 _2)
+(defcfun ln-set-pred (_1 _2 _3)
 	;inputs
-	;_1 = list node1
-	;_2 = list node2
+	;_1 = list node
+	;_2 = offset
+	;_3 = pred
 	;outputs
-	;_1 = list node1
-	;_2 = list node2
+	;_1 = list node
+	;_3 = pred
 
-	(vp-cpy-ri _2 _1 ln_node_pred))
+	(vp-cpy-ri _3 _1 (+ ln_node_pred _2)))
 
 (defcfun ln-get-succ (_1 _2 _3)
 	;inputs
@@ -109,10 +111,10 @@
 	;_3 = list node1 succ
 
 	(ln-get-succ _1 0 _3)
-	(ln-set-succ _1 _2)
-	(ln-set-pred _3 _2)
-	(ln-set-succ _2 _3)
-	(ln-set-pred _2 _1))
+	(ln-set-succ _1 0 _2)
+	(ln-set-pred _3 0 _2)
+	(ln-set-succ _2 0 _3)
+	(ln-set-pred _2 0 _1))
 
 (defcfun ln-add-node-before (_1 _2 _3)
 	;inputs
@@ -125,10 +127,10 @@
 	;_3 = list node1 pred
 
 	(ln-get-pred _1 0 _3)
-	(ln-set-succ _2 _1)
-	(ln-set-pred _2 _3)
-	(ln-set-succ _3 _2)
-	(ln-set-pred _1 _2))
+	(ln-set-succ _2 0 _1)
+	(ln-set-pred _2 0 _3)
+	(ln-set-succ _3 0 _2)
+	(ln-set-pred _1 0 _2))
 
 (defcfun ln-remove-node (_1 _2)
 	;inputs
@@ -140,8 +142,8 @@
 
 	(ln-get-succ _1 0 _2)
 	(ln-get-pred _1 0 _1)
-	(ln-set-pred _2 _1)
-	(ln-set-succ _1 _2))
+	(ln-set-pred _2 0 _1)
+	(ln-set-succ _1 0 _2))
 
 (defcfun ln-replace-node (_1 _2 _3)
 	;inputs
@@ -153,11 +155,11 @@
 	;_2 = new list node
 
 	(ln-get-succ _1 0 _3)
-	(ln-set-succ _2 _3)
-	(ln-set-pred _3 _2)
+	(ln-set-succ _2 0 _3)
+	(ln-set-pred _3 0 _2)
 	(ln-get-pred _1 0 _3)
-	(ln-set-pred _2 _3)
-	(ln-set-succ _3 _2))
+	(ln-set-pred _2 0 _3)
+	(ln-set-succ _3 0 _2))
 
 (defcfun ln-is-first (_1 _2 _3)
 	;inputs

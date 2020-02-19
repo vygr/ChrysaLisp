@@ -140,7 +140,7 @@
 	(vp-cpy-rr r0 r2)
 	(vp-xor-rr r1 r1)
 	(ln-remove-node r2 r3)
-	(ln-set-succ r0 r1)
+	(ln-set-succ r0 0 r1)
 
 	;restore next task
 	(jump 'sys_task 'restore)
@@ -242,7 +242,7 @@
 
 	;init task control block stack, pc and stop address's
 	(assign {tcb, tcb + tcb_size, 0, num_task_lists - 1, func} '(r0 r1 r2 r3 r4))
-	(ln-set-succ r0 r2)
+	(ln-set-succ r0 0 r2)
 	(assign '(r3) '((r0 tk_node_priority)))
 	(stack-init)
 	(assign '(r1) {tcb->tk_node_stack})
@@ -330,7 +330,7 @@
 		(vp-cpy-rr r0 r5)
 		(vp-xor-rr r1 r1)
 		(ln-remove-node r5 r4)
-		(ln-set-succ r0 r1)
+		(ln-set-succ r0 0 r1)
 		(call 'sys_task 'resume '(r0))
 	(loop-end)
 
