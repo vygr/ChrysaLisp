@@ -204,29 +204,31 @@
 
 	(vp-xor-rr _2 _2)
 	(vp-cpy-ri _2 _1 lh_list_tail)
-	(lh-set-tail _1 _1)
+	(lh-set-tail _1 0 _1)
 	(vp-lea-i _1 lh_list_tail _2)
-	(lh-set-head _1 _2))
+	(lh-set-head _1 0 _2))
 
-(defcfun lh-set-head (_1 _2)
+(defcfun lh-set-head (_1 _2 _3)
 	;inputs
 	;_1 = list head
-	;_2 = list node
+	;_2 = offset
+	;_3 = temp
 	;outputs
 	;_1 = list head
-	;_2 = list node
+	;_3 = list node
 
-	(vp-cpy-ri _2 _1 lh_list_head))
+	(vp-cpy-ri _3 _1 (+ lh_list_head _2)))
 
-(defcfun lh-set-tail (_1 _2)
+(defcfun lh-set-tail (_1 _2 _3)
 	;inputs
 	;_1 = list head
-	;_2 = list node
+	;_2 = offset
+	;_3 = temp
 	;outputs
 	;_1 = list head
-	;_2 = list node
+	;_3 = list node
 
-	(vp-cpy-ri _2 _1 lh_list_tailpred))
+	(vp-cpy-ri _3 _1 (+ lh_list_tailpred _2)))
 
 (defcfun lh-get-head (_1 _2 _3)
 	;inputs
@@ -327,7 +329,7 @@
 	;_1 = list head
 	;_3 = 0 if empty, else not
 
-	(ln-get-succ _1 _2 _3)
+	(lh-get-head _1 _2 _3)
 	(ln-get-succ _3 0 _3))
 
 ;;;;;;;;;;;;;;;;;;
