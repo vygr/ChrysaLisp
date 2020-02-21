@@ -733,7 +733,7 @@ r1 = color (argb)
 outputs
 r0 = canvas object (ptr)
 trashes
-r2-r4
+r1-r4
 ```
 
 ### canvas::to_premul -> gui/canvas/to_premul
@@ -6887,23 +6887,13 @@ r0-r2
 
 ### sys_mem::clear -> sys/mem/clear
 
-```lisp
-inputs
-r0 = address (ptr)
-r1 = length (bytes)
-outputs
-r0 = address end (ptr)
-trashes
-r0-r2
-```
-
 ### sys_mem::fill -> sys/mem/fill
 
 ```lisp
 inputs
 r0 = address (ptr)
 r1 = length (bytes)
-r2 = fill byte (byte)
+r2 = fill pattern (ulong)
 outputs
 r0 = address end (ptr)
 trashes

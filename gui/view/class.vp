@@ -24,7 +24,7 @@
 	(vpif '(r1 /= 0))
 		;init myself
 		(vp-push r0)
-		(call 'sys_mem 'clear `((& r0 view_start) ,(- view_size view_start)))
+		(call 'sys_mem 'fill `((& r0 view_start) ,(- view_size view_start) 0))
 		(vp-pop r0)
 		(vp-cpy-cr view_flag_solid r1)
 		(assign '(r1 (& r0 view_list)) '((r0 view_flags) r1))

@@ -226,7 +226,8 @@
 
 	(call 'sys_mem 'free {this->vdu_chars})
 	(call 'sys_mem 'alloc {this->vdu_width * this->vdu_height} {this->vdu_chars, size})
-	(call 'sys_mem 'fill {this->vdu_chars, size, char_space})
+	(call 'sys_mem 'fill {this->vdu_chars, size, char_space + (char_space << 8)
+		+ (char_space << 16) + (char_space << 24)})
 
 	(exit 'vdu 'switch_size {this})
 	(pop-scope)

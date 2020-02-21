@@ -234,7 +234,7 @@
 	;create new task control block and task
 	(call 'sys_mem 'alloc {ushort(func - ubyte(func - byte_size) - short_size) + tk_node_size} {tcb, tcb_size})
 (errorcases
-	(call 'sys_mem 'clear {tcb, tcb_size}))
+	(call 'sys_mem 'fill {tcb, tcb_size, 0}))
 
 	;alloc task mailbox and tls
 	(call 'sys_mail 'alloc_mbox nil {tcb->tk_node_mbox_id, tcb->tk_node_mbox_addr})

@@ -40,7 +40,7 @@
 		(call 'window 'set_long_prop '(r0 static_sym_border 5) '(r0))
 		(call 'window 'set_long_prop '(r0 static_sym_min_width 0) '(r0))
 		(call 'window 'set_long_prop '(r0 static_sym_min_height 0) '(r0))
-		(call 'sys_mem 'clear '((& r0 window_start) (- window_size window_start)))
+		(call 'sys_mem 'fill '((& r0 window_start) (- window_size window_start) 0))
 
 		;add status panel, add_back not add_child !!!
 		(call 'flow 'create nil {this->window_status_panel})
