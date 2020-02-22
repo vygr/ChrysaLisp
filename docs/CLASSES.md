@@ -1286,7 +1286,7 @@ inputs
 r0 = component object (ptr)
 outputs
 r0 = component object (ptr)
-r1 = 0, else tcb of owner (ptr)
+r1 = 0, else mailbox id of owner (ulong)
 trashes
 r1-r2
 ```
@@ -6884,8 +6884,6 @@ r0 = address (ptr)
 trashes
 r0-r2
 ```
-
-### sys_mem::clear -> sys/mem/clear
 
 ### sys_mem::fill -> sys/mem/fill
 

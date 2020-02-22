@@ -1,5 +1,4 @@
 (include 'sys/func.inc)
-(include 'sys/kernel/class.inc)
 (include 'gui/gui/class.inc)
 (include 'gui/component/class.inc)
 (include 'gui/font/class.inc)
@@ -28,7 +27,7 @@
 		(vp-sub-cr 1 r2)
 		(assign '(r2 r2) '((r1 gui_statics_next_id) (r0 component_id)))
 		(vp-xor-rr r2 r2)
-		(assign '(r2 r2) '((r0 component_tcb) (r0 component_target_ids)))
+		(assign '(r2 r2) `((r0 ,(+ component_owner_id id_id)) (r0 component_target_ids)))
 	(endif)
 	(vp-ret)
 
@@ -56,14 +55,14 @@
 	;r0 = component object (ptr)
 	;outputs
 	;r0 = component object (ptr)
-	;r1 = 0, else tcb of owner (ptr)
+	;r1 = 0, else mailbox id of owner (ulong)
 	;trashes
 	;r1-r2
 
 	;walk up tree to parent
 	(vp-cpy-rr r0 r2)
 	(loop-start)
-		(assign '((r2 component_tcb) (r2 hmap_parent)) '(r1 r2))
+		(assign `((r2 ,(+ component_owner_id id_id)) (r2 hmap_parent)) '(r1 r2))
 		(breakif '(r1 /= 0))
 	(loop-until '(r2 = 0))
 	(vp-ret)
@@ -78,21 +77,21 @@
 	;trashes
 	;r1-r14
 
-	(ptr 'this 'tcb 'msg 'data)
+	(ptr 'this 'msg 'data)
 	(plong 'iter_begin 'iter_end)
+	(struct 'owner_id 'id)
 
 	(push-scope)
 	(entry 'component 'emit {this})
 
 	(switch)
 	(breakifnot {this->component_target_ids})
-	(call 'component 'find_owner {this} {_, tcb})
-	(breakifnot {tcb})
+	(call 'component 'find_owner {this} {_, owner_id.id_id})
+	(breakifnot {owner_id.id_id})
 	(call 'array 'get_both {this->component_target_ids} {_, iter_begin, iter_end})
 	(loop-while {iter_begin /= iter_end})
 		(call 'sys_mail 'alloc {ev_msg_action_size} {msg, data})
-		(assign {tcb->tk_node_mbox_id} {msg->msg_dest.id_mbox})
-		(call 'sys_kernel 'id nil {msg->msg_dest.id_cpu})
+		(assign {owner_id.id_id} {msg->msg_dest.id_id})
 		(assign {ev_type_action} {data->ev_msg_type})
 		(assign {*iter_begin} {data->ev_msg_target_id})
 		(assign {this->component_id} {data->ev_msg_action_source_id})
