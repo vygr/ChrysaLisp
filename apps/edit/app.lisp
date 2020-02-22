@@ -7,7 +7,7 @@
 
 (structure 'event 0
 	(byte 'win_close 'win_min 'win_max 'win_layout 
-		'win_scroll 'new 'save 'open 'close))
+		'win_scroll 'new 'save 'open 'close 'prev 'next))
 
 (structure 'text 0
 	(byte 'index 'path 'buffer 'position))
@@ -20,11 +20,14 @@
 
 (ui-tree window (create-window (+ window_flag_close window_flag_min window_flag_max)) ('color argb_grey2)
 	(ui-element _ (create-flow) ('flow_flags (logior flow_flag_down flow_flag_fillw flow_flag_lasth))	
-		(ui-element _ (create-grid) ('grid_width 4 'grid_height 1)
+		(ui-element _ (create-grid) ('grid_width 5 'grid_height 1)
 			(component-connect (ui-element _ (create-button) ('text "New" 'color toolbar_col)) event_new)
 			(component-connect (ui-element _ (create-button) ('text "Open" 'color toolbar_col)) event_open)
 			(component-connect (ui-element _ (create-button) ('text "Save" 'color toolbar_col)) event_save)
-			(component-connect (ui-element _ (create-button) ('text "Close" 'color toolbar_col)) event_close))
+			(component-connect (ui-element _ (create-button) ('text "Close" 'color toolbar_col)) event_close)
+			(ui-element _ (create-grid) ('grid_width 2 'grid_height 1)
+				(component-connect (ui-element _ (create-button) ('text "<" 'color toolbar_col)) event_prev)
+				(component-connect (ui-element _ (create-button) ('text ">" 'color toolbar_col)) event_next)))
 		(ui-element textfield (create-textfield) ('text "" 'color argb_white))
 		(ui-element _ (create-flow) ('flow_flags (logior flow_flag_left flow_flag_fillh flow_flag_lastw))
 			(component-connect (ui-element slider (create-slider) ('color slider_col)) event_win_scroll)
@@ -96,14 +99,28 @@
 	(push text_store (list index path buffer pos))
 	(elem index text_store))
 
+;not saving to disk temporarily for now.
 (defun-bind save-buffer (path)
 	(unless (eql path "")
 		(defq save_buffer (join (elem text_buffer current_text) (ascii-char 10)))
-		(save save_buffer path))
-	(elem text_index text_store))
+		(save save_buffer path)
+		(elem-set text_path current_text path)))
 
 (defun-bind close-buffer (index)
-	(setq text_store (erase text_store index (inc index))))
+	(defq i 0)
+	(setq text_store (erase text_store index (inc index)))
+	(each (lambda (_) (elem-set text_index _ i) (setq i (inc i))) text_store)
+	(prev-buffer index))
+
+(defun-bind prev-buffer (index)
+	(unless (= index 0)
+		(setq index (dec index)))
+	(elem index text_store))
+
+(defun-bind next-buffer (index)
+	(unless (= index (dec (length text_store)))
+		(setq index (inc index)))
+	(elem index text_store))
 
 (defun-bind vdu-input (c)
 	(defq buffer (elem text_buffer current_text))
@@ -159,13 +176,20 @@
 			(window-layout vdu_width vdu_height))
 		((= id event_close)
 			(cond 
-			((<= (length text_store) 1)
-				(setq id nil)	(window-close))
-			((> (length text_store) 1)
-				(close-buffer (elem text_index current_text))
-				(setq current_text (elem (dec (length text_store)) text_store)) ;prev-buffer (index)
-				(set textfield 'text (elem text_path current_text))
-				(window-layout vdu_width vdu_height))))
+				((<= (length text_store) 1)
+					(setq id nil)	(window-close))
+				((> (length text_store) 1)
+					(setq current_text (close-buffer (elem text_index current_text)))
+					(set textfield 'text (elem text_path current_text))
+					(window-layout vdu_width vdu_height))))
+		((= id event_prev)
+			(setq current_text (prev-buffer (elem text_index current_text)))
+			(set textfield 'text (elem text_path current_text))
+			(window-layout vdu_width vdu_height))
+		((= id event_next)
+			(setq current_text (next-buffer (elem text_index current_text)))
+			(set textfield 'text (elem text_path current_text))
+			(window-layout vdu_width vdu_height))
 		((= id event_win_layout)
 			;user window resize
 			(apply window-layout (vdu-max-size vdu)))
