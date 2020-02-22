@@ -7,22 +7,25 @@
 
 (structure 'event 0
 	(byte 'win_close 'win_min 'win_max 'win_layout 
-		'win_scroll 'new 'save 'open))
+		'win_scroll 'new 'save 'open 'close))
 
-(structure 'stored 0
-	(byte 'buffer_path 'buffer 'pos))
+(structure 'text 0
+	(byte 'index 'path 'buffer 'position))
+
+(structure 'pos 0
+	(byte 'ox 'oy 'cx 'cy 'sx))
  
-(defq id t vdu_min_width 40 vdu_min_height 24 vdu_width 60 vdu_height 40 sx 0 buffer_store (list) buf_num 0 tmp_num 0
-	msg_path "apps/edit/message" home_dir (cat "apps/login/" *env_user* "/") buffer_path msg_path buffer (list)
-	ox 0 oy 0 cx 0 cy 0 sx 0 pos (list ox oy cx cy sx))
+(defq id t vdu_min_width 40 vdu_min_height 24 vdu_width 60 vdu_height 40 text_store (list)
+	current_text (list) msg_path "apps/edit/message" home_dir (cat "apps/login/" *env_user* "/"))
 
 (ui-tree window (create-window (+ window_flag_close window_flag_min window_flag_max)) ('color argb_grey2)
 	(ui-element _ (create-flow) ('flow_flags (logior flow_flag_down flow_flag_fillw flow_flag_lasth))	
-		(ui-element _ (create-grid) ('grid_width 3 'grid_height 1)
+		(ui-element _ (create-grid) ('grid_width 4 'grid_height 1)
 			(component-connect (ui-element _ (create-button) ('text "New" 'color toolbar_col)) event_new)
 			(component-connect (ui-element _ (create-button) ('text "Open" 'color toolbar_col)) event_open)
-			(component-connect (ui-element _ (create-button) ('text "Save" 'color toolbar_col)) event_save))
-			(ui-element textfield (create-textfield) ('text "" 'color argb_white))
+			(component-connect (ui-element _ (create-button) ('text "Save" 'color toolbar_col)) event_save)
+			(component-connect (ui-element _ (create-button) ('text "Close" 'color toolbar_col)) event_close))
+		(ui-element textfield (create-textfield) ('text "" 'color argb_white))
 		(ui-element _ (create-flow) ('flow_flags (logior flow_flag_left flow_flag_fillh flow_flag_lastw))
 			(component-connect (ui-element slider (create-slider) ('color slider_col)) event_win_scroll)
 			(ui-element vdu (create-vdu) 
@@ -34,6 +37,9 @@
 	(view-hide window))
 
 (defun-bind window-resize (w h)
+	(defq buffer (elem text_buffer current_text))
+	(bind '(ox oy cx cy sx) (elem text_position current_text))
+
 	(setq vdu_width w vdu_height h)
 	(set vdu 'vdu_width w 'vdu_height h 'min_width w 'min_height h)
 	(bind '(x y _ _) (view-get-bounds window))
@@ -43,6 +49,9 @@
 	(vdu-load vdu buffer ox oy cx cy))
 
 (defun-bind window-layout (w h)
+	(defq buffer (elem text_buffer current_text))
+	(bind '(ox oy cx cy sx) (elem text_position current_text))
+
 	(setq vdu_width w vdu_height h)
 	(set vdu 'vdu_width w 'vdu_height h 'min_width w 'min_height h)
 	(bind '(x y _ _) (view-get-bounds vdu))
@@ -52,36 +61,54 @@
 	(set vdu 'min_width vdu_min_width 'min_height vdu_min_height)
 	(view-change vdu x y w h)
 	(view-change textfield tx ty w th)
+	; (view-set-bounds textfield tx ty w th)
 	;set slider and textfield values
 	(def slider 'maximum (max 0 (- (length buffer) vdu_height)) 'portion vdu_height 'value oy)
-	(get textfield 'text)
 	(view-dirty slider)
 	(view-dirty textfield)
 	(vdu-load vdu buffer ox oy cx cy))
 
 ;cursor_xy = (+ (mouse_xy / char_wh) offset_xy)
 (defun-bind mouse-cursor (mouse_xy)
+	(defq buffer (elem text_buffer current_text))
+	(bind '(ox oy cx cy sx) (elem text_position current_text))
+
 	(defq cursor_xy (list cx cy) char_wh (vdu-char-size vdu) offset_xy (list ox oy))
 	(setq cursor_xy (map + (map / mouse_xy char_wh) offset_xy)
 		cx (elem 0 cursor_xy) cy (elem 1 cursor_xy))
-	(setq cy (min cy (dec (length buffer))))
-	(if (> cx (length (elem cy buffer))) (set-sticky)) (setq sx cx))
+	(if (>= cy (length buffer)) (setq cy (min cy (dec (length buffer))) cx (length (elem cy buffer))))
+	(if (> cx (length (elem cy buffer)))
+		(setq cx (max (set-sticky) (length (elem cy buffer)))) (setq sx cx))
 
-(defun-bind new-buffer ()
-	(setq buffer_path (cat home_dir "tmp_txt_" (str (setq tmp_num (inc tmp_num)))) 
-		buffer (list (join " " (ascii-char 10))) ox 0 oy 0 cx 0 cy 0 sx 0 pos (list ox oy cx cy sx))
-	(list buffer_path buffer pos))
+	(elem-set text_buffer current_text buffer)
+	(elem-set text_position current_text (list ox oy cx cy sx)))
+
+; (defun-bind get-text (fn)
+; 	(defq index (elem text_index current_text) path (elem text_path current_text) buffer (elem text_buffer current_text) 
+; 		position (elem text_position current_text) ox (elem pos_ox position) oy (elem pos_oy position)
+; 		cx (elem pos_cx position) cy (elem pos_cy position) sx (elem pos_sx position)))
 
 (defun-bind open-buffer (path)
-	(setq buffer_path path buffer (list) ox 0 oy 0 cx 0 cy 0 sx 0 pos (list ox oy cx cy sx))
-	(each-line (lambda (_) (push buffer _)) (file-stream buffer_path))
-	(list buffer_path buffer pos))
+	(defq index (length text_store) buffer (list (join " " (ascii-char 10))) pos (list 0 0 0 0 0))
+	(unless (eql path "")
+		(setq buffer (list))
+		(each-line (lambda (_) (push buffer _)) (file-stream path)))
+	(push text_store (list index path buffer pos))
+	(elem index text_store))
 
 (defun-bind save-buffer (path)
-	(setq buffer_path (str (get textfield 'text)))
-	(save (join buffer (ascii-char 10)) buffer_path))
+	(unless (eql path "")
+		(defq save_buffer (join (elem text_buffer current_text) (ascii-char 10)))
+		(save save_buffer path))
+	(elem text_index text_store))
+
+(defun-bind close-buffer (index)
+	(setq text_store (erase text_store index (inc index))))
 
 (defun-bind vdu-input (c)
+	(defq buffer (elem text_buffer current_text))
+	(bind '(ox oy cx cy sx) (elem text_position current_text))
+
 	(cond
 		((or (= c 10) (= c 13))		(return) (setq cx 0))
 		((= c 8)					(backspace) (setq sx cx))
@@ -92,9 +119,10 @@
 		((= c 0x40000051)			(down)))
 	; ensures behavior resembling other editor interfaces when adjusting cx
 	(set-sticky)
-	;(defq new_off (cursor-visible))
 	(set slider 'value oy)
-	(vdu-load vdu buffer 0 (get slider 'value) cx cy)
+	(elem-set text_buffer current_text buffer)
+	(elem-set text_position current_text (list ox oy cx cy sx))
+	(vdu-load vdu buffer ox (get slider 'value) cx cy)
 	(vdu-load vdu buffer ox oy cx cy)
 	(view-dirty slider))
 
@@ -106,8 +134,8 @@
 				"edit")))))
 
 ;open the current buffer and set the scroll bar and textfield.
-(defq current_buffer (open-buffer buffer_path))
-(set textfield 'text buffer_path)
+(defq current_text (open-buffer msg_path))
+(set textfield 'text (elem text_path current_text))
 (window-layout vdu_width vdu_height)
 
 ;main loop
@@ -116,18 +144,28 @@
 		((= (setq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_win_close)
 			(setq id nil)
 			(window-close))
-		((= id event_new)
-			(setq current_buffer (new-buffer))
-			(set textfield 'text buffer_path)
+		((= id event_new) ;not working
+			(setq current_text (open-buffer ""))
+			(set textfield 'text "")
 			(window-layout vdu_width vdu_height))
 		((= id event_open)
-			(setq buffer_path (get textfield 'text)
-				current_buffer (open-buffer buffer_path))
+			(defq path (get textfield 'text))
+			(setq current_text (open-buffer path))
+			(set textfield 'text (elem text_path current_text))
 			(window-layout vdu_width vdu_height))
 		((= id event_save)
-			(setq buffer_path (get textfield 'text))
-			(save-buffer buffer_path)
+			(setq path (get textfield 'text))
+			(save-buffer path)
 			(window-layout vdu_width vdu_height))
+		((= id event_close)
+			(cond 
+			((<= (length text_store) 1)
+				(setq id nil)	(window-close))
+			((> (length text_store) 1)
+				(close-buffer (elem text_index current_text))
+				(setq current_text (elem (dec (length text_store)) text_store)) ;prev-buffer (index)
+				(set textfield 'text (elem text_path current_text))
+				(window-layout vdu_width vdu_height))))
 		((= id event_win_layout)
 			;user window resize
 			(apply window-layout (vdu-max-size vdu)))
@@ -138,9 +176,13 @@
 			;max button
 			(window-resize 120 40))
 		((= id event_win_scroll)
+			(defq buffer (elem text_buffer current_text))
+			(bind '(ox oy cx cy sx) (elem text_position current_text))
 			;user scroll bar
 			(vdu-load vdu buffer 0 (defq new_oy (get slider 'value)) cx cy)
-			(setq oy new_oy))
+			(setq oy new_oy)
+			(elem-set text_buffer current_text buffer)
+			(elem-set text_position current_text (list ox oy cx cy sx)))
 		((= id (component-get-id vdu))
 			(view-event window msg)
 			(cond 
@@ -149,7 +191,6 @@
 					(vdu-input (get-int msg ev_msg_key_key)))
 				((and (= (get-long msg ev_msg_type) ev_type_mouse)
 					(/= (get-int msg ev_msg_mouse_buttons) 0))
-					;(setq cx ox cy oy)
 					(defq rx (get-int msg ev_msg_mouse_rx) ry (get-int msg ev_msg_mouse_ry) 
 						mouse_xy (list rx ry))
 					(mouse-cursor mouse_xy)
