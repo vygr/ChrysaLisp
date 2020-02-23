@@ -269,17 +269,17 @@
 
 (vp-label 'send_gui_event)
 	;send gui event
-	(ptr 'this 'user 'msg 'data 'owner)
+	(ptr 'this 'user 'msg 'data)
+	(struct 'owner_id 'id)
 
 	(push-scope)
 	(entry {this, user})
 
-	(call 'view 'find_owner {this} {_, owner})
-	(vpif {owner})
+	(call 'view 'find_owner {this} {_, owner_id.id_id})
+	(vpif {owner_id.id_id})
 		(call 'sys_mail 'alloc {ev_msg_gui_size} {msg, data})
 		(assign {ev_type_gui} {data->ev_msg_type})
-		(assign {owner->tk_node_mbox_id} {msg->msg_dest.id_mbox})
-		(call 'sys_kernel 'id nil {msg->msg_dest.id_cpu})
+		(assign {owner_id.id_id} {msg->msg_dest.id_id})
 		(assign {this->component_id} {data->ev_msg_target_id})
 		(call 'sys_mail 'send {msg})
 	(endif)
