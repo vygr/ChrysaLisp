@@ -1,3 +1,5 @@
+;BUGS:
+;-changing a new file's 
 ;imports
 (import 'sys/lisp.inc)
 (import 'class/lisp.inc)
@@ -10,12 +12,12 @@
 		'win_scroll 'new 'save 'open 'close 'prev 'next))
 
 (structure 'text 0
-	(byte 'index 'path 'buffer 'position))
+	(byte 'index 'path 'title 'buffer 'position))
 
 (structure 'pos 0
 	(byte 'ox 'oy 'cx 'cy 'sx))
  
-(defq id t vdu_min_width 40 vdu_min_height 24 vdu_width 60 vdu_height 40 text_store (list)
+(defq id t vdu_min_width 40 vdu_min_height 24 vdu_width 60 vdu_height 40 text_store (list) tmp_num 0
 	current_text (list) msg_path "apps/edit/message" home_dir (cat "apps/login/" *env_user* "/"))
 
 (ui-tree window (create-window (+ window_flag_close window_flag_min window_flag_max)) ('color argb_grey2)
@@ -40,7 +42,7 @@
 	(view-hide window))
 
 (defun-bind window-resize (w h)
-	(defq buffer (elem text_buffer current_text))
+	(bind '(_ path title buffer position) current_text)
 	(bind '(ox oy cx cy sx) (elem text_position current_text))
 
 	(setq vdu_width w vdu_height h)
@@ -52,23 +54,24 @@
 	(vdu-load vdu buffer ox oy cx cy))
 
 (defun-bind window-layout (w h)
-	(defq buffer (elem text_buffer current_text))
-	(bind '(ox oy cx cy sx) (elem text_position current_text))
+	(bind '(_ path title buffer position) current_text)
+	(bind '(ox oy cx cy sx) position)
 
+	(get textfield 'text)
 	(setq vdu_width w vdu_height h)
 	(set vdu 'vdu_width w 'vdu_height h 'min_width w 'min_height h)
 	(bind '(x y _ _) (view-get-bounds vdu))
 	(bind '(w h) (view-pref-size vdu))
 	(bind '(tx ty _ _) (view-get-bounds textfield))
 	(bind '(tw th) (view-pref-size textfield))
+	(view-set-bounds textfield tx ty (- w 10) th)
 	(set vdu 'min_width vdu_min_width 'min_height vdu_min_height)
 	(view-change vdu x y w h)
-	(view-change textfield tx ty w th)
-	; (view-set-bounds textfield tx ty w th)
+	(view-change textfield tx ty w th)	
+	(window-set-title window title)
 	;set slider and textfield values
 	(def slider 'maximum (max 0 (- (length buffer) vdu_height)) 'portion vdu_height 'value oy)
-	(view-dirty slider)
-	(view-dirty textfield)
+	(view-dirty-all window)
 	(vdu-load vdu buffer ox oy cx cy))
 
 ;cursor_xy = (+ (mouse_xy / char_wh) offset_xy)
@@ -92,19 +95,20 @@
 ; 		cx (elem pos_cx position) cy (elem pos_cy position) sx (elem pos_sx position)))
 
 (defun-bind open-buffer (path)
-	(defq index (length text_store) buffer (list (join " " (ascii-char 10))) pos (list 0 0 0 0 0))
-	(unless (eql path "")
+	(defq index (length text_store) title path buffer (list (join " " (ascii-char 10))) pos (list 0 0 0 0 0))
+	(unless (or (eql path "") (not (catch (file-stream path) t)))
 		(setq buffer (list))
 		(each-line (lambda (_) (push buffer _)) (file-stream path)))
-	(push text_store (list index path buffer pos))
+	(if (eql title "") 
+		(setq title (cat "Untitled-" (str (setq tmp_num (inc tmp_num))))))
+	(push text_store (list index path title buffer pos))
 	(elem index text_store))
 
-;not saving to disk temporarily for now.
 (defun-bind save-buffer (path)
 	(unless (eql path "")
 		(defq save_buffer (join (elem text_buffer current_text) (ascii-char 10)))
 		(save save_buffer path)
-		(elem-set text_path current_text path)))
+		(elem-set text_path title current_text path)))
 
 (defun-bind close-buffer (index)
 	(defq i 0)
@@ -123,8 +127,8 @@
 	(elem index text_store))
 
 (defun-bind vdu-input (c)
-	(defq buffer (elem text_buffer current_text))
-	(bind '(ox oy cx cy sx) (elem text_position current_text))
+	(bind '(_ path title buffer position) current_text)
+	(bind '(ox oy cx cy sx) position)
 
 	(cond
 		((or (= c 10) (= c 13))		(return) (setq cx 0))
@@ -143,15 +147,16 @@
 	(vdu-load vdu buffer ox oy cx cy)
 	(view-dirty slider))
 
+(defq current_text (open-buffer msg_path))
+
 ;open the window
 (gui-add (apply view-change (cat (list window 48 16)
 	(view-pref-size (window-set-title
 		(component-connect (window-connect-close (window-connect-min
 			(window-connect-max window event_win_max) event_win_min) event_win_close) event_win_layout) 
-				"edit")))))
+				(elem text_title current_text))))))
 
 ;open the current buffer and set the scroll bar and textfield.
-(defq current_text (open-buffer msg_path))
 (set textfield 'text (elem text_path current_text))
 (window-layout vdu_width vdu_height)
 
@@ -171,7 +176,7 @@
 			(set textfield 'text (elem text_path current_text))
 			(window-layout vdu_width vdu_height))
 		((= id event_save)
-			(setq path (get textfield 'text))
+			(defq path (get textfield 'text))
 			(save-buffer path)
 			(window-layout vdu_width vdu_height))
 		((= id event_close)
