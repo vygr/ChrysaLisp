@@ -1,5 +1,3 @@
-;BUGS:
-;-changing a new file's 
 ;imports
 (import 'sys/lisp.inc)
 (import 'class/lisp.inc)
@@ -88,11 +86,6 @@
 
 	(elem-set text_buffer current_text buffer)
 	(elem-set text_position current_text (list ox oy cx cy sx)))
-
-; (defun-bind get-text (fn)
-; 	(defq index (elem text_index current_text) path (elem text_path current_text) buffer (elem text_buffer current_text) 
-; 		position (elem text_position current_text) ox (elem pos_ox position) oy (elem pos_oy position)
-; 		cx (elem pos_cx position) cy (elem pos_cy position) sx (elem pos_sx position)))
 
 (defun-bind open-buffer (path)
 	(defq index (length text_store) title path buffer (list (join " " (ascii-char 10))) pos (list 0 0 0 0 0))
