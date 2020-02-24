@@ -22,10 +22,10 @@
 
 (defun-bind window-connect-min (window id)
 	;(window-connect-min window id) -> window
-	(component-connect (get-field window  (const window_min) 0) id)
+	(component-connect (get-field window (const window_min) 0) id)
 	window)
 
 (defun-bind window-connect-max (window id)
 	;(window-connect-max window id) -> window
-	(component-connect (get-field window  (const window_max) 0) id)
+	(component-connect (get-field window (const window_max) 0) id)
 	window)

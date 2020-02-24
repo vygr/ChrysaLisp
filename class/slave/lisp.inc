@@ -3,4 +3,4 @@
 
 (defun-bind slave-get-args (slave)
 	;(slave-get-args slave) -> list
-	(get-field slave slave_args 0))
+	(get-field slave (const slave_args) 0))

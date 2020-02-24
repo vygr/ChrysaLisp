@@ -12,7 +12,7 @@
 (ffi create-canvas "gui/canvas/lisp_create" 0)
 
 (defun-bind canvas-set-color (canvas argb)
-	(set-field canvas  (const canvas_color) (const (neg int_size)) argb))
+	(set-field canvas (const canvas_color) (const (neg int_size)) argb))
 
 (defun-bind canvas-set-flags (canvas flags)
-	(set-field canvas  (const canvas_flags) (const (neg int_size)) flags))
+	(set-field canvas (const canvas_flags) (const (neg int_size)) flags))

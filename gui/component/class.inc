@@ -20,6 +20,6 @@
 
 (def-struct 'component 'hmap)
 	(ptr 'target_ids)
-	(ulong 'id)
+	(long 'id)
 	(struct 'owner_id 'id)
 (def-struct-end)
