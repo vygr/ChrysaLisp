@@ -30,7 +30,8 @@
 				(setq c (+ range_start (* c grid_width)))
 				(ui-element _ (create-label) ('font (create-font "fonts/Hack-Regular.ctf" 12) 'text (to-hex c)))
 				(each (lambda (c)
-					(ui-element _ (create-label) ('text (to-utf8 c)))) (range c (+ c grid_width)))) (range 0 grid_height)))))
+					(ui-element _ (create-label) ('flow_flags flow_flag_align_hcenter 'text (to-utf8 c))))
+						(range c (+ c grid_width)))) (range 0 grid_height)))))
 
 (bind '(w h) (view-pref-size symbol_grid))
 (def symbol_scroll 'min_width w 'min_height 640)
