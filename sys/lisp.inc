@@ -1,9 +1,5 @@
-;import sys settings
-(bind (defq _syms_ '(
-	byte_size short_size int_size long_size ptr_size kn_call_open kn_call_child))
-	(within-compile-env (lambda ()
-		(include 'sys/kernel/class.inc)
-		(map eval _syms_))))
+;import symbols
+(import 'sys/symbols.inc)
 
 ;some simple structure helpers
 (defmacro structure (n o &rest b)

@@ -201,7 +201,7 @@
 (defcfun def-enum-end ()
 	(undefc '*enum* '*enum-offset*))
 
-(defcfun enum (&rest _)
+(defcfun-bind enum (&rest _)
 	(each (lambda (_)
 		(and (defq d (def? (setq _ (sym (cat *enum* "_" _))))) (/= d *enum-offset*)
 			(throw "Enum redefined !" _))
@@ -217,9 +217,9 @@
 (defcfun def-bit-end ()
 	(undefc '*bit* '*bit-offset*))
 
-(defcfun bit (&rest _)
+(defcfun-bind bit (&rest _)
 	(each (lambda (_)
-		(if (def? (setq _ (sym (cat *bit* "_" _))))
+		(and (defq d (def? (setq _ (sym (cat *bit* "_" _))))) (/= d (<< 1 *bit-offset*))
 			(throw "Bit redefined !" _))
 		(defcvar _ (<< 1 *bit-offset*) '*bit-offset* (inc *bit-offset*))) _))
 
