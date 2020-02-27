@@ -99,9 +99,7 @@
 
 (defun-bind make-syms ()
 	(print "Scanning source files...")
-	(defq stream (string-stream (cat "")))
-	(defq _syms_
-		'(argb_black argb_blue argb_cyan argb_green argb_grey1 argb_grey10 argb_grey11
+	(defq _syms_ '(argb_black argb_blue argb_cyan argb_green argb_grey1 argb_grey10 argb_grey11
 		argb_grey12 argb_grey13 argb_grey14 argb_grey15 argb_grey2 argb_grey3
 		argb_grey4 argb_grey5 argb_grey6 argb_grey7 argb_grey8 argb_grey9 argb_magenta
 		argb_red argb_white argb_yellow byte_size canvas_color canvas_flags
@@ -122,8 +120,7 @@
 		view_flags view_h view_w view_x view_y window_close window_col
 		window_flag_close window_flag_max window_flag_min window_flag_status window_max
 		window_min window_status window_title)
-		_vals_
-		(within-compile-env (lambda ()
+		_vals_ (within-compile-env (lambda ()
 			(include 'sys/kernel/class.inc)
 			(include 'sys/list/class.inc)
 			(include 'sys/mail/class.inc)
@@ -138,10 +135,11 @@
 			(include 'gui/scroll/class.inc)
 			(include 'gui/canvas/class.inc)
 			(include 'gui/points/class.inc)
-			(map eval _syms_))))
-	(write-line stream ";;;;;;;;;;;;")
-	(write-line stream "; VP symbols")
-	(write-line stream ";;;;;;;;;;;;")
+			(map eval _syms_)))
+		stream (string-stream (cat "")))
+	(write-line stream ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;")
+	(write-line stream "; VP symbols, autogen do not edit !")
+	(write-line stream ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;")
 	(write-line stream "(defq")
 	(each (lambda (s v)
 		(write stream s)
@@ -159,7 +157,8 @@
 	all: include all .vp files.
 	boot: create a boot image.
 	platforms: for all platforms not just the host.
-	doc: scan source files and create documentation.")
+	doc: scan source files and create documentation.
+	syms: scan source files and create VP sys/symbols.inc.")
 ))
 
 ;initialize pipe details and command args, abort on error
