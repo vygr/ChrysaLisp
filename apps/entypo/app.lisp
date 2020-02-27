@@ -13,10 +13,10 @@
 
 (defun-bind num-to-hex-str (_)
 	(cat "0x"
-		(char-to-num (logand 0xf (>> _ 12)))
-		(char-to-num (logand 0xf (>> _ 8)))
-		(char-to-num (logand 0xf (>> _ 4)))
-		(char-to-num (logand 0xf _))))
+		(num-to-char (logand 0xf (>> _ 12)))
+		(num-to-char (logand 0xf (>> _ 8)))
+		(num-to-char (logand 0xf (>> _ 4)))
+		(num-to-char (logand 0xf _))))
 
 (defq id t range_start 0xe900 range_end 0xea50
 	grid_width 8 grid_height (/ (- range_end range_start) grid_width))

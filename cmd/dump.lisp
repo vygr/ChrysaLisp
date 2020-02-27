@@ -12,7 +12,7 @@
 
 ;hex strings of number
 (defun as-hex-byte (_)
-	(cat (char-to-num (logand (>> _ 4) 0xf)) (char-to-num (logand _ 0xf))))
+	(cat (num-to-char (logand (>> _ 4) 0xf)) (num-to-char (logand _ 0xf))))
 (defun as-hex-short (_)
 	(cat (as-hex-byte (>> _ 8)) (as-hex-byte (logand _ 0xff))))
 (defun as-hex-int (_)

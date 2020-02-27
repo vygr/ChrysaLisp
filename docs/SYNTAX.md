@@ -226,7 +226,7 @@
 
 ## char-to-num
 
-(char-to-num str) -> num
+(char-to-num char) -> num
 
 ## clear
 
@@ -726,7 +726,7 @@
 
 ## num-to-char
 
-(num-to-char num) -> str
+(num-to-char num) -> char
 
 ## num?
 
