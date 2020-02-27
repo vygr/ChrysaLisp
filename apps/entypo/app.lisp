@@ -6,17 +6,17 @@
 (structure 'event 0
 	(byte 'win_close))
 
-(defun-bind to-utf8 (_)
+(defun-bind num-to-utf8 (_)
 	(cat (ascii-char (+ 0xe0 (logand (>> _ 12) 0x3f)))
 		(ascii-char (+ 0x80 (logand (>> _ 6) 0x3f)))
 		(ascii-char (+ 0x80 (logand _ 0x3f)))))
 
-(defun-bind to-hex (_)
+(defun-bind num-to-hex-str (_)
 	(cat "0x"
-		(to-base-char (logand 0xf (>> _ 12)))
-		(to-base-char (logand 0xf (>> _ 8)))
-		(to-base-char (logand 0xf (>> _ 4)))
-		(to-base-char (logand 0xf _))))
+		(char-to-num (logand 0xf (>> _ 12)))
+		(char-to-num (logand 0xf (>> _ 8)))
+		(char-to-num (logand 0xf (>> _ 4)))
+		(char-to-num (logand 0xf _))))
 
 (defq id t range_start 0xe900 range_end 0xea50
 	grid_width 8 grid_height (/ (- range_end range_start) grid_width))
@@ -28,9 +28,9 @@
 				'color toolbar_col)
 			(each (lambda (c)
 				(setq c (+ range_start (* c grid_width)))
-				(ui-element _ (create-label) ('font (create-font "fonts/Hack-Regular.ctf" 12) 'text (to-hex c)))
+				(ui-element _ (create-label) ('font (create-font "fonts/Hack-Regular.ctf" 12) 'text (num-to-hex-str c)))
 				(each (lambda (c)
-					(ui-element _ (create-label) ('flow_flags flow_flag_align_hcenter 'text (to-utf8 c))))
+					(ui-element _ (create-label) ('flow_flags flow_flag_align_hcenter 'text (num-to-utf8 c))))
 						(range c (+ c grid_width)))) (range 0 grid_height)))))
 
 (bind '(w h) (view-pref-size symbol_grid))

@@ -458,22 +458,21 @@
 	;(align num pow2) -> num
 	(logand (+ _ (dec _a)) (neg _a)))
 
-(defun-bind to-base-char (_)
-	;(to-base-char num) -> str
-	(elem _ "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"))
-
-(defun-bind from-base-char (_)
-	;(from-base-char str) -> num
-	(setq _ (code _))
+(defun-bind num-to-char (_)
+	;(num-to-char num) -> str
 	(cond
-		((>= _ (const (ascii-code "a")))
+		((>= (setq _ (code _)) (const (ascii-code "a")))
 			(- _ (const (- (ascii-code "a") 10))))
 		((>= _ (const (ascii-code "A")))
 			(- _ (const (- (ascii-code "A") 10))))
 		(t (- _ (const (ascii-code "0"))))))
 
-(defun-bind to-num (_)
-	;(to-num str) -> num
+(defun-bind char-to-num (_)
+	;(char-to-num str) -> num
+	(elem _ "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"))
+
+(defun-bind str-to-num (_)
+	;(str-to-num str) -> num
 	(defq n 0 b 10)
 	(when (> (length _) 1)
 		(defq i (elem 1 _))
@@ -489,7 +488,7 @@
 		(defq c (elem i _))
 		(if (eql c ".")
 			(setq f 1)
-			(defq d (from-base-char c) n (+ (* n b) d) f (* f b))))
+			(defq d (num-to-char c) n (+ (* n b) d) f (* f b))))
 	(if (= f 0) n (fdiv n f)))
 
 (defun-bind trim-start (s &optional c)

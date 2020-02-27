@@ -246,7 +246,7 @@ every
 exec
 erase
 filter
-from-base-char
+char-to-num
 get-byte
 get-cstr
 get-int
@@ -281,7 +281,7 @@ sorted
 str?
 swap
 sym?
-to-base-char
+num-to-char
 to-lower
 to-num
 to-upper

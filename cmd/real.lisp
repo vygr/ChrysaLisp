@@ -9,7 +9,7 @@
 		-h --help: this help info.
 	+m ++mantisa 2-31: default 31.")
 (("+m" "++mantisa")
-	,(bind-fun (lambda (o f) (setq mbits (to-num f)))))
+	,(bind-fun (lambda (o f) (setq mbits (str-to-num f)))))
 ))
 
 (defun-bind real-unpack (n)

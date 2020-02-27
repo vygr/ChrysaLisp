@@ -863,7 +863,7 @@
 		(if (<= -1 c 4)
 			(eval (elem (inc c)
 				'((compile-operator k)
-				(compile-const (to-num k))
+				(compile-const (str-to-num k))
 				(compile-ref k)
 				(compile-bind k)
 				(compile-label k)

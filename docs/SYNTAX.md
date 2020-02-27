@@ -224,6 +224,10 @@
 
 (char num [width])
 
+## char-to-num
+
+(char-to-num str) -> num
+
 ## clear
 
 (clear array ...)
@@ -484,10 +488,6 @@
 
 (frac num)
 
-## from-base-char
-
-(from-base-char str) -> num
-
 ## fsin
 
 (fsin angle)
@@ -723,6 +723,10 @@
 ## ntz
 
 (ntz num) -> num
+
+## num-to-char
+
+(num-to-char num) -> str
 
 ## num?
 
@@ -1000,6 +1004,10 @@
 
 (str [form ...])
 
+## str-to-num
+
+(str-to-num str) -> num
+
 ## str?
 
 (str? form) -> bool
@@ -1048,17 +1056,9 @@
 
 (times num body)
 
-## to-base-char
-
-(to-base-char num) -> str
-
 ## to-lower
 
 (to-lower str) -> str
-
-## to-num
-
-(to-num str) -> num
 
 ## to-upper
 

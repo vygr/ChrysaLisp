@@ -20,7 +20,7 @@
 	If no paths given on command line
 	then paths are read from stdin.")
 (("+f" "++format")
-	,(bind-fun (lambda (o f) (setq format (to-num f)))))
+	,(bind-fun (lambda (o f) (setq format (str-to-num f)))))
 ))
 
 ;initialize pipe details and command args, abort on error

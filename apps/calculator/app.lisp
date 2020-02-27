@@ -49,8 +49,8 @@
 					(cond
 						((= num 0)
 							(unless (eql op "0"))
-								(setq num (to-num op)))
-						(t (setq num (to-num (cat (str num) op)))))
+								(setq num (str-to-num op)))
+						(t (setq num (str-to-num (cat (str num) op)))))
 					(setq value num)))
 			(set display 'text (str value))
 			(view-dirty (view-layout display)))
