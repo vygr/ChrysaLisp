@@ -273,7 +273,7 @@
 		(write-line stream (str v))) _syms_ _vals_)
 	(write-line stream ")")
 	(save (str stream) 'sys/symbols.inc)
-	(print "-> sys/symbols.inc"))
+	(print "-> sys/symbols.inc") nil)
 
 ;;;;;;;;;;;;;;;;;;;;;
 ; cross platform make
