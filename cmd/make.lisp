@@ -97,58 +97,6 @@
 	(save (str stream) 'docs/SYNTAX.md)
 	(print "-> docs/SYNTAX.md"))
 
-(defun-bind make-syms ()
-	(print "Scanning source files...")
-	(defq _syms_ '(argb_black argb_blue argb_cyan argb_green argb_grey1 argb_grey10 argb_grey11
-		argb_grey12 argb_grey13 argb_grey14 argb_grey15 argb_grey2 argb_grey3
-		argb_grey4 argb_grey5 argb_grey6 argb_grey7 argb_grey8 argb_grey9 argb_magenta
-		argb_red argb_white argb_yellow byte_size canvas_color canvas_flags
-		cap_arrow cap_butt cap_round cap_square cap_tri component_id
-		ev_msg_action_source_id ev_msg_key_key ev_msg_key_keycode ev_msg_mouse_buttons
-		ev_msg_mouse_rx ev_msg_mouse_ry ev_msg_target_id ev_msg_type ev_type_gui
-		ev_type_key ev_type_mouse flow_flag_align_hcenter flow_flag_align_hleft
-		flow_flag_align_hright flow_flag_align_vbottom flow_flag_align_vcenter
-		flow_flag_align_vtop flow_flag_down flow_flag_fillh flow_flag_fillw
-		flow_flag_lasth flow_flag_lastw flow_flag_left flow_flag_right flow_flag_up
-		in_mbox_id in_state int_size join_bevel join_miter join_round kn_call_child
-		kn_call_open load_flag_film load_flag_noswap load_flag_shared long_size
-		out_state ptr_size scroll_flag_horizontal scroll_flag_vertical short_size
-		slave_args slider_col status_col stream_mail_state_started
-		stream_mail_state_stopped stream_mail_state_stopping title_col toolbar_col
-		toolbar2_col vdu_char_height vdu_char_width view_flag_at_back
-		view_flag_dirty_all view_flag_opaque view_flag_solid
-		view_flags view_h view_w view_x view_y window_close window_col
-		window_flag_close window_flag_max window_flag_min window_flag_status window_max
-		window_min window_status window_title)
-		_vals_ (within-compile-env (lambda ()
-			(include 'sys/kernel/class.inc)
-			(include 'sys/list/class.inc)
-			(include 'sys/mail/class.inc)
-			(include 'class/in/class.inc)
-			(include 'class/out/class.inc)
-			(include 'class/slave/class.inc)
-			(include 'gui/gui/class.inc)
-			(include 'gui/ctx/class.inc)
-			(include 'gui/flow/class.inc)
-			(include 'gui/vdu/class.inc)
-			(include 'gui/window/class.inc)
-			(include 'gui/scroll/class.inc)
-			(include 'gui/canvas/class.inc)
-			(include 'gui/points/class.inc)
-			(map eval _syms_)))
-		stream (string-stream (cat "")))
-	(write-line stream ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;")
-	(write-line stream "; VP symbols, autogen do not edit !")
-	(write-line stream ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;")
-	(write-line stream "(defq")
-	(each (lambda (s v)
-		(write stream s)
-		(write-char stream (const (ascii-code " ")))
-		(write-line stream (str v))) _syms_ _vals_)
-	(write-line stream ")")
-	(save (str stream) 'sys/symbols.inc)
-	(print "-> sys/symbols.inc"))
-
 (defq usage `(
 (("-h" "--help")
 "Usage: make [options] [all] [boot] [platforms] [doc] [syms]
