@@ -247,20 +247,11 @@
 		window_flag_close window_flag_max window_flag_min window_flag_status window_max
 		window_min window_status window_title)
 		_vals_ (within-compile-env (lambda ()
-			(include 'sys/kernel/class.inc)
-			(include 'sys/list/class.inc)
-			(include 'sys/mail/class.inc)
-			(include 'class/in/class.inc)
-			(include 'class/out/class.inc)
-			(include 'class/slave/class.inc)
-			(include 'gui/gui/class.inc)
-			(include 'gui/ctx/class.inc)
-			(include 'gui/flow/class.inc)
-			(include 'gui/vdu/class.inc)
-			(include 'gui/window/class.inc)
-			(include 'gui/scroll/class.inc)
-			(include 'gui/canvas/class.inc)
-			(include 'gui/points/class.inc)
+			(each include
+				'(sys/kernel/class.inc sys/list/class.inc sys/mail/class.inc class/in/class.inc
+				class/out/class.inc class/slave/class.inc gui/gui/class.inc gui/ctx/class.inc
+				gui/flow/class.inc gui/vdu/class.inc gui/window/class.inc gui/scroll/class.inc
+				gui/canvas/class.inc gui/points/class.inc))
 			(map eval _syms_)))
 		stream (string-stream (cat "")))
 	(write-line stream ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;")
