@@ -7,8 +7,7 @@
 	;started by kernel for each link
 
 	(struct 'lk_node 'lk_node)
-	(ptr 'task_statics 'mail_statics 'params)
-	(ptr 'msg 'data 'rx 'tx 'mem 'rx_msg 'tx_msg 'out_msg)
+	(ptr 'task_statics 'params 'msg 'data 'rx 'tx 'mem 'rx_msg 'tx_msg 'out_msg)
 	(pubyte 'pdata)
 	(long 'handle)
 	(uint 'lo_id 'hi_id 'id)
@@ -17,13 +16,12 @@
 
 	;decrement task count
 	;don't count links in load balancing
-	(assign (cat {@} (f-path 'sys_mail 'statics)) {mail_statics})
 	(assign (cat {@} (f-path 'sys_task 'statics)) {task_statics})
 	(assign {task_statics->tk_statics_task_count - 1} {task_statics->tk_statics_task_count})
 
 	;allocate link node on stack and add to link array
 	(assign {0 => lk_node.lk_table_array} {lk_node.lk_table_array_size})
-	(call 'array 'push_back {mail_statics->ml_statics_links_array, &lk_node})
+	(call 'array 'push_back (cat {@} (f-path 'sys_mail 'statics) {.ml_statics_links_array, &lk_node}))
 
 	;read params msg from kernel
 	(call 'sys_mail 'mymail nil {params, pdata})
@@ -65,35 +63,20 @@
 	(assign {&tx->lk_chan_msg0, &rx->lk_chan_msg0} {tx_msg, rx_msg})
 
 	;read and write messages through the shared buffer
-	(assign {0} {out_msg})
 	(loop-start)
 		;exchange task counts
 		(assign {task_statics->tk_statics_task_count} {tx->lk_chan_task_count})
 		(assign {rx->lk_chan_task_count} {lk_node.lk_node_task_count})
 
-		;check if we need to grab a new message
-		(vpifnot {out_msg})
-		(vp-label 'more_output)
-			;no outgoing message so see if any off chip mail for me
-			(vp-def (next node id mid table))
-			(assign {mail_statics, lk_node.lk_node_cpu_id, lk_node.lk_node_table.lk_table_array}
-				(list next id table))
-			(loop-list-forward next ml_statics_offchip_list node next)
-				(vp-cpy-ir-ui node (+ msg_dest id_cpu) mid)
-				(breakif `(,id = ,mid))
-				(continueif `(,table = 0))
-				(vp-mul-cr lk_route_size mid)
-				(vp-add-rr table mid)
-				(vp-cpy-ir-ui mid lk_route_hops mid)
-			(loop-until `(,mid /= 0))
-			(vpif `(,next /= 0))
-				(assign (list node) {out_msg})
-				(ln-remove-node node next)
-			(endif)
-		(endif)
+		;do we have a free out slot
+		(vpif {tx_msg->lk_msg_status = lk_chan_status_ready})
+			;see if any off chip mail for this link
+			(call 'any_out_mail {&lk_node} '(r0))
+			(breakif '(r0 = 0))
+		(vp-label 'send_msg)
+			(assign '(r0) {out_msg})
+			(ln-remove-node r0 r1)
 
-		;if we have a message to send then see if we can send it
-		(vpif {out_msg && tx_msg->lk_msg_status = lk_chan_status_ready})
 			;copy message data
 			(call 'sys_mem 'copy {out_msg + ln_node_size, &tx_msg->lk_msg_stamp + ln_node_size, msg_stamp_size - ln_node_size})
 			(call 'sys_mem 'copy {out_msg->msg_parcel_data, &tx_msg->lk_msg_data, (out_msg->msg_length + long_size - 1) & - long_size})
@@ -103,14 +86,11 @@
 
 			;free message
 			(call 'sys_mail 'free {out_msg})
-			(assign {0} {out_msg})
 
 			;move on to next msg chan
 			(assign {&tx_msg->lk_msg_size} {tx_msg})
-			(vpif {tx_msg = &tx->lk_chan_size})
-				(assign {&tx->lk_chan_msg0} {tx_msg})
-			(endif)
-			(vp-jmp 'more_output)
+			(breakif {tx_msg /= &tx->lk_chan_size})
+			(assign {&tx->lk_chan_msg0} {tx_msg})
 		(endif)
 
 		;check for received message
@@ -134,20 +114,24 @@
 
 			;move on to next msg chan
 			(assign {&rx_msg->lk_msg_size} {rx_msg})
-			(vpif {rx_msg = &rx->lk_chan_size})
-				(assign {&rx->lk_chan_msg0} {rx_msg})
-			(endif)
+			(breakif {rx_msg /= &rx->lk_chan_size})
+			(assign {&rx->lk_chan_msg0} {rx_msg})
 		(endif)
 
 		;let other links run
 		(call 'sys_task 'sleep '(0))
 
-		;are we in a quiet period
-		(continueif {(rx_msg->lk_msg_status = lk_chan_status_busy) ||
-			(out_msg && (tx_msg->lk_msg_status = lk_chan_status_ready))})
-
-		;small sleep if so
-		(call 'sys_task 'sleep {1000})
+		;check status
+		(switch)
+		(breakif {rx_msg->lk_msg_status = lk_chan_status_busy})
+		(vpcase {tx_msg->lk_msg_status = lk_chan_status_ready})
+			;see if any off chip mail for me
+			(call 'any_out_mail {&lk_node} '(r0))
+			(gotoif '(r0 /= 0) 'send_msg)
+		(default)
+			;small sleep if nothing to do
+			(call 'sys_task 'sleep '(1000))
+		(endswitch)
 
 		;exit if signaled by kernel
 	(loop-until {lk_node.lk_node_cpu_id = 0xffffffff})
@@ -168,5 +152,32 @@
 	(assign {task_statics->tk_statics_task_count + 1} {task_statics->tk_statics_task_count})
 	(pop-scope)
 	(return)
+
+(vp-label 'any_out_mail)
+	;inputs
+	;r0 = lk_node pointer (ptr)
+	;outputs
+	;r0 = 0 if none, else msg node (ptr)
+
+	(vp-def (next node table id mid))
+
+	(entry '(r0))
+
+	(assign `((@ ,(f-path 'sys_mail 'statics)) (r0 lk_node_cpu_id)
+		(r0 ,(+ lk_node_table lk_table_array))) `(,next ,id ,table))
+	(loop-list-forward next ml_statics_offchip_list node next)
+		(vp-cpy-ir-ui node (+ msg_dest id_cpu) mid)
+		(breakif `(,id = ,mid))
+		(continueif `(,table = 0))
+		(vp-mul-cr lk_route_size mid)
+		(vp-add-rr table mid)
+		(vp-cpy-ir-ui mid lk_route_hops mid)
+	(loop-until `(,mid /= 0))
+	(vpif `(,next /= 0))
+		(vp-cpy-rr node next)
+	(endif)
+
+	(exit `(,next))
+	(vp-ret)
 
 (def-func-end)
