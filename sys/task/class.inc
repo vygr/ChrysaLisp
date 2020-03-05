@@ -19,6 +19,7 @@
 (dec-method 'sleep 'sys/task/sleep 'static '(r0))
 (dec-method 'suspend 'sys/task/suspend)
 (dec-method 'resume 'sys/task/resume 'static '(r0) '(r0))
+(dec-method 'defer 'sys/task/defer 'static '(r0))
 (dec-method 'set_priority 'sys/task/set_priority 'static '(r0))
 (dec-method 'timer 'sys/task/timer 'static nil '(r0))
 (dec-method 'open_child 'sys/task/open_child 'static '(r0 r1) '(r0))
@@ -47,7 +48,11 @@
 (def-struct-end)
 
 ;number of distinct priorities
-(defcvar 'num_task_lists 1)
+;experimenting with
+;0 kernel and interupts
+;1 link drivers and postman task
+;2 applications
+(defcvar 'num_task_lists 3)
 
 (def-struct 'tk_statics)
 	(ptr 'current_tcb 'kernel_tcb)

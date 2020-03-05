@@ -12,6 +12,7 @@
 
 	(push-scope)
 
+	(call 'sys_task 'set_priority '(1))
 	(call 'sys_kernel 'id nil {id})
 	(assign (cat {@} (f-path 'sys_mail 'statics)) {mail_statics})
 

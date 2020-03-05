@@ -70,12 +70,10 @@
 ;;;;;;;;;;;;;;;;;;;;;;;
 
 	;loop till no other tasks running
+	(call 'sys_task 'set_priority '(0))
 	(loop-start)
-		;allow all other tasks to run
-		(call 'sys_task 'sleep '(0))
-
 		;service all kernel mail
-		(loop-start)
+		(loop-start 'kernel_loop)
 			;check if any mail
 			(assign {mbox_addr} '(r0))
 			(lh-is-empty r0 mbox_list r1)
@@ -205,19 +203,30 @@
 		;resume any ready tasks on timer list
 		(call 'sys_task 'timer nil '(r0))
 
-		;next task if other ready tasks
+		;find next task we could defer to
 		(assign {task_statics} '(r3))
-		(assign '((r3 tk_statics_kernel_tcb)) '(r1))
-		(ln-get-succ r1 0 r1)
-		(ln-get-succ r1 0 r1)
-		(continueif '(r1 /= 0))
+		(assign '((& r3 (+ tk_statics_task_lists lh_list_size))) '(r1))
+		(assign '((& r3 (+ tk_statics_task_lists (* num_task_lists lh_list_size)))) '(r2))
+		(loop-start)
+			(lh-get-head r1 0 r4)
+			(ln-get-succ r4 0 r5)
+			(breakif '(r5 /= 0))
+			(vp-add-cr lh_list_size r1)
+		(loop-until '(r1 = r2))
 
+		;defer to task if available
+		(vpif '(r5 /= 0))
+			(call 'sys_task 'defer '(r4))
+			(continue 'kernel_loop)
+		(endif)
+
+		;no other task ready to run so
 		;exit if no task waiting for timer
 		(lh-get-head r3 tk_statics_timer_list r2)
 		(ln-get-succ r2 0 r1)
 		(breakif '(r1 = 0))
 
-		;sleep till next wake time
+		;may as well go to sleep till next wake time then
 		(vp-swp-rr r0 r2)
 		(assign '((r0 tk_node_time)) '(r0))
 		(vp-sub-rr r2 r0)

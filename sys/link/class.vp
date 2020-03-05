@@ -63,6 +63,7 @@
 	(assign {&tx->lk_chan_msg0, &rx->lk_chan_msg0} {tx_msg, rx_msg})
 
 	;read and write messages through the shared buffer
+	(call 'sys_task 'set_priority '(1))
 	(loop-start)
 		;exchange task counts
 		(assign {task_statics->tk_statics_task_count} {tx->lk_chan_task_count})
