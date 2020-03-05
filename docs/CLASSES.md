@@ -7405,6 +7405,8 @@ r0
 ```lisp
 inputs
 r0 = time delay in usec (ulong)
+trashes
+none
 info
 0 for yield
 ```
@@ -7412,6 +7414,8 @@ info
 ### sys_task::suspend -> sys/task/suspend
 
 ```lisp
+trashes
+none
 info
 suspend current task, switch to next task
 ```
@@ -7425,6 +7429,26 @@ outputs
 r0 = task control node to resume (ptr)
 trashes
 r1-r2
+```
+
+### sys_task::defer -> sys/task/defer
+
+```lisp
+inputs
+r0 = task control node to defer to (ptr)
+trashes
+none
+info
+restore task
+```
+
+### sys_task::set_priority -> sys/task/set_priority
+
+```lisp
+inputs
+r0 = priority (uint)
+trashes
+r0-r4
 ```
 
 ### sys_task::timer -> sys/task/timer
