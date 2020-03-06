@@ -48,11 +48,12 @@
 (def-struct-end)
 
 ;number of distinct priorities
-;experimenting with
-;0 kernel and interupts
-;1 link drivers and postman task
-;2 applications
-(defcvar 'num_task_lists 3)
+;currently experimenting with
+;0 Kernel process and interupts
+;1 Link Drivers and Postman process
+;2 GUI process
+;3 Applications
+(defcvar 'num_task_lists 4)
 
 (def-struct 'tk_statics)
 	(ptr 'current_tcb 'kernel_tcb)
