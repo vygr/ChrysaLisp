@@ -55,10 +55,10 @@
 					(setq id nil))
 				(t (view-event window msg))))
 		(t	;child tile msg
-			(if (defq child (get-long msg 0) next_job (pop jobs))
+			(if (defq child (get-long msg (- (length msg) (const long_size))) next_job (pop jobs))
 				;next job
 				(mail-send next_job child))
-			(setq area (- area (tile canvas (slice (const long_size) -1 msg))))
+			(setq area (- area (tile canvas msg)))
 			(when (= area 0)
 				;close farm and clear it
 				(each (lambda (_) (mail-send "" _)) farm)
