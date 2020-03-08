@@ -1,7 +1,9 @@
 (include 'sys/func.inc)
 (include 'sys/math/class.inc)
 (include 'class/num/class.inc)
+(include 'class/str/class.inc)
 (include 'gui/points/class.inc)
+(include 'gui/canvas/class.inc)
 (include 'class/lisp/class.inc)
 
 (defun scene ()
@@ -108,5 +110,55 @@
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r13 "(ray-march points points num num num num)" error_msg_wrong_types r14))
 	(signature '(points points num num num num)))
+
+(def-func-end)
+
+(def-func 'apps/raymarch/tile)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(ptr 'this 'canvas)
+	(puint 'data)
+	(uint 'x 'y 'x1 'y1 'xp 'yp)
+
+	(entry '(r0 r1))
+
+(errorcases
+	(call 'lisp 'env_args_type '(r1 ($ sig) 2) '(r2))
+	(gotoif '(r2 = 0) 'error))
+
+	(push-scope)
+	(assign '(r0) {this})
+
+	(class/vector/bind_args r1 '(r0 r1) '(canvas str))
+	(class/array/get_args r1 '(r7 r8 r9 r10) 'ui)
+	(vp-add-cr (* 4 int_size) r1)
+	(assign '(r0 r1 r7 r8 r9 r10 r8) {canvas, data, x, y, x1, y1, yp})
+	(loop-start)
+		(assign {x} {xp})
+		(loop-start)
+			(assign {*data} {canvas->canvas_color})
+			(call 'canvas 'plot {canvas, xp, yp})
+			(assign {data + int_size} {data})
+		(loop-until {(xp + 1 => xp) = x1})
+	(loop-until {(yp + 1 => yp) = y1})
+
+	(call 'num 'create {(x1 - x) * (y1 - y)} '(r1))
+
+	(assign {this} '(r0))
+	(exit '(r0 r1))
+	(pop-scope)
+	(return)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r0 "(tile canvas data)" error_msg_wrong_types r1))
+	(signature '(canvas str)))
 
 (def-func-end)

@@ -9,7 +9,7 @@
 (structure 'event 0
 	(byte 'win_close))
 
-(defq canvas_width 800 canvas_height 800 canvas_scale 2 id t in nil then (time) total 0 select nil
+(defq canvas_width 800 canvas_height 800 canvas_scale 2 id t in nil then (time) area 0 select nil
 	center_x (mbfp-from-fixed -0.5) center_y (mbfp-from-fixed 0.0) zoom (mbfp-from-fixed 1.0))
 
 (ui-tree window (create-window window_flag_close) nil
@@ -22,7 +22,7 @@
 (defun-bind reset ()
 	(if in (in-set-state in stream_mail_state_stopped))
 	(setq in (in-stream) then (time) select (array (task-mailbox) (in-mbox in))
-		total (* canvas_width canvas_height canvas_scale canvas_scale))
+		area (* canvas_width canvas_height canvas_scale canvas_scale))
 	(mail-send (array (elem 1 select) 0 0 (* canvas_width canvas_scale) (* canvas_height canvas_scale)
 		(* canvas_width canvas_scale) (* canvas_height canvas_scale) center_x center_y zoom (* (kernel-total) 4))
 		(open-child "apps/mandelbrot/child.lisp" kn_call_child)))
@@ -70,8 +70,8 @@
 					(reset))
 				(t (view-event window msg))))
 		(t	;child tile msg
-			(setq total (- total (tile canvas msg)))
-			(when (or (> (- (defq now (time)) then) 1000000) (= total 0))
+			(setq area (- area (tile canvas msg)))
+			(when (or (> (- (defq now (time)) then) 1000000) (= area 0))
 				(setq then now)
 				(canvas-swap canvas)))))
 

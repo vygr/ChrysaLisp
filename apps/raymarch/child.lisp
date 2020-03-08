@@ -95,24 +95,26 @@
 						r (fmul r ref_coef)))
 			(vec-clamp color 0.0 0.999))))
 
-(defun-bind line (w h y)
-	(defq w2 (/ w 2) h2 (/ h 2) x -1 ss (string-stream out_buf))
-	(write ss (cat (char (task-mailbox) (const long_size)) (char y (const int_size))))
-	(while (< (setq x (inc x)) w)
-		(defq
-			ray_origin (const (points 0 0 -3.0))
-			ray_dir (vec-norm (vec-sub
-				(points (/ (* (- x w2) 1.0) w2) (/ (* (- y h2) 1.0) h2) 0.0)
-				ray_origin)))
-		(bind '(r g b) (scene-ray ray_origin ray_dir))
-		(write ss (char (+ (>> b 8) (logand g 0xff00) (<< (logand r 0xff00) 8) 0xff000000) (const int_size)))
-		(task-sleep 0))
-	(stream-flush (write msg_out (str ss))))
+(defun-bind rect (mbox x y x1 y1 w h)
+	(write (defq reply (string-stream (cat ""))) (cat (char (task-mailbox) (const long_size))
+		(char x (const int_size)) (char y (const int_size))
+		(char x1 (const int_size)) (char y1 (const int_size))))
+	(defq w2 (/ w 2) h2 (/ h 2) y (dec y))
+	(while (/= (setq y (inc y)) y1)
+		(defq xp (dec x))
+		(while (/= (setq xp (inc xp)) x1)
+			(defq
+				ray_origin (const (points 0 0 -3.0))
+				ray_dir (vec-norm (vec-sub
+					(points (/ (* (- xp w2) 1.0) w2) (/ (* (- y h2) 1.0) h2) 0.0)
+					ray_origin)))
+			(bind '(r g b) (scene-ray ray_origin ray_dir))
+			(write reply (char (+ argb_black (>> b 8) (logand g 0xff00) (<< (logand r 0xff00) 8)) (const int_size)))
+		(task-sleep 0)))
+	(mail-send (str reply) mbox))
 
-;get reply stream mailbox and send ack
-(defq msg (mail-read (task-mailbox)) msg_out (out-stream (get-long msg (const long_size))) out_buf (cat ""))
-(mail-send "" (get-long msg 0))
-
-;read work requests or exit
-(while (/= 0 (length (setq msg (mail-read (task-mailbox)))))
-	(line (get-long msg work_width) (get-long msg work_height) (get-long msg work_y)))
+;read work request or exit
+(while (/= 0 (length (defq msg (mail-read (task-mailbox)))))
+	(setq msg (string-stream msg))
+	(apply rect (map (lambda (_)
+		(read-char msg (const long_size))) (range 0 7))))

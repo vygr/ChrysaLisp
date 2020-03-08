@@ -13,16 +13,16 @@
 ;native versions
 (ffi depth "apps/mandelbrot/depth" 0)
 
-(defun-bind mandel (xp y x1 y1 w h cx cy z)
+(defun-bind mandel (x y x1 y1 w h cx cy z)
 	(defq reply (string-stream (cat "")))
 	(write reply (cat
 		(char x (const int_size)) (char y (const int_size))
 		(char x1 (const int_size)) (char y1 (const int_size))))
 	(setq y (dec y))
 	(while (/= (setq y (inc y)) y1)
-		(defq x (dec xp))
-		(while (/= (setq x (inc x)) x1)
-			(write-char reply (depth (+ (mbfp-offset x w z) cx) (+ (mbfp-offset y h z) cy))))
+		(defq xp (dec x))
+		(while (/= (setq xp (inc xp)) x1)
+			(write-char reply (depth (+ (mbfp-offset xp w z) cx) (+ (mbfp-offset y h z) cy))))
 		(task-sleep 0))
 	(mail-send (str reply) mbox))
 
