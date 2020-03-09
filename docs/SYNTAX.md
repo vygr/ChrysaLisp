@@ -640,6 +640,10 @@
 
 (macroexpand form)
 
+## mail-alloc-mbox
+
+(mail-alloc-mbox)
+
 ## mail-declare
 
 (mail-declare name mbox)
@@ -647,6 +651,10 @@
 ## mail-enquire
 
 (mail-enquire name)
+
+## mail-free-mbox
+
+(mail-free-mbox id)
 
 ## mail-poll
 

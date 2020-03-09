@@ -34,6 +34,8 @@
 (dec-method 'lisp_send 'sys/mail/lisp_send 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_declare 'sys/mail/lisp_declare 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_enquire 'sys/mail/lisp_enquire 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_alloc_mbox 'sys/mail/lisp_alloc_mbox 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_free_mbox 'sys/mail/lisp_free_mbox 'static '(r0 r1) '(r0 r1))
 
 ;;;;;;;;;;;;;;;;;
 ; mail structures

@@ -25,8 +25,7 @@
 			(each (lambda (_)
 				(push pipe_streams (in-stream))
 				(push select (in-mbox (elem -2 pipe_streams)))) mboxs)
-			(defq stdout (in-stream) stdout_mbox (in-mbox stdout)
-				ack (in-stream) ack_mbox (in-mbox ack))
+			(defq stdout (in-stream) stdout_mbox (in-mbox stdout) ack_mbox (mail-alloc-mbox))
 			(each-rev (lambda (mbox arg stderr_mbox)
 				(mail-send (cat
 					(char stdout_mbox (const long_size))
@@ -37,7 +36,7 @@
 					(get-int (mail-read ack_mbox) (const (* 3 long_size)))))) mboxs args select)
 			(push pipe_streams stdout (out-stream stdout_mbox))
 			(push select (in-mbox stdout) (if flag 0 (task-mailbox)))
-			(in-set-state ack stream_mail_state_stopped)
+			(mail-free-mbox ack_mbox)
 			(list t select pipe_streams))))
 
 (defun-bind pipe-close (pipe)

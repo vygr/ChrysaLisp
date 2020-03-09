@@ -6629,6 +6629,32 @@ trashes
 r1-r14
 ```
 
+### sys_mail::lisp_alloc_mbox -> sys/mail/lisp_alloc_mbox
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### sys_mail::lisp_free_mbox -> sys/mail/lisp_free_mbox
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
 ## sys_math
 
 Super Class: null

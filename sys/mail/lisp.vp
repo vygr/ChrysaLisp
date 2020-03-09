@@ -1,5 +1,6 @@
 (include 'sys/func.inc)
 (include 'sys/mail/class.inc)
+(include 'sys/kernel/class.inc)
 (include 'class/str/class.inc)
 (include 'class/array/class.inc)
 (include 'class/num/class.inc)
@@ -239,5 +240,72 @@
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r0 "(mail-enquire name)" error_msg_wrong_types r1))
 	(signature '(str)))
+
+(def-func-end)
+
+(def-method 'sys_mail 'lisp_alloc_mbox)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(entry 'sys_mail 'lisp_alloc_mbox '(r0 r1))
+
+(errorcases
+	(assign '((r1 array_length)) '(r2))
+	(gotoif '(r2 /= 0) 'error))
+
+	(vp-push r0)
+	(call 'sys_mail 'alloc_mbox nil '(r1 _))
+	(call 'sys_kernel 'id nil '(r0))
+	(vp-shl-cr 32 r0)
+	(vp-add-rr r1 r0)
+	(call 'num 'create '(r0) '(r1))
+	(vp-pop r0)
+
+	(exit 'sys_mail 'lisp_alloc_mbox '(r0 r1))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r0 "(mail-alloc-mbox)" error_msg_wrong_types r1)))
+
+(def-func-end)
+
+(def-method 'sys_mail 'lisp_free_mbox)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(entry 'sys_mail 'lisp_free_mbox '(r0 r1))
+
+(errorcases
+	(call 'lisp 'env_args_type '(r1 ($ sig) 1) '(r2))
+	(gotoif '(r2 = 0) 'error))
+
+	(vp-push r0)
+	(defq in (method-input 'sys_mail 'free_mbox))
+	(class/vector/bind_args r1 in '(num))
+	(call 'sys_mail 'free_mbox in)
+	(vp-pop r0)
+	(assign '((r0 lisp_sym_nil)) '(r1))
+	(class/obj/ref r1 r2)
+
+	(exit 'sys_mail 'lisp_free_mbox '(r0 r1))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r0 "(mail-free-mbox id)" error_msg_wrong_types r1))
+	(signature '(num)))
 
 (def-func-end)

@@ -7,9 +7,9 @@
 	(byte 'win_close))
 
 (defq stat_data (list) stat_scale (list) cpu_total (kernel-total) frame_cnt 0
-	cpu_count cpu_total id t max_stats 1 last_max_stats 0 in (in-stream) in_mbox (in-mbox in)
+	cpu_count cpu_total id t max_stats 1 last_max_stats 0
 	farm (open-farm "apps/stats/child.lisp" cpu_total kn_call_open) last_max_classes 0 max_classes 1
-	sample_msg (array in_mbox) select (array (task-mailbox) in_mbox))
+	select (array (task-mailbox) (mail-alloc-mbox)) sample_msg (array (elem 1 select)))
 
 (ui-tree window (create-window window_flag_close) nil
 	(ui-element _ (create-grid) ('grid_width 2 'grid_height 1 'flow_flags (logior flow_flag_down flow_flag_fillw flow_flag_lasth) 'maximum 100 'value 0)
@@ -95,6 +95,6 @@
 
 ;close window and children
 (view-hide window)
-(in-set-state in stream_mail_state_stopped)
+(mail-free-mbox (elem 1 select))
 (while (defq mbox (pop farm))
 	(mail-send (const (char event_win_close long_size)) mbox))
