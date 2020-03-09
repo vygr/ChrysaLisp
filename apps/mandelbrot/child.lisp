@@ -14,10 +14,7 @@
 (ffi depth "apps/mandelbrot/depth" 0)
 
 (defun-bind mandel (x y x1 y1 w h cx cy z)
-	(defq reply (string-stream (cat "")))
-	(write reply (cat
-		(char x (const int_size)) (char y (const int_size))
-		(char x1 (const int_size)) (char y1 (const int_size))))
+	(write-int (defq reply (string-stream (cat ""))) (list x y x1 y1))
 	(setq y (dec y))
 	(while (/= (setq y (inc y)) y1)
 		(defq xp (dec x))
@@ -41,5 +38,4 @@
 
 ;read work request
 (defq msg (string-stream (mail-read (task-mailbox))))
-(apply rect (map (lambda (_)
-	(read-char msg (const long_size))) (range 0 11)))
+(apply rect (map (lambda (_) (read-long msg)) (range 0 11)))

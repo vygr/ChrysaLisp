@@ -920,9 +920,21 @@
 
 (read-char stream [width])
 
+## read-int
+
+(read-int stream) -> num
+
 ## read-line
 
 (read-line stream)
+
+## read-long
+
+(read-long stream) -> num
+
+## read-short
+
+(read-short stream) -> num
 
 ## reduce
 
@@ -1224,7 +1236,19 @@
 
 (write-char stream list|num [width])
 
+## write-int
+
+(write-int stream num|list) -> stream
+
 ## write-line
 
 (write-line stream str) -> stream
+
+## write-long
+
+(write-long stream num|list) -> stream
+
+## write-short
+
+(write-short stream num|list) -> stream
 

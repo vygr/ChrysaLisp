@@ -617,6 +617,30 @@
 		(push *file-includes* ,_)
 		(repl (file-stream ,_) ,_)))
 
+(defmacro-bind read-long (s)
+	;(read-long stream) -> num
+	(list 'read-char s 8))
+
+(defmacro-bind read-int (s)
+	;(read-int stream) -> num
+	(list 'read-char s 4))
+
+(defmacro-bind read-short (s)
+	;(read-short stream) -> num
+	(list 'read-char s 2))
+
+(defmacro-bind write-long (s n)
+	;(write-long stream num|list) -> stream
+	(list 'write-char s n 8))
+
+(defmacro-bind write-int (s n)
+	;(write-int stream num|list) -> stream
+	(list 'write-char s n 4))
+
+(defmacro-bind write-short (s n)
+	;(write-short stream num|list) -> stream
+	(list 'write-char s n 2))
+
 (defun-bind write-line (s _)
 	;(write-line stream str) -> stream
 	(write-char (write s _) 10))

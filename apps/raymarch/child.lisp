@@ -96,9 +96,7 @@
 			(vec-clamp color 0.0 0.999))))
 
 (defun-bind rect (mbox x y x1 y1 w h)
-	(write (defq reply (string-stream (cat ""))) (cat
-		(char x (const int_size)) (char y (const int_size))
-		(char x1 (const int_size)) (char y1 (const int_size))))
+	(write-int (defq reply (string-stream (cat ""))) (list x y x1 y1))
 	(defq w2 (/ w 2) h2 (/ h 2) y (dec y))
 	(while (/= (setq y (inc y)) y1)
 		(defq xp (dec x))
@@ -109,13 +107,12 @@
 					(points (/ (* (- xp w2) 1.0) w2) (/ (* (- y h2) 1.0) h2) 0.0)
 					ray_origin)))
 			(bind '(r g b) (scene-ray ray_origin ray_dir))
-			(write reply (char (+ argb_black (>> b 8) (logand g 0xff00) (<< (logand r 0xff00) 8)) (const int_size)))
+			(write-int reply (+ argb_black (>> b 8) (logand g 0xff00) (<< (logand r 0xff00) 8)))
 		(task-sleep 0)))
-	(write reply (char (task-mailbox) (const long_size)))
+	(write-long reply (task-mailbox))
 	(mail-send (str reply) mbox))
 
 ;read work request or exit
 (while (/= 0 (length (defq msg (mail-read (task-mailbox)))))
 	(setq msg (string-stream msg))
-	(apply rect (map (lambda (_)
-		(read-char msg (const long_size))) (range 0 7))))
+	(apply rect (map (lambda (_) (read-long msg)) (range 0 7))))

@@ -203,8 +203,8 @@ fp_frac_mask
 and
 case
 compose
-curry
 const
+curry
 dec
 defmacro
 defmacro-bind
@@ -217,6 +217,12 @@ let
 opt
 or
 rcurry
+read-int
+read-long
+read-short
+write-int
+write-long
+write-short
 run
 setd
 starts-with

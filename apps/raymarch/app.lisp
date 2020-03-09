@@ -27,13 +27,13 @@
 (defun-bind tile (canvas data)
 	;(tile canvas data) -> area
 	(defq data (string-stream data)
-		x (read-char data (const int_size)) y (read-char data (const int_size))
-		x1 (read-char data (const int_size)) y1 (read-char data (const int_size))
+		x (read-int data) y (read-int data)
+		x1 (read-int data) y1 (read-int data)
 		yp (dec y))
 	(while (/= (setq yp (inc yp)) y1)
 		(defq xp (dec x))
 		(while (/= (setq xp (inc xp)) x1)
-			(canvas-plot (canvas-set-color canvas (read-char data (const int_size))) xp yp))
+			(canvas-plot (canvas-set-color canvas (read-int data)) xp yp))
 		(task-sleep 0))
 	(* (- x1 x) (- y1 y)))
 
@@ -41,7 +41,7 @@
 (ffi tile "apps/raymarch/tile" 0)
 
 ;send first batch of jobs
-(each (lambda (child) (mail-send (pop jobs) child)) farm)
+(each (lambda (_) (mail-send (pop jobs) _)) farm)
 
 (while id
 	;next event

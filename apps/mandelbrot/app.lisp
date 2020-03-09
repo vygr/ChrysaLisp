@@ -30,8 +30,8 @@
 (defun-bind tile (canvas data)
 	;(tile canvas data) -> area
 	(defq data (string-stream data)
-		x (read-char data (const int_size)) y (read-char data (const int_size))
-		x1 (read-char data (const int_size)) y1 (read-char data (const int_size))
+		x (read-int data) y (read-int data)
+		x1 (read-int data) y1 (read-int data)
 		yp (dec y))
 	(while (/= (setq yp (inc yp)) y1)
 		(defq xp (dec x))
