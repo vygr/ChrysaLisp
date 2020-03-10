@@ -4,6 +4,7 @@
 (import 'gui/lisp.inc)
 (import 'apps/edit/input.inc)
 (import 'apps/login/pupa.inc)
+(task-sleep 10000)
 
 (structure 'event 0
 	(byte 'win_close 'win_min 'win_max 'win_layout 
@@ -16,7 +17,7 @@
 	(byte 'ox 'oy 'cx 'cy 'sx))
  
 (defq id t vdu_min_width 40 vdu_min_height 24 vdu_width 60 vdu_height 40 text_store (list) tmp_num 0
-	current_text (list) msg_path "apps/edit/message" home_dir (cat "apps/login/" *env_user* "/"))
+	current_text (list) empty_buffer '("") home_dir (cat "apps/login/" *env_user* "/"))
 
 (ui-tree window (create-window (+ window_flag_close window_flag_min window_flag_max)) ('color argb_grey2)
 	(ui-element _ (create-flow) ('flow_flags (logior flow_flag_down flow_flag_fillw flow_flag_lasth))	
@@ -71,19 +72,20 @@
 (defun-bind mouse-cursor (mouse_xy)
 	(defq buffer (elem text_buffer current_text))
 	(bind '(ox oy cx cy sx) (elem text_position current_text))
-
 	(defq cursor_xy (list cx cy) char_wh (vdu-char-size vdu) offset_xy (list ox oy))
 	(setq cursor_xy (map + (map / mouse_xy char_wh) offset_xy)
 		cx (elem 0 cursor_xy) cy (elem 1 cursor_xy))
-	(if (>= cy (length buffer)) (setq cy (min cy (dec (length buffer))) cx (length (elem cy buffer))))
+	(if (>= cy (length buffer)) 
+		(setq cy (min cy (dec (length buffer))) cx (length (elem cy buffer))))
 	(if (> cx (length (elem cy buffer)))
 		(setq cx (max (set-sticky) (length (elem cy buffer)))) (setq sx cx))
-
 	(elem-set text_buffer current_text buffer)
 	(elem-set text_position current_text (list ox oy cx cy sx)))
 
 (defun-bind open-buffer (path)
 	(defq i 0 index (length text_store) pos (list 0 0 0 0 0))
+	(if (and (not (some (lambda (_) (eql "/" _)) path)) (not (eql path ""))) 
+		(setq path (cat home_dir path)))
 	(cond
 		((eql path "")
 			(defq title (cat "Untitled-" (str (setq tmp_num (inc tmp_num)))) 
@@ -98,14 +100,14 @@
 			(each-line (lambda (_) (push buffer _)) (file-stream path))
 			(push text_store (list index path title buffer pos))))
 	(elem index text_store))
-			
-
 
 (defun-bind save-buffer (path)
 	(unless (eql path "")
+		(if (not (some (lambda (_) (eql "/" _)) path)) (setq path (cat home_dir path)))
 		(defq save_buffer (join (elem text_buffer current_text) (ascii-char 10)))
 		(save save_buffer path)
-		(elem-set text_title current_text path)))
+		(elem-set text_title current_text path)
+		(elem-set text_path current_text path)))
 
 (defun-bind close-buffer (index)
 	(defq i 0)
@@ -153,8 +155,9 @@
 
 ;open the current buffer and set the scroll bar and textfield.
 
-
-(setq current_text (open-buffer msg_path))
+(each (lambda (_) (open-buffer _)) *env_edit_auto*)
+(if (= (length text_store) 0) (open-buffer ""))
+(setq current_text (elem 0 text_store))
 (set textfield 'text (elem text_path current_text))
 (window-layout vdu_width vdu_height)
 
@@ -175,6 +178,7 @@
 		((= id event_save)
 			(defq path (get textfield 'text))
 			(save-buffer path)
+			(set textfield 'text (elem text_path current_text))
 			(window-layout vdu_width vdu_height))
 		((= id event_close)
 			(cond 

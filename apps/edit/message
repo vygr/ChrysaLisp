@@ -1,21 +1,31 @@
+Welcome to ChrysaLisp edit
+==========================
 
-Welcome to Chryalisp textedit.
+Edit has the most basic of functionality, as you can see. 
 
-This editor has basic text editing functionality. It allows
-editing multiple buffers. Switching to another open buffer
-is fairly primitive—using the arrow buttons.
+Opening a buffer using the textbox, or creating a new buffer
+doesn't close the buffer you were previously on. You may
+create a new buffer by clicking "New," and then come back
+here by clicking "<". 
 
-Save files to your user account by typing:
-apps/login/<username>. If you've not created an account the
-username will be Guest.
+Buffers are saved and closed explicitly. Closing the last
+buffer closes the edit window. Any changes that have not
+been saved will be lost! 
 
-Save and open use the same textbox. As it stands, you can
-open a file with any name and it will touch, then open the
-file. No need to New a file, then Save it if you know you 
-want it saved to disk in the first place. New buffers exist
-only in memory until manually saved to disk.
+New files aren't stored anywhere until they are saved.
 
-WARNING: If you save a system file to it's
-own location, you're making changes to the system as it's
-running. Make sure this is what you want to do or you may 
-break your system.
+If you want a new buffer to be saved when you create it, 
+give it a name in the textbox and then click "Open". Opening
+a buffer at a specified location that doesn't already exist
+will create the buffer at that location.
+
+If there are no "/" characters in the textbox when you open
+or save, the events will occur within your user directory.
+The default user is Guest.
+
+To test things out and to see some basic configuration
+options, first open a "New" buffer, then type "pupa.inc" in
+the textbox above and click "Open".
+
+You can remove this file from the *env_edit_auto* list, and
+edit will start with an empty buffer.
