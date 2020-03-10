@@ -35,10 +35,6 @@
 				('vdu_width vdu_width 'vdu_height vdu_height 'min_width vdu_width 'min_height vdu_height
 				'color argb_black 'ink_color argb_white 'font (create-font "fonts/Hack-Regular.ctf" 16))))))
 
-(defun-bind window-close ()
-	(mail-send (const (char event_win_close long_size)) (task-mailbox))
-	(view-hide window))
-
 (defun-bind window-resize (w h)
 	(bind '(_ path title buffer position) current_text)
 	(bind '(ox oy cx cy sx) (elem text_position current_text))
@@ -140,16 +136,17 @@
 	(vdu-load vdu buffer ox oy cx cy)
 	(view-dirty slider))
 
-(defq current_text (open-buffer msg_path))
+
 
 ;open the window
 (gui-add (apply view-change (cat (list window 48 16)
 	(view-pref-size (window-set-title
 		(component-connect (window-connect-close (window-connect-min
 			(window-connect-max window event_win_max) event_win_min) event_win_close) event_win_layout) 
-				(elem text_title current_text))))))
+				"")))))
 
 ;open the current buffer and set the scroll bar and textfield.
+(defq current_text (open-buffer msg_path))
 (set textfield 'text (elem text_path current_text))
 (window-layout vdu_width vdu_height)
 
@@ -157,9 +154,8 @@
 (while id
 	(cond
 		((= (setq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_win_close)
-			(setq id nil)
-			(window-close))
-		((= id event_new) ;not working
+			(setq id nil))
+		((= id event_new)
 			(setq current_text (open-buffer ""))
 			(set textfield 'text "")
 			(window-layout vdu_width vdu_height))
@@ -175,7 +171,7 @@
 		((= id event_close)
 			(cond 
 				((<= (length text_store) 1)
-					(setq id nil)	(window-close))
+					(setq id nil))
 				((> (length text_store) 1)
 					(setq current_text (close-buffer (elem text_index current_text)))
 					(set textfield 'text (elem text_path current_text))
