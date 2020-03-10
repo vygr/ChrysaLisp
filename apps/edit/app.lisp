@@ -33,7 +33,7 @@
 			(component-connect (ui-element slider (create-slider) ('color slider_col)) event_win_scroll)
 			(ui-element vdu (create-vdu) 
 				('vdu_width vdu_width 'vdu_height vdu_height 'min_width vdu_width 'min_height vdu_height
-				'color argb_black 'ink_color argb_white 'font (create-font "fonts/Hack-Regular.ctf" 16))))))
+				'color argb_black 'ink_color argb_white 'font (create-font "fonts/Hack-Regular.ctf" 14))))))
 
 (defun-bind window-resize (w h)
 	(bind '(_ path title buffer position) current_text)
@@ -50,7 +50,6 @@
 (defun-bind window-layout (w h)
 	(bind '(_ path title buffer position) current_text)
 	(bind '(ox oy cx cy sx) position)
-
 	(get textfield 'text)
 	(setq vdu_width w vdu_height h)
 	(set vdu 'vdu_width w 'vdu_height h 'min_width w 'min_height h)
@@ -84,20 +83,29 @@
 	(elem-set text_position current_text (list ox oy cx cy sx)))
 
 (defun-bind open-buffer (path)
-	(defq index (length text_store) title path buffer (list (join " " (ascii-char 10))) pos (list 0 0 0 0 0))
-	(unless (or (eql path "") (not (catch (file-stream path) t)))
-		(setq buffer (list))
-		(each-line (lambda (_) (push buffer _)) (file-stream path)))
-	(if (eql title "") 
-		(setq title (cat "Untitled-" (str (setq tmp_num (inc tmp_num))))))
-	(push text_store (list index path title buffer pos))
+	(defq i 0 index (length text_store) pos (list 0 0 0 0 0))
+	(cond
+		((eql path "")
+			(defq title (cat "Untitled-" (str (setq tmp_num (inc tmp_num)))) 
+				buffer (list (join " " (ascii-char 10))))
+			(push text_store (list index path title buffer pos)))
+		((some (lambda (_) (eql path (elem text_path _))) text_store)
+			(while (< i (length text_store)) 
+				(if (eql path (elem text_path (elem i text_store)))
+					(setq index i)) (setq i (inc i))))
+		(t
+			(defq title path buffer (list))
+			(each-line (lambda (_) (push buffer _)) (file-stream path))
+			(push text_store (list index path title buffer pos))))
 	(elem index text_store))
+			
+
 
 (defun-bind save-buffer (path)
 	(unless (eql path "")
 		(defq save_buffer (join (elem text_buffer current_text) (ascii-char 10)))
 		(save save_buffer path)
-		(elem-set text_path title current_text path)))
+		(elem-set text_title current_text path)))
 
 (defun-bind close-buffer (index)
 	(defq i 0)
@@ -116,9 +124,8 @@
 	(elem index text_store))
 
 (defun-bind vdu-input (c)
-	(bind '(_ path title buffer position) current_text)
+	(bind '(index path title buffer position) current_text)
 	(bind '(ox oy cx cy sx) position)
-
 	(cond
 		((or (= c 10) (= c 13))		(return) (setq cx 0))
 		((= c 8)					(backspace) (setq sx cx))
@@ -128,6 +135,7 @@
 		((= c 0x40000052)			(up))
 		((= c 0x40000051)			(down)))
 	; ensures behavior resembling other editor interfaces when adjusting cx
+	(cursor-visible)
 	(set-sticky)
 	(set slider 'value oy)
 	(elem-set text_buffer current_text buffer)
@@ -135,8 +143,6 @@
 	(vdu-load vdu buffer ox (get slider 'value) cx cy)
 	(vdu-load vdu buffer ox oy cx cy)
 	(view-dirty slider))
-
-
 
 ;open the window
 (gui-add (apply view-change (cat (list window 48 16)
@@ -146,7 +152,9 @@
 				"")))))
 
 ;open the current buffer and set the scroll bar and textfield.
-(defq current_text (open-buffer msg_path))
+
+
+(setq current_text (open-buffer msg_path))
 (set textfield 'text (elem text_path current_text))
 (window-layout vdu_width vdu_height)
 
@@ -202,17 +210,16 @@
 			(elem-set text_buffer current_text buffer)
 			(elem-set text_position current_text (list ox oy cx cy sx)))
 		((= id (component-get-id vdu))
-			(view-event window msg)
 			(cond 
 				((and (= (get-long msg ev_msg_type) ev_type_key)
-					(> (get-int msg ev_msg_key_keycode) 0))
-					(vdu-input (get-int msg ev_msg_key_key)))
+					(> (get-int msg ev_msg_key_keycode) 0)
+					(vdu-input (get-int msg ev_msg_key_key))))
 				((and (= (get-long msg ev_msg_type) ev_type_mouse)
 					(/= (get-int msg ev_msg_mouse_buttons) 0))
 					(defq rx (get-int msg ev_msg_mouse_rx) ry (get-int msg ev_msg_mouse_ry) 
 						mouse_xy (list rx ry))
-					(mouse-cursor mouse_xy)
-					(window-layout vdu_width vdu_height))))
+					(mouse-cursor mouse_xy)))
+			(window-layout vdu_width vdu_height))
 		(t 
 			(view-event window msg))))
 
