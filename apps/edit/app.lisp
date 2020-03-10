@@ -4,7 +4,6 @@
 (import 'gui/lisp.inc)
 (import 'apps/edit/input.inc)
 (import 'apps/login/pupa.inc)
-(task-sleep 10000)
 
 (structure 'event 0
 	(byte 'win_close 'win_min 'win_max 'win_layout 
