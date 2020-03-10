@@ -7,7 +7,7 @@
 	(long 'width 'height 'y))
 
 (defq
-	eps 0.02
+	eps 0.1
 	min_distance 0.01
 	clipfar 8.0
 	march_factor 1.0
@@ -42,11 +42,12 @@
 (ffi scene "apps/raymarch/scene" 0)
 (ffi ray-march "apps/raymarch/ray-march" 0)
 
-(defun-bind get-normal ((x y z))
+(defun-bind get-normal (p)
+	(defq d (scene p)) (bind '(x y z) p)
 	(vec-norm (points
-		(- (scene (points (+ x eps) y z)) (scene (points (- x eps) y z)))
-		(- (scene (points x (+ y eps) z)) (scene (points x (- y eps) z)))
-		(- (scene (points x y (+ z eps))) (scene (points x y (- z eps)))))))
+		(- d (scene (points (- x (const eps)) y z)))
+		(- d (scene (points x (- y (const eps)) z)))
+		(- d (scene (points x y (- z (const eps))))))))
 
 (defun-bind shadow (ray_origin ray_dir l max_l k)
 	(defq s 1.0 i 1000 _ (points 0 0 0))

@@ -10,13 +10,13 @@ problems back to the SDL crew.
 
 Issues with 2.0.10:
 
-* MacOS restore from window minimise no longer sends SDL_WINDOWEVENT_RESTORED
+* MacOS restore from window minimize no longer sends SDL_WINDOWEVENT_RESTORED
 event.
 
 * MacOS virtual screen scrolling freezes SDL application output.
 
 * MacOS switches to triple buffering after full screen switch. This might not
-be a bug but a change from 2.0.9 behaviour.
+be a bug but a change from 2.0.9 behavior.
 
 * Win10 crashes on SDL_CreateTexture call, doesn't seam to matter what the
 texture mode flag is.
@@ -24,6 +24,24 @@ texture mode flag is.
 * Win10 draw state is corrupted by texture upload. Draw Color and/or Texture
 blend modes and/or blit clip regions trashed. Not 100% sure but drawing is
 corrupted.
+
+------
+
+Switched on the task priorities system with Kernel, Link, GUI and Apps priority
+bands. Things look good so far so we will run with this setup for a while and
+see how things work out.
+
+Added (mail-alloc-mbox) and (mail-free-mbox) Lisp bindings to allow Lisp code
+to directly create and use new mailboxes. This tidies up abuse of temp
+in-stream objects ! Changed various demos to use them.
+
+Added (read-long), (read-int), (read-short), (write-long), (write-int),
+(write-short) macros to simplify stream code and string-stream use for building
+messages. Changed various demos to use them.
+
+Reworked the Raymarch demo to use a job que concept and simpler farm code, no
+need to use the array of in-stream idea, although that was an interesting
+experiment, it's way too heavyweight here.
 
 ------
 
@@ -44,7 +62,7 @@ Fixed a bad bug in sys_mail::mbox_free ! Not even using the correct statics !
 
 Fixes to deinit of mem and heap classes.
 
-More robust startup with shared memory initialisation. Removed the race
+More robust startup with shared memory initialization. Removed the race
 condition where the link buffer could be cleared while containing live data,
 plus no need to clear the TX buffer from the VP side anymore.
 
@@ -85,7 +103,7 @@ classes.
 I'll publish the TTF/OTF format convertor as a separate Github repo once I tidy
 up the code. I've done that as a C++14, Qt app.
 
-So there is no dependancy on the SDL_ttf or libttf or libfree_type libs
+So there is no dependency on the SDL_ttf or libttf or libfree_type libs
 anymore.
 
 Further work needed to lower some of this code to VP, currently this takes an
