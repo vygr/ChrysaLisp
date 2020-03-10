@@ -1,10 +1,21 @@
 
-Welcome to Chryalisp edit.
+Welcome to Chryalisp textedit.
 
-Not much to see here. We're currently under construction.
+This editor has basic text editing functionality. It allows
+editing multiple buffers. Switching to another open buffer
+is fairly primitive—using the arrow buttons.
 
-Save your files to your user account by typing:
-apps/login/<username>. If you save a system file to it's
+Save files to your user account by typing:
+apps/login/<username>. If you've not created an account the
+username will be Guest.
+
+Save and open use the same textbox. As it stands, you can
+open a file with any name and it will touch, then open the
+file. No need to New a file, then Save it if you know you 
+want it saved to disk in the first place. New buffers exist
+only in memory until manually saved to disk.
+
+WARNING: If you save a system file to it's
 own location, you're making changes to the system as it's
 running. Make sure this is what you want to do or you may 
 break your system.
