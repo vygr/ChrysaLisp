@@ -8,10 +8,10 @@
 (structure 'event 0
 	(byte 'win_close))
 
-(defq canvas_width 800 canvas_height 800 canvas_scale 1 id t in (in-stream) then (time)
+(defq canvas_width 800 canvas_height 800 canvas_scale 1 id t then (time)
 	area (* canvas_width canvas_height canvas_scale canvas_scale)
 	farm (open-farm "apps/raymarch/child.lisp" (min (* 2 (kernel-total)) (* canvas_height canvas_scale)) kn_call_child)
-	select (array (task-mailbox) (in-mbox in))
+	select (array (task-mailbox) (mail-alloc-mbox))
 	jobs (map (lambda (y)
 		(array (elem 1 select) 0 y (* canvas_width canvas_scale) (inc y)
 			(* canvas_width canvas_scale) (* canvas_height canvas_scale)))
@@ -26,10 +26,8 @@
 
 (defun-bind tile (canvas data)
 	;(tile canvas data) -> area
-	(defq data (string-stream data)
-		x (read-int data) y (read-int data)
-		x1 (read-int data) y1 (read-int data)
-		yp (dec y))
+	(defq data (string-stream data) x (read-int data) y (read-int data)
+		x1 (read-int data) y1 (read-int data) yp (dec y))
 	(while (/= (setq yp (inc yp)) y1)
 		(defq xp (dec x))
 		(while (/= (setq xp (inc xp)) x1)
@@ -69,6 +67,6 @@
 				(canvas-swap canvas)))))
 
 ;close
-(in-set-state in stream_mail_state_stopped)
 (view-hide window)
+(mail-free-mbox (elem 1 select))
 (each (lambda (_) (mail-send "" _)) farm)

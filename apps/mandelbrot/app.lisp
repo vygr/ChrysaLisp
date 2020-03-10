@@ -9,7 +9,7 @@
 (structure 'event 0
 	(byte 'win_close))
 
-(defq canvas_width 800 canvas_height 800 canvas_scale 2 id t in nil then (time) area 0 select nil
+(defq canvas_width 800 canvas_height 800 canvas_scale 2 id t then nil area 0 select nil
 	center_x (mbfp-from-fixed -0.5) center_y (mbfp-from-fixed 0.0) zoom (mbfp-from-fixed 1.0))
 
 (ui-tree window (create-window window_flag_close) nil
@@ -20,8 +20,8 @@
 	(view-pref-size (window-set-title (window-connect-close window event_win_close) "Mandelbrot")))))
 
 (defun-bind reset ()
-	(if in (in-set-state in stream_mail_state_stopped))
-	(setq in (in-stream) then (time) select (array (task-mailbox) (in-mbox in))
+	(if select (mail-free-mbox (elem 1 select)))
+	(setq then (time) select (array (task-mailbox) (mail-alloc-mbox))
 		area (* canvas_width canvas_height canvas_scale canvas_scale))
 	(mail-send (array (elem 1 select) 0 0 (* canvas_width canvas_scale) (* canvas_height canvas_scale)
 		(* canvas_width canvas_scale) (* canvas_height canvas_scale) center_x center_y zoom (* (kernel-total) 4))
@@ -29,10 +29,8 @@
 
 (defun-bind tile (canvas data)
 	;(tile canvas data) -> area
-	(defq data (string-stream data)
-		x (read-int data) y (read-int data)
-		x1 (read-int data) y1 (read-int data)
-		yp (dec y))
+	(defq data (string-stream data) x (read-int data) y (read-int data)
+		x1 (read-int data) y1 (read-int data) yp (dec y))
 	(while (/= (setq yp (inc yp)) y1)
 		(defq xp (dec x))
 		(while (/= (setq xp (inc xp)) x1)
@@ -76,5 +74,5 @@
 				(canvas-swap canvas)))))
 
 ;close
-(in-set-state in stream_mail_state_stopped)
 (view-hide window)
+(mail-free-mbox (elem 1 select))
