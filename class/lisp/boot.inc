@@ -680,8 +680,6 @@
 	(when (defq f (file-stream 'abi))
 		(bind '(o _) (read f 32))) o)
 
-(defq profile nil)
-
 (defun-bind within-compile-env (_)
 	;(within-compile-env lambda)
 	(defq *compile-env* (env 307) *compile-includes* (list))
@@ -702,35 +700,4 @@
 			(push *compile-includes* _)
 			(unless (defq __ (file-stream _)) (throw "No such file !" _))
 			(repl __ _)))
-(when profile
-	(defmacro-bind defcmacro (n a &rest b)
-		`(def *compile-env* ',n (macro ,a (count-call ,(insert-call-count n)) ~b)))
-	(defmacro-bind defcfun (n a &rest b)
-		`(def *compile-env* ',n (lambda ,a (count-call ,(insert-call-count n)) ~b)))
-	(defmacro-bind defcfun-bind (n a &rest b)
-		`(def *compile-env* ',n (lambda ,a (count-call ,(insert-call-count n t)) ~(bind-fun (macroexpand b))))))
 	(catch (progn (setq _ (_) *compile-env* nil) _) (setq *compile-env* nil)))
-
-(when profile
-	(defq call-counts (list))
-	(defun-bind insert-call-count (n &optional s)
-		(if (defq c (some (lambda (e) (if (eql (elem 0 e) n) _)) call-counts)) c
-			(progn
-				(push call-counts (list n 0 s))
-				(dec (length call-counts)))))
-	(defun-bind count-call (_)
-		(defq c (elem _ call-counts))
-		(elem-set 1 c (inc (elem 1 c))))
-	(defmacro-bind print-call-counts ()
-		(sort (lambda (x y)
-			(if (< (elem 1 x) (elem 1 y)) -1 0)) call-counts)
-		(each print call-counts) nil)
-	(defmacro-bind call-test ()
-		(compile (all-vp-files))
-		(print-call-counts))
-	(defmacro-bind defun (n a &rest b)
-		`(defq ,n (lambda ,a (count-call ,(insert-call-count n)) ~b)))
-	(defmacro-bind defun-bind (n a &rest b)
-		`(defq ,n (lambda ,a (count-call ,(insert-call-count n t)) ~(bind-fun (macroexpand b)))))
-	(defmacro-bind demacro-bind (n a &rest b)
-		`(defq ,n (macro ,a (count-call ,(insert-call-count n t)) ~(bind-fun (macroexpand b))))))
