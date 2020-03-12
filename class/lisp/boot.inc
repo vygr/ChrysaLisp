@@ -606,13 +606,13 @@
 ; Tuples
 ;;;;;;;;
 
-(defmacro-bind tuple-set (i l v)
+(defmacro-bind tuple-set (_i _l _v)
 	;(tuple-set index list value)
-	(list 'elem-set (eval (macroexpand (eval i))) l v))
+	(list 'elem-set (eval (macroexpand (eval _i))) _l _v))
 
-(defmacro-bind tuple-get (i l)
+(defmacro-bind tuple-get (_i _l)
 	;(tuple-get index list) -> value
-	(list 'elem (eval (macroexpand (eval i))) l))
+	(list 'elem (eval (macroexpand (eval _i))) _l))
 
 ;;;;;;;;;
 ; Streams
