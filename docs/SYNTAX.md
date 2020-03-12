@@ -1096,6 +1096,14 @@
 
 (trim-start str [str]) -> str
 
+## tuple-get
+
+(tuple-get index list) -> value
+
+## tuple-set
+
+(tuple-set index list value)
+
 ## type-of
 
 (type-of obj)

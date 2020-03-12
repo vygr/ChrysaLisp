@@ -602,6 +602,18 @@
 		(setq o (inc o)))
 	(slice k o s))
 
+;;;;;;;;
+; Tuples
+;;;;;;;;
+
+(defmacro-bind tuple-set (i l v)
+	;(tuple-set index list value)
+	(list 'elem-set (eval (macroexpand (eval i))) l v))
+
+(defmacro-bind tuple-get (i l)
+	;(tuple-get index list) -> value
+	(list 'elem (eval (macroexpand (eval i))) l))
+
 ;;;;;;;;;
 ; Streams
 ;;;;;;;;;

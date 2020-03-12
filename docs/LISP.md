@@ -220,16 +220,18 @@ rcurry
 read-int
 read-long
 read-short
-write-int
-write-long
-write-short
 run
 setd
 starts-with
 times
+tuple-get
+tuple-set
 unless
 until
 when
+write-int
+write-long
+write-short
 ```
 
 ### boot.inc functions
