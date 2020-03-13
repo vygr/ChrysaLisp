@@ -440,11 +440,11 @@
 
 (defun-bind to-upper (_)
 	;(to-upper str) -> str
-	(apply cat (map (lambda (_) (char (upper (code _)))) _)))
+	(apply cat (map (lambda (_) (char (ascii-upper (code _)))) _)))
 
 (defun-bind to-lower (_)
 	;(to-lower str) -> str
-	(apply cat (map (lambda (_) (char (lower (code _)))) _)))
+	(apply cat (map (lambda (_) (char (ascii-lower (code _)))) _)))
 
 (defmacro-bind starts-with (p _)
 	;(starts-with str str) -> t|nil
