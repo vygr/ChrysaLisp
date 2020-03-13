@@ -420,22 +420,22 @@
 ; Utilities
 ;;;;;;;;;;;
 
-(defun-bind ascii-code (_)
+(defmacro-bind ascii-code (_)
 	;(ascii-code char) -> num
 	(code _))
 
-(defun-bind ascii-char (_)
+(defmacro-bind ascii-char (_)
 	;(ascii-char num) -> char
 	(char _))
 
 (defun-bind ascii-upper (_)
 	;(ascii-upper num) -> num
-	(if (<= (const (ascii-code "a")) _ (const (ascii-code "z")))
+	(if (<= (ascii-code "a") _ (ascii-code "z"))
 		(- _ (const (- (ascii-code "a") (ascii-code "A")))) _))
 
 (defun-bind ascii-lower (_)
 	;(ascii-lower num) -> num
-	(if (<= (const (ascii-code "A")) _ (const (ascii-code "Z")))
+	(if (<= (ascii-code "A") _ (ascii-code "Z"))
 		(+ _ (const (- (ascii-code "a") (ascii-code "A")))) _))
 
 (defun-bind to-upper (_)
@@ -461,11 +461,11 @@
 (defun-bind char-to-num (_)
 	;(char-to-num char) -> num
 	(cond
-		((>= (setq _ (code _)) (const (ascii-code "a")))
+		((>= (setq _ (code _)) (ascii-code "a"))
 			(- _ (const (- (ascii-code "a") 10))))
-		((>= _ (const (ascii-code "A")))
+		((>= _ (ascii-code "A"))
 			(- _ (const (- (ascii-code "A") 10))))
-		(t (- _ (const (ascii-code "0"))))))
+		(t (- _ (ascii-code "0")))))
 
 (defun-bind num-to-char (_)
 	;(num-to-char num) -> char
@@ -505,13 +505,13 @@
 
 (defun-bind trim-start (s &optional c)
 	;(trim-start str [str]) -> str
-	(defq c (if c (code c) (const (ascii-code " "))) i -1)
+	(defq c (if c (code c) (ascii-code " ")) i -1)
 	(while (and (/= (setq i (inc i)) (length s)) (eql (code s 1 i) c)))
 	(slice i -1 s))
 
 (defun-bind trim-end (s &optional c)
 	;(trim-end str [str]) -> str
-	(defq c (if c (code c) (const (ascii-code " "))) i (length s))
+	(defq c (if c (code c) (ascii-code " ")) i (length s))
 	(while (and (/= (setq i (dec i)) -1) (eql (code s 1 i) c)))
 	(slice 0 (inc i) s))
 

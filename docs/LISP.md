@@ -201,6 +201,8 @@ fp_frac_mask
 
 ```lisp
 and
+ascii-char
+ascii-code
 case
 compose
 const
@@ -240,8 +242,6 @@ write-short
 abs
 abi
 align
-ascii-char
-ascii-code
 ascii-lower
 ascii-upper
 cpu

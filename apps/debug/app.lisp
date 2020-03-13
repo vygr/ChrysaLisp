@@ -32,7 +32,7 @@
 (defun-bind vdu-print (vdu buf s)
 	(each (lambda (c)
 		(cond
-			((eql c (const (ascii-char 10)))
+			((eql c (ascii-char 10))
 				;line feed and truncate
 				(push buf "")
 				(if (> (length buf) vdu_height)

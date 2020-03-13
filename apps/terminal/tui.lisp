@@ -9,10 +9,10 @@
 		(cond
 			((= c 9)
 				;print tab
-				(pii-write-char 1 (const (ascii-code " ")))
-				(pii-write-char 1 (const (ascii-code " ")))
-				(pii-write-char 1 (const (ascii-code " ")))
-				(pii-write-char 1 (const (ascii-code " "))))
+				(pii-write-char 1 (ascii-code " "))
+				(pii-write-char 1 (ascii-code " "))
+				(pii-write-char 1 (ascii-code " "))
+				(pii-write-char 1 (ascii-code " ")))
 			(t	;print char
 				(pii-write-char 1 c)))) _))
 
@@ -26,7 +26,7 @@
 			(cond
 				(cmd
 					;feed active pipe
-					(pipe-write cmd (cat buffer (const (ascii-char 10)))))
+					(pipe-write cmd (cat buffer (ascii-char 10))))
 				(t	;start new pipe
 					(cond
 						((/= (length buffer) 0)
@@ -43,7 +43,7 @@
 					(pipe-write cmd buffer))
 				(pipe-close cmd)
 				(setq cmd nil buffer "")
-				(print (cat (const (ascii-char 10)) (prompt)))))
+				(print (cat (ascii-char 10) (prompt)))))
 		((and (= c 8) (/= (length buffer) 0))
 			;backspace
 			(setq buffer (slice 0 -2 buffer)))

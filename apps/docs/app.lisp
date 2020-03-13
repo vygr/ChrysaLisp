@@ -51,7 +51,7 @@
 	(cond
 		((starts-with "```" line_str)
 			(setq state 'normal word_cnt 0))
-		((defq tab_pos (find (const (ascii-char 9)) line_str))
+		((defq tab_pos (find (ascii-char 9) line_str))
 			(def (setq line_widget (create-flow)) 'flow_flags (logior flow_flag_right flow_flag_fillh flow_flag_lastw))
 			(def (defq tab_widget (create-label)) 'min_width (* (inc tab_pos) tab_width))
 			(def (defq code_widget (create-label)) 'text (slice (inc tab_pos) -1 line_str)
@@ -70,7 +70,7 @@
 		(ui-element _ (create-label) ('min_width margin_width)))
 	(defq state 'normal word_cnt 0)
 	(each-line (lambda (line_str)
-		(defq line_str (trim-end line_str (const (ascii-char 13))) line_widget (while nil))
+		(defq line_str (trim-end line_str (ascii-char 13)) line_widget (while nil))
 		(case state
 			(normal (normal-line))
 			(code (code-line)))
