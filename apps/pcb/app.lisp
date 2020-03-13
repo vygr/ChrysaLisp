@@ -16,10 +16,10 @@
 
 (ui-tree window (create-window window_flag_close) nil
 	(ui-element _ (create-flow) ('flow_flags (logior flow_flag_right flow_flag_fillh))
-		(each (lambda (l)
+		(each (lambda (c)
 			(component-connect (ui-element __ (create-button)
-				('text l 'color toolbar_col 'font (create-font "fonts/Entypo.ctf" 32))) (+ event_win_prev _)))
-					'("" "" "" "" "" ""))
+				('text (num-to-utf8 c) 'color toolbar_col 'font (create-font "fonts/Entypo.ctf" 32))) (+ event_win_prev _)))
+					'(0xe91d 0xe91e 0xea00 0xea01 0xe9ac 0xe9ad))
 		(ui-element _ (create-grid) ('grid_width 5 'grid_height 1)
 			(each (lambda (l)
 				(component-connect (ui-element __ (create-button)

@@ -491,6 +491,22 @@
 			(defq d (char-to-num c) n (+ (* n b) d) f (* f b))))
 	(if (= f 0) n (fdiv n f)))
 
+(defun-bind num-to-utf8 (_)
+	(cond
+		((>= _ 0x10000)
+			(cat (ascii-char (+ 0xf0 (>> _ 18)))
+				(ascii-char (+ 0x80 (logand (>> _ 12) 0x3f)))
+				(ascii-char (+ 0x80 (logand (>> _ 6) 0x3f)))
+				(ascii-char (+ 0x80 (logand _ 0x3f)))))
+		((>= _ 0x800)
+			(cat (ascii-char (+ 0xe0 (>> _ 12)))
+				(ascii-char (+ 0x80 (logand (>> _ 6) 0x3f)))
+				(ascii-char (+ 0x80 (logand _ 0x3f)))))
+		((>= _ 0x80)
+			(cat (ascii-char (+ 0xc0 (>> _ 6)))
+				(ascii-char (+ 0x80 (logand _ 0x3f)))))
+		(t	(ascii-char _))))
+
 (defun-bind trim-start (s &optional c)
 	;(trim-start str [str]) -> str
 	(defq c (if c (code c) (const (ascii-code " "))) i -1)

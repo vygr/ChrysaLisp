@@ -276,6 +276,7 @@ notevery
 nto
 ntz
 num?
+num-to-utf8
 partition
 range
 reduce
