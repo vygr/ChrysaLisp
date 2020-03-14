@@ -7,12 +7,12 @@
 
 (defun-bind debug-format (n e)
 	;(debug-format name env)
-	(bind '(e _) (read (string-stream (str e)) (const (ascii-code " "))))
+	(bind '(e _) (read (string-stream (str e)) (ascii-code " ")))
 	(sort (lambda (x y) (cmp (elem 0 x) (elem 0 y))) e)
 	(write (defq msg (string-stream (cat "")))
 		(cat (defq u (cat "+" (pad "" (+ (length n) 2) "--------") "+"))
 			(const (cat (ascii-char 10) "| ")) (str n) (const (cat " |" (ascii-char 10)))
-			u (const (ascii-char 10)) (const (ascii-char 10))))
+			u (ascii-char 10) (ascii-char 10)))
 	(each (lambda ((var val))
 		(setq var (pad (str var) 16) val (str val))
 		(if (> (length val) 36)
@@ -20,7 +20,7 @@
 		(if (> (length val) 0)
 			(setq val (apply cat (map (lambda (_)
 				(if (<= 32 (code _) 126) _ ".")) val))))
-		(write msg (cat var " : " val (const (ascii-char 10))))) e)
+		(write msg (cat var " : " val (ascii-char 10)))) e)
 	(kernel-debug (str msg (ascii-char 10))))
 
 (defmacro-bind debug (n _)

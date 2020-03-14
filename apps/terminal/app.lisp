@@ -25,12 +25,12 @@
 (defun-bind vdu-print (vdu buf s)
 	(each (lambda (c)
 		(cond
-			((eql c (const (ascii-char 10)))
+			((eql c (ascii-char 10))
 				;line feed and truncate
 				(push buf "")
 				(if (> (length buf) *env_terminal_lines*)
 					(setq buf (slice (dec (neg *env_terminal_lines*)) -1 buf))))
-			((eql c (const (ascii-char 126)))
+			((eql c (ascii-char 126))
 				;clear line
 				(elem-set -2 buf ""))
 			(t	;char
@@ -58,7 +58,7 @@
 	(setq text_buf (vdu-print vdu text_buf _)))
 
 (defun-bind print-edit-line ()
-	(print (cat (const (ascii-char 126)) (if cmd "" *env_terminal_prompt*) *line_buf*)))
+	(print (cat (ascii-char 126) (if cmd "" *env_terminal_prompt*) *line_buf*)))
 
 (defun-bind terminal-input (c)
 	(line-input c)
@@ -66,13 +66,13 @@
 		((or (= c 10) (= c 13))
 			;enter key
 			(print-edit-line)
-			(print (const (ascii-char 10)))
+			(print (ascii-char 10))
 			(defq cmdline *line_buf*)
 			(line-clear)
 			(cond
 				(cmd
 					;feed active pipe
-					(pipe-write cmd (cat cmdline (const (ascii-char 10)))))
+					(pipe-write cmd (cat cmdline (ascii-char 10))))
 				((/= (length cmdline) 0)
 					;new pipe
 					(catch (setq cmd (pipe-open cmdline)) (progn (setq cmd nil) t))
@@ -148,7 +148,7 @@
 			;pipe is closed
 			(pipe-close cmd)
 			(setq cmd nil)
-			(print (cat (const (ascii-char 10)) *env_terminal_prompt* *line_buf*))
+			(print (cat (ascii-char 10) *env_terminal_prompt* *line_buf*))
 			(view-dirty-all (window-set-status window "Ready")))
 		(t	;string from pipe
 			(print data))))

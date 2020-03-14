@@ -251,7 +251,7 @@
 		;add score for position on the board, piece type, near center, clear lines etc
 		(unless (eql piece " ")
 			(defq eval_values (piece-map piece_evaluation_map piece))
-			(if (> (code piece) (const (code "Z")))
+			(if (> (code piece) (ascii-code "Z"))
 				(setq white_score (+ white_score (elem 64 eval_values) (elem _ eval_values)))
 				(setq black_score (+ black_score (elem 64 eval_values) (elem _ eval_values)))))) (list brd))
 	(* (- white_score black_score) colour))
@@ -309,7 +309,7 @@
 	(defq yield (list) is_black (= colour (const black)))
 	(each! 0 -1 (lambda (piece)
 		(unless (eql piece " ")
-			(when (eql (< (code piece) (const (code "Z"))) is_black)
+			(when (eql (< (code piece) (ascii-code "Z")) is_black)
 				;one of our pieces ! so gather all boards from possible moves of this piece
 				(piece-moves yield brd _ colour (piece-map moves_map piece))))) (list brd)) yield)
 

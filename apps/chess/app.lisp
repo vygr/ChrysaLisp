@@ -10,7 +10,7 @@
 	(byte 'win_button))
 
 ;create child and send args etc
-(defq id t squares (list) next_char (const (ascii-code " "))
+(defq id t squares (list) next_char (ascii-code " ")
 	data_in (in-stream) select (array (task-mailbox) (in-mbox data_in))
 	vdu_width 38 vdu_height 12 text_buf (list ""))
 
@@ -42,7 +42,7 @@
 (defun-bind vdu-print (vdu buf s)
 	(each (lambda (c)
 		(cond
-			((eql c (const (ascii-char 10)))
+			((eql c (ascii-char 10))
 				;line feed and truncate
 				(push buf "")
 				(if (> (length buf) vdu_height)

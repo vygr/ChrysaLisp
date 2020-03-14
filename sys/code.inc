@@ -492,7 +492,7 @@
 ;;;;;;;;;;
 
 (defmacro is_white_space_char (_)
-	`(not (< (const (ascii-code " ")) (code ,_) 127)))
+	`(not (< (ascii-code " ") (code ,_) 127)))
 
 (defmacro is_symbol_char (_)
 	(list 'find _ "ABCDEFGHIJKLMNOPQRSTUVWXYZ_/0123456789abcdefghijklmnopqrstuvwxyz"))
@@ -1040,7 +1040,7 @@
 ;;;;;;;;;;;;
 
 (defcfun print-inst (_)
-	(and (lst? _) (not (eql (elem 0 _) 'lambda)) (print (const (ascii-char 9)) _)))
+	(and (lst? _) (not (eql (elem 0 _) 'lambda)) (print (ascii-char 9) _)))
 
 (defcfun-bind assign-asm-to-script (*src* *dst* _)
 	(unless (= (length *src*) (length (setq *dst* (map trim (split *dst* ",")))))

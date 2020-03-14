@@ -6,11 +6,6 @@
 (structure 'event 0
 	(byte 'win_close))
 
-(defun-bind num-to-utf8 (_)
-	(cat (ascii-char (+ 0xe0 (logand (>> _ 12) 0x3f)))
-		(ascii-char (+ 0x80 (logand (>> _ 6) 0x3f)))
-		(ascii-char (+ 0x80 (logand _ 0x3f)))))
-
 (defun-bind num-to-hex-str (_)
 	(cat "0x"
 		(num-to-char (logand 0xf (>> _ 12)))

@@ -78,7 +78,7 @@
 					(setq id nil))
 				(t (view-event window msg))))
 		(t	;child info, merge with current frames information
-			(bind '(data _) (read (string-stream msg) (const (ascii-code " "))))
+			(bind '(data _) (read (string-stream msg) (ascii-code " ")))
 			(setq max_classes (max max_classes (length data)))
 			(each (lambda (ent)
 				(bind '(name stat) ent)

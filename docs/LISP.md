@@ -201,6 +201,8 @@ fp_frac_mask
 
 ```lisp
 and
+ascii-char
+ascii-code
 case
 compose
 const
@@ -220,16 +222,18 @@ rcurry
 read-int
 read-long
 read-short
-write-int
-write-long
-write-short
 run
 setd
 starts-with
 times
+tuple-get
+tuple-set
 unless
 until
 when
+write-int
+write-long
+write-short
 ```
 
 ### boot.inc functions
@@ -238,8 +242,6 @@ when
 abs
 abi
 align
-ascii-char
-ascii-code
 ascii-lower
 ascii-upper
 cpu
@@ -274,6 +276,7 @@ notevery
 nto
 ntz
 num?
+num-to-utf8
 partition
 range
 reduce

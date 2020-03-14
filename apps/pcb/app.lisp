@@ -16,10 +16,10 @@
 
 (ui-tree window (create-window window_flag_close) nil
 	(ui-element _ (create-flow) ('flow_flags (logior flow_flag_right flow_flag_fillh))
-		(each (lambda (l)
+		(each (lambda (c)
 			(component-connect (ui-element __ (create-button)
-				('text l 'color toolbar_col 'font (create-font "fonts/Entypo.ctf" 32))) (+ event_win_prev _)))
-					'("" "" "" "" "" ""))
+				('text (num-to-utf8 c) 'color toolbar_col 'font (create-font "fonts/Entypo.ctf" 32))) (+ event_win_prev _)))
+					'(0xe91d 0xe91e 0xea00 0xea01 0xe9ac 0xe9ad))
 		(ui-element _ (create-grid) ('grid_width 5 'grid_height 1)
 			(each (lambda (l)
 				(component-connect (ui-element __ (create-button)
@@ -61,7 +61,7 @@
 	(map to-2d _))
 
 (defun-bind pcb-load (_)
-	(bind '(pcb _) (read (string-stream (cat "(" (load _) ")")) (const (ascii-code " "))))
+	(bind '(pcb _) (read (string-stream (cat "(" (load _) ")")) (ascii-code " ")))
 	(bind '(pcb_width pcb_height pcb_depth) (elem 0 pcb))
 	(defq canvas (create-canvas (* (+ pcb_width 4) zoom) (* (+ pcb_height 4) zoom) canvas_scale)
 		zoom (* zoom canvas_scale) pcb_border (* 2.0 zoom) cache_key (list) cache_poly (list))

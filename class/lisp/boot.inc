@@ -420,31 +420,31 @@
 ; Utilities
 ;;;;;;;;;;;
 
-(defun-bind ascii-code (_)
+(defmacro-bind ascii-code (_)
 	;(ascii-code char) -> num
 	(code _))
 
-(defun-bind ascii-char (_)
+(defmacro-bind ascii-char (_)
 	;(ascii-char num) -> char
 	(char _))
 
 (defun-bind ascii-upper (_)
 	;(ascii-upper num) -> num
-	(if (<= (const (ascii-code "a")) _ (const (ascii-code "z")))
+	(if (<= (ascii-code "a") _ (ascii-code "z"))
 		(- _ (const (- (ascii-code "a") (ascii-code "A")))) _))
 
 (defun-bind ascii-lower (_)
 	;(ascii-lower num) -> num
-	(if (<= (const (ascii-code "A")) _ (const (ascii-code "Z")))
+	(if (<= (ascii-code "A") _ (ascii-code "Z"))
 		(+ _ (const (- (ascii-code "a") (ascii-code "A")))) _))
 
 (defun-bind to-upper (_)
 	;(to-upper str) -> str
-	(apply cat (map (lambda (_) (char (upper (code _)))) _)))
+	(apply cat (map (lambda (_) (char (ascii-upper (code _)))) _)))
 
 (defun-bind to-lower (_)
 	;(to-lower str) -> str
-	(apply cat (map (lambda (_) (char (lower (code _)))) _)))
+	(apply cat (map (lambda (_) (char (ascii-lower (code _)))) _)))
 
 (defmacro-bind starts-with (p _)
 	;(starts-with str str) -> t|nil
@@ -461,11 +461,11 @@
 (defun-bind char-to-num (_)
 	;(char-to-num char) -> num
 	(cond
-		((>= (setq _ (code _)) (const (ascii-code "a")))
+		((>= (setq _ (code _)) (ascii-code "a"))
 			(- _ (const (- (ascii-code "a") 10))))
-		((>= _ (const (ascii-code "A")))
+		((>= _ (ascii-code "A"))
 			(- _ (const (- (ascii-code "A") 10))))
-		(t (- _ (const (ascii-code "0"))))))
+		(t (- _ (ascii-code "0")))))
 
 (defun-bind num-to-char (_)
 	;(num-to-char num) -> char
@@ -491,15 +491,27 @@
 			(defq d (char-to-num c) n (+ (* n b) d) f (* f b))))
 	(if (= f 0) n (fdiv n f)))
 
+(defun-bind num-to-utf8 (_)
+	(cond
+		((>= _ 0x10000)
+			(char (+ 0x808080f0 (>> _ 18) (logand (>> _ 4) 0x3f00)
+				(logand (<< _ 10) 0x3f0000) (logand (<< _ 24) 0x3f000000)) 4))
+		((>= _ 0x800)
+			(char (+ 0x8080e0 (>> _ 12) (logand (<< _ 2) 0x3f00)
+				(logand (<< _ 16) 0x3f0000)) 3))
+		((>= _ 0x80)
+			(char (+ 0x80c0 (>> _ 6) (logand (<< _ 8) 0x3f00)) 2))
+		(t	(char _))))
+
 (defun-bind trim-start (s &optional c)
 	;(trim-start str [str]) -> str
-	(defq c (if c (code c) (const (ascii-code " "))) i -1)
+	(defq c (if c (code c) (ascii-code " ")) i -1)
 	(while (and (/= (setq i (inc i)) (length s)) (eql (code s 1 i) c)))
 	(slice i -1 s))
 
 (defun-bind trim-end (s &optional c)
 	;(trim-end str [str]) -> str
-	(defq c (if c (code c) (const (ascii-code " "))) i (length s))
+	(defq c (if c (code c) (ascii-code " ")) i (length s))
 	(while (and (/= (setq i (dec i)) -1) (eql (code s 1 i) c)))
 	(slice 0 (inc i) s))
 
@@ -602,6 +614,18 @@
 		(setq o (inc o)))
 	(slice k o s))
 
+;;;;;;;;
+; Tuples
+;;;;;;;;
+
+(defmacro-bind tuple-set (_i _l _v)
+	;(tuple-set index list value)
+	(list 'elem-set (eval (macroexpand (eval _i))) _l _v))
+
+(defmacro-bind tuple-get (_i _l)
+	;(tuple-get index list) -> value
+	(list 'elem (eval (macroexpand (eval _i))) _l))
+
 ;;;;;;;;;
 ; Streams
 ;;;;;;;;;
@@ -668,8 +692,6 @@
 	(when (defq f (file-stream 'abi))
 		(bind '(o _) (read f 32))) o)
 
-(defq profile nil)
-
 (defun-bind within-compile-env (_)
 	;(within-compile-env lambda)
 	(defq *compile-env* (env 307) *compile-includes* (list))
@@ -690,35 +712,4 @@
 			(push *compile-includes* _)
 			(unless (defq __ (file-stream _)) (throw "No such file !" _))
 			(repl __ _)))
-(when profile
-	(defmacro-bind defcmacro (n a &rest b)
-		`(def *compile-env* ',n (macro ,a (count-call ,(insert-call-count n)) ~b)))
-	(defmacro-bind defcfun (n a &rest b)
-		`(def *compile-env* ',n (lambda ,a (count-call ,(insert-call-count n)) ~b)))
-	(defmacro-bind defcfun-bind (n a &rest b)
-		`(def *compile-env* ',n (lambda ,a (count-call ,(insert-call-count n t)) ~(bind-fun (macroexpand b))))))
 	(catch (progn (setq _ (_) *compile-env* nil) _) (setq *compile-env* nil)))
-
-(when profile
-	(defq call-counts (list))
-	(defun-bind insert-call-count (n &optional s)
-		(if (defq c (some (lambda (e) (if (eql (elem 0 e) n) _)) call-counts)) c
-			(progn
-				(push call-counts (list n 0 s))
-				(dec (length call-counts)))))
-	(defun-bind count-call (_)
-		(defq c (elem _ call-counts))
-		(elem-set 1 c (inc (elem 1 c))))
-	(defmacro-bind print-call-counts ()
-		(sort (lambda (x y)
-			(if (< (elem 1 x) (elem 1 y)) -1 0)) call-counts)
-		(each print call-counts) nil)
-	(defmacro-bind call-test ()
-		(compile (all-vp-files))
-		(print-call-counts))
-	(defmacro-bind defun (n a &rest b)
-		`(defq ,n (lambda ,a (count-call ,(insert-call-count n)) ~b)))
-	(defmacro-bind defun-bind (n a &rest b)
-		`(defq ,n (lambda ,a (count-call ,(insert-call-count n t)) ~(bind-fun (macroexpand b)))))
-	(defmacro-bind demacro-bind (n a &rest b)
-		`(defq ,n (macro ,a (count-call ,(insert-call-count n t)) ~(bind-fun (macroexpand b))))))

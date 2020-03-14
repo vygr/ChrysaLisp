@@ -50,7 +50,7 @@
 	(each-line (lambda (_)
 		(when (starts-with "(include" _)
 			(push d (sym (trim-start (trim-end
-				(elem 1 (split (trim-end _ (const (ascii-char 13))) " ")) ")") "'"))))) (file-stream _)) d)
+				(elem 1 (split (trim-end _ (ascii-char 13)) " ")) ")") "'"))))) (file-stream _)) d)
 
 (defun-bind make-info (_)
 	;create lists of immediate dependencies and products
@@ -59,7 +59,7 @@
 		(sym (trim-start (trim-end _ ")") "'")))
 	(each-line (lambda (_)
 		(when (and (>= (length _) 10) (eql "(" (elem 0 _))
-				(<= 2 (length (defq s (split (trim-end _ (const (ascii-char 13))) " "))) 4))
+				(<= 2 (length (defq s (split (trim-end _ (ascii-char 13)) " "))) 4))
 			(defq _ (elem 0 s))
 			(cond
 				((eql _ "(def-method")
@@ -178,7 +178,7 @@
 			;build list of all sections of boot image
 			;concatenate all sections and save
 			(save (setq f (apply cat (reduce (lambda (x y)
-				(push x (cat y (const (ascii-char 0))))) ns (push (reduce (lambda (x y)
+				(push x (cat y (ascii-char 0)))) ns (push (reduce (lambda (x y)
 					(push x (elem 0 y) (elem 1 y))) b (list)) z)))) (func-obj 'sys/boot_image))
 			(print "image -> " (func-obj 'sys/boot_image) " (" (length f) ")")
 			(setq *env* nil)) (setq *env* nil)))))
@@ -260,7 +260,7 @@
 	(write-line stream "(defq")
 	(each (lambda (s v)
 		(write stream s)
-		(write-char stream (const (ascii-code " ")))
+		(write-char stream (ascii-code " "))
 		(write-line stream (str v))) _syms_ _vals_)
 	(write-line stream ")")
 	(save (str stream) 'sys/symbols.inc)
