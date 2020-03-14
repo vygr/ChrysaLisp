@@ -82,13 +82,12 @@
 		(progn
 			(defq surface_pos (vec-add ray_origin (vec-scale ray_dir l))
 				surface_norm (get-normal surface_pos)
-				color (lighting surface_pos surface_norm ray_origin))
-			(defq i ref_depth r ref_coef)
+				color (lighting surface_pos surface_norm ray_origin)
+				i ref_depth r ref_coef)
 			(while (and (>= (setq i (dec i)) 0)
-						(< (defq ray_origin surface_pos
-								ray_dir (vec-reflect ray_dir surface_norm)
-								l (ray-march ray_origin ray_dir (fmul min_distance 2.0)
-									clipfar min_distance march_factor)) clipfar))
+						(< (defq ray_origin surface_pos ray_dir (vec-reflect ray_dir surface_norm)
+								l (ray-march ray_origin ray_dir (fmul min_distance 2.0) clipfar min_distance march_factor))
+							clipfar))
 					(defq surface_pos (vec-add ray_origin (vec-scale ray_dir l))
 						surface_norm (get-normal surface_pos)
 						color (vec-add (vec-scale color (- 1.0 r))
