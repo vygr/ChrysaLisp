@@ -5,27 +5,28 @@ Edit has the most basic of functionality, as you can see.
 
 Opening a buffer using the textbox, or creating a new buffer
 doesn't close the buffer you were previously on. You may
-create a new buffer by clicking "New," and then come back
-here by clicking "<". 
+create a new buffer by clicking "+". Then come back here by
+clicking "<". 
 
 Buffers are saved and closed explicitly. Closing the last
 buffer closes the edit window. Any changes that have not
 been saved will be lost! 
 
-New files aren't stored anywhere until they are saved.
+New files aren't stored anywhere until they are saved. To
+save enter a path and click the save icon.
 
-If you want a new buffer to be saved when you create it, 
-give it a name in the textbox and then click "Open". Opening
-a buffer at a specified location that doesn't already exist
-will create the buffer at that location.
+If you want a new buffer to be saved when you create it,
+enter a path. Then, click the open icon. Opening a buffer
+at a path that doesn't exists, creates  the buffer at that
+path.
 
 If there are no "/" characters in the textbox when you open
 or save, the events will occur within your user directory.
 The default user is Guest.
 
 To test things out and to see some basic configuration
-options, first open a "New" buffer, then type "pupa.inc" in
-the textbox above and click "Open".
+options, first open a new buffer with "+", then type 
+"pupa.inc" then click the open icon.
 
 You can remove this file from the *env_edit_auto* list, and
 edit will start with an empty buffer.

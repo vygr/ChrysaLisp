@@ -7,7 +7,8 @@
 
 (structure 'event 0
 	(byte 'win_close 'win_min 'win_max 'win_layout 
-		'win_scroll 'new 'save 'open 'close 'prev 'next))
+		'win_scroll 'new 'save 'open 'close 'prev 'next
+		'tab_sel))
 
 (structure 'text 0
 	(byte 'index 'path 'title 'buffer 'position))
@@ -15,24 +16,28 @@
 (defq id t vdu_min_width 40 vdu_min_height 24 vdu_width 60 vdu_height 40 text_store (list) tmp_num 0
 	current_text (list) empty_buffer '("") home_dir (cat "apps/login/" *env_user* "/"))
 
+(defun-bind num-to-utf8 (_)
+	(cat (ascii-char (+ 0xe0 (logand (>> _ 12) 0x3f)))
+		(ascii-char (+ 0x80 (logand (>> _ 6) 0x3f)))
+		(ascii-char (+ 0x80 (logand _ 0x3f)))))
 
 (ui-tree window (create-window (+ window_flag_close window_flag_min window_flag_max)) ('color argb_grey2)
-	(ui-element _ (create-flow) ('flow_flags (logior flow_flag_down flow_flag_fillw flow_flag_lasth))	
-		(ui-element _ (create-grid) ('grid_width 5 'grid_height 1)
-			(component-connect (ui-element _ (create-button) ('text "New" 'color toolbar_col)) event_new)
-			(component-connect (ui-element _ (create-button) ('text "Open" 'color toolbar_col)) event_open)
-			(component-connect (ui-element _ (create-button) ('text "Save" 'color toolbar_col)) event_save)
-			(component-connect (ui-element _ (create-button) ('text "Close" 'color toolbar_col)) event_close)
-			(ui-element _ (create-grid) ('grid_width 2 'grid_height 1)
-				(component-connect (ui-element _ (create-button) ('text "<" 'color toolbar_col)) event_prev)
-				(component-connect (ui-element _ (create-button) ('text ">" 'color toolbar_col)) event_next)))
-		(ui-element textfield (create-textfield) ('text "" 'color argb_white))
+	(ui-element _ (create-flow) ('flow_flags (logior flow_flag_down flow_flag_fillw flow_flag_lasth))
+		(ui-element toolbar (create-flow) ('flow_flags (logior flow_flag_right flow_flag_fillh flow_flag_lastw) 'border 1)
+			(ui-element _ (create-grid) ('grid_width 7 'grid_height  1 'font (create-font "fonts/Entypo.ctf" 28))
+				(component-connect (ui-element _ (create-button) ('text (num-to-utf8 0xe9e9) 'color toolbar_col 'border 1)) event_open)
+				(component-connect (ui-element _ (create-button) ('text (num-to-utf8 0xea07) 'color toolbar_col 'border 1)) event_save)
+				(component-connect (ui-element _ (create-button) ('text (num-to-utf8 0xe9f0) 'color toolbar_col 'border 1)) event_new)
+				(component-connect (ui-element _ (create-button) ('text (num-to-utf8 0xe96f) 'color toolbar_col 'border 1)) event_close)
+				(component-connect (ui-element _ (create-button) ('text (num-to-utf8 0xe93c) 'color toolbar_col 'border 1)) event_prev)
+				(component-connect (ui-element _ (create-button) ('text (num-to-utf8 0xe93d) 'color toolbar_col 'border 1)) event_next)
+				(ui-element buf_disp (create-label) ('text "0/0" 'color toolbar_col 'font (create-font "fonts/Hack-Regular.ctf" 16))))
+			(ui-element textfield (create-textfield) ('flow_flags (logior flow_flag_left flow_flag_fillh flow_flag_lastw) 
+				'font (create-font "fonts/Hack-Regular.ctf" 16) 'text "" 'color argb_grey13)))
 		(ui-element _ (create-flow) ('flow_flags (logior flow_flag_left flow_flag_fillh flow_flag_lastw))
 			(component-connect (ui-element slider (create-slider) ('color slider_col)) event_win_scroll)
-			(ui-element vdu (create-vdu) 
-				('vdu_width vdu_width 'vdu_height vdu_height 'min_width vdu_width 'min_height vdu_height
+			(ui-element vdu (create-vdu) ('vdu_width vdu_width 'vdu_height vdu_height 'min_width vdu_width 'min_height vdu_height
 				'color argb_black 'ink_color argb_white 'font (create-font "fonts/Hack-Regular.ctf" 14))))))
-
 
 (defun-bind window-resize (w h)
 	(bind '(_ path title buffer position) current_text)
@@ -46,19 +51,17 @@
 	(vdu-load vdu buffer ox oy cx cy))
 
 (defun-bind window-layout (w h)
-	(bind '(_ path title buffer position) current_text)
+	(bind '(index path title buffer position) current_text)
 	(bind '(ox oy cx cy sx) position)
-	(get textfield 'text)
+	;for display purposes, index starts at 1.
+	(defq buf_nums (cat (str (inc (elem (const text_index) current_text))) "/" (str (length text_store))))
+	(set buf_disp 'text buf_nums)
 	(setq vdu_width w vdu_height h)
 	(set vdu 'vdu_width w 'vdu_height h 'min_width w 'min_height h)
 	(bind '(x y _ _) (view-get-bounds vdu))
 	(bind '(w h) (view-pref-size vdu))
-	(bind '(tx ty _ _) (view-get-bounds textfield))
-	(bind '(tw th) (view-pref-size textfield))
-	(view-set-bounds textfield tx ty tw th)
 	(set vdu 'min_width vdu_min_width 'min_height vdu_min_height)
 	(view-change vdu x y w h)
-	(view-change textfield tx ty w th)	
 	(window-set-title window title)
 	;set slider and textfield values
 	(def slider 'maximum (max 0 (- (length buffer) vdu_height)) 'portion vdu_height 'value oy)
@@ -82,14 +85,17 @@
 (defun-bind open-buffer (path)
 	(defq i 0 index (length text_store) pos (list 0 0 0 0 0))
 	(cond
-		((eql path "")
-			(defq title (cat "Untitled-" (str (setq tmp_num (inc tmp_num)))) 
+		((eql path "") 
+			(defq title (if (eql path "") (cat "Untitled-" (str (setq tmp_num (inc tmp_num)))) path)
 				buffer (list (join " " (ascii-char 10))))
 			(push text_store (list index path title buffer pos)))
 		((some (lambda (_) (eql path (elem (const text_path) _))) text_store)
 			(while (< i (length text_store)) 
 				(if (eql path (elem (const text_path) (elem i text_store)))
 					(setq index i)) (setq i (inc i))))
+		((not (file-stream path))
+			(save (join " " (ascii-char 10)) path)
+			(open-buffer path))
 		(t
 			(unless (find "/" path)
 				(defq path (cat home_dir path)))
