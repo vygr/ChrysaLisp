@@ -19,7 +19,7 @@
 (ui-tree window (create-window (+ window_flag_close window_flag_min window_flag_max)) ('color argb_grey2)
 	(ui-element _ (create-flow) ('flow_flags (logior flow_flag_down flow_flag_fillw flow_flag_lasth))
 		(ui-element toolbar (create-flow) ('flow_flags (logior flow_flag_right flow_flag_fillh flow_flag_lastw))
-			(ui-element _ (create-grid) ('grid_width 7 'grid_height  1 'font (create-font "fonts/Entypo.ctf" 28))
+			(ui-element _ (create-grid) ('grid_width 7 'grid_height  1 'font (create-font "fonts/Entypo.ctf" 32))
 				(component-connect (ui-element _ (create-button) ('text (num-to-utf8 0xe9e9) 'color toolbar_col)) event_open)
 				(component-connect (ui-element _ (create-button) ('text (num-to-utf8 0xea07) 'color toolbar_col)) event_save)
 				(component-connect (ui-element _ (create-button) ('text (num-to-utf8 0xe9f0) 'color toolbar_col)) event_new)
