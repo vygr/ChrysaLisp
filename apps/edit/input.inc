@@ -5,12 +5,12 @@
 ;;;;;;;;;;;;;;
 (defun-bind printable (c)
 	;insert the tab/char at cursor or append to end etc
-			(defq line (if (>= cy (length buffer)) "" (elem cy buffer))
-				line (insert line (min cx (length line)) (ascii-char c)))
-			(setq cx (inc cx))
-			(if (>= cy (length buffer))
-				(push buffer line)
-				(elem-set cy buffer line)))
+	(defq line (if (>= cy (length buffer)) "" (elem cy buffer))
+		line (insert line (min cx (length line)) (char c)))
+	(setq cx (inc cx))
+	(if (>= cy (length buffer))
+		(push buffer line)
+		(elem-set cy buffer line)))
 
 (defun-bind return ()
 ;return key

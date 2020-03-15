@@ -16,11 +16,6 @@
 (defq id t vdu_min_width 40 vdu_min_height 24 vdu_width 60 vdu_height 40 text_store (list) tmp_num 0
 	current_text (list) empty_buffer '("") home_dir (cat "apps/login/" *env_user* "/"))
 
-(defun-bind num-to-utf8 (_)
-	(cat (ascii-char (+ 0xe0 (logand (>> _ 12) 0x3f)))
-		(ascii-char (+ 0x80 (logand (>> _ 6) 0x3f)))
-		(ascii-char (+ 0x80 (logand _ 0x3f)))))
-
 (ui-tree window (create-window (+ window_flag_close window_flag_min window_flag_max)) ('color argb_grey2)
 	(ui-element _ (create-flow) ('flow_flags (logior flow_flag_down flow_flag_fillw flow_flag_lasth))
 		(ui-element toolbar (create-flow) ('flow_flags (logior flow_flag_right flow_flag_fillh flow_flag_lastw) 'border 1)

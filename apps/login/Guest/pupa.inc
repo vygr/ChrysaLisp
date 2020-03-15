@@ -15,6 +15,3 @@
 
 ;default text files to open when edit opens
 (defq *env_edit_auto* '("apps/edit/message"))
-
-;ensure that variables are imported before being called.
-(task-sleep 10000)
