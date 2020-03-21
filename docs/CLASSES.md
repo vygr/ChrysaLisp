@@ -1340,6 +1340,19 @@ trashes
 r1-r14
 ```
 
+### component::set_prop -> gui/component/set_prop
+
+```lisp
+inputs
+r0 = component object (ptr)
+r1 = static sym num (uint)
+r2 = property object (ptr)
+outputs
+r0 = component object (ptr)
+trashes
+r1-r14
+```
+
 ### component::set_long_prop -> gui/component/set_long_prop
 
 ```lisp

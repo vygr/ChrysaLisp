@@ -9,6 +9,8 @@
 (dec-method 'emit 'gui/component/emit 'static '(r0) '(r0))
 (dec-method 'get_prop 'gui/component/get_prop 'static '(r0 r1) '(r0 r1))
 (dec-method 'ref_prop 'gui/component/ref_prop 'static '(r0 r1) '(r0 r1))
+(dec-method 'set_prop 'gui/component/set_prop 'static '(r0 r1 r2) '(r0))
+
 (dec-method 'set_long_prop 'gui/component/set_long_prop 'static '(r0 r1 r2) '(r0))
 (dec-method 'get_long_prop 'gui/component/get_long_prop 'static '(r0 r1) '(r0 r1))
 (dec-method 'set_font_prop 'gui/component/set_font_prop 'static '(r0 r1 r2 r3) '(r0))

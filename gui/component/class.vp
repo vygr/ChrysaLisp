@@ -172,6 +172,29 @@
 
 (def-func-end)
 
+(def-method 'component 'set_prop)
+	;inputs
+	;r0 = component object (ptr)
+	;r1 = static sym num (uint)
+	;r2 = property object (ptr)
+	;outputs
+	;r0 = component object (ptr)
+	;trashes
+	;r1-r14
+
+	(entry 'component 'set_prop '(r7 r1 r2))
+
+	(call 'sym 'get_static_sym '(r1) '(r8))
+	(call 'component 'insert '(r7 r8 r2) '(r0 r1 _))
+	(assign '((r1 0)) '(r1))
+	(assign '((r1 pair_second)) '(r1))
+	(class/obj/ref r1 r2 -1)
+
+	(exit 'component 'set_prop '(r0))
+	(vp-ret)
+
+(def-func-end)
+
 (def-method 'component 'set_long_prop)
 	;inputs
 	;r0 = component object (ptr)
@@ -182,17 +205,12 @@
 	;trashes
 	;r1-r14
 
-	(entry 'component 'set_long_prop '(r5 r1 r2))
+	(entry 'component 'set_long_prop '(r0 r1 r2))
 
-	(call 'sym 'get_static_sym '(r1) '(r6))
-	(call 'num 'create '(r2) '(r0))
-	(call 'component 'insert '(r5 r6 r0) '(r0 r1 _))
-	(assign '((r1 0)) '(r1))
-	(assign '((r1 pair_second)) '(r1))
-	(class/obj/ref r1 r2 -1)
-
-	(exit 'component 'set_long_prop '(r0))
-	(vp-ret)
+	(vp-push r0 r1)
+	(call 'num 'create '(r2) '(r2))
+	(vp-pop r0 r1)
+	(jump 'component 'set_prop '(r0 r1 r2))
 
 (def-func-end)
 
@@ -230,15 +248,10 @@
 
 	(entry 'component 'set_str_prop '(r7 r1 r2))
 
-	(call 'sym 'get_static_sym '(r1) '(r8))
-	(call 'str 'create_from_cstr '(r2) '(r0))
-	(call 'component 'insert '(r7 r8 r0) '(r0 r1 _))
-	(assign '((r1 0)) '(r1))
-	(assign '((r1 pair_second)) '(r1))
-	(class/obj/ref r1 r2 -1)
-
-	(exit 'component 'set_str_prop '(r0))
-	(vp-ret)
+	(vp-push r0 r1)
+	(call 'str 'create_from_cstr '(r2) '(r2))
+	(vp-pop r0 r1)
+	(jump 'component 'set_prop '(r0 r1 r2))
 
 (def-func-end)
 
@@ -256,15 +269,11 @@
 	(entry 'component 'set_font_prop '(r0 r1 r2 r3))
 
 	(vp-push r0 r1)
-	(call 'font 'open '(r2 r3) '(r0))
-	(vpif '(r0 /= 0))
-		(call 'sym 'get_static_sym '((rsp 0)) '(r1))
-		(call 'component 'insert '((rsp ptr_size) r1 r0) '(_ r1 _))
-		(assign '((r1 0)) '(r1))
-		(assign '((r1 pair_second)) '(r1))
-		(class/obj/ref r1 r2 -1)
-	(endif)
+	(call 'font 'open '(r2 r3) '(r2))
 	(vp-pop r0 r1)
+	(vpif '(r2 /= 0))
+		(jump 'component 'set_prop '(r0 r1 r2))
+	(endif)
 
 	(exit 'component 'set_font_prop '(r0))
 	(vp-ret)
