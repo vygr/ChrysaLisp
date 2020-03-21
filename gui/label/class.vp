@@ -49,10 +49,10 @@
 
 (def-method 'label 'draw)
 	;inputs
-	;r0 = view object (ptr)
+	;r0 = label object (ptr)
 	;r1 = draw ctx (ptr)
 	;outputs
-	;r0 = view object (ptr)
+	;r0 = label object (ptr)
 	;trashes
 	;r1-r14
 

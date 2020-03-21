@@ -260,12 +260,13 @@
 ;debug helpers
 (defcfun debug-num (s n)
 	(when (> *debug_mode* 0)
+		(assign n '(r0))
 		(vp-push r0 r1)
 		(fn-string (cat s ": ") r1)
 		(call 'sys_pii 'write_str '(2 r1))
 		(vp-pop r0 r1)
 		(vp-push r0 r1 r2)
-		(call 'sys_pii 'write_num (list 2 n 16))
+		(call 'sys_pii 'write_num (list 2 r0 16))
 		(call 'sys_pii 'write_char (list 2 10))
 		(vp-pop r0 r1 r2)))
 

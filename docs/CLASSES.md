@@ -2536,10 +2536,10 @@ r1-r14
 
 ```lisp
 inputs
-r0 = view object (ptr)
+r0 = label object (ptr)
 r1 = draw ctx (ptr)
 outputs
-r0 = view object (ptr)
+r0 = label object (ptr)
 trashes
 r1-r14
 ```
@@ -7702,6 +7702,18 @@ r1 = vtable (pptr)
 outputs
 r0 = textfield object (ptr)
 r1 = 0 if error, else ok
+trashes
+r1-r14
+```
+
+### textfield::draw -> gui/textfield/draw
+
+```lisp
+inputs
+r0 = textfield object (ptr)
+r1 = draw ctx (ptr)
+outputs
+r0 = textfield object (ptr)
 trashes
 r1-r14
 ```

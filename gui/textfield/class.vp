@@ -1,8 +1,11 @@
 (include 'sys/func.inc)
+(include 'class/sym/class.inc)
+(include 'class/vector/class.inc)
 (include 'gui/gui/class.inc)
+(include 'gui/ctx/class.inc)
 (include 'gui/textfield/class.inc)
 (include 'gui/flow/class.inc)
-(include 'class/sym/class.inc)
+(include 'gui/font/class.inc)
 
 (gen-create 'textfield)
 (gen-vtable 'textfield)
@@ -25,11 +28,53 @@
 		;init myself
 		(call 'textfield 'set_long_prop '(r0 static_sym_border -2) '(r0))
 		(call 'textfield 'set_long_prop '(r0 static_sym_flow_flags (logior flow_flag_right flow_flag_align_vcenter)) '(r0))
+		(vp-cpy-cr max_int r1)
+		(assign '(r1) '((r0 textfield_cursor)))
 		(vp-cpy-cr 1 r1)
 	(endif)
 
 	(exit 'textfield 'init '(r0 r1))
 	(vp-ret)
+
+(def-func-end)
+
+(def-method 'textfield 'draw)
+	;inputs
+	;r0 = textfield object (ptr)
+	;r1 = draw ctx (ptr)
+	;outputs
+	;r0 = textfield object (ptr)
+	;trashes
+	;r1-r14
+
+	(ptr 'this 'ctx 'text 'font 'str 'info)
+	(uint 'w 'h)
+
+	(push-scope)
+	(entry 'textfield 'draw {this, ctx})
+
+	;parent draw
+	(s-call 'textfield 'draw {this, ctx})
+
+	;draw cursor
+	(call 'textfield 'get_prop {this, static_sym_text} {_, text})
+	(call 'textfield 'get_prop {this, static_sym_font} {_, font})
+	(vpif {text && font})
+		(vpif {this->textfield_cursor > text->str_length})
+			(assign {text->str_length} {this->textfield_cursor})
+		(endif)
+		(call 'str 'slice {text, 0, this->textfield_cursor} {_, str})
+		(call 'font 'glyph_info {font, str} {_, info})
+		(call 'font 'glyph_bounds {font, info} {_, w, h})
+		(call 'ctx 'set_color {ctx, argb_black})
+		(call 'ctx 'filled_box {ctx, w, (this->view_h - h) >> 1, 2, h})
+		(call 'str 'deref {str})
+		(call 'array 'deref {info})
+	(endif)
+
+	(exit 'textfield 'draw {this})
+	(pop-scope)
+	(return)
 
 (def-func-end)
 
@@ -42,7 +87,7 @@
 	;trashes
 	;r1-r14
 
-	(ptr 'this 'event 'text 'c)
+	(ptr 'this 'event 'text 'splice 'str)
 	(uint 'key)
 
 	(push-scope)
@@ -57,14 +102,38 @@
 		(jump 'textfield 'emit {this})
 	(vpcase {key = 8})
 		;backspace
-		(breakif {text->str_length = 0})
-		(call 'str 'slice {text, 0, text->str_length - 1} {_, text})
-		(goto 'refresh)
+		(breakif {text->str_length = 0 || this->textfield_cursor = 0})
+		(call 'vector 'create nil {splice})
+		(call 'str 'slice {text, 0, this->textfield_cursor - 1} {_, str})
+		(call 'vector 'push_back {splice, str})
+		(call 'str 'slice {text, this->textfield_cursor, text->str_length} {_, str})
+		(call 'vector 'push_back {splice, str})
+		(call 'str 'cat {text, splice} {text})
+		(assign {this->textfield_cursor - 1} {this->textfield_cursor})
+		(goto 'refresh1)
+	(vpcase {key = 0x40000050})
+		;left
+		(breakif {this->textfield_cursor = 0})
+		(assign {this->textfield_cursor - 1} {this->textfield_cursor})
+		(jump 'textfield 'dirty {this})
+	(vpcase {key = 0x4000004f})
+		;right
+		(breakif {this->textfield_cursor = text->str_length})
+		(assign {this->textfield_cursor + 1} {this->textfield_cursor})
+		(jump 'textfield 'dirty {this})
 	(vpcase {key >= 32 && key <= 127})
 		;append key
-		(call 'str 'create_from_buffer {&key, 1} {c})
-		(call 'str 'append {text, c} {text})
-		(call 'str 'deref {c})
+		(call 'vector 'create nil {splice})
+		(call 'str 'slice {text, 0, this->textfield_cursor} {_, str})
+		(call 'vector 'push_back {splice, str})
+		(call 'str 'create_from_buffer {&key, 1} {str})
+		(call 'vector 'push_back {splice, str})
+		(call 'str 'slice {text, this->textfield_cursor, text->str_length} {_, str})
+		(call 'vector 'push_back {splice, str})
+		(call 'str 'cat {text, splice} {text})
+		(assign {this->textfield_cursor + 1} {this->textfield_cursor})
+	(vp-label 'refresh1)
+		(call 'vector 'deref {splice})
 	(vp-label 'refresh)
 		(call 'textfield 'set_str_prop {this, static_sym_text, &text->str_data})
 		(call 'str 'deref {text})
