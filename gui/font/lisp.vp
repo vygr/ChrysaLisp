@@ -82,3 +82,35 @@
 	(signature '(font str)))
 
 (def-func-end)
+
+(def-method 'font 'lisp_glyph_ranges)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(entry 'font 'lisp_glyph_ranges '(r0 r1))
+
+(errorcases
+	(call 'lisp 'env_args_type '(r1 ($ sig) 1) '(r2))
+	(gotoif '(r2 = 0) 'error))
+
+	(vp-push r0)
+	(defq in (method-input 'font 'glyph_ranges))
+	(class/vector/bind_args r1 in '(font))
+	(call 'font 'glyph_ranges in '(_ r1))
+	(vp-pop r0)
+
+	(exit 'font 'lisp_glyph_ranges '(r0 r1))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r0 "(font-glyph-ranges font)" error_msg_wrong_types r1))
+	(signature '(font)))
+
+(def-func-end)

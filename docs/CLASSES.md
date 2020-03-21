@@ -1766,6 +1766,18 @@ trashes
 r1-r4
 ```
 
+### font::glyph_ranges -> gui/font/glyph_ranges
+
+```lisp
+inputs
+r0 = font object (ptr)
+outputs
+r0 = font object (ptr)
+r1 = glyph ranges array object (ptr)
+trashes
+r1-r10
+```
+
 ### font::glyph_info -> gui/font/glyph_info
 
 ```lisp
@@ -1821,6 +1833,19 @@ r1-r14
 ```
 
 ### font::lisp_create -> gui/font/lisp_create
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### font::lisp_glyph_ranges -> gui/font/lisp_glyph_ranges
 
 ```lisp
 inputs

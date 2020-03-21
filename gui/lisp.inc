@@ -44,6 +44,7 @@
 (ffi gui-add-back "gui/gui/lisp_add_back" 0)
 (ffi create-font "gui/font/lisp_create" 0)
 (ffi font-glyph-paths "gui/font/lisp_glyph_paths" 0)
+(ffi font-glyph-ranges "gui/font/lisp_glyph_ranges" 0)
 (import 'gui/component/lisp.inc)
 (import 'gui/view/lisp.inc)
 (import 'gui/points/lisp.inc)

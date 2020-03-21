@@ -27,6 +27,15 @@ corrupted.
 
 ------
 
+Added new font::glyph_ranges method and (font-glyph-ranges) function. Changed
+Entypo demo to be able to view all font ranges and rename to Fonts.
+
+A few tidy up to Nuclearfalls Edit app now it's merged into master branch.
+
+Added textfield basic editing and cursor.
+
+------
+
 Switched on the task priorities system with Kernel, Link, GUI and Apps priority
 bands. Things look good so far so we will run with this setup for a while and
 see how things work out.

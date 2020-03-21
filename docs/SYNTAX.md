@@ -484,6 +484,10 @@
 
 (font-glyph-paths font str)
 
+## font-glyph-ranges
+
+(font-glyph-ranges font)
+
 ## frac
 
 (frac num)
