@@ -25,7 +25,7 @@
 			(def l 'font (create-font "fonts/Hack-Regular.ctf" 12) 'text (num-to-hex-str c))
 			(view-add-child symbol_grid l)
 			(each (lambda (c)
-				(def (defq l (create-label)) 'border 1 'flow_flags flow_flag_align_hcenter 'text (num-to-utf8 c))
+				(def (defq l (create-label)) 'border -1 'flow_flags flow_flag_align_hcenter 'text (num-to-utf8 c))
 				(view-add-child symbol_grid l)) (range c (+ c grid_width)))) (range 0 n)))
 	(def symbol_grid 'grid_width (inc grid_width) 'grid_height grid_height
 		'color (const toolbar_col) 'font font)
