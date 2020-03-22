@@ -21,8 +21,8 @@
 		(defq s (logand s (neg grid_width)) e (align e grid_width) n (/ (- e s) grid_width))
 		(setq grid_height (+ grid_height n))
 		(each (lambda (c)
-			(defq c (+ s (* c grid_width)) l (create-label))
-			(def l 'font (create-font "fonts/Hack-Regular.ctf" 12) 'text (num-to-hex-str c))
+			(def (defq c (+ s (* c grid_width)) l (create-label))
+				'font (const (create-font "fonts/Hack-Regular.ctf" 12)) 'text (num-to-hex-str c))
 			(view-add-child symbol_grid l)
 			(each (lambda (c)
 				(def (defq l (create-label)) 'border -1 'flow_flags flow_flag_align_hcenter 'text (num-to-utf8 c))
@@ -33,10 +33,7 @@
 	(view-change symbol_grid 0 0 w h)
 	(def symbol_scroll 'min_width w 'min_height (min h 720))
 	(view-add-child symbol_scroll symbol_grid)
-	(bind '(x y) (view-get-pos window))
-	(bind '(w h) (view-pref-size window))
-	(view-layout fontname)
-	(view-change-dirty window x y w h))
+	(apply view-change-dirty (cat (list window) (view-get-pos window) (view-pref-size window))))
 
 (defq id t index 0 fonts '("fonts/Entypo.ctf" "fonts/OpenSans-Regular.ctf" "fonts/Hack-Regular.ctf"))
 
@@ -49,8 +46,8 @@
 	(ui-element symbol_scroll (create-scroll scroll_flag_vertical) ('color slider_col)))
 
 (win-refresh index)
-(gui-add (apply view-change (cat (list window 200 48)
-	(view-pref-size (window-set-title (window-connect-close window event_win_close) "Fonts")))))
+(gui-add (apply view-set-pos (cat (list (window-set-title
+	(window-connect-close window event_win_close) "Fonts") 200 48))))
 
 (while id
 	(cond
