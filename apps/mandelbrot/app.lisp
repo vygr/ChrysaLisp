@@ -15,10 +15,6 @@
 (ui-tree window (create-window window_flag_close) nil
 	(ui-element canvas (create-canvas canvas_width canvas_height canvas_scale)))
 
-(canvas-swap (canvas-fill canvas argb_black))
-(gui-add (apply view-change (cat (list window 64 64)
-	(view-pref-size (window-set-title (window-connect-close window event_win_close) "Mandelbrot")))))
-
 (defun-bind reset ()
 	(if select (mail-free-mbox (elem 1 select)))
 	(setq then (time) select (array (task-mailbox) (mail-alloc-mbox))
@@ -43,36 +39,43 @@
 ;native versions
 (ffi tile "apps/mandelbrot/tile" 0)
 
-(reset)
-(while id
-	;next event
-	(defq idx (mail-select select) msg (mail-read (elem idx select)))
-	(cond
-		((= idx 0)
-			;main mailbox
-			(cond
-				((= (setq id (get-long msg ev_msg_target_id)) event_win_close)
-					;close button
-					(setq id nil))
-				((and (= id (component-get-id canvas))
-						(= (get-long msg ev_msg_type) ev_type_mouse)
-						(/= (get-int msg ev_msg_mouse_buttons) 0))
-					;mouse click on the canvas view, zoom in/out, re-center
-					(bind '(w h) (view-get-size canvas))
-					(defq rx (- (get-int msg ev_msg_mouse_rx) (/ (- w canvas_width) 2))
-						ry (- (get-int msg ev_msg_mouse_ry) (/ (- h canvas_height) 2)))
-					(setq center_x (+ center_x (mbfp-offset rx canvas_width zoom))
-						center_y (+ center_y (mbfp-offset ry canvas_height zoom))
-						zoom (mbfp-mul zoom (if (= 0 (logand (get-int msg ev_msg_mouse_buttons) 2))
-							(mbfp-from-fixed 0.5) (mbfp-from-fixed 2.0))))
-					(reset))
-				(t (view-event window msg))))
-		(t	;child tile msg
-			(setq area (- area (tile canvas msg)))
-			(when (or (> (- (defq now (time)) then) 1000000) (= area 0))
-				(setq then now)
-				(canvas-swap canvas)))))
+(defun-bind main ()
+	;add window
+	(canvas-swap (canvas-fill canvas argb_black))
+	(gui-add (apply view-change (cat (list window 64 64)
+		(view-pref-size (window-set-title (window-connect-close window event_win_close) "Mandelbrot")))))
+	(reset)
+	;main event loop
+	(while id
+		;next event
+		(defq id (mail-select select) msg (mail-read (elem id select)))
+		(cond
+			((= id 0)
+				;main mailbox
+				(cond
+					((= (setq id (get-long msg ev_msg_target_id)) event_win_close)
+						;close button
+						(setq id nil))
+					((and (= id (component-get-id canvas))
+							(= (get-long msg ev_msg_type) ev_type_mouse)
+							(/= (get-int msg ev_msg_mouse_buttons) 0))
+						;mouse click on the canvas view, zoom in/out, re-center
+						(bind '(w h) (view-get-size canvas))
+						(defq rx (- (get-int msg ev_msg_mouse_rx) (/ (- w canvas_width) 2))
+							ry (- (get-int msg ev_msg_mouse_ry) (/ (- h canvas_height) 2)))
+						(setq center_x (+ center_x (mbfp-offset rx canvas_width zoom))
+							center_y (+ center_y (mbfp-offset ry canvas_height zoom))
+							zoom (mbfp-mul zoom (if (= 0 (logand (get-int msg ev_msg_mouse_buttons) 2))
+								(mbfp-from-fixed 0.5) (mbfp-from-fixed 2.0))))
+						(reset))
+					(t (view-event window msg))))
+			(t	;child tile msg
+				(setq area (- area (tile canvas msg)))
+				(when (or (> (- (defq now (time)) then) 1000000) (= area 0))
+					(setq then now)
+					(canvas-swap canvas)))))
+	;close
+	(view-hide window)
+	(mail-free-mbox (elem 1 select)))
 
-;close
-(view-hide window)
-(mail-free-mbox (elem 1 select))
+(main)

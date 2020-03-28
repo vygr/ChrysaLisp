@@ -39,9 +39,8 @@
 		(cond
 			((eql c (ascii-char 10))
 				;line feed and truncate
-				(push buf "")
-				(if (> (length buf) vdu_height)
-					(setq buf (slice (dec (neg vdu_height)) -1 buf))))
+				(if (> (length (push buf "")) (const vdu_height))
+					(setq buf (slice (const (dec (neg vdu_height))) -1 buf))))
 			(t	;char
 				(elem-set -2 buf (cat (elem -2 buf) c))))) s)
 	(vdu-load vdu buf 0 0 (length (elem -2 buf)) (dec (length buf))) buf)

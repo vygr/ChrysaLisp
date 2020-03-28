@@ -16,20 +16,13 @@
 		(ui-element vdu (create-vdu) ('vdu_width vdu_width 'vdu_height vdu_height 'min_width vdu_width 'min_height vdu_height
 			'ink_color argb_green 'font (create-font "fonts/Hack-Regular.ctf" 16)))))
 
-(gui-add (apply view-change (cat (list window 448 16)
-	(view-pref-size (window-set-title (window-set-status
-		(component-connect (window-connect-close (window-connect-min
-			(window-connect-max window event_win_max) event_win_min) event_win_close) event_win_layout)
-		"Ready") "Terminal")))))
-
 (defun-bind vdu-print (vdu buf s)
 	(each (lambda (c)
 		(cond
 			((eql c (ascii-char 10))
 				;line feed and truncate
-				(push buf "")
-				(if (> (length buf) *env_terminal_lines*)
-					(setq buf (slice (dec (neg *env_terminal_lines*)) -1 buf))))
+				(if (> (length (push buf "")) *env_terminal_lines*)
+					(setq buf (slice (const (dec (neg *env_terminal_lines*))) -1 buf))))
 			((eql c (ascii-char 126))
 				;clear line
 				(elem-set -2 buf ""))
@@ -114,45 +107,55 @@
 	(view-change vdu x y w h)
 	(print-edit-line))
 
-(print (str "ChrysaLisp Terminal 1.6" (ascii-char 10)))
-(print-edit-line)
-(while id
-	(defq data t)
-	(if cmd (setq data (pipe-read cmd)))
-	(cond
-		((eql data t)
-			;normal mailbox event
-			(cond
-				((= (setq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_win_close)
-					(setq id nil))
-				((= id event_win_layout)
-					;user window resize
-					(apply window-layout (vdu-max-size vdu)))
-				((= id event_win_min)
-					;min button
-					(window-resize 60 40))
-				((= id event_win_max)
-					;max button
-					(window-resize 120 40))
-				((= id event_win_scroll)
-					;user scroll bar
-					(defq cx (if cmd *line_pos* (+ (length *env_terminal_prompt*) *line_pos*))
-						cy (dec (length text_buf)))
-					(vdu-load vdu text_buf 0 (get slider 'value) cx cy))
-				(t	;gui event
-					(view-event window msg)
-					(and (= (get-long msg ev_msg_type) ev_type_key)
-						(> (get-int msg ev_msg_key_keycode) 0)
-						(terminal-input (get-int msg ev_msg_key_key))))))
-		((eql data nil)
-			;pipe is closed
-			(pipe-close cmd)
-			(setq cmd nil)
-			(print (cat (ascii-char 10) *env_terminal_prompt* *line_buf*))
-			(view-dirty-all (window-set-status window "Ready")))
-		(t	;string from pipe
-			(print data))))
+(defun-bind main ()
+	;add window
+	(gui-add (apply view-change (cat (list window 448 16)
+		(view-pref-size (window-set-title (window-set-status
+			(component-connect (window-connect-close (window-connect-min
+				(window-connect-max window event_win_max) event_win_min) event_win_close) event_win_layout)
+			"Ready") "Terminal")))))
+	;sign on msg
+	(print (str "ChrysaLisp Terminal 1.6" (ascii-char 10)))
+	(print-edit-line)
+	;main event loop
+	(while id
+		(defq data t)
+		(if cmd (setq data (pipe-read cmd)))
+		(cond
+			((eql data t)
+				;normal mailbox event
+				(cond
+					((= (setq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_win_close)
+						(setq id nil))
+					((= id event_win_layout)
+						;user window resize
+						(apply window-layout (vdu-max-size vdu)))
+					((= id event_win_min)
+						;min button
+						(window-resize 60 40))
+					((= id event_win_max)
+						;max button
+						(window-resize 120 40))
+					((= id event_win_scroll)
+						;user scroll bar
+						(defq cx (if cmd *line_pos* (+ (length *env_terminal_prompt*) *line_pos*))
+							cy (dec (length text_buf)))
+						(vdu-load vdu text_buf 0 (get slider 'value) cx cy))
+					(t	;gui event
+						(view-event window msg)
+						(and (= (get-long msg ev_msg_type) ev_type_key)
+							(> (get-int msg ev_msg_key_keycode) 0)
+							(terminal-input (get-int msg ev_msg_key_key))))))
+			((eql data nil)
+				;pipe is closed
+				(pipe-close cmd)
+				(setq cmd nil)
+				(print (cat (ascii-char 10) *env_terminal_prompt* *line_buf*))
+				(view-dirty-all (window-set-status window "Ready")))
+			(t	;string from pipe
+				(print data))))
+	;close window and pipe
+	(view-hide window)
+	(if cmd (pipe-close cmd)))
 
-;close window and pipe
-(view-hide window)
-(if cmd (pipe-close cmd))
+(main)

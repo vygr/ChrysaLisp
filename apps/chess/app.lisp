@@ -33,10 +33,10 @@
 	(view-pref-size (window-set-title (window-connect-close window event_win_close) "Chess")))))
 
 (defun-bind display-board (board)
-	(each! 0 -1 (lambda (square piece)
+	(each (lambda (square piece)
 		(def square 'text (elem (find piece "QKRBNPqkrbnp ")
 			(if (= (logand (+ _ (>> _ 3)) 1) 0) "wltvmoqkrbnp " "qkrbnpwltvmo ")))
-		(view-layout square)) (list squares board))
+		(view-layout square)) squares board)
 	(view-dirty-all chess_grid))
 
 (defun-bind vdu-print (vdu buf s)
@@ -44,21 +44,20 @@
 		(cond
 			((eql c (ascii-char 10))
 				;line feed and truncate
-				(push buf "")
-				(if (> (length buf) vdu_height)
-					(setq buf (slice (dec (neg vdu_height)) -1 buf))))
+				(if (> (length (push buf "")) (const vdu_height))
+					(setq buf (slice (const (dec (neg vdu_height))) -1 buf))))
 			(t	;char
 				(elem-set -2 buf (cat (elem -2 buf) c))))) s)
 	(vdu-load vdu buf 0 0 (length (elem -2 buf)) (dec (length buf))) buf)
 
 ;main event loop
 (while id
-	(defq idx (mail-select select))
+	(setq id (mail-select select))
 	(cond
-		((= idx 0)
+		((= id 0)
 			;GUI event from main mailbox
 			(cond
-				((= (setq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_win_close)
+				((= (setq id (get-long (defq msg (mail-read (elem 0 select))) ev_msg_target_id)) event_win_close)
 					(setq id nil))
 				(t (view-event window msg))))
 		(t	;from child stream
@@ -76,11 +75,11 @@
 (mail-send "" child_mbox)
 (view-hide window)
 (until id
-	(defq idx (mail-select select))
+	(setq id (mail-select select))
 	(cond
-		((= idx 0)
+		((= id 0)
 			;GUI event from main mailbox
-			(mail-read (task-mailbox)))
+			(mail-read (elem 0 select)))
 		(t	;from child stream
 			(bind '(data next_char) (read data_in next_char))
 			(setq id (= next_char -1)))))

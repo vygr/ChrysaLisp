@@ -20,10 +20,6 @@
 (ui-tree window (create-window window_flag_close) nil
 	(ui-element canvas (create-canvas canvas_width canvas_height canvas_scale)))
 
-(canvas-swap (canvas-fill canvas argb_black))
-(gui-add (apply view-change (cat (list window 64 64)
-	(view-pref-size (window-set-title (window-connect-close window event_win_close) "Raymarch")))))
-
 (defun-bind tile (canvas data)
 	;(tile canvas data) -> area
 	(defq data (string-stream data) x (read-int data) y (read-int data)
@@ -38,35 +34,41 @@
 ;native versions
 (ffi tile "apps/raymarch/tile" 0)
 
-;send first batch of jobs
-(each (lambda (_) (mail-send (pop jobs) _)) farm)
+(defun-bind main ()
+	;add window
+	(canvas-swap (canvas-fill canvas argb_black))
+	(gui-add (apply view-change (cat (list window 64 64)
+		(view-pref-size (window-set-title (window-connect-close window event_win_close) "Raymarch")))))
+	;send first batch of jobs
+	(each (lambda (_) (mail-send (pop jobs) _)) farm)
+	;main event loop
+	(while id
+		;next event
+		(defq id (mail-select select) msg (mail-read (elem id select)))
+		(cond
+			((= id 0)
+				;main mailbox
+				(cond
+					((= (setq id (get-long msg ev_msg_target_id)) event_win_close)
+						;close button
+						(setq id nil))
+					(t (view-event window msg))))
+			(t	;child tile msg
+				(if (defq child (get-long msg (- (length msg) (const long_size))) next_job (pop jobs))
+					;next job
+					(mail-send next_job child))
+				(setq area (- area (tile canvas msg)))
+				(when (= area 0)
+					;close farm and clear it
+					(each (lambda (_) (mail-send "" _)) farm)
+					(clear farm))
+				(when (or (> (- (defq now (time)) then) 1000000) (= area 0))
+					;swap canvas
+					(setq then now)
+					(canvas-swap canvas)))))
+	;close
+	(view-hide window)
+	(mail-free-mbox (elem 1 select))
+	(each (lambda (_) (mail-send "" _)) farm))
 
-(while id
-	;next event
-	(defq idx (mail-select select) msg (mail-read (elem idx select)))
-	(cond
-		((= idx 0)
-			;main mailbox
-			(cond
-				((= (setq id (get-long msg ev_msg_target_id)) event_win_close)
-					;close button
-					(setq id nil))
-				(t (view-event window msg))))
-		(t	;child tile msg
-			(if (defq child (get-long msg (- (length msg) (const long_size))) next_job (pop jobs))
-				;next job
-				(mail-send next_job child))
-			(setq area (- area (tile canvas msg)))
-			(when (= area 0)
-				;close farm and clear it
-				(each (lambda (_) (mail-send "" _)) farm)
-				(clear farm))
-			(when (or (> (- (defq now (time)) then) 1000000) (= area 0))
-				;swap canvas
-				(setq then now)
-				(canvas-swap canvas)))))
-
-;close
-(view-hide window)
-(mail-free-mbox (elem 1 select))
-(each (lambda (_) (mail-send "" _)) farm)
+(main)
