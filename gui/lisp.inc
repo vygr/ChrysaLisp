@@ -24,6 +24,19 @@
 			(view-add-child (elem -3 (push _ui (defq ,n ,c))) ,n)
 			~x (pop _ui))))
 
+(defmacro ui-buttons (s e &optional c f)
+	(setq s (map (lambda (_) (if (num? _) (num-to-utf8 _) _)) s))
+	(cond
+		((and c f)
+			`(each (lambda (_s)
+				(component-connect (ui-element __ (create-button) ('text _s 'color ,c 'font ,f)) (+ _ ,e))) '(~s)))
+		(c	`(each (lambda (_s)
+				(component-connect (ui-element __ (create-button) ('text _s 'color ,c)) (+ _ ,e))) '(~s)))
+		(f	`(each (lambda (_s)
+				(component-connect (ui-element __ (create-button) ('text _s 'font ,f)) (+ _ ,e))) '(~s)))
+		(t	`(each (lambda (_s)
+				(component-connect (ui-element __ (create-button) ('text _s)) (+ _ ,e))) '(~s)))))
+
 (defmacro view-dirty-all (_)
 	`(view-set-flags ,_ view_flag_dirty_all view_flag_dirty_all))
 

@@ -20,11 +20,9 @@
 
 (ui-tree window (create-window window_flag_status) ('color 0xc0000000)
 	(ui-element _ (create-flow) ('flow_flags (logior flow_flag_right flow_flag_fillh)
-			'font (create-font "fonts/Entypo.ctf" 32))
-		(each (lambda (c)
-			(component-connect (ui-element __ (create-button)
-				('text (num-to-utf8 c) 'color (if (>= _ 4) toolbar2_col toolbar_col))) (+ event_win_play _)))
-					'(0xe95e 0xe95d 0xe95c 0xe960 0xe95e 0xe95d 0xe95c 0xe960)))
+			'color toolbar_col 'font (create-font "fonts/Entypo.ctf" 32))
+		(ui-buttons (0xe95e 0xe95d 0xe95c 0xe960) event_win_play)
+		(ui-buttons (0xe95e 0xe95d 0xe95c 0xe960) event_win_play_all toolbar2_col))
 	(component-connect (ui-element hslider (create-slider) ('value 0 'color slider_col)) event_win_hvalue)
 	(ui-element vdu (create-vdu) ('vdu_width vdu_width 'vdu_height vdu_height 'ink_color argb_yellow
 			'font (create-font "fonts/Hack-Regular.ctf" 16))))

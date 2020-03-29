@@ -5,9 +5,8 @@
 (import 'apps/math.inc)
 
 (structure 'event 0
-	(byte 'win_close 'win_prev 'win_next)
-	(byte 'win_scale_down 'win_scale_up)
-	(byte 'win_mode_normal 'win_mode_gerber)
+	(byte 'win_close)
+	(byte 'win_prev 'win_next 'win_scale_down 'win_scale_up 'win_mode_normal 'win_mode_gerber)
 	(byte 'win_show_all 'win_show_1 'win_show_2 'win_show_3 'win_show_4))
 
 (defq pcbs '("apps/pcb/test1.pcb" "apps/pcb/test2.pcb" "apps/pcb/test3.pcb")
@@ -15,16 +14,11 @@
 	zoom (/ (+ min_zoom max_zoom) 2) eps 0.25)
 
 (ui-tree window (create-window window_flag_close) nil
-	(ui-element _ (create-flow) ('flow_flags (logior flow_flag_right flow_flag_fillh))
-		(each (lambda (c)
-			(component-connect (ui-element __ (create-button)
-				('text (num-to-utf8 c) 'color toolbar_col 'font (create-font "fonts/Entypo.ctf" 32))) (+ event_win_prev _)))
-					'(0xe91d 0xe91e 0xea00 0xea01 0xe9ac 0xe9ad))
-		(ui-element _ (create-grid) ('grid_width 5 'grid_height 1)
-			(each (lambda (l)
-				(component-connect (ui-element __ (create-button)
-					('text l 'color toolbar2_col 'font (create-font "fonts/OpenSans-Regular.ctf" 24))) (+ event_win_show_all _)))
-						'("0" "1" "2" "3" "4"))))
+	(ui-element _ (create-flow) ('flow_flags (logior flow_flag_right flow_flag_fillh)
+			'color toolbar_col 'font (create-font "fonts/Entypo.ctf" 32))
+		(ui-buttons (0xe91d 0xe91e 0xea00 0xea01 0xe9ac 0xe9ad) event_win_prev)
+		(ui-buttons ("0" "1" "2" "3" "4") event_win_show_all
+			toolbar2_col (const (create-font "fonts/OpenSans-Regular.ctf" 24))))
 	(ui-element pcb_scroll (create-scroll (logior scroll_flag_vertical scroll_flag_horizontal))
 		('color slider_col 'min_width 512 'min_height 256)))
 

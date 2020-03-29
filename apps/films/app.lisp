@@ -4,15 +4,15 @@
 (import 'gui/lisp.inc)
 
 (structure 'event 0
-	(byte 'win_close 'win_next 'win_prev))
+	(byte 'win_close)
+	(byte 'win_prev 'win_next))
 
 (defq images '("apps/films/captive.flm" "apps/films/cradle.flm") index 0 id t)
 
 (ui-tree window (create-window window_flag_close) nil
 	(ui-element _ (create-flow) ('flow_flags (logior flow_flag_right flow_flag_fillh)
 			'color toolbar_col 'font (create-font "fonts/Entypo.ctf" 32))
-		(component-connect (ui-element _ (create-button) ('text (num-to-utf8 0xe91d))) event_win_prev)
-		(component-connect (ui-element _ (create-button) ('text (num-to-utf8 0xe91e))) event_win_next))
+		(ui-buttons (0xe91d 0xe91e) event_win_prev))
 	(ui-element frame (canvas-load (elem index images) load_flag_film)))
 
 (gui-add (apply view-change (cat (list window 64 512)
