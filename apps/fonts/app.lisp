@@ -45,19 +45,18 @@
 		(ui-element fontname (create-label) ('font (create-font "fonts/OpenSans-Regular.ctf" 18) 'border -1)))
 	(ui-element symbol_scroll (create-scroll scroll_flag_vertical) ('color slider_col)))
 
-(win-refresh index)
-(gui-add (apply view-set-pos (cat (list (window-set-title
-	(window-connect-close window event_win_close) "Fonts") 200 48))))
-
-(while id
-	(cond
-		((= (setq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_win_close)
-			;close button
-			(setq id nil))
-		((= id event_win_next)
-			(win-refresh (% (inc index) (length fonts))))
-		((= id event_win_prev)
-			(win-refresh (% (+ (dec index) (length fonts)) (length fonts))))
-		(t (view-event window msg))))
-
-(view-hide window)
+(defun-bind main ()
+	(win-refresh index)
+	(gui-add (apply view-set-pos (cat (list (window-set-title
+		(window-connect-close window event_win_close) "Fonts") 200 48))))
+	(while id
+		(cond
+			((= (setq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_win_close)
+				;close button
+				(setq id nil))
+			((= id event_win_next)
+				(win-refresh (% (inc index) (length fonts))))
+			((= id event_win_prev)
+				(win-refresh (% (+ (dec index) (length fonts)) (length fonts))))
+			(t (view-event window msg))))
+	(view-hide window))

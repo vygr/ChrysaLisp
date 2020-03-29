@@ -38,6 +38,7 @@
 			(call 'lisp 'func_repl {lisp, args} {_, value})
 			(call 'vector 'clear {args})
 			(vpif {value /= lisp->lisp_sym_nil})
+			(vp-label 'error)
 				;error in repl
 				(call 'lisp 'repl_print {lisp, lisp->lisp_stderr, value})
 				(call 'stream 'write_char {lisp->lisp_stderr, char_lf})
@@ -48,12 +49,7 @@
 				(breakifnot {stream})
 				(call 'obj 'deref {value})
 				(call 'lisp 'repl_apply {lisp, args, stream} {_, value})
-				(vpif {value->obj_vtable = @class/error/vtable})
-					;error in main
-					(call 'lisp 'repl_print {lisp, lisp->lisp_stderr, value})
-					(call 'stream 'write_char {lisp->lisp_stderr, char_lf})
-					(call 'stream 'write_flush {lisp->lisp_stderr})
-				(endif)
+				(gotoif {value->obj_vtable = @class/error/vtable} 'error)
 			(endif)
 			(call 'vector 'deref {args})
 			(call 'obj 'deref {value})

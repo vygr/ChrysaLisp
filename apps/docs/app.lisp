@@ -88,16 +88,15 @@
 					('text path 'flow_flags (logior flow_flag_align_vcenter flow_flag_align_hleft))) event_win_button)) doc_list))
 		(ui-element page_scroll (create-scroll scroll_flag_vertical) ('min_width 848 'min_height 800 'color slider_col))))
 
-(populate-page (elem 0 doc_list))
-(gui-add (apply view-change (cat (list window 280 64)
-	(view-pref-size (window-set-title (window-connect-close window event_win_close) "Docs")))))
-
-(while id
-	(cond
-		((= (setq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_win_close)
-			(setq id nil))
-		((= id event_win_button)
-			(populate-page (get (view-find-id window (get-long msg ev_msg_action_source_id)) 'text)))
-		(t (view-event window msg))))
-
-(view-hide window)
+(defun-bind main ()
+	(populate-page (elem 0 doc_list))
+	(gui-add (apply view-change (cat (list window 280 64)
+		(view-pref-size (window-set-title (window-connect-close window event_win_close) "Docs")))))
+	(while id
+		(cond
+			((= (setq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_win_close)
+				(setq id nil))
+			((= id event_win_button)
+				(populate-page (get (view-find-id window (get-long msg ev_msg_action_source_id)) 'text)))
+			(t (view-event window msg))))
+	(view-hide window))

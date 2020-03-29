@@ -103,9 +103,10 @@
 
 	(canvas-swap canvas))
 
-;until quit
-(until (mail-poll (array (task-mailbox)))
-	(redraw)
-	(task-sleep 10000)
-	(setq angle (+ angle 0.0025)))
-(mail-read (task-mailbox))
+(defun-bind main ()
+	;until quit
+	(until (mail-poll (array (task-mailbox)))
+		(redraw)
+		(task-sleep 10000)
+		(setq angle (+ angle 0.0025)))
+	(mail-read (task-mailbox)))

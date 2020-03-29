@@ -23,11 +23,12 @@
 	,(bind-fun (lambda (o f) (setq format (str-to-num f)))))
 ))
 
-;initialize pipe details and command args, abort on error
-(when (and (defq slave (create-slave)) (defq format 32 args (options slave usage)))
-	(if (<= (length args) 1)
-		;convert from stdin
-		(while (defq l (read-line (file-stream 'stdin)))
-			(unless (eql l "") (conv-file l)))
-		;convert from args
-		(each conv-file (slice 1 -1 args))))
+(defun-bind main ()
+	;initialize pipe details and command args, abort on error
+	(when (and (defq slave (create-slave)) (defq format 32 args (options slave usage)))
+		(if (<= (length args) 1)
+			;convert from stdin
+			(while (defq l (read-line (file-stream 'stdin)))
+				(unless (eql l "") (conv-file l)))
+			;convert from args
+			(each conv-file (slice 1 -1 args)))))

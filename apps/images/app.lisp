@@ -33,17 +33,16 @@
 	(def image_scroll 'min_width 32 'min_height 32)
 	(view-change-dirty window x y w h))
 
-(gui-add (apply view-change (cat (list window 320 256)
-	(view-get-size (window-connect-close (win-refresh index) event_win_close)))))
-
-(while id
-	(cond
-		((= (setq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_win_close)
-			(setq id nil))
-		((= id event_win_next)
-			(win-refresh (% (inc index) (length images))))
-		((= id event_win_prev)
-			(win-refresh (% (+ (dec index) (length images)) (length images))))
-		(t (view-event window msg))))
-
-(view-hide window)
+(defun-bind main ()
+	(gui-add (apply view-change (cat (list window 320 256)
+		(view-get-size (window-connect-close (win-refresh index) event_win_close)))))
+	(while id
+		(cond
+			((= (setq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_win_close)
+				(setq id nil))
+			((= id event_win_next)
+				(win-refresh (% (inc index) (length images))))
+			((= id event_win_prev)
+				(win-refresh (% (+ (dec index) (length images)) (length images))))
+			(t (view-event window msg))))
+	(view-hide window))

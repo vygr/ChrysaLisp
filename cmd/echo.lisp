@@ -9,6 +9,7 @@
 		-h --help: this help info.")
 ))
 
-;initialize pipe details and command args, abort on error
-(when (and (defq slave (create-slave)) (defq args (options slave usage)))
-	(print (join (slice 1 -1 args) " ")))
+(defun-bind main ()
+	;initialize pipe details and command args, abort on error
+	(when (and (defq slave (create-slave)) (defq args (options slave usage)))
+		(print (join (slice 1 -1 args) " "))))

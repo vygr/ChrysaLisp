@@ -17,22 +17,20 @@
 		'flow_flags (+ flow_flag_align_hcenter flow_flag_align_vcenter)
 		'font (create-font "fonts/Hack-Regular.ctf" 48))))
 
-;set a name to the window and clear clock face
-(canvas-set-flags (canvas-fill clock 0) 1)
-(gui-add (apply view-change (cat (list window 164 16)
-	(view-pref-size (window-set-title (window-connect-close window event_win_close) "Clock")))))
-
-;create child and send args
-(mail-send (list display clock (* clock_size 1.0) (* clock_scale 1.0))
-	(defq mbox (open-child "apps/clock/child.lisp" kn_call_open)))
-
-;main app loop
-(while id
-	(cond
-		((= (setq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_win_close)
-			(setq id nil))
-		(t (view-event window msg))))
-
-;close child and window
-(mail-send "" mbox)
-(view-hide window)
+(defun-bind main ()
+	;set a name to the window and clear clock face
+	(canvas-set-flags (canvas-fill clock 0) 1)
+	(gui-add (apply view-change (cat (list window 164 16)
+		(view-pref-size (window-set-title (window-connect-close window event_win_close) "Clock")))))
+	;create child and send args
+	(mail-send (list display clock (* clock_size 1.0) (* clock_scale 1.0))
+		(defq mbox (open-child "apps/clock/child.lisp" kn_call_open)))
+	;main app loop
+	(while id
+		(cond
+			((= (setq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_win_close)
+				(setq id nil))
+			(t (view-event window msg))))
+	;close child and window
+	(mail-send "" mbox)
+	(view-hide window))

@@ -36,6 +36,7 @@
 		(t	;do here
 			(mandel x y x1 y1 w h cx cy z))))
 
-;read work request
-(defq msg (string-stream (mail-read (task-mailbox))))
-(apply rect (map (lambda (_) (read-long msg)) (range 0 11)))
+(defun-bind main ()
+	;read work request
+	(defq msg (string-stream (mail-read (task-mailbox))))
+	(apply rect (map (lambda (_) (read-long msg)) (range 0 11))))

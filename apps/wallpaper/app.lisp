@@ -1,3 +1,9 @@
+;Copyright for images created by Gary Boyd for the ChrysaLisp OS is transferred
+;to the project developer, Chris Hinsley. Attribution for creation of these
+;works should be included in distribution of ChrysaLisp OS or derived works in
+;which they appear. No warranty is given, and no liability for use or
+;distribution is expressed or implied by the works' original copyright holder.
+
 ;imports
 (import 'sys/lisp.inc)
 (import 'class/lisp.inc)
@@ -19,18 +25,12 @@
 		(+ (const (+ view_flag_at_back view_flag_dirty_all)) flag)
 		(const (+ view_flag_at_back view_flag_dirty_all view_flag_opaque))) 0 0 w h)))
 
-;Copyright for images created by Gary Boyd for the ChrysaLisp OS is transferred
-;to the project developer, Chris Hinsley. Attribution for creation of these
-;works should be included in distribution of ChrysaLisp OS or derived works in
-;which they appear. No warranty is given, and no liability for use or
-;distribution is expressed or implied by the works' original copyright holder.
-
-(defq images_info (map canvas-info *env_wallpaper_images*) wallpaper (create-view)
-	screen (penv (gui-add-back wallpaper)))
-
-(refresh-wallpaper)
-(while t
-	(when (and (< (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id) 0)
-			(= (get-long msg ev_msg_type) ev_type_gui))
-		;resized GUI
-		(refresh-wallpaper)))
+(defun-bind main ()
+	(defq images_info (map canvas-info *env_wallpaper_images*) wallpaper (create-view)
+		screen (penv (gui-add-back wallpaper)))
+	(refresh-wallpaper)
+	(while t
+		(when (and (< (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id) 0)
+				(= (get-long msg ev_msg_type) ev_type_gui))
+			;resized GUI
+			(refresh-wallpaper))))

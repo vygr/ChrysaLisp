@@ -18,12 +18,13 @@
 	then paths are read from stdin.")
 ))
 
-;initialize pipe details and command args, abort on error
-(when (and (defq slave (create-slave)) (defq args (options slave usage)))
-	(defq stdin (file-stream 'stdin) stdout (file-stream 'stdout))
-	(if (<= (length args) 1)
-		;cat from stdin
-		(while (defq l (read-line stdin))
-			(cat-file l))
-		;cat from args
-		(each cat-file (slice 1 -1 args))))
+(defun-bind main ()
+	;initialize pipe details and command args, abort on error
+	(when (and (defq slave (create-slave)) (defq args (options slave usage)))
+		(defq stdin (file-stream 'stdin) stdout (file-stream 'stdout))
+		(if (<= (length args) 1)
+			;cat from stdin
+			(while (defq l (read-line stdin))
+				(cat-file l))
+			;cat from args
+			(each cat-file (slice 1 -1 args)))))

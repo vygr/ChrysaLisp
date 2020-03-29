@@ -112,7 +112,8 @@
 	(write-long reply (task-mailbox))
 	(mail-send (str reply) mbox))
 
-;read work request or exit
-(while (/= 0 (length (defq msg (mail-read (task-mailbox)))))
-	(setq msg (string-stream msg))
-	(apply rect (map (lambda (_) (read-long msg)) (range 0 7))))
+(defun-bind main ()
+	;read work request or exit
+	(while (/= 0 (length (defq msg (mail-read (task-mailbox)))))
+		(setq msg (string-stream msg))
+		(apply rect (map (lambda (_) (read-long msg)) (range 0 7)))))

@@ -53,25 +53,24 @@
 				'color argb_white)))
 		(ui-element vdu (create-vdu) ('vdu_height vdu_height 'ink_color argb_cyan))))
 
-(populate-help)
-(bind '(w h) (view-pref-size index))
-(view-change index 0 0 (def index_scroll 'min_width w) h)
-(gui-add (apply view-change (cat (list window 32 32)
-	(view-pref-size (window-set-title (window-connect-close window event_win_close) "Help")))))
-
-(while id
-	(cond
-		((= (setq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_win_close)
-			(setq id nil))
-		((= id event_win_button)
-			(defq _ (find (sym (get (view-find-id window (get-long msg ev_msg_action_source_id)) 'text)) keys))
-			(when _
-				(setq text_buf (vdu-print vdu text_buf (str
-					"----------------------" (ascii-char 10)
-					(elem _ keys) (ascii-char 10)
-					"----------------------" (ascii-char 10)
-					(elem _ vals)
-					"----------------------" (ascii-char 10) (ascii-char 10))))))
-		(t (view-event window msg))))
-
-(view-hide window)
+(defun-bind main ()
+	(populate-help)
+	(bind '(w h) (view-pref-size index))
+	(view-change index 0 0 (def index_scroll 'min_width w) h)
+	(gui-add (apply view-change (cat (list window 32 32)
+		(view-pref-size (window-set-title (window-connect-close window event_win_close) "Help")))))
+	(while id
+		(cond
+			((= (setq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_win_close)
+				(setq id nil))
+			((= id event_win_button)
+				(defq _ (find (sym (get (view-find-id window (get-long msg ev_msg_action_source_id)) 'text)) keys))
+				(when _
+					(setq text_buf (vdu-print vdu text_buf (str
+						"----------------------" (ascii-char 10)
+						(elem _ keys) (ascii-char 10)
+						"----------------------" (ascii-char 10)
+						(elem _ vals)
+						"----------------------" (ascii-char 10) (ascii-char 10))))))
+			(t (view-event window msg))))
+	(view-hide window))

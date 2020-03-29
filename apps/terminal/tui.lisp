@@ -51,24 +51,23 @@
 			;buffer the char
 			(setq buffer (cat buffer (char c))))))
 
-;sign on msg
-(print (cat (const (cat "ChrysaLisp Terminal 1.5" (ascii-char 10))) (prompt)))
-
-;create child and send args
-(mail-send (list (task-mailbox)) (open-child "apps/terminal/tui_child.lisp" kn_call_open))
-
-(defq cmd nil buffer "")
-(while t
-	(defq data t)
-	(if cmd (setq data (pipe-read cmd)))
-	(cond
-		((eql data t)
-			;normal mailbox event
-			(terminal-input (get-byte (mail-read (task-mailbox)) 0)))
-		((eql data nil)
-			;pipe is closed
-			(pipe-close cmd)
-			(setq cmd nil)
-			(print (const (cat (ascii-char 10) ">"))))
-		(t	;string from pipe
-			(print data))))
+(defun-bind main ()
+	;sign on msg
+	(print (cat (const (cat "ChrysaLisp Terminal 1.5" (ascii-char 10))) (prompt)))
+	;create child and send args
+	(mail-send (list (task-mailbox)) (open-child "apps/terminal/tui_child.lisp" kn_call_open))
+	(defq cmd nil buffer "")
+	(while t
+		(defq data t)
+		(if cmd (setq data (pipe-read cmd)))
+		(cond
+			((eql data t)
+				;normal mailbox event
+				(terminal-input (get-byte (mail-read (task-mailbox)) 0)))
+			((eql data nil)
+				;pipe is closed
+				(pipe-close cmd)
+				(setq cmd nil)
+				(print (const (cat (ascii-char 10) ">"))))
+			(t	;string from pipe
+				(print data)))))

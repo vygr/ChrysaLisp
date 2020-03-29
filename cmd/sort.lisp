@@ -11,13 +11,14 @@
 	then will sort lines from stdin.")
 ))
 
-;initialize pipe details and command args, abort on error
-(when (and (defq slave (create-slave)) (defq args (options slave usage)))
-	(defq stdin (file-stream 'stdin) lines (list))
-	(if (<= (length args) 1)
-		;sort stdin
-		(while (defq l (read-line stdin))
-			(push lines l))
-		;sort args
-		(setq lines (slice 1 -1 args)))
-	(each print (sort cmp lines)))
+(defun-bind main ()
+	;initialize pipe details and command args, abort on error
+	(when (and (defq slave (create-slave)) (defq args (options slave usage)))
+		(defq stdin (file-stream 'stdin) lines (list))
+		(if (<= (length args) 1)
+			;sort stdin
+			(while (defq l (read-line stdin))
+				(push lines l))
+			;sort args
+			(setq lines (slice 1 -1 args)))
+		(each print (sort cmp lines))))

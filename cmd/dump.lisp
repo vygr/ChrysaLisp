@@ -41,11 +41,12 @@
 	then will dump stdin.")
 ))
 
-;initialize pipe details and command args, abort on error
-(when (and (defq slave (create-slave)) (defq args (options slave usage)))
-	(defq chunk_size 8)
-	(if (<= (length args) 1)
-		;dump from stdin
-		(dump-file 'stdin)
-		;dump from args as files
-		(each dump-file (slice 1 -1 args))))
+(defun-bind main ()
+	;initialize pipe details and command args, abort on error
+	(when (and (defq slave (create-slave)) (defq args (options slave usage)))
+		(defq chunk_size 8)
+		(if (<= (length args) 1)
+			;dump from stdin
+			(dump-file 'stdin)
+			;dump from args as files
+			(each dump-file (slice 1 -1 args)))))

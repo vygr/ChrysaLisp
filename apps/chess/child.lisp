@@ -384,35 +384,36 @@
 (defun-bind time-in-seconds (_)
 		(str (/ _ 1000000) "." (pad (% _ 1000000) 6 "00000")))
 
-;read args from parent
-(defq msg (mail-read (task-mailbox)) msg_out (out-stream (get-long msg 0)) max_time_per_move (get-long msg long_size)
-	history (list) colour (const white) game_start_time (time) quit nil flicker 100000
-	brd "RNBQKBNRPPPPPPPP                                pppppppprnbqkbnr")
-(send-data "b" brd)
+(defun-bind main ()
+	;read args from parent
+	(defq msg (mail-read (task-mailbox)) msg_out (out-stream (get-long msg 0)) max_time_per_move (get-long msg long_size)
+		history (list) colour (const white) game_start_time (time) quit nil flicker 100000
+		brd "RNBQKBNRPPPPPPPP                                pppppppprnbqkbnr")
+	(send-data "b" brd)
 
-;main event loop
-(until quit
-	(defq elapsed_time (- (time) game_start_time))
-	(send-data "c" (LF) "Elapsed Time: " (time-in-seconds elapsed_time) (LF))
-	(if (= colour (const white))
-		(send-data "s" "White to move:" (LF))
-		(send-data "s" "Black to move:" (LF)))
-	(defq new_brd (best-move brd colour history))
-	(cond
-		((not new_brd)
-			(if (in-check brd colour)
-				(send-data "s" (LF) "** Checkmate **" (LF) (LF))
-				(send-data "s" (LF) "** Stalemate **" (LF) (LF)))
-			(setq quit t))
-		((>= (reduce (lambda (cnt past_brd)
-				(if (eql past_brd brd) (inc cnt) cnt)) history 0) 3)
-			(send-data "s" (LF) "** Draw **" (LF) (LF))
-			(setq quit t))
-		(t	(each (lambda (_)
-				(send-data "b" brd)
-				(task-sleep flicker)
-				(send-data "b" new_brd)
-				(task-sleep flicker)) (range 0 2))
-			(push history new_brd)
-			(setq colour (neg colour) brd new_brd))))
-(mail-read (task-mailbox))
+	;main event loop
+	(until quit
+		(defq elapsed_time (- (time) game_start_time))
+		(send-data "c" (LF) "Elapsed Time: " (time-in-seconds elapsed_time) (LF))
+		(if (= colour (const white))
+			(send-data "s" "White to move:" (LF))
+			(send-data "s" "Black to move:" (LF)))
+		(defq new_brd (best-move brd colour history))
+		(cond
+			((not new_brd)
+				(if (in-check brd colour)
+					(send-data "s" (LF) "** Checkmate **" (LF) (LF))
+					(send-data "s" (LF) "** Stalemate **" (LF) (LF)))
+				(setq quit t))
+			((>= (reduce (lambda (cnt past_brd)
+					(if (eql past_brd brd) (inc cnt) cnt)) history 0) 3)
+				(send-data "s" (LF) "** Draw **" (LF) (LF))
+				(setq quit t))
+			(t	(each (lambda (_)
+					(send-data "b" brd)
+					(task-sleep flicker)
+					(send-data "b" new_brd)
+					(task-sleep flicker)) (range 0 2))
+				(push history new_brd)
+				(setq colour (neg colour) brd new_brd))))
+	(mail-read (task-mailbox)))
