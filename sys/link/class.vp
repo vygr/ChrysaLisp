@@ -41,6 +41,12 @@
 	(endif)
 	(assign {0} {lk_node.lk_node_task_count})
 
+	;open shared memory file
+	(call 'sys_pii 'open_shared {pdata, lk_buffer_size} {handle})
+
+	;map shared object
+	(call 'sys_pii 'mmap {lk_buffer_size, handle, mmap_shared} {mem})
+
 	;send link routing message to neighbor kernel
 	(call 'sys_mail 'alloc {kn_msg_route_size} {msg, data})
 	(assign {0} {msg->msg_dest.id_mbox})
@@ -51,19 +57,17 @@
 	(assign {1} {data->kn_msg_route_hops})
 	(call 'sys_mail 'send {msg})
 
-	;open shared memory file
-	(call 'sys_pii 'open_shared {pdata, lk_buffer_size} {handle})
-
-	;map shared object
-	(call 'sys_pii 'mmap {lk_buffer_size, handle, mmap_shared} {mem})
-
 	;tx channel, rx channel
 	;tx msg, rx msg
 	(assign {mem + tx, mem + rx} {tx, rx})
 	(assign {&tx->lk_chan_msg0, &rx->lk_chan_msg0} {tx_msg, rx_msg})
 
-	;read and write messages through the shared buffer
+	;switch to link priority and sleep to
+	;let other links join us at this priority
 	(call 'sys_task 'set_priority '(1))
+	(call 'sys_task 'sleep '(10000))
+
+	;read and write messages through the shared buffer
 	(loop-start)
 		;exchange task counts
 		(assign {task_statics->tk_statics_task_count} {tx->lk_chan_task_count})
