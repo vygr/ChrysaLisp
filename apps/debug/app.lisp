@@ -3,6 +3,11 @@
 (import 'class/lisp.inc)
 (import 'gui/lisp.inc)
 
+(structure 'event 0
+	(byte 'win_debug 'win_hvalue)
+	(byte 'win_play 'win_pause 'win_step 'win_clear)
+	(byte 'win_play_all 'win_pause_all 'win_step_all 'win_clear_all))
+
 ;single instance only
 (unless (mail-enquire "DEBUG_SERVICE")
 	(kernel-declare "DEBUG_SERVICE" (task-mailbox))
@@ -11,18 +16,13 @@
 	(long 'command 'reply_id 'tcb)
 	(offset 'data))
 
-(structure 'event 0
-	(byte 'win_debug 'win_hvalue)
-	(byte 'win_play 'win_pause 'win_step 'win_clear)
-	(byte 'win_play_all 'win_pause_all 'win_step_all 'win_clear_all))
-
 (defq vdu_width 60 vdu_height 30 buf_keys (list) buf_list (list) buf_index nil)
 
 (ui-tree window (create-window window_flag_status) ('color 0xc0000000)
 	(ui-element _ (create-flow) ('flow_flags (logior flow_flag_right flow_flag_fillh)
 			'color toolbar_col 'font (create-font "fonts/Entypo.ctf" 32))
-		(ui-buttons (0xe95e 0xe95d 0xe95c 0xe960) event_win_play)
-		(ui-buttons (0xe95e 0xe95d 0xe95c 0xe960) event_win_play_all toolbar2_col))
+		(ui-buttons (0xe95e 0xe95d 0xe95c 0xe960) (const event_win_play))
+		(ui-buttons (0xe95e 0xe95d 0xe95c 0xe960) (const event_win_play_all) (const toolbar2_col)))
 	(component-connect (ui-element hslider (create-slider) ('value 0 'color slider_col)) event_win_hvalue)
 	(ui-element vdu (create-vdu) ('vdu_width vdu_width 'vdu_height vdu_height 'ink_color argb_yellow
 			'font (create-font "fonts/Hack-Regular.ctf" 16))))

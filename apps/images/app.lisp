@@ -19,7 +19,7 @@
 (ui-tree window (create-window window_flag_close) nil
 	(ui-element _ (create-flow) ('flow_flags (logior flow_flag_right flow_flag_fillh)
 			'color toolbar_col 'font (create-font "fonts/Entypo.ctf" 32))
-		(ui-buttons (0xe91d 0xe91e) event_win_prev))
+		(ui-buttons (0xe91d 0xe91e) (const event_win_prev)))
 	(ui-element image_scroll (create-scroll (logior scroll_flag_vertical scroll_flag_horizontal))
 		('color slider_col)))
 
