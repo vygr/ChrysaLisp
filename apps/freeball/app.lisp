@@ -38,5 +38,3 @@
 				(setq id nil)))
 		(task-sleep 40000))
 	(view-hide view))
-
-(main)

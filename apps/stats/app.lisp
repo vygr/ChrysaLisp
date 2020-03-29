@@ -99,5 +99,3 @@
 	(mail-free-mbox (elem 1 select))
 	(while (defq mbox (pop farm))
 		(mail-send (const (char event_win_close long_size)) mbox)))
-
-(main)

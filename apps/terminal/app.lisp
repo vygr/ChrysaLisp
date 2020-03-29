@@ -157,5 +157,3 @@
 	;close window and pipe
 	(view-hide window)
 	(if cmd (pipe-close cmd)))
-
-(main)

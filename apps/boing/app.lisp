@@ -55,5 +55,3 @@
 				(t (view-event window msg))))
 		(task-sleep 40000))
 	(view-hide window))
-
-(main)

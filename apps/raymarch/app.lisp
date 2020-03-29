@@ -70,5 +70,3 @@
 	(view-hide window)
 	(mail-free-mbox (elem 1 select))
 	(each (lambda (_) (mail-send "" _)) farm))
-
-(main)
