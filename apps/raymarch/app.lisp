@@ -17,8 +17,13 @@
 			(* canvas_width canvas_scale) (* canvas_height canvas_scale)))
 		(range (dec (* canvas_height canvas_scale)) -1)))
 
-(ui-tree window (create-window window_flag_close) nil
-	(ui-element canvas (create-canvas canvas_width canvas_height canvas_scale)))
+(ui-tree window (create-window) nil
+	(ui-element _ (create-flow) ('flow_flags (logior flow_flag_down flow_flag_fillw flow_flag_lasth))
+		(ui-element _ (create-flow) ('flow_flags (logior flow_flag_left flow_flag_fillh flow_flag_lastw)
+				'font (create-font "fonts/Entypo.ctf" 22) 'color title_col)
+			(ui-buttons (0xea19) (const event_win_close))
+			(ui-element _ (create-title) ('text "Raymarch" 'font (create-font "fonts/OpenSans-Regular.ctf" 18))))
+		(ui-element canvas (create-canvas canvas_width canvas_height canvas_scale))))
 
 (defun-bind tile (canvas data)
 	;(tile canvas data) -> area
@@ -37,8 +42,7 @@
 (defun-bind main ()
 	;add window
 	(canvas-swap (canvas-fill canvas argb_black))
-	(gui-add (apply view-change (cat (list window 64 64)
-		(view-pref-size (window-set-title (window-connect-close window event_win_close) "Raymarch")))))
+	(gui-add (apply view-change (cat (list window 64 64) (view-pref-size window))))
 	;send first batch of jobs
 	(each (lambda (_) (mail-send (pop jobs) _)) farm)
 	;main event loop

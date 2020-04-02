@@ -12,8 +12,13 @@
 (defq canvas_width 800 canvas_height 800 canvas_scale 2 id t then nil area 0 select nil
 	center_x (mbfp-from-fixed -0.5) center_y (mbfp-from-fixed 0.0) zoom (mbfp-from-fixed 1.0))
 
-(ui-tree window (create-window window_flag_close) nil
-	(ui-element canvas (create-canvas canvas_width canvas_height canvas_scale)))
+(ui-tree window (create-window) nil
+	(ui-element _ (create-flow) ('flow_flags (logior flow_flag_down flow_flag_fillw flow_flag_lasth))
+		(ui-element _ (create-flow) ('flow_flags (logior flow_flag_left flow_flag_fillh flow_flag_lastw)
+				'font (create-font "fonts/Entypo.ctf" 22) 'color title_col)
+			(ui-buttons (0xea19) (const event_win_close))
+			(ui-element _ (create-title) ('text "Mandelbrot" 'font (create-font "fonts/OpenSans-Regular.ctf" 18))))
+		(ui-element canvas (create-canvas canvas_width canvas_height canvas_scale))))
 
 (defun-bind reset ()
 	(if select (mail-free-mbox (elem 1 select)))
@@ -42,8 +47,7 @@
 (defun-bind main ()
 	;add window
 	(canvas-swap (canvas-fill canvas argb_black))
-	(gui-add (apply view-change (cat (list window 64 64)
-		(view-pref-size (window-set-title (window-connect-close window event_win_close) "Mandelbrot")))))
+	(gui-add (apply view-change (cat (list window 64 64) (view-pref-size window))))
 	(reset)
 	;main event loop
 	(while id

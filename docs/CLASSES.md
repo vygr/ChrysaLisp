@@ -7851,6 +7851,19 @@ trashes
 r1-r14
 ```
 
+### title::lisp_create -> gui/title/lisp_create
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
 ### title::mouse_down -> gui/title/mouse_down
 
 ```lisp
@@ -8850,7 +8863,6 @@ Super Class: view
 inputs
 r0 = window object (ptr)
 r1 = vtable (pptr)
-r2 = options flags (ulong)
 outputs
 r0 = window object (ptr)
 r1 = 0 if error, else ok

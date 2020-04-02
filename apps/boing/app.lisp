@@ -10,15 +10,18 @@
 	frames (map (lambda (_) (canvas-load (cat "apps/boing/taoball_" (str _) ".cpm") load_flag_shared)) (range 1 12))
 	sframes (map (lambda (_) (canvas-load (cat "apps/boing/taoball_s_" (str _) ".cpm") load_flag_shared)) (range 1 12)))
 
-(ui-tree window (create-window (+ window_flag_close window_flag_min window_flag_max)) nil
-	(ui-element backdrop (create-backdrop) ('color argb_black 'ink_color argb_white)
-		(ui-element frame (elem 0 frames))
-		(ui-element sframe (elem 0 sframes))))
+(ui-tree window (create-window) nil
+	(ui-element _ (create-flow) ('flow_flags (logior flow_flag_down flow_flag_fillw flow_flag_lasth))
+		(ui-element _ (create-flow) ('flow_flags (logior flow_flag_left flow_flag_fillh flow_flag_lastw)
+				'font (create-font "fonts/Entypo.ctf" 22) 'color title_col)
+			(ui-buttons (0xea19 0xea1b 0xea1a) (const event_win_close))
+			(ui-element _ (create-title) ('text "Boing" 'font (create-font "fonts/OpenSans-Regular.ctf" 18))))
+		(ui-element backdrop (create-backdrop) ('color argb_black 'ink_color argb_white)
+			(ui-element frame (elem 0 frames))
+			(ui-element sframe (elem 0 sframes)))))
 
 (defun-bind main ()
-	(gui-add (apply view-change (cat (list window 64 64)
-		(view-pref-size (window-set-title (window-connect-close (window-connect-min
-			(window-connect-max window event_win_max) event_win_min) event_win_close) "Boing")))))
+	(gui-add (apply view-change (cat (list window 64 64) (view-pref-size window))))
 	(while id
 		(bind '(_ _ backdrop_width backdrop_height) (view-get-bounds backdrop))
 		(defq index (% (inc index) (length frames))

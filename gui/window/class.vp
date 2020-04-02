@@ -15,19 +15,16 @@
 	;inputs
 	;r0 = window object (ptr)
 	;r1 = vtable (pptr)
-	;r2 = options flags (ulong)
 	;outputs
 	;r0 = window object (ptr)
 	;r1 = 0 if error, else ok
 	;trashes
 	;r1-r14
 
-	(ptr 'this 'title_flow)
-	(ulong 'flags)
+	(ptr 'this)
 
 	(push-scope)
-	(entry 'window 'init '(r0 r1 r2))
-	(assign '(r2) {flags})
+	(entry 'window 'init '(r0 r1))
 
 	;init parent
 	(s-call 'window 'init '(r0 r1) '(r0 r1))
@@ -41,58 +38,6 @@
 		(call 'window 'set_long_prop '(r0 static_sym_min_width 0) '(r0))
 		(call 'window 'set_long_prop '(r0 static_sym_min_height 0) '(r0))
 		(call 'sys_mem 'fill '((& r0 window_start) (- window_size window_start) 0))
-
-		;add status panel, add_back not add_child !!!
-		(call 'flow 'create nil {this->window_status_panel})
-		(call 'flow 'set_long_prop {this->window_status_panel, static_sym_flow_flags, flow_flag_up | flow_flag_fillw | flow_flag_lasth})
-		(call 'window 'add_back {this, this->window_status_panel})
-
-		;add status label ?
-		(vpif {flags & window_flag_status})
-			(call 'label 'create nil {this->window_status})
-			(call 'label 'set_long_prop {this->window_status, static_sym_color, status_col})
-			(call 'flow 'add_child {this->window_status_panel, this->window_status})
-		(endif)
-
-		;add title panel
-		(call 'flow 'create nil {this->window_title_panel})
-		(call 'flow 'set_long_prop {this->window_title_panel, static_sym_flow_flags, flow_flag_down | flow_flag_fillw | flow_flag_lasth})
-		(call 'flow 'add_child {this->window_status_panel, this->window_title_panel})
-
-		;add title flow panel
-		(call 'flow 'create nil {title_flow})
-		(call 'flow 'set_long_prop {title_flow, static_sym_flow_flags, flow_flag_left | flow_flag_fillh | flow_flag_lastw} '(r0))
-		(call 'flow 'set_long_prop '(r0 static_sym_color title_col))
-		(call 'flow 'add_child {this->window_title_panel, title_flow})
-
-		;add close button ?
-		(vpif {flags & window_flag_close})
-			(call 'button 'create nil {this->window_close})
-			(call 'button 'set_font_prop {this->window_close, static_sym_font, "fonts/Entypo.ctf", 22} '(r0))
-			(call 'button 'set_str_prop `(r0 static_sym_text ,(num-to-utf8 0xea19)))
-			(call 'flow 'add_child {title_flow, this->window_close})
-		(endif)
-
-		;add max button
-		(vpif {flags & window_flag_max})
-			(call 'button 'create nil {this->window_max})
-			(call 'button 'set_font_prop {this->window_max, static_sym_font, "fonts/Entypo.ctf", 22} '(r0))
-			(call 'button 'set_str_prop `(r0 static_sym_text ,(num-to-utf8 0xea1b)))
-			(call 'flow 'add_child {title_flow, this->window_max})
-		(endif)
-
-		;add min button
-		(vpif {flags & window_flag_min})
-			(call 'button 'create nil {this->window_min})
-			(call 'button 'set_font_prop {this->window_min, static_sym_font, "fonts/Entypo.ctf", 22} '(r0))
-			(call 'button 'set_str_prop `(r0 static_sym_text ,(num-to-utf8 0xea1a)))
-			(call 'flow 'add_child {title_flow, this->window_min})
-		(endif)
-
-		;add title
-		(call 'title 'create nil {this->window_title})
-		(call 'flow 'add_child {title_flow, this->window_title})
-
 		(assign {this, 1} '(r0 r1))
 	(endif)
 
@@ -113,9 +58,15 @@
 
 	(entry 'window 'add_child '(r0 r1))
 
-	(vp-push r0)
-	(call 'flow 'add_child '((r0 window_title_panel) r1))
-	(vp-pop r0)
+	(assign '((r0 window_child)) '(r2))
+	(vpif '(r2 /= 0))
+		(vp-push r0 r1)
+		(call 'view 'sub '(r2) '(r0))
+		(call 'view 'deref '(r0))
+		(vp-pop r0 r1)
+	(endif)
+	(assign '(r1) '((r0 window_child)))
+	(call 'view 'add_back '(r0 r1) '(r0))
 
 	(exit 'window 'add_child '(r0))
 	(vp-ret)
@@ -161,7 +112,10 @@
 	(vp-sub-rr r1 r9)
 	(vp-sub-rr r1 r10)
 	(vp-push r0)
-	(call 'flow 'change '((r0 window_status_panel) r1 r1 r9 r10))
+	(assign '((r0 window_child)) '(r0))
+	(vpif '(r0 /= 0))
+		(call 'flow 'change '(r0 r1 r1 r9 r10))
+	(endif)
 	(vp-pop r0)
 	(call 'window 'get_long_prop '(r0 static_sym_color) '(r0 r1))
 	(vp-shr-cr 24 r1)
@@ -322,7 +276,10 @@
 
 	(call 'window 'get_long_prop '(r0 static_sym_border) '(r0 r1))
 	(vp-push r0 r1)
-	(call 'flow 'pref_size '((r0 window_status_panel)) '(_ r9 r10))
+	(assign '((r0 window_child) 0 0) '(r0 r9 r10))
+	(vpif '(r0 /= 0))
+		(call 'flow 'pref_size '(r0) '(_ r9 r10))
+	(endif)
 	(vp-pop r0 r1)
 	(vp-add-rr r1 r1)
 	(vp-add-rr r1 r9)

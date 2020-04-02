@@ -11,21 +11,26 @@
 	farm (open-farm "apps/stats/child.lisp" cpu_total kn_call_open) last_max_classes 0 max_classes 1
 	select (array (task-mailbox) (mail-alloc-mbox)) sample_msg (array (elem 1 select)))
 
-(ui-tree window (create-window window_flag_close) nil
-	(ui-element _ (create-grid) ('grid_width 2 'grid_height 1 'flow_flags (logior flow_flag_down flow_flag_fillw flow_flag_lasth) 'maximum 100 'value 0)
-		(ui-element name_flow (create-flow) ('color argb_grey8)
-			(ui-element _ (create-label) ('text "Class" 'color argb_white))
-			(ui-element _ (create-grid) ('grid_width 1 'grid_height 1 'color argb_white
-					'font (create-font "fonts/Hack-Regular.ctf" 14))
-				(ui-element _ (create-label) ('text "")))
-			(ui-element name_view (create-view)))
-		(ui-element stat_flow (create-flow) ('color argb_red)
-			(ui-element _ (create-label) ('text "Count" 'color argb_white))
-			(ui-element _ (create-grid) ('grid_width 4 'grid_height 1 'color argb_white
-					'font (create-font "fonts/Hack-Regular.ctf" 14))
-				(times 4 (push stat_scale (ui-element _ (create-label)
-					('text "|" 'flow_flags (logior flow_flag_align_vcenter flow_flag_align_hright))))))
-			(ui-element stat_view (create-view)))))
+(ui-tree window (create-window) nil
+	(ui-element _ (create-flow) ('flow_flags (logior flow_flag_down flow_flag_fillw flow_flag_lasth))
+		(ui-element _ (create-flow) ('flow_flags (logior flow_flag_left flow_flag_fillh flow_flag_lastw)
+				'font (create-font "fonts/Entypo.ctf" 22) 'color title_col)
+			(ui-buttons (0xea19) (const event_win_close))
+			(ui-element _ (create-title) ('text "Object Monitor" 'font (create-font "fonts/OpenSans-Regular.ctf" 18))))
+		(ui-element _ (create-grid) ('grid_width 2 'grid_height 1 'flow_flags (logior flow_flag_down flow_flag_fillw flow_flag_lasth) 'maximum 100 'value 0)
+			(ui-element name_flow (create-flow) ('color argb_grey8)
+				(ui-element _ (create-label) ('text "Class" 'color argb_white))
+				(ui-element _ (create-grid) ('grid_width 1 'grid_height 1 'color argb_white
+						'font (create-font "fonts/Hack-Regular.ctf" 14))
+					(ui-element _ (create-label) ('text "")))
+				(ui-element name_view (create-view)))
+			(ui-element stat_flow (create-flow) ('color argb_red)
+				(ui-element _ (create-label) ('text "Count" 'color argb_white))
+				(ui-element _ (create-grid) ('grid_width 4 'grid_height 1 'color argb_white
+						'font (create-font "fonts/Hack-Regular.ctf" 14))
+					(times 4 (push stat_scale (ui-element _ (create-label)
+						('text "|" 'flow_flags (logior flow_flag_align_vcenter flow_flag_align_hright))))))
+				(ui-element stat_view (create-view))))))
 
 (defun-bind main ()
 	(while id
@@ -56,8 +61,7 @@
 			(view-dirty-all window)
 			;open the window once we have data
 			(when (= (setq frame_cnt (inc frame_cnt)) 2)
-				(gui-add (apply view-change (cat (list window 640 32) (view-pref-size
-					(window-set-title (window-connect-close window event_win_close) "Object Monitor"))))))
+				(gui-add (apply view-change (cat (list window 640 32) (view-pref-size window)))))
 			;resize if number of classes change
 			(when (/= last_max_classes max_classes)
 				(setq last_max_classes max_classes)

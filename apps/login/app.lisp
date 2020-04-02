@@ -6,17 +6,20 @@
 (structure 'event 0
 	(byte 'win_login 'win_create))
 
-(ui-tree window (create-window 0) nil
-	(ui-element _ (create-flow) ('flow_flags (logior flow_flag_right flow_flag_fillh flow_flag_lastw))
-		(ui-element _ (create-grid) ('grid_width 1 'grid_height 2)
-			(ui-element _ (create-label) ('text "Username"))
-			(ui-element _ (create-label) ('text "Password")))
-		(ui-element _ (create-grid) ('grid_width 1 'grid_height 2 'color argb_white)
-			(ui-element username (create-textfield) ('text (if (defq old (load "apps/login/current")) old "Guest")))
-			(ui-element password (create-textfield) ('text "****************"))))
-	(ui-element _ (create-grid) ('grid_width 2 'grid_height 1)
-		(component-connect (ui-element _ (create-button) ('text "Login")) event_win_login)
-		(component-connect (ui-element _ (create-button) ('text "Create")) event_win_create)))
+(ui-tree window (create-window) nil
+	(ui-element _ (create-flow) ('flow_flags (logior flow_flag_down flow_flag_fillw flow_flag_lasth))
+		(ui-element _ (create-flow) ('flow_flags (logior flow_flag_left flow_flag_fillh flow_flag_lastw) 'color title_col)
+			(ui-element _ (create-title) ('text "Login Manager" 'font (create-font "fonts/OpenSans-Regular.ctf" 18))))
+		(ui-element _ (create-flow) ('flow_flags (logior flow_flag_right flow_flag_fillh flow_flag_lastw))
+			(ui-element _ (create-grid) ('grid_width 1 'grid_height 2)
+				(ui-element _ (create-label) ('text "Username"))
+				(ui-element _ (create-label) ('text "Password")))
+			(ui-element _ (create-grid) ('grid_width 1 'grid_height 2 'color argb_white)
+				(ui-element username (create-textfield) ('text (if (defq old (load "apps/login/current")) old "Guest")))
+				(ui-element password (create-textfield) ('text "****************"))))
+		(ui-element _ (create-grid) ('grid_width 2 'grid_height 1)
+			(component-connect (ui-element _ (create-button) ('text "Login")) event_win_login)
+			(component-connect (ui-element _ (create-button) ('text "Create")) event_win_create))))
 
 (defun-bind position-window ()
 	(bind '(w h) (view-pref-size window))
@@ -28,7 +31,7 @@
 
 ;add centered, wait a little for GUI to get going...
 (task-sleep 10000)
-(gui-add (window-set-title window "Login Manager"))
+(gui-add window)
 (position-window)
 
 (defq id t)

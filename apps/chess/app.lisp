@@ -14,17 +14,22 @@
 	data_in (in-stream) select (array (task-mailbox) (in-mbox data_in))
 	vdu_width 38 vdu_height 12 text_buf (list ""))
 
-(ui-tree window (create-window window_flag_close) ('color argb_black)
-	(ui-element chess_grid (create-grid) ('grid_width 8 'grid_height 8
-			'font (create-font "fonts/Chess.ctf" 42) 'border 1 'text " ")
-		(each (lambda (i)
-			(if (= (logand (+ i (>> i 3)) 1) 0)
-				(defq paper argb_white ink argb_black)
-				(defq paper argb_black ink argb_white))
-			(push squares (ui-element _ (create-button)
-				('color paper 'ink_color ink)))) (range 0 64)))
-	(ui-element vdu (create-vdu) ('vdu_width vdu_width 'vdu_height vdu_height 'ink_color argb_cyan
-		'font (create-font "fonts/Hack-Regular.ctf" 16))))
+(ui-tree window (create-window ) ('color argb_black)
+	(ui-element _ (create-flow) ('flow_flags (logior flow_flag_down flow_flag_fillw flow_flag_lasth))
+		(ui-element _ (create-flow) ('flow_flags (logior flow_flag_left flow_flag_fillh flow_flag_lastw)
+				'font (create-font "fonts/Entypo.ctf" 22) 'color title_col)
+			(ui-buttons (0xea19) (const event_win_close))
+			(ui-element _ (create-title) ('text "Chess" 'font (create-font "fonts/OpenSans-Regular.ctf" 18))))
+		(ui-element chess_grid (create-grid) ('grid_width 8 'grid_height 8
+				'font (create-font "fonts/Chess.ctf" 42) 'border 1 'text " ")
+			(each (lambda (i)
+				(if (= (logand (+ i (>> i 3)) 1) 0)
+					(defq paper argb_white ink argb_black)
+					(defq paper argb_black ink argb_white))
+				(push squares (ui-element _ (create-button)
+					('color paper 'ink_color ink)))) (range 0 64)))
+		(ui-element vdu (create-vdu) ('vdu_width vdu_width 'vdu_height vdu_height 'ink_color argb_cyan
+			'font (create-font "fonts/Hack-Regular.ctf" 16)))))
 
 (defun-bind display-board (board)
 	(each (lambda (square piece)
@@ -47,8 +52,7 @@
 (defun-bind main ()
 	(mail-send (array (in-mbox data_in) 10000000)
 		(defq child_mbox (open-child "apps/chess/child.lisp" kn_call_child)))
-	(gui-add (apply view-change (cat (list window 512 128)
-		(view-pref-size (window-set-title (window-connect-close window event_win_close) "Chess")))))
+	(gui-add (apply view-change (cat (list window 512 128) (view-pref-size window))))
 	;main event loop
 	(while id
 		(setq id (mail-select select))

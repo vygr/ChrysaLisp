@@ -16,26 +16,31 @@
 	"apps/images/stairs.cpm" "apps/images/temple.cpm" "apps/images/vermin.cpm")
 	index 0 id t)
 
-(ui-tree window (create-window window_flag_close) nil
-	(ui-element _ (create-flow) ('flow_flags (logior flow_flag_right flow_flag_fillh)
-			'color toolbar_col 'font (create-font "fonts/Entypo.ctf" 32))
-		(ui-buttons (0xe91d 0xe91e) (const event_win_prev)))
-	(ui-element image_scroll (create-scroll (logior scroll_flag_vertical scroll_flag_horizontal))
-		('color slider_col)))
+(ui-tree window (create-window) nil
+	(ui-element window_flow (create-flow) ('flow_flags (logior flow_flag_down flow_flag_fillw flow_flag_lasth))
+		(ui-element _ (create-flow) ('flow_flags (logior flow_flag_left flow_flag_fillh flow_flag_lastw)
+				'font (create-font "fonts/Entypo.ctf" 22) 'color title_col)
+			(ui-buttons (0xea19) (const event_win_close))
+			(ui-element window_title (create-title) ('font (create-font "fonts/OpenSans-Regular.ctf" 18))))
+		(ui-element _ (create-flow) ('flow_flags (logior flow_flag_right flow_flag_fillh)
+				'color toolbar_col 'font (create-font "fonts/Entypo.ctf" 32))
+			(ui-buttons (0xe91d 0xe91e) (const event_win_prev)))
+		(ui-element image_scroll (create-scroll (logior scroll_flag_vertical scroll_flag_horizontal))
+			('color slider_col))))
 
 (defun win-refresh (_)
 	(bind '(w h) (view-pref-size (defq canvas (canvas-load (elem (setq index _) images) 0))))
 	(def image_scroll 'min_width w 'min_height h)
 	(view-add-child image_scroll canvas)
-	(window-set-title window (elem _ images))
+	(def window_title 'text (elem _ images))
+	(view-layout window_title)
 	(bind '(x y) (view-get-pos window))
 	(bind '(w h) (view-pref-size window))
 	(def image_scroll 'min_width 32 'min_height 32)
 	(view-change-dirty window x y w h))
 
 (defun-bind main ()
-	(gui-add (apply view-change (cat (list window 320 256)
-		(view-get-size (window-connect-close (win-refresh index) event_win_close)))))
+	(gui-add (apply view-change (cat (list window 320 256) (view-get-size (win-refresh index)))))
 	(while id
 		(cond
 			((= (setq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_win_close)

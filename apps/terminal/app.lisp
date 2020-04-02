@@ -6,15 +6,21 @@
 (import 'apps/login/pupa.inc)
 
 (structure 'event 0
-	(byte 'win_close 'win_min 'win_max 'win_layout 'win_scroll))
+	(byte 'win_close 'win_max 'win_min)
+	(byte 'win_layout 'win_scroll))
 
 (defq id t cmd nil vdu_width 60 vdu_height 40 vdu_min_width 16 vdu_min_height 16 text_buf (list ""))
 
-(ui-tree window (create-window (+ window_flag_close window_flag_min window_flag_max window_flag_status)) ('color 0xc0000000)
-	(ui-element _ (create-flow) ('flow_flags (logior flow_flag_left flow_flag_fillh flow_flag_lastw))
-		(component-connect (ui-element slider (create-slider) ('color slider_col)) event_win_scroll)
-		(ui-element vdu (create-vdu) ('vdu_width vdu_width 'vdu_height vdu_height 'min_width vdu_width 'min_height vdu_height
-			'ink_color argb_green 'font (create-font "fonts/Hack-Regular.ctf" 16)))))
+(ui-tree window (create-window) ('color 0xc0000000)
+	(ui-element _ (create-flow) ('flow_flags (logior flow_flag_down flow_flag_fillw flow_flag_lasth))
+		(ui-element _ (create-flow) ('flow_flags (logior flow_flag_left flow_flag_fillh flow_flag_lastw)
+				'font (create-font "fonts/Entypo.ctf" 22) 'color title_col)
+			(ui-buttons (0xea19 0xea1b 0xea1a) (const event_win_close))
+			(ui-element _ (create-title) ('text "Terminal" 'font (create-font "fonts/OpenSans-Regular.ctf" 18))))
+		(ui-element _ (create-flow) ('flow_flags (logior flow_flag_left flow_flag_fillh flow_flag_lastw))
+			(component-connect (ui-element slider (create-slider) ('color slider_col)) event_win_scroll)
+			(ui-element vdu (create-vdu) ('vdu_width vdu_width 'vdu_height vdu_height 'min_width vdu_width 'min_height vdu_height
+				'ink_color argb_green 'font (create-font "fonts/Hack-Regular.ctf" 16))))))
 
 (defun-bind vdu-print (vdu buf s)
 	(each (lambda (c)
@@ -71,7 +77,7 @@
 					(catch (setq cmd (pipe-open cmdline)) (progn (setq cmd nil) t))
 					(cond
 						(cmd
-							(view-dirty-all (window-set-status window "Busy")))
+							(view-dirty-all window))
 						(t
 							(print (cat (const (cat "Pipe Error !" (ascii-char 10)))))
 							(print-edit-line))))
@@ -84,7 +90,7 @@
 				(when (/= (length *line_buf*) 0)
 					(pipe-write cmd *line_buf*))
 				(pipe-close cmd) (setq cmd nil) (line-clear)
-				(view-dirty-all (window-set-status window "Ready"))
+				(view-dirty-all window)
 				(print-edit-line)))
 		(t	;some key
 			(print-edit-line))))
@@ -110,10 +116,7 @@
 (defun-bind main ()
 	;add window
 	(gui-add (apply view-change (cat (list window 448 16)
-		(view-pref-size (window-set-title (window-set-status
-			(component-connect (window-connect-close (window-connect-min
-				(window-connect-max window event_win_max) event_win_min) event_win_close) event_win_layout)
-			"Ready") "Terminal")))))
+		(view-pref-size (component-connect window event_win_layout)))))
 	;sign on msg
 	(print (str "ChrysaLisp Terminal 1.6" (ascii-char 10)))
 	(print-edit-line)
@@ -151,7 +154,7 @@
 				(pipe-close cmd)
 				(setq cmd nil)
 				(print (cat (ascii-char 10) *env_terminal_prompt* *line_buf*))
-				(view-dirty-all (window-set-status window "Ready")))
+				(view-dirty-all window))
 			(t	;string from pipe
 				(print data))))
 	;close window and pipe

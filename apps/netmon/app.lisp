@@ -9,38 +9,40 @@
 	(int 'cpu 'task_count 'mem_used))
 
 (structure 'event 0
-	(byte 'win_close 'win_min 'win_max))
+	(byte 'win_close 'win_max 'win_min))
 
 (defq task_bars (list) memory_bars (list) task_scale (list) memory_scale (list)
 	cpu_total (kernel-total) cpu_count cpu_total id t
 	max_tasks 1 max_memory 1 last_max_tasks 0 last_max_memory 0 select (array (task-mailbox) (mail-alloc-mbox))
 	farm (open-farm "apps/netmon/child" cpu_total kn_call_open) sample_msg (array (elem 1 select)))
 
-(ui-tree window (create-window (+ window_flag_close window_flag_min window_flag_max)) nil
-	(ui-element _ (create-grid) ('grid_width 2 'grid_height 1 'flow_flags (logior flow_flag_down flow_flag_fillw flow_flag_lasth) 'maximum 100 'value 0)
-		(ui-element _ (create-flow) ('color argb_green)
-			(ui-element _ (create-label) ('text "Tasks" 'color argb_white))
-			(ui-element _ (create-grid) ('grid_width 4 'grid_height 1 'color argb_white
-					'font (create-font "fonts/Hack-Regular.ctf" 14))
-				(times 4 (push task_scale (ui-element _ (create-label)
-					('text "|" 'flow_flags (logior flow_flag_align_vcenter flow_flag_align_hright))))))
-			(ui-element _ (create-grid) ('grid_width 1 'grid_height cpu_total)
-				(times cpu_total (push task_bars (ui-element _ (create-progress))))))
-		(ui-element _ (create-flow) ('color argb_red)
-			(ui-element _ (create-label) ('text "Memory (kb)" 'color argb_white))
-			(ui-element _ (create-grid) ('grid_width 4 'grid_height 1 'color argb_white
-					'font (create-font "fonts/Hack-Regular.ctf" 14))
-				(times 4 (push memory_scale (ui-element _ (create-label)
-					('text "|" 'flow_flags (logior flow_flag_align_vcenter flow_flag_align_hright))))))
-			(ui-element _ (create-grid) ('grid_width 1 'grid_height cpu_total)
-				(times cpu_total (push memory_bars (ui-element _ (create-progress))))))))
+(ui-tree window (create-window) nil
+	(ui-element _ (create-flow) ('flow_flags (logior flow_flag_down flow_flag_fillw flow_flag_lasth))
+		(ui-element _ (create-flow) ('flow_flags (logior flow_flag_left flow_flag_fillh flow_flag_lastw)
+				'font (create-font "fonts/Entypo.ctf" 22) 'color title_col)
+			(ui-buttons (0xea19 0xea1b 0xea1a) (const event_win_close))
+			(ui-element _ (create-title) ('text "Network Monitor" 'font (create-font "fonts/OpenSans-Regular.ctf" 18))))
+		(ui-element _ (create-grid) ('grid_width 2 'grid_height 1 'flow_flags (logior flow_flag_down flow_flag_fillw flow_flag_lasth) 'maximum 100 'value 0)
+			(ui-element _ (create-flow) ('color argb_green)
+				(ui-element _ (create-label) ('text "Tasks" 'color argb_white))
+				(ui-element _ (create-grid) ('grid_width 4 'grid_height 1 'color argb_white
+						'font (create-font "fonts/Hack-Regular.ctf" 14))
+					(times 4 (push task_scale (ui-element _ (create-label)
+						('text "|" 'flow_flags (logior flow_flag_align_vcenter flow_flag_align_hright))))))
+				(ui-element _ (create-grid) ('grid_width 1 'grid_height cpu_total)
+					(times cpu_total (push task_bars (ui-element _ (create-progress))))))
+			(ui-element _ (create-flow) ('color argb_red)
+				(ui-element _ (create-label) ('text "Memory (kb)" 'color argb_white))
+				(ui-element _ (create-grid) ('grid_width 4 'grid_height 1 'color argb_white
+						'font (create-font "fonts/Hack-Regular.ctf" 14))
+					(times 4 (push memory_scale (ui-element _ (create-label)
+						('text "|" 'flow_flags (logior flow_flag_align_vcenter flow_flag_align_hright))))))
+				(ui-element _ (create-grid) ('grid_width 1 'grid_height cpu_total)
+					(times cpu_total (push memory_bars (ui-element _ (create-progress)))))))))
 
 (defun-bind main ()
 	;add window
-	(gui-add (apply view-change (cat (list window 320 32)
-		(view-pref-size (window-set-title (window-connect-close (window-connect-min
-			(window-connect-max window event_win_max) event_win_min) event_win_close) "Network Monitor")))))
-
+	(gui-add (apply view-change (cat (list window 320 32) (view-pref-size window))))
 	;app event loop
 	(while id
 		;new batch of samples ?

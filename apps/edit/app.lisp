@@ -6,9 +6,8 @@
 (import 'apps/login/pupa.inc)
 
 (structure 'event 0
-	(byte 'win_close 'win_min 'win_max 'win_layout 
-		'win_scroll 'new 'save 'open 'close 'prev 'next
-		'tab_sel))
+	(byte 'win_close 'win_max 'win_min)
+	(byte 'win_layout 'win_scroll 'new 'save 'open 'close 'prev 'next 'tab_sel))
 
 ;text buffer tuple
 (structure 'text 0
@@ -17,20 +16,25 @@
 (defq id t vdu_min_width 40 vdu_min_height 24 vdu_width 60 vdu_height 40 text_store (list) tmp_num 0
 	current_text (list) empty_buffer '("") home_dir (cat "apps/login/" *env_user* "/"))
 
-(ui-tree window (create-window (+ window_flag_close window_flag_min window_flag_max)) ('color argb_grey2)
+(ui-tree window (create-window) ('color argb_grey2)
 	(ui-element _ (create-flow) ('flow_flags (logior flow_flag_down flow_flag_fillw flow_flag_lasth))
-		(ui-element toolbar (create-flow) ('color toolbar_col 'flow_flags (logior flow_flag_right flow_flag_fillh flow_flag_lastw))
-			(ui-element _ (create-grid) ('grid_width 7 'grid_height  1 'font (create-font "fonts/Entypo.ctf" 32))
-				(each (lambda (c e)
-						(component-connect (ui-element _ (create-button) ('text (num-to-utf8 c))) e))
-					'(0xe9e9 0xea07 0xe9f0 0xe96f 0xe93c 0xe93d)
-					(list event_open event_save event_new event_close event_prev event_next))
-				(ui-element buf_disp (create-label) ('text "0/0" 'color toolbar_col 'font (create-font "fonts/Hack-Regular.ctf" 16))))
-			(ui-element textfield (create-textfield) ('font (create-font "fonts/Hack-Regular.ctf" 16) 'text "" 'color argb_grey13)))
-		(ui-element _ (create-flow) ('flow_flags (logior flow_flag_left flow_flag_fillh flow_flag_lastw))
-			(component-connect (ui-element slider (create-slider) ('color slider_col)) event_win_scroll)
-			(ui-element vdu (create-vdu) ('vdu_width vdu_width 'vdu_height vdu_height 'min_width vdu_width 'min_height vdu_height
-				'color argb_black 'ink_color argb_white 'font (create-font "fonts/Hack-Regular.ctf" 14))))))
+		(ui-element _ (create-flow) ('flow_flags (logior flow_flag_left flow_flag_fillh flow_flag_lastw)
+				'font (create-font "fonts/Entypo.ctf" 22) 'color title_col)
+			(ui-buttons (0xea19 0xea1b 0xea1a) (const event_win_close))
+			(ui-element window_title (create-title) ('text "Terminal" 'font (create-font "fonts/OpenSans-Regular.ctf" 18))))
+		(ui-element _ (create-flow) ('flow_flags (logior flow_flag_down flow_flag_fillw flow_flag_lasth))
+			(ui-element toolbar (create-flow) ('color toolbar_col 'flow_flags (logior flow_flag_right flow_flag_fillh flow_flag_lastw))
+				(ui-element _ (create-grid) ('grid_width 7 'grid_height  1 'font (create-font "fonts/Entypo.ctf" 32))
+					(each (lambda (c e)
+							(component-connect (ui-element _ (create-button) ('text (num-to-utf8 c))) e))
+						'(0xe9e9 0xea07 0xe9f0 0xe96f 0xe93c 0xe93d)
+						(list event_open event_save event_new event_close event_prev event_next))
+					(ui-element buf_disp (create-label) ('text "0/0" 'color toolbar_col 'font (create-font "fonts/Hack-Regular.ctf" 16))))
+				(ui-element textfield (create-textfield) ('font (create-font "fonts/Hack-Regular.ctf" 16) 'text "" 'color argb_grey13)))
+			(ui-element _ (create-flow) ('flow_flags (logior flow_flag_left flow_flag_fillh flow_flag_lastw))
+				(component-connect (ui-element slider (create-slider) ('color slider_col)) event_win_scroll)
+				(ui-element vdu (create-vdu) ('vdu_width vdu_width 'vdu_height vdu_height 'min_width vdu_width 'min_height vdu_height
+					'color argb_black 'ink_color argb_white 'font (create-font "fonts/Hack-Regular.ctf" 14)))))))
 
 (defun-bind window-resize (w h)
 	(bind '(_ path title buffer position) current_text)
@@ -55,7 +59,8 @@
 	(set vdu 'min_width vdu_min_width 'min_height vdu_min_height)
 	(view-layout textfield)
 	(view-change vdu x y w h)
-	(window-set-title window title)
+	(set window_title 'text title)
+	(view-layout window_title)
 	;set slider and textfield values
 	(def slider 'maximum (max 0 (- (length buffer) vdu_height)) 'portion vdu_height 'value oy)
 	(view-dirty-all window)
@@ -144,10 +149,7 @@
 
 ;open the window
 (gui-add (apply view-change (cat (list window 48 16)
-	(view-pref-size (window-set-title
-		(component-connect (window-connect-close (window-connect-min
-			(window-connect-max window event_win_max) event_win_min) event_win_close) event_win_layout) 
-				"")))))
+	(view-pref-size (component-connect window event_win_layout)))))
 
 ;open buffers from pupa or open new buffer
 (each open-buffer (if (= (length *env_edit_auto*) 0) '("") *env_edit_auto*))

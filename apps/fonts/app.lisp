@@ -38,17 +38,21 @@
 
 (defq id t index 0 fonts '("fonts/Entypo.ctf" "fonts/OpenSans-Regular.ctf" "fonts/Hack-Regular.ctf"))
 
-(ui-tree window (create-window window_flag_close) nil
-	(ui-element _ (create-flow) ('flow_flags (logior flow_flag_right flow_flag_fillh flow_flag_lastw)
-			'color toolbar_col 'font (create-font "fonts/Entypo.ctf" 32))
-		(ui-buttons (0xe91d 0xe91e) (const event_win_prev))
-		(ui-element fontname (create-label) ('font (create-font "fonts/OpenSans-Regular.ctf" 18) 'border -1)))
-	(ui-element symbol_scroll (create-scroll scroll_flag_vertical) ('color slider_col)))
+(ui-tree window (create-window) nil
+	(ui-element _ (create-flow) ('flow_flags (logior flow_flag_down flow_flag_fillw flow_flag_lasth))
+		(ui-element _ (create-flow) ('flow_flags (logior flow_flag_left flow_flag_fillh flow_flag_lastw)
+				'font (create-font "fonts/Entypo.ctf" 22) 'color title_col)
+			(ui-buttons (0xea19) (const event_win_close))
+			(ui-element _ (create-title) ('text "Fonts" 'font (create-font "fonts/OpenSans-Regular.ctf" 18))))
+		(ui-element _ (create-flow) ('flow_flags (logior flow_flag_right flow_flag_fillh flow_flag_lastw)
+				'color toolbar_col 'font (create-font "fonts/Entypo.ctf" 32))
+			(ui-buttons (0xe91d 0xe91e) (const event_win_prev))
+			(ui-element fontname (create-label) ('font (create-font "fonts/OpenSans-Regular.ctf" 18) 'border -1)))
+		(ui-element symbol_scroll (create-scroll scroll_flag_vertical) ('color slider_col))))
 
 (defun-bind main ()
 	(win-refresh index)
-	(gui-add (apply view-set-pos (cat (list (window-set-title
-		(window-connect-close window event_win_close) "Fonts") 200 48))))
+	(gui-add (apply view-set-pos (cat (list window 200 48))))
 	(while id
 		(cond
 			((= (setq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_win_close)

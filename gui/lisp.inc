@@ -42,11 +42,13 @@
 
 ;lisp bindings
 (ffi component-connect "gui/component/lisp_connect" 0)
+(ffi create-window "gui/window/lisp_create" 0)
 (ffi create-backdrop "gui/backdrop/lisp_create" 0)
 (ffi create-button "gui/button/lisp_create" 0)
 (ffi create-flow "gui/flow/lisp_create" 0)
 (ffi create-grid "gui/grid/lisp_create" 0)
 (ffi create-label "gui/label/lisp_create" 0)
+(ffi create-title "gui/title/lisp_create" 0)
 (ffi create-textfield "gui/textfield/lisp_create" 0)
 (ffi create-progress "gui/progress/lisp_create" 0)
 (ffi create-scroll "gui/scroll/lisp_create" 0)
@@ -62,5 +64,4 @@
 (import 'gui/view/lisp.inc)
 (import 'gui/points/lisp.inc)
 (import 'gui/canvas/lisp.inc)
-(import 'gui/window/lisp.inc)
 (import 'gui/vdu/lisp.inc)

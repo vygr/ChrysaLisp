@@ -18,14 +18,18 @@
 
 (defq vdu_width 60 vdu_height 30 buf_keys (list) buf_list (list) buf_index nil)
 
-(ui-tree window (create-window window_flag_status) ('color 0xc0000000)
-	(ui-element _ (create-flow) ('flow_flags (logior flow_flag_right flow_flag_fillh)
-			'color toolbar_col 'font (create-font "fonts/Entypo.ctf" 32))
-		(ui-buttons (0xe95e 0xe95d 0xe95c 0xe960) (const event_win_play))
-		(ui-buttons (0xe95e 0xe95d 0xe95c 0xe960) (const event_win_play_all) (const toolbar2_col)))
-	(component-connect (ui-element hslider (create-slider) ('value 0 'color slider_col)) event_win_hvalue)
-	(ui-element vdu (create-vdu) ('vdu_width vdu_width 'vdu_height vdu_height 'ink_color argb_yellow
-			'font (create-font "fonts/Hack-Regular.ctf" 16))))
+(ui-tree window (create-window) ('color 0xc0000000)
+	(ui-element _ (create-flow) ('flow_flags (logior flow_flag_down flow_flag_fillw flow_flag_lasth))
+		(ui-element _ (create-flow) ('flow_flags (logior flow_flag_left flow_flag_fillh flow_flag_lastw)
+				'font (create-font "fonts/Entypo.ctf" 22) 'color title_col)
+			(ui-element _ (create-title) ('text "Debug" 'font (create-font "fonts/OpenSans-Regular.ctf" 18))))
+		(ui-element _ (create-flow) ('flow_flags (logior flow_flag_right flow_flag_fillh)
+				'color toolbar_col 'font (create-font "fonts/Entypo.ctf" 32))
+			(ui-buttons (0xe95e 0xe95d 0xe95c 0xe960) (const event_win_play))
+			(ui-buttons (0xe95e 0xe95d 0xe95c 0xe960) (const event_win_play_all) (const toolbar2_col)))
+		(component-connect (ui-element hslider (create-slider) ('value 0 'color slider_col)) event_win_hvalue)
+		(ui-element vdu (create-vdu) ('vdu_width vdu_width 'vdu_height vdu_height 'ink_color argb_yellow
+				'font (create-font "fonts/Hack-Regular.ctf" 16)))))
 
 (defun-bind vdu-print (vdu buf s)
 	(each (lambda (c)
@@ -81,8 +85,7 @@
 				"use (debug-reg)") 0 0 0 1000)))
 	(set-slider-values))
 
-(gui-add (apply view-change (cat (list window 640 16)
-	(view-pref-size (window-set-title (window-set-status window "Ready") "Debug")))))
+(gui-add (apply view-change (cat (list window 640 16) (view-pref-size window))))
 (reset)
 
 (while t

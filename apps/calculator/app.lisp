@@ -4,17 +4,23 @@
 (import 'gui/lisp.inc)
 
 (structure 'event 0
-	(byte 'win_close 'win_min 'win_max 'win_button))
+	(byte 'win_close 'win_max 'win_min)
+	(byte 'win_button))
 
-(ui-tree window (create-window (+ window_flag_close window_flag_min window_flag_max)) nil
-	(ui-element display (create-label) ('text "0" 'color argb_white 'flow_flags flow_flag_align_hright
-		'font (create-font "fonts/OpenSans-Regular.ctf" 24)))
-	(ui-element _ (create-grid) ('grid_width 4 'grid_height 4 'color toolbar_col
-			'font (create-font "fonts/OpenSans-Regular.ctf" 42))
-		(each (lambda (text)
-			(component-connect
-				(ui-element _ (create-button) ('text (if (eql text "C") "AC" text)))
-				event_win_button)) "789/456*123-0=C+")))
+(ui-tree window (create-window) nil
+	(ui-element _ (create-flow) ('flow_flags (logior flow_flag_down flow_flag_fillw flow_flag_lasth))
+		(ui-element _ (create-flow) ('flow_flags (logior flow_flag_left flow_flag_fillh flow_flag_lastw)
+				'font (create-font "fonts/Entypo.ctf" 22) 'color title_col)
+			(ui-buttons (0xea19 0xea1b 0xea1a) (const event_win_close))
+			(ui-element _ (create-title) ('text "Calculator" 'font (create-font "fonts/OpenSans-Regular.ctf" 18))))
+		(ui-element display (create-label) ('text "0" 'color argb_white 'flow_flags flow_flag_align_hright
+			'font (create-font "fonts/OpenSans-Regular.ctf" 24)))
+		(ui-element _ (create-grid) ('grid_width 4 'grid_height 4 'color toolbar_col
+				'font (create-font "fonts/OpenSans-Regular.ctf" 42))
+			(each (lambda (text)
+				(component-connect
+					(ui-element _ (create-button) ('text (if (eql text "C") "AC" text)))
+					event_win_button)) "789/456*123-0=C+"))))
 
 (defun do_lastop ()
 	(cond
@@ -29,9 +35,7 @@
 	accum)
 
 (defun-bind main ()
-	(gui-add (apply view-change (cat (list window 920 48)
-		(view-pref-size (window-set-title (window-connect-close (window-connect-min
-			(window-connect-max window event_win_max) event_win_min) event_win_close) "Calculator")))))
+	(gui-add (apply view-change (cat (list window 920 48) (view-pref-size window))))
 	(defq id t accum 0 value 0 num 0 lastop nil)
 	(while id
 		(cond

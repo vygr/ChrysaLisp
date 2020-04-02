@@ -27,6 +27,12 @@ corrupted.
 
 ------
 
+Window component is now just a resizable panel. Soon there will be some extra
+ui tree macros to build standard window types with titles and close buttons
+with less verbose construction.
+
+------
+
 Added new font::glyph_ranges method and (font-glyph-ranges) function. Changed
 Entypo demo to be able to view all font ranges and rename to Fonts.
 

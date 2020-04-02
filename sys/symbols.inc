@@ -96,14 +96,5 @@ view_h 156
 view_w 152
 view_x 144
 view_y 148
-window_close 192
 window_col 4290822336
-window_flag_close 2
-window_flag_max 4
-window_flag_min 8
-window_flag_status 1
-window_max 208
-window_min 200
-window_status 184
-window_title 176
 )

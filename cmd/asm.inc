@@ -243,9 +243,7 @@
 		stream_mail_state_stopped stream_mail_state_stopping title_col toolbar_col
 		toolbar2_col vdu_char_height vdu_char_width view_flag_at_back
 		view_flag_dirty_all view_flag_opaque view_flag_solid
-		view_flags view_h view_w view_x view_y window_close window_col
-		window_flag_close window_flag_max window_flag_min window_flag_status window_max
-		window_min window_status window_title)
+		view_flags view_h view_w view_x view_y window_col)
 		_vals_ (within-compile-env (lambda ()
 			(each include
 				'(sys/kernel/class.inc sys/list/class.inc sys/mail/class.inc class/in/class.inc

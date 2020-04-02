@@ -312,6 +312,10 @@
 
 (create-textfield)
 
+## create-title
+
+(create-title)
+
 ## create-vdu
 
 (create-vdu)
@@ -322,7 +326,7 @@
 
 ## create-window
 
-(create-window flags)
+(create-window)
 
 ## curry
 
@@ -1223,26 +1227,6 @@
 ## while
 
 (while tst body)
-
-## window-connect-close
-
-(window-connect-close window id) -> window
-
-## window-connect-max
-
-(window-connect-max window id) -> window
-
-## window-connect-min
-
-(window-connect-min window id) -> window
-
-## window-set-status
-
-(window-set-status window txt) -> window
-
-## window-set-title
-
-(window-set-title window txt) -> window
 
 ## within-compile-env
 

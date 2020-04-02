@@ -79,19 +79,23 @@
 	(view-layout (view-add-child page_scroll page_flow))
 	(view-dirty-all (view-layout doc_flow)))
 
-(ui-tree window (create-window window_flag_close) nil
-	(ui-element doc_flow (create-flow) ('flow_flags (logior flow_flag_right flow_flag_fillh flow_flag_lastw)
-			'font (create-font "fonts/OpenSans-Regular.ctf" 18) 'color toolbar_col)
-		(ui-element index (create-flow) ('flow_flags (logior flow_flag_down flow_flag_fillw))
-			(each (lambda (path)
-				(component-connect (ui-element _ (create-button)
-					('text path 'flow_flags (logior flow_flag_align_vcenter flow_flag_align_hleft))) event_win_button)) doc_list))
-		(ui-element page_scroll (create-scroll scroll_flag_vertical) ('min_width 848 'min_height 800 'color slider_col))))
+(ui-tree window (create-window) nil
+	(ui-element _ (create-flow) ('flow_flags (logior flow_flag_down flow_flag_fillw flow_flag_lasth))
+		(ui-element _ (create-flow) ('flow_flags (logior flow_flag_left flow_flag_fillh flow_flag_lastw)
+				'font (create-font "fonts/Entypo.ctf" 22) 'color title_col)
+			(ui-buttons (0xea19) (const event_win_close))
+			(ui-element _ (create-title) ('text "Docs" 'font (create-font "fonts/OpenSans-Regular.ctf" 18))))
+		(ui-element doc_flow (create-flow) ('flow_flags (logior flow_flag_right flow_flag_fillh flow_flag_lastw)
+				'font (create-font "fonts/OpenSans-Regular.ctf" 18) 'color toolbar_col)
+			(ui-element index (create-flow) ('flow_flags (logior flow_flag_down flow_flag_fillw))
+				(each (lambda (path)
+					(component-connect (ui-element _ (create-button)
+						('text path 'flow_flags (logior flow_flag_align_vcenter flow_flag_align_hleft))) event_win_button)) doc_list))
+			(ui-element page_scroll (create-scroll scroll_flag_vertical) ('min_width 848 'min_height 800 'color slider_col)))))
 
 (defun-bind main ()
 	(populate-page (elem 0 doc_list))
-	(gui-add (apply view-change (cat (list window 280 64)
-		(view-pref-size (window-set-title (window-connect-close window event_win_close) "Docs")))))
+	(gui-add (apply view-change (cat (list window 280 64) (view-pref-size window))))
 	(while id
 		(cond
 			((= (setq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_win_close)
