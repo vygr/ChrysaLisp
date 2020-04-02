@@ -17,12 +17,12 @@
 	farm (open-farm "apps/netmon/child" cpu_total kn_call_open) sample_msg (array (elem 1 select)))
 
 (ui-tree window (create-window) nil
-	(ui-element _ (create-flow) ('flow_flags (logior flow_flag_down flow_flag_fillw flow_flag_lasth))
-		(ui-element _ (create-flow) ('flow_flags (logior flow_flag_left flow_flag_fillh flow_flag_lastw)
+	(ui-element _ (create-flow) ('flow_flags flow_down_fill)
+		(ui-element _ (create-flow) ('flow_flags flow_left_fill
 				'font (create-font "fonts/Entypo.ctf" 22) 'color title_col)
 			(ui-buttons (0xea19 0xea1b 0xea1a) (const event_win_close))
 			(ui-element _ (create-title) ('text "Network Monitor" 'font (create-font "fonts/OpenSans-Regular.ctf" 18))))
-		(ui-element _ (create-grid) ('grid_width 2 'grid_height 1 'flow_flags (logior flow_flag_down flow_flag_fillw flow_flag_lasth) 'maximum 100 'value 0)
+		(ui-element _ (create-grid) ('grid_width 2 'grid_height 1 'flow_flags flow_down_fill 'maximum 100 'value 0)
 			(ui-element _ (create-flow) ('color argb_green)
 				(ui-element _ (create-label) ('text "Tasks" 'color argb_white))
 				(ui-element _ (create-grid) ('grid_width 4 'grid_height 1 'color argb_white

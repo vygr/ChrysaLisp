@@ -17,13 +17,13 @@
 	current_text (list) empty_buffer '("") home_dir (cat "apps/login/" *env_user* "/"))
 
 (ui-tree window (create-window) ('color argb_grey2)
-	(ui-element _ (create-flow) ('flow_flags (logior flow_flag_down flow_flag_fillw flow_flag_lasth))
-		(ui-element _ (create-flow) ('flow_flags (logior flow_flag_left flow_flag_fillh flow_flag_lastw)
+	(ui-element _ (create-flow) ('flow_flags flow_down_fill)
+		(ui-element _ (create-flow) ('flow_flags flow_left_fill
 				'font (create-font "fonts/Entypo.ctf" 22) 'color title_col)
 			(ui-buttons (0xea19 0xea1b 0xea1a) (const event_win_close))
 			(ui-element window_title (create-title) ('text "Terminal" 'font (create-font "fonts/OpenSans-Regular.ctf" 18))))
-		(ui-element _ (create-flow) ('flow_flags (logior flow_flag_down flow_flag_fillw flow_flag_lasth))
-			(ui-element toolbar (create-flow) ('color toolbar_col 'flow_flags (logior flow_flag_right flow_flag_fillh flow_flag_lastw))
+		(ui-element _ (create-flow) ('flow_flags flow_down_fill)
+			(ui-element toolbar (create-flow) ('color toolbar_col 'flow_flags flow_right_fill)
 				(ui-element _ (create-grid) ('grid_width 7 'grid_height  1 'font (create-font "fonts/Entypo.ctf" 32))
 					(each (lambda (c e)
 							(component-connect (ui-element _ (create-button) ('text (num-to-utf8 c))) e))
@@ -31,7 +31,7 @@
 						(list event_open event_save event_new event_close event_prev event_next))
 					(ui-element buf_disp (create-label) ('text "0/0" 'color toolbar_col 'font (create-font "fonts/Hack-Regular.ctf" 16))))
 				(ui-element textfield (create-textfield) ('font (create-font "fonts/Hack-Regular.ctf" 16) 'text "" 'color argb_grey13)))
-			(ui-element _ (create-flow) ('flow_flags (logior flow_flag_left flow_flag_fillh flow_flag_lastw))
+			(ui-element _ (create-flow) ('flow_flags flow_left_fill)
 				(component-connect (ui-element slider (create-slider) ('color slider_col)) event_win_scroll)
 				(ui-element vdu (create-vdu) ('vdu_width vdu_width 'vdu_height vdu_height 'min_width vdu_width 'min_height vdu_height
 					'color argb_black 'ink_color argb_white 'font (create-font "fonts/Hack-Regular.ctf" 14)))))))

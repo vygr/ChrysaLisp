@@ -10,8 +10,8 @@
 (defq images '("apps/films/captive.flm" "apps/films/cradle.flm") index 0 id t)
 
 (ui-tree window (create-window) nil
-	(ui-element window_flow (create-flow) ('flow_flags (logior flow_flag_down flow_flag_fillw flow_flag_lasth))
-		(ui-element _ (create-flow) ('flow_flags (logior flow_flag_left flow_flag_fillh flow_flag_lastw)
+	(ui-element window_flow (create-flow) ('flow_flags flow_down_fill)
+		(ui-element _ (create-flow) ('flow_flags flow_left_fill
 				'font (create-font "fonts/Entypo.ctf" 22) 'color title_col)
 			(ui-buttons (0xea19) (const event_win_close))
 			(ui-element window_title (create-title) ('font (create-font "fonts/OpenSans-Regular.ctf" 18))))

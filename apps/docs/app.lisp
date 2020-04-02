@@ -27,7 +27,7 @@
 			(def (setq line_widget (create-label)) 'text (slice 1 -1 line_str)
 				'font (create-font "fonts/OpenSans-Regular.ctf" 34)))
 		((find "`" line_str)
-			(def (setq line_widget (create-flow)) 'flow_flags (logior flow_flag_right flow_flag_fillh flow_flag_lastw))
+			(def (setq line_widget (create-flow)) 'flow_flags flow_right_fill)
 			(defq word_lst (split (cat " " line_str " ") "`"))
 			(each (lambda (word)
 				(setq word_cnt (inc word_cnt))
@@ -52,7 +52,7 @@
 		((starts-with "```" line_str)
 			(setq state 'normal word_cnt 0))
 		((defq tab_pos (find (ascii-char 9) line_str))
-			(def (setq line_widget (create-flow)) 'flow_flags (logior flow_flag_right flow_flag_fillh flow_flag_lastw))
+			(def (setq line_widget (create-flow)) 'flow_flags flow_right_fill)
 			(def (defq tab_widget (create-label)) 'min_width (* (inc tab_pos) tab_width))
 			(def (defq code_widget (create-label)) 'text (slice (inc tab_pos) -1 line_str)
 				'font (create-font "fonts/Hack-Regular.ctf" 16) 'ink_color argb_blue)
@@ -80,12 +80,12 @@
 	(view-dirty-all (view-layout doc_flow)))
 
 (ui-tree window (create-window) nil
-	(ui-element _ (create-flow) ('flow_flags (logior flow_flag_down flow_flag_fillw flow_flag_lasth))
-		(ui-element _ (create-flow) ('flow_flags (logior flow_flag_left flow_flag_fillh flow_flag_lastw)
+	(ui-element _ (create-flow) ('flow_flags flow_down_fill)
+		(ui-element _ (create-flow) ('flow_flags flow_left_fill
 				'font (create-font "fonts/Entypo.ctf" 22) 'color title_col)
 			(ui-buttons (0xea19) (const event_win_close))
 			(ui-element _ (create-title) ('text "Docs" 'font (create-font "fonts/OpenSans-Regular.ctf" 18))))
-		(ui-element doc_flow (create-flow) ('flow_flags (logior flow_flag_right flow_flag_fillh flow_flag_lastw)
+		(ui-element doc_flow (create-flow) ('flow_flags flow_right_fill
 				'font (create-font "fonts/OpenSans-Regular.ctf" 18) 'color toolbar_col)
 			(ui-element index (create-flow) ('flow_flags (logior flow_flag_down flow_flag_fillw))
 				(each (lambda (path)

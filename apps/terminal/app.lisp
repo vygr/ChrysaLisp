@@ -12,12 +12,12 @@
 (defq id t cmd nil vdu_width 60 vdu_height 40 vdu_min_width 16 vdu_min_height 16 text_buf (list ""))
 
 (ui-tree window (create-window) ('color 0xc0000000)
-	(ui-element _ (create-flow) ('flow_flags (logior flow_flag_down flow_flag_fillw flow_flag_lasth))
-		(ui-element _ (create-flow) ('flow_flags (logior flow_flag_left flow_flag_fillh flow_flag_lastw)
+	(ui-element _ (create-flow) ('flow_flags flow_down_fill)
+		(ui-element _ (create-flow) ('flow_flags flow_left_fill
 				'font (create-font "fonts/Entypo.ctf" 22) 'color title_col)
 			(ui-buttons (0xea19 0xea1b 0xea1a) (const event_win_close))
 			(ui-element _ (create-title) ('text "Terminal" 'font (create-font "fonts/OpenSans-Regular.ctf" 18))))
-		(ui-element _ (create-flow) ('flow_flags (logior flow_flag_left flow_flag_fillh flow_flag_lastw))
+		(ui-element _ (create-flow) ('flow_flags flow_left_fill)
 			(component-connect (ui-element slider (create-slider) ('color slider_col)) event_win_scroll)
 			(ui-element vdu (create-vdu) ('vdu_width vdu_width 'vdu_height vdu_height 'min_width vdu_width 'min_height vdu_height
 				'ink_color argb_green 'font (create-font "fonts/Hack-Regular.ctf" 16))))))

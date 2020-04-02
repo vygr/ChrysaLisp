@@ -31,6 +31,8 @@ Window component is now just a resizable panel. Soon there will be some extra
 ui tree macros to build standard window types with titles and close buttons
 with less verbose construction.
 
+Defined some useful standard flow combinations.
+
 ------
 
 Added new font::glyph_ranges method and (font-glyph-ranges) function. Changed

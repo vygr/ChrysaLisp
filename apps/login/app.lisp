@@ -7,10 +7,10 @@
 	(byte 'win_login 'win_create))
 
 (ui-tree window (create-window) nil
-	(ui-element _ (create-flow) ('flow_flags (logior flow_flag_down flow_flag_fillw flow_flag_lasth))
-		(ui-element _ (create-flow) ('flow_flags (logior flow_flag_left flow_flag_fillh flow_flag_lastw) 'color title_col)
+	(ui-element _ (create-flow) ('flow_flags flow_down_fill)
+		(ui-element _ (create-flow) ('flow_flags flow_left_fill 'color title_col)
 			(ui-element _ (create-title) ('text "Login Manager" 'font (create-font "fonts/OpenSans-Regular.ctf" 18))))
-		(ui-element _ (create-flow) ('flow_flags (logior flow_flag_right flow_flag_fillh flow_flag_lastw))
+		(ui-element _ (create-flow) ('flow_flags flow_right_fill)
 			(ui-element _ (create-grid) ('grid_width 1 'grid_height 2)
 				(ui-element _ (create-label) ('text "Username"))
 				(ui-element _ (create-label) ('text "Password")))

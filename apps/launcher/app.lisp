@@ -8,7 +8,7 @@
 	(byte 'win_button))
 
 (ui-tree window (create-window) nil
-	(ui-element _ (create-flow) ('flow_flags (logior flow_flag_down flow_flag_fillw flow_flag_lasth))
+	(ui-element _ (create-flow) ('flow_flags flow_down_fill)
 		(ui-element _ (create-title) ('text "Launcher" 'color title_col))
 		(each (lambda (path)
 			(component-connect (ui-element _ (create-button) ('text path)) event_win_button)) *env_launcher_apps*)))

@@ -40,6 +40,11 @@
 (defmacro view-dirty-all (_)
 	`(view-set-flags ,_ view_flag_dirty_all view_flag_dirty_all))
 
+;useful flow combos
+(defq flow_down_fill (logior flow_flag_down flow_flag_fillw flow_flag_lasth)
+	flow_right_fill (logior flow_flag_right flow_flag_fillh flow_flag_lastw)
+	flow_left_fill (logior flow_flag_left flow_flag_fillh flow_flag_lastw))
+
 ;lisp bindings
 (ffi component-connect "gui/component/lisp_connect" 0)
 (ffi create-window "gui/window/lisp_create" 0)
