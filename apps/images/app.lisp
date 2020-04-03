@@ -43,7 +43,7 @@
 	(gui-add (apply view-change (cat (list window 320 256) (view-get-size (win-refresh index)))))
 	(while (cond
 		((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_win_close)
-			(setq id nil))
+			nil)
 		((= id event_win_next)
 			(win-refresh (% (inc index) (length images))))
 		((= id event_win_prev)

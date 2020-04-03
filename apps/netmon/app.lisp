@@ -70,7 +70,7 @@
 				(cond
 					((= (setq id (get-long msg ev_msg_target_id)) event_win_close)
 						;close button
-						(setq id nil))
+						nil)
 					((= id event_win_min)
 						;min button
 						(bind '(x y _ _) (view-get-bounds window))

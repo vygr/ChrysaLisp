@@ -55,7 +55,7 @@
 				(cond
 					((= (setq id (get-long msg ev_msg_target_id)) event_win_close)
 						;close button
-						(setq id nil))
+						nil)
 					(t (view-event window msg))))
 			(t	;child tile msg
 				(if (defq child (get-long msg (- (length msg) (const long_size))) next_job (pop jobs))

@@ -177,7 +177,7 @@
 		((= id event_close)
 			(cond 
 				((<= (length text_store) 1)
-					(setq id nil))
+					nil)
 				((> (length text_store) 1)
 					(setq current_text (close-buffer (tuple-get text_index current_text)))
 					(set textfield 'text (tuple-get text_path current_text))
