@@ -36,7 +36,7 @@
 	(view-add-child symbol_scroll symbol_grid)
 	(apply view-change-dirty (cat (list window) (view-get-pos window) (view-pref-size window))))
 
-(defq id t index 0 fonts '("fonts/Entypo.ctf" "fonts/OpenSans-Regular.ctf" "fonts/Hack-Regular.ctf"))
+(defq index 0 fonts '("fonts/Entypo.ctf" "fonts/OpenSans-Regular.ctf" "fonts/Hack-Regular.ctf"))
 
 (ui-tree window (create-window) nil
 	(ui-element _ (create-flow) ('flow_flags flow_down_fill)
@@ -53,14 +53,13 @@
 (defun-bind main ()
 	(win-refresh index)
 	(gui-add (apply view-set-pos (cat (list window 200 48))))
-	(while id
-		(cond
-			((= (setq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_win_close)
-				;close button
-				(setq id nil))
-			((= id event_win_next)
-				(win-refresh (% (inc index) (length fonts))))
-			((= id event_win_prev)
-				(win-refresh (% (+ (dec index) (length fonts)) (length fonts))))
-			(t (view-event window msg))))
+	(while (cond
+		((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_win_close)
+			;close button
+			nil)
+		((= id event_win_next)
+			(win-refresh (% (inc index) (length fonts))))
+		((= id event_win_prev)
+			(win-refresh (% (+ (dec index) (length fonts)) (length fonts))))
+		(t (view-event window msg))))
 	(view-hide window))

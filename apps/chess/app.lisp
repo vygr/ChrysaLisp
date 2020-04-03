@@ -10,7 +10,7 @@
 	(byte 'win_button))
 
 ;create child and send args etc
-(defq id t squares (list) next_char (ascii-code " ")
+(defq squares (list) next_char (ascii-code " ")
 	data_in (in-stream) select (array (task-mailbox) (in-mbox data_in))
 	vdu_width 38 vdu_height 12 text_buf (list ""))
 
@@ -54,25 +54,23 @@
 		(defq child_mbox (open-child "apps/chess/child.lisp" kn_call_child)))
 	(gui-add (apply view-change (cat (list window 512 128) (view-pref-size window))))
 	;main event loop
-	(while id
-		(setq id (mail-select select))
-		(cond
-			((= id 0)
-				;GUI event from main mailbox
-				(cond
-					((= (setq id (get-long (defq msg (mail-read (elem 0 select))) ev_msg_target_id)) event_win_close)
-						(setq id nil))
-					(t (view-event window msg))))
-			(t	;from child stream
-				(bind '(data next_char) (read data_in next_char))
-				(cond
-					((eql (setq id (elem 0 data)) "b")
-						(display-board (slice 1 -1 data)))
-					((eql id "c")
-						(setq text_buf (list ""))
-						(vdu-print vdu text_buf (slice 1 -1 data)))
-					((eql id "s")
-						(setq text_buf (vdu-print vdu text_buf (slice 1 -1 data))))))))
+	(while (cond
+		((= (mail-select select) 0)
+			;GUI event from main mailbox
+			(cond
+				((= (get-long (defq msg (mail-read (elem 0 select))) ev_msg_target_id) event_win_close)
+					nil)
+				(t (view-event window msg))))
+		(t	;from child stream
+			(bind '(data next_char) (read data_in next_char))
+			(cond
+				((eql (defq id (elem 0 data)) "b")
+					(display-board (slice 1 -1 data)))
+				((eql id "c")
+					(setq text_buf (list ""))
+					(vdu-print vdu text_buf (slice 1 -1 data)))
+				((eql id "s")
+					(setq text_buf (vdu-print vdu text_buf (slice 1 -1 data))))))))
 	;close child and window, wait for child stream to close
 	(mail-send "" child_mbox)
 	(view-hide window)

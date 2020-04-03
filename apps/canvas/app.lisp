@@ -6,7 +6,7 @@
 (structure 'event 0
 	(byte 'win_close))
 
-(defq canvas_width 600 canvas_height 600 canvas_scale 1 id t)
+(defq canvas_width 600 canvas_height 600 canvas_scale 1)
 
 (ui-tree window (create-window) nil
 	(ui-element _ (create-flow) ('flow_flags flow_down_fill)
@@ -22,11 +22,10 @@
 	;create child and send args
 	(mail-send (list canvas (* canvas_width 1.0) (* canvas_height 1.0) (* canvas_scale 1.0))
 		(defq mbox (open-child "apps/canvas/child.lisp" kn_call_open)))
-	(while id
-		(cond
-			((= (setq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_win_close)
-				(setq id nil))
-			(t (view-event window msg))))
+	(while (cond
+		((= (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id) event_win_close)
+			nil)
+		(t (view-event window msg))))
 	;close child and window
 	(mail-send "" mbox)
 	(view-hide window))

@@ -8,7 +8,7 @@
 (structure 'event 0
 	(byte 'win_close))
 
-(defq canvas_width 800 canvas_height 800 canvas_scale 1 id t then (time)
+(defq canvas_width 800 canvas_height 800 canvas_scale 1 then (time)
 	area (* canvas_width canvas_height canvas_scale canvas_scale)
 	farm (open-farm "apps/raymarch/child.lisp" (min (* 2 (kernel-total)) (* canvas_height canvas_scale)) kn_call_child)
 	select (array (task-mailbox) (mail-alloc-mbox))
@@ -46,7 +46,7 @@
 	;send first batch of jobs
 	(each (lambda (_) (mail-send (pop jobs) _)) farm)
 	;main event loop
-	(while id
+	(while (progn
 		;next event
 		(defq id (mail-select select) msg (mail-read (elem id select)))
 		(cond
@@ -69,7 +69,8 @@
 				(when (or (> (- (defq now (time)) then) 1000000) (= area 0))
 					;swap canvas
 					(setq then now)
-					(canvas-swap canvas)))))
+					(canvas-swap canvas))
+					t))))
 	;close
 	(view-hide window)
 	(mail-free-mbox (elem 1 select))

@@ -9,7 +9,7 @@
 (structure 'event 0
 	(byte 'win_close))
 
-(defq canvas_width 800 canvas_height 800 canvas_scale 2 id t then nil area 0 select nil
+(defq canvas_width 800 canvas_height 800 canvas_scale 2 then nil area 0 select nil
 	center_x (mbfp-from-fixed -0.5) center_y (mbfp-from-fixed 0.0) zoom (mbfp-from-fixed 1.0))
 
 (ui-tree window (create-window) nil
@@ -50,7 +50,7 @@
 	(gui-add (apply view-change (cat (list window 64 64) (view-pref-size window))))
 	(reset)
 	;main event loop
-	(while id
+	(while (progn
 		;next event
 		(defq id (mail-select select) msg (mail-read (elem id select)))
 		(cond
@@ -59,7 +59,7 @@
 				(cond
 					((= (setq id (get-long msg ev_msg_target_id)) event_win_close)
 						;close button
-						(setq id nil))
+						nil)
 					((and (= id (component-get-id canvas))
 							(= (get-long msg ev_msg_type) ev_type_mouse)
 							(/= (get-int msg ev_msg_mouse_buttons) 0))
@@ -76,8 +76,9 @@
 			(t	;child tile msg
 				(setq area (- area (tile canvas msg)))
 				(when (or (> (- (defq now (time)) then) 1000000) (= area 0))
-					(setq then now)
-					(canvas-swap canvas)))))
+					(canvas-swap canvas)
+					(setq then now))
+					t))))
 	;close
 	(view-hide window)
 	(mail-free-mbox (elem 1 select)))

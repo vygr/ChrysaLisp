@@ -9,7 +9,7 @@
 	(byte 'win_close 'win_max 'win_min)
 	(byte 'win_layout 'win_scroll))
 
-(defq id t cmd nil vdu_width 60 vdu_height 40 vdu_min_width 16 vdu_min_height 16 text_buf (list ""))
+(defq cmd nil vdu_width 60 vdu_height 40 vdu_min_width 16 vdu_min_height 16 text_buf (list ""))
 
 (ui-tree window (create-window) ('color 0xc0000000)
 	(ui-element _ (create-flow) ('flow_flags flow_down_fill)
@@ -121,15 +121,15 @@
 	(print (str "ChrysaLisp Terminal 1.6" (ascii-char 10)))
 	(print-edit-line)
 	;main event loop
-	(while id
+	(while (progn
 		(defq data t)
 		(if cmd (setq data (pipe-read cmd)))
 		(cond
 			((eql data t)
 				;normal mailbox event
 				(cond
-					((= (setq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_win_close)
-						(setq id nil))
+					((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_win_close)
+						nil)
 					((= id event_win_layout)
 						;user window resize
 						(apply window-layout (vdu-max-size vdu)))
@@ -148,7 +148,8 @@
 						(view-event window msg)
 						(and (= (get-long msg ev_msg_type) ev_type_key)
 							(> (get-int msg ev_msg_key_keycode) 0)
-							(terminal-input (get-int msg ev_msg_key_key))))))
+							(terminal-input (get-int msg ev_msg_key_key)))
+						t)))
 			((eql data nil)
 				;pipe is closed
 				(pipe-close cmd)
@@ -156,7 +157,7 @@
 				(print (cat (ascii-char 10) *env_terminal_prompt* *line_buf*))
 				(view-dirty-all window))
 			(t	;string from pipe
-				(print data))))
+				(print data)))))
 	;close window and pipe
 	(view-hide window)
 	(if cmd (pipe-close cmd)))

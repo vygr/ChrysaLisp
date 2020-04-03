@@ -29,15 +29,13 @@
 (defun-bind get-username ()
 	(if (eql (defq user (get username 'text)) "") "Guest" user))
 
-;add centered, wait a little for GUI to get going...
-(task-sleep 10000)
-(gui-add window)
-(position-window)
-
-(defq id t)
-(while id
-	(cond
-		((and (< (setq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) 0)
+(defun-bind main ()
+	;add centered, wait a little for GUI to get going...
+	(task-sleep 10000)
+	(gui-add window)
+	(position-window)
+	(while (cond
+		((and (< (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) 0)
 			(= (get-long msg ev_msg_type) ev_type_gui))
 			;resized GUI
 			(position-window))
@@ -47,7 +45,7 @@
 				;login user
 				(save user "apps/login/current")
 				(open-child "apps/launcher/app.lisp" kn_call_open)
-				(setq id nil)))
+				nil))
 		((= id event_win_create)
 			;create button
 			(when (and (/= (age "apps/login/Guest/pupa.inc") 0)
@@ -57,7 +55,6 @@
 				;login new user
 				(save user "apps/login/current")
 				(open-child "apps/launcher/app.lisp" kn_call_open)
-				(setq id nil)))
+				nil))
 		(t (view-event window msg))))
-
-(view-hide window)
+	(view-hide window))

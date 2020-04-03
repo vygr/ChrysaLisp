@@ -6,7 +6,7 @@
 (structure 'event 0
 	(byte 'win_close 'win_button))
 
-(defq id t space_width 8 tab_width (* space_width 4) margin_width (* space_width 3)
+(defq space_width 8 tab_width (* space_width 4) margin_width (* space_width 3)
 	doc_list '("VM" "ASSIGNMENT" "STRUCTURE" "COMMS" "FUNCTIONS"
 	"LISP" "SYNTAX" "CLASSES" "INTRO" "TAOS" "TODO"))
 
@@ -96,11 +96,10 @@
 (defun-bind main ()
 	(populate-page (elem 0 doc_list))
 	(gui-add (apply view-change (cat (list window 280 64) (view-pref-size window))))
-	(while id
-		(cond
-			((= (setq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_win_close)
-				(setq id nil))
-			((= id event_win_button)
-				(populate-page (get (view-find-id window (get-long msg ev_msg_action_source_id)) 'text)))
-			(t (view-event window msg))))
+	(while (cond
+		((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_win_close)
+			nil)
+		((= id event_win_button)
+			(populate-page (get (view-find-id window (get-long msg ev_msg_action_source_id)) 'text)))
+		(t (view-event window msg))))
 	(view-hide window))

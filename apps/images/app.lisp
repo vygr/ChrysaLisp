@@ -14,7 +14,7 @@
 	"apps/images/mice.cpm" "apps/images/molecule.cpm" "apps/images/nippon3.cpm"
 	"apps/images/piramid.cpm" "apps/images/rings.cpm" "apps/images/sharpend.cpm"
 	"apps/images/stairs.cpm" "apps/images/temple.cpm" "apps/images/vermin.cpm")
-	index 0 id t)
+	index 0)
 
 (ui-tree window (create-window) nil
 	(ui-element window_flow (create-flow) ('flow_flags flow_down_fill)
@@ -41,13 +41,12 @@
 
 (defun-bind main ()
 	(gui-add (apply view-change (cat (list window 320 256) (view-get-size (win-refresh index)))))
-	(while id
-		(cond
-			((= (setq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_win_close)
-				(setq id nil))
-			((= id event_win_next)
-				(win-refresh (% (inc index) (length images))))
-			((= id event_win_prev)
-				(win-refresh (% (+ (dec index) (length images)) (length images))))
-			(t (view-event window msg))))
+	(while (cond
+		((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_win_close)
+			(setq id nil))
+		((= id event_win_next)
+			(win-refresh (% (inc index) (length images))))
+		((= id event_win_prev)
+			(win-refresh (% (+ (dec index) (length images)) (length images))))
+		(t (view-event window msg))))
 	(view-hide window))

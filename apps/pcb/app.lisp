@@ -9,9 +9,8 @@
 	(byte 'win_prev 'win_next 'win_scale_down 'win_scale_up 'win_mode_normal 'win_mode_gerber)
 	(byte 'win_show_all 'win_show_1 'win_show_2 'win_show_3 'win_show_4))
 
-(defq pcbs '("apps/pcb/test1.pcb" "apps/pcb/test2.pcb" "apps/pcb/test3.pcb")
-	index 1 id t canvas_scale 1 mode 0 show -1 max_zoom 15 min_zoom 5
-	zoom (/ (+ min_zoom max_zoom) 2) eps 0.25)
+(defq pcbs '("apps/pcb/test1.pcb" "apps/pcb/test2.pcb" "apps/pcb/test3.pcb") index 1 canvas_scale 1
+	mode 0 show -1 max_zoom 15 min_zoom 5 zoom (/ (+ min_zoom max_zoom) 2) eps 0.25)
 
 (ui-tree window (create-window) nil
 	(ui-element _ (create-flow) ('flow_flags flow_down_fill)
@@ -184,25 +183,24 @@
 
 (defun-bind main ()
 	(gui-add (apply view-change (cat (list window 64 256) (view-pref-size (win-refresh index)))))
-	(while id
-		(cond
-			((= (setq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_win_close)
-				(setq id nil))
-			((= id event_win_next)
-				(win-refresh (% (inc index) (length pcbs))))
-			((= id event_win_prev)
-				(win-refresh (% (+ (dec index) (length pcbs)) (length pcbs))))
-			((= id event_win_scale_down)
-				(setq zoom (max min_zoom (dec zoom)))
-				(win-refresh index))
-			((= id event_win_scale_up)
-				(setq zoom (min max_zoom (inc zoom)))
-				(win-refresh index))
-			((<= event_win_show_all id event_win_show_4)
-				(setq show (- id event_win_show_all 1))
-				(win-refresh index))
-			((<= event_win_mode_normal id event_win_mode_gerber)
-				(setq mode (- id event_win_mode_normal))
-				(win-refresh index))
-			(t (view-event window msg))))
+	(while (cond
+		((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_win_close)
+			nil)
+		((= id event_win_next)
+			(win-refresh (% (inc index) (length pcbs))))
+		((= id event_win_prev)
+			(win-refresh (% (+ (dec index) (length pcbs)) (length pcbs))))
+		((= id event_win_scale_down)
+			(setq zoom (max min_zoom (dec zoom)))
+			(win-refresh index))
+		((= id event_win_scale_up)
+			(setq zoom (min max_zoom (inc zoom)))
+			(win-refresh index))
+		((<= event_win_show_all id event_win_show_4)
+			(setq show (- id event_win_show_all 1))
+			(win-refresh index))
+		((<= event_win_mode_normal id event_win_mode_gerber)
+			(setq mode (- id event_win_mode_normal))
+			(win-refresh index))
+		(t (view-event window msg))))
 	(view-hide window))

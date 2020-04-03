@@ -7,7 +7,7 @@
 	(byte 'win_close))
 
 (defq stat_data (list) stat_scale (list) cpu_total (kernel-total) frame_cnt 0
-	cpu_count cpu_total id t max_stats 1 last_max_stats 0
+	cpu_count cpu_total max_stats 1 last_max_stats 0
 	farm (open-farm "apps/stats/child.lisp" cpu_total kn_call_open) last_max_classes 0 max_classes 1
 	select (array (task-mailbox) (mail-alloc-mbox)) sample_msg (array (elem 1 select)))
 
@@ -33,7 +33,7 @@
 				(ui-element stat_view (create-view))))))
 
 (defun-bind main ()
-	(while id
+	(while (progn
 		;new batch of samples ?
 		(when (= cpu_count cpu_total)
 			;set scales
@@ -80,7 +80,7 @@
 				(cond
 					((= (setq id (get-long msg ev_msg_target_id)) event_win_close)
 						;close button
-						(setq id nil))
+						nil)
 					(t (view-event window msg))))
 			(t	;child info, merge with current frames information
 				(bind '(data _) (read (string-stream msg) (ascii-code " ")))
@@ -96,8 +96,7 @@
 							(setq max_stats (max max_stats stat))))) data)
 				;count up replies
 				(task-sleep 10000)
-				(setq cpu_count (inc cpu_count)))))
-
+				(setq cpu_count (inc cpu_count))))))
 	;close window and children
 	(view-hide window)
 	(mail-free-mbox (elem 1 select))

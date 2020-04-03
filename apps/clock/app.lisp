@@ -4,7 +4,7 @@
 (import 'gui/lisp.inc)
 
 ;add event id etc
-(defq clock_size 256 clock_scale 1 id t)
+(defq clock_size 256 clock_scale 1)
 
 ;define events we will use
 (structure 'event 0
@@ -30,11 +30,10 @@
 	(mail-send (list display clock (* clock_size 1.0) (* clock_scale 1.0))
 		(defq mbox (open-child "apps/clock/child.lisp" kn_call_open)))
 	;main app loop
-	(while id
-		(cond
-			((= (setq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_win_close)
-				(setq id nil))
-			(t (view-event window msg))))
+	(while (cond
+		((= (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id) event_win_close)
+			nil)
+		(t (view-event window msg))))
 	;close child and window
 	(mail-send "" mbox)
 	(view-hide window))

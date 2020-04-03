@@ -12,7 +12,7 @@
 	(byte 'win_close 'win_max 'win_min))
 
 (defq task_bars (list) memory_bars (list) task_scale (list) memory_scale (list)
-	cpu_total (kernel-total) cpu_count cpu_total id t
+	cpu_total (kernel-total) cpu_count cpu_total
 	max_tasks 1 max_memory 1 last_max_tasks 0 last_max_memory 0 select (array (task-mailbox) (mail-alloc-mbox))
 	farm (open-farm "apps/netmon/child" cpu_total kn_call_open) sample_msg (array (elem 1 select)))
 
@@ -44,7 +44,7 @@
 	;add window
 	(gui-add (apply view-change (cat (list window 320 32) (view-pref-size window))))
 	;app event loop
-	(while id
+	(while (progn
 		;new batch of samples ?
 		(when (= cpu_count cpu_total)
 			;set scales
@@ -91,8 +91,7 @@
 				(def task_bar 'maximum last_max_tasks 'value task_val)
 				(def memory_bar 'maximum last_max_memory 'value memory_val)
 				;count up replies
-				(setq cpu_count (inc cpu_count)))))
-
+				(setq cpu_count (inc cpu_count))))))
 	;close window and children
 	(view-hide window)
 	(mail-free-mbox (elem 1 select))

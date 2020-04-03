@@ -6,7 +6,7 @@
 (structure 'event 0
 	(byte 'win_close 'win_button))
 
-(defq id t keys (list) vals (list) vdu_height 40 text_buf (list ""))
+(defq keys (list) vals (list) vdu_height 40 text_buf (list ""))
 
 (defun-bind populate-help ()
 	(defq state t vdu_width 1 k (list) v (list))
@@ -63,18 +63,17 @@
 	(bind '(w h) (view-pref-size index))
 	(view-change index 0 0 (def index_scroll 'min_width w) h)
 	(gui-add (apply view-change (cat (list window 32 32) (view-pref-size window))))
-	(while id
-		(cond
-			((= (setq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_win_close)
-				(setq id nil))
-			((= id event_win_button)
-				(defq _ (find (sym (get (view-find-id window (get-long msg ev_msg_action_source_id)) 'text)) keys))
-				(when _
-					(setq text_buf (vdu-print vdu text_buf (str
-						"----------------------" (ascii-char 10)
-						(elem _ keys) (ascii-char 10)
-						"----------------------" (ascii-char 10)
-						(elem _ vals)
-						"----------------------" (ascii-char 10) (ascii-char 10))))))
-			(t (view-event window msg))))
+	(while (cond
+		((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_win_close)
+			nil)
+		((= id event_win_button)
+			(defq _ (find (sym (get (view-find-id window (get-long msg ev_msg_action_source_id)) 'text)) keys))
+			(when _
+				(setq text_buf (vdu-print vdu text_buf (str
+					"----------------------" (ascii-char 10)
+					(elem _ keys) (ascii-char 10)
+					"----------------------" (ascii-char 10)
+					(elem _ vals)
+					"----------------------" (ascii-char 10) (ascii-char 10))))))
+		(t (view-event window msg))))
 	(view-hide window))

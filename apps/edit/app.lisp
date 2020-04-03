@@ -13,7 +13,7 @@
 (structure 'text 0
 	(byte 'index 'path 'title 'buffer 'position))
  
-(defq id t vdu_min_width 40 vdu_min_height 24 vdu_width 60 vdu_height 40 text_store (list) tmp_num 0
+(defq vdu_min_width 40 vdu_min_height 24 vdu_width 60 vdu_height 40 text_store (list) tmp_num 0
 	current_text (list) empty_buffer '("") home_dir (cat "apps/login/" *env_user* "/"))
 
 (ui-tree window (create-window) ('color argb_grey2)
@@ -147,21 +147,19 @@
 	(vdu-load vdu buffer ox oy cx cy)
 	(view-dirty slider))
 
-;open the window
-(gui-add (apply view-change (cat (list window 48 16)
-	(view-pref-size (component-connect window event_win_layout)))))
-
-;open buffers from pupa or open new buffer
-(each open-buffer (if (= (length *env_edit_auto*) 0) '("") *env_edit_auto*))
-(setq current_text (elem 0 text_store))
-(set textfield 'text (tuple-get text_path current_text))
-(window-layout vdu_width vdu_height)
-
-;main loop
-(while id
-	(cond
-		((= (setq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_win_close)
-			(setq id nil))
+(defun-bind main ()
+	;open the window
+	(gui-add (apply view-change (cat (list window 48 16)
+		(view-pref-size (component-connect window event_win_layout)))))
+	;open buffers from pupa or open new buffer
+	(each open-buffer (if (= (length *env_edit_auto*) 0) '("") *env_edit_auto*))
+	(setq current_text (elem 0 text_store))
+	(set textfield 'text (tuple-get text_path current_text))
+	(window-layout vdu_width vdu_height)
+	;main loop
+	(while (cond
+		((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_win_close)
+			nil)
 		((= id event_new)
 			(setq current_text (open-buffer ""))
 			(set textfield 'text "")
@@ -220,7 +218,5 @@
 						mouse_xy (list rx ry))
 					(mouse-cursor mouse_xy)))
 			(window-layout vdu_width vdu_height))
-		(t 
-			(view-event window msg))))
-
-(view-hide window)
+		(t	(view-event window msg))))
+	(view-hide window))
