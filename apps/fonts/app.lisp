@@ -38,7 +38,7 @@
 
 (defq index 0 fonts '("fonts/Entypo.ctf" "fonts/OpenSans-Regular.ctf" "fonts/Hack-Regular.ctf"))
 
-(ui-tree window (create-window) nil
+(ui-window window ()
 	(ui-element _ (create-flow) ('flow_flags flow_down_fill)
 		(ui-element _ (create-flow) ('flow_flags flow_left_fill
 				'font (create-font "fonts/Entypo.ctf" 22) 'color title_col)

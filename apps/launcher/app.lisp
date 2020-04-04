@@ -7,7 +7,7 @@
 (structure 'event 0
 	(byte 'win_button))
 
-(ui-tree window (create-window) nil
+(ui-window window ()
 	(ui-element _ (create-flow) ('flow_flags flow_down_fill)
 		(ui-element _ (create-title) ('text "Launcher" 'color title_col))
 		(each (lambda (path)

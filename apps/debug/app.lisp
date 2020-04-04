@@ -18,7 +18,7 @@
 
 (defq vdu_width 60 vdu_height 30 buf_keys (list) buf_list (list) buf_index nil)
 
-(ui-tree window (create-window) ('color 0xc0000000)
+(ui-window window ('color 0xc0000000)
 	(ui-element _ (create-flow) ('flow_flags flow_down_fill)
 		(ui-element _ (create-flow) ('flow_flags flow_left_fill
 				'font (create-font "fonts/Entypo.ctf" 22) 'color title_col)

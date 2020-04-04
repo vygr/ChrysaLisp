@@ -21,29 +21,19 @@
 	;trashes
 	;r1-r14
 
-	(ptr 'this)
-
-	(push-scope)
 	(entry 'window 'init '(r0 r1))
 
 	;init parent
 	(s-call 'window 'init '(r0 r1) '(r0 r1))
 	(vpif '(r1 /= 0))
 		;init myself
-		(assign '(r0) {this})
-		(call 'window 'set_font_prop '(r0 static_sym_font "fonts/OpenSans-Regular.ctf" 18) '(r0))
-		(call 'window 'set_long_prop '(r0 static_sym_ink_color argb_black) '(r0))
-		(call 'window 'set_long_prop '(r0 static_sym_color window_col) '(r0))
-		(call 'window 'set_long_prop '(r0 static_sym_border 5) '(r0))
-		(call 'window 'set_long_prop '(r0 static_sym_min_width 0) '(r0))
-		(call 'window 'set_long_prop '(r0 static_sym_min_height 0) '(r0))
-		(call 'sys_mem 'fill '((& r0 window_start) (- window_size window_start) 0))
-		(assign {this, 1} '(r0 r1))
+		(vp-xor-rr r2 r2)
+		(assign '(r2 r2 r2 r2)
+			'((r0 window_offset_x) (r0 window_offset_y) (r0 window_drag_mode) (r0 window_child)))
 	(endif)
 
 	(exit 'window 'init '(r0 r1))
-	(pop-scope)
-	(return)
+	(vp-ret)
 
 (def-func-end)
 

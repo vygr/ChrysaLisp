@@ -45,7 +45,7 @@
 				(elem-set -2 buf (cat (elem -2 buf) c))))) s)
 	(vdu-load vdu buf 0 0 (length (elem -2 buf)) (dec (length buf))) buf)
 
-(ui-tree window (create-window) ('color argb_black)
+(ui-window window ('color argb_black)
 	(ui-element _ (create-flow) ('flow_flags flow_down_fill)
 		(ui-element _ (create-flow) ('flow_flags flow_left_fill
 				'font (create-font "fonts/Entypo.ctf" 22) 'color title_col)

@@ -6,7 +6,7 @@
 (structure 'event 0
 	(byte 'win_login 'win_create))
 
-(ui-tree window (create-window) nil
+(ui-window window ()
 	(ui-element _ (create-flow) ('flow_flags flow_down_fill)
 		(ui-element _ (create-flow) ('flow_flags flow_left_fill 'color title_col)
 			(ui-element _ (create-title) ('text "Login Manager" 'font (create-font "fonts/OpenSans-Regular.ctf" 18))))

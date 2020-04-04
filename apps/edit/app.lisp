@@ -16,7 +16,7 @@
 (defq vdu_min_width 40 vdu_min_height 24 vdu_width 60 vdu_height 40 text_store (list) tmp_num 0
 	current_text (list) empty_buffer '("") home_dir (cat "apps/login/" *env_user* "/"))
 
-(ui-tree window (create-window) ('color argb_grey2)
+(ui-window window ('color argb_grey2)
 	(ui-element _ (create-flow) ('flow_flags flow_down_fill)
 		(ui-element _ (create-flow) ('flow_flags flow_left_fill
 				'font (create-font "fonts/Entypo.ctf" 22) 'color title_col)

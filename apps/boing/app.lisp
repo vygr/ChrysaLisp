@@ -10,7 +10,7 @@
 	frames (map (lambda (_) (canvas-load (cat "apps/boing/taoball_" (str _) ".cpm") load_flag_shared)) (range 1 12))
 	sframes (map (lambda (_) (canvas-load (cat "apps/boing/taoball_s_" (str _) ".cpm") load_flag_shared)) (range 1 12)))
 
-(ui-tree window (create-window) nil
+(ui-window window ()
 	(ui-element _ (create-flow) ('flow_flags flow_down_fill)
 		(ui-element _ (create-flow) ('flow_flags flow_left_fill
 				'font (create-font "fonts/Entypo.ctf" 22) 'color title_col)

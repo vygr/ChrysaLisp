@@ -24,6 +24,11 @@
 			(view-add-child (elem -3 (push _ui (defq ,n ,c))) ,n)
 			~x (pop _ui))))
 
+(defmacro ui-window (n p &rest x)
+	(setq p (cat '('font (create-font "fonts/OpenSans-Regular.ctf" 18) 'ink_color argb_black
+		'color window_col 'border 5 'min_width 0 'min_height 0) p))
+	(cat (list 'ui-tree n '(create-window) p) x))
+
 (defmacro ui-buttons (s e &optional c f)
 	(setq s (map (lambda (_) (if (num? _) (num-to-utf8 _) _)) s))
 	(cond

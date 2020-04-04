@@ -19,7 +19,6 @@
 (def-bit-end)
 
 (def-struct 'window 'view)
-	(offset 'start)
 	(int 'offset_x 'offset_y)
 	(uint 'drag_mode)
 	(ptr 'child)

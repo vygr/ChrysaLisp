@@ -16,7 +16,7 @@
 	max_tasks 1 max_memory 1 last_max_tasks 0 last_max_memory 0 select (array (task-mailbox) (mail-alloc-mbox))
 	farm (open-farm "apps/netmon/child" cpu_total kn_call_open) sample_msg (array (elem 1 select)))
 
-(ui-tree window (create-window) nil
+(ui-window window ()
 	(ui-element _ (create-flow) ('flow_flags flow_down_fill)
 		(ui-element _ (create-flow) ('flow_flags flow_left_fill
 				'font (create-font "fonts/Entypo.ctf" 22) 'color title_col)

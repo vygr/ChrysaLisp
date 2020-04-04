@@ -16,7 +16,7 @@
 	"apps/images/stairs.cpm" "apps/images/temple.cpm" "apps/images/vermin.cpm")
 	index 0)
 
-(ui-tree window (create-window) nil
+(ui-window window ()
 	(ui-element window_flow (create-flow) ('flow_flags flow_down_fill)
 		(ui-element _ (create-flow) ('flow_flags flow_left_fill
 				'font (create-font "fonts/Entypo.ctf" 22) 'color title_col)

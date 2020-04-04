@@ -12,7 +12,7 @@
 (defq pcbs '("apps/pcb/test1.pcb" "apps/pcb/test2.pcb" "apps/pcb/test3.pcb") index 1 canvas_scale 1
 	mode 0 show -1 max_zoom 15 min_zoom 5 zoom (/ (+ min_zoom max_zoom) 2) eps 0.25)
 
-(ui-tree window (create-window) nil
+(ui-window window ()
 	(ui-element _ (create-flow) ('flow_flags flow_down_fill)
 		(ui-element _ (create-flow) ('flow_flags flow_left_fill
 				'font (create-font "fonts/Entypo.ctf" 22) 'color title_col)
