@@ -10,7 +10,7 @@
 (defq images '("apps/films/captive.flm" "apps/films/cradle.flm") index 0 id t)
 
 (ui-window window ()
-	(ui-element window_flow (create-flow) ('flow_flags flow_down_fill)
+	(ui-flow window_flow ('flow_flags flow_down_fill)
 		(ui-flow _ ('flow_flags flow_left_fill
 				'font (create-font "fonts/Entypo.ctf" 22) 'color title_col)
 			(ui-buttons (0xea19) (const event_win_close))

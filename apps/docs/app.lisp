@@ -66,7 +66,7 @@
 	(ui-tree page_flow (create-flow) ('flow_flags (logior flow_flag_right flow_flag_fillh)
 			'font (create-font "fonts/OpenSans-Regular.ctf" 18) 'color argb_white)
 		(ui-label _ ('min_width margin_width))
-		(ui-element page_widget (create-flow) ('flow_flags (logior flow_flag_down flow_flag_fillw)))
+		(ui-flow page_widget ('flow_flags (logior flow_flag_down flow_flag_fillw)))
 		(ui-label _ ('min_width margin_width)))
 	(defq state 'normal word_cnt 0)
 	(each-line (lambda (line_str)
@@ -81,13 +81,12 @@
 
 (ui-window window ()
 	(ui-flow _ ('flow_flags flow_down_fill)
-		(ui-flow _ ('flow_flags flow_left_fill
-				'font (create-font "fonts/Entypo.ctf" 22) 'color title_col)
+		(ui-flow _ ('flow_flags flow_left_fill 'font (create-font "fonts/Entypo.ctf" 22) 'color title_col)
 			(ui-buttons (0xea19) (const event_win_close))
 			(ui-title _ ('text "Docs" 'font (create-font "fonts/OpenSans-Regular.ctf" 18))))
-		(ui-element doc_flow (create-flow) ('flow_flags flow_right_fill
+		(ui-flow doc_flow ('flow_flags flow_right_fill
 				'font (create-font "fonts/OpenSans-Regular.ctf" 18) 'color toolbar_col)
-			(ui-element index (create-flow) ('flow_flags (logior flow_flag_down flow_flag_fillw))
+			(ui-flow index ('flow_flags (logior flow_flag_down flow_flag_fillw))
 				(each (lambda (path)
 					(component-connect (ui-button _
 						('text path 'flow_flags (logior flow_flag_align_vcenter flow_flag_align_hleft))) event_win_button)) doc_list))

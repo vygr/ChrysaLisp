@@ -20,11 +20,9 @@
 
 (ui-window window ('color 0xc0000000)
 	(ui-flow _ ('flow_flags flow_down_fill)
-		(ui-flow _ ('flow_flags flow_left_fill
-				'font (create-font "fonts/Entypo.ctf" 22) 'color title_col)
+		(ui-flow _ ('flow_flags flow_left_fill 'font (create-font "fonts/Entypo.ctf" 22) 'color title_col)
 			(ui-title _ ('text "Debug" 'font (create-font "fonts/OpenSans-Regular.ctf" 18))))
-		(ui-flow _ ('flow_flags (logior flow_flag_right flow_flag_fillh)
-				'color toolbar_col 'font (create-font "fonts/Entypo.ctf" 32))
+		(ui-flow _ ('flow_flags (logior flow_flag_right flow_flag_fillh) 'color toolbar_col 'font (create-font "fonts/Entypo.ctf" 32))
 			(ui-buttons (0xe95e 0xe95d 0xe95c 0xe960) (const event_win_play))
 			(ui-buttons (0xe95e 0xe95d 0xe95c 0xe960) (const event_win_play_all) (const toolbar2_col)))
 		(component-connect (ui-slider hslider ('value 0 'color slider_col)) event_win_hvalue)

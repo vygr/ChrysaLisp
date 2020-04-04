@@ -23,7 +23,7 @@
 			(ui-buttons (0xea19 0xea1b 0xea1a) (const event_win_close))
 			(ui-title window_title ('text "Edit" 'font (create-font "fonts/OpenSans-Regular.ctf" 18))))
 		(ui-flow _ ('flow_flags flow_down_fill)
-			(ui-element toolbar (create-flow) ('color toolbar_col 'flow_flags flow_right_fill)
+			(ui-flow toolbar ('color toolbar_col 'flow_flags flow_right_fill)
 				(ui-grid _ ('grid_width 7 'grid_height  1 'font (create-font "fonts/Entypo.ctf" 32))
 					(each (lambda (c e)
 							(component-connect (ui-button _ ('text (num-to-utf8 c))) e))
