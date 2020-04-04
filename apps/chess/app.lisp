@@ -14,7 +14,7 @@
 	data_in (in-stream) select (array (task-mailbox) (in-mbox data_in))
 	vdu_width 38 vdu_height 12 text_buf (list ""))
 
-(ui-tree window (create-window ) ('color argb_black)
+(ui-window window ('color argb_black)
 	(ui-element _ (create-flow) ('flow_flags flow_down_fill)
 		(ui-element _ (create-flow) ('flow_flags flow_left_fill
 				'font (create-font "fonts/Entypo.ctf" 22) 'color title_col)
