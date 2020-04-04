@@ -13,12 +13,12 @@
 	mode 0 show -1 max_zoom 15 min_zoom 5 zoom (/ (+ min_zoom max_zoom) 2) eps 0.25)
 
 (ui-window window ()
-	(ui-element _ (create-flow) ('flow_flags flow_down_fill)
-		(ui-element _ (create-flow) ('flow_flags flow_left_fill
+	(ui-flow _ ('flow_flags flow_down_fill)
+		(ui-flow _ ('flow_flags flow_left_fill
 				'font (create-font "fonts/Entypo.ctf" 22) 'color title_col)
 			(ui-buttons (0xea19) (const event_win_close))
-			(ui-element window_title (create-title) ('font (create-font "fonts/OpenSans-Regular.ctf" 18))))
-		(ui-element _ (create-flow) ('flow_flags (logior flow_flag_right flow_flag_fillh)
+			(ui-title window_title ('font (create-font "fonts/OpenSans-Regular.ctf" 18))))
+		(ui-flow _ ('flow_flags (logior flow_flag_right flow_flag_fillh)
 				'color toolbar_col 'font (create-font "fonts/Entypo.ctf" 32))
 			(ui-buttons (0xe91d 0xe91e 0xea00 0xea01 0xe9ac 0xe9ad) (const event_win_prev))
 			(ui-buttons ("0" "1" "2" "3" "4") (const event_win_show_all)

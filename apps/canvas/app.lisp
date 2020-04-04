@@ -9,12 +9,12 @@
 (defq canvas_width 600 canvas_height 600 canvas_scale 1)
 
 (ui-window window ()
-	(ui-element _ (create-flow) ('flow_flags flow_down_fill)
-		(ui-element _ (create-flow) ('flow_flags flow_left_fill
+	(ui-flow _ ('flow_flags flow_down_fill)
+		(ui-flow _ ('flow_flags flow_left_fill
 				'font (create-font "fonts/Entypo.ctf" 22) 'color title_col)
 			(ui-buttons (0xea19) (const event_win_close))
-			(ui-element _ (create-title) ('text "Canvas" 'font (create-font "fonts/OpenSans-Regular.ctf" 18))))
-		(ui-element canvas (create-canvas canvas_width canvas_height canvas_scale))))
+			(ui-title _ ('text "Canvas" 'font (create-font "fonts/OpenSans-Regular.ctf" 18))))
+		(ui-canvas canvas canvas_width canvas_height canvas_scale)))
 
 (defun-bind main ()
 	(canvas-set-flags (canvas-fill canvas 0) 1)

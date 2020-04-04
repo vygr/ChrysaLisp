@@ -46,17 +46,17 @@
 	(vdu-load vdu buf 0 0 (length (elem -2 buf)) (dec (length buf))) buf)
 
 (ui-window window ('color argb_black)
-	(ui-element _ (create-flow) ('flow_flags flow_down_fill)
-		(ui-element _ (create-flow) ('flow_flags flow_left_fill
+	(ui-flow _ ('flow_flags flow_down_fill)
+		(ui-flow _ ('flow_flags flow_left_fill
 				'font (create-font "fonts/Entypo.ctf" 22) 'color title_col)
 			(ui-buttons (0xea19) (const event_win_close))
-			(ui-element _ (create-title) ('text "Help" 'font (create-font "fonts/OpenSans-Regular.ctf" 18))))
-		(ui-element _ (create-flow) ('flow_flags flow_right_fill
+			(ui-title _ ('text "Help" 'font (create-font "fonts/OpenSans-Regular.ctf" 18))))
+		(ui-flow _ ('flow_flags flow_right_fill
 			'font (create-font "fonts/Hack-Regular.ctf" 16))
 			(ui-element index_scroll (create-scroll scroll_flag_vertical) ('color slider_col)
 				(ui-element index (create-flow) ('flow_flags (logior flow_flag_down flow_flag_fillw)
 					'color argb_white)))
-			(ui-element vdu (create-vdu) ('vdu_height vdu_height 'ink_color argb_cyan)))))
+			(ui-vdu vdu ('vdu_height vdu_height 'ink_color argb_cyan)))))
 
 (defun-bind main ()
 	(populate-help)

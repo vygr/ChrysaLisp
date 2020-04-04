@@ -12,13 +12,12 @@
 
 ;create a window with a label
 (ui-window window ()
-	(ui-element _ (create-flow) ('flow_flags flow_down_fill)
-		(ui-element _ (create-flow) ('flow_flags flow_left_fill
-				'font (create-font "fonts/Entypo.ctf" 22) 'color title_col)
+	(ui-flow _ ('flow_flags flow_down_fill)
+		(ui-flow _ ('flow_flags flow_left_fill 'font (create-font "fonts/Entypo.ctf" 22) 'color title_col)
 			(ui-buttons (0xea19) (const event_win_close))
-			(ui-element _ (create-title) ('text "Clock" 'font (create-font "fonts/OpenSans-Regular.ctf" 18))))
-		(ui-element clock (create-canvas clock_size clock_size clock_scale))
-		(ui-element display (create-label) ('text "00:00:00" 'color argb_black 'ink_color argb_red
+			(ui-title _ ('text "Clock" 'font (create-font "fonts/OpenSans-Regular.ctf" 18))))
+		(ui-canvas clock clock_size clock_size clock_scale)
+		(ui-label display ('text "00:00:00" 'color argb_black 'ink_color argb_red
 			'flow_flags (+ flow_flag_align_hcenter flow_flag_align_vcenter)
 			'font (create-font "fonts/Hack-Regular.ctf" 48)))))
 

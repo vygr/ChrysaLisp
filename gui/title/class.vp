@@ -9,31 +9,6 @@
 (gen-create 'title)
 (gen-vtable 'title)
 
-(def-method 'title 'init)
-	;inputs
-	;r0 = title object (ptr)
-	;r1 = vtable (pptr)
-	;outputs
-	;r0 = title object (ptr)
-	;r1 = 0 if error, else ok
-	;trashes
-	;r1-r14
-
-	(entry 'title 'init '(r0 r1))
-
-	;init parent
-	(s-call 'title 'init '(r0 r1) '(r0 r1))
-	(vpif '(r1 /= 0))
-		;init myself
-		(call 'title 'set_long_prop '(r0 static_sym_border 1) '(r0))
-		(vp-cpy-cr 1 r1)
-	(endif)
-
-	(exit 'title 'init '(r0 r1))
-	(vp-ret)
-
-(def-func-end)
-
 (def-method 'title 'mouse_down)
 	;inputs
 	;r0 = title object (ptr)

@@ -8,10 +8,10 @@
 	(byte 'win_button))
 
 (ui-window window ()
-	(ui-element _ (create-flow) ('flow_flags flow_down_fill)
-		(ui-element _ (create-title) ('text "Launcher" 'color title_col))
+	(ui-flow _ ('flow_flags flow_down_fill)
+		(ui-title _ ('text "Launcher" 'color title_col))
 		(each (lambda (path)
-			(component-connect (ui-element _ (create-button) ('text path)) event_win_button)) *env_launcher_apps*)))
+			(component-connect (ui-button _ ('text path)) event_win_button)) *env_launcher_apps*)))
 
 (defun-bind app-path (_)
 	(cat "apps/" _ "/app.lisp"))

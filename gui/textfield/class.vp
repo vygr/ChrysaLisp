@@ -26,11 +26,8 @@
 	(s-call 'textfield 'init '(r0 r1) '(r0 r1))
 	(vpif '(r1 /= 0))
 		;init myself
-		(call 'textfield 'set_long_prop '(r0 static_sym_border -2) '(r0))
-		(call 'textfield 'set_long_prop '(r0 static_sym_flow_flags (logior flow_flag_right flow_flag_align_vcenter)) '(r0))
-		(vp-cpy-cr max_int r1)
-		(assign '(r1) '((r0 textfield_cursor)))
-		(vp-cpy-cr 1 r1)
+		(vp-cpy-cr max_int r2)
+		(assign '(r2) '((r0 textfield_cursor)))
 	(endif)
 
 	(exit 'textfield 'init '(r0 r1))

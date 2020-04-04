@@ -30,8 +30,6 @@
 		(vp-xor-rr r2 r2)
 		(assign '(r2) '((r1 view_flags)))
 		(call 'label 'add_child '(r0 r1) '(r0))
-		(call 'label 'set_long_prop '(r0 static_sym_flow_flags (logior flow_flag_right flow_flag_align_vcenter)) '(r0))
-		(call 'label 'set_long_prop '(r0 static_sym_border 0) '(r0))
 
 		;add my text object
 		(call 'text 'create nil '(r1))

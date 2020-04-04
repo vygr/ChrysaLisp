@@ -15,16 +15,16 @@
 		((starts-with "```" line_str)
 			(setq state 'code))
 		((starts-with "####" line_str)
-			(def (setq line_widget (create-label)) 'text (slice 4 -1 line_str)
+			(def (setq line_widget (create-label)) 'border 0 'text (slice 4 -1 line_str)
 				'font (create-font "fonts/OpenSans-Regular.ctf" 22)))
 		((starts-with "###" line_str)
-			(def (setq line_widget (create-label)) 'text (slice 3 -1 line_str)
+			(def (setq line_widget (create-label)) 'border 0 'text (slice 3 -1 line_str)
 				'font (create-font "fonts/OpenSans-Regular.ctf" 26)))
 		((starts-with "##" line_str)
-			(def (setq line_widget (create-label)) 'text (slice 2 -1 line_str)
+			(def (setq line_widget (create-label)) 'border 0 'text (slice 2 -1 line_str)
 				'font (create-font "fonts/OpenSans-Regular.ctf" 30)))
 		((starts-with "#" line_str)
-			(def (setq line_widget (create-label)) 'text (slice 1 -1 line_str)
+			(def (setq line_widget (create-label)) 'border 0 'text (slice 1 -1 line_str)
 				'font (create-font "fonts/OpenSans-Regular.ctf" 34)))
 		((find "`" line_str)
 			(def (setq line_widget (create-flow)) 'flow_flags flow_right_fill)
@@ -34,18 +34,18 @@
 				(unless (eql word " ")
 					(cond
 						((= 0 (logand word_cnt 1))
-							(def (defq space_widget1 (create-label)) 'min_width space_width)
-							(def (defq word_widget (create-label)) 'text word 'ink_color argb_blue)
-							(def (defq space_widget2 (create-label)) 'min_width space_width)
+							(def (defq space_widget1 (create-label)) 'border 0 'min_width space_width)
+							(def (defq word_widget (create-label)) 'border 0 'text word 'ink_color argb_blue)
+							(def (defq space_widget2 (create-label)) 'border 0 'min_width space_width)
 							(view-add-back line_widget space_widget1)
 							(view-add-back line_widget word_widget)
 							(view-add-back line_widget space_widget2))
 						(t
-							(def (defq word_widget (create-label)) 'text word 'ink_color argb_black)
+							(def (defq word_widget (create-label)) 'border 0 'text word 'ink_color argb_black)
 							(view-add-back line_widget word_widget))))) word_lst)
 			(setq word_cnt (inc word_cnt)))
 		(t
-			(def (setq line_widget (create-label)) 'text line_str))))
+			(def (setq line_widget (create-label)) 'border 0 'text line_str))))
 
 (defun-bind code-line ()
 	(cond
@@ -53,21 +53,21 @@
 			(setq state 'normal word_cnt 0))
 		((defq tab_pos (find (ascii-char 9) line_str))
 			(def (setq line_widget (create-flow)) 'flow_flags flow_right_fill)
-			(def (defq tab_widget (create-label)) 'min_width (* (inc tab_pos) tab_width))
-			(def (defq code_widget (create-label)) 'text (slice (inc tab_pos) -1 line_str)
+			(def (defq tab_widget (create-label)) 'border 0 'min_width (* (inc tab_pos) tab_width))
+			(def (defq code_widget (create-label)) 'border 0 'text (slice (inc tab_pos) -1 line_str)
 				'font (create-font "fonts/Hack-Regular.ctf" 16) 'ink_color argb_blue)
 			(view-add-back line_widget tab_widget)
 			(view-add-back line_widget code_widget))
 		(t
-			(def (setq line_widget (create-label)) 'text line_str
+			(def (setq line_widget (create-label)) 'border 0 'text line_str
 				'font (create-font "fonts/Hack-Regular.ctf" 16) 'ink_color argb_blue))))
 
 (defun-bind populate-page (file)
 	(ui-tree page_flow (create-flow) ('flow_flags (logior flow_flag_right flow_flag_fillh)
 			'font (create-font "fonts/OpenSans-Regular.ctf" 18) 'color argb_white)
-		(ui-element _ (create-label) ('min_width margin_width))
+		(ui-label _ ('min_width margin_width))
 		(ui-element page_widget (create-flow) ('flow_flags (logior flow_flag_down flow_flag_fillw)))
-		(ui-element _ (create-label) ('min_width margin_width)))
+		(ui-label _ ('min_width margin_width)))
 	(defq state 'normal word_cnt 0)
 	(each-line (lambda (line_str)
 		(defq line_str (trim-end line_str (ascii-char 13)) line_widget (while nil))
@@ -80,16 +80,16 @@
 	(view-dirty-all (view-layout doc_flow)))
 
 (ui-window window ()
-	(ui-element _ (create-flow) ('flow_flags flow_down_fill)
-		(ui-element _ (create-flow) ('flow_flags flow_left_fill
+	(ui-flow _ ('flow_flags flow_down_fill)
+		(ui-flow _ ('flow_flags flow_left_fill
 				'font (create-font "fonts/Entypo.ctf" 22) 'color title_col)
 			(ui-buttons (0xea19) (const event_win_close))
-			(ui-element _ (create-title) ('text "Docs" 'font (create-font "fonts/OpenSans-Regular.ctf" 18))))
+			(ui-title _ ('text "Docs" 'font (create-font "fonts/OpenSans-Regular.ctf" 18))))
 		(ui-element doc_flow (create-flow) ('flow_flags flow_right_fill
 				'font (create-font "fonts/OpenSans-Regular.ctf" 18) 'color toolbar_col)
 			(ui-element index (create-flow) ('flow_flags (logior flow_flag_down flow_flag_fillw))
 				(each (lambda (path)
-					(component-connect (ui-element _ (create-button)
+					(component-connect (ui-button _
 						('text path 'flow_flags (logior flow_flag_align_vcenter flow_flag_align_hleft))) event_win_button)) doc_list))
 			(ui-element page_scroll (create-scroll scroll_flag_vertical) ('min_width 848 'min_height 800 'color slider_col)))))
 

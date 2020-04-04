@@ -29,18 +29,52 @@
 		'color window_col 'border 5 'min_width 0 'min_height 0) p))
 	(cat (list 'ui-tree n '(create-window) p) x))
 
+(defmacro ui-flow (n p &rest x)
+	(cat (list 'ui-element n '(create-flow) p) x))
+
+(defmacro ui-grid (n p &rest x)
+	(cat (list 'ui-element n '(create-grid) p) x))
+
+(defmacro ui-title (n p &rest x)
+	(setq p (cat '('border 1) p))
+	(cat (list 'ui-element n '(create-title) p) x))
+
+(defmacro ui-label (n p &rest x)
+	(setq p (cat '('flow_flags (logior flow_flag_right flow_flag_align_vcenter) 'border 0) p))
+	(cat (list 'ui-element n '(create-label) p) x))
+
+(defmacro ui-button (n p &rest x)
+	(setq p (cat '('flow_flags (logior flow_flag_down flow_flag_align_hcenter flow_flag_align_vcenter) 'border 2) p))
+	(cat (list 'ui-element n '(create-button) p) x))
+
 (defmacro ui-buttons (s e &optional c f)
 	(setq s (map (lambda (_) (if (num? _) (num-to-utf8 _) _)) s))
 	(cond
 		((and c f)
 			`(each (lambda (_s)
-				(component-connect (ui-element __ (create-button) ('text _s 'color ,c 'font ,f)) (+ _ ,e))) '(~s)))
+				(component-connect (ui-button __ ('text _s 'color ,c 'font ,f)) (+ _ ,e))) '(~s)))
 		(c	`(each (lambda (_s)
-				(component-connect (ui-element __ (create-button) ('text _s 'color ,c)) (+ _ ,e))) '(~s)))
+				(component-connect (ui-button __ ('text _s 'color ,c)) (+ _ ,e))) '(~s)))
 		(f	`(each (lambda (_s)
-				(component-connect (ui-element __ (create-button) ('text _s 'font ,f)) (+ _ ,e))) '(~s)))
+				(component-connect (ui-button __ ('text _s 'font ,f)) (+ _ ,e))) '(~s)))
 		(t	`(each (lambda (_s)
-				(component-connect (ui-element __ (create-button) ('text _s)) (+ _ ,e))) '(~s)))))
+				(component-connect (ui-button __ ('text _s)) (+ _ ,e))) '(~s)))))
+
+(defmacro ui-textfield (n p &rest x)
+	(setq p (cat '('flow_flags (logior flow_flag_right flow_flag_align_vcenter) 'border -2) p))
+	(cat (list 'ui-element n '(create-textfield) p) x))
+
+(defmacro ui-slider (n p)
+	(cat (list 'ui-element n '(create-slider) p)))
+
+(defmacro ui-canvas (n w h s)
+	`(ui-element ,n (create-canvas ,w ,h ,s)))
+
+(defmacro ui-vdu (n p)
+	(cat (list 'ui-element n '(create-vdu) p)))
+
+(defmacro ui-view (n &optional p &rest x)
+	(cat (list 'ui-element n '(create-view) p) x))
 
 (defmacro view-dirty-all (_)
 	`(view-set-flags ,_ view_flag_dirty_all view_flag_dirty_all))

@@ -11,11 +11,10 @@
 	sframes (map (lambda (_) (canvas-load (cat "apps/boing/taoball_s_" (str _) ".cpm") load_flag_shared)) (range 1 12)))
 
 (ui-window window ()
-	(ui-element _ (create-flow) ('flow_flags flow_down_fill)
-		(ui-element _ (create-flow) ('flow_flags flow_left_fill
-				'font (create-font "fonts/Entypo.ctf" 22) 'color title_col)
+	(ui-flow _ ('flow_flags flow_down_fill)
+		(ui-flow _ ('flow_flags flow_left_fill 'font (create-font "fonts/Entypo.ctf" 22) 'color title_col)
 			(ui-buttons (0xea19 0xea1b 0xea1a) (const event_win_close))
-			(ui-element _ (create-title) ('text "Boing" 'font (create-font "fonts/OpenSans-Regular.ctf" 18))))
+			(ui-title _ ('text "Boing" 'font (create-font "fonts/OpenSans-Regular.ctf" 18))))
 		(ui-element backdrop (create-backdrop) ('color argb_black 'ink_color argb_white)
 			(ui-element frame (elem 0 frames))
 			(ui-element sframe (elem 0 sframes)))))

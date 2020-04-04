@@ -12,25 +12,23 @@
 	select (array (task-mailbox) (mail-alloc-mbox)) sample_msg (array (elem 1 select)))
 
 (ui-window window ()
-	(ui-element _ (create-flow) ('flow_flags flow_down_fill)
-		(ui-element _ (create-flow) ('flow_flags flow_left_fill
+	(ui-flow _ ('flow_flags flow_down_fill)
+		(ui-flow _ ('flow_flags flow_left_fill
 				'font (create-font "fonts/Entypo.ctf" 22) 'color title_col)
 			(ui-buttons (0xea19) (const event_win_close))
-			(ui-element _ (create-title) ('text "Object Monitor" 'font (create-font "fonts/OpenSans-Regular.ctf" 18))))
-		(ui-element _ (create-grid) ('grid_width 2 'grid_height 1 'flow_flags flow_down_fill 'maximum 100 'value 0)
+			(ui-title _ ('text "Object Monitor" 'font (create-font "fonts/OpenSans-Regular.ctf" 18))))
+		(ui-grid _ ('grid_width 2 'grid_height 1 'flow_flags flow_down_fill 'maximum 100 'value 0)
 			(ui-element name_flow (create-flow) ('color argb_grey8)
-				(ui-element _ (create-label) ('text "Class" 'color argb_white))
-				(ui-element _ (create-grid) ('grid_width 1 'grid_height 1 'color argb_white
-						'font (create-font "fonts/Hack-Regular.ctf" 14))
-					(ui-element _ (create-label) ('text "")))
-				(ui-element name_view (create-view)))
+				(ui-label _ ('text "Class" 'color argb_white))
+				(ui-grid _ ('grid_width 1 'grid_height 1 'color argb_white 'font (create-font "fonts/Hack-Regular.ctf" 14))
+					(ui-label _ ('text "")))
+				(ui-view name_view))
 			(ui-element stat_flow (create-flow) ('color argb_red)
-				(ui-element _ (create-label) ('text "Count" 'color argb_white))
-				(ui-element _ (create-grid) ('grid_width 4 'grid_height 1 'color argb_white
-						'font (create-font "fonts/Hack-Regular.ctf" 14))
-					(times 4 (push stat_scale (ui-element _ (create-label)
+				(ui-label _ ('text "Count" 'color argb_white))
+				(ui-grid _ ('grid_width 4 'grid_height 1 'color argb_white 'font (create-font "fonts/Hack-Regular.ctf" 14))
+					(times 4 (push stat_scale (ui-label _
 						('text "|" 'flow_flags (logior flow_flag_align_vcenter flow_flag_align_hright))))))
-				(ui-element stat_view (create-view))))))
+				(ui-view stat_view)))))
 
 (defun-bind main ()
 	(while (progn
@@ -50,7 +48,7 @@
 			(def new_stat_view 'grid_width 1 'grid_height max_classes)
 			(each (lambda ((name stat))
 				(defq n (create-label) p (create-progress))
-				(def n 'text name)
+				(def n 'border 0 'text name)
 				(def p 'maximum last_max_stats 'value stat)
 				(view-add-child new_name_view n)
 				(view-add-child new_stat_view p)) stat_data)

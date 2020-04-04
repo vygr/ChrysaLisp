@@ -7838,19 +7838,6 @@ Super Class: label
 
 ### title::create -> gui/title/create
 
-### title::init -> gui/title/init
-
-```lisp
-inputs
-r0 = title object (ptr)
-r1 = vtable (pptr)
-outputs
-r0 = title object (ptr)
-r1 = 0 if error, else ok
-trashes
-r1-r14
-```
-
 ### title::lisp_create -> gui/title/lisp_create
 
 ```lisp

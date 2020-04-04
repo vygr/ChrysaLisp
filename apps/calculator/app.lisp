@@ -8,19 +8,15 @@
 	(byte 'win_button))
 
 (ui-window window ()
-	(ui-element _ (create-flow) ('flow_flags flow_down_fill)
-		(ui-element _ (create-flow) ('flow_flags flow_left_fill
-				'font (create-font "fonts/Entypo.ctf" 22) 'color title_col)
+	(ui-flow _ ('flow_flags flow_down_fill)
+		(ui-flow _ ('flow_flags flow_left_fill 'font (create-font "fonts/Entypo.ctf" 22) 'color title_col)
 			(ui-buttons (0xea19 0xea1b 0xea1a) (const event_win_close))
-			(ui-element _ (create-title) ('text "Calculator" 'font (create-font "fonts/OpenSans-Regular.ctf" 18))))
-		(ui-element display (create-label) ('text "0" 'color argb_white 'flow_flags flow_flag_align_hright
-			'font (create-font "fonts/OpenSans-Regular.ctf" 24)))
-		(ui-element _ (create-grid) ('grid_width 4 'grid_height 4 'color toolbar_col
-				'font (create-font "fonts/OpenSans-Regular.ctf" 42))
+			(ui-title _ ('text "Calculator" 'font (create-font "fonts/OpenSans-Regular.ctf" 18))))
+		(ui-label display ('text "0" 'color argb_white 'flow_flags flow_flag_align_hright 'font (create-font "fonts/OpenSans-Regular.ctf" 24)))
+		(ui-grid _ ('grid_width 4 'grid_height 4 'color toolbar_col 'font (create-font "fonts/OpenSans-Regular.ctf" 42))
 			(each (lambda (text)
-				(component-connect
-					(ui-element _ (create-button) ('text (if (eql text "C") "AC" text)))
-					event_win_button)) "789/456*123-0=C+"))))
+				(component-connect (ui-button _ ('text (if (eql text "C") "AC" text))) event_win_button))
+				"789/456*123-0=C+"))))
 
 (defun do_lastop ()
 	(cond

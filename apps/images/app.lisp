@@ -18,11 +18,11 @@
 
 (ui-window window ()
 	(ui-element window_flow (create-flow) ('flow_flags flow_down_fill)
-		(ui-element _ (create-flow) ('flow_flags flow_left_fill
+		(ui-flow _ ('flow_flags flow_left_fill
 				'font (create-font "fonts/Entypo.ctf" 22) 'color title_col)
 			(ui-buttons (0xea19) (const event_win_close))
-			(ui-element window_title (create-title) ('font (create-font "fonts/OpenSans-Regular.ctf" 18))))
-		(ui-element _ (create-flow) ('flow_flags (logior flow_flag_right flow_flag_fillh)
+			(ui-title window_title ('font (create-font "fonts/OpenSans-Regular.ctf" 18))))
+		(ui-flow _ ('flow_flags (logior flow_flag_right flow_flag_fillh)
 				'color toolbar_col 'font (create-font "fonts/Entypo.ctf" 32))
 			(ui-buttons (0xe91d 0xe91e) (const event_win_prev)))
 		(ui-element image_scroll (create-scroll (logior scroll_flag_vertical scroll_flag_horizontal))

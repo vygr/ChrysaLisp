@@ -15,21 +15,17 @@
 	vdu_width 38 vdu_height 12 text_buf (list ""))
 
 (ui-window window ('color argb_black)
-	(ui-element _ (create-flow) ('flow_flags flow_down_fill)
-		(ui-element _ (create-flow) ('flow_flags flow_left_fill
-				'font (create-font "fonts/Entypo.ctf" 22) 'color title_col)
+	(ui-flow _ ('flow_flags flow_down_fill)
+		(ui-flow _ ('flow_flags flow_left_fill 'font (create-font "fonts/Entypo.ctf" 22) 'color title_col)
 			(ui-buttons (0xea19) (const event_win_close))
-			(ui-element _ (create-title) ('text "Chess" 'font (create-font "fonts/OpenSans-Regular.ctf" 18))))
-		(ui-element chess_grid (create-grid) ('grid_width 8 'grid_height 8
-				'font (create-font "fonts/Chess.ctf" 42) 'border 1 'text " ")
+			(ui-title _ ('text "Chess" 'font (create-font "fonts/OpenSans-Regular.ctf" 18))))
+		(ui-grid chess_grid ('grid_width 8 'grid_height 8 'font (create-font "fonts/Chess.ctf" 42) 'border 1 'text " ")
 			(each (lambda (i)
 				(if (= (logand (+ i (>> i 3)) 1) 0)
 					(defq paper argb_white ink argb_black)
 					(defq paper argb_black ink argb_white))
-				(push squares (ui-element _ (create-button)
-					('color paper 'ink_color ink)))) (range 0 64)))
-		(ui-element vdu (create-vdu) ('vdu_width vdu_width 'vdu_height vdu_height 'ink_color argb_cyan
-			'font (create-font "fonts/Hack-Regular.ctf" 16)))))
+				(push squares (ui-button _ ('color paper 'ink_color ink)))) (range 0 64)))
+		(ui-vdu vdu ('vdu_width vdu_width 'vdu_height vdu_height 'ink_color argb_cyan 'font (create-font "fonts/Hack-Regular.ctf" 16)))))
 
 (defun-bind display-board (board)
 	(each (lambda (square piece)

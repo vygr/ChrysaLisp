@@ -25,9 +25,6 @@
 		;init myself
 		(vp-xor-rr r2 r2)
 		(assign '(r2) '((r0 button_state)))
-		(call 'button 'set_long_prop '(r0 static_sym_border 2) '(r0))
-		(call 'button 'set_long_prop '(r0 static_sym_flow_flags (logior flow_flag_down flow_flag_align_hcenter flow_flag_align_vcenter)) '(r0))
-		(vp-cpy-cr 1 r1)
 	(endif)
 
 	(exit 'button 'init '(r0 r1))
