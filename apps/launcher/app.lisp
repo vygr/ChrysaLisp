@@ -1,15 +1,15 @@
 ;imports
+(import 'apps/login/pupa.inc)
 (import 'sys/lisp.inc)
 (import 'class/lisp.inc)
 (import 'gui/lisp.inc)
-(import 'apps/login/pupa.inc)
 
 (structure 'event 0
 	(byte 'win_button))
 
 (ui-window window ()
 	(ui-flow _ ('flow_flags flow_down_fill)
-		(ui-title _ ('text "Launcher" 'color title_col))
+		(ui-title _ ('text "Launcher" 'color *env_title_col*))
 		(each (lambda (path)
 			(component-connect (ui-button _ ('text path)) event_win_button)) *env_launcher_apps*)))
 

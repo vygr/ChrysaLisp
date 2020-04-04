@@ -24,27 +24,27 @@
 			(view-add-child (elem -3 (push _ui (defq ,n ,c))) ,n)
 			~x (pop _ui))))
 
-(defmacro ui-window (n p &rest x)
-	(setq p (cat '('font (create-font "fonts/OpenSans-Regular.ctf" 18) 'ink_color argb_black
-		'color window_col 'border 5 'min_width 0 'min_height 0) p))
+(defmacro ui-window (n &optional p &rest x)
+	(setq p (cat '('font (create-font "fonts/OpenSans-Regular.ctf" 18)
+		'ink_color *env_ink_col* 'color *env_window_col* 'border *env_window_border*) p))
 	(cat (list 'ui-tree n '(create-window) p) x))
 
-(defmacro ui-flow (n p &rest x)
+(defmacro ui-flow (n &optional p &rest x)
 	(cat (list 'ui-element n '(create-flow) p) x))
 
-(defmacro ui-grid (n p &rest x)
+(defmacro ui-grid (n &optional p &rest x)
 	(cat (list 'ui-element n '(create-grid) p) x))
 
-(defmacro ui-title (n p &rest x)
-	(setq p (cat '('border 1) p))
+(defmacro ui-title (n &optional p &rest x)
+	(setq p (cat '('border *env_title_border*) p))
 	(cat (list 'ui-element n '(create-title) p) x))
 
-(defmacro ui-label (n p &rest x)
-	(setq p (cat '('flow_flags (logior flow_flag_right flow_flag_align_vcenter) 'border 0) p))
+(defmacro ui-label (n &optional p &rest x)
+	(setq p (cat '('flow_flags (logior flow_flag_right flow_flag_align_vcenter) 'border *env_label_border*) p))
 	(cat (list 'ui-element n '(create-label) p) x))
 
-(defmacro ui-button (n p &rest x)
-	(setq p (cat '('flow_flags (logior flow_flag_down flow_flag_align_hcenter flow_flag_align_vcenter) 'border 2) p))
+(defmacro ui-button (n &optional p &rest x)
+	(setq p (cat '('flow_flags (logior flow_flag_down flow_flag_align_hcenter flow_flag_align_vcenter) 'border *env_button_border*) p))
 	(cat (list 'ui-element n '(create-button) p) x))
 
 (defmacro ui-buttons (s e &optional c f)
@@ -60,17 +60,20 @@
 		(t	`(each (lambda (_s)
 				(component-connect (ui-button __ ('text _s)) (+ _ ,e))) '(~s)))))
 
-(defmacro ui-textfield (n p &rest x)
-	(setq p (cat '('flow_flags (logior flow_flag_right flow_flag_align_vcenter) 'border -2) p))
+(defmacro ui-textfield (n &optional p &rest x)
+	(setq p (cat '('flow_flags (logior flow_flag_right flow_flag_align_vcenter) 'border *env_textfield_border*) p))
 	(cat (list 'ui-element n '(create-textfield) p) x))
 
-(defmacro ui-slider (n p)
+(defmacro ui-slider (n &optional p)
 	(cat (list 'ui-element n '(create-slider) p)))
+
+(defmacro ui-progress (n &optional p)
+	(cat (list 'ui-element n '(create-progress) p)))
 
 (defmacro ui-canvas (n w h s)
 	`(ui-element ,n (create-canvas ,w ,h ,s)))
 
-(defmacro ui-vdu (n p)
+(defmacro ui-vdu (n &optional p)
 	(cat (list 'ui-element n '(create-vdu) p)))
 
 (defmacro ui-view (n &optional p &rest x)

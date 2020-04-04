@@ -1,9 +1,9 @@
 ;imports
+(import 'apps/login/pupa.inc)
 (import 'sys/lisp.inc)
 (import 'gui/lisp.inc)
 (import 'apps/terminal/pipe.inc)
 (import 'apps/terminal/input.inc)
-(import 'apps/login/pupa.inc)
 
 (structure 'event 0
 	(byte 'win_close 'win_max 'win_min)
@@ -13,12 +13,11 @@
 
 (ui-window window ('color 0xc0000000)
 	(ui-flow _ ('flow_flags flow_down_fill)
-		(ui-flow _ ('flow_flags flow_left_fill
-				'font (create-font "fonts/Entypo.ctf" 22) 'color title_col)
+		(ui-flow _ ('flow_flags flow_left_fill 'font (create-font "fonts/Entypo.ctf" 22) 'color *env_title_col*)
 			(ui-buttons (0xea19 0xea1b 0xea1a) (const event_win_close))
 			(ui-title _ ('text "Terminal" 'font (create-font "fonts/OpenSans-Regular.ctf" 18))))
 		(ui-flow _ ('flow_flags flow_left_fill)
-			(component-connect (ui-slider slider ('color slider_col)) event_win_scroll)
+			(component-connect (ui-slider slider ('color *env_slider_col*)) event_win_scroll)
 			(ui-vdu vdu ('vdu_width vdu_width 'vdu_height vdu_height 'min_width vdu_width 'min_height vdu_height
 				'ink_color argb_green 'font (create-font "fonts/Hack-Regular.ctf" 16))))))
 

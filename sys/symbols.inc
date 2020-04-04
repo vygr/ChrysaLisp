@@ -77,14 +77,9 @@ scroll_flag_horizontal 2
 scroll_flag_vertical 1
 short_size 2
 slave_args 40
-slider_col 4292927712
-status_col 4282400832
 stream_mail_state_started 0
 stream_mail_state_stopped 2
 stream_mail_state_stopping 1
-title_col 4292927712
-toolbar_col 4290822336
-toolbar2_col 4288716960
 vdu_char_height 194
 vdu_char_width 192
 view_flag_at_back 8
@@ -96,5 +91,4 @@ view_h 156
 view_w 152
 view_x 144
 view_y 148
-window_col 4290822336
 )

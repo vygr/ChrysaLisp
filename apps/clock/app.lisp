@@ -1,4 +1,5 @@
 ;imports
+(import 'apps/login/pupa.inc)
 (import 'sys/lisp.inc)
 (import 'class/lisp.inc)
 (import 'gui/lisp.inc)
@@ -13,7 +14,7 @@
 ;create a window
 (ui-window window ()
 	(ui-flow _ ('flow_flags flow_down_fill)
-		(ui-flow _ ('flow_flags flow_left_fill 'font (create-font "fonts/Entypo.ctf" 22) 'color title_col)
+		(ui-flow _ ('flow_flags flow_left_fill 'font (create-font "fonts/Entypo.ctf" 22) 'color *env_title_col*)
 			(ui-buttons (0xea19) (const event_win_close))
 			(ui-title _ ('text "Clock" 'font (create-font "fonts/OpenSans-Regular.ctf" 18))))
 		(ui-canvas clock clock_size clock_size clock_scale)

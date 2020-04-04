@@ -3,6 +3,7 @@
 (make 'apps/chess/lisp.vp)
 
 ;imports
+(import 'apps/login/pupa.inc)
 (import 'gui/lisp.inc)
 
 (structure 'event 0
@@ -16,7 +17,7 @@
 
 (ui-window window ('color argb_black)
 	(ui-flow _ ('flow_flags flow_down_fill)
-		(ui-flow _ ('flow_flags flow_left_fill 'font (create-font "fonts/Entypo.ctf" 22) 'color title_col)
+		(ui-flow _ ('flow_flags flow_left_fill 'font (create-font "fonts/Entypo.ctf" 22) 'color *env_title_col*)
 			(ui-buttons (0xea19) (const event_win_close))
 			(ui-title _ ('text "Chess" 'font (create-font "fonts/OpenSans-Regular.ctf" 18))))
 		(ui-grid chess_grid ('grid_width 8 'grid_height 8 'font (create-font "fonts/Chess.ctf" 42) 'border 1 'text " ")

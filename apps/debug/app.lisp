@@ -1,4 +1,5 @@
 ;imports
+(import 'apps/login/pupa.inc)
 (import 'sys/lisp.inc)
 (import 'class/lisp.inc)
 (import 'gui/lisp.inc)
@@ -20,12 +21,12 @@
 
 (ui-window window ('color 0xc0000000)
 	(ui-flow _ ('flow_flags flow_down_fill)
-		(ui-flow _ ('flow_flags flow_left_fill 'font (create-font "fonts/Entypo.ctf" 22) 'color title_col)
+		(ui-flow _ ('flow_flags flow_left_fill 'font (create-font "fonts/Entypo.ctf" 22) 'color *env_title_col*)
 			(ui-title _ ('text "Debug" 'font (create-font "fonts/OpenSans-Regular.ctf" 18))))
-		(ui-flow _ ('flow_flags (logior flow_flag_right flow_flag_fillh) 'color toolbar_col 'font (create-font "fonts/Entypo.ctf" 32))
+		(ui-flow _ ('flow_flags (logior flow_flag_right flow_flag_fillh) 'color *env_toolbar_col* 'font (create-font "fonts/Entypo.ctf" 32))
 			(ui-buttons (0xe95e 0xe95d 0xe95c 0xe960) (const event_win_play))
-			(ui-buttons (0xe95e 0xe95d 0xe95c 0xe960) (const event_win_play_all) (const toolbar2_col)))
-		(component-connect (ui-slider hslider ('value 0 'color slider_col)) event_win_hvalue)
+			(ui-buttons (0xe95e 0xe95d 0xe95c 0xe960) (const event_win_play_all) (const *env_toolbar2_col*)))
+		(component-connect (ui-slider hslider ('value 0 'color *env_slider_col*)) event_win_hvalue)
 		(ui-vdu vdu ('vdu_width vdu_width 'vdu_height vdu_height 'ink_color argb_yellow
 				'font (create-font "fonts/Hack-Regular.ctf" 16)))))
 

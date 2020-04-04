@@ -1,4 +1,5 @@
 ;imports
+(import 'apps/login/pupa.inc)
 (import 'sys/lisp.inc)
 (import 'class/lisp.inc)
 (import 'gui/lisp.inc)
@@ -29,7 +30,7 @@
 				(def (defq l (create-label)) 'border -1 'flow_flags flow_flag_align_hcenter 'text (num-to-utf8 c))
 				(view-add-child symbol_grid l)) (range c (+ c grid_width)))) (range 0 n)))
 	(def symbol_grid 'grid_width (inc grid_width) 'grid_height grid_height
-		'color (const toolbar_col) 'font font)
+		'color (const *env_toolbar_col*) 'font font)
 	(bind '(w h) (view-pref-size symbol_grid))
 	(view-change symbol_grid 0 0 w h)
 	(def symbol_scroll 'min_width w 'min_height (min h 720))
@@ -41,14 +42,14 @@
 (ui-window window ()
 	(ui-flow _ ('flow_flags flow_down_fill)
 		(ui-flow _ ('flow_flags flow_left_fill
-				'font (create-font "fonts/Entypo.ctf" 22) 'color title_col)
+				'font (create-font "fonts/Entypo.ctf" 22) 'color *env_title_col*)
 			(ui-buttons (0xea19) (const event_win_close))
 			(ui-title _ ('text "Fonts" 'font (create-font "fonts/OpenSans-Regular.ctf" 18))))
 		(ui-flow _ ('flow_flags flow_right_fill
-				'color toolbar_col 'font (create-font "fonts/Entypo.ctf" 32))
+				'color *env_toolbar_col* 'font (create-font "fonts/Entypo.ctf" 32))
 			(ui-buttons (0xe91d 0xe91e) (const event_win_prev))
 			(ui-label fontname ('font (create-font "fonts/OpenSans-Regular.ctf" 18) 'border -1)))
-		(ui-element symbol_scroll (create-scroll scroll_flag_vertical) ('color slider_col))))
+		(ui-element symbol_scroll (create-scroll scroll_flag_vertical) ('color *env_slider_col*))))
 
 (defun-bind main ()
 	(win-refresh index)

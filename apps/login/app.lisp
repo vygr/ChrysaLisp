@@ -1,4 +1,6 @@
 ;imports
+(defq *env_user* "Guest")
+(import 'apps/login/pupa.inc)
 (import 'sys/lisp.inc)
 (import 'class/lisp.inc)
 (import 'gui/lisp.inc)
@@ -8,7 +10,7 @@
 
 (ui-window window ()
 	(ui-flow _ ('flow_flags flow_down_fill)
-		(ui-flow _ ('flow_flags flow_left_fill 'color title_col)
+		(ui-flow _ ('flow_flags flow_left_fill 'color *env_title_col*)
 			(ui-title _ ('text "Login Manager" 'font (create-font "fonts/OpenSans-Regular.ctf" 18))))
 		(ui-flow _ ('flow_flags flow_right_fill)
 			(ui-grid _ ('grid_width 1 'grid_height 2)

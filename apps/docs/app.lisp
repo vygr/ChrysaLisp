@@ -1,4 +1,5 @@
 ;imports
+(import 'apps/login/pupa.inc)
 (import 'sys/lisp.inc)
 (import 'class/lisp.inc)
 (import 'gui/lisp.inc)
@@ -81,16 +82,16 @@
 
 (ui-window window ()
 	(ui-flow _ ('flow_flags flow_down_fill)
-		(ui-flow _ ('flow_flags flow_left_fill 'font (create-font "fonts/Entypo.ctf" 22) 'color title_col)
+		(ui-flow _ ('flow_flags flow_left_fill 'font (create-font "fonts/Entypo.ctf" 22) 'color *env_title_col*)
 			(ui-buttons (0xea19) (const event_win_close))
 			(ui-title _ ('text "Docs" 'font (create-font "fonts/OpenSans-Regular.ctf" 18))))
 		(ui-flow doc_flow ('flow_flags flow_right_fill
-				'font (create-font "fonts/OpenSans-Regular.ctf" 18) 'color toolbar_col)
+				'font (create-font "fonts/OpenSans-Regular.ctf" 18) 'color *env_toolbar_col*)
 			(ui-flow index ('flow_flags (logior flow_flag_down flow_flag_fillw))
 				(each (lambda (path)
 					(component-connect (ui-button _
 						('text path 'flow_flags (logior flow_flag_align_vcenter flow_flag_align_hleft))) event_win_button)) doc_list))
-			(ui-element page_scroll (create-scroll scroll_flag_vertical) ('min_width 848 'min_height 800 'color slider_col)))))
+			(ui-element page_scroll (create-scroll scroll_flag_vertical) ('min_width 848 'min_height 800 'color *env_slider_col*)))))
 
 (defun-bind main ()
 	(populate-page (elem 0 doc_list))

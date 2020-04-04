@@ -5,10 +5,10 @@
 ;distribution is expressed or implied by the works' original copyright holder.
 
 ;imports
+(import 'apps/login/pupa.inc)
 (import 'sys/lisp.inc)
 (import 'class/lisp.inc)
 (import 'gui/lisp.inc)
-(import 'apps/login/pupa.inc)
 
 (defun-bind refresh-wallpaper ()
 	;pick nearest wallpaper to screen size

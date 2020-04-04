@@ -1,4 +1,5 @@
 ;imports
+(import 'apps/login/pupa.inc)
 (import 'sys/lisp.inc)
 (import 'class/lisp.inc)
 (import 'gui/lisp.inc)
@@ -48,12 +49,12 @@
 (ui-window window ('color argb_black)
 	(ui-flow _ ('flow_flags flow_down_fill)
 		(ui-flow _ ('flow_flags flow_left_fill
-				'font (create-font "fonts/Entypo.ctf" 22) 'color title_col)
+				'font (create-font "fonts/Entypo.ctf" 22) 'color *env_title_col*)
 			(ui-buttons (0xea19) (const event_win_close))
 			(ui-title _ ('text "Help" 'font (create-font "fonts/OpenSans-Regular.ctf" 18))))
 		(ui-flow _ ('flow_flags flow_right_fill
 			'font (create-font "fonts/Hack-Regular.ctf" 16))
-			(ui-element index_scroll (create-scroll scroll_flag_vertical) ('color slider_col)
+			(ui-element index_scroll (create-scroll scroll_flag_vertical) ('color *env_slider_col*)
 				(ui-flow index ('flow_flags (logior flow_flag_down flow_flag_fillw)
 					'color argb_white)))
 			(ui-vdu vdu ('vdu_height vdu_height 'ink_color argb_cyan)))))

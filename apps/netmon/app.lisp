@@ -3,6 +3,7 @@
 (make 'apps/netmon/child.vp)
 
 ;imports
+(import 'apps/login/pupa.inc)
 (import 'gui/lisp.inc)
 
 (structure 'sample_reply 0
@@ -19,7 +20,7 @@
 (ui-window window ()
 	(ui-flow _ ('flow_flags flow_down_fill)
 		(ui-flow _ ('flow_flags flow_left_fill
-				'font (create-font "fonts/Entypo.ctf" 22) 'color title_col)
+				'font (create-font "fonts/Entypo.ctf" 22) 'color *env_title_col*)
 			(ui-buttons (0xea19 0xea1b 0xea1a) (const event_win_close))
 			(ui-title _ ('text "Network Monitor" 'font (create-font "fonts/OpenSans-Regular.ctf" 18))))
 		(ui-grid _ ('grid_width 2 'grid_height 1 'flow_flags flow_down_fill 'maximum 100 'value 0)
@@ -30,7 +31,7 @@
 					(times 4 (push task_scale (ui-label _
 						('text "|" 'flow_flags (logior flow_flag_align_vcenter flow_flag_align_hright))))))
 				(ui-grid _ ('grid_width 1 'grid_height cpu_total)
-					(times cpu_total (push task_bars (ui-element _ (create-progress))))))
+					(times cpu_total (push task_bars (ui-progress _)))))
 			(ui-flow _ ('color argb_red)
 				(ui-label _ ('text "Memory (kb)" 'color argb_white))
 				(ui-grid _ ('grid_width 4 'grid_height 1 'color argb_white
@@ -38,7 +39,7 @@
 					(times 4 (push memory_scale (ui-label _
 						('text "|" 'flow_flags (logior flow_flag_align_vcenter flow_flag_align_hright))))))
 				(ui-grid _ ('grid_width 1 'grid_height cpu_total)
-					(times cpu_total (push memory_bars (ui-element _ (create-progress)))))))))
+					(times cpu_total (push memory_bars (ui-progress _))))))))
 
 (defun-bind main ()
 	;add window
