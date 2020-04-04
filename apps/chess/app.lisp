@@ -3,7 +3,6 @@
 (make 'apps/chess/lisp.vp)
 
 ;imports
-(import 'apps/login/pupa.inc)
 (import 'gui/lisp.inc)
 
 (structure 'event 0

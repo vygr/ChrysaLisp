@@ -3,7 +3,6 @@
 (make 'apps/mandelbrot/lisp.vp)
 
 ;imports
-(import 'apps/login/pupa.inc)
 (import 'gui/lisp.inc)
 (import 'apps/mandelbrot/mbmath.inc)
 

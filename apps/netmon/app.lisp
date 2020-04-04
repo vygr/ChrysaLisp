@@ -3,7 +3,6 @@
 (make 'apps/netmon/child.vp)
 
 ;imports
-(import 'apps/login/pupa.inc)
 (import 'gui/lisp.inc)
 
 (structure 'sample_reply 0

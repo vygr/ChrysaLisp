@@ -1,5 +1,4 @@
 ;imports
-(import 'apps/login/pupa.inc)
 (import 'sys/lisp.inc)
 (import 'class/lisp.inc)
 (import 'gui/lisp.inc)
@@ -41,12 +40,10 @@
 
 (ui-window window ()
 	(ui-flow _ ('flow_flags flow_down_fill)
-		(ui-flow _ ('flow_flags flow_left_fill
-				'font (create-font "fonts/Entypo.ctf" 22) 'color *env_title_col*)
+		(ui-flow _ ('flow_flags flow_left_fill 'font (create-font "fonts/Entypo.ctf" 22) 'color *env_title_col*)
 			(ui-buttons (0xea19) (const event_win_close))
 			(ui-title _ ('text "Fonts" 'font (create-font "fonts/OpenSans-Regular.ctf" 18))))
-		(ui-flow _ ('flow_flags flow_right_fill
-				'color *env_toolbar_col* 'font (create-font "fonts/Entypo.ctf" 32))
+		(ui-flow _ ('flow_flags flow_right_fill 'color *env_toolbar_col* 'font (create-font "fonts/Entypo.ctf" 32))
 			(ui-buttons (0xe91d 0xe91e) (const event_win_prev))
 			(ui-label fontname ('font (create-font "fonts/OpenSans-Regular.ctf" 18) 'border -1)))
 		(ui-element symbol_scroll (create-scroll scroll_flag_vertical) ('color *env_slider_col*))))
