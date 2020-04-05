@@ -28,7 +28,7 @@
 					(ui-label buf_disp ('text "0/0" 'color *env_toolbar_col* 'font *env_terminal_font*)))
 				(ui-textfield textfield ('font *env_terminal_font* 'text "" 'color argb_grey13)))
 			(ui-flow _ ('flow_flags flow_left_fill)
-				(component-connect (ui-slider slider ('color *env_slider_col*)) event_win_scroll)
+				(component-connect (ui-slider slider) event_win_scroll)
 				(ui-vdu vdu ('vdu_width vdu_width 'vdu_height vdu_height 'min_width vdu_width 'min_height vdu_height
 					'color argb_black 'ink_color argb_white))))))
 

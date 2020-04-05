@@ -49,9 +49,8 @@
 	(ui-flow _ ('flow_flags flow_down_fill)
 		(ui-title-flow _ "Help" (0xea19) (const event_win_close))
 		(ui-flow _ ('flow_flags flow_right_fill 'font *env_terminal_font*)
-			(ui-element index_scroll (create-scroll scroll_flag_vertical) ('color *env_slider_col*)
-				(ui-flow index ('flow_flags (logior flow_flag_down flow_flag_fillw)
-					'color argb_white)))
+			(ui-scroll index_scroll scroll_flag_vertical nil
+				(ui-flow index ('flow_flags (logior flow_flag_down flow_flag_fillw) 'color argb_white)))
 			(ui-vdu vdu ('vdu_height vdu_height 'ink_color argb_cyan)))))
 
 (defun-bind main ()

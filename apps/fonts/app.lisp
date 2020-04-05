@@ -43,7 +43,7 @@
 	(ui-flow _ ('flow_flags flow_right_fill 'color *env_toolbar_col* 'font *env_toolbar_font*)
 		(ui-buttons (0xe91d 0xe91e) (const event_win_prev))
 		(ui-label fontname ('font *env_window_font* 'border -1)))
-	(ui-element symbol_scroll (create-scroll scroll_flag_vertical) ('color *env_slider_col*)))
+	(ui-scroll symbol_scroll scroll_flag_vertical))
 
 (defun-bind main ()
 	(win-refresh index)

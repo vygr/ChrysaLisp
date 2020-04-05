@@ -14,13 +14,11 @@
 
 (ui-window window ()
 	(ui-title-flow window_title "" (0xea19) (const event_win_close))
-	(ui-flow _ ('flow_flags (logior flow_flag_right flow_flag_fillh)
-			'color *env_toolbar_col* 'font *env_toolbar_font*)
+	(ui-flow _ ('flow_flags (logior flow_flag_right flow_flag_fillh) 'color *env_toolbar_col* 'font *env_toolbar_font*)
 		(ui-buttons (0xe91d 0xe91e 0xea00 0xea01 0xe9ac 0xe9ad) (const event_win_prev))
 		(ui-buttons ("0" "1" "2" "3" "4") (const event_win_show_all)
 			('color (const *env_toolbar2_col*) 'font (const (create-font "fonts/OpenSans-Regular.ctf" 24)))))
-	(ui-element pcb_scroll (create-scroll (logior scroll_flag_vertical scroll_flag_horizontal))
-		('color *env_slider_col* 'min_width 512 'min_height 256)))
+	(ui-scroll pcb_scroll (logior scroll_flag_vertical scroll_flag_horizontal) ('min_width 512 'min_height 256)))
 
 (defun-bind trans (_)
 	(+ (logand 0xffffff _) 0xa0000000))

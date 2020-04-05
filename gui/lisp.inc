@@ -69,9 +69,12 @@
 	`(ui-element ,n (create-textfield) (~p)))
 
 (defmacro ui-slider (n &optional p)
-	(if p
-		`(ui-element ,n (create-slider) (~p))
-		`(ui-element ,n (create-slider) nil)))
+	(setq p (cat '('color *env_slider_col*) (opt p '())))
+	`(ui-element ,n (create-slider) (~p)))
+
+(defmacro ui-scroll (n f &optional p &rest x)
+	(setq p (cat '('color *env_slider_col*) (opt p '())))
+	`(ui-element ,n (create-scroll ,f) (~p) ~x))
 
 (defmacro ui-progress (n &optional p)
 	(if p
