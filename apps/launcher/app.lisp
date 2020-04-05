@@ -9,7 +9,7 @@
 (ui-window window ()
 	(ui-title _ ('text "Launcher"))
 	(each (lambda (path)
-		(component-connect (ui-button _ ('text path)) event_win_button)) *env_launcher_apps*))
+		(component-connect (ui-button _ ('text path)) (const event_win_button))) *env_launcher_apps*))
 
 (defun-bind app-path (_)
 	(cat "apps/" _ "/app.lisp"))

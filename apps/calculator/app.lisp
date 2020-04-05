@@ -55,12 +55,12 @@
 			nil)
 		((= id event_win_min)
 			;min button
-			(bind '(x y _ _) (view-get-bounds window))
+			(bind '(x y) (view-get-pos window))
 			(bind '(w h) (view-pref-size window))
 			(view-change-dirty window x y w h))
 		((= id event_win_max)
 			;max button
-			(bind '(x y _ _) (view-get-bounds window))
+			(bind '(x y) (view-get-pos window))
 			(view-change-dirty window x y 512 512))
 		(t (view-event window msg))))
 	(view-hide window))
