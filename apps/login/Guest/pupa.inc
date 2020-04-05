@@ -23,7 +23,8 @@
 	*env_window_border* 5 *env_label_border* 0 *env_button_border* 2
 	*env_textfield_border* -2 *env_title_border* 1 *env_title_buttons_border* 1
 	*env_window_font* (create-font "fonts/OpenSans-Regular.ctf" 18)
-	*env_title_buttons_font* (create-font "fonts/Entypo.ctf" 22)
+	*env_title_font* (create-font "fonts/OpenSans-Regular.ctf" 20)
+	*env_title_buttons_font* (create-font "fonts/Entypo.ctf" 26)
 	*env_toolbar_font* (create-font "fonts/Entypo.ctf" 32)
 	*env_terminal_font* (create-font "fonts/Hack-Regular.ctf" 16)
 	*env_medium_terminal_font* (create-font "fonts/Hack-Regular.ctf" 14)

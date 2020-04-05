@@ -41,7 +41,7 @@
 		`(ui-element ,n (create-grid) nil ~x)))
 
 (defmacro ui-title (n &optional p)
-	(setq p (cat '('font *env_window_font* 'color *env_title_col* 'border *env_title_border*) (opt p '())))
+	(setq p (cat '('font *env_title_font* 'color *env_title_col* 'border *env_title_border*) (opt p '())))
 	`(ui-element ,n (create-title) (~p)))
 
 (defmacro ui-title-flow (n s b e &optional p)
