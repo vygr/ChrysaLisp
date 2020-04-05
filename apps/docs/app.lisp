@@ -55,16 +55,16 @@
 			(def (setq line_widget (create-flow)) 'flow_flags flow_right_fill)
 			(def (defq tab_widget (create-label)) 'border 0 'min_width (* (inc tab_pos) tab_width))
 			(def (defq code_widget (create-label)) 'border 0 'text (slice (inc tab_pos) -1 line_str)
-				'font (create-font "fonts/Hack-Regular.ctf" 16) 'ink_color argb_blue)
+				'font *env_terminal_font* 'ink_color argb_blue)
 			(view-add-back line_widget tab_widget)
 			(view-add-back line_widget code_widget))
 		(t
 			(def (setq line_widget (create-label)) 'border 0 'text line_str
-				'font (create-font "fonts/Hack-Regular.ctf" 16) 'ink_color argb_blue))))
+				'font *env_terminal_font* 'ink_color argb_blue))))
 
 (defun-bind populate-page (file)
 	(ui-tree page_flow (create-flow) ('flow_flags (logior flow_flag_right flow_flag_fillh)
-			'font (create-font "fonts/OpenSans-Regular.ctf" 18) 'color argb_white)
+			'font *env_window_font* 'color argb_white)
 		(ui-label _ ('min_width margin_width))
 		(ui-flow page_widget ('flow_flags (logior flow_flag_down flow_flag_fillw)))
 		(ui-label _ ('min_width margin_width)))
@@ -81,11 +81,9 @@
 
 (ui-window window ()
 	(ui-flow _ ('flow_flags flow_down_fill)
-		(ui-flow _ ('flow_flags flow_left_fill 'font (create-font "fonts/Entypo.ctf" 22) 'color *env_title_col*)
-			(ui-buttons (0xea19) (const event_win_close))
-			(ui-title _ ('text "Docs" 'font (create-font "fonts/OpenSans-Regular.ctf" 18))))
+		(ui-title-flow _ "Docs" (0xea19) (const event_win_close))
 		(ui-flow doc_flow ('flow_flags flow_right_fill
-				'font (create-font "fonts/OpenSans-Regular.ctf" 18) 'color *env_toolbar_col*)
+				'font *env_window_font* 'color *env_toolbar_col*)
 			(ui-flow index ('flow_flags (logior flow_flag_down flow_flag_fillw))
 				(each (lambda (path)
 					(component-connect (ui-button _

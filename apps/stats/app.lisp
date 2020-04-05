@@ -13,19 +13,16 @@
 
 (ui-window window ()
 	(ui-flow _ ('flow_flags flow_down_fill)
-		(ui-flow _ ('flow_flags flow_left_fill
-				'font (create-font "fonts/Entypo.ctf" 22) 'color *env_title_col*)
-			(ui-buttons (0xea19) (const event_win_close))
-			(ui-title _ ('text "Object Monitor" 'font (create-font "fonts/OpenSans-Regular.ctf" 18))))
+		(ui-title-flow _ "Object Monitor" (0xea19) (const event_win_close))
 		(ui-grid _ ('grid_width 2 'grid_height 1 'flow_flags flow_down_fill 'maximum 100 'value 0)
 			(ui-flow name_flow ('color argb_grey8)
 				(ui-label _ ('text "Class" 'color argb_white))
-				(ui-grid _ ('grid_width 1 'grid_height 1 'color argb_white 'font (create-font "fonts/Hack-Regular.ctf" 14))
+				(ui-grid _ ('grid_width 1 'grid_height 1 'color argb_white 'font *env_medium_terminal_font*)
 					(ui-label _ ('text "")))
 				(ui-view name_view))
 			(ui-flow stat_flow ('color argb_red)
 				(ui-label _ ('text "Count" 'color argb_white))
-				(ui-grid _ ('grid_width 4 'grid_height 1 'color argb_white 'font (create-font "fonts/Hack-Regular.ctf" 14))
+				(ui-grid _ ('grid_width 4 'grid_height 1 'color argb_white 'font *env_medium_terminal_font*)
 					(times 4 (push stat_scale (ui-label _
 						('text "|" 'flow_flags (logior flow_flag_align_vcenter flow_flag_align_hright))))))
 				(ui-view stat_view)))))

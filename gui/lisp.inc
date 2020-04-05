@@ -26,9 +26,8 @@
 			~x (pop _ui))))
 
 (defmacro ui-window (n &optional p &rest x)
-	(setd p '())
-	(setq p (cat '('font (create-font "fonts/OpenSans-Regular.ctf" 18)
-		'ink_color *env_ink_col* 'color *env_window_col* 'border *env_window_border*) p))
+	(setq p (cat '('font *env_window_font*
+		'ink_color *env_ink_col* 'color *env_window_col* 'border *env_window_border*) (opt p '())))
 	`(ui-tree ,n (create-window) (~p) ~x))
 
 (defmacro ui-flow (n &optional p &rest x)
@@ -42,36 +41,30 @@
 		`(ui-element ,n (create-grid) nil ~x)))
 
 (defmacro ui-title (n &optional p)
-	(setd p '())
-	(setq p (cat '('border *env_title_border*) p))
+	(setq p (cat '('font *env_window_font* 'color *env_title_col* 'border *env_title_border*) (opt p '())))
 	`(ui-element ,n (create-title) (~p)))
 
+(defmacro ui-title-flow (n s b e &optional p)
+	(setq p (cat '('flow_flags flow_left_fill 'font *env_title_buttons_font*) (opt p '())))
+	`(ui-flow _ (~p)
+		(ui-buttons ,b ,e ('color *env_title_col* 'border *env_title_buttons_border*))
+		(ui-title ,n ('text ,s))))
+
 (defmacro ui-label (n &optional p)
-	(setd p '())
-	(setq p (cat '('flow_flags (logior flow_flag_right flow_flag_align_vcenter) 'border *env_label_border*) p))
+	(setq p (cat '('flow_flags (logior flow_flag_right flow_flag_align_vcenter) 'border *env_label_border*) (opt p '())))
 	`(ui-element ,n (create-label) (~p)))
 
 (defmacro ui-button (n &optional p)
-	(setd p '())
-	(setq p (cat '('flow_flags (logior flow_flag_down flow_flag_align_hcenter flow_flag_align_vcenter) 'border *env_button_border*) p))
+	(setq p (cat '('flow_flags (logior flow_flag_down flow_flag_align_hcenter flow_flag_align_vcenter) 'border *env_button_border*) (opt p '())))
 	`(ui-element ,n (create-button) (~p)))
 
-(defmacro ui-buttons (s e &optional c f)
+(defmacro ui-buttons (s e &optional p)
 	(setq s (map (lambda (_) (if (num? _) (num-to-utf8 _) _)) s))
-	(cond
-		((and c f)
-			`(each (lambda (_s)
-				(component-connect (ui-button __ ('text _s 'color ,c 'font ,f)) (+ _ ,e))) '(~s)))
-		(c	`(each (lambda (_s)
-				(component-connect (ui-button __ ('text _s 'color ,c)) (+ _ ,e))) '(~s)))
-		(f	`(each (lambda (_s)
-				(component-connect (ui-button __ ('text _s 'font ,f)) (+ _ ,e))) '(~s)))
-		(t	`(each (lambda (_s)
-				(component-connect (ui-button __ ('text _s)) (+ _ ,e))) '(~s)))))
+	`(each (lambda (_s)
+		(component-connect (ui-button __ ('text _s ~(opt p '()))) (+ _ ,e))) '(~s)))
 
 (defmacro ui-textfield (n &optional p)
-	(setd p '())
-	(setq p (cat '('flow_flags (logior flow_flag_right flow_flag_align_vcenter) 'border *env_textfield_border*) p))
+	(setq p (cat '('flow_flags (logior flow_flag_right flow_flag_align_vcenter) 'border *env_textfield_border*) (opt p '())))
 	`(ui-element ,n (create-textfield) (~p)))
 
 (defmacro ui-slider (n &optional p)
@@ -88,9 +81,8 @@
 	`(ui-element ,n (create-canvas ,w ,h ,s)))
 
 (defmacro ui-vdu (n &optional p)
-	(if p
-		`(ui-element ,n (create-vdu) (~p))
-		`(ui-element ,n (create-vdu) nil)))
+	(setq p (cat '('font *env_terminal_font*) (opt p '())))
+	`(ui-element ,n (create-vdu) (~p)))
 
 (defmacro ui-view (n &optional p &rest x)
 	(if p

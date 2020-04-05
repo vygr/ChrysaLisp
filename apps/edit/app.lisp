@@ -17,23 +17,20 @@
 
 (ui-window window ('color argb_grey2)
 	(ui-flow _ ('flow_flags flow_down_fill)
-		(ui-flow _ ('flow_flags flow_left_fill
-				'font (create-font "fonts/Entypo.ctf" 22) 'color *env_title_col*)
-			(ui-buttons (0xea19 0xea1b 0xea1a) (const event_win_close))
-			(ui-title window_title ('text "Edit" 'font (create-font "fonts/OpenSans-Regular.ctf" 18))))
+		(ui-title-flow window_title "Edit" (0xea19 0xea1b 0xea1a) (const event_win_close))
 		(ui-flow _ ('flow_flags flow_down_fill)
 			(ui-flow toolbar ('color *env_toolbar_col* 'flow_flags flow_right_fill)
-				(ui-grid _ ('grid_width 7 'grid_height  1 'font (create-font "fonts/Entypo.ctf" 32))
+				(ui-grid _ ('grid_width 7 'grid_height  1 'font *env_toolbar_font*)
 					(each (lambda (c e)
 							(component-connect (ui-button _ ('text (num-to-utf8 c))) e))
 						'(0xe9e9 0xea07 0xe9f0 0xe96f 0xe93c 0xe93d)
 						(list event_open event_save event_new event_close event_prev event_next))
-					(ui-label buf_disp ('text "0/0" 'color *env_toolbar_col* 'font (create-font "fonts/Hack-Regular.ctf" 16))))
-				(ui-textfield textfield ('font (create-font "fonts/Hack-Regular.ctf" 16) 'text "" 'color argb_grey13)))
+					(ui-label buf_disp ('text "0/0" 'color *env_toolbar_col* 'font *env_terminal_font*)))
+				(ui-textfield textfield ('font *env_terminal_font* 'text "" 'color argb_grey13)))
 			(ui-flow _ ('flow_flags flow_left_fill)
 				(component-connect (ui-slider slider ('color *env_slider_col*)) event_win_scroll)
 				(ui-vdu vdu ('vdu_width vdu_width 'vdu_height vdu_height 'min_width vdu_width 'min_height vdu_height
-					'color argb_black 'ink_color argb_white 'font (create-font "fonts/Hack-Regular.ctf" 14)))))))
+					'color argb_black 'ink_color argb_white))))))
 
 (defun-bind window-resize (w h)
 	(bind '(_ path title buffer position) current_text)

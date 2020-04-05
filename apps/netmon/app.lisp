@@ -18,15 +18,12 @@
 
 (ui-window window ()
 	(ui-flow _ ('flow_flags flow_down_fill)
-		(ui-flow _ ('flow_flags flow_left_fill
-				'font (create-font "fonts/Entypo.ctf" 22) 'color *env_title_col*)
-			(ui-buttons (0xea19 0xea1b 0xea1a) (const event_win_close))
-			(ui-title _ ('text "Network Monitor" 'font (create-font "fonts/OpenSans-Regular.ctf" 18))))
+		(ui-title-flow _ "Network Monitor" (0xea19 0xea1b 0xea1a) (const event_win_close))
 		(ui-grid _ ('grid_width 2 'grid_height 1 'flow_flags flow_down_fill 'maximum 100 'value 0)
 			(ui-flow _ ('color argb_green)
 				(ui-label _ ('text "Tasks" 'color argb_white))
 				(ui-grid _ ('grid_width 4 'grid_height 1 'color argb_white
-						'font (create-font "fonts/Hack-Regular.ctf" 14))
+						'font *env_medium_terminal_font*)
 					(times 4 (push task_scale (ui-label _
 						('text "|" 'flow_flags (logior flow_flag_align_vcenter flow_flag_align_hright))))))
 				(ui-grid _ ('grid_width 1 'grid_height cpu_total)
@@ -34,7 +31,7 @@
 			(ui-flow _ ('color argb_red)
 				(ui-label _ ('text "Memory (kb)" 'color argb_white))
 				(ui-grid _ ('grid_width 4 'grid_height 1 'color argb_white
-						'font (create-font "fonts/Hack-Regular.ctf" 14))
+						'font *env_medium_terminal_font*)
 					(times 4 (push memory_scale (ui-label _
 						('text "|" 'flow_flags (logior flow_flag_align_vcenter flow_flag_align_hright))))))
 				(ui-grid _ ('grid_width 1 'grid_height cpu_total)

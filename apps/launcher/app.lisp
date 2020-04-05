@@ -8,7 +8,7 @@
 
 (ui-window window ()
 	(ui-flow _ ('flow_flags flow_down_fill)
-		(ui-title _ ('text "Launcher" 'color *env_title_col*))
+		(ui-title _ ('text "Launcher"))
 		(each (lambda (path)
 			(component-connect (ui-button _ ('text path)) event_win_button)) *env_launcher_apps*)))
 
