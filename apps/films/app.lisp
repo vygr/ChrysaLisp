@@ -13,7 +13,7 @@
 	(ui-title-flow window_title "" (0xea19) (const event_win_close))
 	(ui-flow _ ('flow_flags (logior flow_flag_right flow_flag_fillh) 'color *env_toolbar_col* 'font *env_toolbar_font*)
 		(ui-buttons (0xe91d 0xe91e) (const event_win_prev)))
-	(ui-scroll image_scroll (logior scroll_flag_vertical scroll_flag_horizontal) ('min_width 32 'min_height 32)))
+	(ui-scroll image_scroll (logior scroll_flag_vertical scroll_flag_horizontal)))
 
 (defun win-refresh (_)
 	(bind '(w h) (view-pref-size (setq canvas (canvas-load (elem (setq index _) images) load_flag_film))))
@@ -21,8 +21,9 @@
 	(def window_title 'text (elem _ images))
 	(view-add-child image_scroll canvas)
 	(view-layout window_title)
-	(bind '(x y) (view-get-pos window))
+ 	(bind '(x y) (view-get-pos window))
 	(bind '(w h) (view-pref-size window))
+ 	(def image_scroll 'min_width 32 'min_height 32)
 	(view-change-dirty window x y w h))
 
 (defun-bind main ()
