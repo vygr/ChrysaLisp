@@ -80,15 +80,14 @@
 	(view-dirty-all (view-layout doc_flow)))
 
 (ui-window window ()
-	(ui-flow _ ('flow_flags flow_down_fill)
-		(ui-title-flow _ "Docs" (0xea19) (const event_win_close))
-		(ui-flow doc_flow ('flow_flags flow_right_fill
-				'font *env_window_font* 'color *env_toolbar_col*)
-			(ui-flow index ('flow_flags (logior flow_flag_down flow_flag_fillw))
-				(each (lambda (path)
-					(component-connect (ui-button _
-						('text path 'flow_flags (logior flow_flag_align_vcenter flow_flag_align_hleft))) event_win_button)) doc_list))
-			(ui-element page_scroll (create-scroll scroll_flag_vertical) ('min_width 848 'min_height 800 'color *env_slider_col*)))))
+	(ui-title-flow _ "Docs" (0xea19) (const event_win_close))
+	(ui-flow doc_flow ('flow_flags flow_right_fill
+			'font *env_window_font* 'color *env_toolbar_col*)
+		(ui-flow index ('flow_flags (logior flow_flag_down flow_flag_fillw))
+			(each (lambda (path)
+				(component-connect (ui-button _
+					('text path 'flow_flags (logior flow_flag_align_vcenter flow_flag_align_hleft))) event_win_button)) doc_list))
+		(ui-element page_scroll (create-scroll scroll_flag_vertical) ('min_width 848 'min_height 800 'color *env_slider_col*))))
 
 (defun-bind main ()
 	(populate-page (elem 0 doc_list))

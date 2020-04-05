@@ -18,9 +18,8 @@
 		(range (dec (* canvas_height canvas_scale)) -1)))
 
 (ui-window window ()
-	(ui-flow _ ('flow_flags flow_down_fill)
-		(ui-title-flow _ "Raymarch" (0xea19) (const event_win_close))
-		(ui-canvas canvas canvas_width canvas_height canvas_scale)))
+	(ui-title-flow _ "Raymarch" (0xea19) (const event_win_close))
+	(ui-canvas canvas canvas_width canvas_height canvas_scale))
 
 (defun-bind tile (canvas data)
 	;(tile canvas data) -> area

@@ -12,20 +12,19 @@
 	select (array (task-mailbox) (mail-alloc-mbox)) sample_msg (array (elem 1 select)))
 
 (ui-window window ()
-	(ui-flow _ ('flow_flags flow_down_fill)
-		(ui-title-flow _ "Object Monitor" (0xea19) (const event_win_close))
-		(ui-grid _ ('grid_width 2 'grid_height 1 'flow_flags flow_down_fill 'maximum 100 'value 0)
-			(ui-flow name_flow ('color argb_grey8)
-				(ui-label _ ('text "Class" 'color argb_white))
-				(ui-grid _ ('grid_width 1 'grid_height 1 'color argb_white 'font *env_medium_terminal_font*)
-					(ui-label _ ('text "")))
-				(ui-view name_view))
-			(ui-flow stat_flow ('color argb_red)
-				(ui-label _ ('text "Count" 'color argb_white))
-				(ui-grid _ ('grid_width 4 'grid_height 1 'color argb_white 'font *env_medium_terminal_font*)
-					(times 4 (push stat_scale (ui-label _
-						('text "|" 'flow_flags (logior flow_flag_align_vcenter flow_flag_align_hright))))))
-				(ui-view stat_view)))))
+	(ui-title-flow _ "Object Monitor" (0xea19) (const event_win_close))
+	(ui-grid _ ('grid_width 2 'grid_height 1 'flow_flags flow_down_fill 'maximum 100 'value 0)
+		(ui-flow name_flow ('color argb_grey8)
+			(ui-label _ ('text "Class" 'color argb_white))
+			(ui-grid _ ('grid_width 1 'grid_height 1 'color argb_white 'font *env_medium_terminal_font*)
+				(ui-label _ ('text "")))
+			(ui-view name_view))
+		(ui-flow stat_flow ('color argb_red)
+			(ui-label _ ('text "Count" 'color argb_white))
+			(ui-grid _ ('grid_width 4 'grid_height 1 'color argb_white 'font *env_medium_terminal_font*)
+				(times 4 (push stat_scale (ui-label _
+					('text "|" 'flow_flags (logior flow_flag_align_vcenter flow_flag_align_hright))))))
+			(ui-view stat_view))))
 
 (defun-bind main ()
 	(while (progn

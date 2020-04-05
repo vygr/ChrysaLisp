@@ -28,7 +28,8 @@
 (defmacro ui-window (n &optional p &rest x)
 	(setq p (cat '('font *env_window_font*
 		'ink_color *env_ink_col* 'color *env_window_col* 'border *env_window_border*) (opt p '())))
-	`(ui-tree ,n (create-window) (~p) ~x))
+	`(ui-tree ,n (create-window) (~p)
+		(ui-flow _ ('flow_flags flow_down_fill) ~x)))
 
 (defmacro ui-flow (n &optional p &rest x)
 	(if p

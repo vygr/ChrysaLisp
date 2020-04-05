@@ -13,9 +13,8 @@
 	center_x (mbfp-from-fixed -0.5) center_y (mbfp-from-fixed 0.0) zoom (mbfp-from-fixed 1.0))
 
 (ui-window window ()
-	(ui-flow _ ('flow_flags flow_down_fill)
-		(ui-title-flow _ "Mandelbrot" (0xea19) (const event_win_close))
-		(ui-canvas canvas canvas_width canvas_height canvas_scale)))
+	(ui-title-flow _ "Mandelbrot" (0xea19) (const event_win_close))
+	(ui-canvas canvas canvas_width canvas_height canvas_scale))
 
 (defun-bind reset ()
 	(if select (mail-free-mbox (elem 1 select)))

@@ -17,25 +17,24 @@
 	farm (open-farm "apps/netmon/child" cpu_total kn_call_open) sample_msg (array (elem 1 select)))
 
 (ui-window window ()
-	(ui-flow _ ('flow_flags flow_down_fill)
-		(ui-title-flow _ "Network Monitor" (0xea19 0xea1b 0xea1a) (const event_win_close))
-		(ui-grid _ ('grid_width 2 'grid_height 1 'flow_flags flow_down_fill 'maximum 100 'value 0)
-			(ui-flow _ ('color argb_green)
-				(ui-label _ ('text "Tasks" 'color argb_white))
-				(ui-grid _ ('grid_width 4 'grid_height 1 'color argb_white
-						'font *env_medium_terminal_font*)
-					(times 4 (push task_scale (ui-label _
-						('text "|" 'flow_flags (logior flow_flag_align_vcenter flow_flag_align_hright))))))
-				(ui-grid _ ('grid_width 1 'grid_height cpu_total)
-					(times cpu_total (push task_bars (ui-progress _)))))
-			(ui-flow _ ('color argb_red)
-				(ui-label _ ('text "Memory (kb)" 'color argb_white))
-				(ui-grid _ ('grid_width 4 'grid_height 1 'color argb_white
-						'font *env_medium_terminal_font*)
-					(times 4 (push memory_scale (ui-label _
-						('text "|" 'flow_flags (logior flow_flag_align_vcenter flow_flag_align_hright))))))
-				(ui-grid _ ('grid_width 1 'grid_height cpu_total)
-					(times cpu_total (push memory_bars (ui-progress _))))))))
+	(ui-title-flow _ "Network Monitor" (0xea19 0xea1b 0xea1a) (const event_win_close))
+	(ui-grid _ ('grid_width 2 'grid_height 1 'flow_flags flow_down_fill 'maximum 100 'value 0)
+		(ui-flow _ ('color argb_green)
+			(ui-label _ ('text "Tasks" 'color argb_white))
+			(ui-grid _ ('grid_width 4 'grid_height 1 'color argb_white
+					'font *env_medium_terminal_font*)
+				(times 4 (push task_scale (ui-label _
+					('text "|" 'flow_flags (logior flow_flag_align_vcenter flow_flag_align_hright))))))
+			(ui-grid _ ('grid_width 1 'grid_height cpu_total)
+				(times cpu_total (push task_bars (ui-progress _)))))
+		(ui-flow _ ('color argb_red)
+			(ui-label _ ('text "Memory (kb)" 'color argb_white))
+			(ui-grid _ ('grid_width 4 'grid_height 1 'color argb_white
+					'font *env_medium_terminal_font*)
+				(times 4 (push memory_scale (ui-label _
+					('text "|" 'flow_flags (logior flow_flag_align_vcenter flow_flag_align_hright))))))
+			(ui-grid _ ('grid_width 1 'grid_height cpu_total)
+				(times cpu_total (push memory_bars (ui-progress _)))))))
 
 (defun-bind main ()
 	;add window

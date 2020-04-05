@@ -12,12 +12,11 @@
 
 ;create a window
 (ui-window window ()
-	(ui-flow _ ('flow_flags flow_down_fill)
-		(ui-title-flow _ "Clock" (0xea19) (const event_win_close))
-		(ui-canvas clock clock_size clock_size clock_scale)
-		(ui-label display ('text "00:00:00" 'color argb_black 'ink_color argb_red
-			'flow_flags (logior flow_flag_align_hcenter flow_flag_align_vcenter)
-			'font (create-font "fonts/Hack-Regular.ctf" 48)))))
+	(ui-title-flow _ "Clock" (0xea19) (const event_win_close))
+	(ui-canvas clock clock_size clock_size clock_scale)
+	(ui-label display ('text "00:00:00" 'color argb_black 'ink_color argb_red
+		'flow_flags (logior flow_flag_align_hcenter flow_flag_align_vcenter)
+		'font (create-font "fonts/Hack-Regular.ctf" 48))))
 
 (defun-bind main ()
 	;clear clock face

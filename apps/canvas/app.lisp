@@ -9,9 +9,8 @@
 (defq canvas_width 600 canvas_height 600 canvas_scale 1)
 
 (ui-window window ()
-	(ui-flow _ ('flow_flags flow_down_fill)
-		(ui-title-flow _ "Canvas" (0xea19) (const event_win_close))
-		(ui-canvas canvas canvas_width canvas_height canvas_scale)))
+	(ui-title-flow _ "Canvas" (0xea19) (const event_win_close))
+	(ui-canvas canvas canvas_width canvas_height canvas_scale))
 
 (defun-bind main ()
 	(canvas-set-flags (canvas-fill canvas 0) 1)
