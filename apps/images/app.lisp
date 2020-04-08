@@ -38,9 +38,7 @@
 	(while (cond
 		((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_win_close)
 			nil)
-		((= id event_win_next)
-			(win-refresh (% (inc index) (length images))))
-		((= id event_win_prev)
-			(win-refresh (% (+ (dec index) (length images)) (length images))))
+		((<= event_win_prev id event_win_next)
+			(win-refresh (% (+ index (dec (* 2 (- id event_win_prev))) (length images)) (length images))))
 		(t (view-event window msg))))
 	(view-hide window))

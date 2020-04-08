@@ -52,9 +52,7 @@
 		((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_win_close)
 			;close button
 			nil)
-		((= id event_win_next)
-			(win-refresh (% (inc index) (length fonts))))
-		((= id event_win_prev)
-			(win-refresh (% (+ (dec index) (length fonts)) (length fonts))))
+		((<= event_win_prev id event_win_next)
+			(win-refresh (% (+ index (dec (* 2 (- id event_win_prev))) (length fonts)) (length fonts))))
 		(t (view-event window msg))))
 	(view-hide window))
