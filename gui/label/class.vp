@@ -29,13 +29,13 @@
 		(assign '(r1) '((r0 label_flow)))
 		(vp-xor-rr r2 r2)
 		(assign '(r2) '((r1 view_flags)))
-		(call 'label 'add_child '(r0 r1) '(r0))
+		(call 'label 'add_back '(r0 r1) '(r0))
 
 		;add my text object
 		(call 'text 'create nil '(r1))
 		(assign '((rsp 0)) '(r0))
 		(assign '(r1) '((r0 label_text)))
-		(call 'label 'add_child '((r0 label_flow) r1))
+		(call 'label 'add_back '((r0 label_flow) r1))
 		(vp-pop r0)
 		(vp-cpy-cr 1 r1)
 	(endif)
@@ -144,22 +144,22 @@
 
 (def-func-end)
 
-;; (def-method 'label 'add_child)
-;; 	;inputs
-;; 	;r0 = label object (ptr)
-;; 	;r1 = child view object (ptr)
-;; 	;outputs
-;; 	;r0 = label object (ptr)
-;; 	;trashes
-;; 	;r1-r14
+(def-method 'label 'add_child)
+	;inputs
+	;r0 = label object (ptr)
+	;r1 = child view object (ptr)
+	;outputs
+	;r0 = label object (ptr)
+	;trashes
+	;r1-r14
 
-;; 	(entry 'label 'add_child '(r0 r1))
+	(entry 'label 'add_child '(r0 r1))
 
-;; 	(vp-push r0)
-;; 	(call 'view 'add_back '((r0 label_flow) r1))
-;; 	(vp-pop r0)
+	(vp-push r0)
+	(call 'view 'add_back '((r0 label_flow) r1))
+	(vp-pop r0)
 
-;; 	(exit 'label 'add_child '(r0))
-;; 	(vp-ret)
+	(exit 'label 'add_child '(r0))
+	(vp-ret)
 
-;; (def-func-end)
+(def-func-end)

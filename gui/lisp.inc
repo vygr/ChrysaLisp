@@ -51,13 +51,13 @@
 		(ui-buttons ,b ,e ('color *env_title_col* 'border *env_title_buttons_border*))
 		(ui-title ,n ('text ,s))))
 
-(defmacro ui-label (n &optional p)
+(defmacro ui-label (n &optional p &rest x)
 	(setq p (cat '('flow_flags (logior flow_flag_right flow_flag_align_vcenter) 'border *env_label_border*) (opt p '())))
-	`(ui-element ,n (create-label) (~p)))
+	`(ui-element ,n (create-label) (~p) ~x))
 
-(defmacro ui-button (n &optional p)
+(defmacro ui-button (n &optional p &rest x)
 	(setq p (cat '('flow_flags (logior flow_flag_down flow_flag_align_hcenter flow_flag_align_vcenter) 'border *env_button_border*) (opt p '())))
-	`(ui-element ,n (create-button) (~p)))
+	`(ui-element ,n (create-button) (~p) ~x))
 
 (defmacro ui-buttons (s e &optional p)
 	(setq s (map (lambda (_) (if (num? _) (num-to-utf8 _) _)) s))
