@@ -7,17 +7,20 @@
 (structure 'event 0
 	(byte 'close 'max 'min)
 	(byte 'clear 'undo 'redo)
+	(byte 'radius1 'radius2 'radius3)
 	(byte 'black 'white 'red 'green 'blue 'cyan 'yellow 'magenta))
 
-(defq canvas_width 640 canvas_height 480 min_width 320 min_height 240
-	eps 0.25 min_len 4.0 stroke_radius 3.0 stroke_col argb_black
+(defq canvas_width 640 canvas_height 480 min_width 320 min_height 240 eps 0.25
+	radiuss '(2.0 4.0 8.0) stroke_radius (elem 0 radiuss)
 	palette (list argb_black argb_white argb_red argb_green argb_blue argb_cyan argb_yellow argb_magenta)
-	commited_strokes (list) in_flight_strokes (list) undo_stack (list) redo_stack (list))
+	stroke_col (elem 0 palette) commited_strokes (list) in_flight_strokes (list)
+	undo_stack (list) redo_stack (list))
 
 (ui-window window ()
 	(ui-title-flow _ "Whiteboard" (0xea19 0xea1b 0xea1a) (const event_close))
 	(ui-flow _ ('flow_flags (logior flow_flag_right flow_flag_fillh) 'color *env_toolbar_col* 'font *env_toolbar_font*)
 		(ui-buttons (0xea31 0xe9fe 0xe99d) (const event_clear))
+		(ui-buttons (0xe979 0xe97d 0xe97b) (const event_radius1))
 		(each (lambda (col)
 			(component-connect (ui-button __ ('color (const *env_toolbar2_col*) 'ink_color col
 				'text (const (num-to-utf8 0xe95f)))) (+ _ event_black))) palette))
@@ -92,6 +95,9 @@
 		((<= event_black id event_magenta)
 			;ink pot
 			(setq stroke_col (elem (- id event_black) palette)))
+		((<= event_radius1 id event_radius3)
+			;stroke radius
+			(setq stroke_radius (elem (- id event_radius1) radiuss)))
 		((= id event_clear)
 			;clear
 			(snapshot)
@@ -114,7 +120,7 @@
 						;mouse button is down
 						(case last_state
 							(d	;was down last time, so extend last stroke ?
-								(when (>= (vec-length (vec-sub new_point last_point)) min_len)
+								(when (>= (vec-length (vec-sub new_point last_point)) (* 2 stroke_radius))
 									(setq last_point new_point)
 									(push (elem -2 (elem -2 in_flight_strokes)) (elem 0 new_point) (elem 1 new_point))))
 							(u	;was up last time, so start new stroke
