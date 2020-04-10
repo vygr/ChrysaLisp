@@ -17,7 +17,7 @@
 (ui-window window ()
 	(ui-title-flow _ "Whiteboard" (0xea19 0xea1b 0xea1a) (const event_close))
 	(ui-flow _ ('flow_flags (logior flow_flag_right flow_flag_fillh) 'color *env_toolbar_col* 'font *env_toolbar_font*)
-		(ui-buttons (0xe94c 0xe9fe 0xe99d) (const event_clear))
+		(ui-buttons (0xea31 0xe9fe 0xe99d) (const event_clear))
 		(each (lambda (col)
 			(component-connect (ui-button __ ('color (const *env_toolbar2_col*) 'ink_color col
 				'text (const (num-to-utf8 0xe95f)))) (+ _ event_black))) palette))
@@ -126,8 +126,7 @@
 							(d	;was down last time, so commit in flight strokes
 								(setq last_state 'u)
 								(snapshot)
-								(each (lambda ((w s))
-									(commit w s stroke_col)) in_flight_strokes)
+								(each (lambda ((w s)) (commit w s stroke_col)) in_flight_strokes)
 								(clear in_flight_strokes)
 								(redraw))
 							(u	;was up last time, so we are hovering

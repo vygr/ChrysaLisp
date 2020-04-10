@@ -27,6 +27,15 @@ corrupted.
 
 ------
 
+Nuclearfall has set up a IRC chat on `chat.freenode.net#ChrysaLisp` I'll keep
+this open all the time I'm awake.
+
+New Whiteboard app, with shamed face to Neauoire as it took so long to get
+round to doing this. Despite it being my day job, or maybe because it's my day
+job !
+
+------
+
 Window component is now just a resizable panel. Soon there will be some extra
 ui tree macros to build standard window types with titles and close buttons
 with less verbose construction.
