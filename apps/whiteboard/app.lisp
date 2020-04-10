@@ -10,8 +10,8 @@
 	(byte 'black 'red 'green 'blue 'cyan 'yellow 'magenta))
 
 (defq canvas_width 640 canvas_height 480 min_width 320 min_height 240
-	eps 0.25 min_len 4.0 stroke_width 3.0 stroke_col argb_black
-	pallette (list argb_black argb_red argb_green argb_blue argb_cyan argb_yellow argb_magenta)
+	eps 0.25 min_len 4.0 stroke_radius 3.0 stroke_col argb_black
+	palette (list argb_black argb_white argb_red argb_green argb_blue argb_cyan argb_yellow argb_magenta)
 	commited_strokes (list) in_flight_strokes (list) undo_stack (list) redo_stack (list))
 
 (ui-window window ()
@@ -20,22 +20,22 @@
 		(ui-buttons (0xe94c 0xe9fe 0xe99d) (const event_clear))
 		(each (lambda (col)
 			(component-connect (ui-button __ ('color (const *env_toolbar2_col*) 'ink_color col
-				'text (const (num-to-utf8 0xe95f)))) (+ _ event_black))) pallette))
+				'text (const (num-to-utf8 0xe95f)))) (+ _ event_black))) palette))
 	(ui-scroll image_scroll (logior scroll_flag_vertical scroll_flag_horizontal)
 			('min_width canvas_width 'min_height canvas_height)
 		(ui-canvas canvas canvas_width canvas_height 1)))
 
-(defun-bind flatten (w s)
+(defun-bind flatten (r s)
 	;flatten a polyline to polygons
 	(cond
 		((= 0 (length s))
 			;a runt so nothing
-			(list))
+			'())
 		((= 2 (length s))
 			;just a point
-			(list (points-gen-arc (elem 0 s) (elem 1 s) 0 fp_2pi w eps (points))))
+			(list (points-gen-arc (elem 0 s) (elem 1 s) 0 fp_2pi r eps (points))))
 		(t	;is a polyline
-			(points-stroke-polylines w eps
+			(points-stroke-polylines r eps
 				(const join_round) (const cap_round) (const cap_round)
 				(list s) (list)))))
 
@@ -58,18 +58,18 @@
 		(setq commited_strokes (pop redo_stack))
 		(redraw)))
 
-(defun-bind commit (w s c)
+(defun-bind commit (r s c)
 	;commit a stroke to the canvas
-	(push commited_strokes (list c (flatten w s))))
+	(push commited_strokes (list c (flatten r s))))
 
 (defun-bind fpoly (col mode _)
 	(canvas-set-color canvas col)
 	(canvas-fpoly canvas 0 0 mode _))
 
 (defun-bind redraw ()
-	(canvas-fill canvas argb_white)
+	(canvas-fill canvas argb_grey15)
 	(each (lambda ((c s)) (fpoly c 1 s)) commited_strokes)
-	(each (lambda ((w s)) (fpoly stroke_col 1 (flatten w s))) in_flight_strokes)
+	(each (lambda ((r s)) (fpoly stroke_col 1 (flatten r s))) in_flight_strokes)
 	(canvas-swap canvas))
 
 (defun-bind main ()
@@ -91,7 +91,7 @@
 			(def image_scroll 'min_width min_width 'min_height min_height))
 		((<= event_black id event_magenta)
 			;ink pot
-			(setq stroke_col (elem (- id event_black) pallette)))
+			(setq stroke_col (elem (- id event_black) palette)))
 		((= id event_clear)
 			;clear
 			(snapshot)
@@ -116,12 +116,11 @@
 							(d	;was down last time, so extend last stroke ?
 								(when (>= (vec-length (vec-sub new_point last_point)) min_len)
 									(setq last_point new_point)
-									(push (elem -2 (elem -2 in_flight_strokes)) (elem 0 new_point) (elem 1 new_point))
-									(redraw)))
+									(push (elem -2 (elem -2 in_flight_strokes)) (elem 0 new_point) (elem 1 new_point))))
 							(u	;was up last time, so start new stroke
 								(setq last_state 'd last_point new_point)
-								(push in_flight_strokes (list stroke_width new_point))))
-								(redraw))
+								(push in_flight_strokes (list stroke_radius new_point))))
+						(redraw))
 					(t	;mouse button is up
 						(case last_state
 							(d	;was down last time, so commit in flight strokes
