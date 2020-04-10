@@ -79,7 +79,7 @@
 
 (defun-bind main ()
 	(canvas-set-flags canvas 1)
-	(redraw)
+	(redraw t)
 	(gui-add (apply view-change (cat (list window 256 256) (view-pref-size window))))
 	(def image_scroll 'min_width min_width 'min_height min_height)
 	(defq last_state 'u last_point nil)
