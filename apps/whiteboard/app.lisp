@@ -10,7 +10,7 @@
 	(byte 'radius1 'radius2 'radius3)
 	(byte 'black 'white 'red 'green 'blue 'cyan 'yellow 'magenta))
 
-(defq canvas_width 640 canvas_height 480 min_width 320 min_height 240 eps 0.25
+(defq canvas_width 800 canvas_height 600 min_width 320 min_height 240 eps 0.25
 	radiuss '(2.0 4.0 8.0) stroke_radius (elem 0 radiuss) then (time)
 	palette (list argb_black argb_white argb_red argb_green argb_blue argb_cyan argb_yellow argb_magenta)
 	stroke_col (elem 0 palette) commited_strokes (list) in_flight_strokes (list)
@@ -80,7 +80,7 @@
 (defun-bind main ()
 	(canvas-set-flags canvas 1)
 	(redraw)
-	(gui-add (apply view-change (cat (list window 512 256) (view-pref-size window))))
+	(gui-add (apply view-change (cat (list window 256 256) (view-pref-size window))))
 	(def image_scroll 'min_width min_width 'min_height min_height)
 	(defq last_state 'u last_point nil)
 	(while (cond
