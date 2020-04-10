@@ -12,7 +12,7 @@
 (defq canvas_width 640 canvas_height 480 min_width 320 min_height 240
 	eps 0.25 min_len 4.0 stroke_width 3.0 stroke_col argb_black
 	pallette (list argb_black argb_red argb_green argb_blue argb_cyan argb_yellow argb_magenta)
-	commited_strokes (list) in_flight_strokes (list))
+	commited_strokes (list) in_flight_strokes (list) undo_stack (list) redo_stack (list))
 
 (ui-window window ()
 	(ui-title-flow _ "Whiteboard" (0xea19 0xea1b 0xea1a) (const event_win_close))
@@ -30,6 +30,25 @@
 	(points-stroke-polylines w eps
 		(const join_round) (const cap_round) (const cap_round)
 		(list s) (list)))
+
+(defun-bind snapshot ()
+	;take a snapshot of the canvas state
+	(push undo_stack (cat commited_strokes))
+	(clear redo_stack))
+
+(defun-bind undo ()
+	;move state from undo to redo stack and restore old state
+	(when (/= 0 (length undo_stack))
+		(push redo_stack commited_strokes)
+		(setq commited_strokes (pop undo_stack))
+		(redraw)))
+
+(defun-bind redo ()
+	;move state from redo to undo stack and restore old state
+	(when (/= 0 (length redo_stack))
+		(push undo_stack commited_strokes)
+		(setq commited_strokes (pop redo_stack))
+		(redraw)))
 
 (defun-bind commit (w s c)
 	;commit a stroke to the canvas
@@ -69,8 +88,15 @@
 			(setq stroke_col (elem (- id event_win_black) pallette)))
 		((= id event_win_clear)
 			;clear
+			(snapshot)
 			(clear commited_strokes)
 			(redraw))
+		((= id event_win_undo)
+			;undo
+			(undo) t)
+		((= id event_win_redo)
+			;undo
+			(redo) t)
 		((= id (component-get-id canvas))
 			;event for canvas
 			(when (= (get-long msg ev_msg_type) ev_type_mouse)
@@ -93,6 +119,7 @@
 						(case last_state
 							(d	;was down last time, so commit in flight strokes
 								(setq last_state 'u)
+								(snapshot)
 								(each (lambda ((w s))
 									(commit w s stroke_col)) in_flight_strokes)
 								(clear in_flight_strokes)
