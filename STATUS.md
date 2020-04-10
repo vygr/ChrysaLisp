@@ -27,8 +27,9 @@ corrupted.
 
 ------
 
-Nuclearfall has set up a IRC chat on `chat.freenode.net#ChrysaLisp` I'll keep
-this open all the time I'm awake.
+Nuclearfall has set up an IRC channel on irc.freenode.net at #ChrysaLisp. The room
+should be available 24-7 and I'll keep this open all the time I'm awake. Users
+of Riot.im can also access the channel on matrix.org at #Chrysalisp:matrix.org
 
 New Whiteboard app, with shamed face to Neauoire as it took so long to get
 round to doing this. Despite it being my day job, or maybe because it's my day
