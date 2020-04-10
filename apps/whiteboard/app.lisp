@@ -11,7 +11,7 @@
 	(byte 'black 'white 'red 'green 'blue 'cyan 'yellow 'magenta))
 
 (defq canvas_width 640 canvas_height 480 min_width 320 min_height 240 eps 0.25
-	radiuss '(2.0 4.0 8.0) stroke_radius (elem 0 radiuss)
+	radiuss '(2.0 4.0 8.0) stroke_radius (elem 0 radiuss) then (time)
 	palette (list argb_black argb_white argb_red argb_green argb_blue argb_cyan argb_yellow argb_magenta)
 	stroke_col (elem 0 palette) commited_strokes (list) in_flight_strokes (list)
 	undo_stack (list) redo_stack (list))
@@ -52,14 +52,14 @@
 	(when (/= 0 (length undo_stack))
 		(push redo_stack commited_strokes)
 		(setq commited_strokes (pop undo_stack))
-		(redraw)))
+		(redraw t)))
 
 (defun-bind redo ()
 	;move state from redo to undo stack and restore old state
 	(when (/= 0 (length redo_stack))
 		(push undo_stack commited_strokes)
 		(setq commited_strokes (pop redo_stack))
-		(redraw)))
+		(redraw t)))
 
 (defun-bind commit (r s c)
 	;commit a stroke to the canvas
@@ -69,11 +69,13 @@
 	(canvas-set-color canvas col)
 	(canvas-fpoly canvas 0 0 mode _))
 
-(defun-bind redraw ()
-	(canvas-fill canvas argb_grey15)
-	(each (lambda ((c s)) (fpoly c 1 s)) commited_strokes)
-	(each (lambda ((r s)) (fpoly stroke_col 1 (flatten r s))) in_flight_strokes)
-	(canvas-swap canvas))
+(defun-bind redraw (&optional f)
+	(when (or (> (defq now (time)) (+ then 10000)) f)
+		(setq then now)
+		(canvas-fill canvas argb_grey15)
+		(each (lambda ((c s)) (fpoly c 1 s)) commited_strokes)
+		(each (lambda ((r s)) (fpoly stroke_col 1 (flatten r s))) in_flight_strokes)
+		(canvas-swap canvas)))
 
 (defun-bind main ()
 	(canvas-set-flags canvas 1)
@@ -102,7 +104,7 @@
 			;clear
 			(snapshot)
 			(clear commited_strokes)
-			(redraw))
+			(redraw t))
 		((= id event_undo)
 			;undo
 			(undo) t)
@@ -134,7 +136,7 @@
 								(snapshot)
 								(each (lambda ((w s)) (commit w s stroke_col)) in_flight_strokes)
 								(clear in_flight_strokes)
-								(redraw))
+								(redraw t))
 							(u	;was up last time, so we are hovering
 								t))))) t)
 		(t (view-event window msg))))
