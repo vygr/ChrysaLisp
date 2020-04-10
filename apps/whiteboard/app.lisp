@@ -7,7 +7,7 @@
 (structure 'event 0
 	(byte 'close 'max 'min)
 	(byte 'clear 'undo 'redo)
-	(byte 'black 'red 'green 'blue 'cyan 'yellow 'magenta))
+	(byte 'black 'white 'red 'green 'blue 'cyan 'yellow 'magenta))
 
 (defq canvas_width 640 canvas_height 480 min_width 320 min_height 240
 	eps 0.25 min_len 4.0 stroke_radius 3.0 stroke_col argb_black
