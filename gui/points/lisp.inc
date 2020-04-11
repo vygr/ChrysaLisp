@@ -12,6 +12,7 @@
 (ffi points-gen-quadratic "gui/points/lisp_gen_quadratic" 0)
 (ffi points-mod "gui/points/lisp_mod" 0)
 (ffi points-mul "gui/points/lisp_mul" 0)
+(ffi points-filter "gui/points/lisp_filter" 0)
 (ffi points-simplify "gui/points/lisp_simplify" 0)
 (ffi points-stroke-polygons "gui/points/lisp_stroke_polygons" 0)
 (ffi points-stroke-polylines "gui/points/lisp_stroke_polylines" 0)

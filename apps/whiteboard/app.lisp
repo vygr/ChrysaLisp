@@ -4,9 +4,36 @@
 (import 'gui/lisp.inc)
 (import 'apps/math.inc)
 
+(structure 'event 0
+	(byte 'close 'max 'min)
+	(byte 'clear 'undo 'redo)
+	(byte 'radius1 'radius2 'radius3)
+	(byte 'black 'white 'red 'green 'blue 'cyan 'yellow 'magenta)
+	(byte 'tblack 'twhite 'tred 'tgreen 'tblue 'tcyan 'tyellow 'tmagenta))
+
 (defun-bind trans (_)
 	;transparent colour
 	(+ (logand 0xffffff _) 0x60000000))
+
+(defq canvas_width 800 canvas_height 600 min_width 320 min_height 240 eps 0.25 tol 3.0
+	radiuss '(3.0 6.0 8.0) stroke_radius (elem 0 radiuss) then (time)
+	palette (list argb_black argb_white argb_red argb_green argb_blue argb_cyan argb_yellow argb_magenta)
+	palette (cat palette (map trans palette)) undo_stack (list) redo_stack (list)
+	stroke_col (elem 0 palette) commited_strokes (list) in_flight_strokes (list) debug_strokes (list))
+
+(ui-window window ()
+	(ui-title-flow _ "Whiteboard" (0xea19 0xea1b 0xea1a) (const event_close))
+	(ui-flow _ ('flow_flags (logior flow_flag_right flow_flag_fillh) 'color *env_toolbar_col* 'font *env_toolbar_font*)
+		(ui-buttons (0xea31 0xe9fe 0xe99d) (const event_clear))
+		(ui-buttons (0xe979 0xe97d 0xe97b) (const event_radius1)))
+	(ui-flow _ ('flow_flags (logior flow_flag_right flow_flag_fillh) 'font *env_toolbar_font*)
+		(each (lambda (col)
+			(defq e (+ _ event_black))
+			(component-connect (ui-button _ ('color (if (>= e event_tblack) *env_toolbar2_col* *env_toolbar_col*)
+				'ink_color col 'text (const (num-to-utf8 0xe95f)))) e)) palette))
+	(ui-scroll image_scroll (logior scroll_flag_vertical scroll_flag_horizontal)
+			('min_width canvas_width 'min_height canvas_height)
+		(ui-canvas canvas canvas_width canvas_height 1)))
 
 (defun-bind flatten (r s)
 	;flatten a polyline to polygons
@@ -16,10 +43,10 @@
 			'())
 		((= 2 (length s))
 			;just a point
-			(list (points-gen-arc (elem 0 s) (elem 1 s) 0 fp_2pi r eps (points))))
+			(list (points-gen-arc (elem 0 s) (elem 1 s) 0 fp_2pi r (const eps) (points))))
 		(t	;is a polyline
-			(points-stroke-polylines r eps
-				(const join_round) (const cap_round) (const cap_round)
+			(points-stroke-polylines r (const eps)
+				(const join_bevel) (const cap_round) (const cap_round)
 				(list s) (list)))))
 
 (defun-bind snapshot ()
@@ -57,39 +84,12 @@
 		(each (lambda ((r s)) (fpoly stroke_col 1 (flatten r s))) in_flight_strokes)
 		(canvas-swap canvas)))
 
-(structure 'event 0
-	(byte 'close 'max 'min)
-	(byte 'clear 'undo 'redo)
-	(byte 'radius1 'radius2 'radius3)
-	(byte 'black 'white 'red 'green 'blue 'cyan 'yellow 'magenta)
-	(byte 'tblack 'twhite 'tred 'tgreen 'tblue 'tcyan 'tyellow 'tmagenta))
-
-(defq canvas_width 800 canvas_height 600 min_width 320 min_height 240 eps 0.25
-	radiuss '(2.0 4.0 8.0) stroke_radius (elem 0 radiuss) then (time)
-	palette (list argb_black argb_white argb_red argb_green argb_blue argb_cyan argb_yellow argb_magenta)
-	palette (cat palette (map trans palette)) undo_stack (list) redo_stack (list)
-	stroke_col (elem 0 palette) commited_strokes (list) in_flight_strokes (list))
-
-(ui-window window ()
-	(ui-title-flow _ "Whiteboard" (0xea19 0xea1b 0xea1a) (const event_close))
-	(ui-flow _ ('flow_flags (logior flow_flag_right flow_flag_fillh) 'color *env_toolbar_col* 'font *env_toolbar_font*)
-		(ui-buttons (0xea31 0xe9fe 0xe99d) (const event_clear))
-		(ui-buttons (0xe979 0xe97d 0xe97b) (const event_radius1)))
-	(ui-flow _ ('flow_flags (logior flow_flag_right flow_flag_fillh) 'font *env_toolbar_font*)
-		(each (lambda (col)
-			(defq e (+ _ event_black))
-			(component-connect (ui-button _ ('color (if (>= e event_tblack) *env_toolbar2_col* *env_toolbar_col*)
-				'ink_color col 'text (const (num-to-utf8 0xe95f)))) e)) palette))
-	(ui-scroll image_scroll (logior scroll_flag_vertical scroll_flag_horizontal)
-			('min_width canvas_width 'min_height canvas_height)
-		(ui-canvas canvas canvas_width canvas_height 1)))
-
 (defun-bind main ()
 	(canvas-set-flags canvas 1)
 	(redraw t)
 	(gui-add (apply view-change (cat (list window 256 256) (view-pref-size window))))
 	(def image_scroll 'min_width min_width 'min_height min_height)
-	(defq last_state 'u last_point nil)
+	(defq last_state 'u last_point nil last_mid_point nil)
 	(while (cond
 		((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_close)
 			nil)
@@ -111,6 +111,7 @@
 			;clear
 			(snapshot)
 			(clear commited_strokes)
+			(clear debug_strokes)
 			(redraw t))
 		((= id event_undo)
 			;undo
@@ -129,18 +130,29 @@
 						;mouse button is down
 						(case last_state
 							(d	;was down last time, so extend last stroke ?
-								(when (>= (vec-length (vec-sub new_point last_point)) (* 2 stroke_radius))
-									(setq last_point new_point)
-									(push (elem -2 (elem -2 in_flight_strokes)) (elem 0 new_point) (elem 1 new_point))))
+								(defq mid_vec (vec-sub new_point last_point))
+								(when (>= (vec-length-squared mid_vec) (fmul stroke_radius stroke_radius))
+									(defq stroke (elem -2 (elem -2 in_flight_strokes))
+										mid_point (vec-add last_point (vec-scale mid_vec 0.5)))
+									(points-gen-quadratic
+										(elem 0 last_mid_point) (elem 1 last_mid_point)
+										(elem 0 last_point) (elem 1 last_point)
+										(elem 0 mid_point) (elem 1 mid_point)
+										(const eps) stroke)
+									(points-filter stroke stroke (const tol))
+									(setq last_point new_point last_mid_point mid_point)
+									(redraw)))
 							(u	;was up last time, so start new stroke
-								(setq last_state 'd last_point new_point)
-								(push in_flight_strokes (list stroke_radius new_point))))
-						(redraw))
+								(setq last_state 'd last_point new_point last_mid_point new_point)
+								(push in_flight_strokes (list stroke_radius new_point))
+								(redraw))))
 					(t	;mouse button is up
 						(case last_state
-							(d	;was down last time, so commit in flight strokes
-								(setq last_state 'u)
+							(d	;was down last time, so last point and commit stroke
 								(snapshot)
+								(setq last_state 'u)
+								(defq stroke (elem -2 (elem -2 in_flight_strokes)))
+								(push stroke (elem 0 new_point) (elem 1 new_point))
 								(each (lambda ((w s)) (commit w s stroke_col)) in_flight_strokes)
 								(clear in_flight_strokes)
 								(redraw t))

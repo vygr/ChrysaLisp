@@ -71,6 +71,39 @@
 
 (def-func-end)
 
+(def-method 'points 'lisp_filter)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(entry 'points 'lisp_filter '(r0 r1))
+
+(errorcases
+	(call 'lisp 'env_args_type '(r1 ($ sig) 3) '(r2))
+	(gotoif '(r2 = 0) 'error))
+
+	(vp-push r0)
+	(defq in (method-input 'points 'filter_polyline))
+	(class/vector/bind_args r1 in '(points points num))
+	(call 'points 'filter_polyline in '(r0))
+	(call 'obj 'ref '(r0) '(r1))
+	(vp-pop r0)
+
+	(exit 'points 'lisp_filter '(r0 r1))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r0 "(points-filter dst src tol)" error_msg_wrong_types r1))
+	(signature '(points points num)))
+
+(def-func-end)
+
 (def-method 'points 'lisp_gen_quadratic)
 	;inputs
 	;r0 = lisp object (ptr)

@@ -74,6 +74,11 @@
 		`(fsqrt (vec-dot ,p ,p ,_))
 		`(fsqrt (vec-dot ,p ,p))))
 
+(defmacro-bind vec-length-squared (p &optional _)
+	(if _
+		`(vec-dot ,p ,p ,_)
+		`(vec-dot ,p ,p)))
+
 (defun-bind vec-norm (p &optional _)
 	(if _
 		(defq l (fsqrt (points-sum (points-fmul p p _))))

@@ -50,6 +50,7 @@
 
 (dec-method 'lisp_transform 'gui/points/lisp_transform 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_simplify 'gui/points/lisp_simplify 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_filter 'gui/points/lisp_filter 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_gen_quadratic 'gui/points/lisp_gen_quadratic 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_gen_cubic 'gui/points/lisp_gen_cubic 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_gen_arc 'gui/points/lisp_gen_arc 'static '(r0 r1) '(r0 r1))
