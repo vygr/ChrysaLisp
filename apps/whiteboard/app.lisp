@@ -19,7 +19,7 @@
 	radiuss '(3.0 6.0 8.0) stroke_radius (elem 0 radiuss) then (time)
 	palette (list argb_black argb_white argb_red argb_green argb_blue argb_cyan argb_yellow argb_magenta)
 	palette (cat palette (map trans palette)) undo_stack (list) redo_stack (list)
-	stroke_col (elem 0 palette) commited_strokes (list) in_flight_strokes (list) debug_strokes (list))
+	stroke_col (elem 0 palette) commited_strokes (list) in_flight_strokes (list))
 
 (ui-window window ()
 	(ui-title-flow _ "Whiteboard" (0xea19 0xea1b 0xea1a) (const event_close))
@@ -87,7 +87,7 @@
 (defun-bind main ()
 	(canvas-set-flags canvas 1)
 	(redraw t)
-	(gui-add (apply view-change (cat (list window 256 256) (view-pref-size window))))
+	(gui-add (apply view-change (cat (list window 256 128) (view-pref-size window))))
 	(def image_scroll 'min_width min_width 'min_height min_height)
 	(defq last_state 'u last_point nil last_mid_point nil)
 	(while (cond
@@ -111,7 +111,6 @@
 			;clear
 			(snapshot)
 			(clear commited_strokes)
-			(clear debug_strokes)
 			(redraw t))
 		((= id event_undo)
 			;undo
@@ -153,6 +152,7 @@
 								(setq last_state 'u)
 								(defq stroke (elem -2 (elem -2 in_flight_strokes)))
 								(push stroke (elem 0 new_point) (elem 1 new_point))
+								(points-filter stroke stroke 0.5)
 								(each (lambda ((w s)) (commit w s stroke_col)) in_flight_strokes)
 								(clear in_flight_strokes)
 								(redraw t))
