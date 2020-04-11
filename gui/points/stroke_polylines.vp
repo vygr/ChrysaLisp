@@ -26,7 +26,7 @@
 	(plong 'iter 'iter_begin 'iter_end)
 	(pptr 'iter_begin_polylines 'iter_end_polylines)
 	(ptr 'this 'stack 'out_points)
-	(int 'radius 'eps 'step 'c)
+	(int 'radius 'eps 'step 'c 'c1)
 	(byte 'join_style 'cap1_style 'cap2_style)
 
 	(push-scope)
@@ -155,12 +155,15 @@
 
 						;what kind of join
 						(vec-load 2 {l1_npvx, l1_npvy} {l2_npvx, l2_npvy})
+						(vec-dup 4)
 						(vec-perp)
 						(vec-fdot 2)
 						(vec-store 1 {c})
+						(vec-fdot 2)
+						(vec-store 1 {c1})
 
 						(switch)
-						(vpcase {c < 0.001 && c > -0.001})
+						(vpcase {(c < 0.01) && (c > -0.01) || (c1 < -0.9)})
 							;acuracy limit
 							(goto 'do_bevel)
 						(vpcase {c <= 0 || join_style = join_miter})

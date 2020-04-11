@@ -77,7 +77,7 @@
 	(canvas-fpoly canvas 0 0 mode _))
 
 (defun-bind redraw (&optional f)
-	(when (or (> (defq now (time)) (+ then 10000)) f)
+	(when (or (> (defq now (time)) (+ then 50000)) f)
 		(setq then now)
 		(canvas-fill canvas argb_grey15)
 		(each (lambda ((c s)) (fpoly c 1 s)) commited_strokes)

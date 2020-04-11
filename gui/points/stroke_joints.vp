@@ -28,7 +28,7 @@
 			'l1_vx 'l1_vy 'l1_npvx 'l1_npvy 'l1_rvx 'l1_rvy))
 	(plong 'iter_i 'iter_j)
 	(ptr 'this 'stack)
-	(int 'radius 'eps 'step 'c)
+	(int 'radius 'eps 'step 'c 'c1)
 	(byte 'join_style)
 
 	(push-scope)
@@ -73,12 +73,15 @@
 
 			;what kind of join
 			(vec-load 2 {l1_npvx, l1_npvy} {l2_npvx, l2_npvy})
+			(vec-dup 4)
 			(vec-perp)
 			(vec-fdot 2)
 			(vec-store 1 {c})
+			(vec-fdot 2)
+			(vec-store 1 {c1})
 
 			(switch)
-			(vpcase {c < 0.001 && c > -0.001})
+			(vpcase {(c < 0.01) && (c > -0.01) || (c1 < -0.9)})
 				;acuracy limit
 				(goto 'do_bevel)
 			(vpcase {c <= 0 || join_style = join_miter})
