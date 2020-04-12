@@ -80,7 +80,7 @@
 	(view-dirty-all (view-layout doc_flow)))
 
 (ui-window window ()
-	(ui-title-flow _ "Docs" (0xea19) (const event_win_close))
+	(ui-title-bar _ "Docs" (0xea19) (const event_win_close))
 	(ui-flow doc_flow ('flow_flags flow_right_fill 'font *env_window_font* 'color *env_toolbar_col*)
 		(ui-flow index ('flow_flags (logior flow_flag_down flow_flag_fillw))
 			(each (lambda (path)

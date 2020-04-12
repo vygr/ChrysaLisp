@@ -13,8 +13,8 @@
 	mode 0 show -1 max_zoom 15 min_zoom 5 zoom (/ (+ min_zoom max_zoom) 2) eps 0.25)
 
 (ui-window window ()
-	(ui-title-flow window_title "" (0xea19) (const event_win_close))
-	(ui-flow _ ('flow_flags (logior flow_flag_right flow_flag_fillh) 'color *env_toolbar_col* 'font *env_toolbar_font*)
+	(ui-title-bar window_title "" (0xea19) (const event_win_close))
+	(ui-tool-bar _ ()
 		(ui-buttons (0xe91d 0xe91e 0xea00 0xea01 0xe9ac 0xe9ad) (const event_win_prev))
 		(ui-buttons ("0" "1" "2" "3" "4") (const event_win_show_all) nil
 			('color (const *env_toolbar2_col*) 'font (const (create-font "fonts/OpenSans-Regular.ctf" 24)))))

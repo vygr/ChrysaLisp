@@ -2593,6 +2593,18 @@ trashes
 r1-r14
 ```
 
+### label::add_child -> gui/label/add_child
+
+```lisp
+inputs
+r0 = label object (ptr)
+r1 = child view object (ptr)
+outputs
+r0 = label object (ptr)
+trashes
+r1-r14
+```
+
 ### label::lisp_create -> gui/label/lisp_create
 
 ```lisp
@@ -4469,6 +4481,19 @@ r1-r14
 ```
 
 ### points::lisp_simplify -> gui/points/lisp_simplify
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### points::lisp_filter -> gui/points/lisp_filter
 
 ```lisp
 inputs

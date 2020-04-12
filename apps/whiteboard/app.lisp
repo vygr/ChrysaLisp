@@ -24,12 +24,12 @@
 	radius_buttons (list) style_buttons (list))
 
 (ui-window window ()
-	(ui-title-flow _ "Whiteboard" (0xea19 0xea1b 0xea1a) (const event_close))
-	(ui-flow _ ('flow_flags (logior flow_flag_right flow_flag_fillh) 'color *env_toolbar_col* 'font *env_toolbar_font*)
+	(ui-title-bar _ "Whiteboard" (0xea19 0xea1b 0xea1a) (const event_close))
+	(ui-tool-bar _ ()
 		(ui-buttons (0xea31 0xe9fe 0xe99d) (const event_clear))
 		(ui-buttons (0xe979 0xe97d 0xe97b) (const event_radius1) radius_buttons)
 		(ui-buttons (0xe9a3 0xe976 0xe9d4) (const event_grid) style_buttons))
-	(ui-flow _ ('flow_flags (logior flow_flag_right flow_flag_fillh) 'font *env_toolbar_font*)
+	(ui-tool-bar _ ()
 		(each (lambda (col)
 			(defq e (+ _ event_black))
 			(component-connect (ui-button _ ('color (if (>= e event_tblack) *env_toolbar2_col* *env_toolbar_col*)
@@ -124,13 +124,12 @@
 			(setq stroke_col (elem (- id event_black) palette)))
 		((<= event_radius1 id event_radius3)
 			;stroke radius
-			(radio_select radius_buttons (- id event_radius1))
-			(setq stroke_radius (elem (- id event_radius1) radiuss)))
+			(radio_select radius_buttons (setq id (- id event_radius1)))
+			(setq stroke_radius (elem id radiuss)))
 		((<= event_grid id event_lines)
 			;styles
-			(radio_select style_buttons (- id event_grid))
-			(def backdrop 'style (- id event_grid))
-			(view-dirty backdrop))
+			(radio_select style_buttons (setq id (- id event_grid)))
+			(def (view-dirty backdrop) 'style id))
 		((= id event_clear)
 			;clear
 			(snapshot)

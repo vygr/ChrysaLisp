@@ -17,7 +17,7 @@
 	farm (open-farm "apps/netmon/child" cpu_total kn_call_open) sample_msg (array (elem 1 select)))
 
 (ui-window window ()
-	(ui-title-flow _ "Network Monitor" (0xea19 0xea1b 0xea1a) (const event_win_close))
+	(ui-title-bar _ "Network Monitor" (0xea19 0xea1b 0xea1a) (const event_win_close))
 	(ui-grid _ ('grid_width 2 'grid_height 1 'flow_flags flow_down_fill 'maximum 100 'value 0)
 		(ui-flow _ ('color argb_green)
 			(ui-label _ ('text "Tasks" 'color argb_white))

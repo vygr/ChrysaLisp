@@ -39,8 +39,8 @@
 (defq index 0 fonts '("fonts/Entypo.ctf" "fonts/OpenSans-Regular.ctf" "fonts/Hack-Regular.ctf"))
 
 (ui-window window ()
-	(ui-title-flow _ "Fonts" (0xea19) (const event_win_close))
-	(ui-flow _ ('flow_flags flow_right_fill 'color *env_toolbar_col* 'font *env_toolbar_font*)
+	(ui-title-bar _ "Fonts" (0xea19) (const event_win_close))
+	(ui-tool-bar _ ()
 		(ui-buttons (0xe91d 0xe91e) (const event_win_prev))
 		(ui-label fontname ('font *env_window_font* 'border -1)))
 	(ui-scroll symbol_scroll scroll_flag_vertical))

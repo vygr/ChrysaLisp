@@ -17,7 +17,7 @@
 
 (ui-window window ('color argb_grey2)
 	(ui-flow _ ('flow_flags flow_down_fill)
-		(ui-title-flow window_title "Edit" (0xea19 0xea1b 0xea1a) (const event_win_close))
+		(ui-title-bar window_title "Edit" (0xea19 0xea1b 0xea1a) (const event_win_close))
 		(ui-flow _ ('flow_flags flow_down_fill)
 			(ui-flow toolbar ('color *env_toolbar_col* 'flow_flags flow_right_fill)
 				(ui-grid _ ('grid_width 7 'grid_height  1 'font *env_toolbar_font*)

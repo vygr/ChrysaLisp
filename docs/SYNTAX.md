@@ -816,6 +816,10 @@
 
 (points-fdiv points points [points])
 
+## points-filter
+
+(points-filter dst src tol)
+
 ## points-fmod
 
 (points-fmod points points [points])

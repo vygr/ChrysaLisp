@@ -47,7 +47,7 @@
 
 (ui-window window ('color argb_black)
 	(ui-flow _ ('flow_flags flow_down_fill)
-		(ui-title-flow _ "Help" (0xea19) (const event_win_close))
+		(ui-title-bar _ "Help" (0xea19) (const event_win_close))
 		(ui-flow _ ('flow_flags flow_right_fill 'font *env_terminal_font*)
 			(ui-scroll index_scroll scroll_flag_vertical nil
 				(ui-flow index ('flow_flags (logior flow_flag_down flow_flag_fillw) 'color argb_white)))

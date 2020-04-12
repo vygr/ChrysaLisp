@@ -11,7 +11,7 @@
 	sframes (map (lambda (_) (canvas-load (cat "apps/boing/taoball_s_" (str _) ".cpm") load_flag_shared)) (range 1 12)))
 
 (ui-window window ()
-	(ui-title-flow _ "Boing" (0xea19 0xea1b 0xea1a) (const event_win_close))
+	(ui-title-bar _ "Boing" (0xea19 0xea1b 0xea1a) (const event_win_close))
 	(ui-element backdrop (create-backdrop) ('color argb_black 'ink_color argb_white)
 		(ui-element frame (elem 0 frames))
 		(ui-element sframe (elem 0 sframes))))

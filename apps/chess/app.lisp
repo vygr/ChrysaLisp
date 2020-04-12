@@ -16,7 +16,7 @@
 
 (ui-window window ('color argb_black)
 	(ui-flow _ ('flow_flags flow_down_fill)
-		(ui-title-flow _ "Chess" (0xea19) (const event_win_close))
+		(ui-title-bar _ "Chess" (0xea19) (const event_win_close))
 		(ui-grid chess_grid ('grid_width 8 'grid_height 8 'font (create-font "fonts/Chess.ctf" 42) 'border 1 'text " ")
 			(each (lambda (i)
 				(if (= (logand (+ i (>> i 3)) 1) 0)

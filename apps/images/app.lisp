@@ -17,8 +17,8 @@
 	index 0)
 
 (ui-window window ()
-	(ui-title-flow window_title "" (0xea19) (const event_win_close))
-	(ui-flow _ ('flow_flags (logior flow_flag_right flow_flag_fillh) 'color *env_toolbar_col* 'font *env_toolbar_font*)
+	(ui-title-bar window_title "" (0xea19) (const event_win_close))
+	(ui-tool-bar _ ()
 		(ui-buttons (0xe91d 0xe91e) (const event_win_prev)))
 	(ui-scroll image_scroll (logior scroll_flag_vertical scroll_flag_horizontal)))
 

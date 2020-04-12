@@ -12,7 +12,7 @@
 	select (array (task-mailbox) (mail-alloc-mbox)) sample_msg (array (elem 1 select)))
 
 (ui-window window ()
-	(ui-title-flow _ "Object Monitor" (0xea19) (const event_win_close))
+	(ui-title-bar _ "Object Monitor" (0xea19) (const event_win_close))
 	(ui-grid _ ('grid_width 2 'grid_height 1 'flow_flags flow_down_fill 'maximum 100 'value 0)
 		(ui-flow name_flow ('color argb_grey8)
 			(ui-label _ ('text "Class" 'color argb_white))

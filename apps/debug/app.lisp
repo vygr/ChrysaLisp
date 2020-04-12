@@ -21,7 +21,7 @@
 (ui-window window ('color 0xc0000000)
 	(ui-flow _ ('flow_flags flow_down_fill)
 		(ui-title _ ('text "Debug"))
-		(ui-flow _ ('flow_flags (logior flow_flag_right flow_flag_fillh) 'color *env_toolbar_col* 'font *env_toolbar_font*)
+		(ui-tool-bar _ ()
 			(ui-buttons (0xe95e 0xe95d 0xe95c 0xe960) (const event_win_play))
 			(ui-buttons (0xe95e 0xe95d 0xe95c 0xe960) (const event_win_play_all) nil ('color (const *env_toolbar2_col*))))
 		(component-connect (ui-slider hslider ('value 0)) event_win_hvalue)

@@ -9,7 +9,7 @@
 (defq canvas_width 600 canvas_height 600 canvas_scale 1)
 
 (ui-window window ()
-	(ui-title-flow _ "Canvas" (0xea19) (const event_win_close))
+	(ui-title-bar _ "Canvas" (0xea19) (const event_win_close))
 	(ui-canvas canvas canvas_width canvas_height canvas_scale))
 
 (defun-bind main ()
