@@ -49,3 +49,4 @@
 (def-static-sym "vdu_width")
 (def-static-sym "vdu_height")
 (def-static-sym "main")
+(def-static-sym "style")

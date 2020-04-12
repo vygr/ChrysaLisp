@@ -8,6 +8,7 @@
 	(byte 'close 'max 'min)
 	(byte 'clear 'undo 'redo)
 	(byte 'radius1 'radius2 'radius3)
+	(byte 'grid 'plain 'lines)
 	(byte 'black 'white 'red 'green 'blue 'cyan 'yellow 'magenta)
 	(byte 'tblack 'twhite 'tred 'tgreen 'tblue 'tcyan 'tyellow 'tmagenta))
 
@@ -19,13 +20,15 @@
 	radiuss '(3.0 6.0 8.0) stroke_radius (elem 0 radiuss) then (time)
 	palette (list argb_black argb_white argb_red argb_green argb_blue argb_cyan argb_yellow argb_magenta)
 	palette (cat palette (map trans palette)) undo_stack (list) redo_stack (list)
-	stroke_col (elem 0 palette) commited_strokes (list) in_flight_strokes (list))
+	stroke_col (elem 0 palette) commited_strokes (list) in_flight_strokes (list)
+	radius_buttons (list) style_buttons (list))
 
 (ui-window window ()
 	(ui-title-flow _ "Whiteboard" (0xea19 0xea1b 0xea1a) (const event_close))
 	(ui-flow _ ('flow_flags (logior flow_flag_right flow_flag_fillh) 'color *env_toolbar_col* 'font *env_toolbar_font*)
 		(ui-buttons (0xea31 0xe9fe 0xe99d) (const event_clear))
-		(ui-buttons (0xe979 0xe97d 0xe97b) (const event_radius1)))
+		(ui-buttons (0xe979 0xe97d 0xe97b) (const event_radius1) radius_buttons)
+		(ui-buttons (0xe9a3 0xe976 0xe9d4) (const event_grid) style_buttons))
 	(ui-flow _ ('flow_flags (logior flow_flag_right flow_flag_fillh) 'font *env_toolbar_font*)
 		(each (lambda (col)
 			(defq e (+ _ event_black))
@@ -33,7 +36,14 @@
 				'ink_color col 'text (const (num-to-utf8 0xe95f)))) e)) palette))
 	(ui-scroll image_scroll (logior scroll_flag_vertical scroll_flag_horizontal)
 			('min_width canvas_width 'min_height canvas_height)
-		(ui-canvas canvas canvas_width canvas_height 1)))
+		(ui-backdrop backdrop ('color 0xffF8F8FF 'ink_color 0xffADD8E6 'style 1)
+			(ui-canvas overlay_canvas canvas_width canvas_height 1)
+			(ui-canvas strokes_canvas canvas_width canvas_height 1))))
+
+(defun-bind radio_select (l i)
+	;radio select buttons
+	(each (lambda (b)
+		(def (view-dirty b) 'color (if (= _ i) (const argb_grey15) (const *env_toolbar_col*)))) l))
 
 (defun-bind flatten (r s)
 	;flatten a polyline to polygons
@@ -59,34 +69,42 @@
 	(when (/= 0 (length undo_stack))
 		(push redo_stack commited_strokes)
 		(setq commited_strokes (pop undo_stack))
-		(redraw t)))
+		(redraw 1 t)) t)
 
 (defun-bind redo ()
 	;move state from redo to undo stack and restore old state
 	(when (/= 0 (length redo_stack))
 		(push undo_stack commited_strokes)
 		(setq commited_strokes (pop redo_stack))
-		(redraw t)))
+		(redraw 1 t)) t)
 
 (defun-bind commit (r s c)
 	;commit a stroke to the canvas
 	(push commited_strokes (list c (flatten r s))))
 
-(defun-bind fpoly (col mode _)
+(defun-bind fpoly (canvas col mode _)
 	(canvas-set-color canvas col)
 	(canvas-fpoly canvas 0 0 mode _))
 
-(defun-bind redraw (&optional f)
+(defun-bind redraw (mask &optional f)
 	(when (or (> (defq now (time)) (+ then 50000)) f)
 		(setq then now)
-		(canvas-fill canvas argb_grey15)
-		(each (lambda ((c s)) (fpoly c 1 s)) commited_strokes)
-		(each (lambda ((r s)) (fpoly stroke_col 1 (flatten r s))) in_flight_strokes)
-		(canvas-swap canvas)))
+		(when (/= 0 (logand mask 1))
+			(canvas-fill strokes_canvas 0)
+			(each (lambda ((c s)) (fpoly strokes_canvas c 1 s)) commited_strokes)
+			(canvas-swap strokes_canvas))
+		(when (/= 0 (logand mask 2))
+			(canvas-fill overlay_canvas 0)
+			(each (lambda ((r s)) (fpoly overlay_canvas stroke_col 1 (flatten r s))) in_flight_strokes)
+			(canvas-swap overlay_canvas))) mask)
 
 (defun-bind main ()
-	(canvas-set-flags canvas 1)
-	(redraw t)
+	(canvas-set-flags strokes_canvas 1)
+	(canvas-set-flags overlay_canvas 1)
+	(view-set-size backdrop canvas_width canvas_height)
+	(radio_select radius_buttons 0)
+	(radio_select style_buttons 1)
+	(redraw 3 t)
 	(gui-add (apply view-change (cat (list window 256 128) (view-pref-size window))))
 	(def image_scroll 'min_width min_width 'min_height min_height)
 	(defq last_state 'u last_point nil last_mid_point nil)
@@ -106,19 +124,25 @@
 			(setq stroke_col (elem (- id event_black) palette)))
 		((<= event_radius1 id event_radius3)
 			;stroke radius
+			(radio_select radius_buttons (- id event_radius1))
 			(setq stroke_radius (elem (- id event_radius1) radiuss)))
+		((<= event_grid id event_lines)
+			;styles
+			(radio_select style_buttons (- id event_grid))
+			(def backdrop 'style (- id event_grid))
+			(view-dirty backdrop))
 		((= id event_clear)
 			;clear
 			(snapshot)
 			(clear commited_strokes)
-			(redraw t))
+			(redraw 1 t))
 		((= id event_undo)
 			;undo
-			(undo) t)
+			(undo))
 		((= id event_redo)
 			;undo
-			(redo) t)
-		((= id (component-get-id canvas))
+			(redo))
+		((= id (component-get-id overlay_canvas))
 			;event for canvas
 			(when (= (get-long msg ev_msg_type) ev_type_mouse)
 				;mouse event in canvas
@@ -140,11 +164,11 @@
 										(const eps) stroke)
 									(points-filter stroke stroke (const tol))
 									(setq last_point new_point last_mid_point mid_point)
-									(redraw)))
+									(redraw 2)))
 							(u	;was up last time, so start new stroke
 								(setq last_state 'd last_point new_point last_mid_point new_point)
 								(push in_flight_strokes (list stroke_radius new_point))
-								(redraw))))
+								(redraw 2))))
 					(t	;mouse button is up
 						(case last_state
 							(d	;was down last time, so last point and commit stroke
@@ -155,7 +179,7 @@
 								(points-filter stroke stroke 0.5)
 								(each (lambda ((w s)) (commit w s stroke_col)) in_flight_strokes)
 								(clear in_flight_strokes)
-								(redraw t))
+								(redraw 3 t))
 							(u	;was up last time, so we are hovering
 								t))))) t)
 		(t (view-event window msg))))
