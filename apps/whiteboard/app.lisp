@@ -21,7 +21,7 @@
 	palette (list argb_black argb_white argb_red argb_green argb_blue argb_cyan argb_yellow argb_magenta)
 	palette (cat palette (map trans palette)) undo_stack (list) redo_stack (list)
 	stroke_col (elem 0 palette) commited_strokes (list) in_flight_strokes (list)
-	radius_buttons (list) style_buttons (list))
+	radius_buttons (list) style_buttons (list) ink_buttons (list))
 
 (ui-window window ()
 	(ui-title-bar _ "Whiteboard" (0xea19 0xea1b 0xea1a) (const event_close))
@@ -31,9 +31,7 @@
 		(ui-buttons (0xe9a3 0xe976 0xe9d4) (const event_grid) style_buttons))
 	(ui-tool-bar _ ()
 		(each (lambda (col)
-			(defq e (+ _ event_black))
-			(component-connect (ui-button _ ('color (if (>= e event_tblack) *env_toolbar2_col* *env_toolbar_col*)
-				'ink_color col 'text (const (num-to-utf8 0xe95f)))) e)) palette))
+			(push ink_buttons (component-connect (ui-button __ ('ink_color col 'text (const (num-to-utf8 0xe95f)))) (+ _ event_black)))) palette))
 	(ui-scroll image_scroll (logior scroll_flag_vertical scroll_flag_horizontal)
 			('min_width canvas_width 'min_height canvas_height)
 		(ui-backdrop backdrop ('color 0xffF8F8FF 'ink_color 0xffADD8E6 'style 1)
@@ -43,12 +41,12 @@
 (defun-bind radio_select (l i)
 	;radio select buttons
 	(each (lambda (b)
-		(def (view-dirty b) 'color (if (= _ i) (const argb_grey15) (const *env_toolbar_col*)))) l))
+		(def (view-dirty b) 'color (if (= _ i) (const argb_grey14) (const *env_toolbar_col*)))) l))
 
 (defun-bind flatten (r s)
 	;flatten a polyline to polygons
 	(cond
-		((= 0 (length s))
+		((< (length s) 2)
 			;a runt so nothing
 			'())
 		((= 2 (length s))
@@ -83,10 +81,12 @@
 	(push commited_strokes (list c (flatten r s))))
 
 (defun-bind fpoly (canvas col mode _)
+	;draw a polygon on a canvas
 	(canvas-set-color canvas col)
 	(canvas-fpoly canvas 0 0 mode _))
 
 (defun-bind redraw (mask &optional f)
+	;redraw layer/s with optional timed forced drawing
 	(when (or (> (defq now (time)) (+ then 50000)) f)
 		(setq then now)
 		(when (/= 0 (logand mask 1))
@@ -99,15 +99,18 @@
 			(canvas-swap overlay_canvas))) mask)
 
 (defun-bind main ()
+	;ui tree initial setup
 	(canvas-set-flags strokes_canvas 1)
 	(canvas-set-flags overlay_canvas 1)
 	(view-set-size backdrop canvas_width canvas_height)
+	(radio_select ink_buttons 0)
 	(radio_select radius_buttons 0)
 	(radio_select style_buttons 1)
 	(redraw 3 t)
 	(gui-add (apply view-change (cat (list window 256 128) (view-pref-size window))))
 	(def image_scroll 'min_width min_width 'min_height min_height)
 	(defq last_state 'u last_point nil last_mid_point nil)
+	;main event loop
 	(while (cond
 		((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_close)
 			nil)
@@ -121,7 +124,8 @@
 			(def image_scroll 'min_width min_width 'min_height min_height))
 		((<= event_black id event_tmagenta)
 			;ink pot
-			(setq stroke_col (elem (- id event_black) palette)))
+			(radio_select ink_buttons (setq id (- id event_black)))
+			(setq stroke_col (elem id palette)))
 		((<= event_radius1 id event_radius3)
 			;stroke radius
 			(radio_select radius_buttons (setq id (- id event_radius1)))
@@ -167,7 +171,7 @@
 							(u	;was up last time, so start new stroke
 								(setq last_state 'd last_point new_point last_mid_point new_point)
 								(push in_flight_strokes (list stroke_radius new_point))
-								(redraw 2))))
+								(redraw 2 t))))
 					(t	;mouse button is up
 						(case last_state
 							(d	;was down last time, so last point and commit stroke

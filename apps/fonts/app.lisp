@@ -40,7 +40,7 @@
 
 (ui-window window ()
 	(ui-title-bar _ "Fonts" (0xea19) (const event_win_close))
-	(ui-tool-bar _ ()
+	(ui-tool-bar _ ('flow_flags flow_right_fill)
 		(ui-buttons (0xe91d 0xe91e) (const event_win_prev))
 		(ui-label fontname ('font *env_window_font* 'border -1)))
 	(ui-scroll symbol_scroll scroll_flag_vertical))
