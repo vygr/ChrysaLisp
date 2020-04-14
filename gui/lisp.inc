@@ -9,8 +9,7 @@
 	(if p
 		`(progn
 			(defq _ui (list (defq ,n ,c)))
-			(def ,n ~p)
-			~x (setq _ui nil))
+			(def ,n ~p) ~x (setq _ui nil))
 		`(progn
 			(defq _ui (list (defq ,n ,c)))
 			~x (setq _ui nil))))
@@ -19,15 +18,14 @@
 	(if p
 		`(progn
 			(view-add-child (elem -3 (push _ui (defq ,n ,c))) ,n)
-			(def ,n ~p)
-			~x (pop _ui))
+			(def ,n ~p) ~x (pop _ui))
 		`(progn
 			(view-add-child (elem -3 (push _ui (defq ,n ,c))) ,n)
 			~x (pop _ui))))
 
 (defmacro ui-window (n &optional p &rest x)
-	(setq p (cat '('font *env_window_font*
-		'ink_color *env_ink_col* 'color *env_window_col* 'border *env_window_border*) (opt p '())))
+	(setq p (cat '('font *env_window_font* 'ink_color *env_ink_col*
+		'color *env_window_col* 'border *env_window_border*) (opt p '())))
 	`(ui-tree ,n (create-window) (~p)
 		(ui-flow _ ('flow_flags flow_down_fill) ~x)))
 
@@ -42,7 +40,8 @@
 		`(ui-element ,n (create-grid) nil ~x)))
 
 (defmacro ui-title (n &optional p)
-	(setq p (cat '('font *env_title_font* 'color *env_title_col* 'border *env_title_border*) (opt p '())))
+	(setq p (cat '('font *env_title_font* 'color *env_title_col*
+		'border *env_title_border*) (opt p '())))
 	`(ui-element ,n (create-title) (~p)))
 
 (defmacro ui-title-bar (n s b e &optional p)
@@ -52,11 +51,13 @@
 		(ui-title ,n ('text ,s))))
 
 (defmacro ui-label (n &optional p &rest x)
-	(setq p (cat '('flow_flags (logior flow_flag_right flow_flag_align_vcenter) 'border *env_label_border*) (opt p '())))
+	(setq p (cat '('flow_flags (logior flow_flag_right flow_flag_align_vcenter)
+		'border *env_label_border*) (opt p '())))
 	`(ui-element ,n (create-label) (~p) ~x))
 
 (defmacro ui-button (n &optional p &rest x)
-	(setq p (cat '('flow_flags (logior flow_flag_down flow_flag_align_hcenter flow_flag_align_vcenter) 'border *env_button_border*) (opt p '())))
+	(setq p (cat '('flow_flags (logior flow_flag_down flow_flag_align_hcenter flow_flag_align_vcenter)
+		'border *env_button_border*) (opt p '())))
 	`(ui-element ,n (create-button) (~p) ~x))
 
 (defmacro ui-buttons (s e &optional p l)
@@ -68,11 +69,13 @@
 			(component-connect (ui-button __ ('text _s ~(opt p '()))) (+ _ ,e))) '(~s))))
 
 (defmacro ui-tool-bar (n &optional p &rest x)
-	(setq p (cat '('flow_flags (logior flow_flag_right flow_flag_fillh) 'color *env_toolbar_col* 'font *env_toolbar_font*) (opt p '())))
+	(setq p (cat '('flow_flags (logior flow_flag_right flow_flag_fillh)
+		'color *env_toolbar_col* 'font *env_toolbar_font*) (opt p '())))
 	`(ui-flow ,n (~p) ~x))
 
 (defmacro ui-textfield (n &optional p)
-	(setq p (cat '('flow_flags (logior flow_flag_right flow_flag_align_vcenter) 'border *env_textfield_border*) (opt p '())))
+	(setq p (cat '('flow_flags (logior flow_flag_right flow_flag_align_vcenter)
+		'border *env_textfield_border*) (opt p '())))
 	`(ui-element ,n (create-textfield) (~p)))
 
 (defmacro ui-slider (n &optional p)

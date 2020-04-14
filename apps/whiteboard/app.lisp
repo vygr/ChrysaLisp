@@ -17,7 +17,7 @@
 	;transparent colour
 	(+ (logand 0xffffff _) 0x60000000))
 
-(defq canvas_width 800 canvas_height 600 min_width 320 min_height 240 eps 0.25 tol 3.0
+(defq canvas_width 1024 canvas_height 768 min_width 320 min_height 240 eps 0.25 tol 3.0
 	radiuss '(2.0 6.0 12.0) stroke_radius (elem 0 radiuss) then (time)
 	palette (list argb_black argb_white argb_red argb_green argb_blue argb_cyan argb_yellow argb_magenta)
 	palette (cat palette (map trans palette)) undo_stack (list) redo_stack (list)
@@ -47,42 +47,8 @@
 	(each (lambda (b)
 		(def (view-dirty b) 'color (if (= _ i) (const argb_grey14) (const *env_toolbar_col*)))) l) i)
 
-(defun-bind flatten-circle (r s)
-	;flatten to circle
-	(bind '(x y x1 y1) s)
-	(points-stroke-polygons r (const eps) (const join_bevel)
-		(list (points-gen-arc x y 0 fp_2pi (vec-length (vec-sub (points x y) (points x1 y1))) (const eps) (points))) (list)))
-
-(defun-bind flatten-box (r s)
-	;flatten to box
-	(bind '(x y x1 y1) s)
-	(points-stroke-polygons r (const eps) (const join_miter)
-		(list (points x y x1 y x1 y1 x y1)) (list)))
-
-(defun-bind flatten-fcircle (r s)
-	;flatten to filled circle
-	(bind '(x y x1 y1) s)
-	(list (points-gen-arc x y 0 fp_2pi (vec-length (vec-sub (points x y) (points x1 y1))) (const eps) (points))))
-
-(defun-bind flatten-fbox (r s)
-	;flatten to filled box
-	(bind '(x y x1 y1) s)
-	(list (points x y x1 y x1 y1 x y1)))
-
-(defun-bind flatten-arrow1 (r s)
-	;flatten to arrow1
-	(points-stroke-polylines r (const eps) (const join_bevel) (const cap_butt) (const cap_arrow) (list s) (list)))
-
-(defun-bind flatten-arrow2 (r s)
-	;flatten to arrow2
-	(points-stroke-polylines r (const eps) (const join_bevel) (const cap_arrow) (const cap_arrow) (list s) (list)))
-
-(defun-bind flatten-pen (r s)
-	;flatten to pen stroke
-	(points-stroke-polylines r (const eps) (const join_bevel) (const cap_round) (const cap_round) (list s) (list)))
-
 (defun-bind flatten (r s)
-	;flatten a polyline to polygons
+	;flatten path to polygons
 	(cond
 		((< (length s) 2)
 			;a runt so nothing
@@ -92,13 +58,37 @@
 			(list (points-gen-arc (elem 0 s) (elem 1 s) 0 fp_2pi r (const eps) (points))))
 		(t	;is a polyline draw
 			(cond
-				((= stroke_mode (const event_arrow1)) (flatten-arrow1 r s))
-				((= stroke_mode (const event_arrow2)) (flatten-arrow2 r s))
-				((= stroke_mode (const event_box)) (flatten-box r s))
-				((= stroke_mode (const event_circle)) (flatten-circle r s))
-				((= stroke_mode (const event_fbox)) (flatten-fbox r s))
-				((= stroke_mode (const event_fcircle)) (flatten-fcircle r s))
-				(t	(flatten-pen r s))))))
+				((= stroke_mode (const event_arrow1))
+					;flatten to arrow1
+					(points-stroke-polylines r (const eps) (const join_bevel) (const cap_butt) (const cap_arrow)
+						(list s) (list)))
+				((= stroke_mode (const event_arrow2))
+					;flatten to arrow2
+					(points-stroke-polylines r (const eps) (const join_bevel) (const cap_arrow) (const cap_arrow)
+						(list s) (list)))
+				((= stroke_mode (const event_box))
+					;flatten to box
+					(bind '(x y x1 y1) s)
+					(points-stroke-polygons r (const eps) (const join_miter)
+						(list (points x y x1 y x1 y1 x y1)) (list)))
+				((= stroke_mode (const event_circle))
+					;flatten to circle
+					(bind '(x y x1 y1) s)
+					(points-stroke-polygons r (const eps) (const join_bevel)
+						(list (points-gen-arc x y 0 fp_2pi (vec-length (vec-sub (points x y) (points x1 y1)))
+						(const eps) (points))) (list)))
+				((= stroke_mode (const event_fbox))
+					;flatten to filled box
+					(bind '(x y x1 y1) s)
+					(list (points x y x1 y x1 y1 x y1)))
+				((= stroke_mode (const event_fcircle))
+					;flatten to filled circle
+					(bind '(x y x1 y1) s)
+					(list (points-gen-arc x y 0 fp_2pi (vec-length (vec-sub (points x y) (points x1 y1)))
+						(const eps) (points))))
+				(t	;flatten to pen stroke
+					(points-stroke-polylines r (const eps) (const join_bevel) (const cap_round) (const cap_round)
+						(list s) (list)))))))
 
 (defun-bind snapshot ()
 	;take a snapshot of the canvas state
@@ -151,7 +141,7 @@
 	(radio_select radius_buttons 0)
 	(radio_select style_buttons 1)
 	(redraw 3 t)
-	(gui-add (apply view-change (cat (list window 256 128) (view-pref-size window))))
+	(gui-add (apply view-change (cat (list window 192 64) (view-pref-size window))))
 	(def image_scroll 'min_width min_width 'min_height min_height)
 	(defq last_state 'u last_point nil last_mid_point nil)
 	;main event loop
