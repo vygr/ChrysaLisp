@@ -28,6 +28,9 @@
 			((eql c (ascii-char 126))
 				;clear line
 				(elem-set -2 buf ""))
+			((eql c (ascii-char 9))
+				;tab
+				(elem-set -2 buf (cat (defq l (elem -2 buf)) (slice 0 (- 4 (logand (length l) 3)) "    "))))
 			(t	;char
 				(elem-set -2 buf (cat (elem -2 buf) c))))) s)
 	;set cursor and offset
