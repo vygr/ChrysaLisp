@@ -8,11 +8,11 @@
 
 ;define events we will use
 (structure 'event 0
-	(byte 'win_close))
+	(byte 'close))
 
 ;create a window
 (ui-window window ()
-	(ui-title-bar _ "Clock" (0xea19) (const event_win_close))
+	(ui-title-bar _ "Clock" (0xea19) (const event_close))
 	(ui-canvas clock clock_size clock_size clock_scale)
 	(ui-label display ('text "00:00:00" 'color argb_black 'ink_color argb_red
 		'flow_flags (logior flow_flag_align_hcenter flow_flag_align_vcenter)
@@ -27,7 +27,7 @@
 		(defq mbox (open-child "apps/clock/child.lisp" kn_call_open)))
 	;main app loop
 	(while (cond
-		((= (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id) event_win_close)
+		((= (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id) event_close)
 			nil)
 		(t (view-event window msg))))
 	;close child and window

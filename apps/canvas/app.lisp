@@ -4,12 +4,12 @@
 (import 'gui/lisp.inc)
 
 (structure 'event 0
-	(byte 'win_close))
+	(byte 'close))
 
 (defq canvas_width 600 canvas_height 600 canvas_scale 1)
 
 (ui-window window ()
-	(ui-title-bar _ "Canvas" (0xea19) (const event_win_close))
+	(ui-title-bar _ "Canvas" (0xea19) (const event_close))
 	(ui-canvas canvas canvas_width canvas_height canvas_scale))
 
 (defun-bind main ()
@@ -19,7 +19,7 @@
 	(mail-send (list canvas (* canvas_width 1.0) (* canvas_height 1.0) (* canvas_scale 1.0))
 		(defq mbox (open-child "apps/canvas/child.lisp" kn_call_open)))
 	(while (cond
-		((= (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id) event_win_close)
+		((= (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id) event_close)
 			nil)
 		(t (view-event window msg))))
 	;close child and window

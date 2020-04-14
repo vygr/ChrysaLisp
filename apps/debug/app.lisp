@@ -4,9 +4,9 @@
 (import 'gui/lisp.inc)
 
 (structure 'event 0
-	(byte 'win_debug 'win_hvalue)
-	(byte 'win_play 'win_pause 'win_step 'win_clear)
-	(byte 'win_play_all 'win_pause_all 'win_step_all 'win_clear_all))
+	(byte 'debug 'hvalue)
+	(byte 'play 'pause 'step 'clear)
+	(byte 'play_all 'pause_all 'step_all 'clear_all))
 
 ;single instance only
 (unless (mail-enquire "DEBUG_SERVICE")
@@ -22,9 +22,9 @@
 	(ui-flow _ ('flow_flags flow_down_fill)
 		(ui-title _ ('text "Debug"))
 		(ui-tool-bar _ ()
-			(ui-buttons (0xe95e 0xe95d 0xe95c 0xe960) (const event_win_play))
-			(ui-buttons (0xe95e 0xe95d 0xe95c 0xe960) (const event_win_play_all) ('color (const *env_toolbar2_col*))))
-		(component-connect (ui-slider hslider ('value 0)) event_win_hvalue)
+			(ui-buttons (0xe95e 0xe95d 0xe95c 0xe960) (const event_play))
+			(ui-buttons (0xe95e 0xe95d 0xe95c 0xe960) (const event_play_all) ('color (const *env_toolbar2_col*))))
+		(component-connect (ui-slider hslider ('value 0)) event_hvalue)
 		(ui-vdu vdu ('vdu_width vdu_width 'vdu_height vdu_height 'ink_color argb_yellow))))
 
 (defun-bind vdu-print (vdu buf s)
@@ -87,7 +87,7 @@
 	(while t
 		(cond
 			;new debug msg
-			((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_win_debug)
+			((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_debug)
 				(defq reply_id (get-long msg debug_msg_reply_id)
 					tcb (get-long msg debug_msg_tcb)
 					data (get-cstr msg debug_msg_data)
@@ -103,38 +103,38 @@
 					(mail-send "" reply_id)
 					(elem-set 2 buf_rec reply_id)))
 			;moved task slider
-			((= id event_win_hvalue)
+			((= id event_hvalue)
 				(reset (get hslider 'value)))
 			;pressed play button
-			((= id event_win_play)
+			((= id event_play)
 				(when buf_index
 					(play (elem buf_index buf_list))))
 			;pressed pause button
-			((= id event_win_pause)
+			((= id event_pause)
 				(when buf_index
 					(pause (elem buf_index buf_list))))
 			;pressed step button
-			((= id event_win_step)
+			((= id event_step)
 				(when buf_index
 					(step (elem buf_index buf_list))))
 			;pressed clear button
-			((= id event_win_clear)
+			((= id event_clear)
 				(when buf_index
 					(step (elem buf_index buf_list))
 					(setq buf_keys (cat (slice 0 buf_index buf_keys) (slice (inc buf_index) -1 buf_keys)))
 					(setq buf_list (cat (slice 0 buf_index buf_list) (slice (inc buf_index) -1 buf_list)))
 					(reset (min buf_index (dec (length buf_list))))))
 			;pressed play all button
-			((= id event_win_play_all)
+			((= id event_play_all)
 				(each play buf_list))
 			;pressed pause all button
-			((= id event_win_pause_all)
+			((= id event_pause_all)
 				(each pause buf_list))
 			;pressed step all button
-			((= id event_win_step_all)
+			((= id event_step_all)
 				(each step buf_list))
 			;pressed clear all button
-			((= id event_win_clear_all)
+			((= id event_clear_all)
 				(each step buf_list)
 				(reset))
 			;otherwise

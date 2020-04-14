@@ -4,8 +4,8 @@
 (import 'gui/lisp.inc)
 
 (structure 'event 0
-	(byte 'win_close)
-	(byte 'win_prev 'win_next))
+	(byte 'close)
+	(byte 'prev 'next))
 
 (defq images '("apps/images/wallpaper.cpm" "apps/images/chrysalisp.cpm"
 	"apps/images/frill.cpm" "apps/images/magicbox.cpm" "apps/images/captive.cpm"
@@ -17,9 +17,9 @@
 	index 0)
 
 (ui-window window ()
-	(ui-title-bar window_title "" (0xea19) (const event_win_close))
+	(ui-title-bar window_title "" (0xea19) (const event_close))
 	(ui-tool-bar _ ()
-		(ui-buttons (0xe91d 0xe91e) (const event_win_prev)))
+		(ui-buttons (0xe91d 0xe91e) (const event_prev)))
 	(ui-scroll image_scroll (logior scroll_flag_vertical scroll_flag_horizontal)))
 
 (defun win-refresh (_)
@@ -36,9 +36,9 @@
 (defun-bind main ()
 	(gui-add (apply view-change (cat (list window 320 256) (view-get-size (win-refresh index)))))
 	(while (cond
-		((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_win_close)
+		((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_close)
 			nil)
-		((<= event_win_prev id event_win_next)
-			(win-refresh (% (+ index (dec (* 2 (- id event_win_prev))) (length images)) (length images))))
+		((<= event_prev id event_next)
+			(win-refresh (% (+ index (dec (* 2 (- id event_prev))) (length images)) (length images))))
 		(t (view-event window msg))))
 	(view-hide window))

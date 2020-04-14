@@ -4,14 +4,14 @@
 (import 'gui/lisp.inc)
 
 (structure 'event 0
-	(byte 'win_close 'win_max 'win_min))
+	(byte 'close 'max 'min))
 
 (defq id t index 0 xv 4 yv 0
 	frames (map (lambda (_) (canvas-load (cat "apps/boing/taoball_" (str _) ".cpm") load_flag_shared)) (range 1 12))
 	sframes (map (lambda (_) (canvas-load (cat "apps/boing/taoball_s_" (str _) ".cpm") load_flag_shared)) (range 1 12)))
 
 (ui-window window ()
-	(ui-title-bar _ "Boing" (0xea19 0xea1b 0xea1a) (const event_win_close))
+	(ui-title-bar _ "Boing" (0xea19 0xea1b 0xea1a) (const event_close))
 	(ui-element backdrop (create-backdrop) ('color argb_black 'ink_color argb_white)
 		(ui-element frame (elem 0 frames))
 		(ui-element sframe (elem 0 sframes))))
@@ -39,14 +39,14 @@
 		(view-dirty frame)
 		(while (mail-poll (array (task-mailbox)))
 			(cond
-				((= (setq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_win_close)
+				((= (setq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_close)
 					(setq id nil))
-				((= id event_win_min)
+				((= id event_min)
 					;min button
 					(bind '(x y) (view-get-pos window))
 					(bind '(w h) (view-pref-size window))
 					(view-change-dirty window x y w h))
-				((= id event_win_max)
+				((= id event_max)
 					;max button
 					(bind '(x y) (view-get-pos window))
 					(bind '(w h) (view-pref-size window))

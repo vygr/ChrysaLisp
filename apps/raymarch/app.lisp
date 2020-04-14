@@ -6,7 +6,7 @@
 (import 'gui/lisp.inc)
 
 (structure 'event 0
-	(byte 'win_close))
+	(byte 'close))
 
 (defq canvas_width 800 canvas_height 800 canvas_scale 1 then (time)
 	area (* canvas_width canvas_height canvas_scale canvas_scale)
@@ -18,7 +18,7 @@
 		(range (dec (* canvas_height canvas_scale)) -1)))
 
 (ui-window window ()
-	(ui-title-bar _ "Raymarch" (0xea19) (const event_win_close))
+	(ui-title-bar _ "Raymarch" (0xea19) (const event_close))
 	(ui-canvas canvas canvas_width canvas_height canvas_scale))
 
 (defun-bind tile (canvas data)
@@ -49,7 +49,7 @@
 			((= id 0)
 				;main mailbox
 				(cond
-					((= (setq id (get-long msg ev_msg_target_id)) event_win_close)
+					((= (setq id (get-long msg ev_msg_target_id)) event_close)
 						;close button
 						nil)
 					(t (view-event window msg))))

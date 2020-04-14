@@ -4,7 +4,7 @@
 (import 'gui/lisp.inc)
 
 (structure 'event 0
-	(byte 'win_close 'win_button))
+	(byte 'close 'button))
 
 (defq space_width 8 tab_width (* space_width 4) margin_width (* space_width 3)
 	doc_list '("VM" "ASSIGNMENT" "STRUCTURE" "COMMS" "FUNCTIONS"
@@ -80,21 +80,21 @@
 	(view-dirty-all (view-layout doc_flow)))
 
 (ui-window window ()
-	(ui-title-bar _ "Docs" (0xea19) (const event_win_close))
+	(ui-title-bar _ "Docs" (0xea19) (const event_close))
 	(ui-flow doc_flow ('flow_flags flow_right_fill 'font *env_window_font* 'color *env_toolbar_col*)
 		(ui-flow index ('flow_flags (logior flow_flag_down flow_flag_fillw))
 			(each (lambda (path)
 				(component-connect (ui-button _
-					('text path 'flow_flags (logior flow_flag_align_vcenter flow_flag_align_hleft))) event_win_button)) doc_list))
+					('text path 'flow_flags (logior flow_flag_align_vcenter flow_flag_align_hleft))) event_button)) doc_list))
 		(ui-scroll page_scroll scroll_flag_vertical ('min_width 848 'min_height 800))))
 
 (defun-bind main ()
 	(populate-page (elem 0 doc_list))
 	(gui-add (apply view-change (cat (list window 280 64) (view-pref-size window))))
 	(while (cond
-		((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_win_close)
+		((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_close)
 			nil)
-		((= id event_win_button)
+		((= id event_button)
 			(populate-page (get (view-find-id window (get-long msg ev_msg_action_source_id)) 'text)))
 		(t (view-event window msg))))
 	(view-hide window))

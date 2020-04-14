@@ -4,7 +4,7 @@
 (import 'gui/lisp.inc)
 
 (structure 'event 0
-	(byte 'win_close 'win_button))
+	(byte 'close 'button))
 
 (defq keys (list) vals (list) vdu_height 40 text_buf (list ""))
 
@@ -29,7 +29,7 @@
 	(each (lambda (_)
 		(def (defq b (create-button)) 'text _ 'border 0
 			'flow_flags (logior flow_flag_align_vcenter flow_flag_align_hleft))
-		(view-add-child index (component-connect b event_win_button))) keys)
+		(view-add-child index (component-connect b event_button))) keys)
 	(def vdu 'vdu_width
 		(reduce max (map (lambda (_)
 			(reduce max (map length (split _ (ascii-char 10))))) vals))))
@@ -47,7 +47,7 @@
 
 (ui-window window ('color argb_black)
 	(ui-flow _ ('flow_flags flow_down_fill)
-		(ui-title-bar _ "Help" (0xea19) (const event_win_close))
+		(ui-title-bar _ "Help" (0xea19) (const event_close))
 		(ui-flow _ ('flow_flags flow_right_fill 'font *env_terminal_font*)
 			(ui-scroll index_scroll scroll_flag_vertical nil
 				(ui-flow index ('flow_flags (logior flow_flag_down flow_flag_fillw) 'color argb_white)))
@@ -59,9 +59,9 @@
 	(view-change index 0 0 (def index_scroll 'min_width w) h)
 	(gui-add (apply view-change (cat (list window 32 32) (view-pref-size window))))
 	(while (cond
-		((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_win_close)
+		((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_close)
 			nil)
-		((= id event_win_button)
+		((= id event_button)
 			(defq _ (find (sym (get (view-find-id window (get-long msg ev_msg_action_source_id)) 'text)) keys))
 			(when _
 				(setq text_buf (vdu-print vdu text_buf (str

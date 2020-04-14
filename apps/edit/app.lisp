@@ -5,8 +5,8 @@
 (import 'apps/edit/input.inc)
 
 (structure 'event 0
-	(byte 'win_close 'win_max 'win_min)
-	(byte 'win_layout 'win_scroll 'new 'save 'open 'close 'prev 'next 'tab_sel))
+	(byte 'close 'max 'min)
+	(byte 'layout 'scroll 'new 'save 'open 'close 'prev 'next 'tab_sel))
 
 ;text buffer tuple
 (structure 'text 0
@@ -17,7 +17,7 @@
 
 (ui-window window ('color argb_grey2)
 	(ui-flow _ ('flow_flags flow_down_fill)
-		(ui-title-bar window_title "Edit" (0xea19 0xea1b 0xea1a) (const event_win_close))
+		(ui-title-bar window_title "Edit" (0xea19 0xea1b 0xea1a) (const event_close))
 		(ui-flow _ ('flow_flags flow_down_fill)
 			(ui-flow toolbar ('color *env_toolbar_col* 'flow_flags flow_right_fill)
 				(ui-grid _ ('grid_width 7 'grid_height  1 'font *env_toolbar_font*)
@@ -28,7 +28,7 @@
 					(ui-label buf_disp ('text "0/0" 'color *env_toolbar_col* 'font *env_terminal_font*)))
 				(ui-textfield textfield ('font *env_terminal_font* 'text "" 'color argb_grey13)))
 			(ui-flow _ ('flow_flags flow_left_fill)
-				(component-connect (ui-slider slider) event_win_scroll)
+				(component-connect (ui-slider slider) event_scroll)
 				(ui-vdu vdu ('vdu_width vdu_width 'vdu_height vdu_height 'min_width vdu_width 'min_height vdu_height
 					'color argb_black 'ink_color argb_white))))))
 
@@ -146,7 +146,7 @@
 (defun-bind main ()
 	;open the window
 	(gui-add (apply view-change (cat (list window 48 16)
-		(view-pref-size (component-connect window event_win_layout)))))
+		(view-pref-size (component-connect window event_layout)))))
 	;open buffers from pupa or open new buffer
 	(each open-buffer (if (= (length *env_edit_auto*) 0) '("") *env_edit_auto*))
 	(setq current_text (elem 0 text_store))
@@ -154,7 +154,7 @@
 	(window-layout vdu_width vdu_height)
 	;main loop
 	(while (cond
-		((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_win_close)
+		((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_close)
 			nil)
 		((= id event_new)
 			(setq current_text (open-buffer ""))
@@ -186,16 +186,16 @@
 			(setq current_text (next-buffer (tuple-get text_index current_text)))
 			(set textfield 'text (tuple-get text_path current_text))
 			(window-layout vdu_width vdu_height))
-		((= id event_win_layout)
+		((= id event_layout)
 			;user window resize
 			(apply window-layout (vdu-max-size vdu)))
-		((= id event_win_min)
+		((= id event_min)
 			;min button
 			(window-resize 60 40))
-		((= id event_win_max)
+		((= id event_max)
 			;max button
 			(window-resize 120 40))
-		((= id event_win_scroll)
+		((= id event_scroll)
 			(defq buffer (tuple-get text_buffer current_text))
 			(bind '(ox oy cx cy sx) (tuple-get text_position current_text))
 			;user scroll bar

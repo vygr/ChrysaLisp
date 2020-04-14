@@ -9,7 +9,7 @@
 	(int 'cpu 'task_count 'mem_used))
 
 (structure 'event 0
-	(byte 'win_close 'win_max 'win_min))
+	(byte 'close 'max 'min))
 
 (defq task_bars (list) memory_bars (list) task_scale (list) memory_scale (list)
 	cpu_total (kernel-total) cpu_count cpu_total
@@ -17,7 +17,7 @@
 	farm (open-farm "apps/netmon/child" cpu_total kn_call_open) sample_msg (array (elem 1 select)))
 
 (ui-window window ()
-	(ui-title-bar _ "Network Monitor" (0xea19 0xea1b 0xea1a) (const event_win_close))
+	(ui-title-bar _ "Network Monitor" (0xea19 0xea1b 0xea1a) (const event_close))
 	(ui-grid _ ('grid_width 2 'grid_height 1 'flow_flags flow_down_fill 'maximum 100 'value 0)
 		(ui-flow _ ('color argb_green)
 			(ui-label _ ('text "Tasks" 'color argb_white))
@@ -64,15 +64,15 @@
 			((= id 0)
 				;main mailbox
 				(cond
-					((= (setq id (get-long msg ev_msg_target_id)) event_win_close)
+					((= (setq id (get-long msg ev_msg_target_id)) event_close)
 						;close button
 						nil)
-					((= id event_win_min)
+					((= id event_min)
 						;min button
 						(bind '(x y) (view-get-pos window))
 						(bind '(w h) (view-pref-size window))
 						(view-change-dirty window x y w h))
-					((= id event_win_max)
+					((= id event_max)
 						;max button
 						(bind '(x y) (view-get-pos window))
 						(bind '(w h) (view-pref-size window))
@@ -92,4 +92,4 @@
 	(view-hide window)
 	(mail-free-mbox (elem 1 select))
 	(while (defq mbox (pop farm))
-		(mail-send (const (char event_win_close long_size)) mbox)))
+		(mail-send (const (char event_close long_size)) mbox)))
