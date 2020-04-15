@@ -10,8 +10,8 @@
 	(byte 'grid 'plain 'lines)
 	(byte 'radius1 'radius2 'radius3)
 	(byte 'pen 'line 'arrow1 'arrow2 'box 'circle 'fbox 'fcircle)
-	(byte 'black 'white 'red 'green 'blue 'cyan 'yellow 'magenta)
-	(byte 'tblack 'twhite 'tred 'tgreen 'tblue 'tcyan 'tyellow 'tmagenta))
+	(byte 'black 'white 'red 'green 'blue 'cyan 'yellow 'magenta
+		'tblack 'twhite 'tred 'tgreen 'tblue 'tcyan 'tyellow 'tmagenta))
 
 (defun-bind trans (_)
 	;transparent colour
@@ -35,7 +35,7 @@
 		(each (lambda (col)
 			(push ink_buttons (component-connect (ui-button __ ('ink_color col 'text
 				(if (< _ 8) (const (num-to-utf8 0xe982)) (const (num-to-utf8 0xea04)))))
-					(+ _ event_black)))) palette))
+					(+ _ (const event_black))))) palette))
 	(ui-scroll image_scroll (logior scroll_flag_vertical scroll_flag_horizontal)
 			('min_width canvas_width 'min_height canvas_height)
 		(ui-backdrop backdrop ('color 0xffF8F8FF 'ink_color 0xffADD8E6 'style 1)
@@ -55,8 +55,9 @@
 			'())
 		((= 2 (length s))
 			;just a point
-			(list (points-gen-arc (elem 0 s) (elem 1 s) 0 fp_2pi r (const eps) (points))))
+			(list (points-gen-arc (elem 0 s) (elem 1 s) 0 (const fp_2pi) r (const eps) (points))))
 		(t	;is a polyline draw
+			(bind '(x y x1 y1 &rest _) s)
 			(cond
 				((= stroke_mode (const event_arrow1))
 					;flatten to arrow1
@@ -68,23 +69,19 @@
 						(list s) (list)))
 				((= stroke_mode (const event_box))
 					;flatten to box
-					(bind '(x y x1 y1) s)
 					(points-stroke-polygons r (const eps) (const join_miter)
 						(list (points x y x1 y x1 y1 x y1)) (list)))
 				((= stroke_mode (const event_circle))
 					;flatten to circle
-					(bind '(x y x1 y1) s)
 					(points-stroke-polygons r (const eps) (const join_bevel)
-						(list (points-gen-arc x y 0 fp_2pi (vec-length (vec-sub (points x y) (points x1 y1)))
+						(list (points-gen-arc x y 0 (const fp_2pi) (vec-length (vec-sub (points x y) (points x1 y1)))
 						(const eps) (points))) (list)))
 				((= stroke_mode (const event_fbox))
 					;flatten to filled box
-					(bind '(x y x1 y1) s)
 					(list (points x y x1 y x1 y1 x y1)))
 				((= stroke_mode (const event_fcircle))
 					;flatten to filled circle
-					(bind '(x y x1 y1) s)
-					(list (points-gen-arc x y 0 fp_2pi (vec-length (vec-sub (points x y) (points x1 y1)))
+					(list (points-gen-arc x y 0 (const fp_2pi) (vec-length (vec-sub (points x y) (points x1 y1)))
 						(const eps) (points))))
 				(t	;flatten to pen stroke
 					(points-stroke-polylines r (const eps) (const join_bevel) (const cap_round) (const cap_round)
@@ -120,7 +117,7 @@
 
 (defun-bind redraw (mask &optional f)
 	;redraw layer/s with optional timed forced drawing
-	(when (or (> (defq now (time)) (+ then 50000)) f)
+	(when (or (> (defq now (time)) (+ then (const (/ 1000000 30)))) f)
 		(setq then now)
 		(when (/= 0 (logand mask 1))
 			(canvas-fill strokes_canvas 0)
@@ -143,50 +140,51 @@
 	(redraw 3 t)
 	(gui-add (apply view-change (cat (list window 192 64) (view-pref-size window))))
 	(def image_scroll 'min_width min_width 'min_height min_height)
-	(defq last_state 'u last_point nil last_mid_point nil)
 	;main event loop
+	(defq last_state 'u last_point nil last_mid_point nil)
 	(while (cond
-		((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_close)
+		((= (defq id (get-long (defq msg (mail-read (task-mailbox))) (const ev_msg_target_id))) (const event_close))
+			;close button
 			nil)
-		((= id event_min)
+		((= id (const event_min))
 			;min button
-			(apply view-change-dirty (cat (list window) (view-get-pos window)(view-pref-size window))))
-		((= id event_max)
+			(apply view-change-dirty (cat (list window) (view-get-pos window) (view-pref-size window))))
+		((= id (const event_max))
 			;max button
 			(def image_scroll 'min_width canvas_width 'min_height canvas_height)
-			(apply view-change-dirty (cat (list window) (view-get-pos window)(view-pref-size window)))
+			(apply view-change-dirty (cat (list window) (view-get-pos window) (view-pref-size window)))
 			(def image_scroll 'min_width min_width 'min_height min_height))
-		((<= event_black id event_tmagenta)
+		((<= (const event_black) id (const event_tmagenta))
 			;ink pot
-			(setq stroke_col (elem (radio_select ink_buttons (- id event_black)) palette)))
-		((<= event_pen id event_fcircle)
+			(setq stroke_col (elem (radio_select ink_buttons (- id (const event_black))) palette)))
+		((<= (const event_pen) id (const event_fcircle))
 			;draw mode
-			(setq stroke_mode (+ (radio_select mode_buttons (- id event_pen)) event_pen)))
-		((<= event_radius1 id event_radius3)
+			(setq stroke_mode (+ (radio_select mode_buttons (- id (const event_pen))) (const event_pen))))
+		((<= (const event_radius1) id (const event_radius3))
 			;stroke radius
-			(setq stroke_radius (elem (radio_select radius_buttons (- id event_radius1)) radiuss)))
-		((<= event_grid id event_lines)
+			(setq stroke_radius (elem (radio_select radius_buttons (- id (const event_radius1))) radiuss)))
+		((<= (const event_grid) id (const event_lines))
 			;styles
-			(def (view-dirty backdrop) 'style (radio_select style_buttons (- id event_grid))))
-		((= id event_clear)
+			(def (view-dirty backdrop) 'style (radio_select style_buttons (- id (const event_grid)))))
+		((= id (const event_clear))
 			;clear
 			(snapshot)
 			(clear commited_strokes)
 			(redraw 1 t))
-		((= id event_undo)
+		((= id (const event_undo))
 			;undo
 			(undo))
-		((= id event_redo)
+		((= id (const event_redo))
 			;undo
 			(redo))
 		((= id (component-get-id overlay_canvas))
 			;event for canvas
-			(when (= (get-long msg ev_msg_type) ev_type_mouse)
+			(when (= (get-long msg (const ev_msg_type)) (const ev_type_mouse))
 				;mouse event in canvas
-				(defq new_point (points (* (get-int msg ev_msg_mouse_rx) 1.0)
-					(* (get-int msg ev_msg_mouse_ry) 1.0)))
+				(defq new_point (points (* (get-int msg (const ev_msg_mouse_rx)) 1.0)
+					(* (get-int msg (const ev_msg_mouse_ry)) 1.0)))
 				(cond
-					((/= (get-int msg ev_msg_mouse_buttons) 0)
+					((/= (get-int msg (const ev_msg_mouse_buttons)) 0)
 						;mouse button is down
 						(case last_state
 							(d	;was down last time, what draw mode ?
@@ -206,9 +204,7 @@
 											(setq last_point new_point last_mid_point mid_point)
 											(redraw 2)))
 									(t	;a shape mode
-										(elem-set -2 (elem -2 in_flight_strokes)
-											(points (elem 0 last_point) (elem 1 last_point)
-												(elem 0 new_point) (elem 1 new_point)))
+										(elem-set -2 (elem -2 in_flight_strokes) (cat last_point new_point))
 										(redraw 2))))
 							(u	;was up last time, so start new stroke
 								(setq last_state 'd last_point new_point last_mid_point new_point)
