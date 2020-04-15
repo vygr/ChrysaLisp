@@ -35,8 +35,7 @@
 		(elem i cache_poly)
 		(progn
 			(push cache_key k)
-			(elem -2 (push cache_poly (points-stroke-polylines r eps
-				join_bevel cap_round cap_round (list s) (list)))))))
+			(elem -2 (push cache_poly (points-stroke-polylines (list) r eps join_bevel cap_round cap_round (list s)))))))
 
 (defun-bind batch (path)
 	(defq s 0 e 0 b (list))
@@ -74,10 +73,8 @@
 				layers (list (list) (list) (list) (list) (list) (list)))
 			(each (lambda (path path_2d)
 				(each (lambda (seg seg_2d)
-					(when (or (= show (defq z (% (>> (elem 2 (elem 0 seg)) fp_shift) pcb_depth)))
-								(= show -1))
-						(points-stroke-polylines track_radius eps join_round cap_round cap_round
-							(list seg_2d) (elem z layers)))
+					(when (or (= show (defq z (% (>> (elem 2 (elem 0 seg)) fp_shift) pcb_depth))) (= show -1))
+						(points-stroke-polylines (elem z layers) track_radius eps join_round cap_round cap_round (list seg_2d)))
 					) path path_2d)
 				) batched_paths batched_paths_2d)
 			(each! 0 pcb_depth (lambda (layer color)
@@ -133,8 +130,8 @@
 			(each (lambda (path path_2d)
 				(each (lambda (seg seg_2d)
 					(when (= show (defq z (% (>> (elem 2 (elem 0 seg)) fp_shift) pcb_depth)))
-						(points-stroke-polylines (+ track_radius (if with_gaps track_gap 0)) eps join_round cap_round cap_round
-							(list seg_2d) layer))
+						(points-stroke-polylines layer (+ track_radius (if with_gaps track_gap 0))
+							eps join_round cap_round cap_round (list seg_2d)))
 					) path path_2d)
 				) batched_paths batched_paths_2d)
 			(canvas-fpoly canvas pcb_border pcb_border 1 layer)
@@ -163,7 +160,7 @@
 						;polygon pad
 						(if with_gaps
 							(canvas-fpoly canvas pad_x pad_y 0
-								(points-stroke-polygons pad_gap eps join_round (list pad_shape) (list)))
+								(points-stroke-polygons (list) pad_gap eps join_round (list pad_shape)))
 							(canvas-fpoly canvas pad_x pad_y 0
 								(list pad_shape))))))
 			) pads)

@@ -21,7 +21,8 @@
 
 	(vp-push r0)
 	(defq in (method-input 'points 'transform))
-	(class/vector/bind_args r1 in '(points points num num num num num num))
+	(class/vector/bind_args r1 (class/array/map_args in '(7 6 0 1 2 3 4 5))
+		'(num num num num num num points points))
 	(call 'points 'transform in '(r0))
 	(call 'obj 'ref '(r0) '(r1))
 	(vp-pop r0)
@@ -31,8 +32,8 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r0 "(points-transform dst src m1x m1y m2x m2y trx try)" error_msg_wrong_types r1))
-	(signature '(points points num num num num num num)))
+	(jump 'lisp 'repl_error '(r0 "(points-transform m1x m1y m2x m2y trx try src dst)" error_msg_wrong_types r1))
+	(signature '(num num num num num num points points)))
 
 (def-func-end)
 
@@ -54,7 +55,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'points 'simplify))
-	(class/vector/bind_args r1 in '(points points _ num))
+	(class/vector/bind_args r1 (class/array/map_args in '(3 2 1 0)) '(num _ points points))
 	(assign '((rsp 0)) `(,(elem 2 in)))
 	(assign `((,(elem 2 in) lisp_stack)) `(,(elem 2 in)))
 	(call 'points 'simplify in '(r0))
@@ -66,8 +67,8 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r0 "(points-simplify dst src tol)" error_msg_wrong_types r1))
-	(signature '(points points num)))
+	(jump 'lisp 'repl_error '(r0 "(points-simplify tol src dst)" error_msg_wrong_types r1))
+	(signature '(num points points)))
 
 (def-func-end)
 
@@ -89,7 +90,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'points 'filter_polyline))
-	(class/vector/bind_args r1 in '(points points num))
+	(class/vector/bind_args r1 (class/array/map_args in '(2 1 0)) '(num points points))
 	(call 'points 'filter_polyline in '(r0))
 	(call 'obj 'ref '(r0) '(r1))
 	(vp-pop r0)
@@ -99,8 +100,8 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r0 "(points-filter dst src tol)" error_msg_wrong_types r1))
-	(signature '(points points num)))
+	(jump 'lisp 'repl_error '(r0 "(points-filter tol src dst)" error_msg_wrong_types r1))
+	(signature '(num points points)))
 
 (def-func-end)
 
@@ -230,8 +231,8 @@
 
 	(vp-push r0)
 	(defq in (method-input 'points 'stroke_polylines))
-	(class/vector/bind_args r1 (class/array/map_args in '(7 6 5 0 1 2 3 4))
-		'(num num num num num vector _ vector))
+	(class/vector/bind_args r1 (class/array/map_args in '(0 7 6 1 2 3 4 5))
+		'(vector num num num num num vector _))
 	(assign '((rsp 0)) `(,(elem 1 in)))
 	(assign `((,(elem 1 in) lisp_stack)) `(,(elem 1 in)))
 	(call 'points 'stroke_polylines in '(r0))
@@ -243,8 +244,8 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r0 "(points-stroke-polylines radius tol join cap1 cap2 src dst) -> dst" error_msg_wrong_types r1))
-	(signature '(num num num num num vector vector)))
+	(jump 'lisp 'repl_error '(r0 "(points-stroke-polylines dst radius tol join cap1 cap2 src) -> dst" error_msg_wrong_types r1))
+	(signature '(vector num num num num num vector)))
 
 (def-func-end)
 
@@ -266,8 +267,8 @@
 
 	(vp-push r0)
 	(defq in (method-input 'points 'stroke_polygons))
-	(class/vector/bind_args r1 (class/array/map_args in '(5 4 3 0 1 2))
-		'(num num num vector _ vector))
+	(class/vector/bind_args r1 (class/array/map_args in '(0 5 4 1 2 3))
+		'(vector num num num vector _))
 	(assign '((rsp 0)) `(,(elem 1 in)))
 	(assign `((,(elem 1 in) lisp_stack)) `(,(elem 1 in)))
 	(call 'points 'stroke_polygons in '(r0))
@@ -279,8 +280,8 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r0 "(points-stroke-polygons radius tol join src dst) -> dst" error_msg_wrong_types r1))
-	(signature '(num num num vector vector)))
+	(jump 'lisp 'repl_error '(r0 "(points-stroke-polygons dst radius tol join src) -> dst" error_msg_wrong_types r1))
+	(signature '(vector num num num vector)))
 
 (def-func-end)
 

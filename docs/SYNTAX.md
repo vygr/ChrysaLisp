@@ -818,7 +818,7 @@
 
 ## points-filter
 
-(points-filter dst src tol)
+(points-filter tol src dst)
 
 ## points-fmod
 
@@ -858,15 +858,15 @@
 
 ## points-simplify
 
-(points-simplify dst src tol)
+(points-simplify tol src dst)
 
 ## points-stroke-polygons
 
-(points-stroke-polygons radius tol join src dst) -> dst
+(points-stroke-polygons dst radius tol join src) -> dst
 
 ## points-stroke-polylines
 
-(points-stroke-polylines radius tol join cap1 cap2 src dst) -> dst
+(points-stroke-polylines dst radius tol join cap1 cap2 src) -> dst
 
 ## points-sub
 
@@ -878,7 +878,7 @@
 
 ## points-transform
 
-(points-transform dst src m1x m1y m2x m2y trx try)
+(points-transform m1x m1y m2x m2y trx try src dst)
 
 ## pop
 

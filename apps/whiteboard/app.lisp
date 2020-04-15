@@ -61,21 +61,18 @@
 			(cond
 				((= stroke_mode (const event_arrow1))
 					;flatten to arrow1
-					(points-stroke-polylines r (const eps) (const join_bevel) (const cap_butt) (const cap_arrow)
-						(list s) (list)))
+					(points-stroke-polylines (list) r (const eps) (const join_bevel) (const cap_butt) (const cap_arrow) (list s)))
 				((= stroke_mode (const event_arrow2))
 					;flatten to arrow2
-					(points-stroke-polylines r (const eps) (const join_bevel) (const cap_arrow) (const cap_arrow)
-						(list s) (list)))
+					(points-stroke-polylines (list) r (const eps) (const join_bevel) (const cap_arrow) (const cap_arrow) (list s)))
 				((= stroke_mode (const event_box))
 					;flatten to box
-					(points-stroke-polygons r (const eps) (const join_miter)
-						(list (points x y x1 y x1 y1 x y1)) (list)))
+					(points-stroke-polygons (list) r (const eps) (const join_miter) (list (points x y x1 y x1 y1 x y1))))
 				((= stroke_mode (const event_circle))
 					;flatten to circle
-					(points-stroke-polygons r (const eps) (const join_bevel)
+					(points-stroke-polygons (list) r (const eps) (const join_bevel)
 						(list (points-gen-arc x y 0 (const fp_2pi) (vec-length (vec-sub (points x y) (points x1 y1)))
-						(const eps) (points))) (list)))
+							(const eps) (points)))))
 				((= stroke_mode (const event_fbox))
 					;flatten to filled box
 					(list (points x y x1 y x1 y1 x y1)))
@@ -84,8 +81,7 @@
 					(list (points-gen-arc x y 0 (const fp_2pi) (vec-length (vec-sub (points x y) (points x1 y1)))
 						(const eps) (points))))
 				(t	;flatten to pen stroke
-					(points-stroke-polylines r (const eps) (const join_bevel) (const cap_round) (const cap_round)
-						(list s) (list)))))))
+					(points-stroke-polylines (list) r (const eps) (const join_bevel) (const cap_round) (const cap_round) (list s)))))))
 
 (defun-bind snapshot ()
 	;take a snapshot of the canvas state
@@ -200,7 +196,7 @@
 												(elem 0 last_point) (elem 1 last_point)
 												(elem 0 mid_point) (elem 1 mid_point)
 												(const eps) stroke)
-											(points-filter stroke stroke (const tol))
+											(points-filter (const tol) stroke stroke)
 											(setq last_point new_point last_mid_point mid_point)
 											(redraw 2)))
 									(t	;a shape mode
@@ -217,7 +213,7 @@
 								(setq last_state 'u)
 								(defq stroke (elem -2 (elem -2 in_flight_strokes)))
 								(push stroke (elem 0 new_point) (elem 1 new_point))
-								(points-filter stroke stroke 0.5)
+								(points-filter 0.5 stroke stroke)
 								(each (lambda ((w s)) (commit w s stroke_col)) in_flight_strokes)
 								(clear in_flight_strokes)
 								(redraw 3 t))

@@ -335,8 +335,8 @@
 	;outputs
 	;reordered register list
 	(defq out (cat regs))
-	(each! 0 -1 (lambda (r p)
-		(elem-set p out r)) (list regs pos)) out)
+	(each (lambda (r p)
+		(elem-set p out r)) regs pos) out)
 
 (defcfun-bind class/array/bind_args (a regs)
 	;inputs
