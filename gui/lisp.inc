@@ -5,107 +5,89 @@
 ;some helpful macros
 (defmacro get (_ b) `(eval ,b ,_))
 
+(defmacro-bind ui-props (p &rest x)
+	`(setq ,p (cat ',x (opt ,p '()))))
+
 (defmacro ui-tree (n c &optional p &rest x)
-	(if p
-		`(progn
-			(defq _ui (list (defq ,n ,c)))
-			(def ,n ~p) ~x (setq _ui nil))
-		`(progn
-			(defq _ui (list (defq ,n ,c)))
-			~x (setq _ui nil))))
+	(if (and p (/= 0 (length p)))
+		`(progn (defq _ui (list (defq ,n ,c))) (def ,n ~p) ~x (setq _ui nil))
+		`(progn (defq _ui (list (defq ,n ,c))) ~x (setq _ui nil))))
 
 (defmacro ui-element (n c &optional p &rest x)
-	(if p
-		`(progn
-			(view-add-child (elem -3 (push _ui (defq ,n ,c))) ,n)
-			(def ,n ~p) ~x (pop _ui))
-		`(progn
-			(view-add-child (elem -3 (push _ui (defq ,n ,c))) ,n)
-			~x (pop _ui))))
+	(if (and p (/= 0 (length p)))
+		`(progn (view-add-child (elem -3 (push _ui (defq ,n ,c))) ,n) (def ,n ~p) ~x (pop _ui))
+		`(progn (view-add-child (elem -3 (push _ui (defq ,n ,c))) ,n) ~x (pop _ui))))
 
 (defmacro ui-window (n &optional p &rest x)
-	(setq p (cat '('font *env_window_font* 'ink_color *env_ink_col*
-		'color *env_window_col* 'border *env_window_border*) (opt p '())))
-	`(ui-tree ,n (create-window) (~p)
+	(ui-props p 'font *env_window_font* 'ink_color *env_ink_col* 'color *env_window_col*
+		'border *env_window_border*)
+	`(ui-tree ,n (create-window) ,p
 		(ui-flow _ ('flow_flags flow_down_fill) ~x)))
 
 (defmacro ui-flow (n &optional p &rest x)
-	(if p
-		`(ui-element ,n (create-flow) (~p) ~x)
-		`(ui-element ,n (create-flow) nil ~x)))
+	`(ui-element ,n (create-flow) ,p ~x))
 
 (defmacro ui-grid (n &optional p &rest x)
-	(if p
-		`(ui-element ,n (create-grid) (~p) ~x)
-		`(ui-element ,n (create-grid) nil ~x)))
+	`(ui-element ,n (create-grid) ,p ~x))
 
 (defmacro ui-title (n &optional p)
-	(setq p (cat '('font *env_title_font* 'color *env_title_col*
-		'border *env_title_border*) (opt p '())))
-	`(ui-element ,n (create-title) (~p)))
+	(ui-props p 'font *env_title_font* 'color *env_title_col* 'border *env_title_border*)
+	`(ui-element ,n (create-title) ,p))
 
 (defmacro ui-title-bar (n s b e &optional p)
-	(setq p (cat '('flow_flags flow_left_fill 'font *env_title_buttons_font*) (opt p '())))
-	`(ui-flow _ (~p)
+	(ui-props p 'flow_flags flow_left_fill 'font *env_title_buttons_font*)
+	`(ui-flow _ ,p
 		(ui-buttons ,b ,e ('color *env_title_col* 'border *env_title_buttons_border*))
 		(ui-title ,n ('text ,s))))
 
 (defmacro ui-label (n &optional p &rest x)
-	(setq p (cat '('flow_flags (logior flow_flag_right flow_flag_align_vcenter)
-		'border *env_label_border*) (opt p '())))
-	`(ui-element ,n (create-label) (~p) ~x))
+	(ui-props p 'flow_flags (logior flow_flag_right flow_flag_align_vcenter) 'border *env_label_border*)
+	`(ui-element ,n (create-label) ,p ~x))
 
 (defmacro ui-button (n &optional p &rest x)
-	(setq p (cat '('flow_flags (logior flow_flag_down flow_flag_align_hcenter flow_flag_align_vcenter)
-		'border *env_button_border*) (opt p '())))
-	`(ui-element ,n (create-button) (~p) ~x))
+	(ui-props p 'flow_flags (logior flow_flag_down flow_flag_align_hcenter flow_flag_align_vcenter)
+		'border *env_button_border*)
+	`(ui-element ,n (create-button) ,p ~x))
 
 (defmacro ui-buttons (s e &optional p l)
 	(setq s (map (lambda (_) (if (num? _) (num-to-utf8 _) _)) s) p (opt p '()))
 	(if l
-		`(each (lambda (_s)
-			(push ,l (component-connect (ui-button __ ('text _s ~p)) (+ _ ,e)))) '(~s))
-		`(each (lambda (_s)
-			(component-connect (ui-button __ ('text _s ~p)) (+ _ ,e))) '(~s))))
+		`(each (lambda (_s) (push ,l (component-connect (ui-button __ ('text _s ~p)) (+ _ ,e)))) '(~s))
+		`(each (lambda (_s) (component-connect (ui-button __ ('text _s ~p)) (+ _ ,e))) '(~s))))
 
 (defmacro ui-tool-bar (n &optional p &rest x)
-	(setq p (cat '('flow_flags (logior flow_flag_right flow_flag_fillh)
-		'color *env_toolbar_col* 'font *env_toolbar_font*) (opt p '())))
-	`(ui-flow ,n (~p) ~x))
+	(ui-props p 'flow_flags (logior flow_flag_right flow_flag_fillh) 'color *env_toolbar_col*
+		'font *env_toolbar_font*)
+	`(ui-flow ,n ,p ~x))
 
 (defmacro ui-textfield (n &optional p)
-	(setq p (cat '('flow_flags (logior flow_flag_right flow_flag_align_vcenter)
-		'border *env_textfield_border*) (opt p '())))
-	`(ui-element ,n (create-textfield) (~p)))
+	(ui-props p 'flow_flags (logior flow_flag_right flow_flag_align_vcenter) 'border *env_textfield_border*)
+	`(ui-element ,n (create-textfield) ,p))
 
 (defmacro ui-slider (n &optional p)
-	(setq p (cat '('color *env_slider_col*) (opt p '())))
-	`(ui-element ,n (create-slider) (~p)))
+	(ui-props p 'color *env_slider_col*)
+	`(ui-element ,n (create-slider) ,p))
 
 (defmacro ui-scroll (n f &optional p &rest x)
-	(setq p (cat '('color *env_slider_col*) (opt p '())))
-	`(ui-element ,n (create-scroll ,f) (~p) ~x))
+	(ui-props p 'color *env_slider_col*)
+	`(ui-element ,n (create-scroll ,f) ,p ~x))
 
 (defmacro ui-backdrop (n &optional p &rest x)
-	(setq p (cat '('color *env_backdrop_col* 'ink_color *env_backdrop_ink_col*) (opt p '())))
-	`(ui-element ,n (create-backdrop) (~p) ~x))
+	(ui-props p 'color *env_backdrop_col* 'ink_color *env_backdrop_ink_col*)
+	`(ui-element ,n (create-backdrop) ,p ~x))
 
 (defmacro ui-progress (n &optional p)
-	(if p
-		`(ui-element ,n (create-progress) (~p))
-		`(ui-element ,n (create-progress) nil)))
+	`(ui-element ,n (create-progress) ,p))
 
 (defmacro ui-canvas (n w h s)
 	`(ui-element ,n (create-canvas ,w ,h ,s)))
 
 (defmacro ui-vdu (n &optional p)
-	(setq p (cat '('font *env_terminal_font*) (opt p '())))
-	`(ui-element ,n (create-vdu) (~p)))
+	(ui-props p 'font *env_terminal_font*)
+	`(ui-element ,n (create-vdu) ,p))
 
 (defmacro ui-view (n &optional p &rest x)
-	(if p
-		`(ui-element ,n (create-view) (~p) ~x)
-		`(ui-element ,n (create-view) nil ~x)))
+	`(ui-element ,n (create-view) ,p ~x))
 
 (defmacro view-dirty-all (_)
 	`(view-set-flags ,_ view_flag_dirty_all view_flag_dirty_all))
