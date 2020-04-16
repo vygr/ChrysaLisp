@@ -61,12 +61,12 @@
 	`(ui-element ,n (create-button) (~p) ~x))
 
 (defmacro ui-buttons (s e &optional p l)
-	(setq s (map (lambda (_) (if (num? _) (num-to-utf8 _) _)) s))
+	(setq s (map (lambda (_) (if (num? _) (num-to-utf8 _) _)) s) p (opt p '()))
 	(if l
 		`(each (lambda (_s)
-			(push ,l (component-connect (ui-button __ ('text _s ~(opt p '()))) (+ _ ,e)))) '(~s))
+			(push ,l (component-connect (ui-button __ ('text _s ~p)) (+ _ ,e)))) '(~s))
 		`(each (lambda (_s)
-			(component-connect (ui-button __ ('text _s ~(opt p '()))) (+ _ ,e))) '(~s))))
+			(component-connect (ui-button __ ('text _s ~p)) (+ _ ,e))) '(~s))))
 
 (defmacro ui-tool-bar (n &optional p &rest x)
 	(setq p (cat '('flow_flags (logior flow_flag_right flow_flag_fillh)

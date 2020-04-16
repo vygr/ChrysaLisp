@@ -41,6 +41,8 @@
 				(class/array/bind_args r2 '(r3))
 				(assign '((r0 lisp_sym_quote)) '(r4))
 				(breakif '(r4 = r3) 'next_iter)
+				(assign '((r0 lisp_sym_qquote)) '(r4))
+				(breakif '(r4 = r3) 'next_iter)
 
 				;is a symbol ?
 				(assign '(r1 r2) '((rsp local_iter) (rsp local_form)))

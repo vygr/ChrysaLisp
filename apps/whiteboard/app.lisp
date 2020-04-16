@@ -4,6 +4,10 @@
 (import 'gui/lisp.inc)
 (import 'apps/math.inc)
 
+;quick debug switch
+;; (import 'class/lisp/debug.inc)
+;; (defmacro defun-bind (&rest _) `(defun-debug ~_))
+
 (structure 'event 0
 	(byte 'close 'max 'min)
 	(byte 'clear 'undo 'redo)

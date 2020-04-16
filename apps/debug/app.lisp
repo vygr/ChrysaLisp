@@ -8,6 +8,8 @@
 	(byte 'play 'pause 'step 'clear)
 	(byte 'play_all 'pause_all 'step_all 'clear_all))
 
+(defq vdu_width 60 vdu_height 40 buf_keys (list) buf_list (list) buf_index nil)
+
 ;single instance only
 (unless (mail-enquire "DEBUG_SERVICE")
 	(kernel-declare "DEBUG_SERVICE" (task-mailbox))
@@ -15,8 +17,6 @@
 (structure 'debug_msg 0
 	(long 'command 'reply_id 'tcb)
 	(offset 'data))
-
-(defq vdu_width 60 vdu_height 30 buf_keys (list) buf_list (list) buf_index nil)
 
 (ui-window window ('color 0xc0000000)
 	(ui-flow _ ('flow_flags flow_down_fill)
@@ -82,7 +82,7 @@
 	(set-slider-values))
 
 (defun-bind main ()
-	(gui-add (apply view-change (cat (list window 640 16) (view-pref-size window))))
+	(gui-add (apply view-change (cat (list window 640 8) (view-pref-size window))))
 	(reset)
 	(while t
 		(cond

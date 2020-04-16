@@ -42,10 +42,10 @@
 	;(debug-fun name list) -> list
 	(defq _s (list (setq _ (copy _))))
 	(while (defq _l (pop _s))
-		(each! 0 -1 (lambda (_e)
+		(each (lambda (_e)
 			(when (is-debug-fun _e)
 				(elem-set _ _l (cat '(debug) (list _n _e)))
-				(push _s _e))) (list _l))) _)
+				(push _s _e))) _l)) _)
 
 (defmacro-bind defun-debug (n a &rest _)
 	;(defun-debug name ([arg ...]) body)

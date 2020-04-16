@@ -193,12 +193,12 @@
 
 (defmacro-bind opt (x y &optional z)
 	;(opt var val [cond])
-	(cond (z `(if ,x ,z ,y)) (t `(if ,x ,x ,y))))
+	(cond (z `(cond (,x ,z) (t ,y))) (t `(cond (,x ,x) (t ,y)))))
 (defmacro-bind setd (&rest _)
 	;(setd var val [var val] ...)
 	(defq i -2 l (list 'setq))
 	(while (< (setq i (+ i 2)) (length _))
-		(push l (elem i _) `(opt ,(elem i _) ,(elem (inc i) _)))) l)
+		(push l (elem i _) (list 'opt (elem i _) (elem (inc i) _)))) l)
 
 ;;;;;;;;
 ; Scopes
@@ -613,6 +613,14 @@
 	(while (/= 0 (get-byte s o))
 		(setq o (inc o)))
 	(slice k o s))
+
+(defun-bind type-to-size (_)
+	;(type-to-size sym) -> num
+	(case _
+		((i ui) 4)
+		((s us) 2)
+		((b ub) 1)
+		(t 8)))
 
 ;;;;;;;;
 ; Tuples

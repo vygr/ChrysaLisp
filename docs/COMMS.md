@@ -54,7 +54,7 @@ underlying messaging system within a streams based API.
 
 There are two functions to allocate mail messages, one where the data is
 already available `'sys_mail 'alloc_obj`, and one where an empty message needs
-to be created which the creator will fill in with the data, `'sys_mail 'alloc`.
+to be created, which the creator will fill in with data, `'sys_mail 'alloc`.
 
 There are counterparts for the receiver where a message can be freed in its
 entirety, `'sys_mail 'free`, or the data object can be retained and only the
@@ -68,19 +68,19 @@ the message over to the link processes and begins the routing of the message to
 the destination mailbox.
 
 A process receives messages by use of the `'sys_mail 'read` function. This
-function retrieves the next available mail message from the mailbox or blocks
-by suspending the process until a message is received.
+function retrieves the next available mail message from the mailbox or blocks,
+by suspending the process, until a message is received.
 
-It is possible to examine a mailbox to see if any mail is available without
-suspending the calling process by use of the `'sys_mail 'poll` function.
+It is possible to examine a mailbox to see if any mail is available, without
+suspending the calling process, by use of the `'sys_mail 'poll` function.
 
 Polling of multiple mailboxes and selection from multiple mailboxes is provided
-by `'sys_mail 'poll` and `'sys_mail 'select` function calls.
+by the `'sys_mail 'poll` and `'sys_mail 'select` function calls.
 
 ## Process Mailbox ID's
 
 A 64 bit Process mailbox ID consists of a combination of the local mailbox ID
-and the CPU ID. CPU ID occupies the upper 32 bits, the local mailbox ID
+and the CPU ID. The CPU ID occupies the upper 32 bits, the local mailbox ID
 occupies the lower 32 bits.
 
 Message routing first of all routes messages from the source CPU to the
@@ -95,8 +95,8 @@ farms, arrays, and pipelines of processes. These functions return an array of
 64 bit mailboxes IDs. The creator can then go on to wire these mailboxes and
 processes in any communications structure it desires.
 
-Auto allocated process IDs do not need to be manually freed, this will happen
-when the process shuts down.
+Auto allocated process ID mailboxes do not need to be manually freed, this will
+happen when the process shuts down.
 
 ## Services
 

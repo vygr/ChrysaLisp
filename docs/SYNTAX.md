@@ -1120,6 +1120,10 @@
 
 (type-of obj)
 
+## type-to-size
+
+(type-to-size sym) -> num
+
 ## undef
 
 (undef env var [var] ...)

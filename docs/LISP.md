@@ -37,12 +37,13 @@ caches. Make sure to `setq` the symbol you bind to the result of `env` to `nil`
 before returning from the function if you do this, else you will create a cycle
 that can't be freed.
 
-`defq` and `bind` always create entries in the top environment hash map. `setq`
-searches the environment chain to find an existing entry and sets that entry or
-fails with an error. This means `setq` can be used to write to symbols outside
-the scope of the current function. Some people don't like this, but used wisely
-it can be very powerful. Coming from an assembler background I prefer to have
-all the guns and knives available, so try not to shoot your foot off.
+`defq` and `bind` always create entries in the current environment hash map.
+`setq` searches the environment chain to find an existing entry and sets that
+entry or fails with an error. This means `setq` can be used to write to symbols
+outside the scope of the current function. Some people don't like this, but
+used wisely it can be very powerful. Coming from an assembler background I
+prefer to have all the guns and knives available, so try not to shoot your foot
+off.
 
 There is no cons, cdr or car stuff. Lists are just vector objects and you use
 `push`, `cat`, `slice` etc to manipulate elements. Also an empty list does not
@@ -297,6 +298,7 @@ to-upper
 trim
 trim-end
 trim-start
+type-to-size
 within-compile-env
 write-line
 ```
