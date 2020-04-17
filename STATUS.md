@@ -27,6 +27,18 @@ corrupted.
 
 ------
 
+Considerable improvements to the (ui-xxx) macros with standard defaults from
+the user environment pupa.inc file.
+
+Whiteboard now has a display list thread that takes care of canvas redraw and
+path flattening at whatever the selected display rate is.
+
+Fixed a serious issue with macro expansion. I was expanding into quasi quoted
+lists and this was causing all sorts of strangeness. Corrected this issue and
+then improved several old macros that had been showing issues with this.
+
+------
+
 Nuclearfall has set up an IRC channel on irc.freenode.net at #ChrysaLisp. The room
 should be available 24-7 and I'll keep this open all the time I'm awake. Users
 of Riot.im can also access the channel on matrix.org at #Chrysalisp:matrix.org
