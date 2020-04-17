@@ -31,13 +31,13 @@
 	`(ui-element ,n (create-grid) ,p ~x))
 
 (defmacro ui-title (n &optional p)
-	(ui-props p 'font *env_title_font* 'color *env_title_col* 'border *env_title_border*)
+	(ui-props p 'font *env_title_font* 'border *env_title_border*)
 	`(ui-element ,n (create-title) ,p))
 
 (defmacro ui-title-bar (n s b e &optional p)
-	(ui-props p 'flow_flags flow_left_fill 'font *env_title_buttons_font*)
+	(ui-props p 'flow_flags flow_left_fill 'color *env_title_col* 'font *env_title_buttons_font*)
 	`(ui-flow _ ,p
-		(ui-buttons ,b ,e ('color *env_title_col* 'border *env_title_buttons_border*))
+		(ui-buttons ,b ,e ('border *env_title_buttons_border*))
 		(ui-title ,n ('text ,s))))
 
 (defmacro ui-label (n &optional p &rest x)
@@ -50,10 +50,11 @@
 	`(ui-element ,n (create-button) ,p ~x))
 
 (defmacro ui-buttons (s e &optional p l)
-	(setq s (map (lambda (_) (if (num? _) (num-to-utf8 _) _)) s) p (opt p '()))
+	(setq s (map (lambda (_) (if (num? _) (num-to-utf8 _) _)) s))
+	(ui-props p 'text _s)
 	(if l
-		`(each (lambda (_s) (push ,l (component-connect (ui-button __ ('text _s ~p)) (+ _ ,e)))) '(~s))
-		`(each (lambda (_s) (component-connect (ui-button __ ('text _s ~p)) (+ _ ,e))) '(~s))))
+		`(each (lambda (_s) (push ,l (component-connect (ui-button __ ,p) (+ _ ,e)))) '(~s))
+		`(each (lambda (_s) (component-connect (ui-button __ ,p) (+ _ ,e))) '(~s))))
 
 (defmacro ui-tool-bar (n &optional p &rest x)
 	(ui-props p 'flow_flags (logior flow_flag_right flow_flag_fillh) 'color *env_toolbar_col*

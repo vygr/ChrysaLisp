@@ -17,6 +17,12 @@
 	(byte 'black 'white 'red 'green 'blue 'cyan 'yellow 'magenta
 		'tblack 'twhite 'tred 'tgreen 'tblue 'tcyan 'tyellow 'tmagenta))
 
+(structure 'dlist 0
+	(byte 'mask 'rate 'commited_canvas 'overlay_canvas 'commited_polygons 'overlay_polygons))
+
+(structure 'path 0
+	(byte 'color 'radius 'points))
+
 (defun-bind trans (_)
 	;transparent colour
 	(+ (logand 0xffffff _) 0x60000000))
@@ -25,7 +31,7 @@
 	radiuss '(2.0 6.0 12.0) stroke_radius (elem 0 radiuss) then (time)
 	palette (list argb_black argb_white argb_red argb_green argb_blue argb_cyan argb_yellow argb_magenta)
 	palette (cat palette (map trans palette)) undo_stack (list) redo_stack (list)
-	stroke_col (elem 0 palette) stroke_mode event_pen commited_strokes (list) in_flight_strokes (list)
+	stroke_col (elem 0 palette) stroke_mode event_pen commited_polygons (list) overlay_paths (list)
 	radius_buttons (list) style_buttons (list) ink_buttons (list) mode_buttons (list))
 
 (ui-window window ()
@@ -44,37 +50,37 @@
 			('min_width canvas_width 'min_height canvas_height)
 		(ui-backdrop backdrop ('color 0xffF8F8FF 'ink_color 0xffADD8E6 'style 1)
 			(ui-canvas overlay_canvas canvas_width canvas_height 1)
-			(ui-canvas strokes_canvas canvas_width canvas_height 1))))
+			(ui-canvas commited_canvas canvas_width canvas_height 1))))
 
 (defun-bind radio_select (l i)
 	;radio select buttons
 	(each (lambda (b)
 		(def (view-dirty b) 'color (if (= _ i) (const argb_grey14) (const *env_toolbar_col*)))) l) i)
 
-(defun-bind flatten (r s)
-	;flatten path to polygons
+(defun-bind flatten (rad pnts)
+	;flatten points to polygon
 	(cond
-		((< (length s) 2)
+		((< (length pnts) 2)
 			;a runt so nothing
 			'())
-		((= 2 (length s))
+		((= 2 (length pnts))
 			;just a point
-			(list (points-gen-arc (elem 0 s) (elem 1 s) 0 (const fp_2pi) r (const eps) (points))))
+			(list (points-gen-arc (elem 0 pnts) (elem 1 pnts) 0 (const fp_2pi) rad (const eps) (points))))
 		(t	;is a polyline draw
-			(bind '(x y x1 y1 &rest _) s)
+			(bind '(x y x1 y1 &rest _) pnts)
 			(cond
 				((= stroke_mode (const event_arrow1))
 					;flatten to arrow1
-					(points-stroke-polylines (list) r (const eps) (const join_bevel) (const cap_butt) (const cap_arrow) (list s)))
+					(points-stroke-polylines (list) rad (const eps) (const join_bevel) (const cap_butt) (const cap_arrow) (list pnts)))
 				((= stroke_mode (const event_arrow2))
 					;flatten to arrow2
-					(points-stroke-polylines (list) r (const eps) (const join_bevel) (const cap_arrow) (const cap_arrow) (list s)))
+					(points-stroke-polylines (list) rad (const eps) (const join_bevel) (const cap_arrow) (const cap_arrow) (list pnts)))
 				((= stroke_mode (const event_box))
 					;flatten to box
-					(points-stroke-polygons (list) r (const eps) (const join_miter) (list (points x y x1 y x1 y1 x y1))))
+					(points-stroke-polygons (list) rad (const eps) (const join_miter) (list (points x y x1 y x1 y1 x y1))))
 				((= stroke_mode (const event_circle))
 					;flatten to circle
-					(points-stroke-polygons (list) r (const eps) (const join_bevel)
+					(points-stroke-polygons (list) rad (const eps) (const join_bevel)
 						(list (points-gen-arc x y 0 (const fp_2pi) (vec-length (vec-sub (points x y) (points x1 y1)))
 							(const eps) (points)))))
 				((= stroke_mode (const event_fbox))
@@ -85,61 +91,54 @@
 					(list (points-gen-arc x y 0 (const fp_2pi) (vec-length (vec-sub (points x y) (points x1 y1)))
 						(const eps) (points))))
 				(t	;flatten to pen stroke
-					(points-stroke-polylines (list) r (const eps) (const join_bevel) (const cap_round) (const cap_round) (list s)))))))
+					(points-stroke-polylines (list) rad (const eps) (const join_bevel) (const cap_round) (const cap_round) (list pnts)))))))
 
 (defun-bind snapshot ()
 	;take a snapshot of the canvas state
-	(push undo_stack (cat commited_strokes))
+	(push undo_stack (cat commited_polygons))
 	(clear redo_stack))
 
 (defun-bind undo ()
 	;move state from undo to redo stack and restore old state
 	(when (/= 0 (length undo_stack))
-		(push redo_stack commited_strokes)
-		(setq commited_strokes (pop undo_stack))
-		(redraw 1 t)) t)
+		(push redo_stack commited_polygons)
+		(setq commited_polygons (pop undo_stack))
+		(redraw 1)) t)
 
 (defun-bind redo ()
 	;move state from redo to undo stack and restore old state
 	(when (/= 0 (length redo_stack))
-		(push undo_stack commited_strokes)
-		(setq commited_strokes (pop redo_stack))
-		(redraw 1 t)) t)
+		(push undo_stack commited_polygons)
+		(setq commited_polygons (pop redo_stack))
+		(redraw 1)) t)
 
-(defun-bind commit (r s c)
+(defun-bind commit ((col rad pnts))
 	;commit a stroke to the canvas
-	(push commited_strokes (list c (flatten r s))))
+	(push commited_polygons (list col (flatten rad pnts))))
 
-(defun-bind fpoly (canvas col mode _)
-	;draw a polygon on a canvas
-	(canvas-set-color canvas col)
-	(canvas-fpoly canvas 0 0 mode _))
-
-(defun-bind redraw (mask &optional f)
-	;redraw layer/s with optional timed forced drawing
-	(when (or (> (defq now (time)) (+ then (const (/ 1000000 30)))) f)
-		(setq then now)
-		(when (/= 0 (logand mask 1))
-			(canvas-fill strokes_canvas 0)
-			(each (lambda ((c s)) (fpoly strokes_canvas c 1 s)) commited_strokes)
-			(canvas-swap strokes_canvas))
-		(when (/= 0 (logand mask 2))
-			(canvas-fill overlay_canvas 0)
-			(each (lambda ((r s)) (fpoly overlay_canvas stroke_col 1 (flatten r s))) in_flight_strokes)
-			(canvas-swap overlay_canvas))) mask)
+(defun-bind redraw (mask)
+	;redraw layer/s
+	(tuple-set dlist_commited_polygons dlist (cat commited_polygons))
+	(tuple-set dlist_overlay_polygons dlist (map (lambda ((col rad pnts))
+		(list col (flatten rad pnts))) overlay_paths))
+	(tuple-set dlist_mask dlist (logior (tuple-get dlist_mask dlist) mask)))
 
 (defun-bind main ()
 	;ui tree initial setup
-	(canvas-set-flags strokes_canvas 1)
+	(defq dlist (list 3 (/ 1000000 30) commited_canvas overlay_canvas (list) (list)))
+	(canvas-set-flags commited_canvas 1)
 	(canvas-set-flags overlay_canvas 1)
 	(view-set-size backdrop canvas_width canvas_height)
 	(radio_select ink_buttons 0)
 	(radio_select mode_buttons 0)
 	(radio_select radius_buttons 0)
 	(radio_select style_buttons 1)
-	(redraw 3 t)
 	(gui-add (apply view-change (cat (list window 192 64) (view-pref-size window))))
 	(def image_scroll 'min_width min_width 'min_height min_height)
+
+	;create child and send args
+	(mail-send dlist (defq child_mbox (open-child "apps/whiteboard/child.lisp" kn_call_open)))
+
 	;main event loop
 	(defq last_state 'u last_point nil last_mid_point nil)
 	(while (cond
@@ -169,8 +168,8 @@
 		((= id (const event_clear))
 			;clear
 			(snapshot)
-			(clear commited_strokes)
-			(redraw 1 t))
+			(clear commited_polygons)
+			(redraw 1))
 		((= id (const event_undo))
 			;undo
 			(undo))
@@ -191,7 +190,7 @@
 								(cond
 									((= stroke_mode (const event_pen))
 										;pen mode, so extend last stroke ?
-										(defq stroke (elem -2 (elem -2 in_flight_strokes))
+										(defq stroke (tuple-get path_points (elem -2 overlay_paths))
 											mid_vec (vec-sub new_point last_point))
 										(when (>= (vec-length-squared mid_vec) (fmul stroke_radius stroke_radius))
 											(defq mid_point (vec-add last_point (vec-scale mid_vec 0.5)))
@@ -204,25 +203,26 @@
 											(setq last_point new_point last_mid_point mid_point)
 											(redraw 2)))
 									(t	;a shape mode
-										(elem-set -2 (elem -2 in_flight_strokes) (cat last_point new_point))
+										(tuple-set path_points (elem -2 overlay_paths) (cat last_point new_point))
 										(redraw 2))))
 							(u	;was up last time, so start new stroke
 								(setq last_state 'd last_point new_point last_mid_point new_point)
-								(push in_flight_strokes (list stroke_radius new_point))
-								(redraw 2 t))))
+								(push overlay_paths (list stroke_col stroke_radius new_point))
+								(redraw 2))))
 					(t	;mouse button is up
 						(case last_state
 							(d	;was down last time, so last point and commit stroke
 								(snapshot)
 								(setq last_state 'u)
-								(defq stroke (elem -2 (elem -2 in_flight_strokes)))
+								(defq stroke (tuple-get path_points (elem -2 overlay_paths)))
 								(push stroke (elem 0 new_point) (elem 1 new_point))
 								(points-filter 0.5 stroke stroke)
-								(each (lambda ((w s)) (commit w s stroke_col)) in_flight_strokes)
-								(clear in_flight_strokes)
-								(redraw 3 t))
+								(each commit overlay_paths)
+								(clear overlay_paths)
+								(redraw 3))
 							(u	;was up last time, so we are hovering
 								t))))) t)
 		(t (view-event window msg))))
-	;close window
+	;close child and window
+	(mail-send "" child_mbox)
 	(view-hide window))
