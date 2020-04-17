@@ -4,10 +4,10 @@
 (import 'gui/lisp.inc)
 
 (structure 'dlist 0
-	(byte 'mask 'rate 'commited_canvas 'overlay_canvas 'commited_polygons 'overlay_polygons))
+	(byte 'mask 'rate 'flatten 'commited_canvas 'overlay_canvas 'commited_polygons 'overlay_paths))
 
 ;read args from parent (shared dlist tuple)
-(defq dlist (mail-read (task-mailbox)))
+(defq dlist (mail-read (task-mailbox)) flatten (tuple-get dlist_flatten dlist))
 
 (defun-bind fpoly (canvas col mode _)
 	;draw a polygon on a canvas
@@ -24,7 +24,9 @@
 	(when (/= 0 (logand (tuple-get dlist_mask dlist) 2))
 		(defq canvas (tuple-get dlist_overlay_canvas dlist))
 		(canvas-fill canvas 0)
-		(each (lambda ((col poly)) (fpoly canvas col 1 poly)) (tuple-get dlist_overlay_polygons dlist))
+		(each (lambda (path)
+			(bind '(col poly) (flatten path))
+			(fpoly canvas col 1 poly)) (tuple-get dlist_overlay_paths dlist))
 		(canvas-swap canvas))
 	(tuple-set dlist_mask dlist 0))
 
@@ -32,5 +34,4 @@
 	;until quit
 	(until (mail-poll (array (task-mailbox)))
 		(redraw dlist)
-		(task-sleep (tuple-get dlist_rate dlist)))
-	(mail-read (task-mailbox)))
+		(task-sleep (tuple-get dlist_rate dlist))))

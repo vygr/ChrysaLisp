@@ -18,10 +18,10 @@
 		'tblack 'twhite 'tred 'tgreen 'tblue 'tcyan 'tyellow 'tmagenta))
 
 (structure 'dlist 0
-	(byte 'mask 'rate 'commited_canvas 'overlay_canvas 'commited_polygons 'overlay_polygons))
+	(byte 'mask 'rate 'flatten 'commited_canvas 'overlay_canvas 'commited_polygons 'overlay_paths))
 
 (structure 'path 0
-	(byte 'color 'radius 'points))
+	(byte 'mode 'color 'radius 'points))
 
 (defun-bind trans (_)
 	;transparent colour
@@ -57,9 +57,9 @@
 	(each (lambda (b)
 		(def (view-dirty b) 'color (if (= _ i) (const argb_grey14) (const *env_toolbar_col*)))) l) i)
 
-(defun-bind flatten (rad pnts)
-	;flatten points to polygon
-	(cond
+(defun-bind flatten ((mode col rad pnts))
+	;flatten path to polygon
+	(list col (cond
 		((< (length pnts) 2)
 			;a runt so nothing
 			'())
@@ -69,29 +69,29 @@
 		(t	;is a polyline draw
 			(bind '(x y x1 y1 &rest _) pnts)
 			(cond
-				((= stroke_mode (const event_arrow1))
+				((= mode (const event_arrow1))
 					;flatten to arrow1
 					(points-stroke-polylines (list) rad (const eps) (const join_bevel) (const cap_butt) (const cap_arrow) (list pnts)))
-				((= stroke_mode (const event_arrow2))
+				((= mode (const event_arrow2))
 					;flatten to arrow2
 					(points-stroke-polylines (list) rad (const eps) (const join_bevel) (const cap_arrow) (const cap_arrow) (list pnts)))
-				((= stroke_mode (const event_box))
+				((= mode (const event_box))
 					;flatten to box
 					(points-stroke-polygons (list) rad (const eps) (const join_miter) (list (points x y x1 y x1 y1 x y1))))
-				((= stroke_mode (const event_circle))
+				((= mode (const event_circle))
 					;flatten to circle
 					(points-stroke-polygons (list) rad (const eps) (const join_bevel)
 						(list (points-gen-arc x y 0 (const fp_2pi) (vec-length (vec-sub (points x y) (points x1 y1)))
 							(const eps) (points)))))
-				((= stroke_mode (const event_fbox))
+				((= mode (const event_fbox))
 					;flatten to filled box
 					(list (points x y x1 y x1 y1 x y1)))
-				((= stroke_mode (const event_fcircle))
+				((= mode (const event_fcircle))
 					;flatten to filled circle
 					(list (points-gen-arc x y 0 (const fp_2pi) (vec-length (vec-sub (points x y) (points x1 y1)))
 						(const eps) (points))))
 				(t	;flatten to pen stroke
-					(points-stroke-polylines (list) rad (const eps) (const join_bevel) (const cap_round) (const cap_round) (list pnts)))))))
+					(points-stroke-polylines (list) rad (const eps) (const join_bevel) (const cap_round) (const cap_round) (list pnts))))))))
 
 (defun-bind snapshot ()
 	;take a snapshot of the canvas state
@@ -112,20 +112,19 @@
 		(setq commited_polygons (pop redo_stack))
 		(redraw 1)) t)
 
-(defun-bind commit ((col rad pnts))
+(defun-bind commit (path)
 	;commit a stroke to the canvas
-	(push commited_polygons (list col (flatten rad pnts))))
+	(push commited_polygons (flatten path)))
 
 (defun-bind redraw (mask)
 	;redraw layer/s
 	(tuple-set dlist_commited_polygons dlist (cat commited_polygons))
-	(tuple-set dlist_overlay_polygons dlist (map (lambda ((col rad pnts))
-		(list col (flatten rad pnts))) overlay_paths))
+	(tuple-set dlist_overlay_paths dlist (cat overlay_paths))
 	(tuple-set dlist_mask dlist (logior (tuple-get dlist_mask dlist) mask)))
 
 (defun-bind main ()
 	;ui tree initial setup
-	(defq dlist (list 3 (/ 1000000 30) commited_canvas overlay_canvas (list) (list)))
+	(defq dlist (list 3 (/ 1000000 30) flatten commited_canvas overlay_canvas (list) (list)))
 	(canvas-set-flags commited_canvas 1)
 	(canvas-set-flags overlay_canvas 1)
 	(view-set-size backdrop canvas_width canvas_height)
@@ -207,7 +206,7 @@
 										(redraw 2))))
 							(u	;was up last time, so start new stroke
 								(setq last_state 'd last_point new_point last_mid_point new_point)
-								(push overlay_paths (list stroke_col stroke_radius new_point))
+								(push overlay_paths (list stroke_mode stroke_col stroke_radius new_point))
 								(redraw 2))))
 					(t	;mouse button is up
 						(case last_state

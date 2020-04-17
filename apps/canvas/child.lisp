@@ -105,5 +105,4 @@
 	(until (mail-poll (array (task-mailbox)))
 		(redraw)
 		(task-sleep 10000)
-		(setq angle (+ angle 0.0025)))
-	(mail-read (task-mailbox)))
+		(setq angle (+ angle 0.0025))))
