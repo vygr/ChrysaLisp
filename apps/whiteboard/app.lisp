@@ -1,7 +1,5 @@
 ;imports
-(import 'sys/lisp.inc)
-(import 'class/lisp.inc)
-(import 'gui/lisp.inc)
+(import 'apps/whiteboard/app.inc)
 (import 'apps/math.inc)
 
 ;quick debug switch
@@ -16,12 +14,6 @@
 	(byte 'pen 'line 'arrow1 'arrow2 'box 'circle 'fbox 'fcircle)
 	(byte 'black 'white 'red 'green 'blue 'cyan 'yellow 'magenta
 		'tblack 'twhite 'tred 'tgreen 'tblue 'tcyan 'tyellow 'tmagenta))
-
-(structure 'dlist 0
-	(byte 'mask 'rate 'flatten 'commited_canvas 'overlay_canvas 'commited_polygons 'overlay_paths))
-
-(structure 'path 0
-	(byte 'mode 'color 'radius 'points))
 
 (defun-bind trans (_)
 	;transparent colour
@@ -124,7 +116,7 @@
 
 (defun-bind main ()
 	;ui tree initial setup
-	(defq dlist (list 3 (/ 1000000 30) flatten commited_canvas overlay_canvas (list) (list)))
+	(defq dlist (list 3 (/ 1000000 15) flatten commited_canvas overlay_canvas (list) (list)))
 	(canvas-set-flags commited_canvas 1)
 	(canvas-set-flags overlay_canvas 1)
 	(view-set-size backdrop canvas_width canvas_height)

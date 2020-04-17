@@ -1,10 +1,5 @@
 ;imports
-(import 'sys/lisp.inc)
-(import 'class/lisp.inc)
-(import 'gui/lisp.inc)
-
-(structure 'dlist 0
-	(byte 'mask 'rate 'flatten 'commited_canvas 'overlay_canvas 'commited_polygons 'overlay_paths))
+(import 'apps/whiteboard/app.inc)
 
 ;read args from parent (shared dlist tuple)
 (defq dlist (mail-read (task-mailbox)) flatten (tuple-get dlist_flatten dlist))
