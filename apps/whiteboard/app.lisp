@@ -33,14 +33,14 @@
 		(ui-buttons (0xe9a3 0xe976 0xe9d4) (const event_grid) () style_buttons)
 		(ui-buttons (0xe979 0xe97d 0xe97b) (const event_radius1) () radius_buttons)
 		(ui-buttons (0xe9ec 0xe9d8 0xe917 0xea20 0xe9f6 0xe94b 0xe960 0xe95f) (const event_pen) () mode_buttons))
-	(ui-tool-bar _ ('font *env_medium_toolbar_font*)
+	(ui-tool-bar _ (font *env_medium_toolbar_font*)
 		(each (lambda (col)
-			(push ink_buttons (component-connect (ui-button __ ('ink_color col 'text
+			(push ink_buttons (component-connect (ui-button __ (ink_color col text
 				(if (< _ 8) (const (num-to-utf8 0xe982)) (const (num-to-utf8 0xea04)))))
 					(+ _ (const event_black))))) palette))
 	(ui-scroll image_scroll (logior scroll_flag_vertical scroll_flag_horizontal)
-			('min_width canvas_width 'min_height canvas_height)
-		(ui-backdrop backdrop ('color 0xffF8F8FF 'ink_color 0xffADD8E6 'style 1)
+			(min_width canvas_width min_height canvas_height)
+		(ui-backdrop backdrop (color 0xffF8F8FF ink_color 0xffADD8E6 style 1)
 			(ui-canvas overlay_canvas canvas_width canvas_height 1)
 			(ui-canvas commited_canvas canvas_width canvas_height 1))))
 

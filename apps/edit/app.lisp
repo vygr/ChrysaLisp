@@ -15,22 +15,22 @@
 (defq vdu_min_width 40 vdu_min_height 24 vdu_width 60 vdu_height 40 text_store (list) tmp_num 0
 	current_text (list) empty_buffer '("") home_dir (cat "apps/login/" *env_user* "/"))
 
-(ui-window window ('color argb_grey2)
-	(ui-flow _ ('flow_flags flow_down_fill)
+(ui-window window (color argb_grey2)
+	(ui-flow _ (flow_flags flow_down_fill)
 		(ui-title-bar window_title "Edit" (0xea19 0xea1b 0xea1a) (const event_close))
-		(ui-flow _ ('flow_flags flow_down_fill)
-			(ui-flow toolbar ('color *env_toolbar_col* 'flow_flags flow_right_fill)
-				(ui-grid _ ('grid_width 7 'grid_height  1 'font *env_toolbar_font*)
+		(ui-flow _ (flow_flags flow_down_fill)
+			(ui-flow toolbar (color *env_toolbar_col* flow_flags flow_right_fill)
+				(ui-grid _ (grid_width 7 grid_height  1 font *env_toolbar_font*)
 					(each (lambda (c e)
-							(component-connect (ui-button _ ('text (num-to-utf8 c))) e))
+							(component-connect (ui-button _ (text (num-to-utf8 c))) e))
 						'(0xe9e9 0xea07 0xe9f0 0xe96f 0xe93c 0xe93d)
 						(list event_open event_save event_new event_close event_prev event_next))
-					(ui-label buf_disp ('text "0/0" 'color *env_toolbar_col* 'font *env_terminal_font*)))
-				(ui-textfield textfield ('font *env_terminal_font* 'text "" 'color argb_grey13)))
-			(ui-flow _ ('flow_flags flow_left_fill)
+					(ui-label buf_disp (text "0/0" color *env_toolbar_col* font *env_terminal_font*)))
+				(ui-textfield textfield (font *env_terminal_font* text "" color argb_grey13)))
+			(ui-flow _ (flow_flags flow_left_fill)
 				(component-connect (ui-slider slider) event_scroll)
-				(ui-vdu vdu ('vdu_width vdu_width 'vdu_height vdu_height 'min_width vdu_width 'min_height vdu_height
-					'color argb_black 'ink_color argb_white))))))
+				(ui-vdu vdu (vdu_width vdu_width vdu_height vdu_height min_width vdu_width min_height vdu_height
+					color argb_black ink_color argb_white))))))
 
 (defun-bind window-resize (w h)
 	(bind '(_ path title buffer position) current_text)

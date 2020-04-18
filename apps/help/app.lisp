@@ -45,13 +45,13 @@
 				(elem-set -2 buf (cat (elem -2 buf) c))))) s)
 	(vdu-load vdu buf 0 0 (length (elem -2 buf)) (dec (length buf))) buf)
 
-(ui-window window ('color argb_black)
-	(ui-flow _ ('flow_flags flow_down_fill)
+(ui-window window (color argb_black)
+	(ui-flow _ (flow_flags flow_down_fill)
 		(ui-title-bar _ "Help" (0xea19) (const event_close))
-		(ui-flow _ ('flow_flags flow_right_fill 'font *env_terminal_font*)
+		(ui-flow _ (flow_flags flow_right_fill font *env_terminal_font*)
 			(ui-scroll index_scroll scroll_flag_vertical nil
-				(ui-flow index ('flow_flags (logior flow_flag_down flow_flag_fillw) 'color argb_white)))
-			(ui-vdu vdu ('vdu_height vdu_height 'ink_color argb_cyan)))))
+				(ui-flow index (flow_flags (logior flow_flag_down flow_flag_fillw) color argb_white)))
+			(ui-vdu vdu (vdu_height vdu_height ink_color argb_cyan)))))
 
 (defun-bind main ()
 	(populate-help)

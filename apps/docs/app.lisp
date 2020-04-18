@@ -63,11 +63,11 @@
 				'font *env_terminal_font* 'ink_color argb_blue))))
 
 (defun-bind populate-page (file)
-	(ui-tree page_flow (create-flow) ('flow_flags (logior flow_flag_right flow_flag_fillh)
-			'font *env_window_font* 'color argb_white)
-		(ui-label _ ('min_width margin_width))
-		(ui-flow page_widget ('flow_flags (logior flow_flag_down flow_flag_fillw)))
-		(ui-label _ ('min_width margin_width)))
+	(ui-tree page_flow (create-flow) (flow_flags (logior flow_flag_right flow_flag_fillh)
+			font *env_window_font* color argb_white)
+		(ui-label _ (min_width margin_width))
+		(ui-flow page_widget (flow_flags (logior flow_flag_down flow_flag_fillw)))
+		(ui-label _ (min_width margin_width)))
 	(defq state 'normal word_cnt 0)
 	(each-line (lambda (line_str)
 		(defq line_str (trim-end line_str (ascii-char 13)) line_widget (while nil))
@@ -81,12 +81,12 @@
 
 (ui-window window ()
 	(ui-title-bar _ "Docs" (0xea19) (const event_close))
-	(ui-flow doc_flow ('flow_flags flow_right_fill 'font *env_window_font* 'color *env_toolbar_col*)
-		(ui-flow index ('flow_flags (logior flow_flag_down flow_flag_fillw))
+	(ui-flow doc_flow (flow_flags flow_right_fill font *env_window_font* color *env_toolbar_col*)
+		(ui-flow index (flow_flags (logior flow_flag_down flow_flag_fillw))
 			(each (lambda (path)
 				(component-connect (ui-button _
-					('text path 'flow_flags (logior flow_flag_align_vcenter flow_flag_align_hleft))) event_button)) doc_list))
-		(ui-scroll page_scroll scroll_flag_vertical ('min_width 848 'min_height 800))))
+					(text path flow_flags (logior flow_flag_align_vcenter flow_flag_align_hleft))) event_button)) doc_list))
+		(ui-scroll page_scroll scroll_flag_vertical (min_width 848 min_height 800))))
 
 (defun-bind main ()
 	(populate-page (elem 0 doc_list))

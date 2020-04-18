@@ -10,13 +10,13 @@
 
 (defq cmd nil vdu_width 60 vdu_height 40 vdu_min_width 16 vdu_min_height 16 text_buf (list ""))
 
-(ui-window window ('color 0xc0000000)
-	(ui-flow _ ('flow_flags flow_down_fill)
+(ui-window window (color 0xc0000000)
+	(ui-flow _ (flow_flags flow_down_fill)
 		(ui-title-bar _ "Terminal" (0xea19 0xea1b 0xea1a) (const event_close))
-		(ui-flow _ ('flow_flags flow_left_fill)
+		(ui-flow _ (flow_flags flow_left_fill)
 			(component-connect (ui-slider slider) event_scroll)
-			(ui-vdu vdu ('vdu_width vdu_width 'vdu_height vdu_height 'min_width vdu_width 'min_height vdu_height
-				'ink_color argb_green)))))
+			(ui-vdu vdu (vdu_width vdu_width vdu_height vdu_height min_width vdu_width min_height vdu_height
+				ink_color argb_green)))))
 
 (defun-bind vdu-print (vdu buf s)
 	(each (lambda (c)
