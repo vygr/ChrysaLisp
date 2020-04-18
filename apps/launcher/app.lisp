@@ -7,7 +7,7 @@
 	(byte 'button))
 
 (ui-window window ()
-	(ui-title _ (text "Launcher"))
+	(ui-title-bar _ "Launcher" () ())
 	(each (lambda (path)
 		(component-connect (ui-button _ (text path)) (const event_button))) *env_launcher_apps*))
 

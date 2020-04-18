@@ -10,6 +10,7 @@ C-Script compiler, Lisp interpreter, Debugger, and more...
 ![](./screen_shot_3.png)
 ![](./screen_shot_4.png)
 ![](./screen_shot_5.png)
+![](./screen_shot_6.png)
 
 
 It runs on MacOS, Windows or Linux for x64, Linux for Aarch64. Will move to

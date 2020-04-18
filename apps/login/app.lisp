@@ -8,7 +8,7 @@
 	(byte 'login 'create))
 
 (ui-window window ()
-	(ui-title _ (text "Login Manager"))
+	(ui-title-bar _ "Login Manager" () ())
 	(ui-flow _ (flow_flags flow_right_fill)
 		(ui-grid _ (grid_width 1 grid_height 2)
 			(ui-label _ (text "Username"))
