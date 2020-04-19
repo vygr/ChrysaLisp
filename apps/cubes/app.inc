@@ -20,6 +20,7 @@
 (when nil
 	(defmacro-bind .= (&rest _) `(= ~_))
 	(defmacro-bind .<= (&rest _) `(<= ~_))
+	(defmacro-bind .>= (&rest _) `(>= ~_))
 	(defmacro-bind .< (&rest _) `(< ~_))
 	(defmacro-bind .> (&rest _) `(> ~_))
 	(defmacro-bind .+ (&rest _) `(+ ~_))

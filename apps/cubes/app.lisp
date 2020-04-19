@@ -8,7 +8,7 @@
 
 (structure 'event 0
 	(byte 'close 'max 'min)
-	(byte 'grid 'plain))
+	(byte 'grid 'plain 'axis))
 
 (defun-bind trans (_)
 	;transparent colour
@@ -21,10 +21,10 @@
 (ui-window window ()
 	(ui-title-bar _ "Cubes" (0xea19 0xea1b 0xea1a) (const event_close))
 	(ui-tool-bar _ ()
-		(ui-buttons (0xe9a3 0xe976) (const event_grid) () style_buttons))
+		(ui-buttons (0xe9a3 0xe976 0xe9f0) (const event_grid) () style_buttons))
 	(ui-scroll image_scroll (logior scroll_flag_vertical scroll_flag_horizontal)
 			(min_width canvas_width min_height canvas_height)
-		(ui-backdrop backdrop (color argb_black ink_color argb_grey8 style 1)
+		(ui-backdrop backdrop (color argb_black ink_color argb_grey8 style 2)
 			(ui-canvas layer1_canvas canvas_width canvas_height 1))))
 
 (defun-bind radio-select (l i)
@@ -77,7 +77,7 @@
 	(defq dlist (list 0 (/ 1000000 15) layer1_canvas (list)))
 	(canvas-set-flags layer1_canvas 1)
 	(view-set-size backdrop canvas_width canvas_height)
-	(radio-select style_buttons 1)
+	(radio-select style_buttons 2)
 	(gui-add (apply view-change (cat (list window 256 192) (view-pref-size window))))
 	(def image_scroll 'min_width min_width 'min_height min_height)
 
@@ -102,7 +102,7 @@
 			(def image_scroll 'min_width canvas_width 'min_height canvas_height)
 			(apply view-change-dirty (cat (list window) (view-get-pos window) (view-pref-size window)))
 			(def image_scroll 'min_width min_width 'min_height min_height))
-		((<= (const event_grid) id (const event_plain))
+		((<= (const event_grid) id (const event_axis))
 			;styles
 			(def (view-dirty backdrop) 'style (radio-select style_buttons (- id (const event_grid)))))
 		((= id (component-get-id layer1_canvas))

@@ -9,7 +9,7 @@
 (structure 'event 0
 	(byte 'close 'max 'min)
 	(byte 'clear 'undo 'redo)
-	(byte 'grid 'plain 'lines)
+	(byte 'grid 'plain 'axis 'lines)
 	(byte 'radius1 'radius2 'radius3)
 	(byte 'pen 'line 'arrow1 'arrow2 'box 'circle 'fbox 'fcircle)
 	(byte 'black 'white 'red 'green 'blue 'cyan 'yellow 'magenta
@@ -30,7 +30,7 @@
 	(ui-title-bar _ "Whiteboard" (0xea19 0xea1b 0xea1a) (const event_close))
 	(ui-tool-bar _ ()
 		(ui-buttons (0xe970 0xe9fe 0xe99d) (const event_clear))
-		(ui-buttons (0xe9a3 0xe976 0xe9d4) (const event_grid) () style_buttons)
+		(ui-buttons (0xe9a3 0xe976 0xe9f0 0xe9d4) (const event_grid) () style_buttons)
 		(ui-buttons (0xe979 0xe97d 0xe97b) (const event_radius1) () radius_buttons)
 		(ui-buttons (0xe9ec 0xe9d8 0xe917 0xea20 0xe9f6 0xe94b 0xe960 0xe95f) (const event_pen) () mode_buttons))
 	(ui-tool-bar _ (font *env_medium_toolbar_font*)
