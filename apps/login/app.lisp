@@ -39,20 +39,24 @@
 			(position-window))
 		((= id event_login)
 			;login button
-			(when (/= (age (cat "apps/login/" (defq user (get-username)) "/pupa.inc")) 0)
-				;login user
-				(save user "apps/login/current")
-				(open-child "apps/launcher/app.lisp" kn_call_open)
-				nil))
+			(cond
+				((/= (age (cat "apps/login/" (defq user (get-username)) "/pupa.inc")) 0)
+					;login user
+					(save user "apps/login/current")
+					(open-child "apps/launcher/app.lisp" kn_call_open)
+					nil)
+				(t	t)))
 		((= id event_create)
 			;create button
-			(when (and (/= (age "apps/login/Guest/pupa.inc") 0)
+			(cond
+				((and (/= (age "apps/login/Guest/pupa.inc") 0)
 					(= (age (cat (defq home (cat "apps/login/" (defq user (get-username)) "/")) "pupa.inc")) 0))
-				;copy initial user files from Guest
-				(save (load "apps/login/Guest/pupa.inc") (cat home "pupa.inc"))
-				;login new user
-				(save user "apps/login/current")
-				(open-child "apps/launcher/app.lisp" kn_call_open)
-				nil))
+					;copy initial user files from Guest
+					(save (load "apps/login/Guest/pupa.inc") (cat home "pupa.inc"))
+					;login new user
+					(save user "apps/login/current")
+					(open-child "apps/launcher/app.lisp" kn_call_open)
+					nil)
+				(t	t)))
 		(t (view-event window msg))))
 	(view-hide window))
