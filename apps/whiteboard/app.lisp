@@ -44,7 +44,7 @@
 			(ui-canvas overlay_canvas canvas_width canvas_height 1)
 			(ui-canvas commited_canvas canvas_width canvas_height 1))))
 
-(defun-bind radio_select (l i)
+(defun-bind radio-select (l i)
 	;radio select buttons
 	(each (lambda (b)
 		(def (view-dirty b) 'color (if (= _ i) (const argb_grey14) (const *env_toolbar_col*)))) l) i)
@@ -120,10 +120,10 @@
 	(canvas-set-flags commited_canvas 1)
 	(canvas-set-flags overlay_canvas 1)
 	(view-set-size backdrop canvas_width canvas_height)
-	(radio_select ink_buttons 0)
-	(radio_select mode_buttons 0)
-	(radio_select radius_buttons 0)
-	(radio_select style_buttons 1)
+	(radio-select ink_buttons 0)
+	(radio-select mode_buttons 0)
+	(radio-select radius_buttons 0)
+	(radio-select style_buttons 1)
 	(gui-add (apply view-change (cat (list window 192 64) (view-pref-size window))))
 	(def image_scroll 'min_width min_width 'min_height min_height)
 
@@ -146,16 +146,16 @@
 			(def image_scroll 'min_width min_width 'min_height min_height))
 		((<= (const event_black) id (const event_tmagenta))
 			;ink pot
-			(setq stroke_col (elem (radio_select ink_buttons (- id (const event_black))) palette)))
+			(setq stroke_col (elem (radio-select ink_buttons (- id (const event_black))) palette)))
 		((<= (const event_pen) id (const event_fcircle))
 			;draw mode
-			(setq stroke_mode (+ (radio_select mode_buttons (- id (const event_pen))) (const event_pen))))
+			(setq stroke_mode (+ (radio-select mode_buttons (- id (const event_pen))) (const event_pen))))
 		((<= (const event_radius1) id (const event_radius3))
 			;stroke radius
-			(setq stroke_radius (elem (radio_select radius_buttons (- id (const event_radius1))) radiuss)))
+			(setq stroke_radius (elem (radio-select radius_buttons (- id (const event_radius1))) radiuss)))
 		((<= (const event_grid) id (const event_lines))
 			;styles
-			(def (view-dirty backdrop) 'style (radio_select style_buttons (- id (const event_grid)))))
+			(def (view-dirty backdrop) 'style (radio-select style_buttons (- id (const event_grid)))))
 		((= id (const event_clear))
 			;clear
 			(snapshot)

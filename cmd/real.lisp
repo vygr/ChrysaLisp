@@ -172,4 +172,9 @@
 			(list (fixed-to-real 4.9876) (fixed-to-real 13.9875))
 			(list (fixed-to-real 3.9876) (fixed-to-real 9.9876))
 			(list (fixed-to-real -3.9876) (fixed-to-real -9.9876))))
+
+		(print "Bugs: ")
+			(print (real-to-fixed (real-div (int-to-real 500) (int-to-real 999))))
+			(print (real-to-fixed (real-div (int-to-real 500) (int-to-real 1000))))
+			(print (real-to-fixed (real-div (int-to-real 500) (int-to-real 1001))))
 	))
