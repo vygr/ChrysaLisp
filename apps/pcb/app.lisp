@@ -24,6 +24,7 @@
 	(+ (logand 0xffffff _) 0xa0000000))
 
 (defun-bind circle (r)
+	(defq cache_key '() cache_poly '())
 	(if (defq i (find (defq k (sym (str r))) cache_key))
 		(elem i cache_poly)
 		(progn
@@ -31,6 +32,7 @@
 			(elem -2 (push cache_poly (list (points-gen-arc 0 0 0 fp_2pi r eps (points))))))))
 
 (defun-bind oval (r s)
+	(defq cache_key '() cache_poly '())
 	(if (defq i (find (defq k (sym (str r ":" s))) cache_key))
 		(elem i cache_poly)
 		(progn
@@ -55,7 +57,7 @@
 	(bind '(pcb _) (read (string-stream (cat "(" (load _) ")")) (ascii-code " ")))
 	(bind '(pcb_width pcb_height pcb_depth) (elem 0 pcb))
 	(defq canvas (create-canvas (* (+ pcb_width 4) zoom) (* (+ pcb_height 4) zoom) canvas_scale)
-		zoom (* zoom canvas_scale) pcb_border (* 2.0 zoom) cache_key (list) cache_poly (list))
+		zoom (* zoom canvas_scale) pcb_border (* 2.0 zoom))
 	(canvas-fill (canvas-set-flags canvas 1) (const argb_black))
 	(if (= mode 1)
 		(pcb-draw-gerber)

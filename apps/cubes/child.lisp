@@ -12,11 +12,9 @@
 
 (defun-bind circle (r)
 	;cached circle generation
-	(if (defq i (find (defq k (sym (str r))) cache_key))
-		(elem i cache_poly)
-		(progn
-			(push cache_key k)
-			(elem -2 (push cache_poly (list (points-gen-arc 0 0 0 fp_2pi r 0.25 (points))))))))
+	(defq i (% r 7) k (elem i '(()()()()()()())) p (elem i '(()()()()()()())))
+	(cond ((defq i (some (lambda (i) (if (= i r) _)) k)) (elem i p))
+		(t (push k r) (elem -2 (push p (list (points-gen-arc 0 0 0 fp_2pi r 0.25 (points))))))))
 
 (defun-bind lighting (c z)
 	;very basic attenuation
@@ -48,15 +46,14 @@
 		(defq hsw (i2r (>> sw 1)) hsh (i2r (>> sh 1)))
 		(render_verts canvas
 			(sort (lambda (v1 v2)
-				(defq v1z (tuple-get vertex_z v1) v2z (tuple-get vertex_z v2))
-				(cond ((.= v1z v2z) 0) ((.> v1z v2z) -1) (t 1)))
+				(if (.<= (tuple-get vertex_z v1) (tuple-get vertex_z v2)) 1 -1))
 				(clip_verts hsw hsh (tuple-get dlist_layer1_verts dlist))))
 		(canvas-swap canvas))
 	(tuple-set dlist_mask dlist 0))
 
 (defun-bind main ()
 	;read args from parent (shared dlist tuple)
-	(defq dlist (mail-read (task-mailbox)) cache_key (list) cache_poly (list))
+	(defq dlist (mail-read (task-mailbox)))
 	;until quit
 	(until (mail-poll (array (task-mailbox)))
 		(redraw dlist)

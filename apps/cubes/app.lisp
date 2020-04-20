@@ -14,8 +14,8 @@
 	;transparent colour
 	(+ (logand 0xffffff _) 0x60000000))
 
-(defq canvas_width 600 canvas_height 600 min_width 300 min_height 300 eps 0.25 tol 3.0
-	mode 0 style_buttons (list) num_verts 100
+(defq canvas_width 600 canvas_height 600 min_width 300 min_height 300
+	style_buttons (list) num_verts 100 rate (/ 1000000 60)
 	palette (list argb_white argb_red argb_green argb_blue argb_cyan argb_yellow argb_magenta))
 
 (ui-window window ()
@@ -34,7 +34,7 @@
 
 (defun-bind redraw (verts mask)
 	;redraw layer/s
-	(tuple-set dlist_layer1_verts dlist (cat verts))
+	(tuple-set dlist_layer1_verts dlist verts)
 	(tuple-set dlist_mask dlist (logior (tuple-get dlist_mask dlist) mask)))
 
 (defun-bind vertex-cloud (num)
@@ -74,7 +74,7 @@
 
 (defun-bind main ()
 	;ui tree initial setup
-	(defq dlist (list 0 (/ 1000000 15) layer1_canvas (list)))
+	(defq dlist (list 0 rate layer1_canvas (list)))
 	(canvas-set-flags layer1_canvas 1)
 	(view-set-size backdrop canvas_width canvas_height)
 	(radio-select style_buttons 2)
@@ -115,21 +115,21 @@
 					((/= (get-int msg (const ev_msg_mouse_buttons)) 0)
 						;mouse button is down
 						(case last_state
-							(d	;was down last time, what draw mode ?
+							(d	;was down last time
 								)
-							(u	;was up last time, so start new cloud
+							(u	;was up last time
 								(setq last_state 'd last_point new_point
 									verts (vertex-cloud num_verts) vels (vertex-vel num_verts)))))
 					(t	;mouse button is up
 						(case last_state
-							(d	;was down last time, so last point
+							(d	;was down last time
 								(setq last_state 'u))
 							(u	;was up last time, so we are hovering
 								t))))))
 		(t (view-event window msg))))
 		(vertex-update verts vels)
 		(redraw verts 1)
-		(task-sleep (/ 1000000 30)))
+		(task-sleep rate))
 	;close child and window
 	(mail-send "" child_mbox)
 	(view-hide window))

@@ -15,7 +15,7 @@
 (structure 'vertex_vel 0
 	(byte 'vx 'vy 'vz))
 
-(defq box_size 500 focal_len 1 max_vel 10)
+(defq box_size 500 focal_len 1 max_vel 5)
 
 (when nil
 	(defmacro-bind .= (&rest _) `(= ~_))
