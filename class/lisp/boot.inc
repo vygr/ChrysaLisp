@@ -91,7 +91,7 @@
 
 (ffi list "class/vector/lisp_list" 0)
 (ffi array "class/array/lisp_array" 0)
-(ffi points "class/array/lisp_points" 0)
+(ffi nums "class/array/lisp_nums" 0)
 
 (ffi type-of "class/lisp/func_type" 0)
 (ffi eql "class/lisp/func_eql" 0)
@@ -134,7 +134,7 @@
 	;(list [form ...])
 	;(progn [form ...])
 	;(array [form ...])
-	;(points [form ...])
+	;(nums [form ...])
 	;(prin [form ...])
 	;(print [form ...])
 	;(str [form ...])
@@ -150,7 +150,7 @@
 	`(defq ,n (macro ,a ~(bind-fun (macroexpand _)))))
 
 (cond
-	((def? 'points)
+	((def? 'nums)
 		;to disable pre binding uncomment this line
 		;(defun bind-fun (_) _)
 	)(t

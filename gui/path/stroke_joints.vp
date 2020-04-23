@@ -1,14 +1,14 @@
 (include 'sys/func.inc)
-(include 'gui/points/class.inc)
+(include 'gui/path/class.inc)
 (include 'class/vector/class.inc)
 (include 'sys/math/class.inc)
 
-(def-method 'points 'stroke_joints)
+(def-method 'path 'stroke_joints)
 	;inputs
-	;r0 = points object (ptr)
+	;r0 = path object (ptr)
 	;r1 = stack array object (ptr)
-	;r2 = in points start iter (plong)
-	;r3 = in points end iter (plong)
+	;r2 = in path start iter (plong)
+	;r3 = in path end iter (plong)
 	;r4 = p1x (16.16)
 	;r5 = p1y (16.16)
 	;r6 = p2x (16.16)
@@ -17,7 +17,7 @@
 	;r9 = tolerance (16.16)
 	;r10 = join style (byte)
 	;outputs
-	;r0 = points object (ptr)
+	;r0 = path object (ptr)
 	;trashes
 	;r1-r14
 
@@ -33,7 +33,7 @@
 
 	(push-scope)
 	(used-syms 'l2_pv 'l1_vx 'l1_vy 'p3)
-	(entry 'points 'stroke_joints {this, stack, iter_i, iter_j, p1x, p1y, p2x, p2y, radius, eps, join_style})
+	(entry 'path 'stroke_joints {this, stack, iter_i, iter_j, p1x, p1y, p2x, p2y, radius, eps, join_style})
 
 	(vpif {iter_i /= iter_j})
 		(vpif {iter_j > iter_i})
@@ -101,17 +101,17 @@
 				(vec-load 4 {l1_rvx, l1_rvy, l2_rvx, l2_rvy})
 				(vec-add 4)
 				(vec-store 4 {p3x, p3y, p1x, p1y})
-				(call 'points 'push_back2 {this, p3x, p3y})
+				(call 'path 'push_back2 {this, p3x, p3y})
 			(vp-label 'out_p1)
-				(call 'points 'push_back2 {this, p1x, p1y})
+				(call 'path 'push_back2 {this, p1x, p1y})
 			(else)
 				;rounded join
-				(call 'points 'gen_clerp {this, stack, p1x, p1y, l1_rvx, l1_rvy, l2_rvx, l2_rvy, radius, eps})
+				(call 'path 'gen_clerp {this, stack, p1x, p1y, l1_rvx, l1_rvy, l2_rvx, l2_rvy, radius, eps})
 			(endswitch)
 		(loop-until {iter_i = iter_j})
 	(endif)
 
-	(exit 'points 'stroke_joints {this})
+	(exit 'path 'stroke_joints {this})
 	(pop-scope)
 	(return)
 

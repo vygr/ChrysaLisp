@@ -1,10 +1,10 @@
 (include 'sys/func.inc)
-(include 'gui/points/class.inc)
+(include 'gui/path/class.inc)
 (include 'sys/math/class.inc)
 
-(def-method 'points 'gen_arc)
+(def-method 'path 'gen_arc)
 	;inputs
-	;r0 = points object (ptr)
+	;r0 = path object (ptr)
 	;r1 = stack array object (ptr)
 	;r2 = cx (16.16)
 	;r3 = cy (16.16)
@@ -13,7 +13,7 @@
 	;r6 = radius (16.16)
 	;r7 = tolerance (16.16)
 	;outputs
-	;r0 = points object (ptr)
+	;r0 = path object (ptr)
 	;trashes
 	;r1-r14
 
@@ -24,7 +24,7 @@
 		(int 'a1 'a2 'ah))
 
 	(push-scope)
-	(entry 'points 'gen_arc {this, stack, cx, cy, a1, a2, radius, eps})
+	(entry 'path 'gen_arc {this, stack, cx, cy, a1, a2, radius, eps})
 
 	(vec-set 0)
 	(vec-load 2 {a1, fp_2pi})
@@ -45,15 +45,15 @@
 		(vec-load 5 {sa1, ca1, sa2, ca2, radius})
 		(vec-fscale 4)
 		(vec-store 2 {v2x, v2y} {v1x, v1y})
-		(call 'points 'gen_clerp {this, stack, cx, cy, v1x, v1y, v2x, v2y, radius, eps})
+		(call 'path 'gen_clerp {this, stack, cx, cy, v1x, v1y, v2x, v2y, radius, eps})
 	(else)
 		(assign {a2 >>> 1} {ah})
 		(assign {a2 - ah} {a2})
-		(call 'points 'gen_arc {this, stack, cx, cy, a1, ah, radius, eps})
-		(call 'points 'gen_arc {this, stack, cx, cy, a1 + ah, a2, radius, eps})
+		(call 'path 'gen_arc {this, stack, cx, cy, a1, ah, radius, eps})
+		(call 'path 'gen_arc {this, stack, cx, cy, a1 + ah, a2, radius, eps})
 	(endif)
 
-	(exit 'points 'gen_arc {this})
+	(exit 'path 'gen_arc {this})
 	(pop-scope)
 	(return)
 

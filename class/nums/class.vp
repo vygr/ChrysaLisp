@@ -1,14 +1,14 @@
 (include 'sys/func.inc)
-(include 'gui/points/class.inc)
+(include 'class/nums/class.inc)
 (include 'sys/math/class.inc)
 
-(gen-create 'points)
-(gen-vtable 'points)
+(gen-create 'nums)
+(gen-vtable 'nums)
 
 (defun vecop1 (_)
 	;trashes
 	;r1-r6+
-	(entry 'points _ '(r0 r1 r2))
+	(entry 'nums _ '(r0 r1 r2))
 	(class/array/get_both r0 r3 r4)
 	(assign '((r1 array_begin) (r2 array_begin)) '(r1 r2))
 	(vec-set 5)
@@ -21,13 +21,13 @@
 		(vp-add-cr long_size r1)
 		(vp-add-cr long_size r2)
 	(loop-until '(r3 = r4))
-	(exit 'points _ '(r0))
+	(exit 'nums _ '(r0))
 	(vp-ret))
 
 (defun vecop2 (_)
 	;trashes
 	;r1-r8+
-	(entry 'points _ '(r0 r1 r2))
+	(entry 'nums _ '(r0 r1 r2))
 	(vp-cpy-rr r0 r4)
 	(class/array/get_both r0 r7 r8)
 	(assign '((r1 array_begin) (r2 array_begin)) '(r5 r6))
@@ -41,13 +41,13 @@
 		(vp-add-cr long_size r5)
 		(vp-add-cr long_size r6)
 	(loop-until '(r7 = r8))
-	(exit 'points _ '(r4))
+	(exit 'nums _ '(r4))
 	(vp-ret))
 
 (defun vecop3 (_)
 	;trashes
 	;r1-r4+
-	(entry 'points _ '(r0 r1))
+	(entry 'nums _ '(r0 r1))
 	(class/array/get_both r0 r2 r3)
 	(assign '((r1 array_begin)) '(r1))
 	(vec-set 4)
@@ -58,16 +58,16 @@
 		(vp-add-cr long_size r2)
 		(vp-add-cr long_size r1)
 	(loop-until '(r2 = r3))
-	(exit 'points _ '(r0))
+	(exit 'nums _ '(r0))
 	(vp-ret))
 
-(def-method 'points 'add)
+(def-method 'nums 'add)
 	;inputs
-	;r0 = points object (ptr)
-	;r1 = source1 points object, can be same (ptr)
-	;r2 = source2 points object, can be same (ptr)
+	;r0 = nums object (ptr)
+	;r1 = source1 nums object, can be same (ptr)
+	;r2 = source2 nums object, can be same (ptr)
 	;outputs
-	;r0 = points object (ptr)
+	;r0 = nums object (ptr)
 	;trashes
 	;r1-r6
 
@@ -75,13 +75,13 @@
 
 (def-func-end)
 
-(def-method 'points 'sub)
+(def-method 'nums 'sub)
 	;inputs
-	;r0 = points object (ptr)
-	;r1 = source1 points object, can be same (ptr)
-	;r2 = source2 points object, can be same (ptr)
+	;r0 = nums object (ptr)
+	;r1 = source1 nums object, can be same (ptr)
+	;r2 = source2 nums object, can be same (ptr)
 	;outputs
-	;r0 = points object (ptr)
+	;r0 = nums object (ptr)
 	;trashes
 	;r1-r6
 
@@ -89,13 +89,13 @@
 
 (def-func-end)
 
-(def-method 'points 'mul)
+(def-method 'nums 'mul)
 	;inputs
-	;r0 = points object (ptr)
-	;r1 = source1 points object, can be same (ptr)
-	;r2 = source2 points object, can be same (ptr)
+	;r0 = nums object (ptr)
+	;r1 = source1 nums object, can be same (ptr)
+	;r2 = source2 nums object, can be same (ptr)
 	;outputs
-	;r0 = points object (ptr)
+	;r0 = nums object (ptr)
 	;trashes
 	;r1-r6
 
@@ -103,13 +103,13 @@
 
 (def-func-end)
 
-(def-method 'points 'div)
+(def-method 'nums 'div)
 	;inputs
-	;r0 = points object (ptr)
-	;r1 = source1 points object, can be same (ptr)
-	;r2 = source2 points object, can be same (ptr)
+	;r0 = nums object (ptr)
+	;r1 = source1 nums object, can be same (ptr)
+	;r2 = source2 nums object, can be same (ptr)
 	;outputs
-	;r0 = points object (ptr)
+	;r0 = nums object (ptr)
 	;trashes
 	;r1-r8
 
@@ -117,13 +117,13 @@
 
 (def-func-end)
 
-(def-method 'points 'mod)
+(def-method 'nums 'mod)
 	;inputs
-	;r0 = points object (ptr)
-	;r1 = source1 points object, can be same (ptr)
-	;r2 = source2 points object, can be same (ptr)
+	;r0 = nums object (ptr)
+	;r1 = source1 nums object, can be same (ptr)
+	;r2 = source2 nums object, can be same (ptr)
 	;outputs
-	;r0 = points object (ptr)
+	;r0 = nums object (ptr)
 	;trashes
 	;r1-r8
 
@@ -131,13 +131,13 @@
 
 (def-func-end)
 
-(def-method 'points 'fmul)
+(def-method 'nums 'fmul)
 	;inputs
-	;r0 = points object (ptr)
-	;r1 = source1 points object, can be same (ptr)
-	;r2 = source2 points object, can be same (ptr)
+	;r0 = nums object (ptr)
+	;r1 = source1 nums object, can be same (ptr)
+	;r2 = source2 nums object, can be same (ptr)
 	;outputs
-	;r0 = points object (ptr)
+	;r0 = nums object (ptr)
 	;trashes
 	;r1-r6
 
@@ -145,13 +145,13 @@
 
 (def-func-end)
 
-(def-method 'points 'fdiv)
+(def-method 'nums 'fdiv)
 	;inputs
-	;r0 = points object (ptr)
-	;r1 = source1 points object, can be same (ptr)
-	;r2 = source2 points object, can be same (ptr)
+	;r0 = nums object (ptr)
+	;r1 = source1 nums object, can be same (ptr)
+	;r2 = source2 nums object, can be same (ptr)
 	;outputs
-	;r0 = points object (ptr)
+	;r0 = nums object (ptr)
 	;trashes
 	;r1-r8
 
@@ -159,13 +159,13 @@
 
 (def-func-end)
 
-(def-method 'points 'fmod)
+(def-method 'nums 'fmod)
 	;inputs
-	;r0 = points object (ptr)
-	;r1 = source1 points object, can be same (ptr)
-	;r2 = source2 points object, can be same (ptr)
+	;r0 = nums object (ptr)
+	;r1 = source1 nums object, can be same (ptr)
+	;r2 = source2 nums object, can be same (ptr)
 	;outputs
-	;r0 = points object (ptr)
+	;r0 = nums object (ptr)
 	;trashes
 	;r1-r8
 
@@ -173,18 +173,18 @@
 
 (def-func-end)
 
-(def-method 'points 'sum)
+(def-method 'nums 'sum)
 	;inputs
-	;r0 = points object (ptr)
+	;r0 = nums object (ptr)
 	;outputs
-	;r0 = points object (ptr)
+	;r0 = nums object (ptr)
 	;r1 = sum (long)
 	;trashes
 	;r1-r4
 
-	(entry 'points 'sum '(r0))
+	(entry 'nums 'sum '(r0))
 
-	(call 'points 'get_both '(r0) '(r0 r1 r2))
+	(call 'nums 'get_both '(r0) '(r0 r1 r2))
 	(vp-xor-rr r3 r3)
 	(loop-while '(r1 /= r2))
 		(assign '((r1 0)) '(r4))
@@ -192,22 +192,22 @@
 		(vp-add-rr r4 r3)
 	(loop-end)
 
-	(exit 'points 'sum '(r0 r3))
+	(exit 'nums 'sum '(r0 r3))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'points 'fscale)
+(def-method 'nums 'fscale)
 	;inputs
-	;r0 = points object (ptr)
-	;r1 = source points object, can be same (ptr)
+	;r0 = nums object (ptr)
+	;r1 = source nums object, can be same (ptr)
 	;r2 = scale (16.16)
 	;outputs
-	;r0 = points object (ptr)
+	;r0 = nums object (ptr)
 	;trashes
 	;r1-r5
 
-	(entry 'points 'fscale '(r0 r1 r2))
+	(entry 'nums 'fscale '(r0 r1 r2))
 
 	(class/array/get_both r0 r3 r4)
 	(assign '((r1 array_begin)) '(r1))
@@ -220,17 +220,17 @@
 		(vp-add-cr long_size r1)
 	(loop-until '(r3 = r4))
 
-	(exit 'points 'fscale '(r0))
+	(exit 'nums 'fscale '(r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'points 'abs)
+(def-method 'nums 'abs)
 	;inputs
-	;r0 = points object (ptr)
-	;r1 = source points object, can be same (ptr)
+	;r0 = nums object (ptr)
+	;r1 = source nums object, can be same (ptr)
 	;outputs
-	;r0 = points object (ptr)
+	;r0 = nums object (ptr)
 	;trashes
 	;r1-r4
 
@@ -238,12 +238,12 @@
 
 (def-func-end)
 
-(def-method 'points 'frac)
+(def-method 'nums 'frac)
 	;inputs
-	;r0 = points object (ptr)
-	;r1 = source points object, can be same (ptr)
+	;r0 = nums object (ptr)
+	;r1 = source nums object, can be same (ptr)
 	;outputs
-	;r0 = points object (ptr)
+	;r0 = nums object (ptr)
 	;trashes
 	;r1-r5
 

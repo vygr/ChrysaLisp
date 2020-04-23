@@ -310,6 +310,8 @@ r1-r2
 
 ### array::sort_callback -> class/obj/null
 
+### array::vcreate -> class/array/create
+
 ### array::clear -> class/array/clear
 
 ```lisp
@@ -435,7 +437,20 @@ trashes
 r1-r14
 ```
 
-### array::lisp_points -> class/array/lisp_points
+### array::lisp_nums -> class/array/lisp_nums
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### array::lisp_path -> class/array/lisp_path
 
 ```lisp
 inputs
@@ -802,7 +817,7 @@ r1-r2
 ```lisp
 inputs
 r0 = canvas object (ptr)
-r1 = vector of points objects (ptr)
+r1 = vector of path objects (ptr)
 r2 = x (16.16)
 r3 = y (16.16)
 r4 = y scale (int)
@@ -900,7 +915,7 @@ r0 = canvas object (ptr)
 r1 = x (16.16)
 r2 = y (16.16)
 r3 = winding mode (0/1)
-r4 = vector of points objects (ptr)
+r4 = vector of path objects (ptr)
 outputs
 r0 = canvas object (ptr)
 trashes
@@ -3290,84 +3305,6 @@ trashes
 r1-r14
 ```
 
-### num::lisp_and -> class/num/lisp_and
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### num::lisp_or -> class/num/lisp_or
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### num::lisp_xor -> class/num/lisp_xor
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### num::lisp_shr -> class/num/lisp_shr
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### num::lisp_asr -> class/num/lisp_asr
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### num::lisp_shl -> class/num/lisp_shl
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
 ### num::lisp_min -> class/num/lisp_min
 
 ```lisp
@@ -3382,6 +3319,19 @@ r1-r14
 ```
 
 ### num::lisp_max -> class/num/lisp_max
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### num::lisp_random -> class/num/lisp_random
 
 ```lisp
 inputs
@@ -3460,6 +3410,84 @@ r1-r14
 ```
 
 ### num::lisp_ge -> class/num/lisp_ge
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### num::lisp_and -> class/num/lisp_and
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### num::lisp_or -> class/num/lisp_or
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### num::lisp_xor -> class/num/lisp_xor
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### num::lisp_shr -> class/num/lisp_shr
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### num::lisp_asr -> class/num/lisp_asr
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### num::lisp_shl -> class/num/lisp_shl
 
 ```lisp
 inputs
@@ -3576,7 +3604,341 @@ trashes
 r1-r14
 ```
 
-### num::lisp_random -> class/num/lisp_random
+## nums
+
+Super Class: array
+
+### nums::vtable -> class/nums/vtable
+
+### nums::create -> class/nums/create
+
+### nums::vcreate -> class/nums/create
+
+### nums::add -> class/nums/add
+
+```lisp
+inputs
+r0 = nums object (ptr)
+r1 = source1 nums object, can be same (ptr)
+r2 = source2 nums object, can be same (ptr)
+outputs
+r0 = nums object (ptr)
+trashes
+r1-r6
+```
+
+### nums::sub -> class/nums/sub
+
+```lisp
+inputs
+r0 = nums object (ptr)
+r1 = source1 nums object, can be same (ptr)
+r2 = source2 nums object, can be same (ptr)
+outputs
+r0 = nums object (ptr)
+trashes
+r1-r6
+```
+
+### nums::mul -> class/nums/mul
+
+```lisp
+inputs
+r0 = nums object (ptr)
+r1 = source1 nums object, can be same (ptr)
+r2 = source2 nums object, can be same (ptr)
+outputs
+r0 = nums object (ptr)
+trashes
+r1-r6
+```
+
+### nums::div -> class/nums/div
+
+```lisp
+inputs
+r0 = nums object (ptr)
+r1 = source1 nums object, can be same (ptr)
+r2 = source2 nums object, can be same (ptr)
+outputs
+r0 = nums object (ptr)
+trashes
+r1-r8
+```
+
+### nums::mod -> class/nums/mod
+
+```lisp
+inputs
+r0 = nums object (ptr)
+r1 = source1 nums object, can be same (ptr)
+r2 = source2 nums object, can be same (ptr)
+outputs
+r0 = nums object (ptr)
+trashes
+r1-r8
+```
+
+### nums::sum -> class/nums/sum
+
+```lisp
+inputs
+r0 = nums object (ptr)
+outputs
+r0 = nums object (ptr)
+r1 = sum (long)
+trashes
+r1-r4
+```
+
+### nums::fmul -> class/nums/fmul
+
+```lisp
+inputs
+r0 = nums object (ptr)
+r1 = source1 nums object, can be same (ptr)
+r2 = source2 nums object, can be same (ptr)
+outputs
+r0 = nums object (ptr)
+trashes
+r1-r6
+```
+
+### nums::fdiv -> class/nums/fdiv
+
+```lisp
+inputs
+r0 = nums object (ptr)
+r1 = source1 nums object, can be same (ptr)
+r2 = source2 nums object, can be same (ptr)
+outputs
+r0 = nums object (ptr)
+trashes
+r1-r8
+```
+
+### nums::fmod -> class/nums/fmod
+
+```lisp
+inputs
+r0 = nums object (ptr)
+r1 = source1 nums object, can be same (ptr)
+r2 = source2 nums object, can be same (ptr)
+outputs
+r0 = nums object (ptr)
+trashes
+r1-r8
+```
+
+### nums::fscale -> class/nums/fscale
+
+```lisp
+inputs
+r0 = nums object (ptr)
+r1 = source nums object, can be same (ptr)
+r2 = scale (16.16)
+outputs
+r0 = nums object (ptr)
+trashes
+r1-r5
+```
+
+### nums::abs -> class/nums/abs
+
+```lisp
+inputs
+r0 = nums object (ptr)
+r1 = source nums object, can be same (ptr)
+outputs
+r0 = nums object (ptr)
+trashes
+r1-r4
+```
+
+### nums::frac -> class/nums/frac
+
+```lisp
+inputs
+r0 = nums object (ptr)
+r1 = source nums object, can be same (ptr)
+outputs
+r0 = nums object (ptr)
+trashes
+r1-r5
+```
+
+### nums::lisp_vecop1 -> class/nums/lisp_vecop1
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+r2 = nums method (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = 0 if error, else value object (ptr)
+trashes
+r1-r14
+```
+
+### nums::lisp_vecop2 -> class/nums/lisp_vecop2
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+r2 = nums method (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = 0 if error, else value object (ptr)
+trashes
+r1-r14
+```
+
+### nums::lisp_add -> class/nums/lisp_add
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### nums::lisp_sub -> class/nums/lisp_sub
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### nums::lisp_mul -> class/nums/lisp_mul
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### nums::lisp_div -> class/nums/lisp_div
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### nums::lisp_mod -> class/nums/lisp_mod
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### nums::lisp_sum -> class/nums/lisp_sum
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### nums::lisp_fmul -> class/nums/lisp_fmul
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### nums::lisp_fdiv -> class/nums/lisp_fdiv
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### nums::lisp_fmod -> class/nums/lisp_fmod
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### nums::lisp_fscale -> class/nums/lisp_fscale
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### nums::lisp_abs -> class/nums/lisp_abs
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### nums::lisp_frac -> class/nums/lisp_frac
 
 ```lisp
 inputs
@@ -3919,199 +4281,48 @@ trashes
 r1-r14
 ```
 
-## points
+## path
 
-Super Class: array
+Super Class: nums
 
-### points::vtable -> gui/points/vtable
+### path::vtable -> gui/path/vtable
 
-### points::create -> gui/points/create
+### path::create -> gui/path/create
 
-### points::add -> gui/points/add
+### path::vcreate -> gui/path/create
 
-```lisp
-inputs
-r0 = points object (ptr)
-r1 = source1 points object, can be same (ptr)
-r2 = source2 points object, can be same (ptr)
-outputs
-r0 = points object (ptr)
-trashes
-r1-r6
-```
-
-### points::sub -> gui/points/sub
+### path::filter_polyline -> gui/path/filter_polyline
 
 ```lisp
 inputs
-r0 = points object (ptr)
-r1 = source1 points object, can be same (ptr)
-r2 = source2 points object, can be same (ptr)
-outputs
-r0 = points object (ptr)
-trashes
-r1-r6
-```
-
-### points::mul -> gui/points/mul
-
-```lisp
-inputs
-r0 = points object (ptr)
-r1 = source1 points object, can be same (ptr)
-r2 = source2 points object, can be same (ptr)
-outputs
-r0 = points object (ptr)
-trashes
-r1-r6
-```
-
-### points::div -> gui/points/div
-
-```lisp
-inputs
-r0 = points object (ptr)
-r1 = source1 points object, can be same (ptr)
-r2 = source2 points object, can be same (ptr)
-outputs
-r0 = points object (ptr)
-trashes
-r1-r8
-```
-
-### points::mod -> gui/points/mod
-
-```lisp
-inputs
-r0 = points object (ptr)
-r1 = source1 points object, can be same (ptr)
-r2 = source2 points object, can be same (ptr)
-outputs
-r0 = points object (ptr)
-trashes
-r1-r8
-```
-
-### points::sum -> gui/points/sum
-
-```lisp
-inputs
-r0 = points object (ptr)
-outputs
-r0 = points object (ptr)
-r1 = sum (long)
-trashes
-r1-r4
-```
-
-### points::fmul -> gui/points/fmul
-
-```lisp
-inputs
-r0 = points object (ptr)
-r1 = source1 points object, can be same (ptr)
-r2 = source2 points object, can be same (ptr)
-outputs
-r0 = points object (ptr)
-trashes
-r1-r6
-```
-
-### points::fdiv -> gui/points/fdiv
-
-```lisp
-inputs
-r0 = points object (ptr)
-r1 = source1 points object, can be same (ptr)
-r2 = source2 points object, can be same (ptr)
-outputs
-r0 = points object (ptr)
-trashes
-r1-r8
-```
-
-### points::fmod -> gui/points/fmod
-
-```lisp
-inputs
-r0 = points object (ptr)
-r1 = source1 points object, can be same (ptr)
-r2 = source2 points object, can be same (ptr)
-outputs
-r0 = points object (ptr)
-trashes
-r1-r8
-```
-
-### points::fscale -> gui/points/fscale
-
-```lisp
-inputs
-r0 = points object (ptr)
-r1 = source points object, can be same (ptr)
-r2 = scale (16.16)
-outputs
-r0 = points object (ptr)
-trashes
-r1-r5
-```
-
-### points::abs -> gui/points/abs
-
-```lisp
-inputs
-r0 = points object (ptr)
-r1 = source points object, can be same (ptr)
-outputs
-r0 = points object (ptr)
-trashes
-r1-r4
-```
-
-### points::frac -> gui/points/frac
-
-```lisp
-inputs
-r0 = points object (ptr)
-r1 = source points object, can be same (ptr)
-outputs
-r0 = points object (ptr)
-trashes
-r1-r5
-```
-
-### points::filter_polyline -> gui/points/filter_polyline
-
-```lisp
-inputs
-r0 = points object (ptr)
-r1 = source points object, can be same (ptr)
+r0 = path object (ptr)
+r1 = source path object, can be same (ptr)
 r2 = tolerance (16.16)
 outputs
-r0 = points object (ptr)
+r0 = path object (ptr)
 trashes
 r1-r14
 ```
 
-### points::filter_polygon -> gui/points/filter_polygon
+### path::filter_polygon -> gui/path/filter_polygon
 
 ```lisp
 inputs
-r0 = points object (ptr)
-r1 = source points object, can be same (ptr)
+r0 = path object (ptr)
+r1 = source path object, can be same (ptr)
 r2 = tolerance (16.16)
 outputs
-r0 = points object (ptr)
+r0 = path object (ptr)
 trashes
 r1-r14
 ```
 
-### points::transform -> gui/points/transform
+### path::transform -> gui/path/transform
 
 ```lisp
 inputs
-r0 = points object (ptr)
-r1 = source points object, can be same (ptr)
+r0 = path object (ptr)
+r1 = source path object, can be same (ptr)
 r2 = m1x (16.16)
 r3 = m1y (16.16)
 r4 = m2x (16.16)
@@ -4119,30 +4330,30 @@ r5 = m2y (16.16)
 r6 = trx (16.16)
 r7 = try (16.16)
 outputs
-r0 = points object (ptr)
+r0 = path object (ptr)
 trashes
 r1-r14
 ```
 
-### points::simplify -> gui/points/simplify
+### path::simplify -> gui/path/simplify
 
 ```lisp
 inputs
-r0 = points object (ptr)
-r1 = source points object (ptr)
+r0 = path object (ptr)
+r1 = source path object (ptr)
 r2 = stack array object (ptr)
 r3 = tolerance (16.16)
 outputs
-r0 = points object (ptr)
+r0 = path object (ptr)
 trashes
 r1-r14
 ```
 
-### points::gen_clerp -> gui/points/gen_clerp
+### path::gen_clerp -> gui/path/gen_clerp
 
 ```lisp
 inputs
-r0 = points object (ptr)
+r0 = path object (ptr)
 r1 = stack array object (ptr)
 r2 = cx (16.16)
 r3 = cy (16.16)
@@ -4153,16 +4364,16 @@ r7 = v2y (16.16)
 r8 = radius (16.16)
 r9 = tolerance (16.16)
 outputs
-r0 = points object (ptr)
+r0 = path object (ptr)
 trashes
 r1-r14
 ```
 
-### points::gen_arc -> gui/points/gen_arc
+### path::gen_arc -> gui/path/gen_arc
 
 ```lisp
 inputs
-r0 = points object (ptr)
+r0 = path object (ptr)
 r1 = stack array object (ptr)
 r2 = cx (16.16)
 r3 = cy (16.16)
@@ -4171,16 +4382,16 @@ r5 = end angle (16.16)
 r6 = radius (16.16)
 r7 = tolerance (16.16)
 outputs
-r0 = points object (ptr)
+r0 = path object (ptr)
 trashes
 r1-r14
 ```
 
-### points::gen_quadratic -> gui/points/gen_quadratic
+### path::gen_quadratic -> gui/path/gen_quadratic
 
 ```lisp
 inputs
-r0 = points object (ptr)
+r0 = path object (ptr)
 r1 = stack array object (ptr)
 r2 = p1x (16.16)
 r3 = p1y (16.16)
@@ -4190,16 +4401,16 @@ r6 = p3x (16.16)
 r7 = p3y (16.16)
 r8 = tolerance (16.16)
 outputs
-r0 = points object (ptr)
+r0 = path object (ptr)
 trashes
 r1-r14
 ```
 
-### points::gen_cubic -> gui/points/gen_cubic
+### path::gen_cubic -> gui/path/gen_cubic
 
 ```lisp
 inputs
-r0 = points object (ptr)
+r0 = path object (ptr)
 r1 = stack array object (ptr)
 r2 = p1x (16.16)
 r3 = p1y (16.16)
@@ -4211,19 +4422,19 @@ r8 = p4x (16.16)
 r9 = p4y (16.16)
 r10 = tolerance (16.16)
 outputs
-r0 = points object (ptr)
+r0 = path object (ptr)
 trashes
 r1-r14
 ```
 
-### points::stroke_joints -> gui/points/stroke_joints
+### path::stroke_joints -> gui/path/stroke_joints
 
 ```lisp
 inputs
-r0 = points object (ptr)
+r0 = path object (ptr)
 r1 = stack array object (ptr)
-r2 = in points start iter (plong)
-r3 = in points end iter (plong)
+r2 = in path start iter (plong)
+r3 = in path end iter (plong)
 r4 = p1x (16.16)
 r5 = p1y (16.16)
 r6 = p2x (16.16)
@@ -4232,86 +4443,46 @@ r8 = radius (16.16)
 r9 = tolerance (16.16)
 r10 = join style (byte)
 outputs
-r0 = points object (ptr)
+r0 = path object (ptr)
 trashes
 r1-r14
 ```
 
-### points::stroke_polylines -> gui/points/stroke_polylines
+### path::stroke_polylines -> gui/path/stroke_polylines
 
 ```lisp
 inputs
-r0 = output vector of points objects (ptr)
+r0 = output vector of path objects (ptr)
 r1 = stack array object (ptr)
-r2 = input vector of points objects (ptr)
+r2 = input vector of path objects (ptr)
 r3 = radius (16.16)
 r4 = tolerance (16.16)
 r5 = join style (byte)
 r6 = cap style1 (byte)
 r7 = cap style2 (byte)
 outputs
-r0 = output vector of points objects (ptr)
+r0 = output vector of path objects (ptr)
 trashes
 r1-r14
 ```
 
-### points::stroke_polygons -> gui/points/stroke_polygons
+### path::stroke_polygons -> gui/path/stroke_polygons
 
 ```lisp
 inputs
-r0 = output vector of points objects (ptr)
+r0 = output vector of path objects (ptr)
 r1 = stack array object (ptr)
-r2 = input vector of points objects (ptr)
+r2 = input vector of path objects (ptr)
 r3 = radius (16.16)
 r4 = tolerance (16.16)
 r5 = join style (byte)
 outputs
-r0 = output vector of points objects (ptr)
+r0 = output vector of path objects (ptr)
 trashes
 r1-r14
 ```
 
-### points::cat -> gui/points/cat
-
-```lisp
-inputs
-r0 = points object (ptr)
-r1 = vector of points objects (ptr)
-outputs
-r0 = 0 if error, else new points object (ptr)
-trashes
-r0-r11
-```
-
-### points::lisp_vecop1 -> gui/points/lisp_vecop1
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-r2 = points method (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = 0 if error, else value object (ptr)
-trashes
-r1-r14
-```
-
-### points::lisp_vecop2 -> gui/points/lisp_vecop2
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-r2 = points method (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = 0 if error, else value object (ptr)
-trashes
-r1-r14
-```
-
-### points::lisp_add -> gui/points/lisp_add
+### path::lisp_transform -> gui/path/lisp_transform
 
 ```lisp
 inputs
@@ -4324,7 +4495,7 @@ trashes
 r1-r14
 ```
 
-### points::lisp_sub -> gui/points/lisp_sub
+### path::lisp_simplify -> gui/path/lisp_simplify
 
 ```lisp
 inputs
@@ -4337,7 +4508,7 @@ trashes
 r1-r14
 ```
 
-### points::lisp_mul -> gui/points/lisp_mul
+### path::lisp_filter -> gui/path/lisp_filter
 
 ```lisp
 inputs
@@ -4350,7 +4521,7 @@ trashes
 r1-r14
 ```
 
-### points::lisp_div -> gui/points/lisp_div
+### path::lisp_gen_quadratic -> gui/path/lisp_gen_quadratic
 
 ```lisp
 inputs
@@ -4363,7 +4534,7 @@ trashes
 r1-r14
 ```
 
-### points::lisp_mod -> gui/points/lisp_mod
+### path::lisp_gen_cubic -> gui/path/lisp_gen_cubic
 
 ```lisp
 inputs
@@ -4376,7 +4547,7 @@ trashes
 r1-r14
 ```
 
-### points::lisp_sum -> gui/points/lisp_sum
+### path::lisp_gen_arc -> gui/path/lisp_gen_arc
 
 ```lisp
 inputs
@@ -4389,7 +4560,7 @@ trashes
 r1-r14
 ```
 
-### points::lisp_fmul -> gui/points/lisp_fmul
+### path::lisp_stroke_polylines -> gui/path/lisp_stroke_polylines
 
 ```lisp
 inputs
@@ -4402,163 +4573,7 @@ trashes
 r1-r14
 ```
 
-### points::lisp_fdiv -> gui/points/lisp_fdiv
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### points::lisp_fmod -> gui/points/lisp_fmod
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### points::lisp_fscale -> gui/points/lisp_fscale
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### points::lisp_abs -> gui/points/lisp_abs
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### points::lisp_frac -> gui/points/lisp_frac
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### points::lisp_transform -> gui/points/lisp_transform
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### points::lisp_simplify -> gui/points/lisp_simplify
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### points::lisp_filter -> gui/points/lisp_filter
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### points::lisp_gen_quadratic -> gui/points/lisp_gen_quadratic
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### points::lisp_gen_cubic -> gui/points/lisp_gen_cubic
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### points::lisp_gen_arc -> gui/points/lisp_gen_arc
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### points::lisp_stroke_polylines -> gui/points/lisp_stroke_polylines
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### points::lisp_stroke_polygons -> gui/points/lisp_stroke_polygons
+### path::lisp_stroke_polygons -> gui/path/lisp_stroke_polygons
 
 ```lisp
 inputs
@@ -8013,6 +8028,8 @@ Super Class: array
 
 ### vector::create -> class/vector/create
 
+### vector::vcreate -> class/vector/create
+
 ### vector::deinit -> class/vector/deinit
 
 ```lisp
@@ -8049,18 +8066,6 @@ r0 = vector object (ptr)
 r1 = slice vector object (ptr)
 trashes
 r1-r8
-```
-
-### vector::cat -> class/vector/cat
-
-```lisp
-inputs
-r0 = vector object (ptr)
-r1 = vector of vector objects (ptr)
-outputs
-r0 = 0 if error, else new vector object (ptr)
-trashes
-r0-r11
 ```
 
 ### vector::clear -> class/vector/clear

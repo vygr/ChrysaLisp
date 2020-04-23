@@ -143,7 +143,7 @@ merge
 min
 not
 penv
-points
+nums
 pop
 prin
 print

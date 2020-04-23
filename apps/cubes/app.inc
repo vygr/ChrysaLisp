@@ -7,7 +7,7 @@
 	(byte 'mask 'rate 'layer1_canvas 'layer1_verts))
 
 (structure 'path 0
-	(byte 'mode 'color 'radius 'points))
+	(byte 'mode 'color 'radius 'path))
 
 (structure 'vertex 0
 	(byte 'x 'y 'z 'r 'c))

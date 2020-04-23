@@ -7,7 +7,7 @@
 (import 'class/lisp.inc)
 
 ;C++ ChrysaLisp ?
-(unless (def? 'points)
+(unless (def? 'nums)
 	(defun kernel-total () 1))
 
 (defun-bind compile (files &optional *abi* *cpu* num_child)
@@ -15,7 +15,7 @@
 	(unless (lst? files)
 		(setq files (list files)))
 	(setq files (shuffle (map sym files)))
-	(if (def? 'points)
+	(if (def? 'nums)
 		;Native ChrysaLisp
 		(progn
 			(defq data_in (list) select (array) num_child (min num_child (length files))
@@ -250,7 +250,7 @@
 				'(sys/kernel/class.inc sys/list/class.inc sys/mail/class.inc class/in/class.inc
 				class/out/class.inc class/slave/class.inc gui/gui/class.inc gui/ctx/class.inc
 				gui/flow/class.inc gui/vdu/class.inc gui/window/class.inc gui/scroll/class.inc
-				gui/canvas/class.inc gui/points/class.inc))
+				gui/canvas/class.inc gui/path/class.inc))
 			(map eval _syms_)))
 		stream (string-stream (cat "")))
 	(write-line stream ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;")

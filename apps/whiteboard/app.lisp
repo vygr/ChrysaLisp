@@ -57,33 +57,33 @@
 			'())
 		((= 2 (length pnts))
 			;just a point
-			(list (points-gen-arc (elem 0 pnts) (elem 1 pnts) 0 (const fp_2pi) rad (const eps) (points))))
+			(list (path-gen-arc (elem 0 pnts) (elem 1 pnts) 0 (const fp_2pi) rad (const eps) (path))))
 		(t	;is a polyline draw
 			(bind '(x y x1 y1 &rest _) pnts)
 			(cond
 				((= mode (const event_arrow1))
 					;flatten to arrow1
-					(points-stroke-polylines (list) rad (const eps) (const join_bevel) (const cap_butt) (const cap_arrow) (list pnts)))
+					(path-stroke-polylines (list) rad (const eps) (const join_bevel) (const cap_butt) (const cap_arrow) (list pnts)))
 				((= mode (const event_arrow2))
 					;flatten to arrow2
-					(points-stroke-polylines (list) rad (const eps) (const join_bevel) (const cap_arrow) (const cap_arrow) (list pnts)))
+					(path-stroke-polylines (list) rad (const eps) (const join_bevel) (const cap_arrow) (const cap_arrow) (list pnts)))
 				((= mode (const event_box))
 					;flatten to box
-					(points-stroke-polygons (list) rad (const eps) (const join_miter) (list (points x y x1 y x1 y1 x y1))))
+					(path-stroke-polygons (list) rad (const eps) (const join_miter) (list (path x y x1 y x1 y1 x y1))))
 				((= mode (const event_circle))
 					;flatten to circle
-					(points-stroke-polygons (list) rad (const eps) (const join_bevel)
-						(list (points-gen-arc x y 0 (const fp_2pi) (vec-length (vec-sub (points x y) (points x1 y1)))
-							(const eps) (points)))))
+					(path-stroke-polygons (list) rad (const eps) (const join_bevel)
+						(list (path-gen-arc x y 0 (const fp_2pi) (vec-length (vec-sub (path x y) (path x1 y1)))
+							(const eps) (path)))))
 				((= mode (const event_fbox))
 					;flatten to filled box
-					(list (points x y x1 y x1 y1 x y1)))
+					(list (path x y x1 y x1 y1 x y1)))
 				((= mode (const event_fcircle))
 					;flatten to filled circle
-					(list (points-gen-arc x y 0 (const fp_2pi) (vec-length (vec-sub (points x y) (points x1 y1)))
-						(const eps) (points))))
+					(list (path-gen-arc x y 0 (const fp_2pi) (vec-length (vec-sub (path x y) (path x1 y1)))
+						(const eps) (path))))
 				(t	;flatten to pen stroke
-					(points-stroke-polylines (list) rad (const eps) (const join_bevel) (const cap_round) (const cap_round) (list pnts))))))))
+					(path-stroke-polylines (list) rad (const eps) (const join_bevel) (const cap_round) (const cap_round) (list pnts))))))))
 
 (defun-bind snapshot ()
 	;take a snapshot of the canvas state
@@ -104,9 +104,9 @@
 		(setq commited_polygons (pop redo_stack))
 		(redraw 1)) t)
 
-(defun-bind commit (path)
+(defun-bind commit (p)
 	;commit a stroke to the canvas
-	(push commited_polygons (flatten path)))
+	(push commited_polygons (flatten p)))
 
 (defun-bind redraw (mask)
 	;redraw layer/s
@@ -171,7 +171,7 @@
 			;event for canvas
 			(when (= (get-long msg (const ev_msg_type)) (const ev_type_mouse))
 				;mouse event in canvas
-				(defq new_point (points (* (get-int msg (const ev_msg_mouse_rx)) 1.0)
+				(defq new_point (path (* (get-int msg (const ev_msg_mouse_rx)) 1.0)
 					(* (get-int msg (const ev_msg_mouse_ry)) 1.0)))
 				(cond
 					((/= (get-int msg (const ev_msg_mouse_buttons)) 0)
@@ -181,20 +181,20 @@
 								(cond
 									((= stroke_mode (const event_pen))
 										;pen mode, so extend last stroke ?
-										(defq stroke (tuple-get path_points (elem -2 overlay_paths))
+										(defq stroke (tuple-get path_path (elem -2 overlay_paths))
 											mid_vec (vec-sub new_point last_point))
 										(when (>= (vec-length-squared mid_vec) (fmul stroke_radius stroke_radius))
 											(defq mid_point (vec-add last_point (vec-scale mid_vec 0.5)))
-											(points-gen-quadratic
+											(path-gen-quadratic
 												(elem 0 last_mid_point) (elem 1 last_mid_point)
 												(elem 0 last_point) (elem 1 last_point)
 												(elem 0 mid_point) (elem 1 mid_point)
 												(const eps) stroke)
-											(points-filter (const tol) stroke stroke)
+											(path-filter (const tol) stroke stroke)
 											(setq last_point new_point last_mid_point mid_point)
 											(redraw 2)))
 									(t	;a shape mode
-										(tuple-set path_points (elem -2 overlay_paths) (cat last_point new_point))
+										(tuple-set path_path (elem -2 overlay_paths) (cat last_point new_point))
 										(redraw 2))))
 							(u	;was up last time, so start new stroke
 								(setq last_state 'd last_point new_point last_mid_point new_point)
@@ -205,9 +205,9 @@
 							(d	;was down last time, so last point and commit stroke
 								(snapshot)
 								(setq last_state 'u)
-								(defq stroke (tuple-get path_points (elem -2 overlay_paths)))
+								(defq stroke (tuple-get path_path (elem -2 overlay_paths)))
 								(push stroke (elem 0 new_point) (elem 1 new_point))
-								(points-filter 0.5 stroke stroke)
+								(path-filter 0.5 stroke stroke)
 								(each commit overlay_paths)
 								(clear overlay_paths)
 								(redraw 3))

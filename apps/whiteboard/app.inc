@@ -7,4 +7,4 @@
 	(byte 'mask 'rate 'flatten 'commited_canvas 'overlay_canvas 'commited_polygons 'overlay_paths))
 
 (structure 'path 0
-	(byte 'mode 'color 'radius 'points))
+	(byte 'mode 'color 'radius 'path))

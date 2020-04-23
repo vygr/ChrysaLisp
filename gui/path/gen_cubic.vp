@@ -1,10 +1,10 @@
 (include 'sys/func.inc)
-(include 'gui/points/class.inc)
+(include 'gui/path/class.inc)
 (include 'sys/math/class.inc)
 
-(def-method 'points 'gen_cubic)
+(def-method 'path 'gen_cubic)
 	;inputs
-	;r0 = points object (ptr)
+	;r0 = path object (ptr)
 	;r1 = stack array object (ptr)
 	;r2 = p1x (16.16)
 	;r3 = p1y (16.16)
@@ -16,7 +16,7 @@
 	;r9 = p4y (16.16)
 	;r10 = tolerance (16.16)
 	;outputs
-	;r0 = points object (ptr)
+	;r0 = path object (ptr)
 	;trashes
 	;r1-r14
 
@@ -31,15 +31,15 @@
 
 	(push-scope)
 	(used-syms 'p23)
-	(entry 'points 'gen_cubic {this, stack, p1x, p1y, p2x, p2y, p3x, p3y, p4x, p4y, eps})
+	(entry 'path 'gen_cubic {this, stack, p1x, p1y, p2x, p2y, p3x, p3y, p4x, p4y, eps})
 
 	;output first point
 	(vec-set 0)
-	(call 'points 'push_back2 {this, p1x, p1y})
+	(call 'path 'push_back2 {this, p1x, p1y})
 
 	(d-call 'array 'get_length {stack} {_, start})
 	(loop-start)
-		;calculate the mid-points
+		;calculate the mid-path
 		(vec-load 6 {p1x, p1y, p2x, p2y, p3x, p3y})
 		(vec-dup 4)
 		(vec-load 2 {p4x, p4y})
@@ -84,7 +84,7 @@
 		(bind '(d e) (vec-pop 2))
 		(vpif `(,d <= ,e))
 			;output point
-			(call 'points 'push_back2 {this, p1234x, p1234y})
+			(call 'path 'push_back2 {this, p1234x, p1234y})
 		(else)
 			;continue subdivision
 			(d-call 'array 'get_length {stack} {_, length})
@@ -106,9 +106,9 @@
 	(loop-end)
 
 	;output last point
-	(call 'points 'push_back2 {this, p4x, p4y})
+	(call 'path 'push_back2 {this, p4x, p4y})
 
-	(exit 'points 'gen_cubic {this})
+	(exit 'path 'gen_cubic {this})
 	(pop-scope)
 	(return)
 

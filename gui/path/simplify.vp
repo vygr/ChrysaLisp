@@ -1,15 +1,15 @@
 (include 'sys/func.inc)
-(include 'gui/points/class.inc)
+(include 'gui/path/class.inc)
 (include 'sys/math/class.inc)
 
-(def-method 'points 'simplify)
+(def-method 'path 'simplify)
 	;inputs
-	;r0 = points object (ptr)
-	;r1 = source points object (ptr)
+	;r0 = path object (ptr)
+	;r1 = source path object (ptr)
 	;r2 = stack array object (ptr)
 	;r3 = tolerance (16.16)
 	;outputs
-	;r0 = points object (ptr)
+	;r0 = path object (ptr)
 	;trashes
 	;r1-r14
 
@@ -22,20 +22,20 @@
 	(int 'eps 'max 'dist)
 
 	(push-scope)
-	(entry 'points 'simplify {this, that, stack, eps})
+	(entry 'path 'simplify {this, that, stack, eps})
 
 	;any point doing anything ?
-	(d-call 'points 'get_length {that} {_, length})
+	(d-call 'path 'get_length {that} {_, length})
 	(vpif {length <= 4})
 		;just append to output
-		(d-call 'points 'append {this, that, 0, length})
+		(d-call 'path 'append {this, that, 0, length})
 	(else)
 		;first span
 		(assign {0, length - 2} {first, last})
 
 		;output first point
-		(call 'points 'get_first2 {that} {_, p1x, p1y})
-		(call 'points 'push_back2 {this, p1x, p1y})
+		(call 'path 'get_first2 {that} {_, p1x, p1y})
+		(call 'path 'push_back2 {this, p1x, p1y})
 
 		(d-call 'array 'get_length {stack} {_, start})
 		(loop-start)
@@ -43,10 +43,10 @@
 			(vpcase {last - first > 2})
 				;find max distance point
 				(assign {eps, first + 2} {max, length})
-				(call 'points 'get_element2 {that, first} {_, p2x, p2y})
-				(call 'points 'get_element2 {that, last} {_, p3x, p3y})
+				(call 'path 'get_element2 {that, first} {_, p2x, p2y})
+				(call 'path 'get_element2 {that, last} {_, p3x, p3y})
 				(loop-start)
-					(call 'points 'get_element2 {that, length} {_, p1x, p1y})
+					(call 'path 'get_element2 {that, length} {_, p1x, p1y})
 					(call 'sys_math 'f_dist_sqd {p1x, p2y, p2x, p2y, p3x, p3y} {dist})
 					(vpif {dist > max})
 						(assign {dist, length} {max, index})
@@ -57,13 +57,13 @@
 				(vpif {max > eps})
 					(assign {last} {rlast})
 					(assign {index} {last})
-					(call 'points 'push_back2 {stack, rspan, span})
+					(call 'path 'push_back2 {stack, rspan, span})
 					(break 'out)
 				(endif)
 			(default)
 				;output point
-				(call 'points 'get_element2 {that, last} {_, p1x, p1y})
-				(call 'points 'push_back2 {this, p1x, p1y})
+				(call 'path 'get_element2 {that, last} {_, p1x, p1y})
+				(call 'path 'push_back2 {this, p1x, p1y})
 			(endswitch)
 
 			;next span
@@ -73,7 +73,7 @@
 		(loop-end)
 	(endif)
 
-	(exit 'points 'simplify {this})
+	(exit 'path 'simplify {this})
 	(pop-scope)
 	(return)
 

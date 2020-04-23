@@ -1,10 +1,10 @@
 (include 'sys/func.inc)
-(include 'gui/points/class.inc)
+(include 'gui/path/class.inc)
 (include 'sys/math/class.inc)
 
-(def-method 'points 'gen_quadratic)
+(def-method 'path 'gen_quadratic)
 	;inputs
-	;r0 = points object (ptr)
+	;r0 = path object (ptr)
 	;r1 = stack array object (ptr)
 	;r2 = p1x (16.16)
 	;r3 = p1y (16.16)
@@ -14,7 +14,7 @@
 	;r7 = p3y (16.16)
 	;r8 = tolerance (16.16)
 	;outputs
-	;r0 = points object (ptr)
+	;r0 = path object (ptr)
 	;trashes
 	;r1-r14
 
@@ -28,15 +28,15 @@
 	(int 'eps)
 
 	(push-scope)
-	(entry 'points 'gen_quadratic {this, stack, p1x, p1y, p2x, p2y, p3x, p3y, eps})
+	(entry 'path 'gen_quadratic {this, stack, p1x, p1y, p2x, p2y, p3x, p3y, eps})
 
 	;output first point
 	(vec-set 0)
-	(call 'points 'push_back2 {this, p1x, p1y})
+	(call 'path 'push_back2 {this, p1x, p1y})
 
 	(d-call 'array 'get_length {stack} {_, start})
 	(loop-start)
-		;calculate the mid-points
+		;calculate the mid-path
 		(vec-load 4 {p1x, p1y, p2x, p2y})
 		(vec-dup 2)
 		(vec-load 2 {p3x, p3y})
@@ -65,7 +65,7 @@
 		(bind '(d e) (vec-pop 2))
 		(vpif `(,d <= ,e))
 			;output point
-			(call 'points 'push_back2 {this, p123x, p123y})
+			(call 'path 'push_back2 {this, p123x, p123y})
 		(else)
 			;continue subdivision
 			(d-call 'array 'get_length {stack} {_, length})
@@ -87,9 +87,9 @@
 	(loop-end)
 
 	;output last point
-	(call 'points 'push_back2 {this, p3x, p3y})
+	(call 'path 'push_back2 {this, p3x, p3y})
 
-	(exit 'points 'gen_quadratic {this})
+	(exit 'path 'gen_quadratic {this})
 	(pop-scope)
 	(return)
 

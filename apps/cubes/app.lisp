@@ -109,7 +109,7 @@
 			;event for canvas
 			(when (= (get-long msg (const ev_msg_type)) (const ev_type_mouse))
 				;mouse event in canvas
-				(defq new_point (points (* (get-int msg (const ev_msg_mouse_rx)) 1.0)
+				(defq new_point (path (* (get-int msg (const ev_msg_mouse_rx)) 1.0)
 					(* (get-int msg (const ev_msg_mouse_ry)) 1.0)))
 				(cond
 					((/= (get-int msg (const ev_msg_mouse_buttons)) 0)

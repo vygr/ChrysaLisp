@@ -9,7 +9,7 @@
 (include 'gui/font/make.inc)
 (include 'gui/grid/make.inc)
 (include 'gui/label/make.inc)
-(include 'gui/points/make.inc)
+(include 'gui/path/make.inc)
 (include 'gui/progress/make.inc)
 (include 'gui/slider/make.inc)
 (include 'gui/scroll/make.inc)

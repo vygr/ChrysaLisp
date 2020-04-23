@@ -17,3 +17,4 @@
 (include 'class/str/make.inc)
 (include 'class/sym/make.inc)
 (include 'class/vector/make.inc)
+(include 'class/nums/make.inc)

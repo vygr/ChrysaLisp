@@ -39,7 +39,8 @@
 (dec-method 'cat 'class/array/cat 'override)
 
 (dec-method 'lisp_array 'class/array/lisp_array 'static '(r0 r1) '(r0 r1))
-(dec-method 'lisp_points 'class/array/lisp_points 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_nums 'class/array/lisp_nums 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_path 'class/array/lisp_path 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_clear 'class/array/lisp_clear 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_push 'class/array/lisp_push 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_pop 'class/array/lisp_pop 'static '(r0 r1) '(r0 r1))

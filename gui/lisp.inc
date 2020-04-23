@@ -113,6 +113,7 @@
 	flow_left_fill (logior flow_flag_left flow_flag_fillh flow_flag_lastw))
 
 ;lisp bindings
+(ffi path "class/array/lisp_path" 0)
 (ffi component-connect "gui/component/lisp_connect" 0)
 (ffi create-window "gui/window/lisp_create" 0)
 (ffi create-backdrop "gui/backdrop/lisp_create" 0)
@@ -134,6 +135,6 @@
 (ffi font-glyph-ranges "gui/font/lisp_glyph_ranges" 0)
 (import 'gui/component/lisp.inc)
 (import 'gui/view/lisp.inc)
-(import 'gui/points/lisp.inc)
+(import 'gui/path/lisp.inc)
 (import 'gui/canvas/lisp.inc)
 (import 'gui/vdu/lisp.inc)

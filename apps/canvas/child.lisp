@@ -16,7 +16,7 @@
 (defun-bind transform-copy (angle _)
 	(defq sa (fsin angle) ca (fcos angle))
 	(map (lambda (_)
-		(points-transform
+		(path-transform
 			(fmul canvas_scale ca) (fmul canvas_scale (neg sa))
 			(fmul canvas_scale sa) (fmul canvas_scale ca)
 			(fmul canvas_width canvas_scale 0.5) (fmul canvas_height canvas_scale 0.5)
@@ -25,7 +25,7 @@
 (defun-bind transform (angle _)
 	(defq sa (fsin angle) ca (fcos angle))
 	(map (lambda (_)
-		(points-transform
+		(path-transform
 			(fmul canvas_scale ca) (fmul canvas_scale (neg sa))
 			(fmul canvas_scale sa) (fmul canvas_scale ca)
 			(fmul canvas_width canvas_scale 0.5) (fmul canvas_height canvas_scale 0.5)
@@ -34,7 +34,7 @@
 (defun-bind transform-norm (angle _)
 	(defq sa (fsin angle) ca (fcos angle))
 	(map (lambda (_)
-		(points-transform
+		(path-transform
 			(fmul canvas_width canvas_scale ca) (fmul canvas_height canvas_scale (neg sa))
 			(fmul canvas_width canvas_scale sa) (fmul canvas_height canvas_scale ca)
 			(fmul canvas_width canvas_scale 0.5) (fmul canvas_height canvas_scale 0.5)
@@ -48,49 +48,49 @@
 	(canvas-fill canvas 0)
 
 	(fpoly argb_red 0 (transform-norm (* angle 2) (list
-		(points -0.5 -0.5 -0.25 0.5 0 -0.5 0.25 0.5 0.5 -0.5 -0.05 0.5))))
+		(path -0.5 -0.5 -0.25 0.5 0 -0.5 0.25 0.5 0.5 -0.5 -0.05 0.5))))
 
 	(fpoly 0xff0ff0ff 0 (transform (neg angle)
-		(points-stroke-polylines (list) (fmul canvas_width 0.05) eps join_bevel cap_square cap_square
-			(list (points-gen-quadratic
+		(path-stroke-polylines (list) (fmul canvas_width 0.05) eps join_bevel cap_square cap_square
+			(list (path-gen-quadratic
 				(fmul canvas_width -0.4) (fmul canvas_height 0.4)
 				(fmul canvas_width -0.2) (fmul canvas_height -1.1)
 				(fmul canvas_width 0.4) (fmul canvas_height 0.2)
-				eps (points))))))
+				eps (path))))))
 
 	(fpoly 0xc000ff00 0 (transform angle
-		(points-stroke-polylines (list) (fmul canvas_width 0x0.1) eps join_round cap_round cap_round
-			(list (points (fmul canvas_width -0.4) (fmul canvas_height -0.4)
+		(path-stroke-polylines (list) (fmul canvas_width 0x0.1) eps join_round cap_round cap_round
+			(list (path (fmul canvas_width -0.4) (fmul canvas_height -0.4)
 				(fmul canvas_width 0.3) (fmul canvas_height -0.3)
 				(fmul canvas_width 0.4) (fmul canvas_height 0.4))))))
 
 	(fpoly argb_yellow 0 (defq p (transform (* angle -2)
-		(points-stroke-polygons (list) (fmul canvas_width 0.011) eps join_miter
-			(points-stroke-polylines (list) (fmul canvas_width 0.033) eps join_bevel cap_round cap_arrow
-				(list (points-gen-cubic
+		(path-stroke-polygons (list) (fmul canvas_width 0.011) eps join_miter
+			(path-stroke-polylines (list) (fmul canvas_width 0.033) eps join_bevel cap_round cap_arrow
+				(list (path-gen-cubic
 					(fmul canvas_width -0.45) (fmul canvas_height 0.3)
 					(fmul canvas_width -0.3) (fmul canvas_height -0.3)
 					(fmul canvas_width 0.45) (fmul canvas_height 0.6)
 					(fmul canvas_width 0.4) (fmul canvas_height -0.4)
-					eps (points))))))))
+					eps (path))))))))
 	(fpoly 0x80000000 0 (slice 1 2 p))
 
 	(fpoly 0xd0ff00ff 0 (defq p (transform angle
-		(points-stroke-polygons (list) (fmul canvas_width 0.02) eps join_miter
-			(list (points-gen-arc
+		(path-stroke-polygons (list) (fmul canvas_width 0.02) eps join_miter
+			(list (path-gen-arc
 				(fmul canvas_width 0.2) (fmul canvas_height 0.3) 0 fp_2pi
-				(fmul canvas_width 0.125) eps (points)))))))
+				(fmul canvas_width 0.125) eps (path)))))))
 	(fpoly 0x60000000 0 (slice 0 1 p))
 
 	(fpoly 0xc00000ff 0 (defq polygons (transform angle
-		(points-stroke-polygons (list) (fmul canvas_width 0.025) eps join_miter
-			(points-stroke-polylines (list) (fmul canvas_width 0.05) eps join_bevel cap_square cap_tri (list
-				(points-gen-arc
+		(path-stroke-polygons (list) (fmul canvas_width 0.025) eps join_miter
+			(path-stroke-polylines (list) (fmul canvas_width 0.05) eps join_bevel cap_square cap_tri (list
+				(path-gen-arc
 					(fmul canvas_width -0.1) (fmul canvas_height -0.2) 0.9 1.5
-					(fmul canvas_width 0.2) eps (points))
-				(points-gen-arc
+					(fmul canvas_width 0.2) eps (path))
+				(path-gen-arc
 					(fmul canvas_width -0.2) (fmul canvas_height -0.2) 4.0 2.0
-					(fmul canvas_width 0o0.1) eps (points))))))))
+					(fmul canvas_width 0o0.1) eps (path))))))))
 	(fpoly 0xa0ffffff 0 (list (elem 1 polygons) (elem 3 polygons)))
 
 	(fpoly 0xff000000 0 (transform-copy angle fp1))

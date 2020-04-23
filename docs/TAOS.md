@@ -389,7 +389,7 @@ loaded from disk, as they are also Taos objects (conforming to the basic node
 format). A Control object template only holds the text names of its constituent
 components, not the actual code. As a Control object is created, the kernel
 checks to see if the tools which the components reference are already available
-in memory, and if they are, simply points to them. Only if an object is not
+in memory, and if they are, simply path to them. Only if an object is not
 present will it be loaded from disk and be made process-ready. So all Taos
 objects can be multi-threaded. You will never have two copies of the same
 object in the same memory space, unless you specifically request it (See

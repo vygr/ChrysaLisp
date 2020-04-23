@@ -16,7 +16,7 @@
 	ambient 0.05
 	ref_coef 0.25
 	ref_depth 1
-	light_pos (points -0.1 -0.1 -3.0))
+	light_pos (nums -0.1 -0.1 -3.0))
 
 ;field equation for a sphere
 ;(defun sphere (p c r)
@@ -25,12 +25,12 @@
 ;the scene
 (defun-bind scene (p)
 	(- (vec-length
-		(points-sub
-			(defq _ (points-frac p))
-			(const (points 0.5 0.5 0.5)) _)) 0.35))
+		(nums-sub
+			(defq _ (nums-frac p))
+			(const (nums 0.5 0.5 0.5)) _)) 0.35))
 
 (defun-bind ray-march (ray_origin ray_dir l max_l min_distance march_factor)
-	(defq i -1 d 1.0 _ (points 0 0 0))
+	(defq i -1 d 1.0 _ (nums 0 0 0))
 	(while (and (< (setq i (inc i)) 1000)
 				(> d min_distance)
 				(< l max_l))
@@ -44,13 +44,13 @@
 
 (defun-bind get-normal (p)
 	(defq d (scene p)) (bind '(x y z) p)
-	(vec-norm (points
-		(- d (scene (points (- x (const eps)) y z)))
-		(- d (scene (points x (- y (const eps)) z)))
-		(- d (scene (points x y (- z (const eps))))))))
+	(vec-norm (nums
+		(- d (scene (nums (- x (const eps)) y z)))
+		(- d (scene (nums x (- y (const eps)) z)))
+		(- d (scene (nums x y (- z (const eps))))))))
 
 (defun-bind shadow (ray_origin ray_dir l max_l k)
-	(defq s 1.0 i 1000 _ (points 0 0 0))
+	(defq s 1.0 i 1000 _ (nums 0 0 0))
 	(while (> (setq i (dec i)) 0)
 		(defq h (scene (vec-add ray_origin (vec-scale ray_dir l _) _))
 			s (min s (fdiv (fmul k h) l)))
@@ -60,25 +60,25 @@
 	(max s 0.1))
 
 (defun-bind lighting (surface_pos surface_norm cam_pos)
-	(defq _ (points 0 0 0) obj_color (vec-floor (vec-mod surface_pos 2.0))
+	(defq _ (nums 0 0 0) obj_color (vec-floor (vec-mod surface_pos 2.0))
 		light_vec (vec-sub light_pos surface_pos)
 		light_dis (vec-length light_vec)
 		light_norm (vec-scale light_vec (fdiv 1.0 light_dis) light_vec)
 		light_atten (min (fdiv 1.0 (fmul light_dis light_dis attenuation)) 1.0)
 		ref (vec-reflect (vec-scale light_norm -1.0 _) surface_norm)
 		ss (shadow surface_pos light_norm min_distance light_dis shadow_softness)
-		light_col (vec-scale (const (points 1.0 1.0 1.0)) (fmul light_atten ss))
+		light_col (vec-scale (const (nums 1.0 1.0 1.0)) (fmul light_atten ss))
 		diffuse (max 0.0 (vec-dot surface_norm light_norm _))
 		specular (max 0.0 (vec-dot ref (vec-norm (vec-sub cam_pos surface_pos) _) _))
 		specular (fmul specular specular specular specular)
 		obj_color (vec-scale obj_color (+ (fmul diffuse (- 1.0 ambient)) ambient) _)
-		obj_color (vec-add obj_color (points specular specular specular) _))
+		obj_color (vec-add obj_color (nums specular specular specular) _))
 	(vec-mul obj_color light_col _))
 
 (defun-bind scene-ray (ray_origin ray_dir)
 	(defq l (ray-march ray_origin ray_dir 0.0 clipfar min_distance march_factor))
 	(if (>= l clipfar)
-		(const (points 0.0 0.0 0.0))
+		(const (nums 0.0 0.0 0.0))
 		(progn
 			(defq surface_pos (vec-add ray_origin (vec-scale ray_dir l))
 				surface_norm (get-normal surface_pos)
@@ -102,9 +102,9 @@
 		(defq xp (dec x))
 		(while (/= (setq xp (inc xp)) x1)
 			(defq
-				ray_origin (const (points 0 0 -3.0))
+				ray_origin (const (nums 0 0 -3.0))
 				ray_dir (vec-norm (vec-sub
-					(points (/ (* (- xp w2) 1.0) w2) (/ (* (- y h2) 1.0) h2) 0.0)
+					(nums (/ (* (- xp w2) 1.0) w2) (/ (* (- y h2) 1.0) h2) 0.0)
 					ray_origin)))
 			(bind '(r g b) (scene-ray ray_origin ray_dir))
 			(write-int reply (+ argb_black (>> b 8) (logand g 0xff00) (<< (logand r 0xff00) 8)))

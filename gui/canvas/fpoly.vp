@@ -1,12 +1,12 @@
 (include 'sys/func.inc)
 (include 'gui/canvas/class.inc)
 (include 'class/vector/class.inc)
-(include 'gui/points/class.inc)
+(include 'gui/path/class.inc)
 
 (def-method 'canvas 'set_edges)
 	;inputs
 	;r0 = canvas object (ptr)
-	;r1 = vector of points objects (ptr)
+	;r1 = vector of path objects (ptr)
 	;r2 = x (16.16)
 	;r3 = y (16.16)
 	;r4 = y scale (int)
@@ -35,7 +35,7 @@
 	(assign {x + 0.5, y + 0.5, max_int, min_int, max_int, min_int, 0} {x, y, xs, xe, ys, ye, length})
 	(call 'vector 'get_both {polygons} {_, iter_begin_polygons, iter_end_polygons})
 	(loop-while {iter_begin_polygons /= iter_end_polygons})
-		(call 'points 'get_both {*iter_begin_polygons} {_, iter_begin_polygon, iter_end_polygon})
+		(call 'path 'get_both {*iter_begin_polygons} {_, iter_begin_polygon, iter_end_polygon})
 		(call 'array 'set_capacity {this->canvas_edges, length + ((iter_end_polygon - iter_begin_polygon) >> 4) * (edge_size >> 3)})
 		(call 'array 'get_begin {this->canvas_edges} {_, iter_edge1})
 		(assign {iter_edge1 + length * long_size} {iter_edge2})
@@ -111,7 +111,7 @@
 	;r1 = x (16.16)
 	;r2 = y (16.16)
 	;r3 = winding mode (0/1)
-	;r4 = vector of points objects (ptr)
+	;r4 = vector of path objects (ptr)
 	;outputs
 	;r0 = canvas object (ptr)
 	;trashes

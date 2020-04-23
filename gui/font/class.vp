@@ -8,7 +8,7 @@
 (include 'class/pair/class.inc)
 (include 'sys/pii/class.inc)
 (include 'gui/gui/class.inc)
-(include 'gui/points/class.inc)
+(include 'gui/path/class.inc)
 (include 'gui/canvas/class.inc)
 (include 'gui/ctx/class.inc)
 
@@ -373,16 +373,16 @@
 				(switch)
 				(vpcase `(,c = 2))
 					;curveto
-					(call 'points 'pop_back2 {path})
+					(call 'path 'pop_back2 {path})
 					(vp-def (path stack pos_x pos_y x y x1 y1 x2 y2 eps data ox oy pixels)
-						(method-input 'points 'gen_cubic))
+						(method-input 'path 'gen_cubic))
 					(assign {data, path, stack, pos_x, pos_y, x, y, 0.25, ox, oy, this->font_pixels}
 						`(,data ,path ,stack ,pos_x ,pos_y ,x ,y ,eps ,ox ,oy ,pixels))
 					(assign `((,data font_curve_element_x1) (,data font_curve_element_y1)
 						(,data font_curve_element_x2) (,data font_curve_element_y2)) `(,x1 ,y1 ,x2 ,y2))
 					(trans_xy x1 y1)
 					(trans_xy x2 y2)
-					(call 'points 'gen_cubic `(,path ,stack ,pos_x ,pos_y ,x ,y ,x1 ,y1 ,x2 ,y2 ,eps))
+					(call 'path 'gen_cubic `(,path ,stack ,pos_x ,pos_y ,x ,y ,x1 ,y1 ,x2 ,y2 ,eps))
 
 					(assign {data, ox, oy, this->font_pixels} `(,data ,ox ,oy ,pixels))
 					(assign `((,data font_curve_element_x2) (,data font_curve_element_y2)) `(,x2 ,y2))
@@ -393,12 +393,12 @@
 				(vpcase `(,c = 1))
 					;lineto
 				(vp-label 'lineto)
-					(call 'points 'push_back2 {path, x, y})
+					(call 'path 'push_back2 {path, x, y})
 					(assign {x, y, data + font_line_element_size} {pos_x, pos_y, data})
 					(break)
 				(vpcase `(,c = 0))
 					;moveto
-					(call 'points 'create nil {path})
+					(call 'path 'create nil {path})
 					(call 'vector 'push_back {paths, path})
 					(goto 'lineto)
 				(endswitch)

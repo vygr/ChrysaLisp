@@ -748,6 +748,58 @@
 
 (num? form) -> bool
 
+## nums
+
+(nums [form ...])
+
+## nums-abs
+
+(nums-abs nums [nums])
+
+## nums-add
+
+(nums-add nums nums [nums])
+
+## nums-div
+
+(nums-div nums nums [nums])
+
+## nums-fdiv
+
+(nums-fdiv nums nums [nums])
+
+## nums-fmod
+
+(nums-fmod nums nums [nums])
+
+## nums-fmul
+
+(nums-fmul nums nums [nums])
+
+## nums-frac
+
+(nums-frac nums [nums])
+
+## nums-fscale
+
+(nums-fscale nums scale [nums])
+
+## nums-mod
+
+(nums-mod nums nums [nums])
+
+## nums-mul
+
+(nums-mul nums nums [nums])
+
+## nums-sub
+
+(nums-sub nums nums [nums])
+
+## nums-sum
+
+(nums-sum nums)
+
 ## open-child
 
 (open-child path mode)
@@ -784,6 +836,38 @@
 
 (partition lambda list start end)
 
+## path-filter
+
+(path-filter tol src dst)
+
+## path-gen-arc
+
+(path-gen-arc cx cy start end radius tol dst) -> dst
+
+## path-gen-cubic
+
+(path-gen-cubic p1x p1y p2x p2y p3x p3y p4x p4y tol dst) -> dst
+
+## path-gen-quadratic
+
+(path-gen-quadratic p1x p1y p2x p2y p3x p3y tol dst) -> dst
+
+## path-simplify
+
+(path-simplify tol src dst)
+
+## path-stroke-polygons
+
+(path-stroke-polygons dst radius tol join src) -> dst
+
+## path-stroke-polylines
+
+(path-stroke-polylines dst radius tol join cap1 cap2 src) -> dst
+
+## path-transform
+
+(path-transform m1x m1y m2x m2y trx try src dst)
+
 ## penv
 
 (penv env)
@@ -795,90 +879,6 @@
 ## pii-write-char
 
 (pii-write-char fd char)
-
-## points
-
-(points [form ...])
-
-## points-abs
-
-(points-abs points [points])
-
-## points-add
-
-(points-add points points [points])
-
-## points-div
-
-(points-div points points [points])
-
-## points-fdiv
-
-(points-fdiv points points [points])
-
-## points-filter
-
-(points-filter tol src dst)
-
-## points-fmod
-
-(points-fmod points points [points])
-
-## points-fmul
-
-(points-fmul points points [points])
-
-## points-frac
-
-(points-frac points [points])
-
-## points-fscale
-
-(points-fscale points scale [points])
-
-## points-gen-arc
-
-(points-gen-arc cx cy start end radius tol dst) -> dst
-
-## points-gen-cubic
-
-(points-gen-cubic p1x p1y p2x p2y p3x p3y p4x p4y tol dst) -> dst
-
-## points-gen-quadratic
-
-(points-gen-quadratic p1x p1y p2x p2y p3x p3y tol dst) -> dst
-
-## points-mod
-
-(points-mod points points [points])
-
-## points-mul
-
-(points-mul points points [points])
-
-## points-simplify
-
-(points-simplify tol src dst)
-
-## points-stroke-polygons
-
-(points-stroke-polygons dst radius tol join src) -> dst
-
-## points-stroke-polylines
-
-(points-stroke-polylines dst radius tol join cap1 cap2 src) -> dst
-
-## points-sub
-
-(points-sub points points [points])
-
-## points-sum
-
-(points-sum points)
-
-## points-transform
-
-(points-transform m1x m1y m2x m2y trx try src dst)
 
 ## pop
 

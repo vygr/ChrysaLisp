@@ -1,10 +1,10 @@
 (include 'sys/func.inc)
-(include 'gui/points/class.inc)
+(include 'gui/path/class.inc)
 (include 'sys/math/class.inc)
 
-(def-method 'points 'gen_clerp)
+(def-method 'path 'gen_clerp)
 	;inputs
-	;r0 = points object (ptr)
+	;r0 = path object (ptr)
 	;r1 = stack array object (ptr)
 	;r2 = cx (16.16)
 	;r3 = cy (16.16)
@@ -15,7 +15,7 @@
 	;r8 = radius (16.16)
 	;r9 = tolerance (16.16)
 	;outputs
-	;r0 = points object (ptr)
+	;r0 = path object (ptr)
 	;trashes
 	;r1-r14
 
@@ -28,7 +28,7 @@
 	(uint 'start 'length)
 
 	(push-scope)
-	(entry 'points 'gen_clerp {this, stack, cx, cy, v1x, v1y, v2x, v2y, radius, eps})
+	(entry 'path 'gen_clerp {this, stack, cx, cy, v1x, v1y, v2x, v2y, radius, eps})
 
 	(vec-set 0)
 
@@ -36,7 +36,7 @@
 	(vec-load 2 {cx, cy} {v1x, v1y})
 	(vec-add 2)
 	(vec-store 2 {bvx, bvy})
-	(call 'points 'push_back2 {this, bvx, bvy})
+	(call 'path 'push_back2 {this, bvx, bvy})
 
 	(d-call 'array 'get_length {stack} {_, start})
 	(loop-start)
@@ -76,7 +76,7 @@
 			(vec-load 2 {bvx, bvy} {cx, cy})
 			(vec-add 2)
 			(vec-store 2 {bvx, bvy})
-			(call 'points 'push_back2 {this, bvx, bvy})
+			(call 'path 'push_back2 {this, bvx, bvy})
 		(else)
 			;continue subdivision
 			(d-call 'array 'get_length {stack} {_, length})
@@ -103,9 +103,9 @@
 	(vec-load 2 {cx, cy} {v2x, v2y})
 	(vec-add 2)
 	(vec-store 2 {bvx, bvy})
-	(call 'points 'push_back2 {this, bvx, bvy})
+	(call 'path 'push_back2 {this, bvx, bvy})
 
-	(exit 'points 'gen_clerp {this})
+	(exit 'path 'gen_clerp {this})
 	(pop-scope)
 	(return)
 

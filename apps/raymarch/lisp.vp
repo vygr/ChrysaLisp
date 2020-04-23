@@ -2,7 +2,7 @@
 (include 'sys/math/class.inc)
 (include 'class/num/class.inc)
 (include 'class/str/class.inc)
-(include 'gui/points/class.inc)
+(include 'gui/path/class.inc)
 (include 'gui/canvas/class.inc)
 (include 'class/lisp/class.inc)
 
@@ -49,8 +49,8 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r0 "(scene points)" error_msg_wrong_types r1))
-	(signature '(points)))
+	(jump 'lisp 'repl_error '(r0 "(scene nums)" error_msg_wrong_types r1))
+	(signature '(nums)))
 
 (def-func-end)
 
@@ -108,8 +108,8 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r13 "(ray-march points points num num num num)" error_msg_wrong_types r14))
-	(signature '(points points num num num num)))
+	(jump 'lisp 'repl_error '(r13 "(ray-march nums nums num num num num)" error_msg_wrong_types r14))
+	(signature '(nums nums num num num num)))
 
 (def-func-end)
 

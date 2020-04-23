@@ -1,73 +1,73 @@
 ;generic distance metric stuff
-(import 'gui/points/lisp.inc)
 (import 'class/num/lisp.inc)
+(import 'class/nums/lisp.inc)
 
 (defun-bind vec-manhattan-distance (p1 p2)
-	(defq _ (points-sub p1 p2))
-	(points-sum (points-abs _ _)))
+	(defq _ (nums-sub p1 p2))
+	(nums-sum (nums-abs _ _)))
 
 (defun-bind vec-euclidean-distance (p1 p2)
-	(defq _ (points-sub p1 p2))
-	(fsqrt (points-sum (points-fmul _ _ _))))
+	(defq _ (nums-sub p1 p2))
+	(fsqrt (nums-sum (nums-fmul _ _ _))))
 
 (defun-bind vec-squared-euclidean-distance (p1 p2)
-	(defq _ (points-sub p1 p2))
-	(points-sum (points-fmul _ _ _)))
+	(defq _ (nums-sub p1 p2))
+	(nums-sum (nums-fmul _ _ _)))
 
 (defun-bind vec-chebyshev-distance (p1 p2)
-	(defq _ (points-sub p1 p2))
-	(reduce max (points-abs _ _)))
+	(defq _ (nums-sub p1 p2))
+	(reduce max (nums-abs _ _)))
 
 ;generic vector stuff
 
 (defun-bind vec-clamp (p i j)
-	(apply (const points) (map (lambda (_) (max i (min j _))) p)))
+	(apply (const nums) (map (lambda (_) (max i (min j _))) p)))
 
 (defun-bind vec-equal (p1 p2)
 	(= (manhattan-distance p1 p2) 0))
 
 (defmacro-bind vec-add (p1 p2 &optional _)
 	(if _
-		`(points-add ,p1 ,p2 ,_)
-		`(points-add ,p1 ,p2)))
+		`(nums-add ,p1 ,p2 ,_)
+		`(nums-add ,p1 ,p2)))
 
 (defmacro-bind vec-sub (p1 p2 &optional _)
 	(if _
-		`(points-sub ,p1 ,p2 ,_)
-		`(points-sub ,p1 ,p2)))
+		`(nums-sub ,p1 ,p2 ,_)
+		`(nums-sub ,p1 ,p2)))
 
 (defmacro-bind vec-mul (p1 p2 &optional _)
 	(if _
-		`(points-fmul ,p1 ,p2 ,_)
-		`(points-fmul ,p1 ,p2)))
+		`(nums-fmul ,p1 ,p2 ,_)
+		`(nums-fmul ,p1 ,p2)))
 
 (defmacro-bind vec-scale (p s &optional _)
 	(if _
-		`(points-fscale ,p ,s ,_)
-		`(points-fscale ,p ,s)))
+		`(nums-fscale ,p ,s ,_)
+		`(nums-fscale ,p ,s)))
 
 (defun-bind vec-mod (p s)
-	(apply (const points) (map (lambda (_) (fmod _ s)) p)))
+	(apply (const nums) (map (lambda (_) (fmod _ s)) p)))
 
 (defun-bind vec-floor (p)
-	(apply (const points) (map (lambda (_) (floor _)) p)))
+	(apply (const nums) (map (lambda (_) (floor _)) p)))
 
 (defmacro-bind vec-frac (p &optional _)
 	(if _
-		`(points-frac ,p ,_)
-		`(points-frac ,p)))
+		`(nums-frac ,p ,_)
+		`(nums-frac ,p)))
 
 (defmacro-bind vec-dot (p1 p2 &optional _)
 	(if _
-		`(points-sum (vec-mul ,p1 ,p2 ,_))
-		`(points-sum (vec-mul ,p1 ,p2))))
+		`(nums-sum (vec-mul ,p1 ,p2 ,_))
+		`(nums-sum (vec-mul ,p1 ,p2))))
 
 (defun-bind vec-reflect (p n &optional _)
 	(if _
 		(vec-mul p n _)
 		(defq _ (vec-mul p n)))
-	(points-fscale n (fmul (points-sum _) 2.0) _)
-	(points-sub p _ _))
+	(nums-fscale n (fmul (nums-sum _) 2.0) _)
+	(nums-sub p _ _))
 
 (defmacro-bind vec-length (p &optional _)
 	(if _
@@ -81,19 +81,19 @@
 
 (defun-bind vec-norm (p &optional _)
 	(if _
-		(defq l (fsqrt (points-sum (points-fmul p p _))))
-		(defq _ (points-fmul p p) l (fsqrt (points-sum _))))
+		(defq l (fsqrt (nums-sum (nums-fmul p p _))))
+		(defq _ (nums-fmul p p) l (fsqrt (nums-sum _))))
 	(if (= l 0)
-		(points-fscale p 0 _)
-		(points-fscale p (fdiv 1.0 l) _)))
+		(nums-fscale p 0 _)
+		(nums-fscale p (fdiv 1.0 l) _)))
 
 (defun-bind vec-distance (p1 p2)
 	(defq _ (vec-sub p1 p2))
-	(fsqrt (points-sum (points-fmul _ _ _))))
+	(fsqrt (nums-sum (nums-fmul _ _ _))))
 
 (defun-bind vec-distance-squared (p1 p2)
 	(defq _ (vec-sub p1 p2))
-	(points-sum (points-fmul _ _ _)))
+	(nums-sum (nums-fmul _ _ _)))
 
 (defun-bind vec-distance-to-line (p p1 p2)
 	(defq lv (vec-sub p2 p1)

@@ -29,7 +29,7 @@
 		(elem i cache_poly)
 		(progn
 			(push cache_key k)
-			(elem -2 (push cache_poly (list (points-gen-arc 0 0 0 fp_2pi r eps (points))))))))
+			(elem -2 (push cache_poly (list (path-gen-arc 0 0 0 fp_2pi r eps (path))))))))
 
 (defun-bind oval (r s)
 	(defq cache_key '() cache_poly '())
@@ -37,18 +37,18 @@
 		(elem i cache_poly)
 		(progn
 			(push cache_key k)
-			(elem -2 (push cache_poly (points-stroke-polylines (list) r eps join_bevel cap_round cap_round (list s)))))))
+			(elem -2 (push cache_poly (path-stroke-polylines (list) r eps join_bevel cap_round cap_round (list s)))))))
 
-(defun-bind batch (path)
+(defun-bind batch (p)
 	(defq s 0 e 0 b (list))
-	(while (<= (setq e (inc e)) (length path))
-		(when (or (= e (length path)) (/= (elem 2 (elem s path)) (elem 2 (elem e path))))
-			(push b (slice s e path))
+	(while (<= (setq e (inc e)) (length p))
+		(when (or (= e (length p)) (/= (elem 2 (elem s p)) (elem 2 (elem e p))))
+			(push b (slice s e p))
 			(setq s e))) b)
 
 (defun-bind to-2d (_)
 	(reduce (lambda (p _)
-		(push p (* zoom (elem 0 _)) (* zoom (elem 1 _)))) _ (points)))
+		(push p (* zoom (elem 0 _)) (* zoom (elem 1 _)))) _ (path)))
 
 (defun-bind batch-to-2d (_)
 	(map to-2d _))
@@ -73,11 +73,11 @@
 			;draw layers
 			(defq batched_paths (map batch paths) batched_paths_2d (map batch-to-2d batched_paths)
 				layers (list (list) (list) (list) (list) (list) (list)))
-			(each (lambda (path path_2d)
+			(each (lambda (p path_2d)
 				(each (lambda (seg seg_2d)
 					(when (or (= show (defq z (% (>> (elem 2 (elem 0 seg)) fp_shift) pcb_depth))) (= show -1))
-						(points-stroke-polylines (elem z layers) track_radius eps join_round cap_round cap_round (list seg_2d)))
-					) path path_2d)
+						(path-stroke-polylines (elem z layers) track_radius eps join_round cap_round cap_round (list seg_2d)))
+					) p path_2d)
 				) batched_paths batched_paths_2d)
 			(each! 0 pcb_depth (lambda (layer color)
 				(canvas-set-color canvas color)
@@ -129,12 +129,12 @@
 		(when (/= track_radius 0)
 			;draw layers
 			(defq batched_paths (map batch paths) batched_paths_2d (map batch-to-2d batched_paths) layer (list))
-			(each (lambda (path path_2d)
+			(each (lambda (p path_2d)
 				(each (lambda (seg seg_2d)
 					(when (= show (defq z (% (>> (elem 2 (elem 0 seg)) fp_shift) pcb_depth)))
-						(points-stroke-polylines layer (+ track_radius (if with_gaps track_gap 0))
+						(path-stroke-polylines layer (+ track_radius (if with_gaps track_gap 0))
 							eps join_round cap_round cap_round (list seg_2d)))
-					) path path_2d)
+					) p path_2d)
 				) batched_paths batched_paths_2d)
 			(canvas-fpoly canvas pcb_border pcb_border 1 layer)
 			;draw vias
@@ -162,7 +162,7 @@
 						;polygon pad
 						(if with_gaps
 							(canvas-fpoly canvas pad_x pad_y 0
-								(points-stroke-polygons (list) pad_gap eps join_round (list pad_shape)))
+								(path-stroke-polygons (list) pad_gap eps join_round (list pad_shape)))
 							(canvas-fpoly canvas pad_x pad_y 0
 								(list pad_shape))))))
 			) pads)
