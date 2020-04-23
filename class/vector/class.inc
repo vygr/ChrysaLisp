@@ -4,10 +4,10 @@
 (dec-method 'vtable 'class/vector/vtable)
 (dec-method 'create 'class/vector/create)
 
+(dec-method 'vcreate 'class/vector/create 'final)
 (dec-method 'deinit 'class/vector/deinit 'final)
 (dec-method 'ref_element 'class/vector/ref_element 'final)
 (dec-method 'slice 'class/vector/slice 'final)
-(dec-method 'cat 'class/vector/cat 'final)
 (dec-method 'clear 'class/vector/clear 'final)
 (dec-method 'ref_back 'class/vector/ref_back 'final)
 (dec-method 'set_element 'class/vector/set_element 'final)

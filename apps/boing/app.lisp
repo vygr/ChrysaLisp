@@ -12,7 +12,7 @@
 
 (ui-window window ()
 	(ui-title-bar _ "Boing" (0xea19 0xea1b 0xea1a) (const event_close))
-	(ui-element backdrop (create-backdrop) (color argb_black ink_color argb_white)
+	(ui-backdrop backdrop (color argb_black ink_color argb_white)
 		(ui-element frame (elem 0 frames))
 		(ui-element sframe (elem 0 sframes))))
 

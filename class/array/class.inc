@@ -26,6 +26,7 @@
 (dec-method 'get_both 'class/array/get_both 'static '(r0) '(r0 r1 r2))
 (dec-method 'sort_callback 'class/obj/null 'static '(r0 r1 r2) '(r0))
 
+(dec-method 'vcreate 'class/array/create 'virtual '(r0) '(r0))
 (dec-method 'clear 'class/array/clear 'virtual '(r0) '(r0))
 (dec-method 'ref_back 'class/array/ref_back 'virtual '(r0) '(r0 r1))
 (dec-method 'set_element 'class/array/set_element 'virtual '(r0 r1 r2) '(r0))

@@ -17,7 +17,7 @@
 
 (defq box_size 500 focal_len 1 max_vel 5)
 
-(when nil
+(when nil ;t for 16.16 fixed point, else 32:32 reals
 	(defmacro-bind .= (&rest _) `(= ~_))
 	(defmacro-bind .<= (&rest _) `(<= ~_))
 	(defmacro-bind .>= (&rest _) `(>= ~_))

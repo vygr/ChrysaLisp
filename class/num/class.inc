@@ -12,16 +12,9 @@
 (dec-method 'lisp_mul 'class/num/lisp_mul 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_div 'class/num/lisp_div 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_mod 'class/num/lisp_mod 'static '(r0 r1) '(r0 r1))
-
-(dec-method 'lisp_and 'class/num/lisp_and 'static '(r0 r1) '(r0 r1))
-(dec-method 'lisp_or 'class/num/lisp_or 'static '(r0 r1) '(r0 r1))
-(dec-method 'lisp_xor 'class/num/lisp_xor 'static '(r0 r1) '(r0 r1))
-(dec-method 'lisp_shr 'class/num/lisp_shr 'static '(r0 r1) '(r0 r1))
-(dec-method 'lisp_asr 'class/num/lisp_asr 'static '(r0 r1) '(r0 r1))
-(dec-method 'lisp_shl 'class/num/lisp_shl 'static '(r0 r1) '(r0 r1))
-
 (dec-method 'lisp_min 'class/num/lisp_min 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_max 'class/num/lisp_max 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_random 'class/num/lisp_random 'static '(r0 r1) '(r0 r1))
 
 (dec-method 'lisp_eq 'class/num/lisp_eq 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_ne 'class/num/lisp_ne 'static '(r0 r1) '(r0 r1))
@@ -29,6 +22,13 @@
 (dec-method 'lisp_gt 'class/num/lisp_gt 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_le 'class/num/lisp_le 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_ge 'class/num/lisp_ge 'static '(r0 r1) '(r0 r1))
+
+(dec-method 'lisp_and 'class/num/lisp_and 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_or 'class/num/lisp_or 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_xor 'class/num/lisp_xor 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_shr 'class/num/lisp_shr 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_asr 'class/num/lisp_asr 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_shl 'class/num/lisp_shl 'static '(r0 r1) '(r0 r1))
 
 (dec-method 'lisp_fmul 'class/num/lisp_fmul 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_fdiv 'class/num/lisp_fdiv 'static '(r0 r1) '(r0 r1))
@@ -38,7 +38,6 @@
 (dec-method 'lisp_fsqrt 'class/num/lisp_fsqrt 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_frac 'class/num/lisp_frac 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_floor 'class/num/lisp_floor 'static '(r0 r1) '(r0 r1))
-(dec-method 'lisp_random 'class/num/lisp_random 'static '(r0 r1) '(r0 r1))
 
 (def-struct 'num 'obj)
 	(long 'value)
