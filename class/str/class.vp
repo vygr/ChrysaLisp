@@ -639,3 +639,31 @@
 	(vp-ret)
 
 (def-func-end)
+
+(def-method 'str 'print)
+	;inputs
+	;r0 str object (ptr)
+	;r1 stream object (ptr)
+	;outputs
+	;r0 str object (ptr)
+	;trashes
+	;r1-r14
+
+	(def-struct 'local)
+		(ptr 'this 'stream)
+	(def-struct-end)
+
+	(vp-alloc local_size)
+	(entry 'str 'print '(r0 r1))
+	(assign '(r0 r1) '((rsp local_this) (rsp local_stream)))
+
+	(call 'stream 'write_char '(r1 char_double_quote) '(r0))
+	(assign '((rsp local_this)) '(r1))
+	(call 'stream 'write '(r0 (& r1 str_data) (r1 str_length)) '(r0))
+	(call 'stream 'write_char '(r0 char_double_quote))
+
+	(exit 'str 'print '((rsp local_this)))
+	(vp-free local_size)
+	(vp-ret)
+
+(def-func-end)

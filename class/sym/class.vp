@@ -2,6 +2,7 @@
 (include 'class/sym/class.inc)
 (include 'class/hset/class.inc)
 (include 'class/vector/class.inc)
+(include 'class/stream/class.inc)
 (include 'sys/str/class.inc)
 
 (gen-vtable 'sym)
@@ -220,6 +221,27 @@
 		(vp-pop r1)
 		(jump 'vector 'push_back '(r0 r1))
 	(endif)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'sym 'print)
+	;inputs
+	;r0 sym object (ptr)
+	;r1 stream object (ptr)
+	;outputs
+	;r0 sym object (ptr)
+	;trashes
+	;r1-r14
+
+	(entry 'sym 'print '(r0 r1))
+
+	(vp-push r0)
+	(vp-cpy-rr r1 r3)
+	(call 'stream 'write '(r3 (& r0 str_data) (r0 str_length)))
+	(vp-pop r0)
+
+	(exit 'sym 'print '(r0))
 	(vp-ret)
 
 (def-func-end)

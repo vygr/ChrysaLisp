@@ -7,6 +7,8 @@
 (dec-method 'get_value 'class/num/get_value 'static '(r0) '(r0 r1))
 (dec-method 'set_value 'class/num/set_value 'static '(r0 r1) '(r0 r1))
 
+(dec-method 'print 'class/num/print 'override)
+
 (dec-method 'lisp_add 'class/num/lisp_add 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_sub 'class/num/lisp_sub 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_mul 'class/num/lisp_mul 'static '(r0 r1) '(r0 r1))

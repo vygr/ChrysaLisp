@@ -11,6 +11,8 @@
 (dec-method 'intern_cstr 'class/sym/intern_cstr 'static '(r0) '(r0))
 (dec-method 'intern_strs 'class/sym/intern_strs 'static '(r1) '(r1))
 
+(dec-method 'print 'class/sym/print 'override)
+
 (dec-method 'lisp_sym 'class/sym/lisp_sym 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_gensym 'class/sym/lisp_gensym 'static '(r0 r1) '(r0 r1))
 

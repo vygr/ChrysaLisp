@@ -1,5 +1,35 @@
 (include 'sys/func.inc)
 (include 'class/num/class.inc)
+(include 'class/str/class.inc)
+(include 'class/stream/class.inc)
 
 (gen-create 'num)
 (gen-vtable 'num)
+
+(def-method 'num 'print)
+	;inputs
+	;r0 num object (ptr)
+	;r1 stream object (ptr)
+	;outputs
+	;r0 num object (ptr)
+	;trashes
+	;r1-r14
+
+	(def-struct 'local)
+		(ptr 'this 'stream 'tmp)
+	(def-struct-end)
+
+	(vp-alloc local_size)
+	(entry 'num 'print '(r0 r1))
+
+	(assign '(r0 r1) '((rsp local_this) (rsp local_stream)))
+	(call 'str 'create_from_long '((r0 num_value) 10) '(r0))
+	(assign '(r0) '((rsp local_tmp)))
+	(call 'stream 'write '((rsp local_stream) (& r0 str_data) (r0 str_length)))
+	(call 'obj 'deref '((rsp local_tmp)))
+
+	(exit 'num 'print '((rsp local_this)))
+	(vp-free local_size)
+	(vp-ret)
+
+(def-func-end)

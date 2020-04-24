@@ -1,5 +1,7 @@
 (include 'sys/func.inc)
 (include 'class/obj/class.inc)
+(include 'class/str/class.inc)
+(include 'class/stream/class.inc)
 
 (gen-vtable 'obj)
 
@@ -131,6 +133,30 @@
 	(endif)
 
 	(exit 'obj 'ref_if '(r0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'obj 'print)
+	;inputs
+	;r0 object (ptr)
+	;r1 stream object (ptr)
+	;outputs
+	;r0 object (ptr)
+	;trashes
+	;r1-r14
+
+	(entry 'obj 'print '(r0 r1))
+
+	(vp-push r0)
+	(call 'stream 'write_char '(r1 char_at) '(r0))
+	(assign '((rsp 0)) '(r1))
+	(vp-cpy-ir-ub r1 -1 r0)
+	(vp-sub-rr r0 r1)
+	(call 'stream 'write_cstr '(r0 r1))
+	(vp-pop r0)
+
+	(exit 'obj 'print '(r0))
 	(vp-ret)
 
 (def-func-end)

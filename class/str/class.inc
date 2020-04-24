@@ -16,6 +16,8 @@
 (dec-method 'same 'class/str/same 'static '(r0 r1) '(r0 r1))
 (dec-method 'find 'class/str/find 'static '(r0 r1) '(r0 r1 r2))
 
+(dec-method 'print 'class/str/print 'override)
+
 (dec-method 'hash 'class/str/hash 'final)
 (dec-method 'get_length 'class/str/get_length 'final)
 (dec-method 'ref_element 'class/str/ref_element 'final)
@@ -56,6 +58,7 @@
 (defcvar 'char_space (ascii-code " "))
 (defcvar 'char_underscore (ascii-code "_"))
 (defcvar 'char_pipe (ascii-code "|"))
+(defcvar 'char_hash (ascii-code "#"))
 (defcvar 'char_lrb (ascii-code "("))
 (defcvar 'char_rrb (ascii-code ")"))
 (defcvar 'char_lsb (ascii-code "["))
