@@ -10,7 +10,7 @@
 
 ;text buffer tuple
 (structure 'text 0
-	(byte 'index 'path 'title 'buffer 'position))
+	(byte 'index 'fpath 'title 'buffer 'position))
  
 (defq vdu_min_width 40 vdu_min_height 24 vdu_width 60 vdu_height 40 text_store (list) tmp_num 0
 	current_text (list) empty_buffer '("") home_dir (cat "apps/login/" *env_user* "/"))
@@ -33,7 +33,7 @@
 					color argb_black ink_color argb_white))))))
 
 (defun-bind window-resize (w h)
-	(bind '(_ path title buffer position) current_text)
+	(bind '(_ fpath title buffer position) current_text)
 	(bind '(ox oy cx cy sx) position)
 	(setq vdu_width w vdu_height h)
 	(set vdu 'vdu_width w 'vdu_height h 'min_width w 'min_height h)
@@ -44,7 +44,7 @@
 	(vdu-load vdu buffer ox oy cx cy))
 
 (defun-bind window-layout (w h)
-	(bind '(index path title buffer position) current_text)
+	(bind '(index fpath title buffer position) current_text)
 	(bind '(ox oy cx cy sx) position)
 	;for display purposes, index starts at 1.
 	(set buf_disp 'text (cat (str (inc index)) "/" (str (length text_store))))
@@ -76,35 +76,35 @@
 	(tuple-set text_buffer current_text buffer)
 	(tuple-set text_position current_text (list ox oy cx cy sx)))
 
-(defun-bind open-buffer (path)
+(defun-bind open-buffer (fpath)
 	(defq i 0 index (length text_store) pos (list 0 0 0 0 0))
 	(cond
-		((eql path "") 
-			(defq title (if (eql path "") (cat "Untitled-" (str (setq tmp_num (inc tmp_num)))) path)
+		((eql fpath "") 
+			(defq title (if (eql fpath "") (cat "Untitled-" (str (setq tmp_num (inc tmp_num)))) fpath)
 				buffer (list (join " " (ascii-char 10))))
-			(push text_store (list index path title buffer pos)))
-		((some (lambda (_) (eql path (tuple-get text_path _))) text_store)
+			(push text_store (list index fpath title buffer pos)))
+		((some (lambda (_) (eql fpath (tuple-get text_fpath _))) text_store)
 			(while (< i (length text_store)) 
-				(if (eql path (tuple-get text_path (elem i text_store)))
+				(if (eql fpath (tuple-get text_fpath (elem i text_store)))
 					(setq index i)) (setq i (inc i))))
-		((not (file-stream path))
-			(save (join " " (ascii-char 10)) path)
-			(open-buffer path))
+		((not (file-stream fpath))
+			(save (join " " (ascii-char 10)) fpath)
+			(open-buffer fpath))
 		(t
-			(unless (find "/" path)
-				(defq path (cat home_dir path)))
-			(defq title path buffer (list))
-			(each-line (lambda (_) (push buffer _)) (file-stream path))
-			(push text_store (list index path title buffer pos))))
+			(unless (find "/" fpath)
+				(defq fpath (cat home_dir fpath)))
+			(defq title fpath buffer (list))
+			(each-line (lambda (_) (push buffer _)) (file-stream fpath))
+			(push text_store (list index fpath title buffer pos))))
 	(elem index text_store))
 
-(defun-bind save-buffer (path)
-	(unless (eql path "")
-		(unless (find "/" path) (setq path (cat home_dir path)))
+(defun-bind save-buffer (fpath)
+	(unless (eql fpath "")
+		(unless (find "/" fpath) (setq fpath (cat home_dir fpath)))
 		(defq save_buffer (join (tuple-get text_buffer current_text) (const (ascii-char 10))))
-		(save save_buffer path)
-		(tuple-set text_title current_text path)
-		(tuple-set text_path current_text path)))
+		(save save_buffer fpath)
+		(tuple-set text_title current_text fpath)
+		(tuple-set text_fpath current_text fpath)))
 
 (defun-bind close-buffer (index)
 	(defq i 0)
@@ -123,7 +123,7 @@
 	(elem index text_store))
 
 (defun-bind vdu-input (c)
-	(bind '(index path title buffer position) current_text)
+	(bind '(index fpath title buffer position) current_text)
 	(bind '(ox oy cx cy sx) position)
 	(cond
 		((or (= c 10) (= c 13))		(return) (setq cx 0))
@@ -150,7 +150,7 @@
 	;open buffers from pupa or open new buffer
 	(each open-buffer (if (= (length *env_edit_auto*) 0) '("") *env_edit_auto*))
 	(setq current_text (elem 0 text_store))
-	(set textfield 'text (tuple-get text_path current_text))
+	(set textfield 'text (tuple-get text_fpath current_text))
 	(window-layout vdu_width vdu_height)
 	;main loop
 	(while (cond
@@ -161,14 +161,14 @@
 			(set textfield 'text "")
 			(window-layout vdu_width vdu_height))
 		((= id event_open)
-			(defq path (get textfield 'text))
-			(setq current_text (open-buffer path))
-			(set textfield 'text (tuple-get text_path current_text))
+			(defq fpath (get textfield 'text))
+			(setq current_text (open-buffer fpath))
+			(set textfield 'text (tuple-get text_fpath current_text))
 			(window-layout vdu_width vdu_height))
 		((= id event_save)
-			(defq path (get textfield 'text))
-			(save-buffer path)
-			(set textfield 'text (tuple-get text_path current_text))
+			(defq fpath (get textfield 'text))
+			(save-buffer fpath)
+			(set textfield 'text (tuple-get text_fpath current_text))
 			(window-layout vdu_width vdu_height))
 		((= id event_close)
 			(cond 
@@ -176,15 +176,15 @@
 					nil)
 				((> (length text_store) 1)
 					(setq current_text (close-buffer (tuple-get text_index current_text)))
-					(set textfield 'text (tuple-get text_path current_text))
+					(set textfield 'text (tuple-get text_fpath current_text))
 					(window-layout vdu_width vdu_height))))
 		((= id event_prev)
 			(setq current_text (prev-buffer (tuple-get text_index current_text)))
-			(set textfield 'text (tuple-get text_path current_text))
+			(set textfield 'text (tuple-get text_fpath current_text))
 			(window-layout vdu_width vdu_height))
 		((= id event_next)
 			(setq current_text (next-buffer (tuple-get text_index current_text)))
-			(set textfield 'text (tuple-get text_path current_text))
+			(set textfield 'text (tuple-get text_fpath current_text))
 			(window-layout vdu_width vdu_height))
 		((= id event_layout)
 			;user window resize
