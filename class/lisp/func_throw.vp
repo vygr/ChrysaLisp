@@ -16,7 +16,7 @@
 	(entry 'lisp 'func_throw '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r1 ($ sig) 2) '(r2))
+	(call 'lisp 'env_args_type1 '(r1 ($ sig) 2) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(defq in (method-input 'lisp 'repl_error))

@@ -18,9 +18,8 @@
 
 	(assign '((r10 array_length)) '(r12))
 (errorcases
-	(gotoif '(r12 < 2) 'error)
 	(gotoif '(r12 > 3) 'error)
-	(call 'lisp 'env_args_type `(r10 (@ ,(f-path 'nums 'vtable)) 0) '(r2))
+	(call 'lisp 'env_args_type2 `(r10 (@ ,(f-path 'nums 'vtable)) 2) '(r2))
 	(gotoif '(r2 = 0) 'error))
 	(assign '((r10 array_begin)) '(r1))
 	(class/array/get_args r1 '(r6 r7))
@@ -66,9 +65,8 @@
 
 	(assign '((r10 array_length)) '(r12))
 (errorcases
-	(gotoif '(r12 < 1) 'error)
 	(gotoif '(r12 > 2) 'error)
-	(call 'lisp 'env_args_type `(r10 (@ ,(f-path 'nums 'vtable)) 0) '(r2))
+	(call 'lisp 'env_args_type2 `(r10 (@ ,(f-path 'nums 'vtable)) 1) '(r2))
 	(gotoif '(r2 = 0) 'error))
 	(assign '((r10 array_begin) (r1 0)) '(r1 r6))
 	(assign '((r6 array_length)) '(r13))
@@ -317,7 +315,7 @@
 	(entry 'nums 'lisp_sum '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r1 ($ sig) 1) '(r2))
+	(call 'lisp 'env_args_type1 '(r1 ($ sig) 1) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
@@ -352,7 +350,7 @@
 (errorcases
 	(gotoif '(r12 < 2) 'error)
 	(gotoif '(r12 > 3) 'error)
-	(call 'lisp 'env_args_type `(r10 ($ sig) r12) '(r2))
+	(call 'lisp 'env_args_type1 `(r10 ($ sig) r12) '(r2))
 	(gotoif '(r2 = 0) 'error))
 	(assign '((r10 array_begin)) '(r1))
 	(class/array/get_args r1 '(r6 r7))

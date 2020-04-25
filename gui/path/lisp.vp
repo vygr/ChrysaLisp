@@ -16,7 +16,7 @@
 	(entry 'path 'lisp_transform '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r1 ($ sig) 8) '(r2))
+	(call 'lisp 'env_args_type1 '(r1 ($ sig) 8) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
@@ -50,7 +50,7 @@
 	(entry 'path 'lisp_simplify '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r1 ($ sig) 3) '(r2))
+	(call 'lisp 'env_args_type1 '(r1 ($ sig) 3) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
@@ -85,7 +85,7 @@
 	(entry 'path 'lisp_filter '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r1 ($ sig) 3) '(r2))
+	(call 'lisp 'env_args_type1 '(r1 ($ sig) 3) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
@@ -118,7 +118,7 @@
 	(entry 'path 'lisp_gen_quadratic '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r1 ($ sig) 8) '(r2))
+	(call 'lisp 'env_args_type1 '(r1 ($ sig) 8) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
@@ -154,7 +154,7 @@
 	(entry 'path 'lisp_gen_cubic '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r1 ($ sig) 10) '(r2))
+	(call 'lisp 'env_args_type1 '(r1 ($ sig) 10) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
@@ -190,7 +190,7 @@
 	(entry 'path 'lisp_gen_arc '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r1 ($ sig) 7) '(r2))
+	(call 'lisp 'env_args_type1 '(r1 ($ sig) 7) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
@@ -226,7 +226,7 @@
 	(entry 'path 'lisp_stroke_polylines '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r1 ($ sig) 7) '(r2))
+	(call 'lisp 'env_args_type1 '(r1 ($ sig) 7) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
@@ -262,7 +262,7 @@
 	(entry 'path 'lisp_stroke_polygons '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r1 ($ sig) 5) '(r2))
+	(call 'lisp 'env_args_type1 '(r1 ($ sig) 5) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)

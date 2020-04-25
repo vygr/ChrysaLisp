@@ -378,7 +378,7 @@
 	(entry 'hmap 'lisp_parent '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r1 ($ sig) 1) '(r2))
+	(call 'lisp 'env_args_type1 '(r1 ($ sig) 1) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(class/array/bind_args r1 '(r1))

@@ -20,7 +20,7 @@
 	(entry 'lisp 'func_read {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 2} '(r2))
+	(call 'lisp 'env_args_type1 {args, $sig, 2} '(r2))
 	(gotoif '(r2 = 0) 'error1))
 
 	(call 'vector 'get_first {args} {_, value})

@@ -6,7 +6,7 @@
 (defun addop (_ p)
 	(entry 'real _ '(r0 r1))
 (errorcases
-	(call 'lisp 'env_args_type `(r1 (@ ,(f-path 'real 'vtable)) -2) '(r2))
+	(call 'lisp 'env_args_type2 `(r1 (@ ,(f-path 'real 'vtable)) 2) '(r2))
 	(gotoif '(r2 = 0) 'error))
 	(vp-push r0)
 	(class/array/get_both r1 r1 r2)
@@ -84,7 +84,7 @@
 (defun divop (_ p)
 	(entry 'real _ '(r0 r1))
 (errorcases
-	(call 'lisp 'env_args_type `(r1 (@ ,(f-path 'real 'vtable)) -2) '(r2))
+	(call 'lisp 'env_args_type2 `(r1 (@ ,(f-path 'real 'vtable)) 2) '(r2))
 	(gotoif '(r2 = 0) 'error1))
 	(vp-push r0 r1)
 	(class/array/get_both r1 r1 r4)
@@ -128,7 +128,7 @@
 (defun compare (_ p)
 	(entry 'real _ '(r0 r1))
 (errorcases
-	(call 'lisp 'env_args_type `(r1 (@ ,(f-path 'real 'vtable)) -2) '(r2))
+	(call 'lisp 'env_args_type2 `(r1 (@ ,(f-path 'real 'vtable)) 2) '(r2))
 	(gotoif '(r2 = 0) 'error))
 	(vp-push r0)
 	(class/array/get_both r1 r1 r2)
@@ -273,7 +273,7 @@
 	(entry 'real 'lisp_ne '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type `(r1 (@ ,(f-path 'real 'vtable)) -2) '(r2))
+	(call 'lisp 'env_args_type2 `(r1 (@ ,(f-path 'real 'vtable)) 2) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
@@ -323,7 +323,7 @@
 	(entry 'real 'lisp_i2r '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type `(r1 ($ sig) 1) '(r2))
+	(call 'lisp 'env_args_type1 `(r1 ($ sig) 1) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
@@ -357,7 +357,7 @@
 	(entry 'real 'lisp_f2r '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type `(r1 ($ sig) 1) '(r2))
+	(call 'lisp 'env_args_type1 `(r1 ($ sig) 1) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
@@ -391,7 +391,7 @@
 	(entry 'real 'lisp_r2i '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type `(r1 ($ sig) 1) '(r2))
+	(call 'lisp 'env_args_type1 `(r1 ($ sig) 1) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
@@ -425,7 +425,7 @@
 	(entry 'real 'lisp_r2f '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type `(r1 ($ sig) 1) '(r2))
+	(call 'lisp 'env_args_type1 `(r1 ($ sig) 1) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)

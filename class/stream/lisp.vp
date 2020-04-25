@@ -20,7 +20,7 @@
 	(entry 'stream 'lisp_filestream '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r1 ($ sig) 1) '(r2))
+	(call 'lisp 'env_args_type1 '(r1 ($ sig) 1) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-cpy-rr r0 r8)
@@ -69,7 +69,7 @@
 	(entry 'stream 'lisp_strstream '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r1 ($ sig) 1) '(r2))
+	(call 'lisp 'env_args_type1 '(r1 ($ sig) 1) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
@@ -102,7 +102,7 @@
 	(entry 'stream 'lisp_available '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r1 ($ sig) 1) '(r2))
+	(call 'lisp 'env_args_type1 '(r1 ($ sig) 1) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
@@ -207,7 +207,7 @@
 	(entry 'stream 'lisp_readline '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r1 ($ sig) 1) '(r2))
+	(call 'lisp 'env_args_type1 '(r1 ($ sig) 1) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
@@ -243,7 +243,7 @@
 	(entry 'stream 'lisp_readavail '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r1 ($ sig) 1) '(r2))
+	(call 'lisp 'env_args_type1 '(r1 ($ sig) 1) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
@@ -277,7 +277,7 @@
 	(entry 'stream 'lisp_write '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r1 ($ sig) 2) '(r2))
+	(call 'lisp 'env_args_type1 '(r1 ($ sig) 2) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
@@ -385,7 +385,7 @@
 	(entry 'stream 'lisp_write_flush '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r1 ($ sig) 1) '(r2))
+	(call 'lisp 'env_args_type1 '(r1 ($ sig) 1) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)

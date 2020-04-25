@@ -19,7 +19,7 @@
 	(entry 'seq 'lisp_length '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r1 ($ sig) 1) '(r2))
+	(call 'lisp 'env_args_type1 '(r1 ($ sig) 1) '(r2))
 	(gotoif '(r2 = 0) 'error1))
 
 	(vp-cpy-rr r0 r13)
@@ -51,7 +51,7 @@
 	(entry 'seq 'lisp_elem '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r1 ($ sig) 2) '(r2))
+	(call 'lisp 'env_args_type1 '(r1 ($ sig) 2) '(r2))
 	(gotoif '(r2 = 0) 'error1)
 	(assign '(r1) '(r13)))
 
@@ -92,7 +92,7 @@
 	(entry 'seq 'lisp_slice '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r1 ($ sig) 3) '(r2))
+	(call 'lisp 'env_args_type1 '(r1 ($ sig) 3) '(r2))
 	(gotoif '(r2 = 0) 'error1)
 	(assign '(r1) '(r13)))
 
@@ -143,7 +143,7 @@
 	(entry 'seq 'lisp_each '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r1 ($ sig) 4) '(r2))
+	(call 'lisp 'env_args_type1 '(r1 ($ sig) 4) '(r2))
 	(gotoif '(r2 = 0) 'error1))
 
 	(vp-alloc local_size)
@@ -261,7 +261,7 @@
 	(entry 'seq 'lisp_some '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type '(r1 ($ sig) 5) '(r2))
+	(call 'lisp 'env_args_type1 '(r1 ($ sig) 5) '(r2))
 	(gotoif '(r2 = 0) 'error1))
 
 	(vp-alloc local_size)
@@ -383,7 +383,7 @@
 	(entry 'seq 'lisp_cat '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type `(r1 (@ ,(f-path 'seq 'vtable)) -1) '(r2))
+	(call 'lisp 'env_args_type2 `(r1 (@ ,(f-path 'seq 'vtable)) 1) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-cpy-rr r0 r13)

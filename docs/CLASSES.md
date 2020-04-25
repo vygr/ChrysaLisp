@@ -310,6 +310,18 @@ r1-r2
 
 ### array::sort_callback -> class/obj/null
 
+### array::print -> class/array/print
+
+```lisp
+inputs
+r0 array object (ptr)
+r1 stream object (ptr)
+outputs
+r0 array object (ptr)
+trashes
+r1-r14
+```
+
 ### array::vcreate -> class/array/create
 
 ### array::clear -> class/array/clear
@@ -1908,6 +1920,18 @@ trashes
 r1
 ```
 
+### func::print -> class/func/print
+
+```lisp
+inputs
+r0 func object (ptr)
+r1 stream object (ptr)
+outputs
+r0 func object (ptr)
+trashes
+r1-r14
+```
+
 ## grid
 
 Super Class: view
@@ -2715,13 +2739,39 @@ trashes
 r0-r5
 ```
 
-### lisp::env_args_type -> class/lisp/env_args_type
+### lisp::env_args_type1 -> class/lisp/env_args_type1
 
 ```lisp
 inputs
-r1 = args vector object (ptr) vector
-r3 = type/sig pointer
-r4 = - or 0 all same type check, else + for type signature check
+r1 = args vector object (ptr)
+r3 = signiture pointer (pushort)
+r4 = number of args (int)
+outputs
+r2 = 0 if error, else ok
+trashes
+r2-r7
+```
+
+### lisp::env_args_type2 -> class/lisp/env_args_type2
+
+```lisp
+inputs
+r1 = args vector object (ptr)
+r3 = vtable pointer (ptr)
+r4 = minimum number of args (int)
+outputs
+r2 = 0 if error, else ok
+trashes
+r2-r7
+```
+
+### lisp::env_args_type3 -> class/lisp/env_args_type3
+
+```lisp
+inputs
+r1 = args vector object (ptr)
+r3 = vtable pointer (ptr)
+r4 = minimum number of args (int)
 outputs
 r2 = 0 if error, else ok
 trashes
@@ -3238,6 +3288,18 @@ r0 = num object (ptr)
 r1 = value (long)
 trashes
 none
+```
+
+### num::print -> class/num/print
+
+```lisp
+inputs
+r0 num object (ptr)
+r1 stream object (ptr)
+outputs
+r0 num object (ptr)
+trashes
+r1-r14
 ```
 
 ### num::lisp_add -> class/num/lisp_add
@@ -4032,6 +4094,18 @@ inputs
 r0 = 0, else object (ptr)
 trashes
 r0-r14
+```
+
+### obj::print -> class/obj/print
+
+```lisp
+inputs
+r0 object (ptr)
+r1 stream object (ptr)
+outputs
+r0 object (ptr)
+trashes
+r1-r14
 ```
 
 ### obj::hash -> class/obj/hash
@@ -5531,6 +5605,18 @@ trashes
 r2-r4
 ```
 
+### str::print -> class/str/print
+
+```lisp
+inputs
+r0 str object (ptr)
+r1 stream object (ptr)
+outputs
+r0 str object (ptr)
+trashes
+r1-r14
+```
+
 ### str::hash -> class/str/hash
 
 ```lisp
@@ -6173,6 +6259,18 @@ outputs
 r1 = vector of sym objects (ptr)
 trashes
 r0-r14
+```
+
+### sym::print -> class/sym/print
+
+```lisp
+inputs
+r0 sym object (ptr)
+r1 stream object (ptr)
+outputs
+r0 sym object (ptr)
+trashes
+r1-r14
 ```
 
 ### sym::lisp_sym -> class/sym/lisp_sym

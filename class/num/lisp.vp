@@ -6,7 +6,7 @@
 (defun addop (_ p)
 	(entry 'num _ '(r0 r1))
 (errorcases
-	(call 'lisp 'env_args_type `(r1 (@ ,(f-path 'num 'vtable)) -2) '(r2))
+	(call 'lisp 'env_args_type3 `(r1 (@ ,(f-path 'num 'vtable)) 2) '(r2))
 	(gotoif '(r2 = 0) 'error))
 	(vp-push r0)
 	(class/array/get_both r1 r1 r2)
@@ -149,7 +149,7 @@
 (defun andop (_ i p)
 	(entry 'num _ '(r0 r1))
 (errorcases
-	(call 'lisp 'env_args_type `(r1 (@ ,(f-path 'num 'vtable)) 0) '(r2))
+	(call 'lisp 'env_args_type3 `(r1 (@ ,(f-path 'num 'vtable)) 0) '(r2))
 	(gotoif '(r2 = 0) 'error))
 	(vp-push r0)
 	(class/array/get_both r1 r1 r2)
@@ -227,7 +227,7 @@
 (defun divop (_ p)
 	(entry 'num _ '(r0 r1))
 (errorcases
-	(call 'lisp 'env_args_type `(r1 (@ ,(f-path 'num 'vtable)) -2) '(r2))
+	(call 'lisp 'env_args_type3 `(r1 (@ ,(f-path 'num 'vtable)) 2) '(r2))
 	(gotoif '(r2 = 0) 'error1))
 	(vp-push r0 r1)
 	(class/array/get_both r1 r1 r4)
@@ -331,7 +331,7 @@
 	(entry 'num 'lisp_fmod '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type `(r1 (@ ,(f-path 'num 'vtable)) -2) '(r2))
+	(call 'lisp 'env_args_type2 `(r1 (@ ,(f-path 'num 'vtable)) 2) '(r2))
 	(gotoif '(r2 = 0) 'error1))
 
 	(vp-push r0 r1)
@@ -364,7 +364,7 @@
 (defun shift (_ p)
 	(entry 'num _ '(r0 r1))
 (errorcases
-	(call 'lisp 'env_args_type '(r1 ($ sig) 2) '(r2))
+	(call 'lisp 'env_args_type1 '(r1 ($ sig) 2) '(r2))
 	(gotoif '(r2 = 0) 'error))
 	(vp-push r0)
 	(class/vector/bind_args r1 '(r0 r1) '(num num))
@@ -437,7 +437,7 @@
 (defun compare (_ p)
 	(entry 'num _ '(r0 r1))
 (errorcases
-	(call 'lisp 'env_args_type `(r1 (@ ,(f-path 'num 'vtable)) -2) '(r2))
+	(call 'lisp 'env_args_type2 `(r1 (@ ,(f-path 'num 'vtable)) 2) '(r2))
 	(gotoif '(r2 = 0) 'error))
 	(vp-push r0)
 	(class/array/get_both r1 r1 r2)
@@ -578,7 +578,7 @@
 	(entry 'num 'lisp_ne '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type `(r1 (@ ,(f-path 'num 'vtable)) -2) '(r2))
+	(call 'lisp 'env_args_type2 `(r1 (@ ,(f-path 'num 'vtable)) 2) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
@@ -619,7 +619,7 @@
 (defun mathop (_ p)
 	(entry 'num _ '(r0 r1))
 (errorcases
-	(call 'lisp 'env_args_type '(r1 ($ sig) 1) '(r2))
+	(call 'lisp 'env_args_type1 '(r1 ($ sig) 1) '(r2))
 	(gotoif '(r2 = 0) 'error))
 	(vp-push r0)
 	(class/vector/bind_args r1 '(r0) '(num))
