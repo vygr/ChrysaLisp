@@ -3,7 +3,7 @@
 (include 'class/sym/class.inc)
 (include 'class/lisp/class.inc)
 
-(def-method 'lisp 'func_type)
+(def-method 'lisp 'lisp_type)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -13,7 +13,7 @@
 	;trashes
 	;r1-r14
 
-	(entry 'lisp 'func_type '(r0 r1))
+	(entry 'lisp 'lisp_type '(r0 r1))
 
 (errorcases
 	(assign '((r1 array_length)) '(r2))
@@ -43,7 +43,7 @@
 	(call 'num 'create '(r0) '(r1))
 	(vp-pop r0)
 
-	(exit 'lisp 'func_type '(r0 r1))
+	(exit 'lisp 'lisp_type '(r0 r1))
 	(vp-ret)
 
 (errorcases

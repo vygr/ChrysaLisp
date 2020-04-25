@@ -5,7 +5,7 @@
 (include 'class/lisp/class.inc)
 (include 'class/sym/class.inc)
 
-(def-method 'lisp 'func_repl)
+(def-method 'lisp 'lisp_repl)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -20,7 +20,7 @@
 	(uint 'length)
 
 	(push-scope)
-	(entry 'lisp 'func_repl {this, args})
+	(entry 'lisp 'lisp_repl {this, args})
 
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length /= 2} 'error1)
@@ -81,7 +81,7 @@
 	(call 'hmap 'set {this->lisp_environment, this->lisp_sym_stream_line, old_line})
 	(call 'obj 'deref {old_line})
 
-	(exit 'lisp 'func_repl {this, value})
+	(exit 'lisp 'lisp_repl {this, value})
 	(return)
 
 (errorcases

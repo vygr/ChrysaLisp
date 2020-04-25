@@ -26,7 +26,7 @@
 	(host-call-table 'host 'mmap r14 '(ld_reloc_buf_size -1 mmap_data) '(r0))
 
 	;get loader statics and bind function !
-	(vp-lea-p 'func_start r5)
+	(vp-lea-p 'fn_start r5)
 	(assign '((r5 fn_header_length)) '(r1))
 	(vp-add-rr r1 r5)
 	(assign '(r5 (r5 fn_header_length)) '(r4 r1))
@@ -47,7 +47,7 @@
 	(assign '(r0) '((r5 ld_statics_stat_buffer)))
 
 	;add all prebound functions to function list
-	(vp-lea-p 'func_start r1)
+	(vp-lea-p 'fn_start r1)
 	(loop-start)
 		(assign '((r1 fn_header_length)) '(r2))
 		(breakif '(r2 = 0))
@@ -56,7 +56,7 @@
 	(loop-end)
 
 	;bind all prebound function intra references
-	(vp-lea-p 'func_start r2)
+	(vp-lea-p 'fn_start r2)
 	(loop-start)
 		(assign '((r2 fn_header_length)) '(r1))
 		(breakif '(r1 = 0))
@@ -123,7 +123,7 @@
 	(vp-cpy-rr r0 r6)
 
 	;get loader statics !
-	(vp-lea-p 'func_start r7)
+	(vp-lea-p 'fn_start r7)
 	(assign '((r7 fn_header_length)) '(r0))
 	(vp-add-rr r0 r7)
 	(assign '((r7 fn_header_entry)) '(r0))
@@ -272,7 +272,7 @@
 		(vp-add-rr r3 r1)
 		(breakif '(r0 = r1))
 		(vp-push r3 r0)
-		(call 'func_entry '((r0 0)))
+		(call 'fn_entry '((r0 0)))
 		(vpif '(r0 = 0))
 			;no such file
 			(call 'sys_pii 'write_str '(2 "Bind error: "))
@@ -288,7 +288,7 @@
 	(loop-end)
 
 	;get loader statics !
-	(vp-lea-p 'func_start r7)
+	(vp-lea-p 'fn_start r7)
 	(assign '((r7 fn_header_length)) '(r0))
 	(vp-add-rr r0 r7)
 	(assign '((r7 fn_header_entry)) '(r0))

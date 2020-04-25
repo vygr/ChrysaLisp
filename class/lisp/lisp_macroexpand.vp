@@ -1,7 +1,7 @@
 (include 'sys/func.inc)
 (include 'class/lisp/class.inc)
 
-(def-method 'lisp 'func_macroexpand)
+(def-method 'lisp 'lisp_macroexpand)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -11,7 +11,7 @@
 	;trashes
 	;r1-r14
 
-	(entry 'lisp 'func_macroexpand '(r0 r1))
+	(entry 'lisp 'lisp_macroexpand '(r0 r1))
 
 (errorcases
 	(assign '((r1 array_length)) '(r2))
@@ -23,7 +23,7 @@
 	(call 'lisp 'repl_expand '(r0 rsp) '(r0))
 	(vp-pop r1)
 
-	(exit 'lisp 'func_macroexpand '(r0 r1))
+	(exit 'lisp 'lisp_macroexpand '(r0 r1))
 	(vp-ret)
 
 (errorcases

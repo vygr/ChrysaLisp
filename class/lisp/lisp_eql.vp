@@ -3,7 +3,7 @@
 (include 'class/func/class.inc)
 (include 'class/lisp/class.inc)
 
-(def-method 'lisp 'func_eql)
+(def-method 'lisp 'lisp_eql)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -13,7 +13,7 @@
 	;trashes
 	;r1-r14
 
-	(entry 'lisp 'func_eql '(r0 r1))
+	(entry 'lisp 'lisp_eql '(r0 r1))
 
 (errorcases
 	(assign '((r1 array_length)) '(r2))
@@ -47,7 +47,7 @@
 	(endswitch)
 	(class/obj/ref r1 r2)
 
-	(exit 'lisp 'func_eql '(r0 r1))
+	(exit 'lisp 'lisp_eql '(r0 r1))
 	(vp-ret)
 
 (errorcases

@@ -1,7 +1,7 @@
 (include 'sys/func.inc)
 (include 'class/lisp/class.inc)
 
-(def-method 'lisp 'func_cond)
+(def-method 'lisp 'lisp_cond)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -17,7 +17,7 @@
 	(vp-def (this value iter_end iter_begin tmp vtable))
 
 	(push-scope)
-	(entry 'lisp 'func_cond {this, args})
+	(entry 'lisp 'lisp_cond {this, args})
 
 	(call 'vector 'get_both {args} (list '_ iter_begin iter_end))
 	(assign (list iter_end) {iter_end})
@@ -69,7 +69,7 @@
 	(class/obj/ref value tmp)
 
 (vp-label 'funcexit)
-	(exit 'lisp 'func_cond (list this value))
+	(exit 'lisp 'lisp_cond (list this value))
 	(return)
 
 (errorcases

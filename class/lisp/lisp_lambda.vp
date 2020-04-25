@@ -1,7 +1,7 @@
 (include 'sys/func.inc)
 (include 'class/lisp/class.inc)
 
-(def-method 'lisp 'func_lambda)
+(def-method 'lisp 'lisp_lambda)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -11,11 +11,11 @@
 	;trashes
 	;r1-r14
 
-	(entry 'lisp 'func_lambda '(r0 r1))
+	(entry 'lisp 'lisp_lambda '(r0 r1))
 
 	(class/obj/ref r1 r2)
 
-	(exit 'lisp 'func_lambda '(r0 r1))
+	(exit 'lisp 'lisp_lambda '(r0 r1))
 	(vp-ret)
 
 (def-func-end)

@@ -75,7 +75,7 @@
 				(call 'stream_str 'create {file} {stream})
 				(call 'str 'create_from_buffer {"class/lisp/boot.inc", 19} {file})
 				(call 'vector 'push_back2 {repl_args, stream, file})
-				(call 'lisp 'func_repl {this, repl_args} {_, value})
+				(call 'lisp 'lisp_repl {this, repl_args} {_, value})
 				(vpif {value /= this->lisp_sym_nil})
 					(call 'lisp 'repl_print {this, this->lisp_stderr, value})
 					(call 'stream 'write_char {this->lisp_stderr, char_lf})
@@ -136,7 +136,7 @@
 	(call 'vector 'create nil {symbol})
 	(call 'hmap 'insert {this->lisp_environment, this->lisp_sym_file_includes, symbol})
 	(call 'obj 'deref {symbol})
-	(call 'func 'create (cat {@} (f-path 'lisp 'func_ffi) {+ func_type_args_raw}) {symbol})
+	(call 'func 'create (cat {@} (f-path 'lisp 'lisp_ffi) {+ func_type_args_raw}) {symbol})
 	(call 'hmap 'insert {this->lisp_environment, this->lisp_sym_ffi, symbol})
 	(call 'obj 'deref {symbol})
 

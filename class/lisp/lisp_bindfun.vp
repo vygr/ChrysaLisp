@@ -5,7 +5,7 @@
 (include 'class/pair/class.inc)
 (include 'class/lisp/class.inc)
 
-(def-method 'lisp 'func_bindfun)
+(def-method 'lisp 'lisp_bindfun)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -21,7 +21,7 @@
 		(uint 'start)
 	(def-struct-end)
 
-	(entry 'lisp 'func_bindfun '(r0 r1))
+	(entry 'lisp 'lisp_bindfun '(r0 r1))
 
 (errorcases
 	(assign '((r1 array_length)) '(r2))
@@ -122,7 +122,7 @@
 		(vp-free local_size)
 	(endif)
 
-	(exit 'lisp 'func_bindfun '(r0 r1))
+	(exit 'lisp 'lisp_bindfun '(r0 r1))
 	(vp-ret)
 
 (errorcases

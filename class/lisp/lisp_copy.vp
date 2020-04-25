@@ -1,7 +1,7 @@
 (include 'sys/func.inc)
 (include 'class/lisp/class.inc)
 
-(def-method 'lisp 'func_copy)
+(def-method 'lisp 'lisp_copy)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -11,7 +11,7 @@
 	;trashes
 	;r1-r14
 
-	(entry 'lisp 'func_copy '(r0 r1))
+	(entry 'lisp 'lisp_copy '(r0 r1))
 
 (errorcases
 	(assign '((r1 array_length)) '(r2))
@@ -57,7 +57,7 @@
 		(vp-pop r1)
 	(endif)
 
-	(exit 'lisp 'func_copy '(r0 r1))
+	(exit 'lisp 'lisp_copy '(r0 r1))
 	(vp-ret)
 
 (errorcases

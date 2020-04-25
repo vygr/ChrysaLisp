@@ -1,7 +1,7 @@
 (include 'sys/func.inc)
 (include 'class/lisp/class.inc)
 
-(def-method 'lisp 'func_bind)
+(def-method 'lisp 'lisp_bind)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -11,7 +11,7 @@
 	;trashes
 	;r1-r14
 
-	(entry 'lisp 'func_bind '(r0 r1))
+	(entry 'lisp 'lisp_bind '(r0 r1))
 
 (errorcases
 	(assign '((r1 array_length)) '(r2))

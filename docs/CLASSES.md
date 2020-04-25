@@ -2962,7 +2962,7 @@ trashes
 r1-r14
 ```
 
-### lisp::func_ffi -> class/lisp/func_ffi
+### lisp::lisp_ffi -> class/lisp/lisp_ffi
 
 ```lisp
 inputs
@@ -2975,7 +2975,7 @@ trashes
 r1-r14
 ```
 
-### lisp::func_bindfun -> class/lisp/func_bindfun
+### lisp::lisp_bindfun -> class/lisp/lisp_bindfun
 
 ```lisp
 inputs
@@ -2988,7 +2988,7 @@ trashes
 r1-r14
 ```
 
-### lisp::func_macroexpand -> class/lisp/func_macroexpand
+### lisp::lisp_macroexpand -> class/lisp/lisp_macroexpand
 
 ```lisp
 inputs
@@ -3001,7 +3001,7 @@ trashes
 r1-r14
 ```
 
-### lisp::func_lambda -> class/lisp/func_lambda
+### lisp::lisp_lambda -> class/lisp/lisp_lambda
 
 ```lisp
 inputs
@@ -3014,7 +3014,7 @@ trashes
 r1-r14
 ```
 
-### lisp::func_quote -> class/lisp/func_quote
+### lisp::lisp_quote -> class/lisp/lisp_quote
 
 ```lisp
 inputs
@@ -3027,7 +3027,7 @@ trashes
 r1-r14
 ```
 
-### lisp::func_qquote -> class/lisp/func_qquote
+### lisp::lisp_qquote -> class/lisp/lisp_qquote
 
 ```lisp
 inputs
@@ -3040,7 +3040,7 @@ trashes
 r1-r14
 ```
 
-### lisp::func_eql -> class/lisp/func_eql
+### lisp::lisp_eql -> class/lisp/lisp_eql
 
 ```lisp
 inputs
@@ -3053,7 +3053,7 @@ trashes
 r1-r14
 ```
 
-### lisp::func_cond -> class/lisp/func_cond
+### lisp::lisp_cond -> class/lisp/lisp_cond
 
 ```lisp
 inputs
@@ -3066,7 +3066,7 @@ trashes
 r1-r14
 ```
 
-### lisp::func_progn -> class/lisp/func_progn
+### lisp::lisp_progn -> class/lisp/lisp_progn
 
 ```lisp
 inputs
@@ -3079,7 +3079,7 @@ trashes
 r1-r14
 ```
 
-### lisp::func_while -> class/lisp/func_while
+### lisp::lisp_while -> class/lisp/lisp_while
 
 ```lisp
 inputs
@@ -3092,7 +3092,7 @@ trashes
 r1-r14
 ```
 
-### lisp::func_print -> class/lisp/func_print
+### lisp::lisp_print -> class/lisp/lisp_print
 
 ```lisp
 inputs
@@ -3105,7 +3105,7 @@ trashes
 r1-r14
 ```
 
-### lisp::func_prin -> class/lisp/func_prin
+### lisp::lisp_prin -> class/lisp/lisp_prin
 
 ```lisp
 inputs
@@ -3118,7 +3118,7 @@ trashes
 r1-r14
 ```
 
-### lisp::func_copy -> class/lisp/func_copy
+### lisp::lisp_copy -> class/lisp/lisp_copy
 
 ```lisp
 inputs
@@ -3131,7 +3131,7 @@ trashes
 r1-r14
 ```
 
-### lisp::func_apply -> class/lisp/func_apply
+### lisp::lisp_apply -> class/lisp/lisp_apply
 
 ```lisp
 inputs
@@ -3144,7 +3144,7 @@ trashes
 r1-r14
 ```
 
-### lisp::func_repl -> class/lisp/func_repl
+### lisp::lisp_repl -> class/lisp/lisp_repl
 
 ```lisp
 inputs
@@ -3157,7 +3157,7 @@ trashes
 r1-r14
 ```
 
-### lisp::func_eval -> class/lisp/func_eval
+### lisp::lisp_eval -> class/lisp/lisp_eval
 
 ```lisp
 inputs
@@ -3170,7 +3170,7 @@ trashes
 r1-r14
 ```
 
-### lisp::func_throw -> class/lisp/func_throw
+### lisp::lisp_throw -> class/lisp/lisp_throw
 
 ```lisp
 inputs
@@ -3183,7 +3183,7 @@ trashes
 r1-r14
 ```
 
-### lisp::func_catch -> class/lisp/func_catch
+### lisp::lisp_catch -> class/lisp/lisp_catch
 
 ```lisp
 inputs
@@ -3196,7 +3196,7 @@ trashes
 r1-r14
 ```
 
-### lisp::func_bind -> class/lisp/func_bind
+### lisp::lisp_bind -> class/lisp/lisp_bind
 
 ```lisp
 inputs
@@ -3209,7 +3209,7 @@ trashes
 r1-r14
 ```
 
-### lisp::func_read -> class/lisp/func_read
+### lisp::lisp_read -> class/lisp/lisp_read
 
 ```lisp
 inputs
@@ -3222,7 +3222,7 @@ trashes
 r1-r14
 ```
 
-### lisp::func_type -> class/lisp/func_type
+### lisp::lisp_type -> class/lisp/lisp_type
 
 ```lisp
 inputs

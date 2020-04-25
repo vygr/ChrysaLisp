@@ -1,7 +1,7 @@
 (include 'sys/func.inc)
 (include 'class/lisp/class.inc)
 
-(def-method 'lisp 'func_qquote)
+(def-method 'lisp 'lisp_qquote)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -11,7 +11,7 @@
 	;trashes
 	;r1-r14
 
-	(entry 'lisp 'func_qquote '(r0 r1))
+	(entry 'lisp 'lisp_qquote '(r0 r1))
 
 (errorcases
 	(assign '((r1 array_length)) '(r2))
@@ -24,7 +24,7 @@
 	(call 'obj 'deref '(r0))
 	(vp-pop r0 r1)
 
-	(exit 'lisp 'func_qquote '(r0 r1))
+	(exit 'lisp 'lisp_qquote '(r0 r1))
 	(vp-ret)
 
 (vp-label 'expand)

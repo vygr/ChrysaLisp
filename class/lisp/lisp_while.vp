@@ -1,7 +1,7 @@
 (include 'sys/func.inc)
 (include 'class/lisp/class.inc)
 
-(def-method 'lisp 'func_while)
+(def-method 'lisp 'lisp_while)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -16,7 +16,7 @@
 		(pptr 'iter_start 'iter_begin 'iter_end)
 	(def-struct-end)
 
-	(entry 'lisp 'func_while '(r0 r1))
+	(entry 'lisp 'lisp_while '(r0 r1))
 
 	(assign '((r1 array_length)) '(r2))
 	(errorif '(r2 < 2) 'error)
@@ -47,7 +47,7 @@
 		(loop-end)
 	(endswitch)
 
-	(exit 'lisp 'func_while '(r0 r1))
+	(exit 'lisp 'lisp_while '(r0 r1))
 	(vp-free local_size)
 	(vp-ret)
 

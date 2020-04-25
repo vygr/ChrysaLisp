@@ -3,7 +3,7 @@
 (include 'class/str/class.inc)
 (include 'class/lisp/class.inc)
 
-(def-method 'lisp 'func_print)
+(def-method 'lisp 'lisp_print)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -16,15 +16,15 @@
 	(ptr 'this 'args 'value)
 
 	(push-scope)
-	(entry 'lisp 'func_print {this, args})
+	(entry 'lisp 'lisp_print {this, args})
 
-	(call 'lisp 'func_prin {this, args} {_, value})
+	(call 'lisp 'lisp_prin {this, args} {_, value})
 	(call 'stream 'write_char {this->lisp_stdout, char_lf})
 	(vpifnot {args->array_length})
 		(call 'stream 'write_flush {this->lisp_stdout})
 	(endif)
 
-	(exit 'lisp 'func_print {this, value})
+	(exit 'lisp 'lisp_print {this, value})
 	(pop-scope)
 	(return)
 

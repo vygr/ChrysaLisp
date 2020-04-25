@@ -2,7 +2,7 @@
 (include 'class/hmap/class.inc)
 (include 'class/lisp/class.inc)
 
-(def-method 'lisp 'func_eval)
+(def-method 'lisp 'lisp_eval)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -12,7 +12,7 @@
 	;trashes
 	;r1-r14
 
-	(entry 'lisp 'func_eval '(r0 r1))
+	(entry 'lisp 'lisp_eval '(r0 r1))
 
 	(assign '((r1 array_length)) '(r2))
 	(vpif '(r2 = 1))
@@ -31,7 +31,7 @@
 	(vp-pop r2)
 	(assign '(r2) '((r0 lisp_environment)))
 
-	(exit 'lisp 'func_eval '(r0 r1))
+	(exit 'lisp 'lisp_eval '(r0 r1))
 	(vp-ret)
 
 (errorcases

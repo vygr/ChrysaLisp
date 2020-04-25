@@ -3,7 +3,7 @@
 (include 'class/stream/class.inc)
 (include 'class/lisp/class.inc)
 
-(def-method 'lisp 'func_prin)
+(def-method 'lisp 'lisp_prin)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -19,7 +19,7 @@
 		(pptr 'iter_begin 'iter_end))
 
 	(push-scope)
-	(entry 'lisp 'func_prin {this, args})
+	(entry 'lisp 'lisp_prin {this, args})
 
 	(assign {this->lisp_sym_nil} {value})
 	(call 'vector 'get_both {args} '(_ r1 r2))
@@ -39,7 +39,7 @@
 	(loop-end)
 	(call 'obj 'ref {value})
 
-	(exit 'lisp 'func_prin {this, value})
+	(exit 'lisp 'lisp_prin {this, value})
 	(pop-scope)
 	(return)
 

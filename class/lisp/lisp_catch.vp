@@ -3,7 +3,7 @@
 (include 'class/str/class.inc)
 (include 'class/lisp/class.inc)
 
-(def-method 'lisp 'func_catch)
+(def-method 'lisp 'lisp_catch)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -19,7 +19,7 @@
 	(uint 'length))
 
 	(push-scope)
-	(entry 'lisp 'func_catch {this, args})
+	(entry 'lisp 'lisp_catch {this, args})
 
 (errorcases
 	(d-call 'vector 'get_length {args} {_, length})
@@ -46,7 +46,7 @@
 		(endif)
 	(endif)
 
-	(exit 'lisp 'func_catch {this, value})
+	(exit 'lisp 'lisp_catch {this, value})
 	(return)
 
 (errorcases

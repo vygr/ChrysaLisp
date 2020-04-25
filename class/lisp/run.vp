@@ -35,7 +35,7 @@
 			(call 'stream_str 'create {file} {stream})
 			(call 'str 'ref {script})
 			(call 'vector 'push_back2 {args, stream, script})
-			(call 'lisp 'func_repl {lisp, args} {_, value})
+			(call 'lisp 'lisp_repl {lisp, args} {_, value})
 			(call 'vector 'clear {args})
 			(vpif {value /= lisp->lisp_sym_nil})
 			(vp-label 'error)

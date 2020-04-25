@@ -3,7 +3,7 @@
 (include 'class/num/class.inc)
 (include 'class/lisp/class.inc)
 
-(def-method 'lisp 'func_throw)
+(def-method 'lisp 'lisp_throw)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -13,7 +13,7 @@
 	;trashes
 	;r1-r14
 
-	(entry 'lisp 'func_throw '(r0 r1))
+	(entry 'lisp 'lisp_throw '(r0 r1))
 
 (errorcases
 	(call 'lisp 'env_args_type1 '(r1 ($ sig) 2) '(r2))

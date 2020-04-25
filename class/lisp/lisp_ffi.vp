@@ -5,7 +5,7 @@
 (include 'class/hmap/class.inc)
 (include 'class/lisp/class.inc)
 
-(def-method 'lisp 'func_ffi)
+(def-method 'lisp 'lisp_ffi)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -19,7 +19,7 @@
 	(pptr 'iter_begin)
 
 	(push-scope)
-	(entry 'lisp 'func_ffi {this, args})
+	(entry 'lisp 'lisp_ffi {this, args})
 
 (errorcases
 	(call 'lisp 'env_args_type1 {args, $sig, 4} '(r2))
@@ -31,7 +31,7 @@
 	(call 'func 'create {value | iter_begin[ptr_size * 3]->num_value} {value})
 	(call 'hmap 'insert {this->lisp_environment, iter_begin[ptr_size], value})
 
-	(exit 'lisp 'func_ffi {this, value})
+	(exit 'lisp 'lisp_ffi {this, value})
 	(return)
 
 (errorcases

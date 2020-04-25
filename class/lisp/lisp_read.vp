@@ -3,7 +3,7 @@
 (include 'class/stream/class.inc)
 (include 'class/lisp/class.inc)
 
-(def-method 'lisp 'func_read)
+(def-method 'lisp 'lisp_read)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -17,7 +17,7 @@
 	(int 'next_char)
 
 	(push-scope)
-	(entry 'lisp 'func_read {this, args})
+	(entry 'lisp 'lisp_read {this, args})
 
 (errorcases
 	(call 'lisp 'env_args_type1 {args, $sig, 2} '(r2))
@@ -32,7 +32,7 @@
 	(call 'vector 'create nil {value})
 	(call 'vector 'push_back2 {value, form, args})
 
-	(exit 'lisp 'func_read {this, value})
+	(exit 'lisp 'lisp_read {this, value})
 	(return)
 
 (errorcases

@@ -1,7 +1,7 @@
 (include 'sys/func.inc)
 (include 'class/lisp/class.inc)
 
-(def-method 'lisp 'func_apply)
+(def-method 'lisp 'lisp_apply)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -11,7 +11,7 @@
 	;trashes
 	;r1-r14
 
-	(entry 'lisp 'func_apply '(r0 r1))
+	(entry 'lisp 'lisp_apply '(r0 r1))
 
 (errorcases
 	(call 'lisp 'env_args_type1 '(r1 ($ sig) 2) '(r2))
