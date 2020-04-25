@@ -1,5 +1,7 @@
 (include 'sys/func.inc)
+(include 'sys/math/class.inc)
 (include 'class/num/class.inc)
+(include 'class/array/class.inc)
 (include 'class/str/class.inc)
 (include 'class/stream/class.inc)
 
@@ -8,10 +10,10 @@
 
 (def-method 'num 'print)
 	;inputs
-	;r0 num object (ptr)
+	;r0 = num object (ptr)
 	;r1 stream object (ptr)
 	;outputs
-	;r0 num object (ptr)
+	;r0 = num object (ptr)
 	;trashes
 	;r1-r14
 
@@ -30,6 +32,378 @@
 
 	(exit 'num 'print '((rsp local_this)))
 	(vp-free local_size)
+	(vp-ret)
+
+(def-func-end)
+
+(defun-bind addop (_ p)
+	(entry 'num _ '(r0 r1))
+	(vp-push r0)
+	(class/array/get_both r1 r1 r2)
+	(vp-cpy-ir r1 0 r0)
+	(vp-add-cr ptr_size r1)
+	(assign '((r0 num_value)) '(r0))
+	(loop-start)
+		(vp-cpy-ir r1 0 r3)
+		(vp-add-cr ptr_size r1)
+		(assign '((r3 num_value)) '(r3))
+		(exec p)
+	(loop-until '(r1 = r2))
+	(call 'num 'create '(r0) '(r1))
+	(vp-pop r0)
+	(exit 'num _ '(r0 r1))
+	(vp-ret))
+
+(def-method 'num 'add)
+	;inputs
+	;r0 = num object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = num object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(addop 'add
+		'(vp-add-rr r3 r0))
+
+(def-func-end)
+
+(def-method 'num 'sub)
+	;inputs
+	;r0 = num object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = num object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(addop 'sub
+		'(vp-sub-rr r3 r0))
+
+(def-func-end)
+
+(def-method 'num 'mul)
+	;inputs
+	;r0 = num object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = num object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(addop 'mul
+		'(vp-mul-rr r3 r0))
+
+(def-func-end)
+
+(def-method 'num 'min)
+	;inputs
+	;r0 = num object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = num object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(addop 'min
+		'(progn
+			(vpif '(r3 < r0))
+				(vp-cpy-rr r3 r0)
+			(endif)))
+
+(def-func-end)
+
+(def-method 'num 'max)
+	;inputs
+	;r0 = num object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = num object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(addop 'max
+		'(progn
+			(vpif '(r3 > r0))
+				(vp-cpy-rr r3 r0)
+			(endif)))
+
+(def-func-end)
+
+(def-method 'num 'fmul)
+	;inputs
+	;r0 = num object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = num object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(addop 'fmul
+		'(progn
+			(vp-mul-rr r3 r0)
+			(vp-asr-cr fp_shift r0)))
+
+(def-func-end)
+
+(defun-bind divop (_ p)
+	(entry 'num _ '(r0 r1))
+	(vp-push r0)
+	(class/array/get_both r1 r1 r4)
+	(vp-cpy-ir r1 0 r0)
+	(vp-add-cr ptr_size r1)
+	(assign '((r0 num_value)) '(r0))
+	(loop-start)
+		(vp-cpy-ir r1 0 r3)
+		(vp-add-cr ptr_size r1)
+		(assign '((r3 num_value)) '(r3))
+	(errorcases
+		(gotoif '(r3 = 0) 'error))
+		(exec p)
+	(loop-until '(r1 = r4))
+	(call 'num 'create '(r0) '(r1))
+	(vp-pop r0)
+	(exit 'num _ '(r0 r1))
+	(vp-ret)
+(vp-label 'error)
+	(vp-pop r0)
+	(exit 'num _ '(r0 r3))
+	(vp-ret))
+
+(def-method 'num 'div)
+	;inputs
+	;r0 = num object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = num object (ptr)
+	;r1 = 0, else return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(divop 'div
+		'(progn
+			(vp-ext-rr r0 r2)
+			(vp-div-rrr r3 r2 r0)))
+
+(def-func-end)
+
+(def-method 'num 'mod)
+	;inputs
+	;r0 = num object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = num object (ptr)
+	;r1 = 0, else return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(divop 'mod
+		'(progn
+			(vp-ext-rr r0 r2)
+			(vp-div-rrr r3 r2 r0)
+			(vp-cpy-rr r2 r0)))
+
+(def-func-end)
+
+(def-method 'num 'fdiv)
+	;inputs
+	;r0 = num object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = num object (ptr)
+	;r1 = 0, else return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(divop 'fdiv
+		'(progn
+			(vp-shl-cr fp_shift r0)
+			(vp-ext-rr r0 r2)
+			(vp-div-rrr r3 r2 r0)))
+
+(def-func-end)
+
+(def-method 'num 'fmod)
+	;inputs
+	;r0 = num object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = num object (ptr)
+	;r1 = 0, else return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(entry 'num 'fmod '(r0 r1))
+
+	(vp-push r0)
+	(class/array/get_both r1 r4 r5)
+	(vp-cpy-ir r4 0 r0)
+	(vp-add-cr ptr_size r4)
+	(assign '((r0 num_value)) '(r0))
+	(loop-start)
+		(vp-cpy-ir r4 0 r1)
+		(vp-add-cr ptr_size r4)
+		(assign '((r1 num_value)) '(r1))
+	(errorcases
+		(gotoif '(r1 = 0) 'error))
+		(vec-set 2)
+		(vec-fmod 1)
+	(loop-until '(r4 = r5))
+	(call 'num 'create '(r0) '(r1))
+	(vp-pop r0)
+	(exit 'num 'fmod '(r0 r1))
+	(vp-ret)
+(vp-label 'error)
+	(vp-pop r0)
+	(exit 'num 'fmod '(r0 r1))
+	(vp-ret)
+
+(def-func-end)
+
+(defun-bind compare (_ p)
+	(entry 'num _ '(r0 r1))
+	(vp-push r0)
+	(class/array/get_both r1 r1 r2)
+	(vp-cpy-ir r1 0 r0)
+	(vp-add-cr ptr_size r1)
+	(assign '((r0 num_value)) '(r0))
+	(loop-start)
+		(vp-cpy-ir r1 0 r3)
+		(vp-add-cr ptr_size r1)
+		(assign '((r3 num_value)) '(r3))
+		(exec p)
+	(loop-until '(r1 = r2))
+	(vp-pop r0)
+	(exit 'num _ '(r0 -1))
+	(vp-ret)
+(vp-label 'fail)
+	(vp-pop r0)
+	(exit 'num _ '(r0 0))
+	(vp-ret))
+
+(def-method 'num 'eq)
+	;inputs
+	;r0 = num object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = num object (ptr)
+	;r1 = 0, -1 (int)
+	;trashes
+	;r1-r14
+
+	(compare 'eq
+		'(gotoif '(r3 /= r0) 'fail))
+
+(def-func-end)
+
+(def-method 'num 'ge)
+	;inputs
+	;r0 = num object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = num object (ptr)
+	;r1 = 0, -1 (int)
+	;trashes
+	;r1-r14
+
+	(compare 'ge
+		'(progn
+			(gotoif '(r3 > r0) 'fail)
+			(vp-cpy-rr r3 r0)))
+
+(def-func-end)
+
+(def-method 'num 'gt)
+	;inputs
+	;r0 = num object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = num object (ptr)
+	;r1 = 0, -1 (int)
+	;trashes
+	;r1-r14
+
+	(compare 'gt
+		'(progn
+			(gotoif '(r3 >= r0) 'fail)
+			(vp-cpy-rr r3 r0)))
+
+(def-func-end)
+
+(def-method 'num 'le)
+	;inputs
+	;r0 = num object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = num object (ptr)
+	;r1 = 0, -1 (int)
+	;trashes
+	;r1-r14
+
+	(compare 'le
+		'(progn
+			(gotoif '(r3 < r0) 'fail)
+			(vp-cpy-rr r3 r0)))
+
+(def-func-end)
+
+(def-method 'num 'lt)
+	;inputs
+	;r0 = num object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = num object (ptr)
+	;r1 = 0, -1 (int)
+	;trashes
+	;r1-r14
+
+	(compare 'lt
+		'(progn
+			(gotoif '(r3 <= r0) 'fail)
+			(vp-cpy-rr r3 r0)))
+
+(def-func-end)
+
+(def-method 'num 'ne)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(entry 'num 'ne '(r0 r1))
+
+	(vp-push r0)
+	(class/array/get_both r1 r1 r2)
+	(vp-lea-i r2 (neg ptr_size) r5)
+	(loop-start)
+		(vp-cpy-ir r1 0 r0)
+		(vp-add-cr ptr_size r1)
+		(assign '((r0 num_value) r1) '(r0 r4))
+		(loop-start)
+			(vp-cpy-ir r4 0 r3)
+			(vp-add-cr ptr_size r4)
+			(assign '((r3 num_value)) '(r3))
+			(gotoif '(r3 = r0) 'fail)
+		(loop-until '(r4 = r2))
+	(loop-until '(r1 = r5))
+
+	(vp-pop r0)
+	(exit 'num 'ne '(r0 -1))
+	(vp-ret)
+
+(vp-label 'fail)
+	(vp-pop r0)
+	(exit 'num 'ne '(r0 0))
 	(vp-ret)
 
 (def-func-end)

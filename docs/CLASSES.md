@@ -3294,10 +3294,218 @@ none
 
 ```lisp
 inputs
-r0 num object (ptr)
+r0 = num object (ptr)
 r1 stream object (ptr)
 outputs
-r0 num object (ptr)
+r0 = num object (ptr)
+trashes
+r1-r14
+```
+
+### num::add -> class/num/add
+
+```lisp
+inputs
+r0 = num object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = num object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### num::sub -> class/num/sub
+
+```lisp
+inputs
+r0 = num object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = num object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### num::mul -> class/num/mul
+
+```lisp
+inputs
+r0 = num object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = num object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### num::min -> class/num/min
+
+```lisp
+inputs
+r0 = num object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = num object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### num::max -> class/num/max
+
+```lisp
+inputs
+r0 = num object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = num object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### num::fmul -> class/num/fmul
+
+```lisp
+inputs
+r0 = num object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = num object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### num::div -> class/num/div
+
+```lisp
+inputs
+r0 = num object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = num object (ptr)
+r1 = 0, else return value object (ptr)
+trashes
+r1-r14
+```
+
+### num::mod -> class/num/mod
+
+```lisp
+inputs
+r0 = num object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = num object (ptr)
+r1 = 0, else return value object (ptr)
+trashes
+r1-r14
+```
+
+### num::fdiv -> class/num/fdiv
+
+```lisp
+inputs
+r0 = num object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = num object (ptr)
+r1 = 0, else return value object (ptr)
+trashes
+r1-r14
+```
+
+### num::fmod -> class/num/fmod
+
+```lisp
+inputs
+r0 = num object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = num object (ptr)
+r1 = 0, else return value object (ptr)
+trashes
+r1-r14
+```
+
+### num::eq -> class/num/eq
+
+```lisp
+inputs
+r0 = num object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = num object (ptr)
+r1 = 0, -1 (int)
+trashes
+r1-r14
+```
+
+### num::ne -> class/num/ne
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### num::lt -> class/num/lt
+
+```lisp
+inputs
+r0 = num object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = num object (ptr)
+r1 = 0, -1 (int)
+trashes
+r1-r14
+```
+
+### num::gt -> class/num/gt
+
+```lisp
+inputs
+r0 = num object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = num object (ptr)
+r1 = 0, -1 (int)
+trashes
+r1-r14
+```
+
+### num::le -> class/num/le
+
+```lisp
+inputs
+r0 = num object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = num object (ptr)
+r1 = 0, -1 (int)
+trashes
+r1-r14
+```
+
+### num::ge -> class/num/ge
+
+```lisp
+inputs
+r0 = num object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = num object (ptr)
+r1 = 0, -1 (int)
 trashes
 r1-r14
 ```
@@ -4719,152 +4927,112 @@ r1-r14
 
 ## real
 
-Super Class: obj
+Super Class: num
 
 ### real::vtable -> class/real/vtable
 
 ### real::create -> class/real/create
 
-### real::init -> class/num/init
+### real::add -> class/real/add
 
 ```lisp
 inputs
-r0 = num object (ptr)
-r1 = vtable (pptr)
-r2 = initial value (long)
-outputs
-r0 = num object (ptr)
-r1 = 0 if error, else ok
-trashes
-r1
-```
-
-### real::lisp_add -> class/real/lisp_add
-
-```lisp
-inputs
-r0 = lisp object (ptr)
+r0 = real object (ptr)
 r1 = args vector object (ptr)
 outputs
-r0 = lisp object (ptr)
+r0 = real object (ptr)
 r1 = return value object (ptr)
 trashes
 r1-r14
 ```
 
-### real::lisp_sub -> class/real/lisp_sub
+### real::sub -> class/real/sub
 
 ```lisp
 inputs
-r0 = lisp object (ptr)
+r0 = real object (ptr)
 r1 = args vector object (ptr)
 outputs
-r0 = lisp object (ptr)
+r0 = real object (ptr)
 r1 = return value object (ptr)
 trashes
 r1-r14
 ```
 
-### real::lisp_mul -> class/real/lisp_mul
+### real::mul -> class/real/mul
 
 ```lisp
 inputs
-r0 = lisp object (ptr)
+r0 = real object (ptr)
 r1 = args vector object (ptr)
 outputs
-r0 = lisp object (ptr)
+r0 = real object (ptr)
 r1 = return value object (ptr)
 trashes
 r1-r14
 ```
 
-### real::lisp_div -> class/real/lisp_div
+### real::div -> class/real/div
 
 ```lisp
 inputs
-r0 = lisp object (ptr)
+r0 = real object (ptr)
 r1 = args vector object (ptr)
 outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
+r0 = real object (ptr)
+r1 = 0, else return value object (ptr)
 trashes
 r1-r14
 ```
 
-### real::lisp_eq -> class/real/lisp_eq
+### real::lt -> class/real/lt
 
 ```lisp
 inputs
-r0 = lisp object (ptr)
+r0 = real object (ptr)
 r1 = args vector object (ptr)
 outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
+r0 = real object (ptr)
+r1 = 0, -1 (int)
 trashes
 r1-r14
 ```
 
-### real::lisp_ne -> class/real/lisp_ne
+### real::gt -> class/real/gt
 
 ```lisp
 inputs
-r0 = lisp object (ptr)
+r0 = real object (ptr)
 r1 = args vector object (ptr)
 outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
+r0 = real object (ptr)
+r1 = 0, -1 (int)
 trashes
 r1-r14
 ```
 
-### real::lisp_lt -> class/real/lisp_lt
+### real::le -> class/real/le
 
 ```lisp
 inputs
-r0 = lisp object (ptr)
+r0 = real object (ptr)
 r1 = args vector object (ptr)
 outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
+r0 = real object (ptr)
+r1 = 0, -1 (int)
 trashes
 r1-r14
 ```
 
-### real::lisp_gt -> class/real/lisp_gt
+### real::ge -> class/real/ge
 
 ```lisp
 inputs
-r0 = lisp object (ptr)
+r0 = real object (ptr)
 r1 = args vector object (ptr)
 outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### real::lisp_le -> class/real/lisp_le
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### real::lisp_ge -> class/real/lisp_ge
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
+r0 = real object (ptr)
+r1 = 0, -1 (int)
 trashes
 r1-r14
 ```

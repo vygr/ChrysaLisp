@@ -16,46 +16,6 @@
 
 (- num num ...)
 
-## .*
-
-(.* real real ...)
-
-## .+
-
-(.+ real real ...)
-
-## .-
-
-(.- real real ...)
-
-## ./
-
-(./ real real ...)
-
-## ./=
-
-(./= real real ...)
-
-## .<
-
-(.< real real ...)
-
-## .<=
-
-(.<= real real ...)
-
-## .=
-
-(.= real real ...)
-
-## .>
-
-(.> real real ...)
-
-## .>=
-
-(.>= real real ...)
-
 ## /
 
 (/ num num ...)

@@ -19,17 +19,17 @@
 (defun-bind lighting (c z)
 	;very basic attenuation
 	(defq r (logand (>> c 16) 0xff) g (logand (>> c 8) 0xff) b (logand c 0xff)
-		at (r2f (./ (const (i2r box_size)) z))
+		at (r2f (/ (const (i2r box_size)) z))
 		r (* r at) g (* g at) b (* b at))
 	(+ 0xff000000 (logand r 0xff0000) (logand (>> g 8) 0xff00) (logand (>> b 16) 0xff)))
 
 (defun-bind clip_verts (hsw hsh verts)
 	;clip and project verts
 	(reduce (lambda (out (x y z r c))
-		(setq z (.+ z (const (i2r (+ (* box_size 2) max_vel)))))
-		(when (.> z (const (i2r focal_len)))
-			(setq x (./ (.* x hsw) z) y (./ (.* y hsh) z) r (./ (.* r hsw) z))
-			(push out (list (r2f (.+ x hsw)) (r2f (.+ y hsh)) z
+		(setq z (+ z (const (i2r (+ (* box_size 2) max_vel)))))
+		(when (> z (const (i2r focal_len)))
+			(setq x (/ (* x hsw) z) y (/ (* y hsh) z) r (/ (* r hsw) z))
+			(push out (list (r2f (+ x hsw)) (r2f (+ y hsh)) z
 				(r2f r) (lighting c z)))) out) verts (list)))
 
 (defun-bind render_verts (canvas verts)
@@ -46,7 +46,7 @@
 		(defq hsw (i2r (>> sw 1)) hsh (i2r (>> sh 1)))
 		(render_verts canvas
 			(sort (lambda (v1 v2)
-				(if (.<= (tuple-get vertex_z v1) (tuple-get vertex_z v2)) 1 -1))
+				(if (<= (tuple-get vertex_z v1) (tuple-get vertex_z v2)) 1 -1))
 				(clip_verts hsw hsh (tuple-get dlist_layer1_verts dlist))))
 		(canvas-swap canvas))
 	(tuple-set dlist_mask dlist 0))

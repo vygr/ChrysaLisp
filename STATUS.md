@@ -27,6 +27,21 @@ corrupted.
 
 ------
 
+Big changes are afoot with numeric types. They are going polymorphic with
+respect to the Lisp interface functions. This will allow apps to switch from
+fixed, to reals (and floats and doubles) when they come along, with very little
+effort.
+
+Various platforms will have limited capabilities for floats, so reals are a
+fast software implemented compromise for IEEE float/doubles on such platforms.
+
+Long vectors of numeric types are also going polymorphic. You will be able to
+create numpy style arrays of numeric types and manipulate them with generic
+long vector operations at the Lisp level. For example look at how the
+`apps/math.inc` file is getting more and more generic.
+
+------
+
 Considerable improvements to the (ui-xxx) macros with standard defaults from
 the user environment pupa.inc file.
 

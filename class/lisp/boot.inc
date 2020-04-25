@@ -21,17 +21,6 @@
 (ffi fdiv "class/num/lisp_fdiv" 0)
 (ffi fmod "class/num/lisp_fmod" 0)
 
-(ffi .= "class/real/lisp_eq" 0)
-(ffi ./= "class/real/lisp_ne" 0)
-(ffi .< "class/real/lisp_lt" 0)
-(ffi .> "class/real/lisp_gt" 0)
-(ffi .<= "class/real/lisp_le" 0)
-(ffi .>= "class/real/lisp_ge" 0)
-
-(ffi .+ "class/real/lisp_add" 0)
-(ffi .- "class/real/lisp_sub" 0)
-(ffi .* "class/real/lisp_mul" 0)
-(ffi ./ "class/real/lisp_div" 0)
 (ffi i2r "class/real/lisp_i2r" 0)
 (ffi f2r "class/real/lisp_f2r" 0)
 (ffi r2i "class/real/lisp_r2i" 0)

@@ -9,6 +9,24 @@
 
 (dec-method 'print 'class/num/print 'override)
 
+(dec-method 'add 'class/num/add 'virtual '(r0 r1) '(r0 r1))
+(dec-method 'sub 'class/num/sub 'virtual '(r0 r1) '(r0 r1))
+(dec-method 'mul 'class/num/mul 'virtual '(r0 r1) '(r0 r1))
+(dec-method 'min 'class/num/min 'virtual '(r0 r1) '(r0 r1))
+(dec-method 'max 'class/num/max 'virtual '(r0 r1) '(r0 r1))
+(dec-method 'fmul 'class/num/fmul 'virtual '(r0 r1) '(r0 r1))
+(dec-method 'div 'class/num/div 'virtual '(r0 r1) '(r0 r1))
+(dec-method 'mod 'class/num/mod 'virtual '(r0 r1) '(r0 r1))
+(dec-method 'fdiv 'class/num/fdiv 'virtual '(r0 r1) '(r0 r1))
+(dec-method 'fmod 'class/num/fmod 'virtual '(r0 r1) '(r0 r1))
+
+(dec-method 'eq 'class/num/eq 'virtual '(r0 r1) '(r0 r1))
+(dec-method 'ne 'class/num/ne 'virtual '(r0 r1) '(r0 r1))
+(dec-method 'lt 'class/num/lt 'virtual '(r0 r1) '(r0 r1))
+(dec-method 'gt 'class/num/gt 'virtual '(r0 r1) '(r0 r1))
+(dec-method 'le 'class/num/le 'virtual '(r0 r1) '(r0 r1))
+(dec-method 'ge 'class/num/ge 'virtual '(r0 r1) '(r0 r1))
+
 (dec-method 'lisp_add 'class/num/lisp_add 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_sub 'class/num/lisp_sub 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_mul 'class/num/lisp_mul 'static '(r0 r1) '(r0 r1))

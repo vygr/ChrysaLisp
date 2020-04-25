@@ -1,5 +1,202 @@
 (include 'sys/func.inc)
+(include 'sys/math/class.inc)
+(include 'class/array/class.inc)
 (include 'class/real/class.inc)
 
 (gen-create 'real)
 (gen-vtable 'real)
+
+(defun-bind addop (_ p)
+	(entry 'real _ '(r0 r1))
+	(vp-push r0)
+	(class/array/get_both r1 r1 r2)
+	(vp-cpy-ir r1 0 r0)
+	(vp-add-cr ptr_size r1)
+	(assign '((r0 num_value)) '(r0))
+	(loop-start)
+		(vp-cpy-ir r1 0 r3)
+		(vp-add-cr ptr_size r1)
+		(assign '((r3 num_value)) '(r3))
+		(exec p)
+	(loop-until '(r1 = r2))
+	(call 'real 'create '(r0) '(r1))
+	(vp-pop r0)
+	(exit 'real _ '(r0 r1))
+	(vp-ret))
+
+(def-method 'real 'add)
+	;inputs
+	;r0 = real object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = real object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(addop 'add
+		'(call 'sys_math 'r_add '(r0 r3) '(r0)))
+
+(def-func-end)
+
+(def-method 'real 'sub)
+	;inputs
+	;r0 = real object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = real object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(addop 'sub
+		'(call 'sys_math 'r_sub '(r0 r3) '(r0)))
+
+(def-func-end)
+
+(def-method 'real 'mul)
+	;inputs
+	;r0 = real object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = real object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(addop 'mul
+		'(call 'sys_math 'r_mul '(r0 r3) '(r0)))
+
+(def-func-end)
+
+(defun-bind divop (_ p)
+	(entry 'real _ '(r0 r1))
+	(vp-push r0)
+	(class/array/get_both r1 r1 r4)
+	(vp-cpy-ir r1 0 r0)
+	(vp-add-cr ptr_size r1)
+	(assign '((r0 num_value)) '(r0))
+	(loop-start)
+		(vp-cpy-ir r1 0 r3)
+		(vp-add-cr ptr_size r1)
+		(assign '((r3 num_value)) '(r3))
+	(errorcases
+		(gotoif '(r3 = 0) 'error))
+		(exec p)
+	(loop-until '(r1 = r4))
+	(call 'real 'create '(r0) '(r1))
+	(vp-pop r0)
+	(exit 'real _ '(r0 r1))
+	(vp-ret)
+(vp-label 'error)
+	(vp-pop r0)
+	(exit 'real _ '(r0 r3))
+	(vp-ret))
+
+(def-method 'real 'div)
+	;inputs
+	;r0 = real object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = real object (ptr)
+	;r1 = 0, else return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(divop 'div
+		'(call 'sys_math 'r_div '(r0 r3) '(r0)))
+
+(def-func-end)
+
+(defun-bind compare (_ p)
+	(entry 'real _ '(r0 r1))
+	(vp-push r0)
+	(class/array/get_both r1 r1 r2)
+	(vp-cpy-ir r1 0 r0)
+	(vp-add-cr ptr_size r1)
+	(assign '((r0 num_value)) '(r0))
+	(loop-start)
+		(vp-cpy-ir r1 0 r3)
+		(vp-add-cr ptr_size r1)
+		(assign '((r3 num_value)) '(r3))
+		(exec p)
+	(loop-until '(r1 = r2))
+	(vp-pop r0)
+	(exit 'real _ '(r0 -1))
+	(vp-ret)
+(vp-label 'fail)
+	(vp-pop r0)
+	(exit 'real _ '(r0 0))
+	(vp-ret))
+
+(def-method 'real 'ge)
+	;inputs
+	;r0 = real object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = real object (ptr)
+	;r1 = 0, -1 (int)
+	;trashes
+	;r1-r14
+
+	(compare 'ge
+		'(progn
+			(call 'sys_math 'r_sub '(r3 r0) '(r13))
+			(gotoif '(r13 > 0) 'fail)
+			(vp-cpy-rr r3 r0)))
+
+(def-func-end)
+
+(def-method 'real 'gt)
+	;inputs
+	;r0 = real object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = real object (ptr)
+	;r1 = 0, -1 (int)
+	;trashes
+	;r1-r14
+
+	(compare 'gt
+		'(progn
+			(call 'sys_math 'r_sub '(r3 r0) '(r13))
+			(gotoif '(r13 >= 0) 'fail)
+			(vp-cpy-rr r3 r0)))
+
+(def-func-end)
+
+(def-method 'real 'le)
+	;inputs
+	;r0 = real object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = real object (ptr)
+	;r1 = 0, -1 (int)
+	;trashes
+	;r1-r14
+
+	(compare 'le
+		'(progn
+			(call 'sys_math 'r_sub '(r3 r0) '(r13))
+			(gotoif '(r13 < 0) 'fail)
+			(vp-cpy-rr r3 r0)))
+
+(def-func-end)
+
+(def-method 'real 'lt)
+	;inputs
+	;r0 = real object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = real object (ptr)
+	;r1 = 0, -1 (int)
+	;trashes
+	;r1-r14
+
+	(compare 'lt
+		'(progn
+			(call 'sys_math 'r_sub '(r3 r0) '(r13))
+			(gotoif '(r13 <= 0) 'fail)
+			(vp-cpy-rr r3 r0)))
+
+(def-func-end)
