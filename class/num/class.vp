@@ -11,7 +11,7 @@
 (def-method 'num 'print)
 	;inputs
 	;r0 = num object (ptr)
-	;r1 stream object (ptr)
+	;r1 = stream object (ptr)
 	;outputs
 	;r0 = num object (ptr)
 	;trashes

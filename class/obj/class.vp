@@ -139,10 +139,10 @@
 
 (def-method 'obj 'print)
 	;inputs
-	;r0 object (ptr)
-	;r1 stream object (ptr)
+	;r0 = object (ptr)
+	;r1 = stream object (ptr)
 	;outputs
-	;r0 object (ptr)
+	;r0 = object (ptr)
 	;trashes
 	;r1-r14
 

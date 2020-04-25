@@ -314,10 +314,10 @@ r1-r2
 
 ```lisp
 inputs
-r0 array object (ptr)
-r1 stream object (ptr)
+r0 = array object (ptr)
+r1 = stream object (ptr)
 outputs
-r0 array object (ptr)
+r0 = array object (ptr)
 trashes
 r1-r14
 ```
@@ -1924,10 +1924,10 @@ r1
 
 ```lisp
 inputs
-r0 func object (ptr)
-r1 stream object (ptr)
+r0 = func object (ptr)
+r1 = stream object (ptr)
 outputs
-r0 func object (ptr)
+r0 = func object (ptr)
 trashes
 r1-r14
 ```
@@ -3295,7 +3295,7 @@ none
 ```lisp
 inputs
 r0 = num object (ptr)
-r1 stream object (ptr)
+r1 = stream object (ptr)
 outputs
 r0 = num object (ptr)
 trashes
@@ -4308,10 +4308,10 @@ r0-r14
 
 ```lisp
 inputs
-r0 object (ptr)
-r1 stream object (ptr)
+r0 = object (ptr)
+r1 = stream object (ptr)
 outputs
-r0 object (ptr)
+r0 = object (ptr)
 trashes
 r1-r14
 ```
@@ -4932,6 +4932,18 @@ Super Class: num
 ### real::vtable -> class/real/vtable
 
 ### real::create -> class/real/create
+
+### real::print -> class/real/print
+
+```lisp
+inputs
+r0 = real object (ptr)
+r1 = stream object (ptr)
+outputs
+r0 = real object (ptr)
+trashes
+r1-r14
+```
 
 ### real::add -> class/real/add
 
@@ -5777,10 +5789,10 @@ r2-r4
 
 ```lisp
 inputs
-r0 str object (ptr)
-r1 stream object (ptr)
+r0 = str object (ptr)
+r1 = stream object (ptr)
 outputs
-r0 str object (ptr)
+r0 = str object (ptr)
 trashes
 r1-r14
 ```
@@ -6433,10 +6445,10 @@ r0-r14
 
 ```lisp
 inputs
-r0 sym object (ptr)
-r1 stream object (ptr)
+r0 = sym object (ptr)
+r1 = stream object (ptr)
 outputs
-r0 sym object (ptr)
+r0 = sym object (ptr)
 trashes
 r1-r14
 ```

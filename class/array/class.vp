@@ -501,10 +501,10 @@
 
 (def-method 'array 'print)
 	;inputs
-	;r0 array object (ptr)
-	;r1 stream object (ptr)
+	;r0 = array object (ptr)
+	;r1 = stream object (ptr)
 	;outputs
-	;r0 array object (ptr)
+	;r0 = array object (ptr)
 	;trashes
 	;r1-r14
 

@@ -4,6 +4,8 @@
 (dec-method 'vtable 'class/real/vtable)
 (dec-method 'create 'class/real/create 'static '(r0) '(r0))
 
+(dec-method 'print 'class/real/print 'override)
+
 (dec-method 'add 'class/real/add 'override)
 (dec-method 'sub 'class/real/sub 'override)
 (dec-method 'mul 'class/real/mul 'override)

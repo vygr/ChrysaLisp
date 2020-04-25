@@ -642,10 +642,10 @@
 
 (def-method 'str 'print)
 	;inputs
-	;r0 str object (ptr)
-	;r1 stream object (ptr)
+	;r0 = str object (ptr)
+	;r1 = stream object (ptr)
 	;outputs
-	;r0 str object (ptr)
+	;r0 = str object (ptr)
 	;trashes
 	;r1-r14
 

@@ -2,9 +2,52 @@
 (include 'sys/math/class.inc)
 (include 'class/array/class.inc)
 (include 'class/real/class.inc)
+(include 'class/str/class.inc)
+(include 'class/stream/class.inc)
 
 (gen-create 'real)
 (gen-vtable 'real)
+
+(def-method 'real 'print)
+	;inputs
+	;r0 = real object (ptr)
+	;r1 = stream object (ptr)
+	;outputs
+	;r0 = real object (ptr)
+	;trashes
+	;r1-r14
+
+	(def-struct 'local)
+		(ptr 'this 'stream 'tmp)
+	(def-struct-end)
+
+	(vp-alloc local_size)
+	(entry 'real 'print '(r0 r1))
+	(assign '(r0 r1) '((rsp local_this) (rsp local_stream)))
+
+	(call 'stream 'write_cstr '(r1 "e"))
+	(assign '((rsp local_this)) '(r0))
+	(assign '((r0 num_value)) '(r0))
+	(vp-shl-cr 32 r0)
+	(vp-asr-cr 32 r0)
+	(call 'str 'create_from_long '(r0 16) '(r0))
+	(assign '(r0) '((rsp local_tmp)))
+	(call 'stream 'write '((rsp local_stream) (& r0 str_data) (r0 str_length)))
+	(call 'obj 'deref '((rsp local_tmp)))
+	(call 'stream 'write_cstr '((rsp local_stream) ":m"))
+	(assign '((rsp local_this)) '(r0))
+	(assign '((r0 num_value)) '(r0))
+	(vp-asr-cr 32 r0)
+	(call 'str 'create_from_long '(r0 16) '(r0))
+	(assign '(r0) '((rsp local_tmp)))
+	(call 'stream 'write '((rsp local_stream) (& r0 str_data) (r0 str_length)))
+	(call 'obj 'deref '((rsp local_tmp)))
+
+	(exit 'real 'print '((rsp local_this)))
+	(vp-free local_size)
+	(vp-ret)
+
+(def-func-end)
 
 (defun-bind addop (_ p)
 	(entry 'real _ '(r0 r1))
