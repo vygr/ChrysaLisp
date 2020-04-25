@@ -29,8 +29,8 @@ corrupted.
 
 Big changes are afoot with numeric types. They are going polymorphic with
 respect to the Lisp interface functions. This will allow apps to switch from
-fixed, to reals (and floats and doubles) when they come along, with very little
-effort.
+fixed, to reals (and floats and doubles, when they come along), with very
+little effort.
 
 Various platforms will have limited capabilities for floats, so reals are a
 fast software implemented compromise for IEEE float/doubles on such platforms.
