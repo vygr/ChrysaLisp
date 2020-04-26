@@ -222,7 +222,7 @@
 (defun-bind andop (_ i p)
 	(entry 'num _ '(r0 r1))
 (errorcases
-	(call 'lisp 'env_args_match `(r1 (@ ,(f-path 'num 'vtable)) 0) '(r2))
+	(call 'lisp 'env_args_type `(r1 (@ ,(f-path 'num 'vtable)) 0) '(r2))
 	(gotoif '(r2 = 0) 'error))
 	(vp-push r0)
 	(class/array/get_both r1 r1 r2)

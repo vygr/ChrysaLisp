@@ -3,7 +3,7 @@
 (include 'sys/str/class.inc)
 (include 'class/sym/class.inc)
 (include 'class/stream_str/class.inc)
-(include 'class/num/class.inc)
+(include 'class/fixed/class.inc)
 (include 'class/lisp/class.inc)
 
 (def-method 'lisp 'read_num)
@@ -60,11 +60,17 @@
 	(endif)
 
 	;create the number
-	(call 'sys_str 'to_long {buffer, val} {val})
+	(call 'sys_str 'to_long {buffer, val} {val, num})
 	(vpif {sign = char_minus})
 		(assign {-val} {val})
 	(endif)
-	(call 'num 'create {val} {num})
+	(vpif {num})
+		;there was a fixed point
+		(call 'fixed 'create {val} {num})
+	(else)
+		;just parsed an int
+		(call 'num 'create {val} {num})
+	(endif)
 	(call 'str 'destroy {string})
 
 (vp-label 'exit)

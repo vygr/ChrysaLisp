@@ -367,7 +367,7 @@
 
 (vp-label 'sample_offsets)
 	(apply vp-int (map (lambda (o)
-		(- o 0.5)) '(0.25 0.875 0.5 0.125 0.75 0.375 0 0.625)))
+		(- o 0.5)) '(0.25 0.875 0.5 0.125 0.75 0.375 0.0 0.625)))
 
 (vp-label 'mask_to_coverage)
 	(apply vp-byte (map (lambda (m)

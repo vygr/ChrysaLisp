@@ -1,6 +1,6 @@
 (include 'sys/func.inc)
 (include 'sys/math/class.inc)
-(include 'class/num/class.inc)
+(include 'class/fixed/class.inc)
 (include 'class/str/class.inc)
 (include 'gui/path/class.inc)
 (include 'gui/canvas/class.inc)
@@ -41,7 +41,7 @@
 	(vec-set 0)
 	(vec-load-long 3 r2)
 	(scene)
-	(call 'num 'create '(r0) '(r1))
+	(call 'fixed 'create '(r0) '(r1))
 	(vp-pop r0)
 
 	(exit '(r0 r1))
@@ -81,7 +81,7 @@
 	(vp-push r13)
 	(assign '((r0 array_begin) (r1 array_begin)) '(r0 r1))
 	(class/num/get_values '(r2 r3 r4 r5))
-	(assign '(1000 1.0) '(r6 r7))
+	(assign '(1000 (<< 1 fp_shift)) '(r6 r7))
 
 	(vec-set 7)
 	(loop-start)
@@ -100,7 +100,7 @@
 	(vpif '(r7 > r4))
 		(vp-cpy-rr r3 r0)
 	(endif)
-	(call 'num 'create '(r0) '(r1))
+	(call 'fixed 'create '(r0) '(r1))
 	(vp-pop r0)
 
 	(exit '(r0 r1))

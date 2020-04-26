@@ -115,6 +115,7 @@
 	;r1 = base (ulong)
 	;outputs
 	;r0 = number (ulong)
+	;r4 = fixed point position (uint)
 	;trashes
 	;r0-r4
 
@@ -148,7 +149,7 @@
 		(vp-div-rrr r1 r2 r0)
 	(endif)
 
-	(exit 'sys_str 'to_long '(r0))
+	(exit 'sys_str 'to_long '(r0 r4))
 	(vp-ret)
 
 (def-func-end)

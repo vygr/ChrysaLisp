@@ -66,7 +66,7 @@
 	(if _
 		(vec-mul p n _)
 		(defq _ (vec-mul p n)))
-	(nums-fscale n (fmul (nums-sum _) 2.0) _)
+	(nums-fscale n (fmul (nums-sum _) (<< 2 fp_shift)) _)
 	(nums-sub p _ _))
 
 (defmacro-bind vec-length (p &optional _)
@@ -85,7 +85,7 @@
 		(defq _ (nums-fmul p p) l (fsqrt (nums-sum _))))
 	(if (= l 0)
 		(nums-fscale p 0 _)
-		(nums-fscale p (fdiv 1.0 l) _)))
+		(nums-fscale p (fdiv (<< 1 fp_shift) l) _)))
 
 (defun-bind vec-distance (p1 p2)
 	(defq _ (vec-sub p1 p2))
@@ -169,7 +169,7 @@
 	(+ (fmul x1 x2) (fmul y1 y2) (fmul z1 z2)))
 
 (defun vec-reflect-3d (p n)
-	(vec-sub-3d p (vec-scale-3d n (fmul (vec-dot-3d p n) 2.0))))
+	(vec-sub-3d p (vec-scale-3d n (fmul (vec-dot-3d p n) (<< 2 fp_shift)))))
 
 (defun vec-length-2d (p)
 	(fsqrt (vec-dot-2d p p)))
@@ -187,13 +187,13 @@
 	(defq l (vec-length-2d p))
 	(if (= l 0)
 		(list 0 0)
-		(list (fmul (elem 0 p) (setq l (fdiv 1.0 l))) (fmul (elem 1 p) l))))
+		(list (fmul (elem 0 p) (setq l (fdiv (<< 1 fp_shift) l))) (fmul (elem 1 p) l))))
 
 (defun vec-norm-3d (p)
 	(defq l (vec-length-3d p))
 	(if (= l 0)
 		(list 0 0 0)
-		(list (fmul (elem 0 p) (setq l (fdiv 1.0 l)))
+		(list (fmul (elem 0 p) (setq l (fdiv (<< 1 fp_shift) l)))
 			(fmul (elem 1 p) l) (fmul (elem 2 p) l))))
 
 (defun vec-distance-2d (p1 p2)

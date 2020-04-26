@@ -19,7 +19,7 @@
 	;transparent colour
 	(+ (logand 0xffffff _) 0x60000000))
 
-(defq canvas_width 1024 canvas_height 768 min_width 320 min_height 240 eps (fixed 0.25) tol (fixed 3.0)
+(defq canvas_width 1024 canvas_height 768 min_width 320 min_height 240 eps 0.25 tol 3.0
 	radiuss (map i2f '(2 6 12)) stroke_radius (elem 0 radiuss) then (time)
 	palette (list argb_black argb_white argb_red argb_green argb_blue argb_cyan argb_yellow argb_magenta)
 	palette (cat palette (map trans palette)) undo_stack (list) redo_stack (list)
@@ -57,7 +57,7 @@
 			'())
 		((= 2 (length pnts))
 			;just a point
-			(list (path-gen-arc (elem 0 pnts) (elem 1 pnts) (const (i2f 0)) (const (fixed fp_2pi)) rad (const eps) (path))))
+			(list (path-gen-arc (elem 0 pnts) (elem 1 pnts) 0.0 (const (fixed fp_2pi)) rad (const eps) (path))))
 		(t	;is a polyline draw
 			(bind '(x y x1 y1 &rest _) pnts)
 			(cond
@@ -73,14 +73,14 @@
 				((= mode (const event_circle))
 					;flatten to circle
 					(path-stroke-polygons (list) rad (const eps) (const join_bevel)
-						(list (path-gen-arc x y (const (i2f 0)) (const (fixed fp_2pi)) (fixed (vec-length (vec-sub (path x y) (path x1 y1))))
+						(list (path-gen-arc x y 0.0 (const (fixed fp_2pi)) (fixed (vec-length (vec-sub (path x y) (path x1 y1))))
 							(const eps) (path)))))
 				((= mode (const event_fbox))
 					;flatten to filled box
 					(list (path x y x1 y x1 y1 x y1)))
 				((= mode (const event_fcircle))
 					;flatten to filled circle
-					(list (path-gen-arc x y (const (i2f 0)) (const (fixed fp_2pi)) (fixed (vec-length (vec-sub (path x y) (path x1 y1))))
+					(list (path-gen-arc x y 0.0 (const (fixed fp_2pi)) (fixed (vec-length (vec-sub (path x y) (path x1 y1))))
 						(const eps) (path))))
 				(t	;flatten to pen stroke
 					(path-stroke-polylines (list) rad (const eps) (const join_bevel) (const cap_round) (const cap_round) (list pnts))))))))
@@ -208,7 +208,7 @@
 								(setq last_state 'u)
 								(defq stroke (tuple-get path_path (elem -2 overlay_paths)))
 								(push stroke (elem 0 new_point) (elem 1 new_point))
-								(path-filter (fixed 0.5) stroke stroke)
+								(path-filter 0.5 stroke stroke)
 								(each commit overlay_paths)
 								(clear overlay_paths)
 								(redraw 3))

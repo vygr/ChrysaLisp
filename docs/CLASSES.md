@@ -7790,6 +7790,7 @@ r0 = c string (pubyte)
 r1 = base (ulong)
 outputs
 r0 = number (ulong)
+r4 = fixed point position (uint)
 trashes
 r0-r4
 ```

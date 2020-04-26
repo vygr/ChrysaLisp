@@ -15,7 +15,7 @@
 	(defq i (% (logior r) 7) k (elem i '(()()()()()()())) p (elem i '(()()()()()()())))
 	(cond ((defq i (some (lambda (i) (if (= i r) _)) k)) (elem i p))
 		(t (push k r) (elem -2 (push p (list
-			(path-gen-arc (i2f 0) (i2f 0) (i2f 0) (fixed fp_2pi) r (fixed 0.25) (path))))))))
+			(path-gen-arc 0.0 0.0 0.0 (fixed fp_2pi) r 0.25 (path))))))))
 
 (defun-bind lighting (c z)
 	;very basic attenuation

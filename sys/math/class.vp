@@ -91,7 +91,7 @@
 	(vp-sub-cr fp_pi r0)
 	(vp-mul-cr fp_rpi r0)
 	(vp-asr-cr fp_shift r0)
-	(vp-cpy-cr 1.0 r1)
+	(vp-cpy-cr (<< 1 fp_shift) r1)
 	(vp-cpy-rr r0 r4)
 	(vp-shl-cr 1 r4)
 
@@ -220,7 +220,7 @@
 	(vp-sub-cr fp_pi r0)
 	(vp-mul-cr fp_rpi r0)
 	(vp-asr-cr fp_shift r0)
-	(vp-cpy-cr 1.0 r1)
+	(vp-cpy-cr (<< 1 fp_shift) r1)
 	(vp-cpy-rr r0 r4)
 	(vp-shl-cr 1 r4)
 	(vp-cpy-cr 19939 r3)
