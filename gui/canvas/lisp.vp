@@ -1,7 +1,7 @@
 (include 'sys/func.inc)
 (include 'gui/canvas/class.inc)
 (include 'class/str/class.inc)
-(include 'class/num/class.inc)
+(include 'class/fixed/class.inc)
 (include 'class/lisp/class.inc)
 
 (def-method 'canvas 'lisp_create)
@@ -17,7 +17,7 @@
 	(entry 'canvas 'lisp_create '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type1 '(r1 ($ sig) 3) '(r2))
+	(call 'lisp 'env_args_sig '(r1 ($ sig) 3) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
@@ -49,7 +49,7 @@
 	(entry 'canvas 'lisp_info '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type1 '(r1 ($ sig) 1) '(r2))
+	(call 'lisp 'env_args_sig '(r1 ($ sig) 1) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
@@ -87,7 +87,7 @@
 	(entry 'canvas 'lisp_load '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type1 '(r1 ($ sig) 2) '(r2))
+	(call 'lisp 'env_args_sig '(r1 ($ sig) 2) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
@@ -124,7 +124,7 @@
 	(entry 'canvas 'lisp_save '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type1 '(r1 ($ sig) 3) '(r2))
+	(call 'lisp 'env_args_sig '(r1 ($ sig) 3) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
@@ -161,7 +161,7 @@
 	(entry 'canvas 'lisp_fill '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type1 '(r1 ($ sig) 2) '(r2))
+	(call 'lisp 'env_args_sig '(r1 ($ sig) 2) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
@@ -194,7 +194,7 @@
 	(entry 'canvas 'lisp_swap '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type1 '(r1 ($ sig) 1) '(r2))
+	(call 'lisp 'env_args_sig '(r1 ($ sig) 1) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
@@ -228,7 +228,7 @@
 	(entry 'canvas 'lisp_next_frame '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type1 '(r1 ($ sig) 1) '(r2))
+	(call 'lisp 'env_args_sig '(r1 ($ sig) 1) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
@@ -261,7 +261,7 @@
 	(entry 'canvas 'lisp_plot '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type1 '(r1 ($ sig) 3) '(r2))
+	(call 'lisp 'env_args_sig '(r1 ($ sig) 3) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
@@ -294,7 +294,7 @@
 	(entry 'canvas 'lisp_fbox '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type1 '(r1 ($ sig) 5) '(r2))
+	(call 'lisp 'env_args_sig '(r1 ($ sig) 5) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
@@ -327,12 +327,12 @@
 	(entry 'canvas 'lisp_fpoly '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type1 '(r1 ($ sig) 5) '(r2))
+	(call 'lisp 'env_args_sig '(r1 ($ sig) 5) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
 	(defq in (method-input 'canvas 'fpoly))
-	(class/vector/bind_args r1 in '(canvas num num num vector))
+	(class/vector/bind_args r1 in '(canvas fixed fixed num vector))
 	(call 'canvas 'fpoly in '(r0))
 	(call 'obj 'ref '(r0) '(r1))
 	(vp-pop r0)
@@ -343,7 +343,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r0 "(canvas-fpoly canvas x y mode list)" error_msg_wrong_types r1))
-	(signature '(canvas num num num vector)))
+	(signature '(canvas fixed fixed num vector)))
 
 (def-func-end)
 
@@ -360,7 +360,7 @@
 	(entry 'canvas 'lisp_resize '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type1 '(r1 ($ sig) 2) '(r2))
+	(call 'lisp 'env_args_sig '(r1 ($ sig) 2) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)

@@ -1,7 +1,7 @@
 (include 'sys/func.inc)
 (include 'class/lisp/class.inc)
 
-(def-method 'lisp 'env_args_type1)
+(def-method 'lisp 'env_args_sig)
 	;inputs
 	;r1 = args vector object (ptr)
 	;r3 = signiture pointer (pushort)
@@ -11,7 +11,7 @@
 	;trashes
 	;r2-r7
 
-	(entry 'lisp 'env_args_type1 '(r1 r3 r4))
+	(entry 'lisp 'env_args_sig '(r1 r3 r4))
 
 	(assign '(r0 r1 (r1 array_length)) '(r6 r7 r2))
 	(switch 'fail)
@@ -28,17 +28,17 @@
 		(loop-end)
 		(assign '(r6 r7 -1) '(r0 r1 r2))
 
-		(exit 'lisp 'env_args_type1 '(r2))
+		(exit 'lisp 'env_args_sig '(r2))
 		(vp-ret)
 	(endswitch)
 	(assign '(r6 r7 0) '(r0 r1 r2))
 
-	(exit 'lisp 'env_args_type1 '(r2))
+	(exit 'lisp 'env_args_sig '(r2))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'lisp 'env_args_type2)
+(def-method 'lisp 'env_args_type)
 	;inputs
 	;r1 = args vector object (ptr)
 	;r3 = vtable pointer (ptr)
@@ -48,7 +48,7 @@
 	;trashes
 	;r2-r7
 
-	(entry 'lisp 'env_args_type2 '(r1 r3 r4))
+	(entry 'lisp 'env_args_type '(r1 r3 r4))
 
 	(assign '(r0 r1 (r1 array_length)) '(r6 r7 r2))
 	(switch 'fail)
@@ -62,17 +62,17 @@
 		(loop-end)
 		(assign '(r6 r7 -1) '(r0 r1 r2))
 
-		(exit 'lisp 'env_args_type2 '(r2))
+		(exit 'lisp 'env_args_type '(r2))
 		(vp-ret)
 	(endswitch)
 	(assign '(r6 r7 0) '(r0 r1 r2))
 
-	(exit 'lisp 'env_args_type2 '(r2))
+	(exit 'lisp 'env_args_type '(r2))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'lisp 'env_args_type3)
+(def-method 'lisp 'env_args_match)
 	;inputs
 	;r1 = args vector object (ptr)
 	;r3 = vtable pointer (ptr)
@@ -82,7 +82,7 @@
 	;trashes
 	;r2-r7
 
-	(entry 'lisp 'env_args_type3 '(r1 r3 r4))
+	(entry 'lisp 'env_args_match '(r1 r3 r4))
 
 	(assign '(r0 r1 (r1 array_length)) '(r6 r7 r2))
 	(switch 'fail)
@@ -102,12 +102,12 @@
 		(endif)
 		(assign '(r6 r7 -1) '(r0 r1 r2))
 
-		(exit 'lisp 'env_args_type3 '(r2))
+		(exit 'lisp 'env_args_match '(r2))
 		(vp-ret)
 	(endswitch)
 	(assign '(r6 r7 0) '(r0 r1 r2))
 
-	(exit 'lisp 'env_args_type3 '(r2))
+	(exit 'lisp 'env_args_match '(r2))
 	(vp-ret)
 
 (def-func-end)

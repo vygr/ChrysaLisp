@@ -17,7 +17,7 @@
 	(entry 'str 'lisp_split '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type1 '(r1 ($ sig) 2) '(r2))
+	(call 'lisp 'env_args_sig '(r1 ($ sig) 2) '(r2))
 	(gotoif '(r2 = 0) 'error1))
 
 	(vp-push r0)
@@ -55,7 +55,7 @@
 (errorcases
 	(gotoif `(,len < 1) 'error1)
 	(gotoif `(,len > 3) 'error1)
-	(call 'lisp 'env_args_type1 (list args '($ sig) len) '(r2))
+	(call 'lisp 'env_args_sig (list args '($ sig) len) '(r2))
 	(gotoif '(r2 = 0) 'error1))
 
 	(assign `((,args array_begin) 1) `(,iter_begin ,width))
@@ -120,7 +120,7 @@
 
 (errorcases
 	(gotoif `(,len > 2) 'error1)
-	(call 'lisp 'env_args_type2 `(,args (@ ,(f-path 'num 'vtable)) 1) '(r2))
+	(call 'lisp 'env_args_type `(,args (@ ,(f-path 'num 'vtable)) 1) '(r2))
 	(gotoif '(r2 = 0) 'error1))
 
 	(assign `((,args array_begin) 1) `(,iter_begin ,width))
@@ -156,7 +156,7 @@
 	(entry 'str 'lisp_cmp '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type1 '(r1 ($ sig) 2) '(r2))
+	(call 'lisp 'env_args_sig '(r1 ($ sig) 2) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-cpy-rr r0 r13)
@@ -188,7 +188,7 @@
 	(entry 'str 'lisp_save '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type1 '(r1 ($ sig) 2) '(r2))
+	(call 'lisp 'env_args_sig '(r1 ($ sig) 2) '(r2))
 	(gotoif '(r2 = 0) 'error1))
 
 	(vp-cpy-rr r0 r12)
@@ -227,7 +227,7 @@
 	(entry 'str 'lisp_load '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type1 '(r1 ($ sig) 1) '(r2))
+	(call 'lisp 'env_args_sig '(r1 ($ sig) 1) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-cpy-rr r0 r13)

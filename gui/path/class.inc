@@ -5,6 +5,7 @@
 (dec-method 'create 'gui/path/create)
 
 (dec-method 'vcreate 'gui/path/create 'final)
+(dec-method 'velement 'class/fixed/create 'final)
 
 (dec-method 'filter_polyline 'gui/path/filter_polyline 'static '(r0 r1 r2) '(r0))
 (dec-method 'filter_polygon 'gui/path/filter_polygon 'static '(r0 r1 r2) '(r0))

@@ -7,7 +7,7 @@
 (defun-bind fpoly (canvas col mode _)
 	;draw a polygon on a canvas
 	(canvas-set-color canvas col)
-	(canvas-fpoly canvas 0 0 mode _))
+	(canvas-fpoly canvas (const (i2f 0)) (const (i2f 0)) mode _))
 
 (defun-bind redraw (dlist)
 	;redraw layer/s

@@ -23,7 +23,7 @@
 	(canvas-set-flags (canvas-fill clock 0) 1)
 	(gui-add (apply view-change (cat (list window 164 16) (view-pref-size window))))
 	;create child and send args
-	(mail-send (list display clock (* clock_size 1.0) (* clock_scale 1.0))
+	(mail-send (list display clock (i2f clock_size) (i2f clock_scale))
 		(defq mbox (open-child "apps/clock/child.lisp" kn_call_open)))
 	;main app loop
 	(while (cond

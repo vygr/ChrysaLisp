@@ -1,6 +1,6 @@
 (include 'sys/func.inc)
 (include 'gui/path/class.inc)
-(include 'class/num/class.inc)
+(include 'class/fixed/class.inc)
 (include 'class/lisp/class.inc)
 
 (def-method 'path 'lisp_transform)
@@ -16,13 +16,13 @@
 	(entry 'path 'lisp_transform '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type1 '(r1 ($ sig) 8) '(r2))
+	(call 'lisp 'env_args_sig '(r1 ($ sig) 8) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
 	(defq in (method-input 'path 'transform))
 	(class/vector/bind_args r1 (class/array/map_args in '(7 6 0 1 2 3 4 5))
-		'(num num num num num num path path))
+		'(fixed fixed fixed fixed fixed fixed path path))
 	(call 'path 'transform in '(r0))
 	(call 'obj 'ref '(r0) '(r1))
 	(vp-pop r0)
@@ -33,7 +33,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r0 "(path-transform m1x m1y m2x m2y trx try src dst)" error_msg_wrong_types r1))
-	(signature '(num num num num num num path path)))
+	(signature '(fixed fixed fixed fixed fixed fixed path path)))
 
 (def-func-end)
 
@@ -50,12 +50,12 @@
 	(entry 'path 'lisp_simplify '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type1 '(r1 ($ sig) 3) '(r2))
+	(call 'lisp 'env_args_sig '(r1 ($ sig) 3) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
 	(defq in (method-input 'path 'simplify))
-	(class/vector/bind_args r1 (class/array/map_args in '(3 2 1 0)) '(num _ path path))
+	(class/vector/bind_args r1 (class/array/map_args in '(3 2 1 0)) '(fixed _ path path))
 	(assign '((rsp 0)) `(,(elem 2 in)))
 	(assign `((,(elem 2 in) lisp_stack)) `(,(elem 2 in)))
 	(call 'path 'simplify in '(r0))
@@ -68,7 +68,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r0 "(path-simplify tol src dst)" error_msg_wrong_types r1))
-	(signature '(num path path)))
+	(signature '(fixed path path)))
 
 (def-func-end)
 
@@ -85,12 +85,12 @@
 	(entry 'path 'lisp_filter '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type1 '(r1 ($ sig) 3) '(r2))
+	(call 'lisp 'env_args_sig '(r1 ($ sig) 3) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
 	(defq in (method-input 'path 'filter_polyline))
-	(class/vector/bind_args r1 (class/array/map_args in '(2 1 0)) '(num path path))
+	(class/vector/bind_args r1 (class/array/map_args in '(2 1 0)) '(fixed path path))
 	(call 'path 'filter_polyline in '(r0))
 	(call 'obj 'ref '(r0) '(r1))
 	(vp-pop r0)
@@ -101,7 +101,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r0 "(path-filter tol src dst)" error_msg_wrong_types r1))
-	(signature '(num path path)))
+	(signature '(fixed path path)))
 
 (def-func-end)
 
@@ -118,13 +118,13 @@
 	(entry 'path 'lisp_gen_quadratic '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type1 '(r1 ($ sig) 8) '(r2))
+	(call 'lisp 'env_args_sig '(r1 ($ sig) 8) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
 	(defq in (method-input 'path 'gen_quadratic))
 	(class/vector/bind_args r1 (class/array/map_args in '(8 7 0 1 2 3 4 5 6))
-		'(num num num num num num num _ path))
+		'(fixed fixed fixed fixed fixed fixed fixed _ path))
 	(assign '((rsp 0)) `(,(elem 1 in)))
 	(assign `((,(elem 1 in) lisp_stack)) `(,(elem 1 in)))
 	(call 'path 'gen_quadratic in '(r0))
@@ -137,7 +137,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r0 "(path-gen-quadratic p1x p1y p2x p2y p3x p3y tol dst) -> dst" error_msg_wrong_types r1))
-	(signature '(num num num num num num num path)))
+	(signature '(fixed fixed fixed fixed fixed fixed fixed path)))
 
 (def-func-end)
 
@@ -154,13 +154,13 @@
 	(entry 'path 'lisp_gen_cubic '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type1 '(r1 ($ sig) 10) '(r2))
+	(call 'lisp 'env_args_sig '(r1 ($ sig) 10) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
 	(defq in (method-input 'path 'gen_cubic))
 	(class/vector/bind_args r1 (class/array/map_args in '(10 9 0 1 2 3 4 5 6 7 8))
-		'(num num num num num num num num num _ path))
+		'(fixed fixed fixed fixed fixed fixed fixed fixed fixed _ path))
 	(assign '((rsp 0)) `(,(elem 1 in)))
 	(assign `((,(elem 1 in) lisp_stack)) `(,(elem 1 in)))
 	(call 'path 'gen_cubic in '(r0))
@@ -173,7 +173,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r0 "(path-gen-cubic p1x p1y p2x p2y p3x p3y p4x p4y tol dst) -> dst" error_msg_wrong_types r1))
-	(signature '(num num num num num num num num num path)))
+	(signature '(fixed fixed fixed fixed fixed fixed fixed fixed fixed path)))
 
 (def-func-end)
 
@@ -190,13 +190,13 @@
 	(entry 'path 'lisp_gen_arc '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type1 '(r1 ($ sig) 7) '(r2))
+	(call 'lisp 'env_args_sig '(r1 ($ sig) 7) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
 	(defq in (method-input 'path 'gen_arc))
 	(class/vector/bind_args r1 (class/array/map_args in '(7 6 0 1 2 3 4 5))
-		'(num num num num num num _ path))
+		'(fixed fixed fixed fixed fixed fixed _ path))
 	(assign '((rsp 0)) `(,(elem 1 in)))
 	(assign `((,(elem 1 in) lisp_stack)) `(,(elem 1 in)))
 	(call 'path 'gen_arc in '(r0))
@@ -209,7 +209,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r0 "(path-gen-arc cx cy start end radius tol dst) -> dst" error_msg_wrong_types r1))
-	(signature '(num num num num num num path)))
+	(signature '(fixed fixed fixed fixed fixed fixed path)))
 
 (def-func-end)
 
@@ -226,13 +226,13 @@
 	(entry 'path 'lisp_stroke_polylines '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type1 '(r1 ($ sig) 7) '(r2))
+	(call 'lisp 'env_args_sig '(r1 ($ sig) 7) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
 	(defq in (method-input 'path 'stroke_polylines))
 	(class/vector/bind_args r1 (class/array/map_args in '(0 7 6 1 2 3 4 5))
-		'(vector num num num num num vector _))
+		'(vector fixed fixed num num num vector _))
 	(assign '((rsp 0)) `(,(elem 1 in)))
 	(assign `((,(elem 1 in) lisp_stack)) `(,(elem 1 in)))
 	(call 'path 'stroke_polylines in '(r0))
@@ -245,7 +245,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r0 "(path-stroke-polylines dst radius tol join cap1 cap2 src) -> dst" error_msg_wrong_types r1))
-	(signature '(vector num num num num num vector)))
+	(signature '(vector fixed fixed num num num vector)))
 
 (def-func-end)
 
@@ -262,13 +262,13 @@
 	(entry 'path 'lisp_stroke_polygons '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type1 '(r1 ($ sig) 5) '(r2))
+	(call 'lisp 'env_args_sig '(r1 ($ sig) 5) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
 	(defq in (method-input 'path 'stroke_polygons))
 	(class/vector/bind_args r1 (class/array/map_args in '(0 5 4 1 2 3))
-		'(vector num num num vector _))
+		'(vector fixed fixed num vector _))
 	(assign '((rsp 0)) `(,(elem 1 in)))
 	(assign `((,(elem 1 in) lisp_stack)) `(,(elem 1 in)))
 	(call 'path 'stroke_polygons in '(r0))
@@ -281,6 +281,6 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r0 "(path-stroke-polygons dst radius tol join src) -> dst" error_msg_wrong_types r1))
-	(signature '(vector num num num vector)))
+	(signature '(vector fixed fixed num vector)))
 
 (def-func-end)

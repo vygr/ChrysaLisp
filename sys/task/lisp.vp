@@ -17,7 +17,7 @@
 	(entry 'sys_task 'lisp_sleep '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type1 '(r1 ($ sig) 1) '(r2))
+	(call 'lisp 'env_args_sig '(r1 ($ sig) 1) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
@@ -81,7 +81,7 @@
 	(entry 'sys_task 'lisp_open_child '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type1 '(r1 ($ sig) 2) '(r2))
+	(call 'lisp 'env_args_sig '(r1 ($ sig) 2) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
@@ -114,7 +114,7 @@
 	(entry 'sys_task 'lisp_open_remote '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type1 '(r1 ($ sig) 3) '(r2))
+	(call 'lisp 'env_args_sig '(r1 ($ sig) 3) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
@@ -147,7 +147,7 @@
 	(entry 'sys_task 'lisp_open_farm '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type1 '(r1 ($ sig) 3) '(r2))
+	(call 'lisp 'env_args_sig '(r1 ($ sig) 3) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
@@ -179,13 +179,13 @@
 	(entry 'sys_task 'lisp_open_pipe '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type1 '(r1 ($ sig) 1) '(r2))
+	(call 'lisp 'env_args_sig '(r1 ($ sig) 1) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(class/array/bind_args r1 '(r1))
 
 (errorcases
-	(call 'lisp 'env_args_type2 `(r1 (@ ,(f-path 'str 'vtable)) 1) '(r2))
+	(call 'lisp 'env_args_type `(r1 (@ ,(f-path 'str 'vtable)) 1) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)

@@ -15,7 +15,7 @@
 	(entry 'obj 'lisp_get_field '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type1 '(r1 ($ sig) 3) '(r2))
+	(call 'lisp 'env_args_sig '(r1 ($ sig) 3) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(assign '(r0) '(r5))
@@ -79,7 +79,7 @@
 	(entry 'obj 'lisp_set_field '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type1 '(r1 ($ sig) 4) '(r2))
+	(call 'lisp 'env_args_sig '(r1 ($ sig) 4) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(class/vector/bind_args r1 '(r1 r2 r3 r4) '(obj num num obj))

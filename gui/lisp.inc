@@ -112,6 +112,8 @@
 	flow_right_fill (logior flow_flag_right flow_flag_fillh flow_flag_lastw)
 	flow_left_fill (logior flow_flag_left flow_flag_fillh flow_flag_lastw))
 
+(defun-bind fixed (_) (pop (path _)))
+
 ;lisp bindings
 (ffi path "class/array/lisp_path" 0)
 (ffi component-connect "gui/component/lisp_connect" 0)

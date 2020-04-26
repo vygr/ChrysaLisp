@@ -16,7 +16,7 @@
 	(canvas-set-flags (canvas-fill canvas 0) 1)
 	(gui-add (apply view-change (cat (list window 512 256) (view-pref-size window))))
 	;create child and send args
-	(mail-send (list canvas (* canvas_width 1.0) (* canvas_height 1.0) (* canvas_scale 1.0))
+	(mail-send (list canvas (i2f canvas_width) (i2f canvas_height) (i2f canvas_scale))
 		(defq mbox (open-child "apps/canvas/child.lisp" kn_call_open)))
 	(while (cond
 		((= (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id) event_close)

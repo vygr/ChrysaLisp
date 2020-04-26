@@ -8,7 +8,7 @@
 	(assign '((r8 array_length)) '(r1))
 	(assign '(r1) '((r7 array_length)))
 	(call _ 'set_capacity '(r7 r1))
-	(call 'lisp 'env_args_set '(r8 (r7 array_begin) 0))
+	(call 'lisp 'env_args_set '(r8 0 (r7 array_begin)))
 	(exit 'array (sym (cat "lisp_" _)) '(r6 r7))
 	(vp-ret))
 
@@ -72,7 +72,7 @@
 	(entry 'array 'lisp_clear '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type2 `(r1 (@ ,(f-path 'array 'vtable)) 1) '(r2))
+	(call 'lisp 'env_args_type `(r1 (@ ,(f-path 'array 'vtable)) 1) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-alloc local_size)
@@ -109,7 +109,7 @@
 	(entry 'array 'lisp_pop '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type1 '(r1 ($ sig) 1) '(r2))
+	(call 'lisp 'env_args_sig '(r1 ($ sig) 1) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
@@ -163,7 +163,7 @@
 		(call 'array 'set_capacity '(r0 r8) '(r0))
 		(call 'array 'get_end '(r0) '(r9 r1))
 		(assign '(r8) '((r9 array_length)))
-		(call 'lisp 'env_args_set '(r7 r1 1))
+		(call 'lisp 'env_args_set '(r7 1 r1))
 		(vp-cpy-rr r9 r0)
 	(endif)
 	(call 'obj 'ref '(r0) '(r0))

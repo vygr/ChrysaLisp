@@ -19,7 +19,7 @@
 	(entry 'sys_mail 'lisp_read '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type1 '(r1 ($ sig) 1) '(r2))
+	(call 'lisp 'env_args_sig '(r1 ($ sig) 1) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
@@ -58,7 +58,7 @@
 	(entry 'sys_mail 'lisp_poll '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type1 '(r1 ($ sig) 1) '(r2))
+	(call 'lisp 'env_args_sig '(r1 ($ sig) 1) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
@@ -96,7 +96,7 @@
 	(entry 'sys_mail 'lisp_select '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type1 '(r1 ($ sig) 1) '(r2))
+	(call 'lisp 'env_args_sig '(r1 ($ sig) 1) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
@@ -132,10 +132,10 @@
 	(entry 'sys_mail 'lisp_send {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type1 {args, $sig, 2} '(r2))
+	(call 'lisp 'env_args_sig {args, $sig, 2} '(r2))
 	(gotoif '(r2 = 0) 'error))
 
-	(call 'lisp 'env_args_set {args, &arg0, 0})
+	(call 'lisp 'env_args_set {args, 0, &arg0})
 	(call 'obj 'inst_of (cat {arg0, @} (f-path 'str 'vtable)))
 	(vpif `(,(method-output 'obj 'inst_of 1) /= 0))
 		(call 'sys_mail 'alloc_obj {arg0, &arg0->str_data, arg0->str_length} {arg2})
@@ -181,7 +181,7 @@
 	(entry 'sys_mail 'lisp_declare '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type1 '(r1 ($ sig) 2) '(r2))
+	(call 'lisp 'env_args_sig '(r1 ($ sig) 2) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
@@ -217,7 +217,7 @@
 	(entry 'sys_mail 'lisp_enquire '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type1 '(r1 ($ sig) 1) '(r2))
+	(call 'lisp 'env_args_sig '(r1 ($ sig) 1) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
@@ -289,7 +289,7 @@
 	(entry 'sys_mail 'lisp_free_mbox '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type1 '(r1 ($ sig) 1) '(r2))
+	(call 'lisp 'env_args_sig '(r1 ($ sig) 1) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)

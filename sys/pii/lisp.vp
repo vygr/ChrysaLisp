@@ -16,7 +16,7 @@
 	(entry 'sys_pii 'lisp_readchar '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type2 `(r1 (@ ,(f-path 'num 'vtable)) 1) '(r2))
+	(call 'lisp 'env_args_type `(r1 (@ ,(f-path 'num 'vtable)) 1) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
@@ -48,7 +48,7 @@
 	(entry 'sys_pii 'lisp_writechar '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type2 `(r1 (@ ,(f-path 'num 'vtable)) 2) '(r2))
+	(call 'lisp 'env_args_type `(r1 (@ ,(f-path 'num 'vtable)) 2) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
@@ -113,7 +113,7 @@
 	(entry 'sys_pii 'lisp_age '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type1 '(r1 ($ sig) 1) '(r2))
+	(call 'lisp 'env_args_sig '(r1 ($ sig) 1) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)

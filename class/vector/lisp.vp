@@ -35,7 +35,7 @@
 	(entry 'vector 'lisp_elemset '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type1 '(r1 ($ sig) 3) '(r2))
+	(call 'lisp 'env_args_sig '(r1 ($ sig) 3) '(r2))
 	(gotoif '(r2 = 0) 'error1))
 
 	(vp-push r0 r1)
@@ -80,7 +80,7 @@
 	(entry 'vector 'lisp_merge '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type1 '(r1 ($ sig) 2) '(r2))
+	(call 'lisp 'env_args_sig '(r1 ($ sig) 2) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
@@ -138,7 +138,7 @@
 	(entry 'vector 'lisp_part {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type1 {args, $sig, 4} '(r2))
+	(call 'lisp 'env_args_sig {args, $sig, 4} '(r2))
 	(gotoif '(r2 = 0) 'error1))
 
 	(call 'vector 'get_begin {args} {_, iter_begin})
@@ -213,7 +213,7 @@
 	(entry 'vector 'lisp_match '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type1 '(r1 ($ sig) 2) '(r2))
+	(call 'lisp 'env_args_sig '(r1 ($ sig) 2) '(r2))
 	(gotoif '(r2 = 0) 'error1))
 
 	(vp-push r0)

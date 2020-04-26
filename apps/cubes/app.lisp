@@ -109,8 +109,8 @@
 			;event for canvas
 			(when (= (get-long msg (const ev_msg_type)) (const ev_type_mouse))
 				;mouse event in canvas
-				(defq new_point (path (* (get-int msg (const ev_msg_mouse_rx)) 1.0)
-					(* (get-int msg (const ev_msg_mouse_ry)) 1.0)))
+				(defq new_point (path (i2f (get-int msg (const ev_msg_mouse_rx)))
+					(i2f (get-int msg (const ev_msg_mouse_ry)))))
 				(cond
 					((/= (get-int msg (const ev_msg_mouse_buttons)) 0)
 						;mouse button is down
