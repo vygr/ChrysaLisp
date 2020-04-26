@@ -1,6 +1,8 @@
 (include 'sys/func.inc)
 (include 'sys/math/class.inc)
 (include 'class/num/class.inc)
+(include 'class/fixed/class.inc)
+(include 'class/real/class.inc)
 (include 'class/lisp/class.inc)
 
 (defun-bind addop (_)
@@ -632,5 +634,207 @@
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r0 "(random num)" error_msg_wrong_types r1))
 	(signature '(num)))
+
+(def-func-end)
+
+(def-method 'num 'lisp_i2f)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(entry 'num 'lisp_i2f '(r0 r1))
+
+(errorcases
+	(call 'lisp 'env_args_type1 `(r1 ($ sig) 1) '(r2))
+	(gotoif '(r2 = 0) 'error))
+
+	(vp-push r0)
+	(defq in (method-input 'fixed 'create))
+	(class/vector/bind_args r1 in '(num))
+	(vp-shl-cr fp_shift (elem 0 in))
+	(call 'fixed 'create in '(r1))
+	(vp-pop r0)
+
+	(exit 'num 'lisp_i2f '(r0 r1))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r0 "(i2f num)" error_msg_wrong_types r1))
+	(signature '(num)))
+
+(def-func-end)
+
+(def-method 'num 'lisp_i2r)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(entry 'num 'lisp_i2r '(r0 r1))
+
+(errorcases
+	(call 'lisp 'env_args_type1 `(r1 ($ sig) 1) '(r2))
+	(gotoif '(r2 = 0) 'error))
+
+	(vp-push r0)
+	(defq in (method-input 'sys_math 'r_i2r)
+		out (method-output 'sys_math 'r_i2r))
+	(class/vector/bind_args r1 in '(num))
+	(call 'sys_math 'r_i2r in out)
+	(call 'real 'create out '(r1))
+	(vp-pop r0)
+
+	(exit 'num 'lisp_i2r '(r0 r1))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r0 "(i2r num)" error_msg_wrong_types r1))
+	(signature '(num)))
+
+(def-func-end)
+
+(def-method 'num 'lisp_f2i)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(entry 'num 'lisp_f2i '(r0 r1))
+
+(errorcases
+	(call 'lisp 'env_args_type1 `(r1 ($ sig) 1) '(r2))
+	(gotoif '(r2 = 0) 'error))
+
+	(vp-push r0)
+	(defq in (method-input 'num 'create))
+	(class/vector/bind_args r1 in '(num))
+	(vp-asr-cr fp_shift (elem 0 in))
+	(call 'num 'create in '(r1))
+	(vp-pop r0)
+
+	(exit 'num 'lisp_f2i '(r0 r1))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r0 "(f2i fixed)" error_msg_wrong_types r1))
+	(signature '(fixed)))
+
+(def-func-end)
+
+(def-method 'num 'lisp_f2r)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(entry 'num 'lisp_f2r '(r0 r1))
+
+(errorcases
+	(call 'lisp 'env_args_type1 `(r1 ($ sig) 1) '(r2))
+	(gotoif '(r2 = 0) 'error))
+
+	(vp-push r0)
+	(defq in (method-input 'sys_math 'r_f2r)
+		out (method-output 'sys_math 'r_f2r))
+	(class/vector/bind_args r1 in '(num))
+	(call 'sys_math 'r_f2r in out)
+	(call 'real 'create out '(r1))
+	(vp-pop r0)
+
+	(exit 'num 'lisp_f2r '(r0 r1))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r0 "(f2r fixed)" error_msg_wrong_types r1))
+	(signature '(fixed)))
+
+(def-func-end)
+
+(def-method 'num 'lisp_r2i)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(entry 'num 'lisp_r2i '(r0 r1))
+
+(errorcases
+	(call 'lisp 'env_args_type1 `(r1 ($ sig) 1) '(r2))
+	(gotoif '(r2 = 0) 'error))
+
+	(vp-push r0)
+	(defq in (method-input 'sys_math 'r_r2i)
+		out (method-output 'sys_math 'r_r2i))
+	(class/vector/bind_args r1 in '(num))
+	(call 'sys_math 'r_r2i in out)
+	(call 'num 'create out '(r1))
+	(vp-pop r0)
+
+	(exit 'num 'lisp_r2i '(r0 r1))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r0 "(r2i real)" error_msg_wrong_types r1))
+	(signature '(real)))
+
+(def-func-end)
+
+(def-method 'num 'lisp_r2f)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(entry 'num 'lisp_r2f '(r0 r1))
+
+(errorcases
+	(call 'lisp 'env_args_type1 `(r1 ($ sig) 1) '(r2))
+	(gotoif '(r2 = 0) 'error))
+
+	(vp-push r0)
+	(defq in (method-input 'sys_math 'r_r2f)
+		out (method-output 'sys_math 'r_r2f))
+	(class/vector/bind_args r1 in '(num))
+	(call 'sys_math 'r_r2f in out)
+	(call 'fixed 'create out '(r1))
+	(vp-pop r0)
+
+	(exit 'num 'lisp_r2f '(r0 r1))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r0 "(r2f real)" error_msg_wrong_types r1))
+	(signature '(real)))
 
 (def-func-end)

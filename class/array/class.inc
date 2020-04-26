@@ -28,6 +28,7 @@
 
 (dec-method 'print 'class/array/print 'override)
 (dec-method 'vcreate 'class/array/create 'virtual '(r0) '(r0))
+(dec-method 'velement 'class/num/create 'virtual '(r0) '(r0))
 (dec-method 'clear 'class/array/clear 'virtual '(r0) '(r0))
 (dec-method 'ref_back 'class/array/ref_back 'virtual '(r0) '(r0 r1))
 (dec-method 'set_element 'class/array/set_element 'virtual '(r0 r1 r2) '(r0))

@@ -17,7 +17,12 @@
 
 (defq box_size 500 focal_len 1 max_vel 5)
 
-(when nil ;t for 16.16 fixed point, else 32:32 reals
-	(defmacro-bind i2r (_) `(* ,_ 1.0))
-	(defmacro-bind f2r (_) _)
-	(defmacro-bind r2f (_) _))
+(cond	;pick number format
+	(t	;reals
+		(defmacro-bind i2n (_) `(i2r ,_))
+		(defmacro-bind n2i (_) `(r2i ,_))
+		(defmacro-bind n2f (_) `(r2f ,_)))
+	(t		;fixed point
+		(defmacro-bind i2n (_) `(i2f ,_))
+		(defmacro-bind n2i (_) `(f2i ,_))
+		(defmacro-bind n2f (_) _)))

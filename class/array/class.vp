@@ -180,7 +180,7 @@
 	(assign '(r1) '((r0 array_length)))
 	(vp-shl-cr (log2 long_size) r1)
 	(vp-cpy-rr r0 r3)
-	(call 'num 'create '((r2 r1)) '(r0))
+	(v-call 'array 'velement '((r2 r1)) '(r0) r3 r1)
 
 	(exit 'array 'ref_back '(r3 r0))
 	(vp-ret)
@@ -201,7 +201,7 @@
 
 	(vp-cpy-rr r0 r3)
 	(class/array/get_element r0 r1 r0 r0)
-	(call 'num 'create '(r0) '(r0))
+	(v-call 'array 'velement '(r0) '(r0) r3 r1)
 
 	(exit 'array 'ref_element '(r3 r0))
 	(vp-ret)

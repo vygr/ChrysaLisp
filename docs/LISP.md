@@ -67,16 +67,6 @@ t
 ### Built in functions
 
 ```lisp
-.-
-.*
-./
-./=
-.+
-.<
-.<=
-.=
-.>
-.>=
 -
 *
 /
@@ -91,6 +81,12 @@ t
 >=
 >>
 >>>
+r2f
+r2i
+f2r
+f2i
+i2r
+i2f
 age
 apply
 array
@@ -113,7 +109,6 @@ elem-set
 env
 eql
 eval
-f2r
 fcos
 fdiv
 ffi
@@ -127,7 +122,6 @@ frac
 fsin
 fsqrt
 gensym
-i2r
 lambda
 length
 list
@@ -151,8 +145,6 @@ progn
 push
 quasi-quote
 quote
-r2f
-r2i
 random
 read
 read-char

@@ -1,0 +1,173 @@
+(include 'sys/func.inc)
+(include 'sys/math/class.inc)
+(include 'class/array/class.inc)
+(include 'class/fixed/class.inc)
+(include 'class/str/class.inc)
+(include 'class/stream/class.inc)
+
+(gen-create 'fixed)
+(gen-vtable 'fixed)
+
+(def-method 'fixed 'print)
+	;inputs
+	;r0 = fixed object (ptr)
+	;r1 = stream object (ptr)
+	;outputs
+	;r0 = fixed object (ptr)
+	;trashes
+	;r1-r14
+
+	(def-struct 'local)
+		(ptr 'this 'stream 'tmp)
+		(ulong 'value)
+	(def-struct-end)
+
+	(vp-alloc local_size)
+	(entry 'fixed 'print '(r0 r1))
+	(assign '(r0 r1) '((rsp local_this) (rsp local_stream)))
+
+	(assign '((r0 num_value)) '(r0))
+	(assign '(r0) '((rsp local_value)))
+	(vpif '(r0 < 0))
+		(vp-mul-cr -1 r0)
+		(assign '(r0) '((rsp local_value)))
+		(call 'stream 'write_char '((rsp local_stream) char_minus))
+	(endif)
+
+	(assign '((rsp local_value)) '(r0))
+	(vp-shr-cr fp_shift r0)
+	(call 'str 'create_from_long '(r0 10) '(r0))
+	(assign '(r0) '((rsp local_tmp)))
+	(call 'stream 'write '((rsp local_stream) (& r0 str_data) (r0 str_length)) '(r0))
+	(call 'stream 'write_char '(r0 char_dot))
+	(call 'obj 'deref '((rsp local_tmp)))
+
+	(assign '((rsp local_value)) '(r0))
+	(vp-and-cr fp_frac_mask r0)
+	(vp-mul-cr 100000 r0)
+	(vp-shr-cr fp_shift r0)
+	(call 'str 'create_from_long '(r0 10) '(r0))
+	(assign '(r0) '((rsp local_tmp)))
+	(assign '((r0 str_length) 5) '(r0 r2))
+	(vp-sub-rr r0 r2)
+	(call 'stream 'write '((rsp local_stream) "00000" r2) '(r0))
+	(assign '((rsp local_tmp)) '(r1))
+	(call 'stream 'write '(r0 (& r1 str_data) (r1 str_length)))
+	(call 'obj 'deref '((rsp local_tmp)))
+
+	(exit 'fixed 'print '((rsp local_this)))
+	(vp-free local_size)
+	(vp-ret)
+
+(def-func-end)
+
+(defun-bind addop (_ p)
+	(entry 'fixed _ '(r0 r1))
+	(vp-push r0)
+	(class/array/get_both r1 r1 r2)
+	(vp-cpy-ir r1 0 r0)
+	(vp-add-cr ptr_size r1)
+	(assign '((r0 num_value)) '(r0))
+	(loop-start)
+		(vp-cpy-ir r1 0 r4)
+		(vp-add-cr ptr_size r1)
+		(assign '((r4 num_value)) '(r3))
+		(exec p)
+	(loop-until '(r1 = r2))
+	(v-call 'num 'vcreate '(r0) '(r1) r4 r1)
+	(vp-pop r0)
+	(exit 'fixed _ '(r0 r1))
+	(vp-ret))
+
+(def-method 'fixed 'mul)
+	;inputs
+	;r0 = fixed object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = fixed object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(addop 'mul
+		'(progn
+			(vp-mul-rr r3 r0)
+			(vp-asr-cr fp_shift r0)))
+
+(def-func-end)
+
+(defun-bind divop (_ p)
+	(entry 'fixed _ '(r0 r1))
+	(vp-push r0)
+	(class/array/get_both r1 r1 r4)
+	(vp-cpy-ir r1 0 r0)
+	(vp-add-cr ptr_size r1)
+	(assign '((r0 num_value)) '(r0))
+	(loop-start)
+		(vp-cpy-ir r1 0 r5)
+		(vp-add-cr ptr_size r1)
+		(assign '((r5 num_value)) '(r3))
+	(errorcases
+		(gotoif '(r3 = 0) 'error))
+		(exec p)
+	(loop-until '(r1 = r4))
+	(v-call 'num 'vcreate '(r0) '(r1) r5 r1)
+	(vp-pop r0)
+	(exit 'fixed _ '(r0 r1))
+	(vp-ret)
+(vp-label 'error)
+	(vp-pop r0)
+	(exit 'fixed _ '(r0 r3))
+	(vp-ret))
+
+(def-method 'fixed 'div)
+	;inputs
+	;r0 = fixed object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = fixed object (ptr)
+	;r1 = 0, else return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(divop 'fdiv
+		'(progn
+			(vp-shl-cr fp_shift r0)
+			(vp-ext-rr r0 r2)
+			(vp-div-rrr r3 r2 r0)))
+
+(def-func-end)
+
+(def-method 'fixed 'mod)
+	;inputs
+	;r0 = fixed object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = fixed object (ptr)
+	;r1 = 0, else return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(entry 'fixed 'mod '(r0 r1))
+
+	(vp-push r0)
+	(class/array/get_both r1 r4 r5)
+	(vp-cpy-ir r4 0 r0)
+	(vp-add-cr ptr_size r4)
+	(assign '((r0 num_value)) '(r0))
+	(loop-start)
+		(vp-cpy-ir r4 0 r6)
+		(vp-add-cr ptr_size r4)
+		(assign '((r6 num_value)) '(r1))
+	(errorcases
+		(gotoif '(r1 = 0) 'error))
+		(vec-set 2)
+		(vec-fmod 1)
+	(loop-until '(r4 = r5))
+	(v-call 'num 'vcreate '(r0) '(r1) r6 r1)
+(vp-label 'error)
+	(vp-pop r0)
+	(exit 'fixed 'mod '(r0 r1))
+	(vp-ret)
+
+(def-func-end)

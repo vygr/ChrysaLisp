@@ -99,12 +99,11 @@
 ; function helpers
 ;;;;;;;;;;;;;;;;;;
 
-(defcfun-bind call (_1 _2 &optional _3 _4 _5)
+(defcfun-bind call (_1 _2 &optional _3 _4)
 	;_1 = class name
 	;_2 = member name
 	;_3 = in parameters
 	;_4 = out parameters
-	;_5 = dispatch reg
 	(cond
 		((sym? _2)
 			(defq m (method-lookup _1 _2))
@@ -116,13 +115,12 @@
 					(if _4 (assign (elem 3 m) _4)))
 				;v-call
 				(t
-					(setd _5 r14)
 					(defq _ (elem 2 m))
-					(if (find _5 _)
-						(throw "Dispatch register conflicts with arg !" (list _5 _)))
+					(if (find r14 _)
+						(throw "Dispatch register conflicts with arg !" (list r14 _)))
 					(assign _3 _)
-					(vp-cpy-ir r0 obj_vtable _5)
-					(vp-call-i _5 (elem 4 m))
+					(vp-cpy-ir r0 obj_vtable r14)
+					(vp-call-i r14 (elem 4 m))
 					(if _4 (assign (elem 3 m) _4)))))
 		(t
 			;l-call
@@ -137,11 +135,10 @@
 				((str? _3) (assign (slice 0 (length (split _3 ",")) _) _3))
 				(t (assign (slice 0 (length _3) _) _3))))))
 
-(defcfun jump (_1 _2 &optional _3 _4)
+(defcfun-bind jump (_1 _2 &optional _3)
 	;_1 = class name
 	;_2 = member name
 	;_3 = in parameters
-	;_4 = dispatch reg
 	(defq m (method-lookup _1 _2))
 	(cond
 		((eql (elem 1 m) 'static)
@@ -149,16 +146,15 @@
 			(unwind)
 			(fn-jump (elem 0 m)))
 		(t
-			(setd _4 r14)
 			(defq _ (elem 2 m))
-			(if (find _4 _)
-				(throw "Dispatch register conflicts with arg !" (list _4 _)))
+			(if (find r14 _)
+				(throw "Dispatch register conflicts with arg !" (list r14 _)))
 			(assign _3 _)
-			(vp-cpy-ir r0 obj_vtable _4)
+			(vp-cpy-ir r0 obj_vtable r14)
 			(unwind)
-			(vp-jmp-i _4 (elem 4 m)))))
+			(vp-jmp-i r14 (elem 4 m)))))
 
-(defcmacro entry (&rest _)
+(defcmacro-bind entry (&rest _)
 	;either
 	;_1 = class name
 	;_2 = slot method name
@@ -169,7 +165,7 @@
 		(cat '(l-entry) _)
 		(cat '(f-entry) _)))
 
-(defcmacro exit (&rest _)
+(defcmacro-bind exit (&rest _)
 	;either
 	;_1 = class name
 	;_2 = slot method name
@@ -318,22 +314,23 @@
 		(throw "Method is static !" (list (eval (super-sym _1)) _2)))
 	(fn-bind (elem 0 m) _3))
 
-(defcfun v-call (_1 _2 &optional _3 _4 _5)
+(defcfun v-call (_1 _2 &optional _3 _4 _5 _6)
 	;_1 = class name
 	;_2 = member name
 	;_3 = in parameters
 	;_4 = out parameters
-	;_5 = dispatch reg
-	(setd _5 r14)
+	;_5 = obj reg
+	;_6 = dispatch reg
+	(setd _5 r0 _6 r14)
 	(defq m (method-lookup _1 _2))
 	(if (eql (elem 1 m) 'static)
 		(throw "Method is static ! Use f-call ?" (list _1 _2)))
 	(defq _ (elem 2 m))
-	(if (find _5 _)
-		(throw "Dispatch register conflicts with arg !" (list _5 _)))
+	(if (find _6 _)
+		(throw "Dispatch register conflicts with arg !" (list _6 _)))
 	(assign _3 _)
-	(vp-cpy-ir r0 obj_vtable _5)
-	(vp-call-i _5 (elem 4 m))
+	(vp-cpy-ir _5 obj_vtable _6)
+	(vp-call-i _6 (elem 4 m))
 	(if _4 (assign (elem 3 m) _4)))
 
 (defcfun v-jump (_1 _2 &optional _3 _4)
@@ -353,16 +350,17 @@
 	(unwind)
 	(vp-jmp-i _4 (elem 4 m)))
 
-(defcfun v-bind (_1 _2 &optional _3)
+(defcfun v-bind (_1 _2 &optional _3 _4)
 	;_1 = class name
 	;_2 = member name
-	;_3 = dispatch reg
-	(setd _3 r14)
+	;_3 = obj reg
+	;_4 = dispatch reg
+	(setd _3 r0 _4 r14)
 	(defq m (method-lookup _1 _2))
 	(if (eql (elem 1 m) 'static)
 		(throw "Method is static ! Use f-bind ?" (list _1 _2)))
-	(vp-cpy-ir r0 obj_vtable _3)
-	(vp-cpy-ir _3 (elem 4 m) _3))
+	(vp-cpy-ir _3 obj_vtable _4)
+	(vp-cpy-ir _4 (elem 4 m) _4))
 
 (defcfun d-call (_1 _2 &optional _3 _4)
 	;_1 = class name

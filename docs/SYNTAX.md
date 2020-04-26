@@ -400,9 +400,13 @@
 
 (exec ast)
 
+## f2i
+
+(f2i fixed)
+
 ## f2r
 
-(f2r num)
+(f2r fixed)
 
 ## fcos
 
@@ -499,6 +503,10 @@
 ## gui-add-back
 
 (gui-add-back view)
+
+## i2f
+
+(i2f num)
 
 ## i2r
 

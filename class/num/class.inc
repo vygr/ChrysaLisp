@@ -8,6 +8,7 @@
 (dec-method 'set_value 'class/num/set_value 'static '(r0 r1) '(r0 r1))
 
 (dec-method 'print 'class/num/print 'override)
+(dec-method 'vcreate 'class/num/create 'virtual '(r0) '(r0))
 
 (dec-method 'add 'class/num/add 'virtual '(r0 r1) '(r0 r1))
 (dec-method 'sub 'class/num/sub 'virtual '(r0 r1) '(r0 r1))
@@ -58,6 +59,13 @@
 (dec-method 'lisp_fsqrt 'class/num/lisp_fsqrt 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_frac 'class/num/lisp_frac 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_floor 'class/num/lisp_floor 'static '(r0 r1) '(r0 r1))
+
+(dec-method 'lisp_i2f 'class/num/lisp_i2f 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_i2r 'class/num/lisp_i2r 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_f2i 'class/num/lisp_f2i 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_f2r 'class/num/lisp_f2r 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_r2i 'class/num/lisp_r2i 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_r2f 'class/num/lisp_r2f 'static '(r0 r1) '(r0 r1))
 
 (def-struct 'num 'obj)
 	(long 'value)

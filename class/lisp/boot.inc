@@ -21,10 +21,12 @@
 (ffi fdiv "class/num/lisp_fdiv" 0)
 (ffi fmod "class/num/lisp_fmod" 0)
 
-(ffi i2r "class/real/lisp_i2r" 0)
-(ffi f2r "class/real/lisp_f2r" 0)
-(ffi r2i "class/real/lisp_r2i" 0)
-(ffi r2f "class/real/lisp_r2f" 0)
+(ffi i2r "class/num/lisp_i2r" 0)
+(ffi i2f "class/num/lisp_i2f" 0)
+(ffi f2i "class/num/lisp_f2i" 0)
+(ffi f2r "class/num/lisp_f2r" 0)
+(ffi r2i "class/num/lisp_r2i" 0)
+(ffi r2f "class/num/lisp_r2f" 0)
 
 (ffi >> "class/num/lisp_shr" 0)
 (ffi >>> "class/num/lisp_asr" 0)
