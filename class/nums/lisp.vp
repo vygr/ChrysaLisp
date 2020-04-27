@@ -1,6 +1,6 @@
 (include 'sys/func.inc)
-(include 'class/nums/class.inc)
 (include 'class/num/class.inc)
+(include 'class/fixeds/class.inc)
 (include 'class/lisp/class.inc)
 
 (def-method 'nums 'lisp_vecop1)
@@ -19,7 +19,7 @@
 	(assign '((r10 array_length)) '(r12))
 (errorcases
 	(gotoif '(r12 > 3) 'error)
-	(call 'lisp 'env_args_type `(r10 (@ ,(f-path 'nums 'vtable)) 2) '(r2))
+	(call 'lisp 'env_args_match `(r10 (@ ,(f-path 'nums 'vtable)) 2) '(r2))
 	(gotoif '(r2 = 0) 'error))
 	(assign '((r10 array_begin)) '(r1))
 	(class/array/get_args r1 '(r6 r7))
@@ -29,7 +29,7 @@
 	(assign '((r7 array_length)) '(r14))
 	(gotoif '(r13 /= r14) 'error))
 	(vpif '(r12 = 2))
-		(call 'nums 'create nil '(r0))
+		(v-call 'nums 'vcreate '(r0) '(r0) r6 r1)
 		(call 'nums 'set_capacity '(r0 r13) '(r0))
 		(call 'nums 'set_length '(r0 r13) '(r0 _))
 	(else)
@@ -66,18 +66,18 @@
 	(assign '((r10 array_length)) '(r12))
 (errorcases
 	(gotoif '(r12 > 2) 'error)
-	(call 'lisp 'env_args_type `(r10 (@ ,(f-path 'nums 'vtable)) 1) '(r2))
+	(call 'lisp 'env_args_match `(r10 (@ ,(f-path 'nums 'vtable)) 1) '(r2))
 	(gotoif '(r2 = 0) 'error))
-	(assign '((r10 array_begin) (r1 0)) '(r1 r6))
+	(assign '((r10 array_begin)) '(r1))
+	(class/array/get_args r1 '(r6))
 	(assign '((r6 array_length)) '(r13))
-(errorcases
-	(gotoif '(r13 = 0) 'error))
+	(errorif '(r13 = 0) 'error)
 	(vpif '(r12 = 1))
-		(call 'nums 'create nil '(r0))
+		(v-call 'nums 'vcreate '(r0) '(r0) r6 r1)
 		(call 'nums 'set_capacity '(r0 r13) '(r0))
 		(call 'nums 'set_length '(r0 r13) '(r0 _))
 	(else)
-		(assign '((r1 ptr_size)) '(r0))
+		(vp-cpy-ir r1 (* ptr_size 1) r0)
 	(errorcases
 		(assign '((r0 array_length)) '(r14))
 		(gotoif '(r13 /= r14) 'error))
@@ -107,7 +107,9 @@
 	(entry 'nums 'lisp_add '(r0 r1))
 
 	(vp-push r1)
-	(call 'nums 'lisp_vecop1 `(r0 r1 (@ ,(f-path 'nums 'add))) '(r0 r1))
+	(class/array/bind_args r1 '(r2))
+	(v-bind 'nums 'add r2 r2)
+	(call 'nums 'lisp_vecop1 '(r0 r1 r2) '(r0 r1))
 	(vp-pop r3)
 	(errorif '(r1 = 0) 'error)
 
@@ -133,7 +135,9 @@
 	(entry 'nums 'lisp_sub '(r0 r1))
 
 	(vp-push r1)
-	(call 'nums 'lisp_vecop1 `(r0 r1 (@ ,(f-path 'nums 'sub))) '(r0 r1))
+	(class/array/bind_args r1 '(r2))
+	(v-bind 'nums 'sub r2 r2)
+	(call 'nums 'lisp_vecop1 '(r0 r1 r2) '(r0 r1))
 	(vp-pop r3)
 	(errorif '(r1 = 0) 'error)
 
@@ -159,7 +163,9 @@
 	(entry 'nums 'lisp_mul '(r0 r1))
 
 	(vp-push r1)
-	(call 'nums 'lisp_vecop1 `(r0 r1 (@ ,(f-path 'nums 'mul))) '(r0 r1))
+	(class/array/bind_args r1 '(r2))
+	(v-bind 'nums 'mul r2 r2)
+	(call 'nums 'lisp_vecop1 '(r0 r1 r2) '(r0 r1))
 	(vp-pop r3)
 	(errorif '(r1 = 0) 'error)
 
@@ -185,7 +191,9 @@
 	(entry 'nums 'lisp_div '(r0 r1))
 
 	(vp-push r1)
-	(call 'nums 'lisp_vecop1 `(r0 r1 (@ ,(f-path 'nums 'div))) '(r0 r1))
+	(class/array/bind_args r1 '(r2))
+	(v-bind 'nums 'div r2 r2)
+	(call 'nums 'lisp_vecop1 '(r0 r1 r2) '(r0 r1))
 	(vp-pop r3)
 	(errorif '(r1 = 0) 'error)
 
@@ -211,7 +219,9 @@
 	(entry 'nums 'lisp_mod '(r0 r1))
 
 	(vp-push r1)
-	(call 'nums 'lisp_vecop1 `(r0 r1 (@ ,(f-path 'nums 'mod))) '(r0 r1))
+	(class/array/bind_args r1 '(r2))
+	(v-bind 'nums 'mod r2 r2)
+	(call 'nums 'lisp_vecop1 '(r0 r1 r2) '(r0 r1))
 	(vp-pop r3)
 	(errorif '(r1 = 0) 'error)
 
@@ -221,84 +231,6 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r0 "(nums-mod nums nums [nums])" error_msg_wrong_types r3)))
-
-(def-func-end)
-
-(def-method 'nums 'lisp_fmul)
-	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
-	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
-	;trashes
-	;r1-r14
-
-	(entry 'nums 'lisp_fmul '(r0 r1))
-
-	(vp-push r1)
-	(call 'nums 'lisp_vecop1 `(r0 r1 (@ ,(f-path 'nums 'fmul))) '(r0 r1))
-	(vp-pop r3)
-	(errorif '(r1 = 0) 'error)
-
-	(exit 'nums 'lisp_fmul '(r0 r1))
-	(vp-ret)
-
-(errorcases
-(vp-label 'error)
-	(jump 'lisp 'repl_error '(r0 "(nums-fmul nums nums [nums])" error_msg_wrong_types r3)))
-
-(def-func-end)
-
-(def-method 'nums 'lisp_fdiv)
-	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
-	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
-	;trashes
-	;r1-r14
-
-	(entry 'nums 'lisp_fdiv '(r0 r1))
-
-	(vp-push r1)
-	(call 'nums 'lisp_vecop1 `(r0 r1 (@ ,(f-path 'nums 'fdiv))) '(r0 r1))
-	(vp-pop r3)
-	(errorif '(r1 = 0) 'error)
-
-	(exit 'nums 'lisp_fdiv '(r0 r1))
-	(vp-ret)
-
-(errorcases
-(vp-label 'error)
-	(jump 'lisp 'repl_error '(r0 "(nums-fdiv nums nums [nums])" error_msg_wrong_types r3)))
-
-(def-func-end)
-
-(def-method 'nums 'lisp_fmod)
-	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
-	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
-	;trashes
-	;r1-r14
-
-	(entry 'nums 'lisp_fmod '(r0 r1))
-
-	(vp-push r1)
-	(call 'nums 'lisp_vecop1 `(r0 r1 (@ ,(f-path 'nums 'fmod))) '(r0 r1))
-	(vp-pop r3)
-	(errorif '(r1 = 0) 'error)
-
-	(exit 'nums 'lisp_fmod '(r0 r1))
-	(vp-ret)
-
-(errorcases
-(vp-label 'error)
-	(jump 'lisp 'repl_error '(r0 "(nums-fmod nums nums [nums])" error_msg_wrong_types r3)))
 
 (def-func-end)
 
@@ -320,8 +252,10 @@
 
 	(vp-push r0)
 	(class/array/bind_args r1 '(r0))
+	(vp-push r0)
 	(call 'nums 'sum '(r0) '(_ r0))
-	(call 'num 'create '(r0) '(r1))
+	(vp-pop r1)
+	(v-call 'nums 'velement '(r0) '(r1) r1 r1)
 	(vp-pop r0)
 
 	(exit 'nums 'lisp_sum '(r0 r1))
@@ -334,7 +268,7 @@
 
 (def-func-end)
 
-(def-method 'nums 'lisp_fscale)
+(def-method 'nums 'lisp_scale)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -344,7 +278,7 @@
 	;trashes
 	;r1-r14
 
-	(entry 'nums 'lisp_fscale '(r9 r10))
+	(entry 'nums 'lisp_scale '(r9 r10))
 
 	(assign '((r10 array_length)) '(r12))
 (errorcases
@@ -358,7 +292,7 @@
 (errorcases
 	(gotoif '(r13 = 0) 'error))
 	(vpif '(r12 = 2))
-		(call 'nums 'create nil '(r0))
+		(v-call 'nums 'vcreate '(r0) '(r0) r6 r1)
 		(call 'nums 'set_capacity '(r0 r13) '(r0))
 		(call 'nums 'set_length '(r0 r13) '(r0 _))
 	(else)
@@ -368,14 +302,14 @@
 		(gotoif '(r13 /= r14) 'error))
 		(call 'obj 'ref '(r0) '(r0))
 	(endif)
-	(call 'nums 'fscale '(r0 r6 (r7 num_value)) '(r0))
+	(call 'nums 'scale '(r0 r6 (r7 num_value)) '(r0))
 
-	(exit 'nums 'lisp_fscale '(r9 r0))
+	(exit 'nums 'lisp_scale '(r9 r0))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r9 "(nums-fscale nums scale [nums])" error_msg_wrong_types r10))
+	(jump 'lisp 'repl_error '(r9 "(nums-scale nums scale [nums])" error_msg_wrong_types r10))
 	(signature '(nums num nums)))
 
 (def-func-end)
@@ -393,7 +327,9 @@
 	(entry 'nums 'lisp_abs '(r0 r1))
 
 	(vp-push r1)
-	(call 'nums 'lisp_vecop2 `(r0 r1 (@ ,(f-path 'nums 'abs))) '(r0 r1))
+	(class/array/bind_args r1 '(r2))
+	(v-bind 'nums 'abs r2 r2)
+	(call 'nums 'lisp_vecop2 '(r0 r1 r2) '(r0 r1))
 	(vp-pop r3)
 	(errorif '(r1 = 0) 'error)
 
@@ -403,31 +339,5 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r0 "(nums-abs nums [nums])" error_msg_wrong_types r3)))
-
-(def-func-end)
-
-(def-method 'nums 'lisp_frac)
-	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
-	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
-	;trashes
-	;r1-r14
-
-	(entry 'nums 'lisp_frac '(r0 r1))
-
-	(vp-push r1)
-	(call 'nums 'lisp_vecop2 `(r0 r1 (@ ,(f-path 'nums 'frac))) '(r0 r1))
-	(vp-pop r3)
-	(errorif '(r1 = 0) 'error)
-
-	(exit 'nums 'lisp_frac '(r0 r1))
-	(vp-ret)
-
-(errorcases
-(vp-label 'error)
-	(jump 'lisp 'repl_error '(r0 "(nums-frac nums [nums])" error_msg_wrong_types r3)))
 
 (def-func-end)

@@ -5,7 +5,7 @@
 (gen-create 'nums)
 (gen-vtable 'nums)
 
-(defun vecop1 (_)
+(defun-bind vecop1 (_)
 	;trashes
 	;r1-r6+
 	(entry 'nums _ '(r0 r1 r2))
@@ -24,7 +24,7 @@
 	(exit 'nums _ '(r0))
 	(vp-ret))
 
-(defun vecop2 (_)
+(defun-bind vecop2 (_)
 	;trashes
 	;r1-r8+
 	(entry 'nums _ '(r0 r1 r2))
@@ -44,7 +44,7 @@
 	(exit 'nums _ '(r4))
 	(vp-ret))
 
-(defun vecop3 (_)
+(defun-bind vecop3 (_)
 	;trashes
 	;r1-r4+
 	(entry 'nums _ '(r0 r1))
@@ -131,45 +131,16 @@
 
 (def-func-end)
 
-(def-method 'nums 'fmul)
+(def-method 'nums 'abs)
 	;inputs
 	;r0 = nums object (ptr)
-	;r1 = source1 nums object, can be same (ptr)
-	;r2 = source2 nums object, can be same (ptr)
+	;r1 = source nums object, can be same (ptr)
 	;outputs
 	;r0 = nums object (ptr)
 	;trashes
-	;r1-r6
+	;r1-r4
 
-	(vecop1 'fmul)
-
-(def-func-end)
-
-(def-method 'nums 'fdiv)
-	;inputs
-	;r0 = nums object (ptr)
-	;r1 = source1 nums object, can be same (ptr)
-	;r2 = source2 nums object, can be same (ptr)
-	;outputs
-	;r0 = nums object (ptr)
-	;trashes
-	;r1-r8
-
-	(vecop2 'fdiv)
-
-(def-func-end)
-
-(def-method 'nums 'fmod)
-	;inputs
-	;r0 = nums object (ptr)
-	;r1 = source1 nums object, can be same (ptr)
-	;r2 = source2 nums object, can be same (ptr)
-	;outputs
-	;r0 = nums object (ptr)
-	;trashes
-	;r1-r8
-
-	(vecop2 'fmod)
+	(vecop3 'abs)
 
 (def-func-end)
 
@@ -197,7 +168,7 @@
 
 (def-func-end)
 
-(def-method 'nums 'fscale)
+(def-method 'nums 'scale)
 	;inputs
 	;r0 = nums object (ptr)
 	;r1 = source nums object, can be same (ptr)
@@ -207,46 +178,20 @@
 	;trashes
 	;r1-r5
 
-	(entry 'nums 'fscale '(r0 r1 r2))
+	(entry 'nums 'scale '(r0 r1 r2))
 
 	(class/array/get_both r0 r3 r4)
 	(assign '((r1 array_begin)) '(r1))
 	(vec-set 5)
 	(loop-start)
 		(vec-load-long 1 r1)
-		(vec-fmul 1 '(r2))
+		(vec-mul 1 '(r2))
 		(vec-store-long 1 r3)
 		(vp-add-cr long_size r3)
 		(vp-add-cr long_size r1)
 	(loop-until '(r3 = r4))
 
-	(exit 'nums 'fscale '(r0))
+	(exit 'nums 'scale '(r0))
 	(vp-ret)
-
-(def-func-end)
-
-(def-method 'nums 'abs)
-	;inputs
-	;r0 = nums object (ptr)
-	;r1 = source nums object, can be same (ptr)
-	;outputs
-	;r0 = nums object (ptr)
-	;trashes
-	;r1-r4
-
-	(vecop3 'abs)
-
-(def-func-end)
-
-(def-method 'nums 'frac)
-	;inputs
-	;r0 = nums object (ptr)
-	;r1 = source nums object, can be same (ptr)
-	;outputs
-	;r0 = nums object (ptr)
-	;trashes
-	;r1-r5
-
-	(vecop3 'frac)
 
 (def-func-end)

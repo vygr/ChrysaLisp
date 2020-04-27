@@ -15,11 +15,10 @@
 (dec-method 'mul 'class/num/mul 'virtual '(r0 r1) '(r0 r1))
 (dec-method 'min 'class/num/min 'virtual '(r0 r1) '(r0 r1))
 (dec-method 'max 'class/num/max 'virtual '(r0 r1) '(r0 r1))
-(dec-method 'fmul 'class/num/fmul 'virtual '(r0 r1) '(r0 r1))
 (dec-method 'div 'class/num/div 'virtual '(r0 r1) '(r0 r1))
 (dec-method 'mod 'class/num/mod 'virtual '(r0 r1) '(r0 r1))
-(dec-method 'fdiv 'class/num/fdiv 'virtual '(r0 r1) '(r0 r1))
-(dec-method 'fmod 'class/num/fmod 'virtual '(r0 r1) '(r0 r1))
+(dec-method 'sqrt 'class/num/sqrt 'virtual '(r0 r1) '(r0 r1))
+(dec-method 'random 'class/num/random 'virtual '(r0 r1) '(r0 r1))
 
 (dec-method 'eq 'class/num/eq 'virtual '(r0 r1) '(r0 r1))
 (dec-method 'ne 'class/num/ne 'virtual '(r0 r1) '(r0 r1))
@@ -35,6 +34,7 @@
 (dec-method 'lisp_mod 'class/num/lisp_mod 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_min 'class/num/lisp_min 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_max 'class/num/lisp_max 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_sqrt 'class/num/lisp_sqrt 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_random 'class/num/lisp_random 'static '(r0 r1) '(r0 r1))
 
 (dec-method 'lisp_eq 'class/num/lisp_eq 'static '(r0 r1) '(r0 r1))
@@ -50,15 +50,6 @@
 (dec-method 'lisp_shr 'class/num/lisp_shr 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_asr 'class/num/lisp_asr 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_shl 'class/num/lisp_shl 'static '(r0 r1) '(r0 r1))
-
-(dec-method 'lisp_fmul 'class/num/lisp_fmul 'static '(r0 r1) '(r0 r1))
-(dec-method 'lisp_fdiv 'class/num/lisp_fdiv 'static '(r0 r1) '(r0 r1))
-(dec-method 'lisp_fmod 'class/num/lisp_fmod 'static '(r0 r1) '(r0 r1))
-(dec-method 'lisp_fsin 'class/num/lisp_fsin 'static '(r0 r1) '(r0 r1))
-(dec-method 'lisp_fcos 'class/num/lisp_fcos 'static '(r0 r1) '(r0 r1))
-(dec-method 'lisp_fsqrt 'class/num/lisp_fsqrt 'static '(r0 r1) '(r0 r1))
-(dec-method 'lisp_frac 'class/num/lisp_frac 'static '(r0 r1) '(r0 r1))
-(dec-method 'lisp_floor 'class/num/lisp_floor 'static '(r0 r1) '(r0 r1))
 
 (dec-method 'lisp_i2f 'class/num/lisp_i2f 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_i2r 'class/num/lisp_i2r 'static '(r0 r1) '(r0 r1))

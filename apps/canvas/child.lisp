@@ -14,7 +14,7 @@
 	fp4 (font-glyph-paths font "__Quality!"))
 
 (defun-bind transform-copy (angle _)
-	(defq sa (fsin angle) ca (fcos angle))
+	(defq sa (sin angle) ca (cos angle))
 	(map (lambda (_)
 		(path-transform
 			(* canvas_scale ca) (* canvas_scale (* sa -1.0))
@@ -23,7 +23,7 @@
 			_ (cat _))) _))
 
 (defun-bind transform (angle _)
-	(defq sa (fsin angle) ca (fcos angle))
+	(defq sa (sin angle) ca (cos angle))
 	(map (lambda (_)
 		(path-transform
 			(* canvas_scale ca) (* canvas_scale (* sa -1.0))
@@ -32,7 +32,7 @@
 			_ _)) _))
 
 (defun-bind transform-norm (angle _)
-	(defq sa (fsin angle) ca (fcos angle))
+	(defq sa (sin angle) ca (cos angle))
 	(map (lambda (_)
 		(path-transform
 			(* canvas_width canvas_scale ca) (* canvas_height canvas_scale (* sa -1.0))

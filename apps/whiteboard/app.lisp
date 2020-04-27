@@ -183,12 +183,12 @@
 										;pen mode, so extend last stroke ?
 										(defq stroke (tuple-get path_path (elem -2 overlay_paths))
 											mid_vec (vec-sub new_point last_point))
-										(when (>= (fixed (vec-length-squared mid_vec)) (* stroke_radius stroke_radius))
+										(when (>= (vec-length-squared mid_vec) (* stroke_radius stroke_radius))
 											(defq mid_point (vec-add last_point (vec-scale mid_vec 0.5)))
 											(path-gen-quadratic
-												(fixed (elem 0 last_mid_point)) (fixed (elem 1 last_mid_point))
-												(fixed (elem 0 last_point)) (fixed (elem 1 last_point))
-												(fixed (elem 0 mid_point)) (fixed (elem 1 mid_point))
+												(elem 0 last_mid_point) (elem 1 last_mid_point)
+												(elem 0 last_point) (elem 1 last_point)
+												(elem 0 mid_point) (elem 1 mid_point)
 												(const eps) stroke)
 											(path-filter (const tol) stroke stroke)
 											(setq last_point new_point last_mid_point mid_point)

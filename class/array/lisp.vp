@@ -40,7 +40,7 @@
 
 (def-func-end)
 
-(def-method 'array 'lisp_nums)
+(def-method 'array 'lisp_fixeds)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -50,7 +50,7 @@
 	;trashes
 	;r1-r14
 
-	(to-array 'nums)
+	(to-array 'fixeds)
 
 (def-func-end)
 

@@ -451,7 +451,7 @@ trashes
 r1-r14
 ```
 
-### array::lisp_nums -> class/array/lisp_nums
+### array::lisp_fixeds -> class/array/lisp_fixeds
 
 ```lisp
 inputs
@@ -1706,6 +1706,237 @@ r1 = args vector object (ptr)
 outputs
 r0 = fixed object (ptr)
 r1 = 0, else return value object (ptr)
+trashes
+r1-r14
+```
+
+### fixed::sqrt -> class/fixed/sqrt
+
+```lisp
+inputs
+r0 = fixed object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = fixed object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### fixed::sin -> class/fixed/sin
+
+```lisp
+inputs
+r0 = fixed object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = fixed object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### fixed::cos -> class/fixed/cos
+
+```lisp
+inputs
+r0 = fixed object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = fixed object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### fixed::frac -> class/fixed/frac
+
+```lisp
+inputs
+r0 = fixed object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = fixed object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### fixed::floor -> class/fixed/floor
+
+```lisp
+inputs
+r0 = fixed object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = fixed object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### fixed::lisp_sin -> class/fixed/lisp_sin
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### fixed::lisp_cos -> class/fixed/lisp_cos
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### fixed::lisp_frac -> class/fixed/lisp_frac
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### fixed::lisp_floor -> class/fixed/lisp_floor
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+## fixeds
+
+Super Class: nums
+
+### fixeds::vtable -> class/fixeds/vtable
+
+### fixeds::create -> class/fixeds/create
+
+### fixeds::vcreate -> class/fixeds/create
+
+### fixeds::velement -> class/fixed/create
+
+### fixeds::mul -> class/fixeds/mul
+
+```lisp
+inputs
+r0 = fixeds object (ptr)
+r1 = source1 fixeds object, can be same (ptr)
+r2 = source2 fixeds object, can be same (ptr)
+outputs
+r0 = fixeds object (ptr)
+trashes
+r1-r6
+```
+
+### fixeds::div -> class/fixeds/div
+
+```lisp
+inputs
+r0 = fixeds object (ptr)
+r1 = source1 fixeds object, can be same (ptr)
+r2 = source2 fixeds object, can be same (ptr)
+outputs
+r0 = fixeds object (ptr)
+trashes
+r1-r8
+```
+
+### fixeds::mod -> class/fixeds/mod
+
+```lisp
+inputs
+r0 = fixeds object (ptr)
+r1 = source1 fixeds object, can be same (ptr)
+r2 = source2 fixeds object, can be same (ptr)
+outputs
+r0 = fixeds object (ptr)
+trashes
+r1-r8
+```
+
+### fixeds::scale -> class/fixeds/scale
+
+```lisp
+inputs
+r0 = fixeds object (ptr)
+r1 = source fixeds object, can be same (ptr)
+r2 = scale (16.16)
+outputs
+r0 = fixeds object (ptr)
+trashes
+r1-r5
+```
+
+### fixeds::frac -> class/fixeds/frac
+
+```lisp
+inputs
+r0 = fixeds object (ptr)
+r1 = source fixeds object, can be same (ptr)
+outputs
+r0 = fixeds object (ptr)
+trashes
+r1-r5
+```
+
+### fixeds::floor -> class/fixeds/floor
+
+```lisp
+inputs
+r0 = fixeds object (ptr)
+r1 = source fixeds object, can be same (ptr)
+outputs
+r0 = fixeds object (ptr)
+trashes
+r1-r5
+```
+
+### fixeds::lisp_frac -> class/fixeds/lisp_frac
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### fixeds::lisp_floor -> class/fixeds/lisp_floor
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
 trashes
 r1-r14
 ```
@@ -3432,19 +3663,6 @@ trashes
 r1-r14
 ```
 
-### num::fmul -> class/num/fmul
-
-```lisp
-inputs
-r0 = num object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = num object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
 ### num::div -> class/num/div
 
 ```lisp
@@ -3471,7 +3689,7 @@ trashes
 r1-r14
 ```
 
-### num::fdiv -> class/num/fdiv
+### num::sqrt -> class/num/sqrt
 
 ```lisp
 inputs
@@ -3484,7 +3702,7 @@ trashes
 r1-r14
 ```
 
-### num::fmod -> class/num/fmod
+### num::random -> class/num/random
 
 ```lisp
 inputs
@@ -3492,7 +3710,7 @@ r0 = num object (ptr)
 r1 = args vector object (ptr)
 outputs
 r0 = num object (ptr)
-r1 = 0, else return value object (ptr)
+r1 = return value object (ptr)
 trashes
 r1-r14
 ```
@@ -3654,6 +3872,19 @@ r1-r14
 ```
 
 ### num::lisp_max -> class/num/lisp_max
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### num::lisp_sqrt -> class/num/lisp_sqrt
 
 ```lisp
 inputs
@@ -3835,110 +4066,6 @@ trashes
 r1-r14
 ```
 
-### num::lisp_fmul -> class/num/lisp_fmul
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### num::lisp_fdiv -> class/num/lisp_fdiv
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### num::lisp_fmod -> class/num/lisp_fmod
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### num::lisp_fsin -> class/num/lisp_fsin
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### num::lisp_fcos -> class/num/lisp_fcos
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### num::lisp_fsqrt -> class/num/lisp_fsqrt
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### num::lisp_frac -> class/num/lisp_frac
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### num::lisp_floor -> class/num/lisp_floor
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
 ### num::lisp_i2f -> class/num/lisp_i2f
 
 ```lisp
@@ -4092,70 +4219,6 @@ trashes
 r1-r8
 ```
 
-### nums::sum -> class/nums/sum
-
-```lisp
-inputs
-r0 = nums object (ptr)
-outputs
-r0 = nums object (ptr)
-r1 = sum (long)
-trashes
-r1-r4
-```
-
-### nums::fmul -> class/nums/fmul
-
-```lisp
-inputs
-r0 = nums object (ptr)
-r1 = source1 nums object, can be same (ptr)
-r2 = source2 nums object, can be same (ptr)
-outputs
-r0 = nums object (ptr)
-trashes
-r1-r6
-```
-
-### nums::fdiv -> class/nums/fdiv
-
-```lisp
-inputs
-r0 = nums object (ptr)
-r1 = source1 nums object, can be same (ptr)
-r2 = source2 nums object, can be same (ptr)
-outputs
-r0 = nums object (ptr)
-trashes
-r1-r8
-```
-
-### nums::fmod -> class/nums/fmod
-
-```lisp
-inputs
-r0 = nums object (ptr)
-r1 = source1 nums object, can be same (ptr)
-r2 = source2 nums object, can be same (ptr)
-outputs
-r0 = nums object (ptr)
-trashes
-r1-r8
-```
-
-### nums::fscale -> class/nums/fscale
-
-```lisp
-inputs
-r0 = nums object (ptr)
-r1 = source nums object, can be same (ptr)
-r2 = scale (16.16)
-outputs
-r0 = nums object (ptr)
-trashes
-r1-r5
-```
-
 ### nums::abs -> class/nums/abs
 
 ```lisp
@@ -4168,12 +4231,25 @@ trashes
 r1-r4
 ```
 
-### nums::frac -> class/nums/frac
+### nums::sum -> class/nums/sum
+
+```lisp
+inputs
+r0 = nums object (ptr)
+outputs
+r0 = nums object (ptr)
+r1 = sum (long)
+trashes
+r1-r4
+```
+
+### nums::scale -> class/nums/scale
 
 ```lisp
 inputs
 r0 = nums object (ptr)
 r1 = source nums object, can be same (ptr)
+r2 = scale (16.16)
 outputs
 r0 = nums object (ptr)
 trashes
@@ -4286,46 +4362,7 @@ trashes
 r1-r14
 ```
 
-### nums::lisp_fmul -> class/nums/lisp_fmul
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### nums::lisp_fdiv -> class/nums/lisp_fdiv
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### nums::lisp_fmod -> class/nums/lisp_fmod
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### nums::lisp_fscale -> class/nums/lisp_fscale
+### nums::lisp_scale -> class/nums/lisp_scale
 
 ```lisp
 inputs
@@ -4339,19 +4376,6 @@ r1-r14
 ```
 
 ### nums::lisp_abs -> class/nums/lisp_abs
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### nums::lisp_frac -> class/nums/lisp_frac
 
 ```lisp
 inputs
@@ -4708,15 +4732,13 @@ r1-r14
 
 ## path
 
-Super Class: nums
+Super Class: fixeds
 
 ### path::vtable -> gui/path/vtable
 
 ### path::create -> gui/path/create
 
 ### path::vcreate -> gui/path/create
-
-### path::velement -> class/fixed/create
 
 ### path::filter_polyline -> gui/path/filter_polyline
 

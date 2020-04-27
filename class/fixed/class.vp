@@ -1,6 +1,6 @@
 (include 'sys/func.inc)
 (include 'sys/math/class.inc)
-(include 'class/array/class.inc)
+(include 'class/vector/class.inc)
 (include 'class/fixed/class.inc)
 (include 'class/str/class.inc)
 (include 'class/stream/class.inc)
@@ -130,7 +130,7 @@
 	;trashes
 	;r1-r14
 
-	(divop 'fdiv
+	(divop 'div
 		'(progn
 			(vp-shl-cr fp_shift r0)
 			(vp-ext-rr r0 r2)
@@ -169,5 +169,95 @@
 	(vp-pop r0)
 	(exit 'fixed 'mod '(r0 r1))
 	(vp-ret)
+
+(def-func-end)
+
+;generic fixed math op
+(defun-bind mathop (_ p)
+	(entry 'fixed _ '(r0 r1))
+	(vp-push r0)
+	(class/vector/bind_args r1 '(r0) '(fixed))
+	(exec p)
+	(call 'fixed 'create '(r0) '(r1))
+	(vp-pop r0)
+	(exit 'fixed _ '(r0 r1))
+	(vp-ret))
+
+(def-method 'fixed 'sqrt)
+	;inputs
+	;r0 = fixed object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = fixed object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(mathop 'sqrt
+		'(call 'sys_math 'f_sqrt '(r0) '(r0)))
+
+(def-func-end)
+
+(def-method 'fixed 'sin)
+	;inputs
+	;r0 = fixed object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = fixed object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(mathop 'sin
+		'(call 'sys_math 'f_sin '(r0) '(r0)))
+
+(def-func-end)
+
+(def-method 'fixed 'cos)
+	;inputs
+	;r0 = fixed object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = fixed object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(mathop 'sin
+		'(call 'sys_math 'f_cos '(r0) '(r0)))
+
+(def-func-end)
+
+(def-method 'fixed 'frac)
+	;inputs
+	;r0 = fixed object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = fixed object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(mathop 'frac
+		'(progn
+			(vec-set 1)
+			(vec-frac 1)))
+
+(def-func-end)
+
+(def-method 'fixed 'floor)
+	;inputs
+	;r0 = fixed object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = fixed object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(mathop 'floor
+		'(progn
+			(vec-set 1)
+			(vec-floor 1)))
 
 (def-func-end)

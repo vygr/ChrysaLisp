@@ -76,7 +76,7 @@
 						;max button
 						(bind '(x y) (view-get-pos window))
 						(bind '(w h) (view-pref-size window))
-						(view-change-dirty window x y (fmul w 1.75) h))
+						(view-change-dirty window x y (/ (* w 5) 3) h))
 					(t (view-event window msg))))
 			(t	;child info
 				(defq cpu_id (get-int msg sample_reply_cpu)

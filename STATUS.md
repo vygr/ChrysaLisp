@@ -27,6 +27,10 @@ corrupted.
 
 ------
 
+(read) now parses fixed point format numbers directly to fixed number type.
+
+------
+
 Big changes are afoot with numeric types. They are going polymorphic with
 respect to the Lisp interface functions. This will allow apps to switch from
 fixed, to reals (and floats and doubles, when they come along), with very

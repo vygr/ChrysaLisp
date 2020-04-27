@@ -25,20 +25,18 @@
 	(+ (logand 0xffffff _) 0xa0000000))
 
 (defun-bind circle (r)
-	(defq cache_key '() cache_poly '())
-	(if (defq i (find (defq k (sym (str r))) cache_key))
-		(elem i cache_poly)
-		(progn
-			(push cache_key k)
-			(elem -2 (push cache_poly (list (path-gen-arc 0.0 0.0 0.0 (fixed fp_2pi) r eps (path))))))))
+	;cached circle generation
+	(defq i (% (logior r) 7) k (elem i '(()()()()()()())) p (elem i '(()()()()()()())))
+	(cond ((defq i (some (lambda (i) (if (= i r) _)) k)) (elem i p))
+		(t (push k r) (elem -2 (push p (list
+			(path-gen-arc 0.0 0.0 0.0 (fixed fp_2pi) r 0.25 (path))))))))
 
 (defun-bind oval (r s)
-	(defq cache_key '() cache_poly '())
-	(if (defq i (find (defq k (sym (str r ":" s))) cache_key))
-		(elem i cache_poly)
-		(progn
-			(push cache_key k)
-			(elem -2 (push cache_poly (path-stroke-polylines (list) r eps join_bevel cap_round cap_round (list s)))))))
+	;cached oval generation
+	(defq k '() p '())
+	(cond ((defq i (find (defq _ (sym (str r s))) k)) (elem i p))
+		(t (push k _) (elem -2 (push p
+			(path-stroke-polylines (list) r eps join_bevel cap_round cap_round (list s)))))))
 
 (defun-bind batch (p)
 	(defq s 0 e 0 b (list))

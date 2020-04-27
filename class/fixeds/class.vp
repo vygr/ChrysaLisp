@@ -1,0 +1,158 @@
+(include 'sys/func.inc)
+(include 'class/fixeds/class.inc)
+(include 'sys/math/class.inc)
+
+(gen-create 'fixeds)
+(gen-vtable 'fixeds)
+
+(defun-bind vecop1 (_ v)
+	;trashes
+	;r1-r6+
+	(entry 'fixeds _ '(r0 r1 r2))
+	(class/array/get_both r0 r3 r4)
+	(assign '((r1 array_begin) (r2 array_begin)) '(r1 r2))
+	(vec-set 5)
+	(loop-start)
+		(vec-load-long 1 r1)
+		(vec-load-long 1 r2)
+		((eval (sym (cat "vec-" v))) 1)
+		(vec-store-long 1 r3)
+		(vp-add-cr long_size r3)
+		(vp-add-cr long_size r1)
+		(vp-add-cr long_size r2)
+	(loop-until '(r3 = r4))
+	(exit 'fixeds _ '(r0))
+	(vp-ret))
+
+(defun-bind vecop2 (_ v)
+	;trashes
+	;r1-r8+
+	(entry 'fixeds _ '(r0 r1 r2))
+	(vp-cpy-rr r0 r4)
+	(class/array/get_both r0 r7 r8)
+	(assign '((r1 array_begin) (r2 array_begin)) '(r5 r6))
+	(vec-set 0)
+	(loop-start)
+		(vec-load-long 1 r5)
+		(vec-load-long 1 r6)
+		((eval (sym (cat "vec-" v))) 1)
+		(vec-store-long 1 r7)
+		(vp-add-cr long_size r7)
+		(vp-add-cr long_size r5)
+		(vp-add-cr long_size r6)
+	(loop-until '(r7 = r8))
+	(exit 'fixeds _ '(r4))
+	(vp-ret))
+
+(defun-bind vecop3 (_ v)
+	;trashes
+	;r1-r4+
+	(entry 'fixeds _ '(r0 r1))
+	(class/array/get_both r0 r2 r3)
+	(assign '((r1 array_begin)) '(r1))
+	(vec-set 4)
+	(loop-start)
+		(vec-load-long 1 r1)
+		((eval (sym (cat "vec-" v))) 1)
+		(vec-store-long 1 r2)
+		(vp-add-cr long_size r2)
+		(vp-add-cr long_size r1)
+	(loop-until '(r2 = r3))
+	(exit 'fixeds _ '(r0))
+	(vp-ret))
+
+(def-method 'fixeds 'mul)
+	;inputs
+	;r0 = fixeds object (ptr)
+	;r1 = source1 fixeds object, can be same (ptr)
+	;r2 = source2 fixeds object, can be same (ptr)
+	;outputs
+	;r0 = fixeds object (ptr)
+	;trashes
+	;r1-r6
+
+	(vecop1 'mul 'fmul)
+
+(def-func-end)
+
+(def-method 'fixeds 'div)
+	;inputs
+	;r0 = fixeds object (ptr)
+	;r1 = source1 fixeds object, can be same (ptr)
+	;r2 = source2 fixeds object, can be same (ptr)
+	;outputs
+	;r0 = fixeds object (ptr)
+	;trashes
+	;r1-r8
+
+	(vecop2 'div 'fdiv)
+
+(def-func-end)
+
+(def-method 'fixeds 'mod)
+	;inputs
+	;r0 = fixeds object (ptr)
+	;r1 = source1 fixeds object, can be same (ptr)
+	;r2 = source2 fixeds object, can be same (ptr)
+	;outputs
+	;r0 = fixeds object (ptr)
+	;trashes
+	;r1-r8
+
+	(vecop2 'mod 'fmod)
+
+(def-func-end)
+
+(def-method 'fixeds 'frac)
+	;inputs
+	;r0 = fixeds object (ptr)
+	;r1 = source fixeds object, can be same (ptr)
+	;outputs
+	;r0 = fixeds object (ptr)
+	;trashes
+	;r1-r5
+
+	(vecop3 'frac 'frac)
+
+(def-func-end)
+
+(def-method 'fixeds 'floor)
+	;inputs
+	;r0 = fixeds object (ptr)
+	;r1 = source fixeds object, can be same (ptr)
+	;outputs
+	;r0 = fixeds object (ptr)
+	;trashes
+	;r1-r5
+
+	(vecop3 'floor 'floor)
+
+(def-func-end)
+
+(def-method 'fixeds 'scale)
+	;inputs
+	;r0 = fixeds object (ptr)
+	;r1 = source fixeds object, can be same (ptr)
+	;r2 = scale (16.16)
+	;outputs
+	;r0 = fixeds object (ptr)
+	;trashes
+	;r1-r5
+
+	(entry 'fixeds 'scale '(r0 r1 r2))
+
+	(class/array/get_both r0 r3 r4)
+	(assign '((r1 array_begin)) '(r1))
+	(vec-set 5)
+	(loop-start)
+		(vec-load-long 1 r1)
+		(vec-fmul 1 '(r2))
+		(vec-store-long 1 r3)
+		(vp-add-cr long_size r3)
+		(vp-add-cr long_size r1)
+	(loop-until '(r3 = r4))
+
+	(exit 'fixeds 'scale '(r0))
+	(vp-ret)
+
+(def-func-end)

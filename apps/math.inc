@@ -1,6 +1,7 @@
 ;generic distance metric stuff
 (import 'class/num/lisp.inc)
 (import 'class/nums/lisp.inc)
+(import 'class/fixeds/lisp.inc)
 
 (defun-bind vec-manhattan-distance (p1 p2)
 	(defq _ (nums-sub p1 p2))
@@ -8,11 +9,11 @@
 
 (defun-bind vec-euclidean-distance (p1 p2)
 	(defq _ (nums-sub p1 p2))
-	(fsqrt (nums-sum (nums-fmul _ _ _))))
+	(sqrt (nums-sum (nums-mul _ _ _))))
 
 (defun-bind vec-squared-euclidean-distance (p1 p2)
 	(defq _ (nums-sub p1 p2))
-	(nums-sum (nums-fmul _ _ _)))
+	(nums-sum (nums-mul _ _ _)))
 
 (defun-bind vec-chebyshev-distance (p1 p2)
 	(defq _ (nums-sub p1 p2))
@@ -38,24 +39,38 @@
 
 (defmacro-bind vec-mul (p1 p2 &optional _)
 	(if _
-		`(nums-fmul ,p1 ,p2 ,_)
-		`(nums-fmul ,p1 ,p2)))
+		`(nums-mul ,p1 ,p2 ,_)
+		`(nums-mul ,p1 ,p2)))
 
-(defmacro-bind vec-scale (p s &optional _)
+(defmacro-bind vec-div (p1 p2 &optional _)
 	(if _
-		`(nums-fscale ,p ,s ,_)
-		`(nums-fscale ,p ,s)))
+		`(nums-div ,p1 ,p2 ,_)
+		`(nums-div ,p1 ,p2)))
 
-(defun-bind vec-mod (p s)
-	(apply (const nums) (map (lambda (_) (fmod _ s)) p)))
-
-(defun-bind vec-floor (p)
-	(apply (const nums) (map (lambda (_) (floor _)) p)))
+(defmacro-bind vec-mod (p1 p2 &optional _)
+	(if _
+		`(nums-mod ,p1 ,p2 ,_)
+		`(nums-mod ,p1 ,p2)))
 
 (defmacro-bind vec-frac (p &optional _)
 	(if _
 		`(nums-frac ,p ,_)
 		`(nums-frac ,p)))
+
+(defmacro-bind vec-floor (p &optional _)
+	(if _
+		`(nums-floor ,p ,_)
+		`(nums-floor ,p)))
+
+(defmacro-bind vec-abs (p &optional _)
+	(if _
+		`(nums-abs ,p ,_)
+		`(nums-abs ,p)))
+
+(defmacro-bind vec-scale (p s &optional _)
+	(if _
+		`(nums-scale ,p ,s ,_)
+		`(nums-scale ,p ,s)))
 
 (defmacro-bind vec-dot (p1 p2 &optional _)
 	(if _
@@ -66,13 +81,13 @@
 	(if _
 		(vec-mul p n _)
 		(defq _ (vec-mul p n)))
-	(nums-fscale n (fmul (nums-sum _) (<< 2 fp_shift)) _)
+	(nums-scale n (* (nums-sum _) 2.0) _)
 	(nums-sub p _ _))
 
 (defmacro-bind vec-length (p &optional _)
 	(if _
-		`(fsqrt (vec-dot ,p ,p ,_))
-		`(fsqrt (vec-dot ,p ,p))))
+		`(sqrt (vec-dot ,p ,p ,_))
+		`(sqrt (vec-dot ,p ,p))))
 
 (defmacro-bind vec-length-squared (p &optional _)
 	(if _
@@ -81,19 +96,19 @@
 
 (defun-bind vec-norm (p &optional _)
 	(if _
-		(defq l (fsqrt (nums-sum (nums-fmul p p _))))
-		(defq _ (nums-fmul p p) l (fsqrt (nums-sum _))))
+		(defq l (sqrt (nums-sum (nums-mul p p _))))
+		(defq _ (nums-mul p p) l (sqrt (nums-sum _))))
 	(if (= l 0)
-		(nums-fscale p 0 _)
-		(nums-fscale p (fdiv (<< 1 fp_shift) l) _)))
+		(nums-scale p 0 _)
+		(nums-scale p (/ 1.0 l) _)))
 
 (defun-bind vec-distance (p1 p2)
 	(defq _ (vec-sub p1 p2))
-	(fsqrt (nums-sum (nums-fmul _ _ _))))
+	(sqrt (nums-sum (nums-mul _ _ _))))
 
 (defun-bind vec-distance-squared (p1 p2)
 	(defq _ (vec-sub p1 p2))
-	(nums-sum (nums-fmul _ _ _)))
+	(nums-sum (nums-mul _ _ _)))
 
 (defun-bind vec-distance-to-line (p p1 p2)
 	(defq lv (vec-sub p2 p1)
@@ -105,7 +120,7 @@
 			(defq c2 (vec-dot lv lv))
 			(if (<= c2 c1)
 				(vec-distance p p2)
-				(vec-distance p (vec-add p1 (vec-scale lv (fdiv c1 c2))))))))
+				(vec-distance p (vec-add p1 (vec-scale lv (/ c1 c2))))))))
 
 (defun-bind vec-distance-squared-to-line (p p1 p2)
 	(defq lv (vec-sub p2 p1)
@@ -117,7 +132,7 @@
 			(defq c2 (vec-dot lv lv))
 			(if (<= c2 c1)
 				(vec-distance-squared p p2)
-				(vec-distance-squared p (vec-add p1 (vec-scale lv (fdiv c1 c2))))))))
+				(vec-distance-squared p (vec-add p1 (vec-scale lv (/ c1 c2))))))))
 
 ;specific vector stuff
 
@@ -134,48 +149,48 @@
 	(list (- x1 x2) (- y1 y2) (- z1 z2)))
 
 (defun vec-mul-2d ((x1 y1) (x2 y2))
-	(list (fmul x1 x2) (fmul y1 y2)))
+	(list (* x1 x2) (* y1 y2)))
 
 (defun vec-mul-3d ((x1 y1 z1) (x2 y2 z2))
-	(list (fmul x1 x2) (fmul y1 y2) (fmul z1 z2)))
+	(list (* x1 x2) (* y1 y2) (* z1 z2)))
 
 (defun vec-mod-3d ((x y z) s)
-	(list (fmod x s) (fmod y s) (fmod z s)))
+	(list (% x s) (% y s) (% z s)))
 
 (defun vec-floor-3d ((x y z))
 	(list (floor x) (floor y) (floor z)))
 
 (defun vec-scale-2d ((x y) s)
-	(list (fmul x s) (fmul y s)))
+	(list (* x s) (* y s)))
 
 (defun vec-scale-3d ((x y z) s)
-	(list (fmul x s) (fmul y s) (fmul z s)))
+	(list (* x s) (* y s) (* z s)))
 
 (defun vec-perp-2d ((x y))
 	(list y (neg x)))
 
 (defun vec-det-2d ((x1 y1) (x2 y2))
-	(- (fmul x1 y2) (fmul y1 x2)))
+	(- (* x1 y2) (* y1 x2)))
 
 (defun vec-cross-3d ((x1 y1 z1) (x2 y2 z2))
-	(list (- (fmul y1 z2) (fmul z1 y2))
-		(- (fmul z1 x2) (fmul x1 z2))
-		(- (fmul x1 y2) (fmul y1 x2))))
+	(list (- (* y1 z2) (* z1 y2))
+		(- (* z1 x2) (* x1 z2))
+		(- (* x1 y2) (* y1 x2))))
 
 (defun vec-dot-2d ((x1 y1) (x2 y2))
-	(+ (fmul x1 x2) (fmul y1 y2)))
+	(+ (* x1 x2) (* y1 y2)))
 
 (defun vec-dot-3d ((x1 y1 z1) (x2 y2 z2))
-	(+ (fmul x1 x2) (fmul y1 y2) (fmul z1 z2)))
+	(+ (* x1 x2) (* y1 y2) (* z1 z2)))
 
 (defun vec-reflect-3d (p n)
-	(vec-sub-3d p (vec-scale-3d n (fmul (vec-dot-3d p n) (<< 2 fp_shift)))))
+	(vec-sub-3d p (vec-scale-3d n (* (vec-dot-3d p n) (<< 2 fp_shift)))))
 
 (defun vec-length-2d (p)
-	(fsqrt (vec-dot-2d p p)))
+	(sqrt (vec-dot-2d p p)))
 
 (defun vec-length-3d (p)
-	(fsqrt (vec-dot-3d p p)))
+	(sqrt (vec-dot-3d p p)))
 
 (defun vec-length-squared-2d (p)
 	(vec-dot-2d p p))
@@ -187,14 +202,14 @@
 	(defq l (vec-length-2d p))
 	(if (= l 0)
 		(list 0 0)
-		(list (fmul (elem 0 p) (setq l (fdiv (<< 1 fp_shift) l))) (fmul (elem 1 p) l))))
+		(list (* (elem 0 p) (setq l (/ (<< 1 fp_shift) l))) (* (elem 1 p) l))))
 
 (defun vec-norm-3d (p)
 	(defq l (vec-length-3d p))
 	(if (= l 0)
 		(list 0 0 0)
-		(list (fmul (elem 0 p) (setq l (fdiv (<< 1 fp_shift) l)))
-			(fmul (elem 1 p) l) (fmul (elem 2 p) l))))
+		(list (* (elem 0 p) (setq l (/ (<< 1 fp_shift) l)))
+			(* (elem 1 p) l) (* (elem 2 p) l))))
 
 (defun vec-distance-2d (p1 p2)
 	(vec-length-2d (vec-sub-2d p2 p1)))
@@ -218,7 +233,7 @@
 			(defq c2 (vec-dot-2d lv lv))
 			(if (<= c2 c1)
 				(vec-distance-2d p p2)
-				(vec-distance-2d p (vec-add-2d p1 (vec-scale-2d lv (fdiv c1 c2))))))))
+				(vec-distance-2d p (vec-add-2d p1 (vec-scale-2d lv (/ c1 c2))))))))
 
 (defun vec-distance-to-line-3d (p p1 p2)
 	(defq lv (vec-sub-3d p2 p1)
@@ -230,7 +245,7 @@
 			(defq c2 (vec-dot-3d lv lv))
 			(if (<= c2 c1)
 				(vec-distance-3d p p2)
-				(vec-distance-3d p (vec-add-3d p1 (vec-scale-3d lv (fdiv c1 c2))))))))
+				(vec-distance-3d p (vec-add-3d p1 (vec-scale-3d lv (/ c1 c2))))))))
 
 (defun vec-distance-squared-to-line-2d (p p1 p2)
 	(defq lv (vec-sub-2d p2 p1)
@@ -242,7 +257,7 @@
 			(defq c2 (vec-dot-2d lv lv))
 			(if (<= c2 c1)
 				(vec-distance-squared-2d p p2)
-				(vec-distance-squared-2d p (vec-add-2d p1 (vec-scale-2d lv (fdiv c1 c2))))))))
+				(vec-distance-squared-2d p (vec-add-2d p1 (vec-scale-2d lv (/ c1 c2))))))))
 
 (defun vec-distance-squared-to-line-3d (p p1 p2)
 	(defq lv (vec-sub-3d p2 p1)
@@ -254,7 +269,7 @@
 			(defq c2 (vec-dot-3d lv lv))
 			(if (<= c2 c1)
 				(vec-distance-squared-3d p p2)
-				(vec-distance-squared-3d p (vec-add-3d p1 (vec-scale-3d lv (fdiv c1 c2))))))))
+				(vec-distance-squared-3d p (vec-add-3d p1 (vec-scale-3d lv (/ c1 c2))))))))
 
 (defun vec-intersect-2d (l1_p1 av l2_p1 bv)
 	(defq axb (vec-det-2d av bv)
@@ -262,10 +277,10 @@
 		db (vec-det-2d (vec-add-2d l2_p1 bv) l2_p1))
 	(if (/= axb 0)
 		(list
-			(fdiv (vec-det-2d
+			(/ (vec-det-2d
 				(list da (elem 0 av))
 				(list db (elem 0 bv))) axb)
-			(fdiv (vec-det-2d
+			(/ (vec-det-2d
 				(list da (elem 1 av))
 				(list db (elem 1 bv))) axb))))
 
@@ -277,10 +292,10 @@
 		db (vec-det-2d l2_p2 l2_p1))
 	(if (/= axb 0)
 		(list
-			(fdiv (vec-det-2d
+			(/ (vec-det-2d
 				(list da (elem 0 av))
 				(list db (elem 0 bv))) axb)
-			(fdiv (vec-det-2d
+			(/ (vec-det-2d
 				(list da (elem 1 av))
 				(list db (elem 1 bv))) axb))))
 
@@ -307,7 +322,7 @@
 (defun vec-collide-thick-lines-2d (l1_p1 l1_p2 l2_p1 tl2_p2 r)
 	(cond
 		((vec-collide-lines-2d l1_p1 l1_p2 l2_p1 l2_p2))
-		((<= (distance-squared-to-line-2d l2_p1 l1_p1 l1_p2) (setq r (fmul r r))))
+		((<= (distance-squared-to-line-2d l2_p1 l1_p1 l1_p2) (setq r (* r r))))
 		((<= (distance-squared-to-line-2d l2_p2 l1_p1 l1_p2) r))
 		((<= (distance-squared-to-line-2d l2_p1 l1_p1 l1_p2) r))
 		((<= (distance-squared-to-line-2d l2_p2 l1_p1 l1_p2) r))))

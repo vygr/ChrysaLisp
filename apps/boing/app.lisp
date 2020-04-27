@@ -50,7 +50,7 @@
 					;max button
 					(bind '(x y) (view-get-pos window))
 					(bind '(w h) (view-pref-size window))
-					(view-change-dirty window x y (fmul w 1.5) (fmul h 1.5)))
+					(view-change-dirty window x y (/ (* w 5) 3) (/ (* h 5) 3)))
 				(t (view-event window msg))))
 		(task-sleep 40000))
 	(view-hide window))

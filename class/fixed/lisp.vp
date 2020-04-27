@@ -1,0 +1,93 @@
+(include 'sys/func.inc)
+(include 'sys/math/class.inc)
+(include 'class/fixed/class.inc)
+(include 'class/lisp/class.inc)
+
+;generic fixed math op
+(defun-bind mathop (_)
+	(entry 'fixed (sym (cat 'lisp_ _)) '(r0 r1))
+(errorcases
+	(call 'lisp 'env_args_sig '(r1 ($ sig) 1) '(r2))
+	(gotoif '(r2 = 0) 'error))
+	(vp-push r0)
+	(assign '((r1 array_begin)) '(r2))
+	(call 'fixed _ '((r2 0) r1) '(_ r1))
+	(vp-pop r0)
+	(exit 'fixed (sym (cat 'lisp_ _)) '(r0 r1))
+	(vp-ret))
+
+(def-method 'fixed 'lisp_sin)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(mathop 'sin)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r0 "(sin angle)" error_msg_wrong_types r1))
+	(signature '(fixed)))
+
+(def-func-end)
+
+(def-method 'fixed 'lisp_cos)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(mathop 'cos)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r0 "(cos angle)" error_msg_wrong_types r1))
+	(signature '(fixed)))
+
+(def-func-end)
+
+(def-method 'fixed 'lisp_frac)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(mathop 'frac)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r0 "(frac num)" error_msg_wrong_types r1))
+	(signature '(fixed)))
+
+(def-func-end)
+
+(def-method 'fixed 'lisp_floor)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(mathop 'floor)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r0 "(floor num)" error_msg_wrong_types r1))
+	(signature '(fixed)))
+
+(def-func-end)

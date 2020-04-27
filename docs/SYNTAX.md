@@ -220,6 +220,10 @@
 
 (copy form)
 
+## cos
+
+(cos angle)
+
 ## cpu
 
 (cpu) -> sym
@@ -408,14 +412,6 @@
 
 (f2r fixed)
 
-## fcos
-
-(fcos angle)
-
-## fdiv
-
-(fdiv num num ...)
-
 ## ffi
 
 (ffi sym path flags)
@@ -436,14 +432,6 @@
 
 (floor num)
 
-## fmod
-
-(fmod num num ...)
-
-## fmul
-
-(fmul num num ...)
-
 ## fnc?
 
 (fnc? form) -> bool
@@ -459,14 +447,6 @@
 ## frac
 
 (frac num)
-
-## fsin
-
-(fsin angle)
-
-## fsqrt
-
-(fsqrt num)
 
 ## gensym
 
@@ -732,25 +712,13 @@
 
 (nums-div nums nums [nums])
 
-## nums-fdiv
+## nums-floor
 
-(nums-fdiv nums nums [nums])
-
-## nums-fmod
-
-(nums-fmod nums nums [nums])
-
-## nums-fmul
-
-(nums-fmul nums nums [nums])
+(nums-floor fixeds [fixeds])
 
 ## nums-frac
 
-(nums-frac nums [nums])
-
-## nums-fscale
-
-(nums-fscale nums scale [nums])
+(nums-frac fixeds [fixeds])
 
 ## nums-mod
 
@@ -759,6 +727,10 @@
 ## nums-mul
 
 (nums-mul nums nums [nums])
+
+## nums-scale
+
+(nums-scale nums scale [nums])
 
 ## nums-sub
 
@@ -968,6 +940,10 @@
 
 (sign num) -> -1|0|1
 
+## sin
+
+(sin angle)
+
 ## slave-get-args
 
 (slave-get-args slave) -> list
@@ -995,6 +971,10 @@
 ## split
 
 (split str char)
+
+## sqrt
+
+(sqrt num)
 
 ## starts-with
 

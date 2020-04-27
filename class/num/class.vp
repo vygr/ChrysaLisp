@@ -1,7 +1,7 @@
 (include 'sys/func.inc)
 (include 'sys/math/class.inc)
 (include 'class/num/class.inc)
-(include 'class/array/class.inc)
+(include 'class/vector/class.inc)
 (include 'class/str/class.inc)
 (include 'class/stream/class.inc)
 
@@ -135,23 +135,6 @@
 
 (def-func-end)
 
-(def-method 'num 'fmul)
-	;inputs
-	;r0 = num object (ptr)
-	;r1 = args vector object (ptr)
-	;outputs
-	;r0 = num object (ptr)
-	;r1 = return value object (ptr)
-	;trashes
-	;r1-r14
-
-	(addop 'fmul
-		'(progn
-			(vp-mul-rr r3 r0)
-			(vp-asr-cr fp_shift r0)))
-
-(def-func-end)
-
 (defun-bind divop (_ p)
 	(entry 'num _ '(r0 r1))
 	(vp-push r0)
@@ -211,7 +194,21 @@
 
 (def-func-end)
 
-(def-method 'num 'fdiv)
+;generic int math op
+(defun-bind mathop (_ p)
+	(entry 'num _ '(r0 r1))
+	(vp-push r0)
+	(class/array/bind_args r1 '(r0))
+	(vp-push r0)
+	(assign '((r0 num_value)) '(r0))
+	(exec p)
+	(vp-pop r1)
+	(v-call 'num 'vcreate '(r0) '(r1) r1 r1)
+	(vp-pop r0)
+	(exit 'num _ '(r0 r1))
+	(vp-ret))
+
+(def-method 'num 'sqrt)
 	;inputs
 	;r0 = num object (ptr)
 	;r1 = args vector object (ptr)
@@ -221,48 +218,23 @@
 	;trashes
 	;r1-r14
 
-	(divop 'fdiv
-		'(progn
-			(vp-shl-cr fp_shift r0)
-			(vp-ext-rr r0 r2)
-			(vp-div-rrr r3 r2 r0)))
+	(mathop 'sqrt
+		'(call 'sys_math 'i_sqrt '(r0) '(r0)))
 
 (def-func-end)
 
-(def-method 'num 'fmod)
+(def-method 'num 'random)
 	;inputs
 	;r0 = num object (ptr)
 	;r1 = args vector object (ptr)
 	;outputs
 	;r0 = num object (ptr)
-	;r1 = 0, else return value object (ptr)
+	;r1 = return value object (ptr)
 	;trashes
 	;r1-r14
 
-	(entry 'num 'fmod '(r0 r1))
-
-	(vp-push r0)
-	(class/array/get_both r1 r4 r5)
-	(vp-cpy-ir r4 0 r0)
-	(vp-add-cr ptr_size r4)
-	(assign '((r0 num_value)) '(r0))
-	(loop-start)
-		(vp-cpy-ir r4 0 r1)
-		(vp-add-cr ptr_size r4)
-		(assign '((r1 num_value)) '(r1))
-	(errorcases
-		(gotoif '(r1 = 0) 'error))
-		(vec-set 2)
-		(vec-fmod 1)
-	(loop-until '(r4 = r5))
-	(call 'num 'create '(r0) '(r1))
-	(vp-pop r0)
-	(exit 'num 'fmod '(r0 r1))
-	(vp-ret)
-(vp-label 'error)
-	(vp-pop r0)
-	(exit 'num 'fmod '(r0 r1))
-	(vp-ret)
+	(mathop 'random
+		'(call 'sys_math 'i_rand '(r0) '(r0)))
 
 (def-func-end)
 

@@ -1,11 +1,10 @@
-(include 'class/nums/class.inc)
+(include 'class/fixeds/class.inc)
 
-(def-class 'path 'nums)
+(def-class 'path 'fixeds)
 (dec-method 'vtable 'gui/path/vtable)
 (dec-method 'create 'gui/path/create)
 
 (dec-method 'vcreate 'gui/path/create 'final)
-(dec-method 'velement 'class/fixed/create 'final)
 
 (dec-method 'filter_polyline 'gui/path/filter_polyline 'static '(r0 r1 r2) '(r0))
 (dec-method 'filter_polygon 'gui/path/filter_polygon 'static '(r0 r1 r2) '(r0))
@@ -30,7 +29,7 @@
 (dec-method 'lisp_stroke_polylines 'gui/path/lisp_stroke_polylines 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_stroke_polygons 'gui/path/lisp_stroke_polygons 'static '(r0 r1) '(r0 r1))
 
-(def-struct 'path 'nums)
+(def-struct 'path 'fixeds)
 (def-struct-end)
 
 (def-enum 'join)

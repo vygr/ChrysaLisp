@@ -17,10 +17,6 @@
 (ffi min "class/num/lisp_min" 0)
 (ffi max "class/num/lisp_max" 0)
 
-(ffi fmul "class/num/lisp_fmul" 0)
-(ffi fdiv "class/num/lisp_fdiv" 0)
-(ffi fmod "class/num/lisp_fmod" 0)
-
 (ffi i2r "class/num/lisp_i2r" 0)
 (ffi i2f "class/num/lisp_i2f" 0)
 (ffi f2i "class/num/lisp_f2i" 0)
@@ -82,7 +78,7 @@
 
 (ffi list "class/vector/lisp_list" 0)
 (ffi array "class/array/lisp_array" 0)
-(ffi nums "class/array/lisp_nums" 0)
+(ffi nums "class/array/lisp_fixeds" 0)
 
 (ffi type-of "class/lisp/lisp_type" 0)
 (ffi eql "class/lisp/lisp_eql" 0)
@@ -480,7 +476,7 @@
 		(if (eql c ".")
 			(setq f 1)
 			(defq d (char-to-num c) n (+ (* n b) d) f (* f b))))
-	(if (= f 0) n (fdiv n f)))
+	(if (= f 0) n (/ (<< n fp_shift) f)))
 
 (defun-bind num-to-utf8 (_)
 	(cond
@@ -520,7 +516,7 @@
 	(defq s "")
 	(if (< n 0)
 		(setq s "-" n (neg n)))
-	(defq i (>> n fp_shift) f (fmul (- n (<< i fp_shift)) 100000))
+	(defq i (>> n fp_shift) f (* (- n (<< i fp_shift)) 100000))
 	(cat s (str i) "." (pad f 5 "00000")))
 
 (defun-bind log2 (_)

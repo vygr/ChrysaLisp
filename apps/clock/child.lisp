@@ -18,7 +18,7 @@
 		":" (pad (f2i (% seconds 60.0)) 2 "0")))
 
 (defun-bind transform (_ a s &optional x y)
-	(defq sa (fsin a) ca (fcos a) x (opt x 0.0) y (opt y 0.0))
+	(defq sa (sin a) ca (cos a) x (opt x 0.0) y (opt y 0.0))
 	(path-transform
 		(* s ca) (* s (* sa -1.0))
 		(* s sa) (* s ca)

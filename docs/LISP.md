@@ -120,7 +120,7 @@ fmod
 fmul
 frac
 fsin
-fsqrt
+sqrt
 gensym
 lambda
 length
