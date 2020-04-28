@@ -11,12 +11,12 @@
 	`(sym (cat "_super_" ,_)))
 
 (defcvar '*class* nil (class-sym 'null) '(()()0) '*args* (list))
-(each (lambda (_) (push *args* (list))) (range 0 16))
 
 (defcfun-bind intern-args (l)
 	(when l
 		(defq _ (some! 0 -1 t (lambda (_)
-			(and (match? _ l) _)) (list (defq b (elem (length l) *args*)))))
+			(and (match? _ l) _)) (list (defq b (elem (length l)
+				'(()()()()()()()()()()()()()()()()))))))
 		(if _ _ (progn (push b l) l))))
 
 (defcfun vtable-emit (_1)

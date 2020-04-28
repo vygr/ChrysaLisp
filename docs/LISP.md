@@ -114,7 +114,6 @@ fdiv
 ffi
 file-stream
 find
-fixed-to-str
 floor
 fmod
 fmul

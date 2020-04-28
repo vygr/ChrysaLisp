@@ -512,13 +512,6 @@
 	(while (> c (length f)) (setq f (cat f f)))
 	(cat (slice 0 c f) v))
 
-(defun-bind fixed-to-str (n)
-	(defq s "")
-	(if (< n 0)
-		(setq s "-" n (neg n)))
-	(defq i (>> n fp_shift) f (* (- n (<< i fp_shift)) 100000))
-	(cat s (str i) "." (pad f 5 "00000")))
-
 (defun-bind log2 (_)
 	;(log2 num) -> num
 	(when (and (not (= 0 _)) (= _ (logand _ (neg _))))
