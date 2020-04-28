@@ -428,6 +428,10 @@
 
 (find elem seq)
 
+## fixeds
+
+(fixeds [form ...])
+
 ## floor
 
 (floor num)
@@ -895,6 +899,10 @@
 ## read-short
 
 (read-short stream) -> num
+
+## reals
+
+(reals [form ...])
 
 ## reduce
 

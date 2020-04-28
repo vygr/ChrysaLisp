@@ -634,6 +634,67 @@
 
 (def-func-end)
 
+(def-method 'sys_math 'r_mod)
+	;inputs
+	;r13 = real (32:32)
+	;r14 = real (32:32)
+	;outputs
+	;r13 = real (32:32)
+	;trashes
+	;r11-r14
+
+	(vp-def (n1 n2 e1 m1 e2 m2) '(r13 r14 r13 r14 r11 r12))
+
+	(entry 'sys_math 'r_mod `(,n1 ,n2))
+
+	(real-unpack n2 e2 m2)
+	(real-unpack n1 e1 m1)
+	(vp-shl-cr (- 63 mbits) m1)
+	(vp-sub-rr e2 e1)
+	(vp-ext-rr m1 e2)
+	(vp-sub-cr (inc (* (- 31 mbits) 2)) e1)
+	(vp-div-rrr m2 e2 m1)
+
+	(jump 'sys_math 'r_pack `(,e1 ,m1))
+
+(def-func-end)
+
+(def-method 'sys_math 'r_frac)
+	;inputs
+	;r13 = real (32:32)
+	;outputs
+	;r13 = real (32:32)
+	;trashes
+	;r11-r14
+
+	(vp-def (n1 e1 m1) '(r13 r13 r14))
+
+	(entry 'sys_math 'r_frac `(,n1))
+
+	(real-unpack n1 e1 m1)
+
+	(jump 'sys_math 'r_pack `(,e1 ,m1))
+
+(def-func-end)
+
+(def-method 'sys_math 'r_floor)
+	;inputs
+	;r13 = real (32:32)
+	;outputs
+	;r13 = real (32:32)
+	;trashes
+	;r11-r14
+
+	(vp-def (n1 e1 m1) '(r13 r13 r14))
+
+	(entry 'sys_math 'r_floor `(,n1))
+
+	(real-unpack n1 e1 m1)
+
+	(jump 'sys_math 'r_pack `(,e1 ,m1))
+
+(def-func-end)
+
 (def-method 'sys_math 'r_i2r)
 	;inputs
 	;r14 = num (long)

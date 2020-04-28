@@ -1,0 +1,213 @@
+(include 'sys/func.inc)
+(include 'sys/math/class.inc)
+(include 'class/reals/class.inc)
+
+(gen-create 'reals)
+(gen-vtable 'reals)
+
+(defun-bind vecop1 (_ p)
+	;trashes
+	;r1-r14
+	(vp-def (p1 p2 dst src1 src2 iter_begin iter_end) '(r13 r14))
+	(entry 'reals _ `(,dst ,src1 ,src2))
+	(class/array/get_both dst iter_begin iter_end)
+	(assign `((,src1 array_begin) (,src2 array_begin)) `(,src1 ,src2))
+	(loop-start)
+		(assign `((,src1 0) (,src2 0)) `(,p1 ,p2))
+		(eval p)
+		(assign `(,p1) `((,iter_begin 0)))
+		(vp-add-cr long_size iter_begin)
+		(vp-add-cr long_size src1)
+		(vp-add-cr long_size src2)
+	(loop-until (list iter_begin '= iter_end))
+	(exit 'reals _ `(,dst))
+	(vp-ret))
+
+(defun-bind vecop2 (_ p)
+	;trashes
+	;r1-r14
+	(vp-def (p1 dst src1 iter_begin iter_end) '(r13))
+	(entry 'reals _ `(,dst ,src1))
+	(class/array/get_both dst iter_begin iter_end)
+	(assign `((,src1 array_begin)) `(,src1))
+	(loop-start)
+		(assign `((,src1 0)) `(,p1))
+		(eval p)
+		(assign `(,p1) `((,iter_begin 0)))
+		(vp-add-cr long_size iter_begin)
+		(vp-add-cr long_size src1)
+	(loop-until (list iter_begin '= iter_end))
+	(exit 'reals _ `(,dst))
+	(vp-ret))
+
+(def-method 'reals 'add)
+	;inputs
+	;r0 = reals object (ptr)
+	;r1 = source1 reals object, can be same (ptr)
+	;r2 = source2 reals object, can be same (ptr)
+	;outputs
+	;r0 = reals object (ptr)
+	;trashes
+	;r1-r14
+
+	(vecop1 'add
+		'(call 'sys_math 'r_add '(r13 r14) '(r13)))
+
+(def-func-end)
+
+(def-method 'reals 'sub)
+	;inputs
+	;r0 = reals object (ptr)
+	;r1 = source1 reals object, can be same (ptr)
+	;r2 = source2 reals object, can be same (ptr)
+	;outputs
+	;r0 = reals object (ptr)
+	;trashes
+	;r1-r14
+
+	(vecop1 'sub
+		'(call 'sys_math 'r_sub '(r13 r14) '(r13)))
+
+(def-func-end)
+
+(def-method 'reals 'mul)
+	;inputs
+	;r0 = reals object (ptr)
+	;r1 = source1 reals object, can be same (ptr)
+	;r2 = source2 reals object, can be same (ptr)
+	;outputs
+	;r0 = reals object (ptr)
+	;trashes
+	;r1-r14
+
+	(vecop1 'mul
+		'(call 'sys_math 'r_mul '(r13 r14) '(r13)))
+
+(def-func-end)
+
+(def-method 'reals 'div)
+	;inputs
+	;r0 = reals object (ptr)
+	;r1 = source1 reals object, can be same (ptr)
+	;r2 = source2 reals object, can be same (ptr)
+	;outputs
+	;r0 = reals object (ptr)
+	;trashes
+	;r1-r14
+
+	(vecop1 'div
+		'(call 'sys_math 'r_div '(r13 r14) '(r13)))
+
+(def-func-end)
+
+(def-method 'reals 'mod)
+	;inputs
+	;r0 = reals object (ptr)
+	;r1 = source1 reals object, can be same (ptr)
+	;r2 = source2 reals object, can be same (ptr)
+	;outputs
+	;r0 = reals object (ptr)
+	;trashes
+	;r1-r14
+
+	(vecop1 'mod
+		'(call 'sys_math 'r_mod '(r13 r14) '(r13)))
+
+(def-func-end)
+
+(def-method 'reals 'frac)
+	;inputs
+	;r0 = reals object (ptr)
+	;r1 = source reals object, can be same (ptr)
+	;outputs
+	;r0 = reals object (ptr)
+	;trashes
+	;r1-r14
+
+	(vecop2 'frac
+		'(call 'sys_math 'r_frac '(r13) '(r13)))
+
+(def-func-end)
+
+(def-method 'reals 'floor)
+	;inputs
+	;r0 = reals object (ptr)
+	;r1 = source reals object, can be same (ptr)
+	;outputs
+	;r0 = reals object (ptr)
+	;trashes
+	;r1-r14
+
+	(vecop2 'floor
+		'(call 'sys_math 'r_floor '(r13) '(r13)))
+
+(def-func-end)
+
+(def-method 'reals 'abs)
+	;inputs
+	;r0 = reals object (ptr)
+	;r1 = source reals object, can be same (ptr)
+	;outputs
+	;r0 = reals object (ptr)
+	;trashes
+	;r1-r14
+
+	(vecop2 'abs
+		'(progn
+			(vpif '(r13 < 0))
+				(call 'sys_math 'r_sub '(0 r13) '(r13))
+			(endif)))
+
+(def-func-end)
+
+(def-method 'reals 'scale)
+	;inputs
+	;r0 = reals object (ptr)
+	;r1 = source reals object, can be same (ptr)
+	;r2 = scale (real)
+	;outputs
+	;r0 = reals object (ptr)
+	;trashes
+	;r1-r14
+
+	(vp-def (dst src scale iter_begin iter_end))
+
+	(entry 'reals 'scale `(,dst ,src ,scale))
+
+	(class/array/get_both dst iter_begin iter_end)
+	(assign `((,src array_begin)) `(,src))
+	(loop-start)
+		(call 'sys_math 'r_mul `((,src 0) ,scale) `((,iter_begin 0)))
+		(vp-add-cr long_size iter_begin)
+		(vp-add-cr long_size src)
+	(loop-until `(,iter_begin = ,iter_end))
+
+	(exit 'reals 'scale `(,dst))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'reals 'sum)
+	;inputs
+	;r0 = reals object (ptr)
+	;outputs
+	;r0 = reals object (ptr)
+	;r1 = sum (real)
+	;trashes
+	;r1-r14
+
+	(vp-def (sum dst iter_begin iter_end) '(r13))
+
+	(entry 'reals 'sum `(,dst))
+
+	(call 'reals 'get_both `(,dst) `(,dst ,iter_begin ,iter_end))
+	(vp-xor-rr sum sum)
+	(loop-while `(,iter_begin /= ,iter_end))
+		(call 'sys_math 'r_add `(,sum (,iter_begin 0)) `(,sum))
+		(vp-add-cr long_size iter_begin)
+	(loop-end)
+
+	(exit 'reals 'sum `(,dst ,sum))
+	(vp-ret)
+
+(def-func-end)

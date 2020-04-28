@@ -20,3 +20,4 @@
 (include 'class/vector/make.inc)
 (include 'class/nums/make.inc)
 (include 'class/fixeds/make.inc)
+(include 'class/reals/make.inc)

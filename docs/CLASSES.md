@@ -451,7 +451,33 @@ trashes
 r1-r14
 ```
 
+### array::lisp_nums -> class/array/lisp_nums
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
 ### array::lisp_fixeds -> class/array/lisp_fixeds
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### array::lisp_reals -> class/array/lisp_reals
 
 ```lisp
 inputs
@@ -5166,6 +5192,19 @@ trashes
 r1-r14
 ```
 
+### real::mod -> class/real/mod
+
+```lisp
+inputs
+r0 = real object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = real object (ptr)
+r1 = 0, else return value object (ptr)
+trashes
+r1-r14
+```
+
 ### real::min -> class/real/min
 
 ```lisp
@@ -5180,6 +5219,19 @@ r1-r14
 ```
 
 ### real::max -> class/real/max
+
+```lisp
+inputs
+r0 = real object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = real object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### real::sqrt -> class/real/sqrt
 
 ```lisp
 inputs
@@ -5240,6 +5292,144 @@ r1 = args vector object (ptr)
 outputs
 r0 = real object (ptr)
 r1 = 0, -1 (int)
+trashes
+r1-r14
+```
+
+## reals
+
+Super Class: fixeds
+
+### reals::vtable -> class/reals/vtable
+
+### reals::create -> class/reals/create
+
+### reals::vcreate -> class/reals/create
+
+### reals::velement -> class/real/create
+
+### reals::add -> class/reals/add
+
+```lisp
+inputs
+r0 = reals object (ptr)
+r1 = source1 reals object, can be same (ptr)
+r2 = source2 reals object, can be same (ptr)
+outputs
+r0 = reals object (ptr)
+trashes
+r1-r14
+```
+
+### reals::sub -> class/reals/sub
+
+```lisp
+inputs
+r0 = reals object (ptr)
+r1 = source1 reals object, can be same (ptr)
+r2 = source2 reals object, can be same (ptr)
+outputs
+r0 = reals object (ptr)
+trashes
+r1-r14
+```
+
+### reals::mul -> class/reals/mul
+
+```lisp
+inputs
+r0 = reals object (ptr)
+r1 = source1 reals object, can be same (ptr)
+r2 = source2 reals object, can be same (ptr)
+outputs
+r0 = reals object (ptr)
+trashes
+r1-r14
+```
+
+### reals::div -> class/reals/div
+
+```lisp
+inputs
+r0 = reals object (ptr)
+r1 = source1 reals object, can be same (ptr)
+r2 = source2 reals object, can be same (ptr)
+outputs
+r0 = reals object (ptr)
+trashes
+r1-r14
+```
+
+### reals::mod -> class/reals/mod
+
+```lisp
+inputs
+r0 = reals object (ptr)
+r1 = source1 reals object, can be same (ptr)
+r2 = source2 reals object, can be same (ptr)
+outputs
+r0 = reals object (ptr)
+trashes
+r1-r14
+```
+
+### reals::abs -> class/reals/abs
+
+```lisp
+inputs
+r0 = reals object (ptr)
+r1 = source reals object, can be same (ptr)
+outputs
+r0 = reals object (ptr)
+trashes
+r1-r14
+```
+
+### reals::sum -> class/reals/sum
+
+```lisp
+inputs
+r0 = reals object (ptr)
+outputs
+r0 = reals object (ptr)
+r1 = sum (real)
+trashes
+r1-r14
+```
+
+### reals::scale -> class/reals/scale
+
+```lisp
+inputs
+r0 = reals object (ptr)
+r1 = source reals object, can be same (ptr)
+r2 = scale (real)
+outputs
+r0 = reals object (ptr)
+trashes
+r1-r14
+```
+
+### reals::frac -> class/reals/frac
+
+```lisp
+inputs
+r0 = reals object (ptr)
+r1 = source reals object, can be same (ptr)
+outputs
+r0 = reals object (ptr)
+trashes
+r1-r14
+```
+
+### reals::floor -> class/reals/floor
+
+```lisp
+inputs
+r0 = reals object (ptr)
+r1 = source reals object, can be same (ptr)
+outputs
+r0 = reals object (ptr)
 trashes
 r1-r14
 ```
@@ -7302,6 +7492,40 @@ r11-r14
 inputs
 r13 = real (32:32)
 r14 = real (32:32)
+outputs
+r13 = real (32:32)
+trashes
+r11-r14
+```
+
+### sys_math::r_mod -> sys/math/r_mod
+
+```lisp
+inputs
+r13 = real (32:32)
+r14 = real (32:32)
+outputs
+r13 = real (32:32)
+trashes
+r11-r14
+```
+
+### sys_math::r_frac -> sys/math/r_frac
+
+```lisp
+inputs
+r13 = real (32:32)
+outputs
+r13 = real (32:32)
+trashes
+r11-r14
+```
+
+### sys_math::r_floor -> sys/math/r_floor
+
+```lisp
+inputs
+r13 = real (32:32)
 outputs
 r13 = real (32:32)
 trashes

@@ -1,5 +1,6 @@
 (include 'sys/func.inc)
 (include 'class/lisp/class.inc)
+(include 'class/reals/class.inc)
 (include 'gui/path/class.inc)
 
 (defun to-array (_)
@@ -26,7 +27,7 @@
 
 (def-func-end)
 
-(def-method 'array 'lisp_path)
+(def-method 'array 'lisp_nums)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -36,7 +37,7 @@
 	;trashes
 	;r1-r14
 
-	(to-array 'path)
+	(to-array 'nums)
 
 (def-func-end)
 
@@ -51,6 +52,34 @@
 	;r1-r14
 
 	(to-array 'fixeds)
+
+(def-func-end)
+
+(def-method 'array 'lisp_reals)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(to-array 'reals)
+
+(def-func-end)
+
+(def-method 'array 'lisp_path)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(to-array 'path)
 
 (def-func-end)
 

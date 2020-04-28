@@ -32,8 +32,17 @@
 	(class/obj/ref r1 r2)
 	(f-bind 'vector 'vtable r2)
 	(assign '((r1 obj_vtable)) '(r3))
-	(vpif '(r2 = r3))
-		;is a list so down we go
+	(switch)
+	(breakif '(r2 /= r3))
+	;not 0 length ?
+	(assign '((r1 array_length)) '(r2))
+	(breakif '(r2 = 0))
+	;not quoted list ?
+	(class/array/bind_args r1 '(r2))
+	(assign '((r0 lisp_sym_quote)) '(r3))
+	(breakif '(r2 = r3))
+	(default)
+		;is a real list so down we go
 		(vp-alloc local_size)
 		(assign '((r0 lisp_stack) r0 r1) '(r2 (rsp local_this) (rsp local_form)))
 		(assign '((r2 array_length)) '(r2))
@@ -120,7 +129,7 @@
 
 		(assign '((rsp local_form)) '(r1))
 		(vp-free local_size)
-	(endif)
+	(endswitch)
 
 	(exit 'lisp 'lisp_bindfun '(r0 r1))
 	(vp-ret)

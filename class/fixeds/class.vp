@@ -5,7 +5,7 @@
 (gen-create 'fixeds)
 (gen-vtable 'fixeds)
 
-(defun vecop1 (_ v)
+(defun-bind vecop1 (_ v)
 	;trashes
 	;r1-r6+
 	(vp-def (dst src1 src2 iter_begin iter_end))
@@ -21,11 +21,11 @@
 		(vp-add-cr long_size iter_begin)
 		(vp-add-cr long_size src1)
 		(vp-add-cr long_size src2)
-	(loop-until `(,iter_begin = ,iter_end))
+	(loop-until (list iter_begin '= iter_end))
 	(exit 'fixeds _ `(,dst))
 	(vp-ret))
 
-(defun vecop2 (_ v)
+(defun-bind vecop2 (_ v)
 	;trashes
 	;r1-r8+
 	(vp-def (s1 s2 dst src1 src2 iter_begin iter_end) '(r1 r2 r4 r5 r6 r7 r8))
@@ -41,11 +41,11 @@
 		(vp-add-cr long_size iter_begin)
 		(vp-add-cr long_size src1)
 		(vp-add-cr long_size src2)
-	(loop-until `(,iter_begin = ,iter_end))
+	(loop-until (list iter_begin '= iter_end))
 	(exit 'fixeds _ `(,dst))
 	(vp-ret))
 
-(defun vecop3 (_ v)
+(defun-bind vecop3 (_ v)
 	;trashes
 	;r1-r4+
 	(vp-def (dst src iter_begin iter_end))
@@ -59,7 +59,7 @@
 		(vec-store-long 1 iter_begin)
 		(vp-add-cr long_size iter_begin)
 		(vp-add-cr long_size src)
-	(loop-until `(,iter_begin = ,iter_end))
+	(loop-until (list iter_begin '= iter_end))
 	(exit 'fixeds _ `(,dst))
 	(vp-ret))
 

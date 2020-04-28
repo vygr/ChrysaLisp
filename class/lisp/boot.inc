@@ -78,7 +78,9 @@
 
 (ffi list "class/vector/lisp_list" 0)
 (ffi array "class/array/lisp_array" 0)
-(ffi nums "class/array/lisp_fixeds" 0)
+(ffi nums "class/array/lisp_nums" 0)
+(ffi fixeds "class/array/lisp_fixeds" 0)
+(ffi reals "class/array/lisp_reals" 0)
 
 (ffi type-of "class/lisp/lisp_type" 0)
 (ffi eql "class/lisp/lisp_eql" 0)
@@ -122,6 +124,8 @@
 	;(progn [form ...])
 	;(array [form ...])
 	;(nums [form ...])
+	;(fixeds [form ...])
+	;(reals [form ...])
 	;(prin [form ...])
 	;(print [form ...])
 	;(str [form ...])
