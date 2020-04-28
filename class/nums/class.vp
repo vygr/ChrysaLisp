@@ -155,7 +155,7 @@
 	;trashes
 	;r1-r4
 
-	(vp-def (dst iter_begin iter_end sum val)
+	(vp-def (dst iter_begin iter_end sum val))
 
 	(entry 'nums 'sum `(,dst))
 
