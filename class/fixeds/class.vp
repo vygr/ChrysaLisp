@@ -5,7 +5,7 @@
 (gen-create 'fixeds)
 (gen-vtable 'fixeds)
 
-(defun-bind vecop1 (_ v)
+(defun-bind mulop (_ v)
 	;trashes
 	;r1-r6+
 	(vp-def (dst src1 src2 iter_begin iter_end))
@@ -25,7 +25,7 @@
 	(exit 'fixeds _ `(,dst))
 	(vp-ret))
 
-(defun-bind vecop2 (_ v)
+(defun-bind divop (_ v)
 	;trashes
 	;r1-r8+
 	(vp-def (s1 s2 dst src1 src2 iter_begin iter_end) '(r1 r2 r4 r5 r6 r7 r8))
@@ -45,7 +45,7 @@
 	(exit 'fixeds _ `(,dst))
 	(vp-ret))
 
-(defun-bind vecop3 (_ v)
+(defun-bind fracop (_ v)
 	;trashes
 	;r1-r4+
 	(vp-def (dst src iter_begin iter_end))
@@ -73,7 +73,7 @@
 	;trashes
 	;r1-r6
 
-	(vecop1 'mul 'fmul)
+	(mulop 'mul 'fmul)
 
 (def-func-end)
 
@@ -87,7 +87,7 @@
 	;trashes
 	;r1-r8
 
-	(vecop2 'div 'fdiv)
+	(divop 'div 'fdiv)
 
 (def-func-end)
 
@@ -101,7 +101,7 @@
 	;trashes
 	;r1-r8
 
-	(vecop2 'mod 'fmod)
+	(divop 'mod 'fmod)
 
 (def-func-end)
 
@@ -114,7 +114,7 @@
 	;trashes
 	;r1-r5
 
-	(vecop3 'frac 'frac)
+	(fracop 'frac 'frac)
 
 (def-func-end)
 
@@ -127,7 +127,7 @@
 	;trashes
 	;r1-r5
 
-	(vecop3 'floor 'floor)
+	(fracop 'floor 'floor)
 
 (def-func-end)
 

@@ -5,7 +5,7 @@
 (gen-create 'reals)
 (gen-vtable 'reals)
 
-(defun-bind vecop1 (_ p)
+(defun-bind addop (_ p)
 	;trashes
 	;r1-r14
 	(vp-def (p1 p2 dst src1 src2 iter_begin iter_end) '(r13 r14))
@@ -23,7 +23,7 @@
 	(exit 'reals _ `(,dst))
 	(vp-ret))
 
-(defun-bind vecop2 (_ p)
+(defun-bind absop (_ p)
 	;trashes
 	;r1-r14
 	(vp-def (p1 dst src1 iter_begin iter_end) '(r13))
@@ -50,7 +50,7 @@
 	;trashes
 	;r1-r14
 
-	(vecop1 'add
+	(addop 'add
 		'(call 'sys_math 'r_add '(r13 r14) '(r13)))
 
 (def-func-end)
@@ -65,7 +65,7 @@
 	;trashes
 	;r1-r14
 
-	(vecop1 'sub
+	(addop 'sub
 		'(call 'sys_math 'r_sub '(r13 r14) '(r13)))
 
 (def-func-end)
@@ -80,7 +80,7 @@
 	;trashes
 	;r1-r14
 
-	(vecop1 'mul
+	(addop 'mul
 		'(call 'sys_math 'r_mul '(r13 r14) '(r13)))
 
 (def-func-end)
@@ -95,7 +95,7 @@
 	;trashes
 	;r1-r14
 
-	(vecop1 'div
+	(addop 'div
 		'(call 'sys_math 'r_div '(r13 r14) '(r13)))
 
 (def-func-end)
@@ -110,7 +110,7 @@
 	;trashes
 	;r1-r14
 
-	(vecop1 'mod
+	(addop 'mod
 		'(call 'sys_math 'r_mod '(r13 r14) '(r13)))
 
 (def-func-end)
@@ -124,7 +124,7 @@
 	;trashes
 	;r1-r14
 
-	(vecop2 'frac
+	(absop 'frac
 		'(call 'sys_math 'r_frac '(r13) '(r13)))
 
 (def-func-end)
@@ -138,7 +138,7 @@
 	;trashes
 	;r1-r14
 
-	(vecop2 'floor
+	(absop 'floor
 		'(call 'sys_math 'r_floor '(r13) '(r13)))
 
 (def-func-end)
@@ -152,7 +152,7 @@
 	;trashes
 	;r1-r14
 
-	(vecop2 'abs
+	(absop 'abs
 		'(progn
 			(vpif '(r13 < 0))
 				(call 'sys_math 'r_sub '(0 r13) '(r13))

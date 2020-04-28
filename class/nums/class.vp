@@ -5,7 +5,7 @@
 (gen-create 'nums)
 (gen-vtable 'nums)
 
-(defun-bind vecop1 (_)
+(defun-bind addop (_)
 	;trashes
 	;r1-r6+
 	(vp-def (dst src1 src2 iter_begin iter_end))
@@ -25,7 +25,7 @@
 	(exit 'nums _ `(,dst))
 	(vp-ret))
 
-(defun-bind vecop2 (_)
+(defun-bind divop (_)
 	;trashes
 	;r1-r8+
 	(vp-def (s1 s2 dst src1 src2 iter_begin iter_end) '(r1 r2 r4 r5 r6 r7 r8))
@@ -45,7 +45,7 @@
 	(exit 'nums _ `(,dst))
 	(vp-ret))
 
-(defun-bind vecop3 (_)
+(defun-bind absop (_)
 	;trashes
 	;r1-r4+
 	(vp-def (dst src iter_begin iter_end))
@@ -73,7 +73,7 @@
 	;trashes
 	;r1-r6
 
-	(vecop1 'add)
+	(addop 'add)
 
 (def-func-end)
 
@@ -87,7 +87,7 @@
 	;trashes
 	;r1-r6
 
-	(vecop1 'sub)
+	(addop 'sub)
 
 (def-func-end)
 
@@ -101,7 +101,7 @@
 	;trashes
 	;r1-r6
 
-	(vecop1 'mul)
+	(addop 'mul)
 
 (def-func-end)
 
@@ -115,7 +115,7 @@
 	;trashes
 	;r1-r8
 
-	(vecop2 'div)
+	(divop 'div)
 
 (def-func-end)
 
@@ -129,7 +129,7 @@
 	;trashes
 	;r1-r8
 
-	(vecop2 'mod)
+	(divop 'mod)
 
 (def-func-end)
 
@@ -142,7 +142,7 @@
 	;trashes
 	;r1-r4
 
-	(vecop3 'abs)
+	(absop 'abs)
 
 (def-func-end)
 
