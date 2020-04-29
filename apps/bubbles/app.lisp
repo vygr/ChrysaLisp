@@ -8,7 +8,7 @@
 	(byte 'grid 'plain 'axis))
 
 (defq canvas_width 600 canvas_height 600 min_width 300 min_height 300
-	style_buttons (list) num_verts 100 rate (/ 1000000 60) base 0.3
+	style_buttons (list) rate (/ 1000000 60) base 0.3
 	palette (map (lambda (_) (vec
 			(i2n (/ (logand (>> _ 16) 0xff) 0xff))
 			(i2n (/ (logand (>> _ 8) 0xff) 0xff))
@@ -22,7 +22,7 @@
 		(ui-buttons (0xe9a3 0xe976 0xe9f0) (const event_grid) () style_buttons))
 	(ui-scroll image_scroll (logior scroll_flag_vertical scroll_flag_horizontal)
 			(min_width canvas_width min_height canvas_height)
-		(ui-backdrop backdrop (color argb_black ink_color argb_grey8 style 2)
+		(ui-backdrop backdrop (color argb_black ink_color argb_grey8 style 1)
 			(ui-canvas layer1_canvas canvas_width canvas_height 1))))
 
 (defun-bind radio-select (l i)
@@ -46,7 +46,7 @@
 			(vec (i2n (- (random (const (inc (* max_vel 2)))) (const max_vel)))
 				(i2n (- (random (const (inc (* max_vel 2)))) (const max_vel)))
 				(i2n (- (random (const (inc (* max_vel 2)))) (const max_vel))))
-			(i2n (const ball_radius))
+			(i2n (const bubble_radius))
 			(vec-add (const (vec (f2n base) (f2n base) (f2n base)))
 				(vec-scale (elem (random (length palette)) palette)
 					(f2n (random (const (- 1.0 base))))))))) out)
@@ -70,7 +70,7 @@
 	(defq dlist (list 0 rate light_pos layer1_canvas (list)))
 	(canvas-set-flags layer1_canvas 1)
 	(view-set-size backdrop canvas_width canvas_height)
-	(radio-select style_buttons 2)
+	(radio-select style_buttons 1)
 	(gui-add (apply view-change (cat (list window 256 192) (view-pref-size window))))
 	(def image_scroll 'min_width min_width 'min_height min_height)
 
@@ -78,7 +78,7 @@
 	(mail-send dlist (defq child_mbox (open-child "apps/bubbles/child.lisp" kn_call_open)))
 
 	;random cloud of verts
-	(defq verts (vertex-cloud num_verts))
+	(defq verts (vertex-cloud num_bubbles))
 	(redraw verts 1)
 
 	;main event loop
@@ -97,7 +97,7 @@
 			(def image_scroll 'min_width min_width 'min_height min_height))
 		((= id (const event_reset))
 			;reset button
-			(setq verts (vertex-cloud num_verts)))
+			(setq verts (vertex-cloud num_bubbles)))
 		((<= (const event_grid) id (const event_axis))
 			;styles
 			(def (view-dirty backdrop) 'style (radio-select style_buttons (- id (const event_grid)))))
