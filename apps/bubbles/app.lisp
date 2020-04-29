@@ -6,10 +6,6 @@
 	(byte 'close 'max 'min)
 	(byte 'grid 'plain 'axis))
 
-(defun-bind trans (_)
-	;transparent colour
-	(+ (logand 0xffffff _) 0x60000000))
-
 (defq canvas_width 600 canvas_height 600 min_width 300 min_height 300
 	style_buttons (list) num_verts 100 rate (/ 1000000 60))
 
