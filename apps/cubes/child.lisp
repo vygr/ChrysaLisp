@@ -1,10 +1,6 @@
 ;imports
 (import 'apps/cubes/app.inc)
 
-;quick debug switch
-;; (import 'class/lisp/debug.inc)
-;; (defmacro defun-bind (&rest _) `(defun-debug ~_))
-
 (defun-bind fpoly (canvas col x y _)
 	;draw a polygon on a canvas
 	(canvas-set-color canvas col)
@@ -26,17 +22,17 @@
 
 (defun-bind clip_verts (hsw hsh verts)
 	;clip and project verts
-	(reduce (lambda (out (x y z r c))
+	(reduce (lambda (out ((x y z) _ r c))
 		(setq z (+ z (const (i2n (+ (* box_size 2) max_vel)))))
 		(when (> z (const (i2n focal_len)))
 			(setq x (/ (* x hsw) z) y (/ (* y hsh) z) r (/ (* r hsw) z))
-			(push out (list (n2f (+ x hsw)) (n2f (+ y hsh)) z
+			(push out (list (vecf (n2f (+ x hsw)) (n2f (+ y hsh)) (n2f z))
 				(n2f r) (lighting c z)))) out) verts (list)))
 
 (defun-bind render_verts (canvas verts)
 	;render circular verts
-	(each (lambda ((sx sy z sr c))
-		(fpoly canvas c sx sy (circle sr))) verts))
+	(each (lambda (((x y z) r c))
+		(fpoly canvas c x y (circle r))) verts))
 
 (defun-bind redraw (dlist)
 	;redraw layer/s
@@ -46,8 +42,7 @@
 		(bind '(sw sh) (view-pref-size canvas))
 		(defq hsw (i2n (>> sw 1)) hsh (i2n (>> sh 1)))
 		(render_verts canvas
-			(sort (lambda (v1 v2)
-				(if (<= (tuple-get vertex_z v1) (tuple-get vertex_z v2)) 1 -1))
+			(sort (lambda (((_ _ z1) _ _) ((_ _ z2) _ _)) (if (<= z1 z2) 1 -1))
 				(clip_verts hsw hsh (tuple-get dlist_layer1_verts dlist))))
 		(canvas-swap canvas))
 	(tuple-set dlist_mask dlist 0))

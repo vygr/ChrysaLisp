@@ -1,10 +1,6 @@
 ;imports
-(import 'apps/whiteboard/app.inc)
 (import 'apps/math.inc)
-
-;quick debug switch
-;; (import 'class/lisp/debug.inc)
-;; (defmacro defun-bind (&rest _) `(defun-debug ~_))
+(import 'apps/whiteboard/app.inc)
 
 (structure 'event 0
 	(byte 'close 'max 'min)

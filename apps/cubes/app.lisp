@@ -1,10 +1,6 @@
 ;imports
-(import 'apps/cubes/app.inc)
 (import 'apps/math.inc)
-
-;quick debug switch
-;; (import 'class/lisp/debug.inc)
-;; (defmacro defun-bind (&rest _) `(defun-debug ~_))
+(import 'apps/cubes/app.inc)
 
 (structure 'event 0
 	(byte 'close 'max 'min)
@@ -42,35 +38,30 @@
 	(defq out (list))
 	(while (> (setq num (dec num)) -1)
 		(push out (list
-			(i2n (- (random (const (* box_size 2))) box_size))
-			(i2n (- (random (const (* box_size 2))) box_size))
-			(i2n (- (random (const (* box_size 2))) box_size))
+			(vec
+				(i2n (- (random (const (* box_size 2))) box_size))
+				(i2n (- (random (const (* box_size 2))) box_size))
+				(i2n (- (random (const (* box_size 2))) box_size)))
+			(vec
+				(i2n (- (random (const (inc (* max_vel 2)))) (const max_vel)))
+				(i2n (- (random (const (inc (* max_vel 2)))) (const max_vel)))
+				(i2n (- (random (const (inc (* max_vel 2)))) (const max_vel))))
 			(i2n 50)
 			(elem (random (length palette)) palette)))) out)
 
-(defun-bind vertex-vel (num)
-	;array of random velocities
-	(defq out (list))
-	(while (> (setq num (dec num)) -1)
-		(push out (list
-			(i2n (- (random (const (inc (* max_vel 2)))) (const max_vel)))
-			(i2n (- (random (const (inc (* max_vel 2)))) (const max_vel)))
-			(i2n (- (random (const (inc (* max_vel 2)))) (const max_vel)))))) out)
-
-(defun-bind vertex-update (verts vels)
-	(each (lambda (v s)
-		(bind '(x y z _ _) v)
-		(bind '(xv yv zv) s)
-		(setq x (+ x xv) y (+ y yv) z (+ z zv))
+(defun-bind vertex-update (verts)
+	(each (lambda (vert)
+		(bind '(p v _ _) vert)
+		(vec-add p v p)
+		(bind '(x y z) p)
+		(bind '(vx vy vz) v)
 		(if (or (> x (const (i2n box_size))) (< x (const (i2n (neg box_size)))))
-			(tuple-set vertex_vel_vx s (* xv (const (i2n -1)))))
+			(setq vx (* vx (const (i2n -1)))))
 		(if (or (> y (const (i2n box_size))) (< y (const (i2n (neg box_size)))))
-			(tuple-set vertex_vel_vy s (* yv (const (i2n -1)))))
+			(setq vy (* vy (const (i2n -1)))))
 		(if (or (> z (const (i2n box_size))) (< z (const (i2n (neg box_size)))))
-			(tuple-set vertex_vel_vz s (* zv (const (i2n -1)))))
-		(tuple-set vertex_x v x)
-		(tuple-set vertex_y v y)
-		(tuple-set vertex_z v z)) verts vels))
+			(setq vz (* vz (const (i2n -1)))))
+		(tuple-set vertex_v vert (vec vx vy vz))) verts))
 
 (defun-bind main ()
 	;ui tree initial setup
@@ -84,8 +75,8 @@
 	;create child and send args
 	(mail-send dlist (defq child_mbox (open-child "apps/cubes/child.lisp" kn_call_open)))
 
-	;random cloud of verts and velocities
-	(defq verts (vertex-cloud num_verts) vels (vertex-vel num_verts))
+	;random cloud of verts
+	(defq verts (vertex-cloud num_verts))
 	(redraw verts 1)
 
 	;main event loop
@@ -119,7 +110,7 @@
 								)
 							(u	;was up last time
 								(setq last_state 'd last_point new_point
-									verts (vertex-cloud num_verts) vels (vertex-vel num_verts)))))
+									verts (vertex-cloud num_verts)))))
 					(t	;mouse button is up
 						(case last_state
 							(d	;was down last time
@@ -127,7 +118,7 @@
 							(u	;was up last time, so we are hovering
 								t))))))
 		(t (view-event window msg))))
-		(vertex-update verts vels)
+		(vertex-update verts)
 		(redraw verts 1)
 		(task-sleep rate))
 	;close child and window
