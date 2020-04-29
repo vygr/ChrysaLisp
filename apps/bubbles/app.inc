@@ -9,7 +9,7 @@
 
 (defmacro-bind vecf (&rest _) `(fixeds ~_))
 (cond	;pick number format t/nil
-	(t	;reals
+	(nil	;reals
 		(defmacro-bind vec (&rest _) `(reals ~_))
 		(defmacro-bind i2n (_) `(i2r ,_))
 		(defmacro-bind n2i (_) `(r2i ,_))

@@ -14,15 +14,19 @@
 	(vpif '(r0 /= 0))
 		(vp-cpy-rr r0 r1)
 		(vp-cpy-pr 'seed r0)
-		(vp-mul-cr 17 r0)
-		(vp-cpy-cr 0xa5a5a5a5a5a5a5a5 r2)
+		(vp-cpy-rr r0 r2)
+		(vp-shl-cr 21 r2)
+		(vp-xor-rr r2 r0)
+		(vp-cpy-rr r0 r2)
+		(vp-asr-cr 35 r2)
+		(vp-xor-rr r2 r0)
+		(vp-cpy-rr r0 r2)
+		(vp-shl-cr 4 r2)
 		(vp-xor-rr r2 r0)
 		(vp-cpy-rp r0 'seed)
 		(vp-xor-rr r2 r2)
 		(vp-div-rrr-u r1 r2 r0)
 		(vp-cpy-rr r2 r0)
-	(else)
-		(vp-xor-rr r0 r0)
 	(endif)
 
 	(exit 'sys_math 'i_rand '(r0))
@@ -30,7 +34,7 @@
 
 	(vp-align ptr_size)
 (vp-label 'seed)
-	(vp-long 1234567890)
+	(vp-long 123456789)
 
 (def-func-end)
 

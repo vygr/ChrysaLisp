@@ -7,7 +7,12 @@
 	(byte 'grid 'plain 'axis))
 
 (defq canvas_width 600 canvas_height 600 min_width 300 min_height 300
-	style_buttons (list) num_verts 100 rate (/ 1000000 60))
+	style_buttons (list) num_verts 100 rate (/ 1000000 60) base 0.3
+	palette (map (lambda (_) (vec
+			(i2n (/ (logand (>> _ 16) 0xff) 0xff))
+			(i2n (/ (logand (>> _ 8) 0xff) 0xff))
+			(i2n (/ (logand _ 0xff) 0xff))))
+		(list argb_cyan argb_yellow argb_magenta argb_red argb_green argb_blue)))
 
 (ui-window window ()
 	(ui-title-bar _ "Bubbles" (0xea19 0xea1b 0xea1a) (const event_close))
@@ -33,19 +38,16 @@
 	(defq out (list))
 	(while (> (setq num (dec num)) -1)
 		(push out (list
-			(vec
-				(i2n (- (random (const (* box_size 2))) box_size))
+			(vec (i2n (- (random (const (* box_size 2))) box_size))
 				(i2n (- (random (const (* box_size 2))) box_size))
 				(i2n (- (random (const (* box_size 2))) box_size)))
-			(vec
-				(i2n (- (random (const (inc (* max_vel 2)))) (const max_vel)))
+			(vec (i2n (- (random (const (inc (* max_vel 2)))) (const max_vel)))
 				(i2n (- (random (const (inc (* max_vel 2)))) (const max_vel)))
 				(i2n (- (random (const (inc (* max_vel 2)))) (const max_vel))))
 			(i2n (const ball_radius))
-			(vec
-				(f2n (+ 0.25 (random 0.75)))
-				(f2n (+ 0.25 (random 0.75)))
-				(f2n (+ 0.25 (random 0.75))))))) out)
+			(vec-add (const (vec (f2n base) (f2n base) (f2n base)))
+				(vec-scale (elem (random (length palette)) palette)
+					(f2n (random (const (- 1.0 base))))))))) out)
 
 (defun-bind vertex-update (verts)
 	(each (lambda (vert)
