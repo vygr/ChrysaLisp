@@ -517,7 +517,7 @@
 	(entry 'array 'print '(r0 r1))
 	(assign '(r0 r1) '((rsp local_this) (rsp local_stream)))
 
-	(call 'stream 'write_char '(r1 char_lsb))
+	(call 'stream 'write_char '(r1 char_lrb))
 	(call 'array 'get_both '((rsp local_this)) '(_ r1 r2))
 	(vpif '(r1 /= r2))
 		(assign '(r1 r2) '((rsp local_iter_begin) (rsp local_iter_end)))
@@ -535,7 +535,7 @@
 			(assign '((rsp local_iter_begin)) '(r1))
 		(loop-end)
 	(endif)
-	(call 'stream 'write_char '((rsp local_stream) char_rsb))
+	(call 'stream 'write_char '((rsp local_stream) char_rrb))
 
 	(exit 'array 'print '((rsp local_this)))
 	(vp-free local_size)

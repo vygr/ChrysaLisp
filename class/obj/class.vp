@@ -151,8 +151,9 @@
 	(vp-push r0)
 	(call 'stream 'write_char '(r1 char_at) '(r0))
 	(assign '((rsp 0)) '(r1))
-	(vp-cpy-ir-ub r1 -1 r0)
-	(vp-sub-rr r0 r1)
+	(assign '((r1 obj_vtable)) '(r1))
+	(vp-cpy-ir-ub r1 -1 r2)
+	(vp-sub-rr r2 r1)
 	(call 'stream 'write_cstr '(r0 r1))
 	(vp-pop r0)
 
