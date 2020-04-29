@@ -1,5 +1,6 @@
 ;imports
-(import 'apps/cubes/app.inc)
+(import 'apps/math.inc)
+(import 'apps/bubbles/app.inc)
 
 (defun-bind fpoly (canvas col x y _)
 	;draw a polygon on a canvas
@@ -13,26 +14,32 @@
 		(t (push k r) (elem -2 (push p (list
 			(path-gen-arc 0.0 0.0 0.0 (fixed fp_2pi) r 0.25 (path))))))))
 
-(defun-bind lighting (c z)
+(defun-bind lighting ((r g b) z)
 	;very basic attenuation
-	(defq r (logand (>> c 16) 0xff) g (logand (>> c 8) 0xff) b (logand c 0xff)
-		at (n2i (* (/ (const (i2n box_size)) z) (const (i2n (<< 1 fp_shift)))))
-		r (* r at) g (* g at) b (* b at))
-	(+ 0xff000000 (logand r 0xff0000) (logand (>> g 8) 0xff00) (logand (>> b 16) 0xff)))
+	(defq at (/ (const (i2n box_size)) z) r (* r at) g (* g at) b (* b at))
+	(+ 0xd0000000
+		(<< (n2i (* r (const (i2n 0xff)))) 16)
+		(<< (n2i (* g (const (i2n 0xff)))) 8)
+		(n2i (* b (const (i2n 0xff))))))
 
 (defun-bind clip_verts (hsw hsh verts)
 	;clip and project verts
 	(reduce (lambda (out ((x y z) _ r c))
 		(setq z (+ z (const (i2n (+ (* box_size 2) max_vel)))))
 		(when (> z (const (i2n focal_len)))
-			(setq x (/ (* x hsw) z) y (/ (* y hsh) z) r (/ (* r hsw) z))
-			(push out (list (vecf (n2f (+ x hsw)) (n2f (+ y hsh)) (n2f z))
-				(n2f r) (lighting c z)))) out) verts (list)))
+			(defq v (vec x y z) w (/ hsw z) h (/ hsh z))
+			(bind '(sx sy sz) (vec-add v (vec-scale (vec-norm
+				(vec-sub light_pos v) (const (i2n 1))) r)))
+			(defq x (+ (* x h) hsw) y (+ (* y h) hsh) r (* r h)
+				sx (+ (* sx h) hsw) sy (+ (* sy h) hsh))
+			(push out (list (vecf (n2f x) (n2f y) (n2f z)) (vecf (n2f sx) (n2f sy))
+				(n2f r) (lighting c z) (lighting (const (vec (i2n 1) (i2n 1) (i2n 1))) z)))) out) verts (list)))
 
 (defun-bind render_verts (canvas verts)
 	;render circular verts
-	(each (lambda (((x y z) r c))
-		(fpoly canvas c x y (circle r))) verts))
+	(each (lambda (((x y z) (sx sy) r c sc))
+		(fpoly canvas c x y (circle r))
+		(fpoly canvas sc sx sy (circle (* r 0.2)))) verts))
 
 (defun-bind redraw (dlist)
 	;redraw layer/s
@@ -42,7 +49,7 @@
 		(bind '(sw sh) (view-pref-size canvas))
 		(defq hsw (i2n (>> sw 1)) hsh (i2n (>> sh 1)))
 		(render_verts canvas
-			(sort (lambda (((_ _ z1) _ _) ((_ _ z2) _ _)) (if (<= z1 z2) 1 -1))
+			(sort (lambda (((_ _ z1) _ _ _ _) ((_ _ z2) _ _ _ _)) (if (<= z1 z2) 1 -1))
 				(clip_verts hsw hsh (tuple-get dlist_layer1_verts dlist))))
 		(canvas-swap canvas))
 	(tuple-set dlist_mask dlist 0))

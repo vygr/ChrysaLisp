@@ -94,13 +94,11 @@
 		`(vec-dot ,p ,p ,_)
 		`(vec-dot ,p ,p)))
 
-(defun-bind vec-norm (p &optional _)
+(defun-bind vec-norm (p o &optional _)
 	(if _
 		(defq l (sqrt (nums-sum (nums-mul p p _))))
 		(defq _ (nums-mul p p) l (sqrt (nums-sum _))))
-	(if (= l 0)
-		(nums-scale p 0 _)
-		(nums-scale p (/ 1.0 l) _)))
+	(nums-scale p (/ o l) _))
 
 (defun-bind vec-distance (p1 p2)
 	(defq _ (vec-sub p1 p2))

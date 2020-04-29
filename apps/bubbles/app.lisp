@@ -1,6 +1,6 @@
 ;imports
 (import 'apps/math.inc)
-(import 'apps/cubes/app.inc)
+(import 'apps/bubbles/app.inc)
 
 (structure 'event 0
 	(byte 'close 'max 'min)
@@ -11,11 +11,10 @@
 	(+ (logand 0xffffff _) 0x60000000))
 
 (defq canvas_width 600 canvas_height 600 min_width 300 min_height 300
-	style_buttons (list) num_verts 100 rate (/ 1000000 60)
-	palette (list argb_white argb_red argb_green argb_blue argb_cyan argb_yellow argb_magenta))
+	style_buttons (list) num_verts 100 rate (/ 1000000 60))
 
 (ui-window window ()
-	(ui-title-bar _ "Cubes" (0xea19 0xea1b 0xea1a) (const event_close))
+	(ui-title-bar _ "Bubbles" (0xea19 0xea1b 0xea1a) (const event_close))
 	(ui-tool-bar _ ()
 		(ui-buttons (0xe9a3 0xe976 0xe9f0) (const event_grid) () style_buttons))
 	(ui-scroll image_scroll (logior scroll_flag_vertical scroll_flag_horizontal)
@@ -46,8 +45,11 @@
 				(i2n (- (random (const (inc (* max_vel 2)))) (const max_vel)))
 				(i2n (- (random (const (inc (* max_vel 2)))) (const max_vel)))
 				(i2n (- (random (const (inc (* max_vel 2)))) (const max_vel))))
-			(i2n 50)
-			(elem (random (length palette)) palette)))) out)
+			(i2n (const ball_radius))
+			(vec
+				(f2n (+ 0.25 (random 0.75)))
+				(f2n (+ 0.25 (random 0.75)))
+				(f2n (+ 0.25 (random 0.75))))))) out)
 
 (defun-bind vertex-update (verts)
 	(each (lambda (vert)
@@ -73,7 +75,7 @@
 	(def image_scroll 'min_width min_width 'min_height min_height)
 
 	;create child and send args
-	(mail-send dlist (defq child_mbox (open-child "apps/cubes/child.lisp" kn_call_open)))
+	(mail-send dlist (defq child_mbox (open-child "apps/bubbles/child.lisp" kn_call_open)))
 
 	;random cloud of verts
 	(defq verts (vertex-cloud num_verts))
