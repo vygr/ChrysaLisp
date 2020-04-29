@@ -4,6 +4,7 @@
 
 (structure 'event 0
 	(byte 'close 'max 'min)
+	(byte 'reset)
 	(byte 'grid 'plain 'axis))
 
 (defq canvas_width 600 canvas_height 600 min_width 300 min_height 300
@@ -17,6 +18,7 @@
 (ui-window window ()
 	(ui-title-bar _ "Bubbles" (0xea19 0xea1b 0xea1a) (const event_close))
 	(ui-tool-bar _ ()
+		(ui-buttons (0xe938) (const event_reset))
 		(ui-buttons (0xe9a3 0xe976 0xe9f0) (const event_grid) () style_buttons))
 	(ui-scroll image_scroll (logior scroll_flag_vertical scroll_flag_horizontal)
 			(min_width canvas_width min_height canvas_height)
@@ -65,7 +67,7 @@
 
 (defun-bind main ()
 	;ui tree initial setup
-	(defq dlist (list 0 rate layer1_canvas (list)))
+	(defq dlist (list 0 rate light_pos layer1_canvas (list)))
 	(canvas-set-flags layer1_canvas 1)
 	(view-set-size backdrop canvas_width canvas_height)
 	(radio-select style_buttons 2)
@@ -80,7 +82,7 @@
 	(redraw verts 1)
 
 	;main event loop
-	(defq last_state 'u last_point nil last_mid_point nil id t)
+	(defq last_state 'u id t)
 	(while id (while (mail-poll (array (task-mailbox))) (cond
 		((= (setq id (get-long (defq msg (mail-read (task-mailbox))) (const ev_msg_target_id))) (const event_close))
 			;close button
@@ -93,6 +95,9 @@
 			(def image_scroll 'min_width canvas_width 'min_height canvas_height)
 			(apply view-change-dirty (cat (list window) (view-get-pos window) (view-pref-size window)))
 			(def image_scroll 'min_width min_width 'min_height min_height))
+		((= id (const event_reset))
+			;reset button
+			(setq verts (vertex-cloud num_verts)))
 		((<= (const event_grid) id (const event_axis))
 			;styles
 			(def (view-dirty backdrop) 'style (radio-select style_buttons (- id (const event_grid)))))
@@ -100,8 +105,9 @@
 			;event for canvas
 			(when (= (get-long msg (const ev_msg_type)) (const ev_type_mouse))
 				;mouse event in canvas
-				(defq new_point (path (i2f (get-int msg (const ev_msg_mouse_rx)))
-					(i2f (get-int msg (const ev_msg_mouse_ry)))))
+				(bind '(w h) (view-get-size layer1_canvas))
+				(defq rx (- (get-int msg (const ev_msg_mouse_rx)) (/ w 2))
+					ry (- (get-int msg (const ev_msg_mouse_ry)) (/ h 2)))
 				(cond
 					((/= (get-int msg (const ev_msg_mouse_buttons)) 0)
 						;mouse button is down
@@ -109,8 +115,12 @@
 							(d	;was down last time
 								)
 							(u	;was up last time
-								(setq last_state 'd last_point new_point
-									verts (vertex-cloud num_verts)))))
+								(setq last_state 'd)))
+						;set light pos
+						(tuple-set dlist_light_pos dlist
+							(vec (* (i2n rx) (const (i2n 4)))
+								(* (i2n ry) (const (i2n 4)))
+								(i2n (neg (* box_size 4))))))
 					(t	;mouse button is up
 						(case last_state
 							(d	;was down last time

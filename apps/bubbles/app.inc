@@ -23,7 +23,7 @@
 		(defmacro-bind n2f (_) _)))
 
 (structure 'dlist 0
-	(byte 'mask 'rate 'layer1_canvas 'layer1_verts))
+	(byte 'mask 'rate 'light_pos 'layer1_canvas 'layer1_verts))
 
 (structure 'path 0
 	(byte 'mode 'color 'radius 'path))
