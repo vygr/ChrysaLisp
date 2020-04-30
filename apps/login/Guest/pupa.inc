@@ -2,9 +2,10 @@
 (defq *env_home* (cat "apps/login/" *env_user* "/"))
 
 ;launcher apps
-(defq *env_launcher_apps* '("terminal" "edit" "debug" "help" "docs" "netmon" "stats" "boing" "freeball"
-	"images" "films" "canvas" "whiteboard" "raymarch" "mandelbrot" "pcb" "calculator" "chess" "clock" "fonts"
-	"bubbles")
+(defq *env_launcher_apps* '(
+	"terminal" "edit" "help" "docs" "debug" "netmon" "stats"
+	"fonts" "whiteboard" "clock" "calculator"
+	"boing" "freeball" "bubbles" "images" "films" "canvas" "raymarch" "mandelbrot" "pcb" "chess")
 	*env_launcher_auto_apps* '("wallpaper" "clock" "terminal"))
 
 ;wallpaper images
