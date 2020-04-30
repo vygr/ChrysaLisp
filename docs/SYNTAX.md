@@ -168,6 +168,10 @@
 
 (canvas-swap canvas)
 
+## cap
+
+(cap len array ...)
+
 ## case
 
 (case tst [(key body)] ...)

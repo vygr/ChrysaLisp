@@ -40,7 +40,4 @@
 	(byte 'p 'v 'r 'c))
 
 (defq box_size 500 focal_len 1 max_vel 5 num_bubbles 50 bubble_radius 70
-	light_pos (vec
-		(i2n (neg box_size))
-		(i2n (neg box_size))
-		(i2n (neg (* box_size 4)))))
+	light_pos (vec-i2n (neg box_size) (neg box_size) (neg (* box_size 4))))

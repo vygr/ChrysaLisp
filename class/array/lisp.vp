@@ -1,5 +1,6 @@
 (include 'sys/func.inc)
 (include 'class/lisp/class.inc)
+(include 'class/num/class.inc)
 (include 'class/reals/class.inc)
 (include 'gui/path/class.inc)
 
@@ -203,5 +204,49 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r6 "(push array form ...)" error_msg_wrong_types r7)))
+
+(def-func-end)
+
+(def-method 'array 'lisp_cap)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(vp-def (this args argc iter_begin iter_end obj res) '(r9 r10 r11 r12 r13))
+
+	(entry 'array 'lisp_cap `(,this ,args))
+
+(errorcases
+	(assign `((,args array_length)) `(,argc))
+	(gotoif `(,argc < 2) 'error))
+	(class/array/get_both args iter_begin iter_end)
+	(assign `((,iter_begin 0)) `(,args))
+	(vp-add-cr ptr_size iter_begin)
+(errorcases
+	(f-bind 'num 'vtable obj)
+	(assign `((,args obj_vtable)) `(,res))
+	(gotoif `(,obj /= ,res) 'error))
+	(assign `((,args num_value)) `(,argc))
+	(loop-start)
+		(assign `((,iter_begin 0)) `(,obj))
+		(vp-add-cr ptr_size iter_begin)
+	(errorcases
+		(call 'obj 'inst_of `(,obj (@ ,(f-path 'array 'vtable))) `(,obj ,res))
+		(gotoif `(res = 0) 'error))
+		(call 'array 'set_capacity `(,obj ,argc) `(,obj))
+	(loop-until `(,iter_begin = ,iter_end))
+	(class/obj/ref obj argc)
+
+	(exit 'array 'lisp_cap `(,this ,obj))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error `(,this "(cap len array ...)" error_msg_wrong_types ,args)))
 
 (def-func-end)

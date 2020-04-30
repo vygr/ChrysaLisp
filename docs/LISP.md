@@ -93,6 +93,7 @@ array
 bind
 bind-fun
 cat
+cap
 catch
 char
 clear
@@ -148,6 +149,8 @@ random
 read
 read-char
 read-line
+reals
+fixeds
 repl
 save
 set
@@ -205,6 +208,8 @@ defmacro-bind
 defun
 defun-bind
 ends-with
+each-rev
+each
 if
 inc
 let
@@ -237,11 +242,9 @@ align
 ascii-lower
 ascii-upper
 cpu
-each
 each-line
 each-mergeable
 each-mergeable-rev
-each-rev
 every
 exec
 erase
@@ -295,6 +298,7 @@ trim-start
 type-to-size
 within-compile-env
 write-line
+import
 ```
 
 ## Within any cmd/lisp.lisp instance

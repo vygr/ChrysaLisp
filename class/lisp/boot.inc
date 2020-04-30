@@ -39,6 +39,7 @@
 (ffi each! "class/seq/lisp_each" 0)
 (ffi some! "class/seq/lisp_some" 0)
 
+(ffi cap "class/array/lisp_cap" 0)
 (ffi clear "class/array/lisp_clear" 0)
 (ffi push "class/array/lisp_push" 0)
 (ffi pop "class/array/lisp_pop" 0)

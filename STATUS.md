@@ -29,6 +29,15 @@ corrupted.
 
 (read) now parses fixed point format numbers directly to fixed number type.
 
+New (cap) function for setting capacity of array types, so array, list, nums,
+fixeds, reals, path.
+
+Finished off the Bubbles demo ! Nice use of the new long vectors, showing how
+to switch between fixed and real number formats and vectors. Plus it looks cute
+:)
+
+Better sys_math::i_random function as that was showing bad repeat patterns.
+
 ------
 
 Big changes are afoot with numeric types. They are going polymorphic with

@@ -33,7 +33,8 @@
 			(defq x (+ (* x h) hsw) y (+ (* y h) hsh) r (* r h)
 				sx (+ (* sx h) hsw) sy (+ (* sy h) hsh))
 			(push out (list (vec-n2f x y z) (vec-n2f sx sy) (n2f r)
-				(lighting c z) (lighting (const (vec-i2n 1 1 1)) z)))) out) verts (list)))
+				(lighting c z) (lighting (const (vec-i2n 1 1 1)) z)))) out)
+		verts (cap (length verts) (list))))
 
 (defun-bind render_verts (canvas verts)
 	;render circular verts
@@ -49,7 +50,7 @@
 		(bind '(sw sh) (view-pref-size canvas))
 		(defq hsw (i2n (>> sw 1)) hsh (i2n (>> sh 1)))
 		(render_verts canvas
-			(sort (lambda (((_ _ z1) _ _ _ _) ((_ _ z2) _ _ _ _)) (if (<= z1 z2) 1 -1))
+			(sort (lambda (v1 v2) (if (<= (elem -2 (elem 0 v1)) (elem -2 (elem 0 v2))) 1 -1))
 				(clip_verts hsw hsh (tuple-get dlist_layer1_verts dlist))))
 		(canvas-swap canvas))
 	(tuple-set dlist_mask dlist 0))
