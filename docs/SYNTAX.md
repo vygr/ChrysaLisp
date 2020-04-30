@@ -480,6 +480,18 @@
 
 (get-short str index) -> num
 
+## get-ubyte
+
+(get-ubyte str index) -> num
+
+## get-uint
+
+(get-uint str index) -> num
+
+## get-ushort
+
+(get-ushort str index) -> num
+
 ## gui-add
 
 (gui-add view)

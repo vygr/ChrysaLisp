@@ -32,8 +32,8 @@
 				(vec-sub (tuple-get dlist_light_pos dlist) v) (const (i2n 1))) r)))
 			(defq x (+ (* x h) hsw) y (+ (* y h) hsh) r (* r h)
 				sx (+ (* sx h) hsw) sy (+ (* sy h) hsh))
-			(push out (list (vecf (n2f x) (n2f y) (n2f z)) (vecf (n2f sx) (n2f sy))
-				(n2f r) (lighting c z) (lighting (const (vec (i2n 1) (i2n 1) (i2n 1))) z)))) out) verts (list)))
+			(push out (list (vec-n2f x y z) (vec-n2f sx sy) (n2f r)
+				(lighting c z) (lighting (const (vec-i2n 1 1 1)) z)))) out) verts (list)))
 
 (defun-bind render_verts (canvas verts)
 	;render circular verts

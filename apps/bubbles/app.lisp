@@ -9,10 +9,10 @@
 
 (defq canvas_width 600 canvas_height 600 min_width 300 min_height 300
 	style_buttons (list) rate (/ 1000000 60) base 0.3
-	palette (map (lambda (_) (vec
-			(i2n (/ (logand (>> _ 16) 0xff) 0xff))
-			(i2n (/ (logand (>> _ 8) 0xff) 0xff))
-			(i2n (/ (logand _ 0xff) 0xff))))
+	palette (map (lambda (_) (vec-i2n
+			(/ (logand (>> _ 16) 0xff) 0xff)
+			(/ (logand (>> _ 8) 0xff) 0xff)
+			(/ (logand _ 0xff) 0xff)))
 		(list argb_cyan argb_yellow argb_magenta argb_red argb_green argb_blue)))
 
 (ui-window window ()
@@ -40,14 +40,14 @@
 	(defq out (list))
 	(while (> (setq num (dec num)) -1)
 		(push out (list
-			(vec (i2n (- (random (const (* box_size 2))) box_size))
-				(i2n (- (random (const (* box_size 2))) box_size))
-				(i2n (- (random (const (* box_size 2))) box_size)))
-			(vec (i2n (- (random (const (inc (* max_vel 2)))) (const max_vel)))
-				(i2n (- (random (const (inc (* max_vel 2)))) (const max_vel)))
-				(i2n (- (random (const (inc (* max_vel 2)))) (const max_vel))))
+			(vec-i2n (- (random (const (* box_size 2))) box_size)
+				(- (random (const (* box_size 2))) box_size)
+				(- (random (const (* box_size 2))) box_size))
+			(vec-i2n (- (random (const (inc (* max_vel 2)))) (const max_vel))
+				(- (random (const (inc (* max_vel 2)))) (const max_vel))
+				(- (random (const (inc (* max_vel 2)))) (const max_vel)))
 			(i2n (const bubble_radius))
-			(vec-add (const (vec (f2n base) (f2n base) (f2n base)))
+			(vec-add (const (vec-f2n base base base))
 				(vec-scale (elem (random (length palette)) palette)
 					(f2n (random (const (- 1.0 base))))))))) out)
 
@@ -118,9 +118,7 @@
 								(setq last_state 'd)))
 						;set light pos
 						(tuple-set dlist_light_pos dlist
-							(vec (* (i2n rx) (const (i2n 4)))
-								(* (i2n ry) (const (i2n 4)))
-								(i2n (neg (* box_size 4))))))
+							(vec-i2n (* rx 4) (* ry 4) (neg (* box_size 4)))))
 					(t	;mouse button is up
 						(case last_state
 							(d	;was down last time

@@ -579,15 +579,24 @@
 		(elem-set _1 _ (elem _2 _))
 		(elem-set _2 _ _t)))
 
+(defmacro-bind get-ubyte (s o)
+	;(get-ubyte str index) -> num
+	(list 'code s 1 o))
 (defmacro-bind get-byte (s o)
 	;(get-byte str index) -> num
-	(list 'code s 1 o))
+	`(>>> (<< (code ,s 1 ,o) 56) 56))
+(defmacro-bind get-ushort (s o)
+	;(get-ushort str index) -> num
+	(list 'code s 2 o))
 (defmacro-bind get-short (s o)
 	;(get-short str index) -> num
-	(list 'code s 2 o))
+	`(>>> (<< (code ,s 2 ,o) 48) 48))
+(defmacro-bind get-uint (s o)
+	;(get-uint str index) -> num
+	(list 'code s 4 o))
 (defmacro-bind get-int (s o)
 	;(get-int str index) -> num
-	(list 'code s 4 o))
+	`(>>> (<< (code ,s 4 ,o) 32) 32))
 (defmacro-bind get-long (s o)
 	;(get-long str index) -> num
 	(list 'code s 8 o))

@@ -248,10 +248,13 @@ erase
 filter
 char-to-num
 get-byte
+get-ubyte
 get-cstr
 get-int
+get-uint
 get-long
 get-short
+get-ushort
 insert
 join
 log2
