@@ -8,14 +8,12 @@
 (defun-bind addop (_ p)
 	;trashes
 	;r1-r14
-	(vp-def (p1 p2 dst src1 src2 iter_begin iter_end) '(r13 r14))
+	(vp-def (dst src1 src2 iter_begin iter_end))
 	(entry 'reals _ `(,dst ,src1 ,src2))
 	(class/array/get_both dst iter_begin iter_end)
 	(assign `((,src1 array_begin) (,src2 array_begin)) `(,src1 ,src2))
 	(loop-start)
-		(assign `((,src1 0) (,src2 0)) `(,p1 ,p2))
 		(eval p)
-		(assign `(,p1) `((,iter_begin 0)))
 		(vp-add-cr long_size iter_begin)
 		(vp-add-cr long_size src1)
 		(vp-add-cr long_size src2)
@@ -26,14 +24,12 @@
 (defun-bind absop (_ p)
 	;trashes
 	;r1-r14
-	(vp-def (p1 dst src1 iter_begin iter_end) '(r13))
+	(vp-def (dst src1 iter_begin iter_end))
 	(entry 'reals _ `(,dst ,src1))
 	(class/array/get_both dst iter_begin iter_end)
 	(assign `((,src1 array_begin)) `(,src1))
 	(loop-start)
-		(assign `((,src1 0)) `(,p1))
 		(eval p)
-		(assign `(,p1) `((,iter_begin 0)))
 		(vp-add-cr long_size iter_begin)
 		(vp-add-cr long_size src1)
 	(loop-until (list iter_begin '= iter_end))
@@ -51,7 +47,7 @@
 	;r1-r14
 
 	(addop 'add
-		'(call 'sys_math 'r_add '(r13 r14) '(r13)))
+		'(call 'sys_math 'r_add `((,src1 0) (,src2 0)) `((,iter_begin 0))))
 
 (def-func-end)
 
@@ -66,7 +62,7 @@
 	;r1-r14
 
 	(addop 'sub
-		'(call 'sys_math 'r_sub '(r13 r14) '(r13)))
+		'(call 'sys_math 'r_sub `((,src1 0) (,src2 0)) `((,iter_begin 0))))
 
 (def-func-end)
 
@@ -81,7 +77,7 @@
 	;r1-r14
 
 	(addop 'mul
-		'(call 'sys_math 'r_mul '(r13 r14) '(r13)))
+		'(call 'sys_math 'r_mul `((,src1 0) (,src2 0)) `((,iter_begin 0))))
 
 (def-func-end)
 
@@ -96,7 +92,7 @@
 	;r1-r14
 
 	(addop 'div
-		'(call 'sys_math 'r_div '(r13 r14) '(r13)))
+		'(call 'sys_math 'r_div `((,src1 0) (,src2 0)) `((,iter_begin 0))))
 
 (def-func-end)
 
@@ -111,7 +107,7 @@
 	;r1-r14
 
 	(addop 'mod
-		'(call 'sys_math 'r_mod '(r13 r14) '(r13)))
+		'(call 'sys_math 'r_mod `((,src1 0) (,src2 0)) `((,iter_begin 0))))
 
 (def-func-end)
 
@@ -125,7 +121,7 @@
 	;r1-r14
 
 	(absop 'frac
-		'(call 'sys_math 'r_frac '(r13) '(r13)))
+		'(call 'sys_math 'r_frac `((,src1 0)) `((,iter_begin 0))))
 
 (def-func-end)
 
@@ -139,7 +135,7 @@
 	;r1-r14
 
 	(absop 'floor
-		'(call 'sys_math 'r_floor '(r13) '(r13)))
+		'(call 'sys_math 'r_floor `((,src1 0)) `((,iter_begin 0))))
 
 (def-func-end)
 
@@ -154,9 +150,12 @@
 
 	(absop 'abs
 		'(progn
-			(vpif '(r13 < 0))
-				(call 'sys_math 'r_sub '(0 r13) '(r13))
-			(endif)))
+ 			(defq in (method-input 'sys_math 'r_sub 1))
+			(vp-cpy-ir src1 0 in)
+ 			(vpif `(,in < 0))
+				(call 'sys_math 'r_sub `(0 ,in) `(,in))
+			(endif)
+			(vp-cpy-ri in iter_begin 0)))
 
 (def-func-end)
 
