@@ -195,7 +195,8 @@
 	;trashes
 	;r1-r14
 
-	(vp-def (sum dst iter_begin iter_end) '(r13))
+	(vp-def (sum dst iter_begin iter_end)
+		(list (method-input 'sys_math 'r_add 0)))
 
 	(entry 'reals 'sum `(,dst))
 
