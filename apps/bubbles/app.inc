@@ -8,7 +8,7 @@
 ;; (defmacro defun-bind (&rest _) `(defun-debug ~_))
 
 (cond	;pick number format t/nil
-	(nil	;reals
+	(t	;reals
 		(defmacro-bind vec (&rest _) `(reals ~_))
 		(defmacro-bind i2n (_) `(i2r ,_))
 		(defmacro-bind n2i (_) `(r2i ,_))

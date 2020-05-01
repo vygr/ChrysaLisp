@@ -5133,7 +5133,7 @@ r1-r14
 
 ## real
 
-Super Class: num
+Super Class: fixed
 
 ### real::vtable -> class/real/vtable
 
@@ -5249,7 +5249,30 @@ r1-r14
 ```lisp
 inputs
 r0 = real object (ptr)
-r1 = args vector object (ptr)
+outputs
+r0 = real object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### real::frac -> class/real/frac
+
+```lisp
+inputs
+r0 = real object (ptr)
+outputs
+r0 = real object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### real::floor -> class/real/floor
+
+```lisp
+inputs
+r0 = real object (ptr)
 outputs
 r0 = real object (ptr)
 r1 = return value object (ptr)
@@ -7520,7 +7543,7 @@ r14 = real (32:32)
 outputs
 r13 = real (32:32)
 trashes
-r11-r14
+r9-r14
 ```
 
 ### sys_math::r_frac -> sys/math/r_frac
@@ -7531,7 +7554,7 @@ r13 = real (32:32)
 outputs
 r13 = real (32:32)
 trashes
-r11-r14
+r10-r14
 ```
 
 ### sys_math::r_floor -> sys/math/r_floor
@@ -7542,7 +7565,7 @@ r13 = real (32:32)
 outputs
 r13 = real (32:32)
 trashes
-r11-r14
+r12-r14
 ```
 
 ### sys_math::r_i2r -> sys/math/r_i2r
