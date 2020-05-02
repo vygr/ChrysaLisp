@@ -680,7 +680,8 @@
 	(call 'sys_math 'r_i2r `(,n1) `(,n1))
 	(call 'sys_math 'r_sub `(,n2 ,n1) `(,n1))
 	(vpif `(,n2 < 0))
-		(call 'sys_math 'r_sub `(,(logior (i2r 1)) ,n1) `(,n1))
+		;(i2r 1) for the sake of the C++ version
+		(call 'sys_math 'r_sub `(4611686018427387905 ,n1) `(,n1))
 	(endif)
 
 	(exit 'sys_math 'r_frac `(,n1))

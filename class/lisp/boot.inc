@@ -391,7 +391,7 @@
 
 (defun-bind neg (_)
 	;(neg num) -> -num
-	(- 0 _))
+	(- _ _ _))
 
 (defun-bind abs (_)
 	;(abs num) -> num

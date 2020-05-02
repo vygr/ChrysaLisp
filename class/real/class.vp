@@ -372,7 +372,8 @@
 	(entry 'real 'recip '(r0))
 
 	(vp-push r0)
-	(call 'sys_math 'r_div `(,(logior (i2r 1)) (r0 num_value)) '(r0))
+	;(i2r 1) for the sake of the C++ version
+	(call 'sys_math 'r_div `(4611686018427387905 (r0 num_value)) '(r0))
 	(call 'real 'create '(r0) '(r1))
 	(vp-pop r0)
 
