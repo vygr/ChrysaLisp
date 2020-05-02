@@ -68,10 +68,10 @@
 (def-method 'real 'add)
 	;inputs
 	;r0 = real object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = vector of real objects (ptr)
 	;outputs
 	;r0 = real object (ptr)
-	;r1 = return value object (ptr)
+	;r1 = result real object (ptr)
 	;trashes
 	;r1-r14
 
@@ -83,10 +83,10 @@
 (def-method 'real 'sub)
 	;inputs
 	;r0 = real object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = vector of real objects (ptr)
 	;outputs
 	;r0 = real object (ptr)
-	;r1 = return value object (ptr)
+	;r1 = result real object (ptr)
 	;trashes
 	;r1-r14
 
@@ -98,10 +98,10 @@
 (def-method 'real 'mul)
 	;inputs
 	;r0 = real object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = vector of real objects (ptr)
 	;outputs
 	;r0 = real object (ptr)
-	;r1 = return value object (ptr)
+	;r1 = result real object (ptr)
 	;trashes
 	;r1-r14
 
@@ -113,10 +113,10 @@
 (def-method 'real 'min)
 	;inputs
 	;r0 = real object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = vector of real objects (ptr)
 	;outputs
 	;r0 = real object (ptr)
-	;r1 = return value object (ptr)
+	;r1 = result real object (ptr)
 	;trashes
 	;r1-r14
 
@@ -132,10 +132,10 @@
 (def-method 'real 'max)
 	;inputs
 	;r0 = real object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = vector of real objects (ptr)
 	;outputs
 	;r0 = real object (ptr)
-	;r1 = return value object (ptr)
+	;r1 = result real object (ptr)
 	;trashes
 	;r1-r14
 
@@ -175,10 +175,10 @@
 (def-method 'real 'div)
 	;inputs
 	;r0 = real object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = vector of real objects (ptr)
 	;outputs
 	;r0 = real object (ptr)
-	;r1 = 0, else return value object (ptr)
+	;r1 = 0 if error, else result real object (ptr)
 	;trashes
 	;r1-r14
 
@@ -190,10 +190,10 @@
 (def-method 'real 'mod)
 	;inputs
 	;r0 = real object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = vector of real objects (ptr)
 	;outputs
 	;r0 = real object (ptr)
-	;r1 = 0, else return value object (ptr)
+	;r1 = 0 if error, else result real object (ptr)
 	;trashes
 	;r1-r14
 
@@ -226,7 +226,7 @@
 (def-method 'real 'ge)
 	;inputs
 	;r0 = real object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = vector of real objects (ptr)
 	;outputs
 	;r0 = real object (ptr)
 	;r1 = 0, -1 (int)
@@ -244,7 +244,7 @@
 (def-method 'real 'gt)
 	;inputs
 	;r0 = real object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = vector of real objects (ptr)
 	;outputs
 	;r0 = real object (ptr)
 	;r1 = 0, -1 (int)
@@ -262,7 +262,7 @@
 (def-method 'real 'le)
 	;inputs
 	;r0 = real object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = vector of real objects (ptr)
 	;outputs
 	;r0 = real object (ptr)
 	;r1 = 0, -1 (int)
@@ -280,7 +280,7 @@
 (def-method 'real 'lt)
 	;inputs
 	;r0 = real object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = vector of real objects (ptr)
 	;outputs
 	;r0 = real object (ptr)
 	;r1 = 0, -1 (int)
@@ -298,9 +298,10 @@
 (def-method 'real 'sqrt)
 	;inputs
 	;r0 = real object (ptr)
+	;r1 = vector of real object (ptr)
 	;outputs
 	;r0 = real object (ptr)
-	;r1 = return value object (ptr)
+	;r1 = 0 if error, else result real object (ptr)
 	;trashes
 	;r1-r14
 
@@ -321,9 +322,10 @@
 (def-method 'real 'frac)
 	;inputs
 	;r0 = real object (ptr)
+	;r1 = vector of real object (ptr)
 	;outputs
 	;r0 = real object (ptr)
-	;r1 = return value object (ptr)
+	;r1 = result real object (ptr)
 	;trashes
 	;r1-r14
 
@@ -342,9 +344,10 @@
 (def-method 'real 'floor)
 	;inputs
 	;r0 = real object (ptr)
+	;r1 = vector of real object (ptr)
 	;outputs
 	;r0 = real object (ptr)
-	;r1 = return value object (ptr)
+	;r1 = result real object (ptr)
 	;trashes
 	;r1-r14
 

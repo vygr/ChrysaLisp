@@ -82,10 +82,10 @@
 (def-method 'fixed 'mul)
 	;inputs
 	;r0 = fixed object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = vector of fixed objects (ptr)
 	;outputs
 	;r0 = fixed object (ptr)
-	;r1 = return value object (ptr)
+	;r1 = result fixed object (ptr)
 	;trashes
 	;r1-r14
 
@@ -123,10 +123,10 @@
 (def-method 'fixed 'div)
 	;inputs
 	;r0 = fixed object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = vector of fixed objects (ptr)
 	;outputs
 	;r0 = fixed object (ptr)
-	;r1 = 0, else return value object (ptr)
+	;r1 = 0 if error, else result fixed object (ptr)
 	;trashes
 	;r1-r14
 
@@ -141,10 +141,10 @@
 (def-method 'fixed 'mod)
 	;inputs
 	;r0 = fixed object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = vector of fixed objects (ptr)
 	;outputs
 	;r0 = fixed object (ptr)
-	;r1 = 0, else return value object (ptr)
+	;r1 = 0 if error, else result fixed object (ptr)
 	;trashes
 	;r1-r14
 
@@ -186,10 +186,10 @@
 (def-method 'fixed 'sqrt)
 	;inputs
 	;r0 = fixed object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = vector of fixed object (ptr)
 	;outputs
 	;r0 = fixed object (ptr)
-	;r1 = return value object (ptr)
+	;r1 = 0 if error, else result fixed object (ptr)
 	;trashes
 	;r1-r14
 
@@ -201,10 +201,10 @@
 (def-method 'fixed 'sin)
 	;inputs
 	;r0 = fixed object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = vector of fixed object (ptr)
 	;outputs
 	;r0 = fixed object (ptr)
-	;r1 = return value object (ptr)
+	;r1 = result fixed object (ptr)
 	;trashes
 	;r1-r14
 
@@ -216,10 +216,10 @@
 (def-method 'fixed 'cos)
 	;inputs
 	;r0 = fixed object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = vector of fixed object (ptr)
 	;outputs
 	;r0 = fixed object (ptr)
-	;r1 = return value object (ptr)
+	;r1 = result fixed object (ptr)
 	;trashes
 	;r1-r14
 
@@ -231,10 +231,10 @@
 (def-method 'fixed 'frac)
 	;inputs
 	;r0 = fixed object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = vector of fixed object (ptr)
 	;outputs
 	;r0 = fixed object (ptr)
-	;r1 = return value object (ptr)
+	;r1 = result fixed object (ptr)
 	;trashes
 	;r1-r14
 
@@ -248,10 +248,10 @@
 (def-method 'fixed 'floor)
 	;inputs
 	;r0 = fixed object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = vector of fixed object (ptr)
 	;outputs
 	;r0 = fixed object (ptr)
-	;r1 = return value object (ptr)
+	;r1 = result fixed object (ptr)
 	;trashes
 	;r1-r14
 

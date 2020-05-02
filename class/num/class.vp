@@ -57,10 +57,10 @@
 (def-method 'num 'add)
 	;inputs
 	;r0 = num object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = vector of num objects (ptr)
 	;outputs
 	;r0 = num object (ptr)
-	;r1 = return value object (ptr)
+	;r1 = result num object (ptr)
 	;trashes
 	;r1-r14
 
@@ -72,10 +72,10 @@
 (def-method 'num 'sub)
 	;inputs
 	;r0 = num object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = vector of num objects (ptr)
 	;outputs
 	;r0 = num object (ptr)
-	;r1 = return value object (ptr)
+	;r1 = result num object (ptr)
 	;trashes
 	;r1-r14
 
@@ -87,10 +87,10 @@
 (def-method 'num 'mul)
 	;inputs
 	;r0 = num object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = vector of num objects (ptr)
 	;outputs
 	;r0 = num object (ptr)
-	;r1 = return value object (ptr)
+	;r1 = result num object (ptr)
 	;trashes
 	;r1-r14
 
@@ -102,10 +102,10 @@
 (def-method 'num 'min)
 	;inputs
 	;r0 = num object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = vector of num objects (ptr)
 	;outputs
 	;r0 = num object (ptr)
-	;r1 = return value object (ptr)
+	;r1 = result num object (ptr)
 	;trashes
 	;r1-r14
 
@@ -120,10 +120,10 @@
 (def-method 'num 'max)
 	;inputs
 	;r0 = num object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = vector of num objects (ptr)
 	;outputs
 	;r0 = num object (ptr)
-	;r1 = return value object (ptr)
+	;r1 = result num object (ptr)
 	;trashes
 	;r1-r14
 
@@ -162,10 +162,10 @@
 (def-method 'num 'div)
 	;inputs
 	;r0 = num object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = vector of num objects (ptr)
 	;outputs
 	;r0 = num object (ptr)
-	;r1 = 0, else return value object (ptr)
+	;r1 = 0 if error, else result num object (ptr)
 	;trashes
 	;r1-r14
 
@@ -179,10 +179,10 @@
 (def-method 'num 'mod)
 	;inputs
 	;r0 = num object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = vector of num objects (ptr)
 	;outputs
 	;r0 = num object (ptr)
-	;r1 = 0, else return value object (ptr)
+	;r1 = 0 if error, else result num object (ptr)
 	;trashes
 	;r1-r14
 
@@ -211,10 +211,10 @@
 (def-method 'num 'sqrt)
 	;inputs
 	;r0 = num object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = vector of num object (ptr)
 	;outputs
 	;r0 = num object (ptr)
-	;r1 = 0, else return value object (ptr)
+	;r1 = 0 if error, else result num object (ptr)
 	;trashes
 	;r1-r14
 
@@ -226,10 +226,10 @@
 (def-method 'num 'random)
 	;inputs
 	;r0 = num object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = vector of num object (ptr)
 	;outputs
 	;r0 = num object (ptr)
-	;r1 = return value object (ptr)
+	;r1 = result num object (ptr)
 	;trashes
 	;r1-r14
 
@@ -262,7 +262,7 @@
 (def-method 'num 'eq)
 	;inputs
 	;r0 = num object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = vector of num objects (ptr)
 	;outputs
 	;r0 = num object (ptr)
 	;r1 = 0, -1 (int)
@@ -277,7 +277,7 @@
 (def-method 'num 'ge)
 	;inputs
 	;r0 = num object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = vector of num objects (ptr)
 	;outputs
 	;r0 = num object (ptr)
 	;r1 = 0, -1 (int)
@@ -294,7 +294,7 @@
 (def-method 'num 'gt)
 	;inputs
 	;r0 = num object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = vector of num objects (ptr)
 	;outputs
 	;r0 = num object (ptr)
 	;r1 = 0, -1 (int)
@@ -311,7 +311,7 @@
 (def-method 'num 'le)
 	;inputs
 	;r0 = num object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = vector of num objects (ptr)
 	;outputs
 	;r0 = num object (ptr)
 	;r1 = 0, -1 (int)
@@ -328,7 +328,7 @@
 (def-method 'num 'lt)
 	;inputs
 	;r0 = num object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = vector of num objects (ptr)
 	;outputs
 	;r0 = num object (ptr)
 	;r1 = 0, -1 (int)
@@ -344,11 +344,11 @@
 
 (def-method 'num 'ne)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r0 = num object (ptr)
+	;r1 = vector of num objects (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;r0 = num object (ptr)
+	;r1 = 0, -1 (int)
 	;trashes
 	;r1-r14
 

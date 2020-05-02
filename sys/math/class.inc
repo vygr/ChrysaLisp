@@ -134,15 +134,8 @@
 
 (defcfun vec-floor (n &optional v)
 	(setd v (vec-top n))
-	(bind '(r) (vec-tmp 1))
 	(each (lambda (v)
-		(vpif `(,v >= 0))
-			(vp-and-cr fp_int_mask v)
-		(else)
-			(vp-cpy-rr v r)
-			(vp-and-cr fp_frac_mask r)
-			(vp-sub-rr r v)
-		(endif)) v))
+		(vp-and-cr fp_int_mask v)) v))
 
 (defcfun vec-add (n &optional v2 v1)
 	(setd v2 (vec-pop n) v1 (vec-top n))
