@@ -1749,6 +1749,18 @@ trashes
 r1-r14
 ```
 
+### fixed::sign -> class/fixed/sign
+
+```lisp
+inputs
+r0 = fixed object (ptr)
+outputs
+r0 = fixed object (ptr)
+r1 = 0 if error, else result fixed object (ptr)
+trashes
+r1-r14
+```
+
 ### fixed::sqrt -> class/fixed/sqrt
 
 ```lisp
@@ -3760,6 +3772,42 @@ trashes
 r1-r14
 ```
 
+### num::abs -> class/num/abs
+
+```lisp
+inputs
+r0 = num object (ptr)
+outputs
+r0 = num object (ptr)
+r1 = result num object (ptr)
+trashes
+r1-r14
+```
+
+### num::sign -> class/num/sign
+
+```lisp
+inputs
+r0 = num object (ptr)
+outputs
+r0 = num object (ptr)
+r1 = result num object (ptr)
+trashes
+r1-r14
+```
+
+### num::neg -> class/num/neg
+
+```lisp
+inputs
+r0 = num object (ptr)
+outputs
+r0 = num object (ptr)
+r1 = result num object (ptr)
+trashes
+r1-r14
+```
+
 ### num::random -> class/num/random
 
 ```lisp
@@ -3929,6 +3977,45 @@ r1-r14
 ```
 
 ### num::lisp_max -> class/num/lisp_max
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### num::lisp_abs -> class/num/lisp_abs
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### num::lisp_neg -> class/num/lisp_neg
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### num::lisp_sign -> class/num/lisp_sign
 
 ```lisp
 inputs
@@ -4306,7 +4393,7 @@ r1-r4
 inputs
 r0 = nums object (ptr)
 r1 = source nums object, can be same (ptr)
-r2 = scale (16.16)
+r2 = scale (int)
 outputs
 r0 = nums object (ptr)
 trashes
@@ -5255,6 +5342,42 @@ r1-r14
 inputs
 r0 = real object (ptr)
 r1 = vector of real objects (ptr)
+outputs
+r0 = real object (ptr)
+r1 = result real object (ptr)
+trashes
+r1-r14
+```
+
+### real::abs -> class/real/abs
+
+```lisp
+inputs
+r0 = real object (ptr)
+outputs
+r0 = real object (ptr)
+r1 = result real object (ptr)
+trashes
+r1-r14
+```
+
+### real::sign -> class/real/sign
+
+```lisp
+inputs
+r0 = real object (ptr)
+outputs
+r0 = real object (ptr)
+r1 = result real object (ptr)
+trashes
+r1-r14
+```
+
+### real::neg -> class/real/neg
+
+```lisp
+inputs
+r0 = real object (ptr)
 outputs
 r0 = real object (ptr)
 r1 = result real object (ptr)

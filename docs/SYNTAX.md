@@ -66,7 +66,7 @@
 
 ## abs
 
-(abs num) -> num
+(abs num)
 
 ## acond
 
@@ -678,7 +678,7 @@
 
 ## neg
 
-(neg num) -> -num
+(neg num)
 
 ## nlo
 
@@ -966,7 +966,7 @@
 
 ## sign
 
-(sign num) -> -1|0|1
+(sign num)
 
 ## sin
 

@@ -176,7 +176,7 @@
 	;inputs
 	;r0 = nums object (ptr)
 	;r1 = source nums object, can be same (ptr)
-	;r2 = scale (16.16)
+	;r2 = scale (int)
 	;outputs
 	;r0 = nums object (ptr)
 	;trashes

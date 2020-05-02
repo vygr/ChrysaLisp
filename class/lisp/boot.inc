@@ -16,6 +16,8 @@
 (ffi % "class/num/lisp_mod" 0)
 (ffi min "class/num/lisp_min" 0)
 (ffi max "class/num/lisp_max" 0)
+(ffi neg "class/num/lisp_neg" 0)
+(ffi abs "class/num/lisp_abs" 0)
 
 (ffi i2r "class/num/lisp_i2r" 0)
 (ffi i2f "class/num/lisp_i2f" 0)
@@ -381,21 +383,6 @@
 ;;;;;;;;;;;;;;;;
 
 (defq min_long (<< -1 63) max_long (>> -1 1) min_int (<< -1 31) max_int (>> -1 33))
-
-(defun-bind sign (_)
-	;(sign num) -> -1|0|1
-	(cond
-		((= _ 0) 0)
-		((< _ 0) -1)
-		(t 1)))
-
-(defun-bind neg (_)
-	;(neg num) -> -num
-	(- _ _ _))
-
-(defun-bind abs (_)
-	;(abs num) -> num
-	(if (< _ 0) (neg _) _))
 
 (defun-bind lognot (_)
 	;(lognot num) -> num

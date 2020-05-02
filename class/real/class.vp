@@ -373,11 +373,88 @@
 
 	(vp-push r0)
 	;(i2r 1) for the sake of the C++ version
-	(call 'sys_math 'r_div `(4611686018427387905 (r0 num_value)) '(r0))
+	(call 'sys_math 'r_div '(4611686018427387905 (r0 num_value)) '(r0))
 	(call 'real 'create '(r0) '(r1))
 	(vp-pop r0)
 
 	(exit 'real 'recip '(r0 r1))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'real 'abs)
+	;inputs
+	;r0 = real object (ptr)
+	;outputs
+	;r0 = real object (ptr)
+	;r1 = result real object (ptr)
+	;trashes
+	;r1-r14
+
+	(entry 'real 'abs '(r0))
+
+	(vp-push r0)
+	(assign '((r0 num_value)) '(r0))
+	(vpif '(r0 < 0))
+		;(i2r -1) for the sake of the C++ version
+		(call 'sys_math 'r_mul '(-4611686018427387903 r0) '(r0))
+	(endif)
+	(call 'real 'create '(r0) '(r1))
+	(vp-pop r0)
+
+	(exit 'real 'abs '(r0 r1))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'real 'neg)
+	;inputs
+	;r0 = real object (ptr)
+	;outputs
+	;r0 = real object (ptr)
+	;r1 = result real object (ptr)
+	;trashes
+	;r1-r14
+
+	(entry 'real 'neg '(r0))
+
+	(vp-push r0)
+	;(i2r -1) for the sake of the C++ version
+	(call 'sys_math 'r_mul '(-4611686018427387903 (r0 num_value)) '(r0))
+	(call 'real 'create '(r0) '(r1))
+	(vp-pop r0)
+
+	(exit 'real 'neg '(r0 r1))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'real 'sign)
+	;inputs
+	;r0 = real object (ptr)
+	;outputs
+	;r0 = real object (ptr)
+	;r1 = result real object (ptr)
+	;trashes
+	;r1-r14
+
+	(entry 'real 'sign '(r0))
+
+	(vp-push r0)
+	(assign '((r0 num_value)) '(r0))
+	(vpif '(r0 < 0))
+		;(i2r -1) for the sake of the C++ version
+		(assign '(-4611686018427387903) '(r0))
+	(elseif '(r0 > 0))
+		;(i2r 1) for the sake of the C++ version
+		(assign '(4611686018427387905) '(r0))
+	(else)
+		(vp-xor-rr r0 r0)
+	(endif)
+	(call 'real 'create '(r0) '(r1))
+	(vp-pop r0)
+
+	(exit 'real 'sign '(r0 r1))
 	(vp-ret)
 
 (def-func-end)

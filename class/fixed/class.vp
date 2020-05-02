@@ -197,6 +197,27 @@
 
 (def-func-end)
 
+(def-method 'fixed 'sign)
+	;inputs
+	;r0 = fixed object (ptr)
+	;outputs
+	;r0 = fixed object (ptr)
+	;r1 = 0 if error, else result fixed object (ptr)
+	;trashes
+	;r1-r14
+
+	(mathop 'sign
+		'(progn
+			(vpif '(r0 < 0))
+				(vp-cpy-cr (neg (<< 1 fp_shift)) r0)
+			(elseif '(r0 > 0))
+				(vp-cpy-cr (<< 1 fp_shift) r0)
+			(else)
+				(vp-xor-rr r0 r0)
+			(endif)))
+
+(def-func-end)
+
 (def-method 'fixed 'sin)
 	;inputs
 	;r0 = fixed object (ptr)

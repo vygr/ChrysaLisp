@@ -18,6 +18,9 @@
 (dec-method 'div 'class/num/div 'virtual '(r0 r1) '(r0 r1))
 (dec-method 'mod 'class/num/mod 'virtual '(r0 r1) '(r0 r1))
 (dec-method 'sqrt 'class/num/sqrt 'virtual '(r0) '(r0 r1))
+(dec-method 'abs 'class/num/abs 'virtual '(r0) '(r0 r1))
+(dec-method 'sign 'class/num/sign 'virtual '(r0) '(r0 r1))
+(dec-method 'neg 'class/num/neg 'virtual '(r0) '(r0 r1))
 (dec-method 'random 'class/num/random 'virtual '(r0) '(r0 r1))
 
 (dec-method 'eq 'class/num/eq 'virtual '(r0 r1) '(r0 r1))
@@ -34,6 +37,9 @@
 (dec-method 'lisp_mod 'class/num/lisp_mod 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_min 'class/num/lisp_min 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_max 'class/num/lisp_max 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_abs 'class/num/lisp_abs 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_neg 'class/num/lisp_neg 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_sign 'class/num/lisp_sign 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_sqrt 'class/num/lisp_sqrt 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_random 'class/num/lisp_random 'static '(r0 r1) '(r0 r1))
 

@@ -10,6 +10,7 @@
 (dec-method 'mul 'class/fixed/mul 'override)
 (dec-method 'div 'class/fixed/div 'override)
 (dec-method 'mod 'class/fixed/mod 'override)
+(dec-method 'sign 'class/fixed/sign 'override)
 (dec-method 'sqrt 'class/fixed/sqrt 'override)
 
 (dec-method 'sin 'class/fixed/sin 'virtual '(r0) '(r0 r1))

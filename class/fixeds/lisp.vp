@@ -17,7 +17,7 @@
 
 	(vp-push r1)
 	(class/array/bind_args r1 '(r2))
-	(v-bind 'fixed 'frac r2 r2)
+	(v-bind 'fixeds 'frac r2 r2)
 	(call 'nums 'lisp_vecop2 '(r0 r1 r2) '(r0 r1))
 	(vp-pop r3)
 	(errorif '(r1 = 0) 'error)
@@ -45,7 +45,7 @@
 
 	(vp-push r1)
 	(class/array/bind_args r1 '(r2))
-	(v-bind 'fixed 'floor r2 r2)
+	(v-bind 'fixeds 'floor r2 r2)
 	(call 'nums 'lisp_vecop2 '(r0 r1 r2) '(r0 r1))
 	(vp-pop r3)
 	(errorif '(r1 = 0) 'error)
