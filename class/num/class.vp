@@ -196,13 +196,11 @@
 
 ;generic int math op
 (defun-bind mathop (_ p)
-	(entry 'num _ '(r0 r1))
-	(vp-push r0)
-	(class/array/bind_args r1 '(r0))
+	(entry 'num _ '(r0))
 	(vp-push r0)
 	(assign '((r0 num_value)) '(r0))
 	(exec p)
-	(vp-pop r1)
+	(vp-cpy-ir rsp 0 r1)
 	(v-call 'num 'vcreate '(r0) '(r1) r1 r1)
 	(vp-pop r0)
 	(exit 'num _ '(r0 r1))
@@ -211,7 +209,6 @@
 (def-method 'num 'sqrt)
 	;inputs
 	;r0 = num object (ptr)
-	;r1 = vector of num object (ptr)
 	;outputs
 	;r0 = num object (ptr)
 	;r1 = 0 if error, else result num object (ptr)
@@ -226,7 +223,6 @@
 (def-method 'num 'random)
 	;inputs
 	;r0 = num object (ptr)
-	;r1 = vector of num object (ptr)
 	;outputs
 	;r0 = num object (ptr)
 	;r1 = result num object (ptr)

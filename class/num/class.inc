@@ -17,8 +17,8 @@
 (dec-method 'max 'class/num/max 'virtual '(r0 r1) '(r0 r1))
 (dec-method 'div 'class/num/div 'virtual '(r0 r1) '(r0 r1))
 (dec-method 'mod 'class/num/mod 'virtual '(r0 r1) '(r0 r1))
-(dec-method 'sqrt 'class/num/sqrt 'virtual '(r0 r1) '(r0 r1))
-(dec-method 'random 'class/num/random 'virtual '(r0 r1) '(r0 r1))
+(dec-method 'sqrt 'class/num/sqrt 'virtual '(r0) '(r0 r1))
+(dec-method 'random 'class/num/random 'virtual '(r0) '(r0 r1))
 
 (dec-method 'eq 'class/num/eq 'virtual '(r0 r1) '(r0 r1))
 (dec-method 'ne 'class/num/ne 'virtual '(r0 r1) '(r0 r1))

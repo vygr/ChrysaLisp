@@ -174,9 +174,9 @@
 
 ;generic fixed math op
 (defun-bind mathop (_ p)
-	(entry 'fixed _ '(r0 r1))
+	(entry 'fixed _ '(r0))
 	(vp-push r0)
-	(class/vector/bind_args r1 '(r0) '(fixed))
+	(assign '((r0 num_value)) '(r0))
 	(exec p)
 	(call 'fixed 'create '(r0) '(r1))
 	(vp-pop r0)
@@ -186,7 +186,6 @@
 (def-method 'fixed 'sqrt)
 	;inputs
 	;r0 = fixed object (ptr)
-	;r1 = vector of fixed object (ptr)
 	;outputs
 	;r0 = fixed object (ptr)
 	;r1 = 0 if error, else result fixed object (ptr)
@@ -201,7 +200,6 @@
 (def-method 'fixed 'sin)
 	;inputs
 	;r0 = fixed object (ptr)
-	;r1 = vector of fixed object (ptr)
 	;outputs
 	;r0 = fixed object (ptr)
 	;r1 = result fixed object (ptr)
@@ -216,7 +214,6 @@
 (def-method 'fixed 'cos)
 	;inputs
 	;r0 = fixed object (ptr)
-	;r1 = vector of fixed object (ptr)
 	;outputs
 	;r0 = fixed object (ptr)
 	;r1 = result fixed object (ptr)
@@ -231,7 +228,6 @@
 (def-method 'fixed 'frac)
 	;inputs
 	;r0 = fixed object (ptr)
-	;r1 = vector of fixed object (ptr)
 	;outputs
 	;r0 = fixed object (ptr)
 	;r1 = result fixed object (ptr)
@@ -248,7 +244,6 @@
 (def-method 'fixed 'floor)
 	;inputs
 	;r0 = fixed object (ptr)
-	;r1 = vector of fixed object (ptr)
 	;outputs
 	;r0 = fixed object (ptr)
 	;r1 = result fixed object (ptr)

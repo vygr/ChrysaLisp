@@ -445,7 +445,7 @@
 	(gotoif '(r2 = 0) 'error))
 	(vp-push r0)
 	(assign '((r1 array_begin)) '(r2))
-	(call 'num _ '((r2 0) r1) '(_ r1))
+	(call 'num _ '((r2 0)) '(_ r1))
 	(vp-pop r0)
 	(exit 'num (sym (cat 'lisp_ _)) '(r0 r1))
 	(vp-ret))
@@ -490,7 +490,7 @@
 (errorcases
 	(assign '((r0 num_value)) '(r2))
 	(gotoif '(r2 < 0) 'error1))
-	(call 'num 'sqrt '(r0 r1) '(_ r1))
+	(call 'num 'sqrt '(r0) '(_ r1))
 	(vp-pop r0)
 
 	(exit 'num 'lisp_sqrt '(r0 r1))

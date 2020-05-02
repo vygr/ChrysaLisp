@@ -298,14 +298,13 @@
 (def-method 'real 'sqrt)
 	;inputs
 	;r0 = real object (ptr)
-	;r1 = vector of real object (ptr)
 	;outputs
 	;r0 = real object (ptr)
 	;r1 = 0 if error, else result real object (ptr)
 	;trashes
 	;r1-r14
 
-	(entry 'real 'sqrt '(r0 r1))
+	(entry 'real 'sqrt '(r0))
 
 	(vp-push r0)
 	(call 'sys_math 'r_r2f '((r0 num_value)) '(r0))
@@ -322,14 +321,13 @@
 (def-method 'real 'frac)
 	;inputs
 	;r0 = real object (ptr)
-	;r1 = vector of real object (ptr)
 	;outputs
 	;r0 = real object (ptr)
 	;r1 = result real object (ptr)
 	;trashes
 	;r1-r14
 
-	(entry 'real 'frac '(r0 r1))
+	(entry 'real 'frac '(r0))
 
 	(vp-push r0)
 	(call 'sys_math 'r_frac '((r0 num_value)) '(r0))
@@ -344,14 +342,13 @@
 (def-method 'real 'floor)
 	;inputs
 	;r0 = real object (ptr)
-	;r1 = vector of real object (ptr)
 	;outputs
 	;r0 = real object (ptr)
 	;r1 = result real object (ptr)
 	;trashes
 	;r1-r14
 
-	(entry 'real 'floor '(r0 r1))
+	(entry 'real 'floor '(r0))
 
 	(vp-push r0)
 	(call 'sys_math 'r_floor '((r0 num_value)) '(r0))
