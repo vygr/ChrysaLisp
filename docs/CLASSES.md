@@ -1809,6 +1809,18 @@ trashes
 r1-r14
 ```
 
+### fixed::recip -> class/fixed/recip
+
+```lisp
+inputs
+r0 = fixed object (ptr)
+outputs
+r0 = fixed object (ptr)
+r1 = result fixed object (ptr)
+trashes
+r1-r14
+```
+
 ### fixed::lisp_sin -> class/fixed/lisp_sin
 
 ```lisp
@@ -1849,6 +1861,19 @@ r1-r14
 ```
 
 ### fixed::lisp_floor -> class/fixed/lisp_floor
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### fixed::lisp_recip -> class/fixed/lisp_recip
 
 ```lisp
 inputs
@@ -5262,6 +5287,18 @@ r1-r14
 ```
 
 ### real::floor -> class/real/floor
+
+```lisp
+inputs
+r0 = real object (ptr)
+outputs
+r0 = real object (ptr)
+r1 = result real object (ptr)
+trashes
+r1-r14
+```
+
+### real::recip -> class/real/recip
 
 ```lisp
 inputs

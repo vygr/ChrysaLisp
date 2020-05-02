@@ -920,6 +920,10 @@
 
 (reals [form ...])
 
+## recip
+
+(recip num)
+
 ## reduce
 
 (reduce lambda seq [accum]) -> form

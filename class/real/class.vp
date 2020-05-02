@@ -359,3 +359,24 @@
 	(vp-ret)
 
 (def-func-end)
+
+(def-method 'real 'recip)
+	;inputs
+	;r0 = real object (ptr)
+	;outputs
+	;r0 = real object (ptr)
+	;r1 = result real object (ptr)
+	;trashes
+	;r1-r14
+
+	(entry 'real 'recip '(r0))
+
+	(vp-push r0)
+	(call 'sys_math 'r_div `(,(logior (i2r 1)) (r0 num_value)) '(r0))
+	(call 'real 'create '(r0) '(r1))
+	(vp-pop r0)
+
+	(exit 'real 'recip '(r0 r1))
+	(vp-ret)
+
+(def-func-end)

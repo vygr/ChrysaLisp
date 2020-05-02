@@ -29,7 +29,7 @@
 		(when (> z (const (i2n focal_len)))
 			(defq v (vec x y z) w (/ hsw z) h (/ hsh z))
 			(bind '(sx sy sz) (vec-add v (vec-scale (vec-norm
-				(vec-add v (vec-sub (tuple-get dlist_light_pos dlist) v)) (const (i2n 1))) r)))
+				(vec-add v (vec-sub (tuple-get dlist_light_pos dlist) v))) r)))
 			(defq x (+ (* x h) hsw) y (+ (* y h) hsh) r (* r h)
 				sx (+ (* sx h) hsw) sy (+ (* sy h) hsh))
 			(push out (list (vec-n2f x y z) (vec-n2f sx sy) (n2f r)

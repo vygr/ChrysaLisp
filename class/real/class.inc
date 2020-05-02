@@ -17,6 +17,7 @@
 (dec-method 'sqrt 'class/real/sqrt 'override)
 (dec-method 'frac 'class/real/frac 'override)
 (dec-method 'floor 'class/real/floor 'override)
+(dec-method 'recip 'class/real/recip 'override)
 
 (dec-method 'lt 'class/real/lt 'override)
 (dec-method 'gt 'class/real/gt 'override)

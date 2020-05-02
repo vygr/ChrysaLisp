@@ -184,6 +184,18 @@
 	(each (lambda (v3 v2 v1)
 		(vp-div-rrr v2 v3 v1)) v3 v2 v1))
 
+(defcfun vec-frecip (n &optional v1)
+	(defq v (vec-tmp (* n 2)) v2 (slice 0 n v) v3 (slice n -1 v))
+	(setd v1 (vec-top n))
+	(each (lambda (v1 v2)
+		(vp-cpy-rr v1 v2)) v1 v2)
+	(each (lambda (v)
+		(vp-cpy-cr (<< 1 (* 2 fp_shift)) v)) v1)
+	(each (lambda (v)
+		(vp-xor-rr v v)) v3)
+	(each (lambda (v2 v3 v1)
+		(vp-div-rrr v2 v3 v1)) v2 v3 v1))
+
 (defcfun vec-fmod (n &optional v2 v1)
 	(defq v3 (vec-push n) v4 (vec-tmp n))
 	(vec-pop n)
