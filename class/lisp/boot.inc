@@ -159,7 +159,7 @@
 	(eval (macroexpand _)))
 
 (defun-bind exec (_)
-	;(exec ast)
+	;(exec form)
 	(eval (macroexpand _)))
 
 (defmacro-bind lst? (_)

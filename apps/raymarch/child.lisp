@@ -43,11 +43,13 @@
 (ffi ray-march "apps/raymarch/ray-march" 0)
 
 (defun-bind get-normal (p)
-	(bind '(x y z) p) (defq d (scene p))
 	(vec-norm (fixeds
-		(- d (scene (fixeds (- x (const eps)) y z)))
-		(- d (scene (fixeds x (- y (const eps)) z)))
-		(- d (scene (fixeds x y (- z (const eps))))))))
+		(- (defq d (scene p)) (scene (vec-add p (const (fixeds (neg eps) 0.0 0.0))
+			(const (fixeds 0.0 0.0 0.0)))))
+		(- d (scene (vec-add p (const (fixeds 0.0 (neg eps) 0.0))
+			(const (fixeds 0.0 0.0 0.0)))))
+		(- d (scene (vec-add p (const (fixeds 0.0 0.0 (neg eps)))
+			(const (fixeds 0.0 0.0 0.0))))))))
 
 (defun-bind shadow (ray_origin ray_dir l max_l k)
 	(defq s 1.0 i 1000 _ (fixeds 0.0 0.0 0.0))
@@ -81,10 +83,12 @@
 	(if (>= l clipfar)
 		(const (fixeds 0.0 0.0 0.0))
 		(progn
+			;difuse lighting
 			(defq surface_pos (vec-add ray_origin (vec-scale ray_dir l))
 				surface_norm (get-normal surface_pos)
 				color (lighting surface_pos surface_norm ray_origin)
 				i ref_depth r ref_coef)
+			;reflections
 			(while (and (>= (setq i (dec i)) 0)
 						(< (defq ray_origin surface_pos ray_dir (vec-reflect ray_dir surface_norm)
 								l (ray-march ray_origin ray_dir (* min_distance 2.0) clipfar min_distance march_factor))
@@ -102,11 +106,9 @@
 	(while (/= (setq y (inc y)) y1)
 		(defq xp (dec x))
 		(while (/= (setq xp (inc xp)) x1)
-			(defq
-				ray_origin (const (fixeds 0 0 -3.0))
-				ray_dir (vec-norm (vec-sub
-					(fixeds (/ (* (- xp w2) (const (<< 1 fp_shift))) w2) (/ (* (- y h2) (const (<< 1 fp_shift))) h2) 0.0)
-					ray_origin)))
+			(defq ray_origin (const (fixeds 0 0 -3.0)) ray_dir (vec-norm (vec-sub
+				(fixeds (/ (* (- xp w2) (const (<< 1 fp_shift))) w2) (/ (* (- y h2) (const (<< 1 fp_shift))) h2) 0.0)
+				ray_origin)))
 			(bind '(r g b) (scene-ray ray_origin ray_dir))
 			(write-int reply (+ argb_black (>> b 8) (logand g 0xff00) (<< (logand r 0xff00) 8)))
 		(task-sleep 0)))

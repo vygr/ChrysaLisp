@@ -1768,30 +1768,6 @@ inputs
 r0 = fixed object (ptr)
 outputs
 r0 = fixed object (ptr)
-r1 = 0 if error, else result fixed object (ptr)
-trashes
-r1-r14
-```
-
-### fixed::sin -> class/fixed/sin
-
-```lisp
-inputs
-r0 = fixed object (ptr)
-outputs
-r0 = fixed object (ptr)
-r1 = result fixed object (ptr)
-trashes
-r1-r14
-```
-
-### fixed::cos -> class/fixed/cos
-
-```lisp
-inputs
-r0 = fixed object (ptr)
-outputs
-r0 = fixed object (ptr)
 r1 = result fixed object (ptr)
 trashes
 r1-r14
@@ -1822,6 +1798,30 @@ r1-r14
 ```
 
 ### fixed::recip -> class/fixed/recip
+
+```lisp
+inputs
+r0 = fixed object (ptr)
+outputs
+r0 = fixed object (ptr)
+r1 = result fixed object (ptr)
+trashes
+r1-r14
+```
+
+### fixed::sin -> class/fixed/sin
+
+```lisp
+inputs
+r0 = fixed object (ptr)
+outputs
+r0 = fixed object (ptr)
+r1 = result fixed object (ptr)
+trashes
+r1-r14
+```
+
+### fixed::cos -> class/fixed/cos
 
 ```lisp
 inputs
@@ -3767,7 +3767,7 @@ inputs
 r0 = num object (ptr)
 outputs
 r0 = num object (ptr)
-r1 = 0 if error, else result num object (ptr)
+r1 = result num object (ptr)
 trashes
 r1-r14
 ```
@@ -5392,7 +5392,7 @@ inputs
 r0 = real object (ptr)
 outputs
 r0 = real object (ptr)
-r1 = 0 if error, else result real object (ptr)
+r1 = result real object (ptr)
 trashes
 r1-r14
 ```

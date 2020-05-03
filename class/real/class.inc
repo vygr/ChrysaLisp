@@ -2,7 +2,7 @@
 
 (def-class 'real 'fixed)
 (dec-method 'vtable 'class/real/vtable)
-(dec-method 'create 'class/real/create 'static '(r0) '(r0))
+(dec-method 'create 'class/real/create)
 
 (dec-method 'print 'class/real/print 'override)
 (dec-method 'vcreate 'class/real/create 'override)

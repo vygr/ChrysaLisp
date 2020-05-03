@@ -188,7 +188,7 @@
 	;r0 = fixed object (ptr)
 	;outputs
 	;r0 = fixed object (ptr)
-	;r1 = 0 if error, else result fixed object (ptr)
+	;r1 = result fixed object (ptr)
 	;trashes
 	;r1-r14
 

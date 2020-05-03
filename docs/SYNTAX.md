@@ -406,7 +406,7 @@
 
 ## exec
 
-(exec ast)
+(exec form)
 
 ## f2i
 
