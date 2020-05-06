@@ -6,7 +6,7 @@
 
 (structure 'event 0
 	(byte 'close 'max 'min)
-	(byte 'layout 'scroll 'new 'save 'open 'close 'prev 'next 'tab_sel))
+	(byte 'layout 'scroll 'new 'save 'open 'closeb 'prev 'next 'tab_sel))
 
 ;text buffer tuple
 (structure 'text 0
@@ -24,7 +24,7 @@
 					(each (lambda (c e)
 							(component-connect (ui-button _ (text (num-to-utf8 c))) e))
 						'(0xe9e9 0xea07 0xe9f0 0xe96f 0xe93c 0xe93d)
-						(list event_open event_save event_new event_close event_prev event_next))
+						(list event_open event_save event_new event_closeb event_prev event_next))
 					(ui-label buf_disp (text "0/0" color *env_toolbar_col* font *env_terminal_font*)))
 				(ui-textfield textfield (font *env_terminal_font* text "" color argb_grey13)))
 			(ui-flow _ (flow_flags flow_left_fill)
@@ -170,7 +170,7 @@
 			(save-buffer fpath)
 			(set textfield 'text (tuple-get text_fpath current_text))
 			(window-layout vdu_width vdu_height))
-		((= id event_close)
+		((= id event_closeb)
 			(cond 
 				((<= (length text_store) 1)
 					nil)
