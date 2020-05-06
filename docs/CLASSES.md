@@ -3213,6 +3213,7 @@ r2 = next char (uint)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+r2 = next char (uint)
 trashes
 r1-r14
 ```
