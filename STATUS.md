@@ -27,6 +27,11 @@ corrupted.
 
 ------
 
+Nuclearfall has started a repo of a whole pile of CTF fonts:
+https://github.com/nuclearfall/CTFonts go pay it a visit and drop off a star.
+
+------
+
 (read) now parses fixed point format numbers directly to fixed number type.
 
 New (cap) function for setting capacity of array types, so array, list, nums,

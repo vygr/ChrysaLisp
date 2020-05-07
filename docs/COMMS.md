@@ -17,7 +17,7 @@ Mailboxes are identified by an ID, this ID is allocated when the mailbox is
 constructed using the `'sys_mail 'alloc_mbox` function. The mailbox ID does not
 directly address the mailbox structure that's used to hold received messages.
 
-A Mailbox can be freed using the mailbox free function, `'sys_mail 'mbox_free`.
+A Mailbox can be freed using the mailbox free function, `'sys_mail 'free_mbox`.
 
 A mailbox ID can be turned into the address of the message containing structure
 using the `'sys_mail 'mbox_addr` function. This mailbox address function
