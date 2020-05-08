@@ -2,6 +2,8 @@
 #include <sys/types.h>
 #include <fcntl.h>
 #include <string.h>
+#include <stdio.h>
+#include <dirent.h>
 #ifdef _WIN64
 #define _CRT_SECURE_NO_WARNINGS
 #define DELTA_EPOCH_IN_MICROSECS 11644473600000000Ui64
@@ -22,6 +24,32 @@ enum
 	file_open_write,
 	file_open_readwrite
 };
+
+#ifdef _WIN64
+#else
+long long mylist_dir(const char *path, char *buf, size_t buf_len)
+{
+	char *fbuf = NULL;
+	size_t fbuf_len = 0;
+    struct dirent *entry;
+    DIR *dir = opendir(path);
+    if (dir == NULL) return 0;
+    while ((entry = readdir(dir)) != NULL)
+	{
+		size_t len = strlen(entry->d_name);
+		fbuf = realloc(fbuf, fbuf_len + len + 3);
+		memcpy(fbuf + fbuf_len, entry->d_name, len);
+		fbuf_len += len;
+		fbuf[fbuf_len++] = ',';
+		fbuf[fbuf_len++] = entry->d_type + '0';
+		fbuf[fbuf_len++] = ',';
+    }
+    closedir(dir);
+	if (buf) memcpy(buf, fbuf, fbuf_len > buf_len ? buf_len : fbuf_len);
+	free(fbuf);
+	return fbuf_len;
+}
+#endif
 
 char dirbuf[128];
 
@@ -313,7 +341,8 @@ mymprotect,
 gettime,
 myopenshared,
 mycloseshared,
-myclearicache
+myclearicache,
+mylist_dir
 };
 
 int main(int argc, char *argv[])
