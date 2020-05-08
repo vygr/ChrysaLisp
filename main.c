@@ -3,17 +3,18 @@
 #include <fcntl.h>
 #include <string.h>
 #include <stdio.h>
-#include <dirent.h>
 #ifdef _WIN64
-#define _CRT_SECURE_NO_WARNINGS
-#define DELTA_EPOCH_IN_MICROSECS 11644473600000000Ui64
-#include <time.h>
-#include <io.h>
-#include <windows.h>
+	#define _CRT_SECURE_NO_WARNINGS
+	#define DELTA_EPOCH_IN_MICROSECS 11644473600000000Ui64
+	#include <time.h>
+	#include <io.h>
+	#include <windows.h>
+	#include <tchar.h>
 #else
-#include <sys/mman.h>
-#include <sys/time.h>
-#include <unistd.h>
+	#include <sys/mman.h>
+	#include <sys/time.h>
+	#include <unistd.h>
+	#include <dirent.h>
 #endif
 
 #include <SDL.h>
@@ -25,7 +26,43 @@ enum
 	file_open_readwrite
 };
 
+char dirbuf[1024];
+
 #ifdef _WIN64
+long long mylist_dir(const char *path, char *buf, size_t buf_len)
+{
+	char *fbuf = NULL;
+	size_t fbuf_len = 0;
+	size_t path_len = strlen(path);
+	size_t cwd_len = GetCurrentDirectory(1024, dirbuf);
+	HANDLE hFind;
+	WIN32_FIND_DATA FindData;
+	dirbuf[cwd_len++] = '\\';
+	strcpy(dirbuf + cwd_len, path);
+	cwd_len += path_len;
+	dirbuf[cwd_len++] = '\\';
+	dirbuf[cwd_len++] = '*';
+	hFind = FindFirstFile(dirbuf, &FindData);
+	if (hFind == INVALID_HANDLE_VALUE) return 0;
+	do
+	{
+		size_t len = strlen(FindData.cFileName);
+		fbuf = realloc(fbuf, fbuf_len + len + 3);
+		memcpy(fbuf + fbuf_len, FindData.cFileName, len);
+		fbuf_len += len;
+		fbuf[fbuf_len++] = ',';
+		if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+		{
+			fbuf[fbuf_len++] = '4';
+		}
+		else fbuf[fbuf_len++] = '8';
+		fbuf[fbuf_len++] = ',';
+	} while (FindNextFile(hFind, &FindData) != 0);
+	FindClose(hFind);
+	if (buf) memcpy(buf, fbuf, fbuf_len > buf_len ? buf_len : fbuf_len);
+	free(fbuf);
+	return fbuf_len;
+}
 #else
 long long mylist_dir(const char *path, char *buf, size_t buf_len)
 {
@@ -50,8 +87,6 @@ long long mylist_dir(const char *path, char *buf, size_t buf_len)
 	return fbuf_len;
 }
 #endif
-
-char dirbuf[128];
 
 static void rmkdir(const char *path)
 {
