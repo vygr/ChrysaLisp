@@ -36,14 +36,14 @@
 	(view-add-child symbol_scroll symbol_grid)
 	(apply view-change-dirty (cat (list window) (view-get-pos window) (view-pref-size window))))
 
-(defun-bind all-ctf (p)
+(defun-bind all-fonts (p)
 	(defq out (list))
 	(each! 0 -1 (lambda (f m) (and (eql m "8") (ends-with ".ctf" f) (push out (cat p f))))
 		(reduce (lambda (l e)
 			(push (elem (% _ (length l)) l) e) l) (split (pii-dirlist p) ",") (list (list) (list))))
-	out)
+	(sort cmp out))
 
-(defq index 0 fonts (all-ctf "fonts/"))
+(defq index 0 fonts (all-fonts "fonts/"))
 
 (ui-window window ()
 	(ui-title-bar _ "Fonts" (0xea19) (const event_close))

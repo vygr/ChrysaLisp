@@ -7,7 +7,15 @@
 	(byte 'close)
 	(byte 'prev 'next))
 
-(defq images '("apps/films/captive.flm" "apps/films/cradle.flm") index 0 canvas nil id t)
+(defun-bind all-films (p)
+	(defq out (list))
+	(each! 0 -1 (lambda (f m)
+		(and (eql m "8") (ends-with ".flm" f) (push out (cat p f))))
+		(reduce (lambda (l e)
+			(push (elem (% _ (length l)) l) e) l) (split (pii-dirlist p) ",") (list (list) (list))))
+	(sort cmp out))
+
+(defq images (all-films "apps/films/") index 0 canvas nil id t)
 
 (ui-window window ()
 	(ui-title-bar window_title "" (0xea19) (const event_close))

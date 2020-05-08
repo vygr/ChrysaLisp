@@ -7,14 +7,16 @@
 	(byte 'close)
 	(byte 'prev 'next))
 
-(defq images '("apps/images/wallpaper.cpm" "apps/images/chrysalisp.cpm"
-	"apps/images/frill.cpm" "apps/images/magicbox.cpm" "apps/images/captive.cpm"
-	"apps/images/balls.cpm" "apps/images/banstand.cpm" "apps/images/bucky.cpm"
-	"apps/images/circus.cpm" "apps/images/cyl_test.cpm" "apps/images/logo.cpm"
-	"apps/images/mice.cpm" "apps/images/molecule.cpm" "apps/images/nippon3.cpm"
-	"apps/images/piramid.cpm" "apps/images/rings.cpm" "apps/images/sharpend.cpm"
-	"apps/images/stairs.cpm" "apps/images/temple.cpm" "apps/images/vermin.cpm")
-	index 0)
+(defun-bind all-images (p)
+	(defq out (list))
+	(each! 0 -1 (lambda (f m)
+		(and (eql m "8") (or (ends-with ".cpm" f) (ends-with ".tga" f))
+			(push out (cat p f))))
+		(reduce (lambda (l e)
+			(push (elem (% _ (length l)) l) e) l) (split (pii-dirlist p) ",") (list (list) (list))))
+	(sort cmp out))
+
+(defq images (all-images '"apps/images/") index 0)
 
 (ui-window window ()
 	(ui-title-bar window_title "" (0xea19) (const event_close))
