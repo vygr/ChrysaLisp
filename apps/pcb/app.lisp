@@ -9,9 +9,14 @@
 	(byte 'prev 'next 'scale_down 'scale_up 'mode_normal 'mode_gerber)
 	(byte 'show_all 'show_1 'show_2 'show_3 'show_4))
 
-(defq pcbs '("apps/pcb/test1.pcb" "apps/pcb/test2.pcb" "apps/pcb/test3.pcb") index 1
-	canvas_scale 1 mode 0 show -1 max_zoom 15.0 min_zoom 5.0
-	zoom (/ (+ min_zoom max_zoom) 2.0) eps 0.25)
+(defun-bind all-pcbs (p)
+	(defq out (list))
+	(each! 0 -1 (lambda (f m) (and (eql m "8") (ends-with ".pcb" f) (push out (cat p f))))
+		(unzip (split (pii-dirlist p) ",") (list (list) (list))))
+	(sort cmp out))
+
+(defq pcbs (all-pcbs "apps/pcb/") index 1 canvas_scale 1 mode 0 show -1
+	max_zoom 15.0 min_zoom 5.0 zoom (/ (+ min_zoom max_zoom) 2.0) eps 0.25)
 
 (ui-window window ()
 	(ui-title-bar window_title "" (0xea19) (const event_close))
