@@ -10,8 +10,7 @@
 (defun-bind all-images (p)
 	(defq out (list))
 	(each! 0 -1 (lambda (f m)
-		(and (eql m "8") (or (ends-with ".cpm" f) (ends-with ".tga" f))
-			(push out (cat p f))))
+		(and (eql m "8") (or (ends-with ".cpm" f) (ends-with ".tga" f)) (push out (cat p f))))
 		(unzip (split (pii-dirlist p) ",") (list (list) (list))))
 	(sort cmp out))
 

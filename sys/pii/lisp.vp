@@ -172,7 +172,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r0 "(dirlist path)" error_msg_wrong_types r1))
+	(jump 'lisp 'repl_error '(r0 "(pii-dirlist path)" error_msg_wrong_types r1))
 	(signature '(str)))
 
 (def-func-end)
