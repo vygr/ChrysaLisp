@@ -348,6 +348,10 @@
 
 (defun-debug name ([arg ...]) body)
 
+## dirlist
+
+(dirlist path)
+
 ## each
 
 (each lambda seq ...)

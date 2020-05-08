@@ -82,6 +82,25 @@
 
 (def-func-end)
 
+(def-method 'sys_pii 'dirlist)
+	;inputs
+	;r0 = c string pathname (pubyte)
+	;r1 = buffer pointer (ptr)
+	;r2 = buffer length (ulong)
+	;outputs
+	;r0 = buffer length (ulong)
+	;trashes
+	;r0
+
+	(entry 'sys_pii 'dirlist '(r0 r1 r2))
+	(abi-push-trashed r1 r2 r13 r14)
+	(host-call 'host 'dirlist '(r0 r1 r2) '(r0))
+	(abi-pop-trashed r1 r2 r13 r14)
+	(exit 'sys_pii 'dirlist '(r0))
+	(vp-ret)
+
+(def-func-end)
+
 (def-method 'sys_pii 'write_num)
 	;inputs
 	;r0 = fd (ulong)

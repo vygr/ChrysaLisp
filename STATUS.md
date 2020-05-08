@@ -30,6 +30,10 @@ corrupted.
 Nuclearfall has started a repo of a whole pile of CTF fonts:
 https://github.com/nuclearfall/CTFonts go pay it a visit and drop off a star.
 
+As a result I have added sys_pii::dirlist host call. As he deserves to be able
+to have the font app find all his fonts easily ! Plus we now have a simple host
+dir listing call.
+
 ------
 
 (read) now parses fixed point format numbers directly to fixed number type.

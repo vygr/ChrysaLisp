@@ -2710,6 +2710,8 @@ Super Class: null
 
 ### host::clear_icache -> nil
 
+### host::dirlist -> nil
+
 ## hset
 
 Super Class: obj
@@ -8125,6 +8127,19 @@ trashes
 r0
 ```
 
+### sys_pii::dirlist -> sys/pii/dirlist
+
+```lisp
+inputs
+r0 = c string pathname (pubyte)
+r1 = buffer pointer (ptr)
+r2 = buffer length (ulong)
+outputs
+r0 = buffer length (ulong)
+trashes
+r0
+```
+
 ### sys_pii::lisp_readchar -> sys/pii/lisp_readchar
 
 ```lisp
@@ -8165,6 +8180,19 @@ r1-r14
 ```
 
 ### sys_pii::lisp_age -> sys/pii/lisp_age
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### sys_pii::lisp_dirlist -> sys/pii/lisp_dirlist
 
 ```lisp
 inputs

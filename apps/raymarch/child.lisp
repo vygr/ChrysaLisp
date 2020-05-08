@@ -44,17 +44,19 @@
 
 (defun-bind get-normal (p)
 	(vec-norm (fixeds
-		(- (defq d (scene p)) (scene (vec-add p (const (fixeds (neg eps) 0.0 0.0))
-			(const (fixeds 0.0 0.0 0.0)))))
-		(- d (scene (vec-add p (const (fixeds 0.0 (neg eps) 0.0))
-			(const (fixeds 0.0 0.0 0.0)))))
-		(- d (scene (vec-add p (const (fixeds 0.0 0.0 (neg eps)))
-			(const (fixeds 0.0 0.0 0.0))))))))
+		(- (defq d (scene p)) (scene (vec-add p
+			(const (fixeds (neg eps) 0.0 0.0)) (const (fixeds 0.0 0.0 0.0)))))
+		(- d (scene (vec-add p
+			(const (fixeds 0.0 (neg eps) 0.0)) (const (fixeds 0.0 0.0 0.0)))))
+		(- d (scene (vec-add p
+			(const (fixeds 0.0 0.0 (neg eps))) (const (fixeds 0.0 0.0 0.0))))))
+			(const (fixeds 0.0 0.0 0.0))))
 
 (defun-bind shadow (ray_origin ray_dir l max_l k)
-	(defq s 1.0 i 1000 _ (fixeds 0.0 0.0 0.0))
+	(defq s 1.0 i 1000)
 	(while (> (setq i (dec i)) 0)
-		(defq h (scene (vec-add ray_origin (vec-scale ray_dir l _) _))
+		(defq h (scene (vec-add ray_origin
+			(vec-scale ray_dir l (const (fixeds 0.0 0.0 0.0))) (const (fixeds 0.0 0.0 0.0))))
 			s (min s (/ (* k h) l)))
 		(if (or (<= s 0.1) (>= l max_l))
 			(setq i 0)

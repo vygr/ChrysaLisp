@@ -36,6 +36,7 @@
 (ffi open-remote "sys/task/lisp_open_remote" 0)
 (ffi pii-read-char "sys/pii/lisp_readchar" 0)
 (ffi pii-write-char "sys/pii/lisp_writechar" 0)
+(ffi pii-dirlist "sys/pii/lisp_dirlist" 0)
 (ffi task-mailbox "sys/task/lisp_mailbox" 0)
 (ffi task-sleep "sys/task/lisp_sleep" 0)
 (ffi mem-stats "sys/mem/lisp_stats" 0)

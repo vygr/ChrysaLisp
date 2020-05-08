@@ -137,3 +137,42 @@
 	(signature '(str)))
 
 (def-func-end)
+
+(def-method 'sys_pii 'lisp_dirlist)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(entry 'sys_pii 'lisp_dirlist '(r0 r1))
+
+(errorcases
+	(call 'lisp 'env_args_sig '(r1 ($ sig) 1) '(r2))
+	(gotoif '(r2 = 0) 'error))
+
+	(vp-push r0)
+	(class/vector/bind_args r1 '(r6) '(str))
+	(assign '(0 0 (* 4 1024)) '(r7 r8 r9))
+	(loop-start)
+		(call 'sys_mem 'realloc '(r7 r8 r9) '(r7 r8))
+		(call 'sys_pii 'dirlist '(r6 r7 r8) '(r0))
+		(breakif '(r0 <= r8))
+		(vp-lea-d r8 r8 r9)
+	(loop-end)
+	(call 'str 'create_from_buffer '(r7 r0) '(r9))
+	(call 'sys_mem 'free '(r7))
+	(vp-pop r0)
+
+	(exit 'sys_pii 'lisp_dirlist '(r0 r9))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp 'repl_error '(r0 "(dirlist path)" error_msg_wrong_types r1))
+	(signature '(str)))
+
+(def-func-end)

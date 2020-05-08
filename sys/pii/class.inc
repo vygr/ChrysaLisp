@@ -43,6 +43,7 @@
 (dec-method 'open_shared nil 'virtual (abi-args 2) '(r0))
 (dec-method 'close_shared nil 'virtual (abi-args 2) '(r0))
 (dec-method 'clear_icache nil 'virtual (abi-args 2) '(r0))
+(dec-method 'dirlist nil 'virtual (abi-args 3) '(r0))
 
 (defcfun host-call-table (_1 _2 _5 &optional _3 _4 _6)
 	;_1 = class name
@@ -251,11 +252,13 @@
 (dec-method 'read_char 'sys/pii/read_char 'static '(r0) '(r0))
 (dec-method 'time 'sys/pii/time 'static nil '(r0))
 (dec-method 'clear_icache 'sys/pii/clear_icache 'static '(r0 r1) '(r0))
+(dec-method 'dirlist 'sys/pii/dirlist 'static '(r0 r1 r2) '(r0))
 
 (dec-method 'lisp_readchar 'sys/pii/lisp_readchar 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_writechar 'sys/pii/lisp_writechar 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_time 'sys/pii/lisp_time 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_age 'sys/pii/lisp_age 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_dirlist 'sys/pii/lisp_dirlist 'static '(r0 r1) '(r0 r1))
 
 ;debug helpers
 (defcfun debug-num (s n)
