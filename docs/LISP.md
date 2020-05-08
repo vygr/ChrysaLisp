@@ -165,6 +165,7 @@ type-of
 undef
 unquote
 unquote-splicing
+unzip
 while
 write
 write-char

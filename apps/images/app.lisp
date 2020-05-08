@@ -12,8 +12,7 @@
 	(each! 0 -1 (lambda (f m)
 		(and (eql m "8") (or (ends-with ".cpm" f) (ends-with ".tga" f))
 			(push out (cat p f))))
-		(reduce (lambda (l e)
-			(push (elem (% _ (length l)) l) e) l) (split (pii-dirlist p) ",") (list (list) (list))))
+		(unzip (split (pii-dirlist p) ",") (list (list) (list))))
 	(sort cmp out))
 
 (defq images (all-images '"apps/images/") index 0)

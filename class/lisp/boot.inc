@@ -378,6 +378,11 @@
 	(apply cat (map (lambda (x)
 		(if (= _ 0) x (cat j x))) l)))
 
+(defun-bind unzip (l b)
+	;(unzip seq buckets) -> buckets
+	(reduce (lambda (b e)
+		(push (elem (% _ (length b)) b) e) b) l b))
+
 ;;;;;;;;;;;;;;;;
 ; Math functions
 ;;;;;;;;;;;;;;;;

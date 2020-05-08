@@ -1116,6 +1116,10 @@
 
 (until tst body)
 
+## unzip
+
+(unzip seq buckets) -> buckets
+
 ## vdu-load
 
 (vdu-load vdu lines ox oy cx cy)

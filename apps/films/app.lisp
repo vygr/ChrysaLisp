@@ -11,8 +11,7 @@
 	(defq out (list))
 	(each! 0 -1 (lambda (f m)
 		(and (eql m "8") (ends-with ".flm" f) (push out (cat p f))))
-		(reduce (lambda (l e)
-			(push (elem (% _ (length l)) l) e) l) (split (pii-dirlist p) ",") (list (list) (list))))
+		(unzip (split (pii-dirlist p) ",") (list (list) (list))))
 	(sort cmp out))
 
 (defq images (all-films "apps/films/") index 0 canvas nil id t)
