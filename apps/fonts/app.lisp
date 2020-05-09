@@ -42,7 +42,7 @@
 		(unzip (split (pii-dirlist p) ",") (list (list) (list))))
 	(sort cmp out))
 
-(defq index 0 fonts (all-fonts "fonts/"))
+(defq index 1 fonts (all-fonts "fonts/"))
 
 (ui-window window ()
 	(ui-title-bar _ "Fonts" (0xea19) (const event_close))

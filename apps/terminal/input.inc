@@ -13,18 +13,18 @@
 		(list (cat "./" (slice 0 (inc i) url)) (slice (inc i) -1 url))
 		(list "./" url)))
 
-(defun-bind url-ext-index (l)
+(defun-bind url-ext-index (urls)
 	(defq i 0)
 	(while (every (lambda (c)
 			(and (< i (length c))
-				(eql (elem i c) (elem i (elem 0 l))))) l)
+				(eql (elem i c) (elem i (elem 0 urls))))) urls)
 		(setq i (inc i))) i)
 
 (defun-bind url-ext (url)
 	(bind '(url file) (url-split url))
-	(defq dir (map (lambda (_) (slice (length file) -1 _))
+	(defq urls (map (lambda (_) (slice (length file) -1 _))
 		 (filter (lambda (_) (starts-with file _)) (url-list url))))
-	(if (= 0 (length dir)) "" (slice 0 (url-ext-index dir) (elem 0 dir))))
+	(if (= 0 (length urls)) "" (slice 0 (url-ext-index urls) (elem 0 urls))))
 
 (defun-bind line-input (c)
 	;key action on line input buffer
