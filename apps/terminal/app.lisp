@@ -25,7 +25,7 @@
 				;line feed and truncate
 				(if (> (length (push buf "")) *env_terminal_lines*)
 					(setq buf (slice (const (dec (neg *env_terminal_lines*))) -1 buf))))
-			((eql c (ascii-char 126))
+			((eql c (ascii-char 128))
 				;clear line
 				(elem-set -2 buf ""))
 			((eql c (ascii-char 9))
@@ -56,7 +56,7 @@
 	(setq text_buf (vdu-print vdu text_buf _)))
 
 (defun-bind print-edit-line ()
-	(print (cat (ascii-char 126) (if cmd "" *env_terminal_prompt*) *line_buf*)))
+	(print (cat (ascii-char 128) (if cmd "" *env_terminal_prompt*) *line_buf*)))
 
 (defun-bind terminal-input (c)
 	(line-input c)
