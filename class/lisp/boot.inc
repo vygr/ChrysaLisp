@@ -430,13 +430,13 @@
 	;(to-lower str) -> str
 	(apply cat (map (lambda (_) (char (ascii-lower (code _)))) _)))
 
-(defmacro-bind starts-with (p _)
+(defun-bind starts-with (p _)
 	;(starts-with str str) -> t|nil
-	`(and (>= (length ,_) ,(length p)) (eql ,p (slice 0 ,(length p) ,_))))
+	(and (>= (length _) (length p)) (eql p (slice 0 (length p) _))))
 
-(defmacro-bind ends-with (p _)
+(defun-bind ends-with (p _)
 	;(ends-with str str) -> t|nil
-	`(and (>= (length ,_) ,(length p)) (eql ,p (slice ,(dec (neg (length p))) -1 ,_))))
+	(and (>= (length _) (length p)) (eql p (slice (dec (neg (length p))) -1 _))))
 
 (defun-bind align (_ _a)
 	;(align num pow2) -> num

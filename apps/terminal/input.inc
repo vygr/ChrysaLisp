@@ -4,6 +4,30 @@
 
 (defq *line_buf* "" *line_pos* 0 *line_history* (list) *line_history_idx* 0)
 
+;url utils
+(defun-bind url-list (url)
+	(elem 0 (unzip (split (pii-dirlist url) ",") (list (list) (list)))))
+
+(defun-bind url-split (url)
+	(if (defq i (find "/" url))
+		(list (cat "./" (slice 0 (inc i) url)) (slice (inc i) -1 url))
+		(list "./" url)))
+
+(defun-bind url-ext-index (l)
+	(defq i 0)
+	(while (every (lambda (c)
+			(and (< i (length c))
+				(eql (elem i c) (elem i (elem 0 l))))) l)
+		(setq i (inc i))) i)
+
+(defun-bind url-ext (url)
+	(bind '(url file) (url-split url))
+	(print url " " file)(print)
+	(defq dir (map (lambda (_) (slice (length file) -1 _))
+		 (filter (lambda (_) (starts-with file _)) (url-list url))))
+	(print dir)(print)
+	(if (= 0 (length dir)) "" (slice 0 (url-ext-index dir) (elem 0 dir))))
+
 (defun-bind line-input (c)
 	;key action on line input buffer
 	(cond
@@ -36,7 +60,14 @@
 		((and (= c 8) (/= *line_pos* 0))
 			;backspace key ?
 			(setq *line_buf* (erase *line_buf* (setq *line_pos* (dec *line_pos*)) (inc *line_pos*))))
-		((<= 32 c 127)
+		((and (= c 127) (/= *line_pos* (length *line_buf*)))
+			;delete key ?
+			(setq *line_buf* (erase *line_buf* *line_pos* (inc *line_pos*))))
+		((= c 9)
+			;tab key ?
+			(defq ext (url-ext (slice (if (defq i (find " " (slice 0 *line_pos* *line_buf*))) (inc i) 0) *line_pos* *line_buf*)))
+			(setq *line_buf* (insert *line_buf* *line_pos* ext) *line_pos* (+ *line_pos* (length ext))))
+		((<= 32 c 126)
 			;insert the char
 			(setq *line_buf* (insert *line_buf* *line_pos* (char c)) *line_pos* (inc *line_pos*)))))
 

@@ -348,10 +348,6 @@
 
 (defun-debug name ([arg ...]) body)
 
-## dirlist
-
-(dirlist path)
-
 ## each
 
 (each lambda seq ...)
@@ -835,6 +831,10 @@
 ## penv
 
 (penv env)
+
+## pii-dirlist
+
+(pii-dirlist path)
 
 ## pii-read-char
 
