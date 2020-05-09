@@ -206,7 +206,6 @@ defmacro
 defmacro-bind
 defun
 defun-bind
-ends-with
 each-rev
 each
 if
@@ -220,7 +219,6 @@ read-long
 read-short
 run
 setd
-starts-with
 times
 tuple-get
 tuple-set
@@ -235,28 +233,30 @@ write-short
 ### boot.inc functions
 
 ```lisp
-abs
 abi
+abs
 align
 ascii-lower
 ascii-upper
+char-to-num
 cpu
 each-line
 each-mergeable
 each-mergeable-rev
+ends-with
+erase
 every
 exec
-erase
 filter
-char-to-num
 get-byte
-get-ubyte
 get-cstr
 get-int
-get-uint
 get-long
 get-short
+get-ubyte
+get-uint
 get-ushort
+import
 insert
 join
 log2
@@ -272,8 +272,9 @@ notany
 notevery
 nto
 ntz
-num?
+num-to-char
 num-to-utf8
+num?
 partition
 range
 reduce
@@ -284,10 +285,10 @@ sign
 some
 sort
 sorted
+starts-with
 str?
 swap
 sym?
-num-to-char
 to-lower
 to-num
 to-upper
@@ -297,7 +298,6 @@ trim-start
 type-to-size
 within-compile-env
 write-line
-import
 ```
 
 ## Within any cmd/lisp.lisp instance
