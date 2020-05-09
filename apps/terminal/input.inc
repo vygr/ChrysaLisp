@@ -22,10 +22,8 @@
 
 (defun-bind url-ext (url)
 	(bind '(url file) (url-split url))
-	(print url " " file)(print)
 	(defq dir (map (lambda (_) (slice (length file) -1 _))
 		 (filter (lambda (_) (starts-with file _)) (url-list url))))
-	(print dir)(print)
 	(if (= 0 (length dir)) "" (slice 0 (url-ext-index dir) (elem 0 dir))))
 
 (defun-bind line-input (c)
