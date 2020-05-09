@@ -15,9 +15,9 @@
 
 (defun-bind url-ext-index (urls)
 	(defq i 0)
-	(while (every (lambda (c)
-			(and (< i (length c))
-				(eql (elem i c) (elem i (elem 0 urls))))) urls)
+	(while (every (lambda (url)
+			(and (< i (length url))
+				(eql (elem i url) (elem i (elem 0 urls))))) urls)
 		(setq i (inc i))) i)
 
 (defun-bind url-ext (url)
