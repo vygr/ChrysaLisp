@@ -34,6 +34,13 @@ As a result I have added sys_pii::dirlist host call. As he deserves to be able
 to have the font app find all his fonts easily ! Plus we now have a simple host
 dir listing call.
 
+Added basic context aware tab completion to the GUI Terminal app. In command
+positions will only look for '.lisp' files within the 'cmd/' folder otherwise
+will do system wide maximum extension.
+
+Optimized (case) macro to (bind-fun) clauses and not wrap clauses within a
+(progn) statement if only a single expression.
+
 ------
 
 (read) now parses fixed point format numbers directly to fixed number type.

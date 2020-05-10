@@ -93,7 +93,7 @@
 			;reflections
 			(while (and (>= (setq i (dec i)) 0)
 						(< (defq ray_origin surface_pos ray_dir (vec-reflect ray_dir surface_norm)
-								l (ray-march ray_origin ray_dir (* min_distance 2.0) clipfar min_distance march_factor))
+								l (ray-march ray_origin ray_dir (* min_distance 10.0) clipfar min_distance march_factor))
 							clipfar))
 					(defq surface_pos (vec-add ray_origin (vec-scale ray_dir l))
 						surface_norm (get-normal surface_pos)

@@ -248,8 +248,10 @@
 			(if (notevery (lambda (_) (= (type-of _) (const lisp_type_sym))) _)
 				(throw "Key not symbol !" _))
 			(each! 0 -1 (lambda (_)
-				(push (elem 0 _x) _)
-				(push (elem 1 _x) (macroexpand (cat '(progn) _y)))) (list _)) _x) _ (list (list) (list)))
+					(push (elem 0 _x) _)
+					(push (elem 1 _x) (bind-fun (macroexpand
+						(if (= (length _y) 1) (elem 0 _y) (cat '(progn) _y))))))
+				(list _)) _x) _ (list (list) (list)))
 			_o (or (find t (elem 0 _)) (find 'otherwise (elem 0 _))))
 		`(eval (elem (or (find ,_k ',(elem 0 _)) ,_o) ',(elem 1 _)))
 		`(if (defq ,(defq _i (gensym)) (find ,_k ',(elem 0 _))) (eval (elem ,_i ',(elem 1 _))))))
