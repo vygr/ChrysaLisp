@@ -41,6 +41,10 @@ will do system wide maximum extension.
 Optimized (case) macro to (bind-fun) clauses and not wrap clauses within a
 (progn) statement if only a single expression.
 
+Lots of extra code added recently, up to 170KB boot image now, on a 500 builds
+(make-test) run the mean is now 0.412 seconds on my MacBook Pro. So still under
+1/2 second for a full system build.
+
 ------
 
 (read) now parses fixed point format numbers directly to fixed number type.
