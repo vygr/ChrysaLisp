@@ -1,20 +1,20 @@
 (include 'sys/func.inc)
 (include 'gui/path/class.inc)
-(include 'class/vector/class.inc)
+(include 'class/list/class.inc)
 (include 'sys/math/class.inc)
 
 (def-method 'path 'stroke_polylines)
 	;inputs
-	;r0 = output vector of path objects (ptr)
+	;r0 = output list of path objects (ptr)
 	;r1 = stack array object (ptr)
-	;r2 = input vector of path objects (ptr)
+	;r2 = input list of path objects (ptr)
 	;r3 = radius (16.16)
 	;r4 = tolerance (16.16)
 	;r5 = join style (byte)
 	;r6 = cap style1 (byte)
 	;r7 = cap style2 (byte)
 	;outputs
-	;r0 = output vector of path objects (ptr)
+	;r0 = output list of path objects (ptr)
 	;trashes
 	;r1-r14
 
@@ -35,7 +35,7 @@
 
 	(vpif {radius >= 0.5})
 		(vec-set 0)
-		(call 'vector 'get_both {iter_end_polylines} {_, iter_begin_polylines, iter_end_polylines})
+		(call 'list 'get_both {iter_end_polylines} {_, iter_begin_polylines, iter_end_polylines})
 		(loop-while {iter_begin_polylines /= iter_end_polylines})
 			(assign {*iter_begin_polylines} {iter_begin})
 			(call 'path 'filter_polyline {iter_begin, iter_begin, 0.5})
@@ -195,7 +195,7 @@
 					(assign {-step} {step})
 					(assign {iter + step} {iter})
 				(loop-end)
-				(call 'vector 'push_back {this, out_points})
+				(call 'list 'push_back {this, out_points})
 			(endif)
 			(assign {iter_begin_polylines + ptr_size} {iter_begin_polylines})
 		(loop-end)

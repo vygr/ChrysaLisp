@@ -24,7 +24,7 @@
 	;evaluate based on type
 	(assign '((r1 obj_vtable)) '(r2))
 	(f-bind 'sym 'vtable r3)
-	(f-bind 'vector 'vtable r4)
+	(f-bind 'list 'vtable r4)
 	(switch)
 	(vpcase '(r2 = r3))
 		;eval to symbol binding
@@ -56,7 +56,7 @@
 		(else)
 			;none compiled function or none special form
 			(assign '((rsp local_form)) '(r0))
-			(d-call 'vector 'slice '(r0 1 (r0 array_length)) '(_ (rsp local_args)))
+			(d-call 'list 'slice '(r0 1 (r0 array_length)) '(_ (rsp local_args)))
 			(call 'lisp 'repl_eval_list '((rsp local_this) (rsp local_args)) '(_ r1))
 		(errorcases
 			(assign '((r1 obj_vtable)) '(r2))

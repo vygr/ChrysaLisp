@@ -4,7 +4,7 @@
 (def-method 'lisp 'lisp_cond)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -19,7 +19,7 @@
 	(push-scope)
 	(entry 'lisp 'lisp_cond {this, args})
 
-	(call 'vector 'get_both {args} (list '_ iter_begin iter_end))
+	(call 'list 'get_both {args} (list '_ iter_begin iter_end))
 	(assign (list iter_end) {iter_end})
 	(loop-start)
 		(vp-add-cr ptr_size iter_begin)
@@ -28,7 +28,7 @@
 		(vp-cpy-ir iter_begin 0 value)
 
 	(errorcases
-		(assign `((,value obj_vtable) (@ ,(f-path 'vector 'vtable))) (list vtable tmp))
+		(assign `((,value obj_vtable) (@ ,(f-path 'list 'vtable))) (list vtable tmp))
 		(gotoif `(,vtable /= ,tmp) 'error2)
 		(assign `((,value array_length)) `(,tmp))
 		(errorif `(,tmp = 0) 'error1))

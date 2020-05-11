@@ -5,7 +5,7 @@
 (def-method 'obj 'lisp_get_field)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -19,7 +19,7 @@
 	(gotoif '(r2 = 0) 'error))
 
 	(assign '(r0) '(r5))
-	(class/vector/bind_args r1 '(r0 r1 r2) '(obj num num))
+	(class/list/bind_args r1 '(r0 r1 r2) '(obj num num))
 	(switch)
 	(vpcase `(r2 = ,byte_size))
 		(assign '((r0 r1 b)) '(r0))
@@ -69,7 +69,7 @@
 (def-method 'obj 'lisp_set_field)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -82,7 +82,7 @@
 	(call 'lisp 'env_args_sig '(r1 ($ sig) 4) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
-	(class/vector/bind_args r1 '(r1 r2 r3 r4) '(obj num num obj))
+	(class/list/bind_args r1 '(r1 r2 r3 r4) '(obj num num obj))
 	(vp-push r0 r1)
 	(vpif '(r3 /= 0))
 		(assign '((r4 num_value)) '(r4))

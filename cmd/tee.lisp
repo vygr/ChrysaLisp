@@ -12,7 +12,7 @@
 
 (defun-bind main ()
 	;initialize pipe details and command args, abort on error
-	(when (and (defq slave (create-slave)) (defq args (options slave usage)))
+	(when (and (defq stdio (create-stdio)) (defq args (options stdio usage)))
 		(defq stdin (file-stream 'stdin) buffer (string-stream (cat "")))
 		(while (defq c (read-char stdin))
 			(write buffer (prin (char c))))

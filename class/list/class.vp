@@ -1,33 +1,33 @@
 (include 'sys/func.inc)
-(include 'class/vector/class.inc)
+(include 'class/list/class.inc)
 
-(gen-create 'vector)
-(gen-vtable 'vector)
+(gen-create 'list)
+(gen-vtable 'list)
 
-(def-method 'vector 'deinit)
+(def-method 'list 'deinit)
 	;inputs
-	;r0 = vector object (ptr)
+	;r0 = list object (ptr)
 	;outputs
-	;r0 = vector object (ptr)
+	;r0 = list object (ptr)
 	;trashes
 	;r1-r14
 
-	(entry 'vector 'deinit '(r0))
+	(entry 'list 'deinit '(r0))
 
-	(d-call 'vector 'clear '(r0) '(r0))
-	(s-jump 'vector 'deinit '(r0))
+	(d-call 'list 'clear '(r0) '(r0))
+	(s-jump 'list 'deinit '(r0))
 
 (def-func-end)
 
-(def-method 'vector 'clear)
+(def-method 'list 'clear)
 	;inputs
-	;r0 = vector object (ptr)
+	;r0 = list object (ptr)
 	;outputs
-	;r0 = vector object (ptr)
+	;r0 = list object (ptr)
 	;trashes
 	;r1-r14
 
-	(entry 'vector 'clear '(r0))
+	(entry 'list 'clear '(r0))
 
 	;deref all elements
 	(class/array/get_both r0 r1 r2)
@@ -39,62 +39,62 @@
 		(vp-add-cr ptr_size r1)
 	(loop-end)
 	(vp-pop r0)
-	(s-call 'vector 'clear '(r0) '(r0))
+	(s-call 'list 'clear '(r0) '(r0))
 
-	(exit 'vector 'clear '(r0))
+	(exit 'list 'clear '(r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'vector 'ref_element)
+(def-method 'list 'ref_element)
 	;inputs
-	;r0 = vector object (ptr)
+	;r0 = list object (ptr)
 	;r1 = element index (uint)
 	;outputs
-	;r0 = vector object (ptr)
+	;r0 = list object (ptr)
 	;r1 = element object (ptr)
 	;trashes
 	;r1-r2
 
-	(entry 'vector 'ref_element '(r0 r1))
+	(entry 'list 'ref_element '(r0 r1))
 
 	(class/array/get_element r0 r1 r1 r2)
 	(class/obj/ref r1 r2)
 
-	(exit 'vector 'ref_element '(r0 r1))
+	(exit 'list 'ref_element '(r0 r1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'vector 'ref_back)
+(def-method 'list 'ref_back)
 	;inputs
-	;r0 = vector object (ptr)
+	;r0 = list object (ptr)
 	;outputs
-	;r0 = vector object (ptr)
+	;r0 = list object (ptr)
 	;r1 = element object (ptr)
 	;trashes
 	;r1-r2
 
-	(entry 'vector 'ref_back '(r0))
+	(entry 'list 'ref_back '(r0))
 
-	(call 'vector 'pop_back '(r0) '(r0 r1))
+	(call 'list 'pop_back '(r0) '(r0 r1))
 
-	(exit 'vector 'ref_back '(r0 r1))
+	(exit 'list 'ref_back '(r0 r1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'vector 'set_element)
+(def-method 'list 'set_element)
 	;inputs
-	;r0 = vector object (ptr)
+	;r0 = list object (ptr)
 	;r1 = element object (ptr)
 	;r2 = element index (uint)
 	;outputs
-	;r0 = vector object (ptr)
+	;r0 = list object (ptr)
 	;trashes
 	;r1-r14
 
-	(entry 'vector 'set_element '(r0 r1 r2))
+	(entry 'list 'set_element '(r0 r1 r2))
 
 	(assign '((r0 array_begin)) '(r3))
 	(vp-shl-cr (log2 ptr_size) r2)
@@ -103,31 +103,31 @@
 	(call 'obj 'deref '(r0))
 	(vp-pop r0)
 
-	(exit 'vector 'set_element '(r0))
+	(exit 'list 'set_element '(r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'vector 'slice)
+(def-method 'list 'slice)
 	;inputs
-	;r0 = vector object (ptr)
+	;r0 = list object (ptr)
 	;r1 = element start index (uint)
 	;r2 = element end index (uint)
 	;outputs
-	;r0 = vector object (ptr)
-	;r1 = slice vector object (ptr)
+	;r0 = list object (ptr)
+	;r1 = slice list object (ptr)
 	;trashes
 	;r1-r8
 
 	;save inputs
-	(entry 'vector 'slice '(r6 r7 r8))
+	(entry 'list 'slice '(r6 r7 r8))
 
-	;create new vector
-	(call 'vector 'create nil '(r0))
+	;create new list
+	(call 'list 'create nil '(r0))
 	(vp-cpy-rr r8 r1)
 	(vp-sub-rr r7 r1)
 	(assign '(r1) '((r0 array_length)))
-	(call 'vector 'set_capacity '(r0 r1) '(r1))
+	(call 'list 'set_capacity '(r0 r1) '(r1))
 	(vp-cpy-rr r6 r0)
 
 	;copy and ref elements
@@ -143,34 +143,34 @@
 		(loop-until '(r7 = r8))
 	(endif)
 
-	(exit 'vector 'slice '(r0 r1))
+	(exit 'list 'slice '(r0 r1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'vector 'append)
+(def-method 'list 'append)
 	;inputs
-	;r0 = vector object (ptr)
-	;r1 = source vector object (ptr)
+	;r0 = list object (ptr)
+	;r1 = source list object (ptr)
 	;r2 = element start index (uint)
 	;r3 = element end index (uint)
 	;outputs
-	;r0 = vector object (ptr)
+	;r0 = list object (ptr)
 	;trashes
 	;r1-r9
 
-	(entry 'vector 'append '(r0 r1 r2 r3))
+	(entry 'list 'append '(r0 r1 r2 r3))
 
 	(vpif '(r2 /= r3))
 		;save inputs
 		(assign '(r1 r2 r3) '(r6 r7 r8))
 
-		;extend vector
+		;extend list
 		(assign '((r0 array_length)) '(r9))
 		(vp-sub-rr r2 r3)
 		(assign '((& r3 r9)) '(r1))
 		(assign '(r1) '((r0 array_length)))
-		(call 'vector 'set_capacity '(r0 r1) '(r0))
+		(call 'list 'set_capacity '(r0 r1) '(r0))
 
 		;append and ref elements
 		(class/array/get_iters r6 r7 r8 r1)
@@ -184,7 +184,7 @@
 		(loop-until '(r7 = r8))
 	(endif)
 
-	(exit 'vector 'append '(r0))
+	(exit 'list 'append '(r0))
 	(vp-ret)
 
 (def-func-end)

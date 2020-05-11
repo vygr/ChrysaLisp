@@ -1,18 +1,18 @@
 (include 'sys/func.inc)
 (include 'gui/path/class.inc)
-(include 'class/vector/class.inc)
+(include 'class/list/class.inc)
 (include 'sys/math/class.inc)
 
 (def-method 'path 'stroke_polygons)
 	;inputs
-	;r0 = output vector of path objects (ptr)
+	;r0 = output list of path objects (ptr)
 	;r1 = stack array object (ptr)
-	;r2 = input vector of path objects (ptr)
+	;r2 = input list of path objects (ptr)
 	;r3 = radius (16.16)
 	;r4 = tolerance (16.16)
 	;r5 = join style (byte)
 	;outputs
-	;r0 = output vector of path objects (ptr)
+	;r0 = output list of path objects (ptr)
 	;trashes
 	;r1-r14
 
@@ -26,21 +26,21 @@
 	(entry 'path 'stroke_polygons {this, stack, in_polygons, radius, eps, join_style})
 
 	(vpif {radius >= 0.5})
-		(call 'vector 'get_both {in_polygons} {_, iter_begin_polygons, iter_end_polygons})
+		(call 'list 'get_both {in_polygons} {_, iter_begin_polygons, iter_end_polygons})
 		(loop-while {iter_begin_polygons /= iter_end_polygons})
 			(call 'path 'filter_polygon {*iter_begin_polygons, *iter_begin_polygons, 0.5})
-			(call 'vector 'get_both {*iter_begin_polygons} {_, iter_begin_polyline, iter_end_polyline})
+			(call 'list 'get_both {*iter_begin_polygons} {_, iter_begin_polyline, iter_end_polyline})
 			(call 'path 'create nil {polygon})
 			(call 'path 'stroke_joints {polygon, stack, iter_begin_polyline, iter_end_polyline,
 				iter_end_polyline[-long_size * 4], iter_end_polyline[-long_size * 3],
 				iter_end_polyline[-long_size * 2], iter_end_polyline[-long_size], radius, eps, join_style})
-			(call 'vector 'push_back {this, polygon})
+			(call 'list 'push_back {this, polygon})
 			(call 'path 'create nil {polygon})
 			(call 'path 'stroke_joints {polygon, stack, iter_end_polyline - 2 * long_size,
 				iter_begin_polyline - 2 * long_size,
 				iter_begin_polyline[long_size * 2], iter_begin_polyline[long_size * 3],
 				iter_begin_polyline[0], iter_begin_polyline[long_size], radius, eps, join_style})
-			(call 'vector 'push_back {this, polygon})
+			(call 'list 'push_back {this, polygon})
 			(assign {iter_begin_polygons + ptr_size} {iter_begin_polygons})
 		(loop-end)
 	(endif)

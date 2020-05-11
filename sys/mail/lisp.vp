@@ -9,7 +9,7 @@
 (def-method 'sys_mail 'lisp_read)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -23,7 +23,7 @@
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
-	(class/vector/bind_args r1 '(r0) '(num))
+	(class/list/bind_args r1 '(r0) '(num))
 	(call 'sys_mail 'mbox_addr '(r0) '(r0))
 	(vpif '(r0 /= 0))
 		(call 'sys_mail 'read '(r0) '(r0 _))
@@ -48,7 +48,7 @@
 (def-method 'sys_mail 'lisp_poll)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -62,7 +62,7 @@
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
-	(class/vector/bind_args r1 '(r0) '(array))
+	(class/list/bind_args r1 '(r0) '(array))
 	(call 'sys_mail 'poll '(r0) '(r0 _ _))
 	(vpif '(r0 /= -1))
 		(call 'num 'create '(r0) '(r1))
@@ -86,7 +86,7 @@
 (def-method 'sys_mail 'lisp_select)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -100,7 +100,7 @@
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
-	(class/vector/bind_args r1 '(r0) '(array))
+	(class/list/bind_args r1 '(r0) '(array))
 	(call 'sys_mail 'select '(r0) '(r0))
 	(call 'num 'create '(r0) '(r1))
 	(vp-pop r0)
@@ -118,7 +118,7 @@
 (def-method 'sys_mail 'lisp_send)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -141,7 +141,7 @@
 		(call 'sys_mail 'alloc_obj {arg0, &arg0->str_data, arg0->str_length} {arg2})
 		(goto 'sendit)
 	(endif)
-	(call 'obj 'inst_of (cat {arg0, @} (f-path 'vector 'vtable)))
+	(call 'obj 'inst_of (cat {arg0, @} (f-path 'list 'vtable)))
 	(vpif `(,(method-output 'obj 'inst_of 1) /= 0))
 		(call 'sys_mail 'alloc_obj {arg0, arg0->array_begin, arg0->array_length * long_size} {arg2})
 		(goto 'sendit)
@@ -171,7 +171,7 @@
 (def-method 'sys_mail 'lisp_declare)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -188,7 +188,7 @@
 	(defq in (method-input 'sys_mail 'declare))
 	(class/array/bind_args r1 in)
 	(vp-push (elem 0 in))
-	(class/vector/cast_args in '(str num))
+	(class/list/cast_args in '(str num))
 	(call 'sys_mail 'declare in)
 	(vp-pop r1)
 	(class/obj/ref r1 r2)
@@ -207,7 +207,7 @@
 (def-method 'sys_mail 'lisp_enquire)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -222,7 +222,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'sys_mail 'enquire))
-	(class/vector/bind_args r1 in '(str))
+	(class/list/bind_args r1 in '(str))
 	(call 'sys_mail 'enquire in '(r0))
 	(vpif '(r0 /= 0))
 		(call 'num 'create '(r0) '(r1))
@@ -246,7 +246,7 @@
 (def-method 'sys_mail 'lisp_alloc_mbox)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -279,7 +279,7 @@
 (def-method 'sys_mail 'lisp_free_mbox)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -294,7 +294,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'sys_mail 'free_mbox))
-	(class/vector/bind_args r1 in '(num))
+	(class/list/bind_args r1 in '(num))
 	(call 'sys_mail 'free_mbox in)
 	(vp-pop r0)
 	(assign '((r0 lisp_sym_nil)) '(r1))

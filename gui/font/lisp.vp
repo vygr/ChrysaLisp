@@ -7,7 +7,7 @@
 (def-method 'font 'lisp_create)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -22,7 +22,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'font 'open))
-	(class/vector/bind_args r1 in '(str num))
+	(class/list/bind_args r1 in '(str num))
 	(call 'font 'open in '(r0))
 	(vpif '(r0 = 0))
 		(assign '((rsp 0)) '(r0))
@@ -44,7 +44,7 @@
 (def-method 'font 'lisp_glyph_paths)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -65,7 +65,7 @@
 	(defq in1 (method-input 'font 'glyph_info)
 		in2 (method-input 'font 'glyph_paths))
 	(assign '(r0) '((rsp local_this)))
-	(class/vector/bind_args r1 in1 '(font obj))
+	(class/list/bind_args r1 in1 '(font obj))
 	(call 'font 'glyph_info in1 `(,(elem 0 in2) ,(elem 2 in2)))
 	(assign `((rsp local_this) ,(elem 2 in2)) `(,(elem 1 in2) (rsp local_info)))
 	(assign `((,(elem 1 in2) lisp_stack)) `(,(elem 1 in2)))
@@ -86,7 +86,7 @@
 (def-method 'font 'lisp_glyph_ranges)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -101,7 +101,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'font 'glyph_ranges))
-	(class/vector/bind_args r1 in '(font))
+	(class/list/bind_args r1 in '(font))
 	(call 'font 'glyph_ranges in '(_ r1))
 	(vp-pop r0)
 

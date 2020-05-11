@@ -6,7 +6,7 @@
 (def-method 'sys_pii 'lisp_readchar)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -21,7 +21,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'sys_pii 'read_char))
-	(class/vector/bind_args r1 in '(num))
+	(class/list/bind_args r1 in '(num))
 	(call 'sys_pii 'read_char in '(r0))
 	(call 'num 'create '(r0) '(r1))
 	(vp-pop r0)
@@ -38,7 +38,7 @@
 (def-method 'sys_pii 'lisp_writechar)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -55,7 +55,7 @@
 	(defq in (method-input 'sys_pii 'write_char))
 	(class/array/bind_args r1 in)
 	(vp-push (elem 1 in))
-	(class/vector/cast_args in '(num num))
+	(class/list/cast_args in '(num num))
 	(call 'sys_pii 'write_char in)
 	(vp-pop r1)
 	(class/obj/ref r1 r2)
@@ -73,7 +73,7 @@
 (def-method 'sys_pii 'lisp_time)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -103,7 +103,7 @@
 (def-method 'sys_pii 'lisp_age)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -141,7 +141,7 @@
 (def-method 'sys_pii 'lisp_dirlist)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -155,7 +155,7 @@
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
-	(class/vector/bind_args r1 '(r6) '(str))
+	(class/list/bind_args r1 '(r6) '(str))
 	(assign '(0 0 (* 4 1024)) '(r7 r8 r9))
 	(loop-start)
 		(call 'sys_mem 'realloc '(r7 r8 r9) '(r7 r8))

@@ -4,7 +4,7 @@
 (def-method 'lisp 'repl_eval_list)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = list vector object (ptr)
+	;r1 = list list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)

@@ -76,7 +76,7 @@ ptr_size 8
 scroll_flag_horizontal 2
 scroll_flag_vertical 1
 short_size 2
-slave_args 40
+stdio_args 40
 stream_mail_state_started 0
 stream_mail_state_stopped 2
 stream_mail_state_stopping 1

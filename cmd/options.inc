@@ -13,8 +13,8 @@
 		(if (some (lambda (_)
 				(eql arg _)) (elem 0 opt_entry)) opt_entry)) optlist))
 
-(defun-bind options (slave optlist)
-	;(options slave optlist) -> nil|args
+(defun-bind options (stdio optlist)
+	;(options stdio optlist) -> nil|args
 	(defun arg-action (arg &optional arg2)
 		(cond
 			((defq opt_entry (options-find optlist arg))
@@ -33,8 +33,8 @@
 			(t	;not found entry, print help and quit
 				(options-print (elem 1 (elem 0 optlist)))
 				(setq state nil))))
-	;scan the slave args and process acording to the optlist
-	(defq args (slave-get-args slave) out_args (list) state 'a last_arg "")
+	;scan the stdio args and process acording to the optlist
+	(defq args (stdio-get-args stdio) out_args (list) state 'a last_arg "")
 	(each (lambda (arg)
 		(case state
 			(a

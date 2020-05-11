@@ -6,7 +6,7 @@
 (def-method 'lisp 'lisp_throw)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -21,7 +21,7 @@
 
 	(defq in (method-input 'lisp 'repl_error))
 	(vp-xor-rr (elem 2 in) (elem 2 in))
-	(class/vector/bind_args r1 in '(_ str _ obj))
+	(class/list/bind_args r1 in '(_ str _ obj))
 	(jump 'lisp 'repl_error in)
 
 (errorcases

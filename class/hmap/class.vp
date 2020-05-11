@@ -1,5 +1,5 @@
 (include 'sys/func.inc)
-(include 'class/vector/class.inc)
+(include 'class/list/class.inc)
 (include 'class/pair/class.inc)
 (include 'class/hmap/class.inc)
 
@@ -108,7 +108,7 @@
 	(vp-push r1)
 	(call 'hmap 'get_bucket '(r0 (r1 pair_first)) '(_ r0))
 	(vp-pop r1)
-	(jump 'vector 'push_back '(r0 r1))
+	(jump 'list 'push_back '(r0 r1))
 
 (def-func-end)
 
@@ -119,7 +119,7 @@
 	;outputs
 	;r0 = hmap object (ptr)
 	;r1 = 0, else found iterator (pptr)
-	;r2 = bucket vector (ptr)
+	;r2 = bucket list (ptr)
 	;trashes
 	;r1-r14
 
@@ -181,7 +181,7 @@
 	;outputs
 	;r0 = hmap object (ptr)
 	;r1 = iterator (pptr)
-	;r2 = bucket vector (ptr)
+	;r2 = bucket list (ptr)
 	;trashes
 	;r1-r14
 
@@ -203,7 +203,7 @@
 		(class/obj/ref r0 r2)
 		(class/obj/ref r1 r2)
 		(call 'pair 'create '(r0 r1) '(r0))
-		(call 'vector 'push_back '((rsp local_bucket) r0) '(r0 _ _ r3))
+		(call 'list 'push_back '((rsp local_bucket) r0) '(r0 _ _ r3))
 		(assign '((& r3 (neg ptr_size)) r0) '(r1 r2))
 	(else)
 		;old key
@@ -228,7 +228,7 @@
 	;outputs
 	;r0 = hmap object (ptr)
 	;r1 = 0, else iterator (pptr)
-	;r2 = bucket vector (ptr)
+	;r2 = bucket list (ptr)
 	;trashes
 	;r1-r14
 

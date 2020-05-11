@@ -4,7 +4,7 @@
 (def-method 'lisp 'lisp_copy)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -20,7 +20,7 @@
 	;ref and copy if list
 	(class/array/bind_args r1 '(r1))
 	(class/obj/ref r1 r2)
-	(f-bind 'vector 'vtable r7)
+	(f-bind 'list 'vtable r7)
 	(assign '((r1 obj_vtable)) '(r2))
 	(vpif '(r2 = r7))
 		(vp-push r1)
@@ -29,7 +29,7 @@
 		(loop-start)
 			;replace form with copy, deref can't cause destroy !
 			(vp-cpy-ir r10 0 r0)
-			(d-call 'vector 'slice '(r0 0 (r0 array_length)) '(r0 r1))
+			(d-call 'list 'slice '(r0 0 (r0 array_length)) '(r0 r1))
 			(class/obj/ref r0 r2 -1)
 			(vp-cpy-ri r1 r10 0)
 

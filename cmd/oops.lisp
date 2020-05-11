@@ -89,7 +89,7 @@
 		(mcall Node 'deinit node)))
 
 ;initialize pipe details and command args, abort on error
-(when (defq slave (create-slave))
+(when (defq stdio (create-stdio))
 	(defq p (mcall View 'create)
 		c1 (mcall View 'create)
 		c2 (mcall View 'create)

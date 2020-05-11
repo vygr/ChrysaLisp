@@ -7,7 +7,7 @@
 (def-method 'vdu 'lisp_create)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -36,7 +36,7 @@
 (def-method 'vdu 'lisp_load)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -56,7 +56,7 @@
 	(gotoif '(r2 = 0) 'error))
 
 	(push-scope)
-	(class/vector/bind_args r1 '(r1 r2 r3 r4 r5 r6) '(vdu vector num num num num))
+	(class/list/bind_args r1 '(r1 r2 r3 r4 r5 r6) '(vdu list num num num num))
 	(assign '(r0 r1 r2 r3 r4 r5 r6) {this, vdu, lines, ox, oy, cx, cy})
 
 	;load vdu with line text
@@ -69,7 +69,7 @@
 		(vpif {len > vdu->vdu_height})
 			(assign {vdu->vdu_height} {len})
 		(endif)
-		(call 'vector 'get_iters {lines, oy, oy + len} {_, iter_begin, iter_end})
+		(call 'list 'get_iters {lines, oy, oy + len} {_, iter_begin, iter_end})
 		(breakif {iter_begin = iter_end})
 		(assign {vdu->vdu_chars} {cursor})
 		(loop-start)
@@ -104,6 +104,6 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r0 "(vdu-load vdu lines ox oy cx cy)" error_msg_wrong_types r1))
-	(signature '(vdu vector num num num num)))
+	(signature '(vdu list num num num num)))
 
 (def-func-end)

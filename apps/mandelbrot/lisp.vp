@@ -10,7 +10,7 @@
 (def-func 'apps/mandelbrot/depth)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -26,7 +26,7 @@
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
-	(class/vector/bind_args r1 `(,x0 ,y0) '(num num))
+	(class/list/bind_args r1 `(,x0 ,y0) '(num num))
 	(assign `(0 0 0 0 0 ,(<< 4 mbfp_shift)) `(,i ,xc ,yc ,x2 ,y2 ,four))
 	(loop-start)
 		(vp-cpy-rr x2 tmp)
@@ -65,7 +65,7 @@
 (def-func 'apps/mandelbrot/tile)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -85,7 +85,7 @@
 	(push-scope)
 	(assign '(r0) {this})
 
-	(class/vector/bind_args r1 '(r0 r1) '(canvas str))
+	(class/list/bind_args r1 '(r0 r1) '(canvas str))
 	(class/array/get_args r1 '(r7 r8 r9 r10) 'ui)
 	(vp-add-cr (* 4 int_size) r1)
 	(assign '(r0 r1 r7 r8 r9 r10 r8) {canvas, data, x, y, x1, y1, yp})

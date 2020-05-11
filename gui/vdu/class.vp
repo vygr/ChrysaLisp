@@ -6,7 +6,7 @@
 (include 'gui/texture/class.inc)
 (include 'class/sym/class.inc)
 (include 'gui/vdu/class.inc)
-(include 'class/vector/class.inc)
+(include 'class/list/class.inc)
 
 (gen-create 'vdu)
 (gen-vtable 'vdu)
@@ -46,7 +46,7 @@
 
 	(call 'sys_mem 'free '((r0 vdu_chars)))
 	(assign '((rsp 0)) '(r0))
-	(call 'vector 'deref_if '((r0 vdu_textures)))
+	(call 'list 'deref_if '((r0 vdu_textures)))
 
 	;deinit parent
 	(vp-pop r0)
@@ -113,14 +113,14 @@
 					(call 'ctx 'filled_box {ctx, x * this->vdu_char_width, by * this->vdu_char_height, this->vdu_char_width, this->vdu_char_height})
 					(assign {c & 127} {c})
 					(breakif {c <= char_space})
-					(call 'vector 'get_element {this->vdu_textures, c - 33} {_, txt})
+					(call 'list 'get_element {this->vdu_textures, c - 33} {_, txt})
 					(call 'texture 'get_metrics {txt} {_, handle, w ,h})
 					(vpif {handle})
 						(call 'ctx 'blit {ctx, handle, argb_black, x * this->vdu_char_width + ((this->vdu_char_width - w) >>> 1), by * this->vdu_char_height, w, h})
 					(endif)
 				(elseif {c > char_space})
 					;normal video char
-					(call 'vector 'get_element {this->vdu_textures, c - 33} {_, txt})
+					(call 'list 'get_element {this->vdu_textures, c - 33} {_, txt})
 					(call 'texture 'get_metrics {txt} {_, handle, w ,h})
 					(vpif {handle})
 						(call 'ctx 'blit {ctx, handle, col, x * this->vdu_char_width + ((this->vdu_char_width - w) >>> 1), by * this->vdu_char_height, w, h})
@@ -200,7 +200,7 @@
 	(assign {this->vdu_char_height * 9 >> 4} {this->vdu_char_width})
 
 	;ref char textures
-	(call 'vector 'deref_if {this->vdu_textures})
+	(call 'list 'deref_if {this->vdu_textures})
 	(call 'font 'ascii_textures {this->vdu_font} {_, this->vdu_textures})
 
 	(exit 'vdu 'switch_font {this})

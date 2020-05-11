@@ -3,7 +3,7 @@
 (include 'gui/ctx/class.inc)
 (include 'gui/region/class.inc)
 (include 'gui/view/class.inc)
-(include 'class/vector/class.inc)
+(include 'class/list/class.inc)
 (include 'class/sym/class.inc)
 
 (gen-create 'view)
@@ -159,7 +159,7 @@
 		;temp view for update
 		(call 'view 'create nil '(r1))
 		(f-bind 'gui 'statics r0)
-		(call 'vector 'push_back '((r0 gui_statics_temps) r1) '(_ r1 _ _))
+		(call 'list 'push_back '((r0 gui_statics_temps) r1) '(_ r1 _ _))
 
 		;remove from parent list and splice in temp
 		(vp-pop r0)

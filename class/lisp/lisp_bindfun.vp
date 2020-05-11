@@ -8,7 +8,7 @@
 (def-method 'lisp 'lisp_bindfun)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -30,7 +30,7 @@
 	;ref the form and bind it
 	(class/array/bind_args r1 '(r1))
 	(class/obj/ref r1 r2)
-	(f-bind 'vector 'vtable r2)
+	(f-bind 'list 'vtable r2)
 	(assign '((r1 obj_vtable)) '(r3))
 	(switch)
 	(breakif '(r2 /= r3))
@@ -58,7 +58,7 @@
 				(switch 'next_elem)
 					;is list ?
 					(switch)
-					(f-bind 'vector 'vtable r2)
+					(f-bind 'list 'vtable r2)
 					(assign '((r1 obj_vtable)) '(r3))
 					(breakif '(r2 /= r3))
 					;not 0 length ?
@@ -94,7 +94,7 @@
 					(assign '((r1 obj_vtable)) '(r3))
 					(gotoif '(r2 = r3) 'bind_it)
 					;is a list ?
-					(f-bind 'vector 'vtable r2)
+					(f-bind 'list 'vtable r2)
 					(breakif '(r2 /= r3))
 					;not 0 length ?
 					(assign '((r1 array_length)) '(r2))

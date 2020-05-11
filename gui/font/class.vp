@@ -3,7 +3,7 @@
 (include 'gui/font/class.inc)
 (include 'gui/texture/class.inc)
 (include 'class/sym/class.inc)
-(include 'class/vector/class.inc)
+(include 'class/list/class.inc)
 (include 'class/hmap/class.inc)
 (include 'class/pair/class.inc)
 (include 'sys/pii/class.inc)
@@ -38,12 +38,12 @@
 
 	(assign (cat {@} (f-path 'font 'statics) {.font_statics_intern}) {flat_set})
 	(vpifnot {flat_set})
-		(call 'vector 'create nil {flat_set})
+		(call 'list 'create nil {flat_set})
 		(assign {flat_set} (cat {@} (f-path 'font 'statics) {.font_statics_intern}))
 	(endif)
 
 	;intern font
-	(call 'vector 'get_both {flat_set} {_, iter_begin, iter_end})
+	(call 'list 'get_both {flat_set} {_, iter_begin, iter_end})
 	(assign {0} {data})
 	(loop-while {iter_begin /= iter_end})
 		(assign {*iter_begin} {this})
@@ -56,7 +56,7 @@
 	(loop-end)
 	(call 'font 'create {name, data, pixels} {this})
 	(vpif {this})
-		(call 'vector 'push_back {flat_set, this})
+		(call 'list 'push_back {flat_set, this})
 	(vp-label 'found)
 		(call 'font 'ref {this})
 	(endif)
@@ -125,7 +125,7 @@
 	(entry 'font 'deinit '(r0))
 
 	(vp-push r0)
-	(call 'vector 'deref_if '((r0 font_chars)))
+	(call 'list 'deref_if '((r0 font_chars)))
 	(assign '((rsp 0)) '(r0))
 	(call 'hmap 'deref '((r0 font_sym_map)))
 	(assign '((rsp 0)) '(r0))
@@ -326,7 +326,7 @@
 	;r2 = glyph info array object (ptr)
 	;outputs
 	;r0 = font object (ptr)
-	;r1 = glyph paths vector object (ptr)
+	;r1 = glyph paths list object (ptr)
 	;r2 = width (pixels)
 	;r3 = height (pixels)
 	;trashes
@@ -351,7 +351,7 @@
 
 	(assign {&this->font_data->str_data} {iter_begin})
 	(assign {(iter_begin->font_data_ascent + iter_begin->font_data_descent) >> 4} {gap})
-	(call 'vector 'create nil {paths})
+	(call 'list 'create nil {paths})
 	(assign {gap, 0} {ox, oy})
 	(call 'array 'get_both {info} {_, iter_begin, iter_end})
 	(loop-while {iter_begin /= iter_end})
@@ -399,7 +399,7 @@
 				(vpcase `(,c = 0))
 					;moveto
 					(call 'path 'create nil {path})
-					(call 'vector 'push_back {paths, path})
+					(call 'list 'push_back {paths, path})
 					(goto 'lineto)
 				(endswitch)
 				(vp-def (data ox oy data_end))
@@ -457,13 +457,13 @@
 		;free all the gubins
 		(call 'canvas 'deref {sym_canvas})
 		(call 'array 'deref {info})
-		(call 'vector 'deref {paths})
+		(call 'list 'deref {paths})
 		(breakifnot {txt})
 
 		;create new entry
 		(call 'sym 'ref {sym})
 		(call 'pair 'create {sym, txt} {iter})
-		(call 'vector 'push_back {bucket, iter})
+		(call 'list 'push_back {bucket, iter})
 		(call 'texture 'ref {txt})
 
 		;flush cache ?
@@ -486,7 +486,7 @@
 	;r0 = font object (ptr)
 	;outputs
 	;r0 = font object (ptr)
-	;r1 = vector of ascii texture objects (ptr)
+	;r1 = list of ascii texture objects (ptr)
 	;trashes
 	;r1-r14
 
@@ -500,25 +500,25 @@
 	;lazy create char textures
 	(vpifnot {this->font_chars})
 		;note, don't write to member var yet in case flush gets called !
-		(call 'vector 'create nil {chars})
-		(call 'vector 'set_capacity {chars, 127 - 33})
+		(call 'list 'create nil {chars})
+		(call 'list 'set_capacity {chars, 127 - 33})
 		(assign {33} {code})
 		(loop-start)
 			(call 'sym 'intern_cstr {&code} {sym})
 			(call 'font 'sym_texture {this, sym} {_, txt})
 			(vpif {txt})
-				(call 'vector 'push_back {chars, txt})
+				(call 'list 'push_back {chars, txt})
 			(endif)
 			(call 'sym 'deref {sym})
 		(loop-until {(code + 1 => code) = 127})
 		(vpif {this->font_chars})
 			;another thread got to it during a flush !
-			(call 'vector 'deref {chars})
+			(call 'list 'deref {chars})
 		(else)
 			(assign {chars} {this->font_chars})
 		(endif)
 	(endif)
-	(call 'vector 'ref {this->font_chars})
+	(call 'list 'ref {this->font_chars})
 
 	(exit 'font 'ascii_textures {this, this->font_chars})
 	(pop-scope)
@@ -538,15 +538,15 @@
 	;must not use iters as kernel callbacks will deshedule us !
 	(assign (cat {0, @} (f-path 'font 'statics) {.font_statics_intern}) {index, flat_set})
 	(loop-start)
-		(call 'vector 'get_length {flat_set} {_, length})
+		(call 'list 'get_length {flat_set} {_, length})
 		(breakif {index = length})
-		(call 'vector 'get_element {flat_set, index} {_, font})
+		(call 'list 'get_element {flat_set, index} {_, font})
 		(vpif {font->font_chars})
 			(vpif {font->font_chars->obj_count = 1})
 				;during deref font_chars could be written to !
 				(assign {font->font_chars} {tmp})
 				(assign {0} {font->font_chars})
-				(call 'vector 'deref {tmp})
+				(call 'list 'deref {tmp})
 			(endif)
 		(endif)
 		(call 'hmap 'create {font->font_sym_map->hset_key_callback,
@@ -581,7 +581,7 @@
 		(vp-push r0)
 		(call 'hset 'get_bucket '(r2 r0) '(_ r0))
 		(vp-pop r1)
-		(jump 'vector 'push_back '(r0 r1))
+		(jump 'list 'push_back '(r0 r1))
 	(default)
 		(f-bind 'font 'statics r0)
 		(assign '((r0 font_statics_count)) '(r2))

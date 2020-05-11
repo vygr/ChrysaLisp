@@ -240,7 +240,7 @@
 		flow_flag_right flow_flag_up in_mbox_id in_state int_size join_bevel
 		join_miter join_round kn_call_child kn_call_open load_flag_film
 		load_flag_noswap load_flag_shared long_size out_state ptr_size
-		scroll_flag_horizontal scroll_flag_vertical short_size slave_args
+		scroll_flag_horizontal scroll_flag_vertical short_size stdio_args
 		stream_mail_state_started stream_mail_state_stopped
 		stream_mail_state_stopping vdu_char_height vdu_char_width view_flag_at_back
 		view_flag_dirty_all view_flag_opaque view_flag_solid view_flags view_h view_w
@@ -248,7 +248,7 @@
 		_vals_ (within-compile-env (lambda ()
 			(each include
 				'(sys/kernel/class.inc sys/list/class.inc sys/mail/class.inc class/in/class.inc
-				class/out/class.inc class/slave/class.inc gui/gui/class.inc gui/ctx/class.inc
+				class/out/class.inc class/stdio/class.inc gui/gui/class.inc gui/ctx/class.inc
 				gui/flow/class.inc gui/vdu/class.inc gui/window/class.inc gui/scroll/class.inc
 				gui/canvas/class.inc gui/path/class.inc))
 			(map eval _syms_)))

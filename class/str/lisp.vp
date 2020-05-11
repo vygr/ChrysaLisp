@@ -7,7 +7,7 @@
 (def-method 'str 'lisp_split)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -22,7 +22,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'str 'split))
-	(class/vector/bind_args r1 in '(obj char))
+	(class/list/bind_args r1 in '(obj char))
 	(call 'str 'split in '(_ r1))
 	(vp-pop r0)
 
@@ -39,7 +39,7 @@
 (def-method 'str 'lisp_code)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -105,7 +105,7 @@
 (def-method 'str 'lisp_char)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -146,7 +146,7 @@
 (def-method 'str 'lisp_cmp)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -178,7 +178,7 @@
 (def-method 'str 'lisp_save)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -217,7 +217,7 @@
 (def-method 'str 'lisp_load)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -232,7 +232,7 @@
 
 	(vp-cpy-rr r0 r13)
 	(defq in (method-input 'str 'create_from_file))
-	(class/vector/bind_args r1 in '(str))
+	(class/list/bind_args r1 in '(str))
 	(call 'str 'create_from_file in '(r0))
 	(vpif '(r0 = 0))
 		(call 'obj 'ref '((r13 lisp_sym_nil)) '(r0))
@@ -251,7 +251,7 @@
 (def-method 'str 'lisp_str)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)

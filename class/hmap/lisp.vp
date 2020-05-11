@@ -46,7 +46,7 @@
 (def-method 'hmap 'lisp_def)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -74,7 +74,7 @@
 (def-method 'hmap 'lisp_set)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -149,7 +149,7 @@
 (def-method 'hmap 'lisp_defq)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -173,7 +173,7 @@
 (def-method 'hmap 'lisp_setq)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -202,7 +202,7 @@
 (def-method 'hmap 'lisp_defined)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -250,7 +250,7 @@
 (def-method 'hmap 'lisp_env)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = environment hmap object (ptr)
@@ -267,7 +267,7 @@
 		(assign '((r2 obj_vtable)) '(r3))
 		(f-bind 'num 'vtable r4)
 		(gotoif '(r3 /= r4) 'error2))
-		(class/vector/cast_args '(r2) '(num))
+		(class/list/cast_args '(r2) '(num))
 		(errorif '(r2 = 0) 'error2)
 		(vp-cpy-rr r2 r1)
 		(vp-push r0)
@@ -303,7 +303,7 @@
 (def-method 'hmap 'lisp_undef)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -368,7 +368,7 @@
 (def-method 'hmap 'lisp_parent)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)

@@ -19,7 +19,7 @@
 (def-method 'num 'lisp_add)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -37,7 +37,7 @@
 (def-method 'num 'lisp_sub)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -55,7 +55,7 @@
 (def-method 'num 'lisp_mul)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -73,7 +73,7 @@
 (def-method 'num 'lisp_min)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -91,7 +91,7 @@
 (def-method 'num 'lisp_max)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -123,7 +123,7 @@
 (def-method 'num 'lisp_div)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -143,7 +143,7 @@
 (def-method 'num 'lisp_mod)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -184,7 +184,7 @@
 (def-method 'num 'lisp_and)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -203,7 +203,7 @@
 (def-method 'num 'lisp_or)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -222,7 +222,7 @@
 (def-method 'num 'lisp_xor)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -244,7 +244,7 @@
 	(call 'lisp 'env_args_sig '(r1 ($ sig) 2) '(r2))
 	(gotoif '(r2 = 0) 'error))
 	(vp-push r0)
-	(class/vector/bind_args r1 '(r0 r1) '(num num))
+	(class/list/bind_args r1 '(r0 r1) '(num num))
 	(exec p)
 	(call 'num 'create '(r0) '(r1))
 	(vp-pop r0)
@@ -254,7 +254,7 @@
 (def-method 'num 'lisp_asr)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -274,7 +274,7 @@
 (def-method 'num 'lisp_shl)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -294,7 +294,7 @@
 (def-method 'num 'lisp_shr)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -332,7 +332,7 @@
 (def-method 'num 'lisp_eq)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -350,7 +350,7 @@
 (def-method 'num 'lisp_ge)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -368,7 +368,7 @@
 (def-method 'num 'lisp_gt)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -386,7 +386,7 @@
 (def-method 'num 'lisp_le)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -404,7 +404,7 @@
 (def-method 'num 'lisp_lt)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -422,7 +422,7 @@
 (def-method 'num 'lisp_ne)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -453,7 +453,7 @@
 (def-method 'num 'lisp_random)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -472,7 +472,7 @@
 (def-method 'num 'lisp_neg)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -491,7 +491,7 @@
 (def-method 'num 'lisp_sign)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -510,7 +510,7 @@
 (def-method 'num 'lisp_abs)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -529,7 +529,7 @@
 (def-method 'num 'lisp_sqrt)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -565,7 +565,7 @@
 (def-method 'num 'lisp_i2f)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -580,7 +580,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'fixed 'create))
-	(class/vector/bind_args r1 in '(num))
+	(class/list/bind_args r1 in '(num))
 	(vp-shl-cr fp_shift (elem 0 in))
 	(call 'fixed 'create in '(r1))
 	(vp-pop r0)
@@ -598,7 +598,7 @@
 (def-method 'num 'lisp_i2r)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -614,7 +614,7 @@
 	(vp-push r0)
 	(defq in (method-input 'sys_math 'r_i2r)
 		out (method-output 'sys_math 'r_i2r))
-	(class/vector/bind_args r1 in '(num))
+	(class/list/bind_args r1 in '(num))
 	(call 'sys_math 'r_i2r in out)
 	(call 'real 'create out '(r1))
 	(vp-pop r0)
@@ -632,7 +632,7 @@
 (def-method 'num 'lisp_f2i)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -647,7 +647,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'num 'create))
-	(class/vector/bind_args r1 in '(num))
+	(class/list/bind_args r1 in '(num))
 	(vp-asr-cr fp_shift (elem 0 in))
 	(call 'num 'create in '(r1))
 	(vp-pop r0)
@@ -665,7 +665,7 @@
 (def-method 'num 'lisp_f2r)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -681,7 +681,7 @@
 	(vp-push r0)
 	(defq in (method-input 'sys_math 'r_f2r)
 		out (method-output 'sys_math 'r_f2r))
-	(class/vector/bind_args r1 in '(num))
+	(class/list/bind_args r1 in '(num))
 	(call 'sys_math 'r_f2r in out)
 	(call 'real 'create out '(r1))
 	(vp-pop r0)
@@ -699,7 +699,7 @@
 (def-method 'num 'lisp_r2i)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -715,7 +715,7 @@
 	(vp-push r0)
 	(defq in (method-input 'sys_math 'r_r2i)
 		out (method-output 'sys_math 'r_r2i))
-	(class/vector/bind_args r1 in '(num))
+	(class/list/bind_args r1 in '(num))
 	(call 'sys_math 'r_r2i in out)
 	(call 'num 'create out '(r1))
 	(vp-pop r0)
@@ -733,7 +733,7 @@
 (def-method 'num 'lisp_r2f)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -749,7 +749,7 @@
 	(vp-push r0)
 	(defq in (method-input 'sys_math 'r_r2f)
 		out (method-output 'sys_math 'r_r2f))
-	(class/vector/bind_args r1 in '(num))
+	(class/list/bind_args r1 in '(num))
 	(call 'sys_math 'r_r2f in out)
 	(call 'fixed 'create out '(r1))
 	(vp-pop r0)

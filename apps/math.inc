@@ -1,4 +1,3 @@
-;generic distance metric stuff
 (import 'class/num/lisp.inc)
 (import 'class/nums/lisp.inc)
 (import 'class/fixeds/lisp.inc)

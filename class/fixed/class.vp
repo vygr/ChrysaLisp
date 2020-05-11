@@ -1,6 +1,6 @@
 (include 'sys/func.inc)
 (include 'sys/math/class.inc)
-(include 'class/vector/class.inc)
+(include 'class/list/class.inc)
 (include 'class/fixed/class.inc)
 (include 'class/str/class.inc)
 (include 'class/stream/class.inc)
@@ -82,7 +82,7 @@
 (def-method 'fixed 'mul)
 	;inputs
 	;r0 = fixed object (ptr)
-	;r1 = vector of fixed objects (ptr)
+	;r1 = list of fixed objects (ptr)
 	;outputs
 	;r0 = fixed object (ptr)
 	;r1 = result fixed object (ptr)
@@ -123,7 +123,7 @@
 (def-method 'fixed 'div)
 	;inputs
 	;r0 = fixed object (ptr)
-	;r1 = vector of fixed objects (ptr)
+	;r1 = list of fixed objects (ptr)
 	;outputs
 	;r0 = fixed object (ptr)
 	;r1 = 0 if error, else result fixed object (ptr)
@@ -141,7 +141,7 @@
 (def-method 'fixed 'mod)
 	;inputs
 	;r0 = fixed object (ptr)
-	;r1 = vector of fixed objects (ptr)
+	;r1 = list of fixed objects (ptr)
 	;outputs
 	;r0 = fixed object (ptr)
 	;r1 = 0 if error, else result fixed object (ptr)

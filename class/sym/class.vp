@@ -1,7 +1,7 @@
 (include 'sys/func.inc)
 (include 'class/sym/class.inc)
 (include 'class/hset/class.inc)
-(include 'class/vector/class.inc)
+(include 'class/list/class.inc)
 (include 'class/stream/class.inc)
 (include 'sys/str/class.inc)
 
@@ -24,12 +24,12 @@
 	(push-scope)
 	(entry 'sym 'statics_init {})
 
-	(call 'vector 'create nil {syms})
-	(call 'vector 'set_capacity (cat {syms, } (str (length *static_syms*))))
+	(call 'list 'create nil {syms})
+	(call 'list 'set_capacity (cat {syms, } (str (length *static_syms*))))
 	(assign {$props} {next})
 	(loop-start)
 		(call 'sym 'intern_cstr {next} {sym})
-		(call 'vector 'push_back {syms, sym})
+		(call 'list 'push_back {syms, sym})
 		(call 'sys_str 'length {next} {_, length})
 	(loop-until {(next + length + byte_size => next) = $props_end})
 	(assign {syms} (cat {@} (f-path 'sym 'statics) {.sym_statics_syms}))
@@ -127,7 +127,7 @@
 		(call 'sym 'create_from_buffer '((& r0 str_data) (r0 str_length)) '(r0))
 		(assign `((@ ,(f-path 'sym 'vtable)) r0 r7) '(r2 r1 r0))
 		(assign '(r2) '((r1 obj_vtable)))
-		(call 'vector 'push_back '(r0 r1) '(_ r1 _ _))
+		(call 'list 'push_back '(r0 r1) '(_ r1 _ _))
 	(else)
 		(assign '((r1 0)) '(r1))
 	(endif)
@@ -154,9 +154,9 @@
 
 (def-method 'sym 'intern_strs)
 	;inputs
-	;r1 = vector of string objects (ptr)
+	;r1 = list of string objects (ptr)
 	;outputs
-	;r1 = vector of sym objects (ptr)
+	;r1 = list of sym objects (ptr)
 	;trashes
 	;r0-r14
 
@@ -219,7 +219,7 @@
 		(vp-push r0)
 		(call 'hset 'get_bucket '(r2 r0) '(_ r0))
 		(vp-pop r1)
-		(jump 'vector 'push_back '(r0 r1))
+		(jump 'list 'push_back '(r0 r1))
 	(endif)
 	(vp-ret)
 

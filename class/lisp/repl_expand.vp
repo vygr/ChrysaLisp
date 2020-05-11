@@ -23,7 +23,7 @@
 
 	;expand it if list ?
 	(vp-cpy-ir r1 0 r2)
-	(f-bind 'vector 'vtable r3)
+	(f-bind 'list 'vtable r3)
 	(assign '((r2 obj_vtable)) '(r4))
 	(vpif '(r4 = r3))
 		(vp-alloc local_size)
@@ -55,7 +55,7 @@
 				;is a list ?
 				(vp-cpy-ir r1 0 r1)
 				(assign '((r1 pair_second)) '(r1))
-				(f-bind 'vector 'vtable r2)
+				(f-bind 'list 'vtable r2)
 				(assign '((r1 obj_vtable)) '(r3))
 				(breakif '(r2 /= r3))
 				;not 0 length ?
@@ -69,7 +69,7 @@
 				(default)
 					;replace form with macro expantion
 					(assign '((rsp local_form) r1) '(r0 (rsp local_macro)))
-					(d-call 'vector 'slice '(r0 1 (r0 array_length)) '(r0 (rsp local_args)))
+					(d-call 'list 'slice '(r0 1 (r0 array_length)) '(r0 (rsp local_args)))
 					(call 'obj 'deref '(r0))
 					(call 'lisp 'repl_apply '((rsp local_this) (rsp local_args) (rsp local_macro)) '(_ r1))
 					(assign '((rsp local_iter)) '(r0))
@@ -77,7 +77,7 @@
 					(call 'obj 'deref '((rsp local_args)))
 					(assign '((rsp local_iter) (rsp local_this)) '(r1 r0))
 					(vp-cpy-ir r1 0 r2)
-					(f-bind 'vector 'vtable r3)
+					(f-bind 'list 'vtable r3)
 					(assign '((r2 obj_vtable)) '(r4))
 					(continueif '(r4 = r3) 'try_expand)
 					(break 'next_iter)
@@ -87,7 +87,7 @@
 				(assign '((rsp local_this) (rsp local_form)) '(r0 r1))
 				(assign '((r0 lisp_stack)) '(r0))
 				(class/array/get_both r1 r1 r6)
-				(f-bind 'vector 'vtable r7)
+				(f-bind 'list 'vtable r7)
 				(loop-start)
 					(vp-cpy-ir r1 0 r2)
 					(assign '((r2 obj_vtable)) '(r2))

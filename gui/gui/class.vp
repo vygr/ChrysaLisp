@@ -5,7 +5,7 @@
 (include 'gui/gui/class.inc)
 (include 'gui/label/class.inc)
 (include 'class/sym/class.inc)
-(include 'class/vector/class.inc)
+(include 'class/list/class.inc)
 (include 'gui/region/class.inc)
 (include 'gui/ctx/class.inc)
 (include 'gui/backdrop/class.inc)
@@ -42,7 +42,7 @@
 		'((rsp local_mouse_id) (rsp local_key_id) (rsp local_mouse_buttons) (rsp local_quit)))
 
 	;temp objects
-	(call 'vector 'create nil '(r0))
+	(call 'list 'create nil '(r0))
 	(assign '((rsp local_statics)) '(r1))
 	(assign '(r0) '((r1 gui_statics_temps)))
 
@@ -133,7 +133,7 @@
 
 		;swap, clear temps and dirty flag
 		(host-call 'host 'sdl_render_present {user->local_statics->gui_statics_renderer})
-		(call 'vector 'clear {user->local_statics->gui_statics_temps})
+		(call 'list 'clear {user->local_statics->gui_statics_temps})
 		(assign {0} {user->local_statics->gui_statics_dirty_flag})
 	(endif)
 

@@ -10,7 +10,7 @@
 	;r3 = sym object (ptr) 
 	;outputs
 	;r0 = lisp object (ptr)
-	;r1 = list vector object (ptr)
+	;r1 = list list object (ptr)
 	;r2 = next char (uint)
 	;trashes
 	;r1-r14
@@ -30,10 +30,10 @@
 		(f-bind 'error 'vtable r4)
 		(breakif '(r3 = r4)))
 		(assign '(r1 r2) '(r12 r13))
-		(call 'vector 'create nil '(r0))
+		(call 'list 'create nil '(r0))
 		(assign '((rsp local_sym)) '(r1))
 		(class/obj/ref r1 r2)
-		(call 'vector 'push_back2 '(r0 r1 r12) '(r0 _ _ _ _))
+		(call 'list 'push_back2 '(r0 r1 r12) '(r0 _ _ _ _))
 		(assign '((rsp local_this) r0 r13) '(r0 r1 r2))
 	(endswitch)
 

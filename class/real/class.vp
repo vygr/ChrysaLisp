@@ -1,6 +1,6 @@
 (include 'sys/func.inc)
 (include 'sys/math/class.inc)
-(include 'class/vector/class.inc)
+(include 'class/list/class.inc)
 (include 'class/real/class.inc)
 (include 'class/str/class.inc)
 (include 'class/stream/class.inc)
@@ -68,7 +68,7 @@
 (def-method 'real 'add)
 	;inputs
 	;r0 = real object (ptr)
-	;r1 = vector of real objects (ptr)
+	;r1 = list of real objects (ptr)
 	;outputs
 	;r0 = real object (ptr)
 	;r1 = result real object (ptr)
@@ -83,7 +83,7 @@
 (def-method 'real 'sub)
 	;inputs
 	;r0 = real object (ptr)
-	;r1 = vector of real objects (ptr)
+	;r1 = list of real objects (ptr)
 	;outputs
 	;r0 = real object (ptr)
 	;r1 = result real object (ptr)
@@ -98,7 +98,7 @@
 (def-method 'real 'mul)
 	;inputs
 	;r0 = real object (ptr)
-	;r1 = vector of real objects (ptr)
+	;r1 = list of real objects (ptr)
 	;outputs
 	;r0 = real object (ptr)
 	;r1 = result real object (ptr)
@@ -113,7 +113,7 @@
 (def-method 'real 'min)
 	;inputs
 	;r0 = real object (ptr)
-	;r1 = vector of real objects (ptr)
+	;r1 = list of real objects (ptr)
 	;outputs
 	;r0 = real object (ptr)
 	;r1 = result real object (ptr)
@@ -132,7 +132,7 @@
 (def-method 'real 'max)
 	;inputs
 	;r0 = real object (ptr)
-	;r1 = vector of real objects (ptr)
+	;r1 = list of real objects (ptr)
 	;outputs
 	;r0 = real object (ptr)
 	;r1 = result real object (ptr)
@@ -175,7 +175,7 @@
 (def-method 'real 'div)
 	;inputs
 	;r0 = real object (ptr)
-	;r1 = vector of real objects (ptr)
+	;r1 = list of real objects (ptr)
 	;outputs
 	;r0 = real object (ptr)
 	;r1 = 0 if error, else result real object (ptr)
@@ -190,7 +190,7 @@
 (def-method 'real 'mod)
 	;inputs
 	;r0 = real object (ptr)
-	;r1 = vector of real objects (ptr)
+	;r1 = list of real objects (ptr)
 	;outputs
 	;r0 = real object (ptr)
 	;r1 = 0 if error, else result real object (ptr)
@@ -226,7 +226,7 @@
 (def-method 'real 'ge)
 	;inputs
 	;r0 = real object (ptr)
-	;r1 = vector of real objects (ptr)
+	;r1 = list of real objects (ptr)
 	;outputs
 	;r0 = real object (ptr)
 	;r1 = 0, -1 (int)
@@ -244,7 +244,7 @@
 (def-method 'real 'gt)
 	;inputs
 	;r0 = real object (ptr)
-	;r1 = vector of real objects (ptr)
+	;r1 = list of real objects (ptr)
 	;outputs
 	;r0 = real object (ptr)
 	;r1 = 0, -1 (int)
@@ -262,7 +262,7 @@
 (def-method 'real 'le)
 	;inputs
 	;r0 = real object (ptr)
-	;r1 = vector of real objects (ptr)
+	;r1 = list of real objects (ptr)
 	;outputs
 	;r0 = real object (ptr)
 	;r1 = 0, -1 (int)
@@ -280,7 +280,7 @@
 (def-method 'real 'lt)
 	;inputs
 	;r0 = real object (ptr)
-	;r1 = vector of real objects (ptr)
+	;r1 = list of real objects (ptr)
 	;outputs
 	;r0 = real object (ptr)
 	;r1 = 0, -1 (int)

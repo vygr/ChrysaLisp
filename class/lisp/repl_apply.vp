@@ -5,7 +5,7 @@
 (def-method 'lisp 'repl_apply)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;r2 = func object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
@@ -29,7 +29,7 @@
 	(endif)
 
 (errorcases
-	(f-bind 'vector 'vtable r4)
+	(f-bind 'list 'vtable r4)
 	(gotoif '(r3 /= r4) 'error2)
 	(assign '((r2 array_length)) '(r3))
 	(gotoif '(r3 < 2) 'error1))

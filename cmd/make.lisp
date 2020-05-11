@@ -83,7 +83,7 @@
 					((or (eql _ "(defun") (eql _ "(defmacro") (eql _ "(defun-bind") (eql _ "(defmacro-bind"))
 						(setq state 'y))))) (file-stream _)))
 		'(class/in/lisp.inc class/lisp.inc class/lisp/anaphoric.inc class/lisp/boot.inc
-			class/lisp/debug.inc class/out/lisp.inc class/slave/lisp.inc
+			class/lisp/debug.inc class/out/lisp.inc class/stdio/lisp.inc
 			gui/canvas/lisp.inc gui/lisp.inc gui/path/lisp.inc gui/view/lisp.inc
 			sys/lisp.inc class/num/lisp.inc))
 	(sort cmp syntax)
@@ -111,7 +111,7 @@
 
 (defun-bind main ()
 	;initialize pipe details and command args, abort on error
-	(when (and (defq slave (create-slave)) (defq args (options slave usage)))
+	(when (and (defq stdio (create-stdio)) (defq args (options stdio usage)))
 		(defq args (map sym args) all (find 'all args) boot (find 'boot args) platforms (find 'platforms args)
 			doc (find 'doc args) syms (find 'syms args))
 		(cond

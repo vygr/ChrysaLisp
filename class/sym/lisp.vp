@@ -5,7 +5,7 @@
 (def-method 'sym 'lisp_sym)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -19,7 +19,7 @@
 	(gotoif '(r2 /= 1) 'error1))
 
 	(vp-cpy-rr r0 r4)
-	(call 'vector 'get_first '(r1) '(r0 r1))
+	(call 'list 'get_first '(r1) '(r0 r1))
 	(assign `((r1 obj_vtable) (@ ,(f-path 'sym 'vtable))) '(r2 r3))
 	(vpif '(r2 = r3))
 		(vp-push r4)
@@ -48,7 +48,7 @@
 (def-method 'sym 'lisp_gensym)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)

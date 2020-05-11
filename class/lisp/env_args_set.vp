@@ -4,7 +4,7 @@
 
 (def-method 'lisp 'env_args_set)
 	;inputs
-	;r0 = args vector object (ptr)
+	;r0 = args list object (ptr)
 	;r3 = args offset (uint)
 	;r5 = args dest (ptr)
 	;trashes

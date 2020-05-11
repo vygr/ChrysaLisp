@@ -9,7 +9,7 @@
 (def-method 'seq 'lisp_length)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -24,7 +24,7 @@
 
 	(vp-cpy-rr r0 r13)
 	(defq in (method-input 'seq 'get_length))
-	(class/vector/bind_args r1 in '(seq))
+	(class/list/bind_args r1 in '(seq))
 	(call 'seq 'get_length in '(_ r0))
 	(call 'num 'create '(r0) '(r1))
 
@@ -41,7 +41,7 @@
 (def-method 'seq 'lisp_elem)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -56,7 +56,7 @@
 	(assign '(r1) '(r13)))
 
 	(assign '(r0) '(r12))
-	(class/vector/bind_args r1 '(r11 r0) '(num seq))
+	(class/list/bind_args r1 '(r11 r0) '(num seq))
 	(call 'seq 'get_length '(r0) '(r0 r1))
 	(vpif '(r11 < 0))
 		(vp-add-rr r1 r11)
@@ -82,7 +82,7 @@
 (def-method 'seq 'lisp_slice)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -97,7 +97,7 @@
 	(assign '(r1) '(r13)))
 
 	(assign '(r0) '(r12))
-	(class/vector/bind_args r1 '(r10 r11 r0) '(num num seq))
+	(class/list/bind_args r1 '(r10 r11 r0) '(num num seq))
 	(call 'seq 'get_length '(r0) '(r0 r1))
 	(vpif '(r10 < 0))
 		(vp-add-rr r1 r10)
@@ -128,7 +128,7 @@
 (def-method 'seq 'lisp_each)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -151,7 +151,7 @@
 	(call 'lisp 'env_push '(r0))
 
 	(assign '((rsp local_args)) '(r0))
-	(class/vector/bind_args r0 '(r9 r10 r11 r12) '(num num obj vector))
+	(class/list/bind_args r0 '(r9 r10 r11 r12) '(num num obj list))
 	(vp-cpy-cr max_int r8)
 	(class/array/get_both r12 r6 r7)
 	(loop-while '(r6 /= r7))
@@ -196,12 +196,12 @@
 		(loop-while '(r9 /= r10) 'done)
 			(call 'obj 'deref '((rsp local_value)))
 
-			(call 'vector 'create nil '((rsp local_params)))
+			(call 'list 'create nil '((rsp local_params)))
 			(assign '((rsp local_args) (rsp local_start)) '(r0 r9))
 			(class/array/get_both r0 r10 r11)
 			(loop-start)
 				(call 'seq 'ref_element '((r10 0) r9) '(_ r1))
-				(call 'vector 'push_back '((rsp local_params) r1))
+				(call 'list 'push_back '((rsp local_params) r1))
 				(vp-add-cr ptr_size r10)
 			(loop-until '(r10 = r11))
 
@@ -211,7 +211,7 @@
 			(call 'obj 'deref '((rsp local_value)))
 
 			(call 'lisp 'repl_apply '((rsp local_this) (rsp local_params) (rsp local_func)) '(_ (rsp local_value)))
-			(call 'vector 'deref '((rsp local_params)))
+			(call 'list 'deref '((rsp local_params)))
 		(errorcases
 			(assign '((rsp local_value)) '(r1))
 			(f-bind 'error 'vtable r4)
@@ -239,14 +239,14 @@
 (vp-label 'error4)
 	(call 'lisp 'repl_error '((rsp local_this) "(each! start end lambda (seq ...))" error_msg_not_valid_index (rsp local_args)) '(_ (rsp local_value)))
 	(goto 'funcexit)
-	(signature '(num num obj vector)))
+	(signature '(num num obj list)))
 
 (def-func-end)
 
 (def-method 'seq 'lisp_some)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -269,7 +269,7 @@
 	(call 'lisp 'env_push '(r0))
 
 	(assign '((rsp local_args)) '(r0))
-	(class/vector/bind_args r0 '(r9 r10 r11 r12 r13) '(num num obj obj vector))
+	(class/list/bind_args r0 '(r9 r10 r11 r12 r13) '(num num obj obj list))
 	(vp-cpy-cr max_int r8)
 	(class/array/get_both r13 r6 r7)
 	(loop-while '(r6 /= r7))
@@ -315,12 +315,12 @@
 		(loop-while '(r9 /= r10) 'done)
 			(call 'obj 'deref '((rsp local_value)))
 
-			(call 'vector 'create nil '((rsp local_params)))
+			(call 'list 'create nil '((rsp local_params)))
 			(assign '((rsp local_args) (rsp local_start)) '(r0 r9))
 			(class/array/get_both r0 r10 r11)
 			(loop-start)
 				(call 'seq 'ref_element '((r10 0) r9) '(_ r1))
-				(call 'vector 'push_back '((rsp local_params) r1))
+				(call 'list 'push_back '((rsp local_params) r1))
 				(vp-add-cr ptr_size r10)
 			(loop-until '(r10 = r11))
 
@@ -330,7 +330,7 @@
 			(call 'obj 'deref '((rsp local_value)))
 
 			(call 'lisp 'repl_apply '((rsp local_this) (rsp local_params) (rsp local_func)) '(_ (rsp local_value)))
-			(call 'vector 'deref '((rsp local_params)))
+			(call 'list 'deref '((rsp local_params)))
 			(assign '((rsp local_value)) '(r1))
 		(errorcases
 			(f-bind 'error 'vtable r4)
@@ -366,14 +366,14 @@
 (vp-label 'error4)
 	(call 'lisp 'repl_error '((rsp local_this) "(some! start end mode lambda (seq ...))" error_msg_not_valid_index (rsp local_args)) '(_ (rsp local_value)))
 	(goto 'funcexit)
-	(signature '(num num obj obj vector)))
+	(signature '(num num obj obj list)))
 
 (def-func-end)
 
 (def-method 'seq 'lisp_cat)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -402,7 +402,7 @@
 (def-method 'seq 'lisp_find)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -424,14 +424,14 @@
 	(errorcases
 		(assign '((r6 obj_vtable)) '(r3))
 		(gotoif '(r3 /= r4) 'error2))
-		(class/vector/cast_args '(r6) '(char))
+		(class/list/cast_args '(r6) '(char))
 		(call 'str 'find '(r5 r6) '(_ _ r2))
 		(goto 'ok)
 	(default)
 	(errorcases
-		(f-bind 'vector 'vtable r4)
+		(f-bind 'list 'vtable r4)
 		(gotoif '(r3 /= r4) 'error2))
-		(call 'vector 'find '(r5 r6) '(_ _ r2))
+		(call 'list 'find '(r5 r6) '(_ _ r2))
 	(vp-label 'ok)
 		(vpif '(r2 = -1))
 			(call 'obj 'ref '((r13 lisp_sym_nil)) '(r0))

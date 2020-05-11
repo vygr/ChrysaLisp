@@ -1,11 +1,11 @@
 (include 'sys/func.inc)
-(include 'class/slave/class.inc)
+(include 'class/stdio/class.inc)
 (include 'class/lisp/class.inc)
 
-(def-method 'slave 'lisp_create)
+(def-method 'stdio 'lisp_create)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -16,7 +16,7 @@
 		(ptr 'this 'val 'stdin 'stdout 'stderr)
 	(def-struct-end)
 
-	(entry 'slave 'lisp_create '(r0 r1))
+	(entry 'stdio 'lisp_create '(r0 r1))
 
 (errorcases
 	(assign '((r1 array_length)) '(r2))
@@ -24,7 +24,7 @@
 
 	(vp-alloc local_size)
 	(assign '(r0) '((rsp local_this)))
-	(call 'slave 'create nil '(r0))
+	(call 'stdio 'create nil '(r0))
 	(vpif '(r0 = 0))
 		(assign '((rsp local_this)) '(r0))
 		(call 'obj 'ref '((r0 lisp_sym_nil)) '(r1))
@@ -33,21 +33,21 @@
 		(assign '((rsp local_this) r0 r0) '(r5 r6 (rsp local_val)))
 		(assign '((r5 lisp_stdin) (r5 lisp_stdout) (r5 lisp_stderr)) '(r0 r1 r2))
 		(assign '(r0 r1 r2) '((rsp local_stdin) (rsp local_stdout) (rsp local_stderr)))
-		(call 'obj 'ref '((r6 slave_stdin)) '((r5 lisp_stdin)))
-		(call 'obj 'ref '((r6 slave_stdout)) '((r5 lisp_stdout)))
-		(call 'obj 'ref '((r6 slave_stderr)) '((r5 lisp_stderr)))
+		(call 'obj 'ref '((r6 stdio_stdin)) '((r5 lisp_stdin)))
+		(call 'obj 'ref '((r6 stdio_stdout)) '((r5 lisp_stdout)))
+		(call 'obj 'ref '((r6 stdio_stderr)) '((r5 lisp_stderr)))
 		(call 'obj 'deref '((rsp local_stdin)))
 		(call 'obj 'deref '((rsp local_stdout)))
 		(call 'obj 'deref '((rsp local_stderr)))
 		(assign '((rsp local_val)) '(r1))
 	(endif)
 
-	(exit 'slave 'lisp_create '((rsp local_this) r1))
+	(exit 'stdio 'lisp_create '((rsp local_this) r1))
 	(vp-free local_size)
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r0 "(create-slave)" error_msg_wrong_types r1)))
+	(jump 'lisp 'repl_error '(r0 "(create-stdio)" error_msg_wrong_types r1)))
 
 (def-func-end)

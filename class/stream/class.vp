@@ -1,6 +1,6 @@
 (include 'sys/func.inc)
 (include 'sys/str/class.inc)
-(include 'class/vector/class.inc)
+(include 'class/list/class.inc)
 (include 'class/str/class.inc)
 (include 'class/stream/class.inc)
 (include 'class/stream_str/class.inc)
@@ -289,7 +289,7 @@
 	;r1 = split char (uint)
 	;outputs
 	;r0 = stream object (ptr)
-	;r1 = split strings vector object (ptr)
+	;r1 = split strings list object (ptr)
 	;trashes
 	;r1-r14
 
@@ -302,10 +302,10 @@
 	(push-scope)
 	(entry 'stream 'split {this, char})
 
-	;create output vector
-	(call 'vector 'create nil {splits})
+	;create output list
+	(call 'list 'create nil {splits})
 
-	;fill vector with splits
+	;fill list with splits
 	(loop-start)
 		(call 'stream 'skip {this, char})
 		(assign {this->stream_bufp} {start})
@@ -313,7 +313,7 @@
 		(assign {this->stream_bufp - start} {length})
 		(breakifnot {length})
 		(call 'str 'create_from_buffer {start, length} {string})
-		(call 'vector 'push_back {splits, string})
+		(call 'list 'push_back {splits, string})
 	(loop-end)
 
 	(exit 'stream 'split {this, splits})

@@ -6,7 +6,7 @@
 (def-method 'lisp 'lisp_type)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -23,7 +23,7 @@
 	(class/array/bind_args r1 '(r1))
 	(assign '((r1 obj_vtable)) '(r1))
 	(switch)
-	(f-bind 'vector 'vtable r2)
+	(f-bind 'list 'vtable r2)
 	(vp-cpy-cr lisp_type_lst r0)
 	(breakif '(r1 = r2))
 	(f-bind 'num 'vtable r2)

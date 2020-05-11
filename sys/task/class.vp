@@ -1,7 +1,7 @@
 (include 'sys/func.inc)
 (include 'sys/kernel/class.inc)
 (include 'sys/str/class.inc)
-(include 'class/vector/class.inc)
+(include 'class/list/class.inc)
 (include 'class/str/class.inc)
 
 (def-method 'sys_task 'statics)
@@ -536,7 +536,7 @@
 
 (def-method 'sys_task 'open_pipe)
 	;inputs
-	;r0 = vector of str objects (ptr)
+	;r0 = list of str objects (ptr)
 	;outputs
 	;r0 = mailbox id's array object (ptr)
 	;trashes
@@ -550,7 +550,7 @@
 	(entry 'sys_task 'open_pipe {tasks})
 
 	;create output array
-	(d-call 'vector 'get_length {tasks} {_, length})
+	(d-call 'list 'get_length {tasks} {_, length})
 	(call 'array 'create nil {ids})
 	(call 'array 'set_capacity {ids, length})
 	(call 'array 'set_length {ids, length})
@@ -562,7 +562,7 @@
 	(call 'sys_kernel 'id nil {cpu})
 	(assign {0} {index})
 	(loop-while {index /= length})
-		(call 'vector 'get_element {tasks, index} {_, name})
+		(call 'list 'get_element {tasks, index} {_, name})
 		(call 'sys_mail 'alloc {name->str_length + 1 + kn_msg_open_size} {msg, data})
 		(assign {cpu << 32} {msg->msg_dest.id_id})
 		(call 'sys_kernel 'id nil {data->kn_msg_reply_id.id_cpu})

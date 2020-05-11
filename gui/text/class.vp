@@ -3,7 +3,7 @@
 (include 'gui/ctx/class.inc)
 (include 'gui/font/class.inc)
 (include 'gui/texture/class.inc)
-(include 'class/vector/class.inc)
+(include 'class/list/class.inc)
 (include 'gui/text/class.inc)
 (include 'class/sym/class.inc)
 
@@ -46,7 +46,7 @@
 
 	;deref any syms
 	(vp-push r0)
-	(call 'vector 'deref_if '((r0 text_syms)))
+	(call 'list 'deref_if '((r0 text_syms)))
 	(vp-pop r0)
 	(s-jump 'text 'deinit '(r0))
 
@@ -82,7 +82,7 @@
 
 	;draw text
 	(vpif {this->text_string && font})
-		(call 'vector 'get_both {this->text_syms} {_, syms, syms_end})
+		(call 'list 'get_both {this->text_syms} {_, syms, syms_end})
 		(vpif {syms /= syms_end})
 			(assign {0} {x})
 			(loop-start)
@@ -133,7 +133,7 @@
 	(assign {0 => width} {height})
 	(vpif {this->text_string && font})
 		(call 'font 'get_metrics {font} {_, _, _, height})
-		(call 'vector 'get_both {this->text_syms} {_, syms, syms_end})
+		(call 'list 'get_both {this->text_syms} {_, syms, syms_end})
 		(vpif {syms /= syms_end})
 			(loop-start)
 				(call 'font 'glyph_info {font, *syms} {_, info})
@@ -142,7 +142,7 @@
 				(assign {width + sym_w} {width})
 			(loop-until {(syms + ptr_size => syms) = syms_end})
 		(endif)
-		(d-call 'vector 'get_length {this->text_syms} {_, length})
+		(d-call 'list 'get_length {this->text_syms} {_, length})
 		(assign {width + (length - 1) * (height >> 2)} {width})
 	(endif)
 
@@ -164,7 +164,7 @@
 
 	;create new split syms
 	(vp-push r0)
-	(call 'vector 'deref_if '((r0 text_syms)))
+	(call 'list 'deref_if '((r0 text_syms)))
 	(assign '((rsp 0)) '(r0))
 	(call 'str 'split '((r0 text_string) char_space) '(_ r1))
 	(call 'sym 'intern_strs '(r1) '(r1))

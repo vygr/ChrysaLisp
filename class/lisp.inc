@@ -11,4 +11,4 @@
 (import 'class/nums/lisp.inc)
 (import 'class/out/lisp.inc)
 (import 'class/in/lisp.inc)
-(import 'class/slave/lisp.inc)
+(import 'class/stdio/lisp.inc)

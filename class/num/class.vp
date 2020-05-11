@@ -1,7 +1,7 @@
 (include 'sys/func.inc)
 (include 'sys/math/class.inc)
 (include 'class/num/class.inc)
-(include 'class/vector/class.inc)
+(include 'class/list/class.inc)
 (include 'class/str/class.inc)
 (include 'class/stream/class.inc)
 
@@ -57,7 +57,7 @@
 (def-method 'num 'add)
 	;inputs
 	;r0 = num object (ptr)
-	;r1 = vector of num objects (ptr)
+	;r1 = list of num objects (ptr)
 	;outputs
 	;r0 = num object (ptr)
 	;r1 = result num object (ptr)
@@ -72,7 +72,7 @@
 (def-method 'num 'sub)
 	;inputs
 	;r0 = num object (ptr)
-	;r1 = vector of num objects (ptr)
+	;r1 = list of num objects (ptr)
 	;outputs
 	;r0 = num object (ptr)
 	;r1 = result num object (ptr)
@@ -87,7 +87,7 @@
 (def-method 'num 'mul)
 	;inputs
 	;r0 = num object (ptr)
-	;r1 = vector of num objects (ptr)
+	;r1 = list of num objects (ptr)
 	;outputs
 	;r0 = num object (ptr)
 	;r1 = result num object (ptr)
@@ -102,7 +102,7 @@
 (def-method 'num 'min)
 	;inputs
 	;r0 = num object (ptr)
-	;r1 = vector of num objects (ptr)
+	;r1 = list of num objects (ptr)
 	;outputs
 	;r0 = num object (ptr)
 	;r1 = result num object (ptr)
@@ -120,7 +120,7 @@
 (def-method 'num 'max)
 	;inputs
 	;r0 = num object (ptr)
-	;r1 = vector of num objects (ptr)
+	;r1 = list of num objects (ptr)
 	;outputs
 	;r0 = num object (ptr)
 	;r1 = result num object (ptr)
@@ -162,7 +162,7 @@
 (def-method 'num 'div)
 	;inputs
 	;r0 = num object (ptr)
-	;r1 = vector of num objects (ptr)
+	;r1 = list of num objects (ptr)
 	;outputs
 	;r0 = num object (ptr)
 	;r1 = 0 if error, else result num object (ptr)
@@ -179,7 +179,7 @@
 (def-method 'num 'mod)
 	;inputs
 	;r0 = num object (ptr)
-	;r1 = vector of num objects (ptr)
+	;r1 = list of num objects (ptr)
 	;outputs
 	;r0 = num object (ptr)
 	;r1 = 0 if error, else result num object (ptr)
@@ -310,7 +310,7 @@
 (def-method 'num 'eq)
 	;inputs
 	;r0 = num object (ptr)
-	;r1 = vector of num objects (ptr)
+	;r1 = list of num objects (ptr)
 	;outputs
 	;r0 = num object (ptr)
 	;r1 = 0, -1 (int)
@@ -325,7 +325,7 @@
 (def-method 'num 'ge)
 	;inputs
 	;r0 = num object (ptr)
-	;r1 = vector of num objects (ptr)
+	;r1 = list of num objects (ptr)
 	;outputs
 	;r0 = num object (ptr)
 	;r1 = 0, -1 (int)
@@ -342,7 +342,7 @@
 (def-method 'num 'gt)
 	;inputs
 	;r0 = num object (ptr)
-	;r1 = vector of num objects (ptr)
+	;r1 = list of num objects (ptr)
 	;outputs
 	;r0 = num object (ptr)
 	;r1 = 0, -1 (int)
@@ -359,7 +359,7 @@
 (def-method 'num 'le)
 	;inputs
 	;r0 = num object (ptr)
-	;r1 = vector of num objects (ptr)
+	;r1 = list of num objects (ptr)
 	;outputs
 	;r0 = num object (ptr)
 	;r1 = 0, -1 (int)
@@ -376,7 +376,7 @@
 (def-method 'num 'lt)
 	;inputs
 	;r0 = num object (ptr)
-	;r1 = vector of num objects (ptr)
+	;r1 = list of num objects (ptr)
 	;outputs
 	;r0 = num object (ptr)
 	;r1 = 0, -1 (int)
@@ -393,7 +393,7 @@
 (def-method 'num 'ne)
 	;inputs
 	;r0 = num object (ptr)
-	;r1 = vector of num objects (ptr)
+	;r1 = list of num objects (ptr)
 	;outputs
 	;r0 = num object (ptr)
 	;r1 = 0, -1 (int)

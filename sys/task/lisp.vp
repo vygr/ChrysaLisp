@@ -7,7 +7,7 @@
 (def-method 'sys_task 'lisp_sleep)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -22,7 +22,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'sys_task 'sleep))
-	(class/vector/bind_args r1 in '(num))
+	(class/list/bind_args r1 in '(num))
 	(call 'sys_task 'sleep in)
 	(vp-pop r0)
 	(assign '((r0 lisp_sym_t)) '(r1))
@@ -41,7 +41,7 @@
 (def-method 'sys_task 'lisp_mailbox)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -71,7 +71,7 @@
 (def-method 'sys_task 'lisp_open_child)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -86,7 +86,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'sys_task 'open_child))
-	(class/vector/bind_args r1 in '(str num))
+	(class/list/bind_args r1 in '(str num))
 	(call 'sys_task 'open_child in '(r0))
 	(call 'num 'create '(r0) '(r1))
 	(vp-pop r0)
@@ -104,7 +104,7 @@
 (def-method 'sys_task 'lisp_open_remote)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -119,7 +119,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'sys_task 'open_remote))
-	(class/vector/bind_args r1 in '(str num num))
+	(class/list/bind_args r1 in '(str num num))
 	(call 'sys_task 'open_remote in '(r0))
 	(call 'num 'create '(r0) '(r1))
 	(vp-pop r0)
@@ -137,7 +137,7 @@
 (def-method 'sys_task 'lisp_open_farm)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -152,7 +152,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'sys_task 'open_farm))
-	(class/vector/bind_args r1 in '(str num num))
+	(class/list/bind_args r1 in '(str num num))
 	(call 'sys_task 'open_farm in '(r1))
 	(vp-pop r0)
 
@@ -169,7 +169,7 @@
 (def-method 'sys_task 'lisp_open_pipe)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -198,6 +198,6 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r0 "(open-pipe paths)" error_msg_wrong_types r1))
-	(signature '(vector)))
+	(signature '(list)))
 
 (def-func-end)

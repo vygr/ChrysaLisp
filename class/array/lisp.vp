@@ -17,7 +17,7 @@
 (def-method 'array 'lisp_array)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -31,7 +31,7 @@
 (def-method 'array 'lisp_nums)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -45,7 +45,7 @@
 (def-method 'array 'lisp_fixeds)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -59,7 +59,7 @@
 (def-method 'array 'lisp_reals)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -73,7 +73,7 @@
 (def-method 'array 'lisp_path)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -87,7 +87,7 @@
 (def-method 'array 'lisp_clear)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -129,7 +129,7 @@
 (def-method 'array 'lisp_pop)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -167,7 +167,7 @@
 (def-method 'array 'lisp_push)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -179,10 +179,10 @@
 	(assign '((r7 array_length)) '(r3))
 	(errorif '(r3 < 2) 'error)
 	(class/array/bind_args r7 '(r0))
-	(f-bind 'vector 'vtable r1)
+	(f-bind 'list 'vtable r1)
 	(assign '((r0 obj_vtable)) '(r2))
 	(vpif '(r1 = r2))
-		(d-call 'vector 'append '(r0 r7 1 r3) '(r0))
+		(d-call 'list 'append '(r0 r7 1 r3) '(r0))
 	(else)
 	(errorcases
 		(call 'obj 'inst_of `(r0 (@ ,(f-path 'array 'vtable))) '(r0 r1))
@@ -210,7 +210,7 @@
 (def-method 'array 'lisp_cap)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)

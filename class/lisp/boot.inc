@@ -46,10 +46,10 @@
 (ffi push "class/array/lisp_push" 0)
 (ffi pop "class/array/lisp_pop" 0)
 
-(ffi elem-set "class/vector/lisp_elemset" 0)
-(ffi merge "class/vector/lisp_merge" 0)
-(ffi partition "class/vector/lisp_part" 0)
-(ffi match? "class/vector/lisp_match" 0)
+(ffi elem-set "class/list/lisp_elemset" 0)
+(ffi merge "class/list/lisp_merge" 0)
+(ffi partition "class/list/lisp_part" 0)
+(ffi match? "class/list/lisp_match" 0)
 
 (ffi str "class/str/lisp_str" 0)
 (ffi split "class/str/lisp_split" 0)
@@ -79,7 +79,7 @@
 (ffi write-char "class/stream/lisp_writechar" 0)
 (ffi write "class/stream/lisp_write" 0)
 
-(ffi list "class/vector/lisp_list" 0)
+(ffi list "class/list/lisp_list" 0)
 (ffi array "class/array/lisp_array" 0)
 (ffi nums "class/array/lisp_nums" 0)
 (ffi fixeds "class/array/lisp_fixeds" 0)

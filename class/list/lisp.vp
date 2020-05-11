@@ -3,44 +3,44 @@
 (include 'class/sym/class.inc)
 (include 'class/lisp/class.inc)
 
-(def-method 'vector 'lisp_list)
+(def-method 'list 'lisp_list)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
 	;r1-r14
 
-	(entry 'vector 'lisp_list '(r0 r1))
+	(entry 'list 'lisp_list '(r0 r1))
 
 	(class/obj/ref r1 r2)
 
-	(exit 'vector 'lisp_list '(r0 r1))
+	(exit 'list 'lisp_list '(r0 r1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'vector 'lisp_elemset)
+(def-method 'list 'lisp_elemset)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
 	;r1-r14
 
-	(entry 'vector 'lisp_elemset '(r0 r1))
+	(entry 'list 'lisp_elemset '(r0 r1))
 
 (errorcases
 	(call 'lisp 'env_args_sig '(r1 ($ sig) 3) '(r2))
 	(gotoif '(r2 = 0) 'error1))
 
 	(vp-push r0 r1)
-	(defq in (method-input 'vector 'set_element))
-	(class/vector/bind_args r1 (class/array/map_args in '(1 2 0)) '(num vector obj))
+	(defq in (method-input 'list 'set_element))
+	(class/list/bind_args r1 (class/array/map_args in '(1 2 0)) '(num list obj))
 	(assign `((,(elem 0 in) array_length)) '(r14))
 	(vpif `(,(elem 2 in) < 0))
 		(vp-add-rr r14 (elem 2 in))
@@ -51,10 +51,10 @@
 	(gotoif `(,(elem 2 in) >= r14) 'error2))
 	(class/obj/ref (elem 1 in) r14 2)
 	(vp-cpy-ri (elem 1 in) rsp 0)
-	(d-call 'vector 'set_element in)
+	(d-call 'list 'set_element in)
 	(vp-pop r0 r1)
 
-	(exit 'vector 'lisp_elemset '(r0 r1))
+	(exit 'list 'lisp_elemset '(r0 r1))
 	(vp-ret)
 
 (errorcases
@@ -63,21 +63,21 @@
 (vp-label 'error2)
 	(vp-pop r0 r3)
 	(jump 'lisp 'repl_error '(r0 "(elem-set index list val)" error_msg_not_valid_index r3))
-	(signature '(num vector obj)))
+	(signature '(num list obj)))
 
 (def-func-end)
 
-(def-method 'vector 'lisp_merge)
+(def-method 'list 'lisp_merge)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
 	;r1-r14
 
-	(entry 'vector 'lisp_merge '(r0 r1))
+	(entry 'list 'lisp_merge '(r0 r1))
 
 (errorcases
 	(call 'lisp 'env_args_sig '(r1 ($ sig) 2) '(r2))
@@ -87,32 +87,32 @@
 	(class/array/bind_args r1 '(r0 r1))
 	(class/array/get_both r1 r8 r7)
 	(assign '((r0 array_length)) '(r1))
-	(call 'vector 'set_capacity '(r0 r1) '(r0))
+	(call 'list 'set_capacity '(r0 r1) '(r0))
 	(loop-while '(r8 /= r7))
 		(assign '((r8 0)) '(r1))
 		(vp-add-cr ptr_size r8)
-		(call 'vector 'find '(r0 r1) '(r0 r1 r2))
+		(call 'list 'find '(r0 r1) '(r0 r1 r2))
 		(continueif '(r2 /= -1))
 		(class/obj/ref r1 r2)
-		(call 'vector 'push_back '(r0 r1) '(r0 _ _ _))
+		(call 'list 'push_back '(r0 r1) '(r0 _ _ _))
 	(loop-end)
 	(call 'obj 'ref '(r0) '(r1))
 	(vp-pop r0)
 
-	(exit 'vector 'lisp_merge '(r0 r1))
+	(exit 'list 'lisp_merge '(r0 r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r0 "(merge dlist slist) -> dlist" error_msg_wrong_types r1))
-	(signature '(vector vector)))
+	(signature '(list list)))
 
 (def-func-end)
 
-(def-method 'vector 'lisp_part)
+(def-method 'list 'lisp_part)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -135,31 +135,31 @@
 	(int 'length))
 
 	(push-scope)
-	(entry 'vector 'lisp_part {this, args})
+	(entry 'list 'lisp_part {this, args})
 
 (errorcases
 	(call 'lisp 'env_args_sig {args, $sig, 4} '(r2))
 	(gotoif '(r2 = 0) 'error1))
 
-	(call 'vector 'get_begin {args} {_, iter_begin})
+	(call 'list 'get_begin {args} {_, iter_begin})
 	(assign {iter_begin[0]} {func})
 	(assign {iter_begin[ptr_size]} {list})
 	(call 'num 'get_value {iter_begin[ptr_size * 2]} {_, start})
 	(call 'num 'get_value {iter_begin[ptr_size * 3]} {_, end})
 (errorcases
-	(d-call 'vector 'get_length {list} {_, length})
+	(d-call 'list 'get_length {list} {_, length})
 	(gotoif {start < 0 || start >= end || end > length} 'error2))
 
-	(call 'vector 'create nil {params})
-	(call 'vector 'get_iter {list, start} {_, liter})
-	(call 'vector 'get_iter {list, end} {_, hiter})
-	(call 'vector 'partition {list, liter, hiter, $callback, &this} {_, liter})
-	(call 'vector 'get_begin {list} {_, iter_begin})
+	(call 'list 'create nil {params})
+	(call 'list 'get_iter {list, start} {_, liter})
+	(call 'list 'get_iter {list, end} {_, hiter})
+	(call 'list 'partition {list, liter, hiter, $callback, &this} {_, liter})
+	(call 'list 'get_begin {list} {_, iter_begin})
 	(call 'num 'create {(liter - iter_begin) >> 3} {value})
-	(call 'vector 'deref {params})
+	(call 'list 'deref {params})
 	(call 'sys_task 'sleep '(0))
 
-	(exit 'vector 'lisp_part {this, value})
+	(exit 'list 'lisp_part {this, value})
 	(return)
 
 (errorcases
@@ -167,7 +167,7 @@
 	(jump 'lisp 'repl_error {this, "(partition lambda list start end)", error_msg_wrong_types, args})
 (vp-label 'error2)
 	(jump 'lisp 'repl_error {this, "(partition lambda list start end)", error_msg_not_valid_index, args})
-	(signature '(obj vector num num)))
+	(signature '(obj list num num)))
 
 	(pop-scope-syms)
 
@@ -185,8 +185,8 @@
 
 	(call 'obj 'ref {*liter} {liter})
 	(call 'obj 'ref {*hiter} {hiter})
-	(d-call 'vector 'clear {pdata->pdata_params})
-	(call 'vector 'push_back2 {pdata->pdata_params, liter, hiter})
+	(d-call 'list 'clear {pdata->pdata_params})
+	(call 'list 'push_back2 {pdata->pdata_params, liter, hiter})
 	(call 'lisp 'repl_apply {pdata->pdata_this, pdata->pdata_params, pdata->pdata_func} {_, value})
 	(assign {0} {result})
 	(vpif (cat {value->obj_vtable = @} (f-path 'num 'vtable)))
@@ -200,17 +200,17 @@
 
 (def-func-end)
 
-(def-method 'vector 'lisp_match)
+(def-method 'list 'lisp_match)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 	;trashes
 	;r1-r14
 
-	(entry 'vector 'lisp_match '(r0 r1))
+	(entry 'list 'lisp_match '(r0 r1))
 
 (errorcases
 	(call 'lisp 'env_args_sig '(r1 ($ sig) 2) '(r2))
@@ -243,12 +243,12 @@
 	(endif)
 	(class/obj/ref r1 r2)
 
-	(exit 'vector 'lisp_match '(r0 r1))
+	(exit 'list 'lisp_match '(r0 r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error1)
 	(jump 'lisp 'repl_error '(r0 "(match? list list)" error_msg_wrong_types r1))
-	(signature '(vector vector)))
+	(signature '(list list)))
 
 (def-func-end)

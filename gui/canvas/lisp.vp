@@ -7,7 +7,7 @@
 (def-method 'canvas 'lisp_create)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -22,7 +22,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'canvas 'create))
-	(class/vector/bind_args r1 in '(num num num))
+	(class/list/bind_args r1 in '(num num num))
 	(call 'canvas 'create in '(r1))
 	(vp-pop r0)
 
@@ -39,7 +39,7 @@
 (def-method 'canvas 'lisp_info)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -54,14 +54,14 @@
 
 	(vp-push r0)
 	(defq in (method-input 'canvas 'info))
-	(class/vector/bind_args r1 in '(str))
+	(class/list/bind_args r1 in '(str))
 	(call 'canvas 'info in '(r0 r12 r13))
 	(call 'num 'create '(r0) '(r11))
 	(call 'num 'create '(r12) '(r12))
 	(call 'num 'create '(r13) '(r13))
-	(call 'vector 'create nil '(r0))
-	(call 'vector 'push_back2 '(r0 r11 r12) '(r0 _ _ _ _))
-	(call 'vector 'push_back '(r0 r13) '(r1 _ _ _))
+	(call 'list 'create nil '(r0))
+	(call 'list 'push_back2 '(r0 r11 r12) '(r0 _ _ _ _))
+	(call 'list 'push_back '(r0 r13) '(r1 _ _ _))
 	(vp-pop r0)
 
 	(exit 'canvas 'lisp_info '(r0 r1))
@@ -77,7 +77,7 @@
 (def-method 'canvas 'lisp_load)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -92,7 +92,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'canvas 'load))
-	(class/vector/bind_args r1 in '(str num))
+	(class/list/bind_args r1 in '(str num))
 	(call 'canvas 'load in '(r0))
 	(vpif '(r0 = 0))
 		(assign '((rsp 0)) '(r0))
@@ -114,7 +114,7 @@
 (def-method 'canvas 'lisp_save)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -129,7 +129,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'canvas 'save))
-	(class/vector/bind_args r1 in '(canvas str num))
+	(class/list/bind_args r1 in '(canvas str num))
 	(call 'canvas 'save in '(r0))
 	(vpif '(r0 = 0))
 		(assign '((rsp 0)) '(r0))
@@ -151,7 +151,7 @@
 (def-method 'canvas 'lisp_fill)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -166,7 +166,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'canvas 'fill))
-	(class/vector/bind_args r1 in '(canvas num))
+	(class/list/bind_args r1 in '(canvas num))
 	(call 'canvas 'fill in '(r0))
 	(call 'obj 'ref '(r0) '(r1))
 	(vp-pop r0)
@@ -184,7 +184,7 @@
 (def-method 'canvas 'lisp_swap)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -199,7 +199,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'canvas 'swap))
-	(class/vector/bind_args r1 in '(canvas))
+	(class/list/bind_args r1 in '(canvas))
 	(call 'canvas 'swap in '(r0))
 	(call 'canvas 'dirty '(r0) '(r0))
 	(call 'obj 'ref '(r0) '(r1))
@@ -218,7 +218,7 @@
 (def-method 'canvas 'lisp_next_frame)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -233,7 +233,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'canvas 'next_frame))
-	(class/vector/bind_args r1 in '(canvas))
+	(class/list/bind_args r1 in '(canvas))
 	(call 'canvas 'next_frame in '(r0))
 	(call 'obj 'ref '(r0) '(r1))
 	(vp-pop r0)
@@ -251,7 +251,7 @@
 (def-method 'canvas 'lisp_plot)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -266,7 +266,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'canvas 'plot))
-	(class/vector/bind_args r1 in '(canvas num num))
+	(class/list/bind_args r1 in '(canvas num num))
 	(call 'canvas 'plot in '(r0))
 	(call 'obj 'ref '(r0) '(r1))
 	(vp-pop r0)
@@ -284,7 +284,7 @@
 (def-method 'canvas 'lisp_fbox)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -299,7 +299,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'canvas 'fbox))
-	(class/vector/bind_args r1 in '(canvas num num num num))
+	(class/list/bind_args r1 in '(canvas num num num num))
 	(call 'canvas 'fbox in '(r0))
 	(call 'obj 'ref '(r0) '(r1))
 	(vp-pop r0)
@@ -317,7 +317,7 @@
 (def-method 'canvas 'lisp_fpoly)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -332,7 +332,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'canvas 'fpoly))
-	(class/vector/bind_args r1 in '(canvas fixed fixed num vector))
+	(class/list/bind_args r1 in '(canvas fixed fixed num list))
 	(call 'canvas 'fpoly in '(r0))
 	(call 'obj 'ref '(r0) '(r1))
 	(vp-pop r0)
@@ -343,14 +343,14 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r0 "(canvas-fpoly canvas x y mode list)" error_msg_wrong_types r1))
-	(signature '(canvas fixed fixed num vector)))
+	(signature '(canvas fixed fixed num list)))
 
 (def-func-end)
 
 (def-method 'canvas 'lisp_resize)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -365,7 +365,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'canvas 'resize))
-	(class/vector/bind_args r1 in '(canvas canvas))
+	(class/list/bind_args r1 in '(canvas canvas))
 	(call 'canvas 'resize in '(r0))
 	(call 'obj 'ref '(r0) '(r1))
 	(vp-pop r0)

@@ -6,7 +6,7 @@
 (def-method 'path 'lisp_transform)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -21,7 +21,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'path 'transform))
-	(class/vector/bind_args r1 (class/array/map_args in '(7 6 0 1 2 3 4 5))
+	(class/list/bind_args r1 (class/array/map_args in '(7 6 0 1 2 3 4 5))
 		'(fixed fixed fixed fixed fixed fixed path path))
 	(call 'path 'transform in '(r0))
 	(call 'obj 'ref '(r0) '(r1))
@@ -40,7 +40,7 @@
 (def-method 'path 'lisp_simplify)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -55,7 +55,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'path 'simplify))
-	(class/vector/bind_args r1 (class/array/map_args in '(3 2 1 0)) '(fixed _ path path))
+	(class/list/bind_args r1 (class/array/map_args in '(3 2 1 0)) '(fixed _ path path))
 	(assign '((rsp 0)) `(,(elem 2 in)))
 	(assign `((,(elem 2 in) lisp_stack)) `(,(elem 2 in)))
 	(call 'path 'simplify in '(r0))
@@ -75,7 +75,7 @@
 (def-method 'path 'lisp_filter)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -90,7 +90,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'path 'filter_polyline))
-	(class/vector/bind_args r1 (class/array/map_args in '(2 1 0)) '(fixed path path))
+	(class/list/bind_args r1 (class/array/map_args in '(2 1 0)) '(fixed path path))
 	(call 'path 'filter_polyline in '(r0))
 	(call 'obj 'ref '(r0) '(r1))
 	(vp-pop r0)
@@ -108,7 +108,7 @@
 (def-method 'path 'lisp_gen_quadratic)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -123,7 +123,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'path 'gen_quadratic))
-	(class/vector/bind_args r1 (class/array/map_args in '(8 7 0 1 2 3 4 5 6))
+	(class/list/bind_args r1 (class/array/map_args in '(8 7 0 1 2 3 4 5 6))
 		'(fixed fixed fixed fixed fixed fixed fixed _ path))
 	(assign '((rsp 0)) `(,(elem 1 in)))
 	(assign `((,(elem 1 in) lisp_stack)) `(,(elem 1 in)))
@@ -144,7 +144,7 @@
 (def-method 'path 'lisp_gen_cubic)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -159,7 +159,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'path 'gen_cubic))
-	(class/vector/bind_args r1 (class/array/map_args in '(10 9 0 1 2 3 4 5 6 7 8))
+	(class/list/bind_args r1 (class/array/map_args in '(10 9 0 1 2 3 4 5 6 7 8))
 		'(fixed fixed fixed fixed fixed fixed fixed fixed fixed _ path))
 	(assign '((rsp 0)) `(,(elem 1 in)))
 	(assign `((,(elem 1 in) lisp_stack)) `(,(elem 1 in)))
@@ -180,7 +180,7 @@
 (def-method 'path 'lisp_gen_arc)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -195,7 +195,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'path 'gen_arc))
-	(class/vector/bind_args r1 (class/array/map_args in '(7 6 0 1 2 3 4 5))
+	(class/list/bind_args r1 (class/array/map_args in '(7 6 0 1 2 3 4 5))
 		'(fixed fixed fixed fixed fixed fixed _ path))
 	(assign '((rsp 0)) `(,(elem 1 in)))
 	(assign `((,(elem 1 in) lisp_stack)) `(,(elem 1 in)))
@@ -216,7 +216,7 @@
 (def-method 'path 'lisp_stroke_polylines)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -231,8 +231,8 @@
 
 	(vp-push r0)
 	(defq in (method-input 'path 'stroke_polylines))
-	(class/vector/bind_args r1 (class/array/map_args in '(0 7 6 1 2 3 4 5))
-		'(vector fixed fixed num num num vector _))
+	(class/list/bind_args r1 (class/array/map_args in '(0 7 6 1 2 3 4 5))
+		'(list fixed fixed num num num list _))
 	(assign '((rsp 0)) `(,(elem 1 in)))
 	(assign `((,(elem 1 in) lisp_stack)) `(,(elem 1 in)))
 	(call 'path 'stroke_polylines in '(r0))
@@ -245,14 +245,14 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r0 "(path-stroke-polylines dst radius tol join cap1 cap2 src) -> dst" error_msg_wrong_types r1))
-	(signature '(vector fixed fixed num num num vector)))
+	(signature '(list fixed fixed num num num list)))
 
 (def-func-end)
 
 (def-method 'path 'lisp_stroke_polygons)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -267,8 +267,8 @@
 
 	(vp-push r0)
 	(defq in (method-input 'path 'stroke_polygons))
-	(class/vector/bind_args r1 (class/array/map_args in '(0 5 4 1 2 3))
-		'(vector fixed fixed num vector _))
+	(class/list/bind_args r1 (class/array/map_args in '(0 5 4 1 2 3))
+		'(list fixed fixed num list _))
 	(assign '((rsp 0)) `(,(elem 1 in)))
 	(assign `((,(elem 1 in) lisp_stack)) `(,(elem 1 in)))
 	(call 'path 'stroke_polygons in '(r0))
@@ -281,6 +281,6 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp 'repl_error '(r0 "(path-stroke-polygons dst radius tol join src) -> dst" error_msg_wrong_types r1))
-	(signature '(vector fixed fixed num vector)))
+	(signature '(list fixed fixed num list)))
 
 (def-func-end)

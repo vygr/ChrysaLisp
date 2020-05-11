@@ -7,7 +7,7 @@
 (def-method 'sys_kernel 'lisp_total)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -37,7 +37,7 @@
 (def-method 'sys_kernel 'lisp_declare)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -53,7 +53,7 @@
 	(defq in (method-input 'sys_kernel 'declare))
 	(class/array/bind_args r12 in)
 	(vp-cpy-rr (elem 0 in) r12)
-	(class/vector/cast_args in '(str num))
+	(class/list/cast_args in '(str num))
 	(call 'sys_kernel 'declare in)
 	(call 'obj 'ref '(r12) '(r0))
 
@@ -70,7 +70,7 @@
 (def-method 'sys_kernel 'lisp_debug)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -87,7 +87,7 @@
 	(defq in (method-input 'sys_kernel 'debug))
 	(class/array/bind_args r1 in)
 	(vp-push (elem 0 in))
-	(class/vector/cast_args in '(str))
+	(class/list/cast_args in '(str))
 	(call 'sys_kernel 'debug in)
 	(vp-pop r1)
 	(class/obj/ref r1 r2)

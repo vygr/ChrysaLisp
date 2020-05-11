@@ -10,7 +10,7 @@
 	;r2 = next char (uint)
 	;outputs
 	;r0 = lisp object (ptr)
-	;r1 = list vector object (ptr)
+	;r1 = list list object (ptr)
 	;r2 = next char (uint)
 	;trashes
 	;r1-r14
@@ -26,11 +26,11 @@
 		(call 'lisp 'read_char {this, stream, char} {_, char})
 	(loop-until {char > char_space || char = -1})
 
-	(call 'vector 'create nil {list})
+	(call 'list 'create nil {list})
 	(loop-whilenot {char = -1 || char = char_rrb})
 		(call 'lisp 'read {this, stream, char} {_, ast, char})
 		(errorif (cat {ast->obj_vtable = @} (f-path 'error 'vtable)) 'error)
-		(call 'vector 'push_back {list, ast})
+		(call 'list 'push_back {list, ast})
 
 		;skip white space/comments
 		(loop-start)

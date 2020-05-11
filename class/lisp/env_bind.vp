@@ -21,18 +21,18 @@
 	(entry 'lisp 'env_bind {this, vars, vals})
 
 (errorcases
-	(gotoif (cat {vars->obj_vtable /= @} (f-path 'vector 'vtable)) 'error1)
+	(gotoif (cat {vars->obj_vtable /= @} (f-path 'list 'vtable)) 'error1)
 	(call 'obj 'inst_of (cat {vals, @} (f-path 'seq 'vtable)))
 	(gotoif `(,(method-output 'obj 'inst_of 1) = 0) 'error2))
 
 	(assign {0 => index_vars => index_vals} {state})
 	(call 'obj 'ref {this->lisp_sym_nil} {value})
-	(d-call 'vector 'get_length {vars} {_, len_vars})
+	(d-call 'list 'get_length {vars} {_, len_vars})
 	(call 'seq 'get_length {vals} {_, len_vals})
 	(loop-while {index_vars /= len_vars})
 		;next symbol and state
 		(vp-def (this state symbol index_vars len_vars rest optional))
-		(call 'vector 'get_element {vars, index_vars} (list '_ symbol))
+		(call 'list 'get_element {vars, index_vars} (list '_ symbol))
 		(assign {this, index_vars, len_vars, state} (list this index_vars len_vars state))
 		(vp-cpy-ir this lisp_sym_rest rest)
 		(vp-cpy-ir this lisp_sym_optional optional)
@@ -47,7 +47,7 @@
 		(assign (list index_vars state) {index_vars, state})
 
 		(call 'obj 'deref {value})
-		(call 'vector 'get_element {vars, index_vars} {_, symbol})
+		(call 'list 'get_element {vars, index_vars} {_, symbol})
 		(vpif (cat {symbol->obj_vtable = @} (f-path 'sym 'vtable)))
 			;standard symbol
 			(vp-def (vals index_vals len_vals value index_vars len_vars state))
@@ -75,7 +75,7 @@
 			(call 'hmap 'insert {this->lisp_environment, symbol, value})
 		(else)
 			;destructureing ?
-			(errorif (cat {symbol->obj_vtable /= @} (f-path 'vector 'vtable)) 'error3)
+			(errorif (cat {symbol->obj_vtable /= @} (f-path 'list 'vtable)) 'error3)
 			(errorif {index_vals = len_vals} 'error)
 			(call 'seq 'ref_element {vals, index_vals} {_, args})
 			(assign {index_vars + 1, index_vals + 1} {index_vars, index_vals})

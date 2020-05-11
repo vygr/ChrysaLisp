@@ -268,13 +268,13 @@
 
 (create-scroll flags)
 
-## create-slave
-
-(create-slave)
-
 ## create-slider
 
 (create-slider)
+
+## create-stdio
+
+(create-stdio)
 
 ## create-textfield
 
@@ -976,10 +976,6 @@
 
 (sin angle)
 
-## slave-get-args
-
-(slave-get-args slave) -> list
-
 ## slice
 
 (slice start end seq)
@@ -1011,6 +1007,10 @@
 ## starts-with
 
 (starts-with str str) -> t|nil
+
+## stdio-get-args
+
+(stdio-get-args stdio) -> list
 
 ## str
 

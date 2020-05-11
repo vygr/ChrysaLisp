@@ -431,7 +431,7 @@ r1-r8
 ```lisp
 inputs
 r0 = array object (ptr)
-r1 = vector of array objects (ptr)
+r1 = list of array objects (ptr)
 outputs
 r0 = 0 if error, else new array object (ptr)
 trashes
@@ -443,7 +443,7 @@ r0-r11
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -456,7 +456,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -469,7 +469,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -482,7 +482,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -495,7 +495,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -508,7 +508,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -521,7 +521,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -534,7 +534,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -547,7 +547,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -604,7 +604,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -697,7 +697,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -870,7 +870,7 @@ r1-r2
 ```lisp
 inputs
 r0 = canvas object (ptr)
-r1 = vector of path objects (ptr)
+r1 = list of path objects (ptr)
 r2 = x (16.16)
 r3 = y (16.16)
 r4 = y scale (int)
@@ -968,7 +968,7 @@ r0 = canvas object (ptr)
 r1 = x (16.16)
 r2 = y (16.16)
 r3 = winding mode (0/1)
-r4 = vector of path objects (ptr)
+r4 = list of path objects (ptr)
 outputs
 r0 = canvas object (ptr)
 trashes
@@ -1190,7 +1190,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -1203,7 +1203,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -1216,7 +1216,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -1229,7 +1229,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -1242,7 +1242,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -1255,7 +1255,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -1268,7 +1268,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -1281,7 +1281,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -1294,7 +1294,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -1307,7 +1307,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -1320,7 +1320,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -1490,7 +1490,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -1715,7 +1715,7 @@ r1-r14
 ```lisp
 inputs
 r0 = fixed object (ptr)
-r1 = vector of fixed objects (ptr)
+r1 = list of fixed objects (ptr)
 outputs
 r0 = fixed object (ptr)
 r1 = result fixed object (ptr)
@@ -1728,7 +1728,7 @@ r1-r14
 ```lisp
 inputs
 r0 = fixed object (ptr)
-r1 = vector of fixed objects (ptr)
+r1 = list of fixed objects (ptr)
 outputs
 r0 = fixed object (ptr)
 r1 = 0 if error, else result fixed object (ptr)
@@ -1741,7 +1741,7 @@ r1-r14
 ```lisp
 inputs
 r0 = fixed object (ptr)
-r1 = vector of fixed objects (ptr)
+r1 = list of fixed objects (ptr)
 outputs
 r0 = fixed object (ptr)
 r1 = 0 if error, else result fixed object (ptr)
@@ -1838,7 +1838,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -1851,7 +1851,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -1864,7 +1864,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -1877,7 +1877,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -1890,7 +1890,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -1991,7 +1991,7 @@ r1-r5
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -2004,7 +2004,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -2049,7 +2049,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -2126,7 +2126,7 @@ inputs
 r0 = font object (ptr)
 outputs
 r0 = font object (ptr)
-r1 = vector of ascii texture objects (ptr)
+r1 = list of ascii texture objects (ptr)
 trashes
 r1-r14
 ```
@@ -2192,7 +2192,7 @@ r1 = stack array object (ptr)
 r2 = glyph info array object (ptr)
 outputs
 r0 = font object (ptr)
-r1 = glyph paths vector object (ptr)
+r1 = glyph paths list object (ptr)
 r2 = width (pixels)
 r3 = height (pixels)
 trashes
@@ -2229,7 +2229,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -2242,7 +2242,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -2255,7 +2255,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -2334,7 +2334,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -2370,7 +2370,7 @@ gui process
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -2383,7 +2383,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -2423,7 +2423,7 @@ r1 = key object (ptr)
 outputs
 r0 = hmap object (ptr)
 r1 = 0, else found iterator (pptr)
-r2 = bucket vector (ptr)
+r2 = bucket list (ptr)
 trashes
 r1-r14
 ```
@@ -2451,7 +2451,7 @@ r2 = value object (ptr)
 outputs
 r0 = hmap object (ptr)
 r1 = iterator (pptr)
-r2 = bucket vector (ptr)
+r2 = bucket list (ptr)
 trashes
 r1-r14
 ```
@@ -2465,7 +2465,7 @@ r1 = key object (ptr)
 outputs
 r0 = hmap object (ptr)
 r1 = 0, else iterator (pptr)
-r2 = bucket vector (ptr)
+r2 = bucket list (ptr)
 trashes
 r1-r14
 ```
@@ -2525,7 +2525,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = environment hmap object (ptr)
@@ -2538,7 +2538,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -2551,7 +2551,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -2564,7 +2564,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -2577,7 +2577,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -2590,7 +2590,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -2603,7 +2603,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -2616,7 +2616,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -2743,7 +2743,7 @@ r0 = hset object (ptr)
 r1 = key object (ptr)
 outputs
 r0 = hset object (ptr)
-r1 = bucket vector object (ptr)
+r1 = bucket list object (ptr)
 trashes
 r1-r14
 ```
@@ -2787,7 +2787,7 @@ r1 = key object (ptr)
 outputs
 r0 = hset object (ptr)
 r1 = 0, else found iterator (pptr)
-r2 = bucket vector object (ptr)
+r2 = bucket list object (ptr)
 trashes
 r1-r14
 ```
@@ -2801,7 +2801,7 @@ r1 = key object (ptr)
 outputs
 r0 = hset object (ptr)
 r1 = element iterator (pptr)
-r2 = bucket vector object (ptr)
+r2 = bucket list object (ptr)
 trashes
 r1-r14
 ```
@@ -2812,7 +2812,7 @@ r1-r14
 inputs
 r0 = hset object (ptr)
 r1 = element iterator (pptr)
-r2 = bucket vector object (ptr)
+r2 = bucket list object (ptr)
 outputs
 r0 = hset object (ptr)
 trashes
@@ -2921,7 +2921,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -2934,7 +2934,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -3016,7 +3016,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -3099,7 +3099,7 @@ r1-r14
 
 ```lisp
 inputs
-r0 = args vector object (ptr)
+r0 = args list object (ptr)
 r3 = args offset (uint)
 r5 = args dest (ptr)
 trashes
@@ -3110,7 +3110,7 @@ r0-r5
 
 ```lisp
 inputs
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 r3 = signiture pointer (pushort)
 r4 = number of args (int)
 outputs
@@ -3123,7 +3123,7 @@ r2-r7
 
 ```lisp
 inputs
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 r3 = vtable pointer (ptr)
 r4 = minimum number of args (int)
 outputs
@@ -3136,7 +3136,7 @@ r2-r7
 
 ```lisp
 inputs
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 r3 = vtable pointer (ptr)
 r4 = minimum number of args (int)
 outputs
@@ -3184,7 +3184,7 @@ r2 = next char (uint)
 r3 = sym object (ptr) 
 outputs
 r0 = lisp object (ptr)
-r1 = list vector object (ptr)
+r1 = list list object (ptr)
 r2 = next char (uint)
 trashes
 r1-r14
@@ -3199,7 +3199,7 @@ r1 = stream object (ptr)
 r2 = next char (uint)
 outputs
 r0 = lisp object (ptr)
-r1 = list vector object (ptr)
+r1 = list list object (ptr)
 r2 = next char (uint)
 trashes
 r1-r14
@@ -3268,7 +3268,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = list vector object (ptr)
+r1 = list list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -3281,7 +3281,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 r2 = func object (ptr)
 outputs
 r0 = lisp object (ptr)
@@ -3335,7 +3335,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -3348,7 +3348,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -3361,7 +3361,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -3374,7 +3374,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -3387,7 +3387,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -3400,7 +3400,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -3413,7 +3413,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -3426,7 +3426,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -3439,7 +3439,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -3452,7 +3452,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -3465,7 +3465,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -3478,7 +3478,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -3491,7 +3491,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -3504,7 +3504,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -3517,7 +3517,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -3530,7 +3530,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -3543,7 +3543,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -3556,7 +3556,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -3569,7 +3569,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -3582,7 +3582,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -3595,7 +3595,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -3609,6 +3609,169 @@ r1-r14
 lisp run loop task
 inputs
 msg of lisp filename
+```
+
+## list
+
+Super Class: array
+
+### list::vtable -> class/list/vtable
+
+### list::create -> class/list/create
+
+### list::vcreate -> class/list/create
+
+### list::deinit -> class/list/deinit
+
+```lisp
+inputs
+r0 = list object (ptr)
+outputs
+r0 = list object (ptr)
+trashes
+r1-r14
+```
+
+### list::ref_element -> class/list/ref_element
+
+```lisp
+inputs
+r0 = list object (ptr)
+r1 = element index (uint)
+outputs
+r0 = list object (ptr)
+r1 = element object (ptr)
+trashes
+r1-r2
+```
+
+### list::slice -> class/list/slice
+
+```lisp
+inputs
+r0 = list object (ptr)
+r1 = element start index (uint)
+r2 = element end index (uint)
+outputs
+r0 = list object (ptr)
+r1 = slice list object (ptr)
+trashes
+r1-r8
+```
+
+### list::clear -> class/list/clear
+
+```lisp
+inputs
+r0 = list object (ptr)
+outputs
+r0 = list object (ptr)
+trashes
+r1-r14
+```
+
+### list::ref_back -> class/list/ref_back
+
+```lisp
+inputs
+r0 = list object (ptr)
+outputs
+r0 = list object (ptr)
+r1 = element object (ptr)
+trashes
+r1-r2
+```
+
+### list::set_element -> class/list/set_element
+
+```lisp
+inputs
+r0 = list object (ptr)
+r1 = element object (ptr)
+r2 = element index (uint)
+outputs
+r0 = list object (ptr)
+trashes
+r1-r14
+```
+
+### list::append -> class/list/append
+
+```lisp
+inputs
+r0 = list object (ptr)
+r1 = source list object (ptr)
+r2 = element start index (uint)
+r3 = element end index (uint)
+outputs
+r0 = list object (ptr)
+trashes
+r1-r9
+```
+
+### list::lisp_list -> class/list/lisp_list
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### list::lisp_elemset -> class/list/lisp_elemset
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### list::lisp_merge -> class/list/lisp_merge
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### list::lisp_part -> class/list/lisp_part
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### list::lisp_match -> class/list/lisp_match
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
 ```
 
 ## num
@@ -3677,7 +3840,7 @@ r1-r14
 ```lisp
 inputs
 r0 = num object (ptr)
-r1 = vector of num objects (ptr)
+r1 = list of num objects (ptr)
 outputs
 r0 = num object (ptr)
 r1 = result num object (ptr)
@@ -3690,7 +3853,7 @@ r1-r14
 ```lisp
 inputs
 r0 = num object (ptr)
-r1 = vector of num objects (ptr)
+r1 = list of num objects (ptr)
 outputs
 r0 = num object (ptr)
 r1 = result num object (ptr)
@@ -3703,7 +3866,7 @@ r1-r14
 ```lisp
 inputs
 r0 = num object (ptr)
-r1 = vector of num objects (ptr)
+r1 = list of num objects (ptr)
 outputs
 r0 = num object (ptr)
 r1 = result num object (ptr)
@@ -3716,7 +3879,7 @@ r1-r14
 ```lisp
 inputs
 r0 = num object (ptr)
-r1 = vector of num objects (ptr)
+r1 = list of num objects (ptr)
 outputs
 r0 = num object (ptr)
 r1 = result num object (ptr)
@@ -3729,7 +3892,7 @@ r1-r14
 ```lisp
 inputs
 r0 = num object (ptr)
-r1 = vector of num objects (ptr)
+r1 = list of num objects (ptr)
 outputs
 r0 = num object (ptr)
 r1 = result num object (ptr)
@@ -3742,7 +3905,7 @@ r1-r14
 ```lisp
 inputs
 r0 = num object (ptr)
-r1 = vector of num objects (ptr)
+r1 = list of num objects (ptr)
 outputs
 r0 = num object (ptr)
 r1 = 0 if error, else result num object (ptr)
@@ -3755,7 +3918,7 @@ r1-r14
 ```lisp
 inputs
 r0 = num object (ptr)
-r1 = vector of num objects (ptr)
+r1 = list of num objects (ptr)
 outputs
 r0 = num object (ptr)
 r1 = 0 if error, else result num object (ptr)
@@ -3828,7 +3991,7 @@ r1-r14
 ```lisp
 inputs
 r0 = num object (ptr)
-r1 = vector of num objects (ptr)
+r1 = list of num objects (ptr)
 outputs
 r0 = num object (ptr)
 r1 = 0, -1 (int)
@@ -3841,7 +4004,7 @@ r1-r14
 ```lisp
 inputs
 r0 = num object (ptr)
-r1 = vector of num objects (ptr)
+r1 = list of num objects (ptr)
 outputs
 r0 = num object (ptr)
 r1 = 0, -1 (int)
@@ -3854,7 +4017,7 @@ r1-r14
 ```lisp
 inputs
 r0 = num object (ptr)
-r1 = vector of num objects (ptr)
+r1 = list of num objects (ptr)
 outputs
 r0 = num object (ptr)
 r1 = 0, -1 (int)
@@ -3867,7 +4030,7 @@ r1-r14
 ```lisp
 inputs
 r0 = num object (ptr)
-r1 = vector of num objects (ptr)
+r1 = list of num objects (ptr)
 outputs
 r0 = num object (ptr)
 r1 = 0, -1 (int)
@@ -3880,7 +4043,7 @@ r1-r14
 ```lisp
 inputs
 r0 = num object (ptr)
-r1 = vector of num objects (ptr)
+r1 = list of num objects (ptr)
 outputs
 r0 = num object (ptr)
 r1 = 0, -1 (int)
@@ -3893,7 +4056,7 @@ r1-r14
 ```lisp
 inputs
 r0 = num object (ptr)
-r1 = vector of num objects (ptr)
+r1 = list of num objects (ptr)
 outputs
 r0 = num object (ptr)
 r1 = 0, -1 (int)
@@ -3906,7 +4069,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -3919,7 +4082,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -3932,7 +4095,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -3945,7 +4108,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -3958,7 +4121,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -3971,7 +4134,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -3984,7 +4147,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -3997,7 +4160,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -4010,7 +4173,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -4023,7 +4186,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -4036,7 +4199,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -4049,7 +4212,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -4062,7 +4225,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -4075,7 +4238,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -4088,7 +4251,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -4101,7 +4264,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -4114,7 +4277,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -4127,7 +4290,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -4140,7 +4303,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -4153,7 +4316,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -4166,7 +4329,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -4179,7 +4342,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -4192,7 +4355,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -4205,7 +4368,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -4218,7 +4381,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -4231,7 +4394,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -4244,7 +4407,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -4257,7 +4420,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -4270,7 +4433,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -4283,7 +4446,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -4408,7 +4571,7 @@ r1-r5
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 r2 = nums method (ptr)
 outputs
 r0 = lisp object (ptr)
@@ -4422,7 +4585,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 r2 = nums method (ptr)
 outputs
 r0 = lisp object (ptr)
@@ -4436,7 +4599,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -4449,7 +4612,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -4462,7 +4625,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -4475,7 +4638,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -4488,7 +4651,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -4501,7 +4664,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -4514,7 +4677,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -4527,7 +4690,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -4658,7 +4821,7 @@ r0-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -4671,7 +4834,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -4763,7 +4926,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -5048,16 +5211,16 @@ r1-r14
 
 ```lisp
 inputs
-r0 = output vector of path objects (ptr)
+r0 = output list of path objects (ptr)
 r1 = stack array object (ptr)
-r2 = input vector of path objects (ptr)
+r2 = input list of path objects (ptr)
 r3 = radius (16.16)
 r4 = tolerance (16.16)
 r5 = join style (byte)
 r6 = cap style1 (byte)
 r7 = cap style2 (byte)
 outputs
-r0 = output vector of path objects (ptr)
+r0 = output list of path objects (ptr)
 trashes
 r1-r14
 ```
@@ -5066,14 +5229,14 @@ r1-r14
 
 ```lisp
 inputs
-r0 = output vector of path objects (ptr)
+r0 = output list of path objects (ptr)
 r1 = stack array object (ptr)
-r2 = input vector of path objects (ptr)
+r2 = input list of path objects (ptr)
 r3 = radius (16.16)
 r4 = tolerance (16.16)
 r5 = join style (byte)
 outputs
-r0 = output vector of path objects (ptr)
+r0 = output list of path objects (ptr)
 trashes
 r1-r14
 ```
@@ -5083,7 +5246,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -5096,7 +5259,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -5109,7 +5272,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -5122,7 +5285,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -5135,7 +5298,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -5148,7 +5311,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -5161,7 +5324,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -5174,7 +5337,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -5231,7 +5394,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -5266,7 +5429,7 @@ r1-r14
 ```lisp
 inputs
 r0 = real object (ptr)
-r1 = vector of real objects (ptr)
+r1 = list of real objects (ptr)
 outputs
 r0 = real object (ptr)
 r1 = result real object (ptr)
@@ -5279,7 +5442,7 @@ r1-r14
 ```lisp
 inputs
 r0 = real object (ptr)
-r1 = vector of real objects (ptr)
+r1 = list of real objects (ptr)
 outputs
 r0 = real object (ptr)
 r1 = result real object (ptr)
@@ -5292,7 +5455,7 @@ r1-r14
 ```lisp
 inputs
 r0 = real object (ptr)
-r1 = vector of real objects (ptr)
+r1 = list of real objects (ptr)
 outputs
 r0 = real object (ptr)
 r1 = result real object (ptr)
@@ -5305,7 +5468,7 @@ r1-r14
 ```lisp
 inputs
 r0 = real object (ptr)
-r1 = vector of real objects (ptr)
+r1 = list of real objects (ptr)
 outputs
 r0 = real object (ptr)
 r1 = 0 if error, else result real object (ptr)
@@ -5318,7 +5481,7 @@ r1-r14
 ```lisp
 inputs
 r0 = real object (ptr)
-r1 = vector of real objects (ptr)
+r1 = list of real objects (ptr)
 outputs
 r0 = real object (ptr)
 r1 = 0 if error, else result real object (ptr)
@@ -5331,7 +5494,7 @@ r1-r14
 ```lisp
 inputs
 r0 = real object (ptr)
-r1 = vector of real objects (ptr)
+r1 = list of real objects (ptr)
 outputs
 r0 = real object (ptr)
 r1 = result real object (ptr)
@@ -5344,7 +5507,7 @@ r1-r14
 ```lisp
 inputs
 r0 = real object (ptr)
-r1 = vector of real objects (ptr)
+r1 = list of real objects (ptr)
 outputs
 r0 = real object (ptr)
 r1 = result real object (ptr)
@@ -5441,7 +5604,7 @@ r1-r14
 ```lisp
 inputs
 r0 = real object (ptr)
-r1 = vector of real objects (ptr)
+r1 = list of real objects (ptr)
 outputs
 r0 = real object (ptr)
 r1 = 0, -1 (int)
@@ -5454,7 +5617,7 @@ r1-r14
 ```lisp
 inputs
 r0 = real object (ptr)
-r1 = vector of real objects (ptr)
+r1 = list of real objects (ptr)
 outputs
 r0 = real object (ptr)
 r1 = 0, -1 (int)
@@ -5467,7 +5630,7 @@ r1-r14
 ```lisp
 inputs
 r0 = real object (ptr)
-r1 = vector of real objects (ptr)
+r1 = list of real objects (ptr)
 outputs
 r0 = real object (ptr)
 r1 = 0, -1 (int)
@@ -5480,7 +5643,7 @@ r1-r14
 ```lisp
 inputs
 r0 = real object (ptr)
-r1 = vector of real objects (ptr)
+r1 = list of real objects (ptr)
 outputs
 r0 = real object (ptr)
 r1 = 0, -1 (int)
@@ -5870,7 +6033,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -5897,7 +6060,7 @@ Super Class: obj
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -5910,7 +6073,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -5923,7 +6086,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -5936,7 +6099,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -5949,7 +6112,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -5962,7 +6125,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -5975,52 +6138,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-## slave
-
-Super Class: obj
-
-### slave::vtable -> class/slave/vtable
-
-### slave::create -> class/slave/create
-
-### slave::init -> class/slave/init
-
-```lisp
-inputs
-r0 = slave object (ptr)
-r1 = vtable (pptr)
-outputs
-r0 = slave object (ptr)
-r1 = 0 if error, else ok
-trashes
-r1-r14
-```
-
-### slave::deinit -> class/slave/deinit
-
-```lisp
-inputs
-r0 = slave object (ptr)
-outputs
-r0 = slave object (ptr)
-trashes
-r1-r14
-```
-
-### slave::lisp_create -> class/slave/lisp_create
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -6126,7 +6244,52 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+## stdio
+
+Super Class: obj
+
+### stdio::vtable -> class/stdio/vtable
+
+### stdio::create -> class/stdio/create
+
+### stdio::init -> class/stdio/init
+
+```lisp
+inputs
+r0 = stdio object (ptr)
+r1 = vtable (pptr)
+outputs
+r0 = stdio object (ptr)
+r1 = 0 if error, else ok
+trashes
+r1-r14
+```
+
+### stdio::deinit -> class/stdio/deinit
+
+```lisp
+inputs
+r0 = stdio object (ptr)
+outputs
+r0 = stdio object (ptr)
+trashes
+r1-r14
+```
+
+### stdio::lisp_create -> class/stdio/lisp_create
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -6249,7 +6412,7 @@ r1-r6
 inputs
 r0 = str object (ptr)
 r1 = vtable (pptr)
-r2 = vector of str objects (ptr)
+r2 = list of str objects (ptr)
 outputs
 r0 = str object (ptr)
 r1 = 0 if error, else ok
@@ -6265,7 +6428,7 @@ r0 = str object (ptr)
 r1 = split char (uint)
 outputs
 r0 = str object (ptr)
-r1 = vector of str objects (ptr)
+r1 = list of str objects (ptr)
 trashes
 r1-r14
 ```
@@ -6378,7 +6541,7 @@ r1-r7
 ```lisp
 inputs
 r0 = str object (ptr)
-r1 = vector of str objects (ptr)
+r1 = list of str objects (ptr)
 outputs
 r0 = 0 if error, else new str object (ptr)
 trashes
@@ -6390,7 +6553,7 @@ r1-r6
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -6403,7 +6566,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -6416,7 +6579,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -6429,7 +6592,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -6442,7 +6605,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -6455,7 +6618,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -6468,7 +6631,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -6654,7 +6817,7 @@ r0 = stream object (ptr)
 r1 = split char (uint)
 outputs
 r0 = stream object (ptr)
-r1 = split strings vector object (ptr)
+r1 = split strings list object (ptr)
 trashes
 r1-r14
 ```
@@ -6709,7 +6872,7 @@ r1
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -6722,7 +6885,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -6735,7 +6898,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -6748,7 +6911,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -6761,7 +6924,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -6774,7 +6937,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -6787,7 +6950,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -6800,7 +6963,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -6813,7 +6976,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -6959,9 +7122,9 @@ r0-r14
 
 ```lisp
 inputs
-r1 = vector of string objects (ptr)
+r1 = list of string objects (ptr)
 outputs
-r1 = vector of sym objects (ptr)
+r1 = list of sym objects (ptr)
 trashes
 r0-r14
 ```
@@ -6983,7 +7146,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -6996,7 +7159,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -7135,7 +7298,7 @@ none
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -7148,7 +7311,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -7161,7 +7324,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -7437,7 +7600,7 @@ parcels going off chip or junk mail task
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -7450,7 +7613,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -7463,7 +7626,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -7476,7 +7639,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -7489,7 +7652,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -7502,7 +7665,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -7515,7 +7678,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -7528,7 +7691,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -7904,7 +8067,7 @@ r0
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -8145,7 +8308,7 @@ r0
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -8158,7 +8321,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -8171,7 +8334,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -8184,7 +8347,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -8197,7 +8360,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -8472,7 +8635,7 @@ r0-r14
 
 ```lisp
 inputs
-r0 = vector of str objects (ptr)
+r0 = list of str objects (ptr)
 outputs
 r0 = mailbox id's array object (ptr)
 trashes
@@ -8486,7 +8649,7 @@ r0-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -8499,7 +8662,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -8512,7 +8675,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -8525,7 +8688,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -8538,7 +8701,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -8551,7 +8714,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -8677,7 +8840,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -8747,7 +8910,7 @@ Super Class: label
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -8827,7 +8990,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -8840,7 +9003,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -8880,169 +9043,6 @@ r0 = view object (ptr)
 r1 = draw ctx (ptr)
 outputs
 r0 = view object (ptr)
-trashes
-r1-r14
-```
-
-## vector
-
-Super Class: array
-
-### vector::vtable -> class/vector/vtable
-
-### vector::create -> class/vector/create
-
-### vector::vcreate -> class/vector/create
-
-### vector::deinit -> class/vector/deinit
-
-```lisp
-inputs
-r0 = vector object (ptr)
-outputs
-r0 = vector object (ptr)
-trashes
-r1-r14
-```
-
-### vector::ref_element -> class/vector/ref_element
-
-```lisp
-inputs
-r0 = vector object (ptr)
-r1 = element index (uint)
-outputs
-r0 = vector object (ptr)
-r1 = element object (ptr)
-trashes
-r1-r2
-```
-
-### vector::slice -> class/vector/slice
-
-```lisp
-inputs
-r0 = vector object (ptr)
-r1 = element start index (uint)
-r2 = element end index (uint)
-outputs
-r0 = vector object (ptr)
-r1 = slice vector object (ptr)
-trashes
-r1-r8
-```
-
-### vector::clear -> class/vector/clear
-
-```lisp
-inputs
-r0 = vector object (ptr)
-outputs
-r0 = vector object (ptr)
-trashes
-r1-r14
-```
-
-### vector::ref_back -> class/vector/ref_back
-
-```lisp
-inputs
-r0 = vector object (ptr)
-outputs
-r0 = vector object (ptr)
-r1 = element object (ptr)
-trashes
-r1-r2
-```
-
-### vector::set_element -> class/vector/set_element
-
-```lisp
-inputs
-r0 = vector object (ptr)
-r1 = element object (ptr)
-r2 = element index (uint)
-outputs
-r0 = vector object (ptr)
-trashes
-r1-r14
-```
-
-### vector::append -> class/vector/append
-
-```lisp
-inputs
-r0 = vector object (ptr)
-r1 = source vector object (ptr)
-r2 = element start index (uint)
-r3 = element end index (uint)
-outputs
-r0 = vector object (ptr)
-trashes
-r1-r9
-```
-
-### vector::lisp_list -> class/vector/lisp_list
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### vector::lisp_elemset -> class/vector/lisp_elemset
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### vector::lisp_merge -> class/vector/lisp_merge
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### vector::lisp_part -> class/vector/lisp_part
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### vector::lisp_match -> class/vector/lisp_match
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
 trashes
 r1-r14
 ```
@@ -9514,7 +9514,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -9527,7 +9527,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -9540,7 +9540,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -9553,7 +9553,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -9566,7 +9566,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -9579,7 +9579,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -9592,7 +9592,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -9605,7 +9605,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -9618,7 +9618,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -9631,7 +9631,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -9644,7 +9644,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -9657,7 +9657,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -9670,7 +9670,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -9683,7 +9683,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -9696,7 +9696,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -9709,7 +9709,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -9722,7 +9722,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
@@ -9828,7 +9828,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = args vector object (ptr)
+r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)

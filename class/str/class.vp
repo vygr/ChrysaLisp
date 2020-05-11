@@ -3,7 +3,7 @@
 (include 'sys/load/class.inc)
 (include 'class/str/class.inc)
 (include 'class/stream/class.inc)
-(include 'class/vector/class.inc)
+(include 'class/list/class.inc)
 
 (gen-vtable 'str)
 
@@ -247,7 +247,7 @@
 	;inputs
 	;r0 = str object (ptr)
 	;r1 = vtable (pptr)
-	;r2 = vector of str objects (ptr)
+	;r2 = list of str objects (ptr)
 	;outputs
 	;r0 = str object (ptr)
 	;r1 = 0 if error, else ok
@@ -317,7 +317,7 @@
 (def-method 'str 'cat)
 	;inputs
 	;r0 = str object (ptr)
-	;r1 = vector of str objects (ptr)
+	;r1 = list of str objects (ptr)
 	;outputs
 	;r0 = 0 if error, else new str object (ptr)
 	;trashes
@@ -590,7 +590,7 @@
 	;r1 = split char (uint)
 	;outputs
 	;r0 = str object (ptr)
-	;r1 = vector of str objects (ptr)
+	;r1 = list of str objects (ptr)
 	;trashes
 	;r1-r14
 

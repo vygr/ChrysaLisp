@@ -3,7 +3,7 @@
 
 (def-method 'lisp 'env_args_sig)
 	;inputs
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;r3 = signiture pointer (pushort)
 	;r4 = number of args (int)
 	;outputs
@@ -40,7 +40,7 @@
 
 (def-method 'lisp 'env_args_type)
 	;inputs
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;r3 = vtable pointer (ptr)
 	;r4 = minimum number of args (int)
 	;outputs
@@ -74,7 +74,7 @@
 
 (def-method 'lisp 'env_args_match)
 	;inputs
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;r3 = vtable pointer (ptr)
 	;r4 = minimum number of args (int)
 	;outputs

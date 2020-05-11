@@ -8,7 +8,7 @@
 (def-method 'lisp 'lisp_ffi)
 	;inputs
 	;r0 = lisp object (ptr)
-	;r1 = args vector object (ptr)
+	;r1 = args list object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -25,7 +25,7 @@
 	(call 'lisp 'env_args_sig {args, $sig, 4} '(r2))
 	(gotoif '(r2 = 0) 'error))
 
-	(call 'vector 'get_begin {args} {_, iter_begin})
+	(call 'list 'get_begin {args} {_, iter_begin})
 	(call 'sys_load 'bind {&iter_begin[ptr_size * 2]->str_data} {value})
 	(errorifnot {value} 'error)
 	(call 'func 'create {value | iter_begin[ptr_size * 3]->num_value} {value})
