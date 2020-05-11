@@ -6,7 +6,9 @@
 
 ;url utils
 (defun-bind url-list (url)
-	(elem 0 (unzip (split (pii-dirlist url) ",") (list (list) (list)))))
+	(defq out (list))
+	(each! 0 -1 (lambda (f m) (push out (cat f (if (eql m "4") "/" " "))))
+		(unzip (split (pii-dirlist url) ",") (list (list) (list)))) out)
 
 (defun-bind url-split (url ctx)
 	(if (defq i (find "/" url))
@@ -32,8 +34,8 @@
 (defun-bind url-ext (url cx)
 	(defq ctx (url-ctx url cx) url (slice (if (defq i (find " " (slice 0 cx url))) (inc i) 0) cx url))
 	(bind '(url file) (url-split url ctx))
-	(defq urls (map (lambda (_) (slice (length file) (if (= ctx 0) -6 -1) _))
-		(filter (lambda (_) (and (starts-with file _) (if (= ctx 0) (ends-with ".lisp" _) t))) (url-list url))))
+	(defq urls (map (lambda (_) (if (= ctx 0) (cat (slice (length file) -7 _) " ") (slice (length file) -1 _)))
+		(filter (lambda (_) (and (starts-with file _) (if (= ctx 0) (ends-with ".lisp " _) t))) (url-list url))))
 	(if (= 0 (length urls)) "" (slice 0 (url-ext-index urls) (elem 0 urls))))
 
 (defun-bind line-input (c)
