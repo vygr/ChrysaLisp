@@ -27,6 +27,11 @@ corrupted.
 
 ------
 
+Renamed class/slave to class/stdio and taken the opportunity to rename
+class/vector to class/list.
+
+------
+
 Nuclearfall has started a repo of a whole pile of CTF fonts:
 https://github.com/nuclearfall/CTFonts go pay it a visit and drop off a star.
 
