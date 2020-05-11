@@ -42,6 +42,7 @@ long long mylist_dir(const char *path, char *buf, size_t buf_len)
 	cwd_len += path_len;
 	dirbuf[cwd_len++] = '\\';
 	dirbuf[cwd_len++] = '*';
+	dirbuf[cwd_len++] = 0;
 	hFind = FindFirstFile(dirbuf, &FindData);
 	if (hFind == INVALID_HANDLE_VALUE) return 0;
 	do
@@ -68,10 +69,10 @@ long long mylist_dir(const char *path, char *buf, size_t buf_len)
 {
 	char *fbuf = NULL;
 	size_t fbuf_len = 0;
-    struct dirent *entry;
-    DIR *dir = opendir(path);
-    if (dir == NULL) return 0;
-    while ((entry = readdir(dir)) != NULL)
+	struct dirent *entry;
+	DIR *dir = opendir(path);
+	if (dir == NULL) return 0;
+	while ((entry = readdir(dir)) != NULL)
 	{
 		size_t len = strlen(entry->d_name);
 		fbuf = realloc(fbuf, fbuf_len + len + 3);
@@ -80,8 +81,8 @@ long long mylist_dir(const char *path, char *buf, size_t buf_len)
 		fbuf[fbuf_len++] = ',';
 		fbuf[fbuf_len++] = entry->d_type + '0';
 		fbuf[fbuf_len++] = ',';
-    }
-    closedir(dir);
+	}
+	closedir(dir);
 	if (buf) memcpy(buf, fbuf, fbuf_len > buf_len ? buf_len : fbuf_len);
 	free(fbuf);
 	return fbuf_len;
