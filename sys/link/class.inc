@@ -12,7 +12,7 @@
 
 ;msg data area max size when allocated as a string object
 ;allowing for heap pointer and null byte, rounded down for faster memcpy
-(defcvar 'lk_data_size (- 512 str_size ptr_size long_size))
+(defcvar 'lk_data_size (- 512 str_size ptr_size long_size) 'lk_page_size 4096)
 
 (def-enum 'lk_chan_status)
 	(enum 'ready 'busy)
@@ -39,11 +39,7 @@
 	(uint 'task_count)
 	(local-align)
 	(struct 'msg0 'lk_msg)
-	(struct 'msg1 'lk_msg)
-	(struct 'msg2 'lk_msg)
-	(struct 'msg3 'lk_msg)
-	(struct 'msg4 'lk_msg)
-	(struct 'msg5 'lk_msg)
+	(struct 'msgs (* (/ (- (/ lk_page_size 2) *struct-sp*) lk_msg_size) lk_msg_size))
 (def-struct-end)
 
 (def-struct 'lk_buffer)
