@@ -99,6 +99,23 @@
 
 (def-func-end)
 
+(defun-bind minop (_ p)
+	(vp-def (this args obj iter_begin iter_end val new_val))
+	(entry 'num _ `(,this ,args))
+	(class/array/get_both args iter_begin iter_end)
+	(vp-cpy-ir iter_begin 0 args)
+	(vp-add-cr ptr_size iter_begin)
+	(assign `((,args num_value)) `(,val))
+	(loop-start)
+		(vp-cpy-ir iter_begin 0 obj)
+		(vp-add-cr ptr_size iter_begin)
+		(assign `((,obj num_value)) `(,new_val))
+		(exec p)
+	(loop-until (list iter_begin '= iter_end))
+	(class/obj/ref args iter_begin)
+	(exit 'num _ `(,this ,args))
+	(vp-ret))
+
 (def-method 'num 'min)
 	;inputs
 	;r0 = num object (ptr)
@@ -109,10 +126,11 @@
 	;trashes
 	;r1-r14
 
-	(addop 'min
+	(minop 'min
 		'(progn
-			(vpif '(r3 < r0))
-				(vp-cpy-rr r3 r0)
+			(vpif (list new_val '< val))
+				(vp-cpy-rr new_val val)
+				(vp-cpy-rr obj args)
 			(endif)))
 
 (def-func-end)
@@ -127,10 +145,11 @@
 	;trashes
 	;r1-r14
 
-	(addop 'max
+	(minop 'max
 		'(progn
-			(vpif '(r3 > r0))
-				(vp-cpy-rr r3 r0)
+			(vpif (list new_val '> val))
+				(vp-cpy-rr new_val val)
+				(vp-cpy-rr obj args)
 			(endif)))
 
 (def-func-end)
