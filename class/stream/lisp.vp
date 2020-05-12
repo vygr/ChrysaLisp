@@ -166,7 +166,7 @@
 	(assign {&value->num_value} '(r0))
 	(loop-start 'exit)
 		(assign '(r0) {chars})
-		(call 'stream_str 'read_char {iter_begin[0]} '(_ r1))
+		(call 'stream 'read_char {iter_begin[0]} '(_ r1))
 		(vpif '(r1 = -1))
 			(call 'obj 'deref {value})
 			(call 'obj 'ref {this->lisp_sym_nil} {value})
@@ -285,7 +285,7 @@
 	(class/array/bind_args r1 (slice 0 2 in))
 	(assign `((,(elem 1 in) str_length)) `(,(elem 2 in)))
 	(class/list/cast_args in '(stream str _))
-	(call 'stream_str 'write in '(r1))
+	(call 'stream 'write in '(r1))
 	(class/obj/ref r1 r2)
 	(vp-pop r0)
 
@@ -341,21 +341,18 @@
 
 	(assign {iter_begin[ptr_size]} {value})
 	(vpif (cat {value->obj_vtable = @} (f-path 'list 'vtable)))
+	(errorcases
+		(call 'lisp 'env_args_type (cat {value, @} (f-path 'num 'vtable) {, 1}) '(r2))
+		(gotoif `(,(method-output 'lisp 'env_args_type 0) = 0) 'error3))
 		(call 'list 'get_both {value} {_, iter_begin, iter_end})
-		(errorif {iter_begin = iter_end} 'error1)
 		(loop-start)
-		(errorcases
-			(call 'obj 'inst_of (cat {*iter_begin, @} (f-path 'num 'vtable)))
-			(gotoif `(,(method-output 'obj 'inst_of 1) = 0) 'error3))
-			(assign {stream, *iter_begin, width} '(r0 r1 r2))
-			(call 'stream_str 'write '(r0 (& r1 num_value) r2))
+			(call 'stream 'write {stream, &(*iter_begin)->num_value, width})
 		(loop-until {(iter_begin + ptr_size => iter_begin) = iter_end})
 	(else)
 	(errorcases
 		(call 'obj 'inst_of (cat {value, @} (f-path 'num 'vtable)))
 		(gotoif `(,(method-output 'obj 'inst_of 1) = 0) 'error3))
-		(call 'num 'get_value {value} {_, length})
-		(call 'stream_str 'write {stream, &length, width})
+		(call 'stream_str 'write {stream, &value->num_value, width})
 	(endif)
 	(call 'obj 'ref {stream})
 
