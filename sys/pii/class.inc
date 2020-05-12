@@ -56,7 +56,7 @@
 	(defq m (method-lookup _1 _2) x (list) s (elem 2 m))
 	(if (eql (elem 1 m) 'static)
 		(throw "Abi methods must be virtual !" (list _1 _2)))
-	(if (or (find _5 s) (find _6 s))
+	(if (or (find-rev _5 s) (find-rev _6 s))
 		(throw "Dispatch/Temp register conflicts with arg !" (list _5 _6 s)))
 	(assign _3 s)
 	(when (> (defq ls (length s)) (defq la (length (abi-args))))

@@ -4,7 +4,7 @@
 (import 'cmd/options.inc)
 
 (defun conv-file (in_file)
-	(defq out_file (cat (slice 0 (find "." in_file) in_file) ".cpm")
+	(defq out_file (cat (slice 0 (find-rev "." in_file) in_file) ".cpm")
 		canvas (canvas-load in_file load_flag_noswap))
 	(canvas-save canvas out_file format)
 	(print in_file " -> " out_file)

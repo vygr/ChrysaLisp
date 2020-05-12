@@ -91,7 +91,7 @@
 			(save (join " " (ascii-char 10)) fpath)
 			(open-buffer fpath))
 		(t
-			(unless (find "/" fpath)
+			(unless (find-rev "/" fpath)
 				(defq fpath (cat home_dir fpath)))
 			(defq title fpath buffer (list))
 			(each-line (lambda (_) (push buffer _)) (file-stream fpath))
@@ -100,7 +100,7 @@
 
 (defun-bind save-buffer (fpath)
 	(unless (eql fpath "")
-		(unless (find "/" fpath) (setq fpath (cat home_dir fpath)))
+		(unless (find-rev "/" fpath) (setq fpath (cat home_dir fpath)))
 		(defq save_buffer (join (tuple-get text_buffer current_text) (const (ascii-char 10))))
 		(save save_buffer fpath)
 		(tuple-set text_title current_text fpath)

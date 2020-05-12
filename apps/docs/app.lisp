@@ -26,7 +26,7 @@
 		((starts-with "#" line_str)
 			(def (setq line_widget (create-label)) 'border 0 'text (slice 1 -1 line_str)
 				'font (create-font "fonts/OpenSans-Regular.ctf" 34)))
-		((find "`" line_str)
+		((find-rev "`" line_str)
 			(def (setq line_widget (create-flow)) 'flow_flags flow_right_fill)
 			(defq word_lst (split (cat " " line_str " ") "`"))
 			(each (lambda (word)
@@ -51,7 +51,7 @@
 	(cond
 		((starts-with "```" line_str)
 			(setq state 'normal word_cnt 0))
-		((defq tab_pos (find (ascii-char 9) line_str))
+		((defq tab_pos (find-rev (ascii-char 9) line_str))
 			(def (setq line_widget (create-flow)) 'flow_flags flow_right_fill)
 			(def (defq tab_widget (create-label)) 'border 0 'min_width (* (inc tab_pos) tab_width))
 			(def (defq code_widget (create-label)) 'border 0 'text (slice (inc tab_pos) -1 line_str)

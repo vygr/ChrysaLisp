@@ -164,7 +164,7 @@
 			;list of all strings that will appear in new strings section, and list of all new string offsets
 			(each (lambda (_)
 				(each (lambda (_)
-					(unless (find _ f) (merge ns (list _)))) (elem 2 (eval (func-sym _))))) f)
+					(unless (find-rev _ f) (merge ns (list _)))) (elem 2 (eval (func-sym _))))) f)
 			(reduce (lambda (x y)
 				(push nso x)
 				(+ x (length y) 1)) ns 0)
@@ -172,9 +172,9 @@
 			(each (lambda (x)
 				(defq u (elem _ lo))
 				(elem-set 1 x (apply cat (push (map (lambda (y)
-					(char (- (if (defq i (find y f))
+					(char (- (if (defq i (find-rev y f))
 						(+ (elem i ho) fn_header_pathname)
-						(+ (elem (find y ns) nso) so)) (+ u (* _ 8))) 8)) (elem 2 x)) "")))) b)
+						(+ (elem (find-rev y ns) nso) so)) (+ u (* _ 8))) 8)) (elem 2 x)) "")))) b)
 			;build list of all sections of boot image
 			;concatenate all sections and save
 			(save (setq f (apply cat (reduce (lambda (x y)

@@ -91,7 +91,7 @@
 	(loop-while '(r8 /= r7))
 		(assign '((r8 0)) '(r1))
 		(vp-add-cr ptr_size r8)
-		(call 'list 'find '(r0 r1) '(r0 r1 r2))
+		(call 'list 'rfind '(r0 r1) '(r0 r1 r2))
 		(continueif '(r2 /= -1))
 		(class/obj/ref r1 r2)
 		(call 'list 'push_back '(r0 r1) '(r0 _ _ _))

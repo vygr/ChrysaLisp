@@ -62,7 +62,7 @@
 		((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_close)
 			nil)
 		((= id event_button)
-			(defq _ (find (sym (get (view-find-id window (get-long msg ev_msg_action_source_id)) 'text)) keys))
+			(defq _ (find-rev (sym (get (view-find-id window (get-long msg ev_msg_action_source_id)) 'text)) keys))
 			(when _
 				(setq text_buf (vdu-print vdu text_buf (str
 					"----------------------" (ascii-char 10)

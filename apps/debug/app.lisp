@@ -92,7 +92,7 @@
 					tcb (get-long msg debug_msg_tcb)
 					data (get-cstr msg debug_msg_data)
 					key (sym (str (>> reply_id 32) ":" tcb))
-					index (find key buf_keys))
+					index (find-rev key buf_keys))
 				(unless index
 					(push buf_keys key)
 					(push buf_list (list (list "") nil nil))

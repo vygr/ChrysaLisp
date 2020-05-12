@@ -36,6 +36,7 @@
 (ffi length "class/seq/lisp_length" 0)
 (ffi elem "class/seq/lisp_elem" 0)
 (ffi find "class/seq/lisp_find" 0)
+(ffi find-rev "class/seq/lisp_rfind" 0)
 (ffi slice "class/seq/lisp_slice" 0)
 (ffi cat "class/seq/lisp_cat" 0)
 (ffi each! "class/seq/lisp_each" 0)
@@ -252,9 +253,9 @@
 					(push (elem 1 _x) (bind-fun (macroexpand
 						(if (= (length _y) 1) (elem 0 _y) (cat '(progn) _y))))))
 				(list _)) _x) _ (list (list) (list)))
-			_o (or (find t (elem 0 _)) (find 'otherwise (elem 0 _))))
-		`(eval (elem (or (find ,_k ',(elem 0 _)) ,_o) ',(elem 1 _)))
-		`(if (defq ,(defq _i (gensym)) (find ,_k ',(elem 0 _))) (eval (elem ,_i ',(elem 1 _))))))
+			_o (or (find-rev t (elem 0 _)) (find-rev 'otherwise (elem 0 _))))
+		`(eval (elem (or (find-rev ,_k ',(elem 0 _)) ,_o) ',(elem 1 _)))
+		`(if (defq ,(defq _i (gensym)) (find-rev ,_k ',(elem 0 _))) (eval (elem ,_i ',(elem 1 _))))))
 
 (defmacro-bind times (c &rest _)
 	;(times num body)
@@ -633,7 +634,7 @@
 
 (defmacro-bind import (_)
 	;(import path)
-	`(unless (find ,_ *file-includes*)
+	`(unless (find-rev ,_ *file-includes*)
 		(push *file-includes* ,_)
 		(repl (file-stream ,_) ,_)))
 
@@ -704,7 +705,7 @@
 	(defmacro-bind defcmacro-bind (n a &rest b)
 		`(def *compile-env* ',n (macro ,a ~(bind-fun (macroexpand b)))))
 	(defun-bind include (_)
-		(unless (find _ *compile-includes*)
+		(unless (find-rev _ *compile-includes*)
 			(push *compile-includes* _)
 			(unless (defq __ (file-stream _)) (throw "No such file !" _))
 			(repl __ _)))

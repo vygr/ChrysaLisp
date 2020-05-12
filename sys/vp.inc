@@ -89,21 +89,21 @@
 (defmacro opt-trashes? (r e)
 	`(cond
 		((eql ,r (elem -2 ,e)) t)
-		((find (elem 0 ,e) (opt-emit-two-out-ops)) (eql ,r (elem -3 ,e)))
-		((find (elem 0 ,e) (opt-emit-multi-out-ops)) (find ,r ,e))))
+		((find-rev (elem 0 ,e) (opt-emit-two-out-ops)) (eql ,r (elem -3 ,e)))
+		((find-rev (elem 0 ,e) (opt-emit-multi-out-ops)) (find-rev ,r ,e))))
 
 (defcfun-bind opt-emit-trashes-without-calls? (r e)
 	(opt-trashes? r e))
 
 (defcfun-bind opt-emit-trashes-with-calls? (r e)
 	(cond
-		((find (elem 0 e) (opt-emit-call-ops)) t)
+		((find-rev (elem 0 e) (opt-emit-call-ops)) t)
 		(t (opt-trashes? r e))))
 
 (defcfun-bind opt-emit-trashes-with-kills? (r e)
 	(cond
-		((find (elem 0 e) (opt-emit-kills-ops)) t)
-		((find (elem 0 e) (opt-emit-call-ops)) t)
+		((find-rev (elem 0 e) (opt-emit-kills-ops)) t)
+		((find-rev (elem 0 e) (opt-emit-call-ops)) t)
 		(t (opt-trashes? r e))))
 
 (defcfun-bind opt-emit-find-rw (k _ r w b i)
@@ -148,7 +148,7 @@
 	(each! 2 -1 (lambda (e)
 		(cond
 			;read after read/write
-			((defq c (find (defq o (elem 0 e)) (opt-emit-read-ops)))
+			((defq c (find-rev (defq o (elem 0 e)) (opt-emit-read-ops)))
 				(when (defq w (opt-emit-find-rw opt-emit-trashes-with-calls? _
 								(elem c (opt-emit-read-ops))
 								(elem c (opt-emit-write-ops))
@@ -161,7 +161,7 @@
 								(lambda)
 								`(emit-cpy-rr ,r ,(elem 3 e)))))))
 			;write after write
-			((defq c (find o (opt-emit-write-ops1)))
+			((defq c (find-rev o (opt-emit-write-ops1)))
 				(when (defq w (opt-emit-find-rw1 opt-emit-trashes-with-kills? _
 								(elem c (opt-emit-read-ops1))
 								(elem c (opt-emit-read-ops2))
@@ -193,7 +193,7 @@
 	`(sym (str "_t_" ,_)))
 
 (defcfun-bind vp-type-t (_)
-	(if (setq _ (find (elem 0 _) "bBsSiI"))
+	(if (setq _ (find-rev (elem 0 _) "bBsSiI"))
 		(elem _ '(b ub s us i ui)) ""))
 
 (defcfun-bind vp-type (o)

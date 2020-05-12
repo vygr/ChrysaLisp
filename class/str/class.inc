@@ -15,6 +15,7 @@
 (dec-method 'compare 'class/str/compare 'static '(r0 r1) '(r0 r1))
 (dec-method 'same 'class/str/same 'static '(r0 r1) '(r0 r1))
 (dec-method 'find 'class/str/find 'static '(r0 r1) '(r0 r1 r2))
+(dec-method 'rfind 'class/str/rfind 'static '(r0 r1) '(r0 r1 r2))
 
 (dec-method 'print 'class/str/print 'override)
 

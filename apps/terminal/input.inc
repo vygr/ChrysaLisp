@@ -11,7 +11,7 @@
 		(unzip (split (pii-dirlist url) ",") (list (list) (list)))) out)
 
 (defun-bind url-split (url ctx)
-	(if (defq i (find "/" url))
+	(if (defq i (find-rev "/" url))
 		(list (cat "./" (slice 0 (inc i) url)) (slice (inc i) -1 url))
 		(list (if (= ctx 0) "./cmd/" "./") url)))
 
@@ -32,7 +32,7 @@
 		(setq i (inc i))) i)
 
 (defun-bind url-ext (url cx)
-	(defq ctx (url-ctx url cx) url (slice (if (defq i (find " " (slice 0 cx url))) (inc i) 0) cx url))
+	(defq ctx (url-ctx url cx) url (slice (if (defq i (find-rev " " (slice 0 cx url))) (inc i) 0) cx url))
 	(bind '(url file) (url-split url ctx))
 	(defq urls (map (lambda (_) (if (= ctx 0) (cat (slice (length file) -7 _) " ") (slice (length file) -1 _)))
 		(filter (lambda (_) (and (starts-with file _) (if (= ctx 0) (ends-with ".lisp " _) t))) (url-list url))))

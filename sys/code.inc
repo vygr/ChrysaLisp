@@ -39,7 +39,7 @@
 		(assign e '(r0))
 		(setq e '(r0 /= 0)))
 	(bind '(d o s) e)
-	(defq e (find o '(= /= <= >= > <)))
+	(defq e (find-rev o '(= /= <= >= > <)))
 	(case (vp-type s)
 		(c (if e ((eval (elem e '(vp-beq-cr vp-bne-cr vp-ble-cr vp-bge-cr vp-bgt-cr vp-blt-cr))) s d l)
 			(throw "No such comparator" o)))
@@ -52,7 +52,7 @@
 		(assign e '(r0))
 		(setq e '(r0 /= 0)))
 	(bind '(d o s) e)
-	(defq e (find o '(/= = > < <= >=)))
+	(defq e (find-rev o '(/= = > < <= >=)))
 	(case (vp-type s)
 		(c (if e ((eval (elem e '(vp-beq-cr vp-bne-cr vp-ble-cr vp-bge-cr vp-bgt-cr vp-blt-cr))) s d l)
 			(throw "No such comparator" o)))
@@ -284,7 +284,7 @@
 	;_1 name
 	;_2 type
 	;_3 values
-	(if (find (setq _1 (sym _1)) (elem 1 (defq _ (pop *syms*))))
+	(if (find-rev (setq _1 (sym _1)) (elem 1 (defq _ (pop *syms*))))
 		(throw "Symbol redefined !" _1))
 	(push (elem 1 _) _1)
 	(push (elem 2 _) (cat (list (length *syms*) _2) _3 '(nil)))
@@ -293,7 +293,7 @@
 (defcfun-bind get-sym (_1)
 	;_1 name
 	(defq _1 (sym _1) a (some! -2 0 t (lambda (s)
-		(if (defq _ (find _1 (elem 1 s)))
+		(if (defq _ (find-rev _1 (elem 1 s)))
 			(elem _ (elem 2 s)))) (list *syms*)))
 	(when a (elem-set -2 a t)) a)
 
@@ -429,8 +429,8 @@
 		(if (setq j (unless (lst? (defq j (elem i d)))
 				(some! -1 (inc i) t (lambda (s d)
 					(cond
-						((and (lst? s) (find j s)) _)
-						((and (lst? d) (find j d)) _)
+						((and (lst? s) (find-rev j s)) _)
+						((and (lst? d) (find-rev j d)) _)
 						((eql j s) _))) (list s d))))
 			(setq s (cat (slice 0 i s) (slice j (inc j) s) (slice i j s) (slice (inc j) -1 s))
 				d (cat (slice 0 i d) (slice j (inc j) d) (slice i j d) (slice (inc j) -1 d))
@@ -495,16 +495,16 @@
 	`(not (< (ascii-code " ") (code ,_) 127)))
 
 (defmacro is_symbol_char (_)
-	(list 'find _ "ABCDEFGHIJKLMNOPQRSTUVWXYZ_/0123456789abcdefghijklmnopqrstuvwxyz"))
+	(list 'find-rev _ "ABCDEFGHIJKLMNOPQRSTUVWXYZ_/0123456789abcdefghijklmnopqrstuvwxyz"))
 
 (defmacro is_label_char (_)
-	(list 'find _ "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_abcdefghijklmnopqrstuvwxyz"))
+	(list 'find-rev _ "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_abcdefghijklmnopqrstuvwxyz"))
 
 (defmacro is_numeral_char (_)
-	(list 'find _ "0123456789"))
+	(list 'find-rev _ "0123456789"))
 
 (defmacro is_allowed_number_char (_)
-	(list 'find _ "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.0123456789"))
+	(list 'find-rev _ "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.0123456789"))
 
 (defmacro token-push (k c)
 	`(push tokens (list ,k ,c)))
@@ -513,7 +513,7 @@
 	(defq m -1 u 1 i 0 p 0 tokens (list))
 	(while (< i (length l))
 		(defq c (elem i l)
-			s (find c {@$"-*~!+.^)(][</%&|=>}) ;"
+			s (find-rev c {@$"-*~!+.^)(][</%&|=>}) ;"
 			s (if s (+ s 2) 0))
 		(cond
 			((= m 1)
@@ -521,7 +521,7 @@
 				(if (is_symbol_char c)
 					(setq c nil)
 					(progn
-						(if (find (sym (defq s (slice p i l)))
+						(if (find-rev (sym (defq s (slice p i l)))
 								'(byte ubyte short ushort int uint long ulong ptr))
 							(token-push s 5)
 							(token-push s m))
@@ -531,7 +531,7 @@
 				(if (is_white_space_char c)
 					(setq p (inc i))
 					(cond
-						((find c ")(][")
+						((find-rev c ")(][")
 							;)(][
 							(token-push c s)
 							(setq p (inc i) u (logand (- s 12) 1)))
@@ -553,7 +553,7 @@
 						(cond
 							((= u 1)
 								;unary operator
-								(if (setq s (find (slice p i l) "-*&~!"))
+								(if (setq s (find-rev (slice p i l) "-*&~!"))
 									(token-push (elem s "_#:~!") m)
 									(throw "Unknown unary operator !" (slice p i l))))
 							(t
@@ -609,7 +609,7 @@
 		(cond
 			((>= c 5) ;operator
 				(cond
-					((find k "([")
+					((find-rev k "([")
 						(push o k))
 					((eql k ")")
 						(while (and (not (eql "(" (setq k (pop o)))) k)
@@ -678,7 +678,7 @@
 		(defq z (slice 1 -1 w) z (if (eql z "") nil z) w (elem 0 w))
 		(throw "No type info !" x))
 	(set-type z)
-	(setq w (elem (find w "bBsSiIlLp") '(vp-cpy-ir-b vp-cpy-ir-ub vp-cpy-ir-s vp-cpy-ir-us
+	(setq w (elem (find-rev w "bBsSiIlLp") '(vp-cpy-ir-b vp-cpy-ir-ub vp-cpy-ir-s vp-cpy-ir-us
 										vp-cpy-ir-i vp-cpy-ir-ui vp-cpy-ir vp-cpy-ir vp-cpy-ir)))
 	(add-inst (list w x 0 x)))
 
@@ -706,7 +706,7 @@
 (defcfun-bind compile-arrow (&optional _)
 	(bind '((y w) x) (list (pop-reg) (pop-value)))
 	(if _ (push-reg nil))
-	(setq w (elem (find w "bBsSiIlLp") '(vp-cpy-ri-b vp-cpy-ri-b vp-cpy-ri-s vp-cpy-ri-s
+	(setq w (elem (find-rev w "bBsSiIlLp") '(vp-cpy-ri-b vp-cpy-ri-b vp-cpy-ri-s vp-cpy-ri-s
 										vp-cpy-ri-i vp-cpy-ri-i vp-cpy-ri vp-cpy-ri vp-cpy-ri)))
 	(add-inst (list w x y 0)))
 
@@ -729,7 +729,7 @@
 		(t (throw "Symbol not a variable !" _))))
 
 (defcfun compile-cast (_)
-	(if (defq c (find (sym _) '(byte ubyte short ushort int uint long ulong ptr)))
+	(if (defq c (find-rev (sym _) '(byte ubyte short ushort int uint long ulong ptr)))
 		(set-type (elem c "bBsSiIlLp"))
 		(throw "Unknown type cast" _)))
 
@@ -818,7 +818,7 @@
 	(add-inst (list 'vp-asr-rr (pop-value) (top-value))))
 
 (defcfun compile-cmp (_)
-	(add-inst (list (elem (find _ '(= /= <= >= > <))
+	(add-inst (list (elem (find-rev _ '(= /= <= >= > <))
 		'(vp-seq-rr vp-sne-rr vp-sle-rr vp-sge-rr vp-sgt-rr vp-slt-rr))
 		(pop-value) (top-value))))
 
@@ -950,7 +950,7 @@
 	''(vp-add-cr vp-sub-cr))
 
 (defmacro opt-uses (r _)
-	`(find ,r ,_))
+	`(find-rev ,r ,_))
 
 (defcfun-bind opt-find-1 (_ r x)
 	(setq _ (some! _ 0 t (lambda (e)
@@ -972,7 +972,7 @@
 	(while (< (setq i (inc i)) (length *inst*))
 		(cond
 			;variable loading and offset folding
-			((find (defq e (elem i *inst*) o (elem 0 e)) (opt-read-ops))
+			((find-rev (defq e (elem i *inst*) o (elem 0 e)) (opt-read-ops))
 				(when (opt-find-2 i (defq r (elem 1 e)) `(vp-lea-i rsp _ ,r) `(vp-add-cr _ ,r))
 					(cond
 						((= m 0)
@@ -983,7 +983,7 @@
 							(setq i (dec i))))
 					(elem-set p *inst* (lambda))))
 			;variable writing and offset folding
-			((find o (opt-write-ops))
+			((find-rev o (opt-write-ops))
 				(when (opt-find-2 i (defq r (elem 2 e)) `(vp-lea-i rsp _ ,r) `(vp-add-cr _ ,r))
 					(cond
 						((= m 0)
@@ -999,14 +999,14 @@
 				(elem-set 1 e s)
 				(setq i (dec i)))
 			;constant propagation
-			((defq c (find o (opt-rr-ops)))
+			((defq c (find-rev o (opt-rr-ops)))
 				(when (opt-find-1 i (defq r (elem 1 e)) `(vp-cpy-cr _ ,r))
 					(elem-set 0 e (elem c (opt-cr-ops)))
 					(elem-set 1 e (elem 1 (elem p *inst*)))
 					(elem-set p *inst* (lambda))
 					(setq i (dec i))))
 			;arithmetic reassignment and constant folding
-			((and (defq c (find o (opt-cr-ops)))
+			((and (defq c (find-rev o (opt-cr-ops)))
 				(opt-find-2 i (defq r (elem 2 e)) `(vp-cpy-cr _ ,r) (list o '_ r)))
 					(cond
 						((= m 0)
@@ -1017,7 +1017,7 @@
 					(elem-set 1 e (list c (elem 1 (elem p *inst*)) (elem 1 e)))
 					(elem-set p *inst* (lambda)))
 			;constant fusion
-			((and (defq c (find o (opt-cr-fuse-ops)))
+			((and (defq c (find-rev o (opt-cr-fuse-ops)))
 				(opt-find-2 i (defq r (elem 2 e)) `(vp-add-cr _ ,r) `(vp-sub-cr _ ,r)))
 					(cond
 						((= m 0)
@@ -1027,7 +1027,7 @@
 					(elem-set 1 e (list c (elem 1 e) (elem 1 (elem p *inst*))))
 					(elem-set p *inst* (lambda)))
 			;compare constant forwarding
-			((and (defq c (find o (opt-sxx-rr-ops)))
+			((and (defq c (find-rev o (opt-sxx-rr-ops)))
 				(opt-find-1 i (defq r (elem 1 e)) `(vp-cpy-cr _ ,r))
 				(<= -0x80000000 (defq v (eval (elem 1 (elem p *inst*)))) 0x7fffffff))
 					(elem-set 0 e (elem c (opt-sxx-cr-ops)))

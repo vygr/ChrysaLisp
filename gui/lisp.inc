@@ -9,7 +9,7 @@
 	(defq ps (list) pv (list))
 	(each! 0 -1 (lambda (s v)
 		(cond
-			((defq i (find s ps))
+			((defq i (find-rev s ps))
 				(elem-set i ps s) (elem-set i pv v))
 			(t	(push ps s) (push pv v))))
 		(reduce (lambda (l e)

@@ -12,18 +12,18 @@
 (defun method (vtable name &optional fun)
 	(setq fun (bind-fun fun))
 	(cond
-		((defq slot (find name (elem 0 vtable)))
+		((defq slot (find-rev name (elem 0 vtable)))
 			(elem-set slot (elem 1 vtable) fun))
 		(t
 			(push (elem 0 vtable) name)
 			(push (elem 1 vtable) fun))))
 
 (defmacro mcall (vtable name &rest args)
-	`((elem ,(find (eval name) (elem 0 (eval vtable))) (elem 1 ,vtable)) ~args))
+	`((elem ,(find-rev (eval name) (elem 0 (eval vtable))) (elem 1 ,vtable)) ~args))
 
 (defmacro scall (vtable name &rest args)
 	(defq vtable (sym (str "_" vtable)))
-	`((elem ,(find (eval name) (elem 0 (eval vtable))) (elem 1 ,vtable)) ~args))
+	`((elem ,(find-rev (eval name) (elem 0 (eval vtable))) (elem 1 ,vtable)) ~args))
 
 (class Obj)
 (method Obj 'init)
@@ -55,7 +55,7 @@
 	(when parent
 		(set o 'parent nil)
 		(defq siblings (eval 'children parent))
-		(elem-set (find o siblings) siblings nil))))
+		(elem-set (find-rev o siblings) siblings nil))))
 (method Node 'add_child (lambda (o child)
 	(def child 'parent o)
 	(push (eval 'children o) child)))

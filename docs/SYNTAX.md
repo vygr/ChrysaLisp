@@ -430,7 +430,7 @@
 
 ## find
 
-(find elem seq)
+(find-rev elem seq)
 
 ## fixeds
 

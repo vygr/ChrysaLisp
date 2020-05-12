@@ -623,19 +623,46 @@
 	;r1 = search char (uint)
 	;r2 = -1, else position (int)
 	;trashes
-	;r2-r4
+	;r2-r5
 
 	(entry 'str 'find '(r0 r1))
 
-	(assign '((r0 str_length)) '(r2))
-	(vp-lea-i r0 str_data r3)
+	(assign '((r0 str_length) (& r0 str_data) 0) '(r5 r3 r2))
+	(loop-while '(r2 /= r5))
+		(vp-cpy-dr-ub r3 r2 r4)
+		(breakif '(r1 = r4))
+		(vp-add-cr byte_size r2)
+	(loop-end)
+	(vpif '(r2 = r5))
+		(vp-cpy-cr -1 r2)
+	(endif)
+
+	(exit 'str 'find '(r0 r1 r2))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'str 'rfind)
+	;inputs
+	;r0 = str object (ptr)
+	;r1 = search char (uint)
+	;outputs
+	;r0 = str object (ptr)
+	;r1 = search char (uint)
+	;r2 = -1, else position (int)
+	;trashes
+	;r2-r4
+
+	(entry 'str 'rfind '(r0 r1))
+
+	(assign '((r0 str_length) (& r0 str_data)) '(r2 r3))
 	(loop-start)
 		(vp-sub-cr byte_size r2)
 		(breakif '(r2 < 0))
 		(vp-cpy-dr-ub r3 r2 r4)
 	(loop-until '(r1 = r4))
 
-	(exit 'str 'find '(r0 r1 r2))
+	(exit 'str 'rfind '(r0 r1 r2))
 	(vp-ret)
 
 (def-func-end)

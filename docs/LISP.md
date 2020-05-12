@@ -114,6 +114,7 @@ eval
 ffi
 file-stream
 find
+find-rev
 fixeds
 floor
 frac

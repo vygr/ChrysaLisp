@@ -50,7 +50,7 @@
 	;_4 = in regs
 	;_5 = out regs
 	(setd _3 'static)
-	(defq m (if (defq s (find _1 (elem 0 *class*))) (elem s (elem 1 *class*))))
+	(defq m (if (defq s (find-rev _1 (elem 0 *class*))) (elem s (elem 1 *class*))))
 	(if m
 		(case _3
 			;existing method
@@ -116,7 +116,7 @@
 				;v-call
 				(t
 					(defq _ (elem 2 m))
-					(if (find r14 _)
+					(if (find-rev r14 _)
 						(throw "Dispatch register conflicts with arg !" (list r14 _)))
 					(assign _3 _)
 					(vp-cpy-ir r0 obj_vtable r14)
@@ -147,7 +147,7 @@
 			(fn-jump (elem 0 m)))
 		(t
 			(defq _ (elem 2 m))
-			(if (find r14 _)
+			(if (find-rev r14 _)
 				(throw "Dispatch register conflicts with arg !" (list r14 _)))
 			(assign _3 _)
 			(vp-cpy-ir r0 obj_vtable r14)
@@ -183,7 +183,7 @@
 (defcfun-bind method-lookup (_1 _2)
 	;_1 = class name
 	;_2 = member name
-	(defq c (eval (class-sym _1)) _ (find _2 (elem 0 c)))
+	(defq c (eval (class-sym _1)) _ (find-rev _2 (elem 0 c)))
 	(unless _ (throw "No such method !" (list _1 _2)))
 	(elem _ (elem 1 c)))
 
@@ -326,7 +326,7 @@
 	(if (eql (elem 1 m) 'static)
 		(throw "Method is static ! Use f-call ?" (list _1 _2)))
 	(defq _ (elem 2 m))
-	(if (find _6 _)
+	(if (find-rev _6 _)
 		(throw "Dispatch register conflicts with arg !" (list _6 _)))
 	(assign _3 _)
 	(vp-cpy-ir _5 obj_vtable _6)
@@ -343,7 +343,7 @@
 	(if (eql (elem 1 m) 'static)
 		(throw "Method is static ! Use f-jmp ?" (list _1 _2)))
 	(defq _ (elem 2 m))
-	(if (find _4 _)
+	(if (find-rev _4 _)
 		(throw "Dispatch register conflicts with arg !" (list _4 _)))
 	(assign _3 _)
 	(vp-cpy-ir r0 obj_vtable _4)
@@ -402,7 +402,7 @@
 	;_5 = dispatch reg
 	(setd _5 r14)
 	(defq m (method-lookup _1 _2) _ (elem 2 m))
-	(if (find _5 _)
+	(if (find-rev _5 _)
 		(throw "Dispatch register conflicts with arg !" (list _5 _)))
 	(assign _3 (cat _ (list _5)))
 	(vp-call-r _5)
@@ -415,7 +415,7 @@
 	;_4 = dispatch reg
 	(setd _4 r14)
 	(defq m (method-lookup _1 _2) _ (elem 2 m))
-	(if (find _4 _)
+	(if (find-rev _4 _)
 		(throw "Dispatch register conflicts with arg !" (list _4 _)))
 	(assign _3 (cat _ (list _4)))
 	(unwind)

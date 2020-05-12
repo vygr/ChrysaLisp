@@ -39,7 +39,7 @@
 (defun-bind oval (r s)
 	;cached oval generation
 	(defq k '() p '())
-	(cond ((defq i (find (defq _ (sym (str r s))) k)) (elem i p))
+	(cond ((defq i (find-rev (defq _ (sym (str r s))) k)) (elem i p))
 		(t (push k _) (elem -2 (push p
 			(path-stroke-polylines (list) r eps join_bevel cap_round cap_round (list s)))))))
 
