@@ -22,7 +22,7 @@
 		(vp-add-cr long_size src1)
 		(vp-add-cr long_size src2)
 	(loop-until (list iter_begin '= iter_end))
-	(exit 'fixeds _ `(,dst))
+	(exit 'fixeds _ `(,dst -1))
 	(vp-ret))
 
 (defun-bind divop (_ v)
@@ -36,14 +36,19 @@
 	(loop-start)
 		(vec-load-long 1 src1)
 		(vec-load-long 1 src2)
+		(errorif (list (elem 0 (vec-top 1)) '= 0) 'error)
 		((eval (sym (cat "vec-" v))) 1)
 		(vec-store-long 1 iter_begin)
 		(vp-add-cr long_size iter_begin)
 		(vp-add-cr long_size src1)
 		(vp-add-cr long_size src2)
 	(loop-until (list iter_begin '= iter_end))
-	(exit 'fixeds _ `(,dst))
-	(vp-ret))
+	(exit 'fixeds _ `(,dst -1))
+	(vp-ret)
+(errorcases
+(vp-label 'error)
+	(exit 'fixeds _ `(,dst 0))
+	(vp-ret)))
 
 (defun-bind fracop (_ v)
 	;trashes

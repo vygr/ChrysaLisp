@@ -42,13 +42,18 @@
 		(gotoif `(,len1 /= ,len2) 'error))
 		(call 'obj 'ref `(,dst) `(,dst))
 	(endif)
-	(r-call 'nums 'add `(,dst ,nums1 ,nums2 ,func) `(,dst))
+	(r-call 'nums 'add `(,dst ,nums1 ,nums2 ,func) `(,dst ,iter_begin))
+	(errorif `(,iter_begin = 0) 'error1)
 
 	(exit 'nums 'lisp_vecop1 `(,this ,dst))
 	(vp-ret)
+
+(errorcases
+(vp-label 'error1)
+	(call 'obj 'deref `(,dst))
 (vp-label 'error)
 	(exit 'nums 'lisp_vecop1 `(,this 0))
-	(vp-ret)
+	(vp-ret))
 
 (def-func-end)
 

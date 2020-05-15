@@ -6,11 +6,11 @@
 
 (dec-method 'vcreate 'class/nums/create 'override)
 
-(dec-method 'add 'class/nums/add 'virtual '(r0 r1 r2) '(r0))
-(dec-method 'sub 'class/nums/sub 'virtual '(r0 r1 r2) '(r0))
-(dec-method 'mul 'class/nums/mul 'virtual '(r0 r1 r2) '(r0))
-(dec-method 'div 'class/nums/div 'virtual '(r0 r1 r2) '(r0))
-(dec-method 'mod 'class/nums/mod 'virtual '(r0 r1 r2) '(r0))
+(dec-method 'add 'class/nums/add 'virtual '(r0 r1 r2) '(r0 r1))
+(dec-method 'sub 'class/nums/sub 'virtual '(r0 r1 r2) '(r0 r1))
+(dec-method 'mul 'class/nums/mul 'virtual '(r0 r1 r2) '(r0 r1))
+(dec-method 'div 'class/nums/div 'virtual '(r0 r1 r2) '(r0 r1))
+(dec-method 'mod 'class/nums/mod 'virtual '(r0 r1 r2) '(r0 r1))
 (dec-method 'abs 'class/nums/abs 'virtual '(r0 r1) '(r0))
 (dec-method 'sum 'class/nums/sum 'virtual '(r0) '(r0 r1))
 (dec-method 'scale 'class/nums/scale 'virtual '(r0 r1 r2) '(r0))

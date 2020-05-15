@@ -18,7 +18,7 @@
 		(vp-add-cr long_size src1)
 		(vp-add-cr long_size src2)
 	(loop-until (list iter_begin '= iter_end))
-	(exit 'reals _ `(,dst))
+	(exit 'reals _ `(,dst -1))
 	(vp-ret))
 
 (defun-bind absop (_ p)
@@ -81,6 +81,26 @@
 
 (def-func-end)
 
+(defun-bind divop (_ p)
+	;trashes
+	;r1-r14
+	(vp-def (dst src1 src2 iter_begin iter_end))
+	(entry 'reals _ `(,dst ,src1 ,src2))
+	(class/array/get_both dst iter_begin iter_end)
+	(assign `((,src1 array_begin) (,src2 array_begin)) `(,src1 ,src2))
+	(loop-start)
+		(eval p)
+		(vp-add-cr long_size iter_begin)
+		(vp-add-cr long_size src1)
+		(vp-add-cr long_size src2)
+	(loop-until (list iter_begin '= iter_end))
+	(exit 'reals _ `(,dst -1))
+	(vp-ret)
+(errorcases
+(vp-label 'error)
+	(exit 'reals _ `(,dst 0))
+	(vp-ret)))
+
 (def-method 'reals 'div)
 	;inputs
 	;r0 = reals object (ptr)
@@ -91,8 +111,12 @@
 	;trashes
 	;r1-r14
 
-	(addop 'div
-		'(call 'sys_math 'r_div `((,src1 0) (,src2 0)) `((,iter_begin 0))))
+	(defq in (method-input 'sys_math 'r_div))
+	(divop 'div
+		'(progn
+			(assign `((,src1 0) (,src2 0)) in)
+			(errorif `(,(elem 1 in) = 0) 'error)
+			(call 'sys_math 'r_div in `((,iter_begin 0)))))
 
 (def-func-end)
 
@@ -106,8 +130,12 @@
 	;trashes
 	;r1-r14
 
-	(addop 'mod
-		'(call 'sys_math 'r_mod `((,src1 0) (,src2 0)) `((,iter_begin 0))))
+	(defq in (method-input 'sys_math 'r_mod))
+	(divop 'mod
+		'(progn
+			(assign `((,src1 0) (,src2 0)) in)
+			(errorif `(,(elem 1 in) = 0) 'error)
+			(call 'sys_math 'r_mod in `((,iter_begin 0)))))
 
 (def-func-end)
 
