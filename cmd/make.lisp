@@ -2,6 +2,16 @@
 (import 'cmd/asm.inc)
 (import 'cmd/options.inc)
 
+(defun-bind make-tree (dir ext)
+	(defq dirs (list) files (list))
+	(each! 0 -1 (lambda (f d)
+		(setq f (cat dir "/" f))
+		(if (eql "4" d) (push dirs f) (push files f)))
+			(unzip (split (pii-dirlist dir) ",") (list (list) (list))))
+	(each (lambda (d)
+		(unless (ends-with "." d) (setq files (cat files (make-tree d ext))))) dirs)
+	(filter (lambda (f) (ends-with ext f)) files))
+
 (defun-bind make-doc ()
 	(defq *abi* (abi) *cpu* (cpu))
 	(defun-bind trim-whitespace (_)
@@ -82,10 +92,8 @@
 				(cond
 					((or (eql _ "(defun") (eql _ "(defmacro") (eql _ "(defun-bind") (eql _ "(defmacro-bind"))
 						(setq state 'y))))) (file-stream _)))
-		'(class/in/lisp.inc class/lisp.inc class/lisp/anaphoric.inc class/lisp/boot.inc
-			class/lisp/debug.inc class/out/lisp.inc class/stdio/lisp.inc
-			gui/canvas/lisp.inc gui/lisp.inc gui/path/lisp.inc gui/view/lisp.inc
-			sys/lisp.inc class/num/lisp.inc))
+		(cat (make-tree "." "lisp.inc")
+			'(class/lisp/anaphoric.inc class/lisp/boot.inc class/lisp/debug.inc)))
 	(sort cmp syntax)
 	(defq stream (string-stream (cat "")))
 	(write-line stream (const (str "# Syntax" (ascii-char 10))))
