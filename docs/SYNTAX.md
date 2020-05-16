@@ -164,6 +164,14 @@
 
 (canvas-save canvas path format)
 
+## canvas-set-color
+
+(canvas-set-color canvas argb) -> canvas
+
+## canvas-set-flags
+
+(canvas-set-flags canvas flags) -> canvas
+
 ## canvas-swap
 
 (canvas-swap canvas)
@@ -207,6 +215,10 @@
 ## component-connect
 
 (component-connect component id)
+
+## component-get-id
+
+(component-get-id component) -> id
 
 ## compose
 
@@ -430,6 +442,10 @@
 
 ## find
 
+(find elem seq)
+
+## find-rev
+
 (find-rev elem seq)
 
 ## fixeds
@@ -459,6 +475,10 @@
 ## gensym
 
 (gensym)
+
+## get
+
+(get env form) -> val
 
 ## get-byte
 
@@ -1104,6 +1124,90 @@
 
 (type-to-size sym) -> num
 
+## ui-backdrop
+
+(ui-backdrop name [props] [body]) -> backdrop
+
+## ui-button
+
+(ui-button name [props] [body]) -> button
+
+## ui-buttons
+
+(ui-buttons symbols events [props] [group])
+
+## ui-canvas
+
+(ui-canvas name wisdth height scale) -> canvas
+
+## ui-element
+
+(ui-element name func [props] [body]) -> view
+
+## ui-flow
+
+(ui-flow name [props] [body]) -> flow
+
+## ui-grid
+
+(ui-grid name [props] [body]) -> grid
+
+## ui-label
+
+(ui-label name [props] [body]) -> label
+
+## ui-merge-props
+
+(ui-merge-props props) -> props
+
+## ui-progress
+
+(ui-progress name [props]) -> progress
+
+## ui-props
+
+(ui-props props [props]) -> props
+
+## ui-scroll
+
+(ui-scroll name [props] [body]) -> scroll
+
+## ui-slider
+
+(ui-slider name [props]) -> slider
+
+## ui-textfield
+
+(ui-textfield name [props]) -> textfield
+
+## ui-title
+
+(ui-title name [props]) -> title
+
+## ui-title-bar
+
+(ui-title-bar name title symbols events [props]) -> flow
+
+## ui-tool-bar
+
+(ui-tool-bar name [props] [body]) -> flow
+
+## ui-tree
+
+(ui-tree name func [props] [body]) -> view
+
+## ui-vdu
+
+(ui-vdu name [props]) -> vdu
+
+## ui-view
+
+(ui-view name [props] [body]) -> view
+
+## ui-window
+
+(ui-window name [props] [body]) -> window
+
 ## undef
 
 (undef env var [var] ...)
@@ -1120,9 +1224,17 @@
 
 (unzip seq buckets) -> buckets
 
+## vdu-char-size
+
+(vdu-char-size vdu) -> (w h)
+
 ## vdu-load
 
 (vdu-load vdu lines ox oy cx cy)
+
+## vdu-max-size
+
+(vdu-max-size vdu) -> (w h)
 
 ## view-add-back
 
@@ -1155,6 +1267,10 @@
 ## view-dirty
 
 (view-dirty view)
+
+## view-dirty-all
+
+(view-dirty-all view) -> view
 
 ## view-event
 

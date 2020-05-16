@@ -72,6 +72,20 @@ trashes
 r2-r4
 ```
 
+### array::rfind -> class/array/rfind
+
+```lisp
+inputs
+r0 = array object (ptr)
+r1 = element (long)
+outputs
+r0 = array object (ptr)
+r1 = element (long)
+r2 = -1, else index (int)
+trashes
+r2-r4
+```
+
 ### array::sort -> class/array/sort
 
 ```lisp
@@ -6094,6 +6108,19 @@ trashes
 r1-r14
 ```
 
+### seq::lisp_rfind -> class/seq/lisp_rfind
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
 ### seq::lisp_slice -> class/seq/lisp_slice
 
 ```lisp
@@ -6460,6 +6487,20 @@ r1-r6
 ```
 
 ### str::find -> class/str/find
+
+```lisp
+inputs
+r0 = str object (ptr)
+r1 = search char (uint)
+outputs
+r0 = str object (ptr)
+r1 = search char (uint)
+r2 = -1, else position (int)
+trashes
+r2-r5
+```
+
+### str::rfind -> class/str/rfind
 
 ```lisp
 inputs
