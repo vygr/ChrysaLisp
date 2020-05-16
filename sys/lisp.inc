@@ -3,20 +3,28 @@
 
 ;some simple structure helpers
 (defmacro structure (n o &rest b)
+	;(structure name offset [body])
 	`(progn (defq _e (env) _n ,n _o ,(eval o)) ~b (def _e (sym (cat _n "_size")) _o '_e nil)))
 (defun struct (s &rest b)
+	;(struct size field ...)
 	(each (lambda (_) (def _e (sym (cat _n "_" _)) _o) (setq _o (+ _o s))) b))
 (defun offset (&rest b)
+	;(offset field ...)
 	(apply struct (cat (list 0) b)))
 (defun ptr (&rest b)
+	;(ptr field ...)
 	(setq _o (align _o ptr_size)) (apply struct (cat (list ptr_size) b)))
 (defun long (&rest b)
+	;(long field ...)
 	(setq _o (align _o long_size)) (apply struct (cat (list long_size) b)))
 (defun int (&rest b)
+	;(int field ...)
 	(setq _o (align _o int_size)) (apply struct (cat (list int_size) b)))
 (defun short (&rest b)
+	;(short field ...)
 	(setq _o (align _o short_size)) (apply struct (cat (list short_size) b)))
 (defun byte (&rest b)
+	;(byte field ...)
 	(setq _o (align _o byte_size)) (apply struct (cat (list byte_size) b)))
 
 ;system lisp bindings

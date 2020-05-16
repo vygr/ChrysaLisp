@@ -128,6 +128,10 @@
 
 (bind-fun form) -> form
 
+## byte
+
+(byte field ...)
+
 ## canvas-fbox
 
 (canvas-fbox canvas x y w h)
@@ -568,6 +572,10 @@
 
 (insert seq pos seq) -> seq
 
+## int
+
+(int field ...)
+
 ## is-debug-fun
 
 (is-debug-fun form)
@@ -627,6 +635,10 @@
 ## logxor
 
 (logxor [num] ...)
+
+## long
+
+(long field ...)
 
 ## lst?
 
@@ -780,6 +792,10 @@
 
 (nums-sum nums)
 
+## offset
+
+(offset field ...)
+
 ## open-child
 
 (open-child path mode)
@@ -879,6 +895,10 @@
 ## progn
 
 (progn [form ...])
+
+## ptr
+
+(ptr field ...)
 
 ## push
 
@@ -980,6 +1000,10 @@
 
 (setq var val [var val] ...)
 
+## short
+
+(short field ...)
+
 ## shuffle
 
 (shuffle list [start end]) -> list
@@ -1055,6 +1079,14 @@
 ## string-stream
 
 (string-stream str)
+
+## struct
+
+(struct size field ...)
+
+## structure
+
+(structure name offset [body])
 
 ## swap
 
