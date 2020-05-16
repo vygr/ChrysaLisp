@@ -115,7 +115,7 @@
 	`(ui-element ,n (create-progress) ,p))
 
 (defmacro ui-canvas (n w h s)
-	;(ui-canvas name wisdth height scale) -> canvas
+	;(ui-canvas name width height scale) -> canvas
 	`(ui-element ,n (create-canvas ,w ,h ,s)))
 
 (defmacro ui-vdu (n &optional p)
@@ -136,7 +136,7 @@
 	flow_right_fill (logior flow_flag_right flow_flag_fillh flow_flag_lastw)
 	flow_left_fill (logior flow_flag_left flow_flag_fillh flow_flag_lastw))
 
-(defun-bind fixed (_) (pop (path _)))
+(defun-bind fixed (_) (pop (fixeds _)))
 
 ;lisp bindings
 (ffi path "class/array/lisp_path" 0)

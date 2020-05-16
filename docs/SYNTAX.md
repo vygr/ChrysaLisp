@@ -1170,7 +1170,7 @@
 
 ## ui-canvas
 
-(ui-canvas name wisdth height scale) -> canvas
+(ui-canvas name width height scale) -> canvas
 
 ## ui-element
 
