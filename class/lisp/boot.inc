@@ -281,7 +281,7 @@
 
 (defun-bind range (b e &optional s)
 	;(range start end [step]) -> list
-	(defq l (list) s (opt s 1 (abs s)))
+	(defq s (opt s 1 (abs s)) l (cap (/ (abs (- b e)) s) (list)))
 	(if (<= b e)
 		(while (< b e)
 			(push l b)
@@ -400,8 +400,8 @@
 ; Fixed point math
 ;;;;;;;;;;;;;;;;;;
 
-(defq fp_shift 16 fp_2pi 411774 fp_pi 205887 fp_hpi 102943 fp_qpi 51471 fp_rpi 20861
-	fp_int_mask (<< -1 fp_shift) fp_frac_mask (lognot fp_int_mask))
+(defq fp_shift 16 fp_int_mask (<< -1 fp_shift) fp_frac_mask (lognot fp_int_mask)
+	fp_2pi 6.283185 fp_pi 3.141592 fp_hpi 1.570796 fp_rpi 0.318309)
 
 ;;;;;;;;;;;
 ; Utilities

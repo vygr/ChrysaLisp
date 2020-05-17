@@ -183,7 +183,6 @@ fp_shift
 fp_2pi
 fp_pi
 fp_hpi
-fp_qpi
 fp_rpi
 fp_int_mask
 fp_frac_mask
