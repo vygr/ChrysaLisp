@@ -832,6 +832,10 @@
 
 (partition lambda list start end)
 
+## path
+
+(path [form ...])
+
 ## path-filter
 
 (path-filter tol src dst)

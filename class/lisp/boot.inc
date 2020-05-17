@@ -130,6 +130,7 @@
 	;(nums [form ...])
 	;(fixeds [form ...])
 	;(reals [form ...])
+	;(path [form ...])
 	;(prin [form ...])
 	;(print [form ...])
 	;(str [form ...])

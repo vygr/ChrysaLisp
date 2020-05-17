@@ -4,7 +4,6 @@
 (include 'class/func/class.inc)
 (include 'class/pair/class.inc)
 (include 'class/hmap/class.inc)
-(include 'gui/path/class.inc)
 (include 'class/lisp/class.inc)
 
 (def-method 'lisp 'repl_print)
