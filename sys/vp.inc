@@ -2,18 +2,16 @@
 ; Emit Buffer
 ;;;;;;;;;;;;;
 
-(defcvar '*emit-buffer* (list) '*distance* (list) '*pc* nil '*pass* nil
-	'*out-buffer* (cat "") '*old-out-buffer* (cat "") '*out-stream* nil)
-
 (defmacro-bind emit (&rest _)
 	`(push *emit-buffer* ~_))
 
 (defcfun-bind emit-reset ()
-	(push (clear *distance* *emit-buffer*) progn))
+	(defcvar '*emit-buffer* (push (clear '()) progn) '*distance* (clear '())
+		'*out-buffer* "" '*old-out-buffer* ""))
 
 (defcfun-bind emit-passes ()
+	(defcvar '*pass* 0 '*pc* 0 '*out-stream* (string-stream *out-buffer*))
 	(defq b nil)
-	(setq *pass* 0 *pc* 0 *out-stream* (string-stream *out-buffer*))
 	(eval (bind-fun *emit-buffer*) *compile-env*)
 	(setq *out-buffer* (str *out-stream*) *pass* (inc *pass*))
 	(until (eql *out-buffer* *old-out-buffer*)

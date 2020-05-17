@@ -510,7 +510,7 @@
 	`(push tokens (list ,k ,c)))
 
 (defcfun-bind token-parse (l)
-	(defq m -1 u 1 i 0 p 0 tokens (cap 64 (list)))
+	(defq m -1 u 1 i 0 p 0 tokens (clear '()))
 	(while (< i (length l))
 		(defq c (elem i l)
 			s (find-rev c {@$"-*~!+.^)(][</%&|=>}) ;"
@@ -604,7 +604,7 @@
 	`(push rpn (list (sym ,s) ,v)))
 
 (defcfun-bind rpn-parse (tokens)
-	(defq o (list) rpn (cap 32 (list)))
+	(defq o '() rpn (clear '()))
 	(each (lambda ((k c))
 		(cond
 			((>= c 5) ;operator
@@ -637,7 +637,7 @@
 ; compilation
 ;;;;;;;;;;;;;
 
-(defcvar '*inst* (list) '*vreg* '(_v0 _v1 _v2 _v3 _v4 _v5 _v6 _v7 _v8 _v9 _v10 _v11 _v12 _v13 _v14 _v15))
+(defcvar '*vreg* '(_v0 _v1 _v2 _v3 _v4 _v5 _v6 _v7 _v8 _v9 _v10 _v11 _v12 _v13 _v14 _v15))
 (each (lambda (_) (defcvar _ nil)) *vreg*)
 
 (defmacro vreg-sym (_)
@@ -659,7 +659,7 @@
 	'(vreg-sym (length *vregt*)))
 
 (defmacro reset-reg-stack (_)
-	`(defq *vreg* *vreg* *inst* (push (clear *inst*) progn)
+	`(defq *vreg* *vreg* *inst* (push (clear '()) progn)
 		*vregt* (slice 0 ,_ '(nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil))))
 
 (defcfun-bind set-reg-map (l &optional _)
