@@ -510,7 +510,7 @@
 	`(push tokens (list ,k ,c)))
 
 (defcfun-bind token-parse (l)
-	(defq m -1 u 1 i 0 p 0 tokens (list))
+	(defq m -1 u 1 i 0 p 0 tokens (cap 64 (list)))
 	(while (< i (length l))
 		(defq c (elem i l)
 			s (find-rev c {@$"-*~!+.^)(][</%&|=>}) ;"
@@ -604,7 +604,7 @@
 	`(push rpn (list (sym ,s) ,v)))
 
 (defcfun-bind rpn-parse (tokens)
-	(defq o (list) rpn (list))
+	(defq o (list) rpn (cap 32 (list)))
 	(each (lambda ((k c))
 		(cond
 			((>= c 5) ;operator
@@ -664,8 +664,7 @@
 
 (defcfun-bind set-reg-map (l &optional _)
 	(setd _ '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14))
-	(each! 0 -1 (lambda (_ r)
-		(set (env) _ r)) (list *vreg* (if (/= 0 (length l)) (merge l _) _))))
+	(each (lambda (_ r) (set (env) _ r)) *vreg* (if (/= 0 (length l)) (merge l _) _)))
 
 (defcfun-bind push-reg (_)
 	(vreg-sym (dec (length (push *vregt* _)))))
