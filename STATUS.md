@@ -30,6 +30,27 @@ corrupted.
 Renamed class/slave to class/stdio and taken the opportunity to rename
 class/vector to class/list.
 
+Switched to static lists and string buffers for the emit buffer variables and
+parser lists. Shaved a few milliseconds off the build time.
+
+Add (make-tree) function to the 'make doc' command to include all Lisp binding
+files. Filled in all the missing syntax comments so they appear in the
+SYNTAX.md file.
+
+Added a Lisp.tmLanguage file to the project for those that use VSCode editor.
+This is a drop in replacement for Mattn's Lisp syntax colouring extension to
+give you ChrysaLisp specific keywords. It really makes a difference to see good
+syntax highlighting.
+
+Fixed point equates defined as fixed types and removed the (fixed) macro.
+
+(nums-div) and (nums-mod) now check for div/mod by 0 in debug builds.
+
+Now have (find) and (find-rev) for searching Lists and Strings.
+
+(min) and (max) now just returns a reference to the min/max number, no need to
+create a new number as numbers are immutable.
+
 ------
 
 Nuclearfall has started a repo of a whole pile of CTF fonts:
