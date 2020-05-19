@@ -3,21 +3,21 @@
 ;;;;;;;;;;;;;
 
 (defmacro-bind emit (&rest _)
-	`(push *emit-buffer* ~_))
+	`(push *emit_buffer* ~_))
 
 (defcfun-bind emit-reset ()
-	(defcvar '*emit-buffer* (push (clear '()) progn) '*distance* (clear '())
-		'*out-buffer* "" '*old-out-buffer* ""))
+	(defcvar '*emit_buffer* (push (clear '()) progn) '*distance* (clear '())
+		'*out_buffer* "" '*old_out_buffer* ""))
 
 (defcfun-bind emit-passes ()
-	(defcvar '*pass* 0 '*pc* 0 '*out-stream* (string-stream *out-buffer*))
+	(defcvar '*pass* 0 '*pc* 0 '*out_stream* (string-stream *out_buffer*))
 	(defq b nil)
-	(eval (bind-fun *emit-buffer*) *compile-env*)
-	(setq *out-buffer* (str *out-stream*) *pass* (inc *pass*))
-	(until (eql *out-buffer* *old-out-buffer*)
-		(setq b *old-out-buffer* *old-out-buffer* *out-buffer* *out-stream* (string-stream b) *pc* 0)
-		(eval *emit-buffer* *compile-env*)
-		(setq *out-buffer* (str *out-stream*) *pass* (inc *pass*))))
+	(eval (bind-fun *emit_buffer*) *compile_env*)
+	(setq *out_buffer* (str *out_stream*) *pass* (inc *pass*))
+	(until (eql *out_buffer* *old_out_buffer*)
+		(setq b *old_out_buffer* *old_out_buffer* *out_buffer* *out_stream* (string-stream b) *pc* 0)
+		(eval *emit_buffer* *compile_env*)
+		(setq *out_buffer* (str *out_stream*) *pass* (inc *pass*))))
 
 (defcfun print-emit (_)
 	(and (lst? _) (not (eql (elem 0 _) 'lambda)) (print _)))
@@ -26,28 +26,28 @@
 	(set (env) _ *pc*))
 
 (defcfun-bind emit-byte (&rest _)
-	(write-char *out-stream* _ 1)
+	(write-char *out_stream* _ 1)
 	(setq *pc* (+ *pc* (length _))))
 
 (defcfun-bind emit-short (&rest _)
-	(write-char *out-stream* _ 2)
+	(write-char *out_stream* _ 2)
 	(setq *pc* (+ *pc* (* (length _) 2))))
 
 (defcfun-bind emit-int (&rest _)
-	(write-char *out-stream* _ 4)
+	(write-char *out_stream* _ 4)
 	(setq *pc* (+ *pc* (* (length _) 4))))
 
 (defcfun-bind emit-long (&rest _)
-	(write-char *out-stream* _ 8)
+	(write-char *out_stream* _ 8)
 	(setq *pc* (+ *pc* (* (length _) 8))))
 
 (defcfun-bind emit-string (_)
-	(write *out-stream* _)
+	(write *out_stream* _)
 	(setq *pc* (+ *pc* (length _))))
 
 (defcfun-bind emit-align (a &optional b)
 	(when (/= *pass* 0)
-		(defq p *pc* b (opt b 0) s *out-stream*)
+		(defq p *pc* b (opt b 0) s *out_stream*)
 		(setq *pc* (align p a))
 		(while (<= (setq p (inc p)) *pc*)
 			(write-char s b))))
@@ -116,7 +116,7 @@
 				(not (eql b (elem 3 e)))
 				(= i (eval (elem 2 e))))
 				(setq c 3) _)
-			((k b e) -1))) (list *emit-buffer*)))
+			((k b e) -1))) (list *emit_buffer*)))
 	(and _ (/= _ -1) _))
 
 (defcfun-bind opt-emit-find-rw1 (k _ ra rb w b i)
@@ -131,7 +131,7 @@
 				(not (eql b (elem 3 e)))
 				(= i (eval (elem 2 e))))
 				(setq c 3) _)
-			((k b e) -1))) (list *emit-buffer*)))
+			((k b e) -1))) (list *emit_buffer*)))
 	(and _ (/= _ -1) _))
 
 (defcfun-bind opt-emit-find-rr (k _ rs rd)
@@ -139,7 +139,7 @@
 		(cond
 			((match? e `(emit-cpy-rr ,rs ,rd)) _)
 			((opt-trashes? rs e) -1)
-			((k rd e) -1))) (list *emit-buffer*)))
+			((k rd e) -1))) (list *emit_buffer*)))
 	(and _ (/= _ -1) _))
 
 (defcfun-bind opt-emit-buffer ()
@@ -151,10 +151,10 @@
 								(elem c (opt-emit-read-ops))
 								(elem c (opt-emit-write-ops))
 								(elem 1 e) (eval (elem 2 e))))
-					(defq r (elem c (elem w *emit-buffer*)))
+					(defq r (elem c (elem w *emit_buffer*)))
 					(when (not (some! (inc w) _ t (lambda (_)
-							(opt-emit-trashes-without-calls? r _)) (list *emit-buffer*)))
-						(elem-set _ *emit-buffer*
+							(opt-emit-trashes-without-calls? r _)) (list *emit_buffer*)))
+						(elem-set _ *emit_buffer*
 							(if (eql r (elem 3 e))
 								(lambda)
 								`(emit-cpy-rr ,r ,(elem 3 e)))))))
@@ -166,26 +166,25 @@
 								(elem c (opt-emit-write-ops1))
 								(elem 2 e) (eval (elem 3 e))))
 					(when (= c 1)
-						(elem-set w *emit-buffer* (lambda)))))
+						(elem-set w *emit_buffer* (lambda)))))
 			;redundant copies
 			((eql o 'emit-cpy-rr)
 				(when (opt-emit-find-rr opt-emit-trashes-with-calls? _ (elem 2 e) (elem 1 e))
-					(elem-set _ *emit-buffer* (lambda))))
+					(elem-set _ *emit_buffer* (lambda))))
 			))
-	(list *emit-buffer*)))
+	(list *emit_buffer*)))
 
 ;;;;;;;;;;;;;;;;;
 ; VP Instructions
 ;;;;;;;;;;;;;;;;;
 
-(each (lambda (_)
-	(defcvar _ _)) '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 rsp))
+(def: '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 rsp) *compile_env*)
 
 (defcmacro vp-def (_ &optional l)
 	(defq v '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14))
 	(setq l (apply cat (map (lambda (x y)
 		(list (list 'quote x) y)) _ (if l (merge (cat (eval l)) v) v))))
-	`(progn (defcvar ~l) (apply push (cat (list *func-syms*) ',_))))
+	`(progn (defcvar ~l) (apply push (cat (list *func_syms*) ',_))))
 
 (defmacro type-sym (_)
 	`(sym (str "_t_" ,_)))
@@ -228,7 +227,7 @@
 
 (defcfun-bind label-sym (s) (sym (cat "_l_" s)))
 (defcfun-bind vp-label (l) (setq l (label-sym l))
-	(emit (list 'emit-label (list 'quote l))) (push *func-syms* l) (defcvar l 0))
+	(emit (list 'emit-label (list 'quote l))) (push *func_syms* l) (defcvar l 0))
 (defcfun-bind vp-align (a &optional b) (emit (list 'emit-align a b)))
 (defcfun-bind vp-string (s) (emit (list 'emit-string s)))
 (defcfun-bind vp-byte (&rest b) (emit (cat (list 'emit-byte) b)))

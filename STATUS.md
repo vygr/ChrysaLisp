@@ -27,6 +27,10 @@ corrupted.
 
 ------
 
+Added (def:) macro for easy definition of self evaluating symbols.
+
+------
+
 Renamed class/slave to class/stdio and taken the opportunity to rename
 class/vector to class/list.
 
@@ -698,7 +702,7 @@ method will come along soon as part of the .CPM saving routines.
 
 ------
 
-Created a list of symbols, `*func-syms*`, that get undef'd at the close of each
+Created a list of symbols, `*func_syms*`, that get undef'd at the close of each
 function in order to avoid cross contamination between labels and symbols and
 raise errors at compilation time when such happens.
 

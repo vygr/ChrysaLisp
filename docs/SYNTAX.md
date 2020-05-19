@@ -336,6 +336,10 @@
 
 (def env var val [var val] ...)
 
+## def:
+
+(def: syms [e])
+
 ## def?
 
 (def? form [env])
@@ -743,6 +747,10 @@
 ## num-to-char
 
 (num-to-char num) -> char
+
+## num-to-utf8
+
+(num-to-utf8 num) -> str
 
 ## num?
 

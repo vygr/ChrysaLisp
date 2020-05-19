@@ -39,7 +39,7 @@
 	(uint 'task_count)
 	(local-align)
 	(struct 'msg0 'lk_msg)
-	(struct 'msgs (* (/ (- (/ lk_page_size 2) *struct-sp*) lk_msg_size) lk_msg_size))
+	(struct 'msgs (* (/ (- (/ lk_page_size 2) *struct_sp*) lk_msg_size) lk_msg_size))
 (def-struct-end)
 
 (def-struct 'lk_buffer)

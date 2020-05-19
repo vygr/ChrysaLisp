@@ -408,6 +408,10 @@
 ; Utilities
 ;;;;;;;;;;;
 
+(defmacro-bind def: (_ &optional e)
+	;(def: syms [env])
+	(if e `(eval `(bind ,_ ,_) ,e) `(eval `(bind ,_ ,_))))
+
 (defmacro-bind ascii-code (_)
 	;(ascii-code char) -> num
 	(code _))
@@ -480,6 +484,7 @@
 	(if (= f 0) n (/ (<< n fp_shift) f)))
 
 (defun-bind num-to-utf8 (_)
+	;(num-to-utf8 num) -> str
 	(cond
 		((>= _ 0x10000)
 			(char (+ 0x808080f0 (>> _ 18) (logand (>> _ 4) 0x3f00)
@@ -635,8 +640,8 @@
 
 (defmacro-bind import (_)
 	;(import path)
-	`(unless (find-rev ,_ *file-includes*)
-		(push *file-includes* ,_)
+	`(unless (find-rev ,_ *file_includes*)
+		(push *file_includes* ,_)
 		(repl (file-stream ,_) ,_)))
 
 (defmacro-bind read-long (s)
@@ -692,22 +697,22 @@
 
 (defun-bind within-compile-env (_)
 	;(within-compile-env lambda)
-	(defq *compile-env* (env 307) *compile-includes* (list))
+	(defq *compile_env* (env 307) *compile_includes* (list))
 	(defmacro-bind defcvar (&rest b)
-		`(def *compile-env* ~b))
+		`(def *compile_env* ~b))
 	(defmacro-bind undefc (&rest b)
-		`(undef *compile-env* ~b))
+		`(undef *compile_env* ~b))
 	(defmacro-bind defcfun (n a &rest b)
-		`(def *compile-env* ',n (lambda ,a ~b)))
+		`(def *compile_env* ',n (lambda ,a ~b)))
 	(defmacro-bind defcmacro (n a &rest b)
-		`(def *compile-env* ',n (macro ,a ~b)))
+		`(def *compile_env* ',n (macro ,a ~b)))
 	(defmacro-bind defcfun-bind (n a &rest b)
-		`(def *compile-env* ',n (lambda ,a ~(bind-fun (macroexpand b)))))
+		`(def *compile_env* ',n (lambda ,a ~(bind-fun (macroexpand b)))))
 	(defmacro-bind defcmacro-bind (n a &rest b)
-		`(def *compile-env* ',n (macro ,a ~(bind-fun (macroexpand b)))))
+		`(def *compile_env* ',n (macro ,a ~(bind-fun (macroexpand b)))))
 	(defun-bind include (_)
-		(unless (find-rev _ *compile-includes*)
-			(push *compile-includes* _)
+		(unless (find-rev _ *compile_includes*)
+			(push *compile_includes* _)
 			(unless (defq __ (file-stream _)) (throw "No such file !" _))
 			(repl __ _)))
-	(catch (progn (setq _ (_) *compile-env* nil) _) (setq *compile-env* nil)))
+	(catch (progn (setq _ (_) *compile_env* nil) _) (setq *compile_env* nil)))

@@ -9,7 +9,7 @@ etc. The definition of these functions are in the `sys/code.inc` and
 
 These are the functions that allow you to define symbols for constants, bit
 masks, field offsets and types. They just declare Lisp symbols within the
-`*compile-env*` environment.
+`*compile_env*` environment.
 
 ### Enum
 

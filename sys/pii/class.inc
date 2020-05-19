@@ -289,5 +289,5 @@
 (defcfun debug-reg ()
 	(when (> *debug_mode* 0)
 		(vp-push r14)
-		(call 'sys_kernel 'debug_reg (list (cat *stream-name* ":" (str *stream-line*))))
+		(call 'sys_kernel 'debug_reg (list (cat *stream_name* ":" (str *stream_line*))))
 		(vp-pop r14)))

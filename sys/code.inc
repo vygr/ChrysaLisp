@@ -2,7 +2,7 @@
 ; structured coding
 ;;;;;;;;;;;;;;;;;;;
 
-(defcvar '*switch* nil '*switch-nxt* nil '*switch-stk* (list))
+(defcvar '*switch* nil '*switch_nxt* nil '*switch_stk* (list))
 
 (defmacro beg-sym ()
 	'(sym (str "b_" *switch*)))
@@ -61,13 +61,13 @@
 		(t (throw "No such compare mode" (vp-type s)))))
 
 (defcfun-bind switch (&optional _)
-	(push *switch-stk* *switch*)
-	(setq *switch* *switch-nxt* *switch-nxt* (inc *switch-nxt*))
+	(push *switch_stk* *switch*)
+	(setq *switch* *switch_nxt* *switch_nxt* (inc *switch_nxt*))
 	(when _
 		(defcvar (defq _b (llb-sym _)) (beg-sym) (defq _e (lle-sym _)) (end-sym))
-		(push *func-syms* _b _e))
+		(push *func_syms* _b _e))
 	(defcvar (defq _ (cnt-sym)) 0)
-	(push *func-syms* _))
+	(push *func_syms* _))
 
 (defcfun-bind default ()
 	(vp-label (loc-sym (defq s (cnt-sym) c (eval s))))
@@ -76,7 +76,7 @@
 (defcfun-bind endswitch ()
 	(vp-label (end-sym))
 	(default)
-	(setq *switch* (pop *switch-stk*)))
+	(setq *switch* (pop *switch_stk*)))
 
 (defcfun nextcaseif (e)
 	(gotoif e (loc-sym (eval (cnt-sym)))))
@@ -196,38 +196,38 @@
 ;;;;;;;
 
 (defcfun def-enum (_1 &optional _2)
-	(defcvar '*enum* _1 '*enum-offset* (opt _2 0)))
+	(defcvar '*enum* _1 '*enum_offset* (opt _2 0)))
 
 (defcfun def-enum-end ()
-	(undefc '*enum* '*enum-offset*))
+	(undefc '*enum* '*enum_offset*))
 
 (defcfun-bind enum (&rest _)
 	(each (lambda (_)
-		(and (defq d (def? (setq _ (sym (cat *enum* "_" _))))) (/= d *enum-offset*)
+		(and (defq d (def? (setq _ (sym (cat *enum* "_" _))))) (/= d *enum_offset*)
 			(throw "Enum redefined !" _))
-		(defcvar _ *enum-offset* '*enum-offset* (inc *enum-offset*))) _))
+		(defcvar _ *enum_offset* '*enum_offset* (inc *enum_offset*))) _))
 
 ;;;;;;
 ; bits
 ;;;;;;
 
 (defcfun def-bit (_1 &optional _2)
-	(defcvar '*bit* _1 '*bit-offset* (opt _2 0)))
+	(defcvar '*bit* _1 '*bit_offset* (opt _2 0)))
 
 (defcfun def-bit-end ()
-	(undefc '*bit* '*bit-offset*))
+	(undefc '*bit* '*bit_offset*))
 
 (defcfun-bind bit (&rest _)
 	(each (lambda (_)
-		(and (defq d (def? (setq _ (sym (cat *bit* "_" _))))) (/= d (<< 1 *bit-offset*))
+		(and (defq d (def? (setq _ (sym (cat *bit* "_" _))))) (/= d (<< 1 *bit_offset*))
 			(throw "Bit redefined !" _))
-		(defcvar _ (<< 1 *bit-offset*) '*bit-offset* (inc *bit-offset*))) _))
+		(defcvar _ (<< 1 *bit_offset*) '*bit_offset* (inc *bit_offset*))) _))
 
 ;;;;;;;;;;;;;;
 ; symbol table
 ;;;;;;;;;;;;;;
 
-(defcvar '*sym-sp* 0 '*syms* (list))
+(defcvar '*sym_sp* 0 '*syms* (list))
 
 (defmacro new-scope ()
 	'(push *syms* (list 0 (list) (list))))
@@ -239,12 +239,12 @@
 
 (defcfun-bind push-scope ()
 	(local-align stack_align)
-	(elem-set 0 (elem -3 (new-scope)) *sym-sp*)
-	(when (/= *sym-sp* 0)
+	(elem-set 0 (elem -3 (new-scope)) *sym_sp*)
+	(when (/= *sym_sp* 0)
 		(when *debug_inst*
-			(print "(vp-alloc " *sym-sp* ")"))
-		(vp-alloc *sym-sp*)
-		(setq *sym-sp* 0)))
+			(print "(vp-alloc " *sym_sp* ")"))
+		(vp-alloc *sym_sp*)
+		(setq *sym_sp* 0)))
 
 (defcfun-bind pop-scope-syms ()
 	(pop *syms*)
@@ -254,7 +254,7 @@
 	(if (/= 0 (length u))
 		(throw "Unused symbols !" u))
 	(new-scope)
-	(setq *sym-sp* 0)
+	(setq *sym_sp* 0)
 	(elem 0 s))
 
 (defcfun pop-scope ()
@@ -311,7 +311,7 @@
 ; data structures
 ;;;;;;;;;;;;;;;;;
 
-(defcvar '*struct* nil '*struct-sp* nil
+(defcvar '*struct* nil '*struct_sp* nil
 	'null_size 0 'byte_size 1 'short_size 2 'int_size 4 'long_size 8 'ptr_size 8)
 
 (defmacro type-sym (_)
@@ -323,20 +323,20 @@
 (defcfun check-field (_)
 	(setq _ (struct-sym _))
 	(unless (eql *struct* 'local)
-		(and (defq d (def? _)) (/= d *struct-sp*)
+		(and (defq d (def? _)) (/= d *struct_sp*)
 			(throw "Field redefined !" _))) _)
 
 (defcfun-bind local-align (&optional _)
 	(setd _ ptr_size)
 	(if *struct*
-		(setq *struct-sp* (align *struct-sp* _))
-		(setq *sym-sp* (align *sym-sp* _))))
+		(setq *struct_sp* (align *struct_sp* _))
+		(setq *sym_sp* (align *sym_sp* _))))
 
 (defcfun def-struct (s &optional o)
-	(setq *struct* s *struct-sp* (eval (sym (cat (opt o "null") "_size")))))
+	(setq *struct* s *struct_sp* (eval (sym (cat (opt o "null") "_size")))))
 
 (defcfun def-struct-end ()
-	(defcvar (sym (cat *struct* "_size")) *struct-sp* '*struct* nil '*struct-sp* nil))
+	(defcvar (sym (cat *struct* "_size")) *struct_sp* '*struct* nil '*struct_sp* nil))
 
 (defmacro def-type (n s y)
 	`(defcfun ,n (&rest f)
@@ -344,11 +344,11 @@
 			(local-align ,s)
 			(cond
 				(*struct*
-					(defcvar (setq _ (check-field _)) *struct-sp* (type-sym _) ,y
-						'*struct-sp* (+ *struct-sp* ,s)))
+					(defcvar (setq _ (check-field _)) *struct_sp* (type-sym _) ,y
+						'*struct_sp* (+ *struct_sp* ,s)))
 				(t
-					(def-sym _ 'var *sym-sp* ,y)
-					(setq *sym-sp* (+ *sym-sp* ,s))))) f)))
+					(def-sym _ 'var *sym_sp* ,y)
+					(setq *sym_sp* (+ *sym_sp* ,s))))) f)))
 
 (def-type byte byte_size "b")
 (def-type ubyte byte_size "B")
@@ -372,7 +372,7 @@
 (defcfun offset (_)
 	(cond
 		(*struct*
-			(defcvar (check-field _) *struct-sp*))
+			(defcvar (check-field _) *struct_sp*))
 		(t
 			(throw "Attempt to define offset into local stack !" _))))
 
@@ -380,30 +380,30 @@
 	(if (sym? s) (setq s (eval (sym (cat s "_size")))))
 	(cond
 		(*struct*
-			(defcvar (setq _ (check-field _)) *struct-sp* (type-sym _) nil
-				'*struct-sp* (+ *struct-sp* s)))
+			(defcvar (setq _ (check-field _)) *struct_sp* (type-sym _) nil
+				'*struct_sp* (+ *struct_sp* s)))
 		(t
-			(def-sym _ 'var *sym-sp* 0 "")
-			(setq *sym-sp* (+ *sym-sp* s)))))
+			(def-sym _ 'var *sym_sp* 0 "")
+			(setq *sym_sp* (+ *sym_sp* s)))))
 
 (defcmacro union (&rest _)
 	(if (notevery lst? _)
 		(throw "Union needs lists as parameters !" _))
 	(cond
 		(*struct*
-			(defq o *struct-sp* m o)
+			(defq o *struct_sp* m o)
 			(each (lambda (_)
-				(setq *struct-sp* o)
+				(setq *struct_sp* o)
 				(eval _)
-				(setq m (max m *struct-sp*))) _)
-			(setq *struct-sp* m))
+				(setq m (max m *struct_sp*))) _)
+			(setq *struct_sp* m))
 		(t
-			(defq o *sym-sp* m o)
+			(defq o *sym_sp* m o)
 			(each (lambda (_)
-				(setq *sym-sp* o)
+				(setq *sym_sp* o)
 				(eval _)
-				(setq m (max m *sym-sp*))) _)
-			(setq *sym-sp* m))))
+				(setq m (max m *sym_sp*))) _)
+			(setq *sym_sp* m))))
 
 ;;;;;;;;;;;;;;;;;;;;
 ; parameter handling
@@ -1058,7 +1058,7 @@
 			(print "post opt:")
 			(each print-inst *inst*))
 		(set-reg-map (reduce-rev (lambda (x y) (push x y)) *src* (list)) _)
-		(eval *inst* *compile-env*)))
+		(eval *inst* *compile_env*)))
 
 (defcfun-bind assign-script-to-asm (*src* *dst* _)
 	(unless (= (length (setq *src* (split *src* ","))) (length *dst*))
@@ -1076,7 +1076,7 @@
 			(print "post opt:")
 			(each print-inst *inst*))
 		(set-reg-map (cat *dst*) _)
-		(eval *inst* *compile-env*)))
+		(eval *inst* *compile_env*)))
 
 (defcfun assign-script-to-script (*src* *dst* _)
 	(setq *src* (split *src* ",") *dst* (map trim (split *dst* ",")))
@@ -1098,7 +1098,7 @@
 			(print "post opt:")
 			(each print-inst *inst*))
 		(set-reg-map '() _)
-		(eval *inst* *compile-env*)))
+		(eval *inst* *compile_env*)))
 
 (defcfun-bind assign (&optional _1 _2 _3)
 	;optional src, dst, compiler regs

@@ -205,6 +205,7 @@ dec
 defmacro
 defmacro-bind
 defun
+def:
 defun-bind
 each-rev
 each
@@ -217,7 +218,6 @@ rcurry
 read-int
 read-long
 read-short
-run
 setd
 times
 tuple-get
@@ -290,7 +290,8 @@ str?
 swap
 sym?
 to-lower
-to-num
+str-to-num
+char-to-num
 to-upper
 trim
 trim-end
@@ -321,16 +322,16 @@ remake
 remake-platforms
 ```
 
-## Within a `*compile-env*` enviroment
+## Within a `*compile_env*` enviroment
 
-### `*compile-env*` symbols
+### `*compile_env*` symbols
 
 ```lisp
-*compile-env*
-*compile-includes*
+*compile_env*
+*compile_includes*
 ```
 
-### `*compile-env*` macros
+### `*compile_env*` macros
 
 ```lisp
 defcvar
@@ -341,7 +342,7 @@ defcmacro-bind
 undefc
 ```
 
-### `*compile-env*` functions
+### `*compile_env*` functions
 
 ```lisp
 include

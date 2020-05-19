@@ -12,7 +12,7 @@
 				(defcmacro abi-args (&optional _ o) (setd _ 6 o 0) `',(slice o (+ o _) '(r6 r5 r2 r1 r7 r8 r0 r3 r4)))
 				(defcfun emit-call-abi (r b c &rest x)
 					(cond
-						((= *func-align* 16)
+						((= *func_align* 16)
 							(apply emit-push x)
 							(emit-call-jump-i 0x10 b c)
 							(emit-add-cr (* ptr_size (length x)) rsp))
@@ -50,7 +50,7 @@
 				(defcmacro abi-args (&optional _ o) (setd _ 4 o 0) `',(slice o (+ o _) '(r1 r2 r7 r8 r0 r3 r4 r5 r6)))
 				(defcfun emit-call-abi (r b c &rest x)
 					(cond
-						((= *func-align* 16)
+						((= *func_align* 16)
 							(apply emit-push x)
 							(emit-sub-cr 32 rsp)
 							(emit-call-jump-i 0x10 b c)

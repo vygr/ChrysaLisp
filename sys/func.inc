@@ -19,8 +19,8 @@
 ; functions
 ;;;;;;;;;;;
 
-(defcvar '*func-name* nil '*strings* (list) '*paths* (list) '*links* (list)
-	'*func-align* nil '*func-syms* (list))
+(defcvar '*func_name* nil '*strings* (list) '*paths* (list) '*links* (list)
+	'*func_align* nil '*func_syms* (list))
 
 (defcfun-bind link-sym (_)
 	(str "rl_" _))
@@ -34,8 +34,8 @@
 (defcfun-bind def-func (*name* &optional falign fstack)
 	(print "-> " (cat "obj/" *cpu* "/" *abi* "/" (str *name*)))
 	(emit-reset)
-	(setq *func-name* *name* *switch-nxt* 0 *func-align* (opt falign stack_align))
-	(clear *strings* *paths* *links* *func-syms*)
+	(setq *func_name* *name* *switch_nxt* 0 *func_align* (opt falign stack_align))
+	(clear *strings* *paths* *links* *func_syms*)
 (vp-label 'fn_start)
 	(vp-long -1)
 	(vp-short (list '- (label-sym 'fn_end) (label-sym 'fn_start))
@@ -68,10 +68,10 @@
 (vp-label 'fn_end)
 	(opt-emit-buffer)
 	(when *debug_emit*
-		(each print-emit *emit-buffer*))
+		(each print-emit *emit_buffer*))
 	(emit-passes)
-	(apply undef (cat (list *compile-env*) *func-syms*))
-	(save *out-buffer* (cat "obj/" *cpu* "/" *abi* "/" (str *func-name*))))
+	(apply undef (cat (list *compile_env*) *func_syms*))
+	(save *out_buffer* (cat "obj/" *cpu* "/" *abi* "/" (str *func_name*))))
 
 (defcfun-bind fn-add-string (s)
 	(defq i -1)
