@@ -14,8 +14,6 @@
 (dec-method 'split 'class/str/split 'static '(r0 r1) '(r0 r1))
 (dec-method 'compare 'class/str/compare 'static '(r0 r1) '(r0 r1))
 (dec-method 'same 'class/str/same 'static '(r0 r1) '(r0 r1))
-(dec-method 'find 'class/str/find 'static '(r0 r1) '(r0 r1 r2))
-(dec-method 'rfind 'class/str/rfind 'static '(r0 r1) '(r0 r1 r2))
 
 (dec-method 'print 'class/str/print 'override)
 
@@ -24,6 +22,8 @@
 (dec-method 'ref_element 'class/str/ref_element 'final)
 (dec-method 'slice 'class/str/slice 'final)
 (dec-method 'cat 'class/str/cat 'final)
+(dec-method 'find 'class/str/find 'final)
+(dec-method 'rfind 'class/str/rfind 'final)
 
 (dec-method 'lisp_str 'class/str/lisp_str 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_split 'class/str/lisp_split 'static '(r0 r1) '(r0 r1))

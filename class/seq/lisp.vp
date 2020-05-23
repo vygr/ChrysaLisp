@@ -409,45 +409,49 @@
 	;trashes
 	;r1-r14
 
-	(entry 'seq 'lisp_find '(r0 r1))
+	(vp-def (this args element sequence vtable ovtable) '(r8 r9 r10 r11 r12 r13))
+
+	(entry 'seq 'lisp_find `(,this ,args))
 
 (errorcases
-	(assign '((r1 array_length)) '(r2))
-	(gotoif '(r2 /= 2) 'error1))
+	(call 'lisp 'env_args_sig `(,args ($ sig) 2) '(r2))
+	(gotoif '(r2 = 0) 'error))
 
-	(vp-cpy-rr r0 r13)
-	(class/array/bind_args r1 '(r6 r5))
-	(assign '((r5 obj_vtable)) '(r3))
-	(f-bind 'str 'vtable r4)
+	(class/array/bind_args args `(,element ,sequence))
+	(assign `((,sequence obj_vtable)) `(,ovtable))
 	(switch)
-	(vpcase '(r3 = r4))
+	(f-bind 'str 'vtable vtable)
+	(vpcase `(,ovtable = ,vtable))
 	(errorcases
-		(assign '((r6 obj_vtable)) '(r3))
-		(gotoif '(r3 /= r4) 'error2))
-		(class/list/cast_args '(r6) '(char))
-		(call 'str 'find '(r5 r6) '(_ _ r2))
-		(goto 'ok)
+		(assign `((,element obj_vtable)) `(,ovtable))
+		(gotoif `(,ovtable /= ,vtable) 'error))
+		(class/list/cast_args `(,element) '(char))
+		(goto 'dofind)
 	(default)
+		(f-bind 'list 'vtable vtable)
+		(gotoif `(,ovtable = ,vtable) 'dofind)
 	(errorcases
-		(f-bind 'list 'vtable r4)
-		(gotoif '(r3 /= r4) 'error2))
-		(call 'list 'find '(r5 r6) '(_ _ r2))
+		(call 'obj 'inst_of `(,element (@ ,(f-path 'num 'vtable))) '(r0 r1))
+		(gotoif '(r1 = 0) 'error))
+		(class/list/cast_args `(,element) '(num))
+	(default)
+	(vp-label 'dofind)
+		(call 'seq 'find `(,sequence ,element) '(_ _ r2))
 	(vp-label 'ok)
 		(vpif '(r2 = -1))
-			(call 'obj 'ref '((r13 lisp_sym_nil)) '(r0))
+			(call 'obj 'ref `((,this lisp_sym_nil)) '(r0))
 		(else)
 			(call 'num 'create '(r2) '(r0))
 		(endif)
 	(endswitch)
 
-	(exit 'seq 'lisp_find '(r13 r0))
+	(exit 'seq 'lisp_find `(,this r0))
 	(vp-ret)
 
 (errorcases
-(vp-label 'error1)
-	(jump 'lisp 'repl_error '(r0 "(find elem seq)" error_msg_wrong_num_of_args r1))
-(vp-label 'error2)
-	(jump 'lisp 'repl_error '(r0 "(find elem seq)" error_msg_not_a_sequence r1)))
+(vp-label 'error)
+	(jump 'lisp 'repl_error `(,this "(find elem seq)" error_msg_wrong_types ,args))
+	(signature '(obj seq)))
 
 (def-func-end)
 
@@ -461,44 +465,48 @@
 	;trashes
 	;r1-r14
 
-	(entry 'seq 'lisp_rfind '(r0 r1))
+	(vp-def (this args element sequence vtable ovtable) '(r8 r9 r10 r11 r12 r13))
+
+	(entry 'seq 'lisp_rfind `(,this ,args))
 
 (errorcases
-	(assign '((r1 array_length)) '(r2))
-	(gotoif '(r2 /= 2) 'error1))
+	(call 'lisp 'env_args_sig `(,args ($ sig) 2) '(r2))
+	(gotoif '(r2 = 0) 'error))
 
-	(vp-cpy-rr r0 r13)
-	(class/array/bind_args r1 '(r6 r5))
-	(assign '((r5 obj_vtable)) '(r3))
-	(f-bind 'str 'vtable r4)
+	(class/array/bind_args args `(,element ,sequence))
+	(assign `((,sequence obj_vtable)) `(,ovtable))
 	(switch)
-	(vpcase '(r3 = r4))
+	(f-bind 'str 'vtable vtable)
+	(vpcase `(,ovtable = ,vtable))
 	(errorcases
-		(assign '((r6 obj_vtable)) '(r3))
-		(gotoif '(r3 /= r4) 'error2))
-		(class/list/cast_args '(r6) '(char))
-		(call 'str 'rfind '(r5 r6) '(_ _ r2))
-		(goto 'ok)
+		(assign `((,element obj_vtable)) `(,ovtable))
+		(gotoif `(,ovtable /= ,vtable) 'error))
+		(class/list/cast_args `(,element) '(char))
+		(goto 'dofind)
 	(default)
+		(f-bind 'list 'vtable vtable)
+		(gotoif `(,ovtable = ,vtable) 'dofind)
 	(errorcases
-		(f-bind 'list 'vtable r4)
-		(gotoif '(r3 /= r4) 'error2))
-		(call 'list 'rfind '(r5 r6) '(_ _ r2))
+		(call 'obj 'inst_of `(,element (@ ,(f-path 'num 'vtable))) '(r0 r1))
+		(gotoif '(r1 = 0) 'error))
+		(class/list/cast_args `(,element) '(num))
+	(default)
+	(vp-label 'dofind)
+		(call 'seq 'rfind `(,sequence ,element) '(_ _ r2))
 	(vp-label 'ok)
 		(vpif '(r2 = -1))
-			(call 'obj 'ref '((r13 lisp_sym_nil)) '(r0))
+			(call 'obj 'ref `((,this lisp_sym_nil)) '(r0))
 		(else)
 			(call 'num 'create '(r2) '(r0))
 		(endif)
 	(endswitch)
 
-	(exit 'seq 'lisp_rfind '(r13 r0))
+	(exit 'seq 'lisp_rfind `(,this r0))
 	(vp-ret)
 
 (errorcases
-(vp-label 'error1)
-	(jump 'lisp 'repl_error '(r0 "(find-rev elem seq)" error_msg_wrong_num_of_args r1))
-(vp-label 'error2)
-	(jump 'lisp 'repl_error '(r0 "(find-rev elem seq)" error_msg_not_a_sequence r1)))
+(vp-label 'error)
+	(jump 'lisp 'repl_error `(,this "(find-rev elem seq)" error_msg_wrong_types ,args))
+	(signature '(obj seq)))
 
 (def-func-end)

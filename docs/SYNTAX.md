@@ -338,7 +338,7 @@
 
 ## def:
 
-(def: syms [e])
+(def: syms [env])
 
 ## def?
 

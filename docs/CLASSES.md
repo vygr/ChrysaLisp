@@ -58,34 +58,6 @@ trashes
 none
 ```
 
-### array::find -> class/array/find
-
-```lisp
-inputs
-r0 = array object (ptr)
-r1 = element (long)
-outputs
-r0 = array object (ptr)
-r1 = element (long)
-r2 = -1, else index (int)
-trashes
-r2-r4
-```
-
-### array::rfind -> class/array/rfind
-
-```lisp
-inputs
-r0 = array object (ptr)
-r1 = element (long)
-outputs
-r0 = array object (ptr)
-r1 = element (long)
-r2 = -1, else index (int)
-trashes
-r2-r4
-```
-
 ### array::sort -> class/array/sort
 
 ```lisp
@@ -401,18 +373,6 @@ trashes
 r1-r14
 ```
 
-### array::get_length -> class/array/get_length
-
-```lisp
-inputs
-r0 = array object (ptr)
-outputs
-r0 = array object (ptr)
-r1 = length (uint)
-trashes
-r1
-```
-
 ### array::ref_element -> class/array/ref_element
 
 ```lisp
@@ -450,6 +410,46 @@ outputs
 r0 = 0 if error, else new array object (ptr)
 trashes
 r0-r11
+```
+
+### array::get_length -> class/array/get_length
+
+```lisp
+inputs
+r0 = array object (ptr)
+outputs
+r0 = array object (ptr)
+r1 = length (uint)
+trashes
+r1
+```
+
+### array::find -> class/array/find
+
+```lisp
+inputs
+r0 = array object (ptr)
+r1 = element (long)
+outputs
+r0 = array object (ptr)
+r1 = element (long)
+r2 = -1, else index (int)
+trashes
+r2-r4
+```
+
+### array::rfind -> class/array/rfind
+
+```lisp
+inputs
+r0 = array object (ptr)
+r1 = element (long)
+outputs
+r0 = array object (ptr)
+r1 = element (long)
+r2 = -1, else index (int)
+trashes
+r2-r4
 ```
 
 ### array::lisp_array -> class/array/lisp_array
@@ -6069,6 +6069,10 @@ Super Class: obj
 
 ### seq::cat -> class/obj/null
 
+### seq::find -> class/obj/null
+
+### seq::rfind -> class/obj/null
+
 ### seq::lisp_length -> class/seq/lisp_length
 
 ```lisp
@@ -6486,34 +6490,6 @@ trashes
 r1-r6
 ```
 
-### str::find -> class/str/find
-
-```lisp
-inputs
-r0 = str object (ptr)
-r1 = search char (uint)
-outputs
-r0 = str object (ptr)
-r1 = search char (uint)
-r2 = -1, else position (int)
-trashes
-r2-r5
-```
-
-### str::rfind -> class/str/rfind
-
-```lisp
-inputs
-r0 = str object (ptr)
-r1 = search char (uint)
-outputs
-r0 = str object (ptr)
-r1 = search char (uint)
-r2 = -1, else position (int)
-trashes
-r2-r4
-```
-
 ### str::print -> class/str/print
 
 ```lisp
@@ -6587,6 +6563,34 @@ outputs
 r0 = 0 if error, else new str object (ptr)
 trashes
 r1-r6
+```
+
+### str::find -> class/str/find
+
+```lisp
+inputs
+r0 = str object (ptr)
+r1 = search char (uint)
+outputs
+r0 = str object (ptr)
+r1 = search char (uint)
+r2 = -1, else position (int)
+trashes
+r2-r5
+```
+
+### str::rfind -> class/str/rfind
+
+```lisp
+inputs
+r0 = str object (ptr)
+r1 = search char (uint)
+outputs
+r0 = str object (ptr)
+r1 = search char (uint)
+r2 = -1, else position (int)
+trashes
+r2-r4
 ```
 
 ### str::lisp_str -> class/str/lisp_str

@@ -7,8 +7,6 @@
 (dec-method 'get_capacity 'class/array/get_capacity 'static '(r0) '(r0 r1))
 (dec-method 'set_capacity 'class/array/set_capacity 'static '(r0 r1) '(r0))
 (dec-method 'set_length 'class/array/set_length 'static '(r0 r1) '(r0 r1))
-(dec-method 'find 'class/array/find 'static '(r0 r1) '(r0 r1 r2))
-(dec-method 'rfind 'class/array/rfind 'static '(r0 r1) '(r0 r1 r2))
 (dec-method 'sort 'class/array/sort 'static '(r0 r1 r2 r3 r4 r5) '(r0))
 (dec-method 'partition 'class/array/partition 'static '(r0 r1 r2 r3 r4) '(r0 r1))
 (dec-method 'get_first 'class/array/get_first 'static '(r0) '(r0 r1))
@@ -36,10 +34,12 @@
 (dec-method 'append 'class/array/append 'virtual '(r0 r1 r2 r3) '(r0))
 
 (dec-method 'deinit 'class/array/deinit 'override)
-(dec-method 'get_length 'class/array/get_length 'override)
 (dec-method 'ref_element 'class/array/ref_element 'override)
 (dec-method 'slice 'class/array/slice 'override)
 (dec-method 'cat 'class/array/cat 'override)
+(dec-method 'get_length 'class/array/get_length 'final)
+(dec-method 'find 'class/array/find 'final)
+(dec-method 'rfind 'class/array/rfind 'final)
 
 (dec-method 'lisp_array 'class/array/lisp_array 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_nums 'class/array/lisp_nums 'static '(r0 r1) '(r0 r1))
