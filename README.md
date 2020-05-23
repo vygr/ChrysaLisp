@@ -231,7 +231,7 @@ Stop with:
 Snapshot with:
 
 ```
-make boot
+make snapshot
 ```
 
 This will create a *snapshot.zip* file of the *obj/* directory containing only

@@ -10,10 +10,6 @@ all:		obj/$(CPU)/$(ABI)/$(OS)/main
 
 snapshot:
 			rm -f snapshot.zip
-			zip -r9oq -x*.o snapshot.zip obj/*
-
-boot:
-			rm -f snapshot.zip
 			zip -9q snapshot.zip obj/x86_64/AMD64/Darwin obj/x86_64/AMD64/Linux obj/aarch64/ARM64/Linux \
 			`find obj -name "boot_image"` `find obj -name "main.exe"`
 

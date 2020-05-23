@@ -131,7 +131,7 @@ make all
 Compile all source files, regardless of ages of files.
 
 ```
-make boot
+make snapshot
 ```
 
 Create a boot_image file from the function binaries within the *obj/*
