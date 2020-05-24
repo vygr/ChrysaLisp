@@ -76,9 +76,9 @@
 
 (def-method 'sys_math 'f_sin)
 	;inputs
-	;r0 = angle in radians (16.16)
+	;r0 = angle in radians (fixed)
 	;outputs
-	;r0 = sine (16.16)
+	;r0 = sine (fixed)
 	;trashes
 	;r0-r4
 
@@ -205,9 +205,9 @@
 
 (def-method 'sys_math 'f_cos)
 	;inputs
-	;r0 = angle in radians (16.16)
+	;r0 = angle in radians (fixed)
 	;outputs
-	;r0 = cosine (16.16)
+	;r0 = cosine (fixed)
 	;trashes
 	;r0-r4
 
@@ -346,17 +346,17 @@
 
 (def-method 'sys_math 'f_intersect)
 	;inputs
-	;r0 = p1x (16.16)
-	;r1 = p1y (16.16)
-	;r2 = p2x (16.16)
-	;r3 = p2y (16.16)
-	;r4 = v1x (16.16)
-	;r5 = v1y (16.16)
-	;r6 = v2x (16.16)
-	;r7 = v2y (16.16)
+	;r0 = p1x (fixed)
+	;r1 = p1y (fixed)
+	;r2 = p2x (fixed)
+	;r3 = p2y (fixed)
+	;r4 = v1x (fixed)
+	;r5 = v1y (fixed)
+	;r6 = v2x (fixed)
+	;r7 = v2y (fixed)
 	;outputs
-	;r0 = ix (16.16)
-	;r1 = iy (16.16)
+	;r0 = ix (fixed)
+	;r1 = iy (fixed)
 	;trashes
 	;r0-r14
 
@@ -408,14 +408,14 @@
 
 (def-method 'sys_math 'f_dist_sqd)
 	;inputs
-	;r0 = px (16.16)
-	;r1 = py (16.16)
-	;r2 = p1x (16.16)
-	;r3 = p1y (16.16)
-	;r4 = p2x (16.16)
-	;r5 = p2y (16.16)
+	;r0 = px (fixed)
+	;r1 = py (fixed)
+	;r2 = p1x (fixed)
+	;r3 = p1y (fixed)
+	;r4 = p2x (fixed)
+	;r5 = p2y (fixed)
 	;outputs
-	;r0 = distance squared (16.16)
+	;r0 = distance squared (fixed)
 	;trashes
 	;r0-r14
 
@@ -725,7 +725,7 @@
 
 (def-method 'sys_math 'r_f2r)
 	;inputs
-	;r14 = num (16.16)
+	;r14 = num (fixed)
 	;outputs
 	;r13 = real (32:32)
 	;trashes
@@ -770,7 +770,7 @@
 	;inputs
 	;r13 = real (32:32)
 	;outputs
-	;r14 = num (16.16)
+	;r14 = num (fixed)
 	;trashes
 	;r12-r14
 

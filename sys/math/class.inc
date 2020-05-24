@@ -33,9 +33,9 @@
 
 (defcfun sys/math/f_sqrt ()
 	;inputs
-	;r0 = number (16.16)
+	;r0 = number (fixed)
 	;outputs
-	;r0 = sqrt (16.16)
+	;r0 = sqrt (fixed)
 	;trashes
 	;r0-r3
 	(vp-shl-cr fp_shift r0)

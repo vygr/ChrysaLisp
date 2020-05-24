@@ -7,15 +7,15 @@
 	;inputs
 	;r0 = canvas object (ptr)
 	;r1 = list of path objects (ptr)
-	;r2 = x (16.16)
-	;r3 = y (16.16)
+	;r2 = x (fixed)
+	;r3 = y (fixed)
 	;r4 = y scale (int)
 	;outputs
 	;r0 = canvas object (ptr)
-	;r1 = min_x (16.16)
-	;r2 = min_y (16.16)
-	;r3 = max_x (16.16)
-	;r4 = max_y (16.16)
+	;r1 = min_x (fixed)
+	;r2 = min_y (fixed)
+	;r3 = max_x (fixed)
+	;r4 = max_y (fixed)
 	;trashes
 	;r1-r14
 
@@ -108,8 +108,8 @@
 (def-method 'canvas 'fpoly)
 	;inputs
 	;r0 = canvas object (ptr)
-	;r1 = x (16.16)
-	;r2 = y (16.16)
+	;r1 = x (fixed)
+	;r2 = y (fixed)
 	;r3 = winding mode (0/1)
 	;r4 = list of path objects (ptr)
 	;outputs

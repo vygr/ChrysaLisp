@@ -885,15 +885,15 @@ r1-r2
 inputs
 r0 = canvas object (ptr)
 r1 = list of path objects (ptr)
-r2 = x (16.16)
-r3 = y (16.16)
+r2 = x (fixed)
+r3 = y (fixed)
 r4 = y scale (int)
 outputs
 r0 = canvas object (ptr)
-r1 = min_x (16.16)
-r2 = min_y (16.16)
-r3 = max_x (16.16)
-r4 = max_y (16.16)
+r1 = min_x (fixed)
+r2 = min_y (fixed)
+r3 = max_x (fixed)
+r4 = max_y (fixed)
 trashes
 r1-r14
 ```
@@ -979,8 +979,8 @@ r1-r14
 ```lisp
 inputs
 r0 = canvas object (ptr)
-r1 = x (16.16)
-r2 = y (16.16)
+r1 = x (fixed)
+r2 = y (fixed)
 r3 = winding mode (0/1)
 r4 = list of path objects (ptr)
 outputs
@@ -1969,7 +1969,7 @@ r1-r8
 inputs
 r0 = fixeds object (ptr)
 r1 = source fixeds object, can be same (ptr)
-r2 = scale (16.16)
+r2 = scale (fixed)
 outputs
 r0 = fixeds object (ptr)
 trashes
@@ -5070,7 +5070,7 @@ Super Class: fixeds
 inputs
 r0 = path object (ptr)
 r1 = source path object, can be same (ptr)
-r2 = tolerance (16.16)
+r2 = tolerance (fixed)
 outputs
 r0 = path object (ptr)
 trashes
@@ -5083,7 +5083,7 @@ r1-r14
 inputs
 r0 = path object (ptr)
 r1 = source path object, can be same (ptr)
-r2 = tolerance (16.16)
+r2 = tolerance (fixed)
 outputs
 r0 = path object (ptr)
 trashes
@@ -5096,12 +5096,12 @@ r1-r14
 inputs
 r0 = path object (ptr)
 r1 = source path object, can be same (ptr)
-r2 = m1x (16.16)
-r3 = m1y (16.16)
-r4 = m2x (16.16)
-r5 = m2y (16.16)
-r6 = trx (16.16)
-r7 = try (16.16)
+r2 = m1x (fixed)
+r3 = m1y (fixed)
+r4 = m2x (fixed)
+r5 = m2y (fixed)
+r6 = trx (fixed)
+r7 = try (fixed)
 outputs
 r0 = path object (ptr)
 trashes
@@ -5115,7 +5115,7 @@ inputs
 r0 = path object (ptr)
 r1 = source path object (ptr)
 r2 = stack array object (ptr)
-r3 = tolerance (16.16)
+r3 = tolerance (fixed)
 outputs
 r0 = path object (ptr)
 trashes
@@ -5128,14 +5128,14 @@ r1-r14
 inputs
 r0 = path object (ptr)
 r1 = stack array object (ptr)
-r2 = cx (16.16)
-r3 = cy (16.16)
-r4 = v1x (16.16)
-r5 = v1y (16.16)
-r6 = v2x (16.16)
-r7 = v2y (16.16)
-r8 = radius (16.16)
-r9 = tolerance (16.16)
+r2 = cx (fixed)
+r3 = cy (fixed)
+r4 = v1x (fixed)
+r5 = v1y (fixed)
+r6 = v2x (fixed)
+r7 = v2y (fixed)
+r8 = radius (fixed)
+r9 = tolerance (fixed)
 outputs
 r0 = path object (ptr)
 trashes
@@ -5148,12 +5148,12 @@ r1-r14
 inputs
 r0 = path object (ptr)
 r1 = stack array object (ptr)
-r2 = cx (16.16)
-r3 = cy (16.16)
-r4 = start angle (16.16)
-r5 = end angle (16.16)
-r6 = radius (16.16)
-r7 = tolerance (16.16)
+r2 = cx (fixed)
+r3 = cy (fixed)
+r4 = start angle (fixed)
+r5 = end angle (fixed)
+r6 = radius (fixed)
+r7 = tolerance (fixed)
 outputs
 r0 = path object (ptr)
 trashes
@@ -5166,13 +5166,13 @@ r1-r14
 inputs
 r0 = path object (ptr)
 r1 = stack array object (ptr)
-r2 = p1x (16.16)
-r3 = p1y (16.16)
-r4 = p2x (16.16)
-r5 = p2y (16.16)
-r6 = p3x (16.16)
-r7 = p3y (16.16)
-r8 = tolerance (16.16)
+r2 = p1x (fixed)
+r3 = p1y (fixed)
+r4 = p2x (fixed)
+r5 = p2y (fixed)
+r6 = p3x (fixed)
+r7 = p3y (fixed)
+r8 = tolerance (fixed)
 outputs
 r0 = path object (ptr)
 trashes
@@ -5185,15 +5185,15 @@ r1-r14
 inputs
 r0 = path object (ptr)
 r1 = stack array object (ptr)
-r2 = p1x (16.16)
-r3 = p1y (16.16)
-r4 = p2x (16.16)
-r5 = p2y (16.16)
-r6 = p3x (16.16)
-r7 = p3y (16.16)
-r8 = p4x (16.16)
-r9 = p4y (16.16)
-r10 = tolerance (16.16)
+r2 = p1x (fixed)
+r3 = p1y (fixed)
+r4 = p2x (fixed)
+r5 = p2y (fixed)
+r6 = p3x (fixed)
+r7 = p3y (fixed)
+r8 = p4x (fixed)
+r9 = p4y (fixed)
+r10 = tolerance (fixed)
 outputs
 r0 = path object (ptr)
 trashes
@@ -5208,12 +5208,12 @@ r0 = path object (ptr)
 r1 = stack array object (ptr)
 r2 = in path start iter (plong)
 r3 = in path end iter (plong)
-r4 = p1x (16.16)
-r5 = p1y (16.16)
-r6 = p2x (16.16)
-r7 = p2y (16.16)
-r8 = radius (16.16)
-r9 = tolerance (16.16)
+r4 = p1x (fixed)
+r5 = p1y (fixed)
+r6 = p2x (fixed)
+r7 = p2y (fixed)
+r8 = radius (fixed)
+r9 = tolerance (fixed)
 r10 = join style (byte)
 outputs
 r0 = path object (ptr)
@@ -5228,8 +5228,8 @@ inputs
 r0 = output list of path objects (ptr)
 r1 = stack array object (ptr)
 r2 = input list of path objects (ptr)
-r3 = radius (16.16)
-r4 = tolerance (16.16)
+r3 = radius (fixed)
+r4 = tolerance (fixed)
 r5 = join style (byte)
 r6 = cap style1 (byte)
 r7 = cap style2 (byte)
@@ -5246,8 +5246,8 @@ inputs
 r0 = output list of path objects (ptr)
 r1 = stack array object (ptr)
 r2 = input list of path objects (ptr)
-r3 = radius (16.16)
-r4 = tolerance (16.16)
+r3 = radius (fixed)
+r4 = tolerance (fixed)
 r5 = join style (byte)
 outputs
 r0 = output list of path objects (ptr)
@@ -7774,9 +7774,9 @@ r0-r3
 
 ```lisp
 inputs
-r0 = number (16.16)
+r0 = number (fixed)
 outputs
-r0 = sqrt (16.16)
+r0 = sqrt (fixed)
 trashes
 r0-r3
 ```
@@ -7785,9 +7785,9 @@ r0-r3
 
 ```lisp
 inputs
-r0 = angle in radians (16.16)
+r0 = angle in radians (fixed)
 outputs
-r0 = sine (16.16)
+r0 = sine (fixed)
 trashes
 r0-r4
 ```
@@ -7796,9 +7796,9 @@ r0-r4
 
 ```lisp
 inputs
-r0 = angle in radians (16.16)
+r0 = angle in radians (fixed)
 outputs
-r0 = cosine (16.16)
+r0 = cosine (fixed)
 trashes
 r0-r4
 ```
@@ -7807,17 +7807,17 @@ r0-r4
 
 ```lisp
 inputs
-r0 = p1x (16.16)
-r1 = p1y (16.16)
-r2 = p2x (16.16)
-r3 = p2y (16.16)
-r4 = v1x (16.16)
-r5 = v1y (16.16)
-r6 = v2x (16.16)
-r7 = v2y (16.16)
+r0 = p1x (fixed)
+r1 = p1y (fixed)
+r2 = p2x (fixed)
+r3 = p2y (fixed)
+r4 = v1x (fixed)
+r5 = v1y (fixed)
+r6 = v2x (fixed)
+r7 = v2y (fixed)
 outputs
-r0 = ix (16.16)
-r1 = iy (16.16)
+r0 = ix (fixed)
+r1 = iy (fixed)
 trashes
 r0-r14
 ```
@@ -7826,14 +7826,14 @@ r0-r14
 
 ```lisp
 inputs
-r0 = px (16.16)
-r1 = py (16.16)
-r2 = p1x (16.16)
-r3 = p1y (16.16)
-r4 = p2x (16.16)
-r5 = p2y (16.16)
+r0 = px (fixed)
+r1 = py (fixed)
+r2 = p1x (fixed)
+r3 = p1y (fixed)
+r4 = p2x (fixed)
+r5 = p2y (fixed)
 outputs
-r0 = distance squared (16.16)
+r0 = distance squared (fixed)
 trashes
 r0-r14
 ```
@@ -7947,7 +7947,7 @@ r12-r14
 
 ```lisp
 inputs
-r14 = num (16.16)
+r14 = num (fixed)
 outputs
 r13 = real (32:32)
 trashes
@@ -7971,7 +7971,7 @@ r12-r14
 inputs
 r13 = real (32:32)
 outputs
-r14 = num (16.16)
+r14 = num (fixed)
 trashes
 r12-r14
 ```

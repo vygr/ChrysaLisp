@@ -29,6 +29,9 @@ corrupted.
 
 Added (def:) macro for easy definition of self evaluating symbols.
 
+'find and 'rfind methods promoted to the 'seq interface. (find) and (find-rev)
+can now search all seq subclasses.
+
 ------
 
 Renamed class/slave to class/stdio and taken the opportunity to rename

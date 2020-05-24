@@ -7,7 +7,7 @@
 	;r0 = path object (ptr)
 	;r1 = source path object (ptr)
 	;r2 = stack array object (ptr)
-	;r3 = tolerance (16.16)
+	;r3 = tolerance (fixed)
 	;outputs
 	;r0 = path object (ptr)
 	;trashes

@@ -6,7 +6,7 @@
 	;inputs
 	;r0 = path object (ptr)
 	;r1 = source path object, can be same (ptr)
-	;r2 = tolerance (16.16)
+	;r2 = tolerance (fixed)
 	;outputs
 	;r0 = path object (ptr)
 	;trashes

@@ -6,12 +6,12 @@
 	;inputs
 	;r0 = path object (ptr)
 	;r1 = source path object, can be same (ptr)
-	;r2 = m1x (16.16)
-	;r3 = m1y (16.16)
-	;r4 = m2x (16.16)
-	;r5 = m2y (16.16)
-	;r6 = trx (16.16)
-	;r7 = try (16.16)
+	;r2 = m1x (fixed)
+	;r3 = m1y (fixed)
+	;r4 = m2x (fixed)
+	;r5 = m2y (fixed)
+	;r6 = trx (fixed)
+	;r7 = try (fixed)
 	;outputs
 	;r0 = path object (ptr)
 	;trashes

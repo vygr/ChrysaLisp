@@ -6,14 +6,14 @@
 	;inputs
 	;r0 = path object (ptr)
 	;r1 = stack array object (ptr)
-	;r2 = cx (16.16)
-	;r3 = cy (16.16)
-	;r4 = v1x (16.16)
-	;r5 = v1y (16.16)
-	;r6 = v2x (16.16)
-	;r7 = v2y (16.16)
-	;r8 = radius (16.16)
-	;r9 = tolerance (16.16)
+	;r2 = cx (fixed)
+	;r3 = cy (fixed)
+	;r4 = v1x (fixed)
+	;r5 = v1y (fixed)
+	;r6 = v2x (fixed)
+	;r7 = v2y (fixed)
+	;r8 = radius (fixed)
+	;r9 = tolerance (fixed)
 	;outputs
 	;r0 = path object (ptr)
 	;trashes

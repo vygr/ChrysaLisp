@@ -140,7 +140,7 @@
 	;inputs
 	;r0 = fixeds object (ptr)
 	;r1 = source fixeds object, can be same (ptr)
-	;r2 = scale (16.16)
+	;r2 = scale (fixed)
 	;outputs
 	;r0 = fixeds object (ptr)
 	;trashes

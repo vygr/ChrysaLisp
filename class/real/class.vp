@@ -417,8 +417,11 @@
 	(vpif '(r0 < 0))
 		;(i2r -1) for the sake of the C++ version
 		(call 'sys_math 'r_mul '(-0x3FFFFFFFFFFFFFFF r0) '(r0))
+		(call 'real 'create '(r0) '(r1))
+	(else)
+		(assign '((rsp 0)) '(r1))
+		(class/obj/ref r1 r0)
 	(endif)
-	(call 'real 'create '(r0) '(r1))
 	(vp-pop r0)
 
 	(exit 'real 'abs '(r0 r1))
@@ -467,8 +470,6 @@
 	(elseif '(r0 > 0))
 		;(i2r 1) for the sake of the C++ version
 		(assign '(0x4000000000000001) '(r0))
-	(else)
-		(vp-xor-rr r0 r0)
 	(endif)
 	(call 'real 'create '(r0) '(r1))
 	(vp-pop r0)
