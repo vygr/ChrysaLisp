@@ -988,6 +988,18 @@
 
 (reduce-rev lambda seq [accum]) -> form
 
+## reduced
+
+(reduced accum)
+
+## reduced-reduce
+
+(reduced-reduce lambda seq [accum]) -> form
+
+## reduced-reduce-rev
+
+(reduced-reduce-rev lambda seq [accum]) -> form
+
 ## repl
 
 (repl stream path)

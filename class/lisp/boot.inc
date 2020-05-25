@@ -330,20 +330,44 @@
 (defun-bind reduce (_f _l &optional _a)
 	;(reduce lambda seq [accum]) -> form
 	(cond
-		(_a (each! 0 -1 (lambda (_p)
-				(setq _a (_f _a _p))) (list _l)))
+		(_a (each! 0 -1 (lambda (_e)
+				(setq _a (_f _a _e))) (list _l)))
 		(t (setq _a (elem 0 _l))
-			(each! 1 -1 (lambda (_p)
-				(setq _a (_f _a _p))) (list _l)))) _a)
+			(each! 1 -1 (lambda (_e)
+				(setq _a (_f _a _e))) (list _l)))) _a)
 
 (defun-bind reduce-rev (_f _l &optional _a)
 	;(reduce-rev lambda seq [accum]) -> form
 	(cond
-		(_a (each! -1 0 (lambda (_p)
-				(setq _a (_f _a _p))) (list _l)))
+		(_a (each! -1 0 (lambda (_e)
+				(setq _a (_f _a _e))) (list _l)))
 		(t (setq _a (elem -2 _l))
-			(each! -2 0 (lambda (_p)
-				(setq _a (_f _a _p))) (list _l)))) _a)
+			(each! -2 0 (lambda (_e)
+				(setq _a (_f _a _e))) (list _l)))) _a)
+
+(defun-bind reduced-reduce (_f _l &optional _a)
+	;(reduced-reduce lambda seq [accum]) -> form
+	(defq __x nil)
+	(cond
+		(_a (some! 0 -1 t (lambda (_e)
+				(cond (__x t) (t (setq _a (_f _a _e)) nil))) (list _l)))
+		(t (setq _a (elem 0 _l))
+			(some! 1 -1 t (lambda (_e)
+				(cond (__x t) (t (setq _a (_f _a _e)) nil))) (list _l)))) _a)
+
+(defun-bind reduced-reduce-rev (_f _l &optional _a)
+	;(reduced-reduce-rev lambda seq [accum]) -> form
+	(defq __x nil)
+	(cond
+		(_a (some! -1 0 t (lambda (_e)
+				(cond (__x t) (t (setq _a (_f _a _e)) nil))) (list _l)))
+		(t (setq _a (elem -2 _l))
+			(some! -2 0 t (lambda (_e)
+				(cond (__x t) (t (setq _a (_f _a _e)) nil))) (list _l)))) _a)
+
+(defmacro-bind reduced (_a)
+	;(reduced accum)
+	`(progn (setq __x t) ,_a))
 
 ;;;;;;;;;;;;
 ; Predicates
