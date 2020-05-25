@@ -228,6 +228,7 @@ when
 write-int
 write-long
 write-short
+reduced
 ```
 
 ### boot.inc functions
@@ -279,6 +280,8 @@ partition
 range
 reduce
 reduce-rev
+reduced-reduce
+reduced-reduce-rev
 shuffle
 shuffled
 sign
