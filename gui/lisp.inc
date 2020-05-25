@@ -2,11 +2,6 @@
 (import 'sys/symbols.inc)
 (import 'apps/login/pupa.inc)
 
-;some helpful macros
-(defmacro get (_ b)
-	;(get env form) -> val
-	`(eval ,b ,_))
-
 (defun-bind ui-merge-props (p)
 	;(ui-merge-props props) -> props
 	(defq ps (list) pv (list))

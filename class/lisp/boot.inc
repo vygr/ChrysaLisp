@@ -412,6 +412,10 @@
 	;(def: syms [env])
 	(if e `(eval `(bind ,_ ,_) ,e) `(eval `(bind ,_ ,_))))
 
+(defmacro-bind get (_ b)
+	;(get env form) -> val
+	`(eval ,b ,_))
+
 (defmacro-bind ascii-code (_)
 	;(ascii-code char) -> num
 	(code _))
