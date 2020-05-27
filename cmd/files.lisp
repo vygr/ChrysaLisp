@@ -31,7 +31,9 @@
 
 (defun-bind main ()
 	;initialize pipe details and command args, abort on error
-	(when (and (defq stdio (create-stdio)) (defq args (options stdio usage)))
+	(when (and
+			(defq stdio (create-stdio))
+			(defq args (options stdio usage)))
 		(defq postfix (if (< (length args) 2) "." (elem 1 args))
 			prefix (if (< (length args) 3) "" (elem 2 args)))
 		(if (ends-with "/" postfix) (setq postfix (slice 0 -2 postfix)))

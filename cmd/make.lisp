@@ -123,7 +123,9 @@
 
 (defun-bind main ()
 	;initialize pipe details and command args, abort on error
-	(when (and (defq stdio (create-stdio)) (defq args (options stdio usage)))
+	(when (and
+			(defq stdio (create-stdio))
+			(defq args (options stdio usage)))
 		(defq args (map sym args) all (find-rev 'all args) boot (find-rev 'boot args) platforms (find-rev 'platforms args)
 			doc (find-rev 'doc args) syms (find-rev 'syms args))
 		(cond

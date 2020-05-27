@@ -27,7 +27,9 @@
 
 (defun-bind main ()
 	;initialize pipe details and command args, abort on error
-	(when (and (defq stdio (create-stdio)) (defq format 32 args (options stdio usage)))
+	(when (and
+			(defq stdio (create-stdio))
+			(defq format 32 args (options stdio usage)))
 		(if (<= (length args) 1)
 			;convert from stdin
 			(while (defq l (read-line (file-stream 'stdin)))
