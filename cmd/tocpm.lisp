@@ -15,12 +15,14 @@
 "Usage: tocmp [options] [path] ...
 	options:
 		-h --help: this help info.
-		+f ++format 1|8|16|24|32: default 32.
+		-f --format 1|8|16|24|32: default 32.
 	Load the images and save as .cpm images.
 	If no paths given on command line
 	then paths are read from stdin.")
-(("+f" "++format")
-	,(bind-fun (lambda (o f) (setq format (str-to-num f)))))
+(("-f" "--format")
+	,(bind-fun (lambda (args arg)
+		(setq format (str-to-num (elem 0 args)))
+		(slice 1 -1 args))))
 ))
 
 (defun-bind main ()

@@ -8,9 +8,12 @@
 	options:
 		-h --help: this help info.")
 (("-e" "--example")
-	,(bind-fun (lambda (o) (options-print "handler for: " o))))
-(("+x" "++xtraarg")
-	,(bind-fun (lambda (o a) (options-print "handler for: " o " " a))))
+	,(bind-fun (lambda (args arg)
+		(options-print "handler for: " arg) args)))
+(("-x" "--xtra")
+	,(bind-fun (lambda (args arg)
+		(options-print "handler for: " arg " " (elem 0 args))
+		(slice 1 -1 args))))
 ))
 
 (defun-bind main ()
