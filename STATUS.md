@@ -38,6 +38,9 @@ Added, to `class/lisp/boot.inc`, proposed new (reduced-reduce) and
 
 Promoted the (get) macro from `gui/lisp.inc` to `class/lisp/boot.inc`.
 
+Added `cmd/files.lisp` to list files that match a given directory postfix and
+file prefix.
+
 ------
 
 Renamed class/slave to class/stdio and taken the opportunity to rename
