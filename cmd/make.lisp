@@ -5,14 +5,15 @@
 (defun-bind make-tree (dir ext)
 	(defq dirs (list) files (list))
 	(each! 0 -1 (lambda (f d)
-		(cond
-			((eql "4" d)
-				(push dirs (cat dir "/" f)))
-			((ends-with ext f)
-				(push files (cat dir "/" f)))))
+		(unless (or (starts-with "." f) (ends-with "." f))
+			(cond
+				((eql "4" d)
+					(push dirs (cat dir "/" f)))
+				((ends-with ext f)
+					(push files (cat dir "/" f))))))
 		(unzip (split (pii-dirlist dir) ",") (list (list) (list))))
 	(each (lambda (d)
-		(unless (ends-with "." d) (setq files (cat files (make-tree d ext))))) dirs)
+		(setq files (cat files (make-tree d ext)))) dirs)
 	files)
 
 (defun-bind make-doc ()
