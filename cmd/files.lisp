@@ -6,7 +6,7 @@
 (defun-bind make-tree (dir ext)
 	(defq dirs (list) files (list))
 	(each! 0 -1 (lambda (f d)
-		(unless (or (starts-with "." f) (ends-with "." f))
+		(unless (starts-with "." f)
 			(cond
 				((eql "4" d)
 					(push dirs (cat dir "/" f)))
