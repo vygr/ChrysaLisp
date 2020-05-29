@@ -4,11 +4,12 @@
 (import 'cmd/options.inc)
 
 (defun conv-file (in_file)
-	(defq out_file (cat (slice 0 (find-rev "." in_file) in_file) ".cpm")
-		canvas (canvas-load in_file load_flag_noswap))
-	(canvas-save canvas out_file format)
-	(print in_file " -> " out_file)
-	(stream-flush (file-stream 'stdout)))
+	(unless (eql in_file "")
+		(defq out_file (cat (slice 0 (find-rev "." in_file) in_file) ".cpm")
+			canvas (canvas-load in_file load_flag_noswap))
+		(canvas-save canvas out_file format)
+		(print in_file " -> " out_file)
+		(stream-flush (file-stream 'stdout))))
 
 (defq usage `(
 (("-h" "--help")
@@ -32,7 +33,6 @@
 			(defq format 32 args (options stdio usage)))
 		(if (<= (length args) 1)
 			;convert from stdin
-			(while (defq l (read-line (file-stream 'stdin)))
-				(unless (eql l "") (conv-file l)))
+			(each-line conv-file (file-stream 'stdin))
 			;convert from args
 			(each conv-file (slice 1 -1 args)))))

@@ -20,19 +20,17 @@
 	(while (/= (length args) 0)
 		;look for "-", pass through if not
 		(defq arg (elem 0 args) args (slice 1 -1 args))
-		(cond
-			((starts-with "-" arg)
+		(if (starts-with "-" arg)
+			(if (defq opt_entry (or (options-find optlist arg) (options-find optlist "-h")))
+				;found an entry, else help
 				(cond
-					((defq opt_entry (options-find optlist arg))
-						;found an entry
-						(cond
-							((str? (elem 1 opt_entry))
-								;just print it and quit
-								(options-print (elem 1 opt_entry))
-								(setq args '() out_args nil))
-							(t	;else call arg handler
-								(setq args ((elem 1 opt_entry) args arg)))))
-					(t	;not found entry, print help and quit
-						(options-print (elem 1 (elem 0 optlist)))
-						(setq args '() out_args nil))))
-			(t (push out_args arg)))) out_args)
+					((str? (elem 1 opt_entry))
+						;just print it and quit
+						(options-print (elem 1 opt_entry))
+						(setq args '() out_args nil))
+					(t	;else call arg handler
+						(setq args ((elem 1 opt_entry) args arg))))
+				;error, so quit
+				(setq args '() out_args nil))
+			;arg to output
+			(push out_args arg))) out_args)

@@ -16,11 +16,10 @@
 	(when (and
 			(defq stdio (create-stdio))
 			(defq args (options stdio usage)))
-		(defq stdin (file-stream 'stdin) lines (list))
+		(defq lines (list))
 		(if (<= (length args) 1)
 			;sort stdin
-			(while (defq l (read-line stdin))
-				(push lines l))
+			(each-line (lambda (_) (push lines _)) (file-stream 'stdin))
 			;sort args
 			(setq lines (slice 1 -1 args)))
 		(each print (sort cmp lines))))

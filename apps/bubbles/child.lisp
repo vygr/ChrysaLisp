@@ -8,9 +8,9 @@
 	(canvas-fpoly canvas x y 0 _))
 
 (defun-bind circle (r)
-	;cached circle generation
-	(defq r (* (floor (* r 4.0)) 0.25) i (% (logior r) 11)
-		k (elem i '(()()()()()()()()()()())) p (elem i '(()()()()()()()()()()())))
+	;cached circle generation, quantised to 1/4 pixel
+	(defq r (* (floor (* r 4.0)) 0.25) i (% (logior r) 13)
+		k (elem i '(()()()()()()()()()()()()())) p (elem i '(()()()()()()()()()()()()())))
 	(cond ((defq i (some (lambda (i) (if (= i r) _)) k)) (elem i p))
 		(t (push k r) (elem -2 (push p (list
 			(path-gen-arc 0.0 0.0 0.0 (const fp_2pi) r 0.25 (path))))))))
