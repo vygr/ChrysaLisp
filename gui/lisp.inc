@@ -131,6 +131,8 @@
 	flow_right_fill (logior flow_flag_right flow_flag_fillh flow_flag_lastw)
 	flow_left_fill (logior flow_flag_left flow_flag_fillh flow_flag_lastw))
 
+(defq scroll_flag_both (logior scroll_flag_vertical scroll_flag_horizontal))
+
 ;lisp bindings
 (ffi path "class/array/lisp_path" 0)
 (ffi component-connect "gui/component/lisp_connect" 0)
