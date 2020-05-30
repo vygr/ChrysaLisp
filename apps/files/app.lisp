@@ -13,10 +13,7 @@
 	(defq dirs (list) files (list))
 	(each! 0 -1 (lambda (f d)
 		(unless (or (starts-with "." f) (starts-with "obj" f))
-			(cond
-				((eql "4" d)
-					(push dirs (cat dir "/" f)))
-				(t	(push files (cat dir "/" f))))))
+			(push (if (eql "4" d) dirs files) (cat dir "/" f))))
 		(unzip (split (pii-dirlist dir) ",") (list (list) (list))))
 	(each (lambda (d)
 		(setq files (cat files (tree d)))) dirs)
