@@ -41,6 +41,7 @@
 	(clear tree_buttons file_buttons)
 	(each (lambda (_)
 		(def (defq b (create-button)) 'text _ 'border 1)
+		(if (eql _ dir) (def b 'color argb_grey14))
 		(view-add-child tree_flow (component-connect b event_tree_button))
 		(push tree_buttons b)) dirs_with_exts)
 	(each (lambda (_)
@@ -48,14 +49,15 @@
 		(view-add-child files_flow (component-connect b event_file_button))
 		(push file_buttons b)) files_within_dir)
 	;layout and size window
+	(bind '(_ ch) (view-get-size tree_scroll))
 	(bind '(w h) (view-pref-size tree_flow))
 	(view-set-size tree_flow w h)
 	(view-layout tree_flow)
-	(def tree_scroll 'min_width w 'min_height 512)
+	(def tree_scroll 'min_width w 'min_height (max ch 256))
 	(bind '(w h) (view-pref-size files_flow))
 	(view-set-size files_flow w h)
 	(view-layout files_flow)
-	(def files_scroll 'min_width w 'min_height 512))
+	(def files_scroll 'min_width w 'min_height (max ch 256)))
 
 (ui-window window nil
 	(ui-flow _ (flow_flags flow_down_fill)
@@ -63,11 +65,15 @@
 		(ui-flow _ (flow_flags flow_right_fill)
 			(ui-label _ (text "Filter:"))
 			(component-connect (ui-textfield ext_filter (text "")) event_filter_action))
-		(ui-flow _ (flow_flags flow_right_fill font *env_terminal_font*)
-			(ui-scroll tree_scroll scroll_flag_vertical nil
-				(ui-flow tree_flow (flow_flags (logior flow_flag_down flow_flag_fillw) color argb_white)))
-			(ui-scroll files_scroll scroll_flag_vertical nil
-				(ui-flow files_flow (flow_flags (logior flow_flag_down flow_flag_fillw) color argb_white))))))
+		(ui-flow _ (flow_flags flow_right_fill font *env_terminal_font* color argb_white)
+			(ui-flow _ (flow_flags flow_down_fill)
+				(ui-label _ (text "Folders" font *env_window_font*))
+				(ui-scroll tree_scroll scroll_flag_vertical nil
+					(ui-flow tree_flow (flow_flags (logior flow_flag_down flow_flag_fillw) color argb_white))))
+			(ui-flow _ (flow_flags flow_down_fill)
+				(ui-label _ (text "Files" font *env_window_font*))
+				(ui-scroll files_scroll scroll_flag_vertical nil
+					(ui-flow files_flow (flow_flags (logior flow_flag_down flow_flag_fillw) color argb_white)))))))
 
 (defun-bind main ()
 	(defq all_files (sort cmp (tree ".")) tree_buttons (list) file_buttons (list) current_dir "./")
