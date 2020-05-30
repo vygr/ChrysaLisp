@@ -30,7 +30,7 @@
 			(if (notany (lambda (_) (eql d _)) dirs_with_exts)
 				(push dirs_with_exts d))
 			(if (eql dir d)
-				(push files_within_dir _)))
+				(push files_within_dir f)))
 		(filter (lambda (f) (some (lambda (ext) (ends-with ext f)) exts)) files))
 	(setq dirs_with_exts (sort cmp dirs_with_exts))
 	;populate tree and files flows
