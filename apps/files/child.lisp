@@ -75,6 +75,8 @@
 	(view-set-size files_flow w h)
 	(view-layout files_flow)
 	(def files_scroll 'min_width w 'min_height (max ch 256))
+	(view-layout files_scroll)
+	(view-layout tree_scroll)
 	(bind '(x y) (view-get-pos window))
 	(bind '(w h) (view-pref-size window))
 	(view-change-dirty window x y w h)
