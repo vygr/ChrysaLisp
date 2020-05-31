@@ -136,13 +136,16 @@
 				;save/load picker responce
 				(mail-send "" picker_mbox)
 				(setq picker_mbox nil)
-				(when (ends-with ".cwb" msg)
-					(cond
-						;save whiteboard
-						(picker_mode
-							(save (str (list "CWB Version 1.0" commited_polygons)) msg))
-						;load whiteboard
-						(t	(bind '(data _) (read (file-stream msg) (ascii-code " ")))
+				(cond
+					;closed picker
+					((eql msg ""))
+					;save whiteboard
+					(picker_mode
+						(save (str (list "CWB Version 1.0" commited_polygons))
+							(cat (slice 0 (if (defq i (find-rev "." msg)) i -1) msg) ".cwb")))
+					;load whiteboard
+					(t	(when (ends-with ".cwb" msg)
+							(bind '(data _) (read (file-stream msg) (ascii-code " ")))
 							(when (eql (elem 0 data) "CWB Version 1.0")
 								(snapshot)
 								(setq commited_polygons (map (lambda ((c p))
