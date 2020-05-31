@@ -4,7 +4,7 @@
 
 (structure 'event 0
 	(byte 'close 'max 'min)
-	(byte 'clear 'undo 'redo)
+	(byte 'save 'load 'clear 'undo 'redo)
 	(byte 'grid 'plain 'axis 'lines)
 	(byte 'radius1 'radius2 'radius3)
 	(byte 'pen 'line 'arrow1 'arrow2 'box 'circle 'fbox 'fcircle)
@@ -20,12 +20,13 @@
 	palette (list argb_black argb_white argb_red argb_green argb_blue argb_cyan argb_yellow argb_magenta)
 	palette (cat palette (map trans palette)) undo_stack (list) redo_stack (list)
 	stroke_col (elem 0 palette) stroke_mode event_pen commited_polygons (list) overlay_paths (list)
-	radius_buttons (list) style_buttons (list) ink_buttons (list) mode_buttons (list))
+	radius_buttons (list) style_buttons (list) ink_buttons (list) mode_buttons (list)
+	picker_mbox nil picker_mode nil select (array (task-mailbox) (mail-alloc-mbox)))
 
 (ui-window window ()
 	(ui-title-bar _ "Whiteboard" (0xea19 0xea1b 0xea1a) (const event_close))
 	(ui-tool-bar _ ()
-		(ui-buttons (0xe970 0xe9fe 0xe99d) (const event_clear))
+		(ui-buttons (0xea07 0xe9e9 0xe970 0xe9fe 0xe99d) (const event_save))
 		(ui-buttons (0xe9a3 0xe976 0xe9f0 0xe9d4) (const event_grid) () style_buttons)
 		(ui-buttons (0xe979 0xe97d 0xe97b) (const event_radius1) () radius_buttons)
 		(ui-buttons (0xe9ec 0xe9d8 0xe917 0xea20 0xe9f6 0xe94b 0xe960 0xe95f) (const event_pen) () mode_buttons))
@@ -91,14 +92,14 @@
 	(when (/= 0 (length undo_stack))
 		(push redo_stack commited_polygons)
 		(setq commited_polygons (pop undo_stack))
-		(redraw 1)) t)
+		(redraw 1)))
 
 (defun-bind redo ()
 	;move state from redo to undo stack and restore old state
 	(when (/= 0 (length redo_stack))
 		(push undo_stack commited_polygons)
 		(setq commited_polygons (pop redo_stack))
-		(redraw 1)) t)
+		(redraw 1)))
 
 (defun-bind commit (p)
 	;commit a stroke to the canvas
@@ -127,90 +128,121 @@
 	(mail-send dlist (defq child_mbox (open-child "apps/whiteboard/child.lisp" kn_call_open)))
 
 	;main event loop
-	(defq last_state 'u last_point nil last_mid_point nil)
-	(while (cond
-		((= (defq id (get-long (defq msg (mail-read (task-mailbox))) (const ev_msg_target_id))) (const event_close))
-			;close button
-			nil)
-		((= id (const event_min))
-			;min button
-			(apply view-change-dirty (cat (list window) (view-get-pos window) (view-pref-size window))))
-		((= id (const event_max))
-			;max button
-			(def image_scroll 'min_width canvas_width 'min_height canvas_height)
-			(apply view-change-dirty (cat (list window) (view-get-pos window) (view-pref-size window)))
-			(def image_scroll 'min_width min_width 'min_height min_height))
-		((<= (const event_black) id (const event_tmagenta))
-			;ink pot
-			(setq stroke_col (elem (radio-select ink_buttons (- id (const event_black))) palette)))
-		((<= (const event_pen) id (const event_fcircle))
-			;draw mode
-			(setq stroke_mode (+ (radio-select mode_buttons (- id (const event_pen))) (const event_pen))))
-		((<= (const event_radius1) id (const event_radius3))
-			;stroke radius
-			(setq stroke_radius (elem (radio-select radius_buttons (- id (const event_radius1))) radiuss)))
-		((<= (const event_grid) id (const event_lines))
-			;styles
-			(def (view-dirty backdrop) 'style (radio-select style_buttons (- id (const event_grid)))))
-		((= id (const event_clear))
-			;clear
-			(snapshot)
-			(clear commited_polygons)
-			(redraw 1))
-		((= id (const event_undo))
-			;undo
-			(undo))
-		((= id (const event_redo))
-			;undo
-			(redo))
-		((= id (component-get-id overlay_canvas))
-			;event for canvas
-			(when (= (get-long msg (const ev_msg_type)) (const ev_type_mouse))
-				;mouse event in canvas
-				(defq new_point (path (i2f (get-int msg (const ev_msg_mouse_rx)))
-					(i2f (get-int msg (const ev_msg_mouse_ry)))))
-				(cond
-					((/= (get-int msg (const ev_msg_mouse_buttons)) 0)
-						;mouse button is down
-						(case last_state
-							(d	;was down last time, what draw mode ?
-								(cond
-									((= stroke_mode (const event_pen))
-										;pen mode, so extend last stroke ?
-										(defq stroke (tuple-get path_path (elem -2 overlay_paths))
-											mid_vec (vec-sub new_point last_point))
-										(when (>= (vec-length-squared mid_vec) (* stroke_radius stroke_radius))
-											(defq mid_point (vec-add last_point (vec-scale mid_vec 0.5)))
-											(path-gen-quadratic
-												(elem 0 last_mid_point) (elem 1 last_mid_point)
-												(elem 0 last_point) (elem 1 last_point)
-												(elem 0 mid_point) (elem 1 mid_point)
-												(const eps) stroke)
-											(path-filter (const tol) stroke stroke)
-											(setq last_point new_point last_mid_point mid_point)
-											(redraw 2)))
-									(t	;a shape mode
-										(tuple-set path_path (elem -2 overlay_paths) (cat last_point new_point))
-										(redraw 2)))
-								)
-							(u	;was up last time, so start new stroke
-								(setq last_state 'd last_point new_point last_mid_point new_point)
-								(push overlay_paths (list stroke_mode stroke_col stroke_radius new_point))
-								(redraw 2))))
-					(t	;mouse button is up
-						(case last_state
-							(d	;was down last time, so last point and commit stroke
+	(defq last_state 'u last_point nil last_mid_point nil id t)
+	(while id
+		(defq msg (mail-read (elem (defq idx (mail-select select)) select)))
+		(cond
+			((/= idx 0)
+				;save/load picker responce
+				(mail-send "" picker_mbox)
+				(setq picker_mbox nil)
+				(when (ends-with ".cwb" msg)
+					(cond
+						;save whiteboard
+						(picker_mode
+							(save (str (list "CWB Version 1.0" commited_polygons)) msg))
+						;load whiteboard
+						(t	(bind '(data _) (read (file-stream msg) (ascii-code " ")))
+							(when (eql (elem 0 data) "CWB Version 1.0")
 								(snapshot)
-								(setq last_state 'u)
-								(defq stroke (tuple-get path_path (elem -2 overlay_paths)))
-								(push stroke (elem 0 new_point) (elem 1 new_point))
-								(path-filter 0.5 stroke stroke)
-								(each commit overlay_paths)
-								(clear overlay_paths)
-								(redraw 3))
-							(u	;was up last time, so we are hovering
-								t))))) t)
-		(t (view-event window msg))))
+								(setq commited_polygons (map (lambda ((c p))
+									(list c (map (lambda (_)
+										(apply path _)) p))) (elem 1 data)))
+								(redraw 1))))))
+			((= (setq id (get-long msg (const ev_msg_target_id))) (const event_close))
+				;close button
+				(setq id nil))
+			((= id (const event_min))
+				;min button
+				(apply view-change-dirty (cat (list window) (view-get-pos window) (view-pref-size window))))
+			((= id (const event_max))
+				;max button
+				(def image_scroll 'min_width canvas_width 'min_height canvas_height)
+				(apply view-change-dirty (cat (list window) (view-get-pos window) (view-pref-size window)))
+				(def image_scroll 'min_width min_width 'min_height min_height))
+			((<= (const event_black) id (const event_tmagenta))
+				;ink pot
+				(setq stroke_col (elem (radio-select ink_buttons (- id (const event_black))) palette)))
+			((<= (const event_pen) id (const event_fcircle))
+				;draw mode
+				(setq stroke_mode (+ (radio-select mode_buttons (- id (const event_pen))) (const event_pen))))
+			((<= (const event_radius1) id (const event_radius3))
+				;stroke radius
+				(setq stroke_radius (elem (radio-select radius_buttons (- id (const event_radius1))) radiuss)))
+			((<= (const event_grid) id (const event_lines))
+				;styles
+				(def (view-dirty backdrop) 'style (radio-select style_buttons (- id (const event_grid)))))
+			((= id (const event_save))
+				;save
+				(if picker_mbox (mail-send "" picker_mbox))
+				(mail-send (list (elem -2 select) "Save Whiteboard..." "." "")
+					(setq picker_mode t picker_mbox (open-child "apps/files/child.lisp" kn_call_open))))
+			((= id (const event_load))
+				;load
+				(if picker_mbox (mail-send "" picker_mbox))
+				(mail-send (list (elem -2 select) "Load Whiteboard..." "." ".cwb")
+					(setq picker_mode nil picker_mbox (open-child "apps/files/child.lisp" kn_call_open))))
+			((= id (const event_clear))
+				;clear
+				(snapshot)
+				(clear commited_polygons)
+				(redraw 1))
+			((= id (const event_undo))
+				;undo
+				(undo))
+			((= id (const event_redo))
+				;undo
+				(redo))
+			((= id (component-get-id overlay_canvas))
+				;event for canvas
+				(when (= (get-long msg (const ev_msg_type)) (const ev_type_mouse))
+					;mouse event in canvas
+					(defq new_point (path (i2f (get-int msg (const ev_msg_mouse_rx)))
+						(i2f (get-int msg (const ev_msg_mouse_ry)))))
+					(cond
+						((/= (get-int msg (const ev_msg_mouse_buttons)) 0)
+							;mouse button is down
+							(case last_state
+								(d	;was down last time, what draw mode ?
+									(cond
+										((= stroke_mode (const event_pen))
+											;pen mode, so extend last stroke ?
+											(defq stroke (tuple-get path_path (elem -2 overlay_paths))
+												mid_vec (vec-sub new_point last_point))
+											(when (>= (vec-length-squared mid_vec) (* stroke_radius stroke_radius))
+												(defq mid_point (vec-add last_point (vec-scale mid_vec 0.5)))
+												(path-gen-quadratic
+													(elem 0 last_mid_point) (elem 1 last_mid_point)
+													(elem 0 last_point) (elem 1 last_point)
+													(elem 0 mid_point) (elem 1 mid_point)
+													(const eps) stroke)
+												(path-filter (const tol) stroke stroke)
+												(setq last_point new_point last_mid_point mid_point)
+												(redraw 2)))
+										(t	;a shape mode
+											(tuple-set path_path (elem -2 overlay_paths) (cat last_point new_point))
+											(redraw 2)))
+									)
+								(u	;was up last time, so start new stroke
+									(setq last_state 'd last_point new_point last_mid_point new_point)
+									(push overlay_paths (list stroke_mode stroke_col stroke_radius new_point))
+									(redraw 2))))
+						(t	;mouse button is up
+							(case last_state
+								(d	;was down last time, so last point and commit stroke
+									(snapshot)
+									(setq last_state 'u)
+									(defq stroke (tuple-get path_path (elem -2 overlay_paths)))
+									(push stroke (elem 0 new_point) (elem 1 new_point))
+									(path-filter 0.5 stroke stroke)
+									(each commit overlay_paths)
+									(clear overlay_paths)
+									(redraw 3))
+								(u	;was up last time, so we are hovering
+									t))))) t)
+			(t (view-event window msg))))
 	;close child and window
+	(mail-free-mbox (elem -2 select))
 	(mail-send "" child_mbox)
+	(if picker_mbox (mail-send "" picker_mbox))
 	(view-hide window))
