@@ -27,6 +27,12 @@ corrupted.
 
 ------
 
+Created standard File picker, added demo Files browser and used picker to
+implement save/load of Whiteboard document files. Picker is now available for
+use by all applications.
+
+------
+
 Added (def:) macro for easy definition of self evaluating symbols.
 
 'find and 'rfind methods promoted to the 'seq interface. (find) and (find-rev)
