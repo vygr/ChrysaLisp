@@ -383,10 +383,13 @@
 	(entry 'seq 'lisp_cat '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type `(r1 (@ ,(f-path 'seq 'vtable)) 1) '(r2))
-	(gotoif '(r2 = 0) 'error))
+	(call 'lisp 'env_args_type `(r1 (@ ,(f-path 'str 'vtable)) 1) '(r2))
+	(vpif '(r2 = 0))
+		(call 'lisp 'env_args_match `(r1 (@ ,(f-path 'seq 'vtable)) 1) '(r2))
+		(gotoif '(r2 = 0) 'error)
+	(endif))
 
-	(vp-cpy-rr r0 r13)
+	(assign '(r0) '(r13))
 	(class/array/bind_args r1 '(r0))
 	(call 'seq 'cat '(r0 r1) '(r0))
 
