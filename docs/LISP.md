@@ -202,15 +202,17 @@ compose
 const
 curry
 dec
+def:
 defmacro
 defmacro-bind
 defun
-def:
 defun-bind
-each-rev
 each
+each-rev
+first
 if
 inc
+last
 let
 opt
 or
@@ -218,6 +220,9 @@ rcurry
 read-int
 read-long
 read-short
+reduced
+rest
+second
 setd
 times
 tuple-get
@@ -228,7 +233,6 @@ when
 write-int
 write-long
 write-short
-reduced
 ```
 
 ### boot.inc functions

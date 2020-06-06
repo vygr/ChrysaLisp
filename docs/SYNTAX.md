@@ -456,6 +456,10 @@
 
 (find-rev elem seq)
 
+## first
+
+(first seq) -> el
+
 ## fixeds
 
 (fixeds [form ...])
@@ -603,6 +607,10 @@
 ## lambda
 
 (lambda ([arg ...]) body)
+
+## last
+
+(last seq) -> el
 
 ## length
 
@@ -1004,9 +1012,17 @@
 
 (repl stream path)
 
+## rest
+
+(rest seq) -> seq
+
 ## save
 
 (save str path)
+
+## second
+
+(second seq) -> el
 
 ## set
 

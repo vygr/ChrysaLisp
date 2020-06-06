@@ -393,6 +393,22 @@
 ; Sequences
 ;;;;;;;;;;;
 
+(defmacro-bind first (s)
+	;(first seq) -> el
+	`(elem 0 ,s))
+
+(defmacro-bind second (s)
+	;(second seq) -> el
+	`(elem 1 ,s))
+
+(defmacro-bind last (s)
+	;(last seq) -> el
+	`(elem -2 ,s))
+
+(defmacro-bind rest (s)
+	;(rest seq) -> seq
+	`(slice 1 -1 ,s))
+
 (defun-bind erase (s b e)
 	;(erase seq start end) -> seq
 	(cat (slice 0 b s) (slice e -1 s)))
