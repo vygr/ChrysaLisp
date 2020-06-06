@@ -1,5 +1,7 @@
 # Terminal
 
+UNDER CONSTRUCTION
+
 ## Overview
 ChrysaLisp currently provides a rudimentry terminal ***shell*** application. The shell is available in both the GUI as well as TUI invocations.
 
