@@ -31,6 +31,9 @@ Created standard File picker, added demo Files browser and used picker to
 implement save/load of Whiteboard document files. Picker is now available for
 use by all applications.
 
+Added (first), (second), (last) and (rest) macros to the sequence section of
+the boot.inc file.
+
 ------
 
 Added (def:) macro for easy definition of self evaluating symbols.
