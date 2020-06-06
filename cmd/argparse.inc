@@ -180,9 +180,9 @@
   (push result (walk self argstack cmdres))
   argstack)
 
-(defun walk (self arglist &optional res)
+(defun walk (self arglist &optional result)
   ; (walk-arguments self arglist)
-  (defq result (opt res (list)))
+  (setd result (list))
   (while (/= (length arglist) 0)
          (defq
           current (stack-peek arglist)
