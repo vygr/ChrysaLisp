@@ -38,14 +38,14 @@
 		(or (= (type-of _) lisp_type_fnc)
 			(and (= (type-of _) lisp_type_lst) (/= 0 (length _)) (eql 'lambda (elem 0 _))))))
 
-(defun-bind debug-fun (_n _)
+(defun-bind debug-fun (n _)
 	;(debug-fun name list) -> list
-	(defq _s (list (setq _ (copy _))))
-	(while (defq _l (pop _s))
-		(each (lambda (_e)
-			(when (is-debug-fun _e)
-				(elem-set _ _l (cat '(debug) (list _n _e)))
-				(push _s _e))) _l)) _)
+	(defq s (list _))
+	(while (defq l (pop s))
+		(each (lambda (e)
+			(when (is-debug-fun e)
+				(elem-set _ l (cat '(debug) (list n e)))
+				(push s e))) l)) _)
 
 (defmacro-bind defun-debug (n a &rest _)
 	;(defun-debug name ([arg ...]) body)
