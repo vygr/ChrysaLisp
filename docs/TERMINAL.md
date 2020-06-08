@@ -11,16 +11,20 @@ The shell application comes ready to run:
 * Lisp REPL
 * ***etc***
 
-## Command Inventory
+## Command Applications
+Commands, located in the `cmd/` directory, are all Lisp applications that can be invoked directly at the shell command line. They typically have a `.lisp` extension however; you only need to specifcy the base command script name in order for it to execute.
 
-### Commands
-There are various commands ready to be invoked when in the shell. The full inventory can be found. They are located in the `cmd/` directory and typically have a `.lisp` extension.
+A few command examples:
+* lisp
+* echo
+* files
+* cat
+* dump
 
-For example, the following are but a few available commands:
+Are all commands that can be invoked from the shell command line. Note that some of the commands may include optional arguments to be passed to the command. Typically, commands do provide argument help and can be displayed by `command-name -h` where ***command-name*** is the name of the command.
 
-
-### Includes
-
+## Include Files
+Commands are lisp programs and, as such, have support for including other files. This enables resolution and re-use of terms and functions that enhance and enable the processing of the command. While not required, new include files co-resident with commands in the `cmd/` folder follow a naming convention with a file extension of `.inc`.
 
 ### Examples
 
