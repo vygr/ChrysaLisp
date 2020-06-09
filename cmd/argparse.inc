@@ -45,74 +45,73 @@
   (starts-with "-" arg))
 
 ; DSL
-(def: '(clz             ; Faux class key
-        clz_processor   ; Class type
-        clz_command     ; Class type
-        clz_argument    ; Class type
-        type_none       ; Value type constraints
-        type_string     ;
-        type_integer    ;
-        type_float      ;
-        type_boolean    ;
-        type_file       ;
-        arguments       ; Argument container key
-        argument        ; Argument value key
-        commands        ; Command container key
-        command         ; Command value key
-        in_args         ; Original arguments
-        application     ; Name for application
-        version         ; Version for application
-        help            ; Help string
-        counter         ; Number of values constraint
-        dest            ; Result value key
-        type            ; Value type for validation
-        validator       ; Validator fn
-        handler         ; Handler fn
-        required) (env)) ; Required flag
+(def: '(:clz             ; Faux class key
+        :clz_processor   ; Class type
+        :clz_command     ; Class type
+        :clz_argument    ; Class type
+        :type_none       ; Value type constraints
+        :type_string     ;
+        :type_integer    ;
+        :type_float      ;
+        :type_boolean    ;
+        :type_file       ;
+        :arguments       ; Argument container key
+        :argument        ; Argument value key
+        :commands        ; Command container key
+        :command         ; Command value key
+        :in_args         ; Original arguments
+        :application     ; Name for application
+        :version         ; Version for application
+        :help            ; Help string
+        :counter         ; Number of values constraint
+        :dest            ; Result value key
+        :type            ; Value :type for validation
+        :validator       ; Validator fn
+        :handler         ; Handler fn
+        :required) (env)) ; Required flag
 
 (defun-bind noop (&rest _) _)
 
 ; Main argparse structure template
 (defun-bind parser_template ()
       (list
-        (list clz clz_processor)
-        (list arguments (list))     ; Collection of high level arguments
-        (list commands (list))      ; Collection of high level commands
-        (list in_args nil)          ; Retain the original command line arguments
-        (list application "")       ; Application name string
-        (list version "")           ; Application version string
-        (list required nil)         ; Are free form values reqiured?
-        (list counter 0)            ; Number of free form (not arg or cmd) values
-        (list type type_none)       ; Type for term validation
-        (list validator noop)       ; Argument value type validator fn
-        (list handler noop)         ; fn for parsed command line result
-        (list help "")))            ; Help string
+        (list :clz :clz_processor)
+        (list :arguments (list))     ; Collection of high level arguments
+        (list :commands (list))      ; Collection of high level commands
+        (list :in_args nil)          ; Retain the original :command line arguments
+        (list :application "")       ; Application name string
+        (list :version "")           ; Application :version string
+        (list :required nil)         ; Are free form values reqiured?
+        (list :counter 0)            ; Number of free form (not arg or cmd) values
+        (list :type :type_none)       ; Type for term validation
+        (list :validator noop)       ; Argument value :type :validator fn
+        (list :handler noop)         ; fn for parsed :command line result
+        (list :help "")))            ; Help string
 
-;
 (defun-bind arg_template ()
       (list
-        (list clz clz_argument)
-        (list argument nil)         ; The argument flags e.g. ("-s" "--string")
-        (list required nil)         ; Are free form values reqiured?
-        (list counter 0)            ; Number of values accepted for argument
-        (list type type_none)       ; Type for term validation
-        (list dest argument)        ; Term for argument parse results
-        (list validator noop)       ; Argument value type validator fn
-        (list handler noop)         ; fn for parsed argument
-        (list help "")))            ; Help string
+        (list :clz :clz_argument)
+        (list :argument nil)         ; The :argument flags e.g. ("-s" "--string")
+        (list :required nil)         ; Are free form values reqiured?
+        (list :counter 0)            ; Number of values accepted for :argument
+        (list :type :type_none)       ; Type for term validation
+        (list :dest :argument)        ; Term for :argument parse results
+        (list :validator noop)       ; Argument value :type :validator fn
+        (list :handler noop)         ; fn for parsed :argument
+        (list :help "")))            ; Help string
 
 (defun-bind cmd_template ()
       (list
-        (list clz clz_command)
-        (list arguments (list))     ; Arguments for command
-        (list command "")           ; Single command string
-        (list required nil)         ; Are free form values reqiured?
-        (list counter 0)            ; Number of values accepted for command
-        (list type type_none)       ; Type for term validation
-        (list dest command)         ; Term for command parse results
-        (list validator noop)       ; Command value type validator fn
-        (list handler noop)         ; fn for parsed command
-        (list help "")))            ; Help string
+        (list :clz :clz_command)
+        (list :arguments (list))     ; Arguments for :command
+        (list :command "")           ; Single :command string
+        (list :required nil)         ; Are free form values reqiured?
+        (list :counter 0)            ; Number of values accepted for :command
+        (list :type :type_none)       ; Type for term validation
+        (list :dest :command)         ; Term for :command parse results
+        (list :validator noop)       ; Command value :type :validator fn
+        (list :handler noop)         ; fn for parsed :command
+        (list :help "")))            ; Help string
 
 
 (defun-bind get-property-container (self prop_id)
@@ -130,17 +129,18 @@
 
 (defun-bind get-class (self)
   ; (get-class self) -> clz | nil
-  (get-property self clz))
+  (get-property self :clz))
 
-; Validators
+; Validation
 
 (defun-bind validate-none (inst val)
-  (throw (str (get-property inst clz) " not expecting value") val))
+  ; (validate-none inst val) -> exception
+  (throw (str (get-class inst) " not expecting value") val))
 
 (defun-bind validate-count (inst val)
   ; (validate-count arg-clz val) -> t | exception
-  (when (= (get-property inst counter) 0)
-    (throw (str (get-property inst clz) " not expecting value") val))
+  (when (= (get-property inst :counter) 0)
+    (throw (str (get-class inst) " not expecting value") val))
   t)
 
 (defun-bind validate-string (inst arg)
@@ -177,12 +177,14 @@
           (not (str? filename)))
     (throw "Validation: expected filename, found" filename))
   filename)
+
 (defun-bind validate-file-exists (inst filename)
   ; (validate-file-exists arg-clz filename) -> filename | exception
   (validate-file inst filename)
   (when (= (age filename) 0)
     (throw "Validation: file not found error" filename))
   filename)
+
 (defun-bind validate-file-not-exists (inst filename)
   ; (validate-file-not-exists arg-clz filename) -> filename | exception
   (validate-file inst filename)
@@ -213,17 +215,17 @@
     (push (second container) value))
   self)
 
-(defun-bind add-argument (self in_argument)
-  ; (add-argument self in_argument)
-  (extend self arguments in_argument))
+(defun-bind add-argument (self in_:argument)
+  ; (add-argument self in_:argument)
+  (extend self :arguments in_:argument))
 
 (defun-bind add-command (self in_cmd)
   ; (add-command self in_cmd)
-  (extend self commands in_cmd))
+  (extend self :commands in_cmd))
 
 (defun-bind container-for (self value container property)
   ; (container-for self value container property)
-  ; For a containing type, find a match of
+  ; For a containing :type, find a match of
   ; value for a specific properties value
   (defq res (get-property self container '()))
   (some (lambda (el)
@@ -234,16 +236,16 @@
 
 (defun-bind get-either-container (self value)
   ; (get-either-container self value)
-  (if (defq res (container-for self value commands command))
+  (if (defq res (container-for self value :commands :command))
       res
-      (container-for self value arguments argument)))
+      (container-for self value :arguments :argument)))
 
 (defun-bind consume-argument (root self argstack result)
   ; (consume-argument root self argstack result)
   (defq
     myflag (stack-pop argstack)
-    argcnt (get-property self counter))
-  (push result (get-property self dest))
+    argcnt (get-property self :counter))
+  (push result (get-property self :dest))
   (when (> argcnt 0)
     (defq
       cnt 0
@@ -253,8 +255,7 @@
         (< cnt argcnt)
         (not (stack-empty? argstack))
         (not (get-either-container root (stack-peek argstack))))
-          ((get-property self validator) self (stack-peek argstack))
-          (push inner (stack-pop argstack))
+          (push inner ((get-property self :validator) self (stack-pop argstack)))
           (setq cnt (inc cnt)))
     (if (= cnt argcnt)
       (merge result inner)
@@ -264,9 +265,9 @@
 (defun-bind consume-command (root self argstack result)
   ; (consume-command root self argstack result)
   (stack-pop argstack)
-  (if (defq cmdi (get-property self handler))
+  (if (defq cmdi (get-property self :handler))
       (push result cmdi)
-      (push result (get-property self dest)))
+      (push result (get-property self :dest)))
   (defq cmdres (list))
   (push result (walk self argstack cmdres))
   argstack)
@@ -277,8 +278,8 @@
   (while (/= (length arglist) 0)
          (defq
           current (stack-peek arglist)
-          arg_object (container-for self current arguments argument)
-          cmd_object (container-for self current commands command))
+          arg_object (container-for self current :arguments :argument)
+          cmd_object (container-for self current :commands :command))
          ; (print "processing " current)
          (cond
           (arg_object
@@ -288,8 +289,7 @@
            ((isarg? current)
             (throw "Unrecognized flag " current))
            (t (progn
-            ((get-property self validator) self (stack-peek arglist))
-            (push result (stack-pop arglist))))))
+            (push result ((get-property self :validator) self (stack-peek arglist)))))))
   result)
 
 (defun-bind process-args (self arglist)
@@ -298,7 +298,7 @@
       (progn
         (defq
           res (walk self arglist)
-          invoke (get-property self handler))
+          invoke (get-property self :handler))
         (if (and invoke (/= (length res) 0))
           (progn (invoke self res))
           res))
@@ -307,71 +307,72 @@
 (defun-bind argcontains (self argstring)
   (reduced-reduce
     (lambda (acc el)
-      (if (sfind argstring (get-property el argument))
+      (if (sfind argstring (get-property el :argument))
           (reduced el)
           nil))
-    (get-property self arguments) '()))
+    (get-property self :arguments) '()))
 
 (defun-bind parse (self)
   ; (parse parser)
-  ; Parses and optinally executes command line
+  ; Parses and optinally executes :command line
+  (defq inarg (get-property self :in_args))
   (cond
     ((opt
-       (sfind "-h" (get-property self in_args))
-       (sfind "--help" (get-property self in_args)))
-      ((get-property (argcontains self "-h") handler) self))
+       (sfind "-h" inarg)
+       (sfind "--help" inarg))
+      ((get-property (argcontains self "-h") :handler) self))
     ((opt
-       (sfind "-v" (get-property self in_args))
-       (sfind "--version" (get-property self in_args)))
-      ((get-property (argcontains self "-v") handler) self))
-    ((not (get-property self in_args))
+       (sfind "-v" inarg)
+       (sfind "--version" inarg))
+      ((get-property (argcontains self "-v") :handler) self))
+    ((not (get-property self inarg))
       (let ((targ (argcontains self "-h")))
-       ((get-property targ handler) self)))
+       ((get-property targ :handler) self)))
     (t
-      (let ((cargs (copy (get-property self in_args))))
+      (let ((cargs (copy inarg)))
         (catch (process-args self cargs) (print _))))))
 
 ; Help dump
 
-(defun-bind format-row (arg arghelp)
+(defun-bind format-row (arg arg:help)
   (defq colbuff (-  30 (+ (length arg) +indent4+)))
-  (str (pad "" +indent4+) arg (pad "" colbuff) arghelp))
+  (str (pad "" +indent4+) arg (pad "" colbuff) arg:help))
 
 (defun-bind format-command-str(cmds)
   ; (format-command-str seq) -> "{el [,el]}"
   (str "{" (join (reduce (lambda (acc el)
-              (push acc (get-property el command))) cmds (list))
+              (push acc (get-property el :command))) cmds (list))
         ",") "}"))
 
 (defun-bind format-usage-str (self arglist cmdstr)
   ; (format-usage-str self arglist cmdstr) -> "usage ..."
   (str (reduce
          (lambda (acc el)
-           (cat acc (str "[" (first (get-property el argument)) "] ")))
+           (cat acc (str "[" (first (get-property el :argument)) "] ")))
          arglist
-         (str "usage: " (get-property self application) " "))
+         (str "usage: " (get-property self :application) " "))
     cmdstr " ..."))
 
 (defun-bind dump-help (self)
   ; (dump-help self)
-  ; Spits the help tree
+  ; Spits the :help tree
   (defq
-    arglist (get-property self arguments)
-    cmdlist (get-property self commands)
+    arglist (get-property self :arguments)
+    cmdlist (get-property self :commands)
     cmdstr  (format-command-str cmdlist))
   ; Print usage string
   (print (format-usage-str self arglist cmdstr))
-  ; Print application help
-  (print +nl+ (get-property self help) +nl+)
-  ; Print argparse arguments
-  (print "optional arguments:")
+  ; Print :application :help
+  (print +nl+ (get-property self :help) +nl+)
+  ; Print argparse :arguments
+  (print "optional :arguments:")
   (print (reduce (lambda (acc el)
-                 (defq args (get-property el argument))
+                 (defq args (get-property el :argument))
                  (cat acc
-                      (format-row (join args ",") (get-property el help))
+                      (format-row (join args ",") (get-property el :help))
                       +nl+))
                  arglist ""))
-  ; Print argparse commands
+  ; Print argparse :commands
   ; TODO: Need additional {cmd [,cmd]} when memory exception fixed
   (when (/= (length cmdlist) 0)
     (print "Actions:" +nl+
@@ -379,35 +380,35 @@
            (reduce (lambda (acc el)
                      (cat acc
                           (format-row
-                            (get-property el command)
-                            (get-property el help))
+                            (get-property el :command)
+                            (get-property el :help))
                           +nl+))
                    cmdlist ""))))
 
 (defun-bind dump-version (self)
   ; (dump-version self)
-  ; Spit the version
-  (print (get-property self application)
+  ; Spit the :version
+  (print (get-property self :application)
          (pad "" +indent2+)
-         (get-property self version)))
+         (get-property self :version)))
 
 (defun-bind create-argument (args arg_help &optional handler_fn)
-  ; Create argument block
+  ; Create :argument block
   (defq instance (arg_template))
   (set-properties instance
-                  argument args
-                  help arg_help
-                  handler (opt handler_fn noop)))
+                  :argument args
+                  :help arg_help
+                  :handler (opt handler_fn noop)))
 
 (defun-bind create-command (cmds cmd_help)
-  ; Create command block
+  ; Create :command block
   (defq instance (cmd_template))
   (set-properties instance
-                  command cmds
-                  help cmd_help))
+                  :command cmds
+                  :help cmd_help))
 
 (defun-bind create-argparse (app_name app_version argstring)
-  ; Creates the argument processor
+  ; Creates the :argument processor
   (defq
     instance (parser_template)
     ha (create-argument
@@ -419,9 +420,9 @@
                  "displays application version and exits"
                  dump-version))
   ; Settings (can be overridden)
-  (add-argument instance (set-properties ha type type_none))
-  (add-argument instance (set-properties va type type_none))
+  (add-argument instance (set-properties ha :type :type_none))
+  (add-argument instance (set-properties va :type :type_none))
   (set-properties instance
-                  application app_name
-                  version app_version
-                  in_args (reverse argstring)))
+                  :application app_name
+                  :version app_version
+                  :in_args (reverse argstring)))
