@@ -227,10 +227,10 @@ list from the parent class declaration.
 An example from the array class.inc.
 
 ```lisp
-(dec-method 'find 'class/array/find 'static '(r0 r1) '(r0 r1))
-(dec-method 'for_each 'class/array/for_each 'static '(r0 r1 r2 r3 r4) '(r0 r1))
-(dec-method 'sort 'class/array/sort 'static '(r0 r1 r2 r3 r4 r5) '(r0))
-(dec-method 'partition 'class/array/partition 'static '(r0 r1 r2 r3 r4) '(r0 r1))
+(dec-method 'find 'class/array/find :static '(r0 r1) '(r0 r1))
+(dec-method 'for_each 'class/array/for_each :static '(r0 r1 r2 r3 r4) '(r0 r1))
+(dec-method 'sort 'class/array/sort :static '(r0 r1 r2 r3 r4 r5) '(r0))
+(dec-method 'partition 'class/array/partition :static '(r0 r1 r2 r3 r4) '(r0 r1))
 ```
 
 Core functions in the kernel and class libs are very careful to track and
@@ -253,7 +253,7 @@ Register inputs and outputs are declared in the `sys/str/class.inc` file.
 
 ```lisp
 (def-class 'sys_str)
-(dec-method 'compare 'sys/str/compare 'static '(r0 r1) '(r0))
+(dec-method 'compare 'sys/str/compare :static '(r0 r1) '(r0))
 ```
 
 So this function will take the C style input char*'s in registers r0 and r1,

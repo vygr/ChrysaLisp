@@ -185,7 +185,7 @@ as with a VP function.
 
 ```lisp
 (def-class 'sys_mail)
-(dec-method 'declare 'sys/mail/declare 'static '(r0 r1))
+(dec-method 'declare 'sys/mail/declare :static '(r0 r1))
 ```
 
 Implementation of the function is defined in the `sys/mail/class.vp` file.

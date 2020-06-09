@@ -2,11 +2,11 @@
 
 (def-class 'texture 'obj)
 (dec-method 'vtable 'gui/texture/vtable)
-(dec-method 'create 'gui/texture/create 'static '(r0 r1 r2) '(r0))
-(dec-method 'init 'gui/texture/init 'static '(r0 r1 r2 r3 r4))
-(dec-method 'get_metrics 'gui/texture/get_metrics 'static '(r0) '(r0 r1 r2 r3))
+(dec-method 'create 'gui/texture/create :static '(r0 r1 r2) '(r0))
+(dec-method 'init 'gui/texture/init :static '(r0 r1 r2 r3 r4))
+(dec-method 'get_metrics 'gui/texture/get_metrics :static '(r0) '(r0 r1 r2 r3))
 
-(dec-method 'deinit 'gui/texture/deinit 'final)
+(dec-method 'deinit 'gui/texture/deinit :final)
 
 (def-struct 'texture 'obj)
 	(ulong 'handle)

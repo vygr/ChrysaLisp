@@ -12,11 +12,11 @@
 (def-class 'gui)
 (dec-method 'statics 'gui/gui/statics)
 (dec-method 'statics_init 'gui/gui/statics_init)
-(dec-method 'update 'gui/gui/update 'static '(r0))
+(dec-method 'update 'gui/gui/update :static '(r0))
 (dec-method 'gui 'gui/gui/gui)
 
-(dec-method 'lisp_add 'gui/gui/lisp_add 'static '(r0 r1) '(r0 r1))
-(dec-method 'lisp_add_back 'gui/gui/lisp_add_back 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_add 'gui/gui/lisp_add :static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_add_back 'gui/gui/lisp_add_back :static '(r0 r1) '(r0 r1))
 
 ;;;;;;;;;;;;;;;;
 ; gui structures

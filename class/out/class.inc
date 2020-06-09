@@ -2,16 +2,16 @@
 
 (def-class 'out 'stream)
 (dec-method 'vtable 'class/out/vtable)
-(dec-method 'create 'class/out/create 'static '(r0) '(r0))
-(dec-method 'init 'class/out/init 'static '(r0 r1 r2))
-(dec-method 'set_state 'class/out/set_state 'static '(r0 r1) '(r0))
-(dec-method 'wait_acks 'class/out/wait_acks 'static '(r0 r1) '(r0))
+(dec-method 'create 'class/out/create :static '(r0) '(r0))
+(dec-method 'init 'class/out/init :static '(r0 r1 r2))
+(dec-method 'set_state 'class/out/set_state :static '(r0 r1) '(r0))
+(dec-method 'wait_acks 'class/out/wait_acks :static '(r0 r1) '(r0))
 
-(dec-method 'deinit 'class/out/deinit 'final)
-(dec-method 'write_flush 'class/out/write_flush 'final)
-(dec-method 'write_next 'class/out/write_next 'final)
+(dec-method 'deinit 'class/out/deinit :final)
+(dec-method 'write_flush 'class/out/write_flush :final)
+(dec-method 'write_next 'class/out/write_next :final)
 
-(dec-method 'lisp_create 'class/out/lisp_create 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_create 'class/out/lisp_create :static '(r0 r1) '(r0 r1))
 
 (def-struct 'out 'stream)
 	(struct 'id 'id)

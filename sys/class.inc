@@ -25,7 +25,7 @@
 		(vp-long 0)
 		(fn-add-link (f-path _ 'vtable)))
 	(each (lambda (_)
-		(if (or (eql (elem 1 _) 'virtual) (eql (elem 1 _) 'final))
+		(if (or (eql (elem 1 _) :virtual) (eql (elem 1 _) :final))
 			(fn-add-link (elem 0 _)))) (elem 1 (eval (class-sym _1)))))
 
 (defcfun def-class (_1 &optional _2)
@@ -49,43 +49,43 @@
 	;_3 = mode (static/virtual/final/override)
 	;_4 = in regs
 	;_5 = out regs
-	(setd _3 'static)
+	(setd _3 :static)
 	(defq m (if (defq s (find-rev _1 (elem 0 *class*))) (elem s (elem 1 *class*))))
 	(if m
 		(case _3
 			;existing method
-			(static
-				(if (eql (elem 1 m) 'static)
+			(:static
+				(if (eql (elem 1 m) :static)
 					(override)
 					(throw "Virtual method already exists !" _1)))
-			(final
+			(:final
 				(case (elem 1 m)
-					(virtual
+					(:virtual
 						(override)
 						(elem-set 1 m _3))
-					(final
+					(:final
 						(throw "Virtual method is final !" _1))
 					(t (throw "Static method already exists !" _1))))
-			(override
+			(:override
 				(case (elem 1 m)
-					(virtual
+					(:virtual
 						(override))
-					(final
+					(:final
 						(throw "Virtual method is final !" _1))
 					(t (throw "Static method already exists !" _1))))
-			(virtual
+			(:virtual
 				(throw "Method already exists !, use override ?" _1))
 			(t (throw "Must use static, virtual, final or override ! " _3)))
 		(case _3
 			;new method
-			(static
+			(:static
 				(push (elem 0 *class*) _1)
 				(push (elem 1 *class*) (list _2 _3 (intern-args _4) (intern-args _5))))
-			((virtual final)
+			((:virtual :final)
 				(push (elem 0 *class*) _1)
 				(push (elem 1 *class*) (list _2 _3 (intern-args _4) (intern-args _5)
 					(elem-set 2 *class* (+ (elem 2 *class*) ptr_size)))))
-			(override
+			(:override
 				(throw "Method does not exist !" _1))
 			(t (throw "Must use static, virtual, final or override ! " _3)))))
 
@@ -109,7 +109,7 @@
 			(defq m (method-lookup _1 _2))
 			(cond
 				;f-call
-				((eql (elem 1 m) 'static)
+				((eql (elem 1 m) :static)
 					(assign _3 (elem 2 m))
 					(fn-call (elem 0 m))
 					(if _4 (assign (elem 3 m) _4)))
@@ -141,7 +141,7 @@
 	;_3 = in parameters
 	(defq m (method-lookup _1 _2))
 	(cond
-		((eql (elem 1 m) 'static)
+		((eql (elem 1 m) :static)
 			(assign _3 (elem 2 m))
 			(unwind)
 			(fn-jump (elem 0 m)))
@@ -251,7 +251,7 @@
 	;_3 = in parameters
 	;_4 = out parameters
 	(defq m (method-lookup _1 _2))
-	(unless (eql (elem 1 m) 'static)
+	(unless (eql (elem 1 m) :static)
 		(throw "Method is not static ! Use v-call ?" (list _1 _2)))
 	(assign _3 (elem 2 m))
 	(fn-call (elem 0 m))
@@ -262,7 +262,7 @@
 	;_2 = member name
 	;_3 = in parameters
 	(defq m (method-lookup _1 _2))
-	(unless (eql (elem 1 m) 'static)
+	(unless (eql (elem 1 m) :static)
 		(throw "Method is not static ! Use v-jump ?" (list _1 _2)))
 	(assign _3 (elem 2 m))
 	(unwind)
@@ -273,7 +273,7 @@
 	;_2 = member name
 	;_3 = reg
 	(defq m (method-lookup _1 _2))
-	(unless (eql (elem 1 m) 'static)
+	(unless (eql (elem 1 m) :static)
 		(throw "Method is not static ! Use v-bind ?" (list _1 _2)))
 	(fn-bind (elem 0 m) _3))
 
@@ -283,7 +283,7 @@
 	;_3 = in parameters
 	;_4 = out parameters
 	(defq m (method-lookup (eval (super-sym _1)) _2))
-	(if (eql (elem 1 m) 'static)
+	(if (eql (elem 1 m) :static)
 		(unless (eql _2 'init)
 			(throw "Method is static !" (list (eval (super-sym _1)) _2))))
 	(assign _3 (elem 2 m))
@@ -296,7 +296,7 @@
 	;_2 = member name
 	;_3 = in parameters
 	(defq m (method-lookup (eval (super-sym _1)) _2))
-	(if (eql (elem 1 m) 'static)
+	(if (eql (elem 1 m) :static)
 		(unless (eql _2 'init)
 			(throw "Method is static !" (list (eval (super-sym _1)) _2))))
 	(assign _3 (elem 2 m))
@@ -310,7 +310,7 @@
 	;_2 = member name
 	;_3 = reg
 	(defq m (method-lookup (eval (super-sym _1)) _2))
-	(if (eql (elem 1 m) 'static)
+	(if (eql (elem 1 m) :static)
 		(throw "Method is static !" (list (eval (super-sym _1)) _2)))
 	(fn-bind (elem 0 m) _3))
 
@@ -323,7 +323,7 @@
 	;_6 = dispatch reg
 	(setd _5 r0 _6 r14)
 	(defq m (method-lookup _1 _2))
-	(if (eql (elem 1 m) 'static)
+	(if (eql (elem 1 m) :static)
 		(throw "Method is static ! Use f-call ?" (list _1 _2)))
 	(defq _ (elem 2 m))
 	(if (find-rev _6 _)
@@ -340,7 +340,7 @@
 	;_4 = dispatch reg
 	(setd _4 r14)
 	(defq m (method-lookup _1 _2))
-	(if (eql (elem 1 m) 'static)
+	(if (eql (elem 1 m) :static)
 		(throw "Method is static ! Use f-jmp ?" (list _1 _2)))
 	(defq _ (elem 2 m))
 	(if (find-rev _4 _)
@@ -357,7 +357,7 @@
 	;_4 = dispatch reg
 	(setd _3 r0 _4 r14)
 	(defq m (method-lookup _1 _2))
-	(if (eql (elem 1 m) 'static)
+	(if (eql (elem 1 m) :static)
 		(throw "Method is static ! Use f-bind ?" (list _1 _2)))
 	(vp-cpy-ir _3 obj_vtable _4)
 	(vp-cpy-ir _4 (elem 4 m) _4))
@@ -368,7 +368,7 @@
 	;_3 = in parameters
 	;_4 = out parameters
 	(defq m (method-lookup _1 _2))
-	(if (eql (elem 1 m) 'static)
+	(if (eql (elem 1 m) :static)
 		(throw "Method is static ! Use f-call ?" (list _1 _2)))
 	(assign _3 (elem 2 m))
 	(fn-call (elem 0 m))
@@ -379,7 +379,7 @@
 	;_2 = member name
 	;_3 = in parameters
 	(defq m (method-lookup _1 _2))
-	(if (eql (elem 1 m) 'static)
+	(if (eql (elem 1 m) :static)
 		(throw "Method is static ! Use f-jmp ?" (list _1 _2)))
 	(assign _3 (elem 2 m))
 	(unwind)
@@ -390,7 +390,7 @@
 	;_2 = member name
 	;_3 = reg
 	(defq m (method-lookup _1 _2))
-	(if (eql (elem 1 m) 'static)
+	(if (eql (elem 1 m) :static)
 		(throw "Method is static ! Use f-bind ?" (list _1 _2)))
 	(fn-bind (elem 0 m) _3))
 
