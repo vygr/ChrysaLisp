@@ -27,7 +27,9 @@
 	(f-bind 'list 'vtable r4)
 	(switch)
 	(vpcase '(r2 = r3))
-		;eval to symbol binding
+		;eval to symbol binding ?
+		(assign '((r1 str_data ub)) '(r2))
+		(gotoif '(r2 = char_colon) 'toself)
 		(assign '(r0 r1) '((rsp local_this) (rsp local_form)))
 		(call 'hmap 'get '((r0 lisp_environment) r1) '(_ r1))
 		(errorif '(r1 = 0) 'error2)
@@ -71,6 +73,7 @@
 		(call 'obj 'deref '((rsp local_func)))
 		(assign '((rsp local_this) (rsp local_value)) '(r0 r1))
 	(else)
+	(vp-label 'toself)
 		;eval to self
 		(class/obj/ref r1 r2)
 	(endswitch)
