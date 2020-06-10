@@ -27,6 +27,15 @@ corrupted.
 
 ------
 
+Keyword symbols now available, any symbol beginning with a : will always
+evaluate to itself. This will now start to be used throughout the system.
+
+VP Method call type specifiers are now keywords.
+
+VP Method names are now keywords.
+
+------
+
 Created standard File picker, added demo Files browser and used picker to
 implement save/load of Whiteboard document files. Picker is now available for
 use by all applications.
@@ -95,15 +104,6 @@ Optimized (case) macro to (bind-fun) clauses and not wrap clauses within a
 Lots of extra code added recently, up to 170KB boot image now, on a 500 builds
 (make-test) run the mean is now 0.412 seconds on my MacBook Pro. So still under
 1/2 second for a full system build.
-
-------
-
-Keyword symbols now available, any symbol beginning with a : will always
-evaluate to itself. This will now start to be used throughout the system.
-
-VP Method call type specifiers are now keywords.
-
-VP Method names are now keywords.
 
 ------
 

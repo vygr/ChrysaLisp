@@ -228,7 +228,6 @@ An example from the array class.inc.
 
 ```lisp
 (dec-method :find 'class/array/find :static '(r0 r1) '(r0 r1))
-(dec-method :for_each 'class/array/for_each :static '(r0 r1 r2 r3 r4) '(r0 r1))
 (dec-method :sort 'class/array/sort :static '(r0 r1 r2 r3 r4 r5) '(r0))
 (dec-method :partition 'class/array/partition :static '(r0 r1 r2 r3 r4) '(r0 r1))
 ```
