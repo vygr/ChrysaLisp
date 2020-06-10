@@ -12,7 +12,9 @@
 (defun-bind pipe-open (cmds &optional flag)
 	(defq cmdpipe (list) args (map (lambda (cmd)
 		(defq cmd (split cmd " "))
-		(push cmdpipe (cat "cmd/" (elem 0 cmd) ".lisp"))
+		(if (or (find ".." (elem 0 cmd)) (find "/" (elem 0 cmd)))
+			(push cmdpipe (elem 0 cmd))
+			(push cmdpipe (cat "cmd/" (elem 0 cmd) ".lisp")))
 		(slice 0 -2 (apply cat (map (lambda (_) (cat _ " ")) cmd)))) (split cmds "|")))
 	(cond
 		;error with pipe element ?
