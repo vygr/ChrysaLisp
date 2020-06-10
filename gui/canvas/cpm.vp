@@ -14,7 +14,7 @@
 	(uint 'trans)		;image transparent colour
 (def-struct-end)
 
-(def-method 'canvas 'info_cpm)
+(def-method 'canvas :info_cpm)
 	;inputs
 	;r5 = stream object (ptr)
 	;outputs
@@ -29,17 +29,17 @@
 	(def-struct-end)
 
 	(vp-alloc local_size)
-	(entry 'canvas 'info_cpm '(r0))
+	(entry 'canvas :info_cpm '(r0))
 
 	;read header
-	(call 'stream 'read '(r0 rsp cpm_size) '(_ r1))
+	(call 'stream :read '(r0 rsp cpm_size) '(_ r1))
 	(switch)
 	(breakif '(r1 /= cpm_size))
 	(assign '((rsp cpm_ident)) '(r0))
 	(vpcase `(r0 = ,(code "MPC." 4)))
 	(vp-label 'okident)
 		;return info
-		(exit 'canvas 'info_cpm '((rsp cpm_width) (rsp cpm_height) (rsp cpm_type)))
+		(exit 'canvas :info_cpm '((rsp cpm_width) (rsp cpm_height) (rsp cpm_type)))
 		(vp-free local_size)
 		(vp-ret)
 	(vpcase `(r0 = ,(code "MLF." 4)))
@@ -47,13 +47,13 @@
 	(endswitch)
 
 	;return error
-	(exit 'canvas 'info_cpm '(-1 -1 -1))
+	(exit 'canvas :info_cpm '(-1 -1 -1))
 	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'canvas 'load_cpm)
+(def-method 'canvas :load_cpm)
 	;inputs
 	;r5 = stream object (ptr)
 	;outputs
@@ -70,10 +70,10 @@
 
 	;save inputs
 	(push-scope)
-	(entry 'canvas 'load_cpm {stream})
+	(entry 'canvas :load_cpm {stream})
 
 	;read header
-	(call 'stream 'read {stream, &header, cpm_size} {_, length})
+	(call 'stream :read {stream, &header, cpm_size} {_, length})
 	(gotoif {length /= cpm_size} 'error1)
 
 	;check ident '.CPM' or '.FLM'
@@ -81,10 +81,10 @@
 			{ || header.cpm_ident = } (str (code "MLF." 4))) 'error1)
 
 	;create canvas
-	(call 'canvas 'create {header.cpm_width, header.cpm_height, 1} {this})
+	(call 'canvas :create {header.cpm_width, header.cpm_height, 1} {this})
 	(vpif {this})
 		;fill with transparent
-		(call 'canvas 'fill {this, 0})
+		(call 'canvas :fill {this, 0})
 		(assign {header.cpm_type} {this->canvas_stream_type})
 		(assign {this->canvas_array->array_begin} {data})
 		(assign {data + this->canvas_height * this->canvas_stride} {data_end})
@@ -94,16 +94,16 @@
 		(vp-def (len col trans data data_end))
 		(loop-start)
 			;get token
-			(call 'stream 'read_bits {stream, 8, bit_pool, bit_pool_size} {_, length, bit_pool, bit_pool_size})
+			(call 'stream :read_bits {stream, 8, bit_pool, bit_pool_size} {_, length, bit_pool, bit_pool_size})
 			(assign {length} (list len))
 			(gotoif `(,len = -1) 'error)
 			(vpif `(,len >= 128))
 				;run of a pixel
 				(vp-sub-cr 127 len)
 				(assign (list len) {length})
-				(call 'stream 'read_bits {stream, header.cpm_type, bit_pool, bit_pool_size} {_, col, bit_pool, bit_pool_size})
+				(call 'stream :read_bits {stream, header.cpm_type, bit_pool, bit_pool_size} {_, col, bit_pool, bit_pool_size})
 				(gotoif {col = -1} 'error)
-				(call 'canvas 'to_argb32 {col, header.cpm_type} (list col))
+				(call 'canvas :to_argb32 {col, header.cpm_type} (list col))
 
 				;fill or skip
 				(assign {length, header.cpm_trans, data, data_end}
@@ -124,9 +124,9 @@
 				(vp-add-cr 1 len)
 				(loop-start)
 					(assign (list len) {length})
-					(call 'stream 'read_bits {stream, header.cpm_type, bit_pool, bit_pool_size} {_, col, bit_pool, bit_pool_size})
+					(call 'stream :read_bits {stream, header.cpm_type, bit_pool, bit_pool_size} {_, col, bit_pool, bit_pool_size})
 					(gotoif {col = -1} 'error)
-					(call 'canvas 'to_argb32 {col, header.cpm_type} (list col))
+					(call 'canvas :to_argb32 {col, header.cpm_type} (list col))
 					(assign {length, header.cpm_trans, data, data_end}
 						(list len trans data data_end))
 					(gotoif `(,data >= ,data_end) 'error)
@@ -140,22 +140,22 @@
 			(endif)
 			(assign (list data) {data})
 		(loop-until `(,data = ,data_end))
-		(call 'canvas 'as_premul {this, this})
+		(call 'canvas :as_premul {this, this})
 	(endif)
 
-	(exit 'canvas 'load_cpm {this})
+	(exit 'canvas :load_cpm {this})
 	(return)
 
 (vp-label 'error)
-	(call 'canvas 'deref {this})
+	(call 'canvas :deref {this})
 (vp-label 'error1)
-	(exit 'canvas 'load_cpm '(0))
+	(exit 'canvas :load_cpm '(0))
 	(pop-scope)
 	(return)
 
 (def-func-end)
 
-(def-method 'canvas 'save_cpm)
+(def-method 'canvas :save_cpm)
 	;inputs
 	;r4 = canvas object (ptr)
 	;r6 = stream object (ptr)
@@ -174,7 +174,7 @@
 
 	;save inputs
 	(push-scope)
-	(entry 'canvas 'save_cpm {this, stream, format})
+	(entry 'canvas :save_cpm {this, stream, format})
 
 	;write header
 	(assign (str (code "MPC." 4)) {header.cpm_ident})
@@ -183,7 +183,7 @@
 	(assign {format} {header.cpm_type})
 	(assign {this->canvas_width} {header.cpm_width})
 	(assign {this->canvas_height} {header.cpm_height})
-	(call 'stream 'write {stream, &header, cpm_size})
+	(call 'stream :write {stream, &header, cpm_size})
 
 	;save canvas
 	(assign {this->canvas_array->array_begin} {data})
@@ -194,25 +194,25 @@
 		(switch)
 		(vpcase {state = 0})
 			;no state
-			(call 'canvas 'to_argb {data[i * int_size]} {col})
-			(call 'canvas 'from_argb32 {col, format} {col})
+			(call 'canvas :to_argb {data[i * int_size]} {col})
+			(call 'canvas :from_argb32 {col, format} {col})
 			(assign {i} {j})
 			(assign {i + 1} {i})
 			(vpif {i = len})
-				(call 'stream 'write_bits {stream, 0, 8, bit_pool, bit_pool_size} {_, bit_pool, bit_pool_size})
-				(call 'stream 'write_bits {stream, col, format, bit_pool, bit_pool_size} {_, bit_pool, bit_pool_size})
+				(call 'stream :write_bits {stream, 0, 8, bit_pool, bit_pool_size} {_, bit_pool, bit_pool_size})
+				(call 'stream :write_bits {stream, col, format, bit_pool, bit_pool_size} {_, bit_pool, bit_pool_size})
 				(break 'pixloop)
 			(endif)
-			(call 'canvas 'to_argb {data[i * int_size]} {next_col})
-			(call 'canvas 'from_argb32 {next_col, format} {next_col})
+			(call 'canvas :to_argb {data[i * int_size]} {next_col})
+			(call 'canvas :from_argb32 {next_col, format} {next_col})
 			(assign {2} {state})
 			(continueif {col /= next_col} 'pixloop)
 			(assign {1} {state})
 			(continue 'pixloop)
 		(default)
 			;repeat state
-			(call 'canvas 'to_argb {data[i * int_size]} {next_col})
-			(call 'canvas 'from_argb32 {next_col, format} {next_col})
+			(call 'canvas :to_argb {data[i * int_size]} {next_col})
+			(call 'canvas :from_argb32 {next_col, format} {next_col})
 			(assign {i + 1} {i})
 			(nextcaseif {state /= 1})
 			(switch)
@@ -221,8 +221,8 @@
 				(goto 'dorep)
 			(vpcase {i = len || (i - j) = 0x80})
 			(vp-label 'dorep)
-				(call 'stream 'write_bits {stream, i - j - 1 + 0x80, 8, bit_pool, bit_pool_size} {_, bit_pool, bit_pool_size})
-				(call 'stream 'write_bits {stream, col, format, bit_pool, bit_pool_size} {_, bit_pool, bit_pool_size})
+				(call 'stream :write_bits {stream, i - j - 1 + 0x80, 8, bit_pool, bit_pool_size} {_, bit_pool, bit_pool_size})
+				(call 'stream :write_bits {stream, col, format, bit_pool, bit_pool_size} {_, bit_pool, bit_pool_size})
 				(assign {0} {state})
 			(endswitch)
 			(continue 'pixloop)
@@ -234,12 +234,12 @@
 				(goto 'doblk)
 			(vpcase {i = len || (i - j) = 0x80})
 			(vp-label 'doblk)
-				(call 'stream 'write_bits {stream, i - j - 1, 8, bit_pool, bit_pool_size} {_, bit_pool, bit_pool_size})
+				(call 'stream :write_bits {stream, i - j - 1, 8, bit_pool, bit_pool_size} {_, bit_pool, bit_pool_size})
 				(assign {&data[j * int_size], &data[i * int_size]} {data1, data2})
 				(loop-start)
-					(call 'canvas 'to_argb {*data1} {col})
-					(call 'canvas 'from_argb32 {col, format} {col})
-					(call 'stream 'write_bits {stream, col, format, bit_pool, bit_pool_size} {_, bit_pool, bit_pool_size})
+					(call 'canvas :to_argb {*data1} {col})
+					(call 'canvas :from_argb32 {col, format} {col})
+					(call 'stream :write_bits {stream, col, format, bit_pool, bit_pool_size} {_, bit_pool, bit_pool_size})
 				(loop-until {(data1 + int_size => data1) = data2})
 				(assign {0} {state})
 				(continue 'pixloop)
@@ -247,15 +247,15 @@
 			(assign {next_col} {col})
 		(endswitch)
 	(loop-end)
-	(call 'stream 'write_bits {stream, 0, 7, bit_pool, bit_pool_size})
+	(call 'stream :write_bits {stream, 0, 7, bit_pool, bit_pool_size})
 
-	(exit 'canvas 'save_cpm {this})
+	(exit 'canvas :save_cpm {this})
 	(pop-scope)
 	(return)
 
 (def-func-end)
 
-(def-method 'canvas 'next_frame)
+(def-method 'canvas :next_frame)
 	;inputs
 	;r0 = canvas object (ptr)
 	;outputs
@@ -270,7 +270,7 @@
 
 	;save inputs
 	(push-scope)
-	(entry 'canvas 'next_frame {this})
+	(entry 'canvas :next_frame {this})
 
 	(vpif {this->canvas_stream} 'error)
 		;decode acording to type
@@ -281,7 +281,7 @@
 		(loop-start)
 			;get token, loop back if stream end
 			(loop-start)
-				(call 'stream 'read_char {this->canvas_stream} (list '_ len))
+				(call 'stream :read_char {this->canvas_stream} (list '_ len))
 				(breakif `(,len /= -1))
 				(assign {this->canvas_bufp} {this->canvas_stream->stream_bufp})
 			(loop-end)
@@ -297,10 +297,10 @@
 				;block of pixels
 				(loop-start)
 					(assign (list len) {length})
-					(call 'stream 'read_bits {this->canvas_stream, this->canvas_stream_type, 0, 0} {_, col, _, _})
+					(call 'stream :read_bits {this->canvas_stream, this->canvas_stream_type, 0, 0} {_, col, _, _})
 					(breakif {col = -1} 'error)
-					(call 'canvas 'to_argb32 {col, this->canvas_stream_type} (list col))
-					(call 'canvas 'to_premul (list col) (list col))
+					(call 'canvas :to_argb32 {col, this->canvas_stream_type} (list col))
+					(call 'canvas :to_premul (list col) (list col))
 					(assign {length, data, data_end} (list len data data_end))
 					(breakif `(,data >= ,data_end) 'error)
 					(vp-cpy-ri-i col data 0)
@@ -313,13 +313,13 @@
 		(loop-until `(,data = ,data_end))
 	(endif)
 
-	(exit 'canvas 'next_frame {this})
+	(exit 'canvas :next_frame {this})
 	(pop-scope)
 	(return)
 
 (def-func-end)
 
-(def-method 'canvas 'to_argb32)
+(def-method 'canvas :to_argb32)
 	;inputs
 	;r1 = col (uint)
 	;r2 = pixel type (uint)
@@ -330,7 +330,7 @@
 
 	(vp-def (col pix rh rl gh gl bh bl) '(r1 r2 r3 r4 r5 r6 r7 r8))
 
-	(entry 'canvas 'to_argb32 (list col pix))
+	(entry 'canvas :to_argb32 (list col pix))
 
 	(switch)
 	(vpcase `(,pix = 32))
@@ -386,12 +386,12 @@
 		(endif)
 	(endswitch)
 
-	(exit 'canvas 'to_argb32 (list col))
+	(exit 'canvas :to_argb32 (list col))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'canvas 'from_argb32)
+(def-method 'canvas :from_argb32)
 	;inputs
 	;r1 = col (uint)
 	;r2 = pixel type (uint)
@@ -402,7 +402,7 @@
 
 	(vp-def (col pix g b) '(r1 r2 r3 r4))
 
-	(entry 'canvas 'from_argb32 (list col pix))
+	(entry 'canvas :from_argb32 (list col pix))
 
 	(switch)
 	(vpcase `(,pix = 32))
@@ -441,7 +441,7 @@
 		(vp-shr-cr 7 col)
 	(endswitch)
 
-	(exit 'canvas 'from_argb32 (list col))
+	(exit 'canvas :from_argb32 (list col))
 	(vp-ret)
 
 (def-func-end)

@@ -1,7 +1,7 @@
 (include 'sys/func.inc)
 (include 'class/lisp/class.inc)
 
-(def-method 'lisp 'lisp_apply)
+(def-method 'lisp :lisp_apply)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -11,18 +11,18 @@
 	;trashes
 	;r1-r14
 
-	(entry 'lisp 'lisp_apply '(r0 r1))
+	(entry 'lisp :lisp_apply '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_sig '(r1 ($ sig) 2) '(r2))
+	(call 'lisp :env_args_sig '(r1 ($ sig) 2) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(class/array/bind_args r1 '(r2 r1))
-	(jump 'lisp 'repl_apply '(r0 r1 r2))
+	(jump 'lisp :repl_apply '(r0 r1 r2))
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r0 "(apply lambda list)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(r0 "(apply lambda list)" error_msg_wrong_types r1))
 	(signature '(obj list)))
 
 (def-func-end)

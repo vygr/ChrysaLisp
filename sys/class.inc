@@ -23,7 +23,7 @@
 	;_1 = class name
 	(if (eql (defq _ (eval (super-sym _1))) 'null)
 		(vp-long 0)
-		(fn-add-link (f-path _ 'vtable)))
+		(fn-add-link (f-path _ :vtable)))
 	(each (lambda (_)
 		(if (or (eql (elem 1 _) :virtual) (eql (elem 1 _) :final))
 			(fn-add-link (elem 0 _)))) (elem 1 (eval (class-sym _1)))))
@@ -284,7 +284,7 @@
 	;_4 = out parameters
 	(defq m (method-lookup (eval (super-sym _1)) _2))
 	(if (eql (elem 1 m) :static)
-		(unless (eql _2 'init)
+		(unless (eql _2 :init)
 			(throw "Method is static !" (list (eval (super-sym _1)) _2))))
 	(assign _3 (elem 2 m))
 	(unless (eql (elem 0 m) 'class/obj/null)
@@ -297,7 +297,7 @@
 	;_3 = in parameters
 	(defq m (method-lookup (eval (super-sym _1)) _2))
 	(if (eql (elem 1 m) :static)
-		(unless (eql _2 'init)
+		(unless (eql _2 :init)
 			(throw "Method is static !" (list (eval (super-sym _1)) _2))))
 	(assign _3 (elem 2 m))
 	(unwind)
@@ -444,20 +444,20 @@
 	(vp-align short_size)
 (vp-label 'sig)
 	(each (lambda (_)
-		(vp-short `(- ,(label-sym (link-sym (fn-find-link (f-path _ 'vtable)))) *pc*))) _))
+		(vp-short `(- ,(label-sym (link-sym (fn-find-link (f-path _ :vtable)))) *pc*))) _))
 
 (defcfun gen-vtable (_1)
 	;_1 = class name
-	(def-func (f-path _1 'vtable))
+	(def-func (f-path _1 :vtable))
 		(vtable-emit _1)
 	(def-func-end))
 
 (defcfun gen-create (_1 &optional _2)
 	;_1 = class name
 	;_2 = create/init name
-	(defq m (method-lookup _1 (if _2 (sym (cat "create_" _2)) 'create)) _3 (opt (elem 2 m) '())
+	(defq m (method-lookup _1 (if _2 (sym (cat :create_ _2)) :create)) _3 (opt (elem 2 m) '())
 		_4 (slice 0 (length _3) '(r14 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13)))
-	(def-func (f-path _1 (if _2 (sym (cat "create_" _2)) 'create)))
+	(def-func (f-path _1 (if _2 (sym (cat :create_ _2)) :create)))
 		;inputs
 		;...
 		;outputs
@@ -465,13 +465,13 @@
 		;trashes
 		;...
 		(assign _3 _4)
-		(call 'sys_mem 'alloc `(,(sym (cat _1 "_size"))) '(r0 _))
+		(call 'sys_mem :alloc `(,(sym (cat _1 "_size"))) '(r0 _))
 		(vpif '(r0 /= 0))
 			;init the object
-			(call _1 (if _2 (sym (cat "init_" _2)) 'init) `(r0 (@ ,(f-path _1 'vtable)) ~_4) '(r0 r1))
+			(call _1 (if _2 (sym (cat :init_ _2)) :init) `(r0 (@ ,(f-path _1 :vtable)) ~_4) '(r0 r1))
 			(vpif '(r1 = 0))
 				;error with init
-				(call 'sys_mem 'free '(r0))
+				(call 'sys_mem :free '(r0))
 				(vp-xor-rr r0 r0)
 			(endif)
 		(endif)

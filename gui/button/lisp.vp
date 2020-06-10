@@ -2,7 +2,7 @@
 (include 'gui/button/class.inc)
 (include 'class/lisp/class.inc)
 
-(def-method 'button 'lisp_create)
+(def-method 'button :lisp_create)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -12,21 +12,21 @@
 	;trashes
 	;r1-r14
 
-	(entry 'button 'lisp_create '(r0 r1))
+	(entry 'button :lisp_create '(r0 r1))
 
 (errorcases
 	(assign '((r1 array_length)) '(r2))
 	(gotoif '(r2 /= 0) 'error))
 
 	(vp-push r0)
-	(call 'button 'create nil '(r1))
+	(call 'button :create nil '(r1))
 	(vp-pop r0)
 
-	(exit 'button 'lisp_create '(r0 r1))
+	(exit 'button :lisp_create '(r0 r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r0 "(create-button)" error_msg_wrong_num_of_args r1)))
+	(jump 'lisp :repl_error '(r0 "(create-button)" error_msg_wrong_num_of_args r1)))
 
 (def-func-end)

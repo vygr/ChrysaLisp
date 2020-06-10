@@ -3,7 +3,7 @@
 (include 'sys/kernel/class.inc)
 (include 'class/array/class.inc)
 
-(def-method 'sys_link 'link)
+(def-method 'sys_link :link)
 	;started by kernel for each link
 
 	(struct 'lk_node 'lk_node)
@@ -16,20 +16,20 @@
 
 	;decrement task count
 	;don't count links in load balancing
-	(assign (cat {@} (f-path 'sys_task 'statics)) {task_statics})
+	(assign (cat {@} (f-path 'sys_task :statics)) {task_statics})
 	(assign {task_statics->tk_statics_task_count - 1} {task_statics->tk_statics_task_count})
 
 	;allocate link node on stack and add to link array
 	(assign {0 => lk_node.lk_table_array} {lk_node.lk_table_array_size})
-	(call 'array 'push_back (cat {@} (f-path 'sys_mail 'statics) {.ml_statics_links_array, &lk_node}))
+	(call 'array :push_back (cat {@} (f-path 'sys_mail :statics) {.ml_statics_links_array, &lk_node}))
 
 	;read params msg from kernel
-	(call 'sys_mail 'mymail nil {params, pdata})
+	(call 'sys_mail :mymail nil {params, pdata})
 
 	;init link node cpu id and task count
 	(assign {((pdata[0] - 0x30) * 100) + ((pdata[1] - 0x30) * 10) + (pdata[2] - 0x30)} {lo_id})
 	(assign {((pdata[4] - 0x30) * 100) + ((pdata[5] - 0x30) * 10) + (pdata[6] - 0x30)} {hi_id})
-	(call 'sys_kernel 'id nil {id})
+	(call 'sys_kernel :id nil {id})
 	(vpif {id = lo_id})
 		(assign {hi_id} {lk_node.lk_node_cpu_id})
 		(assign {lk_buffer_chan_1} {tx})
@@ -42,20 +42,20 @@
 	(assign {0} {lk_node.lk_node_task_count})
 
 	;open shared memory file
-	(call 'sys_pii 'open_shared {pdata, lk_buffer_size} {handle})
+	(call 'sys_pii :open_shared {pdata, lk_buffer_size} {handle})
 
 	;map shared object
-	(call 'sys_pii 'mmap {lk_buffer_size, handle, mmap_shared} {mem})
+	(call 'sys_pii :mmap {lk_buffer_size, handle, mmap_shared} {mem})
 
 	;send link routing message to neighbor kernel
-	(call 'sys_mail 'alloc {kn_msg_route_size} {msg, data})
+	(call 'sys_mail :alloc {kn_msg_route_size} {msg, data})
 	(assign {0} {msg->msg_dest.id_mbox})
 	(assign {lk_node.lk_node_cpu_id} {msg->msg_dest.id_cpu})
 	(assign {kn_call_route} {data->kn_msg_func})
 	(assign {0 => data->kn_msg_user} {data->kn_msg_reply_id.id_id})
 	(assign {id => data->kn_msg_route_origin} {data->kn_msg_flood_via})
 	(assign {1} {data->kn_msg_route_hops})
-	(call 'sys_mail 'send {msg})
+	(call 'sys_mail :send {msg})
 
 	;tx channel, rx channel
 	;tx msg, rx msg
@@ -64,8 +64,8 @@
 
 	;switch to link priority and sleep to
 	;let other links join us at this priority
-	(call 'sys_task 'set_priority '(1))
-	(call 'sys_task 'sleep '(10000))
+	(call 'sys_task :set_priority '(1))
+	(call 'sys_task :sleep '(10000))
 
 	;read and write messages through the shared buffer
 	(loop-start)
@@ -83,14 +83,14 @@
 			(ln-remove-node r0 r1)
 
 			;copy message data
-			(call 'sys_mem 'copy {out_msg + ln_node_size, &tx_msg->lk_msg_stamp + ln_node_size, msg_stamp_size - ln_node_size})
-			(call 'sys_mem 'copy {out_msg->msg_parcel_data, &tx_msg->lk_msg_data, (out_msg->msg_length + long_size - 1) & - long_size})
+			(call 'sys_mem :copy {out_msg + ln_node_size, &tx_msg->lk_msg_stamp + ln_node_size, msg_stamp_size - ln_node_size})
+			(call 'sys_mem :copy {out_msg->msg_parcel_data, &tx_msg->lk_msg_data, (out_msg->msg_length + long_size - 1) & - long_size})
 
 			;busy status
 			(assign {lk_chan_status_busy} {tx_msg->lk_msg_status})
 
 			;free message
-			(call 'sys_mail 'free {out_msg})
+			(call 'sys_mail :free {out_msg})
 
 			;move on to next msg chan
 			(assign {&tx_msg->lk_msg_size} {tx_msg})
@@ -103,18 +103,18 @@
 			;is this msg part of a parcel for this cpu
 			(vpif {rx_msg->lk_msg_stamp.msg_parcel_length && rx_msg->lk_msg_stamp.msg_dest.id_cpu = id})
 				;copy direct from link buffer to parcel !
-				(call 'sys_mail 'in {rx_msg})
+				(call 'sys_mail :in {rx_msg})
 			(else)
 				;allocate msg, copy over data
-				(call 'sys_mail 'alloc {rx_msg->lk_msg_stamp.msg_length} {msg, data})
-				(call 'sys_mem 'copy {&rx_msg->lk_msg_stamp + ln_node_size, msg + ln_node_size, msg_stamp_size - ln_node_size})
-				(call 'sys_mem 'copy {&rx_msg->lk_msg_data, data, rx_msg->lk_msg_stamp.msg_length + long_size - 1) & - long_size})
+				(call 'sys_mail :alloc {rx_msg->lk_msg_stamp.msg_length} {msg, data})
+				(call 'sys_mem :copy {&rx_msg->lk_msg_stamp + ln_node_size, msg + ln_node_size, msg_stamp_size - ln_node_size})
+				(call 'sys_mem :copy {&rx_msg->lk_msg_data, data, rx_msg->lk_msg_stamp.msg_length + long_size - 1) & - long_size})
 
 				;clear status
 				(assign {lk_chan_status_ready} {rx_msg->lk_msg_status})
 
 				;send onwards
-				(call 'sys_mail 'send {msg})
+				(call 'sys_mail :send {msg})
 			(endif)
 
 			;move on to next msg chan
@@ -124,7 +124,7 @@
 		(endif)
 
 		;let other links run
-		(call 'sys_task 'sleep '(0))
+		(call 'sys_task :sleep '(0))
 
 		;check status
 		(switch)
@@ -135,23 +135,23 @@
 			(gotoif '(r0 /= 0) 'send_msg)
 		(default)
 			;small sleep if nothing to do
-			(call 'sys_task 'sleep '(1000))
+			(call 'sys_task :sleep '(1000))
 		(endswitch)
 
 		;exit if signaled by kernel
 	(loop-until {lk_node.lk_node_cpu_id = 0xffffffff})
 
 	;unmap object
-	(call 'sys_pii 'munmap {mem, lk_buffer_size, mmap_shared})
+	(call 'sys_pii :munmap {mem, lk_buffer_size, mmap_shared})
 
 	;close it
-	(call 'sys_pii 'close_shared {pdata, handle})
+	(call 'sys_pii :close_shared {pdata, handle})
 
 	;free params msg
-	(call 'sys_mail 'free {params})
+	(call 'sys_mail :free {params})
 
 	;remove from links array and deallocate link node on stack
-	(call 'sys_mem 'free {lk_node.lk_node_table})
+	(call 'sys_mem :free {lk_node.lk_node_table})
 
 	;restore task count
 	(assign {task_statics->tk_statics_task_count + 1} {task_statics->tk_statics_task_count})
@@ -168,7 +168,7 @@
 
 	(entry '(r0))
 
-	(assign `((@ ,(f-path 'sys_mail 'statics)) (r0 lk_node_cpu_id)
+	(assign `((@ ,(f-path 'sys_mail :statics)) (r0 lk_node_cpu_id)
 		(r0 ,(+ lk_node_table lk_table_array))) `(,next ,id ,table))
 	(loop-list-forward next ml_statics_offchip_list node next)
 		(vp-cpy-ir-ui node (+ msg_dest id_cpu) mid)

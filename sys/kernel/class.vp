@@ -12,7 +12,7 @@
 ; kernel task
 ;;;;;;;;;;;;;
 
-(def-method 'sys_kernel 'kernel)
+(def-method 'sys_kernel :kernel)
 	;inputs
 	;r0 = argv pointer (pptr)
 	;info
@@ -32,34 +32,34 @@
 	(entry {argv})
 
 	;init allocator
-	(call 'sys_mem 'statics_init)
+	(call 'sys_mem :statics_init)
 
 	;init symbols
-	(call 'sym 'statics_init)
+	(call 'sym :statics_init)
 
 	;init tasks
-	(call 'sys_task 'statics_init)
+	(call 'sys_task :statics_init)
 
 	;init gui
-	(call 'gui 'statics_init)
+	(call 'gui :statics_init)
 
 	;init mailer mailbox list
-	(call 'sys_mail 'statics_init)
+	(call 'sys_mail :statics_init)
 
 	;start kernel task (get's mailbox id of 0 !)
-	(assign (cat {@} (f-path 'sys_task 'statics)) {task_statics})
-	(assign (cat {@} (f-path 'sys_mail 'statics)) {mail_statics})
-	(call 'sys_task 'start {$fn_entry} {task_statics->tk_statics_kernel_tcb, mbox_id, mbox_addr})
+	(assign (cat {@} (f-path 'sys_task :statics)) {task_statics})
+	(assign (cat {@} (f-path 'sys_mail :statics)) {mail_statics})
+	(call 'sys_task :start {$fn_entry} {task_statics->tk_statics_kernel_tcb, mbox_id, mbox_addr})
 	(assign {task_statics->tk_statics_kernel_tcb} {task_statics->tk_statics_current_tcb})
 
 	;init mailer
-	(call 'sys_mail 'statics_init1)
+	(call 'sys_mail :statics_init1)
 
 	;process command options
 	(call 'opts {argv})
 
 	;fill in num cpu's with at least mine + 1
-	(call 'sys_kernel 'id nil {id})
+	(call 'sys_kernel :id nil {id})
 	(assign {id + 1} {task_statics->tk_statics_cpu_total})
 
 	;allocate for kernel routing table
@@ -70,7 +70,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;
 
 	;loop till no other tasks running
-	(call 'sys_task 'set_priority '(0))
+	(call 'sys_task :set_priority '(0))
 	(loop-start)
 		;service all kernel mail
 		(loop-start 'kernel_loop)
@@ -78,7 +78,7 @@
 			(assign {mbox_addr} '(r0))
 			(lh-is-empty r0 mbox_list r1)
 			(breakif '(r1 = 0))
-			(call 'sys_mail 'read '(r0) {msg, data})
+			(call 'sys_mail :read '(r0) {msg, data})
 
 			;(switch) on kernel call number
 			(assign {data->kn_msg_func} '(r0))
@@ -89,12 +89,12 @@
 				(assign {data->kn_msg_reply_id.id_id} {msg->msg_dest.id_id})
 				(call 'opt_run {&data->kn_msg_open_pathname} {data->kn_msg_reply_id.id_id})
 				(assign {kn_msg_reply_size} {msg->msg_length})
-				(call 'sys_mail 'send {msg})
+				(call 'sys_mail :send {msg})
 				(break)
 			(vpcase '(r0 = kn_call_child))
 				;find best cpu to run task
 				(assign {task_statics->tk_statics_task_count, id} {best_cnt, best_id})
-				(call 'array 'get_both {mail_statics->ml_statics_links_array} {_, iter_begin, iter_end})
+				(call 'array :get_both {mail_statics->ml_statics_links_array} {_, iter_begin, iter_end})
 				(loop-while {iter_begin /= iter_end})
 					(assign {*iter_begin} {link})
 					(vpif {link->lk_node_task_count < best_cnt})
@@ -107,13 +107,13 @@
 
 				;send to better kernel
 				(assign {best_id} {msg->msg_dest.id_cpu})
-				(call 'sys_mail 'send {msg})
+				(call 'sys_mail :send {msg})
 				(break)
 			(vpcase '(r0 = kn_call_declare))
 				;declare service if not found
-				(call 'sys_mail 'enquire {&data->kn_msg_declare_name} {service})
+				(call 'sys_mail :enquire {&data->kn_msg_declare_name} {service})
 				(vpifnot {service})
-					(call 'sys_mail 'declare {&data->kn_msg_declare_name, data->kn_msg_reply_id.id_id})
+					(call 'sys_mail :declare {&data->kn_msg_declare_name, data->kn_msg_reply_id.id_id})
 					;copy and send to all neighbors apart from old via
 					(call 'flood {mail_statics, msg, data, id})
 				(endif)
@@ -127,7 +127,7 @@
 				;new kernel routing table ?
 				(assign {data->kn_msg_route_origin * lk_route_size} {route_index})
 				(vpif {route_index + lk_route_size > routes.lk_table_array_size})
-					(call 'sys_mem 'recalloc {routes.lk_table_array, routes.lk_table_array_size, route_index + lk_route_size}
+					(call 'sys_mem :recalloc {routes.lk_table_array, routes.lk_table_array_size, route_index + lk_route_size}
 						{routes.lk_table_array, routes.lk_table_array_size})
 				(endif)
 
@@ -141,12 +141,12 @@
 					(assign {new_hops} {(routes.lk_table_array)[route_index].lk_route_hops})
 
 					;fill in via route and remove other routes
-					(call 'array 'get_both {mail_statics->ml_statics_links_array} {_, iter_begin, iter_end})
+					(call 'array :get_both {mail_statics->ml_statics_links_array} {_, iter_begin, iter_end})
 					(loop-while {iter_begin /= iter_end})
 						(assign {*iter_begin} {link})
 						;new link route table ?
 						(vpif {route_index + lk_route_size > link->lk_node_table.lk_table_array_size})
-							(call 'sys_mem 'recalloc {link->lk_node_table.lk_table_array, link->lk_node_table.lk_table_array_size, route_index + lk_route_size}
+							(call 'sys_mem :recalloc {link->lk_node_table.lk_table_array, link->lk_node_table.lk_table_array_size, route_index + lk_route_size}
 								{link->lk_node_table.lk_table_array, link->lk_node_table.lk_table_array_size})
 						(endif)
 						(vpif {link->lk_node_cpu_id = data->kn_msg_flood_via})
@@ -161,12 +161,12 @@
 					(break)
 				(vpcase {new_hops = hops})
 					;new hops is equal, so additional route
-					(call 'array 'get_both {mail_statics->ml_statics_links_array} {_, iter_begin, iter_end})
+					(call 'array :get_both {mail_statics->ml_statics_links_array} {_, iter_begin, iter_end})
 					(loop-while {iter_begin /= iter_end})
 						(assign {*iter_begin} {link})
 						;new link route table ?
 						(vpif {route_index + lk_route_size > link->lk_node_table.lk_table_array_size})
-							(call 'sys_mem 'recalloc {link->lk_node_table.lk_table_array, link->lk_node_table.lk_table_array_size, route_index + lk_route_size}
+							(call 'sys_mem :recalloc {link->lk_node_table.lk_table_array, link->lk_node_table.lk_table_array_size, route_index + lk_route_size}
 								{link->lk_node_table.lk_table_array, link->lk_node_table.lk_table_array_size})
 						(endif)
 						(vpif {link->lk_node_cpu_id = data->kn_msg_flood_via})
@@ -187,7 +187,7 @@
 				;copy and send to all neighbors apart from old via
 				(call 'flood {mail_statics, msg, data, id})
 			(vp-label 'drop_msg)
-				(call 'sys_mail 'free {msg})
+				(call 'sys_mail :free {msg})
 				(break)
 			(vpcase '(r0 = kn_call_callback))
 				;call callback with this thread/stack
@@ -196,12 +196,12 @@
 
 				;reply to originator
 				(assign {data->kn_msg_reply_id.id_id} {msg->msg_dest.id_id})
-				(call 'sys_mail 'send {msg})
+				(call 'sys_mail :send {msg})
 			(endswitch)
 		(loop-end)
 
 		;resume any ready tasks on timer list
-		(call 'sys_task 'timer nil '(r0))
+		(call 'sys_task :timer nil '(r0))
 
 		;find next task we could defer to
 		(assign {task_statics} '(r3))
@@ -216,7 +216,7 @@
 
 		;defer to task if available
 		(vpif '(r5 /= 0))
-			(call 'sys_task 'defer '(r4))
+			(call 'sys_task :defer '(r4))
 			(continue 'kernel_loop)
 		(endif)
 
@@ -236,14 +236,14 @@
 		(vpif '(r0 < 1))
 			(vp-cpy-cr 1 r0)
 		(endif)
-		(host-call 'host 'sdl_delay '(r0))
+		(host-call 'host :sdl_delay '(r0))
 	(loop-end)
 
 	;free any kernel routing table
-	(call 'sys_mem 'free {routes.lk_table_array})
+	(call 'sys_mem :free {routes.lk_table_array})
 
 	;deinit allocator
-	(call 'sys_mem 'statics_deinit)
+	(call 'sys_mem :statics_deinit)
 
 	;exit back to load init
 	(pop-scope)
@@ -262,16 +262,16 @@
 
 	(assign '((r8 kn_msg_flood_via)) '(r9))
 	(assign '(r3) '((r8 kn_msg_flood_via)))
-	(call 'array 'get_both '((r0 ml_statics_links_array)) '(_ r10 r11))
+	(call 'array :get_both '((r0 ml_statics_links_array)) '(_ r10 r11))
 	(loop-while '(r10 /= r11))
 		(vp-cpy-ir r10 0 r6)
 		(vp-add-cr ptr_size r10)
 		(assign '((r6 lk_node_cpu_id)) '(r6))
 		(continueif '(r6 = r9))
-		(call 'sys_mail 'alloc_obj '((r7 msg_parcel_obj) r8 (r7 msg_length)) '(r0))
+		(call 'sys_mail :alloc_obj '((r7 msg_parcel_obj) r8 (r7 msg_length)) '(r0))
 		(vp-shl-cr 32 r6)
 		(vp-cpy-ri r6 r0 (+ msg_dest id_id))
-		(call 'sys_mail 'send '(r0))
+		(call 'sys_mail :send '(r0))
 	(loop-end)
 	(vp-ret)
 
@@ -290,7 +290,7 @@
 	(int 'len)
 
 	(push-scope)
-	(entry 'sys_kernel 'opts {argv})
+	(entry 'sys_kernel :opts {argv})
 
 	(loop-start)
 		(assign {*argv} {arg})
@@ -301,15 +301,15 @@
 			(assign {*table} {offset})
 			(breakifnot {offset})
 			(assign {table + ptr_size} {table})
-			(call 'sys_str 'compare {table, arg})
-			(vpif `(,(method-output 'sys_str 'compare 0) = 0))
+			(call 'sys_str :compare {table, arg})
+			(vpif `(,(method-output 'sys_str :compare 0) = 0))
 				(assign {*argv} {arg})
 				(breakifnot {arg} 'next_arg)
 				(assign {arg, $options_table + offset} '(r0 r1))
 				(vp-call-r r1)
 				(break 'next_arg)
 			(endif)
-			(call 'sys_str 'length {table} {_, len})
+			(call 'sys_str :length {table} {_, len})
 			(assign {(table + len + ptr_size) & - ptr_size} {table})
 		(loop-end)
 	(loop-end)
@@ -326,8 +326,8 @@
 	(entry '(r0))
 
 	;set cpu ID
-	(call 'sys_str 'to_long '(r0 10) '(r0 _))
-	(f-bind 'sys_task 'statics r1)
+	(call 'sys_str :to_long '(r0 10) '(r0 _))
+	(f-bind 'sys_task :statics r1)
 	(assign '(r0) '((r1 tk_statics_cpu_id)))
 	(vp-ret)
 
@@ -348,27 +348,27 @@
 
 	;is this a lisp file
 	(assign {0} {id})
-	(call 'sys_str 'length {arg} {_, length})
+	(call 'sys_str :length {arg} {_, length})
 	(vpif {length >= 5})
-		(call 'sys_str 'compare {arg + length - 5, ".lisp"} {length})
+		(call 'sys_str :compare {arg + length - 5, ".lisp"} {length})
 	(endif)
 	(vpifnot {length})
 		;yup it's a .lisp file, check it exists
-		(call 'sys_pii 'stat (cat {arg, @} (f-path 'sys_load 'statics) {.ld_statics_stat_buffer}) {func})
+		(call 'sys_pii :stat (cat {arg, @} (f-path 'sys_load :statics) {.ld_statics_stat_buffer}) {func})
 		(breakif {func})
 		;start lisp run task and send args
-		(call 'sys_task 'start `((@ ,(f-path 'lisp 'run))) {_, id, _})
-		(call 'str 'create_from_cstr {arg} {arg})
-		(call 'sys_mail 'alloc_obj {arg, &arg->str_data, arg->str_length} {msg})
+		(call 'sys_task :start `((@ ,(f-path 'lisp :run))) {_, id, _})
+		(call 'str :create_from_cstr {arg} {arg})
+		(call 'sys_mail :alloc_obj {arg, &arg->str_data, arg->str_length} {msg})
 		(assign {id} {msg->msg_dest.id_id})
-		(call 'sys_mail 'send {msg})
-		(call 'str 'deref {arg})
+		(call 'sys_mail :send {msg})
+		(call 'str :deref {arg})
 	(else)
 		;open as raw task and return mailbox ID
-		(call 'sys_load 'bind {arg} {func})
+		(call 'sys_load :bind {arg} {func})
 		(breakifnot {func})
 		;start this function as task
-		(call 'sys_task 'start {func} {_, id, _})
+		(call 'sys_task :start {func} {_, id, _})
 	(endif)
 
 	(exit {id})
@@ -384,16 +384,16 @@
 	(entry '(r8))
 
 	;start link
-	(call 'sys_task 'start `((@ ,(f-path 'sys_link 'link))) '(_ r9 _))
+	(call 'sys_task :start `((@ ,(f-path 'sys_link :link))) '(_ r9 _))
 
 	;params message
-	(call 'sys_mail 'alloc '(8) '(r0 r1))
+	(call 'sys_mail :alloc '(8) '(r0 r1))
 	(vp-cpy-ri r9 r0 (+ msg_dest id_id))
 	(vp-cpy-rr r0 r3)
-	(call 'sys_str 'copy '(r8 r1))
+	(call 'sys_str :copy '(r8 r1))
 
 	;send to link task
-	(call 'sys_mail 'send '(r3))
+	(call 'sys_mail :send '(r3))
 	(vp-ret)
 
 	(vp-align ptr_size)
@@ -411,57 +411,57 @@
 
 (def-func-end)
 
-(def-method 'sys_kernel 'id)
+(def-method 'sys_kernel :id)
 	;outputs
 	;r0 = cpu ID (uint)
 	;trashes
 	;r0
 
-	(f-bind 'sys_task 'statics r0)
-	(exit 'sys_kernel 'id '((r0 tk_statics_cpu_id)))
+	(f-bind 'sys_task :statics r0)
+	(exit 'sys_kernel :id '((r0 tk_statics_cpu_id)))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'sys_kernel 'total)
+(def-method 'sys_kernel :total)
 	;outputs
 	;r0 = cpu total (uint)
 	;trashes
 	;r0
 
-	(f-bind 'sys_task 'statics r0)
-	(exit 'sys_kernel 'total '((r0 tk_statics_cpu_total)))
+	(f-bind 'sys_task :statics r0)
+	(exit 'sys_kernel :total '((r0 tk_statics_cpu_total)))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'sys_kernel 'declare)
+(def-method 'sys_kernel :declare)
 	;inputs
 	;r0 = mailbox name c string (pubyte)
 	;r1 = mailbox id (ulong)
 	;trashes
 	;r0-r10
 
-	(entry 'sys_kernel 'declare '(r0 r9))
+	(entry 'sys_kernel :declare '(r0 r9))
 
 	(vp-cpy-rr r0 r8) 
-	(call 'sys_str 'length '(r0) '(_ r10))
-	(call 'sys_mail 'alloc '((& r10 (+ kn_msg_declare_size 1))) '(r5 r1))
+	(call 'sys_str :length '(r0) '(_ r10))
+	(call 'sys_mail :alloc '((& r10 (+ kn_msg_declare_size 1))) '(r5 r1))
 	(vp-xor-rr r0 r0)
 	(vp-cpy-ri-i r0 r5 (+ msg_dest id_mbox))
-	(call 'sys_kernel 'id nil '(r0))
+	(call 'sys_kernel :id nil '(r0))
 	(vp-cpy-ri-i r0 r5 (+ msg_dest id_cpu))
 	(vp-cpy-ri r9 r1 (+ kn_msg_reply_id id_id))
 	(vp-cpy-cr kn_call_declare r0)
 	(assign '(r0 -1) '((r1 kn_msg_func) r0))
 	(assign '(r0) '((r1 kn_msg_flood_via)))
-	(call 'sys_mem 'copy '(r8 (& r1 kn_msg_declare_name) (& r10 1)))
-	(call 'sys_mail 'send '(r5))
+	(call 'sys_mem :copy '(r8 (& r1 kn_msg_declare_name) (& r10 1)))
+	(call 'sys_mail :send '(r5))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'sys_kernel 'debug)
+(def-method 'sys_kernel :debug)
 	;inputs
 	;r0 = debug c string (pubyte)
 	;trashes
@@ -472,38 +472,38 @@
 	(uint 'mbox_id 'length)
 
 	(push-scope)
-	(entry 'sys_kernel 'debug {debug_data})
+	(entry 'sys_kernel :debug {debug_data})
 
 	;enquire of DEBUG_SERVICE
-	(call 'sys_mail 'enquire {"DEBUG_SERVICE"} {service.id_id})
+	(call 'sys_mail :enquire {"DEBUG_SERVICE"} {service.id_id})
 	(vpif {service.id_id})
 		;alloc temp mailbox
-		(call 'sys_mail 'alloc_mbox nil {mbox_id, mailbox})
+		(call 'sys_mail :alloc_mbox nil {mbox_id, mailbox})
 
 		;send debug data
-		(call 'sys_str 'length {debug_data} {_, length})
-		(call 'sys_mail 'alloc {length + 1 + kn_debug_size} {msg, data})
+		(call 'sys_str :length {debug_data} {_, length})
+		(call 'sys_mail :alloc {length + 1 + kn_debug_size} {msg, data})
 		(assign {service.id_id} {msg->msg_dest.id_id})
 		(assign {0} {data->kn_debug_command})
 		(assign {mbox_id} {data->kn_debug_reply_id.id_mbox})
-		(call 'sys_kernel 'id nil {data->kn_debug_reply_id.id_cpu})
-		(call 'sys_task 'tcb nil {data->kn_debug_tcb})
-		(call 'sys_mem 'copy {debug_data, &data->kn_debug_data, length + 1})
-		(call 'sys_mail 'send {msg})
+		(call 'sys_kernel :id nil {data->kn_debug_reply_id.id_cpu})
+		(call 'sys_task :tcb nil {data->kn_debug_tcb})
+		(call 'sys_mem :copy {debug_data, &data->kn_debug_data, length + 1})
+		(call 'sys_mail :send {msg})
 
 		;wait for reply
-		(call 'sys_mail 'read {mailbox} {msg, _})
-		(call 'sys_mail 'free {msg})
+		(call 'sys_mail :read {mailbox} {msg, _})
+		(call 'sys_mail :free {msg})
 
 		;free temp mailbox
-		(call 'sys_mail 'free_mbox {mbox_id})
+		(call 'sys_mail :free_mbox {mbox_id})
 	(endif)
 	(pop-scope)
 	(return)
 
 (def-func-end)
 
-(def-method 'sys_kernel 'debug_reg)
+(def-method 'sys_kernel :debug_reg)
 	;inputs
 	;r14 = debug c string (pubyte)
 	;trashes
@@ -523,37 +523,37 @@
 	(assign '(rsp) {reg15})
 
 	;enquire of DEBUG_SERVICE
-	(call 'sys_mail 'enquire {"DEBUG_SERVICE"} {service.id_id})
+	(call 'sys_mail :enquire {"DEBUG_SERVICE"} {service.id_id})
 	(vpif {service.id_id})
 		;build debug data for reg dump
-		(call 'list 'create nil {lines})
-		(call 'list 'set_capacity {lines, 5 * 16 + 2})
-		(call 'str 'create_from_cstr {reg14} {line})
-		(call 'list 'push_back {lines, line})
-		(call 'str 'create_from_buffer (list (ascii-char 10) 1) {lf})
-		(call 'list 'push_back {lines, lf})
-		(call 'str 'create_from_buffer '(" " 1) {sp})
+		(call 'list :create nil {lines})
+		(call 'list :set_capacity {lines, 5 * 16 + 2})
+		(call 'str :create_from_cstr {reg14} {line})
+		(call 'list :push_back {lines, line})
+		(call 'str :create_from_buffer (list (ascii-char 10) 1) {lf})
+		(call 'list :push_back {lines, lf})
+		(call 'str :create_from_buffer '(" " 1) {sp})
 		(assign {&reg0} {iter})
 		(loop-start)
-			(call 'str 'create_from_long {(iter - &reg0) >> 3, 10} {num})
-			(call 'str 'create_from_buffer {"R00", 3 - num->str_length} {line})
-			(call 'list 'push_back2 {lines, line, num})
-			(call 'str 'create_from_long {*iter, -16} {num})
-			(call 'str 'create_from_buffer {": 0x0000000000000000", 20 - num->str_length} {line})
-			(call 'list 'push_back2 {lines, line, num})
+			(call 'str :create_from_long {(iter - &reg0) >> 3, 10} {num})
+			(call 'str :create_from_buffer {"R00", 3 - num->str_length} {line})
+			(call 'list :push_back2 {lines, line, num})
+			(call 'str :create_from_long {*iter, -16} {num})
+			(call 'str :create_from_buffer {": 0x0000000000000000", 20 - num->str_length} {line})
+			(call 'list :push_back2 {lines, line, num})
 			(vpif {(iter - &reg0) & 8})
 				(assign {lf} {line})
 			(else)
 				(assign {sp} {line})
 			(endif)
-			(call 'str 'ref {line} {line})
-			(call 'list 'push_back {lines, line})
+			(call 'str :ref {line} {line})
+			(call 'list :push_back {lines, line})
 		(loop-until {(iter + ptr_size => iter) > &reg15})
-		(d-call 'str 'cat {sp, lines} {line})
-		(call 'sys_kernel 'debug {&line->str_data})
-		(call 'list 'deref {lines})
-		(call 'str 'deref {line})
-		(call 'str 'deref {sp})
+		(d-call 'str :cat {sp, lines} {line})
+		(call 'sys_kernel :debug {&line->str_data})
+		(call 'list :deref {lines})
+		(call 'str :deref {line})
+		(call 'str :deref {sp})
 	(endif)
 
 	(assign {reg0, reg1, reg2, reg3, reg4, reg5, reg6, reg7,

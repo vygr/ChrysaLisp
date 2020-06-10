@@ -227,10 +227,10 @@ list from the parent class declaration.
 An example from the array class.inc.
 
 ```lisp
-(dec-method 'find 'class/array/find :static '(r0 r1) '(r0 r1))
-(dec-method 'for_each 'class/array/for_each :static '(r0 r1 r2 r3 r4) '(r0 r1))
-(dec-method 'sort 'class/array/sort :static '(r0 r1 r2 r3 r4 r5) '(r0))
-(dec-method 'partition 'class/array/partition :static '(r0 r1 r2 r3 r4) '(r0 r1))
+(dec-method :find 'class/array/find :static '(r0 r1) '(r0 r1))
+(dec-method :for_each 'class/array/for_each :static '(r0 r1 r2 r3 r4) '(r0 r1))
+(dec-method :sort 'class/array/sort :static '(r0 r1 r2 r3 r4 r5) '(r0))
+(dec-method :partition 'class/array/partition :static '(r0 r1 r2 r3 r4) '(r0 r1))
 ```
 
 Core functions in the kernel and class libs are very careful to track and
@@ -253,7 +253,7 @@ Register inputs and outputs are declared in the `sys/str/class.inc` file.
 
 ```lisp
 (def-class 'sys_str)
-(dec-method 'compare 'sys/str/compare :static '(r0 r1) '(r0))
+(dec-method :compare 'sys/str/compare :static '(r0 r1) '(r0))
 ```
 
 So this function will take the C style input char*'s in registers r0 and r1,
@@ -262,7 +262,7 @@ and will return the comparison value in register r0.
 Implementation of the function is defined in the `sys/str/class.vp` file.
 
 ```lisp
-(def-method 'sys_str 'compare)
+(def-method 'sys_str :compare)
 	;inputs
 	;r0 = c string1 (pubyte)
 	;r1 = c string2 (pubyte)
@@ -271,7 +271,7 @@ Implementation of the function is defined in the `sys/str/class.vp` file.
 	;trashes
 	;r0-r3
 
-	(entry 'sys_str 'compare '(r0 r1))
+	(entry 'sys_str :compare '(r0 r1))
 	(loop-start)
 		(vp-cpy-ir-ub r0 0 r2)
 		(vp-cpy-ir-ub r1 0 r3)
@@ -280,7 +280,7 @@ Implementation of the function is defined in the `sys/str/class.vp` file.
 		(vp-add-cr byte_size r0)
 		(vp-add-cr byte_size r1)
 	(loop-end)
-	(exit 'sys_str 'compare '(r2))
+	(exit 'sys_str :compare '(r2))
 	(vp-ret)
 
 (def-func-end)
@@ -288,7 +288,7 @@ Implementation of the function is defined in the `sys/str/class.vp` file.
 
 So let's go through the important lines in this function.
 
-First of all the `(def-method 'sys_str 'compare)` is doing the same job as a
+First of all the `(def-method 'sys_str :compare)` is doing the same job as a
 `(def-func)` would do, it's a wrapper function to simplify writing the
 `(def-func)` that also does some extra checks to make sure you actually do have
 a `(dec-method)` for it in the include file. The `(def-func-end)` just wraps
@@ -300,7 +300,7 @@ Next there is a section of documentation, this format can be parsed out by the
 `make doc` command line tool. Parsed documentation ends up in the
 `docs/CLASSES.md` file.
 
-The `(entry 'sys_str 'compare '(r0 r1))` and `(exit 'sys_str 'compare
+The `(entry 'sys_str :compare '(r0 r1))` and `(exit 'sys_str :compare
 '(r2))` calls are helpers to make sure input and output parameters get copied
 to the correct registers. They enforce the `(def-method)` input and output
 register declarations by use of two `(assign)` calls. The register lists

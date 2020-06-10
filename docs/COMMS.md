@@ -141,23 +141,23 @@ current tasks main mailbox.
 	(push-scope)
 	(loop-start)
 		;read mail command
-		(call 'sys_mail 'mymail nil {msg, data})
+		(call 'sys_mail :mymail nil {msg, data})
 		(breakifnot {data->sample_id})
 
 		;sample reply
-		(call 'sys_mail 'alloc {sample_reply_size} {reply, rdata})
+		(call 'sys_mail :alloc {sample_reply_size} {reply, rdata})
 		(assign {data->sample_id} {reply->msg_dest.id_id})
-		(call 'sys_kernel 'id nil {rdata->sample_reply_cpu})
-		(call 'sys_task 'count nil {rdata->sample_reply_task_count})
-		(call 'sys_mem 'used nil {rdata->sample_reply_mem_used})
-		(call 'sys_mail 'send {reply})
-		(call 'sys_mail 'free {msg})
+		(call 'sys_kernel :id nil {rdata->sample_reply_cpu})
+		(call 'sys_task :count nil {rdata->sample_reply_task_count})
+		(call 'sys_mem :used nil {rdata->sample_reply_mem_used})
+		(call 'sys_mail :send {reply})
+		(call 'sys_mail :free {msg})
 
 		;be friendly
-		(call 'sys_task 'sleep '(0))
+		(call 'sys_task :sleep '(0))
 	(loop-end)
 
-	(call 'sys_mail 'free {msg})
+	(call 'sys_mail :free {msg})
 	(pop-scope)
 	(return)
 

@@ -16,7 +16,7 @@
 	(loop-start)
 		(vec-load-long 1 src1)
 		(vec-load-long 1 src2)
-		((eval (sym (cat "vec-" _))) 1)
+		((eval (sym (cat "vec-" (rest _)))) 1)
 		(vec-store-long 1 iter_begin)
 		(vp-add-cr long_size iter_begin)
 		(vp-add-cr long_size src1)
@@ -37,7 +37,7 @@
 		(vec-load-long 1 src1)
 		(vec-load-long 1 src2)
 		(errorif (list (elem 0 (vec-top 1)) '= 0) 'error)
-		((eval (sym (cat "vec-" _))) 1)
+		((eval (sym (cat "vec-" (rest _)))) 1)
 		(vec-store-long 1 iter_begin)
 		(vp-add-cr long_size iter_begin)
 		(vp-add-cr long_size src1)
@@ -60,7 +60,7 @@
 	(vec-set 4)
 	(loop-start)
 		(vec-load-long 1 src)
-		((eval (sym (cat "vec-" _))) 1)
+		((eval (sym (cat "vec-" (rest _)))) 1)
 		(vec-store-long 1 iter_begin)
 		(vp-add-cr long_size iter_begin)
 		(vp-add-cr long_size src)
@@ -68,7 +68,7 @@
 	(exit 'nums _ `(,dst))
 	(vp-ret))
 
-(def-method 'nums 'add)
+(def-method 'nums :add)
 	;inputs
 	;r0 = nums object (ptr)
 	;r1 = source1 nums object, can be same (ptr)
@@ -78,11 +78,11 @@
 	;trashes
 	;r1-r6
 
-	(addop 'add)
+	(addop :add)
 
 (def-func-end)
 
-(def-method 'nums 'sub)
+(def-method 'nums :sub)
 	;inputs
 	;r0 = nums object (ptr)
 	;r1 = source1 nums object, can be same (ptr)
@@ -92,11 +92,11 @@
 	;trashes
 	;r1-r6
 
-	(addop 'sub)
+	(addop :sub)
 
 (def-func-end)
 
-(def-method 'nums 'mul)
+(def-method 'nums :mul)
 	;inputs
 	;r0 = nums object (ptr)
 	;r1 = source1 nums object, can be same (ptr)
@@ -106,11 +106,11 @@
 	;trashes
 	;r1-r6
 
-	(addop 'mul)
+	(addop :mul)
 
 (def-func-end)
 
-(def-method 'nums 'div)
+(def-method 'nums :div)
 	;inputs
 	;r0 = nums object (ptr)
 	;r1 = source1 nums object, can be same (ptr)
@@ -120,11 +120,11 @@
 	;trashes
 	;r1-r8
 
-	(divop 'div)
+	(divop :div)
 
 (def-func-end)
 
-(def-method 'nums 'mod)
+(def-method 'nums :mod)
 	;inputs
 	;r0 = nums object (ptr)
 	;r1 = source1 nums object, can be same (ptr)
@@ -134,11 +134,11 @@
 	;trashes
 	;r1-r8
 
-	(divop 'mod)
+	(divop :mod)
 
 (def-func-end)
 
-(def-method 'nums 'abs)
+(def-method 'nums :abs)
 	;inputs
 	;r0 = nums object (ptr)
 	;r1 = source nums object, can be same (ptr)
@@ -147,11 +147,11 @@
 	;trashes
 	;r1-r4
 
-	(absop 'abs)
+	(absop :abs)
 
 (def-func-end)
 
-(def-method 'nums 'sum)
+(def-method 'nums :sum)
 	;inputs
 	;r0 = nums object (ptr)
 	;outputs
@@ -162,9 +162,9 @@
 
 	(vp-def (dst iter_begin iter_end sum val))
 
-	(entry 'nums 'sum `(,dst))
+	(entry 'nums :sum `(,dst))
 
-	(call 'nums 'get_both `(,dst) `(,dst ,iter_begin ,iter_end))
+	(call 'nums :get_both `(,dst) `(,dst ,iter_begin ,iter_end))
 	(vp-xor-rr sum sum)
 	(loop-while `(,iter_begin /= ,iter_end))
 		(assign `((,iter_begin 0)) `(,val))
@@ -172,12 +172,12 @@
 		(vp-add-rr val sum)
 	(loop-end)
 
-	(exit 'nums 'sum `(,dst ,sum))
+	(exit 'nums :sum `(,dst ,sum))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'nums 'scale)
+(def-method 'nums :scale)
 	;inputs
 	;r0 = nums object (ptr)
 	;r1 = source nums object, can be same (ptr)
@@ -189,7 +189,7 @@
 
 	(vp-def (dst src scale iter_begin iter_end))
 
-	(entry 'nums 'scale `(,dst ,src ,scale))
+	(entry 'nums :scale `(,dst ,src ,scale))
 
 	(class/array/get_both dst iter_begin iter_end)
 	(assign `((,src array_begin)) `(,src))
@@ -202,7 +202,7 @@
 		(vp-add-cr long_size src)
 	(loop-until `(,iter_begin = ,iter_end))
 
-	(exit 'nums 'scale `(,dst))
+	(exit 'nums :scale `(,dst))
 	(vp-ret)
 
 (def-func-end)

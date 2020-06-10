@@ -2,7 +2,7 @@
 (include 'gui/path/class.inc)
 (include 'sys/math/class.inc)
 
-(def-method 'path 'gen_quadratic)
+(def-method 'path :gen_quadratic)
 	;inputs
 	;r0 = path object (ptr)
 	;r1 = stack array object (ptr)
@@ -28,13 +28,13 @@
 	(int 'eps)
 
 	(push-scope)
-	(entry 'path 'gen_quadratic {this, stack, p1x, p1y, p2x, p2y, p3x, p3y, eps})
+	(entry 'path :gen_quadratic {this, stack, p1x, p1y, p2x, p2y, p3x, p3y, eps})
 
 	;output first point
 	(vec-set 0)
-	(call 'path 'push_back2 {this, p1x, p1y})
+	(call 'path :push_back2 {this, p1x, p1y})
 
-	(d-call 'array 'get_length {stack} {_, start})
+	(d-call 'array :get_length {stack} {_, start})
 	(loop-start)
 		;calculate the mid-path
 		(vec-load 4 {p1x, p1y, p2x, p2y})
@@ -65,21 +65,21 @@
 		(bind '(d e) (vec-pop 2))
 		(vpif `(,d <= ,e))
 			;output point
-			(call 'path 'push_back2 {this, p123x, p123y})
+			(call 'path :push_back2 {this, p123x, p123y})
 		(else)
 			;continue subdivision
-			(d-call 'array 'get_length {stack} {_, length})
-			(call 'array 'set_capacity {stack, length + 6})
-			(call 'array 'get_end {stack} {_, iter_end})
-			(call 'array 'set_length {stack, length + 6})
+			(d-call 'array :get_length {stack} {_, length})
+			(call 'array :set_capacity {stack, length + 6})
+			(call 'array :get_end {stack} {_, iter_end})
+			(call 'array :set_length {stack, length + 6})
 			(vec-load 7 {p123, p23, p3, p1, p12, p123, iter_end})
 			(vec-store-long 6 (elem 0 (vec-pop 1)))
 		(endif)
 
-		(d-call 'array 'get_length {stack} {_, length})
+		(d-call 'array :get_length {stack} {_, length})
 		(breakif {length = start})
-		(call 'array 'set_length {stack, length - 3})
-		(call 'array 'get_end {stack} {_, iter_end})
+		(call 'array :set_length {stack, length - 3})
+		(call 'array :get_end {stack} {_, iter_end})
 		(vec-load 1 {iter_end})
 		(vec-load-long 3 (elem 0 (vec-top 1)))
 		(vec-store 3 {p1, p2, p3})
@@ -87,9 +87,9 @@
 	(loop-end)
 
 	;output last point
-	(call 'path 'push_back2 {this, p3x, p3y})
+	(call 'path :push_back2 {this, p3x, p3y})
 
-	(exit 'path 'gen_quadratic {this})
+	(exit 'path :gen_quadratic {this})
 	(pop-scope)
 	(return)
 

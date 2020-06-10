@@ -3,7 +3,7 @@
 (include 'class/stream/class.inc)
 (include 'class/lisp/class.inc)
 
-(def-method 'lisp 'lisp_prin)
+(def-method 'lisp :lisp_prin)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -19,27 +19,27 @@
 		(pptr 'iter_begin 'iter_end))
 
 	(push-scope)
-	(entry 'lisp 'lisp_prin {this, args})
+	(entry 'lisp :lisp_prin {this, args})
 
 	(assign {this->lisp_sym_nil} {value})
-	(call 'list 'get_both {args} '(_ r1 r2))
+	(call 'list :get_both {args} '(_ r1 r2))
 	(assign '(r2) {iter_end})
 	(loop-while '(r1 /= r2))
 		(vp-cpy-ir r1 0 r0)
 		(assign '(r1 r0) {iter_begin, value})
 		(assign '((r0 obj_vtable)) '(r1))
-		(f-bind 'str 'vtable r2)
+		(f-bind 'str :vtable r2)
 		(vpif '(r1 = r2))
-			(call 'stream 'write {this->lisp_stdout, &value->str_data, value->str_length})
+			(call 'stream :write {this->lisp_stdout, &value->str_data, value->str_length})
 		(else)
-			(call 'lisp 'repl_print {this, this->lisp_stdout, value})
+			(call 'lisp :repl_print {this, this->lisp_stdout, value})
 		(endif)
 		(assign {iter_begin, iter_end} '(r1 r2))
 		(vp-add-cr ptr_size r1)
 	(loop-end)
-	(call 'obj 'ref {value})
+	(call 'obj :ref {value})
 
-	(exit 'lisp 'lisp_prin {this, value})
+	(exit 'lisp :lisp_prin {this, value})
 	(pop-scope)
 	(return)
 

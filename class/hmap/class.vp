@@ -6,7 +6,7 @@
 (gen-create 'hmap)
 (gen-vtable 'hmap)
 
-(def-method 'hmap 'init)
+(def-method 'hmap :init)
 	;inputs
 	;r0 = hmap object (ptr)
 	;r1 = vtable (pptr)
@@ -18,15 +18,15 @@
 	;trashes
 	;r1-r7
 
-	(entry 'hmap 'init '(r0 r1 r2 r3))
+	(entry 'hmap :init '(r0 r1 r2 r3))
 
 	(vp-xor-rr r4 r4)
 	(assign '(r4) '((r0 hmap_parent)))
-	(s-jump 'hmap 'init '(r0 r1 r2 r3))
+	(s-jump 'hmap :init '(r0 r1 r2 r3))
 
 (def-func-end)
 
-(def-method 'hmap 'deinit)
+(def-method 'hmap :deinit)
 	;inputs
 	;r0 = hmap object (ptr)
 	;outputs
@@ -34,16 +34,16 @@
 	;trashes
 	;r1-r14
 
-	(entry 'hmap 'deinit '(r0))
+	(entry 'hmap :deinit '(r0))
 
 	(vp-push r0)
-	(call 'hmap 'deref_if '((r0 hmap_parent)))
+	(call 'hmap :deref_if '((r0 hmap_parent)))
 	(vp-pop r0)
-	(s-jump 'hmap 'deinit '(r0))
+	(s-jump 'hmap :deinit '(r0))
 
 (def-func-end)
 
-(def-method 'hmap 'set_parent)
+(def-method 'hmap :set_parent)
 	;inputs
 	;r0 = hmap object (ptr)
 	;r1 = 0, else hmap parent object (ptr)
@@ -52,20 +52,20 @@
 	;trashes
 	;r1-r14
 
-	(entry 'hmap 'set_parent '(r0 r1))
+	(entry 'hmap :set_parent '(r0 r1))
 
 	(vp-push r0)
 	(assign '((r0 hmap_parent)) '(r2))
 	(assign '(r1) '((r0 hmap_parent)))
-	(call 'hmap 'deref_if '(r2))
+	(call 'hmap :deref_if '(r2))
 	(vp-pop r0)
 
-	(exit 'hmap 'set_parent '(r0))
+	(exit 'hmap :set_parent '(r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'hmap 'copy)
+(def-method 'hmap :copy)
 	;inputs
 	;r0 = hmap object (ptr)
 	;r1 = num buckets (uint)
@@ -82,17 +82,17 @@
 
 	;save inputs
 	(vp-alloc local_size)
-	(entry 'hmap 'copy '(r0 r1))
+	(entry 'hmap :copy '(r0 r1))
 	(assign '(r0) '((rsp local_this)))
 
-	(call 'hmap 'create '((r0 hset_key_callback) r1) '((rsp local_obj)))
+	(call 'hmap :create '((r0 hset_key_callback) r1) '((rsp local_obj)))
 	(assign '((rsp local_this)) '(r0))
 	(assign '((r0 hmap_parent)) '(r0))
-	(call 'hmap 'ref_if '(r0) '(r0))
-	(call 'hmap 'set_parent '((rsp local_obj) r0))
-	(call 'hmap 'for_each '((rsp local_this) ($ callback) rsp))
+	(call 'hmap :ref_if '(r0) '(r0))
+	(call 'hmap :set_parent '((rsp local_obj) r0))
+	(call 'hmap :for_each '((rsp local_this) ($ callback) rsp))
 
-	(exit 'hmap 'copy '(r0 (rsp local_obj)))
+	(exit 'hmap :copy '(r0 (rsp local_obj)))
 	(vp-free local_size)
 	(vp-ret)
 
@@ -101,18 +101,18 @@
 	;r0 = predicate data (ptr)
 	;r1 = element iterator (ptr)
 
-	(entry 'hset 'each_callback '(r0 r1))
+	(entry 'hset :each_callback '(r0 r1))
 
 	(assign '((r0 0) (r1 0)) '(r0 r1))
 	(class/obj/ref r1 r2)
 	(vp-push r1)
-	(call 'hmap 'get_bucket '(r0 (r1 pair_first)) '(_ r0))
+	(call 'hmap :get_bucket '(r0 (r1 pair_first)) '(_ r0))
 	(vp-pop r1)
-	(jump 'list 'push_back '(r0 r1))
+	(jump 'list :push_back '(r0 r1))
 
 (def-func-end)
 
-(def-method 'hmap 'find)
+(def-method 'hmap :find)
 	;inputs
 	;r0 = hmap object (ptr)
 	;r1 = key object (ptr)
@@ -130,12 +130,12 @@
 
 	;save inputs
 	(vp-alloc local_size)
-	(entry 'hmap 'find '(r0 r1))
+	(entry 'hmap :find '(r0 r1))
 
 	(assign '(r1 (r0 hset_key_callback)) '((rsp local_key) r2))
 	(vpif '(r2 = 0) 'exit)
 		;search hash bucket
-		(call 'hmap 'get_bucket '(r0 r1) '(r0 r2))
+		(call 'hmap :get_bucket '(r0 r1) '(r0 r2))
 		(class/array/get_both r2 r1 r3)
 		(assign '((rsp local_key)) '(r4))
 		(loop-while '(r1 /= r3))
@@ -147,7 +147,7 @@
 		(vp-xor-rr r1 r1)
 	(else)
 		;search hash bucket
-		(call 'hmap 'get_bucket '(r0 r1) '(r0 r1))
+		(call 'hmap :get_bucket '(r0 r1) '(r0 r1))
 		(assign '(r0 r1) '((rsp local_this) (rsp local_bucket)))
 		(class/array/get_both r1 r1 r2)
 		(assign '(r2) '((rsp local_iter_end)))
@@ -167,13 +167,13 @@
 		(vp-xor-rr r1 r1)
 	(endif)
 
-	(exit 'hmap 'find '(r0 r1 r2))
+	(exit 'hmap :find '(r0 r1 r2))
 	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'hmap 'insert)
+(def-method 'hmap :insert)
 	;inputs
 	;r0 = hmap object (ptr)
 	;r1 = key object (ptr)
@@ -191,37 +191,37 @@
 
 	;save inputs
 	(vp-alloc local_size)
-	(entry 'hmap 'insert '(r0 r1 (rsp local_value)))
+	(entry 'hmap :insert '(r0 r1 (rsp local_value)))
 	(assign '(r0 r1) '((rsp local_this) (rsp local_key)))
 
 	;search hash bucket
-	(call 'hmap 'find '(r0 r1) '(r0 r1 r2))
+	(call 'hmap :find '(r0 r1) '(r0 r1 r2))
 	(assign '(r2) '((rsp local_bucket)))
 	(vpif '(r1 = 0))
 		;new key, (key could be same as value !)
 		(assign '((rsp local_key) (rsp local_value)) '(r0 r1))
 		(class/obj/ref r0 r2)
 		(class/obj/ref r1 r2)
-		(call 'pair 'create '(r0 r1) '(r0))
-		(call 'list 'push_back '((rsp local_bucket) r0) '(r0 _ _ r3))
+		(call 'pair :create '(r0 r1) '(r0))
+		(call 'list :push_back '((rsp local_bucket) r0) '(r0 _ _ r3))
 		(assign '((& r3 (neg ptr_size)) r0) '(r1 r2))
 	(else)
 		;old key
 		(assign '((r1 0)) '(r2))
 		(assign '(r1 r2) '((rsp local_iter) (rsp local_pair)))
-		(call 'obj 'ref '((rsp local_value)))
-		(call 'obj 'deref '((r2 pair_second)))
+		(call 'obj :ref '((rsp local_value)))
+		(call 'obj :deref '((r2 pair_second)))
 		(assign '((rsp local_value) (rsp local_pair) (rsp local_iter) (rsp local_bucket)) '(r0 r3 r1 r2))
 		(assign '(r0) '((r3 pair_second)))
 	(endif)
 
-	(exit 'hmap 'insert '((rsp local_this) r1 r2))
+	(exit 'hmap :insert '((rsp local_this) r1 r2))
 	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'hmap 'search)
+(def-method 'hmap :search)
 	;inputs
 	;r0 = hmap object (ptr)
 	;r1 = key object (ptr)
@@ -237,24 +237,24 @@
 	(def-struct-end)
 
 	(vp-alloc local_size)
-	(entry 'hmap 'search '(r0 r1))
+	(entry 'hmap :search '(r0 r1))
 
 	(assign '(r0 r1) '((rsp local_this) (rsp local_key)))
 	(loop-start)
-		(call 'hmap 'find '(r0 r1) '(r0 r1 r2))
+		(call 'hmap :find '(r0 r1) '(r0 r1 r2))
 		(breakif '(r1 /= 0))
 		(assign '((r0 hmap_parent)) '(r1))
 		(breakif '(r1 = 0))
 		(assign '(r1 (rsp local_key)) '(r0 r1))
 	(loop-end)
 
-	(exit 'hmap 'search '((rsp local_this) r1 r2))
+	(exit 'hmap :search '((rsp local_this) r1 r2))
 	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'hmap 'set)
+(def-method 'hmap :set)
 	;inputs
 	;r0 = hmap object (ptr)
 	;r1 = key object (ptr)
@@ -270,23 +270,23 @@
 	(def-struct-end)
 
 	(vp-alloc local_size)
-	(entry 'hmap 'set '(r0 r1 (rsp local_value)))
+	(entry 'hmap :set '(r0 r1 (rsp local_value)))
 
-	(call 'hmap 'search '(r0 r1) '(r0 r1 _))
+	(call 'hmap :search '(r0 r1) '(r0 r1 _))
 	(vpif '(r1 /= 0))
 		(assign '(r0 (r1 0) (rsp local_value)) '((rsp local_this) r0 r1))
 		(class/obj/ref r1 r2)
-		(call 'pair 'set_second '(r0 r1))
+		(call 'pair :set_second '(r0 r1))
 		(assign '((rsp local_this) (rsp local_value)) '(r0 r1))
 	(endif)
 
-	(exit 'hmap 'set '(r0 r1))
+	(exit 'hmap :set '(r0 r1))
 	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'hmap 'get)
+(def-method 'hmap :get)
 	;inputs
 	;r0 = hmap object (ptr)
 	;r1 = key object (ptr)
@@ -296,16 +296,16 @@
 	;trashes
 	;r1-r14
 
-	(entry 'hmap 'get '(r0 r1))
+	(entry 'hmap :get '(r0 r1))
 
-	(call 'hmap 'search '(r0 r1) '(r0 r1 _))
+	(call 'hmap :search '(r0 r1) '(r0 r1 _))
 	(vpif '(r1 /= 0))
 		(assign '((r1 0)) '(r1))
 		(assign '((r1 pair_second)) '(r1))
 		(class/obj/ref r1 r2)
 	(endif)
 
-	(exit 'hmap 'get '(r0 r1))
+	(exit 'hmap :get '(r0 r1))
 	(vp-ret)
 
 (def-func-end)

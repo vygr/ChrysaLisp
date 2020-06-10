@@ -6,36 +6,36 @@
 (gen-vtable 'obj)
 
 (when (> *debug_mode* 1)
-(def-method 'obj 'deinit)
+(def-method 'obj :deinit)
 	;inputs
 	;r0 = object (ptr)
 	;trashes
 	;r0-r14
 
-	(entry 'obj 'deinit '(r0))
+	(entry 'obj :deinit '(r0))
 
 	(assign '((& r0 (- sys_mem_header_node sys_mem_header_size))) '(r1))
 	(ln-remove-node r1 r2)
 
-	(exit 'obj 'deinit '(r0))
+	(exit 'obj :deinit '(r0))
 	(vp-ret)
 
 (def-func-end))
 
-(def-method 'obj 'destroy)
+(def-method 'obj :destroy)
 	;inputs
 	;r0 = object (ptr)
 	;trashes
 	;r0-r14
 
-	(entry 'obj 'destroy '(r0))
+	(entry 'obj :destroy '(r0))
 
-	(call 'obj 'deinit '(r0) '(r0))
-	(jump 'sys_mem 'free '(r0))
+	(call 'obj :deinit '(r0) '(r0))
+	(jump 'sys_mem :free '(r0))
 
 (def-func-end)
 
-(def-method 'obj 'hash)
+(def-method 'obj :hash)
 	;inputs
 	;r0 = object (ptr)
 	;outputs
@@ -44,13 +44,13 @@
 	;trashes
 	;r1-r14
 
-	(entry 'obj 'hash '(r0))
-	(exit 'obj 'hash '(r0 r0))
+	(entry 'obj :hash '(r0))
+	(exit 'obj :hash '(r0 r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'obj 'inst_of)
+(def-method 'obj :inst_of)
 	;inputs
 	;r0 = object (ptr)
 	;r1 = vtable of tested type (ptr)
@@ -60,7 +60,7 @@
 	;trashes
 	;r1-r2
 
-	(entry 'obj 'inst_of '(r0 r2))
+	(entry 'obj :inst_of '(r0 r2))
 
 	(vp-lea-i r0 obj_vtable r1)
 	(loop-start)
@@ -70,29 +70,29 @@
 	(assign '((r0 obj_vtable)) '(r1))
 (vp-label 'funcexit)
 
-	(exit 'obj 'inst_of '(r0 r1))
+	(exit 'obj :inst_of '(r0 r1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'obj 'null)
+(def-method 'obj :null)
 
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'obj 'deref)
+(def-method 'obj :deref)
 	;inputs
 	;r0 = object (ptr)
 	;trashes
 	;r0-r14
 
-	(entry 'obj 'deref '(r0))
+	(entry 'obj :deref '(r0))
 
 	;destroy if 1
 	(assign '((r0 obj_count)) '(r1))
 	(vpif '(r1 = 1))
-		(jump 'obj 'destroy '(r0))
+		(jump 'obj :destroy '(r0))
 	(endif)
 
 	;dec ref count
@@ -102,22 +102,22 @@
 
 (def-func-end)
 
-(def-method 'obj 'deref_if)
+(def-method 'obj :deref_if)
 	;inputs
 	;r0 = 0, else object (ptr)
 	;trashes
 	;r0-r14
 
-	(entry 'obj 'deref_if '(r0))
+	(entry 'obj :deref_if '(r0))
 
 	(vpif '(r0 /= 0))
-		(jump 'obj 'deref '(r0))
+		(jump 'obj :deref '(r0))
 	(endif)
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'obj 'ref_if)
+(def-method 'obj :ref_if)
 	;inputs
 	;r0 = 0, else object (ptr)
 	;outputs
@@ -125,19 +125,19 @@
 	;trashes
 	;r1
 
-	(entry 'obj 'ref_if '(r0))
+	(entry 'obj :ref_if '(r0))
 
 	;inc ref count
 	(vpif '(r0 /= 0))
-		(call 'obj 'ref '(r0) '(r0))
+		(call 'obj :ref '(r0) '(r0))
 	(endif)
 
-	(exit 'obj 'ref_if '(r0))
+	(exit 'obj :ref_if '(r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'obj 'print)
+(def-method 'obj :print)
 	;inputs
 	;r0 = object (ptr)
 	;r1 = stream object (ptr)
@@ -146,18 +146,18 @@
 	;trashes
 	;r1-r14
 
-	(entry 'obj 'print '(r0 r1))
+	(entry 'obj :print '(r0 r1))
 
 	(vp-push r0)
-	(call 'stream 'write_char '(r1 char_at) '(r0))
+	(call 'stream :write_char '(r1 char_at) '(r0))
 	(assign '((rsp 0)) '(r1))
 	(assign '((r1 obj_vtable)) '(r1))
 	(vp-cpy-ir-ub r1 -1 r2)
 	(vp-sub-rr r2 r1)
-	(call 'stream 'write_cstr '(r0 r1))
+	(call 'stream :write_cstr '(r0 r1))
 	(vp-pop r0)
 
-	(exit 'obj 'print '(r0))
+	(exit 'obj :print '(r0))
 	(vp-ret)
 
 (def-func-end)

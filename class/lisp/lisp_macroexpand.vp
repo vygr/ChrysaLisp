@@ -1,7 +1,7 @@
 (include 'sys/func.inc)
 (include 'class/lisp/class.inc)
 
-(def-method 'lisp 'lisp_macroexpand)
+(def-method 'lisp :lisp_macroexpand)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -11,7 +11,7 @@
 	;trashes
 	;r1-r14
 
-	(entry 'lisp 'lisp_macroexpand '(r0 r1))
+	(entry 'lisp :lisp_macroexpand '(r0 r1))
 
 (errorcases
 	(assign '((r1 array_length)) '(r2))
@@ -20,14 +20,14 @@
 	(class/array/bind_args r1 '(r1))
 	(class/obj/ref r1 r2)
 	(vp-push r1)
-	(call 'lisp 'repl_expand '(r0 rsp) '(r0))
+	(call 'lisp :repl_expand '(r0 rsp) '(r0))
 	(vp-pop r1)
 
-	(exit 'lisp 'lisp_macroexpand '(r0 r1))
+	(exit 'lisp :lisp_macroexpand '(r0 r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r0 "(macroexpand form)" error_msg_wrong_num_of_args r1)))
+	(jump 'lisp :repl_error '(r0 "(macroexpand form)" error_msg_wrong_num_of_args r1)))
 
 (def-func-end)

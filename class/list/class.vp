@@ -4,7 +4,7 @@
 (gen-create 'list)
 (gen-vtable 'list)
 
-(def-method 'list 'deinit)
+(def-method 'list :deinit)
 	;inputs
 	;r0 = list object (ptr)
 	;outputs
@@ -12,14 +12,14 @@
 	;trashes
 	;r1-r14
 
-	(entry 'list 'deinit '(r0))
+	(entry 'list :deinit '(r0))
 
-	(d-call 'list 'clear '(r0) '(r0))
-	(s-jump 'list 'deinit '(r0))
+	(d-call 'list :clear '(r0) '(r0))
+	(s-jump 'list :deinit '(r0))
 
 (def-func-end)
 
-(def-method 'list 'clear)
+(def-method 'list :clear)
 	;inputs
 	;r0 = list object (ptr)
 	;outputs
@@ -27,26 +27,26 @@
 	;trashes
 	;r1-r14
 
-	(entry 'list 'clear '(r0))
+	(entry 'list :clear '(r0))
 
 	;deref all elements
 	(class/array/get_both r0 r1 r2)
 	(vp-push r0)
 	(loop-while '(r1 /= r2))
 		(vp-push r1 r2)
-		(call 'obj 'deref '((r1 0)))
+		(call 'obj :deref '((r1 0)))
 		(vp-pop r1 r2)
 		(vp-add-cr ptr_size r1)
 	(loop-end)
 	(vp-pop r0)
-	(s-call 'list 'clear '(r0) '(r0))
+	(s-call 'list :clear '(r0) '(r0))
 
-	(exit 'list 'clear '(r0))
+	(exit 'list :clear '(r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'list 'ref_element)
+(def-method 'list :ref_element)
 	;inputs
 	;r0 = list object (ptr)
 	;r1 = element index (uint)
@@ -56,17 +56,17 @@
 	;trashes
 	;r1-r2
 
-	(entry 'list 'ref_element '(r0 r1))
+	(entry 'list :ref_element '(r0 r1))
 
 	(class/array/get_element r0 r1 r1 r2)
 	(class/obj/ref r1 r2)
 
-	(exit 'list 'ref_element '(r0 r1))
+	(exit 'list :ref_element '(r0 r1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'list 'ref_back)
+(def-method 'list :ref_back)
 	;inputs
 	;r0 = list object (ptr)
 	;outputs
@@ -75,16 +75,16 @@
 	;trashes
 	;r1-r2
 
-	(entry 'list 'ref_back '(r0))
+	(entry 'list :ref_back '(r0))
 
-	(call 'list 'pop_back '(r0) '(r0 r1))
+	(call 'list :pop_back '(r0) '(r0 r1))
 
-	(exit 'list 'ref_back '(r0 r1))
+	(exit 'list :ref_back '(r0 r1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'list 'set_element)
+(def-method 'list :set_element)
 	;inputs
 	;r0 = list object (ptr)
 	;r1 = element object (ptr)
@@ -94,21 +94,21 @@
 	;trashes
 	;r1-r14
 
-	(entry 'list 'set_element '(r0 r1 r2))
+	(entry 'list :set_element '(r0 r1 r2))
 
 	(assign '((r0 array_begin)) '(r3))
 	(vp-shl-cr (log2 ptr_size) r2)
 	(vp-push r0)
 	(assign '((r2 r3) r1) '(r0 (r2 r3)))
-	(call 'obj 'deref '(r0))
+	(call 'obj :deref '(r0))
 	(vp-pop r0)
 
-	(exit 'list 'set_element '(r0))
+	(exit 'list :set_element '(r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'list 'slice)
+(def-method 'list :slice)
 	;inputs
 	;r0 = list object (ptr)
 	;r1 = element start index (uint)
@@ -120,14 +120,14 @@
 	;r1-r8
 
 	;save inputs
-	(entry 'list 'slice '(r6 r7 r8))
+	(entry 'list :slice '(r6 r7 r8))
 
 	;create new list
-	(call 'list 'create nil '(r0))
+	(call 'list :create nil '(r0))
 	(vp-cpy-rr r8 r1)
 	(vp-sub-rr r7 r1)
 	(assign '(r1) '((r0 array_length)))
-	(call 'list 'set_capacity '(r0 r1) '(r1))
+	(call 'list :set_capacity '(r0 r1) '(r1))
 	(vp-cpy-rr r6 r0)
 
 	;copy and ref elements
@@ -143,12 +143,12 @@
 		(loop-until '(r7 = r8))
 	(endif)
 
-	(exit 'list 'slice '(r0 r1))
+	(exit 'list :slice '(r0 r1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'list 'append)
+(def-method 'list :append)
 	;inputs
 	;r0 = list object (ptr)
 	;r1 = source list object (ptr)
@@ -159,7 +159,7 @@
 	;trashes
 	;r1-r9
 
-	(entry 'list 'append '(r0 r1 r2 r3))
+	(entry 'list :append '(r0 r1 r2 r3))
 
 	(vpif '(r2 /= r3))
 		;save inputs
@@ -170,7 +170,7 @@
 		(vp-sub-rr r2 r3)
 		(assign '((& r3 r9)) '(r1))
 		(assign '(r1) '((r0 array_length)))
-		(call 'list 'set_capacity '(r0 r1) '(r0))
+		(call 'list :set_capacity '(r0 r1) '(r0))
 
 		;append and ref elements
 		(class/array/get_iters r6 r7 r8 r1)
@@ -184,7 +184,7 @@
 		(loop-until '(r7 = r8))
 	(endif)
 
-	(exit 'list 'append '(r0))
+	(exit 'list :append '(r0))
 	(vp-ret)
 
 (def-func-end)

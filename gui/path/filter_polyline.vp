@@ -2,7 +2,7 @@
 (include 'gui/path/class.inc)
 (include 'sys/math/class.inc)
 
-(def-method 'path 'filter_polyline)
+(def-method 'path :filter_polyline)
 	;inputs
 	;r0 = path object (ptr)
 	;r1 = source path object, can be same (ptr)
@@ -17,10 +17,10 @@
 	(int 'eps)
 
 	(push-scope)
-	(entry 'path 'filter_polyline {this, that, eps})
+	(entry 'path :filter_polyline {this, that, eps})
 
-	(call 'path 'get_both {that} {_, iter_begin, iter_end})
-	(call 'path 'get_begin {this} {_, iter_this})
+	(call 'path :get_both {that} {_, iter_begin, iter_end})
+	(call 'path :get_begin {this} {_, iter_this})
 
 	(vec-set 0)
 	(vec-load 2 {iter_end, iter_begin})
@@ -46,10 +46,10 @@
 			(vp-add-cr (* 2 long_size) j)
 		(loop-end)
 		(vec-store 1 {iter_end})
-		(call 'path 'set_length {this, (iter_end - iter_this >> 3) + 2})
+		(call 'path :set_length {this, (iter_end - iter_this >> 3) + 2})
 	(endif)
 
-	(exit 'path 'filter_polyline {this})
+	(exit 'path :filter_polyline {this})
 	(pop-scope)
 	(return)
 

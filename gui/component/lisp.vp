@@ -3,7 +3,7 @@
 (include 'gui/component/class.inc)
 (include 'class/lisp/class.inc)
 
-(def-method 'component 'lisp_connect)
+(def-method 'component :lisp_connect)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -13,24 +13,24 @@
 	;trashes
 	;r1-r14
 
-	(entry 'component 'lisp_connect '(r0 r1))
+	(entry 'component :lisp_connect '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_sig '(r1 ($ sig) 2) '(r2))
+	(call 'lisp :env_args_sig '(r1 ($ sig) 2) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(assign '(r0) '(r13))
-	(defq in (method-input 'component 'connect))
+	(defq in (method-input 'component :connect))
 	(class/list/bind_args r1 in '(component num))
-	(call 'component 'connect in '(r1))
+	(call 'component :connect in '(r1))
 	(class/obj/ref r1 r0)
 
-	(exit 'component 'lisp_connect '(r13 r1))
+	(exit 'component :lisp_connect '(r13 r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r0 "(component-connect component id)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(r0 "(component-connect component id)" error_msg_wrong_types r1))
 	(signature '(component num)))
 
 (def-func-end)

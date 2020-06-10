@@ -27,7 +27,7 @@
 	(entry '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_sig '(r1 ($ sig) 1) '(r2))
+	(call 'lisp :env_args_sig '(r1 ($ sig) 1) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(class/array/bind_args r1 '(r2))
@@ -41,7 +41,7 @@
 	(vec-set 0)
 	(vec-load-long 3 r2)
 	(scene)
-	(call 'fixed 'create '(r0) '(r1))
+	(call 'fixed :create '(r0) '(r1))
 	(vp-pop r0)
 
 	(exit '(r0 r1))
@@ -49,7 +49,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r0 "(scene nums)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(r0 "(scene nums)" error_msg_wrong_types r1))
 	(signature '(nums)))
 
 (def-func-end)
@@ -67,7 +67,7 @@
 	(entry '(r13 r14))
 
 (errorcases
-	(call 'lisp 'env_args_sig '(r14 ($ sig) 6) '(r2))
+	(call 'lisp :env_args_sig '(r14 ($ sig) 6) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(class/array/bind_args r14 '(r0 r1 r2 r3 r4 r5))
@@ -100,7 +100,7 @@
 	(vpif '(r7 > r4))
 		(vp-cpy-rr r3 r0)
 	(endif)
-	(call 'fixed 'create '(r0) '(r1))
+	(call 'fixed :create '(r0) '(r1))
 	(vp-pop r0)
 
 	(exit '(r0 r1))
@@ -108,7 +108,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r13 "(ray-march nums nums num num num num)" error_msg_wrong_types r14))
+	(jump 'lisp :repl_error '(r13 "(ray-march nums nums num num num num)" error_msg_wrong_types r14))
 	(signature '(nums nums num num num num)))
 
 (def-func-end)
@@ -130,7 +130,7 @@
 	(entry '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_sig '(r1 ($ sig) 2) '(r2))
+	(call 'lisp :env_args_sig '(r1 ($ sig) 2) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(push-scope)
@@ -144,12 +144,12 @@
 		(assign {x} {xp})
 		(loop-start)
 			(assign {*data} {canvas->canvas_color})
-			(call 'canvas 'plot {canvas, xp, yp})
+			(call 'canvas :plot {canvas, xp, yp})
 			(assign {data + int_size} {data})
 		(loop-until {(xp + 1 => xp) = x1})
 	(loop-until {(yp + 1 => yp) = y1})
 
-	(call 'num 'create {(x1 - x) * (y1 - y)} '(r1))
+	(call 'num :create {(x1 - x) * (y1 - y)} '(r1))
 
 	(assign {this} '(r0))
 	(exit '(r0 r1))
@@ -158,7 +158,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r0 "(tile canvas data)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(r0 "(tile canvas data)" error_msg_wrong_types r1))
 	(signature '(canvas str)))
 
 (def-func-end)

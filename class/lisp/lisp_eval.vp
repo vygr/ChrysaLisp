@@ -2,7 +2,7 @@
 (include 'class/hmap/class.inc)
 (include 'class/lisp/class.inc)
 
-(def-method 'lisp 'lisp_eval)
+(def-method 'lisp :lisp_eval)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -12,31 +12,31 @@
 	;trashes
 	;r1-r14
 
-	(entry 'lisp 'lisp_eval '(r0 r1))
+	(entry 'lisp :lisp_eval '(r0 r1))
 
 	(assign '((r1 array_length)) '(r2))
 	(vpif '(r2 = 1))
 		(class/array/bind_args r1 '(r1))
-		(jump 'lisp 'repl_eval '(r0 r1))
+		(jump 'lisp :repl_eval '(r0 r1))
 	(endif)
 
 (errorcases
-	(call 'lisp 'env_args_sig '(r1 ($ sig) 2) '(r2))
+	(call 'lisp :env_args_sig '(r1 ($ sig) 2) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(class/array/bind_args r1 '(r1 r2))
 	(assign '((r0 lisp_environment) r2) '(r3 (r0 lisp_environment)))
 	(vp-push r3)
-	(call 'lisp 'repl_eval '(r0 r1) '(r0 r1))
+	(call 'lisp :repl_eval '(r0 r1) '(r0 r1))
 	(vp-pop r2)
 	(assign '(r2) '((r0 lisp_environment)))
 
-	(exit 'lisp 'lisp_eval '(r0 r1))
+	(exit 'lisp :lisp_eval '(r0 r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r0 "(eval form [env])" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(r0 "(eval form [env])" error_msg_wrong_types r1))
 	(signature '(obj hmap)))
 
 (def-func-end)

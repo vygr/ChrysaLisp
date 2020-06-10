@@ -3,7 +3,7 @@
 (include 'class/sym/class.inc)
 (include 'class/lisp/class.inc)
 
-(def-method 'lisp 'lisp_type)
+(def-method 'lisp :lisp_type)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -13,7 +13,7 @@
 	;trashes
 	;r1-r14
 
-	(entry 'lisp 'lisp_type '(r0 r1))
+	(entry 'lisp :lisp_type '(r0 r1))
 
 (errorcases
 	(assign '((r1 array_length)) '(r2))
@@ -23,31 +23,31 @@
 	(class/array/bind_args r1 '(r1))
 	(assign '((r1 obj_vtable)) '(r1))
 	(switch)
-	(f-bind 'list 'vtable r2)
+	(f-bind 'list :vtable r2)
 	(vp-cpy-cr lisp_type_lst r0)
 	(breakif '(r1 = r2))
-	(f-bind 'num 'vtable r2)
+	(f-bind 'num :vtable r2)
 	(vp-cpy-cr lisp_type_int r0)
 	(breakif '(r1 = r2))
-	(f-bind 'sym 'vtable r2)
+	(f-bind 'sym :vtable r2)
 	(vp-cpy-cr lisp_type_sym r0)
 	(breakif '(r1 = r2))
-	(f-bind 'str 'vtable r2)
+	(f-bind 'str :vtable r2)
 	(vp-cpy-cr lisp_type_str r0)
 	(breakif '(r1 = r2))
-	(f-bind 'func 'vtable r2)
+	(f-bind 'func :vtable r2)
 	(vp-cpy-cr lisp_type_fnc r0)
 	(breakif '(r1 = r2))
 	(vp-xor-rr r0 r0)
 	(endswitch)
-	(call 'num 'create '(r0) '(r1))
+	(call 'num :create '(r0) '(r1))
 	(vp-pop r0)
 
-	(exit 'lisp 'lisp_type '(r0 r1))
+	(exit 'lisp :lisp_type '(r0 r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r0 "(type-of obj)" error_msg_wrong_num_of_args r1)))
+	(jump 'lisp :repl_error '(r0 "(type-of obj)" error_msg_wrong_num_of_args r1)))
 
 (def-func-end)

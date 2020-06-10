@@ -6,7 +6,7 @@
 (include 'gui/path/class.inc)
 (include 'class/lisp/class.inc)
 
-(def-method 'seq 'lisp_length)
+(def-method 'seq :lisp_length)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -16,29 +16,29 @@
 	;trashes
 	;r1-r14
 
-	(entry 'seq 'lisp_length '(r0 r1))
+	(entry 'seq :lisp_length '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_sig '(r1 ($ sig) 1) '(r2))
+	(call 'lisp :env_args_sig '(r1 ($ sig) 1) '(r2))
 	(gotoif '(r2 = 0) 'error1))
 
 	(vp-cpy-rr r0 r13)
-	(defq in (method-input 'seq 'get_length))
+	(defq in (method-input 'seq :get_length))
 	(class/list/bind_args r1 in '(seq))
-	(call 'seq 'get_length in '(_ r0))
-	(call 'num 'create '(r0) '(r1))
+	(call 'seq :get_length in '(_ r0))
+	(call 'num :create '(r0) '(r1))
 
-	(exit 'seq 'lisp_length '(r13 r1))
+	(exit 'seq :lisp_length '(r13 r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error1)
-	(jump 'lisp 'repl_error '(r0 "(length seq)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(r0 "(length seq)" error_msg_wrong_types r1))
 	(signature '(seq)))
 
 (def-func-end)
 
-(def-method 'seq 'lisp_elem)
+(def-method 'seq :lisp_elem)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -48,16 +48,16 @@
 	;trashes
 	;r1-r14
 
-	(entry 'seq 'lisp_elem '(r0 r1))
+	(entry 'seq :lisp_elem '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_sig '(r1 ($ sig) 2) '(r2))
+	(call 'lisp :env_args_sig '(r1 ($ sig) 2) '(r2))
 	(gotoif '(r2 = 0) 'error1)
 	(assign '(r1) '(r13)))
 
 	(assign '(r0) '(r12))
 	(class/list/bind_args r1 '(r11 r0) '(num seq))
-	(call 'seq 'get_length '(r0) '(r0 r1))
+	(call 'seq :get_length '(r0) '(r0 r1))
 	(vpif '(r11 < 0))
 		(vp-add-rr r1 r11)
 		(vp-add-cr 1 r11)
@@ -65,21 +65,21 @@
 (errorcases
 	(gotoif '(r11 < 0) 'error2)
 	(gotoif '(r11 >= r1) 'error2))
-	(call 'seq 'ref_element '(r0 r11) '(_ r1))
+	(call 'seq :ref_element '(r0 r11) '(_ r1))
 
-	(exit 'seq 'lisp_elem '(r12 r1))
+	(exit 'seq :lisp_elem '(r12 r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error1)
-	(jump 'lisp 'repl_error '(r0 "(elem index seq)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(r0 "(elem index seq)" error_msg_wrong_types r1))
 (vp-label 'error2)
-	(jump 'lisp 'repl_error '(r12 "(elem index seq)" error_msg_not_valid_index r13))
+	(jump 'lisp :repl_error '(r12 "(elem index seq)" error_msg_not_valid_index r13))
 	(signature '(num seq)))
 
 (def-func-end)
 
-(def-method 'seq 'lisp_slice)
+(def-method 'seq :lisp_slice)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -89,16 +89,16 @@
 	;trashes
 	;r1-r14
 
-	(entry 'seq 'lisp_slice '(r0 r1))
+	(entry 'seq :lisp_slice '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_sig '(r1 ($ sig) 3) '(r2))
+	(call 'lisp :env_args_sig '(r1 ($ sig) 3) '(r2))
 	(gotoif '(r2 = 0) 'error1)
 	(assign '(r1) '(r13)))
 
 	(assign '(r0) '(r12))
 	(class/list/bind_args r1 '(r10 r11 r0) '(num num seq))
-	(call 'seq 'get_length '(r0) '(r0 r1))
+	(call 'seq :get_length '(r0) '(r0 r1))
 	(vpif '(r10 < 0))
 		(vp-add-rr r1 r10)
 		(vp-add-cr 1 r10)
@@ -111,21 +111,21 @@
 	(gotoif '(r10 < 0) 'error2)
 	(gotoif '(r10 > r11) 'error2)
 	(gotoif '(r11 > r1) 'error2))
-	(call 'seq 'slice '(r0 r10 r11) '(_ r1))
+	(call 'seq :slice '(r0 r10 r11) '(_ r1))
 
-	(exit 'seq 'lisp_slice '(r12 r1))
+	(exit 'seq :lisp_slice '(r12 r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error1)
-	(jump 'lisp 'repl_error '(r0 "(slice start end seq)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(r0 "(slice start end seq)" error_msg_wrong_types r1))
 (vp-label 'error2)
-	(jump 'lisp 'repl_error '(r12 "(slice start end seq)" error_msg_not_valid_index r13))
+	(jump 'lisp :repl_error '(r12 "(slice start end seq)" error_msg_not_valid_index r13))
 	(signature '(num num seq)))
 
 (def-func-end)
 
-(def-method 'seq 'lisp_each)
+(def-method 'seq :lisp_each)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -140,15 +140,15 @@
 		(int 'dir 'start 'end)
 	(def-struct-end)
 
-	(entry 'seq 'lisp_each '(r0 r1))
+	(entry 'seq :lisp_each '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_sig '(r1 ($ sig) 4) '(r2))
+	(call 'lisp :env_args_sig '(r1 ($ sig) 4) '(r2))
 	(gotoif '(r2 = 0) 'error1))
 
 	(vp-alloc local_size)
 	(assign '(r0 r1) '((rsp local_this) (rsp local_args)))
-	(call 'lisp 'env_push '(r0))
+	(call 'lisp :env_push '(r0))
 
 	(assign '((rsp local_args)) '(r0))
 	(class/list/bind_args r0 '(r9 r10 r11 r12) '(num num obj list))
@@ -157,9 +157,9 @@
 	(loop-while '(r6 /= r7))
 		(vp-cpy-ir r6 0 r0)
 	(errorcases
-		(call 'obj 'inst_of `(r0 (@ ,(f-path 'seq 'vtable))) '(r0 r1))
+		(call 'obj :inst_of `(r0 (@ ,(f-path 'seq :vtable))) '(r0 r1))
 		(gotoif '(r1 = 0) 'error3))
-		(call 'seq 'get_length '(r0) '(_ r1))
+		(call 'seq :get_length '(r0) '(_ r1))
 		(vpif '(r1 < r8))
 			(vp-cpy-rr r1 r8)
 		(endif)
@@ -167,7 +167,7 @@
 	(loop-end)
 
 	(assign '((rsp local_this)) '(r0))
-	(call 'obj 'ref '((r0 lisp_sym_nil)) '((rsp local_value)))
+	(call 'obj :ref '((r0 lisp_sym_nil)) '((rsp local_value)))
 
 	(vpif '(r8 /= max_int))
 		(vpif '(r9 < 0))
@@ -194,27 +194,27 @@
 			'((rsp local_dir) (rsp local_start) (rsp local_end) (rsp local_func) (rsp local_args)))
 
 		(loop-while '(r9 /= r10) 'done)
-			(call 'obj 'deref '((rsp local_value)))
+			(call 'obj :deref '((rsp local_value)))
 
-			(call 'list 'create nil '((rsp local_params)))
+			(call 'list :create nil '((rsp local_params)))
 			(assign '((rsp local_args) (rsp local_start)) '(r0 r9))
 			(class/array/get_both r0 r10 r11)
 			(loop-start)
-				(call 'seq 'ref_element '((r10 0) r9) '(_ r1))
-				(call 'list 'push_back '((rsp local_params) r1))
+				(call 'seq :ref_element '((r10 0) r9) '(_ r1))
+				(call 'list :push_back '((rsp local_params) r1))
 				(vp-add-cr ptr_size r10)
 			(loop-until '(r10 = r11))
 
-			(call 'num 'create '(r9) '(r2))
+			(call 'num :create '(r9) '(r2))
 			(assign '((rsp local_this) r2) '(r1 (rsp local_value)))
-			(call 'hmap 'insert '((r1 lisp_environment) (r1 lisp_sym_underscore) r2))
-			(call 'obj 'deref '((rsp local_value)))
+			(call 'hmap :insert '((r1 lisp_environment) (r1 lisp_sym_underscore) r2))
+			(call 'obj :deref '((rsp local_value)))
 
-			(call 'lisp 'repl_apply '((rsp local_this) (rsp local_params) (rsp local_func)) '(_ (rsp local_value)))
-			(call 'list 'deref '((rsp local_params)))
+			(call 'lisp :repl_apply '((rsp local_this) (rsp local_params) (rsp local_func)) '(_ (rsp local_value)))
+			(call 'list :deref '((rsp local_params)))
 		(errorcases
 			(assign '((rsp local_value)) '(r1))
-			(f-bind 'error 'vtable r4)
+			(f-bind 'error :vtable r4)
 			(assign '((r1 obj_vtable)) '(r3))
 			(breakif '(r3 = r4) 'done))
 
@@ -225,25 +225,25 @@
 	(endif)
 
 (vp-label 'funcexit)
-	(call 'lisp 'env_pop '((rsp local_this)) '(r0))
-	(exit 'seq 'lisp_each '(r0 (rsp local_value)))
+	(call 'lisp :env_pop '((rsp local_this)) '(r0))
+	(exit 'seq :lisp_each '(r0 (rsp local_value)))
 	(vp-free local_size)
 	(vp-ret)
 
 (errorcases
 (vp-label 'error1)
-	(jump 'lisp 'repl_error '(r0 "(each! start end lambda (seq ...))" error_msg_wrong_num_of_args r1))
+	(jump 'lisp :repl_error '(r0 "(each! start end lambda (seq ...))" error_msg_wrong_num_of_args r1))
 (vp-label 'error3)
-	(call 'lisp 'repl_error '((rsp local_this) "(each! start end lambda (seq ...))" error_msg_not_a_sequence (rsp local_args)) '(_ (rsp local_value)))
+	(call 'lisp :repl_error '((rsp local_this) "(each! start end lambda (seq ...))" error_msg_not_a_sequence (rsp local_args)) '(_ (rsp local_value)))
 	(goto 'funcexit)
 (vp-label 'error4)
-	(call 'lisp 'repl_error '((rsp local_this) "(each! start end lambda (seq ...))" error_msg_not_valid_index (rsp local_args)) '(_ (rsp local_value)))
+	(call 'lisp :repl_error '((rsp local_this) "(each! start end lambda (seq ...))" error_msg_not_valid_index (rsp local_args)) '(_ (rsp local_value)))
 	(goto 'funcexit)
 	(signature '(num num obj list)))
 
 (def-func-end)
 
-(def-method 'seq 'lisp_some)
+(def-method 'seq :lisp_some)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -258,15 +258,15 @@
 		(int 'dir 'start 'end)
 	(def-struct-end)
 
-	(entry 'seq 'lisp_some '(r0 r1))
+	(entry 'seq :lisp_some '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_sig '(r1 ($ sig) 5) '(r2))
+	(call 'lisp :env_args_sig '(r1 ($ sig) 5) '(r2))
 	(gotoif '(r2 = 0) 'error1))
 
 	(vp-alloc local_size)
 	(assign '(r0 r1) '((rsp local_this) (rsp local_args)))
-	(call 'lisp 'env_push '(r0))
+	(call 'lisp :env_push '(r0))
 
 	(assign '((rsp local_args)) '(r0))
 	(class/list/bind_args r0 '(r9 r10 r11 r12 r13) '(num num obj obj list))
@@ -275,9 +275,9 @@
 	(loop-while '(r6 /= r7))
 		(vp-cpy-ir r6 0 r0)
 	(errorcases
-		(call 'obj 'inst_of `(r0 (@ ,(f-path 'seq 'vtable))) '(r0 r1))
+		(call 'obj :inst_of `(r0 (@ ,(f-path 'seq :vtable))) '(r0 r1))
 		(gotoif '(r1 = 0) 'error3))
-		(call 'seq 'get_length '(r0) '(_ r1))
+		(call 'seq :get_length '(r0) '(_ r1))
 		(vpif '(r1 < r8))
 			(vp-cpy-rr r1 r8)
 		(endif)
@@ -285,7 +285,7 @@
 	(loop-end)
 
 	(assign '((rsp local_this)) '(r0))
-	(call 'obj 'ref '((r0 lisp_sym_nil)) '((rsp local_value)))
+	(call 'obj :ref '((r0 lisp_sym_nil)) '((rsp local_value)))
 
 	(vpif '(r8 /= max_int))
 		(vpif '(r9 < 0))
@@ -313,27 +313,27 @@
 				(rsp local_func) (rsp local_args)))
 
 		(loop-while '(r9 /= r10) 'done)
-			(call 'obj 'deref '((rsp local_value)))
+			(call 'obj :deref '((rsp local_value)))
 
-			(call 'list 'create nil '((rsp local_params)))
+			(call 'list :create nil '((rsp local_params)))
 			(assign '((rsp local_args) (rsp local_start)) '(r0 r9))
 			(class/array/get_both r0 r10 r11)
 			(loop-start)
-				(call 'seq 'ref_element '((r10 0) r9) '(_ r1))
-				(call 'list 'push_back '((rsp local_params) r1))
+				(call 'seq :ref_element '((r10 0) r9) '(_ r1))
+				(call 'list :push_back '((rsp local_params) r1))
 				(vp-add-cr ptr_size r10)
 			(loop-until '(r10 = r11))
 
-			(call 'num 'create '(r9) '(r2))
+			(call 'num :create '(r9) '(r2))
 			(assign '((rsp local_this) r2) '(r1 (rsp local_value)))
-			(call 'hmap 'insert '((r1 lisp_environment) (r1 lisp_sym_underscore) r2))
-			(call 'obj 'deref '((rsp local_value)))
+			(call 'hmap :insert '((r1 lisp_environment) (r1 lisp_sym_underscore) r2))
+			(call 'obj :deref '((rsp local_value)))
 
-			(call 'lisp 'repl_apply '((rsp local_this) (rsp local_params) (rsp local_func)) '(_ (rsp local_value)))
-			(call 'list 'deref '((rsp local_params)))
+			(call 'lisp :repl_apply '((rsp local_this) (rsp local_params) (rsp local_func)) '(_ (rsp local_value)))
+			(call 'list :deref '((rsp local_params)))
 			(assign '((rsp local_value)) '(r1))
 		(errorcases
-			(f-bind 'error 'vtable r4)
+			(f-bind 'error :vtable r4)
 			(assign '((r1 obj_vtable)) '(r3))
 			(breakif '(r3 = r4) 'done))
 
@@ -352,25 +352,25 @@
 	(endif)
 
 (vp-label 'funcexit)
-	(call 'lisp 'env_pop '((rsp local_this)) '(r0))
-	(exit 'seq 'lisp_some '(r0 (rsp local_value)))
+	(call 'lisp :env_pop '((rsp local_this)) '(r0))
+	(exit 'seq :lisp_some '(r0 (rsp local_value)))
 	(vp-free local_size)
 	(vp-ret)
 
 (errorcases
 (vp-label 'error1)
-	(jump 'lisp 'repl_error '(r0 "(some! start end mode lambda (seq ...))" error_msg_wrong_num_of_args r1))
+	(jump 'lisp :repl_error '(r0 "(some! start end mode lambda (seq ...))" error_msg_wrong_num_of_args r1))
 (vp-label 'error3)
-	(call 'lisp 'repl_error '((rsp local_this) "(some! start end mode lambda (seq ...))" error_msg_not_a_sequence (rsp local_args)) '(_ (rsp local_value)))
+	(call 'lisp :repl_error '((rsp local_this) "(some! start end mode lambda (seq ...))" error_msg_not_a_sequence (rsp local_args)) '(_ (rsp local_value)))
 	(goto 'funcexit)
 (vp-label 'error4)
-	(call 'lisp 'repl_error '((rsp local_this) "(some! start end mode lambda (seq ...))" error_msg_not_valid_index (rsp local_args)) '(_ (rsp local_value)))
+	(call 'lisp :repl_error '((rsp local_this) "(some! start end mode lambda (seq ...))" error_msg_not_valid_index (rsp local_args)) '(_ (rsp local_value)))
 	(goto 'funcexit)
 	(signature '(num num obj obj list)))
 
 (def-func-end)
 
-(def-method 'seq 'lisp_cat)
+(def-method 'seq :lisp_cat)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -380,29 +380,29 @@
 	;trashes
 	;r1-r14
 
-	(entry 'seq 'lisp_cat '(r0 r1))
+	(entry 'seq :lisp_cat '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type `(r1 (@ ,(f-path 'str 'vtable)) 1) '(r2))
+	(call 'lisp :env_args_type `(r1 (@ ,(f-path 'str :vtable)) 1) '(r2))
 	(vpif '(r2 = 0))
-		(call 'lisp 'env_args_match `(r1 (@ ,(f-path 'seq 'vtable)) 1) '(r2))
+		(call 'lisp :env_args_match `(r1 (@ ,(f-path 'seq :vtable)) 1) '(r2))
 		(gotoif '(r2 = 0) 'error)
 	(endif))
 
 	(assign '(r0) '(r13))
 	(class/array/bind_args r1 '(r0))
-	(call 'seq 'cat '(r0 r1) '(r0))
+	(call 'seq :cat '(r0 r1) '(r0))
 
-	(exit 'seq 'lisp_cat '(r13 r0))
+	(exit 'seq :lisp_cat '(r13 r0))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r0 "(cat seq ...)" error_msg_wrong_types r1)))
+	(jump 'lisp :repl_error '(r0 "(cat seq ...)" error_msg_wrong_types r1)))
 
 (def-func-end)
 
-(def-method 'seq 'lisp_find)
+(def-method 'seq :lisp_find)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -414,16 +414,16 @@
 
 	(vp-def (this args element sequence vtable ovtable) '(r8 r9 r10 r11 r12 r13))
 
-	(entry 'seq 'lisp_find `(,this ,args))
+	(entry 'seq :lisp_find `(,this ,args))
 
 (errorcases
-	(call 'lisp 'env_args_sig `(,args ($ sig) 2) '(r2))
+	(call 'lisp :env_args_sig `(,args ($ sig) 2) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(class/array/bind_args args `(,element ,sequence))
 	(assign `((,sequence obj_vtable)) `(,ovtable))
 	(switch)
-	(f-bind 'str 'vtable vtable)
+	(f-bind 'str :vtable vtable)
 	(vpcase `(,ovtable = ,vtable))
 	(errorcases
 		(assign `((,element obj_vtable)) `(,ovtable))
@@ -431,32 +431,32 @@
 		(class/list/cast_args `(,element) '(char))
 		(goto 'dofind)
 	(default)
-		(f-bind 'list 'vtable vtable)
+		(f-bind 'list :vtable vtable)
 		(gotoif `(,ovtable = ,vtable) 'dofind)
 	(errorcases
-		(call 'obj 'inst_of `(,element (@ ,(f-path 'num 'vtable))) '(r0 r1))
+		(call 'obj :inst_of `(,element (@ ,(f-path 'num :vtable))) '(r0 r1))
 		(gotoif '(r1 = 0) 'error))
 		(class/list/cast_args `(,element) '(num))
 	(vp-label 'dofind)
-		(call 'seq 'find `(,sequence ,element) '(_ _ r2))
+		(call 'seq :find `(,sequence ,element) '(_ _ r2))
 		(vpif '(r2 = -1))
-			(call 'obj 'ref `((,this lisp_sym_nil)) '(r0))
+			(call 'obj :ref `((,this lisp_sym_nil)) '(r0))
 		(else)
-			(call 'num 'create '(r2) '(r0))
+			(call 'num :create '(r2) '(r0))
 		(endif)
 	(endswitch)
 
-	(exit 'seq 'lisp_find `(,this r0))
+	(exit 'seq :lisp_find `(,this r0))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error `(,this "(find elem seq)" error_msg_wrong_types ,args))
+	(jump 'lisp :repl_error `(,this "(find elem seq)" error_msg_wrong_types ,args))
 	(signature '(obj seq)))
 
 (def-func-end)
 
-(def-method 'seq 'lisp_rfind)
+(def-method 'seq :lisp_rfind)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -468,16 +468,16 @@
 
 	(vp-def (this args element sequence vtable ovtable) '(r8 r9 r10 r11 r12 r13))
 
-	(entry 'seq 'lisp_rfind `(,this ,args))
+	(entry 'seq :lisp_rfind `(,this ,args))
 
 (errorcases
-	(call 'lisp 'env_args_sig `(,args ($ sig) 2) '(r2))
+	(call 'lisp :env_args_sig `(,args ($ sig) 2) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(class/array/bind_args args `(,element ,sequence))
 	(assign `((,sequence obj_vtable)) `(,ovtable))
 	(switch)
-	(f-bind 'str 'vtable vtable)
+	(f-bind 'str :vtable vtable)
 	(vpcase `(,ovtable = ,vtable))
 	(errorcases
 		(assign `((,element obj_vtable)) `(,ovtable))
@@ -485,27 +485,27 @@
 		(class/list/cast_args `(,element) '(char))
 		(goto 'dofind)
 	(default)
-		(f-bind 'list 'vtable vtable)
+		(f-bind 'list :vtable vtable)
 		(gotoif `(,ovtable = ,vtable) 'dofind)
 	(errorcases
-		(call 'obj 'inst_of `(,element (@ ,(f-path 'num 'vtable))) '(r0 r1))
+		(call 'obj :inst_of `(,element (@ ,(f-path 'num :vtable))) '(r0 r1))
 		(gotoif '(r1 = 0) 'error))
 		(class/list/cast_args `(,element) '(num))
 	(vp-label 'dofind)
-		(call 'seq 'rfind `(,sequence ,element) '(_ _ r2))
+		(call 'seq :rfind `(,sequence ,element) '(_ _ r2))
 		(vpif '(r2 = -1))
-			(call 'obj 'ref `((,this lisp_sym_nil)) '(r0))
+			(call 'obj :ref `((,this lisp_sym_nil)) '(r0))
 		(else)
-			(call 'num 'create '(r2) '(r0))
+			(call 'num :create '(r2) '(r0))
 		(endif)
 	(endswitch)
 
-	(exit 'seq 'lisp_rfind `(,this r0))
+	(exit 'seq :lisp_rfind `(,this r0))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error `(,this "(find-rev elem seq)" error_msg_wrong_types ,args))
+	(jump 'lisp :repl_error `(,this "(find-rev elem seq)" error_msg_wrong_types ,args))
 	(signature '(obj seq)))
 
 (def-func-end)

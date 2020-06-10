@@ -5,7 +5,7 @@
 (gen-create 'grid)
 (gen-vtable 'grid)
 
-(def-method 'grid 'layout)
+(def-method 'grid :layout)
 	;inputs
 	;r0 = grid object (ptr)
 	;outputs
@@ -19,20 +19,20 @@
 	(def-struct-end)
 
 	(vp-alloc local_size)
-	(entry 'grid 'layout '(r0))
+	(entry 'grid :layout '(r0))
 
-	(call 'grid 'get_long_prop '(r0 static_sym_grid_width) '(r0 (rsp local_width)))
-	(call 'grid 'get_long_prop '(r0 static_sym_grid_height) '(r0 (rsp local_height)))
+	(call 'grid :get_long_prop '(r0 static_sym_grid_width) '(r0 (rsp local_width)))
+	(call 'grid :get_long_prop '(r0 static_sym_grid_height) '(r0 (rsp local_height)))
 	(vp-xor-rr r2 r2)
 	(assign '(r0 r2) '((rsp local_this) (rsp local_count)))
-	(call 'grid 'forward '(r0 rsp ($ callback)) '(r0))
+	(call 'grid :forward '(r0 rsp ($ callback)) '(r0))
 
-	(exit 'grid 'layout '(r0))
+	(exit 'grid :layout '(r0))
 	(vp-free local_size)
 	(vp-ret)
 
 (vp-label 'callback)
-	(entry 'view 'forward_callback '(r0 r1))
+	(entry 'view :forward_callback '(r0 r1))
 
 	(vp-push r0)
 	(assign '((r1 local_count) (r1 local_width) (r1 local_height)) '(r0 r3 r4))
@@ -75,11 +75,11 @@
 	(vp-add-cr 1 r3)
 	(assign '(r3) '((r1 local_count)))
 	(vp-pop r0)
-	(jump 'view 'change '(r0 r7 r8 r9 r10))
+	(jump 'view :change '(r0 r7 r8 r9 r10))
 
 (def-func-end)
 
-(def-method 'grid 'pref_size)
+(def-method 'grid :pref_size)
 	;inputs
 	;r0 = grid object (ptr)
 	;outputs
@@ -94,26 +94,26 @@
 	(def-struct-end)
 
 	(vp-alloc local_size)
-	(entry 'grid 'pref_size '(r0))
+	(entry 'grid :pref_size '(r0))
 
 	(vp-xor-rr r1 r1)
 	(assign '(r1 r1) '((rsp local_w) (rsp local_h)))
-	(call 'grid 'forward '(r0 rsp ($ callback)))
-	(call 'grid 'get_long_prop '(r0 static_sym_grid_width) '(r0 (rsp local_width)))
-	(call 'grid 'get_long_prop '(r0 static_sym_grid_height) '(r0 r1))
+	(call 'grid :forward '(r0 rsp ($ callback)))
+	(call 'grid :get_long_prop '(r0 static_sym_grid_width) '(r0 (rsp local_width)))
+	(call 'grid :get_long_prop '(r0 static_sym_grid_height) '(r0 r1))
 	(assign '((rsp local_width) (rsp local_w) (rsp local_h)) '(r2 r9 r10))
 	(vp-mul-rr r2 r9)
 	(vp-mul-rr r1 r10)
 
-	(exit 'grid 'pref_size '(r0 r9 r10))
+	(exit 'grid :pref_size '(r0 r9 r10))
 	(vp-free local_size)
 	(vp-ret)
 
 (vp-label 'callback)
-	(entry 'view 'forward_callback '(r0 r1))
+	(entry 'view :forward_callback '(r0 r1))
 
 	(vp-push r1)
-	(call 'view 'pref_size '(r0) '(_ r9 r10))
+	(call 'view :pref_size '(r0) '(_ r9 r10))
 	(vp-pop r1)
 	(assign '((r1 local_w)) '(r2))
 	(vpif '(r9 > r2))
@@ -124,7 +124,7 @@
 		(assign '(r10) '((r1 local_h)))
 	(endif)
 
-	(exit 'view 'forward_callback '(r0))
+	(exit 'view :forward_callback '(r0))
 	(vp-ret)
 
 (def-func-end)

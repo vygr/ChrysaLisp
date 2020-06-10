@@ -2,7 +2,7 @@
 (include 'class/stream/class.inc)
 (include 'class/lisp/class.inc)
 
-(def-method 'lisp 'read_rmacro)
+(def-method 'lisp :read_rmacro)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = stream object (ptr)
@@ -20,24 +20,24 @@
 	(def-struct-end)
 
 	(vp-alloc local_size)
-	(entry 'lisp 'read_rmacro '((rsp local_this) r1 r2 (rsp local_sym)))
+	(entry 'lisp :read_rmacro '((rsp local_this) r1 r2 (rsp local_sym)))
 
-	(call 'stream 'read_char '(r1) '(r0 r1))
-	(call 'lisp 'read '((rsp local_this) r0 r1) '(r0 r1 r2))
+	(call 'stream :read_char '(r1) '(r0 r1))
+	(call 'lisp :read '((rsp local_this) r0 r1) '(r0 r1 r2))
 	(switch)
 	(errorcases
 		(assign '((r1 obj_vtable)) '(r3))
-		(f-bind 'error 'vtable r4)
+		(f-bind 'error :vtable r4)
 		(breakif '(r3 = r4)))
 		(assign '(r1 r2) '(r12 r13))
-		(call 'list 'create nil '(r0))
+		(call 'list :create nil '(r0))
 		(assign '((rsp local_sym)) '(r1))
 		(class/obj/ref r1 r2)
-		(call 'list 'push_back2 '(r0 r1 r12) '(r0 _ _ _ _))
+		(call 'list :push_back2 '(r0 r1 r12) '(r0 _ _ _ _))
 		(assign '((rsp local_this) r0 r13) '(r0 r1 r2))
 	(endswitch)
 
-	(exit 'lisp 'read_rmacro '(r0 r1 r2))
+	(exit 'lisp :read_rmacro '(r0 r1 r2))
 	(vp-free local_size)
 	(vp-ret)
 

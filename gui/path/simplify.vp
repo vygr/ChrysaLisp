@@ -2,7 +2,7 @@
 (include 'gui/path/class.inc)
 (include 'sys/math/class.inc)
 
-(def-method 'path 'simplify)
+(def-method 'path :simplify)
 	;inputs
 	;r0 = path object (ptr)
 	;r1 = source path object (ptr)
@@ -22,32 +22,32 @@
 	(int 'eps 'max 'dist)
 
 	(push-scope)
-	(entry 'path 'simplify {this, that, stack, eps})
+	(entry 'path :simplify {this, that, stack, eps})
 
 	;any point doing anything ?
-	(d-call 'path 'get_length {that} {_, length})
+	(d-call 'path :get_length {that} {_, length})
 	(vpif {length <= 4})
 		;just append to output
-		(d-call 'path 'append {this, that, 0, length})
+		(d-call 'path :append {this, that, 0, length})
 	(else)
 		;first span
 		(assign {0, length - 2} {first, last})
 
 		;output first point
-		(call 'path 'get_first2 {that} {_, p1x, p1y})
-		(call 'path 'push_back2 {this, p1x, p1y})
+		(call 'path :get_first2 {that} {_, p1x, p1y})
+		(call 'path :push_back2 {this, p1x, p1y})
 
-		(d-call 'array 'get_length {stack} {_, start})
+		(d-call 'array :get_length {stack} {_, start})
 		(loop-start)
 			(switch 'out)
 			(vpcase {last - first > 2})
 				;find max distance point
 				(assign {eps, first + 2} {max, length})
-				(call 'path 'get_element2 {that, first} {_, p2x, p2y})
-				(call 'path 'get_element2 {that, last} {_, p3x, p3y})
+				(call 'path :get_element2 {that, first} {_, p2x, p2y})
+				(call 'path :get_element2 {that, last} {_, p3x, p3y})
 				(loop-start)
-					(call 'path 'get_element2 {that, length} {_, p1x, p1y})
-					(call 'sys_math 'f_dist_sqd {p1x, p2y, p2x, p2y, p3x, p3y} {dist})
+					(call 'path :get_element2 {that, length} {_, p1x, p1y})
+					(call 'sys_math :f_dist_sqd {p1x, p2y, p2x, p2y, p3x, p3y} {dist})
 					(vpif {dist > max})
 						(assign {dist, length} {max, index})
 					(endif)
@@ -57,23 +57,23 @@
 				(vpif {max > eps})
 					(assign {last} {rlast})
 					(assign {index} {last})
-					(call 'path 'push_back2 {stack, rspan, span})
+					(call 'path :push_back2 {stack, rspan, span})
 					(break 'out)
 				(endif)
 			(default)
 				;output point
-				(call 'path 'get_element2 {that, last} {_, p1x, p1y})
-				(call 'path 'push_back2 {this, p1x, p1y})
+				(call 'path :get_element2 {that, last} {_, p1x, p1y})
+				(call 'path :push_back2 {this, p1x, p1y})
 			(endswitch)
 
 			;next span
-			(d-call 'array 'get_length {stack} {_, length})
+			(d-call 'array :get_length {stack} {_, length})
 			(breakif {length = start})
-			(call 'array 'pop_back {stack} {_, span})
+			(call 'array :pop_back {stack} {_, span})
 		(loop-end)
 	(endif)
 
-	(exit 'path 'simplify {this})
+	(exit 'path :simplify {this})
 	(pop-scope)
 	(return)
 

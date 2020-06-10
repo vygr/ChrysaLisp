@@ -72,7 +72,7 @@
 		(write-line stream (cat "## " class (ascii-char 10)))
 		(write-line stream (cat "Super Class: " super (ascii-char 10)))
 		(each (lambda ((method function))
-			(write-line stream (cat "### " class "::" method " -> " function (ascii-char 10)))
+			(write-line stream (cat "### " class ":" method " -> " function (ascii-char 10)))
 			(when (and (defq i (find-rev function functions))
 					(/= 0 (length (elem i docs))))
 				(write-line stream "```lisp")
@@ -117,7 +117,7 @@
 	all: include all .vp files.
 	boot: create a boot image.
 	platforms: for all platforms not just the host.
-	doc: scan source files and create documentation.
+	docs: scan source files and create documentation.
 	syms: scan source files and create VP sys/symbols.inc.")
 ))
 
@@ -127,7 +127,7 @@
 			(defq stdio (create-stdio))
 			(defq args (options stdio usage)))
 		(defq args (map sym args) all (find-rev 'all args) boot (find-rev 'boot args) platforms (find-rev 'platforms args)
-			doc (find-rev 'doc args) syms (find-rev 'syms args))
+			docs (find-rev 'docs args) syms (find-rev 'syms args))
 		(cond
 			((and boot all platforms) (remake-all-platforms))
 			((and boot all) (remake-all))
@@ -136,6 +136,6 @@
 			(all (make-all))
 			(platforms (make-platforms))
 			(boot (remake))
-			(doc (make-doc))
+			(docs (make-doc))
 			(syms (make-syms))
 			(t (make)))))

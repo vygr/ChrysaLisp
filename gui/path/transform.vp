@@ -2,7 +2,7 @@
 (include 'gui/path/class.inc)
 (include 'sys/math/class.inc)
 
-(def-method 'path 'transform)
+(def-method 'path :transform)
 	;inputs
 	;r0 = path object (ptr)
 	;r1 = source path object, can be same (ptr)
@@ -22,10 +22,10 @@
 	(int 'm1x 'm1y 'm2x 'm2y 'trx 'try)
 
 	(push-scope)
-	(entry 'path 'transform {this, that, m1x, m1y, m2x, m2y, trx, try})
+	(entry 'path :transform {this, that, m1x, m1y, m2x, m2y, trx, try})
 
-	(call 'path 'get_both {that} {_, iter_begin, iter_end})
-	(call 'path 'get_begin {this} {_, iter_this})
+	(call 'path :get_both {that} {_, iter_begin, iter_end})
+	(call 'path :get_begin {this} {_, iter_this})
 
 	(vec-set 0)
 	(vec-load 3 {iter_end, iter_begin, iter_this})
@@ -51,7 +51,7 @@
 		(vp-add-cr (* 2 long_size) j)
 	(loop-end)
 
-	(exit 'path 'transform {this})
+	(exit 'path :transform {this})
 	(pop-scope)
 	(return)
 

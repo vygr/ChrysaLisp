@@ -3,7 +3,7 @@
 (include 'class/str/class.inc)
 (include 'class/lisp/class.inc)
 
-(def-method 'sys_pii 'lisp_readchar)
+(def-method 'sys_pii :lisp_readchar)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -13,29 +13,29 @@
 	;trashes
 	;r1-r14
 
-	(entry 'sys_pii 'lisp_readchar '(r0 r1))
+	(entry 'sys_pii :lisp_readchar '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type `(r1 (@ ,(f-path 'num 'vtable)) 1) '(r2))
+	(call 'lisp :env_args_type `(r1 (@ ,(f-path 'num :vtable)) 1) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
-	(defq in (method-input 'sys_pii 'read_char))
+	(defq in (method-input 'sys_pii :read_char))
 	(class/list/bind_args r1 in '(num))
-	(call 'sys_pii 'read_char in '(r0))
-	(call 'num 'create '(r0) '(r1))
+	(call 'sys_pii :read_char in '(r0))
+	(call 'num :create '(r0) '(r1))
 	(vp-pop r0)
 
-	(exit 'sys_pii 'lisp_readchar '(r0 r1))
+	(exit 'sys_pii :lisp_readchar '(r0 r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r0 "(pii-read-char fd)" error_msg_wrong_types r1)))
+	(jump 'lisp :repl_error '(r0 "(pii-read-char fd)" error_msg_wrong_types r1)))
 
 (def-func-end)
 
-(def-method 'sys_pii 'lisp_writechar)
+(def-method 'sys_pii :lisp_writechar)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -45,32 +45,32 @@
 	;trashes
 	;r1-r14
 
-	(entry 'sys_pii 'lisp_writechar '(r0 r1))
+	(entry 'sys_pii :lisp_writechar '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type `(r1 (@ ,(f-path 'num 'vtable)) 2) '(r2))
+	(call 'lisp :env_args_type `(r1 (@ ,(f-path 'num :vtable)) 2) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
-	(defq in (method-input 'sys_pii 'write_char))
+	(defq in (method-input 'sys_pii :write_char))
 	(class/array/bind_args r1 in)
 	(vp-push (elem 1 in))
 	(class/list/cast_args in '(num num))
-	(call 'sys_pii 'write_char in)
+	(call 'sys_pii :write_char in)
 	(vp-pop r1)
 	(class/obj/ref r1 r2)
 	(vp-pop r0)
 
-	(exit 'sys_pii 'lisp_writechar '(r0 r1))
+	(exit 'sys_pii :lisp_writechar '(r0 r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r0 "(pii-write-char fd char)" error_msg_wrong_types r1)))
+	(jump 'lisp :repl_error '(r0 "(pii-write-char fd char)" error_msg_wrong_types r1)))
 
 (def-func-end)
 
-(def-method 'sys_pii 'lisp_time)
+(def-method 'sys_pii :lisp_time)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -80,27 +80,27 @@
 	;trashes
 	;r1-r14
 
-	(entry 'sys_pii 'lisp_time '(r0 r1))
+	(entry 'sys_pii :lisp_time '(r0 r1))
 
 (errorcases
 	(assign '((r1 array_length)) '(r2))
 	(gotoif '(r2 /= 0) 'error))
 
 	(vp-push r0)
-	(call 'sys_pii 'time nil '(r0))
-	(call 'num 'create '(r0) '(r1))
+	(call 'sys_pii :time nil '(r0))
+	(call 'num :create '(r0) '(r1))
 	(vp-pop r0)
 
-	(exit 'sys_pii 'lisp_time '(r0 r1))
+	(exit 'sys_pii :lisp_time '(r0 r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r0 "(time)" error_msg_wrong_num_of_args r1)))
+	(jump 'lisp :repl_error '(r0 "(time)" error_msg_wrong_num_of_args r1)))
 
 (def-func-end)
 
-(def-method 'sys_pii 'lisp_age)
+(def-method 'sys_pii :lisp_age)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -110,35 +110,35 @@
 	;trashes
 	;r1-r14
 
-	(entry 'sys_pii 'lisp_age '(r0 r1))
+	(entry 'sys_pii :lisp_age '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_sig '(r1 ($ sig) 1) '(r2))
+	(call 'lisp :env_args_sig '(r1 ($ sig) 1) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
-	(assign `((r1 array_begin) (@ ,(f-path 'sys_load 'statics))) '(r0 r1))
+	(assign `((r1 array_begin) (@ ,(f-path 'sys_load :statics))) '(r0 r1))
 	(assign '((r0 0) (r1 ld_statics_stat_buffer)) '(r0 r1))
-	(call 'sys_pii 'stat '((& r0 str_data) r1) '(r0))
+	(call 'sys_pii :stat '((& r0 str_data) r1) '(r0))
 	(vpif '(r0 = 0))
 		(assign '((r1 stat_mtime)) '(r0))
 	(else)
 		(vp-xor-rr r0 r0)
 	(endif)
-	(call 'num 'create '(r0) '(r1))
+	(call 'num :create '(r0) '(r1))
 	(vp-pop r0)
 
-	(exit 'sys_pii 'lisp_age '(r0 r1))
+	(exit 'sys_pii :lisp_age '(r0 r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r0 "(age path)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(r0 "(age path)" error_msg_wrong_types r1))
 	(signature '(str)))
 
 (def-func-end)
 
-(def-method 'sys_pii 'lisp_dirlist)
+(def-method 'sys_pii :lisp_dirlist)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -148,31 +148,31 @@
 	;trashes
 	;r1-r14
 
-	(entry 'sys_pii 'lisp_dirlist '(r0 r1))
+	(entry 'sys_pii :lisp_dirlist '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_sig '(r1 ($ sig) 1) '(r2))
+	(call 'lisp :env_args_sig '(r1 ($ sig) 1) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
 	(class/list/bind_args r1 '(r6) '(str))
 	(assign '(0 0 (* 4 1024)) '(r7 r8 r9))
 	(loop-start)
-		(call 'sys_mem 'realloc '(r7 r8 r9) '(r7 r8))
-		(call 'sys_pii 'dirlist '(r6 r7 r8) '(r0))
+		(call 'sys_mem :realloc '(r7 r8 r9) '(r7 r8))
+		(call 'sys_pii :dirlist '(r6 r7 r8) '(r0))
 		(breakif '(r0 <= r8))
 		(vp-lea-d r8 r8 r9)
 	(loop-end)
-	(call 'str 'create_from_buffer '(r7 r0) '(r9))
-	(call 'sys_mem 'free '(r7))
+	(call 'str :create_from_buffer '(r7 r0) '(r9))
+	(call 'sys_mem :free '(r7))
 	(vp-pop r0)
 
-	(exit 'sys_pii 'lisp_dirlist '(r0 r9))
+	(exit 'sys_pii :lisp_dirlist '(r0 r9))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r0 "(pii-dirlist path)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(r0 "(pii-dirlist path)" error_msg_wrong_types r1))
 	(signature '(str)))
 
 (def-func-end)

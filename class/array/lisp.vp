@@ -5,16 +5,16 @@
 (include 'gui/path/class.inc)
 
 (defun to-array (_)
-	(entry 'array (sym (cat "lisp_" _)) '(r6 r8))
-	(call _ 'create nil '(r7))
+	(entry 'array (sym (cat :lisp_ _)) '(r6 r8))
+	(call _ :create nil '(r7))
 	(assign '((r8 array_length)) '(r1))
 	(assign '(r1) '((r7 array_length)))
-	(call _ 'set_capacity '(r7 r1))
-	(call 'lisp 'env_args_set '(r8 0 (r7 array_begin)))
-	(exit 'array (sym (cat "lisp_" _)) '(r6 r7))
+	(call _ :set_capacity '(r7 r1))
+	(call 'lisp :env_args_set '(r8 0 (r7 array_begin)))
+	(exit 'array (sym (cat :lisp_ _)) '(r6 r7))
 	(vp-ret))
 
-(def-method 'array 'lisp_array)
+(def-method 'array :lisp_array)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -28,7 +28,7 @@
 
 (def-func-end)
 
-(def-method 'array 'lisp_nums)
+(def-method 'array :lisp_nums)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -42,7 +42,7 @@
 
 (def-func-end)
 
-(def-method 'array 'lisp_fixeds)
+(def-method 'array :lisp_fixeds)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -56,7 +56,7 @@
 
 (def-func-end)
 
-(def-method 'array 'lisp_reals)
+(def-method 'array :lisp_reals)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -70,7 +70,7 @@
 
 (def-func-end)
 
-(def-method 'array 'lisp_path)
+(def-method 'array :lisp_path)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -84,7 +84,7 @@
 
 (def-func-end)
 
-(def-method 'array 'lisp_clear)
+(def-method 'array :lisp_clear)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -99,10 +99,10 @@
 		(pptr 'iter_begin 'iter_end)
 	(def-struct-end)
 
-	(entry 'array 'lisp_clear '(r0 r1))
+	(entry 'array :lisp_clear '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_type `(r1 (@ ,(f-path 'array 'vtable)) 1) '(r2))
+	(call 'lisp :env_args_type `(r1 (@ ,(f-path 'array :vtable)) 1) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-alloc local_size)
@@ -110,23 +110,23 @@
 	(assign '(r0 r2) '((rsp local_this) (rsp local_iter_end)))
 	(loop-start)
 		(assign '(r1) '((rsp local_iter_begin)))
-		(call 'array 'clear '((r1 0)) '(r0))
+		(call 'array :clear '((r1 0)) '(r0))
 		(assign '((rsp local_iter_begin) (rsp local_iter_end)) '(r1 r2))
 		(vp-add-cr ptr_size r1)
 	(loop-until '(r1 = r2))
-	(call 'obj 'ref '(r0) '(r0))
+	(call 'obj :ref '(r0) '(r0))
 
-	(exit 'array 'lisp_clear '((rsp local_this) r0))
+	(exit 'array :lisp_clear '((rsp local_this) r0))
 	(vp-free local_size)
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r0  "(clear array ...)" error_msg_wrong_types r1)))
+	(jump 'lisp :repl_error '(r0  "(clear array ...)" error_msg_wrong_types r1)))
 
 (def-func-end)
 
-(def-method 'array 'lisp_pop)
+(def-method 'array :lisp_pop)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -136,17 +136,17 @@
 	;trashes
 	;r1-r14
 
-	(entry 'array 'lisp_pop '(r0 r1))
+	(entry 'array :lisp_pop '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_sig '(r1 ($ sig) 1) '(r2))
+	(call 'lisp :env_args_sig '(r1 ($ sig) 1) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
 	(class/array/bind_args r1 '(r0))
 	(assign '((r0 array_length)) '(r1))
 	(vpif '(r1 /= 0))
-		(call 'array 'ref_back '(r0) '(_ r1))
+		(call 'array :ref_back '(r0) '(_ r1))
 	(else)
 		(assign '((rsp 0)) '(r1))
 		(assign '((r1 lisp_sym_nil)) '(r1))
@@ -154,17 +154,17 @@
 	(endif)
 	(vp-pop r0)
 
-	(exit 'array 'lisp_pop '(r0 r1))
+	(exit 'array :lisp_pop '(r0 r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r0 "(pop array)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(r0 "(pop array)" error_msg_wrong_types r1))
 	(signature '(array)))
 
 (def-func-end)
 
-(def-method 'array 'lisp_push)
+(def-method 'array :lisp_push)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -174,40 +174,40 @@
 	;trashes
 	;r1-r14
 
-	(entry 'array 'lisp_push '(r6 r7))
+	(entry 'array :lisp_push '(r6 r7))
 
 	(assign '((r7 array_length)) '(r3))
 	(errorif '(r3 < 2) 'error)
 	(class/array/bind_args r7 '(r0))
-	(f-bind 'list 'vtable r1)
+	(f-bind 'list :vtable r1)
 	(assign '((r0 obj_vtable)) '(r2))
 	(vpif '(r1 = r2))
-		(d-call 'list 'append '(r0 r7 1 r3) '(r0))
+		(d-call 'list :append '(r0 r7 1 r3) '(r0))
 	(else)
 	(errorcases
-		(call 'obj 'inst_of `(r0 (@ ,(f-path 'array 'vtable))) '(r0 r1))
+		(call 'obj :inst_of `(r0 (@ ,(f-path 'array :vtable))) '(r0 r1))
 		(gotoif '(r1 = 0) 'error))
 		(assign '((r0 array_length)) '(r8))
 		(vp-add-rr r3 r8)
 		(vp-sub-cr 1 r8)
-		(call 'array 'set_capacity '(r0 r8) '(r0))
-		(call 'array 'get_end '(r0) '(r9 r1))
+		(call 'array :set_capacity '(r0 r8) '(r0))
+		(call 'array :get_end '(r0) '(r9 r1))
 		(assign '(r8) '((r9 array_length)))
-		(call 'lisp 'env_args_set '(r7 1 r1))
+		(call 'lisp :env_args_set '(r7 1 r1))
 		(vp-cpy-rr r9 r0)
 	(endif)
-	(call 'obj 'ref '(r0) '(r0))
+	(call 'obj :ref '(r0) '(r0))
 
-	(exit 'array 'lisp_push '(r6 r0))
+	(exit 'array :lisp_push '(r6 r0))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r6 "(push array form ...)" error_msg_wrong_types r7)))
+	(jump 'lisp :repl_error '(r6 "(push array form ...)" error_msg_wrong_types r7)))
 
 (def-func-end)
 
-(def-method 'array 'lisp_cap)
+(def-method 'array :lisp_cap)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -219,7 +219,7 @@
 
 	(vp-def (this args argc iter_begin iter_end obj res) '(r9 r10 r11 r12 r13))
 
-	(entry 'array 'lisp_cap `(,this ,args))
+	(entry 'array :lisp_cap `(,this ,args))
 
 (errorcases
 	(assign `((,args array_length)) `(,argc))
@@ -228,7 +228,7 @@
 	(assign `((,iter_begin 0)) `(,args))
 	(vp-add-cr ptr_size iter_begin)
 (errorcases
-	(f-bind 'num 'vtable obj)
+	(f-bind 'num :vtable obj)
 	(assign `((,args obj_vtable)) `(,res))
 	(gotoif `(,obj /= ,res) 'error))
 	(assign `((,args num_value)) `(,argc))
@@ -236,17 +236,17 @@
 		(assign `((,iter_begin 0)) `(,obj))
 		(vp-add-cr ptr_size iter_begin)
 	(errorcases
-		(call 'obj 'inst_of `(,obj (@ ,(f-path 'array 'vtable))) `(,obj ,res))
+		(call 'obj :inst_of `(,obj (@ ,(f-path 'array :vtable))) `(,obj ,res))
 		(gotoif `(res = 0) 'error))
-		(call 'array 'set_capacity `(,obj ,argc) `(,obj))
+		(call 'array :set_capacity `(,obj ,argc) `(,obj))
 	(loop-until `(,iter_begin = ,iter_end))
 	(class/obj/ref obj argc)
 
-	(exit 'array 'lisp_cap `(,this ,obj))
+	(exit 'array :lisp_cap `(,this ,obj))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error `(,this "(cap len array ...)" error_msg_wrong_types ,args)))
+	(jump 'lisp :repl_error `(,this "(cap len array ...)" error_msg_wrong_types ,args)))
 
 (def-func-end)

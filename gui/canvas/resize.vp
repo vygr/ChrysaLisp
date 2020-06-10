@@ -2,7 +2,7 @@
 (include 'gui/canvas/class.inc)
 (include 'class/array/class.inc)
 
-(def-method 'canvas 'resize)
+(def-method 'canvas :resize)
 	;inputs
 	;r0 = canvas object (ptr)
 	;r1 = source canvas object (ptr)
@@ -23,20 +23,20 @@
 	(vp-shl-cr 1 r2)
 	(vp-shl-cr 1 r3)
 	(vpif '(r2 = r4) '(r3 = r5))
-		(jump 'canvas 'resize_2 '(r0 r1))
+		(jump 'canvas :resize_2 '(r0 r1))
 	(endif)
 	(vp-shr-cr 1 r2)
 	(vp-shr-cr 1 r3)
 	(vp-mul-cr 3 r2)
 	(vp-mul-cr 3 r3)
 	(vpif '(r2 = r4) '(r3 = r5))
-		(jump 'canvas 'resize_3 '(r0 r1))
+		(jump 'canvas :resize_3 '(r0 r1))
 	(endif)
 
 	(push-scope)
-	(entry 'canvas 'resize {this, source})
+	(entry 'canvas :resize {this, source})
 
-	(call 'sys_mem 'alloc {(this->canvas_width + 1) * int_size} {buf, _})
+	(call 'sys_mem :alloc {(this->canvas_width + 1) * int_size} {buf, _})
 	(assign {(source->canvas_width * 256) </ this->canvas_width} {fw})
 	(assign {(source->canvas_height * 256) </ this->canvas_height} {fh})
 
@@ -156,13 +156,13 @@
 		(assign {y2 + 1} {y2})
 	(loop-end)
 
-	(exit 'canvas 'resize {this})
+	(exit 'canvas :resize {this})
 	(pop-scope)
 	(return)
 
 (def-func-end)
 
-(def-method 'canvas 'resize_2)
+(def-method 'canvas :resize_2)
 	;inputs
 	;r0 = canvas object (ptr)
 	;r1 = source canvas object (ptr)
@@ -173,7 +173,7 @@
 
 	(vp-def (this source sdata xdata ydata data rb ga srb sga sw mga mrb))
 
-	(entry 'canvas 'resize_2 (list this source))
+	(entry 'canvas :resize_2 (list this source))
 
 	(assign `((,this canvas_array) (,source canvas_array)) `(,data , sdata))
 	(assign `((,data array_begin) (,sdata array_begin) (,source canvas_stride)
@@ -227,12 +227,12 @@
 		(vp-add-rr sw sdata)
 	(loop-end)
 
-	(exit 'canvas 'resize_2 (list this))
+	(exit 'canvas :resize_2 (list this))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'canvas 'resize_3)
+(def-method 'canvas :resize_3)
 	;inputs
 	;r0 = canvas object (ptr)
 	;r1 = source canvas object (ptr)
@@ -243,7 +243,7 @@
 
 	(vp-def (this source sdata xdata ydata data q rb ga srb sga sw mga mrb))
 
-	(entry 'canvas 'resize_3 (list this source))
+	(entry 'canvas :resize_3 (list this source))
 
 	(assign `((,this canvas_array) (,source canvas_array)) `(,data , sdata))
 	(assign `(,(/ (<< 1 32) 9) (,data array_begin) (,sdata array_begin) (,source canvas_stride)
@@ -351,7 +351,7 @@
 		(vp-add-rr sw sdata)
 	(loop-end)
 
-	(exit 'canvas 'resize_3 (list this))
+	(exit 'canvas :resize_3 (list this))
 	(vp-ret)
 
 (def-func-end)

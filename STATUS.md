@@ -98,6 +98,15 @@ Lots of extra code added recently, up to 170KB boot image now, on a 500 builds
 
 ------
 
+Keyword symbols now available, any symbol beginning with a : will always
+evaluate to itself. This will now start to be used throughout the system.
+
+VP Method call type specifiers are now keywords.
+
+VP Method names are now keywords.
+
+------
+
 (read) now parses fixed point format numbers directly to fixed number type.
 
 New (cap) function for setting capacity of array types, so array, list, nums,

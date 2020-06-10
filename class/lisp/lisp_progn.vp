@@ -1,7 +1,7 @@
 (include 'sys/func.inc)
 (include 'class/lisp/class.inc)
 
-(def-method 'lisp 'lisp_progn)
+(def-method 'lisp :lisp_progn)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -11,7 +11,7 @@
 	;trashes
 	;r1-r14
 
-	(entry 'lisp 'lisp_progn '(r0 r1))
+	(entry 'lisp :lisp_progn '(r0 r1))
 
 	(assign '((r1 array_length)) '(r2))
 	(vpif '(r2 = 0))
@@ -22,7 +22,7 @@
 	(endif)
 	(class/obj/ref r1 r2)
 
-	(exit 'lisp 'lisp_progn '(r0 r1))
+	(exit 'lisp :lisp_progn '(r0 r1))
 	(vp-ret)
 
 (def-func-end)

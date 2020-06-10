@@ -3,7 +3,7 @@
 (include 'class/lisp/class.inc)
 (include 'class/str/class.inc)
 
-(def-method 'lisp 'read_list)
+(def-method 'lisp :read_list)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = stream object (ptr)
@@ -19,40 +19,40 @@
 	(int 'char)
 
 	(push-scope)
-	(entry 'lisp 'read_list {this, stream, char})
+	(entry 'lisp :read_list {this, stream, char})
 
 	;skip "(" and white space
 	(loop-start)
-		(call 'lisp 'read_char {this, stream, char} {_, char})
+		(call 'lisp :read_char {this, stream, char} {_, char})
 	(loop-until {char > char_space || char = -1})
 
-	(call 'list 'create nil {list})
+	(call 'list :create nil {list})
 	(loop-whilenot {char = -1 || char = char_rrb})
-		(call 'lisp 'read {this, stream, char} {_, ast, char})
-		(errorif (cat {ast->obj_vtable = @} (f-path 'error 'vtable)) 'error)
-		(call 'list 'push_back {list, ast})
+		(call 'lisp :read {this, stream, char} {_, ast, char})
+		(errorif (cat {ast->obj_vtable = @} (f-path 'error :vtable)) 'error)
+		(call 'list :push_back {list, ast})
 
 		;skip white space/comments
 		(loop-start)
 			(loop-whilenot {char > char_space || char = -1})
-				(call 'lisp 'read_char {this, stream, char} {_, char})
+				(call 'lisp :read_char {this, stream, char} {_, char})
 			(loop-end)
 			(breakif {char /= char_semi})
-			(call 'stream 'skip_not {stream, char_lf})
-			(call 'stream 'read_char {stream} {_, char})
+			(call 'stream :skip_not {stream, char_lf})
+			(call 'stream :read_char {stream} {_, char})
 		(loop-end)
 	(loop-end)
 
 	;skip ")"
-	(call 'stream 'read_char {stream} {_, char})
+	(call 'stream :read_char {stream} {_, char})
 
 (vp-label 'funcexit)
-	(exit 'lisp 'read_list {this, list, char})
+	(exit 'lisp :read_list {this, list, char})
 	(return)
 
 (errorcases
 (vp-label 'error)
-	(call 'obj 'deref {list})
+	(call 'obj :deref {list})
 	(assign {ast} {list})
 	(goto 'funcexit))
 

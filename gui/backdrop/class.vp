@@ -6,7 +6,7 @@
 (gen-vtable 'backdrop)
 (gen-create 'backdrop)
 
-(def-method 'backdrop 'draw)
+(def-method 'backdrop :draw)
 	;inputs
 	;r0 = view object (ptr)
 	;r1 = draw ctx (ptr)
@@ -20,27 +20,27 @@
 	(uint 'col 'ink 'style)
 
 	(push-scope)
-	(entry 'backdrop 'draw {this, ctx})
+	(entry 'backdrop :draw {this, ctx})
 
-	(call 'backdrop 'get_long_prop {this, static_sym_color} {_, col})
-	(call 'backdrop 'get_long_prop {this, static_sym_ink_color} {_, ink})
-	(call 'backdrop 'get_long_prop {this, static_sym_style} {_, style})
-	(call 'backdrop 'get_bounds {this} {_, _, _, w, h})
+	(call 'backdrop :get_long_prop {this, static_sym_color} {_, col})
+	(call 'backdrop :get_long_prop {this, static_sym_ink_color} {_, ink})
+	(call 'backdrop :get_long_prop {this, static_sym_style} {_, style})
+	(call 'backdrop :get_bounds {this} {_, _, _, w, h})
 
-	(call 'ctx 'set_color {ctx, col})
-	(call 'ctx 'filled_box {ctx, 0, 0, w, h})
-	(call 'ctx 'set_color {ctx, ink})
+	(call 'ctx :set_color {ctx, col})
+	(call 'ctx :filled_box {ctx, 0, 0, w, h})
+	(call 'ctx :set_color {ctx, ink})
 	(switch)
 	(vpcase {style = 0})
 		;grid
 		(assign {((w >> 1) % 32) - 32, 0} {x, y})
 		(loop-while {x < w})
-			(call 'ctx 'filled_box {ctx, x, y, 1, h})
+			(call 'ctx :filled_box {ctx, x, y, 1, h})
 			(assign {x + 32} {x})
 		(loop-end)
 		(assign {((h >> 1) % 32) - 32, 0} {y, x})
 		(loop-while {y < h})
-			(call 'ctx 'filled_box {ctx, x, y, w, 1})
+			(call 'ctx :filled_box {ctx, x, y, w, 1})
 			(assign {y + 32} {y})
 		(loop-end)
 		(break)
@@ -49,16 +49,16 @@
 		(break)
 	(vpcase {style = 2})
 		;axis
-		(call 'ctx 'filled_box {ctx, w >> 1, 0, 1, h})
-		(call 'ctx 'filled_box {ctx, 0, h >> 1, w, 1})
+		(call 'ctx :filled_box {ctx, w >> 1, 0, 1, h})
+		(call 'ctx :filled_box {ctx, 0, h >> 1, w, 1})
 		(assign {((w >> 1) % 32) - 32, (h >> 1) - 16} {x, y})
 		(loop-while {x < w})
-			(call 'ctx 'filled_box {ctx, x, y, 1, 32})
+			(call 'ctx :filled_box {ctx, x, y, 1, 32})
 			(assign {x + 32} {x})
 		(loop-end)
 		(assign {((h >> 1) % 32) - 32, (w >> 1) - 16} {y, x})
 		(loop-while {y < h})
-			(call 'ctx 'filled_box {ctx, x, y, 32, 1})
+			(call 'ctx :filled_box {ctx, x, y, 32, 1})
 			(assign {y + 32} {y})
 		(loop-end)
 		(break)
@@ -66,19 +66,19 @@
 		;lines
 		(assign {0} {y})
 		(loop-while {y < h})
-			(call 'ctx 'filled_box {ctx, 0, y, w, 1})
+			(call 'ctx :filled_box {ctx, 0, y, w, 1})
 			(assign {y + 32} {y})
 		(loop-end)
 		(break)
 	(endswitch)
 
-	(exit 'backdrop 'draw {this})
+	(exit 'backdrop :draw {this})
 	(pop-scope)
 	(return)
 
 (def-func-end)
 
-(def-method 'backdrop 'layout)
+(def-method 'backdrop :layout)
 	;inputs
 	;r0 = backdrop object (ptr)
 	;outputs
@@ -86,20 +86,20 @@
 	;trashes
 	;r1-r14
 
-	(entry 'backdrop 'layout '(r0))
+	(entry 'backdrop :layout '(r0))
 
-	(call 'backdrop 'get_long_prop '(r0 static_sym_color) '(r0 r1))
+	(call 'backdrop :get_long_prop '(r0 static_sym_color) '(r0 r1))
 	(vp-shr-cr 24 r1)
 	(vpif '(r1 = 0xff))
-		(jump 'view 'set_flags '(r0 view_flag_opaque view_flag_opaque))
+		(jump 'view :set_flags '(r0 view_flag_opaque view_flag_opaque))
 	(endif)
 
-	(exit 'backdrop 'layout '(r0))
+	(exit 'backdrop :layout '(r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'backdrop 'pref_size)
+(def-method 'backdrop :pref_size)
 	;inputs
 	;r0 = backdrop object (ptr)
 	;outputs
@@ -109,8 +109,8 @@
 	;trashes
 	;r9-r10
 
-	(entry 'backdrop 'pref_size '(r0))
-	(exit 'backdrop 'pref_size '(r0 640 480))
+	(entry 'backdrop :pref_size '(r0))
+	(exit 'backdrop :pref_size '(r0 640 480))
 	(vp-ret)
 
 (def-func-end)

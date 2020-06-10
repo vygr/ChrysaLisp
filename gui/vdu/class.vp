@@ -11,7 +11,7 @@
 (gen-create 'vdu)
 (gen-vtable 'vdu)
 
-(def-method 'vdu 'init)
+(def-method 'vdu :init)
 	;inputs
 	;r0 = vdu object (ptr)
 	;r1 = vtable (pptr)
@@ -22,7 +22,7 @@
 	;r1-r14
 
 	;init parent
-	(s-call 'vdu 'init '(r0 r1) '(r0 r1))
+	(s-call 'vdu :init '(r0 r1) '(r0 r1))
 	(vpif '(r1 /= 0))
 		;init myself
 		(vp-xor-rr r2 r2)
@@ -33,7 +33,7 @@
 
 (def-func-end)
 
-(def-method 'vdu 'deinit)
+(def-method 'vdu :deinit)
 	;inputs
 	;r0 = vdu object (ptr)
 	;outputs
@@ -44,17 +44,17 @@
 	;save object
 	(vp-push r0)
 
-	(call 'sys_mem 'free '((r0 vdu_chars)))
+	(call 'sys_mem :free '((r0 vdu_chars)))
 	(assign '((rsp 0)) '(r0))
-	(call 'list 'deref_if '((r0 vdu_textures)))
+	(call 'list :deref_if '((r0 vdu_textures)))
 
 	;deinit parent
 	(vp-pop r0)
-	(s-jump 'vdu 'deinit '(r0))
+	(s-jump 'vdu :deinit '(r0))
 
 (def-func-end)
 
-(def-method 'vdu 'draw)
+(def-method 'vdu :draw)
 	;inputs
 	;r0 = view object (ptr)
 	;r1 = draw ctx (ptr)
@@ -70,29 +70,29 @@
 
 	;save inputs
 	(push-scope)
-	(entry 'vdu 'draw {this, ctx})
+	(entry 'vdu :draw {this, ctx})
 
 	;get properties, do checks for any changes
-	(call 'vdu 'get_long_prop {this, static_sym_ink_color} {_, col})
-	(call 'vdu 'get_long_prop {this, static_sym_vdu_width} {_, w})
-	(call 'vdu 'get_long_prop {this, static_sym_vdu_height} {_, h})
-	(call 'vdu 'get_prop {this, static_sym_font} {_, font})
+	(call 'vdu :get_long_prop {this, static_sym_ink_color} {_, col})
+	(call 'vdu :get_long_prop {this, static_sym_vdu_width} {_, w})
+	(call 'vdu :get_long_prop {this, static_sym_vdu_height} {_, h})
+	(call 'vdu :get_prop {this, static_sym_font} {_, font})
 	(vpif {font && font /= this->vdu_font})
 		(assign {font} {this->vdu_font})
-		(call 'vdu 'switch_font {this})
+		(call 'vdu :switch_font {this})
 	(endif)
 	(vpif {w /= this->vdu_width || h /= this->vdu_height})
 		(assign {w, h} {this->vdu_width, this->vdu_height})
-		(call 'vdu 'switch_size {this})
+		(call 'vdu :switch_size {this})
 	(endif)
 
 	;debug draw region
-;	(call 'ctx 'set_color {ctx, argb_red})
-;	(call 'ctx 'debug {ctx, 0, 0, this->view_w, this->view_h})
+;	(call 'ctx :set_color {ctx, argb_red})
+;	(call 'ctx :debug {ctx, 0, 0, this->view_w, this->view_h})
 
 	;draw vdu chars
 	(vpif {this->vdu_font && this->vdu_chars})
-		(call 'region 'bounds {ctx->ctx_dirty_region} {bx, by, bx1, by1})
+		(call 'region :bounds {ctx->ctx_dirty_region} {bx, by, bx1, by1})
 		(assign {(bx - ctx->ctx_x) / this->vdu_char_width} {bx})
 		(assign {(bx1 - ctx->ctx_x - 1) / this->vdu_char_width} {bx1})
 		(assign {(by - ctx->ctx_y) / this->vdu_char_height} {by})
@@ -109,21 +109,21 @@
 				(assign {(this->vdu_chars)[by * this->vdu_width + x]} {c})
 				(vpif {c > 127})
 					;inverse video char
-					(call 'ctx 'set_color {ctx, col})
-					(call 'ctx 'filled_box {ctx, x * this->vdu_char_width, by * this->vdu_char_height, this->vdu_char_width, this->vdu_char_height})
+					(call 'ctx :set_color {ctx, col})
+					(call 'ctx :filled_box {ctx, x * this->vdu_char_width, by * this->vdu_char_height, this->vdu_char_width, this->vdu_char_height})
 					(assign {c & 127} {c})
 					(breakif {c <= char_space})
-					(call 'list 'get_element {this->vdu_textures, c - 33} {_, txt})
-					(call 'texture 'get_metrics {txt} {_, handle, w ,h})
+					(call 'list :get_element {this->vdu_textures, c - 33} {_, txt})
+					(call 'texture :get_metrics {txt} {_, handle, w ,h})
 					(vpif {handle})
-						(call 'ctx 'blit {ctx, handle, argb_black, x * this->vdu_char_width + ((this->vdu_char_width - w) >>> 1), by * this->vdu_char_height, w, h})
+						(call 'ctx :blit {ctx, handle, argb_black, x * this->vdu_char_width + ((this->vdu_char_width - w) >>> 1), by * this->vdu_char_height, w, h})
 					(endif)
 				(elseif {c > char_space})
 					;normal video char
-					(call 'list 'get_element {this->vdu_textures, c - 33} {_, txt})
-					(call 'texture 'get_metrics {txt} {_, handle, w ,h})
+					(call 'list :get_element {this->vdu_textures, c - 33} {_, txt})
+					(call 'texture :get_metrics {txt} {_, handle, w ,h})
 					(vpif {handle})
-						(call 'ctx 'blit {ctx, handle, col, x * this->vdu_char_width + ((this->vdu_char_width - w) >>> 1), by * this->vdu_char_height, w, h})
+						(call 'ctx :blit {ctx, handle, col, x * this->vdu_char_width + ((this->vdu_char_width - w) >>> 1), by * this->vdu_char_height, w, h})
 					(endif)
 				(endif)
 				(assign {x + 1} {x})
@@ -132,13 +132,13 @@
 		(loop-end)
 	(endif)
 
-	(exit 'vdu 'draw {this})
+	(exit 'vdu :draw {this})
 	(pop-scope)
 	(return)
 
 (def-func-end)
 
-(def-method 'vdu 'pref_size)
+(def-method 'vdu :pref_size)
 	;inputs
 	;r0 = vdu object (ptr)
 	;outputs
@@ -153,35 +153,35 @@
 
 	;save inputs
 	(push-scope)
-	(entry 'vdu 'pref_size {this})
+	(entry 'vdu :pref_size {this})
 
 	;get properties, do checks for any changes
-	(call 'vdu 'get_long_prop {this, static_sym_vdu_width} {_, w})
-	(call 'vdu 'get_long_prop {this, static_sym_vdu_height} {_, h})
-	(call 'vdu 'ref_prop {this, static_sym_font} {_, font})
+	(call 'vdu :get_long_prop {this, static_sym_vdu_width} {_, w})
+	(call 'vdu :get_long_prop {this, static_sym_vdu_height} {_, h})
+	(call 'vdu :ref_prop {this, static_sym_font} {_, font})
 	(vpif {font && font /= this->vdu_font})
 		(assign {font} {this->vdu_font})
-		(call 'vdu 'switch_font {this})
+		(call 'vdu :switch_font {this})
 	(endif)
 	(vpif {w /= this->vdu_width || h /= this->vdu_height})
 		(assign {w, h} {this->vdu_width, this->vdu_height})
-		(call 'vdu 'switch_size {this})
+		(call 'vdu :switch_size {this})
 	(endif)
-	(call 'font 'deref_if {font})
+	(call 'font :deref_if {font})
 
-	(call 'vdu 'get_long_prop {this, static_sym_min_width} {_, mw})
-	(call 'vdu 'get_long_prop {this, static_sym_min_height} {_, mh})
+	(call 'vdu :get_long_prop {this, static_sym_min_width} {_, mw})
+	(call 'vdu :get_long_prop {this, static_sym_min_height} {_, mh})
 	(vpif {mw = 0 || mh = 0})
 		(assign {w, h} {mw, mh})
 	(endif)
 
-	(exit 'vdu 'pref_size {this, mw * this->vdu_char_width, mh * this->vdu_char_height})
+	(exit 'vdu :pref_size {this, mw * this->vdu_char_width, mh * this->vdu_char_height})
 	(pop-scope)
 	(return)
 
 (def-func-end)
 
-(def-method 'vdu 'switch_font)
+(def-method 'vdu :switch_font)
 	;inputs
 	;r0 = vdu object (ptr)
 	;outputs
@@ -193,23 +193,23 @@
 
 	;save inputs
 	(push-scope)
-	(entry 'vdu 'switch_font {this})
+	(entry 'vdu :switch_font {this})
 
 	;set char size
-	(call 'font 'get_metrics {this->vdu_font} {_, _, _, this->vdu_char_height})
+	(call 'font :get_metrics {this->vdu_font} {_, _, _, this->vdu_char_height})
 	(assign {this->vdu_char_height * 9 >> 4} {this->vdu_char_width})
 
 	;ref char textures
-	(call 'list 'deref_if {this->vdu_textures})
-	(call 'font 'ascii_textures {this->vdu_font} {_, this->vdu_textures})
+	(call 'list :deref_if {this->vdu_textures})
+	(call 'font :ascii_textures {this->vdu_font} {_, this->vdu_textures})
 
-	(exit 'vdu 'switch_font {this})
+	(exit 'vdu :switch_font {this})
 	(pop-scope)
 	(return)
 
 (def-func-end)
 
-(def-method 'vdu 'switch_size)
+(def-method 'vdu :switch_size)
 	;inputs
 	;r0 = vdu object (ptr)
 	;outputs
@@ -222,15 +222,15 @@
 
 	;save inputs
 	(push-scope)
-	(entry 'vdu 'switch_size {this})
+	(entry 'vdu :switch_size {this})
 
-	(call 'sys_mem 'free {this->vdu_chars})
-	(call 'sys_mem 'alloc {this->vdu_width * this->vdu_height} {this->vdu_chars, size})
-	(call 'sys_mem 'fill {this->vdu_chars, size, char_space + (char_space << 8)
+	(call 'sys_mem :free {this->vdu_chars})
+	(call 'sys_mem :alloc {this->vdu_width * this->vdu_height} {this->vdu_chars, size})
+	(call 'sys_mem :fill {this->vdu_chars, size, char_space + (char_space << 8)
 		+ (char_space << 16) + (char_space << 24) + (char_space << 32) + (char_space << 40)
 		+ (char_space << 48) + (char_space << 56)})
 
-	(exit 'vdu 'switch_size {this})
+	(exit 'vdu :switch_size {this})
 	(pop-scope)
 	(return)
 

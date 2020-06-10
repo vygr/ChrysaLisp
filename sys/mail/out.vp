@@ -3,7 +3,7 @@
 (include 'class/obj/class.inc)
 (include 'sys/kernel/class.inc)
 
-(def-method 'sys_mail 'out)
+(def-method 'sys_mail :out)
 	;info
 	;parcels going off chip or junk mail task
 
@@ -12,16 +12,16 @@
 
 	(push-scope)
 
-	(call 'sys_task 'set_priority '(1))
-	(call 'sys_kernel 'id nil {id})
-	(assign (cat {@} (f-path 'sys_mail 'statics)) {mail_statics})
+	(call 'sys_task :set_priority '(1))
+	(call 'sys_kernel :id nil {id})
+	(assign (cat {@} (f-path 'sys_mail :statics)) {mail_statics})
 
 	(loop-start 'mail_loop)
 		;read parcel or junk mail
-		(call 'sys_mail 'mymail nil {msg, data})
+		(call 'sys_mail :mymail nil {msg, data})
 		(vpif {msg->msg_dest.id_cpu = id})
 			;we got some junk mail, just free it for now
-			(call 'sys_mail 'free {msg})
+			(call 'sys_mail :free {msg})
 			(continue 'mail_loop)
 		(endif)
 
@@ -37,8 +37,8 @@
 			(vpif {len > lk_data_size})
 				(assign {lk_data_size} {len})
 			(endif)
-			(call 'sys_heap 'alloc {&mail_statics->ml_statics_msg_heap} {_, frag})
-			(call 'obj 'ref {msg->msg_parcel_obj} {frag->msg_parcel_obj})
+			(call 'sys_heap :alloc {&mail_statics->ml_statics_msg_heap} {_, frag})
+			(call 'obj :ref {msg->msg_parcel_obj} {frag->msg_parcel_obj})
 
 			;fill in fragment
 			(assign {len} {frag->msg_length})
@@ -59,11 +59,11 @@
 			(lh-add-at-tail head node tmp)
 
 			;let links get at some packets
-			(call 'sys_task 'sleep '(0))
+			(call 'sys_task :sleep '(0))
 		(loop-untilnot {ammount})
 
 		;free parcel
-		(call 'sys_mail 'free {msg})
+		(call 'sys_mail :free {msg})
 	(loop-end)
 
 	(pop-scope)

@@ -5,7 +5,7 @@
 (gen-create 'flow)
 (gen-vtable 'flow)
 
-(def-method 'flow 'layout)
+(def-method 'flow :layout)
 	;inputs
 	;r0 = flow object (ptr)
 	;outputs
@@ -19,11 +19,11 @@
 	(def-struct-end)
 
 	(vp-alloc local_size)
-	(entry 'flow 'layout '(r0))
+	(entry 'flow :layout '(r0))
 
 	(vp-xor-rr r1 r1)
 	(assign '(r1 r1) '((rsp local_x) (rsp local_y)))
-	(call 'flow 'get_long_prop '(r0 static_sym_flow_flags) '(r0 r1))
+	(call 'flow :get_long_prop '(r0 static_sym_flow_flags) '(r0 r1))
 	(assign '(r1) '((rsp local_flags)))
 	(vp-and-cr flow_flag_left r1)
 	(vpif '(r1 /= 0))
@@ -36,17 +36,17 @@
 		(assign '((r0 view_h)) '(r1))
 		(assign '(r1) '((rsp local_y)))
 	(endif)
-	(call 'flow 'forward '(r0 rsp ($ callback)) '(r0))
+	(call 'flow :forward '(r0 rsp ($ callback)) '(r0))
 
-	(exit 'flow 'layout '(r0))
+	(exit 'flow :layout '(r0))
 	(vp-free local_size)
 	(vp-ret)
 
 (vp-label 'callback)
-	(entry 'view 'forward_callback '(r0 r1))
+	(entry 'view :forward_callback '(r0 r1))
 
 	(vp-push r1)
-	(call 'view 'pref_size '(r0) '(r0 r9 r10))
+	(call 'view :pref_size '(r0) '(r0 r9 r10))
 	(vp-pop r1)
 	(assign '((r1 local_x) (r1 local_y)) '(r7 r8))
 
@@ -175,11 +175,11 @@
 	(endif)
 
 	(assign '(r11 r12) '((r1 local_x) (r1 local_y)))
-	(jump 'view 'change '(r0 r7 r8 r9 r10))
+	(jump 'view :change '(r0 r7 r8 r9 r10))
 
 (def-func-end)
 
-(def-method 'flow 'pref_size)
+(def-method 'flow :pref_size)
 	;inputs
 	;r0 = flow object (ptr)
 	;outputs
@@ -195,22 +195,22 @@
 	(def-struct-end)
 
 	(vp-alloc local_size)
-	(entry 'flow 'pref_size '(r0))
+	(entry 'flow :pref_size '(r0))
 
 	(vp-xor-rr r1 r1)
 	(assign '(r1 r1) '((rsp local_w) (rsp local_h)))
-	(call 'flow 'get_long_prop '(r0 static_sym_flow_flags) '(r0 (rsp local_flags)))
-	(call 'flow 'forward '(r0 rsp ($ callback)) '(r0))
+	(call 'flow :get_long_prop '(r0 static_sym_flow_flags) '(r0 (rsp local_flags)))
+	(call 'flow :forward '(r0 rsp ($ callback)) '(r0))
 
-	(exit 'flow 'pref_size '(r0 (rsp local_w) (rsp local_h)))
+	(exit 'flow :pref_size '(r0 (rsp local_w) (rsp local_h)))
 	(vp-free local_size)
 	(vp-ret)
 
 (vp-label 'callback)
-	(entry 'view 'forward_callback '(r0 r1))
+	(entry 'view :forward_callback '(r0 r1))
 
 	(vp-push r1)
-	(call 'view 'pref_size '(r0) '(r0 r9 r10))
+	(call 'view :pref_size '(r0) '(r0 r9 r10))
 	(vp-pop r1)
 	(assign '((r0 hmap_parent) (r1 local_flags)) '(r2 r3))
 	(vp-and-cr (logior flow_flag_up flow_flag_down) r3)
@@ -237,7 +237,7 @@
 		(assign '(r10) '((r1 local_h)))
 	(endif)
 
-	(exit 'view 'forward_callback '(r0))
+	(exit 'view :forward_callback '(r0))
 	(vp-ret)
 
 (def-func-end)

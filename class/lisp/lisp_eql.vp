@@ -3,7 +3,7 @@
 (include 'class/func/class.inc)
 (include 'class/lisp/class.inc)
 
-(def-method 'lisp 'lisp_eql)
+(def-method 'lisp :lisp_eql)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -13,7 +13,7 @@
 	;trashes
 	;r1-r14
 
-	(entry 'lisp 'lisp_eql '(r0 r1))
+	(entry 'lisp :lisp_eql '(r0 r1))
 
 (errorcases
 	(assign '((r1 array_length)) '(r2))
@@ -24,12 +24,12 @@
 	(switch)
 	(assign '((r2 obj_vtable) (r3 obj_vtable) (r0 lisp_sym_nil)) '(r4 r5 r1))
 	(breakif '(r4 /= r5))
-	(f-bind 'str 'vtable r5)
-	(f-bind 'func 'vtable r6)
-	(f-bind 'num 'vtable r7)
+	(f-bind 'str :vtable r5)
+	(f-bind 'func :vtable r6)
+	(f-bind 'num :vtable r7)
 	(vpcase '(r4 = r5))
 		(vp-cpy-rr r0 r7)
-		(call 'str 'same '(r2 r3) '(_ r1))
+		(call 'str :same '(r2 r3) '(_ r1))
 		(vp-cpy-rr r7 r0)
 		(gotoif '(r1 = 0) 'same)
 		(assign '((r0 lisp_sym_nil)) '(r1))
@@ -47,11 +47,11 @@
 	(endswitch)
 	(class/obj/ref r1 r2)
 
-	(exit 'lisp 'lisp_eql '(r0 r1))
+	(exit 'lisp :lisp_eql '(r0 r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r0 "(eql form form)" error_msg_wrong_num_of_args r1)))
+	(jump 'lisp :repl_error '(r0 "(eql form form)" error_msg_wrong_num_of_args r1)))
 
 (def-func-end)

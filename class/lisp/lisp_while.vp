@@ -1,7 +1,7 @@
 (include 'sys/func.inc)
 (include 'class/lisp/class.inc)
 
-(def-method 'lisp 'lisp_while)
+(def-method 'lisp :lisp_while)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -16,7 +16,7 @@
 		(pptr 'iter_start 'iter_begin 'iter_end)
 	(def-struct-end)
 
-	(entry 'lisp 'lisp_while '(r0 r1))
+	(entry 'lisp :lisp_while '(r0 r1))
 
 	(assign '((r1 array_length)) '(r2))
 	(errorif '(r2 < 2) 'error)
@@ -30,29 +30,29 @@
 	(loop-start 'again)
 		(assign '((rsp local_iter_start)) '(r1))
 		(assign '(r1) '((rsp local_iter_begin)))
-		(call 'lisp 'repl_eval '(r0 (r1 0)) '(r0 r1))
+		(call 'lisp :repl_eval '(r0 (r1 0)) '(r0 r1))
 		(assign '((r0 lisp_sym_nil)) '(r2))
 		(breakif '(r1 = r2))
 		(loop-start)
 		(errorcases
-			(f-bind 'error 'vtable r2)
+			(f-bind 'error :vtable r2)
 			(assign '((r1 obj_vtable)) '(r3))
 			(breakif '(r2 = r3)))
-			(call 'obj 'deref '(r1))
+			(call 'obj :deref '(r1))
 			(assign '((rsp local_this) (rsp local_iter_begin) (rsp local_iter_end)) '(r0 r1 r2))
 			(vp-add-cr ptr_size r1)
 			(continueif '(r1 = r2) 'again)
 			(assign '(r1) '((rsp local_iter_begin)))
-			(call 'lisp 'repl_eval '(r0 (r1 0)) '(r0 r1))
+			(call 'lisp :repl_eval '(r0 (r1 0)) '(r0 r1))
 		(loop-end)
 	(endswitch)
 
-	(exit 'lisp 'lisp_while '(r0 r1))
+	(exit 'lisp :lisp_while '(r0 r1))
 	(vp-free local_size)
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r0 "(while tst body)" error_msg_wrong_num_of_args r1)))
+	(jump 'lisp :repl_error '(r0 "(while tst body)" error_msg_wrong_num_of_args r1)))
 
 (def-func-end)

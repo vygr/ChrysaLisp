@@ -11,7 +11,7 @@
 (gen-create 'window)
 (gen-vtable 'window)
 
-(def-method 'window 'init)
+(def-method 'window :init)
 	;inputs
 	;r0 = window object (ptr)
 	;r1 = vtable (pptr)
@@ -21,10 +21,10 @@
 	;trashes
 	;r1-r14
 
-	(entry 'window 'init '(r0 r1))
+	(entry 'window :init '(r0 r1))
 
 	;init parent
-	(s-call 'window 'init '(r0 r1) '(r0 r1))
+	(s-call 'window :init '(r0 r1) '(r0 r1))
 	(vpif '(r1 /= 0))
 		;init myself
 		(vp-xor-rr r2 r2)
@@ -32,12 +32,12 @@
 			'((r0 window_offset_x) (r0 window_offset_y) (r0 window_drag_mode) (r0 window_child)))
 	(endif)
 
-	(exit 'window 'init '(r0 r1))
+	(exit 'window :init '(r0 r1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'window 'add_child)
+(def-method 'window :add_child)
 	;inputs
 	;r0 = window object (ptr)
 	;r1 = child view object (ptr)
@@ -46,24 +46,24 @@
 	;trashes
 	;r1-r14
 
-	(entry 'window 'add_child '(r0 r1))
+	(entry 'window :add_child '(r0 r1))
 
 	(assign '((r0 window_child)) '(r2))
 	(vpif '(r2 /= 0))
 		(vp-push r0 r1)
-		(call 'view 'sub '(r2) '(r0))
-		(call 'view 'deref '(r0))
+		(call 'view :sub '(r2) '(r0))
+		(call 'view :deref '(r0))
 		(vp-pop r0 r1)
 	(endif)
 	(assign '(r1) '((r0 window_child)))
-	(call 'view 'add_back '(r0 r1) '(r0))
+	(call 'view :add_back '(r0 r1) '(r0))
 
-	(exit 'window 'add_child '(r0))
+	(exit 'window :add_child '(r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'window 'draw)
+(def-method 'window :draw)
 	;inputs
 	;r0 = window object (ptr)
 	;r1 = draw ctx (ptr)
@@ -72,20 +72,20 @@
 	;trashes
 	;r1-r14
 
-	(entry 'window 'draw '(r0 r1))
+	(entry 'window :draw '(r0 r1))
 
 	;draw panel
 	(vp-push r1)
-	(call 'window 'get_long_prop '(r0 static_sym_border) '(r0 r3))
+	(call 'window :get_long_prop '(r0 static_sym_border) '(r0 r3))
 	(vp-pop r1)
-	(call 'window 'draw_panel '(r0 r1 1 r3) '(r0))
+	(call 'window :draw_panel '(r0 r1 1 r3) '(r0))
 
-	(exit 'window 'draw '(r0))
+	(exit 'window :draw '(r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'window 'layout)
+(def-method 'window :layout)
 	;inputs
 	;r0 = window object (ptr)
 	;outputs
@@ -93,9 +93,9 @@
 	;trashes
 	;r1-r14
 
-	(entry 'window 'layout '(r0))
+	(entry 'window :layout '(r0))
 
-	(call 'window 'get_long_prop '(r0 static_sym_border) '(r0 r1))
+	(call 'window :get_long_prop '(r0 static_sym_border) '(r0 r1))
 	(assign '((r0 view_w) (r0 view_h)) '(r9 r10))
 	(vp-sub-rr r1 r9)
 	(vp-sub-rr r1 r10)
@@ -104,21 +104,21 @@
 	(vp-push r0)
 	(assign '((r0 window_child)) '(r0))
 	(vpif '(r0 /= 0))
-		(call 'flow 'change '(r0 r1 r1 r9 r10))
+		(call 'flow :change '(r0 r1 r1 r9 r10))
 	(endif)
 	(vp-pop r0)
-	(call 'window 'get_long_prop '(r0 static_sym_color) '(r0 r1))
+	(call 'window :get_long_prop '(r0 static_sym_color) '(r0 r1))
 	(vp-shr-cr 24 r1)
 	(vpif '(r1 = 0xff))
-		(call 'view 'set_flags '(r0 view_flag_opaque view_flag_opaque) '(r0 _))
+		(call 'view :set_flags '(r0 view_flag_opaque view_flag_opaque) '(r0 _))
 	(endif)
 
-	(exit 'window 'layout '(r0))
+	(exit 'window :layout '(r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'window 'mouse_down)
+(def-method 'window :mouse_down)
 	;inputs
 	;r0 = window object (ptr)
 	;r1 = mouse event data (ptr)
@@ -127,10 +127,10 @@
 	;trashes
 	;r1-r14
 
-	(entry 'window 'mouse_down '(r0 r1))
+	(entry 'window :mouse_down '(r0 r1))
 
 	(vp-push r1)
-	(call 'window 'get_long_prop '(r0 static_sym_border) '(r0 r1))
+	(call 'window :get_long_prop '(r0 static_sym_border) '(r0 r1))
 	(vp-pop r2)
 	(assign '((r2 ev_msg_mouse_rx) (r2 ev_msg_mouse_ry)) '(r3 r4))
 	(vp-xor-rr r2 r2)
@@ -160,12 +160,12 @@
 	(endif)
 	(assign '(r2 r3 r4) '((r0 window_drag_mode) (r0 window_offset_x) (r0 window_offset_y)))
 
-	(exit 'window 'mouse_down '(r0))
+	(exit 'window :mouse_down '(r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'window 'mouse_move)
+(def-method 'window :mouse_move)
 	;inputs
 	;r0 = window object (ptr)
 	;r1 = mouse event data (ptr)
@@ -174,16 +174,16 @@
 	;trashes
 	;r1-r14
 
-	(entry 'window 'mouse_move '(r0 r1))
+	(entry 'window :mouse_move '(r0 r1))
 
 	;get smallest size
 	(vp-push r1)
-	(call 'window 'pref_size '(r0) '(r0 r9 r10))
+	(call 'window :pref_size '(r0) '(r0 r9 r10))
 	(vp-cpy-rr r9 r11)
 	(vp-cpy-rr r10 r12)
 
 	;save old bounds
-	(call 'window 'get_bounds '(r0) '(r0 r7 r8 r9 r10))
+	(call 'window :get_bounds '(r0) '(r0 r7 r8 r9 r10))
 
 	;get abolute cords of corners
 	(vp-add-rr r7 r9)
@@ -247,12 +247,12 @@
 	(vp-sub-rr r8 r10)
 
 	;change window size and dirty
-	(call 'window 'change_dirty '(r0 r7 r8 r9 r10) '(r0))
-	(jump 'window 'emit '(r0))
+	(call 'window :change_dirty '(r0 r7 r8 r9 r10) '(r0))
+	(jump 'window :emit '(r0))
 
 (def-func-end)
 
-(def-method 'window 'pref_size)
+(def-method 'window :pref_size)
 	;inputs
 	;r0 = window object (ptr)
 	;outputs
@@ -262,20 +262,20 @@
 	;trashes
 	;r1-r14
 
-	(entry 'window 'pref_size '(r0))
+	(entry 'window :pref_size '(r0))
 
-	(call 'window 'get_long_prop '(r0 static_sym_border) '(r0 r1))
+	(call 'window :get_long_prop '(r0 static_sym_border) '(r0 r1))
 	(vp-push r0 r1)
 	(assign '((r0 window_child) 0 0) '(r0 r9 r10))
 	(vpif '(r0 /= 0))
-		(call 'flow 'pref_size '(r0) '(_ r9 r10))
+		(call 'flow :pref_size '(r0) '(_ r9 r10))
 	(endif)
 	(vp-pop r0 r1)
 	(vp-add-rr r1 r1)
 	(vp-add-rr r1 r9)
 	(vp-add-rr r1 r10)
 
-	(exit 'window 'pref_size '(r0 r9 r10))
+	(exit 'window :pref_size '(r0 r9 r10))
 	(vp-ret)
 
 (def-func-end)

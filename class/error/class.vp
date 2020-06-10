@@ -6,7 +6,7 @@
 (gen-create 'error)
 (gen-vtable 'error)
 
-(def-method 'error 'init)
+(def-method 'error :init)
 	;inputs
 	;r0 = error object (ptr)
 	;r1 = vtable (pptr)
@@ -32,16 +32,16 @@
 		(r0 error_object) (r0 error_file) (r0 error_line i)))
 
 	;init parent
-	(s-call 'error 'init '(r0 r1) '(r0 r1))
+	(s-call 'error :init '(r0 r1) '(r0 r1))
 	(vpif '(r1 /= 0))
 		;init self
-		(call 'str 'create_from_cstr '((r0 error_description)) '(r0))
+		(call 'str :create_from_cstr '((r0 error_description)) '(r0))
 		(assign '((rsp local_this)) '(r1))
 		(assign '(r0) '((r1 error_description)))
-		(call 'str 'create_from_cstr '((r1 error_file)) '(r0))
+		(call 'str :create_from_cstr '((r1 error_file)) '(r0))
 		(assign '((rsp local_this)) '(r1))
 		(assign '(r0) '((r1 error_file)))
-		(call 'obj 'ref '((r1 error_object)))
+		(call 'obj :ref '((r1 error_object)))
 		(assign '((rsp local_this)) '(r0))
 	(endif)
 
@@ -50,7 +50,7 @@
 
 (def-func-end)
 
-(def-method 'error 'deinit)
+(def-method 'error :deinit)
 	;inputs
 	;r0 = error object (ptr)
 	;outputs
@@ -59,17 +59,17 @@
 	;r1-r14
 
 	(vp-push r0)
-	(call 'obj 'deref '((r0 error_description)))
+	(call 'obj :deref '((r0 error_description)))
 	(assign '((rsp 0)) '(r0))
-	(call 'obj 'deref '((r0 error_file)))
+	(call 'obj :deref '((r0 error_file)))
 	(assign '((rsp 0)) '(r0))
-	(call 'obj 'deref '((r0 error_object)))
+	(call 'obj :deref '((r0 error_object)))
 	(vp-pop r0)
-	(s-jump 'error 'deinit '(r0))
+	(s-jump 'error :deinit '(r0))
 
 (def-func-end)
 
-(def-method 'error 'get_msg)
+(def-method 'error :get_msg)
 	;inputs
 	;r0 = error object (ptr)
 	;outputs
@@ -78,20 +78,20 @@
 	;trashes
 	;r1-r5
 
-	(entry 'error 'get_msg '(r0))
+	(entry 'error :get_msg '(r0))
 
 	(assign '(r0 "" (r0 error_msg) ($ msgs)) '(r3 r4 r5 r0))
 	(loop-while '(r5 /= 0))
 		(vp-cpy-ir-ub r0 0 r1)
 		(breakif '(r1 = 0))
 		(vp-cpy-rr r0 r4)
-		(call 'sys_str 'length '(r0) '(r0 r1))
+		(call 'sys_str :length '(r0) '(r0 r1))
 		(vp-add-rr r1 r0)
 		(vp-sub-cr 1 r5)
 		(vp-add-cr 1 r0)
 	(loop-end)
 
-	(exit 'error 'get_msg '(r3 r4))
+	(exit 'error :get_msg '(r3 r4))
 	(vp-ret)
 
 (vp-label 'msgs)

@@ -3,7 +3,7 @@
 (include 'class/list/class.inc)
 (include 'sys/math/class.inc)
 
-(def-method 'path 'stroke_joints)
+(def-method 'path :stroke_joints)
 	;inputs
 	;r0 = path object (ptr)
 	;r1 = stack array object (ptr)
@@ -33,7 +33,7 @@
 
 	(push-scope)
 	(used-syms 'l2_pv 'l1_vx 'l1_vy 'p3)
-	(entry 'path 'stroke_joints {this, stack, iter_i, iter_j, p1x, p1y, p2x, p2y, radius, eps, join_style})
+	(entry 'path :stroke_joints {this, stack, iter_i, iter_j, p1x, p1y, p2x, p2y, radius, eps, join_style})
 
 	(vpif {iter_i /= iter_j})
 		(vpif {iter_j > iter_i})
@@ -91,7 +91,7 @@
 				(vec-load 4 {l1_rvx, l1_rvy, l2_rvx, l2_rvy})
 				(vec-add 4)
 				(vec-store 4 {p3x, p3y, p1x, p1y})
-				(call 'sys_math 'f_intersect {p3x, p3y, p1x, p1y, l1_vx, l1_vy, l2_vx, l2_vy} {p1x, p1y})
+				(call 'sys_math :f_intersect {p3x, p3y, p1x, p1y, l1_vx, l1_vy, l2_vx, l2_vy} {p1x, p1y})
 				(goto 'out_p1)
 			(vpcase {join_style = join_bevel})
 			(vp-label 'do_bevel)
@@ -101,17 +101,17 @@
 				(vec-load 4 {l1_rvx, l1_rvy, l2_rvx, l2_rvy})
 				(vec-add 4)
 				(vec-store 4 {p3x, p3y, p1x, p1y})
-				(call 'path 'push_back2 {this, p3x, p3y})
+				(call 'path :push_back2 {this, p3x, p3y})
 			(vp-label 'out_p1)
-				(call 'path 'push_back2 {this, p1x, p1y})
+				(call 'path :push_back2 {this, p1x, p1y})
 			(else)
 				;rounded join
-				(call 'path 'gen_clerp {this, stack, p1x, p1y, l1_rvx, l1_rvy, l2_rvx, l2_rvy, radius, eps})
+				(call 'path :gen_clerp {this, stack, p1x, p1y, l1_rvx, l1_rvy, l2_rvx, l2_rvy, radius, eps})
 			(endswitch)
 		(loop-until {iter_i = iter_j})
 	(endif)
 
-	(exit 'path 'stroke_joints {this})
+	(exit 'path :stroke_joints {this})
 	(pop-scope)
 	(return)
 

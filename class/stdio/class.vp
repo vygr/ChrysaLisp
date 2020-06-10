@@ -8,7 +8,7 @@
 (gen-create 'stdio)
 (gen-vtable 'stdio)
 
-(def-method 'stdio 'init)
+(def-method 'stdio :init)
 	;inputs
 	;r0 = stdio object (ptr)
 	;r1 = vtable (pptr)
@@ -25,44 +25,44 @@
 
 	;read init args
 	(push-scope)
-	(entry 'stdio 'init {this, vtable})
+	(entry 'stdio :init {this, vtable})
 
 	;init parent
-	(s-call 'stdio 'init {this, vtable} {_, ok})
+	(s-call 'stdio :init {this, vtable} {_, ok})
 	(vpif {ok})
 		;init myself
-		(call 'sys_mail 'mymail nil {msg, data})
+		(call 'sys_mail :mymail nil {msg, data})
 		(vpif {msg->msg_length})
 			;create stdin, stdout, stderr
-			(call 'sys_task 'mailbox nil {stream})
-			(call 'in 'create {stream} {this->stdio_stdin})
-			(call 'out 'create {data->stdio_msg_init_stdout_id.id_id} {this->stdio_stdout})
-			(call 'out 'create {data->stdio_msg_init_stderr_id.id_id} {this->stdio_stderr})
+			(call 'sys_task :mailbox nil {stream})
+			(call 'in :create {stream} {this->stdio_stdin})
+			(call 'out :create {data->stdio_msg_init_stdout_id.id_id} {this->stdio_stdout})
+			(call 'out :create {data->stdio_msg_init_stderr_id.id_id} {this->stdio_stderr})
 
 			;create args
-			(call 'stream 'create {0, 0, &data->stdio_msg_init_args, msg->msg_length - stdio_msg_init_size} {stream})
-			(call 'stream 'split {stream, char_space} {_, this->stdio_args})
-			(call 'stream 'deref {stream})
+			(call 'stream :create {0, 0, &data->stdio_msg_init_args, msg->msg_length - stdio_msg_init_size} {stream})
+			(call 'stream :split {stream, char_space} {_, this->stdio_args})
+			(call 'stream :deref {stream})
 
 			;send back ack with stdin mailbox
 			(assign {data->stdio_msg_init_ack_id.id_id} {msg->msg_dest.id_id})
 			(assign {this->stdio_stdin->in_mbox_id} {data->stdio_msg_init_stdin_mbox_id})
-			(call 'sys_mail 'send {msg})
+			(call 'sys_mail :send {msg})
 		(else)
 			;abort
-			(call 'sys_mail 'free {msg})
-			(s-call 'stdio 'deinit {this})
+			(call 'sys_mail :free {msg})
+			(s-call 'stdio :deinit {this})
 			(assign {0} {ok})
 		(endif)
 	(endif)
 
-	(exit 'stdio 'init {this, ok})
+	(exit 'stdio :init {this, ok})
 	(pop-scope)
 	(return)
 
 (def-func-end)
 
-(def-method 'stdio 'deinit)
+(def-method 'stdio :deinit)
 	;inputs
 	;r0 = stdio object (ptr)
 	;outputs
@@ -70,30 +70,30 @@
 	;trashes
 	;r1-r14
 
-	(entry 'stdio 'deinit '(r0))
+	(entry 'stdio :deinit '(r0))
 
 	;flush remaining stdout, stderr
 	(vp-push r0)
-	(call 'out 'write_flush '((r0 stdio_stderr)))
+	(call 'out :write_flush '((r0 stdio_stderr)))
 
 	;send stopping on stdout
 	(assign '((rsp 0)) '(r0))
-	(call 'out 'set_state '((r0 stdio_stdout) stream_mail_state_stopping) '(r0))
+	(call 'out :set_state '((r0 stdio_stdout) stream_mail_state_stopping) '(r0))
 
 	;free stdin, stdout and stderr
 	(assign '((rsp 0)) '(r0))
-	(call 'in 'deref '((r0 stdio_stdin)))
+	(call 'in :deref '((r0 stdio_stdin)))
 	(assign '((rsp 0)) '(r0))
-	(call 'out 'deref '((r0 stdio_stdout)))
+	(call 'out :deref '((r0 stdio_stdout)))
 	(assign '((rsp 0)) '(r0))
-	(call 'out 'deref '((r0 stdio_stderr)))
+	(call 'out :deref '((r0 stdio_stderr)))
 
 	;free args
 	(assign '((rsp 0)) '(r0))
-	(call 'list 'deref '((r0 stdio_args)))
+	(call 'list :deref '((r0 stdio_args)))
 	(vp-pop r0)
 
 	;deinit parent
-	(s-jump 'stdio 'deinit '(r0))
+	(s-jump 'stdio :deinit '(r0))
 
 (def-func-end)

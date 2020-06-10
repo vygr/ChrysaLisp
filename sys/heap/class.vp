@@ -2,7 +2,7 @@
 (include 'sys/heap/class.inc)
 (include 'sys/pii/class.inc)
 
-(def-method 'sys_heap 'init)
+(def-method 'sys_heap :init)
 	;inputs
 	;r0 = heap (ptr)
 	;r1 = cell size (bytes)
@@ -13,7 +13,7 @@
 	;trashes
 	;r1-r2
 
-	(entry 'sys_heap 'init '(r0 r1 r2))
+	(entry 'sys_heap :init '(r0 r1 r2))
 
 	;align cell to ptr_size
 	(vp-add-cr (dec ptr_size) r1)
@@ -35,12 +35,12 @@
 	(vp-xor-rr r2 r2)
 	(assign '(r2 r2) '((r0 hp_heap_free_flist) (r0 hp_heap_block_flist)))
 
-	(exit 'sys_heap 'init '(r0 r1))
+	(exit 'sys_heap :init '(r0 r1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'sys_heap 'deinit)
+(def-method 'sys_heap :deinit)
 	;inputs
 	;r0 = heap (ptr)
 	;outputs
@@ -48,26 +48,26 @@
 	;trashes
 	;r1-r5
 
-	(entry 'sys_heap 'deinit '(r5))
+	(entry 'sys_heap :deinit '(r5))
 
-	(f-bind 'sys_mem 'statics r1)
+	(f-bind 'sys_mem :statics r1)
 	(vp-cpy-ir r1 sys_mem_statics_total r3)
 	(loop-flist r5 hp_heap_block_flist r4 r1)
 		(vp-cpy-rr r4 r0)
 		(ln-remove-fnode r4 r1)
 		(assign '((r0 hp_block_blocksize)) '(r1))
 		(vp-sub-rr r1 r3)
-		(call 'sys_pii 'munmap '(r0 r1 mmap_data))
+		(call 'sys_pii :munmap '(r0 r1 mmap_data))
 	(loop-end)
-	(f-bind 'sys_mem 'statics r1)
+	(f-bind 'sys_mem :statics r1)
 	(vp-cpy-ri r3 r1 sys_mem_statics_total)
 
-	(exit 'sys_heap 'deinit '(r5))
+	(exit 'sys_heap :deinit '(r5))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'sys_heap 'alloc)
+(def-method 'sys_heap :alloc)
 	;inputs
 	;r0 = heap (ptr)
 	;outputs
@@ -76,7 +76,7 @@
 	;trashes
 	;r1-r2
 
-	(entry 'sys_heap 'alloc '(r0))
+	(entry 'sys_heap :alloc '(r0))
 
 	(assign '((r0 hp_heap_free_flist)) '(r1))
 	(vpif '(r1 /= 0))
@@ -84,7 +84,7 @@
 		(assign '((r1 ln_fnode_next)) '(r2))
 		(assign '(r2) '((r0 hp_heap_free_flist)))
 
-		(exit 'sys_heap 'alloc '(r0 r1))
+		(exit 'sys_heap :alloc '(r0 r1))
 		(vp-ret)
 	(endif)
 	(vp-push r3 r4 r5 r0)
@@ -95,15 +95,15 @@
 			(vp-add-cr (+ hp_block_size (dec ld_page_size)) r4)
 			(vp-and-cr (neg ld_page_size) r4)
 			(vp-add-cr ld_page_size r4)
-			(call 'sys_pii 'mmap '(r4 -1 mmap_data) '(r5))
+			(call 'sys_pii :mmap '(r4 -1 mmap_data) '(r5))
 			(errorif '(r5 = 0) 'error)
-			(f-bind 'sys_mem 'statics r1)
+			(f-bind 'sys_mem :statics r1)
 			(assign '(r4 (r1 sys_mem_statics_total)) '((r5 hp_block_blocksize) r2))
 			(vp-add-rr r4 r2)
 			(assign '(r2 ld_page_size) '((r1 sys_mem_statics_total) r1))
 			(vp-add-rr r5 r4)
 			(vp-sub-rr r1 r4)
-			(call 'sys_pii 'mprotect '(r4 r1 mprotect_none) '(r0))
+			(call 'sys_pii :mprotect '(r4 r1 mprotect_none) '(r0))
 			(errorif '(r0 /= 0) 'error)
 			(assign '((rsp 0)) '(r0))
 			(ln-add-fnode r0 hp_heap_block_flist r5 r1)
@@ -113,9 +113,9 @@
 		(progn
 			;normal allocator
 			(assign '((r0 hp_heap_cellsize) (r0 hp_heap_blocksize)) '(r4 r3))
-			(call 'sys_pii 'mmap '(r3 -1 mmap_data) '(r5))
+			(call 'sys_pii :mmap '(r3 -1 mmap_data) '(r5))
 			(errorif '(r5 = 0) 'error)
-			(f-bind 'sys_mem 'statics r1)
+			(f-bind 'sys_mem :statics r1)
 			(assign '(r3 (r1 sys_mem_statics_total)) '((r5 hp_block_blocksize) r2))
 			(vp-add-rr r3 r2)
 			(assign '((rsp 0) r2) '(r0 (r1 sys_mem_statics_total)))
@@ -142,7 +142,7 @@
 
 (def-func-end)
 
-(def-method 'sys_heap 'collect)
+(def-method 'sys_heap :collect)
 	;inputs
 	;r0 = heap (ptr)
 	;outputs
@@ -153,10 +153,10 @@
 	(vp-def (this blk blk_last blk_end cel_cnt cel cel_last cel_size total)
 		'(r3 r4 r5 r6 r7 r8 r9 r10 r11))
 
-	(entry 'sys_heap 'collect `(,this))
+	(entry 'sys_heap :collect `(,this))
 
 	;current total
-	(f-bind 'sys_mem 'statics r0)
+	(f-bind 'sys_mem :statics r0)
 	(vp-cpy-ir r0 sys_mem_statics_total total)
 
 	;loop over all blocks
@@ -200,7 +200,7 @@
 			(vp-cpy-ir-ui blk hp_block_blocksize r1)
 			(ln-remove-fnode blk blk_last)
 			(vp-sub-rr r1 total)
-			(call 'sys_pii 'munmap '(r0 r1 mmap_data))
+			(call 'sys_pii :munmap '(r0 r1 mmap_data))
 			(continue 'block_loop)
 		(endswitch)
 	(endswitch)
@@ -217,10 +217,10 @@
 	(loop-end)
 
 	;current total
-	(f-bind 'sys_mem 'statics r0)
+	(f-bind 'sys_mem :statics r0)
 	(vp-cpy-ri total r0 sys_mem_statics_total)
 
-	(exit 'sys_heap 'collect `(,this))
+	(exit 'sys_heap :collect `(,this))
 	(vp-ret)
 
 (def-func-end)

@@ -1,7 +1,7 @@
 (include 'sys/func.inc)
 (include 'class/lisp/class.inc)
 
-(def-method 'lisp 'env_args_sig)
+(def-method 'lisp :env_args_sig)
 	;inputs
 	;r1 = args list object (ptr)
 	;r3 = signiture pointer (pushort)
@@ -11,7 +11,7 @@
 	;trashes
 	;r2-r7
 
-	(entry 'lisp 'env_args_sig '(r1 r3 r4))
+	(entry 'lisp :env_args_sig '(r1 r3 r4))
 
 	(assign '(r0 r1 (r1 array_length)) '(r6 r7 r2))
 	(switch 'fail)
@@ -21,24 +21,24 @@
 		(loop-while '(r4 /= r5))
 			(vp-cpy-ir-us r3 0 r1)
 			(vp-cpy-dr r3 r1 r1)
-			(call 'obj 'inst_of '((r4 0) r1) '(_ r1))
+			(call 'obj :inst_of '((r4 0) r1) '(_ r1))
 			(breakif '(r1 = 0) 'fail)
 			(vp-add-cr ptr_size r4)
 			(vp-add-cr short_size r3)
 		(loop-end)
 		(assign '(r6 r7 -1) '(r0 r1 r2))
 
-		(exit 'lisp 'env_args_sig '(r2))
+		(exit 'lisp :env_args_sig '(r2))
 		(vp-ret)
 	(endswitch)
 	(assign '(r6 r7 0) '(r0 r1 r2))
 
-	(exit 'lisp 'env_args_sig '(r2))
+	(exit 'lisp :env_args_sig '(r2))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'lisp 'env_args_type)
+(def-method 'lisp :env_args_type)
 	;inputs
 	;r1 = args list object (ptr)
 	;r3 = vtable pointer (ptr)
@@ -48,7 +48,7 @@
 	;trashes
 	;r2-r7
 
-	(entry 'lisp 'env_args_type '(r1 r3 r4))
+	(entry 'lisp :env_args_type '(r1 r3 r4))
 
 	(assign '(r0 r1 (r1 array_length)) '(r6 r7 r2))
 	(switch 'fail)
@@ -56,23 +56,23 @@
 		(breakif '(r2 < r4) 'fail)
 		(class/array/get_both r1 r4 r5)
 		(loop-while '(r4 /= r5))
-			(call 'obj 'inst_of '((r4 0) r3) '(_ r1))
+			(call 'obj :inst_of '((r4 0) r3) '(_ r1))
 			(breakif '(r1 = 0) 'fail)
 			(vp-add-cr ptr_size r4)
 		(loop-end)
 		(assign '(r6 r7 -1) '(r0 r1 r2))
 
-		(exit 'lisp 'env_args_type '(r2))
+		(exit 'lisp :env_args_type '(r2))
 		(vp-ret)
 	(endswitch)
 	(assign '(r6 r7 0) '(r0 r1 r2))
 
-	(exit 'lisp 'env_args_type '(r2))
+	(exit 'lisp :env_args_type '(r2))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'lisp 'env_args_match)
+(def-method 'lisp :env_args_match)
 	;inputs
 	;r1 = args list object (ptr)
 	;r3 = vtable pointer (ptr)
@@ -82,7 +82,7 @@
 	;trashes
 	;r2-r7
 
-	(entry 'lisp 'env_args_match '(r1 r3 r4))
+	(entry 'lisp :env_args_match '(r1 r3 r4))
 
 	(assign '(r0 r1 (r1 array_length)) '(r6 r7 r2))
 	(switch 'fail)
@@ -90,7 +90,7 @@
 		(breakif '(r2 < r4) 'fail)
 		(vpif '(r2 /= 0))
 			(class/array/get_both r1 r4 r5)
-			(call 'obj 'inst_of '((r4 0) r3) '(_ r1))
+			(call 'obj :inst_of '((r4 0) r3) '(_ r1))
 			(breakif '(r1 = 0) 'fail)
 			(vp-add-cr ptr_size r4)
 			(loop-while '(r4 /= r5))
@@ -102,12 +102,12 @@
 		(endif)
 		(assign '(r6 r7 -1) '(r0 r1 r2))
 
-		(exit 'lisp 'env_args_match '(r2))
+		(exit 'lisp :env_args_match '(r2))
 		(vp-ret)
 	(endswitch)
 	(assign '(r6 r7 0) '(r0 r1 r2))
 
-	(exit 'lisp 'env_args_match '(r2))
+	(exit 'lisp :env_args_match '(r2))
 	(vp-ret)
 
 (def-func-end)

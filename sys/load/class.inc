@@ -6,9 +6,9 @@
 ;;;;;;;;;;;;;;;;;;;
 
 (def-class 'sys_load)
-(dec-method 'statics 'sys/load/statics)
-(dec-method 'init 'sys/load/init)
-(dec-method 'bind 'sys/load/bind :static '(r0) '(r0))
+(dec-method :statics 'sys/load/statics)
+(dec-method :init 'sys/load/init)
+(dec-method :bind 'sys/load/bind :static '(r0) '(r0))
 
 ;;;;;;;;;;;;;;;;;
 ; load structures

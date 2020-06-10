@@ -4,7 +4,7 @@
 (defq mem_cell_min_size 0x000020 mem_cell_max_size 0x4000000
 	max_cell_count (/ (* 32 1024) mem_cell_min_size))
 
-(def-method 'sys_mem 'statics)
+(def-method 'sys_mem :statics)
 	;info
 	;mem statics data
 
@@ -16,12 +16,12 @@
 
 (def-func-end)
 
-(def-method 'sys_mem 'statics_init)
+(def-method 'sys_mem :statics_init)
 	;info
 	;init mem statics
 
 	;obj list init
-	(f-bind 'sys_mem 'statics r0)
+	(f-bind 'sys_mem :statics r0)
 	(assign '((& r0 sys_mem_statics_obj_list)) '(r1))
 	(lh-init r1 r2)
 
@@ -31,7 +31,7 @@
 	(vp-cpy-cr max_cell_count r3)		;start cell count
 	(loop-start)
 		(vp-add-cr sys_mem_header_size r1)
-		(call 'sys_heap 'init '(r0 r1 r3) '(r0 r1))
+		(call 'sys_heap :init '(r0 r1 r3) '(r0 r1))
 		(vp-sub-cr sys_mem_header_size r1)
 		(vp-add-cr hp_heap_size r0)
 		(vp-add-rr r1 r1)
@@ -41,16 +41,16 @@
 
 (def-func-end)
 
-(def-method 'sys_mem 'statics_deinit)
+(def-method 'sys_mem :statics_deinit)
 	;info
 	;deinit mem statics
 
 	;free memory heaps
-	(f-bind 'sys_mem 'statics r0)
+	(f-bind 'sys_mem :statics r0)
 	(vp-cpy-cr mem_cell_min_size r6)
 	(vp-add-cr sys_mem_statics_size r0)
 	(loop-start)
-		(call 'sys_heap 'deinit '(r0) '(r0))
+		(call 'sys_heap :deinit '(r0) '(r0))
 		(vp-add-cr hp_heap_size r0)
 		(vp-add-rr r6 r6)
 	(loop-until `(r6 > ,mem_cell_max_size))
@@ -58,29 +58,29 @@
 
 (def-func-end)
 
-(def-method 'sys_mem 'used)
+(def-method 'sys_mem :used)
 	;outputs
 	;r0 = amount (bytes)
 	;trashes
 	;r0
 
-	(f-bind 'sys_mem 'statics r0)
-	(exit 'sys_mem 'used '((r0 sys_mem_statics_total)))
+	(f-bind 'sys_mem :statics r0)
+	(exit 'sys_mem :used '((r0 sys_mem_statics_total)))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'sys_mem 'collect)
+(def-method 'sys_mem :collect)
 	;trashes
 	;r0-r14
 	;info
 	;free all unused blocks
 
-	(f-bind 'sys_mem 'statics r0)
+	(f-bind 'sys_mem :statics r0)
 	(vp-cpy-cr mem_cell_min_size r12)
 	(vp-add-cr sys_mem_statics_size r0)
 	(loop-start)
-		(call 'sys_heap 'collect '(r0) '(r0))
+		(call 'sys_heap :collect '(r0) '(r0))
 		(vp-add-cr hp_heap_size r0)
 		(vp-add-rr r12 r12)
 	(loop-until `(r12 > ,mem_cell_max_size))
@@ -88,7 +88,7 @@
 
 (def-func-end)
 
-(def-method 'sys_mem 'alloc)
+(def-method 'sys_mem :alloc)
 	;inputs
 	;r0 = minimum amount (bytes)
 	;outputs
@@ -97,14 +97,14 @@
 	;trashes
 	;r0-r2
 
-	(entry 'sys_mem 'alloc '(r0))
+	(entry 'sys_mem :alloc '(r0))
 	(errorif `(r0 > ,(- mem_cell_max_size sys_mem_header_size)) 'error)
 
 	;extra bytes for allocation header
 	(vp-lea-i r0 sys_mem_header_size r1)
 
 	;find object heap
-	(f-bind 'sys_mem 'statics r0)
+	(f-bind 'sys_mem :statics r0)
 	(vp-add-cr sys_mem_statics_size r0)
 	(loop-start)
 		(assign '((r0 hp_heap_cellsize)) '(r2))
@@ -113,24 +113,24 @@
 	(loop-end)
 
 	;allocate object from this heap
-	(call 'sys_heap 'alloc '(r0) '(r0 r1))
+	(call 'sys_heap :alloc '(r0) '(r0 r1))
 	(vp-cpy-ri r0 r1 sys_mem_header_heap)
 	(vp-swp-rr r0 r1)
 	(assign '((r1 hp_heap_cellsize)) '(r1))
 	(vp-add-cr sys_mem_header_size r0)
 	(vp-sub-cr sys_mem_header_size r1)
-	(exit 'sys_mem 'alloc '(r0 r1))
+	(exit 'sys_mem :alloc '(r0 r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(call 'sys_pii 'write_str '(2 "Malloc fail !!!"))
-	(exit 'sys_mem 'alloc '(0 0))
+	(call 'sys_pii :write_str '(2 "Malloc fail !!!"))
+	(exit 'sys_mem :alloc '(0 0))
 	(vp-ret))
 
 (def-func-end)
 
-(def-method 'sys_mem 'calloc)
+(def-method 'sys_mem :calloc)
 	;inputs
 	;r0 = minimum amount (bytes)
 	;outputs
@@ -139,27 +139,27 @@
 	;trashes
 	;r0-r2
 
-	(entry 'sys_mem 'calloc '(r0))
+	(entry 'sys_mem :calloc '(r0))
 
-	(call 'sys_mem 'alloc '(r0) '(r0 r1))
+	(call 'sys_mem :alloc '(r0) '(r0 r1))
 	(vpif '(r0 /= 0))
 		(vp-push r0 r1 r2)
-		(call 'sys_mem 'fill '(r0 r1 0))
+		(call 'sys_mem :fill '(r0 r1 0))
 		(vp-pop r0 r1 r2)
 	(endif)
 
-	(exit 'sys_mem 'calloc '(r0 r1))
+	(exit 'sys_mem :calloc '(r0 r1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'sys_mem 'free)
+(def-method 'sys_mem :free)
 	;inputs
 	;r0 = address (ptr)
 	;trashes
 	;r0-r2
 
-	(entry 'sys_mem 'free '(r0))
+	(entry 'sys_mem :free '(r0))
 
 	(vpif '(r0 /= 0))
 		(vp-cpy-ir r0 (- sys_mem_header_heap sys_mem_header_size) r1)
@@ -171,7 +171,7 @@
 
 (def-func-end)
 
-(def-method 'sys_mem 'realloc)
+(def-method 'sys_mem :realloc)
 	;inputs
 	;r0 = block address (ptr)
 	;r1 = block size (bytes)
@@ -182,11 +182,11 @@
 	;trashes
 	;r0-r5
 
-	(entry 'sys_mem 'realloc '(r4 r5 r2))
+	(entry 'sys_mem :realloc '(r4 r5 r2))
 
 	;alloc new block
 	(vpif '(r2 /= 0))
-		(call 'sys_mem 'alloc '(r2) '(r0 r1))
+		(call 'sys_mem :alloc '(r2) '(r0 r1))
 	(else)
 		(vp-cpy-rr r2 r0)
 		(vp-cpy-rr r2 r1)
@@ -199,20 +199,20 @@
 			(vpif '(r1 < r5))
 				(vp-cpy-rr r1 r5)
 			(endif)
-			(call 'sys_mem 'copy '(r4 r0 r5))
+			(call 'sys_mem :copy '(r4 r0 r5))
 		(endif)
 
 		;free existing
-		(call 'sys_mem 'free '(r4))
+		(call 'sys_mem :free '(r4))
 		(vp-pop r0 r1)
 	(endif)
 
-	(exit 'sys_mem 'realloc '(r0 r1))
+	(exit 'sys_mem :realloc '(r0 r1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'sys_mem 'recalloc)
+(def-method 'sys_mem :recalloc)
 	;inputs
 	;r0 = block address (ptr)
 	;r1 = block size (bytes)
@@ -223,11 +223,11 @@
 	;trashes
 	;r0-r7
 
-	(entry 'sys_mem 'recalloc '(r4 r5 r2))
+	(entry 'sys_mem :recalloc '(r4 r5 r2))
 
 	;alloc new block
 	(vpif '(r2 /= 0))
-		(call 'sys_mem 'alloc '(r2) '(r0 r1))
+		(call 'sys_mem :alloc '(r2) '(r0 r1))
 	(else)
 		(vp-cpy-rr r2 r0)
 		(vp-cpy-rr r2 r1)
@@ -238,7 +238,7 @@
 	;clear new area
 	(vp-sub-rr r5 r1)
 	(vpif '(r1 > 0))
-		(call 'sys_mem 'fill '((& r0 r5) r1 0))
+		(call 'sys_mem :fill '((& r0 r5) r1 0))
 	(endif)
 
 	(vpif '(r5 /= 0))
@@ -247,19 +247,19 @@
 			(vpif '(r7 < r5))
 				(vp-cpy-rr r7 r5)
 			(endif)
-			(call 'sys_mem 'copy '(r4 r6 r5))
+			(call 'sys_mem :copy '(r4 r6 r5))
 		(endif)
 
 		;free existing
-		(call 'sys_mem 'free '(r4))
+		(call 'sys_mem :free '(r4))
 	(endif)
 
-	(exit 'sys_mem 'recalloc '(r6 r7))
+	(exit 'sys_mem :recalloc '(r6 r7))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'sys_mem 'copy)
+(def-method 'sys_mem :copy)
 	;inputs
 	;r0 = source address (ptr)
 	;r1 = destination address (ptr)
@@ -270,7 +270,7 @@
 	;trashes
 	;r0-r3
 
-	(entry 'sys_mem 'copy '(r0 r1 r2))
+	(entry 'sys_mem :copy '(r0 r1 r2))
 
 	(vpif '(r2 /= 0))
 		;not zero length
@@ -292,7 +292,7 @@
 						(vp-add-cr ptr_size r1)
 					(loop-until '(r0 = r2))
 
-					(exit 'sys_mem 'copy '(r0 r1))
+					(exit 'sys_mem :copy '(r0 r1))
 					(vp-ret)
 				(endif)
 			(endif)
@@ -307,12 +307,12 @@
 		(loop-until '(r0 = r2))
 	(endif)
 
-	(exit 'sys_mem 'copy '(r0 r1))
+	(exit 'sys_mem :copy '(r0 r1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'sys_mem 'fill)
+(def-method 'sys_mem :fill)
 	;inputs
 	;r0 = address (ptr)
 	;r1 = length (bytes)
@@ -322,7 +322,7 @@
 	;trashes
 	;r0-r3
 
-	(entry 'sys_mem 'fill '(r0 r1 r2))
+	(entry 'sys_mem :fill '(r0 r1 r2))
 
 	(vpif '(r1 /= 0))
 		;not zero length
@@ -339,7 +339,7 @@
 					(vp-add-cr ptr_size r0)
 				(loop-until '(r0 = r1))
 
-				(exit 'sys_mem 'fill '(r0))
+				(exit 'sys_mem :fill '(r0))
 				(vp-ret)
 			(endif)
 		(endif)
@@ -351,7 +351,7 @@
 		(loop-until '(r0 = r1))
 	(endif)
 
-	(exit 'sys_mem 'fill '(r0))
+	(exit 'sys_mem :fill '(r0))
 	(vp-ret)
 
 (def-func-end)

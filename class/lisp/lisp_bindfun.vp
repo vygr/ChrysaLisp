@@ -5,7 +5,7 @@
 (include 'class/pair/class.inc)
 (include 'class/lisp/class.inc)
 
-(def-method 'lisp 'lisp_bindfun)
+(def-method 'lisp :lisp_bindfun)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -21,7 +21,7 @@
 		(uint 'start)
 	(def-struct-end)
 
-	(entry 'lisp 'lisp_bindfun '(r0 r1))
+	(entry 'lisp :lisp_bindfun '(r0 r1))
 
 (errorcases
 	(assign '((r1 array_length)) '(r2))
@@ -30,7 +30,7 @@
 	;ref the form and bind it
 	(class/array/bind_args r1 '(r1))
 	(class/obj/ref r1 r2)
-	(f-bind 'list 'vtable r2)
+	(f-bind 'list :vtable r2)
 	(assign '((r1 obj_vtable)) '(r3))
 	(switch)
 	(breakif '(r2 /= r3))
@@ -58,7 +58,7 @@
 				(switch 'next_elem)
 					;is list ?
 					(switch)
-					(f-bind 'list 'vtable r2)
+					(f-bind 'list :vtable r2)
 					(assign '((r1 obj_vtable)) '(r3))
 					(breakif '(r2 /= r3))
 					;not 0 length ?
@@ -70,13 +70,13 @@
 					(breakif '(r2 = r3) 'next_elem)
 					(default)
 						;come back to this branch
-						(call 'array 'push_back '((r0 lisp_stack) r1))
+						(call 'array :push_back '((r0 lisp_stack) r1))
 						(break 'next_elem)
 					(endswitch)
 
 					;is a symbol ?
 					(switch)
-					(f-bind 'sym 'vtable r2)
+					(f-bind 'sym :vtable r2)
 					(breakif '(r2 /= r3))
 					;not lambda ?
 					(assign '((r0 lisp_sym_lambda)) '(r3))
@@ -85,16 +85,16 @@
 					(assign '((r0 lisp_sym_macro)) '(r3))
 					(breakif '(r1 = r3))
 					;is defined ?
-					(call 'hmap 'search '((r0 lisp_environment) r1) '(_ r1 _))
+					(call 'hmap :search '((r0 lisp_environment) r1) '(_ r1 _))
 					(breakif '(r1 = 0))
 					;is a function ?
 					(vp-cpy-ir r1 0 r1)
-					(f-bind 'func 'vtable r2)
+					(f-bind 'func :vtable r2)
 					(assign '((r1 pair_second)) '(r1))
 					(assign '((r1 obj_vtable)) '(r3))
 					(gotoif '(r2 = r3) 'bind_it)
 					;is a list ?
-					(f-bind 'list 'vtable r2)
+					(f-bind 'list :vtable r2)
 					(breakif '(r2 /= r3))
 					;not 0 length ?
 					(assign '((r1 array_length)) '(r2))
@@ -109,7 +109,7 @@
 						(class/obj/ref r1 r2)
 						(assign '((rsp local_iter_begin)) '(r3))
 						(assign '((r3 0) r1) '(r0 (r3 0)))
-						(call 'obj 'deref '(r0))
+						(call 'obj :deref '(r0))
 					(endswitch)
 				(endswitch)
 
@@ -131,11 +131,11 @@
 		(vp-free local_size)
 	(endswitch)
 
-	(exit 'lisp 'lisp_bindfun '(r0 r1))
+	(exit 'lisp :lisp_bindfun '(r0 r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r0 "(bind-fun form) -> form" error_msg_wrong_num_of_args r1)))
+	(jump 'lisp :repl_error '(r0 "(bind-fun form) -> form" error_msg_wrong_num_of_args r1)))
 
 (def-func-end)

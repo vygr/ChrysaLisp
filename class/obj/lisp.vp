@@ -2,7 +2,7 @@
 (include 'class/num/class.inc)
 (include 'class/lisp/class.inc)
 
-(def-method 'obj 'lisp_get_field)
+(def-method 'obj :lisp_get_field)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -12,10 +12,10 @@
 	;trashes
 	;r1-r14
 
-	(entry 'obj 'lisp_get_field '(r0 r1))
+	(entry 'obj :lisp_get_field '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_sig '(r1 ($ sig) 3) '(r2))
+	(call 'lisp :env_args_sig '(r1 ($ sig) 3) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(assign '(r0) '(r5))
@@ -51,22 +51,22 @@
 		(endif)
 		(class/obj/ref r1 r0)
 
-		(exit 'obj 'lisp_get_field '(r5 r1))
+		(exit 'obj :lisp_get_field '(r5 r1))
 		(vp-ret)
 	(endswitch)
-	(call 'num 'create '(r0) '(r1))
+	(call 'num :create '(r0) '(r1))
 
-	(exit 'obj 'lisp_get_field '(r5 r1))
+	(exit 'obj :lisp_get_field '(r5 r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r0 "(get-field obj field size|0)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(r0 "(get-field obj field size|0)" error_msg_wrong_types r1))
 	(signature '(obj num num)))
 
 (def-func-end)
 
-(def-method 'obj 'lisp_set_field)
+(def-method 'obj :lisp_set_field)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -76,10 +76,10 @@
 	;trashes
 	;r1-r14
 
-	(entry 'obj 'lisp_set_field '(r0 r1))
+	(entry 'obj :lisp_set_field '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_sig '(r1 ($ sig) 4) '(r2))
+	(call 'lisp :env_args_sig '(r1 ($ sig) 4) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(class/list/bind_args r1 '(r1 r2 r3 r4) '(obj num num obj))
@@ -113,7 +113,7 @@
 		(assign '(r4) '((r1 r2)))
 	(else)
 		(vp-push r1 r2 r4)
-		(call 'obj 'deref_if '((r1 r2)))
+		(call 'obj :deref_if '((r1 r2)))
 		(vp-pop r1 r2 r4)
 		(assign '((rsp ptr_size)) '(r0))
 		(assign '((r0 lisp_sym_nil)) '(r0))
@@ -127,12 +127,12 @@
 	(vp-pop r0 r1)
 	(class/obj/ref r1 r2)
 
-	(exit 'obj 'lisp_set_field '(r0 r1))
+	(exit 'obj :lisp_set_field '(r0 r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r0 "(set-field obj field size|0 val)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(r0 "(set-field obj field size|0 val)" error_msg_wrong_types r1))
 	(signature '(obj num num obj)))
 
 (def-func-end)

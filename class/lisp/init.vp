@@ -18,7 +18,7 @@
 	(vp-short
 		`(- ,(label-sym (string-sym (fn-add-string s))) *pc*) f))
 
-(def-method 'lisp 'init)
+(def-method 'lisp :init)
 	;inputs
 	;r0 = lisp object object (ptr)
 	;r1 = vtable (pptr)
@@ -38,22 +38,22 @@
 	(ulong 'ok)
 
 	(push-scope)
-	(entry 'lisp 'init {this, vtable, stdin, stdout, stderr})
+	(entry 'lisp :init {this, vtable, stdin, stdout, stderr})
 
 	;init parent
-	(s-call 'lisp 'init {this, vtable} {_, ok})
+	(s-call 'lisp :init {this, vtable} {_, ok})
 	(vpif {ok})
 		;init myself
-		(call 'obj 'ref {stdin} {this->lisp_stdin})
-		(call 'obj 'ref {stdout} {this->lisp_stdout})
-		(call 'obj 'ref {stderr} {this->lisp_stderr})
+		(call 'obj :ref {stdin} {this->lisp_stdin})
+		(call 'obj :ref {stdout} {this->lisp_stdout})
+		(call 'obj :ref {stderr} {this->lisp_stderr})
 		(assign {0} {this->lisp_nextsym})
 		;tls stack
-		(assign (cat {@} (f-path 'sys_task 'statics) {.tk_statics_current_tcb->tk_node_tls}) {this->lisp_stack})
+		(assign (cat {@} (f-path 'sys_task :statics) {.tk_statics_current_tcb->tk_node_tls}) {this->lisp_stack})
 
 		;spin lock if boot env busy
 		(loop-while {ptr($boot_env) = -1})
-			(call 'sys_task 'sleep {100})
+			(call 'sys_task :sleep {100})
 		(loop-end)
 
 		;do we have a shared boot env yet ?
@@ -62,53 +62,53 @@
 			(assign {-1} {ptr($boot_env)})
 
 			;intern standard built in symbols
-			(call 'hmap 'create {0, 101} {this->lisp_environment})
+			(call 'hmap :create {0, 101} {this->lisp_environment})
 
 			;local defines and symbols
 			(call 'create_env_info {this})
 
 			;run any boot.inc
-			(call 'str 'create_from_file {"class/lisp/boot.inc"} {file})
+			(call 'str :create_from_file {"class/lisp/boot.inc"} {file})
 			(vpif {file})
 				;REPL from file stream
-				(call 'list 'create nil {repl_args})
-				(call 'stream_str 'create {file} {stream})
-				(call 'str 'create_from_buffer {"class/lisp/boot.inc", 19} {file})
-				(call 'list 'push_back2 {repl_args, stream, file})
-				(call 'lisp 'lisp_repl {this, repl_args} {_, value})
+				(call 'list :create nil {repl_args})
+				(call 'stream_str :create {file} {stream})
+				(call 'str :create_from_buffer {"class/lisp/boot.inc", 19} {file})
+				(call 'list :push_back2 {repl_args, stream, file})
+				(call 'lisp :lisp_repl {this, repl_args} {_, value})
 				(vpif {value /= this->lisp_sym_nil})
-					(call 'lisp 'repl_print {this, this->lisp_stderr, value})
-					(call 'stream 'write_char {this->lisp_stderr, char_lf})
-					(call 'stream 'write_flush {this->lisp_stderr})
+					(call 'lisp :repl_print {this, this->lisp_stderr, value})
+					(call 'stream :write_char {this->lisp_stderr, char_lf})
+					(call 'stream :write_flush {this->lisp_stderr})
 					(assign {0} {ok})
 				(endif)
-				(call 'obj 'deref {value})
-				(call 'obj 'deref {repl_args})
+				(call 'obj :deref {value})
+				(call 'obj :deref {repl_args})
 			(endif)
 
 			(vpifnot {ok})
 				;deinit myself and parent
-				(call 'lisp 'deinit {this})
+				(call 'lisp :deinit {this})
 				;mark as free
 				(assign {0} {ptr($boot_env)})
 			(else)
 				;save shared boot env
-				(call 'obj 'ref {this->lisp_environment} {ptr($boot_env)})
-				(call 'hmap 'create {this->lisp_environment->hset_key_callback, 101} {func})
-				(call 'hmap 'set_parent {func, this->lisp_environment} {this->lisp_environment})
+				(call 'obj :ref {this->lisp_environment} {ptr($boot_env)})
+				(call 'hmap :create {this->lisp_environment->hset_key_callback, 101} {func})
+				(call 'hmap :set_parent {func, this->lisp_environment} {this->lisp_environment})
 			(endif)
 		(else)
 			;boot env is my parent env
-			(call 'obj 'ref {ptr($boot_env)} {this->lisp_environment})
-			(call 'hmap 'create {this->lisp_environment->hset_key_callback, 31} {func})
-			(call 'hmap 'set_parent {func, this->lisp_environment} {this->lisp_environment})
+			(call 'obj :ref {ptr($boot_env)} {this->lisp_environment})
+			(call 'hmap :create {this->lisp_environment->hset_key_callback, 31} {func})
+			(call 'hmap :set_parent {func, this->lisp_environment} {this->lisp_environment})
 
 			;local defines and symbols
 			(call 'create_env_info {this})
 		(endif)
 	(endif)
 
-	(exit 'lisp 'init {this, ok})
+	(exit 'lisp :init {this, ok})
 	(pop-scope)
 	(return)
 
@@ -121,24 +121,24 @@
 	;look up standard built in symbols
 	(assign {$built_ins} {table})
 	(loop-while {table->built_in_symbol})
-		(call 'sym 'intern_cstr {&table->built_in_symbol + table->built_in_symbol} {symbol})
+		(call 'sym :intern_cstr {&table->built_in_symbol + table->built_in_symbol} {symbol})
 		(assign {symbol} {ptr(this + table->built_in_field)})
 		(assign {table + built_in_size} {table})
 	(loop-end)
 
 	;defines
-	(call 'str 'create_from_buffer {"ChrysaLisp", 10} {symbol})
-	(call 'hmap 'insert {this->lisp_environment, this->lisp_sym_stream_name, symbol})
-	(call 'obj 'deref {symbol})
-	(call 'num 'create '(0) {symbol})
-	(call 'hmap 'insert {this->lisp_environment, this->lisp_sym_stream_line, symbol})
-	(call 'obj 'deref {symbol})
-	(call 'list 'create nil {symbol})
-	(call 'hmap 'insert {this->lisp_environment, this->lisp_sym_file_includes, symbol})
-	(call 'obj 'deref {symbol})
-	(call 'func 'create (cat {@} (f-path 'lisp 'lisp_ffi) {+ func_type_args_raw}) {symbol})
-	(call 'hmap 'insert {this->lisp_environment, this->lisp_sym_ffi, symbol})
-	(call 'obj 'deref {symbol})
+	(call 'str :create_from_buffer {"ChrysaLisp", 10} {symbol})
+	(call 'hmap :insert {this->lisp_environment, this->lisp_sym_stream_name, symbol})
+	(call 'obj :deref {symbol})
+	(call 'num :create '(0) {symbol})
+	(call 'hmap :insert {this->lisp_environment, this->lisp_sym_stream_line, symbol})
+	(call 'obj :deref {symbol})
+	(call 'list :create nil {symbol})
+	(call 'hmap :insert {this->lisp_environment, this->lisp_sym_file_includes, symbol})
+	(call 'obj :deref {symbol})
+	(call 'func :create (cat {@} (f-path 'lisp :lisp_ffi) {+ func_type_args_raw}) {symbol})
+	(call 'hmap :insert {this->lisp_environment, this->lisp_sym_ffi, symbol})
+	(call 'obj :deref {symbol})
 
 	(pop-scope)
 	(return)

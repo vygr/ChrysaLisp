@@ -5,7 +5,7 @@
 (gen-create 'stream_str)
 (gen-vtable 'stream_str)
 
-(def-method 'stream_str 'init)
+(def-method 'stream_str :init)
 	;inputs
 	;r0 = stream_str object (ptr)
 	;r1 = vtable (pptr)
@@ -16,14 +16,14 @@
 	;trashes
 	;r1-r5
 
-	(entry 'stream_str 'init '(r0 r1 r2))
+	(entry 'stream_str :init '(r0 r1 r2))
 
 	;init parent
-	(s-jump 'stream_str 'init '(r0 r1 r2 0 (& r2 str_data) (r2 str_length)))
+	(s-jump 'stream_str :init '(r0 r1 r2 0 (& r2 str_data) (r2 str_length)))
 
 (def-func-end)
 
-(def-method 'stream_str 'ref_string)
+(def-method 'stream_str :ref_string)
 	;inputs
 	;r0 = stream_str object (ptr)
 	;outputs
@@ -32,7 +32,7 @@
 	;trashes
 	;r1-r2
 
-	(entry 'stream_str 'ref_string '(r0))
+	(entry 'stream_str :ref_string '(r0))
 
 	(vp-push r0)
 	(assign '((r0 stream_bufp) (r0 stream_object)) '(r1 r0))
@@ -40,15 +40,15 @@
 	(assign '(r2 r2 (& r0 str_data)) '((r1 0 b) (r0 str_hashcode) r2))
 	(vp-sub-rr r2 r1)
 	(assign '(r1) '((r0 str_length)))
-	(call 'str 'ref '(r0) '(r1))
+	(call 'str :ref '(r0) '(r1))
 	(vp-pop r0)
 
-	(exit 'stream_str 'ref_string '(r0 r1))
+	(exit 'stream_str :ref_string '(r0 r1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'stream_str 'write_next)
+(def-method 'stream_str :write_next)
 	;inputs
 	;r0 = stream_str object (ptr)
 	;outputs
@@ -60,11 +60,11 @@
 	(uint 'length)
 
 	(push-scope)
-	(entry 'stream_str 'write_next {this})
+	(entry 'stream_str :write_next {this})
 
 	(assign {this->stream_bufp - &this->stream_object->str_data} {length})
-	(call 'str 'create_from_buffer {0, length * 2 + 32} {new_str})
-	(call 'sys_mem 'copy {&this->stream_object->str_data, &new_str->str_data, length} {_, this->stream_bufp})
+	(call 'str :create_from_buffer {0, length * 2 + 32} {new_str})
+	(call 'sys_mem :copy {&this->stream_object->str_data, &new_str->str_data, length} {_, this->stream_bufp})
 	;round bufe up to very end of block !
 	(assign {length * 2 + 32 + str_data - 1} {length})
 	(assign {length | length >> 1} {length})
@@ -74,16 +74,16 @@
 	(assign {length | length >> 16} {length})
 	(assign {length | length >> 32} {length})
 	(assign {new_str + length} {this->stream_bufe})
-	(call 'str 'deref {this->stream_object})
+	(call 'str :deref {this->stream_object})
 	(assign {new_str} {this->stream_object})
 
-	(exit 'stream_str 'write_next {this})
+	(exit 'stream_str :write_next {this})
 	(pop-scope)
 	(return)
 
 (def-func-end)
 
-(def-method 'stream_str 'write_flush)
+(def-method 'stream_str :write_flush)
 	;inputs
 	;r0 = stream_str object (ptr)
 	;outputs
@@ -91,7 +91,7 @@
 	;trashes
 	;r1-r14
 
-	(entry 'stream_str 'write_flush '(r0))
+	(entry 'stream_str :write_flush '(r0))
 
 	;nul byte
 	(assign '((r0 stream_bufp) 0) '(r1 r2))
@@ -99,11 +99,11 @@
 	(vp-add-cr str_data r2)
 	(vpif '(r1 > r2))
 		(assign '(r2 r0) '((r0 stream_bufp) r3))
-		(call 'sys_pii 'write_str '(1 r2))
+		(call 'sys_pii :write_str '(1 r2))
 		(vp-cpy-rr r3 r0)
 	(endif)
 
-	(exit 'stream_str 'write_flush '(r0))
+	(exit 'stream_str :write_flush '(r0))
 	(vp-ret)
 
 (def-func-end)

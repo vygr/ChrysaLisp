@@ -1,7 +1,7 @@
 (include 'sys/func.inc)
 (include 'class/lisp/class.inc)
 
-(def-method 'lisp 'deinit)
+(def-method 'lisp :deinit)
 	;inputs
 	;r0 = lisp object (ptr)
 	;outputs
@@ -13,16 +13,16 @@
 	(pptr 'iter)
 
 	(push-scope)
-	(entry 'lisp 'deinit {this})
+	(entry 'lisp :deinit {this})
 
 	;deinit myself
 	(assign {&this->lisp_stdin} {iter})
 	(loop-start)
-		(call 'obj 'deref {*iter})
+		(call 'obj :deref {*iter})
 	(loop-until {(iter + ptr_size => iter) = &this->lisp_stack})
 
 	;deinit parent
-	(s-jump 'lisp 'deinit {this})
+	(s-jump 'lisp :deinit {this})
 
 	(pop-scope-syms)
 

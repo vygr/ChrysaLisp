@@ -10,15 +10,15 @@
 (include 'gui/ctx/class.inc)
 (include 'gui/backdrop/class.inc)
 
-(def-method 'gui 'statics)
+(def-method 'gui :statics)
 	(times gui_statics_size (vp-byte 0))
 (def-func-end)
 
-(def-method 'gui 'statics_init)
+(def-method 'gui :statics_init)
 
 	;init region heap
-	(f-bind 'gui 'statics r4)
-	(jump 'sys_heap 'init '((& r4 gui_statics_rect_heap) rect_size 32))
+	(f-bind 'gui :statics r4)
+	(jump 'sys_heap :init '((& r4 gui_statics_rect_heap) rect_size 32))
 
 (def-func-end)
 
@@ -35,43 +35,43 @@
 
 	;init vars
 	(vp-alloc local_size)
-	(f-bind 'gui 'statics r0)
+	(f-bind 'gui :statics r0)
 	(assign '(r0) '((rsp local_statics)))
 	(vp-xor-rr r0 r0)
 	(assign '(r0 r0 r0 r0)
 		'((rsp local_mouse_id) (rsp local_key_id) (rsp local_mouse_buttons) (rsp local_quit)))
 
 	;temp objects
-	(call 'list 'create nil '(r0))
+	(call 'list :create nil '(r0))
 	(assign '((rsp local_statics)) '(r1))
 	(assign '(r0) '((r1 gui_statics_temps)))
 
 	;allocate background view for screen
-	(call 'backdrop 'create nil '(r0))
+	(call 'backdrop :create nil '(r0))
 	(assign '((rsp local_statics)) '(r1))
 	(assign '(r0) '((r1 gui_statics_screen)))
 
 	;size, color and opaque
-	(call 'backdrop 'change '(r0 0 0 SCREEN_WIDTH SCREEN_HEIGHT) '(r0))
-	(call 'backdrop 'set_long_prop '(r0 static_sym_color argb_grey2) '(r0))
-	(call 'backdrop 'set_long_prop '(r0 static_sym_ink_color argb_grey1) '(r0))
-	(call 'backdrop 'set_flags '(r0 view_flag_dirty_all view_flag_dirty_all))
+	(call 'backdrop :change '(r0 0 0 SCREEN_WIDTH SCREEN_HEIGHT) '(r0))
+	(call 'backdrop :set_long_prop '(r0 static_sym_color argb_grey2) '(r0))
+	(call 'backdrop :set_long_prop '(r0 static_sym_ink_color argb_grey1) '(r0))
+	(call 'backdrop :set_flags '(r0 view_flag_dirty_all view_flag_dirty_all))
 
 	;fire up the login app
-	(call 'sys_task 'open_child '("apps/login/app.lisp" kn_call_open))
+	(call 'sys_task :open_child '("apps/login/app.lisp" kn_call_open))
 
 	;gui event loop
-	(call 'sys_task 'set_priority '(2))
+	(call 'sys_task :set_priority '(2))
 	(loop-start)
 		;kernel callback for update
-		(call 'sys_task 'callback '(rsp ($ update_callback)))
+		(call 'sys_task :callback '(rsp ($ update_callback)))
 		;frame rate of gui updates
-		(call 'sys_task 'sleep '((/ 1000000 60)))
+		(call 'sys_task :sleep '((/ 1000000 60)))
 		(assign '((rsp local_quit)) '(r0))
 	(loop-until '(r0 /= 0))
 
 	;deinit
-	(call 'sys_task 'callback '(rsp ($ deinit_callback)))
+	(call 'sys_task :callback '(rsp ($ deinit_callback)))
 	(vp-free local_size)
 	(vp-ret)
 
@@ -92,30 +92,30 @@
 	;create screen window ?
 	(vpifnot {user->local_statics->gui_statics_window})
 		;init sdl2
-		(host-call 'host 'sdl_set_main_ready)
-		(host-call 'host 'sdl_init {SDL_INIT_VIDEO | SDL_INIT_EVENTS})
+		(host-call 'host :sdl_set_main_ready)
+		(host-call 'host :sdl_init {SDL_INIT_VIDEO | SDL_INIT_EVENTS})
 
 		;create window
-		(host-call 'host 'sdl_create_window
+		(host-call 'host :sdl_create_window
 			{$title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE}
 			{user->local_statics->gui_statics_window})
 
 		;create renderer and back buffer
 		(cond
 			((> num_old_regions 0)
-				(host-call 'host 'sdl_create_renderer
+				(host-call 'host :sdl_create_renderer
 					{user->local_statics->gui_statics_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC}
 					{user->local_statics->gui_statics_renderer}))
 			(t
-				(host-call 'host 'sdl_create_renderer
+				(host-call 'host :sdl_create_renderer
 					{user->local_statics->gui_statics_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_TARGETTEXTURE}
 					{user->local_statics->gui_statics_renderer})
-				(host-call 'host 'sdl_create_texture
+				(host-call 'host :sdl_create_texture
 					{user->local_statics->gui_statics_renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_TARGET, SCREEN_WIDTH, SCREEN_HEIGHT}
 					{user->local_statics->gui_statics_texture})))
 
 		;set blend mode
-		(host-call 'host 'sdl_set_render_draw_blend_mode {user->local_statics->gui_statics_renderer, SDL_BLENDMODE_BLEND})
+		(host-call 'host :sdl_set_render_draw_blend_mode {user->local_statics->gui_statics_renderer, SDL_BLENDMODE_BLEND})
 	(endif)
 
 	;update screen
@@ -123,25 +123,25 @@
 		(cond
 			((> num_old_regions 0)
 				;no render to texture
-				(call 'gui 'update {user->local_statics->gui_statics_screen}))
+				(call 'gui :update {user->local_statics->gui_statics_screen}))
 			(t
 				;render to back buffer texture
-				(host-call 'host 'sdl_set_render_target {user->local_statics->gui_statics_renderer, user->local_statics->gui_statics_texture})
-				(call 'gui 'update {user->local_statics->gui_statics_screen})
-				(host-call 'host 'sdl_set_render_target {user->local_statics->gui_statics_renderer, 0})
-				(host-call 'host 'sdl_render_copy {user->local_statics->gui_statics_renderer, user->local_statics->gui_statics_texture, 0, 0})))
+				(host-call 'host :sdl_set_render_target {user->local_statics->gui_statics_renderer, user->local_statics->gui_statics_texture})
+				(call 'gui :update {user->local_statics->gui_statics_screen})
+				(host-call 'host :sdl_set_render_target {user->local_statics->gui_statics_renderer, 0})
+				(host-call 'host :sdl_render_copy {user->local_statics->gui_statics_renderer, user->local_statics->gui_statics_texture, 0, 0})))
 
 		;swap, clear temps and dirty flag
-		(host-call 'host 'sdl_render_present {user->local_statics->gui_statics_renderer})
-		(call 'list 'clear {user->local_statics->gui_statics_temps})
+		(host-call 'host :sdl_render_present {user->local_statics->gui_statics_renderer})
+		(call 'list :clear {user->local_statics->gui_statics_temps})
 		(assign {0} {user->local_statics->gui_statics_dirty_flag})
 	(endif)
 
 	;any sdl events ?
 	(loop-start)
-		(host-call 'host 'sdl_poll_event {0} {flag})
+		(host-call 'host :sdl_poll_event {0} {flag})
 		(breakifnot {flag})
-		(host-call 'host 'sdl_poll_event {&event})
+		(host-call 'host :sdl_poll_event {&event})
 		(switch)
 		(vpcase {event.sdl_common_event_type = SDL_MOUSEMOTION})
 			;update mouse state
@@ -152,18 +152,18 @@
 			;send event message
 		(vp-label 'send_event)
 			(breakifnot {user->local_mouse_id})
-			(call 'view 'find_id {user->local_statics->gui_statics_screen, user->local_mouse_id} {_, view})
+			(call 'view :find_id {user->local_statics->gui_statics_screen, user->local_mouse_id} {_, view})
 			(breakifnot {view})
-			(call 'view 'find_owner {view} {_, owner_id.id_id})
+			(call 'view :find_owner {view} {_, owner_id.id_id})
 			(breakifnot {owner_id.id_id})
-			(call 'sys_mail 'alloc {ev_msg_mouse_size} {msg, data})
+			(call 'sys_mail :alloc {ev_msg_mouse_size} {msg, data})
 			(assign {ev_type_mouse} {data->ev_msg_type})
 			(assign {view->component_id} {data->ev_msg_target_id})
 			(assign {owner_id.id_id} {msg->msg_dest.id_id})
 			(assign {user->local_mouse_buttons} {data->ev_msg_mouse_buttons})
 			(assign {(event.sdl_mouse_button_event_x => data->ev_msg_mouse_x) - view->view_ctx_x} {data->ev_msg_mouse_rx})
 			(assign {(event.sdl_mouse_button_event_y => data->ev_msg_mouse_y) - view->view_ctx_y} {data->ev_msg_mouse_ry})
-			(call 'sys_mail 'send {msg})
+			(call 'sys_mail :send {msg})
 			(breakif {user->local_mouse_buttons})
 			(assign {0} {user->local_mouse_id})
 			(break)
@@ -172,7 +172,7 @@
 			(assign {event.sdl_mouse_button_event_button | user->local_mouse_buttons} {user->local_mouse_buttons})
 
 			;find view affinity
-			(call 'view 'hit_tree {user->local_statics->gui_statics_screen,
+			(call 'view :hit_tree {user->local_statics->gui_statics_screen,
 				event.sdl_mouse_button_event_x, event.sdl_mouse_button_event_y} {_, view, _, _})
 			(assign {view->component_id} {user->local_mouse_id})
 			(goto 'send_event)
@@ -182,43 +182,43 @@
 			(goto 'send_event)
 		(vpcase {event.sdl_common_event_type = SDL_KEYDOWN})
 			;find keyboard id
-			(call 'view 'hit_tree {user->local_statics->gui_statics_screen,
+			(call 'view :hit_tree {user->local_statics->gui_statics_screen,
 				user->local_mouse_x, user->local_mouse_y} {_, view, _, _})
 			(assign {view->component_id} {user->local_key_id})
 
 			;find view for keys
-			(call 'view 'find_id {user->local_statics->gui_statics_screen, user->local_key_id} {_, view})
+			(call 'view :find_id {user->local_statics->gui_statics_screen, user->local_key_id} {_, view})
 			(breakifnot {view})
-			(call 'view 'find_owner {view} {_, owner_id.id_id})
+			(call 'view :find_owner {view} {_, owner_id.id_id})
 			(breakifnot {owner_id.id_id})
 
 			;send event message
-			(call 'sys_mail 'alloc {ev_msg_key_size} {msg, data})
+			(call 'sys_mail :alloc {ev_msg_key_size} {msg, data})
 			(assign {ev_type_key} {data->ev_msg_type})
 			(assign {owner_id.id_id} {msg->msg_dest.id_id})
 			(assign {view->component_id} {data->ev_msg_target_id})
 			(assign {event.sdl_keyboard_event_keysym.sdl_keysym_scancode} {data->ev_msg_key_keycode})
 			(call 'cook_key {event.sdl_keyboard_event_keysym.sdl_keysym_sym,
 				event.sdl_keyboard_event_keysym.sdl_keysym_mod} {data->ev_msg_key_key})
-			(call 'sys_mail 'send {msg})
+			(call 'sys_mail :send {msg})
 			(break)
 		(vpcase {event.sdl_common_event_type = SDL_WINDOWEVENT})
 			(switch)
 			(vpcase {event.sdl_window_event_event = SDL_WINDOWEVENT_SIZE_CHANGED})
 			(when (= num_old_regions 0)
 				;resize back buffer and redraw in full
-				(host-call 'host 'sdl_destroy_texture {user->local_statics->gui_statics_texture})
-				(host-call 'host 'sdl_create_texture
+				(host-call 'host :sdl_destroy_texture {user->local_statics->gui_statics_texture})
+				(host-call 'host :sdl_create_texture
 					{user->local_statics->gui_statics_renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_TARGET, event.sdl_window_event_data1, event.sdl_window_event_data2}
 					{user->local_statics->gui_statics_texture}))
 
 				;chnage backdrop size, send gui event to all top level views
-				(call 'backdrop 'change '{user->local_statics->gui_statics_screen, 0, 0, event.sdl_window_event_data1, event.sdl_window_event_data2})
-				(call 'backdrop 'forward {user->local_statics->gui_statics_screen, user, $send_gui_event})
-				(call 'backdrop 'set_flags '{user->local_statics->gui_statics_screen, view_flag_dirty_all, view_flag_dirty_all})
+				(call 'backdrop :change '{user->local_statics->gui_statics_screen, 0, 0, event.sdl_window_event_data1, event.sdl_window_event_data2})
+				(call 'backdrop :forward {user->local_statics->gui_statics_screen, user, $send_gui_event})
+				(call 'backdrop :set_flags '{user->local_statics->gui_statics_screen, view_flag_dirty_all, view_flag_dirty_all})
 				(break)
 			(vpcase {event.sdl_window_event_event = SDL_WINDOWEVENT_RESTORED})
-				(call 'backdrop 'set_flags '{user->local_statics->gui_statics_screen, view_flag_dirty_all, view_flag_dirty_all})
+				(call 'backdrop :set_flags '{user->local_statics->gui_statics_screen, view_flag_dirty_all, view_flag_dirty_all})
 				(break)
 			(endswitch)
 		;;	(break)
@@ -245,24 +245,24 @@
 
 	;free any screen
 	(vpif {user->local_statics->gui_statics_screen})
-		(call 'view 'deref {user->local_statics->gui_statics_screen})
+		(call 'view :deref {user->local_statics->gui_statics_screen})
 		(assign {0} {user->local_statics->gui_statics_screen})
 	(endif)
 
 	;destroy any window
 	(vpif {user->local_statics->gui_statics_window})
-		(host-call 'host 'sdl_destroy_window {user->local_statics->gui_statics_window})
-		(host-call 'host 'sdl_quit)
+		(host-call 'host :sdl_destroy_window {user->local_statics->gui_statics_window})
+		(host-call 'host :sdl_quit)
 	(endif)
 
 	;free old regions and deinit region heap
 	(assign {&user->local_statics->gui_statics_old_regions} {iter_begin})
 	(assign {&iter_begin[num_old_regions * ptr_size]} {iter_end})
 	(loop-while {iter_begin /= iter_end})
-		(call 'region 'free {user->local_statics->gui_statics_rect_heap, iter_begin})
+		(call 'region :free {user->local_statics->gui_statics_rect_heap, iter_begin})
 		(assign {iter_begin + ptr_size} {iter_end})
 	(loop-end)
-	(call 'sys_heap 'deinit {user->local_statics->gui_statics_rect_heap})
+	(call 'sys_heap :deinit {user->local_statics->gui_statics_rect_heap})
 
 	(assign {old_stack} '(rsp))
 	(pop-scope-syms)
@@ -276,13 +276,13 @@
 	(push-scope)
 	(entry {this, user})
 
-	(call 'view 'find_owner {this} {_, owner_id.id_id})
+	(call 'view :find_owner {this} {_, owner_id.id_id})
 	(vpif {owner_id.id_id})
-		(call 'sys_mail 'alloc {ev_msg_gui_size} {msg, data})
+		(call 'sys_mail :alloc {ev_msg_gui_size} {msg, data})
 		(assign {ev_type_gui} {data->ev_msg_type})
 		(assign {owner_id.id_id} {msg->msg_dest.id_id})
 		(assign {this->component_id} {data->ev_msg_target_id})
-		(call 'sys_mail 'send {msg})
+		(call 'sys_mail :send {msg})
 	(endif)
 
 	(exit {this})
@@ -326,7 +326,7 @@
 
 (def-func-end)
 
-(def-method 'gui 'update)
+(def-method 'gui :update)
 	;inputs
 	;r0 = root view object (ptr)
 	;trashes
@@ -342,36 +342,36 @@
 
 	;save inputs
 	(vp-alloc local_size)
-	(entry 'gui 'update '(r0))
+	(entry 'gui :update '(r0))
 	(assign '(r0) '((rsp local_root)))
 
 	;iterate through views back to front
 	;setting abs cords
 	(vp-xor-rr r7 r7)
 	(vp-xor-rr r8 r8)
-	(call 'view 'backward_tree '(r0 r0 ($ abs_down_callback) ($ abs_up_callback)))
+	(call 'view :backward_tree '(r0 r0 ($ abs_down_callback) ($ abs_up_callback)))
 
 	;iterate through views back to front
 	;create visible region at root
-	(call 'view 'backward_tree '(r0 r0 ($ visible_down_callback) ($ visible_up_callback)))
+	(call 'view :backward_tree '(r0 r0 ($ visible_down_callback) ($ visible_up_callback)))
 
 	(when (/= num_old_regions 0)
 		;copy new damaged region
 		(vp-xor-rr r1 r1)
 		(assign '(r1) '((rsp local_damaged_region)))
-		(f-bind 'gui 'statics r4)
-		(call 'region 'copy_rect '((& r4 gui_statics_rect_heap) (& r0 view_dirty_region)
+		(f-bind 'gui :statics r4)
+		(call 'region :copy_rect '((& r4 gui_statics_rect_heap) (& r0 view_dirty_region)
 			(& rsp local_damaged_region) 0 0 (r0 view_w) (r0 view_h)) '(r0))
 
 		;paste old damaged region into root
-		(f-bind 'gui 'statics r4)
+		(f-bind 'gui :statics r4)
 		(assign '((& r4 gui_statics_old_regions) (r4 gui_statics_old_region_index) (rsp local_root)) '(r1 r2 r3))
-		(call 'region 'paste_region '(r0 (& r1 r2) (& r3 view_dirty_region) 0 0) '(r0))
+		(call 'region :paste_region '(r0 (& r1 r2) (& r3 view_dirty_region) 0 0) '(r0))
 
 		;free old damaged region
-		(f-bind 'gui 'statics r4)
+		(f-bind 'gui :statics r4)
 		(assign '((& r4 gui_statics_old_regions) (r4 gui_statics_old_region_index)) '(r1 r2))
-		(call 'region 'free '(r0 (& r1 r2)) '(r0))
+		(call 'region :free '(r0 (& r1 r2)) '(r0))
 
 		;paste new damaged region into all old damaged regions
 		(assign '((r4 gui_statics_old_region_index)) '(r2))
@@ -383,9 +383,9 @@
 			(assign '((& r4 gui_statics_old_regions) (r4 gui_statics_old_region_index)) '(r1 r3))
 			(breakif '(r2 = r3))
 			(assign '(r2) '((rsp local_index)))
-			(call 'region 'paste_region '(r0 (& rsp local_damaged_region) (& r1 r2) 0 0) '(r0))
+			(call 'region :paste_region '(r0 (& rsp local_damaged_region) (& r1 r2) 0 0) '(r0))
 			(assign '((rsp local_index)) '(r2))
-			(f-bind 'gui 'statics r4)
+			(f-bind 'gui :statics r4)
 		(loop-end)
 		(assign '((rsp local_damaged_region)) '(r0))
 		(assign '(r0) '((r1 r2)))
@@ -401,10 +401,10 @@
 	;distribute visible region
 	(vp-xor-rr r1 r1)
 	(assign '(r1) '((rsp local_ctx_flist)))
-	(call 'view 'forward_tree '(r0 rsp ($ distribute_down_callback) ($ distribute_up_callback)))
+	(call 'view :forward_tree '(r0 rsp ($ distribute_down_callback) ($ distribute_up_callback)))
 
 	;draw all on draw list, and free dirty regions
-	(f-bind 'gui 'statics r1)
+	(f-bind 'gui :statics r1)
 	(assign '((r1 gui_statics_renderer)) '(r1))
 	(vp-cpy-ri r1 rsp (+ local_ctx ctx_sdl_ctx))
 	(loop-flist rsp local_ctx_flist r0 r0)
@@ -414,12 +414,12 @@
 		(vp-lea-i rsp local_ctx r1)
 		(vp-lea-i r0 view_dirty_region r2)
 		(assign '(r7 r8 r2) '((r1 ctx_x) (r1 ctx_y) (r1 ctx_dirty_region)))
-		(call 'view 'draw '(r0 r1))
+		(call 'view :draw '(r0 r1))
 		(assign '((rsp local_ctx_next)) '(r1))
 		(vp-sub-cr (- view_ctx_node view_dirty_region) r1)
-		(f-bind 'gui 'statics r0)
+		(f-bind 'gui :statics r0)
 		(vp-add-cr gui_statics_rect_heap r0)
-		(call 'region 'free '(r0 r1))
+		(call 'region :free '(r0 r1))
 		(assign '((rsp local_ctx_next)) '(r0))
 	(loop-end)
 
@@ -427,24 +427,24 @@
 	(vp-ret)
 
 (vp-label 'abs_down_callback)
-	(entry 'view 'forward_tree_callback '(r0 r1))
+	(entry 'view :forward_tree_callback '(r0 r1))
 
 	(assign '((r0 view_x) (r0 view_y)) '(r9 r10))
 	(vp-add-rr r9 r7)
 	(vp-add-rr r10 r8)
 	(assign '(r7 r8) '((r0 view_ctx_x) (r0 view_ctx_y)))
 
-	(exit 'view 'forward_tree_callback '(r0 r1))
+	(exit 'view :forward_tree_callback '(r0 r1))
 	(vp-ret)
 
 (vp-label 'abs_up_callback)
-	(entry 'view 'forward_tree_callback '(r0 r1))
+	(entry 'view :forward_tree_callback '(r0 r1))
 
 	(assign '((r0 view_x) (r0 view_y)) '(r9 r10))
 	(vp-sub-rr r9 r7)
 	(vp-sub-rr r10 r8)
 
-	(exit 'view 'forward_tree_callback '(r0 r1))
+	(exit 'view :forward_tree_callback '(r0 r1))
 	(vp-ret)
 
 (vp-label 'visible_down_callback)
@@ -454,10 +454,10 @@
 
 	;save inputs
 	(vp-alloc vis_size)
-	(entry 'view 'forward_tree_callback '((rsp vis_this) (rsp vis_root)))
+	(entry 'view :forward_tree_callback '((rsp vis_this) (rsp vis_root)))
 
 	;region heap
-	(f-bind 'gui 'statics r0)
+	(f-bind 'gui :statics r0)
 	(vp-add-cr gui_statics_rect_heap r0)
 
 	;remove opaque region from ancestors if not root
@@ -497,7 +497,7 @@
 				(endif)
 
 				;remove opaque region
-				(call 'region 'remove_rect '(r0 (& r2 view_dirty_region) r7 r8 r9 r10) '(r0))
+				(call 'region :remove_rect '(r0 (& r2 view_dirty_region) r7 r8 r9 r10) '(r0))
 
 				(assign '((rsp vis_next) (rsp vis_root)) '(r1 r2))
 			(loop-until '(r1 = r2))
@@ -511,7 +511,7 @@
 			(vp-add-rr r8 r10)
 			(vp-add-cr view_opaque_region r1)
 			(vp-lea-i rsp vis_region r2)
-			(call 'region 'copy_rect '(r0 r1 r2 r7 r8 r9 r10) '(r0))
+			(call 'region :copy_rect '(r0 r1 r2 r7 r8 r9 r10) '(r0))
 
 			;remove from ancestors
 			(assign '((rsp vis_this)) '(r1))
@@ -526,38 +526,38 @@
 				;translate temp opaque region
 				(assign '((r1 view_x) (r1 view_y)) '(r7 r8))
 				(vp-lea-i rsp vis_region r1)
-				(call 'region 'translate '(r1 r7 r8))
+				(call 'region :translate '(r1 r7 r8))
 
 				;clip temp opaque region
 				(assign '((rsp vis_next)) '(r2))
 				(vp-lea-i rsp vis_region r1)
-				(call 'region 'clip_rect '(r0 r1 0 0 (r2 view_w) (r2 view_h)) '(r0))
+				(call 'region :clip_rect '(r0 r1 0 0 (r2 view_w) (r2 view_h)) '(r0))
 
 				;remove temp opaque region
 				(vp-lea-i rsp vis_region r1)
 				(assign '((rsp vis_next)) '(r2))
 				(vp-add-cr view_dirty_region r2)
-				(call 'region 'remove_region '(r0 r1 r2 0 0) '(r0))
+				(call 'region :remove_region '(r0 r1 r2 0 0) '(r0))
 
 				(assign '((rsp vis_next) (rsp vis_root)) '(r1 r2))
 			(loop-until '(r1 = r2))
 
 			;free any temp region
-			(call 'region 'free '(r0 (& rsp vis_region)) '(r0))
+			(call 'region :free '(r0 (& rsp vis_region)) '(r0))
 		(endif)
 	(endif)
 
-	(exit 'view 'forward_tree_callback '((rsp vis_this) r0))
+	(exit 'view :forward_tree_callback '((rsp vis_this) r0))
 	(vp-free vis_size)
 	(vp-ret)
 
 (vp-label 'visible_up_callback)
 	;save inputs
 	(vp-alloc vis_size)
-	(entry 'view 'forward_tree_callback '((rsp vis_this) (rsp vis_root)))
+	(entry 'view :forward_tree_callback '((rsp vis_this) (rsp vis_root)))
 
 	;region heap
-	(f-bind 'gui 'statics r0)
+	(f-bind 'gui :statics r0)
 	(vp-add-cr gui_statics_rect_heap r0)
 
 	;clip local dirty region with parent bounds
@@ -572,7 +572,7 @@
 	(vp-add-rr r7 r9)
 	(vp-add-rr r8 r10)
 	(vp-add-cr view_dirty_region r1)
-	(call 'region 'clip_rect '(r0 r1 r7 r8 r9 r10) '(r0))
+	(call 'region :clip_rect '(r0 r1 r7 r8 r9 r10) '(r0))
 
 	;paste local dirty region onto parent if not root
 	(assign '((rsp vis_this) (rsp vis_root)) '(r1 r3))
@@ -580,12 +580,12 @@
 		(assign '((r1 view_x) (r1 view_y) (r1 hmap_parent)) '(r7 r8 r2))
 		(vp-add-cr view_dirty_region r1)
 		(vp-add-cr view_dirty_region r2)
-		(call 'region 'paste_region '(r0 r1 r2 r7 r8) '(r0))
+		(call 'region :paste_region '(r0 r1 r2 r7 r8) '(r0))
 
 		;free local dirty region
 		(assign '((rsp vis_this)) '(r1))
 		(vp-add-cr view_dirty_region r1)
-		(call 'region 'free '(r0 r1) '(r0))
+		(call 'region :free '(r0 r1) '(r0))
 	(endif)
 
 	;if dirty all flag then paste entire view onto parent
@@ -604,10 +604,10 @@
 			(vp-cpy-rr r2 r1)
 		(endif)
 		(vp-add-cr view_dirty_region r1)
-		(call 'region 'paste_rect '(r0 r1 r7 r8 r9 r10))
+		(call 'region :paste_rect '(r0 r1 r7 r8 r9 r10))
 	(endif)
 
-	(exit 'view 'forward_tree_callback '((rsp vis_this) r1))
+	(exit 'view :forward_tree_callback '((rsp vis_this) r1))
 	(vp-free vis_size)
 	(vp-ret)
 
@@ -618,11 +618,11 @@
 
 	;save inputs
 	(vp-alloc dist_size)
-	(entry 'view 'forward_tree_callback '((rsp dist_this) r1))
+	(entry 'view :forward_tree_callback '((rsp dist_this) r1))
 	(assign '(r1) '((rsp dist_data)))
 
 	;region heap
-	(f-bind 'gui 'statics r0)
+	(f-bind 'gui :statics r0)
 	(vp-add-cr gui_statics_rect_heap r0)
 
 	;copy view from parent if not root
@@ -637,7 +637,7 @@
 		(vp-add-cr view_dirty_region r2)
 
 		;copy my area from parent
-		(call 'region 'copy_rect '(r0 r1 r2 r7 r8 r9 r10) '(r0))
+		(call 'region :copy_rect '(r0 r1 r2 r7 r8 r9 r10) '(r0))
 
 		;did we find any opaque region ?
 		(assign '((rsp dist_this)) '(r2))
@@ -671,7 +671,7 @@
 					(endif)
 
 					(vp-add-cr view_dirty_region r1)
-					(call 'region 'remove_rect '(r0 r1 r7 r8 r9 r10) '(r0))
+					(call 'region :remove_rect '(r0 r1 r7 r8 r9 r10) '(r0))
 
 					(assign '((rsp dist_data) (rsp dist_next)) '(r1 r2))
 					(assign '((r1 local_root)) '(r1))
@@ -687,7 +687,7 @@
 					(assign '((r1 view_ctx_x) (r1 view_ctx_y)) '(r7 r8))
 					(vp-add-cr view_opaque_region r1)
 					(vp-add-cr view_dirty_region r2)
-					(call 'region 'remove_region '(r0 r1 r2 r7 r8) '(r0))
+					(call 'region :remove_region '(r0 r1 r2 r7 r8) '(r0))
 
 					(assign '((rsp dist_data) (rsp dist_next)) '(r2 r1))
 					(assign '((r2 local_root)) '(r2))
@@ -701,13 +701,13 @@
 	(endif)
 
 	;r1 will be 0 or not depending on haveing any dirty region
-	(exit 'view 'forward_tree_callback '((rsp dist_this) r1))
+	(exit 'view :forward_tree_callback '((rsp dist_this) r1))
 	(vp-free dist_size)
 	(vp-ret)
 
 (vp-label 'distribute_up_callback)
 	;add myself to draw list if not empty
-	(entry 'view 'forward_tree_callback '(r0 r1))
+	(entry 'view :forward_tree_callback '(r0 r1))
 
 	(assign '((r0 view_dirty_region)) '(r2))
 	(vpif '(r2 /= 0))
@@ -716,7 +716,7 @@
 		(ln-add-fnode r1 0 r2 r3)
 	(endif)
 
-	(exit 'view 'forward_tree_callback '(r0 r1))
+	(exit 'view :forward_tree_callback '(r0 r1))
 	(vp-ret)
 
 (def-func-end)

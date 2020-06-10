@@ -4,7 +4,7 @@
 (include 'class/str/class.inc)
 (include 'class/lisp/class.inc)
 
-(def-method 'sys_task 'lisp_sleep)
+(def-method 'sys_task :lisp_sleep)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -14,31 +14,31 @@
 	;trashes
 	;r1-r14
 
-	(entry 'sys_task 'lisp_sleep '(r0 r1))
+	(entry 'sys_task :lisp_sleep '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_sig '(r1 ($ sig) 1) '(r2))
+	(call 'lisp :env_args_sig '(r1 ($ sig) 1) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
-	(defq in (method-input 'sys_task 'sleep))
+	(defq in (method-input 'sys_task :sleep))
 	(class/list/bind_args r1 in '(num))
-	(call 'sys_task 'sleep in)
+	(call 'sys_task :sleep in)
 	(vp-pop r0)
 	(assign '((r0 lisp_sym_t)) '(r1))
 	(class/obj/ref r1 r2)
 
-	(exit 'sys_task 'lisp_sleep '(r0 r1))
+	(exit 'sys_task :lisp_sleep '(r0 r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r0 "(task-sleep usec)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(r0 "(task-sleep usec)" error_msg_wrong_types r1))
 	(signature '(num)))
 
 (def-func-end)
 
-(def-method 'sys_task 'lisp_mailbox)
+(def-method 'sys_task :lisp_mailbox)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -48,27 +48,27 @@
 	;trashes
 	;r1-r14
 
-	(entry 'sys_task 'lisp_mailbox '(r0 r1))
+	(entry 'sys_task :lisp_mailbox '(r0 r1))
 
 (errorcases
 	(assign '((r1 array_length)) '(r2))
 	(gotoif '(r2 /= 0) 'error))
 
 	(vp-push r0)
-	(call 'sys_task 'mailbox nil '(r0))
-	(call 'num 'create '(r0) '(r1))
+	(call 'sys_task :mailbox nil '(r0))
+	(call 'num :create '(r0) '(r1))
 	(vp-pop r0)
 
-	(exit 'sys_task 'lisp_mailbox '(r0 r1))
+	(exit 'sys_task :lisp_mailbox '(r0 r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r0 "(task-mailbox)" error_msg_wrong_types r1)))
+	(jump 'lisp :repl_error '(r0 "(task-mailbox)" error_msg_wrong_types r1)))
 
 (def-func-end)
 
-(def-method 'sys_task 'lisp_open_child)
+(def-method 'sys_task :lisp_open_child)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -78,30 +78,30 @@
 	;trashes
 	;r1-r14
 
-	(entry 'sys_task 'lisp_open_child '(r0 r1))
+	(entry 'sys_task :lisp_open_child '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_sig '(r1 ($ sig) 2) '(r2))
+	(call 'lisp :env_args_sig '(r1 ($ sig) 2) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
-	(defq in (method-input 'sys_task 'open_child))
+	(defq in (method-input 'sys_task :open_child))
 	(class/list/bind_args r1 in '(str num))
-	(call 'sys_task 'open_child in '(r0))
-	(call 'num 'create '(r0) '(r1))
+	(call 'sys_task :open_child in '(r0))
+	(call 'num :create '(r0) '(r1))
 	(vp-pop r0)
 
-	(exit 'sys_task 'lisp_open_child '(r0 r1))
+	(exit 'sys_task :lisp_open_child '(r0 r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r0 "(open-child path mode)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(r0 "(open-child path mode)" error_msg_wrong_types r1))
 	(signature '(str num)))
 
 (def-func-end)
 
-(def-method 'sys_task 'lisp_open_remote)
+(def-method 'sys_task :lisp_open_remote)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -111,30 +111,30 @@
 	;trashes
 	;r1-r14
 
-	(entry 'sys_task 'lisp_open_remote '(r0 r1))
+	(entry 'sys_task :lisp_open_remote '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_sig '(r1 ($ sig) 3) '(r2))
+	(call 'lisp :env_args_sig '(r1 ($ sig) 3) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
-	(defq in (method-input 'sys_task 'open_remote))
+	(defq in (method-input 'sys_task :open_remote))
 	(class/list/bind_args r1 in '(str num num))
-	(call 'sys_task 'open_remote in '(r0))
-	(call 'num 'create '(r0) '(r1))
+	(call 'sys_task :open_remote in '(r0))
+	(call 'num :create '(r0) '(r1))
 	(vp-pop r0)
 
-	(exit 'sys_task 'lisp_open_remote '(r0 r1))
+	(exit 'sys_task :lisp_open_remote '(r0 r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r0 "(open-remote path cpu mode)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(r0 "(open-remote path cpu mode)" error_msg_wrong_types r1))
 	(signature '(str num num)))
 
 (def-func-end)
 
-(def-method 'sys_task 'lisp_open_farm)
+(def-method 'sys_task :lisp_open_farm)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -144,29 +144,29 @@
 	;trashes
 	;r1-r14
 
-	(entry 'sys_task 'lisp_open_farm '(r0 r1))
+	(entry 'sys_task :lisp_open_farm '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_sig '(r1 ($ sig) 3) '(r2))
+	(call 'lisp :env_args_sig '(r1 ($ sig) 3) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
-	(defq in (method-input 'sys_task 'open_farm))
+	(defq in (method-input 'sys_task :open_farm))
 	(class/list/bind_args r1 in '(str num num))
-	(call 'sys_task 'open_farm in '(r1))
+	(call 'sys_task :open_farm in '(r1))
 	(vp-pop r0)
 
-	(exit 'sys_task 'lisp_open_farm '(r0 r1))
+	(exit 'sys_task :lisp_open_farm '(r0 r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r0 "(open-farm path num mode)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(r0 "(open-farm path num mode)" error_msg_wrong_types r1))
 	(signature '(str num num)))
 
 (def-func-end)
 
-(def-method 'sys_task 'lisp_open_pipe)
+(def-method 'sys_task :lisp_open_pipe)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -176,28 +176,28 @@
 	;trashes
 	;r1-r14
 
-	(entry 'sys_task 'lisp_open_pipe '(r0 r1))
+	(entry 'sys_task :lisp_open_pipe '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_sig '(r1 ($ sig) 1) '(r2))
+	(call 'lisp :env_args_sig '(r1 ($ sig) 1) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(class/array/bind_args r1 '(r1))
 
 (errorcases
-	(call 'lisp 'env_args_type `(r1 (@ ,(f-path 'str 'vtable)) 1) '(r2))
+	(call 'lisp :env_args_type `(r1 (@ ,(f-path 'str :vtable)) 1) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
-	(call 'sys_task 'open_pipe '(r1) '(r1))
+	(call 'sys_task :open_pipe '(r1) '(r1))
 	(vp-pop r0)
 
-	(exit 'sys_task 'lisp_open_pipe '(r0 r1))
+	(exit 'sys_task :lisp_open_pipe '(r0 r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r0 "(open-pipe paths)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(r0 "(open-pipe paths)" error_msg_wrong_types r1))
 	(signature '(list)))
 
 (def-func-end)

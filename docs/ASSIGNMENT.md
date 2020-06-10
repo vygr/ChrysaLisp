@@ -101,7 +101,7 @@ address or resource binding instructions for.
 	(assign '(($ label)) '(r0))
 	(assign '("Hello world") '(r0))
 	(assign '((@ "sys/mem/alloc")) '(r0))
-	(assign `((@ ,(f-path 'num 'vtable))) '(r0))
+	(assign `((@ ,(f-path 'num :vtable))) '(r0))
 ```
 
 Will emit:
@@ -173,7 +173,7 @@ These are in addition to the C/C++ style operators.
 	(assign {"Hello", "World"} {p_str1, p_str2})
 	(assign {"Hello", "World"} '(r2 r3))
 	(assign {@sys/mem/alloc} {p_alloc})
-	(assign (cat {@} (f-path 'num 'vtable)) {p_vtable})
+	(assign (cat {@} (f-path 'num :vtable)) {p_vtable})
 ```
 
 ## C-Script function example
@@ -185,13 +185,13 @@ as with a VP function.
 
 ```lisp
 (def-class 'sys_mail)
-(dec-method 'declare 'sys/mail/declare :static '(r0 r1))
+(dec-method :declare 'sys/mail/declare :static '(r0 r1))
 ```
 
 Implementation of the function is defined in the `sys/mail/class.vp` file.
 
 ```lisp
-(def-method 'sys_mail 'declare)
+(def-method 'sys_mail :declare)
 	;inputs
 	;r0 = mailbox name c string (pubyte)
 	;r1 = mailbox id (ulong)
@@ -202,14 +202,14 @@ Implementation of the function is defined in the `sys/mail/class.vp` file.
 	(ulong 'id)
 
 	(push-scope)
-	(entry 'sys_mail 'declare {name, id})
+	(entry 'sys_mail :declare {name, id})
 
-	(assign (cat {@} (f-path 'sys_mail 'statics)) {mail_statics})
-	(call 'sym 'intern_cstr {name} {name})
-	(call 'num 'create {id} {id})
-	(call 'hmap 'insert {mail_statics->ml_statics_declare_map, name, id})
-	(call 'sym 'deref {name})
-	(call 'num 'deref {id})
+	(assign (cat {@} (f-path 'sys_mail :statics)) {mail_statics})
+	(call 'sym :intern_cstr {name} {name})
+	(call 'num :create {id} {id})
+	(call 'hmap :insert {mail_statics->ml_statics_declare_map, name, id})
+	(call 'sym :deref {name})
+	(call 'num :deref {id})
 
 	(pop-scope)
 	(return)
@@ -240,7 +240,7 @@ This is the output from wrapping the 'hmap 'insert line above:
 
 ```lisp
 	(setq *debug_inst* t)
-	(call 'hmap 'insert {mail_statics->ml_statics_declare_map, name, id})
+	(call 'hmap :insert {mail_statics->ml_statics_declare_map, name, id})
 	(setq *debug_inst* nil)
 ```
 

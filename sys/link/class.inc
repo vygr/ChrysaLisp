@@ -3,8 +3,8 @@
 (include 'class/str/class.inc)
 
 (def-class 'sys_link)
-(dec-method 'init 'sys/link/init)
-(dec-method 'link 'sys/link/link)
+(dec-method :init 'sys/link/init)
+(dec-method :link 'sys/link/link)
 
 ;;;;;;;;;;;;;;;;;
 ; link structures

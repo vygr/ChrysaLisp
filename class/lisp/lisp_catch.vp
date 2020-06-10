@@ -3,7 +3,7 @@
 (include 'class/str/class.inc)
 (include 'class/lisp/class.inc)
 
-(def-method 'lisp 'lisp_catch)
+(def-method 'lisp :lisp_catch)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -19,39 +19,39 @@
 	(uint 'length))
 
 	(push-scope)
-	(entry 'lisp 'lisp_catch {this, args})
+	(entry 'lisp :lisp_catch {this, args})
 
 (errorcases
-	(d-call 'list 'get_length {args} {_, length})
+	(d-call 'list :get_length {args} {_, length})
 	(gotoif {length /= 3} 'error1))
 
-	(call 'list 'get_begin {args} {_, iter_begin})
-	(call 'lisp 'repl_eval {this, iter_begin[ptr_size * 1]} {_, value})
-	(vpif (cat {value->obj_vtable = @} (f-path 'error 'vtable)))
-		(call 'lisp 'env_push {this})
-		(call 'list 'create nil {str_args})
-		(call 'obj 'ref {value})
-		(call 'list 'push_back {str_args, value})
-		(call 'str 'lisp_str {this, str_args} {_, str_value})
-		(call 'hmap 'insert {this->lisp_environment, this->lisp_sym_underscore, str_value})
-		(call 'obj 'deref {str_args})
-		(call 'obj 'deref {str_value})
-		(call 'lisp 'repl_eval {this, iter_begin[ptr_size * 2]} {_, args})
-		(call 'lisp 'env_pop {this})
-		(vpif (cat {args->obj_vtable = @} (f-path 'error 'vtable) { || args /= this->lisp_sym_nil}))
-			(call 'obj 'deref {value})
+	(call 'list :get_begin {args} {_, iter_begin})
+	(call 'lisp :repl_eval {this, iter_begin[ptr_size * 1]} {_, value})
+	(vpif (cat {value->obj_vtable = @} (f-path 'error :vtable)))
+		(call 'lisp :env_push {this})
+		(call 'list :create nil {str_args})
+		(call 'obj :ref {value})
+		(call 'list :push_back {str_args, value})
+		(call 'str :lisp_str {this, str_args} {_, str_value})
+		(call 'hmap :insert {this->lisp_environment, this->lisp_sym_underscore, str_value})
+		(call 'obj :deref {str_args})
+		(call 'obj :deref {str_value})
+		(call 'lisp :repl_eval {this, iter_begin[ptr_size * 2]} {_, args})
+		(call 'lisp :env_pop {this})
+		(vpif (cat {args->obj_vtable = @} (f-path 'error :vtable) { || args /= this->lisp_sym_nil}))
+			(call 'obj :deref {value})
 			(assign {args} {value})
 		(else)
-			(call 'obj 'deref {args})
+			(call 'obj :deref {args})
 		(endif)
 	(endif)
 
-	(exit 'lisp 'lisp_catch {this, value})
+	(exit 'lisp :lisp_catch {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(jump 'lisp 'repl_error {this, "(catch form eform)", error_msg_wrong_num_of_args, args}))
+	(jump 'lisp :repl_error {this, "(catch form eform)", error_msg_wrong_num_of_args, args}))
 
 	(pop-scope-syms)
 

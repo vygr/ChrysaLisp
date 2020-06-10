@@ -9,7 +9,7 @@
 (gen-create 'view)
 (gen-vtable 'view)
 
-(def-method 'view 'init)
+(def-method 'view :init)
 	;inputs
 	;r0 = view object (ptr)
 	;r1 = vtable (pptr)
@@ -20,11 +20,11 @@
 	;r1-r14
 
 	;init parent
-	(s-call 'view 'init '(r0 r1) '(r0 r1))
+	(s-call 'view :init '(r0 r1) '(r0 r1))
 	(vpif '(r1 /= 0))
 		;init myself
 		(vp-push r0)
-		(call 'sys_mem 'fill `((& r0 view_start) ,(- view_size view_start) 0))
+		(call 'sys_mem :fill `((& r0 view_start) ,(- view_size view_start) 0))
 		(vp-pop r0)
 		(vp-cpy-cr view_flag_solid r1)
 		(assign '(r1 (& r0 view_list)) '((r0 view_flags) r1))
@@ -34,7 +34,7 @@
 
 (def-func-end)
 
-(def-method 'view 'deinit)
+(def-method 'view :deinit)
 	;inputs
 	;r0 = view object (ptr)
 	;outputs
@@ -46,33 +46,33 @@
 	(vp-push r0)
 
 	;sub view from any parent
-	(call 'view 'sub '(r0))
+	(call 'view :sub '(r0))
 
 	;deref any child views
 	(assign '((rsp 0)) '(r0))
 	(loop-list-forward r0 view_list r0 r1)
 		(vp-sub-cr view_node r0)
 		(vp-push r1)
-		(call 'view 'sub '(r0))
-		(call 'view 'deref '(r0))
+		(call 'view :sub '(r0))
+		(call 'view :deref '(r0))
 		(vp-pop r1)
 	(loop-end)
 
 	;free view object data
-	(f-bind 'gui 'statics r0)
+	(f-bind 'gui :statics r0)
 	(vp-add-cr gui_statics_rect_heap r0)
 	(assign '((rsp 0)) '(r1))
-	(call 'region 'free '(r0 (& r1 view_dirty_region)))
+	(call 'region :free '(r0 (& r1 view_dirty_region)))
 	(assign '((rsp 0)) '(r1))
-	(call 'region 'free '(r0 (& r1 view_opaque_region)))
+	(call 'region :free '(r0 (& r1 view_opaque_region)))
 
 	;deinit parent
 	(vp-pop r0)
-	(s-jump 'view 'deinit '(r0))
+	(s-jump 'view :deinit '(r0))
 
 (def-func-end)
 
-(def-method 'view 'add_front)
+(def-method 'view :add_front)
 	;inputs
 	;r0 = view object (ptr)
 	;r1 = child view object (ptr)
@@ -83,7 +83,7 @@
 
 	;remove from any existing parent
 	(vp-cpy-rr r0 r3)
-	(call 'view 'sub '(r1))
+	(call 'view :sub '(r1))
 
 	;add to parent
 	(assign '(r3) '((r0 hmap_parent)))
@@ -95,7 +95,7 @@
 
 (def-func-end)
 
-(def-method 'view 'add_back)
+(def-method 'view :add_back)
 	;inputs
 	;r0 = view object (ptr)
 	;r1 = child view object (ptr)
@@ -106,7 +106,7 @@
 
 	;remove from any existing parent
 	(vp-cpy-rr r0 r3)
-	(call 'view 'sub '(r1))
+	(call 'view :sub '(r1))
 
 	;add to parent
 	(assign '(r3) '((r0 hmap_parent)))
@@ -118,7 +118,7 @@
 
 (def-func-end)
 
-(def-method 'view 'sub)
+(def-method 'view :sub)
 	;inputs
 	;r0 = view object (ptr)
 	;outputs
@@ -141,7 +141,7 @@
 
 (def-func-end)
 
-(def-method 'view 'hide)
+(def-method 'view :hide)
 	;inputs
 	;r0 = view object (ptr)
 	;outputs
@@ -154,12 +154,12 @@
 	(vpif '(r1 /= 0))
 		;add dirty
 		(vp-push r0)
-		(call 'view 'dirty '(r0))
+		(call 'view :dirty '(r0))
 
 		;temp view for update
-		(call 'view 'create nil '(r1))
-		(f-bind 'gui 'statics r0)
-		(call 'list 'push_back '((r0 gui_statics_temps) r1) '(_ r1 _ _))
+		(call 'view :create nil '(r1))
+		(f-bind 'gui :statics r0)
+		(call 'list :push_back '((r0 gui_statics_temps) r1) '(_ r1 _ _))
 
 		;remove from parent list and splice in temp
 		(vp-pop r0)
@@ -180,7 +180,7 @@
 
 (def-func-end)
 
-(def-method 'view 'to_front)
+(def-method 'view :to_front)
 	;inputs
 	;r0 = view object (ptr)
 	;outputs
@@ -194,15 +194,15 @@
 		(ln-is-first r0 view_node r1)
 		(vpif '(r1 /= 0))
 			(vp-cpy-rr r0 r5)
-			(call 'view 'add_front '(r4 r0))
-			(jump 'view 'set_flags '(r5 view_flag_dirty_all view_flag_dirty_all))
+			(call 'view :add_front '(r4 r0))
+			(jump 'view :set_flags '(r5 view_flag_dirty_all view_flag_dirty_all))
 		(endif)
 	(endif)
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'view 'to_back)
+(def-method 'view :to_back)
 	;inputs
 	;r0 = view object (ptr)
 	;outputs
@@ -226,7 +226,7 @@
 		(vpif '(r1 /= r2))
 			;no, so move to front of back item
 			(vp-push r1 r5)
-			(call 'view 'hide '(r0) '(r0))
+			(call 'view :hide '(r0) '(r0))
 			(vp-pop r1 r5)
 			(vp-lea-i r0 view_node r2)
 			(ln-add-node-before r1 r2 r3)
@@ -239,7 +239,7 @@ view_flag_at_back
 
 (def-func-end)
 
-(def-method 'view 'add_dirty)
+(def-method 'view :add_dirty)
 	;inputs
 	;r0 = view object (ptr)
 	;r7 = x (pixels)
@@ -255,16 +255,16 @@ view_flag_at_back
 	(vp-push r0)
 	(vp-add-rr r7 r9)
 	(vp-add-rr r8 r10)
-	(assign `((& r0 view_dirty_region) (@ ,(f-path 'gui 'statics)) 1) '(r1 r0 r2))
+	(assign `((& r0 view_dirty_region) (@ ,(f-path 'gui :statics)) 1) '(r1 r0 r2))
 	(assign '(r2) '((r0 gui_statics_dirty_flag)))
 	(vp-add-cr gui_statics_rect_heap r0)
-	(call 'region 'paste_rect '(r0 r1 r7 r8 r9 r10))
+	(call 'region :paste_rect '(r0 r1 r7 r8 r9 r10))
 	(vp-pop r0)
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'view 'clr_opaque)
+(def-method 'view :clr_opaque)
 	;inputs
 	;r0 = view object (ptr)
 	;outputs
@@ -272,22 +272,22 @@ view_flag_at_back
 	;trashes
 	;r1-r14
 
-	(entry 'view 'clr_opaque '(r0))
+	(entry 'view :clr_opaque '(r0))
 
 	;remove any opaque region
 	(vp-push r0)
 	(vp-lea-i r0 view_opaque_region r1)
-	(f-bind 'gui 'statics r0)
+	(f-bind 'gui :statics r0)
 	(vp-add-cr gui_statics_rect_heap r0)
-	(call 'region 'free '(r0 r1))
+	(call 'region :free '(r0 r1))
 	(vp-pop r0)
 
-	(exit 'view 'clr_opaque '(r0))
+	(exit 'view :clr_opaque '(r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'view 'add_opaque)
+(def-method 'view :add_opaque)
 	;inputs
 	;r0 = view object (ptr)
 	;r7 = x (pixels)
@@ -304,15 +304,15 @@ view_flag_at_back
 	(vp-add-rr r7 r9)
 	(vp-add-rr r8 r10)
 	(vp-lea-i r0 view_opaque_region r1)
-	(f-bind 'gui 'statics r0)
+	(f-bind 'gui :statics r0)
 	(vp-add-cr gui_statics_rect_heap r0)
-	(call 'region 'paste_rect '(r0 r1 r7 r8 r9 r10))
+	(call 'region :paste_rect '(r0 r1 r7 r8 r9 r10))
 	(vp-pop r0)
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'view 'sub_opaque)
+(def-method 'view :sub_opaque)
 	;inputs
 	;r0 = view object (ptr)
 	;r7 = x (pixels)
@@ -329,15 +329,15 @@ view_flag_at_back
 	(vp-add-rr r7 r9)
 	(vp-add-rr r8 r10)
 	(vp-lea-i r0 view_opaque_region r1)
-	(f-bind 'gui 'statics r0)
+	(f-bind 'gui :statics r0)
 	(vp-add-cr gui_statics_rect_heap r0)
-	(call 'region 'remove_rect '(r0 r1 r7 r8 r9 r10))
+	(call 'region :remove_rect '(r0 r1 r7 r8 r9 r10))
 	(vp-pop r0)
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'view 'backward)
+(def-method 'view :backward)
 	;inputs
 	;r0 = view object (ptr)
 	;r1 = user data (ptr)
@@ -382,7 +382,7 @@ view_flag_at_back
 
 (def-func-end)
 
-(def-method 'view 'forward)
+(def-method 'view :forward)
 	;inputs
 	;r0 = view object (ptr)
 	;r1 = user data pointer (ptr)
@@ -427,7 +427,7 @@ view_flag_at_back
 
 (def-func-end)
 
-(def-method 'view 'forward_tree)
+(def-method 'view :forward_tree)
 	;inputs
 	;r0 = view object (ptr)
 	;r1 = user data pointer
@@ -493,7 +493,7 @@ view_flag_at_back
 
 (def-func-end)
 
-(def-method 'view 'backward_tree)
+(def-method 'view :backward_tree)
 	;inputs
 	;r0 = view object (ptr)
 	;r1 = user data pointer
@@ -559,7 +559,7 @@ view_flag_at_back
 
 (def-func-end)
 
-(def-method 'view 'change)
+(def-method 'view :change)
 	;inputs
 	;r0 = view object (ptr)
 	;r7 = new x (pixels)
@@ -575,17 +575,17 @@ view_flag_at_back
 	(assign '((r0 view_w) (r0 view_h)) '(r11 r12))
 
 	;set new info
-	(call 'view 'set_bounds '(r0 r7 r8 r9 r10))
+	(call 'view :set_bounds '(r0 r7 r8 r9 r10))
 
 	;layout if changed size
 	(vpif '(r9 = r11) '(r10 = r12))
 		(vp-ret)
 	(endif)
-	(jump 'view 'layout '(r0))
+	(jump 'view :layout '(r0))
 
 (def-func-end)
 
-(def-method 'view 'change_dirty)
+(def-method 'view :change_dirty)
 	;inputs
 	;r0 = view object (ptr)
 	;r7 = new x (pixels)
@@ -603,16 +603,16 @@ view_flag_at_back
 
 	;save inputs
 	(vp-alloc local_size)
-	(entry 'view 'change_dirty '(r0 (rsp local_new_x) (rsp local_new_y) (rsp local_new_w) (rsp local_new_h)))
+	(entry 'view :change_dirty '(r0 (rsp local_new_x) (rsp local_new_y) (rsp local_new_w) (rsp local_new_h)))
 
 	;dirty old area
-	(call 'view 'dirty '(r0) '(r0))
+	(call 'view :dirty '(r0) '(r0))
 
 	;save old bounds
-	(call 'view 'get_bounds '(r0) '(r0 (rsp local_old_x) (rsp local_old_y) (rsp local_old_w) (rsp local_old_h)))
+	(call 'view :get_bounds '(r0) '(r0 (rsp local_old_x) (rsp local_old_y) (rsp local_old_w) (rsp local_old_h)))
 
 	;change window size
-	(call 'view 'change '(r0 (rsp local_new_x) (rsp local_new_y) (rsp local_new_w) (rsp local_new_h)) '(r0))
+	(call 'view :change '(r0 (rsp local_new_x) (rsp local_new_y) (rsp local_new_w) (rsp local_new_h)) '(r0))
 
 	;translate old dirty area and dirty all
 	(assign '((rsp local_old_x) (rsp local_old_y) (r0 view_x) (r0 view_y)) '(r7 r8 r9 r10))
@@ -620,12 +620,12 @@ view_flag_at_back
 	(vp-sub-rr r9 r7)
 	(vp-sub-rr r10 r8)
 	(vp-lea-i r0 view_dirty_region r1)
-	(call 'region 'translate '(r1 r7 r8))
-	(jump 'view 'set_flags '(r0 view_flag_dirty_all view_flag_dirty_all))
+	(call 'region :translate '(r1 r7 r8))
+	(jump 'view :set_flags '(r0 view_flag_dirty_all view_flag_dirty_all))
 
 (def-func-end)
 
-(def-method 'view 'dirty)
+(def-method 'view :dirty)
 	;inputs
 	;r0 = view object (ptr)
 	;outputs
@@ -635,11 +635,11 @@ view_flag_at_back
 
 	;paste dirty region
 	(assign '((r0 view_w) (r0 view_h)) '(r9 r10))
-	(jump 'view 'add_dirty '(r0 0 0 r9 r10))
+	(jump 'view :add_dirty '(r0 0 0 r9 r10))
 
 (def-func-end)
 
-(def-method 'view 'draw_panel)
+(def-method 'view :draw_panel)
 	;inputs
 	;r0 = view object (ptr)
 	;r1 = draw ctx (ptr)
@@ -655,18 +655,18 @@ view_flag_at_back
 
 	;save inputs
 	(push-scope)
-	(entry 'view 'draw_panel {this, ctx, flags, depth})
+	(entry 'view :draw_panel {this, ctx, flags, depth})
 
-	(call 'view 'get_long_prop {this, static_sym_color} {_, col})
-	(call 'ctx 'panel {ctx, col, flags, depth, 0, 0, this->view_w, this->view_h})
+	(call 'view :get_long_prop {this, static_sym_color} {_, col})
+	(call 'ctx :panel {ctx, col, flags, depth, 0, 0, this->view_w, this->view_h})
 
-	(exit 'view 'draw_panel {this})
+	(exit 'view :draw_panel {this})
 	(pop-scope)
 	(return)
 
 (def-func-end)
 
-(def-method 'view 'event)
+(def-method 'view :event)
 	;inputs
 	;r0 = view object (ptr)
 	;r1 = event data (ptr)
@@ -681,10 +681,10 @@ view_flag_at_back
 
 	;save inputs
 	(vp-alloc local_size)
-	(entry 'view 'event '((rsp local_this) (rsp local_data)))
+	(entry 'view :event '((rsp local_this) (rsp local_data)))
 
 	;find target view
-	(call 'view 'find_id '(r0 (r1 ev_msg_target_id)) '(_ r0))
+	(call 'view :find_id '(r0 (r1 ev_msg_target_id)) '(_ r0))
 	(vpif '(r0 /= 0))
 		;what type of event ?
 		(assign '((rsp local_data)) '(r1))
@@ -697,44 +697,44 @@ view_flag_at_back
 				;was down previously
 				(vpif '(r2 /= 0))
 					;is down now, so move
-					(call 'view 'mouse_move '(r0 r1))
+					(call 'view :mouse_move '(r0 r1))
 				(else)
 					;is not down now, so release
 					(assign '(r2) '((r0 view_last_buttons)))
-					(call 'view 'mouse_up '(r0 r1))
+					(call 'view :mouse_up '(r0 r1))
 				(endif)
 			(else)
 				;was not down previously
 				(vpif '(r2 /= 0))
 					;is down now, so first down
 					(assign '(r2) '((r0 view_last_buttons)))
-					(call 'view 'mouse_down '(r0 r1))
+					(call 'view :mouse_down '(r0 r1))
 				(else)
 					;is not down now, so hover
-					(call 'view 'mouse_hover '(r0 r1))
+					(call 'view :mouse_hover '(r0 r1))
 				(endif)
 			(endif)
 			(break)
 		(vpcase '(r2 = ev_type_key))
 			(assign '((r1 ev_msg_key_keycode)) '(r2))
 			(vpif '(r2 >= 0))
-				(call 'view 'key_down '(r0 r1))
+				(call 'view :key_down '(r0 r1))
 			(else)
-				(call 'view 'key_up '(r0 r1))
+				(call 'view :key_up '(r0 r1))
 			(endif)
 			(break)
 		(vpcase '(r2 = ev_type_action))
-			(call 'view 'action '(r0 r1))
+			(call 'view :action '(r0 r1))
 		(endswitch)
 	(endif)
 
-	(exit 'view 'event '((rsp local_this)))
+	(exit 'view :event '((rsp local_this)))
 	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'view 'find_id)
+(def-method 'view :find_id)
 	;inputs
 	;r0 = view object (ptr)
 	;r1 = target id (long)
@@ -751,19 +751,19 @@ view_flag_at_back
 
 	;save inputs
 	(vp-alloc local_size)
-	(entry 'view 'find_id '((rsp local_this) (rsp local_id)))
+	(entry 'view :find_id '((rsp local_this) (rsp local_id)))
 	(vp-xor-rr r1 r1)
 	(assign '(r1) '((rsp local_view)))
 
 	;iterate through views front to back
-	(call 'view 'forward_tree '(r0 rsp ($ down_callback) ($ up_callback)))
+	(call 'view :forward_tree '(r0 rsp ($ down_callback) ($ up_callback)))
 
-	(exit 'view 'find_id '((rsp local_this) (rsp local_view)))
+	(exit 'view :find_id '((rsp local_this) (rsp local_view)))
 	(vp-free local_size)
 	(vp-ret)
 
 (vp-label 'down_callback)
-	(entry 'view 'forward_tree_callback '(r0 r1))
+	(entry 'view :forward_tree_callback '(r0 r1))
 
 	(assign '((r1 local_view)) '(r2))
 	(vpif '(r2 = 0))
@@ -777,12 +777,12 @@ view_flag_at_back
 	(endif)
 
 (vp-label 'up_callback)
-	(exit 'view 'forward_tree_callback '(r0 r1))
+	(exit 'view :forward_tree_callback '(r0 r1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'view 'get_relative)
+(def-method 'view :get_relative)
 	;inputs
 	;r0 = view object (ptr)
 	;r1 = ancestor view object (ptr)
@@ -809,7 +809,7 @@ view_flag_at_back
 
 (def-func-end)
 
-(def-method 'view 'hit)
+(def-method 'view :hit)
 	;inputs
 	;r0 = view object (ptr)
 	;r7 = x (pixels)
@@ -837,7 +837,7 @@ view_flag_at_back
 
 (def-func-end)
 
-(def-method 'view 'hit_tree)
+(def-method 'view :hit_tree)
 	;inputs
 	;r0 = view object (ptr)
 	;r7 = x (pixels)
@@ -861,7 +861,7 @@ view_flag_at_back
 	(assign '(r1) '((rsp local_hit)))
 
 	;iterate through views front to back
-	(call 'view 'forward_tree '(r0 rsp ($ hit_down_callback) ($ hit_up_callback)))
+	(call 'view :forward_tree '(r0 rsp ($ hit_down_callback) ($ hit_up_callback)))
 
 	(assign '((rsp local_this) (rsp local_hit)) '(r0 r1))
 	(vp-free local_size)
@@ -872,12 +872,12 @@ view_flag_at_back
 	(vp-sub-rr r1 r7)
 	(assign '((r0 view_y)) '(r1))
 	(vp-sub-rr r1 r8)
-	(d-jump 'view 'hit '(r0 r7 r8))
+	(d-jump 'view :hit '(r0 r7 r8))
 
 (vp-label 'hit_up_callback)
 	(assign '(r1 (r1 local_hit)) '(r2 r1))
 	(vpif '(r1 = 0))
-		(call 'view 'hit '(r0 r7 r8) '(r0 r1))
+		(call 'view :hit '(r0 r7 r8) '(r0 r1))
 		(vpif '(r1 /= 0))
 			(assign '(r0) '((r2 local_hit)))
 			(vp-ret)
@@ -892,7 +892,7 @@ view_flag_at_back
 
 (def-func-end)
 
-(def-method 'view 'pref_size)
+(def-method 'view :pref_size)
 	;inputs
 	;r0 = view object (ptr)
 	;outputs
@@ -906,18 +906,18 @@ view_flag_at_back
 	(uint 'mw 'mh)
 
 	(push-scope)
-	(entry 'view 'pref_size {this})
+	(entry 'view :pref_size {this})
 
-	(call 'view 'get_long_prop {this, static_sym_min_width} {_, mw})
-	(call 'view 'get_long_prop {this, static_sym_min_height} {_, mh})
+	(call 'view :get_long_prop {this, static_sym_min_width} {_, mw})
+	(call 'view :get_long_prop {this, static_sym_min_height} {_, mh})
 
-	(exit 'view 'pref_size {this, mw, mh})
+	(exit 'view :pref_size {this, mw, mh})
 	(pop-scope)
 	(return)
 
 (def-func-end)
 
-(def-method 'view 'get_bounds)
+(def-method 'view :get_bounds)
 	;inputs
 	;r0 = view object (ptr)
 	;outputs
@@ -934,7 +934,7 @@ view_flag_at_back
 
 (def-func-end)
 
-(def-method 'view 'set_bounds)
+(def-method 'view :set_bounds)
 	;inputs
 	;r0 = view object (ptr)
 	;r7 = x (pixels)
@@ -951,7 +951,7 @@ view_flag_at_back
 
 (def-func-end)
 
-(def-method 'view 'set_flags)
+(def-method 'view :set_flags)
 	;inputs
 	;r0 = view object (ptr)
 	;r1 = flag values (ulong)
@@ -962,17 +962,17 @@ view_flag_at_back
 	;trashes
 	;r1-r3
 
-	(entry 'view 'set_flags '(r0 r1 r2))
+	(entry 'view :set_flags '(r0 r1 r2))
 
 	(assign '((r0 view_flags)) '(r3))
 	(vp-xor-cr -1 r2)
 	(vp-and-rr r2 r3)
 	(vp-or-rr r3 r1)
-	(assign `(r1 r1 (@ ,(f-path 'gui 'statics))) '(r3 (r0 view_flags) r2))
+	(assign `(r1 r1 (@ ,(f-path 'gui :statics))) '(r3 (r0 view_flags) r2))
 	(vp-and-cr view_flag_dirty_all r3)
 	(assign '(r3) '((r2 gui_statics_dirty_flag)))
 
-	(exit 'view 'set_flags '(r0 r1))
+	(exit 'view :set_flags '(r0 r1))
 	(vp-ret)
 
 (def-func-end)

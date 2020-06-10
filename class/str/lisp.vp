@@ -4,7 +4,7 @@
 (include 'class/stream_str/class.inc)
 (include 'class/lisp/class.inc)
 
-(def-method 'str 'lisp_split)
+(def-method 'str :lisp_split)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -14,29 +14,29 @@
 	;trashes
 	;r1-r14
 
-	(entry 'str 'lisp_split '(r0 r1))
+	(entry 'str :lisp_split '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_sig '(r1 ($ sig) 2) '(r2))
+	(call 'lisp :env_args_sig '(r1 ($ sig) 2) '(r2))
 	(gotoif '(r2 = 0) 'error1))
 
 	(vp-push r0)
-	(defq in (method-input 'str 'split))
+	(defq in (method-input 'str :split))
 	(class/list/bind_args r1 in '(obj char))
-	(call 'str 'split in '(_ r1))
+	(call 'str :split in '(_ r1))
 	(vp-pop r0)
 
-	(exit 'str 'lisp_split '(r0 r1))
+	(exit 'str :lisp_split '(r0 r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error1)
-	(jump 'lisp 'repl_error '(r0 "(split str char)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(r0 "(split str char)" error_msg_wrong_types r1))
 	(signature '(str str)))
 
 (def-func-end)
 
-(def-method 'str 'lisp_code)
+(def-method 'str :lisp_code)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -48,14 +48,14 @@
 
 	(vp-def (this args len value iter_begin width index) '(r6 r7 r8))
 
-	(entry 'str 'lisp_code (list this args))
+	(entry 'str :lisp_code (list this args))
 
 	(assign `((,args array_length)) `(,len))
 
 (errorcases
 	(gotoif `(,len < 1) 'error1)
 	(gotoif `(,len > 3) 'error1)
-	(call 'lisp 'env_args_sig (list args '($ sig) len) '(r2))
+	(call 'lisp :env_args_sig (list args '($ sig) len) '(r2))
 	(gotoif '(r2 = 0) 'error1))
 
 	(assign `((,args array_begin) 1) `(,iter_begin ,width))
@@ -88,21 +88,21 @@
 	(vp-xor-rr len len)
 	(vp-add-rr index value)
 	(vp-push len)
-	(call 'sys_mem 'copy (list value rsp width))
+	(call 'sys_mem :copy (list value rsp width))
 	(vp-pop value)
-	(call 'num 'create (list value) (list value))
+	(call 'num :create (list value) (list value))
 
-	(exit 'str 'lisp_code (list this value))
+	(exit 'str :lisp_code (list this value))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error1)
-	(jump 'lisp 'repl_error (list this "(code str [width index])" error_msg_wrong_types args))
+	(jump 'lisp :repl_error (list this "(code str [width index])" error_msg_wrong_types args))
 	(signature '(str num num)))
 
 (def-func-end)
 
-(def-method 'str 'lisp_char)
+(def-method 'str :lisp_char)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -114,13 +114,13 @@
 
 	(vp-def (this args len value iter_begin iter_end width) '(r7 r8 r9))
 
-	(entry 'str 'lisp_char (list this args))
+	(entry 'str :lisp_char (list this args))
 
 	(assign `((,args array_length)) `(,len))
 
 (errorcases
 	(gotoif `(,len > 2) 'error1)
-	(call 'lisp 'env_args_type `(,args (@ ,(f-path 'num 'vtable)) 1) '(r2))
+	(call 'lisp :env_args_type `(,args (@ ,(f-path 'num :vtable)) 1) '(r2))
 	(gotoif '(r2 = 0) 'error1))
 
 	(assign `((,args array_begin) 1) `(,iter_begin ,width))
@@ -132,18 +132,18 @@
 		(vp-and-cr (dec long_size) width)
 		(vp-add-cr 1 width)
 	(endif)
-	(call 'str 'create_from_buffer (list (list '& value num_value) width) (list value))
+	(call 'str :create_from_buffer (list (list '& value num_value) width) (list value))
 
-	(exit 'str 'lisp_char (list this value))
+	(exit 'str :lisp_char (list this value))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error1)
-	(jump 'lisp 'repl_error (list this "(char num [width])" error_msg_wrong_types args)))
+	(jump 'lisp :repl_error (list this "(char num [width])" error_msg_wrong_types args)))
 
 (def-func-end)
 
-(def-method 'str 'lisp_cmp)
+(def-method 'str :lisp_cmp)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -153,29 +153,29 @@
 	;trashes
 	;r1-r14
 
-	(entry 'str 'lisp_cmp '(r0 r1))
+	(entry 'str :lisp_cmp '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_sig '(r1 ($ sig) 2) '(r2))
+	(call 'lisp :env_args_sig '(r1 ($ sig) 2) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-cpy-rr r0 r13)
-	(defq in (method-input 'str 'compare))
+	(defq in (method-input 'str :compare))
 	(class/array/bind_args r1 in)
-	(call 'str 'compare in '(_ r1))
-	(call 'num 'create '(r1) '(r0))
+	(call 'str :compare in '(_ r1))
+	(call 'num :create '(r1) '(r0))
 
-	(exit 'str 'lisp_cmp '(r13 r0))
+	(exit 'str :lisp_cmp '(r13 r0))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r0 "(cmp str str)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(r0 "(cmp str str)" error_msg_wrong_types r1))
 	(signature '(str str)))
 
 (def-func-end)
 
-(def-method 'str 'lisp_save)
+(def-method 'str :lisp_save)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -185,36 +185,36 @@
 	;trashes
 	;r1-r14
 
-	(entry 'str 'lisp_save '(r0 r1))
+	(entry 'str :lisp_save '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_sig '(r1 ($ sig) 2) '(r2))
+	(call 'lisp :env_args_sig '(r1 ($ sig) 2) '(r2))
 	(gotoif '(r2 = 0) 'error1))
 
 	(vp-cpy-rr r0 r12)
 	(vp-cpy-rr r1 r13)
 	(class/array/bind_args r1 '(r11 r0))
-	(call 'sys_pii 'open '((& r0 str_data) file_open_write) '(r0))
+	(call 'sys_pii :open '((& r0 str_data) file_open_write) '(r0))
 	(errorif '(r0 < 3) 'error2)
 	(vp-cpy-rr r0 r10)
-	(call 'sys_pii 'write '(r0 (& r11 str_data) (r11 str_length)))
-	(call 'sys_pii 'close '(r10))
+	(call 'sys_pii :write '(r0 (& r11 str_data) (r11 str_length)))
+	(call 'sys_pii :close '(r10))
 	(class/obj/ref r11 r2)
-	(call 'sys_task 'sleep '(0))
+	(call 'sys_task :sleep '(0))
 
-	(exit 'str 'lisp_save '(r12 r11))
+	(exit 'str :lisp_save '(r12 r11))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error1)
-	(jump 'lisp 'repl_error '(r0 "(save str path)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(r0 "(save str path)" error_msg_wrong_types r1))
 (vp-label 'error2)
-	(jump 'lisp 'repl_error '(r12 "(save str path)" error_msg_open_error r13))
+	(jump 'lisp :repl_error '(r12 "(save str path)" error_msg_open_error r13))
 	(signature '(str str)))
 
 (def-func-end)
 
-(def-method 'str 'lisp_load)
+(def-method 'str :lisp_load)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -224,31 +224,31 @@
 	;trashes
 	;r1-r14
 
-	(entry 'str 'lisp_load '(r0 r1))
+	(entry 'str :lisp_load '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_sig '(r1 ($ sig) 1) '(r2))
+	(call 'lisp :env_args_sig '(r1 ($ sig) 1) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-cpy-rr r0 r13)
-	(defq in (method-input 'str 'create_from_file))
+	(defq in (method-input 'str :create_from_file))
 	(class/list/bind_args r1 in '(str))
-	(call 'str 'create_from_file in '(r0))
+	(call 'str :create_from_file in '(r0))
 	(vpif '(r0 = 0))
-		(call 'obj 'ref '((r13 lisp_sym_nil)) '(r0))
+		(call 'obj :ref '((r13 lisp_sym_nil)) '(r0))
 	(endif)
 
-	(exit 'str 'lisp_load '(r13 r0))
+	(exit 'str :lisp_load '(r13 r0))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r0 "(load path)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(r0 "(load path)" error_msg_wrong_types r1))
 	(signature '(str)))
 
 (def-func-end)
 
-(def-method 'str 'lisp_str)
+(def-method 'str :lisp_str)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -264,38 +264,38 @@
 	(def-struct-end)
 
 	(vp-alloc local_size)
-	(entry 'str 'lisp_str '(r0 r1))
+	(entry 'str :lisp_str '(r0 r1))
 
 	(class/array/get_both r1 r1 r2)
 	(assign '(r0 r1 r2) '((rsp local_this) (rsp local_iter_begin) (rsp local_iter_end)))
-	(call 'str 'create_from_buffer '(0 str_gap) '(r0))
-	(call 'stream_str 'create '(r0) '((rsp local_stream)))
+	(call 'str :create_from_buffer '(0 str_gap) '(r0))
+	(call 'stream_str :create '(r0) '((rsp local_stream)))
 	(assign '((rsp local_iter_begin) (rsp local_iter_end)) '(r1 r2))
 	(loop-while '(r1 /= r2))
 		(vp-cpy-ir r1 0 r2)
 		(assign '((r2 obj_vtable)) '(r1))
-		(f-bind 'str 'vtable r4)
-		(f-bind 'stream_str 'vtable r3)
+		(f-bind 'str :vtable r4)
+		(f-bind 'stream_str :vtable r3)
 		(switch)
 		(vpcase '(r1 = r4))
-			(call 'stream 'write '((rsp local_stream) (& r2 str_data) (r2 str_length)))
+			(call 'stream :write '((rsp local_stream) (& r2 str_data) (r2 str_length)))
 			(break)
 		(vpcase '(r1 = r3))
 			(assign '((r2 stream_object) (r2 stream_bufp)) '(r1 r2))
 			(vp-add-cr str_data r1)
 			(vp-sub-rr r1 r2)
-			(call 'stream 'write '((rsp local_stream) r1 r2))
+			(call 'stream :write '((rsp local_stream) r1 r2))
 		(else)
-			(call 'lisp 'repl_print '((rsp local_this) (rsp local_stream) r2))
+			(call 'lisp :repl_print '((rsp local_this) (rsp local_stream) r2))
 		(endswitch)
 		(assign '((rsp local_iter_begin) (rsp local_iter_end)) '(r1 r2))
 		(vp-add-cr ptr_size r1)
 		(assign '(r1) '((rsp local_iter_begin)))
 	(loop-end)
-	(call 'stream_str 'ref_string '((rsp local_stream)) '(r0 (rsp local_stream)))
-	(call 'obj 'destroy '(r0))
+	(call 'stream_str :ref_string '((rsp local_stream)) '(r0 (rsp local_stream)))
+	(call 'obj :destroy '(r0))
 
-	(exit 'str 'lisp_str '((rsp local_this) (rsp local_stream)))
+	(exit 'str :lisp_str '((rsp local_this) (rsp local_stream)))
 	(vp-free local_size)
 	(vp-ret)
 

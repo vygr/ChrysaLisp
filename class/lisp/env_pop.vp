@@ -2,7 +2,7 @@
 (include 'class/hmap/class.inc)
 (include 'class/lisp/class.inc)
 
-(def-method 'lisp 'env_pop)
+(def-method 'lisp :env_pop)
 	;inputs
 	;r0 = lisp object (ptr)
 	;outputs
@@ -15,17 +15,17 @@
 	(def-struct-end)
 
 	(vp-alloc local_size)
-	(entry 'lisp 'env_pop '(r0))
+	(entry 'lisp :env_pop '(r0))
 
 	(assign '(r0 (r0 lisp_environment)) '((rsp local_this) r0))
 	(assign '((r0 hmap_parent)) '(r1))
 	(assign '(r1) '((rsp local_new_env)))
 	(class/obj/ref r1 r2)
-	(call 'obj 'deref '(r0))
+	(call 'obj :deref '(r0))
 	(assign '((rsp local_this) (rsp local_new_env)) '(r0 r1))
 	(assign '(r1) '((r0 lisp_environment)))
 
-	(exit 'lisp 'env_pop '(r0))
+	(exit 'lisp :env_pop '(r0))
 	(vp-free local_size)
 	(vp-ret)
 

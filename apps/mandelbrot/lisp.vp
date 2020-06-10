@@ -22,7 +22,7 @@
 	(entry '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_sig '(r1 ($ sig) 2) '(r2))
+	(call 'lisp :env_args_sig '(r1 ($ sig) 2) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
@@ -49,7 +49,7 @@
 		(vp-asr-cr mbfp_shift x2)
 	(loop-until `(,i = 255))
 
-	(call 'num 'create `(,i) '(r1))
+	(call 'num :create `(,i) '(r1))
 	(vp-pop r0)
 
 	(exit '(r0 r1))
@@ -57,7 +57,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r0 "(depth x0 y0)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(r0 "(depth x0 y0)" error_msg_wrong_types r1))
 	(signature '(num num)))
 
 (def-func-end)
@@ -79,7 +79,7 @@
 	(entry '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_sig '(r1 ($ sig) 2) '(r2))
+	(call 'lisp :env_args_sig '(r1 ($ sig) 2) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(push-scope)
@@ -97,12 +97,12 @@
 				(assign {0} {col})
 			(endif)
 			(assign {argb_black + (col << 16) + ((col & 0x7f) << 9) + ((col & 0x3f) << 2)} {canvas->canvas_color})
-			(call 'canvas 'plot {canvas, xp, yp})
+			(call 'canvas :plot {canvas, xp, yp})
 			(assign {data + byte_size} {data})
 		(loop-until {(xp + 1 => xp) = x1})
 	(loop-until {(yp + 1 => yp) = y1})
 
-	(call 'num 'create {(x1 - x) * (y1 - y)} '(r1))
+	(call 'num :create {(x1 - x) * (y1 - y)} '(r1))
 
 	(assign {this} '(r0))
 	(exit '(r0 r1))
@@ -111,7 +111,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r0 "(tile canvas data)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(r0 "(tile canvas data)" error_msg_wrong_types r1))
 	(signature '(canvas str)))
 
 (def-func-end)

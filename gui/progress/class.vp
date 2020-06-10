@@ -7,7 +7,7 @@
 (gen-create 'progress)
 (gen-vtable 'progress)
 
-(def-method 'progress 'draw)
+(def-method 'progress :draw)
 	;inputs
 	;r0 = window object (ptr)
 	;r1 = draw ctx (ptr)
@@ -22,36 +22,36 @@
 
 	;save inputs
 	(push-scope)
-	(entry 'progress 'draw {this, ctx})
+	(entry 'progress :draw {this, ctx})
 
 	;get properties
-	(call 'progress 'get_long_prop {this, static_sym_maximum} {_, max})
-	(call 'progress 'get_long_prop {this, static_sym_value} {_, val})
-	(call 'progress 'get_long_prop {this, static_sym_color} {_, col})
+	(call 'progress :get_long_prop {this, static_sym_maximum} {_, max})
+	(call 'progress :get_long_prop {this, static_sym_value} {_, val})
+	(call 'progress :get_long_prop {this, static_sym_color} {_, col})
 
 	;draw outline
-	(call 'ctx 'set_color {ctx, col})
-	(call 'progress 'get_bounds {this} {_, _, _, width, height})
-	(call 'ctx 'box {ctx, 0, 0, width, height})
+	(call 'ctx :set_color {ctx, col})
+	(call 'progress :get_bounds {this} {_, _, _, width, height})
+	(call 'ctx :box {ctx, 0, 0, width, height})
 
 	;draw middle left
-	(call 'ctx 'darker {col} {col})
-	(call 'ctx 'set_color {ctx, col})
+	(call 'ctx :darker {col} {col})
+	(call 'ctx :set_color {ctx, col})
 	(assign {(val * (width - 2)) // max} {infill})
-	(call 'ctx 'filled_box {ctx, 1, 1, infill, height - 2})
+	(call 'ctx :filled_box {ctx, 1, 1, infill, height - 2})
 
 	;draw middle right
-	(call 'ctx 'darker {col} {col})
-	(call 'ctx 'set_color {ctx, col})
-	(call 'ctx 'filled_box {ctx, infill + 1, 1, width - 2 - infill, height - 2})
+	(call 'ctx :darker {col} {col})
+	(call 'ctx :set_color {ctx, col})
+	(call 'ctx :filled_box {ctx, infill + 1, 1, width - 2 - infill, height - 2})
 
-	(exit 'progress 'draw {this})
+	(exit 'progress :draw {this})
 	(pop-scope)
 	(return)
 
 (def-func-end)
 
-(def-method 'progress 'pref_size)
+(def-method 'progress :pref_size)
 	;inputs
 	;r0 = progress object (ptr)
 	;outputs
@@ -61,8 +61,8 @@
 	;trashes
 	;r9-r10
 
-	(entry 'progress 'pref_size '(r0))
-	(exit 'progress 'pref_size '(r0 256 10))
+	(entry 'progress :pref_size '(r0))
+	(exit 'progress :pref_size '(r0 256 10))
 	(vp-ret)
 
 (def-func-end)

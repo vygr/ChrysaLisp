@@ -8,7 +8,7 @@
 (gen-create 'slider)
 (gen-vtable 'slider)
 
-(def-method 'slider 'init)
+(def-method 'slider :init)
 	;inputs
 	;r0 = slider object (ptr)
 	;r1 = vtable (pptr)
@@ -18,22 +18,22 @@
 	;trashes
 	;r1-r14
 
-	(entry 'slider 'init '(r0 r1))
+	(entry 'slider :init '(r0 r1))
 
 	;init parent
-	(s-call 'slider 'init '(r0 r1) '(r0 r1))
+	(s-call 'slider :init '(r0 r1) '(r0 r1))
 	(vpif '(r1 /= 0))
 		;init myself
 		(vp-xor-rr r2 r2)
 		(assign '(r2) '((r0 slider_state)))
 	(endif)
 
-	(exit 'slider 'init '(r0 r1))
+	(exit 'slider :init '(r0 r1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'slider 'draw)
+(def-method 'slider :draw)
 	;inputs
 	;r0 = window object (ptr)
 	;r1 = draw ctx (ptr)
@@ -48,29 +48,29 @@
 
 	;save inputs
 	(push-scope)
-	(entry 'slider 'draw {this, ctx})
+	(entry 'slider :draw {this, ctx})
 
 	;get properties
-	(call 'slider 'get_long_prop {this, static_sym_maximum} {_, max})
-	(call 'slider 'get_long_prop {this, static_sym_portion} {_, portion})
-	(call 'slider 'get_long_prop {this, static_sym_value} {_, val})
-	(call 'slider 'get_long_prop {this, static_sym_color} {_, col})
+	(call 'slider :get_long_prop {this, static_sym_maximum} {_, max})
+	(call 'slider :get_long_prop {this, static_sym_portion} {_, portion})
+	(call 'slider :get_long_prop {this, static_sym_value} {_, val})
+	(call 'slider :get_long_prop {this, static_sym_color} {_, col})
 
 	;draw outline
-	(call 'ctx 'set_color {ctx, 0xff000000})
-	(call 'slider 'get_bounds {this} {_, _, _, width, height})
-	(call 'ctx 'box {ctx, 0, 0, width, height})
+	(call 'ctx :set_color {ctx, 0xff000000})
+	(call 'slider :get_bounds {this} {_, _, _, width, height})
+	(call 'ctx :box {ctx, 0, 0, width, height})
 
 	;draw background
-	(call 'ctx 'darker {col} {dcol})
-	(call 'ctx 'set_color {ctx, dcol})
-	(call 'ctx 'filled_box {ctx, 1, 1, width - 2, height - 2})
+	(call 'ctx :darker {col} {dcol})
+	(call 'ctx :set_color {ctx, dcol})
+	(call 'ctx :filled_box {ctx, 1, 1, width - 2, height - 2})
 
 	;draw elevator
 	(vpif {this->slider_state & slider_state_pressed})
-		(call 'ctx 'brighter {col} {col})
+		(call 'ctx :brighter {col} {col})
 	(endif)
-	(call 'ctx 'set_color {ctx, col})
+	(call 'ctx :set_color {ctx, col})
 	(vpif {width > height})
 		(assign {width - 2} {width})
 		(vpif {max > 0})
@@ -79,7 +79,7 @@
 		(else)
 			(assign {width, 0} {portion, eo})
 		(endif)
-		(call 'ctx 'filled_box {ctx, eo + 1, 1, portion, height - 2})
+		(call 'ctx :filled_box {ctx, eo + 1, 1, portion, height - 2})
 	(else)
 		(assign {height - 2} {height})
 		(vpif {max > 0})
@@ -88,16 +88,16 @@
 		(else)
 			(assign {height, 0} {portion, eo})
 		(endif)
-		(call 'ctx 'filled_box {ctx, 1, eo + 1, width - 2, portion})
+		(call 'ctx :filled_box {ctx, 1, eo + 1, width - 2, portion})
 	(endif)
 
-	(exit 'slider 'draw {this})
+	(exit 'slider :draw {this})
 	(pop-scope)
 	(return)
 
 (def-func-end)
 
-(def-method 'slider 'pref_size)
+(def-method 'slider :pref_size)
 	;inputs
 	;r0 = slider object (ptr)
 	;outputs
@@ -107,13 +107,13 @@
 	;trashes
 	;r9-r10
 
-	(entry 'slider 'pref_size '(r0))
-	(exit 'slider 'pref_size '(r0 10 10))
+	(entry 'slider :pref_size '(r0))
+	(exit 'slider :pref_size '(r0 10 10))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'slider 'mouse_up)
+(def-method 'slider :mouse_up)
 	;inputs
 	;r0 = slider object (ptr)
 	;r1 = mouse event data (ptr)
@@ -122,22 +122,22 @@
 	;trashes
 	;r1-r14
 
-	(entry 'slider 'mouse_up '(r0 r1))
+	(entry 'slider :mouse_up '(r0 r1))
 
 	(assign '((r0 slider_state)) '(r1))
 	(vp-cpy-rr r1 r2)
 	(vp-and-cr (lognot slider_state_pressed) r1)
 	(assign '(r1) '((r0 slider_state)))
 	(vpif '(r1 /= r2))
-		(jump 'slider 'dirty '(r0))
+		(jump 'slider :dirty '(r0))
 	(endif)
 
-	(exit 'slider 'mouse_up '(r0))
+	(exit 'slider :mouse_up '(r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'slider 'mouse_down)
+(def-method 'slider :mouse_down)
 	;inputs
 	;r0 = slider object (ptr)
 	;r1 = mouse event data (ptr)
@@ -150,24 +150,24 @@
 	(uint 'width 'height)
 
 	(push-scope)
-	(entry 'slider 'mouse_down {this, evt})
+	(entry 'slider :mouse_down {this, evt})
 
 	;slider drag offset, so no jaring first move ?
-	(call 'slider 'get_bounds {this} {_, _, _, width, height})
-	(call 'slider 'get_long_prop {this, static_sym_value} {_, this->slider_old_val})
+	(call 'slider :get_bounds {this} {_, _, _, width, height})
+	(call 'slider :get_long_prop {this, static_sym_value} {_, this->slider_old_val})
 	(assign {evt->ev_msg_mouse_rx} {this->slider_offset})
 	(vpif {height > width})
 		(assign {evt->ev_msg_mouse_ry} {this->slider_offset})
 	(endif)
-	(call 'slider 'mouse_move {this, evt})
+	(call 'slider :mouse_move {this, evt})
 
-	(exit 'slider 'mouse_down {this})
+	(exit 'slider :mouse_down {this})
 	(pop-scope)
 	(return)
 
 (def-func-end)
 
-(def-method 'slider 'mouse_move)
+(def-method 'slider :mouse_move)
 	;inputs
 	;r0 = slider object (ptr)
 	;r1 = mouse event data (ptr)
@@ -182,11 +182,11 @@
 	(int 'rx 'ry)
 
 	(push-scope)
-	(entry 'slider 'mouse_move {this, evt})
+	(entry 'slider :mouse_move {this, evt})
 
 	;hit ?
 	(assign {evt->ev_msg_mouse_rx, evt->ev_msg_mouse_ry} {rx, ry})
-	(call 'slider 'hit {this, rx, ry} {_, hit})
+	(call 'slider :hit {this, rx, ry} {_, hit})
 
 	;is mouse over slider ?
 	(assign {this->slider_state} {old_state})
@@ -199,10 +199,10 @@
 	(endif)
 
 	;emit new value signal ?
-	(call 'slider 'get_bounds {this} {_, _, _, width, height})
-	(call 'slider 'get_long_prop {this, static_sym_maximum} {_, max})
-	(call 'slider 'get_long_prop {this, static_sym_portion} {_, portion})
-	(call 'slider 'get_long_prop {this, static_sym_value} {_, val})
+	(call 'slider :get_bounds {this} {_, _, _, width, height})
+	(call 'slider :get_long_prop {this, static_sym_maximum} {_, max})
+	(call 'slider :get_long_prop {this, static_sym_portion} {_, portion})
+	(call 'slider :get_long_prop {this, static_sym_value} {_, val})
 	(vpif {width > height})
 		(assign {(rx - this->slider_offset) * (max + portion) // width} {new_val})
 	(else)
@@ -218,15 +218,15 @@
 	;dirty ?
 	(switch)
 	(vpcase {new_val /= val})
-		(call 'slider 'set_long_prop {this, static_sym_value, new_val})
-		(call 'slider 'emit {this})
+		(call 'slider :set_long_prop {this, static_sym_value, new_val})
+		(call 'slider :emit {this})
 		(goto 'isdirty)
 	(vpcase {old_state /= this->slider_state})
 	(vp-label 'isdirty)
-		(call 'slider 'dirty {this})
+		(call 'slider :dirty {this})
 	(endif)
 
-	(exit 'slider 'mouse_move {this})
+	(exit 'slider :mouse_move {this})
 	(pop-scope)
 	(return)
 

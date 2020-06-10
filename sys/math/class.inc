@@ -5,27 +5,27 @@
 ;;;;;;;;;;;;;;;;;;;
 
 (def-class 'sys_math)
-(dec-method 'i_rand 'sys/math/i_rand :static '(r0) '(r0))
-(dec-method 'i_sqrt 'sys/math/i_sqrt :static '(r0) '(r0))
+(dec-method :i_rand 'sys/math/i_rand :static '(r0) '(r0))
+(dec-method :i_sqrt 'sys/math/i_sqrt :static '(r0) '(r0))
 
-(dec-method 'f_sqrt 'sys/math/f_sqrt :static '(r0) '(r0))
-(dec-method 'f_sin 'sys/math/f_sin :static '(r0) '(r0))
-(dec-method 'f_cos 'sys/math/f_cos :static '(r0) '(r0))
-(dec-method 'f_intersect 'sys/math/f_intersect :static '(r0 r1 r2 r3 r4 r5 r6 r7) '(r0 r1))
-(dec-method 'f_dist_sqd 'sys/math/f_dist_sqd :static '(r0 r1 r2 r3 r4 r5) '(r0))
+(dec-method :f_sqrt 'sys/math/f_sqrt :static '(r0) '(r0))
+(dec-method :f_sin 'sys/math/f_sin :static '(r0) '(r0))
+(dec-method :f_cos 'sys/math/f_cos :static '(r0) '(r0))
+(dec-method :f_intersect 'sys/math/f_intersect :static '(r0 r1 r2 r3 r4 r5 r6 r7) '(r0 r1))
+(dec-method :f_dist_sqd 'sys/math/f_dist_sqd :static '(r0 r1 r2 r3 r4 r5) '(r0))
 
-(dec-method 'r_pack 'sys/math/r_pack :static '(r13 r14) '(r13))
-(dec-method 'r_add 'sys/math/r_add :static '(r13 r14) '(r13))
-(dec-method 'r_sub 'sys/math/r_sub :static '(r13 r14) '(r13))
-(dec-method 'r_mul 'sys/math/r_mul :static '(r13 r14) '(r13))
-(dec-method 'r_div 'sys/math/r_div :static '(r13 r14) '(r13))
-(dec-method 'r_mod 'sys/math/r_mod :static '(r13 r14) '(r13))
-(dec-method 'r_frac 'sys/math/r_frac :static '(r13) '(r13))
-(dec-method 'r_floor 'sys/math/r_floor :static '(r13) '(r13))
-(dec-method 'r_i2r 'sys/math/r_i2r :static '(r14) '(r13))
-(dec-method 'r_f2r 'sys/math/r_f2r :static '(r14) '(r13))
-(dec-method 'r_r2i 'sys/math/r_r2i :static '(r13) '(r14))
-(dec-method 'r_r2f 'sys/math/r_r2f :static '(r13) '(r14))
+(dec-method :r_pack 'sys/math/r_pack :static '(r13 r14) '(r13))
+(dec-method :r_add 'sys/math/r_add :static '(r13 r14) '(r13))
+(dec-method :r_sub 'sys/math/r_sub :static '(r13 r14) '(r13))
+(dec-method :r_mul 'sys/math/r_mul :static '(r13 r14) '(r13))
+(dec-method :r_div 'sys/math/r_div :static '(r13 r14) '(r13))
+(dec-method :r_mod 'sys/math/r_mod :static '(r13 r14) '(r13))
+(dec-method :r_frac 'sys/math/r_frac :static '(r13) '(r13))
+(dec-method :r_floor 'sys/math/r_floor :static '(r13) '(r13))
+(dec-method :r_i2r 'sys/math/r_i2r :static '(r14) '(r13))
+(dec-method :r_f2r 'sys/math/r_f2r :static '(r14) '(r13))
+(dec-method :r_r2i 'sys/math/r_r2i :static '(r13) '(r14))
+(dec-method :r_r2f 'sys/math/r_r2f :static '(r13) '(r14))
 
 ;;;;;;;;;;;;;;;;
 ; inline methods
@@ -39,7 +39,7 @@
 	;trashes
 	;r0-r3
 	(vp-shl-cr fp_shift r0)
-	(call 'sys_math 'i_sqrt '(r0) '(r0)))
+	(call 'sys_math :i_sqrt '(r0) '(r0)))
 
 ;;;;;;;;;;;;;;;;;;;;;
 ; vector math codegen
@@ -313,7 +313,7 @@
 	(vec-flength-squared n)
 	(defq r (slice 0 (dec (if (>= *vsp* 4) 5 *vsp*)) *vr*))
 	(if (/= (length r) 0) (apply vp-push r))
-	(call 'sys_math 'f_sqrt (vec-top 1) (vec-top 1))
+	(call 'sys_math :f_sqrt (vec-top 1) (vec-top 1))
 	(if (/= (length r) 0) (apply vp-pop r)))
 
 (defcfun vec-fdistance-squared (n)

@@ -5,11 +5,11 @@
 (include 'class/str/class.inc)
 (include 'sys/pii/class.inc)
 
-(def-method 'sys_load 'statics)
+(def-method 'sys_load :statics)
 	(times ld_statics_size (vp-byte 0))
 (def-func-end)
 
-(def-method 'sys_load 'init)
+(def-method 'sys_load :init)
 	;inputs
 	;system argv
 	;host function table
@@ -23,7 +23,7 @@
 	(vp-cpy-rr (abi-arg 1) r14)
 
 	;allocate relloc/stat/name buffer
-	(host-call-table 'host 'mmap r14 '(ld_reloc_buf_size -1 mmap_data) '(r0))
+	(host-call-table 'host :mmap r14 '(ld_reloc_buf_size -1 mmap_data) '(r0))
 
 	;get loader statics and bind function !
 	(vp-lea-p 'fn_start r5)
@@ -72,7 +72,7 @@
 			(vp-call-r r4)
 			(vpif '(r0 = 0))
 				;no such function
-				(host-call-table 'host 'write r14 `(2 ($ bind_error) (- ,(label-sym 'bind_error_end) ,(label-sym 'bind_error))))
+				(host-call-table 'host :write r14 `(2 ($ bind_error) (- ,(label-sym 'bind_error_end) ,(label-sym 'bind_error))))
 				(vp-cpy-ir rsp (* ptr_size 3) r0)
 				(vp-cpy-ir r0 0 r1)
 				(vp-add-rr r0 r1)
@@ -83,9 +83,9 @@
 				(loop-until '(r0 = 0))
 				(vp-sub-rr r1 r2)
 				(vp-sub-cr 1 r2)
-				(host-call-table 'host 'write r14 '(2 r1 r2))
-				(host-call-table 'host 'write r14 '(2 ($ bind_error_end) 1))
-				(host-call-table 'host 'exit r14 '(1))
+				(host-call-table 'host :write r14 '(2 r1 r2))
+				(host-call-table 'host :write r14 '(2 ($ bind_error_end) 1))
+				(host-call-table 'host :exit r14 '(1))
 			(endif)
 			(vp-cpy-rr r0 r1)
 			(vp-pop r0 r2 r3 r4)
@@ -95,7 +95,7 @@
 	(loop-end)
 
 	;kernel inputs
-	(assign `(,(str (f-path 'sys_kernel 'kernel))) '(r0))
+	(assign `(,(str (f-path 'sys_kernel :kernel))) '(r0))
 	(vp-call-r r4)
 	(vp-cpy-rr r0 r1)
 	(vp-pop r0)
@@ -111,7 +111,7 @@
 
 (def-func-end)
 
-(def-method 'sys_load 'bind)
+(def-method 'sys_load :bind)
 	;input
 	;r0 = c string function path name (pubyte)
 	;output
@@ -154,13 +154,13 @@
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 	;create filename
-	(call 'sys_str 'copy `(,(cat "obj/" *cpu* "/" *abi* "/") (r7 ld_statics_name_buffer)) '(_ r1))
+	(call 'sys_str :copy `(,(cat "obj/" *cpu* "/" *abi* "/") (r7 ld_statics_name_buffer)) '(_ r1))
 	(vp-sub-cr 1 r1)
-	(call 'sys_str 'copy '(r6 r1))
+	(call 'sys_str :copy '(r6 r1))
 	(assign '((r7 ld_statics_name_buffer)) '(r6))
 
 	;get length of function on disk
-	(call 'sys_pii 'stat '(r6 (r7 ld_statics_stat_buffer)) '(r0))
+	(call 'sys_pii :stat '(r6 (r7 ld_statics_stat_buffer)) '(r0))
 	(vpif '(r0 /= 0))
 	(vp-label 'funcexit)
 		(vp-xor-rr r0 r0)
@@ -180,7 +180,7 @@
 	(assign '((r0 stat_fsize)) '(r0))
 	(vpif '(r2 < r0))
 		;not enough so allocate new function buffer
-		(call 'sys_pii 'mmap '(ld_block_size -1 mmap_exec) '(r0))
+		(call 'sys_pii :mmap '(ld_block_size -1 mmap_exec) '(r0))
 		(assert '(r0 /= 0))
 
 		;add to block list for freeing
@@ -194,23 +194,23 @@
 	(endif)
 
 	;open function file
-	(call 'sys_pii 'open '(r6 file_open_read) '(r6))
+	(call 'sys_pii :open '(r6 file_open_read) '(r6))
 
 	;read into buffer
 	(assign '((r7 ld_statics_stat_buffer)) '(r2))
-	(call 'sys_pii 'read '(r6 (r7 ld_statics_block_start) (r2 stat_fsize)))
+	(call 'sys_pii :read '(r6 (r7 ld_statics_block_start) (r2 stat_fsize)))
 	(assign '((r7 ld_statics_stat_buffer)) '(r2))
-	(call 'sys_pii 'clear_icache '((r7 ld_statics_block_start) (r2 stat_fsize)))
+	(call 'sys_pii :clear_icache '((r7 ld_statics_block_start) (r2 stat_fsize)))
 
 	;close function file
-	(call 'sys_pii 'close '(r6))
+	(call 'sys_pii :close '(r6))
 
 	;check loaded length equals file size
 	(assign '((r7 ld_statics_block_start) (r7 ld_statics_stat_buffer)) '(r3 r2))
 	(assign '((r3 fn_header_length) (r2 stat_fsize)) '(r0 r1))
 	(vpif '(r0 /= r1))
-		(call 'sys_pii 'write_str '(2 "Length field error !"))
-		(call 'sys_pii 'exit '(1))
+		(call 'sys_pii :write_str '(2 "Length field error !"))
+		(call 'sys_pii :exit '(1))
 	(endif)
 
 	;add to function list
@@ -239,8 +239,8 @@
 	;overflow check
 	(assign '((r7 ld_statics_name_buffer)) '(r2))
 	(vpif '(r1 > r2))
-		(call 'sys_pii 'write_str '(2 "Reloc buffer overflow !"))
-		(call 'sys_pii 'exit '(1))
+		(call 'sys_pii :write_str '(2 "Reloc buffer overflow !"))
+		(call 'sys_pii :exit '(1))
 	(endif)
 
 	;bind links to paths in reloc buffer
@@ -275,11 +275,11 @@
 		(call 'fn_entry '((r0 0)))
 		(vpif '(r0 = 0))
 			;no such file
-			(call 'sys_pii 'write_str '(2 "Bind error: "))
+			(call 'sys_pii :write_str '(2 "Bind error: "))
 			(assign '((rsp 0)) '(r0))
-			(call 'sys_pii 'write_str '(2 (r0 0)))
-			(call 'sys_pii 'write_char '(2 char_lf))
-			(call 'sys_pii 'exit '(1))
+			(call 'sys_pii :write_str '(2 (r0 0)))
+			(call 'sys_pii :write_char '(2 char_lf))
+			(call 'sys_pii :exit '(1))
 		(endif)
 		(vp-cpy-rr r0 r1)
 		(vp-pop r3 r0)

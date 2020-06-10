@@ -9,7 +9,7 @@
 (gen-create 'title)
 (gen-vtable 'title)
 
-(def-method 'title 'mouse_down)
+(def-method 'title :mouse_down)
 	;inputs
 	;r0 = title object (ptr)
 	;r1 = mouse event data (ptr)
@@ -18,29 +18,29 @@
 	;trashes
 	;r1-r14
 
-	(entry 'title 'mouse_down '(r0 r1))
+	(entry 'title :mouse_down '(r0 r1))
 
 	(vp-push r0)
 	(assign '((r1 ev_msg_mouse_buttons) (r1 ev_msg_mouse_rx) (r1 ev_msg_mouse_ry)) '(r6 r7 r8))
 	(assign '(r7 r8) '((r0 title_last_x) (r0 title_last_y)))
-	(assign `((@ ,(f-path 'window 'vtable))) '(r1))
+	(assign `((@ ,(f-path 'window :vtable))) '(r1))
 	(loop-start)
 		(assign '((r0 hmap_parent)) '(r0))
 		(assign '((r0 obj_vtable)) '(r2))
 	(loop-until '(r2 = r1))
 	(vpif '(r6 = 1))
-		(call 'window 'to_front '(r0))
+		(call 'window :to_front '(r0))
 	(else)
-		(call 'window 'to_back '(r0))
+		(call 'window :to_back '(r0))
 	(endif)
 	(vp-pop r0)
 
-	(exit 'title 'mouse_down '(r0))
+	(exit 'title :mouse_down '(r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'title 'mouse_move)
+(def-method 'title :mouse_move)
 	;inputs
 	;r0 = title object (ptr)
 	;r1 = mouse event data (ptr)
@@ -55,10 +55,10 @@
 
 	;save old window bounds
 	(vp-alloc local_size)
-	(entry 'title 'mouse_move '(r0 r1))
+	(entry 'title :mouse_move '(r0 r1))
 
 	(assign '(r0 r1) '((rsp local_this) (rsp local_event)))
-	(assign `((@ ,(f-path 'window 'vtable))) '(r1))
+	(assign `((@ ,(f-path 'window :vtable))) '(r1))
 	(loop-start)
 		(assign '((r0 hmap_parent)) '(r0))
 		(assign '((r0 obj_vtable)) '(r2))
@@ -67,7 +67,7 @@
 
 	;get new window position
 	(assign '((rsp local_this)) '(r0))
-	(call 'title 'get_relative '(r0 (rsp local_window) (r0 title_last_x) (r0 title_last_y)) '(_ r7 r8))
+	(call 'title :get_relative '(r0 (rsp local_window) (r0 title_last_x) (r0 title_last_y)) '(_ r7 r8))
 	(assign '((rsp local_event)) '(r1))
 	(assign '((r1 ev_msg_mouse_x) (r1 ev_msg_mouse_y)) '(r9 r10))
 	(vp-sub-rr r9 r7)
@@ -77,9 +77,9 @@
 
 	;change window position and dirty
 	(assign '((rsp local_window)) '(r0))
-	(call 'view 'change_dirty '(r0 r7 r8 (r0 view_w) (r0 view_h)))
+	(call 'view :change_dirty '(r0 r7 r8 (r0 view_w) (r0 view_h)))
 
-	(exit 'title 'mouse_move '((rsp local_this)))
+	(exit 'title :mouse_move '((rsp local_this)))
 	(vp-free local_size)
 	(vp-ret)
 

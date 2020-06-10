@@ -5,7 +5,7 @@
 (include 'class/num/class.inc)
 (include 'class/lisp/class.inc)
 
-(def-method 'lisp 'repl_error)
+(def-method 'lisp :repl_error)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = description c string (pubyte)
@@ -22,13 +22,13 @@
 	(uint 'msg 'line)
 
 	(push-scope)
-	(entry 'lisp 'repl_error {this, desc, msg, payload})
+	(entry 'lisp :repl_error {this, desc, msg, payload})
 
-	(call 'hmap 'search {this->lisp_environment, this->lisp_sym_stream_name} {_, iter, _})
+	(call 'hmap :search {this->lisp_environment, this->lisp_sym_stream_name} {_, iter, _})
 	(vpif {iter})
-		(call 'pair 'get_second {*iter} {_, file})
-		(call 'obj 'inst_of (cat {file, @} (f-path 'str 'vtable)))
-		(gotoif `(,(method-output 'obj 'inst_of 1) = 0) 'nofile)
+		(call 'pair :get_second {*iter} {_, file})
+		(call 'obj :inst_of (cat {file, @} (f-path 'str :vtable)))
+		(gotoif `(,(method-output 'obj :inst_of 1) = 0) 'nofile)
 		(assign {&file->str_data} {file})
 	(else)
 	(vp-label 'nofile)
@@ -36,16 +36,16 @@
 	(endif)
 
 	(assign {0} {line})
-	(call 'hmap 'search {this->lisp_environment, this->lisp_sym_stream_line} {_, iter, _})
+	(call 'hmap :search {this->lisp_environment, this->lisp_sym_stream_line} {_, iter, _})
 	(vpif {iter})
-		(call 'pair 'get_second {*iter} {_, value})
-		(breakif (cat {value->obj_vtable /= @} (f-path 'num 'vtable)))
-		(call 'num 'get_value {value} {_, line})
+		(call 'pair :get_second {*iter} {_, value})
+		(breakif (cat {value->obj_vtable /= @} (f-path 'num :vtable)))
+		(call 'num :get_value {value} {_, line})
 	(endif)
 
-	(call 'error 'create {desc, msg, payload, file, line} {value})
+	(call 'error :create {desc, msg, payload, file, line} {value})
 
-	(exit 'lisp 'repl_error {this, value})
+	(exit 'lisp :repl_error {this, value})
 	(pop-scope)
 	(return)
 

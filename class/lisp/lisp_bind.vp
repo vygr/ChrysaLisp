@@ -1,7 +1,7 @@
 (include 'sys/func.inc)
 (include 'class/lisp/class.inc)
 
-(def-method 'lisp 'lisp_bind)
+(def-method 'lisp :lisp_bind)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -11,17 +11,17 @@
 	;trashes
 	;r1-r14
 
-	(entry 'lisp 'lisp_bind '(r0 r1))
+	(entry 'lisp :lisp_bind '(r0 r1))
 
 (errorcases
 	(assign '((r1 array_length)) '(r2))
 	(gotoif '(r2 /= 2) 'error))
 
 	(class/array/bind_args r1 '(r1 r2))
-	(jump 'lisp 'env_bind '(r0 r1 r2))
+	(jump 'lisp :env_bind '(r0 r1 r2))
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r0 "(bind (param ...) seq)" error_msg_wrong_num_of_args r1)))
+	(jump 'lisp :repl_error '(r0 "(bind (param ...) seq)" error_msg_wrong_num_of_args r1)))
 
 (def-func-end)

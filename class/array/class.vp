@@ -7,7 +7,7 @@
 (gen-create 'array)
 (gen-vtable 'array)
 
-(def-method 'array 'deinit)
+(def-method 'array :deinit)
 	;inputs
 	;r0 = array object (ptr)
 	;outputs
@@ -15,20 +15,20 @@
 	;trashes
 	;r1-r14
 
-	(entry 'array 'deinit '(r0))
+	(entry 'array :deinit '(r0))
 
 	;free any dynamic array
 	(assign '((r0 array_begin) (& r0 array_e0)) '(r2 r1))
 	(vpif '(r2 /= r1))
 		(vp-cpy-rr r0 r3)
-		(call 'sys_mem 'free '(r2))
+		(call 'sys_mem :free '(r2))
 		(vp-cpy-rr r3 r0)
 	(endif)
-	(s-jump 'array 'deinit '(r0))
+	(s-jump 'array :deinit '(r0))
 
 (def-func-end)
 
-(def-method 'array 'clear)
+(def-method 'array :clear)
 	;inputs
 	;r0 = array object (ptr)
 	;outputs
@@ -36,16 +36,16 @@
 	;trashes
 	;r1
 
-	(entry 'array 'clear '(r0))
+	(entry 'array :clear '(r0))
 
 	(class/array/clear)
 
-	(exit 'array 'clear '(r0))
+	(exit 'array :clear '(r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'array 'find)
+(def-method 'array :find)
 	;inputs
 	;r0 = array object (ptr)
 	;r1 = element (long)
@@ -56,7 +56,7 @@
 	;trashes
 	;r2-r4
 
-	(entry 'array 'find '(r0 r1))
+	(entry 'array :find '(r0 r1))
 
 	(class/array/get_both r0 r2 r3)
 	(loop-while '(r2 /= r3))
@@ -72,12 +72,12 @@
 		(vp-shr-cr (log2 long_size) r2)
 	(endif)
 
-	(exit 'array 'find '(r0 r1 r2))
+	(exit 'array :find '(r0 r1 r2))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'array 'rfind)
+(def-method 'array :rfind)
 	;inputs
 	;r0 = array object (ptr)
 	;r1 = element (long)
@@ -88,7 +88,7 @@
 	;trashes
 	;r2-r4
 
-	(entry 'array 'rfind '(r0 r1))
+	(entry 'array :rfind '(r0 r1))
 
 	(class/array/get_both r0 r3 r2)
 	(loop-start)
@@ -99,12 +99,12 @@
 	(vp-sub-rr r3 r2)
 	(vp-asr-cr (log2 long_size) r2)
 
-	(exit 'array 'rfind '(r0 r1 r2))
+	(exit 'array :rfind '(r0 r1 r2))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'array 'get_length)
+(def-method 'array :get_length)
 	;inputs
 	;r0 = array object (ptr)
 	;outputs
@@ -113,16 +113,16 @@
 	;trashes
 	;r1
 
-	(entry 'array 'get_length '(r0))
+	(entry 'array :get_length '(r0))
 
 	(class/array/get_length)
 
-	(exit 'array 'get_length '(r0 r1))
+	(exit 'array :get_length '(r0 r1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'array 'push_back)
+(def-method 'array :push_back)
 	;inputs
 	;r0 = array object (ptr)
 	;r1 = element (long)
@@ -134,7 +134,7 @@
 	;trashes
 	;r2-r5
 
-	(entry 'array 'push_back '(r0 r1))
+	(entry 'array :push_back '(r0 r1))
 
 	;increase capacity ?
 	(assign '((r0 array_length) (r0 array_capacity)) '(r3 r2))
@@ -144,7 +144,7 @@
 		;double the capacity
 		(vp-add-rr r2 r2)
 		(vp-push r1)
-		(call 'array 'set_capacity '(r0 r2) '(r0))
+		(call 'array :set_capacity '(r0 r2) '(r0))
 		(assign '((r0 array_length)) '(r3))
 		(vp-pop r1)
 	(endif)
@@ -153,12 +153,12 @@
 	(class/array/get_iter r0 r3 r2)
 	(assign '(r1) `((r3 ,(neg long_size))))
 
-	(exit 'array 'push_back '(r0 r1 r2 r3))
+	(exit 'array :push_back '(r0 r1 r2 r3))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'array 'push_back2)
+(def-method 'array :push_back2)
 	;inputs
 	;r0 = array object (ptr)
 	;r1 = element1 (long)
@@ -172,7 +172,7 @@
 	;trashes
 	;r3-r5
 
-	(entry 'array 'push_back2 '(r0 r1 r2))
+	(entry 'array :push_back2 '(r0 r1 r2))
 
 	;increase capacity ?
 	(assign '((r0 array_length) (r0 array_capacity)) '(r4 r3))
@@ -182,7 +182,7 @@
 		;double the capacity
 		(vp-add-rr r3 r3)
 		(vp-push r1 r2)
-		(call 'array 'set_capacity '(r0 r3) '(r0))
+		(call 'array :set_capacity '(r0 r3) '(r0))
 		(assign '((r0 array_length)) '(r4))
 		(vp-pop r1 r2)
 	(endif)
@@ -191,12 +191,12 @@
 	(class/array/get_iter r0 r4 r3)
 	(assign '(r1 r2) `((r4 ,(* -2 long_size)) (r4 ,(neg long_size))))
 
-	(exit 'array 'push_back2 '(r0 r1 r2 r3 r4))
+	(exit 'array :push_back2 '(r0 r1 r2 r3 r4))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'array 'ref_back)
+(def-method 'array :ref_back)
 	;inputs
 	;r0 = array object (ptr)
 	;outputs
@@ -205,21 +205,21 @@
 	;trashes
 	;r1-r3
 
-	(entry 'array 'ref_back '(r0))
+	(entry 'array :ref_back '(r0))
 
 	(assign '((r0 array_length) (r0 array_begin)) '(r1 r2))
 	(vp-sub-cr 1 r1)
 	(assign '(r1) '((r0 array_length)))
 	(vp-shl-cr (log2 long_size) r1)
 	(vp-cpy-rr r0 r3)
-	(v-call 'array 'velement '((r2 r1)) '(r0) r3 r1)
+	(v-call 'array :velement '((r2 r1)) '(r0) r3 r1)
 
-	(exit 'array 'ref_back '(r3 r0))
+	(exit 'array :ref_back '(r3 r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'array 'ref_element)
+(def-method 'array :ref_element)
 	;inputs
 	;r0 = array object (ptr)
 	;r1 = element index (uint)
@@ -229,18 +229,18 @@
 	;trashes
 	;r1-r3
 
-	(entry 'array 'ref_element '(r0 r1))
+	(entry 'array :ref_element '(r0 r1))
 
 	(vp-cpy-rr r0 r3)
 	(class/array/get_element r0 r1 r0 r0)
-	(v-call 'array 'velement '(r0) '(r0) r3 r1)
+	(v-call 'array :velement '(r0) '(r0) r3 r1)
 
-	(exit 'array 'ref_element '(r3 r0))
+	(exit 'array :ref_element '(r3 r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'array 'set_capacity)
+(def-method 'array :set_capacity)
 	;inputs
 	;r0 = array object (ptr)
 	;r1 = capacity (uint)
@@ -249,7 +249,7 @@
 	;trashes
 	;r1-r5
 
-	(entry 'array 'set_capacity '(r0 r1))
+	(entry 'array :set_capacity '(r0 r1))
 
 	;do we already have room ?
 	(assign '((r0 array_capacity)) '(r2))
@@ -259,7 +259,7 @@
 		(assign '((& r0 array_e0) (r0 array_begin)) '(r3 r0))
 		(vp-shl-cr (log2 long_size) r1)
 		(vpif '(r0 = r3))
-			(call 'sys_mem 'alloc '(r1) '(r1 r2))
+			(call 'sys_mem :alloc '(r1) '(r1 r2))
 			(vp-pop r0)
 			(assign '((r0 array_e0) (r0 array_e1)) '(r3 r4))
 			(assign '(r3 r4) `((r1 ,(- array_e0 array_e0)) (r1 ,(- array_e1 array_e0))))
@@ -268,19 +268,19 @@
 		(else)
 			(vp-shl-cr (log2 long_size) r2)
 			(vp-swp-rr r1 r2)
-			(call 'sys_mem 'realloc '(r0 r1 r2) '(r1 r2))
+			(call 'sys_mem :realloc '(r0 r1 r2) '(r1 r2))
 			(vp-pop r0)
 		(endif)
 		(vp-shr-cr (log2 long_size) r2)
 		(assign '(r1 r2) '((r0 array_begin) (r0 array_capacity)))
 	(endif)
 
-	(exit 'array 'set_capacity '(r0))
+	(exit 'array :set_capacity '(r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'array 'set_element)
+(def-method 'array :set_element)
 	;inputs
 	;r0 = array object (ptr)
 	;r1 = element object (ptr)
@@ -290,16 +290,16 @@
 	;trashes
 	;r2-r3
 
-	(entry 'array 'set_element '(r0 r1 r2))
+	(entry 'array :set_element '(r0 r1 r2))
 
 	(class/array/set_element)
 
-	(exit 'array 'set_element '(r0))
+	(exit 'array :set_element '(r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'array 'partition)
+(def-method 'array :partition)
 	;inputs
 	;r0 = array object (ptr)
 	;r1 = lower partition iter (plong)
@@ -326,7 +326,7 @@
 	(def-struct-end)
 
 	(vp-alloc local_size)
-	(entry 'array 'partition '(r0 r1 r2 r3 r4))
+	(entry 'array :partition '(r0 r1 r2 r3 r4))
 	(assign '(r0 r1 r2 r3 r4 r1)
 		'((rsp local_this) (rsp local_lower) (rsp local_upper) (rsp local_func)
 		(rsp local_ctx) (rsp local_pivot)))
@@ -351,13 +351,13 @@
 		(assign '(r2 r3) '((r1 0) (r0 0)))
 	(endif)
 
-	(exit 'array 'partition '((rsp local_this) r1))
+	(exit 'array :partition '((rsp local_this) r1))
 	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'array 'sort)
+(def-method 'array :sort)
 	;inputs
 	;r0 = array object (ptr)
 	;r1 = stack array object (ptr)
@@ -389,33 +389,33 @@
 		(uint 'start 'length))
 
 	(push-scope)
-	(entry 'array 'sort {this, stack, lower, upper, func, ctx})
+	(entry 'array :sort {this, stack, lower, upper, func, ctx})
 
-	(call 'array 'get_begin {this} {_, iter_begin})
+	(call 'array :get_begin {this} {_, iter_begin})
 	(assign {(lower - iter_begin) >> 3, (upper - iter_begin) >> 3} {low, high})
-	(d-call 'array 'get_length {stack} {_, start})
+	(d-call 'array :get_length {stack} {_, start})
 	(loop-start)
 		(vpif {low < high})
-			(call 'array 'partition {this, low * long_size + iter_begin, high * long_size + iter_begin, func, ctx}
+			(call 'array :partition {this, low * long_size + iter_begin, high * long_size + iter_begin, func, ctx}
 				{_, pivot})
 			(assign {high} {length})
 			(assign {(pivot - iter_begin) >> 3} {high})
-			(call 'array 'push_back {stack, interval})
+			(call 'array :push_back {stack, interval})
 			(assign {high + 1, length} {low, high})
-			(call 'array 'push_back {stack, interval})
+			(call 'array :push_back {stack, interval})
 		(endif)
-		(d-call 'array 'get_length {stack} {_, length})
+		(d-call 'array :get_length {stack} {_, length})
 		(breakif {length = start})
-		(call 'array 'pop_back {stack} {_, interval})
+		(call 'array :pop_back {stack} {_, interval})
 	(loop-end)
 
-	(exit 'array 'sort {this})
+	(exit 'array :sort {this})
 	(pop-scope)
 	(return)
 
 (def-func-end)
 
-(def-method 'array 'slice)
+(def-method 'array :slice)
 	;inputs
 	;r0 = array object (ptr)
 	;r1 = element start index (uint)
@@ -427,14 +427,14 @@
 	;r1-r8
 
 	;save inputs
-	(entry 'array 'slice '(r6 r7 r8))
+	(entry 'array :slice '(r6 r7 r8))
 
 	;create new array
-	(call 'array 'vcreate '(r0) '(r0))
+	(call 'array :vcreate '(r0) '(r0))
 	(vp-cpy-rr r8 r1)
 	(vp-sub-rr r7 r1)
 	(assign '(r1) '((r0 array_length)))
-	(call 'array 'set_capacity '(r0 r1) '(r1))
+	(call 'array :set_capacity '(r0 r1) '(r1))
 	(vp-cpy-rr r6 r0)
 
 	;copy elements
@@ -449,12 +449,12 @@
 		(loop-until '(r7 = r8))
 	(endif)
 
-	(exit 'array 'slice '(r0 r1))
+	(exit 'array :slice '(r0 r1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'array 'append)
+(def-method 'array :append)
 	;inputs
 	;r0 = array object (ptr)
 	;r1 = source array object (ptr)
@@ -466,7 +466,7 @@
 	;r1-r9
 
 	;save inputs
-	(entry 'array 'append '(r0 r1 r2 r3))
+	(entry 'array :append '(r0 r1 r2 r3))
 
 	(vpif '(r2 /= r3))
 		;save inputs
@@ -477,7 +477,7 @@
 		(vp-sub-rr r2 r3)
 		(assign '((& r3 r9)) '(r1))
 		(assign '(r1) '((r0 array_length)))
-		(call 'array 'set_capacity '(r0 r1) '(r0))
+		(call 'array :set_capacity '(r0 r1) '(r0))
 
 		;append elements
 		(class/array/get_iters r6 r7 r8 r1)
@@ -490,12 +490,12 @@
 		(loop-until '(r7 = r8))
 	(endif)
 
-	(exit 'array 'append '(r0))
+	(exit 'array :append '(r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'array 'cat)
+(def-method 'array :cat)
 	;inputs
 	;r0 = array object (ptr)
 	;r1 = list of array objects (ptr)
@@ -504,10 +504,10 @@
 	;trashes
 	;r0-r11
 
-	(entry 'array 'cat '(_ r1))
+	(entry 'array :cat '(_ r1))
 
 	(class/array/get_both r1 r10 r11)
-	(call 'array 'vcreate '(r0) '(r0))
+	(call 'array :vcreate '(r0) '(r0))
 	(vpif '(r0 /= 0))
 		(vp-cpy-rr r10 r9)
 		(vp-xor-rr r1 r1)
@@ -518,20 +518,20 @@
 			(vp-add-rr r2 r1)
 		(loop-until '(r10 = r11))
 		(vp-cpy-rr r9 r10)
-		(call 'array 'set_capacity '(r0 r1) '(r0))
+		(call 'array :set_capacity '(r0 r1) '(r0))
 		(loop-start)
 			(assign '((r10 0)) '(r1))
 			(vp-add-cr ptr_size r10)
-			(call 'array 'append '(r0 r1 0 (r1 array_length)) '(r0))
+			(call 'array :append '(r0 r1 0 (r1 array_length)) '(r0))
 		(loop-until '(r10 = r11))
 	(endif)
 
-	(exit 'array 'cat '(r0))
+	(exit 'array :cat '(r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'array 'print)
+(def-method 'array :print)
 	;inputs
 	;r0 = array object (ptr)
 	;r1 = stream object (ptr)
@@ -546,30 +546,30 @@
 	(def-struct-end)
 
 	(vp-alloc local_size)
-	(entry 'array 'print '(r0 r1))
+	(entry 'array :print '(r0 r1))
 	(assign '(r0 r1) '((rsp local_this) (rsp local_stream)))
 
-	(call 'stream 'write_char '(r1 char_lrb))
-	(call 'array 'get_both '((rsp local_this)) '(_ r1 r2))
+	(call 'stream :write_char '(r1 char_lrb))
+	(call 'array :get_both '((rsp local_this)) '(_ r1 r2))
 	(vpif '(r1 /= r2))
 		(assign '(r1 r2) '((rsp local_iter_begin) (rsp local_iter_end)))
 		(loop-start)
 			(vp-cpy-ir r1 0 r0)
 			(assign '((rsp local_this)) '(r1))
-			(v-call 'array 'velement '(r0) '(r0) r1 r1)
-			(call 'num 'print '(r0 (rsp local_stream)) '(r0))
-			(call 'num 'deref '(r0))
+			(v-call 'array :velement '(r0) '(r0) r1 r1)
+			(call 'num :print '(r0 (rsp local_stream)) '(r0))
+			(call 'num :deref '(r0))
 			(assign '((rsp local_iter_begin) (rsp local_iter_end)) '(r1 r2))
 			(vp-add-cr long_size r1)
 			(breakif '(r1 = r2))
 			(assign '(r1) '((rsp local_iter_begin)))
-			(call 'stream 'write_char '((rsp local_stream) char_space))
+			(call 'stream :write_char '((rsp local_stream) char_space))
 			(assign '((rsp local_iter_begin)) '(r1))
 		(loop-end)
 	(endif)
-	(call 'stream 'write_char '((rsp local_stream) char_rrb))
+	(call 'stream :write_char '((rsp local_stream) char_rrb))
 
-	(exit 'array 'print '((rsp local_this)))
+	(exit 'array :print '((rsp local_this)))
 	(vp-free local_size)
 	(vp-ret)
 

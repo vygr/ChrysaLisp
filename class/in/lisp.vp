@@ -2,7 +2,7 @@
 (include 'class/in/class.inc)
 (include 'class/lisp/class.inc)
 
-(def-method 'in 'lisp_create)
+(def-method 'in :lisp_create)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -12,26 +12,26 @@
 	;trashes
 	;r1-r14
 
-	(entry 'in 'lisp_create '(r0 r1))
+	(entry 'in :lisp_create '(r0 r1))
 
 (errorcases
 	(assign '((r1 array_length)) '(r2))
 	(gotoif '(r2 /= 0) 'error))
 
 	(vp-push r0)
-	(call 'in 'create '(0) '(r1))
+	(call 'in :create '(0) '(r1))
 	(vp-pop r0)
 
-	(exit 'in 'lisp_create '(r0 r1))
+	(exit 'in :lisp_create '(r0 r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r0 "(in-stream)" error_msg_wrong_types r1)))
+	(jump 'lisp :repl_error '(r0 "(in-stream)" error_msg_wrong_types r1)))
 
 (def-func-end)
 
-(def-method 'in 'lisp_next_msg)
+(def-method 'in :lisp_next_msg)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -41,25 +41,25 @@
 	;trashes
 	;r1-r14
 
-	(entry 'in 'lisp_next_msg '(r0 r1))
+	(entry 'in :lisp_next_msg '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_sig '(r1 ($ sig) 1) '(r2))
+	(call 'lisp :env_args_sig '(r1 ($ sig) 1) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
-	(defq in (method-input 'in 'next_msg))
+	(defq in (method-input 'in :next_msg))
 	(class/array/bind_args r1 in)
-	(call 'in 'next_msg in '(r1))
+	(call 'in :next_msg in '(r1))
 	(class/obj/ref r1 r2)
 	(vp-pop r0)
 
-	(exit 'in 'lisp_next_msg '(r0 r1))
+	(exit 'in :lisp_next_msg '(r0 r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r0 "(in-next-msg in)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(r0 "(in-next-msg in)" error_msg_wrong_types r1))
 	(signature '(in)))
 
 (def-func-end)

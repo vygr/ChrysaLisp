@@ -36,7 +36,7 @@
 	(exit 'reals _ `(,dst))
 	(vp-ret))
 
-(def-method 'reals 'add)
+(def-method 'reals :add)
 	;inputs
 	;r0 = reals object (ptr)
 	;r1 = source1 reals object, can be same (ptr)
@@ -46,12 +46,12 @@
 	;trashes
 	;r1-r14
 
-	(addop 'add
-		'(call 'sys_math 'r_add `((,src1 0) (,src2 0)) `((,iter_begin 0))))
+	(addop :add
+		'(call 'sys_math :r_add `((,src1 0) (,src2 0)) `((,iter_begin 0))))
 
 (def-func-end)
 
-(def-method 'reals 'sub)
+(def-method 'reals :sub)
 	;inputs
 	;r0 = reals object (ptr)
 	;r1 = source1 reals object, can be same (ptr)
@@ -61,12 +61,12 @@
 	;trashes
 	;r1-r14
 
-	(addop 'sub
-		'(call 'sys_math 'r_sub `((,src1 0) (,src2 0)) `((,iter_begin 0))))
+	(addop :sub
+		'(call 'sys_math :r_sub `((,src1 0) (,src2 0)) `((,iter_begin 0))))
 
 (def-func-end)
 
-(def-method 'reals 'mul)
+(def-method 'reals :mul)
 	;inputs
 	;r0 = reals object (ptr)
 	;r1 = source1 reals object, can be same (ptr)
@@ -76,8 +76,8 @@
 	;trashes
 	;r1-r14
 
-	(addop 'mul
-		'(call 'sys_math 'r_mul `((,src1 0) (,src2 0)) `((,iter_begin 0))))
+	(addop :mul
+		'(call 'sys_math :r_mul `((,src1 0) (,src2 0)) `((,iter_begin 0))))
 
 (def-func-end)
 
@@ -101,7 +101,7 @@
 	(exit 'reals _ `(,dst 0))
 	(vp-ret)))
 
-(def-method 'reals 'div)
+(def-method 'reals :div)
 	;inputs
 	;r0 = reals object (ptr)
 	;r1 = source1 reals object, can be same (ptr)
@@ -111,16 +111,16 @@
 	;trashes
 	;r1-r14
 
-	(defq in (method-input 'sys_math 'r_div))
-	(divop 'div
+	(defq in (method-input 'sys_math :r_div))
+	(divop :div
 		'(progn
 			(assign `((,src1 0) (,src2 0)) in)
 			(errorif `(,(elem 1 in) = 0) 'error)
-			(call 'sys_math 'r_div in `((,iter_begin 0)))))
+			(call 'sys_math :r_div in `((,iter_begin 0)))))
 
 (def-func-end)
 
-(def-method 'reals 'mod)
+(def-method 'reals :mod)
 	;inputs
 	;r0 = reals object (ptr)
 	;r1 = source1 reals object, can be same (ptr)
@@ -130,16 +130,16 @@
 	;trashes
 	;r1-r14
 
-	(defq in (method-input 'sys_math 'r_mod))
-	(divop 'mod
+	(defq in (method-input 'sys_math :r_mod))
+	(divop :mod
 		'(progn
 			(assign `((,src1 0) (,src2 0)) in)
 			(errorif `(,(elem 1 in) = 0) 'error)
-			(call 'sys_math 'r_mod in `((,iter_begin 0)))))
+			(call 'sys_math :r_mod in `((,iter_begin 0)))))
 
 (def-func-end)
 
-(def-method 'reals 'frac)
+(def-method 'reals :frac)
 	;inputs
 	;r0 = reals object (ptr)
 	;r1 = source reals object, can be same (ptr)
@@ -148,12 +148,12 @@
 	;trashes
 	;r1-r14
 
-	(absop 'frac
-		'(call 'sys_math 'r_frac `((,src1 0)) `((,iter_begin 0))))
+	(absop :frac
+		'(call 'sys_math :r_frac `((,src1 0)) `((,iter_begin 0))))
 
 (def-func-end)
 
-(def-method 'reals 'floor)
+(def-method 'reals :floor)
 	;inputs
 	;r0 = reals object (ptr)
 	;r1 = source reals object, can be same (ptr)
@@ -162,12 +162,12 @@
 	;trashes
 	;r1-r14
 
-	(absop 'floor
-		'(call 'sys_math 'r_floor `((,src1 0)) `((,iter_begin 0))))
+	(absop :floor
+		'(call 'sys_math :r_floor `((,src1 0)) `((,iter_begin 0))))
 
 (def-func-end)
 
-(def-method 'reals 'abs)
+(def-method 'reals :abs)
 	;inputs
 	;r0 = reals object (ptr)
 	;r1 = source reals object, can be same (ptr)
@@ -176,18 +176,18 @@
 	;trashes
 	;r1-r14
 
-	(absop 'abs
+	(absop :abs
 		'(progn
- 			(defq in (method-input 'sys_math 'r_sub 1))
+ 			(defq in (method-input 'sys_math :r_sub 1))
 			(vp-cpy-ir src1 0 in)
  			(vpif `(,in < 0))
-				(call 'sys_math 'r_sub `(0 ,in) `(,in))
+				(call 'sys_math :r_sub `(0 ,in) `(,in))
 			(endif)
 			(vp-cpy-ri in iter_begin 0)))
 
 (def-func-end)
 
-(def-method 'reals 'scale)
+(def-method 'reals :scale)
 	;inputs
 	;r0 = reals object (ptr)
 	;r1 = source reals object, can be same (ptr)
@@ -199,22 +199,22 @@
 
 	(vp-def (dst src scale iter_begin iter_end))
 
-	(entry 'reals 'scale `(,dst ,src ,scale))
+	(entry 'reals :scale `(,dst ,src ,scale))
 
 	(class/array/get_both dst iter_begin iter_end)
 	(assign `((,src array_begin)) `(,src))
 	(loop-start)
-		(call 'sys_math 'r_mul `((,src 0) ,scale) `((,iter_begin 0)))
+		(call 'sys_math :r_mul `((,src 0) ,scale) `((,iter_begin 0)))
 		(vp-add-cr long_size iter_begin)
 		(vp-add-cr long_size src)
 	(loop-until `(,iter_begin = ,iter_end))
 
-	(exit 'reals 'scale `(,dst))
+	(exit 'reals :scale `(,dst))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'reals 'sum)
+(def-method 'reals :sum)
 	;inputs
 	;r0 = reals object (ptr)
 	;outputs
@@ -224,18 +224,18 @@
 	;r1-r14
 
 	(vp-def (sum dst iter_begin iter_end)
-		(list (method-input 'sys_math 'r_add 0)))
+		(list (method-input 'sys_math :r_add 0)))
 
-	(entry 'reals 'sum `(,dst))
+	(entry 'reals :sum `(,dst))
 
-	(call 'reals 'get_both `(,dst) `(,dst ,iter_begin ,iter_end))
+	(call 'reals :get_both `(,dst) `(,dst ,iter_begin ,iter_end))
 	(vp-xor-rr sum sum)
 	(loop-while `(,iter_begin /= ,iter_end))
-		(call 'sys_math 'r_add `(,sum (,iter_begin 0)) `(,sum))
+		(call 'sys_math :r_add `(,sum (,iter_begin 0)) `(,sum))
 		(vp-add-cr long_size iter_begin)
 	(loop-end)
 
-	(exit 'reals 'sum `(,dst ,sum))
+	(exit 'reals :sum `(,dst ,sum))
 	(vp-ret)
 
 (def-func-end)

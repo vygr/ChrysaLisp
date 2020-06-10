@@ -7,7 +7,7 @@
 (gen-create 'label)
 (gen-vtable 'label)
 
-(def-method 'label 'init)
+(def-method 'label :init)
 	;inputs
 	;r0 = label object (ptr)
 	;r1 = vtable (pptr)
@@ -17,35 +17,35 @@
 	;trashes
 	;r1-r14
 
-	(entry 'label 'init '(r0 r1))
+	(entry 'label :init '(r0 r1))
 
 	;init parent
-	(s-call 'label 'init '(r0 r1) '(r0 r1))
+	(s-call 'label :init '(r0 r1) '(r0 r1))
 	(vpif '(r1 /= 0))
 		;add my flow
 		(vp-push r0)
-		(call 'flow 'create nil '(r1))
+		(call 'flow :create nil '(r1))
 		(assign '((rsp 0)) '(r0))
 		(assign '(r1) '((r0 label_flow)))
 		(vp-xor-rr r2 r2)
 		(assign '(r2) '((r1 view_flags)))
-		(call 'label 'add_back '(r0 r1))
+		(call 'label :add_back '(r0 r1))
 
 		;add my text object
-		(call 'text 'create nil '(r1))
+		(call 'text :create nil '(r1))
 		(assign '((rsp 0)) '(r0))
 		(assign '(r1) '((r0 label_text)))
-		(call 'label 'add_back '((r0 label_flow) r1))
+		(call 'label :add_back '((r0 label_flow) r1))
 		(vp-pop r0)
 		(vp-cpy-cr 1 r1)
 	(endif)
 
-	(exit 'label 'init '(r0 r1))
+	(exit 'label :init '(r0 r1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'label 'draw)
+(def-method 'label :draw)
 	;inputs
 	;r0 = label object (ptr)
 	;r1 = draw ctx (ptr)
@@ -54,20 +54,20 @@
 	;trashes
 	;r1-r14
 
-	(entry 'label 'draw '(r0 r1))
+	(entry 'label :draw '(r0 r1))
 
 	;draw panel, in or out
 	(vp-push r1)
-	(call 'label 'get_long_prop '(r0 static_sym_border) '(r0 r1))
+	(call 'label :get_long_prop '(r0 static_sym_border) '(r0 r1))
 	(vp-pop r2)
-	(call 'label 'draw_panel '(r0 r2 1 r1) '(r0))
+	(call 'label :draw_panel '(r0 r2 1 r1) '(r0))
 
-	(exit 'label 'draw '(r0))
+	(exit 'label :draw '(r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'label 'layout)
+(def-method 'label :layout)
 	;inputs
 	;r0 = label object (ptr)
 	;outputs
@@ -75,9 +75,9 @@
 	;trashes
 	;r1-r14
 
-	(entry 'label 'layout '(r0))
+	(entry 'label :layout '(r0))
 
-	(call 'label 'get_long_prop '(r0 static_sym_border) '(r0 r1))
+	(call 'label :get_long_prop '(r0 static_sym_border) '(r0 r1))
 	(vpif '(r1 < 0))
 		(vp-mul-cr -1 r1)
 	(endif)
@@ -86,21 +86,21 @@
 	(vp-sub-rr r2 r9)
 	(vp-sub-rr r2 r10)
 	(vp-push r0)
-	(call 'flow 'change '((r0 label_flow) r1 r1 r9 r10) '(r0))
-	(call 'flow 'layout '(r0))
+	(call 'flow :change '((r0 label_flow) r1 r1 r9 r10) '(r0))
+	(call 'flow :layout '(r0))
 	(vp-pop r0)
-	(call 'label 'get_long_prop '(r0 static_sym_color) '(r0 r1))
+	(call 'label :get_long_prop '(r0 static_sym_color) '(r0 r1))
 	(vp-shr-cr 24 r1)
 	(vpif '(r1 = 0xff))
-		(jump 'view 'set_flags '(r0 view_flag_opaque view_flag_opaque))
+		(jump 'view :set_flags '(r0 view_flag_opaque view_flag_opaque))
 	(endif)
 
-	(exit 'label 'layout '(r0))
+	(exit 'label :layout '(r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'label 'pref_size)
+(def-method 'label :pref_size)
 	;inputs
 	;r0 = label object (ptr)
 	;outputs
@@ -117,13 +117,13 @@
 	(def-struct-end)
 
 	(vp-alloc local_size)
-	(entry 'label 'pref_size '(r0))
+	(entry 'label :pref_size '(r0))
 
 	(assign '(r0) '((rsp local_this)))
-	(call 'label 'get_long_prop '(r0 static_sym_border) '(r0 (rsp local_depth)))
-	(call 'label 'get_long_prop '(r0 static_sym_min_width) '(r0 (rsp local_mw)))
-	(call 'label 'get_long_prop '(r0 static_sym_min_height) '(r0 (rsp local_mh)))
-	(call 'flow 'pref_size '((r0 label_flow)) '(_ r9 r10))
+	(call 'label :get_long_prop '(r0 static_sym_border) '(r0 (rsp local_depth)))
+	(call 'label :get_long_prop '(r0 static_sym_min_width) '(r0 (rsp local_mw)))
+	(call 'label :get_long_prop '(r0 static_sym_min_height) '(r0 (rsp local_mh)))
+	(call 'flow :pref_size '((r0 label_flow)) '(_ r9 r10))
 	(assign '((rsp local_depth) (rsp local_mw) (rsp local_mh)) '(r1 r7 r8))
 	(vpif '(r1 < 0))
 		(vp-mul-cr -1 r1)
@@ -138,13 +138,13 @@
 	(vp-add-rr r1 r9)
 	(vp-add-rr r1 r10)
 
-	(exit 'label 'pref_size '((rsp local_this) r9 r10))
+	(exit 'label :pref_size '((rsp local_this) r9 r10))
 	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'label 'add_child)
+(def-method 'label :add_child)
 	;inputs
 	;r0 = label object (ptr)
 	;r1 = child view object (ptr)
@@ -153,13 +153,13 @@
 	;trashes
 	;r1-r14
 
-	(entry 'label 'add_child '(r0 r1))
+	(entry 'label :add_child '(r0 r1))
 
 	(vp-push r0)
-	(call 'view 'add_back '((r0 label_flow) r1))
+	(call 'view :add_back '((r0 label_flow) r1))
 	(vp-pop r0)
 
-	(exit 'label 'add_child '(r0))
+	(exit 'label :add_child '(r0))
 	(vp-ret)
 
 (def-func-end)

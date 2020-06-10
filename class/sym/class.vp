@@ -7,13 +7,13 @@
 
 (gen-vtable 'sym)
 
-(def-method 'sym 'statics)
+(def-method 'sym :statics)
 	;info
 	;symbol static data
 	(times sym_statics_size (vp-byte 0))
 (def-func-end)
 
-(def-method 'sym 'statics_init)
+(def-method 'sym :statics_init)
 	;trashes
 	;r0-r14
 
@@ -22,19 +22,19 @@
 	(uint 'length)
 
 	(push-scope)
-	(entry 'sym 'statics_init {})
+	(entry 'sym :statics_init {})
 
-	(call 'list 'create nil {syms})
-	(call 'list 'set_capacity (cat {syms, } (str (length *static_syms*))))
+	(call 'list :create nil {syms})
+	(call 'list :set_capacity (cat {syms, } (str (length *static_syms*))))
 	(assign {$props} {next})
 	(loop-start)
-		(call 'sym 'intern_cstr {next} {sym})
-		(call 'list 'push_back {syms, sym})
-		(call 'sys_str 'length {next} {_, length})
+		(call 'sym :intern_cstr {next} {sym})
+		(call 'list :push_back {syms, sym})
+		(call 'sys_str :length {next} {_, length})
 	(loop-until {(next + length + byte_size => next) = $props_end})
-	(assign {syms} (cat {@} (f-path 'sym 'statics) {.sym_statics_syms}))
+	(assign {syms} (cat {@} (f-path 'sym :statics) {.sym_statics_syms}))
 
-	(exit 'sym 'get_static_sym {sym})
+	(exit 'sym :get_static_sym {sym})
 	(pop-scope)
 	(return)
 
@@ -48,7 +48,7 @@
 
 (def-func-end)
 
-(def-method 'sym 'get_static_sym)
+(def-method 'sym :get_static_sym)
 	;inputs
 	;r1 = static sym num (uint)
 	;outputs
@@ -56,18 +56,18 @@
 	;trashes
 	;r1, r3
 
-	(entry 'sym 'get_static_sym '(r1))
+	(entry 'sym :get_static_sym '(r1))
 
-	(f-bind 'sym 'statics r3)
+	(f-bind 'sym :statics r3)
 	(assign '((r3 sym_statics_syms)) '(r3))
 	(class/array/get_element r3 r1 r1 r3)
 
-	(exit 'sym 'get_static_sym '(r1))
+	(exit 'sym :get_static_sym '(r1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'sym 'intern)
+(def-method 'sym :intern)
 	;inputs
 	;r0 = sym object (ptr)
 	;outputs
@@ -78,29 +78,29 @@
 	;input sym IS derefed
 	;vtable MUST be a sym
 
-	(entry 'sym 'intern '(r0))
+	(entry 'sym :intern '(r0))
 
 	(vp-push r0)
-	(f-bind 'sym 'statics r0)
+	(f-bind 'sym :statics r0)
 	(assign '((r0 sym_statics_intern)) '(r0))
 	(vpif '(r0 = 0))
-		(call 'hset 'create `((@ ,(f-path 'sym 'same)) num_sym_buckets) '(r0))
-		(f-bind 'sym 'statics r1)
+		(call 'hset :create `((@ ,(f-path 'sym :same)) num_sym_buckets) '(r0))
+		(f-bind 'sym :statics r1)
 		(assign '(r0) '((r1 sym_statics_intern)))
 	(endif)
-	(call 'hset 'insert '(r0 (rsp 0)) '(_ r1 _))
-	(call 'obj 'ref '((r1 0)) '(r3))
-	(f-bind 'sym 'vtable r0)
+	(call 'hset :insert '(r0 (rsp 0)) '(_ r1 _))
+	(call 'obj :ref '((r1 0)) '(r3))
+	(f-bind 'sym :vtable r0)
 	(assign '(r0) '((r3 obj_vtable)))
 	(vp-pop r0)
-	(call 'obj 'deref '(r0))
+	(call 'obj :deref '(r0))
 
-	(exit 'sym 'intern '(r3))
+	(exit 'sym :intern '(r3))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'sym 'intern_str)
+(def-method 'sym :intern_str)
 	;inputs
 	;r0 = str object (ptr)
 	;outputs
@@ -110,35 +110,35 @@
 	;info
 	;input str IS NOT derefed
 
-	(entry 'sym 'intern_str '(r0))
+	(entry 'sym :intern_str '(r0))
 
 	(vp-push r0)
-	(f-bind 'sym 'statics r0)
+	(f-bind 'sym :statics r0)
 	(assign '((r0 sym_statics_intern)) '(r0))
 	(vpif '(r0 = 0))
-		(call 'hset 'create `((@ ,(f-path 'sym 'same)) num_sym_buckets) '(r0))
-		(f-bind 'sym 'statics r1)
+		(call 'hset :create `((@ ,(f-path 'sym :same)) num_sym_buckets) '(r0))
+		(f-bind 'sym :statics r1)
 		(assign '(r0) '((r1 sym_statics_intern)))
 	(endif)
-	(call 'hset 'find '(r0 (rsp 0)) '(_ r1 r2))
+	(call 'hset :find '(r0 (rsp 0)) '(_ r1 r2))
 	(vp-pop r0)
 	(vpif '(r1 = 0))
 		(vp-cpy-rr r2 r7)
-		(call 'sym 'create_from_buffer '((& r0 str_data) (r0 str_length)) '(r0))
-		(assign `((@ ,(f-path 'sym 'vtable)) r0 r7) '(r2 r1 r0))
+		(call 'sym :create_from_buffer '((& r0 str_data) (r0 str_length)) '(r0))
+		(assign `((@ ,(f-path 'sym :vtable)) r0 r7) '(r2 r1 r0))
 		(assign '(r2) '((r1 obj_vtable)))
-		(call 'list 'push_back '(r0 r1) '(_ r1 _ _))
+		(call 'list :push_back '(r0 r1) '(_ r1 _ _))
 	(else)
 		(assign '((r1 0)) '(r1))
 	(endif)
 	(class/obj/ref r1 r0)
 
-	(exit 'sym 'intern_str '(r1))
+	(exit 'sym :intern_str '(r1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'sym 'intern_cstr)
+(def-method 'sym :intern_cstr)
 	;inputs
 	;r0 = c string pointer (pubyte)
 	;outputs
@@ -146,13 +146,13 @@
 	;trashes
 	;r0-r14
 
-	(entry 'sym 'intern_cstr '(r0))
-	(call 'sym 'create_from_cstr '(r0) '(r0))
-	(jump 'sym 'intern '(r0))
+	(entry 'sym :intern_cstr '(r0))
+	(call 'sym :create_from_cstr '(r0) '(r0))
+	(jump 'sym :intern '(r0))
 
 (def-func-end)
 
-(def-method 'sym 'intern_strs)
+(def-method 'sym :intern_strs)
 	;inputs
 	;r1 = list of string objects (ptr)
 	;outputs
@@ -166,41 +166,41 @@
 	(def-struct-end)
 
 	(vp-alloc local_size)
-	(entry 'sym 'intern_strs '(r1))
+	(entry 'sym :intern_strs '(r1))
 	(assign '(r1) '((rsp local_syms)))
 
 	(class/array/get_both r1 r1 r2)
 	(assign '(r2) '((rsp local_iter_end)))
 	(loop-while '(r1 /= r2))
 		(assign '(r1) '((rsp local_iter_begin)))
-		(call 'sym 'intern_str '((r1 0)) '((rsp local_sym)))
+		(call 'sym :intern_str '((r1 0)) '((rsp local_sym)))
 		(assign '((rsp local_iter_begin)) '(r0))
-		(call 'str 'deref '((r0 0)))
+		(call 'str :deref '((r0 0)))
 		(assign '((rsp local_sym) (rsp local_iter_begin) (rsp local_iter_end)) '(r0 r1 r2))
 		(assign '(r0) '((r1 0)))
 		(vp-add-cr ptr_size r1)
 	(loop-end)
 
-	(exit 'sym 'intern_strs '((rsp local_syms)))
+	(exit 'sym :intern_strs '((rsp local_syms)))
 	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'sym 'flush)
+(def-method 'sym :flush)
 	;trashes
 	;r0-r14
 
-	(f-bind 'sym 'statics r0)
+	(f-bind 'sym :statics r0)
 	(assign '((r0 sym_statics_intern)) '(r0))
-	(call 'hset 'create '((r0 hset_key_callback) (r0 hset_num_buckets)) '(r0))
+	(call 'hset :create '((r0 hset_key_callback) (r0 hset_num_buckets)) '(r0))
 	(vp-push r0)
-	(f-bind 'sym 'statics r0)
+	(f-bind 'sym :statics r0)
 	(assign '((r0 sym_statics_intern)) '(r0))
-	(call 'hset 'for_each '(r0 ($ flush_callback) rsp) '(r0))
-	(call 'hset 'deref '(r0))
+	(call 'hset :for_each '(r0 ($ flush_callback) rsp) '(r0))
+	(call 'hset :deref '(r0))
 	(vp-pop r0)
-	(f-bind 'sym 'statics r1)
+	(f-bind 'sym :statics r1)
 	(assign '(r0) '((r1 sym_statics_intern)))
 	(vp-ret)
 
@@ -209,23 +209,23 @@
 	;r0 = predicate data (ptr)
 	;r1 = element iterator (pptr)
 
-	(entry 'hset 'each_callback '(r0 r1))
+	(entry 'hset :each_callback '(r0 r1))
 
 	(vp-cpy-ir r1 0 r1)
 	(assign '((r1 obj_count)) '(r2))
 	(vpif '(r2 /= 1))
 		(vp-cpy-ir r0 0 r2)
-		(call 'obj 'ref '(r1) '(r0))
+		(call 'obj :ref '(r1) '(r0))
 		(vp-push r0)
-		(call 'hset 'get_bucket '(r2 r0) '(_ r0))
+		(call 'hset :get_bucket '(r2 r0) '(_ r0))
 		(vp-pop r1)
-		(jump 'list 'push_back '(r0 r1))
+		(jump 'list :push_back '(r0 r1))
 	(endif)
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'sym 'print)
+(def-method 'sym :print)
 	;inputs
 	;r0 = sym object (ptr)
 	;r1 = stream object (ptr)
@@ -234,14 +234,14 @@
 	;trashes
 	;r1-r14
 
-	(entry 'sym 'print '(r0 r1))
+	(entry 'sym :print '(r0 r1))
 
 	(vp-push r0)
 	(vp-cpy-rr r1 r3)
-	(call 'stream 'write '(r3 (& r0 str_data) (r0 str_length)))
+	(call 'stream :write '(r3 (& r0 str_data) (r0 str_length)))
 	(vp-pop r0)
 
-	(exit 'sym 'print '(r0))
+	(exit 'sym :print '(r0))
 	(vp-ret)
 
 (def-func-end)

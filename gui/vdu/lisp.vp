@@ -4,7 +4,7 @@
 (include 'class/num/class.inc)
 (include 'class/lisp/class.inc)
 
-(def-method 'vdu 'lisp_create)
+(def-method 'vdu :lisp_create)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -14,26 +14,26 @@
 	;trashes
 	;r1-r14
 
-	(entry 'vdu 'lisp_create '(r0 r1))
+	(entry 'vdu :lisp_create '(r0 r1))
 
 (errorcases
 	(assign '((r1 array_length)) '(r2))
 	(gotoif '(r2 /= 0) 'error))
 
 	(vp-push r0)
-	(call 'vdu 'create nil '(r1))
+	(call 'vdu :create nil '(r1))
 	(vp-pop r0)
 
-	(exit 'vdu 'lisp_create '(r0 r1))
+	(exit 'vdu :lisp_create '(r0 r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r0 "(create-vdu)" error_msg_wrong_num_of_args r1)))
+	(jump 'lisp :repl_error '(r0 "(create-vdu)" error_msg_wrong_num_of_args r1)))
 
 (def-func-end)
 
-(def-method 'vdu 'lisp_load)
+(def-method 'vdu :lisp_load)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -49,10 +49,10 @@
 	(uint 'ox 'oy 'cx 'cy)
 	(int 'len)
 
-	(entry 'vdu 'lisp_load '(r0 r1))
+	(entry 'vdu :lisp_load '(r0 r1))
 
 (errorcases
-	(call 'lisp 'env_args_sig '(r1 ($ sig) 6) '(r2))
+	(call 'lisp :env_args_sig '(r1 ($ sig) 6) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(push-scope)
@@ -60,8 +60,8 @@
 	(assign '(r0 r1 r2 r3 r4 r5 r6) {this, vdu, lines, ox, oy, cx, cy})
 
 	;load vdu with line text
-	(call 'vdu 'dirty {vdu})
-	(call 'sys_mem 'fill {vdu->vdu_chars, vdu->vdu_width * vdu->vdu_height, char_space + (char_space << 8)
+	(call 'vdu :dirty {vdu})
+	(call 'sys_mem :fill {vdu->vdu_chars, vdu->vdu_width * vdu->vdu_height, char_space + (char_space << 8)
 		+ (char_space << 16) + (char_space << 24) + (char_space << 32) + (char_space << 40)
 		+ (char_space << 48) + (char_space << 56)})
 	(assign {lines->array_length - oy} {len})
@@ -69,19 +69,19 @@
 		(vpif {len > vdu->vdu_height})
 			(assign {vdu->vdu_height} {len})
 		(endif)
-		(call 'list 'get_iters {lines, oy, oy + len} {_, iter_begin, iter_end})
+		(call 'list :get_iters {lines, oy, oy + len} {_, iter_begin, iter_end})
 		(breakif {iter_begin = iter_end})
 		(assign {vdu->vdu_chars} {cursor})
 		(loop-start)
 			(assign {*iter_begin} {line})
 		(errorcases
-			(gotoif (cat {line->obj_vtable /= @} (f-path 'str 'vtable)) 'exit))
+			(gotoif (cat {line->obj_vtable /= @} (f-path 'str :vtable)) 'exit))
 			(assign {line->str_length - ox} {len})
 			(vpif {len > 0})
 				(vpif {len > vdu->vdu_width})
 					(assign {vdu->vdu_width} {len})
 				(endif)
-				(call 'sys_mem 'copy {&line->str_data + ox, cursor, len})
+				(call 'sys_mem :copy {&line->str_data + ox, cursor, len})
 			(endif)
 			(assign {cursor + vdu->vdu_width} {cursor})
 		(loop-until {(iter_begin + ptr_size => iter_begin) = iter_end})
@@ -96,14 +96,14 @@
 	(endswitch)
 
 (vp-label 'exit)
-	(exit 'vdu 'lisp_load {this, vdu})
+	(exit 'vdu :lisp_load {this, vdu})
 	(class/obj/ref r1 r2)
 	(pop-scope)
 	(return)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r0 "(vdu-load vdu lines ox oy cx cy)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(r0 "(vdu-load vdu lines ox oy cx cy)" error_msg_wrong_types r1))
 	(signature '(vdu list num num num num)))
 
 (def-func-end)

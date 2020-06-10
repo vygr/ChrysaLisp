@@ -4,7 +4,7 @@
 (gen-create 'pair)
 (gen-vtable 'pair)
 
-(def-method 'pair 'deinit)
+(def-method 'pair :deinit)
 	;inputs
 	;r0 = pair object (ptr)
 	;outputs
@@ -12,18 +12,18 @@
 	;trashes
 	;r1-r14
 
-	(entry 'pair 'deinit '(r0))
+	(entry 'pair :deinit '(r0))
 
 	(vp-push r0)
-	(call 'obj 'deref '((r0 pair_first)))
+	(call 'obj :deref '((r0 pair_first)))
 	(assign '((rsp 0)) '(r0))
-	(call 'obj 'deref '((r0 pair_second)))
+	(call 'obj :deref '((r0 pair_second)))
 	(vp-pop r0)
-	(s-jump 'pair 'deinit '(r0))
+	(s-jump 'pair :deinit '(r0))
 
 (def-func-end)
 
-(def-method 'pair 'ref_first)
+(def-method 'pair :ref_first)
 	;inputs
 	;r0 = pair object (ptr)
 	;outputs
@@ -32,17 +32,17 @@
 	;trashes
 	;r1-r2
 
-	(entry 'pair 'ref_first '(r0))
+	(entry 'pair :ref_first '(r0))
 
 	(assign '((r0 pair_first)) '(r1))
 	(class/obj/ref r1 r2)
 
-	(exit 'pair 'ref_first '(r0 r1))
+	(exit 'pair :ref_first '(r0 r1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'pair 'ref_second)
+(def-method 'pair :ref_second)
 	;inputs
 	;r0 = pair object (ptr)
 	;outputs
@@ -51,17 +51,17 @@
 	;trashes
 	;r1-r2
 
-	(entry 'pair 'ref_second '(r0))
+	(entry 'pair :ref_second '(r0))
 
 	(assign '((r0 pair_second)) '(r1))
 	(class/obj/ref r1 r2)
 
-	(exit 'pair 'ref_second '(r0 r1))
+	(exit 'pair :ref_second '(r0 r1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'pair 'set_first)
+(def-method 'pair :set_first)
 	;inputs
 	;r0 = pair object (ptr)
 	;r1 = object (ptr)
@@ -70,19 +70,19 @@
 	;trashes
 	;r1-r14
 
-	(entry 'pair 'set_first '(r0 r1))
+	(entry 'pair :set_first '(r0 r1))
 
 	(vp-push r0)
 	(assign '((r0 pair_first) r1) '(r2 (r0 pair_first)))
-	(call 'obj 'deref '(r2))
+	(call 'obj :deref '(r2))
 	(vp-pop r0)
 
-	(exit 'pair 'set_first '(r0))
+	(exit 'pair :set_first '(r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'pair 'set_second)
+(def-method 'pair :set_second)
 	;inputs
 	;r0 = pair object (ptr)
 	;r1 = object (ptr)
@@ -91,14 +91,14 @@
 	;trashes
 	;r1-r14
 
-	(entry 'pair 'set_second '(r0 r1))
+	(entry 'pair :set_second '(r0 r1))
 
 	(vp-push r0)
 	(assign '((r0 pair_second) r1) '(r2 (r0 pair_second)))
-	(call 'obj 'deref '(r2))
+	(call 'obj :deref '(r2))
 	(vp-pop r0)
 
-	(exit 'pair 'set_second '(r0))
+	(exit 'pair :set_second '(r0))
 	(vp-ret)
 
 (def-func-end)

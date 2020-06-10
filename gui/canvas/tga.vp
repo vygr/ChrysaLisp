@@ -18,7 +18,7 @@
 	(ubyte 'origin)
 (def-struct-end)
 
-(def-method 'canvas 'info_tga)
+(def-method 'canvas :info_tga)
 	;inputs
 	;r5 = stream object (ptr)
 	;outputs
@@ -33,10 +33,10 @@
 	(def-struct-end)
 
 	(vp-alloc local_size)
-	(entry 'canvas 'info_tga '(r0))
+	(entry 'canvas :info_tga '(r0))
 
 	;read header
-	(call 'stream 'read '(r0 rsp tga_size) '(_ r1))
+	(call 'stream :read '(r0 rsp tga_size) '(_ r1))
 	(switch)
 	(breakif '(r1 /= tga_size))
 	(assign '((rsp tga_depth) (rsp tga_type)) '(r2 r3))
@@ -44,7 +44,7 @@
 	(vpcase '(r2 = 32))
 	(vp-label 'okdepth)
 		;return info
-		(exit 'canvas 'info_tga '((rsp tga_width) (rsp tga_height) r2))
+		(exit 'canvas :info_tga '((rsp tga_width) (rsp tga_height) r2))
 		(vp-free local_size)
 		(vp-ret)
 	(vpcase '(r2 = 24))
@@ -52,13 +52,13 @@
 	(endswitch)
 
 	;return error
-	(exit 'canvas 'info_tga '(-1 -1 -1))
+	(exit 'canvas :info_tga '(-1 -1 -1))
 	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'canvas 'load_tga)
+(def-method 'canvas :load_tga)
 	;inputs
 	;r5 = stream object (ptr)
 	;outputs
@@ -75,15 +75,15 @@
 
 	;save inputs
 	(push-scope)
-	(entry 'canvas 'load_tga {stream})
+	(entry 'canvas :load_tga {stream})
 
 	;read header
-	(call 'stream 'read {stream, &header, tga_size} {_, length})
+	(call 'stream :read {stream, &header, tga_size} {_, length})
 	(gotoif {length /= tga_size || header.tga_type /= 2} 'error1)
 	(gotoif {header.tga_depth /= 32 && header.tga_depth /= 24} 'error1)
 
 	;create canvas
-	(call 'canvas 'create {header.tga_width, header.tga_height, 1} {this})
+	(call 'canvas :create {header.tga_width, header.tga_height, 1} {this})
 	(vpif {this})
 		(assign {header.tga_depth} {this->canvas_stream_type})
 		(assign {this->canvas_array->array_begin} {data})
@@ -92,23 +92,23 @@
 
 		;decode acording to type
 		(loop-start)
-			(call 'stream 'read_bits {stream, header.tga_depth, bit_pool, bit_pool_size} {_, col, bit_pool, bit_pool_size})
+			(call 'stream :read_bits {stream, header.tga_depth, bit_pool, bit_pool_size} {_, col, bit_pool, bit_pool_size})
 			(gotoif {col = -1} 'error)
 			(vpif {header.tga_depth = 24})
 				(assign {argb_black + col} {col})
 			(endif)
 			(assign {col} {*data})
 		(loop-until {(data + int_size => data) = data_end})
-		(call 'canvas 'as_premul {this, this})
+		(call 'canvas :as_premul {this, this})
 	(endif)
 
-	(exit 'canvas 'load_tga {this})
+	(exit 'canvas :load_tga {this})
 	(return)
 
 (vp-label 'error)
-	(call 'canvas 'deref {this})
+	(call 'canvas :deref {this})
 (vp-label 'error1)
-	(exit 'canvas 'load_tga '(0))
+	(exit 'canvas :load_tga '(0))
 	(pop-scope)
 	(return)
 

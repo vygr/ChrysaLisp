@@ -7,7 +7,7 @@
 (gen-create 'button)
 (gen-vtable 'button)
 
-(def-method 'button 'init)
+(def-method 'button :init)
 	;inputs
 	;r0 = button object (ptr)
 	;r1 = vtable (pptr)
@@ -17,22 +17,22 @@
 	;trashes
 	;r1-r14
 
-	(entry 'button 'init '(r0 r1))
+	(entry 'button :init '(r0 r1))
 
 	;init parent
-	(s-call 'button 'init '(r0 r1) '(r0 r1))
+	(s-call 'button :init '(r0 r1) '(r0 r1))
 	(vpif '(r1 /= 0))
 		;init myself
 		(vp-xor-rr r2 r2)
 		(assign '(r2) '((r0 button_state)))
 	(endif)
 
-	(exit 'button 'init '(r0 r1))
+	(exit 'button :init '(r0 r1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'button 'draw)
+(def-method 'button :draw)
 	;inputs
 	;r0 = button object (ptr)
 	;r1 = draw ctx (ptr)
@@ -41,25 +41,25 @@
 	;trashes
 	;r1-r14
 
-	(entry 'button 'draw '(r0 r1))
+	(entry 'button :draw '(r0 r1))
 
 	;draw panel, in or out
 	(vp-push r1)
-	(call 'button 'get_long_prop '(r0 static_sym_border) '(r0 r3))
+	(call 'button :get_long_prop '(r0 static_sym_border) '(r0 r3))
 	(assign '((r0 button_state)) '(r1))
 	(vp-and-cr button_state_pressed r1)
 	(vpif '(r1 /= 0))
 		(vp-mul-cr -1 r3)
 	(endif)
 	(vp-pop r1)
-	(call 'button 'draw_panel '(r0 r1 1 r3) '(r0))
+	(call 'button :draw_panel '(r0 r1 1 r3) '(r0))
 
-	(exit 'button 'draw '(r0))
+	(exit 'button :draw '(r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'button 'layout)
+(def-method 'button :layout)
 	;inputs
 	;r0 = button object (ptr)
 	;outputs
@@ -67,10 +67,10 @@
 	;trashes
 	;r1-r14
 
-	(entry 'button 'layout '(r0))
+	(entry 'button :layout '(r0))
 
 	;contents offset or not
-	(call 'button 'get_long_prop '(r0 static_sym_border) '(r0 r1))
+	(call 'button :get_long_prop '(r0 static_sym_border) '(r0 r1))
 	(assign '((r0 button_state) r1) '(r2 r3))
 	(vp-and-cr button_state_pressed r2)
 	(vpif '(r2 /= 0))
@@ -81,14 +81,14 @@
 	(vp-sub-rr r3 r9)
 	(vp-sub-rr r3 r10)
 	(vp-push r0)
-	(call 'flow 'change '((r0 label_flow) r1 r1 r9 r10) '(r0))
-	(call 'flow 'layout '(r0))
+	(call 'flow :change '((r0 label_flow) r1 r1 r9 r10) '(r0))
+	(call 'flow :layout '(r0))
 	(vp-pop r0)
-	(jump 'view 'set_flags '(r0 view_flag_opaque view_flag_opaque))
+	(jump 'view :set_flags '(r0 view_flag_opaque view_flag_opaque))
 
 (def-func-end)
 
-(def-method 'button 'mouse_up)
+(def-method 'button :mouse_up)
 	;inputs
 	;r0 = button object (ptr)
 	;r1 = mouse event data (ptr)
@@ -97,7 +97,7 @@
 	;trashes
 	;r1-r14
 
-	(entry 'button 'mouse_up '(r0 r1))
+	(entry 'button :mouse_up '(r0 r1))
 
 	(assign '((r0 button_state)) '(r1))
 	(vp-push r1)
@@ -106,23 +106,23 @@
 	(vp-and-cr (lognot button_state_pressed) r1)
 	(assign '(r1) '((r0 button_state)))
 	(vpif '(r1 /= r2))
-		(call 'button 'layout '(r0) '(r0))
-		(call 'button 'dirty '(r0) '(r0))
+		(call 'button :layout '(r0) '(r0))
+		(call 'button :dirty '(r0) '(r0))
 	(endif)
 
 	;emit pressed signal ?
 	(vp-pop r1)
 	(vp-and-cr button_state_pressed r1)
 	(vpif '(r1 /= 0))
-		(jump 'button 'emit '(r0))
+		(jump 'button :emit '(r0))
 	(endif)
 
-	(exit 'button 'mouse_up '(r0))
+	(exit 'button :mouse_up '(r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'button 'mouse_move)
+(def-method 'button :mouse_move)
 	;inputs
 	;r0 = button object (ptr)
 	;r1 = mouse event data (ptr)
@@ -131,10 +131,10 @@
 	;trashes
 	;r1-r14
 
-	(entry 'button 'mouse_move '(r0 r1))
+	(entry 'button :mouse_move '(r0 r1))
 
 	;hit ?
-	(call 'button 'hit '(r0 (r1 ev_msg_mouse_rx) (r1 ev_msg_mouse_ry)) '(r0 r1))
+	(call 'button :hit '(r0 (r1 ev_msg_mouse_rx) (r1 ev_msg_mouse_ry)) '(r0 r1))
 
 	;is mouse over button ?
 	(assign '((r0 button_state)) '(r2))
@@ -150,11 +150,11 @@
 
 	;if state changed then dirty
 	(vpif '(r2 /= r3))
-		(call 'button 'layout '(r0) '(r0))
-		(jump 'button 'dirty '(r0))
+		(call 'button :layout '(r0) '(r0))
+		(jump 'button :dirty '(r0))
 	(endif)
 
-	(exit 'button 'mouse_move '(r0))
+	(exit 'button :mouse_move '(r0))
 	(vp-ret)
 
 (def-func-end)

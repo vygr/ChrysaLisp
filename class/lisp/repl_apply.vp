@@ -2,7 +2,7 @@
 (include 'class/func/class.inc)
 (include 'class/lisp/class.inc)
 
-(def-method 'lisp 'repl_apply)
+(def-method 'lisp :repl_apply)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -17,10 +17,10 @@
 		(ptr 'this 'value 'iter_begin 'iter_end)
 	(def-struct-end)
 
-	(entry 'lisp 'repl_apply '(r0 r1 r2))
+	(entry 'lisp :repl_apply '(r0 r1 r2))
 
 	(assign '((r2 obj_vtable)) '(r3))
-	(f-bind 'func 'vtable r4)
+	(f-bind 'func :vtable r4)
 	(vpif '(r3 = r4))
 		;built in or compiled function
 		(assign '((r2 num_value)) '(r2))
@@ -29,7 +29,7 @@
 	(endif)
 
 (errorcases
-	(f-bind 'list 'vtable r4)
+	(f-bind 'list :vtable r4)
 	(gotoif '(r3 /= r4) 'error2)
 	(assign '((r2 array_length)) '(r3))
 	(gotoif '(r3 < 2) 'error1))
@@ -49,34 +49,34 @@
 	(assign '(r0 r1 r3 r4)
 		'((rsp local_this) (rsp local_value) (rsp local_iter_begin) (rsp local_iter_end)))
 
-	(call 'lisp 'env_push '(r0) '(r0))
+	(call 'lisp :env_push '(r0) '(r0))
 	(assign '((rsp local_iter_begin)) '(r1))
-	(call 'lisp 'env_bind '(r0 (r1 0) (rsp local_value)) '(r0 r1))
+	(call 'lisp :env_bind '(r0 (r1 0) (rsp local_value)) '(r0 r1))
 	(assign '(r1) '((rsp local_value)))
 	(loop-start)
 	(errorcases
 		(assign '((r1 obj_vtable)) '(r3))
-		(f-bind 'error 'vtable r4)
+		(f-bind 'error :vtable r4)
 		(breakif '(r3 = r4)))
 		(assign '((rsp local_iter_begin) (rsp local_iter_end)) '(r2 r3))
 		(vp-add-cr ptr_size r2)
 		(breakif '(r2 = r3))
 		(assign '(r2) '((rsp local_iter_begin)))
-		(call 'obj 'deref '(r1))
+		(call 'obj :deref '(r1))
 		(assign '((rsp local_iter_begin)) '(r2))
-		(call 'lisp 'repl_eval '((rsp local_this) (r2 0)) '(r0 r1))
+		(call 'lisp :repl_eval '((rsp local_this) (r2 0)) '(r0 r1))
 		(assign '(r1) '((rsp local_value)))
 	(loop-end)
-	(call 'lisp 'env_pop '(r0) '(r0))
+	(call 'lisp :env_pop '(r0) '(r0))
 
-	(exit 'lisp 'repl_apply '(r0 (rsp local_value)))
+	(exit 'lisp :repl_apply '(r0 (rsp local_value)))
 	(vp-free local_size)
 	(vp-ret)
 
 (errorcases
 (vp-label 'error1)
-	(jump 'lisp 'repl_error '(r0 "(lambda ([arg ...]) body)" error_msg_wrong_num_of_args r2))
+	(jump 'lisp :repl_error '(r0 "(lambda ([arg ...]) body)" error_msg_wrong_num_of_args r2))
 (vp-label 'error2)
-	(jump 'lisp 'repl_error '(r0 "(lambda ([arg ...]) body)" error_msg_not_a_lambda r2)))
+	(jump 'lisp :repl_error '(r0 "(lambda ([arg ...]) body)" error_msg_not_a_lambda r2)))
 
 (def-func-end)

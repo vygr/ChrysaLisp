@@ -3,7 +3,7 @@
 (include 'class/list/class.inc)
 (include 'gui/path/class.inc)
 
-(def-method 'canvas 'set_edges)
+(def-method 'canvas :set_edges)
 	;inputs
 	;r0 = canvas object (ptr)
 	;r1 = list of path objects (ptr)
@@ -28,16 +28,16 @@
 	(uint 'length 'yscale 'cy 'cy1)
 
 	(push-scope)
-	(entry 'canvas 'set_edges {this, polygons, x, y, yscale})
+	(entry 'canvas :set_edges {this, polygons, x, y, yscale})
 
 	;fill edges, find min and max xy, clip edges not visible or redundant
 	(assign {yscale * this->canvas_cy, yscale * this->canvas_cy1} {cy, cy1})
 	(assign {x + 0.5, y + 0.5, max_int, min_int, max_int, min_int, 0} {x, y, xs, xe, ys, ye, length})
-	(call 'list 'get_both {polygons} {_, iter_begin_polygons, iter_end_polygons})
+	(call 'list :get_both {polygons} {_, iter_begin_polygons, iter_end_polygons})
 	(loop-while {iter_begin_polygons /= iter_end_polygons})
-		(call 'path 'get_both {*iter_begin_polygons} {_, iter_begin_polygon, iter_end_polygon})
-		(call 'array 'set_capacity {this->canvas_edges, length + ((iter_end_polygon - iter_begin_polygon) >> 4) * (edge_size >> 3)})
-		(call 'array 'get_begin {this->canvas_edges} {_, iter_edge1})
+		(call 'path :get_both {*iter_begin_polygons} {_, iter_begin_polygon, iter_end_polygon})
+		(call 'array :set_capacity {this->canvas_edges, length + ((iter_end_polygon - iter_begin_polygon) >> 4) * (edge_size >> 3)})
+		(call 'array :get_begin {this->canvas_edges} {_, iter_edge1})
 		(assign {iter_edge1 + length * long_size} {iter_edge2})
 		(vpif {iter_end_polygon - iter_begin_polygon >= long_size * 6})
 			(assign {iter_end_polygon[-long_size * 2] + x} {x1})
@@ -97,15 +97,15 @@
 		(endif)
 		(assign {iter_begin_polygons + ptr_size} {iter_begin_polygons})
 	(loop-end)
-	(call 'array 'set_length {this->canvas_edges, length})
+	(call 'array :set_length {this->canvas_edges, length})
 
-	(exit 'canvas 'set_edges {this, xs, ys, xe, ye})
+	(exit 'canvas :set_edges {this, xs, ys, xe, ye})
 	(pop-scope)
 	(return)
 
 (def-func-end)
 
-(def-method 'canvas 'fpoly)
+(def-method 'canvas :fpoly)
 	;inputs
 	;r0 = canvas object (ptr)
 	;r1 = x (fixed)
@@ -126,14 +126,14 @@
 	(uint 'mode 'yscale 'cy 'cy1)
 
 	(push-scope)
-	(entry 'canvas 'fpoly {this, x, y, mode, polygons})
+	(entry 'canvas :fpoly {this, x, y, mode, polygons})
 
 	;fill edges, find min and max xy, clip edges not visible or redundant
 	(assign {1} {yscale})
 	(vpif {this->canvas_flags})
 		(assign {8} {yscale})
 	(endif)
-	(call 'canvas 'set_edges {this, polygons, x, y, yscale} {_, xs, ys, xe, ye})
+	(call 'canvas :set_edges {this, polygons, x, y, yscale} {_, xs, ys, xe, ye})
 
 	;clip check
 	(assign {yscale * this->canvas_cy, yscale * this->canvas_cy1} {cy, cy1})
@@ -141,17 +141,17 @@
 		;setup active edge list, edge starts and coverage
 		(assign {0} {tracker_list})
 		(vpifnot {this->canvas_edges_start})
-			(call 'sys_mem 'calloc {this->canvas_height * 8 * ptr_size} {this->canvas_edges_start, _})
+			(call 'sys_mem :calloc {this->canvas_height * 8 * ptr_size} {this->canvas_edges_start, _})
 		(endif)
 		(vpif {this->canvas_flags})
 			(assign {max_int, min_int} {min_x, max_x})
 			(vpifnot {this->canvas_coverage})
-				(call 'sys_mem 'calloc {this->canvas_width} {this->canvas_coverage, _})
+				(call 'sys_mem :calloc {this->canvas_width} {this->canvas_coverage, _})
 			(endif)
 		(endif)
 
 		;edge pointers into edge starts
-		(call 'array 'get_both {this->canvas_edges} {_, tracker_node, tracker_last})
+		(call 'array :get_both {this->canvas_edges} {_, tracker_node, tracker_last})
 		(vp-def (edges_start edge_node edge_last edge_tmp edge_list_head))
 		(assign {this->canvas_edges_start, tracker_node, tracker_last}
 			(list edges_start edge_node edge_last))
@@ -273,7 +273,7 @@
 				(breakif {ys + 1 < cy1})
 			(vp-label 'flush_mask)
 				(vp-def (this c x y x1 mask m om max_x mask_to_coverage v)
-					(method-input 'canvas 'span))
+					(method-input 'canvas :span))
 				(assign {this, min_x, max_x, ys >> 3} (list this x max_x y))
 				(breakif `(,x > ,max_x))
 				(vp-add-cr 1 max_x)
@@ -295,13 +295,13 @@
 					(vp-cpy-rd-b c mask v)
 					(vp-cpy-dr-ub mask_to_coverage om c)
 					(assign (list m x1) {om, x})
-					(call 'canvas 'span_noclip (list this c x y x1) (list this))
+					(call 'canvas :span_noclip (list this c x y x1) (list this))
 					(assign {x, max_x, y, om} (list x max_x y om))
 				(loop-until `(,x >= ,max_x))
 				(assign {max_int, min_int} {min_x, max_x})
 			(else)
 				;draw spans for mode
-				(vp-def (this c x1 ys x2 w v tracker_node) (method-input 'canvas 'span))
+				(vp-def (this c x1 ys x2 w v tracker_node) (method-input 'canvas :span))
 				(assign {mode, this, &tracker_list} (list v this tracker_node))
 				(vpif `(,v = 0))
 					;odd even
@@ -314,7 +314,7 @@
 						(vp-asr-cr fp_shift x1)
 						(vp-asr-cr fp_shift x2)
 						(assign (list tracker_node) {tracker_node})
-						(call 'canvas 'span (list this 0x80 x1 ys x2) (list this))
+						(call 'canvas :span (list this 0x80 x1 ys x2) (list this))
 						(assign {tracker_node} (list tracker_node))
 					(loop-end)
 				(else)
@@ -333,7 +333,7 @@
 						(vp-asr-cr fp_shift x1)
 						(vp-asr-cr fp_shift x2)
 						(assign (list tracker_node) {tracker_node})
-						(call 'canvas 'span (list this 0x80 x1 ys x2) (list this))
+						(call 'canvas :span (list this 0x80 x1 ys x2) (list this))
 						(assign {tracker_node} (list tracker_node))
 					(loop-end)
 				(endif)
@@ -361,7 +361,7 @@
 		(loop-end)
 	(endif)
 
-	(exit 'canvas 'fpoly {this})
+	(exit 'canvas :fpoly {this})
 	(pop-scope)
 	(return)
 

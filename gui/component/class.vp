@@ -9,7 +9,7 @@
 
 (gen-vtable 'component)
 
-(def-method 'component 'init)
+(def-method 'component :init)
 	;inputs
 	;r0 = component object (ptr)
 	;r1 = vtable (pptr)
@@ -20,9 +20,9 @@
 	;r1-r14
 
 	;init parent
-	(s-call 'component 'init '(r0 r1 0 1) '(r0 r1))
+	(s-call 'component :init '(r0 r1 0 1) '(r0 r1))
 	(vpif '(r1 /= 0))
-		(f-bind 'gui 'statics r1)
+		(f-bind 'gui :statics r1)
 		(assign '((r1 gui_statics_next_id)) '(r2))
 		(vp-sub-cr 1 r2)
 		(assign '(r2 r2) '((r1 gui_statics_next_id) (r0 component_id)))
@@ -33,7 +33,7 @@
 
 (def-func-end)
 
-(def-method 'component 'deinit)
+(def-method 'component :deinit)
 	;inputs
 	;r0 = component object (ptr)
 	;outputs
@@ -41,16 +41,16 @@
 	;trashes
 	;r1-r14
 
-	(entry 'component 'deinit '(r0))
+	(entry 'component :deinit '(r0))
 
 	(vp-push r0)
-	(call 'array 'deref_if '((r0 component_target_ids)))
+	(call 'array :deref_if '((r0 component_target_ids)))
 	(vp-pop r0)
-	(s-jump 'component 'deinit '(r0))
+	(s-jump 'component :deinit '(r0))
 
 (def-func-end)
 
-(def-method 'component 'find_owner)
+(def-method 'component :find_owner)
 	;inputs
 	;r0 = component object (ptr)
 	;outputs
@@ -69,7 +69,7 @@
 
 (def-func-end)
 
-(def-method 'component 'emit)
+(def-method 'component :emit)
 	;inputs
 	;r0 = component object (ptr)
 	;outputs
@@ -82,31 +82,31 @@
 	(struct 'owner_id 'id)
 
 	(push-scope)
-	(entry 'component 'emit {this})
+	(entry 'component :emit {this})
 
 	(switch)
 	(breakifnot {this->component_target_ids})
-	(call 'component 'find_owner {this} {_, owner_id.id_id})
+	(call 'component :find_owner {this} {_, owner_id.id_id})
 	(breakifnot {owner_id.id_id})
-	(call 'array 'get_both {this->component_target_ids} {_, iter_begin, iter_end})
+	(call 'array :get_both {this->component_target_ids} {_, iter_begin, iter_end})
 	(loop-while {iter_begin /= iter_end})
-		(call 'sys_mail 'alloc {ev_msg_action_size} {msg, data})
+		(call 'sys_mail :alloc {ev_msg_action_size} {msg, data})
 		(assign {owner_id.id_id} {msg->msg_dest.id_id})
 		(assign {ev_type_action} {data->ev_msg_type})
 		(assign {*iter_begin} {data->ev_msg_target_id})
 		(assign {this->component_id} {data->ev_msg_action_source_id})
-		(call 'sys_mail 'send {msg})
+		(call 'sys_mail :send {msg})
 		(assign {iter_begin + long_size} {iter_begin})
 	(loop-end)
 	(endswitch)
 
-	(exit 'component 'emit {this})
+	(exit 'component :emit {this})
 	(pop-scope)
 	(return)
 
 (def-func-end)
 
-(def-method 'component 'connect)
+(def-method 'component :connect)
 	;inputs
 	;r0 = component object (ptr)
 	;r1 = target id (ulong)
@@ -115,22 +115,22 @@
 	;trashes
 	;r1-r6
 
-	(entry 'component 'connect '(r6 r1))
+	(entry 'component :connect '(r6 r1))
 
 	(assign '((r6 component_target_ids)) '(r0))
 	(vpif '(r0 = 0))
 		(vp-cpy-rr r1 r5)
-		(call 'array 'create nil '(r0))
+		(call 'array :create nil '(r0))
 		(assign '(r0 r5) '((r6 component_target_ids) r1))
 	(endif)
-	(call 'array 'push_back '(r0 r1))
+	(call 'array :push_back '(r0 r1))
 
-	(exit 'component 'connect '(r6))
+	(exit 'component :connect '(r6))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'component 'ref_prop)
+(def-method 'component :ref_prop)
 	;inputs
 	;r0 = component object (ptr)
 	;r1 = static sym num (uint)
@@ -140,17 +140,17 @@
 	;trashes
 	;r1-r14
 
-	(entry 'component 'ref_prop '(r0 r1))
+	(entry 'component :ref_prop '(r0 r1))
 
-	(call 'sym 'get_static_sym '(r1) '(r1))
-	(call 'component 'get '(r0 r1) '(r0 r1))
+	(call 'sym :get_static_sym '(r1) '(r1))
+	(call 'component :get '(r0 r1) '(r0 r1))
 
-	(exit 'component 'ref_prop '(r0 r1))
+	(exit 'component :ref_prop '(r0 r1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'component 'get_prop)
+(def-method 'component :get_prop)
 	;inputs
 	;r0 = component object (ptr)
 	;r1 = static sym num (uint)
@@ -160,19 +160,19 @@
 	;trashes
 	;r1-r14
 
-	(entry 'component 'get_prop '(r0 r1))
+	(entry 'component :get_prop '(r0 r1))
 
-	(call 'component 'ref_prop '(r0 r1) '(r0 r1))
+	(call 'component :ref_prop '(r0 r1) '(r0 r1))
 	(vpif '(r1 /= 0))
 		(class/obj/ref r1 r2 -1)
 	(endif)
 
-	(exit 'component 'get_prop '(r0 r1))
+	(exit 'component :get_prop '(r0 r1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'component 'set_prop)
+(def-method 'component :set_prop)
 	;inputs
 	;r0 = component object (ptr)
 	;r1 = static sym num (uint)
@@ -182,20 +182,20 @@
 	;trashes
 	;r1-r14
 
-	(entry 'component 'set_prop '(r7 r1 r2))
+	(entry 'component :set_prop '(r7 r1 r2))
 
-	(call 'sym 'get_static_sym '(r1) '(r8))
-	(call 'component 'insert '(r7 r8 r2) '(r0 r1 _))
+	(call 'sym :get_static_sym '(r1) '(r8))
+	(call 'component :insert '(r7 r8 r2) '(r0 r1 _))
 	(assign '((r1 0)) '(r1))
 	(assign '((r1 pair_second)) '(r1))
 	(class/obj/ref r1 r2 -1)
 
-	(exit 'component 'set_prop '(r0))
+	(exit 'component :set_prop '(r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'component 'set_long_prop)
+(def-method 'component :set_long_prop)
 	;inputs
 	;r0 = component object (ptr)
 	;r1 = static sym num (uint)
@@ -205,16 +205,16 @@
 	;trashes
 	;r1-r14
 
-	(entry 'component 'set_long_prop '(r0 r1 r2))
+	(entry 'component :set_long_prop '(r0 r1 r2))
 
 	(vp-push r0 r1)
-	(call 'num 'create '(r2) '(r2))
+	(call 'num :create '(r2) '(r2))
 	(vp-pop r0 r1)
-	(jump 'component 'set_prop '(r0 r1 r2))
+	(jump 'component :set_prop '(r0 r1 r2))
 
 (def-func-end)
 
-(def-method 'component 'get_long_prop)
+(def-method 'component :get_long_prop)
 	;inputs
 	;r0 = component object (ptr)
 	;r1 = static sym num (uint)
@@ -224,19 +224,19 @@
 	;trashes
 	;r1-r14
 
-	(entry 'component 'get_long_prop '(r0 r1))
+	(entry 'component :get_long_prop '(r0 r1))
 
-	(call 'component 'get_prop '(r0 r1) '(r0 r1))
+	(call 'component :get_prop '(r0 r1) '(r0 r1))
 	(vpif '(r1 /= 0))
 		(assign '((r1 num_value)) '(r1))
 	(endif)
 
-	(exit 'component 'get_long_prop '(r0 r1))
+	(exit 'component :get_long_prop '(r0 r1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'component 'set_str_prop)
+(def-method 'component :set_str_prop)
 	;inputs
 	;r0 = component object (ptr)
 	;r1 = static sym num (uint)
@@ -246,16 +246,16 @@
 	;trashes
 	;r1-r14
 
-	(entry 'component 'set_str_prop '(r7 r1 r2))
+	(entry 'component :set_str_prop '(r7 r1 r2))
 
 	(vp-push r0 r1)
-	(call 'str 'create_from_cstr '(r2) '(r2))
+	(call 'str :create_from_cstr '(r2) '(r2))
 	(vp-pop r0 r1)
-	(jump 'component 'set_prop '(r0 r1 r2))
+	(jump 'component :set_prop '(r0 r1 r2))
 
 (def-func-end)
 
-(def-method 'component 'set_font_prop)
+(def-method 'component :set_font_prop)
 	;inputs
 	;r0 = component object (ptr)
 	;r1 = static sym num (uint)
@@ -266,16 +266,16 @@
 	;trashes
 	;r1-r14
 
-	(entry 'component 'set_font_prop '(r0 r1 r2 r3))
+	(entry 'component :set_font_prop '(r0 r1 r2 r3))
 
 	(vp-push r0 r1)
-	(call 'font 'open '(r2 r3) '(r2))
+	(call 'font :open '(r2 r3) '(r2))
 	(vp-pop r0 r1)
 	(vpif '(r2 /= 0))
-		(jump 'component 'set_prop '(r0 r1 r2))
+		(jump 'component :set_prop '(r0 r1 r2))
 	(endif)
 
-	(exit 'component 'set_font_prop '(r0))
+	(exit 'component :set_font_prop '(r0))
 	(vp-ret)
 
 (def-func-end)

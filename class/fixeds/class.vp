@@ -68,7 +68,7 @@
 	(exit 'fixeds _ `(,dst))
 	(vp-ret))
 
-(def-method 'fixeds 'mul)
+(def-method 'fixeds :mul)
 	;inputs
 	;r0 = fixeds object (ptr)
 	;r1 = source1 fixeds object, can be same (ptr)
@@ -78,11 +78,11 @@
 	;trashes
 	;r1-r6
 
-	(mulop 'mul 'fmul)
+	(mulop :mul 'fmul)
 
 (def-func-end)
 
-(def-method 'fixeds 'div)
+(def-method 'fixeds :div)
 	;inputs
 	;r0 = fixeds object (ptr)
 	;r1 = source1 fixeds object, can be same (ptr)
@@ -92,11 +92,11 @@
 	;trashes
 	;r1-r8
 
-	(divop 'div 'fdiv)
+	(divop :div 'fdiv)
 
 (def-func-end)
 
-(def-method 'fixeds 'mod)
+(def-method 'fixeds :mod)
 	;inputs
 	;r0 = fixeds object (ptr)
 	;r1 = source1 fixeds object, can be same (ptr)
@@ -106,11 +106,11 @@
 	;trashes
 	;r1-r8
 
-	(divop 'mod 'fmod)
+	(divop :mod 'fmod)
 
 (def-func-end)
 
-(def-method 'fixeds 'frac)
+(def-method 'fixeds :frac)
 	;inputs
 	;r0 = fixeds object (ptr)
 	;r1 = source fixeds object, can be same (ptr)
@@ -119,11 +119,11 @@
 	;trashes
 	;r1-r5
 
-	(fracop 'frac 'frac)
+	(fracop :frac 'frac)
 
 (def-func-end)
 
-(def-method 'fixeds 'floor)
+(def-method 'fixeds :floor)
 	;inputs
 	;r0 = fixeds object (ptr)
 	;r1 = source fixeds object, can be same (ptr)
@@ -132,11 +132,11 @@
 	;trashes
 	;r1-r5
 
-	(fracop 'floor 'floor)
+	(fracop :floor 'floor)
 
 (def-func-end)
 
-(def-method 'fixeds 'scale)
+(def-method 'fixeds :scale)
 	;inputs
 	;r0 = fixeds object (ptr)
 	;r1 = source fixeds object, can be same (ptr)
@@ -148,7 +148,7 @@
 
 	(vp-def (dst src scale iter_begin iter_end))
 
-	(entry 'fixeds 'scale `(,dst ,src ,scale))
+	(entry 'fixeds :scale `(,dst ,src ,scale))
 
 	(class/array/get_both dst iter_begin iter_end)
 	(assign `((,src array_begin)) `(,src))
@@ -161,7 +161,7 @@
 		(vp-add-cr long_size src)
 	(loop-until `(,iter_begin = ,iter_end))
 
-	(exit 'fixeds 'scale `(,dst))
+	(exit 'fixeds :scale `(,dst))
 	(vp-ret)
 
 (def-func-end)

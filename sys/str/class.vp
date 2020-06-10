@@ -1,7 +1,7 @@
 (include 'sys/func.inc)
 (include 'sys/str/class.inc)
 
-(def-method 'sys_str 'compare)
+(def-method 'sys_str :compare)
 	;inputs
 	;r0 = c string1 (pubyte)
 	;r1 = c string2 (pubyte)
@@ -10,7 +10,7 @@
 	;trashes
 	;r0-r3
 
-	(entry 'sys_str 'compare '(r0 r1))
+	(entry 'sys_str :compare '(r0 r1))
 	(loop-start)
 		(vp-cpy-ir-ub r0 0 r2)
 		(vp-cpy-ir-ub r1 0 r3)
@@ -19,12 +19,12 @@
 		(vp-add-cr byte_size r0)
 		(vp-add-cr byte_size r1)
 	(loop-end)
-	(exit 'sys_str 'compare '(r2))
+	(exit 'sys_str :compare '(r2))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'sys_str 'copy)
+(def-method 'sys_str :copy)
 	;inputs
 	;r0 = c string (pubyte)
 	;r1 = c string copy (pubyte)
@@ -34,19 +34,19 @@
 	;trashes
 	;r2
 
-	(entry 'sys_str 'copy '(r0 r1))
+	(entry 'sys_str :copy '(r0 r1))
 	(loop-start)
 		(vp-cpy-ir-ub r0 0 r2)
 		(vp-cpy-ri-b r2 r1 0)
 		(vp-add-cr byte_size r0)
 		(vp-add-cr byte_size r1)
 	(loop-until '(r2 = 0))
-	(exit 'sys_str 'copy '(r0 r1))
+	(exit 'sys_str :copy '(r0 r1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'sys_str 'from_long)
+(def-method 'sys_str :from_long)
 	;inputs
 	;r0 = number (ulong)
 	;r1 = c string buffer (pubyte)
@@ -56,7 +56,7 @@
 	;trashes
 	;r0-r4
 
-	(entry 'sys_str 'from_long '(r0 r1 r2))
+	(entry 'sys_str :from_long '(r0 r1 r2))
 
 	(vp-cpy-rr r2 r3)	;base
 	(vp-cpy-rr r1 r4)	;buffer start
@@ -82,12 +82,12 @@
 		(vp-add-cr byte_size r1)
 	(loop-until '(r1 = r4))
 
-	(exit 'sys_str 'from_long '(r0))
+	(exit 'sys_str :from_long '(r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'sys_str 'length)
+(def-method 'sys_str :length)
 	;inputs
 	;r0 = c string (pubyte)
 	;outputs
@@ -96,7 +96,7 @@
 	;trashes
 	;r1-r2
 
-	(entry 'sys_str 'length '(r0))
+	(entry 'sys_str :length '(r0))
 	(vp-cpy-rr r0 r1)
 	(loop-start)
 		(vp-cpy-ir-ub r1 0 r2)
@@ -104,12 +104,12 @@
 		(vp-add-cr byte_size r1)
 	(loop-end)
 	(vp-sub-rr r0 r1)
-	(exit 'sys_str 'length '(r0 r1))
+	(exit 'sys_str :length '(r0 r1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'sys_str 'to_long)
+(def-method 'sys_str :to_long)
 	;inputs
 	;r0 = c string (pubyte)
 	;r1 = base (ulong)
@@ -119,7 +119,7 @@
 	;trashes
 	;r0-r4
 
-	(entry 'sys_str 'to_long '(r2 r1))
+	(entry 'sys_str :to_long '(r2 r1))
 
 	(vp-xor-rr r0 r0)
 	(vp-xor-rr r4 r4)
@@ -149,12 +149,12 @@
 		(vp-div-rrr r1 r2 r0)
 	(endif)
 
-	(exit 'sys_str 'to_long '(r0 r4))
+	(exit 'sys_str :to_long '(r0 r4))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'sys_str 'read_utf8)
+(def-method 'sys_str :read_utf8)
 	;inputs
 	;r0 = utf8 data pointer (pubyte)
 	;outputs
@@ -175,7 +175,7 @@
 			(vp-add-rr m c))
 		(vp-add-cr (* cnt byte_size) utf8))
 
-	(entry 'sys_str 'read_utf8 `(,utf8))
+	(entry 'sys_str :read_utf8 `(,utf8))
 
 	(vp-cpy-ir-ub utf8 0 c)
 	(vp-add-cr byte_size utf8)
@@ -197,26 +197,26 @@
 					;not 4 byte
 					(vp-xor-rr c c)
 
-					(exit 'sys_str 'read_utf8 `(,utf8 ,c))
+					(exit 'sys_str :read_utf8 `(,utf8 ,c))
 					(vp-ret)
 				(endif)
 				;4 byte
 				(next-utf8 3)
 
-				(exit 'sys_str 'read_utf8 `(,utf8 ,c))
+				(exit 'sys_str :read_utf8 `(,utf8 ,c))
 				(vp-ret)
 			(endif)
 			;3 byte
 			(next-utf8 2)
 
-			(exit 'sys_str 'read_utf8 `(,utf8 ,c))
+			(exit 'sys_str :read_utf8 `(,utf8 ,c))
 			(vp-ret)
 		(endif)
 		;2 byte
 		(next-utf8 1)
 	(endif)
 
-	(exit 'sys_str 'read_utf8 `(,utf8 ,c))
+	(exit 'sys_str :read_utf8 `(,utf8 ,c))
 	(vp-ret)
 
 (def-func-end)

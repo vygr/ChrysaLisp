@@ -1,7 +1,7 @@
 (include 'sys/func.inc)
 (include 'class/lisp/class.inc)
 
-(def-method 'lisp 'lisp_qquote)
+(def-method 'lisp :lisp_qquote)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -11,7 +11,7 @@
 	;trashes
 	;r1-r14
 
-	(entry 'lisp 'lisp_qquote '(r0 r1))
+	(entry 'lisp :lisp_qquote '(r0 r1))
 
 (errorcases
 	(assign '((r1 array_length)) '(r2))
@@ -20,11 +20,11 @@
 	(vp-push r0 r1)
 	(class/obj/ref r1 r2)
 	(call 'expand '(r0 (& rsp 0) 0 0))
-	(call 'list 'pop_back '((rsp 0)) '(r0 (rsp 0)))
-	(call 'obj 'deref '(r0))
+	(call 'list :pop_back '((rsp 0)) '(r0 (rsp 0)))
+	(call 'obj :deref '(r0))
 	(vp-pop r0 r1)
 
-	(exit 'lisp 'lisp_qquote '(r0 r1))
+	(exit 'lisp :lisp_qquote '(r0 r1))
 	(vp-ret)
 
 (vp-label 'expand)
@@ -46,8 +46,8 @@
 	(assign '((r1 0) r0 r1 r2 r3) '(r4 (rsp local_this) (rsp local_iter) (rsp local_qcnt) (rsp local_ucnt)))
 	(class/array/get_both r4 r1 r2)
 	(assign '(r1 r2) '((rsp local_iter_begin) (rsp local_iter_end)))
-	(call 'list 'create nil '(r0))
-	(call 'list 'set_capacity '(r0 (r4 array_length)) '((rsp local_list)))
+	(call 'list :create nil '(r0))
+	(call 'list :set_capacity '(r0 (r4 array_length)) '((rsp local_list)))
 	(loop-start)
 		(assign '((rsp local_iter_begin) (rsp local_iter_end)) '(r2 r3))
 		(breakif '(r2 = r3))
@@ -56,7 +56,7 @@
 		(assign '(r2) '((rsp local_iter_begin)))
 
 		;do we eval this element ?
-		(f-bind 'list 'vtable r2)
+		(f-bind 'list :vtable r2)
 		(assign '((r1 obj_vtable)) '(r3))
 		(gotoif '(r2 /= r3) 'push_elem_ref)
 		(assign '((r1 array_length) (rsp local_qcnt) (rsp local_ucnt)) '(r2 r6 r7))
@@ -67,7 +67,7 @@
 			(assign '((r0 lisp_sym_unquote)) '(r4))
 			(nextcaseif '(r2 /= r4))
 			(vpif '(r7 = r6))
-				(call 'lisp 'repl_eval '(r0 r3) '(_ r1))
+				(call 'lisp :repl_eval '(r0 r3) '(_ r1))
 				(goto 'push_elem)
 			(endif)
 			(vp-add-cr 1 r7)
@@ -76,13 +76,13 @@
 			(assign '((r0 lisp_sym_splicing)) '(r4))
 			(nextcaseif '(r2 /= r4))
 			(vpif '(r7 = r6))
-				(call 'lisp 'repl_eval '(r0 r3) '(_ r1))
-				(f-bind 'list 'vtable r2)
+				(call 'lisp :repl_eval '(r0 r3) '(_ r1))
+				(f-bind 'list :vtable r2)
 				(assign '((r1 obj_vtable)) '(r3))
 				(gotoif '(r2 /= r3) 'push_elem)
 				(vp-cpy-rr r1 r10)
-				(call 'list 'append '((rsp local_list) r1 0 (r1 array_length)))
-				(call 'obj 'deref '(r10))
+				(call 'list :append '((rsp local_list) r1 0 (r1 array_length)))
+				(call 'obj :deref '(r10))
 				(break 'replace)
 			(endif)
 			(vp-add-cr 1 r7)
@@ -96,25 +96,25 @@
 			(assign '(r6 r7) '((rsp local_qcnt) (rsp local_ucnt)))
 		(vp-label 'push_list_copy1)
 			(class/obj/ref r1 r2)
-			(call 'list 'push_back '((rsp local_list) r1) '(_ _ _ r3))
+			(call 'list :push_back '((rsp local_list) r1) '(_ _ _ r3))
 			(call 'expand '((rsp local_this) (& r3 (neg ptr_size)) r6 r7))
 			(break)
 		(vp-label 'push_elem_ref)
 			(class/obj/ref r1 r2)
 		(vp-label 'push_elem)
-			(call 'list 'push_back '((rsp local_list) r1))
+			(call 'list :push_back '((rsp local_list) r1))
 		(endswitch)
 	(loop-end)
 
 	;swap new list with old
 	(assign '((rsp local_iter) (rsp local_list)) '(r1 r2))
 	(assign '((r1 0) r2) '(r0 (r1 0)))
-	(call 'obj 'deref '(r0))
+	(call 'obj :deref '(r0))
 	(vp-free local_size)
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp 'repl_error '(r0 "(quasi-quote form)" error_msg_wrong_num_of_args r1)))
+	(jump 'lisp :repl_error '(r0 "(quasi-quote form)" error_msg_wrong_num_of_args r1)))
 
 (def-func-end)
