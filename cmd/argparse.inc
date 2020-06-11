@@ -67,7 +67,7 @@
         (list :clz :clz_argument)
         (list :argument nil)         ; The :argument flags e.g. ("-s" "--string")
         (list :required nil)         ; Are free form values reqiured?
-        (list :counter 0)            ; Number of values accepted for :argument
+        (list :counter +no_count+)   ; Number of values accepted for :argument
         (list :type :type_none)      ; Type for term validation
         (list :dest :argument)       ; Results key
         (list :validator noop)       ; Argument value :type :validator fn
@@ -273,8 +273,8 @@
         (defq
           res (walk self arglist)
           invoke (get-property self :handler))
-        (if (and invoke (/= (length res) 0))
-          (progn (invoke self res))
+        (if invoke
+          (invoke self res)
           res))
       arglist))
 
