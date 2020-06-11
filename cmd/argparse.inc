@@ -189,9 +189,9 @@
     (push (second container) value))
   self)
 
-(defun-bind add-argument (self in_:argument)
-  ; (add-argument self in_:argument)
-  (extend self :arguments in_:argument))
+(defun-bind add-argument (self in_argument)
+  ; (add-argument self in argument)
+  (extend self :arguments in_argument))
 
 (defun-bind add-command (self in_cmd)
   ; (add-command self in_cmd)
@@ -263,7 +263,7 @@
            ((isarg? current)
             (throw "Unrecognized flag " current))
            (t (progn
-            (push result ((get-property self :validator) self (stack-peek arglist)))))))
+            (push result ((get-property self :validator) self (stack-pop arglist)))))))
   result)
 
 (defun-bind process-args (self arglist)
@@ -288,7 +288,7 @@
 
 (defun-bind parse (self)
   ; (parse parser)
-  ; Parses and optinally executes :command line
+  ; Parses and optionally executes :command line
   (defq inarg (get-property self :in_args))
   (cond
     ((opt
@@ -312,11 +312,13 @@
   (defq colbuff (-  30 (+ (length arg) +indent4+)))
   (str (pad "" +indent4+) arg (pad "" colbuff) arg:help))
 
-(defun-bind format-command-str(cmds)
+(defun-bind format-command-str (cmds)
   ; (format-command-str seq) -> "{el [,el]}"
-  (str "{" (join (reduce (lambda (acc el)
+  (if (= (length cmds) 0)
+    "{}"
+    (str "{" (join (reduce (lambda (acc el)
               (push acc (get-property el :command))) cmds (list))
-        ",") "}"))
+        ",") "}")))
 
 (defun-bind format-usage-str (self arglist cmdstr)
   ; (format-usage-str self arglist cmdstr) -> "usage ..."
