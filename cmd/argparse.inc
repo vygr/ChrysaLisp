@@ -44,32 +44,6 @@
 (defun-bind isarg? (arg)
   (starts-with "-" arg))
 
-; DSL
-(def: '(:clz             ; Faux class key
-        :clz_processor   ; Class type
-        :clz_command     ; Class type
-        :clz_argument    ; Class type
-        :type_none       ; Value type constraints
-        :type_string     ;
-        :type_integer    ;
-        :type_float      ;
-        :type_boolean    ;
-        :type_file       ;
-        :arguments       ; Argument container key
-        :argument        ; Argument value key
-        :commands        ; Command container key
-        :command         ; Command value key
-        :in_args         ; Original arguments
-        :application     ; Name for application
-        :version         ; Version for application
-        :help            ; Help string
-        :counter         ; Number of values constraint
-        :dest            ; Result value key
-        :type            ; Value :type for validation
-        :validator       ; Validator fn
-        :handler         ; Handler fn
-        :required) (env)) ; Required flag
-
 (defun-bind noop (&rest _) _)
 
 ; Main argparse structure template
@@ -94,8 +68,8 @@
         (list :argument nil)         ; The :argument flags e.g. ("-s" "--string")
         (list :required nil)         ; Are free form values reqiured?
         (list :counter 0)            ; Number of values accepted for :argument
-        (list :type :type_none)       ; Type for term validation
-        (list :dest :argument)        ; Term for :argument parse results
+        (list :type :type_none)      ; Type for term validation
+        (list :dest :argument)       ; Results key
         (list :validator noop)       ; Argument value :type :validator fn
         (list :handler noop)         ; fn for parsed :argument
         (list :help "")))            ; Help string
@@ -107,8 +81,8 @@
         (list :command "")           ; Single :command string
         (list :required nil)         ; Are free form values reqiured?
         (list :counter 0)            ; Number of values accepted for :command
-        (list :type :type_none)       ; Type for term validation
-        (list :dest :command)         ; Term for :command parse results
+        (list :type :type_none)      ; Type for term validation
+        (list :dest :command)        ; Result key
         (list :validator noop)       ; Command value :type :validator fn
         (list :handler noop)         ; fn for parsed :command
         (list :help "")))            ; Help string
@@ -252,8 +226,8 @@
       inner (list))
     (while
       (and
-        (< cnt argcnt)
         (not (stack-empty? argstack))
+        (< cnt argcnt)
         (not (get-either-container root (stack-peek argstack))))
           (push inner ((get-property self :validator) self (stack-pop argstack)))
           (setq cnt (inc cnt)))
