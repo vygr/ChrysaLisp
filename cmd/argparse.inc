@@ -7,7 +7,8 @@
   +indent2+    2
   +indent4+    4
   +no_count+   0
-  +max_count+  999)
+  +max_count+  999
+  +ztn+        "0123456789")
 
 ; Potential utility macros to embed in ChrysaLisp
 
@@ -127,8 +128,15 @@
 (defun-bind validate-integer (inst arg)
   ; (validate-integer arg-clz arg) -> integer | exception
   (validate-count inst arg)
-  (print "Integer validation not yet implemented")
-  arg)
+  (defq good (reduced-reduce
+    (lambda (acc el)
+      (if  (find el +ztn+)
+        acc
+        (reduced :false))
+      ) arg :true))
+  (when (eql good :false)
+    (throw "Validation: expected integer, found" arg))
+  (str-to-num arg))
 
 (defun-bind validate-float (inst arg)
   ; (validate-float arg-clz arg) -> float | exception
