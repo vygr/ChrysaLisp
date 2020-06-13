@@ -23,15 +23,22 @@
     alen   (length args)
     instrm (get-stream args alen)
     lcnt   (get-count args alen)
-    icnt   0)
-  (while (and (< icnt lcnt) (defq ln (read-line instrm)))
-         (print ln)
-         (setq icnt (inc icnt))))
+    fllist (list))
+    (while (defq ln (read-line instrm))
+           (push fllist ln))
+    (let ((fcnt (length fllist))
+          (scnt 0) (ecnt 0))
+        (if (< fcnt lcnt)
+            (setq ecnt fcnt)
+            (setq scnt (- fcnt lcnt)
+                  ecnt fcnt))
+        (each print (slice scnt ecnt fllist))))
+
 
 (defun create-parser (argv)
   (defq parser (create-argparse (elem 0 argv) "v0.1" (slice 1 -1 argv)))
   (set-properties parser
-                  :help "returns lines from beginning of file, defaults to first 10 lines"
+                  :help "returns lines from end of file, defaults to last 10 lines"
                   :handler main-callback
                   :validator validate-file-exists
                   :counter 1)
@@ -41,7 +48,7 @@
     parser
     (set-properties (create-argument
                       '("-c" "--count")
-                      "count of lines from top of file to display")
+                      "count of lines from bottom of file to display")
                     :validator validate-integer
                     :counter 1
                     :dest :count))
