@@ -8,9 +8,8 @@
     (cond
       ((= alen 1) (first args))
       ((<= 0 alen 2) 'stdin)
-      (t (if (= (find :count args) 0)
-             (last args)
-             (first args))))))
+      ((= (find :count args) 0) (last args))
+      (t (first args)))))
 
 (defun get-count (args alen)
   ; (get-count args arglen) -> count
