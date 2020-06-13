@@ -34,6 +34,13 @@ VP Method call type specifiers are now keywords.
 
 VP Method names are now keywords.
 
+New wc and head commands from FrankC01. Examples of using the new argparse.inc
+functionality.
+
+Unordered list support in the docs viewer added by Nuclearfall.
+
+Added DIARY.md doc to show the creation of a new feature as it happens !
+
 ------
 
 Created standard File picker, added demo Files browser and used picker to

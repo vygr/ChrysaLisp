@@ -86,6 +86,7 @@
 (ffi fixeds "class/array/lisp_fixeds" 0)
 (ffi reals "class/array/lisp_reals" 0)
 
+(ffi hash "class/obj/lisp_hash" 0)
 (ffi type-of "class/lisp/lisp_type" 0)
 (ffi eql "class/lisp/lisp_eql" 0)
 (ffi copy "class/lisp/lisp_copy" 0)

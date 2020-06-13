@@ -170,6 +170,7 @@ unzip
 while
 write
 write-char
+hash
 ```
 
 ### boot.inc symbols
