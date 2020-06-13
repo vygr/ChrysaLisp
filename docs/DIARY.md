@@ -151,9 +151,9 @@ Here we see the field defined in the `str` instance.
 
 ## Lisp level binding
 
-What we eventually want is a Lisp level function `(hash obj) -> num` that let's
-call this VP method from Lisp code. Currently there isn't one, so let's create
-a binding for it.
+What we eventually want is a Lisp level function `(hash obj) -> num` that lets
+us call this VP method from Lisp code. Currently there isn't one, so let's
+create a binding for it.
 
 Lisp bindings go in the `lisp.vp` files, in this case we will be adding a
 function into the `class/obj/lisp.vp` file. There are already bindings present
@@ -196,7 +196,7 @@ And here is the new binding method we add to `class/obj/lisp.vp`:
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(hash obj)" wrong_num_of_args r1)))
+	(jump 'lisp :repl_error '(r0 "(hash obj)" error_msg_wrong_num_of_args r1)))
 
 (def-func-end)
 ```
