@@ -63,14 +63,14 @@ Subclasses `override` this method to provide better support for the type of
 object of the subclass. For example a very important one is for `str` and `sym`
 objects, the core of the ChrysaLisp environment system.
 
-The method override. Which happens to be `final` in this case is defined in the
-`class/str/class.inc` file.
+The method override, which happens to be `final` in this case, is defined in
+the `class/str/class.inc` file.
 
 ```lisp
 (dec-method :hash 'class/str/hash :final)
 ```
 
-And the implementation of this is in the `class/str/class/vp` file:
+And the implementation of this is in the `class/str/class.vp` file:
 
 ```lisp
 (def-method 'str :hash)
@@ -123,20 +123,20 @@ And the implementation of this is in the `class/str/class/vp` file:
 (def-func-end)
 ```
 
-Yes, that's a big mouth full of VP assembler code, but this method is a
-critical performance issue for the entire system, so it has to be. All it's
-doing is scanning through the chars of the string and mixing them together into
-an int that it will store as the hash code, and returns it as well.
+Yes, that's a big mouthful of VP assembler code, but this method is a critical
+performance issue for the entire system, so it has to be fast. What it's doing
+is scanning through the chars of the string and mixing them together into an
+`int` that it will store as the hash code, and returns it as well.
 
 Note the use of the instance field `str_hashcode` ! This starts life as 0 when
 a new `str` object is created. A `str` object is immutable (let's not debase
-ourselves with talk of what a `str_stream` is doing ;) ), so we could calculate
+ourselves with talk of what a `stream_str` is doing ;) ), so we could calculate
 the hash code at create time yes ? Well yes we could but why bother ? We are
 wasting time calculating a hash code that might never get used ! So only if the
 `:hash` method is called are we going to calculate the value and cache it in
 the `str_hashcode` field in case somebody calls it again in the future.
 
-And yes, we may get a hash code of 0 generated, but that's very unlikely so go
+And yes, we may get a hash code of 0 generated, but that's very unlikely, so go
 report me in your "hash code I have written" blog :)
 
 Here we see the field defined in the `str` instance.
