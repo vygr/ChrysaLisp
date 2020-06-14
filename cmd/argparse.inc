@@ -349,7 +349,7 @@
   ; Print :application :help
   (print +nl+ (get-property self :help) +nl+)
   ; Print argparse :arguments
-  (print "optional :arguments:")
+  (print "optional arguments:")
   (print (reduce (lambda (acc el)
                  (defq args (get-property el :argument))
                  (cat acc
