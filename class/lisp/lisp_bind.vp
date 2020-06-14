@@ -17,7 +17,7 @@
 	(assign '((r1 array_length)) '(r2))
 	(gotoif '(r2 /= 2) 'error))
 
-	(class/array/bind_args r1 '(r1 r2))
+	(array-bind-args r1 '(r1 r2))
 	(jump 'lisp :env_bind '(r0 r1 r2))
 
 (errorcases

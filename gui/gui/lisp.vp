@@ -20,7 +20,7 @@
 	(gotoif '(r2 = 0) 'error1))
 
 	(vp-push r0)
-	(class/list/bind_args r1 '(r0) '(view))
+	(list-bind-args r1 '(r0) '(view))
 	(vp-push r0)
 	(f-bind 'gui :statics r2)
 	(call 'view :add_front '((r2 gui_statics_screen) r0))
@@ -58,7 +58,7 @@
 	(gotoif '(r2 = 0) 'error1))
 
 	(vp-push r0)
-	(class/list/bind_args r1 '(r0) '(view))
+	(list-bind-args r1 '(r0) '(view))
 	(vp-push r0)
 	(f-bind 'gui :statics r2)
 	(call 'view :add_back '((r2 gui_statics_screen) r0))

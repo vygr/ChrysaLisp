@@ -21,7 +21,7 @@
 
 	(assign '(r0) '(r13))
 	(defq in (method-input 'component :connect))
-	(class/list/bind_args r1 in '(component num))
+	(list-bind-args r1 in '(component num))
 	(call 'component :connect in '(r1))
 	(class/obj/ref r1 r0)
 

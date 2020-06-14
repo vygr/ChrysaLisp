@@ -49,7 +49,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'in :next_msg))
-	(class/array/bind_args r1 in)
+	(array-bind-args r1 in)
 	(call 'in :next_msg in '(r1))
 	(class/obj/ref r1 r2)
 	(vp-pop r0)

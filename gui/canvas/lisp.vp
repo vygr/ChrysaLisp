@@ -22,7 +22,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'canvas :create))
-	(class/list/bind_args r1 in '(num num num))
+	(list-bind-args r1 in '(num num num))
 	(call 'canvas :create in '(r1))
 	(vp-pop r0)
 
@@ -54,7 +54,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'canvas :info))
-	(class/list/bind_args r1 in '(str))
+	(list-bind-args r1 in '(str))
 	(call 'canvas :info in '(r0 r12 r13))
 	(call 'num :create '(r0) '(r11))
 	(call 'num :create '(r12) '(r12))
@@ -92,7 +92,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'canvas :load))
-	(class/list/bind_args r1 in '(str num))
+	(list-bind-args r1 in '(str num))
 	(call 'canvas :load in '(r0))
 	(vpif '(r0 = 0))
 		(assign '((rsp 0)) '(r0))
@@ -129,7 +129,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'canvas :save))
-	(class/list/bind_args r1 in '(canvas str num))
+	(list-bind-args r1 in '(canvas str num))
 	(call 'canvas :save in '(r0))
 	(vpif '(r0 = 0))
 		(assign '((rsp 0)) '(r0))
@@ -166,7 +166,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'canvas :fill))
-	(class/list/bind_args r1 in '(canvas num))
+	(list-bind-args r1 in '(canvas num))
 	(call 'canvas :fill in '(r0))
 	(call 'obj :ref '(r0) '(r1))
 	(vp-pop r0)
@@ -199,7 +199,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'canvas :swap))
-	(class/list/bind_args r1 in '(canvas))
+	(list-bind-args r1 in '(canvas))
 	(call 'canvas :swap in '(r0))
 	(call 'canvas :dirty '(r0) '(r0))
 	(call 'obj :ref '(r0) '(r1))
@@ -233,7 +233,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'canvas :next_frame))
-	(class/list/bind_args r1 in '(canvas))
+	(list-bind-args r1 in '(canvas))
 	(call 'canvas :next_frame in '(r0))
 	(call 'obj :ref '(r0) '(r1))
 	(vp-pop r0)
@@ -266,7 +266,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'canvas :plot))
-	(class/list/bind_args r1 in '(canvas num num))
+	(list-bind-args r1 in '(canvas num num))
 	(call 'canvas :plot in '(r0))
 	(call 'obj :ref '(r0) '(r1))
 	(vp-pop r0)
@@ -299,7 +299,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'canvas :fbox))
-	(class/list/bind_args r1 in '(canvas num num num num))
+	(list-bind-args r1 in '(canvas num num num num))
 	(call 'canvas :fbox in '(r0))
 	(call 'obj :ref '(r0) '(r1))
 	(vp-pop r0)
@@ -332,7 +332,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'canvas :fpoly))
-	(class/list/bind_args r1 in '(canvas fixed fixed num list))
+	(list-bind-args r1 in '(canvas fixed fixed num list))
 	(call 'canvas :fpoly in '(r0))
 	(call 'obj :ref '(r0) '(r1))
 	(vp-pop r0)
@@ -365,7 +365,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'canvas :resize))
-	(class/list/bind_args r1 in '(canvas canvas))
+	(list-bind-args r1 in '(canvas canvas))
 	(call 'canvas :resize in '(r0))
 	(call 'obj :ref '(r0) '(r1))
 	(vp-pop r0)

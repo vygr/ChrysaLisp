@@ -41,7 +41,7 @@
 		(assign '((r1 array_length)) '(r2))
 		(gotoif '(r2 = 0) 'error1))
 		(assign '(r0 r1) '((rsp local_this) (rsp local_form)))
-		(class/array/bind_args r1 '(r1))
+		(array-bind-args r1 '(r1))
 		(call 'lisp :repl_eval '(r0 r1) '(r0 r1))
 		(assign '((r1 obj_vtable)) '(r2))
 	(errorcases

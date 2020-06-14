@@ -21,7 +21,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'scroll :create))
-	(class/list/bind_args r1 in '(num))
+	(list-bind-args r1 in '(num))
 	(call 'scroll :create in '(r1))
 	(vp-pop r0)
 

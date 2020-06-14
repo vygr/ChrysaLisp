@@ -40,7 +40,7 @@
 
 	(vp-push r0 r1)
 	(defq in (method-input 'list :set_element))
-	(class/list/bind_args r1 (class/array/map_args in '(1 2 0)) '(num list obj))
+	(list-bind-args r1 (array-map-args in '(1 2 0)) '(num list obj))
 	(assign `((,(elem 0 in) array_length)) '(r14))
 	(vpif `(,(elem 2 in) < 0))
 		(vp-add-rr r14 (elem 2 in))
@@ -84,7 +84,7 @@
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
-	(class/array/bind_args r1 '(r0 r1))
+	(array-bind-args r1 '(r0 r1))
 	(class/array/get_both r1 r8 r7)
 	(assign '((r0 array_length)) '(r1))
 	(call 'list :set_capacity '(r0 r1) '(r0))
@@ -218,7 +218,7 @@
 
 	(vp-push r0)
 	(assign '((r0 lisp_sym_underscore)) '(r5))
-	(class/array/bind_args r1 '(r0 r1))
+	(array-bind-args r1 '(r0 r1))
 	(assign '((r0 array_length) (r1 array_length)) '(r4 r3))
 	(vpif '(r3 = r4))
 		(assign '((r0 array_begin) (r1 array_begin)) '(r3 r2))

@@ -51,9 +51,9 @@
 	(gotoif '(r2 = 0) 'error))
 
 	(defq in (method-input 'sys_kernel :declare))
-	(class/array/bind_args r12 in)
+	(array-bind-args r12 in)
 	(vp-cpy-rr (elem 0 in) r12)
-	(class/list/cast_args in '(str num))
+	(list-cast-args in '(str num))
 	(call 'sys_kernel :declare in)
 	(call 'obj :ref '(r12) '(r0))
 
@@ -85,9 +85,9 @@
 
 	(vp-push r0)
 	(defq in (method-input 'sys_kernel :debug))
-	(class/array/bind_args r1 in)
+	(array-bind-args r1 in)
 	(vp-push (elem 0 in))
-	(class/list/cast_args in '(str))
+	(list-cast-args in '(str))
 	(call 'sys_kernel :debug in)
 	(vp-pop r1)
 	(class/obj/ref r1 r2)

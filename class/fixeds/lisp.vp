@@ -16,7 +16,7 @@
 	(entry 'fixeds :lisp_frac '(r0 r1))
 
 	(vp-push r1)
-	(class/array/bind_args r1 '(r2))
+	(array-bind-args r1 '(r2))
 	(v-bind 'fixeds :frac r2 r2)
 	(call 'nums :lisp_vecop2 '(r0 r1 r2) '(r0 r1))
 	(vp-pop r3)
@@ -44,7 +44,7 @@
 	(entry 'fixeds :lisp_floor '(r0 r1))
 
 	(vp-push r1)
-	(class/array/bind_args r1 '(r2))
+	(array-bind-args r1 '(r2))
 	(v-bind 'fixeds :floor r2 r2)
 	(call 'nums :lisp_vecop2 '(r0 r1 r2) '(r0 r1))
 	(vp-pop r3)

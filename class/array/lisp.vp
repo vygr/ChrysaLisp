@@ -143,7 +143,7 @@
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
-	(class/array/bind_args r1 '(r0))
+	(array-bind-args r1 '(r0))
 	(assign '((r0 array_length)) '(r1))
 	(vpif '(r1 /= 0))
 		(call 'array :ref_back '(r0) '(_ r1))
@@ -178,7 +178,7 @@
 
 	(assign '((r7 array_length)) '(r3))
 	(errorif '(r3 < 2) 'error)
-	(class/array/bind_args r7 '(r0))
+	(array-bind-args r7 '(r0))
 	(f-bind 'list :vtable r1)
 	(assign '((r0 obj_vtable)) '(r2))
 	(vpif '(r1 = r2))

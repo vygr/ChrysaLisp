@@ -17,7 +17,7 @@
 	(assign '((r1 array_length)) '(r2))
 	(gotoif '(r2 /= 1) 'error))
 
-	(class/array/bind_args r1 '(r1))
+	(array-bind-args r1 '(r1))
 	(class/obj/ref r1 r2)
 	(vp-push r1)
 	(call 'lisp :repl_expand '(r0 rsp) '(r0))

@@ -22,7 +22,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'str :split))
-	(class/list/bind_args r1 in '(obj char))
+	(list-bind-args r1 in '(obj char))
 	(call 'str :split in '(_ r1))
 	(vp-pop r0)
 
@@ -161,7 +161,7 @@
 
 	(vp-cpy-rr r0 r13)
 	(defq in (method-input 'str :compare))
-	(class/array/bind_args r1 in)
+	(array-bind-args r1 in)
 	(call 'str :compare in '(_ r1))
 	(call 'num :create '(r1) '(r0))
 
@@ -193,7 +193,7 @@
 
 	(vp-cpy-rr r0 r12)
 	(vp-cpy-rr r1 r13)
-	(class/array/bind_args r1 '(r11 r0))
+	(array-bind-args r1 '(r11 r0))
 	(call 'sys_pii :open '((& r0 str_data) file_open_write) '(r0))
 	(errorif '(r0 < 3) 'error2)
 	(vp-cpy-rr r0 r10)
@@ -232,7 +232,7 @@
 
 	(vp-cpy-rr r0 r13)
 	(defq in (method-input 'str :create_from_file))
-	(class/list/bind_args r1 in '(str))
+	(list-bind-args r1 in '(str))
 	(call 'str :create_from_file in '(r0))
 	(vpif '(r0 = 0))
 		(call 'obj :ref '((r13 lisp_sym_nil)) '(r0))

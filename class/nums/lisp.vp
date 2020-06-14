@@ -25,7 +25,7 @@
 	(call 'lisp :env_args_match `(,args (@ ,(f-path 'nums :vtable)) 2) `(,res))
 	(gotoif `(,res = 0) 'error))
 	(assign `((,args array_begin)) `(,iter_begin))
-	(class/array/get_args iter_begin `(,nums1 ,nums2))
+	(array-get-args iter_begin `(,nums1 ,nums2))
 	(assign `((,nums1 array_length)) `(,len1))
 (errorcases
 	(gotoif `(,len1 = 0) 'error)
@@ -79,7 +79,7 @@
 	(call 'lisp :env_args_match `(,args (@ ,(f-path 'nums :vtable)) 1) `(,res))
 	(gotoif `(,res = 0) 'error))
 	(assign `((,args array_begin)) `(,iter_begin))
-	(class/array/get_args iter_begin `(,nums1))
+	(array-get-args iter_begin `(,nums1))
 	(assign `((,nums1 array_length)) `(,len1))
 	(errorif `(,len1 = 0) 'error)
 	(vpif `(,argc = 1))
@@ -116,7 +116,7 @@
 	(entry 'nums :lisp_add '(r0 r1))
 
 	(vp-push r1)
-	(class/array/bind_args r1 '(r2))
+	(array-bind-args r1 '(r2))
 	(v-bind 'nums :add r2 r2)
 	(call 'nums :lisp_vecop1 '(r0 r1 r2) '(r0 r1))
 	(vp-pop r3)
@@ -144,7 +144,7 @@
 	(entry 'nums :lisp_sub '(r0 r1))
 
 	(vp-push r1)
-	(class/array/bind_args r1 '(r2))
+	(array-bind-args r1 '(r2))
 	(v-bind 'nums :sub r2 r2)
 	(call 'nums :lisp_vecop1 '(r0 r1 r2) '(r0 r1))
 	(vp-pop r3)
@@ -172,7 +172,7 @@
 	(entry 'nums :lisp_mul '(r0 r1))
 
 	(vp-push r1)
-	(class/array/bind_args r1 '(r2))
+	(array-bind-args r1 '(r2))
 	(v-bind 'nums :mul r2 r2)
 	(call 'nums :lisp_vecop1 '(r0 r1 r2) '(r0 r1))
 	(vp-pop r3)
@@ -200,7 +200,7 @@
 	(entry 'nums :lisp_div '(r0 r1))
 
 	(vp-push r1)
-	(class/array/bind_args r1 '(r2))
+	(array-bind-args r1 '(r2))
 	(v-bind 'nums :div r2 r2)
 	(call 'nums :lisp_vecop1 '(r0 r1 r2) '(r0 r1))
 	(vp-pop r3)
@@ -228,7 +228,7 @@
 	(entry 'nums :lisp_mod '(r0 r1))
 
 	(vp-push r1)
-	(class/array/bind_args r1 '(r2))
+	(array-bind-args r1 '(r2))
 	(v-bind 'nums :mod r2 r2)
 	(call 'nums :lisp_vecop1 '(r0 r1 r2) '(r0 r1))
 	(vp-pop r3)
@@ -260,7 +260,7 @@
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
-	(class/array/bind_args r1 '(r0))
+	(array-bind-args r1 '(r0))
 	(vp-push r0)
 	(call 'nums :sum '(r0) '(_ r0))
 	(vp-pop r1)
@@ -299,7 +299,7 @@
 	(call 'lisp :env_args_sig `(,args ($ sig) ,argc) `(,res))
 	(gotoif `(,res = 0) 'error))
 	(assign `((,args array_begin)) `(,iter_begin))
-	(class/array/get_args iter_begin `(,nums1 ,scale))
+	(array-get-args iter_begin `(,nums1 ,scale))
 	(assign `((,nums1 array_length)) `(,len1))
 	(errorif `(,len1 = 0) 'error)
 	(vpif `(,argc = 2))
@@ -338,7 +338,7 @@
 	(entry 'nums :lisp_abs '(r0 r1))
 
 	(vp-push r1)
-	(class/array/bind_args r1 '(r2))
+	(array-bind-args r1 '(r2))
 	(v-bind 'nums :abs r2 r2)
 	(call 'nums :lisp_vecop2 '(r0 r1 r2) '(r0 r1))
 	(vp-pop r3)

@@ -22,7 +22,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'sys_task :sleep))
-	(class/list/bind_args r1 in '(num))
+	(list-bind-args r1 in '(num))
 	(call 'sys_task :sleep in)
 	(vp-pop r0)
 	(assign '((r0 lisp_sym_t)) '(r1))
@@ -86,7 +86,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'sys_task :open_child))
-	(class/list/bind_args r1 in '(str num))
+	(list-bind-args r1 in '(str num))
 	(call 'sys_task :open_child in '(r0))
 	(call 'num :create '(r0) '(r1))
 	(vp-pop r0)
@@ -119,7 +119,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'sys_task :open_remote))
-	(class/list/bind_args r1 in '(str num num))
+	(list-bind-args r1 in '(str num num))
 	(call 'sys_task :open_remote in '(r0))
 	(call 'num :create '(r0) '(r1))
 	(vp-pop r0)
@@ -152,7 +152,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'sys_task :open_farm))
-	(class/list/bind_args r1 in '(str num num))
+	(list-bind-args r1 in '(str num num))
 	(call 'sys_task :open_farm in '(r1))
 	(vp-pop r0)
 
@@ -182,7 +182,7 @@
 	(call 'lisp :env_args_sig '(r1 ($ sig) 1) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
-	(class/array/bind_args r1 '(r1))
+	(array-bind-args r1 '(r1))
 
 (errorcases
 	(call 'lisp :env_args_type `(r1 (@ ,(f-path 'str :vtable)) 1) '(r2))

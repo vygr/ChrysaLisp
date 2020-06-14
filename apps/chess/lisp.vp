@@ -31,7 +31,7 @@
 
 	(call 'str :create_from_buffer `(0 ,(* 8 16)) '(r0))
 	(assign '(r0 (& r0 str_data) (rsp local_args)) `((rsp local_yield) ,yield_data r0))
-	(class/list/bind_args r0 `(,brd ,cx ,vectors) '(str num list))
+	(list-bind-args r0 `(,brd ,cx ,vectors) '(str num list))
 
 	(assign `(,cx) `(,cy))
 	(vp-and-cr 7 cx)
@@ -40,7 +40,7 @@
 	(class/array/get_both vectors iter_begin iter_end)
 	(loop-start)
 		(assign `((,iter_begin 0)) '(r0))
-		(class/array/bind_args r0 `(,dx ,dy ,len))
+		(array-bind-args r0 `(,dx ,dy ,len))
 		(assign `(,cx ,cy) `(,x ,y))
 		(loop-start)
 			(vp-sub-cr 1 len)

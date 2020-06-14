@@ -21,7 +21,7 @@
 
 	(defq in (method-input 'lisp :repl_error))
 	(vp-xor-rr (elem 2 in) (elem 2 in))
-	(class/list/bind_args r1 in '(_ str _ obj))
+	(list-bind-args r1 in '(_ str _ obj))
 	(jump 'lisp :repl_error in)
 
 (errorcases

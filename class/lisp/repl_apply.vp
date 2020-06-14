@@ -37,7 +37,7 @@
 	(class/array/get_both r2 r3 r4)
 
 (errorcases
-	(class/array/get_args r3 '(r5))
+	(array-get-args r3 '(r5))
 	(assign '((r0 lisp_sym_lambda)) '(r6))
 	(vpif '(r5 /= r6))
 		(assign '((r0 lisp_sym_macro)) '(r6))

@@ -185,10 +185,10 @@ And here is the new binding method we add to `class/obj/lisp.vp`:
 	(gotoif '(r2 /= 1) 'error))
 
 	(vp-push r0)
-	(defq in (method-input `obj :hash))
-	(class/array/bind_args r1 in)
-	(call `obj :hash in '(_ r0))
-	(call `num :create '(r0) '(r1))
+	(defq in (method-input 'obj :hash))
+	(array-bind-args r1 in)
+	(call 'obj :hash in '(_ r0))
+	(call 'num :create '(r0) '(r1))
 	(vp-pop r0)
 
 	(exit 'obj :lisp_hash '(r0 r1))

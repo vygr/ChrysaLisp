@@ -51,7 +51,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'view :event))
-	(class/list/bind_args r1 in '(view str))
+	(list-bind-args r1 in '(view str))
 	(call 'view :event in '(r0))
 	(call 'view :ref '(r0) '(r1))
 	(vp-pop r0)
@@ -115,7 +115,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'view :find_id))
-	(class/list/bind_args r1 in '(view num))
+	(list-bind-args r1 in '(view num))
 	(call 'view :find_id in '(_ r0))
 	(vpif '(r0 = 0))
 		(assign '((rsp 0)) '(r0))
@@ -151,7 +151,7 @@
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
-	(class/array/bind_args r1 '(r0))
+	(array-bind-args r1 '(r0))
 	(call 'view :sub '(r0) '(r1))
 	(vp-pop r0)
 
@@ -182,7 +182,7 @@
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
-	(class/array/bind_args r1 '(r0))
+	(array-bind-args r1 '(r0))
 	(call 'view :hide '(r0) '(r1))
 	(vp-pop r0)
 
@@ -213,7 +213,7 @@
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
-	(class/array/bind_args r1 '(r0 r1))
+	(array-bind-args r1 '(r0 r1))
 	(class/obj/ref r0 r2)
 	(class/obj/ref r1 r2)
 	(call 'view :add_child '(r0 r1) '(r1))
@@ -246,7 +246,7 @@
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
-	(class/array/bind_args r1 '(r0 r1))
+	(array-bind-args r1 '(r0 r1))
 	(class/obj/ref r0 r2)
 	(class/obj/ref r1 r2)
 	(call 'view :add_front '(r0 r1) '(r1))
@@ -279,7 +279,7 @@
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
-	(class/array/bind_args r1 '(r0 r1))
+	(array-bind-args r1 '(r0 r1))
 	(class/obj/ref r0 r2)
 	(class/obj/ref r1 r2)
 	(call 'view :add_back '(r0 r1) '(r1))
@@ -312,7 +312,7 @@
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
-	(class/array/bind_args r1 '(r0))
+	(array-bind-args r1 '(r0))
 	(call 'view :pref_size '(r0) '(_ r9 r10))
 	(call 'num :create '(r9) '(r9))
 	(call 'num :create '(r10) '(r10))
@@ -348,7 +348,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'view :change))
-	(class/list/bind_args r1 in '(view num num num num))
+	(list-bind-args r1 in '(view num num num num))
 	(call 'view :change in '(r0))
 	(call 'obj :ref '(r0) '(r1))
 	(vp-pop r0)
@@ -381,7 +381,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'view :change_dirty))
-	(class/list/bind_args r1 in '(view num num num num))
+	(list-bind-args r1 in '(view num num num num))
 	(call 'view :change_dirty in '(r0))
 	(call 'obj :ref '(r0) '(r1))
 	(vp-pop r0)
@@ -414,7 +414,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'view :add_opaque))
-	(class/list/bind_args r1 in '(view num num num num))
+	(list-bind-args r1 in '(view num num num num))
 	(call 'view :add_opaque in '(r0))
 	(call 'obj :ref '(r0) '(r1))
 	(vp-pop r0)
@@ -447,7 +447,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'view :sub_opaque))
-	(class/list/bind_args r1 in '(view num num num num))
+	(list-bind-args r1 in '(view num num num num))
 	(call 'view :sub_opaque in '(r0))
 	(call 'obj :ref '(r0) '(r1))
 	(vp-pop r0)
@@ -480,7 +480,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'view :set_flags))
-	(class/list/bind_args r1 in '(view num num))
+	(list-bind-args r1 in '(view num num))
 	(call 'view :set_flags in '(r0 _))
 	(call 'view :ref '(r0) '(r1))
 	(vp-pop r0)
@@ -513,7 +513,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'view :add_dirty))
-	(class/list/bind_args r1 in '(view num num num num))
+	(list-bind-args r1 in '(view num num num num))
 	(call 'view :add_dirty in '(r0))
 	(call 'obj :ref '(r0) '(r1))
 	(vp-pop r0)

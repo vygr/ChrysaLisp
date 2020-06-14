@@ -24,7 +24,7 @@
 
 	(vp-cpy-rr r0 r13)
 	(defq in (method-input 'seq :get_length))
-	(class/list/bind_args r1 in '(seq))
+	(list-bind-args r1 in '(seq))
 	(call 'seq :get_length in '(_ r0))
 	(call 'num :create '(r0) '(r1))
 
@@ -56,7 +56,7 @@
 	(assign '(r1) '(r13)))
 
 	(assign '(r0) '(r12))
-	(class/list/bind_args r1 '(r11 r0) '(num seq))
+	(list-bind-args r1 '(r11 r0) '(num seq))
 	(call 'seq :get_length '(r0) '(r0 r1))
 	(vpif '(r11 < 0))
 		(vp-add-rr r1 r11)
@@ -97,7 +97,7 @@
 	(assign '(r1) '(r13)))
 
 	(assign '(r0) '(r12))
-	(class/list/bind_args r1 '(r10 r11 r0) '(num num seq))
+	(list-bind-args r1 '(r10 r11 r0) '(num num seq))
 	(call 'seq :get_length '(r0) '(r0 r1))
 	(vpif '(r10 < 0))
 		(vp-add-rr r1 r10)
@@ -151,7 +151,7 @@
 	(call 'lisp :env_push '(r0))
 
 	(assign '((rsp local_args)) '(r0))
-	(class/list/bind_args r0 '(r9 r10 r11 r12) '(num num obj list))
+	(list-bind-args r0 '(r9 r10 r11 r12) '(num num obj list))
 	(vp-cpy-cr max_int r8)
 	(class/array/get_both r12 r6 r7)
 	(loop-while '(r6 /= r7))
@@ -269,7 +269,7 @@
 	(call 'lisp :env_push '(r0))
 
 	(assign '((rsp local_args)) '(r0))
-	(class/list/bind_args r0 '(r9 r10 r11 r12 r13) '(num num obj obj list))
+	(list-bind-args r0 '(r9 r10 r11 r12 r13) '(num num obj obj list))
 	(vp-cpy-cr max_int r8)
 	(class/array/get_both r13 r6 r7)
 	(loop-while '(r6 /= r7))
@@ -390,7 +390,7 @@
 	(endif))
 
 	(assign '(r0) '(r13))
-	(class/array/bind_args r1 '(r0))
+	(array-bind-args r1 '(r0))
 	(call 'seq :cat '(r0 r1) '(r0))
 
 	(exit 'seq :lisp_cat '(r13 r0))
@@ -420,7 +420,7 @@
 	(call 'lisp :env_args_sig `(,args ($ sig) 2) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
-	(class/array/bind_args args `(,element ,sequence))
+	(array-bind-args args `(,element ,sequence))
 	(assign `((,sequence obj_vtable)) `(,ovtable))
 	(switch)
 	(f-bind 'str :vtable vtable)
@@ -428,7 +428,7 @@
 	(errorcases
 		(assign `((,element obj_vtable)) `(,ovtable))
 		(gotoif `(,ovtable /= ,vtable) 'error))
-		(class/list/cast_args `(,element) '(char))
+		(list-cast-args `(,element) '(char))
 		(goto 'dofind)
 	(default)
 		(f-bind 'list :vtable vtable)
@@ -436,7 +436,7 @@
 	(errorcases
 		(call 'obj :inst_of `(,element (@ ,(f-path 'num :vtable))) '(r0 r1))
 		(gotoif '(r1 = 0) 'error))
-		(class/list/cast_args `(,element) '(num))
+		(list-cast-args `(,element) '(num))
 	(vp-label 'dofind)
 		(call 'seq :find `(,sequence ,element) '(_ _ r2))
 		(vpif '(r2 = -1))
@@ -474,7 +474,7 @@
 	(call 'lisp :env_args_sig `(,args ($ sig) 2) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
-	(class/array/bind_args args `(,element ,sequence))
+	(array-bind-args args `(,element ,sequence))
 	(assign `((,sequence obj_vtable)) `(,ovtable))
 	(switch)
 	(f-bind 'str :vtable vtable)
@@ -482,7 +482,7 @@
 	(errorcases
 		(assign `((,element obj_vtable)) `(,ovtable))
 		(gotoif `(,ovtable /= ,vtable) 'error))
-		(class/list/cast_args `(,element) '(char))
+		(list-cast-args `(,element) '(char))
 		(goto 'dofind)
 	(default)
 		(f-bind 'list :vtable vtable)
@@ -490,7 +490,7 @@
 	(errorcases
 		(call 'obj :inst_of `(,element (@ ,(f-path 'num :vtable))) '(r0 r1))
 		(gotoif '(r1 = 0) 'error))
-		(class/list/cast_args `(,element) '(num))
+		(list-cast-args `(,element) '(num))
 	(vp-label 'dofind)
 		(call 'seq :rfind `(,sequence ,element) '(_ _ r2))
 		(vpif '(r2 = -1))

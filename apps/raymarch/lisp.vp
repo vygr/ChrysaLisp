@@ -30,7 +30,7 @@
 	(call 'lisp :env_args_sig '(r1 ($ sig) 1) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
-	(class/array/bind_args r1 '(r2))
+	(array-bind-args r1 '(r2))
 
 (errorcases
 	(assign '((r2 array_length)) '(r1))
@@ -70,7 +70,7 @@
 	(call 'lisp :env_args_sig '(r14 ($ sig) 6) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
-	(class/array/bind_args r14 '(r0 r1 r2 r3 r4 r5))
+	(array-bind-args r14 '(r0 r1 r2 r3 r4 r5))
 
 (errorcases
 	(assign '((r0 array_length)) '(r6))
@@ -136,8 +136,8 @@
 	(push-scope)
 	(assign '(r0) {this})
 
-	(class/list/bind_args r1 '(r0 r1) '(canvas str))
-	(class/array/get_args r1 '(r7 r8 r9 r10) 'ui)
+	(list-bind-args r1 '(r0 r1) '(canvas str))
+	(array-get-args r1 '(r7 r8 r9 r10) 'ui)
 	(vp-add-cr (* 4 int_size) r1)
 	(assign '(r0 r1 r7 r8 r9 r10 r8) {canvas, data, x, y, x1, y1, yp})
 	(loop-start)

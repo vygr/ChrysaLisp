@@ -22,11 +22,11 @@
 (def-struct 'list 'array)
 (def-struct-end)
 
-;;;;;;;;;;;;;;;;;;
-; paramater macros
-;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;
+; paramater helpers
+;;;;;;;;;;;;;;;;;;;
 
-(defcfun-bind class/list/cast_args (regs types)
+(defcfun-bind list-cast-args (regs types)
 	;inputs
 	;(reg ...)
 	;'({num str char _} ...)
@@ -39,7 +39,7 @@
 			(char (list r str_data 'ub))
 			(t r))) regs types) regs))
 
-(defcfun-bind class/list/bind_args (a regs types)
+(defcfun-bind list-bind-args (a regs types)
 	;inputs
 	;list object
 	;(reg ...)
@@ -51,5 +51,5 @@
 		(when (not (eql '_ y))
 			(push rl x)
 			(push tp y))) (list regs types))
-	(class/array/bind_args a rl)
-	(class/list/cast_args rl tp))
+	(array-bind-args a rl)
+	(list-cast-args rl tp))

@@ -56,7 +56,7 @@
 	(gotoif '(r2 = 0) 'error))
 
 	(push-scope)
-	(class/list/bind_args r1 '(r1 r2 r3 r4 r5 r6) '(vdu list num num num num))
+	(list-bind-args r1 '(r1 r2 r3 r4 r5 r6) '(vdu list num num num num))
 	(assign '(r0 r1 r2 r3 r4 r5 r6) {this, vdu, lines, ox, oy, cx, cy})
 
 	;load vdu with line text

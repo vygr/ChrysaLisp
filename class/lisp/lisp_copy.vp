@@ -18,7 +18,7 @@
 	(gotoif '(r2 /= 1) 'error))
 
 	;ref and copy if list
-	(class/array/bind_args r1 '(r1))
+	(array-bind-args r1 '(r1))
 	(class/obj/ref r1 r2)
 	(f-bind 'list :vtable r7)
 	(assign '((r1 obj_vtable)) '(r2))

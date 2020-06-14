@@ -38,7 +38,7 @@
 				(assign '((r2 array_length)) '(r3))
 				(breakif '(r3 = 0) 'next_iter)
 				;not quoted list ?
-				(class/array/bind_args r2 '(r3))
+				(array-bind-args r2 '(r3))
 				(assign '((r0 lisp_sym_quote)) '(r4))
 				(breakif '(r4 = r3) 'next_iter)
 				(assign '((r0 lisp_sym_qquote)) '(r4))
@@ -63,7 +63,7 @@
 				(breakif '(r2 = 0))
 				;is a macro ?
 				(assign '((rsp local_this)) '(r0))
-				(class/array/bind_args r1 '(r2))
+				(array-bind-args r1 '(r2))
 				(assign '((r0 lisp_sym_macro)) '(r3))
 				(breakif '(r2 /= r3))
 				(default)

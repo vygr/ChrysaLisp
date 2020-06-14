@@ -20,7 +20,7 @@
 	(gotoif '(r2 /= 1) 'error))
 
 	(vp-push r0)
-	(class/array/bind_args r1 '(r1))
+	(array-bind-args r1 '(r1))
 	(assign '((r1 obj_vtable)) '(r1))
 	(switch)
 	(f-bind 'list :vtable r2)

@@ -28,7 +28,7 @@
 	(gotoif '(r2 /= 1) 'error))
 
 	;ref the form and bind it
-	(class/array/bind_args r1 '(r1))
+	(array-bind-args r1 '(r1))
 	(class/obj/ref r1 r2)
 	(f-bind 'list :vtable r2)
 	(assign '((r1 obj_vtable)) '(r3))
@@ -38,7 +38,7 @@
 	(assign '((r1 array_length)) '(r2))
 	(breakif '(r2 = 0))
 	;not quoted list ?
-	(class/array/bind_args r1 '(r2))
+	(array-bind-args r1 '(r2))
 	(assign '((r0 lisp_sym_quote)) '(r3))
 	(breakif '(r2 = r3))
 	(default)
@@ -65,7 +65,7 @@
 					(assign '((r1 array_length)) '(r2))
 					(breakif '(r2 = 0) 'next_elem)
 					;not quoted list ?
-					(class/array/bind_args r1 '(r2))
+					(array-bind-args r1 '(r2))
 					(assign '((r0 lisp_sym_quote)) '(r3))
 					(breakif '(r2 = r3) 'next_elem)
 					(default)
@@ -101,7 +101,7 @@
 					(breakif '(r2 = 0))
 					;is a lambda ?
 					(assign '((rsp local_this)) '(r0))
-					(class/array/bind_args r1 '(r2))
+					(array-bind-args r1 '(r2))
 					(assign '((r0 lisp_sym_lambda)) '(r3))
 					(breakif '(r2 /= r3))
 					(default)

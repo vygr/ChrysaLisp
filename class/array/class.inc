@@ -263,7 +263,7 @@
 	(assign '(r1) '((r0 array_length)))
 	(vp-shl-cr (log2 long_size) r1)
 	(vp-add-rr r1 r2)
-	(class/array/get_args r2 '(r1 r2)))
+	(array-get-args r2 '(r1 r2)))
 
 (defcfun class/array/clear ()
 	;inputs
@@ -284,7 +284,7 @@
 	;r2 = element2 (long)
 	;trashes
 	;r1-r2
-	(class/array/bind_args r0 '(r1 r2)))
+	(array-bind-args r0 '(r1 r2)))
 
 (defcfun class/array/get_element2 ()
 	;inputs
@@ -299,13 +299,13 @@
 	(assign '((r0 array_begin)) '(r2))
 	(vp-shl-cr (log2 long_size) r1)
 	(vp-add-rr r1 r2)
-	(class/array/get_args r2 '(r1 r2)))
+	(array-get-args r2 '(r1 r2)))
 
-;;;;;;;;;;;;;;;;;;
-; paramater macros
-;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;
+; paramater helpers
+;;;;;;;;;;;;;;;;;;;
 
-(defcfun-bind class/array/set_args (i regs &optional type)
+(defcfun-bind array-set-args (i regs &optional type)
 	;inputs
 	;iter
 	;(reg ...)
@@ -317,7 +317,7 @@
 		(t	(defq s (type-to-size type))
 			(assign-asm-to-asm regs (map (lambda (r) (list i (* s _) type)) regs)))))
 
-(defcfun-bind class/array/get_args (i regs &optional type)
+(defcfun-bind array-get-args (i regs &optional type)
 	;inputs
 	;iter
 	;(reg ...)
@@ -329,7 +329,7 @@
 		(t	(defq s (type-to-size type))
 			(assign-asm-to-asm (map (lambda (r) (list i (* s _) type)) regs) regs))))
 
-(defcfun-bind class/array/map_args (regs pos)
+(defcfun-bind array-map-args (regs pos)
 	;inputs
 	;(reg reg ...)
 	;(p1 p2 ...)
@@ -339,11 +339,11 @@
 	(each (lambda (r p)
 		(elem-set p out r)) regs pos) out)
 
-(defcfun-bind class/array/bind_args (a regs)
+(defcfun-bind array-bind-args (a regs)
 	;inputs
 	;array object
 	;(reg ...)
 	;outputs
 	;load register list from array
 	(assign `((,a array_begin)) `(,(elem -2 regs)))
-	(class/array/get_args (elem -2 regs) regs))
+	(array-get-args (elem -2 regs) regs))

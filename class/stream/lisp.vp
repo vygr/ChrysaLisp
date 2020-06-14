@@ -24,7 +24,7 @@
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-cpy-rr r0 r8)
-	(class/list/bind_args r1 '(r5) '(str))
+	(list-bind-args r1 '(r5) '(str))
 	(switch 'exit)
 		(switch)
 		(call 'sys_str :compare '(r5 "stdin") '(r0))
@@ -74,7 +74,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'stream_str :create))
-	(class/list/bind_args r1 in '(obj))
+	(list-bind-args r1 in '(obj))
 	(class/obj/ref (elem 0 in))
 	(call 'stream_str :create in '(r1))
 	(vp-pop r0)
@@ -107,7 +107,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'stream :available))
-	(class/list/bind_args r1 in '(stream))
+	(list-bind-args r1 in '(stream))
 	(call 'stream :available in '(_ r1))
 	(call 'num :create '(r1) '(r1))
 	(vp-pop r0)
@@ -212,7 +212,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'stream :read_line))
-	(class/list/bind_args r1 in '(stream))
+	(list-bind-args r1 in '(stream))
 	(call 'stream :read_line in '(_ r1))
 	(vp-pop r0)
 	(vpif '(r1 = 0))
@@ -247,7 +247,7 @@
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
-	(class/list/bind_args r1 '(r2) '(stream))
+	(list-bind-args r1 '(r2) '(stream))
 	(assign '((r2 stream_bufp) (r2 stream_bufe)) '(r0 r1))
 	(assign '(r1) '((r2 stream_bufp)))
 	(vp-sub-rr r0 r1)
@@ -282,9 +282,9 @@
 
 	(vp-push r0)
 	(defq in (method-input 'stream :write))
-	(class/array/bind_args r1 (slice 0 2 in))
+	(array-bind-args r1 (slice 0 2 in))
 	(assign `((,(elem 1 in) str_length)) `(,(elem 2 in)))
-	(class/list/cast_args in '(stream str _))
+	(list-cast-args in '(stream str _))
 	(call 'stream :write in '(r1))
 	(class/obj/ref r1 r2)
 	(vp-pop r0)
@@ -389,7 +389,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'stream :write_flush))
-	(class/array/bind_args r1 in)
+	(array-bind-args r1 in)
 	(call 'stream :write_flush in '(r1))
 	(class/obj/ref r1 r2)
 	(vp-pop r0)

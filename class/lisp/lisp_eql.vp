@@ -19,7 +19,7 @@
 	(assign '((r1 array_length)) '(r2))
 	(gotoif '(r2 /= 2) 'error))
 
-	(class/array/bind_args r1 '(r2 r3))
+	(array-bind-args r1 '(r2 r3))
 	(gotoif '(r2 = r3) 'same)
 	(switch)
 	(assign '((r2 obj_vtable) (r3 obj_vtable) (r0 lisp_sym_nil)) '(r4 r5 r1))

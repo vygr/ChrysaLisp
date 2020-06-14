@@ -19,7 +19,7 @@
 	(gotoif '(r2 = 0) 'error))
 
 	(assign '(r0) '(r5))
-	(class/list/bind_args r1 '(r0 r1 r2) '(obj num num))
+	(list-bind-args r1 '(r0 r1 r2) '(obj num num))
 	(switch)
 	(vpcase `(r2 = ,byte_size))
 		(assign '((r0 r1 b)) '(r0))
@@ -82,7 +82,7 @@
 	(call 'lisp :env_args_sig '(r1 ($ sig) 4) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
-	(class/list/bind_args r1 '(r1 r2 r3 r4) '(obj num num obj))
+	(list-bind-args r1 '(r1 r2 r3 r4) '(obj num num obj))
 	(vp-push r0 r1)
 	(vpif '(r3 /= 0))
 		(assign '((r4 num_value)) '(r4))
@@ -154,10 +154,10 @@
 	(gotoif '(r2 /= 1) 'error))
 
 	(vp-push r0)
-	(defq in (method-input `obj :hash))
-	(class/array/bind_args r1 in)
-	(call `obj :hash in '(_ r0))
-	(call `num :create '(r0) '(r1))
+	(defq in (method-input 'obj :hash))
+	(array-bind-args r1 in)
+	(call 'obj :hash in '(_ r0))
+	(call 'num :create '(r0) '(r1))
 	(vp-pop r0)
 
 	(exit 'obj :lisp_hash '(r0 r1))

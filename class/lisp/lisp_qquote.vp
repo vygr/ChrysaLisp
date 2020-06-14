@@ -62,7 +62,7 @@
 		(assign '((r1 array_length) (rsp local_qcnt) (rsp local_ucnt)) '(r2 r6 r7))
 		(gotoif '(r2 /= 2) 'push_list_copy1)
 		(assign '((rsp local_this)) '(r0))
-		(class/array/bind_args r1 '(r2 r3))
+		(array-bind-args r1 '(r2 r3))
 		(switch 'replace)
 			(assign '((r0 lisp_sym_unquote)) '(r4))
 			(nextcaseif '(r2 /= r4))
