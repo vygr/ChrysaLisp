@@ -4856,6 +4856,19 @@ trashes
 r1-r14
 ```
 
+### obj::lisp_hash -> class/obj/lisp_hash
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
 ## out
 
 Super Class: stream
