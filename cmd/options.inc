@@ -4,7 +4,7 @@
 
 (defun-bind options-print (&rest _)
 	;(options-print &rest _)
-	(stream-flush (write (file-stream 'stderr)
+	(stream-flush (write (file-stream 'stdout)
 		(apply str (cat _ (list (ascii-char 10)))))))
 
 (defun-bind options-find (optlist arg)
