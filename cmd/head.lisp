@@ -39,7 +39,7 @@
     (set-properties (create-argument
                       '("-c" "--count")
                       "count of lines from top of file to display")
-                    :validator validate-integer
+                    :validator validate-integer-pos
                     :counter 1
                     :dest :count))
   parser)

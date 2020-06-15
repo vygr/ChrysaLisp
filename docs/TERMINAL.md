@@ -45,7 +45,9 @@ are but a few of the commands that can be invoked from the shell.
 
 Note that some of the commands may include optional arguments to be passed to
 the command. Typically, commands do provide argument help and can be displayed
-by `command -h` .
+by `command -h`.
+
+You can find additional command information in [cmds/](./COMMANDS.md)
 
 ## Include Files
 
