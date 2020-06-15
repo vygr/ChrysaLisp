@@ -125,18 +125,50 @@
     (throw "Validation: expected string, found" filename))
   arg)
 
-(defun-bind validate-integer (inst arg)
-  ; (validate-integer arg-clz arg) -> integer | exception
+(defun str-is-ints? (s)
+  ; (str-is-ints? s) -> :true | :false
+  (reduced-reduce
+      (lambda (acc el)
+        (if  (find el +ztn+)
+          acc
+          (reduced :false))
+        ) s :true))
+
+(defun-bind validate-integer-pos (inst arg)
+  ; (validate-integer-pos arg-clz arg) -> integer | exception
   (validate-count inst arg)
-  (defq good (reduced-reduce
-    (lambda (acc el)
-      (if  (find el +ztn+)
-        acc
-        (reduced :false))
-      ) arg :true))
+  (defq
+    good :true
+    wrk  (copy arg)
+    negi (when (or (eql (first arg) "-") (eql (first arg) "+"))
+      (setq wrk (slice 1 -1 arg))
+      (eql (first arg) "-")))
+  (setq good
+    (if (or (find "." wrk) negi)
+      :false
+      (str-is-ints? wrk)))
   (when (eql good :false)
-    (throw "Validation: expected integer, found" arg))
-  (str-to-num arg))
+    (throw "Validation: positive expected integer, found" arg))
+  (str-to-num wrk))
+
+(defun-bind validate-integer-any (inst arg)
+  ; (validate-integer-any arg-clz arg) -> integer | exception
+  (validate-count inst arg)
+  (defq
+    good :true
+    wrk  (copy arg)
+    negi (when (or (eql (first arg) "-") (eql (first arg) "+"))
+      (setq wrk (slice 1 -1 arg))
+      (eql (first arg) "-")))
+  (setq good
+    (if (find "." wrk)
+      :false
+      (str-is-ints? wrk)))
+  (when (eql good :false)
+    (throw "Validation: positive expected integer, found" arg))
+  (if negi
+    (str-to-num arg)
+    (str-to-num wrk)))
 
 (defun-bind validate-float (inst arg)
   ; (validate-float arg-clz arg) -> float | exception
