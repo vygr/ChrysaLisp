@@ -49,13 +49,14 @@ by `command -h`.
 
 You can find additional command information in [cmds/](./COMMANDS.md)
 
-## Include Files
+## Library Files
 
 Commands are lisp programs and, as such, have support for including other
 files. This enables resolution and re-use of terms and functions that enhance
-and enable the processing of the command. While not required, new include files
-co-resident with commands in the `cmd/` folder follow a naming convention with
-a file extension of `.inc`.
+and enable the processing of the command. The defacto standard for ChrysaLisp reusable
+libraries to locate them under the `./lib` folder where each library has it's own
+subfolder. Within these subfolders you will find one or more files that have an
+`.inc` extension.
 
 ### Hello World example
 

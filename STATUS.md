@@ -44,6 +44,12 @@ Added DIARY.md doc to show the creation of a new feature as it happens !
 New autogen of COMMANDS.md via 'make docs' for all the commands in 'cmd/'
 folder.
 
+Restructure of library files into own directory. Updated all command files
+to reflect relocation of included library functions.
+
+Added `csv-data` library to support fundemental reading and writing
+csv files.
+
 ------
 
 Created standard File picker, added demo Files browser and used picker to

@@ -46,7 +46,7 @@
 
 (defun-bind make-imports (_)
 	;create list of immediate dependencies
-	(defq d (list 'cmd/asm.inc 'class/lisp/boot.inc _))
+	(defq d (list 'lib/asm/asm.inc 'class/lisp/boot.inc _))
 	(each-line (lambda (_)
 		(when (starts-with "(include" _)
 			(push d (sym (trim-start (trim-end
@@ -54,7 +54,7 @@
 
 (defun-bind make-info (_)
 	;create lists of immediate dependencies and products
-	(defq d (list 'cmd/asm.inc 'class/lisp/boot.inc _) p (list))
+	(defq d (list 'lib/asm/asm.inc 'class/lisp/boot.inc _) p (list))
 	(defun-bind trim-cruft (_)
 		(sym (trim-start (trim-end _ ")") "'")))
 	(each-line (lambda (_)
