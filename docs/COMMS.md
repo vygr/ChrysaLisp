@@ -14,13 +14,13 @@ All the mailbox and message header structures can be found in the
 ## Mailboxes
 
 Mailboxes are identified by an ID, this ID is allocated when the mailbox is
-constructed using the `'sys_mail 'alloc_mbox` function. The mailbox ID does not
+constructed using the `'sys_mail :alloc_mbox` function. The mailbox ID does not
 directly address the mailbox structure that's used to hold received messages.
 
-A Mailbox can be freed using the mailbox free function, `'sys_mail 'free_mbox`.
+A Mailbox can be freed using the mailbox free function, `'sys_mail :free_mbox`.
 
 A mailbox ID can be turned into the address of the message containing structure
-using the `'sys_mail 'mbox_addr` function. This mailbox address function
+using the `'sys_mail :mbox_addr` function. This mailbox address function
 validates that this ID is an existing mailbox and will return `null` if the
 mailbox cannot be found.
 
@@ -53,29 +53,29 @@ sequence of delivery to the receiving process. They also hide the use of the
 underlying messaging system within a streams based API.
 
 There are two functions to allocate mail messages, one where the data is
-already available `'sys_mail 'alloc_obj`, and one where an empty message needs
-to be created, which the creator will fill in with data, `'sys_mail 'alloc`.
+already available `'sys_mail :alloc_obj`, and one where an empty message needs
+to be created, which the creator will fill in with data, `'sys_mail :alloc`.
 
 There are counterparts for the receiver where a message can be freed in its
-entirety, `'sys_mail 'free`, or the data object can be retained and only the
-message header freed, `'sys_mail 'free_obj`.
+entirety, `'sys_mail :free`, or the data object can be retained and only the
+message header freed, `'sys_mail :free_obj`.
 
 ## Sending and Receiving
 
 Once a mail message is allocated and ready for delivery the creating process
-sends the message on its way with the `'sys_mail 'send` function. This hands
+sends the message on its way with the `'sys_mail :send` function. This hands
 the message over to the link processes and begins the routing of the message to
 the destination mailbox.
 
-A process receives messages by use of the `'sys_mail 'read` function. This
+A process receives messages by use of the `'sys_mail :read` function. This
 function retrieves the next available mail message from the mailbox or blocks,
 by suspending the process, until a message is received.
 
 It is possible to examine a mailbox to see if any mail is available, without
-suspending the calling process, by use of the `'sys_mail 'poll` function.
+suspending the calling process, by use of the `'sys_mail :poll` function.
 
 Polling of multiple mailboxes and selection from multiple mailboxes is provided
-by the `'sys_mail 'poll` and `'sys_mail 'select` function calls.
+by the `'sys_mail :poll` and `'sys_mail :select` function calls.
 
 ## Process Mailbox ID's
 
@@ -101,10 +101,10 @@ happen when the process shuts down.
 ## Services
 
 Functions are also provided to allow mailboxes to be named, either locally
-`'sys_mail 'declare` or globally `'sys_kernel 'declare` throughout the network.
+`'sys_mail :declare` or globally `'sys_kernel :declare` throughout the network.
 Such mailboxes are then discoverable by other processes via a call to
-`'sys_mail 'enquire` with the given name. A service entry can be removed with
-the `'sys_mail 'forget` function.
+`'sys_mail :enquire` with the given name. A service entry can be removed with
+the `'sys_mail :forget` function.
 
 The system maintains a directory of these service names and the corresponding
 process mailbox IDs. An example service is the current `DEBUG_SERVICE`
@@ -114,11 +114,11 @@ application `apps/debug/app.lisp`.
 
 This is the network monitoring application child process
 `apps/netmon/child.vp`. This process is launched onto each CPU by use of an
-`'sys_task 'openfarm` call. The child process simply waits for a command
+`'sys_task :openfarm` call. The child process simply waits for a command
 message from the parent and either exits or returns a message containing task
 and memory usage information.
 
-`'sys_mail 'mymail` is just a convenience function to read mail from the
+`'sys_mail :mymail` is just a convenience function to read mail from the
 current tasks main mailbox.
 
 ```lisp
@@ -167,7 +167,7 @@ current tasks main mailbox.
 ## Lisp Interface
 
 The included Lisp interpreter interfaces to the messaging system via sending
-and receiving objects. This uses the `'sys_mail 'alloc_obj` and `'sys_mail
+and receiving objects. This uses the `'sys_mail :alloc_obj` and `'sys_mail
 'free_obj` calls within the Lisp bindings, see `sys/lisp.inc` and
 `sys/mail/lisp.vp`.
 

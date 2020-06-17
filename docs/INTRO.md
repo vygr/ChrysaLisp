@@ -112,7 +112,7 @@ supported platforms, create their boot images and scan the source files to
 build the reference documentation.
 
 ```
-make doc
+make docs
 ```
 
 Scan source files and create the reference documents.

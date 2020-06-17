@@ -39,9 +39,6 @@
 
 ; Local sugar wrappers
 
-(defun-bind reverse (l)
-  (map-rev progn l))
-
 (defun-bind isarg? (arg)
   (starts-with "-" arg))
 

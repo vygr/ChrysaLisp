@@ -428,6 +428,10 @@
 	(reduce (lambda (b e)
 		(push (elem (% _ (length b)) b) e) b) l b))
 
+(defun-bind reverse (l)
+	;(reverse list) -> list
+	(map-rev progn l))
+
 ;;;;;;;;;;;;;;;;
 ; Math functions
 ;;;;;;;;;;;;;;;;
