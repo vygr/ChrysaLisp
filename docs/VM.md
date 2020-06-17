@@ -296,7 +296,7 @@ into what these calls do to get your function compiled and written out, look in
 `sys/func.inc` where all the magic happens.
 
 Next there is a section of documentation, this format can be parsed out by the
-`make doc` command line tool. Parsed documentation ends up in the
+`make docs` command line tool. Parsed documentation ends up in the
 `docs/CLASSES.md` file.
 
 The `(entry 'sys_str :compare '(r0 r1))` and `(exit 'sys_str :compare
