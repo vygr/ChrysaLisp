@@ -424,6 +424,10 @@
 
 (rest seq) -> seq
 
+## reverse
+
+(reverse list) -> list
+
 ## second
 
 (second seq) -> el

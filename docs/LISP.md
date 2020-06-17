@@ -287,6 +287,7 @@ reduce
 reduce-rev
 reduced-reduce
 reduced-reduce-rev
+reverse
 shuffle
 shuffled
 sign
