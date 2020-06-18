@@ -4,7 +4,7 @@
 
 ; Utilities
 
-(defun comma-indexes (s)
+(defun comma-indexes (s delim)
   ; (comma-indexes s) -> seq
   ; Returns a sequence of positions of commas in
   ; a string, skipping embedded commas in quotes
@@ -14,7 +14,7 @@
     (cond
       ((eql (ascii-char 34) el)
         (setq in_q (if in_q nil t)) acc)
-      ((and (eql "," el) (not in_q))
+      ((and (eql delim el) (not in_q))
         (push (second acc) (first acc)) acc)
       (t acc))) s (list -1 (list 0))))
 
@@ -41,24 +41,30 @@
     acc) seq (list elval -1))))
 
 (defmacro csv-cell-value (s findx lindx)
-  ; (csv-cell-value s findx tindx)
+  ; (csv-cell-value s findx tindx) -> value
   ; Retrieves the value in a (s)tring
   ; between to indexes
   `(slice ,findx ,lindx ,s))
 
-(defun csv-parse-row (s)
+(defun csv-validate-clz (art expected)
+  ; (csv-validate-clz artifact expected_clz) -> artifact | exception
+  (defq aclz (get-property art :clz))
+  (if (eql aclz expected)
+    art
+    (throw (str "csv-data: class mismatch, expected " expected " found") aclz)))
+
+(defun csv-parse-row (s delim)
   ; (csv-parse-row s) -> csv_row
   ; Construces a csv-row from a
   ; comma delimited input string
-  (setd s "")
+  (setd s "" delim ",")
   (defq
     row (list
       :clz        :clz_csv_row
       :vcount     0
-      :rpos       0
       :row        (list))
     fpos  0
-    clpos (second (comma-indexes s)))
+    clpos (second (comma-indexes s delim)))
   (while (/= fpos -1)
     (defq lpos -1)
     (when (/= fpos (last clpos))
@@ -70,61 +76,51 @@
   (set-property row :vcount (length (get-property row :row)))
   row)
 
+(defun csv-cell-count (rr)
+  ; (csv-cell-count rr) -> count of cells | exception
+  (csv-validate-clz rr :clz_csv_row)
+  (length (get-property doc :row)))
+
 (defun csv-cells (rr)
-  ; (cells rr) -> list
+  ; (cells rr) -> list | exception
   ; Returns the list of cell values from a row
-  (if (eql (get-property rr :clz) :clz_csv_row)
-    (get-property rr :row)
-    (throw "csv-data: cells expects :clz_csv_row class, found "
-      (get-property rr :clz))))
+  (csv-validate-clz rr :clz_csv_row)
+  (get-property rr :row))
 
 (defun csv-cell (rr index)
-  ; (cell rr index)
+  ; (cell rr index) -> cell content | exception
   ; Returns a row's specific cell value indicated by index
+  (csv-validate-clz rr :clz_csv_row)
   (setd index 0)
   (elem index (get-property rr :row)))
 
 (defun csv-first-cell (rr)
-  ; (first-cell rr) -> val
+  ; (first-cell rr) -> cell content | exception
   ; Returns the value from the first cell in a row
+  (csv-validate-clz rr :clz_csv_row)
   (first (get-property rr :row)))
 
 (defun csv-last-cell (rr)
-  ; (last-cell rr) -> val
+  ; (last-cell rr) -> cell content | exception
   ; Returns the value from the last cell in a row
+  (csv-validate-clz rr :clz_csv_row)
   (last (get-property rr :row)))
-
-(defun csv-next-cell! (rr)
-  ; (next-cell! rr) -> value
-  ; A cheap iterator to use in while loops to
-  ; iterate across all cells in a row
-  (defq
-    ipos    (get-property rr :rpos)   ; Next starting pos
-    rvals   (csv-cells rr))           ; Row value list
-  (cond
-    ((= ipos -1) nil)
-    (t
-      (defq cv (elem ipos rvals))
-      ;(if (= (eval (incdec ipos)) (length rvals))
-      (if (= (inc ipos) (length rvals))
-        (set-property rr :rpos -1)
-        (set-property rr :rpos (inc ipos)))
-      cv)))
 
 ; Document functions
 (defun csv-parse-document (dname strm options)
   ; (csv-parse-document dname strm options) -> document
   (setd options '())
   (defq
+    delim   (opt (find :delimiter options) ",")
     doc (list
       :clz        :clz_csv_document
       :name       dname
+      :delim      delim
       :header     nil
-      :rpos       0
       :rows       (list)))
   ; Construct rows
   (while (defq ln (read-line strm))
-    (push (get-property doc :rows) (csv-parse-row ln)))
+    (push (get-property doc :rows) (csv-parse-row ln delim)))
   ; Header options: mutually exclusive
   (cond
     ; First row is header
@@ -146,61 +142,69 @@
           (get-property el :vcount)))) rrs))
   doc)
 
+(defun csv-row-count (doc)
+  ; (csv-row-count doc) -> row count | exception
+  (csv-validate-clz doc :clz_csv_document)
+  (length (get-property doc :rows)))
+
 (defun csv-rows (doc)
-  ; (rows doc) -> list of rows
-  (if (eql (get-property doc :clz) :clz_csv_document)
-    (get-property doc :rows)
-    (throw "csv-data:rows expects : clz_dsv_doument class, found"
-      (get-property doc :clz))))
+  ; (rows doc) -> list of rows | exception
+  (csv-validate-clz doc :clz_csv_document)
+  (get-property doc :rows))
 
 (defun csv-row (doc index)
-  ; (row doc index) -> row
+  ; (row doc index) -> row | exception
+  (csv-validate-clz doc :clz_csv_document)
   (setd index 0)
   (elem index (get-property doc :rows)))
 
-(defun csv-next-row! (doc))
-
 (defun csv-first-row (doc)
-  ; (first-row doc) -> row
+  ; (first-row doc) -> row | exception
+  (csv-validate-clz doc :clz_csv_document)
   (first (get-property doc :rows)))
 
 (defun csv-last-row (doc)
-  ; (last-row doc) -> row
+  ; (last-row doc) -> row | exception
+  (csv-validate-clz doc :clz_csv_document)
   (last (get-property doc :rows)))
 
 (defun csv-headers (doc)
   ; (headers doc) -> list of column headers | nil
-  (get-property (get-property doc :header) :row))
+  (csv-validate-clz doc :clz_csv_document)
+  (defq hdr (get-property doc :header))
+  (when hdr
+    (get-property hdr :row)))
 
-(defun csv-add-row! (doc csv-str)
+
+(defun csv-add-row! (doc csv-str &optional delim)
   ; (csv-add-row doc csv-str) -> doc | exception
   ; Parses a new csv string and appends to the
   ; document rows
-  )
-
-(defun csv-reset-itr! (csv-seq)
-  ; (csv-reset-itr! csv-seq) -> 0
-  (set-property csv-seq :rpos 0))
+  (csv-validate-clz doc :clz_csv_document)
+  (setd delim ",")
+  (push (get-property doc :rows) (csv-parse-row csv-str delim))
+  doc)
 
 (defun csv-drop-row! (doc csv-row-index)
   ; (csv-drop-row doc csv-row-index) -> doc | exception
   ; Drops a row from the csv document
-  )
+  (csv-validate-clz doc :clz_csv_document)
+  doc)
 
 (defun csv-read (fname &rest options)
   ; (csv-read fname &rest options) -> document | exception
   (csv-parse-document fname (file-stream fname) options))
 
-(defun csv-write (doc)
-  ; (csv-write doc) -> nil | exception
-  )
-
-; Test stuff
-(defq mdoc
-  (csv-read
-    '../LTEST/tmp.csv
-    :first_row_header
-    :validate))
-
-(defq r1 (first (csv-rows mdoc)))
-
+(defun csv-write (doc &optional fname)
+  ; (csv-write doc) -> t | exception
+  (csv-validate-clz doc :clz_csv_document)
+  (setd fname (get-property doc :name))
+  (defq
+    stream (string-stream (cat ""))
+    delim (get-property doc :delim)
+    hdr   (csv-headers doc))
+  (when (and hdr (/= (length hdr) 0))
+    (write-line stream (join hdr delim)))
+  (each (lambda (r)
+    (write-line stream (join (csv-cells r) delim))) (csv-rows doc))
+  (save (str stream) fname))
