@@ -226,8 +226,3 @@
   (each (lambda (r)
     (write-line stream (join (csv-cells r) delim))) (csv-rows doc))
   (save (str stream) fname))
-
-; Test
-(defq mdoc
-  (csv-read "../LTEST/tmp.csv" :validate :first_row_header))
-(csv-add-row! mdoc "funky,frank,80")
