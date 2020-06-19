@@ -185,10 +185,28 @@
   (push (get-property doc :rows) (csv-parse-row csv-str delim))
   doc)
 
-(defun csv-drop-row! (doc csv-row-index)
+(defun csv-drop-row! (doc csv_row_index)
   ; (csv-drop-row doc csv-row-index) -> doc | exception
   ; Drops a row from the csv document
   (csv-validate-clz doc :clz_csv_document)
+  (defq
+    rws (get-property doc :rows)
+    rwl (length rws))
+  (if (< csv_row_index rwl)
+    (cond
+      ; single row or last element index
+      ((or (and (= csv_row_index 0) (= rwl 1)) (= csv_row_index (dec rwl)))
+        (pop rws))
+      ; first element
+      ((= csv_row_index 0)
+        (set-property doc :rows (slice 1 -1 rws)))
+      ; else
+      (t
+        (set-property doc :rows
+          (cat
+            (slice 0 csv_row_index rws)
+            (slice (inc csv_row_index) -1 rws)))))
+    (throw (str "csv-data: row index out of range " (length rws)) csv_row_index))
   doc)
 
 (defun csv-read (fname &rest options)
@@ -208,3 +226,8 @@
   (each (lambda (r)
     (write-line stream (join (csv-cells r) delim))) (csv-rows doc))
   (save (str stream) fname))
+
+; Test
+(defq mdoc
+  (csv-read "../LTEST/tmp.csv" :validate :first_row_header))
+(csv-add-row! mdoc "funky,frank,80")
