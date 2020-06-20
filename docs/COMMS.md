@@ -168,7 +168,7 @@ current tasks main mailbox.
 
 The included Lisp interpreter interfaces to the messaging system via sending
 and receiving objects. This uses the `'sys_mail :alloc_obj` and `'sys_mail
-'free_obj` calls within the Lisp bindings, see `sys/lisp.inc` and
+:free_obj` calls within the Lisp bindings, see `sys/lisp.inc` and
 `sys/mail/lisp.vp`.
 
 It is possible to send a Lisp list to a process that lives on the same CPU,

@@ -1,5 +1,5 @@
 ## cat 
-```
+```lisp
 Usage: cat [options] [path] ...
 	options:
 		-h --help: this help info.
@@ -8,7 +8,7 @@ Usage: cat [options] [path] ...
 
 ```
 ## dump 
-```
+```lisp
 Usage: dump [options] [path] ...
 	options:
 		-h --help: this help info.
@@ -17,14 +17,14 @@ Usage: dump [options] [path] ...
 
 ```
 ## echo 
-```
+```lisp
 Usage: echo [options] arg ...
 	options:
 		-h --help: this help info.
 
 ```
 ## files 
-```
+```lisp
 Usage: file [options] [prefix] [postfix]
 	options:
 		-h --help: this help info.
@@ -36,7 +36,7 @@ Usage: file [options] [prefix] [postfix]
 
 ```
 ## head 
-```
+```lisp
 usage: head [-h] [-v] [-c] {} ...
 
 returns lines from beginning of file, defaults to first 10 lines
@@ -49,7 +49,7 @@ optional arguments:
 
 ```
 ## lisp 
-```
+```lisp
 Usage: lisp [options] [path] ...
 	options:
 		-h --help: this help info.
@@ -58,7 +58,7 @@ Usage: lisp [options] [path] ...
 
 ```
 ## make 
-```
+```lisp
 Usage: make [options] [all] [boot] [platforms] [doc] [syms]
     options:
         -h --help: this help info.
@@ -70,14 +70,14 @@ Usage: make [options] [all] [boot] [platforms] [doc] [syms]
 
 ```
 ## null 
-```
+```lisp
 Usage: null [options]
 	options:
 		-h --help: this help info.
 
 ```
 ## shuffle 
-```
+```lisp
 Usage: shuffle [options] [line] ...
 	options:
 		-h --help: this help info.
@@ -86,7 +86,7 @@ Usage: shuffle [options] [line] ...
 
 ```
 ## sort 
-```
+```lisp
 Usage: sort [options] [line] ...
 	options:
 		-h --help: this help info.
@@ -95,7 +95,7 @@ Usage: sort [options] [line] ...
 
 ```
 ## tail 
-```
+```lisp
 usage: tail [-h] [-v] [-c] {} ...
 
 returns lines from end of file, defaults to last 10 lines
@@ -108,7 +108,7 @@ optional arguments:
 
 ```
 ## tee 
-```
+```lisp
 Usage: tee [options] [path] ...
 	options:
 		-h --help: this help info.
@@ -116,7 +116,7 @@ Usage: tee [options] [path] ...
 
 ```
 ## tocpm 
-```
+```lisp
 Usage: tocmp [options] [path] ...
 	options:
 		-h --help: this help info.
@@ -127,7 +127,7 @@ Usage: tocmp [options] [path] ...
 
 ```
 ## unique 
-```
+```lisp
 Usage: unique [options] [line] ...
 	options:
 		-h --help: this help info.
@@ -136,7 +136,7 @@ Usage: unique [options] [line] ...
 
 ```
 ## wc 
-```
+```lisp
 usage: wc [-h] [-v] [-f] [-l] [-w] [-c] {} ...
 
 word counter
