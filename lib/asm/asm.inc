@@ -173,7 +173,7 @@
 		(save (setq f (apply cat (reduce (lambda (x y)
 			(push x (cat y (ascii-char 0)))) ns (push (reduce (lambda (x y)
 				(push x (elem 0 y) (elem 1 y))) b (list)) z)))) (func-obj 'sys/boot_image))
-		(print "image -> " (func-obj 'sys/boot_image) " (" (length f) ")"))))
+		(print "image -> " (func-obj 'sys/boot_image) " (" (length f) ")") nil)))
 
 (defun-bind make-boot-all (&optional *abi* *cpu*)
 	(setd *abi* (abi) *cpu* (cpu))
