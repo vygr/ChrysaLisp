@@ -1,4 +1,5 @@
-## cat 
+## cat
+ 
 ```lisp
 Usage: cat [options] [path] ...
 	options:
@@ -7,7 +8,8 @@ Usage: cat [options] [path] ...
 	then paths are read from stdin.
 
 ```
-## dump 
+## dump
+ 
 ```lisp
 Usage: dump [options] [path] ...
 	options:
@@ -16,14 +18,16 @@ Usage: dump [options] [path] ...
 	then will dump stdin.
 
 ```
-## echo 
+## echo
+ 
 ```lisp
 Usage: echo [options] arg ...
 	options:
 		-h --help: this help info.
 
 ```
-## files 
+## files
+ 
 ```lisp
 Usage: file [options] [prefix] [postfix]
 	options:
@@ -35,7 +39,8 @@ Usage: file [options] [prefix] [postfix]
 	files ./apps/wallpaper/ .tga
 
 ```
-## head 
+## head
+ 
 ```lisp
 usage: head [-h] [-v] [-c] {} ...
 
@@ -48,7 +53,8 @@ optional arguments:
 
 
 ```
-## lisp 
+## lisp
+ 
 ```lisp
 Usage: lisp [options] [path] ...
 	options:
@@ -57,7 +63,8 @@ Usage: lisp [options] [path] ...
 	then will REPL from stdin.
 
 ```
-## make 
+## make
+ 
 ```lisp
 Usage: make [options] [all] [boot] [platforms] [doc] [syms]
     options:
@@ -69,14 +76,16 @@ Usage: make [options] [all] [boot] [platforms] [doc] [syms]
     syms: scan source files and create VP sys/symbols.inc.
 
 ```
-## null 
+## null
+ 
 ```lisp
 Usage: null [options]
 	options:
 		-h --help: this help info.
 
 ```
-## shuffle 
+## shuffle
+ 
 ```lisp
 Usage: shuffle [options] [line] ...
 	options:
@@ -85,7 +94,8 @@ Usage: shuffle [options] [line] ...
 	then will shuffle lines from stdin.
 
 ```
-## sort 
+## sort
+ 
 ```lisp
 Usage: sort [options] [line] ...
 	options:
@@ -94,7 +104,8 @@ Usage: sort [options] [line] ...
 	then will sort lines from stdin.
 
 ```
-## tail 
+## tail
+ 
 ```lisp
 usage: tail [-h] [-v] [-c] {} ...
 
@@ -107,7 +118,8 @@ optional arguments:
 
 
 ```
-## tee 
+## tee
+ 
 ```lisp
 Usage: tee [options] [path] ...
 	options:
@@ -115,7 +127,8 @@ Usage: tee [options] [path] ...
 	Read from stdin, write to stdout and all given paths.
 
 ```
-## tocpm 
+## tocpm
+ 
 ```lisp
 Usage: tocmp [options] [path] ...
 	options:
@@ -126,7 +139,8 @@ Usage: tocmp [options] [path] ...
 	then paths are read from stdin.
 
 ```
-## unique 
+## unique
+ 
 ```lisp
 Usage: unique [options] [line] ...
 	options:
@@ -135,7 +149,8 @@ Usage: unique [options] [line] ...
 	then will read lines from stdin.
 
 ```
-## wc 
+## wc
+ 
 ```lisp
 usage: wc [-h] [-v] [-f] [-l] [-w] [-c] {} ...
 
