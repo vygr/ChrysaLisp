@@ -81,107 +81,99 @@
 (defun-bind make (&optional root *abi* *cpu*)
 	(setd root 'make.inc *abi* (abi) *cpu* (cpu))
 	(compile ((lambda ()
-		(defq *env* (env 101) *imports* (list root))
-		(catch (progn
-			(defun-bind make-sym (_)
-				(sym (cat "_dep_" _)))
-			(defun-bind make-time (_)
-				;modification time of a file, cached
-				(defq s (sym (cat "_age_" _)))
-				(or (def? s) (def *env* s (age _))))
-			;list of all file imports while defining dependencies and products
-			(within-compile-env (lambda ()
-				(include 'sys/func.inc)
-				(each include (all-class-files))
-				(each-mergeable (lambda (_)
-					(defq i (make-info _))
-					(bind '(d p) i)
-					(merge *imports* d)
-					(elem-set 1 i (map func-obj p))
-					(def *env* (make-sym _) i)) *imports*)))
-			;filter to only the .vp files
-			(setq *imports* (filter (lambda (_)
-				(ends-with ".vp" _)) *imports*))
-			;filter to only the files who's oldest product is older than any dependency
-			(setq *imports* (filter (lambda (_)
-				(defq d (eval (make-sym _)) p (reduce min (map make-time (elem 1 d))) d (elem 0 d))
-				(each-mergeable (lambda (_)
-					(merge d (elem 0 (eval (make-sym _))))) d)
-				(some (lambda (_) (>= _ p)) (map make-time d))) *imports*))
-			;drop the make environment, return the list to compile
-			(setq *env* nil) *imports*) (setq *env* nil)))) *abi* *cpu*))
+		(defq *imports* (list root) *ages* (env -31) *deps* (env -31))
+		(defun-bind file-age (_)
+			;modification time of a file, cached
+			(or (def? (setq _ (sym _)) *ages*) (def *ages* _ (age _))))
+		;list of all file imports while defining dependencies and products
+		(within-compile-env (lambda ()
+			(include 'sys/func.inc)
+			(each include (all-class-files))
+			(each-mergeable (lambda (_)
+				(defq i (make-info _))
+				(bind '(d p) i)
+				(merge *imports* d)
+				(elem-set 1 i (map func-obj p))
+				(def *deps* _ i)) *imports*)))
+		;filter to only the .vp files
+		(setq *imports* (filter (lambda (_)
+			(ends-with ".vp" _)) *imports*))
+		;filter to only the files who's oldest product is older than any dependency
+		(setq *imports* (filter (lambda (_)
+			(defq d (eval _ *deps*) p (reduce min (map file-age (elem 1 d))) d (elem 0 d))
+			(each-mergeable (lambda (_)
+				(merge d (elem 0 (eval _ *deps*)))) d)
+			(some (lambda (_) (>= _ p)) (map file-age d))) *imports*))
+		;return the list to compile
+		*imports*)) *abi* *cpu*))
 
 (defun-bind make-boot (&optional r *funcs* *abi* *cpu*)
 	(within-compile-env (lambda ()
 		(setd *funcs* (list) *abi* (abi) *cpu* (cpu))
-		(defq *env* (env 31) z (cat (char 0 8) (char 0 4)))
-		(catch (progn
-			(include 'sys/func.inc)
-			(defun-bind func-sym (_)
-				(sym (cat 'f_ _)))
-			(defun-bind read-paths (_)
-				(defq l (list) i (get-short _ fn_header_links) e (get-short _ fn_header_paths))
-				(while (/= i e)
-					(push l (sym (get-cstr _ (+ (get-long _ i) i))))
-					(setq i (+ i 8))) l)
-			(defun-bind load-func (_)
-				(or (def? (defq s (func-sym _)))
-					(progn
-						(unless (defq b (load (func-obj _)))
-							(throw "No such file !" (func-obj _)))
-						(defq h (slice fn_header_entry (defq l (get-short b fn_header_links)) b)
-							l (slice l (defq p (get-short b fn_header_paths)) b))
-						(def *env* s (list (cat (char -1 8) (char p 2) h) l (read-paths b))))))
-			(unless (lst? *funcs*)
-				(setq *funcs* (list *funcs*)))
-			(defq f (list
-				;must be first function !
-				'sys/load/init
-				;must be second function !
-				'sys/load/bind
-				;must be third function !
-				'sys/load/statics))
-			;load all loader dependents
+		(defq *fsyms* (env -31) z (cat (char 0 8) (char 0 4)))
+		(include 'sys/func.inc)
+		(defun-bind read-paths (_)
+			(defq l (list) i (get-short _ fn_header_links) e (get-short _ fn_header_paths))
+			(while (/= i e)
+				(push l (sym (get-cstr _ (+ (get-long _ i) i))))
+				(setq i (+ i 8))) l)
+		(defun-bind load-func (_)
+			(or (def? _ *fsyms*)
+				(progn
+					(unless (defq b (load (func-obj _)))
+						(throw "No such file !" (func-obj _)))
+					(defq h (slice fn_header_entry (defq l (get-short b fn_header_links)) b)
+						l (slice l (defq p (get-short b fn_header_paths)) b))
+					(def *fsyms* _ (list (cat (char -1 8) (char p 2) h) l (read-paths b))))))
+		(unless (lst? *funcs*)
+			(setq *funcs* (list *funcs*)))
+		(defq f (list
+			;must be first function !
+			'sys/load/init
+			;must be second function !
+			'sys/load/bind
+			;must be third function !
+			'sys/load/statics))
+		;load all loader dependents
+		(each-mergeable (lambda (_)
+			(merge f (elem 2 (load-func _)))) f)
+		(defq fs (length f))
+		;load up all extra functions requested
+		(merge f (map sym *funcs*))
+		(each load-func f)
+		;if recursive then load up all dependents
+		(when r
 			(each-mergeable (lambda (_)
-				(merge f (elem 2 (load-func _)))) f)
-			(defq fs (length f))
-			;load up all extra functions requested
-			(merge f (map sym *funcs*))
-			(each load-func f)
-			;if recursive then load up all dependents
-			(when r
-				(each-mergeable (lambda (_)
-					(merge f (elem 2 (load-func _)))) f))
-			;sort into order, leaving the loader dependents first !
-			(sort cmp f fs)
-			;list of all function bodies and links in order, list of offsets of header and link sections
-			;and offset of new strings section
-			(defq b (map (lambda (_) (eval (func-sym _))) f)
-				ns (list) nso (list) ho (list) lo (list) so (+ (length z) (reduce (lambda (x y)
-				(push ho x)
-				(push lo (setq x (+ x (length (elem 0 y)))))
-				(+ x (length (elem 1 y)))) b 0)))
-			;list of all strings that will appear in new strings section, and list of all new string offsets
+				(merge f (elem 2 (load-func _)))) f))
+		;sort into order, leaving the loader dependents first !
+		(sort cmp f fs)
+		;list of all function bodies and links in order, list of offsets of header and link sections
+		;and offset of new strings section
+		(defq b (map (lambda (_) (eval _ *fsyms*)) f)
+			ns (list) nso (list) ho (list) lo (list) so (+ (length z) (reduce (lambda (x y)
+			(push ho x)
+			(push lo (setq x (+ x (length (elem 0 y)))))
+			(+ x (length (elem 1 y)))) b 0)))
+		;list of all strings that will appear in new strings section, and list of all new string offsets
+		(each (lambda (_)
 			(each (lambda (_)
-				(each (lambda (_)
-					(unless (find-rev _ f) (merge ns (list _)))) (elem 2 (eval (func-sym _))))) f)
-			(reduce (lambda (x y)
-				(push nso x)
-				(+ x (length y) 1)) ns 0)
-			;create new link sections with offsets to header strings or new strings
-			(each (lambda (x)
-				(defq u (elem _ lo))
-				(elem-set 1 x (apply cat (push (map (lambda (y)
-					(char (- (if (defq i (find-rev y f))
-						(+ (elem i ho) fn_header_pathname)
-						(+ (elem (find-rev y ns) nso) so)) (+ u (* _ 8))) 8)) (elem 2 x)) "")))) b)
-			;build list of all sections of boot image
-			;concatenate all sections and save
-			(save (setq f (apply cat (reduce (lambda (x y)
-				(push x (cat y (ascii-char 0)))) ns (push (reduce (lambda (x y)
-					(push x (elem 0 y) (elem 1 y))) b (list)) z)))) (func-obj 'sys/boot_image))
-			(print "image -> " (func-obj 'sys/boot_image) " (" (length f) ")")
-			(setq *env* nil)) (setq *env* nil)))))
+				(unless (find-rev _ f) (merge ns (list _)))) (elem 2 (eval _ *fsyms*)))) f)
+		(reduce (lambda (x y)
+			(push nso x)
+			(+ x (length y) 1)) ns 0)
+		;create new link sections with offsets to header strings or new strings
+		(each (lambda (x)
+			(defq u (elem _ lo))
+			(elem-set 1 x (apply cat (push (map (lambda (y)
+				(char (- (if (defq i (find-rev y f))
+					(+ (elem i ho) fn_header_pathname)
+					(+ (elem (find-rev y ns) nso) so)) (+ u (* _ 8))) 8)) (elem 2 x)) "")))) b)
+		;build list of all sections of boot image
+		;concatenate all sections and save
+		(save (setq f (apply cat (reduce (lambda (x y)
+			(push x (cat y (ascii-char 0)))) ns (push (reduce (lambda (x y)
+				(push x (elem 0 y) (elem 1 y))) b (list)) z)))) (func-obj 'sys/boot_image))
+		(print "image -> " (func-obj 'sys/boot_image) " (" (length f) ")"))))
 
 (defun-bind make-boot-all (&optional *abi* *cpu*)
 	(setd *abi* (abi) *cpu* (cpu))
