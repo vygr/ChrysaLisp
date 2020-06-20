@@ -1,6 +1,6 @@
 ;imports
 (import 'class/lisp.inc)
-(import 'cmd/options.inc)
+(import 'lib/options/options.inc)
 
 (defq usage `(
 (("-h" "--help")

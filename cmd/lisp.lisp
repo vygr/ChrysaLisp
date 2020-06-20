@@ -1,6 +1,6 @@
 ;imports
-(import 'cmd/asm.inc)
-(import 'cmd/options.inc)
+(import 'lib/asm/asm.inc)
+(import 'lib/options/options.inc)
 
 (defq usage `(
 (("-h" "--help")

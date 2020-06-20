@@ -1,6 +1,6 @@
 ;imports
 (import 'class/lisp.inc)
-(import 'cmd/argparse.inc)
+(import 'lib/argparse/argparse.inc)
 
 (defun get-stream (args)
   ; (get-stream args) -> file-stream
