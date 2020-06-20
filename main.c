@@ -1,6 +1,16 @@
+
+#define _CRT_INTERNAL_NONSTDC_NAMES 1
 #include <sys/stat.h>
+#if !defined(S_ISREG) && defined(S_IFMT) && defined(S_IFREG)
+  #define S_ISREG(m) (((m) & S_IFMT) == S_IFREG)
+#endif
+#if !defined(S_ISDIR) && defined(S_IFMT) && defined(S_IFDIR)
+  #define S_ISDIR(m) (((m) & S_IFMT) == S_IFDIR)
+#endif
+
 #include <sys/types.h>
 #include <fcntl.h>
+#include <ftw.h>
 #include <string.h>
 #include <stdio.h>
 #ifdef _WIN64
@@ -219,6 +229,23 @@ long long mystat(const char *path, struct finfo *st)
 	return 0;
 }
 
+long long myremove(const char *fqname)
+{
+	struct stat fsl;	// Local stat buffer for multi-thread future :)
+	int res = -1;
+	if(stat(fqname, &fsl) == 0) {
+		if(S_ISDIR(fsl.st_mode) != 0 ) {
+			printf("%s is a directory, not implemented\n", fqname);
+		}
+		else if (S_ISREG(fsl.st_mode) != 0){
+			res = unlink(fqname);
+		}
+	}
+	return res;
+}
+
+
+
 #ifdef _WIN64
 int gettimeofday(struct timeval *tv, struct timezone *tz)
 {
@@ -378,7 +405,8 @@ gettime,
 myopenshared,
 mycloseshared,
 myclearicache,
-mylist_dir
+mylist_dir,
+myremove
 };
 
 int main(int argc, char *argv[])
