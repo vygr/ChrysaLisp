@@ -128,7 +128,7 @@
 	(mail-send dlist (defq child_mbox (open-child "apps/whiteboard/child.lisp" kn_call_open)))
 
 	;main event loop
-	(defq last_state 'u last_point nil last_mid_point nil id t)
+	(defq last_state :u last_point nil last_mid_point nil id t)
 	(while id
 		(defq msg (mail-read (elem (defq idx (mail-select select)) select)))
 		(cond
@@ -206,7 +206,7 @@
 						((/= (get-int msg (const ev_msg_mouse_buttons)) 0)
 							;mouse button is down
 							(case last_state
-								(d	;was down last time, what draw mode ?
+								(:d	;was down last time, what draw mode ?
 									(cond
 										((= stroke_mode (const event_pen))
 											;pen mode, so extend last stroke ?
@@ -226,22 +226,22 @@
 											(tuple-set path_path (elem -2 overlay_paths) (cat last_point new_point))
 											(redraw 2)))
 									)
-								(u	;was up last time, so start new stroke
-									(setq last_state 'd last_point new_point last_mid_point new_point)
+								(:u	;was up last time, so start new stroke
+									(setq last_state :d last_point new_point last_mid_point new_point)
 									(push overlay_paths (list stroke_mode stroke_col stroke_radius new_point))
 									(redraw 2))))
 						(t	;mouse button is up
 							(case last_state
-								(d	;was down last time, so last point and commit stroke
+								(:d	;was down last time, so last point and commit stroke
 									(snapshot)
-									(setq last_state 'u)
+									(setq last_state :u)
 									(defq stroke (tuple-get path_path (elem -2 overlay_paths)))
 									(push stroke (elem 0 new_point) (elem 1 new_point))
 									(path-filter 0.5 stroke stroke)
 									(each commit overlay_paths)
 									(clear overlay_paths)
 									(redraw 3))
-								(u	;was up last time, so we are hovering
+								(:u	;was up last time, so we are hovering
 									t))))) t)
 			(t (view-event window msg))))
 	;close child and window

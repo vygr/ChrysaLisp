@@ -82,7 +82,7 @@
 	(redraw verts 1)
 
 	;main event loop
-	(defq last_state 'u id t)
+	(defq last_state :u id t)
 	(while id (while (mail-poll (array (task-mailbox))) (cond
 		((= (setq id (get-long (defq msg (mail-read (task-mailbox))) (const ev_msg_target_id))) (const event_close))
 			;close button
@@ -112,18 +112,18 @@
 					((/= (get-int msg (const ev_msg_mouse_buttons)) 0)
 						;mouse button is down
 						(case last_state
-							(d	;was down last time
+							(:d	;was down last time
 								)
-							(u	;was up last time
-								(setq last_state 'd)))
+							(:u	;was up last time
+								(setq last_state :d)))
 						;set light pos
 						(tuple-set dlist_light_pos dlist
 							(vec-i2n (* rx 4) (* ry 4) (neg (* box_size 4)))))
 					(t	;mouse button is up
 						(case last_state
-							(d	;was down last time
-								(setq last_state 'u))
-							(u	;was up last time, so we are hovering
+							(:d	;was down last time
+								(setq last_state :u))
+							(:u	;was up last time, so we are hovering
 								t))))))
 		(t (view-event window msg))))
 		(vertex-update verts)
