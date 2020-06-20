@@ -2,7 +2,7 @@
 (import 'sys/lisp.inc)
 (import 'class/lisp.inc)
 (import 'gui/lisp.inc)
-(import 'apps/math.inc)
+(import 'lib/math/math.inc)
 
 ;read args from parent and init globals
 (bind '(display clock clock_size clock_scale) (mail-read (task-mailbox)))

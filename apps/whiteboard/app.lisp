@@ -1,5 +1,5 @@
 ;imports
-(import 'apps/math.inc)
+(import 'lib/math/math.inc)
 (import 'apps/whiteboard/app.inc)
 
 (structure 'event 0

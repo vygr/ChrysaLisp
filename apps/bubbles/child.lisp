@@ -1,5 +1,5 @@
 ;imports
-(import 'apps/math.inc)
+(import 'lib/math/math.inc)
 (import 'apps/bubbles/app.inc)
 
 (defun-bind fpoly (canvas col x y _)

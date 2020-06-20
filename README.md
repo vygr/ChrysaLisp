@@ -29,11 +29,11 @@ can't also go via a byte code form and runtime translation.
 
 Register juggling for parameter passing is eliminated by having all functions
 define their register interface and parameter source and destinations are
-mapped automatically using a topological sort. Non DAG mappings are detected
-so the user can break them with a temporary if required. Operators are provided
-to simplify binding of parameters to dynamic bound functions, relative
-addresses, auto defined string pools, references and local stack frame values.
-Unused output parameters can be ignored with an _.
+mapped automatically using a topological sort. Non DAG mappings are detected so
+the user can break them with a temporary if required. Operators are provided to
+simplify binding of parameters to dynamic bound functions, relative addresses,
+auto defined string pools, references and local stack frame values. Unused
+output parameters can be ignored with an _.
 
 There is a powerful object and class system, not just for an assembler, but
 quite as capable as a high level language. Static classes or virtual classes
@@ -73,10 +73,10 @@ and *sys/vp.inc* for how this is done. Some of the Lisp primitives are
 constructed via a boot script that each instance of a Lisp class runs on
 construction, see *class/lisp/boot.inc* for details. The compilation and make
 environment, along with all the compile and make commands are created via the
-Lisp command line tool in *cmd/asm.inc*, again this auto runs for each instance
-of the `lisp` command run from the terminal. You can extend this with any
-number of additional files, just place them after the lisp command and they
-will execute after the *cmd/asm.inc* file and before processing of stdin.
+Lisp command line tool in *lib/asm/asm.inc*, again this auto runs for each
+instance of the `lisp` command run from the terminal. You can extend this with
+any number of additional files, just place them after the lisp command and they
+will execute after the *lib/asm/asm.inc* file and before processing of stdin.
 
 Don't get the idea that due to being coded in interpreted Lisp the assembler
 and compiler will be slow. A fully cleaned system build from source, including

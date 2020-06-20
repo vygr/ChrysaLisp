@@ -2,7 +2,7 @@
 (import 'sys/lisp.inc)
 (import 'class/lisp.inc)
 (import 'gui/lisp.inc)
-(import 'apps/math.inc)
+(import 'lib/math/math.inc)
 
 (structure 'event 0
 	(byte 'close)
