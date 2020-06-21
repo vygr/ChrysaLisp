@@ -67,7 +67,7 @@
 (ffi setq "class/hmap/lisp_setq" 1)
 (ffi def "class/hmap/lisp_def" 0)
 (ffi set "class/hmap/lisp_set" 0)
-(ffi def? "class/hmap/lisp_defined" 0)
+(ffi get "class/hmap/lisp_get" 0)
 (ffi undef "class/hmap/lisp_undef" 0)
 (ffi env "class/hmap/lisp_env" 0)
 (ffi penv "class/hmap/lisp_parent" 0)
@@ -147,7 +147,7 @@
 	`(defq ,n (macro ,a ~(bind-fun (macroexpand _)))))
 
 (cond
-	((def? 'nums)
+	((get 'nums)
 		;to disable pre binding uncomment this line
 		;(defun bind-fun (_) _)
 	)(t
@@ -456,10 +456,6 @@
 (defmacro-bind def: (_ &optional e)
 	;(def: syms [env])
 	(if e `(eval `(bind ,_ ,_) ,e) `(eval `(bind ,_ ,_))))
-
-(defmacro-bind get (_ b)
-	;(get env form) -> val
-	`(eval ,b ,_))
 
 (defmacro-bind ascii-code (_)
 	;(ascii-code char) -> num

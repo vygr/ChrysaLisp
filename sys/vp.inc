@@ -213,7 +213,7 @@
 						((/= 2 (length o))
 							(sym (cat 'i (elem 2 o))))
 						((num? i) 'i)
-						((setq i (def? (type-sym i)))
+						((setq i (get (type-sym i)))
 							(sym (cat 'i (vp-type-t i))))
 						(t 'i)))
 				((eql i '@) i)

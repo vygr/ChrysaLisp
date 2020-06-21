@@ -9,14 +9,14 @@
 
 (ui-window window ()
 	(ui-title-bar _ "Login Manager" () ())
-	(ui-flow _ (flow_flags flow_right_fill)
-		(ui-grid _ (grid_width 1 grid_height 2)
-			(ui-label _ (text "Username"))
-			(ui-label _ (text "Password")))
-		(ui-grid _ (grid_width 1 grid_height 2 color argb_white)
-			(ui-textfield username (text (if (defq old (load "apps/login/current")) old "Guest")))
-			(ui-textfield password (text "****************"))))
-	(ui-grid _ (grid_width 2 grid_height 1)
+	(ui-flow _ (:flow_flags flow_right_fill)
+		(ui-grid _ (:grid_width 1 :grid_height 2)
+			(ui-label _ (:text "Username"))
+			(ui-label _ (:text "Password")))
+		(ui-grid _ (:grid_width 1 :grid_height 2 :color argb_white)
+			(ui-textfield username (:text (if (defq old (load "apps/login/current")) old "Guest")))
+			(ui-textfield password (:text "****************"))))
+	(ui-grid _ (:grid_width 2 :grid_height 1)
 		(ui-buttons ("Login" "Create") (const event_login))))
 
 (defun-bind position-window ()
@@ -25,7 +25,7 @@
 	(view-change-dirty window (/ (- pw w) 2) (/ (- ph h) 2) w h))
 
 (defun-bind get-username ()
-	(if (eql (defq user (get username 'text)) "") "Guest" user))
+	(if (eql (defq user (get :text username)) "") "Guest" user))
 
 (defun-bind main ()
 	;add centered, wait a little for GUI to get going...

@@ -94,15 +94,15 @@
 	(vp-lea-p (string-sym (fn-add-string s)) r))
 
 (defcfun-bind fn-bind (p r)
-	(if (def? p) (throw "Can't bind to inline function !" p)
+	(if (get p) (throw "Can't bind to inline function !" p)
 		(vp-cpy-pr (link-sym (fn-find-link p)) r)))
 
 (defcfun-bind fn-call (p)
-	(if (def? p) ((eval p))
+	(if (get p) ((eval p))
 		(vp-call-p (link-sym (fn-find-link p)))))
 
 (defcfun-bind fn-jump (p)
-	(if (def? p) (throw "Can't jump to inline function !" p)
+	(if (get p) (throw "Can't jump to inline function !" p)
 		(vp-jmp-p (link-sym (fn-find-link p)))))
 
 (defcfun abort (&optional s)

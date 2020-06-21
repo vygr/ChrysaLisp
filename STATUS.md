@@ -47,8 +47,12 @@ folder.
 Restructure of library files into own directory. Updated all command files
 to reflect relocation of included library functions.
 
-Added `csv-data` library to support fundemental reading and writing
+Added `csv-data` library to support fundamental reading and writing
 csv files.
+
+Moved apps/math.inc lib over to lib/math/math.inc
+
+GUI component properties are now keywords.
 
 ------
 

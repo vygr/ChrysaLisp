@@ -149,9 +149,8 @@
       (defun _eat (_x)
         (setq _eat_chunk (cat _eat_chunk (wrap-block _x))))
       (each (lambda (el)
-              (setq _eat_chunk (cat _eat_chunk (str "## " (first el))))
+              (setq _eat_chunk (cat _eat_chunk (str "## " (first el) (const (ascii-char 10)))))
               (pipe-run (second el) _eat)) lst)
-      (save "" target)
       (save _eat_chunk target))
 
     (generate-cmd-help (reduce

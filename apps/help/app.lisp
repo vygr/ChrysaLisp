@@ -27,10 +27,10 @@
 				((and (>= (length (elem 1 _)) 5) (eql "lisp_" (slice 0 5 (elem 1 _)))))
 				(t (push keys k) (push vals v))))) k v)
 	(each (lambda (_)
-		(def (defq b (create-button)) 'text _ 'border 0
-			'flow_flags (logior flow_flag_align_vcenter flow_flag_align_hleft))
+		(def (defq b (create-button)) :text _ :border 0
+			:flow_flags  (logior flow_flag_align_vcenter flow_flag_align_hleft))
 		(view-add-child index (component-connect b event_button))) keys)
-	(def vdu 'vdu_width
+	(def vdu :vdu_width
 		(reduce max (map (lambda (_)
 			(reduce max (map length (split _ (ascii-char 10))))) vals))))
 
@@ -45,24 +45,24 @@
 				(elem-set -2 buf (cat (elem -2 buf) c))))) s)
 	(vdu-load vdu buf 0 0 (length (elem -2 buf)) (dec (length buf))) buf)
 
-(ui-window window (color argb_black)
-	(ui-flow _ (flow_flags flow_down_fill)
+(ui-window window (:color argb_black)
+	(ui-flow _ (:flow_flags flow_down_fill)
 		(ui-title-bar _ "Help" (0xea19) (const event_close))
-		(ui-flow _ (flow_flags flow_right_fill font *env_terminal_font*)
+		(ui-flow _ (:flow_flags flow_right_fill :font *env_terminal_font*)
 			(ui-scroll index_scroll scroll_flag_vertical nil
-				(ui-flow index (flow_flags (logior flow_flag_down flow_flag_fillw) color argb_white)))
-			(ui-vdu vdu (vdu_height vdu_height ink_color argb_cyan)))))
+				(ui-flow index (:flow_flags (logior flow_flag_down flow_flag_fillw) :color argb_white)))
+			(ui-vdu vdu (:vdu_height vdu_height :ink_color argb_cyan)))))
 
 (defun-bind main ()
 	(populate-help)
 	(bind '(w h) (view-pref-size index))
-	(view-change index 0 0 (def index_scroll 'min_width w) h)
+	(view-change index 0 0 (def index_scroll :min_width w) h)
 	(gui-add (apply view-change (cat (list window 32 32) (view-pref-size window))))
 	(while (cond
 		((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_close)
 			nil)
 		((= id event_button)
-			(defq _ (find-rev (sym (get (view-find-id window (get-long msg ev_msg_action_source_id)) 'text)) keys))
+			(defq _ (find-rev (sym (get :text (view-find-id window (get-long msg ev_msg_action_source_id)))) keys))
 			(when _
 				(setq text_buf (vdu-print vdu text_buf (str
 					"----------------------" (ascii-char 10)

@@ -34,7 +34,7 @@
 	;(is-debug-fun form)
 	(and (= (type-of _) lisp_type_lst) (/= 0 (length _))
 		(not (or (eql 'quote (elem 0 _)) (eql 'debug (elem 0 _))))
-		(= (type-of (elem 0 _)) lisp_type_sym) (setq _ (def? (elem 0 _)))
+		(= (type-of (elem 0 _)) lisp_type_sym) (setq _ (get (elem 0 _)))
 		(or (= (type-of _) lisp_type_fnc)
 			(and (= (type-of _) lisp_type_lst) (/= 0 (length _)) (eql 'lambda (elem 0 _))))))
 

@@ -103,7 +103,6 @@ cond
 copy
 cos
 def
-def?
 defq
 each!
 elem

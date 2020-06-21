@@ -32,19 +32,19 @@
 		(ui-buttons (0xe9ec 0xe9d8 0xe917 0xea20 0xe9f6 0xe94b 0xe960 0xe95f) (const event_pen) () mode_buttons))
 	(ui-tool-bar _ (font *env_medium_toolbar_font*)
 		(each (lambda (col)
-			(push ink_buttons (component-connect (ui-button __ (ink_color col text
+			(push ink_buttons (component-connect (ui-button __ (:ink_color col :text
 				(if (< _ 8) (const (num-to-utf8 0xe982)) (const (num-to-utf8 0xea04)))))
 					(+ _ (const event_black))))) palette))
 	(ui-scroll image_scroll (logior scroll_flag_vertical scroll_flag_horizontal)
-			(min_width canvas_width min_height canvas_height)
-		(ui-backdrop backdrop (color 0xffF8F8FF ink_color 0xffADD8E6 style 1)
+			(:min_width canvas_width :min_height canvas_height)
+		(ui-backdrop backdrop (:color 0xffF8F8FF :ink_color 0xffADD8E6 style 1)
 			(ui-canvas overlay_canvas canvas_width canvas_height 1)
 			(ui-canvas commited_canvas canvas_width canvas_height 1))))
 
 (defun-bind radio-select (l i)
 	;radio select buttons
 	(each (lambda (b)
-		(def (view-dirty b) 'color (if (= _ i) (const argb_grey14) (const *env_toolbar_col*)))) l) i)
+		(def (view-dirty b) :color (if (= _ i) (const argb_grey14) (const *env_toolbar_col*)))) l) i)
 
 (defun-bind flatten ((mode col rad pnts))
 	;flatten path to polygon
@@ -122,13 +122,13 @@
 	(radio-select radius_buttons 0)
 	(radio-select style_buttons 1)
 	(gui-add (apply view-change (cat (list window 192 64) (view-pref-size window))))
-	(def image_scroll 'min_width min_width 'min_height min_height)
+	(def image_scroll :min_width min_width :min_height min_height)
 
 	;create child and send args
 	(mail-send dlist (defq child_mbox (open-child "apps/whiteboard/child.lisp" kn_call_open)))
 
 	;main event loop
-	(defq last_state 'u last_point nil last_mid_point nil id t)
+	(defq last_state :u last_point nil last_mid_point nil id t)
 	(while id
 		(defq msg (mail-read (elem (defq idx (mail-select select)) select)))
 		(cond
@@ -160,9 +160,9 @@
 				(apply view-change-dirty (cat (list window) (view-get-pos window) (view-pref-size window))))
 			((= id (const event_max))
 				;max button
-				(def image_scroll 'min_width canvas_width 'min_height canvas_height)
+				(def image_scroll :min_width canvas_width :min_height canvas_height)
 				(apply view-change-dirty (cat (list window) (view-get-pos window) (view-pref-size window)))
-				(def image_scroll 'min_width min_width 'min_height min_height))
+				(def image_scroll :min_width min_width :min_height min_height))
 			((<= (const event_black) id (const event_tmagenta))
 				;ink pot
 				(setq stroke_col (elem (radio-select ink_buttons (- id (const event_black))) palette)))
@@ -174,7 +174,7 @@
 				(setq stroke_radius (elem (radio-select radius_buttons (- id (const event_radius1))) radiuss)))
 			((<= (const event_grid) id (const event_lines))
 				;styles
-				(def (view-dirty backdrop) 'style (radio-select style_buttons (- id (const event_grid)))))
+				(def (view-dirty backdrop) :style (radio-select style_buttons (- id (const event_grid)))))
 			((= id (const event_save))
 				;save
 				(if picker_mbox (mail-send "" picker_mbox))
@@ -206,7 +206,7 @@
 						((/= (get-int msg (const ev_msg_mouse_buttons)) 0)
 							;mouse button is down
 							(case last_state
-								(d	;was down last time, what draw mode ?
+								(:d	;was down last time, what draw mode ?
 									(cond
 										((= stroke_mode (const event_pen))
 											;pen mode, so extend last stroke ?
@@ -226,22 +226,22 @@
 											(tuple-set path_path (elem -2 overlay_paths) (cat last_point new_point))
 											(redraw 2)))
 									)
-								(u	;was up last time, so start new stroke
-									(setq last_state 'd last_point new_point last_mid_point new_point)
+								(:u	;was up last time, so start new stroke
+									(setq last_state :d last_point new_point last_mid_point new_point)
 									(push overlay_paths (list stroke_mode stroke_col stroke_radius new_point))
 									(redraw 2))))
 						(t	;mouse button is up
 							(case last_state
-								(d	;was down last time, so last point and commit stroke
+								(:d	;was down last time, so last point and commit stroke
 									(snapshot)
-									(setq last_state 'u)
+									(setq last_state :u)
 									(defq stroke (tuple-get path_path (elem -2 overlay_paths)))
 									(push stroke (elem 0 new_point) (elem 1 new_point))
 									(path-filter 0.5 stroke stroke)
 									(each commit overlay_paths)
 									(clear overlay_paths)
 									(redraw 3))
-								(u	;was up last time, so we are hovering
+								(:u	;was up last time, so we are hovering
 									t))))) t)
 			(t (view-event window msg))))
 	;close child and window

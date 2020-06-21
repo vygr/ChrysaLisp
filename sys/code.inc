@@ -203,7 +203,7 @@
 
 (defcfun-bind enum (&rest _)
 	(each (lambda (_)
-		(and (defq d (def? (setq _ (sym (cat *enum* "_" _))))) (/= d *enum_offset*)
+		(and (defq d (get (setq _ (sym (cat *enum* "_" _))))) (/= d *enum_offset*)
 			(throw "Enum redefined !" _))
 		(defcvar _ *enum_offset* '*enum_offset* (inc *enum_offset*))) _))
 
@@ -219,7 +219,7 @@
 
 (defcfun-bind bit (&rest _)
 	(each (lambda (_)
-		(and (defq d (def? (setq _ (sym (cat *bit* "_" _))))) (/= d (<< 1 *bit_offset*))
+		(and (defq d (get (setq _ (sym (cat *bit* "_" _))))) (/= d (<< 1 *bit_offset*))
 			(throw "Bit redefined !" _))
 		(defcvar _ (<< 1 *bit_offset*) '*bit_offset* (inc *bit_offset*))) _))
 
@@ -323,7 +323,7 @@
 (defcfun check-field (_)
 	(setq _ (struct-sym _))
 	(unless (eql *struct* 'local)
-		(and (defq d (def? _)) (/= d *struct_sp*)
+		(and (defq d (get _)) (/= d *struct_sp*)
 			(throw "Field redefined !" _))) _)
 
 (defcfun-bind local-align (&optional _)
@@ -714,10 +714,10 @@
 		((not (defq s (get-sym _)))
 			;not in symbol table so figure out what it is
 			(cond
-				((def? (type-sym _))
+				((get (type-sym _))
 					;field/member
 					(add-inst (list 'vp-cpy-cr _ (push-reg (eval (type-sym _))))))
-				((def? _)
+				((get _)
 					;equate
 					(compile-const _))
 				(t (throw "Symbol not defined !" _))))

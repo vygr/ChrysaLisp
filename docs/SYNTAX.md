@@ -340,10 +340,6 @@
 
 (def: syms [env])
 
-## def?
-
-(def? form [env])
-
 ## defmacro
 
 (defmacro name ([arg ...]) body)
@@ -490,7 +486,7 @@
 
 ## get
 
-(get env form) -> val
+(get var [env])
 
 ## get-byte
 

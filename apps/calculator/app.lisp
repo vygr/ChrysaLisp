@@ -9,10 +9,10 @@
 
 (ui-window window ()
 	(ui-title-bar _ "Calculator" (0xea19 0xea1b 0xea1a) (const event_close))
-	(ui-label display (text "0" color argb_white flow_flags flow_flag_align_hright font (create-font "fonts/OpenSans-Regular.ctf" 24)))
-	(ui-grid _ (grid_width 4 grid_height 4 color *env_toolbar_col* font (create-font "fonts/OpenSans-Regular.ctf" 42))
+	(ui-label display (:text "0" :color argb_white :flow_flags flow_flag_align_hright :font (create-font "fonts/OpenSans-Regular.ctf" 24)))
+	(ui-grid _ (:grid_width 4 :grid_height 4 :color *env_toolbar_col* :font (create-font "fonts/OpenSans-Regular.ctf" 42))
 		(each (lambda (text)
-			(component-connect (ui-button _ (text (if (eql text "C") "AC" text))) event_button))
+			(component-connect (ui-button _ (:text (if (eql text "C") "AC" text))) event_button))
 			"789/456*123-0=C+")))
 
 (defun do_lastop ()
@@ -32,7 +32,7 @@
 	(defq accum 0 value 0 num 0 lastop nil)
 	(while (cond
 		((>= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_button)
-			(defq op (get (view-find-id window (get-long msg ev_msg_action_source_id)) 'text))
+			(defq op (get :text (view-find-id window (get-long msg ev_msg_action_source_id))))
 			(cond
 				((eql op "AC")
 					(setq accum 0 value 0 num 0 lastop nil))
@@ -48,7 +48,7 @@
 								(setq num (str-to-num op)))
 						(t (setq num (str-to-num (cat (str num) op)))))
 					(setq value num)))
-			(set display 'text (str value))
+			(set display :text (str value))
 			(view-dirty (view-layout display)))
 		((= id event_close)
 			;close button

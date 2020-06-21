@@ -64,7 +64,7 @@ Visual Studio project and compile the main.c bootstrap yourself. Enjoy.
 ### Mac, Linux, PI64
 
 After a successful `make` of the platform bootstrap you can now run the TUI
-(Text User Interface) or the GUI (Graphical User Interface) and try the demos.
+(:text User Interface) or the GUI (Graphical User Interface) and try the demos.
 
 For a TUI or GUI type:
 
