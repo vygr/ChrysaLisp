@@ -37,7 +37,7 @@
 	;while not told to quit
 	(until (mail-poll (array (task-mailbox)))
 		;clock face
-		(set display 'text (make-time))
+		(set display :text (make-time))
 		(canvas-fill clock 0)
 		(canvas-set-color clock argb_white)
 		(canvas-fpoly clock 0.0 0.0 0 (slice 0 1 face))

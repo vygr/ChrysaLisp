@@ -21,14 +21,14 @@
 		(ui-buttons (0xe938) (const event_reset))
 		(ui-buttons (0xe9a3 0xe976 0xe9f0) (const event_grid) () style_buttons))
 	(ui-scroll image_scroll (logior scroll_flag_vertical scroll_flag_horizontal)
-			(min_width canvas_width min_height canvas_height)
-		(ui-backdrop backdrop (color argb_black ink_color argb_grey8 style 1)
+			(:min_width canvas_width :min_height canvas_height)
+		(ui-backdrop backdrop (:color argb_black :ink_color argb_grey8 :style 1)
 			(ui-canvas layer1_canvas canvas_width canvas_height 1))))
 
 (defun-bind radio-select (l i)
 	;radio select buttons
 	(each (lambda (b)
-		(def (view-dirty b) 'color (if (= _ i) (const argb_grey14) (const *env_toolbar_col*)))) l) i)
+		(def (view-dirty b) :color (if (= _ i) (const argb_grey14) (const *env_toolbar_col*)))) l) i)
 
 (defun-bind redraw (verts mask)
 	;redraw layer/s
@@ -72,7 +72,7 @@
 	(view-set-size backdrop canvas_width canvas_height)
 	(radio-select style_buttons 1)
 	(gui-add (apply view-change (cat (list window 256 192) (view-pref-size window))))
-	(def image_scroll 'min_width min_width 'min_height min_height)
+	(def image_scroll :min_width min_width :min_height min_height)
 
 	;create child and send args
 	(mail-send dlist (defq child_mbox (open-child "apps/bubbles/child.lisp" kn_call_open)))
@@ -92,15 +92,15 @@
 			(apply view-change-dirty (cat (list window) (view-get-pos window) (view-pref-size window))))
 		((= id (const event_max))
 			;max button
-			(def image_scroll 'min_width canvas_width 'min_height canvas_height)
+			(def image_scroll :min_width canvas_width :min_height canvas_height)
 			(apply view-change-dirty (cat (list window) (view-get-pos window) (view-pref-size window)))
-			(def image_scroll 'min_width min_width 'min_height min_height))
+			(def image_scroll :min_width min_width :min_height min_height))
 		((= id (const event_reset))
 			;reset button
 			(setq verts (vertex-cloud num_bubbles)))
 		((<= (const event_grid) id (const event_axis))
 			;styles
-			(def (view-dirty backdrop) 'style (radio-select style_buttons (- id (const event_grid)))))
+			(def (view-dirty backdrop) :style (radio-select style_buttons (- id (const event_grid)))))
 		((= id (component-get-id layer1_canvas))
 			;event for canvas
 			(when (= (get-long msg (const ev_msg_type)) (const ev_type_mouse))

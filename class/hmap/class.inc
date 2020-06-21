@@ -19,7 +19,7 @@
 (dec-method :lisp_defq 'class/hmap/lisp_defq :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_set 'class/hmap/lisp_set :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_setq 'class/hmap/lisp_setq :static '(r0 r1) '(r0 r1))
-(dec-method :lisp_defined 'class/hmap/lisp_defined :static '(r0 r1) '(r0 r1))
+(dec-method :lisp_get 'class/hmap/lisp_get :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_undef 'class/hmap/lisp_undef :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_parent 'class/hmap/lisp_parent :static '(r0 r1) '(r0 r1))
 

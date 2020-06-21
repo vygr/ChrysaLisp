@@ -18,12 +18,12 @@
 	(long 'command 'reply_id 'tcb)
 	(offset 'data))
 
-(ui-window window (color 0xc0000000)
-	(ui-flow _ (flow_flags flow_down_fill)
+(ui-window window (:color 0xc0000000)
+	(ui-flow _ (:flow_flags flow_down_fill)
 		(ui-title-bar _ "Debug" () ())
 		(ui-tool-bar _ ()
 			(ui-buttons (0xe95e 0xe95d 0xe95c 0xe960) (const event_play))
-			(ui-buttons (0xe95e 0xe95d 0xe95c 0xe960) (const event_play_all) (color (const *env_toolbar2_col*))))
+			(ui-buttons (0xe95e 0xe95d 0xe95c 0xe960) (const event_play_all) (:color (const *env_toolbar2_col*))))
 		(component-connect (ui-slider hslider (value 0)) event_hvalue)
 		(ui-vdu vdu (vdu_width vdu_width vdu_height vdu_height ink_color argb_yellow))))
 
@@ -39,7 +39,7 @@
 	(if vdu (vdu-load vdu buf 0 0 (length (elem -2 buf)) (dec (length buf)))) buf)
 
 (defun set-slider-values ()
-	(defq val (get hslider 'value) mho (max 0 (dec (length buf_list))))
+	(defq val (get 'value hslider) mho (max 0 (dec (length buf_list))))
 	(def hslider 'maximum mho 'portion 1 'value (min val mho))
 	(view-dirty hslider))
 
@@ -104,7 +104,7 @@
 					(elem-set 2 buf_rec reply_id)))
 			;moved task slider
 			((= id event_hvalue)
-				(reset (get hslider 'value)))
+				(reset (get 'value hslider)))
 			;pressed play button
 			((= id event_play)
 				(when buf_index

@@ -10,13 +10,13 @@
 
 (defq cmd nil vdu_width 60 vdu_height 40 vdu_min_width 16 vdu_min_height 16 text_buf (list ""))
 
-(ui-window window (color 0xc0000000)
-	(ui-flow _ (flow_flags flow_down_fill)
+(ui-window window (:color 0xc0000000)
+	(ui-flow _ (:flow_flags flow_down_fill)
 		(ui-title-bar _ "Terminal" (0xea19 0xea1b 0xea1a) (const event_close))
-		(ui-flow _ (flow_flags flow_left_fill)
+		(ui-flow _ (:flow_flags flow_left_fill)
 			(component-connect (ui-slider slider) event_scroll)
-			(ui-vdu vdu (vdu_width vdu_width vdu_height vdu_height min_width vdu_width min_height vdu_height
-				ink_color argb_green)))))
+			(ui-vdu vdu (:vdu_width vdu_width :vdu_height vdu_height :min_width vdu_width :min_height vdu_height
+				:ink_color argb_green)))))
 
 (defun-bind vdu-print (vdu buf s)
 	(each (lambda (c)
@@ -96,19 +96,19 @@
 
 (defun-bind window-resize (w h)
 	(setq vdu_width w vdu_height h)
-	(set vdu 'vdu_width w 'vdu_height h 'min_width w 'min_height h)
+	(set vdu :vdu_width w :vdu_height h :min_width w :min_height h)
 	(bind '(x y) (view-get-pos window))
 	(bind '(w h) (view-pref-size window))
-	(set vdu 'min_width vdu_min_width 'min_height vdu_min_height)
+	(set vdu :min_width vdu_min_width :min_height vdu_min_height)
 	(view-change-dirty window x y w h)
 	(print-edit-line))
 
 (defun-bind window-layout (w h)
 	(setq vdu_width w vdu_height h)
-	(set vdu 'vdu_width w 'vdu_height h 'min_width w 'min_height h)
+	(set vdu :vdu_width w :vdu_height h :min_width w :min_height h)
 	(bind '(x y) (view-get-pos vdu))
 	(bind '(w h) (view-pref-size vdu))
-	(set vdu 'min_width vdu_min_width 'min_height vdu_min_height)
+	(set vdu :min_width vdu_min_width :min_height vdu_min_height)
 	(view-change vdu x y w h)
 	(print-edit-line))
 
@@ -142,7 +142,7 @@
 						;user scroll bar
 						(defq cx (if cmd *line_pos* (+ (length *env_terminal_prompt*) *line_pos*))
 							cy (dec (length text_buf)))
-						(vdu-load vdu text_buf 0 (get slider 'value) cx cy))
+						(vdu-load vdu text_buf 0 (get 'value slider) cx cy))
 					(t	;gui event
 						(view-event window msg)
 						(and (= (get-long msg ev_msg_type) ev_type_key)

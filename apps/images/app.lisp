@@ -24,13 +24,13 @@
 
 (defun win-refresh (_)
 	(bind '(w h) (view-pref-size (defq canvas (canvas-load (elem (setq index _) images) 0))))
-	(def image_scroll 'min_width w 'min_height h)
-	(def window_title 'text (elem _ images))
+	(def image_scroll :min_width w :min_height h)
+	(def window_title :text (elem _ images))
 	(view-add-child image_scroll canvas)
 	(view-layout window_title)
 	(bind '(x y) (view-get-pos window))
 	(bind '(w h) (view-pref-size window))
- 	(def image_scroll 'min_width 32 'min_height 32)
+ 	(def image_scroll :min_width 32 :min_height 32)
 	(view-change-dirty window x y w h))
 
 (defun-bind main ()

@@ -52,6 +52,8 @@ csv files.
 
 Moved apps/math.inc lib over to lib/math/math.inc
 
+GUI component properties are now keywords.
+
 ------
 
 Created standard File picker, added demo Files browser and used picker to

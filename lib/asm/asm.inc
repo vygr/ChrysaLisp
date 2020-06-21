@@ -7,7 +7,7 @@
 (import 'class/lisp.inc)
 
 ;C++ ChrysaLisp ?
-(unless (def? 'nums)
+(unless (get 'nums)
 	(defun kernel-total () 1))
 
 (defun-bind compile (files &optional *abi* *cpu* num_child)
@@ -15,7 +15,7 @@
 	(unless (lst? files)
 		(setq files (list files)))
 	(setq files (shuffle (map sym files)))
-	(if (def? 'nums)
+	(if (get 'nums)
 		;Native ChrysaLisp
 		(progn
 			(defq data_in (list) select (array) num_child (min num_child (length files))
@@ -84,7 +84,7 @@
 		(defq *imports* (list root) *ages* (env -31) *deps* (env -31))
 		(defun-bind file-age (_)
 			;modification time of a file, cached
-			(or (def? (setq _ (sym _)) *ages*) (def *ages* _ (age _))))
+			(or (get (setq _ (sym _)) *ages*) (def *ages* _ (age _))))
 		;list of all file imports while defining dependencies and products
 		(within-compile-env (lambda ()
 			(include 'sys/func.inc)
@@ -118,7 +118,7 @@
 				(push l (sym (get-cstr _ (+ (get-long _ i) i))))
 				(setq i (+ i 8))) l)
 		(defun-bind load-func (_)
-			(or (def? _ *fsyms*)
+			(or (get _ *fsyms*)
 				(progn
 					(unless (defq b (load (func-obj _)))
 						(throw "No such file !" (func-obj _)))
