@@ -24,8 +24,8 @@
 		(ui-tool-bar _ ()
 			(ui-buttons (0xe95e 0xe95d 0xe95c 0xe960) (const event_play))
 			(ui-buttons (0xe95e 0xe95d 0xe95c 0xe960) (const event_play_all) (:color (const *env_toolbar2_col*))))
-		(component-connect (ui-slider hslider (value 0)) event_hvalue)
-		(ui-vdu vdu (vdu_width vdu_width vdu_height vdu_height ink_color argb_yellow))))
+		(component-connect (ui-slider hslider (:value 0)) event_hvalue)
+		(ui-vdu vdu (:vdu_width vdu_width :vdu_height vdu_height :ink_color argb_yellow))))
 
 (defun-bind vdu-print (vdu buf s)
 	(each (lambda (c)
@@ -39,8 +39,8 @@
 	(if vdu (vdu-load vdu buf 0 0 (length (elem -2 buf)) (dec (length buf)))) buf)
 
 (defun set-slider-values ()
-	(defq val (get 'value hslider) mho (max 0 (dec (length buf_list))))
-	(def hslider 'maximum mho 'portion 1 'value (min val mho))
+	(defq val (get :value hslider) mho (max 0 (dec (length buf_list))))
+	(def hslider :maximum mho :portion 1 :value (min val mho))
 	(view-dirty hslider))
 
 (defun play (_)
@@ -60,7 +60,7 @@
 	(setd _ -1)
 	(if (<= 0 _ (dec (length buf_list)))
 		(progn
-			(def hslider 'value _)
+			(def hslider :value _)
 			(setq buf_index _)
 			(vdu-print vdu (elem 0 (elem buf_index buf_list)) ""))
 		(progn
@@ -104,7 +104,7 @@
 					(elem-set 2 buf_rec reply_id)))
 			;moved task slider
 			((= id event_hvalue)
-				(reset (get 'value hslider)))
+				(reset (get :value hslider)))
 			;pressed play button
 			((= id event_play)
 				(when buf_index

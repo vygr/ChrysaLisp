@@ -45,7 +45,7 @@
 			(each (lambda ((name stat))
 				(defq n (create-label) p (create-progress))
 				(def n :border 0 :text name)
-				(def p 'maximum last_max_stats 'value stat)
+				(def p :maximum last_max_stats :value stat)
 				(view-add-child new_name_view n)
 				(view-add-child new_stat_view p)) stat_data)
 			(view-sub stat_view) (view-sub name_view)

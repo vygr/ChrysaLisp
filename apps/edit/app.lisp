@@ -58,7 +58,7 @@
 	(set window_title :text title)
 	(view-layout window_title)
 	;set slider and textfield values
-	(def slider 'maximum (max 0 (- (length buffer) vdu_height)) 'portion vdu_height 'value oy)
+	(def slider :maximum (max 0 (- (length buffer) vdu_height)) :portion vdu_height :value oy)
 	(view-dirty-all window)
 	(vdu-load vdu buffer ox oy cx cy))
 
@@ -136,10 +136,10 @@
 	; ensures behavior resembling other editor interfaces when adjusting cx
 	(cursor-visible)
 	(set-sticky)
-	(set slider 'value oy)
+	(set slider :value oy)
 	(tuple-set text_buffer current_text buffer)
 	(tuple-set text_position current_text (list ox oy cx cy sx))
-	(vdu-load vdu buffer ox (get 'value slider) cx cy)
+	(vdu-load vdu buffer ox (get :value slider) cx cy)
 	(vdu-load vdu buffer ox oy cx cy)
 	(view-dirty slider))
 
@@ -199,7 +199,7 @@
 			(defq buffer (tuple-get text_buffer current_text))
 			(bind '(ox oy cx cy sx) (tuple-get text_position current_text))
 			;user scroll bar
-			(vdu-load vdu buffer 0 (defq new_oy (get 'value slider)) cx cy)
+			(vdu-load vdu buffer 0 (defq new_oy (get :value slider)) cx cy)
 			(setq oy new_oy)
 			(tuple-set text_buffer current_text buffer)
 			(tuple-set text_position current_text (list ox oy cx cy sx)))

@@ -47,7 +47,7 @@
 		((>= cy (+ oy vdu_height))
 			(setq oy (- cy vdu_height -1))))
 	;set slider values
-	(def slider 'maximum (max 0 (- (length buf) vdu_height)) 'portion vdu_height 'value oy)
+	(def slider :maximum (max 0 (- (length buf) vdu_height)) :portion vdu_height :value oy)
 	(view-dirty slider)
 	(vdu-load vdu buf ox oy cx cy) buf)
 
@@ -142,7 +142,7 @@
 						;user scroll bar
 						(defq cx (if cmd *line_pos* (+ (length *env_terminal_prompt*) *line_pos*))
 							cy (dec (length text_buf)))
-						(vdu-load vdu text_buf 0 (get 'value slider) cx cy))
+						(vdu-load vdu text_buf 0 (get :value slider) cx cy))
 					(t	;gui event
 						(view-event window msg)
 						(and (= (get-long msg ev_msg_type) ev_type_key)
