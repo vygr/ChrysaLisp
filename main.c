@@ -231,13 +231,12 @@ long long mystat(const char *path, struct finfo *st)
 
 long long myremove(const char *fqname)
 {
-	struct stat fsl;	// Local stat buffer for multi-thread future :)
 	int res = -1;
-	if(stat(fqname, &fsl) == 0) {
-		if(S_ISDIR(fsl.st_mode) != 0 ) {
+	if(stat(fqname, &fs) == 0) {
+		if(S_ISDIR(fs.st_mode) != 0 ) {
 			printf("%s is a directory, not implemented\n", fqname);
 		}
-		else if (S_ISREG(fsl.st_mode) != 0){
+		else if (S_ISREG(fs.st_mode) != 0){
 			res = unlink(fqname);
 		}
 	}
