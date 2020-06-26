@@ -10,7 +10,6 @@
 
 #include <sys/types.h>
 #include <fcntl.h>
-#include <ftw.h>
 #include <string.h>
 #include <stdio.h>
 #ifdef _WIN64
@@ -229,15 +228,107 @@ long long mystat(const char *path, struct finfo *st)
 	return 0;
 }
 
+/*
+	int walk_directory(
+		const char *path,
+		int (*filevisitor)(const char*),
+		int (*foldervisitor)(const char *, int))
+	Opens a directory and invokes a visitor (fn) for each entry
+*/
+
+#define FOLDER_PRE 0
+#define FOLDER_POST 1
+
+#ifdef _WIN64
+	// For Chris to consider refactoring the mydirlist logic to use a visitor
+	// function
+	// TODO: Windows implementation
+#else
+int walk_directory(char* path,
+    int (*filevisitor)(const char*),
+    int (*foldervisitor)(const char *, int)) {
+  char slash = '/';
+  DIR* dir;
+  struct dirent *ent;
+  char *NulPosition = &path[strlen(path)];
+  if ((dir = opendir(path)) != NULL) {
+    foldervisitor(path, FOLDER_PRE);
+    while ((ent = readdir(dir)) != NULL)
+    {
+      if((strcmp(ent->d_name, ".") != 0) && (strcmp(ent->d_name, "..") != 0)) {
+        sprintf(NulPosition, "%c%s", slash, ent->d_name);
+        if (ent->d_type == DT_DIR)
+        {
+            if (walk_directory(path, filevisitor, foldervisitor))
+            {
+                closedir(dir);
+                return -1;
+            }
+        }
+        else
+        {
+            if(filevisitor(path))
+            {
+                closedir(dir);
+                return -1;
+            }
+        }
+        *NulPosition = '\0';
+      }
+    }   // end while
+  } // opendir == NULL
+  else {
+    return -1;
+  }
+  // Natural close
+  closedir(dir);
+  return foldervisitor(path, FOLDER_POST);
+}
+#endif
+
+/*
+	int file_visit_remove(const char *fname)
+	Removes file being visited
+*/
+int file_visit_remove(const char *fname)
+{
+    return unlink(fname);
+}
+
+/*
+	int folder_visit_remove(const char fname, int state)
+	Folder visit both pre-walk and post-walk states
+	For post-walk the folder is removed
+*/
+
+int folder_visit_remove(const char *fname, int state)
+{
+	return ( state == FOLDER_PRE ) ? 0 : rmdir(fname);
+}
+
+/*
+	long long myremove(const char *fqname) -> 0 | -1
+	Will remove a file or a directory
+	If a directory name is given, it will walk
+	the directory and remove all files and
+	subdirectories in it's path
+*/
 long long myremove(const char *fqname)
 {
 	int res = -1;
-	if(stat(fqname, &fs) == 0) {
-		if(S_ISDIR(fs.st_mode) != 0 ) {
-			printf("%s is a directory, not implemented\n", fqname);
+	if(stat(fqname, &fs) == 0)
+	{
+		if(S_ISDIR(fs.st_mode) != 0 )
+		{
+			strcpy(dirbuf, fqname);
+			return walk_directory(
+				dirbuf,
+				file_visit_remove,
+				folder_visit_remove);
 		}
-		else if (S_ISREG(fs.st_mode) != 0){
-			res = unlink(fqname);
+		else if (S_ISREG(fs.st_mode) != 0)
+		{
+			return unlink(fqname);
 		}
 	}
 	return res;
