@@ -44,11 +44,7 @@
 		view_flag_dirty_all view_flag_opaque view_flag_solid view_flags view_h view_w
 		view_x view_y)
 		_vals_ (within-compile-env (lambda ()
-			(each include
-				'(sys/kernel/class.inc sys/list/class.inc sys/mail/class.inc class/in/class.inc
-				class/out/class.inc class/stdio/class.inc gui/gui/class.inc gui/ctx/class.inc
-				gui/flow/class.inc gui/vdu/class.inc gui/window/class.inc gui/scroll/class.inc
-				gui/canvas/class.inc gui/path/class.inc))
+			(each include (make-tree "." "class.inc"))
 			(map eval _syms_)))
 		stream (string-stream (cat "")))
 	(write-line stream ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;")

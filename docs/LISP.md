@@ -253,6 +253,7 @@ erase
 every
 exec
 filter
+get
 get-byte
 get-cstr
 get-int
