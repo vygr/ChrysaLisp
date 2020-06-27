@@ -1,5 +1,5 @@
 ;imports
-(import 'apps/terminal/pipe.inc)
+(import 'lib/pipe/pipe.inc)
 
 ;override print for TUI output
 (defun-bind print (_)

@@ -1,7 +1,7 @@
 ;imports
 (import 'sys/lisp.inc)
 (import 'gui/lisp.inc)
-(import 'apps/terminal/pipe.inc)
+(import 'lib/pipe/pipe.inc)
 (import 'apps/terminal/input.inc)
 
 (structure 'event 0

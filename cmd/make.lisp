@@ -1,6 +1,6 @@
 ;imports
 (import 'lib/asm/asm.inc)
-(import 'apps/terminal/pipe.inc)
+(import 'lib/pipe/pipe.inc)
 (import 'lib/options/options.inc)
 
 (defmacro sfind (ss slst)
