@@ -20,15 +20,15 @@
 			(component-connect (ui-textfield ext_filter (:text "")) event_exts_action))
 		(ui-flow _ (:flow_flags flow_right_fill :font *env_terminal_font* :color argb_white :border 1)
 			(ui-flow _ (:flow_flags flow_down_fill)
-				(ui-label _ (:text "Folders" font *env_window_font*))
+				(ui-label _ (:text "Folders" :font *env_window_font*))
 				(ui-scroll tree_scroll scroll_flag_vertical nil
 					(ui-flow tree_flow (:flow_flags flow_down_fill :color argb_white
-						:min_width 256 :min_height 0))))
+						:min_width 256))))
 			(ui-flow _ (:flow_flags flow_down_fill)
 				(ui-label _ (:text "Files" :font *env_window_font*))
 				(ui-scroll files_scroll scroll_flag_vertical nil
 					(ui-flow files_flow (:flow_flags flow_down_fill :color argb_white
-						:min_width 256 :min_height 0)))))))
+						:min_width 256)))))))
 
 (defun-bind tree (dir)
 	(defq dirs (list) files (list))
@@ -42,7 +42,7 @@
 
 (defun-bind populate-files (files dir exts)
 	;filter files and dirs to only those that match and are unique
-	(if (= (length (setq exts (map trim (split exts ",")))) 0) (setq exts '("")))
+	(if (= (length (setq exts (split exts ", "))) 0) (setq exts '("")))
 	(defq dirs_with_exts (list) files_within_dir (list))
 	(each (lambda (_)
 			(defq i (inc (find-rev "/" _)) d (slice 0 i _) f (slice i -1 _))
