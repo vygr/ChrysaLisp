@@ -12,6 +12,7 @@
 (dec-method :init2 'class/str/init2 :static '(r0 r1 r2 r3) '(r0 r1))
 (dec-method :init3 'class/str/init3 :static '(r0 r1 r2) '(r0 r1))
 (dec-method :split 'class/str/split :static '(r0 r1) '(r0 r1))
+(dec-method :split_char 'class/str/split_char :static '(r0 r1) '(r0 r1))
 (dec-method :compare 'class/str/compare :static '(r0 r1) '(r0 r1))
 (dec-method :same 'class/str/same :static '(r0 r1) '(r0 r1))
 

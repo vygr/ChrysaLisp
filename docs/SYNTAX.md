@@ -1086,7 +1086,7 @@
 
 ## split
 
-(split str char)
+(split str chars)
 
 ## sqrt
 

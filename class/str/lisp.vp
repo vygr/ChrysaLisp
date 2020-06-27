@@ -22,8 +22,14 @@
 
 	(vp-push r0)
 	(defq in (method-input 'str :split))
-	(list-bind-args r1 in '(obj char))
-	(call 'str :split in '(_ r1))
+	(array-bind-args r1 in)
+	(assign `((,(elem 1 in) str_length)) '(r14))
+	(vpif '(r14 = 1))
+		(assign `((,(elem 1 in) str_data ub)) `(,(elem 1 in)))
+		(call 'str :split_char in '(_ r1))
+	(else)
+		(call 'str :split in '(_ r1))
+	(endif)
 	(vp-pop r0)
 
 	(exit 'str :lisp_split '(r0 r1))
@@ -31,7 +37,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(jump 'lisp :repl_error '(r0 "(split str char)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(r0 "(split str chars)" error_msg_wrong_types r1))
 	(signature '(str str)))
 
 (def-func-end)

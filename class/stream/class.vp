@@ -283,45 +283,6 @@
 
 (def-func-end)
 
-(def-method 'stream :split)
-	;inputs
-	;r0 = stream object (ptr)
-	;r1 = split char (uint)
-	;outputs
-	;r0 = stream object (ptr)
-	;r1 = split strings list object (ptr)
-	;trashes
-	;r1-r14
-
-	(ptr 'this 'splits 'string)
-	(pubyte 'start)
-	(ulong 'length)
-	(int 'char)
-
-	;save inputs
-	(push-scope)
-	(entry 'stream :split {this, char})
-
-	;create output list
-	(call 'list :create nil {splits})
-
-	;fill list with splits
-	(loop-start)
-		(call 'stream :skip {this, char})
-		(assign {this->stream_bufp} {start})
-		(call 'stream :skip_not {this, char})
-		(assign {this->stream_bufp - start} {length})
-		(breakifnot {length})
-		(call 'str :create_from_buffer {start, length} {string})
-		(call 'list :push_back {splits, string})
-	(loop-end)
-
-	(exit 'stream :split {this, splits})
-	(pop-scope)
-	(return)
-
-(def-func-end)
-
 (def-method 'stream :write)
 	;inputs
 	;r0 = stream object (ptr)

@@ -18,7 +18,7 @@
 	;trashes
 	;r1-r14
 
-	(ptr 'this 'stream 'msg 'data)
+	(ptr 'this 'args 'msg 'data)
 	(union
 		(ptr 'vtable)
 		(ulong 'ok))
@@ -34,15 +34,15 @@
 		(call 'sys_mail :mymail nil {msg, data})
 		(vpif {msg->msg_length})
 			;create stdin, stdout, stderr
-			(call 'sys_task :mailbox nil {stream})
-			(call 'in :create {stream} {this->stdio_stdin})
+			(call 'sys_task :mailbox nil {args})
+			(call 'in :create {args} {this->stdio_stdin})
 			(call 'out :create {data->stdio_msg_init_stdout_id.id_id} {this->stdio_stdout})
 			(call 'out :create {data->stdio_msg_init_stderr_id.id_id} {this->stdio_stderr})
 
 			;create args
-			(call 'stream :create {0, 0, &data->stdio_msg_init_args, msg->msg_length - stdio_msg_init_size} {stream})
-			(call 'stream :split {stream, char_space} {_, this->stdio_args})
-			(call 'stream :deref {stream})
+			(call 'str :create_from_buffer {&data->stdio_msg_init_args, msg->msg_length - stdio_msg_init_size} {args})
+			(call 'str :split_char {args, char_space} {_, this->stdio_args})
+			(call 'str :deref {args})
 
 			;send back ack with stdin mailbox
 			(assign {data->stdio_msg_init_ack_id.id_id} {msg->msg_dest.id_id})

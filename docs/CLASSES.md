@@ -6469,6 +6469,19 @@ r1-r6
 ```lisp
 inputs
 r0 = str object (ptr)
+r1 = split chars str object (ptr)
+outputs
+r0 = str object (ptr)
+r1 = list of str objects (ptr)
+trashes
+r1-r14
+```
+
+### str::split_char -> class/str/split_char
+
+```lisp
+inputs
+r0 = str object (ptr)
 r1 = split char (uint)
 outputs
 r0 = str object (ptr)
@@ -6863,19 +6876,6 @@ r0 = stream object (ptr)
 r1 = char to not skip (uint)
 outputs
 r0 = stream object (ptr)
-trashes
-r1-r14
-```
-
-### stream::split -> class/stream/split
-
-```lisp
-inputs
-r0 = stream object (ptr)
-r1 = split char (uint)
-outputs
-r0 = stream object (ptr)
-r1 = split strings list object (ptr)
 trashes
 r1-r14
 ```

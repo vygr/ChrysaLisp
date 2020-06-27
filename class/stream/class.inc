@@ -15,7 +15,6 @@
 (dec-method :write_cstr 'class/stream/write_cstr :static '(r0 r1) '(r0))
 (dec-method :skip 'class/stream/skip :static '(r0 r1) '(r0))
 (dec-method :skip_not 'class/stream/skip_not :static '(r0 r1) '(r0))
-(dec-method :split 'class/stream/split :static '(r0 r1) '(r0 r1))
 
 (dec-method :deinit 'class/stream/deinit :override)
 

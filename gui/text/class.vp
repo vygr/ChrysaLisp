@@ -166,7 +166,7 @@
 	(vp-push r0)
 	(call 'list :deref_if '((r0 text_syms)))
 	(assign '((rsp 0)) '(r0))
-	(call 'str :split '((r0 text_string) char_space) '(_ r1))
+	(call 'str :split_char '((r0 text_string) char_space) '(_ r1))
 	(call 'sym :intern_strs '(r1) '(r1))
 	(vp-pop r0)
 	(assign '(r1) '((r0 text_syms)))
