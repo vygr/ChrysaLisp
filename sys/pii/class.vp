@@ -46,6 +46,23 @@
 
 (def-func-end)
 
+(def-method 'sys_pii :remove)
+	;inputs
+	;r0 = c string filename (pubyte)
+	;outputs
+	;r0 = error code (ulong)
+	;trashes
+	;r0
+
+	(entry 'sys_pii :remove '(r0))
+	(abi-push-trashed r13 r14)
+	(host-call 'host :remove '(r0) '(r0))
+	(abi-pop-trashed r13 r14)
+	(exit 'sys_pii :remove '(r0))
+	(vp-ret)
+
+(def-func-end)
+
 (def-method 'sys_pii :open_shared)
 	;inputs
 	;r0 = c string filename (pubyte)

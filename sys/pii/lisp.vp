@@ -176,3 +176,36 @@
 	(signature '(str)))
 
 (def-func-end)
+
+(def-method 'sys_pii :lisp_remove)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args list object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(entry 'sys_pii :lisp_remove '(r0 r1))
+
+(errorcases
+	(call 'lisp :env_args_sig '(r1 ($ sig) 1) '(r2))
+	(gotoif '(r2 = 0) 'error))
+
+	(vp-push r0)
+	(defq in (method-input 'sys_pii :remove))
+	(list-bind-args r1 in '(str))
+	(call 'sys_pii :remove in '(r0))
+	(call 'num :create '(r0) '(r1))
+	(vp-pop r0)
+
+	(exit 'sys_pii :lisp_remove '(r0 r1))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp :repl_error '(r0 "(pii-remove path)" error_msg_wrong_types r1))
+	(signature '(str)))
+
+(def-func-end)
