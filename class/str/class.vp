@@ -604,7 +604,7 @@
 	(vp-add-rr iter_begin iter_end)
 	(loop-while `(,iter_begin /= ,iter_end) 'exit)
 		(loop-start)
-			(d-call 'str :find `(,splits (,iter_begin 0 ub)) '(_ r1 r2))
+			(d-call 'str :rfind `(,splits (,iter_begin 0 ub)) '(_ r1 r2))
 			(breakif '(r2 = -1))
 			(vp-add-cr byte_size iter_begin)
 			(breakif `(,iter_begin = ,iter_end) 'exit)
@@ -619,7 +619,7 @@
 			(vp-add-cr byte_size iter_begin)
 		(else)
 			(loop-start)
-				(d-call 'str :find `(,splits (,iter_begin 0 ub)) '(_ _ r2))
+				(d-call 'str :rfind `(,splits (,iter_begin 0 ub)) '(_ _ r2))
 				(breakif '(r2 /= -1))
 				(vp-add-cr byte_size iter_begin)
 			(loop-until `(,iter_begin = ,iter_end))
@@ -649,6 +649,7 @@
 		'(r7 r8 r9 r10 r11 r12))
 
 	(entry 'str :split_char `(,this ,splitc))
+
 	(call 'list :create nil `(,out))
 	(assign `((& ,this str_data) (,this str_length)) `(,iter_begin ,iter_end))
 	(vp-add-rr iter_begin iter_end)
