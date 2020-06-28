@@ -60,7 +60,7 @@
 		(throw "Dispatch/Temp register conflicts with arg !" (list _5 _6 s)))
 	(assign _3 s)
 	(when (> (defq ls (length s)) (defq la (length (abi-args))))
-		(setq x (reduce-rev (lambda (x y) (push x y)) (slice la ls s) (list))))
+		(setq x (reverse (slice la ls s))))
 	(vp-call-abi _6 _5 (- (elem 4 m) ptr_size) x)
 	(if _4 (assign (elem 3 m) _4)))
 
