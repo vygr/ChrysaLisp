@@ -54,11 +54,11 @@
 (def-struct-end)
 
 (def-struct 'msg 'ln_node)
-	(uint 'length 'parcel_length 'parcel_offset 'parcel_id)
+	(uint 'frag_length 'frag_offset 'total_length)
 	(ulong 'parcel_src)
 	(struct 'dest 'id)
 	(offset 'stamp_size)
-	(ptr 'parcel_obj 'parcel_data)
+	(ptr 'obj 'frag_data)
 (def-struct-end)
 
 ;must be power 2

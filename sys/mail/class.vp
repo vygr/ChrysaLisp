@@ -220,7 +220,7 @@
 	(vp-xor-rr r2 r2)
 	(vp-lea-i r4 str_data r1)
 	(assign '(r4 r1 r3 r2)
-		'((r0 msg_parcel_obj) (r0 msg_parcel_data) (r0 msg_length) (r0 msg_parcel_length)))
+		'((r0 msg_obj) (r0 msg_frag_data) (r0 msg_frag_length) (r0 msg_total_length)))
 
 	(exit 'sys_mail :alloc '(r0 r1))
 	(vp-ret)
@@ -244,7 +244,7 @@
 	(call 'sys_heap :alloc '((& r0 ml_statics_msg_heap)) '(_ r0))
 	(vp-xor-rr r1 r1)
 	(assign '(r3 r4 r5 r1)
-		'((r0 msg_parcel_obj) (r0 msg_parcel_data) (r0 msg_length) (r0 msg_parcel_length)))
+		'((r0 msg_obj) (r0 msg_frag_data) (r0 msg_frag_length) (r0 msg_total_length)))
 
 	(exit 'sys_mail :alloc_obj '(r0))
 	(vp-ret)
@@ -261,7 +261,7 @@
 
 	(vpif '(r0 /= 0))
 		(vp-push r0)
-		(call 'str :deref '((r0 msg_parcel_obj)))
+		(call 'str :deref '((r0 msg_obj)))
 		(f-bind 'sys_mail :statics r0)
 		(vp-pop r1)
 		(call 'sys_heap :free '((& r0 ml_statics_msg_heap) r1))
@@ -283,7 +283,7 @@
 	(entry 'sys_mail :free_obj '(r0))
 
 	(vpif '(r0 /= 0))
-		(assign '((r0 msg_parcel_obj) (r0 msg_parcel_data) (r0 msg_length)) '(r3 r4 r5))
+		(assign '((r0 msg_obj) (r0 msg_frag_data) (r0 msg_frag_length)) '(r3 r4 r5))
 		(f-bind 'sys_mail :statics r2)
 		(call 'sys_heap :free '((& r2 ml_statics_msg_heap) r0))
 		(vp-cpy-rr r3 r0)
@@ -318,7 +318,7 @@
 	(vp-cpy-rr r0 r1)
 	(ln-remove-node r1 r2)
 
-	(exit 'sys_mail :read '(r0 (r0 msg_parcel_data)))
+	(exit 'sys_mail :read '(r0 (r0 msg_frag_data)))
 	(vp-ret)
 
 (def-func-end)
@@ -354,7 +354,7 @@
 	(else)
 		;going off chip
 		(f-bind 'sys_mail :statics r1)
-		(assign '((r4 msg_length)) '(r0))
+		(assign '((r4 msg_frag_length)) '(r0))
 		(switch)
 		(vpcase '(r0 > lk_data_size))
 			;must use postman task for parcels

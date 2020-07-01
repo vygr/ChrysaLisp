@@ -84,7 +84,7 @@
 
 			;copy message data
 			(call 'sys_mem :copy {out_msg + ln_node_size, &tx_msg->lk_msg_stamp + ln_node_size, msg_stamp_size - ln_node_size})
-			(call 'sys_mem :copy {out_msg->msg_parcel_data, &tx_msg->lk_msg_data, (out_msg->msg_length + long_size - 1) & - long_size})
+			(call 'sys_mem :copy {out_msg->msg_frag_data, &tx_msg->lk_msg_data, (out_msg->msg_frag_length + long_size - 1) & - long_size})
 
 			;busy status
 			(assign {lk_chan_status_busy} {tx_msg->lk_msg_status})
@@ -101,14 +101,14 @@
 		;check for received message
 		(vpif {rx_msg->lk_msg_status = lk_chan_status_busy})
 			;is this msg part of a parcel for this cpu
-			(vpif {rx_msg->lk_msg_stamp.msg_parcel_length && rx_msg->lk_msg_stamp.msg_dest.id_cpu = id})
+			(vpif {rx_msg->lk_msg_stamp.msg_total_length && rx_msg->lk_msg_stamp.msg_dest.id_cpu = id})
 				;copy direct from link buffer to parcel !
 				(call 'sys_mail :in {rx_msg})
 			(else)
 				;allocate msg, copy over data
-				(call 'sys_mail :alloc {rx_msg->lk_msg_stamp.msg_length} {msg, data})
+				(call 'sys_mail :alloc {rx_msg->lk_msg_stamp.msg_frag_length} {msg, data})
 				(call 'sys_mem :copy {&rx_msg->lk_msg_stamp + ln_node_size, msg + ln_node_size, msg_stamp_size - ln_node_size})
-				(call 'sys_mem :copy {&rx_msg->lk_msg_data, data, rx_msg->lk_msg_stamp.msg_length + long_size - 1) & - long_size})
+				(call 'sys_mem :copy {&rx_msg->lk_msg_data, data, rx_msg->lk_msg_stamp.msg_frag_length + long_size - 1) & - long_size})
 
 				;clear status
 				(assign {lk_chan_status_ready} {rx_msg->lk_msg_status})
