@@ -41,12 +41,12 @@
 			(call 'obj :ref {msg->msg_obj} {frag->msg_obj})
 
 			;fill in fragment
-			(assign {len} {frag->msg_frag_length})
 			(assign {msg->msg_dest.id_id} {frag->msg_dest.id_id})
-			(assign {data + offset} {frag->msg_frag_data})
+			(assign {(id << 32) + mail_statics->ml_statics_parcel_id} {frag->msg_src.id_id})
+			(assign {len} {frag->msg_frag_length})
 			(assign {offset} {frag->msg_frag_offset})
 			(assign {msg->msg_frag_length} {frag->msg_total_length})
-			(assign {(id << 32) + mail_statics->ml_statics_parcel_id} {frag->msg_parcel_src})
+			(assign {data + offset} {frag->msg_frag_data})
 
 			;move on
 			(assign {offset + len} {offset})

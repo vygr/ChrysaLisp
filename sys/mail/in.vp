@@ -17,27 +17,27 @@
 	;look up parcel in mailbox
 	(assign (cat {@} (f-path 'sys_mail :statics) {.ml_statics_parcel_list}) {parcel_list})
 	(vp-def (next node src psrc))
-	(assign {parcel_list, rx_msg->lk_msg_stamp.msg_parcel_src} (list next src))
+	(assign {parcel_list, rx_msg->lk_msg_stamp.msg_src.id_id} (list next src))
 	(loop-list-forward next 0 node next)
-		(vp-cpy-ir node msg_parcel_src psrc)
+		(vp-cpy-ir node (+ msg_src id_id) psrc)
 	(loop-until `(,src = ,psrc))
 	(assign (list node) {msg})
 	(vpif `(,next = 0))
 		;new parcel
 		(call 'sys_mail :alloc {rx_msg->lk_msg_stamp.msg_total_length} {msg, _})
-		(assign {rx_msg->lk_msg_stamp.msg_total_length} {msg->msg_total_length})
 		(assign {rx_msg->lk_msg_stamp.msg_dest.id_id} {msg->msg_dest.id_id})
-		(assign {rx_msg->lk_msg_stamp.msg_parcel_src} {msg->msg_parcel_src})
+		(assign {rx_msg->lk_msg_stamp.msg_src.id_id} {msg->msg_src.id_id})
+		(assign {rx_msg->lk_msg_stamp.msg_total_length} {msg->msg_total_length})
 		(assign {parcel_list, msg} (list next node))
 		(lh-add-at-tail next node src)
 	(endif)
 
 	;copy fragment data
 	(assign {rx_msg->lk_msg_stamp.msg_frag_length} {len})
-	(call 'sys_mem :copy {&rx_msg->lk_msg_data,
-		msg->msg_frag_data + rx_msg->lk_msg_stamp.msg_frag_offset, len})
 	(assign {msg->msg_frag_offset + len} {msg->msg_frag_offset})
 	(assign {msg->msg_total_length - len} {msg->msg_total_length})
+	(call 'sys_mem :copy {&rx_msg->lk_msg_data,
+		msg->msg_frag_data + rx_msg->lk_msg_stamp.msg_frag_offset, len})
 
 	;clear link status
 	(assign {lk_chan_status_ready} {rx_msg->lk_msg_status})

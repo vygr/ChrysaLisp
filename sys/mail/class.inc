@@ -54,9 +54,9 @@
 (def-struct-end)
 
 (def-struct 'msg 'ln_node)
-	(uint 'frag_length 'frag_offset 'total_length)
-	(ulong 'parcel_src)
 	(struct 'dest 'id)
+	(uint 'frag_length 'frag_offset 'total_length)
+	(struct 'src 'id)
 	(offset 'stamp_size)
 	(ptr 'obj 'frag_data)
 (def-struct-end)
