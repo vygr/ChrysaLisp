@@ -14,7 +14,56 @@
 (defun-bind zero? (el)
   (= el 0))
 
-; Forms
+; Properties (a.k.a. dictionary a.k.a. map)
+
+(defmacro make-dict (name &rest pairs)
+  ; (make-dict sym [:key val...]) -> dict
+  `(progn
+    (defq ,name (env -101))
+    (when (> (length ',pairs) 0)
+      (def ,name ~pairs))
+    ,name))
+
+(defun dict-get (dict property &optional ifnil)
+  ; (dict-get dict property &optional ifnil) -> nil | ifnil
+  (defq tmp (get property dict))
+  (when (not tmp)
+    (setq tmp ifnil))
+  tmp)
+
+(defun dict-put (dict property value &optional add_ifnil)
+  ; (dict-put dict property value &optional add_ifnil) -> dict
+  (if (not (get property dict))
+    (if add_ifnil
+      (def dict property value))
+    (set dict property value))
+  dict)
+
+; Faux reader macro
+
+(defq
+  _mark "%"
+  _posl "0123456789")
+
+(defun _cnt_pos (x)
+  (reduce (lambda (acc el)
+    (defq _x (str el))
+    (when (and
+      (starts-with _mark _x)
+      (= (length _x) 2)
+      (find (second _x) _posl))
+        (inc acc))
+      acc) x 0))
+
+(defun _gen_args (n)
+  (reduce (lambda (acc el)
+    (push acc (sym (str _mark el)))) (range 0 n) (list)))
+
+(defmacro # (x)
+  `(let ((args (_gen_args (_cnt_pos ,x))))
+    (lambda ,args (list ~x))))
+
+; Take and drop forms
 
 (defun-bind take (cnt seq)
   ; (take cnt seq) -> seq
@@ -41,7 +90,8 @@
   (reduced-reduce
     (lambda (acc el)
       (cond
-        ((pred el) (push acc el))
+        ;((pred el) (push acc el))
+        ((eval (pred el)) (push acc el))
         (t (reduced acc))))
     seq (list)))
 
