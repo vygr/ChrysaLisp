@@ -372,10 +372,10 @@
 
 (defmacro-bind # (x)
 	;(# (< %0 0)) -> (lambda (%0) (< %0 0))
-	`(lambda ,(slice 0 (reduce (lambda (acc _)
-		(if (and (= (length _) 2) (starts-with "%" _) (find (elem 1 _) "0123456789"))
-			(inc acc) acc)) (merge (list) (map sym (split (str x) "( )"))) 0)
-		'(%0 %1 %3 %4 %5 %6 %7 %8 %9)) ,x))
+	`(lambda ,(slice 0 (reduce (lambda (c _)
+		(if (find _ '(%0 %1 %3 %4 %5 %6 %7 %8 %9)) (inc c) c))
+		(merge (list) (map sym (split (str x) "( )"))) 0)
+			'(%0 %1 %3 %4 %5 %6 %7 %8 %9)) ,x))
 
 ;;;;;;;;;;;;
 ; Predicates
