@@ -233,6 +233,7 @@ when
 write-int
 write-long
 write-short
+#
 ```
 
 ### boot.inc functions

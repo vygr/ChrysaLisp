@@ -27,6 +27,16 @@ corrupted.
 
 ------
 
+Closure style shortcut lambda syntax available as a macro. This may eventually
+get promoted to part of the (read) function. Thanks to FrancC01 for inspiring
+this addition.
+
+eg.
+(map (# (< %0 0)) '(1 2 3 4 5 6 -6 -7 -8 0 7))
+(nil nil nil nil nil nil t t t nil nil)
+
+------
+
 Keyword symbols now available, any symbol beginning with a : will always
 evaluate to itself. This will now start to be used throughout the system.
 
