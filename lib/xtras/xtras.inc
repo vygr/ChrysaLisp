@@ -41,27 +41,42 @@
 
 ; Faux reader macro
 
-(defq
-  _mark "%"
-  _posl "0123456789")
+; (defq
+;   _mark "%"
+;   _posl "0123456789")
+
+; (defun _cnt_pos (x)
+;   (reduce (lambda (acc el)
+;     (defq _x (str el))
+;     (when (and
+;       (starts-with _mark _x)
+;       (= (length _x) 2)
+;       (find (second _x) _posl))
+;         (setq acc (inc acc)))
+;       acc) x 0))
 
 (defun _cnt_pos (x)
   (reduce (lambda (acc el)
     (defq _x (str el))
     (when (and
-      (starts-with _mark _x)
+      (starts-with "%" _x)
       (= (length _x) 2)
-      (find (second _x) _posl))
-        (inc acc))
-      acc) x 0))
+      (find (second _x) "0123456789"))
+        (setq acc (inc acc)))
+    acc) x 0))
+; (defun _gen_args (n)
+;   (reduce (lambda (acc el)
+;     (push acc (sym (str _mark el)))) (range 0 n) (list)))
 
 (defun _gen_args (n)
-  (reduce (lambda (acc el)
-    (push acc (sym (str _mark el)))) (range 0 n) (list)))
+  (slice 0 n '(%0 %1 %3 %4 %5 %6 %7 %8 %9)))
 
 (defmacro # (x)
-  `(let ((args (_gen_args (_cnt_pos ,x))))
-    (lambda ,args (list ~x))))
+  `(lambda ,(_gen_args (_cnt_pos x)) ,x))
+
+; (defmacro # (x)
+;   `(let ((args (_gen_args (_cnt_pos ,x))))
+;     (lambda ,args (list ~x))))
 
 ; Take and drop forms
 
@@ -90,9 +105,19 @@
   (reduced-reduce
     (lambda (acc el)
       (cond
-        ;((pred el) (push acc el))
-        ((eval (pred el)) (push acc el))
+        ((pred el) (push acc el))
         (t (reduced acc))))
+    seq (list)))
+
+(defun-bind take-unless (pred seq)
+  ; (take-unless pred seq)
+  ; Returns successive element of seq unless pred returns true
+  ; example: (take-unless (# (< %0 0)) '(-1 -2 0 -1 -2)) -> (0)
+  (reduced-reduce
+    (lambda (acc el)
+      (cond
+        ((pred el) acc)
+        (t (push acc el))))
     seq (list)))
 
 (defun-bind drop (cnt seq)
