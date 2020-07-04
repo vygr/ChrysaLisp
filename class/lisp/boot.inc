@@ -371,7 +371,7 @@
 	`(progn (setq __x t) ,_a))
 
 (defmacro-bind # (x)
-	;eg. (# (< %0 0)) -> (lambda (%0) (< %0 0))
+	;(# (< %0 0)) -> (lambda (%0) (< %0 0))
 	`(lambda ,(slice 0 (reduce (lambda (acc el)
 		(defq _ (str el))
 		(when (and
