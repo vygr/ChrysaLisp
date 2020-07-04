@@ -370,6 +370,16 @@
 	;(reduced accum)
 	`(progn (setq __x t) ,_a))
 
+(defmacro-bind # (x)
+	;eg. (# (< %0 0)) -> (lambda (%0) (< %0 0))
+	`(lambda ,(slice 0 (reduce (lambda (acc el)
+		(defq _ (str el))
+		(when (and
+				(starts-with "%" _)
+				(= (length _) 2)
+				(find (elem 1 _) "0123456789"))
+			(setq acc (inc acc))) acc) x 0) '(%0 %1 %3 %4 %5 %6 %7 %8 %9)) ,x))
+
 ;;;;;;;;;;;;
 ; Predicates
 ;;;;;;;;;;;;
