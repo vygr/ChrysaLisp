@@ -16,13 +16,23 @@
 
 ; Properties (a.k.a. dictionary a.k.a. map)
 
+; (defmacro make-dict (name &rest pairs)
+;   ; (make-dict sym [:key val...]) -> dict
+;   `(progn
+;     (defq ,name (env -101))
+;     (when (> (length ',pairs) 0)
+;       (def ,name ~pairs))
+;     ,name))
+
+(defun-bind env-list (_)
+  (first (read (string-stream (str _)) (ascii-code " "))))
+
 (defmacro make-dict (name &rest pairs)
-  ; (make-dict sym [:key val...]) -> dict
-  `(progn
-    (defq ,name (env -101))
-    (when (> (length ',pairs) 0)
-      (def ,name ~pairs))
-    ,name))
+; (make-dict sym [:key val...]) -> dict
+  (if (> (length pairs) 0)
+    `(progn
+      (defq ,name (env -101)) (def ,name ~pairs) ,name)
+    `(defq ,name (env -101))))
 
 (defun dict-get (dict property &optional ifnil)
   ; (dict-get dict property &optional ifnil) -> nil | ifnil
@@ -39,44 +49,15 @@
     (set dict property value))
   dict)
 
-; Faux reader macro
+(defun-bind dict-merge (dict0 dict1)
+  ; (dict-merge dict0 dict1) -> list
+  ; Merges two dictionaries and produces a list of lists
+  )
 
-; (defq
-;   _mark "%"
-;   _posl "0123456789")
-
-; (defun _cnt_pos (x)
-;   (reduce (lambda (acc el)
-;     (defq _x (str el))
-;     (when (and
-;       (starts-with _mark _x)
-;       (= (length _x) 2)
-;       (find (second _x) _posl))
-;         (setq acc (inc acc)))
-;       acc) x 0))
-
-(defun _cnt_pos (x)
-  (reduce (lambda (acc el)
-    (defq _x (str el))
-    (when (and
-      (starts-with "%" _x)
-      (= (length _x) 2)
-      (find (second _x) "0123456789"))
-        (setq acc (inc acc)))
-    acc) x 0))
-; (defun _gen_args (n)
-;   (reduce (lambda (acc el)
-;     (push acc (sym (str _mark el)))) (range 0 n) (list)))
-
-(defun _gen_args (n)
-  (slice 0 n '(%0 %1 %3 %4 %5 %6 %7 %8 %9)))
-
-(defmacro # (x)
-  `(lambda ,(_gen_args (_cnt_pos x)) ,x))
-
-; (defmacro # (x)
-;   `(let ((args (_gen_args (_cnt_pos ,x))))
-;     (lambda ,args (list ~x))))
+(defun-bind dict-merge-to (dict2 dict0 dict1)
+  ; (dict-merge dict2 dict0 dict1) -> dict3
+  ; Merges dict0 and dict1 producing dict3
+  )
 
 ; Take and drop forms
 
@@ -138,6 +119,15 @@
   ; (drop-while pred seq)
   ; Drops successive element of seq while pred returns true
   (slice (length (take-while pred seq)) -1 seq))
+
+(defun-bind drop-unless (pred seq)
+  (reduced-reduce
+    (lambda (acc el)
+      (cond
+        ((pred el) acc)
+        (t (push acc el))))
+    seq (list)))
+
 
 (defq myL (list 9 8 7 6 5 4 3 2 1 0))
 (defq myL2 (list -2 -1 0 -1 -2 3))
