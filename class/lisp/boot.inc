@@ -372,9 +372,9 @@
 
 (defmacro-bind # (x)
 	;(# (< %0 0)) -> (lambda (%0) (< %0 0))
-	`(lambda ,(slice 0 (reduce (lambda (acc el)
-		(defq _ (str el))
+	`(lambda ,(slice 0 (reduce (lambda (acc _)
 		(when (and
+				(sym? _)
 				(starts-with "%" _)
 				(= (length _) 2)
 				(find (elem 1 _) "0123456789"))
