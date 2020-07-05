@@ -71,7 +71,7 @@
 (ffi undef "class/hmap/lisp_undef" 0)
 (ffi env "class/hmap/lisp_env" 0)
 (ffi penv "class/hmap/lisp_parent" 0)
-;(ffi tolist "class/hmap/lisp_list" 0)
+(ffi tolist "class/hmap/lisp_list" 0)
 
 (ffi file-stream "class/stream/lisp_filestream" 0)
 (ffi string-stream "class/stream/lisp_strstream" 0)
@@ -122,6 +122,7 @@
 	lisp_type_str (<< 1 2)
 	lisp_type_sym (<< 1 3)
 	lisp_type_fnc (<< 1 4)
+	lisp_type_env (<< 1 5)
  	defmacro '(macro (n a &rest _) `(defq ,n (macro ,a ~_))))
 
 (defmacro defun (n a &rest _)
@@ -167,20 +168,23 @@
 	(eval (macroexpand _)))
 
 (defmacro-bind lst? (_)
-	;(lst? form) -> bool
+	;(lst? form) -> t|nil
 	`(= (type-of ,_) ,lisp_type_lst))
 (defmacro-bind num? (_)
-	;(num? form) -> bool
+	;(num? form) -> t|nil
 	`(= (type-of ,_) ,lisp_type_int))
 (defmacro-bind fnc? (_)
-	;(fnc? form) -> bool
+	;(fnc? form) -> t|nil
 	`(= (type-of ,_) ,lisp_type_fnc))
 (defmacro-bind str? (_)
-	;(str? form) -> bool
+	;(str? form) -> t|nil
 	`(= (type-of ,_) ,lisp_type_str))
 (defmacro-bind sym? (_)
-	;(sym? form) -> bool
+	;(sym? form) -> t|nil
 	`(= (type-of ,_) ,lisp_type_sym))
+(defmacro-bind env? (_)
+	;(env? form) -> t|nil
+	`(= (type-of ,_) ,lisp_type_env))
 
 (defmacro-bind inc (_)
 	;(inc num) -> num

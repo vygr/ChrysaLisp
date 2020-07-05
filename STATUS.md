@@ -35,6 +35,13 @@ eg.
 (map (# (< %0 0)) '(1 2 3 4 5 6 -6 -7 -8 0 7))
 (nil nil nil nil nil nil t t t nil nil)
 
+Anaphoric macros have moved over to the lib/ folder.
+
+New (tolist env) function to convert an environment into a list of list of
+pairs.
+
+New (env?) macro available.
+
 ------
 
 Keyword symbols now available, any symbol beginning with a : will always

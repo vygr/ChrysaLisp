@@ -408,6 +408,10 @@
 
 (env [num])
 
+## env?
+
+(env? form) -> t|nil
+
 ## eql
 
 (eql form form)
@@ -470,7 +474,7 @@
 
 ## fnc?
 
-(fnc? form) -> bool
+(fnc? form) -> t|nil
 
 ## font-glyph-paths
 
@@ -658,7 +662,7 @@
 
 ## lst?
 
-(lst? form) -> bool
+(lst? form) -> t|nil
 
 ## macroexpand
 
@@ -766,7 +770,7 @@
 
 ## num?
 
-(num? form) -> bool
+(num? form) -> t|nil
 
 ## nums
 
@@ -1114,7 +1118,7 @@
 
 ## str?
 
-(str? form) -> bool
+(str? form) -> t|nil
 
 ## stream-avail
 
@@ -1146,7 +1150,7 @@
 
 ## sym?
 
-(sym? form) -> bool
+(sym? form) -> t|nil
 
 ## task-mailbox
 
