@@ -86,6 +86,19 @@
   (reduce (lambda (acc el) (def acc (first el) (second el)) acc)
     (apply dict-merge dlist) dict))
 
+(defun-bind dict-keys (dict)
+  ; (dict-keys dict) -> key list
+  (map (#(elem 0 %0)) (dict-property-list dict)))
+
+(defun-bind dict-values (dict)
+  ; (dict-values dict) -> value list
+  (map (#(elem 1 %0)) (dict-property-list dict)))
+
+(defun-bind isdict? (_)
+  (cond
+    ((or (lst? _) (fnc? _) (str? _) (sym? _) (num? _)) nil)
+    (t (lst? (dict-property-list _)))))
+
 ; Test cases
 ; (make-dict foo :a 0 :b 1) ; -> ((:a 0) (:b 1))
 ; (make-dict bar :a 2 :c 3) ; -> ((:a 2) (:c 3))
@@ -94,6 +107,14 @@
 ; (apply dict-merge (list foo bar baz))  ; -> ((:b 1) (:a 2) (:c 7) (:d 5))
 ; (dict-merge-to! (make-dict bingo) foo bar baz) ; -> ((:d 5) (:b 1) (:a 2) (:c 7))
 
+; Walkers
+
+(defun-bind walk (inner-fn outer-fn form)
+  )
+(defun-bind pre-walk (fn form)
+  )
+(defun-bind post-walk (fn form)
+  )
 ; Take and drop forms
 
 (defun-bind take (cnt seq)
