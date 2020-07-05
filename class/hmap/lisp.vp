@@ -299,6 +299,37 @@
 
 (def-func-end)
 
+(def-method 'hmap :lisp_list)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args list object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = environment hmap object (ptr)
+	;trashes
+	;r1-r14
+
+	(entry 'hmap :lisp_list '(r0 r1))
+
+(errorcases
+	(call 'lisp :env_args_sig '(r1 ($ sig) 1) '(r2))
+	(gotoif '(r2 = 0) 'error))
+
+	(vp-push r0)
+	(array-bind-args r1 '(r0))
+	(call 'hmap :list '(r0) '(_ r1))
+	(vp-pop r0)
+
+	(exit 'hmap :lisp_list '(r0 r1))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp :repl_error '(r0 "(tolist env)" error_msg_not_an_environment r1))
+	(signature '(hmap)))
+
+(def-func-end)
+
 (def-method 'hmap :lisp_undef)
 	;inputs
 	;r0 = lisp object (ptr)

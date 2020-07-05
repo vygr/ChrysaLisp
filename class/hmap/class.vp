@@ -90,7 +90,7 @@
 	(assign '((r0 hmap_parent)) '(r0))
 	(call 'hmap :ref_if '(r0) '(r0))
 	(call 'hmap :set_parent '((rsp local_obj) r0))
-	(call 'hmap :for_each '((rsp local_this) ($ callback) rsp))
+	(call 'hmap :for_each '((rsp local_this) ($ callback) rsp) '(r0))
 
 	(exit 'hmap :copy '(r0 (rsp local_obj)))
 	(vp-free local_size)
@@ -109,6 +109,47 @@
 	(call 'hmap :get_bucket '(r0 (r1 pair_first)) '(_ r0))
 	(vp-pop r1)
 	(jump 'list :push_back '(r0 r1))
+
+(def-func-end)
+
+(def-method 'hmap :list)
+	;inputs
+	;r0 = hmap object (ptr)
+	;outputs
+	;r0 = hmap object (ptr)
+	;r1 = list object (ptr)
+	;trashes
+	;r1-r14
+
+	(def-struct 'local)
+		(ptr 'obj 'this)
+	(def-struct-end)
+
+	;save inputs
+	(vp-alloc local_size)
+	(entry 'hmap :list '((rsp local_this)))
+
+	(call 'list :create nil '((rsp local_obj)))
+	(call 'hmap :for_each '((rsp local_this) ($ callback) rsp) '(r0))
+
+	(exit 'hmap :list '(r0 (rsp local_obj)))
+	(vp-free local_size)
+	(vp-ret)
+
+(vp-label 'callback)
+	;inputs
+	;r0 = predicate data (ptr)
+	;r1 = element iterator (ptr)
+
+	(entry 'hset :each_callback '(r0 r1))
+
+	(assign '((r0 0) (r1 0)) '(r6 r7))
+	(call 'list :create nil '(r0))
+	(assign '((r7 pair_first) (r7 pair_second)) '(r1 r2))
+	(class/obj/ref r1 r3)
+	(class/obj/ref r2 r3)
+	(call 'list :push_back2 '(r0 r1 r2) '(r1 _ _ _ _))
+	(jump 'list :push_back '(r6 r1))
 
 (def-func-end)
 
