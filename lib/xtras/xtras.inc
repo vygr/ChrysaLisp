@@ -31,8 +31,8 @@
 
 ; Property (a.k.a. dictionary a.k.a. map) forms
 
-(defun-bind dict-list (_)
-  ; (dict-list x) -> list
+(defun-bind dict-property-list (_)
+  ; (dict-property-list x) -> list
   ; Returns list of properties for dictionary
   (first (read (string-stream (str _)) (ascii-code " "))))
 
@@ -65,7 +65,7 @@
   ; (dict-merge dict0 ...) -> list
   ; Merges multiple dictionaries to a list of property lists
   (defq
-    ebase (dict-list (first dlist))
+    ebase (dict-property-list (first dlist))
     kset  (list))
   (each (lambda (el) (push (push kset (first el)) _)) ebase)
   (each (lambda (el)
@@ -77,7 +77,7 @@
           acc)
         (t
           (push (push kset (first el)) (/ (length kset) 2))
-          (push acc el)))) el ebase)) (map dict-list (rest dlist)))
+          (push acc el)))) el ebase)) (map dict-property-list (rest dlist)))
   ebase)
 
 (defun-bind dict-merge-to! (dict &rest dlist)
