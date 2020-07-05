@@ -40,6 +40,8 @@ Anaphoric macros have moved over to the lib/ folder.
 New (tolist env) function to convert an environment into a list of list of
 pairs.
 
+New (env?) macro available.
+
 ------
 
 Keyword symbols now available, any symbol beginning with a : will always
