@@ -6,6 +6,7 @@
 (dec-method :init 'class/hmap/init)
 (dec-method :find 'class/hmap/find)
 (dec-method :copy 'class/hmap/copy)
+(dec-method :list 'class/hmap/list :static '(r0) '(r0 r1))
 (dec-method :insert 'class/hmap/insert :static '(r0 r1 r2) '(r0 r1 r2))
 (dec-method :search 'class/hmap/search :static '(r0 r1) '(r0 r1 r2))
 (dec-method :set 'class/hmap/set :static '(r0 r1 r2) '(r0 r1))
@@ -22,6 +23,7 @@
 (dec-method :lisp_get 'class/hmap/lisp_get :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_undef 'class/hmap/lisp_undef :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_parent 'class/hmap/lisp_parent :static '(r0 r1) '(r0 r1))
+(dec-method :lisp_list 'class/hmap/lisp_list :static '(r0 r1) '(r0 r1))
 
 (def-struct 'hmap 'hset)
 	(ptr 'parent)

@@ -160,6 +160,7 @@ str
 string-stream
 sym
 throw
+tolist
 time
 type-of
 undef

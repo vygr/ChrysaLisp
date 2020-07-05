@@ -1176,6 +1176,10 @@
 
 (to-upper str) -> str
 
+## tolist
+
+(tolist env)
+
 ## trim
 
 (trim str [str]) -> str

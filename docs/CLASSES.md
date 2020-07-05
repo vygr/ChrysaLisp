@@ -2455,6 +2455,18 @@ trashes
 r1-r14
 ```
 
+### hmap::list -> class/hmap/list
+
+```lisp
+inputs
+r0 = hmap object (ptr)
+outputs
+r0 = hmap object (ptr)
+r1 = list object (ptr)
+trashes
+r1-r14
+```
+
 ### hmap::insert -> class/hmap/insert
 
 ```lisp
@@ -2634,6 +2646,19 @@ r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### hmap::lisp_list -> class/hmap/lisp_list
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = environment hmap object (ptr)
 trashes
 r1-r14
 ```
