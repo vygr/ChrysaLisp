@@ -34,7 +34,7 @@
 (defun-bind dict-property-list (_)
   ; (dict-property-list x) -> list
   ; Returns list of properties for dictionary
-  (first (read (string-stream (str _)) (ascii-code " "))))
+  (tolist _))
 
 (defmacro-bind make-dict (name &rest pairs)
   ; (make-dict sym [:key val...]) -> dict
@@ -51,6 +51,11 @@
   (when (not tmp)
     (setq tmp ifnil))
   tmp)
+
+(defun-bind dict-drop! (dict &rest keys)
+  ; (dict-drop! dict key...) -> dict
+  (each (#(undef dict %0)) keys)
+  dict)
 
 (defun-bind dict-put! (dict property value &optional add_ifnil)
   ; (dict-put dict property value &optional add_ifnil) -> dict
@@ -94,10 +99,8 @@
   ; (dict-values dict) -> value list
   (map (#(elem 1 %0)) (dict-property-list dict)))
 
-(defun-bind isdict? (_)
-  (cond
-    ((or (lst? _) (fnc? _) (str? _) (sym? _) (num? _)) nil)
-    (t (lst? (dict-property-list _)))))
+(defun-bind dict? (_)
+  (env? _))
 
 ; Test cases
 ; (make-dict foo :a 0 :b 1) ; -> ((:a 0) (:b 1))
@@ -106,15 +109,63 @@
 ; (dict-merge foo bar baz)  ; -> ((:b 1) (:a 2) (:c 7) (:d 5))
 ; (apply dict-merge (list foo bar baz))  ; -> ((:b 1) (:a 2) (:c 7) (:d 5))
 ; (dict-merge-to! (make-dict bingo) foo bar baz) ; -> ((:d 5) (:b 1) (:a 2) (:c 7))
+; (dict-drop! bingo :d :c)
 
 ; Walkers
 
-(defun-bind walk (inner-fn outer-fn form)
-  )
-(defun-bind pre-walk (fn form)
-  )
-(defun-bind post-walk (fn form)
-  )
+(defun-bind id (_)_)
+
+(defun walk-tree (tree fnc)
+  (defq stack (if (> (length tree) 0) (list tree 0) '()))
+  (while (defq i (pop stack) l (pop stack))
+    (defq e (elem i l))
+    (if (< (setq i (inc i)) (length l))
+        (push stack l i))
+    (if (lst? e)
+      (if (> (length e) 0) (push stack e 0))
+      (fnc e))))
+
+(defun-bind walk-tree-recur (inner-fn outer-fn tree)
+  ; (walk-tree-recur inner-fn outer-fn tree) -> tree
+  ; Recusively walk tree and handles dictionaries
+  (cond
+    ((lst? tree)
+      (outer-fn
+        (apply list
+          (map (lambda (el)
+            (if (dict? el)
+              (walk-tree-recur inner-fn outer-fn el)
+              (inner-fn el))) tree))))
+    ((dict? tree)
+      (map (curry walk-tree-recur inner-fn outer-fn) (dict-property-list tree)))
+    (t (outer-fn tree))))
+
+(defun-bind pre-walk-recur (fn tree)
+  ; (pre-walk-recur fn tree)
+  (walk-tree-recur (curry pre-walk-recur fn) id (fn tree)))
+
+(defun-bind post-walk-recur (fn tree)
+  ; (post-walk-recur fn tree)
+  (walk-tree-recur (curry post-walk-recur fn) fn tree))
+
+
+; Test utilities
+; (defun visit (_)
+;   (print "Visiting " _)
+;   _)
+
+; (defun outf (_)
+;   (print "Outter = " _)
+;   _)
+; (defun inf (_)
+;   (print "Inner = " _)
+;   _)
+
+; (defq t0 (list 0 1 2 3 (make-dict foo :a 7 :b 6) (list 0 1 2 (list 3 4 5))))
+; (defq t1 (list 0 1 2 3 (list 0 1 2 (list 3 4 5))))
+; (defq t2 (list 0 1 2 (make-dict foo :a 1 :b 7) (list 0 1 2 (list 3 4 5))))
+; (make-dict bar :a 0 :b 1 :c (list foo))
+
 ; Take and drop forms
 
 (defun-bind take (cnt seq)
