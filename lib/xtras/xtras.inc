@@ -41,8 +41,8 @@
   ; Creates a new dictionary with optional property value pairs
   (if (> (length pairs) 0)
     `(progn
-      (defq ,name (env -101)) (def ,name ~pairs) ,name)
-    `(defq ,name (env -101))))
+      (defq ,name (env -16)) (def ,name ~pairs) ,name)
+    `(defq ,name (env -16))))
 
 (defun-bind dict-get (dict property &optional ifnil)
   ; (dict-get dict property &optional ifnil) -> nil | ifnil
