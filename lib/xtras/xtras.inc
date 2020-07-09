@@ -37,7 +37,7 @@
   (tolist _))
 
 (defmacro-bind make-dict (name &rest pairs)
-  ; (make-dict sym [:key val...]) -> dict
+  ; (make-dict name [:key val...]) -> dict
   ; Creates a new dictionary with optional property value pairs
   (if (> (length pairs) 0)
     `(progn
