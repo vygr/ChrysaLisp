@@ -68,7 +68,7 @@
 (defun csv-cell-count (rr)
   ; (csv-cell-count rr) -> count of cells | exception
   (csv-validate-clz rr :clz_csv_row)
-  (length (get :row doc)))
+  (length (get :row rr)))
 
 (defun csv-cells (rr)
   ; (cells rr) -> list | exception
