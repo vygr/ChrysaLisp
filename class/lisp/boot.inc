@@ -440,6 +440,12 @@
 	(reduce (lambda (b e)
 		(push (elem (% _ (length b)) b) e) b) l b))
 
+(defun-bind zip (&rest b)
+	;(zip seq ...) -> list
+	(defq l (list))
+	(each! 0 -1 (lambda (&rest _)
+		(setq l (cat l _))) b) l)
+
 (defun-bind reverse (l)
 	;(reverse list) -> list
 	(map-rev progn l))
