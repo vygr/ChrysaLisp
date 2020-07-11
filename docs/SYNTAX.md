@@ -1452,3 +1452,7 @@
 
 (write-short stream num|list) -> stream
 
+## zip
+
+(zip seq ...) -> list
+
