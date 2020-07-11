@@ -51,97 +51,59 @@
   `(macroexpand (make-dict ,nm)))
 
 ; Main argparse structure template
-(defun-bind parser_template ()
-      (list
-        (list :clz :clz_processor)
-        (list :arguments (list))     ; Collection of high level arguments
-        (list :commands (list))      ; Collection of high level commands
-        (list :in_args nil)          ; Retain the original :command line arguments
-        (list :application "")       ; Application name string
-        (list :version "")           ; Application :version string
-        (list :required nil)         ; Are free form values reqiured?
-        (list :counter 0)            ; Number of free form (not arg or cmd) values
-        (list :type :type_none)       ; Type for term validation
-        (list :validator noop)       ; Argument value :type :validator fn
-        (list :handler noop)         ; fn for parsed :command line result
-        (list :help "")))            ; Help string
-
-(defun-bind arg_template ()
-      (list
-        (list :clz :clz_argument)
-        (list :argument nil)         ; The :argument flags e.g. ("-s" "--string")
-        (list :required nil)         ; Are free form values reqiured?
-        (list :counter +no_count+)   ; Number of values accepted for :argument
-        (list :type :type_none)      ; Type for term validation
-        (list :dest :argument)       ; Results key
-        (list :validator noop)       ; Argument value :type :validator fn
-        (list :handler noop)         ; fn for parsed :argument
-        (list :help "")))            ; Help string
-
-(defun-bind cmd_template ()
-      (list
-        (list :clz :clz_command)
-        (list :arguments (list))     ; Arguments for :command
-        (list :command "")           ; Single :command string
-        (list :required nil)         ; Are free form values reqiured?
-        (list :counter 0)            ; Number of values accepted for :command
-        (list :type :type_none)      ; Type for term validation
-        (list :dest :command)        ; Result key
-        (list :validator noop)       ; Command value :type :validator fn
-        (list :handler noop)         ; fn for parsed :command
-        (list :help "")))            ; Help string
 
 (defun-bind parser-dict()
   ; (parser-dict) -> dict
   (defq pd (base-obj))
   (def pd
-    :clz :clz_processor
-    :arguments (list)
-    :commands (list)
-    :in_args ""
-    :application ""
-    :version ""
-    :required nil
-    :counter 0
-    :type :type_none
-    :validator noop
-    :handler noop
-    :help "")
+    :clz :clz_processor   ; Argparse class
+    :arguments (list)     ; Collection of arguments
+    :commands (list)      ; Collection of commands
+    :in_args ""           ; Original string preserv
+    :application ""       ; Placeholder for app name
+    :version ""           ; Placeholder for version
+    :required nil         ; Does it requires free form input?
+    :counter +no_count+   ; Max freeform input
+    :type :type_none      ; Type of freeform input
+    :validator noop       ; Free form value validator
+    :handler noop         ; Handler for resulting parsed input
+    :help "")             ; Placeholder for help text
   pd)
 
 (defun-bind cmd-dict()
   ; (cmd-dict) -> dict
   (defq cd (base-obj))
   (def cd
-    :clz :clz_command
-    :arguments (list)
-    :command ""
-    :required nil
-    :counter 0
-    :type :type_none
-    :dest :command
-    :validator noop
-    :handler noop
-    :help "")
+    :clz :clz_command     ; Argparse class
+    :arguments (list)     ; Collection of arguments
+    :command ""           ; Command string
+    :required nil         ; Does it requires free form input?
+    :counter +no_count+   ; Max freeform input
+    :type :type_none      ; Type expected of freeform input
+    :dest :command        ; Results key
+    :validator noop       ; Validation function
+    :handler noop         ; Handler for resulting parsed input
+    :help "")             ; Placeholder for help text
   cd)
 
 (defun-bind arg-dict()
   ; (arg-dict) -> dict
   (defq ad (base-obj))
   (def ad
-    :clz :clz_argument
-    :argument nil
-    :required nil
-    :counter +no_count+
-    :type :type_none
-    :dest :argument
-    :validator noop
-    :handler noop
-    :help "")
+    :clz :clz_argument    ; Argparse class
+    :argument nil         ; The :argument flags e.g. ("-s" "--string")
+    :required nil         ; Required ?
+    :counter +no_count+   ; Max count of args following switch
+    :type :type_none      ; Type of args
+    :dest :argument       ; Results key
+    :validator noop       ; Validator function
+    :handler noop         ; Handler function
+    :help "")             ; Placeholder for help text
   ad)
 
-(defun-bind dump-dict (dict)
-  (defq plist (dict-property-list dict))
+(defun-bind dump-argparse-object (object)
+  ; (dump-argparse-object object) -> nil
+  (defq plist (dict-property-list object))
   (each (lambda (el)
     (defq
       k (first el)
@@ -150,17 +112,13 @@
       ((and (lst? l) (eql (first l) 'lambda))
         (print k " function" ))
       (t (print k " " l))))
-    plist))
+    nil))
 
-(defun-bind get-property-container (self prop_id)
-  ; (get-property-container self prop_id)
-  (some (lambda (il)
-          (if (eql prop_id (first il))
-              il)) self))
-
+(defun-bind dump-argparse-objects (objects)
+  (each dump-argparse-object objects))
 
 (defun-bind get-class (self)
-  ; (get-class self) -> clz | nil
+  ; (get-class self) -> :clz_n | :clz_unknown
   (dict-get self :clz :clz_unknown))
 
 ; Validation
@@ -205,7 +163,7 @@
       :false
       (str-is-ints? wrk)))
   (when (eql good :false)
-    (throw "Validation: positive expected integer, found" arg))
+    (throw "Validation: expected positive integer, found" arg))
   (str-to-num wrk))
 
 (defun-bind validate-integer-any (inst arg)
@@ -222,7 +180,7 @@
       :false
       (str-is-ints? wrk)))
   (when (eql good :false)
-    (throw "Validation: positive expected integer, found" arg))
+    (throw "Validation: expected integer, found" arg))
   (if negi
     (str-to-num arg)
     (str-to-num wrk)))
@@ -358,15 +316,18 @@
 
 (defun-bind process-args (self arglist)
   ; (process-args self arglist)
-  (if arglist
+  (defq
+    workers (or
+      (> (length (dict-get self :arguments)) 2)
+      (> (length (dict-get self :commands)) 0)
+      (> (dict-get self :counter) +no_count+))
+    hndlr (dict-get self :handler)
+    rarg  (reverse arglist))
+  (if (and arglist workers)
       (progn
-        (defq
-          res (walk self arglist)
-          invoke (dict-get self :handler))
-        (if invoke
-          (invoke self res)
-          res))
-      arglist))
+        (defq res (walk self arglist))
+        (if hndlr (hndlr self res) res))
+      (if hndlr (hndlr self rarg) rarg)))
 
 (defun-bind argcontains (self argstring)
   (reduced-reduce
@@ -380,7 +341,6 @@
   ; (parse self)
   ; Parses and optionally executes :command line
   (defq inarg (dict-get self :in_args))
-  (print "In arg = " inarg)
   (cond
     ((opt
        (sfind "-h" inarg)
@@ -416,7 +376,9 @@
          (lambda (acc el)
            (cat acc (str "[" (first (dict-get el :argument)) "] ")))
          arglist
-         (str "usage: " (dict-get self :application) " "))
+         (str "usage: "
+          (dict-get self :application)
+          " "))
     cmdstr " ..."))
 
 (defun-bind dump-help (self)
@@ -449,14 +411,16 @@
                             (dict-get el :command)
                             (dict-get el :help))
                           +nl+))
-                   cmdlist ""))))
+                   cmdlist "")))
+  (list "-h"))
 
 (defun-bind dump-version (self)
   ; (dump-version self)
   ; Spit the :version
   (print (dict-get self :application)
          (pad "" +indent2+)
-         (dict-get self :version)))
+         (dict-get self :version))
+  (list "-v"))
 
 (defun-bind create-argument (args arg_help &optional handler_fn)
   ; Create :argument block
@@ -468,7 +432,7 @@
 
 (defun-bind create-command (cmds cmd_help)
   ; Create :command block
-  (defq instance (cmd_template))
+  (defq instance (cmd-dict))
   (set-properties instance
                   :command cmds
                   :help cmd_help))
