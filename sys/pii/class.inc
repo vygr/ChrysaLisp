@@ -270,8 +270,8 @@
 		(fn-string (cat s ": ") r1)
 		(call 'sys_pii :write_str '(2 r1))
 		(assign {_a, _b} '(r0 r1))
-		(call 'sys_pii :write_num (list 2 r0 16))
-		(call 'sys_pii :write_char (list 2 10))
+		(call 'sys_pii :write_num '(2 r0 16))
+		(call 'sys_pii :write_char '(2 10))
 		(assign {_a, _b, _c} '(r0 r1 r2))
 		(pop-scope)))
 
@@ -282,7 +282,7 @@
 		(assign '(r0 r1) {_a, _b})
 		(assign s '(r1))
 		(call 'sys_pii :write_str '(2 r1))
-		(call 'sys_pii :write_char (list 2 10))
+		(call 'sys_pii :write_char '(2 10))
 		(assign {_a, _b} '(r0 r1))
 		(pop-scope)))
 
