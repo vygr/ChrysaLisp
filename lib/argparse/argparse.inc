@@ -14,10 +14,6 @@
 
 ; Potential utility macros to embed in ChrysaLisp
 
-(defmacro seq? (form)
-  ; (seq? form) -> t|nil
-  `(or (lst? ,form) (str? ,form)))
-
 (defmacro sfind (ss slst)
   `(some (lambda (_tvar)
     (if (eql ,ss _tvar) _)) ,slst))

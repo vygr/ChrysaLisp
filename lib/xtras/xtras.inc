@@ -30,8 +30,12 @@
   (not (odd? _)))
 
 (defun-bind dict? (_)
-  ; (dict? el) -> bool
+  ; (dict? form) -> bool
   (env? _))
+
+(defun-bind seq? (_)
+  ; (seq? form) -> t|nil
+  (or (lst? _) (str? _)))
 
 (defun-bind def? (_ &optional e)
   ; (def? sym [env]) -> bool
@@ -47,10 +51,7 @@
 
 (defun-bind kw? (_)
   ; (kw? el) -> bool
-  (cond
-    ((or (str? _) (num? _) (dict? _) (lst? _)) nil)
-    ((starts-with ":" _) t)
-    (t nil)))
+  (and (sym? _) (starts-with ":" _)))
 
 ; Convenience
 
@@ -219,10 +220,10 @@
 
 ; Sequence forms
 
-(defun-bind interleave (seq1 seq2)
+(defmacro-bind interleave (seq1 seq2)
   ; (interleave seq1 seq2) -> list
   ; Returns a list of the first item in each seq, then the second etc.
-  (zip ,seq1 ,seq2))
+  `(zip ,seq1 ,seq2))
 
 
 (defun-bind take (cnt seq)
