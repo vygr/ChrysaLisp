@@ -46,61 +46,6 @@
 
 (defun-bind noop (&rest _) _)
 
-(defmacro-bind base-obj (&optional name)
-  (defq nm (if name name (gensym)))
-  `(macroexpand (make-dict ,nm)))
-
-; Main argparse structure template
-
-(defun-bind parser-dict()
-  ; (parser-dict) -> dict
-  (defq pd (base-obj))
-  (def pd
-    :clz :clz_processor   ; Argparse class
-    :arguments (list)     ; Collection of arguments
-    :commands (list)      ; Collection of commands
-    :in_args ""           ; Original string preserv
-    :application ""       ; Placeholder for app name
-    :version ""           ; Placeholder for version
-    :required nil         ; Does it requires free form input?
-    :counter +no_count+   ; Max freeform input
-    :type :type_none      ; Type of freeform input
-    :validator noop       ; Free form value validator
-    :handler noop         ; Handler for resulting parsed input
-    :help "")             ; Placeholder for help text
-  pd)
-
-(defun-bind cmd-dict()
-  ; (cmd-dict) -> dict
-  (defq cd (base-obj))
-  (def cd
-    :clz :clz_command     ; Argparse class
-    :arguments (list)     ; Collection of arguments
-    :command ""           ; Command string
-    :required nil         ; Does it requires free form input?
-    :counter +no_count+   ; Max freeform input
-    :type :type_none      ; Type expected of freeform input
-    :dest :command        ; Results key
-    :validator noop       ; Validation function
-    :handler noop         ; Handler for resulting parsed input
-    :help "")             ; Placeholder for help text
-  cd)
-
-(defun-bind arg-dict()
-  ; (arg-dict) -> dict
-  (defq ad (base-obj))
-  (def ad
-    :clz :clz_argument    ; Argparse class
-    :argument nil         ; The :argument flags e.g. ("-s" "--string")
-    :required nil         ; Required ?
-    :counter +no_count+   ; Max count of args following switch
-    :type :type_none      ; Type of args
-    :dest :argument       ; Results key
-    :validator noop       ; Validator function
-    :handler noop         ; Handler function
-    :help "")             ; Placeholder for help text
-  ad)
-
 (defun-bind dump-argparse-object (object)
   ; (dump-argparse-object object) -> nil
   (defq plist (dict-property-list object))
@@ -221,6 +166,58 @@
     (throw "Validation: file exists error" filename))
   filename)
 
+(defmacro-bind base-obj (&optional name)
+  (defq nm (if name name (gensym)))
+  `(macroexpand (make-dict ,nm)))
+
+; Main argparse structure template
+
+(defun-bind parser-dict()
+  ; (parser-dict) -> dict
+  (defq pd (base-obj))
+  (def pd
+    :clz :clz_processor   ; Argparse class
+    :arguments (list)     ; Collection of arguments
+    :commands (list)      ; Collection of commands
+    :in_args ""           ; Original string preserv
+    :application ""       ; Placeholder for app name
+    :version ""           ; Placeholder for version
+    :required nil         ; Does it requires free form input?
+    :counter +no_count+   ; Max freeform input
+    :validator validate-none       ; Free form value validator
+    :handler noop         ; Handler for resulting parsed input
+    :help "")             ; Placeholder for help text
+  pd)
+
+(defun-bind cmd-dict()
+  ; (cmd-dict) -> dict
+  (defq cd (base-obj))
+  (def cd
+    :clz :clz_command     ; Argparse class
+    :arguments (list)     ; Collection of arguments
+    :command ""           ; Command string
+    :required nil         ; Does it requires free form input?
+    :counter +no_count+   ; Max freeform input
+    :dest :command        ; Results key
+    :validator validate-none       ; Validation function
+    :handler noop         ; Handler for resulting parsed input
+    :help "")             ; Placeholder for help text
+  cd)
+
+(defun-bind arg-dict()
+  ; (arg-dict) -> dict
+  (defq ad (base-obj))
+  (def ad
+    :clz :clz_argument    ; Argparse class
+    :argument nil         ; The :argument flags e.g. ("-s" "--string")
+    :required nil         ; Required ?
+    :counter +no_count+   ; Max count of args following switch
+    :dest :argument       ; Results key
+    :validator noop       ; Validator function
+    :handler noop         ; Handler function
+    :help "")             ; Placeholder for help text
+  ad)
+
 (defun-bind set-properties (self &rest in_props)
   ; (set-properties self [in_prop]) -> self
   (defq props (reverse in_props))
@@ -247,7 +244,7 @@
 
 (defun-bind container-for (self value container property)
   ; (container-for self value container property)
-  ; For a containing :type, find a match of
+  ; For a containing type, find a match of
   ; value for a specific properties value
   (defq res (dict-get self container '()))
   (some (lambda (el)
@@ -450,8 +447,8 @@
                  "displays application version and exits"
                  dump-version))
   ; Settings (can be overridden)
-  (add-argument instance (set-properties ha :type :type_none))
-  (add-argument instance (set-properties va :type :type_none))
+  (add-argument instance ha)
+  (add-argument instance va)
   (set-properties instance
                   :application app_name
                   :version app_version
