@@ -5,36 +5,65 @@
 
 ; Predicates
 
-(defun-bind neg? (el)
+(defun-bind neg? (_)
   ; (neg? num) -> bool
-  (< el 0))
+  (< _ 0))
 
-(defun-bind pos? (el)
+(defun-bind pos? (_)
   ; (pos? num) -> bool
-  (> el 0))
+  (> _ 0))
 
-(defun-bind zero? (el)
+(defun-bind zero? (_)
   ; (zero? num) -> bool
-  (= el 0))
+  (= _ 0))
 
-(defun-bind one? (el)
+(defun-bind one? (_)
   ; (one? num) -> bool
-  (= el 1))
+  (= _ 1))
 
-(defun-bind odd? (el)
+(defun-bind odd? (_)
   ; (odd? num) -> bool
-  (one? (logand 1 el)))
+  (one? (logand 1 _)))
 
-(defun-bind even? (el)
+(defun-bind even? (_)
   ; (even? num) -> bool
-  (not (odd? el)))
+  (not (odd? _)))
+
+(defun-bind dict? (_)
+  ; (dict? el) -> bool
+  (env? _))
+
+(defun-bind def? (_ &optional e)
+  ; (def? sym [env]) -> bool
+  ; Returns t if sym is defined in environment
+  ; Defaults to current environment if not provided
+  (setd e (env))
+  (not (eql (get _ e) nil)))
+
+(defun-bind ndef? (_ &optional e)
+  ; (ndef? sym [env]) -> bool
+  ; Returns t if sym is not defined in environment
+  (not (def? _ e)))
+
+(defun-bind kw? (_)
+  ; (kw? el) -> bool
+  (cond
+    ((or (str? _) (num? _) (dict? _) (lst? _)) nil)
+    ((starts-with ":" _) t)
+    (t nil)))
+
+; Convenience
+
+(defun-bind ident (_)
+  ; (ident el) -> el
+  _)
 
 ; Property (a.k.a. dictionary a.k.a. map) forms
 
-(defun-bind dict-property-list (_)
-  ; (dict-property-list x) -> list
-  ; Returns list of properties for dictionary
-  (tolist _))
+(defun-bind dict-property-list (e)
+  ; (dict-property-list e) -> list
+  ; Returns list of properties for e
+  (tolist e))
 
 (defmacro-bind make-dict (name &rest pairs)
   ; (make-dict name [:key val...]) -> dict
@@ -43,6 +72,15 @@
     `(progn
       (defq ,name (env -16)) (def ,name ~pairs) ,name)
     `(defq ,name (env -16))))
+
+(defmacro-bind dict (&optional bk)
+  (setd bk -16)
+  `(env ,bk))
+
+(defun-bind to-dict (seq1 seq2)
+  (defq td (dict))
+  (each (# (def td (first %0) (second %0))) (map list seq1 seq2))
+  td)
 
 (defun-bind dict-get (dict property &optional ifnil)
   ; (dict-get dict property &optional ifnil) -> nil | ifnil
@@ -99,9 +137,6 @@
   ; (dict-values dict) -> value list
   (map (#(elem 1 %0)) (dict-property-list dict)))
 
-(defun-bind dict? (_)
-  (env? _))
-
 ; Test cases
 ; (make-dict foo :a 0 :b 1) ; -> ((:a 0) (:b 1))
 ; (make-dict bar :a 2 :c 3) ; -> ((:a 2) (:c 3))
@@ -111,9 +146,25 @@
 ; (dict-merge-to! (make-dict bingo) foo bar baz) ; -> ((:d 5) (:b 1) (:a 2) (:c 7))
 ; (dict-drop! bingo :d :c)
 
-; Walkers
+; Privatize functions
 
-(defun-bind id (_)_)
+(defmacro private (nm)
+  ; (private nm) -> env
+  `(macroexpand (make-dict ,nm)))
+
+(defmacro defunp (e n a &rest _)
+  ; (defunp env name args form) -> lambda
+  `(def ,e ,n (lambda ,a ~_)))
+
+(defmacro defunp-bind (e n a &rest _)
+  ;(defun-bind name ([arg ...]) body)
+  `(def ,e ,n (lambda ,a ~(bind-fun (macroexpand _)))))
+
+(defmacro callp (e name &rest _)
+  ; (callp env name &rest args) -> form invoked with args
+  `((get ,name ,e) ~_))
+
+; Walkers
 
 (defun walk-tree (tree fnc)
   (defq stack (if (> (length tree) 0) (list tree 0) '()))
@@ -142,7 +193,7 @@
 
 (defun-bind pre-walk-recur (fn tree)
   ; (pre-walk-recur fn tree)
-  (walk-tree-recur (curry pre-walk-recur fn) id (fn tree)))
+  (walk-tree-recur (curry pre-walk-recur fn) ident (fn tree)))
 
 (defun-bind post-walk-recur (fn tree)
   ; (post-walk-recur fn tree)
@@ -166,7 +217,13 @@
 ; (defq t2 (list 0 1 2 (make-dict foo :a 1 :b 7) (list 0 1 2 (list 3 4 5))))
 ; (make-dict bar :a 0 :b 1 :c (list foo))
 
-; Take and drop forms
+; Sequence forms
+
+(defun-bind interleave (seq1 seq2)
+  ; (interleave seq1 seq2) -> list
+  ; Returns a list of the first item in each seq, then the second etc.
+  (zip ,seq1 ,seq2))
+
 
 (defun-bind take (cnt seq)
   ; (take cnt seq) -> seq
