@@ -44,6 +44,15 @@
       (defq ,name (env -16)) (def ,name ~pairs) ,name)
     `(defq ,name (env -16))))
 
+(defmacro-bind dict (&optional bk)
+  (setd bk -16)
+  `(env ,bk))
+
+(defun-bind to-dict (seq1 seq2)
+  (defq td (dict))
+  (each (# (def td (first %0) (second %0))) (map list seq1 seq2))
+  td)
+
 (defun-bind dict-get (dict property &optional ifnil)
   ; (dict-get dict property &optional ifnil) -> nil | ifnil
   ; Returns a property or optional ifnil value
@@ -166,7 +175,13 @@
 ; (defq t2 (list 0 1 2 (make-dict foo :a 1 :b 7) (list 0 1 2 (list 3 4 5))))
 ; (make-dict bar :a 0 :b 1 :c (list foo))
 
-; Take and drop forms
+; Sequence forms
+
+(defun-bind interleave (seq1 seq2)
+  ; (interleave seq1 seq2) -> list
+  ; Returns a list of the first item in each seq, then the second etc.
+  (zip ,seq1 ,seq2))
+
 
 (defun-bind take (cnt seq)
   ; (take cnt seq) -> seq
