@@ -74,12 +74,13 @@
       (defq ,name (env -16)) (def ,name ~pairs) ,name)
     `(defq ,name (env -16))))
 
-(defmacro-bind dict (&optional bk)
+(defmacro-bind dictionary (&optional bk)
+  ; (dictionary [blocks | -blocks]) -> dict
   (setd bk -16)
   `(env ,bk))
 
 (defun-bind to-dict (seq1 seq2)
-  (defq td (dict))
+  (defq td (dictionary))
   (each (# (def td (first %0) (second %0))) (map list seq1 seq2))
   td)
 
