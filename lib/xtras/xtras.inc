@@ -75,6 +75,7 @@
     `(defq ,name (env -16))))
 
 (defmacro-bind dictionary (&optional bk)
+  ; (dictionary [blocks | -blocks]) -> dict
   (setd bk -16)
   `(env ,bk))
 
