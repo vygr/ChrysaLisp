@@ -3,6 +3,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
+(defq xtras_defined t)
+
 ; Predicates
 
 (defun-bind neg? (_)

@@ -1,0 +1,10 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; yaml-data - ChrysaLisp YAML Data Processor
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; imports
+(import 'lib/xtras/xtras.inc)
+(import 'lib/yaml-data/scanner.inc)
+
+(defun yaml-read (stream &rest options))
+(defun yaml-write (yaml stream &rest options))
