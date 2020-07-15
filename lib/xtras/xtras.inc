@@ -69,7 +69,7 @@
   (tolist e))
 
 (defmacro-bind make-dict (name &rest pairs)
-  ; (make-dict name [:key val...]) -> dict
+  ; (make-dict name [:key val...]) -> dictionary
   ; Creates a new dictionary with optional property value pairs
   (if (> (length pairs) 0)
     `(progn
@@ -77,11 +77,17 @@
     `(defq ,name (env -16))))
 
 (defmacro-bind dictionary (&optional bk)
-  ; (dictionary [blocks | -blocks]) -> dict
+  ; (dictionary [blocks | -blocks]) -> dictionary
+  (setd bk -16)
+  `(env ,bk))
+
+(defmacro-bind dictionary-kv (bk &rest pairs)
+  ; (dictionary [blocks | -blocks]) -> dictionary
   (setd bk -16)
   `(env ,bk))
 
 (defun-bind to-dict (seq1 seq2)
+  ; (to-dict seq1 seq2) -> dictionary
   (defq td (dictionary))
   (each (# (def td (first %0) (second %0))) (map list seq1 seq2))
   td)
@@ -95,18 +101,21 @@
   tmp)
 
 (defun-bind dict-drop! (dict &rest keys)
-  ; (dict-drop! dict key...) -> dict
+  ; (dict-drop! dict key...) -> dictionary
   (each (#(undef dict %0)) keys)
   dict)
 
 (defun-bind dict-put! (dict property value &optional add_ifnil)
-  ; (dict-put dict property value &optional add_ifnil) -> dict
+  ; (dict-put dict property value &optional add_ifnil) -> dictionary
   ; Updates the property value of a dictionary
   (if (not (get property dict))
     (if add_ifnil
       (def dict property value))
     (set dict property value))
   dict)
+
+(defmacro-bind dict-puts! (dict &rest pairs)
+  `(def ,dict ~pairs))
 
 (defun-bind dict-merge (&rest dlist)
   ; (dict-merge dict0 ...) -> list
@@ -128,7 +137,7 @@
   ebase)
 
 (defun-bind dict-merge-to! (dict &rest dlist)
-  ; (dict-merge-to dict dict0 ...) -> dict
+  ; (dict-merge-to dict dict0 ...) -> dictionary
   ; Merges multiple dictionaries to a dictionary
   (reduce (lambda (acc el) (def acc (first el) (second el)) acc)
     (apply dict-merge dlist) dict))
