@@ -31,6 +31,9 @@
   ; (even? num) -> bool
   (not (odd? _)))
 
+(defun-bind neql? (a b)
+  (not (eql a b)))
+
 (defun-bind dict? (_)
   ; (dict? form) -> bool
   (env? _))
@@ -38,6 +41,17 @@
 (defun-bind seq? (_)
   ; (seq? form) -> t|nil
   (or (lst? _) (str? _)))
+
+(defun-bind empty? (_)
+  ; (empty? form) -> t | nil
+  (cond
+    ((dict? _) (empty? (tolist _)))
+    ((seq? _) (= (length _) 0))
+    (t t)))
+
+(defun-bind nempty? (_)
+  ; (nempty? form) -> t | nil
+  (not (empty? _)))
 
 (defun-bind def? (_ &optional e)
   ; (def? sym [env]) -> bool
@@ -77,11 +91,6 @@
     `(defq ,name (env -16))))
 
 (defmacro-bind dictionary (&optional bk)
-  ; (dictionary [blocks | -blocks]) -> dictionary
-  (setd bk -16)
-  `(env ,bk))
-
-(defmacro-bind dictionary-kv (bk &rest pairs)
   ; (dictionary [blocks | -blocks]) -> dictionary
   (setd bk -16)
   `(env ,bk))
