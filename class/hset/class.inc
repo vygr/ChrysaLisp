@@ -11,10 +11,10 @@
 (dec-method :insert 'class/hset/insert :static '(r0 r1) '(r0 r1 r2))
 (dec-method :erase 'class/hset/erase :static '(r0 r1 r2) '(r0))
 (dec-method :copy 'class/hset/copy :static '(r0 r1) '(r0 r1))
-(dec-method :get_both 'class/hset/get_both :static '(r0) '(r0 r1 r2))
 (dec-method :key_callback 'class/obj/null :static '(r0 r1) '(r0 r1))
 (dec-method :each_callback 'class/obj/null :static '(r0 r1))
 
+(dec-method :print 'class/hset/print :override)
 (dec-method :deinit 'class/hset/deinit :override)
 
 (def-struct 'hset 'obj)

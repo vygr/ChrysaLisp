@@ -2871,22 +2871,21 @@ trashes
 r1-r14
 ```
 
-### hset::get_both -> class/hset/get_both
+### hset::key_callback -> class/obj/null
+
+### hset::each_callback -> class/obj/null
+
+### hset::print -> class/hset/print
 
 ```lisp
 inputs
 r0 = hset object (ptr)
+r1 = stream object (ptr)
 outputs
 r0 = hset object (ptr)
-r1 = begin iter pointer (pptr)
-r2 = end iter pointer (pptr)
 trashes
-r1-r4
+r1-r14
 ```
-
-### hset::key_callback -> class/obj/null
-
-### hset::each_callback -> class/obj/null
 
 ### hset::deinit -> class/hset/deinit
 
@@ -5075,6 +5074,18 @@ r1-r14
 inputs
 r0 = pair object (ptr)
 r1 = object (ptr)
+outputs
+r0 = pair object (ptr)
+trashes
+r1-r14
+```
+
+### pair::print -> class/pair/print
+
+```lisp
+inputs
+r0 = pair object (ptr)
+r1 = stream object (ptr)
 outputs
 r0 = pair object (ptr)
 trashes

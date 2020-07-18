@@ -1,5 +1,7 @@
 (include 'sys/func.inc)
 (include 'class/list/class.inc)
+(include 'class/stream/class.inc)
+(include 'class/str/class.inc)
 (include 'class/hset/class.inc)
 
 (gen-create 'hset)
@@ -373,41 +375,50 @@
 
 (def-func-end)
 
-(def-method 'hset :get_both)
+(def-method 'hset :print)
 	;inputs
 	;r0 = hset object (ptr)
+	;r1 = stream object (ptr)
 	;outputs
 	;r0 = hset object (ptr)
-	;r1 = begin iter pointer (pptr)
-	;r2 = end iter pointer (pptr)
 	;trashes
-	;r1-r4
+	;r1-r14
 
-	(entry 'hset :get_both '(r0))
+	(def-struct 'local)
+		(ptr 'this 'stream)
+		(ulong 'flag)
+	(def-struct-end)
 
-	(assign '((r0 hset_buckets) (r0 hset_num_buckets)) '(r1 r3))
-	(class/array/get_both r1 r1 r2)
-	(vpif '(r3 /= 1) 'exit)
-		(loop-start)
-			(assign '((r1 0)) '(r3))
-			(assign '((r3 array_length)) '(r4))
-			(vpif '(r4 /= 0))
-				(assign '((r3 array_begin)) '(r1))
-				(loop-start)
-					(assign `((r2 ,(neg ptr_size))) '(r3))
-					(vp-sub-cr ptr_size r2)
-					(assign '((r3 array_length)) '(r4))
-				(loop-until '(r4 /= 0))
-				(assign '((r3 array_begin)) '(r2))
-				(vp-shl-cr (log2 ptr_size) r4)
-				(vp-add-rr r4 r2)
-				(break 'exit)
-			(endif)
-			(vp-add-cr ptr_size r1)
-		(loop-until '(r1 = r2))
+	(vp-alloc local_size)
+	(entry 'hset :print '(r0 r1))
+	(assign '(0 r0 r1) '(r2 (rsp local_this) (rsp local_stream)))
+	(assign '(r2) '((rsp local_flag)))
+
+	(call 'stream :write_char '(r1 char_lrb))
+	(call 'hset :for_each '((rsp local_this) ($ callback) rsp))
+	(call 'stream :write_char '((rsp local_stream) char_rrb))
+
+	(exit 'hset :print '((rsp local_this)))
+	(vp-free local_size)
+	(vp-ret)
+
+(vp-label 'callback)
+	;inputs
+	;r0 = predicate data (ptr)
+	;r1 = element iterator (pptr)
+
+	(entry 'hset :each_callback '(r0 r1))
+
+	(assign '((r0 local_flag)) '(r2))
+	(vpif '(r2 = 0))
+		(assign '(r0) '((r0 local_flag)))
+	(else)
+		(vp-push r0 r1)
+		(call 'stream :write_char '((r0 local_stream) char_space))
+		(vp-pop r0 r1)
 	(endif)
-
-	(exit 'hset :get_both '(r0 r1 r2))
+	(assign '((r0 local_stream)) '(r2))
+	(call 'obj :print '((r1 0) r2))
 	(vp-ret)
 
 (def-func-end)
