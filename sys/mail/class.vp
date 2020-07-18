@@ -1,7 +1,7 @@
 (include 'sys/func.inc)
 (include 'sys/link/class.inc)
 (include 'sys/kernel/class.inc)
-(include 'class/array/class.inc)
+(include 'class/list/class.inc)
 (include 'class/sym/class.inc)
 (include 'class/hmap/class.inc)
 (include 'class/pair/class.inc)
@@ -51,10 +51,24 @@
 	(call 'array :create nil '((r12 ml_statics_links_array)))
 
 	;create declare map
-	(call 'hmap :create '(0 1) '((r12 ml_statics_declare_map)))
+	(call 'hmap :create '(($ key_num) 1) '((r12 ml_statics_service_map)))
 
 	;init header heap
 	(jump 'sys_heap :init '((& r12 ml_statics_msg_heap) msg_size 64))
+
+(vp-label 'key_num)
+	;inputs
+	;r0 = num1 object (ptr)
+	;r1 = num2 object (ptr)
+	;outputs
+	;r0 = num1 object (ptr)
+	;r1 = 0 if same
+
+	(entry '(r0 r1))
+
+	(assign '((r0 num_value) (r1 num_value)) '(r0 r1))
+	(vp-sub-rr r0 r1)
+	(vp-ret)
 
 (def-func-end)
 
@@ -461,22 +475,26 @@
 
 (def-method 'sys_mail :declare)
 	;inputs
-	;r0 = mailbox name c string (pubyte)
-	;r1 = mailbox id (ulong)
+	;r0 = service name str object (ptr)
+	;r1 = mailbox id num object (ptr)
 	;trashes
 	;r0-r14
 
-	(ptr 'name)
+	(ptr 'name 'tmp 'tmp1)
 	(ulong 'id)
 
 	(push-scope)
 	(entry 'sys_mail :declare {name, id})
 
-	(call 'sym :intern_cstr {name} {name})
-	(call 'num :create {id} {id})
-	(call 'hmap :insert (cat {@} (f-path 'sys_mail :statics) {.ml_statics_declare_map, name, id}))
+	(call 'str :create_from_cstr {",0x"} {tmp})
+	(call 'str :append {name, tmp} {name})
+	(call 'str :deref {tmp})
+	(call 'str :create_from_long {id->num_value, 16} {tmp})
+	(call 'str :append {name, tmp} {tmp1})
+	(call 'str :deref {tmp})
+	(call 'hmap :insert (cat {@} (f-path 'sys_mail :statics) {.ml_statics_service_map, id, tmp1}))
+	(call 'str :deref {tmp1})
 	(call 'sym :deref {name})
-	(call 'num :deref {id})
 
 	(pop-scope)
 	(return)
@@ -485,52 +503,63 @@
 
 (def-method 'sys_mail :enquire)
 	;inputs
-	;r0 = mailbox name c string (pubyte)
+	;r0 = service prefix str object (ptr)
 	;outputs
-	;r0 = 0 if error, else mailbox id (ulong)
+	;r0 = list object of matching service entries (ptr)
 	;trashes
 	;r0-r14
 
-	(ptr 'name)
-	(union
-		(pptr 'iter)
-		(ulong 'id))
+	(def-struct 'local)
+		(ptr 'prefix 'entries)
+	(def-struct-end)
 
-	(push-scope)
-	(entry 'sys_mail :enquire {name})
+	(vp-alloc local_size)
+	(entry 'sys_mail :enquire '((rsp local_prefix)))
 
-	(call 'sym :intern_cstr {name} {name})
-	(call 'hmap :find (cat {@} (f-path 'sys_mail :statics) {.ml_statics_declare_map, name}) {_, iter, _})
-	(vpif {iter})
-		(call 'pair :get_second {*iter} {_, id})
-		(call 'num :get_value {id} {_, id})
+	(call 'list :create nil '((rsp local_entries)))
+	(f-bind 'sys_mail :statics r0)
+	(call 'hmap :for_each '((r0 ml_statics_service_map) ($ callback) rsp))
+
+	(exit 'sys_mail :enquire '((rsp local_entries)))
+	(vp-free local_size)
+	(vp-ret)
+
+(vp-label 'callback)
+	;inputs
+	;r0 = predicate data (ptr)
+	;r1 = element iterator (ptr)
+
+	(entry 'hmap :each_callback '(r0 r1))
+
+	(assign '((r1 0)) '(r1))
+	(assign '((r1 pair_second)) '(r1))
+	(vp-push r0 r1)
+	(call 'str :starts_with '((r0 local_prefix) r1) '(_ r2))
+	(vp-pop r0 r1)
+	(vpif '(r2 = 0))
+		(class/obj/ref r1 r2)
+		(jump 'list :push_back '((r0 local_entries) r1))
 	(endif)
-	(call 'sym :deref {name})
-
-	(exit 'sys_mail :enquire {id})
-	(pop-scope)
-	(return)
+	(vp-ret)
 
 (def-func-end)
 
 (def-method 'sys_mail :forget)
 	;inputs
-	;r0 = mailbox name c string (pubyte)
+	;r0 = mailbox id num object (ptr)
 	;trashes
 	;r0-r14
 
-	(ptr 'name 'bucket)
+	(ptr 'id 'bucket)
 	(pptr 'iter)
 
 	(push-scope)
-	(entry 'sys_mail :forget {name})
+	(entry 'sys_mail :forget {id})
 
-	(call 'sym :intern_cstr {name} {name})
-	(call 'hmap :find (cat {@} (f-path 'sys_mail :statics) {.ml_statics_declare_map, name}) {_, iter, bucket})
+	(call 'hmap :find (cat {@} (f-path 'sys_mail :statics) {.ml_statics_service_map, id}) {_, iter, bucket})
 	(vpif {iter})
-		(call 'hmap :erase (cat {@} (f-path 'sys_mail :statics) {.ml_statics_declare_map, iter, bucket}))
+		(call 'hmap :erase (cat {@} (f-path 'sys_mail :statics) {.ml_statics_service_map, iter, bucket}))
 	(endif)
-	(call 'sym :deref {name})
 
 	(pop-scope)
 	(return)

@@ -600,14 +600,6 @@
 
 (join list seq) -> seq
 
-## kernel-debug
-
-(kernel-debug str)
-
-## kernel-declare
-
-(kernel-declare name mbox)
-
 ## kernel-total
 
 (kernel-total)
@@ -678,7 +670,11 @@
 
 ## mail-enquire
 
-(mail-enquire name)
+(mail-enquire prefix)
+
+## mail-forget
+
+(mail-forget mbox)
 
 ## mail-free-mbox
 
@@ -1035,6 +1031,10 @@
 ## second
 
 (second seq) -> el
+
+## send-debug
+
+(send-debug string)
 
 ## set
 

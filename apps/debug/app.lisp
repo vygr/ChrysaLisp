@@ -6,13 +6,14 @@
 (structure 'event 0
 	(byte 'debug 'hvalue)
 	(byte 'play 'pause 'step 'clear)
-	(byte 'play_all 'pause_all 'step_all 'clear_all))
+	(byte 'play_all 'pause_all 'step_all 'clear_all)
+	(byte 'close))
 
-(defq vdu_width 60 vdu_height 40 buf_keys (list) buf_list (list) buf_index nil)
+(defq vdu_width 60 vdu_height 40 buf_keys (list) buf_list (list) buf_index nil id t)
 
 ;single instance only
-(unless (mail-enquire "DEBUG_SERVICE")
-	(kernel-declare "DEBUG_SERVICE" (task-mailbox))
+(when (= (length (mail-enquire "DEBUG_SERVICE")) 0)
+	(mail-declare "DEBUG_SERVICE" (task-mailbox))
 
 (structure 'debug_msg 0
 	(long 'command 'reply_id 'tcb)
@@ -20,7 +21,7 @@
 
 (ui-window window (:color 0xc0000000)
 	(ui-flow _ (:flow_flags flow_down_fill)
-		(ui-title-bar _ "Debug" () ())
+		(ui-title-bar _ "Debug" (0xea19) (const event_close))
 		(ui-tool-bar _ ()
 			(ui-buttons (0xe95e 0xe95d 0xe95c 0xe960) (const event_play))
 			(ui-buttons (0xe95e 0xe95d 0xe95c 0xe960) (const event_play_all) (:color (const *env_toolbar2_col*))))
@@ -84,13 +85,16 @@
 (defun-bind main ()
 	(gui-add (apply view-change (cat (list window 640 8) (view-pref-size window))))
 	(reset)
-	(while t
+	(while id
 		(cond
+			;close ?
+			((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_close)
+				(setq id nil))
 			;new debug msg
-			((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_debug)
+			((= id event_debug)
 				(defq reply_id (get-long msg debug_msg_reply_id)
 					tcb (get-long msg debug_msg_tcb)
-					data (get-cstr msg debug_msg_data)
+					data (slice debug_msg_data -1 msg)
 					key (sym (str (>> reply_id 32) ":" tcb))
 					index (find-rev key buf_keys))
 				(unless index
@@ -139,5 +143,6 @@
 				(reset))
 			;otherwise
 			(t (view-event window msg))))
+	(mail-forget (task-mailbox))
 	(view-hide window))
 )

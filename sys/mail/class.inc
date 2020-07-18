@@ -34,6 +34,7 @@
 (dec-method :lisp_send 'sys/mail/lisp_send :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_declare 'sys/mail/lisp_declare :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_enquire 'sys/mail/lisp_enquire :static '(r0 r1) '(r0 r1))
+(dec-method :lisp_forget 'sys/mail/lisp_forget :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_alloc_mbox 'sys/mail/lisp_alloc_mbox :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_free_mbox 'sys/mail/lisp_free_mbox :static '(r0 r1) '(r0 r1))
 
@@ -66,7 +67,7 @@
 
 (def-struct 'ml_statics)
 	(uint 'parcel_id 'next_mbox_id)
-	(ptr 'links_array 'declare_map 'out_mbox_addr)
+	(ptr 'links_array 'service_map 'out_mbox_addr)
 	(struct 'msg_heap 'hp_heap)
 	(struct 'mbox_heap 'hp_heap)
 	(struct 'offchip_list 'lh_list)

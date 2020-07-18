@@ -285,9 +285,3 @@
 		(call 'sys_pii :write_char '(2 10))
 		(assign {_a, _b} '(r0 r1))
 		(pop-scope)))
-
-(defcfun debug-reg ()
-	(when (> *debug_mode* 0)
-		(vp-push r14)
-		(call 'sys_kernel :debug_reg (list (cat *stream_name* ":" (str *stream_line*))))
-		(vp-pop r14)))

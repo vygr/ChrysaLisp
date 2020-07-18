@@ -15,6 +15,7 @@
 (dec-method :split_char 'class/str/split_char :static '(r0 r1) '(r0 r1))
 (dec-method :compare 'class/str/compare :static '(r0 r1) '(r0 r1))
 (dec-method :same 'class/str/same :static '(r0 r1) '(r0 r1))
+(dec-method :starts_with 'class/str/starts_with :static '(r0 r1) '(r0 r1))
 
 (dec-method :print 'class/str/print :override)
 

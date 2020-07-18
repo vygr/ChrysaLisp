@@ -4492,6 +4492,18 @@ trashes
 r1-r14
 ```
 
+### num::hash -> class/num/hash
+
+```lisp
+inputs
+r0 = num (ptr)
+outputs
+r0 = num (ptr)
+r1 = hash code (ulong)
+trashes
+r1-r14
+```
+
 ## nums
 
 Super Class: array
@@ -6552,6 +6564,19 @@ trashes
 r1-r6
 ```
 
+### str::starts_with -> class/str/starts_with
+
+```lisp
+inputs
+r0 = str prefix object (ptr)
+r1 = str object (ptr)
+outputs
+r0 = str prefix object (ptr)
+r1 = 0 if match
+trashes
+r1-r6
+```
+
 ### str::print -> class/str/print
 
 ```lisp
@@ -7350,16 +7375,6 @@ r0
 
 ### sys_kernel::opts -> sys/kernel/opts
 
-### sys_kernel::declare -> sys/kernel/declare
-
-```lisp
-inputs
-r0 = mailbox name c string (pubyte)
-r1 = mailbox id (ulong)
-trashes
-r0-r10
-```
-
 ### sys_kernel::kernel -> sys/kernel/kernel
 
 ```lisp
@@ -7369,51 +7384,7 @@ info
 loader is already initialized when we get here !
 ```
 
-### sys_kernel::debug -> sys/kernel/debug
-
-```lisp
-inputs
-r0 = debug c string (pubyte)
-trashes
-r0-r14
-```
-
-### sys_kernel::debug_reg -> sys/kernel/debug_reg
-
-```lisp
-inputs
-r14 = debug c string (pubyte)
-trashes
-none
-```
-
 ### sys_kernel::lisp_total -> sys/kernel/lisp_total
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args list object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### sys_kernel::lisp_declare -> sys/kernel/lisp_declare
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args list object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### sys_kernel::lisp_debug -> sys/kernel/lisp_debug
 
 ```lisp
 inputs
@@ -7638,8 +7609,8 @@ r0-r2
 
 ```lisp
 inputs
-r0 = mailbox name c string (pubyte)
-r1 = mailbox id (ulong)
+r0 = service name str object (ptr)
+r1 = mailbox id num object (ptr)
 trashes
 r0-r14
 ```
@@ -7648,9 +7619,9 @@ r0-r14
 
 ```lisp
 inputs
-r0 = mailbox name c string (pubyte)
+r0 = service prefix str object (ptr)
 outputs
-r0 = 0 if error, else mailbox id (ulong)
+r0 = list object of matching service entries (ptr)
 trashes
 r0-r14
 ```
@@ -7659,7 +7630,7 @@ r0-r14
 
 ```lisp
 inputs
-r0 = mailbox name c string (pubyte)
+r0 = mailbox id num object (ptr)
 trashes
 r0-r14
 ```
@@ -7755,6 +7726,19 @@ r1-r14
 ```
 
 ### sys_mail::lisp_enquire -> sys/mail/lisp_enquire
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### sys_mail::lisp_forget -> sys/mail/lisp_forget
 
 ```lisp
 inputs

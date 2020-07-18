@@ -469,6 +469,79 @@
 
 (def-func-end)
 
+(def-method 'str :starts_with)
+	;inputs
+	;r0 = str prefix object (ptr)
+	;r1 = str object (ptr)
+	;outputs
+	;r0 = str prefix object (ptr)
+	;r1 = 0 if match
+	;trashes
+	;r1-r6
+
+	(entry 'str :starts_with '(r0 r1))
+
+	(switch 'exit)
+		(vpif '(r0 /= r1) 'same)
+			(assign '((r0 str_length)) '(r2))
+			(breakif '(r2 = 0) 'same)
+			(assign '((r1 str_length)) '(r3))
+			(vpif '(r3 >= r2))
+				(vp-cpy-rr r2 r6)
+				(vp-lea-i r0 str_data r4)
+				(vp-lea-i r1 str_data r5)
+				(vp-add-rr r4 r2)
+				(vpif '(r6 >= (- (* long_size 2) 1)))
+					(vp-lea-i r4 (dec long_size) r3)
+					(vp-and-cr (neg long_size) r3)
+					(vpif '(r4 /= r3))
+						(loop-start)
+							(vp-cpy-ir-b r4 0 r6)
+							(vp-cpy-ir-b r5 0 r1)
+							(vp-sub-rr r6 r1)
+							(breakif '(r1 /= 0) 'exit)
+							(vp-add-cr byte_size r4)
+							(vp-add-cr byte_size r5)
+						(loop-until '(r4 = r3))
+					(endif)
+					(vp-cpy-rr r2 r3)
+					(vp-and-cr (neg long_size) r3)
+					(vpif '(r4 /= r3))
+						(loop-start)
+							(vp-cpy-ir r4 0 r6)
+							(vp-cpy-ir r5 0 r1)
+							(vp-sub-rr r6 r1)
+							(breakif '(r1 /= 0) 'exit)
+							(vp-add-cr long_size r4)
+							(vp-add-cr long_size r5)
+						(loop-until '(r4 = r3))
+					(endif)
+					(breakif '(r4 = r2) 'exit)
+				(endif)
+				(loop-start)
+					(vp-cpy-ir-b r4 0 r6)
+					(vp-cpy-ir-b r5 0 r1)
+					(vp-sub-rr r6 r1)
+					(breakif '(r1 /= 0))
+					(vp-add-cr byte_size r4)
+					(vp-add-cr byte_size r5)
+				(loop-until '(r4 = r2))
+
+				(exit 'str :starts_with '(r0 r1))
+				(vp-ret)
+			(endif)
+
+			(exit 'str :starts_with '(r0 1))
+			(vp-ret)
+		(endif)
+		(vp-xor-rr r1 r1)
+	(endswitch)
+
+	(exit 'str :starts_with '(r0 r1))
+	(vp-ret)
+
+(def-func-end)
+
 (def-method 'str :get_length)
 	;inputs
 	;r0 = str object (ptr)

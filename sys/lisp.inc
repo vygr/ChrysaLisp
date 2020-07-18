@@ -28,10 +28,10 @@
 	(setq _o (align _o byte_size)) (apply struct (cat (list byte_size) b)))
 
 ;system lisp bindings
-(ffi kernel-declare "sys/kernel/lisp_declare" 0)
 (ffi kernel-total "sys/kernel/lisp_total" 0)
 (ffi mail-declare "sys/mail/lisp_declare" 0)
 (ffi mail-enquire "sys/mail/lisp_enquire" 0)
+(ffi mail-forget "sys/mail/lisp_forget" 0)
 (ffi mail-poll "sys/mail/lisp_poll" 0)
 (ffi mail-read "sys/mail/lisp_read" 0)
 (ffi mail-select "sys/mail/lisp_select" 0)

@@ -2,8 +2,15 @@
 ; Debuging
 ;;;;;;;;;;
 
-(ffi kernel-debug "sys/kernel/lisp_debug" 0)
 (defq *r* (list))
+
+(defun-bind send-debug (s)
+	;(send-debug string)
+	(when (/= 0 (length (defq services (mail-enquire "DEBUG_SERVICE"))))
+		(defq mbox (mail-alloc-mbox) debug_mbox (str-to-num (elem 1 (split (pop services) ","))))
+		(mail-send (cat (char 0 long_size) (char mbox long_size) (char (task-mailbox) long_size) s) debug_mbox)
+		(mail-read mbox)
+		(mail-free-mbox mbox)))
 
 (defun-bind debug-format (n e)
 	;(debug-format name env)
@@ -21,7 +28,7 @@
 			(setq val (apply cat (map (lambda (_)
 				(if (<= 32 (code _) 126) _ ".")) val))))
 		(write msg (cat var " : " val (ascii-char 10)))) e)
-	(kernel-debug (str msg (ascii-char 10))))
+	(send-debug (str msg (ascii-char 10))))
 
 (defmacro-bind debug (n _)
 	;(debug name form)
