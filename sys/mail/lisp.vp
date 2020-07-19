@@ -248,14 +248,13 @@
 	(entry 'sys_mail :lisp_forget '(r0 r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(r1 ($ sig) 1) '(r2))
+	(call 'lisp :env_args_sig '(r1 ($ sig) 2) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
 	(defq in (method-input 'sys_mail :forget))
 	(array-bind-args r1 in)
 	(vp-push (elem 0 in))
-	(array-bind-args r1 in)
 	(call 'sys_mail :forget in)
 	(vp-pop r1)
 	(class/obj/ref r1 r2)
@@ -266,8 +265,8 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(mail-forget mbox)" error_msg_wrong_types r1))
-	(signature '(num)))
+	(jump 'lisp :repl_error '(r0 "(mail-forget name mbox)" error_msg_wrong_types r1))
+	(signature '(str num)))
 
 (def-func-end)
 

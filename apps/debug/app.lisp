@@ -143,6 +143,6 @@
 				(reset))
 			;otherwise
 			(t (view-event window msg))))
-	(mail-forget (task-mailbox))
+	(mail-forget "DEBUG_SERVICE" (task-mailbox))
 	(view-hide window))
 )

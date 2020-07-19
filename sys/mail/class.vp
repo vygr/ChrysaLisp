@@ -480,21 +480,37 @@
 	;trashes
 	;r0-r14
 
-	(ptr 'name 'tmp 'tmp1)
-	(ulong 'id)
+	(ptr 'name 'id)
+	(union
+		(ptr 'key 'bucket 'set)
+		(ptr 'cat 'tmp1 'tmp2))
 
 	(push-scope)
 	(entry 'sys_mail :declare {name, id})
 
-	(call 'str :create_from_cstr {",0x"} {tmp})
-	(call 'str :append {name, tmp} {name})
-	(call 'str :deref {tmp})
-	(call 'str :create_from_long {id->num_value, 16} {tmp})
-	(call 'str :append {name, tmp} {tmp1})
-	(call 'str :deref {tmp})
-	(call 'hmap :insert (cat {@} (f-path 'sys_mail :statics) {.ml_statics_service_map, id, tmp1}))
-	(call 'str :deref {tmp1})
-	(call 'sym :deref {name})
+	;create service entry
+	(call 'obj :ref {name})
+	(call 'list :create nil {cat})
+	(call 'list :push_back {cat, name})
+	(call 'str :create_from_long {id->num_value, -16} {tmp2})
+	(call 'str :create_from_buffer {",0x0000000000000000", 19 - tmp2->str_length} {tmp1})
+	(call 'list :push_back2 {cat, tmp1, tmp2})
+	(call 'str :cat {name, cat} {name})
+	(call 'list :deref {cat})
+
+	;insert into service map
+	(call 'num :create {id->num_value >> 32} {key})
+	(call 'hmap :find (cat {@} (f-path 'sys_mail :statics) {.ml_statics_service_map, key}) {_, set, bucket})
+	(vpifnot {set})
+		(call 'hset :create `((@ ,(f-path 'str :same)) 1) {set})
+		(call 'pair :create {key, set} {key})
+		(call 'list :push_back {bucket, key})
+	(else)
+		(assign {(*(pptr set))->pair_second} {set})
+		(call 'num :deref {key})
+	(endif)
+	(call 'hset :insert {set, name})
+	(call 'str :deref {name})
 
 	(pop-scope)
 	(return)
@@ -505,7 +521,7 @@
 	;inputs
 	;r0 = service prefix str object (ptr)
 	;outputs
-	;r0 = list object of matching service entries (ptr)
+	;r0 = matching service entries list object (ptr)
 	;trashes
 	;r0-r14
 
@@ -518,13 +534,13 @@
 
 	(call 'list :create nil '((rsp local_entries)))
 	(f-bind 'sys_mail :statics r0)
-	(call 'hmap :for_each '((r0 ml_statics_service_map) ($ callback) rsp))
+	(call 'hmap :for_each '((r0 ml_statics_service_map) ($ callback1) rsp))
 
 	(exit 'sys_mail :enquire '((rsp local_entries)))
 	(vp-free local_size)
 	(vp-ret)
 
-(vp-label 'callback)
+(vp-label 'callback1)
 	;inputs
 	;r0 = predicate data (ptr)
 	;r1 = element iterator (ptr)
@@ -532,7 +548,16 @@
 	(entry 'hmap :each_callback '(r0 r1))
 
 	(assign '((r1 0)) '(r1))
-	(assign '((r1 pair_second)) '(r1))
+	(jump 'hset :for_each '((r1 pair_second) ($ callback2) r0))
+
+(vp-label 'callback2)
+	;inputs
+	;r0 = predicate data (ptr)
+	;r1 = element iterator (ptr)
+
+	(entry 'hset :each_callback '(r0 r1))
+
+	(assign '((r1 0)) '(r1))
 	(vp-push r0 r1)
 	(call 'str :starts_with '((r0 local_prefix) r1) '(_ r2))
 	(vp-pop r0 r1)
@@ -546,20 +571,41 @@
 
 (def-method 'sys_mail :forget)
 	;inputs
-	;r0 = mailbox id num object (ptr)
+	;r0 = service name str object (ptr)
+	;r1 = mailbox id num object (ptr)
 	;trashes
 	;r0-r14
 
-	(ptr 'id 'bucket)
-	(pptr 'iter)
+	(ptr 'name 'id)
+	(union
+		(ptr 'key 'bucket 'set)
+		(ptr 'cat 'tmp1 'tmp2))
 
 	(push-scope)
-	(entry 'sys_mail :forget {id})
+	(entry 'sys_mail :forget {name, id})
 
-	(call 'hmap :find (cat {@} (f-path 'sys_mail :statics) {.ml_statics_service_map, id}) {_, iter, bucket})
-	(vpif {iter})
-		(call 'hmap :erase (cat {@} (f-path 'sys_mail :statics) {.ml_statics_service_map, iter, bucket}))
+	;create service entry
+	(call 'obj :ref {name})
+	(call 'list :create nil {cat})
+	(call 'list :push_back {cat, name})
+	(call 'str :create_from_long {id->num_value, -16} {tmp2})
+	(call 'str :create_from_buffer {",0x0000000000000000", 19 - tmp2->str_length} {tmp1})
+	(call 'list :push_back2 {cat, tmp1, tmp2})
+	(call 'str :cat {name, cat} {name})
+	(call 'list :deref {cat})
+
+	;find in service map
+	(call 'num :create {id->num_value >> 32} {key})
+	(call 'hmap :find (cat {@} (f-path 'sys_mail :statics) {.ml_statics_service_map, key}) {_, set, bucket})
+	(vpif {set})
+		(assign {(*(pptr set))->pair_second} {set})
+		(call 'hset :find {set, name} {_, id, bucket})
+		(vpif {id})
+			(call 'hset :erase {set, id, bucket})
+		(endif)
 	(endif)
+	(call 'num :deref {key})
+	(call 'str :deref {name})
 
 	(pop-scope)
 	(return)
