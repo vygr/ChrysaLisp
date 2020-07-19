@@ -7605,6 +7605,18 @@ trashes
 r0-r2
 ```
 
+### sys_mail::service -> sys/mail/service
+
+```lisp
+inputs
+r0 = service name str object (ptr)
+r1 = mailbox id num object (ptr)
+outputs
+r0 = service entry str object (ptr)
+trashes
+r0-r14
+```
+
 ### sys_mail::declare -> sys/mail/declare
 
 ```lisp

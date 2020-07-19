@@ -473,20 +473,19 @@
 
 (def-func-end)
 
-(def-method 'sys_mail :declare)
+(def-method 'sys_mail :service)
 	;inputs
 	;r0 = service name str object (ptr)
 	;r1 = mailbox id num object (ptr)
+	;outputs
+	;r0 = service entry str object (ptr)
 	;trashes
 	;r0-r14
 
-	(ptr 'name 'id)
-	(union
-		(ptr 'key 'bucket 'set)
-		(ptr 'cat 'tmp1 'tmp2))
+	(ptr 'name 'id 'cat 'tmp1 'tmp2)
 
 	(push-scope)
-	(entry 'sys_mail :declare {name, id})
+	(entry 'sys_mail :service {name, id})
 
 	;create service entry
 	(call 'obj :ref {name})
@@ -496,7 +495,25 @@
 	(call 'str :create_from_buffer {",0x0000000000000000", 19 - tmp2->str_length} {tmp1})
 	(call 'list :push_back2 {cat, tmp1, tmp2})
 	(call 'str :cat {name, cat} {name})
-	(call 'list :deref {cat})
+	(call 'list :destroy {cat})
+
+	(exit 'sys_mail :service {name})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-method 'sys_mail :declare)
+	;inputs
+	;r0 = service name str object (ptr)
+	;r1 = mailbox id num object (ptr)
+	;trashes
+	;r0-r14
+
+	(ptr 'name 'id 'key 'bucket 'set)
+
+	(push-scope)
+	(entry 'sys_mail :declare {name, id})
 
 	;insert into service map
 	(call 'num :create {id->num_value >> 32} {key})
@@ -509,6 +526,7 @@
 		(assign {(*(pptr set))->pair_second} {set})
 		(call 'num :deref {key})
 	(endif)
+	(call 'sys_mail :service {name, id} {name})
 	(call 'hset :insert {set, name})
 	(call 'str :deref {name})
 
@@ -576,36 +594,24 @@
 	;trashes
 	;r0-r14
 
-	(ptr 'name 'id)
-	(union
-		(ptr 'key 'bucket 'set)
-		(ptr 'cat 'tmp1 'tmp2))
+	(ptr 'name 'id 'key 'bucket 'set)
 
 	(push-scope)
 	(entry 'sys_mail :forget {name, id})
-
-	;create service entry
-	(call 'obj :ref {name})
-	(call 'list :create nil {cat})
-	(call 'list :push_back {cat, name})
-	(call 'str :create_from_long {id->num_value, -16} {tmp2})
-	(call 'str :create_from_buffer {",0x0000000000000000", 19 - tmp2->str_length} {tmp1})
-	(call 'list :push_back2 {cat, tmp1, tmp2})
-	(call 'str :cat {name, cat} {name})
-	(call 'list :deref {cat})
 
 	;find in service map
 	(call 'num :create {id->num_value >> 32} {key})
 	(call 'hmap :find (cat {@} (f-path 'sys_mail :statics) {.ml_statics_service_map, key}) {_, set, bucket})
 	(vpif {set})
+		(call 'sys_mail :service {name, id} {name})
 		(assign {(*(pptr set))->pair_second} {set})
 		(call 'hset :find {set, name} {_, id, bucket})
 		(vpif {id})
 			(call 'hset :erase {set, id, bucket})
 		(endif)
+		(call 'str :deref {name})
 	(endif)
 	(call 'num :deref {key})
-	(call 'str :deref {name})
 
 	(pop-scope)
 	(return)
