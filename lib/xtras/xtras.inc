@@ -124,7 +124,8 @@
 
 (defun-bind setsp! (p &rest pairs)
   ; (setsp properties [k v] ...) -> list
-  (each (#(setp! p (first %0) (second %0) t)) (chunk 2 pairs)))
+  (each (#(setp! p (first %0) (second %0) t)) (chunk 2 pairs))
+  p)
 
 (defun-bind merges (&rest lists)
   ; (merges [list]...) -> list

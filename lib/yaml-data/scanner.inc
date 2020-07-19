@@ -104,41 +104,35 @@
 ; Tokens
 
 (defunp-bind pscan 'base-token ()
-  (defq bt (dictionary))
-  (dict-puts! bt :mark_start nil :mark_end nil)
-  bt)
+  (properties :mark_start nil :mark_end nil))
 
 (defunp-bind pscan 'stream-start-token ()
   (defq ss (callp pscan 'base-token))
-  (dict-puts! ss :type :stream-start)
-  ss)
+  (setp! ss :type :stream-start t))
 
 (defunp-bind pscan 'stream-end-token ()
   (defq se (callp  pscan 'base-token))
-  (dict-puts! se :type :stream-end)
-  se)
+  (setp! se :type :stream-end t))
 
 (defunp-bind pscan 'document-start-token ()
   (defq
     ds (callp  pscan 'base-token)
     ms (getp (callp pscan 'reader) :pre_mark)
     me (progn (times 2 (callp pscan 'rnext)) (callp pscan 'mark)))
-  (dict-puts! ds
+  (setsp! ds
     :type :document-start
     :mark_start ms
-    :mark_end me)
-  ds)
+    :mark_end me))
 
 (defunp-bind pscan 'document-end-token ()
   (defq
     de (callp  pscan 'base-token)
     ms (getp (callp pscan 'reader) :pre_mark)
     me (progn (times 2 (callp pscan 'rnext)) (callp pscan 'mark)))
-  (dict-puts! de
+  (setsp! de
     :type :document-end
     :mark_start ms
-    :mark_end me)
-  de)
+    :mark_end me))
 
 (defunp-bind pscan 'directive-token ()
   (callp pscan 'base-token))
@@ -148,11 +142,10 @@
     bss (callp pscan 'base-token)
     ms (getp (callp pscan 'reader) :pre_mark)
     me (callp pscan 'mark))
-  (dict-puts! bss
+  (setsp! bss
     :type :block-sequence-start
     :mark_start ms
-    :mark_end me)
-  bss)
+    :mark_end me))
 
 (defunp-bind pscan 'block-mapping-start-token ()
   (callp pscan 'base-token))
@@ -162,11 +155,10 @@
     be (callp pscan 'base-token)
     ms (getp (callp pscan 'reader) :pre_mark)
     me (callp pscan 'mark))
-  (dict-puts! bss
+  (setsp!  bss
     :type :block-end
     :mark_start ms
-    :mark_end me)
-  be)
+    :mark_end me))
 
 (defunp-bind pscan 'flow-sequence-start-token ()
   (callp pscan 'base-token))
@@ -252,10 +244,10 @@
   ; into YAML standard token ids
   (callp pscan 'setup-reader buffer)
   (each (#(print
-    (dict-get %0 :type)
+    (getp %0 :type)
     " "
-    (dict-get %0 :mark_start)
+    (getp %0 :mark_start)
     " "
-    (dict-get %0 :mark_end))) (consume))
+    (getp %0 :mark_end))) (consume))
   ; (callp pscan 'reader)
   )
