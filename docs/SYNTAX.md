@@ -674,7 +674,7 @@
 
 ## mail-forget
 
-(mail-forget mbox)
+(mail-forget name mbox)
 
 ## mail-free-mbox
 

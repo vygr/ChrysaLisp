@@ -6551,19 +6551,6 @@ trashes
 r1-r7
 ```
 
-### str::same -> class/str/same
-
-```lisp
-inputs
-r0 = str object (ptr)
-r1 = str object (ptr)
-outputs
-r0 = str object (ptr)
-r1 = 0 if same
-trashes
-r1-r6
-```
-
 ### str::starts_with -> class/str/starts_with
 
 ```lisp
@@ -6573,6 +6560,19 @@ r1 = str object (ptr)
 outputs
 r0 = str prefix object (ptr)
 r1 = 0 if match
+trashes
+r1-r6
+```
+
+### str::same -> class/str/same
+
+```lisp
+inputs
+r0 = str object (ptr)
+r1 = str object (ptr)
+outputs
+r0 = str object (ptr)
+r1 = 0 if same
 trashes
 r1-r6
 ```
@@ -7615,22 +7615,23 @@ trashes
 r0-r14
 ```
 
+### sys_mail::forget -> sys/mail/forget
+
+```lisp
+inputs
+r0 = service name str object (ptr)
+r1 = mailbox id num object (ptr)
+trashes
+r0-r14
+```
+
 ### sys_mail::enquire -> sys/mail/enquire
 
 ```lisp
 inputs
 r0 = service prefix str object (ptr)
 outputs
-r0 = list object of matching service entries (ptr)
-trashes
-r0-r14
-```
-
-### sys_mail::forget -> sys/mail/forget
-
-```lisp
-inputs
-r0 = mailbox id num object (ptr)
+r0 = matching service entries list object (ptr)
 trashes
 r0-r14
 ```
