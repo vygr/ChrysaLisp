@@ -533,10 +533,9 @@
 	(call 'sys_mail :service {name, id} {name})
 	(call 'hset :insert {set, name})
 	(call 'str :deref {name})
-	(call 'sys_mail :ping {})
+	(jump 'sys_mail :ping '())
 
-	(pop-scope)
-	(return)
+	(pop-scope-syms)
 
 (def-func-end)
 
@@ -620,10 +619,9 @@
 		(call 'str :deref {name})
 		(call 'sys_mail :ping {})
 	(endif)
-	(call 'num :destroy {key})
+	(jump 'num :destroy {key})
 
-	(pop-scope)
-	(return)
+	(pop-scope-syms)
 
 (def-func-end)
 
@@ -665,10 +663,9 @@
 		(call 'str :destroy {services})
 		(call 'str :destroy {cat.cat_lf})
 	(endif)
-	(call 'num :destroy {key})
+	(jump 'num :destroy {key})
 
-	(pop-scope)
-	(return)
+	(pop-scope-syms)
 
 (vp-label 'callback)
 	;inputs
