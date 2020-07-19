@@ -69,13 +69,89 @@
   ; (kw? el) -> bool
   (and (sym? _) (starts-with ":" _)))
 
+(defun-bind kw (_)
+  (if (and (not (kw? _)) (or (str? _) (sym? _)))
+    (sym (str ":" _))
+    (throw "Expected symbol or string, found " _)))
+
 ; Convenience
 
 (defun-bind ident (_)
   ; (ident el) -> el
   _)
 
-; Property (a.k.a. dictionary a.k.a. map) forms
+; Sequence forms
+
+(defmacro-bind interleave (seq1 seq2)
+  ; (interleave seq1 seq2) -> list
+  ; Returns a list of the first item in each seq, then the second etc.
+  `(zip ,seq1 ,seq2))
+
+(defun-bind chunk (cnt seq)
+  ; (chunk 2 '(0 1 2 3')) -> ((0 1) (2 3))
+  ; Chunks up a sequence into list of sequence by cnt
+  (cond
+    ((< cnt (length seq))
+      (defq
+        base (reverse (copy seq))
+        res (list))
+      (while (not (empty? base))
+        (defq nl (list))
+        (times cnt (push nl (pop base)))
+        (push res nl))
+      res)
+    (t seq)))
+
+; Properties (a.k.a. list of pairs [k v]) forms
+
+(defmacro-bind properties (&rest pairs)
+  ; (properties [k v]...) -> list
+  `(list ~pairs))
+
+(defun-bind getp (p k &optional if_nil)
+  ; (getp properties key [if_nil]) -> val | if_nil | nil
+  (if (defq v (find k p))
+    (elem (inc v) p)
+    (opt nil if_nil)))
+
+(defun-bind setp! (p k v &optional add_if_nil)
+  ; (setp properties k value [add_if_nil]) -> list
+  (defq ki (find k p))
+  (if (and (not ki) add_if_nil)
+    (push (push p k) v)
+    (elem-set (inc ki) p v))
+  p)
+
+(defun-bind setsp! (p &rest pairs)
+  ; (setsp properties [k v] ...) -> list
+  (each (#(setp! p (first %0) (second %0) t)) (chunk 2 pairs)))
+
+(defun-bind merges (&rest lists)
+  ; (merges [list]...) -> list
+  (defq nl (list))
+  (each (curry merge nl) lists))
+
+(defun-bind merges-with (base &rest lists)
+  ; (merges-with list [list]...) -> list'
+  (each (curry merge base) lists))
+
+(defun-bind pdrop (p k)
+  ; (pdrop properties key) -> list
+  (defq
+    pc (copy p)
+    pdx (find k p)
+    end (= (+ pdx 2) (length p))
+    beg (= pdx 0))
+  (cond
+    ((not pdx) p)
+    ((and beg end) (clear p))
+    (beg (merge (clear p) (slice (+ pdx 2) -1 pc)))
+    (end (merge (clear p) (slice 0 pdx pc)))
+    (t
+      (clear p)
+      (merge (merge p (slice 0 pdx pc)) (slice (+ pdx 2) -1 pc)))))
+
+; Dictionary forms
 
 (defun-bind dict-property-list (e)
   ; (dict-property-list e) -> list
@@ -239,13 +315,7 @@
 ; (defq t2 (list 0 1 2 (make-dict foo :a 1 :b 7) (list 0 1 2 (list 3 4 5))))
 ; (make-dict bar :a 0 :b 1 :c (list foo))
 
-; Sequence forms
-
-(defmacro-bind interleave (seq1 seq2)
-  ; (interleave seq1 seq2) -> list
-  ; Returns a list of the first item in each seq, then the second etc.
-  `(zip ,seq1 ,seq2))
-
+; Take and drop forms
 
 (defun-bind take (cnt seq)
   ; (take cnt seq) -> seq
