@@ -510,25 +510,30 @@
 	;trashes
 	;r0-r14
 
-	(ptr 'name 'id 'key 'bucket 'set)
+	(ptr 'name 'id 'key 'bucket 'set 'tuple 'session)
 
 	(push-scope)
 	(entry 'sys_mail :declare {name, id})
 
 	;insert into service map
 	(call 'num :create {id->num_value >> 32} {key})
-	(call 'hmap :find (cat {@} (f-path 'sys_mail :statics) {.ml_statics_service_map, key}) {_, set, bucket})
-	(vpifnot {set})
+	(call 'hmap :find (cat {@} (f-path 'sys_mail :statics) {.ml_statics_service_map, key}) {_, tuple, bucket})
+	(vpifnot {tuple})
+		(call 'list :create nil {tuple})
+		(call 'num :create {0} {session})
 		(call 'hset :create `((@ ,(f-path 'str :same)) 1) {set})
-		(call 'pair :create {key, set} {key})
+		(call 'list :push_back2 {tuple, session, set})
+		(call 'pair :create {key, tuple} {key})
 		(call 'list :push_back {bucket, key})
 	(else)
-		(assign {(*(pptr set))->pair_second} {set})
-		(call 'num :deref {key})
+		(assign {(*(pptr tuple))->pair_second} {tuple})
+		(call 'num :destroy {key})
 	(endif)
+	(call 'list :get_element {tuple, 1} {_, set})
 	(call 'sys_mail :service {name, id} {name})
 	(call 'hset :insert {set, name})
 	(call 'str :deref {name})
+	(call 'sys_mail :ping {})
 
 	(pop-scope)
 	(return)
@@ -566,7 +571,9 @@
 	(entry 'hmap :each_callback '(r0 r1))
 
 	(assign '((r1 0)) '(r1))
-	(jump 'hset :for_each '((r1 pair_second) ($ callback2) r0))
+	(assign '((r1 pair_second) 1) '(r2 r1))
+	(class/array/get_element r2 r1 r1 r2)
+	(jump 'hset :for_each '(r1 ($ callback2) r0))
 
 (vp-label 'callback2)
 	;inputs
@@ -594,26 +601,85 @@
 	;trashes
 	;r0-r14
 
-	(ptr 'name 'id 'key 'bucket 'set)
+	(ptr 'name 'id 'key 'bucket 'tuple 'set)
 
 	(push-scope)
 	(entry 'sys_mail :forget {name, id})
 
 	;find in service map
 	(call 'num :create {id->num_value >> 32} {key})
-	(call 'hmap :find (cat {@} (f-path 'sys_mail :statics) {.ml_statics_service_map, key}) {_, set, bucket})
-	(vpif {set})
+	(call 'hmap :find (cat {@} (f-path 'sys_mail :statics) {.ml_statics_service_map, key}) {_, tuple, bucket})
+	(vpif {tuple})
+		(assign {(*(pptr tuple))->pair_second} {tuple})
 		(call 'sys_mail :service {name, id} {name})
-		(assign {(*(pptr set))->pair_second} {set})
+		(call 'list :get_element {tuple, 1} {_, set})
 		(call 'hset :find {set, name} {_, id, bucket})
 		(vpif {id})
 			(call 'hset :erase {set, id, bucket})
 		(endif)
 		(call 'str :deref {name})
+		(call 'sys_mail :ping {})
 	(endif)
-	(call 'num :deref {key})
+	(call 'num :destroy {key})
 
 	(pop-scope)
 	(return)
+
+(def-func-end)
+
+(def-method 'sys_mail :ping)
+	;trashes
+	;r0-r14
+	;info
+	;ping services out to network
+
+	(def-struct 'cat)
+		(ptr 'entries 'lf)
+	(def-struct-end)
+
+	(ptr 'key 'bucket 'tuple 'set 'msg 'data 'services 'mail_statics)
+	(struct 'cat 'cat)
+
+	(push-scope)
+
+	(call 'num :create (cat {@} (f-path 'sys_task :statics) {.tk_statics_cpu_id}) {key})
+	(assign (cat {@} (f-path 'sys_mail :statics)) {mail_statics})
+	(call 'hmap :find {mail_statics->ml_statics_service_map, key} {_, tuple, bucket})
+	(vpif {tuple})
+		(assign {(*(pptr tuple))->pair_second, char_lf} {tuple, cat.cat_lf})
+		(call 'str :create_from_buffer {&cat.cat_lf, 1} {cat.cat_lf})
+		(call 'list :create nil {cat.cat_entries})
+		(call 'list :get_element {tuple, 1} {_, set})
+		(call 'hset :for_each {set, $callback, &cat})
+		(call 'str :cat {cat.cat_lf, cat.cat_entries} {services})
+		(call 'sys_mail :alloc {kn_msg_ping_size + services->str_length} {msg, data})
+		(assign {key->num_value << 32} {msg->msg_dest.id_id})
+		(assign {kn_call_ping} {data->kn_msg_func})
+		(assign {msg->msg_dest.id_cpu} {data->kn_msg_ping_origin})
+		(assign {0} {data->kn_msg_ping_hops})
+		(assign {msg->msg_dest.id_cpu} {data->kn_msg_ping_via})
+		(assign {(mail_statics->ml_statics_parcel_id + 1) => mail_statics->ml_statics_parcel_id} {data->kn_msg_ping_session})
+		(call 'sys_mem :copy {&services->str_data, &data->kn_msg_ping_size, services->str_length})
+		(call 'sys_mail :send {msg})
+		(call 'list :destroy {cat.cat_entries})
+		(call 'str :destroy {services})
+		(call 'str :destroy {cat.cat_lf})
+	(endif)
+	(call 'num :destroy {key})
+
+	(pop-scope)
+	(return)
+
+(vp-label 'callback)
+	;inputs
+	;r0 = predicate data (ptr)
+	;r1 = element iterator (ptr)
+
+	(entry 'hset :each_callback '(r0 r1))
+
+	(assign '((r1 0) (r0 cat_lf)) '(r1 r2))
+	(class/obj/ref r1 r3)
+	(class/obj/ref r2 r3)
+	(jump 'list :push_back2 '((r0 cat_entries) r1 r2))
 
 (def-func-end)

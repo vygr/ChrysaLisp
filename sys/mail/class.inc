@@ -22,6 +22,7 @@
 (dec-method :select 'sys/mail/select :static '(r0) '(r0))
 (dec-method :mymail 'sys/mail/mymail :static nil '(r0 r1))
 (dec-method :service 'sys/mail/service :static '(r0 r1) '(r0))
+(dec-method :ping 'sys/mail/ping :static)
 (dec-method :declare 'sys/mail/declare :static '(r0 r1))
 (dec-method :forget 'sys/mail/forget :static '(r0 r1))
 (dec-method :enquire 'sys/mail/enquire :static '(r0) '(r0))

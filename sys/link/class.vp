@@ -48,13 +48,11 @@
 	(call 'sys_pii :mmap {lk_buffer_size, handle, mmap_shared} {mem})
 
 	;send link routing message to neighbor kernel
-	(call 'sys_mail :alloc {kn_msg_route_size} {msg, data})
-	(assign {0} {msg->msg_dest.id_mbox})
-	(assign {lk_node.lk_node_cpu_id} {msg->msg_dest.id_cpu})
+	(call 'sys_mail :alloc {kn_msg_ping_size} {msg, data})
+	(assign {lk_node.lk_node_cpu_id << 32} {msg->msg_dest.id_id})
 	(assign {kn_call_route} {data->kn_msg_func})
-	(assign {0 => data->kn_msg_user} {data->kn_msg_reply_id.id_id})
-	(assign {id => data->kn_msg_route_origin} {data->kn_msg_flood_via})
-	(assign {1} {data->kn_msg_route_hops})
+	(assign {id => data->kn_msg_ping_origin} {data->kn_msg_ping_via})
+	(assign {1} {data->kn_msg_ping_hops})
 	(call 'sys_mail :send {msg})
 
 	;tx channel, rx channel

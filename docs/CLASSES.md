@@ -7617,6 +7617,15 @@ trashes
 r0-r14
 ```
 
+### sys_mail::ping -> sys/mail/ping
+
+```lisp
+trashes
+r0-r14
+info
+ping services out to network
+```
+
 ### sys_mail::declare -> sys/mail/declare
 
 ```lisp

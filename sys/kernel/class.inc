@@ -13,7 +13,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;
 
 (def-enum 'kn_call)
-	(enum 'callback 'open 'child 'route 'declare)
+	(enum 'callback 'open 'child 'route 'ping)
 (def-enum-end)
 
 ;;;;;;;;;;;;;;;;;;
@@ -35,16 +35,8 @@
 	(offset 'pathname)
 (def-struct-end)
 
-(def-struct 'kn_msg_flood 'kn_msg)
-	(uint 'via)
-(def-struct-end)
-
-(def-struct 'kn_msg_route 'kn_msg_flood)
-	(uint 'origin 'hops)
-(def-struct-end)
-
-(def-struct 'kn_msg_declare 'kn_msg_flood)
-	(offset 'name)
+(def-struct 'kn_msg_ping 'kn_msg)
+	(uint 'via 'session 'origin 'hops)
 (def-struct-end)
 
 ;;;;;;;;;;;;;;;;;;;
