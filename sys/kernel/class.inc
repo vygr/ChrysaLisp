@@ -38,14 +38,3 @@
 (def-struct 'kn_msg_ping 'kn_msg)
 	(uint 'via 'session 'origin 'hops)
 (def-struct-end)
-
-;;;;;;;;;;;;;;;;;;;
-; kernel debug data
-;;;;;;;;;;;;;;;;;;;
-
-(def-struct 'kn_debug)
-	(ulong 'command)
-	(struct 'reply_id 'id)
-	(ptr 'tcb)
-	(offset 'data)
-(def-struct-end)

@@ -81,7 +81,7 @@
 			(breakif '(r1 = 0))
 			(call 'sys_mail :read '(r0) {msg, data})
 
-			;(switch) on kernel call number
+			;which kernel call number
 			(assign {data->kn_msg_func} '(r0))
 			(switch)
 			(vpcase '(r0 = kn_call_open))
@@ -132,7 +132,7 @@
 					(call 'num :destroy {key})
 				(endif)
 				;add service entries for the origin ?
-				(call 'list :get_element {tuple, 0} {_, session})
+				(call 'list :get_first {tuple} {_, session})
 				(vpif {data->kn_msg_ping_session > session->num_value})
 					;new session
 					(assign {data->kn_msg_ping_session} {session->num_value})
@@ -140,7 +140,7 @@
 					(call 'str :split_char {services, char_lf} {_, entries})
 					(call 'str :destroy {services})
 					(call 'list :get_both {entries} {_, iter_begin, iter_end})
-					(call 'list :get_element {tuple, 1} {_, set})
+					(call 'list :get_second {tuple} {_, set})
 					(call 'hset :clear {set})
 					(loop-while {iter_begin /= iter_end})
 						(call 'hset :insert {set, *iter_begin})
@@ -148,7 +148,7 @@
 					(loop-end)
 					(call 'list :destroy {entries})
 					;flood to neibours
-					(call 'flood {mail_statics, msg, data, id})
+					(call 'flood_fill {mail_statics, msg, data, id})
 				(endif)
 				(pop-scope)
 				(vp-jmp 'drop_msg)
@@ -215,11 +215,8 @@
 					(vp-jmp 'drop_msg)
 				(endswitch)
 
-				;increment hop count
-				(assign {data->kn_msg_ping_hops + 1} {data->kn_msg_ping_hops})
-
 				;copy and send to all neighbors apart from old via
-				(call 'flood {mail_statics, msg, data, id})
+				(call 'flood_fill {mail_statics, msg, data, id})
 			(vp-label 'drop_msg)
 				(call 'sys_mail :free {msg})
 				(break)
@@ -283,7 +280,7 @@
 	(pop-scope)
 	(return)
 
-(vp-label 'flood)
+(vp-label 'flood_fill)
 	;inputs
 	;r0 = mail statics
 	;r1 = flood msg
@@ -294,8 +291,9 @@
 
 	(entry '(r0 r7 r8 r3))
 
-	(assign '((r8 kn_msg_ping_via)) '(r9))
-	(assign '(r3) '((r8 kn_msg_ping_via)))
+	(assign '((r8 kn_msg_ping_hops) (r8 kn_msg_ping_via)) '(r10 r9))
+	(vp-add-cr 1 r10)
+	(assign '(r3 r10) '((r8 kn_msg_ping_via) (r8 kn_msg_ping_hops)))
 	(call 'array :get_both '((r0 ml_statics_links_array)) '(_ r10 r11))
 	(loop-while '(r10 /= r11))
 		(vp-cpy-ir r10 0 r6)

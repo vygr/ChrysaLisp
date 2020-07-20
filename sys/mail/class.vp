@@ -529,7 +529,7 @@
 		(assign {(*(pptr tuple))->pair_second} {tuple})
 		(call 'num :destroy {key})
 	(endif)
-	(call 'list :get_element {tuple, 1} {_, set})
+	(call 'list :get_second {tuple} {_, set})
 	(call 'sys_mail :service {name, id} {name})
 	(call 'hset :insert {set, name})
 	(call 'str :deref {name})
@@ -600,7 +600,10 @@
 	;trashes
 	;r0-r14
 
-	(ptr 'name 'id 'key 'bucket 'tuple 'set)
+	(ptr 'name 'id 'bucket 'tuple)
+	(union
+		(ptr 'set)
+		(ptr 'key))
 
 	(push-scope)
 	(entry 'sys_mail :forget {name, id})
@@ -608,20 +611,21 @@
 	;find in service map
 	(call 'num :create {id->num_value >> 32} {key})
 	(call 'hmap :find (cat {@} (f-path 'sys_mail :statics) {.ml_statics_service_map, key}) {_, tuple, bucket})
+	(call 'num :destroy {key})
 	(vpif {tuple})
 		(assign {(*(pptr tuple))->pair_second} {tuple})
 		(call 'sys_mail :service {name, id} {name})
-		(call 'list :get_element {tuple, 1} {_, set})
+		(call 'list :get_second {tuple} {_, set})
 		(call 'hset :find {set, name} {_, id, bucket})
 		(vpif {id})
 			(call 'hset :erase {set, id, bucket})
 		(endif)
-		(call 'str :deref {name})
-		(call 'sys_mail :ping {})
+		(call 'str :destroy {name})
+		(jump 'sys_mail :ping {})
 	(endif)
-	(jump 'num :destroy {key})
 
-	(pop-scope-syms)
+	(pop-scope)
+	(return)
 
 (def-func-end)
 
@@ -647,7 +651,7 @@
 		(assign {(*(pptr tuple))->pair_second, char_lf} {tuple, cat.cat_lf})
 		(call 'str :create_from_buffer {&cat.cat_lf, 1} {cat.cat_lf})
 		(call 'list :create nil {cat.cat_entries})
-		(call 'list :get_element {tuple, 1} {_, set})
+		(call 'list :get_second {tuple} {_, set})
 		(call 'hset :for_each {set, $callback, &cat})
 		(call 'str :cat {cat.cat_lf, cat.cat_entries} {services})
 		(call 'sys_mail :alloc {kn_msg_ping_size + services->str_length} {msg, data})
