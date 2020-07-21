@@ -18,14 +18,8 @@
 	(enum 'ready 'busy)
 (def-enum-end)
 
-(def-struct 'lk_table)
-	(pptr 'array)
-	(ulong 'array_size)
-(def-struct-end)
-
 (def-struct 'lk_node)
-	(struct 'table 'lk_table)
-	(uint 'cpu_id 'task_count)
+	(uint 'peer_cpu_id 'task_count)
 (def-struct-end)
 
 (def-struct 'lk_msg)

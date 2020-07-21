@@ -37,4 +37,5 @@
 
 (def-struct 'kn_msg_ping 'kn_msg)
 	(uint 'via 'session 'origin 'hops)
+	(offset 'services)
 (def-struct-end)

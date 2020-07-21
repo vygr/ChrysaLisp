@@ -26,8 +26,7 @@
 		(ptr 'link))
 	(ptr 'task_statics 'mail_statics 'mbox_addr 'msg 'data)
 	(pptr 'iter_begin 'iter_end)
-	(struct 'routes 'lk_table)
-	(uint 'id 'best_cnt 'best_id 'route_index 'hops 'new_hops 'mbox_id)
+	(uint 'id 'best_cnt 'best_id 'mbox_id)
 
 	(push-scope)
 	(entry {argv})
@@ -63,9 +62,6 @@
 	(call 'sys_kernel :id nil {id})
 	(assign {id + 1} {task_statics->tk_statics_cpu_total})
 
-	;allocate for kernel routing table
-	(assign {0 => routes.lk_table_array} {routes.lk_table_array_size})
-
 ;;;;;;;;;;;;;;;;;;;;;;;
 ; main kernel task loop
 ;;;;;;;;;;;;;;;;;;;;;;;
@@ -80,7 +76,6 @@
 			(lh-is-empty r0 mbox_list r1)
 			(breakif '(r1 = 0))
 			(call 'sys_mail :read '(r0) {msg, data})
-
 			;which kernel call number
 			(assign {data->kn_msg_func} '(r0))
 			(switch)
@@ -100,12 +95,11 @@
 					(assign {*iter_begin} {link})
 					(vpif {link->lk_node_task_count < best_cnt})
 						(assign {link->lk_node_task_count} {best_cnt})
-						(assign {link->lk_node_cpu_id} {best_id})
+						(assign {link->lk_node_peer_cpu_id} {best_id})
 					(endif)
 					(assign {iter_begin + ptr_size} {iter_begin})
 				(loop-end)
 				(gotoif {best_id = id} 'run_here)
-
 				;send to better kernel
 				(assign {best_id} {msg->msg_dest.id_cpu})
 				(call 'sys_mail :send {msg})
@@ -119,7 +113,7 @@
 				(push-scope)
 				;find/create the service tuple for the origin
 				(call 'num :create {data->kn_msg_ping_origin} {key})
-				(call 'hmap :find (cat {@} (f-path 'sys_mail :statics) {.ml_statics_service_map, key}) {_, tuple, bucket})
+				(call 'hmap :find {mail_statics->ml_statics_service_map, key} {_, tuple, bucket})
 				(vpifnot {tuple})
 					(call 'list :create nil {tuple})
 					(call 'num :create {0} {session})
@@ -136,7 +130,7 @@
 				(vpif {data->kn_msg_ping_session > session->num_value})
 					;new session
 					(assign {data->kn_msg_ping_session} {session->num_value})
-					(call 'str :create_from_buffer {&data->kn_msg_ping_size, msg->msg_frag_length - kn_msg_ping_size} {services})
+					(call 'str :create_from_buffer {&data->kn_msg_ping_services, msg->msg_frag_length - kn_msg_ping_services} {services})
 					(call 'str :split_char {services, char_lf} {_, entries})
 					(call 'str :destroy {services})
 					(call 'list :get_both {entries} {_, iter_begin, iter_end})
@@ -151,72 +145,49 @@
 					(call 'flood_fill {mail_statics, msg, data, id})
 				(endif)
 				(pop-scope)
-				(vp-jmp 'drop_msg)
+				(goto 'drop_msg)
 			(vpcase '(r0 = kn_call_route))
 				;increase size of network ?
 				(vpif {data->kn_msg_ping_origin >= task_statics->tk_statics_cpu_total})
 					(assign {data->kn_msg_ping_origin + 1} {task_statics->tk_statics_cpu_total})
 				(endif)
-
-				;new kernel routing table ?
-				(assign {data->kn_msg_ping_origin * lk_route_size} {route_index})
-				(vpif {route_index + lk_route_size > routes.lk_table_array_size})
-					(call 'sys_mem :recalloc {routes.lk_table_array, routes.lk_table_array_size, route_index + lk_route_size}
-						{routes.lk_table_array, routes.lk_table_array_size})
+				;new routing ping
+				(ptr 'tuple 'key 'bucket)
+				(ulong 'session 'hops)
+				(push-scope)
+				;find/create the routing tuple for the origin
+				(call 'num :create {data->kn_msg_ping_origin} {key})
+				(call 'hmap :find {mail_statics->ml_statics_routing_map, key} {_, tuple, bucket})
+				(vpifnot {tuple})
+					(call 'array :create nil {tuple})
+					(call 'array :push_back2 {tuple, -1, 0})
+					(call 'pair :create {key, tuple} {key})
+					(call 'list :push_back {bucket, key})
+				(else)
+					(assign {(*(pptr tuple))->pair_second} {tuple})
+					(call 'num :destroy {key})
 				(endif)
-
-				;compare hop counts
-				(assign {(routes.lk_table_array)[route_index].lk_route_hops} {hops})
-				(assign {data->kn_msg_ping_hops} {new_hops})
+				;update routing entries for the origin ?
+				(call 'array :get_first2 {tuple} {_, session, hops})
 				(switch)
-				(vpcase {!hops || new_hops < hops})
-				(vp-label 'better_route)
-					;better or first time route
-					(assign {new_hops} {(routes.lk_table_array)[route_index].lk_route_hops})
-
-					;fill in via route and remove other routes
-					(call 'array :get_both {mail_statics->ml_statics_links_array} {_, iter_begin, iter_end})
-					(loop-while {iter_begin /= iter_end})
-						(assign {*iter_begin} {link})
-						;new link route table ?
-						(vpif {route_index + lk_route_size > link->lk_node_table.lk_table_array_size})
-							(call 'sys_mem :recalloc {link->lk_node_table.lk_table_array, link->lk_node_table.lk_table_array_size, route_index + lk_route_size}
-								{link->lk_node_table.lk_table_array, link->lk_node_table.lk_table_array_size})
-						(endif)
-						(vpif {link->lk_node_cpu_id = data->kn_msg_ping_via})
-							;via route
-							(assign {new_hops} {(link->lk_node_table.lk_table_array)[route_index].lk_route_hops})
-						(else)
-							;none via route
-							(assign {0} {(link->lk_node_table.lk_table_array)[route_index].lk_route_hops})
-						(endif)
-						(assign {iter_begin + ptr_size} {iter_begin})
-					(loop-end)
-					(break)
-				(vpcase {new_hops = hops})
-					;new hops is equal, so additional route
-					(call 'array :get_both {mail_statics->ml_statics_links_array} {_, iter_begin, iter_end})
-					(loop-while {iter_begin /= iter_end})
-						(assign {*iter_begin} {link})
-						;new link route table ?
-						(vpif {route_index + lk_route_size > link->lk_node_table.lk_table_array_size})
-							(call 'sys_mem :recalloc {link->lk_node_table.lk_table_array, link->lk_node_table.lk_table_array_size, route_index + lk_route_size}
-								{link->lk_node_table.lk_table_array, link->lk_node_table.lk_table_array_size})
-						(endif)
-						(vpif {link->lk_node_cpu_id = data->kn_msg_ping_via})
-							;via route
-							(assign {new_hops} {(link->lk_node_table.lk_table_array)[route_index].lk_route_hops})
-						(endif)
-						(assign {iter_begin + ptr_size} {iter_begin})
-					(loop-end)
-					;drop through to discard message !
-				(default)
-					;new hops is greater, so worse route
-					(vp-jmp 'drop_msg)
+				(breakif {data->kn_msg_ping_session < session})
+				(vpcase {data->kn_msg_ping_session > session})
+					;new routing session, clear vias, update session and hops
+					(call 'array :set_length {tuple, 0})
+					(call 'array :push_back2 {tuple, data->kn_msg_ping_session, data->kn_msg_ping_hops})
+					(goto 'new_via)
+				(vpcase {data->kn_msg_ping_hops < hops})
+					;better route, clear vias, update hops
+					(call 'array :set_length {tuple, 1})
+					(call 'array :push_back {tuple, data->kn_msg_ping_hops})
+					(goto 'new_via)
+				(vpcase {data->kn_msg_ping_hops = hops})
+				(vp-label 'new_via)
+					;equal route, push via, flood to neibours
+					(call 'array :push_back {tuple, data->kn_msg_ping_via})
+					(call 'flood_fill {mail_statics, msg, data, id})
 				(endswitch)
-
-				;copy and send to all neighbors apart from old via
-				(call 'flood_fill {mail_statics, msg, data, id})
+				(pop-scope)
 			(vp-label 'drop_msg)
 				(call 'sys_mail :free {msg})
 				(break)
@@ -224,7 +195,6 @@
 				;call callback with this thread/stack
 				(assign {data->kn_msg_user, data->kn_msg_callback_addr} '(r0 r1))
 				(vp-call-r r1)
-
 				;reply to originator
 				(assign {data->kn_msg_reply_id.id_id} {msg->msg_dest.id_id})
 				(call 'sys_mail :send {msg})
@@ -270,9 +240,6 @@
 		(host-call 'host :sdl_delay '(r0))
 	(loop-end)
 
-	;free any kernel routing table
-	(call 'sys_mem :free {routes.lk_table_array})
-
 	;deinit allocator
 	(call 'sys_mem :statics_deinit)
 
@@ -298,7 +265,7 @@
 	(loop-while '(r10 /= r11))
 		(vp-cpy-ir r10 0 r6)
 		(vp-add-cr ptr_size r10)
-		(assign '((r6 lk_node_cpu_id)) '(r6))
+		(assign '((r6 lk_node_peer_cpu_id)) '(r6))
 		(continueif '(r6 = r9))
 		(call 'sys_mail :alloc_obj '((r7 msg_obj) r8 (r7 msg_frag_length)) '(r0))
 		(vp-shl-cr 32 r6)

@@ -47,11 +47,10 @@
 	(f-bind 'sys_mail :statics r12)
 	(assign '(r2) '((r12 ml_statics_out_mbox_addr)))
 
-	;create link array
+	;services, links and routing
 	(call 'array :create nil '((r12 ml_statics_links_array)))
-
-	;create declare map
 	(call 'hmap :create '(($ key_num) 1) '((r12 ml_statics_service_map)))
+	(call 'hmap :create '(($ key_num) 13) '((r12 ml_statics_routing_map)))
 
 	;init header heap
 	(jump 'sys_heap :init '((& r12 ml_statics_msg_heap) msg_size 64))
@@ -373,7 +372,7 @@
 		(vpcase '(r0 > lk_data_size))
 			;must use postman task for parcels
 			(assign '((r1 ml_statics_out_mbox_addr)) '(r1))
-			(vp-jmp 'post_it)
+			(goto 'post_it)
 		(default)
 			;queue it on the outgoing packet list
 			(vp-add-cr ml_statics_offchip_list r1)
@@ -654,14 +653,14 @@
 		(call 'list :get_second {tuple} {_, set})
 		(call 'hset :for_each {set, $callback, &cat})
 		(call 'str :cat {cat.cat_lf, cat.cat_entries} {services})
-		(call 'sys_mail :alloc {kn_msg_ping_size + services->str_length} {msg, data})
+		(call 'sys_mail :alloc {kn_msg_ping_services + services->str_length} {msg, data})
 		(assign {key->num_value << 32} {msg->msg_dest.id_id})
 		(assign {kn_call_ping} {data->kn_msg_func})
 		(assign {msg->msg_dest.id_cpu} {data->kn_msg_ping_origin})
 		(assign {0} {data->kn_msg_ping_hops})
 		(assign {msg->msg_dest.id_cpu} {data->kn_msg_ping_via})
 		(assign {(mail_statics->ml_statics_parcel_id + 1) => mail_statics->ml_statics_parcel_id} {data->kn_msg_ping_session})
-		(call 'sys_mem :copy {&services->str_data, &data->kn_msg_ping_size, services->str_length})
+		(call 'sys_mem :copy {&services->str_data, &data->kn_msg_ping_services, services->str_length})
 		(call 'sys_mail :send {msg})
 		(call 'list :destroy {cat.cat_entries})
 		(call 'str :destroy {services})
