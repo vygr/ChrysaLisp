@@ -683,3 +683,32 @@
 	(jump 'list :push_back2 '((r0 cat_entries) r1 r2))
 
 (def-func-end)
+
+(def-method 'sys_mail :devices)
+	;outputs
+	;r0 = known device cpu array object (ptr)
+	;trashes
+	;r0-r14
+
+	(call 'array :create nil '(r0))
+	(vp-push r0)
+	(f-bind 'sys_mail :statics r0)
+	(call 'hmap :for_each '((r0 ml_statics_routing_map) ($ callback) (rsp 0)))
+	(vp-pop r0)
+
+	(exit 'sys_mail :devices '(r0))
+	(vp-ret)
+
+(vp-label 'callback)
+	;inputs
+	;r0 = predicate data (ptr)
+	;r1 = element iterator (ptr)
+
+	(entry 'hmap :each_callback '(r0 r1))
+
+	(assign '((r1 0)) '(r1))
+	(assign '((r1 pair_first)) '(r1))
+	(assign '((r1 num_value)) '(r1))
+	(jump 'array :push_back '(r0 r1))
+
+(def-func-end)

@@ -7364,17 +7364,6 @@ trashes
 r0
 ```
 
-### sys_kernel::total -> sys/kernel/total
-
-```lisp
-outputs
-r0 = cpu total (uint)
-trashes
-r0
-```
-
-### sys_kernel::opts -> sys/kernel/opts
-
 ### sys_kernel::kernel -> sys/kernel/kernel
 
 ```lisp
@@ -7382,19 +7371,6 @@ inputs
 r0 = argv pointer (pptr)
 info
 loader is already initialized when we get here !
-```
-
-### sys_kernel::lisp_total -> sys/kernel/lisp_total
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args list object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
 ```
 
 ## sys_link
@@ -7657,6 +7633,15 @@ trashes
 r0-r14
 ```
 
+### sys_mail::devices -> sys/mail/devices
+
+```lisp
+outputs
+r0 = known device cpu array object (ptr)
+trashes
+r0-r14
+```
+
 ### sys_mail::junk_mail -> sys/mail/junk_mail
 
 ```lisp
@@ -7761,6 +7746,19 @@ r1-r14
 ```
 
 ### sys_mail::lisp_forget -> sys/mail/lisp_forget
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### sys_mail::lisp_devices -> sys/mail/lisp_devices
 
 ```lisp
 inputs
@@ -8705,43 +8703,6 @@ trashes
 r0-r14
 ```
 
-### sys_task::open_remote -> sys/task/open_remote
-
-```lisp
-inputs
-r0 = name c string (pubyte)
-r1 = cpu target (uint)
-r2 = spawn type (uint)
-outputs
-r0 = mailbox id (id)
-trashes
-r0-r14
-```
-
-### sys_task::open_farm -> sys/task/open_farm
-
-```lisp
-inputs
-r0 = name c string (pubyte)
-r1 = number to spawn (uint)
-r2 = spawn type (uint)
-outputs
-r0 = mailbox id's array object (ptr)
-trashes
-r0-r14
-```
-
-### sys_task::open_pipe -> sys/task/open_pipe
-
-```lisp
-inputs
-r0 = list of str objects (ptr)
-outputs
-r0 = mailbox id's array object (ptr)
-trashes
-r0-r14
-```
-
 ### sys_task::task_callback -> class/obj/null
 
 ### sys_task::lisp_sleep -> sys/task/lisp_sleep
@@ -8758,58 +8719,6 @@ r1-r14
 ```
 
 ### sys_task::lisp_mailbox -> sys/task/lisp_mailbox
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args list object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### sys_task::lisp_open_child -> sys/task/lisp_open_child
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args list object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### sys_task::lisp_open_remote -> sys/task/lisp_open_remote
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args list object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### sys_task::lisp_open_farm -> sys/task/lisp_open_farm
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args list object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### sys_task::lisp_open_pipe -> sys/task/lisp_open_pipe
 
 ```lisp
 inputs

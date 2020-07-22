@@ -2,11 +2,7 @@
 
 (def-class 'sys_kernel)
 (dec-method :id 'sys/kernel/id :static nil '(r0))
-(dec-method :total 'sys/kernel/total :static nil '(r0))
-(dec-method :opts 'sys/kernel/opts :static '(r0))
 (dec-method :kernel 'sys/kernel/kernel :static '(r0))
-
-(dec-method :lisp_total 'sys/kernel/lisp_total :static '(r0 r1) '(r0 r1))
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ; kernel mail functions

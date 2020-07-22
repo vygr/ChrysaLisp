@@ -26,6 +26,7 @@
 (dec-method :declare 'sys/mail/declare :static '(r0 r1))
 (dec-method :forget 'sys/mail/forget :static '(r0 r1))
 (dec-method :enquire 'sys/mail/enquire :static '(r0) '(r0))
+(dec-method :devices 'sys/mail/devices :static '() '(r0))
 (dec-method :junk_mail 'sys/mail/junk_mail :static '(r3))
 (dec-method :in 'sys/mail/in :static '(r0))
 (dec-method :out 'sys/mail/out)
@@ -37,6 +38,7 @@
 (dec-method :lisp_declare 'sys/mail/lisp_declare :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_enquire 'sys/mail/lisp_enquire :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_forget 'sys/mail/lisp_forget :static '(r0 r1) '(r0 r1))
+(dec-method :lisp_devices 'sys/mail/lisp_devices :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_alloc_mbox 'sys/mail/lisp_alloc_mbox :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_free_mbox 'sys/mail/lisp_free_mbox :static '(r0 r1) '(r0 r1))
 

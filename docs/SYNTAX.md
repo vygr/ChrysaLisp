@@ -600,10 +600,6 @@
 
 (join list seq) -> seq
 
-## kernel-total
-
-(kernel-total)
-
 ## lambda
 
 (lambda ([arg ...]) body)
@@ -667,6 +663,10 @@
 ## mail-declare
 
 (mail-declare name mbox)
+
+## mail-devices
+
+(mail-devices)
 
 ## mail-enquire
 
@@ -818,19 +818,19 @@
 
 ## open-child
 
-(open-child path mode)
+(open-child task mode)
 
 ## open-farm
 
-(open-farm path num mode)
+(open-farm task num mode [devices])
 
 ## open-pipe
 
-(open-pipe paths)
+(open-pipe tasks)
 
 ## open-remote
 
-(open-remote path cpu mode)
+(open-remote task node mode)
 
 ## opt
 

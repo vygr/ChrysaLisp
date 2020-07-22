@@ -77,7 +77,7 @@
 		;do we have a free out slot
 		(vpif {tx_msg->lk_msg_status = lk_chan_status_ready})
 			;see if any off chip mail for this link
-			(call 'any_out_mail {&lk_node, key} '(r0))
+			(call 'any_out_mail {lk_node.lk_node_peer_cpu_id, key} '(r0))
 			(breakif '(r0 = 0))
 		(vp-label 'send_msg)
 			(assign '(r0) {out_msg})
@@ -132,7 +132,7 @@
 		(breakif {rx_msg->lk_msg_status = lk_chan_status_busy})
 		(vpcase {tx_msg->lk_msg_status = lk_chan_status_ready})
 			;see if any off chip mail for me
-			(call 'any_out_mail {&lk_node, key} '(r0))
+			(call 'any_out_mail {lk_node.lk_node_peer_cpu_id, key} '(r0))
 			(gotoif '(r0 /= 0) 'send_msg)
 		(default)
 			;small sleep if nothing to do
@@ -161,7 +161,7 @@
 
 (vp-label 'any_out_mail)
 	;inputs
-	;r0 = lk_node pointer (ptr)
+	;r0 = peer cpu id (uint)
 	;r1 = key num object (ptr)
 	;outputs
 	;r0 = 0 if none, else msg node (ptr)
@@ -169,9 +169,8 @@
 	(vp-def (next node key peer tuple via iter_begin iter_end)
 		'(r13 r12 r11 r10 r9))
 
-	(entry `(r0 ,key))
+	(entry `(,peer ,key))
 
-	(assign '((r0 lk_node_peer_cpu_id)) `(,peer))
 	(f-bind 'sys_mail :statics next)
 	(loop-list-forward next ml_statics_offchip_list node next 'exit)
 		(vp-cpy-ir-ui node (+ msg_dest id_cpu) via)

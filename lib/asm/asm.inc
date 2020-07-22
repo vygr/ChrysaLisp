@@ -8,10 +8,10 @@
 
 ;C++ ChrysaLisp ?
 (unless (get 'nums)
-	(defun kernel-total () 1))
+	(defun mail-devices () '(0)))
 
 (defun-bind compile (files &optional *abi* *cpu* num_child)
-	(setd *abi* (abi) *cpu* (cpu) num_child (max 1 (/ (* (kernel-total) 80) 100)))
+	(setd *abi* (abi) *cpu* (cpu) num_child (max 1 (/ (* (length (mail-devices)) 80) 100)))
 	(unless (lst? files)
 		(setq files (list files)))
 	(setq files (shuffle (map sym files)))

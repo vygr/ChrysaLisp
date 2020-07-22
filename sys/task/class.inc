@@ -23,17 +23,10 @@
 (dec-method :set_priority 'sys/task/set_priority :static '(r0))
 (dec-method :timer 'sys/task/timer :static nil '(r0))
 (dec-method :open_child 'sys/task/open_child :static '(r0 r1) '(r0))
-(dec-method :open_remote 'sys/task/open_remote :static '(r0 r1 r2) '(r0))
-(dec-method :open_farm 'sys/task/open_farm :static '(r0 r1 r2) '(r0))
-(dec-method :open_pipe 'sys/task/open_pipe :static '(r0) '(r0))
 (dec-method :task_callback 'class/obj/null :static '(r0))
 
 (dec-method :lisp_sleep 'sys/task/lisp_sleep :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_mailbox 'sys/task/lisp_mailbox :static '(r0 r1) '(r0 r1))
-(dec-method :lisp_open_child 'sys/task/lisp_open_child :static '(r0 r1) '(r0 r1))
-(dec-method :lisp_open_remote 'sys/task/lisp_open_remote :static '(r0 r1) '(r0 r1))
-(dec-method :lisp_open_farm 'sys/task/lisp_open_farm :static '(r0 r1) '(r0 r1))
-(dec-method :lisp_open_pipe 'sys/task/lisp_open_pipe :static '(r0 r1) '(r0 r1))
 
 ;;;;;;;;;;;;;;;;;
 ; task structures
@@ -57,7 +50,7 @@
 
 (def-struct 'tk_statics)
 	(ptr 'current_tcb 'kernel_tcb)
-	(uint 'task_count 'cpu_total 'cpu_id)
+	(uint 'task_count 'cpu_id)
 	(local-align)
 	;keep these together
 	(struct 'timer_list 'lh_list)
