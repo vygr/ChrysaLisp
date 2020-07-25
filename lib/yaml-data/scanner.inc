@@ -30,22 +30,36 @@
 
 ; Reader forms
 
-(defunp-bind pscan 'reader ()
-  ; (reader) -> :reader dictionary
-  (dict-get pscan :reader))
-
 (defunp-bind pscan 'setup-reader (buffer)
   ; (setup-reader buffer) -> :reader dictionary
   (def pscan :reader (properties))
   (defq tmp (dict-get pscan :reader))
-  (setp! tmp :buffer buffer t)
-  (setp! tmp :buff_len (length buffer) t)
-  (setp! tmp :pre_mark nil t)
-  (setp! tmp :buff_pos 0 t)
-  (setp! tmp :line 1 t)
-  (setp! tmp :column 1 t)
-  (setp! tmp :tokens (list) t)
-  tmp)
+  (setsp! tmp
+    :buffer buffer
+     :buff_len (length buffer)
+     :pre_mark (properties :line 1 :column 1 :buff_pos 0)
+     :buff_pos 0
+     :line 1
+     :column 1
+     :sstart_produced nil
+     :ssend_produced nil
+     :simple_key_allowed t
+     :simple_keys (list)
+     :indent -1
+     :indents (list)
+     :flow_level 0
+     :is_error nil
+     :tokens (list)))
+
+(defunp-bind pscan 'reader ()
+  ; (reader) -> :reader dictionary
+  (dict-get pscan :reader))
+
+(defunp-bind pscan 'allow-simple-key ()
+  (setp (callp pscan 'reader) :simple_key_allowed t))
+
+(defunp-bind pscan 'disallow-simple-key ()
+  (setp (callp pscan 'reader) :simple_key_allowed nil))
 
 (defunp-bind pscan 'mark ()
   (defq cntrl (callp pscan 'reader))
@@ -92,14 +106,44 @@
       :column (second pmark)
       :buff_pos (elem 2 pmark))))
 
-(defunp-bind pscan 'premark-col-first? ()
-  (= (getp (getp (callp pscan 'reader) :pre_mark) :column) 1))
-
 (defunp-bind pscan 'skip-line ()
   ; (skip-line) -> next line
   (defq ch (callp pscan 'rnext))
   (until (or (eql ch nil) (eql ch (char 0x0a)))
     (setq ch (callp pscan 'rnext))))
+
+; Reader predicates
+(defq ascii-set (const "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_"))
+(defq ascii-flow (const ",[]{}"))
+
+(defunp-bind pscan 'is_z (ch)
+  (eql ch (ascii-char 0)))
+
+(defunp-bind pscan 'is_break (ch)
+  (defq cc (code ch))
+  (or (= cc 0x0a) (= cc 0x0d)))
+
+(defunp-bind pscan 'is_breakz (ch)
+  (or (callp pscan 'is_z ch)(callp pscan 'is_break ch)))
+
+(defunp-bind pscan 'is_blank (ch)
+  (defq cc (code ch))
+  (or (= cc 0x20) (= cc 0x09)))
+
+(defunp-bind pscan 'is_blankz (ch)
+  (or (callp pscan 'is_blank ch) (callp pscan 'is_z ch)))
+
+(defunp-bind pscan 'is_digit (ch)
+  (<= 0x30 (code ch) 0x39))
+
+(defunp-bind pscan 'is_alpha (ch)
+  (find ch ascii-set))
+
+(defunp-bind pscan 'is_flow (ch)
+  (find ch ascii-flow))
+
+(defunp-bind pscan 'char_is (chi cht)
+  (= (code chi) (chode cht)))
 
 ; Tokens
 
@@ -118,7 +162,7 @@
   (defq
     ds (callp  pscan 'base-token)
     ms (getp (callp pscan 'reader) :pre_mark)
-    me (progn (times 2 (callp pscan 'rnext)) (callp pscan 'mark)))
+    me (progn (times 3 (callp pscan 'rnext)) (callp pscan 'mark)))
   (setsp! ds
     :type :document-start
     :mark_start ms
@@ -128,7 +172,7 @@
   (defq
     de (callp  pscan 'base-token)
     ms (getp (callp pscan 'reader) :pre_mark)
-    me (progn (times 2 (callp pscan 'rnext)) (callp pscan 'mark)))
+    me (progn (times 3 (callp pscan 'rnext)) (callp pscan 'mark)))
   (setsp! de
     :type :document-end
     :mark_start ms
@@ -196,47 +240,43 @@
 (defunp-bind pscan 'scalar-token ()
   (callp pscan 'base-token))
 
-(defun consume (&optional context)
+(defun fetch-next-token (rstrm)
+  (defq tlist (getp rstrm :tokens))
+  (if (getp rstrm :sstart_produced)
+    (let (
+      (mark (getp rstrn :pre_mark))
+      (ch (callp pscan 'rpeek))
+      (nc (callp pscan 'rpeek 1)))
+      (cond
+        ((callp pscan 'is_z ch)
+          (push tlist (callp pscan 'stream-end-token))
+          :eof)
+        ((and
+          (= (getp mark :column) 1)
+          (callp pscan 'char_is ch "-")
+          (callp pscan 'char_is nc "-")
+          (callp pscan 'char_is (callp pscan 'rpeek 2) "-"))
+          (push tlist (callp pscan 'document-start-token))
+          :ok)
+        ((and
+          (= (getp mark :column) 1)
+          (callp pscan 'char_is ch ".")
+          (callp pscan 'char_is nc ".")
+          (callp pscan 'char_is (callp pscan 'rpeek 2) "."))
+          (push tlist (callp pscan 'document-end-token))
+          :ok)
+        ))
+    (progn
+      (push tlist (callp pscan 'stream-start-token))
+      :ok)))
+
+(defun consume ()
   (defq
-    ch    t
-    res   (list)
-    indoc nil
-    instr nil
-    ind   -1
-    ctx   (list))
-  (push res (callp pscan 'stream-start-token))
-  (while ch
-    (setq ch (callp pscan 'rnext))
-    (cond
-      ((eql ch "#") (callp pscan 'skip-line))
-      ((eql ch (char 0x0a)))
-      ((eql ch " ")
-        (print "is space first col? " (callp pscan 'premark-col-first?)))
-      ((eql ch "-") ; Either a document start or a sequence item
-        (defq pk (callp pscan 'rpeek))
-        (cond
-          ((and (eql pk "-") (eql (callp pscan 'rpeek 1) "-") (not indoc))
-            (setq indoc t)
-            (push res (callp pscan 'document-start-token)))
-          ((or (eql pk  " ") (eql pk (char 0x0a)))
-            (push res (callp pscan 'block-sequence-start-token)))
-          (t (throw "Problem at " (callp pscan 'mark)))))
-      ((eql ch ".") ; Either a document end or a key/value char
-        (defq pk (callp pscan 'rpeek))
-        (cond
-          ((and (eql pk ".") (eql (callp pscan 'rpeek 1) "."))
-            (push res (callp pscan 'document-end-token)))
-          (t t)))
-      ((eql ch "&") (throw "Anchors not supported " (callp pscan 'mark)))
-      ((eql ch "%") (throw "Directives not supported " (callp pscan 'mark)))
-      ((eql ch ":") (print "key declared"))
-      ((eql ch "[") (print "flow seq start"))
-      ((eql ch "]") (print "flow seq end"))
-      ((eql ch "{") (print "flow dict start"))
-      ((eql ch "}") (print "flow dict end"))
-      ; Need to handle the arbitraries
-      (t nil)))
-  (push res (callp pscan 'stream-end-token)))
+    rdr (callp pscan 'reader)
+    res (fetch-next-token rdr))
+  (while (eql res :ok)
+    (setq res (fetch-next-token rdr)))
+  (getp rdr :tokens))
 
 (defun scan (buffer)
   ; (scan stream) -> list of tokens

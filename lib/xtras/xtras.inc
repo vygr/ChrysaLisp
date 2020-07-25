@@ -102,6 +102,16 @@
       res)
     (t seq)))
 
+(defun-bind unions (&rest lists)
+  ; (unions [list]...) -> list
+  (defq nl (list))
+  (each (curry merge nl) lists))
+
+(defun-bind unions-with (base &rest lists)
+  ; (unions-with list [list]...) -> list'
+  (each (curry merge base) lists))
+
+
 ; Properties (a.k.a. list of pairs [k v]) forms
 
 (defmacro-bind properties (&rest pairs)
@@ -115,7 +125,7 @@
     (opt nil if_nil)))
 
 (defun-bind setp! (p k v &optional add_if_nil)
-  ; (setp properties k value [add_if_nil]) -> list
+  ; (setp properties k value [add_if_nil]) -> properties
   (defq ki (find k p))
   (if (and (not ki) add_if_nil)
     (push (push p k) v)
@@ -123,21 +133,13 @@
   p)
 
 (defun-bind setsp! (p &rest pairs)
-  ; (setsp properties [k v] ...) -> list
+  ; (setsp properties [k v] ...) -> properties
   (each (#(setp! p (first %0) (second %0) t)) (chunk 2 pairs))
   p)
 
-(defun-bind merges (&rest lists)
-  ; (merges [list]...) -> list
-  (defq nl (list))
-  (each (curry merge nl) lists))
-
-(defun-bind merges-with (base &rest lists)
-  ; (merges-with list [list]...) -> list'
-  (each (curry merge base) lists))
-
 (defun-bind pdrop (p k)
-  ; (pdrop properties key) -> list
+  ; (pdrop properties key) -> properties
+  ; TODO: Need to not use 'merge' as it means 'union'
   (defq
     pc (copy p)
     pdx (find k p)
