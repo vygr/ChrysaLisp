@@ -27,6 +27,25 @@ corrupted.
 
 ------
 
+Renamed (merge) to (merge-obj) to avoid clashing with Common Lisp and to be
+more descriptive of what the function actually does.
+
+Lots of rework of the service system ! Service (declare) and (enquire) calls
+now have no race condition. Also took the opportunity to completely rework the
+messages routing system structures and remove the need for (kernel-total).
+
+Most of the (open-xxx) calls have been converted to Lisp rather than VP. No
+advantage now and we can easily add more task distribution calls now at the
+Lisp level. Saved nearly 2KB of boot image.
+
+New (mail-devices) call to return the current know list of network CPU id's.
+
+Frank has continued to update the new xtras.inc library with various flavours
+of tree walkers and converted the argparse.inc lib over to use the latest
+properties APIs.
+
+------
+
 Closure style shortcut lambda syntax available as a macro. This may eventually
 get promoted to part of the (read) function. Thanks to FrancC01 for inspiring
 this addition.
