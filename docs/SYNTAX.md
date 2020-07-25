@@ -716,9 +716,9 @@
 
 (mem-stats options)
 
-## merge
+## merge-obj
 
-(merge dlist slist) -> dlist
+(merge-obj dlist slist) -> dlist
 
 ## min
 

@@ -104,7 +104,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(merge dlist slist) -> dlist" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(r0 "(merge-obj dlist slist) -> dlist" error_msg_wrong_types r1))
 	(signature '(list list)))
 
 (def-func-end)

@@ -664,7 +664,7 @@
 
 (defcfun-bind set-reg-map (l &optional _)
 	(setd _ '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14))
-	(each (lambda (_ r) (set (env) _ r)) *vreg* (if (/= 0 (length l)) (merge l _) _)))
+	(each (lambda (_ r) (set (env) _ r)) *vreg* (if (/= 0 (length l)) (merge-obj l _) _)))
 
 (defcfun-bind push-reg (_)
 	(vreg-sym (dec (length (push *vregt* _)))))

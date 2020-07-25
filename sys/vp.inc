@@ -192,7 +192,7 @@
 (defcmacro vp-def (_ &optional l)
 	(defq v '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14))
 	(setq l (apply cat (map (lambda (x y)
-		(list (list 'quote x) y)) _ (if l (merge (cat (eval l)) v) v))))
+		(list (list 'quote x) y)) _ (if l (merge-obj (cat (eval l)) v) v))))
 	`(progn (defcvar ~l) (apply push (cat (list *func_syms*) ',_))))
 
 (defmacro type-sym (_)
