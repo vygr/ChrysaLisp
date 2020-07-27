@@ -49,17 +49,35 @@
      :indents (list)
      :flow_level 0
      :is_error nil
+     :tokens_parsed 0
      :tokens (list)))
 
 (defunp-bind pscan 'reader ()
   ; (reader) -> :reader dictionary
   (dict-get pscan :reader))
 
+(defunp-bind pscan 'token-parsed (rdr)
+  (setp! rdr :tokens_parsed (inc (getp rdr :tokens_parsed))))
+
+(defunp-bind pscan 'insert-token (pos token)
+  (defq
+    rdr  (callp pscan 'reader)
+    toks (getp rdr :tokens))
+  (when (> pos (length toks))
+    (throw "Invalid index in 'insert-token' " pos))
+  (callp pscan 'token-parsed rdr)
+  (insert toks pos (list token)))
+
+(defunp-bind pscan 'push-token (token)
+  (defq rdr  (callp pscan 'reader))
+  (callp pscan 'token-parsed rdr)
+  (push  (getp rdr :tokens) token))
+
 (defunp-bind pscan 'allow-simple-key ()
-  (setp (callp pscan 'reader) :simple_key_allowed t))
+  (setp! (callp pscan 'reader) :simple_key_allowed t))
 
 (defunp-bind pscan 'disallow-simple-key ()
-  (setp (callp pscan 'reader) :simple_key_allowed nil))
+  (setp! (callp pscan 'reader) :simple_key_allowed nil))
 
 (defunp-bind pscan 'mark ()
   (defq cntrl (callp pscan 'reader))
@@ -143,7 +161,20 @@
   (find ch ascii-flow))
 
 (defunp-bind pscan 'char_is (chi cht)
-  (= (code chi) (chode cht)))
+  (= (code chi) (code cht)))
+
+; SimpleKey
+
+(defunp-bind pscan 'simple-key ()
+  (properties :possible nil :required nil :token_number -1 :mark nil))
+
+(defunp-bind pscan 'remove-simple-key ()
+  (defq rdr (callp pscan 'reader))
+  (when (> (length (getp rdr :simple_keys)) 0)
+    (defq lm (last (getp rdr :simple_keys)))
+    (when (and (getp lm :possible) (getp lm :required))
+      (throw "Simple key expected " (callp pscan 'mark)))
+    (setp! lm :possible nil)))
 
 ; Tokens
 
@@ -152,31 +183,33 @@
 
 (defunp-bind pscan 'stream-start-token ()
   (defq ss (callp pscan 'base-token))
-  (setp! ss :type :stream-start t))
+  (callp pscan 'push-token (setp! ss :type :stream-start t)))
 
 (defunp-bind pscan 'stream-end-token ()
   (defq se (callp  pscan 'base-token))
-  (setp! se :type :stream-end t))
+  (callp pscan 'push-token (setp! se :type :stream-end t)))
 
 (defunp-bind pscan 'document-start-token ()
   (defq
     ds (callp  pscan 'base-token)
     ms (getp (callp pscan 'reader) :pre_mark)
     me (progn (times 3 (callp pscan 'rnext)) (callp pscan 'mark)))
-  (setsp! ds
-    :type :document-start
-    :mark_start ms
-    :mark_end me))
+  (callp pscan 'skip-line)
+  (callp pscan 'push-token (setsp! ds
+      :type :document-start
+      :mark_start ms
+      :mark_end me)))
 
 (defunp-bind pscan 'document-end-token ()
   (defq
     de (callp  pscan 'base-token)
     ms (getp (callp pscan 'reader) :pre_mark)
     me (progn (times 3 (callp pscan 'rnext)) (callp pscan 'mark)))
-  (setsp! de
+  (callp pscan 'skip-line)
+  (callp pscan 'push-token (setsp! de
     :type :document-end
     :mark_start ms
-    :mark_end me))
+    :mark_end me)))
 
 (defunp-bind pscan 'directive-token ()
   (callp pscan 'base-token))
@@ -184,15 +217,52 @@
 (defunp-bind pscan 'block-sequence-start-token ()
   (defq
     bss (callp pscan 'base-token)
-    ms (getp (callp pscan 'reader) :pre_mark)
-    me (callp pscan 'mark))
+    ms (getp (callp pscan 'reader) :pre_mark))
+  (callp pscan 'rnext)
   (setsp! bss
     :type :block-sequence-start
     :mark_start ms
-    :mark_end me))
+    :mark_end (callp pscan 'mark)))
 
 (defunp-bind pscan 'block-mapping-start-token ()
   (callp pscan 'base-token))
+
+(defunp-bind pscan 'roll-indent (rdr col numb token)
+  (if (<= (getp rdr :flow_level) 0)
+    (if (< (getp rdr :indent) col)
+      (progn
+        (push (getp rdr :indents) (getp rdr :indent))
+        (setp! rdr :indent col)
+        (cond
+          ((eql numb nil)
+            (callp pscan 'push-token token))
+          (t (callp pscan 'insert-token (- (getp rdr :tokens_parsed) numb) token)))))))
+
+(defunp-bind pscan 'unroll-indent ())
+
+(defunp-bind pscan 'block-entry-token ()
+  (defq
+    rdr (callp pscan 'reader)
+    bet (callp pscan 'base-token)
+    pm  (getp rdr :pre_mark))
+  (when (= (getp rdr :flow_level) 0)
+    (when (not (getp rdr :simple_key_allowed))
+      (throw "Block sequence not allowed here" ms))
+    (callp pscan 'roll-indent
+      rdr
+      (getp pm :column)
+      nil
+      (callp pscan 'block-sequence-start-token)))
+  (print "Throw bet whens")
+  (callp pscan 'remove-simple-key)
+  (callp pscan 'allow-simple-key)
+  (defq sm (getp rdr :pre_mark))
+  (callp pscan 'rnext)
+  (callp pscan 'push-token
+    (setsp! bet
+      :type :block-entry
+      :mark_start sm
+      :mark_end (callp pscan 'mark))))
 
 (defunp-bind pscan 'block-end-token ()
   (defq
@@ -216,9 +286,6 @@
 (defunp-bind pscan 'flow-mapping-end-token ()
   (callp pscan 'base-token))
 
-(defunp-bind pscan 'block-entry-token ()
-  (callp pscan 'base-token))
-
 (defunp-bind pscan 'flow-entry-token ()
   (callp pscan 'base-token))
 
@@ -240,34 +307,71 @@
 (defunp-bind pscan 'scalar-token ()
   (callp pscan 'base-token))
 
-(defun fetch-next-token (rstrm)
-  (defq tlist (getp rstrm :tokens))
-  (if (getp rstrm :sstart_produced)
+(defun fetch-next-token (rdr)
+  (defq tlist (getp rdr :tokens))
+  (if (getp rdr :sstart_produced)
     (let (
-      (mark (getp rstrn :pre_mark))
+      (mark (getp rdr :pre_mark))
       (ch (callp pscan 'rpeek))
       (nc (callp pscan 'rpeek 1)))
+      (print "In fetch next inner let")
       (cond
+        ; End of stream
         ((callp pscan 'is_z ch)
           (push tlist (callp pscan 'stream-end-token))
+          (setp! rdr :ssend_produced t)
           :eof)
+        ; Comments
+        ((callp pscan 'char_is ch "#")
+          (callp pscan 'skip-line)
+          :ok)
+        ; EOL
+        ((callp pscan 'is_break ch)
+          (callp pscan 'rnext)
+          :ok)
+        ; Document start
         ((and
           (= (getp mark :column) 1)
           (callp pscan 'char_is ch "-")
           (callp pscan 'char_is nc "-")
           (callp pscan 'char_is (callp pscan 'rpeek 2) "-"))
-          (push tlist (callp pscan 'document-start-token))
+          (print "Document Start")
+          (callp pscan 'document-start-token)
           :ok)
+        ; Document end
         ((and
           (= (getp mark :column) 1)
           (callp pscan 'char_is ch ".")
           (callp pscan 'char_is nc ".")
           (callp pscan 'char_is (callp pscan 'rpeek 2) "."))
-          (push tlist (callp pscan 'document-end-token))
+          (print "Document End")
+          (callp pscan 'document-end-token)
           :ok)
-        ))
+        ; Currently unsupported
+        ((or
+          (callp pscan 'char_is ch "?")
+          (callp pscan 'char_is ch "%")
+          (callp pscan 'char_is ch "*")
+          (callp pscan 'char_is ch "&")
+          (callp pscan 'char_is ch "!")
+          (callp pscan 'char_is ch (ascii-char 92)))
+          (throw "Control not supported " ch))
+        ; Block entry
+        ((and
+          (callp pscan 'char_is ch "-")
+          (or (callp pscan 'is_blank nc)
+            (callp pscan 'is_break nc)))
+          (print "Block entry")
+          (callp pscan 'block-entry-token)
+          :ok)
+        ; Sequence flows
+        ; Mapping flows
+        (t
+          (print "Break on char " ch " " (code ch) " next " nc)
+          :eof)))
     (progn
-      (push tlist (callp pscan 'stream-start-token))
+      (callp pscan 'stream-start-token)
+      (setp! rdr :sstart_produced t)
       :ok)))
 
 (defun consume ()
@@ -275,7 +379,9 @@
     rdr (callp pscan 'reader)
     res (fetch-next-token rdr))
   (while (eql res :ok)
-    (setq res (fetch-next-token rdr)))
+    (setq res (fetch-next-token rdr))
+    (print "FN res = " res))
+  (print "all done")
   (getp rdr :tokens))
 
 (defun scan (buffer)
