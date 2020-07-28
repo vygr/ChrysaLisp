@@ -40,7 +40,7 @@
      :pre_mark (properties :line 1 :column 1 :buff_pos 0)
      :buff_pos 0
      :line 1
-     :column 1
+     :column 0
      :sstart_produced nil
      :ssend_produced nil
      :simple_key_allowed t
@@ -144,12 +144,16 @@
 (defunp-bind pscan 'is_breakz (ch)
   (or (callp pscan 'is_z ch)(callp pscan 'is_break ch)))
 
+(defunp-bind pscan 'is_tab (ch)
+  (= (code ch) 0x09))
+
 (defunp-bind pscan 'is_blank (ch)
-  (defq cc (code ch))
-  (or (= cc 0x20) (= cc 0x09)))
+  (= (code ch) 0x20))
 
 (defunp-bind pscan 'is_blankz (ch)
-  (or (callp pscan 'is_blank ch) (callp pscan 'is_z ch)))
+  (or
+    (callp pscan 'is_blank ch)
+    (callp pscan 'is_breakz ch)))
 
 (defunp-bind pscan 'is_digit (ch)
   (<= 0x30 (code ch) 0x39))
@@ -163,10 +167,34 @@
 (defunp-bind pscan 'char_is (chi cht)
   (= (code chi) (code cht)))
 
+(defunp-bind pscan 'skip-to-next ()
+  (defq
+    loop t
+    fl   (getp (callp pscan 'reader) :flow_level)
+    ska  (getp (callp pscan 'reader) :simple_key_allowed))
+  (while loop
+    (defq ch (callp pscan 'rpeek))
+    (cond
+      ((callp pscan 'is_blank ch)
+        (callp pscan 'rnext))
+      ((and (callp pscan 'is_tab ch) (or (> fl 0) (not ska)))
+        (callp pscan 'rnext))
+      ((callp pscan 'char_is ch "#")
+        (callp pscan 'skip-line))
+      ((callp pscan 'is_break ch)
+        (callp pscan 'rnext)
+        (when (= fl 0) (callp pscan 'allow-simple-key)))
+      (t (setq loop nil))))
+  t)
+
 ; SimpleKey
 
 (defunp-bind pscan 'simple-key ()
   (properties :possible nil :required nil :token_number -1 :mark nil))
+
+(defunp-bind pscan 'mark-simple-key ()
+  (setp! (callp pscan 'simple-key)
+    :mark (callp pscan 'mark)))
 
 (defunp-bind pscan 'remove-simple-key ()
   (defq rdr (callp pscan 'reader))
@@ -175,6 +203,18 @@
     (when (and (getp lm :possible) (getp lm :required))
       (throw "Simple key expected " (callp pscan 'mark)))
     (setp! lm :possible nil)))
+
+(defunp-bind pscan 'stale-simple-keys (rdr)
+  (reduced-reduce (lambda (acc el)
+    (when (and
+      (getp el :possible) (getp el :mark)
+      (or
+        (< (getp (getp el :mark) :line) (getp rdr :line))
+        (< (+ (getp (getp el :mark) :buff_pos) 1024) (getp rdr :buff_pos))))
+      (when (getp el :required)
+        (throw "simple key expect :" t)))
+    acc)
+  (getp rdr :simple_keys) t))
 
 ; Tokens
 
@@ -227,7 +267,18 @@
 (defunp-bind pscan 'block-mapping-start-token ()
   (callp pscan 'base-token))
 
+(defunp-bind pscan 'block-end-token ()
+  (defq
+    be (callp pscan 'base-token)
+    ms (getp (callp pscan 'reader) :pre_mark)
+    me (callp pscan 'mark))
+  (setsp!  be
+    :type :block-end
+    :mark_start ms
+    :mark_end me))
+
 (defunp-bind pscan 'roll-indent (rdr col numb token)
+  (print "roll col " col " indent " (getp rdr :indent))
   (if (<= (getp rdr :flow_level) 0)
     (if (< (getp rdr :indent) col)
       (progn
@@ -238,7 +289,11 @@
             (callp pscan 'push-token token))
           (t (callp pscan 'insert-token (- (getp rdr :tokens_parsed) numb) token)))))))
 
-(defunp-bind pscan 'unroll-indent ())
+(defunp-bind pscan 'unroll-indent (rdr col)
+  (if (<= (getp rdr :flow_level) 0)
+    (while (> (getp rdr :indent) col)
+      (callp pscan 'push-token (callp pscan 'block-end-token))
+      (setp! rdr :indent (pop (getp rdr :indents))))))
 
 (defunp-bind pscan 'block-entry-token ()
   (defq
@@ -248,12 +303,12 @@
   (when (= (getp rdr :flow_level) 0)
     (when (not (getp rdr :simple_key_allowed))
       (throw "Block sequence not allowed here" ms))
+    (print "Block Entry Sequence flow Level " (getp rdr :flow_level))
     (callp pscan 'roll-indent
       rdr
       (getp pm :column)
       nil
       (callp pscan 'block-sequence-start-token)))
-  (print "Throw bet whens")
   (callp pscan 'remove-simple-key)
   (callp pscan 'allow-simple-key)
   (defq sm (getp rdr :pre_mark))
@@ -263,16 +318,6 @@
       :type :block-entry
       :mark_start sm
       :mark_end (callp pscan 'mark))))
-
-(defunp-bind pscan 'block-end-token ()
-  (defq
-    be (callp pscan 'base-token)
-    ms (getp (callp pscan 'reader) :pre_mark)
-    me (callp pscan 'mark))
-  (setsp!  bss
-    :type :block-end
-    :mark_start ms
-    :mark_end me))
 
 (defunp-bind pscan 'flow-sequence-start-token ()
   (callp pscan 'base-token))
@@ -311,20 +356,19 @@
   (defq tlist (getp rdr :tokens))
   (if (getp rdr :sstart_produced)
     (let (
+      (ign  (callp pscan 'skip-to-next))
+      (ign0 (callp pscan 'stale-simple-keys rdr))
       (mark (getp rdr :pre_mark))
       (ch (callp pscan 'rpeek))
       (nc (callp pscan 'rpeek 1)))
-      (print "In fetch next inner let")
+      (callp pscan 'unroll-indent rdr (getp mark :column))
+      ; (print "In fetch next inner let")
       (cond
         ; End of stream
         ((callp pscan 'is_z ch)
           (push tlist (callp pscan 'stream-end-token))
           (setp! rdr :ssend_produced t)
           :eof)
-        ; Comments
-        ((callp pscan 'char_is ch "#")
-          (callp pscan 'skip-line)
-          :ok)
         ; EOL
         ((callp pscan 'is_break ch)
           (callp pscan 'rnext)
@@ -334,7 +378,8 @@
           (= (getp mark :column) 1)
           (callp pscan 'char_is ch "-")
           (callp pscan 'char_is nc "-")
-          (callp pscan 'char_is (callp pscan 'rpeek 2) "-"))
+          (callp pscan 'char_is (callp pscan 'rpeek 2) "-")
+          (callp pscan 'is_blankz (callp pscan 'rpeek 3)))
           (print "Document Start")
           (callp pscan 'document-start-token)
           :ok)
@@ -343,7 +388,8 @@
           (= (getp mark :column) 1)
           (callp pscan 'char_is ch ".")
           (callp pscan 'char_is nc ".")
-          (callp pscan 'char_is (callp pscan 'rpeek 2) "."))
+          (callp pscan 'char_is (callp pscan 'rpeek 2) ".")
+          (callp pscan 'is_blankz (callp pscan 'rpeek 3)))
           (print "Document End")
           (callp pscan 'document-end-token)
           :ok)
@@ -359,8 +405,7 @@
         ; Block entry
         ((and
           (callp pscan 'char_is ch "-")
-          (or (callp pscan 'is_blank nc)
-            (callp pscan 'is_break nc)))
+          (callp pscan 'is_blankz nc))
           (print "Block entry")
           (callp pscan 'block-entry-token)
           :ok)
