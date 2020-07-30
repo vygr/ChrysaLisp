@@ -56,6 +56,13 @@
   ; (reader) -> :reader dictionary
   (dict-get pscan :reader))
 
+(defunp-bind pscan 'mark ()
+  (defq cntrl (callp pscan 'reader))
+  (properties
+    :line     (getp cntrl :line)
+    :column   (getp cntrl :column)
+    :pos      (getp cntrl :buff_pos)))
+
 (defunp-bind pscan 'token-parsed (rdr)
   (setp! rdr :tokens_parsed (inc (getp rdr :tokens_parsed))))
 
@@ -79,18 +86,15 @@
 (defunp-bind pscan 'disallow-simple-key ()
   (setp! (callp pscan 'reader) :simple_key_allowed nil))
 
-(defunp-bind pscan 'mark ()
-  (defq cntrl (callp pscan 'reader))
-  (properties
-    :line     (getp cntrl :line)
-    :column   (getp cntrl :column)
-    :pos      (getp cntrl :buff_pos)))
-
-
 (defunp-bind pscan 'rpeek (&optional pndx)
   ; (rpeek [i]) -> nil | char
-  (defq cntrl (callp pscan 'reader))
-  (elem (+ (getp cntrl :buff_pos) (opt pndx 0)) (getp cntrl :buffer)))
+  (setd pndx 0)
+  (defq
+    rdr (callp pscan 'reader)
+    buf (getp rdr :buffer)
+    bp  (getp rdr :buff_pos))
+  (if (< (+ bp pndx) (getp rdr :buff_len))
+    (elem (+ bp pndx) (getp rdr :buffer))))
 
 (defunp-bind pscan 'rnext ()
   ; (rnext) -> nil | char
@@ -113,22 +117,33 @@
     (setsp! cntrl :line (inc clin) :column 1))
   ch)
 
-(defunp-bind pscan 'rback ()
-  ; (rback) -> nil
-  (defq
-    cntrl (callp pscan 'reader)
-    pmark (getp cntrl :pre_mark))
-  (when pmark
-    (setsp! cntrl
-      :line (first pmark)
-      :column (second pmark)
-      :buff_pos (elem 2 pmark))))
-
 (defunp-bind pscan 'skip-line ()
   ; (skip-line) -> next line
   (defq ch (callp pscan 'rnext))
   (until (or (eql ch nil) (eql ch (char 0x0a)))
     (setq ch (callp pscan 'rnext))))
+
+(defunp-bind pscan 'skip-to-next ()
+  (defq
+    loop t
+    fl   (getp (callp pscan 'reader) :flow_level)
+    ska  (getp (callp pscan 'reader) :simple_key_allowed))
+  (while loop
+    (defq ch (callp pscan 'rpeek))
+    (prin ch)
+    (cond
+      ((callp pscan 'is_blank ch)
+        (callp pscan 'rnext))
+      ((and (callp pscan 'is_tab ch) (or (> fl 0) (not ska)))
+        (callp pscan 'rnext))
+      ((callp pscan 'char_is ch "#")
+        (callp pscan 'skip-line))
+      ((callp pscan 'is_break ch)
+        (callp pscan 'rnext)
+        (when (= fl 0) (callp pscan 'allow-simple-key)))
+      (t (setq loop nil))))
+  (print)
+  t)
 
 ; Reader predicates
 (defq ascii-set (const "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_"))
@@ -167,26 +182,6 @@
 (defunp-bind pscan 'char_is (chi cht)
   (= (code chi) (code cht)))
 
-(defunp-bind pscan 'skip-to-next ()
-  (defq
-    loop t
-    fl   (getp (callp pscan 'reader) :flow_level)
-    ska  (getp (callp pscan 'reader) :simple_key_allowed))
-  (while loop
-    (defq ch (callp pscan 'rpeek))
-    (cond
-      ((callp pscan 'is_blank ch)
-        (callp pscan 'rnext))
-      ((and (callp pscan 'is_tab ch) (or (> fl 0) (not ska)))
-        (callp pscan 'rnext))
-      ((callp pscan 'char_is ch "#")
-        (callp pscan 'skip-line))
-      ((callp pscan 'is_break ch)
-        (callp pscan 'rnext)
-        (when (= fl 0) (callp pscan 'allow-simple-key)))
-      (t (setq loop nil))))
-  t)
-
 ; SimpleKey
 
 (defunp-bind pscan 'simple-key ()
@@ -215,6 +210,27 @@
         (throw "simple key expect :" t)))
     acc)
   (getp rdr :simple_keys) t))
+
+; Token Management
+(defunp-bind pscan 'roll-indent (rdr col numb token)
+  (print "roll col " col " indent " (getp rdr :indent))
+  (if (<= (getp rdr :flow_level) 0)
+    (if (< (getp rdr :indent) col)
+      (progn
+        (push (getp rdr :indents) (getp rdr :indent))
+        (setp! rdr :indent col)
+        (cond
+          ((eql numb nil)
+            (callp pscan 'push-token token))
+          (t (callp pscan 'insert-token (- (getp rdr :tokens_parsed) numb) token)))))))
+
+(defunp-bind pscan 'unroll-indent (rdr col)
+  (print "unroll col " col " indent " (getp rdr :indent))
+  (if (<= (getp rdr :flow_level) 0)
+    (while (> (getp rdr :indent) col)
+      (print "  unroll condition met")
+      (callp pscan 'push-token (callp pscan 'block-end-token))
+      (setp! rdr :indent (pop (getp rdr :indents))))))
 
 ; Tokens
 
@@ -277,24 +293,6 @@
     :mark_start ms
     :mark_end me))
 
-(defunp-bind pscan 'roll-indent (rdr col numb token)
-  (print "roll col " col " indent " (getp rdr :indent))
-  (if (<= (getp rdr :flow_level) 0)
-    (if (< (getp rdr :indent) col)
-      (progn
-        (push (getp rdr :indents) (getp rdr :indent))
-        (setp! rdr :indent col)
-        (cond
-          ((eql numb nil)
-            (callp pscan 'push-token token))
-          (t (callp pscan 'insert-token (- (getp rdr :tokens_parsed) numb) token)))))))
-
-(defunp-bind pscan 'unroll-indent (rdr col)
-  (if (<= (getp rdr :flow_level) 0)
-    (while (> (getp rdr :indent) col)
-      (callp pscan 'push-token (callp pscan 'block-end-token))
-      (setp! rdr :indent (pop (getp rdr :indents))))))
-
 (defunp-bind pscan 'block-entry-token ()
   (defq
     rdr (callp pscan 'reader)
@@ -352,6 +350,8 @@
 (defunp-bind pscan 'scalar-token ()
   (callp pscan 'base-token))
 
+(defun fetch-plain-scalar (rdr))
+
 (defun fetch-next-token (rdr)
   (defq tlist (getp rdr :tokens))
   (if (getp rdr :sstart_produced)
@@ -370,9 +370,7 @@
           (setp! rdr :ssend_produced t)
           :eof)
         ; EOL
-        ((callp pscan 'is_break ch)
-          (callp pscan 'rnext)
-          :ok)
+        ((callp pscan 'is_break ch) (callp pscan 'rnext) :ok)
         ; Document start
         ((and
           (= (getp mark :column) 1)
@@ -406,13 +404,22 @@
         ((and
           (callp pscan 'char_is ch "-")
           (callp pscan 'is_blankz nc))
+          ; (callp pscan 'is_breakz nc))
           (print "Block entry")
           (callp pscan 'block-entry-token)
           :ok)
+        ; ((and
+        ;   (callp pscan 'char_is ch "-")
+        ;   (not (callp pscan 'is_blankz nc)))
+        ;   (print "Plain scalar")
+        ;   (callp pscan 'skip-line)
+        ;   :ok)
         ; Sequence flows
         ; Mapping flows
         (t
-          (print "Break on char " ch " " (code ch) " next " nc)
+          (print "Plain scalar skipping line")
+          (callp pscan 'skip-line)
+          (print "  next " (callp pscan 'rpeek))
           :eof)))
     (progn
       (callp pscan 'stream-start-token)
