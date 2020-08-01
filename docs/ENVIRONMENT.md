@@ -7,12 +7,12 @@ function environments, plus custom properties.
 
 ## Symbols
 
-Symbols are a ChrysaLisp object that is a sequence of characters, similar to
+Symbols are a ChrysaLisp object that are a sequence of characters, similar to
 string objects, but the difference is that a symbol has been 'interned'. What
-this means is that during the `(read)` part of the REPL symbols are read in and
-a test is made to see if such a symbol already exists. If it does then the
-symbol that has been read in is replaced with the existing symbol object, if
-not a new symbol object is created and stored.
+this means is that during the `(read)` part of the REPL, when symbols are read,
+a test is made to see if this symbol already exists. If it does then the symbol
+that has been read is replaced with the existing symbol object, if not a new
+symbol object is created and stored.
 
 In this way ALL symbol objects that have the same character sequence become the
 exact same object in memory, and share the same memory location.
@@ -21,7 +21,7 @@ Why do this ? Why bother ? Well it allows some very useful things to happen if
 you know that a symbol has only one object instance no matter how or where that
 symbol was read in. It makes for very fast hash map key searches and find
 operations if all you need to do is check the address of the objects match
-rather than the compare the character sequences.
+rather than compare the character sequences.
 
 ### Standard symbols
 
@@ -45,7 +45,7 @@ so.
 ```
 
 `(defq)` is just the same as `(def)` but it assumes that the environment to
-bind the symbol in is the current environment `(env)` and that the symbols
+bind the symbol within is the current environment `(env)` and that the symbols
 don't need to be quoted, hence the name `(defq)`.
 
 To change the binding of an existing bound symbol, and this will raise an error
@@ -81,7 +81,7 @@ the search for the symbol binding will start from that environment.
 
 A string can be 'interned' by user code by use of the `(sym)` function. This is
 often very useful when creating and managing your own fast lookup functions or
-caches. Or you may generating a symbol pragmatically for your own reasons.
+caches. Or you may be generating a symbol pragmatically for your own reasons.
 
 ```lisp
 (def (env) (sym "ABCDEF") 23)
@@ -112,7 +112,7 @@ We will cover this later, first we need to talk about environments.
 ## Environments
 
 An environment is a set of symbol bindings. Under the hood it's just a hash map
-that associates a symbol with a value.
+that associates symbols with values.
 
 You can look at the current environment by typing `(env)` at the REPL.
 
