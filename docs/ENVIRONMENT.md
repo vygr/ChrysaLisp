@@ -7,8 +7,8 @@ function environments, plus custom properties.
 
 ## Symbols
 
-Symbols are a ChrysaLisp object that is a sequence of characters, similar to s
-string object, but the difference is that a symbol has been 'interned'. What
+Symbols are a ChrysaLisp object that is a sequence of characters, similar to
+string objects, but the difference is that a symbol has been 'interned'. What
 this means is that during the `(read)` part of the REPL symbols are read in and
 a test is made to see if such a symbol already exists. If it does then the
 symbol that has been read in is replaced with the existing symbol object, if
@@ -79,6 +79,18 @@ It is possible to unbind a symbol by using `(undef)` like so.
 `(get)` can take an optional environment to work from. `(get e)` and if given
 the search for the symbol binding will start from that environment.
 
+A string can be 'interned' by user code by use of the `(sym)` function. This is
+often very useful when creating and managing your own fast lookup functions or
+caches. Or you may generating a symbol pragmatically for your own reasons.
+
+```lisp
+(def (env) (sym "ABCDEF") 23)
+(get 'ABCDEF)
+23
+ABCDEF
+23
+```
+
 ### Keyword Symbols
 
 Keyword symbols are symbols that start with a ':' character, and they have
@@ -117,8 +129,7 @@ If you want to look up the parent of an environment you can use `(penv)`, try
 typing `(penv (env))` at the REPL prompt. I'm not going to print that here as
 it's way too big, but that is the boot environment that all Lisp processes have
 as their shared parent environment. It's populated via the
-`class/lisp/boot.inc` file that is evaluated for every Lisp process that
-launches.
+`class/lisp/boot.inc` file that's evaluated for every Lisp process launched.
 
 ### Function environments
 
@@ -126,21 +137,21 @@ Every function, ie. lambda, that is called is provided with it's own empty
 environment, the parent of that environment is the current environment present
 at invocation.
 
-The function environment is initially populated with the formal argument
-symbols, bound to the parameters that are passed to said function on
-invocation. So before your function body starts to run it will already be able
-to 'see' the formal arguments symbol bindings. It is then free to add more and
-use the current bindings as it wishes.
+This function environment is initially populated with the formal parameter
+symbols, bound to the arguments that are passed to said function on invocation.
+So before your function body starts to run it will already be able to 'see' the
+formal parameter symbol bindings. It is then free to add more and use the
+current bindings as it wishes.
 
 `(defq)` or `(bind)` functions will always bind symbols in the current
-environment. `(setq)` will search up the environment parentage to find a bound
+environment. `(setq)` will search the environment parentage to find a bound
 symbol to operate on.
 
 `(def)` and `(set)` are given the environment explicitly, so can be used to
-manipulate bindings that are not within the current functions environment etc.
+manipulate bindings that are not within the current functions environment.
 
 `(get)` and `(undef)` are given the environment optionally, so can be used to
-manipulate bindings that are not within the current functions environment etc.
+manipulate bindings that are not within the current functions environment.
 
 ### Properties
 
@@ -165,10 +176,10 @@ e
 nil
 ```
 
-The optional parameter, to `(env)`, is used to change the number of hash
-buckets in an existing environment if positive, or create a new isolated
-environment (no parent) if negative.
+The optional parameter, to `(env)`, if positive, is used to change the number
+of hash buckets of the current environment, or create a new isolated
+environment, ie. no parent, if negative.
 
 You may wish to increase the number of buckets in the current environment,
-beyond the default of 1, if it is going to contain an extremely large number of
+beyond the default of 1, if it's going to contain an extremely large number of
 symbol bindings !
