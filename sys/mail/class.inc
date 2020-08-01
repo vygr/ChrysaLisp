@@ -70,7 +70,7 @@
 (defcvar 'num_mbox_buckets 8)
 
 (def-struct 'ml_statics)
-	(uint 'parcel_id 'next_mbox_id)
+	(uint 'session 'next_mbox_id)
 	(ptr 'links_array 'routing_map 'service_map 'out_mbox_addr)
 	(struct 'msg_heap 'hp_heap)
 	(struct 'mbox_heap 'hp_heap)

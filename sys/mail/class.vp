@@ -42,7 +42,7 @@
 
 	;init postmen task
 	(vp-xor-rr r0 r0)
-	(assign '(r0) '((r12 ml_statics_parcel_id)))
+	(assign '(r0) '((r12 ml_statics_session)))
 	(call 'sys_task :start `((@ ,(f-path 'sys_mail :out))) '(_ _ r2))
 	(f-bind 'sys_mail :statics r12)
 	(assign '(r2) '((r12 ml_statics_out_mbox_addr)))
@@ -659,7 +659,7 @@
 		(assign {msg->msg_dest.id_cpu} {data->kn_msg_ping_origin})
 		(assign {0} {data->kn_msg_ping_hops})
 		(assign {msg->msg_dest.id_cpu} {data->kn_msg_ping_via})
-		(assign {(mail_statics->ml_statics_parcel_id + 1) => mail_statics->ml_statics_parcel_id} {data->kn_msg_ping_session})
+		(assign {(mail_statics->ml_statics_session + 1) => mail_statics->ml_statics_session} {data->kn_msg_ping_session})
 		(call 'sys_mem :copy {&services->str_data, &data->kn_msg_ping_services, services->str_length})
 		(call 'sys_mail :send {msg})
 		(call 'list :destroy {cat.cat_entries})

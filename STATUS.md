@@ -35,10 +35,10 @@ now have no race condition. Also took the opportunity to completely rework the
 messages routing system structures and remove the need for (kernel-total).
 
 Most of the (open-xxx) calls have been converted to Lisp rather than VP. No
-advantage now and we can easily add more task distribution calls now at the
-Lisp level. Saved nearly 2KB of boot image.
+advantage now and we can easily add more task distribution calls at the Lisp
+level. Saved nearly 2KB of boot image.
 
-New (mail-devices) call to return the current know list of network CPU id's.
+New (mail-devices) call to return the current known list of network CPU id's.
 
 Frank has continued to update the new xtras.inc library with various flavours
 of tree walkers and converted the argparse.inc lib over to use the latest
@@ -51,8 +51,10 @@ get promoted to part of the (read) function. Thanks to FrancC01 for inspiring
 this addition.
 
 eg.
+```lisp
 (map (# (< %0 0)) '(1 2 3 4 5 6 -6 -7 -8 0 7))
 (nil nil nil nil nil nil t t t nil nil)
+```
 
 Anaphoric macros have moved over to the lib/ folder.
 
