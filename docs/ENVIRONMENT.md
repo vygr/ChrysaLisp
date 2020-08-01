@@ -7,7 +7,7 @@ function environments, plus custom properties.
 
 ## Symbols
 
-Symbols are a ChrysaLisp object that are a sequence of characters, similar to
+A symbol is a ChrysaLisp object that is a sequence of characters, similar to
 string objects, but the difference is that a symbol has been 'interned'. What
 this means is that during the `(read)` part of the REPL, when symbols are read,
 a test is made to see if this symbol already exists. If it does then the symbol
@@ -61,19 +61,26 @@ You can look up the binding for a symbol with the `(get)` function. If the
 symbol is not bound this will return `nil`.
 
 ```lisp
-(get 'bert) -> 56
-(get 'alf) -> "ABCD"
-(get 'a) -> '(1 2 3)
-(get 'z57u) -> 78)
-(get 'xyz) -> nil
+(get 'bert)
+56
+(get 'alf)
+"ABCD"
+(get 'a)
+'(1 2 3)
+(get 'z57u)
+78
+(get 'xyz)
+nil
 ```
 
 It is possible to unbind a symbol by using `(undef)` like so.
 
 ```lisp
 (undef (env) 'bert 'alf)
-(get 'bert) -> nil
-(get 'alf) -> nil
+(get 'bert)
+nil
+(get 'alf)
+nil
 ```
 
 `(get)` can take an optional environment to work from. `(get e)` and if given
@@ -81,7 +88,8 @@ the search for the symbol binding will start from that environment.
 
 A string can be 'interned' by user code by use of the `(sym)` function. This is
 often very useful when creating and managing your own fast lookup functions or
-caches. Or you may be generating a symbol pragmatically for your own reasons.
+caches. Or you may be generating a symbol programmatically for your own
+reasons.
 
 ```lisp
 (def (env) (sym "ABCDEF") 23)
@@ -147,11 +155,12 @@ current bindings as it wishes.
 environment. `(setq)` will search the environment parentage to find a bound
 symbol to operate on.
 
-`(def)` and `(set)` are given the environment explicitly, so can be used to
-manipulate bindings that are not within the current functions environment.
+`(def)`, `(set)` and `(undef)` are given the environment explicitly, so can be
+used to manipulate bindings that are not within the current functions
+environment.
 
-`(get)` and `(undef)` are given the environment optionally, so can be used to
-manipulate bindings that are not within the current functions environment.
+`(get)` is given the environment optionally, so can search for bindings that
+are not within the current functions environment.
 
 ### Properties
 
