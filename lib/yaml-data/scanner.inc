@@ -116,7 +116,7 @@
       (setq ch (elem pos (getp cntrl :buffer))))
     (t nil))
   (when (and ch (eql ch (char 0x0a)))
-    (setsp! cntrl :line (inc clin) :column 1))
+    (setsp! cntrl :line (inc clin) :column 0))
   ch)
 
 (defunp-bind pscan 'skip-line ()
@@ -148,9 +148,36 @@
   ; (print)
   t)
 
-; Reader predicates
+; Reader predicates and well know char sequences
+
 (defq ascii-set (const "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_"))
 (defq ascii-flow (const ",[]{}"))
+(defq doc-start-set (const "---"))
+(defq doc-end-set (const "..."))
+(defq illegal-set (const (cat "?%*&!" (char 92))))
+
+(defunp-bind pscan 'in-buff-len (n)
+  (< (+ (getp rdr :buff_pos) n) (getp rdr :buff_len)))
+
+(defunp-bind pscan 'char-seq-is (rdr chs)
+  (defq
+    bp  (getp rdr :buff_pos)
+    bf  (getp rdr :buffer)
+    res t)
+  (each (lambda (ch)
+    (when (not (eql ch (elem (+ _ bp) bf)))
+      (setq res nil))) chs)
+  res)
+
+(defunp-bind pscan 'doc-start? (rdr)
+  (when (and (callp pscan 'in-buff-len 3)
+    (callp pscan 'char-seq-is rdr doc-start-set))
+    t))
+
+(defunp-bind pscan 'doc-end? (rdr)
+  (when (and (callp pscan 'in-buff-len 3)
+    (callp pscan 'char-seq-is rdr doc-end-set))
+    t))
 
 (defunp-bind pscan 'is_z (ch)
   (eql ch (ascii-char 0)))
@@ -188,21 +215,28 @@
 ; SimpleKey
 
 (defunp-bind pscan 'simple-key ()
-  (properties :possible nil :required nil :token_number -1 :mark nil))
+  (properties
+    :possible nil
+    :required nil
+    :token_number nil
+    :mark nil))
 
 (defunp-bind pscan 'mark-simple-key ()
-  (setp! (callp pscan 'simple-key)
-    :mark (callp pscan 'mark)))
+  (setp!
+    (callp pscan 'simple-key)
+    :mark
+    (callp pscan 'mark)))
 
-(defunp-bind pscan 'remove-simple-key ()
-  (defq rdr (callp pscan 'reader))
+(defunp-bind pscan 'remove-simple-key (&optional rdr)
+  (setd rdr (callp pscan 'reader))
   (when (> (length (getp rdr :simple_keys)) 0)
     (defq lm (last (getp rdr :simple_keys)))
     (when (and (getp lm :possible) (getp lm :required))
       (throw "Simple key expected " (callp pscan 'mark)))
     (setp! lm :possible nil)))
 
-(defunp-bind pscan 'stale-simple-keys (rdr)
+(defunp-bind pscan 'stale-simple-keys (&optional rdr)
+  (setd rdr (callp pscan 'reader))
   (defq mk (getp rdr :pre_mark))
   (print "Stale simple key " (getp mk :line))
   (each (lambda (el)
@@ -215,6 +249,24 @@
       (if (getp el :required)
         (throw "simple key expect :" t)
         (setp! el :possible nil)))) (getp rdr :simple_keys)))
+
+(defunp-bind pscan 'save-simple-key (&optional rdr)
+  (setd rdr (callp pscan 'reader))
+  (defq
+    pm  (getp rdr :pre_mark)
+    req (and
+      (> (getp rdr :flow_level) 0)
+      (= (getp rdr :indent) (getp pm :column))))
+  (when (getp rdr :simple_key_allowed)
+    (defq sk (callp pscan 'mark-simple-key))
+    (setsp! sk
+      :possible t
+      :required req
+      :token_number (+ (getp rdr :tokens_parsed) (length (getp rdr :tokens))))
+    (callp pscan 'remove-simple-key rdr)
+    (pop (getp rdr :simple_keys))
+    (push (getp rdr :simple_keys) sk)))
+
 
 ; Token Management
 (defunp-bind pscan 'roll-indent (rdr col numb token)
@@ -257,7 +309,6 @@
     ms (callp pscan 'mark)
     me (progn (times 3 (callp pscan 'rnext)) (callp pscan 'mark)))
   (callp pscan 'skip-line)
-  (print "DS start " ms " end " me " cmp " (callp pscan 'mark))
   (callp pscan 'push-token (setsp! ds
       :type :document-start
       :mark_start ms
@@ -359,7 +410,28 @@
 (defunp-bind pscan 'scalar-token ()
   (callp pscan 'base-token))
 
-(defun fetch-plain-scalar (rdr))
+(defunp-bind pscan 'scan-plain-scalar (rdr)
+  (defq
+    index (inc (getp rdr :indent))
+    mark  (callp pscan 'mark)
+    strng ""
+    leading_break ""
+    trailing_breaks ""
+    white_spaces ""
+    leading_blanks nil
+    loop t)
+  (while loop
+    ; Check for start or end doc if we are at col 1
+    (when (= (getp mark :column) 0)))
+
+  ; Check for comment
+  ; While not blank or end
+
+  )
+(defun fetch-plain-scalar (rdr)
+  (callp pscan 'save-simple-key rdr)
+  (callp pscan 'disallow-simple-key)
+  (callp pscan 'push-token (callp pscan 'scan-plain-scalar rdr)))
 
 (defun fetch-next-token (rdr)
   (defq tlist (getp rdr :tokens))
@@ -382,51 +454,40 @@
         ((callp pscan 'is_break ch) (callp pscan 'rnext) :ok)
         ; Document start
         ((and
-          (= (getp mark :column) 1)
-          (callp pscan 'char_is ch "-")
-          (callp pscan 'char_is nc "-")
-          (callp pscan 'char_is (callp pscan 'rpeek 2) "-")
+          (callp pscan 'doc-start? rdr)
           (callp pscan 'is_blankz (callp pscan 'rpeek 3)))
           (print "Document Start")
           (callp pscan 'document-start-token)
           :ok)
         ; Document end
         ((and
-          (= (getp mark :column) 1)
-          (callp pscan 'char_is ch ".")
-          (callp pscan 'char_is nc ".")
-          (callp pscan 'char_is (callp pscan 'rpeek 2) ".")
+          (callp pscan 'doc-end? rdr)
           (callp pscan 'is_blankz (callp pscan 'rpeek 3)))
           (print "Document End")
           (callp pscan 'document-end-token)
           :ok)
         ; Currently unsupported
-        ((or
-          (callp pscan 'char_is ch "?")
-          (callp pscan 'char_is ch "%")
-          (callp pscan 'char_is ch "*")
-          (callp pscan 'char_is ch "&")
-          (callp pscan 'char_is ch "!")
-          (callp pscan 'char_is ch (ascii-char 92)))
+        ((find ch illegal-set)
           (throw "Control not supported " ch))
         ; Block entry
         ((and
           (callp pscan 'char_is ch "-")
           (callp pscan 'is_blankz nc))
-          ; (callp pscan 'is_breakz nc))
           (print "Block entry")
           (callp pscan 'block-entry-token)
           :ok)
-        ; ((and
-        ;   (callp pscan 'char_is ch "-")
-        ;   (not (callp pscan 'is_blankz nc)))
-        ;   (print "Plain scalar")
-        ;   (callp pscan 'skip-line)
-        ;   :ok)
+        ((and
+          (callp pscan 'char_is ch "-")
+          (not (callp pscan 'is_blankz nc)))
+          (print "Plain scalar")
+          ;(callp pscan 'skip-line)
+          (throw "In '-' not blankz" (callp pscan 'mark))
+          :eok)
         ; Sequence flows
         ; Mapping flows
         (t
           (print "Plain scalar skipping line")
+          (print " ch '" ch "'' nc '" nc "'")
           (callp pscan 'skip-line)
           (print "  next " (callp pscan 'rpeek))
           :eof)))
