@@ -37,7 +37,7 @@
   (setsp! tmp
     :buffer buffer
      :buff_len (length buffer)
-     :pre_mark (properties :line 1 :column 1 :buff_pos 0)
+     :pre_mark (properties :line 1 :column 0 :buff_pos 0)
      :buff_pos 0
      :line 1
      :column 0
@@ -70,10 +70,12 @@
   (defq
     rdr  (callp pscan 'reader)
     toks (getp rdr :tokens))
-  (when (> pos (length toks))
-    (throw "Invalid index in 'insert-token' " pos))
-  (callp pscan 'token-parsed rdr)
-  (insert toks pos (list token)))
+  (cond
+    ((<= pos (length toks))
+      (callp pscan 'token-parsed rdr)
+      (insert toks pos (list token)))
+    (t
+      (throw "Invalid index in 'insert-token' " pos))))
 
 (defunp-bind pscan 'push-token (token)
   (defq rdr  (callp pscan 'reader))
@@ -130,7 +132,7 @@
     ska  (getp (callp pscan 'reader) :simple_key_allowed))
   (while loop
     (defq ch (callp pscan 'rpeek))
-    (prin ch)
+    ; (prin ch)
     (cond
       ((callp pscan 'is_blank ch)
         (callp pscan 'rnext))
@@ -140,9 +142,10 @@
         (callp pscan 'skip-line))
       ((callp pscan 'is_break ch)
         (callp pscan 'rnext)
-        (when (= fl 0) (callp pscan 'allow-simple-key)))
+        (when (= fl 0)
+          (callp pscan 'allow-simple-key)))
       (t (setq loop nil))))
-  (print)
+  ; (print)
   t)
 
 ; Reader predicates
@@ -200,16 +203,18 @@
     (setp! lm :possible nil)))
 
 (defunp-bind pscan 'stale-simple-keys (rdr)
-  (reduced-reduce (lambda (acc el)
-    (when (and
-      (getp el :possible) (getp el :mark)
-      (or
-        (< (getp (getp el :mark) :line) (getp rdr :line))
-        (< (+ (getp (getp el :mark) :buff_pos) 1024) (getp rdr :buff_pos))))
-      (when (getp el :required)
-        (throw "simple key expect :" t)))
-    acc)
-  (getp rdr :simple_keys) t))
+  (defq mk (getp rdr :pre_mark))
+  (print "Stale simple key " (getp mk :line))
+  (each (lambda (el)
+    (print
+      "SK possible " (getp el :possible)
+      " el line " (getp (getp el :mark) :line))
+    (when (and (getp el :possible)
+      (or (< (getp (getp el :mark) :line) (getp mk :line))
+        (< (+ (getp (getp el :mark) :pos) 1024) (getp mk :pos))))
+      (if (getp el :required)
+        (throw "simple key expect :" t)
+        (setp! el :possible nil)))) (getp rdr :simple_keys)))
 
 ; Token Management
 (defunp-bind pscan 'roll-indent (rdr col numb token)
@@ -222,13 +227,14 @@
         (cond
           ((eql numb nil)
             (callp pscan 'push-token token))
-          (t (callp pscan 'insert-token (- (getp rdr :tokens_parsed) numb) token)))))))
+          (t
+            (callp pscan 'insert-token (- (getp rdr :tokens_parsed) numb) token)))))))
 
 (defunp-bind pscan 'unroll-indent (rdr col)
   (print "unroll col " col " indent " (getp rdr :indent))
   (if (<= (getp rdr :flow_level) 0)
     (while (> (getp rdr :indent) col)
-      (print "  unroll condition met")
+      (print "  unroll condition met " (getp rdr :indents))
       (callp pscan 'push-token (callp pscan 'block-end-token))
       (setp! rdr :indent (pop (getp rdr :indents))))))
 
@@ -248,9 +254,10 @@
 (defunp-bind pscan 'document-start-token ()
   (defq
     ds (callp  pscan 'base-token)
-    ms (getp (callp pscan 'reader) :pre_mark)
+    ms (callp pscan 'mark)
     me (progn (times 3 (callp pscan 'rnext)) (callp pscan 'mark)))
   (callp pscan 'skip-line)
+  (print "DS start " ms " end " me " cmp " (callp pscan 'mark))
   (callp pscan 'push-token (setsp! ds
       :type :document-start
       :mark_start ms
@@ -259,7 +266,7 @@
 (defunp-bind pscan 'document-end-token ()
   (defq
     de (callp  pscan 'base-token)
-    ms (getp (callp pscan 'reader) :pre_mark)
+    ms (callp pscan 'mark)
     me (progn (times 3 (callp pscan 'rnext)) (callp pscan 'mark)))
   (callp pscan 'skip-line)
   (callp pscan 'push-token (setsp! de
@@ -273,7 +280,7 @@
 (defunp-bind pscan 'block-sequence-start-token ()
   (defq
     bss (callp pscan 'base-token)
-    ms (getp (callp pscan 'reader) :pre_mark))
+    ms (callp pscan 'mark))
   (callp pscan 'rnext)
   (setsp! bss
     :type :block-sequence-start
@@ -297,11 +304,13 @@
   (defq
     rdr (callp pscan 'reader)
     bet (callp pscan 'base-token)
-    pm  (getp rdr :pre_mark))
+    pm  (callp pscan 'mark))
   (when (= (getp rdr :flow_level) 0)
     (when (not (getp rdr :simple_key_allowed))
       (throw "Block sequence not allowed here" ms))
-    (print "Block Entry Sequence flow Level " (getp rdr :flow_level))
+    (print
+      "Block Entry Sequence flow Level " (getp rdr :flow_level)
+      " mark " pm)
     (callp pscan 'roll-indent
       rdr
       (getp pm :column)
