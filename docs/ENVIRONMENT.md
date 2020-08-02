@@ -20,7 +20,7 @@ exact same object in memory, and share the same memory location.
 Why do this ? Why bother ? Well it allows some very useful things to happen if
 you know that a symbol has only one object instance no matter how or where that
 symbol was read in. It makes for very fast hash map key searches and find
-operations if all you need to do is check the address of the objects match
+operations if all you need to do is check that the address of the objects match
 rather than compare the character sequences.
 
 ### Standard symbols
@@ -47,6 +47,41 @@ so.
 `(defq)` is just the same as `(def)` but it assumes that the environment to
 bind the symbol within is the current environment `(env)` and that the symbols
 don't need to be quoted, hence the name `(defq)`.
+
+`(bind)` is a more sophisticated way of binding a group of symbols within the
+current environment. It is used at function invocation to bind the initial
+parameter symbols to the given argument list, but it can also be used by users
+as well. You may like to do this as it implements a concept known as
+destructuring.
+
+```lisp
+(bind '(a b c) (list 34 "Chris" '(3 Q)))
+a
+34
+b
+"Chris"
+c
+(3 Q)
+```
+
+Destructuring can be done as follows. Just use nested list syntax for the
+parameters to descend into the structure of the given arguments. `&optional`
+and `&rest` also work as expected within these destructuring bindings. If you
+wish to ignore an argument the standard is to bind it to the _ symbol.
+
+```lisp
+(bind '((x y (z0 z1 z2) _)) (list (list 1 2 (list 3 4 5) 6)))
+x
+1
+y
+2
+z0
+3
+z1
+4
+z2
+5
+```
 
 To change the binding of an existing bound symbol, and this will raise an error
 if the symbol is not found, you use the `(set)` and `(setq)` functions like so.
@@ -83,8 +118,8 @@ nil
 nil
 ```
 
-`(get)` can take an optional environment to work from. `(get e)` and if given
-the search for the symbol binding will start from that environment.
+`(get)` can take an optional environment to work from. `(get sym e)` and if
+given the search for the symbol binding will start from that environment.
 
 A string can be 'interned' by user code by use of the `(sym)` function. This is
 often very useful when creating and managing your own fast lookup functions or
