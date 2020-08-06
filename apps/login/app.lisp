@@ -43,7 +43,7 @@
 				((/= (age (cat "apps/login/" (defq user (get-username)) "/pupa.inc")) 0)
 					;login user
 					(save user "apps/login/current")
-					(open-child "apps/launcher/app.lisp" kn_call_open)
+					(open-child "apps/clwm/app.lisp" kn_call_open)
 					nil)
 				(t	t)))
 		((= id event_create)
