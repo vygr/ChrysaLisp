@@ -9,6 +9,22 @@
 (import 'class/lisp.inc)
 (import 'gui/lisp.inc)
 
+(defmacro seq-find (item seq)
+	`(cond 
+		((str? ,seq) (find ,item ,seq))
+		((lst? ,seq) (some (lambda (_e) (if (eql ,item _e) _)) ,seq))))
+
+(defun-bind make-last (item seq)
+	(if (defq index (seq-find item seq))
+		(cond
+			((defq test (= index (dec (length seq))))
+				seq)
+			((not test)		
+				(cat (slice 0 index seq) (slice (inc index) -1 seq) (list item))))))
+
+(defun-bind app-path (_)
+	(cat "apps/" _ "/app.lisp"))
+
 (defun-bind refresh-wallpaper ()
 	;pick nearest wallpaper to screen size
 	(bind '(w h) (view-get-size screen))
@@ -26,10 +42,22 @@
 
 (defun-bind main ()
 	(defq images_info (map canvas-info *env_wallpaper_images*) wallpaper (create-view)
-		screen (penv (gui-add-back wallpaper)))
+			screen (penv (gui-add-back wallpaper)))
+	(each (lambda (_)
+		(open-child (app-path _) kn_call_open)) *env_launcher_auto_apps*)
 	(refresh-wallpaper)
 	(while t
-		(when (and (< (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id) 0)
+		(when
+			(and (< (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id) 0)
 				(= (get-long msg ev_msg_type) ev_type_gui))
 			;resized GUI
-			(refresh-wallpaper))))
+				(refresh-wallpaper))
+		(when
+			(and (= (get-long msg ev_msg_type) ev_type_mouse)
+					(= (get-int msg ev_msg_mouse_buttons) 0))
+				;make a list of screen width height and mouse x y and send it to launcher.
+				(let ((params (cat (view-get-size screen) (list (get-int msg ev_msg_mouse_rx) (get-int msg ev_msg_mouse_ry)))))
+					(mail-send params (open-child (app-path "launcher") kn_call_open))))
+		;allow wallpaper to be closed, to allow for potential restart/shutdown.
+		(if (eql msg "") nil))
+	(view-hide wallpaper))
