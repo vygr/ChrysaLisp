@@ -8,7 +8,7 @@
 
 
 (ui-window window ()
-	(ui-title-bar _ "Launcher" (0xea19) (const event_close))
+	(ui-title-bar title "Launcher" (0xea19) (const event_close))
 	;grid scales all buttons equally
 	(ui-grid grid (:grid_width 1 :grid_height (length *env_launcher_apps*))
 		(each (lambda (path)
@@ -16,9 +16,16 @@
 
 ;first four are taken from clwm (screen sw sh and mouse x y)
 (defun-bind launcher-position ((sw sh x y w h))
-	;adjusted x by 16 so the cursor isn't on top of the title-bar :text.
-	(defq w (+ w 32) x (max 0 (min (max (- x (+ 16 (/ w 2))) 0) (- sw w)))
-			y (max 0 (min (max (- y 16) 0) (- sh h))))
+	(bind '(_ th) (view-pref-size title))
+	; pad width by 20% and center x
+	(defq w (+ w (/ w 5)) ox (/ w 2))
+	(cond 
+		((eql *env_launcher_position* "left")
+			(setq ox 0))
+		((eql *env_launcher_position* "right") (setq ox w))
+		(t nil))
+	(defq x (max (min (max (- x ox) 0) (- sw w)) 0)
+					y (max (min (max (- y th) 0) (- sh h)) 0))
 	(list x y w h))
 
 (defun-bind app-path (_)

@@ -8,6 +8,9 @@
 	"boing" "freeball" "bubbles" "images" "films" "canvas" "raymarch" "mandelbrot" "pcb" "chess" "files")
 	*env_launcher_auto_apps* '("clock" "terminal"))
 
+;launcher placement from xy
+(defq *env_launcher_position* "center")
+
 ;wallpaper images
 (defq *env_wallpaper_images* '("apps/wallpaper/wallpaper640x480.cpm"
 	"apps/wallpaper/wallpaper1280x1024.cpm" "apps/wallpaper/wallpaper1920x1080.cpm"))
