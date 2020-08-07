@@ -166,12 +166,12 @@
   ; Creates a new dictionary with optional property value pairs
   (if (> (length pairs) 0)
     `(progn
-      (defq ,name (env -16)) (def ,name ~pairs) ,name)
-    `(defq ,name (env -16))))
+      (defq ,name (env -1)) (def ,name ~pairs) ,name)
+    `(defq ,name (env -1))))
 
 (defmacro-bind dictionary (&optional bk)
   ; (dictionary [blocks | -blocks]) -> dictionary
-  (setd bk -16)
+  (setd bk -1)
   `(env ,bk))
 
 (defun-bind to-dict (seq1 seq2)

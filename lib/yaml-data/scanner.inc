@@ -410,28 +410,180 @@
 (defunp-bind pscan 'scalar-token ()
   (callp pscan 'base-token))
 
+(defunp-bind pscan 'pps1 (props)
+  (if (empty? (getp props :trailing_breaks))
+    (setp! props :strng (cat (getp props :strng) " "))
+    ; Else
+    (setsp! props
+      :strng (cat
+        (getp props :strng)
+        (getp props :trailing_breaks))
+      :trailing_breaks ""))
+  ; Complete
+  (setp! props :leading_break ""))
+
+(defunp-bind pscan 'pps0 (props)
+  (if (or (getp props :leading_blanks)
+    (not (empty? (getp props :white_spaces))))
+    (if (getp props :leading_blanks)
+      (if (empty? (getp props :leading_break))
+        (setsp! props
+          :strng (cat
+            (getp props :strng)
+            (getp props :leading_break)
+            (getp props :trailing_breaks))
+          :trailing_breaks ""
+          :leading_break "")
+        ; Else
+        (callp pscan 'pps1 props))
+      ; Else
+      (setsp! props
+        :strng (cat (getp props :strng) (getp props :white_spaces))
+        :white_spaces ""))))
+
+(defunp-bind pscan 'pre-plain-scalar (rdr props)
+  ; (pre-plain-scalar rdr props)
+  (defq
+    ch          (getp props :ch)
+    nc          (getp props :nc)
+    inner_loop  t
+    lcount      0)
+  ; Loop
+  (while inner_loop
+    (print "lcount = " lcount)
+    (setq lcount (inc lcount))
+    (cond
+      ; Break on blank
+      ((callp pscan 'is_blankz ch)
+        (print "pps Exit loop, found blank on " props)
+        (setq inner_loop nil))
+      ; Break on simple key indicator
+      ((and (eql ch ":") (callp pscan 'is_blankz nc)
+        (or (and (> (getp rdr :flow_level) 0)
+          (callp pscan 'is_flow nc))))
+        (print "pps Exit loop, found break on :" props)
+        (setq inner_loop nil))
+      ; Break if flow control
+      ((callp pscan 'is_flow ch)
+        (when (> (getp rdr :flow_level) 0)
+          (print "pps Exit loop, found break on flow" props)
+          (setq inner_loop nil)))
+      ; Otherwise
+      (t
+        (print "Calling pps0 with " props)
+        (callp pscan 'pps0 props)
+        (print "  Returns pps0 with " props) ))
+    (when inner_loop
+      (setp! props :strng (cat (getp props :strng) ch))
+      (callp pscan 'rnext)
+      (setq
+        ch (callp pscan 'rpeek)
+        nc (callp pscan 'rpeek 1))))
+    (setsp! props
+      :ch ch
+      :nc nc))
+
+(defunp-bind pscan 'post-plain-scalar (rdr props)
+  ; (post-plain-scalar rdr props)
+  (defq
+    ch          (getp props :ch)
+    nc          (getp props :nc)
+    inner_loop  t)
+
+  (while (or (callp pscan 'is_blank ch)(callp pscan 'is_break ch))
+    (if (callp pscan 'is_blank ch)
+      (cond
+        ((and
+          (getp props :leading_blanks)
+          (< (getp (callp pscan 'mark) :column) (getp props :indent))
+          (= (code ch) 0x09))
+          (throw "Found tab in plain scaler" props))
+        ((getp props :leading_blanks)
+          (callp pscan 'rnext))
+        (t
+          (setp! props :white_spaces (cat (getp props :white_spaces) ch)))
+          (callp pscan 'rnext))
+        (cond
+          ((getp props :leading_blanks)
+            (print "Leading blanks break")
+            (setp! props :trailing_breaks
+              (cat (getp props :trailing_breaks) ch))
+            (callp pscan 'rnext))
+          (t
+            (setsp! props
+              :white_spaces ""
+              :leading_break (cat (getp props :leading_break) ch)
+              :leading_blanks t)
+            (callp pscan 'rnext))))
+    (setq
+      ch (callp pscan 'rpeek)
+      nc (callp pscan 'rpeek 1))
+    (setsp! props :ch ch :nc nc))
+  )
+
 (defunp-bind pscan 'scan-plain-scalar (rdr)
   (defq
     index (inc (getp rdr :indent))
     mark  (callp pscan 'mark)
-    strng ""
-    leading_break ""
-    trailing_breaks ""
-    white_spaces ""
-    leading_blanks nil
+    props (properties
+      :ch   (callp pscan 'rpeek)
+      :nc   (callp pscan 'rpeek 1)
+      :indent (inc (getp rdr :indent))
+      :strng ""
+      :leading_break ""
+      :trailing_breaks ""
+      :white_spaces ""
+      :leading_blanks nil)
+    ch    (getp props :ch)
+    nc    (getp props :nc)
     loop t)
+
+  ; Outer loop
   (while loop
     ; Check for start or end doc if we are at col 1
-    (when (= (getp mark :column) 0)))
+    (cond
+      ; Break on doc start or end
+      ((and (= (getp mark :column) 0)
+        (or (callp pscan 'doc-start? rdr) (callp pscan 'doc-end? rdr)))
+        (print "Break on start/end doc")
+        (setq loop nil))
+      ; Break on comment
+      ((eql ch "#")
+        (print "Break on comment")
+        (setq loop nil))
+      ; Otherwise
+      (t
+        (print "Calling pre plain scalar with " props)
+        (callp pscan 'pre-plain-scalar rdr props)
+        (setq
+          mark (callp pscan 'mark)
+          ch (getp props :ch)
+          nc (getp props :nc))))
+    ; Back in main loop
+    (when loop
+      (if (not (or (callp pscan 'is_blank ch) (callp pscan 'is_break ch)))
+        (progn
+          (print "Killing loop")
+          (setq loop nil))
+        (progn
+          (print "Calling post plain scalar with " props)
+          (callp pscan 'post-plain-scalar rdr props)
+          (print "  Return from post plan " props)
+          (setq
+            mark (callp pscan 'mark)
+            ch (getp props :ch)
+            nc (getp props :nc))
+          ))))
 
-  ; Check for comment
-  ; While not blank or end
+  (print "Exiting scan plain with " props)
+  (when (getp props :leading_blanks)
+    (callp pscan 'allow-simple-key)))
 
-  )
 (defun fetch-plain-scalar (rdr)
   (callp pscan 'save-simple-key rdr)
   (callp pscan 'disallow-simple-key)
-  (callp pscan 'push-token (callp pscan 'scan-plain-scalar rdr)))
+  (callp pscan 'push-token
+    (callp pscan 'scan-plain-scalar rdr)))
 
 (defun fetch-next-token (rdr)
   (defq tlist (getp rdr :tokens))
@@ -488,6 +640,7 @@
         (t
           (print "Plain scalar skipping line")
           (print " ch '" ch "'' nc '" nc "'")
+          (callp pscan 'scan-plain-scalar rdr)
           (callp pscan 'skip-line)
           (print "  next " (callp pscan 'rpeek))
           :eof)))
