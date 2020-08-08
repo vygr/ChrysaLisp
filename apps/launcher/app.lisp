@@ -14,7 +14,7 @@
 		(each (lambda (path)
 			(component-connect (ui-button _ (:text path)) (const event_button))) *env_launcher_apps*)))
 
-;first four are taken from clwm (screen sw sh and mouse x y)
+;first four are taken from wallpaper (screen sw sh and mouse x y)
 (defun-bind launcher-position ((sw sh x y w h))
 	(bind '(_ th) (view-pref-size title))
 	; pad width by 20% and center x
@@ -24,8 +24,7 @@
 			(setq ox 0))
 		((eql *env_launcher_position* "right") (setq ox w))
 		(t nil))
-	(defq x (max (min (max (- x ox) 0) (- sw w)) 0)
-					y (max (min (max (- y th) 0) (- sh h)) 0))
+	(defq x (max (min (max (- x ox) 0) (- sw w)) 0) y (max (min (max y 0) (- sh h)) 0))
 	(list x y w h))
 
 (defun-bind app-path (_)
