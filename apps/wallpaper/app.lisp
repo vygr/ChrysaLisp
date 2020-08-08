@@ -46,5 +46,5 @@
 		(when (and (= (get-long msg ev_msg_type) ev_type_mouse) (= (get-int msg ev_msg_mouse_buttons) 0))
 			;make a list of screen width height and mouse x y and send it to launcher.
 			(let ((params (cat (view-get-size screen) (list (get-int msg ev_msg_mouse_rx) (get-int msg ev_msg_mouse_ry)))))
-				(mail-send params (open-child (app-path "launcher") kn_call_open))))
-	(view-hide wallpaper))
+				(mail-send params (open-child (app-path "launcher") kn_call_open)))))
+	
