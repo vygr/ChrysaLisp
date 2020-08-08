@@ -14,14 +14,6 @@
 		((str? ,seq) (find ,item ,seq))
 		((lst? ,seq) (some (lambda (_e) (if (eql ,item _e) _)) ,seq))))
 
-(defun-bind make-last (item seq)
-	(if (defq index (seq-find item seq))
-		(cond
-			((defq test (= index (dec (length seq))))
-				seq)
-			((not test)		
-				(cat (slice 0 index seq) (slice (inc index) -1 seq) (list item))))))
-
 (defun-bind app-path (_)
 	(cat "apps/" _ "/app.lisp"))
 
