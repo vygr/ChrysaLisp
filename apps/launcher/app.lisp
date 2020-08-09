@@ -21,11 +21,11 @@
 		((eql *env_launcher_position* :top)
 			(setq wy y))
 		((eql *env_launcher_position* :bottom)
-			(setq wy (- y h)))
+			(setq wy (- y h -1)))
 		((eql *env_launcher_position* :left)
 			(setq wx x))
 		((eql *env_launcher_position* :right)
-			(setq wx (- x w))))
+			(setq wx (- x w -1))))
 	(list (max 0 (min wx (- sw w))) (max 0 (min wy (- sh h))) w h))
 
 (defun-bind app-path (_)
