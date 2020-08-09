@@ -39,12 +39,14 @@
 		(open-child (app-path _) kn_call_open)) *env_launcher_auto_apps*)
 	(refresh-wallpaper)
 	(while t
-		(when (and (< (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id) 0)
-				(= (get-long msg ev_msg_type) ev_type_gui))
-			;resized GUI
-			(refresh-wallpaper))
-		(when (and (= (get-long msg ev_msg_type) ev_type_mouse) (= (get-int msg ev_msg_mouse_buttons) 0))
-			;make a list of screen width height and mouse x y and send it to launcher.
-			(let ((params (cat (view-get-size screen) (list (get-int msg ev_msg_mouse_rx) (get-int msg ev_msg_mouse_ry)))))
-				(mail-send params (open-child (app-path "launcher") kn_call_open)))))
-	
+		(cond
+			((and (< (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id) 0)
+					(= (get-long msg ev_msg_type) ev_type_gui))
+				;resized GUI
+				(refresh-wallpaper))
+			((and (= (get-long msg ev_msg_type) ev_type_mouse) (= (get-int msg ev_msg_mouse_buttons) 0))
+				;make a list of screen width height and mouse x y and send it to launcher.
+				(mail-send (cat (view-get-size screen)
+						(list (get-int msg ev_msg_mouse_rx)
+							(get-int msg ev_msg_mouse_ry)))
+					(open-child (app-path "launcher") kn_call_open))))))

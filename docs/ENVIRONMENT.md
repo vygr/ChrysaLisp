@@ -84,7 +84,7 @@ z2
 ```
 
 To change the binding of an existing bound symbol, and this will raise an error
-if the symbol is not found, you use the `(set)` and `(setq)` functions like so.
+if the symbol is not bound, you use the `(set)` and `(setq)` functions like so.
 
 ```lisp
 (setq bert 56)
