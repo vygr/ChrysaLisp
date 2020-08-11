@@ -80,6 +80,7 @@
 (defunp-bind pscan 'push-token (token)
   (defq rdr  (callp pscan 'reader))
   (callp pscan 'token-parsed rdr)
+  (print "Pushing token type " (getp token :type))
   (push  (getp rdr :tokens) token))
 
 (defunp-bind pscan 'allow-simple-key ()
@@ -180,7 +181,7 @@
     t))
 
 (defunp-bind pscan 'is_z (ch)
-  (eql ch (ascii-char 0)))
+  (or (eql ch (ascii-char 0)) (eql ch nil)))
 
 (defunp-bind pscan 'is_break (ch)
   (defq cc (code ch))
@@ -270,20 +271,28 @@
 
 ; Token Management
 (defunp-bind pscan 'roll-indent (rdr col numb token)
-  (print "roll col " col " indent " (getp rdr :indent))
-  (if (<= (getp rdr :flow_level) 0)
+  (print
+    "roll col " col
+    " indent " (getp rdr :indent)
+    " flow_level " (getp rdr :flow_level))
+  (if (> (getp rdr :flow_level) 0)
+    nil
     (if (< (getp rdr :indent) col)
       (progn
         (push (getp rdr :indents) (getp rdr :indent))
+        (print "  indents  " (getp rdr :indents))
         (setp! rdr :indent col)
         (cond
           ((eql numb nil)
             (callp pscan 'push-token token))
           (t
-            (callp pscan 'insert-token (- (getp rdr :tokens_parsed) numb) token)))))))
+            (callp pscan 'insert-token
+              (- (getp rdr :tokens_parsed) numb) token)))))))
 
 (defunp-bind pscan 'unroll-indent (rdr col)
-  (print "unroll col " col " indent " (getp rdr :indent))
+  (print "unroll col " col
+    " indent " (getp rdr :indent)
+    " flow_level " (getp rdr :flow_level))
   (if (<= (getp rdr :flow_level) 0)
     (while (> (getp rdr :indent) col)
       (print "  unroll condition met " (getp rdr :indents))
@@ -407,123 +416,39 @@
 (defunp-bind pscan 'tag-token ()
   (callp pscan 'base-token))
 
-(defunp-bind pscan 'scalar-token ()
-  (callp pscan 'base-token))
-
-(defunp-bind pscan 'pps1 (props)
-  (if (empty? (getp props :trailing_breaks))
-    (setp! props :strng (cat (getp props :strng) " "))
-    ; Else
-    (setsp! props
-      :strng (cat
-        (getp props :strng)
-        (getp props :trailing_breaks))
-      :trailing_breaks ""))
-  ; Complete
-  (setp! props :leading_break ""))
-
-(defunp-bind pscan 'pps0 (props)
-  (if (or (getp props :leading_blanks)
-    (not (empty? (getp props :white_spaces))))
-    (if (getp props :leading_blanks)
-      (if (empty? (getp props :leading_break))
-        (setsp! props
-          :strng (cat
-            (getp props :strng)
-            (getp props :leading_break)
-            (getp props :trailing_breaks))
-          :trailing_breaks ""
-          :leading_break "")
-        ; Else
-        (callp pscan 'pps1 props))
-      ; Else
-      (setsp! props
-        :strng (cat (getp props :strng) (getp props :white_spaces))
-        :white_spaces ""))))
+(defunp-bind pscan 'scalar-token (bmark valstr)
+  (callp pscan 'push-token
+    (setsp! (callp pscan 'base-token)
+      :type :scalar
+      :value valstr
+      :mark_start bmark
+      :mark_end (callp pscan 'mark))))
 
 (defunp-bind pscan 'pre-plain-scalar (rdr props)
   ; (pre-plain-scalar rdr props)
-  (defq
-    ch          (getp props :ch)
-    nc          (getp props :nc)
-    inner_loop  t
-    lcount      0)
-  ; Loop
-  (while inner_loop
-    (print "lcount = " lcount)
-    (setq lcount (inc lcount))
-    (cond
-      ; Break on blank
-      ((callp pscan 'is_blankz ch)
-        (print "pps Exit loop, found blank on " props)
-        (setq inner_loop nil))
-      ; Break on simple key indicator
-      ((and (eql ch ":") (callp pscan 'is_blankz nc)
-        (or (and (> (getp rdr :flow_level) 0)
-          (callp pscan 'is_flow nc))))
-        (print "pps Exit loop, found break on :" props)
-        (setq inner_loop nil))
-      ; Break if flow control
-      ((callp pscan 'is_flow ch)
-        (when (> (getp rdr :flow_level) 0)
-          (print "pps Exit loop, found break on flow" props)
-          (setq inner_loop nil)))
-      ; Otherwise
+  (cond
+    ((empty? (getp props :leading_break))
+      (setsp! props
+        :strng (cat
+          (getp props :strng)
+          (getp props :leading_break)
+          (getp props :trailing_breaks))
+        :trailing_breaks ""
+        :leading_break ""))
       (t
-        (print "Calling pps0 with " props)
-        (callp pscan 'pps0 props)
-        (print "  Returns pps0 with " props) ))
-    (when inner_loop
-      (setp! props :strng (cat (getp props :strng) ch))
-      (callp pscan 'rnext)
-      (setq
-        ch (callp pscan 'rpeek)
-        nc (callp pscan 'rpeek 1))))
-    (setsp! props
-      :ch ch
-      :nc nc))
-
-(defunp-bind pscan 'post-plain-scalar (rdr props)
-  ; (post-plain-scalar rdr props)
-  (defq
-    ch          (getp props :ch)
-    nc          (getp props :nc)
-    inner_loop  t)
-
-  (while (or (callp pscan 'is_blank ch)(callp pscan 'is_break ch))
-    (if (callp pscan 'is_blank ch)
-      (cond
-        ((and
-          (getp props :leading_blanks)
-          (< (getp (callp pscan 'mark) :column) (getp props :indent))
-          (= (code ch) 0x09))
-          (throw "Found tab in plain scaler" props))
-        ((getp props :leading_blanks)
-          (callp pscan 'rnext))
-        (t
-          (setp! props :white_spaces (cat (getp props :white_spaces) ch)))
-          (callp pscan 'rnext))
         (cond
-          ((getp props :leading_blanks)
-            (print "Leading blanks break")
-            (setp! props :trailing_breaks
-              (cat (getp props :trailing_breaks) ch))
-            (callp pscan 'rnext))
+          ((empty? (getp props :trailing_breaks))
+            (setp! props :strng (cat (getp props :strng) " ")))
           (t
             (setsp! props
-              :white_spaces ""
-              :leading_break (cat (getp props :leading_break) ch)
-              :leading_blanks t)
-            (callp pscan 'rnext))))
-    (setq
-      ch (callp pscan 'rpeek)
-      nc (callp pscan 'rpeek 1))
-    (setsp! props :ch ch :nc nc))
-  )
+              :strng (cat (getp props :strng) (getp props :trailing_breaks))
+              :trailing_breaks "")))
+        (setp! props :leading_break "")))
+  (setp! props :leading_blanks nil))
+
 
 (defunp-bind pscan 'scan-plain-scalar (rdr)
   (defq
-    index (inc (getp rdr :indent))
     mark  (callp pscan 'mark)
     props (properties
       :ch   (callp pscan 'rpeek)
@@ -534,56 +459,106 @@
       :trailing_breaks ""
       :white_spaces ""
       :leading_blanks nil)
-    ch    (getp props :ch)
-    nc    (getp props :nc)
-    loop t)
+    oloop t)
 
+  (defun advance_read ()
+    (callp pscan 'rnext)
+    (setsp! props
+      :ch (callp pscan 'rpeek)
+      :nc (callp pscan 'rpeek 1)))
+  (defun tab_exception ()
+    (if (and
+      (getp props :leading_blanks)
+        (< (getp (callp pscan 'mark) :column) (getp props :indent))
+        (= (code (getp props :ch)) 0x09))
+          (throw "Found tab in plain scaler" props)))
+
+  (print "  In scan-plain-scalar with " props)
   ; Outer loop
-  (while loop
-    ; Check for start or end doc if we are at col 1
+  (while oloop
+    ; Outer conditions
     (cond
       ; Break on doc start or end
       ((and (= (getp mark :column) 0)
         (or (callp pscan 'doc-start? rdr) (callp pscan 'doc-end? rdr)))
-        (print "Break on start/end doc")
-        (setq loop nil))
+        (print "    Break on start/end doc")
+        (setq oloop nil))
       ; Break on comment
-      ((eql ch "#")
-        (print "Break on comment")
-        (setq loop nil))
+      ((eql (getp props :ch) "#")
+        (print "    Break on comment")
+        (setq oloop nil))
       ; Otherwise
-      (t
-        (print "Calling pre plain scalar with " props)
-        (callp pscan 'pre-plain-scalar rdr props)
-        (setq
-          mark (callp pscan 'mark)
-          ch (getp props :ch)
-          nc (getp props :nc))))
-    ; Back in main loop
-    (when loop
-      (if (not (or (callp pscan 'is_blank ch) (callp pscan 'is_break ch)))
-        (progn
-          (print "Killing loop")
-          (setq loop nil))
-        (progn
-          (print "Calling post plain scalar with " props)
-          (callp pscan 'post-plain-scalar rdr props)
-          (print "  Return from post plan " props)
-          (setq
-            mark (callp pscan 'mark)
-            ch (getp props :ch)
-            nc (getp props :nc))
-          ))))
+      (t nil))
 
-  (print "Exiting scan plain with " props)
-  (when (getp props :leading_blanks)
-    (callp pscan 'allow-simple-key)))
+    (when oloop
+      (defq iloop t)
+      (while (and iloop
+        (not (callp pscan 'is_blankz (getp props :ch))))
+        (defq
+          ch (getp props :ch)
+          nc (getp props :nc))
+
+        (cond
+          ((and (eql ch ":") (callp pscan 'is_blankz nc)
+            (or (and (> (getp rdr :flow_level) 0)
+              (callp pscan 'is_flow nc))))
+            (setq iloop nil))
+            ; Break if flow control
+          ((callp pscan 'is_flow ch)
+            (when (> (getp rdr :flow_level) 0)
+            (setq iloop nil)))
+          ((or (getp props :leading_blanks)
+            (empty? (getp props :white_spaces)))
+            (if (getp props :leading_blanks)
+              (callp pscan 'pre-plain-scalar rdr props)
+              (setsp! props
+                :strng (cat (getp props :strng) (getp props :white_spaces))
+                :white_spaces ""))))
+        (setp! props :strng (cat (getp props :strng) ch))
+        (advance_read))
+
+      (if (not (or
+          (callp pscan 'is_blank (getp props :ch))
+          (callp pscan 'is_break (getp props :ch))))
+        (setq oloop nil)
+        (progn
+          (advance_read)
+          (while  (or (callp pscan 'is_blank (getp props ch))
+              (callp pscan 'is_break (getp props ch)))
+            (defq ch (getp props :ch) nc (getp props :nc))
+            (if (callp pscan 'isblank ch)
+              (progn
+                (tab_exception)
+                (cond
+                  ((getp props :leading_blanks)
+                    (advance_read)
+                    (setq ch (getp props :ch) nc (getp props :nc)))
+                  (t
+                    (setp! props
+                      :white_spaces (cat (getp props :white_spaces) ch))
+                    (advance_read)
+                    (setq ch (getp props :ch) nc (getp props :nc)))))
+              (progn
+                (advance_read)
+                (advance_read)
+                (cond
+                  ((getp props :leading_blanks)
+                    (callp pscan 'skip-line))
+                  (t
+                    (setsp! props :white_spaces "" :leading_blanks t)
+                    (callp pscan 'skip-line)))))
+            (advance_read))))
+      (when (and
+        (= (getp rdr :flow_level) 0)
+        (< (getp (callp pscan 'mark) :column) (getp props :indent)))
+          (setq oloop nil))))
+  (when (getp props :leading_blanks) (callp pscan 'allow-simple-key))
+  (callp pscan 'scalar-token mark (getp props :strng)))
 
 (defun fetch-plain-scalar (rdr)
   (callp pscan 'save-simple-key rdr)
   (callp pscan 'disallow-simple-key)
-  (callp pscan 'push-token
-    (callp pscan 'scan-plain-scalar rdr)))
+  (callp pscan 'scan-plain-scalar rdr))
 
 (defun fetch-next-token (rdr)
   (defq tlist (getp rdr :tokens))
@@ -595,7 +570,7 @@
       (ch (callp pscan 'rpeek))
       (nc (callp pscan 'rpeek 1)))
       (callp pscan 'unroll-indent rdr (getp mark :column))
-      ; (print "In fetch next inner let")
+      (print "In fetch next inner let with ch = " ch)
       (cond
         ; End of stream
         ((callp pscan 'is_z ch)
@@ -639,11 +614,10 @@
         ; Mapping flows
         (t
           (print "Plain scalar skipping line")
-          (print " ch '" ch "'' nc '" nc "'")
           (callp pscan 'scan-plain-scalar rdr)
-          (callp pscan 'skip-line)
+          ; (callp pscan 'skip-line)
           (print "  next " (callp pscan 'rpeek))
-          :eof)))
+          :ok)))
     (progn
       (callp pscan 'stream-start-token)
       (setp! rdr :sstart_produced t)

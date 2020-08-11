@@ -120,9 +120,8 @@
 
 (defun-bind getp (p k &optional if_nil)
   ; (getp properties key [if_nil]) -> val | if_nil | nil
-  (if (defq v (find k p))
-    (elem (inc v) p)
-    (opt nil if_nil)))
+  (defq fx (find k p))
+  (if fx (elem (inc fx) p) (opt nil if_nil)))
 
 (defun-bind setp! (p k v &optional add_if_nil)
   ; (setp properties k value [add_if_nil]) -> properties

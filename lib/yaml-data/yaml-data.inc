@@ -7,5 +7,8 @@
 (import 'lib/yaml-data/scanner.inc)
 
 (defun yaml-read (fname &rest options)
-  (scan (load fname)))
+  (if (zero? (age fname))
+    (throw (str fname " not found") t)
+    (scan (load fname))))
+
 (defun yaml-write (yaml stream &rest options))
