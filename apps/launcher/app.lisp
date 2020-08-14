@@ -17,15 +17,11 @@
 (defun-bind launcher-position ((sw sh x y w h))
 	(bind '(_ th) (view-pref-size title))
 	(defq wx (- x (/ w 2)) wy (- y (/ h 2) (/ th 2)))
-	(cond
-		((eql *env_launcher_position* :top)
-			(setq wy y))
-		((eql *env_launcher_position* :bottom)
-			(setq wy (- y h -1)))
-		((eql *env_launcher_position* :left)
-			(setq wx x))
-		((eql *env_launcher_position* :right)
-			(setq wx (- x w -1))))
+	(case *env_launcher_position*
+		(:top (setq wy y))
+		(:left (setq wx x))
+		(:bottom (setq wy (- y h -1)))
+		(:right (setq wx (- x w -1))))
 	(list (max 0 (min wx (- sw w))) (max 0 (min wy (- sh h))) w h))
 
 (defun-bind app-path (_)
