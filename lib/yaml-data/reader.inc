@@ -68,7 +68,7 @@
   ; (get-mark rdr) -> Mark
   (Mark (getp rdr :index) (getp rdr :line) (getp rdr :column)))
 
-(defun-bind dump (fname mfunc)
+(defun-bind rdr-dump (fname mfunc)
   (defq rdr (Reader (load fname)))
   (print "Dumping " fname)
   (catch (until (eql (defq ch (rdr-peek rdr)) (ascii-char 0))
