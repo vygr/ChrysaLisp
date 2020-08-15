@@ -71,7 +71,9 @@
 	(canvas-set-flags layer1_canvas 1)
 	(view-set-size backdrop canvas_width canvas_height)
 	(radio-select style_buttons 1)
-	(gui-add (apply view-change (cat (list window 256 192) (view-pref-size window))))
+	(bind '(w h) (view-pref-size window))
+	(bind '(x y w h) (view-locate w h))
+	(gui-add (view-change window x y w h))
 	(def image_scroll :min_width min_width :min_height min_height)
 
 	;create child and send args

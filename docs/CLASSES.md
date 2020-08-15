@@ -2405,6 +2405,19 @@ trashes
 r1-r14
 ```
 
+### gui::lisp_info -> gui/gui/lisp_info
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
 ## hmap
 
 Super Class: hset

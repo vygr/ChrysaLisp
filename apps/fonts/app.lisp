@@ -53,7 +53,9 @@
 
 (defun-bind main ()
 	(win-refresh index)
-	(gui-add (apply view-set-pos (cat (list window 200 48))))
+	(bind '(w h) (view-pref-size window))
+	(bind '(x y w h) (view-locate w h))
+	(gui-add (view-change window x y w h))
 	(while (cond
 		((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_close)
 			;close button

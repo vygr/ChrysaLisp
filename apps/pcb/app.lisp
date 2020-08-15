@@ -176,7 +176,9 @@
 	(view-dirty-all (view-layout window)))
 
 (defun-bind main ()
-	(gui-add (apply view-change (cat (list window 64 256) (view-pref-size (win-refresh index)))))
+	(bind '(w h) (view-pref-size (win-refresh index)))
+	(bind '(x y w h) (view-locate w h))
+	(gui-add (view-change window x y w h))
 	(while (cond
 		((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_close)
 			nil)

@@ -114,8 +114,9 @@
 
 (defun-bind main ()
 	;add window
-	(gui-add (apply view-change (cat (list window 448 16)
-		(view-pref-size (component-connect window event_layout)))))
+	(bind '(w h) (view-pref-size (component-connect window event_layout)))
+	(bind '(x y w h) (view-locate w h))
+	(gui-add (view-change window x y w h))
 	;sign on msg
 	(print (str "ChrysaLisp Terminal 1.6" (ascii-char 10)))
 	(print-edit-line)

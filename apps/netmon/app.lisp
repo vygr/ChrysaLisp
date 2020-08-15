@@ -38,7 +38,9 @@
 
 (defun-bind main ()
 	;add window
-	(gui-add (apply view-change (cat (list window 320 32) (view-pref-size window))))
+	(bind '(w h) (view-pref-size window))
+	(bind '(x y w h) (view-locate w h))
+	(gui-add (view-change window x y w h))
 	;app event loop
 	(while (progn
 		;new batch of samples ?

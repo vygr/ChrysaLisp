@@ -28,7 +28,9 @@
 	accum)
 
 (defun-bind main ()
-	(gui-add (apply view-change (cat (list window 920 48) (view-pref-size window))))
+	(bind '(w h) (view-pref-size window))
+	(bind '(x y w h) (view-locate w h))
+	(gui-add (view-change window x y w h))
 	(defq accum 0 value 0 num 0 lastop nil)
 	(while (cond
 		((>= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_button)

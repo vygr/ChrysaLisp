@@ -13,23 +13,13 @@
 		(each (lambda (path)
 			(component-connect (ui-button _ (:text path)) (const event_button))) *env_launcher_apps*)))
 
-;first four are taken from wallpaper (screen sw sh and mouse x y)
-(defun-bind launcher-position ((sw sh x y w h))
-	(bind '(_ th) (view-pref-size title))
-	(defq wx (- x (/ w 2)) wy (- y (/ h 2) (/ th 2)))
-	(case *env_launcher_position*
-		(:top (setq wy y))
-		(:left (setq wx x))
-		(:bottom (setq wy (- y h -1)))
-		(:right (setq wx (- x w -1))))
-	(list (max 0 (min wx (- sw w))) (max 0 (min wy (- sh h))) w h))
-
 (defun-bind app-path (_)
 	(cat "apps/" _ "/app.lisp"))
 
 (defun-bind main ()
-	;Ensure the launcher is completely on screen.
-	(bind '(x y w h) (launcher-position (cat (mail-read (task-mailbox)) (view-pref-size window))))
+	;ensure the launcher is completely on screen
+	(bind '(w h) (view-pref-size window))
+	(bind '(x y w h) (view-locate w h *env_launcher_position*))
 	(gui-add (view-change window x y w h))
 	(while (cond
 		((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_close)

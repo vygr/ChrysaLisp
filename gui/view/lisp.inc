@@ -52,3 +52,15 @@
 		(const view_y) (const int_size) y)
 		(const view_w) (const int_size) w)
 		(const view_h) (const int_size) h))
+
+(defun-bind view-locate (w h &optional p)
+	;(view-locate w h [flag]) -> (x y)
+	(setd p :center)
+	(bind '(x y sw sh) (gui-info))
+	(defq vx (- x (/ w 2)) vy (- y (/ h 2)))
+	(case p
+		(:top (setq vy y))
+		(:left (setq vx x))
+		(:bottom (setq vy (- y h -1)))
+		(:right (setq vx (- x w -1))))
+	(list (max 0 (min vx (- sw w))) (max 0 (min vy (- sh h))) w h))

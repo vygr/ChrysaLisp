@@ -17,7 +17,9 @@
 		(ui-element sframe (elem 0 sframes))))
 
 (defun-bind main ()
-	(gui-add (apply view-change (cat (list window 64 64) (view-pref-size window))))
+	(bind '(w h) (view-pref-size window))
+	(bind '(x y w h) (view-locate w h))
+	(gui-add (view-change window x y w h))
 	(while id
 		(bind '(_ _ backdrop_width backdrop_height) (view-get-bounds backdrop))
 		(defq index (% (inc index) (length frames))

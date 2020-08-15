@@ -55,7 +55,9 @@
 			(view-dirty-all window)
 			;open the window once we have data
 			(when (= (setq frame_cnt (inc frame_cnt)) 2)
-				(gui-add (apply view-change (cat (list window 640 32) (view-pref-size window)))))
+				(bind '(w h) (view-pref-size window))
+				(bind '(x y w h) (view-locate w h))
+				(gui-add (view-change window x y w h)))
 			;resize if number of classes change
 			(when (/= last_max_classes max_classes)
 				(setq last_max_classes max_classes)

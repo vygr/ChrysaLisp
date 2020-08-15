@@ -121,7 +121,9 @@
 	(radio-select mode_buttons 0)
 	(radio-select radius_buttons 0)
 	(radio-select style_buttons 1)
-	(gui-add (apply view-change (cat (list window 192 64) (view-pref-size window))))
+	(bind '(w h) (view-pref-size window))
+	(bind '(x y w h) (view-locate w h))
+	(gui-add (view-change window x y w h))
 	(def image_scroll :min_width min_width :min_height min_height)
 
 	;create child and send args
