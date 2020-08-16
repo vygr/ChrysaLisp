@@ -121,8 +121,7 @@
 	(radio-select mode_buttons 0)
 	(radio-select radius_buttons 0)
 	(radio-select style_buttons 1)
-	(bind '(w h) (view-pref-size window))
-	(bind '(x y w h) (view-locate w h))
+	(bind '(x y w h) (apply view-locate (view-pref-size window)))
 	(gui-add (view-change window x y w h))
 	(def image_scroll :min_width min_width :min_height min_height)
 
@@ -159,11 +158,13 @@
 				(setq id nil))
 			((= id (const event_min))
 				;min button
-				(apply view-change-dirty (cat (list window) (view-get-pos window) (view-pref-size window))))
+				(bind '(x y w h) (apply view-fit (cat (view-get-pos window) (view-pref-size window))))
+				(view-change-dirty window x y w h))
 			((= id (const event_max))
 				;max button
 				(def image_scroll :min_width canvas_width :min_height canvas_height)
-				(apply view-change-dirty (cat (list window) (view-get-pos window) (view-pref-size window)))
+				(bind '(x y w h) (apply view-fit (cat (view-get-pos window) (view-pref-size window))))
+				(view-change-dirty window x y w h)
 				(def image_scroll :min_width min_width :min_height min_height))
 			((<= (const event_black) id (const event_tmagenta))
 				;ink pot

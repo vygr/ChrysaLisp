@@ -1372,6 +1372,10 @@
 
 (view-find-id view id)
 
+## view-fit
+
+(view-fit x y w h) -> (x y w h)
+
 ## view-get-bounds
 
 (view-get-bounds view) -> (x y w h)
@@ -1394,7 +1398,7 @@
 
 ## view-locate
 
-(view-locate w h [flag]) -> (x y)
+(view-locate w h [flag]) -> (x y w h)
 
 ## view-pref-size
 

@@ -90,8 +90,7 @@
 	(def ext_filter :text exts)
 	(defq all_files (sort cmp (tree dir)) tree_buttons (list) file_buttons (list) current_dir (cat dir "/"))
 	(populate-files all_files current_dir exts)
-	(bind '(w h) (view-get-size window))
-	(bind '(x y w h) (view-locate w h))
+	(bind '(x y w h) (apply view-locate (view-get-size window)))
 	(gui-add (view-change window x y w h))
 	(while (cond
 		((eql (defq msg (mail-read (task-mailbox))) "")

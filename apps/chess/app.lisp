@@ -46,8 +46,7 @@
 (defun-bind main ()
 	(mail-send (array (in-mbox data_in) 10000000)
 		(defq child_mbox (open-child "apps/chess/child.lisp" kn_call_child)))
-	(bind '(w h) (view-pref-size window))
-	(bind '(x y w h) (view-locate w h))
+	(bind '(x y w h) (apply view-locate (view-pref-size window)))
 	(gui-add (view-change window x y w h))
 	;main event loop
 	(while (cond

@@ -97,8 +97,8 @@
 (defun-bind window-resize (w h)
 	(setq vdu_width w vdu_height h)
 	(set vdu :vdu_width w :vdu_height h :min_width w :min_height h)
-	(bind '(x y) (view-get-pos window))
-	(bind '(w h) (view-pref-size window))
+	(bind '(x y w h) (apply view-fit
+		(cat (view-get-pos window) (view-pref-size window))))
 	(set vdu :min_width vdu_min_width :min_height vdu_min_height)
 	(view-change-dirty window x y w h)
 	(print-edit-line))
@@ -114,8 +114,7 @@
 
 (defun-bind main ()
 	;add window
-	(bind '(w h) (view-pref-size (component-connect window event_layout)))
-	(bind '(x y w h) (view-locate w h))
+	(bind '(x y w h) (apply view-locate (view-pref-size (component-connect window event_layout))))
 	(gui-add (view-change window x y w h))
 	;sign on msg
 	(print (str "ChrysaLisp Terminal 1.6" (ascii-char 10)))

@@ -38,8 +38,7 @@
 
 (defun-bind main ()
 	;add window
-	(bind '(w h) (view-pref-size window))
-	(bind '(x y w h) (view-locate w h))
+	(bind '(x y w h) (apply view-locate (view-pref-size window)))
 	(gui-add (view-change window x y w h))
 	;app event loop
 	(while (progn
@@ -71,14 +70,15 @@
 						nil)
 					((= id event_min)
 						;min button
-						(bind '(x y) (view-get-pos window))
-						(bind '(w h) (view-pref-size window))
+						(bind '(x y w h) (apply view-fit
+							(cat (view-get-pos window) (view-pref-size window))))
 						(view-change-dirty window x y w h))
 					((= id event_max)
 						;max button
 						(bind '(x y) (view-get-pos window))
 						(bind '(w h) (view-pref-size window))
-						(view-change-dirty window x y (/ (* w 5) 3) h))
+						(bind '(x y w h) (view-fit x y (/ (* w 5) 3) h))
+						(view-change-dirty window x y w h))
 					(t (view-event window msg))))
 			(t	;child info
 				(defq index (find (get-int msg sample_reply_cpu) devices)

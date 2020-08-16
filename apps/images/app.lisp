@@ -28,14 +28,12 @@
 	(def window_title :text (elem _ images))
 	(view-add-child image_scroll canvas)
 	(view-layout window_title)
-	(bind '(x y) (view-get-pos window))
-	(bind '(w h) (view-pref-size window))
+	(bind '(x y w h) (apply view-fit (cat (view-get-pos window) (view-pref-size window))))
  	(def image_scroll :min_width 32 :min_height 32)
 	(view-change-dirty window x y w h))
 
 (defun-bind main ()
-	(bind '(w h) (view-get-size (win-refresh index)))
-	(bind '(x y w h) (view-locate w h))
+	(bind '(x y w h) (apply view-locate (view-get-size (win-refresh index))))
 	(gui-add (view-change window x y w h))
 	(while (cond
 		((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_close)

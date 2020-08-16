@@ -37,8 +37,8 @@
 	(bind '(ox oy cx cy sx) position)
 	(setq vdu_width w vdu_height h)
 	(set vdu :vdu_width w :vdu_height h :min_width w :min_height h)
-	(bind '(x y) (view-get-pos window))
-	(bind '(w h) (view-pref-size window))
+	(bind '(x y w h) (apply view-fit
+		(cat (view-get-pos window) (view-pref-size window))))
 	(set vdu :min_width vdu_min_width :min_height vdu_min_height)
 	(view-change-dirty window x y w h)
 	(vdu-load vdu buffer ox oy cx cy))

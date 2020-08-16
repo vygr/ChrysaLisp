@@ -80,8 +80,7 @@
 	(set-slider-values))
 
 (defun-bind main ()
-	(bind '(w h) (view-pref-size window))
-	(bind '(x y w h) (view-locate w h))
+	(bind '(x y w h) (apply view-locate (view-pref-size window)))
 	(gui-add (view-change window x y w h))
 	(reset)
 	(while id

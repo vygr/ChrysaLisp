@@ -34,7 +34,8 @@
 	(view-change symbol_grid 0 0 w h)
 	(def symbol_scroll :min_width w :min_height (min h 720))
 	(view-add-child symbol_scroll symbol_grid)
-	(apply view-change-dirty (cat (list window) (view-get-pos window) (view-pref-size window))))
+	(bind '(x y w h) (apply view-fit (cat (view-get-pos window) (view-pref-size window))))
+	(view-change-dirty window x y w h))
 
 (defun-bind all-fonts (p)
 	(defq out (list))
@@ -53,8 +54,7 @@
 
 (defun-bind main ()
 	(win-refresh index)
-	(bind '(w h) (view-pref-size window))
-	(bind '(x y w h) (view-locate w h))
+	(bind '(x y w h) (apply view-locate (view-pref-size window)))
 	(gui-add (view-change window x y w h))
 	(while (cond
 		((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_close)
