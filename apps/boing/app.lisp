@@ -17,7 +17,8 @@
 		(ui-element sframe (elem 0 sframes))))
 
 (defun-bind main ()
-	(gui-add (apply view-change (cat (list window 64 64) (view-pref-size window))))
+	(bind '(x y w h) (apply view-locate (view-pref-size window)))
+	(gui-add (view-change window x y w h))
 	(while id
 		(bind '(_ _ backdrop_width backdrop_height) (view-get-bounds backdrop))
 		(defq index (% (inc index) (length frames))
@@ -43,14 +44,14 @@
 					(setq id nil))
 				((= id event_min)
 					;min button
-					(bind '(x y) (view-get-pos window))
-					(bind '(w h) (view-pref-size window))
+					(bind '(x y w h) (apply view-fit (cat (view-get-pos window) (view-pref-size window))))
 					(view-change-dirty window x y w h))
 				((= id event_max)
 					;max button
 					(bind '(x y) (view-get-pos window))
 					(bind '(w h) (view-pref-size window))
-					(view-change-dirty window x y (/ (* w 5) 3) (/ (* h 5) 3)))
+					(bind '(x y w h) (view-fit x y (/ (* w 5) 3) (/ (* h 5) 3)))
+					(view-change-dirty window x y w h))
 				(t (view-event window msg))))
 		(task-sleep 40000))
 	(view-hide window))

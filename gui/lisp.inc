@@ -151,6 +151,7 @@
 (ffi create-view "gui/view/lisp_create" 0)
 (ffi gui-add "gui/gui/lisp_add" 0)
 (ffi gui-add-back "gui/gui/lisp_add_back" 0)
+(ffi gui-info "gui/gui/lisp_info" 0)
 (ffi create-font "gui/font/lisp_create" 0)
 (ffi font-glyph-paths "gui/font/lisp_glyph_paths" 0)
 (ffi font-glyph-ranges "gui/font/lisp_glyph_ranges" 0)

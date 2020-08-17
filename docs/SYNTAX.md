@@ -540,6 +540,10 @@
 
 (gui-add-back view)
 
+## gui-info
+
+(gui-info)
+
 ## hash
 
 (hash obj)
@@ -1368,6 +1372,10 @@
 
 (view-find-id view id)
 
+## view-fit
+
+(view-fit x y w h) -> (x y w h)
+
 ## view-get-bounds
 
 (view-get-bounds view) -> (x y w h)
@@ -1387,6 +1395,10 @@
 ## view-layout
 
 (view-layout view)
+
+## view-locate
+
+(view-locate w h [flag]) -> (x y w h)
 
 ## view-pref-size
 

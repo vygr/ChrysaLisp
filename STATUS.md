@@ -27,6 +27,14 @@ corrupted.
 
 ------
 
+Added (gui-info) to return current mouse position and gui screen dimensions,
+and (view-locate) to allow apps to calculate a window launch position. Used
+this to generalize Nulearfall's Launcher positioning code for all apps. Apps
+now open windows centered on the mouse location while fitting within the GUI
+screen, but this can be adjusted if required with an optional positioning flag.
+
+------
+
 Renamed (merge) to (merge-obj) to avoid clashing with Common Lisp and to be
 more descriptive of what the function actually does.
 
