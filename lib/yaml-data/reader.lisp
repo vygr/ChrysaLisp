@@ -4,7 +4,7 @@
 
 (import 'lib/xtras/xtras.inc)
 
-(defun-bind Mark (index line column)
+(defun Mark (index line column)
   ; (Mark index line column) -> properties
   (properties
     :clz    :clz_reader_mark
@@ -22,8 +22,20 @@
     :buffer (cat fstr (ascii-char 0))
     :len    (inc (length fstr))
     :index  0
-    :line   0
+    :line   1
     :column 0))
+
+(defq
+  comment "#"
+  blank   (char 0x20)
+  eof     (char 0x0)
+  cr      (char 0x0d)
+  lf      (char 0x0a)
+  tab     (char 0x09))
+
+(defq
+  crlf    (const (cat "" cr lf))
+  breakz  (const (cat "" lf eof)))
 
 (defun-bind _add (x y) (+ x y))
 
@@ -41,8 +53,8 @@
 (defun-bind rdr-peek (rdr &optional index)
   ; (peek rdr index) -> char | exception
   (setd index 0)
-  (defq _offset (rdr-calc-off rdr index))
-  (elem _offset (getp rdr :buffer)))
+  (elem (rdr-calc-off rdr index) (getp rdr :buffer)))
+
 
 (defun-bind rdr-prefix (rdr &optional len)
   ; (prefix rdr len) -> str | exception
@@ -58,7 +70,7 @@
     (setsp! rdr
       :point    (inc (getp rdr :point))
       :index  (inc (getp rdr :index)))
-    (when (= (code ch) 0x0a)
+    (when (eql ch lf)
       (setsp! rdr
         :line (inc (getp rdr :line))
         :column 0))
@@ -79,7 +91,5 @@
   (print))
 
 ; Reserved for later 'buffering' of file
-; (defun-bind update (rdr len))
-; (defun-bind update-raw (rdr ))
-
-
+; (defun update (rdr len))
+; (defun update-raw (rdr ))

@@ -4,11 +4,15 @@
 
 ; imports
 (import 'lib/xtras/xtras.inc)
-(import 'lib/yaml-data/scanner.inc)
+(import 'lib/yaml-data/scanner.lisp)
 
-(defun yaml-read (fname &rest options)
+(defun-bind yaml-read (fname &rest options)
+  ; (print "yaml-read " fname)
   (if (zero? (age fname))
     (throw (str fname " not found") t)
-    (scan (load fname))))
+    (progn
+      (defq res (scan (load fname)))
+      (print res)))
+  )
 
-(defun yaml-write (yaml stream &rest options))
+(defun-bind yaml-write (yaml stream &rest options))

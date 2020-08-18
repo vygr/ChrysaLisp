@@ -3,7 +3,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import 'lib/xtras/xtras.inc)
-(import 'lib/yaml-data/reader.inc)
+(import 'lib/yaml-data/reader.lisp)
 
 ; STREAM-START
 ; STREAM-END
@@ -27,56 +27,56 @@
 ; TAG(value)                ----- NOT SUPPORTED
 
 
-(defun-bind Token (ttype sm em)
+(defun Token (ttype sm em)
   (properties
       :type       ttype
       :start_mark sm
       :end_mark   sm))
 
-(defun-bind StreamStart ()
-  (Token :stream_start nil nil))
+(defun StreamStart (&optional sm em)
+  (Token :stream_start sm em))
 
-(defun-bind StreamEnd ()
-  (Token :stream_end nil nil))
+(defun StreamEnd (&optional sm em)
+  (Token :stream_end sm em))
 
-(defun-bind DocumentStart ()
-  (Token :document_start nil nil))
+(defun DocumentStart (&optional sm em)
+  (Token :document_start sm em))
 
-(defun-bind DocumentEnd ()
-  (Token :document_end nil nil))
+(defun DocumentEnd (&optional sm em)
+  (Token :document_end sm em))
 
-(defun-bind BlockSequenceStart ()
+(defun BlockSequenceStart ()
   (Token :blockseq_start nil nil))
 
-(defun-bind BlockMappingStart ()
+(defun BlockMappingStart ()
   (Token :blockmap_start nil nil))
 
-(defun-bind BlockEntry ()
+(defun BlockEntry ()
   (Token :block_entry nil nil))
 
-(defun-bind BlockEnd ()
-  (Token :block_end nil nil))
+(defun BlockEnd (mrks)
+  (Token :block_end mrks mrks))
 
-(defun-bind FlowSequenceStart ()
+(defun FlowSequenceStart ()
   (Token :flowseq_start nil nil))
 
-(defun-bind FlowSequenceEnd ()
+(defun FlowSequenceEnd ()
   (Token :flowseq_end nil nil))
 
-(defun-bind FlowMappingStart ()
+(defun FlowMappingStart ()
   (Token :flowmap_start nil nil))
 
-(defun-bind FlowMappingEnd ()
+(defun FlowMappingEnd ()
   (Token :flowmap_end nil nil))
 
-(defun-bind FlowEntry ()
+(defun FlowEntry ()
   (Token :flow_entry nil nil))
 
-(defun-bind Key ()
+(defun Key ()
   (Token :key nil nil))
 
-(defun-bind Value ()
+(defun Value ()
   (Token :value nil nil))
 
-(defun-bind Scalar ()
+(defun Scalar ()
   (Token :scalar nil nil))

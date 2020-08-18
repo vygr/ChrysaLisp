@@ -38,6 +38,13 @@
   ; (dict? form) -> bool
   (env? _))
 
+(defun-bind props? (_)
+  (when (and
+    (lst? _)
+      (> (length _) 2)
+      (eql (getp _ :super_clz) :clz_properties))
+    t))
+
 (defun-bind seq? (_)
   ; (seq? form) -> t|nil
   (or (lst? _) (str? _)))
@@ -111,16 +118,49 @@
   ; (unions-with list [list]...) -> list'
   (each (curry merge base) lists))
 
-
 ; Properties (a.k.a. list of pairs [k v]) forms
 
 (defmacro-bind properties (&rest pairs)
   ; (properties [k v]...) -> list
+  (push pairs :super_clz :clz_properties)
   `(list ~pairs))
+
+(defun-bind prop-entries (_)
+  (when (props? _)
+    (defq c (chunk 2 _))
+    (reduce (lambda (acc e)
+      (if (or (eql (first e) :clz) (eql (first e) :super_clz))
+        acc
+        (push acc e)))
+      c (list))))
+
+(defun-bind prop-keys (prop)
+  ; (prop-keys prop) -> key list
+  (map (#(elem 0 %0)) (prop-entries prop)))
+
+(defun-bind prop-values (prop)
+  ; (prop-keys values) -> value list
+  (map (#(elem 1 %0)) (prop-entries prop)))
+
+(defun-bind efind (p k)
+  ; (efind properties key) -> index | nil
+  ; Used when keys are number and/or string
+  (defq fx nil)
+  (each! 0 -1
+    (lambda (s)
+      (when (eql s k)
+        (setq fx _))) (list p))
+  fx)
 
 (defun-bind getp (p k &optional if_nil)
   ; (getp properties key [if_nil]) -> val | if_nil | nil
-  (defq fx (find k p))
+  (defq fx nil)
+  (cond
+    ((or (kw? k) (sym? k))
+      (setq fx (find k p)))
+    ((or (num? k) (str? k))
+      (setq fx (efind p k)))
+    (t nil))
   (if fx (elem (inc fx) p) (opt nil if_nil)))
 
 (defun-bind setp! (p k v &optional add_if_nil)
@@ -136,27 +176,42 @@
   (each (#(setp! p (first %0) (second %0) t)) (chunk 2 pairs))
   p)
 
-(defun-bind pdrop (p k)
+(defun-bind movekpf! (p sp ep)
+  ; (movekpf properties start-key-index end-key-index)
+  ; Moves the properties k/v pair forward from key index sp to index ep
+  (while (/= sp ep)
+    (defq tsp (+ sp 2))
+    (swap p sp tsp)
+    (swap p (inc sp) (+ sp 3))
+    (setq sp tsp))
+  p)
+
+(defun-bind movekpb! (p sp ep)
+  ; (movekpb properties start-key-index end-key-index)
+  ; Moves the properties k/v pair backward from key index sp to index ep
+  (while (/= sp ep)
+    (defq tsp (- sp 2))
+    (swap p sp tsp)
+    (swap p (inc sp) (dec sp))
+    (setq sp tsp))
+  p)
+
+(defun-bind pdrop! (p k)
   ; (pdrop properties key) -> properties
-  ; TODO: Need to not use 'merge' as it means 'union'
-  (defq
-    pc (copy p)
-    pdx (find k p)
-    end (= (+ pdx 2) (length p))
-    beg (= pdx 0))
-  (cond
-    ((not pdx) p)
-    ((and beg end) (clear p))
-    (beg (merge (clear p) (slice (+ pdx 2) -1 pc)))
-    (end (merge (clear p) (slice 0 pdx pc)))
-    (t
-      (clear p)
-      (merge (merge p (slice 0 pdx pc)) (slice (+ pdx 2) -1 pc)))))
+
+  (when (props? p)
+    (defq
+      sp (efind p k)
+      ep (- (length p) 2))
+    (print "pdrop! key " k " with " sp " and " ep)
+    (when sp
+      (movekpf p sp ep)
+      (times 2 (pop p)))))
 
 ; Dictionary forms
 
-(defun-bind dict-property-list (e)
-  ; (dict-property-list e) -> list
+(defun-bind dict-entries (e)
+  ; (dict-entries e) -> list
   ; Returns list of properties for e
   (tolist e))
 
@@ -187,9 +242,9 @@
     (setq tmp ifnil))
   tmp)
 
-(defun-bind dict-drop! (dict &rest keys)
+(defun-bind dict-drop! (dict &rest dkeys)
   ; (dict-drop! dict key...) -> dictionary
-  (each (#(undef dict %0)) keys)
+  (each (#(undef dict %0)) dkeys)
   dict)
 
 (defun-bind dict-put! (dict property value &optional add_ifnil)
@@ -208,7 +263,7 @@
   ; (dict-merge dict0 ...) -> list
   ; Merges multiple dictionaries to a list of property lists
   (defq
-    ebase (dict-property-list (first dlist))
+    ebase (dict-entries (first dlist))
     kset  (list))
   (each (lambda (el) (push (push kset (first el)) _)) ebase)
   (each (lambda (el)
@@ -220,7 +275,7 @@
           acc)
         (t
           (push (push kset (first el)) (/ (length kset) 2))
-          (push acc el)))) el ebase)) (map dict-property-list (rest dlist)))
+          (push acc el)))) el ebase)) (map dict-entries (rest dlist)))
   ebase)
 
 (defun-bind dict-merge-to! (dict &rest dlist)
@@ -231,11 +286,49 @@
 
 (defun-bind dict-keys (dict)
   ; (dict-keys dict) -> key list
-  (map (#(elem 0 %0)) (dict-property-list dict)))
+  (map (#(elem 0 %0)) (dict-entries dict)))
 
 (defun-bind dict-values (dict)
   ; (dict-values dict) -> value list
-  (map (#(elem 1 %0)) (dict-property-list dict)))
+  (map (#(elem 1 %0)) (dict-entries dict)))
+
+; Normalize some dictionary and properties functions
+
+(defun-bind entries (e)
+  ; (entries e) -> ((k v) ...) | nil
+  (cond
+    ((dict? e)
+      (dict-entries e))
+    ((props? e)
+      (prop-entries e))
+    (t nil)))
+
+(defun-bind entry-cnt (e)
+  ; (entry-cnt e) -> num
+  (cond
+    ((dict? e)
+      (length (dict-entries e)))
+    ((props? e)
+      (dec (/ (length e) 2)))
+    (t 0)))
+
+(defun-bind keys (e)
+  ; (keys e) -> list | nil
+  (cond
+    ((dict? e)
+      (dict-keys e))
+    ((props? e)
+      (prop-keys e))
+    (t nil)))
+
+(defun-bind values (e)
+  ; (values e) -> list | nil
+  (cond
+    ((dict? e)
+      (dict-values e))
+    ((props? e)
+      (prop-values e))
+    (t nil)))
 
 ; Test cases
 ; (make-dict foo :a 0 :b 1) ; -> ((:a 0) (:b 1))
@@ -288,7 +381,7 @@
               (walk-tree-recur inner-fn outer-fn el)
               (inner-fn el))) tree))))
     ((dict? tree)
-      (map (curry walk-tree-recur inner-fn outer-fn) (dict-property-list tree)))
+      (map (curry walk-tree-recur inner-fn outer-fn) (dict-entries tree)))
     (t (outer-fn tree))))
 
 (defun-bind pre-walk-recur (fn tree)
