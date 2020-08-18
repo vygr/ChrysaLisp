@@ -58,9 +58,16 @@
   (last (getp scn :tokens)))
 
 (defun check-plain (scn))
+
 (defun check-value (scn))
+
 (defun check-key (scn))
-(defun next-possible-simple-key (scn))
+
+(defun save-possible-simple-key (scn)
+  (throw "Need impl save-possible-simple-key"))
+
+(defun next-possible-simple-key (scn)
+  (throw "Need impl next-possible-simple-key"))
 
 (defun stale-possible-simple-keys (scn rdr)
   (defq
@@ -76,13 +83,19 @@
             (/= (getp v :line) ln)
               (> (- (getp rdr :index) (getp v :index)) 1024))
           (if (getp v :required)
-              (throw "Key required"))
+              (throw "Key required" v))
           (pdrop! p k)))
       ke)))
 
-(defun save-possible-simple-key (scn))
-(defun remove-possible-simple-key (scn))
-
+(defun remove-possible-simple-key (scn)
+  (defq
+    p (getp scn :possible_simple_keys)
+    k (getp scn :flow_level)
+    v (getp p k))
+  (when v
+    (if (getp v :required)
+        (throw "Key required" v))
+    (pdrop! p k)))
 
 (defun unwind-indent (scn col rdr)
   (when (> (getp scn :flow_level) 0)
@@ -91,7 +104,17 @@
       (setp! scn :indent (pop (getp scn :indents)))
       (push-token scn (BlockEnd mark)))))
 
-(defun add-indent (scn col))
+(defun add-indent (scn rdr)
+  (defq
+    cl (getp rdr :column)
+    id (getp scn :indent))
+  (print "add-indent column = " cl " indent " id)
+  (if (< id cl)
+      (progn
+        (push (getp scn :indents) id)
+        (setp! scn :indent cl)
+        t)
+      nil))
 
 (defun scan-peek (scn))
 
@@ -142,6 +165,8 @@
   (check-document-indicator rdr docstart))
 (defun check-document-end (rdr)
   (check-document-indicator rdr docend))
+(defun check-block-entry (rdr)
+  (find (rdr-peek rdr 1) ebreakz))
 
 (defun fetch-document-indicator (scn rdr token)
   (unwind-indent scn -1 rdr)
@@ -161,6 +186,21 @@
 (defun fetch-document-end (scn rdr)
   (fetch-document-indicator scn rdr (DocumentEnd)))
 
+(defun fetch-block-entry (scn rdr)
+  (print "be 0 fl = " (getp scn :flow_level))
+  (when (= (getp scn :flow_level) 0)
+    (when (not (getp scn :allow_simple_key))
+        (throw "Sequence entries not allowed here " (rdr-get-mark rdr)))
+    (when (add-indent scn rdr)
+        (print "Adding BlockSequenceStart")
+        (push-token scn (BlockSequenceStart (rdr-get-mark rdr)))))
+  (setp! scn :allow_simple_key t)
+  (remove-possible-simple-key scn)
+  (defq sm (rdr-get-mark rdr))
+  (rdr-forward rdr 1)
+  (push-token scn (BlockEntry sm (rdr-get-mark rdr)))
+  :ok)
+
 (defun fetch-next (scn)
   (defq rdr (getp scn :rdr))
   ; Eat up the white spaces
@@ -178,6 +218,8 @@
     ; Unsupported controls at the moment
     ((find ch unsupported) (list :exception "Unsupported char " ch))
     ; Common likely
+    ((and (eql ch "-") (check-block-entry rdr))
+     (fetch-block-entry scn rdr))
     ; Document start
     ((and (eql ch "-") (check-document-start rdr))
      (print "Docstart")
@@ -200,7 +242,9 @@
   (cond
     ; Exception
     ((lst? res)
-     (print "Exception -> tokens " (getp scn :tokens))
+     (print "Exception -> tokens ")
+     (each (lambda (p)
+        (print "T-> " (getp p :type)))(getp scn :tokens))
      (throw (second res) (last res)))
     ; End stream
     ((eql res :eof)

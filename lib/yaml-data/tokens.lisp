@@ -45,14 +45,14 @@
 (defun DocumentEnd (&optional sm em)
   (Token :document_end sm em))
 
-(defun BlockSequenceStart ()
-  (Token :blockseq_start nil nil))
+(defun BlockSequenceStart (sm)
+  (Token :blockseq_start sm sm))
 
 (defun BlockMappingStart ()
   (Token :blockmap_start nil nil))
 
-(defun BlockEntry ()
-  (Token :block_entry nil nil))
+(defun BlockEntry (sm em)
+  (Token :block_entry sm em))
 
 (defun BlockEnd (mrks)
   (Token :block_end mrks mrks))
