@@ -540,6 +540,10 @@
 
 (gui-add-back view)
 
+## gui-info
+
+(gui-info)
+
 ## hash
 
 (hash obj)
@@ -599,18 +603,6 @@
 ## join
 
 (join list seq) -> seq
-
-## kernel-debug
-
-(kernel-debug str)
-
-## kernel-declare
-
-(kernel-declare name mbox)
-
-## kernel-total
-
-(kernel-total)
 
 ## lambda
 
@@ -676,9 +668,17 @@
 
 (mail-declare name mbox)
 
+## mail-devices
+
+(mail-devices)
+
 ## mail-enquire
 
-(mail-enquire name)
+(mail-enquire prefix)
+
+## mail-forget
+
+(mail-forget name mbox)
 
 ## mail-free-mbox
 
@@ -720,9 +720,9 @@
 
 (mem-stats options)
 
-## merge
+## merge-obj
 
-(merge dlist slist) -> dlist
+(merge-obj dlist slist) -> dlist
 
 ## min
 
@@ -822,19 +822,19 @@
 
 ## open-child
 
-(open-child path mode)
+(open-child task mode)
 
 ## open-farm
 
-(open-farm path num mode)
+(open-farm task num mode [devices])
 
 ## open-pipe
 
-(open-pipe paths)
+(open-pipe tasks)
 
 ## open-remote
 
-(open-remote path cpu mode)
+(open-remote task node mode)
 
 ## opt
 
@@ -1035,6 +1035,10 @@
 ## second
 
 (second seq) -> el
+
+## send-debug
+
+(send-debug string)
 
 ## set
 
@@ -1368,6 +1372,10 @@
 
 (view-find-id view id)
 
+## view-fit
+
+(view-fit x y w h) -> (x y w h)
+
 ## view-get-bounds
 
 (view-get-bounds view) -> (x y w h)
@@ -1387,6 +1395,10 @@
 ## view-layout
 
 (view-layout view)
+
+## view-locate
+
+(view-locate w h [flag]) -> (x y w h)
 
 ## view-pref-size
 

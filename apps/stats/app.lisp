@@ -6,9 +6,9 @@
 (structure 'event 0
 	(byte 'close))
 
-(defq stat_data (list) stat_scale (list) cpu_total (kernel-total) frame_cnt 0
-	cpu_count cpu_total max_stats 1 last_max_stats 0
-	farm (open-farm "apps/stats/child.lisp" cpu_total kn_call_open) last_max_classes 0 max_classes 1
+(defq stat_data (list) stat_scale (list) devices (mail-devices) frame_cnt 0
+	cpu_count (length devices) max_stats 1 last_max_stats 0
+	farm (open-farm "apps/stats/child.lisp" cpu_count kn_call_open devices) last_max_classes 0 max_classes 1
 	select (array (task-mailbox) (mail-alloc-mbox)) sample_msg (array (elem 1 select)))
 
 (ui-window window ()
@@ -29,7 +29,7 @@
 (defun-bind main ()
 	(while (progn
 		;new batch of samples ?
-		(when (= cpu_count cpu_total)
+		(when (= cpu_count (length devices))
 			;set scales
 			(setq last_max_stats max_stats max_stats 1)
 			(each (lambda (stat)
@@ -55,7 +55,8 @@
 			(view-dirty-all window)
 			;open the window once we have data
 			(when (= (setq frame_cnt (inc frame_cnt)) 2)
-				(gui-add (apply view-change (cat (list window 640 32) (view-pref-size window)))))
+				(bind '(x y w h) (apply view-locate (view-pref-size window)))
+				(gui-add (view-change window x y w h)))
 			;resize if number of classes change
 			(when (/= last_max_classes max_classes)
 				(setq last_max_classes max_classes)

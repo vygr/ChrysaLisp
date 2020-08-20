@@ -43,7 +43,7 @@
 				((/= (age (cat "apps/login/" (defq user (get-username)) "/pupa.inc")) 0)
 					;login user
 					(save user "apps/login/current")
-					(open-child "apps/launcher/app.lisp" kn_call_open)
+					(open-child "apps/wallpaper/app.lisp" kn_call_open)
 					nil)
 				(t	t)))
 		((= id event_create)
@@ -55,7 +55,7 @@
 					(save (load "apps/login/Guest/pupa.inc") (cat home "pupa.inc"))
 					;login new user
 					(save user "apps/login/current")
-					(open-child "apps/launcher/app.lisp" kn_call_open)
+					(open-child "apps/wallpaper/app.lisp" kn_call_open)
 					nil)
 				(t	t)))
 		(t (view-event window msg))))

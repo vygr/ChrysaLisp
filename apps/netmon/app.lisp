@@ -12,9 +12,9 @@
 	(byte 'close 'max 'min))
 
 (defq task_bars (list) memory_bars (list) task_scale (list) memory_scale (list)
-	cpu_total (kernel-total) cpu_count cpu_total
+	devices (mail-devices) cpu_count (length devices)
 	max_tasks 1 max_memory 1 last_max_tasks 0 last_max_memory 0 select (array (task-mailbox) (mail-alloc-mbox))
-	farm (open-farm "apps/netmon/child" cpu_total kn_call_open) sample_msg (array (elem 1 select)))
+	farm (open-farm "apps/netmon/child" cpu_count kn_call_open devices) sample_msg (array (elem 1 select)))
 
 (ui-window window ()
 	(ui-title-bar _ "Network Monitor" (0xea19 0xea1b 0xea1a) (const event_close))
@@ -25,24 +25,25 @@
 					:font *env_medium_terminal_font*)
 				(times 4 (push task_scale (ui-label _
 					(:text "|" :flow_flags (logior flow_flag_align_vcenter flow_flag_align_hright))))))
-			(ui-grid _ (:grid_width 1 :grid_height cpu_total)
-				(times cpu_total (push task_bars (ui-progress _)))))
+			(ui-grid _ (:grid_width 1 :grid_height cpu_count)
+				(times cpu_count (push task_bars (ui-progress _)))))
 		(ui-flow _ (:color argb_red)
 			(ui-label _ (:text "Memory (kb)" :color argb_white))
 			(ui-grid _ (:grid_width 4 :grid_height 1 :color argb_white
 					:font *env_medium_terminal_font*)
 				(times 4 (push memory_scale (ui-label _
 					(:text "|" :flow_flags (logior flow_flag_align_vcenter flow_flag_align_hright))))))
-			(ui-grid _ (:grid_width 1 :grid_height cpu_total)
-				(times cpu_total (push memory_bars (ui-progress _)))))))
+			(ui-grid _ (:grid_width 1 :grid_height cpu_count)
+				(times cpu_count (push memory_bars (ui-progress _)))))))
 
 (defun-bind main ()
 	;add window
-	(gui-add (apply view-change (cat (list window 320 32) (view-pref-size window))))
+	(bind '(x y w h) (apply view-locate (view-pref-size window)))
+	(gui-add (view-change window x y w h))
 	;app event loop
 	(while (progn
 		;new batch of samples ?
-		(when (= cpu_count cpu_total)
+		(when (= cpu_count (length devices))
 			;set scales
 			(setq last_max_tasks max_tasks last_max_memory max_memory max_tasks 1 max_memory 1)
 			(each (lambda (st sm)
@@ -69,20 +70,21 @@
 						nil)
 					((= id event_min)
 						;min button
-						(bind '(x y) (view-get-pos window))
-						(bind '(w h) (view-pref-size window))
+						(bind '(x y w h) (apply view-fit
+							(cat (view-get-pos window) (view-pref-size window))))
 						(view-change-dirty window x y w h))
 					((= id event_max)
 						;max button
 						(bind '(x y) (view-get-pos window))
 						(bind '(w h) (view-pref-size window))
-						(view-change-dirty window x y (/ (* w 5) 3) h))
+						(bind '(x y w h) (view-fit x y (/ (* w 5) 3) h))
+						(view-change-dirty window x y w h))
 					(t (view-event window msg))))
 			(t	;child info
-				(defq cpu_id (get-int msg sample_reply_cpu)
+				(defq index (find (get-int msg sample_reply_cpu) devices)
 					task_val (get-int msg sample_reply_task_count)
 					memory_val (get-int msg sample_reply_mem_used)
-					task_bar (elem cpu_id task_bars) memory_bar (elem cpu_id memory_bars))
+					task_bar (elem index task_bars) memory_bar (elem index memory_bars))
 				(setq max_tasks (max max_tasks task_val) max_memory (max max_memory memory_val))
 				(def task_bar :maximum last_max_tasks :value task_val)
 				(def memory_bar :maximum last_max_memory :value memory_val)

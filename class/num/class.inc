@@ -64,6 +64,8 @@
 (dec-method :lisp_r2i 'class/num/lisp_r2i :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_r2f 'class/num/lisp_r2f :static '(r0 r1) '(r0 r1))
 
+(dec-method :hash 'class/num/hash :override '(r0) '(r0 r1))
+
 (def-struct 'num 'obj)
 	(long 'value)
 (def-struct-end)

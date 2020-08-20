@@ -57,7 +57,8 @@
 	(populate-help)
 	(bind '(w h) (view-pref-size index))
 	(view-change index 0 0 (def index_scroll :min_width w) h)
-	(gui-add (apply view-change (cat (list window 32 32) (view-pref-size window))))
+	(bind '(x y w h) (apply view-locate (view-pref-size window)))
+	(gui-add (view-change window x y w h))
 	(while (cond
 		((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_close)
 			nil)

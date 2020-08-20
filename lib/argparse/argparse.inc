@@ -273,7 +273,7 @@
           (push inner ((dict-get self :validator) self (stack-pop argstack)))
           (setq cnt (inc cnt)))
     (if (= cnt argcnt)
-      (merge result inner)
+      (merge-obj result inner)
       (throw (str myflag " expected " argcnt " values. Found: ") cnt)))
   argstack)
 

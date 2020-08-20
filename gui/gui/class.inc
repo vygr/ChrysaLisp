@@ -17,6 +17,7 @@
 
 (dec-method :lisp_add 'gui/gui/lisp_add :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_add_back 'gui/gui/lisp_add_back :static '(r0 r1) '(r0 r1))
+(dec-method :lisp_info 'gui/gui/lisp_info :static '(r0 r1) '(r0 r1))
 
 ;;;;;;;;;;;;;;;;
 ; gui structures
@@ -32,6 +33,7 @@
 	(ptr 'window 'screen 'temps)
 	(ulong 'renderer 'texture 'next_id)
 	(uint 'dirty_flag 'old_region_index)
+	(int 'mouse_x 'mouse_y)
 	(struct 'old_regions (* num_old_regions ptr_size))
 (def-struct-end)
 

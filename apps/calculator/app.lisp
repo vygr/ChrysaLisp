@@ -28,7 +28,8 @@
 	accum)
 
 (defun-bind main ()
-	(gui-add (apply view-change (cat (list window 920 48) (view-pref-size window))))
+	(bind '(x y w h) (apply view-locate (view-pref-size window)))
+	(gui-add (view-change window x y w h))
 	(defq accum 0 value 0 num 0 lastop nil)
 	(while (cond
 		((>= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_button)
@@ -55,12 +56,11 @@
 			nil)
 		((= id event_min)
 			;min button
-			(bind '(x y) (view-get-pos window))
-			(bind '(w h) (view-pref-size window))
+			(bind '(x y w h) (apply view-fit (cat (view-get-pos window) (view-pref-size window))))
 			(view-change-dirty window x y w h))
 		((= id event_max)
 			;max button
-			(bind '(x y) (view-get-pos window))
-			(view-change-dirty window x y 512 512))
+			(bind '(x y w h) (apply view-fit (cat (view-get-pos window) '(512 512))))
+			(view-change-dirty window x y w h))
 		(t (view-event window msg))))
 	(view-hide window))

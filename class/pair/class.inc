@@ -11,6 +11,7 @@
 (dec-method :set_first 'class/pair/set_first :static '(r0 r1) '(r0))
 (dec-method :set_second 'class/pair/set_second :static '(r0 r1) '(r0))
 
+(dec-method :print 'class/pair/print :override)
 (dec-method :deinit 'class/pair/deinit :final)
 
 (def-struct 'pair 'obj)

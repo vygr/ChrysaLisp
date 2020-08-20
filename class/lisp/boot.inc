@@ -48,7 +48,7 @@
 (ffi pop "class/array/lisp_pop" 0)
 
 (ffi elem-set "class/list/lisp_elemset" 0)
-(ffi merge "class/list/lisp_merge" 0)
+(ffi merge-obj "class/list/lisp_merge" 0)
 (ffi partition "class/list/lisp_part" 0)
 (ffi match? "class/list/lisp_match" 0)
 
@@ -379,7 +379,7 @@
 	;(# (< %0 0)) -> (lambda (%0) (< %0 0))
 	`(lambda ,(slice 0 (reduce (lambda (c _)
 		(if (find _ '(%0 %1 %3 %4 %5 %6 %7 %8 %9)) (inc c) c))
-		(merge (list) (map sym (split (str x) "( )"))) 0)
+		(merge-obj (list) (map sym (split (str x) "( )"))) 0)
 			'(%0 %1 %3 %4 %5 %6 %7 %8 %9)) ,x))
 
 ;;;;;;;;;;;;

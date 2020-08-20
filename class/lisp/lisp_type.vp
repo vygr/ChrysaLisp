@@ -1,6 +1,7 @@
 (include 'sys/func.inc)
 (include 'class/func/class.inc)
 (include 'class/sym/class.inc)
+(include 'class/hmap/class.inc)
 (include 'class/lisp/class.inc)
 
 (def-method 'lisp :lisp_type)

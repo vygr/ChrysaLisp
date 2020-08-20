@@ -2,12 +2,15 @@
 (include 'sys/link/class.inc)
 (include 'sys/kernel/class.inc)
 (include 'class/array/class.inc)
+(include 'class/num/class.inc)
+(include 'class/hmap/class.inc)
+(include 'class/pair/class.inc)
 
 (def-method 'sys_link :link)
 	;started by kernel for each link
 
 	(struct 'lk_node 'lk_node)
-	(ptr 'task_statics 'params 'msg 'data 'rx 'tx 'mem 'rx_msg 'tx_msg 'out_msg)
+	(ptr 'task_statics 'params 'msg 'data 'rx 'tx 'mem 'rx_msg 'tx_msg 'out_msg 'key)
 	(pubyte 'pdata)
 	(long 'handle)
 	(uint 'lo_id 'hi_id 'id)
@@ -19,9 +22,9 @@
 	(assign (cat {@} (f-path 'sys_task :statics)) {task_statics})
 	(assign {task_statics->tk_statics_task_count - 1} {task_statics->tk_statics_task_count})
 
-	;allocate link node on stack and add to link array
-	(assign {0 => lk_node.lk_table_array} {lk_node.lk_table_array_size})
+	;add link node to link array
 	(call 'array :push_back (cat {@} (f-path 'sys_mail :statics) {.ml_statics_links_array, &lk_node}))
+	(call 'num :create '(0) {key})
 
 	;read params msg from kernel
 	(call 'sys_mail :mymail nil {params, pdata})
@@ -31,11 +34,11 @@
 	(assign {((pdata[4] - 0x30) * 100) + ((pdata[5] - 0x30) * 10) + (pdata[6] - 0x30)} {hi_id})
 	(call 'sys_kernel :id nil {id})
 	(vpif {id = lo_id})
-		(assign {hi_id} {lk_node.lk_node_cpu_id})
+		(assign {hi_id} {lk_node.lk_node_peer_cpu_id})
 		(assign {lk_buffer_chan_1} {tx})
 		(assign {lk_buffer_chan_2} {rx})
 	(else)
-		(assign {lo_id} {lk_node.lk_node_cpu_id})
+		(assign {lo_id} {lk_node.lk_node_peer_cpu_id})
 		(assign {lk_buffer_chan_2} {tx})
 		(assign {lk_buffer_chan_1} {rx})
 	(endif)
@@ -48,13 +51,11 @@
 	(call 'sys_pii :mmap {lk_buffer_size, handle, mmap_shared} {mem})
 
 	;send link routing message to neighbor kernel
-	(call 'sys_mail :alloc {kn_msg_route_size} {msg, data})
-	(assign {0} {msg->msg_dest.id_mbox})
-	(assign {lk_node.lk_node_cpu_id} {msg->msg_dest.id_cpu})
+	(call 'sys_mail :alloc {kn_msg_ping_size} {msg, data})
+	(assign {lk_node.lk_node_peer_cpu_id << 32} {msg->msg_dest.id_id})
 	(assign {kn_call_route} {data->kn_msg_func})
-	(assign {0 => data->kn_msg_user} {data->kn_msg_reply_id.id_id})
-	(assign {id => data->kn_msg_route_origin} {data->kn_msg_flood_via})
-	(assign {1} {data->kn_msg_route_hops})
+	(assign {id => data->kn_msg_ping_origin} {data->kn_msg_ping_via})
+	(assign {0 => data->kn_msg_ping_session} {data->kn_msg_ping_hops})
 	(call 'sys_mail :send {msg})
 
 	;tx channel, rx channel
@@ -76,7 +77,7 @@
 		;do we have a free out slot
 		(vpif {tx_msg->lk_msg_status = lk_chan_status_ready})
 			;see if any off chip mail for this link
-			(call 'any_out_mail {&lk_node} '(r0))
+			(call 'any_out_mail {lk_node.lk_node_peer_cpu_id, key} '(r0))
 			(breakif '(r0 = 0))
 		(vp-label 'send_msg)
 			(assign '(r0) {out_msg})
@@ -131,7 +132,7 @@
 		(breakif {rx_msg->lk_msg_status = lk_chan_status_busy})
 		(vpcase {tx_msg->lk_msg_status = lk_chan_status_ready})
 			;see if any off chip mail for me
-			(call 'any_out_mail {&lk_node} '(r0))
+			(call 'any_out_mail {lk_node.lk_node_peer_cpu_id, key} '(r0))
 			(gotoif '(r0 /= 0) 'send_msg)
 		(default)
 			;small sleep if nothing to do
@@ -139,7 +140,7 @@
 		(endswitch)
 
 		;exit if signaled by kernel
-	(loop-until {lk_node.lk_node_cpu_id = 0xffffffff})
+	(loop-until {lk_node.lk_node_peer_cpu_id = 0xffffffff})
 
 	;unmap object
 	(call 'sys_pii :munmap {mem, lk_buffer_size, mmap_shared})
@@ -150,8 +151,8 @@
 	;free params msg
 	(call 'sys_mail :free {params})
 
-	;remove from links array and deallocate link node on stack
-	(call 'sys_mem :free {lk_node.lk_node_table})
+	;remove from links array...
+	(call 'num :destroy {key})
 
 	;restore task count
 	(assign {task_statics->tk_statics_task_count + 1} {task_statics->tk_statics_task_count})
@@ -160,24 +161,33 @@
 
 (vp-label 'any_out_mail)
 	;inputs
-	;r0 = lk_node pointer (ptr)
+	;r0 = peer cpu id (uint)
+	;r1 = key num object (ptr)
 	;outputs
 	;r0 = 0 if none, else msg node (ptr)
 
-	(vp-def (next node table id mid))
+	(vp-def (next node key peer tuple via iter_begin iter_end)
+		'(r13 r12 r11 r10 r9))
 
-	(entry '(r0))
+	(entry `(,peer ,key))
 
-	(assign `((@ ,(f-path 'sys_mail :statics)) (r0 lk_node_cpu_id)
-		(r0 ,(+ lk_node_table lk_table_array))) `(,next ,id ,table))
-	(loop-list-forward next ml_statics_offchip_list node next)
-		(vp-cpy-ir-ui node (+ msg_dest id_cpu) mid)
-		(breakif `(,id = ,mid))
-		(continueif `(,table = 0))
-		(vp-mul-cr lk_route_size mid)
-		(vp-add-rr table mid)
-		(vp-cpy-ir-ui mid lk_route_hops mid)
-	(loop-until `(,mid /= 0))
+	(f-bind 'sys_mail :statics next)
+	(loop-list-forward next ml_statics_offchip_list node next 'exit)
+		(vp-cpy-ir-ui node (+ msg_dest id_cpu) via)
+		(breakif `(,peer = ,via))
+		(vp-cpy-ri via key num_value)
+		(f-bind 'sys_mail :statics tuple)
+		(call 'hmap :find `((,tuple ml_statics_routing_map) ,key) `(_ ,tuple _))
+		(continueif `(,tuple = 0))
+		(vp-cpy-ir tuple 0 tuple)
+		(call 'array :get_both `((,tuple pair_second)) `(_ ,iter_begin ,iter_end))
+		(vp-add-cr (* 2 long_size) iter_begin)
+		(loop-start)
+			(vp-cpy-ir iter_begin 0 via)
+			(vp-add-cr long_size iter_begin)
+			(breakif `(,via = ,peer) 'exit)
+		(loop-until `(,iter_begin = ,iter_end))
+	(loop-end)
 	(vpif `(,next /= 0))
 		(vp-cpy-rr node next)
 	(endif)

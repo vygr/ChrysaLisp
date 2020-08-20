@@ -9,8 +9,9 @@
 	(byte 'close))
 
 (defq canvas_width 800 canvas_height 800 canvas_scale 1 then (time)
-	area (* canvas_width canvas_height canvas_scale canvas_scale)
-	farm (open-farm "apps/raymarch/child.lisp" (min (* 2 (kernel-total)) (* canvas_height canvas_scale)) kn_call_child)
+	area (* canvas_width canvas_height canvas_scale canvas_scale) devices (mail-devices)
+	farm (open-farm "apps/raymarch/child.lisp"
+		(min (* 2 (length devices)) (* canvas_height canvas_scale)) kn_call_child devices)
 	select (array (task-mailbox) (mail-alloc-mbox))
 	jobs (map (lambda (y)
 		(array (elem 1 select) 0 y (* canvas_width canvas_scale) (inc y)
@@ -38,7 +39,8 @@
 (defun-bind main ()
 	;add window
 	(canvas-swap (canvas-fill canvas argb_black))
-	(gui-add (apply view-change (cat (list window 64 64) (view-pref-size window))))
+	(bind '(x y w h) (apply view-locate (view-pref-size window)))
+	(gui-add (view-change window x y w h))
 	;send first batch of jobs
 	(each (lambda (_) (mail-send (pop jobs) _)) farm)
 	;main event loop

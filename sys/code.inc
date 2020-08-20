@@ -522,7 +522,7 @@
 					(setq c nil)
 					(progn
 						(if (find-rev (sym (defq s (slice p i l)))
-								'(byte ubyte short ushort int uint long ulong ptr))
+								'(pptr byte ubyte short ushort int uint long ulong ptr))
 							(token-push s 5)
 							(token-push s m))
 						(setq p i u 0 m -1))))
@@ -664,7 +664,7 @@
 
 (defcfun-bind set-reg-map (l &optional _)
 	(setd _ '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14))
-	(each (lambda (_ r) (set (env) _ r)) *vreg* (if (/= 0 (length l)) (merge l _) _)))
+	(each (lambda (_ r) (set (env) _ r)) *vreg* (if (/= 0 (length l)) (merge-obj l _) _)))
 
 (defcfun-bind push-reg (_)
 	(vreg-sym (dec (length (push *vregt* _)))))
@@ -728,8 +728,8 @@
 		(t (throw "Symbol not a variable !" _))))
 
 (defcfun compile-cast (_)
-	(if (defq c (find-rev (sym _) '(byte ubyte short ushort int uint long ulong ptr)))
-		(set-type (elem c "bBsSiIlLp"))
+	(if (defq c (find-rev (sym _) '(pptr byte ubyte short ushort int uint long ulong ptr)))
+		(set-type (elem c '("pp" "b" "B" "s" "S" "i" "I" "l" "L" "p")))
 		(throw "Unknown type cast" _)))
 
 (defcfun-bind compile-member (_)
@@ -879,6 +879,7 @@
 (operator "uint" 0 1 compile-cast)
 (operator "long" 0 1 compile-cast)
 (operator "ulong" 0 1 compile-cast)
+(operator "pptr" 0 1 compile-cast)
 (operator "." 1 0 compile-field)
 (operator "->" 1 0 compile-member)
 (operator "[]" 1 0 compile-index)

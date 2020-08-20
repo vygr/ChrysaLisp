@@ -21,7 +21,7 @@
 (defun-bind main ()
 	;clear clock face
 	(canvas-set-flags (canvas-fill clock 0) 1)
-	(gui-add (apply view-change (cat (list window 164 16) (view-pref-size window))))
+	(gui-add (apply view-change (cat (list window 0 0) (view-pref-size window))))
 	;create child and send args
 	(mail-send (list display clock (i2f clock_size) (i2f clock_scale))
 		(defq mbox (open-child "apps/clock/child.lisp" kn_call_open)))

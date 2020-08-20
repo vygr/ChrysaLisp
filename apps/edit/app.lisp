@@ -37,8 +37,8 @@
 	(bind '(ox oy cx cy sx) position)
 	(setq vdu_width w vdu_height h)
 	(set vdu :vdu_width w :vdu_height h :min_width w :min_height h)
-	(bind '(x y) (view-get-pos window))
-	(bind '(w h) (view-pref-size window))
+	(bind '(x y w h) (apply view-fit
+		(cat (view-get-pos window) (view-pref-size window))))
 	(set vdu :min_width vdu_min_width :min_height vdu_min_height)
 	(view-change-dirty window x y w h)
 	(vdu-load vdu buffer ox oy cx cy))
@@ -145,8 +145,9 @@
 
 (defun-bind main ()
 	;open the window
-	(gui-add (apply view-change (cat (list window 48 16)
-		(view-pref-size (component-connect window event_layout)))))
+	(bind '(w h) (view-pref-size (component-connect window event_layout)))
+	(bind '(x y w h) (view-locate w h))
+	(gui-add (view-change window x y w h))
 	;open buffers from pupa or open new buffer
 	(each open-buffer (if (= (length *env_edit_auto*) 0) '("") *env_edit_auto*))
 	(setq current_text (elem 0 text_store))

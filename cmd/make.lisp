@@ -87,7 +87,7 @@
                     (defq s (split l " ')") _ (elem 0 s))
                     (cond
                         ((eql _ "(include")
-                            (merge *imports* (list (sym (elem 1 s)))))
+                            (merge-obj *imports* (list (sym (elem 1 s)))))
                         ((eql _ "(def-class")
                             (push classes (list (sym (elem 1 s))
                                 (if (= 3 (length s)) (sym (elem 2 s)) 'null))))
@@ -103,7 +103,7 @@
                             (push functions (sym (elem 1 s))))
                         ((and (or (eql _ "(call") (eql _ "(jump")) (eql (elem 2 s) ":repl_error"))
                             (if (setq l (chop l))
-                                (merge syntax (list l))))))) (file-stream _))) *imports*)))
+                                (merge-obj syntax (list l))))))) (file-stream _))) *imports*)))
     ;create classes docs
     (sort (lambda (x y)
         (cmp (elem 0 x) (elem 0 y))) classes)
@@ -162,7 +162,7 @@
             (defq l (trim-whitespace _))
             (when (eql state 'y)
                 (if (and (>= (length l) 1) (eql (elem 0 l) ";"))
-                    (merge syntax (list (sym (slice 1 -1 l))))
+                    (merge-obj syntax (list (sym (slice 1 -1 l))))
                     (setq state 'x)))
             (when (and (eql state 'x) (>= (length l) 10) (eql "(" (elem 0 l)))
                 (defq s (split l " ") _ (elem 0 s))

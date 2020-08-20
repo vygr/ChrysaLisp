@@ -27,13 +27,13 @@
 	(def window_title :text (elem _ films))
 	(view-add-child image_scroll canvas)
 	(view-layout window_title)
- 	(bind '(x y) (view-get-pos window))
-	(bind '(w h) (view-pref-size window))
+	(bind '(x y w h) (apply view-fit (cat (view-get-pos window) (view-pref-size window))))
  	(def image_scroll :min_width 32 :min_height 32)
 	(view-change-dirty window x y w h))
 
 (defun-bind main ()
-	(gui-add (apply view-change (cat (list window 256 512) (view-get-size (win-refresh index)))))
+	(bind '(x y w h) (apply view-locate (view-get-size (win-refresh index))))
+	(gui-add (view-change window x y w h))
 	(while id
 		(task-sleep 40000)
 		(canvas-swap (canvas-next-frame canvas))

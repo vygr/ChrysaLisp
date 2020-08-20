@@ -118,7 +118,7 @@
 	;trashes
 	;r1-r14
 
-	(vp-def (this args len value iter_begin iter_end width) '(r7 r8 r9))
+	(vp-def (this args len value iter_begin iter_end width) '(r8 r9 r10))
 
 	(entry 'str :lisp_char (list this args))
 

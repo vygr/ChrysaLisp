@@ -2405,6 +2405,19 @@ trashes
 r1-r14
 ```
 
+### gui::lisp_info -> gui/gui/lisp_info
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
 ## hmap
 
 Super Class: hset
@@ -2871,22 +2884,21 @@ trashes
 r1-r14
 ```
 
-### hset::get_both -> class/hset/get_both
+### hset::key_callback -> class/obj/null
+
+### hset::each_callback -> class/obj/null
+
+### hset::print -> class/hset/print
 
 ```lisp
 inputs
 r0 = hset object (ptr)
+r1 = stream object (ptr)
 outputs
 r0 = hset object (ptr)
-r1 = begin iter pointer (pptr)
-r2 = end iter pointer (pptr)
 trashes
-r1-r4
+r1-r14
 ```
-
-### hset::key_callback -> class/obj/null
-
-### hset::each_callback -> class/obj/null
 
 ### hset::deinit -> class/hset/deinit
 
@@ -4493,6 +4505,18 @@ trashes
 r1-r14
 ```
 
+### num::hash -> class/num/hash
+
+```lisp
+inputs
+r0 = num (ptr)
+outputs
+r0 = num (ptr)
+r1 = hash code (ulong)
+trashes
+r1-r14
+```
+
 ## nums
 
 Super Class: array
@@ -5075,6 +5099,18 @@ r1-r14
 inputs
 r0 = pair object (ptr)
 r1 = object (ptr)
+outputs
+r0 = pair object (ptr)
+trashes
+r1-r14
+```
+
+### pair::print -> class/pair/print
+
+```lisp
+inputs
+r0 = pair object (ptr)
+r1 = stream object (ptr)
 outputs
 r0 = pair object (ptr)
 trashes
@@ -6528,6 +6564,19 @@ trashes
 r1-r7
 ```
 
+### str::starts_with -> class/str/starts_with
+
+```lisp
+inputs
+r0 = str prefix object (ptr)
+r1 = str object (ptr)
+outputs
+r0 = str prefix object (ptr)
+r1 = 0 if match
+trashes
+r1-r6
+```
+
 ### str::same -> class/str/same
 
 ```lisp
@@ -7328,27 +7377,6 @@ trashes
 r0
 ```
 
-### sys_kernel::total -> sys/kernel/total
-
-```lisp
-outputs
-r0 = cpu total (uint)
-trashes
-r0
-```
-
-### sys_kernel::opts -> sys/kernel/opts
-
-### sys_kernel::declare -> sys/kernel/declare
-
-```lisp
-inputs
-r0 = mailbox name c string (pubyte)
-r1 = mailbox id (ulong)
-trashes
-r0-r10
-```
-
 ### sys_kernel::kernel -> sys/kernel/kernel
 
 ```lisp
@@ -7356,63 +7384,6 @@ inputs
 r0 = argv pointer (pptr)
 info
 loader is already initialized when we get here !
-```
-
-### sys_kernel::debug -> sys/kernel/debug
-
-```lisp
-inputs
-r0 = debug c string (pubyte)
-trashes
-r0-r14
-```
-
-### sys_kernel::debug_reg -> sys/kernel/debug_reg
-
-```lisp
-inputs
-r14 = debug c string (pubyte)
-trashes
-none
-```
-
-### sys_kernel::lisp_total -> sys/kernel/lisp_total
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args list object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### sys_kernel::lisp_declare -> sys/kernel/lisp_declare
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args list object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### sys_kernel::lisp_debug -> sys/kernel/lisp_debug
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args list object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
 ```
 
 ## sys_link
@@ -7623,23 +7594,33 @@ trashes
 r0-r2
 ```
 
-### sys_mail::declare -> sys/mail/declare
+### sys_mail::service -> sys/mail/service
 
 ```lisp
 inputs
-r0 = mailbox name c string (pubyte)
-r1 = mailbox id (ulong)
+r0 = service name str object (ptr)
+r1 = mailbox id num object (ptr)
+outputs
+r0 = service entry str object (ptr)
 trashes
 r0-r14
 ```
 
-### sys_mail::enquire -> sys/mail/enquire
+### sys_mail::ping -> sys/mail/ping
+
+```lisp
+trashes
+r0-r14
+info
+ping services out to network
+```
+
+### sys_mail::declare -> sys/mail/declare
 
 ```lisp
 inputs
-r0 = mailbox name c string (pubyte)
-outputs
-r0 = 0 if error, else mailbox id (ulong)
+r0 = service name str object (ptr)
+r1 = mailbox id num object (ptr)
 trashes
 r0-r14
 ```
@@ -7648,7 +7629,28 @@ r0-r14
 
 ```lisp
 inputs
-r0 = mailbox name c string (pubyte)
+r0 = service name str object (ptr)
+r1 = mailbox id num object (ptr)
+trashes
+r0-r14
+```
+
+### sys_mail::enquire -> sys/mail/enquire
+
+```lisp
+inputs
+r0 = service prefix str object (ptr)
+outputs
+r0 = matching service entries list object (ptr)
+trashes
+r0-r14
+```
+
+### sys_mail::devices -> sys/mail/devices
+
+```lisp
+outputs
+r0 = known device cpu array object (ptr)
 trashes
 r0-r14
 ```
@@ -7744,6 +7746,32 @@ r1-r14
 ```
 
 ### sys_mail::lisp_enquire -> sys/mail/lisp_enquire
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### sys_mail::lisp_forget -> sys/mail/lisp_forget
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### sys_mail::lisp_devices -> sys/mail/lisp_devices
 
 ```lisp
 inputs
@@ -8688,43 +8716,6 @@ trashes
 r0-r14
 ```
 
-### sys_task::open_remote -> sys/task/open_remote
-
-```lisp
-inputs
-r0 = name c string (pubyte)
-r1 = cpu target (uint)
-r2 = spawn type (uint)
-outputs
-r0 = mailbox id (id)
-trashes
-r0-r14
-```
-
-### sys_task::open_farm -> sys/task/open_farm
-
-```lisp
-inputs
-r0 = name c string (pubyte)
-r1 = number to spawn (uint)
-r2 = spawn type (uint)
-outputs
-r0 = mailbox id's array object (ptr)
-trashes
-r0-r14
-```
-
-### sys_task::open_pipe -> sys/task/open_pipe
-
-```lisp
-inputs
-r0 = list of str objects (ptr)
-outputs
-r0 = mailbox id's array object (ptr)
-trashes
-r0-r14
-```
-
 ### sys_task::task_callback -> class/obj/null
 
 ### sys_task::lisp_sleep -> sys/task/lisp_sleep
@@ -8741,58 +8732,6 @@ r1-r14
 ```
 
 ### sys_task::lisp_mailbox -> sys/task/lisp_mailbox
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args list object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### sys_task::lisp_open_child -> sys/task/lisp_open_child
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args list object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### sys_task::lisp_open_remote -> sys/task/lisp_open_remote
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args list object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### sys_task::lisp_open_farm -> sys/task/lisp_open_farm
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args list object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### sys_task::lisp_open_pipe -> sys/task/lisp_open_pipe
 
 ```lisp
 inputs

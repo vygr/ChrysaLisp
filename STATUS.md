@@ -27,13 +27,42 @@ corrupted.
 
 ------
 
+Added (gui-info) to return current mouse position and gui screen dimensions,
+and (view-locate) to allow apps to calculate a window launch position. Used
+this to generalize Nulearfall's Launcher positioning code for all apps. Apps
+now open windows centered on the mouse location while fitting within the GUI
+screen, but this can be adjusted if required with an optional positioning flag.
+
+------
+
+Renamed (merge) to (merge-obj) to avoid clashing with Common Lisp and to be
+more descriptive of what the function actually does.
+
+Lots of rework of the service system ! Service (declare) and (enquire) calls
+now have no race condition. Also took the opportunity to completely rework the
+messages routing system structures and remove the need for (kernel-total).
+
+Most of the (open-xxx) calls have been converted to Lisp rather than VP. No
+advantage now and we can easily add more task distribution calls at the Lisp
+level. Saved nearly 2KB of boot image.
+
+New (mail-devices) call to return the current known list of network CPU id's.
+
+Frank has continued to update the new xtras.inc library with various flavours
+of tree walkers and converted the argparse.inc lib over to use the latest
+properties APIs.
+
+------
+
 Closure style shortcut lambda syntax available as a macro. This may eventually
 get promoted to part of the (read) function. Thanks to FrancC01 for inspiring
 this addition.
 
 eg.
+```lisp
 (map (# (< %0 0)) '(1 2 3 4 5 6 -6 -7 -8 0 7))
 (nil nil nil nil nil nil t t t nil nil)
+```
 
 Anaphoric macros have moved over to the lib/ folder.
 

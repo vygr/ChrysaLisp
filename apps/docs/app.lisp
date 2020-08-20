@@ -7,8 +7,8 @@
 	(byte 'close 'button))
 
 (defq space_width 8 tab_width (* space_width 4) margin_width (* space_width 3)
-	doc_list '("VM" "ASSIGNMENT" "STRUCTURE" "COMMS" "FUNCTIONS"
-	"LISP" "TERMINAL" "COMMANDS" "DIARY" "SYNTAX" "CLASSES" "INTRO" "TAOS" "TODO"))
+	doc_list '("VM" "ASSIGNMENT" "STRUCTURE" "COMMS" "FUNCTIONS" "LISP" "ENVIRONMENT"
+	"TERMINAL" "COMMANDS" "DIARY" "SYNTAX" "CLASSES" "INTRO" "TAOS" "TODO"))
 
 (defun-bind normal-line ()
 	(cond
@@ -101,7 +101,8 @@
 
 (defun-bind main ()
 	(populate-page (elem 0 doc_list))
-	(gui-add (apply view-change (cat (list window 280 64) (view-pref-size window))))
+	(bind '(x y w h) (apply view-locate (view-pref-size window)))
+	(gui-add (view-change window x y w h))
 	(while (cond
 		((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_close)
 			nil)

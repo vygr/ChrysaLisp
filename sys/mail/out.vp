@@ -26,7 +26,7 @@
 		(endif)
 
 		;create next parcel id
-		(assign {mail_statics->ml_statics_parcel_id + 1} {mail_statics->ml_statics_parcel_id})
+		(assign {mail_statics->ml_statics_session + 1} {mail_statics->ml_statics_session})
 
 		;for each fragment
 		(assign {0} {offset})
@@ -42,7 +42,7 @@
 
 			;fill in fragment
 			(assign {msg->msg_dest.id_id} {frag->msg_dest.id_id})
-			(assign {(id << 32) + mail_statics->ml_statics_parcel_id} {frag->msg_src.id_id})
+			(assign {(id << 32) + mail_statics->ml_statics_session} {frag->msg_src.id_id})
 			(assign {len} {frag->msg_frag_length})
 			(assign {offset} {frag->msg_frag_offset})
 			(assign {msg->msg_frag_length} {frag->msg_total_length})
