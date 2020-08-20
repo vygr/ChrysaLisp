@@ -78,5 +78,9 @@
 (defun Value ()
   (Token :value nil nil))
 
-(defun Scalar ()
-  (Token :scalar nil nil))
+(defun Scalar (val plain sm em &optional style)
+  (setsp! (Token :scalar sm em)
+          :value val
+          :plain plain
+          :style style))
+

@@ -165,9 +165,11 @@
 
 (defun-bind setp! (p k v &optional add_if_nil)
   ; (setp properties k value [add_if_nil]) -> properties
-  (defq ki (find k p))
-  (if (and (not ki) add_if_nil)
-    (push (push p k) v)
+  (defq ki (if (kw? k) (find k p) (efind p k)))
+  (if (not ki)
+    (if add_if_nil
+      (push (push p k) v)
+      (throw (str "Key " k " does not exist") p))
     (elem-set (inc ki) p v))
   p)
 
@@ -205,7 +207,7 @@
       ep (- (length p) 2))
     (print "pdrop! key " k " with " sp " and " ep)
     (when sp
-      (movekpf p sp ep)
+      (movekpf! p sp ep)
       (times 2 (pop p)))))
 
 ; Dictionary forms

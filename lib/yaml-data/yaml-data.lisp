@@ -12,7 +12,7 @@
     (throw (str fname " not found") t)
     (progn
       (defq res (scan (load fname)))
-      (print res)))
+      (print "Done")))
   )
 
 (defun-bind yaml-write (yaml stream &rest options))

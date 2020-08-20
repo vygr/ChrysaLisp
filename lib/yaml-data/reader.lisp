@@ -43,12 +43,13 @@
 
 (defun-bind _add (x y) (+ x y))
 
-(defun-bind rdr-calc-off (rdr idx)
+(defun-bind rdr-calc-off (rdr idx &optional src)
   ; (calc-off rdr idx) -> offset | exception
   ; Throws exception if offset exceeds bounds
+  (setd src "Unknown")
   (defq _offset (_add (getp rdr :point) idx))
   (when (> _offset (getp rdr :len))
-    (throw "Attempt to read past EOF "
+    (throw (str src ": Attempt to read past EOF ")
       (properties
         :calc_off _offset
         :buff_len (getp rdr :len))))
@@ -57,18 +58,18 @@
 (defun-bind rdr-peek (rdr &optional index)
   ; (peek rdr index) -> char | exception
   (setd index 0)
-  (elem (rdr-calc-off rdr index) (getp rdr :buffer)))
+  (elem (rdr-calc-off rdr index "rdr-peek") (getp rdr :buffer)))
 
 
 (defun-bind rdr-prefix (rdr &optional len)
   ; (prefix rdr len) -> str | exception
   (setd len 1)
-  (slice (getp rdr :point) (rdr-calc-off rdr len) (getp rdr :buffer)))
+  (slice (getp rdr :point) (rdr-calc-off rdr len "rdr-prefix") (getp rdr :buffer)))
 
 (defun-bind rdr-forward (rdr &optional len)
   ; (forward rdr len) -> nil | exception
   (setd len 1)
-  (rdr-calc-off rdr len)
+  (rdr-calc-off rdr len "rdr-forward")
   (while (> len 0)
     (defq ch (elem (getp rdr :index) (getp rdr :buffer)))
     (setsp! rdr

@@ -57,26 +57,33 @@
 (defun first-token (scn token)
   (last (getp scn :tokens)))
 
-(defun check-plain (scn))
-
-(defun check-value (scn))
-
-(defun check-key (scn))
-
 ; Simple key functions
 
+(defun remove-possible-simple-key (scn)
+  (defq
+    p (getp scn :possible_simple_keys)
+    k (getp scn :flow_level)
+    v (getp p k))
+  (when v
+    (if (getp v :required)
+        (throw "Key required" v))
+    (pdrop! p k)))
+
 (defun save-possible-simple-key (scn rdr)
+  (defq fl (getp scn :flow_level))
   (when (getp scn :allow_simple_key)
     (remove-possible-simple-key scn)
-    (setp! (getp scn :possible_simple_keys)
-           (getp scn :flow_level)
-           (SimpleKey
-             (+ (getp scn :tokens_taken) (length (getp scn :tokens)))
-             (and (= (getp scn :flow_level)) (= (getp scn :indent) (getp rdr :column)))
-             (getp rdr :index)
-             (getp rdr :line)
-             (getp rdr :column)
-             (rdr-get-mark rdr)))))
+    (defq
+      sk  (SimpleKey
+            (+ (getp scn :tokens_taken) (length (getp scn :tokens)))
+            (and
+              (= fl 0)
+              (= (getp scn :indent) (getp rdr :column)))
+            (getp rdr :index)
+            (getp rdr :line)
+            (getp rdr :column)
+            (rdr-get-mark rdr)))
+    (setp! (getp scn :possible_simple_keys) fl sk t)))
 
 (defun next-possible-simple-key (scn)
   (throw "Need impl next-possible-simple-key"))
@@ -90,7 +97,6 @@
     (each
       (lambda (_)
         (defq k (first _) v (second _))
-        (print "spsk key " k " value " v)
         (if (or
             (/= (getp v :line) ln)
               (> (- (getp rdr :index) (getp v :index)) 1024))
@@ -99,30 +105,25 @@
           (pdrop! p k)))
       ke)))
 
-(defun remove-possible-simple-key (scn)
-  (defq
-    p (getp scn :possible_simple_keys)
-    k (getp scn :flow_level)
-    v (getp p k))
-  (when v
-    (if (getp v :required)
-        (throw "Key required" v))
-    (pdrop! p k)))
-
 ; Indent functions
 
-(defun unwind-indent (scn col rdr)
-  (when (> (getp scn :flow_level) 0)
-    (while (> (getp scn :indent) col)
-      (defq mark (rdr-get-mark rdr))
-      (setp! scn :indent (pop (getp scn :indents)))
-      (push-token scn (BlockEnd mark)))))
+(defun unwind-indent (scn rdr col)
+  (cond
+    ((> (getp scn :flow_level) 0)
+     nil)
+    (t
+      (print "unwind-indent indent " (getp scn :indent) " and col " col)
+      (while (> (getp scn :indent) col)
+        (defq mark (rdr-get-mark rdr))
+        (setp! scn :indent (pop (getp scn :indents)))
+        (print "  pushing blockend " mark)
+        (push-token scn (BlockEnd mark))))))
 
 (defun add-indent (scn rdr)
   (defq
     cl (getp rdr :column)
     id (getp scn :indent))
-  ; (print "add-indent column = " cl " indent " id)
+  (print "add-indent  indent " id " column = " cl)
   (if (< id cl)
       (progn
         (push (getp scn :indents) id)
@@ -132,18 +133,21 @@
 
 ; Scanner helpers
 
+; Character sets
 (defq
   unsupported "%*&!|>"
   docstart "---"
   docend "..."
   tmperr "{}[],:"
   keyind "?:"
-  ebreakz (const (cat "" cr lf tab blank eof))
+  cbreakz (const (cat "" blank cr lf))
+  ebreakz (const (cat "" cr lf tab blank eof)))
+(defq
   notplain (const (cat "" "-?:,[]{}#&*!|>%@`" squote dquote ebreakz)))
 
-(defun scan-peek (scn))
-
 (defun scan-line-break (rdr ch)
+  ; (scan-line-break reader ch) -> lf | nil
+  ; Determines if we are at line break
   (defq res nil)
   (when (find ch crlf)
     (if (eql (rdr-prefix rdr 2) crlf)
@@ -153,6 +157,8 @@
   res)
 
 (defun scan-next-token (scn rdr)
+  ; (scan-next-token scanner reader) -> nil
+  ; Eats whitespaces, comments and line breaks
   (defq found nil)
   (while (not found)
     (defq nc (rdr-peek rdr))
@@ -167,7 +173,73 @@
          (setp! scn :allow_simple_key t)))
       (t (setq found t)))))
 
-(defun scan-plain-inner (scn ch nc)
+(defun scan-plain-dsorde? (rdr prfx)
+  ; (scan-plain-dsorde? reader prefix) -> t | nil
+  ; Predicate for docstart, end or extended breaks
+  (and
+    (or
+      (eql prfx docstart)
+      (eql prfx docend))
+    (find (rdr-peek rdr 3) ebreakz)))
+
+(defun scan-spaces (rdr)
+  ; (scan-spaces reader) -> str
+  ; Batches up repeating spaces
+  (defq
+    plen 0
+    wsp  nil)
+  (while (eql (rdr-peek rdr plen) blank)
+    (setq plen (inc plen)))
+  (setq wsp (rdr-prefix rdr plen))
+  (rdr-forward rdr plen)
+  wsp)
+
+(defun scan-plain-spaces (scn rdr)
+  ; (scan-plain-spaces scanner reader) -> str
+  (defq
+    chunks  (list)
+    ch      (rdr-peek rdr)
+    lb      nil
+    prfx    nil
+    res     nil
+    wsp     (scan-spaces rdr))
+  (cond
+    ((find ch ebreakz)
+     (setq
+       lb   (scan-line-break rdr ch)
+       prfx (rdr-prefix rdr 3))
+     (setp! scn :allow_simple_key t)
+     (if (scan-plain-dsorde? rdr prfx)
+         nil
+         (progn
+           (setq ch (rdr-peek rdr))
+           (defq
+             breaks (list)
+             iloop  (find ch ebreakz))
+           (while iloop
+              ; (print "sps char " ch)
+              (cond
+                ((eql ch blank)
+                 (rdr-forward rdr)
+                 (setq ch (rdr-peek rdr)))
+                (t
+                  (push breaks (scan-line-break rdr ch))
+                  (setq prfx (rdr-prefix rdr 3))
+                  (if (scan-plain-dsorde? rdr prfx)
+                      (setq iloop nil))))
+              (when iloop
+                ; (print "  in iloop " lb " " chunks " " breaks)
+                (if lb
+                    (push chunks lb)
+                    (if (empty? breaks)
+                        (push chunks blank)))
+                (setq chunks (cat chunks breaks))
+                (setq iloop nil))))))
+      ((not (empty? wsp))
+       (push chunks wsp)))
+  chunks)
+
+(defun scan-plain-inner? (scn ch nc)
   (defq
     ifl     (> (getp scn :flow_level) 0)
     sbreakz (cat "" ebreakz (if ifl ",[]{}" "")))
@@ -176,97 +248,13 @@
     (and (eql ch ":") (find nc sbreakz))
     (and ifl (find ch ",?[]{}"))))
 
-(defun scan-plain-dsorde (rdr prfx)
-  (and
-    (or
-      (eql prfx docstart)
-      (eql prfx docend))
-    (find (rdr-peek rdr 3) ebreakz)))
-
-; def scan_plain_spaces(self, indent, start_mark):
-;         # See the specification for details.
-;         # The specification is really confusing about tabs in plain scalars.
-;         # We just forbid them completely. Do not use tabs in YAML!
-;         chunks = []
-;         length = 0
-;         while self.peek(length) in ' ':
-;             length += 1
-;         whitespaces = self.prefix(length)
-;         self.forward(length)
-;         ch = self.peek()
-;         if ch in '\r\n\x85\u2028\u2029':
-;             line_break = self.scan_line_break()
-;             self.allow_simple_key = True
-;             prefix = self.prefix(3)
-;             if (prefix == '---' or prefix == '...')   \
-;                     and self.peek(3) in '\0 \t\r\n\x85\u2028\u2029':
-;                 return
-;             breaks = []
-;             while self.peek() in ' \r\n\x85\u2028\u2029':
-;                 if self.peek() == ' ':
-;                     self.forward()
-;                 else:
-;                     breaks.append(self.scan_line_break())
-;                     prefix = self.prefix(3)
-;                     if (prefix == '---' or prefix == '...')   \
-;                             and self.peek(3) in '\0 \t\r\n\x85\u2028\u2029':
-;                         return
-;             if line_break != '\n':
-;                 chunks.append(line_break)
-;             elif not breaks:
-;                 chunks.append(' ')
-;             chunks.extend(breaks)
-;         elif whitespaces:
-;             chunks.append(whitespaces)
-;         return chunks
-
-(defun scan-plain-spaces (scn rdr)
-  (defq
-    chunks  (list)
-    plen    0
-    ch      nil
-    lb      nil
-    prfx    nil
-    res     nil)
-
-  (while (eql (rdr-peek rdr plen) blank)
-    (setq plen (inc plen)))
-
-  (defq wsp (rdr-prefix rdr plen))
-  (rdr-forward rdr plen)
-  (setq ch (rdr-peek rdr))
-  (cond
-    ((find ch ebreakz)
-     (setp! scn :allow_simple_key t)
-     (setq
-       lb   (scan-line-break rdr ch)
-       prfx (rdr-prefix rdr 3))
-     (if (scan-plain-dsorde rdr prfx)
-         nil
-         (progn
-           (setq ch (rdr-peek rdr))
-           (defq
-             breaks (list)
-             iloop  (find ch ebreakz))
-           (while iloop
-              (cond
-                ((eql ch blank)
-                 (rdr-forward rdr))
-                (t
-                  (push breaks (scan-line-break rdr ch))
-                  (setq prfx (rdr-prefix rdr 3))
-                  (if (scan-plain-dsorde rdr prfx)
-                      (setq iloop nil))))
-              (when iloop
-                (if lb
-                    (push chunks lb)
-                    (if (empty? breaks)
-                        (push chunks blank)))
-                (setq chunks (cat chunks breaks)))))))
-      ((not (empty? wsp))
-       (push chunks wsp)))
-  )
-
+(defun scan-plain-sres? (scn rdr spcs)
+  (or
+    (not (empty? spcs))
+    (eql (rdr-peek rdr) comment)
+    (and
+      (> (getp scn :flow_level) 0)
+      (< (getp rdr :column) (getp scn :indent)))))
 
 (defun scan-plain (scn rdr)
   (defq
@@ -279,28 +267,31 @@
     iloop   t)
   (while oloop
     (defq plen 0)
+    ; If '#'
     (if (eql (rdr-peek rdr) comment)
         (setq oloop nil)
         (while iloop
           (defq
             ch (rdr-peek rdr plen)
             nc (rdr-peek rdr (inc plen)))
-          (if (scan-plain-inner scn ch nc)
+          (if (scan-plain-inner? scn ch nc)
               (setq iloop nil)
               (setq plen (inc plen)))))
-    (if (= plen 0)
-        (setq oloop nil)
-        (progn
+    (when oloop
+      (cond
+        ((= plen 0)
+         (setq oloop nil))
+        (t
           (setp! scn :allow_simple_key nil)
           (setq chunks (cat chunks spaces))
           (push chunks (rdr-prefix rdr plen))
           (rdr-forward rdr plen)
-          (setq em (rdr-get-mark rdr))
-
-          ))
-
-    )
-  )
+          (setq
+            em (rdr-get-mark rdr)
+            spaces (scan-plain-spaces scn rdr))
+          (if (scan-plain-sres? scn rdr spaces)
+            (setq oloop nil))))))
+  (Scalar (join chunks "") t sm em))
 
 ; Token type verifications
 (defun check-document-indicator (rdr dset)
@@ -321,7 +312,6 @@
   (check-document-indicator rdr docend))
 (defun check-block-entry (rdr)
   (find (rdr-peek rdr 1) ebreakz))
-
 (defun check-plain (scn rdr)
   (defq
     ch (rdr-peek rdr)
@@ -332,13 +322,13 @@
                (and
                  (= (getp scn :flow_level) 0)
                  (find ch keyind))))))
-  (print "check-plain " ch " followed by " nc " res " res)
+  ; (print "check-plain " ch " followed by " nc " res " res)
   res)
 
 ; Token generators
 
 (defun fetch-document-indicator (scn rdr token)
-  (unwind-indent scn -1 rdr)
+  (unwind-indent scn rdr -1)
   (remove-possible-simple-key scn)
   (setp! scn :allow_simple_key nil)
   (defq sm (rdr-get-mark rdr))
@@ -371,7 +361,8 @@
  (defun fetch-plain (scn rdr)
   (save-possible-simple-key scn rdr)
   (setp! scn :allow_simple_key nil)
-  (push-token scn (scan-plain scn rdr))
+  (defq res (scan-plain scn rdr))
+  (push-token scn res)
   :ok)
 
 ; Main dispatch
@@ -383,10 +374,9 @@
   ; Drop obsoleted simple keys
   (stale-possible-simple-keys scn rdr)
   ; Compare indentation and current column
-  (unwind-indent scn (getp rdr :column) rdr)
+  (unwind-indent scn rdr (getp rdr :column))
   ; Peek next char
   (defq ch (rdr-peek rdr))
-  (print "peek-char " ch)
   (cond
     ; End of file
     ((eql ch (ascii-char 0)) :eof)
@@ -408,7 +398,8 @@
      (print "Docend")
      (fetch-document-end scn rdr))
     ((check-plain scn rdr)
-     )
+     (print "Have plain")
+     (fetch-plain scn rdr))
     (t
       (list :exception "Not implemented " (rdr-get-mark rdr)))))
 
@@ -422,18 +413,16 @@
   (cond
     ; Exception
     ((lst? res)
-     (print "-> tokens ")
-     (each (lambda (p)
-        (print "T-> " (getp p :type)))(getp scn :tokens))
      (print "I-> " (getp scn :indent) " " (getp scn :indents))
      (throw (second res) (last res)))
     ; End stream
     ((eql res :eof)
      (print "Last result " res)
      (push-token scn (StreamEnd))))
+     (each (lambda (p)
+        (print "T-> " (getp p :type)))(getp scn :tokens))
   (getp scn :tokens))
 
 (defun-bind scan (strm)
-  (print "scan")
   (consume-tokens (Scanner strm)))
 
