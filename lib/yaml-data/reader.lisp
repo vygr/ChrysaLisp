@@ -27,11 +27,15 @@
 
 (defq
   comment "#"
-  blank   (char 0x20)
   eof     (char 0x0)
-  cr      (char 0x0d)
+  tab     (char 0x09)
   lf      (char 0x0a)
-  tab     (char 0x09))
+  cr      (char 0x0d)
+  blank   (char 0x20)
+  squote  (char 0x27)
+  dquote  (char 0x22)
+  fslash  (char 0x2f)
+  bslash  (char 0x5c))
 
 (defq
   crlf    (const (cat "" cr lf))
@@ -69,7 +73,8 @@
     (defq ch (elem (getp rdr :index) (getp rdr :buffer)))
     (setsp! rdr
       :point    (inc (getp rdr :point))
-      :index  (inc (getp rdr :index)))
+      :index  (inc (getp rdr :index))
+      :column (inc (getp rdr :column)))
     (when (eql ch lf)
       (setsp! rdr
         :line (inc (getp rdr :line))
