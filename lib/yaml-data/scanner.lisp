@@ -112,7 +112,7 @@
     ((> (getp scn :flow_level) 0)
      nil)
     (t
-      (print "unwind-indent indent " (getp scn :indent) " and col " col)
+      ; (print "unwind-indent indent " (getp scn :indent) " and col " col)
       (while (> (getp scn :indent) col)
         (defq mark (rdr-get-mark rdr))
         (setp! scn :indent (pop (getp scn :indents)))
@@ -123,7 +123,7 @@
   (defq
     cl (getp rdr :column)
     id (getp scn :indent))
-  (print "add-indent  indent " id " column = " cl)
+  ; (print "add-indent  indent " id " column = " cl)
   (if (< id cl)
       (progn
         (push (getp scn :indents) id)
@@ -136,9 +136,15 @@
 ; Character sets
 (defq
   unsupported "%*&!|>"
+  dash "-"
+  dot  "."
   docstart "---"
   docend "..."
-  tmperr "{}[],:"
+  flowsstart "["
+  flowsend "]"
+  flowmstart "{"
+  flowmend "}"
+  comma ","
   keyind "?:"
   cbreakz (const (cat "" blank cr lf))
   ebreakz (const (cat "" cr lf tab blank eof)))
@@ -239,7 +245,9 @@
        (push chunks wsp)))
   chunks)
 
-(defun scan-plain-inner? (scn ch nc)
+(defun scan-plain-break? (scn ch nc)
+  ; (scan-plain-break? scanner ch nextch) -> t | nil
+  ; Answers if hard or semantic break
   (defq
     ifl     (> (getp scn :flow_level) 0)
     sbreakz (cat "" ebreakz (if ifl ",[]{}" "")))
@@ -249,6 +257,7 @@
     (and ifl (find ch ",?[]{}"))))
 
 (defun scan-plain-sres? (scn rdr spcs)
+  ; (scan-plain-sres? scanner reader spaces)
   (or
     (not (empty? spcs))
     (eql (rdr-peek rdr) comment)
@@ -257,6 +266,7 @@
       (< (getp rdr :column) (getp scn :indent)))))
 
 (defun scan-plain (scn rdr)
+  ; (scan-plain scanner reader) -> token | exception
   (defq
     chunks  (list)
     sm      (rdr-get-mark rdr)
@@ -274,7 +284,7 @@
           (defq
             ch (rdr-peek rdr plen)
             nc (rdr-peek rdr (inc plen)))
-          (if (scan-plain-inner? scn ch nc)
+          (if (scan-plain-break? scn ch nc)
               (setq iloop nil)
               (setq plen (inc plen)))))
     (when oloop
@@ -322,11 +332,11 @@
                (and
                  (= (getp scn :flow_level) 0)
                  (find ch keyind))))))
-  ; (print "check-plain " ch " followed by " nc " res " res)
   res)
 
 ; Token generators
 
+; Document types
 (defun fetch-document-indicator (scn rdr token)
   (unwind-indent scn rdr -1)
   (remove-possible-simple-key scn)
@@ -341,10 +351,10 @@
 
 (defun fetch-document-start (scn rdr)
   (fetch-document-indicator scn rdr (DocumentStart)))
-
 (defun fetch-document-end (scn rdr)
   (fetch-document-indicator scn rdr (DocumentEnd)))
 
+; Block sequence types
 (defun fetch-block-entry (scn rdr)
   (when (= (getp scn :flow_level) 0)
     (when (not (getp scn :allow_simple_key))
@@ -358,11 +368,51 @@
   (push-token scn (BlockEntry sm (rdr-get-mark rdr)))
   :ok)
 
- (defun fetch-plain (scn rdr)
+(defun fetch-plain (scn rdr)
   (save-possible-simple-key scn rdr)
   (setp! scn :allow_simple_key nil)
   (defq res (scan-plain scn rdr))
   (push-token scn res)
+  :ok)
+
+; Flow types
+(defun fetch-flow-start (scn rdr token)
+  (save-possible-simple-key scn rdr)
+  (setsp! scn
+          :flow_level (inc (getp scn :flow_level))
+          :allow_simple_key t)
+  (setp! token :start_mark (rdr-get-mark rdr))
+  (rdr-forward rdr)
+  (setp! token :end_mark (rdr-get-mark rdr))
+  (push-token scn token)
+  :ok)
+
+(defun fetch-flow-end (scn rdr token)
+  (remove-possible-simple-key scn)
+  (setsp! scn
+          :flow_level (dec (getp scn :flow_level))
+          :allow_simple_key nil)
+  (setp! token :start_mark (rdr-get-mark rdr))
+  (rdr-forward rdr)
+  (setp! token :end_mark (rdr-get-mark rdr))
+  (push-token scn token)
+  :ok)
+
+(defun fetch-flow-sequence-start (scn rdr)
+  (fetch-flow-start scn rdr (FlowSequenceStart)))
+(defun fetch-flow-sequence-end (scn rdr)
+  (fetch-flow-end scn rdr (FlowSequenceEnd)))
+(defun fetch-flow-map-start (scn rdr)
+  (fetch-flow-start scn rdr (FlowMappingStart)))
+(defun fetch-flow-map-end (scn rdr)
+  (fetch-flow-end scn rdr (FlowMappingEnd)))
+
+(defun fetch-flow-entry (scn rdr)
+  (setp! scn :allow_simple_key t)
+  (remove-possible-simple-key scn)
+  (defq sm (rdr-get-mark rdr))
+  (rdr-forward rdr)
+  (push-token scn (FlowEntry sm (rdr-get-mark rdr)))
   :ok)
 
 ; Main dispatch
@@ -383,24 +433,35 @@
     ; Unsupported controls at the moment
     ((find ch unsupported)
      (list :exception (str ch "Unsupported char ") (rdr-get-mark rdr)))
-    ; Common likely
-    ((and (eql ch "-") (check-block-entry rdr))
+    ; Block sequence or docstart
+    ((and (eql ch dash) (check-block-entry rdr))
      (fetch-block-entry scn rdr))
-    ; Flow controls
-    ((find ch tmperr)
-     (list :exception (str ch " pending implementation ") (rdr-get-mark rdr)))
-    ; Document start
-    ((and (eql ch "-") (check-document-start rdr))
-     (print "Docstart")
+    ((and (eql ch dash) (check-document-start rdr))
      (fetch-document-start scn rdr))
+    ; Flow sequence
+    ((eql ch flowsstart)
+     (print "Sequence start")
+     (fetch-flow-sequence-start scn rdr))
+    ((eql ch flowsend)
+     (print "Sequence end")
+     (fetch-flow-sequence-end scn rdr))
+    ((eql ch comma)
+     (print "Flow entry")
+     (fetch-flow-entry scn rdr))
+    ((eql ch flowmstart)
+     (print "Map start")
+     (fetch-flow-map-start scn rdr))
+    ((eql ch flowmend)
+     (print "Map end")
+     (fetch-flow-map-end scn rdr))
     ; Document end
-    ((and (eql ch ".") (check-document-end rdr))
-     (print "Docend")
+    ((and (eql ch dot) (check-document-end rdr))
      (fetch-document-end scn rdr))
     ((check-plain scn rdr)
-     (print "Have plain")
+     (print "Plain")
      (fetch-plain scn rdr))
     (t
+      (print "Fallthrough")
       (list :exception "Not implemented " (rdr-get-mark rdr)))))
 
 (defun consume-tokens (scn)
@@ -417,10 +478,13 @@
      (throw (second res) (last res)))
     ; End stream
     ((eql res :eof)
-     (print "Last result " res)
+     (print res)
      (push-token scn (StreamEnd))))
      (each (lambda (p)
-        (print "T-> " (getp p :type)))(getp scn :tokens))
+             (prin "T-> " (getp p :type))
+             (if (eql (getp p :type) :scalar)
+                 (print " value '" (getp p :value) "'")
+                 (print))) (getp scn :tokens))
   (getp scn :tokens))
 
 (defun-bind scan (strm)

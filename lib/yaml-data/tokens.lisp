@@ -69,8 +69,8 @@
 (defun FlowMappingEnd ()
   (Token :flowmap_end nil nil))
 
-(defun FlowEntry ()
-  (Token :flow_entry nil nil))
+(defun FlowEntry (&optional sm em)
+  (Token :flow_entry sm em))
 
 (defun Key ()
   (Token :key nil nil))
