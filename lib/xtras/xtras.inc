@@ -205,7 +205,6 @@
     (defq
       sp (efind p k)
       ep (- (length p) 2))
-    (print "pdrop! key " k " with " sp " and " ep)
     (when sp
       (movekpf! p sp ep)
       (times 2 (pop p)))))

@@ -48,8 +48,8 @@
 (defun BlockSequenceStart (sm)
   (Token :blockseq_start sm sm))
 
-(defun BlockMappingStart ()
-  (Token :blockmap_start nil nil))
+(defun BlockMappingStart (&optional sm em)
+  (Token :blockmap_start sm em))
 
 (defun BlockEntry (sm em)
   (Token :block_entry sm em))
@@ -72,11 +72,11 @@
 (defun FlowEntry (&optional sm em)
   (Token :flow_entry sm em))
 
-(defun Key ()
-  (Token :key nil nil))
+(defun Key (&optional sm em)
+  (Token :key sm em))
 
-(defun Value ()
-  (Token :value nil nil))
+(defun Value (&optional sm em)
+  (Token :value sm em))
 
 (defun Scalar (val plain sm em &optional style)
   (setsp! (Token :scalar sm em)
