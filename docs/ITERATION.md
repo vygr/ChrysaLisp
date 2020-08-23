@@ -1,4 +1,4 @@
-# Iteration and Sequences
+# Iteration, Predication and Sequences
 
 This document covers the topic of iteration of sequences and the functions
 available to operate on sequences of elements. There are several ChrysaLisp
@@ -100,6 +100,9 @@ and take the sequence list as arguments rather than an explicit list.
 
 Any elements over the minimum length of the given sequences are ignored.
 
+The function being called is passed the current index value bound to the '_'
+symbol ! Very useful !
+
 ```lisp
 (each! 0 -1 print (list '(1 2 3) "ABC" (array 7 8 9 0)))
 1A7
@@ -123,3 +126,48 @@ C3
 B2
 ```
 
+## Predication
+
+You can predicate over a sequence or slice of a sequence, forwards or backwards
+by use of the `(some!)` function. You provide the function that will be called
+for the group of elements from each index position, you can decide if it will
+exit if that function returns a `nil` or not. `(some)` `(every)` `(notany)` and
+`(notevery)` are macros that assume the index values cover the full extent of
+the sequence and set the break out option, plus take the sequence list as
+arguments rather than an explicit list.
+
+The break out value is returned ! This means you can use these functions as a
+breakable for loop or a search loop !
+
+As with `(each!)` the function being called is passed the current index value
+bound to the '_' symbol ! Very useful !
+
+```lisp
+(some! 0 -1 t = (list '(1 2 3) '(5 6 3)))
+t
+(some (# (if (eql %0 "a") _)) "defhqaio")
+5
+(some > (array 1 2 3) (array 5 6 7))
+nil
+(some < (array 1 2 3) (array 5 6 7))
+t
+(every < (array 1 2 3) (array 5 6 7))
+t
+```
+
+## Map and Reduce
+
+Mapping and reduction transform a sequence by either transforming each element
+or combining each element to a single result. Reduction can take an optional
+start value.
+
+```lisp
+(map + '(1 2 3) '(6 7 8) '(1 7 6))
+(8 16 17)
+(map (# (str %0 %1 %3)) '(1 2 3) '(6 7 8) '(1 7 6))
+("161" "277" "386")
+(reduce + '(1 2 3))
+6
+(reduce (# (push %0 %1)) "ABCD" (list))
+("A" "B" "C" "D")
+```
