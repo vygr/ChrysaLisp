@@ -161,6 +161,8 @@ Mapping and reduction transform a sequence by either transforming each element
 or combining each element to a single result. Reduction can take an optional
 start value.
 
+These also come in `(map-rev)` and `(reduce-rev)` flavours.
+
 ```lisp
 (map + '(1 2 3) '(6 7 8) '(1 7 6))
 (8 16 17)
