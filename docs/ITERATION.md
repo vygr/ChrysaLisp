@@ -89,3 +89,37 @@ nil
 (find-rev 'd (list 'd 't 'y 'a 'j 'k 'd))
 6
 ```
+
+## Iteration
+
+You can iterate over a sequence or slice of a sequence, forwards or backwards
+by use of the `(each!)` function. You provide the function that will be called
+for the group of elements from each index position. `(each)` and `(each-rev)`
+are macros that assume the index values cover the full extent of the sequence
+and take the sequence list as arguments rather than an explicit list.
+
+Any elements over the minimum length of the given sequences are ignored.
+
+```lisp
+(each! 0 -1 print (list '(1 2 3) "ABC" (array 7 8 9 0)))
+1A7
+2B8
+3C9
+(each! 0 -1 (# (print (+ %0 %1))) (list '(1 2 3) '(7 2 4)))
+8
+4
+7
+(each print "ABCDEF" "123456")
+A1
+B2
+C3
+D4
+E5
+F6
+(each! -2 1 print (list "ABCDEF" "123456"))
+E5
+D4
+C3
+B2
+```
+
