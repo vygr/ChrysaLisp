@@ -5,7 +5,7 @@ available to operate on sequences of elements. There are several ChrysaLisp
 built in types that inherit from `class/seq`, this class defines an interface
 to extract individual elements from a sequence, discover the length, cut and
 splice elements and slices of said sequences together and find the index of an
-element in a sequences of those elements.
+element in a sequence of those elements.
 
 These built in interface features are used by higher level functions to expose
 and extend them to Lisp level code.
@@ -30,7 +30,7 @@ Classes that inherit from `class/seq`:
 'qwerty
 ```
 
-To discover the length of a sequences, use the `(length)` function:
+To discover the length of a sequence, use the `(length)` function:
 
 ```lisp
 (length (list 1 2 3))
@@ -168,7 +168,7 @@ These also come in `(map-rev)` and `(reduce-rev)` flavours.
 (8 16 17)
 (map-rev + '(1 2 3) '(6 7 8) '(1 7 6))
 (17 16 8)
-(map (# (str %0 %1 %3)) '(1 2 3) '(6 7 8) '(1 7 6))
+(map (# (str %0 %1 %2)) '(1 2 3) '(6 7 8) '(1 7 6))
 ("161" "277" "386")
 (reduce + '(1 2 3))
 6

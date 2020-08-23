@@ -378,9 +378,9 @@
 (defmacro-bind # (x)
 	;(# (< %0 0)) -> (lambda (%0) (< %0 0))
 	`(lambda ,(slice 0 (reduce (lambda (c _)
-		(if (find _ '(%0 %1 %3 %4 %5 %6 %7 %8 %9)) (inc c) c))
+		(if (find _ '(%0 %1 %2 %3 %4 %5 %6 %7 %8 %9)) (inc c) c))
 		(merge-obj (list) (map sym (split (str x) "( )"))) 0)
-			'(%0 %1 %3 %4 %5 %6 %7 %8 %9)) ,x))
+			'(%0 %1 %2 %3 %4 %5 %6 %7 %8 %9)) ,x))
 
 ;;;;;;;;;;;;
 ; Predicates
