@@ -166,10 +166,14 @@ These also come in `(map-rev)` and `(reduce-rev)` flavours.
 ```lisp
 (map + '(1 2 3) '(6 7 8) '(1 7 6))
 (8 16 17)
+(map-rev + '(1 2 3) '(6 7 8) '(1 7 6))
+(17 16 8)
 (map (# (str %0 %1 %3)) '(1 2 3) '(6 7 8) '(1 7 6))
 ("161" "277" "386")
 (reduce + '(1 2 3))
 6
 (reduce (# (push %0 %1)) "ABCD" (list))
 ("A" "B" "C" "D")
+(reduce-rev (# (push %0 %1)) "ABCD" (list))
+("D" "C" "B" "A")
 ```
