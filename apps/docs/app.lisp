@@ -8,7 +8,7 @@
 
 (defq space_width 8 tab_width (* space_width 4) margin_width (* space_width 3)
 	doc_list '("VM" "ASSIGNMENT" "STRUCTURE" "COMMS" "FUNCTIONS" "LISP" "ENVIRONMENT"
-	"TERMINAL" "COMMANDS" "DIARY" "SYNTAX" "CLASSES" "INTRO" "TAOS" "TODO"))
+	"ITERATION" "TERMINAL" "COMMANDS" "DIARY" "SYNTAX" "CLASSES" "INTRO" "TAOS" "TODO"))
 
 (defun-bind normal-line ()
 	(cond
