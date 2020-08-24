@@ -1,5 +1,5 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; scanner - ChrysaLisp YAML Reader
+; parser - ChrysaLisp YAML Parser
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import 'lib/xtras/xtras.inc)
@@ -177,5 +177,4 @@
     (catch (until (empty? (getp cmd :rtoks))
             (dispatch cmd))
         (print _))
-    (print "Master => " cmd)
-    :ok)
+    (getp cmd :tree))

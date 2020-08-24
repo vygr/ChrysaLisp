@@ -1,5 +1,5 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; tokens - ChrysaLisp YAML Reader
+; tokens - ChrysaLisp YAML Lex Tokens
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import 'lib/xtras/xtras.inc)

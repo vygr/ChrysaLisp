@@ -9,36 +9,47 @@
 
 (defun-bind neg? (_)
   ; (neg? num) -> bool
+  ; Returns true if negative number
   (< _ 0))
 
 (defun-bind pos? (_)
   ; (pos? num) -> bool
+  ; Returns true if positive number
   (> _ 0))
 
 (defun-bind zero? (_)
   ; (zero? num) -> bool
+  ; Returns true if argument is equal to zero (0)
   (= _ 0))
 
 (defun-bind one? (_)
   ; (one? num) -> bool
+  ; Returns true if argument is equal to one (1)
   (= _ 1))
 
 (defun-bind odd? (_)
   ; (odd? num) -> bool
+  ; Returns true if argument is equal to odd number
   (one? (logand 1 _)))
 
 (defun-bind even? (_)
+  ; Returns true if argument is equal to even number
   ; (even? num) -> bool
   (not (odd? _)))
 
 (defun-bind neql? (a b)
+  ; (neql? value value) -> bool
+  ; Returns true if values are not eql
   (not (eql a b)))
 
 (defun-bind dict? (_)
   ; (dict? form) -> bool
+  ; Returns true if argument is a dictionary type (env)
   (env? _))
 
 (defun-bind props? (_)
+  ; (props? el) -> bool
+  ; Returns true if argument is a properties type
   (when (and
     (lst? _)
       (> (length _) 2)
@@ -46,18 +57,21 @@
     t))
 
 (defun-bind seq? (_)
-  ; (seq? form) -> t|nil
+  ; (seq? form) -> bool
+  ; Returns true if argument is a sequence type (list or string)
   (or (lst? _) (str? _)))
 
 (defun-bind empty? (_)
-  ; (empty? form) -> t | nil
+  ; (empty? form) -> bool
+  ; Returns true if form is empty
   (cond
     ((dict? _) (empty? (tolist _)))
     ((seq? _) (= (length _) 0))
     (t t)))
 
 (defun-bind nempty? (_)
-  ; (nempty? form) -> t | nil
+  ; (nempty? form) -> bool
+  ; Returns true if form is not empty
   (not (empty? _)))
 
 (defun-bind def? (_ &optional e)
@@ -74,18 +88,19 @@
 
 (defun-bind kw? (_)
   ; (kw? el) -> bool
+  ; Returns true if argument is a keyword
   (and (sym? _) (starts-with ":" _)))
-
-(defun-bind kw (_)
-  (if (and (not (kw? _)) (or (str? _) (sym? _)))
-    (sym (str ":" _))
-    (throw "Expected symbol or string, found " _)))
 
 ; Convenience
 
 (defun-bind ident (_)
   ; (ident el) -> el
   _)
+
+(defun-bind kw (_)
+  (if (and (not (kw? _)) (or (str? _) (sym? _)))
+    (sym (str ":" _))
+    (throw "Expected symbol or string, found " _)))
 
 ; Sequence forms
 
