@@ -73,10 +73,10 @@
   (Token :flow_entry sm em))
 
 (defun Key (&optional sm em)
-  (Token :key sm em))
+  (Token :key_entry sm em))
 
 (defun Value (&optional sm em)
-  (Token :value sm em))
+  (Token :value_entry sm em))
 
 (defun Scalar (val plain sm em &optional style)
   (setsp! (Token :scalar sm em)

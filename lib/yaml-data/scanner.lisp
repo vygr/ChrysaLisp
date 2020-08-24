@@ -439,15 +439,16 @@
      (pdrop! psk fl)
      (insert-token scn i (Key mrk mrk))
      (if (= fl 0)
-         (if (add-indent (getp pk :column))
-             (insert-token scn i (BlockMappingStart mrk mrk))))
+         (if (add-indent scn rdr (getp pk :column))
+             (progn
+               (insert-token scn i (BlockMappingStart mrk mrk)))))
      (setp! scn :allow_simple_key nil))
     (t
       (defq ask (getp scn :allow_simple_key))
       (when (= fl 0)
           (when (not ask)
               (throw "Mapping value not allowed here" (rdr-get-mark rdr)))
-          (if (add-indent (getp rdr :column))
+          (if (add-indent scn rdr (getp rdr :column))
               (insert-token scn i (BlockMappingStart mrk mrk))))
       (setp! scn :allow_simple_key (= fl 0))
       (remove-possible-simple-key scn)))
@@ -473,7 +474,7 @@
     ((eql ch (ascii-char 0)) :eof)
     ; Unsupported controls at the moment
     ((find ch unsupported)
-     (list :exception (str ch "Unsupported char ") (rdr-get-mark rdr)))
+     (list :exception (str "Unsupported char '" ch "'") (rdr-get-mark rdr)))
     ; Block sequence or docstart
     ((and (eql ch dash) (check-block-entry rdr))
      (fetch-block-entry scn rdr))
@@ -498,11 +499,9 @@
     ((check-plain scn rdr)
      (fetch-plain scn rdr))
     (t
-      (print "Fallthrough")
       (list :exception "Not implemented " (rdr-get-mark rdr)))))
 
 (defun consume-tokens (scn)
-  (print "Consume-tokens")
   ; Start stream
   (push-token scn (StreamStart))
   (defq res (fetch-next scn))
