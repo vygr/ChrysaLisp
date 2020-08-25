@@ -432,8 +432,8 @@
 
 (defun-bind join (l j)
 	;(join list seq) -> seq
-	(apply cat (map (lambda (x)
-		(if (= _ 0) x (cat j x))) l)))
+	(pop (setq l (reduce (lambda (x y) (push x y j)) l (list))))
+	(apply cat l))
 
 (defun-bind unzip (l b)
 	;(unzip seq buckets) -> buckets
