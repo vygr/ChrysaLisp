@@ -161,9 +161,12 @@
   ; (efind properties key) -> index | nil
   ; Used when keys are number and/or string
   (defq fx nil)
+  ; (print k)
   (each! 0 -1
     (lambda (s)
+      ; (print s)
       (when (eql s k)
+        ; (print "(eql s k) => "(eql s k))
         (setq fx _))) (list p))
   fx)
 
@@ -177,6 +180,39 @@
       (setq fx (efind p k)))
     (t nil))
   (if fx (elem (inc fx) p) (opt nil if_nil)))
+
+(defun-bind get-in (p &rest kws)
+  ; (get-in (properties kw...)) -> value | nil
+  ; Returns the value in a nested properties structure
+  ; where kws is a sequence (list) of keys. Returns nil
+  ; if a key is not present
+  (defq hit nil)
+  (cond
+    ((not (props? p))
+      (throw "Not a properties structure " p))
+    ((empty? kws)
+      (throw "No keys argument provided " kws))
+    (t
+      (defq
+        keep_going t
+        last_nest  p
+        pick (reverse kws)
+        fkw  (last pick))
+      (while (and keep_going (not (empty? pick)))
+        (defq v (getp last_nest fkw))
+        (pop pick)
+        (cond
+          ((not v)
+            (setq keep_going nil))
+          ((empty? pick)
+            (setq
+              keep_going nil
+              hit v))
+          (t
+            (setq
+              fkw       (last pick)
+              last_nest v))))))
+    hit)
 
 (defun-bind setp! (p k v &optional add_if_nil)
   ; (setp properties k value [add_if_nil]) -> properties
