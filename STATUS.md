@@ -38,6 +38,10 @@ New Iteration doc. Frank got me beating up grass... :) join
 IRC app and join us, don't take yourself seriously but do take coding seriously
 !
 
+Initial implementation of YAML serialization/deserialization posted to `lib`.
+Currently only deserialization for simple Lists and Dictionaries supported.
+More to come...
+
 ------
 
 Renamed (merge) to (merge-obj) to avoid clashing with Common Lisp and to be
