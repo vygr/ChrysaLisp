@@ -33,6 +33,11 @@ this to generalize Nulearfall's Launcher positioning code for all apps. Apps
 now open windows centered on the mouse location while fitting within the GUI
 screen, but this can be adjusted if required with an optional positioning flag.
 
+New Iteration doc. Frank got me beating up grass... :) join
+#ChrysaLisp:matrix.org if you want to join in the banter. Install the Element
+IRC app and join us, don't take yourself seriously but do take coding seriously
+!
+
 ------
 
 Renamed (merge) to (merge-obj) to avoid clashing with Common Lisp and to be
