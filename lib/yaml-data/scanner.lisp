@@ -51,11 +51,32 @@
     :possible_simple_keys (properties)))
 
 (defun push-token (scn token)
+  ; (if (> (length (getp scn :tokens)) 0)
+  ;     (print "Pusing type " (getp token :type)
+  ;            " after " (getp (last (getp scn :tokens)) :type)))
   (push (getp scn :tokens) token))
 
 (defun insert-token (scn pos token)
-  (setp! scn
-    :tokens (insert (getp scn :tokens) pos (list token))))
+  (cond
+    ((eql (getp token :type) :key_entry)
+      (setp! scn
+        :tokens (insert (getp scn :tokens) pos (list (Pair))))
+      (setp! scn
+        :tokens (insert (getp scn :tokens) (inc pos) (list token))))
+    (t
+      (setp! scn
+        :tokens (insert (getp scn :tokens) pos (list token))))))
+  ; (if iskey
+  ;     (progn
+  ;       (setq ntoks (insert (getp scn :tokens) pos ))
+  ;       (setq pos (inc pos)))
+  ;     (setq ntoks (get scn :tokens)))
+  ; (print
+  ;   "Inserting " (getp token :type) " at " pos
+  ;   " prior " (getp (elem (dec pos) ntoks) :type)
+  ;   " before " (getp (elem pos ntoks) :type))
+  ; (print "That worked")
+  ; scn)
 
 (defun last-token (scn token)
   (last (getp scn :tokens)))

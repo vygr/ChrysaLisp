@@ -72,6 +72,9 @@
 (defun FlowEntry (&optional sm em)
   (Token :flow_entry sm em))
 
+(defun Pair ()
+  (Token :pair nil nil))
+
 (defun Key (&optional sm em)
   (Token :key_entry sm em))
 
