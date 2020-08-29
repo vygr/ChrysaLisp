@@ -124,14 +124,14 @@
       res)
     (t seq)))
 
-(defun-bind unions (&rest lists)
-  ; (unions [list]...) -> list
-  (defq nl (list))
-  (each (curry merge nl) lists))
+; (defun-bind unions (&rest lists)
+;   ; (unions [list]...) -> list
+;   (defq nl (list))
+;   (each (curry merge nl) lists))
 
-(defun-bind unions-with (base &rest lists)
-  ; (unions-with list [list]...) -> list'
-  (each (curry merge base) lists))
+; (defun-bind unions-with (base &rest lists)
+;   ; (unions-with list [list]...) -> list'
+;   (each (curry merge base) lists))
 
 ; Properties (a.k.a. list of pairs [k v]) forms
 
