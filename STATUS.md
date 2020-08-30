@@ -4,11 +4,13 @@
 
 ------
 
-Looks like the SDL 2.0.10 release introduces a lot of problems ! I recommend
-folks stick to SDL 2.0.9 until I can find out what has changed and report
-problems back to the SDL crew.
+Looks like the SDL 2.0.9 finally died on MacBook ! SDL 2.0.10 onwards release
+introduces a lot of problems ! GUI redraw will now have to switch to a render
+to texture system as standard. Some platforms may allow you to switch the
+option to a lower overhead mode, but by default we want things to look correct
+even if a little bit slower.
 
-Issues with 2.0.10:
+Issues with 2.0.10+:
 
 * MacOS restore from window minimize no longer sends SDL_WINDOWEVENT_RESTORED
 event.
