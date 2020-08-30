@@ -40,6 +40,12 @@ New Iteration doc. Frank got me beating up grass... :) join
 IRC app and join us, don't take yourself seriously but do take coding seriously
 !
 
+YAML Serialize/Deserialize library added `yaml-data`. Currently only supports
+deserialization of Lists and Properties (dictionaries) as strings. Future
+changes will include serializing, native type conversions (numbers, etc.),
+as well as suport for Anchors, Aliases, etc. to inch closer
+to YAML 1.2 compliance.
+
 ------
 
 Renamed (merge) to (merge-obj) to avoid clashing with Common Lisp and to be
