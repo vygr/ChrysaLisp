@@ -29,6 +29,12 @@ corrupted.
 
 ------
 
+(bind-fun) will now pre-bind symbols that begin with a '+' character. Lisp
+constants that follow the standard +xyz+ standard will now be bound to the hard
+value within (defun-bind) functions.
+
+------
+
 Added (gui-info) to return current mouse position and gui screen dimensions,
 and (view-locate) to allow apps to calculate a window launch position. Used
 this to generalize Nulearfall's Launcher positioning code for all apps. Apps
