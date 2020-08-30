@@ -3,8 +3,8 @@
 (import 'class/lisp.inc)
 (import 'gui/lisp.inc)
 
-(structure 'event 0
-	(byte 'close))
+(structure '+event 0
+	(byte 'close+))
 
 (defq stat_data (list) stat_scale (list) devices (mail-devices) frame_cnt 0
 	cpu_count (length devices) max_stats 1 last_max_stats 0
@@ -12,7 +12,7 @@
 	select (array (task-mailbox) (mail-alloc-mbox)) sample_msg (array (elem 1 select)))
 
 (ui-window window ()
-	(ui-title-bar _ "Object Monitor" (0xea19) (const event_close))
+	(ui-title-bar _ "Object Monitor" (0xea19) +event_close+)
 	(ui-grid _ (:grid_width 2 :grid_height 1 :flow_flags flow_down_fill :maximum 100 :value 0)
 		(ui-flow name_flow (:color argb_grey8)
 			(ui-label _ (:text "Class" :color argb_white))
@@ -73,7 +73,7 @@
 			((= id 0)
 				;main mailbox
 				(cond
-					((= (setq id (get-long msg ev_msg_target_id)) event_close)
+					((= (setq id (get-long msg ev_msg_target_id)) +event_close+)
 						;close button
 						nil)
 					(t (view-event window msg))))
@@ -96,4 +96,4 @@
 	(view-hide window)
 	(mail-free-mbox (elem 1 select))
 	(while (defq mbox (pop farm))
-		(mail-send (const (char event_close long_size)) mbox)))
+		(mail-send (const (char +event_close+ long_size)) mbox)))

@@ -3,9 +3,9 @@
 (import 'class/lisp.inc)
 (import 'gui/lisp.inc)
 
-(structure 'event 0
-	(byte 'close)
-	(byte 'prev 'next))
+(structure '+event 0
+	(byte 'close+)
+	(byte 'prev+ 'next+))
 
 (defun-bind all-films (p)
 	(defq out (list))
@@ -16,9 +16,9 @@
 (defq films (all-films "apps/films/") index 0 canvas nil id t)
 
 (ui-window window ()
-	(ui-title-bar window_title "" (0xea19) (const event_close))
+	(ui-title-bar window_title "" (0xea19) +event_close+)
 	(ui-tool-bar _ ()
-		(ui-buttons (0xe91d 0xe91e) (const event_prev)))
+		(ui-buttons (0xe91d 0xe91e) +event_prev+))
 	(ui-scroll image_scroll (logior scroll_flag_vertical scroll_flag_horizontal)))
 
 (defun win-refresh (_)
@@ -39,9 +39,9 @@
 		(canvas-swap (canvas-next-frame canvas))
 		(while (mail-poll (array (task-mailbox)))
 			(cond
-				((= (setq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_close)
+				((= (setq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) +event_close+)
 					(setq id nil))
-				((<= event_prev id event_next)
-					(win-refresh (% (+ index (dec (* 2 (- id event_prev))) (length films)) (length films))))
+				((<= +event_prev+ id +event_next+)
+					(win-refresh (% (+ index (dec (* 2 (- id +event_prev+))) (length films)) (length films))))
 				(t (view-event window msg)))))
 	(view-hide window))

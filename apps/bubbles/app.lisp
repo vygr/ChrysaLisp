@@ -2,10 +2,10 @@
 (import 'lib/math/math.inc)
 (import 'apps/bubbles/app.inc)
 
-(structure 'event 0
-	(byte 'close 'max 'min)
-	(byte 'reset)
-	(byte 'grid 'plain 'axis))
+(structure '+event 0
+	(byte 'close+ 'max+ 'min+)
+	(byte 'reset+)
+	(byte 'grid+ 'plain+ 'axis+))
 
 (defq canvas_width 600 canvas_height 600 min_width 300 min_height 300
 	style_buttons (list) rate (/ 1000000 60) base 0.3
@@ -16,10 +16,10 @@
 		(list argb_cyan argb_yellow argb_magenta argb_red argb_green argb_blue)))
 
 (ui-window window ()
-	(ui-title-bar _ "Bubbles" (0xea19 0xea1b 0xea1a) (const event_close))
+	(ui-title-bar _ "Bubbles" (0xea19 0xea1b 0xea1a) +event_close+)
 	(ui-tool-bar _ ()
-		(ui-buttons (0xe938) (const event_reset))
-		(ui-buttons (0xe9a3 0xe976 0xe9f0) (const event_grid) () style_buttons))
+		(ui-buttons (0xe938) +event_reset+)
+		(ui-buttons (0xe9a3 0xe976 0xe9f0) +event_grid+ () style_buttons))
 	(ui-scroll image_scroll (logior scroll_flag_vertical scroll_flag_horizontal)
 			(:min_width canvas_width :min_height canvas_height)
 		(ui-backdrop backdrop (:color argb_black :ink_color argb_grey8 :style 1)
@@ -85,25 +85,25 @@
 	;main event loop
 	(defq last_state :u id t)
 	(while id (while (mail-poll (array (task-mailbox))) (cond
-		((= (setq id (get-long (defq msg (mail-read (task-mailbox))) (const ev_msg_target_id))) (const event_close))
+		((= (setq id (get-long (defq msg (mail-read (task-mailbox))) (const ev_msg_target_id))) +event_close+)
 			;close button
 			(setq id nil))
-		((= id (const event_min))
+		((= id +event_min+)
 			;min button
 			(bind '(x y w h) (apply view-fit (cat (view-get-pos window) (view-pref-size window))))
 			(view-change-dirty window x y w h))
-		((= id (const event_max))
+		((= id +event_max+)
 			;max button
 			(def image_scroll :min_width canvas_width :min_height canvas_height)
 			(bind '(x y w h) (apply view-fit (cat (view-get-pos window) (view-pref-size window))))
 			(view-change-dirty window x y w h)
 			(def image_scroll :min_width min_width :min_height min_height))
-		((= id (const event_reset))
+		((= id +event_reset+)
 			;reset button
 			(setq verts (vertex-cloud num_bubbles)))
-		((<= (const event_grid) id (const event_axis))
+		((<= +event_grid+ id +event_axis+)
 			;styles
-			(def (view-dirty backdrop) :style (radio-select style_buttons (- id (const event_grid)))))
+			(def (view-dirty backdrop) :style (radio-select style_buttons (- id +event_grid+))))
 		((= id (component-get-id layer1_canvas))
 			;event for canvas
 			(when (= (get-long msg (const ev_msg_type)) (const ev_type_mouse))
