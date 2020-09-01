@@ -30,8 +30,8 @@ corrupted.
 ------
 
 (bind-fun) will now pre-bind symbols that begin with a '+' character. Lisp
-constants that follow the standard +xyz+ standard will now be bound to the hard
-value within (defun-bind) functions.
+constants that follow the conventional +xyz+ standard will now be bound to the
+hard value within (defun-bind) functions.
 
 ------
 
