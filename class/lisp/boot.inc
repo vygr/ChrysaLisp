@@ -378,9 +378,9 @@
 (defmacro-bind # (x)
 	;(# (< %0 0)) -> (lambda (%0) (< %0 0))
 	`(lambda ,(slice 0 (reduce (lambda (c _)
-		(if (find _ '(%0 %1 %3 %4 %5 %6 %7 %8 %9)) (inc c) c))
+		(if (find _ '(%0 %1 %2 %3 %4 %5 %6 %7 %8 %9)) (inc c) c))
 		(merge-obj (list) (map sym (split (str x) "( )"))) 0)
-			'(%0 %1 %3 %4 %5 %6 %7 %8 %9)) ,x))
+			'(%0 %1 %2 %3 %4 %5 %6 %7 %8 %9)) ,x))
 
 ;;;;;;;;;;;;
 ; Predicates
@@ -432,8 +432,8 @@
 
 (defun-bind join (l j)
 	;(join list seq) -> seq
-	(apply cat (map (lambda (x)
-		(if (= _ 0) x (cat j x))) l)))
+	(pop (setq l (reduce (lambda (x y) (push x y j)) l (list))))
+	(apply cat l))
 
 (defun-bind unzip (l b)
 	;(unzip seq buckets) -> buckets

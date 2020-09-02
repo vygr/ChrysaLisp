@@ -4,8 +4,8 @@
 (import 'class/lisp.inc)
 (import 'gui/lisp.inc)
 
-(structure 'event 0
-	(byte 'login 'create))
+(structure '+event 0
+	(byte 'login+ 'create+))
 
 (ui-window window ()
 	(ui-title-bar _ "Login Manager" () ())
@@ -17,7 +17,7 @@
 			(ui-textfield username (:text (if (defq old (load "apps/login/current")) old "Guest")))
 			(ui-textfield password (:text "****************"))))
 	(ui-grid _ (:grid_width 2 :grid_height 1)
-		(ui-buttons ("Login" "Create") (const event_login))))
+		(ui-buttons ("Login" "Create") +event_login+)))
 
 (defun-bind position-window ()
 	(bind '(w h) (view-pref-size window))
@@ -37,7 +37,7 @@
 			(= (get-long msg ev_msg_type) ev_type_gui))
 			;resized GUI
 			(position-window))
-		((= id event_login)
+		((= id +event_login+)
 			;login button
 			(cond
 				((/= (age (cat "apps/login/" (defq user (get-username)) "/pupa.inc")) 0)
@@ -46,7 +46,7 @@
 					(open-child "apps/wallpaper/app.lisp" kn_call_open)
 					nil)
 				(t	t)))
-		((= id event_create)
+		((= id +event_create+)
 			;create button
 			(cond
 				((and (/= (age "apps/login/Guest/pupa.inc") 0)

@@ -4,11 +4,13 @@
 
 ------
 
-Looks like the SDL 2.0.10 release introduces a lot of problems ! I recommend
-folks stick to SDL 2.0.9 until I can find out what has changed and report
-problems back to the SDL crew.
+Looks like the SDL 2.0.9 finally died on MacBook ! SDL 2.0.10 onwards release
+introduces a lot of problems ! GUI redraw will now have to switch to a render
+to texture system as standard. Some platforms may allow you to switch the
+option to a lower overhead mode, but by default we want things to look correct
+even if a little bit slower.
 
-Issues with 2.0.10:
+Issues with 2.0.10+:
 
 * MacOS restore from window minimize no longer sends SDL_WINDOWEVENT_RESTORED
 event.
@@ -27,11 +29,28 @@ corrupted.
 
 ------
 
+(bind-fun) will now pre-bind symbols that begin with a '+' character. Lisp
+constants that follow the conventional +xyz+ standard will now be bound to the
+hard value within (defun-bind) functions.
+
+------
+
 Added (gui-info) to return current mouse position and gui screen dimensions,
 and (view-locate) to allow apps to calculate a window launch position. Used
 this to generalize Nulearfall's Launcher positioning code for all apps. Apps
 now open windows centered on the mouse location while fitting within the GUI
 screen, but this can be adjusted if required with an optional positioning flag.
+
+New Iteration doc. Frank got me beating up grass... :) join
+#ChrysaLisp:matrix.org if you want to join in the banter. Install the Element
+IRC app and join us, don't take yourself seriously but do take coding seriously
+!
+
+YAML Serialize/Deserialize library added `yaml-data`. Currently only supports
+deserialization of Lists and Properties (dictionaries) as strings. Future
+changes will include serializing, native type conversions (numbers, etc.),
+as well as suport for Anchors, Aliases, etc. to inch closer
+to YAML 1.2 compliance.
 
 ------
 

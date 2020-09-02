@@ -332,6 +332,14 @@
 
 (debug-fun name list) -> list
 
+## debug-fun?
+
+(debug-fun? form)
+
+## debug-send
+
+(debug-send string)
+
 ## dec
 
 (dec num) -> num
@@ -595,10 +603,6 @@
 ## int
 
 (int field ...)
-
-## is-debug-fun
-
-(is-debug-fun form)
 
 ## join
 
@@ -1035,10 +1039,6 @@
 ## second
 
 (second seq) -> el
-
-## send-debug
-
-(send-debug string)
 
 ## set
 

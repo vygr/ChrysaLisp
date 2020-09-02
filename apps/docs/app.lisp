@@ -3,12 +3,12 @@
 (import 'class/lisp.inc)
 (import 'gui/lisp.inc)
 
-(structure 'event 0
-	(byte 'close 'button))
+(structure '+event 0
+	(byte 'close+ 'button+))
 
 (defq space_width 8 tab_width (* space_width 4) margin_width (* space_width 3)
 	doc_list '("VM" "ASSIGNMENT" "STRUCTURE" "COMMS" "FUNCTIONS" "LISP" "ENVIRONMENT"
-	"TERMINAL" "COMMANDS" "DIARY" "SYNTAX" "CLASSES" "INTRO" "TAOS" "TODO"))
+	"ITERATION" "TERMINAL" "COMMANDS" "DIARY" "SYNTAX" "CLASSES" "INTRO" "TAOS" "TODO"))
 
 (defun-bind normal-line ()
 	(cond
@@ -91,12 +91,12 @@
 	(view-dirty-all (view-layout doc_flow)))
 
 (ui-window window ()
-	(ui-title-bar _ "Docs" (0xea19) (const event_close))
+	(ui-title-bar _ "Docs" (0xea19) +event_close+)
 	(ui-flow doc_flow (:flow_flags flow_right_fill :font *env_window_font* :color *env_toolbar_col*)
 		(ui-flow index (:flow_flags (logior flow_flag_down flow_flag_fillw))
 			(each (lambda (path)
 				(component-connect (ui-button _
-					(:text path :flow_flags (logior flow_flag_align_vcenter flow_flag_align_hleft))) event_button)) doc_list))
+					(:text path :flow_flags (logior flow_flag_align_vcenter flow_flag_align_hleft))) +event_button+)) doc_list))
 		(ui-scroll page_scroll scroll_flag_vertical (:min_width 848 :min_height 800))))
 
 (defun-bind main ()
@@ -104,9 +104,9 @@
 	(bind '(x y w h) (apply view-locate (view-pref-size window)))
 	(gui-add (view-change window x y w h))
 	(while (cond
-		((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_close)
+		((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) +event_close+)
 			nil)
-		((= id event_button)
+		((= id +event_button+)
 			(populate-page (get :text (view-find-id window (get-long msg ev_msg_action_source_id)))))
 		(t (view-event window msg))))
 	(view-hide window))

@@ -4,8 +4,8 @@
 
 (defq *r* (list))
 
-(defun-bind send-debug (s)
-	;(send-debug string)
+(defun-bind debug-send (s)
+	;(debug-send string)
 	(when (/= 0 (length (defq services (mail-enquire "DEBUG_SERVICE"))))
 		(defq mbox (mail-alloc-mbox) debug_mbox (str-to-num (elem 1 (split (pop services) ","))))
 		(mail-send (cat (char 0 long_size) (char mbox long_size) (char (task-mailbox) long_size) s) debug_mbox)
@@ -28,7 +28,7 @@
 			(setq val (apply cat (map (lambda (_)
 				(if (<= 32 (code _) 126) _ ".")) val))))
 		(write msg (cat var " : " val (ascii-char 10)))) e)
-	(send-debug (str msg (ascii-char 10))))
+	(debug-send (str msg (ascii-char 10))))
 
 (defmacro-bind debug (n _)
 	;(debug name form)
@@ -37,8 +37,8 @@
 		(debug-format ,n (env))
 		(pop *r*)))
 
-(defun-bind is-debug-fun (_)
-	;(is-debug-fun form)
+(defun-bind debug-fun? (_)
+	;(debug-fun? form)
 	(and (= (type-of _) lisp_type_lst) (/= 0 (length _))
 		(not (or (eql 'quote (elem 0 _)) (eql 'debug (elem 0 _))))
 		(= (type-of (elem 0 _)) lisp_type_sym) (setq _ (get (elem 0 _)))
@@ -50,7 +50,7 @@
 	(defq s (list _))
 	(while (defq l (pop s))
 		(each (lambda (e)
-			(when (is-debug-fun e)
+			(when (debug-fun? e)
 				(elem-set _ l (cat '(debug) (list n e)))
 				(push s e))) l)) _)
 
