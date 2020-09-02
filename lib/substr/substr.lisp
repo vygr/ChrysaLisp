@@ -1,8 +1,5 @@
-(import 'sys/lisp.inc)
-(import 'class/lisp.inc)
-
-
 ;Knuth-Morris-Pratt substr search algorithm
+
 (defun-bind substr (pattern text)
 	(defq return_list (list) lps (create-lps-table pattern) j 0 k 0)
 	(while (< k (length text))
@@ -15,7 +12,7 @@
 				(cond
 					((/= j 0) (setq j (elem (dec j) lps)))
 					(t (setq k (inc k)))))))
-	return_list)
+	(if (= (length return_list) 0) nil return_list))
 
 (defun-bind create-lps-table (pattern)
 	(defq lps (list 0) i 0 j 1)
