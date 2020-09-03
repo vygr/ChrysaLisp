@@ -3,9 +3,9 @@
 (import 'class/lisp.inc)
 (import 'gui/lisp.inc)
 
-(structure 'event 0
-	(byte 'close)
-	(byte 'prev 'next))
+(structure '+event 0
+	(byte 'close+)
+	(byte 'prev+ 'next+))
 
 (defun-bind all-images (p)
 	(defq out (list))
@@ -17,9 +17,9 @@
 (defq images (all-images '"apps/images/") index 0)
 
 (ui-window window ()
-	(ui-title-bar window_title "" (0xea19) (const event_close))
+	(ui-title-bar window_title "" (0xea19) +event_close+)
 	(ui-tool-bar _ ()
-		(ui-buttons (0xe91d 0xe91e) (const event_prev)))
+		(ui-buttons (0xe91d 0xe91e) +event_prev+))
 	(ui-scroll image_scroll (logior scroll_flag_vertical scroll_flag_horizontal)))
 
 (defun win-refresh (_)
@@ -36,9 +36,9 @@
 	(bind '(x y w h) (apply view-locate (view-get-size (win-refresh index))))
 	(gui-add (view-change window x y w h))
 	(while (cond
-		((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_close)
+		((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) +event_close+)
 			nil)
-		((<= event_prev id event_next)
-			(win-refresh (% (+ index (dec (* 2 (- id event_prev))) (length images)) (length images))))
+		((<= +event_prev+ id +event_next+)
+			(win-refresh (% (+ index (dec (* 2 (- id +event_prev+))) (length images)) (length images))))
 		(t (view-event window msg))))
 	(view-hide window))

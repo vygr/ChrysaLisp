@@ -87,10 +87,13 @@
 					;is defined ?
 					(call 'hmap :search '((r0 lisp_environment) r1) '(_ r1 _))
 					(breakif '(r1 = 0))
-					;is a function ?
+					;begins with a +
 					(vp-cpy-ir r1 0 r1)
+					(assign '((r1 pair_first) (r1 pair_second)) '(r2 r1))
+					(assign '((r2 str_data ub)) '(r2))
+					(gotoif '(r2 = char_plus) 'bind_it)
+					;is a function ?
 					(f-bind 'func :vtable r2)
-					(assign '((r1 pair_second)) '(r1))
 					(assign '((r1 obj_vtable)) '(r3))
 					(gotoif '(r2 = r3) 'bind_it)
 					;is a list ?

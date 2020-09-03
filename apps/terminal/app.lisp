@@ -4,17 +4,17 @@
 (import 'lib/pipe/pipe.inc)
 (import 'apps/terminal/input.inc)
 
-(structure 'event 0
-	(byte 'close 'max 'min)
-	(byte 'layout 'scroll))
+(structure '+event 0
+	(byte 'close+ 'max+ 'min+)
+	(byte 'layout+ 'scroll+))
 
 (defq cmd nil vdu_width 60 vdu_height 40 vdu_min_width 16 vdu_min_height 16 text_buf (list ""))
 
 (ui-window window (:color 0xc0000000)
 	(ui-flow _ (:flow_flags flow_down_fill)
-		(ui-title-bar _ "Terminal" (0xea19 0xea1b 0xea1a) (const event_close))
+		(ui-title-bar _ "Terminal" (0xea19 0xea1b 0xea1a) +event_close+)
 		(ui-flow _ (:flow_flags flow_left_fill)
-			(component-connect (ui-slider slider) event_scroll)
+			(component-connect (ui-slider slider) +event_scroll+)
 			(ui-vdu vdu (:vdu_width vdu_width :vdu_height vdu_height :min_width vdu_width :min_height vdu_height
 				:ink_color argb_green)))))
 
@@ -114,7 +114,7 @@
 
 (defun-bind main ()
 	;add window
-	(bind '(x y w h) (apply view-locate (view-pref-size (component-connect window event_layout))))
+	(bind '(x y w h) (apply view-locate (view-pref-size (component-connect window +event_layout+))))
 	(gui-add (view-change window x y w h))
 	;sign on msg
 	(print (str "ChrysaLisp Terminal 1.6" (ascii-char 10)))
@@ -127,18 +127,18 @@
 			((eql data t)
 				;normal mailbox event
 				(cond
-					((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_close)
+					((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) +event_close+)
 						nil)
-					((= id event_layout)
+					((= id +event_layout+)
 						;user window resize
 						(apply window-layout (vdu-max-size vdu)))
-					((= id event_min)
+					((= id +event_min+)
 						;min button
 						(window-resize 60 40))
-					((= id event_max)
+					((= id +event_max+)
 						;max button
 						(window-resize 120 40))
-					((= id event_scroll)
+					((= id +event_scroll+)
 						;user scroll bar
 						(defq cx (if cmd *line_pos* (+ (length *env_terminal_prompt*) *line_pos*))
 							cy (dec (length text_buf)))

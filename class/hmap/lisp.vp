@@ -10,14 +10,14 @@
 		(ptr 'this 'args 'env)
 		(pptr 'iter_begin 'iter_end)
 	(def-struct-end)
+	(vp-alloc local_size)
 	(entry 'hmap _ '(r0 r1))
+	(assign '(r0 r1) '((rsp local_this) (rsp local_args)))
 (errorcases
 	(assign '((r1 array_length)) '(r2))
 	(gotoif '(r2 < 3) 'error1)
 	(vp-and-cr 1 r2)
 	(gotoif '(r2 = 0) 'error1))
-	(vp-alloc local_size)
-	(assign '(r0 r1) '((rsp local_this) (rsp local_args)))
 	(class/array/get_both r1 r3 r2)
 	(array-get-args r3 '(r0))
 	(vp-add-cr ptr_size r3)
@@ -59,15 +59,17 @@
 
 (errorcases
 (vp-label 'error1)
-	(jump 'lisp :repl_error '(r0 "(def env var val [var val] ...)" error_msg_wrong_num_of_args r1))
+	(assign '(error_msg_wrong_num_of_args) '(r2))
+	(goto 'error)
 (vp-label 'error2)
-	(assign '((rsp local_this) (rsp local_args)) '(r0 r3))
-	(vp-free local_size)
-	(jump 'lisp :repl_error '(r0 "(def env var val [var val] ...)" error_msg_not_an_environment r3))
+	(assign '(error_msg_not_an_environment) '(r2))
+	(goto 'error)
 (vp-label 'error3)
+	(assign '(error_msg_not_a_symbol) '(r2))
+(vp-label 'error)
 	(assign '((rsp local_this) (rsp local_args)) '(r0 r3))
 	(vp-free local_size)
-	(jump 'lisp :repl_error '(r0 "(def env var val [var val] ...)" error_msg_not_a_symbol r3)))
+	(jump 'lisp :repl_error '(r0 "(def env var val [var val] ...)" r2 r3)))
 
 (def-func-end)
 
@@ -83,24 +85,31 @@
 
 	(defset :lisp_set
 		'(progn
+		(errorcases
+			(assign '((r1 str_data ub)) '(r3))
+			(gotoif '(r3 = char_plus) 'error5))
 			(call 'hmap :set '(r0 r1 r2) '(r0 r1))
 			(errorif '(r1 = 0) 'error4)))
 
 (errorcases
 (vp-label 'error1)
-	(jump 'lisp :repl_error '(r0 "(set env var val [var val] ...)" error_msg_wrong_num_of_args r1))
+	(assign '(error_msg_wrong_num_of_args) '(r2))
+	(goto 'error)
 (vp-label 'error2)
-	(assign '((rsp local_this) (rsp local_args)) '(r0 r3))
-	(vp-free local_size)
-	(jump 'lisp :repl_error '(r0 "(set env var val [var val] ...)" error_msg_not_an_environment r3))
+	(assign '(error_msg_not_an_environment) '(r2))
+	(goto 'error)
 (vp-label 'error3)
-	(assign '((rsp local_this) (rsp local_args)) '(r0 r3))
-	(vp-free local_size)
-	(jump 'lisp :repl_error '(r0 "(set env var val [var val] ...)" error_msg_not_a_symbol r3))
+	(assign '(error_msg_not_a_symbol) '(r2))
+	(goto 'error)
 (vp-label 'error4)
+	(assign '(error_msg_symbol_not_bound) '(r2))
+	(goto 'error)
+(vp-label 'error5)
+	(assign '(error_msg_rebind_constant) '(r2))
+(vp-label 'error)
 	(assign '((rsp local_this) (rsp local_args)) '(r0 r3))
 	(vp-free local_size)
-	(jump 'lisp :repl_error '(r0 "(set env var val [var val] ...)" error_msg_symbol_not_bound r3)))
+	(jump 'lisp :repl_error '(r0 "(set env var val [var val] ...)" r2 r3)))
 
 (def-func-end)
 
@@ -109,14 +118,14 @@
 		(ptr 'this 'args 'val)
 		(pptr 'iter_begin 'iter_end)
 	(def-struct-end)
+	(vp-alloc local_size)
 	(entry 'hmap _ '(r0 r1))
+	(assign '(r0 r1) '((rsp local_this) (rsp local_args)))
 (errorcases
 	(assign '((r1 array_length)) '(r2))
 	(gotoif '(r2 < 3) 'error1)
 	(vp-and-cr 1 r2)
 	(gotoif '(r2 = 0) 'error1))
-	(vp-alloc local_size)
-	(assign '(r0 r1) '((rsp local_this) (rsp local_args)))
 	(class/array/get_both r1 r1 r2)
 	(vp-xor-rr r0 r0)
 	(vp-add-cr ptr_size r1)
@@ -162,11 +171,14 @@
 
 (errorcases
 (vp-label 'error1)
-	(jump 'lisp :repl_error '(r0 "(defq var val [var val] ...)" error_msg_wrong_num_of_args r1))
+	(assign '(error_msg_wrong_num_of_args) '(r2))
+	(goto 'error)
 (vp-label 'error2)
+	(assign '(error_msg_not_a_symbol) '(r2))
+(vp-label 'error)
 	(assign '((rsp local_this) (rsp local_args)) '(r0 r3))
 	(vp-free local_size)
-	(jump 'lisp :repl_error '(r0 "(defq var val [var val] ...)" error_msg_not_a_symbol r3)))
+	(jump 'lisp :repl_error '(r0 "(defq var val [var val] ...)" r2 r3)))
 
 (def-func-end)
 
@@ -182,20 +194,28 @@
 
 	(defsetq :lisp_setq
 		'(progn
+		(errorcases
+			(assign '((r1 str_data ub)) '(r3))
+			(gotoif '(r3 = char_plus) 'error4))
 			(call 'hmap :set '(r0 r1 r2) '(_ r1))
 			(errorif '(r1 = 0) 'error3)))
 
 (errorcases
 (vp-label 'error1)
-	(jump 'lisp :repl_error '(r0 "(setq var val [var val] ...)" error_msg_wrong_num_of_args r1))
+	(assign '(error_msg_wrong_num_of_args) '(r2))
+	(goto 'error)
 (vp-label 'error2)
-	(assign '((rsp local_this) (rsp local_args)) '(r0 r3))
-	(vp-free local_size)
-	(jump 'lisp :repl_error '(r0 "(setq var val [var val] ...)" error_msg_not_a_symbol r3))
+	(assign '(error_msg_not_a_symbol) '(r2))
+	(goto 'error)
 (vp-label 'error3)
+	(assign '(error_msg_symbol_not_bound) '(r2))
+	(goto 'error)
+(vp-label 'error4)
+	(assign '(error_msg_rebind_constant) '(r2))
+(vp-label 'error)
 	(assign '((rsp local_this) (rsp local_args)) '(r0 r3))
 	(vp-free local_size)
-	(jump 'lisp :repl_error '(r0 "(setq var val [var val] ...)" error_msg_symbol_not_bound r3)))
+	(jump 'lisp :repl_error '(r0 "(setq var val [var val] ...)" r2 r3)))
 
 (def-func-end)
 
@@ -293,9 +313,12 @@
 
 (errorcases
 (vp-label 'error1)
-	(jump 'lisp :repl_error '(r0 "(env [num])" error_msg_wrong_num_of_args r1))
+	(assign '(error_msg_wrong_num_of_args) '(r2))
+	(goto 'error)
 (vp-label 'error2)
-	(jump 'lisp :repl_error '(r0 "(env [num])" error_msg_not_a_number r1)))
+	(assign '(error_msg_not_a_number) '(r2))
+(vp-label 'error)
+	(jump 'lisp :repl_error '(r0 "(env [num])" r2 r1)))
 
 (def-func-end)
 
@@ -345,14 +368,14 @@
 		(pptr 'iter_begin 'iter_end)
 	(def-struct-end)
 
+	(vp-alloc local_size)
 	(entry 'hmap :lisp_undef '(r0 r1))
+	(assign '(r0 r1) '((rsp local_this) (rsp local_args)))
 
 (errorcases
 	(assign '((r1 array_length)) '(r2))
 	(gotoif '(r2 < 2) 'error1))
 
-	(vp-alloc local_size)
-	(assign '(r0 r1) '((rsp local_this) (rsp local_args)))
 	(class/array/get_both r1 r3 r2)
 	(array-get-args r3 '(r0))
 	(vp-add-cr ptr_size r3)
@@ -383,15 +406,17 @@
 
 (errorcases
 (vp-label 'error1)
-	(jump 'lisp :repl_error '(r0 "(undef env var [var] ...)" error_msg_wrong_num_of_args r1))
+	(assign '(error_msg_wrong_num_of_args) '(r2))
+	(goto 'error)
 (vp-label 'error2)
-	(assign '((rsp local_this) (rsp local_args)) '(r0 r3))
-	(vp-free local_size)
-	(jump 'lisp :repl_error '(r0 "(undef env var [var] ...)" error_msg_not_an_environment r3))
+	(assign '(error_msg_not_an_environment) '(r2))
+	(goto 'error)
 (vp-label 'error3)
+	(assign '(error_msg_not_a_symbol) '(r2))
+(vp-label 'error)
 	(assign '((rsp local_this) (rsp local_args)) '(r0 r3))
 	(vp-free local_size)
-	(jump 'lisp :repl_error '(r0 "(undef env var [var] ...)" error_msg_not_a_symbol r3)))
+	(jump 'lisp :repl_error '(r0 "(undef env var [var] ...)" r2 r3)))
 
 (def-func-end)
 

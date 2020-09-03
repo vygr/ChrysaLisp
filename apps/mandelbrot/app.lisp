@@ -6,14 +6,14 @@
 (import 'gui/lisp.inc)
 (import 'apps/mandelbrot/mbmath.inc)
 
-(structure 'event 0
-	(byte 'close))
+(structure '+event 0
+	(byte 'close+))
 
 (defq canvas_width 800 canvas_height 800 canvas_scale 2 then nil area 0 select nil
 	center_x (mbfp-from-fixed -0.5) center_y (mbfp-from-fixed 0.0) zoom (mbfp-from-fixed 1.0))
 
 (ui-window window ()
-	(ui-title-bar _ "Mandelbrot" (0xea19) (const event_close))
+	(ui-title-bar _ "Mandelbrot" (0xea19) +event_close+)
 	(ui-canvas canvas canvas_width canvas_height canvas_scale))
 
 (defun-bind reset ()
@@ -54,7 +54,7 @@
 			((= id 0)
 				;main mailbox
 				(cond
-					((= (setq id (get-long msg ev_msg_target_id)) event_close)
+					((= (setq id (get-long msg ev_msg_target_id)) +event_close+)
 						;close button
 						nil)
 					((and (= id (component-get-id canvas))

@@ -5,9 +5,9 @@
 ;imports
 (import 'gui/lisp.inc)
 
-(structure 'event 0
-	(byte 'close)
-	(byte 'button))
+(structure '+event 0
+	(byte 'close+)
+	(byte 'button+))
 
 ;create child and send args etc
 (defq squares (list) next_char (ascii-code " ")
@@ -16,7 +16,7 @@
 
 (ui-window window (:color argb_black)
 	(ui-flow _ (:flow_flags flow_down_fill)
-		(ui-title-bar _ "Chess" (0xea19) (const event_close))
+		(ui-title-bar _ "Chess" (0xea19) +event_close+)
 		(ui-grid chess_grid (:grid_width 8 :grid_height 8 :font (create-font "fonts/Chess.ctf" 42) :border 1 :text " ")
 			(each (lambda (i)
 				(if (= (logand (+ i (>> i 3)) 1) 0)
@@ -53,7 +53,7 @@
 		((= (mail-select select) 0)
 			;GUI event from main mailbox
 			(cond
-				((= (get-long (defq msg (mail-read (elem 0 select))) ev_msg_target_id) event_close)
+				((= (get-long (defq msg (mail-read (elem 0 select))) ev_msg_target_id) +event_close+)
 					nil)
 				(t (view-event window msg))))
 		(t	;from child stream
