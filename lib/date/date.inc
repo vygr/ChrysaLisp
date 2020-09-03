@@ -116,7 +116,7 @@
 	(bind '(s m h dy mo yr wk) td)
 	(if (eql (check-date td) t)
 		(cat (day-of-the-week wk) " " (month-of-the-year mo) " " 
-			(str dy) " " (pad h 2 "0") ":" (pad m 2 "0") ":" (pad s 2 "0") " " *env_timezone* " " (str yr)) nil))
+			(str dy) " " (pad h 2 "0") ":" (pad m 2 "0") ":" (pad s 2 "0") " " *env_clock_timezone* " " (str yr)) nil))
 
 (defun-bind decode-date (dts)
 	(defq space_split (split dts " ") rdt (list) index 0)
