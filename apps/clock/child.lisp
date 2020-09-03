@@ -3,21 +3,22 @@
 (import 'class/lisp.inc)
 (import 'gui/lisp.inc)
 (import 'lib/math/math.inc)
-(import 'lib/substr/substr.inc)
 (import 'lib/date/date.inc)
 
 ;read args from parent. display and clock can both be t or one be nil.
 (bind '(display clock scale) (mail-read (task-mailbox)))
 
-(defq seconds 0.0 second 0 minutes 0.0 minute 0 hours 0.0 hour 0 face (list) eps 0.25)
+(defq seconds 0.0 second 0 minutes 0.0 minute 0 hours 0.0 hour 0 dotw (str) face (list) eps 0.25)
 
 (defun-bind make-time ()
-	(bind '(s m h _ _ _ _) (date))
-	(setq second s seconds (i2f s) minute m minutes (i2f m) hour h hours (i2f hours)))
+	(bind '(s m h _ _ _ w) (date))
+	(setq second s seconds (i2f s) minute m minutes (i2f m) hour h hours (i2f hours) dotw w))
 
 (defun-bind view-digital-time ()
-	(cat (pad hour 2 "0") (str ":" (pad minute 2 "0"))
-		(if (eql *env_clock_seconds* t) (str ":" (pad (f2i (% seconds 60.0)) 2 "0")) " ")))
+	(if (and *env_clock_twelve_hour* (> hour 12)) (setq hour (- hour 12)))
+	(cat 	(if *env_clock_dotw* (day-of-the-week dotw) "") " " 
+		(if *env_clock_pad_hour* (pad hour 2 "0") (str hour)) (str ":" (pad minute 2 "0"))
+		(if (eql *env_clock_seconds* t) (str ":" (pad second 2 "0")))))
 
 (defun-bind transform (_ a s &optional x y)
 	(defq sa (sin a) ca (cos a) x (opt x 0.0) y (opt y 0.0))
@@ -63,24 +64,21 @@
 
 (defun-bind main ()
 	(make-time)
-	(if (not (eql clock nil))
+	(if clock
 			(create-clockface))
-	;parent should init :text to *env_clock_format*
-	(if display
-			(set display :text (view-digital-time)))
+	(when display 
+			(set display :text (view-digital-time))
+			;prevents clipping the label
+			(view-layout display))
 	;while not told to quit
 	(until (mail-poll (array (task-mailbox)))
 		(make-time)
-			(cond ((not (eql clock nil))
+			(when clock
 				(view-analog-time)
 				(canvas-swap clock))
-				(t nil))
-		(cond ((not (eql display nil))
+			(when display
 				(set display :text (view-digital-time))
-				;(view-layout display)
-				(view-dirty-all display))
-				(t nil))
-
+				(view-dirty display))
 		;keeps the current time in sync with given time value.
-		(task-sleep 25000))
+		(task-sleep 50000))
 	(mail-read (task-mailbox)))
