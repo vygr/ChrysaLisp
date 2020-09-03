@@ -11,20 +11,14 @@
 
 ;create a window
 (ui-window window ()
-<<<<<<< HEAD
-	(ui-title-bar _ "Clock" (0xea19) (const event_close))
+	(ui-title-bar _ "Clock" (0xea19) +event_close+)
 	(if (eql *env_clock_analog* t)
 		(ui-canvas clock clock_size clock_size clock_scale) (defq clock nil))
 	(if (eql *env_clock_digital* t)
 		(ui-label display (:text "hh:mm:ss" :color argb_black :ink_color argb_red
-=======
-	(ui-title-bar _ "Clock" (0xea19) +event_close+)
-	(ui-canvas clock clock_size clock_size clock_scale)
-	(ui-label display (:text "00:00:00" :color argb_black :ink_color argb_red
->>>>>>> c222b993d76b493bab8886ed1b4f46eaa372754f
 		:flow_flags (logior flow_flag_align_hcenter flow_flag_align_vcenter)
 		:font (create-font "fonts/Hack-Regular.ctf" 48)))
-		(defq display nil))
+		(defq display nil)))
 
 (defun-bind main ()
 	;if analog clear clock face
