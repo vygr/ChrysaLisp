@@ -27,6 +27,10 @@ manipulate collections of things in a functional way with operations like
 `map`, `filter`, `reduce`, `each` etc. I've not found the lack of tail
 recursion a problem.
 
+There is no `return` statement !!! Functions run till they naturally exit,
+there is no option to break out in the middle of a loop and `return`... I view
+this as promoting a clean functional design, but you might like to disagree ;)
+
 All symbols live in the same environment, functions, macros, everything. The
 environment is a chain of hash maps. Each lambda gets a new hash map pushed
 onto the environment chain on invocation, and dereferenced on exit. The `env`
