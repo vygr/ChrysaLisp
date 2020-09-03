@@ -10,48 +10,49 @@ First of all there is no garbage collector by choice. All objects used by the
 Lisp are reference counted objects from the class library. Early on the Lisp
 was never going to have a problem with cycles because it had no way to create
 them, but as I developed the assembler I decided to introduce two functions,
-`push` and `elem-set`, that could create cycles. However the efficiency
+`(push)` and `(elem-set)`, that could create cycles. However the efficiency
 advantage in coding the assembler made me look the other way. There are now
 other ways that a cycle can be created, by naming an environment within its own
 scope, but again this was too good an efficiency feature to miss out on. So you
 do have to be careful not to create cycles, so think about how your code works.
 
 No tail recursion optimization ! There is a single looping function provided in
-native code, `while`, every other looping construct builds on this primitive.
-There are also two native primitives `some!` and `each!` that provide generic
-access to iterating over a slice of a sequence/s, while calling a function on
-the grouped elements. Standard `some` and `each` are built on these but they
-also allow other constructs to be built and gain the advantage of machine coded
-iteration. I try to stick to a functional approach in my Lisp code, and
-manipulate collections of things in a functional way with operations like
-`map`, `filter`, `reduce`, `each` etc. I've not found the lack of tail
-recursion a problem.
+native code, `(while)`, every other looping construct builds on this primitive.
+There are also two native primitives `(some!)` and `(each!)` that provide
+generic access to iterating over a slice of a sequence/s, while calling a
+function on the grouped elements. Standard `(some)` and `(each)` are built on
+these but they also allow other constructs to be built and gain the advantage
+of machine coded iteration. I try to stick to a functional approach in my Lisp
+code, and manipulate collections of things in a functional way with operations
+like `(map)`, `(filter)`, `(reduce)`, `(each)` etc. I've not found the lack of
+tail recursion a problem.
 
-There is no `return` statement !!! Functions run till they naturally exit,
-there is no option to break out in the middle of a loop and `return`... I view
-this as promoting a clean functional design, but you might like to disagree ;)
+There is no `(return)` statement !!! Functions run till they naturally exit,
+there is no option to break out in the middle of a loop and `(return)`... I
+view this as promoting a clean functional design, but you might like to
+disagree ;)
 
 All symbols live in the same environment, functions, macros, everything. The
 environment is a chain of hash maps. Each lambda gets a new hash map pushed
-onto the environment chain on invocation, and dereferenced on exit. The `env`
+onto the environment chain on invocation, and dereferenced on exit. The `(env)`
 function can be used to return the current hash map and optionally resize the
 number of buckets from the default of 1. This proves very effective for storing
 large numbers of symbols and objects for the assembler as well as creating
-caches. Make sure to `setq` the symbol you bind to the result of `env` to `nil`
-before returning from the function if you do this, else you will create a cycle
-that can't be freed.
+caches. Make sure to `(setq)` the symbol you bind to the result of `(env)` to
+`nil` before returning from the function if you do this, else you will create a
+cycle that can't be freed.
 
-`defq` and `bind` always create entries in the current environment hash map.
-`setq` searches the environment chain to find an existing entry and sets that
-entry or fails with an error. This means `setq` can be used to write to symbols
-outside the scope of the current function. Some people don't like this, but
-used wisely it can be very powerful. Coming from an assembler background I
+`(defq)` and `(bind)` always create entries in the current environment hash
+map. `(setq)` searches the environment chain to find an existing entry and sets
+that entry or fails with an error. This means `(setq)` can be used to write to
+symbols outside the scope of the current function. Some people don't like this,
+but used wisely it can be very powerful. Coming from an assembler background I
 prefer to have all the guns and knives available, so try not to shoot your foot
 off.
 
 There is no cons, cdr or car stuff. Lists are just vector objects and you use
-`push`, `cat`, `slice` etc to manipulate elements. Also an empty list does not
-evaluate to `nil`, it's just an error.
+`(push)`, `(cat)`, `(slice)` etc to manipulate elements. Also an empty list
+does not evaluate to `nil`, it's just an error.
 
 Function and macro definitions are scoped and visible only within the scope of
 the declaring function. There is no global macro list. During macro expansion
@@ -276,7 +277,7 @@ lognot
 lst?
 map
 map-rev
-merge
+merge-obj
 neg
 nlo
 nlz
