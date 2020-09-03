@@ -128,10 +128,6 @@
 
 (bind (param ...) seq)
 
-## bind-fun
-
-(bind-fun form) -> form
-
 ## byte
 
 (byte field ...)
@@ -915,6 +911,10 @@
 ## pop
 
 (pop array)
+
+## prebind
+
+(prebind form) -> form
 
 ## prin
 

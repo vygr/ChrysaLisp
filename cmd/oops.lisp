@@ -10,7 +10,7 @@
 		`(defq ,name (list (list nil) (list nil)))))
 
 (defun method (vtable name &optional fun)
-	(setq fun (bind-fun fun))
+	(setq fun (prebind fun))
 	(cond
 		((defq slot (find-rev name (elem 0 vtable)))
 			(elem-set slot (elem 1 vtable) fun))

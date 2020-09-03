@@ -29,7 +29,7 @@ corrupted.
 
 ------
 
-(bind-fun) will now pre-bind symbols that begin with a '+' character. Lisp
+(prebind) will now pre-bind symbols that begin with a '+' character. Lisp
 constants that follow the conventional +xyz+ standard will now be bound to the
 hard value within (defun-bind) functions.
 
@@ -183,7 +183,7 @@ Added basic context aware tab completion to the GUI Terminal app. In command
 positions will only look for '.lisp' files within the 'cmd/' folder otherwise
 will do system wide maximum extension.
 
-Optimized (case) macro to (bind-fun) clauses and not wrap clauses within a
+Optimized (case) macro to (prebind) clauses and not wrap clauses within a
 (progn) statement if only a single expression.
 
 Lots of extra code added recently, up to 170KB boot image now, on a 500 builds
@@ -659,7 +659,7 @@ regs. This allows the release build code to not have to do extra copies just to
 allow the debug version to work, plus it gives better code even in debug builds
 !.
 
-Ongoing drive to avoid recursive functions. (bind-fun) and (macroexpand) now
+Ongoing drive to avoid recursive functions. (prebind) and (macroexpand) now
 avoid this, but (copy) and (quasiquote) still do so. They will be recode soon
 to not do so. And then I will lower the default task stack size.
 

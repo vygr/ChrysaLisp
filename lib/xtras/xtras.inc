@@ -403,7 +403,7 @@
 
 (defmacro defunp-bind (e n a &rest _)
   ;(defun-bind name ([arg ...]) body)
-  `(def ,e ,n (lambda ,a ~(bind-fun (macroexpand _)))))
+  `(def ,e ,n (lambda ,a ~(prebind (macroexpand _)))))
 
 (defmacro callp (e name &rest _)
   ; (callp env name &rest args) -> form invoked with args

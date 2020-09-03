@@ -110,7 +110,7 @@
 (ffi while "class/lisp/lisp_while" 1)
 (ffi prin "class/lisp/lisp_prin" 0)
 (ffi print "class/lisp/lisp_print" 0)
-(ffi bind-fun "class/lisp/lisp_bindfun" 0)
+(ffi prebind "class/lisp/lisp_bindfun" 0)
 
 (ffi time "sys/pii/lisp_time" 0)
 (ffi age "sys/pii/lisp_age" 0)
@@ -141,23 +141,23 @@
 
 (defmacro defun-bind (n a &rest _)
 	;(defun-bind name ([arg ...]) body)
-	`(defq ,n (lambda ,a ~(bind-fun (macroexpand _)))))
+	`(defq ,n (lambda ,a ~(prebind (macroexpand _)))))
 
 (defmacro defmacro-bind (n a &rest _)
 	;(defmacro name ([arg ...]) body)
 	;(defmacro-bind name ([arg ...]) body)
-	`(defq ,n (macro ,a ~(bind-fun (macroexpand _)))))
+	`(defq ,n (macro ,a ~(prebind (macroexpand _)))))
 
 (cond
 	((get 'nums)
 		;to disable pre binding uncomment this line
-		;(defun bind-fun (_) _)
+		;(defun prebind (_) _)
 	)(t
 		;C++ ChrysaLisp !
-		(defun bind-fun (_) _)))
+		(defun prebind (_) _)))
 
-;pre bind the previous !
-(each! 0 -1 bind-fun (list (list defun defmacro defun-bind defmacro-bind)))
+;prebind the previous !
+(each! 0 -1 prebind (list (list defun defmacro defun-bind defmacro-bind)))
 
 (defmacro-bind const (_)
 	;(const form)
@@ -257,7 +257,7 @@
 				(throw "Key not symbol !" _))
 			(each! 0 -1 (lambda (_)
 					(push (elem 0 _x) _)
-					(push (elem 1 _x) (bind-fun (macroexpand
+					(push (elem 1 _x) (prebind (macroexpand
 						(if (= (length _y) 1) (elem 0 _y) (cat '(progn) _y))))))
 				(list _)) _x) _ (list (list) (list)))
 			_o (or (find-rev t (elem 0 _)) (find-rev 'otherwise (elem 0 _))))
@@ -770,9 +770,9 @@
 	(defmacro-bind defcmacro (n a &rest b)
 		`(def *compile_env* ',n (macro ,a ~b)))
 	(defmacro-bind defcfun-bind (n a &rest b)
-		`(def *compile_env* ',n (lambda ,a ~(bind-fun (macroexpand b)))))
+		`(def *compile_env* ',n (lambda ,a ~(prebind (macroexpand b)))))
 	(defmacro-bind defcmacro-bind (n a &rest b)
-		`(def *compile_env* ',n (macro ,a ~(bind-fun (macroexpand b)))))
+		`(def *compile_env* ',n (macro ,a ~(prebind (macroexpand b)))))
 	(defun-bind include (_)
 		(unless (find-rev _ *compile_includes*)
 			(push *compile_includes* _)
