@@ -12,7 +12,7 @@
 (defcfun-bind emit-passes ()
 	(defcvar '*pass* 0 '*pc* 0 '*out_stream* (string-stream *out_buffer*))
 	(defq b nil)
-	(eval (bind-fun *emit_buffer*) *compile_env*)
+	(eval (prebind *emit_buffer*) *compile_env*)
 	(setq *out_buffer* (str *out_stream*) *pass* (inc *pass*))
 	(until (eql *out_buffer* *old_out_buffer*)
 		(setq b *old_out_buffer* *old_out_buffer* *out_buffer* *out_stream* (string-stream b) *pc* 0)

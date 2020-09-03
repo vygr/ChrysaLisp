@@ -3394,7 +3394,7 @@ trashes
 r1-r14
 ```
 
-### lisp::lisp_bindfun -> class/lisp/lisp_bindfun
+### lisp::lisp_prebind -> class/lisp/lisp_bindfun
 
 ```lisp
 inputs
@@ -7481,7 +7481,7 @@ trashes
 r0-r4
 ```
 
-### sys_mail::mbox_addr -> sys/mail/mbox_addr
+### sys_mail::validate -> sys/mail/validate
 
 ```lisp
 inputs

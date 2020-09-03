@@ -176,13 +176,13 @@ as their shared parent environment. It's populated via the
 
 ### Function environments
 
-Every function, ie. lambda, that is called is provided with it's own empty
-environment, the parent of that environment is the current environment present
-at invocation.
+Every function, ie. lambda or macro, that is called is provided with it's own
+empty environment, the parent of that environment is the current environment
+present at invocation.
 
-This function environment is initially populated with the formal parameter
-symbols, bound to the arguments that are passed to said function on invocation.
-So before your function body starts to run it will already be able to 'see' the
+This environment is initially populated with the formal parameter symbols,
+bound to the arguments that are passed to said function on invocation. So
+before your function body starts to run it will already be able to 'see' the
 formal parameter symbol bindings. It is then free to add more and use the
 current bindings as it wishes.
 
@@ -196,6 +196,10 @@ environment.
 
 `(get)` is given the environment optionally, so can search for bindings that
 are not within the current functions environment.
+
+`(eval)` is given the environment, to evaluate the form within, optionally !!!
+You can create private or library/object specific environments and access them
+with `(eval form [e])` !
 
 ### Properties
 
@@ -226,4 +230,6 @@ environment, ie. no parent, if negative.
 
 You may wish to increase the number of buckets in the current environment,
 beyond the default of 1, if it's going to contain an extremely large number of
-symbol bindings !
+symbol bindings ! Environments are just a chain of hash maps, and there is a
+trade off to be made between a single bucket and its great cache line affects
+and massive amounts of entires swamping those cache affects !
