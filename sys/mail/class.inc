@@ -11,7 +11,7 @@
 (dec-method :statics_init1 'sys/mail/statics_init1 :static)
 (dec-method :alloc_mbox 'sys/mail/alloc_mbox :static nil '(r0 r1))
 (dec-method :free_mbox 'sys/mail/free_mbox :static '(r0))
-(dec-method :mbox_addr 'sys/mail/mbox_addr :static '(r0) '(r0))
+(dec-method :validate 'sys/mail/validate :static '(r0) '(r0))
 (dec-method :alloc 'sys/mail/alloc :static '(r0) '(r0 r1))
 (dec-method :free 'sys/mail/free :static '(r0))
 (dec-method :alloc_obj 'sys/mail/alloc_obj :static '(r0 r1 r2) '(r0))
