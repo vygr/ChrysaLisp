@@ -305,7 +305,7 @@ reclaimed.
 ```
 
 For any given class there are `create` methods for that class that take any
-construction parameters and return a fully initialised instance. If the `alloc`
+construction parameters and return a fully initialized instance. If the `alloc`
 or `init` methods fail then it will tidy up and return 0 to indicate a problem.
 
 The `init` method is responsible for taking an allocated chunk of memory and
@@ -326,7 +326,7 @@ The `ref` or `ref_if` methods just increment the object reference counter.
 The `deref` or `deref_if` methods decrement the object reference counter and if
 it becomes 0 automatically call the `destroy` method !
 
-The `destroy` method just calls `deinit` folowed by `free`.
+The `destroy` method just calls `deinit` followed by `free`.
 
 ### Class and Object declaration
 

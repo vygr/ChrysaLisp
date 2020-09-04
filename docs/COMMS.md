@@ -20,7 +20,7 @@ directly address the mailbox structure that's used to hold received messages.
 A Mailbox can be freed using the mailbox free function, `'sys_mail :free_mbox`.
 
 A mailbox ID can be turned into the address of the message containing structure
-using the `'sys_mail :mbox_addr` function. This mailbox address function
+using the `'sys_mail :validate` function. This mailbox address function
 validates that this ID is an existing mailbox and will return `null` if the
 mailbox cannot be found.
 
@@ -43,9 +43,10 @@ before delivery into the target mailbox.
 Individual message packets travel via parallel communication routes across the
 network from source to destination. No guarantee is given for the order in
 which message packets will arrive. Large messages that have been broken down
-into smaller packets are reconstructed piece by piece at the destination and
+into smaller fragments are reconstructed piece by piece at the destination and
 are only delivered into the recipient mailbox once all packets have been
-received and reconstruction has finished.
+received and reconstruction has finished. A receiver will never see fragments
+of a large message, they receive it whole or not at all.
 
 There are other mechanisms available, within the class library `class/in` and
 `class/out`, to create and send a stream of messages while preserving an exact
@@ -95,19 +96,18 @@ farms, arrays, and pipelines of processes. These functions return an array of
 64 bit mailboxes IDs. The creator can then go on to wire these mailboxes and
 processes in any communications structure it desires.
 
-Auto allocated process ID mailboxes do not need to be manually freed, this will
-happen when the process shuts down.
+Auto allocated main process ID mailboxes do not need to be manually freed, this
+will happen when the process shuts down.
 
 ## Services
 
-Functions are also provided to allow mailboxes to be named, either locally
-`'sys_mail :declare` or globally `'sys_kernel :declare` throughout the network.
-Such mailboxes are then discoverable by other processes via a call to
-`'sys_mail :enquire` with the given name. A service entry can be removed with
-the `'sys_mail :forget` function.
+Functions are also provided to allow mailboxes to be named, via `'sys_mail
+:declare` throughout the network. Such mailboxes are then discoverable by other
+processes via a call to `'sys_mail :enquire` with the given name. A service
+entry can be removed byt the with the `'sys_mail :forget` function.
 
 The system maintains a directory of these service names and the corresponding
-process mailbox IDs. An example service is the current `DEBUG_SERVICE`
+process mailbox IDs. An example service is the current GUI `DEBUG_SERVICE`
 application `apps/debug/app.lisp`.
 
 ### Example

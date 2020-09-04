@@ -35,7 +35,7 @@
 		(else)
 			;given an existing mailbox
 			(assign '(r1) '((r0 in_mbox_id)))
-			(call 'sys_mail :mbox_addr '(r1) '(r1))
+			(call 'sys_mail :validate '(r1) '(r1))
 			(vp-pop r0)
 		(endif)
 		(assign '(r1 (& r0 in_list)) '((r0 in_mbox_addr) r1))
