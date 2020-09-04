@@ -701,11 +701,15 @@
 	(while (defq _l (read-line _))
 		(_f _l)))
 
-(defmacro-bind import (_)
-	;(import path)
-	`(unless (find-rev ,_ *file_includes*)
-		(push *file_includes* ,_)
-		(repl (file-stream ,_) ,_)))
+(defmacro-bind import (_ &optional e)
+	;(import path [env])
+	(if e
+		`(unless (find-rev ,_ *file_includes*)
+			(push *file_includes* ,_)
+			(eval '(repl (file-stream ,_) ,_) ,e))
+		`(unless (find-rev ,_ *file_includes*)
+			(push *file_includes* ,_)
+			(eval (repl (file-stream ,_) ,_)))))
 
 (defmacro-bind read-long (s)
 	;(read-long stream) -> num
