@@ -18,7 +18,7 @@
 	(if (and *env_clock_twelve_hour* (> hour 12)) (setq hour (- hour 12)))
 	(cat 	(if *env_clock_dotw* (day-of-the-week dotw) "") " " 
 		(if *env_clock_pad_hour* (pad hour 2 "0") (str hour)) (str ":" (pad minute 2 "0"))
-		(if (eql *env_clock_seconds* t) (str ":" (pad second 2 "0")))))
+		(if (eql *env_clock_seconds* t) (str ":" (pad second 2 "0")) "")))
 
 (defun-bind transform (_ a s &optional x y)
 	(defq sa (sin a) ca (cos a) x (opt x 0.0) y (opt y 0.0))
