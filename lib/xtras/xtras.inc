@@ -70,7 +70,7 @@
   ; (empty? form) -> bool
   ; Returns true if form is empty
   (cond
-    ((dict? _) (empty? (tolist _)))
+    ((dict? _) (empty? (tolist _))) ; Extremely expensive
     ((seq? _) (= (length _) 0))
     (t t)))
 
@@ -95,6 +95,11 @@
   ; (kw? el) -> bool
   ; Returns true if argument is a keyword
   (and (sym? _) (starts-with ":" _)))
+
+(defun-bind truthy? (_)
+  (cond
+    ((lst? _) (nempty? _))
+    (t (not (nil? _)))))
 
 ; Convenience
 
