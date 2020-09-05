@@ -532,16 +532,13 @@
 	(when (> (length _) 1)
 		(defq i (elem 1 _))
 		(cond
-			((eql i "x")
-				(setq b 16 _ (slice 2 -1 _)))
-			((eql i "o")
-				(setq b 8 _ (slice 2 -1 _)))
-			((eql i "b")
-				(setq b 2 _ (slice 2 -1 _)))))
+			((eql i "x") (setq b 16 _ (slice 2 -1 _)))
+			((eql i "o") (setq b 8 _ (slice 2 -1 _)))
+			((eql i "b") (setq b 2 _ (slice 2 -1 _)))))
 	(each (# (if (eql %0 ".")
 			(setq f 1)
 			(setq n (+ (* n b) (char-to-num %0)) f (* f b)))) _)
-	(if (= f 0) n (/ (<< n fp_shift) f)))
+	(if (= f 0) n (/ (<< n (const fp_shift)) f)))
 
 (defun-bind num-to-utf8 (_)
 	;(num-to-utf8 num) -> str
