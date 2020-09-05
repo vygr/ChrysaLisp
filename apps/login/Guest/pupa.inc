@@ -18,6 +18,10 @@
 ;terminal prompt and scroll back
 (defq *env_terminal_prompt* (cat *env_user* ">") *env_terminal_lines* (* 40 10))
 
+;Adjust your *env_utc_offset in minutes. Will attempt best guess at offsets less than 60.
+(defq *env_clock_timezone* "UTC" *env_clock_analog* t *env_clock_digital* t 
+	*env_clock_twelve_hour* t  *env_clock_seconds* t  *env_clock_pad_hour* nil *env_clock_dotw* t)
+
 ;default text files to open when edit opens
 (defq *env_edit_auto* '("apps/edit/message"))
 
