@@ -528,7 +528,7 @@
 
 (defun-bind str-to-num (_)
 	;(str-to-num str) -> num
-	(defq n 0 b 10)
+	(defq n 0 b 10 f 0)
 	(when (> (length _) 1)
 		(defq i (elem 1 _))
 		(cond
@@ -538,12 +538,9 @@
 				(setq b 8 _ (slice 2 -1 _)))
 			((eql i "b")
 				(setq b 2 _ (slice 2 -1 _)))))
-	(defq i -1 f 0)
-	(while (< (setq i (inc i)) (length _))
-		(defq c (elem i _))
-		(if (eql c ".")
+	(each (# (if (eql %0 ".")
 			(setq f 1)
-			(defq d (char-to-num c) n (+ (* n b) d) f (* f b))))
+			(setq n (+ (* n b) (char-to-num %0)) f (* f b)))) _)
 	(if (= f 0) n (/ (<< n fp_shift) f)))
 
 (defun-bind num-to-utf8 (_)
