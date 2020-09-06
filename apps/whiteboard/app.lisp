@@ -107,9 +107,9 @@
 
 (defun-bind redraw (mask)
 	;redraw layer/s
-	(tuple-set dlist_commited_polygons dlist (cat commited_polygons))
-	(tuple-set dlist_overlay_paths dlist (cat overlay_paths))
-	(tuple-set dlist_mask dlist (logior (tuple-get dlist_mask dlist) mask)))
+	(elem-set +dlist_commited_polygons+ dlist (cat commited_polygons))
+	(elem-set +dlist_overlay_paths+ dlist (cat overlay_paths))
+	(elem-set +dlist_mask dlist+ (logior (elem-get +dlist_mask+ dlist) mask)))
 
 (defun-bind main ()
 	;ui tree initial setup
@@ -213,7 +213,7 @@
 									(cond
 										((= stroke_mode +event_pen+)
 											;pen mode, so extend last stroke ?
-											(defq stroke (tuple-get path_path (elem -2 overlay_paths))
+											(defq stroke (elem-get +path_path+ (elem -2 overlay_paths))
 												mid_vec (vec-sub new_point last_point))
 											(when (>= (vec-length-squared mid_vec) (* stroke_radius stroke_radius))
 												(defq mid_point (vec-add last_point (vec-scale mid_vec 0.5)))
@@ -226,7 +226,7 @@
 												(setq last_point new_point last_mid_point mid_point)
 												(redraw 2)))
 										(t	;a shape mode
-											(tuple-set path_path (elem -2 overlay_paths) (cat last_point new_point))
+											(elem-set +path_path+ (elem -2 overlay_paths) (cat last_point new_point))
 											(redraw 2)))
 									)
 								(:u	;was up last time, so start new stroke
@@ -238,7 +238,7 @@
 								(:d	;was down last time, so last point and commit stroke
 									(snapshot)
 									(setq last_state :u)
-									(defq stroke (tuple-get path_path (elem -2 overlay_paths)))
+									(defq stroke (elem-get +path_path+ (elem -2 overlay_paths)))
 									(push stroke (elem 0 new_point) (elem 1 new_point))
 									(path-filter 0.5 stroke stroke)
 									(each commit overlay_paths)
