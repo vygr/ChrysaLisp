@@ -45,6 +45,7 @@
 
 (defq ywcntrl       nil)
 (defq indent_space  2)
+(defq max_level     0)
 
 (defun inc_indent()
   (defq ci (getp ywcntrl :indent))
@@ -143,6 +144,10 @@
   (write (getp ywcntrl :stream)
          (str (pad_indent) v (char 0x0a))))
 
+(defun seq-write-start ()
+  (write (getp ywcntrl :stream)
+         (str (pad_indent) "- " (char 0x0a))))
+
 (defun seq-writer (v)
   (write (getp ywcntrl :stream)
          (str (pad_indent) "- " v (char 0x0a))))
@@ -161,11 +166,30 @@
      (each node-to-stream (getp ast :children))
      (dec_indent))
     ((:seq)
+     (defq
+       first_type (getp (first (getp ast :children)) :type)
+       indent_lvl (getp ywcntrl :indent))
      (inc_indent)
-     (when (find (getp (first (getp ast :children)) :type) (list :seq))
-         (write (getp ywcntrl :stream)
-                (str (pad_indent) "- " (char 0x0a))))
-     (each (#(node-to-stream %0 seq-writer)) (getp ast :children))
+     (cond
+       ((eql first_type :seq)
+        (seq-write-start)
+        (defq pf 0)
+        (each
+          (lambda (n)
+            (case (getp n :type)
+              ((:seq)
+               (when (> pf 0)
+                 (seq-write-start)
+                 (inc_indent))
+               (node-to-stream n seq-writer)
+               (when (> pf 0)
+                 (dec_indent))
+               (setq pf (inc pf)))
+              (t
+                (node-to-stream n seq-writer)))
+            ) (getp ast :children)))
+       (t
+         (each (#(node-to-stream %0 seq-writer)) (getp ast :children))))
      (dec_indent))
     ((:map_entry)
      (each node-to-stream (getp ast :children)))
@@ -200,6 +224,7 @@
   (build-nodes! data)
   (add-to-context! (DocEndNode))
   (unset-context!)
+  ; (print (getp ywcntrl :root))
   (node-to-stream (getp ywcntrl :root))
 
   ; (walk-tree (getp ywcntrl :root) print)
