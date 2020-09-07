@@ -52,21 +52,21 @@
 (defun-bind pipe-read (pipe)
 	(cond
 		;nil if pipe closed
-		((tuple-get pipe_state pipe)
+		((elem pipe_state pipe)
 			;pipe is open
 			(cond
 				;t if task mailbox
-				((= (- (defq idx (mail-select (tuple-get pipe_select pipe)))
-						(length (tuple-get pipe_select pipe))) -1))
+				((= (- (defq idx (mail-select (elem pipe_select pipe)))
+						(length (elem pipe_select pipe))) -1))
 				(t	;must be stdout or one of the stderr's
 					(if (/= (in-get-state (in-next-msg
-								(defq msg_in (elem idx (tuple-get pipe_streams pipe)))))
+								(defq msg_in (elem idx (elem pipe_streams pipe)))))
 							(const stream_mail_state_started))
-						(tuple-set pipe_state pipe nil))
+						(elem-set pipe_state pipe nil))
 					(read-avail msg_in))))))
 
 (defun-bind pipe-write (pipe s)
-	(stream-flush (write (elem -2 (tuple-get pipe_streams pipe)) s)))
+	(stream-flush (write (elem -2 (elem pipe_streams pipe)) s)))
 
 (defun-bind pipe-run (cmdline &optional out)
 	;(pipe-run cmdline &optional outfun)
