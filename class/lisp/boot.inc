@@ -515,12 +515,17 @@
 
 (defun-bind char-to-num (_)
 	;(char-to-num char) -> num
-	(cond
-		((>= (setq _ (code _)) (ascii-code "a"))
-			(- _ (const (- (ascii-code "a") 10))))
-		((>= _ (ascii-code "A"))
-			(- _ (const (- (ascii-code "A") 10))))
-		(t (- _ (ascii-code "0")))))
+	(elem (code _)
+		'(-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+		-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 0 1 2 3
+		4 5 6 7 8 9 -1 -1 -1 -1 -1 -1 -1 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24
+		25 26 27 28 29 30 31 32 33 34 35 -1 -1 -1 -1 -1 -1 10 11 12 13 14 15 16 17 18
+		19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 -1 -1 -1 -1 -1 -1 -1 -1 -1
+		-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+		-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+		-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+		-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+		-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1)))
 
 (defun-bind num-to-char (_)
 	;(num-to-char num) -> char
@@ -528,23 +533,17 @@
 
 (defun-bind str-to-num (_)
 	;(str-to-num str) -> num
-	(defq n 0 b 10)
+	(defq n 0 b 10 f 0)
 	(when (> (length _) 1)
 		(defq i (elem 1 _))
 		(cond
-			((eql i "x")
-				(setq b 16 _ (slice 2 -1 _)))
-			((eql i "o")
-				(setq b 8 _ (slice 2 -1 _)))
-			((eql i "b")
-				(setq b 2 _ (slice 2 -1 _)))))
-	(defq i -1 f 0)
-	(while (< (setq i (inc i)) (length _))
-		(defq c (elem i _))
-		(if (eql c ".")
+			((eql i "x") (setq b 16 _ (slice 2 -1 _)))
+			((eql i "o") (setq b 8 _ (slice 2 -1 _)))
+			((eql i "b") (setq b 2 _ (slice 2 -1 _)))))
+	(each (# (if (eql %0 ".")
 			(setq f 1)
-			(defq d (char-to-num c) n (+ (* n b) d) f (* f b))))
-	(if (= f 0) n (/ (<< n fp_shift) f)))
+			(setq n (+ (* n b) (char-to-num %0)) f (* f b)))) _)
+	(if (= f 0) n (/ (<< n (const fp_shift)) f)))
 
 (defun-bind num-to-utf8 (_)
 	;(num-to-utf8 num) -> str
