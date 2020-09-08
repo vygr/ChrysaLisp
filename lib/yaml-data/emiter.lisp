@@ -154,58 +154,91 @@
 
 (defq indent_space  2)
 
-(defun inc_indent()
+(defun inc-indent()
   (defq ci (getp ywcntrl :indent))
   (setp! ywcntrl :indent (inc ci)))
 
-(defun dec_indent()
+(defun dec-indent()
   (defq ci (getp ywcntrl :indent))
   (setp! ywcntrl :indent (dec ci)))
 
-(defun pad_indent()
+(defun pad-indent()
   (pad "" (* indent_space (getp ywcntrl :indent))))
+
+(defun padp-indent()
+  (pad "" (* indent_space (dec (getp ywcntrl :indent)))))
 
 ; Writers
 
 (defun default-writer (v)
-  (write (getp ywcntrl :stream) (str (pad_indent) v (char 0x0a))))
+  (write (getp ywcntrl :stream) (str (pad-indent) v (char 0x0a))))
 
 (defun key-writer (v)
-  (write (getp ywcntrl :stream) (str (pad_indent) v ": ")))
+  (write (getp ywcntrl :stream) (str (pad-indent) v ": ")))
 
 (defun value-writer (v)
-  (write (getp ywcntrl :stream) (str (pad_indent) v (char 0x0a))))
+  (write (getp ywcntrl :stream) (str (pad-indent) v (char 0x0a))))
 
-(defun seq-start-writer ()
+(defun seq-start-writer (ctype)
   (defq
     lnd  (last-node)
     mrc  (mr-container)
     strm (getp ywcntrl :stream))
-  (print "seq-start lnd " lnd " mrc " mrc)
+  (print "ssw " (getp ywcntrl :npath) " ctype= " ctype)
   (cond
-    ((eql lnd :docstart)
-     (write strm (str (pad_indent) "- ")))
+    ; Document start with current sequence child
+    ; also being a sequence
+    ((and (eql lnd :docstart) (eql ctype :seq))
+     (print " ds write")
+     (write strm (str (pad-indent) "-" (char 0x0a))))
+    ; Sequence following scalar
+    ((and (or
+            (eql lnd :scalar)
+            (eql lnd :value)
+            (eql lnd :seq))
+          (or
+            (eql ctype :seq)
+            (eql mrc :seq)))
+     (print " lnd= scalar | value, mrc= seq write")
+     (write strm
+            (str
+              (padp-indent) "-" (char 0x0a)
+              ; (pad-indent) "-")
+            )))
+    ((and (eql ctype :seq) (eql lnd :seq))
+     (print " ctype= seq lnd= seq write")
+     (write strm
+            (str
+              (padp-indent) "-" (char 0x0a)
+              (pad-indent) "-")))
+    ; Sequence following sequence
     ((eql lnd :seq)
-     (write strm (str (char 0x0a) (pad_indent) "- ")))
-    ((and (eql lnd :scalar) (eql mrc :seq))
-     (dec_indent)
-     (write strm (str (pad_indent) "-" (char 0x0a)))
-     (inc_indent)
-     (write strm (str (pad_indent) "- ")))
+     (print " lnd= seq write")
+     (write strm
+            (str
+              (padp-indent) "-" (char 0x0a)
+              ; (pad-indent) "-")
+            )))
+     ; (write strm (str (char 0x0a) (pad-indent) "- ")))
     (t
-      (throw "Unknown " (list lnd mrc)))))
+      (throw "Unknown " (list lnd mrc ctype)))))
 
 (defun seq-value-writer (v)
   (defq
     strm (getp ywcntrl :stream)
     lnd  (last-node))
-  (case lnd
-    ((:seq)
-     (write strm (str v (char 0x0a))))
-    ((:scalar)
-     (write strm (str (pad_indent) "- " v (char 0x0a))))
-    (t
-      (throw "Unknown " lnd))))
+  (print "svw " (getp ywcntrl :npath))
+  (write strm (str (pad-indent) "- " v (char 0x0a)))
+  ; (case lnd
+  ;   ((:seq)
+  ;    (print " lnd :seq")
+  ;    (write strm (str v (char 0x0a))))
+  ;   ((:scalar)
+  ;    (print " lnd :scalar")
+  ;    (write strm (str (pad-indent) "- " v (char 0x0a))))
+  ;   (t
+  ;     (throw "Unknown " lnd)))
+  )
 
 (defun node-to-stream (ast &optional pwrt)
   ; (gen-stream stream ast) -> nil
@@ -218,17 +251,19 @@
      (setp! ywcntrl :indent -1)
      (each node-to-stream (getp ast :children)))
     ((:map)
-     (inc_indent)
+     (inc-indent)
      (push-npath :map)
      (each node-to-stream (getp ast :children))
-     (dec_indent)
+     (dec-indent)
      (pop-npath))
     ((:seq)
-     (inc_indent)
-     (seq-start-writer)
+     (defq fchld
+           (getp (first (getp ast :children)) :type))
+     (inc-indent)
+     (seq-start-writer fchld)
      (push-npath :seq)
      (each (#(node-to-stream %0 seq-value-writer)) (getp ast :children))
-     (dec_indent)
+     (dec-indent)
      (unwind-to-node :seq)
      (pop-npath))
     ((:map_entry)
