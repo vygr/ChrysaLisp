@@ -124,17 +124,30 @@
 (defq container-nodes (list :docstart :seq :map :key :value))
 
 (defun push-npath (n)
-  (push (getp ywcntrl :npath) n))
+  (defq npth (getp ywcntrl :npath))
+  (defq
+    ccount (inc (getp ywcntrl :container-count))
+    cindex (length npth))
+  (push npth (list n cindex ccount))
+  (setsp! ywcntrl
+          :container-count ccount
+          :container-index cindex))
 
 (defun pop-npath ()
+  (setp! ywcntrl
+         :container-index (dec (getp ywcntrl :container-index)))
   (pop (getp ywcntrl :npath)))
 
 (defun last-node ()
   (last (getp ywcntrl :npath)))
 
 (defun unwind-to-node (ntype)
-  (while (neql? (last-node) ntype)
-    (pop-npath)))
+  (defq keep-going t)
+  (while keep-going
+    (bind '(nt _ _) (last-node))
+    (if (eql nt ntype)
+      (setq keep-going nil)
+      (pop-npath))))
 
 (defun mr-container ()
   (defq
@@ -143,12 +156,15 @@
     rpos (dec (length np)))
   (while (>= rpos 0)
     (defq n (elem rpos np))
-    (if (find n container-nodes)
-      (setq
-        res  n
-        rpos -1)
+    (if (find (first n) container-nodes)
+      (setq res n rpos -1)
       (setq rpos (dec rpos))))
   res)
+
+(defun spit-npath (header)
+  (prin header " ")
+  (each (#(prin (first %0) ", ")) (getp ywcntrl :npath))
+  (print))
 
 ; Writer utilities
 
@@ -170,8 +186,9 @@
 
 ; Writers
 
-(defun default-writer (v)
-  (write (getp ywcntrl :stream) (str (pad-indent) v (char 0x0a))))
+(defun default-writer (v &optional strm)
+  (setd strm (getp ywcntrl :stream))
+  (write strm (str (pad-indent) v (char 0x0a))))
 
 (defun key-writer (v)
   (write (getp ywcntrl :stream) (str (pad-indent) v ": ")))
@@ -180,65 +197,74 @@
   (write (getp ywcntrl :stream) (str (pad-indent) v (char 0x0a))))
 
 (defun seq-start-writer (ctype)
+  (bind '(lnd lindx lcnt) (last-node))
+  (bind '(mrc mindx mcnt) (mr-container))
   (defq
-    lnd  (last-node)
-    mrc  (mr-container)
-    strm (getp ywcntrl :stream))
-  (print "ssw " (getp ywcntrl :npath) " ctype= " ctype)
+    strm (getp ywcntrl :stream)
+    ncnt (getp ywcntrl :container-count))
+  ; (spit-npath "ssw")
+  ; (print "  -> lnd " lnd " mrc " mrc " ctype " ctype)
   (cond
-    ; Document start with current sequence child
-    ; also being a sequence
-    ((and (eql lnd :docstart) (eql ctype :seq))
-     (print " ds write")
-     (write strm (str (pad-indent) "-" (char 0x0a))))
+    ; Seq as first child of seq
+    ((eql ctype :seq)
+     ; (print " ctype= seq puts '-'")
+     (default-writer "-" strm))
+    ((and (eql lnd :scalar) (eql ctype :scalar))
+     ; (print " lnd= scalar ctype= scalar puts '-'")
+     (dec-indent)
+     (default-writer "-" strm)
+     (inc-indent))
+    ((and (eql ctype :scalar) (not (eql mrc :seq)))
+     ; Next is scalar
+     ; (print " ctype= seq not child= seq puts 'cr'")
+     (write strm (char 0x0a)))
+    ((and (eql lnd :scalar) (eql mrc :seq))
+     ; (print " lnd= scalar mrc= seq")
+     (default-writer "-" strm))
+    ((and (eql lnd :seq) (eql ctype :scalar) (= mcnt ncnt))
+     ; (print " lnd= seq ctype= scalar puts ''")
+     ; (write strm (char 0x0a))
+     )
+    ((and (eql lnd :seq) (eql ctype :scalar) (/= mcnt ncnt))
+     ; (print " lnd= seq ctype= scalar puts '-' mrc " mcnt " ncnt " ncnt)
+     (dec-indent)
+     (default-writer "-" strm)
+     (inc-indent))
     ; Sequence following scalar
-    ((and (or
-            (eql lnd :scalar)
-            (eql lnd :value)
-            (eql lnd :seq))
-          (or
-            (eql ctype :seq)
-            (eql mrc :seq)))
-     (print " lnd= scalar | value, mrc= seq write")
-     (write strm
-            (str
-              (padp-indent) "-" (char 0x0a)
-              ; (pad-indent) "-")
-            )))
+    ; ((and (or
+    ;         (eql lnd :scalar)
+    ;         (eql lnd :value)
+    ;         (eql lnd :seq))
+    ;       (or
+    ;         (eql ctype :seq)
+    ;         (eql mrc :seq)))
+    ;  (print " lnd= scalar | value, mrc= seq write")
+    ;  (write strm
+    ;         (str
+    ;           (padp-indent) "-" (char 0x0a)
+    ;           ; (pad-indent) "-")
+    ;         )))
     ((and (eql ctype :seq) (eql lnd :seq))
-     (print " ctype= seq lnd= seq write")
+     (print " ctype= seq lnd= seq write CRAZY BIRD")
      (write strm
             (str
               (padp-indent) "-" (char 0x0a)
               (pad-indent) "-")))
     ; Sequence following sequence
-    ((eql lnd :seq)
-     (print " lnd= seq write")
-     (write strm
-            (str
-              (padp-indent) "-" (char 0x0a)
-              ; (pad-indent) "-")
-            )))
+    ; ((eql lnd :seq)
+    ;  (print " lnd= seq write")
+    ;  (write strm
+    ;         (str
+    ;           (padp-indent) "-" (char 0x0a)
+    ;           ; (pad-indent) "-")
+    ;         )))
      ; (write strm (str (char 0x0a) (pad-indent) "- ")))
     (t
       (throw "Unknown " (list lnd mrc ctype)))))
 
 (defun seq-value-writer (v)
-  (defq
-    strm (getp ywcntrl :stream)
-    lnd  (last-node))
-  (print "svw " (getp ywcntrl :npath))
-  (write strm (str (pad-indent) "- " v (char 0x0a)))
-  ; (case lnd
-  ;   ((:seq)
-  ;    (print " lnd :seq")
-  ;    (write strm (str v (char 0x0a))))
-  ;   ((:scalar)
-  ;    (print " lnd :scalar")
-  ;    (write strm (str (pad-indent) "- " v (char 0x0a))))
-  ;   (t
-  ;     (throw "Unknown " lnd)))
-  )
+  ; (print "svw " (getp ywcntrl :npath))
+  (write (getp ywcntrl :stream) (str (pad-indent) "- " v (char 0x0a))))
 
 (defun node-to-stream (ast &optional pwrt)
   ; (gen-stream stream ast) -> nil
@@ -299,6 +325,8 @@
                                   :stream stream
                                   :root  (DocStartNode)
                                   :npath (list)
+                                  :container-index 0
+                                  :container-count 0
                                   :path  (list)
                                   :current nil
                                   :indent -1)))
