@@ -1,13 +1,12 @@
 (import 'lib/date/timezones.inc)
-(import 'apps/login/pupa.inc)
 
-;Limitations: Only defined for time since Unix Epoch.
+;Currently defined only for time since unix epoch Jan 1, 1970
+(structure '+time 0
+	(byte 'second+ 'minute+ 'hour+ 'date+ 'month+ 'year+ 'week+ 'dls+ 'tz+))
 
-(structure 'time 0
-	(byte 'second 'minute 'hour 'date 'month 'year 'week))
-
-(defq EPOCH_TIME '(0 0 0 1 0 1970 0) EPOCH_YEAR (elem (const time_year) EPOCH_TIME)
-	EPOCH_DAY (elem (const time_date) EPOCH_TIME) days_per_year 365 days_per_leap_year 366 offset 0
+;NOTE: variables tz_abbr and offset must be defined to encode or read encoded dates.
+;offset shoul
+(defq unix_epoch '(0 0 0 1 0 1970 0)  days_per_year 365 days_per_leap_year 366 offset 0
 	week_abbr (list "Sun" "Mon" "Tue" "Wed" "Thu" "Fri" "Sat")
 	month_abbr (list "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug" "Sep" "Oct" "Nov" "Dec"))
 
@@ -24,15 +23,18 @@
 		(if isneg (setq final (- 0 final)))
 		final))
 
+;timezone-lookup will attempt to lookup tz and find offset
+(defmacro-bind timezone-lookup (tz)
+	`(let ((offset 0))
+			(each (lambda (_) (if (eql ,tz (elem 0 _)) (setq offset (elem 1 _)))) timezones)
+			offset))
+
 ;ensure that leapyears are not divisible by 100 unless also divisible by 400.
 (defmacro-bind leapyear? (y)
 	`(cond 
 		((and (= (% ,y 100) 0) (/= (% ,y 400) 0)) nil)
 		((= (% ,y 4) 0) t)
 		(t nil)))
-
-(defmacro-bind timezone-lookup ()
- 	`(each (lambda (_) (if (eql *env_clock_timezone* (elem 0 _)) (setq offset (* (elem 1 _) 60)))) timezones))
 
 (defmacro-bind day-of-the-week (d)
 	`(elem ,d week_abbr))
@@ -48,25 +50,28 @@
 	`(if (leapyear? ,year) 366 365))
 
 ;the epoch was on a Thursday, adjust for calendar
-(defmacro-bind get-weekday (wd)
-		`(if (<= 0 ,wd 6) (if (< ,wd 4) (+ ,wd 4) (- ,wd 3)) nil))
+(defun-bind get-weekday (days)
+	(defq wkdays (/ days 7) wd (% wkdays 7))
+	(cond 
+		((<= 4 wd 6) (setq wd (- wd 4)))
+		((<= 0 wd 3) (setq wd (+ wd 3)))))
 
 (defun-bind leapyears-since-epoch (year)
 	(let ((leap_count 0))
 		(each (lambda (y) 
 			(if (eql (leapyear? y) t) (setq leap_count (inc leap_count)) nil))
-			(range EPOCH_YEAR (inc year))) leap_count))
+			(range (elem +time_year+ unix_epoch) (inc year))) leap_count))
 
 ;;;since day starts at 1 add 1.
 (defun-bind get-yeardays (days)
-	(defq year (get-year days) years (- year EPOCH_YEAR)
+	(defq year (get-year days) years (- year (elem +time_year+ unix_epoch))
 		leapyears (leapyears-since-epoch (dec year))
 		nonleapyears (- years leapyears))
-		(inc (- days (+ (* leapyears days_per_leap_year)
-			(* nonleapyears days_per_year)))))
+		(inc (- days (+ (* leapyears 366)
+			(* nonleapyears 365)))))
 
 (defun-bind get-year (days)
-	(defq year EPOCH_YEAR yeardays (days-in-year year))
+	(defq year (elem +time_year+ unix_epoch) yeardays (days-in-year year))
 	(while (> days (setq yeardays (days-in-year year)))
 		(setq days (- days yeardays) year (inc year))) year)
 
@@ -78,26 +83,25 @@
 		(list date month year)))
 
 (defun-bind check-date (td)
-	(defq maxarg (list 59 59 23 (days-in-month (elem time_month td) (elem time_year td)) 11 nil 6)
+	(defq maxarg (list 59 59 23 (days-in-month (elem +time_month+ td) (elem +time_year+ td)) 11 nil 6)
 		 minarg (list 0 0 0 1 0 nil 0) index -1)
 	(notany (lambda (a_)
 		(eql (and (not (= _ 5)) (or (> a_ (elem _ maxarg)) (< a_ (elem _ minarg)))) t)) td))
 
 ;takes a time value in seconds or uses default (time)
 (defun-bind date (&optional ts)
-	(timezone-lookup)
-	(if (not ts) (defq ts (/ (time) 1000000)))
+	(when (not ts) (defq ts (/ (time) 1000000)))
 	(defq seconds ts minutes (+ offset (/ seconds 60))
 		hours (/ minutes 60) days (/ hours 24) weeks (/ days 7))
 	(bind '(monthday month year) (get-date days))
-	(list (% seconds 60) (% minutes 60) (% hours 24) monthday month year (get-weekday (% days 7))))
+	(list (% seconds 60) (% minutes 60) (% hours 24) monthday month year (get-weekday days)))
 
 (defun-bind encode-date (td)
 	(bind '(s m h dy mo yr wk) td)
-	(if (eql (check-date td) t)
+	(when (check-date td)
 		(cat (day-of-the-week wk) " " (month-of-the-year mo) " " 
 			(str dy) " " (pad h 2 "0") ":" (pad m 2 "0") ":" (pad s 2 "0") " " 
-			*env_clock_timezone* " " (str yr)) nil))
+			tz_abbr " " (str yr))))
 
 (defun-bind decode-date (dts)
 	(defq space_split (split dts " ") rdt (list) index 0)
@@ -106,5 +110,5 @@
 	(setq index 0)
 	(each (lambda (m_) (if (eql m_ mo) (setq mo _)) (setq index (inc index))) month_abbr)
 	(defq smh (reverse (split hms ":")))
-	(each (lambda (_) (push rdt (s2i _))) (reverse (split hms ":")))
+	(each (lambda (_) (push rdt (s2i _))) (reverse (split hms ":"))) 
 	(push rdt (s2i dy) mo (s2i yr) wd))

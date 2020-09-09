@@ -566,7 +566,7 @@
 
 ## import
 
-(import path)
+(import path [env])
 
 ## in-get-state
 
@@ -1199,14 +1199,6 @@
 ## trim-start
 
 (trim-start str [str]) -> str
-
-## tuple-get
-
-(tuple-get index list) -> value
-
-## tuple-set
-
-(tuple-set index list value)
 
 ## type-of
 

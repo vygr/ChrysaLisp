@@ -32,8 +32,8 @@
 
 (defun-bind redraw (verts mask)
 	;redraw layer/s
-	(tuple-set dlist_layer1_verts dlist verts)
-	(tuple-set dlist_mask dlist (logior (tuple-get dlist_mask dlist) mask)))
+	(elem-set +dlist_layer1_verts+ dlist verts)
+	(elem-set +dlist_mask+ dlist (logior (elem +dlist_mask+ dlist) mask)))
 
 (defun-bind vertex-cloud (num)
 	;array of random verts
@@ -63,7 +63,7 @@
 			(setq vy (neg vy)))
 		(if (or (> z (const (i2n box_size))) (< z (const (i2n (neg box_size)))))
 			(setq vz (neg vz)))
-		(tuple-set vertex_v vert (vec vx vy vz))) verts))
+		(elem-set +vertex_v+ vert (vec vx vy vz))) verts))
 
 (defun-bind main ()
 	;ui tree initial setup
@@ -120,7 +120,7 @@
 							(:u	;was up last time
 								(setq last_state :d)))
 						;set light pos
-						(tuple-set dlist_light_pos dlist
+						(elem-set +dlist_light_pos+ dlist
 							(vec-i2n (* rx 4) (* ry 4) (neg (* box_size 4)))))
 					(t	;mouse button is up
 						(case last_state
