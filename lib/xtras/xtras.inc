@@ -7,6 +7,11 @@
 
 ; Predicates
 
+(defun-bind nil? (_)
+  ; (nil? o) -> bool
+  ; Returns true if nil
+  (eql _ nil))
+
 (defun-bind neg? (_)
   ; (neg? num) -> bool
   ; Returns true if negative number
@@ -65,7 +70,7 @@
   ; (empty? form) -> bool
   ; Returns true if form is empty
   (cond
-    ((dict? _) (empty? (tolist _)))
+    ((dict? _) (empty? (tolist _))) ; Extremely expensive
     ((seq? _) (= (length _) 0))
     (t t)))
 
@@ -91,6 +96,11 @@
   ; Returns true if argument is a keyword
   (and (sym? _) (starts-with ":" _)))
 
+(defun-bind truthy? (_)
+  (cond
+    ((lst? _) (nempty? _))
+    (t (not (nil? _)))))
+
 ; Convenience
 
 (defun-bind ident (_)
@@ -101,6 +111,16 @@
   (if (and (not (kw? _)) (or (str? _) (sym? _)))
     (sym (str ":" _))
     (throw "Expected symbol or string, found " _)))
+
+(defun-bind strip-rest (in-args)
+  ; (strip-rest in-args)
+  ; Returns inner list if nested from passing
+  ; arguments through multiple &rest constructs
+  (if (and
+        (nempty? in-args)
+        (lst? (first in-args)))
+      (first in-args)
+      in-args))
 
 ; Sequence forms
 
@@ -228,6 +248,16 @@
   ; (setsp properties [k v] ...) -> properties
   (each (#(setp! p (first %0) (second %0) t)) (chunk 2 pairs))
   p)
+
+(defun-bind pmerge (&rest props)
+  ; (pmerge properties...) -> properties
+  ; Returns a properties structure that consists of
+  ; the rest of the properties structure merged into
+  ; the first
+  (reduce
+    (#(each (lambda (e)
+      (setp! %0 (first e) (second e) t)) (chunk 2 %1)))
+    props (properties)))
 
 (defun-bind movekpf! (p sp ep)
   ; (movekpf properties start-key-index end-key-index)

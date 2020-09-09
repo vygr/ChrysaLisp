@@ -47,11 +47,11 @@
 
 (defq cjmp
   (properties
-    :scalar construct-scalar
-    :key    construct-key
-    :value  construct-value
-    :entry  construct-entry
-    :list   construct-list
+    :scalar     construct-scalar
+    :key        construct-key
+    :value      construct-value
+    :entry      construct-entry
+    :list       construct-list
     :properties construct-properties))
 
 (defun cdisp (acc el)
