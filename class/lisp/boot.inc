@@ -402,25 +402,48 @@
 	;(notevery lambda seq ...) -> t|nil
 	(not (some! 0 -1 nil _f _)))
 
+(defun-bind seq? (_)
+  ; (seq? form) -> bool
+  ; Returns true if argument is a sequence type (list or string)
+  (or (lst? _) (str? _)))
+
+(defun-bind empty? (_)
+  ; (empty? form) -> bool
+  ; Returns true if form is empty
+  (cond
+    ((seq? _) (= (length _) 0))
+    (t t)))
+
+(defun-bind nempty? (_)
+  ; (nempty? form) -> bool
+  ; Returns true if form is not empty
+  (not (empty? _)))
+
 ;;;;;;;;;;;
 ; Sequences
 ;;;;;;;;;;;
 
 (defmacro-bind first (s)
-	;(first seq) -> el
-	`(elem 0 ,s))
+	; (first seq) -> el | nil
+	; Returns first element if sequence not empty, otherwise nil
+	`(when (nempty? ,s) (elem 0 ,s)))
 
 (defmacro-bind second (s)
-	;(second seq) -> el
-	`(elem 1 ,s))
+	; (second seq) -> el | nil
+	; Returns second element if sequence not empty and has
+	; more than one element, otherwise nil
+	`(when (and (nempty? ,s) (> (length ,s) 1)) (elem 1 ,s)))
 
 (defmacro-bind last (s)
-	;(last seq) -> el
-	`(elem -2 ,s))
+	; (last seq) -> el | nil
+	; Returns first element if sequence not empty, otherwise nil
+	`(when (nempty? ,s) (elem -2 ,s)))
 
 (defmacro-bind rest (s)
-	;(rest seq) -> seq
-	`(slice 1 -1 ,s))
+	; (rest seq) -> seq
+	; Returns seq from seq after dropping first element
+	; if not empty, otherwise an empty list
+	`(cond ((nempty? ,s) (slice 1 -1 ,s)) (t (list))))
 
 (defun-bind erase (s b e)
 	;(erase seq start end) -> seq

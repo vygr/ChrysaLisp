@@ -61,24 +61,6 @@
       (eql (getp _ :super_clz) :clz_properties))
     t))
 
-(defun-bind seq? (_)
-  ; (seq? form) -> bool
-  ; Returns true if argument is a sequence type (list or string)
-  (or (lst? _) (str? _)))
-
-(defun-bind empty? (_)
-  ; (empty? form) -> bool
-  ; Returns true if form is empty
-  (cond
-    ((dict? _) (empty? (tolist _))) ; Extremely expensive
-    ((seq? _) (= (length _) 0))
-    (t t)))
-
-(defun-bind nempty? (_)
-  ; (nempty? form) -> bool
-  ; Returns true if form is not empty
-  (not (empty? _)))
-
 (defun-bind def? (_ &optional e)
   ; (def? sym [env]) -> bool
   ; Returns t if sym is defined in environment
