@@ -33,6 +33,10 @@ corrupted.
 constants that follow the conventional +xyz+ standard will now be bound to the
 hard value within (defun-bind) functions.
 
+`yaml-data` now supports reading and writing of fundemental YAML data
+constructs. This update also instroducted various additions of general
+functions to the `xtras` library.
+
 ------
 
 Added (gui-info) to return current mouse position and gui screen dimensions,

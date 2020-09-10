@@ -81,4 +81,6 @@
 
 (defun-bind yaml-write (fname obj &rest in-args)
   (defq base-args (properties :kw-to-str t))
-  (defq res (yaml-from-obj obj base-args)))
+  (defq res (yaml-from-obj obj base-args))
+  (if fname
+      (save res fname)))
