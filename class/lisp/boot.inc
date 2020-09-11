@@ -187,7 +187,7 @@
 	`(= (type-of ,_) ,lisp_type_env))
 (defmacro-bind seq? (_)
 	;(seq? form) -> t|nil
-	(or (lst? ,_) (str? ,_)))
+	`(or (= (type-of ,_) ,lisp_type_lst) (= (type-of ,_) ,lisp_type_str)))
 
 (defmacro-bind inc (_)
 	;(inc num) -> num
