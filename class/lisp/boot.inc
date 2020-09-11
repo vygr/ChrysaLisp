@@ -185,6 +185,9 @@
 (defmacro-bind env? (_)
 	;(env? form) -> t|nil
 	`(= (type-of ,_) ,lisp_type_env))
+(defmacro-bind seq? (_)
+	;(seq? form) -> t|nil
+	(or (lst? ,_) (str? ,_)))
 
 (defmacro-bind inc (_)
 	;(inc num) -> num
@@ -401,11 +404,6 @@
 (defun-bind notevery (_f &rest _)
 	;(notevery lambda seq ...) -> t|nil
 	(not (some! 0 -1 nil _f _)))
-
-(defun-bind seq? (_)
-	; (seq? form) -> bool
-	; Returns true if argument is a sequence type (list or string)
-	(or (lst? _) (str? _)))
 
 (defun-bind empty? (_)
 	; (empty? form) -> bool
