@@ -39,7 +39,7 @@
               (push
                 (push (list) (make-me-key (first el)))
                 (make-me-value (second el))))))
-    (prop-entries p) (list)))
+    (entries p) (list)))
 
 ; Not multi-threaded safe
 

@@ -118,7 +118,7 @@
 (defun stale-possible-simple-keys (scn rdr)
   (defq
     p  (getp scn :possible_simple_keys)
-    ke (prop-entries p)
+    ke (entries p)
     ln (getp rdr :line))
   (when ke
     (each
