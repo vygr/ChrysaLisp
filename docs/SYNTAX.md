@@ -1,33 +1,5 @@
 # Syntax
 
-## empty?
-
- (empty? form) -> bool
-
-## first
-
- (first seq) -> el | nil
-
-## last
-
- (last seq) -> el | nil
-
-## nempty?
-
- (nempty? form) -> bool
-
-## rest
-
- (rest seq) -> seq
-
-## second
-
- (second seq) -> el | nil
-
-## seq?
-
- (seq? form) -> bool
-
 ## #
 
 (# (< %0 0)) -> (lambda (%0) (< %0 0))
@@ -432,6 +404,10 @@
 
 (elem-set index list val)
 
+## empty?
+
+(empty? form) -> bool
+
 ## ends-with
 
 (ends-with str str) -> t|nil
@@ -491,6 +467,10 @@
 ## find-rev
 
 (find-rev elem seq)
+
+## first
+
+(first seq) -> el | nil
 
 ## fixeds
 
@@ -632,6 +612,10 @@
 
 (lambda ([arg ...]) body)
 
+## last
+
+(last seq) -> el | nil
+
 ## length
 
 (length seq)
@@ -751,6 +735,10 @@
 ## neg
 
 (neg num)
+
+## nempty?
+
+(nempty? form) -> bool
 
 ## nlo
 
@@ -1044,6 +1032,10 @@
 
 (repl stream path)
 
+## rest
+
+(rest seq) -> seq
+
 ## reverse
 
 (reverse list) -> list
@@ -1051,6 +1043,14 @@
 ## save
 
 (save str path)
+
+## second
+
+(second seq) -> el | nil
+
+## seq?
+
+(seq? form) -> t|nil
 
 ## set
 
