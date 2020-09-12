@@ -419,27 +419,27 @@
 ; Sequences
 ;;;;;;;;;;;
 
-(defmacro-bind first (s)
+(defun-bind first (_)
 	;(first seq) -> el | nil
 	; Returns first element if sequence not empty, otherwise nil
-	`(if (> (length (defq ,(defq _s (gensym)) ,s)) 0) (elem 0 ,_s)))
+	(if (> (length _) 0) (elem 0 _)))
 
-(defmacro-bind second (s)
+(defun-bind second (_)
 	;(second seq) -> el | nil
 	; Returns second element if sequence not empty and has
 	; more than one element, otherwise nil
-	`(if (> (length (defq ,(defq _s (gensym)) ,s)) 1) (elem 1 ,_s)))
+	(if (> (length _) 1) (elem 1 _)))
 
-(defmacro-bind last (s)
+(defun-bind last (_)
 	;(last seq) -> el | nil
-	; Returns first element if sequence not empty, otherwise nil
-	`(if (> (length (defq ,(defq _s (gensym)) ,s)) 0) (elem -2 ,_s)))
+	; Returns last element if sequence not empty, otherwise nil
+	(if (> (length _) 0) (elem -2 _)))
 
-(defmacro-bind rest (s)
+(defun-bind rest (_)
 	;(rest seq) -> seq
 	; Returns seq from seq after dropping first element
 	; if not empty, otherwise an empty list
-	`(if (> (length (defq ,(defq _s (gensym)) ,s)) 0) (slice 1 -1 ,_s) (list)))
+	(if (> (length _) 0) (slice 1 -1 _) (list)))
 
 (defun-bind erase (s b e)
 	;(erase seq start end) -> seq
