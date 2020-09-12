@@ -120,7 +120,7 @@
     p  (getp scn :possible_simple_keys)
     ke (entries p)
     ln (getp rdr :line))
-  (when ke
+  (when (lst? (first ke))
     (each
       (lambda (_)
         (defq k (first _) v (second _))
