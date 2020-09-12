@@ -57,7 +57,6 @@
   ; Returns true if argument is a properties type
   (when (and
     (lst? _)
-      (> (length _) 2)
       (eql (getp _ :super_clz) :clz_properties))
     t))
 
@@ -163,14 +162,12 @@
 
 (defun-bind efind (p k)
   ; (efind properties key) -> index | nil
+  ; Returns the index of key in properties
   ; Used when keys are number and/or string
   (defq fx nil)
-  ; (print k)
   (each! 0 -1
     (lambda (s)
-      ; (print s)
       (when (eql s k)
-        ; (print "(eql s k) => "(eql s k))
         (setq fx _))) (list p))
   fx)
 
@@ -195,7 +192,7 @@
     ((not (props? p))
       (throw "Not a properties structure " p))
     ((empty? kws)
-      (throw "No keys argument provided " kws))
+      (throw "No keys path provided " kws))
     (t
       (defq
         keep_going t
@@ -223,7 +220,7 @@
   (defq ki (if (kw? k) (find k p) (efind p k)))
   (if (not ki)
     (if add_if_nil
-      (push (push p k) v)
+      (push p k v)
       (throw (str "Key " k " does not exist") p))
     (elem-set (inc ki) p v))
   p)
@@ -231,6 +228,37 @@
 (defun-bind setsp! (p &rest pairs)
   ; (setsp properties [k v] ...) -> properties
   (each (#(setp! p (first %0) (second %0) t)) (chunk 2 pairs))
+  p)
+
+(defun-bind setsp-in! (p val &rest kws)
+  ; (setsp-in! properties value kw...) -> properties
+  ; Sets the value in a nested properties structure
+  ; where kws is a sequence of keys.
+  (cond
+    ((not (props? p))
+      (throw "Not a properties structure " p))
+    ((empty? kws)
+      (throw "No keys path provided " kws))
+    (t
+      (defq
+        keep_going t
+        last_nest  p
+        pick (reverse kws)
+        fkw  (last pick)
+        trg  (first pick))
+      (while (and keep_going (not (empty? pick)))
+        (defq v (getp last_nest fkw))
+        (pop pick)
+        (cond
+          ((not v)
+            (setq keep_going nil))
+          ((empty? pick)
+            (if (eql trg fkw)
+              (setp! last_nest trg val))
+            (setq keep_going nil))
+          (t (setq
+            fkw       (last pick)
+            last_nest v))))))
   p)
 
 (defun-bind pmerge (&rest props)
@@ -265,7 +293,7 @@
 
 (defun-bind pdrop! (p k)
   ; (pdrop properties key) -> properties
-
+  ; Drops a properties key/pair
   (when (props? p)
     (defq
       sp (efind p k)
@@ -278,7 +306,7 @@
 
 (defmacro private (nm)
   ; (private nm) -> env
-  `(macroexpand (make-dict ,nm)))
+  `(macroexpand (defq ,nm (env -1))))
 
 (defmacro defunp (e n a &rest _)
   ; (defunp env name args form) -> lambda
