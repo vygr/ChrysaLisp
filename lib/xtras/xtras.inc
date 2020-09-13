@@ -123,7 +123,7 @@
         (times cnt (push nl (pop base)))
         (push res nl))
       res)
-    (t seq)))
+    (t (list seq))))
 
 ; (defun-bind unions (&rest lists)
 ;   ; (unions [list]...) -> list
@@ -263,9 +263,9 @@
 
 (defun-bind pmerge (&rest props)
   ; (pmerge properties...) -> properties
-  ; Returns a properties structure that consists of
-  ; the rest of the properties structure merged into
-  ; the first
+  ; Returns a new properties structure that consists of
+  ; the rest of the properties structures merged into
+  ; it
   (reduce
     (#(each (lambda (e)
       (setp! %0 (first e) (second e) t)) (chunk 2 %1)))
