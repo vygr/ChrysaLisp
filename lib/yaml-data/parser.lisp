@@ -65,38 +65,33 @@
   cmd)
 
 (defun parse-scalar (cmd token)
-  ; (print (pad "" indent) "scalar " (getp token :value))
-  (push
-    (getp cmd :current)
-    (list :scalar (getp token :value))))
+  (defq
+    v (getp token :value))
+  (when (and
+          (eql (first (last (getp cmd :parents))) :key)
+          (getp (getp cmd :in-args) :keys-to-kw))
+    (setq v (sym (str ":" (join (split v " ") "_")))))
+  (push (getp cmd :current) (list :scalar v)))
 
 (defun parse-key (cmd token)
-  ; (defq lst (first(last (getp cmd :parents))))
-  ; (if (eql lst :entry)
-  ;     nil
-  ;     (push-container cmd :entry))
-  ; (print (pad "" indent) "key")
   (defq key (push-container cmd :key))
   (dispatch cmd)
   (pop-container cmd)
   cmd)
 
 (defun parse-value (cmd token)
-  ; (print (pad "" indent) "value ")
   (defq key (push-container cmd :value))
   (dispatch cmd)
   (pop-container cmd)
   cmd)
 
 (defun parse-pair (cmd token)
-  ; (print (pad "" indent) "pair ")
   (push-container cmd :entry)
   (dispatch-until cmd :value_entry)
   (pop-container cmd)
   cmd)
 
 (defun parse-block-entry (cmd token)
-  ; (print (pad "" indent) "block-entry")
   (defq key (push-container cmd :entry))
   (dispatch cmd)
   (pop-container cmd)
@@ -106,36 +101,24 @@
   (defq lt (getp (peek-last (getp cmd :rtoks)) :type))
   (cond
     ((eql lt :key_entry)
-     ; (print (pad "" indent) "flow-entry")
      (push-container cmd :entry)
      (dispatch-until cmd :value_entry)
-     ; (dispatch cmd)
      (pop-container cmd))
     ((eql lt :pair)
-     ; ; (print (pad "" indent) "   forward pair")
      (dispatch cmd))
     (t
       (push-container cmd :entry)
       (dispatch cmd)
       (pop-container cmd)))
-  ; (defq
-  ;   key (push-container cmd :entry)
-  ;   fe  (eql (getp (peek-last (getp cmd :rtoks)) :type) :key_entry))
-  ; (if fe
-  ;     (dispatch-until cmd :value_entry)
-  ;     (dispatch cmd))
-  ; (pop-container cmd)
   cmd)
 
 (defun parse-blockseq-start (cmd token)
-  ; (print (pad "" indent) "blockseq-start ")
   (defq key (push-container cmd :list))
   (dispatch-until cmd :block_end)
   (pop-container cmd)
   cmd)
 
 (defun parse-blockmap-start (cmd token)
-  ; (print (pad "" indent) "blockmap-start ")
   (defq
     key (push-container cmd :properties))
   (dispatch-until cmd :block_end)
@@ -146,13 +129,10 @@
   cmd)
 
 (defun parse-flowseq-start (cmd token)
-  ; (print (pad "" indent) "flowseq-start ")
-  ; ; (print "  next " (getp (peek-last (getp cmd :rtoks)) :type))
   (defq
     key (push-container cmd :list)
     fe  (eql (getp (peek-last (getp cmd :rtoks)) :type) :scalar))
   (when fe
-    ; (print (pad "" indent) "flow-entry")
     (push-container cmd :entry)
     (dispatch cmd)
     (pop-container cmd))
@@ -167,10 +147,6 @@
   ; (print (pad "" indent) "flowmap-start ")
   (defq
     key (push-container cmd :properties))
-  ; (when fe
-  ;   (push-container cmd :entry)
-  ;   (dispatch-until cmd :value_entry)
-  ;   (pop-container cmd))
   (dispatch-until cmd :flowmap_end)
   (pop-container cmd)
   cmd)
@@ -198,20 +174,16 @@
         :key_entry      parse-key
         :value_entry    parse-value))
 
-(defun-bind parse (tokens options)
+(defun-bind parse (tokens in-args)
     ; (print "Parsing")
     (shr)
-    ; (each (lambda (el)
-    ;         (defq ftype (getp el :type))
-    ;         (if (eql ftype :scalar)
-    ;             (print "S-> " (getp el :value))
-    ;             (print "T-> " (getp el :type)))) tokens)
     (defq cmd (properties
                 :key_to_kw          t
                 :scalar_to_native   nil
                 :rtoks              (reverse tokens)
                 :tree               (list)
                 :parents            (list)
+                :in-args            in-args
                 :current            nil))
     (setp! cmd :current (getp cmd :tree))
     (when (not (eql (getp (last (getp cmd :rtoks)) :type) :stream_start))
