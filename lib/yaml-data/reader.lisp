@@ -4,7 +4,7 @@
 
 (import 'lib/xtras/xtras.inc)
 
-(defun Mark (index line column)
+(defun-bind Mark (index line column)
   ; (Mark index line column) -> properties
   (properties
     :clz    :clz_reader_mark

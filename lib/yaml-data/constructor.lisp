@@ -10,7 +10,6 @@
       (throw (str "Expected '" ctype "' found " (first node)))))
 
 (defun construct-scalar (acc node)
-  ; (print "    scalar node " node)
   (push acc node))
 
 (defun construct-key (acc node)
