@@ -36,7 +36,6 @@
         :kw-to-str  t       ; Quotes keywords otherwise strips ':'
         ))
 
-
 (defun merge-args (core-args in-args)
   (defq base-args (pmerge core-args))
   (cond
@@ -51,22 +50,38 @@
 (defun-bind yaml-construct (ast in-args)
   ; (yaml-construct tokens in-args) -> list | exception | nil
   ; Parses yaml tokensers and returns ChyrsaLisp objects
-  (construct ast in-args))
+  (defq
+    t0 (time)
+    res (construct ast in-args))
+  (print "Construct " (- (time) t0) " ns")
+  res)
 
 (defun-bind yaml-parse (tokens in-args)
   ; (yaml-parse tokens in-args) -> list | exception | nil
   ; Parses yaml tokensers and returns yaml AST
-  (parse tokens in-args))
+  (defq
+    t0 (time)
+    res (parse tokens in-args))
+  (print "Parse " (- (time) t0) " ns")
+  res)
+
 
 (defun-bind yaml-scan (ystring)
   ; (yaml-scan string) -> list | exception | nil
   ; Performs scan on string returning list of
   ; lexical yaml tokens
-  (scan ystring))
+  (defq
+    t0 (time)
+    res (scan ystring))
+  (print "Scan " (- (time) t0) " ns")
+  res)
 
-(defun-bind yaml-into-strg (ystring in-args)
-  ; (yaml-read-string string [in-args]) -> list | exception | nil
+(defun-bind yaml-from-strg (ystring in-args)
+  ; (yaml-read-string string in-args) -> list | exception | nil
   ; Converts YAML string to ChyrsaLisp data structures
+  (if (nil? in-args)
+      (setq in-args (copy reader-properties))
+      (setq in-args (merge-args reader-properties in-args)))
   (yaml-construct (yaml-parse (yaml-scan ystring) in-args) in-args))
 
 (defun-bind yaml-read (fname &rest in-args)
@@ -76,7 +91,7 @@
   (defq base-args (merge-args reader-properties in-args))
   (if (zero? (age fname))
     (throw (str fname " not found") t)
-    (yaml-into-strg (load fname) base-args)))
+    (yaml-from-strg (load fname) base-args)))
 
 ; Writer
 
