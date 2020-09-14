@@ -196,10 +196,10 @@
 (defun check-block-entry (rdr)
   (find (rdr-peek rdr 1) ebreakz))
 
-(defun check-plain (scn rdr)
-  (defq
-    ch (rdr-peek rdr)
-    nc (rdr-peek rdr 1))
+(defun check-plain (scn rdr ch)
+  ; (check-plain scanner reader) -> t | nil
+  ; Checks if ch is a 'plain' character
+  (defq nc (rdr-peek rdr 1))
   (or (not (find ch notplain))
       (and (not (find nc ebreakz))
            (or (eql ch dash)
@@ -480,8 +480,7 @@
 
 ; Main dispatch
 
-(defun fetch-next (scn)
-  (defq rdr (getp scn :rdr))
+(defun fetch-next (scn rdr)
   ; Eat up the white spaces
   (scan-next-token scn rdr)
   ; Drop obsoleted simple keys
@@ -517,17 +516,18 @@
     ; Document end
     ((and (eql ch dot) (check-document-end rdr))
      (fetch-document-end scn rdr))
-    ((check-plain scn rdr)
+    ((check-plain scn rdr ch)
      (fetch-plain scn rdr))
     (t
       (list :exception "Not implemented " (rdr-get-mark rdr)))))
 
 (defun consume-tokens (scn)
   ; Start stream
+  (defq rdr (getp scn :rdr))
   (push-token scn (StreamStart))
-  (defq res (fetch-next scn))
+  (defq res (fetch-next scn rdr))
   (while (eql res :ok)
-    (setq res (fetch-next scn)))
+    (setq res (fetch-next scn rdr)))
   (cond
     ; Exception
     ((lst? res)
