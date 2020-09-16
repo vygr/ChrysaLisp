@@ -92,21 +92,15 @@
   (defq
     strm (getp ywcntrl :stream)
     ncnt (getp ywcntrl :container-count))
-  ; (spit-npath "ssw")
-  ; (print "  -> lnd " lnd " mrc " mrc " ctype " ctype)
   (cond
     ; Seq as first child of seq
     ((eql ctype :seq)
-     ; (print " ctype= seq puts '-'")
      (default-writer "-" strm))
     ((and (eql lnd :scalar) (eql ctype :scalar))
-     ; (print " lnd= scalar ctype= scalar puts '-'")
      (dec-indent)
      (default-writer "-" strm)
      (inc-indent))
     ((and (eql ctype :scalar) (not (eql mrc :seq)))
-     ; Next is scalar
-     ; (print " ctype= seq not child= seq puts 'cr'")
      (write strm (char 0x0a)))
     ((and (eql lnd :scalar) (eql mrc :seq))
      ; (print " lnd= scalar mrc= seq")
@@ -116,39 +110,15 @@
      ; (write strm (char 0x0a))
      )
     ((and (eql lnd :seq) (eql ctype :scalar) (/= mcnt ncnt))
-     ; (print " lnd= seq ctype= scalar puts '-' mrc " mcnt " ncnt " ncnt)
      (dec-indent)
      (default-writer "-" strm)
      (inc-indent))
-    ; Sequence following scalar
-    ; ((and (or
-    ;         (eql lnd :scalar)
-    ;         (eql lnd :value)
-    ;         (eql lnd :seq))
-    ;       (or
-    ;         (eql ctype :seq)
-    ;         (eql mrc :seq)))
-    ;  (print " lnd= scalar | value, mrc= seq write")
-    ;  (write strm
-    ;         (str
-    ;           (padp-indent) "-" (char 0x0a)
-    ;           ; (pad-indent) "-")
-    ;         )))
     ((and (eql ctype :seq) (eql lnd :seq))
      (print " ctype= seq lnd= seq write CRAZY BIRD")
      (write strm
             (str
               (padp-indent) "-" (char 0x0a)
               (pad-indent) "-")))
-    ; Sequence following sequence
-    ; ((eql lnd :seq)
-    ;  (print " lnd= seq write")
-    ;  (write strm
-    ;         (str
-    ;           (padp-indent) "-" (char 0x0a)
-    ;           ; (pad-indent) "-")
-    ;         )))
-     ; (write strm (str (char 0x0a) (pad-indent) "- ")))
     (t
       (throw "Unknown " (list lnd mrc ctype)))))
 
