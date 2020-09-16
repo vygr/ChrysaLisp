@@ -1,13 +1,20 @@
 (import 'lib/date/timezones.inc)
 
+;To use this libary, you must first declare a local_timezone using timezone-init. You will need a 
+;location, not a 3 letter code, as they aren't necessarily what you'd expect "CST" is not
+;Central Standard Time. 
+
+;You can use timezone-lookup to find a location near you. 
+;Locations with spaces in the name may contain an underscore (eg New_York).
+
 ;Currently defined only for time since unix epoch Jan 1, 1970
 (structure '+time 0
 	(byte 'second+ 'minute+ 'hour+ 'date+ 'month+ 'year+ 'week+ 'dls+ 'tz+))
 
-;NOTE: variables tz_abbr and offset must be defined to encode or read encoded dates.
-;offset shoul
-(defq unix_epoch '(0 0 0 1 0 1970 0)  days_per_year 365 days_per_leap_year 366 offset 0
-	week_abbr (list "Sun" "Mon" "Tue" "Wed" "Thu" "Fri" "Sat")
+(structure '+tz 0
+	(byte 'abbreviation+ 'offset+ 'dls+ 'title+ `locations+))
+
+(defq unix_epoch '(0 0 0 1 0 1970 0) dls_flag nil week_abbr (list "Sun" "Mon" "Tue" "Wed" "Thu" "Fri" "Sat")
 	month_abbr (list "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug" "Sep" "Oct" "Nov" "Dec"))
 
 ;for decoding date string integers
@@ -23,11 +30,52 @@
 		(if isneg (setq final (- 0 final)))
 		final))
 
-;timezone-lookup will attempt to lookup tz and find offset
-(defmacro-bind timezone-lookup (tz)
-	`(let ((offset 0))
-			(each (lambda (_) (if (eql ,tz (elem 0 _)) (setq offset (elem 1 _)))) timezones)
-			offset))
+;returns the first list as out by finding v at elem n of a list within in.
+(defun-bind get-by-val (n v in)
+	(let ((out nil))
+		(cond 
+			((lst? (defq element (elem n (elem 0 in))))
+				(each (lambda (e) (if (elem-find v (elem +tz_locations+ e)) (setq out e))) in))
+			((num? element) (each (lambda (e) (if (=  (elem n e) v) (setq out e))) in))
+			(t (each (lambda (e) (if (eql (elem n e) v) (setq out e))) in)))
+		out))
+
+;returns first occurrence index or nil if not found
+(defmacro-bind elem-find (v in)
+	`(let ((out nil))
+		(each (lambda (e_) (if (eql e_ ,v) (unless out (setq out _)))) ,in)
+			out))
+
+;timezone-lookup will attempt return tz list
+(defmacro-bind timezone-lookup (p v)
+	`(if (not ,p)
+			(get-by-val +tz_abbreviation+ ,v timezones)
+			(cond
+				((eql ,p :abbreviation) (get-by-val +tz_abbreviation+ ,v timezones))
+				((eql ,p :offset) (get-by-val +tz_offset+ ,v timezones))
+				((eql ,p :title) (get-by-val +tz_title+ ,v timezones))
+				((eql ,p :location) (get-by-val +tz_locations+ ,v timezones))
+				(t nil))))
+
+;find tz element from tz
+(defmacro-bind timezone-get (tz p)
+	`(cond
+		((eql ,p :abbreviation) (elem +tz_abbreviation+ ,tz))
+		((eql ,p :offset) (elem +tz_offset+ ,tz))
+		((eql ,p :title) (elem +tz_title+ ,tz))
+		((eql ,p :locations) (elem +tz_locations+ ,tz))
+		(t nil)))
+
+;timezone-init creates
+(defmacro-bind timezone-init (tz_loc)
+	`(let ((ltz (list)))
+		(setq ltz (timezone-lookup :location ,tz_loc))
+		(elem-set +tz_locations+ ltz ,tz_loc)
+		(def (penv (env)) 'local_timezone ltz)))
+
+;sets the timezone to a given timezone list. tzr must be a valid +tz structure
+(defmacro-bind timezone-set (tz)
+	`(setq offset (elem +tz_offset+ ,tz)))
 
 ;ensure that leapyears are not divisible by 100 unless also divisible by 400.
 (defmacro-bind leapyear? (y)
@@ -89,9 +137,10 @@
 		(eql (and (not (= _ 5)) (or (> a_ (elem _ maxarg)) (< a_ (elem _ minarg)))) t)) td))
 
 ;takes a time value in seconds or uses default (time)
-(defun-bind date (&optional ts)
-	(when (not ts) (defq ts (/ (time) 1000000)))
-	(defq seconds ts minutes (+ offset (/ seconds 60))
+(defun-bind date (&optional secs)
+	(defq seconds (/ (time) 1000000))
+	(if secs (setq seconds secs))
+	(defq seconds (/ (time) 1000000) minutes (+ (* 60 (elem +tz_offset+ local_timezone)) (/ seconds 60))
 		hours (/ minutes 60) days (/ hours 24) weeks (/ days 7))
 	(bind '(monthday month year) (get-date days))
 	(list (% seconds 60) (% minutes 60) (% hours 24) monthday month year (get-weekday days)))
@@ -101,7 +150,7 @@
 	(when (check-date td)
 		(cat (day-of-the-week wk) " " (month-of-the-year mo) " " 
 			(str dy) " " (pad h 2 "0") ":" (pad m 2 "0") ":" (pad s 2 "0") " " 
-			tz_abbr " " (str yr))))
+			(elem +tz_abbreviation+ local_timezone) " " (str yr))))
 
 (defun-bind decode-date (dts)
 	(defq space_split (split dts " ") rdt (list) index 0)
