@@ -7,8 +7,6 @@
 
 ;read args from parent. display and clock can both be t or one be nil.
 (bind '(display clock scale) (mail-read (task-mailbox)))
-;creates local_timezone
-(timezone-init *env_clock_timezone*)
 
 (defq seconds 0.0 second 0 minutes 0.0 minute 0 hours 0.0 hour 0 dotw (str) face (list) eps 0.25)
 
@@ -65,7 +63,8 @@
 		(canvas-fpoly clock 0.0 0.0 0 _))
 
 (defun-bind main ()
-	(defq offset (timezone-lookup *env_clock_timezone*))
+	;creates local_timezone
+	(timezone-init *env_clock_timezone*)
 	(make-time)
 	(if clock
 			(create-clockface))
