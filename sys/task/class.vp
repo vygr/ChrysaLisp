@@ -426,8 +426,9 @@
 	;start task
 	(call 'sys_str :length {name} {_, len})
 	(call 'sys_mail :alloc {len + 1 + kn_msg_open_size} {msg, data})
-	(call 'sys_kernel :id nil {msg->msg_dest.id_id})
-	(assign {msg->msg_dest.id_id} {data->kn_msg_reply_id.id_cpu})
+	(call 'sys_kernel :id nil {msg->msg_dest.id_cpu})
+	(assign {0} {msg->msg_dest.id_mbox})
+	(assign {msg->msg_dest.id_cpu} {data->kn_msg_reply_id.id_cpu})
 	(assign {mbox_id} {data->kn_msg_reply_id.id_mbox})
 	(assign {type} {data->kn_msg_func})
 	(call 'sys_mem :copy {name, &data->kn_msg_open_pathname, len + 1})

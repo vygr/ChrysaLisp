@@ -3760,6 +3760,18 @@ trashes
 r1-r9
 ```
 
+### list::print -> class/list/print
+
+```lisp
+inputs
+r0 = list object (ptr)
+r1 = stream object (ptr)
+outputs
+r0 = list object (ptr)
+trashes
+r1-r14
+```
+
 ### list::lisp_list -> class/list/lisp_list
 
 ```lisp

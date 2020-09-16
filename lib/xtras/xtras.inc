@@ -7,6 +7,11 @@
 
 ; Predicates
 
+(defun-bind nil? (_)
+  ; (nil? o) -> bool
+  ; Returns true if nil
+  (eql _ nil))
+
 (defun-bind neg? (_)
   ; (neg? num) -> bool
   ; Returns true if negative number
@@ -52,27 +57,8 @@
   ; Returns true if argument is a properties type
   (when (and
     (lst? _)
-      (> (length _) 2)
       (eql (getp _ :super_clz) :clz_properties))
     t))
-
-(defun-bind seq? (_)
-  ; (seq? form) -> bool
-  ; Returns true if argument is a sequence type (list or string)
-  (or (lst? _) (str? _)))
-
-(defun-bind empty? (_)
-  ; (empty? form) -> bool
-  ; Returns true if form is empty
-  (cond
-    ((dict? _) (empty? (tolist _)))
-    ((seq? _) (= (length _) 0))
-    (t t)))
-
-(defun-bind nempty? (_)
-  ; (nempty? form) -> bool
-  ; Returns true if form is not empty
-  (not (empty? _)))
 
 (defun-bind def? (_ &optional e)
   ; (def? sym [env]) -> bool
@@ -91,6 +77,11 @@
   ; Returns true if argument is a keyword
   (and (sym? _) (starts-with ":" _)))
 
+(defun-bind truthy? (_)
+  (cond
+    ((lst? _) (nempty? _))
+    (t (not (nil? _)))))
+
 ; Convenience
 
 (defun-bind ident (_)
@@ -101,6 +92,16 @@
   (if (and (not (kw? _)) (or (str? _) (sym? _)))
     (sym (str ":" _))
     (throw "Expected symbol or string, found " _)))
+
+(defun-bind strip-rest (in-args)
+  ; (strip-rest in-args)
+  ; Returns inner list if nested from passing
+  ; arguments through multiple &rest constructs
+  (if (and
+        (nempty? in-args)
+        (lst? (first in-args)))
+      (first in-args)
+      in-args))
 
 ; Sequence forms
 
@@ -122,7 +123,7 @@
         (times cnt (push nl (pop base)))
         (push res nl))
       res)
-    (t seq)))
+    (t (list seq))))
 
 ; (defun-bind unions (&rest lists)
 ;   ; (unions [list]...) -> list
@@ -140,7 +141,9 @@
   (push pairs :super_clz :clz_properties)
   `(list ~pairs))
 
-(defun-bind prop-entries (_)
+(defun-bind entries (_)
+  ; (entries properties) -> entry list
+  ; Returns a list of entries where each entry: (key value)
   (when (props? _)
     (defq c (chunk 2 _))
     (reduce (lambda (acc e)
@@ -149,24 +152,22 @@
         (push acc e)))
       c (list))))
 
-(defun-bind prop-keys (prop)
-  ; (prop-keys prop) -> key list
-  (map (#(elem 0 %0)) (prop-entries prop)))
+(defun-bind keys (prop)
+  ; (keys properties) -> key list
+  (map (#(elem 0 %0)) (entries prop)))
 
-(defun-bind prop-values (prop)
-  ; (prop-keys values) -> value list
-  (map (#(elem 1 %0)) (prop-entries prop)))
+(defun-bind values (prop)
+  ; (values properties) -> value list
+  (map (#(elem 1 %0)) (entries prop)))
 
 (defun-bind efind (p k)
   ; (efind properties key) -> index | nil
+  ; Returns the index of key in properties
   ; Used when keys are number and/or string
   (defq fx nil)
-  ; (print k)
   (each! 0 -1
     (lambda (s)
-      ; (print s)
       (when (eql s k)
-        ; (print "(eql s k) => "(eql s k))
         (setq fx _))) (list p))
   fx)
 
@@ -181,8 +182,8 @@
     (t nil))
   (if fx (elem (inc fx) p) (opt nil if_nil)))
 
-(defun-bind get-in (p &rest kws)
-  ; (get-in (properties kw...)) -> value | nil
+(defun-bind getp-in (p &rest kws)
+  ; (getp-in (properties kw...)) -> value | nil
   ; Returns the value in a nested properties structure
   ; where kws is a sequence (list) of keys. Returns nil
   ; if a key is not present
@@ -191,7 +192,7 @@
     ((not (props? p))
       (throw "Not a properties structure " p))
     ((empty? kws)
-      (throw "No keys argument provided " kws))
+      (throw "No keys path provided " kws))
     (t
       (defq
         keep_going t
@@ -219,7 +220,7 @@
   (defq ki (if (kw? k) (find k p) (efind p k)))
   (if (not ki)
     (if add_if_nil
-      (push (push p k) v)
+      (push p k v)
       (throw (str "Key " k " does not exist") p))
     (elem-set (inc ki) p v))
   p)
@@ -228,6 +229,47 @@
   ; (setsp properties [k v] ...) -> properties
   (each (#(setp! p (first %0) (second %0) t)) (chunk 2 pairs))
   p)
+
+(defun-bind setsp-in! (p val &rest kws)
+  ; (setsp-in! properties value kw...) -> properties
+  ; Sets the value in a nested properties structure
+  ; where kws is a sequence of keys.
+  (cond
+    ((not (props? p))
+      (throw "Not a properties structure " p))
+    ((empty? kws)
+      (throw "No keys path provided " kws))
+    (t
+      (defq
+        keep_going t
+        last_nest  p
+        pick (reverse kws)
+        fkw  (last pick)
+        trg  (first pick))
+      (while (and keep_going (not (empty? pick)))
+        (defq v (getp last_nest fkw))
+        (pop pick)
+        (cond
+          ((not v)
+            (setq keep_going nil))
+          ((empty? pick)
+            (if (eql trg fkw)
+              (setp! last_nest trg val))
+            (setq keep_going nil))
+          (t (setq
+            fkw       (last pick)
+            last_nest v))))))
+  p)
+
+(defun-bind pmerge (&rest props)
+  ; (pmerge properties...) -> properties
+  ; Returns a new properties structure that consists of
+  ; the rest of the properties structures merged into
+  ; it
+  (reduce
+    (#(each (lambda (e)
+      (setp! %0 (first e) (second e) t)) (chunk 2 %1)))
+    props (properties)))
 
 (defun-bind movekpf! (p sp ep)
   ; (movekpf properties start-key-index end-key-index)
@@ -251,7 +293,7 @@
 
 (defun-bind pdrop! (p k)
   ; (pdrop properties key) -> properties
-
+  ; Drops a properties key/pair
   (when (props? p)
     (defq
       sp (efind p k)
@@ -260,142 +302,11 @@
       (movekpf! p sp ep)
       (times 2 (pop p)))))
 
-; Dictionary forms
-
-(defun-bind dict-entries (e)
-  ; (dict-entries e) -> list
-  ; Returns list of properties for e
-  (tolist e))
-
-(defmacro-bind make-dict (name &rest pairs)
-  ; (make-dict name [:key val...]) -> dictionary
-  ; Creates a new dictionary with optional property value pairs
-  (if (> (length pairs) 0)
-    `(progn
-      (defq ,name (env -1)) (def ,name ~pairs) ,name)
-    `(defq ,name (env -1))))
-
-(defmacro-bind dictionary (&optional bk)
-  ; (dictionary [blocks | -blocks]) -> dictionary
-  (setd bk -1)
-  `(env ,bk))
-
-(defun-bind to-dict (seq1 seq2)
-  ; (to-dict seq1 seq2) -> dictionary
-  (defq td (dictionary))
-  (each (# (def td (first %0) (second %0))) (map list seq1 seq2))
-  td)
-
-(defun-bind dict-get (dict property &optional ifnil)
-  ; (dict-get dict property &optional ifnil) -> nil | ifnil
-  ; Returns a property or optional ifnil value
-  (defq tmp (get property dict))
-  (when (not tmp)
-    (setq tmp ifnil))
-  tmp)
-
-(defun-bind dict-drop! (dict &rest dkeys)
-  ; (dict-drop! dict key...) -> dictionary
-  (each (#(undef dict %0)) dkeys)
-  dict)
-
-(defun-bind dict-put! (dict property value &optional add_ifnil)
-  ; (dict-put dict property value &optional add_ifnil) -> dictionary
-  ; Updates the property value of a dictionary
-  (if (not (get property dict))
-    (if add_ifnil
-      (def dict property value))
-    (set dict property value))
-  dict)
-
-(defmacro-bind dict-puts! (dict &rest pairs)
-  `(def ,dict ~pairs))
-
-(defun-bind dict-merge (&rest dlist)
-  ; (dict-merge dict0 ...) -> list
-  ; Merges multiple dictionaries to a list of property lists
-  (defq
-    ebase (dict-entries (first dlist))
-    kset  (list))
-  (each (lambda (el) (push (push kset (first el)) _)) ebase)
-  (each (lambda (el)
-    (reduce (lambda (acc el)
-      (defq hit (find (first el) kset))
-      (cond
-        (hit
-          (elem-set 1 (elem (elem (inc hit) kset) acc) (second el))
-          acc)
-        (t
-          (push (push kset (first el)) (/ (length kset) 2))
-          (push acc el)))) el ebase)) (map dict-entries (rest dlist)))
-  ebase)
-
-(defun-bind dict-merge-to! (dict &rest dlist)
-  ; (dict-merge-to dict dict0 ...) -> dictionary
-  ; Merges multiple dictionaries to a dictionary
-  (reduce (lambda (acc el) (def acc (first el) (second el)) acc)
-    (apply dict-merge dlist) dict))
-
-(defun-bind dict-keys (dict)
-  ; (dict-keys dict) -> key list
-  (map (#(elem 0 %0)) (dict-entries dict)))
-
-(defun-bind dict-values (dict)
-  ; (dict-values dict) -> value list
-  (map (#(elem 1 %0)) (dict-entries dict)))
-
-; Normalize some dictionary and properties functions
-
-(defun-bind entries (e)
-  ; (entries e) -> ((k v) ...) | nil
-  (cond
-    ((dict? e)
-      (dict-entries e))
-    ((props? e)
-      (prop-entries e))
-    (t nil)))
-
-(defun-bind entry-cnt (e)
-  ; (entry-cnt e) -> num
-  (cond
-    ((dict? e)
-      (length (dict-entries e)))
-    ((props? e)
-      (dec (/ (length e) 2)))
-    (t 0)))
-
-(defun-bind keys (e)
-  ; (keys e) -> list | nil
-  (cond
-    ((dict? e)
-      (dict-keys e))
-    ((props? e)
-      (prop-keys e))
-    (t nil)))
-
-(defun-bind values (e)
-  ; (values e) -> list | nil
-  (cond
-    ((dict? e)
-      (dict-values e))
-    ((props? e)
-      (prop-values e))
-    (t nil)))
-
-; Test cases
-; (make-dict foo :a 0 :b 1) ; -> ((:a 0) (:b 1))
-; (make-dict bar :a 2 :c 3) ; -> ((:a 2) (:c 3))
-; (make-dict baz :d 5 :c 7) ; -> ((:d 5) (:c 7))
-; (dict-merge foo bar baz)  ; -> ((:b 1) (:a 2) (:c 7) (:d 5))
-; (apply dict-merge (list foo bar baz))  ; -> ((:b 1) (:a 2) (:c 7) (:d 5))
-; (dict-merge-to! (make-dict bingo) foo bar baz) ; -> ((:d 5) (:b 1) (:a 2) (:c 7))
-; (dict-drop! bingo :d :c)
-
 ; Privatize functions
 
 (defmacro private (nm)
   ; (private nm) -> env
-  `(macroexpand (make-dict ,nm)))
+  `(macroexpand (defq ,nm (env -1))))
 
 (defmacro defunp (e n a &rest _)
   ; (defunp env name args form) -> lambda

@@ -185,6 +185,9 @@
 (defmacro-bind env? (_)
 	;(env? form) -> t|nil
 	`(= (type-of ,_) ,lisp_type_env))
+(defmacro-bind seq? (_)
+	;(seq? form) -> t|nil
+	`(or (= (defq ,(defq __ (gensym)) (type-of ,_)) ,lisp_type_lst) (= ,__ ,lisp_type_str)))
 
 (defmacro-bind inc (_)
 	;(inc num) -> num
@@ -402,25 +405,41 @@
 	;(notevery lambda seq ...) -> t|nil
 	(not (some! 0 -1 nil _f _)))
 
+(defun-bind empty? (_)
+	;(empty? form) -> bool
+	; Returns true if form is empty
+	(cond ((seq? _) (= (length _) 0)) (t)))
+
+(defun-bind nempty? (_)
+	;(nempty? form) -> bool
+	; Returns true if form is not empty
+	(cond ((seq? _) (/= (length _) 0))))
+
 ;;;;;;;;;;;
 ; Sequences
 ;;;;;;;;;;;
 
-(defmacro-bind first (s)
-	;(first seq) -> el
-	`(elem 0 ,s))
+(defun-bind first (_)
+	;(first seq) -> el | nil
+	; Returns first element if sequence not empty, otherwise nil
+	(if (> (length _) 0) (elem 0 _)))
 
-(defmacro-bind second (s)
-	;(second seq) -> el
-	`(elem 1 ,s))
+(defun-bind second (_)
+	;(second seq) -> el | nil
+	; Returns second element if sequence not empty and has
+	; more than one element, otherwise nil
+	(if (> (length _) 1) (elem 1 _)))
 
-(defmacro-bind last (s)
-	;(last seq) -> el
-	`(elem -2 ,s))
+(defun-bind last (_)
+	;(last seq) -> el | nil
+	; Returns last element if sequence not empty, otherwise nil
+	(if (> (length _) 0) (elem -2 _)))
 
-(defmacro-bind rest (s)
+(defun-bind rest (_)
 	;(rest seq) -> seq
-	`(slice 1 -1 ,s))
+	; Returns seq from seq after dropping first element
+	; if not empty, otherwise an empty list
+	(if (> (length _) 0) (slice 1 -1 _) (list)))
 
 (defun-bind erase (s b e)
 	;(erase seq start end) -> seq
@@ -678,18 +697,6 @@
 		((s us) 2)
 		((b ub) 1)
 		(t 8)))
-
-;;;;;;;;
-; Tuples
-;;;;;;;;
-
-(defmacro-bind tuple-set (_i _l _v)
-	;(tuple-set index list value)
-	(list 'elem-set (eval (macroexpand (eval _i))) _l _v))
-
-(defmacro-bind tuple-get (_i _l)
-	;(tuple-get index list) -> value
-	(list 'elem (eval (macroexpand (eval _i))) _l))
 
 ;;;;;;;;;
 ; Streams

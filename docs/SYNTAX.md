@@ -404,6 +404,10 @@
 
 (elem-set index list val)
 
+## empty?
+
+(empty? form) -> bool
+
 ## ends-with
 
 (ends-with str str) -> t|nil
@@ -466,7 +470,7 @@
 
 ## first
 
-(first seq) -> el
+(first seq) -> el | nil
 
 ## fixeds
 
@@ -566,7 +570,7 @@
 
 ## import
 
-(import path)
+(import path [env])
 
 ## in-get-state
 
@@ -610,7 +614,7 @@
 
 ## last
 
-(last seq) -> el
+(last seq) -> el | nil
 
 ## length
 
@@ -731,6 +735,10 @@
 ## neg
 
 (neg num)
+
+## nempty?
+
+(nempty? form) -> bool
 
 ## nlo
 
@@ -1038,7 +1046,11 @@
 
 ## second
 
-(second seq) -> el
+(second seq) -> el | nil
+
+## seq?
+
+(seq? form) -> t|nil
 
 ## set
 
@@ -1199,14 +1211,6 @@
 ## trim-start
 
 (trim-start str [str]) -> str
-
-## tuple-get
-
-(tuple-get index list) -> value
-
-## tuple-set
-
-(tuple-set index list value)
 
 ## type-of
 

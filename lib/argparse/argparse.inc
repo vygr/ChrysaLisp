@@ -60,7 +60,7 @@
 
 (defun-bind get-class (self)
   ; (get-class self) -> :clz_n | :clz_unknown
-  (dict-get self :clz :clz_unknown))
+  (getp self :clz :clz_unknown))
 
 ; Validation
 
@@ -70,7 +70,7 @@
 
 (defun-bind validate-count (inst val)
   ; (validate-count arg-clz val) -> t | exception
-  (when (= (dict-get inst :counter) 0)
+  (when (= (getp inst :counter) 0)
     (throw (str (get-class inst) " not expecting value") val))
   t)
 
@@ -162,16 +162,15 @@
     (throw "Validation: file exists error" filename))
   filename)
 
-(defmacro-bind base-obj (&optional name)
-  (defq nm (if name name (gensym)))
-  `(macroexpand (make-dict ,nm)))
+; (defmacro-bind base-obj (&optional name)
+;   (defq nm (if name name (gensym)))
+;   `(macroexpand (make-dict ,nm)))
 
 ; Main argparse structure template
 
 (defun-bind parser-dict()
   ; (parser-dict) -> dict
-  (defq pd (base-obj))
-  (def pd
+  (properties
     :clz :clz_processor   ; Argparse class
     :arguments (list)     ; Collection of arguments
     :commands (list)      ; Collection of commands
@@ -182,13 +181,11 @@
     :counter +no_count+   ; Max freeform input
     :validator validate-none       ; Free form value validator
     :handler noop         ; Handler for resulting parsed input
-    :help "")             ; Placeholder for help text
-  pd)
+    :help ""))             ; Placeholder for help text
 
 (defun-bind cmd-dict()
   ; (cmd-dict) -> dict
-  (defq cd (base-obj))
-  (def cd
+  (properties
     :clz :clz_command     ; Argparse class
     :arguments (list)     ; Collection of arguments
     :command ""           ; Command string
@@ -197,13 +194,11 @@
     :dest :command        ; Results key
     :validator validate-none       ; Validation function
     :handler noop         ; Handler for resulting parsed input
-    :help "")             ; Placeholder for help text
-  cd)
+    :help ""))             ; Placeholder for help text
 
 (defun-bind arg-dict()
   ; (arg-dict) -> dict
-  (defq ad (base-obj))
-  (def ad
+  (properties
     :clz :clz_argument    ; Argparse class
     :argument nil         ; The :argument flags e.g. ("-s" "--string")
     :required nil         ; Required ?
@@ -211,21 +206,20 @@
     :dest :argument       ; Results key
     :validator noop       ; Validator function
     :handler noop         ; Handler function
-    :help "")             ; Placeholder for help text
-  ad)
+    :help ""))             ; Placeholder for help text
 
 (defun-bind set-properties (self &rest in_props)
   ; (set-properties self [in_prop]) -> self
   (defq props (reverse in_props))
   (if (/= (logand (length props ) 1) 1)
     (while (/= (length props) 0)
-           (dict-put! self (pop props) (pop props) t))
+           (setp! self (pop props) (pop props) t))
     (throw "Uneven property pairs" in_props))
   self)
 
 (defun-bind extend (self property value)
   ; (extend self property value)
-  (defq container (dict-get self property))
+  (defq container (getp self property))
   (when container
     (push container value))
   self)
@@ -242,9 +236,9 @@
   ; (container-for self value container property)
   ; For a containing type, find a match of
   ; value for a specific properties value
-  (defq res (dict-get self container '()))
+  (defq res (getp self container '()))
   (some (lambda (el)
-                (defq argp (dict-get el property))
+                (defq argp (getp el property))
                 (if (or (sfind value argp) (eql value argp))
                     el))
               res))
@@ -259,8 +253,8 @@
   ; (consume-argument root self argstack result)
   (defq
     myflag (stack-pop argstack)
-    argcnt (dict-get self :counter))
-  (push result (dict-get self :dest))
+    argcnt (getp self :counter))
+  (push result (getp self :dest))
   (when (> argcnt 0)
     (defq
       cnt 0
@@ -270,7 +264,7 @@
         (not (stack-empty? argstack))
         (< cnt argcnt)
         (not (get-either-container root (stack-peek argstack))))
-          (push inner ((dict-get self :validator) self (stack-pop argstack)))
+          (push inner ((getp self :validator) self (stack-pop argstack)))
           (setq cnt (inc cnt)))
     (if (= cnt argcnt)
       (merge-obj result inner)
@@ -280,9 +274,9 @@
 (defun-bind consume-command (root self argstack result)
   ; (consume-command root self argstack result)
   (stack-pop argstack)
-  (if (defq cmdi (dict-get self :handler))
+  (if (defq cmdi (getp self :handler))
       (push result cmdi)
-      (push result (dict-get self :dest)))
+      (push result (getp self :dest)))
   (defq cmdres (list))
   (push result (walk self argstack cmdres))
   argstack)
@@ -304,17 +298,17 @@
            ((isarg? current)
             (throw "Unrecognized flag " current))
            (t (progn
-            (push result ((dict-get self :validator) self (stack-pop arglist)))))))
+            (push result ((getp self :validator) self (stack-pop arglist)))))))
   result)
 
 (defun-bind process-args (self arglist)
   ; (process-args self arglist)
   (defq
     workers (or
-      (> (length (dict-get self :arguments)) 2)
-      (> (length (dict-get self :commands)) 0)
-      (> (dict-get self :counter) +no_count+))
-    hndlr (dict-get self :handler)
+      (> (length (getp self :arguments)) 2)
+      (> (length (getp self :commands)) 0)
+      (> (getp self :counter) +no_count+))
+    hndlr (getp self :handler)
     rarg  (reverse arglist))
   (if (and arglist workers)
       (progn
@@ -325,26 +319,26 @@
 (defun-bind argcontains (self argstring)
   (reduced-reduce
     (lambda (acc el)
-      (if (sfind argstring (dict-get el :argument))
+      (if (sfind argstring (getp el :argument))
           (reduced el)
           nil))
-    (dict-get self :arguments) '()))
+    (getp self :arguments) '()))
 
 (defun-bind parse (self)
   ; (parse self)
   ; Parses and optionally executes :command line
-  (defq inarg (dict-get self :in_args))
+  (defq inarg (getp self :in_args))
   (cond
     ((opt
        (sfind "-h" inarg)
        (sfind "--help" inarg))
-      ((dict-get (argcontains self "-h") :handler) self))
+      ((getp (argcontains self "-h") :handler) self))
     ((opt
        (sfind "-v" inarg)
        (sfind "--version" inarg))
-      ((dict-get (argcontains self "-v") :handler) self))
+      ((getp (argcontains self "-v") :handler) self))
     ((stack-empty? inarg)
-       ((dict-get (argcontains self "-h") :handler) self))
+       ((getp (argcontains self "-h") :handler) self))
     (t
       (let ((cargs (copy inarg)))
         (catch (process-args self cargs) (print _))))))
@@ -360,17 +354,17 @@
   (if (= (length cmds) 0)
     "{}"
     (str "{" (join (reduce (lambda (acc el)
-              (push acc (dict-get el :command))) cmds (list))
+              (push acc (getp el :command))) cmds (list))
         ",") "}")))
 
 (defun-bind format-usage-str (self arglist cmdstr)
   ; (format-usage-str self arglist cmdstr) -> "usage ..."
   (str (reduce
          (lambda (acc el)
-           (cat acc (str "[" (first (dict-get el :argument)) "] ")))
+           (cat acc (str "[" (first (getp el :argument)) "] ")))
          arglist
          (str "usage: "
-          (dict-get self :application)
+          (getp self :application)
           " "))
     cmdstr " ..."))
 
@@ -378,19 +372,19 @@
   ; (dump-help self)
   ; Spits the :help tree
   (defq
-    arglist (dict-get self :arguments)
-    cmdlist (dict-get self :commands)
+    arglist (getp self :arguments)
+    cmdlist (getp self :commands)
     cmdstr  (format-command-str cmdlist))
   ; Print usage string
   (print (format-usage-str self arglist cmdstr))
   ; Print :application :help
-  (print +nl+ (dict-get self :help) +nl+)
+  (print +nl+ (getp self :help) +nl+)
   ; Print argparse :arguments
   (print "optional arguments:")
   (print (reduce (lambda (acc el)
-                 (defq args (dict-get el :argument))
+                 (defq args (getp el :argument))
                  (cat acc
-                      (format-row (join args ",") (dict-get el :help))
+                      (format-row (join args ",") (getp el :help))
                       +nl+))
                  arglist ""))
   ; Print argparse :commands
@@ -401,8 +395,8 @@
            (reduce (lambda (acc el)
                      (cat acc
                           (format-row
-                            (dict-get el :command)
-                            (dict-get el :help))
+                            (getp el :command)
+                            (getp el :help))
                           +nl+))
                    cmdlist "")))
   (list "-h"))
@@ -410,25 +404,23 @@
 (defun-bind dump-version (self)
   ; (dump-version self)
   ; Spit the :version
-  (print (dict-get self :application)
+  (print (getp self :application)
          (pad "" +indent2+)
-         (dict-get self :version))
+         (getp self :version))
   (list "-v"))
 
 (defun-bind create-argument (args arg_help &optional handler_fn)
   ; Create :argument block
-  (defq instance (arg-dict))
-  (set-properties instance
-                  :argument args
-                  :help arg_help
-                  :handler (opt handler_fn noop)))
+  (setsp! (arg-dict)
+    :argument args
+    :help arg_help
+    :handler (opt handler_fn noop)))
 
 (defun-bind create-command (cmds cmd_help)
   ; Create :command block
-  (defq instance (cmd-dict))
-  (set-properties instance
-                  :command cmds
-                  :help cmd_help))
+  (setsp! (cmd-dict)
+    :command cmds
+    :help cmd_help))
 
 (defun-bind create-argparse (app_name app_version argstring)
   ; Creates the :argument processor
@@ -445,7 +437,7 @@
   ; Settings (can be overridden)
   (add-argument instance ha)
   (add-argument instance va)
-  (set-properties instance
-                  :application app_name
-                  :version app_version
-                  :in_args (reverse argstring)))
+  (setsp! instance
+    :application app_name
+    :version app_version
+    :in_args (reverse argstring)))

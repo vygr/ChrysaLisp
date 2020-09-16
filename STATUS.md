@@ -33,6 +33,19 @@ corrupted.
 constants that follow the conventional +xyz+ standard will now be bound to the
 hard value within (defun-bind) functions.
 
+`yaml-data` now supports reading and writing of fundamental YAML data
+constructs. This update also introduced various additions of general functions
+to the `xtras` library.
+
+Removed (tuple-get) and (tuple-set) in favour of new constant bindings.
+
+Fixed multi GUI instance launching.
+
+Corrected (seq?) macro multi parameter (eval) issue and converted (first)
+(second) (last) and (rest) to functions.
+
+Fix Whiteboard demo after removal of (tuple-set/get).
+
 ------
 
 Added (gui-info) to return current mouse position and gui screen dimensions,

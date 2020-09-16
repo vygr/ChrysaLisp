@@ -10,7 +10,6 @@
       (throw (str "Expected '" ctype "' found " (first node)))))
 
 (defun construct-scalar (acc node)
-  ; (print "    scalar node " node)
   (push acc node))
 
 (defun construct-key (acc node)
@@ -47,11 +46,11 @@
 
 (defq cjmp
   (properties
-    :scalar construct-scalar
-    :key    construct-key
-    :value  construct-value
-    :entry  construct-entry
-    :list   construct-list
+    :scalar     construct-scalar
+    :key        construct-key
+    :value      construct-value
+    :entry      construct-entry
+    :list       construct-list
     :properties construct-properties))
 
 (defun cdisp (acc el)

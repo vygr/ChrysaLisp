@@ -65,6 +65,7 @@
 		(canvas-fpoly clock 0.0 0.0 0 _))
 
 (defun-bind main ()
+	(defq offset (timezone-lookup *env_clock_timezone*))
 	(make-time)
 	(if clock
 			(create-clockface))
