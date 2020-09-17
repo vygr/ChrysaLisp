@@ -48,33 +48,20 @@
 ; Reader
 
 (defun-bind yaml-construct (ast in-args)
-  ; (yaml-construct tokens in-args) -> list | exception | nil
-  ; Parses yaml tokensers and returns ChyrsaLisp objects
-  (defq
-    t0 (time)
-    res (construct ast in-args))
-  (print "Construct " (- (time) t0) " ns")
-  res)
+  ; (yaml-construct tokens in-args) -> object | exception | nil
+  ; Parses yaml tokens and returns ChyrsaLisp objects
+  (construct ast in-args))
 
 (defun-bind yaml-parse (tokens in-args)
   ; (yaml-parse tokens in-args) -> list | exception | nil
   ; Parses yaml tokensers and returns yaml AST
-  (defq
-    t0 (time)
-    res (parse tokens in-args))
-  (print "Parse " (- (time) t0) " ns")
-  res)
-
+  (parse tokens in-args))
 
 (defun-bind yaml-scan (ystring)
   ; (yaml-scan string) -> list | exception | nil
   ; Performs scan on string returning list of
   ; lexical yaml tokens
-  (defq
-    t0 (time)
-    res (scan ystring))
-  (print "Scan " (- (time) t0) " ns")
-  res)
+  (scan ystring))
 
 (defun-bind yaml-from-strg (ystring in-args)
   ; (yaml-read-string string in-args) -> list | exception | nil
