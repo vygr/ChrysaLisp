@@ -103,22 +103,18 @@
     ((and (eql ctype :scalar) (not (eql mrc :seq)))
      (write strm (char 0x0a)))
     ((and (eql lnd :scalar) (eql mrc :seq))
-     ; (print " lnd= scalar mrc= seq")
      (default-writer "-" strm))
-    ((and (eql lnd :seq) (eql ctype :scalar) (= mcnt ncnt))
-     ; (print " lnd= seq ctype= scalar puts ''")
-     ; (write strm (char 0x0a))
-     )
+    ((and (eql lnd :seq) (eql ctype :scalar) (= mcnt ncnt)))
     ((and (eql lnd :seq) (eql ctype :scalar) (/= mcnt ncnt))
      (dec-indent)
      (default-writer "-" strm)
      (inc-indent))
-    ((and (eql ctype :seq) (eql lnd :seq))
-     (print " ctype= seq lnd= seq write CRAZY BIRD")
-     (write strm
-            (str
-              (padp-indent) "-" (char 0x0a)
-              (pad-indent) "-")))
+    ; ((and (eql ctype :seq) (eql lnd :seq))
+    ;  (print " ctype= seq lnd= seq write CRAZY BIRD")
+    ;  (write strm
+    ;         (str
+    ;           (padp-indent) "-" (char 0x0a)
+    ;           (pad-indent) "-")))
     (t
       (throw "Unknown " (list lnd mrc ctype)))))
 

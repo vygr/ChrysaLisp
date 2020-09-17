@@ -29,14 +29,9 @@
      (write sstrm (str (getp ast :value) " ")))
     (t (throw "Unknown " ast))))
 
-(defun-bind serialize (obj)
-  ; (serialize object) -> string-stream
-  (defq
-    t0    (time)
-    sstrm (string-stream (cat ""))
-    cntxt (Context))
+(defun-bind serialize (obj sstrm)
+  ; (serialize object stream) -> stream
+  (defq cntxt (Context))
   (obj-to-node cntxt obj)
   (node-to-xchange-stream sstrm (getp cntxt :current))
-  (print "serialize " (- (time) t0) " ns")
-  (print (str sstrm))
   sstrm)

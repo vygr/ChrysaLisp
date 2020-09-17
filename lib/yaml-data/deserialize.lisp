@@ -76,12 +76,10 @@
 (defun-bind deserialize (sstrm)
   ; (deserialize stream) -> object
   (defq
-    t0  (time)
     sst (str sstrm)
     res nil)
   (when (> (length sst) 0)
     (when (not (eql (last sst) (char 0)))
       (setq sst (cat sst (char 0))))
     (setq res (lex-to-object (reverse sst))))
-  (print "Deserialize " (- (time) t0) " ns")
   res)
