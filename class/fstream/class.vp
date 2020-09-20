@@ -111,8 +111,7 @@
 
 	(vp-push r0)
 	(assign '((r0 stream_object)) '(r1))
-	(assign '((r1 str_length)) '(r2))
-	(call 'sys_pii :read '((r0 fstream_handle) (& r1 str_data) r2) '(r1))
+	(call 'sys_pii :read '((r0 fstream_handle) (& r1 str_data) (r1 str_length)) '(r1))
 	(vp-pop r0)
 	(vpif '(r1 = 0))
 		;eof
