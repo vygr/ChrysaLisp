@@ -261,6 +261,43 @@
             last_nest v))))))
   p)
 
+(defun-bind update-in! (p ufnc &rest kws)
+  ; (update-in! properties ufnc kw...)) -> value | nil
+  ; Updates the value found in the key-leaf of kws with the
+  ; result of calling ufnc with the current value
+  ; Returns nil if a key is not present
+  (defq hit nil)
+  (cond
+    ((not (props? p))
+      (throw "Not a properties structure " p))
+    ((empty? kws)
+      (throw "No keys path provided " kws))
+    (t
+      (defq
+        keep_going t
+        last_nest  p
+        pick (reverse kws)
+        fkw  (last pick))
+      (while (and keep_going (not (empty? pick)))
+        (defq v (getp last_nest fkw))
+        (pop pick)
+        (cond
+          ; If key not found exit
+          ((not v)
+            (setq keep_going nil))
+          ; Otherwise, if we are at leaf we
+          ; have our target entry
+          ((empty? pick)
+            (setq
+              keep_going nil
+              hit (ufnc (elem (inc (efind last_nest fkw)) last_nest)))
+            (setp! last_nest fkw hit))
+          (t
+            (setq
+              fkw       (last pick)
+              last_nest v))))))
+    hit)
+
 (defun-bind pmerge (&rest props)
   ; (pmerge properties...) -> properties
   ; Returns a new properties structure that consists of
@@ -271,8 +308,8 @@
       (setp! %0 (first e) (second e) t)) (chunk 2 %1)))
     props (properties)))
 
-(defun-bind movekpf! (p sp ep)
-  ; (movekpf properties start-key-index end-key-index)
+(defun-bind move-entry-forward! (p sp ep)
+  ; (move-entry-forward! properties start-key-index end-key-index)
   ; Moves the properties k/v pair forward from key index sp to index ep
   (while (/= sp ep)
     (defq tsp (+ sp 2))
@@ -281,8 +318,8 @@
     (setq sp tsp))
   p)
 
-(defun-bind movekpb! (p sp ep)
-  ; (movekpb properties start-key-index end-key-index)
+(defun-bind move-entry-backward! (p sp ep)
+  ; (move-entry-backward! properties start-key-index end-key-index)
   ; Moves the properties k/v pair backward from key index sp to index ep
   (while (/= sp ep)
     (defq tsp (- sp 2))
@@ -299,7 +336,7 @@
       sp (efind p k)
       ep (- (length p) 2))
     (when sp
-      (movekpf! p sp ep)
+      (move-entry-forward! p sp ep)
       (times 2 (pop p)))))
 
 ; Privatize functions
