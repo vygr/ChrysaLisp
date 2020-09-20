@@ -130,7 +130,7 @@ is scanning through the chars of the string and mixing them together into an
 
 Note the use of the instance field `str_hashcode` ! This starts life as 0 when
 a new `str` object is created. A `str` object is immutable (let's not debase
-ourselves with talk of what a `stream_str` is doing ;) ), so we could calculate
+ourselves with talk of what a `sstream` is doing ;) ), so we could calculate
 the hash code at create time yes ? Well yes we could but why bother ? We are
 wasting time calculating a hash code that might never get used ! So only if the
 `:hash` method is called are we going to calculate the value and cache it in

@@ -2,12 +2,13 @@
 (include 'sys/str/class.inc)
 (include 'class/str/class.inc)
 (include 'class/stream/class.inc)
-(include 'class/stream_str/class.inc)
+(include 'class/sstream/class.inc)
+(include 'class/fstream/class.inc)
 (include 'class/stdio/class.inc)
 (include 'class/num/class.inc)
 (include 'class/lisp/class.inc)
 
-(def-method 'stream :lisp_filestream)
+(def-method 'stream :lisp_iostream)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -17,7 +18,7 @@
 	;trashes
 	;r1-r14
 
-	(entry 'stream :lisp_filestream '(r0 r1))
+	(entry 'stream :lisp_iostream '(r0 r1))
 
 (errorcases
 	(call 'lisp :env_args_sig '(r1 ($ sig) 1) '(r2))
@@ -36,27 +37,22 @@
 		(call 'sys_str :compare '(r5 "stderr") '(r0))
 		(assign '((r8 lisp_stderr)) '(r1))
 		(breakif '(r0 = 0))
-		(default)
-			(call 'str :create_from_file '(r5) '(r0))
-			(assign '((r8 lisp_sym_nil)) '(r1))
-			(breakif '(r0 = 0))
-			(call 'stream_str :create '(r0) '(r1))
-			(break 'exit)
+		(assign '((r8 lisp_sym_nil)) '(r1))
 		(endswitch)
 		(class/obj/ref r1 r2)
 	(endswitch)
 
-	(exit 'stream :lisp_filestream '(r8 r1))
+	(exit 'stream :lisp_iostream '(r8 r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(file-stream path)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(r0 "(io-stream io)" error_msg_wrong_types r1))
 	(signature '(str)))
 
 (def-func-end)
 
-(def-method 'stream :lisp_strstream)
+(def-method 'stream :lisp_fstream)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -66,20 +62,56 @@
 	;trashes
 	;r1-r14
 
-	(entry 'stream :lisp_strstream '(r0 r1))
+	(entry 'stream :lisp_fstream '(r0 r1))
 
 (errorcases
 	(call 'lisp :env_args_sig '(r1 ($ sig) 1) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
-	(defq in (method-input 'stream_str :create))
+	(defq in (method-input 'fstream :create))
+	(list-bind-args r1 in '(str))
+	(call 'fstream :create in '(r1))
+	(vp-pop r0)
+	(vpif '(r1 = 0))
+		(assign '((r0 lisp_sym_nil)) '(r1))
+		(class/obj/ref r1 r2)
+	(endif)
+
+	(exit 'stream :lisp_fstream '(r0 r1))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp :repl_error '(r0 "(file-stream path)" error_msg_wrong_types r1))
+	(signature '(str)))
+
+(def-func-end)
+
+(def-method 'stream :lisp_sstream)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args list object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(entry 'stream :lisp_sstream '(r0 r1))
+
+(errorcases
+	(call 'lisp :env_args_sig '(r1 ($ sig) 1) '(r2))
+	(gotoif '(r2 = 0) 'error))
+
+	(vp-push r0)
+	(defq in (method-input 'sstream :create))
 	(list-bind-args r1 in '(obj))
 	(class/obj/ref (elem 0 in))
-	(call 'stream_str :create in '(r1))
+	(call 'sstream :create in '(r1))
 	(vp-pop r0)
 
-	(exit 'stream :lisp_strstream '(r0 r1))
+	(exit 'stream :lisp_sstream '(r0 r1))
 	(vp-ret)
 
 (errorcases
@@ -352,7 +384,7 @@
 	(errorcases
 		(call 'obj :inst_of (cat {value, @} (f-path 'num :vtable)))
 		(gotoif `(,(method-output 'obj :inst_of 1) = 0) 'error3))
-		(call 'stream_str :write {stream, &value->num_value, width})
+		(call 'sstream :write {stream, &value->num_value, width})
 	(endif)
 	(call 'obj :ref {stream})
 

@@ -16,7 +16,7 @@
 	(when (and
 			(defq stdio (create-stdio))
 			(defq args (options stdio usage)))
-		(defq stdin (file-stream 'stdin) stdout (file-stream 'stdout) stderr (file-stream 'stderr))
+		(defq stdin (io-stream 'stdin) stdout (io-stream 'stdout) stderr (io-stream 'stderr))
 		(if (<= (length args) 1)
 			;run asm.inc, and print sign on
 			(progn

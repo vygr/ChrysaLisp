@@ -604,6 +604,10 @@
 
 (int field ...)
 
+## io-stream
+
+(io-stream io)
+
 ## join
 
 (join list seq) -> seq
@@ -631,6 +635,10 @@
 ## load
 
 (load path)
+
+## load-stream
+
+(load-stream path) -> nil|stream
 
 ## log2
 

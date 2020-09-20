@@ -21,5 +21,5 @@
 	(when (and
 			(defq stdio (create-stdio))
 			(defq args (options stdio usage)))
-		(defq stdin (file-stream 'stdin))
+		(defq stdin (io-stream 'stdin))
 		(while (read-char stdin))))

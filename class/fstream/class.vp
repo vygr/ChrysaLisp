@@ -1,0 +1,130 @@
+(include 'sys/func.inc)
+(include 'class/str/class.inc)
+(include 'class/fstream/class.inc)
+
+(gen-create 'fstream)
+(gen-vtable 'fstream)
+
+(def-method 'fstream :init)
+	;inputs
+	;r0 = fstream object (ptr)
+	;r1 = vtable (pptr)
+	;r2 = c string filename (pubyte)
+	;outputs
+	;r0 = fstream object (ptr)
+	;r1 = 0 if error, else ok
+	;trashes
+	;r1-r14
+
+	(def-struct 'local)
+		(ptr 'this 'vtable 'path 'buf)
+	(def-struct-end)
+
+	(vp-alloc local_size)
+	(entry 'fstream :init '((rsp local_this) (rsp local_vtable) (rsp local_path)))
+
+	;init parent
+	(call 'str :create_from_buffer '(0 fstream_buf_size) '((rsp local_buf)))
+	(s-call 'fstream :init '((rsp local_this) (rsp local_vtable) (rsp local_buf) 0 0 0) '(r0 r1))
+	(vpif '(r1 /= 0))
+		;init myself
+		(call 'sys_pii :open '((rsp local_path) file_open_read) '(r1))
+		(assign '((rsp local_this)) '(r0))
+		(vpif '(r1 >= 3))
+			(assign '(r1) '((r0 fstream_handle)))
+		(else)
+			(s-call 'fstream :deinit '(r0) '(r0))
+			(vp-xor-rr r1 r1)
+		(endif)
+	(else)
+		;error
+		(call 'str :deref '((rsp local_buf)))
+		(assign '((rsp local_this) 0) '(r0 r1))
+	(endif)
+
+	(exit 'fstream :init '(r0 r1))
+	(vp-free local_size)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'fstream :deinit)
+	;inputs
+	;r0 = fstream object (ptr)
+	;outputs
+	;r0 = fstream object (ptr)
+	;trashes
+	;r1-r14
+
+	(entry 'fstream :deinit '(r0))
+
+	;close file
+	(vp-push r0)
+	(call 'sys_pii :close '((r0 fstream_handle)))
+
+	;deinit parent
+	(vp-pop r0)
+	(s-jump 'fstream :deinit '(r0))
+
+(def-func-end)
+
+(def-method 'fstream :write_next)
+	;inputs
+	;r0 = fstream object (ptr)
+	;outputs
+	;r0 = fstream object (ptr)
+	;trashes
+	;r1-r14
+
+	(entry 'fstream :write_next '(r0))
+
+	(exit 'fstream :write_next '(r0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'fstream :write_flush)
+	;inputs
+	;r0 = fstream object (ptr)
+	;outputs
+	;r0 = fstream object (ptr)
+	;trashes
+	;r1-r14
+
+	(entry 'fstream :write_flush '(r0))
+
+	(exit 'fstream :write_flush '(r0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'fstream :read_next)
+	;inputs
+	;r0 = fstream object (ptr)
+	;outputs
+	;r0 = fstream object (ptr)
+	;r1 = -1 for EOF, else more data
+	;trashes
+	;r1-r14
+
+	(entry 'fstream :read_next '(r0))
+
+	(vp-push r0)
+	(assign '((r0 stream_object)) '(r1))
+	(assign '((r1 str_length)) '(r2))
+	(call 'sys_pii :read '((r0 fstream_handle) (& r1 str_data) r2) '(r1))
+	(vp-pop r0)
+	(vpif '(r1 = 0))
+		;eof
+		(assign '(-1) '(r1))
+	(else)
+		(assign '((r0 stream_object)) '(r2))
+		(assign '((& r2 str_data)) '(r2))
+		(assign '((& r2 r1)) '(r1))
+		(assign '(r2 r1) '((r0 stream_bufp) (r0 stream_bufe)))
+	(endif)
+
+	(exit 'fstream :read_next '(r0 r1))
+	(vp-ret)
+
+(def-func-end)

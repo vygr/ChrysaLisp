@@ -3,7 +3,7 @@
 (include 'class/list/class.inc)
 (include 'class/str/class.inc)
 (include 'class/stream/class.inc)
-(include 'class/stream_str/class.inc)
+(include 'class/sstream/class.inc)
 
 (gen-create 'stream)
 (gen-vtable 'stream)
@@ -187,12 +187,12 @@
 		(assign {0} {value})
 		(breakif {char = -1})
 		(call 'str :create_from_buffer {0, str_gap} {value})
-		(call 'stream_str :create {value} {str_stream})
+		(call 'sstream :create {value} {str_stream})
 		(loop-whilenot {char = char_lf || char = -1})
 			(call 'stream :write_char {str_stream, char})
 			(call 'stream :read_char {this} {_, char})
 		(loop-end)
-		(call 'stream_str :ref_string {str_stream} {_, value})
+		(call 'sstream :ref_string {str_stream} {_, value})
 		(call 'obj :deref {str_stream})
 	(endswitch)
 

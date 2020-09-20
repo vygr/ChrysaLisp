@@ -73,8 +73,9 @@
 (ffi penv "class/hmap/lisp_parent" 0)
 (ffi tolist "class/hmap/lisp_list" 0)
 
-(ffi file-stream "class/stream/lisp_filestream" 0)
-(ffi string-stream "class/stream/lisp_strstream" 0)
+(ffi io-stream "class/stream/lisp_iostream" 0)
+(ffi string-stream "class/stream/lisp_sstream" 0)
+(ffi file-stream "class/stream/lisp_fstream" 0)
 (ffi read-char "class/stream/lisp_readchar" 0)
 (ffi read-line "class/stream/lisp_readline" 0)
 (ffi read-avail "class/stream/lisp_readavail" 0)
@@ -701,6 +702,10 @@
 ;;;;;;;;;
 ; Streams
 ;;;;;;;;;
+
+(defun-bind load-stream (_)
+	;(load-stream path) -> nil|stream
+	(if (defq _ (load _)) (string-stream _)))
 
 (defun-bind each-line (_f _)
 	;(each-line lambda stream)

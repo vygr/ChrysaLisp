@@ -3,13 +3,12 @@
 (import 'lib/argparse/argparse.inc)
 
 (defun get-stream (args alen)
-  ; (get-stream args argslen) -> file-stream
-  (file-stream
-    (cond
-      ((= alen 1) (first args))
-      ((<= 0 alen 2) 'stdin)
-      ((= (find :count args) 0) (last args))
-      (t (first args)))))
+	;(get-stream args argslen) -> stream
+	(cond
+		((= alen 1) (file-stream (first args)))
+		((<= 0 alen 2) (io-stream 'stdin))
+		((= (find :count args) 0) (file-stream (last args)))
+		(t (file-stream (first args)))))
 
 (defun get-count (args alen)
   ; (get-count args arglen) -> count

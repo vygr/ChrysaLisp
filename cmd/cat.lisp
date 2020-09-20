@@ -7,7 +7,7 @@
 	(if (setq _ (file-stream _))
 		(while (defq c (read-char _))
 			(prin (char c)))
-		(stream-flush (file-stream 'stdout))))
+		(stream-flush (io-stream 'stdout))))
 
 (defq usage `(
 (("-h" "--help")
@@ -25,6 +25,6 @@
 			(defq args (options stdio usage)))
 		(if (<= (length args) 1)
 			;cat from stdin
-			(each-line cat-file (file-stream 'stdin))
+			(each-line cat-file (io-stream 'stdin))
 			;cat from args
 			(each cat-file (slice 1 -1 args)))))

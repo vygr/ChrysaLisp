@@ -19,7 +19,7 @@
 		(defq lines (list))
 		(if (<= (length args) 1)
 			;shuffle stdin
-			(each-line (lambda (_) (push lines _)) (file-stream 'stdin))
+			(each-line (# (push lines %0)) (io-stream 'stdin))
 			;shuffle args
 			(setq lines (slice 1 -1 args)))
 		(each print (shuffle lines))))

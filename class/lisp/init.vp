@@ -2,7 +2,7 @@
 (include 'sys/task/class.inc)
 (include 'class/hset/class.inc)
 (include 'class/hmap/class.inc)
-(include 'class/stream_str/class.inc)
+(include 'class/sstream/class.inc)
 (include 'class/func/class.inc)
 (include 'class/sym/class.inc)
 (include 'class/lisp/class.inc)
@@ -72,7 +72,7 @@
 			(vpif {file})
 				;REPL from file stream
 				(call 'list :create nil {repl_args})
-				(call 'stream_str :create {file} {stream})
+				(call 'sstream :create {file} {stream})
 				(call 'str :create_from_buffer {"class/lisp/boot.inc", 19} {file})
 				(call 'list :push_back2 {repl_args, stream, file})
 				(call 'lisp :lisp_repl {this, repl_args} {_, value})
