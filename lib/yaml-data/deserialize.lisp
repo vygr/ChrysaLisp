@@ -56,6 +56,12 @@
     (setq lst (last sst)))
   (join res ""))
 
+(defun pull-value (ch sst)
+  (defq res (eat-to-space ch sst))
+  (if (str-is-ints? res)
+    (str-to-num res)
+    res))
+
 (defun lex-to-object (sst)
   (defq ctx (setp! (Context) :root nil t))
   (until (eql (defq ch (pop sst)) (char 0))
@@ -70,7 +76,7 @@
       ((:lste)
        (unset-obj-ctx! ctx))
       ((:mkey) (add-to-obj! ctx (sym (eat-to-space ch sst))))
-      ((:char) (add-to-obj! ctx (eat-to-space ch sst)))))
+      ((:char) (add-to-obj! ctx (pull-value ch sst)))))
   (getp ctx :root))
 
 (defun-bind deserialize (sstrm)
