@@ -5,12 +5,11 @@
 (import 'lib/xtras/xtras.inc)
 
 (defq
-  +nl+        (const (ascii-char 10))
-  +indent2+    (const 2)
-  +indent4+    (const 4)
-  +no_count+   (const 0)
-  +max_count+  (const 999)
-  +ztn+        (const "0123456789"))
+  +nl+        (ascii-char 10)
+  +indent2+   2
+  +indent4+   4
+  +no_count+  0
+  +max_count+ 999)
 
 ; Potential utility macros to embed in ChrysaLisp
 
@@ -80,15 +79,6 @@
   (when (not (str? arg))
     (throw "Validation: expected string, found" filename))
   arg)
-
-(defun str-is-ints? (s)
-  ; (str-is-ints? s) -> :true | :false
-  (reduced-reduce
-      (lambda (acc el)
-        (if  (find el +ztn+)
-          acc
-          (reduced :false))
-        ) s :true))
 
 (defun-bind validate-integer-pos (inst arg)
   ; (validate-integer-pos arg-clz arg) -> integer | exception

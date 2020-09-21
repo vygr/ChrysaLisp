@@ -67,10 +67,15 @@
 (defun parse-scalar (cmd token)
   (defq
     v (getp token :value))
-  (when (and
-          (eql (first (last (getp cmd :parents))) :key)
-          (getp (getp cmd :in-args) :keys-to-kw))
-    (setq v (sym (str ":" (join (split v " ") "_")))))
+  (cond
+    ((and
+       (eql (first (last (getp cmd :parents))) :key)
+       (getp (getp cmd :in-args) :keys-to-kw))
+      (setq v (sym (str ":" (join (split v " ") "_")))))
+    ((and
+       (getp (getp cmd :in-args) :vals-to-num)
+       (eql (str-is-ints? v) :true))
+     (setq v (str-to-num v))))
   (push (getp cmd :current) (list :scalar v)))
 
 (defun parse-key (cmd token)
