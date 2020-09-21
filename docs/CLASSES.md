@@ -2277,6 +2277,73 @@ trashes
 r1-r14
 ```
 
+## fstream
+
+Super Class: stream
+
+### fstream::vtable -> class/fstream/vtable
+
+### fstream::create -> class/fstream/create
+
+### fstream::init -> class/fstream/init
+
+```lisp
+inputs
+r0 = fstream object (ptr)
+r1 = vtable (pptr)
+r2 = c string filename (pubyte)
+outputs
+r0 = fstream object (ptr)
+r1 = 0 if error, else ok
+trashes
+r1-r14
+```
+
+### fstream::deinit -> class/fstream/deinit
+
+```lisp
+inputs
+r0 = fstream object (ptr)
+outputs
+r0 = fstream object (ptr)
+trashes
+r1-r14
+```
+
+### fstream::read_next -> class/fstream/read_next
+
+```lisp
+inputs
+r0 = fstream object (ptr)
+outputs
+r0 = fstream object (ptr)
+r1 = -1 for EOF, else more data
+trashes
+r1-r14
+```
+
+### fstream::write_next -> class/fstream/write_next
+
+```lisp
+inputs
+r0 = fstream object (ptr)
+outputs
+r0 = fstream object (ptr)
+trashes
+r1-r14
+```
+
+### fstream::write_flush -> class/fstream/write_flush
+
+```lisp
+inputs
+r0 = fstream object (ptr)
+outputs
+r0 = fstream object (ptr)
+trashes
+r1-r14
+```
+
 ## func
 
 Super Class: obj
@@ -6369,6 +6436,62 @@ trashes
 r1-r14
 ```
 
+## sstream
+
+Super Class: stream
+
+### sstream::vtable -> class/sstream/vtable
+
+### sstream::create -> class/sstream/create
+
+### sstream::init -> class/sstream/init
+
+```lisp
+inputs
+r0 = sstream object (ptr)
+r1 = vtable (pptr)
+r2 = str object (ptr)
+outputs
+r0 = sstream object (ptr)
+r1 = 0 if error, else ok
+trashes
+r1-r5
+```
+
+### sstream::ref_string -> class/sstream/ref_string
+
+```lisp
+inputs
+r0 = sstream object (ptr)
+outputs
+r0 = sstream object (ptr)
+r1 = str object (ptr)
+trashes
+r1-r2
+```
+
+### sstream::write_next -> class/sstream/write_next
+
+```lisp
+inputs
+r0 = sstream object (ptr)
+outputs
+r0 = sstream object (ptr)
+trashes
+r1-r14
+```
+
+### sstream::write_flush -> class/sstream/write_flush
+
+```lisp
+inputs
+r0 = sstream object (ptr)
+outputs
+r0 = sstream object (ptr)
+trashes
+r1-r14
+```
+
 ## stdio
 
 Super Class: obj
@@ -7011,7 +7134,7 @@ trashes
 r1
 ```
 
-### stream::lisp_filestream -> class/stream/lisp_filestream
+### stream::lisp_iostream -> class/stream/lisp_iostream
 
 ```lisp
 inputs
@@ -7024,7 +7147,20 @@ trashes
 r1-r14
 ```
 
-### stream::lisp_strstream -> class/stream/lisp_strstream
+### stream::lisp_sstream -> class/stream/lisp_sstream
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### stream::lisp_fstream -> class/stream/lisp_fstream
 
 ```lisp
 inputs
@@ -7129,62 +7265,6 @@ r1-r14
 ```
 
 ### stream::lisp_write_next -> class/stream/lisp_write_next
-
-## stream_str
-
-Super Class: stream
-
-### stream_str::vtable -> class/stream_str/vtable
-
-### stream_str::create -> class/stream_str/create
-
-### stream_str::init -> class/stream_str/init
-
-```lisp
-inputs
-r0 = stream_str object (ptr)
-r1 = vtable (pptr)
-r2 = str object (ptr)
-outputs
-r0 = stream_str object (ptr)
-r1 = 0 if error, else ok
-trashes
-r1-r5
-```
-
-### stream_str::ref_string -> class/stream_str/ref_string
-
-```lisp
-inputs
-r0 = stream_str object (ptr)
-outputs
-r0 = stream_str object (ptr)
-r1 = str object (ptr)
-trashes
-r1-r2
-```
-
-### stream_str::write_next -> class/stream_str/write_next
-
-```lisp
-inputs
-r0 = stream_str object (ptr)
-outputs
-r0 = stream_str object (ptr)
-trashes
-r1-r14
-```
-
-### stream_str::write_flush -> class/stream_str/write_flush
-
-```lisp
-inputs
-r0 = stream_str object (ptr)
-outputs
-r0 = stream_str object (ptr)
-trashes
-r1-r14
-```
 
 ## sym
 

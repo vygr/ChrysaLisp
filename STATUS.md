@@ -29,6 +29,14 @@ corrupted.
 
 ------
 
+(file-stream path) now reads a file from the filesystem in buffers of 4KB, and
+has no file size limit as a result. Old behavior is retained in the new
+(load-stream path) function which will gulp the entire file into a string and
+return a string stream. Lisp IO stream access is moved to the new (io-stream
+iopath) function.
+
+------
+
 (prebind) will now pre-bind symbols that begin with a '+' character. Lisp
 constants that follow the conventional +xyz+ standard will now be bound to the
 hard value within (defun-bind) functions.

@@ -2,7 +2,7 @@
 (include 'sys/load/class.inc)
 (include 'sys/str/class.inc)
 (include 'class/sym/class.inc)
-(include 'class/stream_str/class.inc)
+(include 'class/sstream/class.inc)
 (include 'class/fixed/class.inc)
 (include 'class/lisp/class.inc)
 
@@ -35,7 +35,7 @@
 	(endif)
 
 	(call 'str :create_from_buffer {0, str_gap} {string})
-	(call 'stream_str :create {string} {str_stream})
+	(call 'sstream :create {string} {str_stream})
 	(loop-while {char = char_dot
 				|| char >= char_0 && char <= char_9
 				|| char >= char_a && char <= char_z
@@ -43,8 +43,8 @@
 		(call 'stream :write_char {str_stream, char})
 		(call 'stream :read_char {stream} {_, char})
 	(loop-end)
-	(call 'stream_str :ref_string {str_stream} {_, string})
-	(call 'stream_str :destroy {str_stream})
+	(call 'sstream :ref_string {str_stream} {_, string})
+	(call 'sstream :destroy {str_stream})
 
 	;pick base
 	(assign {&string->str_data} {buffer})

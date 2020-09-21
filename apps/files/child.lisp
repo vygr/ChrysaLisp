@@ -12,7 +12,7 @@
 	(ui-flow _ (:flow_flags flow_down_fill)
 		(ui-title-bar window_title "" (0xea19) +event_close+)
 		(ui-flow _ (:flow_flags flow_right_fill)
-			(ui-buttons (0xe93a) +event_ok_action+ (font *env_toolbar_font*))
+			(ui-buttons (0xe93a) +event_ok_action+ (:font *env_toolbar_font*))
 			(ui-label _ (:text "Filename:"))
 			(component-connect (ui-textfield filename (:text "")) +event_ok_action+))
 		(ui-flow _ (:flow_flags flow_right_fill)

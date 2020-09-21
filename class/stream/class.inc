@@ -22,8 +22,9 @@
 (dec-method :write_next 'class/stream/write_flush :virtual '(r0) '(r0))
 (dec-method :write_flush 'class/stream/write_flush :virtual '(r0) '(r0))
 
-(dec-method :lisp_filestream 'class/stream/lisp_filestream :static '(r0 r1) '(r0 r1))
-(dec-method :lisp_strstream 'class/stream/lisp_strstream :static '(r0 r1) '(r0 r1))
+(dec-method :lisp_iostream 'class/stream/lisp_iostream :static '(r0 r1) '(r0 r1))
+(dec-method :lisp_sstream 'class/stream/lisp_sstream :static '(r0 r1) '(r0 r1))
+(dec-method :lisp_fstream 'class/stream/lisp_fstream :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_available 'class/stream/lisp_available :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_readchar 'class/stream/lisp_readchar :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_readline 'class/stream/lisp_readline :static '(r0 r1) '(r0 r1))

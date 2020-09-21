@@ -9,7 +9,7 @@
 			canvas (canvas-load in_file load_flag_noswap))
 		(canvas-save canvas out_file format)
 		(print in_file " -> " out_file)
-		(stream-flush (file-stream 'stdout))))
+		(stream-flush (io-stream 'stdout))))
 
 (defq usage `(
 (("-h" "--help")
@@ -33,6 +33,6 @@
 			(defq format 32 args (options stdio usage)))
 		(if (<= (length args) 1)
 			;convert from stdin
-			(each-line conv-file (file-stream 'stdin))
+			(each-line conv-file (io-stream 'stdin))
 			;convert from args
 			(each conv-file (slice 1 -1 args)))))
