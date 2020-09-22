@@ -64,18 +64,38 @@
 (defun parse-document-end (cmd token)
   cmd)
 
+(defq yaml_boolean
+      (properties
+        t       :true
+        nil     :false
+        "TRUE"  t
+        "FALSE" nil
+        "YES"   t
+        "NO"    nil))
+
+(defun parse-boolean (val)
+  (defq res (getp yaml_boolean val :nomatch))
+  (when (eql res :nomatch)
+    (setq res (getp yaml_boolean (to-upper val) :nomatch)))
+  res)
+
 (defun parse-scalar (cmd token)
   (defq
     v (getp token :value))
   (cond
+    ; Test for key
     ((and
        (eql (first (last (getp cmd :parents))) :key)
        (getp (getp cmd :in-args) :keys-to-kw))
       (setq v (sym (str ":" (join (split v " ") "_")))))
+    ; Test for numeric
     ((and
        (getp (getp cmd :in-args) :vals-to-num)
        (eql (str-is-ints? v) :true))
-     (setq v (str-to-num v))))
+     (setq v (str-to-num v)))
+    (t
+      (if (neql? (defq ch (parse-boolean v)) :nomatch)
+        (setq v ch))))
   (push (getp cmd :current) (list :scalar v)))
 
 (defun parse-key (cmd token)

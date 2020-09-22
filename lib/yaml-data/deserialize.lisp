@@ -15,7 +15,8 @@
         "[" :lstb
         "]" :lste
         " " :space
-        ":" :mkey))
+        ":" :mkey
+        "*" :boolean))
 
 (defun set-obj-ctx! (cntxt n)
   ; (set-obj-ctx! context node) -> node
@@ -58,9 +59,14 @@
 
 (defun pull-value (ch sst)
   (defq res (eat-to-space ch sst))
-  (if (str-is-ints? res)
-    (str-to-num res)
-    res))
+  (when (eql (str-is-ints? res) :true)
+    (setq res (str-to-num res)))
+  res)
+
+(defq deser_boolean
+      (properties
+        "*true"   t
+        "*false"  nil))
 
 (defun lex-to-object (sst)
   (defq ctx (setp! (Context) :root nil t))
@@ -75,8 +81,12 @@
        (set-obj-ctx! ctx (list)))
       ((:lste)
        (unset-obj-ctx! ctx))
-      ((:mkey) (add-to-obj! ctx (sym (eat-to-space ch sst))))
-      ((:char) (add-to-obj! ctx (pull-value ch sst)))))
+      ((:mkey)
+       (add-to-obj! ctx (sym (eat-to-space ch sst))))
+      ((:boolean)
+       (add-to-obj! ctx (getp deser_boolean (eat-to-space ch sst))))
+      ((:char)
+       (add-to-obj! ctx (pull-value ch sst)))))
   (getp ctx :root))
 
 (defun-bind deserialize (sstrm)

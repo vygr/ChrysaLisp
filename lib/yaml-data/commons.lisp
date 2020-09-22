@@ -109,6 +109,8 @@
             (set-context! cntxt (SequenceNode))
             (each (#(obj-to-node cntxt %0)) odata)
             (unset-context! cntxt))))
+    ((or (eql odata t) (eql odata nil))
+     (add-to-context! cntxt (ScalarNode :boolean odata)))
     ((kw? odata)
      (add-to-context! cntxt (ScalarNode :keyword odata)))
     ((sym? odata)
