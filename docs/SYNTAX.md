@@ -920,6 +920,10 @@
 
 (pii-read-char fd)
 
+## pii-remove
+
+(pii-remove path)
+
 ## pii-write-char
 
 (pii-write-char fd char)

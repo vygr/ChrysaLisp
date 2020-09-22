@@ -2831,6 +2831,8 @@ Super Class: null
 
 ### host::dirlist -> nil
 
+### host::remove -> nil
+
 ## hset
 
 Super Class: obj
@@ -8506,6 +8508,17 @@ trashes
 r0
 ```
 
+### sys_pii::remove -> sys/pii/remove
+
+```lisp
+inputs
+r0 = c string filename (pubyte)
+outputs
+r0 = error code (ulong)
+trashes
+r0
+```
+
 ### sys_pii::lisp_readchar -> sys/pii/lisp_readchar
 
 ```lisp
@@ -8559,6 +8572,19 @@ r1-r14
 ```
 
 ### sys_pii::lisp_dirlist -> sys/pii/lisp_dirlist
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### sys_pii::lisp_remove -> sys/pii/lisp_remove
 
 ```lisp
 inputs
