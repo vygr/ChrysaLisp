@@ -32,7 +32,7 @@
 	(vpif {ok})
 		;init myself
 		(call 'sys_mail :mymail nil {msg, data})
-		(vpif {msg->msg_length})
+		(vpif {msg->msg_frag_length})
 			;create stdin, stdout, stderr
 			(call 'sys_task :mailbox nil {args})
 			(call 'in :create {args} {this->stdio_stdin})
@@ -40,7 +40,7 @@
 			(call 'out :create {data->stdio_msg_init_stderr_id.id_id} {this->stdio_stderr})
 
 			;create args
-			(call 'str :create_from_buffer {&data->stdio_msg_init_args, msg->msg_length - stdio_msg_init_size} {args})
+			(call 'str :create_from_buffer {&data->stdio_msg_init_args, msg->msg_frag_length - stdio_msg_init_size} {args})
 			(call 'str :split_char {args, char_space} {_, this->stdio_args})
 			(call 'str :deref {args})
 

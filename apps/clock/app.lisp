@@ -3,31 +3,36 @@
 (import 'class/lisp.inc)
 (import 'gui/lisp.inc)
 
-;add event id etc
 (defq clock_size 256 clock_scale 1)
 
 ;define events we will use
-(structure 'event 0
-	(byte 'close))
+(structure '+event 0
+	(byte 'close+))
 
 ;create a window
 (ui-window window ()
-	(ui-title-bar _ "Clock" (0xea19) (const event_close))
-	(ui-canvas clock clock_size clock_size clock_scale)
-	(ui-label display (:text "00:00:00" :color argb_black :ink_color argb_red
+	(ui-title-bar _ "Clock" (0xea19) +event_close+)
+	(if (eql *env_clock_analog* t)
+		(ui-canvas clock clock_size clock_size clock_scale) (defq clock nil))
+	(if (eql *env_clock_digital* t)
+		(ui-label display (:text "xxx hh:mm:ss" :color argb_black :ink_color argb_red
 		:flow_flags (logior flow_flag_align_hcenter flow_flag_align_vcenter)
-		:font (create-font "fonts/Hack-Regular.ctf" 48))))
+		:font (create-font "fonts/Hack-Regular.ctf" 48)))
+		(defq display nil)))
 
 (defun-bind main ()
-	;clear clock face
-	(canvas-set-flags (canvas-fill clock 0) 1)
-	(gui-add (apply view-change (cat (list window 164 16) (view-pref-size window))))
+	;if analog clear clock face
+	(if clock
+		(canvas-set-flags (canvas-fill clock 0) 1))
 	;create child and send args
-	(mail-send (list display clock (i2f clock_size) (i2f clock_scale))
-		(defq mbox (open-child "apps/clock/child.lisp" kn_call_open)))
+	(defq mbox (open-child "apps/clock/child.lisp" kn_call_open))
+	;multiply size and scale, as they are only used together in child.
+	(mail-send (list display clock (- (* (i2f clock_size) (i2f clock_scale)) 6.0))
+		mbox)
+	(gui-add (apply view-change (cat (list window 0 0) (view-pref-size window))))
 	;main app loop
 	(while (cond
-		((= (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id) event_close)
+		((= (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id) +event_close+)
 			nil)
 		(t (view-event window msg))))
 	;close child and window

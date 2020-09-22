@@ -1,5 +1,7 @@
 (include 'sys/func.inc)
 (include 'class/pair/class.inc)
+(include 'class/stream/class.inc)
+(include 'class/str/class.inc)
 
 (gen-create 'pair)
 (gen-vtable 'pair)
@@ -99,6 +101,61 @@
 	(vp-pop r0)
 
 	(exit 'pair :set_second '(r0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'pair :print)
+	;inputs
+	;r0 = pair object (ptr)
+	;r1 = stream object (ptr)
+	;outputs
+	;r0 = pair object (ptr)
+	;trashes
+	;r1-r14
+
+	(def-struct 'local)
+		(ptr 'this 'stream)
+		(pubyte 'iter_begin 'iter_end)
+	(def-struct-end)
+
+	(vp-alloc local_size)
+	(entry 'pair :print '(r0 r1))
+	(assign '(r0 r1) '((rsp local_this) (rsp local_stream)))
+
+	(call 'stream :write_char '(r1 char_lrb))
+	(assign '((rsp local_this)) '(r0))
+	(call 'obj :print '((r0 pair_first) (rsp local_stream)))
+	(call 'stream :write_char '((rsp local_stream) char_space))
+	(assign '((rsp local_this)) '(r0))
+	;special case for string for debugger....
+	(assign '((r0 pair_second)) '(r0))
+	(f-bind 'str :vtable r2)
+	(assign '((r0 obj_vtable)) '(r1))
+	(vpif '(r1 = r2))
+		(call 'stream :write_char '((rsp local_stream) char_double_quote) '(r0))
+		(assign '((rsp local_this)) '(r2))
+		(assign '((r2 pair_second)) '(r2))
+		(assign '((& r2 str_data) (r2 str_length)) '(r3 r4))
+		(vp-add-rr r3 r4)
+		(assign '(r4) '((rsp local_iter_end)))
+		(loop-while '(r3 /= r4))
+			(assign '((r3 0 ub) r3) '(r1 (rsp local_iter_begin)))
+			(vpif '(r1 = char_double_quote))
+				(vp-cpy-cr char_dot r1)
+			(endif)
+			(call 'stream :write_char '(r0 r1) '(r0))
+			(assign '((rsp local_iter_begin) (rsp local_iter_end)) '(r3 r4))
+			(vp-add-cr byte_size r3)
+		(loop-end)
+		(call 'stream :write_char '(r0 char_double_quote))
+	(else)
+		(call 'obj :print '(r0 (rsp local_stream)))
+	(endif)
+	(call 'stream :write_char '((rsp local_stream) char_rrb))
+
+	(exit 'pair :print '((rsp local_this)))
+	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)

@@ -24,7 +24,7 @@
 
 	(vp-push r0)
 	(list-bind-args r1 '(r0) '(num))
-	(call 'sys_mail :mbox_addr '(r0) '(r0))
+	(call 'sys_mail :validate '(r0) '(r0))
 	(vpif '(r0 /= 0))
 		(call 'sys_mail :read '(r0) '(r0 _))
 		(call 'sys_mail :free_obj '(r0) '(r1 _ _))
@@ -188,7 +188,6 @@
 	(defq in (method-input 'sys_mail :declare))
 	(array-bind-args r1 in)
 	(vp-push (elem 0 in))
-	(list-cast-args in '(str num))
 	(call 'sys_mail :declare in)
 	(vp-pop r1)
 	(class/obj/ref r1 r2)
@@ -222,15 +221,8 @@
 
 	(vp-push r0)
 	(defq in (method-input 'sys_mail :enquire))
-	(list-bind-args r1 in '(str))
-	(call 'sys_mail :enquire in '(r0))
-	(vpif '(r0 /= 0))
-		(call 'num :create '(r0) '(r1))
-	(else)
-		(assign '((rsp 0)) '(r1))
-		(assign '((r1 lisp_sym_nil)) '(r1))
-		(class/obj/ref r1 r2)
-	(endif)
+	(array-bind-args r1 in)
+	(call 'sys_mail :enquire in '(r1))
 	(vp-pop r0)
 
 	(exit 'sys_mail :lisp_enquire '(r0 r1))
@@ -238,8 +230,43 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(mail-enquire name)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(r0 "(mail-enquire prefix)" error_msg_wrong_types r1))
 	(signature '(str)))
+
+(def-func-end)
+
+(def-method 'sys_mail :lisp_forget)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args list object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(entry 'sys_mail :lisp_forget '(r0 r1))
+
+(errorcases
+	(call 'lisp :env_args_sig '(r1 ($ sig) 2) '(r2))
+	(gotoif '(r2 = 0) 'error))
+
+	(vp-push r0)
+	(defq in (method-input 'sys_mail :forget))
+	(array-bind-args r1 in)
+	(vp-push (elem 0 in))
+	(call 'sys_mail :forget in)
+	(vp-pop r1)
+	(class/obj/ref r1 r2)
+	(vp-pop r0)
+
+	(exit 'sys_mail :lisp_forget '(r0 r1))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp :repl_error '(r0 "(mail-forget name mbox)" error_msg_wrong_types r1))
+	(signature '(str num)))
 
 (def-func-end)
 
@@ -307,5 +334,34 @@
 (vp-label 'error)
 	(jump 'lisp :repl_error '(r0 "(mail-free-mbox id)" error_msg_wrong_types r1))
 	(signature '(num)))
+
+(def-func-end)
+
+(def-method 'sys_mail :lisp_devices)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args list object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(entry 'sys_mail :lisp_devices '(r0 r1))
+
+(errorcases
+	(assign '((r1 array_length)) '(r2))
+	(gotoif '(r2 /= 0) 'error))
+
+	(vp-push r0)
+	(call 'sys_mail :devices nil '(r1))
+	(vp-pop r0)
+
+	(exit 'sys_mail :lisp_devices '(r0 r1))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp :repl_error '(r0 "(mail-devices)" error_msg_wrong_types r1)))
 
 (def-func-end)

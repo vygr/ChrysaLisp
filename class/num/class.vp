@@ -8,6 +8,21 @@
 (gen-create 'num)
 (gen-vtable 'num)
 
+(def-method 'num :hash)
+	;inputs
+	;r0 = num (ptr)
+	;outputs
+	;r0 = num (ptr)
+	;r1 = hash code (ulong)
+	;trashes
+	;r1-r14
+
+	(entry 'num :hash '(r0))
+	(exit 'num :hash '(r0 (r0 num_value)))
+	(vp-ret)
+
+(def-func-end)
+
 (def-method 'num :print)
 	;inputs
 	;r0 = num object (ptr)

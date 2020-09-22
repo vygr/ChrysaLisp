@@ -2277,6 +2277,73 @@ trashes
 r1-r14
 ```
 
+## fstream
+
+Super Class: stream
+
+### fstream::vtable -> class/fstream/vtable
+
+### fstream::create -> class/fstream/create
+
+### fstream::init -> class/fstream/init
+
+```lisp
+inputs
+r0 = fstream object (ptr)
+r1 = vtable (pptr)
+r2 = c string filename (pubyte)
+outputs
+r0 = fstream object (ptr)
+r1 = 0 if error, else ok
+trashes
+r1-r14
+```
+
+### fstream::deinit -> class/fstream/deinit
+
+```lisp
+inputs
+r0 = fstream object (ptr)
+outputs
+r0 = fstream object (ptr)
+trashes
+r1-r14
+```
+
+### fstream::read_next -> class/fstream/read_next
+
+```lisp
+inputs
+r0 = fstream object (ptr)
+outputs
+r0 = fstream object (ptr)
+r1 = -1 for EOF, else more data
+trashes
+r1-r14
+```
+
+### fstream::write_next -> class/fstream/write_next
+
+```lisp
+inputs
+r0 = fstream object (ptr)
+outputs
+r0 = fstream object (ptr)
+trashes
+r1-r14
+```
+
+### fstream::write_flush -> class/fstream/write_flush
+
+```lisp
+inputs
+r0 = fstream object (ptr)
+outputs
+r0 = fstream object (ptr)
+trashes
+r1-r14
+```
+
 ## func
 
 Super Class: obj
@@ -2405,6 +2472,19 @@ trashes
 r1-r14
 ```
 
+### gui::lisp_info -> gui/gui/lisp_info
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
 ## hmap
 
 Super Class: hset
@@ -2451,6 +2531,18 @@ r1 = num buckets (uint)
 outputs
 r0 = hmap object (ptr)
 r1 = hmap copy object (ptr)
+trashes
+r1-r14
+```
+
+### hmap::list -> class/hmap/list
+
+```lisp
+inputs
+r0 = hmap object (ptr)
+outputs
+r0 = hmap object (ptr)
+r1 = list object (ptr)
 trashes
 r1-r14
 ```
@@ -2634,6 +2726,19 @@ r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### hmap::lisp_list -> class/hmap/lisp_list
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = environment hmap object (ptr)
 trashes
 r1-r14
 ```
@@ -2846,22 +2951,21 @@ trashes
 r1-r14
 ```
 
-### hset::get_both -> class/hset/get_both
+### hset::key_callback -> class/obj/null
+
+### hset::each_callback -> class/obj/null
+
+### hset::print -> class/hset/print
 
 ```lisp
 inputs
 r0 = hset object (ptr)
+r1 = stream object (ptr)
 outputs
 r0 = hset object (ptr)
-r1 = begin iter pointer (pptr)
-r2 = end iter pointer (pptr)
 trashes
-r1-r4
+r1-r14
 ```
-
-### hset::key_callback -> class/obj/null
-
-### hset::each_callback -> class/obj/null
 
 ### hset::deinit -> class/hset/deinit
 
@@ -3357,7 +3461,7 @@ trashes
 r1-r14
 ```
 
-### lisp::lisp_bindfun -> class/lisp/lisp_bindfun
+### lisp::lisp_prebind -> class/lisp/lisp_bindfun
 
 ```lisp
 inputs
@@ -3721,6 +3825,18 @@ outputs
 r0 = list object (ptr)
 trashes
 r1-r9
+```
+
+### list::print -> class/list/print
+
+```lisp
+inputs
+r0 = list object (ptr)
+r1 = stream object (ptr)
+outputs
+r0 = list object (ptr)
+trashes
+r1-r14
 ```
 
 ### list::lisp_list -> class/list/lisp_list
@@ -4468,6 +4584,18 @@ trashes
 r1-r14
 ```
 
+### num::hash -> class/num/hash
+
+```lisp
+inputs
+r0 = num (ptr)
+outputs
+r0 = num (ptr)
+r1 = hash code (ulong)
+trashes
+r1-r14
+```
+
 ## nums
 
 Super Class: array
@@ -5050,6 +5178,18 @@ r1-r14
 inputs
 r0 = pair object (ptr)
 r1 = object (ptr)
+outputs
+r0 = pair object (ptr)
+trashes
+r1-r14
+```
+
+### pair::print -> class/pair/print
+
+```lisp
+inputs
+r0 = pair object (ptr)
+r1 = stream object (ptr)
 outputs
 r0 = pair object (ptr)
 trashes
@@ -6296,6 +6436,62 @@ trashes
 r1-r14
 ```
 
+## sstream
+
+Super Class: stream
+
+### sstream::vtable -> class/sstream/vtable
+
+### sstream::create -> class/sstream/create
+
+### sstream::init -> class/sstream/init
+
+```lisp
+inputs
+r0 = sstream object (ptr)
+r1 = vtable (pptr)
+r2 = str object (ptr)
+outputs
+r0 = sstream object (ptr)
+r1 = 0 if error, else ok
+trashes
+r1-r5
+```
+
+### sstream::ref_string -> class/sstream/ref_string
+
+```lisp
+inputs
+r0 = sstream object (ptr)
+outputs
+r0 = sstream object (ptr)
+r1 = str object (ptr)
+trashes
+r1-r2
+```
+
+### sstream::write_next -> class/sstream/write_next
+
+```lisp
+inputs
+r0 = sstream object (ptr)
+outputs
+r0 = sstream object (ptr)
+trashes
+r1-r14
+```
+
+### sstream::write_flush -> class/sstream/write_flush
+
+```lisp
+inputs
+r0 = sstream object (ptr)
+outputs
+r0 = sstream object (ptr)
+trashes
+r1-r14
+```
+
 ## stdio
 
 Super Class: obj
@@ -6501,6 +6697,19 @@ r0 = str object (ptr)
 r1 = 0 if same, else -, +
 trashes
 r1-r7
+```
+
+### str::starts_with -> class/str/starts_with
+
+```lisp
+inputs
+r0 = str prefix object (ptr)
+r1 = str object (ptr)
+outputs
+r0 = str prefix object (ptr)
+r1 = 0 if match
+trashes
+r1-r6
 ```
 
 ### str::same -> class/str/same
@@ -6925,7 +7134,7 @@ trashes
 r1
 ```
 
-### stream::lisp_filestream -> class/stream/lisp_filestream
+### stream::lisp_iostream -> class/stream/lisp_iostream
 
 ```lisp
 inputs
@@ -6938,7 +7147,20 @@ trashes
 r1-r14
 ```
 
-### stream::lisp_strstream -> class/stream/lisp_strstream
+### stream::lisp_sstream -> class/stream/lisp_sstream
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### stream::lisp_fstream -> class/stream/lisp_fstream
 
 ```lisp
 inputs
@@ -7043,62 +7265,6 @@ r1-r14
 ```
 
 ### stream::lisp_write_next -> class/stream/lisp_write_next
-
-## stream_str
-
-Super Class: stream
-
-### stream_str::vtable -> class/stream_str/vtable
-
-### stream_str::create -> class/stream_str/create
-
-### stream_str::init -> class/stream_str/init
-
-```lisp
-inputs
-r0 = stream_str object (ptr)
-r1 = vtable (pptr)
-r2 = str object (ptr)
-outputs
-r0 = stream_str object (ptr)
-r1 = 0 if error, else ok
-trashes
-r1-r5
-```
-
-### stream_str::ref_string -> class/stream_str/ref_string
-
-```lisp
-inputs
-r0 = stream_str object (ptr)
-outputs
-r0 = stream_str object (ptr)
-r1 = str object (ptr)
-trashes
-r1-r2
-```
-
-### stream_str::write_next -> class/stream_str/write_next
-
-```lisp
-inputs
-r0 = stream_str object (ptr)
-outputs
-r0 = stream_str object (ptr)
-trashes
-r1-r14
-```
-
-### stream_str::write_flush -> class/stream_str/write_flush
-
-```lisp
-inputs
-r0 = stream_str object (ptr)
-outputs
-r0 = stream_str object (ptr)
-trashes
-r1-r14
-```
 
 ## sym
 
@@ -7303,27 +7469,6 @@ trashes
 r0
 ```
 
-### sys_kernel::total -> sys/kernel/total
-
-```lisp
-outputs
-r0 = cpu total (uint)
-trashes
-r0
-```
-
-### sys_kernel::opts -> sys/kernel/opts
-
-### sys_kernel::declare -> sys/kernel/declare
-
-```lisp
-inputs
-r0 = mailbox name c string (pubyte)
-r1 = mailbox id (ulong)
-trashes
-r0-r10
-```
-
 ### sys_kernel::kernel -> sys/kernel/kernel
 
 ```lisp
@@ -7331,63 +7476,6 @@ inputs
 r0 = argv pointer (pptr)
 info
 loader is already initialized when we get here !
-```
-
-### sys_kernel::debug -> sys/kernel/debug
-
-```lisp
-inputs
-r0 = debug c string (pubyte)
-trashes
-r0-r14
-```
-
-### sys_kernel::debug_reg -> sys/kernel/debug_reg
-
-```lisp
-inputs
-r14 = debug c string (pubyte)
-trashes
-none
-```
-
-### sys_kernel::lisp_total -> sys/kernel/lisp_total
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args list object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### sys_kernel::lisp_declare -> sys/kernel/lisp_declare
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args list object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### sys_kernel::lisp_debug -> sys/kernel/lisp_debug
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args list object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
 ```
 
 ## sys_link
@@ -7485,7 +7573,7 @@ trashes
 r0-r4
 ```
 
-### sys_mail::mbox_addr -> sys/mail/mbox_addr
+### sys_mail::validate -> sys/mail/validate
 
 ```lisp
 inputs
@@ -7598,23 +7686,33 @@ trashes
 r0-r2
 ```
 
-### sys_mail::declare -> sys/mail/declare
+### sys_mail::service -> sys/mail/service
 
 ```lisp
 inputs
-r0 = mailbox name c string (pubyte)
-r1 = mailbox id (ulong)
+r0 = service name str object (ptr)
+r1 = mailbox id num object (ptr)
+outputs
+r0 = service entry str object (ptr)
 trashes
 r0-r14
 ```
 
-### sys_mail::enquire -> sys/mail/enquire
+### sys_mail::ping -> sys/mail/ping
+
+```lisp
+trashes
+r0-r14
+info
+ping services out to network
+```
+
+### sys_mail::declare -> sys/mail/declare
 
 ```lisp
 inputs
-r0 = mailbox name c string (pubyte)
-outputs
-r0 = 0 if error, else mailbox id (ulong)
+r0 = service name str object (ptr)
+r1 = mailbox id num object (ptr)
 trashes
 r0-r14
 ```
@@ -7623,7 +7721,28 @@ r0-r14
 
 ```lisp
 inputs
-r0 = mailbox name c string (pubyte)
+r0 = service name str object (ptr)
+r1 = mailbox id num object (ptr)
+trashes
+r0-r14
+```
+
+### sys_mail::enquire -> sys/mail/enquire
+
+```lisp
+inputs
+r0 = service prefix str object (ptr)
+outputs
+r0 = matching service entries list object (ptr)
+trashes
+r0-r14
+```
+
+### sys_mail::devices -> sys/mail/devices
+
+```lisp
+outputs
+r0 = known device cpu array object (ptr)
 trashes
 r0-r14
 ```
@@ -7719,6 +7838,32 @@ r1-r14
 ```
 
 ### sys_mail::lisp_enquire -> sys/mail/lisp_enquire
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### sys_mail::lisp_forget -> sys/mail/lisp_forget
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### sys_mail::lisp_devices -> sys/mail/lisp_devices
 
 ```lisp
 inputs
@@ -8663,43 +8808,6 @@ trashes
 r0-r14
 ```
 
-### sys_task::open_remote -> sys/task/open_remote
-
-```lisp
-inputs
-r0 = name c string (pubyte)
-r1 = cpu target (uint)
-r2 = spawn type (uint)
-outputs
-r0 = mailbox id (id)
-trashes
-r0-r14
-```
-
-### sys_task::open_farm -> sys/task/open_farm
-
-```lisp
-inputs
-r0 = name c string (pubyte)
-r1 = number to spawn (uint)
-r2 = spawn type (uint)
-outputs
-r0 = mailbox id's array object (ptr)
-trashes
-r0-r14
-```
-
-### sys_task::open_pipe -> sys/task/open_pipe
-
-```lisp
-inputs
-r0 = list of str objects (ptr)
-outputs
-r0 = mailbox id's array object (ptr)
-trashes
-r0-r14
-```
-
 ### sys_task::task_callback -> class/obj/null
 
 ### sys_task::lisp_sleep -> sys/task/lisp_sleep
@@ -8716,58 +8824,6 @@ r1-r14
 ```
 
 ### sys_task::lisp_mailbox -> sys/task/lisp_mailbox
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args list object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### sys_task::lisp_open_child -> sys/task/lisp_open_child
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args list object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### sys_task::lisp_open_remote -> sys/task/lisp_open_remote
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args list object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### sys_task::lisp_open_farm -> sys/task/lisp_open_farm
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args list object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### sys_task::lisp_open_pipe -> sys/task/lisp_open_pipe
 
 ```lisp
 inputs

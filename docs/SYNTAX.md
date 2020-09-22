@@ -1,5 +1,9 @@
 # Syntax
 
+## #
+
+(# (< %0 0)) -> (lambda (%0) (< %0 0))
+
 ## %
 
 (% num num ...)
@@ -123,10 +127,6 @@
 ## bind
 
 (bind (param ...) seq)
-
-## bind-fun
-
-(bind-fun form) -> form
 
 ## byte
 
@@ -328,6 +328,14 @@
 
 (debug-fun name list) -> list
 
+## debug-fun?
+
+(debug-fun? form)
+
+## debug-send
+
+(debug-send string)
+
 ## dec
 
 (dec num) -> num
@@ -396,6 +404,10 @@
 
 (elem-set index list val)
 
+## empty?
+
+(empty? form) -> bool
+
 ## ends-with
 
 (ends-with str str) -> t|nil
@@ -403,6 +415,10 @@
 ## env
 
 (env [num])
+
+## env?
+
+(env? form) -> t|nil
 
 ## eql
 
@@ -454,7 +470,7 @@
 
 ## first
 
-(first seq) -> el
+(first seq) -> el | nil
 
 ## fixeds
 
@@ -466,7 +482,7 @@
 
 ## fnc?
 
-(fnc? form) -> bool
+(fnc? form) -> t|nil
 
 ## font-glyph-paths
 
@@ -532,6 +548,10 @@
 
 (gui-add-back view)
 
+## gui-info
+
+(gui-info)
+
 ## hash
 
 (hash obj)
@@ -550,7 +570,7 @@
 
 ## import
 
-(import path)
+(import path [env])
 
 ## in-get-state
 
@@ -584,25 +604,13 @@
 
 (int field ...)
 
-## is-debug-fun
+## io-stream
 
-(is-debug-fun form)
+(io-stream io)
 
 ## join
 
 (join list seq) -> seq
-
-## kernel-debug
-
-(kernel-debug str)
-
-## kernel-declare
-
-(kernel-declare name mbox)
-
-## kernel-total
-
-(kernel-total)
 
 ## lambda
 
@@ -610,7 +618,7 @@
 
 ## last
 
-(last seq) -> el
+(last seq) -> el | nil
 
 ## length
 
@@ -627,6 +635,10 @@
 ## load
 
 (load path)
+
+## load-stream
+
+(load-stream path) -> nil|stream
 
 ## log2
 
@@ -654,7 +666,7 @@
 
 ## lst?
 
-(lst? form) -> bool
+(lst? form) -> t|nil
 
 ## macroexpand
 
@@ -668,9 +680,17 @@
 
 (mail-declare name mbox)
 
+## mail-devices
+
+(mail-devices)
+
 ## mail-enquire
 
-(mail-enquire name)
+(mail-enquire prefix)
+
+## mail-forget
+
+(mail-forget name mbox)
 
 ## mail-free-mbox
 
@@ -712,9 +732,9 @@
 
 (mem-stats options)
 
-## merge
+## merge-obj
 
-(merge dlist slist) -> dlist
+(merge-obj dlist slist) -> dlist
 
 ## min
 
@@ -723,6 +743,10 @@
 ## neg
 
 (neg num)
+
+## nempty?
+
+(nempty? form) -> bool
 
 ## nlo
 
@@ -762,7 +786,7 @@
 
 ## num?
 
-(num? form) -> bool
+(num? form) -> t|nil
 
 ## nums
 
@@ -814,19 +838,19 @@
 
 ## open-child
 
-(open-child path mode)
+(open-child task mode)
 
 ## open-farm
 
-(open-farm path num mode)
+(open-farm task num mode [devices])
 
 ## open-pipe
 
-(open-pipe paths)
+(open-pipe tasks)
 
 ## open-remote
 
-(open-remote path cpu mode)
+(open-remote task node mode)
 
 ## opt
 
@@ -903,6 +927,10 @@
 ## pop
 
 (pop array)
+
+## prebind
+
+(prebind form) -> form
 
 ## prin
 
@@ -1026,7 +1054,11 @@
 
 ## second
 
-(second seq) -> el
+(second seq) -> el | nil
+
+## seq?
+
+(seq? form) -> t|nil
 
 ## set
 
@@ -1110,7 +1142,7 @@
 
 ## str?
 
-(str? form) -> bool
+(str? form) -> t|nil
 
 ## stream-avail
 
@@ -1142,7 +1174,7 @@
 
 ## sym?
 
-(sym? form) -> bool
+(sym? form) -> t|nil
 
 ## task-mailbox
 
@@ -1172,6 +1204,10 @@
 
 (to-upper str) -> str
 
+## tolist
+
+(tolist env)
+
 ## trim
 
 (trim str [str]) -> str
@@ -1183,14 +1219,6 @@
 ## trim-start
 
 (trim-start str [str]) -> str
-
-## tuple-get
-
-(tuple-get index list) -> value
-
-## tuple-set
-
-(tuple-set index list value)
 
 ## type-of
 
@@ -1356,6 +1384,10 @@
 
 (view-find-id view id)
 
+## view-fit
+
+(view-fit x y w h) -> (x y w h)
+
 ## view-get-bounds
 
 (view-get-bounds view) -> (x y w h)
@@ -1375,6 +1407,10 @@
 ## view-layout
 
 (view-layout view)
+
+## view-locate
+
+(view-locate w h [flag]) -> (x y w h)
 
 ## view-pref-size
 
@@ -1439,4 +1475,8 @@
 ## write-short
 
 (write-short stream num|list) -> stream
+
+## zip
+
+(zip seq ...) -> list
 

@@ -22,7 +22,7 @@
 
 ;dump a file to stdout
 (defun dump-file (_)
-	(when (setq _ (file-stream _))
+	(when _
 		(defq adr 0)
 		(while (defq c (read-chunk _))
 			(prin (as-hex-int adr) " " (apply cat (map (lambda (_)
@@ -49,6 +49,6 @@
 		(defq chunk_size 8)
 		(if (<= (length args) 1)
 			;dump from stdin
-			(dump-file 'stdin)
+			(dump-file (io-stream 'stdin))
 			;dump from args as files
-			(each dump-file (slice 1 -1 args)))))
+			(each (# (dump-file (file-stream %0))) (slice 1 -1 args)))))

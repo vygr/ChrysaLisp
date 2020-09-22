@@ -1,6 +1,7 @@
 (include 'sys/func.inc)
 (include 'gui/gui/class.inc)
 (include 'gui/view/class.inc)
+(include 'class/num/class.inc)
 (include 'class/lisp/class.inc)
 
 (def-method 'gui :lisp_add)
@@ -76,5 +77,44 @@
 (vp-label 'error1)
 	(jump 'lisp :repl_error '(r0 "(gui-add-back view)" error_msg_wrong_types r1))
 	(signature '(view)))
+
+(def-func-end)
+
+(def-method 'gui :lisp_info)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args list object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(entry 'gui :lisp_info '(r0 r1))
+
+(errorcases
+	(assign '((r1 array_length)) '(r2))
+	(gotoif '(r2 /= 0) 'error))
+
+	(vp-push r0)
+	(f-bind 'gui :statics r0)
+	(call 'view :get_bounds '((r0 gui_statics_screen)) '(r0 _ _ r9 r10))
+	(f-bind 'gui :statics r0)
+	(assign '((r0 gui_statics_mouse_x) (r0 gui_statics_mouse_y)) '(r7 r8))
+	(call 'list :create nil '(r11))
+	(call 'num :create '(r7) '(r7))
+	(call 'num :create '(r8) '(r8))
+	(call 'num :create '(r9) '(r9))
+	(call 'num :create '(r10) '(r10))
+	(call 'list :push_back2 '(r11 r7 r8) '(r0 _ _ _ _))
+	(call 'list :push_back2 '(r0 r9 r10) '(r1 _ _ _ _))
+	(vp-pop r0)
+
+	(exit 'gui :lisp_info '(r0 r1))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp :repl_error '(r0 "(gui-info)" error_msg_wrong_types r1)))
 
 (def-func-end)

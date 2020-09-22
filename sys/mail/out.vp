@@ -26,11 +26,11 @@
 		(endif)
 
 		;create next parcel id
-		(assign {mail_statics->ml_statics_parcel_id + 1} {mail_statics->ml_statics_parcel_id})
+		(assign {mail_statics->ml_statics_session + 1} {mail_statics->ml_statics_session})
 
 		;for each fragment
 		(assign {0} {offset})
-		(assign {msg->msg_length} {ammount})
+		(assign {msg->msg_frag_length} {ammount})
 		(loop-start)
 			;create fragment
 			(assign {ammount} {len})
@@ -38,16 +38,15 @@
 				(assign {lk_data_size} {len})
 			(endif)
 			(call 'sys_heap :alloc {&mail_statics->ml_statics_msg_heap} {_, frag})
-			(call 'obj :ref {msg->msg_parcel_obj} {frag->msg_parcel_obj})
+			(call 'obj :ref {msg->msg_obj} {frag->msg_obj})
 
 			;fill in fragment
-			(assign {len} {frag->msg_length})
 			(assign {msg->msg_dest.id_id} {frag->msg_dest.id_id})
-			(assign {data + offset} {frag->msg_parcel_data})
-			(assign {offset} {frag->msg_parcel_offset})
-			(assign {msg->msg_length} {frag->msg_parcel_length})
-			(assign {id} {frag->msg_parcel_src})
-			(assign {mail_statics->ml_statics_parcel_id} {frag->msg_parcel_id})
+			(assign {(id << 32) + mail_statics->ml_statics_session} {frag->msg_src.id_id})
+			(assign {len} {frag->msg_frag_length})
+			(assign {offset} {frag->msg_frag_offset})
+			(assign {msg->msg_frag_length} {frag->msg_total_length})
+			(assign {data + offset} {frag->msg_frag_data})
 
 			;move on
 			(assign {offset + len} {offset})

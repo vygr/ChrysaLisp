@@ -17,6 +17,7 @@
 
 (dec-method :lisp_add 'gui/gui/lisp_add :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_add_back 'gui/gui/lisp_add_back :static '(r0 r1) '(r0 r1))
+(dec-method :lisp_info 'gui/gui/lisp_info :static '(r0 r1) '(r0 r1))
 
 ;;;;;;;;;;;;;;;;
 ; gui structures
@@ -25,13 +26,14 @@
 ;0 for render to texture, assumes previous rendered frames are destroyed
 ;1 for double buffered, 2 for triple buffered etc, assumes previous rendered frames are intact !
 ;when running in buffered modes there may still be issues if SDL does not send EVENT_WINDOW_RESTORED etc
-(defcvar 'num_old_regions 1)
+(defcvar 'num_old_regions 0)
 
 (def-struct 'gui_statics)
 	(struct 'rect_heap 'hp_heap)
 	(ptr 'window 'screen 'temps)
 	(ulong 'renderer 'texture 'next_id)
 	(uint 'dirty_flag 'old_region_index)
+	(int 'mouse_x 'mouse_y)
 	(struct 'old_regions (* num_old_regions ptr_size))
 (def-struct-end)
 

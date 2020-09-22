@@ -3,9 +3,9 @@
 (import 'class/lisp.inc)
 (import 'gui/lisp.inc)
 
-(structure 'event 0
-	(byte 'close)
-	(byte 'prev 'next))
+(structure '+event 0
+	(byte 'close+)
+	(byte 'prev+ 'next+))
 
 (defun-bind num-to-hex-str (_)
 	(cat "0x"
@@ -34,7 +34,8 @@
 	(view-change symbol_grid 0 0 w h)
 	(def symbol_scroll :min_width w :min_height (min h 720))
 	(view-add-child symbol_scroll symbol_grid)
-	(apply view-change-dirty (cat (list window) (view-get-pos window) (view-pref-size window))))
+	(bind '(x y w h) (apply view-fit (cat (view-get-pos window) (view-pref-size window))))
+	(view-change-dirty window x y w h))
 
 (defun-bind all-fonts (p)
 	(defq out (list))
@@ -45,20 +46,21 @@
 (defq index 1 fonts (all-fonts "fonts/"))
 
 (ui-window window ()
-	(ui-title-bar _ "Fonts" (0xea19) (const event_close))
+	(ui-title-bar _ "Fonts" (0xea19) +event_close+)
 	(ui-tool-bar _ (:flow_flags flow_right_fill)
-		(ui-buttons (0xe91d 0xe91e) (const event_prev))
+		(ui-buttons (0xe91d 0xe91e) +event_prev+)
 		(ui-label fontname (font *env_window_font* border -1)))
 	(ui-scroll symbol_scroll scroll_flag_vertical))
 
 (defun-bind main ()
 	(win-refresh index)
-	(gui-add (apply view-set-pos (cat (list window 200 48))))
+	(bind '(x y w h) (apply view-locate (view-pref-size window)))
+	(gui-add (view-change window x y w h))
 	(while (cond
-		((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_close)
+		((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) +event_close+)
 			;close button
 			nil)
-		((<= event_prev id event_next)
-			(win-refresh (% (+ index (dec (* 2 (- id event_prev))) (length fonts)) (length fonts))))
+		((<= +event_prev+ id +event_next+)
+			(win-refresh (% (+ index (dec (* 2 (- id +event_prev+))) (length fonts)) (length fonts))))
 		(t (view-event window msg))))
 	(view-hide window))

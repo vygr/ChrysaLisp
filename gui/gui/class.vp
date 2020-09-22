@@ -18,6 +18,8 @@
 
 	;init region heap
 	(f-bind 'gui :statics r4)
+	(vp-xor-rr r0 r0)
+	(assign '(r0 r0) '((r4 gui_statics_mouse_x) (r4 gui_statics_mouse_y)))
 	(jump 'sys_heap :init '((& r4 gui_statics_rect_heap) rect_size 32))
 
 (def-func-end)
@@ -29,7 +31,6 @@
 		(ptr 'statics)
 		(ulong 'mouse_id 'key_id)
 		(uint 'mouse_buttons)
-		(int 'mouse_x 'mouse_y)
 		(ubyte 'quit)
 	(def-struct-end)
 
@@ -146,8 +147,8 @@
 		(vpcase {event.sdl_common_event_type = SDL_MOUSEMOTION})
 			;update mouse state
 			(assign {event.sdl_mouse_motion_event_state} {user->local_mouse_buttons})
-			(assign {event.sdl_mouse_button_event_x} {user->local_mouse_x})
-			(assign {event.sdl_mouse_button_event_y} {user->local_mouse_y})
+			(assign {event.sdl_mouse_button_event_x} {user->local_statics->gui_statics_mouse_x})
+			(assign {event.sdl_mouse_button_event_y} {user->local_statics->gui_statics_mouse_y})
 
 			;send event message
 		(vp-label 'send_event)
@@ -183,7 +184,8 @@
 		(vpcase {event.sdl_common_event_type = SDL_KEYDOWN})
 			;find keyboard id
 			(call 'view :hit_tree {user->local_statics->gui_statics_screen,
-				user->local_mouse_x, user->local_mouse_y} {_, view, _, _})
+				user->local_statics->gui_statics_mouse_x, user->local_statics->gui_statics_mouse_y}
+				{_, view, _, _})
 			(assign {view->component_id} {user->local_key_id})
 
 			;find view for keys

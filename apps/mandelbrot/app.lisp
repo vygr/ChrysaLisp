@@ -6,14 +6,14 @@
 (import 'gui/lisp.inc)
 (import 'apps/mandelbrot/mbmath.inc)
 
-(structure 'event 0
-	(byte 'close))
+(structure '+event 0
+	(byte 'close+))
 
 (defq canvas_width 800 canvas_height 800 canvas_scale 2 then nil area 0 select nil
 	center_x (mbfp-from-fixed -0.5) center_y (mbfp-from-fixed 0.0) zoom (mbfp-from-fixed 1.0))
 
 (ui-window window ()
-	(ui-title-bar _ "Mandelbrot" (0xea19) (const event_close))
+	(ui-title-bar _ "Mandelbrot" (0xea19) +event_close+)
 	(ui-canvas canvas canvas_width canvas_height canvas_scale))
 
 (defun-bind reset ()
@@ -21,7 +21,7 @@
 	(setq then (time) select (array (task-mailbox) (mail-alloc-mbox))
 		area (* canvas_width canvas_height canvas_scale canvas_scale))
 	(mail-send (array (elem 1 select) 0 0 (* canvas_width canvas_scale) (* canvas_height canvas_scale)
-		(* canvas_width canvas_scale) (* canvas_height canvas_scale) center_x center_y zoom (* (kernel-total) 4))
+		(* canvas_width canvas_scale) (* canvas_height canvas_scale) center_x center_y zoom (* (length (mail-devices)) 4))
 		(open-child "apps/mandelbrot/child.lisp" kn_call_child)))
 
 (defun-bind tile (canvas data)
@@ -43,7 +43,8 @@
 (defun-bind main ()
 	;add window
 	(canvas-swap (canvas-fill canvas argb_black))
-	(gui-add (apply view-change (cat (list window 64 64) (view-pref-size window))))
+	(bind '(x y w h) (apply view-locate (view-pref-size window)))
+	(gui-add (view-change window x y w h))
 	(reset)
 	;main event loop
 	(while (progn
@@ -53,7 +54,7 @@
 			((= id 0)
 				;main mailbox
 				(cond
-					((= (setq id (get-long msg ev_msg_target_id)) event_close)
+					((= (setq id (get-long msg ev_msg_target_id)) +event_close+)
 						;close button
 						nil)
 					((and (= id (component-get-id canvas))

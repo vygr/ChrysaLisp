@@ -8,10 +8,10 @@
 
 ;C++ ChrysaLisp ?
 (unless (get 'nums)
-	(defun kernel-total () 1))
+	(defun mail-devices () '(0)))
 
 (defun-bind compile (files &optional *abi* *cpu* num_child)
-	(setd *abi* (abi) *cpu* (cpu) num_child (max 1 (/ (* (kernel-total) 80) 100)))
+	(setd *abi* (abi) *cpu* (cpu) num_child (max 1 (/ (* (length (mail-devices)) 80) 100)))
 	(unless (lst? files)
 		(setq files (list files)))
 	(setq files (shuffle (map sym files)))
@@ -89,7 +89,7 @@
 			(each-mergeable (lambda (_)
 				(defq i (make-info _))
 				(bind '(d p) i)
-				(merge *imports* d)
+				(merge-obj *imports* d)
 				(elem-set 1 i (map func-obj p))
 				(def *deps* _ i)) *imports*)))
 		;filter to only the .vp files
@@ -99,7 +99,7 @@
 		(setq *imports* (filter (lambda (_)
 			(defq d (eval _ *deps*) p (reduce min (map file-age (elem 1 d))) d (elem 0 d))
 			(each-mergeable (lambda (_)
-				(merge d (elem 0 (eval _ *deps*)))) d)
+				(merge-obj d (elem 0 (eval _ *deps*)))) d)
 			(some (lambda (_) (>= _ p)) (map file-age d))) *imports*))
 		;return the list to compile
 		*imports*)) *abi* *cpu*))
@@ -133,15 +133,15 @@
 			'sys/load/statics))
 		;load all loader dependents
 		(each-mergeable (lambda (_)
-			(merge f (elem 2 (load-func _)))) f)
+			(merge-obj f (elem 2 (load-func _)))) f)
 		(defq fs (length f))
 		;load up all extra functions requested
-		(merge f (map sym *funcs*))
+		(merge-obj f (map sym *funcs*))
 		(each load-func f)
 		;if recursive then load up all dependents
 		(when r
 			(each-mergeable (lambda (_)
-				(merge f (elem 2 (load-func _)))) f))
+				(merge-obj f (elem 2 (load-func _)))) f))
 		;sort into order, leaving the loader dependents first !
 		(sort cmp f fs)
 		;list of all function bodies and links in order, list of offsets of header and link sections
@@ -154,7 +154,7 @@
 		;list of all strings that will appear in new strings section, and list of all new string offsets
 		(each (lambda (_)
 			(each (lambda (_)
-				(unless (find-rev _ f) (merge ns (list _)))) (elem 2 (eval _ *fsyms*)))) f)
+				(unless (find-rev _ f) (merge-obj ns (list _)))) (elem 2 (eval _ *fsyms*)))) f)
 		(reduce (lambda (x y)
 			(push nso x)
 			(+ x (length y) 1)) ns 0)
@@ -181,22 +181,22 @@
 			(defq *prods* (list))
 			;lists of all file imports and products
 			(each-mergeable (lambda (_)
-				(merge *prods* (bind '(d _) (make-info _)))
-				(merge _l d)) (list 'make.inc)) *prods*)) *abi* *cpu*))
+				(merge-obj *prods* (bind '(d _) (make-info _)))
+				(merge-obj _l d)) (list 'make.inc)) *prods*)) *abi* *cpu*))
 
 (defun-bind all-vp-files ()
 	;filter to only the .vp files
 	(filter (lambda (_) (ends-with ".vp" _))
 		;the list of all file imports
 		(each-mergeable (lambda (_)
-			(merge _l (make-imports _))) (list 'make.inc))))
+			(merge-obj _l (make-imports _))) (list 'make.inc))))
 
 (defun-bind all-class-files ()
 	;filter to only the class.inc files
 	(filter (lambda (_) (ends-with "class.inc" _))
 		;the list of all file imports
 		(each-mergeable (lambda (_)
-			(merge _l (make-imports _))) (list 'make.inc))))
+			(merge-obj _l (make-imports _))) (list 'make.inc))))
 
 (defun-bind make-all (&optional *abi* *cpu* files)
 	(setd *abi* (abi) *cpu* (cpu))

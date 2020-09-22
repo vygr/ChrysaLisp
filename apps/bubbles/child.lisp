@@ -30,7 +30,7 @@
 		(when (> z (const (i2n focal_len)))
 			(defq v (vec x y z) w (/ hsw z) h (/ hsh z))
 			(bind '(sx sy sz) (vec-add v (vec-scale (vec-norm
-				(vec-add v (vec-sub (tuple-get dlist_light_pos dlist) v))) r)))
+				(vec-add v (vec-sub (elem +dlist_light_pos+ dlist) v))) r)))
 			(defq x (+ (* x h) hsw) y (+ (* y h) hsh) r (* r h)
 				sx (+ (* sx h) hsw) sy (+ (* sy h) hsh))
 			(push out (list (vec-n2f x y z) (vec-n2f sx sy) (n2f r)
@@ -45,16 +45,16 @@
 
 (defun-bind redraw (dlist)
 	;redraw layer/s
-	(when (/= 0 (logand (tuple-get dlist_mask dlist) 1))
-		(defq canvas (tuple-get dlist_layer1_canvas dlist))
+	(when (/= 0 (logand (elem +dlist_mask+ dlist) 1))
+		(defq canvas (elem +dlist_layer1_canvas+ dlist))
 		(canvas-fill canvas 0)
 		(bind '(sw sh) (view-pref-size canvas))
 		(defq hsw (i2n (>> sw 1)) hsh (i2n (>> sh 1)))
 		(render_verts canvas
 			(sort (lambda (v1 v2) (if (<= (elem -2 (elem 0 v1)) (elem -2 (elem 0 v2))) 1 -1))
-				(clip_verts hsw hsh (tuple-get dlist_layer1_verts dlist))))
+				(clip_verts hsw hsh (elem +dlist_layer1_verts+ dlist))))
 		(canvas-swap canvas))
-	(tuple-set dlist_mask dlist 0))
+	(elem-set +dlist_mask+ dlist 0))
 
 (defun-bind main ()
 	;read args from parent (shared dlist tuple)
@@ -62,4 +62,4 @@
 	;until quit
 	(until (mail-poll (array (task-mailbox)))
 		(redraw dlist)
-		(task-sleep (tuple-get dlist_rate dlist))))
+		(task-sleep (elem +dlist_rate+ dlist))))

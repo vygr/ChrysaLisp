@@ -1,6 +1,6 @@
 ;imports
 (import 'lib/asm/asm.inc)
-(import 'apps/terminal/pipe.inc)
+(import 'lib/pipe/pipe.inc)
 (import 'lib/options/options.inc)
 
 (defmacro sfind (ss slst)
@@ -44,11 +44,7 @@
 		view_flag_dirty_all view_flag_opaque view_flag_solid view_flags view_h view_w
 		view_x view_y)
 		_vals_ (within-compile-env (lambda ()
-			(each include
-				'(sys/kernel/class.inc sys/list/class.inc sys/mail/class.inc class/in/class.inc
-				class/out/class.inc class/stdio/class.inc gui/gui/class.inc gui/ctx/class.inc
-				gui/flow/class.inc gui/vdu/class.inc gui/window/class.inc gui/scroll/class.inc
-				gui/canvas/class.inc gui/path/class.inc))
+			(each include (make-tree "." "class.inc"))
 			(map eval _syms_)))
 		stream (string-stream (cat "")))
 	(write-line stream ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;")
@@ -91,7 +87,7 @@
                     (defq s (split l " ')") _ (elem 0 s))
                     (cond
                         ((eql _ "(include")
-                            (merge *imports* (list (sym (elem 1 s)))))
+                            (merge-obj *imports* (list (sym (elem 1 s)))))
                         ((eql _ "(def-class")
                             (push classes (list (sym (elem 1 s))
                                 (if (= 3 (length s)) (sym (elem 2 s)) 'null))))
@@ -107,7 +103,7 @@
                             (push functions (sym (elem 1 s))))
                         ((and (or (eql _ "(call") (eql _ "(jump")) (eql (elem 2 s) ":repl_error"))
                             (if (setq l (chop l))
-                                (merge syntax (list l))))))) (file-stream _))) *imports*)))
+                                (merge-obj syntax (list l))))))) (file-stream _))) *imports*)))
     ;create classes docs
     (sort (lambda (x y)
         (cmp (elem 0 x) (elem 0 y))) classes)
@@ -166,7 +162,7 @@
             (defq l (trim-whitespace _))
             (when (eql state 'y)
                 (if (and (>= (length l) 1) (eql (elem 0 l) ";"))
-                    (merge syntax (list (sym (slice 1 -1 l))))
+                    (merge-obj syntax (list (sym (slice 1 -1 l))))
                     (setq state 'x)))
             (when (and (eql state 'x) (>= (length l) 10) (eql "(" (elem 0 l)))
                 (defq s (split l " ") _ (elem 0 s))
@@ -174,7 +170,7 @@
                     ((or (eql _ "(defun") (eql _ "(defmacro") (eql _ "(defun-bind") (eql _ "(defmacro-bind"))
                         (setq state 'y))))) (file-stream _)))
         (cat (make-tree "." "lisp.inc")
-            '(class/lisp/anaphoric.inc class/lisp/boot.inc class/lisp/debug.inc)))
+            '(lib/anaphoric/anaphoric.inc class/lisp/boot.inc class/lisp/debug.inc)))
     (sort cmp syntax)
     (defq stream (string-stream (cat "")))
     (write-line stream (const (str "# Syntax" (ascii-char 10))))

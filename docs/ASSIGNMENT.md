@@ -115,6 +115,11 @@ Will emit:
 	(fn-bind "class/num/vtable" r0)
 ```
 
+* $ label address reference
+* & effective address reference
+* "" embedded string address reference
+* @ function address reference
+
 ## C-Script Assignment
 
 Passing a string parameter will invoke the C-Script parser and compiler ! This
@@ -207,7 +212,7 @@ Implementation of the function is defined in the `sys/mail/class.vp` file.
 	(assign (cat {@} (f-path 'sys_mail :statics)) {mail_statics})
 	(call 'sym :intern_cstr {name} {name})
 	(call 'num :create {id} {id})
-	(call 'hmap :insert {mail_statics->ml_statics_declare_map, name, id})
+	(call 'hmap :insert {mail_statics->ml_statics_service_map, name, id})
 	(call 'sym :deref {name})
 	(call 'num :deref {id})
 
@@ -228,19 +233,23 @@ allows embedded "" and via-versa. It's just a string in the end that gets
 passed to `(assign)`.
 
 The C-Script compiler emits all the code required to read and write the
-variables, with their correct data type. If you are curious to see the code
-emitted by the compiler you can switch on printing of the emitted code by use
-of the `*debug_emit*` and `*debug_inst*` flags. A `(setq *debug_inst* t)` will
-enable printing of each expression compilation, `(setq *debug_emit* t)` will
-enable printing of the entire functions final instructions. Be sure to `(setq
-*debug_inst* nil)` and `(setq *debug_emit* nil)` after the section of code or
-function to turn emit printing off.
+variables, with their correct data type.
 
-This is the output from wrapping the 'hmap 'insert line above:
+## Errorcases and debug modes
+
+If you are curious to see the code emitted by the compiler you can switch on
+printing of the emitted code by use of the `*debug_emit*` and `*debug_inst*`
+flags. A `(setq *debug_inst* t)` will enable printing of each expression
+compilation, `(setq *debug_emit* t)` will enable printing of the entire
+functions final instructions. Be sure to `(setq *debug_inst* nil)` and `(setq
+*debug_emit* nil)` after the section of code or function to turn emit printing
+off.
+
+This is the output from wrapping the 'hmap 'insert line in the example above:
 
 ```lisp
 	(setq *debug_inst* t)
-	(call 'hmap :insert {mail_statics->ml_statics_declare_map, name, id})
+	(call 'hmap :insert {mail_statics->ml_statics_service_map, name, id})
 	(setq *debug_inst* nil)
 ```
 
@@ -248,7 +257,7 @@ This is the output from wrapping the 'hmap 'insert line above:
 -> obj/Darwin/x86_64/sys/mail/declare
 pre opt:
 	(vp-lea-i rsp 0 _v0)
-	(vp-cpy-cr ml_statics_declare_map _v1)
+	(vp-cpy-cr ml_statics_service_map _v1)
 	(vp-cpy-ir _v0 0 _v0)
 	(vp-add-rr _v1 _v0)
 	(vp-cpy-ir _v0 0 _v0)
@@ -258,9 +267,37 @@ pre opt:
 	(vp-cpy-ir _v2 0 _v2)
 post opt:
 	(vp-cpy-ir rsp (+ 0 0) _v0)
-	(vp-cpy-ir _v0 (+ ml_statics_declare_map 0) _v0)
+	(vp-cpy-ir _v0 (+ ml_statics_service_map 0) _v0)
 	(vp-cpy-ir rsp (+ 8 0) _v1)
 	(vp-cpy-ir rsp (+ 16 0) _v2)
+```
+
+`*debug_mode*` setting in the `class/lisp/boot.inc` file lets you set the
+compile option for the system. The various mode are:
+
+* 0 release, strip all error checking
+* 1 normal, with error checking
+* 2 profiling, with error checking and object stats
+* 3 guarded, with error checking, object stats and guard pages
+
+The `(errorcases)`, `(errorif)` and `(errorifnot)` macros alow you to
+conditionally include source code if the `*debug_mode*` is greater than 0.
+
+For example adding conditional type checking of input parameters that will be
+removed in release mode. The `(signature)` macro drops the label `sig` at the
+front of the function signature table !
+
+```lisp
+	...
+(errorcases
+	(call 'lisp :env_args_sig '(r1 ($ sig) 3) '(r2))
+	(gotoif '(r2 = 0) 'error))
+	...
+(errorcases
+(vp-label 'error)
+	(jump 'lisp :repl_error '(r0 "(piece-scans brd index vectors)" error_msg_wrong_types r1))
+	(signature '(str num list)))
+	...
 ```
 
 ## Limitations

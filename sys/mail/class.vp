@@ -1,7 +1,7 @@
 (include 'sys/func.inc)
 (include 'sys/link/class.inc)
 (include 'sys/kernel/class.inc)
-(include 'class/array/class.inc)
+(include 'class/list/class.inc)
 (include 'class/sym/class.inc)
 (include 'class/hmap/class.inc)
 (include 'class/pair/class.inc)
@@ -42,19 +42,32 @@
 
 	;init postmen task
 	(vp-xor-rr r0 r0)
-	(assign '(r0) '((r12 ml_statics_parcel_id)))
+	(assign '(r0) '((r12 ml_statics_session)))
 	(call 'sys_task :start `((@ ,(f-path 'sys_mail :out))) '(_ _ r2))
 	(f-bind 'sys_mail :statics r12)
 	(assign '(r2) '((r12 ml_statics_out_mbox_addr)))
 
-	;create link array
+	;services, links and routing
 	(call 'array :create nil '((r12 ml_statics_links_array)))
-
-	;create declare map
-	(call 'hmap :create '(0 1) '((r12 ml_statics_declare_map)))
+	(call 'hmap :create '(($ key_num) 1) '((r12 ml_statics_service_map)))
+	(call 'hmap :create '(($ key_num) 13) '((r12 ml_statics_routing_map)))
 
 	;init header heap
 	(jump 'sys_heap :init '((& r12 ml_statics_msg_heap) msg_size 64))
+
+(vp-label 'key_num)
+	;inputs
+	;r0 = num1 object (ptr)
+	;r1 = num2 object (ptr)
+	;outputs
+	;r0 = num1 object (ptr)
+	;r1 = 0 if same
+
+	(entry '(r0 r1))
+
+	(assign '((r0 num_value) (r1 num_value)) '(r0 r1))
+	(vp-sub-rr r0 r1)
+	(vp-ret)
 
 (def-func-end)
 
@@ -106,7 +119,7 @@
 
 	(entry 'sys_mail :free_mbox '(r0))
 
-	(call 'sys_mail :mbox_addr '(r0) '(r0))
+	(call 'sys_mail :validate '(r0) '(r0))
 	(vpif '(r0 /= 0))
 		;remove mailbox node
 		(vp-cpy-rr r0 r1)
@@ -158,7 +171,7 @@
 
 (def-func-end)
 
-(def-method 'sys_mail :mbox_addr)
+(def-method 'sys_mail :validate)
 	;inputs
 	;r0 = mailbox id (uint)
 	;outputs
@@ -168,7 +181,7 @@
 
 	(vp-def (node next mid id))
 
-	(entry 'sys_mail :mbox_addr `(,id))
+	(entry 'sys_mail :validate `(,id))
 
 	(vp-cpy-rr id next)
 	(f-bind 'sys_mail :statics node)
@@ -185,7 +198,7 @@
 		(vp-cpy-rr next node)
 	(endif)
 
-	(exit 'sys_mail :mbox_addr `(,node))
+	(exit 'sys_mail :validate `(,node))
 	(vp-ret)
 
 (def-func-end)
@@ -220,7 +233,7 @@
 	(vp-xor-rr r2 r2)
 	(vp-lea-i r4 str_data r1)
 	(assign '(r4 r1 r3 r2)
-		'((r0 msg_parcel_obj) (r0 msg_parcel_data) (r0 msg_length) (r0 msg_parcel_length)))
+		'((r0 msg_obj) (r0 msg_frag_data) (r0 msg_frag_length) (r0 msg_total_length)))
 
 	(exit 'sys_mail :alloc '(r0 r1))
 	(vp-ret)
@@ -244,7 +257,7 @@
 	(call 'sys_heap :alloc '((& r0 ml_statics_msg_heap)) '(_ r0))
 	(vp-xor-rr r1 r1)
 	(assign '(r3 r4 r5 r1)
-		'((r0 msg_parcel_obj) (r0 msg_parcel_data) (r0 msg_length) (r0 msg_parcel_length)))
+		'((r0 msg_obj) (r0 msg_frag_data) (r0 msg_frag_length) (r0 msg_total_length)))
 
 	(exit 'sys_mail :alloc_obj '(r0))
 	(vp-ret)
@@ -261,7 +274,7 @@
 
 	(vpif '(r0 /= 0))
 		(vp-push r0)
-		(call 'str :deref '((r0 msg_parcel_obj)))
+		(call 'str :deref '((r0 msg_obj)))
 		(f-bind 'sys_mail :statics r0)
 		(vp-pop r1)
 		(call 'sys_heap :free '((& r0 ml_statics_msg_heap) r1))
@@ -283,7 +296,7 @@
 	(entry 'sys_mail :free_obj '(r0))
 
 	(vpif '(r0 /= 0))
-		(assign '((r0 msg_parcel_obj) (r0 msg_parcel_data) (r0 msg_length)) '(r3 r4 r5))
+		(assign '((r0 msg_obj) (r0 msg_frag_data) (r0 msg_frag_length)) '(r3 r4 r5))
 		(f-bind 'sys_mail :statics r2)
 		(call 'sys_heap :free '((& r2 ml_statics_msg_heap) r0))
 		(vp-cpy-rr r3 r0)
@@ -318,7 +331,7 @@
 	(vp-cpy-rr r0 r1)
 	(ln-remove-node r1 r2)
 
-	(exit 'sys_mail :read '(r0 (r0 msg_parcel_data)))
+	(exit 'sys_mail :read '(r0 (r0 msg_frag_data)))
 	(vp-ret)
 
 (def-func-end)
@@ -336,7 +349,7 @@
 	(vp-cpy-ir-ui r4 (+ msg_dest id_cpu) r1)
 	(vpif '(r0 = r1))
 		;on this chip
-		(call 'sys_mail :mbox_addr `((r4 ,(+ msg_dest id_mbox))) '(r1))
+		(call 'sys_mail :validate `((r4 ,(+ msg_dest id_mbox))) '(r1))
 		(vpif '(r1 = 0))
 			;must use postman task for junk mail
 			(f-bind 'sys_mail :statics r1)
@@ -354,12 +367,12 @@
 	(else)
 		;going off chip
 		(f-bind 'sys_mail :statics r1)
-		(assign '((r4 msg_length)) '(r0))
+		(assign '((r4 msg_frag_length)) '(r0))
 		(switch)
 		(vpcase '(r0 > lk_data_size))
 			;must use postman task for parcels
 			(assign '((r1 ml_statics_out_mbox_addr)) '(r1))
-			(vp-jmp 'post_it)
+			(goto 'post_it)
 		(default)
 			;queue it on the outgoing packet list
 			(vp-add-cr ml_statics_offchip_list r1)
@@ -391,7 +404,7 @@
 		(switch)
 		(assign `((,iter id_mbox)) `(,idx))
 		(breakif `(,idx = 0))
-		(call 'sys_mail :mbox_addr `(,idx) `(,idx))
+		(call 'sys_mail :validate `(,idx) `(,idx))
 		(breakif `(,idx = 0))
 		(lh-is-empty idx mbox_list idx)
 		(breakif `(,idx = 0))
@@ -449,7 +462,7 @@
 		(switch)
 		(assign `((,iter id_mbox)) `(,idx))
 		(breakif `(,idx = 0))
-		(call 'sys_mail :mbox_addr `(,idx) `(,idx))
+		(call 'sys_mail :validate `(,idx) `(,idx))
 		(breakif `(,idx = 0))
 			(assign `(,tcb) `((,idx mbox_tcb)))
 		(endswitch)
@@ -459,80 +472,243 @@
 
 (def-func-end)
 
-(def-method 'sys_mail :declare)
+(def-method 'sys_mail :service)
 	;inputs
-	;r0 = mailbox name c string (pubyte)
-	;r1 = mailbox id (ulong)
+	;r0 = service name str object (ptr)
+	;r1 = mailbox id num object (ptr)
+	;outputs
+	;r0 = service entry str object (ptr)
 	;trashes
 	;r0-r14
 
-	(ptr 'name)
-	(ulong 'id)
+	(ptr 'name 'id 'cat 'tmp1 'tmp2)
+
+	(push-scope)
+	(entry 'sys_mail :service {name, id})
+
+	;create service entry
+	(call 'obj :ref {name})
+	(call 'list :create nil {cat})
+	(call 'list :push_back {cat, name})
+	(call 'str :create_from_long {id->num_value, -16} {tmp2})
+	(call 'str :create_from_buffer {",0x0000000000000000", 19 - tmp2->str_length} {tmp1})
+	(call 'list :push_back2 {cat, tmp1, tmp2})
+	(call 'str :cat {name, cat} {name})
+	(call 'list :destroy {cat})
+
+	(exit 'sys_mail :service {name})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-method 'sys_mail :declare)
+	;inputs
+	;r0 = service name str object (ptr)
+	;r1 = mailbox id num object (ptr)
+	;trashes
+	;r0-r14
+
+	(ptr 'name 'id 'key 'bucket 'set 'tuple 'session)
 
 	(push-scope)
 	(entry 'sys_mail :declare {name, id})
 
-	(call 'sym :intern_cstr {name} {name})
-	(call 'num :create {id} {id})
-	(call 'hmap :insert (cat {@} (f-path 'sys_mail :statics) {.ml_statics_declare_map, name, id}))
-	(call 'sym :deref {name})
-	(call 'num :deref {id})
+	;insert into service map
+	(call 'num :create {id->num_value >> 32} {key})
+	(call 'hmap :find (cat {@} (f-path 'sys_mail :statics) {.ml_statics_service_map, key}) {_, tuple, bucket})
+	(vpifnot {tuple})
+		(call 'list :create nil {tuple})
+		(call 'num :create {0} {session})
+		(call 'hset :create `((@ ,(f-path 'str :same)) 1) {set})
+		(call 'list :push_back2 {tuple, session, set})
+		(call 'pair :create {key, tuple} {key})
+		(call 'list :push_back {bucket, key})
+	(else)
+		(assign {(*(pptr tuple))->pair_second} {tuple})
+		(call 'num :destroy {key})
+	(endif)
+	(call 'list :get_second {tuple} {_, set})
+	(call 'sys_mail :service {name, id} {name})
+	(call 'hset :insert {set, name})
+	(call 'str :deref {name})
+	(jump 'sys_mail :ping '())
 
-	(pop-scope)
-	(return)
+	(pop-scope-syms)
 
 (def-func-end)
 
 (def-method 'sys_mail :enquire)
 	;inputs
-	;r0 = mailbox name c string (pubyte)
+	;r0 = service prefix str object (ptr)
 	;outputs
-	;r0 = 0 if error, else mailbox id (ulong)
+	;r0 = matching service entries list object (ptr)
 	;trashes
 	;r0-r14
 
-	(ptr 'name)
-	(union
-		(pptr 'iter)
-		(ulong 'id))
+	(def-struct 'local)
+		(ptr 'prefix 'entries)
+	(def-struct-end)
 
-	(push-scope)
-	(entry 'sys_mail :enquire {name})
+	(vp-alloc local_size)
+	(entry 'sys_mail :enquire '((rsp local_prefix)))
 
-	(call 'sym :intern_cstr {name} {name})
-	(call 'hmap :find (cat {@} (f-path 'sys_mail :statics) {.ml_statics_declare_map, name}) {_, iter, _})
-	(vpif {iter})
-		(call 'pair :get_second {*iter} {_, id})
-		(call 'num :get_value {id} {_, id})
+	(call 'list :create nil '((rsp local_entries)))
+	(f-bind 'sys_mail :statics r0)
+	(call 'hmap :for_each '((r0 ml_statics_service_map) ($ callback1) rsp))
+
+	(exit 'sys_mail :enquire '((rsp local_entries)))
+	(vp-free local_size)
+	(vp-ret)
+
+(vp-label 'callback1)
+	;inputs
+	;r0 = predicate data (ptr)
+	;r1 = element iterator (ptr)
+
+	(entry 'hmap :each_callback '(r0 r1))
+
+	(assign '((r1 0)) '(r1))
+	(assign '((r1 pair_second) 1) '(r2 r1))
+	(class/array/get_element r2 r1 r1 r2)
+	(jump 'hset :for_each '(r1 ($ callback2) r0))
+
+(vp-label 'callback2)
+	;inputs
+	;r0 = predicate data (ptr)
+	;r1 = element iterator (ptr)
+
+	(entry 'hset :each_callback '(r0 r1))
+
+	(assign '((r1 0)) '(r1))
+	(vp-push r0 r1)
+	(call 'str :starts_with '((r0 local_prefix) r1) '(_ r2))
+	(vp-pop r0 r1)
+	(vpif '(r2 = 0))
+		(class/obj/ref r1 r2)
+		(jump 'list :push_back '((r0 local_entries) r1))
 	(endif)
-	(call 'sym :deref {name})
-
-	(exit 'sys_mail :enquire {id})
-	(pop-scope)
-	(return)
+	(vp-ret)
 
 (def-func-end)
 
 (def-method 'sys_mail :forget)
 	;inputs
-	;r0 = mailbox name c string (pubyte)
+	;r0 = service name str object (ptr)
+	;r1 = mailbox id num object (ptr)
 	;trashes
 	;r0-r14
 
-	(ptr 'name 'bucket)
-	(pptr 'iter)
+	(ptr 'name 'id 'bucket 'tuple)
+	(union
+		(ptr 'set)
+		(ptr 'key))
 
 	(push-scope)
-	(entry 'sys_mail :forget {name})
+	(entry 'sys_mail :forget {name, id})
 
-	(call 'sym :intern_cstr {name} {name})
-	(call 'hmap :find (cat {@} (f-path 'sys_mail :statics) {.ml_statics_declare_map, name}) {_, iter, bucket})
-	(vpif {iter})
-		(call 'hmap :erase (cat {@} (f-path 'sys_mail :statics) {.ml_statics_declare_map, iter, bucket}))
+	;find in service map
+	(call 'num :create {id->num_value >> 32} {key})
+	(call 'hmap :find (cat {@} (f-path 'sys_mail :statics) {.ml_statics_service_map, key}) {_, tuple, bucket})
+	(call 'num :destroy {key})
+	(vpif {tuple})
+		(assign {(*(pptr tuple))->pair_second} {tuple})
+		(call 'sys_mail :service {name, id} {name})
+		(call 'list :get_second {tuple} {_, set})
+		(call 'hset :find {set, name} {_, id, bucket})
+		(vpif {id})
+			(call 'hset :erase {set, id, bucket})
+		(endif)
+		(call 'str :destroy {name})
+		(jump 'sys_mail :ping {})
 	(endif)
-	(call 'sym :deref {name})
 
 	(pop-scope)
 	(return)
+
+(def-func-end)
+
+(def-method 'sys_mail :ping)
+	;trashes
+	;r0-r14
+	;info
+	;ping services out to network
+
+	(def-struct 'cat)
+		(ptr 'entries 'lf)
+	(def-struct-end)
+
+	(ptr 'key 'bucket 'tuple 'set 'msg 'data 'services 'mail_statics)
+	(struct 'cat 'cat)
+
+	(push-scope)
+
+	(call 'num :create (cat {@} (f-path 'sys_task :statics) {.tk_statics_cpu_id}) {key})
+	(assign (cat {@} (f-path 'sys_mail :statics)) {mail_statics})
+	(call 'hmap :find {mail_statics->ml_statics_service_map, key} {_, tuple, bucket})
+	(vpif {tuple})
+		(assign {(*(pptr tuple))->pair_second, char_lf} {tuple, cat.cat_lf})
+		(call 'str :create_from_buffer {&cat.cat_lf, 1} {cat.cat_lf})
+		(call 'list :create nil {cat.cat_entries})
+		(call 'list :get_second {tuple} {_, set})
+		(call 'hset :for_each {set, $callback, &cat})
+		(call 'str :cat {cat.cat_lf, cat.cat_entries} {services})
+		(call 'sys_mail :alloc {kn_msg_ping_services + services->str_length} {msg, data})
+		(assign {key->num_value << 32} {msg->msg_dest.id_id})
+		(assign {kn_call_ping} {data->kn_msg_func})
+		(assign {msg->msg_dest.id_cpu} {data->kn_msg_ping_origin})
+		(assign {0} {data->kn_msg_ping_hops})
+		(assign {msg->msg_dest.id_cpu} {data->kn_msg_ping_via})
+		(assign {(mail_statics->ml_statics_session + 1) => mail_statics->ml_statics_session} {data->kn_msg_ping_session})
+		(call 'sys_mem :copy {&services->str_data, &data->kn_msg_ping_services, services->str_length})
+		(call 'sys_mail :send {msg})
+		(call 'list :destroy {cat.cat_entries})
+		(call 'str :destroy {services})
+		(call 'str :destroy {cat.cat_lf})
+	(endif)
+	(jump 'num :destroy {key})
+
+	(pop-scope-syms)
+
+(vp-label 'callback)
+	;inputs
+	;r0 = predicate data (ptr)
+	;r1 = element iterator (ptr)
+
+	(entry 'hset :each_callback '(r0 r1))
+
+	(assign '((r1 0) (r0 cat_lf)) '(r1 r2))
+	(class/obj/ref r1 r3)
+	(class/obj/ref r2 r3)
+	(jump 'list :push_back2 '((r0 cat_entries) r1 r2))
+
+(def-func-end)
+
+(def-method 'sys_mail :devices)
+	;outputs
+	;r0 = known device cpu array object (ptr)
+	;trashes
+	;r0-r14
+
+	(call 'array :create nil '(r0))
+	(vp-push r0)
+	(f-bind 'sys_mail :statics r0)
+	(call 'hmap :for_each '((r0 ml_statics_routing_map) ($ callback) (rsp 0)))
+	(vp-pop r0)
+
+	(exit 'sys_mail :devices '(r0))
+	(vp-ret)
+
+(vp-label 'callback)
+	;inputs
+	;r0 = predicate data (ptr)
+	;r1 = element iterator (ptr)
+
+	(entry 'hmap :each_callback '(r0 r1))
+
+	(assign '((r1 0)) '(r1))
+	(assign '((r1 pair_first)) '(r1))
+	(assign '((r1 num_value)) '(r1))
+	(jump 'array :push_back '(r0 r1))
 
 (def-func-end)

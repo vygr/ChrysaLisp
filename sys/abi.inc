@@ -65,8 +65,8 @@
 			(t (throw "Unknown CPU for WIN64 !" *cpu*))))
 	(t (throw "Unknown ABI !" *abi*)))
 
-(defcmacro abi-push-trashed (&rest b) (merge b (abi-trashed)) `(vp-push ~b))
-(defcmacro abi-pop-trashed (&rest b) (merge b (abi-trashed)) `(vp-pop ~b))
+(defcmacro abi-push-trashed (&rest b) (merge-obj b (abi-trashed)) `(vp-push ~b))
+(defcmacro abi-pop-trashed (&rest b) (merge-obj b (abi-trashed)) `(vp-pop ~b))
 (defcmacro abi-arg (_) (elem _ (abi-args 6)))
 
 (def-enum 'file_open)

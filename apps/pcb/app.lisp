@@ -4,10 +4,10 @@
 (import 'gui/lisp.inc)
 (import 'lib/math/math.inc)
 
-(structure 'event 0
-	(byte 'close)
-	(byte 'prev 'next 'scale_down 'scale_up 'mode_normal 'mode_gerber)
-	(byte 'show_all 'show_1 'show_2 'show_3 'show_4))
+(structure '+event 0
+	(byte 'close+)
+	(byte 'prev+ 'next+ 'scale_down+ 'scale_up+ 'mode_normal+ 'mode_gerber+)
+	(byte 'show_all+ 'show_1+ 'show_2+ 'show_3+ 'show_4+))
 
 (defun-bind all-pcbs (p)
 	(defq out (list))
@@ -19,10 +19,10 @@
 	max_zoom 15.0 min_zoom 5.0 zoom (/ (+ min_zoom max_zoom) 2.0) eps 0.25)
 
 (ui-window window ()
-	(ui-title-bar window_title "" (0xea19) (const event_close))
+	(ui-title-bar window_title "" (0xea19) +event_close+)
 	(ui-tool-bar _ ()
-		(ui-buttons (0xe91d 0xe91e 0xea00 0xea01 0xe9ac 0xe9ad) (const event_prev))
-		(ui-buttons ("0" "1" "2" "3" "4") (const event_show_all)
+		(ui-buttons (0xe91d 0xe91e 0xea00 0xea01 0xe9ac 0xe9ad) +event_prev+)
+		(ui-buttons ("0" "1" "2" "3" "4") +event_show_all+
 			(:color (const *env_toolbar2_col*) :font (const (create-font "fonts/OpenSans-Regular.ctf" 24)))))
 	(ui-scroll pcb_scroll (logior scroll_flag_vertical scroll_flag_horizontal) (:min_width 512 :min_height 256)))
 
@@ -176,20 +176,21 @@
 	(view-dirty-all (view-layout window)))
 
 (defun-bind main ()
-	(gui-add (apply view-change (cat (list window 64 256) (view-pref-size (win-refresh index)))))
+	(bind '(x y w h) (apply view-locate (view-pref-size (win-refresh index))))
+	(gui-add (view-change window x y w h))
 	(while (cond
-		((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) event_close)
+		((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) +event_close+)
 			nil)
-		((<= event_prev id event_next)
-			(win-refresh (% (+ index (dec (* 2 (- id event_prev))) (length pcbs)) (length pcbs))))
-		((<= event_scale_down id event_scale_up)
-			(setq zoom (max (min (+ zoom (i2f (dec (* 2 (- id event_scale_down))))) max_zoom) min_zoom))
+		((<= +event_prev+ id +event_next+)
+			(win-refresh (% (+ index (dec (* 2 (- id +event_prev+))) (length pcbs)) (length pcbs))))
+		((<= +event_scale_down+ id +event_scale_up+)
+			(setq zoom (max (min (+ zoom (i2f (dec (* 2 (- id +event_scale_down+))))) max_zoom) min_zoom))
 			(win-refresh index))
-		((<= event_show_all id event_show_4)
-			(setq show (- id event_show_all 1))
+		((<= +event_show_all+ id +event_show_4+)
+			(setq show (- id +event_show_all+ 1))
 			(win-refresh index))
-		((<= event_mode_normal id event_mode_gerber)
-			(setq mode (- id event_mode_normal))
+		((<= +event_mode_normal+ id +event_mode_gerber+)
+			(setq mode (- id +event_mode_normal+))
 			(win-refresh index))
 		(t (view-event window msg))))
 	(view-hide window))

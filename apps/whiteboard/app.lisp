@@ -2,14 +2,14 @@
 (import 'lib/math/math.inc)
 (import 'apps/whiteboard/app.inc)
 
-(structure 'event 0
-	(byte 'close 'max 'min)
-	(byte 'save 'load 'clear 'undo 'redo)
-	(byte 'grid 'plain 'axis 'lines)
-	(byte 'radius1 'radius2 'radius3)
-	(byte 'pen 'line 'arrow1 'arrow2 'box 'circle 'fbox 'fcircle)
-	(byte 'black 'white 'red 'green 'blue 'cyan 'yellow 'magenta
-		'tblack 'twhite 'tred 'tgreen 'tblue 'tcyan 'tyellow 'tmagenta))
+(structure '+event 0
+	(byte 'close+ 'max+ 'min+)
+	(byte 'save+ 'load+ 'clear+ 'undo+ 'redo+)
+	(byte 'grid+ 'plain+ 'axis+ 'lines+)
+	(byte 'radius1+ 'radius2+ 'radius3+)
+	(byte 'pen+ 'line+ 'arrow1+ 'arrow2+ 'box+ 'circle+ 'fbox+ 'fcircle+)
+	(byte 'black+ 'white+ 'red+ 'green+ 'blue+ 'cyan+ 'yellow+ 'magenta+
+		'tblack+ 'twhite+ 'tred+ 'tgreen+ 'tblue+ 'tcyan+ 'tyellow+ 'tmagenta+))
 
 (defun-bind trans (_)
 	;transparent colour
@@ -19,22 +19,22 @@
 	radiuss (map i2f '(2 6 12)) stroke_radius (elem 0 radiuss) then (time)
 	palette (list argb_black argb_white argb_red argb_green argb_blue argb_cyan argb_yellow argb_magenta)
 	palette (cat palette (map trans palette)) undo_stack (list) redo_stack (list)
-	stroke_col (elem 0 palette) stroke_mode event_pen commited_polygons (list) overlay_paths (list)
+	stroke_col (elem 0 palette) stroke_mode +event_pen+ commited_polygons (list) overlay_paths (list)
 	radius_buttons (list) style_buttons (list) ink_buttons (list) mode_buttons (list)
 	picker_mbox nil picker_mode nil select (array (task-mailbox) (mail-alloc-mbox)))
 
 (ui-window window ()
-	(ui-title-bar _ "Whiteboard" (0xea19 0xea1b 0xea1a) (const event_close))
+	(ui-title-bar _ "Whiteboard" (0xea19 0xea1b 0xea1a) +event_close+)
 	(ui-tool-bar _ ()
-		(ui-buttons (0xea07 0xe9e9 0xe970 0xe9fe 0xe99d) (const event_save))
-		(ui-buttons (0xe9a3 0xe976 0xe9f0 0xe9d4) (const event_grid) () style_buttons)
-		(ui-buttons (0xe979 0xe97d 0xe97b) (const event_radius1) () radius_buttons)
-		(ui-buttons (0xe9ec 0xe9d8 0xe917 0xea20 0xe9f6 0xe94b 0xe960 0xe95f) (const event_pen) () mode_buttons))
+		(ui-buttons (0xea07 0xe9e9 0xe970 0xe9fe 0xe99d) +event_save+)
+		(ui-buttons (0xe9a3 0xe976 0xe9f0 0xe9d4) +event_grid+ () style_buttons)
+		(ui-buttons (0xe979 0xe97d 0xe97b) +event_radius1+ () radius_buttons)
+		(ui-buttons (0xe9ec 0xe9d8 0xe917 0xea20 0xe9f6 0xe94b 0xe960 0xe95f) +event_pen+ () mode_buttons))
 	(ui-tool-bar _ (font *env_medium_toolbar_font*)
 		(each (lambda (col)
 			(push ink_buttons (component-connect (ui-button __ (:ink_color col :text
 				(if (< _ 8) (const (num-to-utf8 0xe982)) (const (num-to-utf8 0xea04)))))
-					(+ _ (const event_black))))) palette))
+					(+ _ +event_black+)))) palette))
 	(ui-scroll image_scroll (logior scroll_flag_vertical scroll_flag_horizontal)
 			(:min_width canvas_width :min_height canvas_height)
 		(ui-backdrop backdrop (:color 0xffF8F8FF :ink_color 0xffADD8E6 style 1)
@@ -58,24 +58,24 @@
 		(t	;is a polyline draw
 			(bind '(x y x1 y1 &rest _) pnts)
 			(cond
-				((= mode (const event_arrow1))
+				((= mode +event_arrow1+)
 					;flatten to arrow1
 					(path-stroke-polylines (list) rad (const eps) (const join_bevel) (const cap_butt) (const cap_arrow) (list pnts)))
-				((= mode (const event_arrow2))
+				((= mode +event_arrow2+)
 					;flatten to arrow2
 					(path-stroke-polylines (list) rad (const eps) (const join_bevel) (const cap_arrow) (const cap_arrow) (list pnts)))
-				((= mode (const event_box))
+				((= mode +event_box+)
 					;flatten to box
 					(path-stroke-polygons (list) rad (const eps) (const join_miter) (list (path x y x1 y x1 y1 x y1))))
-				((= mode (const event_circle))
+				((= mode +event_circle+)
 					;flatten to circle
 					(path-stroke-polygons (list) rad (const eps) (const join_bevel)
 						(list (path-gen-arc x y 0.0 (const fp_2pi) (vec-length (vec-sub (path x y) (path x1 y1)))
 							(const eps) (path)))))
-				((= mode (const event_fbox))
+				((= mode +event_fbox+)
 					;flatten to filled box
 					(list (path x y x1 y x1 y1 x y1)))
-				((= mode (const event_fcircle))
+				((= mode +event_fcircle+)
 					;flatten to filled circle
 					(list (path-gen-arc x y 0.0 (const fp_2pi) (vec-length (vec-sub (path x y) (path x1 y1)))
 						(const eps) (path))))
@@ -107,9 +107,9 @@
 
 (defun-bind redraw (mask)
 	;redraw layer/s
-	(tuple-set dlist_commited_polygons dlist (cat commited_polygons))
-	(tuple-set dlist_overlay_paths dlist (cat overlay_paths))
-	(tuple-set dlist_mask dlist (logior (tuple-get dlist_mask dlist) mask)))
+	(elem-set +dlist_commited_polygons+ dlist (cat commited_polygons))
+	(elem-set +dlist_overlay_paths+ dlist (cat overlay_paths))
+	(elem-set +dlist_mask+ dlist (logior (elem +dlist_mask+ dlist) mask)))
 
 (defun-bind main ()
 	;ui tree initial setup
@@ -121,7 +121,8 @@
 	(radio-select mode_buttons 0)
 	(radio-select radius_buttons 0)
 	(radio-select style_buttons 1)
-	(gui-add (apply view-change (cat (list window 192 64) (view-pref-size window))))
+	(bind '(x y w h) (apply view-locate (view-pref-size window)))
+	(gui-add (view-change window x y w h))
 	(def image_scroll :min_width min_width :min_height min_height)
 
 	;create child and send args
@@ -152,48 +153,50 @@
 									(list c (map (lambda (_)
 										(apply path _)) p))) (elem 1 data)))
 								(redraw 1))))))
-			((= (setq id (get-long msg (const ev_msg_target_id))) (const event_close))
+			((= (setq id (get-long msg (const ev_msg_target_id))) +event_close+)
 				;close button
 				(setq id nil))
-			((= id (const event_min))
+			((= id +event_min+)
 				;min button
-				(apply view-change-dirty (cat (list window) (view-get-pos window) (view-pref-size window))))
-			((= id (const event_max))
+				(bind '(x y w h) (apply view-fit (cat (view-get-pos window) (view-pref-size window))))
+				(view-change-dirty window x y w h))
+			((= id +event_max+)
 				;max button
 				(def image_scroll :min_width canvas_width :min_height canvas_height)
-				(apply view-change-dirty (cat (list window) (view-get-pos window) (view-pref-size window)))
+				(bind '(x y w h) (apply view-fit (cat (view-get-pos window) (view-pref-size window))))
+				(view-change-dirty window x y w h)
 				(def image_scroll :min_width min_width :min_height min_height))
-			((<= (const event_black) id (const event_tmagenta))
+			((<= +event_black+ id +event_tmagenta+)
 				;ink pot
-				(setq stroke_col (elem (radio-select ink_buttons (- id (const event_black))) palette)))
-			((<= (const event_pen) id (const event_fcircle))
+				(setq stroke_col (elem (radio-select ink_buttons (- id +event_black+)) palette)))
+			((<= +event_pen+ id +event_fcircle+)
 				;draw mode
-				(setq stroke_mode (+ (radio-select mode_buttons (- id (const event_pen))) (const event_pen))))
-			((<= (const event_radius1) id (const event_radius3))
+				(setq stroke_mode (+ (radio-select mode_buttons (- id +event_pen+)) +event_pen+)))
+			((<= +event_radius1+ id +event_radius3+)
 				;stroke radius
-				(setq stroke_radius (elem (radio-select radius_buttons (- id (const event_radius1))) radiuss)))
-			((<= (const event_grid) id (const event_lines))
+				(setq stroke_radius (elem (radio-select radius_buttons (- id +event_radius1+)) radiuss)))
+			((<= +event_grid+ id +event_lines+)
 				;styles
-				(def (view-dirty backdrop) :style (radio-select style_buttons (- id (const event_grid)))))
-			((= id (const event_save))
+				(def (view-dirty backdrop) :style (radio-select style_buttons (- id +event_grid+))))
+			((= id +event_save+)
 				;save
 				(if picker_mbox (mail-send "" picker_mbox))
 				(mail-send (list (elem -2 select) "Save Whiteboard..." "." "")
 					(setq picker_mode t picker_mbox (open-child "apps/files/child.lisp" kn_call_open))))
-			((= id (const event_load))
+			((= id +event_load+)
 				;load
 				(if picker_mbox (mail-send "" picker_mbox))
 				(mail-send (list (elem -2 select) "Load Whiteboard..." "." ".cwb")
 					(setq picker_mode nil picker_mbox (open-child "apps/files/child.lisp" kn_call_open))))
-			((= id (const event_clear))
+			((= id +event_clear+)
 				;clear
 				(snapshot)
 				(clear commited_polygons)
 				(redraw 1))
-			((= id (const event_undo))
+			((= id +event_undo+)
 				;undo
 				(undo))
-			((= id (const event_redo))
+			((= id +event_redo+)
 				;undo
 				(redo))
 			((= id (component-get-id overlay_canvas))
@@ -208,9 +211,9 @@
 							(case last_state
 								(:d	;was down last time, what draw mode ?
 									(cond
-										((= stroke_mode (const event_pen))
+										((= stroke_mode +event_pen+)
 											;pen mode, so extend last stroke ?
-											(defq stroke (tuple-get path_path (elem -2 overlay_paths))
+											(defq stroke (elem +path_path+ (elem -2 overlay_paths))
 												mid_vec (vec-sub new_point last_point))
 											(when (>= (vec-length-squared mid_vec) (* stroke_radius stroke_radius))
 												(defq mid_point (vec-add last_point (vec-scale mid_vec 0.5)))
@@ -223,7 +226,7 @@
 												(setq last_point new_point last_mid_point mid_point)
 												(redraw 2)))
 										(t	;a shape mode
-											(tuple-set path_path (elem -2 overlay_paths) (cat last_point new_point))
+											(elem-set +path_path+ (elem -2 overlay_paths) (cat last_point new_point))
 											(redraw 2)))
 									)
 								(:u	;was up last time, so start new stroke
@@ -235,7 +238,7 @@
 								(:d	;was down last time, so last point and commit stroke
 									(snapshot)
 									(setq last_state :u)
-									(defq stroke (tuple-get path_path (elem -2 overlay_paths)))
+									(defq stroke (elem +path_path+ (elem -2 overlay_paths)))
 									(push stroke (elem 0 new_point) (elem 1 new_point))
 									(path-filter 0.5 stroke stroke)
 									(each commit overlay_paths)

@@ -141,10 +141,10 @@
 		(assign '(r2) '((r0 stream_buffer)))
 
 		;send current buffer
-		(assign '((r1 msg_parcel_data) (r0 stream_bufp)) '(r2 r3))
+		(assign '((r1 msg_frag_data) (r0 stream_bufp)) '(r2 r3))
 		(vp-sub-rr r2 r3)
 		(assign `(r3 (r0 ,(+ out_id id_id)) (r0 out_seqnum) (r0 out_state)
-			(r0 out_ack_mbox_id)) '((r1 msg_length) r3 r4 r5 r6))
+			(r0 out_ack_mbox_id)) '((r1 msg_frag_length) r3 r4 r5 r6))
 		(assign '(r3 r4 r5 r6) `((r1 ,(+ msg_dest id_id)) (r2 stream_msg_seqnum)
 			(r2 stream_msg_state) (r2 ,(+ stream_msg_ack_id id_mbox) ui)))
 

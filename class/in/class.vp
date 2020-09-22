@@ -35,7 +35,7 @@
 		(else)
 			;given an existing mailbox
 			(assign '(r1) '((r0 in_mbox_id)))
-			(call 'sys_mail :mbox_addr '(r1) '(r1))
+			(call 'sys_mail :validate '(r1) '(r1))
 			(vp-pop r0)
 		(endif)
 		(assign '(r1 (& r0 in_list)) '((r0 in_mbox_addr) r1))
@@ -126,7 +126,7 @@
 	;save msg buffer details
 	(assign '(r4) '((r9 stream_buffer)))
 	(vp-lea-i r8 stream_msg_data r2)
-	(assign '((r4 msg_length) (r8 stream_msg_state)) '(r3 r4))
+	(assign '((r4 msg_frag_length) (r8 stream_msg_state)) '(r3 r4))
 	(vp-add-rr r8 r3)
 	(assign '(r2 r3 r4) '((r9 stream_bufp) (r9 stream_bufe) (r9 in_state)))
 
@@ -167,7 +167,7 @@
 
 	;scan for seqnum
 	(loop-list-forward r0 0 r0 r1)
-		(assign '((r0 msg_parcel_data)) '(r3))
+		(assign '((r0 msg_frag_data)) '(r3))
 		(assign '((r3 stream_msg_seqnum)) '(r3))
 	(loop-until '(r2 = r3))
 	(vpif '(r1 = 0))
@@ -180,7 +180,7 @@
 	(vp-cpy-rr r0 r1)
 	(ln-remove-node r1 r2)
 
-	(exit '(r0 (r0 msg_parcel_data)))
+	(exit '(r0 (r0 msg_frag_data)))
 	(vp-ret)
 
 (def-func-end)

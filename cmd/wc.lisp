@@ -3,10 +3,10 @@
 (import 'lib/argparse/argparse.inc)
 
 (defun get-stream (args)
-  ; (get-stream args) -> file-stream
-  (if (find :file_name args)
-      (file-stream (elem (inc (find :file_name args)) args))
-      (file-stream 'stdin)))
+	;(get-stream args) -> stream
+	(if (find :file_name args)
+		(file-stream (elem (inc (find :file_name args)) args))
+		(io-stream 'stdin)))
 
 (defun line-count (res ln)
   ; (line-count res ln) -> ln

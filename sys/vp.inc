@@ -12,7 +12,7 @@
 (defcfun-bind emit-passes ()
 	(defcvar '*pass* 0 '*pc* 0 '*out_stream* (string-stream *out_buffer*))
 	(defq b nil)
-	(eval (bind-fun *emit_buffer*) *compile_env*)
+	(eval (prebind *emit_buffer*) *compile_env*)
 	(setq *out_buffer* (str *out_stream*) *pass* (inc *pass*))
 	(until (eql *out_buffer* *old_out_buffer*)
 		(setq b *old_out_buffer* *old_out_buffer* *out_buffer* *out_stream* (string-stream b) *pc* 0)
@@ -74,6 +74,10 @@
 (defmacro opt-emit-call-ops ()
 	''(emit-label emit-call emit-call-abi emit-call-i emit-call-r emit-call-p))
 
+(defmacro opt-emit-read-kills-ops ()
+	''(emit-label emit-call emit-call-abi emit-call-i emit-call-r emit-call-p
+		emit-alloc emit-free))
+
 (defmacro opt-emit-kills-ops ()
 	''(emit-beq emit-bne emit-blt emit-ble emit-bgt emit-bge emit-jmp emit-jmp-i emit-jmp-r emit-jmp-p
 		emit-alloc emit-free))
@@ -90,12 +94,17 @@
 		((find-rev (elem 0 ,e) (opt-emit-two-out-ops)) (eql ,r (elem -3 ,e)))
 		((find-rev (elem 0 ,e) (opt-emit-multi-out-ops)) (find-rev ,r ,e))))
 
-(defcfun-bind opt-emit-trashes-without-calls? (r e)
+(defcfun-bind opt-emit-trashes? (r e)
 	(opt-trashes? r e))
 
 (defcfun-bind opt-emit-trashes-with-calls? (r e)
 	(cond
 		((find-rev (elem 0 e) (opt-emit-call-ops)) t)
+		(t (opt-trashes? r e))))
+
+(defcfun-bind opt-emit-trashes-reads? (r e)
+	(cond
+		((find-rev (elem 0 e) (opt-emit-read-kills-ops)) t)
 		(t (opt-trashes? r e))))
 
 (defcfun-bind opt-emit-trashes-with-kills? (r e)
@@ -147,13 +156,13 @@
 		(cond
 			;read after read/write
 			((defq c (find-rev (defq o (elem 0 e)) (opt-emit-read-ops)))
-				(when (defq w (opt-emit-find-rw opt-emit-trashes-with-calls? _
+				(when (defq w (opt-emit-find-rw opt-emit-trashes-reads? _
 								(elem c (opt-emit-read-ops))
 								(elem c (opt-emit-write-ops))
 								(elem 1 e) (eval (elem 2 e))))
 					(defq r (elem c (elem w *emit_buffer*)))
 					(when (not (some! (inc w) _ t (lambda (_)
-							(opt-emit-trashes-without-calls? r _)) (list *emit_buffer*)))
+							(opt-emit-trashes? r _)) (list *emit_buffer*)))
 						(elem-set _ *emit_buffer*
 							(if (eql r (elem 3 e))
 								(lambda)
@@ -183,7 +192,7 @@
 (defcmacro vp-def (_ &optional l)
 	(defq v '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14))
 	(setq l (apply cat (map (lambda (x y)
-		(list (list 'quote x) y)) _ (if l (merge (cat (eval l)) v) v))))
+		(list (list 'quote x) y)) _ (if l (merge-obj (cat (eval l)) v) v))))
 	`(progn (defcvar ~l) (apply push (cat (list *func_syms*) ',_))))
 
 (defmacro type-sym (_)

@@ -16,7 +16,7 @@
 	(when (and
 			(defq stdio (create-stdio))
 			(defq args (options stdio usage)))
-		(defq stdin (file-stream 'stdin))
+		(defq stdin (io-stream 'stdin))
 		(if (<= (length args) 1)
 			;from stdin
 			(when (defq ll (read-line stdin))

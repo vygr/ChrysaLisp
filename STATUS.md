@@ -4,11 +4,13 @@
 
 ------
 
-Looks like the SDL 2.0.10 release introduces a lot of problems ! I recommend
-folks stick to SDL 2.0.9 until I can find out what has changed and report
-problems back to the SDL crew.
+Looks like the SDL 2.0.9 finally died on MacBook ! SDL 2.0.10 onwards release
+introduces a lot of problems ! GUI redraw will now have to switch to a render
+to texture system as standard. Some platforms may allow you to switch the
+option to a lower overhead mode, but by default we want things to look correct
+even if a little bit slower.
 
-Issues with 2.0.10:
+Issues with 2.0.10+:
 
 * MacOS restore from window minimize no longer sends SDL_WINDOWEVENT_RESTORED
 event.
@@ -24,6 +26,90 @@ texture mode flag is.
 * Win10 draw state is corrupted by texture upload. Draw Color and/or Texture
 blend modes and/or blit clip regions trashed. Not 100% sure but drawing is
 corrupted.
+
+------
+
+(file-stream path) now reads a file from the filesystem in buffers of 4KB, and
+has no file size limit as a result. Old behavior is retained in the new
+(load-stream path) function which will gulp the entire file into a string and
+return a string stream. Lisp IO stream access is moved to the new (io-stream
+iopath) function.
+
+------
+
+(prebind) will now pre-bind symbols that begin with a '+' character. Lisp
+constants that follow the conventional +xyz+ standard will now be bound to the
+hard value within (defun-bind) functions.
+
+`yaml-data` now supports reading and writing of fundamental YAML data
+constructs. This update also introduced various additions of general functions
+to the `xtras` library.
+
+Removed (tuple-get) and (tuple-set) in favour of new constant bindings.
+
+Fixed multi GUI instance launching.
+
+Corrected (seq?) macro multi parameter (eval) issue and converted (first)
+(second) (last) and (rest) to functions.
+
+Fix Whiteboard demo after removal of (tuple-set/get).
+
+------
+
+Added (gui-info) to return current mouse position and gui screen dimensions,
+and (view-locate) to allow apps to calculate a window launch position. Used
+this to generalize Nulearfall's Launcher positioning code for all apps. Apps
+now open windows centered on the mouse location while fitting within the GUI
+screen, but this can be adjusted if required with an optional positioning flag.
+
+New Iteration doc. Frank got me beating up grass... :) join
+#ChrysaLisp:matrix.org if you want to join in the banter. Install the Element
+IRC app and join us, don't take yourself seriously but do take coding seriously
+!
+
+YAML Serialize/Deserialize library added `yaml-data`. Currently only supports
+deserialization of Lists and Properties (dictionaries) as strings. Future
+changes will include serializing, native type conversions (numbers, etc.),
+as well as suport for Anchors, Aliases, etc. to inch closer
+to YAML 1.2 compliance.
+
+------
+
+Renamed (merge) to (merge-obj) to avoid clashing with Common Lisp and to be
+more descriptive of what the function actually does.
+
+Lots of rework of the service system ! Service (declare) and (enquire) calls
+now have no race condition. Also took the opportunity to completely rework the
+messages routing system structures and remove the need for (kernel-total).
+
+Most of the (open-xxx) calls have been converted to Lisp rather than VP. No
+advantage now and we can easily add more task distribution calls at the Lisp
+level. Saved nearly 2KB of boot image.
+
+New (mail-devices) call to return the current known list of network CPU id's.
+
+Frank has continued to update the new xtras.inc library with various flavours
+of tree walkers and converted the argparse.inc lib over to use the latest
+properties APIs.
+
+------
+
+Closure style shortcut lambda syntax available as a macro. This may eventually
+get promoted to part of the (read) function. Thanks to FrancC01 for inspiring
+this addition.
+
+eg.
+```lisp
+(map (# (< %0 0)) '(1 2 3 4 5 6 -6 -7 -8 0 7))
+(nil nil nil nil nil nil t t t nil nil)
+```
+
+Anaphoric macros have moved over to the lib/ folder.
+
+New (tolist env) function to convert an environment into a list of list of
+pairs.
+
+New (env?) macro available.
 
 ------
 
@@ -118,7 +204,7 @@ Added basic context aware tab completion to the GUI Terminal app. In command
 positions will only look for '.lisp' files within the 'cmd/' folder otherwise
 will do system wide maximum extension.
 
-Optimized (case) macro to (bind-fun) clauses and not wrap clauses within a
+Optimized (case) macro to (prebind) clauses and not wrap clauses within a
 (progn) statement if only a single expression.
 
 Lots of extra code added recently, up to 170KB boot image now, on a 500 builds
@@ -594,7 +680,7 @@ regs. This allows the release build code to not have to do extra copies just to
 allow the debug version to work, plus it gives better code even in debug builds
 !.
 
-Ongoing drive to avoid recursive functions. (bind-fun) and (macroexpand) now
+Ongoing drive to avoid recursive functions. (prebind) and (macroexpand) now
 avoid this, but (copy) and (quasiquote) still do so. They will be recode soon
 to not do so. And then I will lower the default task stack size.
 

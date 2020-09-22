@@ -8,10 +8,10 @@
 	options:
 		-h --help: this help info.")
 (("-e" "--example")
-	,(bind-fun (lambda (args arg)
+	,(prebind (lambda (args arg)
 		(options-print "handler for: " arg) args)))
 (("-x" "--xtra")
-	,(bind-fun (lambda (args arg)
+	,(prebind (lambda (args arg)
 		(options-print "handler for: " arg " " (elem 0 args))
 		(slice 1 -1 args))))
 ))
@@ -21,5 +21,5 @@
 	(when (and
 			(defq stdio (create-stdio))
 			(defq args (options stdio usage)))
-		(defq stdin (file-stream 'stdin))
+		(defq stdin (io-stream 'stdin))
 		(while (read-char stdin))))

@@ -65,8 +65,8 @@ programs which need it.
 
 * Asynchronous Messaging: Messaging does not halt the sending process.
 
-* Minimal Kernel: Taos has a very compact implementation, optimising
-performance and minimising memory requirements.
+* Minimal Kernel: Taos has a very compact implementation, optimizing
+performance and minimizing memory requirements.
 
 ### The Challenge of Parallel Systems
 
@@ -120,7 +120,7 @@ using Taos is easy. By creating objects and passing messages, the programmer
 generates the opportunity for Taos to distribute the objects over processors,
 and thus generate parallelism.
 
-The final important point to re-emphasise is that it is up to the programmer to
+The final important point to re-emphasize is that it is up to the programmer to
 write their programs so that the objects can execute in parallel. Parallelism
 is not automatically created, nor should it be. There are instances where a
 program must be sequential to behave correctly.
@@ -230,8 +230,8 @@ processor in the network from boot, and its facilities include memory
 management and caching, object creation, distribution and execution, object
 message passing and tool calling. There are also calls to provide global name
 management, local timer and scheduling, and access to network hardware
-information.The programmer is free to add objects to the system as appropriate.
-Examples of these may be hardware drivers or file system objects.
+information. The programmer is free to add objects to the system as
+appropriate. Examples of these may be hardware drivers or file system objects.
 
 Taos objects are also parallel processes. Each object which Taos creates is
 given its own process to execute it. The difference between objects and
@@ -283,10 +283,10 @@ local services to the objects on its processor and interacting with adjacent
 processors' kernels to provide message passing and process distribution.
 
 Distribution is based on processes which pass messages. Load balancing (the
-distribution of processes over the network to maximise the performance of the
+distribution of processes over the network to maximize the performance of the
 system) is achieved via a simple algorithm based on the computation and
 communication requirements of the objects. When an object is created, the
-loading on the local processor is compared with the loading on neighbouring
+loading on the local processor is compared with the loading on neighboring
 processors and the object is allocated to the most suitable processor.
 
 Each processor holds minimal routing information for each communications
@@ -417,7 +417,7 @@ with simple yet powerful tools to exploit emerging technologies.
 
 Taos is not just another development, it is a Holy Grail, a complete product
 with substance as strong as the claims made for it, and implications that can
-not yet be realised. Exactly what it is that makes Taos so significant may be
+not yet be realized. Exactly what it is that makes Taos so significant may be
 argued for a long time given its many benefits.
 
 For those of us who are carrying the torch of OPEN COMPUTING, Taos provides the

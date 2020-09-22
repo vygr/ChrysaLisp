@@ -46,8 +46,8 @@ function wrap
 
 function boot_cpu_gui
 {
-#	if [ $1 -lt 2 ]
 	if [ $1 -lt 1 ]
+#	if [ $1 -lt 2 ]
 	then
 		./obj/$CPU/$ABI/$OS/main obj/$CPU/$ABI/sys/boot_image -cpu $1 $2 -run gui/gui/gui &
 	else

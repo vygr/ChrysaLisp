@@ -408,12 +408,40 @@
 
 	(entry 'str :same '(r0 r1))
 
+	(vpif '(r0 /= r1) 'same)
+		(assign '((r0 str_length) (r1 str_length)) '(r2 r3))
+		(vp-sub-rr r2 r3)
+		(vpif '(r3 = 0))
+			(breakif '(r2 = 0) 'same)
+			(jump 'str :starts_with '(r0 r1))
+		(endif)
+		(exit 'str :same '(r0 r3))
+		(vp-ret)
+	(endif)
+	(vp-xor-rr r1 r1)
+
+	(exit 'str :same '(r0 r1))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'str :starts_with)
+	;inputs
+	;r0 = str prefix object (ptr)
+	;r1 = str object (ptr)
+	;outputs
+	;r0 = str prefix object (ptr)
+	;r1 = 0 if match
+	;trashes
+	;r1-r6
+
+	(entry 'str :starts_with '(r0 r1))
+
 	(switch 'exit)
 		(vpif '(r0 /= r1) 'same)
 			(assign '((r0 str_length) (r1 str_length)) '(r2 r3))
-			(vp-sub-rr r2 r3)
-			(vpif '(r3 = 0))
-				(breakif '(r2 = 0) 'same)
+			(breakif '(r2 = 0) 'same)
+			(vpif '(r3 >= r2))
 				(vp-cpy-rr r2 r6)
 				(vp-lea-i r0 str_data r4)
 				(vp-lea-i r1 str_data r5)
@@ -454,17 +482,17 @@
 					(vp-add-cr byte_size r5)
 				(loop-until '(r4 = r2))
 
-				(exit 'str :same '(r0 r1))
+				(exit 'str :starts_with '(r0 r1))
 				(vp-ret)
 			(endif)
 
-			(exit 'str :same '(r0 r3))
+			(exit 'str :starts_with '(r0 -1))
 			(vp-ret)
 		(endif)
 		(vp-xor-rr r1 r1)
 	(endswitch)
 
-	(exit 'str :same '(r0 r1))
+	(exit 'str :starts_with '(r0 r1))
 	(vp-ret)
 
 (def-func-end)
@@ -604,7 +632,7 @@
 	(vp-add-rr iter_begin iter_end)
 	(loop-while `(,iter_begin /= ,iter_end) 'exit)
 		(loop-start)
-			(d-call 'str :find `(,splits (,iter_begin 0 ub)) '(_ r1 r2))
+			(d-call 'str :rfind `(,splits (,iter_begin 0 ub)) '(_ r1 r2))
 			(breakif '(r2 = -1))
 			(vp-add-cr byte_size iter_begin)
 			(breakif `(,iter_begin = ,iter_end) 'exit)
@@ -619,7 +647,7 @@
 			(vp-add-cr byte_size iter_begin)
 		(else)
 			(loop-start)
-				(d-call 'str :find `(,splits (,iter_begin 0 ub)) '(_ _ r2))
+				(d-call 'str :rfind `(,splits (,iter_begin 0 ub)) '(_ _ r2))
 				(breakif '(r2 /= -1))
 				(vp-add-cr byte_size iter_begin)
 			(loop-until `(,iter_begin = ,iter_end))
@@ -649,6 +677,7 @@
 		'(r7 r8 r9 r10 r11 r12))
 
 	(entry 'str :split_char `(,this ,splitc))
+
 	(call 'list :create nil `(,out))
 	(assign `((& ,this str_data) (,this str_length)) `(,iter_begin ,iter_end))
 	(vp-add-rr iter_begin iter_end)

@@ -1,6 +1,7 @@
 (include 'sys/func.inc)
 (include 'class/func/class.inc)
 (include 'class/sym/class.inc)
+(include 'class/hmap/class.inc)
 (include 'class/lisp/class.inc)
 
 (def-method 'lisp :lisp_type)
@@ -37,6 +38,9 @@
 	(breakif '(r1 = r2))
 	(f-bind 'func :vtable r2)
 	(vp-cpy-cr lisp_type_fnc r0)
+	(breakif '(r1 = r2))
+	(f-bind 'hmap :vtable r2)
+	(vp-cpy-cr lisp_type_env r0)
 	(breakif '(r1 = r2))
 	(vp-xor-rr r0 r0)
 	(endswitch)

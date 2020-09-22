@@ -6,7 +6,10 @@
 	"terminal" "edit" "help" "docs" "debug" "netmon" "stats"
 	"fonts" "whiteboard" "clock" "calculator"
 	"boing" "freeball" "bubbles" "images" "films" "canvas" "raymarch" "mandelbrot" "pcb" "chess" "files")
-	*env_launcher_auto_apps* '("wallpaper" "clock" "terminal"))
+	*env_launcher_auto_apps* '("clock" "terminal"))
+
+;launcher placement from xy :center :top :bottom :left :right)
+(defq *env_launcher_position* :center)
 
 ;wallpaper images
 (defq *env_wallpaper_images* '("apps/wallpaper/wallpaper640x480.cpm"
@@ -14,6 +17,10 @@
 
 ;terminal prompt and scroll back
 (defq *env_terminal_prompt* (cat *env_user* ">") *env_terminal_lines* (* 40 10))
+
+;timezones must be locations not abbreviations. See lib/date/date.inc for more info.
+(defq *env_clock_timezone* "Etc/GMT" *env_clock_analog* t *env_clock_digital* t 
+	*env_clock_twelve_hour* t  *env_clock_seconds* t  *env_clock_pad_hour* nil *env_clock_dotw* t)
 
 ;default text files to open when edit opens
 (defq *env_edit_auto* '("apps/edit/message"))

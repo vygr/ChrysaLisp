@@ -45,11 +45,10 @@
 	(call 'obj :deref {value})
 
 	(call 'stream :read_char {stream} {_, char})
-	(loop-start)
+	(loop-while {char /= -1})
 		(call 'stream :write_flush {this->lisp_stdout})
 		(call 'stream :write_flush {this->lisp_stderr})
 		(call 'lisp :read {this, stream, char} {_, ast, char})
-		(breakif {char = -1})
 ;; (call 'stream :write_cstr {this->lisp_stdout, "read:"})
 ;; (call 'stream :write_char {this->lisp_stdout, char_lf})
 ;; (call 'lisp :repl_print {this, this->lisp_stdout, ast})

@@ -1,6 +1,6 @@
 (include 'sys/func.inc)
 (include 'sys/mail/class.inc)
-(include 'class/stream_str/class.inc)
+(include 'class/sstream/class.inc)
 (include 'class/lisp/class.inc)
 (include 'class/sym/class.inc)
 (include 'gui/component/class.inc)
@@ -21,7 +21,7 @@
 
 	;string output stream
 	(call 'str :create_from_buffer {0, str_gap} {value})
-	(call 'stream_str :create {value} {stream})
+	(call 'sstream :create {value} {stream})
 
 	;create lisp class
 	(call 'lisp :create {stream, stream, stream} {lisp})
@@ -32,7 +32,7 @@
 		(vpif {file})
 			;REPL from file stream
 			(call 'list :create nil {args})
-			(call 'stream_str :create {file} {stream})
+			(call 'sstream :create {file} {stream})
 			(call 'str :ref {script})
 			(call 'list :push_back2 {args, stream, script})
 			(call 'lisp :lisp_repl {lisp, args} {_, value})

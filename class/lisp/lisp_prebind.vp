@@ -5,7 +5,7 @@
 (include 'class/pair/class.inc)
 (include 'class/lisp/class.inc)
 
-(def-method 'lisp :lisp_bindfun)
+(def-method 'lisp :lisp_prebind)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -21,7 +21,7 @@
 		(uint 'start)
 	(def-struct-end)
 
-	(entry 'lisp :lisp_bindfun '(r0 r1))
+	(entry 'lisp :lisp_prebind '(r0 r1))
 
 (errorcases
 	(assign '((r1 array_length)) '(r2))
@@ -87,10 +87,13 @@
 					;is defined ?
 					(call 'hmap :search '((r0 lisp_environment) r1) '(_ r1 _))
 					(breakif '(r1 = 0))
-					;is a function ?
+					;begins with a +
 					(vp-cpy-ir r1 0 r1)
+					(assign '((r1 pair_first) (r1 pair_second)) '(r2 r1))
+					(assign '((r2 str_data ub)) '(r2))
+					(gotoif '(r2 = char_plus) 'bind_it)
+					;is a function ?
 					(f-bind 'func :vtable r2)
-					(assign '((r1 pair_second)) '(r1))
 					(assign '((r1 obj_vtable)) '(r3))
 					(gotoif '(r2 = r3) 'bind_it)
 					;is a list ?
@@ -131,11 +134,11 @@
 		(vp-free local_size)
 	(endswitch)
 
-	(exit 'lisp :lisp_bindfun '(r0 r1))
+	(exit 'lisp :lisp_prebind '(r0 r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(bind-fun form) -> form" error_msg_wrong_num_of_args r1)))
+	(jump 'lisp :repl_error '(r0 "(prebind form) -> form" error_msg_wrong_num_of_args r1)))
 
 (def-func-end)
