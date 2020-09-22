@@ -81,7 +81,7 @@
   (write strm (str (pad-indent) v (char 0x0a))))
 
 (defun key-writer (v)
-  (write (getp ywcntrl :stream) (str (pad-indent) v ": ")))
+  (write (getp ywcntrl :stream) (str (pad-indent) (rest v) ": ")))
 
 (defun value-writer (v)
   (write (getp ywcntrl :stream) (str (pad-indent) v (char 0x0a))))
@@ -160,9 +160,10 @@
          (write (getp ywcntrl :stream) (char 0x0a)))
      (each (#(node-to-yaml-stream %0 value-writer)) (getp ast :children))
      (pop-npath))
-     ; (each node-to-yaml-stream (getp ast :children)))
     ((:scalar)
-     (pwrt (getp ast :value))
+     (if (eql (getp ast :stype) :boolean)
+      (pwrt (if (getp ast :value) "true" "false"))
+      (pwrt (getp ast :value)))
      (push-npath :scalar))
     ((:docend)
      (setp! ywcntrl :indent 0)

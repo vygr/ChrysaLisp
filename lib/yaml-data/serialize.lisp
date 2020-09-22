@@ -8,6 +8,11 @@
 
 (import 'lib/yaml-data/commons.lisp)
 
+(defq ser_boolean
+      (properties
+        t   "*true"
+        nil "*false"))
+
 (defun node-to-xchange-stream (sstrm ast)
   (defq recur (curry node-to-xchange-stream sstrm))
   (case (getp ast :type)
@@ -26,7 +31,9 @@
     ((:value)
      (each recur (getp ast :children)))
     ((:scalar)
-     (write sstrm (str (getp ast :value) " ")))
+     (if (eql (getp ast :stype) :boolean)
+         (write sstrm (str (getp ser_boolean (getp ast :value)) " "))
+         (write sstrm (str (getp ast :value) " "))))
     (t (throw "Unknown " ast))))
 
 (defun-bind serialize (obj sstrm)

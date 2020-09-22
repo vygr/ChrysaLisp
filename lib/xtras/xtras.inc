@@ -85,19 +85,35 @@
 ; Convenience
 
 (defq +numeric_chars+ "0123456789")
+(defq +plus_minus+ "-+")
 
 (defun-bind str-is-ints? (s)
   ; (str-is-ints? s) -> :true | :false
+  (defq instr
+    (if (find (first s) +plus_minus+)
+      (rest s)
+      s))
   (reduced-reduce
       (lambda (acc el)
         (if  (find el +numeric_chars+)
           acc
           (reduced :false))
-        ) s :true))
+        ) instr :true))
 
 (defun-bind ident (_)
   ; (ident el) -> el
   _)
+
+(defun-bind efind (p k)
+  ; (efind list key) -> index | nil
+  ; Returns the index of key in list or properties
+  ; Used when keys are number and/or string
+  (defq fx nil)
+  (each! 0 -1
+    (lambda (s)
+      (when (eql s k)
+        (setq fx _))) (list p))
+  fx)
 
 (defun-bind kw (_)
   (if (and (not (kw? _)) (or (str? _) (sym? _)))
@@ -170,17 +186,6 @@
 (defun-bind values (prop)
   ; (values properties) -> value list
   (map (#(elem 1 %0)) (entries prop)))
-
-(defun-bind efind (p k)
-  ; (efind list key) -> index | nil
-  ; Returns the index of key in list or properties
-  ; Used when keys are number and/or string
-  (defq fx nil)
-  (each! 0 -1
-    (lambda (s)
-      (when (eql s k)
-        (setq fx _))) (list p))
-  fx)
 
 (defun-bind getp (p k &optional if_nil)
   ; (getp properties key [if_nil]) -> val | if_nil | nil
