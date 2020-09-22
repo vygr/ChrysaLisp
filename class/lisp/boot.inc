@@ -470,11 +470,18 @@
 	;(reverse list) -> list
 	(map-rev progn _))
 
-(defun-bind intern (s &optional l)
-	;(intern seq [list]) -> list
-	(reduce (lambda (l e)
-		(push l (if (defq i (some (# (if (eql %0 e) _)) l))
-			(elem i l) e))) s (opt l (list))))
+(defun-bind intern (_l _i &optional _c)
+	;(intern list form [lambda]) -> form
+	(setd _c eql)
+	(cond
+		((some (# (if (_c %0 _i) %0)) _l))
+		(t (push _l _i) _i)))
+
+(defun-bind intern-seq (_s &optional _l _c)
+	;(intern-seq seq [list lambda]) -> list
+	(setd _c eql)
+	(reduce (lambda (_l _e)
+		(push _l (if (defq _i (some (# (if (_c %0 _e) %0)) _l)) _i _e))) _s (opt _l (list))))
 
 ;;;;;;;;;;;;;;;;
 ; Math functions
@@ -542,7 +549,7 @@
 (defun-bind char-to-num (_)
 	;(char-to-num char) -> num
 	(elem (code _)
-		(const (cat (list quote) (list (intern
+		(const (cat (list quote) (list (intern-seq
 			'(-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 			-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 0 1 2 3
 			4 5 6 7 8 9 -1 -1 -1 -1 -1 -1 -1 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24
