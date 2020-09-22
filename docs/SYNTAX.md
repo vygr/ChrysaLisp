@@ -604,6 +604,10 @@
 
 (int field ...)
 
+## intern
+
+(intern seq [list]) -> list
+
 ## io-stream
 
 (io-stream io)
