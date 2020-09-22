@@ -553,7 +553,9 @@
 
 (defun-bind str-to-num (_)
 	;(str-to-num str) -> num
-	(defq n 0 b 10 f 0)
+	(defq n 0 b 10 f 0 m 1)
+	(when (eql (elem 0 _) "-")
+		(setq m -1 _ (slice 1 -1 _)))
 	(when (> (length _) 1)
 		(defq i (elem 1 _))
 		(cond
@@ -563,7 +565,7 @@
 	(each (# (if (eql %0 ".")
 			(setq f 1)
 			(setq n (+ (* n b) (char-to-num %0)) f (* f b)))) _)
-	(if (= f 0) n (/ (<< n (const fp_shift)) f)))
+	(if (= f 0) (* n m) (/ (<< (* n m) (const fp_shift)) f)))
 
 (defun-bind num-to-utf8 (_)
 	;(num-to-utf8 num) -> str
