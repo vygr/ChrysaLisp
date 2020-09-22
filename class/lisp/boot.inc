@@ -257,7 +257,7 @@
 	;(case tst [(key body)] ...)
 	(if (defq _ (reduce-rev (lambda (_x (_ &rest _y))
 			(unless (lst? _) (setq _ (list _)))
-			(if (notevery (lambda (_) (= (type-of _) (const lisp_type_sym))) _)
+			(unless (some! 0 -1 nil (lambda (_) (= (type-of _) (const lisp_type_sym))) (list _))
 				(throw "Key not symbol !" _))
 			(each! 0 -1 (lambda (_)
 					(push (elem 0 _x) _)
@@ -390,21 +390,21 @@
 ; Predicates
 ;;;;;;;;;;;;
 
-(defun-bind some (_f &rest _)
+(defmacro-bind some (f &rest _)
 	;(some lambda seq ...) -> nil|form
-	(some! 0 -1 t _f _))
+	`(some! 0 -1 t ,f (list ~_)))
 
-(defun-bind every (_f &rest _)
+(defmacro-bind every (f &rest _)
 	;(every lambda seq ...) -> nil|form
-	(some! 0 -1 nil _f _))
+	`(some! 0 -1 nil ,f (list ~_)))
 
-(defun-bind notany (_f &rest _)
+(defmacro-bind notany (f &rest _)
 	;(notany lambda seq ...) -> t|nil
-	(not (some! 0 -1 t _f _)))
+	`(not (some! 0 -1 t ,f (list ~_))))
 
-(defun-bind notevery (_f &rest _)
+(defmacro-bind notevery (f &rest _)
 	;(notevery lambda seq ...) -> t|nil
-	(not (some! 0 -1 nil _f _)))
+	`(not (some! 0 -1 nil ,f (list ~_))))
 
 (defun-bind empty? (_)
 	;(empty? form) -> bool

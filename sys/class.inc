@@ -12,13 +12,6 @@
 
 (defcvar '*class* nil (class-sym 'null) '(()()0) '*args* (list))
 
-(defcfun-bind intern-args (l)
-	(when l
-		(defq _ (some! 0 -1 t (lambda (_)
-			(and (match? _ l) _)) (list (defq b (elem (length l)
-				'(()()()()()()()()()()()()()()()()))))))
-		(if _ _ (progn (push b l) l))))
-
 (defcfun vtable-emit (_1)
 	;_1 = class name
 	(if (eql (defq _ (eval (super-sym _1))) 'null)
@@ -40,8 +33,8 @@
 	(setq m (cat m))
 	(elem-set 0 m _2)
 	(elem-set s (elem 1 *class*) m)
-	(if _4 (elem-set 2 m (intern-args _4)))
-	(if _5 (elem-set 3 m (intern-args _5))))
+	(if _4 (elem-set 2 m _4))
+	(if _5 (elem-set 3 m _5)))
 
 (defcfun-bind dec-method (_1 _2 &optional _3 _4 _5)
 	;_1 = member name
@@ -80,10 +73,10 @@
 			;new method
 			(:static
 				(push (elem 0 *class*) _1)
-				(push (elem 1 *class*) (list _2 _3 (intern-args _4) (intern-args _5))))
+				(push (elem 1 *class*) (list _2 _3 _4 _5)))
 			((:virtual :final)
 				(push (elem 0 *class*) _1)
-				(push (elem 1 *class*) (list _2 _3 (intern-args _4) (intern-args _5)
+				(push (elem 1 *class*) (list _2 _3 _4 _5
 					(elem-set 2 *class* (+ (elem 2 *class*) ptr_size)))))
 			(:override
 				(throw "Method does not exist !" _1))

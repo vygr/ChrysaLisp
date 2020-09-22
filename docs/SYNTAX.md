@@ -606,7 +606,11 @@
 
 ## intern
 
-(intern seq [list]) -> list
+(intern list form [lambda]) -> form
+
+## intern-seq
+
+(intern-seq seq [list lambda]) -> list
 
 ## io-stream
 
