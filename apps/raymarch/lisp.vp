@@ -81,7 +81,7 @@
 	(vp-push r13)
 	(assign '((r0 array_begin) (r1 array_begin)) '(r0 r1))
 	(class/num/get_values '(r2 r3 r4 r5))
-	(assign '(1000 (<< 1 fp_shift)) '(r6 r7))
+	(assign '(1000 (<< 1 +fp_shift+)) '(r6 r7))
 
 	(vec-set 7)
 	(loop-start)

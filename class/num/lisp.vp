@@ -581,7 +581,7 @@
 	(vp-push r0)
 	(defq in (method-input 'fixed :create))
 	(list-bind-args r1 in '(num))
-	(vp-shl-cr fp_shift (elem 0 in))
+	(vp-shl-cr +fp_shift+ (elem 0 in))
 	(call 'fixed :create in '(r1))
 	(vp-pop r0)
 
@@ -648,7 +648,7 @@
 	(vp-push r0)
 	(defq in (method-input 'num :create))
 	(list-bind-args r1 in '(num))
-	(vp-asr-cr fp_shift (elem 0 in))
+	(vp-asr-cr +fp_shift+ (elem 0 in))
 	(call 'num :create in '(r1))
 	(vp-pop r0)
 

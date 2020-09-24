@@ -84,18 +84,18 @@
 
 	(entry 'sys_math :f_sin '(r0))
 	(vec-set 1)
-	(vec-load 1 '(fp_2pi))
+	(vec-load 1 '(+fp_2pi+))
 	(vec-fmod 1)
 
-	;(assign {(res - fp_pi) *> fp_rpi} {tc})
+	;(assign {(res - +fp_pi+) *> +fp_rpi+} {tc})
 	;(assign {1.0} {tp})
 	;(assign {tc << 1} {u})
 
 	(vp-cpy-rr r0 r3)
-	(vp-sub-cr fp_pi r0)
-	(vp-mul-cr fp_rpi r0)
-	(vp-asr-cr fp_shift r0)
-	(vp-cpy-cr (<< 1 fp_shift) r1)
+	(vp-sub-cr +fp_pi+ r0)
+	(vp-mul-cr +fp_rpi+ r0)
+	(vp-asr-cr +fp_shift+ r0)
+	(vp-cpy-cr (<< 1 +fp_shift+) r1)
 	(vp-cpy-rr r0 r4)
 	(vp-shl-cr 1 r4)
 
@@ -106,11 +106,11 @@
 
 	(vp-cpy-rr r0 r3)
 	(vp-mul-cr -37305 r3)
-	(vp-asr-cr fp_shift r3)
+	(vp-asr-cr +fp_shift+ r3)
 	(vp-cpy-rr r1 r2)
 	(vp-cpy-rr r0 r1)
 	(vp-mul-rr r4 r0)
-	(vp-asr-cr fp_shift r0)
+	(vp-asr-cr +fp_shift+ r0)
 	(vp-sub-rr r2 r0)
 
 	;(assign {u *> tc - tp} {tn})
@@ -120,7 +120,7 @@
 	(vp-cpy-rr r1 r2)
 	(vp-cpy-rr r0 r1)
 	(vp-mul-rr r4 r0)
-	(vp-asr-cr fp_shift r0)
+	(vp-asr-cr +fp_shift+ r0)
 	(vp-sub-rr r2 r0)
 
 	;(assign {43707 *> tc + res} {res})
@@ -130,12 +130,12 @@
 
 	(vp-cpy-rr r0 r2)
 	(vp-mul-cr 43707 r2)
-	(vp-asr-cr fp_shift r2)
+	(vp-asr-cr +fp_shift+ r2)
 	(vp-add-rr r2 r3)
 	(vp-cpy-rr r1 r2)
 	(vp-cpy-rr r0 r1)
 	(vp-mul-rr r4 r0)
-	(vp-asr-cr fp_shift r0)
+	(vp-asr-cr +fp_shift+ r0)
 	(vp-sub-rr r2 r0)
 
 	;(assign {u *> tc - tp} {tn})
@@ -145,7 +145,7 @@
 	(vp-cpy-rr r1 r2)
 	(vp-cpy-rr r0 r1)
 	(vp-mul-rr r4 r0)
-	(vp-asr-cr fp_shift r0)
+	(vp-asr-cr +fp_shift+ r0)
 	(vp-sub-rr r2 r0)
 
 	;(assign {-6834 *> tc + res} {res})
@@ -155,12 +155,12 @@
 
 	(vp-cpy-rr r0 r2)
 	(vp-mul-cr -6834 r2)
-	(vp-asr-cr fp_shift r2)
+	(vp-asr-cr +fp_shift+ r2)
 	(vp-add-rr r2 r3)
 	(vp-cpy-rr r1 r2)
 	(vp-cpy-rr r0 r1)
 	(vp-mul-rr r4 r0)
-	(vp-asr-cr fp_shift r0)
+	(vp-asr-cr +fp_shift+ r0)
 	(vp-sub-rr r2 r0)
 
 	;(assign {u *> tc - tp} {tn})
@@ -170,7 +170,7 @@
 	(vp-cpy-rr r1 r2)
 	(vp-cpy-rr r0 r1)
 	(vp-mul-rr r4 r0)
-	(vp-asr-cr fp_shift r0)
+	(vp-asr-cr +fp_shift+ r0)
 	(vp-sub-rr r2 r0)
 
 	;(assign {448 *> tc + res} {res})
@@ -180,22 +180,22 @@
 
 	(vp-cpy-rr r0 r2)
 	(vp-mul-cr 448 r2)
-	(vp-asr-cr fp_shift r2)
+	(vp-asr-cr +fp_shift+ r2)
 	(vp-add-rr r2 r3)
 	(vp-cpy-rr r1 r2)
 	(vp-cpy-rr r0 r1)
 	(vp-mul-rr r4 r0)
-	(vp-asr-cr fp_shift r0)
+	(vp-asr-cr +fp_shift+ r0)
 	(vp-sub-rr r2 r0)
 
 	;(assign {u *> tc - tp} {tc})
 	;(assign {-16 *> tc + res} '(r0))
 
 	(vp-mul-rr r4 r0)
-	(vp-asr-cr fp_shift r0)
+	(vp-asr-cr +fp_shift+ r0)
 	(vp-sub-rr r1 r0)
 	(vp-mul-cr -16 r0)
-	(vp-asr-cr fp_shift r0)
+	(vp-asr-cr +fp_shift+ r0)
 	(vp-add-rr r3 r0)
 
 	(exit 'sys_math :f_sin '(r0))
@@ -213,18 +213,18 @@
 
 	(entry 'sys_math :f_cos '(r0))
 	(vec-set 1)
-	(vec-load 1 '(fp_2pi))
+	(vec-load 1 '(+fp_2pi+))
 	(vec-fmod 1)
 
-	;(assign {(res - fp_pi) *> fp_rpi} {tc})
+	;(assign {(res - +fp_pi+) *> +fp_rpi+} {tc})
 	;(assign {1.0} {tp})
 	;(assign {tc << 1} {u})
 	;(assign {19939} {res})
 
-	(vp-sub-cr fp_pi r0)
-	(vp-mul-cr fp_rpi r0)
-	(vp-asr-cr fp_shift r0)
-	(vp-cpy-cr (<< 1 fp_shift) r1)
+	(vp-sub-cr +fp_pi+ r0)
+	(vp-mul-cr +fp_rpi+ r0)
+	(vp-asr-cr +fp_shift+ r0)
+	(vp-cpy-cr (<< 1 +fp_shift+) r1)
 	(vp-cpy-rr r0 r4)
 	(vp-shl-cr 1 r4)
 	(vp-cpy-cr 19939 r3)
@@ -236,7 +236,7 @@
 	(vp-cpy-rr r1 r2)
 	(vp-cpy-rr r0 r1)
 	(vp-mul-rr r4 r0)
-	(vp-asr-cr fp_shift r0)
+	(vp-asr-cr +fp_shift+ r0)
 	(vp-sub-rr r2 r0)
 
 	;(assign {63627 *> tc + res} {res})
@@ -246,12 +246,12 @@
 
 	(vp-cpy-rr r0 r2)
 	(vp-mul-cr 63627 r2)
-	(vp-asr-cr fp_shift r2)
+	(vp-asr-cr +fp_shift+ r2)
 	(vp-add-rr r2 r3)
 	(vp-cpy-rr r1 r2)
 	(vp-cpy-rr r0 r1)
 	(vp-mul-rr r4 r0)
-	(vp-asr-cr fp_shift r0)
+	(vp-asr-cr +fp_shift+ r0)
 	(vp-sub-rr r2 r0)
 
 	;(assign {u *> tc - tp} {tn})
@@ -261,7 +261,7 @@
 	(vp-cpy-rr r1 r2)
 	(vp-cpy-rr r0 r1)
 	(vp-mul-rr r4 r0)
-	(vp-asr-cr fp_shift r0)
+	(vp-asr-cr +fp_shift+ r0)
 	(vp-sub-rr r2 r0)
 
 	;(assign {-19848 *> tc + res} {res})
@@ -271,12 +271,12 @@
 
 	(vp-cpy-rr r0 r2)
 	(vp-mul-cr -19848 r2)
-	(vp-asr-cr fp_shift r2)
+	(vp-asr-cr +fp_shift+ r2)
 	(vp-add-rr r2 r3)
 	(vp-cpy-rr r1 r2)
 	(vp-cpy-rr r0 r1)
 	(vp-mul-rr r4 r0)
-	(vp-asr-cr fp_shift r0)
+	(vp-asr-cr +fp_shift+ r0)
 	(vp-sub-rr r2 r0)
 
 	;(assign {u *> tc - tp} {tn})
@@ -286,7 +286,7 @@
 	(vp-cpy-rr r1 r2)
 	(vp-cpy-rr r0 r1)
 	(vp-mul-rr r4 r0)
-	(vp-asr-cr fp_shift r0)
+	(vp-asr-cr +fp_shift+ r0)
 	(vp-sub-rr r2 r0)
 
 	;(assign {1907 *> tc + res} {res})
@@ -296,12 +296,12 @@
 
 	(vp-cpy-rr r0 r2)
 	(vp-mul-cr 1907 r2)
-	(vp-asr-cr fp_shift r2)
+	(vp-asr-cr +fp_shift+ r2)
 	(vp-add-rr r2 r3)
 	(vp-cpy-rr r1 r2)
 	(vp-cpy-rr r0 r1)
 	(vp-mul-rr r4 r0)
-	(vp-asr-cr fp_shift r0)
+	(vp-asr-cr +fp_shift+ r0)
 	(vp-sub-rr r2 r0)
 
 	;(assign {u *> tc - tp} {tn})
@@ -311,7 +311,7 @@
 	(vp-cpy-rr r1 r2)
 	(vp-cpy-rr r0 r1)
 	(vp-mul-rr r4 r0)
-	(vp-asr-cr fp_shift r0)
+	(vp-asr-cr +fp_shift+ r0)
 	(vp-sub-rr r2 r0)
 
 	;(assign {-91 *> tc + res} {res})
@@ -321,22 +321,22 @@
 
 	(vp-cpy-rr r0 r2)
 	(vp-mul-cr -91 r2)
-	(vp-asr-cr fp_shift r2)
+	(vp-asr-cr +fp_shift+ r2)
 	(vp-add-rr r2 r3)
 	(vp-cpy-rr r1 r2)
 	(vp-cpy-rr r0 r1)
 	(vp-mul-rr r4 r0)
-	(vp-asr-cr fp_shift r0)
+	(vp-asr-cr +fp_shift+ r0)
 	(vp-sub-rr r2 r0)
 
 	;(assign {u *> tc - tp} {tc})
 	;(assign {3 *> tc + res} '(r0))
 
 	(vp-mul-rr r4 r0)
-	(vp-asr-cr fp_shift r0)
+	(vp-asr-cr +fp_shift+ r0)
 	(vp-sub-rr r1 r0)
 	(vp-mul-cr 3 r0)
-	(vp-asr-cr fp_shift r0)
+	(vp-asr-cr +fp_shift+ r0)
 	(vp-add-rr r3 r0)
 
 	(exit 'sys_math :f_cos '(r0))
@@ -733,7 +733,7 @@
 
 	(entry 'sys_math :r_f2r '(r14))
 
-	(jump 'sys_math :r_pack `(,(- mbits fp_shift) r14))
+	(jump 'sys_math :r_pack `(,(- mbits +fp_shift+) r14))
 
 (def-func-end)
 
@@ -779,13 +779,13 @@
 	(entry 'sys_math :r_r2f `(,n))
 
 	(real-unpack n e m)
-	(vpif `(,e /= ,(- mbits fp_shift)))
-		(vpif `(,e < ,(- mbits fp_shift)))
+	(vpif `(,e /= ,(- mbits +fp_shift+)))
+		(vpif `(,e < ,(- mbits +fp_shift+)))
 			(vp-mul-cr -1 e)
-			(vp-add-cr (- mbits fp_shift) e)
+			(vp-add-cr (- mbits +fp_shift+) e)
 			(vp-asr-rr e m)
 		(else)
-			(vp-sub-cr (- mbits fp_shift) e)
+			(vp-sub-cr (- mbits +fp_shift+) e)
 			(vp-shl-rr e m)
 		(endif)
 	(endif)

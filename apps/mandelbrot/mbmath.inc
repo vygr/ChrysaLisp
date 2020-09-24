@@ -1,7 +1,7 @@
 (defq mbfp_shift 29)
 
 (defmacro-bind mbfp-from-fixed (x)
-	(<< x (- mbfp_shift fp_shift)))
+	(<< x (- mbfp_shift +fp_shift+)))
 
 (defmacro-bind mbfp-mul (x y &rest _)
 	(if (= (length _) 0)

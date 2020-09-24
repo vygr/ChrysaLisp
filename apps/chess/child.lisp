@@ -344,7 +344,7 @@
 			timeout_value)
 		((= ply 0)
 			(evaluate brd colour))
-		(t	(defq value min_int next_boards (all-moves brd colour))
+		(t	(defq value +min_int+ next_boards (all-moves brd colour))
 			(some! 0 -1 t (lambda (brd)
 				(setq value (max value (neg (negamax brd (neg colour) (neg beta) (neg alpha) (dec ply))))
 					alpha (max alpha value))
@@ -364,7 +364,7 @@
 	;iterative deepening of ply so we allways have a best move to go with if the time expires
 	(some! 0 -1 t (lambda (ply)
 		(send-data "s" (LF) "Ply" ply " ")
-		(defq value min_int alpha min_int beta max_int
+		(defq value +min_int+ alpha +min_int+ beta +max_int+
 			timeout (some! 0 -1 t (lambda ((ply0_score brd))
 				(defq score (neg (negamax brd (neg colour) (neg beta) (neg alpha) (dec ply))))
 				(cond

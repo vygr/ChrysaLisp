@@ -32,7 +32,7 @@
 
 	;fill edges, find min and max xy, clip edges not visible or redundant
 	(assign {yscale * this->canvas_cy, yscale * this->canvas_cy1} {cy, cy1})
-	(assign {x + 0.5, y + 0.5, max_int, min_int, max_int, min_int, 0} {x, y, xs, xe, ys, ye, length})
+	(assign {x + 0.5, y + 0.5, +max_int+, +min_int+, +max_int+, +min_int+, 0} {x, y, xs, xe, ys, ye, length})
 	(call 'list :get_both {polygons} {_, iter_begin_polygons, iter_end_polygons})
 	(loop-while {iter_begin_polygons /= iter_end_polygons})
 		(call 'path :get_both {*iter_begin_polygons} {_, iter_begin_polygon, iter_end_polygon})
@@ -41,15 +41,15 @@
 		(assign {iter_edge1 + length * long_size} {iter_edge2})
 		(vpif {iter_end_polygon - iter_begin_polygon >= long_size * 6})
 			(assign {iter_end_polygon[-long_size * 2] + x} {x1})
-			(assign {(iter_end_polygon[-long_size] + y) * yscale >>> fp_shift} {y1})
+			(assign {(iter_end_polygon[-long_size] + y) * yscale >>> +fp_shift+} {y1})
 			(loop-start)
 				(vp-def (xlow iter_edge2 xhigh x y x1 x2 y1 y2 xs xe ys ye cy cy1))
 				(assign {x1, y1, xs, xe, ys, ye, cy, cy1, iter_edge2,
-					iter_begin_polygon[0] + x, (iter_begin_polygon[long_size] + y) * yscale >>> fp_shift}
+					iter_begin_polygon[0] + x, (iter_begin_polygon[long_size] + y) * yscale >>> +fp_shift+}
 					(list x1 y1 xs xe ys ye cy cy1 iter_edge2 x2 y2))
 				(vpif `(,y1 /= ,y2))
 					(vp-cpy-rr x2 x)
-					(vp-asr-cr fp_shift x)
+					(vp-asr-cr +fp_shift+ x)
 					(vpif `(,x < ,xs))
 						(vp-cpy-rr x xs)
 					(endif)
@@ -91,7 +91,7 @@
 					(assign (list iter_edge2 xs ys xe ye) {iter_edge2, xs, ys, xe, ye})
 				(endif)
 				(assign {iter_begin_polygon[0] + x} {x1})
-				(assign {(iter_begin_polygon[long_size] + y) * yscale >>> fp_shift} {y1})
+				(assign {(iter_begin_polygon[long_size] + y) * yscale >>> +fp_shift+} {y1})
 			(loop-until {(iter_begin_polygon + long_size * 2 => iter_begin_polygon) = iter_end_polygon})
 			(assign {(iter_edge2 - iter_edge1) >> 3} {length})
 		(endif)
@@ -144,7 +144,7 @@
 			(call 'sys_mem :calloc {this->canvas_height * 8 * ptr_size} {this->canvas_edges_start, _})
 		(endif)
 		(vpif {this->canvas_flags})
-			(assign {max_int, min_int} {min_x, max_x})
+			(assign {+max_int+, +min_int+} {min_x, max_x})
 			(vpifnot {this->canvas_coverage})
 				(call 'sys_mem :calloc {this->canvas_width} {this->canvas_coverage, _})
 			(endif)
@@ -202,7 +202,7 @@
 				;draw edges into coverage mask
 				(vp-def (tracker_node mask xo cx cx1 x xp xb xm min_x max_x w v))
 				(assign {&tracker_list, this->canvas_coverage, int($sample_offsets + ((ys & 7) << 2)),
-					1 << (ys & 7), this->canvas_cx << fp_shift, (this->canvas_cx1 - 1) << fp_shift, min_x, max_x, mode}
+					1 << (ys & 7), this->canvas_cx << +fp_shift+, (this->canvas_cx1 - 1) << +fp_shift+, min_x, max_x, mode}
 					(list tracker_node mask xo xm cx cx1 min_x max_x v))
 				(vpif `(,v = 0))
 					;odd even
@@ -215,7 +215,7 @@
 						(elseif `(,x > ,cx1))
 							(vp-cpy-rr cx1 x)
 						(endif)
-						(vp-asr-cr fp_shift x)
+						(vp-asr-cr +fp_shift+ x)
 						(vp-cpy-dr-ub mask x xb)
 						(vpif `(,x < ,min_x))
 							(vp-cpy-rr x min_x)
@@ -238,7 +238,7 @@
 						(elseif `(,x > ,cx1))
 							(vp-cpy-rr cx1 x)
 						(endif)
-						(vp-asr-cr fp_shift x)
+						(vp-asr-cr +fp_shift+ x)
 						(vp-cpy-dr-ub mask x xb)
 						(vpif `(,x < ,min_x))
 							(vp-cpy-rr x min_x)
@@ -257,7 +257,7 @@
 						(elseif `(,x > ,cx1))
 							(vp-cpy-rr cx1 x)
 						(endif)
-						(vp-asr-cr fp_shift x)
+						(vp-asr-cr +fp_shift+ x)
 						(vp-cpy-dr-ub mask x xb)
 						(vpif `(,x > ,max_x))
 							(vp-cpy-rr x max_x)
@@ -298,7 +298,7 @@
 					(call 'canvas :span_noclip (list this c x y x1) (list this))
 					(assign {x, max_x, y, om} (list x max_x y om))
 				(loop-until `(,x >= ,max_x))
-				(assign {max_int, min_int} {min_x, max_x})
+				(assign {+max_int+, +min_int+} {min_x, max_x})
 			(else)
 				;draw spans for mode
 				(vp-def (this c x1 ys x2 w v tracker_node) (method-input 'canvas :span))
@@ -311,8 +311,8 @@
 						(vp-cpy-ir-i tracker_node edge_x x1)
 						(vp-cpy-ir tracker_node ln_fnode_next tracker_node)
 						(vp-cpy-ir-i tracker_node edge_x x2)
-						(vp-asr-cr fp_shift x1)
-						(vp-asr-cr fp_shift x2)
+						(vp-asr-cr +fp_shift+ x1)
+						(vp-asr-cr +fp_shift+ x2)
 						(assign (list tracker_node) {tracker_node})
 						(call 'canvas :span (list this 0x80 x1 ys x2) (list this))
 						(assign {tracker_node} (list tracker_node))
@@ -330,8 +330,8 @@
 							(vp-add-rr v w)
 						(loop-until `(,w = 0))
 						(vp-cpy-ir-i tracker_node edge_x x2)
-						(vp-asr-cr fp_shift x1)
-						(vp-asr-cr fp_shift x2)
+						(vp-asr-cr +fp_shift+ x1)
+						(vp-asr-cr +fp_shift+ x2)
 						(assign (list tracker_node) {tracker_node})
 						(call 'canvas :span (list this 0x80 x1 ys x2) (list this))
 						(assign {tracker_node} (list tracker_node))

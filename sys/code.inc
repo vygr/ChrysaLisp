@@ -495,6 +495,9 @@
 	`(not (< (ascii-code " ") (code ,_) 127)))
 
 (defmacro is_symbol_char (_)
+	(list 'find-rev _ "+ABCDEFGHIJKLMNOPQRSTUVWXYZ_/0123456789abcdefghijklmnopqrstuvwxyz"))
+
+(defmacro is_path_char (_)
 	(list 'find-rev _ "ABCDEFGHIJKLMNOPQRSTUVWXYZ_/0123456789abcdefghijklmnopqrstuvwxyz"))
 
 (defmacro is_label_char (_)
@@ -535,6 +538,9 @@
 							;)(][
 							(token-push c s)
 							(setq p (inc i) u (logand (- s 12) 1)))
+						((and (= s 9) (= u 1))
+							;+XYZ+ symbol !
+							(setq m 1))
 						((>= s 5)
 							;-*~!+.?^</%&|=>
 							(setq m s))
@@ -572,7 +578,7 @@
 						(setq p (inc i) u 0 m -1))))
 			((= m 2)
 				;bind
-				(if (is_symbol_char c)
+				(if (is_path_char c)
 					(setq c nil)
 					(progn
 						(token-push (slice p i l) m)
