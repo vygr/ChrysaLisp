@@ -579,7 +579,7 @@
 	(each (# (if (eql %0 ".")
 			(setq f 1)
 			(setq n (+ (* n b) (char-to-num %0)) f (* f b)))) _)
-	(if (= f 0) (* n m) (/ (<< (* n m) (const +fp_shift+)) f)))
+	(if (= f 0) (* n m) (/ (<< (* n m) +fp_shift+) f)))
 
 (defun-bind num-to-utf8 (_)
 	;(num-to-utf8 num) -> str

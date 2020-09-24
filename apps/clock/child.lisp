@@ -30,13 +30,13 @@
 (defun-bind create-clockface ()
 	;create static clock face
 	(path-stroke-polygons face (* scale 0.02) eps join_miter
-		(list (path-gen-arc (* scale 0.5) (* scale 0.5) 0.0 (const +fp_2pi+) (* scale 0.48) eps (path))))
+		(list (path-gen-arc (* scale 0.5) (* scale 0.5) 0.0 +fp_2pi+ (* scale 0.48) eps (path))))
 	(path-stroke-polylines face (* scale 0.03) eps join_miter cap_butt cap_butt
 		(reduce (lambda (l a)
-			(push l (transform (path 0.0 0.35 0.0 0.44) (* (i2f a) (const +fp_hpi+)) scale))) (range 0 4) (list)))
+			(push l (transform (path 0.0 0.35 0.0 0.44) (* (i2f a) +fp_hpi+) scale))) (range 0 4) (list)))
 	(path-stroke-polylines face (* scale 0.01) eps join_miter cap_butt cap_butt
 		(reduce (lambda (l a)
-			(push l (transform (path 0.0 0.35 0.0 0.44) (/ (* (i2f a) (const +fp_2pi+)) 12.0) scale))) (range 0 12) (list))))
+			(push l (transform (path 0.0 0.35 0.0 0.44) (/ (* (i2f a) +fp_2pi+) 12.0) scale))) (range 0 12) (list))))
 
 (defun-bind view-analog-time ()
 		(canvas-fill clock 0)
@@ -47,8 +47,8 @@
 
 		;hour and minute hands
 		(defq _ (path-stroke-polylines (list) (const (* scale 0.02)) eps join_miter cap_round cap_tri
-			(list (transform (path 0.0 0.04 0.0 -0.22) (/ (* hours (const +fp_2pi+)) 12.0) scale)
-				(transform (path 0.0 0.04 0.0 -0.38) (/ (* minutes (const +fp_2pi+)) 60.0) scale))))
+			(list (transform (path 0.0 0.04 0.0 -0.22) (/ (* hours +fp_2pi+) 12.0) scale)
+				(transform (path 0.0 0.04 0.0 -0.38) (/ (* minutes +fp_2pi+) 60.0) scale))))
 		(canvas-set-color clock 0xa0000000)
 		(canvas-fpoly clock (const (* scale 0.01)) (const (* scale 0.01)) 1 _)
 		(canvas-set-color clock argb_green)
@@ -56,7 +56,7 @@
 
 		;second hand
 		(defq _ (path-stroke-polylines (list) (const (* scale 0.01)) eps join_miter cap_round cap_tri
-			(list (transform (path 0.0 0.04 0.0 -0.34) (/ (* (% seconds 60.0) (const +fp_2pi+)) 60.0) scale))))
+			(list (transform (path 0.0 0.04 0.0 -0.34) (/ (* (% seconds 60.0) +fp_2pi+) 60.0) scale))))
 		(canvas-set-color clock 0xa0000000)
 		(canvas-fpoly clock (const (* scale 0.01)) (const (* scale 0.01)) 0 _)
 		(canvas-set-color clock argb_red)

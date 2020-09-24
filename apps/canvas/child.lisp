@@ -78,7 +78,7 @@
 	(fpoly 0xd0ff00ff 0 (defq p (transform angle
 		(path-stroke-polygons (list) (* canvas_width 0.02) +eps+ join_miter
 			(list (path-gen-arc
-				(* canvas_width 0.2) (* canvas_height 0.3) 0.0 (const +fp_2pi+)
+				(* canvas_width 0.2) (* canvas_height 0.3) 0.0 +fp_2pi+
 				(* canvas_width 0.125) +eps+ (path)))))))
 	(fpoly 0x60000000 0 (slice 0 1 p))
 
@@ -94,9 +94,9 @@
 	(fpoly 0xa0ffffff 0 (list (elem 1 polygons) (elem 3 polygons)))
 
 	(fpoly 0xff000000 0 (transform-copy angle fp1))
-	(fpoly 0xff000000 0 (transform-copy (+ angle (const +fp_pi+)) fp2))
-	(fpoly 0xffffffff 0 (transform-copy (+ angle (const +fp_hpi+)) fp3))
-	(fpoly 0xffffffff 0 (transform-copy (+ angle (* -1.0 (const +fp_hpi+))) fp4))
+	(fpoly 0xff000000 0 (transform-copy (+ angle +fp_pi+) fp2))
+	(fpoly 0xffffffff 0 (transform-copy (+ angle +fp_hpi+) fp3))
+	(fpoly 0xffffffff 0 (transform-copy (+ angle (* -1.0 +fp_hpi+)) fp4))
 
 	(canvas-swap canvas))
 

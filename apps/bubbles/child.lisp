@@ -13,7 +13,7 @@
 		k (elem i '(()()()()()()()()()()()()())) p (elem i '(()()()()()()()()()()()()())))
 	(cond ((defq i (some (lambda (i) (if (= i r) _)) k)) (elem i p))
 		(t (push k r) (elem -2 (push p (list
-			(path-gen-arc 0.0 0.0 0.0 (const +fp_2pi+) r 0.25 (path))))))))
+			(path-gen-arc 0.0 0.0 0.0 +fp_2pi+ r 0.25 (path))))))))
 
 (defun-bind lighting ((r g b) z)
 	;very basic attenuation
