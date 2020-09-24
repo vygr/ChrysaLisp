@@ -3,7 +3,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import 'lib/xtras/xtras.inc)
-(import 'lib/yaml-data/commons.lisp)
 
 ; Not multi-threaded safe
 
