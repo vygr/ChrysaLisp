@@ -91,4 +91,6 @@ view_h 156
 view_w 152
 view_x 144
 view_y 148
+file_open_read 0
+file_open_write 1
 )

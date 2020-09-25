@@ -22,6 +22,7 @@
     files)
 
 (defun-bind make-syms ()
+	(defq *abi* (abi) *cpu* (cpu))
 	(print "Scanning source files...")
 	(defq _syms_ '(
 		argb_black argb_blue argb_cyan argb_green argb_grey1 argb_grey10 argb_grey11

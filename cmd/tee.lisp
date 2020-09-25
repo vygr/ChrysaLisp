@@ -13,8 +13,7 @@
 (defun-bind main ()
 	;initialize pipe details and command args, abort on error
 	(when (and (defq stdio (create-stdio)) (defq args (options stdio usage)))
-		(defq stdin (io-stream 'stdin) buffer (string-stream (cat "")))
+		(defq stdin (io-stream 'stdin) files (map (# (file-stream %0 file_open_write)) (slice 1 -1 args)))
 		(while (defq c (read-char stdin))
-			(write buffer (prin (char c))))
-		(setq buffer (str buffer))
-		(each (# (save buffer %0)) (slice 1 -1 args))))
+			(prin (char c))
+			(each (# (write-char %0 c)) files))))
