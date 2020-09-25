@@ -47,7 +47,7 @@
 		_vals_ (within-compile-env (lambda ()
 			(each include (make-tree "." "class.inc"))
 			(map eval _syms_)))
-		stream (string-stream (cat "")))
+		stream (file-stream "sys/symbols.inc" file_open_write))
 	(write-line stream ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;")
 	(write-line stream "; VP symbols, autogen do not edit !")
 	(write-line stream ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;")
@@ -57,7 +57,6 @@
 		(write-char stream (ascii-code " "))
 		(write-line stream (str v))) _syms_ _vals_)
 	(write-line stream ")")
-	(save (str stream) 'sys/symbols.inc)
 	(print "-> sys/symbols.inc") nil)
 
 (defun-bind make-doc ()
@@ -108,7 +107,7 @@
     ;create classes docs
     (sort (lambda (x y)
         (cmp (elem 0 x) (elem 0 y))) classes)
-    (defq stream (string-stream (cat "")))
+    (defq stream (file-stream "docs/CLASSES.md" file_open_write))
     (write-line stream (const (str "# Classes" (ascii-char 10))))
     (each (lambda ((class super &rest methods))
         (write-line stream (cat "## " class (ascii-char 10)))
@@ -121,7 +120,6 @@
                 (each (lambda (_)
                     (write-line stream _)) (elem i docs))
                 (write-line stream (const (str "```" (ascii-char 10)))))) methods)) classes)
-    (save (str stream) 'docs/CLASSES.md)
     (print "-> docs/CLASSES.md")
 
     ;create commands docs
@@ -173,14 +171,13 @@
         (cat (make-tree "." "lisp.inc")
             '(lib/anaphoric/anaphoric.inc class/lisp/boot.inc class/lisp/debug.inc)))
     (sort cmp syntax)
-    (defq stream (string-stream (cat "")))
+    (defq stream (file-stream "docs/SYNTAX.md" file_open_write))
     (write-line stream (const (str "# Syntax" (ascii-char 10))))
     (each (lambda (_)
         (defq s (split _ " ") form (trim-parens (elem 0 s)))
         (when (eql "(" (elem 0 (elem 0 s)))
             (write-line stream (cat "## " form (ascii-char 10)))
             (write-line stream (cat _ (ascii-char 10))))) syntax)
-    (save (str stream) 'docs/SYNTAX.md)
     (print "-> docs/SYNTAX.md"))
 
 (defq usage `(
