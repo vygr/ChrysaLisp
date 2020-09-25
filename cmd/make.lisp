@@ -4,22 +4,18 @@
 (import 'lib/options/options.inc)
 
 (defmacro sfind (ss slst)
-  `(some (lambda (_tvar)
-    (if (eql ,ss _tvar) _)) ,slst))
+	`(some (# (if (eql ,ss %0) _)) ,slst))
 
 (defun-bind make-tree (dir ext)
-    (defq dirs (list) files (list))
-    (each! 0 -1 (lambda (f d)
-        (unless (starts-with "." f)
-            (cond
-                ((eql "4" d)
-                    (push dirs (cat dir "/" f)))
-                ((ends-with ext f)
-                    (push files (cat dir "/" f))))))
-        (unzip (split (pii-dirlist dir) ",") (list (list) (list))))
-    (each (lambda (d)
-        (setq files (cat files (make-tree d ext)))) dirs)
-    files)
+	(defq dirs (list) files (list))
+	(each! 0 -1
+		(# (unless (starts-with "." %0)
+			(cond
+				((eql "4" %1) (push dirs (cat dir "/" %0)))
+				((ends-with ext %0) (push files (cat dir "/" %0))))))
+		(unzip (split (pii-dirlist dir) ",") (list (list) (list))))
+	(each (# (setq files (cat files (make-tree %0 ext)))) dirs)
+	files)
 
 (defun-bind make-syms ()
 	(defq *abi* (abi) *cpu* (cpu))
