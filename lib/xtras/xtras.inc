@@ -643,3 +643,99 @@
     (t
      (throw "Unknown type found in obj-to-node" odata))))
 
+; Pretty Printers
+(defq ppopts
+  (properties
+    :map-delims   "{}"
+    :list-delims  "()"
+    :indent       -1
+    :spuds        (list :a :b :c)
+    :potatoes     (properties :a 0 :b 1 :c 2)
+    :indent_space  2))
+
+(defq +nl+ (char 0x0a))
+
+(defq pp_boolean
+      (properties
+        t   "true"
+        nil "false"))
+
+(defun indent+(cntxt)
+  (defq ci (getp cntxt :indent))
+  (setp! cntxt :indent (inc ci)))
+
+(defun indent-(cntxt)
+  (defq ci (getp cntxt :indent))
+  (setp! cntxt :indent (dec ci)))
+
+(defun padded=(cntxt)
+  (pad "" (* (getp cntxt :indent_space) (getp cntxt :indent))))
+
+(defun padded-(cntxt)
+  (pad "" (* (getp cntxt :indent_space) (dec (getp cntxt :indent)))))
+
+(defun pp-wpad (sstrm cntxt)
+  (write sstrm (padded= cntxt)))
+
+(defun pp-niw (sstrm cntxt el)
+  (write sstrm el))
+
+(defun pp-iw (sstrm cntxt el)
+  (pp-wpad sstrm cntxt)
+  (write sstrm el))
+
+(defun pp-iwcr (sstrm cntxt el)
+  (pp-iw sstrm cntxt el)
+  (write sstrm +nl+))
+
+(defun pp-criwcr (sstrm cntxt el)
+  (pp-wpad sstrm cntxt)
+  (write sstrm (str +nl+ el +nl+)))
+
+(defun node-to-pprint (sstrm in-args ast)
+  (defq recur (curry node-to-pprint sstrm in-args))
+  (case (getp ast :type)
+    ((:map)
+     (indent+ in-args)
+     (pp-criwcr sstrm in-args (first (getp in-args :map-delims)))
+     (indent+ in-args)
+     (each recur (getp ast :children))
+     (indent- in-args)
+     (pp-iwcr sstrm in-args (last (getp in-args :map-delims)))
+     (indent- in-args))
+    ((:seq)
+     (indent+ in-args)
+     (pp-niw sstrm in-args (first (getp in-args :list-delims)))
+     (indent+ in-args)
+     (each recur (getp ast :children))
+     (indent- in-args)
+     (pp-niw sstrm in-args (last (getp in-args :list-delims)))
+     (indent- in-args))
+    ((:map_entry)
+     (each recur (getp ast :children)))
+    ((:key)
+      (pp-iw sstrm in-args "")
+      (each recur (getp ast :children)))
+    ((:value)
+      (each recur (getp ast :children))
+      (pp-iwcr sstrm in-args ""))
+    ((:scalar)
+     (if (eql (getp ast :stype) :boolean)
+        (pp-niw sstrm in-args (str (getp pp_boolean (getp ast :value)) " "))
+        (pp-niw sstrm in-args (str (getp ast :value) " "))))
+    (t (throw "Unknown " ast))))
+
+(defun-bind pprint-to-strm (sstrm obj out-args)
+  (defq context
+    (cond
+      ((or (empty? out-args) (odd? out-args))
+        (pmerge (Context) ppopts))
+      (t
+        (pmerge (Context) ppopts out-args))))
+  (obj-to-node context obj)
+  (node-to-pprint sstrm context (getp context :current))
+  sstrm)
+
+(defun-bind pprint (obj &rest out-args)
+  (print (str (pprint-to-strm (string-stream (cat "")) obj out-args)))
+  nil)
