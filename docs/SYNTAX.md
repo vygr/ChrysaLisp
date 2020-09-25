@@ -454,7 +454,7 @@
 
 ## file-stream
 
-(file-stream path)
+(file-stream path [mode])
 
 ## filter
 

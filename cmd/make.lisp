@@ -42,7 +42,7 @@
 		stream_mail_state_started stream_mail_state_stopped
 		stream_mail_state_stopping vdu_char_height vdu_char_width view_flag_at_back
 		view_flag_dirty_all view_flag_opaque view_flag_solid view_flags view_h view_w
-		view_x view_y)
+		view_x view_y file_open_read file_open_write)
 		_vals_ (within-compile-env (lambda ()
 			(each include (make-tree "." "class.inc"))
 			(map eval _syms_)))

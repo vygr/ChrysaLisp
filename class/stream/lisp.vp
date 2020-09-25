@@ -65,12 +65,21 @@
 	(entry 'stream :lisp_fstream '(r0 r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(r1 ($ sig) 1) '(r2))
+	(assign '((r1 array_length)) '(r4))
+	(gotoif '(r4 > 2) 'error)
+	(gotoif '(r4 < 1) 'error)
+	(call 'lisp :env_args_sig '(r1 ($ sig) r4) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
+	(assign '((r1 array_length)) '(r2))
 	(vp-push r0)
 	(defq in (method-input 'fstream :create))
-	(list-bind-args r1 in '(str))
+	(vpif '(r2 = 1))
+		(list-bind-args r1 (slice 0 1 in) '(str))
+		(assign '(file_open_read) (slice 1 2 in))
+	(else)
+		(list-bind-args r1 in '(str num))
+	(endif)
 	(call 'fstream :create in '(r1))
 	(vp-pop r0)
 	(vpif '(r1 = 0))
@@ -83,8 +92,8 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(file-stream path)" error_msg_wrong_types r1))
-	(signature '(str)))
+	(jump 'lisp :repl_error '(r0 "(file-stream path [mode])" error_msg_wrong_types r1))
+	(signature '(str num)))
 
 (def-func-end)
 

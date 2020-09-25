@@ -169,7 +169,7 @@
 	(entry 'canvas :info '(r0))
 	(assign '(r0) '((rsp local_name)))
 
-	(call 'fstream :create '(r0) '(r0))
+	(call 'fstream :create '(r0 file_open_read) '(r0))
 	(vpif '(r0 /= 0))
 		(assign '(r0) '((rsp local_stream)))
 		(call 'canvas :info_file '((rsp local_name) r0) '((rsp local_w) (rsp local_h) (rsp local_type)))
