@@ -1,5 +1,4 @@
 (include 'sys/func.inc)
-(include 'class/str/class.inc)
 (include 'class/fstream/class.inc)
 
 (gen-create 'fstream)
@@ -25,19 +24,18 @@
 	(entry 'fstream :init '((rsp local_this) (rsp local_vtable) (rsp local_path) (r0 fstream_mode)))
 
 	;init parent
-	(call 'str :create_from_buffer '(0 fstream_buf_size) '(r0))
-	(assign '(r0) '((rsp local_buf)))
-	(s-call 'fstream :init '((rsp local_this) (rsp local_vtable) (rsp local_buf) 0 (& r0 str_data) 0) '(r0 r1))
+	(call 'sys_mem :alloc '(fstream_buf_size) '(r3 r1))
+	(assign '((rsp local_this)) '(r0))
+	(assign '(r3 r1) '((rsp local_buf) (r0 fstream_buf_len)))
+	(s-call 'fstream :init '(r0 (rsp local_vtable) 0 r3 r3 0) '(r0 r1))
 	(vpif '(r1 /= 0))
 		;init myself
-		(assign '((rsp local_this)) '(r0))
 		(call 'sys_pii :open '((rsp local_path) (r0 fstream_mode)) '(r1))
 		(assign '((rsp local_this)) '(r0))
 		(vpif '(r1 >= 3))
 			(assign '((r0 fstream_mode) r1) '(r2 (r0 fstream_handle)))
 			(breakif '(r2 = file_open_read))
-			(assign '((rsp local_buf)) '(r2))
-			(assign '((& r2 str_data) (r2 str_length)) '(r1 r2))
+			(assign '((rsp local_buf) (r0 fstream_buf_len)) '(r1 r2))
 			(vp-add-rr r2 r1)
 			(assign '(r1) '((r0 stream_bufe)))
 		(else)
@@ -46,7 +44,7 @@
 		(endif)
 	(else)
 		;error
-		(call 'str :deref '((rsp local_buf)))
+		(call 'sys_mem :free '((rsp local_buf)))
 		(assign '((rsp local_this) 0) '(r0 r1))
 	(endif)
 
@@ -92,8 +90,7 @@
 
 	(entry 'fstream :write_flush '(r0))
 
-	(assign '((r0 stream_object) (r0 stream_bufp)) '(r1 r2))
-	(vp-add-cr str_data r1)
+	(assign '((r0 stream_buffer) (r0 stream_bufp)) '(r1 r2))
 	(vp-sub-rr r1 r2)
 	(vpif '(r2 /= 0))
 		(vp-push r0)
@@ -119,17 +116,15 @@
 	(entry 'fstream :read_next '(r0))
 
 	(vp-push r0)
-	(assign '((r0 stream_object)) '(r1))
-	(call 'sys_pii :read '((r0 fstream_handle) (& r1 str_data) (r1 str_length)) '(r1))
+	(call 'sys_pii :read '((r0 fstream_handle) (r0 stream_buffer) (r0 fstream_buf_len)) '(r1))
 	(vp-pop r0)
 	(vpif '(r1 = 0))
 		;eof
 		(assign '(-1) '(r1))
 	(else)
-		(assign '((r0 stream_object)) '(r2))
-		(assign '((& r2 str_data)) '(r2))
-		(assign '((& r2 r1)) '(r1))
-		(assign '(r2 r1) '((r0 stream_bufp) (r0 stream_bufe)))
+		(assign '((r0 stream_buffer)) '(r2))
+		(assign '((& r2 r1)) '(r3))
+		(assign '(r2 r3) '((r0 stream_bufp) (r0 stream_bufe)))
 	(endif)
 
 	(exit 'fstream :read_next '(r0 r1))

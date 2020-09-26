@@ -12,7 +12,7 @@
 
 (def-struct 'fstream 'stream)
 	(long 'handle)
-	(uint 'mode)
+	(uint 'mode 'buf_len)
 (def-struct-end)
 
 (defcvar 'fstream_buf_size 4096)
