@@ -6,8 +6,6 @@
 ; Primary usage is intended to the CPU interchange
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import 'lib/yaml-data/commons.lisp)
-
 (defq ser_boolean
       (properties
         t   "*true"

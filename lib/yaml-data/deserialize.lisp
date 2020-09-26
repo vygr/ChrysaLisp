@@ -6,7 +6,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import 'lib/xtras/xtras.inc)
-(import 'lib/yaml-data/commons.lisp)
 
 (defq lu
       (properties

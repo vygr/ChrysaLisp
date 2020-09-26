@@ -408,31 +408,15 @@
   ; (post-walk-recur fn tree)
   (walk-tree-recur (curry post-walk-recur fn) fn tree))
 
-
-; Test utilities
-; (defun visit (_)
-;   (print "Visiting " _)
-;   _)
-
-; (defun outf (_)
-;   (print "Outter = " _)
-;   _)
-; (defun inf (_)
-;   (print "Inner = " _)
-;   _)
-
-; (defq t0 (list 0 1 2 3 (make-dict foo :a 7 :b 6) (list 0 1 2 (list 3 4 5))))
-; (defq t1 (list 0 1 2 3 (list 0 1 2 (list 3 4 5))))
-; (defq t2 (list 0 1 2 (make-dict foo :a 1 :b 7) (list 0 1 2 (list 3 4 5))))
-; (make-dict bar :a 0 :b 1 :c (list foo))
-
 ; Take and drop forms
 
 (defun-bind take (cnt seq)
-  ; (take cnt seq) -> seq
+  ; (take count sequence) -> sequence
   ; Returns the first `cnt` of elements from seq
   ; providing a negative cnt returns the original sequence
-  ; example: (take 2 '(0 1 2 3)) -> (0 1)
+  ; example:
+  ; (defq myL2 (list -2 -1 0 -1 -2 3))
+  ; (take 2 '(0 1 2 3)) -> (0 1)
   (defq len (length seq))
   (cond
     ((neg? cnt) seq)
@@ -440,16 +424,20 @@
 
 
 (defun-bind take-last (cnt seq)
-  ; (take-last cnt seq) -> seq
+  ; (take-last count sequence) -> sequence
   ; Returns the last 'cnt' of elements from seq
   ; providing a negative cnt returns the original sequence
-  ; example: (take-last 2 '(0 1 2 3)) ->  (2 3)
+  ; example:
+  ; (defq myL2 (list -2 -1 0 -1 -2 3))
+  ; (take-last 2 '(0 1 2 3)) ->  (2 3)
   (reverse (take cnt (reverse seq))))
 
 (defun-bind take-while (pred seq)
-  ; (take-while pred seq)
+  ; (take-while predicate sequence) -> sequence
   ; Returns successive element of seq while pred returns true
-  ; example: (take-while neg? '(-1 -2 0 -1 -2)) -> (-1 -2)
+  ; example:
+  ; (defq myL2 (list -2 -1 0 -1 -2 3))
+  ; (take-while neg? '(-1 -2 0 -1 -2)) -> (-1 -2)
   (reduced-reduce
     (lambda (acc el)
       (cond
@@ -458,9 +446,11 @@
     seq (list)))
 
 (defun-bind take-unless (pred seq)
-  ; (take-unless pred seq)
+  ; (take-unless predicate sequence) -> sequence
   ; Returns successive element of seq unless pred returns true
-  ; example: (take-unless (# (< %0 0)) '(-1 -2 0 -1 -2)) -> (0)
+  ; example:
+  ; (defq myL2 (list -2 -1 0 -1 -2 3))
+  ; (take-unless (# (< %0 0)) '(-1 -2 0 -1 -2)) -> (0)
   (reduced-reduce
     (lambda (acc el)
       (cond
@@ -469,25 +459,39 @@
     seq (list)))
 
 (defun-bind drop (cnt seq)
-  ; (drop cnt seq) -> seq
+  ; (drop count sequence) -> sequence
   ; Returns a sequence with the first `cnt` of elements removed
   ; providing a negative cnt returns the original sequence
+  ; example:
+  ; (defq myL2 (list -2 -1 0 -1 -2 3))
+  ; (drop 2 myL2)       ; -> (0 -1 -2 3)
   (defq len (length seq))
   (cond
     ((neg? cnt) seq)
     (t (slice (cond ((> cnt len) -1) (t cnt)) -1 seq))))
 
 (defun-bind drop-last (cnt seq)
-  ; (drop-last cnt seq) -> seq
+  ; (drop-last count sequence) -> sequence
   ; providing a negative cnt returns the original sequence
+  ; example:
+  ; (defq myL2 (list -2 -1 0 -1 -2 3))
+  ; (drop-last 2 myL2)  ; -> (-2 -1 0 -1)
   (reverse (drop cnt (reverse seq))))
 
 (defun-bind drop-while (pred seq)
-  ; (drop-while pred seq)
+  ; (drop-while predicate seq) -> sequence
   ; Drops successive element of seq while pred returns true
+  ; example:
+  ; (defq myL2 (list -2 -1 0 -1 -2 3))
+  ; (drop-while (# (< %0 0)) myL2)  ; -> (0 -1 -2 3)
   (slice (length (take-while pred seq)) -1 seq))
 
 (defun-bind drop-unless (pred seq)
+  ; (drop-unless predicate sequence) -> sequence
+  ; Drops elements from sequence unless predicate returns true
+  ; example:
+  ; (defq myL2 (list -2 -1 0 -1 -2 3))
+  ; (drop-unless (# (< %0 0)) myL2) ; -> (-2 -1 -1 -2)
   (reduced-reduce
     (lambda (acc el)
       (cond
@@ -495,14 +499,240 @@
         (t acc)))
     seq (list)))
 
-; Test cases
-; (defq myL2 (list -2 -1 0 -1 -2 3))
-; (take 2 myL2)       ; -> (-2 -1)
-; (take-last 2 myL2)  ; -> (-2 3)
-; (take-while (# (< %0 0)) myL2)  ; -> (-2 -1)
-; (take-unless (# (< %0 0)) myL2) ; -> (0 3)
-; (drop 2 myL2)       ; -> (0 -1 -2 3)
-; (drop-last 2 myL2)  ; -> (-2 -1 0 -1)
-; (drop-while (# (< %0 0)) myL2)  ; -> (0 -1 -2 3)
-; (drop-unless (# (< %0 0)) myL2) ; -> (-2 -1 -1 -2)
+; Data Object AST (Node Tree)
 
+(defun Node (ttype &optional value)
+  (properties
+      :type         ttype
+      :value        value
+      :children     (list)))
+
+(defun DocStartNode ()
+  (Node :docstart "---"))
+
+(defun DocEndNode ()
+  (Node :docend "..."))
+
+(defun MapNode ()
+  (Node :map))
+
+(defun MapEntryNode ()
+  (Node :map_entry))
+
+(defun KeyNode ()
+  (Node :key))
+
+(defun ValueNode ()
+  (Node :value))
+
+(defun SequenceNode ()
+  (Node :seq))
+
+(defun ScalarNode (stype value)
+  (setp! (Node :scalar value) :stype stype t))
+
+(defun add-child-node! (p c)
+  (when (not (lst? (defq chs (getp p :children))))
+    (throw "Children of node is not a list" p))
+  (push chs c)
+  c)
+
+(defun me-key? (_)
+  (eql (getp _ :clz) :me_key))
+
+(defun me-value? (_)
+  (eql (getp _ :clz) :me_value))
+
+(defun prop-me? (_)
+  (eql (getp _ :clz) :prop_me))
+
+(defun make-me-key (_)
+  (list :clz :me_key :value _))
+
+(defun make-me-value (_)
+  (list :clz :me_value :value _))
+
+(defun split-entries (p)
+  (reduce
+    (lambda (acc el)
+      (push acc
+        (list :clz :prop_me :entries
+              (push
+                (push (list) (make-me-key (first el)))
+                (make-me-value (second el))))))
+    (entries p) (list)))
+
+; AST Node Context Stack
+
+(defun Context ()
+  ; (Context) -> properties
+  ; Constructs a common node stack context
+  (properties
+    :current nil
+    :path    (list)))
+
+(defun set-context! (cntxt n)
+  ; (set-context! node) -> node
+  ; Makes the current context 'node'
+  ; after adding 'node' to current's children
+  (defq crn (getp cntxt :current))
+  ; Stack node in path for un-setting
+  (push (getp cntxt :path) n)
+  ; If first
+  (when crn
+    (add-child-node! crn n))
+  (setp! cntxt :current n)
+  n)
+
+(defun unset-context! (cntxt)
+  ; (unset-context!) -> node | nil
+  ; Set's context to most recent in path
+  (defq
+    npath (getp cntxt :path)  ; Setup
+    lnode (pop npath))          ; Pop path stack
+  (when (truthy? npath)
+    (setp! cntxt :current (last npath)))
+  nil)
+
+(defun add-to-context! (cntxt n)
+  ; (add-to-context! node) -> node | nil
+  (when (truthy? (defq crn (getp cntxt :current)))
+    (add-child-node! crn n)))
+
+(defun obj-to-node (cntxt odata)
+  ; (obj-to-node Context object)
+  ; Builds an common Node AST from object
+  (cond
+    ((lst? odata)
+        (cond
+          ; Map
+          ((props? odata)
+           (set-context! cntxt (MapNode))
+           (each (#(obj-to-node cntxt %0)) (split-entries odata))
+           (unset-context! cntxt))
+          ; Map Entry
+          ((prop-me? odata)
+           (set-context! cntxt (MapEntryNode))
+           (each (#(obj-to-node cntxt %0)) (getp odata :entries))
+           (unset-context! cntxt))
+          ; Key
+          ((me-key? odata)
+           (set-context! cntxt (KeyNode))
+           (obj-to-node cntxt (getp odata :value))
+           (unset-context! cntxt))
+          ; Value
+          ((me-value? odata)
+           (set-context! cntxt (ValueNode))
+           (obj-to-node cntxt (getp odata :value))
+           (unset-context! cntxt))
+          ; Sequence
+          (t
+            (set-context! cntxt (SequenceNode))
+            (each (#(obj-to-node cntxt %0)) odata)
+            (unset-context! cntxt))))
+    ((or (eql odata t) (eql odata nil))
+     (add-to-context! cntxt (ScalarNode :boolean odata)))
+    ((kw? odata)
+     (add-to-context! cntxt (ScalarNode :keyword odata)))
+    ((sym? odata)
+     (add-to-context! cntxt (ScalarNode :symbol odata)))
+    ((str? odata)
+     (add-to-context! cntxt (ScalarNode :string odata)))
+    ((num? odata)
+     (add-to-context! cntxt (ScalarNode :number odata)))
+    (t
+     (throw "Unknown type found in obj-to-node" odata))))
+
+; Pretty Printers
+(defq ppopts
+  (properties
+    :map-delims   "{}"
+    :list-delims  "()"
+    :indent       -1
+    :indent_space  2))
+
+(defq +nl+ (char 0x0a))
+
+(defq pp_boolean
+      (properties
+        t   "true"
+        nil "false"))
+
+(defun indent+ (cntxt)
+  (defq ci (getp cntxt :indent))
+  (setp! cntxt :indent (inc ci)))
+
+(defun indent- (cntxt)
+  (defq ci (getp cntxt :indent))
+  (setp! cntxt :indent (dec ci)))
+
+(defun padded= (cntxt)
+  (pad "" (* (getp cntxt :indent_space) (getp cntxt :indent))))
+
+(defun padded- (cntxt)
+  (pad "" (* (getp cntxt :indent_space) (dec (getp cntxt :indent)))))
+
+(defun pp-write-pad (sstrm cntxt)
+  (write sstrm (padded= cntxt)))
+
+(defun pp-niw (sstrm cntxt el)
+  (write sstrm el))
+
+(defun pp-iw (sstrm cntxt el)
+  (write (pp-write-pad sstrm cntxt) el))
+
+(defun pp-iwcr (sstrm cntxt el)
+  (write (pp-iw sstrm cntxt el) +nl+))
+
+(defun pp-map-container (sstrm cntxt el)
+  (write (pp-write-pad (write sstrm +nl+) cntxt) (str el +nl+)))
+
+(defun node-to-pprint (sstrm in-args ast)
+  (defq recur (curry node-to-pprint sstrm in-args))
+  (case (getp ast :type)
+    ((:map)
+      (indent+ in-args)
+      (pp-map-container sstrm in-args (first (getp in-args :map-delims)))
+      (indent+ in-args)
+      (each recur (getp ast :children))
+      (indent- in-args)
+      (if (= (getp in-args :indent) 1)
+        (pp-iwcr sstrm in-args (last (getp in-args :map-delims)))
+        (pp-iw sstrm in-args (last (getp in-args :map-delims))))
+      (indent- in-args))
+    ((:seq)
+     (indent+ in-args)
+     (pp-niw sstrm in-args (first (getp in-args :list-delims)))
+     (indent+ in-args)
+     (each recur (getp ast :children))
+     (indent- in-args)
+     (pp-niw sstrm in-args (last (getp in-args :list-delims)))
+     (indent- in-args))
+    ((:map_entry)
+     (each recur (getp ast :children)))
+    ((:key)
+      (pp-iw sstrm in-args "")
+      (each recur (getp ast :children)))
+    ((:value)
+      (each recur (getp ast :children))
+      (pp-iwcr sstrm in-args ""))
+    ((:scalar)
+     (if (eql (getp ast :stype) :boolean)
+        (pp-niw sstrm in-args (str (getp pp_boolean (getp ast :value)) " "))
+        (pp-niw sstrm in-args (str (getp ast :value) " "))))
+    (t (throw "Unknown " ast))))
+
+(defun-bind pprint-to-strm (sstrm obj out-args)
+  (defq context
+    (cond
+      ((or (empty? out-args) (odd? out-args))
+        (pmerge (Context) ppopts))
+      (t
+        (pmerge (Context) ppopts out-args))))
+  (obj-to-node context obj)
+  (node-to-pprint sstrm context (getp context :current))
+  sstrm)
+
+(defun-bind pprint (obj &rest out-args)
+  (print (str (pprint-to-strm (string-stream (cat "")) obj out-args)))
+  nil)

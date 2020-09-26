@@ -5,7 +5,6 @@
 (import 'lib/xtras/xtras.inc)
 
 (defq
-  +nl+        (ascii-char 10)
   +indent2+   2
   +indent4+   4
   +no_count+  0
