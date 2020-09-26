@@ -649,8 +649,6 @@
     :map-delims   "{}"
     :list-delims  "()"
     :indent       -1
-    :spuds        (list :a :b :c)
-    :potatoes     (properties :a 0 :b 1 :c 2)
     :indent_space  2))
 
 (defq +nl+ (char 0x0a))
@@ -660,49 +658,48 @@
         t   "true"
         nil "false"))
 
-(defun indent+(cntxt)
+(defun indent+ (cntxt)
   (defq ci (getp cntxt :indent))
   (setp! cntxt :indent (inc ci)))
 
-(defun indent-(cntxt)
+(defun indent- (cntxt)
   (defq ci (getp cntxt :indent))
   (setp! cntxt :indent (dec ci)))
 
-(defun padded=(cntxt)
+(defun padded= (cntxt)
   (pad "" (* (getp cntxt :indent_space) (getp cntxt :indent))))
 
-(defun padded-(cntxt)
+(defun padded- (cntxt)
   (pad "" (* (getp cntxt :indent_space) (dec (getp cntxt :indent)))))
 
-(defun pp-wpad (sstrm cntxt)
+(defun pp-write-pad (sstrm cntxt)
   (write sstrm (padded= cntxt)))
 
 (defun pp-niw (sstrm cntxt el)
   (write sstrm el))
 
 (defun pp-iw (sstrm cntxt el)
-  (pp-wpad sstrm cntxt)
-  (write sstrm el))
+  (write (pp-write-pad sstrm cntxt) el))
 
 (defun pp-iwcr (sstrm cntxt el)
-  (pp-iw sstrm cntxt el)
-  (write sstrm +nl+))
+  (write (pp-iw sstrm cntxt el) +nl+))
 
-(defun pp-criwcr (sstrm cntxt el)
-  (pp-wpad sstrm cntxt)
-  (write sstrm (str +nl+ el +nl+)))
+(defun pp-map-container (sstrm cntxt el)
+  (write (pp-write-pad (write sstrm +nl+) cntxt) (str el +nl+)))
 
 (defun node-to-pprint (sstrm in-args ast)
   (defq recur (curry node-to-pprint sstrm in-args))
   (case (getp ast :type)
     ((:map)
-     (indent+ in-args)
-     (pp-criwcr sstrm in-args (first (getp in-args :map-delims)))
-     (indent+ in-args)
-     (each recur (getp ast :children))
-     (indent- in-args)
-     (pp-iwcr sstrm in-args (last (getp in-args :map-delims)))
-     (indent- in-args))
+      (indent+ in-args)
+      (pp-map-container sstrm in-args (first (getp in-args :map-delims)))
+      (indent+ in-args)
+      (each recur (getp ast :children))
+      (indent- in-args)
+      (if (= (getp in-args :indent) 1)
+        (pp-iwcr sstrm in-args (last (getp in-args :map-delims)))
+        (pp-iw sstrm in-args (last (getp in-args :map-delims))))
+      (indent- in-args))
     ((:seq)
      (indent+ in-args)
      (pp-niw sstrm in-args (first (getp in-args :list-delims)))
