@@ -40,8 +40,10 @@
 	_obj)
 
 (defq o (hmap 10))
+(hmap-insert o "cliff" (i2r 45))
 (hmap-insert o "bert" 'wendy)
 (hmap-insert o "alf" 60)
+(hmap-insert o "albert" 1.56)
 (hmap-insert o "wally" (list 4 5 6))
 (hmap-insert o "tristum" "qwerty")
 (hmap-each o (# (print %0 " : " %1)))
@@ -52,4 +54,16 @@
 (print o)
 (hmap-erase o "tristum")
 (print "tristum = " (hmap-find o "tristum"))
+(print o)
+
+(defq o (hmap 10
+	(# (and (= (elem 0 %0) (elem 0 %1)) (= (elem 1 %0) (elem 1 %1)) (= (elem 2 %0) (elem 2 %1))))
+	(# (+ (elem 0 %0) (elem 1 %0) (elem 2 %0)))))
+(hmap-insert o '(1 2 3) 'alf)
+(hmap-insert o '(2 3 4) 'bert)
+(hmap-insert o '(8 3 7) 'fred)
+(hmap-insert o '(8 9 4) 'liz)
+(hmap-insert o '(8 9 5) 'chris)
+(hmap-each o (# (print %0 " : " %1)))
+(print "(2 3 4) = " (hmap-find o '(2 3 4)))
 (print o)
