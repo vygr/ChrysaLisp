@@ -166,11 +166,14 @@
 					(+ (elem i ho) fn_header_pathname)
 					(+ (elem (find-rev y ns) nso) so)) (+ u (* _ 8))) 8)) (elem 2 x)) "")))) b)
 		;build list of all sections of boot image
-		;concatenate all sections and save
-		(save (setq f (apply cat (reduce (lambda (x y)
-			(push x (cat y (ascii-char 0)))) ns (push (reduce (lambda (x y)
-				(push x (elem 0 y) (elem 1 y))) b (list)) z)))) (func-obj 'sys/boot_image))
-		(print "image -> " (func-obj 'sys/boot_image) " (" (length f) ")") nil)))
+		;concatenate all sections and write out
+		(defq stream (file-stream (func-obj 'sys/boot_image) file_open_write)
+			f (reduce (lambda (x y)
+				(push x (cat y (ascii-char 0)))) ns (push (reduce (lambda (x y)
+					(push x (elem 0 y) (elem 1 y))) b (list)) z))
+			l (reduce (# (+ %0 (length %1))) f 0))
+		(each (# (write stream %0)) f)
+		(print "image -> " (func-obj 'sys/boot_image) " (" l ")") nil)))
 
 (defun-bind make-boot-all (&optional *abi* *cpu*)
 	(setd *abi* (abi) *cpu* (cpu))
