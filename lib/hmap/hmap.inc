@@ -4,8 +4,8 @@
 (structure '+hmap 0
 	(byte 'num_buckets+ 'cmp_fnc+ 'hash_fnc+ 'buckets+))
 
-(defun-bind hmap (num_buckets &optional cmp_fnc hash_fnc)
-	(setd cmp_fnc eql hash_fnc hash)
+(defun-bind hmap (&optional num_buckets cmp_fnc hash_fnc)
+	(setd num_buckets 1 cmp_fnc eql hash_fnc hash)
 	(defq obj (cap (+ 3 (* num_buckets 2)) (list)))
 	(push obj num_buckets cmp_fnc hash_fnc)
 	(while (>= (setq num_buckets (dec num_buckets)) 0)
@@ -24,6 +24,15 @@
 		e (some (# (if ((elem +hmap_cmp_fnc+ obj) %0 key) _)) (elem b obj)))
 	(if e (elem e (elem (inc b) obj))))
 
+(defun-bind hmap-erase (obj key)
+	(defq b (+ +hmap_buckets+ (* (% ((elem +hmap_hash_fnc+ obj) key) (elem +hmap_num_buckets+ obj)) 2))
+		e (some (# (if ((elem +hmap_cmp_fnc+ obj) %0 key) _)) (elem b obj)))
+	(when e
+		(defq bv (elem (inc b) obj) b (elem b obj))
+		(elem-set e b (elem -2 b))
+		(elem-set e bv (elem -2 bv))
+		(pop b) (pop bv)))
+
 (defun-bind hmap-each (_obj _hf)
 	(defq _i (- +hmap_buckets+ 2))
 	(while (< (setq _i (+ _i 2)) (length _obj))
@@ -39,5 +48,8 @@
 (print "wally = " (hmap-find o "wally"))
 (print "bert = " (hmap-find o "bert"))
 (print "alf = " (hmap-find o "alf"))
+(print "tristum = " (hmap-find o "tristum"))
+(print o)
+(hmap-erase o "tristum")
 (print "tristum = " (hmap-find o "tristum"))
 (print o)
