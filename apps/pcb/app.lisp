@@ -34,7 +34,7 @@
 	(defq i (% (logior r) 7) k (elem i '(()()()()()()())) p (elem i '(()()()()()()())))
 	(cond ((defq i (some (lambda (i) (if (= i r) _)) k)) (elem i p))
 		(t (push k r) (elem -2 (push p (list
-			(path-gen-arc 0.0 0.0 0.0 (const fp_2pi) r 0.25 (path))))))))
+			(path-gen-arc 0.0 0.0 0.0 +fp_2pi+ r 0.25 (path))))))))
 
 (defun-bind oval (r s)
 	;cached oval generation
@@ -79,7 +79,7 @@
 				layers (list (list) (list) (list) (list) (list) (list)))
 			(each (lambda (p path_2d)
 				(each (lambda (seg seg_2d)
-					(when (or (= show (defq z (% (>> (elem 2 (elem 0 seg)) fp_shift) pcb_depth))) (= show -1))
+					(when (or (= show (defq z (% (>> (elem 2 (elem 0 seg)) +fp_shift+) pcb_depth))) (= show -1))
 						(path-stroke-polylines (elem z layers) track_radius eps join_round cap_round cap_round (list seg_2d)))
 					) p path_2d)
 				) batched_paths batched_paths_2d)
@@ -100,7 +100,7 @@
 				) batched_paths_2d))
 		;draw pads
 		(each (lambda ((pad_radius pad_gap (pad_x pad_y pad_z) pad_shape))
-			(when (or (= show -1) (= show (>> pad_z fp_shift)))
+			(when (or (= show -1) (= show (>> pad_z +fp_shift+)))
 				(setq pad_radius (* zoom pad_radius) pad_gap (* zoom pad_gap)
 					pad_x (+ (* zoom pad_x) pcb_border) pad_y (+ (* zoom pad_y) pcb_border)
 					pad_shape (to-2d pad_shape))
@@ -133,7 +133,7 @@
 			(defq batched_paths (map batch paths) batched_paths_2d (map batch-to-2d batched_paths) layer (list))
 			(each (lambda (p path_2d)
 				(each (lambda (seg seg_2d)
-					(when (= show (defq z (% (>> (elem 2 (elem 0 seg)) fp_shift) pcb_depth)))
+					(when (= show (defq z (% (>> (elem 2 (elem 0 seg)) +fp_shift+) pcb_depth)))
 						(path-stroke-polylines layer (+ track_radius (if with_gaps track_gap 0.0))
 							eps join_round cap_round cap_round (list seg_2d)))
 					) p path_2d)
@@ -149,7 +149,7 @@
 				) batched_paths_2d))
 		;draw pads
 		(each (lambda ((pad_radius pad_gap (pad_x pad_y pad_z) pad_shape))
-			(when (= show (>> pad_z fp_shift))
+			(when (= show (>> pad_z +fp_shift+))
 				(setq pad_radius (* zoom pad_radius) pad_gap (* zoom pad_gap)
 					pad_x (+ (* zoom pad_x) pcb_border) pad_y (+ (* zoom pad_y) pcb_border)
 					pad_shape (to-2d pad_shape))

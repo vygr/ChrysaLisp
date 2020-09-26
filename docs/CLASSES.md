@@ -2292,6 +2292,7 @@ inputs
 r0 = fstream object (ptr)
 r1 = vtable (pptr)
 r2 = c string filename (pubyte)
+r3 = open mode (uint)
 outputs
 r0 = fstream object (ptr)
 r1 = 0 if error, else ok
@@ -2322,7 +2323,7 @@ trashes
 r1-r14
 ```
 
-### fstream::write_next -> class/fstream/write_next
+### fstream::write_next -> class/fstream/write_flush
 
 ```lisp
 inputs

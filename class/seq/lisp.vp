@@ -152,7 +152,7 @@
 
 	(assign '((rsp local_args)) '(r0))
 	(list-bind-args r0 '(r9 r10 r11 r12) '(num num obj list))
-	(vp-cpy-cr max_int r8)
+	(vp-cpy-cr +max_int+ r8)
 	(class/array/get_both r12 r6 r7)
 	(loop-while '(r6 /= r7))
 		(vp-cpy-ir r6 0 r0)
@@ -169,7 +169,7 @@
 	(assign '((rsp local_this)) '(r0))
 	(call 'obj :ref '((r0 lisp_sym_nil)) '((rsp local_value)))
 
-	(vpif '(r8 /= max_int))
+	(vpif '(r8 /= +max_int+))
 		(vpif '(r9 < 0))
 			(vp-add-rr r8 r9)
 			(vp-add-cr 1 r9)
@@ -270,7 +270,7 @@
 
 	(assign '((rsp local_args)) '(r0))
 	(list-bind-args r0 '(r9 r10 r11 r12 r13) '(num num obj obj list))
-	(vp-cpy-cr max_int r8)
+	(vp-cpy-cr +max_int+ r8)
 	(class/array/get_both r13 r6 r7)
 	(loop-while '(r6 /= r7))
 		(vp-cpy-ir r6 0 r0)
@@ -287,7 +287,7 @@
 	(assign '((rsp local_this)) '(r0))
 	(call 'obj :ref '((r0 lisp_sym_nil)) '((rsp local_value)))
 
-	(vpif '(r8 /= max_int))
+	(vpif '(r8 /= +max_int+))
 		(vpif '(r9 < 0))
 			(vp-add-rr r8 r9)
 			(vp-add-cr 1 r9)

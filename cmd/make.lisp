@@ -4,24 +4,21 @@
 (import 'lib/options/options.inc)
 
 (defmacro sfind (ss slst)
-  `(some (lambda (_tvar)
-    (if (eql ,ss _tvar) _)) ,slst))
+	`(some (# (if (eql ,ss %0) _)) ,slst))
 
 (defun-bind make-tree (dir ext)
-    (defq dirs (list) files (list))
-    (each! 0 -1 (lambda (f d)
-        (unless (starts-with "." f)
-            (cond
-                ((eql "4" d)
-                    (push dirs (cat dir "/" f)))
-                ((ends-with ext f)
-                    (push files (cat dir "/" f))))))
-        (unzip (split (pii-dirlist dir) ",") (list (list) (list))))
-    (each (lambda (d)
-        (setq files (cat files (make-tree d ext)))) dirs)
-    files)
+	(defq dirs (list) files (list))
+	(each! 0 -1
+		(# (unless (starts-with "." %0)
+			(cond
+				((eql "4" %1) (push dirs (cat dir "/" %0)))
+				((ends-with ext %0) (push files (cat dir "/" %0))))))
+		(unzip (split (pii-dirlist dir) ",") (list (list) (list))))
+	(each (# (setq files (cat files (make-tree %0 ext)))) dirs)
+	files)
 
 (defun-bind make-syms ()
+	(defq *abi* (abi) *cpu* (cpu))
 	(print "Scanning source files...")
 	(defq _syms_ '(
 		argb_black argb_blue argb_cyan argb_green argb_grey1 argb_grey10 argb_grey11
@@ -42,11 +39,11 @@
 		stream_mail_state_started stream_mail_state_stopped
 		stream_mail_state_stopping vdu_char_height vdu_char_width view_flag_at_back
 		view_flag_dirty_all view_flag_opaque view_flag_solid view_flags view_h view_w
-		view_x view_y)
+		view_x view_y file_open_read file_open_write)
 		_vals_ (within-compile-env (lambda ()
 			(each include (make-tree "." "class.inc"))
 			(map eval _syms_)))
-		stream (string-stream (cat "")))
+		stream (file-stream "sys/symbols.inc" file_open_write))
 	(write-line stream ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;")
 	(write-line stream "; VP symbols, autogen do not edit !")
 	(write-line stream ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;")
@@ -56,7 +53,6 @@
 		(write-char stream (ascii-code " "))
 		(write-line stream (str v))) _syms_ _vals_)
 	(write-line stream ")")
-	(save (str stream) 'sys/symbols.inc)
 	(print "-> sys/symbols.inc") nil)
 
 (defun-bind make-doc ()
@@ -107,7 +103,7 @@
     ;create classes docs
     (sort (lambda (x y)
         (cmp (elem 0 x) (elem 0 y))) classes)
-    (defq stream (string-stream (cat "")))
+    (defq stream (file-stream "docs/CLASSES.md" file_open_write))
     (write-line stream (const (str "# Classes" (ascii-char 10))))
     (each (lambda ((class super &rest methods))
         (write-line stream (cat "## " class (ascii-char 10)))
@@ -120,7 +116,6 @@
                 (each (lambda (_)
                     (write-line stream _)) (elem i docs))
                 (write-line stream (const (str "```" (ascii-char 10)))))) methods)) classes)
-    (save (str stream) 'docs/CLASSES.md)
     (print "-> docs/CLASSES.md")
 
     ;create commands docs
@@ -172,14 +167,13 @@
         (cat (make-tree "." "lisp.inc")
             '(lib/anaphoric/anaphoric.inc class/lisp/boot.inc class/lisp/debug.inc)))
     (sort cmp syntax)
-    (defq stream (string-stream (cat "")))
+    (defq stream (file-stream "docs/SYNTAX.md" file_open_write))
     (write-line stream (const (str "# Syntax" (ascii-char 10))))
     (each (lambda (_)
         (defq s (split _ " ") form (trim-parens (elem 0 s)))
         (when (eql "(" (elem 0 (elem 0 s)))
             (write-line stream (cat "## " form (ascii-char 10)))
             (write-line stream (cat _ (ascii-char 10))))) syntax)
-    (save (str stream) 'docs/SYNTAX.md)
     (print "-> docs/SYNTAX.md"))
 
 (defq usage `(

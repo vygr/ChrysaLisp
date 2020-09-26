@@ -27,7 +27,7 @@
 
 	(vp-push r0)
 	(list-bind-args r1 `(,x0 ,y0) '(num num))
-	(assign `(0 0 0 0 0 ,(<< 4 mbfp_shift)) `(,i ,xc ,yc ,x2 ,y2 ,four))
+	(assign `(0 0 0 0 0 ,(<< 4 +mbfp_shift+)) `(,i ,xc ,yc ,x2 ,y2 ,four))
 	(loop-start)
 		(vp-cpy-rr x2 tmp)
 		(vp-add-rr y2 tmp)
@@ -35,7 +35,7 @@
 
 		(vp-mul-rr xc yc)
 		(vp-cpy-rr x2 xc)
-		(vp-asr-cr (- mbfp_shift 1) yc)
+		(vp-asr-cr (- +mbfp_shift+ 1) yc)
 		(vp-sub-rr y2 xc)
 		(vp-add-rr y0 yc)
 		(vp-add-rr x0 xc)
@@ -45,8 +45,8 @@
 		(vp-mul-rr y2 y2)
 		(vp-mul-rr x2 x2)
 		(vp-add-cr 1 i)
-		(vp-asr-cr mbfp_shift y2)
-		(vp-asr-cr mbfp_shift x2)
+		(vp-asr-cr +mbfp_shift+ y2)
+		(vp-asr-cr +mbfp_shift+ x2)
 	(loop-until `(,i = 255))
 
 	(call 'num :create `(,i) '(r1))

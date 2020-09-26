@@ -447,7 +447,7 @@
 		(call 'canvas :fill {sym_canvas, 0})
 		(assign {argb_white, 1} {sym_canvas->canvas_color, sym_canvas->canvas_flags})
 		(call 'font :get_metrics {this} {_, h, _, _})
-		(call 'canvas :fpoly {sym_canvas, 0, h << (fp_shift + 1), 0, paths})
+		(call 'canvas :fpoly {sym_canvas, 0, h << (+fp_shift+ + 1), 0, paths})
 
 		;take texture from canvas
 		(call 'canvas :swap {sym_canvas})

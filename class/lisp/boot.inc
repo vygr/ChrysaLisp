@@ -487,7 +487,7 @@
 ; Math functions
 ;;;;;;;;;;;;;;;;
 
-(defq min_long (<< -1 63) max_long (>> -1 1) min_int (<< -1 31) max_int (>> -1 33))
+(defq +min_long+ (<< -1 63) +max_long+ (>> -1 1) +min_int+ (<< -1 31) +max_int+ (>> -1 33))
 
 (defun-bind lognot (_)
 	;(lognot num) -> num
@@ -497,8 +497,8 @@
 ; Fixed point math
 ;;;;;;;;;;;;;;;;;;
 
-(defq fp_shift 16 fp_int_mask (<< -1 fp_shift) fp_frac_mask (lognot fp_int_mask)
-	fp_2pi 6.283185 fp_pi 3.141592 fp_hpi 1.570796 fp_rpi 0.318309)
+(defq +fp_shift+ 16 +fp_int_mask+ (<< -1 +fp_shift+) +fp_frac_mask+ (lognot +fp_int_mask+)
+	+fp_2pi+ 6.283185 +fp_pi+ 3.141592 +fp_hpi+ 1.570796 +fp_rpi+ 0.318309)
 
 ;;;;;;;;;;;
 ; Utilities
@@ -579,7 +579,7 @@
 	(each (# (if (eql %0 ".")
 			(setq f 1)
 			(setq n (+ (* n b) (char-to-num %0)) f (* f b)))) _)
-	(if (= f 0) (* n m) (/ (<< (* n m) (const fp_shift)) f)))
+	(if (= f 0) (* n m) (/ (<< (* n m) +fp_shift+) f)))
 
 (defun-bind num-to-utf8 (_)
 	;(num-to-utf8 num) -> str

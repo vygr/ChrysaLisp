@@ -29,11 +29,18 @@ corrupted.
 
 ------
 
-(file-stream path) now reads a file from the filesystem in buffers of 4KB, and
-has no file size limit as a result. Old behavior is retained in the new
-(load-stream path) function which will gulp the entire file into a string and
-return a string stream. Lisp IO stream access is moved to the new (io-stream
-iopath) function.
+(file-stream path [mode]) now reads a file from the filesystem in buffers of
+4KB, and has no file size limit as a result. Old behavior is retained in the
+new (load-stream path) function which will gulp the entire file into a string
+and return a string stream. Lisp IO stream access is moved to the new
+(io-stream iopath) function.
+
+(file-stream path [mode]) optional mode now supported (file_open_read,
+file_open_write) ! Writable file streams now available.
+
+(intern) and (intern-seq) functions available in boot.inc.
+
+(str-to-num) can now parse negative number ! -10, -0xfe, -56.7 etc.
 
 ------
 
@@ -63,14 +70,14 @@ now open windows centered on the mouse location while fitting within the GUI
 screen, but this can be adjusted if required with an optional positioning flag.
 
 New Iteration doc. Frank got me beating up grass... :) join
-#ChrysaLisp:matrix.org if you want to join in the banter. Install the Element
+#ChrysaLisp@matrix.org if you want to join in the banter. Install the Element
 IRC app and join us, don't take yourself seriously but do take coding seriously
 !
 
 YAML Serialize/Deserialize library added `yaml-data`. Currently only supports
 deserialization of Lists and Properties (dictionaries) as strings. Future
 changes will include serializing, native type conversions (numbers, etc.),
-as well as suport for Anchors, Aliases, etc. to inch closer
+as well as support for Anchors, Aliases, etc. to inch closer
 to YAML 1.2 compliance.
 
 ------

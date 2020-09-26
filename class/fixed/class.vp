@@ -35,7 +35,7 @@
 	(endif)
 
 	(assign '((rsp local_value)) '(r0))
-	(vp-shr-cr fp_shift r0)
+	(vp-shr-cr +fp_shift+ r0)
 	(call 'str :create_from_long '(r0 10) '(r0))
 	(assign '(r0) '((rsp local_tmp)))
 	(call 'stream :write '((rsp local_stream) (& r0 str_data) (r0 str_length)) '(r0))
@@ -43,9 +43,9 @@
 	(call 'obj :deref '((rsp local_tmp)))
 
 	(assign '((rsp local_value)) '(r0))
-	(vp-and-cr fp_frac_mask r0)
+	(vp-and-cr +fp_frac_mask+ r0)
 	(vp-mul-cr 100000 r0)
-	(vp-shr-cr fp_shift r0)
+	(vp-shr-cr +fp_shift+ r0)
 	(call 'str :create_from_long '(r0 10) '(r0))
 	(assign '(r0) '((rsp local_tmp)))
 	(assign '((r0 str_length) 5) '(r0 r2))
@@ -92,7 +92,7 @@
 	(addop :mul
 		'(progn
 			(vp-mul-rr r3 r0)
-			(vp-asr-cr fp_shift r0)))
+			(vp-asr-cr +fp_shift+ r0)))
 
 (def-func-end)
 
@@ -132,7 +132,7 @@
 
 	(divop :div
 		'(progn
-			(vp-shl-cr fp_shift r0)
+			(vp-shl-cr +fp_shift+ r0)
 			(vp-ext-rr r0 r2)
 			(vp-div-rrr r3 r2 r0)))
 
@@ -209,9 +209,9 @@
 	(mathop :sign
 		'(progn
 			(vpif '(r0 < 0))
-				(vp-cpy-cr (neg (<< 1 fp_shift)) r0)
+				(vp-cpy-cr (neg (<< 1 +fp_shift+)) r0)
 			(elseif '(r0 > 0))
-				(vp-cpy-cr (<< 1 fp_shift) r0)
+				(vp-cpy-cr (<< 1 +fp_shift+) r0)
 			(else)
 				(vp-xor-rr r0 r0)
 			(endif)))

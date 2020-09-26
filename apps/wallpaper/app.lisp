@@ -20,7 +20,7 @@
 (defun-bind refresh-wallpaper ()
 	;pick nearest wallpaper to screen size
 	(bind '(w h) (view-get-size screen))
-	(defq index 0 err max_int flag 0)
+	(defq index 0 err +max_int+ flag 0)
 	(each (lambda ((iw ih it))
 		(defq iw (- w iw) ih (- h ih) new_err (+ (* iw iw) (* ih ih)))
 		(when (< new_err err)

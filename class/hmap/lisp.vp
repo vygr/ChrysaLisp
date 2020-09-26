@@ -232,10 +232,10 @@
 	(entry 'hmap :lisp_get '(r0 r1))
 
 (errorcases
-	(assign '((r1 array_length)) '(r2))
-	(gotoif '(r2 < 1) 'error)
-	(gotoif '(r2 > 2) 'error)
-	(call 'lisp :env_args_sig '(r1 ($ sig) r2) '(r2))
+	(assign '((r1 array_length)) '(r4))
+	(gotoif '(r4 < 1) 'error)
+	(gotoif '(r4 > 2) 'error)
+	(call 'lisp :env_args_sig '(r1 ($ sig) r4) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(assign '((r1 array_length)) '(r2))
