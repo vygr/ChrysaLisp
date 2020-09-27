@@ -57,9 +57,7 @@
 (print "tristum = " (hmap-find o "tristum"))
 (print o)
 
-(defq o (hmap 10
-	(# (and (= (elem 0 %0) (elem 0 %1)) (= (elem 1 %0) (elem 1 %1)) (= (elem 2 %0) (elem 2 %1))))
-	(# (reduce + %0))))
+(defq o (hmap 10 (# (every = %0 %1)) (# (reduce + %0))))
 (hmap-insert o '(1 2 3) 'alf)
 (hmap-insert o '(2 3 4) 'bert)
 (hmap-insert o '(8 3 7) 'fred)
