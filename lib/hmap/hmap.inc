@@ -4,29 +4,30 @@
 (structure '+hmap 0
 	(byte 'num_buckets+ 'cmp_fnc+ 'hash_fnc+ 'buckets+))
 
+(defmacro-bind hmap-slot ()
+	`(defq b (+ +hmap_buckets+ (* (% ((elem +hmap_hash_fnc+ obj) key) (elem +hmap_num_buckets+ obj)) 2))
+		e (some (# (if ((elem +hmap_cmp_fnc+ obj) %0 key) _)) (elem b obj))))
+
 (defun-bind hmap (&optional num_buckets cmp_fnc hash_fnc)
 	(setd num_buckets 1 cmp_fnc eql hash_fnc hash)
-	(defq obj (cap (+ 3 (* num_buckets 2)) (list)))
+	(defq obj (cap (+ +hmap_num_buckets+ (* num_buckets 2)) (list)))
 	(push obj num_buckets cmp_fnc hash_fnc)
 	(while (>= (setq num_buckets (dec num_buckets)) 0)
 		(push obj (list) (list)))
 	obj)
 
 (defun-bind hmap-insert (obj key val)
-	(defq b (+ +hmap_buckets+ (* (% ((elem +hmap_hash_fnc+ obj) key) (elem +hmap_num_buckets+ obj)) 2))
-		e (some (# (if ((elem +hmap_cmp_fnc+ obj) %0 key) _)) (elem b obj)))
+	(hmap-slot)
 	(cond
 		(e (elem-set e (elem (inc b) obj) val))
 		(t (push (elem b obj) key) (push (elem (inc b) obj) val))))
 
 (defun-bind hmap-find (obj key)
-	(defq b (+ +hmap_buckets+ (* (% ((elem +hmap_hash_fnc+ obj) key) (elem +hmap_num_buckets+ obj)) 2))
-		e (some (# (if ((elem +hmap_cmp_fnc+ obj) %0 key) _)) (elem b obj)))
+	(hmap-slot)
 	(if e (elem e (elem (inc b) obj))))
 
 (defun-bind hmap-erase (obj key)
-	(defq b (+ +hmap_buckets+ (* (% ((elem +hmap_hash_fnc+ obj) key) (elem +hmap_num_buckets+ obj)) 2))
-		e (some (# (if ((elem +hmap_cmp_fnc+ obj) %0 key) _)) (elem b obj)))
+	(hmap-slot)
 	(when e
 		(defq bv (elem (inc b) obj) b (elem b obj))
 		(elem-set e b (elem -2 b))
@@ -58,7 +59,7 @@
 
 (defq o (hmap 10
 	(# (and (= (elem 0 %0) (elem 0 %1)) (= (elem 1 %0) (elem 1 %1)) (= (elem 2 %0) (elem 2 %1))))
-	(# (+ (elem 0 %0) (elem 1 %0) (elem 2 %0)))))
+	(# (reduce + %0))))
 (hmap-insert o '(1 2 3) 'alf)
 (hmap-insert o '(2 3 4) 'bert)
 (hmap-insert o '(8 3 7) 'fred)
