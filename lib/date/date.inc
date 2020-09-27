@@ -12,9 +12,11 @@
 	(byte 'second+ 'minute+ 'hour+ 'date+ 'month+ 'year+ 'week+ 'dls+ 'tz+))
 
 (structure '+tz 0
-	(byte 'abbreviation+ 'offset+ 'dls+ 'title+ `locations+))
+	(byte 'abbreviation+ 'offset+ 'dls+ 'title+ 'locations+))
 
-(defq unix_epoch '(0 0 0 1 0 1970 0) dls_flag nil week_abbr (list "Sun" "Mon" "Tue" "Wed" "Thu" "Fri" "Sat")
+(defq unix_epoch '(0 0 0 1 0 1970 0) dls_flag nil 
+	;week_abbr (list "Sun" "Mon" "Tue" "Wed" "Thu" "Fri" "Sat")
+	week_abbr (list "Thu" "Fri" "Sat" "Sun" "Mon" "Tue" "Wed")
 	month_abbr (list "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug" "Sep" "Oct" "Nov" "Dec"))
 
 ;for decoding date string integers
@@ -71,7 +73,7 @@
 	`(let ((ltz (list)))
 		(setq ltz (timezone-lookup :location ,tz_loc))
 		(elem-set +tz_locations+ ltz ,tz_loc)
-		(def (penv (env)) 'local_timezone ltz)))
+		ltz))
 
 ;ensure that leapyears are not divisible by 100 unless also divisible by 400.
 (defmacro-bind leapyear? (y)
@@ -92,13 +94,6 @@
 
 (defmacro-bind days-in-year (year)
 	`(if (leapyear? ,year) 366 365))
-
-;the epoch was on a Thursday, adjust for calendar
-(defun-bind get-weekday (days)
-	(defq wkdays (/ days 7) wd (% wkdays 7))
-	(cond 
-		((<= 4 wd 6) (setq wd (- wd 4)))
-		((<= 0 wd 3) (setq wd (+ wd 3)))))
 
 (defun-bind leapyears-since-epoch (year)
 	(let ((leap_count 0))
@@ -132,6 +127,12 @@
 	(notany (lambda (a_)
 		(eql (and (not (= _ 5)) (or (> a_ (elem _ maxarg)) (< a_ (elem _ minarg)))) t)) td))
 
+(defun-bind float-time ()
+	(defq seconds (i2f (/ (time) 1000000)) minutes (+ (* 60.0 (i2f (elem +tz_offset+ local_timezone))) (/ seconds 60.0)) 
+		hours (% (/ minutes 60.0) 12.0))
+	;(unless (not offset) (setq hours (+ hours (i2f offset))))
+	(list seconds minutes hours))
+
 ;takes a time value in seconds or uses default (time)
 (defun-bind date (&optional secs)
 	(defq seconds (/ (time) 1000000))
@@ -139,7 +140,7 @@
 	(defq seconds (/ (time) 1000000) minutes (+ (* 60 (elem +tz_offset+ local_timezone)) (/ seconds 60))
 		hours (/ minutes 60) days (/ hours 24) weeks (/ days 7))
 	(bind '(monthday month year) (get-date days))
-	(list (% seconds 60) (% minutes 60) (% hours 24) monthday month year (get-weekday days)))
+	(list (% seconds 60) (% minutes 60) (% hours 24) monthday month year (% days 7)))
 
 (defun-bind encode-date (td)
 	(bind '(s m h dy mo yr wk) td)
