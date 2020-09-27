@@ -68,7 +68,7 @@
 
 (defun-bind main ()
 	;creates local_timezone
-	(defq local_timezone (timezone-init *env_clock_timezone*))
+	(timezone-init *env_clock_timezone*)
 	(when clock
 		(create-clockface))
 	(when display 
