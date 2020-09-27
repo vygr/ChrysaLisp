@@ -73,7 +73,7 @@
 	`(let ((ltz (list)))
 		(setq ltz (timezone-lookup :location ,tz_loc))
 		(elem-set +tz_locations+ ltz ,tz_loc)
-		ltz))
+		(def (penv (env)) 'local_timezone ltz)))
 
 ;ensure that leapyears are not divisible by 100 unless also divisible by 400.
 (defmacro-bind leapyear? (y)
