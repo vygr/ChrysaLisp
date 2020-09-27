@@ -5,12 +5,23 @@
 
 (defq xtras_defined t)
 
-; Predicates
+; Constants
 
-(defun-bind nil? (_)
-  ; (nil? o) -> bool
-  ; Returns true if nil
-  (eql _ nil))
+(defq
+  +nl+          (char 0x0a)
+  +eof+         (char 0x00)
+  +upper-chars+ "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+  +lower-chars+ "abcdefghijklmnopqrstuvwxyz"
+  +bin-prefix+  "0bB"
+  +oct-prefix+  "0oO"
+  +hex-prefix+  "0xX"
+  +oct-chars+   "01234567"
+  +bin-chars+   "01"
+  +numeric-chars+ (cat +oct-chars+ "89"
+  +hex-chars+ (cat +numeric-chars+ (slice 0 6 +upper-chars+) (slice 0 6 +lower-chars+))
+  +alpha-num+ (cat +numeric-chars+ +upper-chars+ +lower-chars+))
+
+; Predicates
 
 (defun-bind neg? (_)
   ; (neg? num) -> bool
@@ -84,7 +95,6 @@
 
 ; Convenience
 
-(defq +numeric_chars+ "0123456789")
 (defq +plus_minus+ "-+")
 
 (defun-bind str-is-ints? (s)
@@ -95,7 +105,7 @@
       s))
   (reduced-reduce
       (lambda (acc el)
-        (if  (find el +numeric_chars+)
+        (if  (find el +numeric-chars+)
           acc
           (reduced :false))
         ) instr :true))
@@ -116,6 +126,10 @@
   fx)
 
 (defun-bind kw (_)
+  ; (kw el) -> keyword
+  ; Converts a string or symbol to a keyword
+  ; example:
+  ; (kw "foo") -> :foo
   (if (and (not (kw? _)) (or (str? _) (sym? _)))
     (sym (str ":" _))
     (throw "Expected symbol or string, found " _)))
@@ -135,11 +149,15 @@
 (defmacro-bind interleave (seq1 seq2)
   ; (interleave seq1 seq2) -> list
   ; Returns a list of the first item in each seq, then the second etc.
+  ; example:
+  ; (interleave '(:a :b :c) '(0 1 2)) -> (:a 0 :b 1 :c 2)
   `(zip ,seq1 ,seq2))
 
 (defun-bind chunk (cnt seq)
+  ; (chunk count sequence) -> sequence of sequences
+  ; Chunks up a sequence into list of sequence by count
+  ; example:
   ; (chunk 2 '(0 1 2 3')) -> ((0 1) (2 3))
-  ; Chunks up a sequence into list of sequence by cnt
   (cond
     ((< cnt (length seq))
       (defq
@@ -165,6 +183,7 @@
 
 (defmacro-bind properties (&rest pairs)
   ; (properties [k v]...) -> list
+  ; Creates a properties list object
   (push pairs :super_clz :clz_properties)
   `(list ~pairs))
 
@@ -181,10 +200,12 @@
 
 (defun-bind keys (prop)
   ; (keys properties) -> key list
+  ; Returns a sequence of keys found in properties list
   (map (#(elem 0 %0)) (entries prop)))
 
 (defun-bind values (prop)
   ; (values properties) -> value list
+  ; Returns a sequence of values found in properties list
   (map (#(elem 1 %0)) (entries prop)))
 
 (defun-bind getp (p k &optional if_nil)
@@ -359,18 +380,23 @@
 
 (defmacro private (nm)
   ; (private nm) -> env
+  ; Sets up an isolated environment for
+  ; use in the privatization of functions
   `(macroexpand (defq ,nm (env -1))))
 
 (defmacro defunp (e n a &rest _)
   ; (defunp env name args form) -> lambda
+  ; Declares a function in the private environment
   `(def ,e ,n (lambda ,a ~_)))
 
 (defmacro defunp-bind (e n a &rest _)
-  ;(defun-bind name ([arg ...]) body)
+  ; (defun-bind name ([arg ...]) body)
+  ; Declars a bound function in the private environment
   `(def ,e ,n (lambda ,a ~(prebind (macroexpand _)))))
 
 (defmacro callp (e name &rest _)
   ; (callp env name &rest args) -> form invoked with args
+  ; Calls a function in a private environment
   `((get ,name ,e) ~_))
 
 ; Walkers
@@ -415,7 +441,6 @@
   ; Returns the first `cnt` of elements from seq
   ; providing a negative cnt returns the original sequence
   ; example:
-  ; (defq myL2 (list -2 -1 0 -1 -2 3))
   ; (take 2 '(0 1 2 3)) -> (0 1)
   (defq len (length seq))
   (cond
@@ -428,7 +453,6 @@
   ; Returns the last 'cnt' of elements from seq
   ; providing a negative cnt returns the original sequence
   ; example:
-  ; (defq myL2 (list -2 -1 0 -1 -2 3))
   ; (take-last 2 '(0 1 2 3)) ->  (2 3)
   (reverse (take cnt (reverse seq))))
 
@@ -436,7 +460,6 @@
   ; (take-while predicate sequence) -> sequence
   ; Returns successive element of seq while pred returns true
   ; example:
-  ; (defq myL2 (list -2 -1 0 -1 -2 3))
   ; (take-while neg? '(-1 -2 0 -1 -2)) -> (-1 -2)
   (reduced-reduce
     (lambda (acc el)
@@ -449,7 +472,6 @@
   ; (take-unless predicate sequence) -> sequence
   ; Returns successive element of seq unless pred returns true
   ; example:
-  ; (defq myL2 (list -2 -1 0 -1 -2 3))
   ; (take-unless (# (< %0 0)) '(-1 -2 0 -1 -2)) -> (0)
   (reduced-reduce
     (lambda (acc el)
@@ -650,8 +672,6 @@
     :list-delims  "()"
     :indent       -1
     :indent_space  2))
-
-(defq +nl+ (char 0x0a))
 
 (defq pp_boolean
       (properties
