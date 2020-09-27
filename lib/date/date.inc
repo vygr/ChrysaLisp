@@ -137,7 +137,7 @@
 (defun-bind date (&optional secs)
 	(defq seconds (/ (time) 1000000))
 	(if secs (setq seconds secs))
-	(defq seconds (/ (time) 1000000) minutes (+ (* 60 (elem +tz_offset+ local_timezone)) (/ seconds 60))
+	(defq minutes (+ (* 60 (elem +tz_offset+ local_timezone)) (/ seconds 60))
 		hours (/ minutes 60) days (/ hours 24) weeks (/ days 7))
 	(bind '(monthday month year) (get-date days))
 	(list (% seconds 60) (% minutes 60) (% hours 24) monthday month year (% days 7)))
