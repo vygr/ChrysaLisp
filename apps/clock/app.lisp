@@ -16,19 +16,17 @@
 		(ui-canvas clock clock_size clock_size clock_scale) (defq clock nil))
 	(if (eql *env_clock_digital* t)
 		(ui-label display (:text "xxx hh:mm:ss" :color argb_black :ink_color argb_red
-		:flow_flags (logior flow_flag_align_hcenter flow_flag_align_vcenter)
-		:font (create-font "fonts/Hack-Regular.ctf" 48)))
+			:flow_flags (logior flow_flag_align_hcenter flow_flag_align_vcenter)
+			:font (create-font "fonts/Hack-Regular.ctf" 44)))
 		(defq display nil)))
 
 (defun-bind main ()
 	;if analog clear clock face
-	(if clock
-		(canvas-set-flags (canvas-fill clock 0) 1))
+	(if clock (canvas-set-flags (canvas-fill clock 0) 1))
 	;create child and send args
 	(defq mbox (open-child "apps/clock/child.lisp" kn_call_open))
 	;multiply size and scale, as they are only used together in child.
-	(mail-send (list display clock (- (* (i2f clock_size) (i2f clock_scale)) 6.0))
-		mbox)
+	(mail-send (list display clock (* (i2f clock_size) (i2f clock_scale))) mbox)
 	(gui-add (apply view-change (cat (list window 0 0) (view-pref-size window))))
 	;main app loop
 	(while (cond

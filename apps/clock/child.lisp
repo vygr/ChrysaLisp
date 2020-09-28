@@ -20,7 +20,7 @@
 
 (defun-bind view-digital-time ()
 	(if (and *env_clock_twelve_hour* (> hour 12)) (setq hour (- hour 12)))
-	(cat 	(if *env_clock_dotw* (day-of-the-week dotw) "") " " 
+	(cat (if *env_clock_dotw* (day-of-the-week dotw) "") " " 
 		(if *env_clock_pad_hour* (pad hour 2 "0") (str hour)) (str ":" (pad minute 2 "0"))
 		(if (eql *env_clock_seconds* t) (str ":" (pad second 2 "0")) "")))
 
@@ -43,28 +43,28 @@
 			(push l (transform (path 0.0 0.35 0.0 0.44) (/ (* (i2f a) +fp_2pi+) 12.0) scale))) (range 0 12) (list))))
 
 (defun-bind view-analog-time ()
-		(canvas-fill clock 0)
-		(canvas-set-color clock argb_white)
-		(canvas-fpoly clock 0.0 0.0 0 (slice 0 1 face))
-		(canvas-set-color clock argb_black)
-		(canvas-fpoly clock 0.0 0.0 0 face)
+	(canvas-fill clock 0)
+	(canvas-set-color clock argb_white)
+	(canvas-fpoly clock 0.0 0.0 0 (slice 0 1 face))
+	(canvas-set-color clock argb_black)
+	(canvas-fpoly clock 0.0 0.0 0 face)
 
-		;hour and minute hands
-		(defq _ (path-stroke-polylines (list) (const (* scale 0.02)) eps join_miter cap_round cap_tri
-			(list (transform (path 0.0 0.04 0.0 -0.22) (/ (* hours +fp_2pi+) 12.0) scale)
-				(transform (path 0.0 0.04 0.0 -0.38) (/ (* minutes +fp_2pi+) 60.0) scale))))
-		(canvas-set-color clock 0xa0000000)
-		(canvas-fpoly clock (const (* scale 0.01)) (const (* scale 0.01)) 1 _)
-		(canvas-set-color clock argb_green)
-		(canvas-fpoly clock 0.0 0.0 1 _)
+	;hour and minute hands
+	(defq _ (path-stroke-polylines (list) (const (* scale 0.02)) eps join_miter cap_round cap_tri
+		(list (transform (path 0.0 0.04 0.0 -0.22) (/ (* hours +fp_2pi+) 12.0) scale)
+			(transform (path 0.0 0.04 0.0 -0.38) (/ (* minutes +fp_2pi+) 60.0) scale))))
+	(canvas-set-color clock 0xa0000000)
+	(canvas-fpoly clock (const (* scale 0.01)) (const (* scale 0.01)) 1 _)
+	(canvas-set-color clock argb_green)
+	(canvas-fpoly clock 0.0 0.0 1 _)
 
-		;second hand
-		(defq _ (path-stroke-polylines (list) (const (* scale 0.01)) eps join_miter cap_round cap_tri
-			(list (transform (path 0.0 0.04 0.0 -0.34) (/ (* (% seconds 60.0) +fp_2pi+) 60.0) scale))))
-		(canvas-set-color clock 0xa0000000)
-		(canvas-fpoly clock (const (* scale 0.01)) (const (* scale 0.01)) 0 _)
-		(canvas-set-color clock argb_red)
-		(canvas-fpoly clock 0.0 0.0 0 _))
+	;second hand
+	(defq _ (path-stroke-polylines (list) (const (* scale 0.01)) eps join_miter cap_round cap_tri
+		(list (transform (path 0.0 0.04 0.0 -0.34) (/ (* (% seconds 60.0) +fp_2pi+) 60.0) scale))))
+	(canvas-set-color clock 0xa0000000)
+	(canvas-fpoly clock (const (* scale 0.01)) (const (* scale 0.01)) 0 _)
+	(canvas-set-color clock argb_red)
+	(canvas-fpoly clock 0.0 0.0 0 _))
 
 (defun-bind main ()
 	;creates local_timezone
