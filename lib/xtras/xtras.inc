@@ -10,18 +10,87 @@
 (defq
   +nl+          (char 0x0a)
   +eof+         (char 0x00)
-  +upper-chars+ "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-  +lower-chars+ "abcdefghijklmnopqrstuvwxyz"
-  +bin-prefix+  "0bB"
-  +oct-prefix+  "0oO"
-  +hex-prefix+  "0xX"
-  +oct-chars+   "01234567"
-  +bin-chars+   "01"
-  +numeric-chars+ (cat +oct-chars+ "89"
-  +hex-chars+ (cat +numeric-chars+ (slice 0 6 +upper-chars+) (slice 0 6 +lower-chars+))
-  +alpha-num+ (cat +numeric-chars+ +upper-chars+ +lower-chars+))
+  +upper_chars+ "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+  +lower_chars+ "abcdefghijklmnopqrstuvwxyz"
+  +bin_prefix+  "0bB"
+  +oct_prefix+  "0oO"
+  +hex_prefix+  "0xX"
+  +oct_chars+   "01234567"
+  +bin_chars+   "01"
+  +plus_minus+  "-+"
+  +dec_point+   "."
+  +numeric_chars+ (cat +oct_chars+ "89")
+  +hex_chars+ (cat +numeric_chars+ (slice 0 6 +upper_chars+) (slice 0 6 +lower_chars+))
+  +alpha_num+ (cat +numeric_chars+ +upper_chars+ +lower_chars+))
 
 ; Predicates
+
+(defun-bind numcharset? (_ cset)
+  ; (numcharset? val charset) -> t | nil
+  (reduced-reduce (#(if (find %1 cset) %0 (reduced nil))) _ t))
+
+(defun-bind intstr? (_)
+  ; (intstr? val) -> t | nil
+  (cond
+    ((not (find +dec_point+ _))
+      (numcharset? _ +numeric_chars+))
+    (t
+      nil)))
+
+(defun-bind decstr? (_)
+  ; (decstr? val) -> t | nil
+  (if (find +dec_point+ _)
+    (progn
+      (defq
+        psplit (split _ +dec_point+))
+      (and
+        (= (length psplit) 2)
+        (numcharset? (first psplit) +numeric_chars+)
+        (numcharset? (second psplit) +numeric_chars+)))
+    nil))
+
+(defun-bind hexstr? (_)
+  ; (hexstr? val) -> t | nil
+  (cond
+    ((and
+      (eql (first _) (first +hex_prefix+))
+      (or
+        (eql (second _) (second +hex_prefix+))
+        (eql (second _) (last +hex_prefix+))))
+      (numcharset? (slice 2 -1 _) +hex_chars+))
+    (t
+      nil)))
+
+(defun-bind octstr? (_)
+  ; (octstr? val) -> t | nil
+  (cond
+    ((and
+      (eql (first _) (first +oct_prefix+))
+      (or
+        (eql (second _) (second +oct_prefix+))
+        (eql (second _) (last +oct_prefix+))))
+      (numcharset? (slice 2 -1 _) +oct_chars+))
+    (t
+      nil)))
+
+(defun-bind numstr-type (_)
+  (when (nempty? _)
+    (list
+      (if (eql (first _) "-")
+        (progn (setq _ (rest _)) -1)
+        (if (eql (first _) "+")
+          (progn (setq _ (rest _)) 1)
+          1))
+      (cond
+        ((intstr? _) :integer)
+        ((decstr? _) :decimal)
+        ((hexstr? _) :hex)
+        ((octstr? _) :oct)
+        (t :nan))
+    _)))
+
+(defun-bind numstr? (_)
+  (not (eql (second (numstr-type _)) :nan)))
 
 (defun-bind neg? (_)
   ; (neg? num) -> bool
@@ -95,8 +164,6 @@
 
 ; Convenience
 
-(defq +plus_minus+ "-+")
-
 (defun-bind str-is-ints? (s)
   ; (str-is-ints? s) -> :true | :false
   (defq instr
@@ -105,7 +172,7 @@
       s))
   (reduced-reduce
       (lambda (acc el)
-        (if  (find el +numeric-chars+)
+        (if  (find el +numeric_chars+)
           acc
           (reduced :false))
         ) instr :true))
@@ -114,6 +181,10 @@
   ; (ident el) -> el
   _)
 
+(defun-bind numb-from-string (inumstr)
+  (defq accum 0 base 10 deci 0 mult 1)
+
+  )
 (defun-bind efind (p k)
   ; (efind list key) -> index | nil
   ; Returns the index of key in list or properties
