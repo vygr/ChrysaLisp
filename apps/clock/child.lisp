@@ -10,9 +10,13 @@
 
 (defq seconds 0.0 second 0 minutes 0.0 minute 0 hours 0.0 hour 0 dotw (str) face (list) eps 0.25)
 
-(defun-bind make-time ()
-	(bind '(s m h _ _ _ w) (date))
-	(setq second s seconds (i2f s) minute m minutes (i2f m) hour h hours (i2f hours) dotw w))
+(defun-bind make-digital-time ()
+	(bind '(sc mn hr _ _ _ wk) (date))
+	(setq second sc minute mn hour hr dotw wk))
+
+(defun-bind make-analog-time ()
+	(bind '(s m h) (float-time))
+	(setq seconds s minutes m hours h))
 
 (defun-bind view-digital-time ()
 	(if (and *env_clock_twelve_hour* (> hour 12)) (setq hour (- hour 12)))
@@ -65,22 +69,23 @@
 (defun-bind main ()
 	;creates local_timezone
 	(timezone-init *env_clock_timezone*)
-	(make-time)
-	(if clock
-			(create-clockface))
+	(when clock
+		(create-clockface))
 	(when display 
-			(set display :text (view-digital-time))
+		(make-digital-time)
+		(set display :text (view-digital-time))
 			;prevents clipping the label
-			(view-layout display))
+		(view-layout display))
 	;while not told to quit
 	(until (mail-poll (array (task-mailbox)))
-		(make-time)
-			(when clock
-				(view-analog-time)
-				(canvas-swap clock))
-			(when display
-				(set display :text (view-digital-time))
-				(view-dirty display))
+		(when clock
+			(make-analog-time)
+			(view-analog-time)
+			(canvas-swap clock))
+		(when display
+			(make-digital-time)
+			(set display :text (view-digital-time))
+			(view-dirty display))
 		;keeps the current time in sync with given time value.
 		(task-sleep 50000))
 	(mail-read (task-mailbox)))
