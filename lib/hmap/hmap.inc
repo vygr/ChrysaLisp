@@ -1,4 +1,7 @@
-;generic hash map
+;;;;;;;;;;;;;;;;;;
+; generic hash map
+;;;;;;;;;;;;;;;;;;
+
 (import 'sys/lisp.inc)
 
 (structure '+hmap 0

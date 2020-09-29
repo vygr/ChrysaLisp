@@ -16,24 +16,27 @@
 	;trashes
 	;r1-r14
 
-	(ptr 'this 'stream)
-	(union
-		(ptr 'str_stream 'value)
-		(pubyte 'bufp 'bufe))
+	(ptr 'this 'stream 'str_stream 'value)
 	(int 'char 'cchar)
 
 	(push-scope)
 	(entry 'lisp :read_str {this, stream, cchar})
 
 	(switch)
-		(assign {stream->stream_bufp, stream->stream_bufe} {bufp, bufe})
+		(vp-def (buf bufp bufe stm cc c))
+		(assign {stream, cchar} `(,stm ,cc))
+		(assign `((,stm stream_bufp) (,stm stream_bufe)) `(,bufp ,bufe))
+		(assign `(,bufp) `(,buf))
 		(loop-start)
-			(assign {*bufp} {char})
-			(gotoif {bufp = bufe || char = char_lf} 'slow_but_sure)
-			(assign {bufp + byte_size} {bufp})
-		(loop-until {char = cchar})
-		(call 'str :create_from_buffer {stream->stream_bufp, bufp - stream->stream_bufp - byte_size} {value})
-		(assign {bufp} {stream->stream_bufp})
+			(assign `((,bufp 0 ub)) `(,c))
+			(gotoif `(,bufp = ,bufe) 'slow_but_sure)
+			(gotoif `(,c = char_lf) 'slow_but_sure)
+			(vp-add-cr byte_size bufp)
+		(loop-until `(,c = ,cc))
+		(assign `(,bufp) `((,stm stream_bufp)))
+		(vp-sub-rr buf bufp)
+		(vp-sub-cr byte_size bufp)
+		(call 'str :create_from_buffer `(,buf ,bufp) {value})
 	(else)
 	(vp-label 'slow_but_sure)
 		(call 'str :create_from_buffer {0, str_gap} {value})
