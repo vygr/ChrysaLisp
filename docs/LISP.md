@@ -200,6 +200,7 @@ write-char
 ### boot.inc macros
 
 ```lisp
+#
 and
 ascii-char
 ascii-code
@@ -215,9 +216,12 @@ defun
 defun-bind
 each
 each-rev
+every
 if
 inc
 let
+notany
+notevery
 opt
 or
 rcurry
@@ -226,6 +230,7 @@ read-long
 read-short
 reduced
 setd
+some
 times
 tuple-get
 tuple-set
@@ -235,7 +240,6 @@ when
 write-int
 write-long
 write-short
-#
 ```
 
 ### boot.inc functions
@@ -252,9 +256,9 @@ cpu
 each-line
 each-mergeable
 each-mergeable-rev
+empty?
 ends-with
 erase
-every
 exec
 filter
 first
@@ -280,10 +284,9 @@ map
 map-rev
 merge-obj
 neg
+nempty?
 nlo
 nlz
-notany
-notevery
 nto
 ntz
 num-to-char
@@ -302,7 +305,6 @@ seq?
 shuffle
 shuffled
 sign
-some
 sort
 sorted
 starts-with
@@ -316,8 +318,10 @@ trim
 trim-end
 trim-start
 type-to-size
+unzip
 within-compile-env
 write-line
+zip
 ```
 
 ## Within any cmd/lisp.lisp instance
