@@ -86,17 +86,10 @@ t
 >=
 >>
 >>>
-r2f
-r2i
-f2r
-f2i
-i2r
-i2f
 age
 apply
 array
 bind
-prebind
 cap
 cat
 catch
@@ -115,6 +108,8 @@ elem-set
 env
 eql
 eval
+f2i
+f2r
 ffi
 file-stream
 find
@@ -123,6 +118,9 @@ fixeds
 floor
 frac
 gensym
+hash
+i2f
+i2r
 lambda
 length
 list
@@ -134,18 +132,21 @@ macro
 macroexpand
 match?
 max
-merge
+merge-obj
 min
 not
 nums
 penv
 pop
+prebind
 prin
 print
 progn
 push
 quasi-quote
 quote
+r2f
+r2i
 random
 read
 read-char
@@ -165,8 +166,8 @@ str
 string-stream
 sym
 throw
-tolist
 time
+tolist
 type-of
 undef
 unquote
@@ -175,7 +176,6 @@ unzip
 while
 write
 write-char
-hash
 ```
 
 ### boot.inc symbols
@@ -215,10 +215,8 @@ defun
 defun-bind
 each
 each-rev
-first
 if
 inc
-last
 let
 opt
 or
@@ -227,8 +225,6 @@ read-int
 read-long
 read-short
 reduced
-rest
-second
 setd
 times
 tuple-get
@@ -251,6 +247,7 @@ align
 ascii-lower
 ascii-upper
 char-to-num
+char-to-num
 cpu
 each-line
 each-mergeable
@@ -260,6 +257,7 @@ erase
 every
 exec
 filter
+first
 get
 get-byte
 get-cstr
@@ -271,7 +269,10 @@ get-uint
 get-ushort
 import
 insert
+intern
+intern-seq
 join
+last
 log2
 lognot
 lst?
@@ -294,7 +295,10 @@ reduce
 reduce-rev
 reduced-reduce
 reduced-reduce-rev
+rest
 reverse
+second
+seq?
 shuffle
 shuffled
 sign
@@ -302,12 +306,11 @@ some
 sort
 sorted
 starts-with
+str-to-num
 str?
 swap
 sym?
 to-lower
-str-to-num
-char-to-num
 to-upper
 trim
 trim-end
