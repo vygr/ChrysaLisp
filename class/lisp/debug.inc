@@ -56,4 +56,4 @@
 
 (defmacro-bind defun-debug (n a &rest _)
 	;(defun-debug name ([arg ...]) body)
-	`(defq ,n (lambda ,a ~(debug-fun (str n) _))))
+	`(defq ,n (lambda ,a ~(prebind (macroexpand (debug-fun (str n) _))))))
