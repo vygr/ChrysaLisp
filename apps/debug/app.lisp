@@ -75,7 +75,7 @@
 				"Slider to switch between tasks."
 				""
 				"In Lisp files:"
-				"add (import "class/lisp/debug.inc")"
+				"add (import {class/lisp/debug.inc})"
 				"then use (defun-debug name ([arg ...]) body)") 0 0 0 1000)))
 	(set-slider-values))
 
