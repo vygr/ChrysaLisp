@@ -5,9 +5,9 @@
 ;distribution is expressed or implied by the works' original copyright holder.
 
 ;imports
-(import 'sys/lisp.inc)
-(import 'class/lisp.inc)
-(import 'gui/lisp.inc)
+(import "sys/lisp.inc")
+(import "class/lisp.inc")
+(import "gui/lisp.inc")
 
 (defmacro seq-find (item seq)
 	`(cond 

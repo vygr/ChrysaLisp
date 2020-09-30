@@ -1,5 +1,5 @@
 ;imports
-(import 'apps/whiteboard/app.inc)
+(import "apps/whiteboard/app.inc")
 
 ;read args from parent (shared dlist tuple)
 (defq dlist (mail-read (task-mailbox)) flatten (elem +dlist_flatten+ dlist))

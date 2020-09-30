@@ -1,22 +1,26 @@
 ;imports
-(import 'sys/lisp.inc)
-(import 'class/lisp.inc)
-(import 'gui/lisp.inc)
-(import 'lib/math/math.inc)
-(import 'lib/date/date.inc)
+(import "sys/lisp.inc")
+(import "class/lisp.inc")
+(import "gui/lisp.inc")
+(import "lib/math/math.inc")
+(import "lib/date/date.inc")
 
 ;read args from parent. display and clock can both be t or one be nil.
 (bind '(display clock scale) (mail-read (task-mailbox)))
 
 (defq seconds 0.0 second 0 minutes 0.0 minute 0 hours 0.0 hour 0 dotw (str) face (list) eps 0.25)
 
-(defun-bind make-time ()
-	(bind '(s m h _ _ _ w) (date))
-	(setq second s seconds (i2f s) minute m minutes (i2f m) hour h hours (i2f hours) dotw w))
+(defun-bind make-digital-time ()
+	(bind '(sc mn hr _ _ _ wk) (date))
+	(setq second sc minute mn hour hr dotw wk))
+
+(defun-bind make-analog-time ()
+	(bind '(s m h) (float-time))
+	(setq seconds s minutes m hours h))
 
 (defun-bind view-digital-time ()
 	(if (and *env_clock_twelve_hour* (> hour 12)) (setq hour (- hour 12)))
-	(cat 	(if *env_clock_dotw* (day-of-the-week dotw) "") " " 
+	(cat (if *env_clock_dotw* (day-of-the-week dotw) "") " " 
 		(if *env_clock_pad_hour* (pad hour 2 "0") (str hour)) (str ":" (pad minute 2 "0"))
 		(if (eql *env_clock_seconds* t) (str ":" (pad second 2 "0")) "")))
 
@@ -39,48 +43,49 @@
 			(push l (transform (path 0.0 0.35 0.0 0.44) (/ (* (i2f a) +fp_2pi+) 12.0) scale))) (range 0 12) (list))))
 
 (defun-bind view-analog-time ()
-		(canvas-fill clock 0)
-		(canvas-set-color clock argb_white)
-		(canvas-fpoly clock 0.0 0.0 0 (slice 0 1 face))
-		(canvas-set-color clock argb_black)
-		(canvas-fpoly clock 0.0 0.0 0 face)
+	(canvas-fill clock 0)
+	(canvas-set-color clock argb_white)
+	(canvas-fpoly clock 0.0 0.0 0 (slice 0 1 face))
+	(canvas-set-color clock argb_black)
+	(canvas-fpoly clock 0.0 0.0 0 face)
 
-		;hour and minute hands
-		(defq _ (path-stroke-polylines (list) (const (* scale 0.02)) eps join_miter cap_round cap_tri
-			(list (transform (path 0.0 0.04 0.0 -0.22) (/ (* hours +fp_2pi+) 12.0) scale)
-				(transform (path 0.0 0.04 0.0 -0.38) (/ (* minutes +fp_2pi+) 60.0) scale))))
-		(canvas-set-color clock 0xa0000000)
-		(canvas-fpoly clock (const (* scale 0.01)) (const (* scale 0.01)) 1 _)
-		(canvas-set-color clock argb_green)
-		(canvas-fpoly clock 0.0 0.0 1 _)
+	;hour and minute hands
+	(defq _ (path-stroke-polylines (list) (const (* scale 0.02)) eps join_miter cap_round cap_tri
+		(list (transform (path 0.0 0.04 0.0 -0.22) (/ (* hours +fp_2pi+) 12.0) scale)
+			(transform (path 0.0 0.04 0.0 -0.38) (/ (* minutes +fp_2pi+) 60.0) scale))))
+	(canvas-set-color clock 0xa0000000)
+	(canvas-fpoly clock (const (* scale 0.01)) (const (* scale 0.01)) 1 _)
+	(canvas-set-color clock argb_green)
+	(canvas-fpoly clock 0.0 0.0 1 _)
 
-		;second hand
-		(defq _ (path-stroke-polylines (list) (const (* scale 0.01)) eps join_miter cap_round cap_tri
-			(list (transform (path 0.0 0.04 0.0 -0.34) (/ (* (% seconds 60.0) +fp_2pi+) 60.0) scale))))
-		(canvas-set-color clock 0xa0000000)
-		(canvas-fpoly clock (const (* scale 0.01)) (const (* scale 0.01)) 0 _)
-		(canvas-set-color clock argb_red)
-		(canvas-fpoly clock 0.0 0.0 0 _))
+	;second hand
+	(defq _ (path-stroke-polylines (list) (const (* scale 0.01)) eps join_miter cap_round cap_tri
+		(list (transform (path 0.0 0.04 0.0 -0.34) (/ (* (% seconds 60.0) +fp_2pi+) 60.0) scale))))
+	(canvas-set-color clock 0xa0000000)
+	(canvas-fpoly clock (const (* scale 0.01)) (const (* scale 0.01)) 0 _)
+	(canvas-set-color clock argb_red)
+	(canvas-fpoly clock 0.0 0.0 0 _))
 
 (defun-bind main ()
 	;creates local_timezone
 	(timezone-init *env_clock_timezone*)
-	(make-time)
-	(if clock
-			(create-clockface))
+	(when clock
+		(create-clockface))
 	(when display 
-			(set display :text (view-digital-time))
+		(make-digital-time)
+		(set display :text (view-digital-time))
 			;prevents clipping the label
-			(view-layout display))
+		(view-layout display))
 	;while not told to quit
 	(until (mail-poll (array (task-mailbox)))
-		(make-time)
-			(when clock
-				(view-analog-time)
-				(canvas-swap clock))
-			(when display
-				(set display :text (view-digital-time))
-				(view-dirty display))
+		(when clock
+			(make-analog-time)
+			(view-analog-time)
+			(canvas-swap clock))
+		(when display
+			(make-digital-time)
+			(set display :text (view-digital-time))
+			(view-dirty display))
 		;keeps the current time in sync with given time value.
 		(task-sleep 50000))
 	(mail-read (task-mailbox)))

@@ -1,7 +1,7 @@
 ;imports
-(import 'sys/lisp.inc)
-(import 'class/lisp.inc)
-(import 'gui/lisp.inc)
+(import "sys/lisp.inc")
+(import "class/lisp.inc")
+(import "gui/lisp.inc")
 
 (defq id t index 0 xv 4 yv 0 i 512
 	frames (map (lambda (_) (canvas-load (cat "apps/freeball/staoball_" (str _) ".cpm") load_flag_shared)) (range 1 12))

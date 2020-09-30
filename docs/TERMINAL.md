@@ -71,7 +71,7 @@ in the right direction. To see it run, just copy this into a file called
 03: ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 04:
 05: ;imports
-06: (import 'class/lisp.inc)
+06: (import "class/lisp.inc")
 07:
 08: ; Command entry point
 09: (defun main ()

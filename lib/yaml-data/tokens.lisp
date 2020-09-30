@@ -2,8 +2,8 @@
 ; tokens - ChrysaLisp YAML Lex Tokens
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import 'lib/xtras/xtras.inc)
-(import 'lib/yaml-data/reader.lisp)
+(import "lib/xtras/xtras.inc")
+(import "lib/yaml-data/reader.lisp")
 
 ; STREAM-START
 ; STREAM-END

@@ -1,6 +1,6 @@
 ;imports
-(import 'class/lisp.inc)
-(import 'lib/options/options.inc)
+(import "class/lisp.inc")
+(import "lib/options/options.inc")
 
 ;read up to chunk_size chars from stream
 (defun read-chunk (_)

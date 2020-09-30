@@ -2,7 +2,7 @@
 ; argparse - ChrysaLisp Argument Processor
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import 'lib/xtras/xtras.inc)
+(import "lib/xtras/xtras.inc")
 
 (defq
   +indent2+   2

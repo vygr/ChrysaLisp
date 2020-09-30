@@ -5,7 +5,7 @@
 (include 'gui/ctx/class.inc)
 (include 'class/lisp/class.inc)
 
-(import 'apps/mandelbrot/mbmath.inc)
+(import "apps/mandelbrot/mbmath.inc")
 
 (def-func 'apps/mandelbrot/depth)
 	;inputs

@@ -3,8 +3,8 @@
 ;;;;;;;;;;;;;;;;;;;;
 
 ;imports
-(import 'sys/lisp.inc)
-(import 'class/lisp.inc)
+(import "sys/lisp.inc")
+(import "class/lisp.inc")
 
 ;read args from parent
 (bind '((files mbox *abi* *cpu* *debug_mode* *debug_emit* *debug_inst*) _)
