@@ -12,10 +12,15 @@
 		(mail-read mbox)
 		(mail-free-mbox mbox)))
 
+(defun-bind debug-str (_)
+	;(debug-str str) -> str
+	(apply cat (map (# (if (or (< (code %0) 32) (= (code %0) 34)) "." %0)) _)))
+
 (defun-bind debug-format (n e)
 	;(debug-format name env)
-	(bind '(e _) (read (string-stream (str e)) (ascii-code " ")))
-	(sort (lambda (x y) (cmp (elem 0 x) (elem 0 y))) e)
+	(setq e (tolist e))
+	(each (# (if (str? (elem 1 %0)) (elem-set 1 %0 (debug-str %0)))) e)
+	(sort (# (cmp (elem 0 %0) (elem 0 %1))) e)
 	(write (defq msg (string-stream (cat "")))
 		(cat (defq u (cat "+" (pad "" (+ (length n) 2) "--------") "+"))
 			(const (cat (ascii-char 10) "| ")) (str n) (const (cat " |" (ascii-char 10)))
