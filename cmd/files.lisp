@@ -1,7 +1,7 @@
 ;imports
-(import 'class/lisp.inc)
-(import 'sys/lisp.inc)
-(import 'lib/options/options.inc)
+(import "class/lisp.inc")
+(import "sys/lisp.inc")
+(import "lib/options/options.inc")
 
 (defun-bind make-tree (dir ext)
 	(defq dirs (list) files (list))

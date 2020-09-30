@@ -1,8 +1,8 @@
 ;imports
 (defq *env_user* "Guest")
-(import 'sys/lisp.inc)
-(import 'class/lisp.inc)
-(import 'gui/lisp.inc)
+(import "sys/lisp.inc")
+(import "class/lisp.inc")
+(import "gui/lisp.inc")
 
 (structure '+event 0
 	(byte 'login+ 'create+))

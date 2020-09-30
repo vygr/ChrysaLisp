@@ -1,9 +1,9 @@
 ;jit compile apps native functions if needed
-(import 'lib/asm/asm.inc)
+(import "lib/asm/asm.inc")
 (make 'apps/netmon/child.vp)
 
 ;imports
-(import 'gui/lisp.inc)
+(import "gui/lisp.inc")
 
 (structure 'sample_reply 0
 	(int 'cpu 'task_count 'mem_used))

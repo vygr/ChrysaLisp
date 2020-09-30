@@ -1,8 +1,8 @@
 ;imports
-(import 'sys/lisp.inc)
-(import 'class/lisp.inc)
-(import 'gui/lisp.inc)
-(import 'lib/math/math.inc)
+(import "sys/lisp.inc")
+(import "class/lisp.inc")
+(import "gui/lisp.inc")
+(import "lib/math/math.inc")
 
 (structure 'work 0
 	(long 'width 'height 'y))

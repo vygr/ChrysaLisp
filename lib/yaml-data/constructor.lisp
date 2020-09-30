@@ -2,7 +2,7 @@
 ; constructor - ChrysaLisp YAML Object Constructor
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import 'lib/xtras/xtras.inc)
+(import "lib/xtras/xtras.inc")
 
 (defun verify-ctype (node ctype)
   (if (eql (first node) ctype)

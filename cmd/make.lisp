@@ -1,7 +1,7 @@
 ;imports
-(import 'lib/asm/asm.inc)
-(import 'lib/pipe/pipe.inc)
-(import 'lib/options/options.inc)
+(import "lib/asm/asm.inc")
+(import "lib/pipe/pipe.inc")
+(import "lib/options/options.inc")
 
 (defmacro sfind (ss slst)
 	`(some (# (if (eql ,ss %0) _)) ,slst))

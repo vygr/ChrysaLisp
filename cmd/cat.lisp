@@ -1,6 +1,6 @@
 ;imports
-(import 'class/lisp.inc)
-(import 'lib/options/options.inc)
+(import "class/lisp.inc")
+(import "lib/options/options.inc")
 
 ;cat a file to stdout
 (defun cat-file (_)

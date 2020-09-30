@@ -2,7 +2,7 @@
 ; emmiter - ChrysaLisp Object YAML Emmiter
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import 'lib/xtras/xtras.inc)
+(import "lib/xtras/xtras.inc")
 
 ; Not multi-threaded safe
 

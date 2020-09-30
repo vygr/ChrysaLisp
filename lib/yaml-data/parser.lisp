@@ -2,7 +2,7 @@
 ; parser - ChrysaLisp YAML Parser
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import 'lib/xtras/xtras.inc)
+(import "lib/xtras/xtras.inc")
 
 (defq indent 0)
 

@@ -1,6 +1,6 @@
 ;imports
-(import 'lib/math/math.inc)
-(import 'apps/bubbles/app.inc)
+(import "lib/math/math.inc")
+(import "apps/bubbles/app.inc")
 
 (structure '+event 0
 	(byte 'close+ 'max+ 'min+)

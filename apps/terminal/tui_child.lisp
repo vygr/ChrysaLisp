@@ -1,5 +1,5 @@
 ;imports
-(import 'sys/lisp.inc)
+(import "sys/lisp.inc")
 
 ;read args from parent
 (bind '(mbox) (mail-read (task-mailbox)))

@@ -1,9 +1,9 @@
 ;jit compile apps native functions if needed
-(import 'lib/asm/asm.inc)
+(import "lib/asm/asm.inc")
 (make 'apps/raymarch/lisp.vp)
 
 ;imports
-(import 'gui/lisp.inc)
+(import "gui/lisp.inc")
 
 (structure '+event 0
 	(byte 'close+))

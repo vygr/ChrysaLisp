@@ -1,8 +1,8 @@
 ;imports
-(import 'sys/lisp.inc)
-(import 'class/lisp.inc)
-(import 'gui/lisp.inc)
-(import 'apps/mandelbrot/mbmath.inc)
+(import "sys/lisp.inc")
+(import "class/lisp.inc")
+(import "gui/lisp.inc")
+(import "apps/mandelbrot/mbmath.inc")
 
 (defun-bind depth (x0 y0)
 	(defq i -1 xc 0 yc 0 x2 0 y2 0)

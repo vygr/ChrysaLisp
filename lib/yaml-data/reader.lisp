@@ -2,7 +2,7 @@
 ; reader - ChrysaLisp YAML Reader
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import 'lib/xtras/xtras.inc)
+(import "lib/xtras/xtras.inc")
 
 (defun-bind Mark (index line column)
   ; (Mark index line column) -> properties

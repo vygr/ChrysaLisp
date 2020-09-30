@@ -918,7 +918,7 @@
 
 ## penv
 
-(penv env)
+(penv [env])
 
 ## pii-dirlist
 

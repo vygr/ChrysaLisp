@@ -86,17 +86,10 @@ t
 >=
 >>
 >>>
-r2f
-r2i
-f2r
-f2i
-i2r
-i2f
 age
 apply
 array
 bind
-prebind
 cap
 cat
 catch
@@ -115,6 +108,8 @@ elem-set
 env
 eql
 eval
+f2i
+f2r
 ffi
 file-stream
 find
@@ -123,6 +118,9 @@ fixeds
 floor
 frac
 gensym
+hash
+i2f
+i2r
 lambda
 length
 list
@@ -134,18 +132,21 @@ macro
 macroexpand
 match?
 max
-merge
+merge-obj
 min
 not
 nums
 penv
 pop
+prebind
 prin
 print
 progn
 push
 quasi-quote
 quote
+r2f
+r2i
 random
 read
 read-char
@@ -165,8 +166,8 @@ str
 string-stream
 sym
 throw
-tolist
 time
+tolist
 type-of
 undef
 unquote
@@ -175,7 +176,6 @@ unzip
 while
 write
 write-char
-hash
 ```
 
 ### boot.inc symbols
@@ -200,6 +200,7 @@ hash
 ### boot.inc macros
 
 ```lisp
+#
 and
 ascii-char
 ascii-code
@@ -215,11 +216,12 @@ defun
 defun-bind
 each
 each-rev
-first
+every
 if
 inc
-last
 let
+notany
+notevery
 opt
 or
 rcurry
@@ -227,9 +229,8 @@ read-int
 read-long
 read-short
 reduced
-rest
-second
 setd
+some
 times
 tuple-get
 tuple-set
@@ -239,7 +240,6 @@ when
 write-int
 write-long
 write-short
-#
 ```
 
 ### boot.inc functions
@@ -251,15 +251,17 @@ align
 ascii-lower
 ascii-upper
 char-to-num
+char-to-num
 cpu
 each-line
 each-mergeable
 each-mergeable-rev
+empty?
 ends-with
 erase
-every
 exec
 filter
+first
 get
 get-byte
 get-cstr
@@ -271,7 +273,10 @@ get-uint
 get-ushort
 import
 insert
+intern
+intern-seq
 join
+last
 log2
 lognot
 lst?
@@ -279,10 +284,9 @@ map
 map-rev
 merge-obj
 neg
+nempty?
 nlo
 nlz
-notany
-notevery
 nto
 ntz
 num-to-char
@@ -294,27 +298,30 @@ reduce
 reduce-rev
 reduced-reduce
 reduced-reduce-rev
+rest
 reverse
+second
+seq?
 shuffle
 shuffled
 sign
-some
 sort
 sorted
 starts-with
+str-to-num
 str?
 swap
 sym?
 to-lower
-str-to-num
-char-to-num
 to-upper
 trim
 trim-end
 trim-start
 type-to-size
+unzip
 within-compile-env
 write-line
+zip
 ```
 
 ## Within any cmd/lisp.lisp instance

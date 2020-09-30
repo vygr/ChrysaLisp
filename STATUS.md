@@ -42,6 +42,8 @@ file_open_write) ! Writable file streams now available.
 
 (str-to-num) can now parse negative number ! -10, -0xfe, -56.7 etc.
 
+Added `lib/hmap/hmap.inc` for generic Lisp level hash map support.
+
 ------
 
 (prebind) will now pre-bind symbols that begin with a '+' character. Lisp

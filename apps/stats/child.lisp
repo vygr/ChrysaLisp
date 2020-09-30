@@ -1,6 +1,6 @@
 ;imports
-(import 'sys/lisp.inc)
-(import 'class/lisp.inc)
+(import "sys/lisp.inc")
+(import "class/lisp.inc")
 
 (defun-bind main ()
 	;read args from parent
