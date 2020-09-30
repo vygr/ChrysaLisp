@@ -74,20 +74,25 @@
       nil)))
 
 (defun-bind numstr-type (_)
+  ; (numstr-type el) -> numeric string type | :nan
   (when (nempty? _)
-    (list
+    (defq res (list
       (if (eql (first _) "-")
         (progn (setq _ (rest _)) -1)
         (if (eql (first _) "+")
           (progn (setq _ (rest _)) 1)
-          1))
+          1))))
       (cond
-        ((intstr? _) :integer)
-        ((decstr? _) :decimal)
-        ((hexstr? _) :hex)
-        ((octstr? _) :oct)
-        (t :nan))
-    _)))
+        ((intstr? _)
+          (push res :integer _ nil))
+        ((decstr? _)
+          (defq sp (split _ +dec_point+))
+          (push res :decimal (first sp) (second sp)))
+        ((hexstr? _)
+          (push res :hex (slice 2 -1 _) nil))
+        ((octstr? _)
+          (push res :oct (slice 2 -1 _) nil))
+        (t (push res :nan _ nil)))))
 
 (defun-bind numstr? (_)
   (not (eql (second (numstr-type _)) :nan)))
