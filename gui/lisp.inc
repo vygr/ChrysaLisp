@@ -1,6 +1,6 @@
 ;import symbols
-(import 'sys/symbols.inc)
-(import 'apps/login/pupa.inc)
+(import "sys/symbols.inc")
+(import "apps/login/pupa.inc")
 
 (defun-bind ui-merge-props (p)
 	;(ui-merge-props props) -> props
@@ -155,8 +155,8 @@
 (ffi create-font "gui/font/lisp_create" 0)
 (ffi font-glyph-paths "gui/font/lisp_glyph_paths" 0)
 (ffi font-glyph-ranges "gui/font/lisp_glyph_ranges" 0)
-(import 'gui/component/lisp.inc)
-(import 'gui/view/lisp.inc)
-(import 'gui/path/lisp.inc)
-(import 'gui/canvas/lisp.inc)
-(import 'gui/vdu/lisp.inc)
+(import "gui/component/lisp.inc")
+(import "gui/view/lisp.inc")
+(import "gui/path/lisp.inc")
+(import "gui/canvas/lisp.inc")
+(import "gui/vdu/lisp.inc")

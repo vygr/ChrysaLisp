@@ -1,6 +1,6 @@
-(import 'class/num/lisp.inc)
-(import 'class/nums/lisp.inc)
-(import 'class/fixeds/lisp.inc)
+(import "class/num/lisp.inc")
+(import "class/nums/lisp.inc")
+(import "class/fixeds/lisp.inc")
 
 ;generic vector stuff
 

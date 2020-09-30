@@ -1,7 +1,7 @@
 ;imports
-(import 'sys/lisp.inc)
-(import 'class/lisp.inc)
-(import 'gui/lisp.inc)
+(import "sys/lisp.inc")
+(import "class/lisp.inc")
+(import "gui/lisp.inc")
 
 (defq clock_size 256 clock_scale 1)
 

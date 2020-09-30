@@ -1,9 +1,9 @@
 ;imports
-(import 'sys/lisp.inc)
-(import 'class/lisp.inc)
-(import 'gui/lisp.inc)
-(import 'lib/math/math.inc)
-(import 'lib/date/date.inc)
+(import "sys/lisp.inc")
+(import "class/lisp.inc")
+(import "gui/lisp.inc")
+(import "lib/math/math.inc")
+(import "lib/date/date.inc")
 
 ;read args from parent. display and clock can both be t or one be nil.
 (bind '(display clock scale) (mail-read (task-mailbox)))

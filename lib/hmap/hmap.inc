@@ -2,7 +2,7 @@
 ; generic hash map
 ;;;;;;;;;;;;;;;;;;
 
-(import 'sys/lisp.inc)
+(import "sys/lisp.inc")
 
 (structure '+hmap 0
 	(byte 'num_buckets+ 'cmp_fnc+ 'hash_fnc+ 'buckets+))

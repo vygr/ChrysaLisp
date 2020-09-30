@@ -5,7 +5,7 @@
 ; Primary usage is intended to the CPU interchange
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import 'lib/xtras/xtras.inc)
+(import "lib/xtras/xtras.inc")
 
 (defq lu
       (properties

@@ -1,5 +1,5 @@
 ;imports
-(import 'sys/lisp.inc)
+(import "sys/lisp.inc")
 
 (defun-bind main ()
 	;create child and send args, wait reply

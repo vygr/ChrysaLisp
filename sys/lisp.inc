@@ -1,5 +1,5 @@
 ;import symbols
-(import 'sys/symbols.inc)
+(import "sys/symbols.inc")
 
 ;some simple structure helpers
 (defmacro structure (n o &rest b)

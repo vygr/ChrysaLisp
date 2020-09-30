@@ -1,6 +1,6 @@
 ;imports
-(import 'sys/lisp.inc)
-(import 'class/lisp.inc)
+(import "sys/lisp.inc")
+(import "class/lisp.inc")
 
 ;lf macro
 (defmacro-bind LF ()

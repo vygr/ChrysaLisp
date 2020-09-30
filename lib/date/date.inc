@@ -1,4 +1,4 @@
-(import 'lib/date/timezones.inc)
+(import "lib/date/timezones.inc")
 
 ;To use this libary, you must first declare a local_timezone using timezone-init. You will need a 
 ;location, not a 3 letter code, as they aren't necessarily what you'd expect "CST" is not

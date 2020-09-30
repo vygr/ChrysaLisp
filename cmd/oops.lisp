@@ -1,5 +1,5 @@
 ;imports
-(import 'class/lisp.inc)
+(import "class/lisp.inc")
 
 ;this is just some experiments !
 

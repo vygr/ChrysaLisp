@@ -1,7 +1,7 @@
 ;imports
-(import 'class/lisp.inc)
-(import 'gui/lisp.inc)
-(import 'lib/options/options.inc)
+(import "class/lisp.inc")
+(import "gui/lisp.inc")
+(import "lib/options/options.inc")
 
 (defun conv-file (in_file)
 	(unless (eql in_file "")

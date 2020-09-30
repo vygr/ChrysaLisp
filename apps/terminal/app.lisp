@@ -1,8 +1,8 @@
 ;imports
-(import 'sys/lisp.inc)
-(import 'gui/lisp.inc)
-(import 'lib/pipe/pipe.inc)
-(import 'apps/terminal/input.inc)
+(import "sys/lisp.inc")
+(import "gui/lisp.inc")
+(import "lib/pipe/pipe.inc")
+(import "apps/terminal/input.inc")
 
 (structure '+event 0
 	(byte 'close+ 'max+ 'min+)

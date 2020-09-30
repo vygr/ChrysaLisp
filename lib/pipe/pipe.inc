@@ -2,8 +2,8 @@
 ; pipe utils
 ;;;;;;;;;;;;
 
-(import 'sys/lisp.inc)
-(import 'class/lisp.inc)
+(import "sys/lisp.inc")
+(import "class/lisp.inc")
 
 ;pipe tuple structure
 (structure '+pipe 0
