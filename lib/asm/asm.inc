@@ -12,8 +12,7 @@
 
 (defun-bind compile (files &optional *abi* *cpu* num_child)
 	(setd *abi* (abi) *cpu* (cpu) num_child (max 1 (/ (* (length (mail-devices)) 80) 100)))
-	(unless (lst? files)
-		(setq files (list files)))
+	(unless (lst? files) (setq files (list files)))
 	(setq files (shuffle (map sym files)))
 	(if (get 'nums)
 		;Native ChrysaLisp
@@ -21,62 +20,63 @@
 			(defq data_in (list) select (array) num_child (min num_child (length files))
 				child_mboxs (open-farm "class/lisp/compile.lisp" num_child kn_call_child)
 				buckets (map (lambda (_) (list)) child_mboxs) err (list))
-			(each (lambda (file)
-				(push (elem (% _ num_child) buckets) file)) files)
-			(each (lambda (_)
-				(push select (defq inbox (in-mbox (elem -2 (push data_in (in-stream))))))
-				(mail-send (str (list (pop buckets) inbox *abi* *cpu* *debug_mode* *debug_emit* *debug_inst*)) _)) child_mboxs)
+			(each (# (push (elem (% _ num_child) buckets) %0)) files)
+			(each (# (push select (defq inbox (in-mbox (elem -2 (push data_in (in-stream))))))
+					(mail-send (str (list (pop buckets) inbox *abi* *cpu* *debug_mode* *debug_emit* *debug_inst*)) %0))
+				child_mboxs)
 			(while (/= (length select) 0)
 				;read all child data
-				(each-line (lambda (data)
-					(if (starts-with "Error:" data)
-						(push err data)
-						(print data))) (elem (defq idx (mail-select select)) data_in))
+				(each-line (# (if (starts-with "Error:" %0) (push err %0) (print %0)))
+					(elem (defq idx (mail-select select)) data_in))
 				;child closed
 				(setq data_in (erase data_in idx (inc idx)) select (erase select idx (inc idx))))
 			(each print err))
 		;C++ ChrysaLisp !
-		(within-compile-env (lambda ()
-			(each include files))))
+		(within-compile-env (# (each include files))))
 	(print "Done") nil)
 
 ;;;;;;;;;;;;;
 ; make system
 ;;;;;;;;;;;;;
 
+(defun-bind make-merge (l sl)
+	;merge string into string list
+	(each (lambda (s)
+		(unless (some (# (eql %0 s)) l) (push l s))) sl))
+
 (defun-bind make-imports (_)
 	;create list of immediate dependencies
-	(defq d (list 'lib/asm/asm.inc 'class/lisp/boot.inc _))
-	(each-line (lambda (_)
-		(when (starts-with "(include" _)
-			(push d (sym (elem 1 (split _ (const (cat " ')" (ascii-char 13))))))))) (file-stream _)) d)
+	(defq d (list "lib/asm/asm.inc" "class/lisp/boot.inc" _))
+	(each-line (# (when (starts-with "(include" %0)
+			(push d (elem 1 (split %0 (const (cat " ')" (ascii-char 34) (ascii-char 13))))))))
+		(file-stream _)) d)
 
 (defun-bind make-info (_)
 	;create lists of immediate dependencies and products
-	(defq d (list 'lib/asm/asm.inc 'class/lisp/boot.inc _) p (list))
-	(each-line (lambda (_)
-		(when (and (>= (length _) 10) (eql "(" (elem 0 _))
-				(<= 2 (length (defq s (split _ (const (cat " ')" (ascii-char 13)))))) 4))
-			(defq _ (elem 0 s))
+	(defq d (list "lib/asm/asm.inc" "class/lisp/boot.inc" _) p (list))
+	(each-line (#
+		(when (and (>= (length %0) 10) (eql "(" (elem 0 %0))
+				(<= 2 (length (defq s (split %0 (const (cat " ')" (ascii-char 34) (ascii-char 13)))))) 4))
+			(setq %0 (elem 0 s))
 			(cond
-				((eql _ "(def-method")
-					(push p (f-path (sym (elem 1 s)) (sym (elem 2 s)))))
-				((eql _ "(include")
-					(push d (sym (elem 1 s))))
-				((eql _ "(gen-vtable")
-					(push p (f-path (sym (elem 1 s)) :vtable)))
-				((eql _ "(gen-create")
-					(push p (f-path (sym (elem 1 s))
-						(if (> (length s) 2) (sym (cat :create_ (sym (elem 2 s)))) :create))))
-				((eql _ "(def-func")
-					(push p (sym (elem 1 s))))))) (file-stream _))
+				((eql %0 "(def-method")
+					(push p (str (f-path (sym (elem 1 s)) (sym (elem 2 s))))))
+				((eql %0 "(include")
+					(push d (elem 1 s)))
+				((eql %0 "(gen-vtable")
+					(push p (str (f-path (sym (elem 1 s)) :vtable))))
+				((eql %0 "(gen-create")
+					(push p (str (f-path (sym (elem 1 s))
+						(if (> (length s) 2) (sym (cat :create_ (sym (elem 2 s)))) :create)))))
+				((eql %0 "(def-func")
+					(push p (elem 1 s)))))) (file-stream _))
 	(list d p))
 
 (defun-bind func-obj (_)
 	(cat "obj/" *cpu* "/" *abi* "/" _))
 
 (defun-bind make (&optional root *abi* *cpu*)
-	(setd root 'make.inc *abi* (abi) *cpu* (cpu))
+	(setd root "make.inc" *abi* (abi) *cpu* (cpu))
 	(compile ((lambda ()
 		(defq *imports* (list root) *ages* (env -31) *deps* (env -31))
 		(defun-bind file-age (_)
@@ -84,23 +84,21 @@
 			(or (get (setq _ (sym _)) *ages*) (def *ages* _ (age _))))
 		;list of all file imports while defining dependencies and products
 		(within-compile-env (lambda ()
-			(include 'sys/func.inc)
+			(include "sys/func.inc")
 			(each include (all-class-files))
-			(each-mergeable (lambda (_)
-				(defq i (make-info _))
+			(each-mergeable (#
+				(defq i (make-info %0))
 				(bind '(d p) i)
-				(merge-obj *imports* d)
+				(make-merge *imports* d)
 				(elem-set 1 i (map func-obj p))
-				(def *deps* _ i)) *imports*)))
+				(def *deps* (sym %0) i)) *imports*)))
 		;filter to only the .vp files
-		(setq *imports* (filter (lambda (_)
-			(ends-with ".vp" _)) *imports*))
+		(setq *imports* (filter (# (ends-with ".vp" %0)) *imports*))
 		;filter to only the files who's oldest product is older than any dependency
-		(setq *imports* (filter (lambda (_)
-			(defq d (eval _ *deps*) p (reduce min (map file-age (elem 1 d))) d (elem 0 d))
-			(each-mergeable (lambda (_)
-				(merge-obj d (elem 0 (eval _ *deps*)))) d)
-			(some (lambda (_) (>= _ p)) (map file-age d))) *imports*))
+		(setq *imports* (filter (#
+			(defq d (eval (sym %0) *deps*) p (reduce min (map file-age (elem 1 d))) d (elem 0 d))
+			(each-mergeable (# (make-merge d (elem 0 (eval %0 *deps*)))) d)
+			(some (# (>= %0 p)) (map file-age d))) *imports*))
 		;return the list to compile
 		*imports*)) *abi* *cpu*))
 
@@ -108,7 +106,7 @@
 	(within-compile-env (lambda ()
 		(setd *funcs* (list) *abi* (abi) *cpu* (cpu))
 		(defq *fsyms* (env -31) z (cat (char 0 8) (char 0 4)))
-		(include 'sys/func.inc)
+		(include "sys/func.inc")
 		(defun-bind read-paths (_)
 			(defq l (list) i (get-short _ fn_header_links) e (get-short _ fn_header_paths))
 			(while (/= i e)
@@ -117,13 +115,11 @@
 		(defun-bind load-func (_)
 			(or (get _ *fsyms*)
 				(progn
-					(unless (defq b (load (func-obj _)))
-						(throw "No such file !" (func-obj _)))
+					(unless (defq b (load (func-obj _))) (throw "No such file !" (func-obj _)))
 					(defq h (slice fn_header_entry (defq l (get-short b fn_header_links)) b)
 						l (slice l (defq p (get-short b fn_header_paths)) b))
 					(def *fsyms* _ (list (cat (char -1 8) (char p 2) h) l (read-paths b))))))
-		(unless (lst? *funcs*)
-			(setq *funcs* (list *funcs*)))
+		(unless (lst? *funcs*) (setq *funcs* (list *funcs*)))
 		(defq f (list
 			;must be first function !
 			'sys/load/init
@@ -132,45 +128,36 @@
 			;must be third function !
 			'sys/load/statics))
 		;load all loader dependents
-		(each-mergeable (lambda (_)
-			(merge-obj f (elem 2 (load-func _)))) f)
+		(each-mergeable (# (merge-obj f (elem 2 (load-func %0)))) f)
 		(defq fs (length f))
 		;load up all extra functions requested
 		(merge-obj f (map sym *funcs*))
 		(each load-func f)
 		;if recursive then load up all dependents
-		(when r
-			(each-mergeable (lambda (_)
-				(merge-obj f (elem 2 (load-func _)))) f))
+		(if r (each-mergeable (# (merge-obj f (elem 2 (load-func %0)))) f))
 		;sort into order, leaving the loader dependents first !
 		(sort cmp f fs)
 		;list of all function bodies and links in order, list of offsets of header and link sections
 		;and offset of new strings section
-		(defq b (map (lambda (_) (eval _ *fsyms*)) f)
-			ns (list) nso (list) ho (list) lo (list) so (+ (length z) (reduce (lambda (x y)
-			(push ho x)
-			(push lo (setq x (+ x (length (elem 0 y)))))
-			(+ x (length (elem 1 y)))) b 0)))
+		(defq b (map (# (get %0 *fsyms*)) f) ns (list) nso (list) ho (list) lo (list)
+			so (+ (length z) (reduce (#
+				(push ho %0)
+				(push lo (setq %0 (+ %0 (length (elem 0 %1)))))
+				(+ %0 (length (elem 1 %1)))) b 0)))
 		;list of all strings that will appear in new strings section, and list of all new string offsets
-		(each (lambda (_)
-			(each (lambda (_)
-				(unless (find-rev _ f) (merge-obj ns (list _)))) (elem 2 (eval _ *fsyms*)))) f)
-		(reduce (lambda (x y)
-			(push nso x)
-			(+ x (length y) 1)) ns 0)
+		(each (# (each (# (unless (find-rev %0 f) (merge-obj ns (list %0)))) (elem 2 (get %0 *fsyms*)))) f)
+		(reduce (# (push nso %0) (+ %0 (length %1) 1)) ns 0)
 		;create new link sections with offsets to header strings or new strings
-		(each (lambda (x)
-			(defq u (elem _ lo))
-			(elem-set 1 x (apply cat (push (map (lambda (y)
-				(char (- (if (defq i (find-rev y f))
+		(each (# (defq u (elem _ lo))
+			(elem-set 1 %0 (apply cat (push (map (#
+				(char (- (if (defq i (find-rev %0 f))
 					(+ (elem i ho) fn_header_pathname)
-					(+ (elem (find-rev y ns) nso) so)) (+ u (* _ 8))) 8)) (elem 2 x)) "")))) b)
+					(+ (elem (find-rev %0 ns) nso) so)) (+ u (* _ 8))) 8)) (elem 2 %0)) "")))) b)
 		;build list of all sections of boot image
 		;concatenate all sections and write out
 		(defq stream (file-stream (func-obj 'sys/boot_image) file_open_write)
-			f (reduce (lambda (x y)
-				(push x (cat y (ascii-char 0)))) ns (push (reduce (lambda (x y)
-					(push x (elem 0 y) (elem 1 y))) b (list)) z))
+			f (reduce (# (push %0 (cat %1 (ascii-char 0)))) ns
+				(push (reduce (# (push %0 (elem 0 %1) (elem 1 %1))) b (list)) z))
 			l (reduce (# (+ %0 (length %1))) f 0))
 		(each (# (write stream %0)) f)
 		(print "image -> " (func-obj 'sys/boot_image) " (" l ")") nil)))
@@ -179,27 +166,24 @@
 	(setd *abi* (abi) *cpu* (cpu))
 	(make-boot nil
 		(within-compile-env (lambda ()
-			(include 'sys/func.inc)
+			(include "sys/func.inc")
 			(each include (all-class-files))
 			(defq *prods* (list))
 			;lists of all file imports and products
-			(each-mergeable (lambda (_)
-				(merge-obj *prods* (bind '(d _) (make-info _)))
-				(merge-obj _l d)) (list 'make.inc)) *prods*)) *abi* *cpu*))
+			(each-mergeable (# (make-merge *prods* (bind '(d %0) (make-info %0))) (make-merge _l d))
+				(list "make.inc")) *prods*)) *abi* *cpu*))
 
 (defun-bind all-vp-files ()
 	;filter to only the .vp files
-	(filter (lambda (_) (ends-with ".vp" _))
+	(filter (# (ends-with ".vp" %0))
 		;the list of all file imports
-		(each-mergeable (lambda (_)
-			(merge-obj _l (make-imports _))) (list 'make.inc))))
+		(each-mergeable (# (make-merge _l (make-imports %0))) (list "make.inc"))))
 
 (defun-bind all-class-files ()
 	;filter to only the class.inc files
-	(filter (lambda (_) (ends-with "class.inc" _))
+	(filter (# (ends-with "class.inc" %0))
 		;the list of all file imports
-		(each-mergeable (lambda (_)
-			(merge-obj _l (make-imports _))) (list 'make.inc))))
+		(each-mergeable (# (make-merge _l (make-imports %0))) (list "make.inc"))))
 
 (defun-bind make-all (&optional *abi* *cpu* files)
 	(setd *abi* (abi) *cpu* (cpu))
@@ -207,7 +191,7 @@
 
 (defun-bind remake (&optional *abi* *cpu*)
 	(setd *abi* (abi) *cpu* (cpu))
-	(make 'make.inc *abi* *cpu*)
+	(make "make.inc" *abi* *cpu*)
 	(make-boot-all *abi* *cpu*))
 
 (defun-bind remake-all (&optional *abi* *cpu* files)
@@ -220,9 +204,9 @@
 ;;;;;;;;;;;;;;;;;;;;;
 
 (defun-bind make-platforms ()
-	(make 'make.inc 'AMD64 'x86_64)
-	(make 'make.inc 'WIN64 'x86_64)
-	(make 'make.inc 'ARM64 'aarch64))
+	(make "make.inc" 'AMD64 'x86_64)
+	(make "make.inc" 'WIN64 'x86_64)
+	(make "make.inc" 'ARM64 'aarch64))
 
 (defun-bind make-all-platforms ()
 	(defq files (all-vp-files))

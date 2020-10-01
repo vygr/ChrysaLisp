@@ -340,7 +340,7 @@ r1-r3
 ```lisp
 inputs
 r0 = array object (ptr)
-r1 = element (long)
+r1 = element object (ptr)
 r2 = element index (uint)
 outputs
 r0 = array object (ptr)
@@ -419,7 +419,7 @@ inputs
 r0 = array object (ptr)
 outputs
 r0 = array object (ptr)
-r1 = length (uint)
+r1 = array length (uint)
 trashes
 r1
 ```
@@ -3302,7 +3302,7 @@ inputs
 r0 = lisp object (ptr)
 r1 = stream object (ptr)
 r2 = next char (uint)
-r3 = sym object (ptr) 
+r3 = sym object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = list list object (ptr)
@@ -7123,7 +7123,7 @@ r0 = stream object (ptr)
 outputs
 r0 = stream object (ptr)
 trashes
-r1
+r1-r14
 ```
 
 ### stream::write_flush -> class/stream/write_flush
@@ -7134,7 +7134,7 @@ r0 = stream object (ptr)
 outputs
 r0 = stream object (ptr)
 trashes
-r1
+r1-r14
 ```
 
 ### stream::lisp_iostream -> class/stream/lisp_iostream
