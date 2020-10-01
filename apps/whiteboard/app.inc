@@ -4,7 +4,7 @@
 (import "gui/lisp.inc")
 
 ;quick debug switch
-;; (import "class/lisp/debug.inc")
+;; (import "lib/debug/debug.inc")
 ;; (defmacro defun-bind (&rest _) `(defun-debug ~_))
 
 (structure '+dlist 0

@@ -336,6 +336,10 @@
 
 (debug-send string)
 
+## debug-str
+
+(debug-str str) -> str
+
 ## dec
 
 (dec num) -> num
