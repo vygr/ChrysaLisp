@@ -49,32 +49,35 @@
         (numcharset? (second psplit) +numeric_chars+)))
     nil))
 
-(defun-bind hexstr? (_)
-  ; (hexstr? val) -> t | nil
+(defun-bind _!base10str? (_ prefix charset)
+  ; (_!base10str? val prefixchars charset) -> t | nil
   (cond
     ((and
-      (eql (first _) (first +hex_prefix+))
+      (eql (first _) (first prefix))
       (or
-        (eql (second _) (second +hex_prefix+))
-        (eql (second _) (last +hex_prefix+))))
-      (numcharset? (slice 2 -1 _) +hex_chars+))
+        (eql (second _) (second prefix))
+        (eql (second _) (last prefix))))
+      (numcharset? (slice 2 -1 _) charset))
     (t
       nil)))
+
+(defun-bind hexstr? (_)
+  (_!base10str? _ +hex_prefix+ +hex_chars+))
 
 (defun-bind octstr? (_)
-  ; (octstr? val) -> t | nil
-  (cond
-    ((and
-      (eql (first _) (first +oct_prefix+))
-      (or
-        (eql (second _) (second +oct_prefix+))
-        (eql (second _) (last +oct_prefix+))))
-      (numcharset? (slice 2 -1 _) +oct_chars+))
-    (t
-      nil)))
+  (_!base10str? _ +oct_prefix+ +oct_chars+))
+
+(defun-bind binstr? (_)
+  (_!base10str? _ +bin_prefix+ +bin_chars+))
 
 (defun-bind numstr-type (_)
-  ; (numstr-type el) -> numeric string type | :nan
+  ; (numstr-type el) -> numeric string tuple
+  ; Returns the numeric string type tuple, where:
+  ; Elem 0 = 1 for positive, -1 for negative
+  ; Elem 1 = :hexidecimal | :octal | :binary | :integer | :decimal | :nan
+  ; Elem 2 = unprefixed input base portion of string
+  ; Elem 3 = decimal portion of string iff Elem 1 is :decimal | nil
+  ; Elem 4 = base 16 | 10 | 8 | 2 | nil
   (when (nempty? _)
     (defq res (list
       (if (eql (first _) "-")
@@ -83,19 +86,47 @@
           (progn (setq _ (rest _)) 1)
           1))))
       (cond
+        ((hexstr? _ )
+          (push res :hexidecimal (slice 2 -1 _) nil 16))
+        ((octstr? _ )
+          (push res :octal (slice 2 -1 _) nil 8))
+        ((binstr? _ )
+          (push res :binary (slice 2 -1 _) nil 2))
         ((intstr? _)
-          (push res :integer _ nil))
+          (push res :integer _ nil 10))
         ((decstr? _)
           (defq sp (split _ +dec_point+))
-          (push res :decimal (first sp) (second sp)))
-        ((hexstr? _)
-          (push res :hex (slice 2 -1 _) nil))
-        ((octstr? _)
-          (push res :oct (slice 2 -1 _) nil))
-        (t (push res :nan _ nil)))))
+          (push res :decimal (first sp) (second sp) 10))
+        (t (push res :nan _ nil nil)))))
 
 (defun-bind numstr? (_)
+  ; (numstr? string) -> t | nil
+  ; Tests whether string is numeric form
   (not (eql (second (numstr-type _)) :nan)))
+
+(defun-bind pow (base exponent)
+  ; (pow base exponent) -> integer
+  ; Raises base to the power of exponent
+  ; example:
+  ; (pow 10 3) -> 1000
+  (defq res 1)
+  (times exponent (setq res (* res base)))
+  res)
+
+(defun-bind to-num (s)
+  ; (to-num string) -> number
+  (bind '(mu ty wn dn ba)  (numstr-type s))
+  (when (not (eql ty :nan))
+    (case ty
+      ((:integer)
+        (* (str-to-num wn) mu))
+      ((:decimal)
+        (* (i2f mu) (+ (i2f (str-to-num wn))
+          (/ (i2f (str-to-num dn)) (i2f (pow ba (length dn)))))))
+      ((:hexidecimal :octal :binary)
+        (defq num 0)
+        (each (# (setq num (+ (* num ba) (char-to-num %0)))) wn)
+        (* mu num)))))
 
 (defun-bind neg? (_)
   ; (neg? num) -> bool
