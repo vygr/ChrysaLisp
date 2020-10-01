@@ -1,5 +1,5 @@
-(include 'sys/func.inc)
-(include 'class/lisp/class.inc)
+(include "sys/func.inc")
+(include "class/lisp/class.inc")
 
 (gen-create 'lisp)
 (gen-vtable 'lisp)

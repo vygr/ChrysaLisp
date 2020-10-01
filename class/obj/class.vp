@@ -1,7 +1,7 @@
-(include 'sys/func.inc)
-(include 'class/obj/class.inc)
-(include 'class/str/class.inc)
-(include 'class/stream/class.inc)
+(include "sys/func.inc")
+(include "class/obj/class.inc")
+(include "class/str/class.inc")
+(include "class/stream/class.inc")
 
 (gen-vtable 'obj)
 

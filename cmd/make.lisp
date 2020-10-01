@@ -80,7 +80,7 @@
                         (push (elem -2 docs) (slice 1 -1 l))
                         (setq state 'x)))
                 (when (and (eql state 'x) (>= (length l) 10) (eql "(" (elem 0 l)))
-                    (defq s (split l " ')") _ (elem 0 s))
+                    (defq s (split l (const (cat " ')" (ascii-char 34)))) _ (elem 0 s))
                     (cond
                         ((eql _ "(include")
                             (make-merge *imports* (list (elem 1 s))))

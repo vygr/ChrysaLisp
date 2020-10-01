@@ -1,5 +1,5 @@
-(include 'sys/list/class.inc)
-(include 'class/hmap/class.inc)
+(include "sys/list/class.inc")
+(include "class/hmap/class.inc")
 
 (def-class 'component 'hmap)
 (dec-method :vtable 'gui/component/vtable)

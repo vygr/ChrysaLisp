@@ -1,5 +1,5 @@
-(include 'gui/view/class.inc)
-(include 'sys/list/class.inc)
+(include "gui/view/class.inc")
+(include "sys/list/class.inc")
 
 (def-class 'canvas 'view)
 (dec-method :vtable 'gui/canvas/vtable)

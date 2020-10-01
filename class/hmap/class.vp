@@ -1,7 +1,7 @@
-(include 'sys/func.inc)
-(include 'class/list/class.inc)
-(include 'class/pair/class.inc)
-(include 'class/hmap/class.inc)
+(include "sys/func.inc")
+(include "class/list/class.inc")
+(include "class/pair/class.inc")
+(include "class/hmap/class.inc")
 
 (gen-create 'hmap)
 (gen-vtable 'hmap)

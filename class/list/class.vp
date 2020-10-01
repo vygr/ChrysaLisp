@@ -1,7 +1,7 @@
-(include 'sys/func.inc)
-(include 'class/list/class.inc)
-(include 'class/str/class.inc)
-(include 'class/stream/class.inc)
+(include "sys/func.inc")
+(include "class/list/class.inc")
+(include "class/str/class.inc")
+(include "class/stream/class.inc")
 
 (gen-create 'list)
 (gen-vtable 'list)

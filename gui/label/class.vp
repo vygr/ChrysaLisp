@@ -1,8 +1,8 @@
-(include 'sys/func.inc)
-(include 'gui/text/class.inc)
-(include 'gui/label/class.inc)
-(include 'gui/flow/class.inc)
-(include 'class/sym/class.inc)
+(include "sys/func.inc")
+(include "gui/text/class.inc")
+(include "gui/label/class.inc")
+(include "gui/flow/class.inc")
+(include "class/sym/class.inc")
 
 (gen-create 'label)
 (gen-vtable 'label)

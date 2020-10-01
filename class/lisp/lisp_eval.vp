@@ -1,6 +1,6 @@
-(include 'sys/func.inc)
-(include 'class/hmap/class.inc)
-(include 'class/lisp/class.inc)
+(include "sys/func.inc")
+(include "class/hmap/class.inc")
+(include "class/lisp/class.inc")
 
 (def-method 'lisp :lisp_eval)
 	;inputs

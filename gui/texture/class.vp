@@ -1,6 +1,6 @@
-(include 'sys/func.inc)
-(include 'gui/texture/class.inc)
-(include 'sys/pii/class.inc)
+(include "sys/func.inc")
+(include "gui/texture/class.inc")
+(include "sys/pii/class.inc")
 
 (gen-create 'texture)
 (gen-vtable 'texture)

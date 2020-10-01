@@ -1,6 +1,6 @@
-(include 'sys/func.inc)
-(include 'gui/grid/class.inc)
-(include 'class/sym/class.inc)
+(include "sys/func.inc")
+(include "gui/grid/class.inc")
+(include "class/sym/class.inc")
 
 (gen-create 'grid)
 (gen-vtable 'grid)

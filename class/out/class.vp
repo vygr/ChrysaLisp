@@ -1,7 +1,7 @@
-(include 'sys/func.inc)
-(include 'sys/kernel/class.inc)
-(include 'class/out/class.inc)
-(include 'sys/link/class.inc)
+(include "sys/func.inc")
+(include "sys/kernel/class.inc")
+(include "class/out/class.inc")
+(include "sys/link/class.inc")
 
 (gen-create 'out)
 (gen-vtable 'out)

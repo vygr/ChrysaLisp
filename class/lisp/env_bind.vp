@@ -1,7 +1,7 @@
-(include 'sys/func.inc)
-(include 'class/hmap/class.inc)
-(include 'class/sym/class.inc)
-(include 'class/lisp/class.inc)
+(include "sys/func.inc")
+(include "class/hmap/class.inc")
+(include "class/sym/class.inc")
+(include "class/lisp/class.inc")
 
 (def-method 'lisp :env_bind)
 	;inputs

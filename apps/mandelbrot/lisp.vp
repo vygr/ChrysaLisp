@@ -1,9 +1,9 @@
-(include 'sys/func.inc)
-(include 'class/num/class.inc)
-(include 'class/str/class.inc)
-(include 'gui/canvas/class.inc)
-(include 'gui/ctx/class.inc)
-(include 'class/lisp/class.inc)
+(include "sys/func.inc")
+(include "class/num/class.inc")
+(include "class/str/class.inc")
+(include "gui/canvas/class.inc")
+(include "gui/ctx/class.inc")
+(include "class/lisp/class.inc")
 
 (import "apps/mandelbrot/mbmath.inc")
 

@@ -735,7 +735,7 @@
 
 (defun-bind import (lib_path &optional e)
 	;(import path [env])
-	(setq lib_path (str lib_path))
+	(unless (str? lib_path) (throw "Not a string !" lib_path))
 	(if (= (age lib_path) 0) (throw "No such file !" lib_path))
 	(setd e (penv))
 	(unless (some (# (eql %0 lib_path)) *file_includes*)
@@ -809,7 +809,7 @@
 	(defmacro-bind defcmacro-bind (n a &rest b)
 		`(def *compile_env* ',n (macro ,a ~(prebind (macroexpand b)))))
 	(defun-bind include (_f)
-		(setq _f (str _f))
+		(unless (str? _f) (throw "Not a string !" _f))
 		(if (= (age _f) 0) (throw "No such file !" _f))
 		(unless (some (# (eql %0 _f)) *compile_includes*)
 			(push *compile_includes* _f)

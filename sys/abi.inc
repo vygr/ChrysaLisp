@@ -1,4 +1,4 @@
-(include 'sys/code.inc)
+(include "sys/code.inc")
 
 ;;;;;;;;;;;;;;;;;;;;
 ; host abi call info

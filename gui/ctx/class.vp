@@ -1,7 +1,7 @@
-(include 'sys/func.inc)
-(include 'sys/pii/class.inc)
-(include 'gui/ctx/class.inc)
-(include 'gui/region/class.inc)
+(include "sys/func.inc")
+(include "sys/pii/class.inc")
+(include "gui/ctx/class.inc")
+(include "gui/region/class.inc")
 
 (def-method 'ctx :set_color)
 	;inputs

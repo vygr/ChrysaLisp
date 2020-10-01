@@ -1,4 +1,4 @@
-(include 'sys/load/class.inc)
+(include "sys/load/class.inc")
 
 (def-class 'host)
 (dec-method :sdl_set_main_ready nil :virtual (abi-args 0) '(r0))

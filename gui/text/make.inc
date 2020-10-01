@@ -1,1 +1,1 @@
-(include 'gui/text/class.vp)
+(include "gui/text/class.vp")

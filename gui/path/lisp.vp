@@ -1,7 +1,7 @@
-(include 'sys/func.inc)
-(include 'gui/path/class.inc)
-(include 'class/fixed/class.inc)
-(include 'class/lisp/class.inc)
+(include "sys/func.inc")
+(include "gui/path/class.inc")
+(include "class/fixed/class.inc")
+(include "class/lisp/class.inc")
 
 (def-method 'path :lisp_transform)
 	;inputs

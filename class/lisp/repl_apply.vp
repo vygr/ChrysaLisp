@@ -1,6 +1,6 @@
-(include 'sys/func.inc)
-(include 'class/func/class.inc)
-(include 'class/lisp/class.inc)
+(include "sys/func.inc")
+(include "class/func/class.inc")
+(include "class/lisp/class.inc")
 
 (def-method 'lisp :repl_apply)
 	;inputs

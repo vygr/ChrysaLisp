@@ -1,6 +1,6 @@
-(include 'sys/func.inc)
-(include 'gui/button/class.inc)
-(include 'class/lisp/class.inc)
+(include "sys/func.inc")
+(include "gui/button/class.inc")
+(include "class/lisp/class.inc")
 
 (def-method 'button :lisp_create)
 	;inputs

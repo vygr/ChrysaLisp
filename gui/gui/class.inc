@@ -1,6 +1,6 @@
-(include 'sys/heap/class.inc)
-(include 'sys/list/class.inc)
-(include 'sys/mail/class.inc)
+(include "sys/heap/class.inc")
+(include "sys/list/class.inc")
+(include "sys/mail/class.inc")
 
 (defcvar 'SCREEN_WIDTH 1280)
 (defcvar 'SCREEN_HEIGHT 960)

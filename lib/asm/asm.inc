@@ -13,7 +13,7 @@
 (defun-bind compile (files &optional *abi* *cpu* num_child)
 	(setd *abi* (abi) *cpu* (cpu) num_child (max 1 (/ (* (length (mail-devices)) 80) 100)))
 	(unless (lst? files) (setq files (list files)))
-	(setq files (shuffle (map sym files)))
+	(setq files (shuffle files))
 	(if (get 'nums)
 		;Native ChrysaLisp
 		(progn

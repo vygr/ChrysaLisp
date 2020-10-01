@@ -1,1 +1,1 @@
-(include 'sys/kernel/class.vp)
+(include "sys/kernel/class.vp")

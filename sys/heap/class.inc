@@ -1,5 +1,5 @@
-(include 'sys/list/class.inc)
-(include 'sys/mem/class.inc)
+(include "sys/list/class.inc")
+(include "sys/mem/class.inc")
 
 ;;;;;;;;;;;;;;;;;;;
 ; heap static class

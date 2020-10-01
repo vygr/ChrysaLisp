@@ -122,8 +122,8 @@ and memory usage information.
 current tasks main mailbox.
 
 ```lisp
-(include 'sys/func.inc)
-(include 'sys/kernel/class.inc)
+(include "sys/func.inc")
+(include "sys/kernel/class.inc")
 
 (def-struct 'sample)
 	(ulong 'id)

@@ -1,6 +1,6 @@
-(include 'sys/func.inc)
-(include 'sys/heap/class.inc)
-(include 'sys/pii/class.inc)
+(include "sys/func.inc")
+(include "sys/heap/class.inc")
+(include "sys/pii/class.inc")
 
 (def-method 'sys_heap :init)
 	;inputs

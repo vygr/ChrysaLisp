@@ -1,6 +1,6 @@
-(include 'sys/func.inc)
-(include 'class/fixeds/class.inc)
-(include 'sys/math/class.inc)
+(include "sys/func.inc")
+(include "class/fixeds/class.inc")
+(include "sys/math/class.inc")
 
 (gen-create 'fixeds)
 (gen-vtable 'fixeds)

@@ -1,6 +1,6 @@
-(include 'sys/func.inc)
-(include 'gui/progress/class.inc)
-(include 'class/lisp/class.inc)
+(include "sys/func.inc")
+(include "gui/progress/class.inc")
+(include "class/lisp/class.inc")
 
 (def-method 'progress :lisp_create)
 	;inputs

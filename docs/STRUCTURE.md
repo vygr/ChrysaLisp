@@ -333,7 +333,7 @@ The `destroy` method just calls `deinit` followed by `free`.
 This is an example from the `class/pair/class.inc` file.
 
 ```lisp
-(include 'class/obj/class.inc)
+(include "class/obj/class.inc")
 
 (def-class 'pair 'obj)
 (dec-method :vtable 'class/pair/vtable)
@@ -408,8 +408,8 @@ the method code for you. Take a look in `sys/class.inc` for the implementation
 of these.
 
 ```lisp
-(include 'sys/func.inc)
-(include 'class/pair/class.inc)
+(include "sys/func.inc")
+(include "class/pair/class.inc")
 
 (gen-create 'pair)
 (gen-vtable 'pair)

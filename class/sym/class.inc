@@ -1,4 +1,4 @@
-(include 'class/str/class.inc)
+(include "class/str/class.inc")
 
 (def-class 'sym 'str)
 (dec-method :vtable 'class/sym/vtable)

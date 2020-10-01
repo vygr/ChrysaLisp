@@ -1,6 +1,6 @@
-(include 'sys/list/class.inc)
-(include 'sys/mail/class.inc)
-(include 'class/str/class.inc)
+(include "sys/list/class.inc")
+(include "sys/mail/class.inc")
+(include "class/str/class.inc")
 
 (def-class 'sys_link)
 (dec-method :init 'sys/link/init)

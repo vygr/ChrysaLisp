@@ -1,6 +1,6 @@
-(include 'sys/func.inc)
-(include 'gui/path/class.inc)
-(include 'sys/math/class.inc)
+(include "sys/func.inc")
+(include "gui/path/class.inc")
+(include "sys/math/class.inc")
 
 (def-method 'path :filter_polygon)
 	;inputs

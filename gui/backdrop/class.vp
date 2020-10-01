@@ -1,7 +1,7 @@
-(include 'sys/func.inc)
-(include 'gui/ctx/class.inc)
-(include 'gui/backdrop/class.inc)
-(include 'class/sym/class.inc)
+(include "sys/func.inc")
+(include "gui/ctx/class.inc")
+(include "gui/backdrop/class.inc")
+(include "class/sym/class.inc")
 
 (gen-vtable 'backdrop)
 (gen-create 'backdrop)

@@ -1,4 +1,4 @@
-(include 'sys/func.inc)
-(include 'class/seq/class.inc)
+(include "sys/func.inc")
+(include "class/seq/class.inc")
 
 (gen-vtable 'seq)

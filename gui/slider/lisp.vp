@@ -1,6 +1,6 @@
-(include 'sys/func.inc)
-(include 'gui/slider/class.inc)
-(include 'class/lisp/class.inc)
+(include "sys/func.inc")
+(include "gui/slider/class.inc")
+(include "class/lisp/class.inc")
 
 (def-method 'slider :lisp_create)
 	;inputs

@@ -1,4 +1,4 @@
-(include 'sys/class.inc)
+(include "sys/class.inc")
 
 (def-class 'ctx)
 (dec-method :box 'gui/ctx/box :static '(r0 r7 r8 r9 r10))

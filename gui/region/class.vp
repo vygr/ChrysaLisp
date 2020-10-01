@@ -1,5 +1,5 @@
-(include 'sys/func.inc)
-(include 'gui/region/class.inc)
+(include "sys/func.inc")
+(include "gui/region/class.inc")
 
 (def-method 'region :clip_rect)
 	;inputs

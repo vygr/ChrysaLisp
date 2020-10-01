@@ -1,6 +1,6 @@
-(include 'sys/func.inc)
-(include 'class/nums/class.inc)
-(include 'sys/math/class.inc)
+(include "sys/func.inc")
+(include "class/nums/class.inc")
+(include "sys/math/class.inc")
 
 (gen-create 'nums)
 (gen-vtable 'nums)

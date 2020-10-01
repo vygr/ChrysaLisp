@@ -2,7 +2,7 @@
 ; class definition
 ;;;;;;;;;;;;;;;;;;
 
-(include 'sys/code.inc)
+(include "sys/code.inc")
 
 (defmacro class-sym (_)
 	`(sym (cat "_class_" ,_)))

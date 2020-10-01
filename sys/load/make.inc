@@ -1,1 +1,1 @@
-(include 'sys/load/class.vp)
+(include "sys/load/class.vp")

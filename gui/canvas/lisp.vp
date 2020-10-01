@@ -1,8 +1,8 @@
-(include 'sys/func.inc)
-(include 'gui/canvas/class.inc)
-(include 'class/str/class.inc)
-(include 'class/fixed/class.inc)
-(include 'class/lisp/class.inc)
+(include "sys/func.inc")
+(include "gui/canvas/class.inc")
+(include "class/str/class.inc")
+(include "class/fixed/class.inc")
+(include "class/lisp/class.inc")
 
 (def-method 'canvas :lisp_create)
 	;inputs
