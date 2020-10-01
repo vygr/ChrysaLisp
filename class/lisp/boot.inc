@@ -379,12 +379,12 @@
 	;(reduced accum)
 	`(progn (setq __x t) ,_a))
 
-(defmacro-bind # (x)
+(defmacro-bind # (&rest b)
 	;(# (< %0 0)) -> (lambda (%0) (< %0 0))
 	`(lambda ,(slice 0 (reduce (lambda (c _)
 		(if (find _ '(%0 %1 %2 %3 %4 %5 %6 %7 %8 %9)) (inc c) c))
-		(merge-obj (list) (map sym (split (str x) "( )"))) 0)
-			'(%0 %1 %2 %3 %4 %5 %6 %7 %8 %9)) ,x))
+		(merge-obj (list) (map sym (split (str b) "( )"))) 0)
+			'(%0 %1 %2 %3 %4 %5 %6 %7 %8 %9)) ~b))
 
 ;;;;;;;;;;;;
 ; Predicates
