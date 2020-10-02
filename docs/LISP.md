@@ -285,6 +285,7 @@ map-rev
 merge-obj
 neg
 nempty?
+nil?
 nlo
 nlz
 nto
