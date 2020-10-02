@@ -30,10 +30,9 @@
 (defun-bind main ()
 	(bind '(x y w h) (apply view-locate (view-pref-size window)))
 	(gui-add (view-change window x y w h))
-	(defq accum 0 value 0 num 0 lastop nil mouse_down 0)
+	(defq accum 0 value 0 num 0 lastop nil)
 	(while (cond
 		((>= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) +event_button+)
-			(print mouse_down)(print)
 			(defq op (get :text (view-find-id window (get-long msg ev_msg_action_source_id))))
 			(cond
 				((eql op "AC")
@@ -63,8 +62,5 @@
 			;max button
 			(bind '(x y w h) (apply view-fit (cat (view-get-pos window) '(512 512))))
 			(view-change-dirty window x y w h))
-		(t	(and (= (get-long msg (const ev_msg_type)) (const ev_type_mouse))
-				(/= 0 (get-int msg (const ev_msg_mouse_buttons)))
-				(setq mouse_down (get-int msg (const ev_msg_mouse_buttons))))
-			(view-event window msg))))
+		(t (view-event window msg))))
 	(view-hide window))
