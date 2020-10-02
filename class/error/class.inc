@@ -1,4 +1,4 @@
-(include 'class/obj/class.inc)
+(include "class/obj/class.inc")
 
 (def-class 'error 'obj)
 (dec-method :vtable 'class/error/vtable)

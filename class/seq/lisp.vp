@@ -1,10 +1,10 @@
-(include 'sys/func.inc)
-(include 'class/seq/class.inc)
-(include 'class/num/class.inc)
-(include 'class/hmap/class.inc)
-(include 'class/str/class.inc)
-(include 'gui/path/class.inc)
-(include 'class/lisp/class.inc)
+(include "sys/func.inc")
+(include "class/seq/class.inc")
+(include "class/num/class.inc")
+(include "class/hmap/class.inc")
+(include "class/str/class.inc")
+(include "gui/path/class.inc")
+(include "class/lisp/class.inc")
 
 (def-method 'seq :lisp_length)
 	;inputs

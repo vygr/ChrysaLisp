@@ -379,12 +379,12 @@
 	;(reduced accum)
 	`(progn (setq __x t) ,_a))
 
-(defmacro-bind # (x)
+(defmacro-bind # (&rest b)
 	;(# (< %0 0)) -> (lambda (%0) (< %0 0))
 	`(lambda ,(slice 0 (reduce (lambda (c _)
 		(if (find _ '(%0 %1 %2 %3 %4 %5 %6 %7 %8 %9)) (inc c) c))
-		(merge-obj (list) (map sym (split (str x) "( )"))) 0)
-			'(%0 %1 %2 %3 %4 %5 %6 %7 %8 %9)) ,x))
+		(merge-obj (list) (map sym (split (str b) "( )"))) 0)
+			'(%0 %1 %2 %3 %4 %5 %6 %7 %8 %9)) ~b))
 
 ;;;;;;;;;;;;
 ; Predicates
@@ -406,6 +406,11 @@
 	;(notevery lambda seq ...) -> t|nil
 	`(not (some! 0 -1 nil ,f (list ~_))))
 
+(defun-bind nil? (_)
+  	; (nil? o) -> bool
+  	; Returns true if nil
+  	(eql _ nil))
+
 (defun-bind empty? (_)
 	;(empty? form) -> bool
 	; Returns true if form is empty
@@ -423,24 +428,24 @@
 (defun-bind first (_)
 	;(first seq) -> el | nil
 	; Returns first element if sequence not empty, otherwise nil
-	(if (> (length _) 0) (elem 0 _)))
+	(if (and (not (nil? _)) (> (length _) 0)) (elem 0 _)))
 
 (defun-bind second (_)
 	;(second seq) -> el | nil
 	; Returns second element if sequence not empty and has
 	; more than one element, otherwise nil
-	(if (> (length _) 1) (elem 1 _)))
+	(if (and (not (nil? _)) (> (length _) 1)) (elem 1 _)))
 
 (defun-bind last (_)
 	;(last seq) -> el | nil
 	; Returns last element if sequence not empty, otherwise nil
-	(if (> (length _) 0) (elem -2 _)))
+	(if (and (not (nil? _)) (> (length _) 0)) (elem -2 _)))
 
 (defun-bind rest (_)
 	;(rest seq) -> seq
 	; Returns seq from seq after dropping first element
 	; if not empty, otherwise an empty list
-	(if (> (length _) 0) (slice 1 -1 _) (list)))
+	(if (and (not (nil? _)) (> (length _) 0)) (slice 1 -1 _) (list)))
 
 (defun-bind erase (s b e)
 	;(erase seq start end) -> seq
@@ -730,7 +735,7 @@
 
 (defun-bind import (lib_path &optional e)
 	;(import path [env])
-	(setq lib_path (str lib_path))
+	(unless (str? lib_path) (throw "Not a string !" lib_path))
 	(if (= (age lib_path) 0) (throw "No such file !" lib_path))
 	(setd e (penv))
 	(unless (some (# (eql %0 lib_path)) *file_includes*)
@@ -804,7 +809,7 @@
 	(defmacro-bind defcmacro-bind (n a &rest b)
 		`(def *compile_env* ',n (macro ,a ~(prebind (macroexpand b)))))
 	(defun-bind include (_f)
-		(setq _f (str _f))
+		(unless (str? _f) (throw "Not a string !" _f))
 		(if (= (age _f) 0) (throw "No such file !" _f))
 		(unless (some (# (eql %0 _f)) *compile_includes*)
 			(push *compile_includes* _f)

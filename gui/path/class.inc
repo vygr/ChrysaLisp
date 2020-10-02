@@ -1,4 +1,4 @@
-(include 'class/fixeds/class.inc)
+(include "class/fixeds/class.inc")
 
 (def-class 'path 'fixeds)
 (dec-method :vtable 'gui/path/vtable)

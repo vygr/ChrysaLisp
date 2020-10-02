@@ -1,6 +1,6 @@
 ;jit compile apps native functions if needed
 (import "lib/asm/asm.inc")
-(make 'apps/chess/lisp.vp)
+(make "apps/chess/lisp.vp")
 
 ;imports
 (import "gui/lisp.inc")

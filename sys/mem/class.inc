@@ -1,4 +1,4 @@
-(include 'sys/class.inc)
+(include "sys/class.inc")
 
 ;;;;;;;;;;;;;;;;;;
 ; mem static class

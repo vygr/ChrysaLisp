@@ -1,5 +1,5 @@
-(include 'sys/func.inc)
-(include 'sys/str/class.inc)
+(include "sys/func.inc")
+(include "sys/str/class.inc")
 
 (def-method 'sys_str :compare)
 	;inputs

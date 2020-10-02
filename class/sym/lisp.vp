@@ -1,6 +1,6 @@
-(include 'sys/func.inc)
-(include 'class/sym/class.inc)
-(include 'class/lisp/class.inc)
+(include "sys/func.inc")
+(include "class/sym/class.inc")
+(include "class/lisp/class.inc")
 
 (def-method 'sym :lisp_sym)
 	;inputs

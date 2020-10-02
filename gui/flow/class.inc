@@ -1,4 +1,4 @@
-(include 'gui/view/class.inc)
+(include "gui/view/class.inc")
 
 (def-class 'flow 'view)
 (dec-method :vtable 'gui/flow/vtable)

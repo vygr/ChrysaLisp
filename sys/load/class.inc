@@ -1,5 +1,5 @@
-(include 'sys/class.inc)
-(include 'sys/abi.inc)
+(include "sys/class.inc")
+(include "sys/abi.inc")
 
 ;;;;;;;;;;;;;;;;;;;
 ; load static class

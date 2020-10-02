@@ -1,2 +1,2 @@
-(include 'class/seq/class.vp)
-(include 'class/seq/lisp.vp)
+(include "class/seq/class.vp")
+(include "class/seq/lisp.vp")

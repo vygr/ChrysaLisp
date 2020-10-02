@@ -1,5 +1,5 @@
-(include 'sys/func.inc)
-(include 'sys/heap/class.inc)
+(include "sys/func.inc")
+(include "sys/heap/class.inc")
 
 (defq mem_cell_min_size 0x000020 mem_cell_max_size 0x4000000
 	max_cell_count (/ (* 32 1024) mem_cell_min_size))

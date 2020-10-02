@@ -1,7 +1,7 @@
-(include 'sys/func.inc)
-(include 'gui/scroll/class.inc)
-(include 'gui/slider/class.inc)
-(include 'class/sym/class.inc)
+(include "sys/func.inc")
+(include "gui/scroll/class.inc")
+(include "gui/slider/class.inc")
+(include "class/sym/class.inc")
 
 (gen-create 'scroll)
 (gen-vtable 'scroll)

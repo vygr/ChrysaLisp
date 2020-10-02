@@ -1,2 +1,2 @@
-(include 'gui/font/class.vp)
-(include 'gui/font/lisp.vp)
+(include "gui/font/class.vp")
+(include "gui/font/lisp.vp")

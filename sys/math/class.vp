@@ -1,5 +1,5 @@
-(include 'sys/func.inc)
-(include 'sys/math/class.inc)
+(include "sys/func.inc")
+(include "sys/math/class.inc")
 
 (def-method 'sys_math :i_rand)
 	;inputs

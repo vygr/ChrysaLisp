@@ -1,4 +1,4 @@
-(include 'gui/label/class.inc)
+(include "gui/label/class.inc")
 
 (def-class 'textfield 'label)
 (dec-method :vtable 'gui/textfield/vtable)

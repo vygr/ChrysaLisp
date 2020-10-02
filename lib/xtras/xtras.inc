@@ -5,12 +5,128 @@
 
 (defq xtras_defined t)
 
+; Constants
+
+(defq
+  +nl+          (char 0x0a)
+  +eof+         (char 0x00)
+  +upper_chars+ "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+  +lower_chars+ "abcdefghijklmnopqrstuvwxyz"
+  +bin_prefix+  "0bB"
+  +oct_prefix+  "0oO"
+  +hex_prefix+  "0xX"
+  +oct_chars+   "01234567"
+  +bin_chars+   "01"
+  +plus_minus+  "-+"
+  +dec_point+   "."
+  +numeric_chars+ (cat +oct_chars+ "89")
+  +hex_chars+ (cat +numeric_chars+ (slice 0 6 +upper_chars+) (slice 0 6 +lower_chars+))
+  +alpha_num+ (cat +numeric_chars+ +upper_chars+ +lower_chars+))
+
 ; Predicates
 
-(defun-bind nil? (_)
-  ; (nil? o) -> bool
-  ; Returns true if nil
-  (eql _ nil))
+(defun-bind numcharset? (_ cset)
+  ; (numcharset? val charset) -> t | nil
+  (reduced-reduce (#(if (find %1 cset) %0 (reduced nil))) _ t))
+
+(defun-bind intstr? (_)
+  ; (intstr? val) -> t | nil
+  (cond
+    ((not (find +dec_point+ _))
+      (numcharset? _ +numeric_chars+))
+    (t
+      nil)))
+
+(defun-bind decstr? (_)
+  ; (decstr? val) -> t | nil
+  (if (find +dec_point+ _)
+    (progn
+      (defq
+        psplit (split _ +dec_point+))
+      (and
+        (= (length psplit) 2)
+        (numcharset? (first psplit) +numeric_chars+)
+        (numcharset? (second psplit) +numeric_chars+)))
+    nil))
+
+(defun-bind _!base10str? (_ prefix charset)
+  ; (_!base10str? val prefixchars charset) -> t | nil
+  (cond
+    ((and
+      (eql (first _) (first prefix))
+      (or
+        (eql (second _) (second prefix))
+        (eql (second _) (last prefix))))
+      (numcharset? (slice 2 -1 _) charset))
+    (t
+      nil)))
+
+(defun-bind hexstr? (_)
+  (_!base10str? _ +hex_prefix+ +hex_chars+))
+
+(defun-bind octstr? (_)
+  (_!base10str? _ +oct_prefix+ +oct_chars+))
+
+(defun-bind binstr? (_)
+  (_!base10str? _ +bin_prefix+ +bin_chars+))
+
+(defun-bind numstr-type (_)
+  ; (numstr-type el) -> numeric string tuple
+  ; Returns the numeric string type tuple, where:
+  ; Elem 0 = 1 for positive, -1 for negative
+  ; Elem 1 = :hexidecimal | :octal | :binary | :integer | :decimal | :nan
+  ; Elem 2 = unprefixed input base portion of string
+  ; Elem 3 = decimal portion of string iff Elem 1 is :decimal | nil
+  ; Elem 4 = base 16 | 10 | 8 | 2 | nil
+  (when (nempty? _)
+    (defq res (list
+      (if (eql (first _) "-")
+        (progn (setq _ (rest _)) -1)
+        (if (eql (first _) "+")
+          (progn (setq _ (rest _)) 1)
+          1))))
+      (cond
+        ((hexstr? _ )
+          (push res :hexidecimal (slice 2 -1 _) nil 16))
+        ((octstr? _ )
+          (push res :octal (slice 2 -1 _) nil 8))
+        ((binstr? _ )
+          (push res :binary (slice 2 -1 _) nil 2))
+        ((intstr? _)
+          (push res :integer _ nil 10))
+        ((decstr? _)
+          (defq sp (split _ +dec_point+))
+          (push res :decimal (first sp) (second sp) 10))
+        (t (push res :nan _ nil nil)))))
+
+(defun-bind numstr? (_)
+  ; (numstr? string) -> t | nil
+  ; Tests whether string is numeric form
+  (not (eql (second (numstr-type _)) :nan)))
+
+(defun-bind pow (base exponent)
+  ; (pow base exponent) -> integer
+  ; Raises base to the power of exponent
+  ; example:
+  ; (pow 10 3) -> 1000
+  (defq res 1)
+  (times exponent (setq res (* res base)))
+  res)
+
+(defun-bind to-num (s)
+  ; (to-num string) -> number
+  (bind '(mu ty wn dn ba)  (numstr-type s))
+  (when (not (eql ty :nan))
+    (case ty
+      ((:integer)
+        (* (str-to-num wn) mu))
+      ((:decimal)
+        (* (i2f mu) (+ (i2f (str-to-num wn))
+          (/ (i2f (str-to-num dn)) (i2f (pow ba (length dn)))))))
+      ((:hexidecimal :octal :binary)
+        (defq num 0)
+        (each (# (setq num (+ (* num ba) (char-to-num %0)))) wn)
+        (* mu num)))))
 
 (defun-bind neg? (_)
   ; (neg? num) -> bool
@@ -84,9 +200,6 @@
 
 ; Convenience
 
-(defq +numeric_chars+ "0123456789")
-(defq +plus_minus+ "-+")
-
 (defun-bind str-is-ints? (s)
   ; (str-is-ints? s) -> :true | :false
   (defq instr
@@ -104,6 +217,10 @@
   ; (ident el) -> el
   _)
 
+(defun-bind numb-from-string (inumstr)
+  (defq accum 0 base 10 deci 0 mult 1)
+
+  )
 (defun-bind efind (p k)
   ; (efind list key) -> index | nil
   ; Returns the index of key in list or properties
@@ -116,6 +233,10 @@
   fx)
 
 (defun-bind kw (_)
+  ; (kw el) -> keyword
+  ; Converts a string or symbol to a keyword
+  ; example:
+  ; (kw "foo") -> :foo
   (if (and (not (kw? _)) (or (str? _) (sym? _)))
     (sym (str ":" _))
     (throw "Expected symbol or string, found " _)))
@@ -135,11 +256,15 @@
 (defmacro-bind interleave (seq1 seq2)
   ; (interleave seq1 seq2) -> list
   ; Returns a list of the first item in each seq, then the second etc.
+  ; example:
+  ; (interleave '(:a :b :c) '(0 1 2)) -> (:a 0 :b 1 :c 2)
   `(zip ,seq1 ,seq2))
 
 (defun-bind chunk (cnt seq)
+  ; (chunk count sequence) -> sequence of sequences
+  ; Chunks up a sequence into list of sequence by count
+  ; example:
   ; (chunk 2 '(0 1 2 3')) -> ((0 1) (2 3))
-  ; Chunks up a sequence into list of sequence by cnt
   (cond
     ((< cnt (length seq))
       (defq
@@ -165,6 +290,7 @@
 
 (defmacro-bind properties (&rest pairs)
   ; (properties [k v]...) -> list
+  ; Creates a properties list object
   (push pairs :super_clz :clz_properties)
   `(list ~pairs))
 
@@ -181,10 +307,12 @@
 
 (defun-bind keys (prop)
   ; (keys properties) -> key list
+  ; Returns a sequence of keys found in properties list
   (map (#(elem 0 %0)) (entries prop)))
 
 (defun-bind values (prop)
   ; (values properties) -> value list
+  ; Returns a sequence of values found in properties list
   (map (#(elem 1 %0)) (entries prop)))
 
 (defun-bind getp (p k &optional if_nil)
@@ -359,18 +487,23 @@
 
 (defmacro private (nm)
   ; (private nm) -> env
+  ; Sets up an isolated environment for
+  ; use in the privatization of functions
   `(macroexpand (defq ,nm (env -1))))
 
 (defmacro defunp (e n a &rest _)
   ; (defunp env name args form) -> lambda
+  ; Declares a function in the private environment
   `(def ,e ,n (lambda ,a ~_)))
 
 (defmacro defunp-bind (e n a &rest _)
-  ;(defun-bind name ([arg ...]) body)
+  ; (defun-bind name ([arg ...]) body)
+  ; Declars a bound function in the private environment
   `(def ,e ,n (lambda ,a ~(prebind (macroexpand _)))))
 
 (defmacro callp (e name &rest _)
   ; (callp env name &rest args) -> form invoked with args
+  ; Calls a function in a private environment
   `((get ,name ,e) ~_))
 
 ; Walkers
@@ -415,7 +548,6 @@
   ; Returns the first `cnt` of elements from seq
   ; providing a negative cnt returns the original sequence
   ; example:
-  ; (defq myL2 (list -2 -1 0 -1 -2 3))
   ; (take 2 '(0 1 2 3)) -> (0 1)
   (defq len (length seq))
   (cond
@@ -428,7 +560,6 @@
   ; Returns the last 'cnt' of elements from seq
   ; providing a negative cnt returns the original sequence
   ; example:
-  ; (defq myL2 (list -2 -1 0 -1 -2 3))
   ; (take-last 2 '(0 1 2 3)) ->  (2 3)
   (reverse (take cnt (reverse seq))))
 
@@ -436,7 +567,6 @@
   ; (take-while predicate sequence) -> sequence
   ; Returns successive element of seq while pred returns true
   ; example:
-  ; (defq myL2 (list -2 -1 0 -1 -2 3))
   ; (take-while neg? '(-1 -2 0 -1 -2)) -> (-1 -2)
   (reduced-reduce
     (lambda (acc el)
@@ -449,7 +579,6 @@
   ; (take-unless predicate sequence) -> sequence
   ; Returns successive element of seq unless pred returns true
   ; example:
-  ; (defq myL2 (list -2 -1 0 -1 -2 3))
   ; (take-unless (# (< %0 0)) '(-1 -2 0 -1 -2)) -> (0)
   (reduced-reduce
     (lambda (acc el)
@@ -650,8 +779,6 @@
     :list-delims  "()"
     :indent       -1
     :indent_space  2))
-
-(defq +nl+ (char 0x0a))
 
 (defq pp_boolean
       (properties

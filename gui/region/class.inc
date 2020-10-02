@@ -1,4 +1,4 @@
-(include 'sys/class.inc)
+(include "sys/class.inc")
 
 (def-class 'region)
 (dec-method :translate 'gui/region/translate :static '(r1 r7 r8))

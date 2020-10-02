@@ -1,5 +1,5 @@
-(include 'sys/func.inc)
-(include 'class/fstream/class.inc)
+(include "sys/func.inc")
+(include "class/fstream/class.inc")
 
 (gen-create 'fstream)
 (gen-vtable 'fstream)

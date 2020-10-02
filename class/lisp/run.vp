@@ -1,9 +1,9 @@
-(include 'sys/func.inc)
-(include 'sys/mail/class.inc)
-(include 'class/sstream/class.inc)
-(include 'class/lisp/class.inc)
-(include 'class/sym/class.inc)
-(include 'gui/component/class.inc)
+(include "sys/func.inc")
+(include "sys/mail/class.inc")
+(include "class/sstream/class.inc")
+(include "class/lisp/class.inc")
+(include "class/sym/class.inc")
+(include "gui/component/class.inc")
 
 (def-func 'class/lisp/run nil 8192)
 	;lisp run loop task

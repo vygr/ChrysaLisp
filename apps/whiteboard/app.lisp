@@ -113,7 +113,7 @@
 
 (defun-bind main ()
 	;ui tree initial setup
-	(defq dlist (list 3 (/ 1000000 15) flatten commited_canvas overlay_canvas (list) (list)))
+	(defq dlist (list 3 (/ 1000000 60) flatten commited_canvas overlay_canvas (list) (list)))
 	(canvas-set-flags commited_canvas 1)
 	(canvas-set-flags overlay_canvas 1)
 	(view-set-size backdrop canvas_width canvas_height)

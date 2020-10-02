@@ -20,6 +20,5 @@
 ;catch any errors
 (catch
 	;compile the file list
-	(within-compile-env (lambda ()
-		(each include files)))
+	(within-compile-env (# (each include files)))
 	(print _))

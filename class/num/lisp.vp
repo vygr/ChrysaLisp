@@ -1,8 +1,8 @@
-(include 'sys/func.inc)
-(include 'sys/math/class.inc)
-(include 'class/fixed/class.inc)
-(include 'class/real/class.inc)
-(include 'class/lisp/class.inc)
+(include "sys/func.inc")
+(include "sys/math/class.inc")
+(include "class/fixed/class.inc")
+(include "class/real/class.inc")
+(include "class/lisp/class.inc")
 
 (defun-bind addop (_)
 	(entry 'num (sym (cat :lisp_ (rest _))) '(r0 r1))

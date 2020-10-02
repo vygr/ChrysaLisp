@@ -1,6 +1,6 @@
-(include 'sys/func.inc)
-(include 'sys/link/class.inc)
-(include 'sys/mail/class.inc)
+(include "sys/func.inc")
+(include "sys/link/class.inc")
+(include "sys/mail/class.inc")
 
 (def-method 'sys_mail :in)
 	;inputs

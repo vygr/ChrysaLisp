@@ -1,7 +1,7 @@
-(include 'sys/func.inc)
-(include 'class/out/class.inc)
-(include 'class/num/class.inc)
-(include 'class/lisp/class.inc)
+(include "sys/func.inc")
+(include "class/out/class.inc")
+(include "class/num/class.inc")
+(include "class/lisp/class.inc")
 
 (def-method 'out :lisp_create)
 	;inputs

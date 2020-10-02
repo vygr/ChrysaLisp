@@ -1,6 +1,6 @@
-(include 'sys/func.inc)
-(include 'gui/backdrop/class.inc)
-(include 'class/lisp/class.inc)
+(include "sys/func.inc")
+(include "gui/backdrop/class.inc")
+(include "class/lisp/class.inc")
 
 (def-method 'backdrop :lisp_create)
 	;inputs

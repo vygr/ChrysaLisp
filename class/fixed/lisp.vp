@@ -1,7 +1,7 @@
-(include 'sys/func.inc)
-(include 'sys/math/class.inc)
-(include 'class/fixed/class.inc)
-(include 'class/lisp/class.inc)
+(include "sys/func.inc")
+(include "sys/math/class.inc")
+(include "class/fixed/class.inc")
+(include "class/lisp/class.inc")
 
 ;generic fixed math op
 (defun-bind mathop (_)

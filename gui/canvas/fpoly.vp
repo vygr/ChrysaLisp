@@ -1,7 +1,7 @@
-(include 'sys/func.inc)
-(include 'gui/canvas/class.inc)
-(include 'class/list/class.inc)
-(include 'gui/path/class.inc)
+(include "sys/func.inc")
+(include "gui/canvas/class.inc")
+(include "class/list/class.inc")
+(include "gui/path/class.inc")
 
 (def-method 'canvas :set_edges)
 	;inputs

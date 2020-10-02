@@ -1,6 +1,6 @@
-(include 'sys/func.inc)
-(include 'gui/label/class.inc)
-(include 'class/lisp/class.inc)
+(include "sys/func.inc")
+(include "gui/label/class.inc")
+(include "class/lisp/class.inc")
 
 (def-method 'label :lisp_create)
 	;inputs

@@ -1,10 +1,10 @@
-(include 'sys/func.inc)
-(include 'sys/mem/class.inc)
-(include 'class/num/class.inc)
-(include 'class/array/class.inc)
-(include 'class/pair/class.inc)
-(include 'class/str/class.inc)
-(include 'class/lisp/class.inc)
+(include "sys/func.inc")
+(include "sys/mem/class.inc")
+(include "class/num/class.inc")
+(include "class/array/class.inc")
+(include "class/pair/class.inc")
+(include "class/str/class.inc")
+(include "class/lisp/class.inc")
 
 (def-method 'sys_mem :lisp_stats)
 	;inputs

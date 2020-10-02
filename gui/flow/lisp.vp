@@ -1,6 +1,6 @@
-(include 'sys/func.inc)
-(include 'gui/flow/class.inc)
-(include 'class/lisp/class.inc)
+(include "sys/func.inc")
+(include "gui/flow/class.inc")
+(include "class/lisp/class.inc")
 
 (def-method 'flow :lisp_create)
 	;inputs

@@ -1,10 +1,10 @@
-(include 'sys/func.inc)
-(include 'sys/load/class.inc)
-(include 'sys/str/class.inc)
-(include 'class/sym/class.inc)
-(include 'class/sstream/class.inc)
-(include 'class/fixed/class.inc)
-(include 'class/lisp/class.inc)
+(include "sys/func.inc")
+(include "sys/load/class.inc")
+(include "sys/str/class.inc")
+(include "class/sym/class.inc")
+(include "class/sstream/class.inc")
+(include "class/fixed/class.inc")
+(include "class/lisp/class.inc")
 
 (def-method 'lisp :read_num)
 	;inputs

@@ -1,6 +1,6 @@
-(include 'sys/func.inc)
-(include 'gui/flow/class.inc)
-(include 'class/sym/class.inc)
+(include "sys/func.inc")
+(include "gui/flow/class.inc")
+(include "class/sym/class.inc")
 
 (gen-create 'flow)
 (gen-vtable 'flow)

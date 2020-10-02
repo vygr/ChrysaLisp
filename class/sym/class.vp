@@ -1,9 +1,9 @@
-(include 'sys/func.inc)
-(include 'class/sym/class.inc)
-(include 'class/hset/class.inc)
-(include 'class/list/class.inc)
-(include 'class/stream/class.inc)
-(include 'sys/str/class.inc)
+(include "sys/func.inc")
+(include "class/sym/class.inc")
+(include "class/hset/class.inc")
+(include "class/list/class.inc")
+(include "class/stream/class.inc")
+(include "sys/str/class.inc")
 
 (gen-vtable 'sym)
 

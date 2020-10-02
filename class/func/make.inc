@@ -1,1 +1,1 @@
-(include 'class/func/class.vp)
+(include "class/func/class.vp")

@@ -1,4 +1,4 @@
-(include 'gui/view/class.inc)
+(include "gui/view/class.inc")
 
 (def-class 'scroll 'view)
 (dec-method :vtable 'gui/scroll/vtable)

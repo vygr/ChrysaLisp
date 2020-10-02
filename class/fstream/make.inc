@@ -1,2 +1,2 @@
-(include 'class/fstream/class.vp)
+(include "class/fstream/class.vp")
 

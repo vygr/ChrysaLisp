@@ -1,5 +1,9 @@
 # Syntax
 
+## nil?
+
+ (nil? o) -> bool
+
 ## #
 
 (# (< %0 0)) -> (lambda (%0) (< %0 0))
@@ -335,6 +339,10 @@
 ## debug-send
 
 (debug-send string)
+
+## debug-str
+
+(debug-str str) -> str
 
 ## dec
 

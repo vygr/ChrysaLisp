@@ -1,4 +1,4 @@
-(include 'gui/view/class.inc)
+(include "gui/view/class.inc")
 
 (def-class 'grid 'view)
 (dec-method :vtable 'gui/grid/vtable)

@@ -1,8 +1,8 @@
-(include 'sys/func.inc)
-(include 'class/array/class.inc)
-(include 'class/num/class.inc)
-(include 'class/str/class.inc)
-(include 'class/stream/class.inc)
+(include "sys/func.inc")
+(include "class/array/class.inc")
+(include "class/num/class.inc")
+(include "class/str/class.inc")
+(include "class/stream/class.inc")
 
 (gen-create 'array)
 (gen-vtable 'array)

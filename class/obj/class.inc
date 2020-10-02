@@ -1,4 +1,4 @@
-(include 'sys/class.inc)
+(include "sys/class.inc")
 
 (def-class 'obj)
 (dec-method :vtable 'class/obj/vtable)

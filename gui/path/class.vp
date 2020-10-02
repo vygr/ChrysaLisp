@@ -1,5 +1,5 @@
-(include 'sys/func.inc)
-(include 'gui/path/class.inc)
+(include "sys/func.inc")
+(include "gui/path/class.inc")
 
 (gen-create 'path)
 (gen-vtable 'path)

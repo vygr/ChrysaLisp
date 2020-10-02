@@ -1,6 +1,6 @@
 ;jit compile apps native functions if needed
 (import "lib/asm/asm.inc")
-(make 'apps/mandelbrot/lisp.vp)
+(make "apps/mandelbrot/lisp.vp")
 
 ;imports
 (import "gui/lisp.inc")
