@@ -13,14 +13,21 @@
   (byte
     'logmsg+
     'register+
-    'shutdown+))
+    'shutdown+
+    'registered+
+    'errored+))
 
 (defun-bind log-msg ()
   (defq msg (properties))
   msg)
 
-(defun-bind log-registration (mname)
-  (setp! (log-msg) :name mname t))
+(defun-bind log-registration (mname configuration)
+  (defq p (setsp! (log-msg)
+    :name     mname
+    :reciever (mail-alloc-mbox)))
+  (if configuration
+    (setp! p :configuration configuration)
+    p))
 
 (defun-bind get-logsrvc-mb ()
   (cond
@@ -38,25 +45,35 @@
   (mail-send (char +log_event_shutdown+ long_size) (get-logsrvc-mb))
   (setq log_mbox_id nil))
 
-; Register myself with service
-(defun-bind logger (mname)
-  ; (logger name [configuration]) -> log structure for use in all calls
+; Log receipt handler
+(defun-bind logresult (logger)
+  ; (logresult properties) -> properties
+  logger)
+
+(defun-bind reg-logger (mname &optional configuration)
+  ; (logger name [configuration]) -> properties
   ; Registers name with logging service and sends optional configuration
   ; information
   ; Part of the registering includes a return mbox that the service
   ; can write to
+  (defq lr (log-registration mname configuration))
   (mail-send
     (cat
       (char +log_event_register+ long_size)
-      (str (yaml-xser (log-registration mname))))
-    (get-logsrvc-mb)))
+      (str (yaml-xser lr)))
+    (get-logsrvc-mb))
+  (logresult lr))
 
-(defun-bind log-trace (msg &rest kvpairs))
-(defun-bind log-debug (msg &rest kvpairs))
-(defun-bind log-info (msg &rest kvpairs)
+(defun-bind dereg-logger (logger)
+
+  (logresult lr))
+
+(defun-bind log-trace (logger msg &rest kvpairs))
+(defun-bind log-debug (logger msg &rest kvpairs))
+(defun-bind log-info (logger msg &rest kvpairs)
   (mail-send (char +log_event_logmsg+ long_size) (get-logsrvc-mb)))
-(defun-bind log-warning (msg &rest kvpairs))
-(defun-bind log-critical (msg &rest kvpairs))
+(defun-bind log-warning (logger msg &rest kvpairs))
+(defun-bind log-critical (logger msg &rest kvpairs))
 
 ; (defq mbx (open-child "apps/logger/app.lisp" kn_call_child))
 ; (mail-send (const (char +log_event_close-service+ long_size)) (get-logsrvc-mb))
