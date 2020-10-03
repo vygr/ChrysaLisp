@@ -35,38 +35,37 @@
 				(cond
 					((= (elem _ game_board) 0) (push work _))
 					((< 0 (elem _ game_board) 9) (elem-set _ game_map "r"))))))
-	(redraw-board))
+	(rebuild-board))
 
 (defun-bind clicked-flag (cell)
 	(elem-set cell game_map "b")
-	(redraw-board))
+	(rebuild-board))
 
 (defun-bind right-clicked-button (cell)
 	(elem-set cell game_map "f")
-	(redraw-board)
+	(rebuild-board)
 	(is-game-over))
 
 (defun-bind clicked-value (cell)
 	(elem-set cell game_map "r")
-	(redraw-board))
+	(rebuild-board))
 
 (defun-bind clicked-mine (cell)
 	(elem-set cell game_map "r")
-	(redraw-board))
+	(rebuild-board))
 
 (defun-bind is-game-over (&optional lost)
 	(defq message "")
 	(cond 
 		((not lost)
-			(defq flag_count (length (filter (lambda (_) (eql _ "f")) game_map))
-				button_count (length (filter (lambda (_) (eql _ "b")) game_map))
+			(defq flag_count (length (filter (# (eql %0 "f")) game_map))
+				button_count (length (filter (# (eql %0 "b")) game_map))
 				bomb_count (last difficulty))
 			(when (= (+ flag_count button_count) bomb_count) 
 				(setq message "You Won!")))
 		(t (setq message "You Lost!")))
 	(set status_bar :text message)
-	(view-dirty status_bar)
-	(task-sleep 1000000))
+	(view-dirty status_bar))
 
 (defun-bind colorize (value)
 	(elem value '(argb_black 0x000000ff 0x00006600 0x00ff0000 argb_magenta 
@@ -91,7 +90,7 @@
 	(bind '(x y w h) (apply view-fit (cat (view-get-pos window) (view-pref-size window))))
 	(view-change-dirty window x y w h))
 
-(defun-bind redraw-board ()
+(defun-bind rebuild-board ()
 	(bind '(gw gh nm) difficulty)
 	(view-sub game_grid)
 	(setq game_grid (create-grid))
