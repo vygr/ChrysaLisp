@@ -27,13 +27,15 @@
 	(ui-label status_bar (:text "mouse: 00"))))
 
 (defun-bind clicked-blank (cell)
-	(when (not (eql (elem cell game_map) "r"))
-		(elem-set cell game_map "r")
-		(each-in (elem cell game_adj)
-			(cond
-				((= (elem _ game_board) 0) (clicked-blank _))
-				((< 0 (elem _ game_board) 9) (clicked-value _))
-				(t nil))) (redraw-board)))
+	(defq work (list cell))
+	(while (defq cell (pop work))
+		(when (not (eql (elem cell game_map) "r"))
+			(elem-set cell game_map "r")
+			(each-in (elem cell game_adj)
+				(cond
+					((= (elem _ game_board) 0) (push work _))
+					((< 0 (elem _ game_board) 9) (elem-set _ game_map "r"))))))
+	(redraw-board))
 
 (defun-bind clicked-flag (cell)
 	(elem-set cell game_map "b")
@@ -67,10 +69,8 @@
 	(task-sleep 1000000))
 
 (defun-bind colorize (value)
-	(let ((ink_color nil))
-		(defq ink '(argb_black 0x000000ff 0x00006600 0x00ff0000 argb_magenta 
-		argb_black 0x00700000 argb_grey1 0x0002bbdd argb_black))
-		(first (filter (lambda (_k) (eql _ value)) ink))))
+	(elem value '(argb_black 0x000000ff 0x00006600 0x00ff0000 argb_magenta 
+		argb_black 0x00700000 argb_grey1 0x0002bbdd argb_black)))
 
 (defun-bind board-layout (settings)
 	(bind '(gw gh nm) settings)
