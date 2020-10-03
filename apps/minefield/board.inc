@@ -36,15 +36,14 @@
 			(setq count (inc count)) (push m r))) m)
 
 (defun-bind board-set-mines (m b n s w h)
-	(each (lambda (e) (elem-set e b 9))
-		(mine-list (length b) n s w h)) b)
+	(each (# (elem-set %0 b 9)) (mine-list (length b) n s w h)) b)
 
 (defun-bind board-set-values (a b)
-	(each (lambda (_) (when (/= (elem _ b) 9) (cell-set-value _ a b))) (range 0 (length b))))
+	(each (# (when (/= (elem %0 b) 9) (cell-set-value %0 a b))) (range 0 (length b))))
 
 (defun-bind cell-set-value (c a b)
 	(defq count 0)
-	(each (lambda (_) (when (= (elem _ b) 9) (setq count (inc count)))) (elem c a))
+	(each (# (when (= (elem %0 b) 9) (setq count (inc count)))) (elem c a))
 	(elem-set c b count))
 
 (defmacro-bind each-in (a &rest r)
