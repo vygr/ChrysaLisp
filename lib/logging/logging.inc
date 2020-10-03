@@ -13,16 +13,24 @@
   (byte
     'logmsg+
     'register+
+    'deregister+
     'shutdown+
     'registered+
     'errored+))
 
-(defun-bind log-msg ()
+(structure '+log_message 0
+  (byte
+    'debug+
+    'info+
+    'warning+
+    'critical+))
+
+(defun-bind logger-inst ()
   (defq msg (properties))
   msg)
 
 (defun-bind log-registration (mname configuration)
-  (defq p (setsp! (log-msg)
+  (defq p (setsp! (logger-inst)
     :name     mname
     :reciever (mail-alloc-mbox)))
   (if configuration
@@ -65,15 +73,20 @@
   (logresult lr))
 
 (defun-bind dereg-logger (logger)
-
   (logresult lr))
 
-(defun-bind log-trace (logger msg &rest kvpairs))
-(defun-bind log-debug (logger msg &rest kvpairs))
-(defun-bind log-info (logger msg &rest kvpairs)
-  (mail-send (char +log_event_logmsg+ long_size) (get-logsrvc-mb)))
-(defun-bind log-warning (logger msg &rest kvpairs))
-(defun-bind log-critical (logger msg &rest kvpairs))
+(defun-bind log-send (logger lmsgtype msg)
+  (mail-send
+    (cat
+      (char +log_event_logmsg+ long_size)
+      (char lmsgtype long_size)
+      msg)
+    (get-logsrvc-mb)))
+
+(defun-bind log-debug (logger msg) (log-send logger +log_message_debug+ msg))
+(defun-bind log-info (logger msg) (log-send logger +log_message_info+ msg))
+(defun-bind log-warning (logger msg) (log-send logger +log_message_warning+ msg))
+(defun-bind log-critical (logger msg) (log-send logger +log_message_critical+ msg))
 
 ; (defq mbx (open-child "apps/logger/app.lisp" kn_call_child))
 ; (mail-send (const (char +log_event_close-service+ long_size)) (get-logsrvc-mb))
