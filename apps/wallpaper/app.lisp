@@ -44,6 +44,6 @@
 					(= (get-long msg ev_msg_type) ev_type_gui))
 				;resized GUI
 				(refresh-wallpaper))
-			((and (= (get-long msg ev_msg_type) ev_type_mouse) (= (get-int msg ev_msg_mouse_buttons) 0))
+			((and (= (get-long msg ev_msg_type) ev_type_mouse) (= (get-int msg ev_msg_mouse_buttons) 3))
 				;run launcher
 				(open-child (app-path "launcher") kn_call_open)))))
