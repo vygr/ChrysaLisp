@@ -131,8 +131,7 @@
 (defun-bind main ()
 	(defq started nil game (list) game_board (list) game_adj (list) game_map (list) 
 		first_click t difficulty (list) game_grid nil click_offset 4 game_over nil mouse_down 0)
-	(bind '(w h) (view-pref-size window))
-	(bind '(x y _ _) (view-get-bounds window))
+	(bind '(x y w h) (apply view-locate (view-pref-size window)))
 	(gui-add (view-change window x y w h))
 	(while (cond
 		((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) +event_close+)
