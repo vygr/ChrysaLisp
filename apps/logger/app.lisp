@@ -1,47 +1,71 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; logger - ChrysaLisp Logging Service
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 ;imports
 (import "sys/lisp.inc")
 (import "class/lisp.inc")
 (import "lib/logging/logging.inc")
+(import "lib/hmap/hmap.inc")
+(import "lib/date/date.inc")
 
 ;single instance only
 (when (= (length (mail-enquire +logging_srvc_name+)) 0)
   (mail-declare +logging_srvc_name+ (task-mailbox))
 
-  (structure 'log_msg 0
-    (long 'command)
-    (offset 'data))
+  ; Setup timezone for now
+  (timezone-init "America/New_York")
 
   (defq
     fs  (file-stream "logmsg.log" file_open_write)
-    reg (properties)
+    reg (hmap)
     active t)
 
-  (write fs (str "logsrvc.yaml " (age "logsrvc.yaml") +nl+))
-  (write fs (str "logger/logsrvc.yaml " (age "logger/logsrvc.yaml") +nl+))
-  (write fs (str "apps/logger/logsrvc.yaml " (age "apps/logger/logsrvc.yaml") +nl+))
+  (defun log-write (&rest _)
+    ; (log-write ....) -> stream
+    ; Wrap timestamp and nl to '_' arguments
+    (setq _ (insert (push _ +nl+) 0 (list (str "[" (encode-date (date)) "] "))))
+    (write fs (apply str _))
+    (stream-flush fs))
 
+  (defun-bind deser-inbound (msg)
+    (yaml-xdeser (write (string-stream (cat "")) (slice mail_msg_data -1 msg))))
+
+  ; (log-write "apps/logger/logsrvc.yaml " (age "apps/logger/logsrvc.yaml"))
+
+  (defun-bind register-logger (config)
+    ; (register-logger properties) -> ?
+    (defq hsh (hash config))
+    (log-write "Registering" (getp config :name))
+    (hmap-insert reg hsh config)
+    (setp! config :token hsh t)
+    (mail-send
+      (cat
+        (char +log_event_registered+ long_size)
+        (str (yaml-xser config)))
+      (getp config :reciever)))
+
+  ; Log Service Processing loop
   (while active
     (cond
-      ;close ?
+      ; Shutdown (admin)
       ((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) +log_event_shutdown+)
-        (write fs (str "Shutting down" +nl+ +eof+))
-        (stream-flush fs)
+        (log-write "Shutting down")
         (setq active nil fs nil))
-      ; Registration
+      ; Information request about registrations (admin)
+      ; Registration (client)
       ((= id +log_event_register+)
-       (defq
-         msgs  (slice log_msg_data -1 msg)
-         msgd (yaml-xdeser (write (string-stream (cat "")) msgs)))
-       (write fs (str "Registering " +nl+))
-       (write fs (str "reg-name " (getp msgd :name) +nl+))
-       (write fs (str "reg-recv " (getp msgd :reciever) +nl+))
-       (write fs (str "reg-hash " (hash msgd) +nl+))
-       )
-      ; New logmsg
+       (defq msgd (deser-inbound msg))
+       (register-logger msgd))
+      ; Reconfiguration (client)
+      ; Log Message (client)
       ((= id +log_event_logmsg+)
-        (write fs (str "Logmsg " msg +nl+)))
-      ;otherwise
+        (defq
+          msgd  (deser-inbound msg)
+          mname (getp (hmap-find reg (getp msgd :module)) :name))
+        (log-write mname (getp msgd :message) (slice mail_msg_data -1 msg)))
+      ; Should throw exception
       (t
-        (write fs (str "Unknown " msg +nl+)))))
+        (log-write "Unknown " msg))))
   (mail-forget +logging_srvc_name+ (task-mailbox))
 )

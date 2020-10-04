@@ -15,6 +15,7 @@
         "]" :lste
         " " :space
         ":" :mkey
+        +dblq+ :strng
         "*" :boolean))
 
 (defun set-obj-ctx! (cntxt n)
@@ -56,6 +57,16 @@
     (setq lst (last sst)))
   (join res ""))
 
+(defun-bind eat-strng (sst)
+  (defq
+    res (list)
+    lst (last sst))
+  (while (not (eql lst +dblq+))
+    (push res (pop sst))
+    (setq lst (last sst)))
+  (pop sst)
+  (join res ""))
+
 (defun pull-value (ch sst)
   (defq res (eat-to-space ch sst))
   (when (eql (str-is-ints? res) :true)
@@ -84,6 +95,8 @@
        (add-to-obj! ctx (sym (eat-to-space ch sst))))
       ((:boolean)
        (add-to-obj! ctx (getp deser_boolean (eat-to-space ch sst))))
+      ((:strng)
+       (add-to-obj! ctx (eat-strng sst)))
       ((:char)
        (add-to-obj! ctx (pull-value ch sst)))))
   (getp ctx :root))

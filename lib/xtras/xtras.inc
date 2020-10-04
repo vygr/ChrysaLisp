@@ -10,6 +10,7 @@
 (defq
   +nl+          (char 0x0a)
   +eof+         (char 0x00)
+  +dblq+        (char 0x22)
   +upper_chars+ "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
   +lower_chars+ "abcdefghijklmnopqrstuvwxyz"
   +bin_prefix+  "0bB"
@@ -766,7 +767,7 @@
     ((sym? odata)
      (add-to-context! cntxt (ScalarNode :symbol odata)))
     ((str? odata)
-     (add-to-context! cntxt (ScalarNode :string odata)))
+     (add-to-context! cntxt (ScalarNode :string (cat +dblq+ odata +dblq+))))
     ((num? odata)
      (add-to-context! cntxt (ScalarNode :number odata)))
     (t

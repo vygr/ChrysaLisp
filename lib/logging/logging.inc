@@ -1,6 +1,6 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; logging - Logging Service Formes
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; logging - Logging Service Library for clients
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "lib/xtras/xtras.inc")
 (import "lib/yaml-data/yaml-xchange.lisp")
@@ -9,6 +9,18 @@
   +logging_srvc_name+ "LOG_SERVICE"
   log_mbox_id nil)
 
+; Mail message structure
+; command - See +log_event+
+; data - String block of data (yaml-xser'd)
+(structure 'mail_msg 0
+  (long 'command)
+  (offset 'data))
+
+; (structure 'mail_msg 0
+;   (long 'command)
+;   (offset 'data))
+
+; Events for mail_msg_commands
 (structure '+log_event 0
   (byte
     'logmsg+
@@ -18,19 +30,17 @@
     'registered+
     'errored+))
 
+; Log message types
 (structure '+log_message 0
   (byte
     'debug+
     'info+
     'warning+
+    'error+
     'critical+))
 
-(defun-bind logger-inst ()
-  (defq msg (properties))
-  msg)
-
 (defun-bind log-registration (mname configuration)
-  (defq p (setsp! (logger-inst)
+  (defq p (setsp! (properties)
     :name     mname
     :reciever (mail-alloc-mbox)))
   (if configuration
@@ -56,7 +66,16 @@
 ; Log receipt handler
 (defun-bind logresult (logger)
   ; (logresult properties) -> properties
-  logger)
+  (defq
+    msg   (mail-read (getp logger :reciever))
+    id    (get-long msg mail_msg_command)
+    data  (slice mail_msg_data -1 msg))
+  (cond
+    ; Succesful registration
+    ((= id +log_event_registered+)
+      (pmerge logger (yaml-xdeser (write (string-stream (cat "")) data))))
+    (t
+      (throw "Invalid registration " msg))))
 
 (defun-bind reg-logger (mname &optional configuration)
   ; (logger name [configuration]) -> properties
@@ -79,13 +98,16 @@
   (mail-send
     (cat
       (char +log_event_logmsg+ long_size)
-      (char lmsgtype long_size)
-      msg)
+      (str (yaml-xser (properties
+        :module   (getp logger :token)
+        :msg-type lmsgtype
+        :message  (str msg)))))
     (get-logsrvc-mb)))
 
 (defun-bind log-debug (logger msg) (log-send logger +log_message_debug+ msg))
 (defun-bind log-info (logger msg) (log-send logger +log_message_info+ msg))
 (defun-bind log-warning (logger msg) (log-send logger +log_message_warning+ msg))
+(defun-bind log-error (logger msg) (log-send logger +log_message_error+ msg))
 (defun-bind log-critical (logger msg) (log-send logger +log_message_critical+ msg))
 
 ; (defq mbx (open-child "apps/logger/app.lisp" kn_call_child))
