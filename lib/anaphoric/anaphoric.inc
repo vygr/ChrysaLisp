@@ -31,4 +31,4 @@
 			_ (list 'cond)))
 
 (defmacro-bind aeach (x &rest _)
-	`(each (lambda (it) ~_) x))
+	`(each (lambda (it) ~_) ,x))
