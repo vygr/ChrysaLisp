@@ -23,7 +23,7 @@
 		(<< (n2i (* g (const (i2n 0xff)))) 8)
 		(n2i (* b (const (i2n 0xff))))))
 
-(defun-bind clip_verts (hsw hsh verts)
+(defun-bind clip-verts (hsw hsh verts)
 	;clip and project verts
 	(reduce (lambda (out ((x y z) _ r c))
 		(setq z (+ z (const (i2n (+ (* box_size 2) max_vel)))))
@@ -37,7 +37,7 @@
 				(lighting c z) (lighting (const (vec-i2n 1 1 1)) z)))) out)
 		verts (cap (length verts) (list))))
 
-(defun-bind render_verts (canvas verts)
+(defun-bind render-verts (canvas verts)
 	;render circular verts
 	(each (lambda (((x y z) (sx sy) r c sc))
 		(fpoly canvas c x y (circle r))
@@ -50,9 +50,9 @@
 		(canvas-fill canvas 0)
 		(bind '(sw sh) (view-pref-size canvas))
 		(defq hsw (i2n (>> sw 1)) hsh (i2n (>> sh 1)))
-		(render_verts canvas
-			(sort (lambda (v1 v2) (if (<= (elem -2 (elem 0 v1)) (elem -2 (elem 0 v2))) 1 -1))
-				(clip_verts hsw hsh (elem +dlist_layer1_verts+ dlist))))
+		(render-verts canvas
+			(sort (# (if (<= (elem -2 (elem 0 %0)) (elem -2 (elem 0 %1))) 1 -1))
+				(clip-verts hsw hsh (elem +dlist_layer1_verts+ dlist))))
 		(canvas-swap canvas))
 	(elem-set +dlist_mask+ dlist 0))
 
