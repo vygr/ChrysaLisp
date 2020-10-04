@@ -17,26 +17,31 @@
   (timezone-init "America/New_York")
 
   (defq
-    fs  (file-stream "logmsg.log" file_open_write)
+    fs  (file-stream "logmsg.log" file_open_write_append)
     reg (hmap)
     active t)
 
-  (defun log-write (&rest _)
+  (defun-bind deser-inbound (msg)
+    (yaml-xdeser (write (string-stream (cat "")) (slice mail_msg_data -1 msg))))
+
+  (defun-bind log-write (&rest _)
     ; (log-write ....) -> stream
     ; Wrap timestamp and nl to '_' arguments
     (setq _ (insert (push _ +nl+) 0 (list (str "[" (encode-date (date)) "] "))))
     (write fs (apply str _))
     (stream-flush fs))
 
-  (defun-bind deser-inbound (msg)
-    (yaml-xdeser (write (string-stream (cat "")) (slice mail_msg_data -1 msg))))
-
-  ; (log-write "apps/logger/logsrvc.yaml " (age "apps/logger/logsrvc.yaml"))
+  (defun-bind log-msg-writer (msg)
+    ; (log-msg-writer mail-message) -> stream
+    (defq
+      msgd (deser-inbound msg)
+      cnfg (hmap-find reg (getp msgd :module)))
+    (log-write (str (getp cnfg :name) ":") (getp msgd :message)))
 
   (defun-bind register-logger (config)
     ; (register-logger properties) -> ?
     (defq hsh (hash config))
-    (log-write "Registering" (getp config :name))
+    (log-write "Registering " (getp config :name))
     (hmap-insert reg hsh config)
     (setp! config :token hsh t)
     (mail-send
@@ -55,15 +60,11 @@
       ; Information request about registrations (admin)
       ; Registration (client)
       ((= id +log_event_register+)
-       (defq msgd (deser-inbound msg))
-       (register-logger msgd))
+       (register-logger (deser-inbound msg)))
       ; Reconfiguration (client)
       ; Log Message (client)
       ((= id +log_event_logmsg+)
-        (defq
-          msgd  (deser-inbound msg)
-          mname (getp (hmap-find reg (getp msgd :module)) :name))
-        (log-write mname (getp msgd :message) (slice mail_msg_data -1 msg)))
+        (log-msg-writer msg))
       ; Should throw exception
       (t
         (log-write "Unknown " msg))))

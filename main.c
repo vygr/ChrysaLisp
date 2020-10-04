@@ -31,7 +31,8 @@ enum
 {
 	file_open_read,
 	file_open_write,
-	file_open_readwrite
+	file_open_readwrite,
+	file_open_write_append
 };
 
 char dirbuf[1024];
@@ -133,6 +134,7 @@ long long myopen(const char *path, int mode)
 		return open(path, O_CREAT | O_RDWR | O_BINARY | O_TRUNC, _S_IREAD | _S_IWRITE);
 	}
 	case file_open_readwrite: return open(path, O_CREAT | O_RDWR | O_BINARY);
+	case file_open_write_append: return -1;
 	}
 #else
 	switch (mode)
@@ -147,6 +149,14 @@ long long myopen(const char *path, int mode)
 		return open(path, O_CREAT | O_RDWR | O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
 	}
 	case file_open_readwrite: return open(path, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
+	case file_open_write_append:
+	{
+		int fd;
+		fd = open(path, O_CREAT | O_WRONLY | O_APPEND, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+		if (fd != -1) return fd;
+		rmkdir(path);
+		return open(path, O_CREAT | O_WRONLY | O_APPEND, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+	}
 	}
 #endif
 	return -1;
