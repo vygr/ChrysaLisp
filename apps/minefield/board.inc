@@ -15,7 +15,7 @@
 (defmacro-bind in-bounds (c w h)
 	`(and (< -1 (elem 0 ,c) ,w) (< -1 (elem 1 ,c) ,h)))
 ;need test h or w greater, flip if wrong
-(defun-bind coord-elem (c w h) (bind '(x y) c) (+ x (* y w)))
+(defun-bind coord-elem ((x y) w h) (+ x (* y w)))
 (defun-bind elem-coord (e w h) (list (% e w) (/ e w)))
 
 (defun-bind create-game (w h n s)
@@ -46,12 +46,9 @@
 	(each (# (when (= (elem %0 b) 9) (setq count (inc count)))) (elem c a))
 	(elem-set c b count))
 
-(defmacro-bind each-in (a &rest r)
-	`(each (lambda (_) ~r) ,a))
-
 (defun-bind adjacent-elem (c w h)
 	(defq coords (list))
-	(each-in ord_vals
-		(defq ord_pos (sum-xy c _))
+	(aeach ord_vals
+		(defq ord_pos (sum-xy c it))
 		(when (in-bounds ord_pos w h)
 			(push coords (coord-elem ord_pos w h)))) coords)
