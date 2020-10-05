@@ -29,6 +29,21 @@ corrupted.
 
 ------
 
+Reminder that #ChrysaLisp@matrix.org IRC chat room is available for all. Highly
+recommend the Element open source app for use with this. More often than not
+things get disused there before they make it into the repo and this status doc.
+!
+
+New anaphoric lib `(aeach seq body)` macro from Nuclearfall.
+
+Rework of the `(make)` system to remove all the `make.inc` files ! C++ version
+to follow.
+
+Wonderful new game demo `Minefield` from Nuclearfall. I am so bad at this
+thing....
+
+------
+
 (file-stream path [mode]) now reads a file from the filesystem in buffers of
 4KB, and has no file size limit as a result. Old behavior is retained in the
 new (load-stream path) function which will gulp the entire file into a string

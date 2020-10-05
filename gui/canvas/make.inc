@@ -1,6 +1,0 @@
-(include "gui/canvas/class.vp")
-(include "gui/canvas/fpoly.vp")
-(include "gui/canvas/resize.vp")
-(include "gui/canvas/cpm.vp")
-(include "gui/canvas/tga.vp")
-(include "gui/canvas/lisp.vp")

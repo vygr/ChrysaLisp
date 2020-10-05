@@ -44,12 +44,24 @@
 	(each (lambda (s)
 		(unless (some (# (eql %0 s)) l) (push l s))) sl))
 
-(defun-bind make-imports (_)
-	;create list of immediate dependencies
-	(defq d (list "lib/asm/asm.inc" "class/lisp/boot.inc" _))
-	(each-line (# (when (starts-with "(include" %0)
-			(push d (elem 1 (split %0 (const (cat " ')" (ascii-char 34) (ascii-char 13))))))))
-		(file-stream _)) d)
+(defun-bind make-tree (dir ext)
+	(defq dirs (list) files (list))
+	(each! 0 -1
+		(# (unless (starts-with "." %0)
+			(cond
+				((eql "4" %1) (push dirs (cat dir "/" %0)))
+				((ends-with ext %0) (push files (cat dir "/" %0))))))
+		(unzip (split (pii-dirlist dir) ",") (list (list) (list))))
+	(each (# (setq files (cat files (make-tree %0 ext)))) dirs)
+	files)
+
+(defun-bind all-vp-files ()
+	;filter to only the .vp files
+	(filter (# (not (starts-with "./apps/" %0))) (make-tree "." ".vp")))
+
+(defun-bind all-class-files ()
+	;filter to only the class.inc files
+	(make-tree "." "class.inc"))
 
 (defun-bind make-info (_)
 	;create lists of immediate dependencies and products
@@ -59,26 +71,26 @@
 				(<= 2 (length (defq s (split %0 (const (cat " ')" (ascii-char 34) (ascii-char 13)))))) 4))
 			(setq %0 (elem 0 s))
 			(cond
-				((eql %0 "(def-method")
-					(push p (str (f-path (sym (elem 1 s)) (sym (elem 2 s))))))
 				((eql %0 "(include")
 					(push d (elem 1 s)))
+				((eql %0 "(def-method")
+					(push p (f-path (sym (elem 1 s)) (sym (elem 2 s)))))
 				((eql %0 "(gen-vtable")
-					(push p (str (f-path (sym (elem 1 s)) :vtable))))
+					(push p (f-path (sym (elem 1 s)) :vtable)))
 				((eql %0 "(gen-create")
-					(push p (str (f-path (sym (elem 1 s))
-						(if (> (length s) 2) (sym (cat :create_ (sym (elem 2 s)))) :create)))))
+					(push p (f-path (sym (elem 1 s))
+						(if (> (length s) 2) (sym (cat :create_ (sym (elem 2 s)))) :create))))
 				((eql %0 "(def-func")
-					(push p (elem 1 s)))))) (file-stream _))
+					(push p (sym (elem 1 s))))))) (file-stream _))
 	(list d p))
 
 (defun-bind func-obj (_)
-	(cat "obj/" *cpu* "/" *abi* "/" _))
+	(sym (cat "obj/" *cpu* "/" *abi* "/" _)))
 
-(defun-bind make (&optional root *abi* *cpu*)
-	(setd root "make.inc" *abi* (abi) *cpu* (cpu))
+(defun-bind make (&optional files *abi* *cpu*)
+	(setd files (all-vp-files) *abi* (abi) *cpu* (cpu))
 	(compile ((lambda ()
-		(defq *imports* (list root) *ages* (env -31) *deps* (env -31))
+		(defq *imports* files *ages* (env -31) *deps* (env -31))
 		(defun-bind file-age (_)
 			;modification time of a file, cached
 			(or (get (setq _ (sym _)) *ages*) (def *ages* _ (age _))))
@@ -87,17 +99,17 @@
 			(include "sys/func.inc")
 			(each include (all-class-files))
 			(each-mergeable (#
-				(defq i (make-info %0))
-				(bind '(d p) i)
+				(bind '(d p) (make-info %0))
 				(make-merge *imports* d)
-				(elem-set 1 i (map func-obj p))
-				(def *deps* (sym %0) i)) *imports*)))
+				(setq p (map func-obj p))
+				(def *deps* (sym %0) (list d p))) *imports*)))
 		;filter to only the .vp files
 		(setq *imports* (filter (# (ends-with ".vp" %0)) *imports*))
 		;filter to only the files who's oldest product is older than any dependency
 		(setq *imports* (filter (#
-			(defq d (eval (sym %0) *deps*) p (reduce min (map file-age (elem 1 d))) d (elem 0 d))
-			(each-mergeable (# (make-merge d (elem 0 (eval %0 *deps*)))) d)
+			(bind '(d p) (get (sym %0) *deps*))
+			(setq p (reduce min (map file-age p)))
+			(each-mergeable (# (make-merge d (elem 0 (get (sym %0) *deps*)))) d)
 			(some (# (>= %0 p)) (map file-age d))) *imports*))
 		;return the list to compile
 		*imports*)) *abi* *cpu*))
@@ -171,27 +183,15 @@
 			(defq *prods* (list))
 			;lists of all file imports and products
 			(each-mergeable (# (make-merge *prods* (bind '(d %0) (make-info %0))) (make-merge _l d))
-				(list "make.inc")) *prods*)) *abi* *cpu*))
-
-(defun-bind all-vp-files ()
-	;filter to only the .vp files
-	(filter (# (ends-with ".vp" %0))
-		;the list of all file imports
-		(each-mergeable (# (make-merge _l (make-imports %0))) (list "make.inc"))))
-
-(defun-bind all-class-files ()
-	;filter to only the class.inc files
-	(filter (# (ends-with "class.inc" %0))
-		;the list of all file imports
-		(each-mergeable (# (make-merge _l (make-imports %0))) (list "make.inc"))))
+				(all-vp-files)) *prods*)) *abi* *cpu*))
 
 (defun-bind make-all (&optional *abi* *cpu* files)
 	(setd *abi* (abi) *cpu* (cpu))
 	(compile (opt files (all-vp-files)) *abi* *cpu*))
 
-(defun-bind remake (&optional *abi* *cpu*)
+(defun-bind remake (&optional *abi* *cpu* files)
 	(setd *abi* (abi) *cpu* (cpu))
-	(make "make.inc" *abi* *cpu*)
+	(make files *abi* *cpu*)
 	(make-boot-all *abi* *cpu*))
 
 (defun-bind remake-all (&optional *abi* *cpu* files)
@@ -204,9 +204,10 @@
 ;;;;;;;;;;;;;;;;;;;;;
 
 (defun-bind make-platforms ()
-	(make "make.inc" 'AMD64 'x86_64)
-	(make "make.inc" 'WIN64 'x86_64)
-	(make "make.inc" 'ARM64 'aarch64))
+	(defq files (all-vp-files))
+	(make files 'AMD64 'x86_64)
+	(make files 'WIN64 'x86_64)
+	(make files 'ARM64 'aarch64))
 
 (defun-bind make-all-platforms ()
 	(defq files (all-vp-files))
@@ -215,9 +216,10 @@
 	(make-all 'ARM64 'aarch64 files))
 
 (defun-bind remake-platforms ()
-	(remake 'AMD64 'x86_64)
-	(remake 'WIN64 'x86_64)
-	(remake 'ARM64 'aarch64))
+	(defq files (all-vp-files))
+	(remake 'AMD64 'x86_64 files)
+	(remake 'WIN64 'x86_64 files)
+	(remake 'ARM64 'aarch64 files))
 
 (defun-bind remake-all-platforms ()
 	(defq files (all-vp-files))

@@ -31,4 +31,5 @@
 			_ (list 'cond)))
 
 (defmacro-bind aeach (x &rest _)
+	;(aeach seq body)
 	`(each (lambda (it) ~_) ,x))
