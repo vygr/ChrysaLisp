@@ -80,6 +80,10 @@
 
 (acond (tst body) ...)
 
+## aeach
+
+(aeach seq body)
+
 ## age
 
 (age path)
