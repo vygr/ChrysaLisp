@@ -6,17 +6,6 @@
 (defmacro sfind (ss slst)
 	`(some (# (if (eql ,ss %0) _)) ,slst))
 
-(defun-bind make-tree (dir ext)
-	(defq dirs (list) files (list))
-	(each! 0 -1
-		(# (unless (starts-with "." %0)
-			(cond
-				((eql "4" %1) (push dirs (cat dir "/" %0)))
-				((ends-with ext %0) (push files (cat dir "/" %0))))))
-		(unzip (split (pii-dirlist dir) ",") (list (list) (list))))
-	(each (# (setq files (cat files (make-tree %0 ext)))) dirs)
-	files)
-
 (defun-bind make-syms ()
 	(defq *abi* (abi) *cpu* (cpu))
 	(print "Scanning source files...")
@@ -62,7 +51,7 @@
             (setq _ (slice 0 e _))
             (slice (inc (find-rev (char 0x22) _)) -1 _)))
     (print "Scanning source files...")
-    (defq *imports* (list "make.inc") classes (list) functions (list) docs (list) syntax (list) state :x)
+    (defq *imports* (all-vp-files) classes (list) functions (list) docs (list) syntax (list) state :x)
     (within-compile-env (lambda ()
         (include "sys/func.inc")
         (each include (all-class-files))
