@@ -29,9 +29,14 @@ corrupted.
 
 ------
 
+Reminder that #ChrysaLisp@matrix.org IRC chat room is available for all. Highly
+recommend the Element open source app for use with this. More often than not
+things get disused there before they make it into the repo and this status doc.
+!
+
 New anaphoric lib `(aeach seq body)` macro from Nuclearfall.
 
-Rework of the `(make)` system to remove all the `make.inc` file ! C++ version
+Rework of the `(make)` system to remove all the `make.inc` files ! C++ version
 to follow.
 
 Wonderful new game demo `Minefield` from Nuclearfall. I am so bad at this
