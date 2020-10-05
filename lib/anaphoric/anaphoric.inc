@@ -29,3 +29,6 @@
 	(reduce (lambda (x _)
 		(push x `((defq ,(defq _x (gensym)) ,(elem 0 _)) (let ((it ,_x)) ~(slice 1 -1 _)))))
 			_ (list 'cond)))
+
+(defmacro-bind aeach (x &rest _)
+	`(each (lambda (it) ~_) ,x))
