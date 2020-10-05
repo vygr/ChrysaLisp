@@ -16,15 +16,13 @@
 #
 
 ---
-configuration:
 
+configuration:
   formatters:
     standard:
-      format: "%time% - %name% - [%level%] %message%"
-
+      format: "time$ - $name$- [$level$] $message$"
   handlers:
     console:
       level: INFO,
       formatter: standard
-
 ...

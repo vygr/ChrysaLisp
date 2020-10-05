@@ -8,6 +8,7 @@
 (import "lib/logging/logging.inc")
 (import "lib/hmap/hmap.inc")
 (import "lib/date/date.inc")
+(import "lib/yaml-data/yaml-data.lisp")
 
 ;single instance only
 (when (= (length (mail-enquire +logging_srvc_name+)) 0)
@@ -18,7 +19,7 @@
 
   ; Setup general purpose information
   (defq
-    fs  (file-stream "logmsg.log" file_open_write_append)
+    fs  (file-stream "./logs/logservice.log" file_open_write_append)
     reg (hmap)
     lup (hmap)
     active t)
