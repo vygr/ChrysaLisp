@@ -29,6 +29,16 @@ corrupted.
 
 ------
 
+New anaphoric lib `(aeach seq body)` macro from Nuclearfall.
+
+Rework of the `(make)` system to remove all the `make.inc` file ! C++ version
+to follow.
+
+Wonderful new game demo `Minefield` from Nuclearfall. I am so bad at this
+thing....
+
+------
+
 (file-stream path [mode]) now reads a file from the filesystem in buffers of
 4KB, and has no file size limit as a result. Old behavior is retained in the
 new (load-stream path) function which will gulp the entire file into a string
