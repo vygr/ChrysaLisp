@@ -42,6 +42,8 @@ to follow.
 Wonderful new game demo `Minefield` from Nuclearfall. I am so bad at this
 thing....
 
+C++ version now up to date with new (make) system.
+
 ------
 
 (file-stream path [mode]) now reads a file from the filesystem in buffers of
