@@ -73,6 +73,8 @@
 			(cond
 				((eql %0 "(include")
 					(push d (elem 1 s)))
+				((eql %0 "(import")
+					(push d (elem 1 s)))
 				((eql %0 "(def-method")
 					(push p (f-path (sym (elem 1 s)) (sym (elem 2 s)))))
 				((eql %0 "(gen-vtable")
@@ -90,7 +92,7 @@
 (defun-bind make (&optional files *abi* *cpu*)
 	(setd files (all-vp-files) *abi* (abi) *cpu* (cpu))
 	(compile ((lambda ()
-		(defq *imports* files *ages* (env -31) *deps* (env -31))
+		(defq *imports* files *ages* (env -31) *info* (env -31))
 		(defun-bind file-age (_)
 			;modification time of a file, cached
 			(or (get (setq _ (sym _)) *ages*) (def *ages* _ (age _))))
@@ -101,15 +103,14 @@
 			(each-mergeable (#
 				(bind '(d p) (make-info %0))
 				(make-merge *imports* d)
-				(setq p (map func-obj p))
-				(def *deps* (sym %0) (list d p))) *imports*)))
+				(def *info* (sym %0) (list d (map func-obj p)))) *imports*)))
 		;filter to only the .vp files
 		(setq *imports* (filter (# (ends-with ".vp" %0)) *imports*))
 		;filter to only the files who's oldest product is older than any dependency
 		(setq *imports* (filter (#
-			(bind '(d p) (get (sym %0) *deps*))
+			(bind '(d p) (get (sym %0) *info*))
 			(setq p (reduce min (map file-age p)))
-			(each-mergeable (# (make-merge d (elem 0 (get (sym %0) *deps*)))) d)
+			(each-mergeable (# (make-merge d (elem 0 (get (sym %0) *info*)))) d)
 			(some (# (>= %0 p)) (map file-age d))) *imports*))
 		;return the list to compile
 		*imports*)) *abi* *cpu*))

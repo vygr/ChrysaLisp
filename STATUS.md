@@ -31,8 +31,8 @@ corrupted.
 
 Reminder that #ChrysaLisp@matrix.org IRC chat room is available for all. Highly
 recommend the Element open source app for use with this. More often than not
-things get disused there before they make it into the repo and this status doc.
-!
+things get discussed there before they make it into the repo and this status
+doc. !
 
 New anaphoric lib `(aeach seq body)` macro from Nuclearfall.
 
