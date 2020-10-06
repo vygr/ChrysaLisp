@@ -66,23 +66,22 @@
 (defun-bind make-info (_)
 	;create lists of immediate dependencies and products
 	(defq d (list "lib/asm/asm.inc" "class/lisp/boot.inc" _) p (list))
-	(each-line (#
-		(when (and (>= (length %0) 10) (eql "(" (elem 0 %0))
-				(<= 2 (length (defq s (split %0 (const (cat " ')" (ascii-char 34) (ascii-char 13)))))) 4))
-			(setq %0 (elem 0 s))
+	(each-line (lambda (_)
+		(when (and (> (length _) 10) (eql "(" (elem 0 _))
+				(<= 2 (length (defq s (split _ (const (cat " ')" (ascii-char 34) (ascii-char 13)))))) 4))
 			(cond
-				((eql %0 "(include")
+				((eql (setq _ (elem 0 s)) "(include")
 					(push d (elem 1 s)))
-				((eql %0 "(import")
+				((eql _ "(import")
 					(push d (elem 1 s)))
-				((eql %0 "(def-method")
+				((eql _ "(def-method")
 					(push p (f-path (sym (elem 1 s)) (sym (elem 2 s)))))
-				((eql %0 "(gen-vtable")
+				((eql _ "(gen-vtable")
 					(push p (f-path (sym (elem 1 s)) :vtable)))
-				((eql %0 "(gen-create")
+				((eql _ "(gen-create")
 					(push p (f-path (sym (elem 1 s))
-						(if (> (length s) 2) (sym (cat :create_ (sym (elem 2 s)))) :create))))
-				((eql %0 "(def-func")
+						(if (> (length s) 2) (sym (cat :create_ (elem 2 s))) :create))))
+				((eql _ "(def-func")
 					(push p (sym (elem 1 s))))))) (file-stream _))
 	(list d p))
 
@@ -92,28 +91,28 @@
 (defun-bind make (&optional files *abi* *cpu*)
 	(setd files (all-vp-files) *abi* (abi) *cpu* (cpu))
 	(compile ((lambda ()
-		(defq *imports* files *ages* (env -31) *info* (env -31))
+		(defq ages (env -31) info (env -31))
 		(defun-bind file-age (_)
 			;modification time of a file, cached
-			(or (get (setq _ (sym _)) *ages*) (def *ages* _ (age _))))
+			(or (get (setq _ (sym _)) ages) (def ages _ (age _))))
 		;list of all file imports while defining dependencies and products
 		(within-compile-env (lambda ()
 			(include "sys/func.inc")
 			(each include (all-class-files))
 			(each-mergeable (#
 				(bind '(d p) (make-info %0))
-				(make-merge *imports* d)
-				(def *info* (sym %0) (list d (map func-obj p)))) *imports*)))
+				(make-merge files d)
+				(def info (sym %0) (list d (map func-obj p)))) files)))
 		;filter to only the .vp files
-		(setq *imports* (filter (# (ends-with ".vp" %0)) *imports*))
+		(setq files (filter (# (ends-with ".vp" %0)) files))
 		;filter to only the files who's oldest product is older than any dependency
-		(setq *imports* (filter (#
-			(bind '(d p) (get (sym %0) *info*))
+		(setq files (filter (#
+			(bind '(d p) (get (sym %0) info))
 			(setq p (reduce min (map file-age p)))
-			(each-mergeable (# (make-merge d (elem 0 (get (sym %0) *info*)))) d)
-			(some (# (>= %0 p)) (map file-age d))) *imports*))
+			(each-mergeable (# (make-merge d (elem 0 (get (sym %0) info)))) d)
+			(some (# (>= %0 p)) (map file-age d))) files))
 		;return the list to compile
-		*imports*)) *abi* *cpu*))
+		files)) *abi* *cpu*))
 
 (defun-bind make-boot (&optional r *funcs* *abi* *cpu*)
 	(within-compile-env (lambda ()
@@ -249,6 +248,5 @@
 
 (defun-bind compile-test (&optional *abi* *cpu*)
 	(setd *abi* (abi) *cpu* (cpu))
-	(each (lambda (_)
-		(compile _ *abi* *cpu*)) (defq f (all-vp-files)))
+	(each (# (compile %0 *abi* *cpu*)) (defq f (all-vp-files)))
 	(compile f *abi* *cpu* 1))
