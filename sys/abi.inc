@@ -70,7 +70,7 @@
 (defcmacro abi-arg (_) (elem _ (abi-args 6)))
 
 (def-enum 'file_open)
-	(enum 'read 'write 'readwrite)
+	(enum 'read 'write 'append)
 (def-enum-end)
 
 (def-enum 'mmap)

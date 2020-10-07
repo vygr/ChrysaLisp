@@ -31,7 +31,7 @@ enum
 {
 	file_open_read,
 	file_open_write,
-	file_open_readwrite
+	file_open_append
 };
 
 char dirbuf[1024];
@@ -120,19 +120,34 @@ static void rmkdir(const char *path)
 
 long long myopen(const char *path, int mode)
 {
+	int fd;
 #ifdef _WIN64
 	switch (mode)
 	{
 	case file_open_read: return open(path, O_RDONLY | O_BINARY);
 	case file_open_write:
 	{
-		int fd;
 		fd = open(path, O_CREAT | O_RDWR | O_BINARY | O_TRUNC, _S_IREAD | _S_IWRITE);
 		if (fd != -1) return fd;
 		rmkdir(path);
 		return open(path, O_CREAT | O_RDWR | O_BINARY | O_TRUNC, _S_IREAD | _S_IWRITE);
 	}
-	case file_open_readwrite: return open(path, O_CREAT | O_RDWR | O_BINARY);
+	case file_open_append:
+	{
+		fd = open(path, O_CREAT | O_RDWR | O_BINARY, _S_IREAD | _S_IWRITE);
+		if (fd != -1)
+		{
+			lseek(fd, 0, SEEK_END);
+			return fd;
+		}
+		else
+		{
+			rmkdir(path);
+			fd = open(path, O_CREAT | O_RDWR | O_BINARY, _S_IREAD | _S_IWRITE);
+			if (fd != -1) return fd;
+			lseek(fd, 0, SEEK_END);
+		}
+		return fd;
 	}
 #else
 	switch (mode)
@@ -140,13 +155,28 @@ long long myopen(const char *path, int mode)
 	case file_open_read: return open(path, O_RDONLY, 0);
 	case file_open_write:
 	{
-		int fd;
 		fd = open(path, O_CREAT | O_RDWR | O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
 		if (fd != -1) return fd;
 		rmkdir(path);
 		return open(path, O_CREAT | O_RDWR | O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
 	}
-	case file_open_readwrite: return open(path, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
+	case file_open_append:
+	{
+		fd = open(path, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+		if (fd != -1)
+		{
+			lseek(fd, 0, SEEK_END);
+			return fd;
+		}
+		else
+		{
+			rmkdir(path);
+			fd = open(path, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+			if (fd != -1) return fd;
+			lseek(fd, 0, SEEK_END);
+		}
+		return fd;
+	}
 	}
 #endif
 	return -1;
