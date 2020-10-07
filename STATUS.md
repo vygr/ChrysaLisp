@@ -44,6 +44,9 @@ thing....
 
 C++ version now up to date with new (make) system.
 
+(file-stream path file_open_append) mode now available. Make sure to 'make' the
+main.c for the host support.
+
 ------
 
 (file-stream path [mode]) now reads a file from the filesystem in buffers of
