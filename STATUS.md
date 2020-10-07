@@ -47,6 +47,11 @@ C++ version now up to date with new (make) system.
 (file-stream path file_open_append) mode now available. Make sure to 'make' the
 main.c for the host support.
 
+New snapshot.zip bringing the Windows version up to date and providing a new
+prebuilt main.exe for folks that want to try the Windows version. Many thanks
+to Martyn Bliss aka BananaEarwig for the new build. This should fix the GUI
+issue on Windows as well as bring the new (file-stream) open options.
+
 ------
 
 (file-stream path [mode]) now reads a file from the filesystem in buffers of
