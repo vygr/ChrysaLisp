@@ -149,6 +149,7 @@ long long myopen(const char *path, int mode)
 		}
 		return fd;
 	}
+	}
 #else
 	switch (mode)
 	{
