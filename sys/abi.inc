@@ -9,8 +9,8 @@
 		(case *cpu*
 			(x86_64
 				(defmacro abi-trashed () ''(r1 r2 r5 r6 r7 r8 r9 r10))
-				(defcmacro abi-args (&optional _ o) (setd _ 6 o 0) `',(slice o (+ o _) '(r6 r5 r2 r1 r7 r8 r0 r3 r4)))
-				(defcfun emit-call-abi (r b c &rest x)
+				(defmacro abi-args (&optional _ o) (setd _ 6 o 0) `',(slice o (+ o _) '(r6 r5 r2 r1 r7 r8 r0 r3 r4)))
+				(defun emit-call-abi (r b c &rest x)
 					(cond
 						((= *func_align* 16)
 							(apply emit-push x)
@@ -28,8 +28,8 @@
 		(case *cpu*
 			(aarch64
 				(defmacro abi-trashed () ''(r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14))
-				(defcmacro abi-args (&optional _ o) (setd _ 8 o 0) `',(slice o (+ o _) '(r0 r1 r2 r3 r4 r5 r6 r7 r8)))
-				(defcfun emit-call-abi (r b c &rest x)
+				(defmacro abi-args (&optional _ o) (setd _ 8 o 0) `',(slice o (+ o _) '(r0 r1 r2 r3 r4 r5 r6 r7 r8)))
+				(defun emit-call-abi (r b c &rest x)
 					(setq x (cat '(r30) x))
 					(apply emit-push x)
 					(emit-cpy-ir b c r29)
@@ -47,8 +47,8 @@
 		(case *cpu*
 			(x86_64
 				(defmacro abi-trashed () ''(r1 r2 r7 r8 r9 r10))
-				(defcmacro abi-args (&optional _ o) (setd _ 4 o 0) `',(slice o (+ o _) '(r1 r2 r7 r8 r0 r3 r4 r5 r6)))
-				(defcfun emit-call-abi (r b c &rest x)
+				(defmacro abi-args (&optional _ o) (setd _ 4 o 0) `',(slice o (+ o _) '(r1 r2 r7 r8 r0 r3 r4 r5 r6)))
+				(defun emit-call-abi (r b c &rest x)
 					(cond
 						((= *func_align* 16)
 							(apply emit-push x)
@@ -65,9 +65,9 @@
 			(t (throw "Unknown CPU for WIN64 !" *cpu*))))
 	(t (throw "Unknown ABI !" *abi*)))
 
-(defcmacro abi-push-trashed (&rest b) (merge-obj b (abi-trashed)) `(vp-push ~b))
-(defcmacro abi-pop-trashed (&rest b) (merge-obj b (abi-trashed)) `(vp-pop ~b))
-(defcmacro abi-arg (_) (elem _ (abi-args 6)))
+(defmacro abi-push-trashed (&rest b) (merge-obj b (abi-trashed)) `(vp-push ~b))
+(defmacro abi-pop-trashed (&rest b) (merge-obj b (abi-trashed)) `(vp-pop ~b))
+(defmacro abi-arg (_) (elem _ (abi-args 6)))
 
 (def-enum 'file_open)
 	(enum 'read 'write 'append)

@@ -359,10 +359,6 @@ remake-platforms
 
 ```lisp
 defcvar
-defcfun
-defcmacro
-defcfun-bind
-defcmacro-bind
 undefc
 ```
 

@@ -3,7 +3,7 @@
 (def-class 'sys_list)
 (dec-method :init 'sys/list/init :static '(r0))
 
-(defcfun sys/list/init ()
+(defun sys/list/init ()
 	;inputs
 	;r0 = list header (ptr)
 	(lh-init r0 r1))
@@ -28,7 +28,7 @@
 ; list node macros
 ;;;;;;;;;;;;;;;;;;
 
-(defcfun ln-get-forward (_1 _2)
+(defun ln-get-forward (_1 _2)
 	;inputs
 	;_1 = list node
 	;_2 = temp
@@ -42,7 +42,7 @@
 		(vp-cpy-ir _1 (neg lh_list_tail) _1)
 	(endif))
 
-(defcfun ln-get-backward (_1 _2)
+(defun ln-get-backward (_1 _2)
 	;inputs
 	;_1 = list node
 	;_2 = temp
@@ -56,7 +56,7 @@
 		(ln-get-tail _1 _1)
 	(endif))
 
-(defcfun ln-set-succ (_1 _2 _3)
+(defun ln-set-succ (_1 _2 _3)
 	;inputs
 	;_1 = list node
 	;_2 = offset
@@ -67,7 +67,7 @@
 
 	(vp-cpy-ri _3 _1 (+ ln_node_succ _2)))
 
-(defcfun ln-set-pred (_1 _2 _3)
+(defun ln-set-pred (_1 _2 _3)
 	;inputs
 	;_1 = list node
 	;_2 = offset
@@ -78,7 +78,7 @@
 
 	(vp-cpy-ri _3 _1 (+ ln_node_pred _2)))
 
-(defcfun ln-get-succ (_1 _2 _3)
+(defun ln-get-succ (_1 _2 _3)
 	;inputs
 	;_1 = list node
 	;_2 = offset
@@ -89,7 +89,7 @@
 
 	(vp-cpy-ir _1 (+ ln_node_succ _2) _3))
 
-(defcfun ln-get-pred (_1 _2 _3)
+(defun ln-get-pred (_1 _2 _3)
 	;inputs
 	;_1 = list node
 	;_2 = offset
@@ -100,7 +100,7 @@
 
 	(vp-cpy-ir _1 (+ ln_node_pred _2) _3))
 
-(defcfun ln-add-node-after (_1 _2 _3)
+(defun ln-add-node-after (_1 _2 _3)
 	;inputs
 	;_1 = list node1
 	;_2 = list node2
@@ -116,7 +116,7 @@
 	(ln-set-succ _2 0 _3)
 	(ln-set-pred _2 0 _1))
 
-(defcfun ln-add-node-before (_1 _2 _3)
+(defun ln-add-node-before (_1 _2 _3)
 	;inputs
 	;_1 = list node1
 	;_2 = list node2
@@ -132,7 +132,7 @@
 	(ln-set-succ _3 0 _2)
 	(ln-set-pred _1 0 _2))
 
-(defcfun ln-remove-node (_1 _2)
+(defun ln-remove-node (_1 _2)
 	;inputs
 	;_1 = list node
 	;_2 = temp
@@ -145,7 +145,7 @@
 	(ln-set-pred _2 0 _1)
 	(ln-set-succ _1 0 _2))
 
-(defcfun ln-replace-node (_1 _2 _3)
+(defun ln-replace-node (_1 _2 _3)
 	;inputs
 	;_1 = list node
 	;_2 = new list node
@@ -161,7 +161,7 @@
 	(ln-set-pred _2 0 _3)
 	(ln-set-succ _3 0 _2))
 
-(defcfun ln-is-first (_1 _2 _3)
+(defun ln-is-first (_1 _2 _3)
 	;inputs
 	;_1 = list node
 	;_2 = offset
@@ -173,7 +173,7 @@
 	(ln-get-pred _1 _2 _3)
 	(ln-get-pred _3 0 _3))
 
-(defcfun ln-is-last (_1 _2 _3)
+(defun ln-is-last (_1 _2 _3)
 	;inputs
 	;_1 = list node
 	;_2 = offset
@@ -189,12 +189,12 @@
 ; list header macros
 ;;;;;;;;;;;;;;;;;;;;
 
-(defcfun lh-list-object (l)
+(defun lh-list-object (l)
 	(vp-align ptr_size)
 (vp-label l)
 	(times lh_list_size (vp-byte 0)))
 
-(defcfun lh-init (_1 _2)
+(defun lh-init (_1 _2)
 	;inputs
 	;_1 = list head
 	;_2 = temp
@@ -208,7 +208,7 @@
 	(vp-lea-i _1 lh_list_tail _2)
 	(lh-set-head _1 0 _2))
 
-(defcfun lh-set-head (_1 _2 _3)
+(defun lh-set-head (_1 _2 _3)
 	;inputs
 	;_1 = list head
 	;_2 = offset
@@ -219,7 +219,7 @@
 
 	(vp-cpy-ri _3 _1 (+ lh_list_head _2)))
 
-(defcfun lh-set-tail (_1 _2 _3)
+(defun lh-set-tail (_1 _2 _3)
 	;inputs
 	;_1 = list head
 	;_2 = offset
@@ -230,7 +230,7 @@
 
 	(vp-cpy-ri _3 _1 (+ lh_list_tailpred _2)))
 
-(defcfun lh-get-head (_1 _2 _3)
+(defun lh-get-head (_1 _2 _3)
 	;inputs
 	;_1 = list head
 	;_2 = offset
@@ -241,7 +241,7 @@
 
 	(vp-cpy-ir _1 (+ lh_list_head _2) _3))
 
-(defcfun lh-get-tail (_1 _2 _3)
+(defun lh-get-tail (_1 _2 _3)
 	;inputs
 	;_1 = list head
 	;_2 = offset
@@ -252,7 +252,7 @@
 
 	(vp-cpy-ir _1 (+ lh_list_tailpred _2) _3))
 
-(defcfun lh-add-at-head (_1 _2 _3)
+(defun lh-add-at-head (_1 _2 _3)
 	;inputs
 	;_1 = list head
 	;_2 = list node
@@ -264,7 +264,7 @@
 
 	(ln-add-node-after _1 _2 _3))
 
-(defcfun lh-add-at-tail (_1 _2 _3)
+(defun lh-add-at-tail (_1 _2 _3)
 	;inputs
 	;_1 = list head
 	;_2 = list node
@@ -278,7 +278,7 @@
 	(ln-add-node-before _1 _2 _3)
 	(vp-lea-i _1 (neg lh_list_tail) _1))
 
-(defcfun lh-remove-head (_1 _2 _3)
+(defun lh-remove-head (_1 _2 _3)
 	;inputs
 	;_1 = list head
 	;_2 = temp
@@ -299,7 +299,7 @@
 		(ln-remove-node _1 _3)
 	(endif))
 
-(defcfun lh-remove-tail (_1 _2 _3)
+(defun lh-remove-tail (_1 _2 _3)
 	;inputs
 	;_1 = list head
 	;_2 = temp
@@ -320,7 +320,7 @@
 		(ln-remove-node _1 _3)
 	(endif))
 
-(defcfun lh-is-empty (_1 _2 _3)
+(defun lh-is-empty (_1 _2 _3)
 	;inputs
 	;_1 = list head
 	;_2 = offset
@@ -336,7 +336,7 @@
 ; list loop macros
 ;;;;;;;;;;;;;;;;;;
 
-(defcfun loop-list-forward (_1 _2 _3 _4 &optional _5)
+(defun loop-list-forward (_1 _2 _3 _4 &optional _5)
 	;inputs
 	;_1 = list head
 	;_2 = offset
@@ -353,7 +353,7 @@
 		(ln-get-succ _4 0 _4)
 		(breakif `(,_4 = 0)))
 
-(defcfun loop-list-backward (_1 _2 _3 _4 &optional _5)
+(defun loop-list-backward (_1 _2 _3 _4 &optional _5)
 	;inputs
 	;_1 = list head
 	;_2 = offset
@@ -370,7 +370,7 @@
 		(ln-get-pred _4 0 _4)
 		(breakif `(,_4 = 0)))
 
-(defcfun loop-flist (_1 _2 _3 _4 &optional _5)
+(defun loop-flist (_1 _2 _3 _4 &optional _5)
 	;inputs
 	;_1 = list head
 	;_2 = offset
@@ -389,7 +389,7 @@
 ; forward list macros
 ;;;;;;;;;;;;;;;;;;;;;
 
-(defcfun ln-next-fnode (_1 _2)
+(defun ln-next-fnode (_1 _2)
 	;inputs
 	;_1 = node
 	;_2 = last
@@ -400,7 +400,7 @@
 	(vp-cpy-ir _1 ln_fnode_next _1)
 	(breakif `(,_1 = 0)))
 
-(defcfun ln-remove-fnode (_1 _2)
+(defun ln-remove-fnode (_1 _2)
 	;inputs
 	;_1 = node
 	;_2 = last
@@ -413,7 +413,7 @@
 	(vp-cpy-ri _1 _2 ln_fnode_next)
 	(vp-cpy-rr _2 _1))
 
-(defcfun ln-add-fnode (_1 _2 _3 _4)
+(defun ln-add-fnode (_1 _2 _3 _4)
 	;inputs
 	;_1 = list
 	;_2 = offset

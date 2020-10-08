@@ -56,6 +56,11 @@ Removed (def:) macro as this is now redundant since the keyword symbols addition
 
 Corrected (#) macro after testing with pre-binding turned off.
 
+Enabled (pii-remove) now we have Windows support care of Martyn Bliss.
+
+Removed (defcfun) (defcfun-bind) (defcmacro) (defcmacro-bind) from the compiler
+environment. (include) now imports into the `*compile_env*` directly.
+
 ------
 
 (file-stream path [mode]) now reads a file from the filesystem in buffers of

@@ -30,7 +30,7 @@
 ; inline methods
 ;;;;;;;;;;;;;;;;
 
-(defcfun sys/heap/free ()
+(defun sys/heap/free ()
 	;inputs
 	;r0 = heap (ptr)
 	;r1 = cell (ptr)
@@ -45,7 +45,7 @@
 ; heap macros
 ;;;;;;;;;;;;;
 
-(defcfun hp-freecell (_1 _2 _3)
+(defun hp-freecell (_1 _2 _3)
 	;inputs
 	;_1 = heap (ptr)
 	;_2 = cell (ptr)

@@ -5,11 +5,11 @@
 (defmacro-bind emit (&rest _)
 	`(push *emit_buffer* ~_))
 
-(defcfun-bind emit-reset ()
+(defun-bind emit-reset ()
 	(defcvar '*emit_buffer* (push (clear '()) progn) '*distance* (clear '())
 		'*out_buffer* "" '*old_out_buffer* ""))
 
-(defcfun-bind emit-passes ()
+(defun-bind emit-passes ()
 	(defcvar '*pass* 0 '*pc* 0 '*out_stream* (string-stream *out_buffer*))
 	(defq b nil)
 	(eval (prebind *emit_buffer*) *compile_env*)
@@ -19,33 +19,33 @@
 		(eval *emit_buffer* *compile_env*)
 		(setq *out_buffer* (str *out_stream*) *pass* (inc *pass*))))
 
-(defcfun print-emit (_)
+(defun print-emit (_)
 	(and (lst? _) (not (eql (elem 0 _) 'lambda)) (print _)))
 
-(defcfun-bind emit-label (_)
+(defun-bind emit-label (_)
 	(set (env) _ *pc*))
 
-(defcfun-bind emit-byte (&rest _)
+(defun-bind emit-byte (&rest _)
 	(write-char *out_stream* _ 1)
 	(setq *pc* (+ *pc* (length _))))
 
-(defcfun-bind emit-short (&rest _)
+(defun-bind emit-short (&rest _)
 	(write-char *out_stream* _ 2)
 	(setq *pc* (+ *pc* (* (length _) 2))))
 
-(defcfun-bind emit-int (&rest _)
+(defun-bind emit-int (&rest _)
 	(write-char *out_stream* _ 4)
 	(setq *pc* (+ *pc* (* (length _) 4))))
 
-(defcfun-bind emit-long (&rest _)
+(defun-bind emit-long (&rest _)
 	(write-char *out_stream* _ 8)
 	(setq *pc* (+ *pc* (* (length _) 8))))
 
-(defcfun-bind emit-string (_)
+(defun-bind emit-string (_)
 	(write *out_stream* _)
 	(setq *pc* (+ *pc* (length _))))
 
-(defcfun-bind emit-align (a &optional b)
+(defun-bind emit-align (a &optional b)
 	(when (/= *pass* 0)
 		(defq p *pc* b (opt b 0) s *out_stream*)
 		(setq *pc* (align p a))
@@ -94,26 +94,26 @@
 		((find-rev (elem 0 ,e) (opt-emit-two-out-ops)) (eql ,r (elem -3 ,e)))
 		((find-rev (elem 0 ,e) (opt-emit-multi-out-ops)) (find-rev ,r ,e))))
 
-(defcfun-bind opt-emit-trashes? (r e)
+(defun-bind opt-emit-trashes? (r e)
 	(opt-trashes? r e))
 
-(defcfun-bind opt-emit-trashes-with-calls? (r e)
+(defun-bind opt-emit-trashes-with-calls? (r e)
 	(cond
 		((find-rev (elem 0 e) (opt-emit-call-ops)) t)
 		(t (opt-trashes? r e))))
 
-(defcfun-bind opt-emit-trashes-reads? (r e)
+(defun-bind opt-emit-trashes-reads? (r e)
 	(cond
 		((find-rev (elem 0 e) (opt-emit-read-kills-ops)) t)
 		(t (opt-trashes? r e))))
 
-(defcfun-bind opt-emit-trashes-with-kills? (r e)
+(defun-bind opt-emit-trashes-with-kills? (r e)
 	(cond
 		((find-rev (elem 0 e) (opt-emit-kills-ops)) t)
 		((find-rev (elem 0 e) (opt-emit-call-ops)) t)
 		(t (opt-trashes? r e))))
 
-(defcfun-bind opt-emit-find-rw (k _ r w b i)
+(defun-bind opt-emit-find-rw (k _ r w b i)
 	(defq _ (some! _ 0 t (lambda (e)
 		(cond
 			((and (eql w (elem 0 e))
@@ -128,7 +128,7 @@
 			((k b e) -1))) (list *emit_buffer*)))
 	(and _ (/= _ -1) _))
 
-(defcfun-bind opt-emit-find-rw1 (k _ ra rb w b i)
+(defun-bind opt-emit-find-rw1 (k _ ra rb w b i)
 	(defq _ (some! _ 0 t (lambda (e)
 		(cond
 			((and (eql w (elem 0 e))
@@ -143,7 +143,7 @@
 			((k b e) -1))) (list *emit_buffer*)))
 	(and _ (/= _ -1) _))
 
-(defcfun-bind opt-emit-find-rr (k _ rs rd)
+(defun-bind opt-emit-find-rr (k _ rs rd)
 	(defq _ (some! _ 0 t (lambda (e)
 		(cond
 			((match? e `(emit-cpy-rr ,rs ,rd)) _)
@@ -151,7 +151,7 @@
 			((k rd e) -1))) (list *emit_buffer*)))
 	(and _ (/= _ -1) _))
 
-(defcfun-bind opt-emit-buffer ()
+(defun-bind opt-emit-buffer ()
 	(each! 2 -1 (lambda (e)
 		(cond
 			;read after read/write
@@ -189,7 +189,7 @@
 
 (each (# (defcvar %0 %0)) '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 rsp))
 
-(defcmacro vp-def (_ &optional l)
+(defmacro vp-def (_ &optional l)
 	(defq v '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14))
 	(setq l (apply cat (map (lambda (x y)
 		(list (list 'quote x) y)) _ (if l (merge-obj (cat (eval l)) v) v))))
@@ -198,11 +198,11 @@
 (defmacro type-sym (_)
 	`(sym (str "_t_" ,_)))
 
-(defcfun-bind vp-type-t (_)
+(defun-bind vp-type-t (_)
 	(if (setq _ (find-rev (elem 0 _) "bBsSiI"))
 		(elem _ '(b ub s us i ui)) ""))
 
-(defcfun-bind vp-type (o)
+(defun-bind vp-type (o)
 	(defq i (type-of o))
 	(cond
 		((= i lisp_type_sym)
@@ -234,56 +234,56 @@
 		((= i lisp_type_str) 's)
 		(t nil)))
 
-(defcfun-bind label-sym (s) (sym (cat "_l_" s)))
-(defcfun-bind vp-label (l) (setq l (label-sym l))
+(defun-bind label-sym (s) (sym (cat "_l_" s)))
+(defun-bind vp-label (l) (setq l (label-sym l))
 	(emit (list 'emit-label (list 'quote l))) (push *func_syms* l) (defcvar l 0))
-(defcfun-bind vp-align (a &optional b) (emit (list 'emit-align a b)))
-(defcfun-bind vp-string (s) (emit (list 'emit-string s)))
-(defcfun-bind vp-byte (&rest b) (emit (cat (list 'emit-byte) b)))
-(defcfun-bind vp-short (&rest b) (emit (cat (list 'emit-short) b)))
-(defcfun-bind vp-int (&rest b) (emit (cat (list 'emit-int) b)))
-(defcfun-bind vp-long (&rest b) (emit (cat (list 'emit-long) b)))
+(defun-bind vp-align (a &optional b) (emit (list 'emit-align a b)))
+(defun-bind vp-string (s) (emit (list 'emit-string s)))
+(defun-bind vp-byte (&rest b) (emit (cat (list 'emit-byte) b)))
+(defun-bind vp-short (&rest b) (emit (cat (list 'emit-short) b)))
+(defun-bind vp-int (&rest b) (emit (cat (list 'emit-int) b)))
+(defun-bind vp-long (&rest b) (emit (cat (list 'emit-long) b)))
 
 (defmacro vp-bcr (_)
-	`(defcfun-bind ,(sym (cat "vp-" _ "-cr")) (c d l)
+	`(defun-bind ,(sym (cat "vp-" _ "-cr")) (c d l)
 		(emit (list 'emit-cmp-cr c d)
 			(list ',(sym (cat "emit-" _)) (label-sym l) (dec (length (push *distance* 0)))))))
 (defmacro vp-brr (_)
-	`(defcfun-bind ,(sym (cat "vp-" _ "-rr")) (s d l)
+	`(defun-bind ,(sym (cat "vp-" _ "-rr")) (s d l)
 		(emit (list 'emit-cmp-rr s d)
 			(list ',(sym (cat "emit-" _)) (label-sym l) (dec (length (push *distance* 0)))))))
 (defmacro vp-op-cr (_)
-	`(defcfun-bind ,(sym (cat "vp-" _ "-cr")) (c d) (emit (list ',(sym (cat "emit-" _ "-cr")) c d))))
+	`(defun-bind ,(sym (cat "vp-" _ "-cr")) (c d) (emit (list ',(sym (cat "emit-" _ "-cr")) c d))))
 (defmacro vp-op-rr (_)
-	`(defcfun-bind ,(sym (cat "vp-" _ "-rr")) (s d) (emit (list ',(sym (cat "emit-" _ "-rr")) s d))))
+	`(defun-bind ,(sym (cat "vp-" _ "-rr")) (s d) (emit (list ',(sym (cat "emit-" _ "-rr")) s d))))
 (defmacro vp-mem (_)
-	`(defcfun-bind ,(sym (cat "vp-cpy-" _)) (x y z) (emit (list ',(sym (cat "emit-cpy-" _)) x y z))))
+	`(defun-bind ,(sym (cat "vp-cpy-" _)) (x y z) (emit (list ',(sym (cat "emit-cpy-" _)) x y z))))
 
-(defcfun vp-push (&rest b) (emit (cat (list 'emit-push) b)))
-(defcfun vp-pop (&rest b) (emit (cat (list 'emit-pop) b)))
-(defcfun vp-alloc (c) (emit (list 'emit-alloc c)))
-(defcfun vp-free (c) (emit (list 'emit-free c)))
-(defcfun vp-ret () (emit (list 'emit-ret)))
+(defun vp-push (&rest b) (emit (cat (list 'emit-push) b)))
+(defun vp-pop (&rest b) (emit (cat (list 'emit-pop) b)))
+(defun vp-alloc (c) (emit (list 'emit-alloc c)))
+(defun vp-free (c) (emit (list 'emit-free c)))
+(defun vp-ret () (emit (list 'emit-ret)))
 
-(defcfun vp-call-abi (r b i x) (emit (cat `(emit-call-abi ,r ,b ,i) x)))
-(defcfun vp-call (l) (emit (list 'emit-call (label-sym l))))
-(defcfun vp-call-r (d) (emit (list 'emit-call-r d)))
-(defcfun vp-call-i (b i) (emit (list 'emit-call-i b i)))
-(defcfun-bind vp-call-p (l) (emit (list 'emit-call-p (label-sym l))))
+(defun vp-call-abi (r b i x) (emit (cat `(emit-call-abi ,r ,b ,i) x)))
+(defun vp-call (l) (emit (list 'emit-call (label-sym l))))
+(defun vp-call-r (d) (emit (list 'emit-call-r d)))
+(defun vp-call-i (b i) (emit (list 'emit-call-i b i)))
+(defun-bind vp-call-p (l) (emit (list 'emit-call-p (label-sym l))))
 
-(defcfun vp-jmp (l) (emit (list 'emit-jmp (label-sym l) (dec (length (push *distance* 0))))))
-(defcfun vp-jmp-r (d) (emit (list 'emit-jmp-r d)))
-(defcfun vp-jmp-i (b i) (emit (list 'emit-jmp-i b i)))
-(defcfun vp-jmp-p (l) (emit (list 'emit-jmp-p (label-sym l))))
+(defun vp-jmp (l) (emit (list 'emit-jmp (label-sym l) (dec (length (push *distance* 0))))))
+(defun vp-jmp-r (d) (emit (list 'emit-jmp-r d)))
+(defun vp-jmp-i (b i) (emit (list 'emit-jmp-i b i)))
+(defun vp-jmp-p (l) (emit (list 'emit-jmp-p (label-sym l))))
 
-(defcfun vp-lea-i (b i d) (emit (list 'emit-lea-i b i d)))
-(defcfun vp-lea-d (b i d) (emit (list 'emit-lea-d b i d)))
-(defcfun vp-lea-p (l r) (emit (list 'emit-lea-p (label-sym l) r)))
-(defcfun vp-cpy-pr (l d) (emit (list 'emit-cpy-pr (label-sym l) d)))
-(defcfun vp-cpy-rp (s l) (emit (list 'emit-cpy-rp s (label-sym l))))
+(defun vp-lea-i (b i d) (emit (list 'emit-lea-i b i d)))
+(defun vp-lea-d (b i d) (emit (list 'emit-lea-d b i d)))
+(defun vp-lea-p (l r) (emit (list 'emit-lea-p (label-sym l) r)))
+(defun vp-cpy-pr (l d) (emit (list 'emit-cpy-pr (label-sym l) d)))
+(defun vp-cpy-rp (s l) (emit (list 'emit-cpy-rp s (label-sym l))))
 
-(defcfun vp-div-rrr (d r q) (emit (list 'emit-div-rrr d r q)))
-(defcfun vp-div-rrr-u (d r q) (emit (list 'emit-div-rrr-u d r q)))
+(defun vp-div-rrr (d r q) (emit (list 'emit-div-rrr d r q)))
+(defun vp-div-rrr-u (d r q) (emit (list 'emit-div-rrr-u d r q)))
 
 (vp-bcr beq) (vp-bcr bne) (vp-bcr blt) (vp-bcr bgt) (vp-bcr ble) (vp-bcr bge)
 (vp-brr beq) (vp-brr bne) (vp-brr blt) (vp-brr bgt) (vp-brr ble) (vp-brr bge)

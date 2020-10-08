@@ -22,16 +22,16 @@
 (defcvar '*func_name* nil '*strings* (list) '*paths* (list) '*links* (list)
 	'*func_align* nil '*func_syms* (list))
 
-(defcfun-bind link-sym (_)
+(defun-bind link-sym (_)
 	(str "rl_" _))
 
-(defcfun-bind path-sym (_)
+(defun-bind path-sym (_)
 	(str "rp_" _))
 
-(defcfun string-sym (_)
+(defun string-sym (_)
 	(str "rs_" _))
 
-(defcfun-bind def-func (*name* &optional falign fstack)
+(defun-bind def-func (*name* &optional falign fstack)
 	(print "-> " (cat "obj/" *cpu* "/" *abi* "/" (str *name*)))
 	(emit-reset)
 	(setq *func_name* *name* *switch_nxt* 0 *func_align* (opt falign stack_align))
@@ -50,7 +50,7 @@
 (vp-label 'fn_entry)
 	(push-scope))
 
-(defcfun-bind def-func-end ()
+(defun-bind def-func-end ()
 	(pop-scope-checked)
 	(each (lambda (s)
 	(vp-label (string-sym _))
@@ -73,43 +73,43 @@
 	(apply undef (cat (list *compile_env*) *func_syms*))
 	(save *out_buffer* (cat "obj/" *cpu* "/" *abi* "/" (str *func_name*))))
 
-(defcfun-bind fn-add-string (s)
+(defun-bind fn-add-string (s)
 	(defq i -1)
 	(while (and (< (setq i (inc i)) (length *strings*)) (not (eql s (elem i *strings*)))))
 	(if (= i (length *strings*)) (push *strings* s)) i)
 
-(defcfun-bind fn-add-path (p)
+(defun-bind fn-add-path (p)
 	(if (defq i (find-rev p *paths*)) i
 		(dec (length (push *paths* p)))))
 
-(defcfun-bind fn-add-link (p)
+(defun-bind fn-add-link (p)
 	(push *links* (fn-add-path p)))
 
-(defcfun-bind fn-find-link (p)
+(defun-bind fn-find-link (p)
 	(defq i -1)
 	(while (and (< (setq i (inc i)) (length *links*)) (not (eql p (elem (elem i *links*) *paths*)))))
 	(if (= i (length *links*)) (fn-add-link p)) i)
 
-(defcfun-bind fn-string (s r)
+(defun-bind fn-string (s r)
 	(vp-lea-p (string-sym (fn-add-string s)) r))
 
-(defcfun-bind fn-bind (p r)
+(defun-bind fn-bind (p r)
 	(if (get p) (throw "Can't bind to inline function !" p)
 		(vp-cpy-pr (link-sym (fn-find-link p)) r)))
 
-(defcfun-bind fn-call (p)
+(defun-bind fn-call (p)
 	(if (get p) ((eval p))
 		(vp-call-p (link-sym (fn-find-link p)))))
 
-(defcfun-bind fn-jump (p)
+(defun-bind fn-jump (p)
 	(if (get p) (throw "Can't jump to inline function !" p)
 		(vp-jmp-p (link-sym (fn-find-link p)))))
 
-(defcfun abort (&optional s)
+(defun abort (&optional s)
 	(call 'sys_pii :write_str (list 2 (opt s "Abort !")))
 	(jump 'sys_pii :exit '(1)))
 
-(defcfun assert (b &optional d)
+(defun assert (b &optional d)
 	(when (> *debug_mode* 0)
 		(vpifnot b)
 			(abort (opt d "Assert Failure !"))

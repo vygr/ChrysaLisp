@@ -21,7 +21,7 @@
 ; inline methods
 ;;;;;;;;;;;;;;;;
 
-(defcfun class/error/get_description ()
+(defun class/error/get_description ()
 	;inputs
 	;r0 = error object (ptr)
 	;outputs
@@ -31,7 +31,7 @@
 	;r1
 	(assign '((r0 error_description)) '(r1)))
 
-(defcfun class/error/get_file ()
+(defun class/error/get_file ()
 	;inputs
 	;r0 = error object (ptr)
 	;outputs
@@ -41,7 +41,7 @@
 	;r1
 	(assign '((r0 error_file)) '(r1)))
 
-(defcfun class/error/get_object ()
+(defun class/error/get_object ()
 	;inputs
 	;r0 = error object (ptr)
 	;outputs
@@ -51,7 +51,7 @@
 	;r1
 	(assign '((r0 error_object)) '(r1)))
 
-(defcfun class/error/get_line ()
+(defun class/error/get_line ()
 	;inputs
 	;r0 = error object (ptr)
 	;outputs

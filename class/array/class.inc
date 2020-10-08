@@ -61,7 +61,7 @@
 ; inline methods
 ;;;;;;;;;;;;;;;;
 
-(defcfun class/array/init ()
+(defun class/array/init ()
 	;inputs
 	;r0 = array object (ptr)
 	;r1 = vtable (pptr)
@@ -77,7 +77,7 @@
 	(assign '(r2) '((r0 array_begin)))
 	(s-call 'array :init '(r0 r1) '(r0 r1)))
 
-(defcfun class/array/get_capacity ()
+(defun class/array/get_capacity ()
 	;inputs
 	;r0 = array object (ptr)
 	;outputs
@@ -87,7 +87,7 @@
 	;r1
 	(assign '((r0 array_capacity)) '(r1)))
 
-(defcfun-bind class/array/get_length ()
+(defun-bind class/array/get_length ()
 	;inputs
 	;r0 = array object (ptr)
 	;outputs
@@ -97,7 +97,7 @@
 	;r1
 	(assign '((r0 array_length)) '(r1)))
 
-(defcfun class/array/set_length ()
+(defun class/array/set_length ()
 	;inputs
 	;r0 = array object (ptr)
 	;r1 = length (uint)
@@ -108,7 +108,7 @@
 	;none
 	(assign '(r1) '((r0 array_length))))
 
-(defcfun-bind class/array/get_begin ()
+(defun-bind class/array/get_begin ()
 	;inputs
 	;r0 = array object (ptr)
 	;outputs
@@ -118,7 +118,7 @@
 	;r1
 	(assign '((r0 array_begin)) '(r1)))
 
-(defcfun-bind class/array/get_first ()
+(defun-bind class/array/get_first ()
 	;inputs
 	;r0 = array object (ptr)
 	;outputs
@@ -129,7 +129,7 @@
 	(assign '((r0 array_begin)) '(r1))
 	(assign '((r1 0)) '(r1)))
 
-(defcfun class/array/get_second ()
+(defun class/array/get_second ()
 	;inputs
 	;r0 = array object (ptr)
 	;outputs
@@ -140,7 +140,7 @@
 	(assign '((r0 array_begin)) '(r1))
 	(assign '((r1 long_size)) '(r1)))
 
-(defcfun-bind class/array/get_iter (&optional o ei b)
+(defun-bind class/array/get_iter (&optional o ei b)
 	;inputs
 	;r0 = array object (ptr)
 	;r1 = element index (uint)
@@ -156,7 +156,7 @@
 	(vp-shl-cr (log2 long_size) ei)
 	(vp-add-rr b ei))
 
-(defcfun class/array/get_end (&optional o e b)
+(defun class/array/get_end (&optional o e b)
 	;inputs
 	;r0 = array object (ptr)
 	;outputs
@@ -170,7 +170,7 @@
 	(assign `((,o array_length)) `(,e))
 	(class/array/get_iter o e b))
 
-(defcfun-bind class/array/get_both (&optional o b e)
+(defun-bind class/array/get_both (&optional o b e)
 	;inputs
 	;r0 = array object (ptr)
 	;outputs
@@ -186,7 +186,7 @@
 	(vp-shl-cr (log2 long_size) e)
 	(vp-add-rr b e))
 
-(defcfun-bind class/array/get_iters (&optional o bi ei b)
+(defun-bind class/array/get_iters (&optional o bi ei b)
 	;inputs
 	;r0 = array object (ptr)
 	;r1 = begin index (uint)
@@ -206,7 +206,7 @@
 	(vp-add-rr b bi)
 	(vp-add-rr b ei))
 
-(defcfun-bind class/array/get_element (&optional o ei e b)
+(defun-bind class/array/get_element (&optional o ei e b)
 	;inputs
 	;r0 = array object (ptr)
 	;r1 = element index (uint)
@@ -222,7 +222,7 @@
 	(vp-shl-cr (log2 long_size) ei)
 	(vp-cpy-dr b ei e))
 
-(defcfun class/array/set_element ()
+(defun class/array/set_element ()
 	;inputs
 	;r0 = array object (ptr)
 	;r1 = element (long)
@@ -235,7 +235,7 @@
 	(vp-shl-cr (log2 long_size) r2)
 	(vp-cpy-rd r1 r3 r2))
 
-(defcfun class/array/pop_back ()
+(defun class/array/pop_back ()
 	;inputs
 	;r0 = array object (ptr)
 	;outputs
@@ -249,7 +249,7 @@
 	(vp-shl-cr (log2 long_size) r1)
 	(vp-cpy-dr r2 r1 r1))
 
-(defcfun class/array/pop_back2 ()
+(defun class/array/pop_back2 ()
 	;inputs
 	;r0 = array object (ptr)
 	;outputs
@@ -265,7 +265,7 @@
 	(vp-add-rr r1 r2)
 	(array-get-args r2 '(r1 r2)))
 
-(defcfun class/array/clear ()
+(defun class/array/clear ()
 	;inputs
 	;r0 = array object (ptr)
 	;outputs
@@ -275,7 +275,7 @@
 	(vp-xor-rr r1 r1)
 	(assign '(r1) '((r0 array_length))))
 
-(defcfun class/array/get_first2 ()
+(defun class/array/get_first2 ()
 	;inputs
 	;r0 = array object (ptr)
 	;outputs
@@ -286,7 +286,7 @@
 	;r1-r2
 	(array-bind-args r0 '(r1 r2)))
 
-(defcfun class/array/get_element2 ()
+(defun class/array/get_element2 ()
 	;inputs
 	;r0 = array object (ptr)
 	;r1 = element index (uint)
@@ -305,7 +305,7 @@
 ; paramater helpers
 ;;;;;;;;;;;;;;;;;;;
 
-(defcfun-bind array-set-args (i regs &optional type)
+(defun-bind array-set-args (i regs &optional type)
 	;inputs
 	;iter
 	;(reg ...)
@@ -317,7 +317,7 @@
 		(t	(defq s (type-to-size type))
 			(assign-asm-to-asm regs (map (lambda (r) (list i (* s _) type)) regs)))))
 
-(defcfun-bind array-get-args (i regs &optional type)
+(defun-bind array-get-args (i regs &optional type)
 	;inputs
 	;iter
 	;(reg ...)
@@ -329,7 +329,7 @@
 		(t	(defq s (type-to-size type))
 			(assign-asm-to-asm (map (lambda (r) (list i (* s _) type)) regs) regs))))
 
-(defcfun-bind array-map-args (regs pos)
+(defun-bind array-map-args (regs pos)
 	;inputs
 	;(reg reg ...)
 	;(p1 p2 ...)
@@ -339,7 +339,7 @@
 	(each (lambda (r p)
 		(elem-set p out r)) regs pos) out)
 
-(defcfun-bind array-bind-args (a regs)
+(defun-bind array-bind-args (a regs)
 	;inputs
 	;array object
 	;(reg ...)

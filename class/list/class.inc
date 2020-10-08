@@ -27,7 +27,7 @@
 ; paramater helpers
 ;;;;;;;;;;;;;;;;;;;
 
-(defcfun-bind list-cast-args (regs types)
+(defun-bind list-cast-args (regs types)
 	;inputs
 	;(reg ...)
 	;'({num str char _} ...)
@@ -40,7 +40,7 @@
 			(char (list r str_data 'ub))
 			(t r))) regs types) regs))
 
-(defcfun-bind list-bind-args (a regs types)
+(defun-bind list-bind-args (a regs types)
 	;inputs
 	;list object
 	;(reg ...)
