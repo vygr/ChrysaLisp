@@ -414,7 +414,7 @@ int gettimeofday(struct timeval *tv, struct timezone *tz)
 {
 	if (tv != NULL)
 	{
-		FILETIME ft;
+		FILETIME ft = { 0 };
 		unsigned __int64 tmpres = 0;
 		GetSystemTimePreciseAsFileTime(&ft);
 		tmpres |= ft.dwHighDateTime;
@@ -427,6 +427,7 @@ int gettimeofday(struct timeval *tv, struct timezone *tz)
 	}
 	return 0;
 }
+
 #endif
 
 struct timeval tv;
@@ -434,7 +435,7 @@ struct timeval tv;
 long long gettime()
 {
 	gettimeofday(&tv, NULL);
-	return tv.tv_sec * 1000000 + tv.tv_usec;
+	return (((long long)tv.tv_sec * 1000000) + tv.tv_usec);
 }
 
 enum
