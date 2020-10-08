@@ -356,10 +356,6 @@
 
 (def env var val [var val] ...)
 
-## def:
-
-(def: syms [env])
-
 ## defmacro
 
 (defmacro name ([arg ...]) body)

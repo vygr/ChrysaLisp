@@ -52,6 +52,10 @@ prebuilt main.exe for folks that want to try the Windows version. Many thanks
 to Martyn Bliss aka BananaEarwig for the new build. This should fix the GUI
 issue on Windows as well as bring the new (file-stream) open options.
 
+Removed (def:) macro as this is now redundant since the keyword symbols addition.
+
+Corrected (#) macro after testing with pre-binding turned off.
+
 ------
 
 (file-stream path [mode]) now reads a file from the filesystem in buffers of

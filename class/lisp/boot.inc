@@ -381,10 +381,10 @@
 
 (defmacro-bind # (&rest b)
 	;(# (< %0 0)) -> (lambda (%0) (< %0 0))
-	`(lambda ,(slice 0 (reduce (lambda (c _)
-		(if (find _ '(%0 %1 %2 %3 %4 %5 %6 %7 %8 %9)) (inc c) c))
-		(merge-obj (list) (map sym (split (str b) "( )"))) 0)
-			'(%0 %1 %2 %3 %4 %5 %6 %7 %8 %9)) ~b))
+	(defq s (filter (lambda (_) (find _ '(%0 %1 %2 %3 %4 %5 %6 %7 %8 %9)))
+				(merge-obj (list) (map sym (split (str b) "( )"))))
+		p (slice 0 (length s) '(%0 %1 %2 %3 %4 %5 %6 %7 %8 %9)))
+	`(lambda ,p ~b))
 
 ;;;;;;;;;;;;
 ; Predicates
@@ -508,10 +508,6 @@
 ;;;;;;;;;;;
 ; Utilities
 ;;;;;;;;;;;
-
-(defmacro-bind def: (_ &optional e)
-	;(def: syms [env])
-	(if e `(eval `(bind ,_ ,_) ,e) `(eval `(bind ,_ ,_))))
 
 (defmacro-bind ascii-code (_)
 	;(ascii-code char) -> num
