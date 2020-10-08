@@ -18,6 +18,7 @@
 	#include <io.h>
 	#include <windows.h>
 	#include <tchar.h>
+
 #else
 	#include <sys/mman.h>
 	#include <sys/time.h>
@@ -272,7 +273,50 @@ long long mystat(const char *path, struct finfo *st)
 #ifdef _WIN64
 	// For Chris to consider refactoring the mydirlist logic to use a visitor
 	// function
-	// TODO: Windows implementation
+int walk_directory(char* path,
+	int (*filevisitor)(const char*),
+	int (*foldervisitor)(const char*, int))
+{
+	char dirpathwild[_MAX_PATH] = { 0 };
+	WIN32_FIND_DATAA wfd = { 0 };
+	int err = 0;
+	sprintf_s(dirpathwild, _MAX_PATH, "%s\\*.*", path);
+	HANDLE hFind = FindFirstFileA(dirpathwild, &wfd);
+	if (hFind) {
+		do {
+			if (wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+				if (strstr(wfd.cFileName, ".") != wfd.cFileName) {
+					err = foldervisitor(wfd.cFileName, FOLDER_PRE);
+					char buffer[_MAX_PATH] = { 0 };
+					sprintf_s(buffer, _MAX_PATH, "%s\\%s\\", path, wfd.cFileName);
+					walk_directory(buffer, filevisitor, foldervisitor);
+
+					if (wfd.dwFileAttributes & FILE_ATTRIBUTE_READONLY) {
+						err = _chmod(buffer, _S_IWRITE);
+					}
+
+					err = foldervisitor(buffer, FOLDER_POST);
+				}
+			}
+			else {
+				char buffer[_MAX_PATH] = { 0 };
+				sprintf_s(buffer, _MAX_PATH, "%s\\%s", path, wfd.cFileName);
+
+				if (wfd.dwFileAttributes & FILE_ATTRIBUTE_READONLY) {
+					err = _chmod(buffer, _S_IWRITE);
+				}
+
+				err = filevisitor(buffer);
+			}
+		} while (FindNextFileA(hFind, &wfd));
+
+
+		FindClose(hFind);
+		err = foldervisitor(path, FOLDER_POST);
+	}
+
+	return (1);
+}
 #else
 int walk_directory(char* path,
 		int (*filevisitor)(const char*),
