@@ -61,6 +61,9 @@ Enabled (pii-remove) now we have Windows support care of Martyn Bliss.
 Removed (defcfun) (defcfun-bind) (defcmacro) (defcmacro-bind) from the compiler
 environment. (include) now imports into the `*compile_env*` directly.
 
+Fix for Windows main.c gettimeofday() EPOC calculation. GUI clock app now
+displays correctly on Windows.
+
 ------
 
 (file-stream path [mode]) now reads a file from the filesystem in buffers of
