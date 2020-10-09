@@ -29,6 +29,40 @@ corrupted.
 
 ------
 
+Reminder that #ChrysaLisp@matrix.org IRC chat room is available for all. Highly
+recommend the Element open source app for use with this. More often than not
+things get discussed there before they make it into the repo and this status
+doc. !
+
+New anaphoric lib `(aeach seq body)` macro from Nuclearfall.
+
+Rework of the `(make)` system to remove all the `make.inc` files ! C++ version
+to follow.
+
+Wonderful new game demo `Minefield` from Nuclearfall. I am so bad at this
+thing....
+
+C++ version now up to date with new (make) system.
+
+(file-stream path file_open_append) mode now available. Make sure to 'make' the
+main.c for the host support.
+
+New snapshot.zip bringing the Windows version up to date and providing a new
+prebuilt main.exe for folks that want to try the Windows version. Many thanks
+to Martyn Bliss aka BananaEarwig for the new build. This should fix the GUI
+issue on Windows as well as bring the new (file-stream) open options.
+
+Removed (def:) macro as this is now redundant since the keyword symbols addition.
+
+Corrected (#) macro after testing with pre-binding turned off.
+
+Enabled (pii-remove) now we have Windows support care of Martyn Bliss.
+
+Removed (defcfun) (defcfun-bind) (defcmacro) (defcmacro-bind) from the compiler
+environment. (include) now imports into the `*compile_env*` directly.
+
+------
+
 (file-stream path [mode]) now reads a file from the filesystem in buffers of
 4KB, and has no file size limit as a result. Old behavior is retained in the
 new (load-stream path) function which will gulp the entire file into a string

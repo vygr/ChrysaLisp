@@ -17,7 +17,7 @@
 ; inline methods
 ;;;;;;;;;;;;;;;;
 
-(defcfun gui/texture/init ()
+(defun gui/texture/init ()
 	;inputs
 	;r0 = texture object (ptr)
 	;r1 = vtable (pptr)
@@ -34,7 +34,7 @@
 	(exit 'texture :init '(r0 r1))
 	(vp-ret))
 
-(defcfun gui/texture/get_metrics ()
+(defun gui/texture/get_metrics ()
 	;inputs
 	;r0 = texture object (ptr)
 	;outputs

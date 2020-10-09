@@ -6,17 +6,6 @@
 (defmacro sfind (ss slst)
 	`(some (# (if (eql ,ss %0) _)) ,slst))
 
-(defun-bind make-tree (dir ext)
-	(defq dirs (list) files (list))
-	(each! 0 -1
-		(# (unless (starts-with "." %0)
-			(cond
-				((eql "4" %1) (push dirs (cat dir "/" %0)))
-				((ends-with ext %0) (push files (cat dir "/" %0))))))
-		(unzip (split (pii-dirlist dir) ",") (list (list) (list))))
-	(each (# (setq files (cat files (make-tree %0 ext)))) dirs)
-	files)
-
 (defun-bind make-syms ()
 	(defq *abi* (abi) *cpu* (cpu))
 	(print "Scanning source files...")
@@ -39,7 +28,7 @@
 		stream_mail_state_started stream_mail_state_stopped
 		stream_mail_state_stopping vdu_char_height vdu_char_width view_flag_at_back
 		view_flag_dirty_all view_flag_opaque view_flag_solid view_flags view_h view_w
-		view_x view_y file_open_read file_open_write)
+		view_x view_y file_open_read file_open_write file_open_append)
 		_vals_ (within-compile-env (lambda ()
 			(each include (make-tree "." "class.inc"))
 			(map eval _syms_)))
@@ -62,7 +51,7 @@
             (setq _ (slice 0 e _))
             (slice (inc (find-rev (char 0x22) _)) -1 _)))
     (print "Scanning source files...")
-    (defq *imports* (list "make.inc") classes (list) functions (list) docs (list) syntax (list) state :x)
+    (defq *imports* (all-vp-files) classes (list) functions (list) docs (list) syntax (list) state :x)
     (within-compile-env (lambda ()
         (include "sys/func.inc")
         (each include (all-class-files))
@@ -86,7 +75,7 @@
                             (setq state :y)
                             (push docs (list))
                             (push functions (f-path (sym (elem 1 s)) (sym (elem 2 s)))))
-                        ((or (eql _ "def-func") (eql _ "defcfun") (eql _ "defcfun-bind"))
+                        ((or (eql _ "def-func") (eql _ "defun") (eql _ "defun-bind"))
                             (setq state :y)
                             (push docs (list))
                             (push functions (sym (elem 1 s))))

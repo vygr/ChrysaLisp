@@ -80,6 +80,10 @@
 
 (acond (tst body) ...)
 
+## aeach
+
+(aeach seq body)
+
 ## age
 
 (age path)
@@ -351,10 +355,6 @@
 ## def
 
 (def env var val [var val] ...)
-
-## def:
-
-(def: syms [env])
 
 ## defmacro
 

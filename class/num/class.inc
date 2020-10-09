@@ -74,7 +74,7 @@
 ; inline methods
 ;;;;;;;;;;;;;;;;
 
-(defcfun class/num/init ()
+(defun class/num/init ()
 	;inputs
 	;r0 = num object (ptr)
 	;r1 = vtable (pptr)
@@ -87,7 +87,7 @@
 	(assign '(r2) '((r0 num_value)))
 	(s-call 'num :init '(r0 r1) '(r0 r1)))
 
-(defcfun class/num/get_value ()
+(defun class/num/get_value ()
 	;inputs
 	;r0 = num object (ptr)
 	;outputs
@@ -97,7 +97,7 @@
 	;r1
 	(assign '((r0 num_value)) '(r1)))
 
-(defcfun class/num/set_value ()
+(defun class/num/set_value ()
 	;inputs
 	;r0 = num object (ptr)
 	;r1 = value (long)
@@ -112,5 +112,5 @@
 ; paramater macros
 ;;;;;;;;;;;;;;;;;;
 
-(defcfun-bind class/num/get_values (src &optional dst)
+(defun-bind class/num/get_values (src &optional dst)
 	(assign-asm-to-asm (map (lambda (_) (list _ num_value)) src) (opt dst src)))

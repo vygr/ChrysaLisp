@@ -209,6 +209,9 @@ are free to use standard symbols they most often use keyword symbols.
 How do you create a user property environment ? By use of the optional
 parameters to the `(env)` function.
 
+You can use the `(tolist e)` function to convert an environment to a list of
+pairs in order to interface with other code.
+
 ```lisp
 (defq e (env -1))
 e
@@ -222,6 +225,8 @@ e
 89
 (get :p3 e)
 nil
+(tolist e)
+((:p1 78) (:p2 89))
 ```
 
 The optional parameter, to `(env)`, if positive, is used to change the number

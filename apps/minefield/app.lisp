@@ -1,6 +1,7 @@
 (import "sys/lisp.inc")
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
+(import "lib/anaphoric/anaphoric.inc")
 (import "apps/minefield/board.inc")
 
 (structure '+event 0
@@ -31,10 +32,10 @@
 	(while (defq cell (pop work))
 		(unless (eql (elem cell game_map) "r")
 			(elem-set cell game_map "r")
-			(each-in (elem cell game_adj)
+			(aeach (elem cell game_adj)
 				(cond
-					((= (elem _ game_board) 0) (push work _))
-					((< 0 (elem _ game_board) 9) (elem-set _ game_map "r"))))))
+					((= (elem it game_board) 0) (push work it))
+					((< 0 (elem it game_board) 9) (elem-set it game_map "r"))))))
 	(rebuild-board))
 
 (defun-bind clicked-flag (cell)
@@ -57,13 +58,11 @@
 (defun-bind is-game-over (&optional lost)
 	(defq message "")
 	(cond 
-		((not lost)
-			(defq flag_count (length (filter (# (eql %0 "f")) game_map))
-				button_count (length (filter (# (eql %0 "b")) game_map))
-				bomb_count (last difficulty))
-			(when (= (+ flag_count button_count) bomb_count) 
-				(setq message "You Won!")))
-		(t (setq message "You Lost!")))
+		(lost (setq message "You Lost!" game_over t))
+		((= (+ (length (filter (# (eql %0 "f")) game_map)) (length (filter (# (eql %0 "b")) game_map)))
+				(last difficulty))
+				(setq message "You Won!" game_over t))
+		(t nil))
 	(set status_bar :text message)
 	(view-dirty status_bar))
 
@@ -71,8 +70,7 @@
 	(elem value '(argb_black 0x000000ff 0x00006600 0x00ff0000 argb_magenta 
 		argb_black 0x00700000 argb_grey1 0x0002bbdd argb_black)))
 
-(defun-bind board-layout (settings)
-	(bind '(gw gh nm) settings)
+(defun-bind board-layout ((gw gh nm))
 	(view-sub across)
 	(setq game_grid (create-grid))
 	(defq gwh (* gw gh))
@@ -117,7 +115,7 @@
 					(cond 
 						((= (defq value (elem _ game_board)) 0) "")
 						((< 0 value 9) (str value))
-						((= value 9) "X"))
+						((= value 9) "X") (is-game-over))
 					:flow_flags (logior flow_flag_align_hcenter flow_flag_align_vcenter) 
 					:border 0 :ink_color (colorize value) :color (if (= value 9) argb_red *env_toolbar_col*) :min_width 32 :min_height 32)
 				(view-add-child game_grid mc))
@@ -131,11 +129,9 @@
 	(view-change-dirty window x y w h))
 
 (defun-bind main ()
-	(defq started nil game (list) game_board (list) game_adj (list) game_map (list) +cell_wh+ 32 
-		first_click t difficulty (list) game_grid nil click_offset 4 game_over nil buttons_left 0
-		mouse_down 0)
-	(bind '(w h) (view-pref-size window))
-	(bind '(x y _ _) (view-get-bounds window))
+	(defq started nil game (list) game_board (list) game_adj (list) game_map (list) 
+		first_click t difficulty (list) game_grid nil click_offset 4 game_over nil mouse_down 0)
+	(bind '(x y w h) (apply view-locate (view-pref-size window)))
 	(gui-add (view-change window x y w h))
 	(while (cond
 		((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) +event_close+)
@@ -143,7 +139,7 @@
 		((= id +event_beginner+) (setq started t) (board-layout (setq difficulty beginner_settings)))
 		((= id +event_intermediate+) (setq started t) (board-layout (setq difficulty intermediate_settings)))
 		((= id +event_expert+) (setq started t) (board-layout (setq difficulty expert_settings)))
-		((and started
+		((and started (not game_over)
 			(<= +event_click+ id (+ +event_click+ (dec (* (elem 0 difficulty) (elem 1 difficulty))))))
 			(defq cid (- id click_offset))
 			(bind '(gw gh gn) difficulty)

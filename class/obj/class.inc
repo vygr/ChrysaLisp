@@ -30,7 +30,7 @@
 ; inline methods
 ;;;;;;;;;;;;;;;;
 
-(defcfun class/obj/init ()
+(defun class/obj/init ()
 	;inputs
 	;r0 = object (ptr)
 	;r1 = vtable (pptr)
@@ -48,7 +48,7 @@
 		(lh-add-at-head r2 r3 r4)
 		(vp-pop r2 r3 r4)))
 
-(defcfun class/obj/ref (&optional o c x)
+(defun class/obj/ref (&optional o c x)
 	;inputs
 	;r0 = object (ptr)
 	;outputs

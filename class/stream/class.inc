@@ -43,7 +43,7 @@
 ; inline methods
 ;;;;;;;;;;;;;;;;
 
-(defcfun class/stream/available ()
+(defun class/stream/available ()
 	;inputs
 	;r0 = stream object (ptr)
 	;outputs
@@ -54,7 +54,7 @@
 	(assign '((r0 stream_bufp) (r0 stream_bufe)) '(r2 r1))
 	(vp-sub-rr r2 r1))
 
-(defcfun class/stream/write_flush ()
+(defun class/stream/write_flush ()
 	;inputs
 	;r0 = stream object (ptr)
 	;outputs
