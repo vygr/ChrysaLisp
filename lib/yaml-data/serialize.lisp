@@ -6,6 +6,8 @@
 ; Primary usage is intended to the CPU interchange
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(import "lib/xtras/xtras.inc")
+
 (defq ser_boolean
       (properties
         t   "*true"
