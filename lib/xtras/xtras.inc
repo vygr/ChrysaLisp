@@ -11,6 +11,7 @@
   +nl+          (char 0x0a)
   +eof+         (char 0x00)
   +dblq+        (char 0x22)
+  +singq+       (char 0x27)
   +upper_chars+ "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
   +lower_chars+ "abcdefghijklmnopqrstuvwxyz"
   +bin_prefix+  "0bB"
