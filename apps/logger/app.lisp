@@ -19,17 +19,11 @@
 
   ; Setup general purpose information
   (defq
-    fs  (file-stream "./logs/logservice.log" file_open_append)
-    reg (hmap)
-    lup (hmap)
+    fs    (file-stream "./logs/logservice.log" file_open_append)
+    reg   (hmap)
+    conf  (first (yaml-read "./apps/logger/logsrvc.yaml"))
+    lup   (getp-in conf :logging :levels)
     active t)
-
-  ; Populate lookups
-  (hmap-insert lup +log_message_debug+ "DEBUG")
-  (hmap-insert lup +log_message_info+ "INFO")
-  (hmap-insert lup +log_message_warning+ "WARN")
-  (hmap-insert lup +log_message_error+ "ERROR")
-  (hmap-insert lup +log_message_critical+ "CRITICAL")
 
   (defun-bind log-write (&rest _)
     ; (log-write ....) -> stream
@@ -47,10 +41,10 @@
       msgd (deser-inbound msg)
       cnfg (hmap-find reg (getp msgd :module)))
     (log-write (str
-                 " [" (hmap-find lup (getp msgd :msg-type))"] "
+                 " [" (getp msgd :msg-level)"] "
                  (getp cnfg :name)": ") (getp msgd :message)))
 
-  ; (log-write "apps/logger/logsrvc.yaml " (age "apps/logger/logsrvc.yaml"))
+  (log-write "apps/logger/logsrvc.yaml " conf)
 
   (defun-bind register-logger (config)
     ; (register-logger properties) -> ?

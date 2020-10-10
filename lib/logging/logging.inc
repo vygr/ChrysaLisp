@@ -26,15 +26,6 @@
     'registered+
     'errored+))
 
-; Log message types
-(structure '+log_message 0
-  (byte
-    'debug+
-    'info+
-    'warning+
-    'error+
-    'critical+))
-
 (defun-bind deser-inbound (msg)
   ; (deser-inbound mail-msg) -> properties
   ; Deserializes inbound data from mail message
@@ -103,16 +94,16 @@
     (cat
       (char +log_event_logmsg+ long_size)
       (str (yaml-xser (properties
-        :module   (getp logger :token)
-        :msg-type lmsgtype
-        :message  (str msg)))))
+        :module     (getp logger :token)
+        :msg-level  lmsgtype
+        :message    (str msg)))))
     (get-logsrvc-mb)))
 
 ; Convenience loggers
 
-(defun-bind log-debug (logger msg) (log-send logger +log_message_debug+ msg))
-(defun-bind log-info (logger msg) (log-send logger +log_message_info+ msg))
-(defun-bind log-warning (logger msg) (log-send logger +log_message_warning+ msg))
-(defun-bind log-error (logger msg) (log-send logger +log_message_error+ msg))
-(defun-bind log-critical (logger msg) (log-send logger +log_message_critical+ msg))
+(defun-bind log-debug (logger msg) (log-send logger :debug msg))
+(defun-bind log-info (logger msg) (log-send logger :info msg))
+(defun-bind log-warning (logger msg) (log-send logger :warning msg))
+(defun-bind log-error (logger msg) (log-send logger :error msg))
+(defun-bind log-critical (logger msg) (log-send logger :critical msg))
 

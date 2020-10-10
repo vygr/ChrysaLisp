@@ -12,6 +12,7 @@
   +eof+         (char 0x00)
   +dblq+        (char 0x22)
   +singq+       (char 0x27)
+  +kw_ind+      (char 0x3a)
   +upper_chars+ "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
   +lower_chars+ "abcdefghijklmnopqrstuvwxyz"
   +bin_prefix+  "0bB"
@@ -239,8 +240,11 @@
   ; Converts a string or symbol to a keyword
   ; example:
   ; (kw "foo") -> :foo
+  ; (kw ":foo") -> :foo
   (if (and (not (kw? _)) (or (str? _) (sym? _)))
-    (sym (str ":" _))
+    (if (eql (first _) +kw_ind+)
+      (sym _)
+      (sym (str +kw_ind+ _)))
     (throw "Expected symbol or string, found " _)))
 
 (defun-bind strip-rest (in-args)
