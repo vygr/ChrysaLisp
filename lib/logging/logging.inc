@@ -4,6 +4,10 @@
 
 (import "lib/xtras/xtras.inc")
 (import "lib/yaml-data/yaml-xchange.lisp")
+(import "lib/date/date.inc")
+
+; Setup timezone for now
+(timezone-init "America/New_York")
 
 (defq
   +logging_srvc_name+ "LOG_SERVICE"
@@ -30,6 +34,20 @@
   ; (deser-inbound mail-msg) -> properties
   ; Deserializes inbound data from mail message
   (yaml-xdeser (write (string-stream (cat "")) (slice mail_msg_data -1 msg))))
+
+(defun-bind log-write (sstrm &rest _)
+  ; (log-write strean ....) -> stream
+  ; Wrap timestamp and nl to '_' arguments
+  (setq _ (insert (push _ +nl+) 0 (list (encode-date (date)))))
+  (write sstrm (apply str _))
+  (stream-flush sstrm))
+
+(defun-bind console-log-msg-writer (logger msgd)
+  ; (console-log-msg-writer logconfig mail-message) -> stream
+  (log-write stdout (str
+               " [" (getp msgd :msg-level)"] "
+               (getp logger :name)": ") (getp msgd :message)))
+
 
 (defun-bind log-registration (mname configuration)
   ; (log-registration name properties) -> properties
@@ -88,16 +106,27 @@
   (logresult lr))
 
 (defun-bind log-send (logger lmsgtype msg)
-  ; Generic send log message to service
-
-  (mail-send
-    (cat
-      (char +log_event_logmsg+ long_size)
-      (str (yaml-xser (properties
-        :module     (getp logger :token)
-        :msg-level  lmsgtype
-        :message    (str msg)))))
-    (get-logsrvc-mb)))
+  ; (log-send logger msgtype msg)
+  ; Generic send log message to service unless
+  ; the service is console
+  (defq msgs (properties
+          :module     (getp logger :token)
+          :msg-level  lmsgtype
+          :message    (str msg)))
+  (cond
+    ((eql (getp logger :logger) :console)
+      (defq
+        llvls (getp logger :levels)
+        lvli  (getp llvls lmsgtype)
+        lvlc  (getp llvls (getp-in logger :configuration :level)))
+      (if (>= lvli lvlc)
+        (console-log-msg-writer logger msgs)))
+    (t
+      (mail-send
+        (cat
+          (char +log_event_logmsg+ long_size)
+          (str (yaml-xser msgs)))
+        (get-logsrvc-mb)))))
 
 ; Convenience loggers
 
