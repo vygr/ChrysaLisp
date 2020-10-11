@@ -41,19 +41,11 @@
 			(view-add-child info_flow _) (push info_labels _)) new_services)
 		(bind '(w h) (view-pref-size info_grid))
 		(view-change info_grid 0 0 w h))
-		(view-dirty-all info_scroll))
+		(view-dirty-all (view-layout info_scroll)))
 
-(defun-bind min-size ()
+(defun-bind resize (mh)
 	(bind '(w h) (view-get-size info_grid))
-	(setq h (min h 256))
-	(def info_scroll :min_width w :min_height h)
-	(bind '(x y w h) (apply view-fit (cat (view-get-pos window) (view-pref-size window))))
-	(undef info_scroll :min_width :min_height)
-	(view-change-dirty window x y w h))
-
-(defun-bind max-size ()
-	(bind '(w h) (view-get-size info_grid))
-	(setq h (min h 640))
+	(setq h (min h mh))
 	(def info_scroll :min_width w :min_height h)
 	(bind '(x y w h) (apply view-fit (cat (view-get-pos window) (view-pref-size window))))
 	(undef info_scroll :min_width :min_height)
@@ -79,12 +71,12 @@
 					(setq id nil))
 				((= id +event_min+)
 					;min button
-					(min-size))
+					(resize 256))
 				((= id +event_max+)
 					;max button
-					(max-size))
+					(resize 640))
 				(t (view-event window msg))))
 		(task-sleep 10000)
 		(populate))
-	;close window and children
+	;close window
 	(view-hide window))
