@@ -32,8 +32,6 @@
   lf      (char 0x0a)
   cr      (char 0x0d)
   blank   (char 0x20)
-  squote  (char 0x27)
-  dquote  (char 0x22)
   fslash  (char 0x2f)
   bslash  (char 0x5c))
 

@@ -357,7 +357,7 @@ This is an example from the `class/pair/class.inc` file.
 ; inline methods
 ;;;;;;;;;;;;;;;;;
 
-(defcfun class/pair/init ()
+(defun class/pair/init ()
 	;inputs
 	;r0 = pair object (ptr)
 	;r1 = vtable (pptr)
@@ -371,7 +371,7 @@ This is an example from the `class/pair/class.inc` file.
 	(assign '(r2 r3) '((r0 pair_first) (r0 pair_second)))
 	(s-call 'pair :init '(r0 r1) '(r0 r1)))
 
-(defcfun-bind class/pair/get_first ()
+(defun-bind class/pair/get_first ()
 	;inputs
 	;r0 = pair object (ptr)
 	;outputs
@@ -381,7 +381,7 @@ This is an example from the `class/pair/class.inc` file.
 	;r1
 	(assign '((r0 pair_first)) '(r1)))
 
-(defcfun-bind class/pair/get_second ()
+(defun-bind class/pair/get_second ()
 	;inputs
 	;r0 = pair object (ptr)
 	;outputs

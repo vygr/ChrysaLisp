@@ -7695,6 +7695,7 @@ r0-r2
 inputs
 r0 = service name str object (ptr)
 r1 = mailbox id num object (ptr)
+r2 = service info str object (ptr)
 outputs
 r0 = service entry str object (ptr)
 trashes
@@ -7716,6 +7717,7 @@ ping services out to network
 inputs
 r0 = service name str object (ptr)
 r1 = mailbox id num object (ptr)
+r2 = service info str object (ptr)
 trashes
 r0-r14
 ```
@@ -7726,6 +7728,7 @@ r0-r14
 inputs
 r0 = service name str object (ptr)
 r1 = mailbox id num object (ptr)
+r2 = service info str object (ptr)
 trashes
 r0-r14
 ```

@@ -18,6 +18,7 @@
 	#include <io.h>
 	#include <windows.h>
 	#include <tchar.h>
+
 #else
 	#include <sys/mman.h>
 	#include <sys/time.h>
@@ -31,7 +32,7 @@ enum
 {
 	file_open_read,
 	file_open_write,
-	file_open_readwrite
+	file_open_append
 };
 
 char dirbuf[1024];
@@ -120,19 +121,35 @@ static void rmkdir(const char *path)
 
 long long myopen(const char *path, int mode)
 {
+	int fd;
 #ifdef _WIN64
 	switch (mode)
 	{
 	case file_open_read: return open(path, O_RDONLY | O_BINARY);
 	case file_open_write:
 	{
-		int fd;
 		fd = open(path, O_CREAT | O_RDWR | O_BINARY | O_TRUNC, _S_IREAD | _S_IWRITE);
 		if (fd != -1) return fd;
 		rmkdir(path);
 		return open(path, O_CREAT | O_RDWR | O_BINARY | O_TRUNC, _S_IREAD | _S_IWRITE);
 	}
-	case file_open_readwrite: return open(path, O_CREAT | O_RDWR | O_BINARY);
+	case file_open_append:
+	{
+		fd = open(path, O_CREAT | O_RDWR | O_BINARY, _S_IREAD | _S_IWRITE);
+		if (fd != -1)
+		{
+			lseek(fd, 0, SEEK_END);
+			return fd;
+		}
+		else
+		{
+			rmkdir(path);
+			fd = open(path, O_CREAT | O_RDWR | O_BINARY, _S_IREAD | _S_IWRITE);
+			if (fd != -1) return fd;
+			lseek(fd, 0, SEEK_END);
+		}
+		return fd;
+	}
 	}
 #else
 	switch (mode)
@@ -140,13 +157,28 @@ long long myopen(const char *path, int mode)
 	case file_open_read: return open(path, O_RDONLY, 0);
 	case file_open_write:
 	{
-		int fd;
 		fd = open(path, O_CREAT | O_RDWR | O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
 		if (fd != -1) return fd;
 		rmkdir(path);
 		return open(path, O_CREAT | O_RDWR | O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
 	}
-	case file_open_readwrite: return open(path, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
+	case file_open_append:
+	{
+		fd = open(path, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+		if (fd != -1)
+		{
+			lseek(fd, 0, SEEK_END);
+			return fd;
+		}
+		else
+		{
+			rmkdir(path);
+			fd = open(path, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+			if (fd != -1) return fd;
+			lseek(fd, 0, SEEK_END);
+		}
+		return fd;
+	}
 	}
 #endif
 	return -1;
@@ -241,7 +273,50 @@ long long mystat(const char *path, struct finfo *st)
 #ifdef _WIN64
 	// For Chris to consider refactoring the mydirlist logic to use a visitor
 	// function
-	// TODO: Windows implementation
+int walk_directory(char* path,
+	int (*filevisitor)(const char*),
+	int (*foldervisitor)(const char*, int))
+{
+	char dirpathwild[_MAX_PATH] = { 0 };
+	WIN32_FIND_DATAA wfd = { 0 };
+	int err = 0;
+	sprintf_s(dirpathwild, _MAX_PATH, "%s\\*.*", path);
+	HANDLE hFind = FindFirstFileA(dirpathwild, &wfd);
+	if (hFind) {
+		do {
+			if (wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+				if (strstr(wfd.cFileName, ".") != wfd.cFileName) {
+					err = foldervisitor(wfd.cFileName, FOLDER_PRE);
+					char buffer[_MAX_PATH] = { 0 };
+					sprintf_s(buffer, _MAX_PATH, "%s\\%s\\", path, wfd.cFileName);
+					walk_directory(buffer, filevisitor, foldervisitor);
+
+					if (wfd.dwFileAttributes & FILE_ATTRIBUTE_READONLY) {
+						err = _chmod(buffer, _S_IWRITE);
+					}
+
+					err = foldervisitor(buffer, FOLDER_POST);
+				}
+			}
+			else {
+				char buffer[_MAX_PATH] = { 0 };
+				sprintf_s(buffer, _MAX_PATH, "%s\\%s", path, wfd.cFileName);
+
+				if (wfd.dwFileAttributes & FILE_ATTRIBUTE_READONLY) {
+					err = _chmod(buffer, _S_IWRITE);
+				}
+
+				err = filevisitor(buffer);
+			}
+		} while (FindNextFileA(hFind, &wfd));
+
+
+		FindClose(hFind);
+		err = foldervisitor(path, FOLDER_POST);
+	}
+
+	return (1);
+}
 #else
 int walk_directory(char* path,
 		int (*filevisitor)(const char*),
@@ -339,7 +414,7 @@ int gettimeofday(struct timeval *tv, struct timezone *tz)
 {
 	if (tv != NULL)
 	{
-		FILETIME ft;
+		FILETIME ft = { 0 };
 		unsigned __int64 tmpres = 0;
 		GetSystemTimePreciseAsFileTime(&ft);
 		tmpres |= ft.dwHighDateTime;
@@ -352,6 +427,7 @@ int gettimeofday(struct timeval *tv, struct timezone *tz)
 	}
 	return 0;
 }
+
 #endif
 
 struct timeval tv;
@@ -359,7 +435,7 @@ struct timeval tv;
 long long gettime()
 {
 	gettimeofday(&tv, NULL);
-	return tv.tv_sec * 1000000 + tv.tv_usec;
+	return (((long long)tv.tv_sec * 1000000) + tv.tv_usec);
 }
 
 enum

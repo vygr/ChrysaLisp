@@ -5,7 +5,8 @@
 (defq *env_launcher_apps* '(
 	"terminal" "edit" "help" "docs" "debug" "netmon" "stats"
 	"fonts" "whiteboard" "clock" "calculator"
-	"boing" "freeball" "bubbles" "images" "films" "canvas" "raymarch" "mandelbrot" "pcb" "chess" "files" "minefield")
+	"boing" "freeball" "bubbles" "images" "films" "canvas" "raymarch" "mandelbrot" "pcb" "chess" "files"
+	"minefield" "services")
 	*env_launcher_auto_apps* '("clock" "terminal"))
 
 ;launcher placement from xy :center :top :bottom :left :right)

@@ -12,7 +12,7 @@
 
 (defcvar '*class* nil (class-sym 'null) '(()()0) '*args* (list))
 
-(defcfun vtable-emit (_1)
+(defun vtable-emit (_1)
 	;_1 = class name
 	(if (eql (defq _ (eval (super-sym _1))) 'null)
 		(vp-long 0)
@@ -21,7 +21,7 @@
 		(if (or (eql (elem 1 _) :virtual) (eql (elem 1 _) :final))
 			(fn-add-link (elem 0 _)))) (elem 1 (eval (class-sym _1)))))
 
-(defcfun def-class (_1 &optional _2)
+(defun def-class (_1 &optional _2)
 	;_1 = class name
 	;_2 = super class name
 	(setd _2 'null)
@@ -29,14 +29,14 @@
 	(setq *class* (list (cat (elem 0 _)) (cat (elem 1 _)) (elem 2 _)))
 	(defcvar (super-sym _1) _2 (class-sym _1) *class*))
 
-(defcfun-bind override ()
+(defun-bind override ()
 	(setq m (cat m))
 	(elem-set 0 m _2)
 	(elem-set s (elem 1 *class*) m)
 	(if _4 (elem-set 2 m _4))
 	(if _5 (elem-set 3 m _5)))
 
-(defcfun-bind dec-method (_1 _2 &optional _3 _4 _5)
+(defun-bind dec-method (_1 _2 &optional _3 _4 _5)
 	;_1 = member name
 	;_2 = member function
 	;_3 = mode (static/virtual/final/override)
@@ -82,7 +82,7 @@
 				(throw "Method does not exist !" _1))
 			(t (throw "Must use static, virtual, final or override ! " _3)))))
 
-(defcfun def-method (_1 _2 &optional _3)
+(defun def-method (_1 _2 &optional _3)
 	;_1 = class name
 	;_2 = member name
 	;_3 = function stack alignment
@@ -92,7 +92,7 @@
 ; function helpers
 ;;;;;;;;;;;;;;;;;;
 
-(defcfun-bind call (_1 _2 &optional _3 _4)
+(defun-bind call (_1 _2 &optional _3 _4)
 	;_1 = class name
 	;_2 = member name
 	;_3 = in parameters
@@ -128,7 +128,7 @@
 				((str? _3) (assign (slice 0 (length (split _3 ",")) _) _3))
 				(t (assign (slice 0 (length _3) _) _3))))))
 
-(defcfun-bind jump (_1 _2 &optional _3)
+(defun-bind jump (_1 _2 &optional _3)
 	;_1 = class name
 	;_2 = member name
 	;_3 = in parameters
@@ -147,7 +147,7 @@
 			(unwind)
 			(vp-jmp-i r14 (elem 4 m)))))
 
-(defcmacro-bind entry (&rest _)
+(defmacro-bind entry (&rest _)
 	;either
 	;_1 = class name
 	;_2 = slot method name
@@ -158,7 +158,7 @@
 		(cat '(l-entry) _)
 		(cat '(f-entry) _)))
 
-(defcmacro-bind exit (&rest _)
+(defmacro-bind exit (&rest _)
 	;either
 	;_1 = class name
 	;_2 = slot method name
@@ -173,14 +173,14 @@
 ; class calling
 ;;;;;;;;;;;;;;;
 
-(defcfun-bind method-lookup (_1 _2)
+(defun-bind method-lookup (_1 _2)
 	;_1 = class name
 	;_2 = member name
 	(defq c (eval (class-sym _1)) _ (find-rev _2 (elem 0 c)))
 	(unless _ (throw "No such method !" (list _1 _2)))
 	(elem _ (elem 1 c)))
 
-(defcfun method-input (_1 _2 &optional _3)
+(defun method-input (_1 _2 &optional _3)
 	;_1 = class name
 	;_2 = member name
 	;_3 = input paramater index, nil for entire list
@@ -188,7 +188,7 @@
 		(elem _3 (elem 2 (method-lookup _1 _2)))
 		(elem 2 (method-lookup _1 _2))))
 
-(defcfun method-output (_1 _2 &optional _3)
+(defun method-output (_1 _2 &optional _3)
 	;_1 = class name
 	;_2 = member name
 	;_3 = output paramater index, nil for entire list
@@ -196,29 +196,29 @@
 		(elem _3 (elem 3 (method-lookup _1 _2)))
 		(elem 3 (method-lookup _1 _2))))
 
-(defcfun-bind f-path (_1 _2)
+(defun-bind f-path (_1 _2)
 	;_1 = class name
 	;_2 = slot method name
 	(elem 0 (method-lookup _1 _2)))
 
-(defcfun s-path (_1 _2)
+(defun s-path (_1 _2)
 	;_1 = class name
 	;_2 = slot method name
 	(elem 0 (method-lookup (eval (super-sym _1)) _2)))
 
-(defcfun f-entry (_1 _2 _3)
+(defun f-entry (_1 _2 _3)
 	;_1 = class name
 	;_2 = slot method name
 	;_3 = in parameters
 	(assign (elem 2 (method-lookup _1 _2)) _3))
 
-(defcfun f-exit (_1 _2 _3)
+(defun f-exit (_1 _2 _3)
 	;_1 = class name
 	;_2 = slot method name
 	;_3 = out parameters
 	(assign _3 (elem 3 (method-lookup _1 _2))))
 
-(defcfun l-entry (_1)
+(defun l-entry (_1)
 	;_1 = in parameters
 	(defq _ '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14))
 	(cond
@@ -226,7 +226,7 @@
 		((str? _1) (assign (slice 0 (length (split _1 ",")) _) _1))
 		(t (assign (slice 0 (length _1) _) _1))))
 
-(defcfun l-exit (_1)
+(defun l-exit (_1)
 	;_1 = out parameters
 	(defq _ '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14))
 	(cond
@@ -238,7 +238,7 @@
 ; method calling
 ;;;;;;;;;;;;;;;;
 
-(defcfun f-call (_1 _2 &optional _3 _4)
+(defun f-call (_1 _2 &optional _3 _4)
 	;_1 = class name
 	;_2 = member name
 	;_3 = in parameters
@@ -250,7 +250,7 @@
 	(fn-call (elem 0 m))
 	(if _4 (assign (elem 3 m) _4)))
 
-(defcfun f-jmp (_1 _2 &optional _3)
+(defun f-jmp (_1 _2 &optional _3)
 	;_1 = class name
 	;_2 = member name
 	;_3 = in parameters
@@ -261,7 +261,7 @@
 	(unwind)
 	(fn-jump (elem 0 m)))
 
-(defcfun f-bind (_1 _2 _3)
+(defun f-bind (_1 _2 _3)
 	;_1 = class name
 	;_2 = member name
 	;_3 = reg
@@ -270,7 +270,7 @@
 		(throw "Method is not static ! Use v-bind ?" (list _1 _2)))
 	(fn-bind (elem 0 m) _3))
 
-(defcfun s-call (_1 _2 &optional _3 _4)
+(defun s-call (_1 _2 &optional _3 _4)
 	;_1 = class name
 	;_2 = member name
 	;_3 = in parameters
@@ -284,7 +284,7 @@
 		(fn-call (elem 0 m))
 		(if _4 (assign (elem 3 m) _4))))
 
-(defcfun s-jump (_1 _2 &optional _3)
+(defun s-jump (_1 _2 &optional _3)
 	;_1 = class name
 	;_2 = member name
 	;_3 = in parameters
@@ -298,7 +298,7 @@
 		(vp-ret)
 		(fn-jump (elem 0 m))))
 
-(defcfun s-bind (_1 _2 _3)
+(defun s-bind (_1 _2 _3)
 	;_1 = class name
 	;_2 = member name
 	;_3 = reg
@@ -307,7 +307,7 @@
 		(throw "Method is static !" (list (eval (super-sym _1)) _2)))
 	(fn-bind (elem 0 m) _3))
 
-(defcfun v-call (_1 _2 &optional _3 _4 _5 _6)
+(defun v-call (_1 _2 &optional _3 _4 _5 _6)
 	;_1 = class name
 	;_2 = member name
 	;_3 = in parameters
@@ -326,7 +326,7 @@
 	(vp-call-i _6 (elem 4 m))
 	(if _4 (assign (elem 3 m) _4)))
 
-(defcfun v-jump (_1 _2 &optional _3 _4)
+(defun v-jump (_1 _2 &optional _3 _4)
 	;_1 = class name
 	;_2 = member name
 	;_3 = in parameters
@@ -343,7 +343,7 @@
 	(unwind)
 	(vp-jmp-i _4 (elem 4 m)))
 
-(defcfun v-bind (_1 _2 &optional _3 _4)
+(defun v-bind (_1 _2 &optional _3 _4)
 	;_1 = class name
 	;_2 = member name
 	;_3 = obj reg
@@ -355,7 +355,7 @@
 	(vp-cpy-ir _3 obj_vtable _4)
 	(vp-cpy-ir _4 (elem 4 m) _4))
 
-(defcfun d-call (_1 _2 &optional _3 _4)
+(defun d-call (_1 _2 &optional _3 _4)
 	;_1 = class name
 	;_2 = member name
 	;_3 = in parameters
@@ -367,7 +367,7 @@
 	(fn-call (elem 0 m))
 	(if _4 (assign (elem 3 m) _4)))
 
-(defcfun d-jump (_1 _2 &optional _3)
+(defun d-jump (_1 _2 &optional _3)
 	;_1 = class name
 	;_2 = member name
 	;_3 = in parameters
@@ -378,7 +378,7 @@
 	(unwind)
 	(fn-jump (elem 0 m)))
 
-(defcfun d-bind (_1 _2 _3)
+(defun d-bind (_1 _2 _3)
 	;_1 = class name
 	;_2 = member name
 	;_3 = reg
@@ -387,7 +387,7 @@
 		(throw "Method is static ! Use f-bind ?" (list _1 _2)))
 	(fn-bind (elem 0 m) _3))
 
-(defcfun r-call (_1 _2 &optional _3 _4 _5)
+(defun r-call (_1 _2 &optional _3 _4 _5)
 	;_1 = class name
 	;_2 = member name
 	;_3 = in parameters
@@ -401,7 +401,7 @@
 	(vp-call-r _5)
 	(if _4 (assign (elem 3 m) _4)))
 
-(defcfun r-jump (_1 _2 &optional _3 _4)
+(defun r-jump (_1 _2 &optional _3 _4)
 	;_1 = class name
 	;_2 = member name
 	;_3 = in parameters
@@ -414,7 +414,7 @@
 	(unwind)
 	(vp-jmp-r _4))
 
-(defcfun l-call (_1 &optional _2 _3)
+(defun l-call (_1 &optional _2 _3)
 	;_1 = label
 	;_2 = in parameters
 	;_3 = out parameters
@@ -433,19 +433,19 @@
 ; generic class construction
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defcfun signature (_)
+(defun signature (_)
 	(vp-align short_size)
 (vp-label 'sig)
 	(each (lambda (_)
 		(vp-short `(- ,(label-sym (link-sym (fn-find-link (f-path _ :vtable)))) *pc*))) _))
 
-(defcfun gen-vtable (_1)
+(defun gen-vtable (_1)
 	;_1 = class name
 	(def-func (f-path _1 :vtable))
 		(vtable-emit _1)
 	(def-func-end))
 
-(defcfun gen-create (_1 &optional _2)
+(defun gen-create (_1 &optional _2)
 	;_1 = class name
 	;_2 = create/init name
 	(defq m (method-lookup _1 (if _2 (sym (cat :create_ _2)) :create)) _3 (opt (elem 2 m) '())

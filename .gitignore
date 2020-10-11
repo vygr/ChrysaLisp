@@ -1,4 +1,5 @@
 obj/*
+logs/*
 platform
 arch
 abi

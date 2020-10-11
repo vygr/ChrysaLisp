@@ -381,10 +381,10 @@
 
 (defmacro-bind # (&rest b)
 	;(# (< %0 0)) -> (lambda (%0) (< %0 0))
-	`(lambda ,(slice 0 (reduce (lambda (c _)
-		(if (find _ '(%0 %1 %2 %3 %4 %5 %6 %7 %8 %9)) (inc c) c))
-		(merge-obj (list) (map sym (split (str b) "( )"))) 0)
-			'(%0 %1 %2 %3 %4 %5 %6 %7 %8 %9)) ~b))
+	(defq s (filter (lambda (_) (find _ '(%0 %1 %2 %3 %4 %5 %6 %7 %8 %9)))
+				(merge-obj (list) (map sym (split (str b) "( )"))))
+		p (slice 0 (length s) '(%0 %1 %2 %3 %4 %5 %6 %7 %8 %9)))
+	`(lambda ,p ~b))
 
 ;;;;;;;;;;;;
 ; Predicates
@@ -508,10 +508,6 @@
 ;;;;;;;;;;;
 ; Utilities
 ;;;;;;;;;;;
-
-(defmacro-bind def: (_ &optional e)
-	;(def: syms [env])
-	(if e `(eval `(bind ,_ ,_) ,e) `(eval `(bind ,_ ,_))))
 
 (defmacro-bind ascii-code (_)
 	;(ascii-code char) -> num
@@ -795,25 +791,17 @@
 
 (defun-bind within-compile-env (_f)
 	;(within-compile-env lambda)
-	(defq *compile_env* (env 307) *compile_includes* (list))
+	(defq *compile_env* (env 401) *compile_includes* (list))
 	(defmacro-bind defcvar (&rest b)
 		`(def *compile_env* ~b))
 	(defmacro-bind undefc (&rest b)
 		`(undef *compile_env* ~b))
-	(defmacro-bind defcfun (n a &rest b)
-		`(def *compile_env* ',n (lambda ,a ~b)))
-	(defmacro-bind defcmacro (n a &rest b)
-		`(def *compile_env* ',n (macro ,a ~b)))
-	(defmacro-bind defcfun-bind (n a &rest b)
-		`(def *compile_env* ',n (lambda ,a ~(prebind (macroexpand b)))))
-	(defmacro-bind defcmacro-bind (n a &rest b)
-		`(def *compile_env* ',n (macro ,a ~(prebind (macroexpand b)))))
 	(defun-bind include (_f)
 		(unless (str? _f) (throw "Not a string !" _f))
 		(if (= (age _f) 0) (throw "No such file !" _f))
 		(unless (some (# (eql %0 _f)) *compile_includes*)
 			(push *compile_includes* _f)
-			(repl (file-stream _f) _f)))
+			(eval `(repl (file-stream ,_f) ,_f) *compile_env*)))
 	(catch (progn (setq _f (_f) *compile_env* nil) _f)
 		(setq *compile_env* nil)))
  

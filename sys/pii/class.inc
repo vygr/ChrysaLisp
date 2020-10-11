@@ -46,7 +46,7 @@
 (dec-method :dirlist nil :virtual (abi-args 3) '(r0))
 (dec-method :remove nil :virtual (abi-args 1) '(r0))
 
-(defcfun host-call-table (_1 _2 _5 &optional _3 _4 _6)
+(defun host-call-table (_1 _2 _5 &optional _3 _4 _6)
 	;_1 = class name
 	;_2 = member name
 	;_5 = host function table
@@ -65,7 +65,7 @@
 	(vp-call-abi _6 _5 (- (elem 4 m) ptr_size) x)
 	(if _4 (assign (elem 3 m) _4)))
 
-(defcfun host-call (_1 _2 &optional _3 _4 _5 _6)
+(defun host-call (_1 _2 &optional _3 _4 _5 _6)
 	;_1 = class name
 	;_2 = member name
 	;_3 = in parameters
@@ -264,7 +264,7 @@
 (dec-method :lisp_remove 'sys/pii/lisp_remove :static '(r0 r1) '(r0 r1))
 
 ;debug helpers
-(defcfun debug-num (s n)
+(defun debug-num (s n)
 	(when (> *debug_mode* 0)
 		(ptr '_a '_b '_c)
 		(push-scope)
@@ -277,7 +277,7 @@
 		(assign {_a, _b, _c} '(r0 r1 r2))
 		(pop-scope)))
 
-(defcfun debug-str (s)
+(defun debug-str (s)
 	(when (> *debug_mode* 0)
 		(ptr '_a '_b)
 		(push-scope)

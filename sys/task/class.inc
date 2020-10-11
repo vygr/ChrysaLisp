@@ -61,8 +61,8 @@
 ; task macros
 ;;;;;;;;;;;;;
 
-(defcfun tk-save-state ()
+(defun tk-save-state ()
 	(apply vp-push stack_state))
 
-(defcfun tk-load-state ()
+(defun tk-load-state ()
 	(apply vp-pop stack_state))

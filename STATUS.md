@@ -31,8 +31,8 @@ corrupted.
 
 Reminder that #ChrysaLisp@matrix.org IRC chat room is available for all. Highly
 recommend the Element open source app for use with this. More often than not
-things get disused there before they make it into the repo and this status doc.
-!
+things get discussed there before they make it into the repo and this status
+doc. !
 
 New anaphoric lib `(aeach seq body)` macro from Nuclearfall.
 
@@ -41,6 +41,28 @@ to follow.
 
 Wonderful new game demo `Minefield` from Nuclearfall. I am so bad at this
 thing....
+
+C++ version now up to date with new (make) system.
+
+(file-stream path file_open_append) mode now available. Make sure to 'make' the
+main.c for the host support.
+
+New snapshot.zip bringing the Windows version up to date and providing a new
+prebuilt main.exe for folks that want to try the Windows version. Many thanks
+to Martyn Bliss aka BananaEarwig for the new build. This should fix the GUI
+issue on Windows as well as bring the new (file-stream) open options.
+
+Removed (def:) macro as this is now redundant since the keyword symbols addition.
+
+Corrected (#) macro after testing with pre-binding turned off.
+
+Enabled (pii-remove) now we have Windows support care of Martyn Bliss.
+
+Removed (defcfun) (defcfun-bind) (defcmacro) (defcmacro-bind) from the compiler
+environment. (include) now imports into the `*compile_env*` directly.
+
+Fix for Windows main.c gettimeofday() EPOC calculation. GUI clock app now
+displays correctly on Windows.
 
 ------
 
