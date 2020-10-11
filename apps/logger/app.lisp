@@ -12,7 +12,7 @@
 
 ;single instance only
 (when (= (length (mail-enquire +logging_srvc_name+)) 0)
-  (mail-declare +logging_srvc_name+ (task-mailbox))
+  (mail-declare +logging_srvc_name+ (task-mailbox) "Logging Service 0.1")
 
   ; Setup timezone for now
   (timezone-init "America/New_York")
@@ -87,5 +87,5 @@
       ; Should throw exception
       (t
         (log-write " Unknown " msg))))
-  (mail-forget +logging_srvc_name+ (task-mailbox))
+  (mail-forget +logging_srvc_name+ (task-mailbox) "Logging Service 0.1")
 )

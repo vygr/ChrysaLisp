@@ -13,7 +13,7 @@
 
 ;single instance only
 (when (= (length (mail-enquire "DEBUG_SERVICE")) 0)
-	(mail-declare "DEBUG_SERVICE" (task-mailbox))
+	(mail-declare "DEBUG_SERVICE" (task-mailbox) "Debug Service 0.3")
 
 (structure 'debug_msg 0
 	(long 'command 'reply_id 'tcb)
@@ -141,6 +141,6 @@
 				(reset))
 			;otherwise
 			(t (view-event window msg))))
-	(mail-forget "DEBUG_SERVICE" (task-mailbox))
+	(mail-forget "DEBUG_SERVICE" (task-mailbox) "Debug Service 0.3")
 	(view-hide window))
 )

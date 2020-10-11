@@ -476,23 +476,27 @@
 	;inputs
 	;r0 = service name str object (ptr)
 	;r1 = mailbox id num object (ptr)
+	;r2 = service info str object (ptr)
 	;outputs
 	;r0 = service entry str object (ptr)
 	;trashes
 	;r0-r14
 
-	(ptr 'name 'id 'cat 'tmp1 'tmp2)
+	(ptr 'name 'id 'info 'cat 'tmp1 'tmp2)
 
 	(push-scope)
-	(entry 'sys_mail :service {name, id})
+	(entry 'sys_mail :service {name, id, info})
 
 	;create service entry
 	(call 'obj :ref {name})
+	(call 'obj :ref {info})
 	(call 'list :create nil {cat})
 	(call 'list :push_back {cat, name})
 	(call 'str :create_from_long {id->num_value, -16} {tmp2})
 	(call 'str :create_from_buffer {",0x0000000000000000", 19 - tmp2->str_length} {tmp1})
 	(call 'list :push_back2 {cat, tmp1, tmp2})
+	(call 'str :create_from_buffer {",", 1} {tmp1})
+	(call 'list :push_back2 {cat, tmp1, info})
 	(call 'str :cat {name, cat} {name})
 	(call 'list :destroy {cat})
 
@@ -506,13 +510,14 @@
 	;inputs
 	;r0 = service name str object (ptr)
 	;r1 = mailbox id num object (ptr)
+	;r2 = service info str object (ptr)
 	;trashes
 	;r0-r14
 
-	(ptr 'name 'id 'key 'bucket 'set 'tuple 'session)
+	(ptr 'name 'id 'info 'key 'bucket 'set 'tuple 'session)
 
 	(push-scope)
-	(entry 'sys_mail :declare {name, id})
+	(entry 'sys_mail :declare {name, id, info})
 
 	;insert into service map
 	(call 'num :create {id->num_value >> 32} {key})
@@ -529,7 +534,7 @@
 		(call 'num :destroy {key})
 	(endif)
 	(call 'list :get_second {tuple} {_, set})
-	(call 'sys_mail :service {name, id} {name})
+	(call 'sys_mail :service {name, id, info} {name})
 	(call 'hset :insert {set, name})
 	(call 'str :deref {name})
 	(jump 'sys_mail :ping '())
@@ -596,16 +601,17 @@
 	;inputs
 	;r0 = service name str object (ptr)
 	;r1 = mailbox id num object (ptr)
+	;r2 = service info str object (ptr)
 	;trashes
 	;r0-r14
 
-	(ptr 'name 'id 'bucket 'tuple)
+	(ptr 'name 'id 'info 'bucket 'tuple)
 	(union
 		(ptr 'set)
 		(ptr 'key))
 
 	(push-scope)
-	(entry 'sys_mail :forget {name, id})
+	(entry 'sys_mail :forget {name, id, info})
 
 	;find in service map
 	(call 'num :create {id->num_value >> 32} {key})
@@ -613,7 +619,7 @@
 	(call 'num :destroy {key})
 	(vpif {tuple})
 		(assign {(*(pptr tuple))->pair_second} {tuple})
-		(call 'sys_mail :service {name, id} {name})
+		(call 'sys_mail :service {name, id, info} {name})
 		(call 'list :get_second {tuple} {_, set})
 		(call 'hset :find {set, name} {_, id, bucket})
 		(vpif {id})

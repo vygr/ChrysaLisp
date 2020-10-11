@@ -181,7 +181,7 @@
 	(entry 'sys_mail :lisp_declare '(r0 r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(r1 ($ sig) 2) '(r2))
+	(call 'lisp :env_args_sig '(r1 ($ sig) 3) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
@@ -198,8 +198,8 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(mail-declare name mbox)" error_msg_wrong_types r1))
-	(signature '(str num)))
+	(jump 'lisp :repl_error '(r0 "(mail-declare name mbox info)" error_msg_wrong_types r1))
+	(signature '(str num str)))
 
 (def-func-end)
 
@@ -248,7 +248,7 @@
 	(entry 'sys_mail :lisp_forget '(r0 r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(r1 ($ sig) 2) '(r2))
+	(call 'lisp :env_args_sig '(r1 ($ sig) 3) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
@@ -265,8 +265,8 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(mail-forget name mbox)" error_msg_wrong_types r1))
-	(signature '(str num)))
+	(jump 'lisp :repl_error '(r0 "(mail-forget name mbox info)" error_msg_wrong_types r1))
+	(signature '(str num str)))
 
 (def-func-end)
 
