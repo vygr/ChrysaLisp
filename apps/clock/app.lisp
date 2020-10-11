@@ -15,7 +15,7 @@
 	(if (eql *env_clock_analog* t)
 		(ui-canvas clock clock_size clock_size clock_scale) (defq clock nil))
 	(if (eql *env_clock_digital* t)
-		(ui-label display (:text "xxx hh:mm:ss" :color argb_black :ink_color argb_red
+		(ui-label display (:text "xxx hh:mm:ss"
 			:flow_flags (logior flow_flag_align_hcenter flow_flag_align_vcenter)
 			:font (create-font "fonts/Hack-Regular.ctf" 44)))
 		(defq display nil)))
