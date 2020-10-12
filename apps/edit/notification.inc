@@ -1,3 +1,4 @@
+;creates a transient request or notification.
 (import "sys/lisp.inc")
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
@@ -35,15 +36,8 @@
 	(modal label_text b_text color mx my mw mh)
 	(when sleep_time (task-sleep sleep_time))
 	(while (cond
-		((eql (defq msg (mail-read (task-mailbox))) "")
-			nil)
-		((= (length button_text) 0) (task-sleep sleep_time) (mail-send "" reply_mbox))
-		; ((= (defq id (get-long msg ev_msg_target_id)) +event_yes+)
-		; 	(mail-send "Yes" reply_mbox))
-		; ((= id +event_no+)
-		; 	(mail-send "No" reply_mbox))
-		; ((= id +event_cancel+)
-		; 	(mail-send "Cancel" reply_mbox))
+		((eql (defq msg (mail-read (task-mailbox))) "") nil)
+		((= (length button_text) 0) (task-sleep sleep_time))
 		((= (defq id (get-long msg ev_msg_target_id)) +event_click+)
 			(defq reply (get :text (view-find-id window (get-long msg ev_msg_action_source_id))))
 			(mail-send reply reply_mbox))
