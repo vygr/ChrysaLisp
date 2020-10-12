@@ -1,32 +1,45 @@
 Welcome to ChrysaLisp edit
 ==========================
 
-Edit has the most basic of functionality, as you can see. 
+Edit has standard buttons for opening, saving, closing, and
+creating buffers, as well as navigating through them.
 
-Opening a buffer using the textbox, or creating a new buffer
-doesn't close the buffer you were previously on. You may
-create a new buffer by clicking "+". Then come back here by
-clicking "<". 
+On the right side of the screen are buttons to clear the
+textfield, search, and scroll through search results.
 
-Buffers are saved and closed explicitly. Closing the last
-buffer closes the edit window. Any changes that have not
-been saved will be lost! 
+Between these sets of buttons is a textfield. It is used
+to enter search terms and may be used to issue commands.
 
-New files aren't stored anywhere until they are saved. To
-save enter a path and click the save icon.
+The following is a list commands recognized
+by edit:
 
-If you want a new buffer to be saved when you create it,
-enter a path. Then, click the open icon. Opening a buffer
-at a path that doesn't exists, creates  the buffer at that
-path.
+(open:<path>) If path is already opened, it will switch
+to that buffer. If it doesn't exist, it will create a new
+buffer there, otherwise it will open an existing file.
 
-If there are no "/" characters in the textbox when you open
-or save, the events will occur within your user directory.
-The default user is Guest.
+(save:<path>) Save the current buffer to the given path.
 
-To test things out and to see some basic configuration
-options, first open a new buffer with "+", then type 
-"pupa.inc" then click the open icon.
+(new) create a new untitled buffer.
 
-You can remove this file from the *env_edit_auto* list, and
-edit will start with an empty buffer.
+(close) close the current buffer, this will close the
+application if you close the last buffer.
+
+(prev) and (next) navigate open buffers
+
+(find:<string>) is usually unnecessary, unless searching
+for a string that is also an edit command.
+
+To navigate found strings, press enter to move down the
+search results, or use the find navigation buttons.
+
+Confirmation is required for saving to overwrite an existing
+file or to create a new file in the filesystem. Files
+created using the (new) command,  aren't stored to the
+filesyste until a save command is issued..
+
+To prevent this  message from appearing when opening edit,
+remove apps/edit/message from *env_edit_auto* in the 
+pupa.inc file at apps/login/<username>/pupa.inc.
+ 
+To do so issue the command:
+(open:apps/login/Guest/pupa.inc)

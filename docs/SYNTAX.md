@@ -694,7 +694,7 @@
 
 ## mail-declare
 
-(mail-declare name mbox)
+(mail-declare name mbox info)
 
 ## mail-devices
 
@@ -706,7 +706,7 @@
 
 ## mail-forget
 
-(mail-forget name mbox)
+(mail-forget name mbox info)
 
 ## mail-free-mbox
 

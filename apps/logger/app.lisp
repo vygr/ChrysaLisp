@@ -15,7 +15,7 @@
 
 ;single instance only
 (when (= (length (mail-enquire +logging_srvc_name+)) 0)
-  (mail-declare +logging_srvc_name+ (task-mailbox))
+  (mail-declare +logging_srvc_name+ (task-mailbox) "Logging Service 0.1")
 
   (defun-bind logfile_setup (fhandler)
     )
@@ -73,6 +73,6 @@
        (log-msg-writer fs msg))
       ; Should throw exception
       (t
-        (log-write fs " Unknown " msg))))
-  (mail-forget +logging_srvc_name+ (task-mailbox))
+        (log-write " Unknown " msg))))
+  (mail-forget +logging_srvc_name+ (task-mailbox) "Logging Service 0.1")
 )
