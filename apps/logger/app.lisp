@@ -9,9 +9,16 @@
 (import "lib/hmap/hmap.inc")
 (import "lib/yaml-data/yaml-data.lisp")
 
+(defq
+  +logs_path+ "./logs/"
+  +log_suffix+ ".log")
+
 ;single instance only
 (when (= (length (mail-enquire +logging_srvc_name+)) 0)
   (mail-declare +logging_srvc_name+ (task-mailbox))
+
+  (defun-bind logfile_setup (fhandler)
+    )
 
   ; Setup general purpose information
   (defq

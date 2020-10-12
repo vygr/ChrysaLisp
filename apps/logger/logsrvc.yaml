@@ -17,10 +17,21 @@ logging:
     standard:
       format: tnlm
   handlers:
-    console:
+    console_handler:
+      type: :stdout
       level: :info
       formatter: :standard
+    file_handler:
+      type: :file
+      level: :debug
+      formatter: :standard
+      file_name: logservice
+      rotate: true
+      maxrecords: 500
+      backups: 10
   loggers:
-    default:
-      handler: :console
+    console:
+      handler: :console_handler
+    file:
+      handler: :file_handler
 ...

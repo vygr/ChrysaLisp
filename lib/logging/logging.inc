@@ -49,15 +49,13 @@
                (getp logger :name)": ") (getp msgd :message)))
 
 
-(defun-bind log-registration (mname configuration)
-  ; (log-registration name properties) -> properties
+(defun-bind log-registration (mname use_logger)
+  ; (log-registration name keyword) -> properties
   ; Setups the logging registration and optional configuration
-  (defq p (setsp! (properties)
+  (setsp! (properties)
     :name     mname
+    :logger   use_logger
     :reciever (mail-alloc-mbox)))
-  (if configuration
-    (setp! p :configuration configuration)
-    p))
 
 (defun-bind get-logsrvc-mb ()
   ; (get-logsrvc-mb) -> mailbox id | nil
@@ -91,13 +89,16 @@
     (t
       (throw "Invalid registration " msg))))
 
-(defun-bind create-logger (mname &optional configuration)
-  ; (create-logger name [configuration]) -> properties
-  ; Registers name with logging service and sends optional configuration
-  ; information
+(defun-bind create-logger (mname &optional uses_logger)
+  ; (create-logger name [kw]) -> properties
+  ; Registers name with logging service and sends optional logger
+  ; service to use:
+  ;   :console (default)
+  ;   :file
   ; Part of the registering includes a return mbox that the service
   ; can write to
-  (defq lr (log-registration mname configuration))
+  (setd uses_logger :console)
+  (defq lr (log-registration mname uses_logger))
   (mail-send
     (cat
       (char +log_event_register+ long_size)
