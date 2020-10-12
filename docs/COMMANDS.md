@@ -84,6 +84,14 @@ Usage: null [options]
 		-h --help: this help info.
 
 ```
+## sdir
+ 
+```lisp
+Usage: sdir [options] [prefix]
+	options:
+		-h --help: this help info.
+
+```
 ## shuffle
  
 ```lisp
