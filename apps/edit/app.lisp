@@ -6,6 +6,7 @@
 (import "apps/edit/find.inc")
 (import "lib/substr/substr.inc")
 
+
 ;alt,ctl,cmd, and shift key codes.
 (defq left_shift 0x400000E1 left_ctrl_key 0x400000E0 left_alt_key 0x400000E2 left_cmd_key 0x400000E3
 	right_shift 0x400000E5 right_alt_key 0x400000E6  right_cmd_key 0x400000E7)
@@ -27,7 +28,7 @@
 	find_list (list) find_index 0 sb_line_col_message "")
 
 
-(ui-window window (:border 4)
+(ui-window window ()
 		(ui-title-bar window_title "Edit" (0xea19 0xea1b 0xea1a) +event_close+)
 		(ui-flow window_flow (:flow_flags flow_down_fill)
 			(ui-flow toolbar (:flow_flags flow_right_fill)
@@ -81,8 +82,6 @@
 	(view-change vdu x y w h)
 	;set slider and textfield values
 	(def slider :maximum (max 0 (- (length buffer) vdu_height)) :portion vdu_height :value oy)
-	(view-layout slider)
-	;a single view-layout for the window
 	(view-layout window)
 	(view-dirty-all window)
 	(vdu-load vdu buffer ox oy cx cy))
@@ -166,8 +165,6 @@
 ;create and open with confirmation, move to open buffer, or open existing buffer.
 (defun-bind open-check (fpath)
 	(cond
-		((defq index (some (lambda (_) (if (eql fpath (elem +text_fpath+ _)) (elem +text_index+ _) nil)) text_store))
-			(when index (move-to index)))
 		((not (file-stream fpath))
 			(when (eql "Yes" (confirm (cat "Create and opene new file " fpath "?") "Yes,No" argb_yellow))
 				(new-buffer fpath)))
@@ -190,29 +187,16 @@
 		(elem-set +text_title+ current_text fpath)
 		(elem-set +text_fpath+ current_text fpath)))
 
-(defun-bind move-to (index)
-	(when (< -1 index (length text_store))
-		(setq current_text (elem index text_store))))
-
 (defun-bind close-buffer (index)
 	(defq i 0)
-	(cond
-		((<= (length text_store) 1)
-			(setq id nil))
-		((> (length text_store) 1)
-			(setq text_store (erase text_store index (inc index)))
-			(each (lambda (_) (elem-set +text_index+ _ i) (setq i (inc i))) text_store)
-			(setq current_text (prev-buffer index)))))
 
 (defun-bind prev-buffer (index)
 	(unless (= index 0)
 		(setq index (dec index)))
-	(setq current_text (elem index text_store)))
 
 (defun-bind next-buffer (index)
 	(unless (= index (dec (length text_store)))
 		(setq index (inc index)))
-	(setq current_text (elem index text_store)))
 
 (defun-bind vdu-input (c)
 	(bind '(index fpath title buffer position) current_text)
@@ -233,25 +217,17 @@
 	(elem-set +text_position+ current_text (list ox oy cx cy sx))
 	(vdu-load vdu buffer ox (get :value slider) cx cy)
 	(vdu-load vdu buffer ox oy cx cy)
-	(set sb_line_col :text (cat "Line " (str cy) ", Column " (str cx) sb_line_col_message))
-	(view-layout sb_line_col)
-	(view-dirty sb_line_col)
 	(view-dirty slider))
 
+
 (defun-bind main ()
-	(defq cx 0 cy 0 index 0 find_textfield nil)
 	;open buffers from pupa or open new buffer
 	(each open-buffer (if (= (length *env_edit_auto*) 0) '("") *env_edit_auto*))
 	(setq current_text (elem 0 text_store))
-	(bind '(w h) (view-pref-size (component-connect window +event_layout+)))
-	(bind '(x y w h) (view-locate w h))
-	(gui-add (view-change window x y w h))
 	(window-layout vdu_width vdu_height)
-	(defq id t vdu_char_h (second (vdu-char-size vdu)))
 	(while id
 		(defq msg (mail-read (elem (defq idx (mail-select select)) select)))
 		(cond
-		((= idx +mbox_file+)
 			(mail-send "" picker_mbox)
 			(setq picker_mbox nil)
 			(cond
