@@ -10,8 +10,7 @@ textfield, search, and scroll through search results.
 Between these sets of buttons is a textfield. It is used
 to enter search terms and may be used to issue commands.
 
-The following is a list commands recognized
-by edit:
+The following is a list of  commands recognized sby edit:
 
 (open:<path>) If path is already opened, it will switch
 to that buffer. If it doesn't exist, it will create a new

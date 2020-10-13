@@ -13,7 +13,8 @@
 (structure '+event 0
 	(byte 'close+ 'max+ 'min+ 'resize+)
 	(byte 'layout+ 'scroll+ 'new+ 'save+ 'open+ 'closeb+ 'prev+ 'next+ 'find+ 'click_textfield+)
-	(byte 'find_prev+ 'find_next+ 'clear_text+))
+	(byte 'find_prev+ 'find_next+ 'clear_text+)
+	(byte 'close_tab+ 'tabbar+))
 
 (structure '+mbox 0
 	(byte 'task+ 'file+ 'modal+))
@@ -24,36 +25,35 @@
 (defq vdu_min_width 40 vdu_min_height 24 vdu_width 60 vdu_height 40 text_store (list) tmp_num 0
 	current_text (list) empty_buffer '("") home_dir (cat "apps/login/" *env_user* "/")
 	picker_mbox nil picker_mode nil select (array (task-mailbox) (mail-alloc-mbox) (mail-alloc-mbox))
-	find_list (list) find_index 0 sb_line_col_message "")
-
+	find_list (list) find_index 0 sb_line_col_message "" tabbar (create-flow) tabbar_open nil
+	tb_font (create-font "fonts/Entypo.ctf" 20))
 
 (ui-window window (:border 4)
 		(ui-title-bar window_title "Edit" (0xea19 0xea1b 0xea1a) +event_close+)
 		(ui-flow window_flow (:flow_flags flow_down_fill)
 			(ui-flow toolbar (:flow_flags flow_right_fill)
-				(ui-grid _ (:flow_flags flow_flag_align_hleft :grid_width 6 :grid_height 1 :font *env_toolbar_font*)
+				(ui-grid _ (:flow_flags flow_flag_align_hleft :grid_width 2 :grid_height 1 :font tb_font)
 					(each (lambda (c e)
 						(component-connect (ui-button _ (:font *env_medium_toolbar_font* :text (num-to-utf8 c)
-							:min_height 32 :min_width 32 :border 0)) e)) '(0xe999 0xea07 0xe94c 0xe94e 0xe91d 0xe91e)
-							(list +event_open+ +event_save+ +event_closeb+ +event_new+ +event_prev+ +event_next+)))
-				(ui-flow _ (:flow_flags flow_left_fill)
-					(ui-grid _ (:flow_flag flow_flag_align_hright :grid_width 3 :grid_height 1)
-						(each (lambda (c e)
-							(component-connect (ui-button _ (:border 0 :font *env_medium_toolbar_font*
-								:text (num-to-utf8 c) :min_height 32 :min_width 32)) e))
-							'(0xe9cd 0xe91f 0xe91c) (list +event_find+ +event_find_prev+ +event_find_next+)))
-						(component-connect (ui-button _ (:font *env_small_toolbar_font*
-							:text (num-to-utf8 0xe988) :border 0)) +event_clear_text+)
-					(ui-textfield textfield (:border 0 :text ""))))
-				(ui-flow status_bar (:flow_flags flow_right_fill)
-					(ui-label sb_line_col (:flow_flags flow_flag_align_hleft :font *env_body_font*  :text "Line xx, Column xx. "))
-					(ui-label sb_buf_disp (:flow_flags flow_flag_align_hright :text "Buffer 0/0" :font *env_body_font*)))
-			(ui-flow _ (:flow_flags flow_right_fill)
-				(ui-label _ (:min_width 36))
-				(ui-flow _ (:border 0 :flow_flags flow_left_fill)
-					(component-connect (ui-slider slider (:flow_flags flow_down_fill :color 0x22cccccc :border 0)) +event_scroll+)
-					(ui-vdu vdu (:ink_color 0x33000000 :vdu_width vdu_width :vdu_height vdu_height :min_width vdu_width :min_height vdu_height
-						:font *env_terminal_font*))))))
+							:min_height 32 :min_width 32 :border 0)) e)) '(0xe999 0xea07)
+							(list +event_open+ +event_save+)))
+					(ui-flow _ (:flow_flags (logior flow_flag_align_vcenter flow_right_fill))
+						(component-connect (ui-button srch (:border 0 :text (num-to-utf8 0xe9cd) :font *env_small_toolbar_font*
+							:color argb_white)) +event_find+)
+						(ui-flow _ (:flow_flags flow_left_fill)
+						(component-connect (ui-button clrtxt (:border 0 :text (num-to-utf8 0xe988) :font *env_small_toolbar_font*
+							:color argb_white)) +event_clear_text+)
+						(ui-textfield textfield (:border 0 :color argb_white :text "")))))
+			(ui-flow status_bar (:flow_flags flow_right_fill)
+				(ui-label sb_line_col (:font *env_body_font*  :text "Line XX, Column XX")))
+			(ui-flow tab_bar (:flow_flags flow_left_fill)
+				(component-connect (ui-button close_buf (:border 0 :text (num-to-utf8 0xe94c) :font tb_font)) +event_closeb+)
+				(ui-flow tabbar_flow (:flow_flags flow_right_fill :font *env_window_font*)
+					(component-connect (ui-button _ (:border 0 :text (num-to-utf8 0xe94e) :font tb_font)) +event_new+)))
+			(ui-flow vdu_flow (:border 0 :flow_flags flow_left_fill)
+				(component-connect (ui-slider slider (:flow_flags flow_down_fill :color 0x22cccccc :border 0)) +event_scroll+)
+				(ui-vdu vdu (:ink_color 0x33000000 :vdu_width vdu_width :vdu_height vdu_height :min_width vdu_width :min_height vdu_height
+					:font *env_terminal_font*)))))
 
 (defun-bind window-resize (w h)
 	(bind '(_ fpath title buffer position) current_text)
@@ -72,7 +72,8 @@
 	;for display purposes, index starts at 1.
 	(set window_title :text fpath)
 	(set sb_line_col :text (cat "Line " (str cy) ", Column " (str cx) sb_line_col_message))
-	(set sb_buf_disp :text (cat "Buffer " (str (inc index)) "/" (str (length text_store))))
+	(view-layout sb_line_col)
+	;(set sb_buf_disp :text (cat "Buffer " (str (inc index)) "/" (str (length text_store))))
 	(setq vdu_width w vdu_height h)
 	(set vdu :vdu_width w :vdu_height h :min_width w :min_height h)
 	(bind '(x y) (view-get-pos vdu))
@@ -83,9 +84,21 @@
 	(def slider :maximum (max 0 (- (length buffer) vdu_height)) :portion vdu_height :value oy)
 	(view-layout slider)
 	;a single view-layout for the window
+	(view-tabbar)
+	(bind '(w h) (view-pref-size toolbar))
 	(view-layout window)
 	(view-dirty-all window)
 	(vdu-load vdu buffer ox oy cx cy))
+
+(defun-bind view-tabbar ()
+	(view-sub tabbar)
+	(ui-tree tabbar (create-grid) (:grid_width (length text_store) :grid_height 1)
+		(each (lambda (e) 
+			(component-connect (ui-button b (:text (elem +text_title+ (elem _ text_store)) 
+				:min_width 32 :border 1)) (+ +event_tabbar+ _))) (range 0 (length text_store))))
+	(view-layout (view-add-child tabbar_flow tabbar))
+	(view-layout status_bar)
+	(view-dirty status_bar))
 
 (defun-bind mouse-cursor (mouse_xy)
 	(defq buffer (elem +text_buffer+ current_text))
@@ -120,6 +133,7 @@
 					(setq sb_line_col_message ""))
 			((and (starts-with "(find:" tf_text) (ends-with ")" tf_text))
 				(set textfield :text (slice 6 -2 tf_text)) (find-next))
+			((eql "(tabs)" tf_text) (add-sidebar) (setq sidebar_open t))
 			(t (find-next)))
 		(window-layout vdu_width vdu_height)))
 ;returns position just below the statusbars
@@ -130,7 +144,7 @@
 	(bind '(x y w h) (view-get-bounds window))
 	(defq brdr (get :border window) x (+ x brdr) y (+ y brdr th tbh sbh))
 	(list x y tbw th))
-
+;bar with buttons
 (defun-bind confirm (m b &optional c)
 	(bind '(x y w h) (notification-position))
 	(mail-send (list (elem +mbox_modal+ select)
@@ -138,14 +152,13 @@
 	(defq modal (open-child "apps/messagebar/child.lisp" kn_call_open)))
 	(defq reply (mail-read (elem +mbox_modal+ select)))
 	(mail-send "" modal) (if (str? reply) reply nil))
-
+;bar with timer and without buttons
 (defun-bind notify (m c &optional s)
 	(bind '(x y w h) (notification-position))
 	(mail-send (list (elem +mbox_modal+ select)
 		m "" (if c c *env_toolbar2_col*) (if s s 1500000) x y w h)
 	(defq modal (open-child "apps/messagebar/child.lisp" kn_call_open)))
 	(mail-send "" modal))
-
 ;create a new, unsaved buffer or open buffer created at optional path
 (defun-bind new-buffer (&optional nfpath)
 	(defq index (length text_store) pos (list 0 0 0 0 0) 
@@ -246,6 +259,7 @@
 	(bind '(w h) (view-pref-size (component-connect window +event_layout+)))
 	(bind '(x y w h) (view-locate w h))
 	(gui-add (view-change window x y w h))
+	(view-tabbar)
 	(window-layout vdu_width vdu_height)
 	(defq id t vdu_char_h (second (vdu-char-size vdu)))
 	(while id
@@ -311,6 +325,9 @@
 			(setq oy new_oy)
 			(elem-set +text_buffer+ current_text buffer)
 			(elem-set +text_position+ current_text (list ox oy cx cy sx)))
+		((<= +event_tabbar+ id (+ +event_tabbar+ (dec (length text_store))))
+			(move-to (- id +event_tabbar+))
+			(window-layout vdu_width vdu_height))
 		((= id (component-get-id vdu))
 			(cond 
 				((and (= (get-long msg ev_msg_type) ev_type_key)
