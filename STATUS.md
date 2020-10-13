@@ -64,6 +64,10 @@ environment. (include) now imports into the `*compile_env*` directly.
 Fix for Windows main.c gettimeofday() EPOC calculation. GUI clock app now
 displays correctly on Windows.
 
+Fix for render to texture mode GUI on Windows, nice bit of sleuthing with
+Martyn Bliss to get that sorted. Folks should join the IRC group to join in :)
+A much better fix will come along but this temp fix gets us running for now.
+
 ------
 
 (file-stream path [mode]) now reads a file from the filesystem in buffers of
