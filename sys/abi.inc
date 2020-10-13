@@ -51,6 +51,7 @@
 				(defun emit-call-abi (r b c &rest x)
 					(cond
 						((= *func_align* 16)
+							(if (/= 0 (logand (length x) 1)) (setq x (cat (list r) x)))
 							(apply emit-push x)
 							(emit-sub-cr 32 rsp)
 							(emit-call-jump-i 0x10 b c)

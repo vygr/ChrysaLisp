@@ -251,6 +251,7 @@
 	(view-dirty sb_line_col)
 	(view-dirty slider))
 
+
 (defun-bind main ()
 	(defq cx 0 cy 0 index 0 find_textfield nil)
 	;open buffers from pupa or open new buffer
