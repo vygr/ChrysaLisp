@@ -25,7 +25,7 @@ logging:
       type: :file
       level: :debug
       formatter: :standard
-      file_name: logservice
+      file_name: applog
       rotate: true
       maxrecords: 500
       backups: 10

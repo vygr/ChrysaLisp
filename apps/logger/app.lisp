@@ -8,17 +8,11 @@
 (import "lib/logging/logging.inc")
 (import "lib/hmap/hmap.inc")
 (import "lib/yaml-data/yaml-data.lisp")
-
-(defq
-  +logs_path+ "./logs/"
-  +log_suffix+ ".log")
+(import "apps/logger/logutils.lisp")
 
 ;single instance only
 (when (= (length (mail-enquire +logging_srvc_name+)) 0)
   (mail-declare +logging_srvc_name+ (task-mailbox) "Logging Service 0.1")
-
-  (defun-bind logfile_setup (fhandler)
-    )
 
   ; Setup general purpose information
   (defq
@@ -29,6 +23,9 @@
     hand  (getp-in conf :logging :handlers)
     logrs (getp-in conf :logging :loggers :default :handler)
     active t)
+
+  (defun-bind logfile_setup (fhandler)
+    )
 
   (defun-bind log-msg-writer (sstrm msg)
     ; (log-msg-writer stream mail-message) -> stream
