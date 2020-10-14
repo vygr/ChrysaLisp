@@ -14,18 +14,17 @@
 (when (= (length (mail-enquire +logging_srvc_name+)) 0)
   (mail-declare +logging_srvc_name+ (task-mailbox) "Logging Service 0.1")
 
+  ; Process configuration file
+  (bind '(fs fcfg? conf) (process_log_cfg))
+
   ; Setup general purpose information
   (defq
-    fs    (file-stream "./logs/logservice.log" file_open_append)
     reg   (hmap)
-    conf  (first (yaml-read "./apps/logger/logsrvc.yaml"))
     lup   (getp-in conf :logging :levels)
     hand  (getp-in conf :logging :handlers)
-    logrs (getp-in conf :logging :loggers :default :handler)
+    logrs (getp-in conf :logging :loggers)
+    chand (getp hand (getp (getp logrs :console) :handler))
     active t)
-
-  (defun-bind logfile_setup (fhandler)
-    )
 
   (defun-bind log-msg-writer (sstrm msg)
     ; (log-msg-writer stream mail-message) -> stream
@@ -42,10 +41,11 @@
     (log-write fs " Registering " (getp config :name))
     (hmap-insert reg hsh config)
     (setp! config :token hsh t)
-    ; Use default configuration if not specified
-    (setp! config :logger logrs t)
+    ; Provide level and configuration information back
     (setp! config :levels lup t)
-    (setp! config :configuration (getp hand (getp config :logger)) t)
+    (if (defq rl (getp logrs (getp config :logger)))
+      (setp! config :configuration (getp hand (getp rl :handler)) t)
+      (setp! config :configuration chand t))
     (mail-send
       (cat
         (char +log_event_registered+ long_size)
