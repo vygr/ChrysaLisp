@@ -93,6 +93,11 @@
        (getp (getp cmd :in-args) :vals-to-num)
        (eql (str-is-ints? v) :true))
      (setq v (str-to-num v)))
+    ((and
+       (eql (first (last (getp cmd :parents))) :value)
+       (getp (getp cmd :in-args) :vals-to-kw)
+       (eql (first v) +kw_ind+))
+     (setq v (kw v)))
     (t
       (if (neql? (defq ch (parse-boolean v)) :nomatch)
         (setq v ch))))
