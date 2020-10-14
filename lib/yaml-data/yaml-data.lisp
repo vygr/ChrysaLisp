@@ -23,6 +23,7 @@
 (defq reader-properties
       (properties
         :keys-to-kw  t    ; Converts map keys to keywords
+        :vals-to-kw  t    ; Converts value string with 1st char ":" to kw
         :vals-to-num t))  ; Converts numerics to native (int, real, nums)
 
 ; Writer Options
