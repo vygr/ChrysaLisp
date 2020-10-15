@@ -494,9 +494,69 @@
 
 (defq +min_long+ (<< -1 63) +max_long+ (>> -1 1) +min_int+ (<< -1 31) +max_int+ (>> -1 33))
 
+(defun-bind neg? (_)
+	; (neg? num) -> bool
+	; Returns true if negative number
+	(< _ 0))
+
+(defun-bind pos? (_)
+	; (pos? num) -> bool
+	; Returns true if positive number
+	(> _ 0))
+
+(defun-bind odd? (_)
+	; (odd? num) -> bool
+	; Returns true if argument is equal to odd number
+	(one? (logand 1 _)))
+
+(defun-bind even? (_)
+	; Returns true if argument is equal to even number
+	; (even? num) -> bool
+	(not (odd? _)))
+
 (defun-bind lognot (_)
 	;(lognot num) -> num
 	(logxor _ -1))
+
+(defun-bind log2 (_)
+	;(log2 num) -> num
+	(when (and (not (= 0 _)) (= _ (logand _ (neg _))))
+		(defq i 0)
+		(while (/= 0 (setq _ (>> _ 1)))
+			(setq i (inc i))) i))
+
+(defun-bind pow (base exponent)
+	; (pow base exponent) -> integer
+	; Raises base to the power of exponent
+	; example:
+	; (pow 10 3) -> 1000
+	(defq res 1)
+	(times exponent (setq res (* res base)))
+	res)
+
+(defun-bind ntz (_)
+	;(ntz num) -> num
+	(defq n 64)
+	(while (/= _ 0)
+		(setq n (dec n) _ (<< _ 1))) n)
+
+(defun-bind nto (_)
+	;(nto num) -> num
+	(defq n 64 _ (lognot _))
+	(while (/= _ 0)
+		(setq n (dec n) _ (<< _ 1))) n)
+
+(defun-bind nlz (_)
+	;(nlz num) -> num
+	(defq n 0)
+	(while (> _ 0)
+		(setq n (inc n) _ (<< _ 1))) n)
+
+(defun-bind nlo (_)
+	;(nlo num) -> num
+	(defq n 0 _ (lognot _))
+	(while (> _ 0)
+		(setq n (inc n) _ (<< _ 1))) n)
 
 ;;;;;;;;;;;;;;;;;;
 ; Fixed point math
@@ -616,37 +676,6 @@
 	(defq f (opt f " ") v (str v) l (length v) c (- (max c l) l))
 	(while (> c (length f)) (setq f (cat f f)))
 	(cat (slice 0 c f) v))
-
-(defun-bind log2 (_)
-	;(log2 num) -> num
-	(when (and (not (= 0 _)) (= _ (logand _ (neg _))))
-		(defq i 0)
-		(while (/= 0 (setq _ (>> _ 1)))
-			(setq i (inc i))) i))
-
-(defun-bind ntz (_)
-	;(ntz num) -> num
-	(defq n 64)
-	(while (/= _ 0)
-		(setq n (dec n) _ (<< _ 1))) n)
-
-(defun-bind nto (_)
-	;(nto num) -> num
-	(defq n 64 _ (lognot _))
-	(while (/= _ 0)
-		(setq n (dec n) _ (<< _ 1))) n)
-
-(defun-bind nlz (_)
-	;(nlz num) -> num
-	(defq n 0)
-	(while (> _ 0)
-		(setq n (inc n) _ (<< _ 1))) n)
-
-(defun-bind nlo (_)
-	;(nlo num) -> num
-	(defq n 0 _ (lognot _))
-	(while (> _ 0)
-		(setq n (inc n) _ (<< _ 1))) n)
 
 (defun-bind shuffled (_a &optional _l _h)
 	;(shuffled list [start end]) -> list

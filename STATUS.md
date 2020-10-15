@@ -7,6 +7,8 @@
 New !!! hot off the press ChrysaLisp IDE for Windows to start with, but coming to
 Mac and Linux soon... https://github.com/PaulBlythe/Chrysalisp-IDE
 
+Promoted (odd?) (even?) (pow) (neg?) (pos?) to boot.inc.
+
 ------
 
 Reminder that #ChrysaLisp@matrix.org IRC chat room is available for all. Highly

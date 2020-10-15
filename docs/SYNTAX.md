@@ -1,8 +1,32 @@
 # Syntax
 
+## even?
+
+ (even? num) -> bool
+
+## neg?
+
+ (neg? num) -> bool
+
 ## nil?
 
  (nil? o) -> bool
+
+## odd?
+
+ (odd? num) -> bool
+
+## pos?
+
+ (pos? num) -> bool
+
+## pow
+
+ (pow 10 3) -> 1000
+
+## pow
+
+ (pow base exponent) -> integer
 
 ## #
 
