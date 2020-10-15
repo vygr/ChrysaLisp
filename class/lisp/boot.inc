@@ -507,12 +507,12 @@
 (defun-bind odd? (_)
 	; (odd? num) -> bool
 	; Returns true if argument is equal to odd number
-	(one? (logand 1 _)))
+	(/= 0 (logand 1 _)))
 
 (defun-bind even? (_)
 	; Returns true if argument is equal to even number
 	; (even? num) -> bool
-	(not (odd? _)))
+	(= 0 (logand 1 _)))
 
 (defun-bind lognot (_)
 	;(lognot num) -> num

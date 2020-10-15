@@ -209,7 +209,6 @@ compose
 const
 curry
 dec
-def:
 defmacro
 defmacro-bind
 defun
