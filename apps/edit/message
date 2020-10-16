@@ -1,16 +1,21 @@
 Welcome to ChrysaLisp edit
 ==========================
 
-Edit has standard buttons for opening, saving, closing, and
-creating buffers, as well as navigating through them.
+Edit has standard bufttons for opening, saving, closing,
+and creating buffers, as well as navigating through them.
 
-On the right side of the screen are buttons to clear the
-textfield, search, and scroll through search results.
+There are three bars at the top of edit view. The nav bar,
+the tab bar, and the status bar.
 
-Between these sets of buttons is a textfield. It is used
-to enter search terms and may be used to issue commands.
+The nav bar has open and save buttons, and a textfield.
+Within the textfield are four buttons: the find button on 
+the left, and the clear, previous, and next result buttons
+on the right.
 
-The following is a list of  commands recognized sby edit:
+Left and right buttons are used to undo and redo edits. Up
+and down arrows scroll through previously issued commands.
+
+The following list of commands is recognized by edit:
 
 (open:<path>) If path is already opened, it will switch
 to that buffer. If it doesn't exist, it will create a new
@@ -20,25 +25,23 @@ buffer there, otherwise it will open an existing file.
 
 (new) create a new untitled buffer.
 
-(close) close the current buffer, this will close the
-application if you close the last buffer.
+(close) Close the current buffer. This will close edit, if
+closing the last open buffer.
 
-(prev) and (next) navigate open buffers
+(prev) and (next) navigate open buffers.
 
-(find:<string>) is usually unnecessary, unless searching
-for a string that is also an edit command.
+(find:<string>) Search for <string> within the buffer.
+The command is usually unnecessary, as any string that
+isn't an edit command is considered a search string.
 
-To navigate found strings, press enter to move down the
-search results, or use the find navigation buttons.
+To navigate found strings, press enter or use the left and
+right buttons within the textfield.
 
-Confirmation is required for saving to overwrite an existing
-file or to create a new file in the filesystem. Files
-created using the (new) command,  aren't stored to the
-filesyste until a save command is issued..
-
-To prevent this  message from appearing when opening edit,
+To prevent this message from appearing when opening edit,
 remove apps/edit/message from *env_edit_auto* in the 
 pupa.inc file at apps/login/<username>/pupa.inc.
  
-To do so issue the command:
-(open:apps/login/Guest/pupa.inc)
+To do so use the open file dialog box, or issue the command 
+(open:apps/login/Guest/pupa.inc) in the textfield. Then,
+edit the file, and either use the save dialog box or issue
+the (save) command in the textfield.
