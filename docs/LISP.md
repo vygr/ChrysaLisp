@@ -209,7 +209,6 @@ compose
 const
 curry
 dec
-def:
 defmacro
 defmacro-bind
 defun
@@ -259,6 +258,7 @@ each-mergeable-rev
 empty?
 ends-with
 erase
+even?
 exec
 filter
 first
@@ -284,6 +284,7 @@ map
 map-rev
 merge-obj
 neg
+neg?
 nempty?
 nil?
 nlo
@@ -293,7 +294,10 @@ ntz
 num-to-char
 num-to-utf8
 num?
+odd?
 partition
+pos?
+pow
 range
 reduce
 reduce-rev
