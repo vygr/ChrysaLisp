@@ -72,110 +72,14 @@ t
 ### Built in functions
 
 ```lisp
--
-*
-/
-/=
-%
-+
-<
-<<
-<=
-=
->
->=
->>
->>>
-age
-apply
-array
-bind
-cap
-cat
-catch
-char
-clear
-cmp
-code
-cond
-copy
-cos
-def
-defq
-each!
-elem
-elem-set
-env
-eql
-eval
-f2i
-f2r
-ffi
-file-stream
-find
-find-rev
-fixeds
-floor
-frac
-gensym
-hash
-i2f
-i2r
-lambda
-length
-list
-load
-logand
-logior
-logxor
-macro
-macroexpand
-match?
-max
-merge-obj
-min
-not
-nums
-penv
-pop
-prebind
-prin
-print
-progn
-push
-quasi-quote
-quote
-r2f
-r2i
-random
-read
-read-char
-read-line
-reals
-recip
-repl
-save
-set
-setq
-sin
-slice
-some!
-split
-sqrt
-str
-string-stream
-sym
-throw
-time
-tolist
-type-of
-undef
-unquote
-unquote-splicing
-unzip
-while
-write
-write-char
+% * + - / /= < << <= = > >= >> >>> abs age apply array bind cap cat catch char
+clear cmp code cond copy def defq each! elem elem-set env eql eval f2i f2r ffi
+file-stream find find-rev fixeds gensym get hash i2f i2r io-stream lambda
+length list load logand logior logxor macro macroexpand match? max merge-obj
+min neg nums partition penv pop prebind prin print progn push quasi-quote quote
+r2f r2i random read read-avail read-char read-line reals repl save set setq
+slice some! split str string-stream sym throw time tolist type-of undef while
+write write-char
 ```
 
 ### boot.inc symbols
@@ -200,129 +104,23 @@ write-char
 ### boot.inc macros
 
 ```lisp
-#
-and
-ascii-char
-ascii-code
-case
-compose
-const
-curry
-dec
-def:
-defmacro
-defmacro-bind
-defun
-defun-bind
-each
-each-rev
-every
-if
-inc
-let
-notany
-notevery
-opt
-or
-rcurry
-read-int
-read-long
-read-short
-reduced
-setd
-some
-times
-tuple-get
-tuple-set
-unless
-until
-when
-write-int
-write-long
-write-short
+# and ascii-char ascii-code case compose const curry dec defmacro defmacro-bind
+defun defun-bind each each-rev env? every fnc? get-byte get-int get-long
+get-short get-ubyte get-uint get-ushort if inc let lst? not notany notevery
+num? opt or rcurry read-int read-long read-short reduced seq? setd some str?
+sym? times unless until when write-int write-long write-short
 ```
 
 ### boot.inc functions
 
 ```lisp
-abi
-abs
-align
-ascii-lower
-ascii-upper
-char-to-num
-char-to-num
-cpu
-each-line
-each-mergeable
-each-mergeable-rev
-empty?
-ends-with
-erase
-exec
-filter
-first
-get
-get-byte
-get-cstr
-get-int
-get-long
-get-short
-get-ubyte
-get-uint
-get-ushort
-import
-insert
-intern
-intern-seq
-join
-last
-log2
-lognot
-lst?
-map
-map-rev
-merge-obj
-neg
-nempty?
-nil?
-nlo
-nlz
-nto
-ntz
-num-to-char
-num-to-utf8
-num?
-partition
-range
-reduce
-reduce-rev
-reduced-reduce
-reduced-reduce-rev
-rest
-reverse
-second
-seq?
-shuffle
-shuffled
-sign
-sort
-sorted
-starts-with
-str-to-num
-str?
-swap
-sym?
-to-lower
-to-upper
-trim
-trim-end
-trim-start
-type-to-size
-unzip
-within-compile-env
-write-line
-zip
+abi align ascii-lower ascii-upper char-to-num cpu each-line each-mergeable
+each-mergeable-rev empty? ends-with erase even? exec filter first get-cstr
+import insert intern intern-seq join last load-stream log2 lognot map map-rev
+neg? nempty? nil? nlo nlz nto ntz num-to-char num-to-utf8 odd? pad pos? pow
+range reduce reduce-rev reduced-reduce reduced-reduce-rev rest reverse second
+shuffle shuffled sort sorted starts-with str-to-num swap to-lower to-upper trim
+trim-end trim-start type-to-size unzip within-compile-env write-line zip
 ```
 
 ## Within any cmd/lisp.lisp instance

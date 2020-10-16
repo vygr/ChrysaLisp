@@ -4,6 +4,10 @@
 
 (import "lib/xtras/xtras.inc")
 (import "lib/yaml-data/yaml-xchange.lisp")
+(import "lib/date/date.inc")
+
+; Setup timezone for now
+(timezone-init "America/New_York")
 
 (defq
   +logging_srvc_name+ "LOG_SERVICE"
@@ -26,29 +30,32 @@
     'registered+
     'errored+))
 
-; Log message types
-(structure '+log_message 0
-  (byte
-    'debug+
-    'info+
-    'warning+
-    'error+
-    'critical+))
-
 (defun-bind deser-inbound (msg)
   ; (deser-inbound mail-msg) -> properties
   ; Deserializes inbound data from mail message
   (yaml-xdeser (write (string-stream (cat "")) (slice mail_msg_data -1 msg))))
 
-(defun-bind log-registration (mname configuration)
-  ; (log-registration name properties) -> properties
+(defun-bind log-write (sstrm &rest _)
+  ; (log-write strean ....) -> stream
+  ; Wrap timestamp and nl to '_' arguments
+  (setq _ (insert (push _ +nl+) 0 (list (encode-date (date)))))
+  (write sstrm (apply str _))
+  (stream-flush sstrm))
+
+(defun-bind console-log-msg-writer (logger msgd)
+  ; (console-log-msg-writer logconfig mail-message) -> stream
+  (log-write stdout (str
+               " [" (getp msgd :msg-level)"] "
+               (getp logger :name)": ") (getp msgd :message)))
+
+
+(defun-bind log-registration (mname use_logger)
+  ; (log-registration name keyword) -> properties
   ; Setups the logging registration and optional configuration
-  (defq p (setsp! (properties)
+  (setsp! (properties)
     :name     mname
+    :logger   use_logger
     :reciever (mail-alloc-mbox)))
-  (if configuration
-    (setp! p :configuration configuration)
-    p))
 
 (defun-bind get-logsrvc-mb ()
   ; (get-logsrvc-mb) -> mailbox id | nil
@@ -82,13 +89,16 @@
     (t
       (throw "Invalid registration " msg))))
 
-(defun-bind create-logger (mname &optional configuration)
-  ; (create-logger name [configuration]) -> properties
-  ; Registers name with logging service and sends optional configuration
-  ; information
+(defun-bind create-logger (mname &optional uses_logger)
+  ; (create-logger name [kw]) -> properties
+  ; Registers name with logging service and sends optional logger
+  ; service to use:
+  ;   :console (default)
+  ;   :file
   ; Part of the registering includes a return mbox that the service
   ; can write to
-  (defq lr (log-registration mname configuration))
+  (setd uses_logger :console)
+  (defq lr (log-registration mname uses_logger))
   (mail-send
     (cat
       (char +log_event_register+ long_size)
@@ -97,22 +107,33 @@
   (logresult lr))
 
 (defun-bind log-send (logger lmsgtype msg)
-  ; Generic send log message to service
-
-  (mail-send
-    (cat
-      (char +log_event_logmsg+ long_size)
-      (str (yaml-xser (properties
-        :module   (getp logger :token)
-        :msg-type lmsgtype
-        :message  (str msg)))))
-    (get-logsrvc-mb)))
+  ; (log-send logger msgtype msg)
+  ; Generic send log message to service unless
+  ; the service is console
+  (defq msgs (properties
+          :module     (getp logger :token)
+          :msg-level  lmsgtype
+          :message    (str msg)))
+  (cond
+    ((eql (getp logger :logger) :console)
+      (defq
+        llvls (getp logger :levels)
+        lvli  (getp llvls lmsgtype)
+        lvlc  (getp llvls (getp-in logger :configuration :level)))
+      (if (>= lvli lvlc)
+        (console-log-msg-writer logger msgs)))
+    (t
+      (mail-send
+        (cat
+          (char +log_event_logmsg+ long_size)
+          (str (yaml-xser msgs)))
+        (get-logsrvc-mb)))))
 
 ; Convenience loggers
 
-(defun-bind log-debug (logger msg) (log-send logger +log_message_debug+ msg))
-(defun-bind log-info (logger msg) (log-send logger +log_message_info+ msg))
-(defun-bind log-warning (logger msg) (log-send logger +log_message_warning+ msg))
-(defun-bind log-error (logger msg) (log-send logger +log_message_error+ msg))
-(defun-bind log-critical (logger msg) (log-send logger +log_message_critical+ msg))
+(defun-bind log-debug (logger msg) (log-send logger :debug msg))
+(defun-bind log-info (logger msg) (log-send logger :info msg))
+(defun-bind log-warning (logger msg) (log-send logger :warning msg))
+(defun-bind log-error (logger msg) (log-send logger :error msg))
+(defun-bind log-critical (logger msg) (log-send logger :critical msg))
 

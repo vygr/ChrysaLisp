@@ -12,6 +12,7 @@
   +eof+         (char 0x00)
   +dblq+        (char 0x22)
   +singq+       (char 0x27)
+  +kw_ind+      (char 0x3a)
   +upper_chars+ "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
   +lower_chars+ "abcdefghijklmnopqrstuvwxyz"
   +bin_prefix+  "0bB"
@@ -106,15 +107,6 @@
   ; Tests whether string is numeric form
   (not (eql (second (numstr-type _)) :nan)))
 
-(defun-bind pow (base exponent)
-  ; (pow base exponent) -> integer
-  ; Raises base to the power of exponent
-  ; example:
-  ; (pow 10 3) -> 1000
-  (defq res 1)
-  (times exponent (setq res (* res base)))
-  res)
-
 (defun-bind to-num (s)
   ; (to-num string) -> number
   (bind '(mu ty wn dn ba)  (numstr-type s))
@@ -130,16 +122,6 @@
         (each (# (setq num (+ (* num ba) (char-to-num %0)))) wn)
         (* mu num)))))
 
-(defun-bind neg? (_)
-  ; (neg? num) -> bool
-  ; Returns true if negative number
-  (< _ 0))
-
-(defun-bind pos? (_)
-  ; (pos? num) -> bool
-  ; Returns true if positive number
-  (> _ 0))
-
 (defun-bind zero? (_)
   ; (zero? num) -> bool
   ; Returns true if argument is equal to zero (0)
@@ -149,16 +131,6 @@
   ; (one? num) -> bool
   ; Returns true if argument is equal to one (1)
   (= _ 1))
-
-(defun-bind odd? (_)
-  ; (odd? num) -> bool
-  ; Returns true if argument is equal to odd number
-  (one? (logand 1 _)))
-
-(defun-bind even? (_)
-  ; Returns true if argument is equal to even number
-  ; (even? num) -> bool
-  (not (odd? _)))
 
 (defun-bind neql? (a b)
   ; (neql? value value) -> bool
@@ -239,8 +211,11 @@
   ; Converts a string or symbol to a keyword
   ; example:
   ; (kw "foo") -> :foo
+  ; (kw ":foo") -> :foo
   (if (and (not (kw? _)) (or (str? _) (sym? _)))
-    (sym (str ":" _))
+    (if (eql (first _) +kw_ind+)
+      (sym _)
+      (sym (str +kw_ind+ _)))
     (throw "Expected symbol or string, found " _)))
 
 (defun-bind strip-rest (in-args)

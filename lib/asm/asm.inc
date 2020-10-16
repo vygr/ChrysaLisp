@@ -172,7 +172,7 @@
 				(push (reduce (# (push %0 (elem 0 %1) (elem 1 %1))) b (list)) z))
 			l (reduce (# (+ %0 (length %1))) f 0))
 		(each (# (write stream %0)) f)
-		(print "image -> " (func-obj 'sys/boot_image) " (" l ")") nil)))
+		(print "-> " (func-obj 'sys/boot_image) " (" l ")") nil)))
 
 (defun-bind make-boot-all (&optional *abi* *cpu*)
 	(setd *abi* (abi) *cpu* (cpu))

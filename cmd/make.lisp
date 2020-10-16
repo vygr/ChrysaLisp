@@ -3,6 +3,29 @@
 (import "lib/pipe/pipe.inc")
 (import "lib/options/options.inc")
 
+(defun-bind boot-builtins ()
+	(defq out (list) e (penv))
+	(while (penv e) (setq e (penv e)))
+	(each (lambda ((k v))
+		(if (fnc? v) (push out k))) (tolist e))
+	(sort cmp out))
+
+(defun-bind boot-functions ()
+	(defq out (list) e (penv))
+	(while (penv e) (setq e (penv e)))
+	(each (lambda ((k v))
+		(if (and (lst? v) (eql (elem 0 v) 'lambda))
+			(push out k))) (tolist e))
+	(sort cmp out))
+
+(defun-bind boot-macros ()
+	(defq out (list) e (penv))
+	(while (penv e) (setq e (penv e)))
+	(each (lambda ((k v))
+		(if (and (lst? v) (eql (elem 0 v) 'macro))
+			(push out k))) (tolist e))
+	(sort cmp out))
+
 (defmacro sfind (ss slst)
 	`(some (# (if (eql ,ss %0) _)) ,slst))
 
@@ -101,8 +124,6 @@
 	(defq target 'docs/COMMANDS.md)
 	(defun-bind extract-cmd (el)
 		(first (split (second (split el "/")) ".")))
-	(defun-bind keep-extracts? (el)
-		(not (sfind el '("oops"))))
 	(defun-bind cmd-collector (acc el)
 		(push acc (list (sym el) (str el " -h"))))
 	(defun-bind wrap-block (content)
@@ -122,9 +143,7 @@
 		(save _eat_chunk target))
 	(generate-cmd-help (reduce
 		cmd-collector
-		(sort cmp
-		(filter keep-extracts?
-		(map extract-cmd (make-tree "cmd" ".lisp"))))
+		(sort cmp (map extract-cmd (make-tree "cmd" ".lisp")))
 		(list)))
 	(print "-> docs/COMMANDS.md")
 
