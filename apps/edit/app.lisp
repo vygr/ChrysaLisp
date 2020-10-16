@@ -30,7 +30,7 @@
 	tb_font (create-font "fonts/Entypo.ctf" 20) cmd_menu (create-window) cmd_menu_grid (create-grid)
 	cmd_menu_up nil)
 
-(ui-window window ()
+(ui-window window (:border 4)
 		(ui-title-bar window_title "Edit" (0xea19 0xea1b 0xea1a) +event_close+)
 		(ui-flow window_flow (:flow_flags flow_down_fill)
 			(ui-flow toolbar (:flow_flags flow_right_fill)
@@ -159,7 +159,6 @@
 	(bind '(x y w h) (view-get-bounds window))
 	(defq brdr (get :border window) x (+ x brdr) y (+ y brdr th tbh))
 	(list x y tbw th))
-
 ;bar with buttons
 (defun-bind confirm (m b &optional c)
 	(bind '(x y w h) (notification-position))
@@ -245,7 +244,14 @@
 				(elem-set +text_fpath+ current_text (title-set fp))))))
 
 (defun-bind close-buffer (index)
-	(defq i 0))
+	(defq i 0)
+	(cond
+		((<= (length text_store) 1)
+			(setq id nil))
+		((> (length text_store) 1)
+			(setq text_store (erase text_store index (inc index)))
+			(each (lambda (_) (elem-set +text_index+ _ i) (setq i (inc i))) text_store)
+			(setq current_text (prev-buffer index)))))
 
 (defun-bind add-to-unsaved-buffers (index)
 	(unless (some (lambda (_) (= index _)) unsaved_buffers)
@@ -264,12 +270,12 @@
 	(when (< -1 index (length text_store))
 		(setq current_text (elem index text_store))))
 (defun-bind prev-buffer (index)
-	(unless (= index 0)
-		(setq index (dec index))))
-
+	(unless (= index 0) (setq index (dec index)))
+	(setq current_text (elem index text_store)))
 (defun-bind next-buffer (index)
 	(unless (= index (dec (length text_store)))
-		(setq index (inc index))))
+		(setq index (inc index)))
+	(setq current_text (elem index text_store)))
 
 (defun-bind clear-text ()
 	(setq find_list (list) find_index 0 sb_line_col_message "")
@@ -304,11 +310,14 @@
 	;open buffers from pupa or open new buffer
 	(each open-buffer (if (= (length *env_edit_auto*) 0) '("") *env_edit_auto*))
 	(setq current_text (elem 0 text_store))
+	(bind '(w h) (view-pref-size (component-connect window +event_layout+)))
+	(bind '(x y w h) (view-locate w h))
+	(gui-add (view-change window x y w h))
 	(window-layout vdu_width vdu_height)
-	(defq id t)
 	(while id
 		(defq msg (mail-read (elem (defq idx (mail-select mbox_array)) mbox_array)))
 		(cond
+		((= idx +mbox_file+)
 			(mail-send "" picker_mbox)
 			(setq picker_mbox nil)
 			(cond
@@ -395,11 +404,11 @@
 						mouse_xy (list rx ry))
 					(mouse-cursor mouse_xy)))
 			(window-layout vdu_width vdu_height))
-		;capture the enter key for commands and search from the textfield.
 		((and (= id (component-get-id textfield))
 			(= (get-long msg ev_msg_type) ev_type_key)
 			(> (get-int msg ev_msg_key_keycode) 0)
 			(or (= (get-int msg ev_msg_key_key) 13) (= (get-int msg ev_msg_key_key) 10)))
-
+			(select-action-on-enter))
+		(t	(view-event window msg))))
 	(if picker_mbox (mail-send "" picker_mbox))
 	(view-hide window))
