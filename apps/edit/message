@@ -1,47 +1,39 @@
 Welcome to ChrysaLisp edit
 ==========================
 
-Edit has standard bufttons for opening, saving, closing,
+Edit has standard buttons for opening, saving, closing,
 and creating buffers, as well as navigating through them.
+It is also capable of running applications using the
+play button, entering a command into the textfield, or
+from the menu.
 
-There are three bars at the top of edit view. The nav bar,
-the tab bar, and the status bar.
+When entering commands into the textfield, <path> should
+be entered without quotations. The following list of 
+commands can be entered into the textfield:
 
-The nav bar has open and save buttons, and a textfield.
-Within the textfield are four buttons: the find button on 
-the left, and the clear, previous, and next result buttons
-on the right.
+(open) or (open:<path>) 
 
-Left and right buttons are used to undo and redo edits. Up
-and down arrows scroll through previously issued commands.
+(save) or (save:<path>)
 
-The following list of commands is recognized by edit:
+(new)
 
-(open:<path>) If path is already opened, it will switch
-to that buffer. If it doesn't exist, it will create a new
-buffer there, otherwise it will open an existing file.
+(run) or (run:<path>) run a ChrysaLisp application.
 
-(save:<path>) Save the current buffer to the given path.
+(close)
 
-(new) create a new untitled buffer.
+(prev) and (next) for navigating buffers
 
-(close) Close the current buffer. This will close edit, if
-closing the last open buffer.
+(find:<string>) This command isn't generally necessary, as
+anything that isn't a command will begin a search for the
+given string.
 
-(prev) and (next) navigate open buffers.
-
-(find:<string>) Search for <string> within the buffer.
-The command is usually unnecessary, as any string that
-isn't an edit command is considered a search string.
-
-To navigate found strings, press enter or use the left and
-right buttons within the textfield.
+To navigate found strings, press enter or use the up and
+down arrows within the textfield.
 
 To prevent this message from appearing when opening edit,
 remove apps/edit/message from *env_edit_auto* in the 
 pupa.inc file at apps/login/<username>/pupa.inc.
  
-To do so use the open file dialog box, or issue the command 
-(open:apps/login/Guest/pupa.inc) in the textfield. Then,
-edit the file, and either use the save dialog box or issue
-the (save) command in the textfield.
+To do so use the open file dialog box or command 
+(open:apps/login/Guest/pupa.inc). Edit the file, then use
+the save dialog box or (save) command.
