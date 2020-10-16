@@ -4,28 +4,10 @@
 
 ------
 
-Looks like the SDL 2.0.9 finally died on MacBook ! SDL 2.0.10 onwards release
-introduces a lot of problems ! GUI redraw will now have to switch to a render
-to texture system as standard. Some platforms may allow you to switch the
-option to a lower overhead mode, but by default we want things to look correct
-even if a little bit slower.
+New !!! hot off the press ChrysaLisp IDE for Windows to start with, but coming to
+Mac and Linux soon... https://github.com/PaulBlythe/Chrysalisp-IDE
 
-Issues with 2.0.10+:
-
-* MacOS restore from window minimize no longer sends SDL_WINDOWEVENT_RESTORED
-event.
-
-* MacOS virtual screen scrolling freezes SDL application output.
-
-* MacOS switches to triple buffering after full screen switch. This might not
-be a bug but a change from 2.0.9 behavior.
-
-* Win10 crashes on SDL_CreateTexture call, doesn't seam to matter what the
-texture mode flag is.
-
-* Win10 draw state is corrupted by texture upload. Draw Color and/or Texture
-blend modes and/or blit clip regions trashed. Not 100% sure but drawing is
-corrupted.
+Promoted (odd?) (even?) (pow) (neg?) (pos?) to boot.inc.
 
 ------
 

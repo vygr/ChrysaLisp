@@ -107,15 +107,6 @@
   ; Tests whether string is numeric form
   (not (eql (second (numstr-type _)) :nan)))
 
-(defun-bind pow (base exponent)
-  ; (pow base exponent) -> integer
-  ; Raises base to the power of exponent
-  ; example:
-  ; (pow 10 3) -> 1000
-  (defq res 1)
-  (times exponent (setq res (* res base)))
-  res)
-
 (defun-bind to-num (s)
   ; (to-num string) -> number
   (bind '(mu ty wn dn ba)  (numstr-type s))
@@ -131,16 +122,6 @@
         (each (# (setq num (+ (* num ba) (char-to-num %0)))) wn)
         (* mu num)))))
 
-(defun-bind neg? (_)
-  ; (neg? num) -> bool
-  ; Returns true if negative number
-  (< _ 0))
-
-(defun-bind pos? (_)
-  ; (pos? num) -> bool
-  ; Returns true if positive number
-  (> _ 0))
-
 (defun-bind zero? (_)
   ; (zero? num) -> bool
   ; Returns true if argument is equal to zero (0)
@@ -150,16 +131,6 @@
   ; (one? num) -> bool
   ; Returns true if argument is equal to one (1)
   (= _ 1))
-
-(defun-bind odd? (_)
-  ; (odd? num) -> bool
-  ; Returns true if argument is equal to odd number
-  (one? (logand 1 _)))
-
-(defun-bind even? (_)
-  ; Returns true if argument is equal to even number
-  ; (even? num) -> bool
-  (not (odd? _)))
 
 (defun-bind neql? (a b)
   ; (neql? value value) -> bool
