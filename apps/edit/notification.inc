@@ -2,7 +2,6 @@
 (import "sys/lisp.inc")
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
-(import "/apps/edit/notification.inc")
 
 (structure '+event 0
 	(byte 'click+))
@@ -13,12 +12,12 @@
 		(ui-flow flow (:flow_flags (logior flow_flag_align_hright flow_flag_align_vcenter))
 			(ui-grid grid (:grid_width 1 :grid_height 1)))))
 
-(defun-bind modal (lbl btn color mx my mw mh)
+(defun-bind modal (lbl btns color mx my mw mh)
 	(view-sub grid)
-	(def (setq grid (create-grid)) :grid_width (length btn) :grid_height 1)
+	(def (setq grid (create-grid)) :grid_width (length btns) :grid_height 1)
 	(each (lambda (x)
 		(def (defq b (create-button)) :flow_flags flow_flag_align_hcenter :border 1 :text x :border 1)
-		(view-add-child grid (component-connect b +event_click+))) btn)
+		(view-add-child grid (component-connect b +event_click+))) btns)
 	(bind '(w h) (view-pref-size grid))
 	(view-change grid 0 0 w h)
 	(view-add-child flow grid)
