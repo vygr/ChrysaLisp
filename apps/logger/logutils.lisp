@@ -8,7 +8,7 @@
   +log_suffix+ ".log"
   +cfg_file+   "./apps/logger/logsrvc.yaml")
 
-(defun-bind process_log_cfg ()
+(defun-bind process-log-cfg ()
   (defq
     cntrl_log (file-stream "./logs/logservice.log" file_open_append)
     cfg_age   (age +cfg_file+)
@@ -36,3 +36,29 @@
                                       :console (properties
                                                  handler: :console_handler))))))
   (list cntrl_log (> cfg_age 0) cfg))
+
+(defun-bind log-set-cfg (ucfg scfg)
+  ; (log-set-cfg user-configuration service-configuration) -> nil
+  ; Reconciles client configuration with service-configuration
+  ; First set hash for user configuration
+  (setsp! ucfg
+    :token (hash ucfg)
+    :levels (getp-in scfg :logging :levels))
+  ; Resolve log handler and level
+  (case (defq rl (getp (getp-in scfg :logging :loggers) (getp ucfg :logger)))
+    ((nil)
+     (setsp! ucfg
+        :logger   :console
+        :log_lvl  (get-in scfg
+                          :logging
+                          :handlers
+                          (get-in scfg :logging :loggers :console :handler)
+                          :level))
+    (t
+      (setp! ucfg
+        :log_lvl (get-in scfg
+                         :logging
+                         :handlers
+                         (getp rl :handler)
+                         :level)
+        t)))))
