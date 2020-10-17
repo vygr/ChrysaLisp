@@ -9,6 +9,11 @@ Mac and Linux soon... https://github.com/PaulBlythe/Chrysalisp-IDE
 
 Promoted (odd?) (even?) (pow) (neg?) (pos?) to boot.inc.
 
+(mail-declare) and (mail-forget) now return and take the service entry key.
+
+Start of the Chat app showing use of transient services. Got to correct the
+textfield spaces char issue now.
+
 ------
 
 Reminder that #ChrysaLisp@matrix.org IRC chat room is available for all. Highly

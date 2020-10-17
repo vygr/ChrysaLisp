@@ -9,7 +9,7 @@
 (ui-window window ()
 	(ui-title-bar title "Launcher" (0xea19) +event_close+)
 	;grid scales all buttons equally
-	(ui-grid grid (:grid_width 1 :grid_height (length *env_launcher_apps*))
+	(ui-grid grid (:grid_width 2 :grid_height (/ (inc (length *env_launcher_apps*)) 2))
 		(each (lambda (path)
 			(component-connect (ui-button _ (:text path)) +event_button+)) *env_launcher_apps*)))
 
@@ -19,7 +19,7 @@
 (defun-bind main ()
 	;ensure the launcher is completely on screen
 	(bind '(x y w h) (apply view-locate (push (view-pref-size window) *env_launcher_position*)))
-	(gui-add (view-change window x y w h))
+	(gui-add (view-change window x y (/ (* w 100) 80) h))
 	(while (cond
 		((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) +event_close+)
 			nil)

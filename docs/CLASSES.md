@@ -7718,6 +7718,8 @@ inputs
 r0 = service name str object (ptr)
 r1 = mailbox id num object (ptr)
 r2 = service info str object (ptr)
+outputs
+r0 = service key str object (ptr)
 trashes
 r0-r14
 ```
@@ -7726,9 +7728,7 @@ r0-r14
 
 ```lisp
 inputs
-r0 = service name str object (ptr)
-r1 = mailbox id num object (ptr)
-r2 = service info str object (ptr)
+r0 = service key str object (ptr)
 trashes
 r0-r14
 ```
