@@ -16,9 +16,8 @@
 		(ui-buttons (0xe9ed 0xe9e8) +event_connect+))
 	(ui-flow _ (:flow_flags flow_right_fill :ink_color argb_white :color argb_white :ink_color argb_black)
 		(ui-label _ (:text "User:"))
-		(ui-textfield chat_user (:text "guest")))
-	(ui-vdu vdu (:vdu_width vdu_width :vdu_height vdu_height :ink_color argb_green
-		:font *env_medium_terminal_font* :ink_color argb_white))
+		(component-connect (ui-textfield chat_user (:text "guest")) +event_connect+))
+	(ui-vdu vdu (:vdu_width vdu_width :vdu_height vdu_height :ink_color argb_white))
 	(ui-flow _ (:flow_flags flow_right_fill :ink_color argb_white :color argb_white :ink_color argb_black)
 		(ui-label _ (:text "Chat:"))
 		(component-connect (ui-textfield chat_text (:text "")) +event_send+)))
