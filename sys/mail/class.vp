@@ -608,7 +608,8 @@
 
 	;find in service map and erase
 	(f-bind 'sys_mail :statics r1)
-	(jump 'hmap :for_each '((r1 ml_statics_service_map) ($ callback) r0))
+	(call 'hmap :for_each '((r1 ml_statics_service_map) ($ callback) r0))
+	(jump 'sys_mail :ping)
 
 (vp-label 'callback)
 	;inputs
