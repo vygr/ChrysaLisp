@@ -8,14 +8,48 @@
   +log_suffix+ ".log"
   +cfg_file+   "./apps/logger/logsrvc.yaml")
 
-(defun create-log-file-handlers (cfg)
-  ; Iterate through handlers looking for type :file
-  ; For each, extend with file information and
-  ; rotate if specific and required
-  ; Open the most current incarnation and push to 'stringified' name
+(defun make-log-filename (base)
+  ; (make-log-filename basename) -> string
+  ; Returns a fully qualified logfile path/name
+  (str +logs_path+ base +log_suffix+))
+
+(defun make-date-based-filename (base)
+  ; (make-date-based-filename basename) -> string
+  ; Returns a fully qualified, date bases, logfile path/name
+  (make-log-filename base))
+
+(defun needs-rotation? (fh)
+  ; (needs-rotation? properties) -> t | nil
   )
 
+(defun rotate-logfile (fh)
+  ; (rotate-logfile properties) -> properties
+  fh)
+
+(defun initialize-logfile-handler (cfg)
+  ; (initialize-logfile-handler properties) -> properties
+  ; Check
+  ; Fully qualify name
+  ; Ready new entries
+  ; Open filestream
+  ; Check for rotation
+  cfg)
+
+(defun create-log-file-handlers (cfg)
+  ; Iterate through handlers looking for type :file
+  (defq  fmap (hmap))
+  ; For each, extend with file information and
+  (each (lambda (ent)
+          (print (getp (second ent) :type))
+          ; rotate if specific and required TBD!
+          )
+        (entries (getp-in cfg :logging :handlers)))
+  fmap)
+
 (defun-bind process-log-cfg ()
+  ; (process-log-cfg) -> tuple
+  ; Sets up logging configuration from YAML or fall back to bare bones
+  ; Sets up logging file handlers as needed/specified
   (defq
     cntrl_log (file-stream "./logs/logservice.log" file_open_append)
     cfg_age   (age +cfg_file+)
@@ -47,15 +81,31 @@
                   :file_name  "syslog"
                   :rotate     t
                   :maxbytes   10485760
-                  :backups    10))
+                  :backups    10)
+                :service_handler (properties
+                  :type       :file
+                  :level      :info
+                  :formatter  :standard
+                  :file_name  "logservice"
+                  :rotate     t
+                  :maxbytes   10485760
+                  :backups    2))
              :loggers (properties
                 :console (properties
                   :handler :console_handler))
-             :root
-                :handler :system_handler))))
-  ; Build the system filesystem logger stream
+             :contexts (properties
+                :service (properties
+                  :handler :service_handler)
+                :system (properties
+                  :handler :system_handler))))))
+  ; Build the system filesystem logger streams
+  (defq fsmaps (create-log-file-handlers cfg))
 
-  (list cntrl_log (> cfg_age 0) cfg (create-log-file-handlers cfg)))
+  (list
+    cntrl_log
+    (> cfg_age 0)
+    cfg
+    fsmaps))
 
 (defun-bind log-set-cfg (ucfg scfg)
   ; (log-set-cfg user-configuration service-configuration) -> nil

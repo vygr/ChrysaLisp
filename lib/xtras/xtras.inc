@@ -191,10 +191,6 @@
   ; (ident el) -> el
   _)
 
-(defun-bind numb-from-string (inumstr)
-  (defq accum 0 base 10 deci 0 mult 1)
-
-  )
 (defun-bind efind (p k)
   ; (efind list key) -> index | nil
   ; Returns the index of key in list or properties

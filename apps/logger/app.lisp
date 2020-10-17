@@ -12,10 +12,10 @@
 
 ;single instance only
 (when (= (length (mail-enquire +logging_srvc_name+)) 0)
-  (defq entry (mail-declare +logging_srvc_name+ (task-mailbox) "Logging Service 0.1"))
+  (defq entry (mail-declare +logging_srvc_name+ (task-mailbox) "Logging Service 0.2"))
 
   ; Process configuration file
-  (bind '(fs fcfg? conf) (process-log-cfg))
+  (bind '(fs fcfg? conf fmap) (process-log-cfg))
 
   ; Setup general purpose information
   (defq

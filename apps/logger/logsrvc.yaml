@@ -41,13 +41,24 @@ logging:
       rotate: true
       maxbytes: 10485760
       backups: 10
+    # service log handler
+    service_handler:
+      type: :file
+      level: :info
+      formatter: :standard
+      file_name: logservice
+      rotate: true
+      maxbytes: 10485760
+      backups: 2
   loggers:
     console:
       handler: :console_handler
     file:
       handler: :app_file_handler
-  # Specific loggers
-  # :root is use with default 'system_handler'
-  root:
-    handler: :system_handler
+  # Context handlers
+  contexts:
+    service:
+      handler: :service_handler
+    system:
+      handler: :system_handler
 ...
