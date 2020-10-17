@@ -51,7 +51,8 @@
 				(defun emit-call-abi (r b c &rest x)
 					(cond
 						((= *func_align* 16)
-							(if (odd? (length x)) (setq x (cat (list r) x)))
+							(if (odd? (length x))
+								(setq x (cat (list r) x)))
 							(apply emit-push x)
 							(emit-sub-cr 32 rsp)
 							(emit-call-jump-i 0x10 b c)
@@ -59,7 +60,10 @@
 						(t
 							(emit-cpy-rr rsp r)
 							(emit-and-cr -16 rsp)
-							(apply emit-push (cat (list r r) x))
+							(if (odd? (length x))
+								(setq x (cat (list r) x))
+								(setq x (cat (list r r) x)))
+							(apply emit-push x)
 							(emit-sub-cr 32 rsp)
 							(emit-call-jump-i 0x10 b c)
 							(emit-cpy-ir rsp (* ptr_size (+ (length x) 4)) rsp)))))
