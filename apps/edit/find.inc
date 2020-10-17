@@ -1,4 +1,3 @@
-
 (defun-bind find-in-buffer (ss)
 	(unless (eql ss "")
 		(each (lambda (ln) (when (not (eql nil (defq found (substr ss ln))))
@@ -59,8 +58,3 @@
 			(view-layout sb_line_col)
 			(view-dirty sb_line_col)
 			(window-layout vdu_width vdu_height))))
-
-(defun-bind clear-text ()
-	(setq find_list (list) find_index 0 sb_line_col_message "")
-	(set textfield :text "")
-	(window-layout vdu_width vdu_height))

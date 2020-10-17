@@ -58,10 +58,9 @@
 (defun-bind is-game-over (&optional lost)
 	(defq message "")
 	(cond 
-		(lost (setq message "You Lost!" game_over t))
-		((= (+ (length (filter (# (eql %0 "f")) game_map)) (length (filter (# (eql %0 "b")) game_map)))
-				(last difficulty))
-				(setq message "You Won!" game_over t))
+		(game_over (setq message "You Lost!"))
+		((= (length (filter (# (or (eql %0 "f") (eql %0 "b"))) game_map)) (last difficulty))
+			(setq message "You Won!" game_over t))
 		(t nil))
 	(set status_bar :text message)
 	(view-dirty status_bar))
@@ -115,7 +114,7 @@
 					(cond 
 						((= (defq value (elem _ game_board)) 0) "")
 						((< 0 value 9) (str value))
-						((= value 9) "X") (is-game-over))
+						((= value 9) "X"))
 					:flow_flags (logior flow_flag_align_hcenter flow_flag_align_vcenter) 
 					:border 0 :ink_color (colorize value) :color (if (= value 9) argb_red *env_toolbar_col*) :min_width 32 :min_height 32)
 				(view-add-child game_grid mc))
@@ -149,7 +148,7 @@
 				((= mouse_down 1)
 					(cond
 						((eql (elem cid game_map) "f") (clicked-flag cid))
-						((= (elem cid game_board) 9) (clicked-mine cid) (is-game-over t))
+						((= (elem cid game_board) 9) (clicked-mine cid) (setq game_over t))
 						((= (elem cid game_board) 0) (clicked-blank cid))
 						((< 0 (elem cid game_board) 9) (clicked-value cid))
 						(t nil)))
@@ -158,7 +157,8 @@
 						((eql (elem cid game_map) "b") (right-clicked-button cid))
 						((eql (elem cid game_map) "f") (clicked-flag cid))
 						(t nil)))
-				(t nil)))
+				(t nil))
+			(is-game-over))
 		(t
 			(and (= (get-long msg (const ev_msg_type)) (const ev_type_mouse))
 				(/= 0 (get-int msg (const ev_msg_mouse_buttons)))
