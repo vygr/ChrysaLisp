@@ -1,13 +1,13 @@
 (import "lib/date/timezones.inc")
 
-;To use this libary, you must first declare a local_timezone using timezone-init. You will need a 
-;location, not a 3 letter code, as they aren't necessarily what you'd expect "CST" is not
-;Central Standard Time. 
+;to set your local timezone use the tz-init function. tz-init uses locations
+;not abbreviations.
 
 ;You can use timezone-lookup to find a location near you. 
 ;Locations with spaces in the name may contain an underscore (eg New_York).
 
 ;Currently defined only for time since unix epoch Jan 1, 1970
+
 (structure '+time 0
 	(byte 'second+ 'minute+ 'hour+ 'date+ 'month+ 'year+ 'week+ 'dls+ 'tz+))
 
