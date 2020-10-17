@@ -18,8 +18,9 @@
 
 (defun-bind main ()
 	;ensure the launcher is completely on screen
-	(bind '(x y w h) (apply view-locate (push (view-pref-size window) *env_launcher_position*)))
-	(gui-add (view-change window x y (/ (* w 100) 80) h))
+	(bind '(w h) (view-pref-size window))
+	(bind '(x y w h) (apply view-locate (push (list (/ (* w 100) 80) h) *env_launcher_position*)))
+	(gui-add (view-change window x y w h))
 	(while (cond
 		((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) +event_close+)
 			nil)
