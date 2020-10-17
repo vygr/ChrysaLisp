@@ -12,7 +12,7 @@
 
 ;single instance only
 (when (= (length (mail-enquire +logging_srvc_name+)) 0)
-  (mail-declare +logging_srvc_name+ (task-mailbox) "Logging Service 0.1")
+  (defq entry (mail-declare +logging_srvc_name+ (task-mailbox) "Logging Service 0.1"))
 
   ; Process configuration file
   (bind '(fs fcfg? conf) (process-log-cfg))
@@ -64,5 +64,5 @@
       ; Should throw exception
       (t
         (log-write " Unknown " msg))))
-  (mail-forget +logging_srvc_name+ (task-mailbox) "Logging Service 0.1")
+  (mail-forget entry)
 )

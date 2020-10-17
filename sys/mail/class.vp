@@ -511,6 +511,8 @@
 	;r0 = service name str object (ptr)
 	;r1 = mailbox id num object (ptr)
 	;r2 = service info str object (ptr)
+	;outputs
+	;r0 = service key str object (ptr)
 	;trashes
 	;r0-r14
 
@@ -536,10 +538,11 @@
 	(call 'list :get_second {tuple} {_, set})
 	(call 'sys_mail :service {name, id, info} {name})
 	(call 'hset :insert {set, name})
-	(call 'str :deref {name})
-	(jump 'sys_mail :ping '())
+	(call 'sys_mail :ping)
 
-	(pop-scope-syms)
+	(exit 'sys_mail :declare {name})
+	(pop-scope)
+	(return)
 
 (def-func-end)
 
@@ -599,38 +602,31 @@
 
 (def-method 'sys_mail :forget)
 	;inputs
-	;r0 = service name str object (ptr)
-	;r1 = mailbox id num object (ptr)
-	;r2 = service info str object (ptr)
+	;r0 = service key str object (ptr)
 	;trashes
 	;r0-r14
 
-	(ptr 'name 'id 'info 'bucket 'tuple)
-	(union
-		(ptr 'set)
-		(ptr 'key))
+	;find in service map and erase
+	(f-bind 'sys_mail :statics r1)
+	(call 'hmap :for_each '((r1 ml_statics_service_map) ($ callback) r0))
+	(jump 'sys_mail :ping)
 
-	(push-scope)
-	(entry 'sys_mail :forget {name, id, info})
+(vp-label 'callback)
+	;inputs
+	;r0 = predicate data (ptr)
+	;r1 = element iterator (ptr)
 
-	;find in service map
-	(call 'num :create {id->num_value >> 32} {key})
-	(call 'hmap :find (cat {@} (f-path 'sys_mail :statics) {.ml_statics_service_map, key}) {_, tuple, bucket})
-	(call 'num :destroy {key})
-	(vpif {tuple})
-		(assign {(*(pptr tuple))->pair_second} {tuple})
-		(call 'sys_mail :service {name, id, info} {name})
-		(call 'list :get_second {tuple} {_, set})
-		(call 'hset :find {set, name} {_, id, bucket})
-		(vpif {id})
-			(call 'hset :erase {set, id, bucket})
-		(endif)
-		(call 'str :destroy {name})
-		(jump 'sys_mail :ping {})
+	(entry 'hmap :each_callback '(r0 r1))
+
+	(vp-swp-rr r0 r1)
+	(assign '((r0 0)) '(r0))
+	(assign '((r0 pair_second) 1) '(r2 r0))
+	(class/array/get_element r2 r0 r0 r2)
+	(call 'hset :find '(r0 r1) '(r0 r1 r2))
+	(vpif '(r1 /= 0))
+		(call 'hset :erase '(r0 r1 r2))
 	(endif)
-
-	(pop-scope)
-	(return)
+	(vp-ret)
 
 (def-func-end)
 
