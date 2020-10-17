@@ -30,6 +30,23 @@
     'registered+
     'errored+))
 
+(defun-bind log-level-index (cfg lvl)
+  ; (log-level-index configuration level-key) -> number
+  ; Gets the log level index for the lvl key from levels
+  ; defaults to 1 (info) if invalid lvl given
+  (defq res (getp-in cfg :levels lvl))
+  (if res res  1))
+
+(defun-bind log-level-string (cfg lvl)
+  ; (log-level-string configuration level-key) -> string
+  ; Gets the string for output representing the log level key
+  (elem (log-level-index cfg lvl) (getp-in cfg :levels :logstrs)))
+
+(defun-bind log-level-base (cfg)
+  ; (log-level-base configuration) -> level key
+  ; Gets the log level base key from the configuration
+  (getp-in cfg :log_lvl))
+
 (defun-bind deser-inbound (msg)
   ; (deser-inbound mail-msg) -> properties
   ; Deserializes inbound data from mail message
@@ -45,7 +62,7 @@
 (defun-bind console-log-msg-writer (logger msgd)
   ; (console-log-msg-writer logconfig mail-message) -> stream
   (log-write stdout (str
-               " [" (getp msgd :msg-level)"] "
+               " ["(log-level-string logger (getp msgd :msg-level))"] "
                (getp logger :name)": ") (getp msgd :message)))
 
 
@@ -117,9 +134,8 @@
   (cond
     ((eql (getp logger :logger) :console)
       (defq
-        llvls (getp logger :levels)
-        lvli  (getp llvls lmsgtype)
-        lvlc  (getp llvls (getp-in logger :configuration :level)))
+        lvli  (log-level-index logger lmsgtype)
+        lvlc  (log-level-index logger (log-level-base logger)))
       (if (>= lvli lvlc)
         (console-log-msg-writer logger msgs)))
     (t

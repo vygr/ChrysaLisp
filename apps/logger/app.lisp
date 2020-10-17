@@ -19,17 +19,16 @@
 
   ; Setup general purpose information
   (defq
-    reg   (hmap)
-    logl  (getp-in conf :logging :levels)
-    active t)
+    registra  (hmap)
+    active    t)
 
   (defun-bind log-msg-writer (sstrm msg)
     ; (log-msg-writer stream mail-message) -> stream
     (defq
       msgd (deser-inbound msg)
-      cnfg (hmap-find reg (getp msgd :module)))
+      cnfg (hmap-find registra (getp msgd :module)))
     (log-write sstrm (str
-                 " [" (getp msgd :msg-level)"] "
+                 " ["(log-level-string cnfg (getp msgd :msg-level))"] "
                  (getp cnfg :name)": ") (getp msgd :message)))
 
   (defun-bind register-logger (config)
@@ -37,7 +36,7 @@
     (log-write fs " Registering " (getp config :name))
     (stream-flush fs)
     (log-set-cfg config conf)
-    (hmap-insert reg (getp config :token) config)
+    (hmap-insert registra (getp config :token) config)
     (log-write fs " Registered " config)
     (stream-flush fs)
     (mail-send

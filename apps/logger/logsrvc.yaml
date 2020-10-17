@@ -18,21 +18,36 @@ logging:
     standard:
       format: tnlm
   handlers:
+    # Generic console handler
     console_handler:
       type: :stdout
       level: :info
       formatter: :standard
-    file_handler:
+    # Generic application file handler
+    app_file_handler:
       type: :file
       level: :debug
       formatter: :standard
       file_name: applog
       rotate: true
-      maxrecords: 500
+      maxbytes: 10485760
+      backups: 10
+    # System log handler
+    system_handler:
+      type: :file
+      level: :info
+      formatter: :standard
+      file_name: syslog
+      rotate: true
+      maxbytes: 10485760
       backups: 10
   loggers:
     console:
       handler: :console_handler
     file:
-      handler: :file_handler
+      handler: :app_file_handler
+  # Specific loggers
+  # :root is use with default 'system_handler'
+  root:
+    handler: :system_handler
 ...
