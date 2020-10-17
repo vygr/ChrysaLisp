@@ -730,7 +730,7 @@
 
 ## mail-forget
 
-(mail-forget name mbox info)
+(mail-forget key)
 
 ## mail-free-mbox
 
