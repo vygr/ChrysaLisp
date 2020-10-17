@@ -18,9 +18,12 @@
   ; Returns a fully qualified, date bases, logfile path/name
   (make-log-filename base))
 
+(defun open-log-file-stream (fname)
+  (file-stream fname file_open_append))
+
 (defun needs-rotation? (fh)
   ; (needs-rotation? properties) -> t | nil
-  )
+  nil)
 
 (defun rotate-logfile (fh)
   ; (rotate-logfile properties) -> properties
@@ -32,17 +35,30 @@
   ; Fully qualify name
   ; Ready new entries
   ; Open filestream
+  (setp! cfg
+    :handle (open-log-file-stream (make-log-filename (getp cfg :file_name))) t)
   ; Check for rotation
+  (when (needs-rotation? cfg)
+    (rotate-logfile cfg))
   cfg)
 
 (defun create-log-file-handlers (cfg)
-  ; Iterate through handlers looking for type :file
+  ; (create-log-file-handlers properties) -> hmap
   (defq  fmap (hmap))
-  ; For each, extend with file information and
+  (debug-write "Creating handlers!")
+  ; Iterate through handlers looking for type :file
+  ; For each, extend with file information and prepare
+  ; for use
   (each (lambda (ent)
-          (print (getp (second ent) :type))
-          ; rotate if specific and required TBD!
-          )
+          (debug-write "each " ent)
+          (cond
+            ((eql (getp (second ent) :type) :file)
+             (debug-write "handler setup-> " (first ent))
+             (initialize-logfile-handler (second ent))
+             (hmap-insert fmap (first ent) (second ent))
+             (debug-write "added-> " (first ent)))
+            (t
+              nil)))
         (entries (getp-in cfg :logging :handlers)))
   fmap)
 
@@ -51,7 +67,6 @@
   ; Sets up logging configuration from YAML or fall back to bare bones
   ; Sets up logging file handlers as needed/specified
   (defq
-    cntrl_log (file-stream "./logs/logservice.log" file_open_append)
     cfg_age   (age +cfg_file+)
     cfg       nil)
   (setq cfg
@@ -100,9 +115,9 @@
                   :handler :system_handler))))))
   ; Build the system filesystem logger streams
   (defq fsmaps (create-log-file-handlers cfg))
-
+  (debug-write "fsmaps-> " fsmaps)
   (list
-    cntrl_log
+    (hmap-find fsmaps :service_handler)
     (> cfg_age 0)
     cfg
     fsmaps))

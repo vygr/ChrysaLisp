@@ -17,6 +17,7 @@ logging:
   formatters:
     standard:
       format: tnlm
+  # Pre-defined handlers
   handlers:
     # Generic console handler
     console_handler:
@@ -55,7 +56,7 @@ logging:
       handler: :console_handler
     file:
       handler: :app_file_handler
-  # Context handlers
+  # Predefined context and module handlers
   contexts:
     service:
       handler: :service_handler

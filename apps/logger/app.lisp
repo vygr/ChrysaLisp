@@ -12,15 +12,26 @@
 
 ;single instance only
 (when (= (length (mail-enquire +logging_srvc_name+)) 0)
-  (defq entry (mail-declare +logging_srvc_name+ (task-mailbox) "Logging Service 0.2"))
+  (defq
+    entry (mail-declare +logging_srvc_name+ (task-mailbox) "Logging Service 0.2")
+    ; DEBUG (file-stream "./logs/DEBUG_SERVICE.log" file_open_append)
+    )
+
+  ; (defun-bind debug-write (&rest _)
+  ;   (write DEBUG (apply str (push _ +nl+)))
+  ;   (stream-flush DEBUG))
+  (defun-bind debug-write (&rest _))
 
   ; Process configuration file
-  (bind '(fs fcfg? conf fmap) (process-log-cfg))
+  (bind '(srvc_fh fcfg? conf fmap) (process-log-cfg))
 
   ; Setup general purpose information
   (defq
     registra  (hmap)
     active    t)
+
+  (log-write (getp srvc_fh :handle) " Starting LOG_SERVICE")
+  (debug-write "Starting LOG_SERVICE")
 
   (defun-bind log-msg-writer (sstrm msg)
     ; (log-msg-writer stream mail-message) -> stream
@@ -33,12 +44,12 @@
 
   (defun-bind register-logger (config)
     ; (register-logger properties) -> ?
-    (log-write fs " Registering " (getp config :name))
-    (stream-flush fs)
+    (log-write (getp srvc_fh :handle) " Registering " (getp config :name))
+    (stream-flush (getp srvc_fh :handle))
     (log-set-cfg config conf)
     (hmap-insert registra (getp config :token) config)
-    (log-write fs " Registered " config)
-    (stream-flush fs)
+    (log-write (getp srvc_fh :handle) " Registered " config)
+    (stream-flush (getp srvc_fh :handle))
     (mail-send
       (cat
         (char +log_event_registered+ long_size)
@@ -50,8 +61,9 @@
     (cond
       ; Shutdown (admin)
       ((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) +log_event_shutdown+)
-        (log-write fs " Shutting down ")
-        (setq active nil fs nil))
+        (log-write (getp srvc_fh :handle) " Shutting down ")
+        ; (log-write DEBUG " Shutting down ")
+        (setq active nil))
       ; Information request about registrations (admin)
       ; Registration (client)
       ((= id +log_event_register+)
@@ -63,6 +75,8 @@
        (log-msg-writer fs msg))
       ; Should throw exception
       (t
-        (log-write " Unknown " msg))))
+        (log-write (getp srvc_fh :handle) " Unknown " msg)
+        ; (log-write DEBUG " Unknown " msg)
+        )))
   (mail-forget entry)
 )
