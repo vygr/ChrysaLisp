@@ -46,7 +46,7 @@
     ; (register-logger properties) -> ?
     (log-write (getp srvc_fh :handle) " Registering " (getp config :name))
     (stream-flush (getp srvc_fh :handle))
-    (log-set-cfg config conf)
+    (log-set-cfg config conf fmap)
     (hmap-insert registra (getp config :token) config)
     (log-write (getp srvc_fh :handle) " Registered " config)
     (stream-flush (getp srvc_fh :handle))

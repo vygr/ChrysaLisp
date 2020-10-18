@@ -122,7 +122,7 @@
     cfg
     fsmaps))
 
-(defun-bind log-set-cfg (ucfg scfg)
+(defun-bind log-set-cfg (ucfg scfg fmap)
   ; (log-set-cfg user-configuration service-configuration) -> nil
   ; Reconciles client configuration with service-configuration
   ; First set hash for user configuration
