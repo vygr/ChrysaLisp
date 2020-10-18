@@ -73,7 +73,7 @@
 	`(let ((ltz (list)))
 		(setq ltz (timezone-lookup :location ,tz_loc))
 		(elem-set +tz_locations+ ltz ,tz_loc)
-		(def (penv (env)) 'local_timezone ltz)))
+		(def (penv (env)) :local_timezone ltz)))
 
 ;ensure that leapyears are not divisible by 100 unless also divisible by 400.
 (defmacro-bind leapyear? (y)
@@ -128,26 +128,26 @@
 		(eql (and (not (= _ 5)) (or (> a_ (elem _ maxarg)) (< a_ (elem _ minarg)))) t)) td))
 
 (defun-bind float-time ()
-	(defq seconds (i2f (/ (time) 1000000)) minutes (+ (* 60.0 (i2f (elem +tz_offset+ local_timezone))) (/ seconds 60.0)) 
+	(defq seconds (i2f (/ (time) 1000000)) minutes (+ (* 60.0 (i2f 
+		(elem +tz_offset+ (get :local_timezone)))) (/ seconds 60.0)) 
 		hours (% (/ minutes 60.0) 12.0))
-	;(unless (not offset) (setq hours (+ hours (i2f offset))))
 	(list seconds minutes hours))
-
 ;takes a time value in seconds or uses default (time)
 (defun-bind date (&optional secs)
 	(defq seconds (/ (time) 1000000))
 	(if secs (setq seconds secs))
-	(defq minutes (+ (* 60 (elem +tz_offset+ local_timezone)) (/ seconds 60))
+	(defq minutes (+ (* 60 (elem +tz_offset+ (get :local_timezone))) (/ seconds 60))
 		hours (/ minutes 60) days (/ hours 24) weeks (/ days 7))
 	(bind '(monthday month year) (get-date days))
 	(list (% seconds 60) (% minutes 60) (% hours 24) monthday month year (% days 7)))
 
-(defun-bind encode-date (td)
+(defun-bind encode-date (&optional td)
+	(when (not td) (setq td (date))) 
 	(bind '(s m h dy mo yr wk) td)
 	(when (check-date td)
 		(cat (day-of-the-week wk) " " (month-of-the-year mo) " " 
 			(str dy) " " (pad h 2 "0") ":" (pad m 2 "0") ":" (pad s 2 "0") " " 
-			(elem +tz_abbreviation+ local_timezone) " " (str yr))))
+			(elem +tz_abbreviation+ (get :local_timezone)) " " (str yr))))
 
 (defun-bind decode-date (dts)
 	(defq space_split (split dts " ") rdt (list) index 0)
@@ -158,3 +158,7 @@
 	(defq smh (reverse (split hms ":")))
 	(each (lambda (_) (push rdt (s2i _))) (reverse (split hms ":"))) 
 	(push rdt (s2i dy) mo (s2i yr) wd))
+
+(when (not (get :local_timezone))
+	(def (penv (env)) :local_timezone 
+		(list "UTC" 0 nil "(UTC) Coordinated Universal Time" "Etc/GMT")))
