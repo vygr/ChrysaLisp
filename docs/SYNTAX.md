@@ -296,6 +296,10 @@
 
 (create-stdio)
 
+## create-text
+
+(create-text)
+
 ## create-textfield
 
 (create-textfield)

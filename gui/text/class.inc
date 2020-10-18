@@ -7,5 +7,7 @@
 (dec-method :pref_size 'gui/text/pref_size :final)
 (dec-method :draw 'gui/text/draw :final)
 
+(dec-method :lisp_create 'gui/text/lisp_create :static '(r0 r1) '(r0 r1))
+
 (def-struct 'text 'view)
 (def-struct-end)
