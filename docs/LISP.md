@@ -105,10 +105,10 @@ write write-char
 
 ```lisp
 # and ascii-char ascii-code case compose const curry dec defmacro defmacro-bind
-defun defun-bind each each-rev env? every fnc? get-byte get-int get-long
-get-short get-ubyte get-uint get-ushort if inc let lst? not notany notevery
-num? opt or rcurry read-int read-long read-short reduced seq? setd some str?
-sym? times unless until when write-int write-long write-short
+defun defun-bind each each-rev env? every fnc? fun? get-byte get-int get-long
+get-short get-ubyte get-uint get-ushort if inc let lst? macro? not notany
+notevery num? opt or rcurry read-int read-long read-short reduced seq? setd
+some str? sym? times unless until when write-int write-long write-short
 ```
 
 ### boot.inc functions
