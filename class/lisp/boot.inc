@@ -416,18 +416,15 @@
 	`(not (some! 0 -1 nil ,f (list ~_))))
 
 (defun-bind nil? (_)
-  	; (nil? o) -> bool
-  	; Returns true if nil
+  	;(nil? o) -> bool
   	(eql _ nil))
 
 (defun-bind empty? (_)
 	;(empty? form) -> bool
-	; Returns true if form is empty
 	(cond ((seq? _) (= (length _) 0)) (t)))
 
 (defun-bind nempty? (_)
 	;(nempty? form) -> bool
-	; Returns true if form is not empty
 	(cond ((seq? _) (/= (length _) 0))))
 
 ;;;;;;;;;;;
@@ -504,23 +501,19 @@
 (defq +min_long+ (<< -1 63) +max_long+ (>> -1 1) +min_int+ (<< -1 31) +max_int+ (>> -1 33))
 
 (defun-bind neg? (_)
-	; (neg? num) -> bool
-	; Returns true if negative number
+	;(neg? num) -> bool
 	(< _ 0))
 
 (defun-bind pos? (_)
-	; (pos? num) -> bool
-	; Returns true if positive number
+	;(pos? num) -> bool
 	(> _ 0))
 
 (defun-bind odd? (_)
-	; (odd? num) -> bool
-	; Returns true if argument is equal to odd number
+	;(odd? num) -> bool
 	(/= 0 (logand 1 _)))
 
 (defun-bind even? (_)
-	; Returns true if argument is equal to even number
-	; (even? num) -> bool
+	;(even? num) -> bool
 	(= 0 (logand 1 _)))
 
 (defun-bind lognot (_)
@@ -535,10 +528,7 @@
 			(setq i (inc i))) i))
 
 (defun-bind pow (base exponent)
-	; (pow base exponent) -> integer
-	; Raises base to the power of exponent
-	; example:
-	; (pow 10 3) -> 1000
+	;(pow base exponent) -> integer
 	(defq res 1)
 	(times exponent (setq res (* res base)))
 	res)
