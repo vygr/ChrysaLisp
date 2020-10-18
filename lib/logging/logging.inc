@@ -2,75 +2,39 @@
 ; logging - Logging Service Library for clients
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import "lib/xtras/xtras.inc")
-(import "lib/yaml-data/yaml-xchange.lisp")
-(import "lib/date/date.inc")
+(import "lib/logging/logcommons.inc")
 
-; Setup timezone for now
-(timezone-init "America/New_York")
-
-(defq
-  +logging_srvc_name+ "LOG_SERVICE"
-  log_mbox_id nil)
-
-; Mail message structure
-; command - See +log_event+ below
-; data - String block of data (yaml-xser'd)
-(structure 'mail_msg 0
-  (long 'command)
-  (offset 'data))
-
-; Events for mail_msg_commands
-(structure '+log_event 0
-  (byte
-    'logmsg+
-    'register+
-    'deregister+
-    'shutdown+
-    'registered+
-    'errored+))
-
-(defun-bind deser-inbound (msg)
-  ; (deser-inbound mail-msg) -> properties
-  ; Deserializes inbound data from mail message
-  (yaml-xdeser (write (string-stream (cat "")) (slice mail_msg_data -1 msg))))
-
-(defun-bind log-write (sstrm &rest _)
-  ; (log-write strean ....) -> stream
-  ; Wrap timestamp and nl to '_' arguments
-  (setq _ (insert (push _ +nl+) 0 (list (encode-date (date)))))
-  (write sstrm (apply str _))
-  (stream-flush sstrm))
+(defq log_mbox_id nil)
 
 (defun-bind console-log-msg-writer (logger msgd)
   ; (console-log-msg-writer logconfig mail-message) -> stream
   (log-write stdout (str
-               " [" (getp msgd :msg-level)"] "
+               " ["(log-level-string logger (getp msgd :msg-level))"] "
                (getp logger :name)": ") (getp msgd :message)))
 
 
-(defun-bind log-registration (mname use_logger)
+(defun-bind log-registration (mname use_handler)
   ; (log-registration name keyword) -> properties
   ; Setups the logging registration and optional configuration
   (setsp! (properties)
-    :name     mname
-    :logger   use_logger
-    :reciever (mail-alloc-mbox)))
+    :name       mname
+    :handler    use_handler
+    :reciever   (mail-alloc-mbox)))
 
 (defun-bind get-logsrvc-mb ()
   ; (get-logsrvc-mb) -> mailbox id | nil
   (cond
     ((nil? log_mbox_id)
       (defq res (mail-enquire +logging_srvc_name+))
-      (when (nempty? res)
-        (setq log_mbox_id (to-num (second (split (first res) ","))))))
+      (setq log_mbox_id
+      (if (nempty? res)
+        (to-num (second (split (first res) ",")))
+        (open-child "apps/logger/app.lisp" kn_call_child))))
     (t log_mbox_id)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; For debugging only... remove before merging
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun-bind start-log-service ()
-  (setq log_mbox_id (open-child "apps/logger/app.lisp" kn_call_child)))
 
 (defun-bind shutdown-log-service ()
   (mail-send (char +log_event_shutdown+ long_size) (get-logsrvc-mb))
@@ -89,7 +53,7 @@
     (t
       (throw "Invalid registration " msg))))
 
-(defun-bind create-logger (mname &optional uses_logger)
+(defun-bind create-logger (mname &optional uses_handler)
   ; (create-logger name [kw]) -> properties
   ; Registers name with logging service and sends optional logger
   ; service to use:
@@ -97,8 +61,8 @@
   ;   :file
   ; Part of the registering includes a return mbox that the service
   ; can write to
-  (setd uses_logger :console)
-  (defq lr (log-registration mname uses_logger))
+  (setd uses_handler :console)
+  (defq lr (log-registration mname uses_handler))
   (mail-send
     (cat
       (char +log_event_register+ long_size)
@@ -115,11 +79,10 @@
           :msg-level  lmsgtype
           :message    (str msg)))
   (cond
-    ((eql (getp logger :logger) :console)
+    ((eql (getp logger :handler) :console_handler)
       (defq
-        llvls (getp logger :levels)
-        lvli  (getp llvls lmsgtype)
-        lvlc  (getp llvls (getp-in logger :configuration :level)))
+        lvli  (log-level-index logger lmsgtype)
+        lvlc  (log-level-index logger (log-level-base logger)))
       (if (>= lvli lvlc)
         (console-log-msg-writer logger msgs)))
     (t
