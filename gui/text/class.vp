@@ -138,7 +138,7 @@
 			(loop-start)
 				(call 'font :glyph_info {font, *syms} {_, info})
 				(call 'font :glyph_bounds {font, info} {_, sym_w, height})
-				(call 'texture :deref {info})
+				(call 'array :deref {info})
 				(assign {width + sym_w} {width})
 			(loop-until {(syms + ptr_size => syms) = syms_end})
 		(endif)

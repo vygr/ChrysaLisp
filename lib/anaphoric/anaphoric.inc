@@ -33,3 +33,6 @@
 (defmacro-bind aeach (x &rest _)
 	;(aeach seq body)
 	`(each (lambda (it) ~_) ,x))
+
+(defmacro-bind asome (x &rest _)
+	`(some (lambda (it) ~_) ,x))

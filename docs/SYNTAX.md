@@ -528,6 +528,10 @@
 
 (frac num)
 
+## fun?
+
+(fun? form) -> t|nil
+
 ## gensym
 
 (gensym)
@@ -707,6 +711,10 @@
 ## lst?
 
 (lst? form) -> t|nil
+
+## macro?
+
+(macro? form) -> t|nil
 
 ## macroexpand
 
