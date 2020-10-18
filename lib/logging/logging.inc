@@ -2,62 +2,9 @@
 ; logging - Logging Service Library for clients
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import "lib/xtras/xtras.inc")
-(import "lib/yaml-data/yaml-xchange.lisp")
-(import "lib/date/date.inc")
+(import "lib/logging/logcommons.inc")
 
-; Setup timezone for now
-(timezone-init "America/New_York")
-
-(defq
-  +logging_srvc_name+ "LOG_SERVICE"
-  log_mbox_id nil)
-
-; Mail message structure
-; command - See +log_event+ below
-; data - String block of data (yaml-xser'd)
-(structure 'mail_msg 0
-  (long 'command)
-  (offset 'data))
-
-; Events for mail_msg_commands
-(structure '+log_event 0
-  (byte
-    'logmsg+
-    'register+
-    'deregister+
-    'shutdown+
-    'registered+
-    'errored+))
-
-(defun-bind log-level-index (cfg lvl)
-  ; (log-level-index configuration level-key) -> number
-  ; Gets the log level index for the lvl key from levels
-  ; defaults to 1 (info) if invalid lvl given
-  (defq res (getp-in cfg :levels lvl))
-  (if res res  1))
-
-(defun-bind log-level-string (cfg lvl)
-  ; (log-level-string configuration level-key) -> string
-  ; Gets the string for output representing the log level key
-  (elem (log-level-index cfg lvl) (getp-in cfg :levels :logstrs)))
-
-(defun-bind log-level-base (cfg)
-  ; (log-level-base configuration) -> level key
-  ; Gets the log level base key from the configuration
-  (getp-in cfg :log_lvl))
-
-(defun-bind deser-inbound (msg)
-  ; (deser-inbound mail-msg) -> properties
-  ; Deserializes inbound data from mail message
-  (yaml-xdeser (write (string-stream (cat "")) (slice mail_msg_data -1 msg))))
-
-(defun-bind log-write (sstrm &rest _)
-  ; (log-write strean ....) -> stream
-  ; Wrap timestamp and nl to '_' arguments
-  (setq _ (insert (push _ +nl+) 0 (list (encode-date (date)))))
-  (write sstrm (apply str _))
-  (stream-flush sstrm))
+(defq log_mbox_id nil)
 
 (defun-bind console-log-msg-writer (logger msgd)
   ; (console-log-msg-writer logconfig mail-message) -> stream
@@ -79,15 +26,15 @@
   (cond
     ((nil? log_mbox_id)
       (defq res (mail-enquire +logging_srvc_name+))
-      (when (nempty? res)
-        (setq log_mbox_id (to-num (second (split (first res) ","))))))
+      (setq log_mbox_id
+      (if (nempty? res)
+        (to-num (second (split (first res) ",")))
+        (open-child "apps/logger/app.lisp" kn_call_child))))
     (t log_mbox_id)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; For debugging only... remove before merging
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun-bind start-log-service ()
-  (setq log_mbox_id (open-child "apps/logger/app.lisp" kn_call_child)))
 
 (defun-bind shutdown-log-service ()
   (mail-send (char +log_event_shutdown+ long_size) (get-logsrvc-mb))
