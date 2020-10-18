@@ -10,48 +10,6 @@
 (gen-create 'text)
 (gen-vtable 'text)
 
-(def-method 'text :init)
-	;inputs
-	;r0 = text object (ptr)
-	;r1 = vtable (pptr)
-	;outputs
-	;r0 = text object (ptr)
-	;r1 = 0 if error, else ok
-	;trashes
-	;r1-r14
-
-	(entry 'text :init '(r0 r1))
-
-	(s-call 'text :init '(r0 r1) '(r0 r1))
-	(vpif '(r1 /= 0))
-		;init myself
-		(vp-xor-rr r2 r2)
-		(assign '(r2 r2) '((r0 text_string) (r0 text_syms)))
-	(endif)
-
-	(exit 'text :init '(r0 r1))
-	(vp-ret)
-
-(def-func-end)
-
-(def-method 'text :deinit)
-	;inputs
-	;r0 = text object (ptr)
-	;outputs
-	;r0 = text object (ptr)
-	;trashes
-	;r1-r14
-
-	(entry 'text :deinit '(r0))
-
-	;deref any syms
-	(vp-push r0)
-	(call 'list :deref_if '((r0 text_syms)))
-	(vp-pop r0)
-	(s-jump 'text :deinit '(r0))
-
-(def-func-end)
-
 (def-method 'text :draw)
 	;inputs
 	;r0 = view object (ptr)
@@ -62,9 +20,8 @@
 	;r1-r14
 
 	(ptr 'this 'ctx 'txt 'font 'str)
-	(pptr 'syms 'syms_end)
 	(ulong 'handle)
-	(int 'x 'w 'h)
+	(int 'w 'h)
 	(uint 'col)
 
 	;save inputs
@@ -75,25 +32,14 @@
 	(call 'text :get_long_prop {this, static_sym_ink_color} {_, col})
 	(call 'text :get_prop {this, static_sym_font} {_, font})
 	(call 'text :get_prop {this, static_sym_text} {_, str})
-	(vpif {str && str /= this->text_string})
-		(assign {str} {this->text_string})
-		(call 'text :switch_text {this})
-	(endif)
 
 	;draw text
-	(vpif {this->text_string && font})
-		(call 'list :get_both {this->text_syms} {_, syms, syms_end})
-		(vpif {syms /= syms_end})
-			(assign {0} {x})
-			(loop-start)
-				(call 'font :sym_texture {font, *syms} {_, txt})
-				(vpif {txt})
-					(call 'texture :get_metrics {txt} {_, handle, w, h})
-					(call 'ctx :blit {ctx, handle, col, x, 0, w, h})
-					(assign {x + w + (h >> 2)} {x})
-					(call 'texture :deref {txt})
-				(endif)
-			(loop-until {(syms + ptr_size => syms) = syms_end})
+	(vpif {str && font})
+		(call 'font :sym_texture {font, str} {_, txt})
+		(vpif {txt})
+			(call 'texture :get_metrics {txt} {_, handle, w, h})
+			(call 'ctx :blit {ctx, handle, col, 0, 0, w, h})
+			(call 'texture :deref {txt})
 		(endif)
 	(endif)
 
@@ -114,8 +60,7 @@
 	;r1-r14
 
 	(ptr 'this 'font 'str 'info)
-	(pptr 'syms 'syms_end)
-	(uint 'width 'height 'length 'sym_w)
+	(uint 'w 'h)
 
 	;save inputs
 	(push-scope)
@@ -124,54 +69,18 @@
 	;get properties, do checks for any changes
 	(call 'text :get_prop {this, static_sym_font} {_, font})
 	(call 'text :get_prop {this, static_sym_text} {_, str})
-	(vpif {str && str /= this->text_string})
-		(assign {str} {this->text_string})
-		(call 'text :switch_text {this})
-	(endif)
 
 	;bounds of text
-	(assign {0 => width} {height})
-	(vpif {this->text_string && font})
-		(call 'font :get_metrics {font} {_, _, _, height})
-		(call 'list :get_both {this->text_syms} {_, syms, syms_end})
-		(vpif {syms /= syms_end})
-			(loop-start)
-				(call 'font :glyph_info {font, *syms} {_, info})
-				(call 'font :glyph_bounds {font, info} {_, sym_w, height})
-				(call 'array :deref {info})
-				(assign {width + sym_w} {width})
-			(loop-until {(syms + ptr_size => syms) = syms_end})
-		(endif)
-		(d-call 'list :get_length {this->text_syms} {_, length})
-		(assign {width + (length - 1) * (height >> 2)} {width})
+	(assign {0 => w} {h})
+	(vpif {str && font})
+		;get texture bounds info
+		(call 'font :glyph_info {font, str} {_, info})
+		(call 'font :glyph_bounds {font, info} {_, w, h})
+		(call 'array :deref {info})
 	(endif)
 
-	(exit 'text :pref_size {this, width, height})
+	(exit 'text :pref_size {this, w, h})
 	(pop-scope)
 	(return)
-
-(def-func-end)
-
-(def-method 'text :switch_text)
-	;inputs
-	;r0 = text object (ptr)
-	;outputs
-	;r0 = text object (ptr)
-	;trashes
-	;r1-r14
-
-	(entry 'text :switch_text '(r0))
-
-	;create new split syms
-	(vp-push r0)
-	(call 'list :deref_if '((r0 text_syms)))
-	(assign '((rsp 0)) '(r0))
-	(call 'str :split_char '((r0 text_string) char_space) '(_ r1))
-	(call 'sym :intern_strs '(r1) '(r1))
-	(vp-pop r0)
-	(assign '(r1) '((r0 text_syms)))
-
-	(entry 'text :switch_text '(r0))
-	(vp-ret)
 
 (def-func-end)
