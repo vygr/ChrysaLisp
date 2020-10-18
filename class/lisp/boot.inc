@@ -188,7 +188,16 @@
 	`(= (type-of ,_) ,lisp_type_env))
 (defmacro-bind seq? (_)
 	;(seq? form) -> t|nil
-	`(or (= (defq ,(defq __ (gensym)) (type-of ,_)) ,lisp_type_lst) (= ,__ ,lisp_type_str)))
+	`(or (= (defq ,(defq __ (gensym)) (type-of ,_)) ,lisp_type_lst)
+		(= ,__ ,lisp_type_str)))
+(defmacro-bind fun? (_)
+	;(fun? form) -> t|nil
+	`(and (= (type-of (defq ,(defq __ (gensym)) ,_)) ,lisp_type_lst)
+		(> (length ,__) 0) (eql (elem 0 ,__) 'lambda)))
+(defmacro-bind macro? (_)
+	;(macro? form) -> t|nil
+	`(and (= (type-of (defq ,(defq __ (gensym)) ,_)) ,lisp_type_lst)
+		(> (length ,__) 0) (eql (elem 0 ,__) 'macro)))
 
 (defmacro-bind inc (_)
 	;(inc num) -> num
