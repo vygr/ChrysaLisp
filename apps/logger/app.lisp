@@ -24,20 +24,25 @@
 
   ; Process configuration file
   (bind '(srvc_fh fcfg? conf fmap) (process-log-cfg))
+  (log-write (getp srvc_fh :handle) " Starting LOG_SERVICE")
 
   ; Setup general purpose information
   (defq
     registra  (hmap)
     active    t)
 
-  (log-write (getp srvc_fh :handle) " Starting LOG_SERVICE")
-  (debug-write "Starting LOG_SERVICE")
+  (defun-bind log-handle (cfg)
+    (getp cfg :handle))
 
-  (defun-bind log-msg-writer (sstrm msg)
-    ; (log-msg-writer stream mail-message) -> stream
+  (defun-bind logfs (fsmap config)
+    (log-handle (hmap-find fsmap (getp config :handler))))
+
+  (defun-bind log-msg-writer (msg)
+    ; (log-msg-writer mail-message) -> stream
     (defq
       msgd (deser-inbound msg)
-      cnfg (hmap-find registra (getp msgd :module)))
+      cnfg (hmap-find registra (getp msgd :module))
+      sstrm (logfs fmap cnfg))
     (log-write sstrm (str
                  " ["(log-level-string cnfg (getp msgd :msg-level))"] "
                  (getp cnfg :name)": ") (getp msgd :message)))
@@ -46,10 +51,33 @@
     ; (register-logger properties) -> ?
     (log-write (getp srvc_fh :handle) " Registering " (getp config :name))
     (stream-flush (getp srvc_fh :handle))
-    (log-set-cfg config conf fmap)
+    ; Basics
+    (setsp! config
+      :log_lvl :info
+      :token (hash config)
+      :levels (getp-in conf :logging :levels))
+    ; Resolve handler
+    (case (getp config :handler)
+      ; Keyword cases
+      ((:console)
+       (defq hndl (getp-in conf :logging :loggers :console :handler))
+       (setsp! config
+          :log_lvl (getp-in conf :logging :handlers hndl :level)
+          :handler hndl))
+      ((:file)
+       (defq hndl (getp-in conf :logging :loggers :file :handler))
+       (setsp! config
+          :log_lvl (getp (hmap-find fmap hndl) :level)
+          :handler hndl))
+      ((:system)
+       (defq hndl (getp-in conf :logging :contexts :system :handler))
+       (setsp! config
+          :log_lvl (getp (hmap-find fmap hndl):level)
+          :handler hndl))
+      ((:inherit))
+      (t))
+    ; Capture configuration locally
     (hmap-insert registra (getp config :token) config)
-    (log-write (getp srvc_fh :handle) " Registered " config)
-    (stream-flush (getp srvc_fh :handle))
     (mail-send
       (cat
         (char +log_event_registered+ long_size)
@@ -72,7 +100,7 @@
       ; Reconfiguration (client)
       ; Log Message (client)
       ((= id +log_event_logmsg+)
-       (log-msg-writer fs msg))
+       (log-msg-writer msg))
       ; Should throw exception
       (t
         (log-write (getp srvc_fh :handle) " Unknown " msg)

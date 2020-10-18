@@ -121,28 +121,3 @@
     (> cfg_age 0)
     cfg
     fsmaps))
-
-(defun-bind log-set-cfg (ucfg scfg fmap)
-  ; (log-set-cfg user-configuration service-configuration) -> nil
-  ; Reconciles client configuration with service-configuration
-  ; First set hash for user configuration
-  (setsp! ucfg
-    :token (hash ucfg)
-    :levels (getp-in scfg :logging :levels))
-  ; Resolve log handler and level
-  (case (defq rl (getp (getp-in scfg :logging :loggers) (getp ucfg :logger)))
-    ((nil)
-     (setsp! ucfg
-        :logger   :console
-        :log_lvl  (getp-in scfg
-                          :logging
-                          :handlers
-                          (getp-in scfg :logging :loggers :console :handler)
-                          :level)))
-    (t
-      (setp! ucfg
-        :log_lvl (getp-in scfg
-                         :logging
-                         :handlers
-                         (getp rl :handler)
-                         :level) t))))
