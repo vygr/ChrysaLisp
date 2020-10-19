@@ -104,7 +104,7 @@ will happen when the process shuts down.
 Functions are also provided to allow mailboxes to be named, via `'sys_mail
 :declare` throughout the network. Such mailboxes are then discoverable by other
 processes via a call to `'sys_mail :enquire` with the given name. A service
-entry can be removed byt the with the `'sys_mail :forget` function.
+entry can be removed with the `'sys_mail :forget` function.
 
 The system maintains a directory of these service names and the corresponding
 process mailbox IDs. An example service is the current GUI `DEBUG_SERVICE`
@@ -114,9 +114,9 @@ application `apps/debug/app.lisp`.
 
 This is the network monitoring application child process
 `apps/netmon/child.vp`. This process is launched onto each CPU by use of an
-`'sys_task :openfarm` call. The child process simply waits for a command
-message from the parent and either exits or returns a message containing task
-and memory usage information.
+`(open-farm)` call. The child process simply waits for a command message from
+the parent and either exits or returns a message containing task and memory
+usage information.
 
 `'sys_mail :mymail` is just a convenience function to read mail from the
 current tasks main mailbox.
