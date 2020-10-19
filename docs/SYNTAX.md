@@ -1,33 +1,5 @@
 # Syntax
 
-## even?
-
- (even? num) -> bool
-
-## neg?
-
- (neg? num) -> bool
-
-## nil?
-
- (nil? o) -> bool
-
-## odd?
-
- (odd? num) -> bool
-
-## pos?
-
- (pos? num) -> bool
-
-## pow
-
- (pow 10 3) -> 1000
-
-## pow
-
- (pow base exponent) -> integer
-
 ## #
 
 (# (< %0 0)) -> (lambda (%0) (< %0 0))
@@ -324,6 +296,10 @@
 
 (create-stdio)
 
+## create-text
+
+(create-text)
+
 ## create-textfield
 
 (create-textfield)
@@ -463,6 +439,10 @@
 ## eval
 
 (eval form [env])
+
+## even?
+
+(even? num) -> bool
 
 ## every
 
@@ -792,9 +772,17 @@
 
 (neg num)
 
+## neg?
+
+(neg? num) -> bool
+
 ## nempty?
 
 (nempty? form) -> bool
+
+## nil?
+
+(nil? o) -> bool
 
 ## nlo
 
@@ -879,6 +867,10 @@
 ## nums-sum
 
 (nums-sum nums)
+
+## odd?
+
+(odd? num) -> bool
 
 ## offset
 
@@ -979,6 +971,14 @@
 ## pop
 
 (pop array)
+
+## pos?
+
+(pos? num) -> bool
+
+## pow
+
+(pow base exponent) -> integer
 
 ## prebind
 

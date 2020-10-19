@@ -8874,41 +8874,6 @@ Super Class: view
 
 ### text::create -> gui/text/create
 
-### text::init -> gui/text/init
-
-```lisp
-inputs
-r0 = text object (ptr)
-r1 = vtable (pptr)
-outputs
-r0 = text object (ptr)
-r1 = 0 if error, else ok
-trashes
-r1-r14
-```
-
-### text::switch_text -> gui/text/switch_text
-
-```lisp
-inputs
-r0 = text object (ptr)
-outputs
-r0 = text object (ptr)
-trashes
-r1-r14
-```
-
-### text::deinit -> gui/text/deinit
-
-```lisp
-inputs
-r0 = text object (ptr)
-outputs
-r0 = text object (ptr)
-trashes
-r1-r14
-```
-
 ### text::pref_size -> gui/text/pref_size
 
 ```lisp
@@ -8930,6 +8895,19 @@ r0 = view object (ptr)
 r1 = draw ctx (ptr)
 outputs
 r0 = view object (ptr)
+trashes
+r1-r14
+```
+
+### text::lisp_create -> gui/text/lisp_create
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
 trashes
 r1-r14
 ```

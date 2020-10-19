@@ -144,6 +144,7 @@
 (ffi create-label "gui/label/lisp_create" 0)
 (ffi create-title "gui/title/lisp_create" 0)
 (ffi create-textfield "gui/textfield/lisp_create" 0)
+(ffi create-text "gui/text/lisp_create" 0)
 (ffi create-progress "gui/progress/lisp_create" 0)
 (ffi create-scroll "gui/scroll/lisp_create" 0)
 (ffi create-slider "gui/slider/lisp_create" 0)

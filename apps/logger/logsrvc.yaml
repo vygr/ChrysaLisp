@@ -13,25 +13,53 @@ logging:
     warning:  2
     error:    3
     critical: 4
+    logstrs: [DEBUG, INFO, WARNING, ERROR, CRITICAL]
   formatters:
     standard:
       format: tnlm
+  # Pre-defined handlers
   handlers:
+    # Generic console handler
     console_handler:
       type: :stdout
       level: :info
       formatter: :standard
-    file_handler:
+    # Generic application file handler
+    app_file_handler:
       type: :file
       level: :debug
       formatter: :standard
       file_name: applog
       rotate: true
-      maxrecords: 500
+      maxbytes: 10485760
       backups: 10
+    # System log handler
+    system_handler:
+      type: :file
+      level: :info
+      formatter: :standard
+      file_name: syslog
+      rotate: true
+      maxbytes: 10485760
+      backups: 10
+    # service log handler
+    service_handler:
+      type: :file
+      level: :info
+      formatter: :standard
+      file_name: logservice
+      rotate: true
+      maxbytes: 10485760
+      backups: 2
   loggers:
     console:
       handler: :console_handler
     file:
-      handler: :file_handler
+      handler: :app_file_handler
+  # Predefined context and module handlers
+  contexts:
+    service:
+      handler: :service_handler
+    system:
+      handler: :system_handler
 ...
