@@ -120,6 +120,10 @@
 
 (ascii-upper num) -> num
 
+## asome
+
+(asome seq body)
+
 ## awhen
 
 (awhen form body)

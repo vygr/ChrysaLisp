@@ -14,13 +14,13 @@ and extend them to Lisp level code.
 
 Classes that inherit from `class/seq`:
 
-* `class/array`
-* `class/list`
-* `class/nums`
-* `class/fixeds`
-* `class/reals`
-* `class/str`
-* `class/sym`
+* class/array
+* class/list
+* class/nums
+* class/fixeds
+* class/reals
+* class/str
+* class/sym
 
 ```lisp
 (list 1 2 3 4)
