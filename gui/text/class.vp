@@ -38,7 +38,7 @@
 		(call 'font :sym_texture {font, str} {_, txt})
 		(vpif {txt})
 			(call 'texture :get_metrics {txt} {_, handle, w, h})
-			(call 'ctx :blit {ctx, handle, col, 0, 0, w, h})
+			(call 'ctx :blit {ctx, handle, col, 0, (this->view_h - h) >>> 1, w, h})
 			(call 'texture :deref {txt})
 		(endif)
 	(endif)

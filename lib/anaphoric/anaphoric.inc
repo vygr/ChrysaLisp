@@ -35,4 +35,5 @@
 	`(each (lambda (it) ~_) ,x))
 
 (defmacro-bind asome (x &rest _)
+	;(asome seq body)
 	`(some (lambda (it) ~_) ,x))
