@@ -2,6 +2,7 @@
 (import "sys/lisp.inc")
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
+(import "lib/hmap/hmap.inc")
 
 (structure '+event 0
 	(byte 'close+ 'button+))
@@ -80,18 +81,34 @@
 		(if line_widget (view-add-child page_widget line_widget))) (file-stream (cat "docs/" file ".md")))
 	(apply view-change (cat (list page_flow 0 0) (view-pref-size page_flow)))
 	(view-layout (view-add-child page_scroll page_flow))
+	(if (hmap-find doc_state (hash file)) (set-vslider-props file) 
+		(progn (set (get-field page_scroll (const scroll_vslider) 0) :value 0)))
 	(view-dirty-all (view-layout doc_flow)))
-
+;store new scroll for this file on page switch. Retrieve old for next on page switch. 
 (ui-window window (:color argb_grey15)
 	(ui-title-bar _ "Docs" (0xea19) +event_close+)
 	(ui-flow doc_flow (:flow_flags flow_right_fill :font *env_window_font* :color *env_toolbar_col*)
 		(ui-flow index (:flow_flags (logior flow_flag_down flow_flag_fillw))
 			(each (lambda (path)
 				(component-connect (ui-button _
-					(:text path :flow_flags (logior flow_flag_align_vcenter flow_flag_align_hleft))) +event_button+)) doc_list))
+					(:text path :flow_flags (logior flow_flag_align_vcenter flow_flag_align_hleft))) +event_button+)) doc_list)
+			(ui-label lbl (:text "")))
 		(ui-scroll page_scroll scroll_flag_vertical (:min_width 848 :min_height 800))))
 
+(defun-bind insert-vslider-props (file)
+	(let ((vslider (get-field page_scroll (const scroll_vslider) 0)))
+		(hmap-insert doc_state (hash file)
+			(list (get :maximum vslider) (get :value vslider) (get :portion vslider)))))
+(defun-bind set-vslider-field ((m v p))
+	(let ((vslider (get-field page_scroll (const scroll_vslider) 0)))
+		(set vslider :maximum m) (set vslider :value v) (set vslider :portion p)))
+(defun-bind set-vslider-props (file)
+	(let ((vslider (get-field page_scroll (const scroll_vslider) 0)))
+		(set-vslider-field (hmap-find doc_state (hash file)))))
+
+
 (defun-bind main ()
+	(defq doc_state (hmap) last_file (elem 0 doc_list))
 	(populate-page (elem 0 doc_list))
 	(bind '(x y w h) (apply view-locate (view-pref-size window)))
 	(gui-add (view-change window x y w h))
@@ -99,6 +116,8 @@
 		((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) +event_close+)
 			nil)
 		((= id +event_button+)
-			(populate-page (get :text (view-find-id window (get-long msg ev_msg_action_source_id)))))
+			(insert-vslider-props last_file)
+			;set new last_file and get props for it.
+			(populate-page (setq last_file (get :text (view-find-id window (get-long msg ev_msg_action_source_id))))))
 		(t (view-event window msg))))
 	(view-hide window))
