@@ -94,7 +94,7 @@
 				(assign {line->array_length - ox} {len})
 				(vpif {len > 0})
 					;copy longs to longs
-					(call 'sys_mem :copy {&line->array_begin + (ox * long_size), cursor, len * long_size})
+					(call 'sys_mem :copy {line->array_begin + (ox * long_size), cursor, len * long_size})
 				(endif)
 			(endif)
 			(assign {cursor + vdu->vdu_width * long_size} {cursor})

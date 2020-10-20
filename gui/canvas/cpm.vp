@@ -388,7 +388,7 @@
 		(vp-shr-cr 2 gl)
 		(vp-shl-cr 3 bh)
 		(vp-shr-cr 2 bl)
-		(vp-mul-cr 0x1fe col)
+		(vp-mul-cr 130560 col)
 		(vp-add-rr rh rl)
 		(vp-add-rr gh gl)
 		(vp-add-rr bh bl)
