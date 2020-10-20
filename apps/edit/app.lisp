@@ -308,7 +308,7 @@
 (defun-bind main ()
 	(defq id t find_textfield nil mouse_down nil selection (list))
 	;open buffers from pupa or open new buffer
-	(each open-buffer (if (= (length *env_edit_auto*) 0) '("") *env_edit_auto*))
+	(if (= (length *env_edit_auto*) 0) (new-buffer) (each open-buffer  "Untitled" *env_edit_auto*))
 	(setq current_text (elem 0 text_store))
 	(bind '(w h) (view-pref-size (component-connect window +event_layout+)))
 	(bind '(x y w h) (view-locate w h))
