@@ -1160,7 +1160,7 @@ r2 = pixel type (uint)
 outputs
 r1 = col (uint)
 trashes
-r1-r4
+r1-r5
 ```
 
 ### canvas::deinit -> gui/canvas/deinit
