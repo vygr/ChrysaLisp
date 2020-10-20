@@ -86,10 +86,6 @@
 		(call 'vdu :switch_size {this})
 	(endif)
 
-	;debug draw region
-;	(call 'ctx :set_color {ctx, argb_red})
-;	(call 'ctx :debug {ctx, 0, 0, this->view_w, this->view_h})
-
 	;draw vdu chars
 	(vpif {this->vdu_font && this->vdu_chars})
 		(call 'region :bounds {ctx->ctx_dirty_region} {bx, by, bx1, by1})
@@ -106,7 +102,7 @@
 		(loop-while {by <= by1})
 			(assign {bx} {x})
 			(loop-while {x <= bx1})
-				(assign {(this->vdu_chars)[by * this->vdu_width + x]} {c})
+				(assign {(this->vdu_chars)[(by * this->vdu_width + x) * long_size]} {c})
 				(vpif {c > 127})
 					;inverse video char
 					(call 'ctx :set_color {ctx, col})
@@ -225,7 +221,7 @@
 	(entry 'vdu :switch_size {this})
 
 	(call 'sys_mem :free {this->vdu_chars})
-	(call 'sys_mem :alloc {this->vdu_width * this->vdu_height} {this->vdu_chars, size})
+	(call 'sys_mem :alloc {this->vdu_width * this->vdu_height * long_size} {this->vdu_chars, size})
 	(call 'sys_mem :fill {this->vdu_chars, size, char_space + (char_space << 8)
 		+ (char_space << 16) + (char_space << 24) + (char_space << 32) + (char_space << 40)
 		+ (char_space << 48) + (char_space << 56)})

@@ -93,10 +93,10 @@
 					(* canvas_width 0o0.1) +eps+ (path))))))))
 	(fpoly 0xa0ffffff 0 (list (elem 1 polygons) (elem 3 polygons)))
 
-	(fpoly 0xff000000 0 (transform-copy angle fp1))
-	(fpoly 0xff000000 0 (transform-copy (+ angle +fp_pi+) fp2))
-	(fpoly 0xffffffff 0 (transform-copy (+ angle +fp_hpi+) fp3))
-	(fpoly 0xffffffff 0 (transform-copy (+ angle (* -1.0 +fp_hpi+)) fp4))
+	(fpoly 0xff000000 0 (transform-copy (/ angle 2.0) fp1))
+	(fpoly 0xff000000 0 (transform-copy (+ (/ angle 2.0) +fp_pi+) fp2))
+	(fpoly 0xffffffff 0 (transform-copy (+ (/ angle 2.0) +fp_hpi+) fp3))
+	(fpoly 0xffffffff 0 (transform-copy (+ (/ angle 2.0) (* -1.0 +fp_hpi+)) fp4))
 
 	(canvas-swap canvas))
 
