@@ -16,7 +16,7 @@
 
 (def-struct 'vdu 'view)
 	(ptr 'font 'textures)
-	(pubyte 'chars)
+	(plong 'chars)
 	(uint 'width 'height)
 	(ushort 'char_width 'char_height)
 (def-struct-end)
