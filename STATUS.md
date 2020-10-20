@@ -14,6 +14,12 @@ Promoted (odd?) (even?) (pow) (neg?) (pos?) to boot.inc.
 Start of the Chat app showing use of transient services. Got to correct the
 textfield spaces char issue now.
 
+VDU widget now supports full unicode range glyphs and ink/paper attributes !
+Just use (array) instead of (str) to create your line entries in the line
+buffer you pass to (vdu-load). Lower 31 bits is the unicode char code, bit 31
+is an inverse video bit. Top 32 bits is the paper/ink attributes in 1+15 ARGB
+color format.
+
 ------
 
 Reminder that #ChrysaLisp@matrix.org IRC chat room is available for all. Highly
