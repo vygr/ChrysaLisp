@@ -20,19 +20,24 @@
 
 (defmacro-bind defun (n a &rest _)
 	`(defq ,n (lambda ,a
-		(if (defq _e (get ',n *profile*))
-			(set *profile* ',n (list (inc (elem +prof_cnt+ _e)) (elem +prof_acc+ _e) (time)))
-			(def *profile* ',n (list 1 0 (time))))
+		(cond
+			((defq _e (get ',n *profile*))
+				(elem-set +prof_cnt+ _e (inc (elem +prof_cnt+ _e)))
+				(if (< (length _e) 3) (push _e (time))))
+			(t (def *profile* ',n (list 1 0 (time)))))
 		(push *profile_ret* (progn ~_))
-		(push (defq _e (get ',n *profile*)) (+ (- (time) (pop _e)) (pop _e)))
+		(if (> (length (setq _e (get ',n *profile*))) 2)
+			(push _e (+ (- (time) (pop _e)) (pop _e))))
 		(pop *profile_ret*))))
 
 (defmacro-bind defun-bind (n a &rest _)
 	`(defq ,n (lambda ,a
-		(if (defq _e (get ',n *profile*))
-			(set *profile* ',n (list (inc (elem +prof_cnt+ _e)) (elem +prof_acc+ _e) (time)))
-			(def *profile* ',n (list 1 0 (time))))
+		(cond
+			((defq _e (get ',n *profile*))
+				(elem-set +prof_cnt+ _e (inc (elem +prof_cnt+ _e)))
+				(if (< (length _e) 3) (push _e (time))))
+			(t (def *profile* ',n (list 1 0 (time)))))
 		(push *profile_ret* (progn ~(prebind (macroexpand _))))
-		(defq _e (get ',n *profile*))
-		(push (defq _e (get ',n *profile*)) (+ (- (time) (pop _e)) (pop _e)))
+		(if (> (length (setq _e (get ',n *profile*))) 2)
+			(push _e (+ (- (time) (pop _e)) (pop _e))))
 		(pop *profile_ret*))))
