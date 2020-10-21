@@ -11,12 +11,12 @@
 	`(defq ,n (lambda ,a
 		(if (defq _c (get ',n *profile*))
 			(set *profile* ',n (inc _c))
-			(def *profile* ',n 0))
+			(def *profile* ',n 1))
 		~_)))
 
 (defmacro defun-bind (n a &rest _)
 	`(defq ,n (lambda ,a
 		(if (defq _c (get ',n *profile*))
 			(set *profile* ',n (inc _c))
-			(def *profile* ',n 0))
+			(def *profile* ',n 1))
 		~(prebind (macroexpand _)))))
