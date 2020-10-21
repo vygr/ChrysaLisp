@@ -29,4 +29,5 @@
 	;until quit
 	(until (mail-poll (array (task-mailbox)))
 		(redraw dlist)
-		(task-sleep (elem +dlist_rate+ dlist))))
+		(task-sleep (elem +dlist_rate+ dlist)))
+	(profile-dump))
