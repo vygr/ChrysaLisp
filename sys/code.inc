@@ -1085,7 +1085,7 @@
 		(set-reg-map (cat *dst*) _)
 		(eval *inst* *compile_env*)))
 
-(defun assign-script-to-script (*src* *dst* _)
+(defun-bind assign-script-to-script (*src* *dst* _)
 	(setq *src* (split *src* ",") *dst* (map trim (split *dst* ",")))
 	(unless (= (length *src*) (length *dst*))
 		(throw "Mismatching number of src/dst parameters !" (list *src* *dst*)))

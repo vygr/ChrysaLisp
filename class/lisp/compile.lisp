@@ -2,6 +2,8 @@
 ; VP Assembler Child
 ;;;;;;;;;;;;;;;;;;;;
 
+;(import "lib/debug/profile.inc")
+
 ;imports
 (import "sys/lisp.inc")
 (import "class/lisp.inc")
@@ -22,3 +24,5 @@
 	;compile the file list
 	(within-compile-env (# (each include files)))
 	(print _))
+
+;(profile-dump "Compile")
