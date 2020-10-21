@@ -9,6 +9,8 @@
 (ffi canvas-plot "gui/canvas/lisp_plot" 0)
 (ffi canvas-next-frame "gui/canvas/lisp_next_frame" 0)
 (ffi canvas-resize "gui/canvas/lisp_resize" 0)
+;; (ffi canvas-to-argb32 "gui/canvas/lisp_to_argb32" 0)
+;; (ffi canvas-from-argb32 "gui/canvas/lisp_from_argb32" 0)
 (ffi create-canvas "gui/canvas/lisp_create" 0)
 
 (defun-bind canvas-set-color (canvas argb)
