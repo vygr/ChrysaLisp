@@ -20,6 +20,24 @@ buffer you pass to (vdu-load). Lower 31 bits is the unicode char code, bit 31
 is an inverse video bit. Top 32 bits is the paper/ink attributes in 1+15 ARGB
 color format.
 
+New profiling lib ! `lib/debug/profile.inc`. Whiteboard app nows runs
+profiling to demo the output.
+
+Whiteboard App
+Fun:           redraw Cnt:    261 Total ns:     1481
+Fun:          flatten Cnt:     13 Total ns:     1278
+Fun:           commit Cnt:     13 Total ns:     1374
+Fun:         snapshot Cnt:     13 Total ns:       77
+Fun:     radio-select Cnt:      8 Total ns:      132
+Fun:            trans Cnt:      8 Total ns:       13
+Fun:             main Cnt:      1 Total ns:        0
+
+Whiteboard Child
+Fun:           redraw Cnt:    820 Total ns:   758926
+Fun:            fpoly Cnt:    297 Total ns:   116142
+Fun:          flatten Cnt:    213 Total ns:    21736
+Fun:             main Cnt:      1 Total ns:        0
+
 ------
 
 Reminder that #ChrysaLisp@matrix.org IRC chat room is available for all. Highly
