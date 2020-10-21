@@ -379,3 +379,69 @@
 	(signature '(canvas canvas)))
 
 (def-func-end)
+
+(def-method 'canvas :lisp_to_argb32)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args list object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(entry 'canvas :lisp_to_argb32 '(r0 r1))
+
+(errorcases
+	(call 'lisp :env_args_sig '(r1 ($ sig) 2) '(r2))
+	(gotoif '(r2 = 0) 'error))
+
+	(vp-push r0)
+	(defq in (method-input 'canvas :to_argb32))
+	(list-bind-args r1 in '(num num))
+	(call 'canvas :to_argb32 in '(r0))
+	(call 'num :create '(r0) '(r1))
+	(vp-pop r0)
+
+	(exit 'canvas :lisp_to_argb32 '(r0 r1))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp :repl_error '(r0 "(canvas-to-argb32 pixel type)" error_msg_wrong_types r1))
+	(signature '(num num)))
+
+(def-func-end)
+
+(def-method 'canvas :lisp_from_argb32)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args list object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(entry 'canvas :lisp_from_argb32 '(r0 r1))
+
+(errorcases
+	(call 'lisp :env_args_sig '(r1 ($ sig) 2) '(r2))
+	(gotoif '(r2 = 0) 'error))
+
+	(vp-push r0)
+	(defq in (method-input 'canvas :from_argb32))
+	(list-bind-args r1 in '(num num))
+	(call 'canvas :from_argb32 in '(r0))
+	(call 'num :create '(r0) '(r1))
+	(vp-pop r0)
+
+	(exit 'canvas :lisp_from_argb32 '(r0 r1))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp :repl_error '(r0 "(canvas-from-argb32 pixel type)" error_msg_wrong_types r1))
+	(signature '(num num)))
+
+(def-func-end)

@@ -73,8 +73,7 @@
 		(loop-start)
 			(assign {*iter_begin} {line})
 			(vpif (cat {line->obj_vtable = @} (f-path 'str :vtable)))
-				(assign {line->str_length - ox} {len})
-				(vpif {len > 0})
+				(vpif {(line->str_length - ox => len) > 0})
 					;copy bytes to longs
 					(assign {&line->str_data + ox, cursor, len, vdu->vdu_width} '(r0 r1 r2 r3))
 					(vpif '(r2 > r3))
@@ -91,10 +90,14 @@
 			(else)
 			(errorcases
 				(gotoif (cat {line->obj_vtable /= @} (f-path 'array :vtable)) 'exit))
-				(assign {line->array_length - ox} {len})
-				(vpif {len > 0})
+				(vpif {(line->array_length - ox => len) > 0})
 					;copy longs to longs
-					(call 'sys_mem :copy {&line->array_begin + (ox * long_size), cursor, len * long_size})
+					(assign {line->array_begin + (ox * long_size), cursor, len, vdu->vdu_width} '(r0 r1 r2 r3))
+					(vpif '(r2 > r3))
+						(vp-cpy-rr r3 r2)
+					(endif)
+					(vp-shl-cr (log2 long_size) r2)
+					(call 'sys_mem :copy '(r0 r1 r2))
 				(endif)
 			(endif)
 			(assign {cursor + vdu->vdu_width * long_size} {cursor})
