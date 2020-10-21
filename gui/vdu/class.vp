@@ -3,6 +3,7 @@
 (include "gui/ctx/class.inc")
 (include "gui/region/class.inc")
 (include "gui/font/class.inc")
+(include "gui/canvas/class.inc")
 (include "gui/texture/class.inc")
 (include "class/sym/class.inc")
 (include "gui/vdu/class.inc")
@@ -64,9 +65,9 @@
 	;r1-r14
 
 	(ptr 'this 'ctx 'txt 'font)
-	(ulong 'handle)
-	(int 'x 'c 'bx 'by 'bx1 'by1)
-	(uint 'w 'h 'col)
+	(ulong 'handle 'c)
+	(int 'x 'bx 'by 'bx1 'by1)
+	(uint 'w 'h 'col 'paper 'ink)
 
 	;save inputs
 	(push-scope)
@@ -86,10 +87,6 @@
 		(call 'vdu :switch_size {this})
 	(endif)
 
-	;debug draw region
-;	(call 'ctx :set_color {ctx, argb_red})
-;	(call 'ctx :debug {ctx, 0, 0, this->view_w, this->view_h})
-
 	;draw vdu chars
 	(vpif {this->vdu_font && this->vdu_chars})
 		(call 'region :bounds {ctx->ctx_dirty_region} {bx, by, bx1, by1})
@@ -106,24 +103,31 @@
 		(loop-while {by <= by1})
 			(assign {bx} {x})
 			(loop-while {x <= bx1})
-				(assign {(this->vdu_chars)[by * this->vdu_width + x]} {c})
-				(vpif {c > 127})
+				(assign {(this->vdu_chars)[(by * this->vdu_width + x) * long_size]} {c})
+				(vpif {c >> 32 => ink})
+					;has attributes
+					(call 'canvas :to_argb32 {ink >> 16, 15} {paper})
+					(call 'canvas :to_argb32 {ink, 15} {ink})
+				(else)
+					;default attributes
+					(assign {col, 0} {ink, paper})
+				(endif)
+				(vpif {(c >> 31) & 1})
 					;inverse video char
-					(call 'ctx :set_color {ctx, col})
+					(assign {ink, paper} {w, h})
+					(assign {w, h} {paper, ink})
+				(endif)
+				(vpif {paper})
+					;do we have any paper to draw ?
+					(call 'ctx :set_color {ctx, paper})
 					(call 'ctx :filled_box {ctx, x * this->vdu_char_width, by * this->vdu_char_height, this->vdu_char_width, this->vdu_char_height})
-					(assign {c & 127} {c})
-					(breakif {c <= char_space})
+				(endif)
+				(vpif {(c & 0x7fffffff => c) > char_space})
+					(breakif {c > 127})
 					(call 'list :get_element {this->vdu_textures, c - 33} {_, txt})
 					(call 'texture :get_metrics {txt} {_, handle, w ,h})
 					(vpif {handle})
-						(call 'ctx :blit {ctx, handle, argb_black, x * this->vdu_char_width + ((this->vdu_char_width - w) >>> 1), by * this->vdu_char_height, w, h})
-					(endif)
-				(elseif {c > char_space})
-					;normal video char
-					(call 'list :get_element {this->vdu_textures, c - 33} {_, txt})
-					(call 'texture :get_metrics {txt} {_, handle, w ,h})
-					(vpif {handle})
-						(call 'ctx :blit {ctx, handle, col, x * this->vdu_char_width + ((this->vdu_char_width - w) >>> 1), by * this->vdu_char_height, w, h})
+						(call 'ctx :blit {ctx, handle, ink, x * this->vdu_char_width + ((this->vdu_char_width - w) >>> 1), by * this->vdu_char_height, w, h})
 					(endif)
 				(endif)
 				(assign {x + 1} {x})
@@ -225,10 +229,8 @@
 	(entry 'vdu :switch_size {this})
 
 	(call 'sys_mem :free {this->vdu_chars})
-	(call 'sys_mem :alloc {this->vdu_width * this->vdu_height} {this->vdu_chars, size})
-	(call 'sys_mem :fill {this->vdu_chars, size, char_space + (char_space << 8)
-		+ (char_space << 16) + (char_space << 24) + (char_space << 32) + (char_space << 40)
-		+ (char_space << 48) + (char_space << 56)})
+	(call 'sys_mem :alloc {this->vdu_width * this->vdu_height * long_size} {this->vdu_chars, size})
+	(call 'sys_mem :fill {this->vdu_chars, size, char_space})
 
 	(exit 'vdu :switch_size {this})
 	(pop-scope)
