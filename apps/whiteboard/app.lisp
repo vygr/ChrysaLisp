@@ -251,4 +251,5 @@
 	(mail-free-mbox (elem -2 select))
 	(mail-send "" child_mbox)
 	(if picker_mbox (mail-send "" picker_mbox))
-	(view-hide window))
+	(view-hide window)
+	(profile-dump))

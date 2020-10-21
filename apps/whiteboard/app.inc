@@ -7,6 +7,9 @@
 ;; (import "lib/debug/debug.inc")
 ;; (defmacro defun-bind (&rest _) `(defun-debug ~_))
 
+;quick profiling switch
+(import "lib/debug/profile.inc")
+
 (structure '+dlist 0
 	(byte 'mask+ 'rate+ 'flatten+ 'commited_canvas+ 'overlay_canvas+ 'commited_polygons+ 'overlay_paths+))
 
