@@ -107,16 +107,15 @@
 				(vpif {c >> 32 => ink})
 					;has attributes
 					(call 'canvas :to_argb32 {ink >> 16, 15} {paper})
-					(call 'canvas :to_argb32 {ink & 0xffff, 15} {ink})
+					(call 'canvas :to_argb32 {ink, 15} {ink})
 				(else)
 					;default attributes
 					(assign {col, 0} {ink, paper})
 				(endif)
 				(vpif {(c >> 31) & 1})
 					;inverse video char
-					(assign {ink} {w})
-					(assign {paper} {ink})
-					(assign {w} {paper})
+					(assign {ink, paper} {w, h})
+					(assign {w, h} {paper, ink})
 				(endif)
 				(vpif {paper})
 					;do we have any paper to draw ?
