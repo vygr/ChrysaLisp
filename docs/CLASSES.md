@@ -1342,6 +1342,32 @@ trashes
 r1-r14
 ```
 
+### canvas::lisp_to_argb32 -> gui/canvas/lisp_to_argb32
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### canvas::lisp_from_argb32 -> gui/canvas/lisp_from_argb32
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
 ## component
 
 Super Class: hmap
@@ -1561,7 +1587,7 @@ r0-r14
 
 ```lisp
 inputs
-r0 = draw ctx (ptr)
+r3 = draw ctx (ptr)
 r1 = color (argb)
 trashes
 r0-r14

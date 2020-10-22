@@ -152,6 +152,10 @@
 
 (canvas-fpoly canvas x y mode list)
 
+## canvas-from-argb32
+
+(canvas-from-argb32 pixel type)
+
 ## canvas-info
 
 (canvas-info path)
@@ -187,6 +191,10 @@
 ## canvas-swap
 
 (canvas-swap canvas)
+
+## canvas-to-argb32
+
+(canvas-to-argb32 pixel type)
 
 ## cap
 

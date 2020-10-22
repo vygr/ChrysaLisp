@@ -248,9 +248,9 @@ off.
 This is the output from wrapping the 'hmap 'insert line in the example above:
 
 ```lisp
-	(setq *debug_inst* t)
-	(call 'hmap :insert {mail_statics->ml_statics_service_map, name, id})
-	(setq *debug_inst* nil)
+	(let ((*debug_inst* t))
+		(call 'hmap :insert {mail_statics->ml_statics_service_map, name, id})
+	)
 ```
 
 ```lisp
