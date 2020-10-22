@@ -30,4 +30,4 @@
 	(until (mail-poll (array (task-mailbox)))
 		(redraw dlist)
 		(task-sleep (elem +dlist_rate+ dlist)))
-	(profile-print "Whiteboard Child"))
+	(profile-report "Whiteboard Child"))

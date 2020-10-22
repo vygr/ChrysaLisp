@@ -25,4 +25,4 @@
 	(within-compile-env (# (each include files)))
 	(print _))
 
-;(profile-print "Compile" print)
+;(profile-report "Compile")

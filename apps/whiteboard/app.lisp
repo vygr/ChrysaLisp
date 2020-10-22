@@ -252,4 +252,4 @@
 	(mail-send "" child_mbox)
 	(if picker_mbox (mail-send "" picker_mbox))
 	(view-hide window)
-	(profile-print "Whiteboard App"))
+	(profile-report "Whiteboard App"))
