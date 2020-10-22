@@ -259,16 +259,10 @@
 ;   ; (unions-with list [list]...) -> list'
 ;   (each (curry merge base) lists))
 
-; Properties (a.k.a. list of pairs [k v]) forms
-
-(defmacro-bind properties (&rest pairs)
-  ; (properties [k v]...) -> list
-  ; Creates a properties list object
-  (push pairs :super_clz :clz_properties)
-  `(list ~pairs))
+; Associative structure functions
 
 (defun-bind entries (_)
-  ; (entries [properties | hmap) -> entry list
+  ; (entries [properties | hmap]) -> entry list
   ; Returns a list of entries where each entry: (key value)
   (cond
     ((props? _)
@@ -281,15 +275,25 @@
     ((hmap? _)
       (hmap-entries _))))
 
-(defun-bind keys (prop)
-  ; (keys properties) -> key list
-  ; Returns a sequence of keys found in properties list
-  (map (#(elem 0 %0)) (entries prop)))
+(defun-bind keys (_)
+  ; (keys [properties | hmap]) -> key list
+  ; Returns a sequence of keys found in associative structure
+  (when (or (props? _) (hmap? _))
+    (map (#(elem 0 %0)) (entries _))))
 
-(defun-bind values (prop)
-  ; (values properties) -> value list
-  ; Returns a sequence of values found in properties list
-  (map (#(elem 1 %0)) (entries prop)))
+(defun-bind values (_)
+  ; (values [properties | hmap]) -> value list
+  ; Returns a sequence of values found in associative structure
+  (when (or (props? _) (hmap? _))
+    (map (#(elem 1 %0)) (entries _))))
+
+; Properties (a.k.a. list of pairs [k v]) forms
+
+(defmacro-bind properties (&rest pairs)
+  ; (properties [k v]...) -> list
+  ; Creates a properties list object
+  (push pairs :super_clz :clz_properties)
+  `(list ~pairs))
 
 (defun-bind getp (p k &optional if_nil)
   ; (getp properties key [if_nil]) -> val | if_nil | nil
@@ -417,6 +421,32 @@
               fkw       (last pick)
               last_nest v))))))
     hit)
+
+(defun-bind gets (astruc k &optional if_nil)
+  ; (gets [properties | hmap] key [if_nil]) -> val | if_nil | nil
+  ; Fetches value for key. If not found and 'if_nil' provided, will
+  ; return that value, otherwise nil
+  (cond
+    ((hmap? astruc) (opt (hmap-find astruc k) if_nil))
+    ((props? astruc) (getp astruc k if_nil))))
+
+(defun-bind sets! (astruc k v)
+  ; (sets! [properties | hmap] key value) -> updated structure
+  ; Creates a new key/value or overwrites an existing value for key
+  (cond
+    ((hmap? astruc) (hmap-insert astruc k v))
+    ((props? astruc) (setp! astruc k v t)))
+  astruc)
+
+(defun-bind update! (astruc k v)
+  ; (sets! [properties | hmap] key value) -> updated structure
+  ; Will fail silently if key not found, otherwise updates value for key
+  (defq hit (gets astruc k))
+  (if hit
+    (cond
+      ((hmap? astruc) (hmap-insert astruc k v))
+      ((props? astruc) (setp! astruc k v t))))
+  astruc)
 
 (defun-bind pmerge (&rest props)
   ; (pmerge properties...) -> properties
