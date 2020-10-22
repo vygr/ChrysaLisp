@@ -72,5 +72,5 @@
 	(when entry
 		(broadcast "Has left the chat !")
 		(mail-forget entry)
-		(mail-free-mbox (elem 1 select)))
+		(mail-free-mbox (pop select)))
 	(view-hide window))

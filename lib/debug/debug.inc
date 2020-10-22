@@ -8,7 +8,7 @@
 	;(debug-send string)
 	(when (/= 0 (length (defq services (mail-enquire "DEBUG_SERVICE"))))
 		(defq mbox (mail-alloc-mbox) debug_mbox (str-to-num (elem 1 (split (pop services) ","))))
-		(mail-send (cat (char 0 long_size) (char mbox long_size) (char (task-mailbox) long_size) s) debug_mbox)
+		(mail-send (cat (char mbox long_size) (char (task-mailbox) long_size) s) debug_mbox)
 		(mail-read mbox)
 		(mail-free-mbox mbox)))
 

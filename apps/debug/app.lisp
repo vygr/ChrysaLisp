@@ -4,7 +4,7 @@
 (import "gui/lisp.inc")
 
 (structure '+event 0
-	(byte 'debug+ 'hvalue+)
+	(byte 'hvalue+)
 	(byte 'play+ 'pause+ 'step+ 'clear+)
 	(byte 'play_all+ 'pause_all+ 'step_all+ 'clear_all+)
 	(byte 'close+))
@@ -13,10 +13,11 @@
 
 ;single instance only
 (when (= (length (mail-enquire "DEBUG_SERVICE")) 0)
-	(defq entry (mail-declare "DEBUG_SERVICE" (task-mailbox) "Debug Service 0.3"))
+	(defq select (array (task-mailbox) (mail-alloc-mbox))
+		entry (mail-declare "DEBUG_SERVICE" (elem -2 select) "Debug Service 0.4"))
 
 (structure 'debug_msg 0
-	(long 'command 'reply_id 'tcb)
+	(long 'reply_id 'tcb)
 	(offset 'data))
 
 (ui-window window (:color 0xc0000000)
@@ -84,12 +85,10 @@
 	(gui-add (view-change window x y w h))
 	(reset)
 	(while id
+		(defq idx (mail-select select) msg (mail-read (elem idx select)))
 		(cond
-			;close ?
-			((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) +event_close+)
-				(setq id nil))
 			;new debug msg
-			((= id +event_debug+)
+			((/= idx 0)
 				(defq reply_id (get-long msg debug_msg_reply_id)
 					tcb (get-long msg debug_msg_tcb)
 					data (slice debug_msg_data -1 msg)
@@ -104,6 +103,9 @@
 				(if (elem 1 buf_rec)
 					(mail-send "" reply_id)
 					(elem-set 2 buf_rec reply_id)))
+			;close ?
+			((= (setq id (get-long msg ev_msg_target_id)) +event_close+)
+				(setq id nil))
 			;moved task slider
 			((= id +event_hvalue+)
 				(reset (get :value hslider)))
@@ -142,5 +144,6 @@
 			;otherwise
 			(t (view-event window msg))))
 	(mail-forget entry)
+	(mail-free-mbox (pop select))
 	(view-hide window))
 )

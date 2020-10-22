@@ -14,7 +14,7 @@
 		(min (* 2 (length devices)) (* canvas_height canvas_scale)) kn_call_child devices)
 	select (array (task-mailbox) (mail-alloc-mbox))
 	jobs (map (lambda (y)
-		(array (elem 1 select) 0 y (* canvas_width canvas_scale) (inc y)
+		(array (elem -2 select) 0 y (* canvas_width canvas_scale) (inc y)
 			(* canvas_width canvas_scale) (* canvas_height canvas_scale)))
 		(range (dec (* canvas_height canvas_scale)) -1)))
 
@@ -71,5 +71,5 @@
 					t))))
 	;close
 	(view-hide window)
-	(mail-free-mbox (elem 1 select))
+	(mail-free-mbox (pop select))
 	(each (lambda (_) (mail-send "" _)) farm))

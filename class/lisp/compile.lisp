@@ -2,8 +2,6 @@
 ; VP Assembler Child
 ;;;;;;;;;;;;;;;;;;;;
 
-;(import "lib/debug/profile.inc")
-
 ;imports
 (import "sys/lisp.inc")
 (import "class/lisp.inc")
@@ -19,10 +17,12 @@
 (defun-bind print (&rest args)
 	(write msg_out (apply str (push args (ascii-char 10)))))
 
+;(import "lib/debug/profile.inc")
+
 ;catch any errors
 (catch
 	;compile the file list
 	(within-compile-env (# (each include files)))
 	(print _))
 
-;(profile-dump "Compile")
+;(profile-print "Compile" print)

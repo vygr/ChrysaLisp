@@ -4,11 +4,14 @@
 (import "gui/lisp.inc")
 
 ;quick debug switch
-;; (import "lib/debug/debug.inc")
-;; (defmacro defun-bind (&rest _) `(defun-debug ~_))
+(when nil	;t for debug
+	(import "lib/debug/debug.inc")
+	(defmacro defun-bind (&rest _) `(defun-debug ~_)))
 
 ;quick profiling switch
-(import "lib/debug/profile.inc")
+(if t	;t for profiling
+	(import "lib/debug/profile.inc")
+	(defun profile-print (&rest _)))
 
 (structure '+dlist 0
 	(byte 'mask+ 'rate+ 'flatten+ 'commited_canvas+ 'overlay_canvas+ 'commited_polygons+ 'overlay_paths+))

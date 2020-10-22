@@ -248,8 +248,8 @@
 									t))))) t)
 			(t (view-event window msg))))
 	;close child and window
-	(mail-free-mbox (elem -2 select))
+	(mail-free-mbox (pop select))
 	(mail-send "" child_mbox)
 	(if picker_mbox (mail-send "" picker_mbox))
 	(view-hide window)
-	(profile-dump "Whiteboard App"))
+	(profile-print "Whiteboard App"))
