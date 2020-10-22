@@ -5,16 +5,16 @@
 
 (def-method 'ctx :set_color)
 	;inputs
-	;r0 = draw ctx (ptr)
+	;r3 = draw ctx (ptr)
 	;r1 = color (argb)
 	;trashes
 	;r0-r14
 
 	(vp-def (ctx r g b a) (method-input 'host :sdl_set_render_draw_color))
 
-	(entry 'ctx :set_color '(r0 r1))
+	(entry 'ctx :set_color '(r3 r1))
 
-	(assign '(r0 r1 r1 r1 r1) `(,ctx ,a ,r ,g ,b))
+	(assign '((r3 ctx_sdl_ctx) r1 r1 r1 r1) `(,ctx ,a ,r ,g ,b))
 	(vp-shr-cr 24 a)
 	(vp-shr-cr 16 r)
 	(vp-shr-cr 8 g)
@@ -22,7 +22,7 @@
 	(vp-and-cr 0xff r)
 	(vp-and-cr 0xff g)
 	(vp-and-cr 0xff b)
-	(host-call 'host :sdl_set_render_draw_color `((,ctx ctx_sdl_ctx) ,r ,g ,b ,a))
+	(host-call 'host :sdl_set_render_draw_color `(,ctx ,r ,g ,b ,a))
 	(vp-ret)
 
 (def-func-end)
