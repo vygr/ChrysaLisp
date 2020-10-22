@@ -5,7 +5,7 @@
 (import "sys/lisp.inc")
 
 (structure '+hmap 0
-	(byte 'num_buckets+ 'cmp_fnc+ 'hash_fnc+ 'buckets+))
+	(byte 'clz+ 'num_buckets+ 'cmp_fnc+ 'hash_fnc+ 'buckets+))
 
 (defmacro-bind hmap-slot ()
 	`(defq b (+ +hmap_buckets+ (* (% ((elem +hmap_hash_fnc+ obj) key) (elem +hmap_num_buckets+ obj)) 2))
@@ -15,7 +15,7 @@
 	;(hmap [num_buckets cmp_fnc hash_fnc]) -> hmap
 	(setd num_buckets 1 cmp_fnc eql hash_fnc hash)
 	(defq obj (cap (+ +hmap_num_buckets+ (* num_buckets 2)) (list)))
-	(push obj num_buckets cmp_fnc hash_fnc)
+	(push obj :clz_hmap num_buckets cmp_fnc hash_fnc)
 	(while (>= (setq num_buckets (dec num_buckets)) 0)
 		(push obj (list) (list)))
 	obj)
@@ -47,5 +47,17 @@
 	(while (< (setq _i (+ _i 2)) (length _obj))
 		(each _hf (elem _i _obj) (elem (inc _i) _obj)))
 	_obj)
+
+(defun-bind hmap? (obj)
+	; (hmap? obj) -> t | nil
+	; Predicate for testing if object is a hash-map
+	(and (lst? obj) (nempty? obj) (eql (first obj) :clz_hmap)))
+
+(defun-bind hmap-entries (_)
+	(defq
+		_l (list))
+	(when (hmap? _)
+		(hmap-each _ (#(push _l (list %0 %1)))))
+	_l)
 
 (undef (env) 'hmap-slot)

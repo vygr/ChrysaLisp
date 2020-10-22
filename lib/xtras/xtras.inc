@@ -268,15 +268,18 @@
   `(list ~pairs))
 
 (defun-bind entries (_)
-  ; (entries properties) -> entry list
+  ; (entries [properties | hmap) -> entry list
   ; Returns a list of entries where each entry: (key value)
-  (when (props? _)
-    (defq c (chunk 2 _))
-    (reduce (lambda (acc e)
-      (if (or (eql (first e) :clz) (eql (first e) :super_clz))
-        acc
-        (push acc e)))
-      c (list))))
+  (cond
+    ((props? _)
+      (defq c (chunk 2 _))
+      (reduce (lambda (acc e)
+        (if (or (eql (first e) :clz) (eql (first e) :super_clz))
+          acc
+          (push acc e)))
+        c (list)))
+    ((hmap? _)
+      (hmap-entries _))))
 
 (defun-bind keys (prop)
   ; (keys properties) -> key list
@@ -618,6 +621,9 @@
 (defun MapNode ()
   (Node :map))
 
+(defun HashMapNode ()
+  (Node :hash_map))
+
 (defun MapEntryNode ()
   (Node :map_entry))
 
@@ -648,21 +654,24 @@
 (defun prop-me? (_)
   (eql (getp _ :clz) :prop_me))
 
+(defun hmap-me? (_)
+  (eql (getp _ :clz) :hash_me))
+
 (defun make-me-key (_)
   (list :clz :me_key :value _))
 
 (defun make-me-value (_)
   (list :clz :me_value :value _))
 
-(defun split-entries (p)
+(defun split-entries (obj etype)
   (reduce
     (lambda (acc el)
       (push acc
-        (list :clz :prop_me :entries
+        (list :clz etype :entries
               (push
                 (push (list) (make-me-key (first el)))
                 (make-me-value (second el))))))
-    (entries p) (list)))
+    (entries obj) (list)))
 
 ; AST Node Context Stack
 
@@ -710,10 +719,22 @@
           ; Map
           ((props? odata)
            (set-context! cntxt (MapNode))
-           (each (#(obj-to-node cntxt %0)) (split-entries odata))
+           (defq spe (split-entries odata :prop_me))
+           (each (#(obj-to-node cntxt %0)) spe)
            (unset-context! cntxt))
-          ; Map Entry
+          ; Hashmap
+          ((hmap? odata)
+            (set-context! cntxt (HashMapNode))
+            (defq she (split-entries odata :hash_me))
+            (each (#(obj-to-node cntxt %0)) she)
+            (unset-context! cntxt))
+          ; Properties Map Entry
           ((prop-me? odata)
+           (set-context! cntxt (MapEntryNode))
+           (each (#(obj-to-node cntxt %0)) (getp odata :entries))
+           (unset-context! cntxt))
+          ; Properties Map Entry
+          ((hmap-me? odata)
            (set-context! cntxt (MapEntryNode))
            (each (#(obj-to-node cntxt %0)) (getp odata :entries))
            (unset-context! cntxt))

@@ -11,6 +11,8 @@
       (properties
         "{" :mapb
         "}" :mape
+        "<" :hmapb
+        ">" :hmape
         "[" :lstb
         "]" :lste
         " " :space
@@ -36,10 +38,11 @@
 (defun unset-obj-ctx! (cntxt)
   ; (unset-obj-ctx! context) -> node | nil
   ; Set's context to most recent in path
-  (defq npath (getp cntxt :path))
-  (pop npath)
+  (defq
+    npath (getp cntxt :path)
+    res   (pop npath))
   (setp! cntxt :current (last npath))
-  nil)
+  res)
 
 (defun add-to-obj! (cntxt n)
   ; (add-to-obj! node) -> node | nil
@@ -85,11 +88,20 @@
       ((:space))
       ((:mapb)
        (set-obj-ctx! ctx (properties)))
-      ((:mape)
-       (unset-obj-ctx! ctx))
+      ((:hmapb)
+       (set-obj-ctx! ctx (hmap)))
       ((:lstb)
        (set-obj-ctx! ctx (list)))
-      ((:lste)
+      ((:hmape)
+       (defq
+         hm   (unset-obj-ctx! ctx)
+         cnt  (- (length hm) 6))
+       (when (> cnt 0)
+         (defq tail (take-last cnt hm))
+         (each (#(hmap-insert hm (first %0) (second %0)))
+               (chunk 2 tail))
+         (times cnt (pop hm))))
+      ((:mape :lste)
        (unset-obj-ctx! ctx))
       ((:mkey)
        (add-to-obj! ctx (sym (eat-to-space ch sst))))
