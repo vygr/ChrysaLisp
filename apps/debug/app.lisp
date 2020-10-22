@@ -16,9 +16,12 @@
 	(defq select (array (task-mailbox) (mail-alloc-mbox))
 		entry (mail-declare "DEBUG_SERVICE" (elem -2 select) "Debug Service 0.4"))
 
-(structure 'debug_msg 0
-	(long 'reply_id 'tcb)
-	(offset 'data))
+(structure '+debug_msg 0
+	(long 'reply_id+ 'tcb+)
+	(offset 'data+))
+
+(structure '+debug_rec 0
+	(byte 'buf+ 'state+ 'reply_id+))
 
 (ui-window window (:color 0xc0000000)
 	(ui-flow _ (:flow_flags flow_down_fill)
@@ -40,31 +43,31 @@
 				(elem-set -2 buf (cat (elem -2 buf) c))))) s)
 	(if vdu (vdu-load vdu buf 0 0 (length (elem -2 buf)) (dec (length buf)))) buf)
 
-(defun set-slider-values ()
+(defun-bind set-slider-values ()
 	(defq val (get :value hslider) mho (max 0 (dec (length buf_list))))
 	(def hslider :maximum mho :portion 1 :value (min val mho))
 	(view-dirty hslider))
 
-(defun play (_)
-	(unless (elem 1 _)
+(defun-bind play (_)
+	(unless (elem +debug_rec_state+ _)
 		(step _))
-	(elem-set 1 _ t))
+	(elem-set +debug_rec_state+ _ t))
 
-(defun pause (_)
-	(elem-set 1 _ nil))
+(defun-bind pause (_)
+	(elem-set +debug_rec_state+ _ nil))
 
-(defun step (_)
-	(when (elem 2 _)
-		(mail-send "" (elem 2 _))
-		(elem-set 2 _ nil)))
+(defun-bind step (_)
+	(when (elem +debug_rec_reply_id+ _)
+		(mail-send "" (elem +debug_rec_reply_id+ _))
+		(elem-set +debug_rec_reply_id+ _ nil)))
 
-(defun reset (&optional _)
+(defun-bind reset (&optional _)
 	(setd _ -1)
 	(if (<= 0 _ (dec (length buf_list)))
 		(progn
 			(def hslider :value _)
 			(setq buf_index _)
-			(vdu-print vdu (elem 0 (elem buf_index buf_list)) ""))
+			(vdu-print vdu (elem +debug_rec_buf+ (elem buf_index buf_list)) ""))
 		(progn
 			(clear buf_list)
 			(clear buf_keys)
@@ -89,20 +92,20 @@
 		(cond
 			;new debug msg
 			((/= idx 0)
-				(defq reply_id (get-long msg debug_msg_reply_id)
-					tcb (get-long msg debug_msg_tcb)
-					data (slice debug_msg_data -1 msg)
+				(defq reply_id (get-long msg +debug_msg_reply_id+)
+					tcb (get-long msg +debug_msg_tcb+)
+					data (slice +debug_msg_data+ -1 msg)
 					key (sym (str (>> reply_id 32) ":" tcb))
 					index (find-rev key buf_keys))
 				(unless index
 					(push buf_keys key)
 					(push buf_list (list (list "") nil nil))
 					(reset (setq index (dec (length buf_list)))))
-				(elem-set 0 (defq buf_rec (elem index buf_list))
-					(vdu-print (if (= index buf_index) vdu) (elem 0 buf_rec) data))
-				(if (elem 1 buf_rec)
+				(elem-set +debug_rec_buf+ (defq buf_rec (elem index buf_list))
+					(vdu-print (if (= index buf_index) vdu) (elem +debug_rec_buf+ buf_rec) data))
+				(if (elem +debug_rec_state+ buf_rec)
 					(mail-send "" reply_id)
-					(elem-set 2 buf_rec reply_id)))
+					(elem-set +debug_rec_reply_id+ buf_rec reply_id)))
 			;close ?
 			((= (setq id (get-long msg ev_msg_target_id)) +event_close+)
 				(setq id nil))
