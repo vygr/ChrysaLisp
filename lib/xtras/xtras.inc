@@ -243,7 +243,7 @@
       (defq
         base (reverse (copy seq))
         res (list))
-      (while (not (empty? base))
+      (while (nempty? base)
         (defq nl (list))
         (times cnt (push nl (pop base)))
         (push res nl))
@@ -436,6 +436,15 @@
   (cond
     ((hmap? astruc) (hmap-insert astruc k v))
     ((props? astruc) (setp! astruc k v t)))
+  astruc)
+
+(defun-bind sets-pairs! (astruc &rest pairs)
+  (defq chnks (chunk 2 pairs))
+  (cond
+    ((hmap? astruc)
+      (each (#(hmap-insert astruc (first %0) (second %0))) chnks))
+    ((props? astruc)
+      (each (#(setp! astruc (first %0) (second %0) t)) chnks)))
   astruc)
 
 (defun-bind update! (astruc k v)
