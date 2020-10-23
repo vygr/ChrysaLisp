@@ -38,6 +38,8 @@ Fun:            fpoly Cnt:    297 Total ns:   116142
 Fun:          flatten Cnt:    213 Total ns:    21736
 Fun:             main Cnt:      1 Total ns:        0
 
+New PROFILE_SERVICE app to allow multiple profile report viewing.
+
 ------
 
 Reminder that #ChrysaLisp@matrix.org IRC chat room is available for all. Highly

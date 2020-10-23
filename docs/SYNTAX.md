@@ -1004,6 +1004,14 @@
 
 (print [form ...])
 
+## profile-print
+
+(profile-print name [stream]) -> stdout|stream
+
+## profile-report
+
+(profile-report name)
+
 ## progn
 
 (progn [form ...])

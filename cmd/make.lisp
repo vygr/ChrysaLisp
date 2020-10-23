@@ -160,7 +160,8 @@
                     ((or (eql _ "defun") (eql _ "defmacro") (eql _ "defun-bind") (eql _ "defmacro-bind"))
                         (setq state :y))))) (file-stream file)))
         (cat (make-tree "." "lisp.inc")
-			'("lib/anaphoric/anaphoric.inc" "class/lisp/boot.inc" "lib/debug/debug.inc")))
+			'("lib/anaphoric/anaphoric.inc" "class/lisp/boot.inc" "lib/debug/debug.inc"
+			 "lib/debug/profile.inc")))
     (sort cmp syntax)
     (defq stream (file-stream "docs/SYNTAX.md" file_open_write))
     (write-line stream (const (str "# Syntax" (ascii-char 10))))
