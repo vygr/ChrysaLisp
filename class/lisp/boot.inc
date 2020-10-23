@@ -49,7 +49,7 @@
 
 (ffi elem-set "class/list/lisp_elemset" 0)
 (ffi merge-obj "class/list/lisp_merge" 0)
-(ffi partition "class/list/lisp_part" 0)
+(ffi pivot "class/list/lisp_part" 0)
 (ffi match? "class/list/lisp_match" 0)
 
 (ffi str "class/str/lisp_str" 0)
@@ -698,7 +698,7 @@
 	(defq _q (list _l _h))
 	(while (setq _h (pop _q) _l (pop _q))
 		(when (< _l _h)
-			(defq _p (partition _f _a _l _h))
+			(defq _p (pivot _f _a _l _h))
 			(push (push _q _l _p) (inc _p) _h))) _a)
 
 (defun-bind swap (_ _1 _2)

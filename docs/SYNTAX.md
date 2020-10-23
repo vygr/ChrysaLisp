@@ -920,10 +920,6 @@
 
 (pad form width [str]) -> str
 
-## partition
-
-(partition lambda list start end)
-
 ## path
 
 (path [form ...])
@@ -979,6 +975,10 @@
 ## pii-write-char
 
 (pii-write-char fd char)
+
+## pivot
+
+(pivot lambda list start end)
 
 ## pop
 
