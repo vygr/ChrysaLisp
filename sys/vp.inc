@@ -23,7 +23,7 @@
 	(and (lst? _) (not (eql (elem 0 _) 'lambda)) (print _)))
 
 (defun-bind emit-label (_)
-	(set (env) _ *pc*))
+	(set (penv) _ *pc*))
 
 (defun-bind emit-byte (&rest _)
 	(write-char *out_stream* _ 1)

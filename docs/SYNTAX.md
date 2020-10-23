@@ -920,10 +920,6 @@
 
 (pad form width [str]) -> str
 
-## partition
-
-(partition lambda list start end)
-
 ## path
 
 (path [form ...])
@@ -980,6 +976,10 @@
 
 (pii-write-char fd char)
 
+## pivot
+
+(pivot lambda list start end)
+
 ## pop
 
 (pop array)
@@ -1003,6 +1003,14 @@
 ## print
 
 (print [form ...])
+
+## profile-print
+
+(profile-print name [stream]) -> stdout|stream
+
+## profile-report
+
+(profile-report name)
 
 ## progn
 
