@@ -1109,11 +1109,10 @@
 
 (defun-bind assign (&optional _1 _2 _3)
 	;optional src, dst, compiler regs
-	(cond
-		((and (defq d (str? (setq _2 (opt _2 '()))) s (str? (setq _1 (opt _1 '())))) (not d))
+	(if (str? (setq _1 (opt _1 '())))
+		(if (str? (setq _2 (opt _2 '())))
+			(assign-script-to-script _1 _2 _3)
 			(assign-script-to-asm _1 _2 _3))
-		((and (not s) (not d))
-			(assign-asm-to-asm _1 _2))
-		((and (not s) d)
-			(assign-asm-to-script _1 _2 _3))
-		(t (assign-script-to-script _1 _2 _3))))
+		(if (str? (setq _2 (opt _2 '())))
+			(assign-asm-to-script _1 _2 _3)
+			(assign-asm-to-asm _1 _2))))
