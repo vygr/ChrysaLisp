@@ -237,4 +237,4 @@ You may wish to increase the number of buckets in the current environment,
 beyond the default of 1, if it's going to contain an extremely large number of
 symbol bindings ! Environments are just a chain of hash maps, and there is a
 trade off to be made between a single bucket and its great cache line affects
-and massive amounts of entires swamping those cache affects !
+and massive amounts of entries swamping those cache affects !
