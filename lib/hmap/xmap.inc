@@ -5,7 +5,9 @@
 (import "sys/lisp.inc")
 
 (defmacro-bind @ (m o &rest _)
-	`((get ,m (defq _o ,o)) _o ~_))
+	(if (sym? o)
+		`((get ,m ,o) ,o ~_)
+		`((get ,m (defq ,(defq _o (gensym)) ,o)) ,_o ~_)))
 
 (defmacro-bind xmap-slot ()
 	`(defq x (get :buckets obj)
