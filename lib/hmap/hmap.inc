@@ -31,8 +31,8 @@
 	; (hmap-kv &rest) -> hmap
 	; Creates default hmap and populates (inserts) k/v pairs
 	(defq res (hmap))
-	(when (not (odd? pairs))
-		(each (#(hmap-insert res (first %0) (second %0))) (chunk 2 pairs)))
+	(when (not (odd? (length pairs)))
+		(each (#(hmap-insert res (first %0) (second %0))) (partition 2 pairs)))
 	res)
 
 (defun-bind hmap-find (obj key)

@@ -233,23 +233,6 @@
   ; (interleave '(:a :b :c) '(0 1 2)) -> (:a 0 :b 1 :c 2)
   `(zip ,seq1 ,seq2))
 
-(defun-bind chunk (cnt seq)
-  ; (chunk count sequence) -> sequence of sequences
-  ; Chunks up a sequence into list of sequence by count
-  ; example:
-  ; (chunk 2 '(0 1 2 3')) -> ((0 1) (2 3))
-  (cond
-    ((< cnt (length seq))
-      (defq
-        base (reverse (copy seq))
-        res (list))
-      (while (nempty? base)
-        (defq nl (list))
-        (times cnt (push nl (pop base)))
-        (push res nl))
-      res)
-    (t (list seq))))
-
 ; (defun-bind unions (&rest lists)
 ;   ; (unions [list]...) -> list
 ;   (defq nl (list))
@@ -266,7 +249,7 @@
   ; Returns a list of entries where each entry: (key value)
   (cond
     ((props? _)
-      (defq c (chunk 2 _))
+      (defq c (partition 2 _))
       (reduce (lambda (acc e)
         (if (or (eql (first e) :clz) (eql (first e) :super_clz))
           acc
@@ -351,7 +334,7 @@
 
 (defun-bind setsp! (p &rest pairs)
   ; (setsp properties [k v] ...) -> properties
-  (each (#(setp! p (first %0) (second %0) t)) (chunk 2 pairs))
+  (each (#(setp! p (first %0) (second %0) t)) (partition 2 pairs))
   p)
 
 (defun-bind setsp-in! (p val &rest kws)
@@ -439,7 +422,7 @@
   astruc)
 
 (defun-bind sets-pairs! (astruc &rest pairs)
-  (defq chnks (chunk 2 pairs))
+  (defq chnks (partition 2 pairs))
   (cond
     ((hmap? astruc)
       (each (#(hmap-insert astruc (first %0) (second %0))) chnks))
@@ -464,7 +447,7 @@
   ; it
   (reduce
     (#(each (lambda (e)
-      (setp! %0 (first e) (second e) t)) (chunk 2 %1)))
+      (setp! %0 (first e) (second e) t)) (partition 2 %1)))
     props (properties)))
 
 (defun-bind move-entry-forward! (p sp ep)

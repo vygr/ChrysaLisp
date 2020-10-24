@@ -4,8 +4,6 @@
 
 (import "lib/logging/logcommons.inc")
 
-(defq log_mbox_id nil)
-
 (defun-bind console-log-msg-writer (logger msgd)
   ; (console-log-msg-writer logconfig mail-message) -> stream
   (log-write stdout (str
@@ -21,28 +19,8 @@
     :handler    use_handler
     :reciever   (mail-alloc-mbox)))
 
-(defun-bind get-logsrvc-mb ()
-  ; (get-logsrvc-mb) -> mailbox id | nil
-  (cond
-    ((nil? log_mbox_id)
-      (defq res (mail-enquire +logging_srvc_name+))
-      (setq log_mbox_id
-      (if (nempty? res)
-        (to-num (second (split (first res) ",")))
-        (open-child "apps/logger/app.lisp" kn_call_child))))
-    (t log_mbox_id)))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; For debugging only... remove before merging
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defun-bind shutdown-log-service ()
-  (mail-send (char +log_event_shutdown+ long_size) (get-logsrvc-mb))
-  (setq log_mbox_id nil))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defun-bind logresult (logger)
-  ; (logresult properties) -> properties
+(defun-bind log-registration-result (logger)
+  ; (log-registration-result properties) -> properties
   (defq
     msg   (mail-read (getp logger :reciever))
     id    (get-long msg mail_msg_command))
@@ -68,7 +46,7 @@
       (char +log_event_register+ long_size)
       (str (yaml-xser lr)))
     (get-logsrvc-mb))
-  (logresult lr))
+  (log-registration-result lr))
 
 (defun-bind log-send (logger lmsgtype msg)
   ; (log-send logger msgtype msg)
