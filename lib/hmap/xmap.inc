@@ -4,7 +4,7 @@
 
 (import "sys/lisp.inc")
 
-(defmacro-bind ! (m o &rest _)
+(defmacro-bind @ (m o &rest _)
 	`((get ,m (defq _o ,o)) _o ~_))
 
 (defmacro-bind xmap-slot ()
@@ -14,10 +14,10 @@
 
 (defun-bind xmap (&optional num_buckets cmp_fnc hash_fnc)
 	;(xmap [num_buckets cmp_fnc hash_fnc]) -> xmap
-	;(! :insert xmap key val)
-	;(! :find xmap key) -> nil|val
-	;(! :erase xmap key)
-	;(! :each xmap lambda)
+	;(@ :insert xmap key val)
+	;(@ :find xmap key) -> nil|val
+	;(@ :erase xmap key)
+	;(@ :each xmap lambda)
 	(def (defq obj (env -1)) :buckets (list) :num_buckets (setq num_buckets (opt num_buckets 1))
 		:cmp_fnc (opt cmp_fnc eql) :hash_fnc (opt hash_fnc hash))
 	(while (>= (setq num_buckets (dec num_buckets)) 0)
