@@ -49,11 +49,20 @@
 ; (defq l0 (list))
 ; (mail-send (cat  string))
 
-(defun-bind log-register-anchor (nm)
+(defun-bind log-register-anchor (nm &rest override_pairs)
     (defq
         sstrm (string-stream (cat ""))
-        l0    (push (list) :name nm))
-    (write sstrm (str "<" (slice 1 -2 (str l0)) ">"))
+        cnfg  (list
+          :key_name   nm
+          :type       :file
+          :level      :warning
+          :formatter  :standard
+          :file_name  t
+          :rotate     nil
+          :maxbytes   10485760
+          :backups    10))
+
+    (write sstrm (str "<" (slice 1 -2 (str cnfg)) ">"))
     (mail-send
         (cat
             (char +log_event_register_anchor+ long_size)
