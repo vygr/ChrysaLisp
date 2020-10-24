@@ -20,6 +20,8 @@
 (structure '+log_event 0
   (byte
     'register_anchor+
+    'query_config+
+    'config_info+
     'logsetcfg+
     'logmsg+
     'register+

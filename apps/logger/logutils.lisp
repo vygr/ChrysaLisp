@@ -107,12 +107,12 @@
                   :backups    2))
              :loggers (properties
                 :console (properties
-                  :handler :console_handler))
-             :contexts (properties
+                  :handler :console_handler)
                 :service (properties
                   :handler :service_handler)
                 :system (properties
-                  :handler :system_handler))))))
+                  :handler :system_handler))
+                ))))
   ; Build the system filesystem logger streams
   (defq fsmaps (create-log-file-handlers cfg))
   (debug-write "fsmaps-> " fsmaps)

@@ -14,7 +14,7 @@
 (defun-bind log-registration (mname use_handler)
   ; (log-registration name keyword) -> properties
   ; Setups the logging registration and optional configuration
-  (setsp! (properties)
+  (sets-pairs! (properties)
     :name       mname
     :handler    use_handler
     :reciever   (mail-alloc-mbox)))
