@@ -13,7 +13,7 @@
 	`(def this ,n (lambda (this ~p) ~_)))
 
 (defmacro-bind method-bind (n p &rest _)
-	`(def this ,n (lambda (this ~p) ~(prebind _))))
+	`(def this ,n (lambda (this ~p) ~(prebind (macroexpand _)))))
 
 (defmacro-bind xmap-slot ()
 	`(defq x (get :buckets this)
