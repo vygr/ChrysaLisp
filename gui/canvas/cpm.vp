@@ -65,7 +65,7 @@
 	(puint 'data 'data_end)
 	(ulong 'bit_pool)
 	(struct 'header 'cpm)
-	(int 'length 'bit_pool_size)
+	(int 'length 'bit_pool_size 'bits)
 	(ulong 'col)
 
 	;save inputs
@@ -85,10 +85,13 @@
 	(vpif {this})
 		;fill with transparent
 		(call 'canvas :fill {this, 0})
-		(assign {header.cpm_type} {this->canvas_stream_type})
+		(assign {header.cpm_type => this->canvas_stream_type} {bits})
 		(assign {this->canvas_array->array_begin} {data})
 		(assign {data + this->canvas_height * this->canvas_stride} {data_end})
 		(assign {0 => bit_pool} {bit_pool_size})
+		(vpif {bits = 15})
+			(assign {16} {bits})
+		(endif)
 
 		;decode acording to type
 		(vp-def (len col trans data data_end))
@@ -101,7 +104,7 @@
 				;run of a pixel
 				(vp-sub-cr 127 len)
 				(assign (list len) {length})
-				(call 'stream :read_bits {stream, header.cpm_type, bit_pool, bit_pool_size} {_, col, bit_pool, bit_pool_size})
+				(call 'stream :read_bits {stream, bits, bit_pool, bit_pool_size} {_, col, bit_pool, bit_pool_size})
 				(gotoif {col = -1} 'error)
 				(call 'canvas :to_argb32 {col, header.cpm_type} (list col))
 
@@ -124,7 +127,7 @@
 				(vp-add-cr 1 len)
 				(loop-start)
 					(assign (list len) {length})
-					(call 'stream :read_bits {stream, header.cpm_type, bit_pool, bit_pool_size} {_, col, bit_pool, bit_pool_size})
+					(call 'stream :read_bits {stream, bits, bit_pool, bit_pool_size} {_, col, bit_pool, bit_pool_size})
 					(gotoif {col = -1} 'error)
 					(call 'canvas :to_argb32 {col, header.cpm_type} (list col))
 					(assign {length, header.cpm_trans, data, data_end}
@@ -170,7 +173,7 @@
 	(ulong 'bit_pool)
 	(struct 'header 'cpm)
 	(int 'bit_pool_size)
-	(uint 'format 'i 'j 'state 'len 'col 'next_col)
+	(uint 'format 'bits 'i 'j 'state 'len 'col 'next_col)
 
 	;save inputs
 	(push-scope)
@@ -180,7 +183,7 @@
 	(assign (str (code "MPC." 4)) {header.cpm_ident})
 	(assign {0 => header.cpm_bytes} {header.cpm_trans})
 	(assign {1} {header.cpm_version})
-	(assign {format} {header.cpm_type})
+	(assign {format => header.cpm_type} {bits})
 	(assign {this->canvas_width} {header.cpm_width})
 	(assign {this->canvas_height} {header.cpm_height})
 	(call 'stream :write {stream, &header, cpm_size})
@@ -189,6 +192,9 @@
 	(assign {this->canvas_array->array_begin} {data})
 	(assign {this->canvas_height * this->canvas_width} {len})
 	(assign {0 => bit_pool => bit_pool_size => i} {state})
+	(vpif {bits = 15})
+		(assign {16} {bits})
+	(endif)
 
 	(loop-while {i < len} 'pixloop)
 		(switch)
@@ -200,7 +206,7 @@
 			(assign {i + 1} {i})
 			(vpif {i = len})
 				(call 'stream :write_bits {stream, 0, 8, bit_pool, bit_pool_size} {_, bit_pool, bit_pool_size})
-				(call 'stream :write_bits {stream, col, format, bit_pool, bit_pool_size} {_, bit_pool, bit_pool_size})
+				(call 'stream :write_bits {stream, col, bits, bit_pool, bit_pool_size} {_, bit_pool, bit_pool_size})
 				(break 'pixloop)
 			(endif)
 			(call 'canvas :to_argb {data[i * int_size]} {next_col})
@@ -222,7 +228,7 @@
 			(vpcase {i = len || (i - j) = 0x80})
 			(vp-label 'dorep)
 				(call 'stream :write_bits {stream, i - j - 1 + 0x80, 8, bit_pool, bit_pool_size} {_, bit_pool, bit_pool_size})
-				(call 'stream :write_bits {stream, col, format, bit_pool, bit_pool_size} {_, bit_pool, bit_pool_size})
+				(call 'stream :write_bits {stream, col, bits, bit_pool, bit_pool_size} {_, bit_pool, bit_pool_size})
 				(assign {0} {state})
 			(endswitch)
 			(continue 'pixloop)
@@ -239,7 +245,7 @@
 				(loop-start)
 					(call 'canvas :to_argb {*data1} {col})
 					(call 'canvas :from_argb32 {col, format} {col})
-					(call 'stream :write_bits {stream, col, format, bit_pool, bit_pool_size} {_, bit_pool, bit_pool_size})
+					(call 'stream :write_bits {stream, col, bits, bit_pool, bit_pool_size} {_, bit_pool, bit_pool_size})
 				(loop-until {(data1 + int_size => data1) = data2})
 				(assign {0} {state})
 				(continue 'pixloop)
@@ -386,7 +392,7 @@
 		(vp-shl-cr 9 rh)
 		(vp-shl-cr 4 rl)
 		(vp-shl-cr 6 gh)
-		(vp-shr-cr 2 gl)
+		(vp-shl-cr 1 gl)
 		(vp-shl-cr 3 bh)
 		(vp-shr-cr 2 bl)
 		(vp-add-rr rh rl)
@@ -458,8 +464,8 @@
 		(vp-cpy-rr col g)
 		(vp-cpy-rr col b)
 		(vp-shr-cr 16 col)
-		(vp-shr-cr 8 r)
-		(vp-shr-cr 5 g)
+		(vp-shr-cr 9 r)
+		(vp-shr-cr 6 g)
 		(vp-shr-cr 3 b)
 		(vp-and-cr 0b1000000000000000 col)
 		(vp-and-cr 0b0111110000000000 r)
