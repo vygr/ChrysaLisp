@@ -4,9 +4,10 @@
 
 
 (defq
-  +logs_path+ "./logs/"
-  +log_suffix+ ".log"
-  +cfg_file+   "./apps/logger/logsrvc.yaml")
+  +logs_path+     "./logs/"
+  +log_suffix+    ".log"
+  +cfg_file+      "./apps/logger/logsrvc.yaml"
+  +cfg_registry+  "./apps/logger/logregistry.yaml")
 
 (defun make-log-filename (base)
   ; (make-log-filename basename) -> string
@@ -36,15 +37,14 @@
   ; Ready new entries
   ; Open filestream
   (setp! cfg
-    :handle (open-log-file-stream (make-log-filename (getp cfg :file_name))) t)
+    :handle (open-log-file-stream (make-log-filename (gets cfg :file_name))) t)
   ; Check for rotation
   (when (needs-rotation? cfg)
     (rotate-logfile cfg))
   cfg)
 
-(defun create-log-file-handlers (cfg)
-  ; (create-log-file-handlers properties) -> hmap
-  (defq  fmap (hmap))
+(defun create-log-file-handlers (handlers fsmap)
+  ; (create-log-file-handlers properties kvmap) -> hmap
   (debug-write "Creating handlers!")
   ; Iterate through handlers looking for type :file
   ; For each, extend with file information and prepare
@@ -52,15 +52,14 @@
   (each (lambda (ent)
           (debug-write "each " ent)
           (cond
-            ((eql (getp (second ent) :type) :file)
+            ((eql (gets (second ent) :type) :file)
              (debug-write "handler setup-> " (first ent))
              (initialize-logfile-handler (second ent))
-             (hmap-insert fmap (first ent) (second ent))
+             (sets! fsmap (first ent) (second ent))
              (debug-write "added-> " (first ent)))
-            (t
-              nil)))
-        (entries (getp-in cfg :logging :handlers)))
-  fmap)
+            (t nil)))
+        (entries handlers))
+  fsmap)
 
 (defun-bind process-log-cfg ()
   ; (process-log-cfg) -> tuple
@@ -71,7 +70,7 @@
     cfg       nil)
   (setq cfg
         (if (> cfg_age 0)
-          (first (yaml-read "./apps/logger/logsrvc.yaml"))
+          (first (yaml-read +cfg_file+))
           (properties
             :logging (properties
               :levels (properties
@@ -111,13 +110,13 @@
                 :service (properties
                   :handler :service_handler)
                 :system (properties
-                  :handler :system_handler))
-                ))))
+                  :handler :system_handler))))))
   ; Build the system filesystem logger streams
-  (defq fsmaps (create-log-file-handlers cfg))
+  (defq fsmaps (hmap))
+  (create-log-file-handlers (getp-in cfg :logging :handlers) fsmaps)
   (debug-write "fsmaps-> " fsmaps)
   (list
-    (hmap-find fsmaps :service_handler)
+    (gets fsmaps :service_handler)
     (> cfg_age 0)
     cfg
     fsmaps))

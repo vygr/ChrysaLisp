@@ -4,8 +4,6 @@
 
 ---
 
-version: 1
-
 logging:
   levels:
     debug:    0
@@ -27,7 +25,7 @@ logging:
     # Generic application file handler
     app_file_handler:
       type: :file
-      level: :debug
+      level: :warning
       formatter: :standard
       file_name: applog
       rotate: true
