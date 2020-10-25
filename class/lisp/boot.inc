@@ -819,7 +819,7 @@
 
 (defun-bind within-compile-env (_f)
 	;(within-compile-env lambda)
-	(defq *compile_env* (env 401) *compile_includes* (list))
+	(defq *compile_env* (env 503) *compile_includes* (list))
 	(defmacro-bind defcvar (&rest b)
 		`(def *compile_env* ~b))
 	(defmacro-bind undefc (&rest b)
