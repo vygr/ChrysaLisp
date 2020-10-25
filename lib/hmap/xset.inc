@@ -33,9 +33,7 @@
 			(pop b)))
 	(method-bind :each (_this _hf)
 		;(. xset :each lambda)
-		(defq _i -1 _b (get :buckets _this))
-		(while (< (setq _i (inc _i)) (length _b))
-			(each _hf (elem _i _b))) _this)
+		(each (lambda (_) (each _hf _)) (get :buckets _this)))
 	(method-bind :clear (this)
 		;(. xset :clear) -> xset
 		(each (# (clear %0)) (get :buckets this))
@@ -96,6 +94,7 @@
 ;tests
 (when nil
 	(defq a (xset-k :a :b :c :z) b (xset-k :a :x :y :z))
+	(defq a (. a :copy 2) b (. b :copy 7))
 	(print "originals")
 	(. a :each print)
 	(print)
