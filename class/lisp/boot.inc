@@ -849,7 +849,7 @@
 	;(method-bind name ([arg ...]) body)
 	`(def this ,n (lambda ,p ~(prebind (macroexpand _)))))
 
-(defmacro-bind @ (this m &rest _)
+(defmacro-bind ! (this m &rest _)
 	;(@ this method ([arg ...]))
 	(if (sym? this)
 		`((get ,m ,this) ,this ~_)
@@ -860,4 +860,3 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "lib/hmap/hmap.inc")
-
