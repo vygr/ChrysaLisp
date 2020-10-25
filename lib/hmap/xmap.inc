@@ -4,20 +4,6 @@
 
 (import "sys/lisp.inc")
 
-(defmacro-bind class (n p &rest _)
-	`(defun ,n ,p (defq this (env -1)) ~_ this))
-
-(defmacro-bind method (n p &rest _)
-	`(def this ,n (lambda (this ~p) ~_)))
-
-(defmacro-bind method-bind (n p &rest _)
-	`(def this ,n (lambda (this ~p) ~(prebind (macroexpand _)))))
-
-(defmacro-bind @ (m this &rest _)
-	(if (sym? this)
-		`((get ,m ,this) ,this ~_)
-		`((get ,m (defq ,(defq _o (gensym)) ,this)) ,_o ~_)))
-
 (defmacro-bind xmap-slot ()
 	`(defq x (get :buckets this)
 		b (* (% ((get :hash_fnc this) key) (get :num_buckets this)) 2)
