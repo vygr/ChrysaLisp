@@ -60,6 +60,10 @@
 
 (>>> num cnt)
 
+## @
+
+(@ method this ([arg ...]))
+
 ## aand
 
 (aand [form] ...)
@@ -219,6 +223,10 @@
 ## char-to-num
 
 (char-to-num char) -> num
+
+## class
+
+(class name ([arg ...]) body)
 
 ## clear
 
@@ -775,6 +783,14 @@
 ## merge-obj
 
 (merge-obj dlist slist) -> dlist
+
+## method
+
+(method name ([arg ...]) body)
+
+## method-bind
+
+(method-bind name ([arg ...]) body)
 
 ## min
 
