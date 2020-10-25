@@ -74,18 +74,17 @@
 		(cond
 			((eql this that)
 				(! this :clear))
-			(t	(defq other1 (! this :copy) other2 (! that :copy))
-				(! other1 :difference that)
-				(! other2 :difference this)
-				(! other1 :union other2)
-				(set this :buckets (get :buckets other1))))
+			(t	(defq other (! that :copy))
+				(! other :difference this)
+				(! this :difference that)
+				(! this :union other)))
 		this)
 	)
 
 (defun-bind xset-k (&rest _)
 	;(xset-k [key ...]) -> xset
 	(defq this (xset))
-	(each! 0 -1 (# (! this :insert %0)) (unzip _ (list (list))))
+	(each (# (! this :insert %0)) _)
 	this)
 
 (defun-bind xset? (this)
