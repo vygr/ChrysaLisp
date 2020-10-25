@@ -7,8 +7,8 @@
 (defun-bind console-log-msg-writer (logger msgd)
   ; (console-log-msg-writer logconfig mail-message) -> stream
   (log-write stdout (str
-               " ["(log-level-string logger (getp msgd :msg-level))"] "
-               (getp logger :name)": ") (getp msgd :message)))
+               " ["(log-level-string logger (gets msgd :msg-level))"] "
+               (gets logger :name)": ") (gets msgd :message)))
 
 
 (defun-bind log-registration (mname use_handler)
@@ -22,7 +22,7 @@
 (defun-bind log-registration-result (logger)
   ; (log-registration-result properties) -> properties
   (defq
-    msg   (mail-read (getp logger :reciever))
+    msg   (mail-read (gets logger :reciever))
     id    (get-long msg mail_msg_command))
   (cond
     ; Succesful registration
@@ -53,11 +53,11 @@
   ; Generic send log message to service unless
   ; the service is console
   (defq msgs (properties
-          :module     (getp logger :token)
+          :module     (gets logger :token)
           :msg-level  lmsgtype
           :message    (str msg)))
   (cond
-    ((eql (getp logger :handler) :console_handler)
+    ((eql (gets logger :handler) :console_handler)
       (defq
         lvli  (log-level-index logger lmsgtype)
         lvlc  (log-level-index logger (log-level-base logger)))

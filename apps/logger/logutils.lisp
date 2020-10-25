@@ -36,15 +36,16 @@
   ; Fully qualify name
   ; Ready new entries
   ; Open filestream
-  (setp! cfg
-    :handle (open-log-file-stream (make-log-filename (gets cfg :file_name))) t)
+  (sets! cfg
+    :handle (open-log-file-stream (make-log-filename (gets cfg :file_name))))
   ; Check for rotation
   (when (needs-rotation? cfg)
     (rotate-logfile cfg))
   cfg)
 
 (defun create-log-file-handlers (handlers fsmap)
-  ; (create-log-file-handlers properties kvmap) -> hmap
+  ; (create-log-file-handlers properties hmap) -> hmap
+  ; Opens all know handlers
   (debug-write "Creating handlers!")
   ; Iterate through handlers looking for type :file
   ; For each, extend with file information and prepare
@@ -60,6 +61,30 @@
             (t nil)))
         (entries handlers))
   fsmap)
+
+(defun setup-handler-registry ()
+  (defq registry (properties :handlers (properties)))
+  (when (> (age +cfg_registry+) 0)
+      (setq registry (first (yaml-read +cfg_registry+))))
+  registry)
+
+(defun-bind register-log-handler (fsmap registry anchor cfg)
+  ; (register-log-handler hmap properties string properties) -> nil
+  ; Called when a new anchor configuration is to be registered
+  ; fsmap - map of handlers opened for business (hmap)
+  ; registry - The registry of all anchors (properties)
+  ; anchor - The anchor name (string)
+  ; cfg - The anchors configuration (properties)
+  (defq
+    anckw   (kw anchor)
+    cfgcopy (copy cfg))
+  ; Put in registry
+  (sets! (gets registry :handlers) anckw cfg)
+  ; Update registry file
+  (yaml-write +cfg_registry+ registry)
+  ; Open if not console
+  (when (not (eql (gets cfgcopy :type) :console))
+    (sets! fsmap anckw (initialize-logfile-handler cfgcopy))))
 
 (defun-bind process-log-cfg ()
   ; (process-log-cfg) -> tuple
@@ -111,6 +136,9 @@
                   :handler :service_handler)
                 :system (properties
                   :handler :system_handler))))))
+  ; Write bootstrap if needed
+  (when (= cfg_age 0)
+    (yaml-write +cfg_file+ cfg))
   ; Build the system filesystem logger streams
   (defq fsmaps (hmap))
   (create-log-file-handlers (getp-in cfg :logging :handlers) fsmaps)
@@ -119,4 +147,5 @@
     (gets fsmaps :service_handler)
     (> cfg_age 0)
     cfg
-    fsmaps))
+    fsmaps
+    (setup-handler-registry)))

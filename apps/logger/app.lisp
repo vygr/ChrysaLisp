@@ -12,7 +12,10 @@
 
 ;single instance only
 (when (= (length (mail-enquire +logging_srvc_name+)) 0)
+  ; Setup general purpose information
   (defq
+    registra  (hmap)
+    active    t
     entry (mail-declare +logging_srvc_name+ (task-mailbox) "Logging Service 0.3")
     ; DEBUG (file-stream "./logs/DEBUG_SERVICE.log" file_open_append)
     )
@@ -22,14 +25,9 @@
   ;   (stream-flush DEBUG))
   (defun-bind debug-write (&rest _))
 
-  ; Process configuration file
-  (bind '(srvc_fh fcfg? conf fmap) (process-log-cfg))
+  ; Process configuration files
+  (bind '(srvc_fh fcfg? conf fmap registry) (process-log-cfg))
   (log-write (gets srvc_fh :handle) " Starting LOG_SERVICE")
-
-  ; Setup general purpose information
-  (defq
-    registra  (hmap)
-    active    t)
 
   (defun-bind log-handle (cfg)
     (gets cfg :handle))
@@ -96,13 +94,16 @@
       ((= id +log_event_register_anchor+)
        (log-write (gets srvc_fh :handle) " Registering " msg))
       ; Information request about registrations (admin)
-      ((= id +log_event_query_config+)
-       (log-write (gets srvc_fh :handle) " Querying " msg))
+      ((= id +log_event_query_anchor_config+)
+       (defq rcvr (get-long msg +rega_msg_receiver+))
+       (log-write
+         (gets srvc_fh :handle)
+         " Receiver " rcvr
+         " Querying " msg ))
       ; Registration (client)
       ((= id +log_event_register+)
        (defq msgd (deser-inbound msg))
        (register-logger msgd))
-      ; Reconfiguration (client)
       ; Log Message (client)
       ((= id +log_event_logmsg+)
        (log-msg-writer msg))

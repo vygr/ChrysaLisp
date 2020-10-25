@@ -16,12 +16,18 @@
   (long 'command)
   (offset 'data))
 
+; Registering the anchor
+(structure '+rega_msg 0
+  (long 'command+)
+  (long 'receiver+)
+  (offset 'data+))
+
 ; Events for mail_msg_commands
 (structure '+log_event 0
   (byte
     'register_anchor+
-    'query_config+
-    'config_info+
+    'query_anchor_config+
+    'anchor_info+
     'logsetcfg+
     'logmsg+
     'register+
@@ -51,23 +57,38 @@
 
 (defun-bind log-register-anchor (nm &rest override_pairs)
     (defq
-        sstrm (string-stream (cat ""))
+        sstrm   (string-stream (cat ""))
+        mbx_id  (mail-alloc-mbox)
         cnfg  (list
           :key_name   nm
           :type       :file
           :level      :warning
           :formatter  :standard
-          :file_name  t
-          :rotate     nil
+          :file_name  nm
+          :rotate     "*true"
           :maxbytes   10485760
           :backups    10))
 
+    (when (> (length override_pairs) 0)
+      (each (#
+        (when (defq kdx (find cnfg (first %0)))
+          (elem-set (inc kdx) cnfg (second %0))))
+        (partitioin 2 override_pairs)))
     (write sstrm (str "<" (slice 1 -2 (str cnfg)) ">"))
+
+    (mail-send
+      (cat
+        (char +log_event_query_anchor_config+ long_size)
+        (char mbx_id long_size)
+        (str nm))
+      (get-logsrvc-mb))
     (mail-send
         (cat
             (char +log_event_register_anchor+ long_size)
+            (char mbx_id long_size)
             (str sstrm))
-        (get-logsrvc-mb)))
+        (get-logsrvc-mb))
+    )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; For debugging only. Typically the service
