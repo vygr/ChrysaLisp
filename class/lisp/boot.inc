@@ -843,14 +843,14 @@
 
 (defmacro-bind method (n p &rest _)
 	;(method name ([arg ...]) body)
-	`(def this ,n (lambda (this ~p) ~_)))
+	`(def this ,n (lambda ,p ~_)))
 
 (defmacro-bind method-bind (n p &rest _)
 	;(method-bind name ([arg ...]) body)
-	`(def this ,n (lambda (this ~p) ~(prebind (macroexpand _)))))
+	`(def this ,n (lambda ,p ~(prebind (macroexpand _)))))
 
-(defmacro-bind @ (m this &rest _)
-	;(@ method this ([arg ...]))
+(defmacro-bind @ (this m &rest _)
+	;(@ this method ([arg ...]))
 	(if (sym? this)
 		`((get ,m ,this) ,this ~_)
 		`((get ,m (defq ,(defq _o (gensym)) ,this)) ,_o ~_)))

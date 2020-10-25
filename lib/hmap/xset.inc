@@ -11,36 +11,70 @@
 
 (class xset (&optional num_buckets cmp_fnc hash_fnc)
 	;(xset [num_buckets cmp_fnc hash_fnc]) -> xset
-	;(@ :find xset key) -> nil|key
-	;(@ :insert xset key)
-	;(@ :erase xset key)
-	;(@ :each xset lambda)
 	(def this :buckets (list) :num_buckets (setq num_buckets (opt num_buckets 1))
 		:cmp_fnc (opt cmp_fnc eql) :hash_fnc (opt hash_fnc hash) :xset t)
 	(while (>= (setq num_buckets (dec num_buckets)) 0)
 		(push (get :buckets this) (list)))
-	(method-bind :find (key)
+	(method-bind :find (this key)
+		;(@ xset :find key) -> nil|key
 		(xset-slot)
 		(if e (elem e (elem b x))))
-	(method-bind :insert (key)
+	(method-bind :insert (this key)
+		;(@ xset :insert key)
 		(xset-slot)
 		(cond
 			(e (elem-set e (elem b x) key))
 			(t (push (elem b x) key))))
-	(method-bind :erase (key)
+	(method-bind :erase (this key)
+		;(@ xset :erase key)
 		(xset-slot)
 		(when e
 			(elem-set e (defq b (elem b x)) (elem -2 b))
 			(pop b)))
-	(method-bind :each (_hf)
-		(defq _i -1 _b (get :buckets this))
+	(method-bind :each (_this _hf)
+		;(@ xset :each lambda)
+		(defq _i -1 _b (get :buckets _this))
 		(while (< (setq _i (inc _i)) (length _b))
-			(each _hf (elem _i _b))) this))
+			(each _hf (elem _i _b))) _this)
+	(method-bind :clear (this)
+		;(@ xset :clear) -> xset
+		(each (# (clear %0)) (get :buckets this))
+		this)
+	(method-bind :copy (this &optional num_buckets)
+		;(@ xset :copy [num_buckets]) -> xset
+		(defq that (xset (opt num_buckets (get :num_buckets this))
+			(get :cmp_fnc this) (get :hash_fnc this)))
+		(@ this :each (# (@ that :insert %0)))
+		that)
+	(method-bind :deep_copy (this &optional num_buckets)
+		;(@ xset :deep_copy [num_buckets]) -> xset
+		(defq that (xset (opt num_buckets (get :num_buckets this))
+			(get :cmp_fnc this) (get :hash_fnc this)))
+		(@ this :each (# (@ that :insert (copy %0))))
+		that)
+	(method-bind :union (this that)
+		;(@ xset :union xset) -> xset
+		(unless (eql this that)
+			(@ that :each (# (@ this :insert %0))))
+		this)
+	(method-bind :difference (this that)
+		;(@ xset :difference xset) -> xset
+		(if (eql this that)
+			(@ this :clear)
+			(@ that :each (# (@ this :erase %0))))
+		this)
+	(method-bind :intersect (this that)
+		;(@ xset :intersect xset) -> xset
+		(unless (eql this that)
+			(each (# (elem-set _ b (filter (# (@ that :find %0)) %0)))
+				(defq b (get :buckets this))))
+		this)
+	)
 
 (defun-bind xset-k (&rest _)
-	;(xset-kv [key ...]) -> xset
+	;(xset-k [key ...]) -> xset
 	(defq this (xset))
-	(each! 0 -1 (# (@ :insert this %0)) (unzip _ (list (list))))
+	(each! 0 -1 (# (@ this :insert %0)) (unzip _ (list (list))))
 	this)
 
 (defun-bind xset? (this)
@@ -48,3 +82,28 @@
 	(and (env? this) (get :xset this)))
 
 (undef (env) 'xset-slot)
+
+;tests
+(when nil
+	(defq a (xset-k :a :b :c :z) b (xset-k :a :x :y :z))
+	(print "originals")
+	(@ a :each print)
+	(print)
+	(@ b :each print)
+	(print)
+	(print "copy")
+	(defq x (@ a :copy))
+	(@ x :each print)
+	(print "union")
+	(defq x (@ a :copy))
+	(@ x :union b)
+	(@ x :each print)
+	(print "difference")
+	(defq x (@ a :copy))
+	(@ x :difference b)
+	(@ x :each print)
+	(print "intersect")
+	(defq x (@ a :copy))
+	(@ x :intersect b)
+	(@ x :each print)
+	(print))
