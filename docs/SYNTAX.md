@@ -1,5 +1,9 @@
 # Syntax
 
+## !
+
+(! this method ([arg ...]))
+
 ## #
 
 (# (< %0 0)) -> (lambda (%0) (< %0 0))
@@ -59,10 +63,6 @@
 ## >>>
 
 (>>> num cnt)
-
-## @
-
-(@ method this ([arg ...]))
 
 ## aand
 
