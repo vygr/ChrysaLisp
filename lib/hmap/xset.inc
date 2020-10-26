@@ -34,21 +34,19 @@
 	(method-bind :each (_this _hf)
 		;(. xset :each lambda)
 		(each (lambda (_) (each _hf _)) (get :buckets _this)))
-	(method-bind :clear (this)
-		;(. xset :clear) -> xset
-		(each (# (clear %0)) (get :buckets this))
-		this)
-	(method-bind :copy (this &optional num_buckets)
-		;(. xset :copy [num_buckets]) -> xset
-		(defq that (xset (opt num_buckets (get :num_buckets this))
-			(get :cmp_fnc this) (get :hash_fnc this)))
-		(. this :each (# (. that :insert %0)))
+	(method-bind :copy (this)
+		;(. xset :copy) -> xset
+		(defq that (xset (get :num_buckets this) (get :cmp_fnc this) (get :hash_fnc this)))
+		(each (lambda (this_bucket that_bucket)
+			(each (lambda (key)
+				(push that_bucket key)) this_bucket)) (get :buckets this) (get :buckets that))
 		that)
-	(method-bind :deep_copy (this &optional num_buckets)
-		;(. xset :deep_copy [num_buckets]) -> xset
-		(defq that (xset (opt num_buckets (get :num_buckets this))
-			(get :cmp_fnc this) (get :hash_fnc this)))
-		(. this :each (# (. that :insert (copy %0))))
+	(method-bind :deep_copy (this)
+		;(. xset :deep_copy) -> xset
+		(defq that (xset (get :num_buckets this) (get :cmp_fnc this) (get :hash_fnc this)))
+		(each (lambda (this_bucket that_bucket)
+			(each (lambda (key)
+				(push that_bucket (copy key))) this_bucket)) (get :buckets this) (get :buckets that))
 		that)
 	(method-bind :union (this that)
 		;(. xset :union xset) -> xset
@@ -76,6 +74,28 @@
 			(t	(. (defq other (. that :copy)) :difference this)
 				(. this :difference that)
 				(. this :union other))))
+	(method-bind :clear (this)
+		;(. xset :clear) -> xset
+		(each (# (clear %0)) (get :buckets this))
+		this)
+	(method-bind :move (this)
+		;(. xset :move) -> xset
+		(defq that (xset (get :num_buckets this) (get :cmp_fnc this) (get :hash_fnc this))
+			this_buckets (get :buckets this) that_buckets (get :buckets that))
+		(set this :buckets that_buckets)
+		(set that :buckets this_buckets)
+		that)
+	(method-bind :resize (this num_buckets)
+		;(. xset :resize num_buckets) -> xset
+		(defq hash_fnc (get :hash_fnc this) old_buckets (get :buckets this) new_buckets (list))
+		(set this :buckets new_buckets :num_buckets num_buckets)
+		(while (>= (setq num_buckets (dec num_buckets)) 0)
+			(push new_buckets (list)))
+		(setq num_buckets (get :num_buckets this))
+		(each (lambda (old_bucket)
+			(while (defq key (pop old_bucket))
+				(push (elem (% (hash_fnc key) num_buckets) new_buckets) key))) old_buckets)
+		this)
 	)
 
 (defun-bind xset-k (&rest _)
@@ -93,7 +113,7 @@
 ;tests
 (when nil
 	(defq a (xset-k :a :b :c :z) b (xset-k :a :x :y :z))
-	(defq a (. a :copy 2) b (. b :copy 7))
+	(defq a (. a :resize 2) b (. b :resize 7))
 	(print "originals")
 	(. a :each prin)
 	(print)
