@@ -27,6 +27,7 @@
 
   ; Process configuration files
   (bind '(srvc_fh fcfg? conf fmap registry) (process-log-cfg))
+
   (log-write (gets srvc_fh :handle) " Starting LOG_SERVICE")
 
   (defun-bind log-handle (cfg)
@@ -44,6 +45,17 @@
     (log-write sstrm (str
                  " ["(log-level-string cnfg (gets msgd :msg-level))"] "
                  (gets cnfg :name)": ") (gets msgd :message)))
+
+  (defun-bind service-send (toclient command strng)
+    ; (service-send mailbox command data)
+    ; Sends a mail message from log_service to
+    ; mailbox
+    (mail-send (cat (char command long_size) strng) toclient))
+
+  (defun-bind service-send-ser (toclient command data)
+    ; (service-send-ser mailbox command data)
+    ; Serializes data and calls service-send
+    (service-send toclient command (str (yaml-xser data))))
 
   (defun-bind register-logger (config)
     ; (register-logger properties) -> ?
@@ -76,11 +88,7 @@
       (t))
     ; Capture configuration locally
     (hmap-insert registra (gets config :token) config)
-    (mail-send
-      (cat
-        (char +log_event_registered+ long_size)
-        (str (yaml-xser config)))
-      (gets config :reciever)))
+    (service-send-ser (gets config :reciever) +log_event_registered+ config))
 
   ; Log Service Processing loop
   (while active
@@ -90,16 +98,30 @@
         (log-write (gets srvc_fh :handle) " Shutting down ")
         ; (log-write DEBUG " Shutting down ")
         (setq active nil))
-      ; Registration (anchor)
-      ((= id +log_event_register_anchor+)
-       (log-write (gets srvc_fh :handle) " Registering " msg))
       ; Information request about registrations (admin)
+      ; Returns ack with
       ((= id +log_event_query_anchor_config+)
-       (defq rcvr (get-long msg +rega_msg_receiver+))
+       (defq
+         rcvr (get-long msg +rega_msg_receiver+)
+         akw  (kw msg)
+         reg  (if (gets registry akw) "true" "false")
+         fhnd (if (gets fmap akw) "true" "false"))
        (log-write
          (gets srvc_fh :handle)
-         " Receiver " rcvr
-         " Querying " msg ))
+         " Anchor query - "
+         " Receiver: " rcvr
+         " Querying: " akw
+         " Registry: " reg
+         " Handler Up: " fhnd)
+       (service-send rcvr +log_event_anchor_info+ (cat reg "," fhnd)))
+
+      ; Registration (anchor) using persistent configuration
+      ((= id +log_event_register_anchor+)
+       (log-write (gets srvc_fh :handle) " Registering " msg))
+      ; Registration (anchor) sends ack with handler configuration
+      ((= id +log_event_register_anchor_configuration+)
+       (defq msgd (deser-inbound msg))
+       (log-write (gets srvc_fh :handle) " Anchor Registration " msgd))
       ; Registration (client)
       ((= id +log_event_register+)
        (defq msgd (deser-inbound msg))

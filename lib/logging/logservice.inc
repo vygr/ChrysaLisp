@@ -26,6 +26,7 @@
 (structure '+log_event 0
   (byte
     'register_anchor+
+    'register_anchor_with_configuration+
     'query_anchor_config+
     'anchor_info+
     'logsetcfg+
@@ -56,40 +57,60 @@
 ; (mail-send (cat  string))
 
 (defun-bind log-register-anchor (nm &rest override_pairs)
-    (defq
-        sstrm   (string-stream (cat ""))
-        mbx_id  (mail-alloc-mbox)
-        cnfg  (list
-          :key_name   nm
-          :type       :file
-          :level      :warning
-          :formatter  :standard
-          :file_name  nm
-          :rotate     "*true"
-          :maxbytes   10485760
-          :backups    10))
+  ; (log-register-anchor name [override_pairs])
+  ; Registration for anchors
+  (def (penv (env)) 'log_anchor nm)
+  (defq
+      sstrm   (string-stream (cat ""))
+      mbx_id  (mail-alloc-mbox)
+      full_cnfg  (list
+        :key_name   nm
+        :type       :file
+        :level      :warning
+        :formatter  :standard
+        :file_name  nm
+        :rotate     '*true
+        :maxbytes   10485760
+        :backups    10))
 
-    (when (> (length override_pairs) 0)
-      (each (#
-        (when (defq kdx (find cnfg (first %0)))
-          (elem-set (inc kdx) cnfg (second %0))))
-        (partitioin 2 override_pairs)))
-    (write sstrm (str "<" (slice 1 -2 (str cnfg)) ">"))
+  (when (> (length override_pairs) 0)
+    (each (#
+      (when (defq kdx (find full_cnfg (first %0)))
+        (elem-set (inc kdx) full_cnfg (second %0))))
+      (partitioin 2 override_pairs)))
 
-    (mail-send
+  (mail-send
+    (cat
+      (char +log_event_query_anchor_config+ long_size)
+      (char mbx_id long_size)
+      (str nm))
+    (get-logsrvc-mb))
+
+  (defq
+    rmsg (mail-read mbx_id)
+    rid  (get-long rmsg mail_msg_command)
+    res  nil
+    reg  nil
+    hof  nil)
+  (if (= rid +log_event_anchor_info+)
+    (let (
+      (rlst (split rmsg ","))
+      (r?  (if (eql (first (first rlst)) "t") t))
+      (h?  (if (eql (first (second rlst)) "t") t)))
+    (setq res rlst reg r? hof h?))
+    (throw "Invalid return fro anchor query" rmsg))
+
+
+
+  (write sstrm (str "<" (slice 1 -2 (str full_cnfg)) ">"))
+
+  (mail-send
       (cat
-        (char +log_event_query_anchor_config+ long_size)
-        (char mbx_id long_size)
-        (str nm))
+          (char +log_event_register_anchor+ long_size)
+          (char mbx_id long_size)
+          (str sstrm))
       (get-logsrvc-mb))
-    (mail-send
-        (cat
-            (char +log_event_register_anchor+ long_size)
-            (char mbx_id long_size)
-            (str sstrm))
-        (get-logsrvc-mb))
-    )
-
+  )
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; For debugging only. Typically the service
 ; just keeps on running

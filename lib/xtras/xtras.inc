@@ -245,7 +245,7 @@
 ; Associative structure functions
 
 (defun-bind entries (_)
-  ; (entries [properties | hmap]) -> entry list
+  ; (entries kv-map) -> entry list
   ; Returns a list of entries where each entry: (key value)
   (cond
     ((props? _)
@@ -259,13 +259,13 @@
       (hmap-entries _))))
 
 (defun-bind keys (_)
-  ; (keys [properties | hmap]) -> key list
+  ; (keys kv-map) -> key list
   ; Returns a sequence of keys found in associative structure
   (when (or (props? _) (hmap? _))
     (map (#(elem 0 %0)) (entries _))))
 
 (defun-bind values (_)
-  ; (values [properties | hmap]) -> value list
+  ; (values kv-map) -> value list
   ; Returns a sequence of values found in associative structure
   (when (or (props? _) (hmap? _))
     (map (#(elem 1 %0)) (entries _))))
@@ -405,41 +405,6 @@
               last_nest v))))))
     hit)
 
-(defun-bind gets (astruc k &optional if_nil)
-  ; (gets [properties | hmap] key [if_nil]) -> val | if_nil | nil
-  ; Fetches value for key. If not found and 'if_nil' provided, will
-  ; return that value, otherwise nil
-  (cond
-    ((hmap? astruc) (opt (hmap-find astruc k) if_nil))
-    ((props? astruc) (getp astruc k if_nil))))
-
-(defun-bind sets! (astruc k v)
-  ; (sets! [properties | hmap] key value) -> updated structure
-  ; Creates a new key/value or overwrites an existing value for key
-  (cond
-    ((hmap? astruc) (hmap-insert astruc k v))
-    ((props? astruc) (setp! astruc k v t)))
-  astruc)
-
-(defun-bind sets-pairs! (astruc &rest pairs)
-  (defq chnks (partition 2 pairs))
-  (cond
-    ((hmap? astruc)
-      (each (#(hmap-insert astruc (first %0) (second %0))) chnks))
-    ((props? astruc)
-      (each (#(setp! astruc (first %0) (second %0) t)) chnks)))
-  astruc)
-
-(defun-bind update! (astruc k v)
-  ; (sets! [properties | hmap] key value) -> updated structure
-  ; Will fail silently if key not found, otherwise updates value for key
-  (defq hit (gets astruc k))
-  (if hit
-    (cond
-      ((hmap? astruc) (hmap-insert astruc k v))
-      ((props? astruc) (setp! astruc k v t))))
-  astruc)
-
 (defun-bind pmerge (&rest props)
   ; (pmerge properties...) -> properties
   ; Returns a new properties structure that consists of
@@ -480,6 +445,48 @@
     (when sp
       (move-entry-forward! p sp ep)
       (times 2 (pop p)))))
+
+; Common kv interface
+
+(defun-bind gets (kv-map k &optional if_nil)
+  ; (gets kv-map key [if_nil]) -> val | if_nil | nil
+  ; Fetches value for key. If not found and 'if_nil' provided, will
+  ; return that value, otherwise nil
+  (cond
+    ((hmap? kv-map) (opt (hmap-find kv-map k) if_nil))
+    ((props? kv-map) (getp kv-map k if_nil))))
+
+(defun-bind sets! (kv-map k v)
+  ; (sets! kv-map key value) -> updated structure
+  ; Creates a new key/value or overwrites an existing value for key
+  (cond
+    ((hmap? kv-map) (hmap-insert kv-map k v))
+    ((props? kv-map) (setp! kv-map k v t)))
+  kv-map)
+
+(defun-bind sets-pairs! (kv-map &rest pairs)
+  (defq chnks (partition 2 pairs))
+  (cond
+    ((hmap? kv-map)
+      (each (#(hmap-insert kv-map (first %0) (second %0))) chnks))
+    ((props? kv-map)
+      (each (#(setp! kv-map (first %0) (second %0) t)) chnks)))
+  kv-map)
+
+(defun-bind update! (kv-map k v)
+  ; (sets! kv-map key value) -> updated structure
+  ; Will fail silently if key not found, otherwise updates value for key
+  (defq hit (gets kv-map k))
+  (if hit
+    (cond
+      ((hmap? kv-map) (hmap-insert kv-map k v))
+      ((props? kv-map) (setp! kv-map k v t))))
+  kv-map)
+
+(defun-bind merge (target &rest maps)
+  ; (merge kv-map )
+  )
+
 
 ; Privatize functions
 
