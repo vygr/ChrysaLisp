@@ -79,7 +79,7 @@
 		(defq num_buckets (get :num_buckets this) i -2)
 		(while (< (setq i (+ i 2)) (length old_buckets))
 			(defq old_keys (elem i old_buckets) old_vals (elem (inc i) old_buckets))
-			(while (defq key (pop old_keys) val old_vals)
+			(while (defq key (pop old_keys) val (pop old_vals))
 				(defq ni (* (% (hash_fnc key) num_buckets) 2))
 				(push (elem ni new_buckets) key)
 				(push (elem (inc ni) new_buckets) val)))
