@@ -30,8 +30,13 @@
   (write sstrm (apply str _))
   (stream-flush sstrm))
 
+(defun-bind deser-anchor-inbound (msg)
+  ; (deser-inbound mail-msg) -> collection
+  ; Deserializes inbound data from mail message
+  (yaml-xdeser (write (string-stream (cat "")) (slice +rega_msg_data+ -1 msg))))
+
 (defun-bind deser-inbound (msg)
-  ; (deser-inbound mail-msg) -> properties
+  ; (deser-inbound mail-msg) -> collection
   ; Deserializes inbound data from mail message
   (yaml-xdeser (write (string-stream (cat "")) (slice mail_msg_data -1 msg))))
 

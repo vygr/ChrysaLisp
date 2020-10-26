@@ -59,7 +59,7 @@
 (defun-bind log-register-anchor (nm &rest override_pairs)
   ; (log-register-anchor name [override_pairs])
   ; Registration for anchors
-  (def (penv (env)) 'log_anchor nm)
+  (def (penv (env)) '*log_anchor* nm)
   (defq
       sstrm   (string-stream (cat ""))
       mbx_id  (mail-alloc-mbox)
@@ -78,7 +78,7 @@
       (when (defq kdx (find full_cnfg (first %0)))
         (elem-set (inc kdx) full_cnfg (second %0))))
       (partitioin 2 override_pairs)))
-
+  ; Query state of anchor in service
   (mail-send
     (cat
       (char +log_event_query_anchor_config+ long_size)
@@ -87,30 +87,40 @@
     (get-logsrvc-mb))
 
   (defq
-    rmsg (mail-read mbx_id)
-    rid  (get-long rmsg mail_msg_command)
+    qmsg (mail-read mbx_id)
+    qid  (get-long qmsg mail_msg_command)
     res  nil
     reg  nil
-    hof  nil)
-  (if (= rid +log_event_anchor_info+)
-    (let (
-      (rlst (split rmsg ","))
-      (r?  (if (eql (first (first rlst)) "t") t))
-      (h?  (if (eql (first (second rlst)) "t") t)))
-    (setq res rlst reg r? hof h?))
-    (throw "Invalid return fro anchor query" rmsg))
-
-
-
-  (write sstrm (str "<" (slice 1 -2 (str full_cnfg)) ">"))
-
+    hof  nil
+    cmd  nil)
+  (print "Query service " qmsg)
+  (if (= qid +log_event_anchor_info+)
+    (setq
+      res (split qmsg ",")
+      reg (if (eql (first (first res)) "t") t)
+      hof (if (eql (first (second res)) "t") t))
+    (throw (str "Invalid return fro anchor query " qid) qmsg))
+  ; Setup appropriate payload
+  (cond
+    (reg
+      (print "Registered already")
+      (setq cmd +log_event_register_anchor+)
+      (write sstrm nm))
+    (t
+      (print "New registeration")
+      (setq cmd +log_event_register_anchor_with_configuration+)
+      (write sstrm (str "{" (slice 1 -2 (str full_cnfg)) "}"))))
   (mail-send
       (cat
-          (char +log_event_register_anchor+ long_size)
+          (char cmd  long_size)
           (char mbx_id long_size)
           (str sstrm))
       (get-logsrvc-mb))
-  )
+  (defq
+    rmsg (mail-read mbx_id)
+    rid  (get-long rmsg mail_msg_command))
+  (print "Registered " rmsg))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; For debugging only. Typically the service
 ; just keeps on running

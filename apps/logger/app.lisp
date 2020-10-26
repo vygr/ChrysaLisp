@@ -103,25 +103,30 @@
       ((= id +log_event_query_anchor_config+)
        (defq
          rcvr (get-long msg +rega_msg_receiver+)
-         akw  (kw msg)
-         reg  (if (gets registry akw) "true" "false")
-         fhnd (if (gets fmap akw) "true" "false"))
-       (log-write
-         (gets srvc_fh :handle)
-         " Anchor query - "
-         " Receiver: " rcvr
-         " Querying: " akw
-         " Registry: " reg
-         " Handler Up: " fhnd)
-       (service-send rcvr +log_event_anchor_info+ (cat reg "," fhnd)))
-
+         akw  (kw msg))
+       (service-send
+         rcvr
+         +log_event_anchor_info+
+         (cat (if (gets registry akw) "true" "false")
+              "," (if (gets fmap akw) "true" "false"))))
       ; Registration (anchor) using persistent configuration
       ((= id +log_event_register_anchor+)
-       (log-write (gets srvc_fh :handle) " Registering " msg))
+       (defq rcvr (get-long msg +rega_msg_receiver+))
+       (log-write (gets srvc_fh :handle) " Registering " msg)
+       (service-send
+         rcvr
+         +log_event_registered+
+         msg))
       ; Registration (anchor) sends ack with handler configuration
-      ((= id +log_event_register_anchor_configuration+)
-       (defq msgd (deser-inbound msg))
-       (log-write (gets srvc_fh :handle) " Anchor Registration " msgd))
+      ((= id +log_event_register_anchor_with_configuration+)
+       (defq
+         rcvr (get-long msg +rega_msg_receiver+)
+         msgd (deser-anchor-inbound msg))
+       (log-write (gets srvc_fh :handle) " Anchor Registration " msgd)
+       (service-send-ser
+         rcvr
+         +log_event_registered+
+         msgd))
       ; Registration (client)
       ((= id +log_event_register+)
        (defq msgd (deser-inbound msg))
