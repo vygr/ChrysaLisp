@@ -16,7 +16,7 @@
 
 (defmacro is_symbol_char (_)
 	(list 'find-rev _ (const (cat
-		"!@#$%^&*_+-=[];'\:|,./<>?`~"
+		"!@#$%^&*_+-=[];\:|,./<>?`~"
 		"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 		"0123456789"
 		"abcdefghijklmnopqrstuvwxyz"))))
@@ -44,12 +44,14 @@
 		(sort cmp out))
 
 	(def this :keywords (defq keywords (env -101)) :state :text
-		:ink_fncs (<< (canvas-from-argb32 argb_red 15) 32)
+		:ink_fncs (<< (canvas-from-argb32 argb_magenta 15) 32)
 		:ink_funs (<< (canvas-from-argb32 argb_magenta 15) 32)
-		:ink_macros (<< (canvas-from-argb32 argb_cyan 15) 32)
+		:ink_macros (<< (canvas-from-argb32 argb_green 15) 32)
 		:ink_strings (<< (canvas-from-argb32 argb_yellow 15) 32)
-		:ink_numbers (<< (canvas-from-argb32 argb_white 15) 32)
-		:ink_text (<< (canvas-from-argb32 argb_green 15) 32))
+		:ink_numbers (<< (canvas-from-argb32 argb_yellow 15) 32)
+		:ink_keysyms (<< (canvas-from-argb32 argb_cyan 15) 32)
+		:ink_comments (<< (canvas-from-argb32 argb_grey12 15) 32)
+		:ink_text (<< (canvas-from-argb32 argb_white 15) 32))
 	(each (# (def keywords %0 (get :ink_fncs this))) (boot-fncs))
 	(each (# (def keywords %0 (get :ink_funs this))) (boot-funs))
 	(each (# (def keywords %0 (get :ink_macros this))) (boot-macros))
@@ -75,6 +77,14 @@
 								(push state_list state)
 								(push token_list token)
 								(setq token c state :number))
+							((eql c ":")
+								(push state_list state)
+								(push token_list token)
+								(setq token c state :keysym))
+							((eql c ";")
+								(push state_list state)
+								(push token_list token)
+								(setq token c state :comment))
 							((is_symbol_char c)
 								(push state_list state)
 								(push token_list token)
@@ -98,6 +108,16 @@
 								(push state_list state)
 								(push token_list token)
 								(setq token "" state :text))))
+					(:keysym
+						(cond
+							((is_symbol_char c)
+								(setq token (cat token c) c nil))
+							(t
+								(push state_list state)
+								(push token_list token)
+								(setq token "" state :text))))
+					(:comment
+						(setq token (cat token c) c nil))
 					(:number
 						(cond
 							((is_allowed_number_char c)
@@ -125,7 +145,7 @@
 			line)
 		(push state_list state)
 		(push token_list token)
-		(set this :state state)
+		(set this :state (if (eql state :comment) :text state))
 
 		;assign colours
 		(each (lambda (state token)
@@ -140,16 +160,20 @@
 					(push col_list (get :ink_strings this)))
 				(:number
 					(push col_list (get :ink_numbers this)))
+				(:keysym
+					(push col_list (get :ink_keysyms this)))
+				(:comment
+					(push col_list (get :ink_comments this)))
 				(:text
 					(push col_list (get :ink_text this)))))
 			state_list token_list)
 
 		;build line array
-		(defq line_array (list))
+		(clear state_list)
 		(each (lambda (token ink)
-				(push line_array (apply array (map (# (+ (code %0) ink)) token))))
+				(push state_list (apply array (map (# (+ (code %0) ink)) token))))
 			token_list col_list)
-		(apply cat line_array)))
+		(apply cat state_list)))
 
 (undef (env) 'is_number_char 'is_allowed_number_char 'is_symbol_char
 	'boot-fncs 'boot-funs 'boot-macros)
