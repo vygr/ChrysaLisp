@@ -2,8 +2,6 @@
 ; generic hash set object
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import "sys/lisp.inc")
-
 (defmacro-bind xset-slot ()
 	`(defq x (get :buckets this)
 		b (% ((get :hash_fnc this) key) (get :num_buckets this))
@@ -22,18 +20,18 @@
 		(if e (elem e (elem b x))))
 
 	(method-bind :insert (this key)
-		;(. xset :insert key)
+		;(. xset :insert key) -> nil|t
 		(xset-slot)
 		(cond
-			(e (elem-set e (elem b x) key))
-			(t (push (elem b x) key))))
+			(e (elem-set e (elem b x) key) nil)
+			(t (push (elem b x) key) t)))
 
 	(method-bind :erase (this key)
-		;(. xset :erase key)
+		;(. xset :erase key) -> nil|t
 		(xset-slot)
 		(when e
 			(elem-set e (defq b (elem b x)) (elem -2 b))
-			(pop b)))
+			(pop b) t))
 
 	(method-bind :each (_this _hf)
 		;(. xset :each lambda)

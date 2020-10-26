@@ -2,8 +2,6 @@
 ; generic hash map object
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import "sys/lisp.inc")
-
 (defmacro-bind xmap-slot ()
 	`(defq x (get :buckets this)
 		b (* (% ((get :hash_fnc this) key) (get :num_buckets this)) 2)
@@ -22,20 +20,20 @@
 		(if e (elem e (elem (inc b) x))))
 
 	(method-bind :insert (this key val)
-		;(. xmap :insert key val)
+		;(. xmap :insert key val) -> nil|t
 		(xmap-slot)
 		(cond
-			(e (elem-set e (elem (inc b) x) val))
-			(t (push (elem b x) key) (push (elem (inc b) x) val))))
+			(e (elem-set e (elem (inc b) x) val) nil)
+			(t (push (elem b x) key) (push (elem (inc b) x) val) t)))
 
 	(method-bind :erase (this key)
-		;(. xmap :erase key)
+		;(. xmap :erase key) -> nil|t
 		(xmap-slot)
 		(when e
 			(defq bv (elem (inc b) x) b (elem b x))
 			(elem-set e b (elem -2 b))
 			(elem-set e bv (elem -2 bv))
-			(pop b) (pop bv)))
+			(pop b) (pop bv) t))
 
 	(method-bind :each (_this _hf)
 		;(. xmap :each lambda)
