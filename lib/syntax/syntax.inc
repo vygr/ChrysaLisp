@@ -9,10 +9,17 @@
 	(list 'find-rev _ "0123456789"))
 
 (defmacro is_allowed_number_char (_)
-	(list 'find-rev _ "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.0123456789"))
+	(list 'find-rev _ (const (cat
+		"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+		"abcdefghijklmnopqrstuvwxyz"
+		".0123456789"))))
 
 (defmacro is_symbol_char (_)
-	(list 'find-rev _ "+-*/%/_<>?.ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz"))
+	(list 'find-rev _ (const (cat
+		"!@#$%^&*_+-=[];'\:|,./<>?`~"
+		"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+		"0123456789"
+		"abcdefghijklmnopqrstuvwxyz"))))
 
 (class syntax ()
 	(defun-bind boot-fncs ()
@@ -148,7 +155,7 @@
 	'boot-fncs 'boot-funs 'boot-macros)
 
 ;test
-(when t
+(when nil
 	(defq coloriser (syntax))
 	(print (. coloriser :colorise "This is plain text"))
 	(print (. coloriser :colorise "(defq a (+ 56.8 0x45))"))
