@@ -837,7 +837,7 @@
 
 (defun-bind within-compile-env (_f)
 	;(within-compile-env lambda)
-	(defq *compile_env* (env 401) *compile_includes* (list))
+	(defq *compile_env* (env 503) *compile_includes* (list))
 	(defmacro-bind defcvar (&rest b)
 		`(def *compile_env* ~b))
 	(defmacro-bind undefc (&rest b)
@@ -861,14 +861,14 @@
 
 (defmacro-bind method (n p &rest _)
 	;(method name ([arg ...]) body)
-	`(def this ,n (lambda (this ~p) ~_)))
+	`(def this ,n (lambda ,p ~_)))
 
 (defmacro-bind method-bind (n p &rest _)
 	;(method-bind name ([arg ...]) body)
-	`(def this ,n (lambda (this ~p) ~(prebind (macroexpand _)))))
+	`(def this ,n (lambda ,p ~(prebind (macroexpand _)))))
 
-(defmacro-bind @ (m this &rest _)
-	;(@ method this ([arg ...]))
+(defmacro-bind . (this m &rest _)
+	;(. this method ([arg ...]))
 	(if (sym? this)
 		`((get ,m ,this) ,this ~_)
 		`((get ,m (defq ,(defq _o (gensym)) ,this)) ,_o ~_)))
@@ -884,4 +884,3 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "lib/logging/logservice.inc")
-

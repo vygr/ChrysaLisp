@@ -20,6 +20,10 @@
 
 (- num num ...)
 
+## .
+
+(. this method ([arg ...]))
+
 ## /
 
 (/ num num ...)
@@ -59,10 +63,6 @@
 ## >>>
 
 (>>> num cnt)
-
-## @
-
-(@ method this ([arg ...]))
 
 ## aand
 

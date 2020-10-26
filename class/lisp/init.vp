@@ -94,15 +94,14 @@
 			(else)
 				;save shared boot env
 				(call 'obj :ref {this->lisp_environment} {ptr($boot_env)})
-				(call 'hmap :create {this->lisp_environment->hset_key_callback, 101} {func})
-				(call 'hmap :set_parent {func, this->lisp_environment} {this->lisp_environment})
+				(goto 'local_env)
 			(endif)
 		(else)
 			;boot env is my parent env
 			(call 'obj :ref {ptr($boot_env)} {this->lisp_environment})
+		(vp-label 'local_env)
 			(call 'hmap :create {this->lisp_environment->hset_key_callback, 31} {func})
 			(call 'hmap :set_parent {func, this->lisp_environment} {this->lisp_environment})
-
 			;local defines and symbols
 			(call 'create_env_info {this})
 		(endif)
