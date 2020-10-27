@@ -73,7 +73,7 @@
 			(bind '(w h) (view-pref-size vdu_widget))
 			(view-change vdu_widget 0 0 w h)
 			(vdu-load vdu_widget (map (# (. coloriser :colorise %0)) vdu_text) 0 0 0 1000)
-			(def (setq line_widget (create-backdrop)) :style 1 :color argb_grey6 :min_width w :min_height h)
+			(def (setq line_widget (create-backdrop)) :style 1 :color argb_grey1 :min_width w :min_height h)
 			(view-add-child line_widget vdu_widget)
 			(setq state :normal word_cnt 0 vdu_text (list)))
 		((defq tab_pos (find-rev (ascii-char 9) line_str))

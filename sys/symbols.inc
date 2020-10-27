@@ -96,4 +96,5 @@ file_open_write 1
 file_open_append 2
 scroll_hslider 168
 scroll_vslider 160
+argb_orange 4294944000
 )
