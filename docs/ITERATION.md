@@ -22,7 +22,7 @@ Classes that inherit from `class/seq`:
 * class/str
 * class/sym
 
-```lisp
+```vdu
 (list 1 2 3 4)
 (list "a" "b")
 (array 5 6 7 8)
@@ -32,7 +32,7 @@ Classes that inherit from `class/seq`:
 
 To discover the length of a sequence, use the `(length)` function:
 
-```lisp
+```vdu
 (length (list 1 2 3))
 3
 (length "ABCDEF")
@@ -42,7 +42,7 @@ To discover the length of a sequence, use the `(length)` function:
 Extraction of a single element with `(elem)`. Negative indexes mean to index
 from the back of the sequence ! Very useful !
 
-```lisp
+```vdu
 (elem 1 "abcd")
 "b"
 (elem -2 (array 9 8 7))
@@ -55,7 +55,7 @@ good reason for this as will be illustrated with the `(slice)` function below.
 
 Extracting a 'slice' of a sequence with `(slice)`:
 
-```lisp
+```vdu
 (slice 0 3 "ABCDEF")
 "ABC"
 (slice 1 -2 "ABCDEF")
@@ -64,7 +64,7 @@ Extracting a 'slice' of a sequence with `(slice)`:
 
 Splice sequences together by using `(cat)`:
 
-```lisp
+```vdu
 (cat (list 1 2 3) (list 5 6 7))
 (1 2 3 5 6 7)
 (cat "ABC" 'def "qwerty")
@@ -77,7 +77,7 @@ Splice sequences together by using `(cat)`:
 
 Search for an element with `(find)` and `(find-rev)`:
 
-```lisp
+```vdu
 (find "a" "defopqaui")
 6
 (find 5 (array 1 2 3 4 5))
@@ -103,7 +103,7 @@ Any elements over the minimum length of the given sequences are ignored.
 The function being called is passed the current index value bound to the '_'
 symbol ! Very useful !
 
-```lisp
+```vdu
 (each! 0 -1 print (list '(1 2 3) "ABC" (array 7 8 9 0)))
 1A7
 2B8
@@ -142,7 +142,7 @@ breakable for loop or a search loop !
 As with `(each!)` the function being called is passed the current index value
 bound to the '_' symbol ! Very useful !
 
-```lisp
+```vdu
 (some! 0 -1 t = (list '(1 2 3) '(5 6 3)))
 t
 (some (# (if (eql %0 "a") _)) "defhqaio")
@@ -163,7 +163,7 @@ start value.
 
 These also come in `(map-rev)` and `(reduce-rev)` flavours.
 
-```lisp
+```vdu
 (map + '(1 2 3) '(6 7 8) '(1 7 6))
 (8 16 17)
 (map-rev + '(1 2 3) '(6 7 8) '(1 7 6))

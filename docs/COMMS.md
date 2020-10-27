@@ -121,7 +121,7 @@ usage information.
 `'sys_mail :mymail` is just a convenience function to read mail from the
 current tasks main mailbox.
 
-```lisp
+```vdu
 (include "sys/func.inc")
 (include "sys/kernel/class.inc")
 

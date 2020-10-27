@@ -19,7 +19,7 @@ simple load/store addressing modes.
 
 ### Registers
 
-```lisp
+```vdu
 r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, r13, r14, rsp
 ```
 
@@ -40,7 +40,7 @@ functions.
 
 #### Constant to register
 
-```lisp
+```vdu
 (vp-cpy-cr c rd)
 (vp-add-cr c rd)
 (vp-sub-cr c rd)
@@ -57,7 +57,7 @@ functions.
 
 #### Register to register
 
-```lisp
+```vdu
 (vp-cpy-rr rs rd)
 (vp-add-rr rs rd)
 (vp-sub-rr rs rd)
@@ -77,14 +77,14 @@ functions.
 
 #### Logical And, Not
 
-```lisp
+```vdu
 (vp-lnot-rr rt rd)
 (vp-land-rr rs rd)
 ```
 
 #### Register to Memory
 
-```lisp
+```vdu
 (vp-cpy-rp rs label)
 (vp-cpy-ri rs rb i)
 (vp-cpy-rd rs rb ri)
@@ -98,7 +98,7 @@ functions.
 
 #### Memory to Register
 
-```lisp
+```vdu
 (vp-cpy-pr label rd)
 (vp-cpy-ir rb i rd)
 (vp-cpy-dr rb ri rd)
@@ -118,7 +118,7 @@ functions.
 
 #### Branch
 
-```lisp
+```vdu
 (vp-beq-cr c rd label)
 (vp-bne-cr c rd label)
 (vp-blt-cr c rd label)
@@ -150,7 +150,7 @@ functions.
 
 #### Effective address
 
-```lisp
+```vdu
 (vp-lea-i rb i rd)
 (vp-lea-d rb ri rd)
 (vp-lea-p label rd)
@@ -158,7 +158,7 @@ functions.
 
 #### Call, Jump, Ret
 
-```lisp
+```vdu
 (vp-call label)
 (vp-call-r rd)
 (vp-call-i rb i)
@@ -175,7 +175,7 @@ functions.
 
 #### Push, Pop
 
-```lisp
+```vdu
 (vp-push rx ry ...)
 (vp-pop rx ry ...)
 
@@ -185,14 +185,14 @@ functions.
 
 #### Swap, Extend
 
-```lisp
+```vdu
 (vp-swp-rr rs rd)
 (vp-ext-rr rs rd)
 ```
 
 #### Pseudo ops
 
-```lisp
+```vdu
 (vp-label label)
 (vp-align align [byte])
 (vp-string string)
@@ -226,7 +226,7 @@ list from the parent class declaration.
 
 An example from the array class.inc.
 
-```lisp
+```vdu
 (dec-method :find 'class/array/find :static '(r0 r1) '(r0 r1))
 (dec-method :sort 'class/array/sort :static '(r0 r1 r2 r3 r4 r5) '(r0))
 (dec-method :partition 'class/array/partition :static '(r0 r1 r2 r3 r4) '(r0 r1))
@@ -250,7 +250,7 @@ This is the system level string compare function. `sys_str::compare`
 
 Register inputs and outputs are declared in the `sys/str/class.inc` file.
 
-```lisp
+```vdu
 (def-class 'sys_str)
 (dec-method :compare 'sys/str/compare :static '(r0 r1) '(r0))
 ```
@@ -260,7 +260,7 @@ and will return the comparison value in register r0.
 
 Implementation of the function is defined in the `sys/str/class.vp` file.
 
-```lisp
+```vdu
 (def-method 'sys_str :compare)
 	;inputs
 	;r0 = c string1 (pubyte)
