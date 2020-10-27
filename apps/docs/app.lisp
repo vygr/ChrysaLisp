@@ -69,7 +69,7 @@
 	(cond
 		((starts-with "```" line_str)
 			(def (defq vdu_widget (create-vdu)) :font *env_terminal_font*
-				:vdu_width 70 :vdu_height (length vdu_text) :ink_color argb_black)
+				:vdu_width 80 :vdu_height (length vdu_text) :ink_color argb_black)
 			(bind '(w h) (view-pref-size vdu_widget))
 			(view-change vdu_widget 0 0 w h)
 			(vdu-load vdu_widget (map (# (. coloriser :colorise %0)) vdu_text) 0 0 0 1000)
