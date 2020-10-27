@@ -16,7 +16,7 @@
 
 (defmacro-bind is_symbol_char (_)
 	(list 'find-rev _ (const (cat
-		"!@#$%^&*_+-=[];\:|,./<>?`~"
+		"!@#$%^&*_+-=[];\:|,./<>?`~'"
 		"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 		"0123456789"
 		"abcdefghijklmnopqrstuvwxyz"))))
@@ -31,6 +31,7 @@
 		:ink_numbers (<< (canvas-from-argb32 argb_yellow 15) 32)
 		:ink_keysyms (<< (canvas-from-argb32 argb_cyan 15) 32)
 		:ink_constants (<< (canvas-from-argb32 argb_yellow 15) 32)
+		:ink_globals (<< (canvas-from-argb32 argb_blue 15) 32)
 		:ink_comments (<< (canvas-from-argb32 argb_grey12 15) 32)
 		:ink_text (<< (canvas-from-argb32 argb_white 15) 32))
 	;default keywords
@@ -145,6 +146,9 @@
 						((eql (elem 0 token) "+")
 							;is a constant symbol
 							(push col_list (get :ink_constants this)))
+						((eql (elem 0 token) "*")
+							;is a global symbol
+							(push col_list (get :ink_globals this)))
 						((eql (elem 0 token) "-")
 							;is a nagative number
 							(push col_list (get :ink_numbers this)))

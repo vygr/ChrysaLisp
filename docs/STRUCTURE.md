@@ -54,7 +54,7 @@ This example will start the bit offset at 2, a mask value of 4, this is an
 optional value, and will default to 0 if not present. The end result is a set
 of symbols and assigned values of:
 
-```
+```vdu
 alf_a -> 4
 alf_b -> 8
 alf_c -> 16
