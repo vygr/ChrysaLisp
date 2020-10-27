@@ -49,6 +49,11 @@
 		(set this :state state)
 		this)
 
+	(method-bind :set_colors (this colors)
+		;(. this :set_colors xmap) -> this
+		(. colors :each (# (set this %0 (<< (canvas-from-argb32 %1 15) 32))))
+		this)
+
 	(method-bind :colorise (this line)
 		;(. this :colorise str) -> array
 
