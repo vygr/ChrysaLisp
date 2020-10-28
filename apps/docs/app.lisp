@@ -72,6 +72,7 @@
 				:vdu_width 80 :vdu_height (length vdu_text) :ink_color +argb_black+)
 			(bind '(w h) (view-pref-size vdu_widget))
 			(view-change vdu_widget 0 0 w h)
+			(. coloriser :set_state :text)
 			(vdu-load vdu_widget (map (# (. coloriser :colorise %0)) vdu_text) 0 0 0 1000)
 			(def (setq line_widget (create-backdrop)) :style 1 :color +argb_grey1+ :min_width w :min_height h)
 			(view-add-child line_widget vdu_widget)
