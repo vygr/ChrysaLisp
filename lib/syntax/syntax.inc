@@ -4,6 +4,7 @@
 
 (import "sys/symbols.inc")
 (import "gui/canvas/lisp.inc")
+(import "lib/consts/colors.inc")
 
 (defmacro-bind is_number_char (_)
 	(list 'find-rev _ "0123456789"))
