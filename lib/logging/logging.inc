@@ -11,14 +11,6 @@
                (gets logger :name)": ") (gets msgd :message)))
 
 
-(defun-bind log-registration (mname use_handler)
-  ; (log-registration name keyword) -> properties
-  ; Setups the logging registration and optional configuration
-  (sets-pairs! (properties)
-    :name       mname
-    :handler    use_handler
-    :reciever   (mail-alloc-mbox)))
-
 (defun-bind log-registration-result (logger)
   ; (log-registration-result properties) -> properties
   (defq

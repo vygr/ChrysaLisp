@@ -51,20 +51,30 @@
             (open-child "apps/logger/app.lisp" kn_call_child))))
     (t log_srvc_mbox_id)))
 
-; (push l0 :name "foo" :default :console :faux_num 12345)
-; (write s0 (str "<" (slice 1 -2 (str l0)) ">"))
-; (defq l0 (list))
-; (mail-send (cat  string))
+
+(defun-bind to-kw (_)
+  ; (to-kw el) -> keyword
+  ; Converts a string or symbol to a keyword
+  ; example:
+  ; (kw "foo") -> :foo
+  ; (kw ":foo") -> :foo
+  (if (or (str? _) (sym? _))
+    (if (eql (first _) ":")
+      (sym _)
+      (sym (str ":" _)))
+    (throw "Expected symbol or string, found " _)))
 
 (defun-bind log-register-anchor (nm &rest override_pairs)
   ; (log-register-anchor name [override_pairs])
   ; Registration for anchors
-  (def (penv (env)) '*log_anchor* nm)
+  (defq astr (to-kw (str nm "_" (hash (penv (env))))))
+  (def (penv (env)) '*log_anchor* astr)
   (defq
       sstrm   (string-stream (cat ""))
       mbx_id  (mail-alloc-mbox)
       full_cnfg  (list
-        :key_name   nm
+        :key_name   astr
+        :name       nm
         :type       :file
         :level      :warning
         :formatter  :standard
@@ -85,7 +95,6 @@
       (char mbx_id long_size)
       (str nm))
     (get-logsrvc-mb))
-
   (defq
     qmsg (mail-read mbx_id)
     qid  (get-long qmsg mail_msg_command)
@@ -93,21 +102,20 @@
     reg  nil
     hof  nil
     cmd  nil)
-  (print "Query service " qmsg)
   (if (= qid +log_event_anchor_info+)
-    (setq
-      res (split qmsg ",")
-      reg (if (eql (first (first res)) "t") t)
-      hof (if (eql (first (second res)) "t") t))
+      (setq
+        res (split (slice mail_msg_data -1 qmsg) ",")
+        reg (eql (first (first res)) "t")
+        hof (eql (first (second res)) "t"))
     (throw (str "Invalid return fro anchor query " qid) qmsg))
   ; Setup appropriate payload
   (cond
     (reg
-      (print "Registered already")
+      (print "Using ' " nm "' configuration")
       (setq cmd +log_event_register_anchor+)
       (write sstrm nm))
     (t
-      (print "New registeration")
+      (print "Establishing ' " nm "' configuration")
       (setq cmd +log_event_register_anchor_with_configuration+)
       (write sstrm (str "{" (slice 1 -2 (str full_cnfg)) "}"))))
   (mail-send
@@ -119,7 +127,7 @@
   (defq
     rmsg (mail-read mbx_id)
     rid  (get-long rmsg mail_msg_command))
-  (print "Registered " rmsg))
+  (slice mail_msg_data -1 rmsg))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; For debugging only. Typically the service

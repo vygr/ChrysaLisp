@@ -6,12 +6,20 @@
 (import "lib/yaml-data/yaml-xchange.lisp")
 (import "lib/date/date.inc")
 
+(defun-bind log-registration (mname use_handler &optional rcvmb)
+  ; (log-registration name keyword) -> properties
+  ; Setups the logging registration and optional configuration
+  (sets-pairs! (properties)
+    :name       mname
+    :handler    use_handler
+    :reciever   (opt rcvmb (mail-alloc-mbox))))
+
 (defun-bind log-level-index (cfg lvl)
   ; (log-level-index configuration level-key) -> number
   ; Gets the log level index for the lvl key from levels
   ; defaults to 1 (info) if invalid lvl given
   (defq res (getp-in cfg :levels lvl))
-  (if res res  1))
+  (opt res  1))
 
 (defun-bind log-level-base (cfg)
   ; (log-level-base configuration) -> level key

@@ -7,7 +7,7 @@
   +logs_path+     "./logs/"
   +log_suffix+    ".log"
   +cfg_file+      "./apps/logger/logsrvc.yaml"
-  +cfg_registry+  "./apps/logger/logregistry.yaml")
+  +cfg_registry+  "./logs/logregistry.yaml")
 
 (defun make-log-filename (base)
   ; (make-log-filename basename) -> string
@@ -68,23 +68,16 @@
       (setq registry (first (yaml-read +cfg_registry+))))
   registry)
 
-(defun-bind register-log-handler (fsmap registry anchor cfg)
-  ; (register-log-handler hmap properties string properties) -> nil
+(defun-bind register-log-handler (registry anckw cfg)
+  ; (register-log-handler properties keyword properties) -> properties
   ; Called when a new anchor configuration is to be registered
-  ; fsmap - map of handlers opened for business (hmap)
   ; registry - The registry of all anchors (properties)
-  ; anchor - The anchor name (string)
+  ; anckw - The anchor name as keyword
   ; cfg - The anchors configuration (properties)
-  (defq
-    anckw   (kw anchor)
-    cfgcopy (copy cfg))
-  ; Put in registry
   (sets! (gets registry :handlers) anckw cfg)
   ; Update registry file
   (yaml-write +cfg_registry+ registry)
-  ; Open if not console
-  (when (not (eql (gets cfgcopy :type) :console))
-    (sets! fsmap anckw (initialize-logfile-handler cfgcopy))))
+  cfg)
 
 (defun-bind process-log-cfg ()
   ; (process-log-cfg) -> tuple

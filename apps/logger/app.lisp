@@ -84,8 +84,12 @@
        (sets-pairs! config
           :log_lvl (gets (hmap-find fmap hndl):level)
           :handler hndl))
-      ((:inherit))
-      (t))
+      ; Use other handler, like an anchor handler
+      (t
+        (defq hndl (gets fmap (gets config :handler)))
+        (if hndl
+            (sets! config :log_lvl (gets hndl :level))
+            (throw "Can't find config handler " config))))
     ; Capture configuration locally
     (hmap-insert registra (gets config :token) config)
     (service-send-ser (gets config :reciever) +log_event_registered+ config))
@@ -103,34 +107,55 @@
       ((= id +log_event_query_anchor_config+)
        (defq
          rcvr (get-long msg +rega_msg_receiver+)
-         akw  (kw msg))
+         akw  (kw (slice +rega_msg_data+ -1 msg)))
        (service-send
          rcvr
          +log_event_anchor_info+
-         (cat (if (gets registry akw) "true" "false")
+         (cat (if (gets (gets registry :handlers) akw) "true" "false")
               "," (if (gets fmap akw) "true" "false"))))
+
       ; Registration (anchor) using persistent configuration
+      ; This is called when the anchor detects a configuration
+      ; is already registered
+      ; TODO: Checks if there is no open fmap and the configuration of
+      ; the anchor is not a console configuration. Opens/adds
+      ; file_handler to fmap if not open and not console handler
+      ; TODO: Responds with standard logger configuration
       ((= id +log_event_register_anchor+)
        (defq rcvr (get-long msg +rega_msg_receiver+))
-       (log-write (gets srvc_fh :handle) " Registering " msg)
        (service-send
          rcvr
          +log_event_registered+
          msg))
+
       ; Registration (anchor) sends ack with handler configuration
+      ; This is called when the anchor determines that it's
+      ; configuration has not been persisted so:
+      ; Add to registry and persists
+      ; TODO: Add a file-handler to fmap using ? as key if not :console
+      ; TODO: Responds with standard logger configuration
       ((= id +log_event_register_anchor_with_configuration+)
        (defq
          rcvr (get-long msg +rega_msg_receiver+)
-         msgd (deser-anchor-inbound msg))
-       (log-write (gets srvc_fh :handle) " Anchor Registration " msgd)
-       (service-send-ser
-         rcvr
-         +log_event_registered+
-         msgd))
+         msgd (deser-anchor-inbound msg)
+         nm   (gets msgd :name)
+         nmkw (kw nm)
+         hnkw (gets msgd :key_name)
+         cfgc (copy msgd))
+       (pdrop! cfgc :name)
+       (pdrop! cfgc :key_name)
+       ; Register handler
+       (register-log-handler registry nmkw msgd)
+       ; Add to handler execution map
+       (sets! fmap hnkw (initialize-logfile-handler cfgc))
+       ; Register the logger instance
+       (register-logger (log-registration nm hnkw rcvr)))
+
       ; Registration (client)
       ((= id +log_event_register+)
        (defq msgd (deser-inbound msg))
        (register-logger msgd))
+
       ; Log Message (client)
       ((= id +log_event_logmsg+)
        (log-msg-writer msg))
