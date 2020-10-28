@@ -4,6 +4,23 @@
 
 ------
 
+New (class), (method), (method-bind) and (.) macro in `class/lisp/boot.inc` to
+allow OOPS style libraries and classes.
+
+New `lib/hmap/xmap.inc` and `lib/hmap/xset.inc` classes for generic maps and
+sets.
+
+New `lib/consts/colors.inc` and `lib/consts/chars.inc` for ARGB and CHAR
+constants.
+
+New `lib/syntax/syntax.inc` class for syntax colouring support for editors and
+VDU widgets users.
+
+Docs viewer app now uses syntax colored embedded VDU widgets for `vdu` sections
+in the documentation files.
+
+------
+
 New !!! hot off the press ChrysaLisp IDE for Windows to start with, but coming to
 Mac and Linux soon... https://github.com/PaulBlythe/Chrysalisp-IDE
 
