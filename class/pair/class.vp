@@ -123,13 +123,13 @@
 	(entry 'pair :print '(r0 r1))
 	(assign '(r0 r1) '((rsp local_this) (rsp local_stream)))
 
-	(call 'stream :write_char '(r1 char_lrb))
+	(call 'stream :write_char '(r1 +char_lrb+))
 	(assign '((rsp local_this)) '(r0))
 	(call 'obj :print '((r0 pair_first) (rsp local_stream)))
-	(call 'stream :write_char '((rsp local_stream) char_space))
+	(call 'stream :write_char '((rsp local_stream) +char_space+))
 	(assign '((rsp local_this)) '(r0))
 	(call 'obj :print '((r0 pair_second) (rsp local_stream)))
-	(call 'stream :write_char '((rsp local_stream) char_rrb))
+	(call 'stream :write_char '((rsp local_stream) +char_rrb+))
 
 	(exit 'pair :print '((rsp local_this)))
 	(vp-free local_size)

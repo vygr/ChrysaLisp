@@ -88,7 +88,7 @@
 		'(progn
 		(errorcases
 			(assign '((r1 str_data ub)) '(r3))
-			(gotoif '(r3 = char_plus) 'error5))
+			(gotoif '(r3 = +char_plus+) 'error5))
 			(call 'hmap :set '(r0 r1 r2) '(r0 r1))
 			(errorif '(r1 = 0) 'error4)))
 
@@ -197,7 +197,7 @@
 		'(progn
 		(errorcases
 			(assign '((r1 str_data ub)) '(r3))
-			(gotoif '(r3 = char_plus) 'error4))
+			(gotoif '(r3 = +char_plus+) 'error4))
 			(call 'hmap :set '(r0 r1 r2) '(_ r1))
 			(errorif '(r1 = 0) 'error3)))
 

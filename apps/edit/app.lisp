@@ -41,15 +41,15 @@
 							(list +event_open+ +event_save+ +event_run+)))
 					(ui-flow _ (:flow_flags (logior flow_flag_align_vcenter flow_right_fill))
 						(component-connect (ui-button srch (:border 0 :text (num-to-utf8 0xe9cd) 
-							:font *env_small_toolbar_font* :color argb_white)) +event_find+)
+							:font *env_small_toolbar_font* :color +argb_white+)) +event_find+)
 						(ui-flow _ (:flow_flags flow_left_fill)
 							(component-connect (ui-button burger (:text (num-to-utf8 0xe9d4) 
 								:min_width 32 :border 0 :font *env_small_toolbar_font*)) +event_menu+)
 							(each (lambda (c e)
 								(component-connect (ui-button clrtxt (:border 0 :text (num-to-utf8 c) 
-									:font *env_small_toolbar_font* :color argb_white)) e))
+									:font *env_small_toolbar_font* :color +argb_white+)) e))
 								'(0xe913 0xe910 0xe988) (list +event_find_prev+ +event_find_next+ +event_clear_text+))
-							(ui-textfield textfield (:border 0 :color argb_white :text "")))))
+							(ui-textfield textfield (:border 0 :color +argb_white+ :text "")))))
 			(ui-flow tab_bar (:flow_flags flow_left_fill)
 				(component-connect (ui-button close_buf (:border 0 :text (num-to-utf8 0xe94c) 
 					:font tb_font)) +event_closeb+)
@@ -108,8 +108,8 @@
 (defun-bind mouse-cursor (mouse_xy)
 	(defq buffer (elem +text_buffer+ current_text))
 	(bind '(ox oy cx cy sx) (elem +text_position+ current_text))
-	(defq cursor_xy (list cx cy) char_wh (vdu-char-size vdu) offset_xy (list ox oy))
-	(setq cursor_xy (map + (map / mouse_xy char_wh) offset_xy)
+	(defq cursor_xy (list cx cy) +char_wh+ (vdu-char-size vdu) offset_xy (list ox oy))
+	(setq cursor_xy (map + (map / mouse_xy +char_wh+) offset_xy)
 		cx (elem 0 cursor_xy) cy (elem 1 cursor_xy))
 	(if (>= cy (length buffer)) 
 		(setq cy (min cy (dec (length buffer))) cx (length (elem cy buffer))))
@@ -183,16 +183,16 @@
 			(when index (move-to index)))
 		((not (file-stream fpath))
 			(when (eql "Yes" (confirm "File does not exist. Create new file?" 
-				"Yes,No" argb_yellow)) (new-buffer fpath)))
+				"Yes,No" +argb_yellow+)) (new-buffer fpath)))
 		(t 	(open-buffer fpath))))
 
 (defun-bind save-check (fpath)
 	(cond
 		((and (not (eql fpath (elem +text_fpath+ current_text))) (file-stream fpath))
-			(when (eql "Yes" (confirm "Overwrite existing file?" "Yes, No" argb_red))
+			(when (eql "Yes" (confirm "Overwrite existing file?" "Yes, No" +argb_red+))
 				(save-buffer fpath)))
 		((not (file-stream fpath))
-			(notify (cat "Saving file to new path: " fpath ".") argb_yellow)
+			(notify (cat "Saving file to new path: " fpath ".") +argb_yellow+)
 			(save-buffer fpath))
 		(t 	(save-buffer fpath))))
 
@@ -201,7 +201,7 @@
 	(cond 
 		((unsaved-buffer index)
 			(defq reply (confirm "Buffer not saved since last edit." 
-				"Save,Close,Cancel" argb_yellow))
+				"Save,Close,Cancel" +argb_yellow+))
 			(cond 
 				((eql reply "Save") 
 					(save-check (elem +text_fpath+ current_text))
@@ -235,7 +235,7 @@
 (defun-bind save-buffer (fpath)
 	(cond 
 		((or (eql fpath "") (ends-with "/" fpath) (find ":" fpath))
-			(notify "Invalid filename. Buffer not saved" argb_yellow))
+			(notify "Invalid filename. Buffer not saved" +argb_yellow+))
 		(t 	(defq save_buffer (join (elem +text_buffer+ current_text) (const (char 10))))
 			(save save_buffer fpath)
 			(remove-from-unsaved-buffers (elem +text_index+ current_text))

@@ -395,9 +395,9 @@
 	(assign '(0 r0 r1) '(r2 (rsp local_this) (rsp local_stream)))
 	(assign '(r2) '((rsp local_flag)))
 
-	(call 'stream :write_char '(r1 char_lrb))
+	(call 'stream :write_char '(r1 +char_lrb+))
 	(call 'hset :for_each '((rsp local_this) ($ callback) rsp))
-	(call 'stream :write_char '((rsp local_stream) char_rrb))
+	(call 'stream :write_char '((rsp local_stream) +char_rrb+))
 
 	(exit 'hset :print '((rsp local_this)))
 	(vp-free local_size)
@@ -415,7 +415,7 @@
 		(assign '(r0) '((r0 local_flag)))
 	(else)
 		(vp-push r0 r1)
-		(call 'stream :write_char '((r0 local_stream) char_space))
+		(call 'stream :write_char '((r0 local_stream) +char_space+))
 		(vp-pop r0 r1)
 	(endif)
 	(assign '((r0 local_stream)) '(r2))

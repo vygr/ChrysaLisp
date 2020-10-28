@@ -112,7 +112,7 @@
 				(fixeds (/ (* (- xp w2) (const (<< 1 +fp_shift+))) w2) (/ (* (- y h2) (const (<< 1 +fp_shift+))) h2) 0.0)
 				ray_origin)))
 			(bind '(r g b) (scene-ray ray_origin ray_dir))
-			(write-int reply (+ argb_black (>> b 8) (logand g 0xff00) (<< (logand r 0xff00) 8)))
+			(write-int reply (+ +argb_black+ (>> b 8) (logand g 0xff00) (<< (logand r 0xff00) 8)))
 		(task-sleep 0)))
 	(write-long reply (task-mailbox))
 	(mail-send (str reply) mbox))

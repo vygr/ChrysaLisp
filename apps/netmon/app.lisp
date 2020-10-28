@@ -19,17 +19,17 @@
 (ui-window window ()
 	(ui-title-bar _ "Network Monitor" (0xea19 0xea1b 0xea1a) +event_close+)
 	(ui-grid _ (:grid_width 2 :grid_height 1 :flow_flags flow_down_fill :maximum 100 :value 0)
-		(ui-flow _ (:color argb_green)
-			(ui-label _ (:text "Tasks" :color argb_white))
-			(ui-grid _ (:grid_width 4 :grid_height 1 :color argb_white
+		(ui-flow _ (:color +argb_green+)
+			(ui-label _ (:text "Tasks" :color +argb_white+))
+			(ui-grid _ (:grid_width 4 :grid_height 1 :color +argb_white+
 					:font *env_medium_terminal_font*)
 				(times 4 (push task_scale (ui-label _
 					(:text "|" :flow_flags (logior flow_flag_align_vcenter flow_flag_align_hright))))))
 			(ui-grid _ (:grid_width 1 :grid_height cpu_count)
 				(times cpu_count (push task_bars (ui-progress _)))))
-		(ui-flow _ (:color argb_red)
-			(ui-label _ (:text "Memory (kb)" :color argb_white))
-			(ui-grid _ (:grid_width 4 :grid_height 1 :color argb_white
+		(ui-flow _ (:color +argb_red+)
+			(ui-label _ (:text "Memory (kb)" :color +argb_white+))
+			(ui-grid _ (:grid_width 4 :grid_height 1 :color +argb_white+
 					:font *env_medium_terminal_font*)
 				(times 4 (push memory_scale (ui-label _
 					(:text "|" :flow_flags (logior flow_flag_align_vcenter flow_flag_align_hright))))))

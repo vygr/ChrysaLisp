@@ -52,7 +52,7 @@
 			(vp-mul-cr 8 r0)
 			(vp-add-rr x r0)
 			(assign `((,brd r0 ub)) '(r0))
-			(continueif `(r0 = ,char_space))
+			(continueif `(r0 = ,+char_space+))
 			(assign '(r0) `((,yield_data 0 ub)))
 			(vp-add-cr byte_size yield_data)
 		(endswitch)

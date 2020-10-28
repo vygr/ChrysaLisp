@@ -13,7 +13,7 @@
 			(/ (logand (>> _ 16) 0xff) 0xff)
 			(/ (logand (>> _ 8) 0xff) 0xff)
 			(/ (logand _ 0xff) 0xff)))
-		(list argb_cyan argb_yellow argb_magenta argb_red argb_green argb_blue)))
+		(list +argb_cyan+ +argb_yellow+ +argb_magenta+ +argb_red+ +argb_green+ +argb_blue+)))
 
 (ui-window window ()
 	(ui-title-bar _ "Bubbles" (0xea19 0xea1b 0xea1a) +event_close+)
@@ -22,13 +22,13 @@
 		(ui-buttons (0xe9a3 0xe976 0xe9f0) +event_grid+ () style_buttons))
 	(ui-scroll image_scroll (logior scroll_flag_vertical scroll_flag_horizontal)
 			(:min_width canvas_width :min_height canvas_height)
-		(ui-backdrop backdrop (:color argb_black :ink_color argb_grey8 :style 1)
+		(ui-backdrop backdrop (:color +argb_black+ :ink_color +argb_grey8+ :style 1)
 			(ui-canvas layer1_canvas canvas_width canvas_height 1))))
 
 (defun-bind radio-select (l i)
 	;radio select buttons
 	(each (lambda (b)
-		(def (view-dirty b) :color (if (= _ i) (const argb_grey14) (const *env_toolbar_col*)))) l) i)
+		(def (view-dirty b) :color (if (= _ i) (const +argb_grey14+) (const *env_toolbar_col*)))) l) i)
 
 (defun-bind redraw (verts mask)
 	;redraw layer/s

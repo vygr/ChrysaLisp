@@ -62,14 +62,14 @@
 	(bind '(pcb_width pcb_height pcb_depth) (elem 0 pcb))
 	(defq canvas (create-canvas (* (+ pcb_width 4) (f2i zoom)) (* (+ pcb_height 4) (f2i zoom)) canvas_scale)
 		zoom (* zoom (i2f canvas_scale)) pcb_border (* zoom 2.0))
-	(canvas-fill (canvas-set-flags canvas 1) (const argb_black))
+	(canvas-fill (canvas-set-flags canvas 1) (const +argb_black+))
 	(if (= mode 1)
 		(pcb-draw-gerber)
 		(pcb-draw-normal))
 	(canvas-swap canvas))
 
 (defun-bind pcb-draw-normal ()
-	(defq colors (map trans (list argb_red argb_green argb_blue argb_yellow argb_cyan argb_magenta)))
+	(defq colors (map trans (list +argb_red+ +argb_green+ +argb_blue+ +argb_yellow+ +argb_cyan+ +argb_magenta+)))
 	(each! 1 -2 (lambda ((id track_radius via_radius track_gap pads paths))
 		(setq track_radius (* zoom track_radius) via_radius (* zoom via_radius)
 			track_gap (* zoom track_gap))
@@ -92,9 +92,9 @@
 				(each! 1 -1 (lambda (seg_2d)
 					(bind '(x y) (slice 0 2 seg_2d))
 					(setq x (+ x pcb_border) y (+ y pcb_border))
-					(canvas-set-color canvas (const (trans argb_white)))
+					(canvas-set-color canvas (const (trans +argb_white+)))
 					(canvas-fpoly canvas x y 0 (circle via_radius))
-					(canvas-set-color canvas (const (trans argb_black)))
+					(canvas-set-color canvas (const (trans +argb_black+)))
 					(canvas-fpoly canvas x y 0 (circle (/ via_radius 2.0)))
 					) (list path_2d))
 				) batched_paths_2d))
@@ -104,7 +104,7 @@
 				(setq pad_radius (* zoom pad_radius) pad_gap (* zoom pad_gap)
 					pad_x (+ (* zoom pad_x) pcb_border) pad_y (+ (* zoom pad_y) pcb_border)
 					pad_shape (to-2d pad_shape))
-				(canvas-set-color canvas (const (trans argb_white)))
+				(canvas-set-color canvas (const (trans +argb_white+)))
 				(cond
 					((= (length pad_shape) 0)
 						;circular pad
@@ -118,10 +118,10 @@
 
 (defun-bind pcb-draw-gerber ()
 	;first draw in white with gaps
-	(canvas-set-color canvas (const argb_white))
+	(canvas-set-color canvas (const +argb_white+))
 	(pcb-draw-layer t)
 	;second draw in black without gaps
-	(canvas-set-color canvas (const argb_black))
+	(canvas-set-color canvas (const +argb_black+))
 	(pcb-draw-layer nil))
 
 (defun-bind pcb-draw-layer (with_gaps)

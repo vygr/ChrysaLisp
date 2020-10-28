@@ -72,4 +72,5 @@ view_x 144
 view_y 148
 canvas_flags 256
 canvas_color 252
+cap_arrow 3
 )

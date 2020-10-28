@@ -47,7 +47,7 @@
 (defun-bind redraw ()
 	(canvas-fill canvas 0)
 
-	(fpoly argb_red 0 (transform-norm (* angle (i2f 2)) (list
+	(fpoly +argb_red+ 0 (transform-norm (* angle (i2f 2)) (list
 		(path -0.5 -0.5 -0.25 0.5 0.0 -0.5 0.25 0.5 0.5 -0.5 -0.05 0.5))))
 
 	(fpoly 0xff0ff0ff 0 (transform (* angle -1.0)
@@ -64,7 +64,7 @@
 				(* canvas_width 0.3) (* canvas_height -0.3)
 				(* canvas_width 0.4) (* canvas_height 0.4))))))
 
-	(fpoly argb_yellow 0 (defq p (transform (* angle (i2f -2))
+	(fpoly +argb_yellow+ 0 (defq p (transform (* angle (i2f -2))
 		(path-stroke-polygons (list) (* canvas_width 0.011) +eps+ join_miter
 			(path-stroke-polylines (list) (* canvas_width 0.033) +eps+ join_bevel cap_round cap_arrow
 				(list (path-gen-cubic
