@@ -73,8 +73,8 @@ t
 
 ```vdu
 % * + - / /= < << <= = > >= >> >>> abs age apply array bind cap cat catch char
-clear cmp code cond copy def defq each! elem elem-set env eql eval f2i f2r ffi
-file-stream find find-rev fixeds gensym get hash i2f i2r io-stream lambda
+clear cmp code cond copy def defq def? each! elem elem-set env eql eval f2i f2r
+ffi file-stream find find-rev fixeds gensym get hash i2f i2r io-stream lambda
 length list load logand logior logxor macro macroexpand mail-alloc-mbox
 mail-declare mail-devices mail-enquire mail-forget mail-free-mbox mail-poll
 mail-read mail-select mail-send match? max mem-stats merge-obj min neg nums

@@ -19,6 +19,8 @@ VDU widgets users.
 Docs viewer app now uses syntax colored embedded VDU widgets for `vdu` sections
 in the documentation files.
 
+Added (def?) built in function.
+
 ------
 
 New !!! hot off the press ChrysaLisp IDE for Windows to start with, but coming to

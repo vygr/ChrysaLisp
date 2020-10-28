@@ -376,6 +376,10 @@
 
 (def env var val [var val] ...)
 
+## def?
+
+(def? var [env])
+
 ## defmacro
 
 (defmacro name ([arg ...]) body)
