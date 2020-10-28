@@ -4,6 +4,7 @@
 (include "class/pair/class.inc")
 (include "class/num/class.inc")
 (include "class/lisp/class.inc")
+(include "lib/consts/chars.inc")
 
 (defun defset (_ p)
 	(def-struct 'local)

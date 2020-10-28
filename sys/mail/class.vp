@@ -6,6 +6,7 @@
 (include "class/hmap/class.inc")
 (include "class/pair/class.inc")
 (include "class/num/class.inc")
+(include "lib/consts/chars.inc")
 
 (def-method 'sys_mail :statics)
 	;info

@@ -2,6 +2,7 @@
 (include "sys/pii/class.inc")
 (include "gui/ctx/class.inc")
 (include "gui/region/class.inc")
+(include "lib/consts/colors.inc")
 
 (def-method 'ctx :set_color)
 	;inputs

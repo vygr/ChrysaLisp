@@ -3,6 +3,7 @@
 (include "class/func/class.inc")
 (include "class/hmap/class.inc")
 (include "class/lisp/class.inc")
+(include "lib/consts/chars.inc")
 
 (def-method 'lisp :repl_eval)
 	;inputs

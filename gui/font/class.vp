@@ -11,6 +11,7 @@
 (include "gui/path/class.inc")
 (include "gui/canvas/class.inc")
 (include "gui/ctx/class.inc")
+(include "lib/consts/colors.inc")
 
 (gen-create 'font)
 (gen-vtable 'font)

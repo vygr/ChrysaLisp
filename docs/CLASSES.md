@@ -577,19 +577,6 @@ Super Class: view
 
 ### backdrop::create -> gui/backdrop/create
 
-### backdrop::pref_size -> gui/backdrop/pref_size
-
-```lisp
-inputs
-r0 = backdrop object (ptr)
-outputs
-r0 = backdrop object (ptr)
-r9 = preferred width (pixels)
-r10 = preferred height (pixels)
-trashes
-r9-r10
-```
-
 ### backdrop::draw -> gui/backdrop/draw
 
 ```lisp

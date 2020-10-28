@@ -4,6 +4,7 @@
 (include "class/lisp/class.inc")
 (include "class/sym/class.inc")
 (include "gui/component/class.inc")
+(include "lib/consts/chars.inc")
 
 (def-func 'class/lisp/run nil 8192)
 	;lisp run loop task

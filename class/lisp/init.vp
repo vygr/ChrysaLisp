@@ -6,6 +6,7 @@
 (include "class/func/class.inc")
 (include "class/sym/class.inc")
 (include "class/lisp/class.inc")
+(include "lib/consts/chars.inc")
 
 (def-struct 'built_in)
 	(ushort 'symbol)

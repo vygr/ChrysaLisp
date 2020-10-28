@@ -3,6 +3,7 @@
 (include "class/str/class.inc")
 (include "class/sstream/class.inc")
 (include "class/lisp/class.inc")
+(include "lib/consts/chars.inc")
 
 (def-method 'lisp :read_str)
 	;inputs

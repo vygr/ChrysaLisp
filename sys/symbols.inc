@@ -2,33 +2,6 @@
 ; VP symbols, autogen do not edit !
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defq
-argb_black 4278190080
-argb_blue 4278190335
-argb_cyan 4278255615
-argb_green 4278255360
-argb_grey1 4279242768
-argb_grey10 4288716960
-argb_grey11 4289769648
-argb_grey12 4290822336
-argb_grey13 4291875024
-argb_grey14 4292927712
-argb_grey15 4293980400
-argb_grey2 4280295456
-argb_grey3 4281348144
-argb_grey4 4282400832
-argb_grey5 4283453520
-argb_grey6 4284506208
-argb_grey7 4285558896
-argb_grey8 4286611584
-argb_grey9 4287664272
-argb_magenta 4294902015
-argb_red 4294901760
-argb_white 4294967295
-argb_yellow 4294967040
-byte_size 1
-canvas_color 252
-canvas_flags 256
-cap_arrow 3
 cap_butt 0
 cap_round 4
 cap_square 1
@@ -45,6 +18,9 @@ ev_msg_type 8
 ev_type_gui 3
 ev_type_key 1
 ev_type_mouse 0
+file_open_append 2
+file_open_read 0
+file_open_write 1
 flow_flag_align_hcenter 256
 flow_flag_align_hleft 512
 flow_flag_align_hright 1024
@@ -73,8 +49,11 @@ load_flag_shared 1
 long_size 8
 out_state 76
 ptr_size 8
+byte_size 1
 scroll_flag_horizontal 2
 scroll_flag_vertical 1
+scroll_hslider 168
+scroll_vslider 160
 short_size 2
 stdio_args 40
 stream_mail_state_started 0
@@ -91,10 +70,6 @@ view_h 156
 view_w 152
 view_x 144
 view_y 148
-file_open_read 0
-file_open_write 1
-file_open_append 2
-scroll_hslider 168
-scroll_vslider 160
-argb_orange 4294944000
+canvas_flags 256
+canvas_color 252
 )

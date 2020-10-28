@@ -4,6 +4,7 @@
 (include "class/num/class.inc")
 (include "class/lisp/class.inc")
 (include "class/sym/class.inc")
+(include "lib/consts/chars.inc")
 
 (def-method 'lisp :lisp_repl)
 	;inputs

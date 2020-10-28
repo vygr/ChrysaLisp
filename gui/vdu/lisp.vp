@@ -3,6 +3,7 @@
 (include "class/str/class.inc")
 (include "class/num/class.inc")
 (include "class/lisp/class.inc")
+(include "lib/consts/chars.inc")
 
 (def-method 'vdu :lisp_create)
 	;inputs

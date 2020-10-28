@@ -606,7 +606,7 @@
 
 ## import
 
-(import path [env])
+(import path [env]) -> env
 
 ## in-get-state
 

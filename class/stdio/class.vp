@@ -4,6 +4,7 @@
 (include "class/in/class.inc")
 (include "class/str/class.inc")
 (include "class/stdio/class.inc")
+(include "lib/consts/chars.inc")
 
 (gen-create 'stdio)
 (gen-vtable 'stdio)

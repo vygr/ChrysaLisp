@@ -3,6 +3,7 @@
 (include "gui/ctx/class.inc")
 (include "class/stream/class.inc")
 (include "class/array/class.inc")
+(include "lib/consts/colors.inc")
 
 (def-struct 'tga)
 	(ubyte 'imagedata)	;id field offset

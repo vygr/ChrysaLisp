@@ -10,6 +10,7 @@
 (include "gui/ctx/class.inc")
 (include "gui/texture/class.inc")
 (include "gui/gui/class.inc")
+(include "lib/consts/colors.inc")
 
 (gen-vtable 'canvas)
 (gen-create 'canvas)

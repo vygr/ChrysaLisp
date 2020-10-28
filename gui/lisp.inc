@@ -1,6 +1,7 @@
 ;import symbols
 (import "sys/symbols.inc")
 (import "apps/login/pupa.inc")
+(import "lib/consts/colors.inc")
 
 (defun-bind ui-merge-props (p)
 	;(ui-merge-props props) -> props

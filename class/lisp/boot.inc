@@ -758,13 +758,13 @@
 		(_f _l)))
 
 (defun-bind import (lib_path &optional e)
-	;(import path [env])
+	;(import path [env]) -> env
 	(unless (str? lib_path) (throw "Not a string !" lib_path))
 	(if (= (age lib_path) 0) (throw "No such file !" lib_path))
 	(setd e (penv))
 	(unless (some (# (eql %0 lib_path)) *file_includes*)
 		(push *file_includes* lib_path)
-		(eval `(repl (file-stream ,lib_path) ,lib_path) e)))
+		(eval `(repl (file-stream ,lib_path) ,lib_path) e)) e)
 
 (defmacro-bind read-long (s)
 	;(read-long stream) -> num

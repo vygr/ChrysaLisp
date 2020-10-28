@@ -3,6 +3,7 @@
 (include "class/num/class.inc")
 (include "class/str/class.inc")
 (include "class/stream/class.inc")
+(include "lib/consts/chars.inc")
 
 (gen-create 'array)
 (gen-vtable 'array)

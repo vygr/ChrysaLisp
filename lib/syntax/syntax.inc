@@ -92,15 +92,7 @@
 								(setq token (list c) state :string2))
 							(t	(push token c)))
 						(setq c nil))
-					(:symbol
-						(cond
-							((is_symbol_char c)
-								(push token c)
-								(setq c nil))
-							(t	(push state_list state)
-								(push token_list token)
-								(setq token (list) state :text))))
-					(:keysym
+					((:symbol :keysym)
 						(cond
 							((is_symbol_char c)
 								(push token c)
@@ -159,9 +151,7 @@
 							(push col_list (get :ink_numbers this)))
 						(t	;default text color)
 							(push col_list (get :ink_text this)))))
-				(:string1
-					(push col_list (get :ink_strings this)))
-				(:string2
+				((:string1 :string2)
 					(push col_list (get :ink_strings this)))
 				(:number
 					(push col_list (get :ink_numbers this)))

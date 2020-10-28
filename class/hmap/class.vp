@@ -2,6 +2,7 @@
 (include "class/list/class.inc")
 (include "class/pair/class.inc")
 (include "class/hmap/class.inc")
+(include "lib/consts/chars.inc")
 
 (gen-create 'hmap)
 (gen-vtable 'hmap)

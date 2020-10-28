@@ -4,6 +4,7 @@
 (include "sys/kernel/class.inc")
 (include "class/str/class.inc")
 (include "sys/pii/class.inc")
+(include "lib/consts/chars.inc")
 
 (def-method 'sys_load :statics)
 	(times ld_statics_size (vp-byte 0))

@@ -8,6 +8,7 @@
 (include "class/sym/class.inc")
 (include "gui/vdu/class.inc")
 (include "class/list/class.inc")
+(include "lib/consts/chars.inc")
 
 (gen-create 'vdu)
 (gen-vtable 'vdu)
