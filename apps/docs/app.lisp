@@ -2,6 +2,7 @@
 (import "sys/lisp.inc")
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
+(import "lib/syntax/syntax.inc")
 
 (structure '+event 0
 	(byte 'close+ 'button+))
@@ -12,8 +13,10 @@
 
 (defun-bind normal-line ()
 	(cond
-		((starts-with "```" line_str)
+		((starts-with "```lisp" line_str)
 			(setq state :code))
+		((starts-with "```vdu" line_str)
+			(setq state :vdu))
 		((starts-with "#### " line_str)
 			(def (setq line_widget (create-text)) :text (slice 5 -1 line_str)
 				:font (create-font "fonts/OpenSans-Regular.ctf" 22)))
@@ -40,45 +43,62 @@
 				(setq word_cnt (inc word_cnt))
 				(cond
 					((even? word_cnt)
-						(def (defq word_widget (create-text)) :text (cat " " word " ") :ink_color argb_blue))
-					(t	(def (defq word_widget (create-text)) :text word :ink_color argb_black)))
+						(def (defq word_widget (create-text)) :text (cat " " word " ") :ink_color +argb_blue+))
+					(t	(def (defq word_widget (create-text)) :text word :ink_color +argb_black+)))
 				(view-add-back line_widget word_widget)) word_lst)
 			(setq word_cnt (inc word_cnt)))
 		(t
 			(def (setq line_widget (create-text)) :text line_str))))
 
-(defun-bind code-line ()
+(defun-bind lisp-line ()
 	(cond
 		((starts-with "```" line_str)
 			(setq state :normal word_cnt 0))
 		((defq tab_pos (find-rev (ascii-char 9) line_str))
-			(def (setq line_widget (create-flow)) :flow_flags  flow_right_fill)
+			(def (setq line_widget (create-flow)) :flow_flags flow_right_fill)
 			(def (defq tab_widget (create-text)) :text (pad "    " (* 4 (inc tab_pos))))
 			(def (defq code_widget (create-text)) :text (slice (inc tab_pos) -1 line_str)
-				:font *env_terminal_font* :ink_color argb_blue)
+				:font *env_terminal_font* :ink_color +argb_blue+)
 			(view-add-back line_widget tab_widget)
 			(view-add-back line_widget code_widget))
 		(t
 			(def (setq line_widget (create-text)) :text line_str
-				:font *env_terminal_font* :ink_color argb_blue))))
+				:font *env_terminal_font* :ink_color +argb_blue+))))
+
+(defun-bind vdu-line ()
+	(cond
+		((starts-with "```" line_str)
+			(def (defq vdu_widget (create-vdu)) :font *env_terminal_font*
+				:vdu_width 80 :vdu_height (length vdu_text) :ink_color +argb_black+)
+			(bind '(w h) (view-pref-size vdu_widget))
+			(view-change vdu_widget 0 0 w h)
+			(. coloriser :set_state :text)
+			(vdu-load vdu_widget (map (# (. coloriser :colorise %0)) vdu_text) 0 0 0 1000)
+			(def (setq line_widget (create-backdrop)) :style 1 :color +argb_grey1+ :min_width w :min_height h)
+			(view-add-child line_widget vdu_widget)
+			(setq state :normal word_cnt 0 vdu_text (list)))
+		((defq tab_pos (find-rev (ascii-char 9) line_str))
+			(push vdu_text (cat (pad "    " (* 4 (inc tab_pos))) (slice (inc tab_pos) -1 line_str))))
+		(t	(push vdu_text line_str))))
 
 (defun-bind populate-page (file)
 	(ui-tree page_flow (create-flow) (:flow_flags (logior flow_flag_right flow_flag_fillh)
 			:font *env_window_font*)
-		(ui-label _ (:min_width margin_width :color argb_grey15))
+		(ui-label _ (:min_width margin_width :color +argb_grey15+))
 		(ui-flow page_widget (:flow_flags (logior flow_flag_down flow_flag_fillw))))
-	(defq state :normal word_cnt 0)
+	(defq state :normal word_cnt 0 vdu_text (list))
 	(each-line (lambda (line_str)
-		(defq line_str (trim-end line_str (ascii-char 13)) line_widget (while nil))
+		(defq line_str (trim-end line_str (ascii-char 13)) line_widget nil)
 		(case state
 			(:normal (normal-line))
-			(:code (code-line)))
+			(:code (lisp-line))
+			(:vdu (vdu-line)))
 		(if line_widget (view-add-child page_widget line_widget))) (file-stream (cat "docs/" file ".md")))
 	(apply view-change (cat (list page_flow 0 0) (view-pref-size page_flow)))
 	(view-layout (view-add-child page_scroll page_flow))
 	(view-dirty-all (view-layout doc_flow)))
 
-(ui-window window (:color argb_grey15)
+(ui-window window (:color +argb_grey15+)
 	(ui-title-bar _ "Docs" (0xea19) +event_close+)
 	(ui-flow doc_flow (:flow_flags flow_right_fill :font *env_window_font* :color *env_toolbar_col*)
 		(ui-flow index (:flow_flags (logior flow_flag_down flow_flag_fillw))
@@ -88,6 +108,7 @@
 		(ui-scroll page_scroll scroll_flag_vertical (:min_width 848 :min_height 800))))
 
 (defun-bind main ()
+	(defq coloriser (syntax))
 	(populate-page (elem 0 doc_list))
 	(bind '(x y w h) (apply view-locate (view-pref-size window)))
 	(gui-add (view-change window x y w h))

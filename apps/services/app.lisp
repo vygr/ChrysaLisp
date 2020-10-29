@@ -11,13 +11,13 @@
 	(ui-scroll info_scroll scroll_flag_vertical nil
 		(ui-grid info_grid (:grid_width 3 :grid_height 1 :flow_flags flow_down_fill)
 			(ui-flow service_flow nil
-				(ui-label _ (:text "Service" :color argb_white
+				(ui-label _ (:text "Service" :color +argb_white+
 					:flow_flags (logior flow_flag_align_vcenter flow_flag_align_hcenter))))
 			(ui-flow mbox_flow nil
-				(ui-label _ (:text "Mailbox" :color argb_white
+				(ui-label _ (:text "Mailbox" :color +argb_white+
 					:flow_flags (logior flow_flag_align_vcenter flow_flag_align_hcenter))))
 			(ui-flow info_flow nil
-				(ui-label _ (:text "Info" :color argb_white
+				(ui-label _ (:text "Info" :color +argb_white+
 					:flow_flags (logior flow_flag_align_vcenter flow_flag_align_hcenter)))))))
 
 (defun-bind populate ()

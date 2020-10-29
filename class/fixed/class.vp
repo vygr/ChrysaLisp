@@ -4,6 +4,7 @@
 (include "class/fixed/class.inc")
 (include "class/str/class.inc")
 (include "class/stream/class.inc")
+(include "lib/consts/chars.inc")
 
 (gen-create 'fixed)
 (gen-vtable 'fixed)
@@ -31,7 +32,7 @@
 	(vpif '(r0 < 0))
 		(vp-mul-cr -1 r0)
 		(assign '(r0) '((rsp local_value)))
-		(call 'stream :write_char '((rsp local_stream) char_minus))
+		(call 'stream :write_char '((rsp local_stream) +char_minus+))
 	(endif)
 
 	(assign '((rsp local_value)) '(r0))
@@ -39,7 +40,7 @@
 	(call 'str :create_from_long '(r0 10) '(r0))
 	(assign '(r0) '((rsp local_tmp)))
 	(call 'stream :write '((rsp local_stream) (& r0 str_data) (r0 str_length)) '(r0))
-	(call 'stream :write_char '(r0 char_dot))
+	(call 'stream :write_char '(r0 +char_dot+))
 	(call 'obj :deref '((rsp local_tmp)))
 
 	(assign '((rsp local_value)) '(r0))

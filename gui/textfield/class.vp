@@ -6,6 +6,7 @@
 (include "gui/textfield/class.inc")
 (include "gui/flow/class.inc")
 (include "gui/font/class.inc")
+(include "lib/consts/colors.inc")
 
 (gen-create 'textfield)
 (gen-vtable 'textfield)
@@ -63,7 +64,7 @@
 		(call 'str :slice {text, 0, this->textfield_cursor} {_, str})
 		(call 'font :glyph_info {font, str} {_, info})
 		(call 'font :glyph_bounds {font, info} {_, w, h})
-		(call 'ctx :set_color {ctx, argb_black})
+		(call 'ctx :set_color {ctx, +argb_black+})
 		(call 'ctx :filled_box {ctx, w, (this->view_h - h) >> 1, 2, h})
 		(call 'str :deref {str})
 		(call 'array :deref {info})

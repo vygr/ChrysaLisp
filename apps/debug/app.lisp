@@ -30,7 +30,7 @@
 			(ui-buttons (0xe95e 0xe95d 0xe95c 0xe960) +event_play+)
 			(ui-buttons (0xe95e 0xe95d 0xe95c 0xe960) +event_play_all+ (:color (const *env_toolbar2_col*))))
 		(component-connect (ui-slider hslider (:value 0)) +event_hvalue+)
-		(ui-vdu vdu (:vdu_width vdu_width :vdu_height vdu_height :ink_color argb_yellow))))
+		(ui-vdu vdu (:vdu_width vdu_width :vdu_height vdu_height :ink_color +argb_yellow+))))
 
 (defun-bind vdu-print (vdu buf s)
 	(each (lambda (c)

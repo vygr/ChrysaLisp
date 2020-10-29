@@ -21,6 +21,7 @@
 (dec-method :lisp_set 'class/hmap/lisp_set :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_setq 'class/hmap/lisp_setq :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_get 'class/hmap/lisp_get :static '(r0 r1) '(r0 r1))
+(dec-method :lisp_def? 'class/hmap/lisp_def? :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_undef 'class/hmap/lisp_undef :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_parent 'class/hmap/lisp_parent :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_list 'class/hmap/lisp_list :static '(r0 r1) '(r0 r1))

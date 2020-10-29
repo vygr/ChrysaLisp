@@ -26,13 +26,13 @@ level code.
 
 In the `obj` base class there exists this virtual method definition:
 
-```lisp
+```vdu
 (dec-method :hash 'class/obj/hash :virtual '(r0) '(r0 r1))
 ```
 
 The implementation for the `obj` class is:
 
-```lisp
+```vdu
 (def-method 'obj :hash)
 	;inputs
 	;r0 = object (ptr)
@@ -66,13 +66,13 @@ objects, the core of the ChrysaLisp environment system.
 The method override, which happens to be `final` in this case, is defined in
 the `class/str/class.inc` file.
 
-```lisp
+```vdu
 (dec-method :hash 'class/str/hash :final)
 ```
 
 And the implementation of this is in the `class/str/class.vp` file:
 
-```lisp
+```vdu
 (def-method 'str :hash)
 	;inputs
 	;r0 = str object (ptr)
@@ -141,7 +141,7 @@ report me in your "hash code I have written" blog :)
 
 Here we see the field defined in the `str` instance.
 
-```lisp
+```vdu
 (def-struct 'str 'seq)
 	(uint 'length 'hashcode)
 	(local-align)
@@ -161,13 +161,13 @@ in that file for other functions so we will just add one to the end.
 
 First we need to add a declaration to `class/obj/class.inc` for the new method:
 
-```lisp
+```vdu
 (dec-method :lisp_hash 'class/obj/lisp_hash :static '(r0 r1) '(r0 r1))
 ```
 
 And here is the new binding method we add to `class/obj/lisp.vp`:
 
-```lisp
+```vdu
 (def-method 'obj :lisp_hash)
 	;inputs
 	;r0 = lisp object (ptr)
@@ -205,7 +205,7 @@ And here is the new binding method we add to `class/obj/lisp.vp`:
 
 At this point we can `make` the system and we see the following:
 
-```lisp
+```vdu
 >make
 -> obj/x86_64/AMD64/class/obj/lisp_get_field
 -> obj/x86_64/AMD64/class/obj/lisp_set_field
@@ -215,7 +215,7 @@ Done
 
 And we can incorporate this new binding into the boot_image with:
 
-```lisp
+```vdu
 >make boot
 Done
 image -> obj/x86_64/AMD64/sys/boot_image (171828)
@@ -230,7 +230,7 @@ certainly comes under that category, so we will add an entry to that file.
 I'm going to add an entry at the top of this block of `(ffi)` calls as it feels
 like the right kind of group to put this new `(hash)` function in.
 
-```lisp
+```vdu
 (ffi hash "class/obj/lisp_hash" 0)
 (ffi type-of "class/lisp/lisp_type" 0)
 (ffi eql "class/lisp/lisp_eql" 0)
@@ -241,7 +241,7 @@ like the right kind of group to put this new `(hash)` function in.
 
 Reboot the system and lets try this out in the repl:
 
-```lisp
+```vdu
 ./run_tui.sh 
 ChrysaLisp Terminal 1.5
 >lisp
@@ -255,7 +255,7 @@ Error: (hash obj) wrong_num_of_args ! < (4 5) > File: stdin(2)
 
 Well we seam to have got our error cases right !
 
-```lisp
+```vdu
 (hash 2)
 4562365688
 (hash "Chris was here")

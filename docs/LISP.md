@@ -62,7 +62,7 @@ the environment chain is searched to see if a macro exists.
 
 ### Built in symbols
 
-```lisp
+```vdu
 &rest
 &optional
 nil
@@ -71,10 +71,10 @@ t
 
 ### Built in functions
 
-```lisp
+```vdu
 % * + - / /= < << <= = > >= >> >>> abs age apply array bind cap cat catch char
-clear cmp code cond copy def defq each! elem elem-set env eql eval f2i f2r ffi
-file-stream find find-rev fixeds gensym get hash i2f i2r io-stream lambda
+clear cmp code cond copy def defq def? each! elem elem-set env eql eval f2i f2r
+ffi file-stream find find-rev fixeds gensym get hash i2f i2r io-stream lambda
 length list load logand logior logxor macro macroexpand mail-alloc-mbox
 mail-declare mail-devices mail-enquire mail-forget mail-free-mbox mail-poll
 mail-read mail-select mail-send match? max mem-stats merge-obj min neg nums
@@ -86,7 +86,7 @@ task-mailbox task-sleep throw time tolist type-of undef while write write-char
 
 ### boot.inc symbols
 
-```lisp
+```vdu
 +min_long+
 +max_long+
 +min_int+
@@ -105,7 +105,7 @@ task-mailbox task-sleep throw time tolist type-of undef while write write-char
 
 ### boot.inc macros
 
-```lisp
+```vdu
 # . and ascii-char ascii-code case class compose const curry dec defmacro
 defmacro-bind defun defun-bind each each-rev env? every fnc? fun? get-byte
 get-int get-long get-short get-ubyte get-uint get-ushort if inc let lst? macro?
@@ -116,7 +116,7 @@ write-int write-long write-short
 
 ### boot.inc functions
 
-```lisp
+```vdu
 abi align ascii-lower ascii-upper byte char-to-num cpu each-line each-mergeable
 each-mergeable-rev empty? ends-with erase even? exec filter first get-cstr
 import insert int intern intern-seq join last load-stream log2 lognot long map
@@ -131,7 +131,7 @@ trim-end trim-start type-to-size unzip within-compile-env write-line zip
 
 ### asm.inc functions
 
-```lisp
+```vdu
 all-vp-files
 compile
 compile-pipe
@@ -152,20 +152,20 @@ remake-platforms
 
 ### `*compile_env*` symbols
 
-```lisp
+```vdu
 *compile_env*
 *compile_includes*
 ```
 
 ### `*compile_env*` macros
 
-```lisp
+```vdu
 defcvar
 undefc
 ```
 
 ### `*compile_env*` functions
 
-```lisp
+```vdu
 include
 ```

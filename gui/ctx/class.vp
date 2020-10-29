@@ -2,6 +2,7 @@
 (include "sys/pii/class.inc")
 (include "gui/ctx/class.inc")
 (include "gui/region/class.inc")
+(include "lib/consts/colors.inc")
 
 (def-method 'ctx :set_color)
 	;inputs
@@ -36,7 +37,7 @@
 	;r1-r3
 
 	(vp-cpy-rr r1 r2)
-	(vp-cpy-cr argb_black r3)
+	(vp-cpy-cr +argb_black+ r3)
 	(vp-and-rr r3 r1)
 	(vp-and-cr 0x00fefefe r2)
 	(vp-shr-cr 1 r2)
@@ -55,7 +56,7 @@
 	;r1-r3
 
 	(vp-cpy-rr r1 r2)
-	(vp-cpy-cr argb_black r3)
+	(vp-cpy-cr +argb_black+ r3)
 	(vp-and-rr r3 r1)
 	(vp-and-cr 0x00fefefe r2)
 	(vp-shr-cr 1 r2)

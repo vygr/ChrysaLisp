@@ -577,19 +577,6 @@ Super Class: view
 
 ### backdrop::create -> gui/backdrop/create
 
-### backdrop::pref_size -> gui/backdrop/pref_size
-
-```lisp
-inputs
-r0 = backdrop object (ptr)
-outputs
-r0 = backdrop object (ptr)
-r9 = preferred width (pixels)
-r10 = preferred height (pixels)
-trashes
-r9-r10
-```
-
 ### backdrop::draw -> gui/backdrop/draw
 
 ```lisp
@@ -2719,6 +2706,19 @@ r1-r14
 ```
 
 ### hmap::lisp_get -> class/hmap/lisp_get
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### hmap::lisp_def? -> class/hmap/lisp_def?
 
 ```lisp
 inputs

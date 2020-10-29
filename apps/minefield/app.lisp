@@ -66,8 +66,8 @@
 	(view-dirty status_bar))
 
 (defun-bind colorize (value)
-	(elem value '(argb_black 0x000000ff 0x00006600 0x00ff0000 argb_magenta 
-		argb_black 0x00700000 argb_grey1 0x0002bbdd argb_black)))
+	(elem value '(+argb_black+ 0x000000ff 0x00006600 0x00ff0000 +argb_magenta+ 
+		+argb_black+ 0x00700000 +argb_grey1+ 0x0002bbdd +argb_black+)))
 
 (defun-bind board-layout ((gw gh nm))
 	(view-sub across)
@@ -116,7 +116,7 @@
 						((< 0 value 9) (str value))
 						((= value 9) "X"))
 					:flow_flags (logior flow_flag_align_hcenter flow_flag_align_vcenter) 
-					:border 0 :ink_color (colorize value) :color (if (= value 9) argb_red *env_toolbar_col*) :min_width 32 :min_height 32)
+					:border 0 :ink_color (colorize value) :color (if (= value 9) +argb_red+ *env_toolbar_col*) :min_width 32 :min_height 32)
 				(view-add-child game_grid mc))
 			(t nil))) (range 0 gwh))
 	(def game_grid :grid_width gw :grid_height gh :color (const *env_toolbar_col*) :font *env_window_font*)

@@ -4,6 +4,7 @@
 (include "gui/canvas/class.inc")
 (include "gui/ctx/class.inc")
 (include "class/lisp/class.inc")
+(include "lib/consts/colors.inc")
 
 (import "apps/mandelbrot/mbmath.inc")
 
@@ -96,7 +97,7 @@
 			(vpif {col = 255})
 				(assign {0} {col})
 			(endif)
-			(assign {argb_black + (col << 16) + ((col & 0x7f) << 9) + ((col & 0x3f) << 2)} {canvas->canvas_color})
+			(assign {+argb_black+ + (col << 16) + ((col & 0x7f) << 9) + ((col & 0x3f) << 2)} {canvas->canvas_color})
 			(call 'canvas :plot {canvas, xp, yp})
 			(assign {data + byte_size} {data})
 		(loop-until {(xp + 1 => xp) = x1})

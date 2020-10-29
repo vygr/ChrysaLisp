@@ -25,7 +25,7 @@ rather than compare the character sequences.
 
 ### Standard symbols
 
-```lisp
+```vdu
 bert
 alf
 a
@@ -38,7 +38,7 @@ start with a ':' or a numeral.
 They can be bound to a value, any other object, using `(def)` or `(defq)` like
 so.
 
-```lisp
+```vdu
 (defq bert 56)
 (defq alf "ABCD" a '(1 2 3))
 (def (env) 'z57u 78)
@@ -54,7 +54,7 @@ parameter symbols to the given argument list, but it can also be used by users
 as well. You may like to do this as it implements a concept known as
 destructuring.
 
-```lisp
+```vdu
 (bind '(a b c) (list 34 "Chris" '(3 Q)))
 a
 34
@@ -69,7 +69,7 @@ parameters to descend into the structure of the given arguments. `&optional`
 and `&rest` also work as expected within these destructuring bindings. If you
 wish to ignore an argument the standard is to bind it to the _ symbol.
 
-```lisp
+```vdu
 (bind '((x y (z0 z1 z2) _)) (list (list 1 2 (list 3 4 5) 6)))
 x
 1
@@ -86,7 +86,7 @@ z2
 To change the binding of an existing bound symbol, and this will raise an error
 if the symbol is not bound, you use the `(set)` and `(setq)` functions like so.
 
-```lisp
+```vdu
 (setq bert 56)
 (setq alf "ABCD" a '(1 2 3))
 (set (env) 'z57u 78)
@@ -95,7 +95,7 @@ if the symbol is not bound, you use the `(set)` and `(setq)` functions like so.
 You can look up the binding for a symbol with the `(get)` function. If the
 symbol is not bound this will return `nil`.
 
-```lisp
+```vdu
 (get 'bert)
 56
 (get 'alf)
@@ -110,7 +110,7 @@ nil
 
 It is possible to unbind a symbol by using `(undef)` like so.
 
-```lisp
+```vdu
 (undef (env) 'bert 'alf)
 (get 'bert)
 nil
@@ -126,7 +126,7 @@ often very useful when creating and managing your own fast lookup functions or
 caches. Or you may be generating a symbol programmatically for your own
 reasons.
 
-```lisp
+```vdu
 (def (env) (sym "ABCDEF") 23)
 (get 'ABCDEF)
 23
@@ -159,7 +159,7 @@ that associates symbols with values.
 
 You can look at the current environment by typing `(env)` at the REPL.
 
-```lisp
+```vdu
 (env)
 ((stdio @class/stdio/vtable) (args (4446511344)) (stdin
 @class/in/vtable) (stdout @class/out/vtable) (stderr @class/out/vtable))
@@ -212,7 +212,7 @@ parameters to the `(env)` function.
 You can use the `(tolist e)` function to convert an environment to a list of
 pairs in order to interface with other code.
 
-```lisp
+```vdu
 (defq e (env -1))
 e
 ()

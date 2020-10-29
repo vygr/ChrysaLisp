@@ -3,6 +3,7 @@
 (include "class/str/class.inc")
 (include "class/sstream/class.inc")
 (include "class/lisp/class.inc")
+(include "lib/consts/chars.inc")
 
 (def-method 'lisp :read_str)
 	;inputs
@@ -30,7 +31,7 @@
 		(loop-start)
 			(assign `((,bufp 0 ub)) `(,c))
 			(gotoif `(,bufp = ,bufe) 'slow_but_sure)
-			(gotoif `(,c = char_lf) 'slow_but_sure)
+			(gotoif `(,c = +char_lf+) 'slow_but_sure)
 			(vp-add-cr byte_size bufp)
 		(loop-until `(,c = ,cc))
 		(assign `(,bufp) `((,stm stream_bufp)))

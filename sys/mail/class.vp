@@ -6,6 +6,7 @@
 (include "class/hmap/class.inc")
 (include "class/pair/class.inc")
 (include "class/num/class.inc")
+(include "lib/consts/chars.inc")
 
 (def-method 'sys_mail :statics)
 	;info
@@ -649,7 +650,7 @@
 	(assign (cat {@} (f-path 'sys_mail :statics)) {mail_statics})
 	(call 'hmap :find {mail_statics->ml_statics_service_map, key} {_, tuple, bucket})
 	(vpif {tuple})
-		(assign {(*(pptr tuple))->pair_second, char_lf} {tuple, cat.cat_lf})
+		(assign {(*(pptr tuple))->pair_second, +char_lf+} {tuple, cat.cat_lf})
 		(call 'str :create_from_buffer {&cat.cat_lf, 1} {cat.cat_lf})
 		(call 'list :create nil {cat.cat_entries})
 		(call 'list :get_second {tuple} {_, set})

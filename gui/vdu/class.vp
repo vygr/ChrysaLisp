@@ -8,6 +8,7 @@
 (include "class/sym/class.inc")
 (include "gui/vdu/class.inc")
 (include "class/list/class.inc")
+(include "lib/consts/chars.inc")
 
 (gen-create 'vdu)
 (gen-vtable 'vdu)
@@ -122,7 +123,7 @@
 					(call 'ctx :set_color {ctx, paper})
 					(call 'ctx :filled_box {ctx, x * this->vdu_char_width, by * this->vdu_char_height, this->vdu_char_width, this->vdu_char_height})
 				(endif)
-				(vpif {(c & 0x7fffffff => c) > char_space})
+				(vpif {(c & 0x7fffffff => c) > +char_space+})
 					(breakif {c > 127})
 					(call 'list :get_element {this->vdu_textures, c - 33} {_, txt})
 					(call 'texture :get_metrics {txt} {_, handle, w ,h})
@@ -230,7 +231,7 @@
 
 	(call 'sys_mem :free {this->vdu_chars})
 	(call 'sys_mem :alloc {this->vdu_width * this->vdu_height * long_size} {this->vdu_chars, size})
-	(call 'sys_mem :fill {this->vdu_chars, size, char_space})
+	(call 'sys_mem :fill {this->vdu_chars, size, +char_space+})
 
 	(exit 'vdu :switch_size {this})
 	(pop-scope)

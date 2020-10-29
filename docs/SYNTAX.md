@@ -376,6 +376,10 @@
 
 (def env var val [var val] ...)
 
+## def?
+
+(def? var [env])
+
 ## defmacro
 
 (defmacro name ([arg ...]) body)
@@ -606,7 +610,7 @@
 
 ## import
 
-(import path [env])
+(import path [env]) -> env
 
 ## in-get-state
 

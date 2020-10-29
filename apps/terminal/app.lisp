@@ -16,7 +16,7 @@
 		(ui-flow _ (:flow_flags flow_left_fill)
 			(component-connect (ui-slider slider) +event_scroll+)
 			(ui-vdu vdu (:vdu_width vdu_width :vdu_height vdu_height :min_width vdu_width :min_height vdu_height
-				:ink_color argb_green)))))
+				:ink_color +argb_green+)))))
 
 (defun-bind vdu-print (vdu buf s)
 	(each (lambda (c)

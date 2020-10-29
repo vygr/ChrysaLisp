@@ -18,16 +18,16 @@
 		(ui-flow _ (:flow_flags flow_right_fill)
 			(ui-label _ (:text "Filter:"))
 			(component-connect (ui-textfield ext_filter (:text "")) +event_exts_action+))
-		(ui-flow _ (:flow_flags flow_right_fill :font *env_terminal_font* :color argb_white :border 1)
+		(ui-flow _ (:flow_flags flow_right_fill :font *env_terminal_font* :color +argb_white+ :border 1)
 			(ui-flow _ (:flow_flags flow_down_fill)
 				(ui-label _ (:text "Folders" :font *env_window_font*))
 				(ui-scroll tree_scroll scroll_flag_vertical nil
-					(ui-flow tree_flow (:flow_flags flow_down_fill :color argb_white
+					(ui-flow tree_flow (:flow_flags flow_down_fill :color +argb_white+
 						:min_width 256))))
 			(ui-flow _ (:flow_flags flow_down_fill)
 				(ui-label _ (:text "Files" :font *env_window_font*))
 				(ui-scroll files_scroll scroll_flag_vertical nil
-					(ui-flow files_flow (:flow_flags flow_down_fill :color argb_white
+					(ui-flow files_flow (:flow_flags flow_down_fill :color +argb_white+
 						:min_width 256)))))))
 
 (defun-bind tree (dir)
@@ -58,7 +58,7 @@
 	(clear tree_buttons file_buttons)
 	(each (lambda (_)
 		(def (defq b (create-button)) :text _)
-		(if (eql _ dir) (def b :color argb_grey14))
+		(if (eql _ dir) (def b :color +argb_grey14+))
 		(view-add-child tree_flow (component-connect b +event_tree_button+))
 		(push tree_buttons b)) dirs_with_exts)
 	(each (lambda (_)

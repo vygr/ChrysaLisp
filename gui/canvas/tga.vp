@@ -3,6 +3,7 @@
 (include "gui/ctx/class.inc")
 (include "class/stream/class.inc")
 (include "class/array/class.inc")
+(include "lib/consts/colors.inc")
 
 (def-struct 'tga)
 	(ubyte 'imagedata)	;id field offset
@@ -95,7 +96,7 @@
 			(call 'stream :read_bits {stream, header.tga_depth, bit_pool, bit_pool_size} {_, col, bit_pool, bit_pool_size})
 			(gotoif {col = -1} 'error)
 			(vpif {header.tga_depth = 24})
-				(assign {argb_black + col} {col})
+				(assign {+argb_black+ + col} {col})
 			(endif)
 			(assign {col} {*data})
 		(loop-until {(data + int_size => data) = data_end})

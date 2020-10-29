@@ -10,6 +10,7 @@
 (include "class/hmap/class.inc")
 (include "class/pair/class.inc")
 (include "class/lisp/class.inc")
+(include "lib/consts/chars.inc")
 
 ;;;;;;;;;;;;;
 ; kernel task
@@ -136,7 +137,7 @@
 					;new session
 					(assign {data->kn_msg_ping_session} {session->num_value})
 					(call 'str :create_from_buffer {&data->kn_msg_ping_services, msg->msg_frag_length - kn_msg_ping_services} {services})
-					(call 'str :split_char {services, char_lf} {_, entries})
+					(call 'str :split_char {services, +char_lf+} {_, entries})
 					(call 'str :destroy {services})
 					(call 'list :get_both {entries} {_, iter_begin, iter_end})
 					(call 'list :get_second {tuple} {_, set})

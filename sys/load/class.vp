@@ -4,6 +4,7 @@
 (include "sys/kernel/class.inc")
 (include "class/str/class.inc")
 (include "sys/pii/class.inc")
+(include "lib/consts/chars.inc")
 
 (def-method 'sys_load :statics)
 	(times ld_statics_size (vp-byte 0))
@@ -107,7 +108,7 @@
 (vp-label 'bind_error)
 	(vp-string "Prebind error: ")
 (vp-label 'bind_error_end)
-	(vp-byte char_lf)
+	(vp-byte +char_lf+)
 
 (def-func-end)
 
@@ -278,7 +279,7 @@
 			(call 'sys_pii :write_str '(2 "Bind error: "))
 			(assign '((rsp 0)) '(r0))
 			(call 'sys_pii :write_str '(2 (r0 0)))
-			(call 'sys_pii :write_char '(2 char_lf))
+			(call 'sys_pii :write_char '(2 +char_lf+))
 			(call 'sys_pii :exit '(1))
 		(endif)
 		(vp-cpy-rr r0 r1)

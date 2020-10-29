@@ -98,19 +98,3 @@
 	(vp-ret)
 
 (def-func-end)
-
-(def-method 'backdrop :pref_size)
-	;inputs
-	;r0 = backdrop object (ptr)
-	;outputs
-	;r0 = backdrop object (ptr)
-	;r9 = preferred width (pixels)
-	;r10 = preferred height (pixels)
-	;trashes
-	;r9-r10
-
-	(entry 'backdrop :pref_size '(r0))
-	(exit 'backdrop :pref_size '(r0 640 480))
-	(vp-ret)
-
-(def-func-end)
