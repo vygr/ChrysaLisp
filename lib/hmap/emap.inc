@@ -27,14 +27,14 @@
 
 	(method-bind :copy (this)
 		;(. emap :copy) -> emap
-		(defq that (emap (neg (get :num_buckets this))))
-		(each (lambda ((_k _v)) (. that :insert _k _v)) (tolist (get :buckets this)))
+		(defq that (emap (get :num_buckets this)) that_buckets (get :buckets that))
+		(each (lambda ((key val)) (def that_buckets key val)) (tolist (get :buckets this)))
 		that)
 
 	(method-bind :deep_copy (this)
 		;(. emap :deep_copy) -> emap
-		(defq that (emap (neg (get :num_buckets this))))
-		(each (lambda ((_k _v)) (. that :insert (copy _k) (copy _v))) (tolist (get :buckets this)))
+		(defq that (emap (get :num_buckets this)) that_buckets (get :buckets that))
+		(each (lambda ((key val)) (def that_buckets (copy key) (copy val))) (tolist (get :buckets this)))
 		that)
 
 	(method-bind :clear (this)
@@ -50,7 +50,9 @@
 
 	(method-bind :resize (this num_buckets)
 		;(. emap :resize num_buckets) -> emap
-		(env (get this :buckets) (def this :num_buckets num_buckets))
+		(defq old_buckets (tolist (get :buckets this)))
+		(def this :num_buckets num_buckets :buckets (defq new_buckets (env (neg num_buckets))))
+		(each (lambda ((key val)) (def new_buckets key val)) old_buckets)
 		this)
 	)
 
