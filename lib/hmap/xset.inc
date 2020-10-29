@@ -65,7 +65,7 @@
 		;(. xset :difference xset) -> xset
 		(cond
 			((eql this that)
-				(. this :clear))
+				(. this :empty))
 			(t	(. that :each (# (. this :erase %0)))
 				this)))
 
@@ -80,13 +80,13 @@
 		;(. xset :not_intersect xset) -> xset
 		(cond
 			((eql this that)
-				(. this :clear))
+				(. this :empty))
 			(t	(. (defq other (. that :copy)) :difference this)
 				(. this :difference that)
 				(. this :union other))))
 
-	(method-bind :clear (this)
-		;(. xset :clear) -> xset
+	(method-bind :empty (this)
+		;(. xset :empty) -> xset
 		(each (# (clear %0)) (get :buckets this))
 		this)
 

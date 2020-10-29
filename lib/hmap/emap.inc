@@ -37,15 +37,15 @@
 		(each (lambda ((key val)) (def that_buckets (copy key) (copy val))) (tolist (get :buckets this)))
 		that)
 
-	(method-bind :clear (this)
-		;(. emap :clear) -> emap
+	(method-bind :empty (this)
+		;(. emap :empty) -> emap
 		(def this :buckets (env (neg (get :num_buckets this))))
 		this)
 
 	(method-bind :move (this)
 		;(. emap :move) -> emap
 		(defq that (. this :copy))
-		(. this :clear)
+		(. this :empty)
 		that)
 
 	(method-bind :resize (this num_buckets)

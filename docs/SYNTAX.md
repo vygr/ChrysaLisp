@@ -20,10 +20,6 @@
 
 (- num num ...)
 
-## emap :clear
-
-(. emap :clear) -> emap
-
 ## emap :copy
 
 (. emap :copy) -> emap
@@ -35,6 +31,10 @@
 ## emap :each
 
 (. emap :each lambda)
+
+## emap :empty
+
+(. emap :empty) -> emap
 
 ## emap :erase
 
@@ -60,10 +60,6 @@
 
 (. this method ([arg ...]))
 
-## xmap :clear
-
-(. xmap :clear) -> xmap
-
 ## xmap :copy
 
 (. xmap :copy) -> xmap
@@ -75,6 +71,10 @@
 ## xmap :each
 
 (. xmap :each lambda)
+
+## xmap :empty
+
+(. xmap :empty) -> xmap
 
 ## xmap :erase
 
@@ -96,10 +96,6 @@
 
 (. xmap :resize num_buckets) -> xmap
 
-## xset :clear
-
-(. xset :clear) -> xset
-
 ## xset :copy
 
 (. xset :copy) -> xset
@@ -115,6 +111,10 @@
 ## xset :each
 
 (. xset :each lambda)
+
+## xset :empty
+
+(. xset :empty) -> xset
 
 ## xset :erase
 

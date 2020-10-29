@@ -59,8 +59,8 @@
 				(push that_bucket (copy key_val))) this_bucket)) (get :buckets this) (get :buckets that))
 		that)
 
-	(method-bind :clear (this)
-		;(. xmap :clear) -> xmap
+	(method-bind :empty (this)
+		;(. xmap :empty) -> xmap
 		(each (# (clear %0)) (get :buckets this))
 		this)
 
