@@ -10,12 +10,50 @@
 (gen-create 'text)
 (gen-vtable 'text)
 
+(def-method 'text :init)
+	;inputs
+	;r0 = text object (ptr)
+	;outputs
+	;r0 = text object (ptr)
+	;r1 = 0 if error, else ok
+	;trashes
+	;r1-r14
+
+	(entry 'text :init '(r0 r1))
+
+	(vp-xor-rr r2 r2)
+	(assign '(r2 r2) '((r0 text_str) (r0 text_str_sym)))
+
+	;init parent
+	(s-jump 'text :init '(r0 r1))
+
+(def-func-end)
+
+(def-method 'text :deinit)
+	;inputs
+	;r0 = text object (ptr)
+	;outputs
+	;r0 = text object (ptr)
+	;trashes
+	;r1-r14
+
+	(entry 'text :deinit '(r0))
+
+	(vp-push r0)
+	(call 'sym :deref_if '((r0 text_str_sym)))
+	(vp-pop r0)
+
+	;init parent
+	(s-jump 'text :deinit '(r0))
+
+(def-func-end)
+
 (def-method 'text :draw)
 	;inputs
-	;r0 = view object (ptr)
+	;r0 = text object (ptr)
 	;r1 = draw ctx (ptr)
 	;outputs
-	;r0 = view object (ptr)
+	;r0 = text object (ptr)
 	;trashes
 	;r1-r14
 
@@ -35,7 +73,12 @@
 
 	;draw text
 	(vpif {str && font})
-		(call 'font :sym_texture {font, str} {_, txt})
+		;cached interned text
+		(vpif {this->text_str /= str})
+			(assign {str} {this->text_str})
+			(call 'sym :intern_str {str} {this->text_str_sym})
+		(endif)
+		(call 'font :sym_texture {font, this->text_str_sym} {_, txt})
 		(vpif {txt})
 			(call 'texture :get_metrics {txt} {_, handle, w, h})
 			(call 'ctx :blit {ctx, handle, col, 0, (this->view_h - h) >>> 1, w, h})

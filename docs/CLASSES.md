@@ -8900,6 +8900,18 @@ Super Class: view
 
 ### text::create -> gui/text/create
 
+### text::init -> gui/text/init
+
+```lisp
+inputs
+r0 = text object (ptr)
+outputs
+r0 = text object (ptr)
+r1 = 0 if error, else ok
+trashes
+r1-r14
+```
+
 ### text::pref_size -> gui/text/pref_size
 
 ```lisp
@@ -8917,10 +8929,21 @@ r1-r14
 
 ```lisp
 inputs
-r0 = view object (ptr)
+r0 = text object (ptr)
 r1 = draw ctx (ptr)
 outputs
-r0 = view object (ptr)
+r0 = text object (ptr)
+trashes
+r1-r14
+```
+
+### text::deinit -> gui/text/deinit
+
+```lisp
+inputs
+r0 = text object (ptr)
+outputs
+r0 = text object (ptr)
 trashes
 r1-r14
 ```
