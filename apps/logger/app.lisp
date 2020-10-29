@@ -107,12 +107,14 @@
       ((= id +log_event_query_anchor_config+)
        (defq
          rcvr (get-long msg +rega_msg_receiver+)
-         akw  (kw (slice +rega_msg_data+ -1 msg)))
+         nm   (slice +rega_msg_data+ -1 msg)
+         akw  (kw nm)
+         fhit (kvmap-has-prefix? fmap nm))
        (service-send
          rcvr
          +log_event_anchor_info+
          (cat (if (gets (gets registry :handlers) akw) "true" "false")
-              "," (if (gets fmap akw) "true" "false"))))
+              "," (if fhit fhit "false"))))
 
       ; Registration (anchor) using persistent configuration
       ; This is called when the anchor detects a configuration

@@ -79,6 +79,22 @@
   (yaml-write +cfg_registry+ registry)
   cfg)
 
+(defun-bind deser-anchor-inbound (msg)
+  ; (deser-inbound mail-msg) -> collection
+  ; Deserializes inbound data from mail message
+  (yaml-xdeser (write (string-stream (cat "")) (slice +rega_msg_data+ -1 msg))))
+
+(defun-bind kvmap-has-prefix? (_hm nm)
+  ; (kvmap-has-prefix? kv-map string) -> kw | nil
+  ; Converts name to keyword string and searches
+  ; for key prefix match from map-entries
+  (defq nkw (str (kw nm)))
+  (reduced-reduce
+    (lambda (acc entry)
+      (if (eql nkw (first (split (first entry) "_")))
+        (reduced (first entry))
+        nil)) (entries _hm) t))
+
 (defun-bind process-log-cfg ()
   ; (process-log-cfg) -> tuple
   ; Sets up logging configuration from YAML or fall back to bare bones

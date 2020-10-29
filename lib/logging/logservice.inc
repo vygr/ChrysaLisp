@@ -98,19 +98,12 @@
   (defq
     qmsg (mail-read mbx_id)
     qid  (get-long qmsg mail_msg_command)
-    res  nil
-    reg  nil
-    hof  nil
+    pay  (slice mail_msg_data -1 qmsg)
     cmd  nil)
-  (if (= qid +log_event_anchor_info+)
-      (setq
-        res (split (slice mail_msg_data -1 qmsg) ",")
-        reg (eql (first (first res)) "t")
-        hof (eql (first (second res)) "t"))
-    (throw (str "Invalid return fro anchor query " qid) qmsg))
+  (bind '(reg hof) (split pay ","))
   ; Setup appropriate payload
   (cond
-    (reg
+    ((eql (first reg) "t")
       (print "Using ' " nm "' configuration")
       (setq cmd +log_event_register_anchor+)
       (write sstrm nm))
