@@ -20,9 +20,133 @@
 
 (- num num ...)
 
+## emap :clear
+
+(. emap :clear) -> emap
+
+## emap :copy
+
+(. emap :copy) -> emap
+
+## emap :deep_copy
+
+(. emap :deep_copy) -> emap
+
+## emap :each
+
+(. emap :each lambda)
+
+## emap :erase
+
+(. emap :erase key) -> emap
+
+## emap :find
+
+(. emap :find key) -> nil|val
+
+## emap :insert
+
+(. emap :insert key val) -> emap
+
+## emap :move
+
+(. emap :move) -> emap
+
+## emap :resize
+
+(. emap :resize num_buckets) -> emap
+
 ## .
 
 (. this method ([arg ...]))
+
+## xmap :clear
+
+(. xmap :clear) -> xmap
+
+## xmap :copy
+
+(. xmap :copy) -> xmap
+
+## xmap :deep_copy
+
+(. xmap :deep_copy) -> xmap
+
+## xmap :each
+
+(. xmap :each lambda)
+
+## xmap :erase
+
+(. xmap :erase key) -> xmap
+
+## xmap :find
+
+(. xmap :find key) -> nil|val
+
+## xmap :insert
+
+(. xmap :insert key val) -> xmap
+
+## xmap :move
+
+(. xmap :move) -> xmap
+
+## xmap :resize
+
+(. xmap :resize num_buckets) -> xmap
+
+## xset :clear
+
+(. xset :clear) -> xset
+
+## xset :copy
+
+(. xset :copy) -> xset
+
+## xset :deep_copy
+
+(. xset :deep_copy) -> xset
+
+## xset :difference
+
+(. xset :difference xset) -> xset
+
+## xset :each
+
+(. xset :each lambda)
+
+## xset :erase
+
+(. xset :erase key) -> xset
+
+## xset :find
+
+(. xset :find key) -> nil|key
+
+## xset :insert
+
+(. xset :insert key) -> xset
+
+## xset :intersect
+
+(. xset :intersect xset) -> xset
+
+## xset :move
+
+(. xset :move) -> xset
+
+## xset :not_intersect
+
+(. xset :not_intersect xset) -> xset
+
+## xset :resize
+
+(. xset :resize num_buckets) -> xset
+
+## xset :union
+
+(. xset :union xset) -> xset
 
 ## /
 
@@ -435,6 +559,18 @@
 ## elem-set
 
 (elem-set index list val)
+
+## emap
+
+(emap [num_buckets]) -> emap
+
+## emap-kv
+
+(emap-kv [key val ...]) -> emap
+
+## emap?
+
+(emap? emap) -> nil|t
 
 ## empty?
 
@@ -1567,6 +1703,30 @@
 ## write-short
 
 (write-short stream num|list) -> stream
+
+## xmap
+
+(xmap [num_buckets cmp_fnc hash_fnc]) -> xmap
+
+## xmap-kv
+
+(xmap-kv [key val ...]) -> xmap
+
+## xmap?
+
+(xmap? xmap) -> nil|t
+
+## xset
+
+(xset [num_buckets cmp_fnc hash_fnc]) -> xset
+
+## xset-k
+
+(xset-k [key ...]) -> xset
+
+## xset?
+
+(xset? xset) -> nil|t
 
 ## zip
 
