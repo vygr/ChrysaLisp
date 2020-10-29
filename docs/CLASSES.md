@@ -2718,7 +2718,7 @@ trashes
 r1-r14
 ```
 
-### hmap::lisp_def? -> class/hmap/lisp_def?
+### hmap::lisp_defx -> class/hmap/lisp_defx
 
 ```lisp
 inputs
