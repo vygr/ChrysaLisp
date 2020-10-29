@@ -20,26 +20,28 @@
 		(if e (elem e (elem (inc b) x))))
 
 	(method-bind :insert (this key val)
-		;(. xmap :insert key val) -> nil|t
+		;(. xmap :insert key val) -> xmap
 		(xmap-slot)
 		(cond
-			(e (elem-set e (elem (inc b) x) val) nil)
-			(t (push (elem b x) key) (push (elem (inc b) x) val) t)))
+			(e (elem-set e (elem (inc b) x) val))
+			(t (push (elem b x) key) (push (elem (inc b) x) val)))
+		this)
 
 	(method-bind :erase (this key)
-		;(. xmap :erase key) -> nil|t
+		;(. xmap :erase key) -> xmap
 		(xmap-slot)
 		(when e
 			(defq bv (elem (inc b) x) b (elem b x))
 			(elem-set e b (elem -2 b))
 			(elem-set e bv (elem -2 bv))
-			(pop b) (pop bv) t))
+			(pop b) (pop bv))
+		this)
 
-	(method-bind :each (_this _hf)
+	(method-bind :each (_this _fnc)
 		;(. xmap :each lambda)
 		(defq _i -2 _b (get :buckets _this))
 		(while (< (setq _i (+ _i 2)) (length _b))
-			(each _hf (elem _i _b) (elem (inc _i) _b))) _this)
+			(each _fnc (elem _i _b) (elem (inc _i) _b))) _this)
 
 	(method-bind :copy (this)
 		;(. xmap :copy) -> xmap

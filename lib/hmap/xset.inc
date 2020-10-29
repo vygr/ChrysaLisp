@@ -20,22 +20,24 @@
 		(if e (elem e (elem b x))))
 
 	(method-bind :insert (this key)
-		;(. xset :insert key) -> nil|t
+		;(. xset :insert key) -> xset
 		(xset-slot)
 		(cond
-			(e (elem-set e (elem b x) key) nil)
-			(t (push (elem b x) key) t)))
+			(e (elem-set e (elem b x) key))
+			(t (push (elem b x) key)))
+		this)
 
 	(method-bind :erase (this key)
-		;(. xset :erase key) -> nil|t
+		;(. xset :erase key) -> xset
 		(xset-slot)
 		(when e
 			(elem-set e (defq b (elem b x)) (elem -2 b))
-			(pop b) t))
+			(pop b))
+		this)
 
-	(method-bind :each (_this _hf)
+	(method-bind :each (_this _fnc)
 		;(. xset :each lambda)
-		(each (lambda (_) (each _hf _)) (get :buckets _this)))
+		(each (lambda (_) (each _fnc _)) (get :buckets _this)))
 
 	(method-bind :copy (this)
 		;(. xset :copy) -> xset

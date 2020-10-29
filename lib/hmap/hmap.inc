@@ -41,11 +41,11 @@
 		(elem-set e bv (elem -2 bv))
 		(pop b) (pop bv)))
 
-(defun-bind hmap-each (_obj _hf)
+(defun-bind hmap-each (_obj _fnc)
 	;(hmap-each hmap lambda)
 	(defq _i (- +hmap_buckets+ 2))
 	(while (< (setq _i (+ _i 2)) (length _obj))
-		(each _hf (elem _i _obj) (elem (inc _i) _obj)))
+		(each _fnc (elem _i _obj) (elem (inc _i) _obj)))
 	_obj)
 
 (defun-bind hmap? (obj)
