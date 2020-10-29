@@ -1,9 +1,6 @@
 (include "sys/func.inc")
 (include "class/list/class.inc")
-(include "class/stream/class.inc")
-(include "class/str/class.inc")
 (include "class/hset/class.inc")
-(include "lib/consts/chars.inc")
 
 (gen-create 'hset)
 (gen-vtable 'hset)
@@ -372,54 +369,6 @@
 
 	(exit 'hset :insert '(r0 r1 r2))
 	(vp-free local_size)
-	(vp-ret)
-
-(def-func-end)
-
-(def-method 'hset :print)
-	;inputs
-	;r0 = hset object (ptr)
-	;r1 = stream object (ptr)
-	;outputs
-	;r0 = hset object (ptr)
-	;trashes
-	;r1-r14
-
-	(def-struct 'local)
-		(ptr 'this 'stream)
-		(ulong 'flag)
-	(def-struct-end)
-
-	(vp-alloc local_size)
-	(entry 'hset :print '(r0 r1))
-	(assign '(0 r0 r1) '(r2 (rsp local_this) (rsp local_stream)))
-	(assign '(r2) '((rsp local_flag)))
-
-	(call 'stream :write_char '(r1 +char_lrb+))
-	(call 'hset :for_each '((rsp local_this) ($ callback) rsp))
-	(call 'stream :write_char '((rsp local_stream) +char_rrb+))
-
-	(exit 'hset :print '((rsp local_this)))
-	(vp-free local_size)
-	(vp-ret)
-
-(vp-label 'callback)
-	;inputs
-	;r0 = predicate data (ptr)
-	;r1 = element iterator (pptr)
-
-	(entry 'hset :each_callback '(r0 r1))
-
-	(assign '((r0 local_flag)) '(r2))
-	(vpif '(r2 = 0))
-		(assign '(r0) '((r0 local_flag)))
-	(else)
-		(vp-push r0 r1)
-		(call 'stream :write_char '((r0 local_stream) +char_space+))
-		(vp-pop r0 r1)
-	(endif)
-	(assign '((r0 local_stream)) '(r2))
-	(call 'obj :print '((r1 0) r2))
 	(vp-ret)
 
 (def-func-end)
