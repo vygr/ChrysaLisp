@@ -863,4 +863,6 @@
 ; Boot extension imports
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import "lib/hmap/hmap.inc")
+(import "lib/hmap/emap.inc")
+(import "lib/hmap/xmap.inc")
+(import "lib/hmap/xset.inc")
