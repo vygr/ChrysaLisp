@@ -14,7 +14,7 @@
 		(unzip (split (pii-dirlist p) ",") (list (list) (list))))
 	(sort cmp out))
 
-(defq images (all-images '"apps/images/") index 0)
+(defq images (all-images '"apps/images/") index 9)
 
 (ui-window window ()
 	(ui-title-bar window_title "" (0xea19) +event_close+)
