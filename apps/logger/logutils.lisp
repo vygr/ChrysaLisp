@@ -9,10 +9,25 @@
   +cfg_file+      "./apps/logger/logsrvc.yaml"
   +cfg_registry+  "./logs/logregistry.yaml")
 
+
+(defun service-send (toclient command strng)
+  ; (service-send mailbox command data)
+  ; Sends a mail message from log_service to
+  ; mailbox
+  (mail-send (cat (char command long_size) strng) toclient))
+
+(defun service-send-ser (toclient command data)
+  ; (service-send-ser mailbox command data)
+  ; Serializes data and calls service-send
+  (service-send toclient command (str (yaml-xser data))))
+
 (defun make-log-filename (base)
   ; (make-log-filename basename) -> string
   ; Returns a fully qualified logfile path/name
-  (str +logs_path+ base +log_suffix+))
+  (str
+    +logs_path+
+    (if (eql (first base) +dblq+) (slice 1 -2 base) base)
+    +log_suffix+))
 
 (defun make-date-based-filename (base)
   ; (make-date-based-filename basename) -> string
@@ -63,6 +78,7 @@
   fsmap)
 
 (defun setup-handler-registry ()
+  ; Loads or initializes a registry instance
   (defq registry (properties :handlers (properties)))
   (when (> (age +cfg_registry+) 0)
       (setq registry (first (yaml-read +cfg_registry+))))

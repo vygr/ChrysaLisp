@@ -27,11 +27,17 @@
   ; (create-logger name [kw]) -> properties
   ; Registers name with logging service and sends optional logger
   ; service to use:
-  ;   :console (default)
+  ;   :log_anchor (default)
+  ;   :console
   ;   :file
   ; Part of the registering includes a return mbox that the service
   ; can write to
-  (setd uses_handler :console)
+  (defq ankw (get '*log_anchor* (penv (env))))
+  (when (not uses_handler)
+    (cond
+      (ankw (setd uses_handler ankw))
+      (t (setd uses_handler :console))))
+  (print "using " uses_handler)
   (defq lr (log-registration mname uses_handler))
   (mail-send
     (cat

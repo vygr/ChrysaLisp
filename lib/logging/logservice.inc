@@ -26,8 +26,10 @@
 (structure '+log_event 0
   (byte
     'register_anchor+
+    'register_anchor_activate+
     'register_anchor_with_configuration+
     'query_anchor_config+
+    'drop_anchor+
     'anchor_info+
     'logsetcfg+
     'logmsg+
@@ -64,11 +66,26 @@
       (sym (str ":" _)))
     (throw "Expected symbol or string, found " _)))
 
-(defun-bind log-register-anchor (nm &rest override_pairs)
-  ; (log-register-anchor name [override_pairs])
-  ; Registration for anchors
-  (defq astr (to-kw (str nm "_" (hash (penv (env))))))
-  (def (penv (env)) '*log_anchor* astr)
+(defun-bind release-log-anchor ()
+  ; (release-log-anchor keyword) -> nil
+  ; Drops the logging anchor in the server
+  (if (defq ankw (get '*log_anchor* (penv (env))))
+    (progn
+      (mail-send
+        (cat (char +log_event_drop_anchor+ long_size) (str ankw))
+        (get-logsrvc-mb))
+      (undef (penv (env)) '*log_anchor*))))
+
+(defun-bind create-log-anchor (nm henv &rest override_pairs)
+  ; (create-log-anchor name environment [override_pairs])
+  ; Registration for anchor loggers in environment
+
+  ; Setup the unique anchor key
+  (defq astr (to-kw (str nm "_" (hash henv))))
+  ; Register this anchor key in environment
+  (def henv '*log_anchor* astr)
+
+  ; Full handler configuration for passing if not registered
   (defq
       sstrm   (string-stream (cat ""))
       mbx_id  (mail-alloc-mbox)
@@ -99,18 +116,40 @@
     qmsg (mail-read mbx_id)
     qid  (get-long qmsg mail_msg_command)
     pay  (slice mail_msg_data -1 qmsg)
-    cmd  nil)
+    cmd  nil
+    opay nil)
   (bind '(reg hof) (split pay ","))
   ; Setup appropriate payload
   (cond
+    ; Active anchor
+    ((eql (first hof) ":")
+      (defq
+        ckw (to-kw hof)
+        clst (list
+          :name nm
+          :handler ckw
+          :reciever mbx_id))
+      (set henv '*log_anchor* ckw)
+      (setq
+        cmd +log_event_register_anchor+
+        opay (str clst)))
+    ; Registered but no active anchor
     ((eql (first reg) "t")
-      (print "Using ' " nm "' configuration")
-      (setq cmd +log_event_register_anchor+)
-      (write sstrm nm))
+      (defq
+        alst (list
+          :name nm
+          :handler astr
+          :reciever mbx_id))
+      (setq
+        cmd +log_event_register_anchor_activate+
+        opay (str alst)))
+    ; Not registered, register and open logger
     (t
-      (print "Establishing ' " nm "' configuration")
-      (setq cmd +log_event_register_anchor_with_configuration+)
-      (write sstrm (str "{" (slice 1 -2 (str full_cnfg)) "}"))))
+      (setq
+        cmd +log_event_register_anchor_with_configuration+
+        opay (str full_cnfg))))
+
+  (write sstrm (str "{" (slice 1 -2 opay) "}"))
   (mail-send
       (cat
           (char cmd  long_size)
@@ -120,6 +159,7 @@
   (defq
     rmsg (mail-read mbx_id)
     rid  (get-long rmsg mail_msg_command))
+  ; Return the anchor logger or instance of anchor logger
   (slice mail_msg_data -1 rmsg))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
