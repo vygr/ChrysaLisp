@@ -5,6 +5,8 @@
 ; libraries.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(import "sys/lisp.inc")
+
 (defq
   +logging_srvc_name+   "LOG_SERVICE"
   log_srvc_mbox_id      nil)

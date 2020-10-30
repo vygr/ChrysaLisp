@@ -37,7 +37,6 @@
     (cond
       (ankw (setd uses_handler ankw))
       (t (setd uses_handler :console))))
-  (print "using " uses_handler)
   (defq lr (log-registration mname uses_handler))
   (mail-send
     (cat
