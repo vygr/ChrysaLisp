@@ -881,9 +881,7 @@
 ; Boot extension imports
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import "lib/hmap/emap.inc")
-(import "lib/hmap/xmap.inc")
-(import "lib/hmap/xset.inc")
+(import "lib/collections/collections.inc")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Service includes
