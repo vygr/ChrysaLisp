@@ -495,6 +495,24 @@
 	(reduce (lambda (_l _e)
 		(push _l (if (defq _i (some (# (if (_c %0 _e) %0)) _l)) _i _e))) _s (opt _l (list))))
 
+(defun-bind partition (cnt seq)
+  ; (partition count sequence) -> sequence of sequences
+  ; partition up a sequence into list of sequence by count
+  ; example:
+  ; (partition 2 '(0 1 2 3')) -> ((0 1) (2 3))
+  (cond
+    ((and (seq? seq) (< cnt (length seq)))
+      (defq
+        base (reverse (copy seq))
+        res (list))
+      (while (nempty? base)
+        (defq nl (list))
+        (times cnt (push nl (pop base)))
+        (push res nl))
+      res)
+    (t (list seq))))
+
+
 ;;;;;;;;;;;;;;;;
 ; Math functions
 ;;;;;;;;;;;;;;;;
@@ -768,7 +786,7 @@
 	(defq file_list (get '*file_includes* e))
 	(unless (some (# (eql %0 lib_path)) file_list)
 		(push file_list lib_path)
-		(eval `(repl (file-stream ,lib_path) ,lib_path) e)) e)
+		(eval `(repl (file-stream ,lib_path) ,lib_path) e)))
 
 (defmacro-bind read-long (s)
 	;(read-long stream) -> num
@@ -866,3 +884,9 @@
 (import "lib/hmap/emap.inc")
 (import "lib/hmap/xmap.inc")
 (import "lib/hmap/xset.inc")
+
+;;;;;;;;;;;;;;;;;;;;;;;;;
+; Service includes
+;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(import "lib/logging/logservice.inc")

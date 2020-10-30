@@ -27,6 +27,14 @@
 		(e (elem-set e (elem (inc b) obj) val))
 		(t (push (elem b obj) key) (push (elem (inc b) obj) val))))
 
+(defun-bind hmap-kv (&rest pairs)
+	; (hmap-kv &rest) -> hmap
+	; Creates default hmap and populates (inserts) k/v pairs
+	(defq res (hmap))
+	(when (not (odd? (length pairs)))
+		(each (#(hmap-insert res (first %0) (second %0))) (partition 2 pairs)))
+	res)
+
 (defun-bind hmap-find (obj key)
 	;(hmap-find hmap key) -> nil|val
 	(hmap-slot)

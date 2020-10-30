@@ -233,23 +233,6 @@
   ; (interleave '(:a :b :c) '(0 1 2)) -> (:a 0 :b 1 :c 2)
   `(zip ,seq1 ,seq2))
 
-(defun-bind chunk (cnt seq)
-  ; (chunk count sequence) -> sequence of sequences
-  ; Chunks up a sequence into list of sequence by count
-  ; example:
-  ; (chunk 2 '(0 1 2 3')) -> ((0 1) (2 3))
-  (cond
-    ((< cnt (length seq))
-      (defq
-        base (reverse (copy seq))
-        res (list))
-      (while (not (empty? base))
-        (defq nl (list))
-        (times cnt (push nl (pop base)))
-        (push res nl))
-      res)
-    (t (list seq))))
-
 ; (defun-bind unions (&rest lists)
 ;   ; (unions [list]...) -> list
 ;   (defq nl (list))
@@ -259,20 +242,14 @@
 ;   ; (unions-with list [list]...) -> list'
 ;   (each (curry merge base) lists))
 
-; Properties (a.k.a. list of pairs [k v]) forms
-
-(defmacro-bind properties (&rest pairs)
-  ; (properties [k v]...) -> list
-  ; Creates a properties list object
-  (push pairs :super_clz :clz_properties)
-  `(list ~pairs))
+; Associative structure functions
 
 (defun-bind entries (_)
-  ; (entries [properties | hmap) -> entry list
+  ; (entries kv-map) -> entry list
   ; Returns a list of entries where each entry: (key value)
   (cond
     ((props? _)
-      (defq c (chunk 2 _))
+      (defq c (partition 2 _))
       (reduce (lambda (acc e)
         (if (or (eql (first e) :clz) (eql (first e) :super_clz))
           acc
@@ -281,15 +258,25 @@
     ((hmap? _)
       (hmap-entries _))))
 
-(defun-bind keys (prop)
-  ; (keys properties) -> key list
-  ; Returns a sequence of keys found in properties list
-  (map (#(elem 0 %0)) (entries prop)))
+(defun-bind keys (_)
+  ; (keys kv-map) -> key list
+  ; Returns a sequence of keys found in associative structure
+  (when (or (props? _) (hmap? _))
+    (map (#(elem 0 %0)) (entries _))))
 
-(defun-bind values (prop)
-  ; (values properties) -> value list
-  ; Returns a sequence of values found in properties list
-  (map (#(elem 1 %0)) (entries prop)))
+(defun-bind values (_)
+  ; (values kv-map) -> value list
+  ; Returns a sequence of values found in associative structure
+  (when (or (props? _) (hmap? _))
+    (map (#(elem 1 %0)) (entries _))))
+
+; Properties (a.k.a. list of pairs [k v]) forms
+
+(defmacro-bind properties (&rest pairs)
+  ; (properties [k v]...) -> list
+  ; Creates a properties list object
+  (push pairs :super_clz :clz_properties)
+  `(list ~pairs))
 
 (defun-bind getp (p k &optional if_nil)
   ; (getp properties key [if_nil]) -> val | if_nil | nil
@@ -347,7 +334,7 @@
 
 (defun-bind setsp! (p &rest pairs)
   ; (setsp properties [k v] ...) -> properties
-  (each (#(setp! p (first %0) (second %0) t)) (chunk 2 pairs))
+  (each (#(setp! p (first %0) (second %0) t)) (partition 2 pairs))
   p)
 
 (defun-bind setsp-in! (p val &rest kws)
@@ -425,7 +412,7 @@
   ; it
   (reduce
     (#(each (lambda (e)
-      (setp! %0 (first e) (second e) t)) (chunk 2 %1)))
+      (setp! %0 (first e) (second e) t)) (partition 2 %1)))
     props (properties)))
 
 (defun-bind move-entry-forward! (p sp ep)
@@ -458,6 +445,48 @@
     (when sp
       (move-entry-forward! p sp ep)
       (times 2 (pop p)))))
+
+; Common kv interface
+
+(defun-bind gets (kv-map k &optional if_nil)
+  ; (gets kv-map key [if_nil]) -> val | if_nil | nil
+  ; Fetches value for key. If not found and 'if_nil' provided, will
+  ; return that value, otherwise nil
+  (cond
+    ((hmap? kv-map) (opt (hmap-find kv-map k) if_nil))
+    ((props? kv-map) (getp kv-map k if_nil))))
+
+(defun-bind sets! (kv-map k v)
+  ; (sets! kv-map key value) -> updated structure
+  ; Creates a new key/value or overwrites an existing value for key
+  (cond
+    ((hmap? kv-map) (hmap-insert kv-map k v))
+    ((props? kv-map) (setp! kv-map k v t)))
+  kv-map)
+
+(defun-bind sets-pairs! (kv-map &rest pairs)
+  (defq chnks (partition 2 pairs))
+  (cond
+    ((hmap? kv-map)
+      (each (#(hmap-insert kv-map (first %0) (second %0))) chnks))
+    ((props? kv-map)
+      (each (#(setp! kv-map (first %0) (second %0) t)) chnks)))
+  kv-map)
+
+(defun-bind update! (kv-map k v)
+  ; (sets! kv-map key value) -> updated structure
+  ; Will fail silently if key not found, otherwise updates value for key
+  (defq hit (gets kv-map k))
+  (if hit
+    (cond
+      ((hmap? kv-map) (hmap-insert kv-map k v))
+      ((props? kv-map) (setp! kv-map k v t))))
+  kv-map)
+
+(defun-bind merge (target &rest maps)
+  ; (merge kv-map )
+  )
+
 
 ; Privatize functions
 

@@ -2,36 +2,25 @@
 ; logging - Logging Service Library for clients
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(import "lib/hmap/hmap.inc")
 (import "lib/xtras/xtras.inc")
 (import "lib/yaml-data/yaml-xchange.lisp")
 (import "lib/date/date.inc")
 
-(defq
-  +logging_srvc_name+ "LOG_SERVICE")
-
-; Mail message structure
-; command - See +log_event+ below
-; data - String block of data (yaml-xser'd)
-(structure 'mail_msg 0
-  (long 'command)
-  (offset 'data))
-
-; Events for mail_msg_commands
-(structure '+log_event 0
-  (byte
-    'logmsg+
-    'register+
-    'deregister+
-    'shutdown+
-    'registered+
-    'errored+))
+(defun-bind log-registration (mname use_handler &optional rcvmb)
+  ; (log-registration name keyword) -> properties
+  ; Setups the logging registration and optional configuration
+  (sets-pairs! (properties)
+    :name       mname
+    :handler    use_handler
+    :reciever   (opt rcvmb (mail-alloc-mbox))))
 
 (defun-bind log-level-index (cfg lvl)
   ; (log-level-index configuration level-key) -> number
   ; Gets the log level index for the lvl key from levels
   ; defaults to 1 (info) if invalid lvl given
   (defq res (getp-in cfg :levels lvl))
-  (if res res  1))
+  (opt res  1))
 
 (defun-bind log-level-base (cfg)
   ; (log-level-base configuration) -> level key
@@ -51,7 +40,7 @@
   (stream-flush sstrm))
 
 (defun-bind deser-inbound (msg)
-  ; (deser-inbound mail-msg) -> properties
+  ; (deser-inbound mail-msg) -> collection
   ; Deserializes inbound data from mail message
   (yaml-xdeser (write (string-stream (cat "")) (slice mail_msg_data -1 msg))))
 

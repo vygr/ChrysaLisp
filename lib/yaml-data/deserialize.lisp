@@ -53,9 +53,10 @@
   (defq
     res (list ch)
     lst (last sst))
-  (until (and
-           (or (eql lst " ") (eql lst (char 0)))
-           (not(find lst "{}[]:")))
+  (until (or
+           (eql lst " ")
+           (eql lst (char 0))
+           (find lst "{}[]:<>"))
     (push res (pop sst))
     (setq lst (last sst)))
   (join res ""))
@@ -99,7 +100,7 @@
        (when (> cnt 0)
          (defq tail (take-last cnt hm))
          (each (#(hmap-insert hm (first %0) (second %0)))
-               (chunk 2 tail))
+               (partition 2 tail))
          (times cnt (pop hm))))
       ((:mape :lste)
        (unset-obj-ctx! ctx))
