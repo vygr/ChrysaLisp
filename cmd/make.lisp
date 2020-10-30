@@ -152,19 +152,28 @@
             (when (and (eql state :x) (> (length line) 9))
                 (defq _ (elem 0 (split line (const (cat (ascii-char 9) " ()'" (ascii-char 13))))))
                 (cond
-                    ((or (eql _ "defun") (eql _ "defmacro") (eql _ "defun-bind") (eql _ "defmacro-bind"))
+                    ((or (eql _ "defun") (eql _ "defmacro") (eql _ "defun-bind") (eql _ "defmacro-bind")
+							(eql _ "class") (eql _ "method") (eql _ "method-bind"))
                         (setq state :y))))) (file-stream file)))
         (cat (make-tree "." "lisp.inc")
-			'("lib/anaphoric/anaphoric.inc" "class/lisp/boot.inc" "lib/debug/debug.inc"
-			 "lib/debug/profile.inc")))
+			'("class/lisp/boot.inc" "lib/anaphoric/anaphoric.inc" "lib/debug/debug.inc"
+			 "lib/debug/profile.inc" "lib/hmap/xmap.inc" "lib/hmap/xset.inc"
+			  "lib/hmap/emap.inc")))
     (sort cmp syntax)
     (defq stream (file-stream "docs/SYNTAX.md" file_open_write))
     (write-line stream (const (str "# Syntax" (ascii-char 10))))
     (each (lambda (line)
-        (defq form (elem 0 (split line (const (cat (ascii-char 9) " )")))))
-        (when (starts-with "(" form)
-            (write-line stream (cat "## " (slice 1 -1 form) (ascii-char 10)))
-            (write-line stream (cat line (ascii-char 10))))) syntax)
+        (defq form (elem 0 (defq body (split line (const (cat (ascii-char 9) " )"))))))
+		(cond
+			((and (starts-with "(." form) (eql (elem 1 body) "this"))
+				(write-line stream (cat "## " (slice 1 -1 form) (ascii-char 10)))
+				(write-line stream (cat line (ascii-char 10))))
+			((starts-with "(." form)
+				(write-line stream (cat "## " (cat (elem 1 body) " " (elem 2 body)) (ascii-char 10)))
+				(write-line stream (cat line (ascii-char 10))))
+			((starts-with "(" form)
+				(write-line stream (cat "## " (slice 1 -1 form) (ascii-char 10)))
+				(write-line stream (cat line (ascii-char 10)))))) syntax)
     (print "-> docs/SYNTAX.md"))
 
 (defq usage `(

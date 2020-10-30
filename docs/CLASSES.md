@@ -2718,7 +2718,7 @@ trashes
 r1-r14
 ```
 
-### hmap::lisp_def? -> class/hmap/lisp_def?
+### hmap::lisp_defx -> class/hmap/lisp_defx
 
 ```lisp
 inputs
@@ -2983,18 +2983,6 @@ r1-r14
 ### hset::key_callback -> class/obj/null
 
 ### hset::each_callback -> class/obj/null
-
-### hset::print -> class/hset/print
-
-```lisp
-inputs
-r0 = hset object (ptr)
-r1 = stream object (ptr)
-outputs
-r0 = hset object (ptr)
-trashes
-r1-r14
-```
 
 ### hset::deinit -> class/hset/deinit
 
@@ -5207,18 +5195,6 @@ r1-r14
 inputs
 r0 = pair object (ptr)
 r1 = object (ptr)
-outputs
-r0 = pair object (ptr)
-trashes
-r1-r14
-```
-
-### pair::print -> class/pair/print
-
-```lisp
-inputs
-r0 = pair object (ptr)
-r1 = stream object (ptr)
 outputs
 r0 = pair object (ptr)
 trashes
@@ -8900,6 +8876,18 @@ Super Class: view
 
 ### text::create -> gui/text/create
 
+### text::init -> gui/text/init
+
+```lisp
+inputs
+r0 = text object (ptr)
+outputs
+r0 = text object (ptr)
+r1 = 0 if error, else ok
+trashes
+r1-r14
+```
+
 ### text::pref_size -> gui/text/pref_size
 
 ```lisp
@@ -8917,10 +8905,21 @@ r1-r14
 
 ```lisp
 inputs
-r0 = view object (ptr)
+r0 = text object (ptr)
 r1 = draw ctx (ptr)
 outputs
-r0 = view object (ptr)
+r0 = text object (ptr)
+trashes
+r1-r14
+```
+
+### text::deinit -> gui/text/deinit
+
+```lisp
+inputs
+r0 = text object (ptr)
+outputs
+r0 = text object (ptr)
 trashes
 r1-r14
 ```

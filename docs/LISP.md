@@ -73,15 +73,13 @@ t
 
 ```vdu
 % * + - / /= < << <= = > >= >> >>> abs age apply array bind cap cat catch char
-clear cmp code cond copy def defq def? each! elem elem-set env eql eval f2i f2r
+clear cmp code cond copy def def? defq each! elem elem-set env eql eval f2i f2r
 ffi file-stream find find-rev fixeds gensym get hash i2f i2r io-stream lambda
-length list load logand logior logxor macro macroexpand mail-alloc-mbox
-mail-declare mail-devices mail-enquire mail-forget mail-free-mbox mail-poll
-mail-read mail-select mail-send match? max mem-stats merge-obj min neg nums
-penv pii-dirlist pii-read-char pii-remove pii-write-char pivot pop prebind prin
-print progn push quasi-quote quote r2f r2i random read read-avail read-char
-read-line reals repl save set setq slice some! split str string-stream sym
-task-mailbox task-sleep throw time tolist type-of undef while write write-char
+length list load logand logior logxor macro macroexpand match? max merge-obj
+min neg nums penv pivot pop prebind prin print progn push quasi-quote quote r2f
+r2i random read read-avail read-char read-line reals repl save set setq slice
+some! split str string-stream sym throw time tolist type-of undef while write
+write-char
 ```
 
 ### boot.inc symbols
@@ -110,21 +108,21 @@ task-mailbox task-sleep throw time tolist type-of undef while write write-char
 defmacro-bind defun defun-bind each each-rev env? every fnc? fun? get-byte
 get-int get-long get-short get-ubyte get-uint get-ushort if inc let lst? macro?
 method method-bind not notany notevery num? opt or rcurry read-int read-long
-read-short reduced seq? setd some str? structure sym? times unless until when
-write-int write-long write-short
+read-short reduced seq? setd some str? sym? times unless until when write-int
+write-long write-short
 ```
 
 ### boot.inc functions
 
 ```vdu
-abi align ascii-lower ascii-upper byte char-to-num cpu each-line each-mergeable
-each-mergeable-rev empty? ends-with erase even? exec filter first get-cstr
-import insert int intern intern-seq join last load-stream log2 lognot long map
-map-rev neg? nempty? nil? nlo nlz nto ntz num-to-char num-to-utf8 odd? offset
-open-child open-farm open-pipe open-remote pad pos? pow ptr range reduce
-reduce-rev reduced-reduce reduced-reduce-rev rest reverse second short shuffle
-shuffled sort sorted starts-with str-to-num struct swap to-lower to-upper trim
-trim-end trim-start type-to-size unzip within-compile-env write-line zip
+abi align ascii-lower ascii-upper char-to-num cpu each-line each-mergeable
+each-mergeable-rev emap emap-kv emap? empty? ends-with erase even? exec filter
+first get-cstr import insert intern intern-seq join last load-stream log2
+lognot map map-rev neg? nempty? nil? nlo nlz nto ntz num-to-char num-to-utf8
+odd? pad pos? pow range reduce reduce-rev reduced-reduce reduced-reduce-rev
+rest reverse second shuffle shuffled sort sorted starts-with str-to-num swap
+to-lower to-upper trim trim-end trim-start type-to-size unzip
+within-compile-env write-line xmap xmap-kv xmap? xset xset-k xset? zip
 ```
 
 ## Within any cmd/lisp.lisp instance

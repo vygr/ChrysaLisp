@@ -68,7 +68,7 @@
 (ffi def "class/hmap/lisp_def" 0)
 (ffi set "class/hmap/lisp_set" 0)
 (ffi get "class/hmap/lisp_get" 0)
-(ffi def? "class/hmap/lisp_def?" 0)
+(ffi def? "class/hmap/lisp_defx" 0)
 (ffi undef "class/hmap/lisp_undef" 0)
 (ffi env "class/hmap/lisp_env" 0)
 (ffi penv "class/hmap/lisp_parent" 0)
@@ -881,7 +881,9 @@
 ; Boot extension imports
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import "lib/hmap/hmap.inc")
+(import "lib/hmap/emap.inc")
+(import "lib/hmap/xmap.inc")
+(import "lib/hmap/xset.inc")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Service includes

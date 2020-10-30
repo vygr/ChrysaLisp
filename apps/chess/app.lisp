@@ -4,6 +4,7 @@
 
 ;imports
 (import "gui/lisp.inc")
+(import "lib/consts/colors.inc")
 
 (structure '+event 0
 	(byte 'close+)

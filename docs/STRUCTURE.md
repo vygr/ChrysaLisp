@@ -101,7 +101,7 @@ the entire structure is not aligned.
 
 The end result is a set of symbols and assigned values of:
 
-```
+```vdu
 sue_a -> 0
 _t_sue_a -> "b"
 sue_b -> 1
@@ -328,7 +328,7 @@ it becomes 0 automatically call the `destroy` method !
 
 The `destroy` method just calls `deinit` followed by `free`.
 
-### Class and Object declaration
+### VP Class and Object declaration
 
 This is an example from the `class/pair/class.inc` file.
 

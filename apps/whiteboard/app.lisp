@@ -37,7 +37,7 @@
 					(+ _ +event_black+)))) palette))
 	(ui-scroll image_scroll (logior scroll_flag_vertical scroll_flag_horizontal)
 			(:min_width canvas_width :min_height canvas_height)
-		(ui-backdrop backdrop (:color 0xffF8F8FF :ink_color 0xffADD8E6 style 1)
+		(ui-backdrop backdrop (:color 0xffF8F8FF :ink_color 0xffADD8E6 :style 1)
 			(ui-canvas overlay_canvas canvas_width canvas_height 1)
 			(ui-canvas commited_canvas canvas_width canvas_height 1))))
 

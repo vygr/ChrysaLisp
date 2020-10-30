@@ -68,6 +68,7 @@
 (defun-bind vdu-line ()
 	(cond
 		((starts-with "```" line_str)
+			(setq vdu_text (cat '("") vdu_text '("")))
 			(def (defq vdu_widget (create-vdu)) :font *env_terminal_font*
 				:vdu_width 80 :vdu_height (length vdu_text) :ink_color +argb_black+)
 			(bind '(w h) (view-pref-size vdu_widget))

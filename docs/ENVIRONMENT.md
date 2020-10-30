@@ -157,10 +157,10 @@ We will cover this later, first we need to talk about environments.
 An environment is a set of symbol bindings. Under the hood it's just a hash map
 that associates symbols with values.
 
-You can look at the current environment by typing `(env)` at the REPL.
+You can look at the current environment by typing `(tolist (env))` at the REPL.
 
 ```vdu
-(env)
+(tolist (env))
 ((stdio @class/stdio/vtable) (args (4446511344)) (stdin
 @class/in/vtable) (stdout @class/out/vtable) (stderr @class/out/vtable))
 ```
@@ -169,9 +169,9 @@ This is showing you the symbols and bindings that exist at the current level,
 in this case the 'lisp' application you happen to be inside.
 
 If you want to look up the parent of an environment you can use `(penv)`, try
-typing `(penv (env))` at the REPL prompt. I'm not going to print that here as
-it's way too big, but that is the boot environment that all Lisp processes have
-as their shared parent environment. It's populated via the
+typing `(tolist (penv (env)))` at the REPL prompt. I'm not going to print that
+here as it's way too big, but that is the boot environment that all Lisp
+processes have as their shared parent environment. It's populated via the
 `class/lisp/boot.inc` file that's evaluated for every Lisp process launched.
 
 ### Function environments
@@ -214,10 +214,10 @@ pairs in order to interface with other code.
 
 ```vdu
 (defq e (env -1))
-e
+(tolist (e))
 ()
 (def e :p1 78 :p2 89)
-e
+(tolist (e))
 ((:p1 78) (:p2 89))
 (get :p1 e)
 78
@@ -225,8 +225,6 @@ e
 89
 (get :p3 e)
 nil
-(tolist e)
-((:p1 78) (:p2 89))
 ```
 
 The optional parameter, to `(env)`, if positive, is used to change the number
