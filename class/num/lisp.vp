@@ -5,7 +5,7 @@
 (include "class/lisp/class.inc")
 
 (defun-bind addop (_)
-	(entry 'num (sym (cat :lisp_ (rest _))) '(r0 r1))
+	(entry 'num (sym (cat :lisp_ (slice 1 -1 _))) '(r0 r1))
 (errorcases
 	(call 'lisp :env_args_match `(r1 (@ ,(f-path 'num :vtable)) 2) '(r2))
 	(gotoif '(r2 = 0) 'error))
@@ -13,7 +13,7 @@
 	(assign '((r1 array_begin)) '(r2))
 	(call 'num _ '((r2 0) r1) '(_ r1))
 	(vp-pop r0)
-	(exit 'num (sym (cat :lisp_ (rest _))) '(r0 r1))
+	(exit 'num (sym (cat :lisp_ (slice 1 -1 _))) '(r0 r1))
 	(vp-ret))
 
 (def-method 'num :lisp_add)
@@ -107,7 +107,7 @@
 (def-func-end)
 
 (defun-bind divop (_)
-	(entry 'num (sym (cat :lisp_ (rest _))) '(r0 r1))
+	(entry 'num (sym (cat :lisp_ (slice 1 -1 _))) '(r0 r1))
 (errorcases
 	(call 'lisp :env_args_match `(r1 (@ ,(f-path 'num :vtable)) 2) '(r2))
 	(gotoif '(r2 = 0) 'error1))
@@ -117,7 +117,7 @@
 (errorcases
 	(gotoif '(r1 = 0) 'error))
 	(vp-pop r0 r2)
-	(exit 'num (sym (cat :lisp_ (rest _))) '(r0 r1))
+	(exit 'num (sym (cat :lisp_ (slice 1 -1 _))) '(r0 r1))
 	(vp-ret))
 
 (def-method 'num :lisp_div)
@@ -161,7 +161,7 @@
 (def-func-end)
 
 (defun-bind andop (_ i p)
-	(entry 'num (sym (cat :lisp_ (rest _))) '(r0 r1))
+	(entry 'num (sym (cat :lisp_ (slice 1 -1 _))) '(r0 r1))
 (errorcases
 	(call 'lisp :env_args_type `(r1 (@ ,(f-path 'num :vtable)) 0) '(r2))
 	(gotoif '(r2 = 0) 'error))
@@ -178,7 +178,7 @@
 	(endif)
 	(call 'num :create '(r0) '(r1))
 	(vp-pop r0)
-	(exit 'num (sym (cat :lisp_ (rest _))) '(r0 r1))
+	(exit 'num (sym (cat :lisp_ (slice 1 -1 _))) '(r0 r1))
 	(vp-ret))
 
 (def-method 'num :lisp_and)
@@ -239,7 +239,7 @@
 (def-func-end)
 
 (defun-bind shift (_ p)
-	(entry 'num (sym (cat :lisp_ (rest _))) '(r0 r1))
+	(entry 'num (sym (cat :lisp_ (slice 1 -1 _))) '(r0 r1))
 (errorcases
 	(call 'lisp :env_args_sig '(r1 ($ sig) 2) '(r2))
 	(gotoif '(r2 = 0) 'error))
@@ -248,7 +248,7 @@
 	(exec p)
 	(call 'num :create '(r0) '(r1))
 	(vp-pop r0)
-	(exit 'num (sym (cat :lisp_ (rest _))) '(r0 r1))
+	(exit 'num (sym (cat :lisp_ (slice 1 -1 _))) '(r0 r1))
 	(vp-ret))
 
 (def-method 'num :lisp_asr)
@@ -312,7 +312,7 @@
 (def-func-end)
 
 (defun-bind compare (_)
-	(entry 'num (sym (cat :lisp_ (rest _))) '(r0 r1))
+	(entry 'num (sym (cat :lisp_ (slice 1 -1 _))) '(r0 r1))
 (errorcases
 	(call 'lisp :env_args_type `(r1 (@ ,(f-path 'num :vtable)) 2) '(r2))
 	(gotoif '(r2 = 0) 'error))
@@ -326,7 +326,7 @@
 		(assign '((r0 lisp_sym_t)) '(r1))
 	(endif)
 	(class/obj/ref r1 r2)
-	(exit 'num (sym (cat :lisp_ (rest _))) '(r0 r1))
+	(exit 'num (sym (cat :lisp_ (slice 1 -1 _))) '(r0 r1))
 	(vp-ret))
 
 (def-method 'num :lisp_eq)
@@ -439,7 +439,7 @@
 
 ;generic math op
 (defun-bind mathop (_)
-	(entry 'num (sym (cat :lisp_ (rest _))) '(r0 r1))
+	(entry 'num (sym (cat :lisp_ (slice 1 -1 _))) '(r0 r1))
 (errorcases
 	(call 'lisp :env_args_sig '(r1 ($ sig) 1) '(r2))
 	(gotoif '(r2 = 0) 'error))
@@ -447,7 +447,7 @@
 	(assign '((r1 array_begin)) '(r2))
 	(call 'num _ '((r2 0)) '(_ r1))
 	(vp-pop r0)
-	(exit 'num (sym (cat :lisp_ (rest _))) '(r0 r1))
+	(exit 'num (sym (cat :lisp_ (slice 1 -1 _))) '(r0 r1))
 	(vp-ret))
 
 (def-method 'num :lisp_random)

@@ -8,7 +8,6 @@
 (include "class/sym/class.inc")
 (include "class/num/class.inc")
 (include "class/hmap/class.inc")
-(include "class/pair/class.inc")
 (include "class/lisp/class.inc")
 (include "lib/consts/chars.inc")
 
@@ -125,10 +124,9 @@
 					(call 'num :create {0} {session})
 					(call 'hset :create `((@ ,(f-path 'str :same)) 1) {set})
 					(call 'list :push_back2 {tuple, session, set})
-					(call 'pair :create {key, tuple} {key})
-					(call 'list :push_back {bucket, key})
+					(call 'list :push_back2 {bucket, key, tuple})
 				(else)
-					(assign {(*(pptr tuple))->pair_second} {tuple})
+					(assign {(pptr tuple)[ptr_size]} {tuple})
 					(call 'num :destroy {key})
 				(endif)
 				;add service entries for the origin ?
@@ -163,10 +161,9 @@
 				(vpifnot {tuple})
 					(call 'array :create nil {tuple})
 					(call 'array :push_back2 {tuple, -1, -1})
-					(call 'pair :create {key, tuple} {key})
-					(call 'list :push_back {bucket, key})
+					(call 'list :push_back2 {bucket, key, tuple})
 				(else)
-					(assign {(*(pptr tuple))->pair_second} {tuple})
+					(assign {(pptr tuple)[ptr_size]} {tuple})
 					(call 'num :destroy {key})
 				(endif)
 				;update routing entries for the origin ?
