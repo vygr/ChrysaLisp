@@ -7,8 +7,12 @@
 (import "lib/collections/xset.inc")
 (import "lib/collections/hmap.inc")
 
+(defun-bind map? (_)
+    ; (map? object) -> t | nil
+    ; Returns true if argument is a map type
+    (or (emap? _) (xmap? _) (hmap? _)))
+
 (defun-bind collection? (_)
-    (or (emap? _)
-        (xmap? _)
-        (xset? _)
-        (lst? _)))
+    ; (collection? obj) -> t | nil
+    ; Returns true if argument is a collection type
+    (or (map? _) (lst? _)))
