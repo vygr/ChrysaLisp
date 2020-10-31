@@ -38,6 +38,7 @@
 (def-static-sym ":text")
 (def-static-sym ":color")
 (def-static-sym ":border")
+(def-static-sym ":shadow")
 (def-static-sym ":value")
 (def-static-sym ":maximum")
 (def-static-sym ":minimum")
