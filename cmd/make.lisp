@@ -157,8 +157,8 @@
                         (setq state :y))))) (file-stream file)))
         (cat (make-tree "." "lisp.inc")
 			'("class/lisp/boot.inc" "lib/anaphoric/anaphoric.inc" "lib/debug/debug.inc"
-			 "lib/debug/profile.inc" "lib/hmap/xmap.inc" "lib/hmap/xset.inc"
-			  "lib/hmap/emap.inc")))
+			 "lib/debug/profile.inc" "lib/collections/xmap.inc" "lib/collections/xset.inc"
+			  "lib/collections/emap.inc")))
     (sort cmp syntax)
     (defq stream (file-stream "docs/SYNTAX.md" file_open_write))
     (write-line stream (const (str "# Syntax" (ascii-char 10))))
