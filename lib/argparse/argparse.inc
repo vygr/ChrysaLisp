@@ -202,7 +202,7 @@
   (defq props (reverse in_props))
   (if (/= (logand (length props ) 1) 1)
     (while (/= (length props) 0)
-           (sets! self (pop props) (pop props) t))
+           (sets! self (pop props) (pop props)))
     (throw "Uneven property pairs" in_props))
   self)
 
