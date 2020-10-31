@@ -166,7 +166,7 @@
     (yaml-write +cfg_file+ cfg))
   ; Build the system filesystem logger streams
   (defq fsmaps (hmap))
-  (create-log-file-handlers (getp-in cfg :logging :handlers) fsmaps)
+  (create-log-file-handlers (gets-in cfg :logging :handlers) fsmaps)
   (debug-write "fsmaps-> " fsmaps)
   (list
     (gets fsmaps :service_handler)

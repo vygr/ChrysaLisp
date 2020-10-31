@@ -56,22 +56,22 @@
     (sets-pairs! config
       :log_lvl :info
       :token chsh
-      :levels (getp-in conf :logging :levels))
+      :levels (gets-in conf :logging :levels))
     ; Resolve handler
     (case (gets config :handler)
       ; Keyword cases
       ((:console)
-       (defq hndl (getp-in conf :logging :loggers :console :handler))
+       (defq hndl (gets-in conf :logging :loggers :console :handler))
        (sets-pairs! config
-          :log_lvl (getp-in conf :logging :handlers hndl :level)
+          :log_lvl (gets-in conf :logging :handlers hndl :level)
           :handler hndl))
       ((:file)
-       (defq hndl (getp-in conf :logging :loggers :file :handler))
+       (defq hndl (gets-in conf :logging :loggers :file :handler))
        (sets-pairs! config
           :log_lvl (gets (hmap-find fmap hndl) :level)
           :handler hndl))
       ((:system)
-       (defq hndl (getp-in conf :logging :loggers :system :handler))
+       (defq hndl (gets-in conf :logging :loggers :system :handler))
        (sets-pairs! config
           :log_lvl (gets (hmap-find fmap hndl):level)
           :handler hndl))
@@ -149,8 +149,8 @@
          nm   (gets msgd :name)
          nmkw (kw nm)
          hnkw (gets msgd :key_name))
-       (pdrop! msgd :name)
-       (pdrop! msgd :key_name)
+       (drop! msgd :name)
+       (drop! msgd :key_name)
        (log-write (gets srvc_fh :handle) " Configuring anchor " nm)
        ; Register handler
        (register-log-handler registry nmkw msgd)

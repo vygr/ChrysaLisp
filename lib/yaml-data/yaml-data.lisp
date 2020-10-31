@@ -38,13 +38,13 @@
         ))
 
 (defun merge-args (core-args in-args)
-  (defq base-args (pmerge core-args))
+  (defq base-args (merges core-args))
   (cond
     ((empty? in-args))
     ((= (logand (length in-args) 1) 1)
      (throw "Uneven arguments to yaml" in-args))
     (t
-      (setq base-args (pmerge base-args in-args))))
+      (setq base-args (merges base-args in-args))))
   base-args)
 ; Reader
 

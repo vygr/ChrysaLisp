@@ -145,10 +145,7 @@
 (defun-bind props? (_)
   ; (props? el) -> bool
   ; Returns true if argument is a properties type
-  (when (and
-    (lst? _)
-      (eql (getp _ :super_clz) :clz_properties))
-    t))
+  (emap? _))
 
 (defun-bind def? (_ &optional e)
   ; (def? sym [env]) -> bool
@@ -233,283 +230,13 @@
   ; (interleave '(:a :b :c) '(0 1 2)) -> (:a 0 :b 1 :c 2)
   `(zip ,seq1 ,seq2))
 
-; (defun-bind unions (&rest lists)
-;   ; (unions [list]...) -> list
-;   (defq nl (list))
-;   (each (curry merge nl) lists))
-
-; (defun-bind unions-with (base &rest lists)
-;   ; (unions-with list [list]...) -> list'
-;   (each (curry merge base) lists))
-
-; Associative structure functions
-
-(defun-bind entries (_)
-  ; (entries kv-map) -> entry list
-  ; Returns a list of entries where each entry: (key value)
-  (cond
-    ((props? _)
-      (defq c (partition 2 _))
-      (reduce (lambda (acc e)
-        (if (or (eql (first e) :clz) (eql (first e) :super_clz))
-          acc
-          (push acc e)))
-        c (list)))
-    ((hmap? _)
-      (hmap-entries _))))
-
-(defun-bind keys (_)
-  ; (keys kv-map) -> key list
-  ; Returns a sequence of keys found in associative structure
-  (when (or (props? _) (hmap? _))
-    (map (#(elem 0 %0)) (entries _))))
-
-(defun-bind values (_)
-  ; (values kv-map) -> value list
-  ; Returns a sequence of values found in associative structure
-  (when (or (props? _) (hmap? _))
-    (map (#(elem 1 %0)) (entries _))))
-
 ; Properties (a.k.a. list of pairs [k v]) forms
+; Deprecated and is using an `emap` under the covers
 
 (defmacro-bind properties (&rest pairs)
   ; (properties [k v]...) -> list
   ; Creates a properties list object
-  (push pairs :super_clz :clz_properties)
-  `(list ~pairs))
-
-(defun-bind getp (p k &optional if_nil)
-  ; (getp properties key [if_nil]) -> val | if_nil | nil
-  (defq fx nil)
-  (cond
-    ((or (kw? k) (sym? k))
-      (setq fx (find k p)))
-    ((or (num? k) (str? k))
-      (setq fx (efind p k)))
-    (t nil))
-  (if fx (elem (inc fx) p) (opt nil if_nil)))
-
-(defun-bind getp-in (p &rest kws)
-  ; (getp-in (properties kw...)) -> value | nil
-  ; Returns the value in a nested properties structure
-  ; where kws is a sequence (list) of keys. Returns nil
-  ; if a key is not present
-  (defq hit nil)
-  (cond
-    ((not (props? p))
-      (throw "Not a properties structure " p))
-    ((empty? kws)
-      (throw "No keys path provided " kws))
-    (t
-      (defq
-        keep_going t
-        last_nest  p
-        pick (reverse kws)
-        fkw  (last pick))
-      (while (and keep_going (not (empty? pick)))
-        (defq v (getp last_nest fkw))
-        (pop pick)
-        (cond
-          ((not v)
-            (setq keep_going nil))
-          ((empty? pick)
-            (setq
-              keep_going nil
-              hit v))
-          (t
-            (setq
-              fkw       (last pick)
-              last_nest v))))))
-    hit)
-
-(defun-bind setp! (p k v &optional add_if_nil)
-  ; (setp properties k value [add_if_nil]) -> properties
-  (defq ki (if (kw? k) (find k p) (efind p k)))
-  (if (not ki)
-    (if add_if_nil
-      (push p k v)
-      (throw (str "Key " k " does not exist") p))
-    (elem-set (inc ki) p v))
-  p)
-
-(defun-bind setsp! (p &rest pairs)
-  ; (setsp properties [k v] ...) -> properties
-  (each (#(setp! p (first %0) (second %0) t)) (partition 2 pairs))
-  p)
-
-(defun-bind setsp-in! (p val &rest kws)
-  ; (setsp-in! properties value kw...) -> properties
-  ; Sets the value in a nested properties structure
-  ; where kws is a sequence of keys.
-  (cond
-    ((not (props? p))
-      (throw "Not a properties structure " p))
-    ((empty? kws)
-      (throw "No keys path provided " kws))
-    (t
-      (defq
-        keep_going t
-        last_nest  p
-        pick (reverse kws)
-        fkw  (last pick)
-        trg  (first pick))
-      (while (and keep_going (not (empty? pick)))
-        (defq v (getp last_nest fkw))
-        (pop pick)
-        (cond
-          ((not v)
-            (setq keep_going nil))
-          ((empty? pick)
-            (if (eql trg fkw)
-              (setp! last_nest trg val))
-            (setq keep_going nil))
-          (t (setq
-            fkw       (last pick)
-            last_nest v))))))
-  p)
-
-(defun-bind update-in! (p ufnc &rest kws)
-  ; (update-in! properties ufnc kw...)) -> value | nil
-  ; Updates the value found in the key-leaf of kws with the
-  ; result of calling ufnc with the current value
-  ; Returns nil if a key is not present
-  (defq hit nil)
-  (cond
-    ((not (props? p))
-      (throw "Not a properties structure " p))
-    ((empty? kws)
-      (throw "No keys path provided " kws))
-    (t
-      (defq
-        keep_going t
-        last_nest  p
-        pick (reverse kws)
-        fkw  (last pick))
-      (while (and keep_going (not (empty? pick)))
-        (defq v (getp last_nest fkw))
-        (pop pick)
-        (cond
-          ; If key not found exit
-          ((not v)
-            (setq keep_going nil))
-          ; Otherwise, if we are at leaf we
-          ; have our target entry
-          ((empty? pick)
-            (setq
-              keep_going nil
-              hit (ufnc (elem (inc (efind last_nest fkw)) last_nest)))
-            (setp! last_nest fkw hit))
-          (t
-            (setq
-              fkw       (last pick)
-              last_nest v))))))
-    hit)
-
-(defun-bind pmerge (&rest props)
-  ; (pmerge properties...) -> properties
-  ; Returns a new properties structure that consists of
-  ; the rest of the properties structures merged into
-  ; it
-  (reduce
-    (#(each (lambda (e)
-      (setp! %0 (first e) (second e) t)) (partition 2 %1)))
-    props (properties)))
-
-(defun-bind move-entry-forward! (p sp ep)
-  ; (move-entry-forward! properties start-key-index end-key-index)
-  ; Moves the properties k/v pair forward from key index sp to index ep
-  (while (/= sp ep)
-    (defq tsp (+ sp 2))
-    (swap p sp tsp)
-    (swap p (inc sp) (+ sp 3))
-    (setq sp tsp))
-  p)
-
-(defun-bind move-entry-backward! (p sp ep)
-  ; (move-entry-backward! properties start-key-index end-key-index)
-  ; Moves the properties k/v pair backward from key index sp to index ep
-  (while (/= sp ep)
-    (defq tsp (- sp 2))
-    (swap p sp tsp)
-    (swap p (inc sp) (dec sp))
-    (setq sp tsp))
-  p)
-
-(defun-bind pdrop! (p k)
-  ; (pdrop properties key) -> properties
-  ; Drops a properties key/pair
-  (when (props? p)
-    (defq
-      sp (efind p k)
-      ep (- (length p) 2))
-    (when sp
-      (move-entry-forward! p sp ep)
-      (times 2 (pop p)))))
-
-; Common kv interface
-
-(defun-bind gets (kv-map k &optional if_nil)
-  ; (gets kv-map key [if_nil]) -> val | if_nil | nil
-  ; Fetches value for key. If not found and 'if_nil' provided, will
-  ; return that value, otherwise nil
-  (cond
-    ((hmap? kv-map) (opt (hmap-find kv-map k) if_nil))
-    ((props? kv-map) (getp kv-map k if_nil))))
-
-(defun-bind sets! (kv-map k v)
-  ; (sets! kv-map key value) -> updated structure
-  ; Creates a new key/value or overwrites an existing value for key
-  (cond
-    ((hmap? kv-map) (hmap-insert kv-map k v))
-    ((props? kv-map) (setp! kv-map k v t)))
-  kv-map)
-
-(defun-bind sets-pairs! (kv-map &rest pairs)
-  (defq chnks (partition 2 pairs))
-  (cond
-    ((hmap? kv-map)
-      (each (#(hmap-insert kv-map (first %0) (second %0))) chnks))
-    ((props? kv-map)
-      (each (#(setp! kv-map (first %0) (second %0) t)) chnks)))
-  kv-map)
-
-(defun-bind update! (kv-map k v)
-  ; (sets! kv-map key value) -> updated structure
-  ; Will fail silently if key not found, otherwise updates value for key
-  (defq hit (gets kv-map k))
-  (if hit
-    (cond
-      ((hmap? kv-map) (hmap-insert kv-map k v))
-      ((props? kv-map) (setp! kv-map k v t))))
-  kv-map)
-
-(defun-bind merge (target &rest maps)
-  ; (merge kv-map )
-  )
-
-
-; Privatize functions
-
-(defmacro private (nm)
-  ; (private nm) -> env
-  ; Sets up an isolated environment for
-  ; use in the privatization of functions
-  `(macroexpand (defq ,nm (env -1))))
-
-(defmacro defunp (e n a &rest _)
-  ; (defunp env name args form) -> lambda
-  ; Declares a function in the private environment
-  `(def ,e ,n (lambda ,a ~_)))
-
-(defmacro defunp-bind (e n a &rest _)
-  ; (defun-bind name ([arg ...]) body)
-  ; Declars a bound function in the private environment
-  `(def ,e ,n (lambda ,a ~(prebind (macroexpand _)))))
-
-(defmacro callp (e name &rest _)
-  ; (callp env name &rest args) -> form invoked with args
-  ; Calls a function in a private environment
-  `((get ,name ,e) ~_))
+  `(xmap-kv ~pairs))
 
 ; Walkers
 
@@ -636,7 +363,7 @@
 ; Data Object AST (Node Tree)
 
 (defun Node (ttype &optional value)
-  (properties
+  (emap-kv
       :type         ttype
       :value        value
       :children     (list)))
@@ -650,9 +377,6 @@
 (defun MapNode ()
   (Node :map))
 
-(defun HashMapNode ()
-  (Node :hash_map))
-
 (defun MapEntryNode ()
   (Node :map_entry))
 
@@ -662,29 +386,35 @@
 (defun ValueNode ()
   (Node :value))
 
+(defun SetNode ()
+  (Node :set))
+
 (defun SequenceNode ()
   (Node :seq))
 
 (defun ScalarNode (stype value)
-  (setp! (Node :scalar value) :stype stype t))
+  (sets! (Node :scalar value) :stype stype))
 
 (defun add-child-node! (p c)
-  (when (not (lst? (defq chs (getp p :children))))
+  (when (not (lst? (defq chs (gets p :children))))
     (throw "Children of node is not a list" p))
   (push chs c)
   c)
 
+;
+(defun lgets (obj key)
+  (defq _i (find key obj))
+  (when _i)
+    (elem (inc _i) obj))
+
 (defun me-key? (_)
-  (eql (getp _ :clz) :me_key))
+  (eql (lgets _ :clz) :me_key))
 
 (defun me-value? (_)
-  (eql (getp _ :clz) :me_value))
+  (eql (lgets _ :clz) :me_value))
 
-(defun prop-me? (_)
-  (eql (getp _ :clz) :prop_me))
-
-(defun hmap-me? (_)
-  (eql (getp _ :clz) :hash_me))
+(defun map-me? (_)
+  (eql (lgets _ :clz) :map_me))
 
 (defun make-me-key (_)
   (list :clz :me_key :value _))
@@ -693,6 +423,8 @@
   (list :clz :me_value :value _))
 
 (defun split-entries (obj etype)
+  ; (split-entries map keyword) -> list
+  ; Creates AST nodes for key/values of map
   (reduce
     (lambda (acc el)
       (push acc
@@ -707,7 +439,7 @@
 (defun Context ()
   ; (Context) -> properties
   ; Constructs a common node stack context
-  (properties
+  (emap-kv
     :current nil
     :path    (list)))
 
@@ -715,67 +447,55 @@
   ; (set-context! node) -> node
   ; Makes the current context 'node'
   ; after adding 'node' to current's children
-  (defq crn (getp cntxt :current))
+  (defq crn (gets cntxt :current))
   ; Stack node in path for un-setting
-  (push (getp cntxt :path) n)
+  (push (gets cntxt :path) n)
   ; If first
   (when crn
     (add-child-node! crn n))
-  (setp! cntxt :current n)
+  (sets! cntxt :current n)
   n)
 
 (defun unset-context! (cntxt)
   ; (unset-context!) -> node | nil
   ; Set's context to most recent in path
   (defq
-    npath (getp cntxt :path)  ; Setup
+    npath (gets cntxt :path)  ; Setup
     lnode (pop npath))          ; Pop path stack
   (when (truthy? npath)
-    (setp! cntxt :current (last npath)))
+    (sets! cntxt :current (last npath)))
   nil)
 
 (defun add-to-context! (cntxt n)
   ; (add-to-context! node) -> node | nil
-  (when (truthy? (defq crn (getp cntxt :current)))
+  (when (truthy? (defq crn (gets cntxt :current)))
     (add-child-node! crn n)))
 
 (defun obj-to-node (cntxt odata)
   ; (obj-to-node Context object)
   ; Builds an common Node AST from object
   (cond
-    ((lst? odata)
+    ((indexable? odata)
         (cond
-          ; Map
-          ((props? odata)
+          ; Maps
+          ((map? odata)
            (set-context! cntxt (MapNode))
-           (defq spe (split-entries odata :prop_me))
-           (each (#(obj-to-node cntxt %0)) spe)
+           (each (#(obj-to-node cntxt %0)) (split-entries odata :map_me))
            (unset-context! cntxt))
-          ; Hashmap
-          ((hmap? odata)
-            (set-context! cntxt (HashMapNode))
-            (defq she (split-entries odata :hash_me))
-            (each (#(obj-to-node cntxt %0)) she)
-            (unset-context! cntxt))
-          ; Properties Map Entry
-          ((prop-me? odata)
+          ; Map Entry
+          ((map-me? odata)
            (set-context! cntxt (MapEntryNode))
-           (each (#(obj-to-node cntxt %0)) (getp odata :entries))
-           (unset-context! cntxt))
-          ; Properties Map Entry
-          ((hmap-me? odata)
-           (set-context! cntxt (MapEntryNode))
-           (each (#(obj-to-node cntxt %0)) (getp odata :entries))
+           (each (#(obj-to-node cntxt %0)) (lgets odata :entries))
            (unset-context! cntxt))
           ; Key
           ((me-key? odata)
            (set-context! cntxt (KeyNode))
-           (obj-to-node cntxt (getp odata :value))
+           (obj-to-node cntxt (lgets odata :value))
            (unset-context! cntxt))
           ; Value
           ((me-value? odata)
            (set-context! cntxt (ValueNode))
-           (obj-to-node cntxt (getp odata :value))
+           (obj-to-node cntxt (lgets odata :value))
            (unset-context! cntxt))
           ; Sequence
           (t
@@ -797,30 +517,30 @@
 
 ; Pretty Printers
 (defq ppopts
-  (properties
+  (emap-kv
     :map-delims   "{}"
     :list-delims  "()"
     :indent       -1
     :indent_space  2))
 
 (defq pp_boolean
-      (properties
+      (xmap-kv
         t   "true"
         nil "false"))
 
 (defun indent+ (cntxt)
-  (defq ci (getp cntxt :indent))
-  (setp! cntxt :indent (inc ci)))
+  (defq ci (gets cntxt :indent))
+  (sets! cntxt :indent (inc ci)))
 
 (defun indent- (cntxt)
-  (defq ci (getp cntxt :indent))
-  (setp! cntxt :indent (dec ci)))
+  (defq ci (gets cntxt :indent))
+  (sets! cntxt :indent (dec ci)))
 
 (defun padded= (cntxt)
-  (pad "" (* (getp cntxt :indent_space) (getp cntxt :indent))))
+  (pad "" (* (gets cntxt :indent_space) (gets cntxt :indent))))
 
 (defun padded- (cntxt)
-  (pad "" (* (getp cntxt :indent_space) (dec (getp cntxt :indent)))))
+  (pad "" (* (gets cntxt :indent_space) (dec (gets cntxt :indent)))))
 
 (defun pp-write-pad (sstrm cntxt)
   (write sstrm (padded= cntxt)))
@@ -839,48 +559,51 @@
 
 (defun node-to-pprint (sstrm in-args ast)
   (defq recur (curry node-to-pprint sstrm in-args))
-  (case (getp ast :type)
+  (case (gets ast :type)
     ((:map)
       (indent+ in-args)
-      (pp-map-container sstrm in-args (first (getp in-args :map-delims)))
+      (pp-map-container sstrm in-args (first (gets in-args :map-delims)))
       (indent+ in-args)
-      (each recur (getp ast :children))
+      (each recur (gets ast :children))
       (indent- in-args)
-      (if (= (getp in-args :indent) 1)
-        (pp-iwcr sstrm in-args (last (getp in-args :map-delims)))
-        (pp-iw sstrm in-args (last (getp in-args :map-delims))))
+      (if (= (gets in-args :indent) 1)
+        (pp-iwcr sstrm in-args (last (gets in-args :map-delims)))
+        (pp-iw sstrm in-args (last (gets in-args :map-delims))))
       (indent- in-args))
+    ((:set)
+      ; TODO
+      )
     ((:seq)
      (indent+ in-args)
-     (pp-niw sstrm in-args (first (getp in-args :list-delims)))
+     (pp-niw sstrm in-args (first (gets in-args :list-delims)))
      (indent+ in-args)
-     (each recur (getp ast :children))
+     (each recur (gets ast :children))
      (indent- in-args)
-     (pp-niw sstrm in-args (last (getp in-args :list-delims)))
+     (pp-niw sstrm in-args (last (gets in-args :list-delims)))
      (indent- in-args))
     ((:map_entry)
-     (each recur (getp ast :children)))
+     (each recur (gets ast :children)))
     ((:key)
       (pp-iw sstrm in-args "")
-      (each recur (getp ast :children)))
+      (each recur (gets ast :children)))
     ((:value)
-      (each recur (getp ast :children))
+      (each recur (gets ast :children))
       (pp-iwcr sstrm in-args ""))
     ((:scalar)
-     (if (eql (getp ast :stype) :boolean)
-        (pp-niw sstrm in-args (str (getp pp_boolean (getp ast :value)) " "))
-        (pp-niw sstrm in-args (str (getp ast :value) " "))))
+     (if (eql (gets ast :stype) :boolean)
+        (pp-niw sstrm in-args (str (gets pp_boolean (gets ast :value)) " "))
+        (pp-niw sstrm in-args (str (gets ast :value) " "))))
     (t (throw "Unknown " ast))))
 
 (defun-bind pprint-to-strm (sstrm obj out-args)
   (defq context
     (cond
       ((or (empty? out-args) (odd? out-args))
-        (pmerge (Context) ppopts))
+        (merges (Context) ppopts))
       (t
-        (pmerge (Context) ppopts out-args))))
+        (merges (Context) ppopts out-args))))
   (obj-to-node context obj)
-  (node-to-pprint sstrm context (getp context :current))
+  (node-to-pprint sstrm context (gets context :current))
   sstrm)
 
 (defun-bind pprint (obj &rest out-args)

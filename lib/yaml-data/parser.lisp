@@ -19,7 +19,7 @@
   (throw "No idea what this is " token))
 
 (defun parse-no-impl (cmd token)
-  (print "No implementation for " (getp token :type))
+  (print "No implementation for " (gets token :type))
   cmd)
 
 (defmacro peek-last (col)
@@ -29,31 +29,31 @@
     nil))
 
 (defun dispatch (cmd)
-  (defq lst (pop (getp cmd :rtoks)))
-  ; ; (print "dispatching "(getp lst :type))
-  ((getp jmp (getp lst :type) parse-exception-type) cmd lst)
+  (defq lst (pop (gets cmd :rtoks)))
+  ; ; (print "dispatching "(gets lst :type))
+  ((gets jmp (gets lst :type) parse-exception-type) cmd lst)
   lst)
 
 (defun dispatch-until (cmd &rest kws)
-  (while (not (find (getp (dispatch cmd) :type) kws))))
+  (while (not (find (gets (dispatch cmd) :type) kws))))
 
 (defun push-container (cmd ctype)
   ; (push-container cmd ctype) -> list
   (shr)
   (defq
-    curr      (getp cmd :current)
+    curr      (gets cmd :current)
     container (list ctype (list)))
-  (push (getp cmd :parents) container)
+  (push (gets cmd :parents) container)
   (push curr container)
-  (setp! cmd :current (second container))
+  (sets! cmd :current (second container))
   container)
 
 (defun pop-container (cmd)
   ; (pop-container cmd) -> list
   (shl)
-  (pop (getp cmd :parents))
-  (defq curr (peek-last (getp cmd :parents)))
-  (setp! cmd :current (second curr))
+  (pop (gets cmd :parents))
+  (defq curr (peek-last (gets cmd :parents)))
+  (sets! cmd :current (second curr))
   curr)
 
 (defun parse-document-start (cmd token)
@@ -74,34 +74,34 @@
         "NO"    nil))
 
 (defun parse-boolean (val)
-  (defq res (getp yaml_boolean val :nomatch))
+  (defq res (gets yaml_boolean val :nomatch))
   (when (eql res :nomatch)
-    (setq res (getp yaml_boolean (to-upper val) :nomatch)))
+    (setq res (gets yaml_boolean (to-upper val) :nomatch)))
   res)
 
 (defun parse-scalar (cmd token)
   (defq
-    v (getp token :value))
+    v (gets token :value))
   (cond
     ; Test for key
     ((and
-       (eql (first (last (getp cmd :parents))) :key)
-       (getp (getp cmd :in-args) :keys-to-kw))
+       (eql (first (last (gets cmd :parents))) :key)
+       (gets (gets cmd :in-args) :keys-to-kw))
       (setq v (sym (str ":" (join (split v " ") "_")))))
     ; Test for numeric
     ((and
-       (getp (getp cmd :in-args) :vals-to-num)
+       (gets (gets cmd :in-args) :vals-to-num)
        (eql (str-is-ints? v) :true))
      (setq v (str-to-num v)))
     ((and
-       (eql (first (last (getp cmd :parents))) :value)
-       (getp (getp cmd :in-args) :vals-to-kw)
+       (eql (first (last (gets cmd :parents))) :value)
+       (gets (gets cmd :in-args) :vals-to-kw)
        (eql (first v) +kw_ind+))
      (setq v (kw v)))
     (t
       (if (neql? (defq ch (parse-boolean v)) :nomatch)
         (setq v ch))))
-  (push (getp cmd :current) (list :scalar v)))
+  (push (gets cmd :current) (list :scalar v)))
 
 (defun parse-key (cmd token)
   (defq key (push-container cmd :key))
@@ -128,7 +128,7 @@
   cmd)
 
 (defun parse-flow-entry (cmd token)
-  (defq lt (getp (peek-last (getp cmd :rtoks)) :type))
+  (defq lt (gets (peek-last (gets cmd :rtoks)) :type))
   (cond
     ((eql lt :key_entry)
      (push-container cmd :entry)
@@ -161,7 +161,7 @@
 (defun parse-flowseq-start (cmd token)
   (defq
     key (push-container cmd :list)
-    fe  (eql (getp (peek-last (getp cmd :rtoks)) :type) :scalar))
+    fe  (eql (gets (peek-last (gets cmd :rtoks)) :type) :scalar))
   (when fe
     (push-container cmd :entry)
     (dispatch cmd)
@@ -215,13 +215,13 @@
                 :parents            (list)
                 :in-args            in-args
                 :current            nil))
-    (setp! cmd :current (getp cmd :tree))
-    (when (not (eql (getp (last (getp cmd :rtoks)) :type) :stream_start))
-      (throw "Missing :stream_start, found "(peek-last (getp cmd :rtoks))))
-    (catch (until (empty? (getp cmd :rtoks))
+    (sets! cmd :current (gets cmd :tree))
+    (when (not (eql (gets (last (gets cmd :rtoks)) :type) :stream_start))
+      (throw "Missing :stream_start, found "(peek-last (gets cmd :rtoks))))
+    (catch (until (empty? (gets cmd :rtoks))
             (dispatch cmd))
         (print _))
-    ; ; (print (getp cmd :tree))
+    ; ; (print (gets cmd :tree))
     ; (list)
-    (getp cmd :tree)
+    (gets cmd :tree)
     )

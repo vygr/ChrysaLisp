@@ -82,7 +82,7 @@
   (Token :value_entry sm em))
 
 (defun Scalar (val plain sm em &optional style)
-  (setsp! (Token :scalar sm em)
+  (sets-pair! (Token :scalar sm em)
           :value val
           :plain plain
           :style style))

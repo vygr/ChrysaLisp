@@ -45,44 +45,44 @@
   ; (calc-off rdr idx) -> offset | exception
   ; Throws exception if offset exceeds bounds
   (setd src "Unknown")
-  (defq _offset (_add (getp rdr :point) idx))
-  (when (> _offset (getp rdr :len))
+  (defq _offset (_add (gets rdr :point) idx))
+  (when (> _offset (gets rdr :len))
     (throw (str src ": Attempt to read past EOF ")
       (properties
         :calc_off _offset
-        :buff_len (getp rdr :len))))
+        :buff_len (gets rdr :len))))
   _offset)
 
 (defun-bind rdr-peek (rdr &optional index)
   ; (peek rdr index) -> char | exception
   (setd index 0)
-  (elem (rdr-calc-off rdr index "rdr-peek") (getp rdr :buffer)))
+  (elem (rdr-calc-off rdr index "rdr-peek") (gets rdr :buffer)))
 
 
 (defun-bind rdr-prefix (rdr &optional len)
   ; (prefix rdr len) -> str | exception
   (setd len 1)
-  (slice (getp rdr :point) (rdr-calc-off rdr len "rdr-prefix") (getp rdr :buffer)))
+  (slice (gets rdr :point) (rdr-calc-off rdr len "rdr-prefix") (gets rdr :buffer)))
 
 (defun-bind rdr-forward (rdr &optional len)
   ; (forward rdr len) -> nil | exception
   (setd len 1)
   (rdr-calc-off rdr len "rdr-forward")
   (while (> len 0)
-    (defq ch (elem (getp rdr :index) (getp rdr :buffer)))
-    (setsp! rdr
-      :point    (inc (getp rdr :point))
-      :index  (inc (getp rdr :index))
-      :column (inc (getp rdr :column)))
+    (defq ch (elem (gets rdr :index) (gets rdr :buffer)))
+    (sets-pairs! rdr
+      :point    (inc (gets rdr :point))
+      :index  (inc (gets rdr :index))
+      :column (inc (gets rdr :column)))
     (when (eql ch lf)
-      (setsp! rdr
-        :line (inc (getp rdr :line))
+      (sets-pairs! rdr
+        :line (inc (gets rdr :line))
         :column 0))
     (setq len (dec len))))
 
 (defun-bind rdr-get-mark (rdr)
   ; (get-mark rdr) -> Mark
-  (Mark (getp rdr :index) (getp rdr :line) (getp rdr :column)))
+  (Mark (gets rdr :index) (gets rdr :line) (gets rdr :column)))
 
 (defun-bind rdr-dump (fname mfunc)
   (defq rdr (Reader (load fname)))
