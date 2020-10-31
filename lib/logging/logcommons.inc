@@ -2,7 +2,6 @@
 ; logging - Logging Service Library for clients
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import "lib/hmap/hmap.inc")
 (import "lib/xtras/xtras.inc")
 (import "lib/yaml-data/yaml-xchange.lisp")
 (import "lib/date/date.inc")

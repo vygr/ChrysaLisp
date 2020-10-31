@@ -5,7 +5,6 @@
 ;imports
 (import "sys/lisp.inc")
 (import "class/lisp.inc")
-(import "lib/hmap/hmap.inc")
 (import "lib/logging/logservice.inc")
 (import "lib/logging/logcommons.inc")
 (import "lib/yaml-data/yaml-data.lisp")
