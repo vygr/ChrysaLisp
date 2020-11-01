@@ -110,7 +110,7 @@
             (gets rdr :line)
             (gets rdr :column)
             (rdr-get-mark rdr)))
-    (sets! (gets scn :possible_simple_keys) fl sk t)))
+    (sets! (gets scn :possible_simple_keys) fl sk)))
 
 (defun next-possible-simple-key (scn)
   (throw "Need impl next-possible-simple-key" t))

@@ -85,17 +85,17 @@
 
 
 (defun realize-nodes (node)
+  ; (realize-nodes ast) -> object
+  ; Converts AST to object instance(s)
   (case (gets node :type)
     (:map
-      (print "realize map")
       (defq res (xmap))
       (each (lambda ((_k _v))
               (sets! res (realize-nodes _k) (realize-nodes _v)))
             (partition 2 (gets node :children)))
-      (sets! node :result res))
+      res)
     (:seq
       (defq res (list))
-      (print "realize sequence")
       (each (lambda (n)
               (push res (realize-nodes n)))
             (gets node :children))
@@ -118,17 +118,19 @@
       nil)))
 
 (defun lex-to-object (sst)
+  ; (lex-to-object string) -> object
+  ; Lex the inbound string to quick AST
   (defq ctx (sets! (Context) :root nil))
   (until (eql (defq ch (pop sst)) (char 0))
     (case (gets lu ch :char)
       (:space)
       (:mapb
        (set-obj-ctx! ctx (MapNode)))
+      (:mape
+       (unset-obj-ctx! ctx))
       (:lstb
        (set-obj-ctx! ctx (SequenceNode)))
       (:lste
-       (unset-obj-ctx! ctx))
-      (:mape
        (unset-obj-ctx! ctx))
       (:mkey
         (add-to-obj! ctx
@@ -141,7 +143,7 @@
           (ScalarNode :string (eat-strng sst))))
       (:char
         (add-to-obj! ctx (pull-value ch sst)))))
-  (gets (realize-nodes (gets ctx :root)) :result))
+  (realize-nodes (gets ctx :root)))
 
 (defun-bind deserialize (sstrm)
   ; (deserialize stream) -> object

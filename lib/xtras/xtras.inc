@@ -460,7 +460,6 @@
         (cond
           ; Lists
           ((lst? odata)
-            (print "Chunking list ")
             (set-context! cntxt (SequenceNode))
             (each (#(obj-to-node cntxt %0)) odata)
             (unset-context! cntxt))

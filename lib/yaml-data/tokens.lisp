@@ -28,7 +28,7 @@
 
 
 (defun Token (ttype sm em)
-  (properties
+  (emap-kv
       :type       ttype
       :start_mark sm
       :end_mark   sm))
@@ -82,7 +82,7 @@
   (Token :value_entry sm em))
 
 (defun Scalar (val plain sm em &optional style)
-  (sets-pair! (Token :scalar sm em)
+  (sets-pairs! (Token :scalar sm em)
           :value val
           :plain plain
           :style style))

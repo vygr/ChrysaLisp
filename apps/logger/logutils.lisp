@@ -59,7 +59,7 @@
   cfg)
 
 (defun create-log-file-handlers (handlers fsmap)
-  ; (create-log-file-handlers properties hmap) -> hmap
+  ; (create-log-file-handlers properties map) -> map
   ; Opens all know handlers
   (debug-write "Creating handlers!")
   ; Iterate through handlers looking for type :file
@@ -165,7 +165,7 @@
   (when (= cfg_age 0)
     (yaml-write +cfg_file+ cfg))
   ; Build the system filesystem logger streams
-  (defq fsmaps (hmap))
+  (defq fsmaps (xmap))
   (create-log-file-handlers (gets-in cfg :logging :handlers) fsmaps)
   (debug-write "fsmaps-> " fsmaps)
   (list
