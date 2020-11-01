@@ -30,7 +30,7 @@
 		(ui-buttons (0xe9a3 0xe976 0xe9f0 0xe9d4) +event_grid+ () style_buttons)
 		(ui-buttons (0xe979 0xe97d 0xe97b) +event_radius1+ () radius_buttons)
 		(ui-buttons (0xe9ec 0xe9d8 0xe917 0xea20 0xe9f6 0xe94b 0xe960 0xe95f) +event_pen+ () mode_buttons))
-	(ui-tool-bar _ (font *env_medium_toolbar_font*)
+	(ui-tool-bar _ (:font *env_medium_toolbar_font*)
 		(each (lambda (col)
 			(push ink_buttons (component-connect (ui-button __ (:ink_color col :text
 				(if (< _ 8) (const (num-to-utf8 0xe982)) (const (num-to-utf8 0xea04)))))
