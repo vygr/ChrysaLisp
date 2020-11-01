@@ -123,6 +123,7 @@
 	(cond 
 		((> cx (length (elem cy buffer))) (setq cx (length (elem cy buffer))))
 		((< cx 0) (setq cx 0 sx 0)))
+	(cursor-visible)
 	(elem-set +text_position+ current_text (list ox oy cx cy sx)))
 
 ;macros for select-action-on-enter command and data parsing.
