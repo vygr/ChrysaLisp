@@ -377,14 +377,19 @@
 (defun MapNode ()
   (Node :map))
 
-(defun MapEntryNode ()
-  (Node :map_entry))
+(defun EMapNode ()
+  (Node :emap))
 
-(defun KeyNode ()
-  (Node :key))
+(defun KeyNode (val)
+  (Node :me_key val))
 
-(defun ValueNode ()
-  (Node :value))
+(defun ValueNode (val)
+  (Node :me_value val))
+
+(defun MapEntryNode (_k _v)
+  (sets-pairs! (Node :map_entry)
+    :mkey (KeyNode _k )
+    :mval (ValueNode _v)))
 
 (defun SetNode ()
   (Node :set))
@@ -401,38 +406,14 @@
   (push chs c)
   c)
 
-;
-(defun lgets (obj key)
-  (defq _i (find key obj))
-  (when _i)
-    (elem (inc _i) obj))
+(defun map-me? (_)
+  (eql (gets _ :type) :map_entry))
 
 (defun me-key? (_)
-  (eql (lgets _ :clz) :me_key))
+  (eql (gets _ :type) :me_key))
 
 (defun me-value? (_)
-  (eql (lgets _ :clz) :me_value))
-
-(defun map-me? (_)
-  (eql (lgets _ :clz) :map_me))
-
-(defun make-me-key (_)
-  (list :clz :me_key :value _))
-
-(defun make-me-value (_)
-  (list :clz :me_value :value _))
-
-(defun split-entries (obj etype)
-  ; (split-entries map keyword) -> list
-  ; Creates AST nodes for key/values of map
-  (reduce
-    (lambda (acc el)
-      (push acc
-        (list :clz etype :entries
-              (push
-                (push (list) (make-me-key (first el)))
-                (make-me-value (second el))))))
-    (entries obj) (list)))
+  (eql (gets _ :type) :me_value))
 
 ; AST Node Context Stack
 
@@ -477,31 +458,36 @@
   (cond
     ((indexable? odata)
         (cond
-          ; Maps
-          ((map? odata)
-           (set-context! cntxt (MapNode))
-           (each (#(obj-to-node cntxt %0)) (split-entries odata :map_me))
-           (unset-context! cntxt))
-          ; Map Entry
-          ((map-me? odata)
-           (set-context! cntxt (MapEntryNode))
-           (each (#(obj-to-node cntxt %0)) (lgets odata :entries))
-           (unset-context! cntxt))
-          ; Key
-          ((me-key? odata)
-           (set-context! cntxt (KeyNode))
-           (obj-to-node cntxt (lgets odata :value))
-           (unset-context! cntxt))
-          ; Value
-          ((me-value? odata)
-           (set-context! cntxt (ValueNode))
-           (obj-to-node cntxt (lgets odata :value))
-           (unset-context! cntxt))
-          ; Sequence
-          (t
+          ; Lists
+          ((lst? odata)
+            (print "Chunking list ")
             (set-context! cntxt (SequenceNode))
             (each (#(obj-to-node cntxt %0)) odata)
-            (unset-context! cntxt))))
+            (unset-context! cntxt))
+          ; Map Entry
+          ((map-me? odata)
+            (set-context! cntxt odata)
+            (obj-to-node cntxt (gets odata :mkey))
+            (obj-to-node cntxt (gets odata :mval))
+            (unset-context! cntxt))
+          ; Key
+          ((me-key? odata)
+            (set-context! cntxt odata)
+            (obj-to-node cntxt (gets odata :value))
+            (unset-context! cntxt))
+          ; Value
+          ((me-value? odata)
+            (set-context! cntxt odata)
+            (obj-to-node cntxt (gets odata :value))
+            (unset-context! cntxt))
+          ; Maps
+          ((map? odata)
+            (set-context! cntxt (MapNode))
+            (each (lambda ((_k _v))
+              (obj-to-node cntxt (MapEntryNode _k _v)))
+              (entries odata))
+            (unset-context! cntxt))
+          (t (throw "Unknown type found in obj-to-node" odata))))
     ((or (eql odata t) (eql odata nil))
      (add-to-context! cntxt (ScalarNode :boolean odata)))
     ((kw? odata)
