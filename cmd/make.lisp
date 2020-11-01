@@ -197,7 +197,7 @@
         (defq args (map sym args) all (find-rev 'all args) boot (find-rev 'boot args) platforms (find-rev 'platforms args)
             docs (find-rev 'docs args) syms (find-rev 'syms args) it (find-rev 'it args))
         (cond
-            (it (remake-all-platforms) (make-docs) (make-syms))
+            (it (make-syms) (make-docs) (remake-all-platforms))
             ((and boot all platforms) (remake-all-platforms))
             ((and boot all) (remake-all))
             ((and boot platforms) (remake-platforms))
