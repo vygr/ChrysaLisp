@@ -305,10 +305,10 @@
 		((= c 0x40000051)			(down))
 		(t (setq dirty_vdu nil)))
 	;only reload if a key actually alters vdu.
+	(cursor-visible)
+	(set-sticky)
 	(when dirty_vdu (setq dirty_vdu nil)
 		(set slider :value oy)
-		(cursor-visible)
-		(set-sticky)
 		(elem-set +text_buffer+ current_text buffer)
 		(elem-set +text_position+ current_text (list ox (setq oy (get :value slider)) cx cy sx))
 		(set sb_line_col :text (cat "Line " (str cy) ", Column " (str cx) sb_line_col_message))
