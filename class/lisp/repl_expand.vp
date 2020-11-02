@@ -1,6 +1,5 @@
 (include "sys/func.inc")
 (include "class/hmap/class.inc")
-(include "class/pair/class.inc")
 (include "class/sym/class.inc")
 (include "class/lisp/class.inc")
 
@@ -53,8 +52,7 @@
 				(call 'hmap :search '((r0 lisp_environment) r3) '(_ r1 _))
 				(breakif '(r1 = 0))
 				;is a list ?
-				(vp-cpy-ir r1 0 r1)
-				(assign '((r1 pair_second)) '(r1))
+				(assign '((r1 ptr_size)) '(r1))
 				(f-bind 'list :vtable r2)
 				(assign '((r1 obj_vtable)) '(r3))
 				(breakif '(r2 /= r3))

@@ -433,25 +433,19 @@
 ;;;;;;;;;;;
 
 (defun-bind first (_)
-	;(first seq) -> el | nil
-	; Returns first element if sequence not empty, otherwise nil
+	;(first seq) -> el|nil
 	(if (and (not (nil? _)) (> (length _) 0)) (elem 0 _)))
 
 (defun-bind second (_)
-	;(second seq) -> el | nil
-	; Returns second element if sequence not empty and has
-	; more than one element, otherwise nil
+	;(second seq) -> el|nil
 	(if (and (not (nil? _)) (> (length _) 1)) (elem 1 _)))
 
 (defun-bind last (_)
-	;(last seq) -> el | nil
-	; Returns last element if sequence not empty, otherwise nil
+	;(last seq) -> el|nil
 	(if (and (not (nil? _)) (> (length _) 0)) (elem -2 _)))
 
 (defun-bind rest (_)
-	;(rest seq) -> seq
-	; Returns seq from seq after dropping first element
-	; if not empty, otherwise an empty list
+	;(rest seq) -> nil|seq
 	(if (and (not (nil? _)) (> (length _) 0)) (slice 1 -1 _) (list)))
 
 (defun-bind erase (s b e)
@@ -496,22 +490,18 @@
 		(push _l (if (defq _i (some (# (if (_c %0 _e) %0)) _l)) _i _e))) _s (opt _l (list))))
 
 (defun-bind partition (cnt seq)
-  ; (partition count sequence) -> sequence of sequences
-  ; partition up a sequence into list of sequence by count
-  ; example:
-  ; (partition 2 '(0 1 2 3')) -> ((0 1) (2 3))
-  (cond
-    ((and (seq? seq) (< cnt (length seq)))
-      (defq
-        base (reverse (copy seq))
-        res (list))
-      (while (nempty? base)
-        (defq nl (list))
-        (times cnt (push nl (pop base)))
-        (push res nl))
-      res)
-    (t (list seq))))
-
+	;(partition count seq) -> list of lists
+	(cond
+		((and (seq? seq) (< cnt (length seq)))
+			(defq
+				base (reverse (copy seq))
+				res (list))
+			(while (nempty? base)
+				(defq nl (list))
+				(times cnt (push nl (pop base)))
+				(push res nl))
+			res)
+		(t (list seq))))
 
 ;;;;;;;;;;;;;;;;
 ; Math functions

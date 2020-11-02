@@ -5,7 +5,6 @@
 (include "class/sym/class.inc")
 (include "class/num/class.inc")
 (include "class/list/class.inc")
-(include "class/pair/class.inc")
 
 (gen-vtable 'component)
 
@@ -186,8 +185,7 @@
 
 	(call 'sym :get_static_sym '(r1) '(r8))
 	(call 'component :insert '(r7 r8 r2) '(r0 r1 _))
-	(assign '((r1 0)) '(r1))
-	(assign '((r1 pair_second)) '(r1))
+	(assign '((r1 ptr_size)) '(r1))
 	(class/obj/ref r1 r2 -1)
 
 	(exit 'component :set_prop '(r0))

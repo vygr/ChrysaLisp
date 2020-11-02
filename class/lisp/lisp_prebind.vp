@@ -2,7 +2,6 @@
 (include "class/sym/class.inc")
 (include "class/hmap/class.inc")
 (include "class/func/class.inc")
-(include "class/pair/class.inc")
 (include "class/lisp/class.inc")
 (include "lib/consts/chars.inc")
 
@@ -89,8 +88,7 @@
 					(call 'hmap :search '((r0 lisp_environment) r1) '(_ r1 _))
 					(breakif '(r1 = 0))
 					;begins with a +
-					(vp-cpy-ir r1 0 r1)
-					(assign '((r1 pair_first) (r1 pair_second)) '(r2 r1))
+					(assign '((r1 0) (r1 ptr_size)) '(r2 r1))
 					(assign '((r2 str_data ub)) '(r2))
 					(gotoif '(r2 = +char_plus+) 'bind_it)
 					;is a function ?

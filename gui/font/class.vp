@@ -5,7 +5,6 @@
 (include "class/sym/class.inc")
 (include "class/list/class.inc")
 (include "class/hmap/class.inc")
-(include "class/pair/class.inc")
 (include "sys/pii/class.inc")
 (include "gui/gui/class.inc")
 (include "gui/path/class.inc")
@@ -469,9 +468,8 @@
 
 		;create new entry
 		(call 'sym :ref {sym})
-		(call 'pair :create {sym, txt} {iter})
-		(call 'list :push_back {bucket, iter})
 		(call 'texture :ref {txt})
+		(call 'list :push_back2 {bucket, sym, txt})
 
 		;flush cache ?
 		(assign (cat {@} (f-path 'font :statics)) {font_statics})
@@ -479,7 +477,7 @@
 			(call 'font :flush)
 		(endif)
 	(else)
-		(call 'pair :ref_second {*iter} {_, txt})
+		(call 'obj :ref {iter[ptr_size]} {txt})
 	(endif)
 
 	(exit 'font :sym_texture {this, txt})
@@ -558,7 +556,7 @@
 		(endif)
 		(call 'hmap :create {font->font_sym_map->hset_key_callback,
 			font->font_sym_map->hset_num_buckets} {new_map})
-		(call 'hmap :for_each {font->font_sym_map, $flush_callback, &new_map})
+		(call 'hmap :for_each {font->font_sym_map, $flush_callback, new_map})
 		;during deref font_sym_map could be written to !
 		(assign {font->font_sym_map} {tmp})
 		(assign {new_map} {font->font_sym_map})
@@ -578,17 +576,16 @@
 	;trashes
 	;r1-r14
 
-	(vp-cpy-ir r1 0 r1)
-	(assign '((r1 pair_second)) '(r2))
-	(assign '((r2 obj_count)) '(r2))
+	(assign '((r1 0) (r1 ptr_size)) '(r1 r2))
+	(assign '((r2 obj_count)) '(r3))
 	(switch)
-	(vpcase '(r2 /= 1))
-		(vp-cpy-ir r0 0 r2)
-		(call 'obj :ref '(r1) '(r0))
-		(vp-push r0)
-		(call 'hset :get_bucket '(r2 r0) '(_ r0))
-		(vp-pop r1)
-		(jump 'list :push_back '(r0 r1))
+	(vpcase '(r3 /= 1))
+		(class/obj/ref r1 r3)
+		(class/obj/ref r2 r3)
+		(vp-push r1 r2)
+		(call 'hmap :get_bucket '(r0 r1) '(_ r0))
+		(vp-pop r1 r2)
+		(jump 'list :push_back2 '(r0 r1 r2))
 	(default)
 		(f-bind 'font :statics r0)
 		(assign '((r0 font_statics_count)) '(r2))

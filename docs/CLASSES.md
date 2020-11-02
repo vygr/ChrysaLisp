@@ -2536,6 +2536,38 @@ trashes
 r1-r14
 ```
 
+### hmap::erase -> class/hmap/erase
+
+```lisp
+inputs
+r0 = hmap object (ptr)
+r1 = element iterator (pptr)
+r2 = bucket list object (ptr)
+outputs
+r0 = hmap object (ptr)
+trashes
+r1-r14
+```
+
+### hmap::for_each -> class/hmap/for_each
+
+```lisp
+inputs
+r0 = hmap object (ptr)
+r1 = predicate function (ptr)
+r2 = predicate data (ptr)
+outputs
+r0 = hmap object (ptr)
+trashes
+r1-r2...
+callback predicate
+inputs
+r0 = predicate data (ptr)
+r1 = element iterator (pptr)
+trashes
+...
+```
+
 ### hmap::copy -> class/hmap/copy
 
 ```lisp
@@ -2963,19 +2995,6 @@ r1 = element iterator (pptr)
 r2 = bucket list object (ptr)
 outputs
 r0 = hset object (ptr)
-trashes
-r1-r14
-```
-
-### hset::copy -> class/hset/copy
-
-```lisp
-inputs
-r0 = hset object (ptr)
-r1 = num buckets (uint)
-outputs
-r0 = hset object (ptr)
-r1 = hset copy object (ptr)
 trashes
 r1-r14
 ```
@@ -5102,112 +5121,6 @@ r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-## pair
-
-Super Class: obj
-
-### pair::vtable -> class/pair/vtable
-
-### pair::create -> class/pair/create
-
-### pair::init -> class/pair/init
-
-```lisp
-inputs
-r0 = pair object (ptr)
-r1 = vtable (pptr)
-r2 = first object (ptr)
-r3 = second object (ptr)
-outputs
-r0 = pair object (ptr)
-r1 = 0 if error, else ok
-trashes
-r1
-```
-
-### pair::ref_first -> class/pair/ref_first
-
-```lisp
-inputs
-r0 = pair object (ptr)
-outputs
-r0 = pair object (ptr)
-r1 = object (ptr)
-trashes
-r1-r2
-```
-
-### pair::ref_second -> class/pair/ref_second
-
-```lisp
-inputs
-r0 = pair object (ptr)
-outputs
-r0 = pair object (ptr)
-r1 = object (ptr)
-trashes
-r1-r2
-```
-
-### pair::get_first -> class/pair/get_first
-
-```lisp
-inputs
-r0 = pair object (ptr)
-outputs
-r0 = pair object (ptr)
-r1 = object (ptr)
-trashes
-r1
-```
-
-### pair::get_second -> class/pair/get_second
-
-```lisp
-inputs
-r0 = pair object (ptr)
-outputs
-r0 = pair object (ptr)
-r1 = object (ptr)
-trashes
-r1
-```
-
-### pair::set_first -> class/pair/set_first
-
-```lisp
-inputs
-r0 = pair object (ptr)
-r1 = object (ptr)
-outputs
-r0 = pair object (ptr)
-trashes
-r1-r14
-```
-
-### pair::set_second -> class/pair/set_second
-
-```lisp
-inputs
-r0 = pair object (ptr)
-r1 = object (ptr)
-outputs
-r0 = pair object (ptr)
-trashes
-r1-r14
-```
-
-### pair::deinit -> class/pair/deinit
-
-```lisp
-inputs
-r0 = pair object (ptr)
-outputs
-r0 = pair object (ptr)
 trashes
 r1-r14
 ```

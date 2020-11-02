@@ -178,14 +178,15 @@
 
 (defq usage `(
 (("-h" "--help")
-"Usage: make [options] [all] [boot] [platforms] [doc] [syms]
+"Usage: make [options] [all] [boot] [platforms] [doc] [syms] [it]
     options:
         -h --help: this help info.
     all: include all .vp files.
     boot: create a boot image.
     platforms: for all platforms not just the host.
     docs: scan source files and create documentation.
-    syms: scan source files and create VP sys/symbols.inc.")
+    syms: scan source files and create VP sys/symbols.inc.
+    it: all of the above !")
 ))
 
 (defun-bind main ()
@@ -194,8 +195,9 @@
             (defq stdio (create-stdio))
             (defq args (options stdio usage)))
         (defq args (map sym args) all (find-rev 'all args) boot (find-rev 'boot args) platforms (find-rev 'platforms args)
-            docs (find-rev 'docs args) syms (find-rev 'syms args))
+            docs (find-rev 'docs args) syms (find-rev 'syms args) it (find-rev 'it args))
         (cond
+            (it (make-syms) (make-docs) (remake-all-platforms))
             ((and boot all platforms) (remake-all-platforms))
             ((and boot all) (remake-all))
             ((and boot platforms) (remake-platforms))

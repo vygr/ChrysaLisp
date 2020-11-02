@@ -642,7 +642,7 @@
 
 ## first
 
-(first seq) -> el | nil
+(first seq) -> el|nil
 
 ## fixeds
 
@@ -802,7 +802,7 @@
 
 ## last
 
-(last seq) -> el | nil
+(last seq) -> el|nil
 
 ## length
 
@@ -1076,6 +1076,10 @@
 
 (pad form width [str]) -> str
 
+## partition
+
+(partition count seq) -> list of lists
+
 ## path
 
 (path [form ...])
@@ -1270,7 +1274,7 @@
 
 ## rest
 
-(rest seq) -> seq
+(rest seq) -> nil|seq
 
 ## reverse
 
@@ -1282,7 +1286,7 @@
 
 ## second
 
-(second seq) -> el | nil
+(second seq) -> el|nil
 
 ## seq?
 

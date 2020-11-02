@@ -330,7 +330,7 @@ The `destroy` method just calls `deinit` followed by `free`.
 
 ### VP Class and Object declaration
 
-This is an example from the `class/pair/class.inc` file.
+This is an example of a 'pair class, first the `class.inc` file.
 
 ```vdu
 (include "class/obj/class.inc")
@@ -401,11 +401,13 @@ declared matching the declared method path this is taken to mean, 'run this
 function' to emit the method call. They need to be declared in the `class.inc`
 file in order to be visible to all code that use those methods.
 
-The none inline methods are defined in the `class/pair/class.vp` file. Note the
+The none inline methods are defined in the `class.vp` file. Note the
 use of the helper method generators `(gen-create 'pair)` and `(gen-vtable
 'pair)`. These helpers use the corresponding method declarations to generate
 the method code for you. Take a look in `sys/class.inc` for the implementation
 of these.
+
+Second the `class.vp` file.
 
 ```vdu
 (include "sys/func.inc")

@@ -4,7 +4,6 @@
 (include "class/array/class.inc")
 (include "class/num/class.inc")
 (include "class/hmap/class.inc")
-(include "class/pair/class.inc")
 
 (def-method 'sys_link :link)
 	;started by kernel for each link
@@ -179,8 +178,7 @@
 		(f-bind 'sys_mail :statics tuple)
 		(call 'hmap :find `((,tuple ml_statics_routing_map) ,key) `(_ ,tuple _))
 		(continueif `(,tuple = 0))
-		(vp-cpy-ir tuple 0 tuple)
-		(call 'array :get_both `((,tuple pair_second)) `(_ ,iter_begin ,iter_end))
+		(call 'array :get_both `((,tuple ptr_size)) `(_ ,iter_begin ,iter_end))
 		(vp-add-cr (* 2 long_size) iter_begin)
 		(loop-start)
 			(vp-cpy-ir iter_begin 0 via)

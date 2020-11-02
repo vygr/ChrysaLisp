@@ -31,13 +31,14 @@
 
 (defcvar '*static_syms* (list))
 (defun def-static-sym (_)
-	(defcvar (sym (cat "static_sym_" (if (starts-with ":" _) (rest _) _))) (length *static_syms*))
+	(defcvar (sym (cat "static_sym_" (if (starts-with ":" _) (slice 1 -1 _) _))) (length *static_syms*))
 	(push *static_syms* _))
 
 (def-static-sym ":font")
 (def-static-sym ":text")
 (def-static-sym ":color")
 (def-static-sym ":border")
+(def-static-sym ":shadow")
 (def-static-sym ":value")
 (def-static-sym ":maximum")
 (def-static-sym ":minimum")
