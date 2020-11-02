@@ -29,8 +29,8 @@
 		(mail-send (str (profile-print n (string-stream (cat ""))))
 			(str-to-num (elem 1 (split (pop services) ","))))))
 
-(defmacro-bind defun (n a &rest _)
-	`(defq ,n (lambda ,a
+(defmacro-bind profile-lambda (n a &rest _)
+	`(lambda ,a
 		(cond
 			((defq _e_ (get ',n *profile*))
 				(elem-set +prof_cnt+ _e_ (inc (elem +prof_cnt+ _e_)))
@@ -40,17 +40,19 @@
 		(push *profile_ret* (progn ~_))
 		(elem-set +prof_rcnt+ _e_ (dec (elem +prof_rcnt+ _e_)))
 		(if (= (elem +prof_rcnt+ _e_) 0) (push _e_ (+ (- (time) (pop _e_)) (pop _e_))))
-		(pop *profile_ret*))))
+		(pop *profile_ret*)))
+
+(defmacro-bind defun (n a &rest _)
+	`(defq ,n (profile-lambda ,n ,a ~_)))
 
 (defmacro-bind defun-bind (n a &rest _)
-	`(defq ,n (lambda ,a
-		(cond
-			((defq _e_ (get ',n *profile*))
-				(elem-set +prof_cnt+ _e_ (inc (elem +prof_cnt+ _e_)))
-				(elem-set +prof_rcnt+ _e_ (inc (elem +prof_rcnt+ _e_)))
-				(if (= (elem +prof_rcnt+ _e_) 1) (push _e_ (time))))
-			(t	(def *profile* ',n (setq _e_ (list 1 1 0 (time))))))
-		(push *profile_ret* (progn ~(prebind (macroexpand _))))
-		(elem-set +prof_rcnt+ _e_ (dec (elem +prof_rcnt+ _e_)))
-		(if (= (elem +prof_rcnt+ _e_) 0) (push _e_ (+ (- (time) (pop _e_)) (pop _e_))))
-		(pop *profile_ret*))))
+	`(defq ,n (profile-lambda ,n ,a ~(prebind (macroexpand _)))))
+
+(defmacro-bind class (n p &rest _)
+	`(defun ,n ,p (defq *profile_class* ,n this (env -1)) ~_ this))
+
+(defmacro-bind method (n a &rest _)
+	`(def this ,n (profile-lambda ,(sym (cat *profile_class* n)) a ~_)))
+
+(defmacro-bind method-bind (n a &rest _)
+	`(def this ,n (profile-lambda ,(sym (cat *profile_class* n)) ,a ~(prebind (macroexpand _)))))
