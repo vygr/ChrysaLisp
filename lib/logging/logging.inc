@@ -19,7 +19,7 @@
   (cond
     ; Succesful registration
     ((= id +log_event_registered+)
-      (pmerge logger (deser-inbound msg)))
+      (merges logger (deser-inbound msg)))
     (t
       (throw "Invalid registration " msg))))
 

@@ -51,107 +51,89 @@
     :possible_simple_keys (properties)))
 
 (defun push-token (scn token)
-  ; (if (> (length (getp scn :tokens)) 0)
-  ;     (print "Pusing type " (getp token :type)
-  ;            " after " (getp (last (getp scn :tokens)) :type)))
-  (push (getp scn :tokens) token))
+  ; (if (> (length (gets scn :tokens)) 0)
+  ;     (print "Pusing type " (gets token :type)
+  ;            " after " (gets (last (gets scn :tokens)) :type)))
+  (push (gets scn :tokens) token))
 
 (defun insert-token (scn pos token)
   (cond
-    ((eql (getp token :type) :key_entry)
-      (setp! scn
-        :tokens (insert (getp scn :tokens) pos (list (Pair))))
-      (setp! scn
-        :tokens (insert (getp scn :tokens) (inc pos) (list token))))
+    ((eql (gets token :type) :key_entry)
+      (sets! scn
+        :tokens (insert (gets scn :tokens) pos (list (Pair))))
+      (sets! scn
+        :tokens (insert (gets scn :tokens) (inc pos) (list token))))
     (t
-      (setp! scn
-        :tokens (insert (getp scn :tokens) pos (list token))))))
-  ; (if iskey
-  ;     (progn
-  ;       (setq ntoks (insert (getp scn :tokens) pos ))
-  ;       (setq pos (inc pos)))
-  ;     (setq ntoks (get scn :tokens)))
-  ; (print
-  ;   "Inserting " (getp token :type) " at " pos
-  ;   " prior " (getp (elem (dec pos) ntoks) :type)
-  ;   " before " (getp (elem pos ntoks) :type))
-  ; (print "That worked")
-  ; scn)
-
-(defun last-token (scn token)
-  (last (getp scn :tokens)))
-
-(defun first-token (scn token)
-  (last (getp scn :tokens)))
+      (sets! scn
+        :tokens (insert (gets scn :tokens) pos (list token))))))
 
 ; Simple key functions
 
 (defun remove-possible-simple-key (scn)
   (defq
-    p (getp scn :possible_simple_keys)
-    k (getp scn :flow_level)
-    v (getp p k))
+    p (gets scn :possible_simple_keys)
+    k (gets scn :flow_level)
+    v (gets p k))
   (when v
-    (if (getp v :required)
+    (if (gets v :required)
         (throw "Key required" v))
-    (pdrop! p k)))
+    (drop! p k)))
 
 (defun save-possible-simple-key (scn rdr)
-  (defq fl (getp scn :flow_level))
-  (when (getp scn :allow_simple_key)
+  (defq fl (gets scn :flow_level))
+  (when (gets scn :allow_simple_key)
     (remove-possible-simple-key scn)
     (defq
       sk  (SimpleKey
-            (+ (getp scn :tokens_taken) (length (getp scn :tokens)))
+            (+ (gets scn :tokens_taken) (length (gets scn :tokens)))
             (and
               (= fl 0)
-              (= (getp scn :indent) (getp rdr :column)))
-            (getp rdr :index)
-            (getp rdr :line)
-            (getp rdr :column)
+              (= (gets scn :indent) (gets rdr :column)))
+            (gets rdr :index)
+            (gets rdr :line)
+            (gets rdr :column)
             (rdr-get-mark rdr)))
-    (setp! (getp scn :possible_simple_keys) fl sk t)))
+    (sets! (gets scn :possible_simple_keys) fl sk)))
 
 (defun next-possible-simple-key (scn)
   (throw "Need impl next-possible-simple-key" t))
 
 (defun stale-possible-simple-keys (scn rdr)
   (defq
-    p  (getp scn :possible_simple_keys)
+    p  (gets scn :possible_simple_keys)
     ke (entries p)
-    ln (getp rdr :line))
+    ln (gets rdr :line))
   (when (lst? (first ke))
     (each
-      (lambda (_)
-        (defq k (first _) v (second _))
+      (lambda ((k v))
         (when
-          (or (not (= (getp v :line) ln))
-              (> (- (getp rdr :index) (getp v :index)) 1024))
-          (if (getp v :required)
+          (or (not (= (gets v :line) ln))
+              (> (- (gets rdr :index) (gets v :index)) 1024))
+          (if (gets v :required)
               (throw "Key required" v))
-          (pdrop! p k))) ke)))
+          (drop! p k))) ke)))
 
 ; Indent functions
 
 (defun unwind-indent (scn rdr col)
   (cond
-    ((> (getp scn :flow_level) 0)
+    ((> (gets scn :flow_level) 0)
      nil)
     (t
-      ; (print "unwind-indent indent " (getp scn :indent) " and col " col)
-      (while (> (getp scn :indent) col)
+      ; (print "unwind-indent indent " (gets scn :indent) " and col " col)
+      (while (> (gets scn :indent) col)
         (defq mark (rdr-get-mark rdr))
-        (setp! scn :indent (pop (getp scn :indents)))
+        (sets! scn :indent (pop (gets scn :indents)))
         (push-token scn (BlockEnd mark))))))
 
 (defun add-indent (scn rdr &optional col)
-  (setd col (getp rdr :column))
-  (defq id (getp scn :indent))
+  (setd col (gets rdr :column))
+  (defq id (gets scn :indent))
   ; (print "add-indent  indent " id " column = " cl)
   (if (< id col)
       (progn
-        (push (getp scn :indents) id)
-        (setp! scn :indent col)
+        (push (gets scn :indents) id)
+        (sets! scn :indent col)
         t)
       nil))
 
@@ -178,7 +160,7 @@
 (defun check-document-indicator (rdr dset)
   (defq p3 (rdr-peek rdr 3))
   (cond
-    ((= (getp rdr :column) 0)
+    ((= (gets rdr :column) 0)
      (cond
        ((and
           (eql (rdr-prefix rdr 3) dset)
@@ -204,11 +186,11 @@
       (and (not (find nc ebreakz))
            (or (eql ch dash)
                (and
-                 (= (getp scn :flow_level) 0)
+                 (= (gets scn :flow_level) 0)
                  (find ch keyind))))))
 
 (defun check-value (scn rdr)
-  (if (> (getp scn :flow_level) 0)
+  (if (> (gets scn :flow_level) 0)
       t
       (find (rdr-peek rdr 1) ebreakz)))
 
@@ -238,8 +220,8 @@
        (while (not (find (rdr-peek rdr) breakz))
         (rdr-forward rdr)))
       ((scan-line-break rdr nc)
-       (when (= (getp scn :flow_level) 0)
-         (setp! scn :allow_simple_key t)))
+       (when (= (gets scn :flow_level) 0)
+         (sets! scn :allow_simple_key t)))
       (t (setq found t)))))
 
 (defun scan-plain-dsorde? (rdr prfx)
@@ -277,7 +259,7 @@
      (setq
        lb   (scan-line-break rdr ch)
        prfx (rdr-prefix rdr 3))
-     (setp! scn :allow_simple_key t)
+     (sets! scn :allow_simple_key t)
      (if (scan-plain-dsorde? rdr prfx)
          nil
          (progn
@@ -312,7 +294,7 @@
   ; (scan-plain-break? scanner ch nextch) -> t | nil
   ; Answers if hard or semantic break
   (defq
-    ifl     (> (getp scn :flow_level) 0)
+    ifl     (> (gets scn :flow_level) 0)
     sbreakz (cat "" ebreakz (if ifl ",[]{}" "")))
   (or
     (find ch ebreakz)
@@ -325,8 +307,8 @@
     (not (empty? spcs))
     (eql (rdr-peek rdr) comment)
     (and
-      (> (getp scn :flow_level) 0)
-      (< (getp rdr :column) (getp scn :indent)))))
+      (> (gets scn :flow_level) 0)
+      (< (gets rdr :column) (gets scn :indent)))))
 
 (defun scan-plain (scn rdr)
   ; (scan-plain scanner reader) -> token | exception
@@ -334,7 +316,7 @@
     chunks  (list)
     sm      (rdr-get-mark rdr)
     em      sm
-    ind     (inc (getp scn :indent))
+    ind     (inc (gets scn :indent))
     spaces  (list)
     oloop   t
     iloop   t)
@@ -355,7 +337,7 @@
         ((= plen 0)
          (setq oloop nil))
         (t
-          (setp! scn :allow_simple_key nil)
+          (sets! scn :allow_simple_key nil)
           (setq chunks (cat chunks spaces))
           (push chunks (rdr-prefix rdr plen))
           (rdr-forward rdr plen)
@@ -372,10 +354,10 @@
 (defun fetch-document-indicator (scn rdr token)
   (unwind-indent scn rdr -1)
   (remove-possible-simple-key scn)
-  (setp! scn :allow_simple_key nil)
+  (sets! scn :allow_simple_key nil)
   (defq sm (rdr-get-mark rdr))
   (rdr-forward rdr 3)
-  (setsp! token
+  (sets-pairs! token
       :start_mark sm
       :end_mark (rdr-get-mark rdr))
   (push-token scn token)
@@ -388,12 +370,12 @@
 
 ; Block sequence types
 (defun fetch-block-entry (scn rdr)
-  (when (= (getp scn :flow_level) 0)
-    (when (not (getp scn :allow_simple_key))
+  (when (= (gets scn :flow_level) 0)
+    (when (not (gets scn :allow_simple_key))
         (throw "Sequence entries not allowed here " (rdr-get-mark rdr)))
     (when (add-indent scn rdr)
         (push-token scn (BlockSequenceStart (rdr-get-mark rdr)))))
-  (setp! scn :allow_simple_key t)
+  (sets! scn :allow_simple_key t)
   (remove-possible-simple-key scn)
   (defq sm (rdr-get-mark rdr))
   (rdr-forward rdr 1)
@@ -402,7 +384,7 @@
 
 (defun fetch-plain (scn rdr)
   (save-possible-simple-key scn rdr)
-  (setp! scn :allow_simple_key nil)
+  (sets! scn :allow_simple_key nil)
   (defq res (scan-plain scn rdr))
   (push-token scn res)
   :ok)
@@ -410,23 +392,23 @@
 ; Flow types
 (defun fetch-flow-start (scn rdr token)
   (save-possible-simple-key scn rdr)
-  (setsp! scn
-          :flow_level (inc (getp scn :flow_level))
+  (sets-pairs! scn
+          :flow_level (inc (gets scn :flow_level))
           :allow_simple_key t)
-  (setp! token :start_mark (rdr-get-mark rdr))
+  (sets! token :start_mark (rdr-get-mark rdr))
   (rdr-forward rdr)
-  (setp! token :end_mark (rdr-get-mark rdr))
+  (sets! token :end_mark (rdr-get-mark rdr))
   (push-token scn token)
   :ok)
 
 (defun fetch-flow-end (scn rdr token)
   (remove-possible-simple-key scn)
-  (setsp! scn
-          :flow_level (dec (getp scn :flow_level))
+  (sets-pairs! scn
+          :flow_level (dec (gets scn :flow_level))
           :allow_simple_key nil)
-  (setp! token :start_mark (rdr-get-mark rdr))
+  (sets! token :start_mark (rdr-get-mark rdr))
   (rdr-forward rdr)
-  (setp! token :end_mark (rdr-get-mark rdr))
+  (sets! token :end_mark (rdr-get-mark rdr))
   (push-token scn token)
   :ok)
 
@@ -440,7 +422,7 @@
   (fetch-flow-end scn rdr (FlowMappingEnd)))
 
 (defun fetch-flow-entry (scn rdr)
-  (setp! scn :allow_simple_key t)
+  (sets! scn :allow_simple_key t)
   (remove-possible-simple-key scn)
   (defq sm (rdr-get-mark rdr))
   (rdr-forward rdr)
@@ -449,29 +431,29 @@
 
 (defun fetch-value (scn rdr)
   (defq
-    fl  (getp scn :flow_level)
-    psk (getp scn :possible_simple_keys))
+    fl  (gets scn :flow_level)
+    psk (gets scn :possible_simple_keys))
   (cond
-    ((efind psk fl)
-     (defq pk (getp psk fl))
+    ((gets psk fl)
+     (defq pk (gets psk fl))
      (defq
-       i (- (getp pk :token_number) (getp scn :tokens_taken))
-       mrk (getp pk :mark))
-     (pdrop! psk fl)
+       i (- (gets pk :token_number) (gets scn :tokens_taken))
+       mrk (gets pk :mark))
+     (drop! psk fl)
      (insert-token scn i (Key mrk mrk))
      (if (= fl 0)
-         (if (add-indent scn rdr (getp pk :column))
+         (if (add-indent scn rdr (gets pk :column))
              (progn
                (insert-token scn i (BlockMappingStart mrk mrk)))))
-     (setp! scn :allow_simple_key nil))
+     (sets! scn :allow_simple_key nil))
     (t
-      (defq ask (getp scn :allow_simple_key))
+      (defq ask (gets scn :allow_simple_key))
       (when (= fl 0)
           (when (not ask)
               (throw "Mapping value not allowed here" (rdr-get-mark rdr)))
-          (if (add-indent scn rdr (getp rdr :column))
+          (if (add-indent scn rdr (gets rdr :column))
               (insert-token scn i (BlockMappingStart mrk mrk))))
-      (setp! scn :allow_simple_key (= fl 0))
+      (sets! scn :allow_simple_key (= fl 0))
       (remove-possible-simple-key scn)))
   (defq sm (rdr-get-mark rdr))
   (rdr-forward rdr)
@@ -486,7 +468,7 @@
   ; Drop obsoleted simple keys
   (stale-possible-simple-keys scn rdr)
   ; Compare indentation and current column
-  (unwind-indent scn rdr (getp rdr :column))
+  (unwind-indent scn rdr (gets rdr :column))
   ; Peek next char
   (defq ch (rdr-peek rdr))
   (cond
@@ -523,7 +505,7 @@
 
 (defun consume-tokens (scn)
   ; Start stream
-  (defq rdr (getp scn :rdr))
+  (defq rdr (gets scn :rdr))
   (push-token scn (StreamStart))
   (defq res (fetch-next scn rdr))
   (while (eql res :ok)
@@ -531,12 +513,12 @@
   (cond
     ; Exception
     ((lst? res)
-     (print "I-> " (getp scn :indent) " " (getp scn :indents))
+     (print "I-> " (gets scn :indent) " " (gets scn :indents))
      (throw (second res) (last res)))
     ; End stream
     ((eql res :eof)
      (push-token scn (StreamEnd))
-     (getp scn :tokens))))
+     (gets scn :tokens))))
 
 (defun-bind scan (strm)
   (consume-tokens (Scanner strm)))

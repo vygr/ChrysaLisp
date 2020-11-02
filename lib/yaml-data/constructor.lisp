@@ -41,7 +41,8 @@
     p (properties)
     l (list))
   (each (lambda (n) (cdisp l n)) node)
-  (each (lambda (e) (setp! p (first e) (second e) t)) l)
+  (each (lambda (e)
+          (sets! p (first e) (second e))) l)
   (push acc p))
 
 (defq cjmp
@@ -54,7 +55,7 @@
     :properties construct-properties))
 
 (defun cdisp (acc el)
-  (defq fn (getp cjmp (first el)))
+  (defq fn (gets cjmp (first el)))
   (fn acc (second el)))
 
 (defun construct-document (node)

@@ -11,8 +11,10 @@
       (properties
         "{" :mapb
         "}" :mape
-        "<" :hmapb
-        ">" :hmape
+        "#" :emapb
+        "#" :emape
+        "<" :setb
+        ">" :sete
         "[" :lstb
         "]" :lste
         " " :space
@@ -21,33 +23,32 @@
         "*" :boolean))
 
 (defun set-obj-ctx! (cntxt n)
-  ; (set-obj-ctx! context node) -> node
-  ; Makes the current context 'node'
-  (defq crn (getp cntxt :current))
+  (defq crn (gets cntxt :current))
+  ; Sets root if needed
   (cond
-    ((nil? (getp cntxt :root))
-      (setp! cntxt :root n))
-    ((not (nil? crn))
-      (push crn n)))
+    ((nil? (gets cntxt :root))
+      (sets! cntxt :root n))
+    (t
+      (push (gets crn :children) n)))
   ; Stack node in path for un-setting
-  (push (getp cntxt :path) n)
+  (push (gets cntxt :path) n)
   ; Make node current context
-  (setp! cntxt :current n)
+  (sets! cntxt :current n)
   n)
 
 (defun unset-obj-ctx! (cntxt)
   ; (unset-obj-ctx! context) -> node | nil
   ; Set's context to most recent in path
   (defq
-    npath (getp cntxt :path)
+    npath (gets cntxt :path)
     res   (pop npath))
-  (setp! cntxt :current (last npath))
+  (sets! cntxt :current (last npath))
   res)
 
 (defun add-to-obj! (cntxt n)
   ; (add-to-obj! node) -> node | nil
-  (when (defq crn (getp cntxt :current))
-    (push crn n)))
+  (when (defq crn (gets cntxt :current))
+    (push (gets crn :children) n)))
 
 (defun eat-to-space (ch sst)
   (defq
@@ -73,46 +74,76 @@
 
 (defun pull-value (ch sst)
   (defq res (eat-to-space ch sst))
-  (when (eql (str-is-ints? res) :true)
-    (setq res (str-to-num res)))
-  res)
+  (if (numstr? res)
+      (ScalarNode :number (to-num res))
+      (ScalarNode :string res)))
 
 (defq deser_boolean
       (properties
         "*true"   t
         "*false"  nil))
 
+
+(defun realize-nodes (node)
+  ; (realize-nodes ast) -> object
+  ; Converts AST to object instance(s)
+  (case (gets node :type)
+    (:map
+      (defq res (xmap))
+      (each (lambda ((_k _v))
+              (sets! res (realize-nodes _k) (realize-nodes _v)))
+            (partition 2 (gets node :children)))
+      res)
+    (:seq
+      (defq res (list))
+      (each (lambda (n)
+              (push res (realize-nodes n)))
+            (gets node :children))
+      res)
+    (:scalar
+      (case (gets node :stype)
+        (:keyword
+          (gets node :value))
+        (:string
+          (gets node :value))
+        (:number
+          (gets node :value))
+        (:boolean
+          (gets node :value))
+        (t
+          (print "Unknown " (entries node))
+          nil)))
+    (t
+      (print "Unknown " (entries node))
+      nil)))
+
 (defun lex-to-object (sst)
-  (defq ctx (setp! (Context) :root nil t))
+  ; (lex-to-object string) -> object
+  ; Lex the inbound string to quick AST
+  (defq ctx (sets! (Context) :root nil))
   (until (eql (defq ch (pop sst)) (char 0))
-    (case (getp lu ch :char)
-      ((:space))
-      ((:mapb)
-       (set-obj-ctx! ctx (properties)))
-      ((:hmapb)
-       (set-obj-ctx! ctx (hmap)))
-      ((:lstb)
-       (set-obj-ctx! ctx (list)))
-      ((:hmape)
-       (defq
-         hm   (unset-obj-ctx! ctx)
-         cnt  (- (length hm) 6))
-       (when (> cnt 0)
-         (defq tail (take-last cnt hm))
-         (each (#(hmap-insert hm (first %0) (second %0)))
-               (partition 2 tail))
-         (times cnt (pop hm))))
-      ((:mape :lste)
+    (case (gets lu ch :char)
+      (:space)
+      (:mapb
+       (set-obj-ctx! ctx (MapNode)))
+      (:mape
        (unset-obj-ctx! ctx))
-      ((:mkey)
-       (add-to-obj! ctx (sym (eat-to-space ch sst))))
-      ((:boolean)
-       (add-to-obj! ctx (getp deser_boolean (eat-to-space ch sst))))
-      ((:strng)
-       (add-to-obj! ctx (eat-strng sst)))
-      ((:char)
-       (add-to-obj! ctx (pull-value ch sst)))))
-  (getp ctx :root))
+      (:lstb
+       (set-obj-ctx! ctx (SequenceNode)))
+      (:lste
+       (unset-obj-ctx! ctx))
+      (:mkey
+        (add-to-obj! ctx
+          (ScalarNode :keyword (sym (eat-to-space ch sst)))))
+      (:boolean
+        (add-to-obj! ctx
+          (ScalarNode :boolean (gets deser_boolean (eat-to-space ch sst)))))
+      (:strng
+        (add-to-obj! ctx
+          (ScalarNode :string (eat-strng sst))))
+      (:char
+        (add-to-obj! ctx (pull-value ch sst)))))
+  (realize-nodes (gets ctx :root)))
 
 (defun-bind deserialize (sstrm)
   ; (deserialize stream) -> object
