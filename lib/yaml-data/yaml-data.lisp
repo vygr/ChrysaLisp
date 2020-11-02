@@ -21,7 +21,7 @@
 ;                 is either integer of real and convert it to such
 
 (defq reader-properties
-      (properties
+      (emap-kv
         :keys-to-kw  t    ; Converts map keys to keywords
         :vals-to-kw  t    ; Converts value string with 1st char ":" to kw
         :vals-to-num t))  ; Converts numerics to native (int, real, nums)
@@ -33,7 +33,7 @@
 ;                 Default: True
 
 (defq writer-properties
-      (properties
+      (emap-kv
         :kw-to-str  t       ; Quotes keywords otherwise strips ':'
         ))
 
@@ -51,12 +51,12 @@
 (defun-bind yaml-construct (ast in-args)
   ; (yaml-construct tokens in-args) -> object | exception | nil
   ; Parses yaml tokens and returns ChyrsaLisp objects
-  (construct ast in-args))
+  (catch (construct ast in-args) (throw "Construct error " t)))
 
 (defun-bind yaml-parse (tokens in-args)
   ; (yaml-parse tokens in-args) -> list | exception | nil
   ; Parses yaml tokensers and returns yaml AST
-  (parse tokens in-args))
+  (catch (parse tokens in-args) (throw "Parse error " t)))
 
 (defun-bind yaml-scan (ystring)
   ; (yaml-scan string) -> list | exception | nil
@@ -84,13 +84,13 @@
 ; Writer
 
 (defun-bind yaml-emit (stream obj in-args)
-  (emit stream obj (strip-rest in-args)))
+  (emit stream obj in-args))
 
-(defun-bind yaml-from-obj (obj &rest in-args)
-  (str (yaml-emit (string-stream (cat "")) obj (strip-rest in-args))))
+(defun-bind yaml-from-obj (obj in-args)
+  (str (yaml-emit (string-stream (cat "")) obj in-args)))
 
 (defun-bind yaml-write (fname obj &rest in-args)
-  (defq base-args (merge-args writer-properties in-args))
+  (defq base-args (merge-args writer-properties (pairs-into-kv in-args)))
   (defq res (yaml-from-obj obj base-args))
   (if fname
       (save res fname)))

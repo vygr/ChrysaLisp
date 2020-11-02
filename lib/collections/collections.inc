@@ -107,3 +107,6 @@
     ; Merges collections into a new collection
     (defq kvmap (if (emap? (first _maps)) (emap) (xmap)))
     `(merge-into! ,kvmap ~_maps))
+
+(defmacro-bind pairs-into-kv (pairs)
+    `(emap-kv ~pairs))

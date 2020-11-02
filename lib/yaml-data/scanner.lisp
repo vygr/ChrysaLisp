@@ -66,23 +66,6 @@
     (t
       (sets! scn
         :tokens (insert (gets scn :tokens) pos (list token))))))
-  ; (if iskey
-  ;     (progn
-  ;       (setq ntoks (insert (gets scn :tokens) pos ))
-  ;       (setq pos (inc pos)))
-  ;     (setq ntoks (get scn :tokens)))
-  ; (print
-  ;   "Inserting " (gets token :type) " at " pos
-  ;   " prior " (gets (elem (dec pos) ntoks) :type)
-  ;   " before " (gets (elem pos ntoks) :type))
-  ; (print "That worked")
-  ; scn)
-
-(defun last-token (scn token)
-  (last (gets scn :tokens)))
-
-(defun first-token (scn token)
-  (last (gets scn :tokens)))
 
 ; Simple key functions
 
@@ -94,7 +77,7 @@
   (when v
     (if (gets v :required)
         (throw "Key required" v))
-    (pdrop p k)))
+    (drop! p k)))
 
 (defun save-possible-simple-key (scn rdr)
   (defq fl (gets scn :flow_level))
@@ -122,8 +105,7 @@
     ln (gets rdr :line))
   (when (lst? (first ke))
     (each
-      (lambda (_)
-        (defq k (first _) v (second _))
+      (lambda ((k v))
         (when
           (or (not (= (gets v :line) ln))
               (> (- (gets rdr :index) (gets v :index)) 1024))
@@ -452,7 +434,7 @@
     fl  (gets scn :flow_level)
     psk (gets scn :possible_simple_keys))
   (cond
-    ((efind psk fl)
+    ((gets psk fl)
      (defq pk (gets psk fl))
      (defq
        i (- (gets pk :token_number) (gets scn :tokens_taken))

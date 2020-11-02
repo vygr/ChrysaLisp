@@ -41,7 +41,8 @@
     p (properties)
     l (list))
   (each (lambda (n) (cdisp l n)) node)
-  (each (lambda (e) (sets! p (first e) (second e))) l)
+  (each (lambda (e)
+          (sets! p (first e) (second e))) l)
   (push acc p))
 
 (defq cjmp
@@ -65,6 +66,6 @@
 
 (defun-bind construct (ast options)
   ; (print "Construct")
-  (print ast)
+  ; (print ast)
   (each construct-document ast))
 

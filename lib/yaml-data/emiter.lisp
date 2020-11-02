@@ -108,12 +108,6 @@
      (dec-indent)
      (default-writer "-" strm)
      (inc-indent))
-    ; ((and (eql ctype :seq) (eql lnd :seq))
-    ;  (print " ctype= seq lnd= seq write CRAZY BIRD")
-    ;  (write strm
-    ;         (str
-    ;           (padp-indent) "-" (char 0x0a)
-    ;           (pad-indent) "-")))
     (t
       (throw "Unknown " (list lnd mrc ctype)))))
 
@@ -149,11 +143,11 @@
      (pop-npath))
     ((:map_entry)
      (each node-to-yaml-stream (gets ast :children)))
-    ((:key)
+    ((:me_key)
      (push-npath :key)
      (each (#(node-to-yaml-stream %0 key-writer)) (gets ast :children))
      (pop-npath))
-    ((:value)
+    ((:me_value)
      (push-npath :value)
      (when (find (gets (first (gets ast :children)) :type) (list :seq :map))
          (write (gets ywcntrl :stream) (char 0x0a)))
@@ -169,9 +163,7 @@
      (pwrt (gets ast :value))
      (pop-npath))
     (t
-      ; (throw "yaml-emit: Unknown Node Type" (gets ast :type))
-      )
-    )
+      (throw "yaml-emit: Unknown Node Type" (entries ast))))
   nil)
 
 (defun-bind emit (stream data in-args)
