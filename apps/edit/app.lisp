@@ -29,9 +29,9 @@
 	mbox_array (array (task-mailbox) (mail-alloc-mbox) (mail-alloc-mbox)) find_list (list) find_index 0 
 	sb_line_col_message "" tabbar (create-flow) unsaved_buffers (list) burger_open nil
 	tb_font (create-font "fonts/Entypo.ctf" 20) cmd_menu (create-window) cmd_menu_grid (create-grid)
-	cmd_menu_up nil syn (syntax) colorise nil dirty_vdu t)
+	cmd_menu_up nil syn (syntax) colorise t dirty_vdu t)
 
-(ui-window window (:color +argb_grey8+ :border 4)
+(ui-window window (:color +argb_grey2+)
 		(ui-title-bar window_title "Edit" (0xea19 0xea1b 0xea1a) +event_close+)
 		(ui-flow window_flow (:flow_flags flow_down_fill)
 			(ui-flow toolbar (:color *env_toolbar_col* :flow_flags flow_right_fill)
@@ -61,7 +61,7 @@
 			(ui-flow vdu_flow (:border 0 :flow_flags flow_left_fill)
 				(component-connect (ui-slider slider 
 					(:flow_flags flow_down_fill :border 0)) +event_scroll+)
-				(ui-vdu vdu (:vdu_width vdu_width :vdu_height vdu_height 
+				(ui-vdu vdu (:vdu_width vdu_width :ink_color +argb_white+ :vdu_height vdu_height 
 					:min_width vdu_width :min_height vdu_height :font *env_terminal_font*)))))
 
 (defun-bind vdu-colorise ()

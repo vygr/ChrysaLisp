@@ -42,6 +42,7 @@ color format.
 New profiling lib ! `lib/debug/profile.inc`. Whiteboard app nows runs
 profiling to demo the output.
 
+```lisp
 Whiteboard App
 Fun:           redraw Cnt:    261 Total ns:     1481
 Fun:          flatten Cnt:     13 Total ns:     1278
@@ -56,6 +57,7 @@ Fun:           redraw Cnt:    820 Total ns:   758926
 Fun:            fpoly Cnt:    297 Total ns:   116142
 Fun:          flatten Cnt:    213 Total ns:    21736
 Fun:             main Cnt:      1 Total ns:        0
+```
 
 New PROFILE_SERVICE app to allow multiple profile report viewing.
 
