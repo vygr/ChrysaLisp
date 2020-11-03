@@ -3,8 +3,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "lib/xtras/xtras.inc")
-(import "lib/yaml-data/tokens.lisp")
-(import "lib/yaml-data/reader.lisp")
+(import "lib/xchange/tokens.lisp")
+(import "lib/xchange/reader.lisp")
 
 ; STREAM-START
 ; STREAM-END

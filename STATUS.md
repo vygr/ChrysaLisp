@@ -2,6 +2,17 @@
 
 ![](./screen_shot_5.png)
 
+
+------
+
+Converged csv, yaml and data exchange libraries to `lib/xchange`. Main includes
+
+* lib/xchange/csv-data.inc  - Reading and writing CSV files
+* lib/xchange/msg-data.inc  - Serializing and deserializing data structures
+* lib/xchange/yaml-data.inc - Reading and writing YAML files
+
+Replaced `properties` from `xtras.inc` with `emaps`
+
 ------
 
 New (class), (method), (method-bind) and (.) macro in `class/lisp/boot.inc` to

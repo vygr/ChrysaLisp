@@ -41,7 +41,7 @@
   (mail-send
     (cat
       (char +log_event_register+ long_size)
-      (str (yaml-xser lr)))
+      (str (data-xser lr)))
     (get-logsrvc-mb))
   (log-registration-result lr))
 
@@ -64,7 +64,7 @@
       (mail-send
         (cat
           (char +log_event_logmsg+ long_size)
-          (str (yaml-xser msgs)))
+          (str (data-xser msgs)))
         (get-logsrvc-mb)))))
 
 ; Convenience loggers
