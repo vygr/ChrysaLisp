@@ -114,7 +114,7 @@
 		(t (opt-trashes? r e))))
 
 (defun-bind opt-emit-find-rw (k _ r w b i)
-	(defq _ (some! _ 0 t (lambda (e)
+	(defq _ (some! _ 0 nil (lambda (e)
 		(cond
 			((and (eql w (elem 0 e))
 				(eql b (elem 2 e))
@@ -129,7 +129,7 @@
 	(and _ (/= _ -1) _))
 
 (defun-bind opt-emit-find-rw1 (k _ ra rb w b i)
-	(defq _ (some! _ 0 t (lambda (e)
+	(defq _ (some! _ 0 nil (lambda (e)
 		(cond
 			((and (eql w (elem 0 e))
 				(eql b (elem 2 e))
@@ -144,7 +144,7 @@
 	(and _ (/= _ -1) _))
 
 (defun-bind opt-emit-find-rr (k _ rs rd)
-	(defq _ (some! _ 0 t (lambda (e)
+	(defq _ (some! _ 0 nil (lambda (e)
 		(cond
 			((match? e `(emit-cpy-rr ,rs ,rd)) _)
 			((opt-trashes? rs e) -1)
@@ -161,7 +161,7 @@
 								(elem c (opt-emit-write-ops))
 								(elem 1 e) (eval (elem 2 e))))
 					(defq r (elem c (elem w *emit_buffer*)))
-					(when (not (some! (inc w) _ t (lambda (_)
+					(when (not (some! (inc w) _ nil (lambda (_)
 							(opt-emit-trashes? r _)) (list *emit_buffer*)))
 						(elem-set _ *emit_buffer*
 							(if (eql r (elem 3 e))

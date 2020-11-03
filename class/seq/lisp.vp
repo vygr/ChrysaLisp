@@ -284,8 +284,7 @@
 		(vp-add-cr ptr_size r6)
 	(loop-end)
 
-	(assign '((rsp local_this)) '(r0))
-	(call 'obj :ref '((r0 lisp_sym_nil)) '((rsp local_value)))
+	(call 'obj :ref '(r11) '((rsp local_value)))
 
 	(vpif '(r8 /= +max_int+))
 		(vpif '(r9 < 0))
@@ -339,7 +338,7 @@
 
 			(assign '((rsp local_this) (rsp local_mode)) '(r0 r2))
 			(assign '((r0 lisp_sym_nil)) '(r0))
-			(vpif '(r2 = r0))
+			(vpif '(r2 /= r0))
 				(breakif '(r1 = r0) 'done)
 			(else)
 				(breakif '(r1 /= r0) 'done)

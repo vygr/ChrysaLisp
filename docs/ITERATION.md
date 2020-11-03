@@ -143,7 +143,7 @@ As with `(each!)` the function being called is passed the current index value
 bound to the '_' symbol ! Very useful !
 
 ```vdu
-(some! 0 -1 t = (list '(1 2 3) '(5 6 3)))
+(some! 0 -1 nil = (list '(1 2 3) '(5 6 3)))
 t
 (some (# (if (eql %0 "a") _)) "defhqaio")
 5

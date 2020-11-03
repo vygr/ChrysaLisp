@@ -292,7 +292,7 @@
 
 (defun-bind get-sym (_1)
 	;_1 name
-	(defq _1 (sym _1) a (some! -2 0 t (lambda (s)
+	(defq _1 (sym _1) a (some! -2 0 nil (lambda (s)
 		(if (defq _ (find-rev _1 (elem 1 s)))
 			(elem _ (elem 2 s)))) (list *syms*)))
 	(when a (elem-set -2 a t)) a)
@@ -427,7 +427,7 @@
 	(defq s *src* d *dst* i 0 c 1000 l (dec (length d)))
 	(while (and (< i l) (/= c 0))
 		(if (setq j (unless (lst? (defq j (elem i d)))
-				(some! -1 (inc i) t (lambda (s d)
+				(some! -1 (inc i) nil (lambda (s d)
 					(cond
 						((and (lst? s) (find-rev j s)) _)
 						((and (lst? d) (find-rev j d)) _)
@@ -959,14 +959,14 @@
 	`(find-rev ,r ,_))
 
 (defun-bind opt-find-1 (_ r x)
-	(setq _ (some! _ 0 t (lambda (e)
+	(setq _ (some! _ 0 nil (lambda (e)
 				(cond
 					((match? e x) _)
 					((opt-uses r e) -1))) (list *inst*))
 		p (and _ (/= _ -1) _)))
 
 (defun-bind opt-find-2 (_ r x y)
-	(setq _ (some! _ 0 t (lambda (e)
+	(setq _ (some! _ 0 nil (lambda (e)
 				(cond
 					((match? e x) (setq m 0) _)
 					((match? e y) (setq m 1) _)

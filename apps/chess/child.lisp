@@ -239,9 +239,9 @@
 		(defq king_piece "k" tests (list white_tests)))
 	;find king index on board
 	(defq king_index (find-rev king_piece brd))
-		(some! 0 -1 t (lambda ((pieces vectors))
+		(some! 0 -1 nil (lambda ((pieces vectors))
 			(defq hit_pieces (piece-scans brd king_index vectors) pieces (list pieces))
-			(some! 0 -1 t (lambda (piece)
+			(some! 0 -1 nil (lambda (piece)
 				(find-rev piece hit_pieces)) pieces)) tests))
 
 ;evaluate (score) a board for the colour given
@@ -324,7 +324,7 @@
 		((= ply 0)
 			(evaluate brd colour))
 		(t	(defq next_boards (all-moves brd colour))
-			(some! 0 -1 t (lambda (brd)
+			(some! 0 -1 nil (lambda (brd)
 				(cond
 					((= _ 0)
 						(defq value (neg (pvs brd (neg colour) (neg beta) (neg alpha) (dec ply)))))
@@ -345,7 +345,7 @@
 		((= ply 0)
 			(evaluate brd colour))
 		(t	(defq value +min_int+ next_boards (all-moves brd colour))
-			(some! 0 -1 t (lambda (brd)
+			(some! 0 -1 nil (lambda (brd)
 				(setq value (max value (neg (negamax brd (neg colour) (neg beta) (neg alpha) (dec ply))))
 					alpha (max alpha value))
 				(>= alpha beta)) (list next_boards))
@@ -362,10 +362,10 @@
 		(push bias (* queen_value (reduce (lambda (cnt past_brd)
 				(if (eql past_brd brd) (inc cnt) cnt)) history 0)))) (list ply0_boards))
 	;iterative deepening of ply so we allways have a best move to go with if the time expires
-	(some! 0 -1 t (lambda (ply)
+	(some! 0 -1 nil (lambda (ply)
 		(send-data "s" (LF) "Ply" ply " ")
 		(defq value +min_int+ alpha +min_int+ beta +max_int+
-			timeout (some! 0 -1 t (lambda ((ply0_score brd))
+			timeout (some! 0 -1 nil (lambda ((ply0_score brd))
 				(defq score (neg (negamax brd (neg colour) (neg beta) (neg alpha) (dec ply))))
 				(cond
 					((or (<= (- score (elem _ bias)) value) (= (abs score) (const timeout_value)))

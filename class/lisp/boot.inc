@@ -267,7 +267,7 @@
 	;(case tst [(key body)] ...)
 	(if (defq _ (reduce-rev (lambda (_x (_ &rest _y))
 			(unless (lst? _) (setq _ (list _)))
-			(unless (some! 0 -1 nil (lambda (_) (= (type-of _) (const lisp_type_sym))) (list _))
+			(unless (some! 0 -1 t (lambda (_) (= (type-of _) (const lisp_type_sym))) (list _))
 				(throw "Key not symbol !" _))
 			(each! 0 -1 (lambda (_)
 					(push (elem 0 _x) _)
@@ -369,20 +369,20 @@
 	;(reduced-reduce lambda seq [accum]) -> form
 	(defq __x nil)
 	(cond
-		(_a (some! 0 -1 t (lambda (_e)
+		(_a (some! 0 -1 nil (lambda (_e)
 				(cond (__x t) (t (setq _a (_f _a _e)) nil))) (list _l)))
 		(t (setq _a (elem 0 _l))
-			(some! 1 -1 t (lambda (_e)
+			(some! 1 -1 nil (lambda (_e)
 				(cond (__x t) (t (setq _a (_f _a _e)) nil))) (list _l)))) _a)
 
 (defun-bind reduced-reduce-rev (_f _l &optional _a)
 	;(reduced-reduce-rev lambda seq [accum]) -> form
 	(defq __x nil)
 	(cond
-		(_a (some! -1 0 t (lambda (_e)
+		(_a (some! -1 0 nil (lambda (_e)
 				(cond (__x t) (t (setq _a (_f _a _e)) nil))) (list _l)))
 		(t (setq _a (elem -2 _l))
-			(some! -2 0 t (lambda (_e)
+			(some! -2 0 nil (lambda (_e)
 				(cond (__x t) (t (setq _a (_f _a _e)) nil))) (list _l)))) _a)
 
 (defmacro-bind reduced (_a)
@@ -402,19 +402,19 @@
 
 (defmacro-bind some (f &rest _)
 	;(some lambda seq ...) -> nil|form
-	`(some! 0 -1 t ,f (list ~_)))
+	`(some! 0 -1 nil ,f (list ~_)))
 
 (defmacro-bind every (f &rest _)
 	;(every lambda seq ...) -> nil|form
-	`(some! 0 -1 nil ,f (list ~_)))
+	`(some! 0 -1 t ,f (list ~_)))
 
 (defmacro-bind notany (f &rest _)
 	;(notany lambda seq ...) -> t|nil
-	`(not (some! 0 -1 t ,f (list ~_))))
+	`(not (some! 0 -1 nil ,f (list ~_))))
 
 (defmacro-bind notevery (f &rest _)
 	;(notevery lambda seq ...) -> t|nil
-	`(not (some! 0 -1 nil ,f (list ~_))))
+	`(not (some! 0 -1 t ,f (list ~_))))
 
 (defun-bind nil? (_)
   	;(nil? o) -> bool
