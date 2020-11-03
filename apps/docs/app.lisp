@@ -2,7 +2,7 @@
 (import "sys/lisp.inc")
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
-(import "lib/syntax/syntax.inc")
+(import "lib/text/syntax.inc")
 
 (structure '+event 0
 	(byte 'close+ 'button+))

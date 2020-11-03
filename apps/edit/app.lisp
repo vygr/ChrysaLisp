@@ -3,7 +3,7 @@
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
 (import "lib/substr/substr.inc")
-(import "lib/syntax/syntax.inc")
+(import "lib/text/syntax.inc")
 (import "apps/edit/input.inc")
 (import "apps/edit/find.inc")
 

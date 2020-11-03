@@ -24,7 +24,7 @@ sets.
 New `lib/consts/colors.inc` and `lib/consts/chars.inc` for ARGB and CHAR
 constants.
 
-New `lib/syntax/syntax.inc` class for syntax colouring support for editors and
+New `lib/text/syntax.inc` class for syntax colouring support for editors and
 VDU widgets users.
 
 Docs viewer app now uses syntax colored embedded VDU widgets for `vdu` sections
