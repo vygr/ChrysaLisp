@@ -19,7 +19,7 @@
 (defun service-send-ser (toclient command data)
   ; (service-send-ser mailbox command data)
   ; Serializes data and calls service-send
-  (service-send toclient command (str (yaml-xser data))))
+  (service-send toclient command (str (data-xser data))))
 
 (defun make-log-filename (base)
   ; (make-log-filename basename) -> string
@@ -98,7 +98,7 @@
 (defun-bind deser-anchor-inbound (msg)
   ; (deser-inbound mail-msg) -> collection
   ; Deserializes inbound data from mail message
-  (yaml-xdeser (write (string-stream (cat "")) (slice +rega_msg_data+ -1 msg))))
+  (data-xdeser (write (string-stream (cat "")) (slice +rega_msg_data+ -1 msg))))
 
 (defun-bind kvmap-has-prefix? (_hm nm)
   ; (kvmap-has-prefix? kv-map string) -> kw | nil

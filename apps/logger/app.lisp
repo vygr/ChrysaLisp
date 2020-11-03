@@ -7,7 +7,7 @@
 (import "class/lisp.inc")
 (import "lib/logging/logservice.inc")
 (import "lib/logging/logcommons.inc")
-(import "lib/yaml-data/yaml-data.lisp")
+(import "lib/xchange/yaml-data.inc")
 (import "apps/logger/logutils.lisp")
 
 ;single instance only

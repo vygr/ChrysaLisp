@@ -3,7 +3,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "lib/xtras/xtras.inc")
-(import "lib/yaml-data/yaml-xchange.lisp")
+(import "lib/xchange/msg-data.inc")
 (import "lib/date/date.inc")
 
 (defun-bind log-registration (mname use_handler &optional rcvmb)
@@ -41,5 +41,5 @@
 (defun-bind deser-inbound (msg)
   ; (deser-inbound mail-msg) -> collection
   ; Deserializes inbound data from mail message
-  (yaml-xdeser (write (string-stream (cat "")) (slice mail_msg_data -1 msg))))
+  (data-xdeser (write (string-stream (cat "")) (slice mail_msg_data -1 msg))))
 

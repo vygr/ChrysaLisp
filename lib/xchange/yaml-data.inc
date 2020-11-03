@@ -3,10 +3,10 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ; imports
-(import "lib/yaml-data/scanner.lisp")
-(import "lib/yaml-data/parser.lisp")
-(import "lib/yaml-data/constructor.lisp")
-(import "lib/yaml-data/emiter.lisp")
+(import "lib/xchange/scanner.lisp")
+(import "lib/xchange/parser.lisp")
+(import "lib/xchange/constructor.lisp")
+(import "lib/xchange/emiter.lisp")
 
 ; Reader Options
 ;   :keys-to-kw   when true, properties keys converted to keywords
