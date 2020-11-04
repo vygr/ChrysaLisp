@@ -147,13 +147,6 @@
   ; Returns true if argument is a properties type
   (emap? _))
 
-(defun-bind def? (_ &optional e)
-  ; (def? sym [env]) -> bool
-  ; Returns t if sym is defined in environment
-  ; Defaults to current environment if not provided
-  (setd e (env))
-  (not (eql (get _ e) nil)))
-
 (defun-bind ndef? (_ &optional e)
   ; (ndef? sym [env]) -> bool
   ; Returns t if sym is not defined in environment
@@ -173,6 +166,7 @@
 
 (defun-bind str-is-ints? (s)
   ; (str-is-ints? s) -> :true | :false
+  ; TODO: Deprecate for numstr?
   (defq instr
     (if (find (first s) +plus_minus+)
       (rest s)
