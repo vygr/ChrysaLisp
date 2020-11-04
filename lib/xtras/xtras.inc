@@ -457,6 +457,11 @@
             (set-context! cntxt (SequenceNode))
             (each (#(obj-to-node cntxt %0)) odata)
             (unset-context! cntxt))
+          ; Sets
+          ((set? odata)
+            (set-context! cntxt (SetNode))
+            (each (#(obj-to-node cntxt %0)) (first (get :buckets odata)))
+            (unset-context! cntxt))
           ; Map Entry
           ((map-me? odata)
             (set-context! cntxt odata)

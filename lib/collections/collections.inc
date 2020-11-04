@@ -26,15 +26,19 @@
 
 (defun-bind entries (_)
     ; (entries collections) -> list | nil
-    ; Returns list of key/value pairs
-    (when (map? _)
-        (defq bk (get :buckets _))
-        (cond
-            ((xmap? _)
-                (defq res (list))
-                (each! 0 -1 (lambda (_k _v) (push res (list _k _v))) bk)
-                res)
-            (t (tolist bk)))))
+    ; Returns list of key/value pairs if map
+    ; Returns list of values if set
+    (defq bk (get :buckets _))
+    (cond
+        ((map? _)
+            (cond
+                ((xmap? _)
+                    (defq res (list))
+                    (each! 0 -1 (lambda (_k _v) (push res (list _k _v))) bk)
+                    res)
+                (t (tolist bk))))
+        ((set? _)
+            (first bk))))
 
 (defun-bind keys (_)
     ; (keys collection) -> list | nil
@@ -74,9 +78,13 @@
         (setq hit curr))
     hit)
 
-(defun-bind sets! (kv-map _k _v)
+(defun-bind sets! (kv-map _k &optional _v)
     ; (sets! collection key value) -> collection
-    (. kv-map :insert _k _v)
+    (cond
+        ((map? kv-map)
+            (. kv-map :insert _k _v))
+        ((set? kv-map)
+            (. kv-map :insert _k)))
     kv-map)
 
 (defun-bind sets-pairs! (kv-map &rest pairs)
