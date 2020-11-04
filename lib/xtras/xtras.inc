@@ -147,13 +147,6 @@
   ; Returns true if argument is a properties type
   (emap? _))
 
-(defun-bind def? (_ &optional e)
-  ; (def? sym [env]) -> bool
-  ; Returns t if sym is defined in environment
-  ; Defaults to current environment if not provided
-  (setd e (env))
-  (not (eql (get _ e) nil)))
-
 (defun-bind ndef? (_ &optional e)
   ; (ndef? sym [env]) -> bool
   ; Returns t if sym is not defined in environment
@@ -173,6 +166,7 @@
 
 (defun-bind str-is-ints? (s)
   ; (str-is-ints? s) -> :true | :false
+  ; TODO: Deprecate for numstr?
   (defq instr
     (if (find (first s) +plus_minus+)
       (rest s)
@@ -463,6 +457,11 @@
             (set-context! cntxt (SequenceNode))
             (each (#(obj-to-node cntxt %0)) odata)
             (unset-context! cntxt))
+          ; Sets
+          ((set? odata)
+            (set-context! cntxt (SetNode))
+            (each (#(obj-to-node cntxt %0)) (first (get :buckets odata)))
+            (unset-context! cntxt))
           ; Map Entry
           ((map-me? odata)
             (set-context! cntxt odata)
@@ -505,6 +504,7 @@
   (emap-kv
     :map-delims   "{}"
     :list-delims  "()"
+    :set-delims   "<>"
     :indent       -1
     :indent_space  2))
 
@@ -545,7 +545,7 @@
 (defun node-to-pprint (sstrm in-args ast)
   (defq recur (curry node-to-pprint sstrm in-args))
   (case (gets ast :type)
-    ((:map)
+    (:map
       (indent+ in-args)
       (pp-map-container sstrm in-args (first (gets in-args :map-delims)))
       (indent+ in-args)
@@ -555,30 +555,35 @@
         (pp-iwcr sstrm in-args (last (gets in-args :map-delims)))
         (pp-iw sstrm in-args (last (gets in-args :map-delims))))
       (indent- in-args))
-    ((:set)
-      ; TODO
-      )
-    ((:seq)
-     (indent+ in-args)
-     (pp-niw sstrm in-args (first (gets in-args :list-delims)))
-     (indent+ in-args)
-     (each recur (gets ast :children))
-     (indent- in-args)
-     (pp-niw sstrm in-args (last (gets in-args :list-delims)))
-     (indent- in-args))
-    ((:map_entry)
-     (each recur (gets ast :children)))
-    ((:key)
+    (:set
+      (indent+ in-args)
+      (pp-niw sstrm in-args (first (gets in-args :set-delims)))
+      (indent+ in-args)
+      (each recur (gets ast :children))
+      (indent- in-args)
+      (pp-niw sstrm in-args (last (gets in-args :set-delims)))
+      (indent- in-args))
+    (:seq
+      (indent+ in-args)
+      (pp-niw sstrm in-args (first (gets in-args :list-delims)))
+      (indent+ in-args)
+      (each recur (gets ast :children))
+      (indent- in-args)
+      (pp-niw sstrm in-args (last (gets in-args :list-delims)))
+      (indent- in-args))
+    (:map_entry
+      (each recur (gets ast :children)))
+    (:me_key
       (pp-iw sstrm in-args "")
       (each recur (gets ast :children)))
-    ((:value)
+    (:me_value
       (each recur (gets ast :children))
       (pp-iwcr sstrm in-args ""))
-    ((:scalar)
+    (:scalar
      (if (eql (gets ast :stype) :boolean)
         (pp-niw sstrm in-args (str (gets pp_boolean (gets ast :value)) " "))
         (pp-niw sstrm in-args (str (gets ast :value) " "))))
-    (t (throw "Unknown " ast))))
+    (t (throw "Unknown " (entries ast)))))
 
 (defun-bind pprint-to-strm (sstrm obj out-args)
   (defq context

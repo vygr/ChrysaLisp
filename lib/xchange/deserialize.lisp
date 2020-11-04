@@ -100,6 +100,12 @@
               (push res (realize-nodes n)))
             (gets node :children))
       res)
+    (:set
+      (defq res (xset))
+      (each (lambda (n)
+              (sets! res (realize-nodes n)))
+            (gets node :children))
+      res)
     (:scalar
       (case (gets node :stype)
         (:keyword
@@ -125,13 +131,17 @@
     (case (gets lu ch :char)
       (:space)
       (:mapb
-       (set-obj-ctx! ctx (MapNode)))
+        (set-obj-ctx! ctx (MapNode)))
       (:mape
-       (unset-obj-ctx! ctx))
+        (unset-obj-ctx! ctx))
       (:lstb
-       (set-obj-ctx! ctx (SequenceNode)))
+        (set-obj-ctx! ctx (SequenceNode)))
       (:lste
-       (unset-obj-ctx! ctx))
+        (unset-obj-ctx! ctx))
+      (:setb
+        (set-obj-ctx! ctx (SetNode)))
+      (:sete
+        (unset-obj-ctx! ctx))
       (:mkey
         (add-to-obj! ctx
           (ScalarNode :keyword (sym (eat-to-space ch sst)))))
