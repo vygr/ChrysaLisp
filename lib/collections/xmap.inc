@@ -8,19 +8,19 @@
 		e (some (# (if ((get :cmp_fnc this) %0 key) _)) (elem b x))))
 
 (class xmap (&optional num_buckets cmp_fnc hash_fnc)
-	;(xmap [num_buckets cmp_fnc hash_fnc]) -> xmap
+	; (xmap [num_buckets cmp_fnc hash_fnc]) -> xmap
 	(def this :buckets (list) :num_buckets (setq num_buckets (opt num_buckets 1))
 		:cmp_fnc (opt cmp_fnc eql) :hash_fnc (opt hash_fnc hash) :xmap t)
 	(while (>= (setq num_buckets (dec num_buckets)) 0)
 		(push (get :buckets this) (list) (list)))
 
 	(method :find (this key)
-		;(. xmap :find key) -> nil|val
+		; (. xmap :find key) -> nil|val
 		(xmap-slot)
 		(if e (elem e (elem (inc b) x))))
 
 	(method :insert (this key val)
-		;(. xmap :insert key val) -> xmap
+		; (. xmap :insert key val) -> xmap
 		(xmap-slot)
 		(cond
 			(e (elem-set e (elem (inc b) x) val))
@@ -28,7 +28,7 @@
 		this)
 
 	(method :erase (this key)
-		;(. xmap :erase key) -> xmap
+		; (. xmap :erase key) -> xmap
 		(xmap-slot)
 		(when e
 			(defq bv (elem (inc b) x) b (elem b x))
@@ -38,13 +38,13 @@
 		this)
 
 	(method :each (_this _fnc)
-		;(. xmap :each lambda)
+		; (. xmap :each lambda)
 		(defq _i -2 _b (get :buckets _this))
 		(while (< (setq _i (+ _i 2)) (length _b))
 			(each _fnc (elem _i _b) (elem (inc _i) _b))) _this)
 
 	(method :copy (this)
-		;(. xmap :copy) -> xmap
+		; (. xmap :copy) -> xmap
 		(defq that (xmap (get :num_buckets this) (get :cmp_fnc this) (get :hash_fnc this)))
 		(each (lambda (this_bucket that_bucket)
 			(each (lambda (key_val)
@@ -52,7 +52,7 @@
 		that)
 
 	(method :deep_copy (this)
-		;(. xmap :deep_copy) -> xmap
+		; (. xmap :deep_copy) -> xmap
 		(defq that (xmap (get :num_buckets this) (get :cmp_fnc this) (get :hash_fnc this)))
 		(each (lambda (this_bucket that_bucket)
 			(each (lambda (key_val)
@@ -60,12 +60,12 @@
 		that)
 
 	(method :empty (this)
-		;(. xmap :empty) -> xmap
+		; (. xmap :empty) -> xmap
 		(each (# (clear %0)) (get :buckets this))
 		this)
 
 	(method :move (this)
-		;(. xmap :move) -> xmap
+		; (. xmap :move) -> xmap
 		(defq that (xmap (get :num_buckets this) (get :cmp_fnc this) (get :hash_fnc this))
 			this_buckets (get :buckets this) that_buckets (get :buckets that))
 		(set this :buckets that_buckets)
@@ -73,7 +73,7 @@
 		that)
 
 	(method :resize (this num_buckets)
-		;(. xmap :resize num_buckets) -> xmap
+		; (. xmap :resize num_buckets) -> xmap
 		(defq hash_fnc (get :hash_fnc this) old_buckets (get :buckets this) new_buckets (list))
 		(set this :buckets new_buckets :num_buckets num_buckets)
 		(while (>= (setq num_buckets (dec num_buckets)) 0)
@@ -89,13 +89,13 @@
 	)
 
 (defun xmap-kv (&rest _)
-	;(xmap-kv [key val ...]) -> xmap
+	; (xmap-kv [key val ...]) -> xmap
 	(defq this (xmap))
 	(each! 0 -1 (# (. this :insert %0 %1)) (unzip _ (list (list) (list))))
 	this)
 
 (defun xmap? (this)
-	;(xmap? xmap) -> nil|t
+	; (xmap? xmap) -> nil|t
 	(and (env? this) (get :xmap this)))
 
 (undef (env) 'xmap-slot)

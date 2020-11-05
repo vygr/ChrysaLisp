@@ -1,53 +1,5 @@
 # Syntax
 
-## collection?
-
- (collection? obj) -> t | nil
-
-## empty
-
- (empty object) -> object | nil
-
-## entries
-
- (entries collections) -> list | nil
-
-## gets
-
- (gets collection k [if_nil]) -> value | if_nil | nil
-
-## gets-in
-
- (gets-in collection key-path) -> value | nil
-
-## keys
-
- (keys collection) -> list | nil
-
-## map?
-
- (map? object) -> t | nil
-
-## merge-into!
-
- (merge-into! collection (collections)) -> collection
-
-## merges
-
- (merges (collections)) -> collection
-
-## sets!
-
- (sets! collection key value) -> collection
-
-## sets-pairs!
-
- (sets-pairs! collection))
-
-## values
-
- (values collection) -> list | nil
-
 ## #
 
 (# (< %0 0)) -> (lambda (%0) (< %0 0))
@@ -412,6 +364,10 @@
 
 (code str [width index])
 
+## collection?
+
+(collection? obj) -> t | nil
+
 ## component-connect
 
 (component-connect component id)
@@ -616,6 +572,10 @@
 
 (emap? emap) -> nil|t
 
+## empty
+
+(empty object) -> object | nil
+
 ## empty?
 
 (empty? form) -> bool
@@ -623,6 +583,10 @@
 ## ends-with
 
 (ends-with str str) -> t|nil
+
+## entries
+
+(entries collections) -> list | nil
 
 ## env
 
@@ -760,6 +724,14 @@
 
 (get-ushort str index) -> num
 
+## gets
+
+(gets collection k [if_nil]) -> value | if_nil | nil
+
+## gets-in
+
+(gets-in collection key-path) -> value | nil
+
 ## gui-add
 
 (gui-add view)
@@ -839,6 +811,10 @@
 ## join
 
 (join list seq) -> seq
+
+## keys
+
+(keys collection) -> list | nil
 
 ## lambda
 
@@ -952,6 +928,10 @@
 
 (map-rev lambda seq ...) -> list
 
+## map?
+
+(map? object) -> t | nil
+
 ## match?
 
 (match? list list)
@@ -964,9 +944,17 @@
 
 (mem-stats options)
 
+## merge-into!
+
+(merge-into! collection (collections)) -> collection
+
 ## merge-obj
 
 (merge-obj dlist slist) -> dlist
+
+## merges
+
+(merges (collections)) -> collection
 
 ## method
 
@@ -1348,6 +1336,14 @@
 
 (setq var val [var val] ...)
 
+## sets!
+
+(sets! collection key value) -> collection
+
+## sets-pairs!
+
+(sets-pairs! collection))
+
 ## short
 
 (short field ...)
@@ -1599,6 +1595,10 @@
 ## unzip
 
 (unzip seq buckets) -> buckets
+
+## values
+
+(values collection) -> list | nil
 
 ## vdu-char-size
 

@@ -2,5 +2,5 @@
 (ffi create-stdio "class/stdio/lisp_create" 0)
 
 (defun stdio-get-args (stdio)
-	;(stdio-get-args stdio) -> list
+	; (stdio-get-args stdio) -> list
 	(get-field stdio (const stdio_args) 0))

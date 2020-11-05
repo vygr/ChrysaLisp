@@ -19,7 +19,7 @@
 		(ui-label _ (:text "" :font *env_body_font*))
 		(ui-flow _ (:flow_flags flow_flag_align_hcenter)
 		(ui-flow flow ()))))
-		;(ui-label _ (:text "" :min_height 20))))
+		; (ui-label _ (:text "" :min_height 20))))
 
 (defmacro gl (ls)
 	`(reduce (lambda (x y) 

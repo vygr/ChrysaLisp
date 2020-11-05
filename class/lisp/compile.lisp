@@ -17,7 +17,7 @@
 (defun print (&rest args)
 	(write msg_out (apply str (push args (ascii-char 10)))))
 
-;(import "lib/debug/profile.inc")
+; (import "lib/debug/profile.inc")
 
 ;catch any errors
 (catch
@@ -25,4 +25,4 @@
 	(within-compile-env (# (each include files)))
 	(print _))
 
-;(profile-report "Compile")
+; (profile-report "Compile")

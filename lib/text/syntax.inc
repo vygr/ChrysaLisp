@@ -46,17 +46,17 @@
 		(tolist e))
 
 	(method :set_state (this state)
-		;(. this :set_state state) -> this
+		; (. this :set_state state) -> this
 		(set this :state state)
 		this)
 
 	(method :set_colors (this colors)
-		;(. this :set_colors xmap) -> this
+		; (. this :set_colors xmap) -> this
 		(. colors :each (# (set this %0 (<< (canvas-from-argb32 %1 15) 32))))
 		this)
 
 	(method :colorise (this line)
-		;(. this :colorise str) -> array
+		; (. this :colorise str) -> array
 
 		;tokenise the string starting with the current state
 		;save the state at the end as we may wish to continue
@@ -171,5 +171,4 @@
 			token_list col_list)
 		(apply cat state_list)))
 
-(undef (env) 'is_number_char 'is_allowed_number_char 'is_symbol_char
-	'boot-fncs 'boot-funs 'boot-macros)
+(undef (env) 'is_number_char 'is_allowed_number_char 'is_symbol_char)

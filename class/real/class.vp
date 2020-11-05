@@ -391,7 +391,7 @@
 	(entry 'real :recip '(r0))
 
 	(vp-push r0)
-	;(i2r 1) for the sake of the C++ version
+	; (i2r 1) for the sake of the C++ version
 	(call 'sys_math :r_div '(0x4000000000000001 (r0 num_value)) '(r0))
 	(call 'real :create '(r0) '(r1))
 	(vp-pop r0)
@@ -415,7 +415,7 @@
 	(vp-push r0)
 	(assign '((r0 num_value)) '(r0))
 	(vpif '(r0 < 0))
-		;(i2r -1) for the sake of the C++ version
+		; (i2r -1) for the sake of the C++ version
 		(call 'sys_math :r_mul '(-0x3FFFFFFFFFFFFFFF r0) '(r0))
 		(call 'real :create '(r0) '(r1))
 	(else)
@@ -441,7 +441,7 @@
 	(entry 'real :neg '(r0))
 
 	(vp-push r0)
-	;(i2r -1) for the sake of the C++ version
+	; (i2r -1) for the sake of the C++ version
 	(call 'sys_math :r_mul '(-0x3FFFFFFFFFFFFFFF (r0 num_value)) '(r0))
 	(call 'real :create '(r0) '(r1))
 	(vp-pop r0)
@@ -465,10 +465,10 @@
 	(vp-push r0)
 	(assign '((r0 num_value)) '(r0))
 	(vpif '(r0 < 0))
-		;(i2r -1) for the sake of the C++ version
+		; (i2r -1) for the sake of the C++ version
 		(assign '(-0x3FFFFFFFFFFFFFFF) '(r0))
 	(elseif '(r0 > 0))
-		;(i2r 1) for the sake of the C++ version
+		; (i2r 1) for the sake of the C++ version
 		(assign '(0x4000000000000001) '(r0))
 	(endif)
 	(call 'real :create '(r0) '(r1))

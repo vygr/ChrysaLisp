@@ -3,28 +3,28 @@
 
 ;some simple structure helpers
 (defmacro structure (n o &rest b)
-	;(structure name offset [body])
+	; (structure name offset [body])
 	`(progn (defq _e (env) _n ,n _o ,(eval o)) ~b (def _e (sym (cat _n "_size")) _o '_e nil)))
 (defun struct (s &rest b)
-	;(struct size field ...)
+	; (struct size field ...)
 	(each (lambda (_) (def _e (sym (cat _n "_" _)) _o) (setq _o (+ _o s))) b))
 (defun offset (&rest b)
-	;(offset field ...)
+	; (offset field ...)
 	(apply struct (cat (list 0) b)))
 (defun ptr (&rest b)
-	;(ptr field ...)
+	; (ptr field ...)
 	(setq _o (align _o ptr_size)) (apply struct (cat (list ptr_size) b)))
 (defun long (&rest b)
-	;(long field ...)
+	; (long field ...)
 	(setq _o (align _o long_size)) (apply struct (cat (list long_size) b)))
 (defun int (&rest b)
-	;(int field ...)
+	; (int field ...)
 	(setq _o (align _o int_size)) (apply struct (cat (list int_size) b)))
 (defun short (&rest b)
-	;(short field ...)
+	; (short field ...)
 	(setq _o (align _o short_size)) (apply struct (cat (list short_size) b)))
 (defun byte (&rest b)
-	;(byte field ...)
+	; (byte field ...)
 	(setq _o (align _o byte_size)) (apply struct (cat (list byte_size) b)))
 
 ;system lisp bindings
@@ -47,7 +47,7 @@
 (ffi mem-stats "sys/mem/lisp_stats" 0)
 
 (defun open-child (task mode)
-	;(open-child task mode)
+	; (open-child task mode)
 	(defq mbox (mail-alloc-mbox))
 	(mail-send (cat
 			(char 0 long_size)
@@ -59,7 +59,7 @@
 	(mail-free-mbox mbox) id)
 
 (defun open-remote (task node mode)
-	;(open-remote task node mode)
+	; (open-remote task node mode)
 	(defq mbox (mail-alloc-mbox))
 	(mail-send (cat
 			(char 0 long_size)
@@ -71,7 +71,7 @@
 	(mail-free-mbox mbox) id)
 
 (defun open-farm (task num mode &optional devices)
-	;(open-farm task num mode [devices])
+	; (open-farm task num mode [devices])
 	(defq devices (opt devices (mail-devices)) ids (cap num (array)) mbox (mail-alloc-mbox)
 		index -1 center (+ (/ num 2) (length devices) (opt (find (>> (task-mailbox) 32) devices) 0)))
 	(while (< (setq index (inc index)) num)
@@ -87,7 +87,7 @@
 	(mail-free-mbox mbox) ids)
 
 (defun open-pipe (tasks)
-	;(open-pipe tasks)
+	; (open-pipe tasks)
 	(defq devices (mail-devices) ids (cap (length tasks) (array))
 		mbox (mail-alloc-mbox) index -1 tail (task-mailbox))
 	(while (< (setq index (inc index)) (length tasks))

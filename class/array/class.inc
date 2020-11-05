@@ -308,7 +308,7 @@
 (defun array-set-args (i regs &optional type)
 	;inputs
 	;iter
-	;(reg ...)
+	; (reg ...)
 	;outputs
 	;load register list from iter
 	(cond
@@ -320,7 +320,7 @@
 (defun array-get-args (i regs &optional type)
 	;inputs
 	;iter
-	;(reg ...)
+	; (reg ...)
 	;outputs
 	;save register list to iter
 	(cond
@@ -331,8 +331,8 @@
 
 (defun array-map-args (regs pos)
 	;inputs
-	;(reg reg ...)
-	;(p1 p2 ...)
+	; (reg reg ...)
+	; (p1 p2 ...)
 	;outputs
 	;reordered register list
 	(defq out (cat regs))
@@ -342,7 +342,7 @@
 (defun array-bind-args (a regs)
 	;inputs
 	;array object
-	;(reg ...)
+	; (reg ...)
 	;outputs
 	;load register list from array
 	(assign `((,a array_begin)) `(,(elem -2 regs)))

@@ -9,7 +9,7 @@
 (dec-method :brighter 'gui/ctx/brighter :static '(r1) '(r1))
 (dec-method :darker 'gui/ctx/darker :static '(r1) '(r1))
 
-;(dec-method :debug 'gui/ctx/debug :static '(r0 r7 r8 r9 r10))
+; (dec-method :debug 'gui/ctx/debug :static '(r0 r7 r8 r9 r10))
 
 (def-struct 'ctx)
 	(ptr 'sdl_ctx 'dirty_region)

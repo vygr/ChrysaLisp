@@ -98,7 +98,7 @@
 (defun updates-in! (kv-map ufnc val &rest kws))
 
 (defun drop! (kv-map _k)
-    ;(drop! collection key) -> collection
+    ; (drop! collection key) -> collection
     (. kv-map :erase _k))
 
 (defun merge-into! (kv-map &rest _maps)

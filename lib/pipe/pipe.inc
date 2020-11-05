@@ -69,7 +69,7 @@
 	(stream-flush (write (elem -2 (elem +pipe_streams+ pipe)) s)))
 
 (defun pipe-run (cmdline &optional out)
-	;(pipe-run cmdline &optional outfun)
+	; (pipe-run cmdline &optional outfun)
 	(setd out print)
 	(defq cmd (pipe-open cmdline t))
 	(while cmd

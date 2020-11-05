@@ -25,7 +25,7 @@
 		(open-child "apps/mandelbrot/child.lisp" kn_call_child)))
 
 (defun tile (canvas data)
-	;(tile canvas data) -> area
+	; (tile canvas data) -> area
 	(defq data (string-stream data) x (read-int data) y (read-int data)
 		x1 (read-int data) y1 (read-int data) yp (dec y))
 	(while (/= (setq yp (inc yp)) y1)

@@ -21,8 +21,8 @@
 	(bind '(w h) (view-pref-size grid))
 	(view-change grid 0 0 w h)
 	(view-add-child flow grid)
-	;(view-layout flow)
-	;(view-change flow 0 0 w h)
+	; (view-layout flow)
+	; (view-change flow 0 0 w h)
 	(set label :text lbl :color color)
 	(view-change-dirty window mx my mw mh))
 

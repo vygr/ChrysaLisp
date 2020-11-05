@@ -20,7 +20,7 @@
 	+light_pos+ (fixeds -0.1 -0.1 -3.0))
 
 ;field equation for a sphere
-;(defun sphere (p c r)
+; (defun sphere (p c r)
 ;	(- (vec-length (vec-sub p c)) r))
 
 ;the scene

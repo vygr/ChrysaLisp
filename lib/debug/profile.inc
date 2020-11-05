@@ -10,7 +10,7 @@
 (defq *profile* (env -401) *profile_ret* (list))
 
 (defun profile-print (n &optional s)
-	;(profile-print name [stream]) -> stdout|stream
+	; (profile-print name [stream]) -> stdout|stream
 	(setd s (io-stream 'stdout))
 	(defq e (tolist *profile*) m (reduce (lambda (a (k v)) (max a (length k))) e 0))
 	(write s (cat (char (task-mailbox) long_size) n (ascii-char 10)))
@@ -24,7 +24,7 @@
 			(- (elem +prof_acc+ v2) (elem +prof_acc+ v1))) e)) s)
 
 (defun profile-report (n)
-	;(profile-report name)
+	; (profile-report name)
 	(when (/= 0 (length (defq services (mail-enquire "PROFILE_SERVICE"))))
 		(mail-send (str (profile-print n (string-stream (cat ""))))
 			(str-to-num (elem 1 (split (pop services) ","))))))

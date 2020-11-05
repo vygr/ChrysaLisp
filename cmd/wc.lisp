@@ -3,7 +3,7 @@
 (import "lib/argparse/argparse.inc")
 
 (defun get-stream (args)
-	;(get-stream args) -> stream
+	; (get-stream args) -> stream
 	(if (find :file_name args)
 		(file-stream (elem (inc (find :file_name args)) args))
 		(io-stream 'stdin)))

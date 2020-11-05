@@ -29,7 +29,7 @@
 
 (defun list-cast-args (regs types)
 	;inputs
-	;(reg ...)
+	; (reg ...)
 	;'({:num :str :char _} ...)
 	;outputs
 	;cast register list
@@ -43,7 +43,7 @@
 (defun list-bind-args (a regs types)
 	;inputs
 	;list object
-	;(reg ...)
+	; (reg ...)
 	;'({:num :str :char _} ...)
 	;outputs
 	;load and cast register list from list

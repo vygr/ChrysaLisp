@@ -17,36 +17,36 @@
 (ffi view-set-flags "gui/view/lisp_set_flags" 0)
 
 (defun view-get-pos (view)
-	;(view-get-pos view) -> (x y)
+	; (view-get-pos view) -> (x y)
 	(list (get-field view (const view_x) (const int_size))
 		(get-field view (const view_y) (const int_size))))
 
 (defun view-set-pos (view x y)
-	;(view-set-pos view x y) -> view
+	; (view-set-pos view x y) -> view
 	(set-field (set-field view
 		(const view_x) (const int_size) x)
 		(const view_y) (const int_size) y))
 
 (defun view-get-size (view)
-	;(view-get-size view) -> (w h)
+	; (view-get-size view) -> (w h)
 	(list (get-field view (const view_w) (const int_size))
 		(get-field view (const view_h) (const int_size))))
 
 (defun view-set-size (view w h)
-	;(view-set-size view w h) -> view
+	; (view-set-size view w h) -> view
 	(set-field (set-field view
 		(const view_w) (const int_size) w)
 		(const view_h) (const int_size) h))
 
 (defun view-get-bounds (view)
-	;(view-get-bounds view) -> (x y w h)
+	; (view-get-bounds view) -> (x y w h)
 	(list (get-field view (const view_x) (const int_size))
 		(get-field view (const view_y) (const int_size))
 		(get-field view (const view_w) (const int_size))
 		(get-field view (const view_h) (const int_size))))
 
 (defun view-set-bounds (view x y w h)
-	;(view-set-bounds view x y w h) -> view
+	; (view-set-bounds view x y w h) -> view
 	(set-field (set-field (set-field (set-field view
 		(const view_x) (const int_size) x)
 		(const view_y) (const int_size) y)
@@ -54,13 +54,13 @@
 		(const view_h) (const int_size) h))
 
 (defun view-fit (x y w h)
-	;(view-fit x y w h) -> (x y w h)
+	; (view-fit x y w h) -> (x y w h)
 	(bind '(_ _ sw sh) (gui-info))
 	(setq x (max 0 (min x (- sw w))) y (max 0 (min y (- sh h))))
 	(list x y (min w sw) (min h sh)))
 
 (defun view-locate (w h &optional p)
-	;(view-locate w h [flag]) -> (x y w h)
+	; (view-locate w h [flag]) -> (x y w h)
 	(setd p :center)
 	(bind '(mx my sw sh) (gui-info))
 	(defq x (- mx (/ w 2)) y (- my (/ h 2)))

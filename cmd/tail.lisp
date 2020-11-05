@@ -3,7 +3,7 @@
 (import "lib/argparse/argparse.inc")
 
 (defun get-stream (args alen)
-	;(get-stream args argslen) -> stream
+	; (get-stream args argslen) -> stream
 	(cond
 		((= alen 1) (file-stream (first args)))
 		((<= 0 alen 2) (io-stream 'stdin))
