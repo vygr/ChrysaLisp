@@ -234,6 +234,27 @@
 
 ; Walkers
 
+(defun nwalk (inner outer form)
+  (cond
+    ((lst? form)
+      (outer (apply list (map inner form))))
+    ((map? form)
+      (outer (apply list (map inner (entries form)))))
+    ((xset? form)
+      (outer (apply list (map inner (entries form)))))
+    ((seq? form)
+      (outer (map inner form)))
+    (t
+      (print "No handler for " form))))
+
+(defun pinner (el)
+  (print "Inner " el)
+  el)
+
+(defun pouter (el)
+  (print "Outer " el)
+  el)
+
 (defun walk-tree (tree fnc)
   (defq stack (if (> (length tree) 0) (list tree 0) '()))
   (while (defq i (pop stack) l (pop stack))
