@@ -118,7 +118,7 @@
 	this)
 
 (defun xset? (this)
-	; (xset? xset) -> nil|t
+	; (xset? xset) -> t | nil
 	(and (env? this) (get :xset this)))
 
 (undef (env) 'xset-slot)

@@ -95,7 +95,7 @@
 	this)
 
 (defun xmap? (this)
-	; (xmap? xmap) -> nil|t
+	; (xmap? xmap) -> t | nil
 	(and (env? this) (get :xmap this)))
 
 (undef (env) 'xmap-slot)

@@ -63,5 +63,5 @@
 	this)
 
 (defun emap? (this)
-	; (emap? emap) -> nil|t
+	; (emap? emap) -> t | nil
 	(and (env? this) (get :emap this)))

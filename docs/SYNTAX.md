@@ -570,7 +570,7 @@
 
 ## emap?
 
-(emap? emap) -> nil|t
+(emap? emap) -> t | nil
 
 ## empty
 
@@ -1758,7 +1758,7 @@
 
 ## xmap?
 
-(xmap? xmap) -> nil|t
+(xmap? xmap) -> t | nil
 
 ## xset
 
@@ -1770,7 +1770,7 @@
 
 ## xset?
 
-(xset? xset) -> nil|t
+(xset? xset) -> t | nil
 
 ## zip
 
