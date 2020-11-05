@@ -165,7 +165,7 @@
 
 	(vp-def (utf8 c m))
 
-	(defun-bind next-utf8 (cnt)
+	(defun next-utf8 (cnt)
 		(vp-and-cr (>> 0b00111111 cnt) c)
 		(defq i -1)
 		(while (/= (setq i (inc i)) cnt)

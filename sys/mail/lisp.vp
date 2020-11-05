@@ -23,7 +23,7 @@
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
-	(list-bind-args r1 '(r0) '(num))
+	(list-bind-args r1 '(r0) '(:num))
 	(call 'sys_mail :validate '(r0) '(r0))
 	(vpif '(r0 /= 0))
 		(call 'sys_mail :read '(r0) '(r0 _))
@@ -62,7 +62,7 @@
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
-	(list-bind-args r1 '(r0) '(array))
+	(list-bind-args r1 '(r0) '(:array))
 	(call 'sys_mail :poll '(r0) '(r0 _ _))
 	(vpif '(r0 /= -1))
 		(call 'num :create '(r0) '(r1))
@@ -100,7 +100,7 @@
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
-	(list-bind-args r1 '(r0) '(array))
+	(list-bind-args r1 '(r0) '(:array))
 	(call 'sys_mail :select '(r0) '(r0))
 	(call 'num :create '(r0) '(r1))
 	(vp-pop r0)
@@ -318,7 +318,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'sys_mail :free_mbox))
-	(list-bind-args r1 in '(num))
+	(list-bind-args r1 in '(:num))
 	(call 'sys_mail :free_mbox in)
 	(vp-pop r0)
 	(assign '((r0 lisp_sym_nil)) '(r1))

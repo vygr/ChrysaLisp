@@ -6,7 +6,7 @@
 ;quick debug switch
 (when nil	;t for debug
 	(import "lib/debug/debug.inc")
-	(defmacro defun-bind (&rest _) `(defun-debug ~_)))
+	(defmacro defun (&rest _) `(defun-debug ~_)))
 
 ;quick profiling switch
 (if t	;t for profiling

@@ -9,7 +9,7 @@
 
 (defq *profile* (env -401) *profile_ret* (list))
 
-(defun-bind profile-print (n &optional s)
+(defun profile-print (n &optional s)
 	;(profile-print name [stream]) -> stdout|stream
 	(setd s (io-stream 'stdout))
 	(defq e (tolist *profile*) m (reduce (lambda (a (k v)) (max a (length k))) e 0))
@@ -23,13 +23,13 @@
 		(sort (lambda ((k1 v1) (k2 v2))
 			(- (elem +prof_acc+ v2) (elem +prof_acc+ v1))) e)) s)
 
-(defun-bind profile-report (n)
+(defun profile-report (n)
 	;(profile-report name)
 	(when (/= 0 (length (defq services (mail-enquire "PROFILE_SERVICE"))))
 		(mail-send (str (profile-print n (string-stream (cat ""))))
 			(str-to-num (elem 1 (split (pop services) ","))))))
 
-(defmacro-bind profile-lambda (n a &rest _)
+(defmacro profile-lambda (n a &rest _)
 	`(lambda ,a
 		(cond
 			((defq _e_ (get ',n *profile*))
@@ -42,17 +42,11 @@
 		(if (= (elem +prof_rcnt+ _e_) 0) (push _e_ (+ (- (time) (pop _e_)) (pop _e_))))
 		(pop *profile_ret*)))
 
-(defmacro-bind defun (n a &rest _)
-	`(defq ,n (profile-lambda ,n ,a ~_)))
-
-(defmacro-bind defun-bind (n a &rest _)
+(defmacro defun (n a &rest _)
 	`(defq ,n (profile-lambda ,n ,a ~(prebind (macroexpand _)))))
 
-(defmacro-bind class (n p &rest _)
+(defmacro class (n p &rest _)
 	`(defun ,n ,p (defq *profile_class* ,n this (env -1)) ~_ this))
 
-(defmacro-bind method (n a &rest _)
-	`(def this ,n (profile-lambda ,(sym (cat *profile_class* n)) a ~_)))
-
-(defmacro-bind method-bind (n a &rest _)
+(defmacro method (n a &rest _)
 	`(def this ,n (profile-lambda ,(sym (cat *profile_class* n)) ,a ~(prebind (macroexpand _)))))

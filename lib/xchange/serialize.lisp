@@ -40,7 +40,7 @@
          (write sstrm (str (gets ast :value) " "))))
     (t (throw "Unknown " (entries ast)))))
 
-(defun-bind serialize (obj sstrm)
+(defun serialize (obj sstrm)
   ; (serialize object stream) -> stream
   (defq cntxt (Context))
   (obj-to-node cntxt obj)

@@ -13,10 +13,10 @@
 		(each (lambda (path)
 			(component-connect (ui-button _ (:text path)) +event_button+)) *env_launcher_apps*)))
 
-(defun-bind app-path (_)
+(defun app-path (_)
 	(cat "apps/" _ "/app.lisp"))
 
-(defun-bind main ()
+(defun main ()
 	;ensure the launcher is completely on screen
 	(bind '(w h) (view-pref-size window))
 	(bind '(x y w h) (apply view-locate (push (list (/ (* w 100) 80) h) *env_launcher_position*)))

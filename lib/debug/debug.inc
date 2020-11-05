@@ -4,7 +4,7 @@
 
 (defq *r* (list))
 
-(defun-bind debug-send (s)
+(defun debug-send (s)
 	;(debug-send string)
 	(when (/= 0 (length (defq services (mail-enquire "DEBUG_SERVICE"))))
 		(defq mbox (mail-alloc-mbox) debug_mbox (str-to-num (elem 1 (split (pop services) ","))))
@@ -12,11 +12,11 @@
 		(mail-read mbox)
 		(mail-free-mbox mbox)))
 
-(defun-bind debug-str (_)
+(defun debug-str (_)
 	;(debug-str str) -> str
 	(apply cat (map (# (if (or (< (code %0) 32) (= (code %0) 34)) "." %0)) _)))
 
-(defun-bind debug-format (n e)
+(defun debug-format (n e)
 	;(debug-format name env)
 	(setq e (tolist e))
 	(each (# (if (str? (elem 1 %0)) (elem-set 1 %0 (debug-str %0)))) e)
@@ -35,14 +35,14 @@
 		(write msg (cat var " : " val (ascii-char 10)))) e)
 	(debug-send (str msg (ascii-char 10))))
 
-(defmacro-bind debug (n _)
+(defmacro debug (n _)
 	;(debug name form)
 	`(progn
 		(push *r* ,_)
 		(debug-format ,n (env))
 		(pop *r*)))
 
-(defun-bind debug-fun? (_)
+(defun debug-fun? (_)
 	;(debug-fun? form)
 	(and (= (type-of _) lisp_type_lst) (/= 0 (length _))
 		(not (or (eql 'quote (elem 0 _)) (eql 'debug (elem 0 _))))
@@ -50,7 +50,7 @@
 		(or (= (type-of _) lisp_type_fnc)
 			(and (= (type-of _) lisp_type_lst) (/= 0 (length _)) (eql 'lambda (elem 0 _))))))
 
-(defun-bind debug-fun (n _)
+(defun debug-fun (n _)
 	;(debug-fun name list) -> list
 	(defq s (list _))
 	(while (defq l (pop s))
@@ -59,6 +59,6 @@
 				(elem-set _ l (cat '(debug) (list n e)))
 				(push s e))) l)) _)
 
-(defmacro-bind defun-debug (n a &rest _)
+(defmacro defun-debug (n a &rest _)
 	;(defun-debug name ([arg ...]) body)
 	`(defq ,n (lambda ,a ~(prebind (macroexpand (debug-fun (str n) _))))))

@@ -4,14 +4,14 @@
 
 (import "lib/logging/logcommons.inc")
 
-(defun-bind console-log-msg-writer (logger msgd)
+(defun console-log-msg-writer (logger msgd)
   ; (console-log-msg-writer logconfig mail-message) -> stream
   (log-write stdout (str
                " ["(log-level-string logger (gets msgd :msg-level))"] "
                (gets logger :name)": ") (gets msgd :message)))
 
 
-(defun-bind log-registration-result (logger)
+(defun log-registration-result (logger)
   ; (log-registration-result properties) -> properties
   (defq
     msg   (mail-read (gets logger :reciever))
@@ -23,7 +23,7 @@
     (t
       (throw "Invalid registration " msg))))
 
-(defun-bind create-logger (mname &optional uses_handler)
+(defun create-logger (mname &optional uses_handler)
   ; (create-logger name [kw]) -> properties
   ; Registers name with logging service and sends optional logger
   ; service to use:
@@ -45,7 +45,7 @@
     (get-logsrvc-mb))
   (log-registration-result lr))
 
-(defun-bind log-send (logger lmsgtype msg)
+(defun log-send (logger lmsgtype msg)
   ; (log-send logger msgtype msg)
   ; Generic send log message to service unless
   ; the service is console
@@ -69,9 +69,9 @@
 
 ; Convenience loggers
 
-(defun-bind log-debug (logger msg) (log-send logger :debug msg))
-(defun-bind log-info (logger msg) (log-send logger :info msg))
-(defun-bind log-warning (logger msg) (log-send logger :warning msg))
-(defun-bind log-error (logger msg) (log-send logger :error msg))
-(defun-bind log-critical (logger msg) (log-send logger :critical msg))
+(defun log-debug (logger msg) (log-send logger :debug msg))
+(defun log-info (logger msg) (log-send logger :info msg))
+(defun log-warning (logger msg) (log-send logger :warning msg))
+(defun log-error (logger msg) (log-send logger :error msg))
+(defun log-critical (logger msg) (log-send logger :critical msg))
 

@@ -4,12 +4,12 @@
 ;read args from parent (shared dlist tuple)
 (defq dlist (mail-read (task-mailbox)) flatten (elem +dlist_flatten+ dlist))
 
-(defun-bind fpoly (canvas col mode _)
+(defun fpoly (canvas col mode _)
 	;draw a polygon on a canvas
 	(canvas-set-color canvas col)
 	(canvas-fpoly canvas 0.0 0.0 mode _))
 
-(defun-bind redraw (dlist)
+(defun redraw (dlist)
 	;redraw layer/s
 	(when (/= 0 (logand (elem +dlist_mask+ dlist) 1))
 		(defq canvas (elem +dlist_commited_canvas+ dlist))
@@ -25,7 +25,7 @@
 		(canvas-swap canvas))
 	(elem-set +dlist_mask+ dlist 0))
 
-(defun-bind main ()
+(defun main ()
 	;until quit
 	(until (mail-poll (array (task-mailbox)))
 		(redraw dlist)

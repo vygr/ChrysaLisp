@@ -20,7 +20,7 @@
 			:font (create-font "fonts/Hack-Regular.ctf" 44)))
 		(defq display nil)))
 
-(defun-bind main ()
+(defun main ()
 	;if analog clear clock face
 	(if clock (canvas-set-flags (canvas-fill clock 0) 1))
 	;create child and send args

@@ -16,7 +16,7 @@
 	(ui-title-bar _ "Mandelbrot" (0xea19) +event_close+)
 	(ui-canvas canvas canvas_width canvas_height canvas_scale))
 
-(defun-bind reset ()
+(defun reset ()
 	(if select (mail-free-mbox (elem 1 select)))
 	(setq then (time) select (array (task-mailbox) (mail-alloc-mbox))
 		area (* canvas_width canvas_height canvas_scale canvas_scale))
@@ -24,7 +24,7 @@
 		(* canvas_width canvas_scale) (* canvas_height canvas_scale) center_x center_y zoom (* (length (mail-devices)) 4))
 		(open-child "apps/mandelbrot/child.lisp" kn_call_child)))
 
-(defun-bind tile (canvas data)
+(defun tile (canvas data)
 	;(tile canvas data) -> area
 	(defq data (string-stream data) x (read-int data) y (read-int data)
 		x1 (read-int data) y1 (read-int data) yp (dec y))
@@ -40,7 +40,7 @@
 ;native versions
 (ffi tile "apps/mandelbrot/tile" 0)
 
-(defun-bind main ()
+(defun main ()
 	;add window
 	(canvas-swap (canvas-fill canvas +argb_black+))
 	(bind '(x y w h) (apply view-locate (view-pref-size window)))

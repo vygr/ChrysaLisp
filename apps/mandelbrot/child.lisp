@@ -4,7 +4,7 @@
 (import "gui/lisp.inc")
 (import "apps/mandelbrot/mbmath.inc")
 
-(defun-bind depth (x0 y0)
+(defun depth (x0 y0)
 	(defq i -1 xc 0 yc 0 x2 0 y2 0)
 	(while (and (/= (setq i (inc i)) 255) (< (+ x2 y2) (mbfp-from-fixed 4.0)))
 		(setq yc (+ (mbfp-mul (mbfp-from-fixed 2.0) xc yc) y0) xc (+ (- x2 y2) x0)
@@ -13,7 +13,7 @@
 ;native versions
 (ffi depth "apps/mandelbrot/depth" 0)
 
-(defun-bind mandel (x y x1 y1 w h cx cy z)
+(defun mandel (x y x1 y1 w h cx cy z)
 	(write-int (defq reply (string-stream (cat ""))) (list x y x1 y1))
 	(setq y (dec y))
 	(while (/= (setq y (inc y)) y1)
@@ -23,7 +23,7 @@
 		(task-sleep 0))
 	(mail-send (str reply) mbox))
 
-(defun-bind rect (mbox x y x1 y1 w h cx cy z tot)
+(defun rect (mbox x y x1 y1 w h cx cy z tot)
 	(cond
 		((> (setq tot (/ tot 4)) 0)
 			;split into more tasks
@@ -36,7 +36,7 @@
 		(t	;do here
 			(mandel x y x1 y1 w h cx cy z))))
 
-(defun-bind main ()
+(defun main ()
 	;read work request
 	(defq msg (string-stream (mail-read (task-mailbox))))
 	(apply rect (map (lambda (_) (read-long msg)) (range 0 11))))

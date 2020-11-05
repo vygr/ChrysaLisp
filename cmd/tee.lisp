@@ -10,7 +10,7 @@
 	Read from stdin, write to stdout and all given paths.")
 ))
 
-(defun-bind main ()
+(defun main ()
 	;initialize pipe details and command args, abort on error
 	(when (and (defq stdio (create-stdio)) (defq args (options stdio usage)))
 		(defq stdin (io-stream 'stdin) files (map (# (file-stream %0 file_open_write)) (slice 1 -1 args)))

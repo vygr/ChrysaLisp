@@ -6,11 +6,11 @@
 (import "lib/xchange/deserialize.lisp")
 
 
-(defun-bind data-xser (obj &optional sstrm)
+(defun data-xser (obj &optional sstrm)
   ; (data-xser object [stream]) -> stream | exception
   (setd sstrm (string-stream (cat "")))
   (serialize obj sstrm))
 
-(defun-bind data-xdeser (sstrm)
+(defun data-xdeser (sstrm)
   ; (data-xdeser stream) -> object | exception
   (deserialize sstrm))

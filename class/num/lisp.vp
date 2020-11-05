@@ -4,7 +4,7 @@
 (include "class/real/class.inc")
 (include "class/lisp/class.inc")
 
-(defun-bind addop (_)
+(defun addop (_)
 	(entry 'num (sym (cat :lisp_ (slice 1 -1 _))) '(r0 r1))
 (errorcases
 	(call 'lisp :env_args_match `(r1 (@ ,(f-path 'num :vtable)) 2) '(r2))
@@ -106,7 +106,7 @@
 
 (def-func-end)
 
-(defun-bind divop (_)
+(defun divop (_)
 	(entry 'num (sym (cat :lisp_ (slice 1 -1 _))) '(r0 r1))
 (errorcases
 	(call 'lisp :env_args_match `(r1 (@ ,(f-path 'num :vtable)) 2) '(r2))
@@ -160,7 +160,7 @@
 
 (def-func-end)
 
-(defun-bind andop (_ i p)
+(defun andop (_ i p)
 	(entry 'num (sym (cat :lisp_ (slice 1 -1 _))) '(r0 r1))
 (errorcases
 	(call 'lisp :env_args_type `(r1 (@ ,(f-path 'num :vtable)) 0) '(r2))
@@ -238,13 +238,13 @@
 
 (def-func-end)
 
-(defun-bind shift (_ p)
+(defun shift (_ p)
 	(entry 'num (sym (cat :lisp_ (slice 1 -1 _))) '(r0 r1))
 (errorcases
 	(call 'lisp :env_args_sig '(r1 ($ sig) 2) '(r2))
 	(gotoif '(r2 = 0) 'error))
 	(vp-push r0)
-	(list-bind-args r1 '(r0 r1) '(num num))
+	(list-bind-args r1 '(r0 r1) '(:num :num))
 	(exec p)
 	(call 'num :create '(r0) '(r1))
 	(vp-pop r0)
@@ -311,7 +311,7 @@
 
 (def-func-end)
 
-(defun-bind compare (_)
+(defun compare (_)
 	(entry 'num (sym (cat :lisp_ (slice 1 -1 _))) '(r0 r1))
 (errorcases
 	(call 'lisp :env_args_type `(r1 (@ ,(f-path 'num :vtable)) 2) '(r2))
@@ -438,7 +438,7 @@
 (def-func-end)
 
 ;generic math op
-(defun-bind mathop (_)
+(defun mathop (_)
 	(entry 'num (sym (cat :lisp_ (slice 1 -1 _))) '(r0 r1))
 (errorcases
 	(call 'lisp :env_args_sig '(r1 ($ sig) 1) '(r2))
@@ -580,7 +580,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'fixed :create))
-	(list-bind-args r1 in '(num))
+	(list-bind-args r1 in '(:num))
 	(vp-shl-cr +fp_shift+ (elem 0 in))
 	(call 'fixed :create in '(r1))
 	(vp-pop r0)
@@ -614,7 +614,7 @@
 	(vp-push r0)
 	(defq in (method-input 'sys_math :r_i2r)
 		out (method-output 'sys_math :r_i2r))
-	(list-bind-args r1 in '(num))
+	(list-bind-args r1 in '(:num))
 	(call 'sys_math :r_i2r in out)
 	(call 'real :create out '(r1))
 	(vp-pop r0)
@@ -647,7 +647,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'num :create))
-	(list-bind-args r1 in '(num))
+	(list-bind-args r1 in '(:num))
 	(vp-asr-cr +fp_shift+ (elem 0 in))
 	(call 'num :create in '(r1))
 	(vp-pop r0)
@@ -681,7 +681,7 @@
 	(vp-push r0)
 	(defq in (method-input 'sys_math :r_f2r)
 		out (method-output 'sys_math :r_f2r))
-	(list-bind-args r1 in '(num))
+	(list-bind-args r1 in '(:num))
 	(call 'sys_math :r_f2r in out)
 	(call 'real :create out '(r1))
 	(vp-pop r0)
@@ -715,7 +715,7 @@
 	(vp-push r0)
 	(defq in (method-input 'sys_math :r_r2i)
 		out (method-output 'sys_math :r_r2i))
-	(list-bind-args r1 in '(num))
+	(list-bind-args r1 in '(:num))
 	(call 'sys_math :r_r2i in out)
 	(call 'num :create out '(r1))
 	(vp-pop r0)
@@ -749,7 +749,7 @@
 	(vp-push r0)
 	(defq in (method-input 'sys_math :r_r2f)
 		out (method-output 'sys_math :r_r2f))
-	(list-bind-args r1 in '(num))
+	(list-bind-args r1 in '(:num))
 	(call 'sys_math :r_r2f in out)
 	(call 'fixed :create out '(r1))
 	(vp-pop r0)

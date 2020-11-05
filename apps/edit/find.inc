@@ -1,4 +1,4 @@
-(defun-bind find-in-buffer (ss)
+(defun find-in-buffer (ss)
 	(unless (eql ss "")
 		(each (lambda (ln) (when (not (eql nil (defq found (substr ss ln))))
 			(defq y _)
@@ -6,7 +6,7 @@
 				(elem +text_buffer+ current_text))
 		(setq find_index 0)))
 
-(defun-bind open-find ()
+(defun open-find ()
 	;if there is a previous search, clear and conduct a new one.
 	(when (/= (length find_list) 0) (setq find_list (list) find_index 0))
 	(find-in-buffer (setq find_textfield (get :text textfield)))
@@ -29,7 +29,7 @@
 			(view-layout status_bar)
 			(view-dirty sb_line_col))))
 
-(defun-bind find-next ()
+(defun find-next ()
 	(cond 
 		((or (not (eql (get :text textfield) find_textfield)) (= (length find_list) 0)) (open-find))
 		(t 
@@ -44,7 +44,7 @@
 			(view-dirty sb_line_col)
 			(window-layout vdu_width vdu_height))))
 
-(defun-bind find-prev ()
+(defun find-prev ()
 	(cond 
 		((or (not (eql (get :text textfield) find_textfield)) (= (length find_list) 0)) (open-find))
 		(t 

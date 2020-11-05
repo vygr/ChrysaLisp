@@ -47,7 +47,7 @@
 
 (def-func-end)
 
-(defun-bind addop (_ p)
+(defun addop (_ p)
 	(entry 'real _ '(r0 r1))
 	(vp-push r0)
 	(class/array/get_both r1 r1 r2)
@@ -110,7 +110,7 @@
 
 (def-func-end)
 
-(defun-bind minop (_ p)
+(defun minop (_ p)
 	(vp-def (this args obj iter_begin iter_end val new_val))
 	(entry 'num _ `(,this ,args))
 	(class/array/get_both args iter_begin iter_end)
@@ -167,7 +167,7 @@
 
 (def-func-end)
 
-(defun-bind divop (_ p)
+(defun divop (_ p)
 	(entry 'real _ '(r0 r1))
 	(vp-push r0)
 	(class/array/get_both r1 r1 r4)
@@ -221,7 +221,7 @@
 
 (def-func-end)
 
-(defun-bind compare (_ p)
+(defun compare (_ p)
 	(entry 'real _ '(r0 r1))
 	(vp-push r0)
 	(class/array/get_both r1 r1 r2)

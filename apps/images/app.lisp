@@ -7,7 +7,7 @@
 	(byte 'close+)
 	(byte 'prev+ 'next+))
 
-(defun-bind all-images (p)
+(defun all-images (p)
 	(defq out (list))
 	(each! 0 -1 (lambda (f m)
 		(and (eql m "8") (or (ends-with ".cpm" f) (ends-with ".tga" f)) (push out (cat p f))))
@@ -32,7 +32,7 @@
  	(def image_scroll :min_width 32 :min_height 32)
 	(view-change-dirty window x y w h))
 
-(defun-bind main ()
+(defun main ()
 	(bind '(x y w h) (apply view-locate (view-get-size (win-refresh index))))
 	(gui-add (view-change window x y w h))
 	(while (cond

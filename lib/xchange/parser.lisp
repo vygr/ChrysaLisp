@@ -204,7 +204,7 @@
         :key_entry      parse-key
         :value_entry    parse-value))
 
-(defun-bind parse (tokens in-args)
+(defun parse (tokens in-args)
     ; (print "Parsing")
     (shr)
     (defq cmd (properties

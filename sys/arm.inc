@@ -83,7 +83,7 @@
 						n (logxor (logand (>> _s 6) 1) 1))
 					(+ (<< n 12) (<< _r 6) (logand _s 0x3f)))))))
 
-(defun-bind reg (r)
+(defun reg (r)
 	(find-rev r '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 r15
 		r16 r17 r18 r19 r20 r21 r22 r23 r24 r25 r26 r27 r28 r29 r30 rsp)))
 
@@ -105,7 +105,7 @@
 	(vp-jmp-r r0)
 (vp-label 'funcexit))
 
-(defun-bind emit-push (&rest b)
+(defun emit-push (&rest b)
 	(cond
 		((= 0 (defq l (length b))))
 		((= 1 l)
@@ -121,7 +121,7 @@
 					(<< (reg (elem _ b)) 10) (<< (reg rsp) 5) (reg (elem (inc _) b)))))
 			(if (/= -2 _) (emit-cpy-ri (elem 0 b) rsp (* ptr_size (dec l)))))))
 
-(defun-bind emit-pop (&rest b)
+(defun emit-pop (&rest b)
 	(cond
 		((= 0 (defq l (length b))))
 		((= 1 l)
@@ -137,9 +137,9 @@
 			(if (/= -2 _) (emit-cpy-ir rsp (* ptr_size (dec l)) (elem 0 b)))
 			(emit-add-cr (align (* ptr_size l) stack_align) rsp))))
 
-(defun-bind emit-beq (l d) (emit-branch 0x0 l))
-(defun-bind emit-bne (l d) (emit-branch 0x1 l))
-(defun-bind emit-bge (l d) (emit-branch 0xa l))
+(defun emit-beq (l d) (emit-branch 0x0 l))
+(defun emit-bne (l d) (emit-branch 0x1 l))
+(defun emit-bge (l d) (emit-branch 0xa l))
 (defun emit-blt (l d) (emit-branch 0xb l))
 (defun emit-bgt (l d) (emit-branch 0xc l))
 (defun emit-ble (l d) (emit-branch 0xd l))
@@ -187,11 +187,11 @@
 	(emit-cpy-ir d c r29)
 	(emit-call-r r29))
 
-(defun-bind emit-call-p (l)
+(defun emit-call-p (l)
 	(emit-cpy-pr l r29)
 	(emit-call-r r29))
 
-(defun-bind emit-jmp (l d)
+(defun emit-jmp (l d)
 	(cond
 		((<= -0x8000000 (defq c (- l *pc*)) 0x7fffffc)
 			(emit-int (+ 0x14000000 (>> (logand c 0xfffffff) 2))))
@@ -219,7 +219,7 @@
 
 (defun emit-lea-d (s1 s2 d) (emit-rrr 0x8b000000 s1 s2 d))
 
-(defun-bind emit-lea-p (l d)
+(defun emit-lea-p (l d)
 	(cond
 		((<= -0x100000 (defq c (- l *pc*)) 0xfffff)
 			(emit-int (+ 0x10000000 (<< (logand c 0x3) 29) (<< (logand c 0x1ffffc) 3) (reg d))))
@@ -234,7 +234,7 @@
 
 (defun emit-cpy-ir-b (s c d) (emit-ir 0 0x38800000 s c d))
 (defun emit-cpy-ir-s (s c d) (emit-ir 1 0x78800000 s c d))
-(defun-bind emit-cpy-ir-i (s c d) (emit-ir 2 0xb8800000 s c d))
+(defun emit-cpy-ir-i (s c d) (emit-ir 2 0xb8800000 s c d))
 
 (defun emit-cpy-ri (s d c)
 	(when (eql s rsp)
@@ -244,11 +244,11 @@
 
 (defun emit-cpy-ri-b (s d c) (emit-ri 0 0x38000000 s d c))
 (defun emit-cpy-ri-s (s d c) (emit-ri 1 0x78000000 s d c))
-(defun-bind emit-cpy-ri-i (s d c) (emit-ri 2 0xb8000000 s d c))
+(defun emit-cpy-ri-i (s d c) (emit-ri 2 0xb8000000 s d c))
 
 (defun emit-cpy-ir-ub (s c d) (emit-iru 0 0x38400000 s c d))
 (defun emit-cpy-ir-us (s c d) (emit-iru 1 0x78400000 s c d))
-(defun-bind emit-cpy-ir-ui (s c d) (emit-iru 2 0xb8400000 s c d))
+(defun emit-cpy-ir-ui (s c d) (emit-iru 2 0xb8400000 s c d))
 
 (defun emit-cpy-rd (s d1 d2) (emit-rd 0xf8206800 s d2 d1))
 (defun emit-cpy-rd-b (s d2 d1) (emit-rd 0x38206800 s d2 d1))
@@ -267,7 +267,7 @@
 	(emit-lea-p l r29)
 	(emit-cpy-ri d r29 0))
 
-(defun-bind emit-cpy-pr (l d)
+(defun emit-cpy-pr (l d)
 	(cond
 		((<= -0x100000 (defq c (- l *pc*)) 0xffffc)
 			(emit-int (+ 0x58000000 (<< (logand c 0x1fffff) 3) (reg d))))
@@ -307,12 +307,12 @@
 				(if (/= y 0) (emit-int (+ 0xf2a00000 (>> y 11) r)))
 				(if (/= z 0) (emit-int (+ 0xf2800000 (<< z 5) r)))))))
 
-(defun-bind emit-cpy-cr (c r)
+(defun emit-cpy-cr (c r)
 	(if (/= -1 (defq i (emit-limm c)))
 		(emit-int (+ 0xb2000000 (<< i 10) (<< (reg rsp) 5) (reg r)))
 		(emit-mov-cr c r)))
 
-(defun-bind emit-add-cr (c r)
+(defun emit-add-cr (c r)
 	(cond
 		((= c 0))
 		((< c 0)
@@ -325,7 +325,7 @@
 				(emit-int (+ 0x91400000 (>> c 2) (<< (reg r) 5) (reg r)))))
 		(t (throw "emit-add-cr constant out of range !" c))))
 
-(defun-bind emit-sub-cr (c r)
+(defun emit-sub-cr (c r)
 	(cond
 		((= c 0))
 		((< c 0)
@@ -347,7 +347,7 @@
 		(t (emit-cpy-cr c r29)
 			(emit-cmp-rr r29 r))))
 
-(defun-bind emit-and-cr (c r)
+(defun emit-and-cr (c r)
 	(cond
 		((= c -1))
 		((= c 0)
@@ -367,7 +367,7 @@
 					(emit-mov-cr c r29)
 					(emit-and-rr r29 r))))))
 
-(defun-bind emit-or-cr (c r)
+(defun emit-or-cr (c r)
 	(cond
 		((= c 0))
 		((= c -1)
@@ -396,9 +396,9 @@
 			(emit-int (+ 0x91000000 (<< (reg s) 5) (reg d))))
 		(t (emit-int (+ 0xaa0003e0 (<< (reg s) 16) (reg d))))))
 
-(defun-bind emit-add-rr (s d) (if (eql s rsp) (emit-rrr 0x8b206000 d s d) (emit-rrr 0x8b206000 s d d)))
+(defun emit-add-rr (s d) (if (eql s rsp) (emit-rrr 0x8b206000 d s d) (emit-rrr 0x8b206000 s d d)))
 
-(defun-bind emit-sub-rr (s d)
+(defun emit-sub-rr (s d)
 	(cond
 		((eql s rsp)
 			(throw "emit-sub-rr src can't be rsp !" (list s d)))
@@ -446,7 +446,7 @@
 			(throw ,(cat "emit-" e "-cr dst can't be rsp !") (list ,c ,r)))
 		(t (emit-bf ,o ,x ,y ,r ,r))))
 
-(defun-bind emit-shl-cr (c r) (emit-shift-cr "shl" 0xd3400000 c (logand (- 64 c) 63) (- 63 c) r))
+(defun emit-shl-cr (c r) (emit-shift-cr "shl" 0xd3400000 c (logand (- 64 c) 63) (- 63 c) r))
 (defun emit-shr-cr (c r) (emit-shift-cr "shr" 0xd3400000 c c 63 r))
 (defun emit-asr-cr (c r) (emit-shift-cr "asr" 0x93400000 c c 63 r))
 
@@ -476,7 +476,7 @@
 			(emit-cpy-cr c r29)
 			(emit-mul-rr r29 r))))
 
-(defun-bind emit-mul-rr (s d)
+(defun emit-mul-rr (s d)
 	(if (or (eql s rsp) (eql d rsp))
 		(throw "emit-mul-rr src/dst can't be rsp !" (list s d)))
 	(emit-int (+ 0x9b000000 (<< (reg d) 16) (<< 31 10) (<< (reg s) 5) (reg d))))
@@ -495,6 +495,6 @@
 	(emit-int (+ 0x9b008000 (<< (reg r29) 16) (<< (reg d2) 10) (<< (reg s) 5) (reg d1)))
 	(emit-cpy-rr r29 d2))
 
-(defun-bind emit-alloc (c) (emit-sub-cr (align c stack_align) rsp))
-(defun-bind emit-free (c) (emit-add-cr (align c stack_align) rsp))
-(defun-bind emit-ret () (emit-int 0xd65f03c0))
+(defun emit-alloc (c) (emit-sub-cr (align c stack_align) rsp))
+(defun emit-free (c) (emit-add-cr (align c stack_align) rsp))
+(defun emit-ret () (emit-int 0xd65f03c0))

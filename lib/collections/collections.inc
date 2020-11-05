@@ -6,25 +6,25 @@
 (import "lib/collections/xmap.inc")
 (import "lib/collections/xset.inc")
 
-(defun-bind map? (_)
+(defun map? (_)
     ; (map? object) -> t | nil
     ; Returns true if argument is a map type
     (or (emap? _) (xmap? _)))
 
-(defun-bind set? (_)
+(defun set? (_)
     (xset? _))
 
-(defun-bind collection? (_)
+(defun collection? (_)
     ; (collection? obj) -> t | nil
     ; Returns true if argument is a collection type
     (or (map? _) (set? _)))
 
-(defun-bind indexable? (_)
+(defun indexable? (_)
     (or (collection? _) (lst? _)))
 
 ; Associative structure functions
 
-(defun-bind entries (_)
+(defun entries (_)
     ; (entries collections) -> list | nil
     ; Returns list of key/value pairs if map
     ; Returns list of values if set
@@ -40,25 +40,25 @@
         ((set? _)
             (first bk))))
 
-(defun-bind keys (_)
+(defun keys (_)
     ; (keys collection) -> list | nil
     ; Returns the keys of an associative structure
     (defq res (list))
     (when (defq els (entries _))
         (each (lambda ((_k _v)) (push res _k)) els)) res)
 
-(defun-bind values (_)
+(defun values (_)
     ; (values collection) -> list | nil
     ; Returns the values of an associative structure
     (defq res (list))
     (when (defq els (entries _))
         (each (lambda ((_k _v)) (push res _v)) els)) res)
 
-(defun-bind gets (kv-map _k &optional if_nil)
+(defun gets (kv-map _k &optional if_nil)
     ; (gets collection k [if_nil]) -> value | if_nil | nil
     (opt (. kv-map :find _k) if_nil))
 
-(defun-bind gets-in (coll &rest kws)
+(defun gets-in (coll &rest kws)
     ; (gets-in collection key-path) -> value | nil
     ; Walks into collection to return the last kws value
     ; Works on heterogenous collections/trees including lists
@@ -78,7 +78,7 @@
         (setq hit curr))
     hit)
 
-(defun-bind sets! (kv-map _k &optional _v)
+(defun sets! (kv-map _k &optional _v)
     ; (sets! collection key value) -> collection
     (cond
         ((map? kv-map)
@@ -87,21 +87,21 @@
             (. kv-map :insert _k)))
     kv-map)
 
-(defun-bind sets-pairs! (kv-map &rest pairs)
+(defun sets-pairs! (kv-map &rest pairs)
     ; (sets-pairs! collection))
     (each (lambda ((_k _v))
         (. kv-map :insert _k _v)) (partition 2 pairs))
     kv-map)
 
-(defun-bind sets-in! (kv-map val &rest kws))
+(defun sets-in! (kv-map val &rest kws))
 
-(defun-bind updates-in! (kv-map ufnc val &rest kws))
+(defun updates-in! (kv-map ufnc val &rest kws))
 
-(defun-bind drop! (kv-map _k)
+(defun drop! (kv-map _k)
     ;(drop! collection key) -> collection
     (. kv-map :erase _k))
 
-(defun-bind merge-into! (kv-map &rest _maps)
+(defun merge-into! (kv-map &rest _maps)
     ; (merge-into! collection (collections)) -> collection
     ; Merges _maps into kv-map
     (each (lambda (_m)                  ; for each map
@@ -110,16 +110,16 @@
             ) (entries _m))) _maps)
     kv-map)
 
-(defmacro-bind merges (&rest _maps)
+(defmacro merges (&rest _maps)
     ; (merges (collections)) -> collection
     ; Merges collections into a new collection
     (defq kvmap (if (emap? (first _maps)) (emap) (xmap)))
     `(merge-into! ,kvmap ~_maps))
 
-(defmacro-bind pairs-into-kv (pairs)
+(defmacro pairs-into-kv (pairs)
     `(emap-kv ~pairs))
 
-(defun-bind empty (_coll)
+(defun empty (_coll)
     ; (empty object) -> object | nil
     ; Returns an empty collection of same category of _coll or nil
     (cond

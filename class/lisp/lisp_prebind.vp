@@ -68,6 +68,7 @@
 					(array-bind-args r1 '(r2))
 					(assign '((r0 lisp_sym_quote)) '(r3))
 					(breakif '(r2 = r3) 'next_elem)
+					(assign '((r1 obj_vtable)) '(r3))
 					(default)
 						;come back to this branch
 						(call 'array :push_back '((r0 lisp_stack) r1))
@@ -83,6 +84,9 @@
 					(breakif '(r1 = r3))
 					;not macro ?
 					(assign '((r0 lisp_sym_macro)) '(r3))
+					(breakif '(r1 = r3))
+					;not qquote ?
+					(assign '((r0 lisp_sym_qquote)) '(r3))
 					(breakif '(r1 = r3))
 					;is defined ?
 					(call 'hmap :search '((r0 lisp_environment) r1) '(_ r1 _))

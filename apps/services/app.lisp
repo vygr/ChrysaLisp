@@ -20,7 +20,7 @@
 				(ui-label _ (:text "Info" :color +argb_white+
 					:flow_flags (logior flow_flag_align_vcenter flow_flag_align_hcenter)))))))
 
-(defun-bind populate ()
+(defun populate ()
 	(defq new_services (mail-enquire ""))
 	(sort cmp new_services)
 	(unless (and (= (length new_services) (length services))
@@ -43,7 +43,7 @@
 		(view-change info_grid 0 0 w h))
 		(view-dirty-all (view-layout info_scroll)))
 
-(defun-bind resize (mh)
+(defun resize (mh)
 	(bind '(w h) (view-get-size info_grid))
 	(setq h (min h mh))
 	(def info_scroll :min_width w :min_height h)
@@ -51,7 +51,7 @@
 	(undef info_scroll :min_width :min_height)
 	(view-change-dirty window x y w h))
 
-(defun-bind main ()
+(defun main ()
 	(defq id t select (array (task-mailbox)) services (list)
 		service_labels (list) mbox_labels (list) info_labels (list))
 	(populate)

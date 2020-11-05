@@ -10,28 +10,28 @@
 
 (defq seconds 0.0 second 0 minutes 0.0 minute 0 hours 0.0 hour 0 dotw (str) face (list) eps 0.25)
 
-(defun-bind make-digital-time ()
+(defun make-digital-time ()
 	(bind '(sc mn hr _ _ _ wk) (date))
 	(setq second sc minute mn hour hr dotw wk))
 
-(defun-bind make-analog-time ()
+(defun make-analog-time ()
 	(bind '(s m h) (float-time))
 	(setq seconds s minutes m hours h))
 
-(defun-bind view-digital-time ()
+(defun view-digital-time ()
 	(if (and *env_clock_twelve_hour* (> hour 12)) (setq hour (- hour 12)))
 	(cat (if *env_clock_dotw* (day-of-the-week dotw) "") " " 
 		(if *env_clock_pad_hour* (pad hour 2 "0") (str hour)) (str ":" (pad minute 2 "0"))
 		(if (eql *env_clock_seconds* t) (str ":" (pad second 2 "0")) "")))
 
-(defun-bind transform (_ a s &optional x y)
+(defun transform (_ a s &optional x y)
 	(defq sa (sin a) ca (cos a) x (opt x 0.0) y (opt y 0.0))
 	(path-transform
 		(* s ca) (* s (* sa -1.0))
 		(* s sa) (* s ca)
 		(* s (+ x 0.5)) (* s (+ y 0.5)) _ _))
 
-(defun-bind create-clockface ()
+(defun create-clockface ()
 	;create static clock face
 	(path-stroke-polygons face (* scale 0.02) eps join_miter
 		(list (path-gen-arc (* scale 0.5) (* scale 0.5) 0.0 +fp_2pi+ (* scale 0.48) eps (path))))
@@ -42,7 +42,7 @@
 		(reduce (lambda (l a)
 			(push l (transform (path 0.0 0.35 0.0 0.44) (/ (* (i2f a) +fp_2pi+) 12.0) scale))) (range 0 12) (list))))
 
-(defun-bind view-analog-time ()
+(defun view-analog-time ()
 	(canvas-fill clock 0)
 	(canvas-set-color clock +argb_white+)
 	(canvas-fpoly clock 0.0 0.0 0 (slice 0 1 face))
@@ -66,7 +66,7 @@
 	(canvas-set-color clock +argb_red+)
 	(canvas-fpoly clock 0.0 0.0 0 _))
 
-(defun-bind main ()
+(defun main ()
 	;creates local_timezone
 	(timezone-init *env_clock_timezone*)
 	(when clock

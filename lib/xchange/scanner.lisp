@@ -520,6 +520,6 @@
      (push-token scn (StreamEnd))
      (gets scn :tokens))))
 
-(defun-bind scan (strm)
+(defun scan (strm)
   (consume-tokens (Scanner strm)))
 

@@ -65,7 +65,7 @@
 
 (def-func-end)
 
-(defun-bind for-each-visible-rect (_)
+(defun for-each-visible-rect (_)
 	;for each rect on the dirty region
 	(assign '((rsp local_ctx)) '(r0))
 	(assign '((r0 ctx_dirty_region)) '(r0))

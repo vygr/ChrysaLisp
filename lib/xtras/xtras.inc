@@ -28,11 +28,11 @@
 
 ; Predicates
 
-(defun-bind numcharset? (_ cset)
+(defun numcharset? (_ cset)
   ; (numcharset? val charset) -> t | nil
   (reduced-reduce (#(if (find %1 cset) %0 (reduced nil))) _ t))
 
-(defun-bind intstr? (_)
+(defun intstr? (_)
   ; (intstr? val) -> t | nil
   (cond
     ((not (find +dec_point+ _))
@@ -40,7 +40,7 @@
     (t
       nil)))
 
-(defun-bind decstr? (_)
+(defun decstr? (_)
   ; (decstr? val) -> t | nil
   (if (find +dec_point+ _)
     (progn
@@ -52,7 +52,7 @@
         (numcharset? (second psplit) +numeric_chars+)))
     nil))
 
-(defun-bind _!base10str? (_ prefix charset)
+(defun _!base10str? (_ prefix charset)
   ; (_!base10str? val prefixchars charset) -> t | nil
   (cond
     ((and
@@ -64,16 +64,16 @@
     (t
       nil)))
 
-(defun-bind hexstr? (_)
+(defun hexstr? (_)
   (_!base10str? _ +hex_prefix+ +hex_chars+))
 
-(defun-bind octstr? (_)
+(defun octstr? (_)
   (_!base10str? _ +oct_prefix+ +oct_chars+))
 
-(defun-bind binstr? (_)
+(defun binstr? (_)
   (_!base10str? _ +bin_prefix+ +bin_chars+))
 
-(defun-bind numstr-type (_)
+(defun numstr-type (_)
   ; (numstr-type el) -> numeric string tuple
   ; Returns the numeric string type tuple, where:
   ; Elem 0 = 1 for positive, -1 for negative
@@ -102,12 +102,12 @@
           (push res :decimal (first sp) (second sp) 10))
         (t (push res :nan _ nil nil)))))
 
-(defun-bind numstr? (_)
+(defun numstr? (_)
   ; (numstr? string) -> t | nil
   ; Tests whether string is numeric form
   (not (eql (second (numstr-type _)) :nan)))
 
-(defun-bind to-num (s)
+(defun to-num (s)
   ; (to-num string) -> number
   (bind '(mu ty wn dn ba)  (numstr-type s))
   (when (not (eql ty :nan))
@@ -122,49 +122,49 @@
         (each (# (setq num (+ (* num ba) (char-to-num %0)))) wn)
         (* mu num)))))
 
-(defun-bind zero? (_)
+(defun zero? (_)
   ; (zero? num) -> bool
   ; Returns true if argument is equal to zero (0)
   (= _ 0))
 
-(defun-bind one? (_)
+(defun one? (_)
   ; (one? num) -> bool
   ; Returns true if argument is equal to one (1)
   (= _ 1))
 
-(defun-bind neql? (a b)
+(defun neql? (a b)
   ; (neql? value value) -> bool
   ; Returns true if values are not eql
   (not (eql a b)))
 
-(defun-bind dict? (_)
+(defun dict? (_)
   ; (dict? form) -> bool
   ; Returns true if argument is a dictionary type (env)
   (env? _))
 
-(defun-bind props? (_)
+(defun props? (_)
   ; (props? el) -> bool
   ; Returns true if argument is a properties type
   (emap? _))
 
-(defun-bind ndef? (_ &optional e)
+(defun ndef? (_ &optional e)
   ; (ndef? sym [env]) -> bool
   ; Returns t if sym is not defined in environment
   (not (def? _ e)))
 
-(defun-bind kw? (_)
+(defun kw? (_)
   ; (kw? el) -> bool
   ; Returns true if argument is a keyword
   (and (sym? _) (starts-with ":" _)))
 
-(defun-bind truthy? (_)
+(defun truthy? (_)
   (cond
     ((lst? _) (nempty? _))
     (t (not (nil? _)))))
 
 ; Convenience
 
-(defun-bind str-is-ints? (s)
+(defun str-is-ints? (s)
   ; (str-is-ints? s) -> :true | :false
   ; TODO: Deprecate for numstr?
   (defq instr
@@ -178,11 +178,11 @@
           (reduced :false))
         ) instr :true))
 
-(defun-bind ident (_)
+(defun ident (_)
   ; (ident el) -> el
   _)
 
-(defun-bind efind (p k)
+(defun efind (p k)
   ; (efind list key) -> index | nil
   ; Returns the index of key in list or properties
   ; Used when keys are number and/or string
@@ -193,7 +193,7 @@
         (setq fx _))) (list p))
   fx)
 
-(defun-bind kw (_)
+(defun kw (_)
   ; (kw el) -> keyword
   ; Converts a string or symbol to a keyword
   ; example:
@@ -205,7 +205,7 @@
       (sym (str +kw_ind+ _)))
     (throw "Expected symbol or string, found " _)))
 
-(defun-bind strip-rest (in-args)
+(defun strip-rest (in-args)
   ; (strip-rest in-args)
   ; Returns inner list if nested from passing
   ; arguments through multiple &rest constructs
@@ -217,7 +217,7 @@
 
 ; Sequence forms
 
-(defmacro-bind interleave (seq1 seq2)
+(defmacro interleave (seq1 seq2)
   ; (interleave seq1 seq2) -> list
   ; Returns a list of the first item in each seq, then the second etc.
   ; example:
@@ -227,7 +227,7 @@
 ; Properties (a.k.a. list of pairs [k v]) forms
 ; Deprecated and is using an `emap` under the covers
 
-(defmacro-bind properties (&rest pairs)
+(defmacro properties (&rest pairs)
   ; (properties [k v]...) -> list
   ; Creates a properties list object
   `(xmap-kv ~pairs))
@@ -265,7 +265,7 @@
       (if (> (length e) 0) (push stack e 0))
       (fnc e))))
 
-(defun-bind walk-tree-recur (inner-fn outer-fn tree)
+(defun walk-tree-recur (inner-fn outer-fn tree)
   ; (walk-tree-recur inner-fn outer-fn tree) -> tree
   ; Recusively walk tree and handles dictionaries
   (cond
@@ -280,17 +280,17 @@
       (map (curry walk-tree-recur inner-fn outer-fn) (dict-entries tree)))
     (t (outer-fn tree))))
 
-(defun-bind pre-walk-recur (fn tree)
+(defun pre-walk-recur (fn tree)
   ; (pre-walk-recur fn tree)
   (walk-tree-recur (curry pre-walk-recur fn) ident (fn tree)))
 
-(defun-bind post-walk-recur (fn tree)
+(defun post-walk-recur (fn tree)
   ; (post-walk-recur fn tree)
   (walk-tree-recur (curry post-walk-recur fn) fn tree))
 
 ; Take and drop forms
 
-(defun-bind take (cnt seq)
+(defun take (cnt seq)
   ; (take count sequence) -> sequence
   ; Returns the first `cnt` of elements from seq
   ; providing a negative cnt returns the original sequence
@@ -302,7 +302,7 @@
     (t (slice 0 (cond ((> cnt len) len) (t cnt)) seq))))
 
 
-(defun-bind take-last (cnt seq)
+(defun take-last (cnt seq)
   ; (take-last count sequence) -> sequence
   ; Returns the last 'cnt' of elements from seq
   ; providing a negative cnt returns the original sequence
@@ -310,7 +310,7 @@
   ; (take-last 2 '(0 1 2 3)) ->  (2 3)
   (reverse (take cnt (reverse seq))))
 
-(defun-bind take-while (pred seq)
+(defun take-while (pred seq)
   ; (take-while predicate sequence) -> sequence
   ; Returns successive element of seq while pred returns true
   ; example:
@@ -322,7 +322,7 @@
         (t (reduced acc))))
     seq (list)))
 
-(defun-bind take-unless (pred seq)
+(defun take-unless (pred seq)
   ; (take-unless predicate sequence) -> sequence
   ; Returns successive element of seq unless pred returns true
   ; example:
@@ -334,7 +334,7 @@
         (t (push acc el))))
     seq (list)))
 
-(defun-bind drop (cnt seq)
+(defun drop (cnt seq)
   ; (drop count sequence) -> sequence
   ; Returns a sequence with the first `cnt` of elements removed
   ; providing a negative cnt returns the original sequence
@@ -346,7 +346,7 @@
     ((neg? cnt) seq)
     (t (slice (cond ((> cnt len) -1) (t cnt)) -1 seq))))
 
-(defun-bind drop-last (cnt seq)
+(defun drop-last (cnt seq)
   ; (drop-last count sequence) -> sequence
   ; providing a negative cnt returns the original sequence
   ; example:
@@ -354,7 +354,7 @@
   ; (drop-last 2 myL2)  ; -> (-2 -1 0 -1)
   (reverse (drop cnt (reverse seq))))
 
-(defun-bind drop-while (pred seq)
+(defun drop-while (pred seq)
   ; (drop-while predicate seq) -> sequence
   ; Drops successive element of seq while pred returns true
   ; example:
@@ -362,7 +362,7 @@
   ; (drop-while (# (< %0 0)) myL2)  ; -> (0 -1 -2 3)
   (slice (length (take-while pred seq)) -1 seq))
 
-(defun-bind drop-unless (pred seq)
+(defun drop-unless (pred seq)
   ; (drop-unless predicate sequence) -> sequence
   ; Drops elements from sequence unless predicate returns true
   ; example:
@@ -606,7 +606,7 @@
         (pp-niw sstrm in-args (str (gets ast :value) " "))))
     (t (throw "Unknown " (entries ast)))))
 
-(defun-bind pprint-to-strm (sstrm obj out-args)
+(defun pprint-to-strm (sstrm obj out-args)
   (defq context
     (cond
       ((or (empty? out-args) (odd? out-args))
@@ -617,6 +617,6 @@
   (node-to-pprint sstrm context (gets context :current))
   sstrm)
 
-(defun-bind pprint (obj &rest out-args)
+(defun pprint (obj &rest out-args)
   (print (str (pprint-to-strm (string-stream (cat "")) obj out-args)))
   nil)

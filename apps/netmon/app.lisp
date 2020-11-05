@@ -36,7 +36,7 @@
 			(ui-grid _ (:grid_width 1 :grid_height cpu_count)
 				(times cpu_count (push memory_bars (ui-progress _)))))))
 
-(defun-bind main ()
+(defun main ()
 	;add window
 	(bind '(x y w h) (apply view-locate (view-pref-size window)))
 	(gui-add (view-change window x y w h))

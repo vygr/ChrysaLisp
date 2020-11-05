@@ -53,7 +53,7 @@
 	(goto l))
 
 (defmacro vec-assign (_1 _2)
-	`(assign ,_1 ,_2 (slice *vsp* -1 *vr*)))
+	(list 'assign _1 _2 '(slice *vsp* -1 *vr*)))
 
 (defun vec-push (n)
 	(slice *vsp* (setq *vsp* (+ *vsp* n)) *vr*))
@@ -123,7 +123,7 @@
 	(setd v (vec-top n))
 	(bind '(r) (vec-tmp 1))
 	(each (lambda (v)
-		(vpif `(,v >= 0))
+		(vpif (list v '>= 0))
 			(vp-and-cr +fp_frac_mask+ v)
 		(else)
 			(vp-cpy-rr v r)
@@ -241,7 +241,7 @@
 (defun vec-abs (n &optional v)
 	(setd v (vec-top n))
 	(each (lambda (v)
-		(vpif `(,v < 0))
+		(vpif (list v '< 0))
 			(vp-mul-cr -1 v)
 		(endif)) v))
 
@@ -277,14 +277,14 @@
 
 (defun vec-min (n)
 	(reduce (lambda (v1 v2)
-		(vpif `(,v2 < ,v1))
+		(vpif (list v2 '< v1))
 			(vp-cpy-rr v2 v1)
 		(endif) v1) (vec-pop n))
 	(vec-push 1))
 
 (defun vec-max (n)
 	(reduce (lambda (v1 v2)
-		(vpif `(,v2 > ,v1))
+		(vpif (list v2 '> v1))
 			(vp-cpy-rr v2 v1)
 		(endif) v1) (vec-pop n))
 	(vec-push 1))
@@ -325,7 +325,7 @@
 	(vec-flength n)
 	(bind '(rl rh) (vec-tmp 2))
 	(bind '(l) (vec-pop 1))
-	(vpif `(,l = 0))
+	(vpif (list l '= 0))
 		(vec-clr n)
 	(else)
 		(vp-cpy-cr (<< (<< 1 +fp_shift+) +fp_shift+) rl)

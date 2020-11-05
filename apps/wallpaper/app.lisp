@@ -14,10 +14,10 @@
 		((str? ,seq) (find ,item ,seq))
 		((lst? ,seq) (some (lambda (_e) (if (eql ,item _e) _)) ,seq))))
 
-(defun-bind app-path (_)
+(defun app-path (_)
 	(cat "apps/" _ "/app.lisp"))
 
-(defun-bind refresh-wallpaper ()
+(defun refresh-wallpaper ()
 	;pick nearest wallpaper to screen size
 	(bind '(w h) (view-get-size screen))
 	(defq index 0 err +max_int+ flag 0)
@@ -32,7 +32,7 @@
 		(+ (const (+ view_flag_at_back view_flag_dirty_all)) flag)
 		(const (+ view_flag_at_back view_flag_dirty_all view_flag_opaque))) 0 0 w h)))
 
-(defun-bind main ()
+(defun main ()
 	(defq images_info (map canvas-info *env_wallpaper_images*) wallpaper (create-view)
 			screen (penv (gui-add-back wallpaper)))
 	(each (lambda (_)

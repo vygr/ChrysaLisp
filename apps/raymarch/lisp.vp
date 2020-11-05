@@ -136,7 +136,7 @@
 	(push-scope)
 	(assign '(r0) {this})
 
-	(list-bind-args r1 '(r0 r1) '(canvas str))
+	(list-bind-args r1 '(r0 r1) '(:canvas :str))
 	(array-get-args r1 '(r7 r8 r9 r10) 'ui)
 	(vp-add-cr (* 4 int_size) r1)
 	(assign '(r0 r1 r7 r8 r9 r10 r8) {canvas, data, x, y, x1, y1, yp})

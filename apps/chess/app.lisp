@@ -26,14 +26,14 @@
 				(push squares (ui-button _ (:color paper :ink_color ink)))) (range 0 64)))
 		(ui-vdu vdu (:vdu_width vdu_width :vdu_height vdu_height :ink_color +argb_cyan+))))
 
-(defun-bind display-board (board)
+(defun display-board (board)
 	(each (lambda (square piece)
 		(def square :text (elem (find piece "QKRBNPqkrbnp ")
 			(if (= (logand (+ _ (>> _ 3)) 1) 0) "wltvmoqkrbnp " "qkrbnpwltvmo ")))
 		(view-layout square)) squares board)
 	(view-dirty-all chess_grid))
 
-(defun-bind vdu-print (vdu buf s)
+(defun vdu-print (vdu buf s)
 	(each (lambda (c)
 		(cond
 			((eql c (ascii-char 10))
@@ -44,7 +44,7 @@
 				(elem-set -2 buf (cat (elem -2 buf) c))))) s)
 	(vdu-load vdu buf 0 0 (length (elem -2 buf)) (dec (length buf))) buf)
 
-(defun-bind main ()
+(defun main ()
 	(mail-send (array (in-mbox data_in) 10000000)
 		(defq child_mbox (open-child "apps/chess/child.lisp" kn_call_child)))
 	(bind '(x y w h) (apply view-locate (view-pref-size window)))

@@ -27,7 +27,7 @@
 					(ui-label right_pad (:text "" :min_width 25))))
 		(ui-label status_bar (:text "mouse: 00"))))
 
-(defun-bind clicked-blank (cell)
+(defun clicked-blank (cell)
 	(defq work (list cell))
 	(while (defq cell (pop work))
 		(unless (eql (elem cell game_map) "r")
@@ -38,24 +38,24 @@
 					((< 0 (elem it game_board) 9) (elem-set it game_map "r"))))))
 	(rebuild-board))
 
-(defun-bind clicked-flag (cell)
+(defun clicked-flag (cell)
 	(elem-set cell game_map "b")
 	(rebuild-board))
 
-(defun-bind right-clicked-button (cell)
+(defun right-clicked-button (cell)
 	(elem-set cell game_map "f")
 	(rebuild-board)
 	(is-game-over))
 
-(defun-bind clicked-value (cell)
+(defun clicked-value (cell)
 	(elem-set cell game_map "r")
 	(rebuild-board))
 
-(defun-bind clicked-mine (cell)
+(defun clicked-mine (cell)
 	(elem-set cell game_map "r")
 	(rebuild-board))
 
-(defun-bind is-game-over (&optional lost)
+(defun is-game-over (&optional lost)
 	(defq message "")
 	(cond 
 		(game_over (setq message "You Lost!"))
@@ -65,11 +65,11 @@
 	(set status_bar :text message)
 	(view-dirty status_bar))
 
-(defun-bind colorize (value)
+(defun colorize (value)
 	(elem value '(+argb_black+ 0x000000ff 0x00006600 0x00ff0000 +argb_magenta+ 
 		+argb_black+ 0x00700000 +argb_grey1+ 0x0002bbdd +argb_black+)))
 
-(defun-bind board-layout ((gw gh nm))
+(defun board-layout ((gw gh nm))
 	(view-sub across)
 	(setq game_grid (create-grid))
 	(defq gwh (* gw gh))
@@ -87,7 +87,7 @@
 	(bind '(x y w h) (apply view-fit (cat (view-get-pos window) (view-pref-size window))))
 	(view-change-dirty window x y w h))
 
-(defun-bind rebuild-board ()
+(defun rebuild-board ()
 	(bind '(gw gh nm) difficulty)
 	(view-sub game_grid)
 	(setq game_grid (create-grid))
@@ -127,7 +127,7 @@
 	(bind '(x y w h) (apply view-fit (cat (view-get-pos window) (view-pref-size window))))
 	(view-change-dirty window x y w h))
 
-(defun-bind main ()
+(defun main ()
 	(defq started nil game (list) game_board (list) game_adj (list) game_map (list) 
 		first_click t difficulty (list) game_grid nil click_offset 4 game_over nil mouse_down 0)
 	(bind '(x y w h) (apply view-locate (view-pref-size window)))

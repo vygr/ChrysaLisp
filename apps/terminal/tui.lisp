@@ -2,7 +2,7 @@
 (import "lib/pipe/pipe.inc")
 
 ;override print for TUI output
-(defun-bind print (_)
+(defun print (_)
 	(each (lambda (c)
 		(setq c (code c))
 		(if (= c 13) (setq c 10))
@@ -16,9 +16,9 @@
 			(t	;print char
 				(pii-write-char 1 c)))) _))
 
-(defun-bind prompt () ">")
+(defun prompt () ">")
 
-(defun-bind terminal-input (c)
+(defun terminal-input (c)
 	(cond
 		;send line ?
 		((or (= c 10) (= c 13))
@@ -51,7 +51,7 @@
 			;buffer the char
 			(setq buffer (cat buffer (char c))))))
 
-(defun-bind main ()
+(defun main ()
 	;sign on msg
 	(print (cat (const (cat "ChrysaLisp Terminal 1.5" (ascii-char 10))) (prompt)))
 	;create child and send args

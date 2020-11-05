@@ -64,7 +64,7 @@
 				(ui-vdu vdu (:vdu_width vdu_width :ink_color +argb_white+ :vdu_height vdu_height 
 					:min_width vdu_width :min_height vdu_height :font *env_terminal_font*)))))
 
-(defun-bind vdu-colorise ()
+(defun vdu-colorise ()
 	(cond 
 		(colorise 
 			(vdu-load vdu (map (# (. syn :colorise %0)) (copy buffer)) ox oy cx cy)
@@ -72,7 +72,7 @@
 		(t
 			(vdu-load vdu buffer ox oy cx cy))))
 
-(defun-bind window-resize (w h)
+(defun window-resize (w h)
 	(bind '(_ fpath title buffer position) current_text)
 	(bind '(ox oy cx cy sx) position)
 	(setq vdu_width w vdu_height h)
@@ -83,7 +83,7 @@
 	(view-change-dirty window x y w h)
 	(vdu-colorise))
 
-(defun-bind window-layout (w h)
+(defun window-layout (w h)
 	(bind '(index fpath title buffer position) current_text)
 	(bind '(ox oy cx cy sx) position)
 	(set window_title :text fpath)
@@ -100,7 +100,7 @@
 	(view-dirty-all window)
 	(vdu-colorise))
 
-(defun-bind view-tabbar ()
+(defun view-tabbar ()
 	(view-sub tabbar)
 	(ui-tree tabbar (create-grid) (:grid_width (length text_store) :grid_height 1)
 		(each (lambda (e) (component-connect (ui-button b 
@@ -110,7 +110,7 @@
 	(view-layout tab_bar)
 	(view-dirty tab_bar))
 
-(defun-bind mouse-cursor (mouse_xy)
+(defun mouse-cursor (mouse_xy)
 	(defq buffer (elem +text_buffer+ current_text))
 	(bind '(ox oy cx cy sx) (elem +text_position+ current_text))
 	(defq cursor_xy (list cx cy) +char_wh+ (vdu-char-size vdu) offset_xy (list ox oy))
@@ -127,10 +127,10 @@
 	(elem-set +text_position+ current_text (list ox oy cx cy sx)))
 
 ;macros for select-action-on-enter command and data parsing.
-(defmacro-bind split-cd (cd)
+(defmacro split-cd (cd)
 	`(let ((s (slice 1 -2 ,cd))) (split s ":")))
 
-(defun-bind select-action-on-enter ()
+(defun select-action-on-enter ()
 	(defq tf_text (get :text textfield) tfp (split-cd tf_text) cmd (first tfp) is_find nil)
 	(if (defq data (second tfp)) data (defq data nil))
 	(cond
@@ -158,19 +158,19 @@
 	(window-layout vdu_width vdu_height))
 
 ;return position just below tab_bar
-(defun-bind update-status (tmp_msg)
+(defun update-status (tmp_msg)
 	(set sb_line_col :text tmp_msg)
 	(view-layout status_bar) (view-dirty status_bar)
 	(task-sleep 1500000))
 
-(defun-bind notification-position ()
+(defun notification-position ()
 	(bind '(tw th) (view-get-size window_title))
 	(bind '(tbw tbh) (view-get-size toolbar))
 	(bind '(x y w h) (view-get-bounds window))
 	(defq brdr (get :border window) x (+ x brdr) y (+ y brdr th tbh))
 	(list x y tbw th))
 ;bar with buttons
-(defun-bind confirm (m b &optional c)
+(defun confirm (m b &optional c)
 	(bind '(x y w h) (notification-position))
 	(mail-send (list (elem +mbox_modal+ mbox_array)
 		m b (if c c *env_toolbar2_col*) 0 x y w h)
@@ -178,7 +178,7 @@
 	(defq reply (mail-read (elem +mbox_modal+ mbox_array)))
 	(mail-send "" modal) (if (str? reply) reply nil))
 ;bar with timer and without buttons. Default is 1.5 seconds.
-(defun-bind notify (m &optional c s)
+(defun notify (m &optional c s)
 	(bind '(x y w h) (notification-position))
 	(mail-send (list (elem +mbox_modal+ mbox_array)
 		m "" (if c c *env_toolbar2_col*) (if s s 1500000) x y w h)
@@ -186,7 +186,7 @@
 	(mail-send "" modal))
 
 ;notify, confirm, on open, save, and close.
-(defun-bind open-check (fpath)
+(defun open-check (fpath)
 	(cond
 		((defq index (some (lambda (_) 
 			(if (eql fpath (elem +text_fpath+ _)) (elem +text_index+ _) nil)) text_store))
@@ -196,7 +196,7 @@
 				"Yes,No" +argb_yellow+)) (new-buffer fpath)))
 		(t 	(open-buffer fpath))))
 
-(defun-bind save-check (fpath)
+(defun save-check (fpath)
 	(cond
 		((and (not (eql fpath (elem +text_fpath+ current_text))) (file-stream fpath))
 			(when (eql "Yes" (confirm "Overwrite existing file?" "Yes, No" +argb_red+))
@@ -206,7 +206,7 @@
 			(save-buffer fpath))
 		(t 	(save-buffer fpath))))
 
-(defun-bind close-check (index)
+(defun close-check (index)
 	(defq reply nil)
 	(cond 
 		((unsaved-buffer index)
@@ -221,11 +221,11 @@
 		(t (close-buffer index))))
 			
 ;sets the tab bar title to the last two parts of the path.
-(defmacro-bind title-set (fp) 
+(defmacro title-set (fp) 
 	`(let ((sfp (reverse (split ,fp "/")))) 
 		(if (= (length sfp) 1) (first sfp) (cat (second sfp) "/" (first sfp)))))
 ;new, open, save, and close buffer functions		
-(defun-bind new-buffer (&optional nfpath)
+(defun new-buffer (&optional nfpath)
 	(defq index (length text_store) pos (list 0 0 0 0 0) 
 		title (cat "Untitled-" (str (setq tmp_num (inc tmp_num))))
 		buffer (list " ") fpath (if nfpath nfpath (cat home_dir title)))
@@ -233,7 +233,7 @@
 	(push text_store (list index fpath title buffer pos))
 	(setq current_text (elem index text_store)))
 
-(defun-bind open-buffer (fpath)
+(defun open-buffer (fpath)
 	(defq i 0 index (length text_store) pos (list 0 0 0 0 0))
 	(defq title (title-set fpath) buffer (list))
 	;ensure something to read on empty file.
@@ -242,7 +242,7 @@
 	(push text_store (list index fpath title buffer pos))
 	(setq current_text (elem index text_store)))
 
-(defun-bind save-buffer (fpath)
+(defun save-buffer (fpath)
 	(cond 
 		((or (eql fpath "") (ends-with "/" fpath) (find ":" fpath))
 			(notify "Invalid filename. Buffer not saved" +argb_yellow+))
@@ -253,7 +253,7 @@
 				(defq fp (elem-set +text_fpath+ current_text fpath))
 				(elem-set +text_fpath+ current_text (title-set fp))))))
 
-(defun-bind close-buffer (index)
+(defun close-buffer (index)
 	(defq i 0)
 	(cond
 		((<= (length text_store) 1)
@@ -263,36 +263,36 @@
 			(each (lambda (_) (elem-set +text_index+ _ i) (setq i (inc i))) text_store)
 			(setq current_text (prev-buffer index)))))
 
-(defun-bind add-to-unsaved-buffers (index)
+(defun add-to-unsaved-buffers (index)
 	(unless (some (lambda (_) (= index _)) unsaved_buffers)
 		(push unsaved_buffers (elem +text_index+ current_text))))
 
-(defun-bind remove-from-unsaved-buffers (index)
+(defun remove-from-unsaved-buffers (index)
 		(if (= (length unsaved_buffers) 1) (setq unsaved_buffers (list)))
 			(some (lambda (x) (when (= x index) 
 				(erase unsaved_buffers _ (inc x)))) unsaved_buffers) index)
 
-(defun-bind unsaved-buffer (index)
+(defun unsaved-buffer (index)
 	(some (lambda (_) (if (= index _) t nil)) unsaved_buffers))
 
 ;buffer navigation functions
-(defun-bind move-to (index)
+(defun move-to (index)
 	(when (< -1 index (length text_store))
 		(setq current_text (elem index text_store))))
-(defun-bind prev-buffer (index)
+(defun prev-buffer (index)
 	(unless (= index 0) (setq index (dec index)))
 	(setq current_text (elem index text_store)))
-(defun-bind next-buffer (index)
+(defun next-buffer (index)
 	(unless (= index (dec (length text_store)))
 		(setq index (inc index)))
 	(setq current_text (elem index text_store)))
 
-(defun-bind clear-text ()
+(defun clear-text ()
 	(setq find_list (list) find_index 0 sb_line_col_message "")
 	(set textfield :text "")
 	(window-layout vdu_width vdu_height))
 
-(defun-bind vdu-input (c)
+(defun vdu-input (c)
 	(bind '(index fpath title buffer position) current_text)
 	(bind '(ox oy cx cy sx) position)
 	(setq dirty_vdu t)
@@ -317,7 +317,7 @@
 		(view-dirty slider)
 		(vdu-colorise)))
 
-(defun-bind main ()
+(defun main ()
 	(defq id t find_textfield nil mouse_down nil selection (list))
 	;open buffers from pupa or open new buffer
 	(if (empty? *env_edit_auto*) (new-buffer)

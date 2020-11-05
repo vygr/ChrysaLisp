@@ -5,7 +5,7 @@
 (gen-create 'nums)
 (gen-vtable 'nums)
 
-(defun-bind addop (_)
+(defun addop (_)
 	;trashes
 	;r1-r6+
 	(vp-def (dst src1 src2 iter_begin iter_end))
@@ -25,7 +25,7 @@
 	(exit 'nums _ `(,dst -1))
 	(vp-ret))
 
-(defun-bind divop (_)
+(defun divop (_)
 	;trashes
 	;r1-r8+
 	(vp-def (s1 s2 dst src1 src2 iter_begin iter_end) '(r1 r2 r4 r5 r6 r7 r8))
@@ -50,7 +50,7 @@
 	(exit 'nums _ `(,dst 0))
 	(vp-ret)))
 
-(defun-bind absop (_)
+(defun absop (_)
 	;trashes
 	;r1-r4+
 	(vp-def (dst src iter_begin iter_end))

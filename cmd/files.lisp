@@ -3,7 +3,7 @@
 (import "sys/lisp.inc")
 (import "lib/options/options.inc")
 
-(defun-bind make-tree (dir ext)
+(defun make-tree (dir ext)
 	(defq dirs (list) files (list))
 	(each! 0 -1
 		(# (unless (starts-with "." %0)
@@ -26,7 +26,7 @@
 	files ./apps/wallpaper/ .tga})
 ))
 
-(defun-bind main ()
+(defun main ()
 	;initialize pipe details and command args, abort on error
 	(when (and
 			(defq stdio (create-stdio))

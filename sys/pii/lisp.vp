@@ -21,7 +21,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'sys_pii :read_char))
-	(list-bind-args r1 in '(num))
+	(list-bind-args r1 in '(:num))
 	(call 'sys_pii :read_char in '(r0))
 	(call 'num :create '(r0) '(r1))
 	(vp-pop r0)
@@ -55,7 +55,7 @@
 	(defq in (method-input 'sys_pii :write_char))
 	(array-bind-args r1 in)
 	(vp-push (elem 1 in))
-	(list-cast-args in '(num num))
+	(list-cast-args in '(:num :num))
 	(call 'sys_pii :write_char in)
 	(vp-pop r1)
 	(class/obj/ref r1 r2)
@@ -155,7 +155,7 @@
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
-	(list-bind-args r1 '(r6) '(str))
+	(list-bind-args r1 '(r6) '(:str))
 	(assign '(0 0 (* 4 1024)) '(r7 r8 r9))
 	(loop-start)
 		(call 'sys_mem :realloc '(r7 r8 r9) '(r7 r8))
@@ -195,7 +195,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'sys_pii :remove))
-	(list-bind-args r1 in '(str))
+	(list-bind-args r1 in '(:str))
 	(call 'sys_pii :remove in '(r0))
 	(call 'num :create '(r0) '(r1))
 	(vp-pop r0)

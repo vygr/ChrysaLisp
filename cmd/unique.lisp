@@ -11,7 +11,7 @@
 	then will read lines from stdin.")
 ))
 
-(defun-bind main ()
+(defun main ()
 	;initialize pipe details and command args, abort on error
 	(when (and
 			(defq stdio (create-stdio))

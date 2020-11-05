@@ -27,7 +27,7 @@
 			(if (/= num 0) (setq accum (/ accum num)))))
 	accum)
 
-(defun-bind main ()
+(defun main ()
 	(bind '(x y w h) (apply view-locate (view-pref-size window)))
 	(gui-add (view-change window x y w h))
 	(defq accum 0 value 0 num 0 lastop nil)

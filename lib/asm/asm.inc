@@ -10,7 +10,7 @@
 (unless (get 'nums)
 	(defun mail-devices () '(0)))
 
-(defun-bind compile (files &optional *abi* *cpu* num_child)
+(defun compile (files &optional *abi* *cpu* num_child)
 	(setd *abi* (abi) *cpu* (cpu) num_child (max 1 (/ (* (length (mail-devices)) 80) 100)))
 	(unless (lst? files) (setq files (list files)))
 	(setq files (shuffle files))
@@ -39,12 +39,12 @@
 ; make system
 ;;;;;;;;;;;;;
 
-(defun-bind make-merge (l sl)
+(defun make-merge (l sl)
 	;merge string into string list
 	(each (lambda (s)
 		(unless (some (# (eql %0 s)) l) (push l s))) sl))
 
-(defun-bind make-tree (dir ext)
+(defun make-tree (dir ext)
 	(defq dirs (list) files (list))
 	(each! 0 -1
 		(# (unless (starts-with "." %0)
@@ -55,15 +55,15 @@
 	(each (# (setq files (cat files (make-tree %0 ext)))) dirs)
 	files)
 
-(defun-bind all-vp-files ()
+(defun all-vp-files ()
 	;filter to only the .vp files
 	(filter (# (not (starts-with "./apps/" %0))) (make-tree "." ".vp")))
 
-(defun-bind all-class-files ()
+(defun all-class-files ()
 	;filter to only the class.inc files
 	(make-tree "." "class.inc"))
 
-(defun-bind make-info (_)
+(defun make-info (_)
 	;create lists of immediate dependencies and products
 	(defq d (list "lib/asm/asm.inc" "class/lisp/boot.inc" _) p (list))
 	(each-line (lambda (_)
@@ -85,14 +85,14 @@
 					(push p (sym (elem 1 s))))))) (file-stream _))
 	(list d p))
 
-(defun-bind func-obj (_)
+(defun func-obj (_)
 	(sym (cat "obj/" *cpu* "/" *abi* "/" _)))
 
-(defun-bind make (&optional files *abi* *cpu*)
+(defun make (&optional files *abi* *cpu*)
 	(setd files (all-vp-files) *abi* (abi) *cpu* (cpu))
 	(compile ((lambda ()
 		(defq ages (env -31) info (env -31))
-		(defun-bind file-age (_)
+		(defun file-age (_)
 			;modification time of a file, cached
 			(or (get (setq _ (sym _)) ages) (def ages _ (age _))))
 		;list of all file imports while defining dependencies and products
@@ -114,17 +114,17 @@
 		;return the list to compile
 		files)) *abi* *cpu*))
 
-(defun-bind make-boot (&optional r *funcs* *abi* *cpu*)
+(defun make-boot (&optional r *funcs* *abi* *cpu*)
 	(within-compile-env (lambda ()
 		(setd *funcs* (list) *abi* (abi) *cpu* (cpu))
 		(defq *fsyms* (env -31) z (cat (char 0 8) (char 0 4)))
 		(include "sys/func.inc")
-		(defun-bind read-paths (_)
+		(defun read-paths (_)
 			(defq l (list) i (get-short _ fn_header_links) e (get-short _ fn_header_paths))
 			(while (/= i e)
 				(push l (sym (get-cstr _ (+ (get-long _ i) i))))
 				(setq i (+ i 8))) l)
-		(defun-bind load-func (_)
+		(defun load-func (_)
 			(or (get _ *fsyms*)
 				(progn
 					(unless (defq b (load (func-obj _))) (throw "No such file !" (func-obj _)))
@@ -174,7 +174,7 @@
 		(each (# (write stream %0)) f)
 		(print "-> " (func-obj 'sys/boot_image) " (" l ")") nil)))
 
-(defun-bind make-boot-all (&optional *abi* *cpu*)
+(defun make-boot-all (&optional *abi* *cpu*)
 	(setd *abi* (abi) *cpu* (cpu))
 	(make-boot nil
 		(within-compile-env (lambda ()
@@ -185,16 +185,16 @@
 			(each-mergeable (# (make-merge *prods* (bind '(d %0) (make-info %0))) (make-merge _l d))
 				(all-vp-files)) *prods*)) *abi* *cpu*))
 
-(defun-bind make-all (&optional *abi* *cpu* files)
+(defun make-all (&optional *abi* *cpu* files)
 	(setd *abi* (abi) *cpu* (cpu))
 	(compile (opt files (all-vp-files)) *abi* *cpu*))
 
-(defun-bind remake (&optional *abi* *cpu* files)
+(defun remake (&optional *abi* *cpu* files)
 	(setd *abi* (abi) *cpu* (cpu))
 	(make files *abi* *cpu*)
 	(make-boot-all *abi* *cpu*))
 
-(defun-bind remake-all (&optional *abi* *cpu* files)
+(defun remake-all (&optional *abi* *cpu* files)
 	(setd *abi* (abi) *cpu* (cpu))
 	(make-all *abi* *cpu* files)
 	(make-boot-all *abi* *cpu*))
@@ -203,25 +203,25 @@
 ; cross platform make
 ;;;;;;;;;;;;;;;;;;;;;
 
-(defun-bind make-platforms ()
+(defun make-platforms ()
 	(defq files (all-vp-files))
 	(make files 'AMD64 'x86_64)
 	(make files 'WIN64 'x86_64)
 	(make files 'ARM64 'aarch64))
 
-(defun-bind make-all-platforms ()
+(defun make-all-platforms ()
 	(defq files (all-vp-files))
 	(make-all 'AMD64 'x86_64 files)
 	(make-all 'WIN64 'x86_64 files)
 	(make-all 'ARM64 'aarch64 files))
 
-(defun-bind remake-platforms ()
+(defun remake-platforms ()
 	(defq files (all-vp-files))
 	(remake 'AMD64 'x86_64 files)
 	(remake 'WIN64 'x86_64 files)
 	(remake 'ARM64 'aarch64 files))
 
-(defun-bind remake-all-platforms ()
+(defun remake-all-platforms ()
 	(defq files (all-vp-files))
 	(remake-all 'AMD64 'x86_64 files)
 	(remake-all 'WIN64 'x86_64 files)
@@ -231,9 +231,9 @@
 ; compile and make tests
 ;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun-bind make-test (&optional i &optional *abi* *cpu*)
+(defun make-test (&optional i &optional *abi* *cpu*)
 	(setd *abi* (abi) *cpu* (cpu))
-	(defun-bind time-in-seconds (_)
+	(defun time-in-seconds (_)
 		(str (/ _ 1000000) "." (pad (% _ 1000000) 6 "00000")))
 	(defq b 1000000000 w 0 a 0 c 0 files (all-vp-files))
 	(times (opt i 10)
@@ -246,7 +246,7 @@
 		(print "Worst time " (time-in-seconds (setq w (max w _))) " seconds"))
 	nil)
 
-(defun-bind compile-test (&optional *abi* *cpu*)
+(defun compile-test (&optional *abi* *cpu*)
 	(setd *abi* (abi) *cpu* (cpu))
 	(each (# (compile %0 *abi* *cpu*)) (defq f (all-vp-files)))
 	(compile f *abi* *cpu* 1))

@@ -2,12 +2,12 @@
 (import "lib/math/math.inc")
 (import "apps/bubbles/app.inc")
 
-(defun-bind fpoly (canvas col x y _)
+(defun fpoly (canvas col x y _)
 	;draw a polygon on a canvas
 	(canvas-set-color canvas col)
 	(canvas-fpoly canvas x y 0 _))
 
-(defun-bind circle (r)
+(defun circle (r)
 	;cached circle generation, quantised to 1/4 pixel
 	(defq r (* (floor (* r 4.0)) 0.25) i (% (logior r) 13)
 		k (elem i '(()()()()()()()()()()()()())) p (elem i '(()()()()()()()()()()()()())))
@@ -15,7 +15,7 @@
 		(t (push k r) (elem -2 (push p (list
 			(path-gen-arc 0.0 0.0 0.0 +fp_2pi+ r 0.25 (path))))))))
 
-(defun-bind lighting ((r g b) z)
+(defun lighting ((r g b) z)
 	;very basic attenuation
 	(defq at (/ (const (i2n box_size)) z) r (* r at) g (* g at) b (* b at))
 	(+ 0xd0000000
@@ -23,7 +23,7 @@
 		(<< (n2i (* g (const (i2n 0xff)))) 8)
 		(n2i (* b (const (i2n 0xff))))))
 
-(defun-bind clip-verts (hsw hsh verts)
+(defun clip-verts (hsw hsh verts)
 	;clip and project verts
 	(reduce (lambda (out ((x y z) _ r c))
 		(setq z (+ z (const (i2n (+ (* box_size 2) max_vel)))))
@@ -37,13 +37,13 @@
 				(lighting c z) (lighting (const (vec-i2n 1 1 1)) z)))) out)
 		verts (cap (length verts) (list))))
 
-(defun-bind render-verts (canvas verts)
+(defun render-verts (canvas verts)
 	;render circular verts
 	(each (lambda (((x y z) (sx sy) r c sc))
 		(fpoly canvas c x y (circle r))
 		(fpoly canvas sc sx sy (circle (* r 0.2)))) verts))
 
-(defun-bind redraw (dlist)
+(defun redraw (dlist)
 	;redraw layer/s
 	(when (/= 0 (logand (elem +dlist_mask+ dlist) 1))
 		(defq canvas (elem +dlist_layer1_canvas+ dlist))
@@ -56,7 +56,7 @@
 		(canvas-swap canvas))
 	(elem-set +dlist_mask+ dlist 0))
 
-(defun-bind main ()
+(defun main ()
 	;read args from parent (shared dlist tuple)
 	(defq dlist (mail-read (task-mailbox)))
 	;until quit

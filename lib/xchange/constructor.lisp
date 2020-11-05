@@ -64,7 +64,7 @@
   (each (lambda (_) (cdisp container _)) (second node))
   container)
 
-(defun-bind construct (ast options)
+(defun construct (ast options)
   ; (print "Construct")
   ; (print ast)
   (each construct-document ast))

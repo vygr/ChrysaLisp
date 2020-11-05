@@ -20,23 +20,23 @@
     ; DEBUG (file-stream "./logs/DEBUG_SERVICE.log" file_open_append)
     )
 
-  ; (defun-bind debug-write (&rest _)
+  ; (defun debug-write (&rest _)
   ;   (write DEBUG (apply str (push _ +nl+)))
   ;   (stream-flush DEBUG))
-  (defun-bind debug-write (&rest _))
+  (defun debug-write (&rest _))
 
   ; Process configuration files
   (bind '(srvc_fh fcfg? conf fmap registry) (process-log-cfg))
 
   (log-write (gets srvc_fh :handle) " Starting LOG_SERVICE")
 
-  (defun-bind log-handle (cfg)
+  (defun log-handle (cfg)
     (gets cfg :handle))
 
-  (defun-bind logfs (fsmap config)
+  (defun logfs (fsmap config)
     (log-handle (gets fsmap (gets config :handler))))
 
-  (defun-bind log-msg-writer (msg)
+  (defun log-msg-writer (msg)
     ; (log-msg-writer mail-message) -> stream
     (defq
       msgd (deser-inbound msg)
@@ -47,7 +47,7 @@
                  (gets cnfg :name)": ") (gets msgd :message)))
 
 
-  (defun-bind register-logger (config)
+  (defun register-logger (config)
     ; (register-logger properties) -> ?
 
     (defq chsh (hash config))

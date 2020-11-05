@@ -2,7 +2,7 @@
 ; x64 Emit Functions
 ;;;;;;;;;;;;;;;;;;;;
 
-(defun-bind reg (r)
+(defun reg (r)
 	(find r '(r0 r1 r2 r3 rsp r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14)))
 
 (defcvar 'stack_align 8 'stack_state '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14))
@@ -14,7 +14,7 @@
 	(vp-cpy-ri r2 r1 (+ tk_state_size ptr_size))
 	(vp-cpy-ri r4 r1 tk_state_size))
 
-(defun-bind emit-rr (o s d)
+(defun emit-rr (o s d)
 	(defq s (reg s) d (reg d))
 	(emit-byte (+ 0x48 (<< (>> s 3) 2) (>> d 3)) o (+ 0xc0 (<< (logand 7 s) 3) (logand 7 d))))
 
@@ -40,7 +40,7 @@
 		(t
 			(emit-byte (+ 0x44 (<< dl 3)) (+ (<< s2l 3) s1l) 0))))
 
-(defun-bind emit-ir (o s c d)
+(defun emit-ir (o s c d)
 	(defq s (reg s) d (reg d))
 	(emit-byte (+ 0x48 (<< (>> d 3) 2) (>> s 3)) o)
 	(cond
@@ -75,7 +75,7 @@
 			(emit-int c))
 		(t (throw "emit-ir-bs constant out of range !" c))))
 
-(defun-bind emit-pr (o c d)
+(defun emit-pr (o c d)
 	(defq d (reg d) dl (logand 7 d) dh (>> d 3) c (- c 7))
 	(cond
 		((<= -0x80000000 c 0x7fffffff)
@@ -83,7 +83,7 @@
 			(emit-int c))
 		(t (throw "emit-pr constant out of range !" c))))
 
-(defun-bind emit-shift-cr (o c d)
+(defun emit-shift-cr (o c d)
 	(unless (= c 0)
 		(defq d (reg d) dl (logand 7 d) dh (>> d 3))
 		(emit-byte (+ 0x48 dh))
@@ -112,7 +112,7 @@
 			(emit-cpy-ri r0 rsp 24)
 			(emit-pop d s r0 r1))))
 
-(defun-bind emit-call-jump-p (o c)
+(defun emit-call-jump-p (o c)
 	(emit-byte 0xff o)
 	(emit-int (- c 6)))
 
@@ -121,7 +121,7 @@
 	(if (>= d 8) (emit-byte 0x41))
 	(emit-byte 0xff (+ o dl)))
 
-(defun-bind emit-call-jump-i (o d c)
+(defun emit-call-jump-i (o d c)
 	(defq d (reg d) dl (logand 7 d))
 	(if (>= d 8) (emit-byte 0x41))
 	(emit-byte 0xff)
@@ -139,19 +139,19 @@
 			(emit-int c))
 		(t (throw "emit-call-jump-i constant out of range !" c))))
 
-(defun-bind emit-push (&rest b)
+(defun emit-push (&rest b)
 	(each (lambda (r)
 		(if (>= (setq r (reg r)) 8)
 			(emit-byte 0x41 (+ 0x48 r))
 			(emit-byte (+ 0x50 r)))) b))
 
-(defun-bind emit-pop (&rest b)
+(defun emit-pop (&rest b)
 	(each-rev (lambda (r)
 		(if (>= (setq r (reg r)) 8)
 			(emit-byte 0x41 (+ 0x50 r))
 			(emit-byte (+ 0x58 r)))) b))
 
-(defun-bind emit-branch (o c d)
+(defun emit-branch (o c d)
 	(defq m (elem d *distance*))
 	(and (/= *pass* 0) (> (abs c) (abs m)) (elem-set d *distance* (setq m c)))
 	(cond
@@ -162,16 +162,16 @@
 			(emit-int (- c 6)))
 		(t (throw "emit-branch constant out of range !" c))))
 
-(defun-bind emit-beq (l d) (emit-branch 0x74 (- l *pc*) d))
-(defun-bind emit-bne (l d) (emit-branch 0x75 (- l *pc*) d))
-(defun-bind emit-bge (l d) (emit-branch 0x7d (- l *pc*) d))
+(defun emit-beq (l d) (emit-branch 0x74 (- l *pc*) d))
+(defun emit-bne (l d) (emit-branch 0x75 (- l *pc*) d))
+(defun emit-bge (l d) (emit-branch 0x7d (- l *pc*) d))
 (defun emit-blt (l d) (emit-branch 0x7c (- l *pc*) d))
 (defun emit-ble (l d) (emit-branch 0x7e (- l *pc*) d))
 (defun emit-bgt (l d) (emit-branch 0x7f (- l *pc*) d))
 
-(defun-bind emit-xor-rr (s d) (emit-rr 0x31 s d))
+(defun emit-xor-rr (s d) (emit-rr 0x31 s d))
 
-(defun-bind emit-or-cr (c r)
+(defun emit-or-cr (c r)
 	(unless (= c 0)
 		(defq r (reg r) rl (logand 7 r) rh (>> r 3))
 		(emit-byte (+ 0x48 rh))
@@ -185,7 +185,7 @@
 				(emit-int c))
 			(t (throw "emit-or-cr constant out of range !" c)))))
 
-(defun-bind emit-cmp-cr (c r)
+(defun emit-cmp-cr (c r)
 	(if (= c 0) (emit-rr 0x85 r r)
 		(progn
 			(defq r (reg r) rl (logand 7 r) rh (>> r 3))
@@ -200,7 +200,7 @@
 					(emit-int c))
 				(t (throw "emit-cmp-cr constant out of range !" c))))))
 
-(defun-bind emit-cmp-rr (s d) (emit-rr 0x39 s d))
+(defun emit-cmp-rr (s d) (emit-rr 0x39 s d))
 
 (defun emit-seq-cr (c d)
 	(emit-cmp-cr c d) (emit-byte 0x74 5) (emit-xor-rr d d) (emit-byte 0xeb 4) (emit-or-cr -1 d))
@@ -239,7 +239,7 @@
 (defun emit-call-i (d c) (emit-call-jump-i 0x10 d c))
 (defun emit-call-p (l) (emit-call-jump-p 0x15 (- l *pc*)))
 
-(defun-bind emit-jmp (l d)
+(defun emit-jmp (l d)
 	(defq m (elem d *distance*) c (- l *pc*))
 	(and (/= *pass* 0) (> (abs c) (abs m)) (elem-set d *distance* (setq m c)))
 	(cond
@@ -256,9 +256,9 @@
 
 (defun emit-lea-i (s c d) (unless (and (= c 0) (eql s d)) (emit-ir 0x8d s c d)))
 (defun emit-lea-d (s1 s2 d) (emit-dr 0x8d s1 s2 d))
-(defun-bind emit-lea-p (l d) (emit-pr 0x8d (- l *pc*) d))
+(defun emit-lea-p (l d) (emit-pr 0x8d (- l *pc*) d))
 
-(defun-bind emit-cpy-cr (c r)
+(defun emit-cpy-cr (c r)
 	(if (= c 0)
 		(emit-xor-rr r r)
 		(progn
@@ -277,12 +277,12 @@
 					(emit-byte (+ 0x48 rh) (+ 0xb8 rl))
 					(emit-long c))))))
 
-(defun-bind emit-cpy-rr (s d) (unless (eql s d) (emit-rr 0x89 s d)))
-(defun-bind emit-cpy-ir (s c d) (emit-ir 0x8b s c d))
+(defun emit-cpy-rr (s d) (unless (eql s d) (emit-rr 0x89 s d)))
+(defun emit-cpy-ir (s c d) (emit-ir 0x8b s c d))
 (defun emit-cpy-dr (s1 s2 d) (emit-dr 0x8b s1 s2 d))
-(defun-bind emit-cpy-pr (l d) (emit-pr 0x8b (- l *pc*) d))
+(defun emit-cpy-pr (l d) (emit-pr 0x8b (- l *pc*) d))
 
-(defun-bind emit-cpy-ri (s d c)
+(defun emit-cpy-ri (s d c)
 	(defq s (reg s) d (reg d))
 	(cond
 		((and (= c 0) (/= d 5) (/= d 13))
@@ -326,7 +326,7 @@
 (defun emit-cpy-ir-us (s c d) (emit-ir-bs 0xb7 s c d))
 (defun emit-cpy-dr-us (s1 s2 d) (emit-dr-bs 0xb7 s1 s2 d))
 
-(defun-bind emit-cpy-ir-i (s c d)
+(defun emit-cpy-ir-i (s c d)
 	(defq s (reg s) d (reg d))
 	(emit-byte (+ 0x48 (<< (>> d 3) 2) (>> s 3)) 0x63)
 	(cond
@@ -354,7 +354,7 @@
 		(t
 			(emit-byte (+ 0x44 (<< dl 3)) (+ (<< s2l 3) s1l) 0))))
 
-(defun-bind emit-cpy-ir-ui (s c d)
+(defun emit-cpy-ir-ui (s c d)
 	(defq s (reg s) d (reg d))
 	(if (or (>= s 8) (>= d 8)) (emit-byte (+ 0x40 (<< (>> d 3) 2) (>> s 3))))
 	(emit-byte 0x8b)
@@ -448,7 +448,7 @@
 		(t
 			(emit-byte (+ 0x44 (<< rl 3)) (+ (<< s2l 3) s1l) 0))))
 
-(defun-bind emit-cpy-ri-i (s d c)
+(defun emit-cpy-ri-i (s d c)
 	(defq s (reg s) d (reg d))
 	(if (or (>= s 8) (>= d 8)) (emit-byte (+ 0x40 (<< (>> s 3) 2) (>> d 3))))
 	(emit-byte 0x89)
@@ -478,7 +478,7 @@
 		(t
 			(emit-byte (+ 0x44 (<< rl 3)) (+ (<< s2l 3) s1l) 0))))
 
-(defun-bind emit-add-cr (c r)
+(defun emit-add-cr (c r)
 	(unless (= c 0)
 		(defq r (reg r) rl (logand 7 r) rh (>> r 3))
 		(emit-byte (+ 0x48 rh))
@@ -494,9 +494,9 @@
 				(emit-int c))
 			(t (throw "emit-add-cr constant out of range !" c)))))
 
-(defun-bind emit-add-rr (s d) (emit-rr 0x01 s d))
+(defun emit-add-rr (s d) (emit-rr 0x01 s d))
 
-(defun-bind emit-sub-cr (c r)
+(defun emit-sub-cr (c r)
 	(unless (= c 0)
 		(defq r (reg r) rl (logand 7 r) rh (>> r 3))
 		(emit-byte (+ 0x48 rh))
@@ -512,9 +512,9 @@
 				(emit-int c))
 			(t (throw "emit-sub-cr constant out of range !" c)))))
 
-(defun-bind emit-sub-rr (s d) (emit-rr 0x29 s d))
+(defun emit-sub-rr (s d) (emit-rr 0x29 s d))
 
-(defun-bind emit-and-cr (c r)
+(defun emit-and-cr (c r)
 	(unless (= c -1)
 		(if (= c 0)
 			(emit-xor-rr r r)
@@ -568,7 +568,7 @@
 	(emit-byte 0x0f 0x95 (+ 0xc0 slh))
 	(emit-and-rr s d))
 
-(defun-bind emit-shl-cr (c r) (emit-shift-cr 0xe0 c r))
+(defun emit-shl-cr (c r) (emit-shift-cr 0xe0 c r))
 (defun emit-shl-rr (s d) (emit-shift-rr 0xe0 s d))
 (defun emit-shr-cr (c r) (emit-shift-cr 0xe8 c r))
 (defun emit-shr-rr (s d) (emit-shift-rr 0xe8 s d))
@@ -591,7 +591,7 @@
 					(emit-int c))
 				(t (throw "emit-mul-cr constant out of range !" c))))))
 
-(defun-bind emit-mul-rr (s d)
+(defun emit-mul-rr (s d)
 	(defq s (reg s) sl (logand 7 s) sh (>> s 3)
 		d (reg d) dl (logand 7 d) dh (>> d 3))
 	(emit-byte (+ 0x48 (<< dh 2) sh) 0x0f 0xaf (+ 0xc0 (<< dl 3) sl)))
@@ -651,6 +651,6 @@
 			(emit-cpy-ri r0 rsp 40)
 			(emit-pop d2 d1 s r2 r1 r0))))
 
-(defun-bind emit-alloc (c) (emit-sub-cr (align c stack_align) rsp))
-(defun-bind emit-free (c) (emit-add-cr (align c stack_align) rsp))
-(defun-bind emit-ret () (emit-byte 0xc3))
+(defun emit-alloc (c) (emit-sub-cr (align c stack_align) rsp))
+(defun emit-free (c) (emit-add-cr (align c stack_align) rsp))
+(defun emit-ret () (emit-byte 0xc3))

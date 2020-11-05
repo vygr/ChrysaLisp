@@ -6,16 +6,16 @@
 (import "gui/canvas/lisp.inc")
 (import "lib/consts/colors.inc")
 
-(defmacro-bind is_number_char (_)
+(defmacro is_number_char (_)
 	(list 'find-rev _ "0123456789"))
 
-(defmacro-bind is_allowed_number_char (_)
+(defmacro is_allowed_number_char (_)
 	(list 'find-rev _ (const (cat
 		"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 		"abcdefghijklmnopqrstuvwxyz"
 		".0123456789"))))
 
-(defmacro-bind is_symbol_char (_)
+(defmacro is_symbol_char (_)
 	(list 'find-rev _ (const (cat
 		"!@#$%^&*_+-=[];\:|,./<>?`~'"
 		"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -45,17 +45,17 @@
 			((macro? v) (def keywords k (get :ink_keyword3 this)))))
 		(tolist e))
 
-	(method-bind :set_state (this state)
+	(method :set_state (this state)
 		;(. this :set_state state) -> this
 		(set this :state state)
 		this)
 
-	(method-bind :set_colors (this colors)
+	(method :set_colors (this colors)
 		;(. this :set_colors xmap) -> this
 		(. colors :each (# (set this %0 (<< (canvas-from-argb32 %1 15) 32))))
 		this)
 
-	(method-bind :colorise (this line)
+	(method :colorise (this line)
 		;(. this :colorise str) -> array
 
 		;tokenise the string starting with the current state

@@ -25,17 +25,17 @@
 		(ui-backdrop backdrop (:color +argb_black+ :ink_color +argb_grey8+ :style 1)
 			(ui-canvas layer1_canvas canvas_width canvas_height 1))))
 
-(defun-bind radio-select (l i)
+(defun radio-select (l i)
 	;radio select buttons
 	(each (lambda (b)
 		(def (view-dirty b) :color (if (= _ i) (const +argb_grey14+) (const *env_toolbar_col*)))) l) i)
 
-(defun-bind redraw (verts mask)
+(defun redraw (verts mask)
 	;redraw layer/s
 	(elem-set +dlist_layer1_verts+ dlist verts)
 	(elem-set +dlist_mask+ dlist (logior (elem +dlist_mask+ dlist) mask)))
 
-(defun-bind vertex-cloud (num)
+(defun vertex-cloud (num)
 	;array of random verts
 	(defq out (cap num (list)))
 	(while (> (setq num (dec num)) -1)
@@ -51,7 +51,7 @@
 				(vec-scale (elem (random (length palette)) palette)
 					(f2n (random (const (- 1.0 base))))))))) out)
 
-(defun-bind vertex-update (verts)
+(defun vertex-update (verts)
 	(each (lambda (vert)
 		(bind '(p v _ _) vert)
 		(vec-add p v p)
@@ -65,7 +65,7 @@
 			(setq vz (neg vz)))
 		(elem-set +vertex_v+ vert (vec vx vy vz))) verts))
 
-(defun-bind main ()
+(defun main ()
 	;ui tree initial setup
 	(defq dlist (list 0 rate light_pos layer1_canvas (list)))
 	(canvas-set-flags layer1_canvas 1)

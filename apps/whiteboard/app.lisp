@@ -11,7 +11,7 @@
 	(byte 'black+ 'white+ 'red+ 'green+ 'blue+ 'cyan+ 'yellow+ 'magenta+
 		'tblack+ 'twhite+ 'tred+ 'tgreen+ 'tblue+ 'tcyan+ 'tyellow+ 'tmagenta+))
 
-(defun-bind trans (_)
+(defun trans (_)
 	;transparent colour
 	(+ (logand 0xffffff _) 0x60000000))
 
@@ -41,12 +41,12 @@
 			(ui-canvas overlay_canvas canvas_width canvas_height 1)
 			(ui-canvas commited_canvas canvas_width canvas_height 1))))
 
-(defun-bind radio-select (l i)
+(defun radio-select (l i)
 	;radio select buttons
 	(each (lambda (b)
 		(def (view-dirty b) :color (if (= _ i) (const +argb_grey14+) (const *env_toolbar_col*)))) l) i)
 
-(defun-bind flatten ((mode col rad pnts))
+(defun flatten ((mode col rad pnts))
 	;flatten path to polygon
 	(list col (cond
 		((< (length pnts) 2)
@@ -82,36 +82,36 @@
 				(t	;flatten to pen stroke
 					(path-stroke-polylines (list) rad (const eps) (const join_bevel) (const cap_round) (const cap_round) (list pnts))))))))
 
-(defun-bind snapshot ()
+(defun snapshot ()
 	;take a snapshot of the canvas state
 	(push undo_stack (cat commited_polygons))
 	(clear redo_stack))
 
-(defun-bind undo ()
+(defun undo ()
 	;move state from undo to redo stack and restore old state
 	(when (/= 0 (length undo_stack))
 		(push redo_stack commited_polygons)
 		(setq commited_polygons (pop undo_stack))
 		(redraw 1)))
 
-(defun-bind redo ()
+(defun redo ()
 	;move state from redo to undo stack and restore old state
 	(when (/= 0 (length redo_stack))
 		(push undo_stack commited_polygons)
 		(setq commited_polygons (pop redo_stack))
 		(redraw 1)))
 
-(defun-bind commit (p)
+(defun commit (p)
 	;commit a stroke to the canvas
 	(push commited_polygons (flatten p)))
 
-(defun-bind redraw (mask)
+(defun redraw (mask)
 	;redraw layer/s
 	(elem-set +dlist_commited_polygons+ dlist (cat commited_polygons))
 	(elem-set +dlist_overlay_paths+ dlist (cat overlay_paths))
 	(elem-set +dlist_mask+ dlist (logior (elem +dlist_mask+ dlist) mask)))
 
-(defun-bind main ()
+(defun main ()
 	;ui tree initial setup
 	(defq dlist (list 3 (/ 1000000 60) flatten commited_canvas overlay_canvas (list) (list)))
 	(canvas-set-flags commited_canvas 1)

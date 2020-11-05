@@ -62,7 +62,7 @@
 
 (def-func-end)
 
-(defun-bind addop (_ p)
+(defun addop (_ p)
 	(entry 'fixed _ '(r0 r1))
 	(vp-push r0)
 	(class/array/get_both r1 r1 r2)
@@ -97,7 +97,7 @@
 
 (def-func-end)
 
-(defun-bind divop (_ p)
+(defun divop (_ p)
 	(entry 'fixed _ '(r0 r1))
 	(vp-push r0)
 	(class/array/get_both r1 r1 r4)
@@ -174,7 +174,7 @@
 (def-func-end)
 
 ;generic fixed math op
-(defun-bind mathop (_ p)
+(defun mathop (_ p)
 	(entry 'fixed _ '(r0))
 	(vp-push r0)
 	(assign '((r0 num_value)) '(r0))

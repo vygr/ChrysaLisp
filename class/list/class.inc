@@ -27,24 +27,24 @@
 ; paramater helpers
 ;;;;;;;;;;;;;;;;;;;
 
-(defun-bind list-cast-args (regs types)
+(defun list-cast-args (regs types)
 	;inputs
 	;(reg ...)
-	;'({num str char _} ...)
+	;'({:num :str :char _} ...)
 	;outputs
 	;cast register list
 	(assign-asm-to-asm (map (lambda (r _)
 		(case _
-			((num fixed real) (list r num_value))
-			(str (list '& r str_data))
-			(char (list r str_data 'ub))
+			((:num :fixed :real) (list r num_value))
+			(:str (list '& r str_data))
+			(:char (list r str_data 'ub))
 			(t r))) regs types) regs))
 
-(defun-bind list-bind-args (a regs types)
+(defun list-bind-args (a regs types)
 	;inputs
 	;list object
 	;(reg ...)
-	;'({num str char _} ...)
+	;'({:num :str :char _} ...)
 	;outputs
 	;load and cast register list from list
 	(defq rl (list) tp (list))

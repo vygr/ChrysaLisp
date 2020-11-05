@@ -16,7 +16,7 @@
 		(ui-element frame (elem 0 frames))
 		(ui-element sframe (elem 0 sframes))))
 
-(defun-bind main ()
+(defun main ()
 	(bind '(x y w h) (apply view-locate (view-pref-size window)))
 	(gui-add (view-change window x y w h))
 	(while id

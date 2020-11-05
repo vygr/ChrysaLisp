@@ -9,7 +9,7 @@
 (structure '+pipe 0
 	(byte 'state+ 'select+ 'streams+))
 
-(defun-bind pipe-open (cmds &optional flag)
+(defun pipe-open (cmds &optional flag)
 	(defq cmdpipe (list) args (map (lambda (cmd)
 		(defq cmd (split cmd " "))
 		(push cmdpipe (cat "cmd/" (elem 0 cmd) ".lisp"))
@@ -39,7 +39,7 @@
 			(mail-free-mbox ack_mbox)
 			(list t select pipe_streams))))
 
-(defun-bind pipe-close (pipe)
+(defun pipe-close (pipe)
 	;clear the stdin stream, which will send stopping and stopped
 	(bind '(_ select pipe_streams) pipe)
 	(pop select) (pop pipe_streams) (clear pipe)
@@ -49,7 +49,7 @@
 				(const stream_mail_state_stopped))
 			(setq pipe_streams (erase pipe_streams idx (inc idx)) select (erase select idx (inc idx))))))
 
-(defun-bind pipe-read (pipe)
+(defun pipe-read (pipe)
 	(cond
 		;nil if pipe closed
 		((elem +pipe_state+ pipe)
@@ -65,10 +65,10 @@
 						(elem-set +pipe_state+ pipe nil))
 					(read-avail msg_in))))))
 
-(defun-bind pipe-write (pipe s)
+(defun pipe-write (pipe s)
 	(stream-flush (write (elem -2 (elem +pipe_streams+ pipe)) s)))
 
-(defun-bind pipe-run (cmdline &optional out)
+(defun pipe-run (cmdline &optional out)
 	;(pipe-run cmdline &optional outfun)
 	(setd out print)
 	(defq cmd (pipe-open cmdline t))

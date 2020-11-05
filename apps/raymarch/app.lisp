@@ -22,7 +22,7 @@
 	(ui-title-bar _ "Raymarch" (0xea19) +event_close+)
 	(ui-canvas canvas canvas_width canvas_height canvas_scale))
 
-(defun-bind tile (canvas data)
+(defun tile (canvas data)
 	;(tile canvas data) -> area
 	(defq data (string-stream data) x (read-int data) y (read-int data)
 		x1 (read-int data) y1 (read-int data) yp (dec y))
@@ -36,7 +36,7 @@
 ;native versions
 (ffi tile "apps/raymarch/tile" 0)
 
-(defun-bind main ()
+(defun main ()
 	;add window
 	(canvas-swap (canvas-fill canvas +argb_black+))
 	(bind '(x y w h) (apply view-locate (view-pref-size window)))

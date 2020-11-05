@@ -2,14 +2,14 @@
 ; Emit Buffer
 ;;;;;;;;;;;;;
 
-(defmacro-bind emit (&rest _)
+(defmacro emit (&rest _)
 	`(push *emit_buffer* ~_))
 
-(defun-bind emit-reset ()
+(defun emit-reset ()
 	(defcvar '*emit_buffer* (push (clear '()) progn) '*distance* (clear '())
 		'*out_buffer* "" '*old_out_buffer* ""))
 
-(defun-bind emit-passes ()
+(defun emit-passes ()
 	(defcvar '*pass* 0 '*pc* 0 '*out_stream* (string-stream *out_buffer*))
 	(defq b nil)
 	(eval (prebind *emit_buffer*) *compile_env*)
@@ -22,30 +22,30 @@
 (defun print-emit (_)
 	(and (lst? _) (not (eql (elem 0 _) 'lambda)) (print _)))
 
-(defun-bind emit-label (_)
+(defun emit-label (_)
 	(set (penv) _ *pc*))
 
-(defun-bind emit-byte (&rest _)
+(defun emit-byte (&rest _)
 	(write-char *out_stream* _ 1)
 	(setq *pc* (+ *pc* (length _))))
 
-(defun-bind emit-short (&rest _)
+(defun emit-short (&rest _)
 	(write-char *out_stream* _ 2)
 	(setq *pc* (+ *pc* (* (length _) 2))))
 
-(defun-bind emit-int (&rest _)
+(defun emit-int (&rest _)
 	(write-char *out_stream* _ 4)
 	(setq *pc* (+ *pc* (* (length _) 4))))
 
-(defun-bind emit-long (&rest _)
+(defun emit-long (&rest _)
 	(write-char *out_stream* _ 8)
 	(setq *pc* (+ *pc* (* (length _) 8))))
 
-(defun-bind emit-string (_)
+(defun emit-string (_)
 	(write *out_stream* _)
 	(setq *pc* (+ *pc* (length _))))
 
-(defun-bind emit-align (a &optional b)
+(defun emit-align (a &optional b)
 	(when (/= *pass* 0)
 		(defq p *pc* b (opt b 0) s *out_stream*)
 		(setq *pc* (align p a))
@@ -94,26 +94,26 @@
 		((find-rev (elem 0 ,e) (opt-emit-two-out-ops)) (eql ,r (elem -3 ,e)))
 		((find-rev (elem 0 ,e) (opt-emit-multi-out-ops)) (find-rev ,r ,e))))
 
-(defun-bind opt-emit-trashes? (r e)
+(defun opt-emit-trashes? (r e)
 	(opt-trashes? r e))
 
-(defun-bind opt-emit-trashes-with-calls? (r e)
+(defun opt-emit-trashes-with-calls? (r e)
 	(cond
 		((find-rev (elem 0 e) (opt-emit-call-ops)) t)
 		(t (opt-trashes? r e))))
 
-(defun-bind opt-emit-trashes-reads? (r e)
+(defun opt-emit-trashes-reads? (r e)
 	(cond
 		((find-rev (elem 0 e) (opt-emit-read-kills-ops)) t)
 		(t (opt-trashes? r e))))
 
-(defun-bind opt-emit-trashes-with-kills? (r e)
+(defun opt-emit-trashes-with-kills? (r e)
 	(cond
 		((find-rev (elem 0 e) (opt-emit-kills-ops)) t)
 		((find-rev (elem 0 e) (opt-emit-call-ops)) t)
 		(t (opt-trashes? r e))))
 
-(defun-bind opt-emit-find-rw (k _ r w b i)
+(defun opt-emit-find-rw (k _ r w b i)
 	(defq _ (some! _ 0 nil (lambda (e)
 		(cond
 			((and (eql w (elem 0 e))
@@ -128,7 +128,7 @@
 			((k b e) -1))) (list *emit_buffer*)))
 	(and _ (/= _ -1) _))
 
-(defun-bind opt-emit-find-rw1 (k _ ra rb w b i)
+(defun opt-emit-find-rw1 (k _ ra rb w b i)
 	(defq _ (some! _ 0 nil (lambda (e)
 		(cond
 			((and (eql w (elem 0 e))
@@ -143,7 +143,7 @@
 			((k b e) -1))) (list *emit_buffer*)))
 	(and _ (/= _ -1) _))
 
-(defun-bind opt-emit-find-rr (k _ rs rd)
+(defun opt-emit-find-rr (k _ rs rd)
 	(defq _ (some! _ 0 nil (lambda (e)
 		(cond
 			((match? e `(emit-cpy-rr ,rs ,rd)) _)
@@ -151,7 +151,7 @@
 			((k rd e) -1))) (list *emit_buffer*)))
 	(and _ (/= _ -1) _))
 
-(defun-bind opt-emit-buffer ()
+(defun opt-emit-buffer ()
 	(each! 2 -1 (lambda (e)
 		(cond
 			;read after read/write
@@ -198,11 +198,11 @@
 (defmacro type-sym (_)
 	`(sym (str "_t_" ,_)))
 
-(defun-bind vp-type-t (_)
+(defun vp-type-t (_)
 	(if (setq _ (find-rev (elem 0 _) "bBsSiI"))
 		(elem _ '(b ub s us i ui)) ""))
 
-(defun-bind vp-type (o)
+(defun vp-type (o)
 	(defq i (type-of o))
 	(cond
 		((= i lisp_type_sym)
@@ -234,30 +234,30 @@
 		((= i lisp_type_str) 's)
 		(t nil)))
 
-(defun-bind label-sym (s) (sym (cat "_l_" s)))
-(defun-bind vp-label (l) (setq l (label-sym l))
+(defun label-sym (s) (sym (cat "_l_" s)))
+(defun vp-label (l) (setq l (label-sym l))
 	(emit (list 'emit-label (list 'quote l))) (push *func_syms* l) (defcvar l 0))
-(defun-bind vp-align (a &optional b) (emit (list 'emit-align a b)))
-(defun-bind vp-string (s) (emit (list 'emit-string s)))
-(defun-bind vp-byte (&rest b) (emit (cat (list 'emit-byte) b)))
-(defun-bind vp-short (&rest b) (emit (cat (list 'emit-short) b)))
-(defun-bind vp-int (&rest b) (emit (cat (list 'emit-int) b)))
-(defun-bind vp-long (&rest b) (emit (cat (list 'emit-long) b)))
+(defun vp-align (a &optional b) (emit (list 'emit-align a b)))
+(defun vp-string (s) (emit (list 'emit-string s)))
+(defun vp-byte (&rest b) (emit (cat (list 'emit-byte) b)))
+(defun vp-short (&rest b) (emit (cat (list 'emit-short) b)))
+(defun vp-int (&rest b) (emit (cat (list 'emit-int) b)))
+(defun vp-long (&rest b) (emit (cat (list 'emit-long) b)))
 
 (defmacro vp-bcr (_)
-	`(defun-bind ,(sym (cat "vp-" _ "-cr")) (c d l)
+	`(defun ,(sym (cat "vp-" _ "-cr")) (c d l)
 		(emit (list 'emit-cmp-cr c d)
 			(list ',(sym (cat "emit-" _)) (label-sym l) (dec (length (push *distance* 0)))))))
 (defmacro vp-brr (_)
-	`(defun-bind ,(sym (cat "vp-" _ "-rr")) (s d l)
+	`(defun ,(sym (cat "vp-" _ "-rr")) (s d l)
 		(emit (list 'emit-cmp-rr s d)
 			(list ',(sym (cat "emit-" _)) (label-sym l) (dec (length (push *distance* 0)))))))
 (defmacro vp-op-cr (_)
-	`(defun-bind ,(sym (cat "vp-" _ "-cr")) (c d) (emit (list ',(sym (cat "emit-" _ "-cr")) c d))))
+	`(defun ,(sym (cat "vp-" _ "-cr")) (c d) (emit (list ',(sym (cat "emit-" _ "-cr")) c d))))
 (defmacro vp-op-rr (_)
-	`(defun-bind ,(sym (cat "vp-" _ "-rr")) (s d) (emit (list ',(sym (cat "emit-" _ "-rr")) s d))))
+	`(defun ,(sym (cat "vp-" _ "-rr")) (s d) (emit (list ',(sym (cat "emit-" _ "-rr")) s d))))
 (defmacro vp-mem (_)
-	`(defun-bind ,(sym (cat "vp-cpy-" _)) (x y z) (emit (list ',(sym (cat "emit-cpy-" _)) x y z))))
+	`(defun ,(sym (cat "vp-cpy-" _)) (x y z) (emit (list ',(sym (cat "emit-cpy-" _)) x y z))))
 
 (defun vp-push (&rest b) (emit (cat (list 'emit-push) b)))
 (defun vp-pop (&rest b) (emit (cat (list 'emit-pop) b)))
@@ -265,11 +265,11 @@
 (defun vp-free (c) (emit (list 'emit-free c)))
 (defun vp-ret () (emit (list 'emit-ret)))
 
-(defun vp-call-abi (r b i x) (emit (cat `(emit-call-abi ,r ,b ,i) x)))
+(defun vp-call-abi (r b i x) (emit (cat (list 'emit-call-abi r b i) x)))
 (defun vp-call (l) (emit (list 'emit-call (label-sym l))))
 (defun vp-call-r (d) (emit (list 'emit-call-r d)))
 (defun vp-call-i (b i) (emit (list 'emit-call-i b i)))
-(defun-bind vp-call-p (l) (emit (list 'emit-call-p (label-sym l))))
+(defun vp-call-p (l) (emit (list 'emit-call-p (label-sym l))))
 
 (defun vp-jmp (l) (emit (list 'emit-jmp (label-sym l) (dec (length (push *distance* 0))))))
 (defun vp-jmp-r (d) (emit (list 'emit-jmp-r d)))

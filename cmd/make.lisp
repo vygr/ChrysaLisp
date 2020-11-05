@@ -3,21 +3,21 @@
 (import "lib/pipe/pipe.inc")
 (import "lib/options/options.inc")
 
-(defun-bind boot-fncs ()
+(defun boot-fncs ()
 	(defq out (list) e (penv))
 	(while (penv e) (setq e (penv e)))
 	(each (lambda ((k v))
 		(if (fnc? v) (push out k))) (tolist e))
 	(sort cmp out))
 
-(defun-bind boot-funs ()
+(defun boot-funs ()
 	(defq out (list) e (penv))
 	(while (penv e) (setq e (penv e)))
 	(each (lambda ((k v))
 		(if (fun? v) (push out k))) (tolist e))
 	(sort cmp out))
 
-(defun-bind boot-macros ()
+(defun boot-macros ()
 	(defq out (list) e (penv))
 	(while (penv e) (setq e (penv e)))
 	(each (lambda ((k v))
@@ -27,7 +27,7 @@
 (defmacro sfind (ss slst)
 	`(some (# (if (eql ,ss %0) _)) ,slst))
 
-(defun-bind make-syms ()
+(defun make-syms ()
 	(defq *abi* (abi) *cpu* (cpu))
 	(print "Scanning source files...")
 	(defq _syms_ '(
@@ -61,9 +61,9 @@
 	(write-line stream ")")
 	(print "-> sys/symbols.inc") nil)
 
-(defun-bind make-docs ()
+(defun make-docs ()
     (defq *abi* (abi) *cpu* (cpu))
-    (defun-bind chop (_)
+    (defun chop (_)
         (when (defq e (find-rev (char 0x22) _))
             (setq _ (slice 0 e _))
             (slice (inc (find-rev (char 0x22) _)) -1 _)))
@@ -92,7 +92,7 @@
                             (setq state :y)
                             (push docs (list))
                             (push functions (f-path (sym (elem 1 s)) (sym (elem 2 s)))))
-                        ((or (eql _ "def-func") (eql _ "defun") (eql _ "defun-bind"))
+                        ((or (eql _ "def-func") (eql _ "defun") (eql _ "defun"))
                             (setq state :y)
                             (push docs (list))
                             (push functions (sym (elem 1 s))))
@@ -116,18 +116,18 @@
 
 	;create commands docs
 	(defq target 'docs/COMMANDS.md)
-	(defun-bind extract-cmd (el)
+	(defun extract-cmd (el)
 		(first (split (second (split el "/")) ".")))
-	(defun-bind cmd-collector (acc el)
+	(defun cmd-collector (acc el)
 		(push acc (list (sym el) (str el " -h"))))
-	(defun-bind wrap-block (content)
+	(defun wrap-block (content)
 		(if (/= (length content) 0)
 		(str (const (pad (ascii-char 10) 2))
 		"```lisp" (ascii-char 10)
 		content (ascii-char 10)
 		"```" (ascii-char 10))
 		""))
-	(defun-bind generate-cmd-help (lst)
+	(defun generate-cmd-help (lst)
 		(defq _eat_chunk "")
 		(defun _eat (_x)
 		(setq _eat_chunk (cat _eat_chunk (wrap-block _x))))
@@ -152,8 +152,8 @@
             (when (and (eql state :x) (> (length line) 9))
                 (defq _ (elem 0 (split line (const (cat (ascii-char 9) " ()'" (ascii-char 13))))))
                 (cond
-                    ((or (eql _ "defun") (eql _ "defmacro") (eql _ "defun-bind") (eql _ "defmacro-bind")
-							(eql _ "class") (eql _ "method") (eql _ "method-bind"))
+                    ((or (eql _ "defun") (eql _ "defmacro") (eql _ "defun") (eql _ "defmacro")
+							(eql _ "class") (eql _ "method") (eql _ "method"))
                         (setq state :y))))) (file-stream file)))
         (cat (make-tree "." "lisp.inc")
 			'("class/lisp/boot.inc" "lib/anaphoric/anaphoric.inc" "lib/debug/debug.inc"
@@ -189,7 +189,7 @@
     it: all of the above !")
 ))
 
-(defun-bind main ()
+(defun main ()
     ;initialize pipe details and command args, abort on error
     (when (and
             (defq stdio (create-stdio))

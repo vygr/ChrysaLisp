@@ -22,7 +22,7 @@
 		(ui-label _ (:text "Chat:"))
 		(component-connect (ui-textfield chat_text (:text "")) +event_send+)))
 
-(defun-bind vdu-print (vdu buf s)
+(defun vdu-print (vdu buf s)
 	(each (lambda (c)
 		(cond
 			((eql c (ascii-char 10))
@@ -33,11 +33,11 @@
 				(elem-set -2 buf (cat (elem -2 buf) c))))) s)
 	(vdu-load vdu buf 0 0 (length (elem -2 buf)) (dec (length buf))) buf)
 
-(defun-bind broadcast (text)
+(defun broadcast (text)
 	(setq text (cat "<" (get :text chat_user) "> " text (ascii-char 10)))
 	(each (# (mail-send text (str-to-num (elem 1 (split %0 ","))))) (mail-enquire "CHAT_SERVICE")))
 
-(defun-bind main ()
+(defun main ()
 	(defq id t text_buf (list "") select (array (task-mailbox)) entry nil)
 	(bind '(x y w h) (apply view-locate (view-pref-size window)))
 	(gui-add (view-change window x y w h))

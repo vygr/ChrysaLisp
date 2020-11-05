@@ -10,7 +10,7 @@
 	(ui-flow btn_menu (:flow_flags flow_down_fill)
 		(ui-grid btn_menu_grid (:grid_width 1 :grid_height 1))))
 
-(defun-bind build-menu (x y pflag)
+(defun build-menu (x y pflag)
 	(view-sub btn_menu_grid)
 	(defq btn_length (length btn_list))
 	(def (setq btn_menu_grid (create-grid)) :min_width 80 :flow_flags flow_flag_align_hcenter 
@@ -34,7 +34,7 @@
 		(t 	(view-change window x y w h)))
 	(view-dirty-all window))
 
-(defun-bind main ()
+(defun main ()
 	;read paramaters from parent
 	(bind '(reply_mbox btn_list pos pflag) (mail-read (task-mailbox)))
 	(bind '(px py) pos)

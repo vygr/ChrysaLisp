@@ -40,7 +40,7 @@
 
 	(vp-push r0 r1)
 	(defq in (method-input 'list :set_element))
-	(list-bind-args r1 (array-map-args in '(1 2 0)) '(num list obj))
+	(list-bind-args r1 (array-map-args in '(1 2 0)) '(:num :list :obj))
 	(assign `((,(elem 0 in) array_length)) '(r14))
 	(vpif `(,(elem 2 in) < 0))
 		(vp-add-rr r14 (elem 2 in))

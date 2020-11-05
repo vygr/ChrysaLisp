@@ -4,58 +4,58 @@
 
 ;generic vector stuff
 
-(defmacro-bind vec-add (p1 p2 &optional _)
+(defmacro vec-add (p1 p2 &optional _)
 	(if _ `(nums-add ,p1 ,p2 ,_) `(nums-add ,p1 ,p2)))
 
-(defmacro-bind vec-sub (p1 p2 &optional _)
+(defmacro vec-sub (p1 p2 &optional _)
 	(if _ `(nums-sub ,p1 ,p2 ,_) `(nums-sub ,p1 ,p2)))
 
-(defmacro-bind vec-mul (p1 p2 &optional _)
+(defmacro vec-mul (p1 p2 &optional _)
 	(if _ `(nums-mul ,p1 ,p2 ,_) `(nums-mul ,p1 ,p2)))
 
-(defmacro-bind vec-div (p1 p2 &optional _)
+(defmacro vec-div (p1 p2 &optional _)
 	(if _ `(nums-div ,p1 ,p2 ,_) `(nums-div ,p1 ,p2)))
 
-(defmacro-bind vec-mod (p1 p2 &optional _)
+(defmacro vec-mod (p1 p2 &optional _)
 	(if _ `(nums-mod ,p1 ,p2 ,_) `(nums-mod ,p1 ,p2)))
 
-(defmacro-bind vec-frac (p &optional _)
+(defmacro vec-frac (p &optional _)
 	(if _ `(nums-frac ,p ,_) `(nums-frac ,p)))
 
-(defmacro-bind vec-floor (p &optional _)
+(defmacro vec-floor (p &optional _)
 	(if _ `(nums-floor ,p ,_) `(nums-floor ,p)))
 
-(defmacro-bind vec-abs (p &optional _)
+(defmacro vec-abs (p &optional _)
 	(if _ `(nums-abs ,p ,_) `(nums-abs ,p)))
 
-(defmacro-bind vec-scale (p s &optional _)
+(defmacro vec-scale (p s &optional _)
 	(if _ `(nums-scale ,p ,s ,_) `(nums-scale ,p ,s)))
 
-(defmacro-bind vec-dot (p1 p2 &optional _)
+(defmacro vec-dot (p1 p2 &optional _)
 	(if _ `(nums-sum (vec-mul ,p1 ,p2 ,_)) `(nums-sum (vec-mul ,p1 ,p2))))
 
-(defun-bind vec-reflect (p n &optional _)
+(defun vec-reflect (p n &optional _)
 	(vec-scale n (* (nums-sum (if _ (vec-mul p n _) (defq _ (vec-mul p n)))) 2.0) _)
 	(vec-sub p _ _))
 
-(defmacro-bind vec-length (p &optional _)
+(defmacro vec-length (p &optional _)
 	(if _ `(sqrt (vec-dot ,p ,p ,_)) `(sqrt (vec-dot ,p ,p))))
 
-(defmacro-bind vec-length-squared (p &optional _)
+(defmacro vec-length-squared (p &optional _)
 	(if _ `(vec-dot ,p ,p ,_) `(vec-dot ,p ,p)))
 
-(defun-bind vec-norm (p &optional _)
+(defun vec-norm (p &optional _)
 	(vec-scale p (recip (if _
 		(vec-length p _)
 		(sqrt (nums-sum (defq _ (vec-mul p p)))))) _))
 
-(defun-bind vec-distance (p1 p2)
+(defun vec-distance (p1 p2)
 	(vec-length (defq _ (vec-sub p1 p2)) _ _))
 
-(defun-bind vec-distance-squared (p1 p2)
+(defun vec-distance-squared (p1 p2)
 	(vec-length-squared (defq _ (vec-sub p1 p2)) _ _))
 
-(defun-bind vec-distance-to-line (p p1 p2)
+(defun vec-distance-to-line (p p1 p2)
 	(defq lv (vec-sub p2 p1)
 		pv (vec-sub p p1)
 		c1 (vec-dot pv lv))
@@ -67,7 +67,7 @@
 				(vec-distance p p2)
 				(vec-distance p (vec-add p1 (vec-scale lv (/ c1 c2))))))))
 
-(defun-bind vec-distance-squared-to-line (p p1 p2)
+(defun vec-distance-squared-to-line (p p1 p2)
 	(defq lv (vec-sub p2 p1)
 		pv (vec-sub p p1)
 		c1 (vec-dot pv lv))
@@ -79,19 +79,19 @@
 				(vec-distance-squared p p2)
 				(vec-distance-squared p (vec-add p1 (vec-scale lv (/ c1 c2))))))))
 
-(defun-bind vec-manhattan-distance (p1 p2)
+(defun vec-manhattan-distance (p1 p2)
 	(nums-sum (nums-abs (defq _ (nums-sub p1 p2)) _)))
 
-(defun-bind vec-euclidean-distance (p1 p2)
+(defun vec-euclidean-distance (p1 p2)
 	(sqrt (nums-sum (nums-mul (defq _ (nums-sub p1 p2)) _ _))))
 
-(defun-bind vec-squared-euclidean-distance (p1 p2)
+(defun vec-squared-euclidean-distance (p1 p2)
 	(nums-sum (nums-mul (defq _ (nums-sub p1 p2)) _ _)))
 
-(defun-bind vec-chebyshev-distance (p1 p2)
+(defun vec-chebyshev-distance (p1 p2)
 	(reduce max (nums-abs (defq _ (nums-sub p1 p2)) _)))
 
-(defun-bind vec-clamp (p i j)
+(defun vec-clamp (p i j)
 	(apply (const nums) (map (lambda (_) (max i (min j _))) p)))
 
 ;specific vector stuff

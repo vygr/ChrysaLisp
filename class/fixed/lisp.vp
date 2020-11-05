@@ -4,7 +4,7 @@
 (include "class/lisp/class.inc")
 
 ;generic fixed math op
-(defun-bind mathop (_)
+(defun mathop (_)
 	(entry 'fixed (sym (cat :lisp_ (slice 1 -1 _))) '(r0 r1))
 (errorcases
 	(call 'lisp :env_args_sig '(r1 ($ sig) 1) '(r2))

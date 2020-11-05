@@ -22,7 +22,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'sys_task :sleep))
-	(list-bind-args r1 in '(num))
+	(list-bind-args r1 in '(:num))
 	(call 'sys_task :sleep in)
 	(vp-pop r0)
 	(assign '((r0 lisp_sym_t)) '(r1))

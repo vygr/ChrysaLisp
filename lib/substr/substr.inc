@@ -1,6 +1,6 @@
 ;Knuth-Morris-Pratt substr search algorithm
 
-(defun-bind substr (pattern text)
+(defun substr (pattern text)
 	(defq return_list (list) lps (create-lps-table pattern) j 0 k 0)
 	(while (< k (length text))
 		(if (defq match (eql (elem j pattern) (elem k text)))
@@ -14,7 +14,7 @@
 					(t (setq k (inc k)))))))
 	(if (= (length return_list) 0) nil return_list))
 
-(defun-bind create-lps-table (pattern)
+(defun create-lps-table (pattern)
 	(defq lps (list 0) i 0 j 1)
 	(each (lambda (_) (push lps -1)) (range 1 (length pattern)))
 	(while (< j (length lps))

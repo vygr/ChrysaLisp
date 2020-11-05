@@ -5,7 +5,7 @@
 (gen-create 'reals)
 (gen-vtable 'reals)
 
-(defun-bind addop (_ p)
+(defun addop (_ p)
 	;trashes
 	;r1-r14
 	(vp-def (dst src1 src2 iter_begin iter_end))
@@ -21,7 +21,7 @@
 	(exit 'reals _ `(,dst -1))
 	(vp-ret))
 
-(defun-bind absop (_ p)
+(defun absop (_ p)
 	;trashes
 	;r1-r14
 	(vp-def (dst src1 iter_begin iter_end))
@@ -81,7 +81,7 @@
 
 (def-func-end)
 
-(defun-bind divop (_ p)
+(defun divop (_ p)
 	;trashes
 	;r1-r14
 	(vp-def (dst src1 src2 iter_begin iter_end))

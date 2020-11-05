@@ -1,7 +1,7 @@
 ;imports
 (import "sys/lisp.inc")
 
-(defun-bind main ()
+(defun main ()
 	(defq st '())
 	;create child and send args, wait reply
 	(mail-send (list (task-mailbox) "Title" "Message should describe the issue." "Button1, Button2, ButtonN")

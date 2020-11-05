@@ -1,5 +1,53 @@
 # Syntax
 
+## collection?
+
+ (collection? obj) -> t | nil
+
+## empty
+
+ (empty object) -> object | nil
+
+## entries
+
+ (entries collections) -> list | nil
+
+## gets
+
+ (gets collection k [if_nil]) -> value | if_nil | nil
+
+## gets-in
+
+ (gets-in collection key-path) -> value | nil
+
+## keys
+
+ (keys collection) -> list | nil
+
+## map?
+
+ (map? object) -> t | nil
+
+## merge-into!
+
+ (merge-into! collection (collections)) -> collection
+
+## merges
+
+ (merges (collections)) -> collection
+
+## sets!
+
+ (sets! collection key value) -> collection
+
+## sets-pairs!
+
+ (sets-pairs! collection))
+
+## values
+
+ (values collection) -> list | nil
+
 ## #
 
 (# (< %0 0)) -> (lambda (%0) (< %0 0))
@@ -330,7 +378,7 @@
 
 ## case
 
-(case tst [(key body)] ...)
+(case form [(key body)] ...)
 
 ## cat
 
@@ -504,14 +552,6 @@
 
 (def? var [env])
 
-## defmacro
-
-(defmacro name ([arg ...]) body)
-
-## defmacro-bind
-
-(defmacro-bind name ([arg ...]) body)
-
 ## defq
 
 (defq var val [var val] ...)
@@ -520,13 +560,17 @@
 
 (defun name ([arg ...]) body)
 
-## defun-bind
-
-(defun-bind name ([arg ...]) body)
-
 ## defun-debug
 
 (defun-debug name ([arg ...]) body)
+
+## defun-unbound
+
+(defun-unbound name ([arg ...]) body)
+
+## drop!
+
+(drop! collection key) -> collection
 
 ## each
 
@@ -927,10 +971,6 @@
 ## method
 
 (method name ([arg ...]) body)
-
-## method-bind
-
-(method-bind name ([arg ...]) body)
 
 ## min
 

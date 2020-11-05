@@ -84,7 +84,7 @@
       (setq registry (first (yaml-read +cfg_registry+))))
   registry)
 
-(defun-bind register-log-handler (registry anckw cfg)
+(defun register-log-handler (registry anckw cfg)
   ; (register-log-handler properties keyword properties) -> properties
   ; Called when a new anchor configuration is to be registered
   ; registry - The registry of all anchors (properties)
@@ -95,12 +95,12 @@
   (yaml-write +cfg_registry+ registry)
   cfg)
 
-(defun-bind deser-anchor-inbound (msg)
+(defun deser-anchor-inbound (msg)
   ; (deser-inbound mail-msg) -> collection
   ; Deserializes inbound data from mail message
   (data-xdeser (write (string-stream (cat "")) (slice +rega_msg_data+ -1 msg))))
 
-(defun-bind kvmap-has-prefix? (_hm nm)
+(defun kvmap-has-prefix? (_hm nm)
   ; (kvmap-has-prefix? kv-map string) -> kw | nil
   ; Converts name to keyword string and searches
   ; for key prefix match from map-entries
@@ -111,7 +111,7 @@
         (reduced (first entry))
         nil)) (entries _hm) t))
 
-(defun-bind process-log-cfg ()
+(defun process-log-cfg ()
   ; (process-log-cfg) -> tuple
   ; Sets up logging configuration from YAML or fall back to bare bones
   ; Sets up logging file handlers as needed/specified

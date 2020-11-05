@@ -12,7 +12,7 @@
 		(ui-flow flow (:flow_flags (logior flow_flag_align_hright flow_flag_align_vcenter))
 			(ui-grid grid (:grid_width 1 :grid_height 1)))))
 
-(defun-bind modal (lbl btns color mx my mw mh)
+(defun modal (lbl btns color mx my mw mh)
 	(view-sub grid)
 	(def (setq grid (create-grid)) :grid_width (length btns) :grid_height 1)
 	(each (lambda (x)
@@ -26,7 +26,7 @@
 	(set label :text lbl :color color)
 	(view-change-dirty window mx my mw mh))
 
-(defun-bind main ()
+(defun main ()
 	;read paramaters from parent
 	(bind '(reply_mbox label_text button_text color sleep_time mx my mw mh) (mail-read (task-mailbox)))
 	(bind '(x y w h) (apply view-locate (view-pref-size window)))

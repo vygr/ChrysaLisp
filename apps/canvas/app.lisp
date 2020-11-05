@@ -12,7 +12,7 @@
 	(ui-title-bar _ "Canvas" (0xea19) +event_close+)
 	(ui-canvas canvas canvas_width canvas_height canvas_scale))
 
-(defun-bind main ()
+(defun main ()
 	(canvas-set-flags (canvas-fill canvas 0) 1)
 	(bind '(x y w h) (apply view-locate (view-pref-size window)))
 	(gui-add (view-change window x y w h))

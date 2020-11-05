@@ -7,14 +7,14 @@
 	(byte 'close+)
 	(byte 'prev+ 'next+))
 
-(defun-bind num-to-hex-str (_)
+(defun num-to-hex-str (_)
 	(cat "0x"
 		(num-to-char (logand 0xf (>> _ 12)))
 		(num-to-char (logand 0xf (>> _ 8)))
 		(num-to-char (logand 0xf (>> _ 4)))
 		(num-to-char (logand 0xf _))))
 
-(defun-bind win-refresh (i)
+(defun win-refresh (i)
 	(defq ctf (elem (setq index i) fonts) font (create-font ctf 42) grid_width 8 grid_height 0
 		ranges (font-glyph-ranges font) symbol_grid (create-grid))
 	(def fontname :text ctf)
@@ -37,7 +37,7 @@
 	(bind '(x y w h) (apply view-fit (cat (view-get-pos window) (view-pref-size window))))
 	(view-change-dirty window x y w h))
 
-(defun-bind all-fonts (p)
+(defun all-fonts (p)
 	(defq out (list))
 	(each! 0 -1 (lambda (f m) (and (eql m "8") (ends-with ".ctf" f) (push out (cat p f))))
 		(unzip (split (pii-dirlist p) ",") (list (list) (list))))
@@ -49,10 +49,10 @@
 	(ui-title-bar _ "Fonts" (0xea19) +event_close+)
 	(ui-tool-bar _ (:flow_flags flow_right_fill)
 		(ui-buttons (0xe91d 0xe91e) +event_prev+)
-		(ui-label fontname (font *env_window_font* border -1)))
+		(ui-label fontname (:font *env_window_font* :border -1)))
 	(ui-scroll symbol_scroll scroll_flag_vertical))
 
-(defun-bind main ()
+(defun main ()
 	(win-refresh index)
 	(bind '(x y w h) (apply view-locate (view-pref-size window)))
 	(gui-add (view-change window x y w h))

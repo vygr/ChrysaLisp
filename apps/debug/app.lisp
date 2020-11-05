@@ -32,7 +32,7 @@
 		(component-connect (ui-slider hslider (:value 0)) +event_hvalue+)
 		(ui-vdu vdu (:vdu_width vdu_width :vdu_height vdu_height :ink_color +argb_yellow+))))
 
-(defun-bind vdu-print (vdu buf s)
+(defun vdu-print (vdu buf s)
 	(each (lambda (c)
 		(cond
 			((eql c (ascii-char 10))
@@ -43,25 +43,25 @@
 				(elem-set -2 buf (cat (elem -2 buf) c))))) s)
 	(if vdu (vdu-load vdu buf 0 0 (length (elem -2 buf)) (dec (length buf)))) buf)
 
-(defun-bind set-slider-values ()
+(defun set-slider-values ()
 	(defq val (get :value hslider) mho (max 0 (dec (length buf_list))))
 	(def hslider :maximum mho :portion 1 :value (min val mho))
 	(view-dirty hslider))
 
-(defun-bind play (_)
+(defun play (_)
 	(unless (elem +debug_rec_state+ _)
 		(step _))
 	(elem-set +debug_rec_state+ _ t))
 
-(defun-bind pause (_)
+(defun pause (_)
 	(elem-set +debug_rec_state+ _ nil))
 
-(defun-bind step (_)
+(defun step (_)
 	(when (elem +debug_rec_reply_id+ _)
 		(mail-send "" (elem +debug_rec_reply_id+ _))
 		(elem-set +debug_rec_reply_id+ _ nil)))
 
-(defun-bind reset (&optional _)
+(defun reset (&optional _)
 	(setd _ -1)
 	(if (<= 0 _ (dec (length buf_list)))
 		(progn
@@ -83,7 +83,7 @@
 				{then use (defun-debug name ([arg ...]) body)}) 0 0 0 1000)))
 	(set-slider-values))
 
-(defun-bind main ()
+(defun main ()
 	(bind '(x y w h) (apply view-locate (view-pref-size window)))
 	(gui-add (view-change window x y w h))
 	(reset)

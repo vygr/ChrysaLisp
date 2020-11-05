@@ -15,7 +15,7 @@ Replaced `properties` from `xtras.inc` with `emaps`
 
 ------
 
-New (class), (method), (method-bind) and (.) macro in `class/lisp/boot.inc` to
+New (class), (method), (method) and (.) macro in `class/lisp/boot.inc` to
 allow OOPS style libraries and classes.
 
 New `lib/hmap/xmap.inc` and `lib/hmap/xset.inc` classes for generic maps and
@@ -134,7 +134,7 @@ Added `lib/hmap/hmap.inc` for generic Lisp level hash map support.
 
 (prebind) will now pre-bind symbols that begin with a '+' character. Lisp
 constants that follow the conventional +xyz+ standard will now be bound to the
-hard value within (defun-bind) functions.
+hard value within (defun) functions.
 
 `yaml-data` now supports reading and writing of fundamental YAML data
 constructs. This update also introduced various additions of general functions

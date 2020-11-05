@@ -4,7 +4,7 @@
 
 (import "lib/xtras/xtras.inc")
 
-(defun-bind Mark (index line column)
+(defun Mark (index line column)
   ; (Mark index line column) -> properties
   (properties
     :clz    :clz_reader_mark
@@ -12,7 +12,7 @@
     :line   line
     :column column))
 
-(defun-bind Reader (fstr)
+(defun Reader (fstr)
   ; (Reader fstr) -> Reader
   ; Returns a new Reader object
   (properties
@@ -39,9 +39,9 @@
   crlf    (const (cat "" cr lf))
   breakz  (const (cat "" lf eof)))
 
-(defun-bind _add (x y) (+ x y))
+(defun _add (x y) (+ x y))
 
-(defun-bind rdr-calc-off (rdr idx &optional src)
+(defun rdr-calc-off (rdr idx &optional src)
   ; (calc-off rdr idx) -> offset | exception
   ; Throws exception if offset exceeds bounds
   (setd src "Unknown")
@@ -53,18 +53,18 @@
         :buff_len (gets rdr :len))))
   _offset)
 
-(defun-bind rdr-peek (rdr &optional index)
+(defun rdr-peek (rdr &optional index)
   ; (peek rdr index) -> char | exception
   (setd index 0)
   (elem (rdr-calc-off rdr index "rdr-peek") (gets rdr :buffer)))
 
 
-(defun-bind rdr-prefix (rdr &optional len)
+(defun rdr-prefix (rdr &optional len)
   ; (prefix rdr len) -> str | exception
   (setd len 1)
   (slice (gets rdr :point) (rdr-calc-off rdr len "rdr-prefix") (gets rdr :buffer)))
 
-(defun-bind rdr-forward (rdr &optional len)
+(defun rdr-forward (rdr &optional len)
   ; (forward rdr len) -> nil | exception
   (setd len 1)
   (rdr-calc-off rdr len "rdr-forward")
@@ -80,11 +80,11 @@
         :column 0))
     (setq len (dec len))))
 
-(defun-bind rdr-get-mark (rdr)
+(defun rdr-get-mark (rdr)
   ; (get-mark rdr) -> Mark
   (Mark (gets rdr :index) (gets rdr :line) (gets rdr :column)))
 
-(defun-bind rdr-dump (fname mfunc)
+(defun rdr-dump (fname mfunc)
   (defq rdr (Reader (load fname)))
   (print "Dumping " fname)
   (catch (until (eql (defq ch (rdr-peek rdr)) (ascii-char 0))

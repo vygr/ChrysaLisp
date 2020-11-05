@@ -118,6 +118,11 @@
 (ffi age "sys/pii/lisp_age" 0)
 (ffi random "class/num/lisp_random" 0)
 
+;C++ ChrysaLisp !
+(cond
+	((get 'nums))
+	((defq prebind (lambda (_) _))))
+
 (defq t 't nil 'nil
 	lisp_type_lst (<< 1 0)
 	lisp_type_int (<< 1 1)
@@ -125,7 +130,7 @@
 	lisp_type_sym (<< 1 3)
 	lisp_type_fnc (<< 1 4)
 	lisp_type_env (<< 1 5)
- 	defmacro '(macro (n a &rest _) `(defq ,n (macro ,a ~_))))
+ 	defmacro '(macro (n a &rest _) `(defq ,n (macro ,a ~(prebind _)))))
 
 (defmacro defun (n a &rest _)
 	;(defun name ([arg ...]) body)
@@ -139,78 +144,65 @@
 	;(prin [form ...])
 	;(print [form ...])
 	;(str [form ...])
-	`(defq ,n (lambda ,a ~_)))
-
-(defmacro defun-bind (n a &rest _)
-	;(defun-bind name ([arg ...]) body)
-	`(defq ,n (lambda ,a ~(prebind (macroexpand _)))))
-
-(defmacro defmacro-bind (n a &rest _)
-	;(defmacro name ([arg ...]) body)
-	;(defmacro-bind name ([arg ...]) body)
-	`(defq ,n (macro ,a ~(prebind (macroexpand _)))))
-
-(cond
-	((get 'nums)
-		;to disable pre binding uncomment this line
-		;(defun prebind (_) _)
-	)(t
-		;C++ ChrysaLisp !
-		(defun prebind (_) _)))
+	`(defq ,n (lambda ,a ~(prebind _))))
 
 ;prebind the previous !
-(each! 0 -1 prebind (list (list defun defmacro defun-bind defmacro-bind)))
+(each! 0 -1 prebind (list (list defun defmacro)))
 
-(defmacro-bind const (_)
+(defmacro defun-unbound (n a &rest _)
+	;(defun-unbound name ([arg ...]) body)
+	`(defq ,n (lambda ,a ~_)))
+
+(defmacro const (_)
 	;(const form)
 	(eval (macroexpand _)))
 
-(defun-bind exec (_)
+(defun exec (_)
 	;(exec form)
 	(eval (macroexpand _)))
 
-(defmacro-bind lst? (_)
+(defmacro lst? (_)
 	;(lst? form) -> t|nil
 	`(= (type-of ,_) ,lisp_type_lst))
-(defmacro-bind num? (_)
+(defmacro num? (_)
 	;(num? form) -> t|nil
 	`(= (type-of ,_) ,lisp_type_int))
-(defmacro-bind fnc? (_)
+(defmacro fnc? (_)
 	;(fnc? form) -> t|nil
 	`(= (type-of ,_) ,lisp_type_fnc))
-(defmacro-bind str? (_)
+(defmacro str? (_)
 	;(str? form) -> t|nil
 	`(= (type-of ,_) ,lisp_type_str))
-(defmacro-bind sym? (_)
+(defmacro sym? (_)
 	;(sym? form) -> t|nil
 	`(= (type-of ,_) ,lisp_type_sym))
-(defmacro-bind env? (_)
+(defmacro env? (_)
 	;(env? form) -> t|nil
 	`(= (type-of ,_) ,lisp_type_env))
-(defmacro-bind seq? (_)
+(defmacro seq? (_)
 	;(seq? form) -> t|nil
 	`(or (= (defq ,(defq __ (gensym)) (type-of ,_)) ,lisp_type_lst)
 		(= ,__ ,lisp_type_str)))
-(defmacro-bind fun? (_)
+(defmacro fun? (_)
 	;(fun? form) -> t|nil
 	`(and (= (type-of (defq ,(defq __ (gensym)) ,_)) ,lisp_type_lst)
 		(> (length ,__) 0) (eql (elem 0 ,__) 'lambda)))
-(defmacro-bind macro? (_)
+(defmacro macro? (_)
 	;(macro? form) -> t|nil
 	`(and (= (type-of (defq ,(defq __ (gensym)) ,_)) ,lisp_type_lst)
 		(> (length ,__) 0) (eql (elem 0 ,__) 'macro)))
 
-(defmacro-bind inc (_)
+(defmacro inc (_)
 	;(inc num) -> num
 	`(+ ,_ 1))
-(defmacro-bind dec (_)
+(defmacro dec (_)
 	;(dec num) -> num
 	`(- ,_ 1))
 
-(defmacro-bind opt (x y &optional z)
+(defmacro opt (x y &optional z)
 	;(opt var val [cond])
 	(cond (z `(cond (,x ,z) (t ,y))) (t `(cond (,x ,x) (t ,y)))))
-(defmacro-bind setd (&rest _)
+(defmacro setd (&rest _)
 	;(setd var val [var val] ...)
 	(defq i -2 l (list 'setq))
 	(while (< (setq i (+ i 2)) (length _))
@@ -220,7 +212,7 @@
 ; Scopes
 ;;;;;;;;
 
-(defmacro-bind let (l &rest _)
+(defmacro let (l &rest _)
 	;(let ([(var val) ...]) body)
 	`((lambda ,(map (lambda (_) (elem 0 _)) l) ~_) ~(map (lambda (_) (elem 1 _)) l)))
 
@@ -228,57 +220,57 @@
 ; Control flow
 ;;;;;;;;;;;;;;
 
-(defmacro-bind if (x y &optional _)
+(defmacro if (x y &optional _)
 	;(if tst form [eform])
 	(cond (_ `(cond (,x ,y) (t ,_)))
 		(t `(cond (,x ,y)))))
 
-(defmacro-bind not (_)
+(defmacro not (_)
 	;(not form) -> t|nil
 	`(cond (,_ nil) (t)))
 
-(defmacro-bind when (x &rest _)
+(defmacro when (x &rest _)
 	;(when tst body)
 	`(cond (,x ~_)))
 
-(defmacro-bind unless (x &rest _)
+(defmacro unless (x &rest _)
 	;(unless tst body)
 	`(cond (,x nil) (t ~_)))
 
-(defmacro-bind until (x &rest _)
+(defmacro until (x &rest _)
 	;(until tst body)
 	`(while (not ,x) ~_))
 
-(defmacro-bind or (&rest _)
+(defmacro or (&rest _)
 	;(or [tst] ...) -> nil|tst
 	(cond
 		((= (length _) 0) nil)
 		((= (length _) 1) (elem 0 _))
 		(t `(if (defq ,(defq _x (gensym)) ,(elem 0 _)) ,_x (or ~(slice 1 -1 _))))))
 
-(defmacro-bind and (&rest _)
+(defmacro and (&rest _)
 	;(and [tst] ...) -> t|nil|tst
 	(cond
 		((= (length _) 0))
 		((= (length _) 1) (elem 0 _))
 		(t `(if ,(elem 0 _) (and ~(slice 1 -1 _))))))
 
-(defmacro-bind case (_k &rest _)
-	;(case tst [(key body)] ...)
-	(if (defq _ (reduce-rev (lambda (_x (_ &rest _y))
-			(unless (lst? _) (setq _ (list _)))
-			(unless (some! 0 -1 t (lambda (_) (= (type-of _) (const lisp_type_sym))) (list _))
-				(throw "Key not symbol !" _))
-			(each! 0 -1 (lambda (_)
-					(push (elem 0 _x) _)
-					(push (elem 1 _x) (prebind (macroexpand
-						(if (= (length _y) 1) (elem 0 _y) (cat '(progn) _y))))))
-				(list _)) _x) _ (list (list) (list)))
-			_o (or (find-rev t (elem 0 _)) (find-rev 'otherwise (elem 0 _))))
-		`(eval (elem (or (find-rev ,_k ',(elem 0 _)) ,_o) ',(elem 1 _)))
-		`(if (defq ,(defq _i (gensym)) (find-rev ,_k ',(elem 0 _))) (eval (elem ,_i ',(elem 1 _))))))
+(defmacro case (form &rest body)
+	;(case form [(key body)] ...)
+	(if (defq table (reduce-rev (lambda (table (keys &rest clause_body))
+			(unless (lst? keys) (setq keys (list keys)))
+			(unless (some! 0 -1 t (lambda (clause) (= (type-of clause) (const lisp_type_sym))) (list keys))
+				(throw "Key not symbol !" keys))
+			(each! 0 -1 (lambda (key)
+					(push (elem 0 table) key)
+					(push (elem 1 table) (macroexpand
+						(if (= (length clause_body) 1) (elem 0 clause_body) (cat '(progn) clause_body)))))
+				(list keys)) table) body (list (list) (list)))
+			other (or (find-rev t (elem 0 table)) (find-rev :otherwise (elem 0 table))))
+		`(eval (elem (or (find-rev ,form ',(elem 0 table)) ,other) ',(elem 1 table)))
+		`(if (defq ,(defq _i (gensym)) (find-rev ,form ',(elem 0 table))) (eval (elem ,_i ',(elem 1 table))))))
 
-(defmacro-bind times (c &rest _)
+(defmacro times (c &rest _)
 	;(times num body)
 	`(progn (defq ,(defq _c (gensym)) ,c)
 		(while (<= 0 (setq ,_c (dec ,_c))) ~_)))
@@ -287,20 +279,20 @@
 ; Functional
 ;;;;;;;;;;;;
 
-(defmacro-bind curry (f &rest _)
+(defmacro curry (f &rest _)
 	;(curry lambda var ...) -> lambda
 	`(lambda (&rest _) (apply ,f (cat (list ~_) _))))
 
-(defmacro-bind rcurry (f &rest _)
+(defmacro rcurry (f &rest _)
 	;(rcurry lambda var ...) -> lambda
 	`(lambda (&rest _) (apply ,f (cat _ (list ~_)))))
 
-(defmacro-bind compose (&rest _)
+(defmacro compose (&rest _)
 	;(compose lambda lambda) -> lambda
 	`(lambda (_) ,(reduce (lambda (x y)
 		(list y x)) _ '_)))
 
-(defun-bind range (b e &optional s)
+(defun range (b e &optional s)
 	;(range start end [step]) -> list
 	(defq s (opt s 1 (abs s)) l (cap (/ (abs (- b e)) s) (list)))
 	(if (<= b e)
@@ -311,43 +303,43 @@
 			(push l b)
 			(setq b (- b s)))) l)
 
-(defun-bind each-mergeable (_f _l)
+(defun each-mergeable (_f _l)
 	;(each-mergeable lambda seq) -> seq
 	(defq _ -1)
 	(while (< (setq _ (inc _)) (length _l))
 		(_f (elem _ _l))) _l)
 
-(defun-bind each-mergeable-rev (_f _l)
+(defun each-mergeable-rev (_f _l)
 	;(each-mergeable-rev lambda seq) -> seq
 	(each! -1 0 _f (list _l)) _l)
 
-(defmacro-bind each (f &rest _)
+(defmacro each (f &rest _)
 	;(each lambda seq ...)
 	`(each! 0 -1 ,f (list ~_)))
 
-(defmacro-bind each-rev (f &rest _)
+(defmacro each-rev (f &rest _)
 	;(each-rev lambda seq ...)
 	`(each! -1 0 ,f (list ~_)))
 
-(defun-bind map (_f &rest _)
+(defun map (_f &rest _)
 	;(map lambda seq ...) -> list
 	(defq _l (list))
 	(each! 0 -1 (lambda (&rest _p)
 		(push _l (apply _f _p))) _) _l)
 
-(defun-bind map-rev (_f &rest _)
+(defun map-rev (_f &rest _)
 	;(map-rev lambda seq ...) -> list
 	(defq _l (list))
 	(each! -1 0 (lambda (&rest _p)
 		(push _l (apply _f _p))) _) _l)
 
-(defun-bind filter (_f _b)
+(defun filter (_f _b)
 	;(filter lambda seq) -> list
 	(defq _l (list))
 	(each! 0 -1 (lambda (&rest _p)
 		(if (apply _f _p) (push _l (elem _ _b)))) (list _b)) _l)
 
-(defun-bind reduce (_f _l &optional _a)
+(defun reduce (_f _l &optional _a)
 	;(reduce lambda seq [accum]) -> form
 	(cond
 		(_a (each! 0 -1 (lambda (_e)
@@ -356,7 +348,7 @@
 			(each! 1 -1 (lambda (_e)
 				(setq _a (_f _a _e))) (list _l)))) _a)
 
-(defun-bind reduce-rev (_f _l &optional _a)
+(defun reduce-rev (_f _l &optional _a)
 	;(reduce-rev lambda seq [accum]) -> form
 	(cond
 		(_a (each! -1 0 (lambda (_e)
@@ -365,7 +357,7 @@
 			(each! -2 0 (lambda (_e)
 				(setq _a (_f _a _e))) (list _l)))) _a)
 
-(defun-bind reduced-reduce (_f _l &optional _a)
+(defun reduced-reduce (_f _l &optional _a)
 	;(reduced-reduce lambda seq [accum]) -> form
 	(defq __x nil)
 	(cond
@@ -375,7 +367,7 @@
 			(some! 1 -1 nil (lambda (_e)
 				(cond (__x t) (t (setq _a (_f _a _e)) nil))) (list _l)))) _a)
 
-(defun-bind reduced-reduce-rev (_f _l &optional _a)
+(defun reduced-reduce-rev (_f _l &optional _a)
 	;(reduced-reduce-rev lambda seq [accum]) -> form
 	(defq __x nil)
 	(cond
@@ -385,11 +377,11 @@
 			(some! -2 0 nil (lambda (_e)
 				(cond (__x t) (t (setq _a (_f _a _e)) nil))) (list _l)))) _a)
 
-(defmacro-bind reduced (_a)
+(defmacro reduced (_a)
 	;(reduced accum)
 	`(progn (setq __x t) ,_a))
 
-(defmacro-bind # (&rest b)
+(defmacro # (&rest b)
 	;(# (< %0 0)) -> (lambda (%0) (< %0 0))
 	(defq s (filter (lambda (_) (find _ '(%0 %1 %2 %3 %4 %5 %6 %7 %8 %9)))
 				(merge-obj (list) (map sym (split (str b) "( )"))))
@@ -400,31 +392,31 @@
 ; Predicates
 ;;;;;;;;;;;;
 
-(defmacro-bind some (f &rest _)
+(defmacro some (f &rest _)
 	;(some lambda seq ...) -> nil|form
 	`(some! 0 -1 nil ,f (list ~_)))
 
-(defmacro-bind every (f &rest _)
+(defmacro every (f &rest _)
 	;(every lambda seq ...) -> nil|form
 	`(some! 0 -1 t ,f (list ~_)))
 
-(defmacro-bind notany (f &rest _)
+(defmacro notany (f &rest _)
 	;(notany lambda seq ...) -> t|nil
 	`(not (some! 0 -1 nil ,f (list ~_))))
 
-(defmacro-bind notevery (f &rest _)
+(defmacro notevery (f &rest _)
 	;(notevery lambda seq ...) -> t|nil
 	`(not (some! 0 -1 t ,f (list ~_))))
 
-(defun-bind nil? (_)
+(defun nil? (_)
   	;(nil? o) -> bool
   	(eql _ nil))
 
-(defun-bind empty? (_)
+(defun empty? (_)
 	;(empty? form) -> bool
 	(cond ((seq? _) (= (length _) 0)) (t)))
 
-(defun-bind nempty? (_)
+(defun nempty? (_)
 	;(nempty? form) -> bool
 	(cond ((seq? _) (/= (length _) 0))))
 
@@ -432,64 +424,64 @@
 ; Sequences
 ;;;;;;;;;;;
 
-(defun-bind first (_)
+(defun first (_)
 	;(first seq) -> el|nil
 	(if (and (not (nil? _)) (> (length _) 0)) (elem 0 _)))
 
-(defun-bind second (_)
+(defun second (_)
 	;(second seq) -> el|nil
 	(if (and (not (nil? _)) (> (length _) 1)) (elem 1 _)))
 
-(defun-bind last (_)
+(defun last (_)
 	;(last seq) -> el|nil
 	(if (and (not (nil? _)) (> (length _) 0)) (elem -2 _)))
 
-(defun-bind rest (_)
+(defun rest (_)
 	;(rest seq) -> nil|seq
 	(if (and (not (nil? _)) (> (length _) 0)) (slice 1 -1 _) (list)))
 
-(defun-bind erase (s b e)
+(defun erase (s b e)
 	;(erase seq start end) -> seq
 	(cat (slice 0 b s) (slice e -1 s)))
 
-(defun-bind insert (s p e)
+(defun insert (s p e)
 	;(insert seq pos seq) -> seq
 	(cat (slice 0 p s) e (slice p -1 s)))
 
-(defun-bind join (l j)
+(defun join (l j)
 	;(join list seq) -> seq
 	(pop (setq l (reduce (lambda (x y) (push x y j)) l (list))))
 	(apply cat l))
 
-(defun-bind unzip (l b)
+(defun unzip (l b)
 	;(unzip seq buckets) -> buckets
 	(reduce (lambda (b e)
 		(push (elem (% _ (length b)) b) e) b) l b))
 
-(defun-bind zip (&rest b)
+(defun zip (&rest b)
 	;(zip seq ...) -> list
 	(defq l (list))
 	(each! 0 -1 (lambda (&rest _)
 		(setq l (cat l _))) b) l)
 
-(defun-bind reverse (_)
+(defun reverse (_)
 	;(reverse list) -> list
 	(map-rev progn _))
 
-(defun-bind intern (_l _i &optional _c)
+(defun intern (_l _i &optional _c)
 	;(intern list form [lambda]) -> form
 	(setd _c eql)
 	(cond
 		((some (# (if (_c %0 _i) %0)) _l))
 		(t (push _l _i) _i)))
 
-(defun-bind intern-seq (_s &optional _l _c)
+(defun intern-seq (_s &optional _l _c)
 	;(intern-seq seq [list lambda]) -> list
 	(setd _c eql)
 	(reduce (lambda (_l _e)
 		(push _l (if (defq _i (some (# (if (_c %0 _e) %0)) _l)) _i _e))) _s (opt _l (list))))
 
-(defun-bind partition (cnt seq)
+(defun partition (cnt seq)
 	;(partition count seq) -> list of lists
 	(cond
 		((and (seq? seq) (< cnt (length seq)))
@@ -509,58 +501,58 @@
 
 (defq +min_long+ (<< -1 63) +max_long+ (>> -1 1) +min_int+ (<< -1 31) +max_int+ (>> -1 33))
 
-(defun-bind neg? (_)
+(defun neg? (_)
 	;(neg? num) -> bool
 	(< _ 0))
 
-(defun-bind pos? (_)
+(defun pos? (_)
 	;(pos? num) -> bool
 	(> _ 0))
 
-(defun-bind odd? (_)
+(defun odd? (_)
 	;(odd? num) -> bool
 	(/= 0 (logand 1 _)))
 
-(defun-bind even? (_)
+(defun even? (_)
 	;(even? num) -> bool
 	(= 0 (logand 1 _)))
 
-(defun-bind lognot (_)
+(defun lognot (_)
 	;(lognot num) -> num
 	(logxor _ -1))
 
-(defun-bind log2 (_)
+(defun log2 (_)
 	;(log2 num) -> num
 	(when (and (not (= 0 _)) (= _ (logand _ (neg _))))
 		(defq i 0)
 		(while (/= 0 (setq _ (>> _ 1)))
 			(setq i (inc i))) i))
 
-(defun-bind pow (base exponent)
+(defun pow (base exponent)
 	;(pow base exponent) -> integer
 	(defq res 1)
 	(times exponent (setq res (* res base)))
 	res)
 
-(defun-bind ntz (_)
+(defun ntz (_)
 	;(ntz num) -> num
 	(defq n 64)
 	(while (/= _ 0)
 		(setq n (dec n) _ (<< _ 1))) n)
 
-(defun-bind nto (_)
+(defun nto (_)
 	;(nto num) -> num
 	(defq n 64 _ (lognot _))
 	(while (/= _ 0)
 		(setq n (dec n) _ (<< _ 1))) n)
 
-(defun-bind nlz (_)
+(defun nlz (_)
 	;(nlz num) -> num
 	(defq n 0)
 	(while (> _ 0)
 		(setq n (inc n) _ (<< _ 1))) n)
 
-(defun-bind nlo (_)
+(defun nlo (_)
 	;(nlo num) -> num
 	(defq n 0 _ (lognot _))
 	(while (> _ 0)
@@ -577,45 +569,45 @@
 ; Utilities
 ;;;;;;;;;;;
 
-(defmacro-bind ascii-code (_)
+(defmacro ascii-code (_)
 	;(ascii-code char) -> num
 	(code _))
 
-(defmacro-bind ascii-char (_)
+(defmacro ascii-char (_)
 	;(ascii-char num) -> char
 	(char _))
 
-(defun-bind ascii-upper (_)
+(defun ascii-upper (_)
 	;(ascii-upper num) -> num
 	(if (<= (ascii-code "a") _ (ascii-code "z"))
 		(- _ (const (- (ascii-code "a") (ascii-code "A")))) _))
 
-(defun-bind ascii-lower (_)
+(defun ascii-lower (_)
 	;(ascii-lower num) -> num
 	(if (<= (ascii-code "A") _ (ascii-code "Z"))
 		(+ _ (const (- (ascii-code "a") (ascii-code "A")))) _))
 
-(defun-bind to-upper (_)
+(defun to-upper (_)
 	;(to-upper str) -> str
 	(apply cat (map (lambda (_) (char (ascii-upper (code _)))) _)))
 
-(defun-bind to-lower (_)
+(defun to-lower (_)
 	;(to-lower str) -> str
 	(apply cat (map (lambda (_) (char (ascii-lower (code _)))) _)))
 
-(defun-bind starts-with (p _)
+(defun starts-with (p _)
 	;(starts-with str str) -> t|nil
 	(and (>= (length _) (length p)) (eql p (slice 0 (length p) _))))
 
-(defun-bind ends-with (p _)
+(defun ends-with (p _)
 	;(ends-with str str) -> t|nil
 	(and (>= (length _) (length p)) (eql p (slice (dec (neg (length p))) -1 _))))
 
-(defun-bind align (_ _a)
+(defun align (_ _a)
 	;(align num pow2) -> num
 	(logand (+ _ (dec _a)) (neg _a)))
 
-(defun-bind char-to-num (_)
+(defun char-to-num (_)
 	;(char-to-num char) -> num
 	(elem (code _)
 		(const (cat (list quote) (list (intern-seq
@@ -630,11 +622,11 @@
 			-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 			-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1)))))))
 
-(defun-bind num-to-char (_)
+(defun num-to-char (_)
 	;(num-to-char num) -> char
 	(elem _ "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"))
 
-(defun-bind str-to-num (_)
+(defun str-to-num (_)
 	;(str-to-num str) -> num
 	(defq n 0 b 10 f 0 m 1)
 	(when (eql (elem 0 _) "-")
@@ -650,7 +642,7 @@
 			(setq n (+ (* n b) (char-to-num %0)) f (* f b)))) _)
 	(if (= f 0) (* n m) (/ (<< (* n m) +fp_shift+) f)))
 
-(defun-bind num-to-utf8 (_)
+(defun num-to-utf8 (_)
 	;(num-to-utf8 num) -> str
 	(cond
 		((>= _ 0x10000)
@@ -663,45 +655,45 @@
 			(char (+ 0x80c0 (>> _ 6) (logand (<< _ 8) 0x3f00)) 2))
 		(t	(char _))))
 
-(defun-bind trim-start (s &optional c)
+(defun trim-start (s &optional c)
 	;(trim-start str [str]) -> str
 	(defq c (if c (code c) (ascii-code " ")) i -1)
 	(while (and (/= (setq i (inc i)) (length s)) (eql (code s 1 i) c)))
 	(slice i -1 s))
 
-(defun-bind trim-end (s &optional c)
+(defun trim-end (s &optional c)
 	;(trim-end str [str]) -> str
 	(defq c (if c (code c) (ascii-code " ")) i (length s))
 	(while (and (/= (setq i (dec i)) -1) (eql (code s 1 i) c)))
 	(slice 0 (inc i) s))
 
-(defun-bind trim (s &optional c)
+(defun trim (s &optional c)
 	;(trim str [str]) -> str
 	(trim-start (trim-end s c) c))
 
-(defun-bind pad (v c &optional f)
+(defun pad (v c &optional f)
 	;(pad form width [str]) -> str
 	(defq f (opt f " ") v (str v) l (length v) c (- (max c l) l))
 	(while (> c (length f)) (setq f (cat f f)))
 	(cat (slice 0 c f) v))
 
-(defun-bind shuffled (_a &optional _l _h)
+(defun shuffled (_a &optional _l _h)
 	;(shuffled list [start end]) -> list
 	(setd _l 0 _h (length _a))
 	(shuffle (slice _l _h _a)))
 
-(defun-bind shuffle (_a &optional _l _h)
+(defun shuffle (_a &optional _l _h)
 	;(shuffle list [start end]) -> list
 	(setd _l 0 _h (length _a))
 	(each! _h _l (lambda (x)
 		(swap _a _ (random (inc _)))) (list _a)) _a)
 
-(defun-bind sorted (_f _a &optional _l _h)
+(defun sorted (_f _a &optional _l _h)
 	;(sorted list [start end]) -> list
 	(setd _l 0 _h (length _a))
 	(sort _f (slice _l _h _a)))
 
-(defun-bind sort (_f _a &optional _l _h)
+(defun sort (_f _a &optional _l _h)
 	;(sort list [start end]) -> list
 	(setd _l 0 _h (length _a))
 	(defq _q (list _l _h))
@@ -710,42 +702,42 @@
 			(defq _p (pivot _f _a _l _h))
 			(push (push _q _l _p) (inc _p) _h))) _a)
 
-(defun-bind swap (_ _1 _2)
+(defun swap (_ _1 _2)
 	;(swap list index index)
 	(when (/= _1 _2)
 		(defq _t (elem _1 _))
 		(elem-set _1 _ (elem _2 _))
 		(elem-set _2 _ _t)))
 
-(defmacro-bind get-ubyte (s o)
+(defmacro get-ubyte (s o)
 	;(get-ubyte str index) -> num
 	(list 'code s 1 o))
-(defmacro-bind get-byte (s o)
+(defmacro get-byte (s o)
 	;(get-byte str index) -> num
 	`(>>> (<< (code ,s 1 ,o) 56) 56))
-(defmacro-bind get-ushort (s o)
+(defmacro get-ushort (s o)
 	;(get-ushort str index) -> num
 	(list 'code s 2 o))
-(defmacro-bind get-short (s o)
+(defmacro get-short (s o)
 	;(get-short str index) -> num
 	`(>>> (<< (code ,s 2 ,o) 48) 48))
-(defmacro-bind get-uint (s o)
+(defmacro get-uint (s o)
 	;(get-uint str index) -> num
 	(list 'code s 4 o))
-(defmacro-bind get-int (s o)
+(defmacro get-int (s o)
 	;(get-int str index) -> num
 	`(>>> (<< (code ,s 4 ,o) 32) 32))
-(defmacro-bind get-long (s o)
+(defmacro get-long (s o)
 	;(get-long str index) -> num
 	(list 'code s 8 o))
-(defun-bind get-cstr (s o)
+(defun get-cstr (s o)
 	;(get-cstr str index) -> str
 	(defq k o)
 	(while (/= 0 (get-byte s o))
 		(setq o (inc o)))
 	(slice k o s))
 
-(defun-bind type-to-size (_)
+(defun type-to-size (_)
 	;(type-to-size sym) -> num
 	(case _
 		((i ui) 4)
@@ -757,16 +749,16 @@
 ; Streams
 ;;;;;;;;;
 
-(defun-bind load-stream (_)
+(defun load-stream (_)
 	;(load-stream path) -> nil|stream
 	(if (defq _ (load _)) (string-stream _)))
 
-(defun-bind each-line (_f _)
+(defun each-line (_f _)
 	;(each-line lambda stream)
 	(while (defq _l (read-line _))
 		(_f _l)))
 
-(defun-bind import (lib_path &optional e)
+(defun import (lib_path &optional e)
 	;(import path [env]) -> env
 	(unless (str? lib_path) (throw "Not a string !" lib_path))
 	(if (= (age lib_path) 0) (throw "No such file !" lib_path))
@@ -778,31 +770,31 @@
 		(push file_list lib_path)
 		(eval `(repl (file-stream ,lib_path) ,lib_path) e)))
 
-(defmacro-bind read-long (s)
+(defmacro read-long (s)
 	;(read-long stream) -> num
 	(list 'read-char s 8))
 
-(defmacro-bind read-int (s)
+(defmacro read-int (s)
 	;(read-int stream) -> num
 	(list 'read-char s 4))
 
-(defmacro-bind read-short (s)
+(defmacro read-short (s)
 	;(read-short stream) -> num
 	(list 'read-char s 2))
 
-(defmacro-bind write-long (s n)
+(defmacro write-long (s n)
 	;(write-long stream num|list) -> stream
 	(list 'write-char s n 8))
 
-(defmacro-bind write-int (s n)
+(defmacro write-int (s n)
 	;(write-int stream num|list) -> stream
 	(list 'write-char s n 4))
 
-(defmacro-bind write-short (s n)
+(defmacro write-short (s n)
 	;(write-short stream num|list) -> stream
 	(list 'write-char s n 2))
 
-(defun-bind write-line (s _)
+(defun write-line (s _)
 	;(write-line stream str) -> stream
 	(write-char (write s _) 10))
 
@@ -817,26 +809,26 @@
 ;debug_mode 3, guarded, with error checking, object stats and guard pages
 (defq *debug_mode* 2 *debug_emit* nil *debug_inst* nil)
 
-(defun-bind cpu ()
+(defun cpu ()
 	;(cpu) -> sym
 	(defq o 'x86_64)
 	(when (defq f (file-stream 'arch))
 		(bind '(o _) (read f 32))) o)
 
-(defun-bind abi ()
+(defun abi ()
 	;(abi) -> sym
 	(defq o 'AMD64)
 	(when (defq f (file-stream 'abi))
 		(bind '(o _) (read f 32))) o)
 
-(defun-bind within-compile-env (_f)
+(defun within-compile-env (_f)
 	;(within-compile-env lambda)
 	(defq *compile_env* (env 503) *compile_includes* (list))
-	(defmacro-bind defcvar (&rest b)
+	(defmacro defcvar (&rest b)
 		`(def *compile_env* ~b))
-	(defmacro-bind undefc (&rest b)
+	(defmacro undefc (&rest b)
 		`(undef *compile_env* ~b))
-	(defun-bind include (_f)
+	(defun include (_f)
 		(unless (str? _f) (throw "Not a string !" _f))
 		(if (= (age _f) 0) (throw "No such file !" _f))
 		(unless (some (# (eql %0 _f)) *compile_includes*)
@@ -849,19 +841,15 @@
 ; classes and methods
 ;;;;;;;;;;;;;;;;;;;;;
 
-(defmacro-bind class (n p &rest _)
+(defmacro class (n p &rest _)
 	;(class name ([arg ...]) body)
 	`(defun ,n ,p (defq this (env -1)) ~_ this))
 
-(defmacro-bind method (n p &rest _)
+(defmacro method (n p &rest _)
 	;(method name ([arg ...]) body)
-	`(def this ,n (lambda ,p ~_)))
-
-(defmacro-bind method-bind (n p &rest _)
-	;(method-bind name ([arg ...]) body)
 	`(def this ,n (lambda ,p ~(prebind (macroexpand _)))))
 
-(defmacro-bind . (this m &rest _)
+(defmacro . (this m &rest _)
 	;(. this method ([arg ...]))
 	(if (sym? this)
 		`((get ,m ,this) ,this ~_)

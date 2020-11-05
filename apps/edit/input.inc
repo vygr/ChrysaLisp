@@ -3,7 +3,7 @@
 ;;;;;;;;;;;;;;
 ; buffer input
 ;;;;;;;;;;;;;;
-(defun-bind printable (c)
+(defun printable (c)
 	;insert the tab/char at cursor or append to end etc
 	(defq line (if (>= cy (length buffer)) "" (elem cy buffer))
 		line (insert line (min cx (length line)) (char c)))
@@ -12,7 +12,7 @@
 		(push buffer line)
 		(elem-set cy buffer line)))
 
-(defun-bind return ()
+(defun return ()
 ;return key
 	(cond
 		((>= cy (length buffer))
@@ -27,7 +27,7 @@
 					(setq cy (min (inc cy) (length buffer))
 						buffer (insert buffer cy (list line_back))))))
 
-(defun-bind backspace ()
+(defun backspace ()
 	(cond
 		((> cx 0)
 			(elem-set cy buffer (erase (elem cy buffer)
@@ -46,7 +46,7 @@
 ; editor cursor behavior
 ;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun-bind cursor-visible ()
+(defun cursor-visible ()
 	(cond
 		((< cx ox)
 			(setq ox cx))
@@ -59,7 +59,7 @@
 			(setq oy (- cy vdu_height -1))))
 	(list ox oy))
 
-(defun-bind set-sticky ()
+(defun set-sticky ()
 	(defq line (elem cy buffer))
 	(cond
 		((and (> cx sx) (<= sx (length line)))
@@ -67,7 +67,7 @@
 		((>= cx (length line))
 			(setq cx (length line)))))
 
-(defun-bind left ()
+(defun left ()
 	(cond
 		((<= cx 0)
 			(cond
@@ -79,7 +79,7 @@
 		((> cx 0)
 			(setq cx (dec cx)))))
 
-(defun-bind right ()
+(defun right ()
 	(cond
 		((>= cx (length (elem cy buffer)))
 			(cond
@@ -90,14 +90,14 @@
 		((< cx (length (elem cy buffer)))
 			(setq cx (inc cx)))))
 
-(defun-bind up ()
+(defun up ()
 	(cond
 		((<= cy 0)
 			(setq cx 0))
 		((> cy 0)
 			(setq cy (dec cy) cx (min sx (length (elem cy buffer)))))))
 
-(defun-bind down ()
+(defun down ()
 	(cond
 		((>= cy (dec (length buffer)))
 			(setq cy (dec (length buffer)) cx (length (elem cy buffer)) sx (length (elem cy buffer))))

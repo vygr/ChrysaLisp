@@ -62,7 +62,7 @@
     (setq lst (last sst)))
   (join res ""))
 
-(defun-bind eat-strng (sst)
+(defun eat-strng (sst)
   (defq
     res (list)
     lst (last sst))
@@ -155,7 +155,7 @@
         (add-to-obj! ctx (pull-value ch sst)))))
   (realize-nodes (gets ctx :root)))
 
-(defun-bind deserialize (sstrm)
+(defun deserialize (sstrm)
   ; (deserialize stream) -> object
   (defq
     sst (str sstrm)

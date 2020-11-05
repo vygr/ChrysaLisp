@@ -14,7 +14,7 @@
 (defq msg_out (out-stream mbox))
 
 ;redirect print to my msg_out
-(defun-bind print (&rest args)
+(defun print (&rest args)
 	(write msg_out (apply str (push args (ascii-char 10)))))
 
 ;(import "lib/debug/profile.inc")

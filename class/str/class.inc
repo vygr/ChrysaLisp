@@ -57,7 +57,7 @@
 ; inline methods
 ;;;;;;;;;;;;;;;;
 
-(defun-bind class/str/get_length ()
+(defun class/str/get_length ()
 	;inputs
 	;r0 = str object (ptr)
 	;outputs

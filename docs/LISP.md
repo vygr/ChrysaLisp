@@ -105,9 +105,9 @@ write-char
 
 ```vdu
 # . and ascii-char ascii-code case class compose const curry dec defmacro
-defmacro-bind defun defun-bind each each-rev env? every fnc? fun? get-byte
+defmacro defun defun each each-rev env? every fnc? fun? get-byte
 get-int get-long get-short get-ubyte get-uint get-ushort if inc let lst? macro?
-method method-bind not notany notevery num? opt or rcurry read-int read-long
+method method not notany notevery num? opt or rcurry read-int read-long
 read-short reduced seq? setd some str? sym? times unless until when write-int
 write-long write-short
 ```

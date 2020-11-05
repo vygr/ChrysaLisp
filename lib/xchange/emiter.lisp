@@ -166,7 +166,7 @@
       (throw "yaml-emit: Unknown Node Type" (entries ast))))
   nil)
 
-(defun-bind emit (stream data in-args)
+(defun emit (stream data in-args)
   ; (emit stream data options) -> stream
   ; Converts data to strings and writes to streams
   (setq ywcntrl (merges in-args (properties

@@ -238,7 +238,7 @@
 
 	(vp-cpy-rr r0 r13)
 	(defq in (method-input 'str :create_from_file))
-	(list-bind-args r1 in '(str))
+	(list-bind-args r1 in '(:str))
 	(call 'str :create_from_file in '(r0))
 	(vpif '(r0 = 0))
 		(call 'obj :ref '((r13 lisp_sym_nil)) '(r0))

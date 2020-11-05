@@ -3,7 +3,7 @@
 (import "apps/login/pupa.inc")
 (import "lib/consts/colors.inc")
 
-(defun-bind ui-merge-props (p)
+(defun ui-merge-props (p)
 	;(ui-merge-props props) -> props
 	(defq ps (list) pv (list))
 	(each! 0 -1 (lambda (s v)
@@ -11,12 +11,11 @@
 			((defq i (find-rev s ps))
 				(elem-set i ps s) (elem-set i pv v))
 			(t	(push ps s) (push pv v))))
-		(reduce (lambda (l e)
-			(push (elem (logand _ 1) l) e) l) (opt p '()) (list (list) (list))))
+		(unzip (opt p '()) (list (list) (list))))
 	(setq p (list))
-	(each (lambda (s v) (push p (list 'quote s) v)) ps pv) p)
+	(each (lambda (s v) (push p s v)) ps pv) p)
 
-(defmacro-bind ui-props (p &rest x)
+(defmacro ui-props (p &rest x)
 	;(ui-props props [props]) -> props
 	`(setq ,p (cat ',x (opt ,p '()))))
 

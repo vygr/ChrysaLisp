@@ -11,7 +11,7 @@
 	doc_list '("VM" "ASSIGNMENT" "STRUCTURE" "COMMS" "FUNCTIONS" "LISP" "ENVIRONMENT"
 	"ITERATION" "TERMINAL" "COMMANDS" "DIARY" "SYNTAX" "CLASSES" "INTRO" "TAOS" "TODO"))
 
-(defun-bind normal-line ()
+(defun normal-line ()
 	(cond
 		((starts-with "```lisp" line_str)
 			(setq state :code))
@@ -50,7 +50,7 @@
 		(t
 			(def (setq line_widget (create-text)) :text line_str))))
 
-(defun-bind lisp-line ()
+(defun lisp-line ()
 	(cond
 		((starts-with "```" line_str)
 			(setq state :normal word_cnt 0))
@@ -65,7 +65,7 @@
 			(def (setq line_widget (create-text)) :text line_str
 				:font *env_terminal_font* :ink_color +argb_blue+))))
 
-(defun-bind vdu-line ()
+(defun vdu-line ()
 	(cond
 		((starts-with "```" line_str)
 			(setq vdu_text (cat '("") vdu_text '("")))
@@ -82,7 +82,7 @@
 			(push vdu_text (cat (pad "    " (* 4 (inc tab_pos))) (slice (inc tab_pos) -1 line_str))))
 		(t	(push vdu_text line_str))))
 
-(defun-bind populate-page (file)
+(defun populate-page (file)
 	(ui-tree page_flow (create-flow) (:flow_flags (logior flow_flag_right flow_flag_fillh)
 			:font *env_window_font*)
 		(ui-label _ (:min_width margin_width :color +argb_grey15+))
@@ -108,7 +108,7 @@
 					(:text path :flow_flags (logior flow_flag_align_vcenter flow_flag_align_hleft))) +event_button+)) doc_list))
 		(ui-scroll page_scroll scroll_flag_vertical (:min_width 848 :min_height 800))))
 
-(defun-bind main ()
+(defun main ()
 	(defq coloriser (syntax))
 	(populate-page (elem 0 doc_list))
 	(bind '(x y w h) (apply view-locate (view-pref-size window)))

@@ -46,7 +46,7 @@
 (ffi task-sleep "sys/task/lisp_sleep" 0)
 (ffi mem-stats "sys/mem/lisp_stats" 0)
 
-(defun-bind open-child (task mode)
+(defun open-child (task mode)
 	;(open-child task mode)
 	(defq mbox (mail-alloc-mbox))
 	(mail-send (cat
@@ -58,7 +58,7 @@
 	(defq id (get-long (mail-read mbox) long_size))
 	(mail-free-mbox mbox) id)
 
-(defun-bind open-remote (task node mode)
+(defun open-remote (task node mode)
 	;(open-remote task node mode)
 	(defq mbox (mail-alloc-mbox))
 	(mail-send (cat
@@ -70,7 +70,7 @@
 	(defq id (get-long (mail-read mbox) long_size))
 	(mail-free-mbox mbox) id)
 
-(defun-bind open-farm (task num mode &optional devices)
+(defun open-farm (task num mode &optional devices)
 	;(open-farm task num mode [devices])
 	(defq devices (opt devices (mail-devices)) ids (cap num (array)) mbox (mail-alloc-mbox)
 		index -1 center (+ (/ num 2) (length devices) (opt (find (>> (task-mailbox) 32) devices) 0)))
@@ -86,7 +86,7 @@
 		(push ids (get-long msg long_size)))
 	(mail-free-mbox mbox) ids)
 
-(defun-bind open-pipe (tasks)
+(defun open-pipe (tasks)
 	;(open-pipe tasks)
 	(defq devices (mail-devices) ids (cap (length tasks) (array))
 		mbox (mail-alloc-mbox) index -1 tail (task-mailbox))

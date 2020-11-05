@@ -335,7 +335,7 @@
 	;trashes
 	;r1-r14
 
-	(defun-bind trans_xy (rx ry)
+	(defun trans_xy (rx ry)
 		(vp-add-rr ox rx)
 		(vp-add-rr oy ry)
 		(vp-mul-rr pixels rx)

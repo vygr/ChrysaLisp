@@ -7,7 +7,7 @@
 	(byte 'close+)
 	(byte 'prev+ 'next+))
 
-(defun-bind all-films (p)
+(defun all-films (p)
 	(defq out (list))
 	(each! 0 -1 (lambda (f m) (and (eql m "8") (ends-with ".flm" f) (push out (cat p f))))
 		(unzip (split (pii-dirlist p) ",") (list (list) (list))))
@@ -31,7 +31,7 @@
  	(def image_scroll :min_width 32 :min_height 32)
 	(view-change-dirty window x y w h))
 
-(defun-bind main ()
+(defun main ()
 	(bind '(x y w h) (apply view-locate (view-get-size (win-refresh index))))
 	(gui-add (view-change window x y w h))
 	(while id

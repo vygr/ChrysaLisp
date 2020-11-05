@@ -18,7 +18,7 @@
 			(ui-vdu vdu (:vdu_width vdu_width :vdu_height vdu_height :min_width vdu_width :min_height vdu_height
 				:ink_color +argb_green+)))))
 
-(defun-bind vdu-print (vdu buf s)
+(defun vdu-print (vdu buf s)
 	(each (lambda (c)
 		(cond
 			((eql c (ascii-char 10))
@@ -52,13 +52,13 @@
 	(vdu-load vdu buf ox oy cx cy) buf)
 
 ;override print for VDU output
-(defun-bind print (_)
+(defun print (_)
 	(setq text_buf (vdu-print vdu text_buf _)))
 
-(defun-bind print-edit-line ()
+(defun print-edit-line ()
 	(print (cat (ascii-char 128) (if cmd "" *env_terminal_prompt*) *line_buf*)))
 
-(defun-bind terminal-input (c)
+(defun terminal-input (c)
 	(line-input c)
 	(cond
 		((or (= c 10) (= c 13))
@@ -94,7 +94,7 @@
 		(t	;some key
 			(print-edit-line))))
 
-(defun-bind window-resize (w h)
+(defun window-resize (w h)
 	(setq vdu_width w vdu_height h)
 	(set vdu :vdu_width w :vdu_height h :min_width w :min_height h)
 	(bind '(x y w h) (apply view-fit
@@ -103,7 +103,7 @@
 	(view-change-dirty window x y w h)
 	(print-edit-line))
 
-(defun-bind window-layout (w h)
+(defun window-layout (w h)
 	(setq vdu_width w vdu_height h)
 	(set vdu :vdu_width w :vdu_height h :min_width w :min_height h)
 	(bind '(x y) (view-get-pos vdu))
@@ -112,7 +112,7 @@
 	(view-change vdu x y w h)
 	(print-edit-line))
 
-(defun-bind main ()
+(defun main ()
 	;add window
 	(bind '(x y w h) (apply view-locate (view-pref-size (component-connect window +event_layout+))))
 	(gui-add (view-change window x y w h))

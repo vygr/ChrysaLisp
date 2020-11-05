@@ -8,7 +8,7 @@
 
 (defq keys (list) vals (list) vdu_height 40 text_buf (list ""))
 
-(defun-bind populate-help ()
+(defun populate-help ()
 	(defq state t vdu_width 1 k (list) v (list))
 	(each-line (lambda (_)
 		(when (/= 0 (length (defq s (split (setq _ (trim-end _ (ascii-char 13))) " "))))
@@ -34,7 +34,7 @@
 		(reduce max (map (lambda (_)
 			(reduce max (map length (split _ (ascii-char 10))))) vals))))
 
-(defun-bind vdu-print (vdu buf s)
+(defun vdu-print (vdu buf s)
 	(each (lambda (c)
 		(cond
 			((eql c (ascii-char 10))
@@ -53,7 +53,7 @@
 				(ui-flow index (:flow_flags (logior flow_flag_down flow_flag_fillw) :color +argb_white+)))
 			(ui-vdu vdu (:vdu_height vdu_height :ink_color +argb_cyan+)))))
 
-(defun-bind main ()
+(defun main ()
 	(populate-help)
 	(bind '(w h) (view-pref-size index))
 	(view-change index 0 0 (def index_scroll :min_width w) h)

@@ -41,7 +41,7 @@
     'registered+
     'errored+))
 
-(defun-bind get-logsrvc-mb ()
+(defun get-logsrvc-mb ()
   ; (get-logsrvc-mb) -> mailbox id | nil
   ; Retrieves the service mailbox for logging
   ; If not found in service registry, start
@@ -56,7 +56,7 @@
     (t log_srvc_mbox_id)))
 
 
-(defun-bind to-kw (_)
+(defun to-kw (_)
   ; (to-kw el) -> keyword
   ; Converts a string or symbol to a keyword
   ; example:
@@ -68,7 +68,7 @@
       (sym (str ":" _)))
     (throw "Expected symbol or string, found " _)))
 
-(defun-bind release-log-anchor ()
+(defun release-log-anchor ()
   ; (release-log-anchor keyword) -> nil
   ; Drops the logging anchor in the server
   (if (defq ankw (get '*log_anchor* (penv (env))))
@@ -78,7 +78,7 @@
         (get-logsrvc-mb))
       (undef (penv (env)) '*log_anchor*))))
 
-(defun-bind create-log-anchor (nm henv &rest override_pairs)
+(defun create-log-anchor (nm henv &rest override_pairs)
   ; (create-log-anchor name environment [override_pairs])
   ; Registration for anchor loggers in environment
 
@@ -169,7 +169,7 @@
 ; just keeps on running
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun-bind shutdown-log-service ()
+(defun shutdown-log-service ()
   (mail-send (char +log_event_shutdown+ long_size) (get-logsrvc-mb))
   (setq log_srvc_mbox_id nil))
 

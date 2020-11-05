@@ -11,7 +11,7 @@
 	(ui-element frame (elem 0 frames))
 	(ui-element sframe (elem 0 sframes)))
 
-(defun-bind main ()
+(defun main ()
 	(defq screen (penv (gui-add view)))
 	(while id
 		(bind '(_ _ screen_width screen_height) (view-get-bounds screen))

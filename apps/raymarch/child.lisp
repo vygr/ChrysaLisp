@@ -24,12 +24,12 @@
 ;	(- (vec-length (vec-sub p c)) r))
 
 ;the scene
-(defun-bind scene (p)
+(defun scene (p)
 	(- (vec-length (nums-sub
 		(defq _ (nums-frac p))
 		(const (fixeds 0.5 0.5 0.5)) _)) 0.35))
 
-(defun-bind ray-march (ray_origin ray_dir l max_l +min_distance+ +march_factor+)
+(defun ray-march (ray_origin ray_dir l max_l +min_distance+ +march_factor+)
 	(defq i -1 d 1.0 _ (fixeds 0 0 0))
 	(while (and (< (setq i (inc i)) 1000)
 				(> d +min_distance+)
@@ -42,7 +42,7 @@
 (ffi scene "apps/raymarch/scene" 0)
 (ffi ray-march "apps/raymarch/ray-march" 0)
 
-(defun-bind get-normal (p)
+(defun get-normal (p)
 	(vec-norm (fixeds
 		(- (defq d (scene p)) (scene (vec-add p
 			(const (fixeds (neg +eps+) 0.0 0.0)) (const (fixeds 0.0 0.0 0.0)))))
@@ -52,7 +52,7 @@
 			(const (fixeds 0.0 0.0 (neg +eps+))) (const (fixeds 0.0 0.0 0.0))))))
 			(const (fixeds 0.0 0.0 0.0))))
 
-(defun-bind shadow (ray_origin ray_dir l max_l k)
+(defun shadow (ray_origin ray_dir l max_l k)
 	(defq s 1.0 i 1000)
 	(while (> (setq i (dec i)) 0)
 		(defq h (scene (vec-add ray_origin
@@ -63,7 +63,7 @@
 			(setq l (+ l h))))
 	(max s 0.1))
 
-(defun-bind lighting (surface_pos surface_norm cam_pos)
+(defun lighting (surface_pos surface_norm cam_pos)
 	(defq _ (fixeds 0 0 0)
 		obj_color (vec-floor (vec-mod surface_pos (const (fixeds 2.0 2.0 2.0))))
 		light_vec (vec-sub +light_pos+ surface_pos)
@@ -80,7 +80,7 @@
 		obj_color (vec-add obj_color (fixeds specular specular specular) _))
 	(vec-mul obj_color light_col _))
 
-(defun-bind scene-ray (ray_origin ray_dir)
+(defun scene-ray (ray_origin ray_dir)
 	(defq l (ray-march ray_origin ray_dir 0.0 +clipfar+ +min_distance+ +march_factor+))
 	(if (>= l +clipfar+)
 		(const (fixeds 0.0 0.0 0.0))
@@ -102,7 +102,7 @@
 						r (* r +ref_coef+)))
 			(vec-clamp color 0.0 0.999))))
 
-(defun-bind rect (mbox x y x1 y1 w h)
+(defun rect (mbox x y x1 y1 w h)
 	(write-int (defq reply (string-stream (cat ""))) (list x y x1 y1))
 	(defq w2 (/ w 2) h2 (/ h 2) y (dec y))
 	(while (/= (setq y (inc y)) y1)
@@ -117,7 +117,7 @@
 	(write-long reply (task-mailbox))
 	(mail-send (str reply) mbox))
 
-(defun-bind main ()
+(defun main ()
 	;read work request or exit
 	(while (/= 0 (length (defq msg (mail-read (task-mailbox)))))
 		(setq msg (string-stream msg))

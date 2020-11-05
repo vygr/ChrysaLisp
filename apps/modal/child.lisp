@@ -5,7 +5,7 @@
 (structure '+event 0
 	(byte 'click+))
 
-(defmacro-bind ui-margin (m e)
+(defmacro ui-margin (m e)
 	`(ui-flow _ (:flow_flags flow_right_fill)
 		(ui-label _ (:min_width ,m))
 		,e))
@@ -21,11 +21,11 @@
 		(ui-flow flow ()))))
 		;(ui-label _ (:text "" :min_height 20))))
 
-(defmacro-bind gl (ls)
+(defmacro gl (ls)
 	`(reduce (lambda (x y) 
 		(if (>= (length x) (length y)) x y)) ,ls))
 
-(defun-bind build-modal ()
+(defun build-modal ()
 	(set label :text (gl b_text))
 	(bind '(bw bh) (view-pref-size label))
 	(def (defq grid (create-grid)) :grid_width (length b_text) :grid_height 1)
@@ -51,7 +51,7 @@
 	(bind '(x y w h) (apply view-locate (view-pref-size window)))
 	(view-change window x y (+ 48 w) (+ 12 h)))
 
-(defun-bind main ()
+(defun main ()
 	;read paramaters from parent
 	(bind '(reply_mbox title_text label_text button_text) (mail-read (task-mailbox)))
 	(bind '(x y w h) (apply view-locate (view-pref-size window)))

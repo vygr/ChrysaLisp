@@ -19,15 +19,15 @@
 	(ui-grid _ (:grid_width 2 :grid_height 1)
 		(ui-buttons ("Login" "Create") +event_login+)))
 
-(defun-bind position-window ()
+(defun position-window ()
 	(bind '(w h) (view-pref-size window))
 	(bind '(pw ph) (view-get-size (penv window)))
 	(view-change-dirty window (/ (- pw w) 2) (/ (- ph h) 2) w h))
 
-(defun-bind get-username ()
+(defun get-username ()
 	(if (eql (defq user (get :text username)) "") "Guest" user))
 
-(defun-bind main ()
+(defun main ()
 	;add centered, wait a little for GUI to get going...
 	(task-sleep 10000)
 	(gui-add window)

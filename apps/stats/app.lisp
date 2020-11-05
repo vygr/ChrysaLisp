@@ -26,7 +26,7 @@
 					(:text "|" :flow_flags (logior flow_flag_align_vcenter flow_flag_align_hright))))))
 			(ui-view stat_view))))
 
-(defun-bind main ()
+(defun main ()
 	(while (progn
 		;new batch of samples ?
 		(when (= cpu_count (length devices))

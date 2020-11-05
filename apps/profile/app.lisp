@@ -32,12 +32,12 @@
 		(component-connect (ui-slider hslider (:value 0)) +event_hvalue+)
 		(ui-vdu vdu (:vdu_width vdu_width :vdu_height vdu_height :ink_color +argb_yellow+))))
 
-(defun-bind set-slider-values ()
+(defun set-slider-values ()
 	(defq val (get :value hslider) mho (max 0 (dec (length buf_list))))
 	(def hslider :maximum mho :portion 1 :value (min val mho))
 	(view-dirty hslider))
 
-(defun-bind reset (&optional _)
+(defun reset (&optional _)
 	(setd _ -1)
 	(if (<= 0 _ (dec (length buf_list)))
 		(progn
@@ -59,7 +59,7 @@
 				{then use (profile-report name) to send.}) 0 0 0 1000)))
 	(set-slider-values))
 
-(defun-bind main ()
+(defun main ()
 	(bind '(x y w h) (apply view-locate (view-pref-size window)))
 	(gui-add (view-change window x y w h))
 	(reset)

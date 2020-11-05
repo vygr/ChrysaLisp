@@ -7,7 +7,7 @@
 
 (import "lib/logging/logging.inc")
 
-(defun-bind log-anchor (name)
+(defun log-anchor (name)
   ; (log-anchor) -> properties
   ; Wrapper to (create-log-anchor name) to
   ; setup environment and deserialze logger

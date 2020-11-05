@@ -48,23 +48,23 @@
   base-args)
 ; Reader
 
-(defun-bind yaml-construct (ast in-args)
+(defun yaml-construct (ast in-args)
   ; (yaml-construct tokens in-args) -> object | exception | nil
   ; Parses yaml tokens and returns ChyrsaLisp objects
   (catch (construct ast in-args) (throw "Construct error " t)))
 
-(defun-bind yaml-parse (tokens in-args)
+(defun yaml-parse (tokens in-args)
   ; (yaml-parse tokens in-args) -> list | exception | nil
   ; Parses yaml tokensers and returns yaml AST
   (catch (parse tokens in-args) (throw "Parse error " t)))
 
-(defun-bind yaml-scan (ystring)
+(defun yaml-scan (ystring)
   ; (yaml-scan string) -> list | exception | nil
   ; Performs scan on string returning list of
   ; lexical yaml tokens
   (scan ystring))
 
-(defun-bind yaml-from-strg (ystring in-args)
+(defun yaml-from-strg (ystring in-args)
   ; (yaml-read-string string in-args) -> list | exception | nil
   ; Converts YAML string to ChyrsaLisp data structures
   (if (nil? in-args)
@@ -72,7 +72,7 @@
       (setq in-args (merge-args reader-properties in-args)))
   (yaml-construct (yaml-parse (yaml-scan ystring) in-args) in-args))
 
-(defun-bind yaml-read (fname &rest in-args)
+(defun yaml-read (fname &rest in-args)
   ; (yaml-read fname [in-args]) -> list | exception | nil
   ; Opens and reads in a YAML file and returns
   ; native ChyrsaLisp data structures
@@ -83,13 +83,13 @@
 
 ; Writer
 
-(defun-bind yaml-emit (stream obj in-args)
+(defun yaml-emit (stream obj in-args)
   (emit stream obj in-args))
 
-(defun-bind yaml-from-obj (obj in-args)
+(defun yaml-from-obj (obj in-args)
   (str (yaml-emit (string-stream (cat "")) obj in-args)))
 
-(defun-bind yaml-write (fname obj &rest in-args)
+(defun yaml-write (fname obj &rest in-args)
   (defq base-args (merge-args writer-properties (pairs-into-kv in-args)))
   (defq res (yaml-from-obj obj base-args))
   (if fname

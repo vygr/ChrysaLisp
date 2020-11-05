@@ -30,7 +30,7 @@
 					(ui-flow files_flow (:flow_flags flow_down_fill :color +argb_white+
 						:min_width 256)))))))
 
-(defun-bind tree (dir)
+(defun tree (dir)
 	(defq dirs (list) files (list))
 	(each! 0 -1 (lambda (f d)
 		(unless (or (starts-with "." f) (starts-with "obj" f))
@@ -40,7 +40,7 @@
 		(setq files (cat files (tree d)))) dirs)
 	files)
 
-(defun-bind populate-files (files dir exts)
+(defun populate-files (files dir exts)
 	;filter files and dirs to only those that match and are unique
 	(if (= (length (setq exts (split exts ", "))) 0) (setq exts '("")))
 	(defq dirs_with_exts (list) files_within_dir (list))
@@ -83,7 +83,7 @@
 	(def tree_scroll :min_height 0)
 	(def files_scroll :min_height 0))
 
-(defun-bind main ()
+(defun main ()
 	;read paramaters from parent
 	(bind '(reply_mbox title dir exts) (mail-read (task-mailbox)))
 	(def window_title :text title)

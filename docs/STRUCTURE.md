@@ -371,7 +371,7 @@ This is an example of a 'pair class, first the `class.inc` file.
 	(assign '(r2 r3) '((r0 pair_first) (r0 pair_second)))
 	(s-call 'pair :init '(r0 r1) '(r0 r1)))
 
-(defun-bind class/pair/get_first ()
+(defun class/pair/get_first ()
 	;inputs
 	;r0 = pair object (ptr)
 	;outputs
@@ -381,7 +381,7 @@ This is an example of a 'pair class, first the `class.inc` file.
 	;r1
 	(assign '((r0 pair_first)) '(r1)))
 
-(defun-bind class/pair/get_second ()
+(defun class/pair/get_second ()
 	;inputs
 	;r0 = pair object (ptr)
 	;outputs

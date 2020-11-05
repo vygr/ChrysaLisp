@@ -331,7 +331,7 @@
 		(assign '((r2 obj_vtable)) '(r3))
 		(f-bind 'num :vtable r4)
 		(gotoif '(r3 /= r4) 'error2))
-		(list-cast-args '(r2) '(num))
+		(list-cast-args '(r2) '(:num))
 		(errorif '(r2 = 0) 'error2)
 		(vp-cpy-rr r2 r1)
 		(vp-push r0)

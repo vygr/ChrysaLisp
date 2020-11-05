@@ -19,7 +19,7 @@
 	(gotoif '(r2 = 0) 'error))
 
 	(assign '(r0) '(r5))
-	(list-bind-args r1 '(r0 r1 r2) '(obj num num))
+	(list-bind-args r1 '(r0 r1 r2) '(:obj :num :num))
 	(switch)
 	(vpcase `(r2 = ,byte_size))
 		(assign '((r0 r1 b)) '(r0))
@@ -82,7 +82,7 @@
 	(call 'lisp :env_args_sig '(r1 ($ sig) 4) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
-	(list-bind-args r1 '(r1 r2 r3 r4) '(obj num num obj))
+	(list-bind-args r1 '(r1 r2 r3 r4) '(:obj :num :num :obj))
 	(vp-push r0 r1)
 	(vpif '(r3 /= 0))
 		(assign '((r4 num_value)) '(r4))

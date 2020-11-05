@@ -60,7 +60,7 @@
 			(throw "No such comparator" o)))
 		(t (throw "No such compare mode" (vp-type s)))))
 
-(defun-bind switch (&optional _)
+(defun switch (&optional _)
 	(push *switch_stk* *switch*)
 	(setq *switch* *switch_nxt* *switch_nxt* (inc *switch_nxt*))
 	(when _
@@ -69,11 +69,11 @@
 	(defcvar (defq _ (cnt-sym)) 0)
 	(push *func_syms* _))
 
-(defun-bind default ()
+(defun default ()
 	(vp-label (loc-sym (defq s (cnt-sym) c (eval s))))
 	(set (env) s (inc c)))
 
-(defun-bind endswitch ()
+(defun endswitch ()
 	(vp-label (end-sym))
 	(default)
 	(setq *switch* (pop *switch_stk*)))
@@ -201,7 +201,7 @@
 (defun def-enum-end ()
 	(undefc '*enum* '*enum_offset*))
 
-(defun-bind enum (&rest _)
+(defun enum (&rest _)
 	(each (lambda (_)
 		(and (defq d (get (setq _ (sym (cat *enum* "_" _))))) (/= d *enum_offset*)
 			(throw "Enum redefined !" _))
@@ -217,7 +217,7 @@
 (defun def-bit-end ()
 	(undefc '*bit* '*bit_offset*))
 
-(defun-bind bit (&rest _)
+(defun bit (&rest _)
 	(each (lambda (_)
 		(and (defq d (get (setq _ (sym (cat *bit* "_" _))))) (/= d (<< 1 *bit_offset*))
 			(throw "Bit redefined !" _))
@@ -232,12 +232,12 @@
 (defmacro new-scope ()
 	'(push *syms* (list 0 (list) (list))))
 
-(defun-bind get-scope (_)
+(defun get-scope (_)
 	(defq o 0)
 	(each! (inc _) -2 (lambda (_)
 			(setq o (+ o (elem 0 _)))) (list *syms*)) o)
 
-(defun-bind push-scope ()
+(defun push-scope ()
 	(local-align stack_align)
 	(elem-set 0 (elem -3 (new-scope)) *sym_sp*)
 	(when (/= *sym_sp* 0)
@@ -246,7 +246,7 @@
 		(vp-alloc *sym_sp*)
 		(setq *sym_sp* 0)))
 
-(defun-bind pop-scope-syms ()
+(defun pop-scope-syms ()
 	(pop *syms*)
 	(defq u (list))
 	(each! 0 -1 (lambda (a)
@@ -263,7 +263,7 @@
 			(print "(vp-free " _ ")"))
 		(vp-free _)))
 
-(defun-bind pop-scope-checked ()
+(defun pop-scope-checked ()
 	(defq _ (pop-scope-syms))
 	(when (/= (length *syms*) 2)
 		(throw "Unbalanced scopes !" _)))
@@ -280,7 +280,7 @@
 		(print "(vp-ret)"))
 	(vp-ret))
 
-(defun-bind def-sym (_1 _2 &rest _3)
+(defun def-sym (_1 _2 &rest _3)
 	;_1 name
 	;_2 type
 	;_3 values
@@ -290,7 +290,7 @@
 	(push (elem 2 _) (cat (list (length *syms*) _2) _3 '(nil)))
 	(push *syms* _))
 
-(defun-bind get-sym (_1)
+(defun get-sym (_1)
 	;_1 name
 	(defq _1 (sym _1) a (some! -2 0 nil (lambda (s)
 		(if (defq _ (find-rev _1 (elem 1 s)))
@@ -326,7 +326,7 @@
 		(and (defq d (get _)) (/= d *struct_sp*)
 			(throw "Field redefined !" _))) _)
 
-(defun-bind local-align (&optional _)
+(defun local-align (&optional _)
 	(setd _ ptr_size)
 	(if *struct*
 		(setq *struct_sp* (align *struct_sp* _))
@@ -409,21 +409,21 @@
 ; parameter handling
 ;;;;;;;;;;;;;;;;;;;;
 
-(defun-bind assign-ignored-to-asm ()
+(defun assign-ignored-to-asm ()
 	(defq s (list) d (list))
 	(each! 0 -1 (lambda (x y)
 		(unless (or (eql x y) (eql y '_))
 			(push s x) (push d y))) (list *src* *dst*))
 	(setq *src* s *dst* d))
 
-(defun-bind assign-ignored-to-script ()
+(defun assign-ignored-to-script ()
 	(defq s (list) d (list))
 	(each! 0 -1 (lambda (x y)
 		(unless (eql y "_")
 			(push s x) (push d y))) (list *src* *dst*))
 	(setq *src* s *dst* d))
 
-(defun-bind assign-topology-sort ()
+(defun assign-topology-sort ()
 	(defq s *src* d *dst* i 0 c 1000 l (dec (length d)))
 	(while (and (< i l) (/= c 0))
 		(if (setq j (unless (lst? (defq j (elem i d)))
@@ -440,7 +440,7 @@
 		(throw "Copy cycle detected !" (list s d))
 		(setq *src* s *dst* d)))
 
-(defun-bind assign-asm-to-asm (*src* *dst*)
+(defun assign-asm-to-asm (*src* *dst*)
 	(when (/= (length *src*) (length *dst*))
 		(throw "Mismatching number of src/dst parameters !" (list *src* *dst*)))
 	(assign-ignored-to-asm)
@@ -512,7 +512,7 @@
 (defmacro token-push (k c)
 	`(push tokens (list ,k ,c)))
 
-(defun-bind token-parse (l)
+(defun token-parse (l)
 	(defq m -1 u 1 i 0 p 0 tokens (clear '()))
 	(while (< i (length l))
 		(defq c (elem i l)
@@ -609,7 +609,7 @@
 (defmacro rpn-push (s v)
 	`(push rpn (list (sym ,s) ,v)))
 
-(defun-bind rpn-parse (tokens)
+(defun rpn-parse (tokens)
 	(defq o '() rpn (clear '()))
 	(each (lambda ((k c))
 		(cond
@@ -668,17 +668,17 @@
 	`(defq *vreg* *vreg* *inst* (push (clear '()) progn)
 		*vregt* (slice 0 ,_ '(nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil))))
 
-(defun-bind set-reg-map (l &optional _)
+(defun set-reg-map (l &optional _)
 	(setd _ '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14))
 	(each (lambda (_ r) (set (env) _ r)) *vreg* (if (/= 0 (length l)) (merge-obj l _) _)))
 
-(defun-bind push-reg (_)
+(defun push-reg (_)
 	(vreg-sym (dec (length (push *vregt* _)))))
 
-(defun-bind pop-reg ()
+(defun pop-reg ()
 	(list (vreg-sym (dec (length *vregt*))) (pop *vregt*)))
 
-(defun-bind compile-deref ()
+(defun compile-deref ()
 	(if (defq x (top-reg) w (get-type))
 		(defq z (slice 1 -1 w) z (if (eql z "") nil z) w (elem 0 w))
 		(throw "No type info !" x))
@@ -687,11 +687,11 @@
 										vp-cpy-ir-i vp-cpy-ir-ui vp-cpy-ir vp-cpy-ir vp-cpy-ir)))
 	(add-inst (list w x 0 x)))
 
-(defun-bind compile-deref? ()
+(defun compile-deref? ()
 	(if (get-type)
 		(compile-deref)))
 
-(defun-bind pop-value ()
+(defun pop-value ()
 	(compile-deref?)
 	(pop *vregt*)
 	(vreg-sym (length *vregt*)))
@@ -705,17 +705,17 @@
 (defun compile-null ()
 	(throw "Null operator !" nil))
 
-(defun-bind compile-const (_)
+(defun compile-const (_)
 	(add-inst (list 'vp-cpy-cr _ (push-reg nil))))
 
-(defun-bind compile-arrow (&optional _)
+(defun compile-arrow (&optional _)
 	(bind '((y w) x) (list (pop-reg) (pop-value)))
 	(if _ (push-reg nil))
 	(setq w (elem (find-rev w "bBsSiIlLp") '(vp-cpy-ri-b vp-cpy-ri-b vp-cpy-ri-s vp-cpy-ri-s
 										vp-cpy-ri-i vp-cpy-ri-i vp-cpy-ri vp-cpy-ri vp-cpy-ri)))
 	(add-inst (list w x y 0)))
 
-(defun-bind compile-ref (_)
+(defun compile-ref (_)
 	(cond
 		((not (defq s (get-sym _)))
 			;not in symbol table so figure out what it is
@@ -738,7 +738,7 @@
 		(set-type (elem c '("pp" "b" "B" "s" "S" "i" "I" "l" "L" "p")))
 		(throw "Unknown type cast" _)))
 
-(defun-bind compile-member (_)
+(defun compile-member (_)
 	(bind '(_ w) (pop-reg))
 	(compile-deref)
 	(set-type w)
@@ -845,7 +845,7 @@
 (defun compile-lor (_)
 	(add-inst (list 'vp-or-rr (pop-value) (top-value))))
 
-(defun-bind compile-operator (_)
+(defun compile-operator (_)
 	(cond
 		((not (defq s (get-sym _)))
 			(throw "Operator not defined !" _))
@@ -863,7 +863,7 @@
 (defun compile-label (_)
 	(add-inst `(vp-lea-p ',_ ,(push-reg nil))))
 
-(defun-bind compile-rpn-list (rpn)
+(defun compile-rpn-list (rpn)
 	(each (lambda ((k c))
 		(if (<= -1 c 4)
 			(eval (elem (inc c)
@@ -958,14 +958,14 @@
 (defmacro opt-uses (r _)
 	`(find-rev ,r ,_))
 
-(defun-bind opt-find-1 (_ r x)
+(defun opt-find-1 (_ r x)
 	(setq _ (some! _ 0 nil (lambda (e)
 				(cond
 					((match? e x) _)
 					((opt-uses r e) -1))) (list *inst*))
 		p (and _ (/= _ -1) _)))
 
-(defun-bind opt-find-2 (_ r x y)
+(defun opt-find-2 (_ r x y)
 	(setq _ (some! _ 0 nil (lambda (e)
 				(cond
 					((match? e x) (setq m 0) _)
@@ -973,7 +973,7 @@
 					((opt-uses r e) -1))) (list *inst*))
 		p (and _ (/= _ -1) _)))
 
-(defun-bind opt-inst-list ()
+(defun opt-inst-list ()
 	(defq i 0 p nil m nil)
 	(while (< (setq i (inc i)) (length *inst*))
 		(cond
@@ -1048,7 +1048,7 @@
 (defun print-inst (_)
 	(and (lst? _) (not (eql (elem 0 _) 'lambda)) (print (ascii-char 9) _)))
 
-(defun-bind assign-asm-to-script (*src* *dst* _)
+(defun assign-asm-to-script (*src* *dst* _)
 	(unless (= (length *src*) (length (setq *dst* (map trim (split *dst* ",")))))
 		(throw "Mismatching number of src/dst parameters !" (list *src* *dst*)))
 	(assign-ignored-to-script)
@@ -1067,7 +1067,7 @@
 		(set-reg-map (reverse *src*) _)
 		(eval *inst* *compile_env*)))
 
-(defun-bind assign-script-to-asm (*src* *dst* _)
+(defun assign-script-to-asm (*src* *dst* _)
 	(unless (= (length (setq *src* (split *src* ","))) (length *dst*))
 		(throw "Mismatching number of src/dst parameters !" (list *src* *dst*)))
 	(when (/= 0 (length *dst*))
@@ -1085,7 +1085,7 @@
 		(set-reg-map (cat *dst*) _)
 		(eval *inst* *compile_env*)))
 
-(defun-bind assign-script-to-script (*src* *dst* _)
+(defun assign-script-to-script (*src* *dst* _)
 	(setq *src* (split *src* ",") *dst* (map trim (split *dst* ",")))
 	(unless (= (length *src*) (length *dst*))
 		(throw "Mismatching number of src/dst parameters !" (list *src* *dst*)))
@@ -1107,7 +1107,7 @@
 		(set-reg-map '() _)
 		(eval *inst* *compile_env*)))
 
-(defun-bind assign (&optional _1 _2 _3)
+(defun assign (&optional _1 _2 _3)
 	;optional src, dst, compiler regs
 	(if (str? (setq _1 (opt _1 '())))
 		(if (str? (setq _2 (opt _2 '())))

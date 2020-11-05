@@ -13,7 +13,7 @@
 	fp3 (font-glyph-paths font "__Simple!")
 	fp4 (font-glyph-paths font "__Quality!"))
 
-(defun-bind transform-copy (angle _)
+(defun transform-copy (angle _)
 	(defq sa (sin angle) ca (cos angle))
 	(map (lambda (_)
 		(path-transform
@@ -22,7 +22,7 @@
 			(* canvas_width canvas_scale 0.5) (* canvas_height canvas_scale 0.5)
 			_ (cat _))) _))
 
-(defun-bind transform (angle _)
+(defun transform (angle _)
 	(defq sa (sin angle) ca (cos angle))
 	(map (lambda (_)
 		(path-transform
@@ -31,7 +31,7 @@
 			(* canvas_width canvas_scale 0.5) (* canvas_height canvas_scale 0.5)
 			_ _)) _))
 
-(defun-bind transform-norm (angle _)
+(defun transform-norm (angle _)
 	(defq sa (sin angle) ca (cos angle))
 	(map (lambda (_)
 		(path-transform
@@ -40,11 +40,11 @@
 			(* canvas_width canvas_scale 0.5) (* canvas_height canvas_scale 0.5)
 			_ _)) _))
 
-(defun-bind fpoly (col mode _)
+(defun fpoly (col mode _)
 	(canvas-set-color canvas col)
 	(canvas-fpoly canvas 0.0 0.0 mode _))
 
-(defun-bind redraw ()
+(defun redraw ()
 	(canvas-fill canvas 0)
 
 	(fpoly +argb_red+ 0 (transform-norm (* angle (i2f 2)) (list
@@ -100,7 +100,7 @@
 
 	(canvas-swap canvas))
 
-(defun-bind main ()
+(defun main ()
 	;until quit
 	(until (mail-poll (array (task-mailbox)))
 		(redraw)

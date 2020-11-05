@@ -5,17 +5,17 @@
 (defq *line_buf* "" *line_pos* 0 *line_history* (list) *line_history_idx* 0)
 
 ;url utils
-(defun-bind url-list (url)
+(defun url-list (url)
 	(defq out (list))
 	(each! 0 -1 (lambda (f m) (push out (cat f (if (eql m "4") "/" " "))))
 		(unzip (split (pii-dirlist url) ",") (list (list) (list)))) out)
 
-(defun-bind url-split (url ctx)
+(defun url-split (url ctx)
 	(if (defq i (find-rev "/" url))
 		(list (cat "./" (slice 0 (inc i) url)) (slice (inc i) -1 url))
 		(list (if (= ctx 0) "./cmd/" "./") url)))
 
-(defun-bind url-ctx (url cx)
+(defun url-ctx (url cx)
 	(defq ctx 0 i -1 s 'w)
 	(until (= cx (setq i (inc i)))
 		(if (= (const (ascii-code "|")) (defq c (code (elem i url))))
@@ -24,21 +24,21 @@
 				(w	(when (<= 33 c 126) (setq s 'b)))
 				(b	(unless (<= 33 c 126) (setq s 'w ctx (inc ctx))))))) ctx)
 
-(defun-bind url-ext-index (urls)
+(defun url-ext-index (urls)
 	(defq i 0)
 	(while (every (lambda (url)
 			(and (< i (length url))
 				(eql (elem i url) (elem i (elem 0 urls))))) urls)
 		(setq i (inc i))) i)
 
-(defun-bind url-ext (url cx)
+(defun url-ext (url cx)
 	(defq ctx (url-ctx url cx) url (slice (if (defq i (find-rev " " (slice 0 cx url))) (inc i) 0) cx url))
 	(bind '(url file) (url-split url ctx))
 	(defq urls (map (lambda (_) (if (= ctx 0) (cat (slice (length file) -7 _) " ") (slice (length file) -1 _)))
 		(filter (lambda (_) (and (starts-with file _) (if (= ctx 0) (ends-with ".lisp " _) t))) (url-list url))))
 	(if (= 0 (length urls)) "" (slice 0 (url-ext-index urls) (elem 0 urls))))
 
-(defun-bind line-input (c)
+(defun line-input (c)
 	;key action on line input buffer
 	(cond
 		((or (= c 10) (= c 13))
@@ -81,6 +81,6 @@
 			;insert the char
 			(setq *line_buf* (insert *line_buf* *line_pos* (char c)) *line_pos* (inc *line_pos*)))))
 
-(defun-bind line-clear ()
+(defun line-clear ()
 	;clear line buffer
 	(setq *line_buf* "" *line_pos* 0))

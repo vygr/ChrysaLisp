@@ -3,11 +3,11 @@
 (import "class/lisp.inc")
 
 ;lf macro
-(defmacro-bind LF ()
+(defmacro LF ()
 	(ascii-char 10))
 
 ;send data packet to parent
-(defmacro-bind send-data (id &rest data)
+(defmacro send-data (id &rest data)
 	`(stream-flush (write msg_out (str {"} ,id ~data {"}))))
 
 ;piece map accses
@@ -215,7 +215,7 @@
 		white_bishop_eval_values white_knight_eval_values white_pawn_eval_values)))
 
 ;generate all first hit pieces from index position along given vectors
-(defun-bind piece-scans (brd index vectors)
+(defun piece-scans (brd index vectors)
 	(defq yield "" cx (logand index 7) cy (>> index 3))
 	(each! 0 -1 (lambda ((dx dy len))
 		(defq x cx y cy)
@@ -233,7 +233,7 @@
 (ffi piece-scans "apps/chess/piece-scans" 0)
 
 ;test if king of given colour is in check
-(defun-bind in-check (brd colour)
+(defun in-check (brd colour)
 	(if (= colour (const black))
 		(defq king_piece "K" tests (list black_tests))
 		(defq king_piece "k" tests (list white_tests)))
@@ -245,7 +245,7 @@
 				(find-rev piece hit_pieces)) pieces)) tests))
 
 ;evaluate (score) a board for the colour given
-(defun-bind evaluate (brd colour)
+(defun evaluate (brd colour)
 	(defq black_score 0 white_score 0)
 	(each! 0 -1 (lambda (piece)
 		;add score for position on the board, piece type, near center, clear lines etc
@@ -257,7 +257,7 @@
 	(* (- white_score black_score) colour))
 
 ;generate all boards for a piece index and moves possibility, filtering out boards where king is in check
-(defun-bind piece-moves (yield brd index colour moves)
+(defun piece-moves (yield brd index colour moves)
 	(defq piece (elem index brd) cx (logand index 7) cy (>> index 3)
 		promote (if (= colour (const black)) '("QRBN") '("qrbn")))
 	(each! 0 -1 (lambda ((dx dy len flag))
@@ -303,7 +303,7 @@
 					(setq len 0))))) (list moves)))
 
 ;generate all moves (boards) for the given colours turn
-(defun-bind all-moves (brd colour)
+(defun all-moves (brd colour)
 	;enumarate the board square by square
 	(task-sleep 0)
 	(defq yield (list) is_black (= colour (const black)))
@@ -314,7 +314,7 @@
 				(piece-moves yield brd _ colour (piece-map moves_map piece))))) (list brd)) yield)
 
 ;pvs search
-(defun-bind pvs (brd colour alpha beta ply)
+(defun pvs (brd colour alpha beta ply)
 	(cond
 		((mail-poll (array (task-mailbox)))
 			(setq quit t)
@@ -335,7 +335,7 @@
 			alpha)))
 
 ;negamax search
-(defun-bind negamax (brd colour alpha beta ply)
+(defun negamax (brd colour alpha beta ply)
 	(cond
 		((mail-poll (array (task-mailbox)))
 			(setq quit t)
@@ -352,7 +352,7 @@
 			value)))
 
 ;best move for given board position for given colour
-(defun-bind best-move (brd colour history)
+(defun best-move (brd colour history)
 	;start move time, sorted ply0 boards
 	(defq start_time (time) nbrd nil pbrd nil bias (list)
 		ply0_boards (sort (lambda (a b) (- (elem 0 b) (elem 0 a)))
@@ -381,10 +381,10 @@
 			(setq nbrd (if pbrd pbrd nbrd) pbrd nil))) (list (range 1 max_ply)))
 	nbrd)
 
-(defun-bind time-in-seconds (_)
+(defun time-in-seconds (_)
 		(str (/ _ 1000000) "." (pad (% _ 1000000) 6 "00000")))
 
-(defun-bind main ()
+(defun main ()
 	;read args from parent
 	(defq msg (mail-read (task-mailbox)) msg_out (out-stream (get-long msg 0)) max_time_per_move (get-long msg long_size)
 		history (list) colour (const white) game_start_time (time) quit nil flicker 100000
