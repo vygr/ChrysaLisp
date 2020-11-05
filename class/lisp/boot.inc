@@ -162,33 +162,33 @@
 	(eval (macroexpand _)))
 
 (defmacro lst? (_)
-	; (lst? form) -> t|nil
+	; (lst? form) -> t | nil
 	`(= (type-of ,_) ,lisp_type_lst))
 (defmacro num? (_)
-	; (num? form) -> t|nil
+	; (num? form) -> t | nil
 	`(= (type-of ,_) ,lisp_type_int))
 (defmacro fnc? (_)
-	; (fnc? form) -> t|nil
+	; (fnc? form) -> t | nil
 	`(= (type-of ,_) ,lisp_type_fnc))
 (defmacro str? (_)
-	; (str? form) -> t|nil
+	; (str? form) -> t | nil
 	`(= (type-of ,_) ,lisp_type_str))
 (defmacro sym? (_)
-	; (sym? form) -> t|nil
+	; (sym? form) -> t | nil
 	`(= (type-of ,_) ,lisp_type_sym))
 (defmacro env? (_)
-	; (env? form) -> t|nil
+	; (env? form) -> t | nil
 	`(= (type-of ,_) ,lisp_type_env))
 (defmacro seq? (_)
-	; (seq? form) -> t|nil
+	; (seq? form) -> t | nil
 	`(or (= (defq ,(defq __ (gensym)) (type-of ,_)) ,lisp_type_lst)
 		(= ,__ ,lisp_type_str)))
 (defmacro fun? (_)
-	; (fun? form) -> t|nil
+	; (fun? form) -> t | nil
 	`(and (= (type-of (defq ,(defq __ (gensym)) ,_)) ,lisp_type_lst)
 		(> (length ,__) 0) (eql (elem 0 ,__) 'lambda)))
 (defmacro macro? (_)
-	; (macro? form) -> t|nil
+	; (macro? form) -> t | nil
 	`(and (= (type-of (defq ,(defq __ (gensym)) ,_)) ,lisp_type_lst)
 		(> (length ,__) 0) (eql (elem 0 ,__) 'macro)))
 
@@ -226,7 +226,7 @@
 		(t `(cond (,x ,y)))))
 
 (defmacro not (_)
-	; (not form) -> t|nil
+	; (not form) -> t | nil
 	`(cond (,_ nil) (t)))
 
 (defmacro when (x &rest _)
@@ -242,14 +242,14 @@
 	`(while (not ,x) ~_))
 
 (defmacro or (&rest _)
-	; (or [tst] ...) -> nil|tst
+	; (or [tst] ...) -> nil | tst
 	(cond
 		((= (length _) 0) nil)
 		((= (length _) 1) (elem 0 _))
 		(t `(if (defq ,(defq _x (gensym)) ,(elem 0 _)) ,_x (or ~(slice 1 -1 _))))))
 
 (defmacro and (&rest _)
-	; (and [tst] ...) -> t|nil|tst
+	; (and [tst] ...) -> t | nil | tst
 	(cond
 		((= (length _) 0))
 		((= (length _) 1) (elem 0 _))
@@ -401,11 +401,11 @@
 	`(some! 0 -1 t ,f (list ~_)))
 
 (defmacro notany (f &rest _)
-	; (notany lambda seq ...) -> t|nil
+	; (notany lambda seq ...) -> t | nil
 	`(not (some! 0 -1 nil ,f (list ~_))))
 
 (defmacro notevery (f &rest _)
-	; (notevery lambda seq ...) -> t|nil
+	; (notevery lambda seq ...) -> t | nil
 	`(not (some! 0 -1 t ,f (list ~_))))
 
 (defun nil? (_)
@@ -596,11 +596,11 @@
 	(apply cat (map (lambda (_) (char (ascii-lower (code _)))) _)))
 
 (defun starts-with (p _)
-	; (starts-with str str) -> t|nil
+	; (starts-with str str) -> t | nil
 	(and (>= (length _) (length p)) (eql p (slice 0 (length p) _))))
 
 (defun ends-with (p _)
-	; (ends-with str str) -> t|nil
+	; (ends-with str str) -> t | nil
 	(and (>= (length _) (length p)) (eql p (slice (dec (neg (length p))) -1 _))))
 
 (defun align (_ _a)

@@ -222,7 +222,7 @@
 
 ## and
 
-(and [tst] ...) -> t|nil|tst
+(and [tst] ...) -> t | nil | tst
 
 ## apply
 
@@ -582,7 +582,7 @@
 
 ## ends-with
 
-(ends-with str str) -> t|nil
+(ends-with str str) -> t | nil
 
 ## entries
 
@@ -594,7 +594,7 @@
 
 ## env?
 
-(env? form) -> t|nil
+(env? form) -> t | nil
 
 ## eql
 
@@ -662,7 +662,7 @@
 
 ## fnc?
 
-(fnc? form) -> t|nil
+(fnc? form) -> t | nil
 
 ## font-glyph-paths
 
@@ -678,7 +678,7 @@
 
 ## fun?
 
-(fun? form) -> t|nil
+(fun? form) -> t | nil
 
 ## gensym
 
@@ -870,11 +870,11 @@
 
 ## lst?
 
-(lst? form) -> t|nil
+(lst? form) -> t | nil
 
 ## macro?
 
-(macro? form) -> t|nil
+(macro? form) -> t | nil
 
 ## macroexpand
 
@@ -990,15 +990,15 @@
 
 ## not
 
-(not form) -> t|nil
+(not form) -> t | nil
 
 ## notany
 
-(notany lambda seq ...) -> t|nil
+(notany lambda seq ...) -> t | nil
 
 ## notevery
 
-(notevery lambda seq ...) -> t|nil
+(notevery lambda seq ...) -> t | nil
 
 ## nto
 
@@ -1018,7 +1018,7 @@
 
 ## num?
 
-(num? form) -> t|nil
+(num? form) -> t | nil
 
 ## nums
 
@@ -1094,7 +1094,7 @@
 
 ## or
 
-(or [tst] ...) -> nil|tst
+(or [tst] ...) -> nil | tst
 
 ## out-stream
 
@@ -1318,7 +1318,7 @@
 
 ## seq?
 
-(seq? form) -> t|nil
+(seq? form) -> t | nil
 
 ## set
 
@@ -1394,7 +1394,7 @@
 
 ## starts-with
 
-(starts-with str str) -> t|nil
+(starts-with str str) -> t | nil
 
 ## stdio-get-args
 
@@ -1410,7 +1410,7 @@
 
 ## str?
 
-(str? form) -> t|nil
+(str? form) -> t | nil
 
 ## stream-avail
 
@@ -1442,7 +1442,7 @@
 
 ## sym?
 
-(sym? form) -> t|nil
+(sym? form) -> t | nil
 
 ## task-mailbox
 
