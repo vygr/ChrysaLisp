@@ -118,3 +118,17 @@
 
 (defmacro-bind pairs-into-kv (pairs)
     `(emap-kv ~pairs))
+
+(defun-bind empty (_el)
+    ; (empty object) -> object | nil
+    ; Returns an empty collection of type _el
+    ; Or an empty list if _el is list
+    ; Or an empty string if _el is string
+    ; Or nil
+    (cond
+        ((indexable? _el)
+            (if (collection? _el)
+                (. _el :empty)
+                (list)))
+        ((str? _el) "")
+        (t nil)))
