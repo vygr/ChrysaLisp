@@ -37,7 +37,7 @@
 					(+ _ +event_black+)))) palette))
 	(ui-scroll image_scroll (logior scroll_flag_vertical scroll_flag_horizontal)
 			(:min_width canvas_width :min_height canvas_height)
-		(ui-backdrop backdrop (:color 0xffF8F8FF :ink_color 0xffADD8E6 :style 1)
+		(ui-backdrop mybackdrop (:color 0xffF8F8FF :ink_color 0xffADD8E6 :style 1)
 			(ui-canvas overlay_canvas canvas_width canvas_height 1)
 			(ui-canvas commited_canvas canvas_width canvas_height 1))))
 
@@ -116,7 +116,7 @@
 	(defq dlist (list 3 (/ 1000000 60) flatten commited_canvas overlay_canvas (list) (list)))
 	(canvas-set-flags commited_canvas 1)
 	(canvas-set-flags overlay_canvas 1)
-	(view-set-size backdrop canvas_width canvas_height)
+	(view-set-size mybackdrop canvas_width canvas_height)
 	(radio-select ink_buttons 0)
 	(radio-select mode_buttons 0)
 	(radio-select radius_buttons 0)
@@ -177,7 +177,7 @@
 				(setq stroke_radius (elem (radio-select radius_buttons (- id +event_radius1+)) radiuss)))
 			((<= +event_grid+ id +event_lines+)
 				;styles
-				(def (view-dirty backdrop) :style (radio-select style_buttons (- id +event_grid+))))
+				(def (view-dirty mybackdrop) :style (radio-select style_buttons (- id +event_grid+))))
 			((= id +event_save+)
 				;save
 				(if picker_mbox (mail-send "" picker_mbox))

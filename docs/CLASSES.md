@@ -589,17 +589,6 @@ trashes
 r1-r14
 ```
 
-### backdrop::layout -> gui/backdrop/layout
-
-```lisp
-inputs
-r0 = backdrop object (ptr)
-outputs
-r0 = backdrop object (ptr)
-trashes
-r1-r14
-```
-
 ### backdrop::lisp_create -> gui/backdrop/lisp_create
 
 ```lisp
@@ -5443,15 +5432,6 @@ r1-r14
 
 ### progress::layout -> gui/backdrop/layout
 
-```lisp
-inputs
-r0 = backdrop object (ptr)
-outputs
-r0 = backdrop object (ptr)
-trashes
-r1-r14
-```
-
 ### progress::lisp_create -> gui/progress/lisp_create
 
 ```lisp
@@ -6262,15 +6242,6 @@ r1-r14
 ```
 
 ### slider::layout -> gui/backdrop/layout
-
-```lisp
-inputs
-r0 = backdrop object (ptr)
-outputs
-r0 = backdrop object (ptr)
-trashes
-r1-r14
-```
 
 ### slider::mouse_down -> gui/slider/mouse_down
 

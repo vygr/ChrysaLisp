@@ -5,7 +5,6 @@
 (dec-method :create 'gui/backdrop/create :static '() '(r0))
 
 (dec-method :draw 'gui/backdrop/draw :final)
-(dec-method :layout 'gui/backdrop/layout :override)
 
 (dec-method :lisp_create 'gui/backdrop/lisp_create :static '(r0 r1) '(r0 r1))
 

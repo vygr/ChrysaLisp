@@ -22,7 +22,7 @@
 		(ui-buttons (0xe9a3 0xe976 0xe9f0) +event_grid+ () style_buttons))
 	(ui-scroll image_scroll (logior scroll_flag_vertical scroll_flag_horizontal)
 			(:min_width canvas_width :min_height canvas_height)
-		(ui-backdrop backdrop (:color +argb_black+ :ink_color +argb_grey8+ :style 1)
+		(ui-backdrop mybackdrop (:color +argb_black+ :ink_color +argb_grey8+ :style 1)
 			(ui-canvas layer1_canvas canvas_width canvas_height 1))))
 
 (defun radio-select (l i)
@@ -69,7 +69,7 @@
 	;ui tree initial setup
 	(defq dlist (list 0 rate light_pos layer1_canvas (list)))
 	(canvas-set-flags layer1_canvas 1)
-	(view-set-size backdrop canvas_width canvas_height)
+	(view-set-size mybackdrop canvas_width canvas_height)
 	(radio-select style_buttons 1)
 	(bind '(x y w h) (apply view-locate (view-pref-size window)))
 	(gui-add (view-change window x y w h))
@@ -103,7 +103,7 @@
 			(setq verts (vertex-cloud num_bubbles)))
 		((<= +event_grid+ id +event_axis+)
 			;styles
-			(def (view-dirty backdrop) :style (radio-select style_buttons (- id +event_grid+))))
+			(def (view-dirty mybackdrop) :style (radio-select style_buttons (- id +event_grid+))))
 		((= id (component-get-id layer1_canvas))
 			;event for canvas
 			(when (= (get-long msg (const ev_msg_type)) (const ev_type_mouse))

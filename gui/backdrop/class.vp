@@ -77,24 +77,3 @@
 	(return)
 
 (def-func-end)
-
-(def-method 'backdrop :layout)
-	;inputs
-	;r0 = backdrop object (ptr)
-	;outputs
-	;r0 = backdrop object (ptr)
-	;trashes
-	;r1-r14
-
-	(entry 'backdrop :layout '(r0))
-
-	(call 'backdrop :get_long_prop '(r0 static_sym_color) '(r0 r1))
-	(vp-shr-cr 24 r1)
-	(vpif '(r1 = 0xff))
-		(jump 'view :set_flags '(r0 view_flag_opaque view_flag_opaque))
-	(endif)
-
-	(exit 'backdrop :layout '(r0))
-	(vp-ret)
-
-(def-func-end)

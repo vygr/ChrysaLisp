@@ -103,7 +103,7 @@
 (defmacro ui-backdrop (n &optional p &rest x)
 	; (ui-backdrop name [props] [body]) -> backdrop
 	(ui-props p :color *env_backdrop_col* :ink_color *env_backdrop_ink_col*)
-	`(ui-element ,n (create-backdrop) ,p ~x))
+	`(ui-element ,n (backdrop) ,p ~x))
 
 (defmacro ui-progress (n &optional p)
 	; (ui-progress name [props]) -> progress
@@ -137,7 +137,6 @@
 (ffi path "class/array/lisp_path" 0)
 (ffi component-connect "gui/component/lisp_connect" 0)
 (ffi create-window "gui/window/lisp_create" 0)
-(ffi create-backdrop "gui/backdrop/lisp_create" 0)
 (ffi create-flow "gui/flow/lisp_create" 0)
 (ffi create-grid "gui/grid/lisp_create" 0)
 (ffi create-text "gui/text/lisp_create" 0)
@@ -151,6 +150,7 @@
 (ffi create-font "gui/font/lisp_create" 0)
 (ffi font-glyph-paths "gui/font/lisp_glyph_paths" 0)
 (ffi font-glyph-ranges "gui/font/lisp_glyph_ranges" 0)
+(import "gui/backdrop/lisp.inc")
 (import "gui/scroll/lisp.inc")
 (import "gui/textfield/lisp.inc")
 (import "gui/title/lisp.inc")

@@ -12,7 +12,7 @@
 
 (ui-window window ()
 	(ui-title-bar _ "Boing" (0xea19 0xea1b 0xea1a) +event_close+)
-	(ui-backdrop backdrop (:color +argb_black+ :ink_color +argb_white+ :min_width 640 :min_height 480)
+	(ui-backdrop mybackdrop (:color +argb_black+ :ink_color +argb_white+ :min_width 640 :min_height 480)
 		(ui-element frame (elem 0 frames))
 		(ui-element sframe (elem 0 sframes))))
 
@@ -20,13 +20,13 @@
 	(bind '(x y w h) (apply view-locate (view-pref-size window)))
 	(gui-add (view-change window x y w h))
 	(while id
-		(bind '(_ _ backdrop_width backdrop_height) (view-get-bounds backdrop))
+		(bind '(_ _ backdrop_width backdrop_height) (view-get-bounds mybackdrop))
 		(defq index (% (inc index) (length frames))
 			old_frame frame frame (elem index frames)
 			old_sframe sframe sframe (elem index sframes))
 		(bind '(x y w h) (view-get-bounds old_frame))
 		(bind '(sx sy sw sh) (view-get-bounds old_sframe))
-		(view-add-dirty (view-add-dirty backdrop sx sy sw sh) x y w h)
+		(view-add-dirty (view-add-dirty mybackdrop sx sy sw sh) x y w h)
 		(setq x (+ x xv) y (+ y yv) yv (inc yv))
 		(if (> y (- backdrop_height h)) (setq y (- backdrop_height h) yv -22))
 		(if (< x 0) (setq x 0 xv (abs xv)))
@@ -35,7 +35,7 @@
 		(view-set-bounds sframe (+ x 8) (+ y 64) sw sh)
 		(view-sub old_sframe)
 		(view-sub old_frame)
-		(view-add-front (view-add-back backdrop sframe) frame)
+		(view-add-front (view-add-back mybackdrop sframe) frame)
 		(view-dirty sframe)
 		(view-dirty frame)
 		(while (mail-poll (array (task-mailbox)))

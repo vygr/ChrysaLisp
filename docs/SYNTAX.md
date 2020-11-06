@@ -20,6 +20,10 @@
 
 (- num num ...)
 
+## backdrop :layout
+
+(. backdrop :layout) -> backdrop
+
 ## button :layout
 
 (. button :layout) -> button
@@ -279,6 +283,10 @@
 ## awhile
 
 (awhile form body)
+
+## backdrop
+
+(backdrop) -> backdrop
 
 ## bind
 
