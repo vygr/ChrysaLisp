@@ -89,6 +89,7 @@
 
 (defun sets-pairs! (kv-map &rest pairs)
     ; (sets-pairs! collection))
+    ; Inserts the key value pairs into map
     (each (lambda ((_k _v))
         (. kv-map :insert _k _v)) (partition 2 pairs))
     kv-map)
@@ -117,6 +118,9 @@
     `(merge-into! ,kvmap ~_maps))
 
 (defmacro pairs-into-kv (pairs)
+    ; (pairs-into-kv list) -> emap
+    ; Creates a new emap and consumes key value pairs
+    ; (pairs-into kv (list :a 0 :b 1 :c 2))
     `(emap-kv ~pairs))
 
 (defun empty (_coll)
@@ -125,9 +129,20 @@
     (cond
         ((indexable? _coll)
             (cond
-                ((xmap? _coll) (xmap))
                 ((emap? _coll) (emap))
-                ((xset? _coll) (xset))
-                ((lst? _coll) (list))))
-        ((str? _coll) "")
+                ((xmap? _coll) (xmap))
+                ((xset? _coll) (xset))))
         (t nil)))
+
+(defun into-map (m lop)
+    (each (lambda ((_k _v)) (sets! m _k _v)) lop))
+
+(defun into-set (xs loe)
+    (each (lambda (_v) (sets! xs _v)) loe))
+
+(defun into-fn (a)
+    ; (into-fn)
+    (cond
+        ((or (emap? a) (xmap? a)) into-map)
+        ((xset? a) into-set)
+        (t (lambda (&rest _) _))))

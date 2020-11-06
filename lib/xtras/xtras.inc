@@ -137,11 +137,6 @@
   ; Returns true if values are not eql
   (not (eql a b)))
 
-(defun dict? (_)
-  ; (dict? form) -> bool
-  ; Returns true if argument is a dictionary type (env)
-  (env? _))
-
 (defun props? (_)
   ; (props? el) -> bool
   ; Returns true if argument is a properties type
@@ -235,58 +230,26 @@
 ; Walkers
 
 (defun nwalk (inner outer form)
+  ; (nwalk inner outer form)
+  ; Traverses form, an arbitrary data structure. inner and outer are
+  ; functions. Applies inner to each element of form, building up a
+  ; data structure of the same type, then applies outer to the result.
   (cond
     ((lst? form)
       (outer (apply list (map inner form))))
-    ((map? form)
-      (outer (apply list (map inner (entries form)))))
-    ((xset? form)
-      (outer (apply list (map inner (entries form)))))
+    ((collection? form)
+      (defq ce (empty form) cfn (into-fn ce))
+      (outer (apply (lambda (&rest _) (cfn ce _)) (map inner (entries form)))))
     ((seq? form)
       (outer (map inner form)))
     (t
-      (print "No handler for " form))))
+      (outer form))))
 
-(defun pinner (el)
-  (print "Inner " el)
-  el)
+(defun pre-nwalk (fn form)
+  (nwalk (curry pre-nwalk fn) ident (fn form)))
 
-(defun pouter (el)
-  (print "Outer " el)
-  el)
-
-(defun walk-tree (tree fnc)
-  (defq stack (if (> (length tree) 0) (list tree 0) '()))
-  (while (defq i (pop stack) l (pop stack))
-    (defq e (elem i l))
-    (if (< (setq i (inc i)) (length l))
-        (push stack l i))
-    (if (lst? e)
-      (if (> (length e) 0) (push stack e 0))
-      (fnc e))))
-
-(defun walk-tree-recur (inner-fn outer-fn tree)
-  ; (walk-tree-recur inner-fn outer-fn tree) -> tree
-  ; Recusively walk tree and handles dictionaries
-  (cond
-    ((lst? tree)
-      (outer-fn
-        (apply list
-          (map (lambda (el)
-            (if (dict? el)
-              (walk-tree-recur inner-fn outer-fn el)
-              (inner-fn el))) tree))))
-    ((dict? tree)
-      (map (curry walk-tree-recur inner-fn outer-fn) (dict-entries tree)))
-    (t (outer-fn tree))))
-
-(defun pre-walk-recur (fn tree)
-  ; (pre-walk-recur fn tree)
-  (walk-tree-recur (curry pre-walk-recur fn) ident (fn tree)))
-
-(defun post-walk-recur (fn tree)
-  ; (post-walk-recur fn tree)
-  (walk-tree-recur (curry post-walk-recur fn) fn tree))
+(defun post-nwalk (fn form)
+  (nwalk (curry post-nwalk fn) fn form))
 
 ; Take and drop forms
 
