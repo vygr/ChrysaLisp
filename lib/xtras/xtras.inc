@@ -173,10 +173,6 @@
           (reduced :false))
         ) instr :true))
 
-(defun ident (_)
-  ; (ident el) -> el
-  _)
-
 (defun efind (p k)
   ; (efind list key) -> index | nil
   ; Returns the index of key in list or properties
@@ -245,11 +241,17 @@
     (t
       (outer form))))
 
-(defun pre-nwalk (fn form)
-  (nwalk (curry pre-nwalk fn) ident (fn form)))
-
-(defun post-nwalk (fn form)
+(defun postwalk (fn form)
+  ; (postwalk function form) -> form
+  ; Performs a depth-first, post-order traversal of form.  Calls fn on
+  ; each sub-form, uses fn's return value in place of the original.
   (nwalk (curry post-nwalk fn) fn form))
+
+(defun prewalk (fn form)
+  ; (prewalk function form) -> form
+  ; Like postwalk, but does pre-order traversal
+  (nwalk (curry pre-nwalk fn) identity (fn form)))
+
 
 ; Take and drop forms
 

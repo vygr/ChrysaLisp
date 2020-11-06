@@ -124,7 +124,7 @@
     `(emap-kv ~pairs))
 
 (defun empty (_coll)
-    ; (empty object) -> object | nil
+    ; (empty collection) -> collection | nil
     ; Returns an empty collection of same category of _coll or nil
     (cond
         ((indexable? _coll)
@@ -135,13 +135,21 @@
         (t nil)))
 
 (defun into-map (m lop)
+    ; (into-map map list-of-pairs) -> map
+    ; Takes a map type and list of key/value lists
+    ; and sets into map
     (each (lambda ((_k _v)) (sets! m _k _v)) lop))
 
 (defun into-set (xs loe)
+    ; (into-set set list-of-elements) -> set
+    ; Takes a set type and list of values
+    ; and adds into set
     (each (lambda (_v) (sets! xs _v)) loe))
 
 (defun into-fn (a)
-    ; (into-fn)
+    ; (into-fn collection) -> fn
+    ; Returns the 'into' function for the collection
+    ; type
     (cond
         ((or (emap? a) (xmap? a)) into-map)
         ((xset? a) into-set)
