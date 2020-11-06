@@ -22,6 +22,7 @@
 	(vp-push r0)
 	(call 'window :create nil '(r1))
 	(vp-pop r0)
+	(assign '(r0) '((r1 component_lisp)))
 
 	(exit 'window :lisp_create '(r0 r1))
 	(vp-ret)
