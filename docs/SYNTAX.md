@@ -76,6 +76,10 @@
 
 (. scroll :layout) -> scroll
 
+## slider :layout
+
+(. slider :layout) -> slider
+
 ## textfield :layout
 
 (. textfield :layout) -> textfield
@@ -1435,6 +1439,10 @@
 ## slice
 
 (slice start end seq)
+
+## slider
+
+(slider) -> slider
 
 ## some
 

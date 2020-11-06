@@ -6239,8 +6239,6 @@ trashes
 r1-r14
 ```
 
-### slider::layout -> gui/backdrop/layout
-
 ### slider::mouse_down -> gui/slider/mouse_down
 
 ```lisp

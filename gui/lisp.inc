@@ -93,7 +93,7 @@
 (defmacro ui-slider (n &optional p)
 	; (ui-slider name [props]) -> slider
 	(ui-props p :color *env_slider_col*)
-	`(ui-element ,n (create-slider) ,p))
+	`(ui-element ,n (slider) ,p))
 
 (defmacro ui-scroll (n f &optional p &rest x)
 	; (ui-scroll name [props] [body]) -> scroll
@@ -140,7 +140,6 @@
 (ffi create-flow "gui/flow/lisp_create" 0)
 (ffi create-grid "gui/grid/lisp_create" 0)
 (ffi create-text "gui/text/lisp_create" 0)
-(ffi create-slider "gui/slider/lisp_create" 0)
 (ffi create-vdu "gui/vdu/lisp_create" 0)
 (ffi create-view "gui/view/lisp_create" 0)
 (ffi gui-add "gui/gui/lisp_add" 0)
@@ -150,6 +149,7 @@
 (ffi font-glyph-paths "gui/font/lisp_glyph_paths" 0)
 (ffi font-glyph-ranges "gui/font/lisp_glyph_ranges" 0)
 (import "gui/backdrop/lisp.inc")
+(import "gui/slider/lisp.inc")
 (import "gui/progress/lisp.inc")
 (import "gui/scroll/lisp.inc")
 (import "gui/textfield/lisp.inc")

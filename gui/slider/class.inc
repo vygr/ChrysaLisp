@@ -7,7 +7,6 @@
 
 (dec-method :pref_size 'gui/slider/pref_size :final)
 (dec-method :draw 'gui/slider/draw :final)
-(dec-method :layout 'gui/backdrop/layout :final)
 (dec-method :mouse_down 'gui/slider/mouse_down :final)
 (dec-method :mouse_up 'gui/slider/mouse_up :final)
 (dec-method :mouse_move 'gui/slider/mouse_move :final)
