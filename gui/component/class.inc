@@ -21,7 +21,7 @@
 (dec-method :lisp_connect 'gui/component/lisp_connect :static '(r0 r1) '(r0 r1))
 
 (def-struct 'component 'hmap)
-	(ptr 'target_ids)
+	(ptr 'lisp 'target_ids)
 	(long 'id)
 	(struct 'owner_id 'id)
 (def-struct-end)

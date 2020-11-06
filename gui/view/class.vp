@@ -5,6 +5,7 @@
 (include "gui/view/class.inc")
 (include "class/list/class.inc")
 (include "class/sym/class.inc")
+(include "class/lisp/class.inc")
 
 (gen-create 'view)
 (gen-vtable 'view)
@@ -582,6 +583,39 @@ view_flag_at_back
 		(vp-ret)
 	(endif)
 	(jump 'view :layout '(r0))
+
+(def-func-end)
+
+(def-method 'view :layout)
+	;inputs
+	;r0 = view object (ptr)
+	;outputs
+	;r0 = view object (ptr)
+	;trashes
+	;r1-r14
+
+	(ptr 'this 'lisp 'value 'params)
+
+	(push-scope)
+	(entry 'view :layout {this})
+
+	;do we have a Lisp level layout method ?
+	(assign {this->component_lisp} {lisp})
+	(vpif {lisp})
+		(call 'view :get_prop {this, static_sym_layout} {_, value})
+		(breakifnot {value})
+		;call Lisp level handler
+		(call 'view :ref {this})
+		(call 'list :create nil {params})
+		(call 'list :push_back {params, this})
+		(call 'lisp :repl_apply {lisp, params, value} {_, value})
+		(call 'obj :deref {params})
+		(call 'obj :deref {value})
+	(endif)
+
+	(exit 'view :layout {this})
+	(pop-scope)
+	(return)
 
 (def-func-end)
 

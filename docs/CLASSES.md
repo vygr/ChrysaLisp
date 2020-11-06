@@ -6077,17 +6077,6 @@ trashes
 r1-r14
 ```
 
-### scroll::layout -> gui/scroll/layout
-
-```lisp
-inputs
-r0 = scroll object (ptr)
-outputs
-r0 = scroll object (ptr)
-trashes
-r1-r14
-```
-
 ### scroll::pref_size -> gui/scroll/pref_size
 
 ```lisp
@@ -9541,7 +9530,16 @@ trashes
 r1-r14
 ```
 
-### view::layout -> class/obj/null
+### view::layout -> class/view/layout
+
+```lisp
+inputs
+r0 = view object (ptr)
+outputs
+r0 = view object (ptr)
+trashes
+r1-r14
+```
 
 ### view::event -> gui/view/event
 

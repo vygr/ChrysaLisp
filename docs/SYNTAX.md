@@ -56,6 +56,10 @@
 
 (. emap :resize num_buckets) -> emap
 
+## scroll :layout
+
+(. scroll :layout) -> scroll
+
 ## .
 
 (. this method ([arg ...]))
@@ -574,7 +578,7 @@
 
 ## empty
 
-(empty object) -> object | nil
+(empty collection) -> collection | nil
 
 ## empty?
 
@@ -756,6 +760,10 @@
 
 (i2r num)
 
+## identity
+
+(identity any) -> any
+
 ## if
 
 (if tst form [eform])
@@ -803,6 +811,18 @@
 ## intern-seq
 
 (intern-seq seq [list lambda]) -> list
+
+## into-fn
+
+(into-fn collection) -> fn
+
+## into-map
+
+(into-map map list-of-pairs) -> map
+
+## into-set
+
+(into-set set list-of-elements) -> set
 
 ## io-stream
 
@@ -1104,6 +1124,10 @@
 
 (pad form width [str]) -> str
 
+## pairs-into-kv
+
+(pairs-into-kv list) -> emap
+
 ## partition
 
 (partition count seq) -> list of lists
@@ -1311,6 +1335,10 @@
 ## save
 
 (save str path)
+
+## scroll
+
+(scroll) -> scroll
 
 ## second
 

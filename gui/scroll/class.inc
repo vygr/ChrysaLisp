@@ -6,7 +6,6 @@
 (dec-method :init 'gui/scroll/init :static '(r0 r1 r2))
 
 (dec-method :add_child 'gui/scroll/add_child :final)
-(dec-method :layout 'gui/scroll/layout :final)
 (dec-method :pref_size 'gui/scroll/pref_size :final)
 (dec-method :action 'gui/scroll/action :final)
 

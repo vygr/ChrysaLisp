@@ -24,6 +24,7 @@
 	(list-bind-args r1 in '(:num))
 	(call 'scroll :create in '(r1))
 	(vp-pop r0)
+	(assign '(r0) '((r1 component_lisp)))
 
 	(exit 'scroll :lisp_create '(r0 r1))
 	(vp-ret)
