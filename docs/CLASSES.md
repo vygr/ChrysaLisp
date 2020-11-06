@@ -5430,8 +5430,6 @@ trashes
 r1-r14
 ```
 
-### progress::layout -> gui/backdrop/layout
-
 ### progress::lisp_create -> gui/progress/lisp_create
 
 ```lisp

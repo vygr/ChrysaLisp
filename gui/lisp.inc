@@ -107,7 +107,7 @@
 
 (defmacro ui-progress (n &optional p)
 	; (ui-progress name [props]) -> progress
-	`(ui-element ,n (create-progress) ,p))
+	`(ui-element ,n (progress) ,p))
 
 (defmacro ui-canvas (n w h s)
 	; (ui-canvas name width height scale) -> canvas
@@ -140,7 +140,6 @@
 (ffi create-flow "gui/flow/lisp_create" 0)
 (ffi create-grid "gui/grid/lisp_create" 0)
 (ffi create-text "gui/text/lisp_create" 0)
-(ffi create-progress "gui/progress/lisp_create" 0)
 (ffi create-slider "gui/slider/lisp_create" 0)
 (ffi create-vdu "gui/vdu/lisp_create" 0)
 (ffi create-view "gui/view/lisp_create" 0)
@@ -151,6 +150,7 @@
 (ffi font-glyph-paths "gui/font/lisp_glyph_paths" 0)
 (ffi font-glyph-ranges "gui/font/lisp_glyph_ranges" 0)
 (import "gui/backdrop/lisp.inc")
+(import "gui/progress/lisp.inc")
 (import "gui/scroll/lisp.inc")
 (import "gui/textfield/lisp.inc")
 (import "gui/title/lisp.inc")

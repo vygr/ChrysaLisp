@@ -68,6 +68,10 @@
 
 (. label :layout) -> label
 
+## progress :layout
+
+(. progress :layout) -> progress
+
 ## scroll :layout
 
 (. scroll :layout) -> scroll
@@ -1260,6 +1264,10 @@
 
 (progn [form ...])
 
+## progress
+
+(progress) -> progress
+
 ## ptr
 
 (ptr field ...)
@@ -1370,7 +1378,7 @@
 
 ## scroll
 
-(scroll) -> scroll
+(scroll flags) -> scroll
 
 ## second
 

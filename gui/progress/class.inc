@@ -6,7 +6,6 @@
 
 (dec-method :pref_size 'gui/progress/pref_size :final)
 (dec-method :draw 'gui/progress/draw :final)
-(dec-method :layout 'gui/backdrop/layout :final)
 
 (dec-method :lisp_create 'gui/progress/lisp_create :static '(r0 r1) '(r0 r1))
 
