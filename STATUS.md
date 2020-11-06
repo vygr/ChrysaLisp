@@ -13,6 +13,12 @@ Converged csv, yaml and data exchange libraries to `lib/xchange`. Main includes
 
 Replaced `properties` from `xtras.inc` with `emaps`
 
+Beginning to move the widget code out to Lisp level. Eventually only the GUI
+compositor system will be in VP code.
+
+(defun) and (defmacro) now prebind by default. New (defun-unbound) macro for
+any situation where this is not desired.
+
 ------
 
 New (class), (method), (method) and (.) macro in `class/lisp/boot.inc` to
