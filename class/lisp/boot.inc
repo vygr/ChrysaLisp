@@ -157,6 +157,11 @@
 	; (const form)
 	(eval (macroexpand _)))
 
+(defun identity (_)
+	; (identity any) -> any
+	; function that returns it's argument
+	_)
+
 (defun exec (_)
 	; (exec form)
 	(eval (macroexpand _)))
