@@ -59,35 +59,6 @@
 
 (def-func-end)
 
-(def-method 'button :layout)
-	;inputs
-	;r0 = button object (ptr)
-	;outputs
-	;r0 = button object (ptr)
-	;trashes
-	;r1-r14
-
-	(entry 'button :layout '(r0))
-
-	;contents offset or not
-	(call 'button :get_long_prop '(r0 static_sym_border) '(r0 r1))
-	(assign '((r0 button_state) r1) '(r2 r3))
-	(vp-and-cr button_state_pressed r2)
-	(vpif '(r2 /= 0))
-		(vp-add-rr r1 r1)
-	(endif)
-	(vp-add-rr r3 r3)
-	(assign '((r0 view_w) (r0 view_h)) '(r9 r10))
-	(vp-sub-rr r3 r9)
-	(vp-sub-rr r3 r10)
-	(vp-push r0)
-	(call 'flow :change '((r0 label_flow) r1 r1 r9 r10) '(r0))
-	(call 'flow :layout '(r0))
-	(vp-pop r0)
-	(jump 'view :set_flags '(r0 view_flag_opaque view_flag_opaque))
-
-(def-func-end)
-
 (def-method 'button :mouse_up)
 	;inputs
 	;r0 = button object (ptr)
@@ -106,7 +77,7 @@
 	(vp-and-cr (lognot button_state_pressed) r1)
 	(assign '(r1) '((r0 button_state)))
 	(vpif '(r1 /= r2))
-		(call 'button :layout '(r0) '(r0))
+		(d-call 'view :layout '(r0) '(r0))
 		(call 'button :dirty '(r0) '(r0))
 	(endif)
 
@@ -150,7 +121,7 @@
 
 	;if state changed then dirty
 	(vpif '(r2 /= r3))
-		(call 'button :layout '(r0) '(r0))
+		(d-call 'view :layout '(r0) '(r0))
 		(jump 'button :dirty '(r0))
 	(endif)
 

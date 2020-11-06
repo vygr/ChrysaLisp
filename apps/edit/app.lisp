@@ -50,7 +50,7 @@
 							(component-connect (ui-button clrtxt (:border 0 :text (num-to-utf8 c) 
 								:font *env_small_toolbar_font* :color +argb_white+)) e))
 							'(0xe913 0xe910 0xe988) (list +event_find_prev+ +event_find_next+ +event_clear_text+))
-						(ui-textfield textfield (:border 0 :color +argb_white+ :text "")))))
+						(ui-textfield mytextfield (:border 0 :color +argb_white+ :text "")))))
 			(ui-flow tab_bar (:color *env_toolbar_col* :flow_flags flow_left_fill)
 				(component-connect (ui-button close_buf (:border 0 :text (num-to-utf8 0xe94c) 
 					:font tb_font)) +event_closeb+)
@@ -73,7 +73,7 @@
 			(vdu-load vdu buffer ox oy cx cy))))
 
 (defun window-resize (w h)
-	(bind '(_ fpath title buffer position) current_text)
+	(bind '(_ fpath mytitle buffer position) current_text)
 	(bind '(ox oy cx cy sx) position)
 	(setq vdu_width w vdu_height h)
 	(set sb_line_col :text (cat "Line " (str (inc cy)) ", Column " (str (inc cx)) sb_line_col_message))
@@ -84,7 +84,7 @@
 	(vdu-colorise))
 
 (defun window-layout (w h)
-	(bind '(index fpath title buffer position) current_text)
+	(bind '(index fpath mytitle buffer position) current_text)
 	(bind '(ox oy cx cy sx) position)
 	(set window_title :text fpath)
 	(set sb_line_col :text (cat "Line " (str (inc cy)) ", Column " (str (inc cx)) sb_line_col_message))
@@ -131,7 +131,7 @@
 	`(let ((s (slice 1 -2 ,cd))) (split s ":")))
 
 (defun select-action-on-enter ()
-	(defq tf_text (get :text textfield) tfp (split-cd tf_text) cmd (first tfp) is_find nil)
+	(defq tf_text (get :text mytextfield) tfp (split-cd tf_text) cmd (first tfp) is_find nil)
 	(if (defq data (second tfp)) data (defq data nil))
 	(cond
 		((eql cmd "save") (when (not data) (defq data (elem +text_fpath+ current_text)))
@@ -150,9 +150,9 @@
 			(setq sb_line_col_message ""))
 		((eql "run" cmd) (when (not data) (defq data (elem +text_fpath+ current_text)))
 			(open-child data kn_call_open)
-			(set textfield :text data))
+			(set mytextfield :text data))
 		((and (eql "find" cmd) data)
-			(set textfield :text data) (find-next) (view-dirty textfield) (setq is_find t))
+			(set mytextfield :text data) (find-next) (view-dirty mytextfield) (setq is_find t))
 		(t 	(find-next) (setq is_find t)))
 	(unless is_find (clear-text))
 	(window-layout vdu_width vdu_height))
@@ -227,19 +227,19 @@
 ;new, open, save, and close buffer functions		
 (defun new-buffer (&optional nfpath)
 	(defq index (length text_store) pos (list 0 0 0 0 0) 
-		title (cat "Untitled-" (str (setq tmp_num (inc tmp_num))))
-		buffer (list " ") fpath (if nfpath nfpath (cat home_dir title)))
+		mytitle (cat "Untitled-" (str (setq tmp_num (inc tmp_num))))
+		buffer (list " ") fpath (if nfpath nfpath (cat home_dir mytitle)))
 	(when nfpath (save-buffer nfpath))
-	(push text_store (list index fpath title buffer pos))
+	(push text_store (list index fpath mytitle buffer pos))
 	(setq current_text (elem index text_store)))
 
 (defun open-buffer (fpath)
 	(defq i 0 index (length text_store) pos (list 0 0 0 0 0))
-	(defq title (title-set fpath) buffer (list))
+	(defq mytitle (title-set fpath) buffer (list))
 	;ensure something to read on empty file.
 	(if (eql nil (read-line (file-stream fpath))) (setq buffer (list ""))
 	(each-line (lambda (_) (push buffer _)) (file-stream fpath)))
-	(push text_store (list index fpath title buffer pos))
+	(push text_store (list index fpath mytitle buffer pos))
 	(setq current_text (elem index text_store)))
 
 (defun save-buffer (fpath)
@@ -289,11 +289,11 @@
 
 (defun clear-text ()
 	(setq find_list (list) find_index 0 sb_line_col_message "")
-	(set textfield :text "")
+	(set mytextfield :text "")
 	(window-layout vdu_width vdu_height))
 
 (defun vdu-input (c)
-	(bind '(index fpath title buffer position) current_text)
+	(bind '(index fpath mytitle buffer position) current_text)
 	(bind '(ox oy cx cy sx) position)
 	(setq dirty_vdu t)
 	(cond
@@ -416,7 +416,7 @@
 						mouse_xy (list rx ry))
 					(mouse-cursor mouse_xy)
 					(window-layout vdu_width vdu_height))))
-		((and (= id (component-get-id textfield))
+		((and (= id (component-get-id mytextfield))
 			(= (get-long msg ev_msg_type) ev_type_key)
 			(> (get-int msg ev_msg_key_keycode) 0)
 			(or (= (get-int msg ev_msg_key_key) 13) (= (get-int msg ev_msg_key_key) 10)))

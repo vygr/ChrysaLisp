@@ -21,6 +21,7 @@
 	(vp-push r0)
 	(call 'label :create nil '(r1))
 	(vp-pop r0)
+	(assign '(r0) '((r1 component_lisp)))
 
 	(exit 'label :lisp_create '(r0 r1))
 	(vp-ret)

@@ -37,7 +37,7 @@
 (dec-method :draw 'class/obj/null :virtual '(r0 r1) '(r0))
 (dec-method :hit 'gui/view/hit :virtual '(r0 r7 r8) '(r0 r1))
 (dec-method :pref_size 'gui/view/pref_size :virtual '(r0) '(r0 r9 r10))
-(dec-method :layout 'class/view/layout :virtual '(r0) '(r0))
+(dec-method :layout 'gui/view/layout :virtual '(r0) '(r0))
 (dec-method :event 'gui/view/event :virtual '(r0 r1) '(r0))
 (dec-method :mouse_down 'class/obj/null :virtual '(r0 r1) '(r0))
 (dec-method :mouse_up 'class/obj/null :virtual '(r0 r1) '(r0))

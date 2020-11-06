@@ -646,17 +646,6 @@ trashes
 r1-r14
 ```
 
-### button::layout -> gui/button/layout
-
-```lisp
-inputs
-r0 = button object (ptr)
-outputs
-r0 = button object (ptr)
-trashes
-r1-r14
-```
-
 ### button::mouse_down -> gui/button/mouse_move
 
 ```lisp
@@ -3136,17 +3125,6 @@ r1-r14
 inputs
 r0 = label object (ptr)
 r1 = draw ctx (ptr)
-outputs
-r0 = label object (ptr)
-trashes
-r1-r14
-```
-
-### label::layout -> gui/label/layout
-
-```lisp
-inputs
-r0 = label object (ptr)
 outputs
 r0 = label object (ptr)
 trashes
@@ -9530,7 +9508,7 @@ trashes
 r1-r14
 ```
 
-### view::layout -> class/view/layout
+### view::layout -> gui/view/layout
 
 ```lisp
 inputs

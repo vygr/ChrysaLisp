@@ -9,7 +9,7 @@
 (defun open-find ()
 	;if there is a previous search, clear and conduct a new one.
 	(when (/= (length find_list) 0) (setq find_list (list) find_index 0))
-	(find-in-buffer (setq find_textfield (get :text textfield)))
+	(find-in-buffer (setq find_textfield (get :text mytextfield)))
 	(bind '(ox oy cx cy sx) (elem +text_position+ current_text))
 	(cond
 		((> (defq fl_len (length find_list)) 0)
@@ -20,7 +20,7 @@
 			(view-layout status_bar)
 			(view-dirty sb_line_col)
 			(window-layout vdu_width vdu_height))
-		((eql (get :text textfield) "") (setq sb_line_col_message "")
+		((eql (get :text mytextfield) "") (setq sb_line_col_message "")
 			(view-dirty sb_line_col))
 		(t 
 			(setq sb_line_col_message " - No Matches Found")
@@ -31,7 +31,7 @@
 
 (defun find-next ()
 	(cond 
-		((or (not (eql (get :text textfield) find_textfield)) (= (length find_list) 0)) (open-find))
+		((or (not (eql (get :text mytextfield) find_textfield)) (= (length find_list) 0)) (open-find))
 		(t 
 			(if (= find_index (dec (defq fl_len (length find_list))))
 				(setq find_index 0) (setq find_index (inc find_index)))
@@ -46,7 +46,7 @@
 
 (defun find-prev ()
 	(cond 
-		((or (not (eql (get :text textfield) find_textfield)) (= (length find_list) 0)) (open-find))
+		((or (not (eql (get :text mytextfield) find_textfield)) (= (length find_list) 0)) (open-find))
 		(t 
 			(if (= find_index 0) 
 				(setq find_index (dec (length find_list))) (setq find_index (dec find_index)))

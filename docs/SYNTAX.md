@@ -20,6 +20,10 @@
 
 (- num num ...)
 
+## button :layout
+
+(. button :layout) -> button
+
 ## emap :copy
 
 (. emap :copy) -> emap
@@ -56,13 +60,25 @@
 
 (. emap :resize num_buckets) -> emap
 
+## label :layout
+
+(. label :layout) -> label
+
 ## scroll :layout
 
 (. scroll :layout) -> scroll
 
+## textfield :layout
+
+(. textfield :layout) -> textfield
+
 ## .
 
 (. this method ([arg ...]))
+
+## title :layout
+
+(. title :layout) -> title
 
 ## xmap :copy
 
@@ -267,6 +283,10 @@
 ## bind
 
 (bind (param ...) seq)
+
+## button
+
+(button) -> button
 
 ## byte
 
@@ -835,6 +855,10 @@
 ## keys
 
 (keys collection) -> list | nil
+
+## label
+
+(label) -> label
 
 ## lambda
 
@@ -1480,6 +1504,10 @@
 
 (task-sleep usec)
 
+## textfield
+
+(textfield) -> textfield
+
 ## throw
 
 (throw str form)
@@ -1491,6 +1519,10 @@
 ## times
 
 (times num body)
+
+## title
+
+(title) -> title
 
 ## to-lower
 

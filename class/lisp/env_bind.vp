@@ -75,7 +75,7 @@
 			(call 'hmap :insert {this->lisp_environment, symbol, value})
 		(else)
 			;destructureing ?
-			(errorif (cat {symbol->obj_vtable /= @} (f-path 'list :vtable)) 'error3)
+			(errorif (cat {symbol->obj_vtable /= @} (f-path 'list :vtable)) 'error1)
 			(errorif {index_vals = len_vals} 'error)
 			(call 'seq :ref_element {vals, index_vals} {_, args})
 			(assign {index_vars + 1, index_vals + 1} {index_vars, index_vals})
@@ -96,7 +96,7 @@
 (vp-label 'error2)
 	(jump 'lisp :repl_error {this, "(bind (param ...) seq)", error_msg_not_a_sequence, vals})
 (vp-label 'error3)
-	(jump 'lisp :repl_error {this, "(bind (param ...) seq)", error_msg_not_a_symbol, vars})
+	(jump 'lisp :repl_error {this, "(bind (param ...) seq)", error_msg_not_a_symbol, symbol})
 (vp-label 'error4)
 	(call 'obj :deref {value})
 (vp-label 'error)

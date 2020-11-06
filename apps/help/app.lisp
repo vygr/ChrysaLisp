@@ -27,7 +27,7 @@
 				((and (>= (length (elem 1 _)) 5) (eql "lisp_" (slice 0 5 (elem 1 _)))))
 				(t (push keys k) (push vals v))))) k v)
 	(each (lambda (_)
-		(def (defq b (create-button)) :text _ :border 0
+		(def (defq b (button)) :text _ :border 0
 			:flow_flags  (logior flow_flag_align_vcenter flow_flag_align_hleft))
 		(view-add-child index (component-connect b +event_button+))) keys)
 	(def vdu :vdu_width

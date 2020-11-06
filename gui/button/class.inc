@@ -6,7 +6,6 @@
 (dec-method :init 'gui/button/init)
 
 (dec-method :draw 'gui/button/draw :final)
-(dec-method :layout 'gui/button/layout :final)
 (dec-method :mouse_down 'gui/button/mouse_move :final)
 (dec-method :mouse_up 'gui/button/mouse_up :final)
 (dec-method :mouse_move 'gui/button/mouse_move :final)

@@ -73,5 +73,8 @@ view_y 156
 canvas_flags 264
 canvas_color 260
 cap_arrow 3
+label_flow 168
+button_state_pressed 1
+button_state 184
 scroll_child 184
 )

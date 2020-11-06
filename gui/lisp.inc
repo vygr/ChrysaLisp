@@ -51,7 +51,7 @@
 (defmacro ui-title (n &optional p)
 	; (ui-title name [props]) -> title
 	(ui-props p :font *env_title_font* :border *env_title_border*)
-	`(ui-element ,n (create-title) ,p))
+	`(ui-element ,n (title) ,p))
 
 (defmacro ui-title-bar (n s b e &optional p)
 	; (ui-title-bar name title symbols events [props]) -> flow
@@ -63,13 +63,13 @@
 (defmacro ui-label (n &optional p &rest x)
 	; (ui-label name [props] [body]) -> label
 	(ui-props p :flow_flags (logior flow_flag_right flow_flag_align_vcenter) :border *env_label_border*)
-	`(ui-element ,n (create-label) ,p ~x))
+	`(ui-element ,n (label) ,p ~x))
 
 (defmacro ui-button (n &optional p &rest x)
 	; (ui-button name [props] [body]) -> button
 	(ui-props p :flow_flags (logior flow_flag_down flow_flag_align_hcenter flow_flag_align_vcenter)
 		:border *env_button_border*)
-	`(ui-element ,n (create-button) ,p ~x))
+	`(ui-element ,n (button) ,p ~x))
 
 (defmacro ui-buttons (s e &optional p l)
 	; (ui-buttons symbols events [props] [group])
@@ -88,7 +88,7 @@
 (defmacro ui-textfield (n &optional p)
 	; (ui-textfield name [props]) -> textfield
 	(ui-props p :flow_flags (logior flow_flag_right flow_flag_align_vcenter) :border *env_textfield_border*)
-	`(ui-element ,n (create-textfield) ,p))
+	`(ui-element ,n (textfield) ,p))
 
 (defmacro ui-slider (n &optional p)
 	; (ui-slider name [props]) -> slider
@@ -138,12 +138,8 @@
 (ffi component-connect "gui/component/lisp_connect" 0)
 (ffi create-window "gui/window/lisp_create" 0)
 (ffi create-backdrop "gui/backdrop/lisp_create" 0)
-(ffi create-button "gui/button/lisp_create" 0)
 (ffi create-flow "gui/flow/lisp_create" 0)
 (ffi create-grid "gui/grid/lisp_create" 0)
-(ffi create-label "gui/label/lisp_create" 0)
-(ffi create-title "gui/title/lisp_create" 0)
-(ffi create-textfield "gui/textfield/lisp_create" 0)
 (ffi create-text "gui/text/lisp_create" 0)
 (ffi create-progress "gui/progress/lisp_create" 0)
 (ffi create-slider "gui/slider/lisp_create" 0)
@@ -156,6 +152,10 @@
 (ffi font-glyph-paths "gui/font/lisp_glyph_paths" 0)
 (ffi font-glyph-ranges "gui/font/lisp_glyph_ranges" 0)
 (import "gui/scroll/lisp.inc")
+(import "gui/textfield/lisp.inc")
+(import "gui/title/lisp.inc")
+(import "gui/button/lisp.inc")
+(import "gui/label/lisp.inc")
 (import "gui/component/lisp.inc")
 (import "gui/view/lisp.inc")
 (import "gui/path/lisp.inc")

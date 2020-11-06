@@ -67,39 +67,6 @@
 
 (def-func-end)
 
-(def-method 'label :layout)
-	;inputs
-	;r0 = label object (ptr)
-	;outputs
-	;r0 = label object (ptr)
-	;trashes
-	;r1-r14
-
-	(entry 'label :layout '(r0))
-
-	(call 'label :get_long_prop '(r0 static_sym_border) '(r0 r1))
-	(vpif '(r1 < 0))
-		(vp-mul-cr -1 r1)
-	(endif)
-	(assign '((r0 view_w) (r0 view_h) r1) '(r9 r10 r2))
-	(vp-add-rr r2 r2)
-	(vp-sub-rr r2 r9)
-	(vp-sub-rr r2 r10)
-	(vp-push r0)
-	(call 'flow :change '((r0 label_flow) r1 r1 r9 r10) '(r0))
-	(call 'flow :layout '(r0))
-	(vp-pop r0)
-	(call 'label :get_long_prop '(r0 static_sym_color) '(r0 r1))
-	(vp-shr-cr 24 r1)
-	(vpif '(r1 = 0xff))
-		(jump 'view :set_flags '(r0 view_flag_opaque view_flag_opaque))
-	(endif)
-
-	(exit 'label :layout '(r0))
-	(vp-ret)
-
-(def-func-end)
-
 (def-method 'label :pref_size)
 	;inputs
 	;r0 = label object (ptr)

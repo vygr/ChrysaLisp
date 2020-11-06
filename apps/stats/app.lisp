@@ -43,7 +43,7 @@
 			(def new_name_view :grid_width 1 :grid_height max_classes)
 			(def new_stat_view :grid_width 1 :grid_height max_classes)
 			(each (lambda ((name stat))
-				(defq n (create-label) p (create-progress))
+				(defq n (label) p (create-progress))
 				(def n :border 0 :text name)
 				(def p :maximum last_max_stats :value stat)
 				(view-add-child new_name_view n)

@@ -108,8 +108,8 @@
 				(view-add-child game_grid mc))
 			((eql (elem _ game_map) "r")
 				(if (< 0 (elem _ game_board) 9) 
-					(component-connect (defq mc (create-label)) (+ +event_click+ _))
-					(defq mc (create-label)))
+					(component-connect (defq mc (label)) (+ +event_click+ _))
+					(defq mc (label)))
 				(def mc :text 
 					(cond 
 						((= (defq value (elem _ game_board)) 0) "")
