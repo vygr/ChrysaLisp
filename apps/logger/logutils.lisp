@@ -35,6 +35,8 @@
   (make-log-filename base))
 
 (defun open-log-file-stream (fname)
+  ; (open-log-file-stream fname) -> stream
+  ; Opens a log file for appending log messages
   (file-stream fname file_open_append))
 
 (defun needs-rotation? (fh)
@@ -110,6 +112,13 @@
       (if (eql nkw (first (split (first entry) "_")))
         (reduced (first entry))
         nil)) (entries _hm) t))
+
+
+(defun loghandler (fsmap config)
+  ; (loghandler map configuration)
+  ; Returns the registered file handler based
+  ; on configration identifier
+  (gets fsmap (gets config :handler)))
 
 (defun process-log-cfg ()
   ; (process-log-cfg) -> tuple
