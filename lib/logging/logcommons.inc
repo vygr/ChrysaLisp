@@ -18,8 +18,7 @@
   ; (log-level-index configuration level-key) -> number
   ; Gets the log level index for the lvl key from levels
   ; defaults to 1 (info) if invalid lvl given
-  (defq res (gets-in cfg :levels lvl))
-  (opt res  1))
+  (opt (gets-in cfg :levels lvl)  1))
 
 (defun log-level-base (cfg)
   ; (log-level-base configuration) -> level key

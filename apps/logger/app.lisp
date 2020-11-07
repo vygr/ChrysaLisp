@@ -30,28 +30,24 @@
 
   (log-write (gets srvc_fh :handle) " Starting LOG_SERVICE")
 
-  (defun log-handle (cfg)
-    (gets cfg :handle))
-
-  (defun logfs (fsmap config)
-    (log-handle (gets fsmap (gets config :handler))))
-
   (defun log-msg-writer (msg)
     ; (log-msg-writer mail-message) -> stream
     (defq
       msgd (deser-inbound msg)
       cnfg (gets registra (gets msgd :module))
-      sstrm (logfs fmap cnfg))
-    (log-write sstrm (str
-                 " ["(log-level-string cnfg (gets msgd :msg-level))"] "
-                 (gets cnfg :name)": ") (gets msgd :message)))
+      hndl (loghandler fmap cnfg)
+      mlvl (gets msgd :msg-level))
+    (when (>= (log-level-index cnfg mlvl)
+              (log-level-index cnfg (gets hndl :level)))
+      (log-write (gets hndl :handle) (str
+                 " ["(log-level-string cnfg mlvl)"] "
+                 (gets cnfg :name)": ") (gets msgd :message))))
 
 
   (defun register-logger (config)
     ; (register-logger properties) -> ?
 
     (defq chsh (hash config))
-
     ; Basics
     (sets-pairs! config
       :log_lvl :info
