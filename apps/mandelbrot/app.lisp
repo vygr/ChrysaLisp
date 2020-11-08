@@ -12,7 +12,7 @@
 (defq canvas_width 800 canvas_height 800 canvas_scale 2 then nil area 0 select nil
 	center_x (mbfp-from-fixed -0.5) center_y (mbfp-from-fixed 0.0) zoom (mbfp-from-fixed 1.0))
 
-(ui-window window ()
+(ui-window mywindow ()
 	(ui-title-bar _ "Mandelbrot" (0xea19) +event_close+)
 	(ui-canvas canvas canvas_width canvas_height canvas_scale))
 
@@ -43,8 +43,8 @@
 (defun main ()
 	;add window
 	(canvas-swap (canvas-fill canvas +argb_black+))
-	(bind '(x y w h) (apply view-locate (view-pref-size window)))
-	(gui-add (view-change window x y w h))
+	(bind '(x y w h) (apply view-locate (view-pref-size mywindow)))
+	(gui-add (view-change mywindow x y w h))
 	(reset)
 	;main event loop
 	(while (progn
@@ -69,7 +69,7 @@
 							zoom (mbfp-mul zoom (if (= 0 (logand (get-int msg ev_msg_mouse_buttons) 2))
 								(mbfp-from-fixed 0.5) (mbfp-from-fixed 2.0))))
 						(reset))
-					(t (view-event window msg))))
+					(t (view-event mywindow msg))))
 			(t	;child tile msg
 				(setq area (- area (tile canvas msg)))
 				(when (or (> (- (defq now (time)) then) 1000000) (= area 0))
@@ -77,5 +77,5 @@
 					(setq then now))
 					t))))
 	;close
-	(view-hide window)
+	(view-hide mywindow)
 	(mail-free-mbox (elem 1 select)))

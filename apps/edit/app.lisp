@@ -27,9 +27,9 @@
 (defq vdu_min_width 40 vdu_min_height 24 vdu_width 60 vdu_height 40 text_store (list) tmp_num 0
 	current_text (list) home_dir (cat "apps/login/" *env_user* "/") picker_mbox nil  picker_mode nil 
 	mbox_array (array (task-mailbox) (mail-alloc-mbox) (mail-alloc-mbox)) find_list (list) find_index 0 
-	sb_line_col_message "" tabbar (create-flow) unsaved_buffers (list) burger_open nil
-	tb_font (create-font "fonts/Entypo.ctf" 20) cmd_menu (create-window) cmd_menu_grid (create-grid)
-	cmd_menu_up nil syn (syntax) colorise t dirty_vdu t)
+	sb_line_col_message "" tabbar (Flow) unsaved_buffers (list) burger_open nil
+	tb_font (create-font "fonts/Entypo.ctf" 20) cmd_menu (Window) cmd_menu_grid (Grid)
+	cmd_menu_up nil syn (Syntax) colorise t dirty_vdu t)
 
 (ui-window window (:color +argb_grey2+)
 		(ui-title-bar window_title "Edit" (0xea19 0xea1b 0xea1a) +event_close+)
@@ -102,7 +102,7 @@
 
 (defun view-tabbar ()
 	(view-sub tabbar)
-	(ui-tree tabbar (create-grid) (:grid_width (length text_store) :grid_height 1)
+	(ui-tree tabbar (Grid) (:grid_width (length text_store) :grid_height 1)
 		(each (lambda (e) (component-connect (ui-button b 
 			(:text (elem +text_title+ (elem _ text_store)) :min_width 32 :border 1)) (+ +event_tabbar+ _)))
 			(range 0 (length text_store))))

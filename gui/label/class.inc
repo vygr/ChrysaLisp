@@ -7,7 +7,7 @@
 
 (dec-method :pref_size 'gui/label/pref_size :override)
 (dec-method :draw 'gui/label/draw :override)
-(dec-method :add_child 'gui/label/add_child :final)
+(dec-method :deinit 'gui/label/deinit :override)
 
 (dec-method :lisp_create 'gui/label/lisp_create :static '(r0 r1) '(r0 r1))
 

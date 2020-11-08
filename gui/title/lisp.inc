@@ -4,10 +4,15 @@
 
 (ffi create-title "gui/title/lisp_create" 0)
 
-(class title ()
-	; (title) -> title
+(class Title ()
+	; (Title) -> title
 	; overide the default 'this' env with a title component
-	(defq this (create-title))
+	(defq this (create-title) flow (Flow) text (create-text))
+	(set-field this (const label_flow) 0 flow)
+	(set-field this (const label_text) 0 text)
+	(view-set-flags flow 0 -1)
+	(view-add-child this flow)
+	(view-add-child flow text)
 
 	(method :layout (this)
 		; (. title :layout) -> title

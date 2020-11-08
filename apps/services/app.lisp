@@ -6,7 +6,7 @@
 (structure '+event 0
 	(byte 'close+ 'max+ 'min+))
 
-(ui-window window ()
+(ui-window mywindow ()
 	(ui-title-bar _ "Services" (0xea19 0xea1b 0xea1a) +event_close+)
 	(ui-scroll info_scroll scroll_flag_vertical nil
 		(ui-grid info_grid (:grid_width 3 :grid_height 1 :flow_flags flow_down_fill)
@@ -33,11 +33,11 @@
 		(setq services new_services)
 		(each (#
 			(defq info (split %0 ","))
-			(def (defq _ (label)) :border 1 :text (elem 0 info))
+			(def (defq _ (Label)) :border 1 :text (elem 0 info))
 			(view-add-child service_flow _) (push service_labels _)
-			(def (defq _ (label)) :border 1 :text (elem 1 info))
+			(def (defq _ (Label)) :border 1 :text (elem 1 info))
 			(view-add-child mbox_flow _) (push mbox_labels _)
-			(def (defq _ (label)) :border 1 :text (if (> (length info) 2) (elem 2 info) "No Info"))
+			(def (defq _ (Label)) :border 1 :text (if (> (length info) 2) (elem 2 info) "No Info"))
 			(view-add-child info_flow _) (push info_labels _)) new_services)
 		(bind '(w h) (view-pref-size info_grid))
 		(view-change info_grid 0 0 w h))
@@ -47,9 +47,9 @@
 	(bind '(w h) (view-get-size info_grid))
 	(setq h (min h mh))
 	(def info_scroll :min_width w :min_height h)
-	(bind '(x y w h) (apply view-fit (cat (view-get-pos window) (view-pref-size window))))
+	(bind '(x y w h) (apply view-fit (cat (view-get-pos mywindow) (view-pref-size mywindow))))
 	(undef info_scroll :min_width :min_height)
-	(view-change-dirty window x y w h))
+	(view-change-dirty mywindow x y w h))
 
 (defun main ()
 	(defq id t select (array (task-mailbox)) services (list)
@@ -58,9 +58,9 @@
 	;add window
 	(bind '(w h) (view-get-size info_grid))
 	(def info_scroll :min_width w :min_height h)
-	(bind '(x y w h) (apply view-locate (view-pref-size window)))
+	(bind '(x y w h) (apply view-locate (view-pref-size mywindow)))
 	(undef info_scroll :min_width :min_height)
-	(gui-add (view-change window x y w h))
+	(gui-add (view-change mywindow x y w h))
 	;app event loop
 	(while id
 		;next event
@@ -75,8 +75,8 @@
 				((= id +event_max+)
 					;max button
 					(resize 640))
-				(t (view-event window msg))))
+				(t (view-event mywindow msg))))
 		(task-sleep 10000)
 		(populate))
 	;close window
-	(view-hide window))
+	(view-hide mywindow))

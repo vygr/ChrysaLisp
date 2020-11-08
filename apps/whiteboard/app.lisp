@@ -23,7 +23,7 @@
 	radius_buttons (list) style_buttons (list) ink_buttons (list) mode_buttons (list)
 	picker_mbox nil picker_mode nil select (array (task-mailbox) (mail-alloc-mbox)))
 
-(ui-window window ()
+(ui-window mywindow ()
 	(ui-title-bar _ "Whiteboard" (0xea19 0xea1b 0xea1a) +event_close+)
 	(ui-tool-bar _ ()
 		(ui-buttons (0xea07 0xe9e9 0xe970 0xe9fe 0xe99d) +event_save+)
@@ -121,8 +121,8 @@
 	(radio-select mode_buttons 0)
 	(radio-select radius_buttons 0)
 	(radio-select style_buttons 1)
-	(bind '(x y w h) (apply view-locate (view-pref-size window)))
-	(gui-add (view-change window x y w h))
+	(bind '(x y w h) (apply view-locate (view-pref-size mywindow)))
+	(gui-add (view-change mywindow x y w h))
 	(def image_scroll :min_width min_width :min_height min_height)
 
 	;create child and send args
@@ -158,13 +158,13 @@
 				(setq id nil))
 			((= id +event_min+)
 				;min button
-				(bind '(x y w h) (apply view-fit (cat (view-get-pos window) (view-pref-size window))))
-				(view-change-dirty window x y w h))
+				(bind '(x y w h) (apply view-fit (cat (view-get-pos mywindow) (view-pref-size mywindow))))
+				(view-change-dirty mywindow x y w h))
 			((= id +event_max+)
 				;max button
 				(def image_scroll :min_width canvas_width :min_height canvas_height)
-				(bind '(x y w h) (apply view-fit (cat (view-get-pos window) (view-pref-size window))))
-				(view-change-dirty window x y w h)
+				(bind '(x y w h) (apply view-fit (cat (view-get-pos mywindow) (view-pref-size mywindow))))
+				(view-change-dirty mywindow x y w h)
 				(def image_scroll :min_width min_width :min_height min_height))
 			((<= +event_black+ id +event_tmagenta+)
 				;ink pot
@@ -246,10 +246,10 @@
 									(redraw 3))
 								(:u	;was up last time, so we are hovering
 									t))))) t)
-			(t (view-event window msg))))
+			(t (view-event mywindow msg))))
 	;close child and window
 	(mail-free-mbox (pop select))
 	(mail-send "" child_mbox)
 	(if picker_mbox (mail-send "" picker_mbox))
-	(view-hide window)
+	(view-hide mywindow)
 	(profile-report "Whiteboard App"))

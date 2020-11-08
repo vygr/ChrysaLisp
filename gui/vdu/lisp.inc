@@ -1,5 +1,14 @@
-;lisp bindings
+;;;;;;;;;;;;
+; vdu widget
+;;;;;;;;;;;;
+
+(ffi create-vdu "gui/vdu/lisp_create" 0)
 (ffi vdu-load "gui/vdu/lisp_load" 0)
+
+(class Vdu ()
+	; (Vdu) -> vdu
+	; overide the default 'this' env with a vdu component
+	(defq this (create-vdu)))
 
 (defun vdu-max-size (vdu)
 	; (vdu-max-size vdu) -> (w h)

@@ -16,7 +16,7 @@
 	max_tasks 1 max_memory 1 last_max_tasks 0 last_max_memory 0 select (array (task-mailbox) (mail-alloc-mbox))
 	farm (open-farm "apps/netmon/child" cpu_count kn_call_open devices) sample_msg (array (elem -2 select)))
 
-(ui-window window ()
+(ui-window mywindow ()
 	(ui-title-bar _ "Network Monitor" (0xea19 0xea1b 0xea1a) +event_close+)
 	(ui-grid _ (:grid_width 2 :grid_height 1 :flow_flags flow_down_fill :maximum 100 :value 0)
 		(ui-flow _ (:color +argb_green+)
@@ -38,8 +38,8 @@
 
 (defun main ()
 	;add window
-	(bind '(x y w h) (apply view-locate (view-pref-size window)))
-	(gui-add (view-change window x y w h))
+	(bind '(x y w h) (apply view-locate (view-pref-size mywindow)))
+	(gui-add (view-change mywindow x y w h))
 	;app event loop
 	(while (progn
 		;new batch of samples ?
@@ -52,7 +52,7 @@
 				(def st :text (str (/ vt 100) "." (pad (% vt 100) 2 "0") "|"))
 				(def sm :text (str (/ vm 102400) "|"))
 				(view-layout st) (view-layout sm)) task_scale memory_scale)
-			(view-dirty-all window)
+			(view-dirty-all mywindow)
 			;send out multi-cast sample command
 			(while (/= cpu_count 0)
 				(setq cpu_count (dec cpu_count))
@@ -71,15 +71,15 @@
 					((= id +event_min+)
 						;min button
 						(bind '(x y w h) (apply view-fit
-							(cat (view-get-pos window) (view-pref-size window))))
-						(view-change-dirty window x y w h))
+							(cat (view-get-pos mywindow) (view-pref-size mywindow))))
+						(view-change-dirty mywindow x y w h))
 					((= id +event_max+)
 						;max button
-						(bind '(x y) (view-get-pos window))
-						(bind '(w h) (view-pref-size window))
+						(bind '(x y) (view-get-pos mywindow))
+						(bind '(w h) (view-pref-size mywindow))
 						(bind '(x y w h) (view-fit x y (/ (* w 5) 3) h))
-						(view-change-dirty window x y w h))
-					(t (view-event window msg))))
+						(view-change-dirty mywindow x y w h))
+					(t (view-event mywindow msg))))
 			(t	;child info
 				(defq index (find (get-int msg sample_reply_cpu) devices)
 					task_val (get-int msg sample_reply_task_count)
@@ -91,7 +91,7 @@
 				;count up replies
 				(setq cpu_count (inc cpu_count))))))
 	;close window and children
-	(view-hide window)
+	(view-hide mywindow)
 	(mail-free-mbox (pop select))
 	(while (defq mbox (pop farm))
 		(mail-send (const (char +event_close+ long_size)) mbox)))

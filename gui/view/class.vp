@@ -6,6 +6,7 @@
 (include "class/list/class.inc")
 (include "class/sym/class.inc")
 (include "class/lisp/class.inc")
+(include "class/num/class.inc")
 
 (gen-create 'view)
 (gen-vtable 'view)
@@ -338,51 +339,6 @@ view_flag_at_back
 
 (def-func-end)
 
-(def-method 'view :backward)
-	;inputs
-	;r0 = view object (ptr)
-	;r1 = user data (ptr)
-	;r2 = callback (ptr)
-	;outputs
-	;r0 = view object (ptr)
-	;trashes
-	;...
-		;callback api
-		;inputs
-		;r0 = child view object (ptr)
-		;r1 = user data pointer (ptr)
-		;outputs
-		;r0 = child view object (ptr)
-		;trashes
-		;...
-
-	(def-struct 'local)
-		(ptr 'this 'data 'callback)
-	(def-struct-end)
-
-	(vp-alloc local_size)
-	(assign '(r0 r1 r2) '((rsp local_this) (rsp local_data) (rsp local_callback)))
-
-	(lh-get-tail r0 view_list r0)
-	(loop-start)
-		(ln-get-pred r0 0 r1)
-		(breakif '(r1 = 0))
-
-		;callback
-		(vp-sub-cr view_node r0)
-		(assign '((rsp local_data)) '(r1))
-		(vp-call-i rsp local_callback)
-
-		;across to sibling
-		(ln-get-pred r0 view_node r0)
-	(loop-end)
-
-	(assign '((rsp local_this)) '(r0))
-	(vp-free local_size)
-	(vp-ret)
-
-(def-func-end)
-
 (def-method 'view :forward)
 	;inputs
 	;r0 = view object (ptr)
@@ -594,7 +550,8 @@ view_flag_at_back
 	;trashes
 	;r1-r14
 
-	(ptr 'this 'lisp 'value 'params)
+	(ptr 'this 'lisp 'params)
+	(pptr 'value)
 
 	(push-scope)
 	(entry 'view :layout {this})
@@ -602,13 +559,14 @@ view_flag_at_back
 	;do we have a Lisp level layout method ?
 	(assign {this->component_lisp} {lisp})
 	(vpif {lisp})
-		(call 'view :get_prop {this, static_sym_layout} {_, value})
+		(call 'sym :get_static_sym {static_sym_layout} {value})
+		(call 'view :find {this, value} {_, value, _})
 		(breakifnot {value})
 		;call Lisp level handler
 		(call 'view :ref {this})
 		(call 'list :create nil {params})
 		(call 'list :push_back {params, this})
-		(call 'lisp :repl_apply {lisp, params, value} {_, value})
+		(call 'lisp :repl_apply {lisp, params, value[ptr_size]} {_, value})
 		(call 'obj :deref {params})
 		(call 'obj :deref {value})
 	(endif)
@@ -936,14 +894,39 @@ view_flag_at_back
 	;trashes
 	;r1-r14
 
-	(ptr 'this)
+	(ptr 'this 'lisp 'params)
+	(pptr 'value)
 	(uint 'mw 'mh)
 
 	(push-scope)
 	(entry 'view :pref_size {this})
 
+	;minimum
 	(call 'view :get_long_prop {this, static_sym_min_width} {_, mw})
 	(call 'view :get_long_prop {this, static_sym_min_height} {_, mh})
+
+	;do we have a Lisp level pref_size method ?
+	(assign {this->component_lisp} {lisp})
+	(vpif {lisp})
+		(call 'sym :get_static_sym {static_sym_pref_size} {value})
+		(call 'view :find {this, value} {_, value, _})
+		(breakifnot {value})
+		;call Lisp level handler
+		(call 'view :ref {this})
+		(call 'list :create nil {params})
+		(call 'list :push_back {params, this})
+		(call 'lisp :repl_apply {lisp, params, value[ptr_size]} '(_ r1))
+		(assign {mw, mh} '(r11 r12))
+		(list-bind-args r1 '(r9 r10) '(:num :num))
+		(vpif '(r9 > r11))
+			(assign '(r9) {mw})
+		(endif)
+		(vpif '(r10 > r12))
+			(assign '(r10) {mh})
+		(endif)
+		(call 'obj :deref '(r1))
+		(call 'obj :deref {params})
+	(endif)
 
 	(exit 'view :pref_size {this, mw, mh})
 	(pop-scope)

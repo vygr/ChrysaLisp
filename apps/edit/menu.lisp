@@ -13,10 +13,10 @@
 (defun build-menu (x y pflag)
 	(view-sub btn_menu_grid)
 	(defq btn_length (length btn_list))
-	(def (setq btn_menu_grid (create-grid)) :min_width 80 :flow_flags flow_flag_align_hcenter 
+	(def (setq btn_menu_grid (Grid)) :min_width 80 :flow_flags flow_flag_align_hcenter 
 		:grid_height btn_length :grid_width 1)
 	(each (lambda (c) 
-		(def (defq btn (button)) :text (elem _ btn_list))
+		(def (defq btn (Button)) :text (elem _ btn_list))
 		(view-add-child btn_menu_grid (component-connect btn +event_click+))) (range 0 btn_length))
 	(view-add-child btn_menu btn_menu_grid)
 	(view-layout btn_menu)

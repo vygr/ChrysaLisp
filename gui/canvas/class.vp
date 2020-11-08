@@ -481,27 +481,6 @@
 
 (def-func-end)
 
-(def-method 'canvas :pref_size)
-	;inputs
-	;r0 = canvas object (ptr)
-	;outputs
-	;r0 = canvas object (ptr)
-	;r9 = preferred width (pixels)
-	;r10 = preferred height (pixels)
-	;trashes
-	;r1-r14
-
-	(ptr 'this)
-
-	(push-scope)
-	(entry 'canvas :pref_size {this})
-	(exit 'canvas :pref_size {this, this->canvas_width / this->canvas_scale,
-									this->canvas_height / this->canvas_scale})
-	(pop-scope)
-	(return)
-
-(def-func-end)
-
 (def-method 'canvas :to_premul)
 	;inputs
 	;r1 = color (argb)
@@ -954,6 +933,27 @@
 	(endswitch)
 
 	(exit 'canvas :fbox {this})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-method 'canvas :pref_size)
+	;inputs
+	;r0 = canvas object (ptr)
+	;outputs
+	;r0 = canvas object (ptr)
+	;r9 = preferred width (pixels)
+	;r10 = preferred height (pixels)
+	;trashes
+	;r1-r14
+
+	(ptr 'this)
+
+	(push-scope)
+	(entry 'canvas :pref_size {this})
+	(exit 'canvas :pref_size {this, this->canvas_width / this->canvas_scale,
+									this->canvas_height / this->canvas_scale})
 	(pop-scope)
 	(return)
 

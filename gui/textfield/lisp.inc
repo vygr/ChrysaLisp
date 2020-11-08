@@ -4,10 +4,15 @@
 
 (ffi create-textfield "gui/textfield/lisp_create" 0)
 
-(class textfield ()
-	; (textfield) -> textfield
+(class Textfield ()
+	; (Textfield) -> textfield
 	; overide the default 'this' env with a textfield component
-	(defq this (create-textfield))
+	(defq this (create-textfield) flow (Flow) text (create-text))
+	(set-field this (const label_flow) 0 flow)
+	(set-field this (const label_text) 0 text)
+	(view-set-flags flow 0 -1)
+	(view-add-child this flow)
+	(view-add-child flow text)
 
 	(method :layout (this)
 		; (. textfield :layout) -> textfield

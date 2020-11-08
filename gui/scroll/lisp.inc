@@ -4,8 +4,8 @@
 
 (ffi create-scroll "gui/scroll/lisp_create" 0)
 
-(class scroll (flags)
-	; (scroll flags) -> scroll
+(class Scroll (flags)
+	; (Scroll flags) -> scroll
 	; overide the default 'this' env with a scroll component
 	(defq this (create-scroll flags))
 

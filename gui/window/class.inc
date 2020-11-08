@@ -7,7 +7,6 @@
 
 (dec-method :add_child 'gui/window/add_child :final)
 (dec-method :pref_size 'gui/window/pref_size :final)
-(dec-method :layout 'gui/window/layout :final)
 (dec-method :draw 'gui/window/draw :final)
 (dec-method :mouse_down 'gui/window/mouse_down :final)
 (dec-method :mouse_move 'gui/window/mouse_move :final)

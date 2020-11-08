@@ -7,7 +7,7 @@
 (structure '+event 0
 	(byte 'close+ 'beginner+ 'intermediate+ 'expert+ 'click+))
 
-(ui-window window ()
+(ui-window mywindow ()
 	(ui-flow window_flow (:flow_flags flow_down_fill)
 		(ui-title-bar window_title "Minefield" (0xea19) +event_close+)
 		(ui-flow view (:flow_flags flow_flag_align_hcenter)
@@ -71,7 +71,7 @@
 
 (defun board-layout ((gw gh nm))
 	(view-sub across)
-	(setq game_grid (create-grid))
+	(setq game_grid (Grid))
 	(defq gwh (* gw gh))
 		; (ui-grid game_grid (:grid_width 1 :grid_height 5)
 	(each (lambda (_)
@@ -84,13 +84,13 @@
 	(view-change game_grid 0 0 w h)
 	(def view :min_width w :min_height h)
 	(view-add-child view game_grid)
-	(bind '(x y w h) (apply view-fit (cat (view-get-pos window) (view-pref-size window))))
-	(view-change-dirty window x y w h))
+	(bind '(x y w h) (apply view-fit (cat (view-get-pos mywindow) (view-pref-size mywindow))))
+	(view-change-dirty mywindow x y w h))
 
 (defun rebuild-board ()
 	(bind '(gw gh nm) difficulty)
 	(view-sub game_grid)
-	(setq game_grid (create-grid))
+	(setq game_grid (Grid))
 	(defq gwh (* gw gh))
 		; (ui-grid game_grid (:grid_width 1 :grid_height 5)
 	(each (lambda (_)
@@ -108,8 +108,8 @@
 				(view-add-child game_grid mc))
 			((eql (elem _ game_map) "r")
 				(if (< 0 (elem _ game_board) 9) 
-					(component-connect (defq mc (label)) (+ +event_click+ _))
-					(defq mc (label)))
+					(component-connect (defq mc (Label)) (+ +event_click+ _))
+					(defq mc (Label)))
 				(def mc :text 
 					(cond 
 						((= (defq value (elem _ game_board)) 0) "")
@@ -124,14 +124,14 @@
 	(view-change game_grid 0 0 w h)
 	(def view :min_width w :min_height h)
 	(view-add-child view game_grid)
-	(bind '(x y w h) (apply view-fit (cat (view-get-pos window) (view-pref-size window))))
-	(view-change-dirty window x y w h))
+	(bind '(x y w h) (apply view-fit (cat (view-get-pos mywindow) (view-pref-size mywindow))))
+	(view-change-dirty mywindow x y w h))
 
 (defun main ()
 	(defq started nil game (list) game_board (list) game_adj (list) game_map (list) 
 		first_click t difficulty (list) game_grid nil click_offset 4 game_over nil mouse_down 0)
-	(bind '(x y w h) (apply view-locate (view-pref-size window)))
-	(gui-add (view-change window x y w h))
+	(bind '(x y w h) (apply view-locate (view-pref-size mywindow)))
+	(gui-add (view-change mywindow x y w h))
 	(while (cond
 		((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) +event_close+)
 			nil)
@@ -163,5 +163,5 @@
 			(and (= (get-long msg (const ev_msg_type)) (const ev_type_mouse))
 				(/= 0 (get-int msg (const ev_msg_mouse_buttons)))
 				(setq mouse_down (get-int msg (const ev_msg_mouse_buttons))))
-			(view-event window msg))))
-	(view-hide window))
+			(view-event mywindow msg))))
+	(view-hide mywindow))

@@ -125,66 +125,6 @@
 
 (def-func-end)
 
-(def-method 'window :layout)
-	;inputs
-	;r0 = window object (ptr)
-	;outputs
-	;r0 = window object (ptr)
-	;trashes
-	;r1-r14
-
-	(def-struct 'local)
-		(ptr 'this)
-		(int 'border 'shadow)
-		(uint 'color)
-	(def-struct-end)
-
-	(vp-alloc local_size)
-	(entry 'window :layout '(r0))
-	(assign '(r0) '((rsp local_this)))
-
-	(call 'window :get_long_prop '(r0 static_sym_border) '(r0 (rsp local_border)))
-	(call 'window :get_long_prop '(r0 static_sym_shadow) '(r0 (rsp local_shadow)))
-	(call 'window :get_long_prop '(r0 static_sym_color) '(r0 (rsp local_color)))
-
-	;position any child
-	(assign '((r0 window_child)) '(r0))
-	(vpif '(r0 /= 0))
-		(assign '((rsp local_this) (rsp local_border) (rsp local_shadow)) '(r0 r1 r2))
-		(assign '((r0 view_w) (r0 view_h)) '(r9 r10))
-		(vp-add-rr r2 r1)
-		(vp-sub-rr r1 r9)
-		(vp-sub-rr r1 r10)
-		(vp-sub-rr r1 r9)
-		(vp-sub-rr r1 r10)
-		(call 'view :change '((r0 window_child) r1 r1 r9 r10))
-	(endif)
-
-	;adjust window transparetncy details based on color and shadow
-	(assign '((rsp local_this) (rsp local_color)) '(r0 r1))
-	(vp-shr-cr 24 r1)
-	(vpif '(r1 = 0xff))
-		(assign '((rsp local_shadow)) '(r1))
-		(vpif '(r1 = 0))
-			(call 'view :set_flags '(r0 view_flag_opaque view_flag_opaque) '(r0 _))
-		(else)
-			(call 'view :clr_opaque '((rsp local_this)) '(r0))
-			(assign '((rsp local_this) (rsp local_shadow)) '(r1 r7))
-			(assign '((r0 view_w) (r0 view_h)) '(r9 r10))
-			(vp-sub-rr r7 r9)
-			(vp-sub-rr r7 r10)
-			(vp-sub-rr r7 r9)
-			(vp-sub-rr r7 r10)
-			(call 'view :add_opaque '((rsp local_this) r7 r7 r9 r10))
-		(endif)
-	(endif)
-
-	(exit 'window :layout '((rsp local_this)))
-	(vp-free local_size)
-	(vp-ret)
-
-(def-func-end)
-
 (def-method 'window :mouse_down)
 	;inputs
 	;r0 = window object (ptr)
@@ -346,7 +286,7 @@
 	(call 'window :get_long_prop '(r0 static_sym_shadow) '(r0 (rsp local_shadow)))
 	(assign '((r0 window_child) 0 0) '(r0 r9 r10))
 	(vpif '(r0 /= 0))
-		(call 'flow :pref_size '(r0) '(_ r9 r10))
+		(call 'view :pref_size '(r0) '(_ r9 r10))
 	(endif)
 	(assign '((rsp local_border) (rsp local_shadow)) '(r1 r2))
 	(vp-add-rr r2 r1)

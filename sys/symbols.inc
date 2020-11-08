@@ -77,4 +77,9 @@ label_flow 168
 button_state_pressed 1
 button_state 184
 scroll_child 184
+window_child 184
+label_text 176
+canvas_scale 224
+canvas_width 228
+canvas_height 232
 )

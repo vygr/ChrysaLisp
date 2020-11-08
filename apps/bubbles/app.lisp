@@ -15,7 +15,7 @@
 			(/ (logand _ 0xff) 0xff)))
 		(list +argb_cyan+ +argb_yellow+ +argb_magenta+ +argb_red+ +argb_green+ +argb_blue+)))
 
-(ui-window window ()
+(ui-window mywindow ()
 	(ui-title-bar _ "Bubbles" (0xea19 0xea1b 0xea1a) +event_close+)
 	(ui-tool-bar _ ()
 		(ui-buttons (0xe938) +event_reset+)
@@ -71,8 +71,8 @@
 	(canvas-set-flags layer1_canvas 1)
 	(view-set-size mybackdrop canvas_width canvas_height)
 	(radio-select style_buttons 1)
-	(bind '(x y w h) (apply view-locate (view-pref-size window)))
-	(gui-add (view-change window x y w h))
+	(bind '(x y w h) (apply view-locate (view-pref-size mywindow)))
+	(gui-add (view-change mywindow x y w h))
 	(def image_scroll :min_width min_width :min_height min_height)
 
 	;create child and send args
@@ -90,13 +90,13 @@
 			(setq id nil))
 		((= id +event_min+)
 			;min button
-			(bind '(x y w h) (apply view-fit (cat (view-get-pos window) (view-pref-size window))))
-			(view-change-dirty window x y w h))
+			(bind '(x y w h) (apply view-fit (cat (view-get-pos mywindow) (view-pref-size mywindow))))
+			(view-change-dirty mywindow x y w h))
 		((= id +event_max+)
 			;max button
 			(def image_scroll :min_width canvas_width :min_height canvas_height)
-			(bind '(x y w h) (apply view-fit (cat (view-get-pos window) (view-pref-size window))))
-			(view-change-dirty window x y w h)
+			(bind '(x y w h) (apply view-fit (cat (view-get-pos mywindow) (view-pref-size mywindow))))
+			(view-change-dirty mywindow x y w h)
 			(def image_scroll :min_width min_width :min_height min_height))
 		((= id +event_reset+)
 			;reset button
@@ -128,10 +128,10 @@
 								(setq last_state :u))
 							(:u	;was up last time, so we are hovering
 								t))))))
-		(t (view-event window msg))))
+		(t (view-event mywindow msg))))
 		(vertex-update verts)
 		(redraw verts 1)
 		(task-sleep rate))
 	;close child and window
 	(mail-send "" child_mbox)
-	(view-hide window))
+	(view-hide mywindow))

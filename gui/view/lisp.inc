@@ -3,6 +3,7 @@
 (ffi view-add-child "gui/view/lisp_add_child" 0)
 (ffi view-add-dirty "gui/view/lisp_add_dirty" 0)
 (ffi view-add-front "gui/view/lisp_add" 0)
+(ffi view-clr-opaque "gui/view/lisp_clr_opaque" 0)
 (ffi view-add-opaque "gui/view/lisp_add_opaque" 0)
 (ffi view-change "gui/view/lisp_change" 0)
 (ffi view-change-dirty "gui/view/lisp_change_dirty" 0)
@@ -15,6 +16,7 @@
 (ffi view-hide "gui/view/lisp_hide" 0)
 (ffi view-sub-opaque "gui/view/lisp_sub_opaque" 0)
 (ffi view-set-flags "gui/view/lisp_set_flags" 0)
+(ffi view-children "gui/view/lisp_children" 0)
 
 (defun view-get-pos (view)
 	; (view-get-pos view) -> (x y)

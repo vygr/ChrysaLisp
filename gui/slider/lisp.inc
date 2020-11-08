@@ -4,8 +4,8 @@
 
 (ffi create-slider "gui/slider/lisp_create" 0)
 
-(class slider ()
-	; (slider) -> slider
+(class Slider ()
+	; (Slider) -> slider
 	; overide the default 'this' env with a slider component
 	(defq this (create-slider))
 

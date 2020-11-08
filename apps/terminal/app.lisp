@@ -10,7 +10,7 @@
 
 (defq cmd nil vdu_width 60 vdu_height 40 vdu_min_width 16 vdu_min_height 16 text_buf (list ""))
 
-(ui-window window (:color 0xc0000000)
+(ui-window mywindow (:color 0xc0000000)
 	(ui-flow _ (:flow_flags flow_down_fill)
 		(ui-title-bar _ "Terminal" (0xea19 0xea1b 0xea1a) +event_close+)
 		(ui-flow _ (:flow_flags flow_left_fill)
@@ -76,7 +76,7 @@
 					(catch (setq cmd (pipe-open cmdline)) (progn (setq cmd nil) t))
 					(cond
 						(cmd
-							(view-dirty-all window))
+							(view-dirty-all mywindow))
 						(t
 							(print (cat (const (cat "Pipe Error !" (ascii-char 10)))))
 							(print-edit-line))))
@@ -89,7 +89,7 @@
 				(when (/= (length *line_buf*) 0)
 					(pipe-write cmd *line_buf*))
 				(pipe-close cmd) (setq cmd nil) (line-clear)
-				(view-dirty-all window)
+				(view-dirty-all mywindow)
 				(print-edit-line)))
 		(t	;some key
 			(print-edit-line))))
@@ -98,9 +98,9 @@
 	(setq vdu_width w vdu_height h)
 	(set vdu :vdu_width w :vdu_height h :min_width w :min_height h)
 	(bind '(x y w h) (apply view-fit
-		(cat (view-get-pos window) (view-pref-size window))))
+		(cat (view-get-pos mywindow) (view-pref-size mywindow))))
 	(set vdu :min_width vdu_min_width :min_height vdu_min_height)
-	(view-change-dirty window x y w h)
+	(view-change-dirty mywindow x y w h)
 	(print-edit-line))
 
 (defun window-layout (w h)
@@ -114,8 +114,8 @@
 
 (defun main ()
 	;add window
-	(bind '(x y w h) (apply view-locate (view-pref-size (component-connect window +event_layout+))))
-	(gui-add (view-change window x y w h))
+	(bind '(x y w h) (apply view-locate (view-pref-size (component-connect mywindow +event_layout+))))
+	(gui-add (view-change mywindow x y w h))
 	;sign on msg
 	(print (str "ChrysaLisp Terminal 1.6" (ascii-char 10)))
 	(print-edit-line)
@@ -144,7 +144,7 @@
 							cy (dec (length text_buf)))
 						(vdu-load vdu text_buf 0 (get :value slider) cx cy))
 					(t	;gui event
-						(view-event window msg)
+						(view-event mywindow msg)
 						(and (= (get-long msg ev_msg_type) ev_type_key)
 							(> (get-int msg ev_msg_key_keycode) 0)
 							(terminal-input (get-int msg ev_msg_key_key)))
@@ -154,9 +154,9 @@
 				(pipe-close cmd)
 				(setq cmd nil)
 				(print (cat (ascii-char 10) *env_terminal_prompt* *line_buf*))
-				(view-dirty-all window))
+				(view-dirty-all mywindow))
 			(t	;string from pipe
 				(print data)))))
 	;close window and pipe
-	(view-hide window)
+	(view-hide mywindow)
 	(if cmd (pipe-close cmd)))

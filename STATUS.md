@@ -19,6 +19,9 @@ compositor system will be in VP code.
 (defun) and (defmacro) now prebind by default. New (defun-unbound) macro for
 any situation where this is not desired.
 
+Start of the move of GUI Widget classes over to Lisp classes. Only the time
+critical compositor methods will remain in VP code.
+
 ------
 
 New (class), (method), (method) and (.) macro in `class/lisp/boot.inc` to

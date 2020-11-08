@@ -64,6 +64,18 @@
 
 (. emap :resize num_buckets) -> emap
 
+## flow :layout
+
+(. flow :layout) -> flow
+
+## flow :pref_size
+
+(. flow :pref_size) -> (width height)
+
+## grid :layout
+
+(. grid :layout) -> grid
+
 ## label :layout
 
 (. label :layout) -> label
@@ -71,6 +83,10 @@
 ## progress :layout
 
 (. progress :layout) -> progress
+
+## progress :pref_size
+
+(. progress :pref_size) -> (width height)
 
 ## scroll :layout
 
@@ -91,6 +107,10 @@
 ## title :layout
 
 (. title :layout) -> title
+
+## window :layout
+
+(. window :layout) -> window
 
 ## xmap :copy
 
@@ -220,6 +240,58 @@
 
 (>>> num cnt)
 
+## Backdrop
+
+(Backdrop)-> backdrop
+
+## Button
+
+(Button) -> button
+
+## Canvas
+
+(Canvas) -> canvas
+
+## Flow
+
+(Flow) -> flow
+
+## Grid
+
+(Grid) -> grid
+
+## Label
+
+(Label) -> label
+
+## Progress
+
+(Progress) -> progress
+
+## Scroll
+
+(Scroll flags) -> scroll
+
+## Slider
+
+(Slider) -> slider
+
+## Textfield
+
+(Textfield) -> textfield
+
+## Title
+
+(Title) -> title
+
+## Vdu
+
+(Vdu) -> vdu
+
+## Window
+
+(Window) -> window
+
 ## aand
 
 (aand [form] ...)
@@ -292,17 +364,9 @@
 
 (awhile form body)
 
-## backdrop
-
-(backdrop) -> backdrop
-
 ## bind
 
 (bind (param ...) seq)
-
-## button
-
-(button) -> button
 
 ## byte
 
@@ -452,17 +516,9 @@
 
 (create-canvas width height scale)
 
-## create-flow
-
-(create-flow)
-
 ## create-font
 
 (create-font name pixels)
-
-## create-grid
-
-(create-grid)
 
 ## create-label
 
@@ -872,10 +928,6 @@
 
 (keys collection) -> list | nil
 
-## label
-
-(label) -> label
-
 ## lambda
 
 (lambda ([arg ...]) body)
@@ -1268,10 +1320,6 @@
 
 (progn [form ...])
 
-## progress
-
-(progress) -> progress
-
 ## ptr
 
 (ptr field ...)
@@ -1380,10 +1428,6 @@
 
 (save str path)
 
-## scroll
-
-(scroll flags) -> scroll
-
 ## second
 
 (second seq) -> el|nil
@@ -1439,10 +1483,6 @@
 ## slice
 
 (slice start end seq)
-
-## slider
-
-(slider) -> slider
 
 ## some
 
@@ -1528,10 +1568,6 @@
 
 (task-sleep usec)
 
-## textfield
-
-(textfield) -> textfield
-
 ## throw
 
 (throw str form)
@@ -1543,10 +1579,6 @@
 ## times
 
 (times num body)
-
-## title
-
-(title) -> title
 
 ## to-lower
 
@@ -1723,6 +1755,14 @@
 ## view-change-dirty
 
 (view-change-dirty view x y w h)
+
+## view-children
+
+(view-children view)
+
+## view-clr-opaque
+
+(view-clr-opaque view)
 
 ## view-dirty
 

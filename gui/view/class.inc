@@ -17,7 +17,6 @@
 (dec-method :sub_opaque 'gui/view/sub_opaque :static '(r0 r7 r8 r9 r10) '(r0))
 (dec-method :get_relative 'gui/view/get_relative :static '(r0 r1 r7 r8) '(r0 r7 r8))
 (dec-method :forward 'gui/view/forward :static '(r0 r1 r2) '(r0))
-(dec-method :backward 'gui/view/backward :static '(r0 r1 r2) '(r0))
 (dec-method :forward_tree 'gui/view/forward_tree :static '(r0 r1 r2 r3) '(r0))
 (dec-method :backward_tree 'gui/view/backward_tree :static '(r0 r1 r2 r3) '(r0))
 (dec-method :change 'gui/view/change :static '(r0 r7 r8 r9 r10) '(r0))
@@ -56,6 +55,7 @@
 (dec-method :lisp_pref_size 'gui/view/lisp_pref_size :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_change 'gui/view/lisp_change :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_change_dirty 'gui/view/lisp_change_dirty :static '(r0 r1) '(r0 r1))
+(dec-method :lisp_clr_opaque 'gui/view/lisp_clr_opaque :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_add_opaque 'gui/view/lisp_add_opaque :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_sub_opaque 'gui/view/lisp_sub_opaque :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_set_flags 'gui/view/lisp_set_flags :static '(r0 r1) '(r0 r1))
@@ -64,6 +64,7 @@
 (dec-method :lisp_layout 'gui/view/lisp_layout :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_event 'gui/view/lisp_event :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_find_id 'gui/view/lisp_find_id :static '(r0 r1) '(r0 r1))
+(dec-method :lisp_children 'gui/view/lisp_children :static '(r0 r1) '(r0 r1))
 
 (def-bit 'view_flag)
 	(bit 'solid 'opaque 'dirty_all 'at_back)

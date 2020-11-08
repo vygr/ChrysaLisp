@@ -10,7 +10,7 @@
 
 (defq vdu_width 60 vdu_height 30)
 
-(ui-window window (:color +argb_grey4+)
+(ui-window mywindow (:color +argb_grey4+)
 	(ui-title-bar _ "Chat" (0xea19) +event_close+)
 	(ui-tool-bar _ ()
 		(ui-buttons (0xe9ed 0xe9e8) +event_connect+))
@@ -39,8 +39,8 @@
 
 (defun main ()
 	(defq id t text_buf (list "") select (array (task-mailbox)) entry nil)
-	(bind '(x y w h) (apply view-locate (view-pref-size window)))
-	(gui-add (view-change window x y w h))
+	(bind '(x y w h) (apply view-locate (view-pref-size mywindow)))
+	(gui-add (view-change mywindow x y w h))
 	(while id
 		(defq idx (mail-select select) msg (mail-read (elem idx select)))
 		(cond
@@ -68,9 +68,9 @@
 				(broadcast (get :text chat_text))
 				(set chat_text :text "")
 				(view-dirty (view-layout chat_text)))
-			(t (view-event window msg))))
+			(t (view-event mywindow msg))))
 	(when entry
 		(broadcast "Has left the chat !")
 		(mail-forget entry)
 		(mail-free-mbox (pop select)))
-	(view-hide window))
+	(view-hide mywindow))

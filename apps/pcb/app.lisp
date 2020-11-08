@@ -18,7 +18,7 @@
 (defq pcbs (all-pcbs "apps/pcb/") index 1 canvas_scale 1 mode 0 show -1
 	max_zoom 15.0 min_zoom 5.0 zoom (/ (+ min_zoom max_zoom) 2.0) eps 0.25)
 
-(ui-window window ()
+(ui-window mywindow ()
 	(ui-title-bar window_title "" (0xea19) +event_close+)
 	(ui-tool-bar _ ()
 		(ui-buttons (0xe91d 0xe91e 0xea00 0xea01 0xe9ac 0xe9ad) +event_prev+)
@@ -60,7 +60,7 @@
 (defun pcb-load (_)
 	(bind '(pcb _) (read (string-stream (cat "(" (load _) ")")) (ascii-code " ")))
 	(bind '(pcb_width pcb_height pcb_depth) (elem 0 pcb))
-	(defq canvas (create-canvas (* (+ pcb_width 4) (f2i zoom)) (* (+ pcb_height 4) (f2i zoom)) canvas_scale)
+	(defq canvas (Canvas (* (+ pcb_width 4) (f2i zoom)) (* (+ pcb_height 4) (f2i zoom)) canvas_scale)
 		zoom (* zoom (i2f canvas_scale)) pcb_border (* zoom 2.0))
 	(canvas-fill (canvas-set-flags canvas 1) (const +argb_black+))
 	(if (= mode 1)
@@ -173,11 +173,11 @@
 	(view-layout (view-add-child pcb_scroll (pcb-load (elem (setq index _) pcbs))))
 	(def window_title :text (elem _ pcbs))
 	(view-layout window_title)
-	(view-dirty-all (view-layout window)))
+	(view-dirty-all (view-layout mywindow)))
 
 (defun main ()
 	(bind '(x y w h) (apply view-locate (view-pref-size (win-refresh index))))
-	(gui-add (view-change window x y w h))
+	(gui-add (view-change mywindow x y w h))
 	(while (cond
 		((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) +event_close+)
 			nil)
@@ -192,5 +192,5 @@
 		((<= +event_mode_normal+ id +event_mode_gerber+)
 			(setq mode (- id +event_mode_normal+))
 			(win-refresh index))
-		(t (view-event window msg))))
-	(view-hide window))
+		(t (view-event mywindow msg))))
+	(view-hide mywindow))

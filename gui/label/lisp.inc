@@ -4,10 +4,15 @@
 
 (ffi create-label "gui/label/lisp_create" 0)
 
-(class label ()
-	; (label) -> label
+(class Label ()
+	; (Label) -> label
 	; overide the default 'this' env with a label component
-	(defq this (create-label))
+	(defq this (create-label) flow (Flow) text (create-text))
+	(set-field this (const label_flow) 0 flow)
+	(set-field this (const label_text) 0 text)
+	(view-set-flags flow 0 -1)
+	(view-add-child this flow)
+	(view-add-child flow text)
 
 	(method :layout (this)
 		; (. label :layout) -> label

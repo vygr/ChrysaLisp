@@ -15,7 +15,7 @@
 	data_in (in-stream) select (array (task-mailbox) (in-mbox data_in))
 	vdu_width 38 vdu_height 12 text_buf (list ""))
 
-(ui-window window (:color +argb_black+)
+(ui-window mywindow (:color +argb_black+)
 	(ui-flow _ (:flow_flags flow_down_fill)
 		(ui-title-bar _ "Chess" (0xea19) +event_close+)
 		(ui-grid chess_grid (:grid_width 8 :grid_height 8 :font (create-font "fonts/Chess.ctf" 42) :border 1 :text " ")
@@ -47,8 +47,8 @@
 (defun main ()
 	(mail-send (array (in-mbox data_in) 10000000)
 		(defq child_mbox (open-child "apps/chess/child.lisp" kn_call_child)))
-	(bind '(x y w h) (apply view-locate (view-pref-size window)))
-	(gui-add (view-change window x y w h))
+	(bind '(x y w h) (apply view-locate (view-pref-size mywindow)))
+	(gui-add (view-change mywindow x y w h))
 	;main event loop
 	(while (cond
 		((= (mail-select select) 0)
@@ -56,7 +56,7 @@
 			(cond
 				((= (get-long (defq msg (mail-read (elem 0 select))) ev_msg_target_id) +event_close+)
 					nil)
-				(t (view-event window msg))))
+				(t (view-event mywindow msg))))
 		(t	;from child stream
 			(bind '(data next_char) (read data_in next_char))
 			(cond
@@ -69,7 +69,7 @@
 					(setq text_buf (vdu-print vdu text_buf (slice 1 -1 data))))))))
 	;close child and window, wait for child stream to close
 	(mail-send "" child_mbox)
-	(view-hide window)
+	(view-hide mywindow)
 	(until id
 		(setq id (mail-select select))
 		(cond

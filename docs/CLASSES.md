@@ -2017,51 +2017,6 @@ trashes
 r1-r14
 ```
 
-## flow
-
-Super Class: view
-
-### flow::vtable -> gui/flow/vtable
-
-### flow::create -> gui/flow/create
-
-### flow::pref_size -> gui/flow/pref_size
-
-```lisp
-inputs
-r0 = flow object (ptr)
-outputs
-r0 = flow object (ptr)
-r9 = preferred width (pixels)
-r10 = preferred height (pixels)
-trashes
-r1-r14
-```
-
-### flow::layout -> gui/flow/layout
-
-```lisp
-inputs
-r0 = flow object (ptr)
-outputs
-r0 = flow object (ptr)
-trashes
-r1-r14
-```
-
-### flow::lisp_create -> gui/flow/lisp_create
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args list object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
 ## font
 
 Super Class: obj
@@ -2366,51 +2321,6 @@ r0 = func object (ptr)
 r1 = stream object (ptr)
 outputs
 r0 = func object (ptr)
-trashes
-r1-r14
-```
-
-## grid
-
-Super Class: view
-
-### grid::vtable -> gui/grid/vtable
-
-### grid::create -> gui/grid/create
-
-### grid::pref_size -> gui/grid/pref_size
-
-```lisp
-inputs
-r0 = grid object (ptr)
-outputs
-r0 = grid object (ptr)
-r9 = preferred width (pixels)
-r10 = preferred height (pixels)
-trashes
-r1-r14
-```
-
-### grid::layout -> gui/grid/layout
-
-```lisp
-inputs
-r0 = grid object (ptr)
-outputs
-r0 = grid object (ptr)
-trashes
-r1-r14
-```
-
-### grid::lisp_create -> gui/grid/lisp_create
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args list object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
 trashes
 r1-r14
 ```
@@ -3120,12 +3030,11 @@ trashes
 r1-r14
 ```
 
-### label::add_child -> gui/label/add_child
+### label::deinit -> gui/label/deinit
 
 ```lisp
 inputs
 r0 = label object (ptr)
-r1 = child view object (ptr)
 outputs
 r0 = label object (ptr)
 trashes
@@ -5404,19 +5313,6 @@ Super Class: view
 ### progress::vtable -> gui/progress/vtable
 
 ### progress::create -> gui/progress/create
-
-### progress::pref_size -> gui/progress/pref_size
-
-```lisp
-inputs
-r0 = progress object (ptr)
-outputs
-r0 = progress object (ptr)
-r9 = preferred width (pixels)
-r10 = preferred height (pixels)
-trashes
-r9-r10
-```
 
 ### progress::draw -> gui/progress/draw
 
@@ -9235,27 +9131,6 @@ trashes
 ...
 ```
 
-### view::backward -> gui/view/backward
-
-```lisp
-inputs
-r0 = view object (ptr)
-r1 = user data (ptr)
-r2 = callback (ptr)
-outputs
-r0 = view object (ptr)
-trashes
-...
-callback api
-inputs
-r0 = child view object (ptr)
-r1 = user data pointer (ptr)
-outputs
-r0 = child view object (ptr)
-trashes
-...
-```
-
 ### view::forward_tree -> gui/view/forward_tree
 
 ```lisp
@@ -9629,6 +9504,19 @@ trashes
 r1-r14
 ```
 
+### view::lisp_clr_opaque -> gui/view/lisp_clr_opaque
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
 ### view::lisp_add_opaque -> gui/view/lisp_add_opaque
 
 ```lisp
@@ -9733,6 +9621,19 @@ trashes
 r1-r14
 ```
 
+### view::lisp_children -> gui/view/lisp_children
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
 ## window
 
 Super Class: view
@@ -9775,17 +9676,6 @@ outputs
 r0 = window object (ptr)
 r9 = preferred width (pixels)
 r10 = preferred height (pixels)
-trashes
-r1-r14
-```
-
-### window::layout -> gui/window/layout
-
-```lisp
-inputs
-r0 = window object (ptr)
-outputs
-r0 = window object (ptr)
 trashes
 r1-r14
 ```

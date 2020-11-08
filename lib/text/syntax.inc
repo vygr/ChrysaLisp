@@ -22,7 +22,8 @@
 		"0123456789"
 		"abcdefghijklmnopqrstuvwxyz"))))
 
-(class syntax ()
+(class Syntax ()
+	; (Syntax) -> syntax
 	;default colours and state
 	(def this :keywords (defq keywords (env -101)) :state :text
 		:ink_keyword1 (<< (canvas-from-argb32 +argb_magenta+ 15) 32)

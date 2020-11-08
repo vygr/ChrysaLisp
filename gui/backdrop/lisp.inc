@@ -4,8 +4,8 @@
 
 (ffi create-backdrop "gui/backdrop/lisp_create" 0)
 
-(class backdrop ()
-	; (backdrop) -> backdrop
+(class Backdrop ()
+	; (Backdrop)-> backdrop
 	; overide the default 'this' env with a backdrop component
 	(defq this (create-backdrop))
 

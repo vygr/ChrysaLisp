@@ -15,7 +15,7 @@
 
 (defq films (all-films "apps/films/") index 0 canvas nil id t)
 
-(ui-window window ()
+(ui-window mywindow ()
 	(ui-title-bar window_title "" (0xea19) +event_close+)
 	(ui-tool-bar _ ()
 		(ui-buttons (0xe91d 0xe91e) +event_prev+))
@@ -27,13 +27,13 @@
 	(def window_title :text (elem _ films))
 	(view-add-child image_scroll canvas)
 	(view-layout window_title)
-	(bind '(x y w h) (apply view-fit (cat (view-get-pos window) (view-pref-size window))))
+	(bind '(x y w h) (apply view-fit (cat (view-get-pos mywindow) (view-pref-size mywindow))))
  	(def image_scroll :min_width 32 :min_height 32)
-	(view-change-dirty window x y w h))
+	(view-change-dirty mywindow x y w h))
 
 (defun main ()
 	(bind '(x y w h) (apply view-locate (view-get-size (win-refresh index))))
-	(gui-add (view-change window x y w h))
+	(gui-add (view-change mywindow x y w h))
 	(while id
 		(task-sleep 40000)
 		(canvas-swap (canvas-next-frame canvas))
@@ -43,5 +43,5 @@
 					(setq id nil))
 				((<= +event_prev+ id +event_next+)
 					(win-refresh (% (+ index (dec (* 2 (- id +event_prev+))) (length films)) (length films))))
-				(t (view-event window msg)))))
-	(view-hide window))
+				(t (view-event mywindow msg)))))
+	(view-hide mywindow))

@@ -14,9 +14,9 @@
 
 (defun modal (lbl btns color mx my mw mh)
 	(view-sub mygrid)
-	(def (setq mygrid (create-grid)) :grid_width (length btns) :grid_height 1)
+	(def (setq mygrid (Grid)) :grid_width (length btns) :grid_height 1)
 	(each (lambda (x)
-		(def (defq b (button)) :flow_flags flow_flag_align_hcenter :border 1 :text x :border 1)
+		(def (defq b (Button)) :flow_flags flow_flag_align_hcenter :border 1 :text x :border 1)
 		(view-add-child mygrid (component-connect b +event_click+))) btns)
 	(bind '(w h) (view-pref-size mygrid))
 	(view-change mygrid 0 0 w h)

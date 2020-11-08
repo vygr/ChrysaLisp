@@ -50,19 +50,3 @@
 	(return)
 
 (def-func-end)
-
-(def-method 'progress :pref_size)
-	;inputs
-	;r0 = progress object (ptr)
-	;outputs
-	;r0 = progress object (ptr)
-	;r9 = preferred width (pixels)
-	;r10 = preferred height (pixels)
-	;trashes
-	;r9-r10
-
-	(entry 'progress :pref_size '(r0))
-	(exit 'progress :pref_size '(r0 256 10))
-	(vp-ret)
-
-(def-func-end)

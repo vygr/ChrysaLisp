@@ -27,7 +27,7 @@
 				((and (>= (length (elem 1 _)) 5) (eql "lisp_" (slice 0 5 (elem 1 _)))))
 				(t (push keys k) (push vals v))))) k v)
 	(each (lambda (_)
-		(def (defq b (button)) :text _ :border 0
+		(def (defq b (Button)) :text _ :border 0
 			:flow_flags  (logior flow_flag_align_vcenter flow_flag_align_hleft))
 		(view-add-child index (component-connect b +event_button+))) keys)
 	(def vdu :vdu_width
@@ -45,7 +45,7 @@
 				(elem-set -2 buf (cat (elem -2 buf) c))))) s)
 	(vdu-load vdu buf 0 0 (length (elem -2 buf)) (dec (length buf))) buf)
 
-(ui-window window (:color +argb_black+)
+(ui-window mywindow (:color +argb_black+)
 	(ui-flow _ (:flow_flags flow_down_fill)
 		(ui-title-bar _ "Help" (0xea19) +event_close+)
 		(ui-flow _ (:flow_flags flow_right_fill :font *env_terminal_font*)
@@ -57,13 +57,13 @@
 	(populate-help)
 	(bind '(w h) (view-pref-size index))
 	(view-change index 0 0 (def index_scroll :min_width w) h)
-	(bind '(x y w h) (apply view-locate (view-pref-size window)))
-	(gui-add (view-change window x y w h))
+	(bind '(x y w h) (apply view-locate (view-pref-size mywindow)))
+	(gui-add (view-change mywindow x y w h))
 	(while (cond
 		((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) +event_close+)
 			nil)
 		((= id +event_button+)
-			(defq _ (find-rev (sym (get :text (view-find-id window (get-long msg ev_msg_action_source_id)))) keys))
+			(defq _ (find-rev (sym (get :text (view-find-id mywindow (get-long msg ev_msg_action_source_id)))) keys))
 			(when _
 				(setq text_buf (vdu-print vdu text_buf (str
 					"----------------------" (ascii-char 10)
@@ -71,5 +71,5 @@
 					"----------------------" (ascii-char 10)
 					(elem _ vals)
 					"----------------------" (ascii-char 10) (ascii-char 10))))))
-		(t (view-event window msg))))
-	(view-hide window))
+		(t (view-event mywindow msg))))
+	(view-hide mywindow))

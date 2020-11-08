@@ -11,7 +11,7 @@
 	farm (open-farm "apps/stats/child.lisp" cpu_count kn_call_open devices) last_max_classes 0 max_classes 1
 	select (array (task-mailbox) (mail-alloc-mbox)) sample_msg (array (elem -2 select)))
 
-(ui-window window ()
+(ui-window mywindow ()
 	(ui-title-bar _ "Object Monitor" (0xea19) +event_close+)
 	(ui-grid _ (:grid_width 2 :grid_height 1 :flow_flags flow_down_fill :maximum 100 :value 0)
 		(ui-flow name_flow (:color +argb_grey8+)
@@ -39,11 +39,11 @@
 			;build new stats info
 			(sort (lambda (x y)
 				(- (elem 1 y) (elem 1 x))) stat_data)
-			(defq new_name_view (create-grid) new_stat_view (create-grid))
+			(defq new_name_view (Grid) new_stat_view (Grid))
 			(def new_name_view :grid_width 1 :grid_height max_classes)
 			(def new_stat_view :grid_width 1 :grid_height max_classes)
 			(each (lambda ((name stat))
-				(defq n (label) p (progress))
+				(defq n (Label) p (Progress))
 				(def n :border 0 :text name)
 				(def p :maximum last_max_stats :value stat)
 				(view-add-child new_name_view n)
@@ -52,15 +52,15 @@
 			(view-add-child name_flow (setq name_view new_name_view))
 			(view-add-child stat_flow (setq stat_view new_stat_view))
 			(view-layout name_flow) (view-layout stat_flow)
-			(view-dirty-all window)
+			(view-dirty-all mywindow)
 			;open the window once we have data
 			(when (= (setq frame_cnt (inc frame_cnt)) 2)
-				(bind '(x y w h) (apply view-locate (view-pref-size window)))
-				(gui-add (view-change window x y w h)))
+				(bind '(x y w h) (apply view-locate (view-pref-size mywindow)))
+				(gui-add (view-change mywindow x y w h)))
 			;resize if number of classes change
 			(when (/= last_max_classes max_classes)
 				(setq last_max_classes max_classes)
-				(apply view-change-dirty (cat (list window) (view-get-pos window) (view-pref-size window))))
+				(apply view-change-dirty (cat (list mywindow) (view-get-pos mywindow) (view-pref-size mywindow))))
 			;send out multi-cast sample command
 			(while (/= cpu_count 0)
 				(setq cpu_count (dec cpu_count))
@@ -76,7 +76,7 @@
 					((= (setq id (get-long msg ev_msg_target_id)) +event_close+)
 						;close button
 						nil)
-					(t (view-event window msg))))
+					(t (view-event mywindow msg))))
 			(t	;child info, merge with current frames information
 				(bind '(data _) (read (string-stream msg) (ascii-code " ")))
 				(setq max_classes (max max_classes (length data)))
@@ -93,7 +93,7 @@
 				(task-sleep 10000)
 				(setq cpu_count (inc cpu_count))))))
 	;close window and children
-	(view-hide window)
+	(view-hide mywindow)
 	(mail-free-mbox (pop select))
 	(while (defq mbox (pop farm))
 		(mail-send (const (char +event_close+ long_size)) mbox)))

@@ -23,7 +23,7 @@
 (structure '+debug_rec 0
 	(byte 'buf+ 'state+ 'reply_id+))
 
-(ui-window window (:color 0xc0000000)
+(ui-window mywindow (:color 0xc0000000)
 	(ui-flow _ (:flow_flags flow_down_fill)
 		(ui-title-bar _ "Debug" (0xea19) +event_close+)
 		(ui-tool-bar _ ()
@@ -84,8 +84,8 @@
 	(set-slider-values))
 
 (defun main ()
-	(bind '(x y w h) (apply view-locate (view-pref-size window)))
-	(gui-add (view-change window x y w h))
+	(bind '(x y w h) (apply view-locate (view-pref-size mywindow)))
+	(gui-add (view-change mywindow x y w h))
 	(reset)
 	(while id
 		(defq idx (mail-select select) msg (mail-read (elem idx select)))
@@ -145,8 +145,8 @@
 				(each step buf_list)
 				(reset))
 			;otherwise
-			(t (view-event window msg))))
+			(t (view-event mywindow msg))))
 	(mail-forget entry)
 	(mail-free-mbox (pop select))
-	(view-hide window))
+	(view-hide mywindow))
 )

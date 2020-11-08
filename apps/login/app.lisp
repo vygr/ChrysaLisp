@@ -7,7 +7,7 @@
 (structure '+event 0
 	(byte 'login+ 'create+))
 
-(ui-window window ()
+(ui-window mywindow ()
 	(ui-title-bar _ "Login Manager" () ())
 	(ui-flow _ (:flow_flags flow_right_fill)
 		(ui-grid _ (:grid_width 1 :grid_height 2)
@@ -20,9 +20,9 @@
 		(ui-buttons ("Login" "Create") +event_login+)))
 
 (defun position-window ()
-	(bind '(w h) (view-pref-size window))
-	(bind '(pw ph) (view-get-size (penv window)))
-	(view-change-dirty window (/ (- pw w) 2) (/ (- ph h) 2) w h))
+	(bind '(w h) (view-pref-size mywindow))
+	(bind '(pw ph) (view-get-size (penv mywindow)))
+	(view-change-dirty mywindow (/ (- pw w) 2) (/ (- ph h) 2) w h))
 
 (defun get-username ()
 	(if (eql (defq user (get :text username)) "") "Guest" user))
@@ -30,7 +30,7 @@
 (defun main ()
 	;add centered, wait a little for GUI to get going...
 	(task-sleep 10000)
-	(gui-add window)
+	(gui-add mywindow)
 	(position-window)
 	(while (cond
 		((and (< (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) 0)
@@ -58,5 +58,5 @@
 					(open-child "apps/wallpaper/app.lisp" kn_call_open)
 					nil)
 				(t	t)))
-		(t (view-event window msg))))
-	(view-hide window))
+		(t (view-event mywindow msg))))
+	(view-hide mywindow))

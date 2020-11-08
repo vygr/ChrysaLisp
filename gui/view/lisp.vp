@@ -397,6 +397,39 @@
 
 (def-func-end)
 
+(def-method 'view :lisp_clr_opaque)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args list object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(entry 'view :lisp_clr_opaque '(r0 r1))
+
+(errorcases
+	(call 'lisp :env_args_sig '(r1 ($ sig) 1) '(r2))
+	(gotoif '(r2 = 0) 'error))
+
+	(vp-push r0)
+	(defq in (method-input 'view :clr_opaque))
+	(list-bind-args r1 in '(:view))
+	(call 'view :clr_opaque in '(r0))
+	(call 'obj :ref '(r0) '(r1))
+	(vp-pop r0)
+
+	(exit 'view :lisp_clr_opaque '(r0 r1))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp :repl_error '(r0 "(view-clr-opaque view)" error_msg_wrong_types r1))
+	(signature '(view)))
+
+(def-func-end)
+
 (def-method 'view :lisp_add_opaque)
 	;inputs
 	;r0 = lisp object (ptr)
@@ -556,6 +589,50 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp :repl_error '(r0 "(view-dirty view)" error_msg_wrong_types r1))
+	(signature '(view)))
+
+(def-func-end)
+
+
+(def-method 'view :lisp_children)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args list object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(vp-def (this node next) '(r13 r12 r11))
+
+	(entry 'view :lisp_children '(r0 r1))
+
+(errorcases
+	(call 'lisp :env_args_sig '(r1 ($ sig) 1) '(r2))
+	(gotoif '(r2 = 0) 'error))
+
+	(assign '(r0) `(,this))
+	(list-bind-args r1 `(,node) '(:view))
+	(call 'list :create nil '(r0))
+	(lh-get-head node view_list node)
+	(loop-start)
+		(ln-get-succ node 0 next)
+		(breakif '(next = 0))
+		;push ref
+		(vp-sub-cr view_node node)
+		(class/obj/ref node r1)
+		(call 'list :push_back `(r0 ,node) '(r0 r1 _ _))
+		;across to sibling
+		(ln-get-succ r1 view_node node)
+	(loop-end)
+
+	(exit 'view :lisp_children `(,this r0))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp :repl_error '(r0 "(view-children view)" error_msg_wrong_types r1))
 	(signature '(view)))
 
 (def-func-end)

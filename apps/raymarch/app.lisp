@@ -18,7 +18,7 @@
 			(* canvas_width canvas_scale) (* canvas_height canvas_scale)))
 		(range (dec (* canvas_height canvas_scale)) -1)))
 
-(ui-window window ()
+(ui-window mywindow ()
 	(ui-title-bar _ "Raymarch" (0xea19) +event_close+)
 	(ui-canvas canvas canvas_width canvas_height canvas_scale))
 
@@ -39,8 +39,8 @@
 (defun main ()
 	;add window
 	(canvas-swap (canvas-fill canvas +argb_black+))
-	(bind '(x y w h) (apply view-locate (view-pref-size window)))
-	(gui-add (view-change window x y w h))
+	(bind '(x y w h) (apply view-locate (view-pref-size mywindow)))
+	(gui-add (view-change mywindow x y w h))
 	;send first batch of jobs
 	(each (lambda (_) (mail-send (pop jobs) _)) farm)
 	;main event loop
@@ -54,7 +54,7 @@
 					((= (setq id (get-long msg ev_msg_target_id)) +event_close+)
 						;close button
 						nil)
-					(t (view-event window msg))))
+					(t (view-event mywindow msg))))
 			(t	;child tile msg
 				(if (defq child (get-long msg (- (length msg) (const long_size))) next_job (pop jobs))
 					;next job
@@ -70,6 +70,6 @@
 					(canvas-swap canvas))
 					t))))
 	;close
-	(view-hide window)
+	(view-hide mywindow)
 	(mail-free-mbox (pop select))
 	(each (lambda (_) (mail-send "" _)) farm))

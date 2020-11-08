@@ -4,10 +4,15 @@
 
 (ffi create-button "gui/button/lisp_create" 0)
 
-(class button ()
-	; (button) -> button
+(class Button ()
+	; (Button) -> button
 	; overide the default 'this' env with a button component
-	(defq this (create-button))
+	(defq this (create-button) flow (Flow) text (create-text))
+	(set-field this (const label_flow) 0 flow)
+	(set-field this (const label_text) 0 text)
+	(view-set-flags flow 0 -1)
+	(view-add-child this flow)
+	(view-add-child flow text)
 
 	(method :layout (this)
 		; (. button :layout) -> button

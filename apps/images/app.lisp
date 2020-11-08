@@ -16,7 +16,7 @@
 
 (defq images (all-images "apps/images/") index (some (# (if (eql "apps/images/logo.cpm" %0) _)) images))
 
-(ui-window window ()
+(ui-window mywindow ()
 	(ui-title-bar window_title "" (0xea19) +event_close+)
 	(ui-tool-bar _ ()
 		(ui-buttons (0xe91d 0xe91e) +event_prev+))
@@ -28,17 +28,17 @@
 	(def window_title :text (elem _ images))
 	(view-add-child image_scroll canvas)
 	(view-layout window_title)
-	(bind '(x y w h) (apply view-fit (cat (view-get-pos window) (view-pref-size window))))
+	(bind '(x y w h) (apply view-fit (cat (view-get-pos mywindow) (view-pref-size mywindow))))
  	(def image_scroll :min_width 32 :min_height 32)
-	(view-change-dirty window x y w h))
+	(view-change-dirty mywindow x y w h))
 
 (defun main ()
 	(bind '(x y w h) (apply view-locate (view-get-size (win-refresh index))))
-	(gui-add (view-change window x y w h))
+	(gui-add (view-change mywindow x y w h))
 	(while (cond
 		((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) +event_close+)
 			nil)
 		((<= +event_prev+ id +event_next+)
 			(win-refresh (% (+ index (dec (* 2 (- id +event_prev+))) (length images)) (length images))))
-		(t (view-event window msg))))
-	(view-hide window))
+		(t (view-event mywindow msg))))
+	(view-hide mywindow))
