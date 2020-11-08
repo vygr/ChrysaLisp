@@ -46,7 +46,8 @@
 		stream_mail_state_stopping vdu_char_height vdu_char_width view_flag_at_back
 		view_flag_dirty_all view_flag_opaque view_flag_solid view_flags view_h view_w
 		view_x view_y canvas_flags canvas_color cap_arrow label_flow button_state_pressed
-		button_state scroll_child window_child label_text canvas_scale canvas_width canvas_height)
+		button_state scroll_child window_child label_text canvas_scale canvas_width
+		canvas_height)
 		_vals_ (within-compile-env (lambda ()
 			(each include (make-tree "." "class.inc"))
 			(map eval _syms_)))

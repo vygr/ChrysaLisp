@@ -97,22 +97,6 @@
 
 (def-func-end)
 
-(def-method 'slider :pref_size)
-	;inputs
-	;r0 = slider object (ptr)
-	;outputs
-	;r0 = slider object (ptr)
-	;r9 = preferred width (pixels)
-	;r10 = preferred height (pixels)
-	;trashes
-	;r9-r10
-
-	(entry 'slider :pref_size '(r0))
-	(exit 'slider :pref_size '(r0 10 10))
-	(vp-ret)
-
-(def-func-end)
-
 (def-method 'slider :mouse_up)
 	;inputs
 	;r0 = slider object (ptr)

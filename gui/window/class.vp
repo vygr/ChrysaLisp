@@ -28,37 +28,11 @@
 	(vpif '(r1 /= 0))
 		;init myself
 		(vp-xor-rr r2 r2)
-		(assign '(r2 r2 r2 r2)
-			'((r0 window_offset_x) (r0 window_offset_y) (r0 window_drag_mode) (r0 window_child)))
+		(assign '(r2 r2 r2)
+			'((r0 window_offset_x) (r0 window_offset_y) (r0 window_drag_mode)))
 	(endif)
 
 	(exit 'window :init '(r0 r1))
-	(vp-ret)
-
-(def-func-end)
-
-(def-method 'window :add_child)
-	;inputs
-	;r0 = window object (ptr)
-	;r1 = child view object (ptr)
-	;outputs
-	;r0 = window object (ptr)
-	;trashes
-	;r1-r14
-
-	(entry 'window :add_child '(r0 r1))
-
-	(assign '((r0 window_child)) '(r2))
-	(vpif '(r2 /= 0))
-		(vp-push r0 r1)
-		(call 'view :sub '(r2) '(r0))
-		(call 'view :deref '(r0))
-		(vp-pop r0 r1)
-	(endif)
-	(assign '(r1) '((r0 window_child)))
-	(call 'view :add_back '(r0 r1) '(r0))
-
-	(exit 'window :add_child '(r0))
 	(vp-ret)
 
 (def-func-end)
@@ -260,43 +234,5 @@
 	;change window size and dirty
 	(call 'window :change_dirty '(r0 r7 r8 r9 r10) '(r0))
 	(jump 'window :emit '(r0))
-
-(def-func-end)
-
-(def-method 'window :pref_size)
-	;inputs
-	;r0 = window object (ptr)
-	;outputs
-	;r0 = window object (ptr)
-	;r9 = preferred width (pixels)
-	;r10 = preferred height (pixels)
-	;trashes
-	;r1-r14
-
-	(def-struct 'local)
-		(ptr 'this)
-		(int 'border 'shadow)
-	(def-struct-end)
-
-	(vp-alloc local_size)
-	(entry 'window :pref_size '(r0))
-	(assign '(r0) '((rsp local_this)))
-
-	(call 'window :get_long_prop '(r0 static_sym_border) '(r0 (rsp local_border)))
-	(call 'window :get_long_prop '(r0 static_sym_shadow) '(r0 (rsp local_shadow)))
-	(assign '((r0 window_child) 0 0) '(r0 r9 r10))
-	(vpif '(r0 /= 0))
-		(call 'view :pref_size '(r0) '(_ r9 r10))
-	(endif)
-	(assign '((rsp local_border) (rsp local_shadow)) '(r1 r2))
-	(vp-add-rr r2 r1)
-	(vp-add-rr r1 r9)
-	(vp-add-rr r1 r10)
-	(vp-add-rr r1 r9)
-	(vp-add-rr r1 r10)
-
-	(exit 'window :pref_size '((rsp local_this) r9 r10))
-	(vp-free local_size)
-	(vp-ret)
 
 (def-func-end)

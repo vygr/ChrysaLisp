@@ -54,4 +54,6 @@
 (def-static-sym ":style")
 (def-static-sym ":layout")
 (def-static-sym ":pref_size")
+(def-static-sym ":action")
+(def-static-sym ":add_child")
 (def-static-sym "main")

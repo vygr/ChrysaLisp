@@ -7,12 +7,27 @@
 (class Window ()
 	; (Window) -> window
 	; overide the default 'this' env with a window component
-	(defq this (create-window))
+	(def (defq this (create-window)) :child nil)
+
+	(method :add_child (this child)
+		; (. window :add_child child) -> this
+		(if (defq old_child (get :child this))
+			(view-sub old_child))
+		(set this :child child)
+		(view-add-back this child)
+		this)
+
+	(method :pref_size (this)
+		; (. window :pref_size) -> (width height)
+		(defq child (get :child this) border (get :border this) shadow
+			(get :shadow this) w 0 h 0)
+		(if child (bind '(w h) (view-pref-size child)))
+		(list (+ (* (+ shadow border) 2) w) (+ (* (+ shadow border) 2) h)))
 
 	(method :layout (this)
 		; (. window :layout) -> window
-		(defq border (get :border this) shadow (get :shadow this) color (get :color this)
-			child (get-field this (const window_child) 0))
+		(defq border (get :border this) shadow (get :shadow this)
+			color (get :color this) child (get :child this))
 		;position any child
 		(bind '(w h) (view-get-size this))
 		(when child

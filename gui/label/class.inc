@@ -5,7 +5,6 @@
 (dec-method :create 'gui/label/create :static '() '(r0))
 (dec-method :init 'gui/label/init)
 
-(dec-method :pref_size 'gui/label/pref_size :override)
 (dec-method :draw 'gui/label/draw :override)
 (dec-method :deinit 'gui/label/deinit :override)
 

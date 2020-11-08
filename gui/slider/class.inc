@@ -5,7 +5,6 @@
 (dec-method :create 'gui/slider/create :static '() '(r0))
 (dec-method :init 'gui/slider/init)
 
-(dec-method :pref_size 'gui/slider/pref_size :final)
 (dec-method :draw 'gui/slider/draw :final)
 (dec-method :mouse_down 'gui/slider/mouse_down :final)
 (dec-method :mouse_up 'gui/slider/mouse_up :final)

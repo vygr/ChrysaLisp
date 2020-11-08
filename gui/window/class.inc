@@ -5,8 +5,6 @@
 (dec-method :create 'gui/window/create :static nil '(r0))
 (dec-method :init 'gui/window/init :static '(r0 r1))
 
-(dec-method :add_child 'gui/window/add_child :final)
-(dec-method :pref_size 'gui/window/pref_size :final)
 (dec-method :draw 'gui/window/draw :final)
 (dec-method :mouse_down 'gui/window/mouse_down :final)
 (dec-method :mouse_move 'gui/window/mouse_move :final)
@@ -20,5 +18,4 @@
 (def-struct 'window 'view)
 	(int 'offset_x 'offset_y)
 	(uint 'drag_mode)
-	(ptr 'child)
 (def-struct-end)

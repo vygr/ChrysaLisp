@@ -2,19 +2,49 @@
 ; scroll widget
 ;;;;;;;;;;;;;;;
 
-(ffi create-scroll "gui/scroll/lisp_create" 0)
-
 (class Scroll (flags)
 	; (Scroll flags) -> scroll
 	; overide the default 'this' env with a scroll component
-	(defq this (create-scroll flags))
+	(def (defq this (create-view)) :vslider nil :hslider nil :child nil)
+	(when (/= 0 (logand flags (const scroll_flag_vertical)))
+		(def this :vslider (defq slider (Slider)))
+		(component-connect slider (component-get-id this))
+		(view-add-front this slider))
+	(when (/= 0 (logand flags (const scroll_flag_horizontal)))
+		(def this :hslider (defq slider (Slider)))
+		(component-connect slider (component-get-id this))
+		(view-add-front this slider))
+
+	(method :add_child (this child)
+		; (. scroll :add_child child) -> this
+		(if (defq old_child (get :child this))
+			(view-sub old_child))
+		(set this :child child)
+		(view-add-back this child)
+		this)
+
+	(method :action (this data)
+		; (. scroll :action data) -> this
+		(. this :layout)
+		(view-set-flags this view_flag_dirty_all view_flag_dirty_all)
+		this)
+
+	(method :pref_size (this)
+		; (. scroll :pref_size) -> (width height)
+		(defq hslider (get :hslider this) vslider (get :vslider this)
+			mw (get :min_width this) mh (get :min_height this))
+		(unless mw (setq mw 0))
+		(unless mh (setq mh 0))
+		(if vslider
+			(setq mw (+ mw (elem 0 (view-pref-size vslider)))))
+		(if hslider
+			(setq mh (+ mh (elem 0 (view-pref-size hslider)))))
+		(list mw mh))
 
 	(method :layout (this)
 		; (. scroll :layout) -> scroll
-		(defq hslider (get-field this (const scroll_hslider) 0)
-			vslider (get-field this (const scroll_vslider) 0)
-			child (get-field this (const scroll_child) 0)
-			sw 0 sh 0)
+		(defq hslider (get :hslider this) vslider (get :vslider this)
+			child (get :child this) sw 0 sh 0)
 
 		;position any sliders
 		(bind '(w h) (view-get-size this))

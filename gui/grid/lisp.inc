@@ -8,7 +8,7 @@
 	(defq this (create-view))
 
 	(method :pref_size (this)
-		; (. flow :pref_size) -> (width height)
+		; (. grid :pref_size) -> (width height)
 		(defq pw 0 ph 0)
 		(each (lambda (child)
 			(bind '(w h) (view-pref-size child))

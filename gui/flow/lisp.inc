@@ -9,7 +9,10 @@
 
 	(method :pref_size (this)
 		; (. flow :pref_size) -> (width height)
-		(defq pw 0 ph 0 flow_flags (get :flow_flags this))
+		(defq flow_flags (get :flow_flags this) pw 0 ph 0
+			mw (get :min_width this) mh (get :min_height this))
+		(unless mw (setq mw 0))
+		(unless mh (setq mh 0))
 		(each (lambda (child)
 			(bind '(w h) (view-pref-size child))
 			(if (/= 0 (logand flow_flags (const (logior flow_flag_left flow_flag_right))))
@@ -17,7 +20,7 @@
 			(if (/= 0 (logand flow_flags (const (logior flow_flag_up flow_flag_down))))
 				(setq ph (+ ph h)))
 			(setq pw (max w pw) ph (max h ph))) (view-children this))
-		(list pw ph))
+		(list (max pw mw) (max ph mh)))
 
 	(method :layout (this)
 		; (. flow :layout) -> flow

@@ -3005,19 +3005,6 @@ trashes
 r1-r14
 ```
 
-### label::pref_size -> gui/label/pref_size
-
-```lisp
-inputs
-r0 = label object (ptr)
-outputs
-r0 = label object (ptr)
-r9 = preferred width (pixels)
-r10 = preferred height (pixels)
-trashes
-r1-r14
-```
-
 ### label::draw -> gui/label/draw
 
 ```lisp
@@ -5895,78 +5882,6 @@ trashes
 r1-r14
 ```
 
-## scroll
-
-Super Class: view
-
-### scroll::vtable -> gui/scroll/vtable
-
-### scroll::create -> gui/scroll/create
-
-### scroll::init -> gui/scroll/init
-
-```lisp
-inputs
-r0 = scroll object (ptr)
-r1 = vtable (pptr)
-r2 = options flags (ulong)
-outputs
-r0 = scroll object (ptr)
-r1 = 0 if error, else ok
-trashes
-r1-r14
-```
-
-### scroll::add_child -> gui/scroll/add_child
-
-```lisp
-inputs
-r0 = scroll object (ptr)
-r1 = child view object (ptr)
-outputs
-r0 = scroll object (ptr)
-trashes
-r1-r14
-```
-
-### scroll::pref_size -> gui/scroll/pref_size
-
-```lisp
-inputs
-r0 = scroll object (ptr)
-outputs
-r0 = scroll object (ptr)
-r9 = preferred width (pixels)
-r10 = preferred height (pixels)
-trashes
-r1-r14
-```
-
-### scroll::action -> gui/scroll/action
-
-```lisp
-inputs
-r0 = scroll object (ptr)
-r1 = event data (ptr)
-outputs
-r0 = scroll object (ptr)
-trashes
-r1-r14
-```
-
-### scroll::lisp_create -> gui/scroll/lisp_create
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args list object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
 ## seq
 
 Super Class: obj
@@ -6108,19 +6023,6 @@ r0 = slider object (ptr)
 r1 = 0 if error, else ok
 trashes
 r1-r14
-```
-
-### slider::pref_size -> gui/slider/pref_size
-
-```lisp
-inputs
-r0 = slider object (ptr)
-outputs
-r0 = slider object (ptr)
-r9 = preferred width (pixels)
-r10 = preferred height (pixels)
-trashes
-r9-r10
 ```
 
 ### slider::draw -> gui/slider/draw
@@ -9309,7 +9211,7 @@ trashes
 r1-r14
 ```
 
-### view::add_child -> gui/view/add_back
+### view::add_child -> gui/view/add_child
 
 ```lisp
 inputs
@@ -9651,31 +9553,6 @@ r1 = vtable (pptr)
 outputs
 r0 = window object (ptr)
 r1 = 0 if error, else ok
-trashes
-r1-r14
-```
-
-### window::add_child -> gui/window/add_child
-
-```lisp
-inputs
-r0 = window object (ptr)
-r1 = child view object (ptr)
-outputs
-r0 = window object (ptr)
-trashes
-r1-r14
-```
-
-### window::pref_size -> gui/window/pref_size
-
-```lisp
-inputs
-r0 = window object (ptr)
-outputs
-r0 = window object (ptr)
-r9 = preferred width (pixels)
-r10 = preferred height (pixels)
 trashes
 r1-r14
 ```

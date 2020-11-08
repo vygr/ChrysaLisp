@@ -28,6 +28,10 @@
 
 (. button :layout) -> button
 
+## button :pref_size
+
+(. button :pref_size) -> (width height)
+
 ## emap :copy
 
 (. emap :copy) -> emap
@@ -76,9 +80,17 @@
 
 (. grid :layout) -> grid
 
+## grid :pref_size
+
+(. grid :pref_size) -> (width height)
+
 ## label :layout
 
 (. label :layout) -> label
+
+## label :pref_size
+
+(. label :pref_size) -> (width height)
 
 ## progress :layout
 
@@ -88,17 +100,37 @@
 
 (. progress :pref_size) -> (width height)
 
+## scroll :action
+
+(. scroll :action data) -> this
+
+## scroll :add_child
+
+(. scroll :add_child child) -> this
+
 ## scroll :layout
 
 (. scroll :layout) -> scroll
+
+## scroll :pref_size
+
+(. scroll :pref_size) -> (width height)
 
 ## slider :layout
 
 (. slider :layout) -> slider
 
+## slider :pref_size
+
+(. slider :pref_size) -> (width height)
+
 ## textfield :layout
 
 (. textfield :layout) -> textfield
+
+## textfield :pref_size
+
+(. textfield :pref_size) -> (width height)
 
 ## .
 
@@ -108,9 +140,21 @@
 
 (. title :layout) -> title
 
+## title :pref_size
+
+(. title :pref_size) -> (width height)
+
+## window :add_child
+
+(. window :add_child child) -> this
+
 ## window :layout
 
 (. window :layout) -> window
+
+## window :pref_size
+
+(. window :pref_size) -> (width height)
 
 ## xmap :copy
 
@@ -527,10 +571,6 @@
 ## create-progress
 
 (create-progress)
-
-## create-scroll
-
-(create-scroll flags)
 
 ## create-slider
 

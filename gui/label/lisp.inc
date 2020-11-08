@@ -14,6 +14,15 @@
 	(view-add-child this flow)
 	(view-add-child flow text)
 
+	(method :pref_size (this)
+		; (. label :pref_size) -> (width height)
+		(defq flow (get-field this (const label_flow) 0) border (abs (get :border this))
+			mw (get :min_width this) mh (get :min_height this) w 0 h 0)
+		(unless mw (setq mw 0))
+		(unless mh (setq mh 0))
+		(if flow (bind '(w h) (view-pref-size flow)))
+		(list (+ (* border 2) (max w mw)) (+ (* border 2) (max h mh))))
+
 	(method :layout (this)
 		; (. label :layout) -> label
 		(defq flow (get-field this (const label_flow) 0)

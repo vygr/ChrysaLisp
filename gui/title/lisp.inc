@@ -14,6 +14,13 @@
 	(view-add-child this flow)
 	(view-add-child flow text)
 
+	(method :pref_size (this)
+		; (. title :pref_size) -> (width height)
+		(defq flow (get-field this (const label_flow) 0) border (abs (get :border this))
+			w 0 h 0)
+		(if flow (bind '(w h) (view-pref-size flow)))
+		(list (+ (* border 2) w) (+ (* border 2) h)))
+
 	(method :layout (this)
 		; (. title :layout) -> title
 		(defq flow (get-field this (const label_flow) 0)
