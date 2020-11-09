@@ -1,36 +1,9 @@
 (include "sys/func.inc")
-(include "gui/gui/class.inc")
 (include "gui/button/class.inc")
-(include "gui/flow/class.inc")
 (include "class/sym/class.inc")
 
 (gen-create 'button)
 (gen-vtable 'button)
-
-(def-method 'button :init)
-	;inputs
-	;r0 = button object (ptr)
-	;r1 = vtable (pptr)
-	;outputs
-	;r0 = button object (ptr)
-	;r1 = 0 if error, else ok
-	;trashes
-	;r1-r14
-
-	(entry 'button :init '(r0 r1))
-
-	;init parent
-	(s-call 'button :init '(r0 r1) '(r0 r1))
-	(vpif '(r1 /= 0))
-		;init myself
-		(vp-xor-rr r2 r2)
-		(assign '(r2) '((r0 button_state)))
-	(endif)
-
-	(exit 'button :init '(r0 r1))
-	(vp-ret)
-
-(def-func-end)
 
 (def-method 'button :draw)
 	;inputs
@@ -41,91 +14,25 @@
 	;trashes
 	;r1-r14
 
-	(entry 'button :draw '(r0 r1))
+	(def-struct 'local)
+		(ptr 'ctx)
+		(int 'border)
+	(def-struct-end)
+
+	(vp-alloc local_size)
+	(entry 'button :draw '(r0 (rsp local_ctx)))
 
 	;draw panel, in or out
-	(vp-push r1)
-	(call 'button :get_long_prop '(r0 static_sym_border) '(r0 r3))
-	(assign '((r0 button_state)) '(r1))
-	(vp-and-cr button_state_pressed r1)
+	(call 'button :get_long_prop '(r0 static_sym_border) '(r0 (rsp local_border)))
+	(call 'button :get_long_prop '(r0 static_sym_state) '(r0 r1))
+	(assign '((rsp local_border)) '(r3))
 	(vpif '(r1 /= 0))
 		(vp-mul-cr -1 r3)
 	(endif)
-	(vp-pop r1)
-	(call 'button :draw_panel '(r0 r1 1 r3) '(r0))
+	(call 'button :draw_panel '(r0 (rsp local_ctx) 1 r3) '(r0))
 
 	(exit 'button :draw '(r0))
-	(vp-ret)
-
-(def-func-end)
-
-(def-method 'button :mouse_up)
-	;inputs
-	;r0 = button object (ptr)
-	;r1 = mouse event data (ptr)
-	;outputs
-	;r0 = button object (ptr)
-	;trashes
-	;r1-r14
-
-	(entry 'button :mouse_up '(r0 r1))
-
-	(assign '((r0 button_state)) '(r1))
-	(vp-push r1)
-
-	(vp-cpy-rr r1 r2)
-	(vp-and-cr (lognot button_state_pressed) r1)
-	(assign '(r1) '((r0 button_state)))
-	(vpif '(r1 /= r2))
-		(d-call 'view :layout '(r0) '(r0))
-		(call 'button :dirty '(r0) '(r0))
-	(endif)
-
-	;emit pressed signal ?
-	(vp-pop r1)
-	(vp-and-cr button_state_pressed r1)
-	(vpif '(r1 /= 0))
-		(jump 'button :emit '(r0))
-	(endif)
-
-	(exit 'button :mouse_up '(r0))
-	(vp-ret)
-
-(def-func-end)
-
-(def-method 'button :mouse_move)
-	;inputs
-	;r0 = button object (ptr)
-	;r1 = mouse event data (ptr)
-	;outputs
-	;r0 = button object (ptr)
-	;trashes
-	;r1-r14
-
-	(entry 'button :mouse_move '(r0 r1))
-
-	;hit ?
-	(call 'button :hit '(r0 (r1 ev_msg_mouse_rx) (r1 ev_msg_mouse_ry)) '(r0 r1))
-
-	;is mouse over button ?
-	(assign '((r0 button_state)) '(r2))
-	(vp-cpy-rr r2 r3)
-	(vpif '(r1 /= 0))
-		;state pressed
-		(vp-or-cr button_state_pressed r2)
-	(else)
-		;state not pressed
-		(vp-and-cr (lognot button_state_pressed) r2)
-	(endif)
-	(assign '(r2) '((r0 button_state)))
-
-	;if state changed then dirty
-	(vpif '(r2 /= r3))
-		(d-call 'view :layout '(r0) '(r0))
-		(jump 'button :dirty '(r0))
-	(endif)
-
-	(exit 'button :mouse_move '(r0))
+	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)

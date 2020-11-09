@@ -75,7 +75,7 @@
 	(defq gwh (* gw gh))
 		; (ui-grid game_grid (:grid_width 1 :grid_height 5)
 	(each (lambda (_)
-		(component-connect (defq mc (create-button)) (+ _ +event_click+))
+		(component-connect (defq mc (Button)) (+ _ +event_click+))
 		(def mc :text "" :border 1 :flow_flags 
 			(logior flow_flag_align_hcenter flow_flag_align_vcenter) :min_width 32 :min_height 32)
 		(view-add-child game_grid mc)) (range 0 gwh))
@@ -97,12 +97,12 @@
 		(defq value nil)
 		(cond 
 			((eql (elem _ game_map) "f")
-				(component-connect (defq mc (create-button)) (+ +event_click+ _))
+				(component-connect (defq mc (Button)) (+ +event_click+ _))
 				(def mc :text "F" :border 1 :flow_flags 
 					(logior flow_flag_align_hcenter flow_flag_align_vcenter) :min_width 32 :min_height 32)
 				(view-add-child game_grid mc))			
 			((eql (elem _ game_map) "b")
-				(component-connect (defq mc (create-button)) (+ +event_click+ _))
+				(component-connect (defq mc (Button)) (+ +event_click+ _))
 				(def mc :text "" :border 1 :flow_flags 
 					(logior flow_flag_align_hcenter flow_flag_align_vcenter) :min_width 32 :min_height 32)
 				(view-add-child game_grid mc))

@@ -19,6 +19,7 @@
 (dec-method :deinit 'gui/component/deinit :override)
 
 (dec-method :lisp_connect 'gui/component/lisp_connect :static '(r0 r1) '(r0 r1))
+(dec-method :lisp_emit 'gui/component/lisp_emit :static '(r0 r1) '(r0 r1))
 
 (def-struct 'component 'hmap)
 	(ptr 'lisp 'target_ids)

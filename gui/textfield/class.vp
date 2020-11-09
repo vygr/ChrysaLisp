@@ -79,21 +79,22 @@
 (def-method 'textfield :key_down)
 	;inputs
 	;r0 = textfield object (ptr)
-	;r1 = key event data (ptr)
+	;r1 = key event str object (ptr)
 	;outputs
 	;r0 = textfield object (ptr)
 	;trashes
 	;r1-r14
 
-	(ptr 'this 'event 'text 'splice 'str)
+	(ptr 'this 'event 'text 'splice 'str 'data)
 	(uint 'key)
 
 	(push-scope)
 	(entry 'textfield :key_down {this, event})
 
 	;edit actions
+	(assign {&event->str_data} {data})
 	(call 'textfield :get_prop {this, static_sym_text} {_, text})
-	(assign {event->ev_msg_key_key} {key})
+	(assign {data->ev_msg_key_key} {key})
 	(switch)
 	(vpcase {key = 10 || key = 13})
 		;enter action

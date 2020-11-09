@@ -52,8 +52,13 @@
 (def-static-sym ":vdu_width")
 (def-static-sym ":vdu_height")
 (def-static-sym ":style")
+
 (def-static-sym ":layout")
 (def-static-sym ":pref_size")
 (def-static-sym ":action")
 (def-static-sym ":add_child")
+(def-static-sym ":mouse_down")
+(def-static-sym ":mouse_up")
+(def-static-sym ":mouse_move")
+(def-static-sym ":state")
 (def-static-sym "main")

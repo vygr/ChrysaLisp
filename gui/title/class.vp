@@ -12,7 +12,7 @@
 (def-method 'title :mouse_down)
 	;inputs
 	;r0 = title object (ptr)
-	;r1 = mouse event data (ptr)
+	;r1 = mouse event str object (ptr)
 	;outputs
 	;r0 = title object (ptr)
 	;trashes
@@ -21,6 +21,7 @@
 	(entry 'title :mouse_down '(r0 r1))
 
 	(vp-push r0)
+	(vp-lea-i r1 str_data r1)
 	(assign '((r1 ev_msg_mouse_buttons) (r1 ev_msg_mouse_rx) (r1 ev_msg_mouse_ry)) '(r6 r7 r8))
 	(assign '(r7 r8) '((r0 title_last_x) (r0 title_last_y)))
 	(assign `((@ ,(f-path 'window :vtable))) '(r1))
@@ -43,7 +44,7 @@
 (def-method 'title :mouse_move)
 	;inputs
 	;r0 = title object (ptr)
-	;r1 = mouse event data (ptr)
+	;r1 = mouse event str object (ptr)
 	;outputs
 	;r0 = title object (ptr)
 	;trashes
@@ -69,6 +70,7 @@
 	(assign '((rsp local_this)) '(r0))
 	(call 'title :get_relative '(r0 (rsp local_window) (r0 title_last_x) (r0 title_last_y)) '(_ r7 r8))
 	(assign '((rsp local_event)) '(r1))
+	(vp-add-cr str_data r1)
 	(assign '((r1 ev_msg_mouse_x) (r1 ev_msg_mouse_y)) '(r9 r10))
 	(vp-sub-rr r9 r7)
 	(vp-sub-rr r10 r8)

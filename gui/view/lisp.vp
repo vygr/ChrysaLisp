@@ -52,7 +52,7 @@
 
 	(vp-push r0)
 	(defq in (method-input 'view :event))
-	(list-bind-args r1 in '(:view :str))
+	(list-bind-args r1 in '(:view :obj))
 	(call 'view :event in '(r0))
 	(call 'view :ref '(r0) '(r1))
 	(vp-pop r0)

@@ -610,61 +610,12 @@ Super Class: label
 
 ### button::create -> gui/button/create
 
-### button::init -> gui/button/init
-
-```lisp
-inputs
-r0 = button object (ptr)
-r1 = vtable (pptr)
-outputs
-r0 = button object (ptr)
-r1 = 0 if error, else ok
-trashes
-r1-r14
-```
-
 ### button::draw -> gui/button/draw
 
 ```lisp
 inputs
 r0 = button object (ptr)
 r1 = draw ctx (ptr)
-outputs
-r0 = button object (ptr)
-trashes
-r1-r14
-```
-
-### button::mouse_down -> gui/button/mouse_move
-
-```lisp
-inputs
-r0 = button object (ptr)
-r1 = mouse event data (ptr)
-outputs
-r0 = button object (ptr)
-trashes
-r1-r14
-```
-
-### button::mouse_up -> gui/button/mouse_up
-
-```lisp
-inputs
-r0 = button object (ptr)
-r1 = mouse event data (ptr)
-outputs
-r0 = button object (ptr)
-trashes
-r1-r14
-```
-
-### button::mouse_move -> gui/button/mouse_move
-
-```lisp
-inputs
-r0 = button object (ptr)
-r1 = mouse event data (ptr)
 outputs
 r0 = button object (ptr)
 trashes
@@ -1491,6 +1442,19 @@ r1-r14
 ```
 
 ### component::lisp_connect -> gui/component/lisp_connect
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### component::lisp_emit -> gui/component/lisp_emit
 
 ```lisp
 inputs
@@ -2992,36 +2956,12 @@ Super Class: view
 
 ### label::create -> gui/label/create
 
-### label::init -> gui/label/init
-
-```lisp
-inputs
-r0 = label object (ptr)
-r1 = vtable (pptr)
-outputs
-r0 = label object (ptr)
-r1 = 0 if error, else ok
-trashes
-r1-r14
-```
-
 ### label::draw -> gui/label/draw
 
 ```lisp
 inputs
 r0 = label object (ptr)
 r1 = draw ctx (ptr)
-outputs
-r0 = label object (ptr)
-trashes
-r1-r14
-```
-
-### label::deinit -> gui/label/deinit
-
-```lisp
-inputs
-r0 = label object (ptr)
 outputs
 r0 = label object (ptr)
 trashes
@@ -6012,19 +5952,6 @@ Super Class: view
 
 ### slider::create -> gui/slider/create
 
-### slider::init -> gui/slider/init
-
-```lisp
-inputs
-r0 = slider object (ptr)
-r1 = vtable (pptr)
-outputs
-r0 = slider object (ptr)
-r1 = 0 if error, else ok
-trashes
-r1-r14
-```
-
 ### slider::draw -> gui/slider/draw
 
 ```lisp
@@ -6033,42 +5960,6 @@ r0 = window object (ptr)
 r1 = draw ctx (ptr)
 outputs
 r0 = window object (ptr)
-trashes
-r1-r14
-```
-
-### slider::mouse_down -> gui/slider/mouse_down
-
-```lisp
-inputs
-r0 = slider object (ptr)
-r1 = mouse event data (ptr)
-outputs
-r0 = slider object (ptr)
-trashes
-r1-r14
-```
-
-### slider::mouse_up -> gui/slider/mouse_up
-
-```lisp
-inputs
-r0 = slider object (ptr)
-r1 = mouse event data (ptr)
-outputs
-r0 = slider object (ptr)
-trashes
-r1-r14
-```
-
-### slider::mouse_move -> gui/slider/mouse_move
-
-```lisp
-inputs
-r0 = slider object (ptr)
-r1 = mouse event data (ptr)
-outputs
-r0 = slider object (ptr)
 trashes
 r1-r14
 ```
@@ -8620,7 +8511,7 @@ r1-r14
 ```lisp
 inputs
 r0 = textfield object (ptr)
-r1 = key event data (ptr)
+r1 = key event str object (ptr)
 outputs
 r0 = textfield object (ptr)
 trashes
@@ -8715,7 +8606,7 @@ r1-r14
 ```lisp
 inputs
 r0 = title object (ptr)
-r1 = mouse event data (ptr)
+r1 = mouse event str object (ptr)
 outputs
 r0 = title object (ptr)
 trashes
@@ -8727,7 +8618,7 @@ r1-r14
 ```lisp
 inputs
 r0 = title object (ptr)
-r1 = mouse event data (ptr)
+r1 = mouse event str object (ptr)
 outputs
 r0 = title object (ptr)
 trashes
@@ -9268,18 +9159,48 @@ r1-r14
 ```lisp
 inputs
 r0 = view object (ptr)
-r1 = event data (ptr)
+r1 = event str object (ptr)
 outputs
 r0 = view object (ptr)
 trashes
 r1-r14
 ```
 
-### view::mouse_down -> class/obj/null
+### view::mouse_down -> class/view/mouse_down
 
-### view::mouse_up -> class/obj/null
+```lisp
+inputs
+r0 = view object (ptr)
+r1 = event str object (ptr)
+outputs
+r0 = view object (ptr)
+trashes
+r1-r14
+```
 
-### view::mouse_move -> class/obj/null
+### view::mouse_up -> class/view/mouse_up
+
+```lisp
+inputs
+r0 = view object (ptr)
+r1 = event str object (ptr)
+outputs
+r0 = view object (ptr)
+trashes
+r1-r14
+```
+
+### view::mouse_move -> class/view/mouse_move
+
+```lisp
+inputs
+r0 = view object (ptr)
+r1 = event str object (ptr)
+outputs
+r0 = view object (ptr)
+trashes
+r1-r14
+```
 
 ### view::mouse_hover -> class/obj/null
 
@@ -9544,49 +9465,12 @@ Super Class: view
 
 ### window::create -> gui/window/create
 
-### window::init -> gui/window/init
-
-```lisp
-inputs
-r0 = window object (ptr)
-r1 = vtable (pptr)
-outputs
-r0 = window object (ptr)
-r1 = 0 if error, else ok
-trashes
-r1-r14
-```
-
 ### window::draw -> gui/window/draw
 
 ```lisp
 inputs
 r0 = window object (ptr)
 r1 = draw ctx (ptr)
-outputs
-r0 = window object (ptr)
-trashes
-r1-r14
-```
-
-### window::mouse_down -> gui/window/mouse_down
-
-```lisp
-inputs
-r0 = window object (ptr)
-r1 = mouse event data (ptr)
-outputs
-r0 = window object (ptr)
-trashes
-r1-r14
-```
-
-### window::mouse_move -> gui/window/mouse_move
-
-```lisp
-inputs
-r0 = window object (ptr)
-r1 = mouse event data (ptr)
 outputs
 r0 = window object (ptr)
 trashes

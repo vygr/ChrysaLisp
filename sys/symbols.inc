@@ -73,13 +73,9 @@ view_y 156
 canvas_flags 264
 canvas_color 260
 cap_arrow 3
-label_flow 168
-button_state_pressed 1
-button_state 184
-scroll_child 184
-window_child 184
-label_text 176
 canvas_scale 224
 canvas_width 228
 canvas_height 232
+ev_msg_mouse_x 20
+ev_msg_mouse_y 24
 )

@@ -1,56 +1,9 @@
 (include "sys/func.inc")
-(include "gui/text/class.inc")
 (include "gui/label/class.inc")
-(include "gui/flow/class.inc")
 (include "class/sym/class.inc")
 
 (gen-create 'label)
 (gen-vtable 'label)
-
-(def-method 'label :init)
-	;inputs
-	;r0 = label object (ptr)
-	;r1 = vtable (pptr)
-	;outputs
-	;r0 = label object (ptr)
-	;r1 = 0 if error, else ok
-	;trashes
-	;r1-r14
-
-	(entry 'label :init '(r0 r1))
-
-	;init parent
-	(s-call 'label :init '(r0 r1) '(r0 r1))
-	(vpif '(r1 /= 0))
-		;add my flow
-		(vp-xor-rr r2 r2)
-		(assign '(r2 r2) '((r0 label_flow) (r0 label_text)))
-	(endif)
-
-	(exit 'label :init '(r0 r1))
-	(vp-ret)
-
-(def-func-end)
-
-(def-method 'label :deinit)
-	;inputs
-	;r0 = label object (ptr)
-	;outputs
-	;r0 = label object (ptr)
-	;trashes
-	;r1-r14
-
-	(entry 'label :deinit '(r0))
-
-	;init parent
-	(vp-push r0)
-	(call 'view :deref_if '((r0 label_flow)))
-	(assign '((rsp 0)) '(r0))
-	(call 'text :deref_if '((r0 label_text)))
-	(vp-pop r0)
-	(s-jump 'label :deinit '(r0))
-
-(def-func-end)
 
 (def-method 'label :draw)
 	;inputs

@@ -28,6 +28,18 @@
 
 (. button :layout) -> button
 
+## button :mouse_down
+
+(. button :mouse_down event) -> button
+
+## button :mouse_move
+
+(. button :mouse_move event) -> button
+
+## button :mouse_up
+
+(. button :mouse_up event) -> button
+
 ## button :pref_size
 
 (. button :pref_size) -> (width height)
@@ -120,6 +132,18 @@
 
 (. slider :layout) -> slider
 
+## slider :mouse_down
+
+(. slider :mouse_down event) -> slider
+
+## slider :mouse_move
+
+(. slider :mouse_move event) -> slider
+
+## slider :mouse_up
+
+(. slider :mouse_up event) -> slider
+
 ## slider :pref_size
 
 (. slider :pref_size) -> (width height)
@@ -151,6 +175,14 @@
 ## window :layout
 
 (. window :layout) -> window
+
+## window :mouse_down
+
+(. window :mouse_down event) -> window
+
+## window :mouse_move
+
+(. window :mouse_move event) -> window
 
 ## window :pref_size
 
@@ -519,6 +551,10 @@
 ## component-connect
 
 (component-connect component id)
+
+## component-emit
+
+(component-emit component)
 
 ## component-get-id
 
