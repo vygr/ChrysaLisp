@@ -79,5 +79,6 @@
 		(if (/= 0 (logand 8 drag_mode))
 			(setq y1 (max (- ay drag_offy) (+ y h))))
 		(view-change-dirty this x y (- x1 x) (- y1 y))
+		(component-emit this)
 		this)
 	)
