@@ -42,7 +42,7 @@
 (dec-method :mouse_up 'class/view/mouse_up :virtual '(r0 r1) '(r0))
 (dec-method :mouse_move 'class/view/mouse_move :virtual '(r0 r1) '(r0))
 (dec-method :mouse_hover 'class/obj/null :virtual '(r0 r1) '(r0))
-(dec-method :key_down 'class/obj/null :virtual '(r0 r1) '(r0))
+(dec-method :key_down 'class/view/key_down :virtual '(r0 r1) '(r0))
 (dec-method :key_up 'class/obj/null :virtual '(r0 r1) '(r0))
 (dec-method :action 'class/obj/null :virtual '(r0 r1) '(r0))
 
@@ -65,6 +65,8 @@
 (dec-method :lisp_event 'gui/view/lisp_event :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_find_id 'gui/view/lisp_find_id :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_children 'gui/view/lisp_children :static '(r0 r1) '(r0 r1))
+(dec-method :lisp_to_front 'gui/view/lisp_to_front :static '(r0 r1) '(r0 r1))
+(dec-method :lisp_to_back 'gui/view/lisp_to_back :static '(r0 r1) '(r0 r1))
 
 (def-bit 'view_flag)
 	(bit 'solid 'opaque 'dirty_all 'at_back)

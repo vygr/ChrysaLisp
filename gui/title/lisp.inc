@@ -1,32 +1,32 @@
-;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;
 ; title widget
-;;;;;;;;;;;;;;;;;;
-
-(ffi create-title "gui/title/lisp_create" 0)
+;;;;;;;;;;;;;;
 
 (class Title ()
 	; (Title) -> title
-	; overide the default 'this' env with a title component
-	(defq this (create-title) label_flow (Flow) label_text (create-text))
-	(def this :label_flow label_flow :label_text label_text)
-	(view-set-flags label_flow 0 -1)
-	(view-add-child this label_flow)
-	(view-add-child label_flow label_text)
+	; overide the default 'this' env with a title component that inherits from Label
+	(defq this (Label))
 
-	(method :pref_size (this)
-		; (. title :pref_size) -> (width height)
-		(defq flow (get :label_flow this) border (abs (get :border this)))
-		(bind '(w h) (view-pref-size flow))
-		(list (+ (* border 2) w) (+ (* border 2) h)))
+	(method :mouse_down (this event)
+		; (. title :mouse_down event) -> title
+		(defq ax (get-int event ev_msg_mouse_x) ay (get-int event ev_msg_mouse_y)
+			window (penv this))
+		(until (def? :is_window window)
+			(setq window (penv window)))
+		(bind '(x y) (view-get-pos window))
+		(def this :drag_offx (- x ax) :drag_offy (- y ay))
+		(if (= 1 (get-int event ev_msg_mouse_buttons))
+			(view-to-front window)
+			(view-to-back window))
+		this)
 
-	(method :layout (this)
-		; (. title :layout) -> title
-		(defq flow (get :label_flow this) border (abs (get :border this))
-			color (get :color this))
-		(bind '(w h) (view-get-size this))
-		(view-change flow border border (- w (* border 2)) (- h (* border 2)))
-		(view-layout flow)
-		(if (= (>> color 24) 0xff)
-			(view-set-flags this view_flag_opaque view_flag_opaque))
+	(method :mouse_move (this event)
+		; (. title :mouse_move event) -> title
+		(defq ax (get-int event ev_msg_mouse_x) ay (get-int event ev_msg_mouse_y)
+			window (penv this))
+		(until (def? :is_window window)
+			(setq window (penv window)))
+		(bind '(x y w h) (view-get-bounds window))
+		(view-change-dirty window (+ ax (get :drag_offx this)) (+ ay (get :drag_offy this)) w h)
 		this)
 	)

@@ -148,6 +148,10 @@
 
 (. slider :pref_size) -> (width height)
 
+## textfield :key_down
+
+(. textfield :key_down event) -> textfield
+
 ## textfield :layout
 
 (. textfield :layout) -> textfield
@@ -160,13 +164,13 @@
 
 (. this method ([arg ...]))
 
-## title :layout
+## title :mouse_down
 
-(. title :layout) -> title
+(. title :mouse_down event) -> title
 
-## title :pref_size
+## title :mouse_move
 
-(. title :pref_size) -> (width height)
+(. title :mouse_move event) -> title
 
 ## window :add_child
 
@@ -623,10 +627,6 @@
 ## create-textfield
 
 (create-textfield)
-
-## create-title
-
-(create-title)
 
 ## create-vdu
 
@@ -1911,6 +1911,14 @@
 ## view-sub-opaque
 
 (view-sub-opaque view x y w h)
+
+## view-to-back
+
+(view-to-back view)
+
+## view-to-front
+
+(view-to-front view)
 
 ## when
 

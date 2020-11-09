@@ -7,7 +7,7 @@
 (class Window ()
 	; (Window) -> window
 	; overide the default 'this' env with a window component
-	(def (defq this (create-window)) :child nil)
+	(def (defq this (create-window)) :child nil :is_window t)
 
 	(method :add_child (this child)
 		; (. window :add_child child) -> this

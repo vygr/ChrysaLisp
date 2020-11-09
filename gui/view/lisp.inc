@@ -17,6 +17,8 @@
 (ffi view-sub-opaque "gui/view/lisp_sub_opaque" 0)
 (ffi view-set-flags "gui/view/lisp_set_flags" 0)
 (ffi view-children "gui/view/lisp_children" 0)
+(ffi view-to-front "gui/view/lisp_to_front" 0)
+(ffi view-to-back "gui/view/lisp_to_back" 0)
 
 (defun view-get-pos (view)
 	; (view-get-pos view) -> (x y)

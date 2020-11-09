@@ -15,8 +15,8 @@
 
 	(method :pref_size (this)
 		; (. button :pref_size) -> (width height)
-		(defq flow (get :label_flow this) border (abs (get :border this)))
-		(bind '(w h) (view-pref-size flow))
+		(defq border (abs (get :border this)))
+		(bind '(w h) (. (get :label_flow this) :pref_size))
 		(list (+ (* border 2) w) (+ (* border 2) h)))
 
 	(method :layout (this)

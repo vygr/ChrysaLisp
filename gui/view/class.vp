@@ -1149,3 +1149,40 @@
 	(return)
 
 (def-func-end)
+
+(def-method 'view :key_down)
+	;inputs
+	;r0 = view object (ptr)
+	;r1 = event str object (ptr)
+	;outputs
+	;r0 = view object (ptr)
+	;trashes
+	;r1-r14
+
+	(ptr 'this 'event 'lisp 'params)
+	(pptr 'value)
+
+	(push-scope)
+	(entry 'view :key_down {this, event})
+
+	;do we have a Lisp level mouse_down method ?
+	(assign {this->component_lisp} {lisp})
+	(vpif {lisp})
+		(call 'sym :get_static_sym {static_sym_key_down} {value})
+		(call 'view :find {this, value} {_, value, _})
+		(breakifnot {value})
+		;call Lisp level handler
+		(call 'view :ref {this})
+		(call 'view :ref {event})
+		(call 'list :create nil {params})
+		(call 'list :push_back2 {params, this, event})
+		(call 'lisp :repl_apply {lisp, params, value[ptr_size]} {_, value})
+		(call 'obj :deref {params})
+		(call 'obj :deref {value})
+	(endif)
+
+	(exit 'view :key_down {this})
+	(pop-scope)
+	(return)
+
+(def-func-end)

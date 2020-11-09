@@ -8481,37 +8481,12 @@ Super Class: label
 
 ### textfield::create -> gui/textfield/create
 
-### textfield::init -> gui/textfield/init
-
-```lisp
-inputs
-r0 = textfield object (ptr)
-r1 = vtable (pptr)
-outputs
-r0 = textfield object (ptr)
-r1 = 0 if error, else ok
-trashes
-r1-r14
-```
-
 ### textfield::draw -> gui/textfield/draw
 
 ```lisp
 inputs
 r0 = textfield object (ptr)
 r1 = draw ctx (ptr)
-outputs
-r0 = textfield object (ptr)
-trashes
-r1-r14
-```
-
-### textfield::key_down -> gui/textfield/key_down
-
-```lisp
-inputs
-r0 = textfield object (ptr)
-r1 = key event str object (ptr)
 outputs
 r0 = textfield object (ptr)
 trashes
@@ -8576,51 +8551,6 @@ inputs
 r0 = texture object (ptr)
 outputs
 r0 = texture object (ptr)
-trashes
-r1-r14
-```
-
-## title
-
-Super Class: label
-
-### title::vtable -> gui/title/vtable
-
-### title::create -> gui/title/create
-
-### title::lisp_create -> gui/title/lisp_create
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args list object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### title::mouse_down -> gui/title/mouse_down
-
-```lisp
-inputs
-r0 = title object (ptr)
-r1 = mouse event str object (ptr)
-outputs
-r0 = title object (ptr)
-trashes
-r1-r14
-```
-
-### title::mouse_move -> gui/title/mouse_move
-
-```lisp
-inputs
-r0 = title object (ptr)
-r1 = mouse event str object (ptr)
-outputs
-r0 = title object (ptr)
 trashes
 r1-r14
 ```
@@ -9204,7 +9134,17 @@ r1-r14
 
 ### view::mouse_hover -> class/obj/null
 
-### view::key_down -> class/obj/null
+### view::key_down -> class/view/key_down
+
+```lisp
+inputs
+r0 = view object (ptr)
+r1 = event str object (ptr)
+outputs
+r0 = view object (ptr)
+trashes
+r1-r14
+```
 
 ### view::key_up -> class/obj/null
 
@@ -9445,6 +9385,32 @@ r1-r14
 ```
 
 ### view::lisp_children -> gui/view/lisp_children
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### view::lisp_to_front -> gui/view/lisp_to_front
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### view::lisp_to_back -> gui/view/lisp_to_back
 
 ```lisp
 inputs

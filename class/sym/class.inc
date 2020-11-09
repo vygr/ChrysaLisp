@@ -60,5 +60,7 @@
 (def-static-sym ":mouse_down")
 (def-static-sym ":mouse_up")
 (def-static-sym ":mouse_move")
+(def-static-sym ":key_down")
 (def-static-sym ":state")
+(def-static-sym ":cursor")
 (def-static-sym "main")

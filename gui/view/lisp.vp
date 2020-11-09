@@ -636,3 +636,69 @@
 	(signature '(view)))
 
 (def-func-end)
+
+(def-method 'view :lisp_to_front)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args list object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(entry 'view :lisp_to_front '(r0 r1))
+
+(errorcases
+	(call 'lisp :env_args_sig '(r1 ($ sig) 1) '(r2))
+	(gotoif '(r2 = 0) 'error))
+
+	(vp-push r0)
+	(defq in (method-input 'view :to_front))
+	(list-bind-args r1 in '(:view))
+	(call 'view :to_front in '(r0))
+	(call 'obj :ref '(r0) '(r1))
+	(vp-pop r0)
+
+	(exit 'view :lisp_to_front '(r0 r1))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp :repl_error '(r0 "(view-to-front view)" error_msg_wrong_types r1))
+	(signature '(view)))
+
+(def-func-end)
+
+(def-method 'view :lisp_to_back)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args list object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(entry 'view :lisp_to_back '(r0 r1))
+
+(errorcases
+	(call 'lisp :env_args_sig '(r1 ($ sig) 1) '(r2))
+	(gotoif '(r2 = 0) 'error))
+
+	(vp-push r0)
+	(defq in (method-input 'view :to_back))
+	(list-bind-args r1 in '(:view))
+	(call 'view :to_back in '(r0))
+	(call 'obj :ref '(r0) '(r1))
+	(vp-pop r0)
+
+	(exit 'view :lisp_to_back '(r0 r1))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp :repl_error '(r0 "(view-to-back view)" error_msg_wrong_types r1))
+	(signature '(view)))
+
+(def-func-end)

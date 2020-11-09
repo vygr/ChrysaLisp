@@ -1,40 +1,13 @@
 (include "sys/func.inc")
 (include "class/sym/class.inc")
-(include "class/list/class.inc")
-(include "gui/gui/class.inc")
+(include "class/array/class.inc")
 (include "gui/ctx/class.inc")
 (include "gui/textfield/class.inc")
-(include "gui/flow/class.inc")
 (include "gui/font/class.inc")
 (include "lib/consts/colors.inc")
 
 (gen-create 'textfield)
 (gen-vtable 'textfield)
-
-(def-method 'textfield :init)
-	;inputs
-	;r0 = textfield object (ptr)
-	;r1 = vtable (pptr)
-	;outputs
-	;r0 = textfield object (ptr)
-	;r1 = 0 if error, else ok
-	;trashes
-	;r1-r14
-
-	(entry 'textfield :init '(r0 r1))
-
-	;init parent
-	(s-call 'textfield :init '(r0 r1) '(r0 r1))
-	(vpif '(r1 /= 0))
-		;init myself
-		(vp-cpy-cr +max_int+ r2)
-		(assign '(r2) '((r0 textfield_cursor)))
-	(endif)
-
-	(exit 'textfield :init '(r0 r1))
-	(vp-ret)
-
-(def-func-end)
 
 (def-method 'textfield :draw)
 	;inputs
@@ -46,7 +19,7 @@
 	;r1-r14
 
 	(ptr 'this 'ctx 'text 'font 'str 'info)
-	(uint 'w 'h)
+	(uint 'w 'h 'cursor)
 
 	(push-scope)
 	(entry 'textfield :draw {this, ctx})
@@ -58,10 +31,11 @@
 	(call 'textfield :get_prop {this, static_sym_text} {_, text})
 	(call 'textfield :get_prop {this, static_sym_font} {_, font})
 	(vpif {text && font})
-		(vpif {this->textfield_cursor > text->str_length})
-			(assign {text->str_length} {this->textfield_cursor})
+		(call 'textfield :get_long_prop {this, static_sym_cursor} {_, cursor})
+		(vpif {cursor > text->str_length})
+			(assign {text->str_length} {cursor})
 		(endif)
-		(call 'str :slice {text, 0, this->textfield_cursor} {_, str})
+		(call 'str :slice {text, 0, cursor} {_, str})
 		(call 'font :glyph_info {font, str} {_, info})
 		(call 'font :glyph_bounds {font, info} {_, w, h})
 		(call 'ctx :set_color {ctx, +argb_black+})
@@ -71,72 +45,6 @@
 	(endif)
 
 	(exit 'textfield :draw {this})
-	(pop-scope)
-	(return)
-
-(def-func-end)
-
-(def-method 'textfield :key_down)
-	;inputs
-	;r0 = textfield object (ptr)
-	;r1 = key event str object (ptr)
-	;outputs
-	;r0 = textfield object (ptr)
-	;trashes
-	;r1-r14
-
-	(ptr 'this 'event 'text 'splice 'str 'data)
-	(uint 'key)
-
-	(push-scope)
-	(entry 'textfield :key_down {this, event})
-
-	;edit actions
-	(assign {&event->str_data} {data})
-	(call 'textfield :get_prop {this, static_sym_text} {_, text})
-	(assign {data->ev_msg_key_key} {key})
-	(switch)
-	(vpcase {key = 10 || key = 13})
-		;enter action
-		(jump 'textfield :emit {this})
-	(vpcase {key = 8})
-		;backspace
-		(breakif {text->str_length = 0 || this->textfield_cursor = 0})
-		(call 'list :create nil {splice})
-		(call 'str :slice {text, 0, this->textfield_cursor - 1} {_, str})
-		(call 'list :push_back {splice, str})
-		(call 'str :slice {text, this->textfield_cursor, text->str_length} {_, str})
-		(assign {this->textfield_cursor - 1} {this->textfield_cursor})
-		(goto 'refresh)
-	(vpcase {key = 0x40000050})
-		;left
-		(breakif {this->textfield_cursor = 0})
-		(assign {this->textfield_cursor - 1} {this->textfield_cursor})
-		(jump 'textfield :dirty {this})
-	(vpcase {key = 0x4000004f})
-		;right
-		(breakif {this->textfield_cursor = text->str_length})
-		(assign {this->textfield_cursor + 1} {this->textfield_cursor})
-		(jump 'textfield :dirty {this})
-	(vpcase {key >= 32 && key <= 127})
-		;append key
-		(call 'list :create nil {splice})
-		(call 'str :slice {text, 0, this->textfield_cursor} {_, str})
-		(call 'list :push_back {splice, str})
-		(call 'str :create_from_buffer {&key, 1} {str})
-		(call 'list :push_back {splice, str})
-		(call 'str :slice {text, this->textfield_cursor, text->str_length} {_, str})
-		(assign {this->textfield_cursor + 1} {this->textfield_cursor})
-	(vp-label 'refresh)
-		(call 'list :push_back {splice, str})
-		(call 'str :cat {text, splice} {text})
-		(call 'list :deref {splice})
-		(call 'textfield :set_prop {this, static_sym_text, text})
-		(call 'textfield :layout {this})
-		(jump 'textfield :dirty {this})
-	(endswitch)
-
-	(exit 'textfield :key_down {this})
 	(pop-scope)
 	(return)
 
