@@ -50,7 +50,7 @@
 	(ui-tool-bar _ (:flow_flags +flow_right_fill+)
 		(ui-buttons (0xe91d 0xe91e) +event_prev+)
 		(ui-label fontname (:font *env_window_font* :border -1)))
-	(ui-scroll symbol_scroll scroll_flag_vertical))
+	(ui-scroll symbol_scroll +scroll_flag_vertical+))
 
 (defun main ()
 	(win-refresh index)

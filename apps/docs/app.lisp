@@ -106,7 +106,7 @@
 			(each (lambda (path)
 				(component-connect (ui-button _
 					(:text path :flow_flags (logior +flow_flag_align_vcenter+ +flow_flag_align_hleft+))) +event_button+)) doc_list))
-		(ui-scroll page_scroll scroll_flag_vertical (:min_width 848 :min_height 800))))
+		(ui-scroll page_scroll +scroll_flag_vertical+ (:min_width 848 :min_height 800))))
 
 (defun main ()
 	(defq coloriser (Syntax))

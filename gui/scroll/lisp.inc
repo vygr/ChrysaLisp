@@ -2,17 +2,21 @@
 ; scroll widget
 ;;;;;;;;;;;;;;;
 
-(defq scroll_flag_vertical 1 scroll_flag_horizontal 2)
+;scroll flags
+(defq +scroll_flag_vertical+ 1 +scroll_flag_horizontal+ 2)
+
+;scroll flag combos
+(defq +scroll_flag_both+ (logior +scroll_flag_vertical+ +scroll_flag_horizontal+))
 
 (class Scroll (flags)
 	; (Scroll flags) -> scroll
 	; overide the default 'this' env with a scroll component
 	(def (defq this (create-view)) :vslider nil :hslider nil :child nil)
-	(when (/= 0 (logand flags (const scroll_flag_vertical)))
+	(when (/= 0 (logand flags (const +scroll_flag_vertical+)))
 		(def this :vslider (defq slider (Slider)))
 		(component-connect slider (component-get-id this))
 		(view-add-front this slider))
-	(when (/= 0 (logand flags (const scroll_flag_horizontal)))
+	(when (/= 0 (logand flags (const +scroll_flag_horizontal+)))
 		(def this :hslider (defq slider (Slider)))
 		(component-connect slider (component-get-id this))
 		(view-add-front this slider))

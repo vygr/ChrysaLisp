@@ -8,7 +8,7 @@
 
 (ui-window mywindow ()
 	(ui-title-bar _ "Services" (0xea19 0xea1b 0xea1a) +event_close+)
-	(ui-scroll info_scroll scroll_flag_vertical nil
+	(ui-scroll info_scroll +scroll_flag_vertical+ nil
 		(ui-grid info_grid (:grid_width 3 :grid_height 1 :flow_flags +flow_down_fill+)
 			(ui-flow service_flow nil
 				(ui-label _ (:text "Service" :color +argb_white+

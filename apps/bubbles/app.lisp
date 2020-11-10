@@ -20,7 +20,7 @@
 	(ui-tool-bar _ ()
 		(ui-buttons (0xe938) +event_reset+)
 		(ui-buttons (0xe9a3 0xe976 0xe9f0) +event_grid+ () style_buttons))
-	(ui-scroll image_scroll (logior scroll_flag_vertical scroll_flag_horizontal)
+	(ui-scroll image_scroll (logior +scroll_flag_vertical+ +scroll_flag_horizontal+)
 			(:min_width canvas_width :min_height canvas_height)
 		(ui-backdrop mybackdrop (:color +argb_black+ :ink_color +argb_grey8+ :style 1)
 			(ui-canvas layer1_canvas canvas_width canvas_height 1))))
