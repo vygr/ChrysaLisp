@@ -20,8 +20,8 @@
 	(method :pref_size (this)
 		; (. window :pref_size) -> (width height)
 		(defq child (get :child this) border (get :border this) shadow
-			(get :shadow this) w 0 h 0)
-		(if child (bind '(w h) (view-pref-size child)))
+			(get :shadow this))
+		(bind '(w h) (view-pref-size child))
 		(list (+ (* (+ shadow border) 2) w) (+ (* (+ shadow border) 2) h)))
 
 	(method :layout (this)

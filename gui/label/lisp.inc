@@ -16,7 +16,7 @@
 	(method :pref_size (this)
 		; (. label :pref_size) -> (width height)
 		(defq flow (get :label_flow this) border (abs (get :border this))
-			mw (get :min_width this) mh (get :min_height this) w 0 h 0)
+			mw (get :min_width this) mh (get :min_height this))
 		(bind '(w h) (. flow :pref_size))
 		(list (+ (* border 2) (max w mw)) (+ (* border 2) (max h mh))))
 
