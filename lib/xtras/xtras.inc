@@ -244,29 +244,35 @@
 
 ; Threaded forms
 
-(defmacro thrd-> (x &rest forms)
+(defmacro t-> (x &rest forms)
+  ; (t-> object form...)
+  ; Threads the expr through the forms. Inserts x as the
+  ; second item in the first form, making a list of it if it is not a
+  ; list already. If there are more forms, inserts the first form as the
+  ; second item in second form, etc.
   (defq
-    frmr (reverse forms)
-    _x   x)
-  (while (defq frm (pop frmr))
-    (defq threaded
-      (if (seq? frm)
-        `(,(first frm) ,_x ,(second frm))
-        `(,frm ,_x)))
-    (setq _x (exec threaded))
-    ) _x)
+    frms (reverse forms)
+    res x)
+  (while (defq frm (pop frms))
+    (if (seq? frm)
+      (setq res (list (first frm) res (second frm)))
+      (setq res (list frm res))))
+  res)
 
-(defmacro thrd->> (x &rest forms)
+(defmacro t->> (x &rest forms)
+  ; (t->> object form...)
+  ; Threads the expr through the forms. Inserts x as the
+  ; last item in the first form, making a list of it if it is not a
+  ; list already. If there are more forms, inserts the first form as the
+  ; last item in second form, etc.
   (defq
-    frmr (reverse forms)
-    _x   x)
-  (while (defq frm (pop frmr))
-    (defq threaded
-      (if (seq? frm)
-        `(,(first frm) ,(second frm) ,_x)
-        `(,frm ,_x)))
-    (setq _x (exec threaded))
-    ) _x)
+    frms (reverse forms)
+    res x)
+  (while (defq frm (pop frms))
+    (if (seq? frm)
+      (setq res (list (first frm) (second frm) res))
+      (setq res (list frm res))))
+  res)
 
 ; Take and drop forms
 
