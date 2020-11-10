@@ -13,7 +13,7 @@
 
 (ui-window mywindow ()
 	(ui-title-bar _ "Object Monitor" (0xea19) +event_close+)
-	(ui-grid _ (:grid_width 2 :grid_height 1 :flow_flags flow_down_fill :maximum 100 :value 0)
+	(ui-grid _ (:grid_width 2 :grid_height 1 :flow_flags +flow_down_fill+ :maximum 100 :value 0)
 		(ui-flow name_flow (:color +argb_grey8+)
 			(ui-label _ (:text "Class" :color +argb_white+))
 			(ui-grid _ (:grid_width 1 :grid_height 1 :color +argb_white+ :font *env_medium_terminal_font*)
@@ -23,7 +23,7 @@
 			(ui-label _ (:text "Count" :color +argb_white+))
 			(ui-grid _ (:grid_width 4 :grid_height 1 :color +argb_white+ :font *env_medium_terminal_font*)
 				(times 4 (push stat_scale (ui-label _
-					(:text "|" :flow_flags (logior flow_flag_align_vcenter flow_flag_align_hright))))))
+					(:text "|" :flow_flags (logior +flow_flag_align_vcenter+ +flow_flag_align_hright+))))))
 			(ui-view stat_view))))
 
 (defun main ()

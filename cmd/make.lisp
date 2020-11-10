@@ -30,23 +30,18 @@
 (defun make-syms ()
 	(defq *abi* (abi) *cpu* (cpu))
 	(print "Scanning source files...")
-	(defq _syms_ '(
-		cap_butt cap_round cap_square cap_tri component_id ev_msg_action_source_id
+	(defq _syms_ '(cap_butt cap_round cap_square cap_tri component_id ev_msg_action_source_id
 		ev_msg_key_key ev_msg_key_keycode ev_msg_mouse_buttons ev_msg_mouse_rx
 		ev_msg_mouse_ry ev_msg_target_id ev_msg_type ev_type_gui ev_type_key
-		ev_type_mouse file_open_append file_open_read file_open_write
-		flow_flag_align_hcenter flow_flag_align_hleft flow_flag_align_hright
-		flow_flag_align_vbottom flow_flag_align_vcenter flow_flag_align_vtop
-		flow_flag_down flow_flag_fillh flow_flag_fillw flow_flag_lasth flow_flag_lastw
-		flow_flag_left flow_flag_right flow_flag_up in_mbox_id in_state int_size
-		join_bevel join_miter join_round kn_call_child kn_call_open load_flag_film
-		load_flag_noswap load_flag_shared long_size out_state ptr_size byte_size
-		scroll_flag_horizontal scroll_flag_vertical scroll_hslider scroll_vslider
-		short_size stdio_args stream_mail_state_started stream_mail_state_stopped
-		stream_mail_state_stopping vdu_char_height vdu_char_width view_flag_at_back
-		view_flag_dirty_all view_flag_opaque view_flag_solid view_flags view_h view_w
-		view_x view_y canvas_flags canvas_color cap_arrow
-		canvas_scale canvas_width canvas_height ev_msg_mouse_x ev_msg_mouse_y)
+		ev_type_mouse file_open_append file_open_read file_open_write in_mbox_id
+		in_state int_size join_bevel join_miter join_round kn_call_child kn_call_open
+		load_flag_film load_flag_noswap load_flag_shared long_size out_state ptr_size
+		byte_size short_size stdio_args stream_mail_state_started
+		stream_mail_state_stopped stream_mail_state_stopping vdu_char_height
+		vdu_char_width view_flag_at_back view_flag_dirty_all view_flag_opaque
+		view_flag_solid view_flags view_h view_w view_x view_y canvas_flags
+		canvas_color cap_arrow canvas_scale canvas_width canvas_height ev_msg_mouse_x
+		ev_msg_mouse_y)
 		_vals_ (within-compile-env (lambda ()
 			(each include (make-tree "." "class.inc"))
 			(map eval _syms_)))

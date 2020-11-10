@@ -16,7 +16,7 @@
 	vdu_width 38 vdu_height 12 text_buf (list ""))
 
 (ui-window mywindow (:color +argb_black+)
-	(ui-flow _ (:flow_flags flow_down_fill)
+	(ui-flow _ (:flow_flags +flow_down_fill+)
 		(ui-title-bar _ "Chess" (0xea19) +event_close+)
 		(ui-grid chess_grid (:grid_width 8 :grid_height 8 :font (create-font "fonts/Chess.ctf" 42) :border 1 :text " ")
 			(each (lambda (i)

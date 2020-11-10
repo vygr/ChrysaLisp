@@ -24,7 +24,7 @@
 	(byte 'buf+ 'state+ 'reply_id+))
 
 (ui-window mywindow (:color 0xc0000000)
-	(ui-flow _ (:flow_flags flow_down_fill)
+	(ui-flow _ (:flow_flags +flow_down_fill+)
 		(ui-title-bar _ "Debug" (0xea19) +event_close+)
 		(ui-tool-bar _ ()
 			(ui-buttons (0xe95e 0xe95d 0xe95c 0xe960) +event_play+)

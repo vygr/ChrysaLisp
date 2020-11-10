@@ -24,7 +24,7 @@
 	(byte 'buf+))
 
 (ui-window mywindow (:color 0xc0000000)
-	(ui-flow _ (:flow_flags flow_down_fill)
+	(ui-flow _ (:flow_flags +flow_down_fill+)
 		(ui-title-bar _ "Profile" (0xea19) +event_close+)
 		(ui-tool-bar _ ()
 			(ui-buttons (0xe960) +event_clear+)

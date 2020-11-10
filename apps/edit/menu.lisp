@@ -7,13 +7,13 @@
 	(byte 'click+))
 
 (ui-window window (:border 1)
-	(ui-flow btn_menu (:flow_flags flow_down_fill)
+	(ui-flow btn_menu (:flow_flags +flow_down_fill+)
 		(ui-grid btn_menu_grid (:grid_width 1 :grid_height 1))))
 
 (defun build-menu (x y pflag)
 	(view-sub btn_menu_grid)
 	(defq btn_length (length btn_list))
-	(def (setq btn_menu_grid (Grid)) :min_width 80 :flow_flags flow_flag_align_hcenter 
+	(def (setq btn_menu_grid (Grid)) :min_width 80 :flow_flags +flow_flag_align_hcenter+ 
 		:grid_height btn_length :grid_width 1)
 	(each (lambda (c) 
 		(def (defq btn (Button)) :text (elem _ btn_list))

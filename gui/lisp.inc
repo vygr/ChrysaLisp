@@ -67,7 +67,7 @@
 	(ui-props p :font *env_window_font* :ink_color *env_ink_col* :color *env_window_col*
 		:border *env_window_border* :shadow *env_window_shadow*)
 	`(ui-tree ,n (Window) ,p
-		(ui-flow _ (:flow_flags flow_down_fill) ~x)))
+		(ui-flow _ (:flow_flags +flow_down_fill+) ~x)))
 
 (defmacro ui-flow (n &optional p &rest x)
 	; (ui-flow name [props] [body]) -> flow
@@ -84,19 +84,19 @@
 
 (defmacro ui-title-bar (n s b e &optional p)
 	; (ui-title-bar name title symbols events [props]) -> flow
-	(ui-props p :flow_flags flow_left_fill :color *env_title_col* :font *env_title_buttons_font*)
+	(ui-props p :flow_flags +flow_left_fill+ :color *env_title_col* :font *env_title_buttons_font*)
 	`(ui-flow _ ,p
 		(ui-buttons ,b ,e (:border *env_title_buttons_border*))
 		(ui-title ,n (:text ,s))))
 
 (defmacro ui-label (n &optional p &rest x)
 	; (ui-label name [props] [body]) -> label
-	(ui-props p :flow_flags (logior flow_flag_right flow_flag_align_vcenter) :border *env_label_border*)
+	(ui-props p :flow_flags (logior +flow_flag_right+ +flow_flag_align_vcenter+) :border *env_label_border*)
 	`(ui-element ,n (Label) ,p ~x))
 
 (defmacro ui-button (n &optional p &rest x)
 	; (ui-button name [props] [body]) -> button
-	(ui-props p :flow_flags (logior flow_flag_down flow_flag_align_hcenter flow_flag_align_vcenter)
+	(ui-props p :flow_flags (logior +flow_flag_down+ +flow_flag_align_hcenter+ +flow_flag_align_vcenter+)
 		:border *env_button_border*)
 	`(ui-element ,n (Button) ,p ~x))
 
@@ -110,13 +110,13 @@
 
 (defmacro ui-tool-bar (n &optional p &rest x)
 	; (ui-tool-bar name [props] [body]) -> flow
-	(ui-props p :flow_flags (logior flow_flag_right flow_flag_fillh) :color *env_toolbar_col*
+	(ui-props p :flow_flags (logior +flow_flag_right+ +flow_flag_fillh+) :color *env_toolbar_col*
 		:font *env_toolbar_font*)
 	`(ui-flow ,n ,p ~x))
 
 (defmacro ui-textfield (n &optional p)
 	; (ui-textfield name [props]) -> textfield
-	(ui-props p :flow_flags (logior flow_flag_right flow_flag_align_vcenter) :border *env_textfield_border*)
+	(ui-props p :flow_flags (logior +flow_flag_right+ +flow_flag_align_vcenter+) :border *env_textfield_border*)
 	`(ui-element ,n (Textfield) ,p))
 
 (defmacro ui-slider (n &optional p)
@@ -154,10 +154,5 @@
 (defmacro view-dirty-all (_)
 	; (view-dirty-all view) -> view
 	`(view-set-flags ,_ view_flag_dirty_all view_flag_dirty_all))
-
-;useful flow combos
-(defq flow_down_fill (logior flow_flag_down flow_flag_fillw flow_flag_lasth)
-	flow_right_fill (logior flow_flag_right flow_flag_fillh flow_flag_lastw)
-	flow_left_fill (logior flow_flag_left flow_flag_fillh flow_flag_lastw))
 
 (defq scroll_flag_both (logior scroll_flag_vertical scroll_flag_horizontal))

@@ -9,7 +9,7 @@
 
 (ui-window mywindow ()
 	(ui-title-bar _ "Login Manager" () ())
-	(ui-flow _ (:flow_flags flow_right_fill)
+	(ui-flow _ (:flow_flags +flow_right_fill+)
 		(ui-grid _ (:grid_width 1 :grid_height 2)
 			(ui-label _ (:text "Username:"))
 			(ui-label _ (:text "Password:")))

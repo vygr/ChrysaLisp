@@ -28,7 +28,7 @@
 				(t (push keys k) (push vals v))))) k v)
 	(each (lambda (_)
 		(def (defq b (Button)) :text _ :border 0
-			:flow_flags  (logior flow_flag_align_vcenter flow_flag_align_hleft))
+			:flow_flags  (logior +flow_flag_align_vcenter+ +flow_flag_align_hleft+))
 		(view-add-child index (component-connect b +event_button+))) keys)
 	(def vdu :vdu_width
 		(reduce max (map (lambda (_)
@@ -46,11 +46,11 @@
 	(vdu-load vdu buf 0 0 (length (elem -2 buf)) (dec (length buf))) buf)
 
 (ui-window mywindow (:color +argb_black+)
-	(ui-flow _ (:flow_flags flow_down_fill)
+	(ui-flow _ (:flow_flags +flow_down_fill+)
 		(ui-title-bar _ "Help" (0xea19) +event_close+)
-		(ui-flow _ (:flow_flags flow_right_fill :font *env_terminal_font*)
+		(ui-flow _ (:flow_flags +flow_right_fill+ :font *env_terminal_font*)
 			(ui-scroll index_scroll scroll_flag_vertical nil
-				(ui-flow index (:flow_flags (logior flow_flag_down flow_flag_fillw) :color +argb_white+)))
+				(ui-flow index (:flow_flags (logior +flow_flag_down+ +flow_flag_fillw+) :color +argb_white+)))
 			(ui-vdu vdu (:vdu_height vdu_height :ink_color +argb_cyan+)))))
 
 (defun main ()

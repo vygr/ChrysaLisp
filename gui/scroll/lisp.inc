@@ -2,6 +2,8 @@
 ; scroll widget
 ;;;;;;;;;;;;;;;
 
+(defq scroll_flag_vertical 1 scroll_flag_horizontal 2)
+
 (class Scroll (flags)
 	; (Scroll flags) -> scroll
 	; overide the default 'this' env with a scroll component
