@@ -21,7 +21,6 @@
 	(vp-push r0)
 	(call 'backdrop :create nil '(r1))
 	(vp-pop r0)
-	(assign '(r0) '((r1 component_lisp)))
 
 	(exit 'backdrop :lisp_create '(r0 r1))
 	(vp-ret)

@@ -22,7 +22,7 @@
 (dec-method :lisp_emit 'gui/component/lisp_emit :static '(r0 r1) '(r0 r1))
 
 (def-struct 'component 'hmap)
-	(ptr 'lisp 'target_ids)
+	(ptr 'target_ids)
 	(long 'id)
 	(struct 'owner_id 'id)
 (def-struct-end)

@@ -10,7 +10,7 @@
 	(def (defq this (create-window)) :child nil :is_window t)
 
 	(method :add_child (this child)
-		; (. window :add_child child) -> this
+		; (. window :add_child child) -> window
 		(if (defq old_child (get :child this))
 			(view-sub old_child))
 		(set this :child child)

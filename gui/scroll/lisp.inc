@@ -16,7 +16,7 @@
 		(view-add-front this slider))
 
 	(method :add_child (this child)
-		; (. scroll :add_child child) -> this
+		; (. scroll :add_child child) -> scroll
 		(if (defq old_child (get :child this))
 			(view-sub old_child))
 		(set this :child child)
@@ -24,7 +24,7 @@
 		this)
 
 	(method :action (this data)
-		; (. scroll :action data) -> this
+		; (. scroll :action data) -> scroll
 		(. this :layout)
 		(view-set-flags this view_flag_dirty_all view_flag_dirty_all)
 		this)
@@ -33,8 +33,7 @@
 		; (. scroll :pref_size) -> (width height)
 		(defq hslider (get :hslider this) vslider (get :vslider this)
 			mw (get :min_width this) mh (get :min_height this))
-		(unless mw (setq mw 0))
-		(unless mh (setq mh 0))
+		(setd mw 0 mh 0)
 		(if vslider
 			(setq mw (+ mw (elem 0 (view-pref-size vslider)))))
 		(if hslider

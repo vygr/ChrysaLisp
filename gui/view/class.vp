@@ -7,6 +7,7 @@
 (include "class/sym/class.inc")
 (include "class/lisp/class.inc")
 (include "class/num/class.inc")
+(include "sys/task/class.inc")
 
 (gen-create 'view)
 (gen-vtable 'view)
@@ -135,7 +136,7 @@
 	(push-scope)
 	(entry 'view :add_child {this, child})
 
-	(assign {this->component_lisp} {lisp})
+	(assign (cat {@} (f-path 'sys_task :statics) {.tk_statics_current_tcb->tk_node_lisp}) {lisp})
 	(vpif {lisp})
 		(call 'sym :get_static_sym {static_sym_add_child} {value})
 		(call 'component :find {this, value} {_, value, _})
@@ -594,7 +595,7 @@
 	(entry 'view :layout {this})
 
 	;do we have a Lisp level layout method ?
-	(assign {this->component_lisp} {lisp})
+	(assign (cat {@} (f-path 'sys_task :statics) {.tk_statics_current_tcb->tk_node_lisp}) {lisp})
 	(vpif {lisp})
 		(call 'sym :get_static_sym {static_sym_layout} {value})
 		(call 'view :find {this, value} {_, value, _})
@@ -668,33 +669,6 @@
 
 (def-func-end)
 
-(def-method 'view :draw_panel)
-	;inputs
-	;r0 = view object (ptr)
-	;r1 = draw ctx (ptr)
-	;r2 = flags (ulong)
-	;r3 = depth (int)
-	;outputs
-	;r0 = view object (ptr)
-	;trashes
-	;r1-r14
-
-	(ptr 'this 'ctx)
-	(uint 'flags 'depth 'col)
-
-	;save inputs
-	(push-scope)
-	(entry 'view :draw_panel {this, ctx, flags, depth})
-
-	(call 'view :get_long_prop {this, static_sym_color} {_, col})
-	(call 'ctx :panel {ctx, col, flags, depth, 0, 0, this->view_w, this->view_h})
-
-	(exit 'view :draw_panel {this})
-	(pop-scope)
-	(return)
-
-(def-func-end)
-
 (def-method 'view :event)
 	;inputs
 	;r0 = view object (ptr)
@@ -750,7 +724,7 @@
 			(break)
 		(vpcase {data->ev_msg_type = ev_type_action})
 			;do we have a Lisp level :action method ?
-			(assign {target->component_lisp} {lisp})
+			(assign (cat {@} (f-path 'sys_task :statics) {.tk_statics_current_tcb->tk_node_lisp}) {lisp})
 			(vpif {lisp})
 				(call 'sym :get_static_sym {static_sym_action} {value})
 				(call 'component :find {target, value} {_, value, _})
@@ -952,7 +926,7 @@
 	(entry 'view :pref_size {this})
 
 	;do we have a Lisp level pref_size method ?
-	(assign {this->component_lisp} {lisp})
+	(assign (cat {@} (f-path 'sys_task :statics) {.tk_statics_current_tcb->tk_node_lisp}) {lisp})
 	(vpif {lisp})
 		(call 'sym :get_static_sym {static_sym_pref_size} {value})
 		(call 'view :find {this, value} {_, value, _})
@@ -1055,7 +1029,7 @@
 	(entry 'view :mouse_down {this, event})
 
 	;do we have a Lisp level mouse_down method ?
-	(assign {this->component_lisp} {lisp})
+	(assign (cat {@} (f-path 'sys_task :statics) {.tk_statics_current_tcb->tk_node_lisp}) {lisp})
 	(vpif {lisp})
 		(call 'sym :get_static_sym {static_sym_mouse_down} {value})
 		(call 'view :find {this, value} {_, value, _})
@@ -1092,7 +1066,7 @@
 	(entry 'view :mouse_up {this, event})
 
 	;do we have a Lisp level mouse_down method ?
-	(assign {this->component_lisp} {lisp})
+	(assign (cat {@} (f-path 'sys_task :statics) {.tk_statics_current_tcb->tk_node_lisp}) {lisp})
 	(vpif {lisp})
 		(call 'sym :get_static_sym {static_sym_mouse_up} {value})
 		(call 'view :find {this, value} {_, value, _})
@@ -1129,7 +1103,7 @@
 	(entry 'view :mouse_move {this, event})
 
 	;do we have a Lisp level mouse_down method ?
-	(assign {this->component_lisp} {lisp})
+	(assign (cat {@} (f-path 'sys_task :statics) {.tk_statics_current_tcb->tk_node_lisp}) {lisp})
 	(vpif {lisp})
 		(call 'sym :get_static_sym {static_sym_mouse_move} {value})
 		(call 'view :find {this, value} {_, value, _})
@@ -1166,7 +1140,7 @@
 	(entry 'view :key_down {this, event})
 
 	;do we have a Lisp level mouse_down method ?
-	(assign {this->component_lisp} {lisp})
+	(assign (cat {@} (f-path 'sys_task :statics) {.tk_statics_current_tcb->tk_node_lisp}) {lisp})
 	(vpif {lisp})
 		(call 'sym :get_static_sym {static_sym_key_down} {value})
 		(call 'view :find {this, value} {_, value, _})

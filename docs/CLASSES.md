@@ -8959,20 +8959,6 @@ trashes
 r1-r3
 ```
 
-### view::draw_panel -> gui/view/draw_panel
-
-```lisp
-inputs
-r0 = view object (ptr)
-r1 = draw ctx (ptr)
-r2 = flags (ulong)
-r3 = depth (int)
-outputs
-r0 = view object (ptr)
-trashes
-r1-r14
-```
-
 ### view::get_bounds -> gui/view/get_bounds
 
 ```lisp

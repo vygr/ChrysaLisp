@@ -47,17 +47,17 @@
 		(tolist e))
 
 	(method :set_state (this state)
-		; (. this :set_state state) -> this
+		; (. syntax :set_state state) -> syntax
 		(set this :state state)
 		this)
 
 	(method :set_colors (this colors)
-		; (. this :set_colors xmap) -> this
+		; (. syntax :set_colors xmap) -> syntax
 		(. colors :each (# (set this %0 (<< (canvas-from-argb32 %1 15) 32))))
 		this)
 
 	(method :colorise (this line)
-		; (. this :colorise str) -> array
+		; (. syntax :colorise str) -> array
 
 		;tokenise the string starting with the current state
 		;save the state at the end as we may wish to continue

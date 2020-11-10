@@ -23,7 +23,6 @@
 (dec-method :change_dirty 'gui/view/change_dirty :static '(r0 r7 r8 r9 r10) '(r0))
 (dec-method :hit_tree 'gui/view/hit_tree :static '(r0 r7 r8) '(r0 r1 r7 r8))
 (dec-method :find_id 'gui/view/find_id :static '(r0 r1) '(r0 r1))
-(dec-method :draw_panel 'gui/view/draw_panel :static '(r0 r1 r2 r3) '(r0))
 (dec-method :get_bounds 'gui/view/get_bounds :static '(r0) '(r0 r7 r8 r9 r10))
 (dec-method :set_bounds 'gui/view/set_bounds :static '(r0 r7 r8 r9 r10) '(r0))
 (dec-method :set_flags 'gui/view/set_flags :static '(r0 r1 r2) '(r0 r1))

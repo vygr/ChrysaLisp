@@ -26,8 +26,7 @@
 		(vp-sub-cr 1 r2)
 		(assign '(r2 r2) '((r1 gui_statics_next_id) (r0 component_id)))
 		(vp-xor-rr r2 r2)
-		(assign '(r2 r2 r2)
-			`((r0 ,(+ component_owner_id id_id))(r0 component_target_ids) (r0 component_lisp)))
+		(assign '(r2 r2) `((r0 ,(+ component_owner_id id_id)) (r0 component_target_ids)))
 	(endif)
 	(vp-ret)
 

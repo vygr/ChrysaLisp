@@ -23,7 +23,6 @@
 	(vp-push r0)
 	(call 'view :create nil '(r1))
 	(vp-pop r0)
-	(assign '(r0) '((r1 component_lisp)))
 
 	(exit 'view :lisp_create '(r0 r1))
 	(vp-ret)

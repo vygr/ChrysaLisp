@@ -44,6 +44,10 @@
 
 (. button :pref_size) -> (width height)
 
+## canvas :pref_size
+
+(. canvas :pref_size) -> (width height)
+
 ## emap :copy
 
 (. emap :copy) -> emap
@@ -114,11 +118,11 @@
 
 ## scroll :action
 
-(. scroll :action data) -> this
+(. scroll :action data) -> scroll
 
 ## scroll :add_child
 
-(. scroll :add_child child) -> this
+(. scroll :add_child child) -> scroll
 
 ## scroll :layout
 
@@ -174,7 +178,7 @@
 
 ## window :add_child
 
-(. window :add_child child) -> this
+(. window :add_child child) -> window
 
 ## window :layout
 

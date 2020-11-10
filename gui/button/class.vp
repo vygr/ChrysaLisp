@@ -1,5 +1,6 @@
 (include "sys/func.inc")
 (include "gui/button/class.inc")
+(include "gui/ctx/class.inc")
 (include "class/sym/class.inc")
 
 (gen-create 'button)
@@ -15,23 +16,25 @@
 	;r1-r14
 
 	(def-struct 'local)
-		(ptr 'ctx)
-		(int 'border)
+		(ptr 'this 'ctx)
+		(int 'border 'col)
 	(def-struct-end)
 
 	(vp-alloc local_size)
 	(entry 'button :draw '(r0 (rsp local_ctx)))
+	(assign '(r0) '((rsp local_this)))
 
 	;draw panel, in or out
 	(call 'button :get_long_prop '(r0 static_sym_border) '(r0 (rsp local_border)))
+	(call 'button :get_long_prop '(r0 static_sym_color) '(r0 (rsp local_col)))
 	(call 'button :get_long_prop '(r0 static_sym_state) '(r0 r1))
 	(assign '((rsp local_border)) '(r3))
 	(vpif '(r1 /= 0))
 		(vp-mul-cr -1 r3)
 	(endif)
-	(call 'button :draw_panel '(r0 (rsp local_ctx) 1 r3) '(r0))
+	(call 'ctx :panel '((rsp local_ctx) (rsp local_col) 1 r3 0 0 (r0 view_w) (r0 view_h)))
 
-	(exit 'button :draw '(r0))
+	(exit 'button :draw '((rsp local_this)))
 	(vp-free local_size)
 	(vp-ret)
 

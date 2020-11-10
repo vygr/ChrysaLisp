@@ -30,9 +30,9 @@
 	; overide the default 'this' env with a canvas component
 	(defq this (create-canvas width height scale))
 
-	;; (method :pref_size (this)
-	;; 	; (. canvas :pref_size) -> (width height)
-	;; 	(defq canvas_scale (get-field this (const canvas_scale) (const (neg int_size))))
-	;; 	(list (/ (get-field this (const canvas_width) (const (neg int_size))) canvas_scale)
-	;; 		(/ (get-field this (const canvas_height) (const (neg int_size))) canvas_scale)))
+	(method :pref_size (this)
+		; (. canvas :pref_size) -> (width height)
+		(defq canvas_scale (get-field this (const canvas_scale) (const (neg int_size))))
+		(list (/ (get-field this (const canvas_width) (const (neg int_size))) canvas_scale)
+			(/ (get-field this (const canvas_height) (const (neg int_size))) canvas_scale)))
 	)

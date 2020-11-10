@@ -1,5 +1,6 @@
 (include "sys/func.inc")
 (include "sys/mail/class.inc")
+(include "sys/task/class.inc")
 (include "class/sstream/class.inc")
 (include "class/lisp/class.inc")
 (include "class/sym/class.inc")
@@ -28,6 +29,8 @@
 	(call 'lisp :create {stream, stream, stream} {lisp})
 	(call 'obj :deref {stream})
 	(vpif {lisp})
+		;;fill in lisp object tls
+		(assign {lisp} (cat {@} (f-path 'sys_task :statics) {.tk_statics_current_tcb->tk_node_lisp}))
 		;run lisp file
 		(call 'str :create_from_file {&script->str_data} {file})
 		(vpif {file})

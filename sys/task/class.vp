@@ -299,6 +299,7 @@
 	;alloc task mailbox and tls
 	(call 'sys_mail :alloc_mbox nil {tcb->tk_node_mbox_id, tcb->tk_node_mbox_addr})
 	(call 'array :create nil {tcb->tk_node_tls})
+	(assign {0} {tcb->tk_node_lisp})
 
 	;init task control block stack, pc and stop address's
 	(assign {tcb, tcb + tcb_size, 0, num_task_lists - 1, func} '(r0 r1 r2 r3 r4))

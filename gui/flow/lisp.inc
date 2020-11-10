@@ -11,8 +11,7 @@
 		; (. flow :pref_size) -> (width height)
 		(defq flow_flags (get :flow_flags this) pw 0 ph 0
 			mw (get :min_width this) mh (get :min_height this))
-		(unless mw (setq mw 0))
-		(unless mh (setq mh 0))
+		(setd mw 0 mh 0)
 		(each (lambda (child)
 			(bind '(w h) (view-pref-size child))
 			(if (/= 0 (logand flow_flags (const (logior flow_flag_left flow_flag_right))))

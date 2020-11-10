@@ -35,7 +35,7 @@
 (defcvar 'tk_stack_size (* 1024 4))
 
 (def-struct 'tk_node 'ln_node)
-	(ptr 'stack 'mbox_addr 'tls)
+	(ptr 'stack 'mbox_addr 'lisp 'tls)
 	(ulong 'time)
 	(uint 'priority 'mbox_id)
 (def-struct-end)
