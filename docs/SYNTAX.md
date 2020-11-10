@@ -176,6 +176,14 @@
 
 (. title :mouse_move event) -> title
 
+## vdu :char_size
+
+(. vdu :char_size) -> (width height)
+
+## vdu :max_size
+
+(. vdu :max_size) -> (width height)
+
 ## window :add_child
 
 (. window :add_child child) -> window
@@ -1796,17 +1804,9 @@
 
 (values collection) -> list | nil
 
-## vdu-char-size
-
-(vdu-char-size vdu) -> (w h)
-
 ## vdu-load
 
 (vdu-load vdu lines ox oy cx cy)
-
-## vdu-max-size
-
-(vdu-max-size vdu) -> (w h)
 
 ## view-add-back
 

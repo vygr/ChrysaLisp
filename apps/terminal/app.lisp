@@ -131,7 +131,7 @@
 						nil)
 					((= id +event_layout+)
 						;user window resize
-						(apply window-layout (vdu-max-size vdu)))
+						(apply window-layout (. vdu :max_size)))
 					((= id +event_min+)
 						;min button
 						(window-resize 60 40))

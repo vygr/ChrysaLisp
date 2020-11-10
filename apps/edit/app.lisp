@@ -113,7 +113,7 @@
 (defun mouse-cursor (mouse_xy)
 	(defq buffer (elem +text_buffer+ current_text))
 	(bind '(ox oy cx cy sx) (elem +text_position+ current_text))
-	(defq cursor_xy (list cx cy) +char_wh+ (vdu-char-size vdu) offset_xy (list ox oy))
+	(defq cursor_xy (list cx cy) +char_wh+ (. vdu :char_size) offset_xy (list ox oy))
 	(setq cursor_xy (map + (map / mouse_xy +char_wh+) offset_xy)
 		cx (elem 0 cursor_xy) cy (elem 1 cursor_xy))
 	;prevent freezing on out of mouse out of bounds.
@@ -369,7 +369,7 @@
 		((= id +event_next+)
 			(setq current_text (next-buffer (elem +text_index+ current_text)))
 			(window-layout vdu_width vdu_height))
-		((= id +event_layout+) (apply window-layout (vdu-max-size vdu)))
+		((= id +event_layout+) (apply window-layout (. vdu :max_size)))
 		((= id +event_min+) (window-resize 60 40))
 		((= id +event_max+) (window-resize 120 48))
 		((= id +event_scroll+)			
