@@ -107,20 +107,6 @@
   ; Tests whether string is numeric form
   (not (eql (second (numstr-type _)) :nan)))
 
-(defun to-num (s)
-  ; (to-num string) -> number
-  (bind '(mu ty wn dn ba)  (numstr-type s))
-  (when (not (eql ty :nan))
-    (case ty
-      ((:integer)
-        (* (str-to-num wn) mu))
-      ((:decimal)
-        (* (i2f mu) (+ (i2f (str-to-num wn))
-          (/ (i2f (str-to-num dn)) (i2f (pow ba (length dn)))))))
-      ((:hexidecimal :octal :binary)
-        (defq num 0)
-        (each (# (setq num (+ (* num ba) (char-to-num %0)))) wn)
-        (* mu num)))))
 
 (defun zero? (_)
   ; (zero? num) -> bool
@@ -159,6 +145,21 @@
 
 ; Convenience
 
+(defun to-num (s)
+  ; (to-num string) -> number
+  (bind '(mu ty wn dn ba)  (numstr-type s))
+  (when (not (eql ty :nan))
+    (case ty
+      ((:integer)
+        (* (str-to-num wn) mu))
+      ((:decimal)
+        (* (i2f mu) (+ (i2f (str-to-num wn))
+          (/ (i2f (str-to-num dn)) (i2f (pow ba (length dn)))))))
+      ((:hexidecimal :octal :binary)
+        (defq num 0)
+        (each (# (setq num (+ (* num ba) (char-to-num %0)))) wn)
+        (* mu num)))))
+
 (defun str-is-ints? (s)
   ; (str-is-ints? s) -> :true | :false
   ; TODO: Deprecate for numstr?
@@ -172,17 +173,6 @@
           acc
           (reduced :false))
         ) instr :true))
-
-(defun efind (p k)
-  ; (efind list key) -> index | nil
-  ; Returns the index of key in list or properties
-  ; Used when keys are number and/or string
-  (defq fx nil)
-  (each! 0 -1
-    (lambda (s)
-      (when (eql s k)
-        (setq fx _))) (list p))
-  fx)
 
 (defun kw (_)
   ; (kw el) -> keyword
@@ -252,6 +242,37 @@
   ; Like postwalk, but does pre-order traversal
   (nwalk (curry pre-nwalk fn) identity (fn form)))
 
+; Threaded forms
+
+(defmacro t-> (x &rest forms)
+  ; (t-> object form...)
+  ; Threads the expr through the forms. Inserts x as the
+  ; second item in the first form, making a list of it if it is not a
+  ; list already. If there are more forms, inserts the first form as the
+  ; second item in second form, etc.
+  (defq
+    frms (reverse forms)
+    res x)
+  (while (defq frm (pop frms))
+    (if (seq? frm)
+      (setq res (list (first frm) res (second frm)))
+      (setq res (list frm res))))
+  res)
+
+(defmacro t->> (x &rest forms)
+  ; (t->> object form...)
+  ; Threads the expr through the forms. Inserts x as the
+  ; last item in the first form, making a list of it if it is not a
+  ; list already. If there are more forms, inserts the first form as the
+  ; last item in second form, etc.
+  (defq
+    frms (reverse forms)
+    res x)
+  (while (defq frm (pop frms))
+    (if (seq? frm)
+      (setq res (list (first frm) (second frm) res))
+      (setq res (list frm res))))
+  res)
 
 ; Take and drop forms
 
