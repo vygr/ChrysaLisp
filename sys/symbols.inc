@@ -29,9 +29,6 @@ join_miter 0
 join_round 2
 kn_call_child 2
 kn_call_open 1
-load_flag_film 2
-load_flag_noswap 4
-load_flag_shared 1
 long_size 8
 out_state 76
 ptr_size 8

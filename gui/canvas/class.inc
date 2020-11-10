@@ -72,7 +72,3 @@
 	(int 'x 'ys 'ye 'w 'dda)
 	(local-align)
 (def-struct-end)
-
-(def-bit 'load_flag)
-	(bit 'shared 'film 'noswap)
-(def-bit-end)

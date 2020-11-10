@@ -2,6 +2,7 @@
 (include "sys/pii/class.inc")
 (include "sys/str/class.inc")
 (include "gui/canvas/class.inc")
+(include "gui/canvas/lisp.inc")
 (include "class/list/class.inc")
 (include "class/sym/class.inc")
 (include "class/sstream/class.inc")
@@ -252,7 +253,7 @@
 	(entry 'canvas :load {name, flags})
 
 	;shared or not
-	(vpif {flags & load_flag_shared} 'funcexit)
+	(vpif {flags & +load_flag_shared+} 'funcexit)
 		;create hash map ?
 		(assign {ptr($canvass)} {hash})
 		(vpifnot {hash})
@@ -271,7 +272,7 @@
 			(call 'canvas :load_file {name, stream} {this})
 			(call 'sstream :deref {stream})
 			(breakifnot {this} 'funcexit)
-			(vpifnot {flags & load_flag_noswap})
+			(vpifnot {flags & +load_flag_noswap+})
 				(call 'canvas :swap {this} {this})
 			(endif)
 			(call 'list :push_back2 {bucket, sym, this})
@@ -287,10 +288,10 @@
 		(call 'sstream :create {this} {stream})
 		(call 'canvas :load_file {name, stream} {this})
 		(vpif {this})
-			(vpifnot {flags & load_flag_noswap})
+			(vpifnot {flags & +load_flag_noswap+})
 				(call 'canvas :swap {this} {this})
 			(endif)
-			(breakifnot {flags & load_flag_film})
+			(breakifnot {flags & +load_flag_film+})
 			(assign {stream} {this->canvas_stream})
 			(assign {stream->stream_bufp} {this->canvas_bufp})
 			(break 'funcexit)

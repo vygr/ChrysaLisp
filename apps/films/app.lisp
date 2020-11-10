@@ -22,7 +22,7 @@
 	(ui-scroll image_scroll (logior +scroll_flag_vertical+ +scroll_flag_horizontal+)))
 
 (defun win-refresh (_)
-	(bind '(w h) (view-pref-size (setq canvas (canvas-load (elem (setq index _) films) load_flag_film))))
+	(bind '(w h) (view-pref-size (setq canvas (canvas-load (elem (setq index _) films) +load_flag_film+))))
 	(def image_scroll :min_width w :min_height h)
 	(def window_title :text (elem _ films))
 	(view-add-child image_scroll canvas)

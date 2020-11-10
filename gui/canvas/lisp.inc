@@ -25,6 +25,9 @@
 	; (canvas-set-flags canvas flags) -> canvas
 	(set-field canvas (const canvas_flags) (const (neg int_size)) flags))
 
+;load flags
+(defq +load_flag_shared+ 1 +load_flag_film+ 2 +load_flag_noswap+ 4)
+
 (class Canvas (width height scale)
 	; (Canvas) -> canvas
 	; overide the default 'this' env with a canvas component

@@ -35,7 +35,7 @@
 		ev_msg_mouse_ry ev_msg_target_id ev_msg_type ev_type_gui ev_type_key
 		ev_type_mouse file_open_append file_open_read file_open_write in_mbox_id
 		in_state int_size join_bevel join_miter join_round kn_call_child kn_call_open
-		load_flag_film load_flag_noswap load_flag_shared long_size out_state ptr_size
+		long_size out_state ptr_size
 		byte_size short_size stdio_args stream_mail_state_started
 		stream_mail_state_stopped stream_mail_state_stopping vdu_char_height
 		vdu_char_width view_flag_at_back view_flag_dirty_all view_flag_opaque
