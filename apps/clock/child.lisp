@@ -52,7 +52,7 @@
 	;hour and minute hands
 	(defq _ (path-stroke-polylines (list) (const (* scale 0.02)) eps join_miter cap_round cap_tri
 		(list (transform (path 0.0 0.04 0.0 -0.22) (/ (* hours +fp_2pi+) 12.0) scale)
-			(transform (path 0.0 0.04 0.0 -0.38) (/ (* minutes +fp_2pi+) 60.0) scale))))
+			(transform (path 0.0 0.04 0.0 -0.33) (/ (* minutes +fp_2pi+) 60.0) scale))))
 	(canvas-set-color clock 0xa0000000)
 	(canvas-fpoly clock (const (* scale 0.01)) (const (* scale 0.01)) 1 _)
 	(canvas-set-color clock +argb_green+)
@@ -60,7 +60,7 @@
 
 	;second hand
 	(defq _ (path-stroke-polylines (list) (const (* scale 0.01)) eps join_miter cap_round cap_tri
-		(list (transform (path 0.0 0.04 0.0 -0.34) (/ (* (% seconds 60.0) +fp_2pi+) 60.0) scale))))
+		(list (transform (path 0.0 0.04 0.0 -0.38) (/ (* (% seconds 60.0) +fp_2pi+) 60.0) scale))))
 	(canvas-set-color clock 0xa0000000)
 	(canvas-fpoly clock (const (* scale 0.01)) (const (* scale 0.01)) 0 _)
 	(canvas-set-color clock +argb_red+)
