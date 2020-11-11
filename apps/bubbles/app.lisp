@@ -28,7 +28,7 @@
 (defun radio-select (l i)
 	;radio select buttons
 	(each (lambda (b)
-		(def (view-dirty b) :color (if (= _ i) (const +argb_grey14+) (const *env_toolbar_col*)))) l) i)
+		(def (view-dirty b) :color (if (= _ i) +argb_grey14+ (const *env_toolbar_col*)))) l) i)
 
 (defun redraw (verts mask)
 	;redraw layer/s
@@ -128,7 +128,7 @@
 								(setq last_state :u))
 							(:u	;was up last time, so we are hovering
 								t))))))
-		(t (view-event mywindow msg))))
+		(t (. mywindow :event msg))))
 		(vertex-update verts)
 		(redraw verts 1)
 		(task-sleep rate))

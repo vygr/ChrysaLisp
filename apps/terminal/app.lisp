@@ -144,7 +144,7 @@
 							cy (dec (length text_buf)))
 						(vdu-load vdu text_buf 0 (get :value slider) cx cy))
 					(t	;gui event
-						(view-event mywindow msg)
+						(. mywindow :event msg)
 						(and (= (get-long msg ev_msg_type) ev_type_key)
 							(> (get-int msg ev_msg_key_keycode) 0)
 							(terminal-input (get-int msg ev_msg_key_key)))

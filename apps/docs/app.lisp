@@ -118,5 +118,5 @@
 			nil)
 		((= id +event_button+)
 			(populate-page (get :text (view-find-id mywindow (get-long msg ev_msg_action_source_id)))))
-		(t (view-event mywindow msg))))
+		(t (. mywindow :event msg))))
 	(view-hide mywindow))

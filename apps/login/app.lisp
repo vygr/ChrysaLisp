@@ -58,5 +58,5 @@
 					(open-child "apps/wallpaper/app.lisp" kn_call_open)
 					nil)
 				(t	t)))
-		(t (view-event mywindow msg))))
+		(t (. mywindow :event msg))))
 	(view-hide mywindow))

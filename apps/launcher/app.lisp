@@ -27,5 +27,5 @@
 		((= id +event_button+)
 			(open-child (app-path (get :text (view-find-id mywindow (get-long msg ev_msg_action_source_id)))) kn_call_open)
 			nil)
-		(t (view-event mywindow msg))))
+		(t (. mywindow :event msg))))
 	(view-hide mywindow))

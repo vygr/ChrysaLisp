@@ -163,5 +163,5 @@
 			(and (= (get-long msg (const ev_msg_type)) (const ev_type_mouse))
 				(/= 0 (get-int msg (const ev_msg_mouse_buttons)))
 				(setq mouse_down (get-int msg (const ev_msg_mouse_buttons))))
-			(view-event mywindow msg))))
+			(. mywindow :event msg))))
 	(view-hide mywindow))

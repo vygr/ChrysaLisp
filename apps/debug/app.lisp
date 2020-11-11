@@ -145,7 +145,7 @@
 				(each step buf_list)
 				(reset))
 			;otherwise
-			(t (view-event mywindow msg))))
+			(t (. mywindow :event msg))))
 	(mail-forget entry)
 	(mail-free-mbox (pop select))
 	(view-hide mywindow))

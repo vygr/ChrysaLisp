@@ -68,7 +68,7 @@
 				(broadcast (get :text chat_text))
 				(set chat_text :text "")
 				(view-dirty (view-layout chat_text)))
-			(t (view-event mywindow msg))))
+			(t (. mywindow :event msg))))
 	(when entry
 		(broadcast "Has left the chat !")
 		(mail-forget entry)

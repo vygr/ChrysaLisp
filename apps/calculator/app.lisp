@@ -62,5 +62,5 @@
 			;max button
 			(bind '(x y w h) (apply view-fit (cat (view-get-pos mywindow) '(512 512))))
 			(view-change-dirty mywindow x y w h))
-		(t (view-event mywindow msg))))
+		(t (. mywindow :event msg))))
 	(view-hide mywindow))

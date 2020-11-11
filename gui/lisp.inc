@@ -153,4 +153,4 @@
 
 (defmacro view-dirty-all (_)
 	; (view-dirty-all view) -> view
-	`(view-set-flags ,_ view_flag_dirty_all view_flag_dirty_all))
+	`(view-set-flags ,_ +view_flag_dirty_all+ +view_flag_dirty_all+))

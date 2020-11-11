@@ -188,6 +188,10 @@
 
 (. window :add_child child) -> window
 
+## window :event
+
+(. window :event event) -> window
+
 ## window :layout
 
 (. window :layout) -> window
@@ -1851,10 +1855,6 @@
 ## view-dirty-all
 
 (view-dirty-all view) -> view
-
-## view-event
-
-(view-event view str)
 
 ## view-find-id
 

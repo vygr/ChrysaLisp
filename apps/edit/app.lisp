@@ -421,6 +421,6 @@
 			(> (get-int msg ev_msg_key_keycode) 0)
 			(or (= (get-int msg ev_msg_key_key) 13) (= (get-int msg ev_msg_key_key) 10)))
 			(select-action-on-enter))
-		(t	(view-event window msg))))
+		(t	(. window :event msg))))
 	(if picker_mbox (mail-send "" picker_mbox))
 	(view-hide window))

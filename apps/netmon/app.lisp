@@ -79,7 +79,7 @@
 						(bind '(w h) (view-pref-size mywindow))
 						(bind '(x y w h) (view-fit x y (/ (* w 5) 3) h))
 						(view-change-dirty mywindow x y w h))
-					(t (view-event mywindow msg))))
+					(t (. mywindow :event msg))))
 			(t	;child info
 				(defq index (find (get-int msg sample_reply_cpu) devices)
 					task_val (get-int msg sample_reply_task_count)

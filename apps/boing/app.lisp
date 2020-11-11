@@ -52,6 +52,6 @@
 					(bind '(w h) (view-pref-size mywindow))
 					(bind '(x y w h) (view-fit x y (/ (* w 5) 3) (/ (* h 5) 3)))
 					(view-change-dirty mywindow x y w h))
-				(t (view-event mywindow msg))))
+				(t (. mywindow :event msg))))
 		(task-sleep 40000))
 	(view-hide mywindow))

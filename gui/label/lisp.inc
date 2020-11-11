@@ -28,6 +28,6 @@
 		(view-change flow border border (- w (* border 2)) (- h (* border 2)))
 		(view-layout flow)
 		(if (= (>> color 24) 0xff)
-			(view-set-flags this view_flag_opaque view_flag_opaque))
+			(view-set-flags this +view_flag_opaque+ +view_flag_opaque+))
 		this)
 	)

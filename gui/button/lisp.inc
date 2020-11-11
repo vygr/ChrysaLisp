@@ -30,7 +30,7 @@
 		(bind '(w h) (view-get-size this))
 		(view-change flow pos pos (- w (* border 2)) (- h (* border 2)))
 		(view-layout flow)
-		(view-set-flags this view_flag_opaque view_flag_opaque)
+		(view-set-flags this +view_flag_opaque+ +view_flag_opaque+)
 		this)
 
 	(method :mouse_down (this event)

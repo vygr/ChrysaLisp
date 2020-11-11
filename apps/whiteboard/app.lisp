@@ -44,7 +44,7 @@
 (defun radio-select (l i)
 	;radio select buttons
 	(each (lambda (b)
-		(def (view-dirty b) :color (if (= _ i) (const +argb_grey14+) (const *env_toolbar_col*)))) l) i)
+		(def (view-dirty b) :color (if (= _ i) +argb_grey14+ (const *env_toolbar_col*)))) l) i)
 
 (defun flatten ((mode col rad pnts))
 	;flatten path to polygon
@@ -246,7 +246,7 @@
 									(redraw 3))
 								(:u	;was up last time, so we are hovering
 									t))))) t)
-			(t (view-event mywindow msg))))
+			(t (. mywindow :event msg))))
 	;close child and window
 	(mail-free-mbox (pop select))
 	(mail-send "" child_mbox)

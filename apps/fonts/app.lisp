@@ -62,5 +62,5 @@
 			nil)
 		((<= +event_prev+ id +event_next+)
 			(win-refresh (% (+ index (dec (* 2 (- id +event_prev+))) (length fonts)) (length fonts))))
-		(t (view-event mywindow msg))))
+		(t (. mywindow :event msg))))
 	(view-hide mywindow))

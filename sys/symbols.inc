@@ -40,15 +40,15 @@ stream_mail_state_stopped 2
 stream_mail_state_stopping 1
 vdu_char_height 194
 vdu_char_width 192
-view_flag_at_back 8
-view_flag_dirty_all 4
-view_flag_opaque 2
-view_flag_solid 1
-view_flags 132
-view_h 156
-view_w 152
-view_x 144
-view_y 148
++view_flag_at_back+ 8
++view_flag_dirty_all+ 4
++view_flag_opaque+ 2
++view_flag_solid+ 1
+view_flags 128
+view_h 152
+view_w 148
+view_x 140
+view_y 144
 canvas_flags 256
 canvas_color 252
 cap_arrow 3
@@ -57,4 +57,5 @@ canvas_width 220
 canvas_height 224
 ev_msg_mouse_x 20
 ev_msg_mouse_y 24
+ev_type_action 2
 )

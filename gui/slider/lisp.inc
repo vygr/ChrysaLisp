@@ -16,7 +16,7 @@
 	(method :layout (this)
 		; (. slider :layout) -> slider
 		(if (= (>> (get :color this) 24) 0xff)
-			(view-set-flags this view_flag_opaque view_flag_opaque))
+			(view-set-flags this +view_flag_opaque+ +view_flag_opaque+))
 		this)
 
 	(method :mouse_down (this event)

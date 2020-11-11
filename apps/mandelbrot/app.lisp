@@ -69,7 +69,7 @@
 							zoom (mbfp-mul zoom (if (= 0 (logand (get-int msg ev_msg_mouse_buttons) 2))
 								(mbfp-from-fixed 0.5) (mbfp-from-fixed 2.0))))
 						(reset))
-					(t (view-event mywindow msg))))
+					(t (. mywindow :event msg))))
 			(t	;child tile msg
 				(setq area (- area (tile canvas msg)))
 				(when (or (> (- (defq now (time)) then) 1000000) (= area 0))

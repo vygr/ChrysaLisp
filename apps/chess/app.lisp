@@ -56,7 +56,7 @@
 			(cond
 				((= (get-long (defq msg (mail-read (elem 0 select))) ev_msg_target_id) +event_close+)
 					nil)
-				(t (view-event mywindow msg))))
+				(t (. mywindow :event msg))))
 		(t	;from child stream
 			(bind '(data next_char) (read data_in next_char))
 			(cond

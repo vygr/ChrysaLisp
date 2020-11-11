@@ -75,7 +75,7 @@
 				((= id +event_max+)
 					;max button
 					(resize 640))
-				(t (view-event mywindow msg))))
+				(t (. mywindow :event msg))))
 		(task-sleep 10000)
 		(populate))
 	;close window

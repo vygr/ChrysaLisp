@@ -33,39 +33,6 @@
 
 (def-func-end)
 
-(def-method 'view :lisp_event)
-	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
-	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
-	;trashes
-	;r1-r14
-
-	(entry 'view :lisp_event '(r0 r1))
-
-(errorcases
-	(call 'lisp :env_args_sig '(r1 ($ sig) 2) '(r2))
-	(gotoif '(r2 = 0) 'error))
-
-	(vp-push r0)
-	(defq in (method-input 'view :event))
-	(list-bind-args r1 in '(:view :obj))
-	(call 'view :event in '(r0))
-	(call 'view :ref '(r0) '(r1))
-	(vp-pop r0)
-
-	(exit 'view :lisp_event '(r0 r1))
-	(vp-ret)
-
-(errorcases
-(vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(view-event view str)" error_msg_wrong_types r1))
-	(signature '(view str)))
-
-(def-func-end)
-
 (def-method 'view :lisp_layout)
 	;inputs
 	;r0 = lisp object (ptr)

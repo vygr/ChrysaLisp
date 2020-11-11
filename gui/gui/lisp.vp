@@ -28,7 +28,7 @@
 	(call 'sys_task :mailbox nil '(r1))
 	(vp-pop r0)
 	(assign '(r1) `((r0 ,(+ component_owner_id id_id))))
-	(call 'view :set_flags '(r0 view_flag_dirty_all view_flag_dirty_all) '(r1 _))
+	(call 'view :set_flags '(r0 +view_flag_dirty_all+ +view_flag_dirty_all+) '(r1 _))
 	(class/obj/ref r1 r2 2)
 	(vp-pop r0)
 
@@ -66,7 +66,7 @@
 	(call 'sys_task :mailbox nil '(r1))
 	(vp-pop r0)
 	(assign '(r1) `((r0 ,(+ component_owner_id id_id))))
-	(call 'view :set_flags '(r0 view_flag_dirty_all view_flag_dirty_all) '(r1 _))
+	(call 'view :set_flags '(r0 +view_flag_dirty_all+ +view_flag_dirty_all+) '(r1 _))
 	(class/obj/ref r1 r2 2)
 	(vp-pop r0)
 

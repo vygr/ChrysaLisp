@@ -7,7 +7,7 @@
 (class Window ()
 	; (Window) -> window
 	; overide the default 'this' env with a window component
-	(def (defq this (create-window)) :child nil :is_window t)
+	(def (defq this (create-window)) :child nil :last_buttons 0 :is_window t)
 
 	(method :add_child (this child)
 		; (. window :add_child child) -> window
@@ -38,7 +38,7 @@
 		(when (= (>> (get :color this) 24) 0xff)
 			(cond
 				((= shadow 0)
-					(view-set-flags this view_flag_opaque view_flag_opaque))
+					(view-set-flags this +view_flag_opaque+ +view_flag_opaque+))
 				(t
 					(view-clr-opaque this)
 					(view-add-opaque this (+ border shadow) (+ border shadow)
@@ -80,5 +80,40 @@
 			(setq y1 (max (- ay drag_offy) (+ y h))))
 		(view-change-dirty this x y (- x1 x) (- y1 y))
 		(component-emit this)
+		this)
+
+	(method :event (this event)
+		; (. window :event event) -> window
+		(defq target (view-find-id this (get-long event ev_msg_target_id))
+			type (get-long event ev_msg_type))
+		(when target
+			(cond
+				((= type (const ev_type_mouse))
+					;so what state are we in ?
+					(defq buttons (get-uint event (const ev_msg_mouse_buttons)))
+					(cond
+						((/= 0 (get :last_buttons this))
+							;was down previously
+							(cond
+								((/= 0 buttons)
+									;is down now, so move
+									(if (get :mouse_move target) (. target :mouse_move event)))
+								(t	;is not down now, so release
+									(set this :last_buttons 0)
+									(if (get :mouse_up target) (. target :mouse_up event)))))
+						(t	;was not down previously
+							(cond
+								((/= 0 buttons)
+									;is down now, so first down
+									(set this :last_buttons buttons)
+									(if (get :mouse_down target) (. target :mouse_down event)))
+								(t	;is not down now, so hover
+									(if (get :mouse_hover target) (. target :mouse_hover event)))))))
+				((= type (const ev_type_key))
+					(if (>= (get-int event (const ev_msg_key_keycode)) 0)
+						(if (get :key_down target) (. target :key_down event))
+						(if (get :key_up target) (. target :key_up event))))
+				((= type (const ev_type_action))
+					(if (get :action target) (. target :action event)))))
 		this)
 	)

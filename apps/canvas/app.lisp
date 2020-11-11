@@ -22,7 +22,7 @@
 	(while (cond
 		((= (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id) +event_close+)
 			nil)
-		(t (view-event mywindow msg))))
+		(t (. mywindow :event msg))))
 	;close child and mywindow
 	(mail-send "" mbox)
 	(view-hide mywindow))

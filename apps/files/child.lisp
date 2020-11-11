@@ -112,5 +112,5 @@
 		((= id +event_exts_action+)
 			(setq exts (get :text ext_filter))
 			(populate-files all_files current_dir exts))
-		(t (view-event mywindow msg))))
+		(t (. mywindow :event msg))))
 	(view-hide mywindow))

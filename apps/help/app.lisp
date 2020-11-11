@@ -71,5 +71,5 @@
 					"----------------------" (ascii-char 10)
 					(elem _ vals)
 					"----------------------" (ascii-char 10) (ascii-char 10))))))
-		(t (view-event mywindow msg))))
+		(t (. mywindow :event msg))))
 	(view-hide mywindow))

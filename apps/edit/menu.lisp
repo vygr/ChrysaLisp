@@ -46,5 +46,5 @@
 		((= +event_click+ (defq id (get-long msg ev_msg_target_id)))
 			(defq reply (get :text (view-find-id window (get-long msg ev_msg_action_source_id))))
 			(mail-send reply reply_mbox))
-		(t (view-event window msg))))
+		(t (. window :event msg))))
 		(view-hide window))

@@ -29,7 +29,7 @@
 		(vp-push r0)
 		(call 'sys_mem :fill `((& r0 view_start) ,(- view_size view_start) 0))
 		(vp-pop r0)
-		(vp-cpy-cr view_flag_solid r1)
+		(vp-cpy-cr +view_flag_solid+ r1)
 		(assign '(r1 (& r0 view_list)) '((r0 view_flags) r1))
 		(lh-init r1 r2)
 	(endif)
@@ -237,7 +237,7 @@
 		(vpif '(r1 /= 0))
 			(vp-cpy-rr r0 r5)
 			(call 'view :add_front '(r4 r0))
-			(jump 'view :set_flags '(r5 view_flag_dirty_all view_flag_dirty_all))
+			(jump 'view :set_flags '(r5 +view_flag_dirty_all+ +view_flag_dirty_all+))
 		(endif)
 	(endif)
 	(vp-ret)
@@ -263,7 +263,7 @@
 			(breakif '(r3 = 0))
 			(vp-lea-i r1 (neg view_node) r4)
 			(assign '((r4 view_flags)) '(r4))
-			(vp-and-cr view_flag_at_back r4)
+			(vp-and-cr +view_flag_at_back+ r4)
 		(loop-until '(r4 /= 0))
 		(vpif '(r1 /= r2))
 			;no, so move to front of back item
@@ -651,7 +651,7 @@
 	(vp-sub-rr r10 r8)
 	(vp-lea-i r0 view_dirty_region r1)
 	(call 'region :translate '(r1 r7 r8))
-	(jump 'view :set_flags '(r0 view_flag_dirty_all view_flag_dirty_all))
+	(jump 'view :set_flags '(r0 +view_flag_dirty_all+ +view_flag_dirty_all+))
 
 (def-func-end)
 
@@ -666,87 +666,6 @@
 	;paste dirty region
 	(assign '((r0 view_w) (r0 view_h)) '(r9 r10))
 	(jump 'view :add_dirty '(r0 0 0 r9 r10))
-
-(def-func-end)
-
-(def-method 'view :event)
-	;inputs
-	;r0 = view object (ptr)
-	;r1 = event str object (ptr)
-	;outputs
-	;r0 = view object (ptr)
-	;trashes
-	;r1-r14
-
-	(ptr 'this 'event 'data 'lisp 'params 'target)
-	(pptr 'value)
-
-	;save inputs
-	(push-scope)
-	(entry 'view :event {this, event})
-
-	;find target view
-	(assign {&event->str_data} {data})
-	(call 'view :find_id {this, data->ev_msg_target_id} {_, target})
-	(vpif {target})
-		;what type of event ?
-		(switch)
-		(vpcase {data->ev_msg_type = ev_type_mouse})
-			;so what state are we in ?
-			(vpif {target->view_last_buttons})
-				;was down previously
-				(vpif {data->ev_msg_mouse_buttons})
-					;is down now, so move
-					(call 'view :mouse_move {target, event})
-				(else)
-					;is not down now, so release
-					(assign {0} {target->view_last_buttons})
-					(call 'view :mouse_up {target, event})
-				(endif)
-			(else)
-				;was not down previously
-				(vpif {data->ev_msg_mouse_buttons})
-					;is down now, so first down
-					(assign {data->ev_msg_mouse_buttons} {target->view_last_buttons})
-					(call 'view :mouse_down {target, event})
-				(else)
-					;is not down now, so hover
-					(call 'view :mouse_hover {target, event})
-				(endif)
-			(endif)
-			(break)
-		(vpcase {data->ev_msg_type = ev_type_key})
-			(vpif {data->ev_msg_key_keycode >= 0})
-				(call 'view :key_down {target, event})
-			(else)
-				(call 'view :key_up {target, event})
-			(endif)
-			(break)
-		(vpcase {data->ev_msg_type = ev_type_action})
-			;do we have a Lisp level :action method ?
-			(assign (cat {@} (f-path 'sys_task :statics) {.tk_statics_current_tcb->tk_node_lisp}) {lisp})
-			(vpif {lisp})
-				(call 'sym :get_static_sym {static_sym_action} {value})
-				(call 'component :find {target, value} {_, value, _})
-				(gotoifnot {value} 'vpaction)
-				;call Lisp level handler
-				(call 'view :ref {target})
-				(call 'view :ref {event})
-				(call 'list :create nil {params})
-				(call 'list :push_back2 {params, target, event})
-				(call 'lisp :repl_apply {lisp, params, value[ptr_size]} {_, value})
-				(call 'obj :deref {value})
-				(call 'obj :deref {params})
-			(else)
-			(vp-label 'vpaction)
-				(call 'view :action {target, event})
-			(endif)
-		(endswitch)
-	(endif)
-
-	(exit 'view :event {this})
-	(pop-scope)
-	(return)
 
 (def-func-end)
 
@@ -843,7 +762,7 @@
 			(vpif '(r8 < r1))
 				;hit ?
 				(assign '((r0 view_flags)) '(r1))
-				(vp-and-cr view_flag_solid r1)
+				(vp-and-cr +view_flag_solid+ r1)
 				(vp-ret)
 			(endif)
 		(endif)
@@ -1005,158 +924,10 @@
 	(vp-and-rr r2 r3)
 	(vp-or-rr r3 r1)
 	(assign `(r1 r1 (@ ,(f-path 'gui :statics))) '(r3 (r0 view_flags) r2))
-	(vp-and-cr view_flag_dirty_all r3)
+	(vp-and-cr +view_flag_dirty_all+ r3)
 	(assign '(r3) '((r2 gui_statics_dirty_flag)))
 
 	(exit 'view :set_flags '(r0 r1))
 	(vp-ret)
-
-(def-func-end)
-
-(def-method 'view :mouse_down)
-	;inputs
-	;r0 = view object (ptr)
-	;r1 = event str object (ptr)
-	;outputs
-	;r0 = view object (ptr)
-	;trashes
-	;r1-r14
-
-	(ptr 'this 'event 'lisp 'params)
-	(pptr 'value)
-
-	(push-scope)
-	(entry 'view :mouse_down {this, event})
-
-	;do we have a Lisp level mouse_down method ?
-	(assign (cat {@} (f-path 'sys_task :statics) {.tk_statics_current_tcb->tk_node_lisp}) {lisp})
-	(vpif {lisp})
-		(call 'sym :get_static_sym {static_sym_mouse_down} {value})
-		(call 'view :find {this, value} {_, value, _})
-		(breakifnot {value})
-		;call Lisp level handler
-		(call 'view :ref {this})
-		(call 'view :ref {event})
-		(call 'list :create nil {params})
-		(call 'list :push_back2 {params, this, event})
-		(call 'lisp :repl_apply {lisp, params, value[ptr_size]} {_, value})
-		(call 'obj :deref {params})
-		(call 'obj :deref {value})
-	(endif)
-
-	(exit 'view :mouse_down {this})
-	(pop-scope)
-	(return)
-
-(def-func-end)
-
-(def-method 'view :mouse_up)
-	;inputs
-	;r0 = view object (ptr)
-	;r1 = event str object (ptr)
-	;outputs
-	;r0 = view object (ptr)
-	;trashes
-	;r1-r14
-
-	(ptr 'this 'event 'lisp 'params)
-	(pptr 'value)
-
-	(push-scope)
-	(entry 'view :mouse_up {this, event})
-
-	;do we have a Lisp level mouse_down method ?
-	(assign (cat {@} (f-path 'sys_task :statics) {.tk_statics_current_tcb->tk_node_lisp}) {lisp})
-	(vpif {lisp})
-		(call 'sym :get_static_sym {static_sym_mouse_up} {value})
-		(call 'view :find {this, value} {_, value, _})
-		(breakifnot {value})
-		;call Lisp level handler
-		(call 'view :ref {this})
-		(call 'view :ref {event})
-		(call 'list :create nil {params})
-		(call 'list :push_back2 {params, this, event})
-		(call 'lisp :repl_apply {lisp, params, value[ptr_size]} {_, value})
-		(call 'obj :deref {params})
-		(call 'obj :deref {value})
-	(endif)
-
-	(exit 'view :mouse_up {this})
-	(pop-scope)
-	(return)
-
-(def-func-end)
-
-(def-method 'view :mouse_move)
-	;inputs
-	;r0 = view object (ptr)
-	;r1 = event str object (ptr)
-	;outputs
-	;r0 = view object (ptr)
-	;trashes
-	;r1-r14
-
-	(ptr 'this 'event 'lisp 'params)
-	(pptr 'value)
-
-	(push-scope)
-	(entry 'view :mouse_move {this, event})
-
-	;do we have a Lisp level mouse_down method ?
-	(assign (cat {@} (f-path 'sys_task :statics) {.tk_statics_current_tcb->tk_node_lisp}) {lisp})
-	(vpif {lisp})
-		(call 'sym :get_static_sym {static_sym_mouse_move} {value})
-		(call 'view :find {this, value} {_, value, _})
-		(breakifnot {value})
-		;call Lisp level handler
-		(call 'view :ref {this})
-		(call 'view :ref {event})
-		(call 'list :create nil {params})
-		(call 'list :push_back2 {params, this, event})
-		(call 'lisp :repl_apply {lisp, params, value[ptr_size]} {_, value})
-		(call 'obj :deref {params})
-		(call 'obj :deref {value})
-	(endif)
-
-	(exit 'view :mouse_move {this})
-	(pop-scope)
-	(return)
-
-(def-func-end)
-
-(def-method 'view :key_down)
-	;inputs
-	;r0 = view object (ptr)
-	;r1 = event str object (ptr)
-	;outputs
-	;r0 = view object (ptr)
-	;trashes
-	;r1-r14
-
-	(ptr 'this 'event 'lisp 'params)
-	(pptr 'value)
-
-	(push-scope)
-	(entry 'view :key_down {this, event})
-
-	;do we have a Lisp level mouse_down method ?
-	(assign (cat {@} (f-path 'sys_task :statics) {.tk_statics_current_tcb->tk_node_lisp}) {lisp})
-	(vpif {lisp})
-		(call 'sym :get_static_sym {static_sym_key_down} {value})
-		(call 'view :find {this, value} {_, value, _})
-		(breakifnot {value})
-		;call Lisp level handler
-		(call 'view :ref {this})
-		(call 'view :ref {event})
-		(call 'list :create nil {params})
-		(call 'list :push_back2 {params, this, event})
-		(call 'lisp :repl_apply {lisp, params, value[ptr_size]} {_, value})
-		(call 'obj :deref {params})
-		(call 'obj :deref {value})
-	(endif)
-
-	(exit 'view :key_down {this})
-	(pop-scope)
-	(return)
 
 (def-func-end)

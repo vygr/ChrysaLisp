@@ -55,7 +55,6 @@
 
 (def-static-sym ":layout")
 (def-static-sym ":pref_size")
-(def-static-sym ":action")
 (def-static-sym ":add_child")
 (def-static-sym ":mouse_down")
 (def-static-sym ":mouse_up")

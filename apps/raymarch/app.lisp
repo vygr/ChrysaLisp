@@ -54,7 +54,7 @@
 					((= (setq id (get-long msg ev_msg_target_id)) +event_close+)
 						;close button
 						nil)
-					(t (view-event mywindow msg))))
+					(t (. mywindow :event msg))))
 			(t	;child tile msg
 				(if (defq child (get-long msg (- (length msg) (const long_size))) next_job (pop jobs))
 					;next job

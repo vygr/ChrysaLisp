@@ -76,7 +76,7 @@
 					((= (setq id (get-long msg ev_msg_target_id)) +event_close+)
 						;close button
 						nil)
-					(t (view-event mywindow msg))))
+					(t (. mywindow :event msg))))
 			(t	;child info, merge with current frames information
 				(bind '(data _) (read (string-stream msg) (ascii-code " ")))
 				(setq max_classes (max max_classes (length data)))

@@ -9070,72 +9070,6 @@ trashes
 r1-r14
 ```
 
-### view::event -> gui/view/event
-
-```lisp
-inputs
-r0 = view object (ptr)
-r1 = event str object (ptr)
-outputs
-r0 = view object (ptr)
-trashes
-r1-r14
-```
-
-### view::mouse_down -> class/view/mouse_down
-
-```lisp
-inputs
-r0 = view object (ptr)
-r1 = event str object (ptr)
-outputs
-r0 = view object (ptr)
-trashes
-r1-r14
-```
-
-### view::mouse_up -> class/view/mouse_up
-
-```lisp
-inputs
-r0 = view object (ptr)
-r1 = event str object (ptr)
-outputs
-r0 = view object (ptr)
-trashes
-r1-r14
-```
-
-### view::mouse_move -> class/view/mouse_move
-
-```lisp
-inputs
-r0 = view object (ptr)
-r1 = event str object (ptr)
-outputs
-r0 = view object (ptr)
-trashes
-r1-r14
-```
-
-### view::mouse_hover -> class/obj/null
-
-### view::key_down -> class/view/key_down
-
-```lisp
-inputs
-r0 = view object (ptr)
-r1 = event str object (ptr)
-outputs
-r0 = view object (ptr)
-trashes
-r1-r14
-```
-
-### view::key_up -> class/obj/null
-
-### view::action -> class/obj/null
-
 ### view::lisp_create -> gui/view/lisp_create
 
 ```lisp
@@ -9332,19 +9266,6 @@ r1-r14
 ```
 
 ### view::lisp_layout -> gui/view/lisp_layout
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args list object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### view::lisp_event -> gui/view/lisp_event
 
 ```lisp
 inputs

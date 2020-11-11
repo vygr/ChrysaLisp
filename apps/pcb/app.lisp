@@ -62,7 +62,7 @@
 	(bind '(pcb_width pcb_height pcb_depth) (elem 0 pcb))
 	(defq canvas (Canvas (* (+ pcb_width 4) (f2i zoom)) (* (+ pcb_height 4) (f2i zoom)) canvas_scale)
 		zoom (* zoom (i2f canvas_scale)) pcb_border (* zoom 2.0))
-	(canvas-fill (canvas-set-flags canvas 1) (const +argb_black+))
+	(canvas-fill (canvas-set-flags canvas 1) +argb_black+)
 	(if (= mode 1)
 		(pcb-draw-gerber)
 		(pcb-draw-normal))
@@ -118,10 +118,10 @@
 
 (defun pcb-draw-gerber ()
 	;first draw in white with gaps
-	(canvas-set-color canvas (const +argb_white+))
+	(canvas-set-color canvas +argb_white+)
 	(pcb-draw-layer t)
 	;second draw in black without gaps
-	(canvas-set-color canvas (const +argb_black+))
+	(canvas-set-color canvas +argb_black+)
 	(pcb-draw-layer nil))
 
 (defun pcb-draw-layer (with_gaps)
@@ -192,5 +192,5 @@
 		((<= +event_mode_normal+ id +event_mode_gerber+)
 			(setq mode (- id +event_mode_normal+))
 			(win-refresh index))
-		(t (view-event mywindow msg))))
+		(t (. mywindow :event msg))))
 	(view-hide mywindow))
