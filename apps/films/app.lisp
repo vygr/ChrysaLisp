@@ -25,7 +25,7 @@
 	(bind '(w h) (view-pref-size (setq canvas (canvas-load (elem (setq index _) films) +load_flag_film+))))
 	(def image_scroll :min_width w :min_height h)
 	(def window_title :text (elem _ films))
-	(view-add-child image_scroll canvas)
+	(. image_scroll :add_child canvas)
 	(view-layout window_title)
 	(bind '(x y w h) (apply view-fit (cat (view-get-pos mywindow) (view-pref-size mywindow))))
  	(def image_scroll :min_width 32 :min_height 32)

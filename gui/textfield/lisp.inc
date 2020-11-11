@@ -10,8 +10,8 @@
 	(defq this (create-textfield) label_flow (Flow) label_text (create-text))
 	(def this :label_flow label_flow :label_text label_text :cursor 0)
 	(view-set-flags label_flow 0 -1)
-	(view-add-child this label_flow)
-	(view-add-child label_flow label_text)
+	(view-add-back this label_flow)
+	(. label_flow :add_child label_text)
 
 	(method :pref_size (this)
 		; (. textfield :pref_size) -> (width height)

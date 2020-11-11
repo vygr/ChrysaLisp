@@ -16,7 +16,7 @@
 (class Flow ()
 	; (Flow) -> flow
 	; overide the default 'this' env with a flow component
-	(defq this (create-view))
+	(defq this (View))
 
 	(method :pref_size (this)
 		; (. flow :pref_size) -> (width height)

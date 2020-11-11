@@ -9,6 +9,10 @@
 	; overide the default 'this' env with a backdrop component
 	(defq this (create-backdrop))
 
+	(method :add_child (this child)
+		; (. backdrop :add_child child) -> backdrop
+		(view-add-back this child))
+
 	(method :layout (this)
 		; (. backdrop :layout) -> backdrop
 		(if (= (>> (get :color this) 24) 0xff)

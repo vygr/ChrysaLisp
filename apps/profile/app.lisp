@@ -62,7 +62,7 @@
 (defun main ()
 	(bind '(x y w h) (apply view-locate (view-pref-size mywindow)))
 	(gui-add (view-change mywindow x y w h))
-;	(reset)
+	(reset)
 	(while id
 		(defq idx (mail-select select) msg (mail-read (elem idx select)))
 		(cond

@@ -59,11 +59,11 @@
 	(each (lambda (_)
 		(def (defq b (Button)) :text _)
 		(if (eql _ dir) (def b :color +argb_grey14+))
-		(view-add-child tree_flow (component-connect b +event_tree_button+))
+		(. tree_flow :add_child (component-connect b +event_tree_button+))
 		(push tree_buttons b)) dirs_with_exts)
 	(each (lambda (_)
 		(def (defq b (Button)) :text _)
-		(view-add-child files_flow (component-connect b +event_file_button+))
+		(. files_flow :add_child (component-connect b +event_file_button+))
 		(push file_buttons b)) files_within_dir)
 	;layout and size window
 	(bind '(_ ch) (view-get-size tree_scroll))

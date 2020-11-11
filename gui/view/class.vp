@@ -121,45 +121,6 @@
 
 (def-func-end)
 
-(def-method 'view :add_child)
-	;inputs
-	;r0 = view object (ptr)
-	;r1 = child view object (ptr)
-	;outputs
-	;r0 = view object (ptr)
-	;trashes
-	;r1-r3
-
-	(ptr 'this 'child 'lisp 'params)
-	(pptr 'value)
-
-	(push-scope)
-	(entry 'view :add_child {this, child})
-
-	(assign (cat {@} (f-path 'sys_task :statics) {.tk_statics_current_tcb->tk_node_lisp}) {lisp})
-	(vpif {lisp})
-		(call 'sym :get_static_sym {static_sym_add_child} {value})
-		(call 'component :find {this, value} {_, value, _})
-		(gotoifnot {value} 'vpaction)
-		;call Lisp level handler
-		(call 'view :ref {this})
-		(call 'view :ref {child})
-		(call 'list :create nil {params})
-		(call 'list :push_back2 {params, this, child})
-		(call 'lisp :repl_apply {lisp, params, value[ptr_size]} {_, value})
-		(call 'obj :deref {value})
-		(call 'obj :deref {params})
-	(else)
-	(vp-label 'vpaction)
-		(call 'view :add_back {this, child})
-	(endif)
-
-	(exit 'view :add_child {this})
-	(pop-scope)
-	(return)
-
-(def-func-end)
-
 (def-method 'view :sub)
 	;inputs
 	;r0 = view object (ptr)

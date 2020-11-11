@@ -11,7 +11,7 @@
 (class Scroll (flags)
 	; (Scroll flags) -> scroll
 	; overide the default 'this' env with a scroll component
-	(def (defq this (create-view)) :vslider nil :hslider nil :child nil)
+	(def (defq this (View)) :vslider nil :hslider nil :child nil)
 	(when (/= 0 (logand flags +scroll_flag_vertical+))
 		(def this :vslider (defq slider (Slider)))
 		(component-connect slider (component-get-id this))
@@ -26,8 +26,7 @@
 		(if (defq old_child (get :child this))
 			(view-sub old_child))
 		(set this :child child)
-		(view-add-back this child)
-		this)
+		(view-add-back this child))
 
 	(method :action (this data)
 		; (. scroll :action data) -> scroll

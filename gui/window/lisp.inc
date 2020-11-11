@@ -14,8 +14,7 @@
 		(if (defq old_child (get :child this))
 			(view-sub old_child))
 		(set this :child child)
-		(view-add-back this child)
-		this)
+		(view-add-back this child))
 
 	(method :pref_size (this)
 		; (. window :pref_size) -> (width height)

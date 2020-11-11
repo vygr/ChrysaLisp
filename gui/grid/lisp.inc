@@ -5,7 +5,7 @@
 (class Grid ()
 	; (Grid) -> grid
 	; overide the default 'this' env with a grid component
-	(defq this (create-view))
+	(defq this (View))
 
 	(method :pref_size (this)
 		; (. grid :pref_size) -> (width height)

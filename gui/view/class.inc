@@ -31,7 +31,6 @@
 
 (dec-method :deinit 'gui/view/deinit :override)
 
-(dec-method :add_child 'gui/view/add_child :virtual '(r0 r1) '(r0))
 (dec-method :draw 'class/obj/null :virtual '(r0 r1) '(r0))
 (dec-method :hit 'gui/view/hit :virtual '(r0 r7 r8) '(r0 r1))
 (dec-method :pref_size 'gui/view/pref_size :virtual '(r0) '(r0 r9 r10))
@@ -40,7 +39,6 @@
 (dec-method :lisp_create 'gui/view/lisp_create :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_sub 'gui/view/lisp_sub :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_hide 'gui/view/lisp_hide :static '(r0 r1) '(r0 r1))
-(dec-method :lisp_add_child 'gui/view/lisp_add_child :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_add 'gui/view/lisp_add :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_add_back 'gui/view/lisp_add_back :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_pref_size 'gui/view/lisp_pref_size :static '(r0 r1) '(r0 r1))

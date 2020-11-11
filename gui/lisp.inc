@@ -59,8 +59,8 @@
 	; (ui-element name func [props] [body]) -> view
 	(setq p (ui-merge-props p))
 	(if (/= 0 (length p))
-		`(progn (view-add-child (elem -3 (push _ui (defq ,n ,c))) ,n) (def ,n ~p) ~x (pop _ui))
-		`(progn (view-add-child (elem -3 (push _ui (defq ,n ,c))) ,n) ~x (pop _ui))))
+		`(progn (. (elem -3 (push _ui (defq ,n ,c))) :add_child ,n) (def ,n ~p) ~x (pop _ui))
+		`(progn (. (elem -3 (push _ui (defq ,n ,c))) :add_child ,n) ~x (pop _ui))))
 
 (defmacro ui-window (n &optional p &rest x)
 	; (ui-window name [props] [body]) -> window
@@ -149,7 +149,7 @@
 
 (defmacro ui-view (n &optional p &rest x)
 	; (ui-view name [props] [body]) -> view
-	`(ui-element ,n (create-view) ,p ~x))
+	`(ui-element ,n (View) ,p ~x))
 
 (defmacro view-dirty-all (_)
 	; (view-dirty-all view) -> view

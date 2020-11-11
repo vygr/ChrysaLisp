@@ -1,6 +1,5 @@
 ;lisp bindings
 (ffi view-add-back "gui/view/lisp_add_back" 0)
-(ffi view-add-child "gui/view/lisp_add_child" 0)
 (ffi view-add-dirty "gui/view/lisp_add_dirty" 0)
 (ffi view-add-front "gui/view/lisp_add" 0)
 (ffi view-clr-opaque "gui/view/lisp_clr_opaque" 0)
@@ -76,3 +75,13 @@
 
 ;view flags
 (defq +view_flag_solid+ 1 +view_flag_opaque+ 2 +view_flag_dirty_all+ 4 +view_flag_at_back+ 8)
+
+(class View ()
+	; (View) -> view
+	; overide the default 'this' env with a flow component
+	(defq this (create-view))
+
+	(method :add_child (this child)
+		; (. view :add_child child) -> view
+		(view-add-back this child))
+	)

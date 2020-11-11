@@ -106,7 +106,7 @@
 		(each (lambda (e) (component-connect (ui-button b 
 			(:text (elem +text_title+ (elem _ text_store)) :min_width 32 :border 1)) (+ +event_tabbar+ _)))
 			(range 0 (length text_store))))
-	(view-layout (view-add-child tabbar_flow tabbar))
+	(view-layout (. tabbar_flow :add_child tabbar))
 	(view-layout tab_bar)
 	(view-dirty tab_bar))
 

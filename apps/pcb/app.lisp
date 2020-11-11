@@ -170,7 +170,7 @@
 		) (list pcb)))
 
 (defun win-refresh (_)
-	(view-layout (view-add-child pcb_scroll (pcb-load (elem (setq index _) pcbs))))
+	(view-layout (. pcb_scroll :add_child (pcb-load (elem (setq index _) pcbs))))
 	(def window_title :text (elem _ pcbs))
 	(view-layout window_title)
 	(view-dirty-all (view-layout mywindow)))

@@ -20,9 +20,17 @@
 
 (- num num ...)
 
+## backdrop :add_child
+
+(. backdrop :add_child child) -> backdrop
+
 ## backdrop :layout
 
 (. backdrop :layout) -> backdrop
+
+## button :add_child
+
+(. button :add_child child) -> button
 
 ## button :layout
 
@@ -99,6 +107,10 @@
 ## grid :pref_size
 
 (. grid :pref_size) -> (width height)
+
+## label :add_child
+
+(. label :add_child child) -> label
 
 ## label :layout
 
@@ -183,6 +195,10 @@
 ## vdu :max_size
 
 (. vdu :max_size) -> (width height)
+
+## view :add_child
+
+(. view :add_child child) -> view
 
 ## window :add_child
 
@@ -383,6 +399,10 @@
 ## Vdu
 
 (Vdu) -> vdu
+
+## View
+
+(View) -> view
 
 ## Window
 
@@ -1815,10 +1835,6 @@
 ## view-add-back
 
 (view-add-back parent child)
-
-## view-add-child
-
-(view-add-child parent child)
 
 ## view-add-dirty
 

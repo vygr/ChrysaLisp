@@ -10,8 +10,13 @@
 	(defq this (create-label) label_flow (Flow) label_text (create-text))
 	(def this :label_flow label_flow :label_text label_text :min_width 0 :min_height 0)
 	(view-set-flags label_flow 0 -1)
-	(view-add-child this label_flow)
-	(view-add-child label_flow label_text)
+	(view-add-back this label_flow)
+	(. label_flow :add_child label_text)
+
+	(method :add_child (this child)
+		; (. label :add_child child) -> label
+		(. (get :label_flow this) :add_child child)
+		this)
 
 	(method :pref_size (this)
 		; (. label :pref_size) -> (width height)

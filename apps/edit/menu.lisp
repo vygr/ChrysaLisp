@@ -17,8 +17,8 @@
 		:grid_height btn_length :grid_width 1)
 	(each (lambda (c) 
 		(def (defq btn (Button)) :text (elem _ btn_list))
-		(view-add-child btn_menu_grid (component-connect btn +event_click+))) (range 0 btn_length))
-	(view-add-child btn_menu btn_menu_grid)
+		(. btn_menu_grid :add_child (component-connect btn +event_click+))) (range 0 btn_length))
+	(. btn_menu :add_child btn_menu_grid)
 	(view-layout btn_menu)
 	(bind '(w h) (view-pref-size btn_menu))
 	;allows menu to appear downward and upwards in either direction.

@@ -7,7 +7,7 @@
 	frames (map (lambda (_) (canvas-load (cat "apps/freeball/staoball_" (str _) ".cpm") +load_flag_shared+)) (range 1 12))
 	sframes (map (lambda (_) (canvas-load (cat "apps/freeball/staoball_s_" (str _) ".cpm") +load_flag_shared+)) (range 1 12)))
 
-(ui-tree view (create-view) nil
+(ui-tree view (View) nil
 	(ui-element frame (elem 0 frames))
 	(ui-element sframe (elem 0 sframes)))
 

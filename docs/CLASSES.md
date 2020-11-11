@@ -9018,18 +9018,6 @@ trashes
 r1-r14
 ```
 
-### view::add_child -> gui/view/add_child
-
-```lisp
-inputs
-r0 = view object (ptr)
-r1 = child view object (ptr)
-outputs
-r0 = view object (ptr)
-trashes
-r1-r3
-```
-
 ### view::draw -> class/obj/null
 
 ### view::hit -> gui/view/hit
@@ -9097,19 +9085,6 @@ r1-r14
 ```
 
 ### view::lisp_hide -> gui/view/lisp_hide
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args list object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### view::lisp_add_child -> gui/view/lisp_add_child
 
 ```lisp
 inputs
