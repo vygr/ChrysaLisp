@@ -20,7 +20,7 @@
 		(ui-buttons ("Login" "Create") +event_login+)))
 
 (defun position-window ()
-	(bind '(w h) (view-pref-size mywindow))
+	(bind '(w h) (. mywindow :pref_size))
 	(bind '(pw ph) (view-get-size (penv mywindow)))
 	(view-change-dirty mywindow (/ (- pw w) 2) (/ (- ph h) 2) w h))
 

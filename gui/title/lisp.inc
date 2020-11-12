@@ -4,7 +4,8 @@
 
 (class Title ()
 	; (Title) -> title
-	; overide the default 'this' env with a title component that inherits from Label
+	; overide the default 'this' env with a title component
+	; inherit from Label !
 	(defq this (Label))
 
 	(method :mouse_down (this event)
@@ -13,7 +14,7 @@
 			window (penv this))
 		(until (def? :is_window window)
 			(setq window (penv window)))
-		(bind '(x y) (view-get-pos window))
+		(bind '(x y) (. window :get_pos))
 		(def this :drag_offx (- x ax) :drag_offy (- y ay))
 		(if (= 1 (get-int event ev_msg_mouse_buttons))
 			(view-to-front window)
@@ -26,7 +27,7 @@
 			window (penv this))
 		(until (def? :is_window window)
 			(setq window (penv window)))
-		(bind '(x y w h) (view-get-bounds window))
+		(bind '(x y w h) (. window :get_bounds))
 		(view-change-dirty window (+ ax (get :drag_offx this)) (+ ay (get :drag_offy this)) w h)
 		this)
 	)

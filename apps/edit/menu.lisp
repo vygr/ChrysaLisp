@@ -19,8 +19,8 @@
 		(def (defq btn (Button)) :text (elem _ btn_list))
 		(. btn_menu_grid :add_child (component-connect btn +event_click+))) (range 0 btn_length))
 	(. btn_menu :add_child btn_menu_grid)
-	(view-layout btn_menu)
-	(bind '(w h) (view-pref-size btn_menu))
+	(. btn_menu :layout)
+	(bind '(w h) (. btn_menu :pref_size))
 	;allows menu to appear downward and upwards in either direction.
 	(cond
 		((eql pflag :top_left)
@@ -38,7 +38,7 @@
 	;read paramaters from parent
 	(bind '(reply_mbox btn_list pos pflag) (mail-read (task-mailbox)))
 	(bind '(px py) pos)
-	(bind '(x y w h) (apply view-locate (view-pref-size window)))
+	(bind '(x y w h) (apply view-locate (. window :pref_size)))
 	(gui-add (view-change window x y w h))
 	(build-menu px py pflag)
 	(while (cond

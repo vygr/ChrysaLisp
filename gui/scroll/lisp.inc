@@ -40,9 +40,9 @@
 			mw (get :min_width this) mh (get :min_height this))
 		(setd mw 0 mh 0)
 		(if vslider
-			(setq mw (+ mw (elem 0 (view-pref-size vslider)))))
+			(setq mw (+ mw (elem 0 (. vslider :pref_size)))))
 		(if hslider
-			(setq mh (+ mh (elem 0 (view-pref-size hslider)))))
+			(setq mh (+ mh (elem 0 (. hslider :pref_size)))))
 		(list mw mh))
 
 	(method :layout (this)
@@ -51,18 +51,18 @@
 			child (get :child this) sw 0 sh 0)
 
 		;position any sliders
-		(bind '(w h) (view-get-size this))
+		(bind '(w h) (. this :get_size))
 		(when vslider
-			(bind '(sw _) (view-pref-size vslider))
+			(bind '(sw _) (. vslider :pref_size))
 			(view-change vslider (- w sw) 0 sw h))
 		(when hslider
-			(bind '(sh _) (view-pref-size hslider))
+			(bind '(sh _) (. hslider :pref_size))
 			(view-change hslider 0 (- h sh) (- w sw) sh))
 
 		;position any child
 		(when child
 			(defq vval 0 hval 0)
-			(bind '(cw ch) (view-get-size child))
+			(bind '(cw ch) (. child :get_size))
 			(when vslider
 				(unless (setq vval (get :value vslider)) (setq vval 0))
 				(defq mo (max 0 (- ch (- h sh))))
@@ -71,6 +71,6 @@
 				(unless (setq hval (get :value hslider)) (setq hval 0))
 				(defq mo (max 0 (- cw (- w sw))))
 				(def hslider :maximum mo :portion (- w sw) :value (setq hval (min hval mo))))
-			(view-set-bounds child (neg hval) (neg vval) cw ch))
+			(. child :set_bounds (neg hval) (neg vval) cw ch))
 		this)
 	)

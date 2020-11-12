@@ -38,7 +38,7 @@
 
 (defun main ()
 	;add window
-	(bind '(x y w h) (apply view-locate (view-pref-size mywindow)))
+	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
 	(gui-add (view-change mywindow x y w h))
 	;app event loop
 	(while (progn
@@ -51,7 +51,7 @@
 					vm (* (inc _) (/ (* last_max_memory 100) (length memory_scale))))
 				(def st :text (str (/ vt 100) "." (pad (% vt 100) 2 "0") "|"))
 				(def sm :text (str (/ vm 102400) "|"))
-				(view-layout st) (view-layout sm)) task_scale memory_scale)
+				(. st :layout) (. sm :layout)) task_scale memory_scale)
 			(view-dirty-all mywindow)
 			;send out multi-cast sample command
 			(while (/= cpu_count 0)
@@ -71,12 +71,12 @@
 					((= id +event_min+)
 						;min button
 						(bind '(x y w h) (apply view-fit
-							(cat (view-get-pos mywindow) (view-pref-size mywindow))))
+							(cat (. mywindow :get_pos) (. mywindow :pref_size))))
 						(view-change-dirty mywindow x y w h))
 					((= id +event_max+)
 						;max button
-						(bind '(x y) (view-get-pos mywindow))
-						(bind '(w h) (view-pref-size mywindow))
+						(bind '(x y) (. mywindow :get_pos))
+						(bind '(w h) (. mywindow :pref_size))
 						(bind '(x y w h) (view-fit x y (/ (* w 5) 3) h))
 						(view-change-dirty mywindow x y w h))
 					(t (. mywindow :event msg))))

@@ -2,33 +2,14 @@
 ; textfield widget
 ;;;;;;;;;;;;;;;;;;
 
-(ffi create-textfield "gui/textfield/lisp_create" 0)
-
 (class Textfield ()
 	; (Textfield) -> textfield
 	; overide the default 'this' env with a textfield component
-	(defq this (create-textfield) label_flow (Flow) label_text (create-text))
-	(def this :label_flow label_flow :label_text label_text :cursor 0)
-	(view-set-flags label_flow 0 -1)
-	(view-add-back this label_flow)
-	(. label_flow :add_child label_text)
-
-	(method :pref_size (this)
-		; (. textfield :pref_size) -> (width height)
-		(defq border (abs (get :border this)))
-		(bind '(w h) (. (get :label_flow this) :pref_size))
-		(list (+ (* border 2) w) (+ (* border 2) h)))
-
-	(method :layout (this)
-		; (. textfield :layout) -> textfield
-		(defq flow (get :label_flow this) border (abs (get :border this))
-			color (get :color this))
-		(bind '(w h) (view-get-size this))
-		(view-change flow border border (- w (* border 2)) (- h (* border 2)))
-		(view-layout flow)
-		(if (= (>> color 24) 0xff)
-			(view-set-flags this +view_flag_opaque+ +view_flag_opaque+))
-		this)
+	; inherit from Label !
+	(defq super (Label))
+	(def (defq this ((ffi _ "gui/textfield/lisp_create" 0))) :cursor 0)
+	(each (lambda ((key val)) (def this key val)) (tolist super))
+	(each (lambda (child) (view-add-back this child)) (view-children super))
 
 	(method :key_down (this event)
 		; (. textfield :key_down event) -> textfield
@@ -51,5 +32,5 @@
 				;append key
 				(setq text (insert text cursor (char key)) cursor (inc cursor))))
 		(def this :text text :cursor cursor)
-		(view-dirty-all (view-layout this)))
+		(view-dirty-all (. this :layout)))
 	)

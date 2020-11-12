@@ -7,7 +7,10 @@
 (class Window ()
 	; (Window) -> window
 	; overide the default 'this' env with a window component
-	(def (defq this (create-window)) :child nil :last_buttons 0 :is_window t)
+	; inherit from View !
+	(def (defq this ((ffi _ "gui/window/lisp_create" 0)))
+		 :child nil :last_buttons 0 :is_window t)
+	(each (lambda ((key val)) (def this key val)) (tolist (View)))
 
 	(method :add_child (this child)
 		; (. window :add_child child) -> window
@@ -20,7 +23,7 @@
 		; (. window :pref_size) -> (width height)
 		(defq child (get :child this) border (get :border this) shadow
 			(get :shadow this))
-		(bind '(w h) (view-pref-size child))
+		(bind '(w h) (. child :pref_size))
 		(list (+ (* (+ shadow border) 2) w) (+ (* (+ shadow border) 2) h)))
 
 	(method :layout (this)
@@ -28,7 +31,7 @@
 		(defq border (get :border this) shadow (get :shadow this)
 			color (get :color this) child (get :child this))
 		;position any child
-		(bind '(w h) (view-get-size this))
+		(bind '(w h) (. this :get_size))
 		(when child
 			(view-change child (+ border shadow) (+ border shadow)
 				(- w (* 2 (+ border shadow))) (- h (* 2 (+ border shadow)))))
@@ -46,7 +49,7 @@
 
 	(method :mouse_down (this event)
 		; (. window :mouse_down event) -> window
-		(bind '(w h) (view-get-size this))
+		(bind '(w h) (. this :get_size))
 		(defq rx (get-int event ev_msg_mouse_rx) ry (get-int event ev_msg_mouse_ry)
 			border (get :border this) shadow (get :shadow this)
 			drag_mode 0 drag_offx 0 drag_offy 0)
@@ -66,7 +69,7 @@
 		(defq ax (get-int event ev_msg_mouse_x) ay (get-int event ev_msg_mouse_y)
 			drag_mode (get :drag_mode this) drag_offx (get :drag_offx this)
 			drag_offy (get :drag_offy this))
-		(bind '(x y x1 y1) (view-get-bounds this))
+		(bind '(x y x1 y1) (. this :get_bounds))
 		(bind '(w h) (. this :pref_size))
 		(setq x1 (+ x x1) y1 (+ y y1))
 		(if (/= 0 (logand 1 drag_mode))

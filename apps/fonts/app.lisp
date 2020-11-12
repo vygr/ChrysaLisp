@@ -30,11 +30,11 @@
 				(. symbol_grid :add_child l)) (range c (+ c grid_width)))) (range 0 n)))
 	(def symbol_grid :grid_width (inc grid_width) :grid_height grid_height
 		:color (const *env_toolbar_col*) :font font)
-	(bind '(w h) (view-pref-size symbol_grid))
+	(bind '(w h) (. symbol_grid :pref_size))
 	(view-change symbol_grid 0 0 w h)
 	(def symbol_scroll :min_width w :min_height (min h 720))
 	(. symbol_scroll :add_child symbol_grid)
-	(bind '(x y w h) (apply view-fit (cat (view-get-pos mywindow) (view-pref-size mywindow))))
+	(bind '(x y w h) (apply view-fit (cat (. mywindow :get_pos) (. mywindow :pref_size))))
 	(view-change-dirty mywindow x y w h))
 
 (defun all-fonts (p)
@@ -54,7 +54,7 @@
 
 (defun main ()
 	(win-refresh index)
-	(bind '(x y w h) (apply view-locate (view-pref-size mywindow)))
+	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
 	(gui-add (view-change mywindow x y w h))
 	(while (cond
 		((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) +event_close+)

@@ -28,7 +28,7 @@
 	accum)
 
 (defun main ()
-	(bind '(x y w h) (apply view-locate (view-pref-size mywindow)))
+	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
 	(gui-add (view-change mywindow x y w h))
 	(defq accum 0 value 0 num 0 lastop nil)
 	(while (cond
@@ -50,17 +50,17 @@
 						(t (setq num (str-to-num (cat (str num) op)))))
 					(setq value num)))
 			(set display :text (str value))
-			(view-dirty (view-layout display)))
+			(view-dirty (. display :layout)))
 		((= id +event_close+)
 			;close button
 			nil)
 		((= id +event_min+)
 			;min button
-			(bind '(x y w h) (apply view-fit (cat (view-get-pos mywindow) (view-pref-size mywindow))))
+			(bind '(x y w h) (apply view-fit (cat (. mywindow :get_pos) (. mywindow :pref_size))))
 			(view-change-dirty mywindow x y w h))
 		((= id +event_max+)
 			;max button
-			(bind '(x y w h) (apply view-fit (cat (view-get-pos mywindow) '(512 512))))
+			(bind '(x y w h) (apply view-fit (cat (. mywindow :get_pos) '(512 512))))
 			(view-change-dirty mywindow x y w h))
 		(t (. mywindow :event msg))))
 	(view-hide mywindow))

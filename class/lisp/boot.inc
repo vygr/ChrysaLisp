@@ -860,6 +860,12 @@
 		`((get ,m ,this) ,this ~_)
 		`((get ,m (defq ,(defq _o (gensym)) ,this)) ,_o ~_)))
 
+;; (defun . (this m &rest _)
+;; 	; (. this method ([arg ...]))
+;; 	(if (get m this)
+;; 		(apply (get m this) (cat (list this) _))
+;; 		(throw "No such method !" (list m this))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Boot extension imports
 ;;;;;;;;;;;;;;;;;;;;;;;;;

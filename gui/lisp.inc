@@ -5,7 +5,6 @@
 
 ;lisp bindings
 (ffi create-text "gui/text/lisp_create" 0)
-(ffi create-view "gui/view/lisp_create" 0)
 (ffi create-font "gui/font/lisp_create" 0)
 (ffi gui-add "gui/gui/lisp_add" 0)
 (ffi gui-add-back "gui/gui/lisp_add_back" 0)

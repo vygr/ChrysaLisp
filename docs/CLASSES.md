@@ -9240,19 +9240,6 @@ trashes
 r1-r14
 ```
 
-### view::lisp_layout -> gui/view/lisp_layout
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args list object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
 ### view::lisp_find_id -> gui/view/lisp_find_id
 
 ```lisp

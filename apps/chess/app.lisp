@@ -30,7 +30,7 @@
 	(each (lambda (square piece)
 		(def square :text (elem (find piece "QKRBNPqkrbnp ")
 			(if (= (logand (+ _ (>> _ 3)) 1) 0) "wltvmoqkrbnp " "qkrbnpwltvmo ")))
-		(view-layout square)) squares board)
+		(. square :layout)) squares board)
 	(view-dirty-all chess_grid))
 
 (defun vdu-print (vdu buf s)
@@ -47,7 +47,7 @@
 (defun main ()
 	(mail-send (array (in-mbox data_in) 10000000)
 		(defq child_mbox (open-child "apps/chess/child.lisp" kn_call_child)))
-	(bind '(x y w h) (apply view-locate (view-pref-size mywindow)))
+	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
 	(gui-add (view-change mywindow x y w h))
 	;main event loop
 	(while (cond

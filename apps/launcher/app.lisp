@@ -18,7 +18,7 @@
 
 (defun main ()
 	;ensure the launcher is completely on screen
-	(bind '(w h) (view-pref-size mywindow))
+	(bind '(w h) (. mywindow :pref_size))
 	(bind '(x y w h) (apply view-locate (push (list (/ (* w 100) 80) h) *env_launcher_position*)))
 	(gui-add (view-change mywindow x y w h))
 	(while (cond

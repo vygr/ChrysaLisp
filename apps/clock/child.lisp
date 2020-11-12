@@ -75,7 +75,7 @@
 		(make-digital-time)
 		(set display :text (view-digital-time))
 			;prevents clipping the label
-		(view-layout display))
+		(. display :layout))
 	;while not told to quit
 	(until (mail-poll (array (task-mailbox)))
 		(when clock

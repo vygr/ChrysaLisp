@@ -20,18 +20,6 @@
 
 (- num num ...)
 
-## backdrop :add_child
-
-(. backdrop :add_child child) -> backdrop
-
-## backdrop :layout
-
-(. backdrop :layout) -> backdrop
-
-## button :add_child
-
-(. button :add_child child) -> button
-
 ## button :layout
 
 (. button :layout) -> button
@@ -47,10 +35,6 @@
 ## button :mouse_up
 
 (. button :mouse_up event) -> button
-
-## button :pref_size
-
-(. button :pref_size) -> (width height)
 
 ## canvas :pref_size
 
@@ -120,10 +104,6 @@
 
 (. label :pref_size) -> (width height)
 
-## progress :layout
-
-(. progress :layout) -> progress
-
 ## progress :pref_size
 
 (. progress :pref_size) -> (width height)
@@ -144,10 +124,6 @@
 
 (. scroll :pref_size) -> (width height)
 
-## slider :layout
-
-(. slider :layout) -> slider
-
 ## slider :mouse_down
 
 (. slider :mouse_down event) -> slider
@@ -167,14 +143,6 @@
 ## textfield :key_down
 
 (. textfield :key_down event) -> textfield
-
-## textfield :layout
-
-(. textfield :layout) -> textfield
-
-## textfield :pref_size
-
-(. textfield :pref_size) -> (width height)
 
 ## .
 
@@ -199,6 +167,30 @@
 ## view :add_child
 
 (. view :add_child child) -> view
+
+## view :get_bounds
+
+(. view :get_bounds) -> (x y width height)
+
+## view :get_pos
+
+(. view :get_pos) -> (x y)
+
+## view :get_size
+
+(. view :get_size) -> (width height)
+
+## view :layout
+
+(. view :layout) -> view
+
+## view :set_size
+
+(. view :set_size width height) -> view
+
+## view :set_size
+
+(. view :set_size x y width height) -> view
 
 ## window :add_child
 
@@ -1884,21 +1876,9 @@
 
 (view-get-bounds view) -> (x y w h)
 
-## view-get-pos
-
-(view-get-pos view) -> (x y)
-
-## view-get-size
-
-(view-get-size view) -> (w h)
-
 ## view-hide
 
 (view-hide view)
-
-## view-layout
-
-(view-layout view)
 
 ## view-locate
 
@@ -1915,14 +1895,6 @@
 ## view-set-flags
 
 (view-set-flags view flags mask)
-
-## view-set-pos
-
-(view-set-pos view x y) -> view
-
-## view-set-size
-
-(view-set-size view w h) -> view
 
 ## view-sub
 

@@ -8,8 +8,6 @@
 (ffi view-change-dirty "gui/view/lisp_change_dirty" 0)
 (ffi view-dirty "gui/view/lisp_dirty" 0)
 (ffi view-find-id "gui/view/lisp_find_id" 0)
-(ffi view-layout "gui/view/lisp_layout" 0)
-(ffi view-pref-size "gui/view/lisp_pref_size" 0)
 (ffi view-sub "gui/view/lisp_sub" 0)
 (ffi view-hide "gui/view/lisp_hide" 0)
 (ffi view-sub-opaque "gui/view/lisp_sub_opaque" 0)
@@ -17,28 +15,11 @@
 (ffi view-children "gui/view/lisp_children" 0)
 (ffi view-to-front "gui/view/lisp_to_front" 0)
 (ffi view-to-back "gui/view/lisp_to_back" 0)
-
-(defun view-get-pos (view)
-	; (view-get-pos view) -> (x y)
-	(list (get-field view (const view_x) (const int_size))
-		(get-field view (const view_y) (const int_size))))
-
-(defun view-set-pos (view x y)
-	; (view-set-pos view x y) -> view
-	(set-field (set-field view
-		(const view_x) (const int_size) x)
-		(const view_y) (const int_size) y))
+(ffi view-pref-size "gui/view/lisp_pref_size" 0)
 
 (defun view-get-size (view)
-	; (view-get-size view) -> (w h)
 	(list (get-field view (const view_w) (const int_size))
 		(get-field view (const view_h) (const int_size))))
-
-(defun view-set-size (view w h)
-	; (view-set-size view w h) -> view
-	(set-field (set-field view
-		(const view_w) (const int_size) w)
-		(const view_h) (const int_size) h))
 
 (defun view-get-bounds (view)
 	; (view-get-bounds view) -> (x y w h)
@@ -79,9 +60,52 @@
 (class View ()
 	; (View) -> view
 	; overide the default 'this' env with a flow component
-	(defq this (create-view))
+	(defq this ((ffi _ "gui/view/lisp_create" 0)))
 
 	(method :add_child (this child)
 		; (. view :add_child child) -> view
 		(view-add-back this child))
+
+	(method :get_pos (this)
+		; (. view :get_pos) -> (x y)
+		(list (get-field this (const view_x) (const int_size))
+			(get-field this (const view_y) (const int_size))))
+
+	(method :get_size (this)
+		; (. view :get_size) -> (width height)
+		(list (get-field this (const view_w) (const int_size))
+			(get-field this (const view_h) (const int_size))))
+
+	(method :set_size (this width height)
+		; (. view :set_size width height) -> view
+		(set-field (set-field this
+			(const view_w) (const int_size) width)
+			(const view_h) (const int_size) height))
+
+	(method :get_bounds (this)
+		; (. view :get_bounds) -> (x y width height)
+		(list (get-field this (const view_x) (const int_size))
+			(get-field this (const view_y) (const int_size))
+			(get-field this (const view_w) (const int_size))
+			(get-field this (const view_h) (const int_size))))
+
+	(method :set_bounds (this x y width height)
+		; (. view :set_size x y width height) -> view
+		(set-field (set-field (set-field (set-field this
+			(const view_x) (const int_size) x)
+			(const view_y) (const int_size) y)
+			(const view_w) (const int_size) width)
+			(const view_h) (const int_size) height))
+
+	;; (method :pref_size (this)
+	;; 	; (. view :pref_size) -> (width height)
+	;; 	(defq mw (get :min_width this) mw (get :min_height this))
+	;; 	(setd mw 0 mh 0)
+	;; 	(list mw mh))
+
+	(method :layout (this)
+		; (. view :layout) -> view
+		(if (= (>> (get :color this) 24) 0xff)
+			(view-set-flags this +view_flag_opaque+ +view_flag_opaque+))
+		this)
 	)

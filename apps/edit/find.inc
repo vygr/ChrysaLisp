@@ -17,7 +17,7 @@
 			(elem-set 2 (elem +text_position+ current_text) fx) (elem-set 3 (elem +text_position+ current_text) fy)
 			(setq sb_line_col_message (str " - " (str (inc find_index)) " of " (str (length find_list)) " Matches. "))
 			(set sb_line_col :text (cat "Line " (str fy) ", Column " (str fx) sb_line_col_message))
-			(view-layout status_bar)
+			(. status_bar :layout)
 			(view-dirty sb_line_col)
 			(window-layout vdu_width vdu_height))
 		((eql (get :text mytextfield) "") (setq sb_line_col_message "")
@@ -25,8 +25,8 @@
 		(t 
 			(setq sb_line_col_message " - No Matches Found")
 			(set sb_line_col :text (cat "Line " (str cy) ", Column " (str cx) sb_line_col_message))
-			(view-layout sb_line_col)
-			(view-layout status_bar)
+			(. sb_line_col :layout)
+			(. status_bar :layout)
 			(view-dirty sb_line_col))))
 
 (defun find-next ()
@@ -40,7 +40,7 @@
 			(elem-set 3 (elem +text_position+ current_text) fy)
 			(setq sb_line_col_message (str " - " (str (inc find_index)) " of " (str (length find_list)) " Matches. "))
 			(set sb_line_col :text (cat "Line " (str fy) ", Column " (str fx) sb_line_col_message))
-			(view-layout sb_line_col)
+			(. sb_line_col :layout)
 			(view-dirty sb_line_col)
 			(window-layout vdu_width vdu_height))))
 
@@ -55,6 +55,6 @@
 			(elem-set 3 (elem +text_position+ current_text) fy)
 			(setq sb_line_col_message (str " - " (str (inc find_index)) " of " (str (length find_list)) " Matches. "))
 			(set sb_line_col :text (cat "Line " (str fy) ", Column " (str fx) sb_line_col_message))
-			(view-layout sb_line_col)
+			(. sb_line_col :layout)
 			(view-dirty sb_line_col)
 			(window-layout vdu_width vdu_height))))

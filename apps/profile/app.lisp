@@ -60,7 +60,7 @@
 	(set-slider-values))
 
 (defun main ()
-	(bind '(x y w h) (apply view-locate (view-pref-size mywindow)))
+	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
 	(gui-add (view-change mywindow x y w h))
 	(reset)
 	(while id

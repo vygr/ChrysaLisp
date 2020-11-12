@@ -69,9 +69,9 @@
 	;ui tree initial setup
 	(defq dlist (list 0 rate light_pos layer1_canvas (list)))
 	(canvas-set-flags layer1_canvas 1)
-	(view-set-size mybackdrop canvas_width canvas_height)
+	(. mybackdrop :set_size canvas_width canvas_height)
 	(radio-select style_buttons 1)
-	(bind '(x y w h) (apply view-locate (view-pref-size mywindow)))
+	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
 	(gui-add (view-change mywindow x y w h))
 	(def image_scroll :min_width min_width :min_height min_height)
 
@@ -90,12 +90,12 @@
 			(setq id nil))
 		((= id +event_min+)
 			;min button
-			(bind '(x y w h) (apply view-fit (cat (view-get-pos mywindow) (view-pref-size mywindow))))
+			(bind '(x y w h) (apply view-fit (cat (. mywindow :get_pos) (. mywindow :pref_size))))
 			(view-change-dirty mywindow x y w h))
 		((= id +event_max+)
 			;max button
 			(def image_scroll :min_width canvas_width :min_height canvas_height)
-			(bind '(x y w h) (apply view-fit (cat (view-get-pos mywindow) (view-pref-size mywindow))))
+			(bind '(x y w h) (apply view-fit (cat (. mywindow :get_pos) (. mywindow :pref_size))))
 			(view-change-dirty mywindow x y w h)
 			(def image_scroll :min_width min_width :min_height min_height))
 		((= id +event_reset+)
@@ -108,7 +108,7 @@
 			;event for canvas
 			(when (= (get-long msg (const ev_msg_type)) (const ev_type_mouse))
 				;mouse event in canvas
-				(bind '(w h) (view-get-size layer1_canvas))
+				(bind '(w h) (. layer1_canvas :get_size))
 				(defq rx (- (get-int msg (const ev_msg_mouse_rx)) (/ w 2))
 					ry (- (get-int msg (const ev_msg_mouse_ry)) (/ h 2)))
 				(cond

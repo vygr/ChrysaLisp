@@ -35,7 +35,7 @@
 			(each (lambda (stat)
 				(defq vt (* (inc _) (/ (* last_max_stats 100) (length stat_scale))))
 				(def stat :text (str (/ vt 100) "|"))
-				(view-layout stat)) stat_scale)
+				(. stat :layout)) stat_scale)
 			;build new stats info
 			(sort (lambda (x y)
 				(- (elem 1 y) (elem 1 x))) stat_data)
@@ -51,16 +51,16 @@
 			(view-sub stat_view) (view-sub name_view)
 			(. name_flow :add_child (setq name_view new_name_view))
 			(. stat_flow :add_child (setq stat_view new_stat_view))
-			(view-layout name_flow) (view-layout stat_flow)
+			(. name_flow :layout) (. stat_flow :layout)
 			(view-dirty-all mywindow)
 			;open the window once we have data
 			(when (= (setq frame_cnt (inc frame_cnt)) 2)
-				(bind '(x y w h) (apply view-locate (view-pref-size mywindow)))
+				(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
 				(gui-add (view-change mywindow x y w h)))
 			;resize if number of classes change
 			(when (/= last_max_classes max_classes)
 				(setq last_max_classes max_classes)
-				(apply view-change-dirty (cat (list mywindow) (view-get-pos mywindow) (view-pref-size mywindow))))
+				(apply view-change-dirty (cat (list mywindow) (. mywindow :get_pos) (. mywindow :pref_size))))
 			;send out multi-cast sample command
 			(while (/= cpu_count 0)
 				(setq cpu_count (dec cpu_count))

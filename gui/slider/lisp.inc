@@ -2,26 +2,21 @@
 ; slider widget
 ;;;;;;;;;;;;;;;;;
 
-(ffi create-slider "gui/slider/lisp_create" 0)
-
 (class Slider ()
 	; (Slider) -> slider
 	; overide the default 'this' env with a slider component
-	(def (defq this (create-slider)) :state 0 :value 0 :maximum 0 :portion 0 :downxy 0)
+	; inherit from View !
+	(def (defq this ((ffi _ "gui/slider/lisp_create" 0)))
+		:state 0 :value 0 :maximum 0 :portion 0 :downxy 0)
+	(each (lambda ((key val)) (def this key val)) (tolist (View)))
 
 	(method :pref_size (this)
 		; (. slider :pref_size) -> (width height)
 		(list 10 10))
 
-	(method :layout (this)
-		; (. slider :layout) -> slider
-		(if (= (>> (get :color this) 24) 0xff)
-			(view-set-flags this +view_flag_opaque+ +view_flag_opaque+))
-		this)
-
 	(method :mouse_down (this event)
 		; (. slider :mouse_down event) -> slider
-		(bind '(w h) (view-get-size this))
+		(bind '(w h) (. this :get_size))
 		(defq rx (get-int event ev_msg_mouse_rx) ry (get-int event ev_msg_mouse_ry))
 		(def this :old_value (get :value this) :downxy (if (> w h) rx ry) :state 1)
 		(view-dirty-all this)
@@ -38,7 +33,7 @@
 		; (. slider :mouse_move event) -> slider
 		(defq rx (get-int event ev_msg_mouse_rx) ry (get-int event ev_msg_mouse_ry)
 			downxy (get :downxy this) maximum (get :maximum this) portion (get :portion this))
-		(bind '(w h) (view-get-size this))
+		(bind '(w h) (. this :get_size))
 		(if (and (>= rx 0) (>= ry 0) (< rx w) (< ry h))
 			(defq state 1)
 			(defq state 0))

@@ -26,13 +26,13 @@
 	(def image_scroll :min_width w :min_height h)
 	(def window_title :text (elem _ films))
 	(. image_scroll :add_child canvas)
-	(view-layout window_title)
-	(bind '(x y w h) (apply view-fit (cat (view-get-pos mywindow) (view-pref-size mywindow))))
+	(. window_title :layout)
+	(bind '(x y w h) (apply view-fit (cat (. mywindow :get_pos) (. mywindow :pref_size))))
  	(def image_scroll :min_width 32 :min_height 32)
 	(view-change-dirty mywindow x y w h))
 
 (defun main ()
-	(bind '(x y w h) (apply view-locate (view-get-size (win-refresh index))))
+	(bind '(x y w h) (apply view-locate (. (win-refresh index) :get_size)))
 	(gui-add (view-change mywindow x y w h))
 	(while id
 		(task-sleep 40000)

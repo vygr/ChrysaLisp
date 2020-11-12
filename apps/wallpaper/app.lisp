@@ -33,7 +33,7 @@
 		(const (+ +view_flag_at_back+ +view_flag_dirty_all+ +view_flag_opaque+))) 0 0 w h)))
 
 (defun main ()
-	(defq images_info (map canvas-info *env_wallpaper_images*) wallpaper (create-view)
+	(defq images_info (map canvas-info *env_wallpaper_images*) wallpaper (View)
 			screen (penv (gui-add-back wallpaper)))
 	(each (lambda (_)
 		(open-child (app-path _) kn_call_open)) *env_launcher_auto_apps*)

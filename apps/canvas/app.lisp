@@ -14,7 +14,7 @@
 
 (defun main ()
 	(canvas-set-flags (canvas-fill canvas 0) 1)
-	(bind '(x y w h) (apply view-locate (view-pref-size mywindow)))
+	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
 	(gui-add (view-change mywindow x y w h))
 	;create child and send args
 	(mail-send (list canvas (i2f canvas_width) (i2f canvas_height) (i2f canvas_scale))

@@ -16,6 +16,7 @@
 (class Flow ()
 	; (Flow) -> flow
 	; overide the default 'this' env with a flow component
+	; inherit from View !
 	(defq this (View))
 
 	(method :pref_size (this)
@@ -34,7 +35,7 @@
 
 	(method :layout (this)
 		; (. flow :layout) -> flow
-		(bind '(fw fh) (view-get-size this))
+		(bind '(fw fh) (. this :get_size))
 		(defq flow_flags (get :flow_flags this) children (view-children this) end (dec (length children))
 			x (if (/= 0 (logand flow_flags +flow_flag_left+)) fw 0)
 			y (if (/= 0 (logand flow_flags +flow_flag_up+)) fh 0))

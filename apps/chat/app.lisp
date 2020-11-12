@@ -39,7 +39,7 @@
 
 (defun main ()
 	(defq id t text_buf (list "") select (array (task-mailbox)) entry nil)
-	(bind '(x y w h) (apply view-locate (view-pref-size mywindow)))
+	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
 	(gui-add (view-change mywindow x y w h))
 	(while id
 		(defq idx (mail-select select) msg (mail-read (elem idx select)))
@@ -67,7 +67,7 @@
 				;send to network
 				(broadcast (get :text chat_text))
 				(set chat_text :text "")
-				(view-dirty (view-layout chat_text)))
+				(view-dirty (. chat_text :layout)))
 			(t (. mywindow :event msg))))
 	(when entry
 		(broadcast "Has left the chat !")

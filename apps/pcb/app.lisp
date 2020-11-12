@@ -170,13 +170,13 @@
 		) (list pcb)))
 
 (defun win-refresh (_)
-	(view-layout (. pcb_scroll :add_child (pcb-load (elem (setq index _) pcbs))))
+	(. (. pcb_scroll :add_child (pcb-load (elem (setq index _) pcbs))) :layout)
 	(def window_title :text (elem _ pcbs))
-	(view-layout window_title)
-	(view-dirty-all (view-layout mywindow)))
+	(. window_title :layout)
+	(view-dirty-all (. mywindow :layout)))
 
 (defun main ()
-	(bind '(x y w h) (apply view-locate (view-pref-size (win-refresh index))))
+	(bind '(x y w h) (apply view-locate (. (win-refresh index) :pref_size)))
 	(gui-add (view-change mywindow x y w h))
 	(while (cond
 		((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) +event_close+)

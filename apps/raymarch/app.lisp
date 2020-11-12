@@ -39,7 +39,7 @@
 (defun main ()
 	;add window
 	(canvas-swap (canvas-fill canvas +argb_black+))
-	(bind '(x y w h) (apply view-locate (view-pref-size mywindow)))
+	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
 	(gui-add (view-change mywindow x y w h))
 	;send first batch of jobs
 	(each (lambda (_) (mail-send (pop jobs) _)) farm)

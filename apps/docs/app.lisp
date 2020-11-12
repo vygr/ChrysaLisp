@@ -95,9 +95,9 @@
 			(:code (lisp-line))
 			(:vdu (vdu-line)))
 		(if line_widget (. page_widget :add_child line_widget))) (file-stream (cat "docs/" file ".md")))
-	(apply view-change (cat (list page_flow 0 0) (view-pref-size page_flow)))
-	(view-layout (. page_scroll :add_child page_flow))
-	(view-dirty-all (view-layout doc_flow)))
+	(apply view-change (cat (list page_flow 0 0) (. page_flow :pref_size)))
+	(. (. page_scroll :add_child page_flow) :layout)
+	(view-dirty-all (. doc_flow :layout)))
 
 (ui-window mywindow (:color +argb_grey15+)
 	(ui-title-bar _ "Docs" (0xea19) +event_close+)
@@ -111,7 +111,7 @@
 (defun main ()
 	(defq coloriser (Syntax))
 	(populate-page (elem 0 doc_list))
-	(bind '(x y w h) (apply view-locate (view-pref-size mywindow)))
+	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
 	(gui-add (view-change mywindow x y w h))
 	(while (cond
 		((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) +event_close+)

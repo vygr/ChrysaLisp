@@ -98,7 +98,7 @@
 	(setq vdu_width w vdu_height h)
 	(set vdu :vdu_width w :vdu_height h :min_width w :min_height h)
 	(bind '(x y w h) (apply view-fit
-		(cat (view-get-pos mywindow) (view-pref-size mywindow))))
+		(cat (. mywindow :get_pos) (. mywindow :pref_size))))
 	(set vdu :min_width vdu_min_width :min_height vdu_min_height)
 	(view-change-dirty mywindow x y w h)
 	(print-edit-line))
@@ -106,15 +106,15 @@
 (defun window-layout (w h)
 	(setq vdu_width w vdu_height h)
 	(set vdu :vdu_width w :vdu_height h :min_width w :min_height h)
-	(bind '(x y) (view-get-pos vdu))
-	(bind '(w h) (view-pref-size vdu))
+	(bind '(x y) (. vdu :get_pos))
+	(bind '(w h) (. vdu :pref_size))
 	(set vdu :min_width vdu_min_width :min_height vdu_min_height)
 	(view-change vdu x y w h)
 	(print-edit-line))
 
 (defun main ()
 	;add window
-	(bind '(x y w h) (apply view-locate (view-pref-size (component-connect mywindow +event_layout+))))
+	(bind '(x y w h) (apply view-locate (. (component-connect mywindow +event_layout+) :pref_size)))
 	(gui-add (view-change mywindow x y w h))
 	;sign on msg
 	(print (str "ChrysaLisp Terminal 1.6" (ascii-char 10)))

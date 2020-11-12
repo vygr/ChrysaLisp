@@ -7,7 +7,7 @@
 	frames (map (lambda (_) (canvas-load (cat "apps/freeball/staoball_" (str _) ".cpm") +load_flag_shared+)) (range 1 12))
 	sframes (map (lambda (_) (canvas-load (cat "apps/freeball/staoball_s_" (str _) ".cpm") +load_flag_shared+)) (range 1 12)))
 
-(ui-tree view (View) nil
+(ui-tree view (View) (:color 0)
 	(ui-element frame (elem 0 frames))
 	(ui-element sframe (elem 0 sframes)))
 
@@ -18,9 +18,9 @@
 		(defq index (% (inc index) (length frames))
 			old_frame frame frame (elem index frames)
 			old_sframe sframe sframe (elem index sframes))
-		(bind '(ox oy w h) (view-get-bounds view))
-		(bind '(_ _ fw fh) (view-get-bounds old_frame))
-		(bind '(_ _ sw sh) (view-get-bounds old_sframe))
+		(bind '(ox oy w h) (. view :get_bounds))
+		(bind '(_ _ fw fh) (. old_frame :get_bounds))
+		(bind '(_ _ sw sh) (. old_sframe :get_bounds))
 		(defq x (+ ox xv) y (+ oy yv) yv (inc yv))
 		(if (> y (- screen_height fh)) (setq y (- screen_height fh) yv (neg (/ (* yv 8) 10))))
 		(if (< x 0) (setq x 0 xv (abs xv)))

@@ -43,7 +43,7 @@
 (defun main ()
 	;add window
 	(canvas-swap (canvas-fill canvas +argb_black+))
-	(bind '(x y w h) (apply view-locate (view-pref-size mywindow)))
+	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
 	(gui-add (view-change mywindow x y w h))
 	(reset)
 	;main event loop
@@ -61,7 +61,7 @@
 							(= (get-long msg ev_msg_type) ev_type_mouse)
 							(/= (get-int msg ev_msg_mouse_buttons) 0))
 						;mouse click on the canvas view, zoom in/out, re-center
-						(bind '(w h) (view-get-size canvas))
+						(bind '(w h) (. canvas :get_size))
 						(defq rx (- (get-int msg ev_msg_mouse_rx) (/ (- w canvas_width) 2))
 							ry (- (get-int msg ev_msg_mouse_ry) (/ (- h canvas_height) 2)))
 						(setq center_x (+ center_x (mbfp-offset rx canvas_width zoom))

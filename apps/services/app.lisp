@@ -39,15 +39,15 @@
 			(. mbox_flow :add_child _) (push mbox_labels _)
 			(def (defq _ (Label)) :border 1 :text (if (> (length info) 2) (elem 2 info) "No Info"))
 			(. info_flow :add_child _) (push info_labels _)) new_services)
-		(bind '(w h) (view-pref-size info_grid))
+		(bind '(w h) (. info_grid :pref_size))
 		(view-change info_grid 0 0 w h))
-		(view-dirty-all (view-layout info_scroll)))
+		(view-dirty-all (. info_scroll :layout)))
 
 (defun resize (mh)
-	(bind '(w h) (view-get-size info_grid))
+	(bind '(w h) (. info_grid :get_size))
 	(setq h (min h mh))
 	(def info_scroll :min_width w :min_height h)
-	(bind '(x y w h) (apply view-fit (cat (view-get-pos mywindow) (view-pref-size mywindow))))
+	(bind '(x y w h) (apply view-fit (cat (. mywindow :get_pos) (. mywindow :pref_size))))
 	(undef info_scroll :min_width :min_height)
 	(view-change-dirty mywindow x y w h))
 
@@ -56,9 +56,9 @@
 		service_labels (list) mbox_labels (list) info_labels (list))
 	(populate)
 	;add window
-	(bind '(w h) (view-get-size info_grid))
+	(bind '(w h) (. info_grid :get_size))
 	(def info_scroll :min_width w :min_height h)
-	(bind '(x y w h) (apply view-locate (view-pref-size mywindow)))
+	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
 	(undef info_scroll :min_width :min_height)
 	(gui-add (view-change mywindow x y w h))
 	;app event loop
