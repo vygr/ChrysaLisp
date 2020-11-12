@@ -48,7 +48,7 @@
 			(setq oy (- cy vdu_height -1))))
 	;set slider values
 	(def slider :maximum (max 0 (- (length buf) vdu_height)) :portion vdu_height :value oy)
-	(view-dirty slider)
+	(. slider :dirty)
 	(vdu-load vdu buf ox oy cx cy) buf)
 
 ;override print for VDU output
@@ -100,7 +100,7 @@
 	(bind '(x y w h) (apply view-fit
 		(cat (. mywindow :get_pos) (. mywindow :pref_size))))
 	(set vdu :min_width vdu_min_width :min_height vdu_min_height)
-	(view-change-dirty mywindow x y w h)
+	(. mywindow :change_dirty x y w h)
 	(print-edit-line))
 
 (defun window-layout (w h)
@@ -158,5 +158,5 @@
 			(t	;string from pipe
 				(print data)))))
 	;close window and pipe
-	(view-hide mywindow)
+	(. mywindow :hide)
 	(if cmd (pipe-close cmd)))

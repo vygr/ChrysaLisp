@@ -48,7 +48,7 @@
 				(def p :maximum last_max_stats :value stat)
 				(. new_name_view :add_child n)
 				(. new_stat_view :add_child p)) stat_data)
-			(view-sub stat_view) (view-sub name_view)
+			(. stat_view :sub) (. name_view :sub)
 			(. name_flow :add_child (setq name_view new_name_view))
 			(. stat_flow :add_child (setq stat_view new_stat_view))
 			(. name_flow :layout) (. stat_flow :layout)
@@ -60,7 +60,9 @@
 			;resize if number of classes change
 			(when (/= last_max_classes max_classes)
 				(setq last_max_classes max_classes)
-				(apply view-change-dirty (cat (list mywindow) (. mywindow :get_pos) (. mywindow :pref_size))))
+				(bind '(x y) (. mywindow :get_pos))
+				(bind '(w h) (. mywindow :pref_size))
+				(. mywindow :change_dirty x y w h))
 			;send out multi-cast sample command
 			(while (/= cpu_count 0)
 				(setq cpu_count (dec cpu_count))
@@ -93,7 +95,7 @@
 				(task-sleep 10000)
 				(setq cpu_count (inc cpu_count))))))
 	;close window and children
-	(view-hide mywindow)
+	(. mywindow :hide)
 	(mail-free-mbox (pop select))
 	(while (defq mbox (pop farm))
 		(mail-send (const (char +event_close+ long_size)) mbox)))

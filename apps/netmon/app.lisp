@@ -72,13 +72,13 @@
 						;min button
 						(bind '(x y w h) (apply view-fit
 							(cat (. mywindow :get_pos) (. mywindow :pref_size))))
-						(view-change-dirty mywindow x y w h))
+						(. mywindow :change_dirty x y w h))
 					((= id +event_max+)
 						;max button
 						(bind '(x y) (. mywindow :get_pos))
 						(bind '(w h) (. mywindow :pref_size))
 						(bind '(x y w h) (view-fit x y (/ (* w 5) 3) h))
-						(view-change-dirty mywindow x y w h))
+						(. mywindow :change_dirty x y w h))
 					(t (. mywindow :event msg))))
 			(t	;child info
 				(defq index (find (get-int msg sample_reply_cpu) devices)
@@ -91,7 +91,7 @@
 				;count up replies
 				(setq cpu_count (inc cpu_count))))))
 	;close window and children
-	(view-hide mywindow)
+	(. mywindow :hide)
 	(mail-free-mbox (pop select))
 	(while (defq mbox (pop farm))
 		(mail-send (const (char +event_close+ long_size)) mbox)))

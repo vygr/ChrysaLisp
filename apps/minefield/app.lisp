@@ -63,14 +63,14 @@
 			(setq message "You Won!" game_over t))
 		(t nil))
 	(set status_bar :text message)
-	(view-dirty status_bar))
+	(. status_bar :dirty))
 
 (defun colorize (value)
 	(elem value '(+argb_black+ 0x000000ff 0x00006600 0x00ff0000 +argb_magenta+ 
 		+argb_black+ 0x00700000 +argb_grey1+ 0x0002bbdd +argb_black+)))
 
 (defun board-layout ((gw gh nm))
-	(view-sub across)
+	(. across :sub)
 	(setq game_grid (Grid))
 	(defq gwh (* gw gh))
 		; (ui-grid game_grid (:grid_width 1 :grid_height 5)
@@ -85,11 +85,11 @@
 	(def view :min_width w :min_height h)
 	(. view :add_child game_grid)
 	(bind '(x y w h) (apply view-fit (cat (. mywindow :get_pos) (. mywindow :pref_size))))
-	(view-change-dirty mywindow x y w h))
+	(. mywindow :change_dirty x y w h))
 
 (defun rebuild-board ()
 	(bind '(gw gh nm) difficulty)
-	(view-sub game_grid)
+	(. game_grid :sub)
 	(setq game_grid (Grid))
 	(defq gwh (* gw gh))
 		; (ui-grid game_grid (:grid_width 1 :grid_height 5)
@@ -125,7 +125,7 @@
 	(def view :min_width w :min_height h)
 	(. view :add_child game_grid)
 	(bind '(x y w h) (apply view-fit (cat (. mywindow :get_pos) (. mywindow :pref_size))))
-	(view-change-dirty mywindow x y w h))
+	(. mywindow :change_dirty x y w h))
 
 (defun main ()
 	(defq started nil game (list) game_board (list) game_adj (list) game_map (list) 
@@ -164,4 +164,4 @@
 				(/= 0 (get-int msg (const ev_msg_mouse_buttons)))
 				(setq mouse_down (get-int msg (const ev_msg_mouse_buttons))))
 			(. mywindow :event msg))))
-	(view-hide mywindow))
+	(. mywindow :hide))

@@ -127,7 +127,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(view-hide view)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(r0 "(. view :hide)" error_msg_wrong_types r1))
 	(signature '(view)))
 
 (def-func-end)
@@ -294,7 +294,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(view-change-dirty view x y w h)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(r0 "(. view :change_dirty x y w h)" error_msg_wrong_types r1))
 	(signature '(view num num num num)))
 
 (def-func-end)

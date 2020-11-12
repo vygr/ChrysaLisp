@@ -11,7 +11,7 @@
 		(ui-grid btn_menu_grid (:grid_width 1 :grid_height 1))))
 
 (defun build-menu (x y pflag)
-	(view-sub btn_menu_grid)
+	(. btn_menu_grid :sub)
 	(defq btn_length (length btn_list))
 	(def (setq btn_menu_grid (Grid)) :min_width 80 :flow_flags +flow_flag_align_hcenter+ 
 		:grid_height btn_length :grid_width 1)
@@ -44,7 +44,7 @@
 	(while (cond
 		((eql (defq msg (mail-read (task-mailbox))) "") nil)
 		((= +event_click+ (defq id (get-long msg ev_msg_target_id)))
-			(defq reply (get :text (view-find-id window (get-long msg ev_msg_action_source_id))))
+			(defq reply (get :text (. window :find_id (get-long msg ev_msg_action_source_id))))
 			(mail-send reply reply_mbox))
 		(t (. window :event msg))))
-		(view-hide window))
+		(. window :hide))

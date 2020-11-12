@@ -9,8 +9,8 @@
 	(def (defq label_flow (Flow) label_text (create-text) this ((ffi _ "gui/label/lisp_create" 0)))
 		:label_flow label_flow :label_text label_text)
 	(each (lambda ((key val)) (def this key val)) (tolist (View)))
-	(view-set-flags label_flow 0 -1)
-	(view-add-back this label_flow)
+	(. label_flow :set_flags 0 -1)
+	(. this :add_back label_flow)
 	(. label_flow :add_child label_text)
 
 	(method :add_child (this child)
@@ -34,6 +34,6 @@
 		(view-change flow border border (- w (* border 2)) (- h (* border 2)))
 		(. flow :layout)
 		(if (= (>> color 24) 0xff)
-			(view-set-flags this +view_flag_opaque+ +view_flag_opaque+))
+			(. this :set_flags +view_flag_opaque+ +view_flag_opaque+))
 		this)
 	)

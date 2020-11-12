@@ -33,7 +33,7 @@
 	(defq accum 0 value 0 num 0 lastop nil)
 	(while (cond
 		((>= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) +event_button+)
-			(defq op (get :text (view-find-id mywindow (get-long msg ev_msg_action_source_id))))
+			(defq op (get :text (. mywindow :find_id (get-long msg ev_msg_action_source_id))))
 			(cond
 				((eql op "AC")
 					(setq accum 0 value 0 num 0 lastop nil))
@@ -50,17 +50,17 @@
 						(t (setq num (str-to-num (cat (str num) op)))))
 					(setq value num)))
 			(set display :text (str value))
-			(view-dirty (. display :layout)))
+			(. (. display :layout) :dirty))
 		((= id +event_close+)
 			;close button
 			nil)
 		((= id +event_min+)
 			;min button
 			(bind '(x y w h) (apply view-fit (cat (. mywindow :get_pos) (. mywindow :pref_size))))
-			(view-change-dirty mywindow x y w h))
+			(. mywindow :change_dirty x y w h))
 		((= id +event_max+)
 			;max button
 			(bind '(x y w h) (apply view-fit (cat (. mywindow :get_pos) '(512 512))))
-			(view-change-dirty mywindow x y w h))
+			(. mywindow :change_dirty x y w h))
 		(t (. mywindow :event msg))))
-	(view-hide mywindow))
+	(. mywindow :hide))

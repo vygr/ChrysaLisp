@@ -67,10 +67,10 @@
 				;send to network
 				(broadcast (get :text chat_text))
 				(set chat_text :text "")
-				(view-dirty (. chat_text :layout)))
+				(. (. chat_text :layout) :dirty))
 			(t (. mywindow :event msg))))
 	(when entry
 		(broadcast "Has left the chat !")
 		(mail-forget entry)
 		(mail-free-mbox (pop select)))
-	(view-hide mywindow))
+	(. mywindow :hide))

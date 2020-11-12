@@ -22,7 +22,7 @@
 (defun position-window ()
 	(bind '(w h) (. mywindow :pref_size))
 	(bind '(pw ph) (view-get-size (penv mywindow)))
-	(view-change-dirty mywindow (/ (- pw w) 2) (/ (- ph h) 2) w h))
+	(. mywindow :change_dirty (/ (- pw w) 2) (/ (- ph h) 2) w h))
 
 (defun get-username ()
 	(if (eql (defq user (get :text username)) "") "Guest" user))
@@ -59,4 +59,4 @@
 					nil)
 				(t	t)))
 		(t (. mywindow :event msg))))
-	(view-hide mywindow))
+	(. mywindow :hide))

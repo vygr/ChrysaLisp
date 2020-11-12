@@ -30,7 +30,7 @@
 	(. window_title :layout)
 	(bind '(x y w h) (apply view-fit (cat (. mywindow :get_pos) (. mywindow :pref_size))))
  	(def image_scroll :min_width 32 :min_height 32)
-	(view-change-dirty mywindow x y w h))
+	(. mywindow :change_dirty x y w h))
 
 (defun main ()
 	(bind '(x y w h) (apply view-locate (. (win-refresh index) :get_size)))
@@ -41,4 +41,4 @@
 		((<= +event_prev+ id +event_next+)
 			(win-refresh (% (+ index (dec (* 2 (- id +event_prev+))) (length images)) (length images))))
 		(t (. mywindow :event msg))))
-	(view-hide mywindow))
+	(. mywindow :hide))

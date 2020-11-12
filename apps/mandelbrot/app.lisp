@@ -77,5 +77,5 @@
 					(setq then now))
 					t))))
 	;close
-	(view-hide mywindow)
+	(. mywindow :hide)
 	(mail-free-mbox (elem 1 select)))

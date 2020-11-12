@@ -13,7 +13,7 @@
 			(ui-grid mygrid (:grid_width 1 :grid_height 1)))))
 
 (defun modal (lbl btns color mx my mw mh)
-	(view-sub mygrid)
+	(. mygrid :sub)
 	(def (setq mygrid (Grid)) :grid_width (length btns) :grid_height 1)
 	(each (lambda (x)
 		(def (defq b (Button)) :flow_flags +flow_flag_align_hcenter+ :border 1 :text x :border 1)
@@ -24,7 +24,7 @@
 	; (. myflow :layout)
 	; (view-change myflow 0 0 w h)
 	(set mylabel :text lbl :color color)
-	(view-change-dirty window mx my mw mh))
+	(. window :change_dirty mx my mw mh))
 
 (defun main ()
 	;read paramaters from parent
@@ -38,7 +38,7 @@
 		((eql (defq msg (mail-read (task-mailbox))) "") nil)
 		((= (length button_text) 0) (task-sleep sleep_time))
 		((= (defq id (get-long msg ev_msg_target_id)) +event_click+)
-			(defq reply (get :text (view-find-id window (get-long msg ev_msg_action_source_id))))
+			(defq reply (get :text (. window :find_id (get-long msg ev_msg_action_source_id))))
 			(mail-send reply reply_mbox))
 		(t (. window :event msg))))
-		(view-hide window))
+		(. window :hide))

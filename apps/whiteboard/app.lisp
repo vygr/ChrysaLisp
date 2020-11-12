@@ -44,7 +44,7 @@
 (defun radio-select (l i)
 	;radio select buttons
 	(each (lambda (b)
-		(def (view-dirty b) :color (if (= _ i) +argb_grey14+ (const *env_toolbar_col*)))) l) i)
+		(def (. b :dirty) :color (if (= _ i) +argb_grey14+ (const *env_toolbar_col*)))) l) i)
 
 (defun flatten ((mode col rad pnts))
 	;flatten path to polygon
@@ -159,12 +159,12 @@
 			((= id +event_min+)
 				;min button
 				(bind '(x y w h) (apply view-fit (cat (. mywindow :get_pos) (. mywindow :pref_size))))
-				(view-change-dirty mywindow x y w h))
+				(. mywindow :change_dirty x y w h))
 			((= id +event_max+)
 				;max button
 				(def image_scroll :min_width canvas_width :min_height canvas_height)
 				(bind '(x y w h) (apply view-fit (cat (. mywindow :get_pos) (. mywindow :pref_size))))
-				(view-change-dirty mywindow x y w h)
+				(. mywindow :change_dirty x y w h)
 				(def image_scroll :min_width min_width :min_height min_height))
 			((<= +event_black+ id +event_tmagenta+)
 				;ink pot
@@ -251,5 +251,5 @@
 	(mail-free-mbox (pop select))
 	(mail-send "" child_mbox)
 	(if picker_mbox (mail-send "" picker_mbox))
-	(view-hide mywindow)
+	(. mywindow :hide)
 	(profile-report "Whiteboard App"))

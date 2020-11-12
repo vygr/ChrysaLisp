@@ -13,7 +13,7 @@
 		(defq pw 0 ph 0)
 		(each (lambda (child)
 			(bind '(w h) (view-pref-size child))
-			(setq pw (max w pw) ph (max h ph))) (view-children this))
+			(setq pw (max w pw) ph (max h ph))) (. this :children))
 		(list (* (get :grid_width this) pw) (* (get :grid_height this) ph)))
 
 	(method :layout (this)
@@ -27,6 +27,6 @@
 				y (>> (/ (* row h) grid_height) +fp_shift+)
 				x1 (>> (/ (* (inc col) w) grid_width) +fp_shift+)
 				y1 (>> (/ (* (inc row) h) grid_height) +fp_shift+))
-			(view-change child x y (- x1 x) (- y1 y))) (view-children this))
+			(view-change child x y (- x1 x) (- y1 y))) (. this :children))
 		this)
 	)

@@ -30,13 +30,13 @@
 				(setq pw (+ pw w)))
 			(if (/= 0 (logand flow_flags (const (logior +flow_flag_up+ +flow_flag_down+))))
 				(setq ph (+ ph h)))
-			(setq pw (max w pw) ph (max h ph))) (view-children this))
+			(setq pw (max w pw) ph (max h ph))) (. this :children))
 		(list (max pw mw) (max ph mh)))
 
 	(method :layout (this)
 		; (. flow :layout) -> flow
 		(bind '(fw fh) (. this :get_size))
-		(defq flow_flags (get :flow_flags this) children (view-children this) end (dec (length children))
+		(defq flow_flags (get :flow_flags this) children (. this :children) end (dec (length children))
 			x (if (/= 0 (logand flow_flags +flow_flag_left+)) fw 0)
 			y (if (/= 0 (logand flow_flags +flow_flag_up+)) fh 0))
 		(each (lambda (child)

@@ -70,6 +70,6 @@
 					(canvas-swap canvas))
 					t))))
 	;close
-	(view-hide mywindow)
+	(. mywindow :hide)
 	(mail-free-mbox (pop select))
 	(each (lambda (_) (mail-send "" _)) farm))

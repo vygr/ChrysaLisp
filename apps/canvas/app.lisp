@@ -25,4 +25,4 @@
 		(t (. mywindow :event msg))))
 	;close child and mywindow
 	(mail-send "" mbox)
-	(view-hide mywindow))
+	(. mywindow :hide))

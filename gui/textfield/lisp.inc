@@ -9,7 +9,7 @@
 	(defq super (Label))
 	(def (defq this ((ffi _ "gui/textfield/lisp_create" 0))) :cursor 0)
 	(each (lambda ((key val)) (def this key val)) (tolist super))
-	(each (lambda (child) (view-add-back this child)) (view-children super))
+	(each (lambda (child) (. this :add_back child)) (. super :children))
 
 	(method :key_down (this event)
 		; (. textfield :key_down event) -> textfield

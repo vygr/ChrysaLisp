@@ -15,9 +15,9 @@
 	(method :add_child (this child)
 		; (. window :add_child child) -> window
 		(if (defq old_child (get :child this))
-			(view-sub old_child))
+			(. old_child :sub))
 		(set this :child child)
-		(view-add-back this child))
+		(. this :add_back child))
 
 	(method :pref_size (this)
 		; (. window :pref_size) -> (width height)
@@ -40,10 +40,10 @@
 		(when (= (>> (get :color this) 24) 0xff)
 			(cond
 				((= shadow 0)
-					(view-set-flags this +view_flag_opaque+ +view_flag_opaque+))
+					(. this :set_flags +view_flag_opaque+ +view_flag_opaque+))
 				(t
-					(view-clr-opaque this)
-					(view-add-opaque this (+ border shadow) (+ border shadow)
+					(. this :clr_opaque)
+					(. this :add_opaque (+ border shadow) (+ border shadow)
 						(- w (* 2 (+ border shadow))) (- h (* 2 (+ border shadow)))))))
 		this)
 
@@ -80,13 +80,13 @@
 			(setq x1 (max (- ax drag_offx) (+ x w))))
 		(if (/= 0 (logand 8 drag_mode))
 			(setq y1 (max (- ay drag_offy) (+ y h))))
-		(view-change-dirty this x y (- x1 x) (- y1 y))
+		(. this :change_dirty x y (- x1 x) (- y1 y))
 		(component-emit this)
 		this)
 
 	(method :event (this event)
 		; (. window :event event) -> window
-		(defq target (view-find-id this (get-long event ev_msg_target_id))
+		(defq target (. this :find_id (get-long event ev_msg_target_id))
 			type (get-long event ev_msg_type))
 		(when target
 			(cond

@@ -35,7 +35,7 @@
 	(def symbol_scroll :min_width w :min_height (min h 720))
 	(. symbol_scroll :add_child symbol_grid)
 	(bind '(x y w h) (apply view-fit (cat (. mywindow :get_pos) (. mywindow :pref_size))))
-	(view-change-dirty mywindow x y w h))
+	(. mywindow :change_dirty x y w h))
 
 (defun all-fonts (p)
 	(defq out (list))
@@ -63,4 +63,4 @@
 		((<= +event_prev+ id +event_next+)
 			(win-refresh (% (+ index (dec (* 2 (- id +event_prev+))) (length fonts)) (length fonts))))
 		(t (. mywindow :event msg))))
-	(view-hide mywindow))
+	(. mywindow :hide))

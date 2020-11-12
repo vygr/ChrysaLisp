@@ -193,4 +193,4 @@
 			(setq mode (- id +event_mode_normal+))
 			(win-refresh index))
 		(t (. mywindow :event msg))))
-	(view-hide mywindow))
+	(. mywindow :hide))

@@ -1,20 +1,7 @@
 ;lisp bindings
-(ffi view-add-back "gui/view/lisp_add_back" 0)
-(ffi view-add-dirty "gui/view/lisp_add_dirty" 0)
-(ffi view-add-front "gui/view/lisp_add" 0)
-(ffi view-clr-opaque "gui/view/lisp_clr_opaque" 0)
-(ffi view-add-opaque "gui/view/lisp_add_opaque" 0)
-(ffi view-change "gui/view/lisp_change" 0)
-(ffi view-change-dirty "gui/view/lisp_change_dirty" 0)
-(ffi view-dirty "gui/view/lisp_dirty" 0)
-(ffi view-find-id "gui/view/lisp_find_id" 0)
-(ffi view-sub "gui/view/lisp_sub" 0)
-(ffi view-hide "gui/view/lisp_hide" 0)
-(ffi view-sub-opaque "gui/view/lisp_sub_opaque" 0)
 (ffi view-set-flags "gui/view/lisp_set_flags" 0)
-(ffi view-children "gui/view/lisp_children" 0)
-(ffi view-to-front "gui/view/lisp_to_front" 0)
-(ffi view-to-back "gui/view/lisp_to_back" 0)
+(ffi view-sub "gui/view/lisp_sub" 0)
+(ffi view-change "gui/view/lisp_change" 0)
 (ffi view-pref-size "gui/view/lisp_pref_size" 0)
 
 (defun view-get-size (view)
@@ -57,14 +44,63 @@
 ;view flags
 (defq +view_flag_solid+ 1 +view_flag_opaque+ 2 +view_flag_dirty_all+ 4 +view_flag_at_back+ 8)
 
+(defmacro view-dirty-all (_)
+	; (view-dirty-all view) -> view
+	`(. ,_ :set_flags +view_flag_dirty_all+ +view_flag_dirty_all+))
+
 (class View ()
 	; (View) -> view
-	; overide the default 'this' env with a flow component
+	; overide the default 'this' env with a view component
 	(defq this ((ffi _ "gui/view/lisp_create" 0)))
+
+	(def this :find_id (ffi _ "gui/view/lisp_find_id" 0))
+		; (. view :find_id target_id) -> nil | target_view
+
+	(def this :set_flags (ffi _ "gui/view/lisp_set_flags" 0))
+		; (. view :set_flags value mask) -> view
+
+	(def this :add_dirty (ffi _ "gui/view/lisp_add_dirty" 0))
+		; (. view :add_dirty x y width height) -> view
+
+	(def this :dirty (ffi _ "gui/view/lisp_dirty" 0))
+		; (. view :dirty) -> view
+
+	(def this :change_dirty (ffi _ "gui/view/lisp_change_dirty" 0))
+		; (. view :change_dirty x y widht height) -> view
+
+	(def this :add_opaque (ffi _ "gui/view/lisp_add_opaque" 0))
+		; (. view :add_opaque x y width height) -> view
+
+	(def this :sub_opaque (ffi _ "gui/view/lisp_sub_opaque" 0))
+		; (. view :sub_opaque x y width height) -> view
+
+	(def this :clr_opaque (ffi _ "gui/view/lisp_clr_opaque" 0))
+		; (. view :clr_opaque) -> view
+
+	(def this :children (ffi _ "gui/view/lisp_children" 0))
+		; (. view :children) -> (child0 child1 ...)
+
+	(def this :sub (ffi _ "gui/view/lisp_sub" 0))
+		; (. view :lisp_sub) -> view
+
+	(def this :add_back (ffi _ "gui/view/lisp_add_back" 0))
+		; (. view :add_back child) -> view
+
+	(def this :add_front (ffi _ "gui/view/lisp_add" 0))
+		; (. view :add_front child) -> view
+
+	(def this :to_front (ffi _ "gui/view/lisp_to_front" 0))
+		; (. view :to_front) -> view
+
+	(def this :to_back (ffi _ "gui/view/lisp_to_back" 0))
+		; (. view :to_back) -> view
+
+	(def this :hide (ffi _ "gui/view/lisp_hide" 0))
+		; (. view :hide) -> view
 
 	(method :add_child (this child)
 		; (. view :add_child child) -> view
-		(view-add-back this child))
+		(. this :add_back child))
 
 	(method :get_pos (this)
 		; (. view :get_pos) -> (x y)
@@ -106,6 +142,6 @@
 	(method :layout (this)
 		; (. view :layout) -> view
 		(if (= (>> (get :color this) 24) 0xff)
-			(view-set-flags this +view_flag_opaque+ +view_flag_opaque+))
+			(. this :set_flags +view_flag_opaque+ +view_flag_opaque+))
 		this)
 	)

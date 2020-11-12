@@ -85,7 +85,7 @@
 		(when display
 			(make-digital-time)
 			(set display :text (view-digital-time))
-			(view-dirty display))
+			(. display :dirty))
 		;keeps the current time in sync with given time value.
 		(task-sleep 50000))
 	(mail-read (task-mailbox)))

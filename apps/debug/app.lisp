@@ -46,7 +46,7 @@
 (defun set-slider-values ()
 	(defq val (get :value hslider) mho (max 0 (dec (length buf_list))))
 	(def hslider :maximum mho :portion 1 :value (min val mho))
-	(view-dirty hslider))
+	(. hslider :dirty))
 
 (defun play (_)
 	(unless (elem +debug_rec_state+ _)
@@ -148,5 +148,5 @@
 			(t (. mywindow :event msg))))
 	(mail-forget entry)
 	(mail-free-mbox (pop select))
-	(view-hide mywindow))
+	(. mywindow :hide))
 )

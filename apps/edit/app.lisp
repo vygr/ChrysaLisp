@@ -80,7 +80,7 @@
 	(. sb_line_col :layout)
 	(set vdu :vdu_width w :vdu_height h :min_width w :min_height h)
 	(bind '(x y w h) (apply view-fit (cat (. window :get_pos) (. window :pref_size))))
-	(view-change-dirty window x y w h)
+	(. window :change_dirty x y w h)
 	(vdu-colorise))
 
 (defun window-layout (w h)
@@ -101,14 +101,14 @@
 	(vdu-colorise))
 
 (defun view-tabbar ()
-	(view-sub tabbar)
+	(. tabbar :sub)
 	(ui-tree tabbar (Grid) (:grid_width (length text_store) :grid_height 1)
 		(each (lambda (e) (component-connect (ui-button b 
 			(:text (elem +text_title+ (elem _ text_store)) :min_width 32 :border 1)) (+ +event_tabbar+ _)))
 			(range 0 (length text_store))))
 	(. (. tabbar_flow :add_child tabbar) :layout)
 	(. tab_bar :layout)
-	(view-dirty tab_bar))
+	(. tab_bar :dirty))
 
 (defun mouse-cursor (mouse_xy)
 	(defq buffer (elem +text_buffer+ current_text))
@@ -152,7 +152,7 @@
 			(open-child data kn_call_open)
 			(set mytextfield :text data))
 		((and (eql "find" cmd) data)
-			(set mytextfield :text data) (find-next) (view-dirty mytextfield) (setq is_find t))
+			(set mytextfield :text data) (find-next) (. mytextfield :dirty) (setq is_find t))
 		(t 	(find-next) (setq is_find t)))
 	(unless is_find (clear-text))
 	(window-layout vdu_width vdu_height))
@@ -160,7 +160,7 @@
 ;return position just below tab_bar
 (defun update-status (tmp_msg)
 	(set sb_line_col :text tmp_msg)
-	(. status_bar :layout) (view-dirty status_bar)
+	(. status_bar :layout) (. status_bar :dirty)
 	(task-sleep 1500000))
 
 (defun notification-position ()
@@ -313,8 +313,8 @@
 		(elem-set +text_buffer+ current_text buffer)
 		(elem-set +text_position+ current_text (list ox (setq oy (get :value slider)) cx cy sx))
 		(set sb_line_col :text (cat "Line " (str cy) ", Column " (str cx) sb_line_col_message))
-		(view-dirty (. sb_line_col :layout))
-		(view-dirty slider)
+		(. (. sb_line_col :layout) :dirty)
+		(. slider :dirty)
 		(vdu-colorise)))
 
 (defun main ()
@@ -373,7 +373,7 @@
 		((= id +event_min+) (window-resize 60 40))
 		((= id +event_max+) (window-resize 120 48))
 		((= id +event_scroll+)			
-			(view-dirty slider)
+			(. slider :dirty)
 			(defq buffer (elem +text_buffer+ current_text))
 			(bind '(ox oy cx cy sx) (elem +text_position+ current_text))
 			(elem-set +text_position+ current_text (list ox (setq oy (get :value slider)) cx cy sx))
@@ -423,4 +423,4 @@
 			(select-action-on-enter))
 		(t	(. window :event msg))))
 	(if picker_mbox (mail-send "" picker_mbox))
-	(view-hide window))
+	(. window :hide))

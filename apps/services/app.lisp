@@ -26,9 +26,9 @@
 	(unless (and (= (length new_services) (length services))
 				(if (empty? new_services) t (every eql new_services services)))
 		;service directory has changed
-		(each view-sub service_labels)
-		(each view-sub mbox_labels)
-		(each view-sub info_labels)
+		(each (# (. %0 :sub)) service_labels)
+		(each (# (. %0 :sub)) mbox_labels)
+		(each (# (. %0 :sub)) info_labels)
 		(clear service_labels mbox_labels info_labels)
 		(setq services new_services)
 		(each (#
@@ -49,7 +49,7 @@
 	(def info_scroll :min_width w :min_height h)
 	(bind '(x y w h) (apply view-fit (cat (. mywindow :get_pos) (. mywindow :pref_size))))
 	(undef info_scroll :min_width :min_height)
-	(view-change-dirty mywindow x y w h))
+	(. mywindow :change_dirty x y w h))
 
 (defun main ()
 	(defq id t select (array (task-mailbox)) services (list)
@@ -79,4 +79,4 @@
 		(task-sleep 10000)
 		(populate))
 	;close window
-	(view-hide mywindow))
+	(. mywindow :hide))

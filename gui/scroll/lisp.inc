@@ -15,23 +15,23 @@
 	(when (/= 0 (logand flags +scroll_flag_vertical+))
 		(def this :vslider (defq slider (Slider)))
 		(component-connect slider (component-get-id this))
-		(view-add-front this slider))
+		(. this :add_front slider))
 	(when (/= 0 (logand flags +scroll_flag_horizontal+))
 		(def this :hslider (defq slider (Slider)))
 		(component-connect slider (component-get-id this))
-		(view-add-front this slider))
+		(. this :add_front slider))
 
 	(method :add_child (this child)
 		; (. scroll :add_child child) -> scroll
 		(if (defq old_child (get :child this))
-			(view-sub old_child))
+			(. old_child :sub))
 		(set this :child child)
-		(view-add-back this child))
+		(. this :add_back child))
 
 	(method :action (this data)
 		; (. scroll :action data) -> scroll
 		(. this :layout)
-		(view-set-flags this +view_flag_dirty_all+ +view_flag_dirty_all+)
+		(. this :set_flags +view_flag_dirty_all+ +view_flag_dirty_all+)
 		this)
 
 	(method :pref_size (this)

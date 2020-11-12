@@ -8,7 +8,7 @@
 	; inherit from Label !
 	(def (defq super (Label) this ((ffi _ "gui/button/lisp_create" 0))) :state 0)
 	(each (lambda ((key val)) (def this key val)) (tolist super))
-	(each (lambda (child) (view-add-back this child)) (view-children super))
+	(each (lambda (child) (. this :add_back child)) (. super :children))
 
 	(method :layout (this)
 		; (. button :layout) -> button
@@ -21,7 +21,7 @@
 		(bind '(w h) (. this :get_size))
 		(view-change flow pos pos (- w (* border 2)) (- h (* border 2)))
 		(. flow :layout)
-		(view-set-flags this +view_flag_opaque+ +view_flag_opaque+)
+		(. this :set_flags +view_flag_opaque+ +view_flag_opaque+)
 		this)
 
 	(method :mouse_down (this event)

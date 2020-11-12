@@ -168,6 +168,10 @@
 
 (. view :add_child child) -> view
 
+## view :change_dirty
+
+(. view :change_dirty x y w h)
+
 ## view :get_bounds
 
 (. view :get_bounds) -> (x y width height)
@@ -179,6 +183,10 @@
 ## view :get_size
 
 (. view :get_size) -> (width height)
+
+## view :hide
+
+(. view :hide)
 
 ## view :layout
 
@@ -1844,10 +1852,6 @@
 
 (view-change view x y w h)
 
-## view-change-dirty
-
-(view-change-dirty view x y w h)
-
 ## view-children
 
 (view-children view)
@@ -1875,10 +1879,6 @@
 ## view-get-bounds
 
 (view-get-bounds view) -> (x y w h)
-
-## view-hide
-
-(view-hide view)
 
 ## view-locate
 

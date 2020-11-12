@@ -69,7 +69,7 @@
 					(setq text_buf (vdu-print vdu text_buf (slice 1 -1 data))))))))
 	;close child and window, wait for child stream to close
 	(mail-send "" child_mbox)
-	(view-hide mywindow)
+	(. mywindow :hide)
 	(until id
 		(setq id (mail-select select))
 		(cond

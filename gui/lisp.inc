@@ -149,7 +149,3 @@
 (defmacro ui-view (n &optional p &rest x)
 	; (ui-view name [props] [body]) -> view
 	`(ui-element ,n (View) ,p ~x))
-
-(defmacro view-dirty-all (_)
-	; (view-dirty-all view) -> view
-	`(view-set-flags ,_ +view_flag_dirty_all+ +view_flag_dirty_all+))

@@ -28,7 +28,7 @@
 (defun radio-select (l i)
 	;radio select buttons
 	(each (lambda (b)
-		(def (view-dirty b) :color (if (= _ i) +argb_grey14+ (const *env_toolbar_col*)))) l) i)
+		(def (. b :dirty) :color (if (= _ i) +argb_grey14+ (const *env_toolbar_col*)))) l) i)
 
 (defun redraw (verts mask)
 	;redraw layer/s
@@ -91,19 +91,19 @@
 		((= id +event_min+)
 			;min button
 			(bind '(x y w h) (apply view-fit (cat (. mywindow :get_pos) (. mywindow :pref_size))))
-			(view-change-dirty mywindow x y w h))
+			(. mywindow :change_dirty x y w h))
 		((= id +event_max+)
 			;max button
 			(def image_scroll :min_width canvas_width :min_height canvas_height)
 			(bind '(x y w h) (apply view-fit (cat (. mywindow :get_pos) (. mywindow :pref_size))))
-			(view-change-dirty mywindow x y w h)
+			(. mywindow :change_dirty x y w h)
 			(def image_scroll :min_width min_width :min_height min_height))
 		((= id +event_reset+)
 			;reset button
 			(setq verts (vertex-cloud num_bubbles)))
 		((<= +event_grid+ id +event_axis+)
 			;styles
-			(def (view-dirty mybackdrop) :style (radio-select style_buttons (- id +event_grid+))))
+			(def (. mybackdrop :dirty) :style (radio-select style_buttons (- id +event_grid+))))
 		((= id (component-get-id layer1_canvas))
 			;event for canvas
 			(when (= (get-long msg (const ev_msg_type)) (const ev_type_mouse))
@@ -134,4 +134,4 @@
 		(task-sleep rate))
 	;close child and window
 	(mail-send "" child_mbox)
-	(view-hide mywindow))
+	(. mywindow :hide))
