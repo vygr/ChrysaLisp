@@ -41,11 +41,9 @@
 
 	(method :mouse_move (this event)
 		; (. button :mouse_move event) -> button
-		(defq rx (get-int event ev_msg_mouse_rx) ry (get-int event ev_msg_mouse_ry))
 		(bind '(w h) (. this :get_size))
-		(if (and (>= rx 0) (>= ry 0) (< rx w) (< ry h))
-			(defq state 1)
-			(defq state 0))
+		(defq rx (get-int event ev_msg_mouse_rx) ry (get-int event ev_msg_mouse_ry)
+			state (if (and (>= rx 0) (>= ry 0) (< rx w) (< ry h)) 1 0))
 		(when (/= state (get :state this))
 			(def this :state state)
 			(. this :layout)

@@ -31,12 +31,10 @@
 
 	(method :mouse_move (this event)
 		; (. slider :mouse_move event) -> slider
-		(defq rx (get-int event ev_msg_mouse_rx) ry (get-int event ev_msg_mouse_ry)
-			downxy (get :downxy this) maximum (get :maximum this) portion (get :portion this))
 		(bind '(w h) (. this :get_size))
-		(if (and (>= rx 0) (>= ry 0) (< rx w) (< ry h))
-			(defq state 1)
-			(defq state 0))
+		(defq rx (get-int event ev_msg_mouse_rx) ry (get-int event ev_msg_mouse_ry)
+			downxy (get :downxy this) maximum (get :maximum this) portion (get :portion this)
+			state (if (and (>= rx 0) (>= ry 0) (< rx w) (< ry h)) 1 0))
 		(if (> w h)
 			(defq new_value (/ (* (- rx downxy) (+ maximum portion)) w))
 			(defq new_value (/ (* (- ry downxy) (+ maximum portion)) h)))
