@@ -12,7 +12,6 @@
   ; Wrapper to (create-log-anchor name) to
   ; setup environment and deserialze logger
   ; properties string
-  ; TODO: Change to emap
   (data-xdeser
     (write (string-stream (cat ""))
       (create-log-anchor name (penv (env))))))
