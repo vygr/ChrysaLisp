@@ -177,7 +177,7 @@
 				(setq stroke_radius (elem (radio-select radius_buttons (- id +event_radius1+)) radiuss)))
 			((<= +event_grid+ id +event_lines+)
 				;styles
-				(def (view-dirty mybackdrop) :style (radio-select style_buttons (- id +event_grid+))))
+				(def (. mybackdrop :dirty) :style (radio-select style_buttons (- id +event_grid+))))
 			((= id +event_save+)
 				;save
 				(if picker_mbox (mail-send "" picker_mbox))
