@@ -95,7 +95,7 @@
         :key_name   astr
         :name       nm
         :type       :file
-        :level      :warning
+        :level      :info
         :formatter  :standard
         :file_name  nm
         :rotate     '*true
