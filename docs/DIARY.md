@@ -267,3 +267,11 @@ Well we seam to have got our error cases right !
 ```
 
 My work here is done :) Enjoy building wonderful search acceleration structures folks.
+
+## Results
+
+It's worth pointing out that this has now been used in the creation of standard
+set and map classes emap, xmap and xset. I refer everyone to look at
+`lib/collections/`. These collection classes are present across the entire
+system via `boot.inc` so feel free to use them in apps without needing to
+`(import)` anything.
