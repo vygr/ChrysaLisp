@@ -66,4 +66,4 @@
 @start /b .\obj\x86_64\WIN64\Windows\main.exe .\obj\x86_64\WIN64\sys\boot_image -cpu 3 -l 003-059 -l 003-011 -l 002-003 -l 003-004
 @start /b .\obj\x86_64\WIN64\Windows\main.exe .\obj\x86_64\WIN64\sys\boot_image -cpu 2 -l 002-058 -l 002-010 -l 001-002 -l 002-003
 @start /b .\obj\x86_64\WIN64\Windows\main.exe .\obj\x86_64\WIN64\sys\boot_image -cpu 1 -l 001-057 -l 001-009 -l 000-001 -l 001-002
-@start /b .\obj\x86_64\WIN64\Windows\main.exe .\obj\x86_64\WIN64\sys\boot_image -cpu 0 -l 000-056 -l 000-008 -l 000-007 -l 000-001 -run gui/gui/gui
+@start /b .\obj\x86_64\WIN64\Windows\main.exe .\obj\x86_64\WIN64\sys\boot_image -cpu 0 -l 000-056 -l 000-008 -l 000-007 -l 000-001 -run gui/gui/gui.lisp
