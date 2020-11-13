@@ -6,12 +6,14 @@
 	; (Label) -> label
 	; overide the default 'this' env with a label component
 	; inherit from View !
-	(def (defq label_flow (Flow) label_text (create-text) this ((ffi _ "gui/label/lisp_create" 0)))
+	(def (defq label_flow (Flow) label_text (create-text) this (View))
 		:label_flow label_flow :label_text label_text)
-	(each (lambda ((key val)) (def this key val)) (tolist (View)))
 	(. label_flow :set_flags 0 -1)
 	(. this :add_back label_flow)
 	(. label_flow :add_child label_text)
+
+	;draw function for compositor...
+	(def this :draw (ffi _ "gui/label/draw" 0))
 
 	(method :add_child (this child)
 		; (. label :add_child child) -> label

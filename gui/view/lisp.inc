@@ -1,19 +1,7 @@
 ;lisp bindings
 (ffi view-set-flags "gui/view/lisp_set_flags" 0)
-(ffi view-sub "gui/view/lisp_sub" 0)
 (ffi view-change "gui/view/lisp_change" 0)
 (ffi view-pref-size "gui/view/lisp_pref_size" 0)
-
-(defun view-get-size (view)
-	(list (get-field view (const view_w) (const int_size))
-		(get-field view (const view_h) (const int_size))))
-
-(defun view-get-bounds (view)
-	; (view-get-bounds view) -> (x y w h)
-	(list (get-field view (const view_x) (const int_size))
-		(get-field view (const view_y) (const int_size))
-		(get-field view (const view_w) (const int_size))
-		(get-field view (const view_h) (const int_size))))
 
 (defun view-set-bounds (view x y w h)
 	; (view-set-bounds view x y w h) -> view

@@ -6,9 +6,10 @@
 	; (Slider) -> slider
 	; overide the default 'this' env with a slider component
 	; inherit from View !
-	(def (defq this ((ffi _ "gui/slider/lisp_create" 0)))
-		:state 0 :value 0 :maximum 0 :portion 0 :downxy 0)
-	(each (lambda ((key val)) (def this key val)) (tolist (View)))
+	(def (defq this (View)) :state 0 :value 0 :maximum 0 :portion 0 :downxy 0)
+
+	;draw function for compositor...
+	(def this :draw (ffi _ "gui/slider/draw" 0))
 
 	(method :pref_size (this)
 		; (. slider :pref_size) -> (width height)

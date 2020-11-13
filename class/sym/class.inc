@@ -52,7 +52,7 @@
 (def-static-sym ":vdu_width")
 (def-static-sym ":vdu_height")
 (def-static-sym ":style")
-
+(def-static-sym ":draw")
 (def-static-sym ":layout")
 (def-static-sym ":pref_size")
 (def-static-sym ":state")

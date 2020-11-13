@@ -14,7 +14,7 @@
 (defun main ()
 	(defq screen (penv (gui-add view)))
 	(while id
-		(bind '(_ _ screen_width screen_height) (view-get-bounds screen))
+		(bind '(_ _ screen_width screen_height) (. screen :get_bounds))
 		(defq index (% (inc index) (length frames))
 			old_frame frame frame (elem index frames)
 			old_sframe sframe sframe (elem index sframes))

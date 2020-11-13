@@ -19,13 +19,13 @@
 
 (defun refresh-wallpaper ()
 	;pick nearest wallpaper to screen size
-	(bind '(w h) (view-get-size screen))
+	(bind '(w h) (. screen :get_size))
 	(defq index 0 err +max_int+ flag 0)
 	(each (lambda ((iw ih it))
 		(defq iw (- w iw) ih (- h ih) new_err (+ (* iw iw) (* ih ih)))
 		(when (< new_err err)
 			(setq err new_err index _ flag (if (= it 32) 0 +view_flag_opaque+)))) images_info)
-	(view-sub wallpaper)
+	(. wallpaper :sub)
 	(canvas-swap (canvas-resize (setq wallpaper (create-canvas w h 1))
 		(canvas-load (elem index *env_wallpaper_images*) +load_flag_noswap+)))
 	(gui-add-back (view-change (view-set-flags wallpaper

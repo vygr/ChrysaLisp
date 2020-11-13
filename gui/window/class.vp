@@ -3,9 +3,6 @@
 (include "gui/ctx/class.inc")
 (include "class/sym/class.inc")
 
-(gen-create 'window)
-(gen-vtable 'window)
-
 (def-method 'window :draw)
 	;inputs
 	;r0 = window object (ptr)

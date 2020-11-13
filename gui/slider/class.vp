@@ -3,9 +3,6 @@
 (include "class/sym/class.inc")
 (include "gui/ctx/class.inc")
 
-(gen-create 'slider)
-(gen-vtable 'slider)
-
 (def-method 'slider :draw)
 	;inputs
 	;r0 = window object (ptr)

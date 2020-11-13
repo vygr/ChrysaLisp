@@ -573,10 +573,6 @@ r1-r14
 
 Super Class: view
 
-### backdrop::vtable -> gui/backdrop/vtable
-
-### backdrop::create -> gui/backdrop/create
-
 ### backdrop::draw -> gui/backdrop/draw
 
 ```lisp
@@ -589,26 +585,9 @@ trashes
 r1-r14
 ```
 
-### backdrop::lisp_create -> gui/backdrop/lisp_create
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args list object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
 ## button
 
 Super Class: label
-
-### button::vtable -> gui/button/vtable
-
-### button::create -> gui/button/create
 
 ### button::draw -> gui/button/draw
 
@@ -618,19 +597,6 @@ r0 = button object (ptr)
 r1 = draw ctx (ptr)
 outputs
 r0 = button object (ptr)
-trashes
-r1-r14
-```
-
-### button::lisp_create -> gui/button/lisp_create
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args list object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
 trashes
 r1-r14
 ```
@@ -2310,6 +2276,9 @@ r0-r14
 
 ```lisp
 gui process
+inputs
+r0 = lisp object pointer (ptr)
+r1 = lisp args list (ptr)
 ```
 
 ### gui::lisp_add -> gui/gui/lisp_add
@@ -2952,10 +2921,6 @@ r1-r14
 
 Super Class: view
 
-### label::vtable -> gui/label/vtable
-
-### label::create -> gui/label/create
-
 ### label::draw -> gui/label/draw
 
 ```lisp
@@ -2964,19 +2929,6 @@ r0 = label object (ptr)
 r1 = draw ctx (ptr)
 outputs
 r0 = label object (ptr)
-trashes
-r1-r14
-```
-
-### label::lisp_create -> gui/label/lisp_create
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args list object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
 trashes
 r1-r14
 ```
@@ -5237,10 +5189,6 @@ r1-r14
 
 Super Class: view
 
-### progress::vtable -> gui/progress/vtable
-
-### progress::create -> gui/progress/create
-
 ### progress::draw -> gui/progress/draw
 
 ```lisp
@@ -5249,19 +5197,6 @@ r0 = window object (ptr)
 r1 = draw ctx (ptr)
 outputs
 r0 = window object (ptr)
-trashes
-r1-r14
-```
-
-### progress::lisp_create -> gui/progress/lisp_create
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args list object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
 trashes
 r1-r14
 ```
@@ -5948,10 +5883,6 @@ r1-r14
 
 Super Class: view
 
-### slider::vtable -> gui/slider/vtable
-
-### slider::create -> gui/slider/create
-
 ### slider::draw -> gui/slider/draw
 
 ```lisp
@@ -5960,19 +5891,6 @@ r0 = window object (ptr)
 r1 = draw ctx (ptr)
 outputs
 r0 = window object (ptr)
-trashes
-r1-r14
-```
-
-### slider::lisp_create -> gui/slider/lisp_create
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args list object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
 trashes
 r1-r14
 ```
@@ -8477,10 +8395,6 @@ r1-r14
 
 Super Class: label
 
-### textfield::vtable -> gui/textfield/vtable
-
-### textfield::create -> gui/textfield/create
-
 ### textfield::draw -> gui/textfield/draw
 
 ```lisp
@@ -8489,19 +8403,6 @@ r0 = textfield object (ptr)
 r1 = draw ctx (ptr)
 outputs
 r0 = textfield object (ptr)
-trashes
-r1-r14
-```
-
-### textfield::lisp_create -> gui/textfield/lisp_create
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args list object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
 trashes
 r1-r14
 ```
@@ -9018,7 +8919,17 @@ trashes
 r1-r14
 ```
 
-### view::draw -> class/obj/null
+### view::draw -> class/view/draw
+
+```lisp
+inputs
+r0 = view object (ptr)
+r1 = draw ctx (ptr)
+outputs
+r0 = view object (ptr)
+trashes
+r1-r14
+```
 
 ### view::hit -> gui/view/hit
 
@@ -9296,10 +9207,6 @@ r1-r14
 
 Super Class: view
 
-### window::vtable -> gui/window/vtable
-
-### window::create -> gui/window/create
-
 ### window::draw -> gui/window/draw
 
 ```lisp
@@ -9308,19 +9215,6 @@ r0 = window object (ptr)
 r1 = draw ctx (ptr)
 outputs
 r0 = window object (ptr)
-trashes
-r1-r14
-```
-
-### window::lisp_create -> gui/window/lisp_create
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args list object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
 trashes
 r1-r14
 ```

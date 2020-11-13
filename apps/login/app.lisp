@@ -21,7 +21,7 @@
 
 (defun position-window ()
 	(bind '(w h) (. mywindow :pref_size))
-	(bind '(pw ph) (view-get-size (penv mywindow)))
+	(bind '(pw ph) (. (penv mywindow) :get_size))
 	(. mywindow :change_dirty (/ (- pw w) 2) (/ (- ph h) 2) w h))
 
 (defun get-username ()

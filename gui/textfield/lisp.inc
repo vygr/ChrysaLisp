@@ -6,10 +6,10 @@
 	; (Textfield) -> textfield
 	; overide the default 'this' env with a textfield component
 	; inherit from Label !
-	(defq super (Label))
-	(def (defq this ((ffi _ "gui/textfield/lisp_create" 0))) :cursor 0)
-	(each (lambda ((key val)) (def this key val)) (tolist super))
-	(each (lambda (child) (. this :add_back child)) (. super :children))
+	(def (defq this (Label)) :cursor 0)
+
+	;draw function for compositor...
+	(def this :draw (ffi _ "gui/textfield/draw" 0))
 
 	(method :key_down (this event)
 		; (. textfield :key_down event) -> textfield

@@ -4,9 +4,6 @@
 (include "gui/progress/class.inc")
 (include "class/sym/class.inc")
 
-(gen-create 'progress)
-(gen-vtable 'progress)
-
 (def-method 'progress :draw)
 	;inputs
 	;r0 = window object (ptr)

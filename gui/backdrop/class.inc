@@ -1,12 +1,4 @@
 (include "gui/view/class.inc")
 
 (def-class 'backdrop 'view)
-(dec-method :vtable 'gui/backdrop/vtable)
-(dec-method :create 'gui/backdrop/create :static '() '(r0))
-
 (dec-method :draw 'gui/backdrop/draw :final)
-
-(dec-method :lisp_create 'gui/backdrop/lisp_create :static '(r0 r1) '(r0 r1))
-
-(def-struct 'backdrop 'view)
-(def-struct-end)

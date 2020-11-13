@@ -3,9 +3,6 @@
 (include "gui/ctx/class.inc")
 (include "class/sym/class.inc")
 
-(gen-create 'button)
-(gen-vtable 'button)
-
 (def-method 'button :draw)
 	;inputs
 	;r0 = button object (ptr)

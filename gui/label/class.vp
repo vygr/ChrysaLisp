@@ -3,9 +3,6 @@
 (include "gui/ctx/class.inc")
 (include "class/sym/class.inc")
 
-(gen-create 'label)
-(gen-vtable 'label)
-
 (def-method 'label :draw)
 	;inputs
 	;r0 = label object (ptr)

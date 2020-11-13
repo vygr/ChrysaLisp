@@ -6,9 +6,10 @@
 	; (Button) -> button
 	; overide the default 'this' env with a button component
 	; inherit from Label !
-	(def (defq super (Label) this ((ffi _ "gui/button/lisp_create" 0))) :state 0)
-	(each (lambda ((key val)) (def this key val)) (tolist super))
-	(each (lambda (child) (. this :add_back child)) (. super :children))
+	(def (defq this (Label)) :state 0)
+
+	;draw function for compositor...
+	(def this :draw (ffi _ "gui/button/draw" 0))
 
 	(method :layout (this)
 		; (. button :layout) -> button

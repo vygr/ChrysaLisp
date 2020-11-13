@@ -3,13 +3,11 @@
 (include "sys/kernel/class.inc")
 (include "sys/pii/class.inc")
 (include "gui/gui/class.inc")
-(include "gui/label/class.inc")
 (include "class/sym/class.inc")
 (include "class/list/class.inc")
 (include "gui/region/class.inc")
 (include "gui/ctx/class.inc")
 (include "gui/backdrop/class.inc")
-(include "lib/consts/colors.inc")
 
 (def-method 'gui :statics)
 	(times gui_statics_size (vp-byte 0))
@@ -25,11 +23,14 @@
 
 (def-func-end)
 
-(def-func 'gui/gui/gui 16 8192)
+(def-func 'gui/gui/gui 16)
 	;gui process
+	;inputs
+	;r0 = lisp object pointer (ptr)
+	;r1 = lisp args list (ptr)
 
 	(def-struct 'local)
-		(ptr 'statics)
+		(ptr 'statics 'this)
 		(ulong 'mouse_id 'key_id)
 		(uint 'mouse_buttons)
 		(ubyte 'quit)
@@ -37,30 +38,20 @@
 
 	;init vars
 	(vp-alloc local_size)
-	(f-bind 'gui :statics r0)
-	(assign '(r0) '((rsp local_statics)))
-	(vp-xor-rr r0 r0)
-	(assign '(r0 r0 r0 r0)
+	(f-bind 'gui :statics r2)
+	(assign '(r0 r2) '((rsp local_this) (rsp local_statics)))
+	(vp-xor-rr r3 r3)
+	(assign '(r3 r3 r3 r3)
 		'((rsp local_mouse_id) (rsp local_key_id) (rsp local_mouse_buttons) (rsp local_quit)))
+
+	;save background view for screen
+	(array-bind-args r1 '(r1))
+	(assign '(r1) '((r2 gui_statics_screen)))
 
 	;temp objects
 	(call 'list :create nil '(r0))
 	(assign '((rsp local_statics)) '(r1))
 	(assign '(r0) '((r1 gui_statics_temps)))
-
-	;allocate background view for screen
-	(call 'backdrop :create nil '(r0))
-	(assign '((rsp local_statics)) '(r1))
-	(assign '(r0) '((r1 gui_statics_screen)))
-
-	;size, color and opaque
-	(call 'backdrop :change '(r0 0 0 SCREEN_WIDTH SCREEN_HEIGHT) '(r0))
-	(call 'backdrop :set_long_prop '(r0 static_sym_color +argb_grey2+) '(r0))
-	(call 'backdrop :set_long_prop '(r0 static_sym_ink_color +argb_grey1+) '(r0))
-	(call 'backdrop :set_flags '(r0 +view_flag_dirty_all+ +view_flag_dirty_all+))
-
-	;fire up the login app
-	(call 'sys_task :open_child '("apps/login/app.lisp" kn_call_open))
 
 	;gui event loop
 	(call 'sys_task :set_priority '(2))
@@ -99,7 +90,10 @@
 
 		;create window
 		(host-call 'host :sdl_create_window
-			{$title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE}
+			{$title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+				user->local_statics->gui_statics_screen->view_w,
+				user->local_statics->gui_statics_screen->view_h,
+				SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE}
 			{user->local_statics->gui_statics_window})
 
 		;create renderer and back buffer
@@ -113,7 +107,9 @@
 					{user->local_statics->gui_statics_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_TARGETTEXTURE}
 					{user->local_statics->gui_statics_renderer})
 				(host-call 'host :sdl_create_texture
-					{user->local_statics->gui_statics_renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_TARGET, SCREEN_WIDTH, SCREEN_HEIGHT}
+					{user->local_statics->gui_statics_renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_TARGET,
+					user->local_statics->gui_statics_screen->view_w,
+					user->local_statics->gui_statics_screen->view_h}
 					{user->local_statics->gui_statics_texture})))
 
 		;set blend mode
@@ -215,7 +211,7 @@
 					{user->local_statics->gui_statics_renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_TARGET, event.sdl_window_event_data1, event.sdl_window_event_data2}
 					{user->local_statics->gui_statics_texture}))
 
-				;chnage backdrop size, send gui event to all top level views
+				;change backdrop size, send gui event to all top level views
 				(call 'backdrop :change '{user->local_statics->gui_statics_screen, 0, 0, event.sdl_window_event_data1, event.sdl_window_event_data2})
 				(call 'backdrop :forward {user->local_statics->gui_statics_screen, user, $send_gui_event})
 				(call 'backdrop :set_flags '{user->local_statics->gui_statics_screen, +view_flag_dirty_all+, +view_flag_dirty_all+})

@@ -624,14 +624,6 @@
 
 (cpu) -> sym
 
-## create-backdrop
-
-(create-backdrop)
-
-## create-button
-
-(create-button)
-
 ## create-canvas
 
 (create-canvas width height scale)
@@ -639,18 +631,6 @@
 ## create-font
 
 (create-font name pixels)
-
-## create-label
-
-(create-label)
-
-## create-progress
-
-(create-progress)
-
-## create-slider
-
-(create-slider)
 
 ## create-stdio
 
@@ -660,10 +640,6 @@
 
 (create-text)
 
-## create-textfield
-
-(create-textfield)
-
 ## create-vdu
 
 (create-vdu)
@@ -671,10 +647,6 @@
 ## create-view
 
 (create-view)
-
-## create-window
-
-(create-window)
 
 ## curry
 
@@ -1875,10 +1847,6 @@
 ## view-fit
 
 (view-fit x y w h) -> (x y w h)
-
-## view-get-bounds
-
-(view-get-bounds view) -> (x y w h)
 
 ## view-locate
 

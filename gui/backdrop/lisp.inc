@@ -6,6 +6,8 @@
 	; (Backdrop)-> backdrop
 	; overide the default 'this' env with a backdrop component
 	; inherit from View !
-	(defq this ((ffi _ "gui/backdrop/lisp_create" 0)))
-	(each (lambda ((key val)) (def this key val)) (tolist (View)))
+	(defq this (View))
+
+	;draw function for compositor...
+	(def this :draw (ffi _ "gui/backdrop/draw" 0))
 	)

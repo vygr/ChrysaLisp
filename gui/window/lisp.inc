@@ -2,15 +2,14 @@
 ; window widget
 ;;;;;;;;;;;;;;;
 
-(ffi create-window "gui/window/lisp_create" 0)
-
 (class Window ()
 	; (Window) -> window
 	; overide the default 'this' env with a window component
 	; inherit from View !
-	(def (defq this ((ffi _ "gui/window/lisp_create" 0)))
-		 :child nil :last_buttons 0 :is_window t)
-	(each (lambda ((key val)) (def this key val)) (tolist (View)))
+	(def (defq this (View)) :child nil :last_buttons 0 :is_window t)
+
+	;draw function for compositor...
+	(def this :draw (ffi _ "gui/window/draw" 0))
 
 	(method :add_child (this child)
 		; (. window :add_child child) -> window

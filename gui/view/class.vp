@@ -576,6 +576,35 @@
 
 (def-func-end)
 
+(def-method 'view :draw)
+	;inputs
+	;r0 = view object (ptr)
+	;r1 = draw ctx (ptr)
+	;outputs
+	;r0 = view object (ptr)
+	;trashes
+	;r1-r14
+
+	(ptr 'this 'ctx)
+	(pptr 'func)
+
+	(push-scope)
+	(entry 'view :draw {this, ctx})
+
+	(call 'sym :get_static_sym {static_sym_draw} {func})
+	(call 'view :find {this, func} {_, func, _})
+	(vpif {func})
+		;call draw method
+		(assign {this, ctx, func[ptr_size]} '(r0 r1 r2))
+		(vp-call-i r2 num_value)
+	(endif)
+
+	(exit 'view :draw {this})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
 (def-method 'view :change_dirty)
 	;inputs
 	;r0 = view object (ptr)

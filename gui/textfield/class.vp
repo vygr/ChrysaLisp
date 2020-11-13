@@ -6,9 +6,6 @@
 (include "gui/font/class.inc")
 (include "lib/consts/colors.inc")
 
-(gen-create 'textfield)
-(gen-vtable 'textfield)
-
 (def-method 'textfield :draw)
 	;inputs
 	;r0 = textfield object (ptr)

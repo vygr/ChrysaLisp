@@ -3,9 +3,6 @@
 (include "gui/backdrop/class.inc")
 (include "class/sym/class.inc")
 
-(gen-vtable 'backdrop)
-(gen-create 'backdrop)
-
 (def-method 'backdrop :draw)
 	;inputs
 	;r0 = view object (ptr)
