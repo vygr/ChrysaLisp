@@ -12,7 +12,7 @@
 		; (. grid :pref_size) -> (width height)
 		(defq pw 0 ph 0)
 		(each (lambda (child)
-			(bind '(w h) (view-pref-size child))
+			(bind '(w h) (. child :pref_size))
 			(setq pw (max w pw) ph (max h ph))) (. this :children))
 		(list (* (get :grid_width this) pw) (* (get :grid_height this) ph)))
 

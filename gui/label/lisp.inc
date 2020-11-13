@@ -6,7 +6,7 @@
 	; (Label) -> label
 	; overide the default 'this' env with a label component
 	; inherit from View !
-	(def (defq label_flow (Flow) label_text (create-text) this (View))
+	(def (defq label_flow (Flow) label_text (Text) this (View))
 		:label_flow label_flow :label_text label_text)
 	(. label_flow :set_flags 0 -1)
 	(. this :add_back label_flow)

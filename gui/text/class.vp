@@ -1,52 +1,9 @@
 (include "sys/func.inc")
-(include "gui/gui/class.inc")
 (include "gui/ctx/class.inc")
 (include "gui/font/class.inc")
 (include "gui/texture/class.inc")
-(include "class/list/class.inc")
 (include "gui/text/class.inc")
 (include "class/sym/class.inc")
-
-(gen-create 'text)
-(gen-vtable 'text)
-
-(def-method 'text :init)
-	;inputs
-	;r0 = text object (ptr)
-	;outputs
-	;r0 = text object (ptr)
-	;r1 = 0 if error, else ok
-	;trashes
-	;r1-r14
-
-	(entry 'text :init '(r0 r1))
-
-	(vp-xor-rr r2 r2)
-	(assign '(r2 r2) '((r0 text_str) (r0 text_str_sym)))
-
-	;init parent
-	(s-jump 'text :init '(r0 r1))
-
-(def-func-end)
-
-(def-method 'text :deinit)
-	;inputs
-	;r0 = text object (ptr)
-	;outputs
-	;r0 = text object (ptr)
-	;trashes
-	;r1-r14
-
-	(entry 'text :deinit '(r0))
-
-	(vp-push r0)
-	(call 'sym :deref_if '((r0 text_str_sym)))
-	(vp-pop r0)
-
-	;init parent
-	(s-jump 'text :deinit '(r0))
-
-(def-func-end)
 
 (def-method 'text :draw)
 	;inputs
@@ -73,56 +30,17 @@
 
 	;draw text
 	(vpif {str && font})
-		;cached interned text
-		(vpif {this->text_str /= str})
-			(assign {str} {this->text_str})
-			(call 'sym :intern_str {str} {this->text_str_sym})
-		(endif)
-		(call 'font :sym_texture {font, this->text_str_sym} {_, txt})
+		(call 'sym :intern_str {str} {str})
+		(call 'font :sym_texture {font, str} {_, txt})
 		(vpif {txt})
 			(call 'texture :get_metrics {txt} {_, handle, w, h})
 			(call 'ctx :blit {ctx, handle, col, 0, (this->view_h - h) >>> 1, w, h})
 			(call 'texture :deref {txt})
 		(endif)
+		(call 'sym :deref {str})
 	(endif)
 
 	(exit 'text :draw {this})
-	(pop-scope)
-	(return)
-
-(def-func-end)
-
-(def-method 'text :pref_size)
-	;inputs
-	;r0 = text object (ptr)
-	;outputs
-	;r0 = text object (ptr)
-	;r9 = preferred width (pixels)
-	;r10 = preferred height (pixels)
-	;trashes
-	;r1-r14
-
-	(ptr 'this 'font 'str 'info)
-	(uint 'w 'h)
-
-	;save inputs
-	(push-scope)
-	(entry 'text :pref_size {this})
-
-	;get properties, do checks for any changes
-	(call 'text :get_prop {this, static_sym_font} {_, font})
-	(call 'text :get_prop {this, static_sym_text} {_, str})
-
-	;bounds of text
-	(assign {0 => w} {h})
-	(vpif {str && font})
-		;get texture bounds info
-		(call 'font :glyph_info {font, str} {_, info})
-		(call 'font :glyph_bounds {font, info} {_, w, h})
-		(call 'array :deref {info})
-	(endif)
-
-	(exit 'text :pref_size {this, w, h})
 	(pop-scope)
 	(return)
 

@@ -83,6 +83,52 @@
 
 (def-func-end)
 
+(def-method 'font :lisp_glyph_bounds)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args list object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(def-struct 'local)
+		(ptr 'this 'info)
+		(uint 'w 'h)
+	(def-struct-end)
+
+	(entry 'font :lisp_glyph_bounds '(r0 r1))
+
+(errorcases
+	(call 'lisp :env_args_sig '(r1 ($ sig) 2) '(r2))
+	(gotoif '(r2 = 0) 'error))
+
+	(vp-alloc local_size)
+	(defq in1 (method-input 'font :glyph_info)
+		in2 (method-input 'font :glyph_bounds))
+	(assign '(r0) '((rsp local_this)))
+	(list-bind-args r1 in1 '(:font :obj))
+	(call 'font :glyph_info in1 in2)
+	(assign `(,(elem 1 in2)) `((rsp local_info)))
+	(call 'font :glyph_bounds in2 '(_ (rsp local_w) (rsp local_h)))
+	(call 'array :deref '((rsp local_info)))
+	(call 'list :create nil '(r13))
+	(call 'num :create  '((rsp local_w)) '(r11))
+	(call 'num :create  '((rsp local_h)) '(r0))
+	(call 'list :push_back2 '(r13 r11 r0) '(r1 _ _ _ _))
+
+	(exit 'font :lisp_glyph_bounds '((rsp local_this) r1))
+	(vp-free local_size)
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp :repl_error '(r0 "(font-glyph-bounds font str)" error_msg_wrong_types r1))
+	(signature '(font str)))
+
+(def-func-end)
+
 (def-method 'font :lisp_glyph_ranges)
 	;inputs
 	;r0 = lisp object (ptr)

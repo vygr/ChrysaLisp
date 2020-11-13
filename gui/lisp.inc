@@ -4,13 +4,9 @@
 (import "lib/consts/colors.inc")
 
 ;lisp bindings
-(ffi create-text "gui/text/lisp_create" 0)
-(ffi create-font "gui/font/lisp_create" 0)
 (ffi gui-add "gui/gui/lisp_add" 0)
 (ffi gui-add-back "gui/gui/lisp_add_back" 0)
 (ffi gui-info "gui/gui/lisp_info" 0)
-(ffi font-glyph-paths "gui/font/lisp_glyph_paths" 0)
-(ffi font-glyph-ranges "gui/font/lisp_glyph_ranges" 0)
 (ffi path "class/array/lisp_path" 0)
 (import "gui/window/lisp.inc")
 (import "gui/backdrop/lisp.inc")
@@ -18,6 +14,7 @@
 (import "gui/progress/lisp.inc")
 (import "gui/scroll/lisp.inc")
 (import "gui/textfield/lisp.inc")
+(import "gui/text/lisp.inc")
 (import "gui/title/lisp.inc")
 (import "gui/grid/lisp.inc")
 (import "gui/flow/lisp.inc")
@@ -29,6 +26,7 @@
 (import "gui/path/lisp.inc")
 (import "gui/canvas/lisp.inc")
 (import "gui/vdu/lisp.inc")
+(import "gui/font/lisp.inc")
 
 ;ui tree helper macros
 (defun ui-merge-props (p)

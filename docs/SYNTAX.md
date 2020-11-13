@@ -140,6 +140,10 @@
 
 (. slider :pref_size) -> (width height)
 
+## text :pref_size
+
+(. text :pref_size) -> (width height)
+
 ## textfield :key_down
 
 (. textfield :key_down event) -> textfield
@@ -190,7 +194,7 @@
 
 ## view :change_dirty
 
-(. view :change_dirty x y widht height) -> view
+(. view :change_dirty x y width height) -> view
 
 ## view :children
 
@@ -448,6 +452,10 @@
 
 (Slider) -> slider
 
+## Text
+
+(Text) -> text
+
 ## Textfield
 
 (Textfield) -> textfield
@@ -696,10 +704,6 @@
 
 (create-stdio)
 
-## create-text
-
-(create-text)
-
 ## create-vdu
 
 (create-vdu)
@@ -907,6 +911,10 @@
 ## fnc?
 
 (fnc? form) -> t | nil
+
+## font-glyph-bounds
+
+(font-glyph-bounds font str)
 
 ## font-glyph-paths
 

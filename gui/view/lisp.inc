@@ -54,7 +54,7 @@
 		; (. view :dirty) -> view
 
 	(ffi-method :change_dirty "gui/view/lisp_change_dirty")
-		; (. view :change_dirty x y widht height) -> view
+		; (. view :change_dirty x y width height) -> view
 
 	(ffi-method :add_opaque "gui/view/lisp_add_opaque")
 		; (. view :add_opaque x y width height) -> view

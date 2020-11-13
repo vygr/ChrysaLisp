@@ -2153,6 +2153,19 @@ trashes
 r1-r14
 ```
 
+### font::lisp_glyph_bounds -> gui/font/lisp_glyph_bounds
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
 ## fstream
 
 Super Class: stream
@@ -8326,35 +8339,6 @@ r1-r14
 
 Super Class: view
 
-### text::vtable -> gui/text/vtable
-
-### text::create -> gui/text/create
-
-### text::init -> gui/text/init
-
-```lisp
-inputs
-r0 = text object (ptr)
-outputs
-r0 = text object (ptr)
-r1 = 0 if error, else ok
-trashes
-r1-r14
-```
-
-### text::pref_size -> gui/text/pref_size
-
-```lisp
-inputs
-r0 = text object (ptr)
-outputs
-r0 = text object (ptr)
-r9 = preferred width (pixels)
-r10 = preferred height (pixels)
-trashes
-r1-r14
-```
-
 ### text::draw -> gui/text/draw
 
 ```lisp
@@ -8363,30 +8347,6 @@ r0 = text object (ptr)
 r1 = draw ctx (ptr)
 outputs
 r0 = text object (ptr)
-trashes
-r1-r14
-```
-
-### text::deinit -> gui/text/deinit
-
-```lisp
-inputs
-r0 = text object (ptr)
-outputs
-r0 = text object (ptr)
-trashes
-r1-r14
-```
-
-### text::lisp_create -> gui/text/lisp_create
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args list object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
 trashes
 r1-r14
 ```
