@@ -41,49 +41,49 @@
 	; overide the default 'this' env with a view component
 	(defq this ((ffi _ "gui/view/lisp_create" 0)))
 
-	(def this :find_id (ffi _ "gui/view/lisp_find_id" 0))
+	(ffi-method :find_id "gui/view/lisp_find_id")
 		; (. view :find_id target_id) -> nil | target_view
 
-	(def this :set_flags (ffi _ "gui/view/lisp_set_flags" 0))
+	(ffi-method :set_flags "gui/view/lisp_set_flags")
 		; (. view :set_flags value mask) -> view
 
-	(def this :add_dirty (ffi _ "gui/view/lisp_add_dirty" 0))
+	(ffi-method :add_dirty "gui/view/lisp_add_dirty")
 		; (. view :add_dirty x y width height) -> view
 
-	(def this :dirty (ffi _ "gui/view/lisp_dirty" 0))
+	(ffi-method :dirty "gui/view/lisp_dirty")
 		; (. view :dirty) -> view
 
-	(def this :change_dirty (ffi _ "gui/view/lisp_change_dirty" 0))
+	(ffi-method :change_dirty "gui/view/lisp_change_dirty")
 		; (. view :change_dirty x y widht height) -> view
 
-	(def this :add_opaque (ffi _ "gui/view/lisp_add_opaque" 0))
+	(ffi-method :add_opaque "gui/view/lisp_add_opaque")
 		; (. view :add_opaque x y width height) -> view
 
-	(def this :sub_opaque (ffi _ "gui/view/lisp_sub_opaque" 0))
+	(ffi-method :sub_opaque "gui/view/lisp_sub_opaque")
 		; (. view :sub_opaque x y width height) -> view
 
-	(def this :clr_opaque (ffi _ "gui/view/lisp_clr_opaque" 0))
+	(ffi-method :clr_opaque "gui/view/lisp_clr_opaque")
 		; (. view :clr_opaque) -> view
 
-	(def this :children (ffi _ "gui/view/lisp_children" 0))
+	(ffi-method :children "gui/view/lisp_children")
 		; (. view :children) -> (child0 child1 ...)
 
-	(def this :sub (ffi _ "gui/view/lisp_sub" 0))
+	(ffi-method :sub "gui/view/lisp_sub")
 		; (. view :lisp_sub) -> view
 
-	(def this :add_back (ffi _ "gui/view/lisp_add_back" 0))
+	(ffi-method :add_back "gui/view/lisp_add_back")
 		; (. view :add_back child) -> view
 
-	(def this :add_front (ffi _ "gui/view/lisp_add" 0))
+	(ffi-method :add_front "gui/view/lisp_add")
 		; (. view :add_front child) -> view
 
-	(def this :to_front (ffi _ "gui/view/lisp_to_front" 0))
+	(ffi-method :to_front "gui/view/lisp_to_front")
 		; (. view :to_front) -> view
 
-	(def this :to_back (ffi _ "gui/view/lisp_to_back" 0))
+	(ffi-method :to_back "gui/view/lisp_to_back")
 		; (. view :to_back) -> view
 
-	(def this :hide (ffi _ "gui/view/lisp_hide" 0))
+	(ffi-method :hide "gui/view/lisp_hide")
 		; (. view :hide) -> view
 
 	(method :add_child (this child)

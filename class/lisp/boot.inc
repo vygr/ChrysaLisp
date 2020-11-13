@@ -854,6 +854,10 @@
 	; (method name ([arg ...]) body)
 	`(def this ,n (lambda ,p ~(prebind (macroexpand _)))))
 
+(defmacro ffi-method (n _)
+	; (ffi-method name ffi)
+	`(def this ,n (ffi _ ,_ 0)))
+
 (defmacro . (this m &rest _)
 	; (. this method ([arg ...]))
 	(if (sym? this)

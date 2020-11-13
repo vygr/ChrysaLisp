@@ -149,7 +149,8 @@
             (when (and (eql state :x) (> (length line) 9))
                 (defq _ (elem 0 (split line (const (cat (ascii-char 9) " ()'" (ascii-char 13))))))
                 (cond
-                    ((or (eql _ "defun") (eql _ "defmacro") (eql _ "class") (eql _ "method"))
+                    ((or (eql _ "defun") (eql _ "defmacro") (eql _ "class")
+							(eql _ "method") (eql _ "ffi-method"))
                         (setq state :y))))) (file-stream file)))
         (cat (make-tree "." "lisp.inc")
 			'("class/lisp/boot.inc" "lib/anaphoric/anaphoric.inc" "lib/debug/debug.inc"

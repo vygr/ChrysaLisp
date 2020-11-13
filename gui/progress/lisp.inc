@@ -9,7 +9,7 @@
 	(defq this (View))
 
 	;draw function for compositor...
-	(def this :draw (ffi _ "gui/progress/draw" 0))
+	(ffi-method :draw "gui/progress/draw")
 
 	(method :pref_size (this)
 		; (. progress :pref_size) -> (width height)

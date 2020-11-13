@@ -13,7 +13,7 @@
 	(. label_flow :add_child label_text)
 
 	;draw function for compositor...
-	(def this :draw (ffi _ "gui/label/draw" 0))
+	(ffi-method :draw "gui/label/draw")
 
 	(method :add_child (this child)
 		; (. label :add_child child) -> label

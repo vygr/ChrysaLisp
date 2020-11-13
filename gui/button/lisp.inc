@@ -9,7 +9,7 @@
 	(def (defq this (Label)) :state 0)
 
 	;draw function for compositor...
-	(def this :draw (ffi _ "gui/button/draw" 0))
+	(ffi-method :draw "gui/button/draw")
 
 	(method :layout (this)
 		; (. button :layout) -> button

@@ -9,7 +9,7 @@
 	(def (defq this (Label)) :cursor 0)
 
 	;draw function for compositor...
-	(def this :draw (ffi _ "gui/textfield/draw" 0))
+	(ffi-method :draw "gui/textfield/draw")
 
 	(method :key_down (this event)
 		; (. textfield :key_down event) -> textfield

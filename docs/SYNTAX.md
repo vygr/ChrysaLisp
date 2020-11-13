@@ -164,13 +164,49 @@
 
 (. vdu :max_size) -> (width height)
 
+## view :add_back
+
+(. view :add_back child) -> view
+
 ## view :add_child
 
 (. view :add_child child) -> view
 
+## view :add_dirty
+
+(. view :add_dirty x y width height) -> view
+
+## view :add_front
+
+(. view :add_front child) -> view
+
+## view :add_opaque
+
+(. view :add_opaque x y width height) -> view
+
 ## view :change_dirty
 
 (. view :change_dirty x y w h)
+
+## view :change_dirty
+
+(. view :change_dirty x y widht height) -> view
+
+## view :children
+
+(. view :children) -> (child0 child1 ...)
+
+## view :clr_opaque
+
+(. view :clr_opaque) -> view
+
+## view :dirty
+
+(. view :dirty) -> view
+
+## view :find_id
+
+(. view :find_id target_id) -> nil | target_view
 
 ## view :get_bounds
 
@@ -188,9 +224,21 @@
 
 (. view :hide)
 
+## view :hide
+
+(. view :hide) -> view
+
 ## view :layout
 
 (. view :layout) -> view
+
+## view :lisp_sub
+
+(. view :lisp_sub) -> view
+
+## view :set_flags
+
+(. view :set_flags value mask) -> view
 
 ## view :set_size
 
@@ -199,6 +247,18 @@
 ## view :set_size
 
 (. view :set_size x y width height) -> view
+
+## view :sub_opaque
+
+(. view :sub_opaque x y width height) -> view
+
+## view :to_back
+
+(. view :to_back) -> view
+
+## view :to_front
+
+(. view :to_front) -> view
 
 ## window :add_child
 
@@ -811,6 +871,10 @@
 ## ffi
 
 (ffi sym path flags)
+
+## ffi-method
+
+(ffi-method name ffi)
 
 ## file-stream
 

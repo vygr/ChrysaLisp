@@ -9,7 +9,7 @@
 	(def (defq this (View)) :state 0 :value 0 :maximum 0 :portion 0 :downxy 0)
 
 	;draw function for compositor...
-	(def this :draw (ffi _ "gui/slider/draw" 0))
+	(ffi-method :draw "gui/slider/draw")
 
 	(method :pref_size (this)
 		; (. slider :pref_size) -> (width height)

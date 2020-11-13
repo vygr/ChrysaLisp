@@ -9,7 +9,7 @@
 	(def (defq this (View)) :child nil :last_buttons 0 :is_window t)
 
 	;draw function for compositor...
-	(def this :draw (ffi _ "gui/window/draw" 0))
+	(ffi-method :draw "gui/window/draw")
 
 	(method :add_child (this child)
 		; (. window :add_child child) -> window
