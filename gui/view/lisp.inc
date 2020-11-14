@@ -130,6 +130,6 @@
 	(method :layout (this)
 		; (. view :layout) -> view
 		(if (= (>> (get :color this) 24) 0xff)
-			(. this :set_flags +view_flag_opaque+ +view_flag_opaque+))
-		this)
+			(. this :set_flags +view_flag_opaque+ +view_flag_opaque+)
+			this))
 	)

@@ -27,8 +27,7 @@
 
 	(method :layout (this)
 		; (. window :layout) -> window
-		(defq border (get :border this) shadow (get :shadow this)
-			color (get :color this) child (get :child this))
+		(defq border (get :border this) shadow (get :shadow this) child (get :child this))
 		;position any child
 		(bind '(w h) (. this :get_size))
 		(when child
@@ -41,10 +40,8 @@
 				((= shadow 0)
 					(. this :set_flags +view_flag_opaque+ +view_flag_opaque+))
 				(t
-					(. this :clr_opaque)
-					(. this :add_opaque (+ border shadow) (+ border shadow)
-						(- w (* 2 (+ border shadow))) (- h (* 2 (+ border shadow)))))))
-		this)
+					(. (. this :clr_opaque) :add_opaque (+ border shadow) (+ border shadow)
+						(- w (* 2 (+ border shadow))) (- h (* 2 (+ border shadow))))))))
 
 	(method :mouse_down (this event)
 		; (. window :mouse_down event) -> window
@@ -80,8 +77,7 @@
 		(if (/= 0 (logand 8 drag_mode))
 			(setq y1 (max (- ay drag_offy) (+ y h))))
 		(. this :change_dirty x y (- x1 x) (- y1 y))
-		(component-emit this)
-		this)
+		(component-emit this))
 
 	(method :event (this event)
 		; (. window :event event) -> window

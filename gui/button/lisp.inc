@@ -22,14 +22,12 @@
 		(bind '(w h) (. this :get_size))
 		(view-change flow pos pos (- w (* border 2)) (- h (* border 2)))
 		(. flow :layout)
-		(. this :set_flags +view_flag_opaque+ +view_flag_opaque+)
-		this)
+		(. this :set_flags +view_flag_opaque+ +view_flag_opaque+))
 
 	(method :mouse_down (this event)
 		; (. button :mouse_down event) -> button
 		(def this :state 1)
-		(. this :layout)
-		(view-dirty-all this))
+		(view-dirty-all (. this :layout)))
 
 	(method :mouse_up (this event)
 		; (. button :mouse_up event) -> button
