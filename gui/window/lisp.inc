@@ -2,30 +2,30 @@
 ; window widget
 ;;;;;;;;;;;;;;;
 
-(class Window ()
+(defclass Window ()
 	; (Window) -> window
 	; overide the default 'this' env with a window component
 	; inherit from View !
 	(def (defq this (View)) :child nil :last_buttons 0 :is_window t)
 
 	;draw function for compositor...
-	(ffi-method :draw "gui/window/draw")
+	(defiimethod :draw "gui/window/draw")
 
-	(method :add_child (this child)
+	(defmethod :add_child (this child)
 		; (. window :add_child child) -> window
 		(if (defq old_child (get :child this))
 			(. old_child :sub))
 		(set this :child child)
 		(. this :add_back child))
 
-	(method :pref_size (this)
+	(defmethod :pref_size (this)
 		; (. window :pref_size) -> (width height)
 		(defq child (get :child this) border (get :border this) shadow
 			(get :shadow this))
 		(bind '(w h) (. child :pref_size))
 		(list (+ (* (+ shadow border) 2) w) (+ (* (+ shadow border) 2) h)))
 
-	(method :layout (this)
+	(defmethod :layout (this)
 		; (. window :layout) -> window
 		(defq border (get :border this) shadow (get :shadow this) child (get :child this))
 		;position any child
@@ -43,7 +43,7 @@
 					(. (. this :clr_opaque) :add_opaque (+ border shadow) (+ border shadow)
 						(- w (* 2 (+ border shadow))) (- h (* 2 (+ border shadow))))))))
 
-	(method :mouse_down (this event)
+	(defmethod :mouse_down (this event)
 		; (. window :mouse_down event) -> window
 		(bind '(w h) (. this :get_size))
 		(defq rx (get-int event ev_msg_mouse_rx) ry (get-int event ev_msg_mouse_ry)
@@ -60,7 +60,7 @@
 		(def this :drag_mode drag_mode :drag_offx drag_offx :drag_offy drag_offy)
 		this)
 
-	(method :mouse_move (this event)
+	(defmethod :mouse_move (this event)
 		; (. window :mouse_move event) -> window
 		(defq ax (get-int event ev_msg_mouse_x) ay (get-int event ev_msg_mouse_y)
 			drag_mode (get :drag_mode this) drag_offx (get :drag_offx this)
@@ -79,7 +79,7 @@
 		(. this :change_dirty x y (- x1 x) (- y1 y))
 		(component-emit this))
 
-	(method :event (this event)
+	(defmethod :event (this event)
 		; (. window :event event) -> window
 		(defq target (. this :find_id (get-long event ev_msg_target_id))
 			type (get-long event ev_msg_type))

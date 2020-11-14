@@ -2,6 +2,7 @@
 (include "class/hmap/class.inc")
 (include "class/sym/class.inc")
 (include "class/lisp/class.inc")
+(include "lib/consts/chars.inc")
 
 (def-method 'lisp :repl_expand)
 	;inputs
@@ -48,6 +49,9 @@
 				(f-bind 'sym :vtable r4)
 				(assign '((r3 obj_vtable)) '(r5))
 				(breakif '(r4 /= r5))
+				;not if begins with a : or +
+				(assign '((r3 str_data ub)) '(r5))
+				(breakif '(r5 = +char_colon+) '(r5 = +char_plus+))
 				;is defined ?
 				(call 'hmap :search '((r0 lisp_environment) r3) '(_ r1 _))
 				(breakif '(r1 = 0))

@@ -764,17 +764,17 @@
 	(while (defq _l (read-line _))
 		(_f _l)))
 
-(defun import (lib_path &optional e)
+(defun import (lib_path &optional _e)
 	; (import path [env]) -> env
 	(unless (str? lib_path) (throw "Not a string !" lib_path))
 	(if (= (age lib_path) 0) (throw "No such file !" lib_path))
-	(setd e (penv))
-	(unless (def? '*file_includes* e)
-		(def e '*file_includes* (list)))
-	(defq file_list (get '*file_includes* e))
+	(setd _e (penv))
+	(unless (def? '*file_includes* _e)
+		(def _e '*file_includes* (list)))
+	(defq file_list (get '*file_includes* _e))
 	(unless (some (# (eql %0 lib_path)) file_list)
 		(push file_list lib_path)
-		(eval `(repl (file-stream ,lib_path) ,lib_path) e)))
+		(eval `(repl (file-stream ,lib_path) ,lib_path) _e)))
 
 (defmacro read-long (s)
 	; (read-long stream) -> num
@@ -847,17 +847,17 @@
 ; classes and methods
 ;;;;;;;;;;;;;;;;;;;;;
 
-(defmacro class (n p &rest _)
-	; (class name ([arg ...]) body)
+(defmacro defclass (n p &rest _)
+	; (defclass name ([arg ...]) body)
 	`(defun ,n ,p (defq this (env -1)) ~_ this))
 
-(defmacro method (n p &rest _)
-	; (method name ([arg ...]) body)
+(defmacro defmethod (n p &rest _)
+	; (defmethod name ([arg ...]) body)
 	; (. this method ([arg ...]))
 	`(def this ,n (lambda ,p ~(prebind (macroexpand _)))))
 
-(defmacro ffi-method (n _)
-	; (ffi-method name ffi)
+(defmacro defiimethod (n _)
+	; (defiimethod name ffi)
 	`(def this ,n (ffi _ ,_ 0)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;

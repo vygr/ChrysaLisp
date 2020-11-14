@@ -2,16 +2,16 @@
 ; textfield widget
 ;;;;;;;;;;;;;;;;;;
 
-(class Textfield ()
+(defclass Textfield ()
 	; (Textfield) -> textfield
 	; overide the default 'this' env with a textfield component
 	; inherit from Label !
 	(def (defq this (Label)) :cursor 0)
 
 	;draw function for compositor...
-	(ffi-method :draw "gui/textfield/draw")
+	(defiimethod :draw "gui/textfield/draw")
 
-	(method :key_down (this event)
+	(defmethod :key_down (this event)
 		; (. textfield :key_down event) -> textfield
 		(defq key (get-uint event ev_msg_key_key) cursor (get :cursor this)
 			text (get :text this))

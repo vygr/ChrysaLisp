@@ -2,13 +2,13 @@
 ; grid widget
 ;;;;;;;;;;;;;
 
-(class Grid ()
+(defclass Grid ()
 	; (Grid) -> grid
 	; overide the default 'this' env with a grid component
 	; inherit from View !
 	(defq this (View))
 
-	(method :pref_size (this)
+	(defmethod :pref_size (this)
 		; (. grid :pref_size) -> (width height)
 		(defq pw 0 ph 0)
 		(each (lambda (child)
@@ -16,7 +16,7 @@
 			(setq pw (max w pw) ph (max h ph))) (. this :children))
 		(list (* (get :grid_width this) pw) (* (get :grid_height this) ph)))
 
-	(method :layout (this)
+	(defmethod :layout (this)
 		; (. grid :layout) -> grid
 		(bind '(w h) (. this :get_size))
 		(defq grid_width (get :grid_width this) grid_height (get :grid_height this)

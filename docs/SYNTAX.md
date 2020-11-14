@@ -640,10 +640,6 @@
 
 (char-to-num char) -> num
 
-## class
-
-(class name ([arg ...]) body)
-
 ## clear
 
 (clear array ...)
@@ -755,6 +751,18 @@
 ## def?
 
 (def? var [env])
+
+## defclass
+
+(defclass name ([arg ...]) body)
+
+## defiimethod
+
+(defiimethod name ffi)
+
+## defmethod
+
+(defmethod name ([arg ...]) body)
 
 ## defq
 
@@ -879,10 +887,6 @@
 ## ffi
 
 (ffi sym path flags)
-
-## ffi-method
-
-(ffi-method name ffi)
 
 ## file-stream
 
@@ -1227,10 +1231,6 @@
 ## merges
 
 (merges (collections)) -> collection
-
-## method
-
-(method name ([arg ...]) body)
 
 ## min
 

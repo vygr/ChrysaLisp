@@ -2,34 +2,34 @@
 ; slider widget
 ;;;;;;;;;;;;;;;;;
 
-(class Slider ()
+(defclass Slider ()
 	; (Slider) -> slider
 	; overide the default 'this' env with a slider component
 	; inherit from View !
 	(def (defq this (View)) :state 0 :value 0 :maximum 0 :portion 0 :downxy 0)
 
 	;draw function for compositor...
-	(ffi-method :draw "gui/slider/draw")
+	(defiimethod :draw "gui/slider/draw")
 
-	(method :pref_size (this)
+	(defmethod :pref_size (this)
 		; (. slider :pref_size) -> (width height)
 		(list 10 10))
 
-	(method :mouse_down (this event)
+	(defmethod :mouse_down (this event)
 		; (. slider :mouse_down event) -> slider
 		(bind '(w h) (. this :get_size))
 		(defq rx (get-int event ev_msg_mouse_rx) ry (get-int event ev_msg_mouse_ry))
 		(def this :old_value (get :value this) :downxy (if (> w h) rx ry) :state 1)
 		(. (view-dirty-all this) :mouse_move event))
 
-	(method :mouse_up (this event)
+	(defmethod :mouse_up (this event)
 		; (. slider :mouse_up event) -> slider
 		(when (/= (get :state this) 0)
 			(def this :state 0)
 			(view-dirty-all this))
 		this)
 
-	(method :mouse_move (this event)
+	(defmethod :mouse_move (this event)
 		; (. slider :mouse_move event) -> slider
 		(bind '(w h) (. this :get_size))
 		(defq rx (get-int event ev_msg_mouse_rx) ry (get-int event ev_msg_mouse_ry)

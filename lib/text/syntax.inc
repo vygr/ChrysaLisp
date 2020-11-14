@@ -22,7 +22,7 @@
 		"0123456789"
 		"abcdefghijklmnopqrstuvwxyz"))))
 
-(class Syntax ()
+(defclass Syntax ()
 	; (Syntax) -> syntax
 	;default colours and state
 	(def this :keywords (defq keywords (env -101)) :state :text
@@ -46,17 +46,17 @@
 			((macro? v) (def keywords k (get :ink_keyword3 this)))))
 		(tolist e))
 
-	(method :set_state (this state)
+	(defmethod :set_state (this state)
 		; (. syntax :set_state state) -> syntax
 		(set this :state state)
 		this)
 
-	(method :set_colors (this colors)
+	(defmethod :set_colors (this colors)
 		; (. syntax :set_colors xmap) -> syntax
 		(. colors :each (# (set this %0 (<< (canvas-from-argb32 %1 15) 32))))
 		this)
 
-	(method :colorise (this line)
+	(defmethod :colorise (this line)
 		; (. syntax :colorise str) -> array
 
 		;tokenise the string starting with the current state

@@ -13,13 +13,13 @@
 	+flow_right_fill+ (logior +flow_flag_right+ +flow_flag_fillh+ +flow_flag_lastw+)
 	+flow_left_fill+ (logior +flow_flag_left+ +flow_flag_fillh+ +flow_flag_lastw+))
 
-(class Flow ()
+(defclass Flow ()
 	; (Flow) -> flow
 	; overide the default 'this' env with a flow component
 	; inherit from View !
 	(defq this (View))
 
-	(method :pref_size (this)
+	(defmethod :pref_size (this)
 		; (. flow :pref_size) -> (width height)
 		(defq flow_flags (get :flow_flags this) pw 0 ph 0
 			mw (get :min_width this) mh (get :min_height this))
@@ -33,7 +33,7 @@
 			(setq pw (max w pw) ph (max h ph))) (. this :children))
 		(list (max pw mw) (max ph mh)))
 
-	(method :layout (this)
+	(defmethod :layout (this)
 		; (. flow :layout) -> flow
 		(bind '(fw fh) (. this :get_size))
 		(defq flow_flags (get :flow_flags this) children (. this :children) end (dec (length children))

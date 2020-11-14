@@ -2,7 +2,7 @@
 ; label widget
 ;;;;;;;;;;;;;;;
 
-(class Label ()
+(defclass Label ()
 	; (Label) -> label
 	; overide the default 'this' env with a label component
 	; inherit from View !
@@ -13,14 +13,14 @@
 	(. label_flow :add_child label_text)
 
 	;draw function for compositor...
-	(ffi-method :draw "gui/label/draw")
+	(defiimethod :draw "gui/label/draw")
 
-	(method :add_child (this child)
+	(defmethod :add_child (this child)
 		; (. label :add_child child) -> label
 		(. (get :label_flow this) :add_child child)
 		this)
 
-	(method :pref_size (this)
+	(defmethod :pref_size (this)
 		; (. label :pref_size) -> (width height)
 		(defq mw (get :min_width this) mh (get :min_height this)
 			border (abs (get :border this)))
@@ -28,7 +28,7 @@
 		(bind '(w h) (. (get :label_flow this) :pref_size))
 		(list (+ (* border 2) (max w mw)) (+ (* border 2) (max h mh))))
 
-	(method :layout (this)
+	(defmethod :layout (this)
 		; (. label :layout) -> label
 		(defq border (abs (get :border this)))
 		(bind '(w h) (. this :get_size))

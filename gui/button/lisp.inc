@@ -2,16 +2,16 @@
 ; button widget
 ;;;;;;;;;;;;;;;
 
-(class Button ()
+(defclass Button ()
 	; (Button) -> button
 	; overide the default 'this' env with a button component
 	; inherit from Label !
 	(def (defq this (Label)) :state 0)
 
 	;draw function for compositor...
-	(ffi-method :draw "gui/button/draw")
+	(defiimethod :draw "gui/button/draw")
 
-	(method :layout (this)
+	(defmethod :layout (this)
 		; (. button :layout) -> button
 		(defq flow (get :label_flow this) state (get :state this)
 			border (get :border this) pos border)
@@ -24,12 +24,12 @@
 		(. flow :layout)
 		(. this :set_flags +view_flag_opaque+ +view_flag_opaque+))
 
-	(method :mouse_down (this event)
+	(defmethod :mouse_down (this event)
 		; (. button :mouse_down event) -> button
 		(def this :state 1)
 		(view-dirty-all (. this :layout)))
 
-	(method :mouse_up (this event)
+	(defmethod :mouse_up (this event)
 		; (. button :mouse_up event) -> button
 		(when (/= (get :state this) 0)
 			(def this :state 0)
@@ -38,7 +38,7 @@
 			(component-emit this))
 		this)
 
-	(method :mouse_move (this event)
+	(defmethod :mouse_move (this event)
 		; (. button :mouse_move event) -> button
 		(bind '(w h) (. this :get_size))
 		(defq rx (get-int event ev_msg_mouse_rx) ry (get-int event ev_msg_mouse_ry)

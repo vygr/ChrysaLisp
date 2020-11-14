@@ -2,13 +2,13 @@
 ; title widget
 ;;;;;;;;;;;;;;
 
-(class Title ()
+(defclass Title ()
 	; (Title) -> title
 	; overide the default 'this' env with a title component
 	; inherit from Label !
 	(defq this (Label))
 
-	(method :mouse_down (this event)
+	(defmethod :mouse_down (this event)
 		; (. title :mouse_down event) -> title
 		(defq ax (get-int event ev_msg_mouse_x) ay (get-int event ev_msg_mouse_y)
 			window (penv this))
@@ -21,7 +21,7 @@
 			(. window :to_back))
 		this)
 
-	(method :mouse_move (this event)
+	(defmethod :mouse_move (this event)
 		; (. title :mouse_move event) -> title
 		(defq ax (get-int event ev_msg_mouse_x) ay (get-int event ev_msg_mouse_y)
 			window (penv this))

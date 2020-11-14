@@ -8,7 +8,7 @@
 ;scroll flag combos
 (defq +scroll_flag_both+ (logior +scroll_flag_vertical+ +scroll_flag_horizontal+))
 
-(class Scroll (flags)
+(defclass Scroll (flags)
 	; (Scroll flags) -> scroll
 	; overide the default 'this' env with a scroll component
 	; inherit from View !
@@ -22,17 +22,17 @@
 		(component-connect slider (component-get-id this))
 		(. this :add_front slider))
 
-	(method :add_child (this child)
+	(defmethod :add_child (this child)
 		; (. scroll :add_child child) -> scroll
 		(if (defq old_child (get :child this))
 			(. old_child :sub))
 		(. this :add_back (set this :child child)))
 
-	(method :action (this data)
+	(defmethod :action (this data)
 		; (. scroll :action data) -> scroll
 		(. (. this :layout) :set_flags +view_flag_dirty_all+ +view_flag_dirty_all+))
 
-	(method :pref_size (this)
+	(defmethod :pref_size (this)
 		; (. scroll :pref_size) -> (width height)
 		(defq hslider (get :hslider this) vslider (get :vslider this)
 			mw (get :min_width this) mh (get :min_height this))
@@ -43,7 +43,7 @@
 			(setq mh (+ mh (pop (. hslider :pref_size)))))
 		(list mw mh))
 
-	(method :layout (this)
+	(defmethod :layout (this)
 		; (. scroll :layout) -> scroll
 		(defq hslider (get :hslider this) vslider (get :vslider this)
 			child (get :child this) sw 0 sh 0)
