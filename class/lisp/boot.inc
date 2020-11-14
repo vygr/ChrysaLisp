@@ -113,6 +113,7 @@
 (ffi prin "class/lisp/lisp_prin" 0)
 (ffi print "class/lisp/lisp_print" 0)
 (ffi prebind "class/lisp/lisp_bindfun" 0)
+(ffi . "class/lisp/lisp_mcall" 0)
 
 (ffi time "sys/pii/lisp_time" 0)
 (ffi age "sys/pii/lisp_age" 0)
@@ -852,23 +853,12 @@
 
 (defmacro method (n p &rest _)
 	; (method name ([arg ...]) body)
+	; (. this method ([arg ...]))
 	`(def this ,n (lambda ,p ~(prebind (macroexpand _)))))
 
 (defmacro ffi-method (n _)
 	; (ffi-method name ffi)
 	`(def this ,n (ffi _ ,_ 0)))
-
-(defmacro . (this m &rest _)
-	; (. this method ([arg ...]))
-	(if (sym? this)
-		`((get ,m ,this) ,this ~_)
-		`((get ,m (defq ,(defq _o (gensym)) ,this)) ,_o ~_)))
-
-;; (defun . (this m &rest _)
-;; 	; (. this method ([arg ...]))
-;; 	(if (get m this)
-;; 		(apply (get m this) (cat (list this) _))
-;; 		(throw "No such method !" (list m this))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Boot extension imports

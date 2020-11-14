@@ -76,6 +76,10 @@
 
 (. emap :resize num_buckets) -> emap
 
+## env sym
+
+(. env sym [...])
+
 ## flow :layout
 
 (. flow :layout) -> flow
