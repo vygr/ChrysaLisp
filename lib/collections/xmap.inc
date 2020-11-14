@@ -45,7 +45,7 @@
 
 	(method :copy (this)
 		; (. xmap :copy) -> xmap
-		(defq that (xmap (get :num_buckets this) (get :cmp_fnc this) (get :hash_fnc this)))
+		(defq that ((get 'xmap) (get :num_buckets this) (get :cmp_fnc this) (get :hash_fnc this)))
 		(each (lambda (this_bucket that_bucket)
 			(each (lambda (key_val)
 				(push that_bucket key_val)) this_bucket)) (get :buckets this) (get :buckets that))
@@ -53,7 +53,7 @@
 
 	(method :deep_copy (this)
 		; (. xmap :deep_copy) -> xmap
-		(defq that (xmap (get :num_buckets this) (get :cmp_fnc this) (get :hash_fnc this)))
+		(defq that ((get 'xmap) (get :num_buckets this) (get :cmp_fnc this) (get :hash_fnc this)))
 		(each (lambda (this_bucket that_bucket)
 			(each (lambda (key_val)
 				(push that_bucket (copy key_val))) this_bucket)) (get :buckets this) (get :buckets that))
@@ -66,7 +66,7 @@
 
 	(method :move (this)
 		; (. xmap :move) -> xmap
-		(defq that (xmap (get :num_buckets this) (get :cmp_fnc this) (get :hash_fnc this))
+		(defq that ((get 'xmap) (get :num_buckets this) (get :cmp_fnc this) (get :hash_fnc this))
 			this_buckets (get :buckets this) that_buckets (get :buckets that))
 		(set this :buckets that_buckets)
 		(set that :buckets this_buckets)

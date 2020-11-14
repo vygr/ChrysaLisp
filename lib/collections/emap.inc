@@ -27,13 +27,13 @@
 
 	(method :copy (this)
 		; (. emap :copy) -> emap
-		(defq that (emap (get :num_buckets this)) that_buckets (get :buckets that))
+		(defq that ((get 'emap) (get :num_buckets this)) that_buckets (get :buckets that))
 		(each (lambda ((key val)) (def that_buckets key val)) (tolist (get :buckets this)))
 		that)
 
 	(method :deep_copy (this)
 		; (. emap :deep_copy) -> emap
-		(defq that (emap (get :num_buckets this)) that_buckets (get :buckets that))
+		(defq that ((get 'emap) (get :num_buckets this)) that_buckets (get :buckets that))
 		(each (lambda ((key val)) (def that_buckets (copy key) (copy val))) (tolist (get :buckets this)))
 		that)
 
