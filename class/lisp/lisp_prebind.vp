@@ -88,6 +88,9 @@
 					;not qquote ?
 					(assign '((r0 lisp_sym_qquote)) '(r3))
 					(breakif '(r1 = r3))
+					;not if begins with a : ?
+					(assign '((r1 str_data ub)) '(r2))
+					(breakif '(r2 = +char_colon+))
 					;is defined ?
 					(call 'hmap :search '((r0 lisp_environment) r1) '(_ r1 _))
 					(breakif '(r1 = 0))
