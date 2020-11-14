@@ -40,7 +40,7 @@
 	;r1-r14
 
 	(def-struct 'local)
-		(ptr 'this 'args 'env 'func 'margs)
+		(ptr 'this 'args 'env 'func)
 	(def-struct-end)
 
 	(vp-alloc local_size)
@@ -51,24 +51,23 @@
 	(assign '((r1 array_length)) '(r2))
 	(gotoif '(r2 < 2) 'error))
 
-	(array-bind-args r1 '(r0 r1))
-	(assign '(r0 r1) '((rsp local_env) (rsp local_margs)))
+	(array-bind-args r1 '(r0 r3))
 
 (errorcases
-	(call 'obj :inst_of `(r0 (@ ,(f-path 'hmap :vtable))) '(_ r1))
+	(call 'obj :inst_of `(r0 (@ ,(f-path 'hmap :vtable))) '(r0 r1))
+	(assign `((r3 obj_vtable) (@ ,(f-path 'sym :vtable))) '(r4 r5))
 	(gotoif '(r1 = 0) 'error)
-	(call 'obj :inst_of `((rsp local_margs) (@ ,(f-path 'sym :vtable))) '(_ r1))
-	(gotoif '(r1 = 0) 'error))
+	(gotoif '(r4 /= r5) 'error))
 
-	(call 'hmap :get '((rsp local_env) (rsp local_margs)) '(_ r1))
+	(call 'hmap :get '(r0 r3) '(r0 r1))
 	(errorif '(r1 = 0) 'error1)
-	(assign '(r1) '((rsp local_func)))
-	(assign '((rsp local_args)) '(r0))
-	(call 'list :slice '(r0 1 (r0 array_length)) '(_ (rsp local_margs)))
-	(call 'hmap :ref '((rsp local_env)))
-	(call 'list :set_element '((rsp local_margs) (rsp local_env) 0))
-	(call 'lisp :repl_apply '((rsp local_this) (rsp local_margs) (rsp local_func)) '(_ (rsp local_args)))
-	(call 'list :deref '((rsp local_margs)))
+	(class/obj/ref r0 r2)
+	(assign '(r0 (rsp local_args) r1) '((rsp local_env) r0 (rsp local_func)))
+	(call 'list :slice '(r0 1 (r0 array_length)) '(_ r0))
+	(call 'list :set_element '(r0 (rsp local_env) 0) '(r0))
+	(assign '(r0) '((rsp local_env)))
+	(call 'lisp :repl_apply '((rsp local_this) r0 (rsp local_func)) '(_ (rsp local_args)))
+	(call 'list :deref '((rsp local_env)))
 	(call 'obj :deref '((rsp local_func)))
 
 	(exit 'lisp :lisp_mcall '((rsp local_this) (rsp local_args)))
