@@ -2,15 +2,6 @@
 (import "lib/math/math.inc")
 (import "apps/whiteboard/app.inc")
 
-(structure '+event 0
-	(byte 'close+ 'max+ 'min+)
-	(byte 'save+ 'load+ 'clear+ 'undo+ 'redo+)
-	(byte 'grid+ 'plain+ 'axis+ 'lines+)
-	(byte 'radius1+ 'radius2+ 'radius3+)
-	(byte 'pen+ 'line+ 'arrow1+ 'arrow2+ 'box+ 'circle+ 'fbox+ 'fcircle+)
-	(byte 'black+ 'white+ 'red+ 'green+ 'blue+ 'cyan+ 'yellow+ 'magenta+
-		'tblack+ 'twhite+ 'tred+ 'tgreen+ 'tblue+ 'tcyan+ 'tyellow+ 'tmagenta+))
-
 (defun trans (_)
 	;transparent colour
 	(+ (logand 0xffffff _) 0x60000000))

@@ -21,9 +21,9 @@
 	If no paths given on command line
 	then paths are read from stdin.")
 (("-f" "--format")
-	,(prebind (lambda (args arg)
+	,(lambda (args arg)
 		(setq format (str-to-num (elem 0 args)))
-		(slice 1 -1 args))))
+		(slice 1 -1 args)))
 ))
 
 (defun main ()

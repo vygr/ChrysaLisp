@@ -2,6 +2,8 @@
 ; window widget
 ;;;;;;;;;;;;;;;
 
+(import "gui/view/lisp.inc")
+
 (defclass Window ()
 	; (Window) -> window
 	; overide the default 'this' env with a window component

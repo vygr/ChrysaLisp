@@ -8,12 +8,12 @@
 	options:
 		-h --help: this help info.")
 (("-e" "--example")
-	,(prebind (lambda (args arg)
-		(options-print "handler for: " arg) args)))
+	,(lambda (args arg)
+		(options-print "handler for: " arg) args))
 (("-x" "--xtra")
-	,(prebind (lambda (args arg)
+	,(lambda (args arg)
 		(options-print "handler for: " arg " " (elem 0 args))
-		(slice 1 -1 args))))
+		(slice 1 -1 args)))
 ))
 
 (defun main ()

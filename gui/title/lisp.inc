@@ -2,6 +2,8 @@
 ; title widget
 ;;;;;;;;;;;;;;
 
+(import "gui/label/lisp.inc")
+
 (defclass Title ()
 	; (Title) -> title
 	; overide the default 'this' env with a title component

@@ -2,6 +2,9 @@
 ; label widget
 ;;;;;;;;;;;;;;;
 
+(import "gui/flow/lisp.inc")
+(import "gui/text/lisp.inc")
+
 (defclass Label ()
 	; (Label) -> label
 	; overide the default 'this' env with a label component

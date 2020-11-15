@@ -2,6 +2,8 @@
 ; slider widget
 ;;;;;;;;;;;;;;;;;
 
+(import "gui/view/lisp.inc")
+
 (defclass Slider ()
 	; (Slider) -> slider
 	; overide the default 'this' env with a slider component

@@ -464,7 +464,7 @@
 						(dui (vp-cpy-rd-i x (elem 0 y) (elem 1 y)))
 						(dus (vp-cpy-rd-s x (elem 0 y) (elem 1 y)))
 						(dub (vp-cpy-rd-b x (elem 0 y) (elem 1 y)))
-						(t (throw "Invalid dst parameter !" y))))
+						(t (throw "Invalid dst parameter !" (list x y)))))
 				(c (vp-cpy-cr x y))
 				(i (vp-cpy-ir (elem 0 x) (elem 1 x) y))
 				(ii (vp-cpy-ir-i (elem 0 x) (elem 1 x) y))
@@ -485,7 +485,7 @@
 				(@ (fn-bind (elem 1 x) y))
 				(s (fn-string x y))
 				($ (vp-lea-p (elem 1 x) y))
-				(t (throw "Invalid src parameter !" x)))) *src* *dst*)))
+				(t (throw "Invalid src parameter !" (list x y))))) *src* *dst*)))
 
 ;;;;;;;;;;
 ; tokenize

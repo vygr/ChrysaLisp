@@ -2,6 +2,8 @@
 ; button widget
 ;;;;;;;;;;;;;;;
 
+(import "gui/label/lisp.inc")
+
 (defclass Button ()
 	; (Button) -> button
 	; overide the default 'this' env with a button component

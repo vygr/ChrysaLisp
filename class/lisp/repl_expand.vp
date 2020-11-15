@@ -34,24 +34,19 @@
 			(switch 'next_iter)
 				;check if a macro
 				(switch)
-				;not 0 length ?
+				;not 0 length !
 				(assign '((r2 array_length)) '(r3))
 				(breakif '(r3 = 0) 'next_iter)
-				;not quoted list ?
+				;not quoted lists !
 				(array-bind-args r2 '(r3))
-				(assign '((r0 lisp_sym_quote)) '(r4))
-				(breakif '(r4 = r3) 'next_iter)
-				(assign '((r0 lisp_sym_qquote)) '(r4))
-				(breakif '(r4 = r3) 'next_iter)
+				(assign '((r0 lisp_sym_quote) (r0 lisp_sym_qquote)) '(r4 r5))
+				(breakif '(r3 = r4) '(r3 = r5) 'next_iter)
 
 				;is a symbol ?
 				(assign '(r1 r2) '((rsp local_iter) (rsp local_form)))
 				(f-bind 'sym :vtable r4)
 				(assign '((r3 obj_vtable)) '(r5))
 				(breakif '(r4 /= r5))
-				;not if begins with a : or +
-				(assign '((r3 str_data ub)) '(r5))
-				(breakif '(r5 = +char_colon+) '(r5 = +char_plus+))
 				;is defined ?
 				(call 'hmap :search '((r0 lisp_environment) r3) '(_ r1 _))
 				(breakif '(r1 = 0))
@@ -60,7 +55,7 @@
 				(f-bind 'list :vtable r2)
 				(assign '((r1 obj_vtable)) '(r3))
 				(breakif '(r2 /= r3))
-				;not 0 length ?
+				;not 0 length !
 				(assign '((r1 array_length)) '(r2))
 				(breakif '(r2 = 0))
 				;is a macro ?
@@ -88,6 +83,13 @@
 				;down this lists branches
 				(assign '((rsp local_this) (rsp local_form)) '(r0 r1))
 				(assign '((r0 lisp_stack)) '(r0))
+			(errorcases
+				(assign '((r0 array_length) (rsp local_start)) '(r2 r3))
+				(vp-sub-rr r3 r2)
+				(vpif '(r2 >= 1000))
+					(debug-str '("Exessive macro recursion !"))
+					(break 'next_iter)
+				(endif))
 				(class/array/get_both r1 r1 r6)
 				(f-bind 'list :vtable r7)
 				(loop-start)

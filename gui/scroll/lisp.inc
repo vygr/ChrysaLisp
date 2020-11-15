@@ -2,6 +2,8 @@
 ; scroll widget
 ;;;;;;;;;;;;;;;
 
+(import "gui/slider/lisp.inc")
+
 ;scroll flags
 (defq +scroll_flag_vertical+ 1 +scroll_flag_horizontal+ 2)
 

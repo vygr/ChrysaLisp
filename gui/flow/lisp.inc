@@ -2,6 +2,8 @@
 ; flow widget
 ;;;;;;;;;;;;;
 
+(import "gui/view/lisp.inc")
+
 ;flow flags
 (defq +flow_flag_left+ 1 +flow_flag_right+ 2 +flow_flag_up+ 4 +flow_flag_down+ 8
 	+flow_flag_fillw+ 16 +flow_flag_fillh+ 32 +flow_flag_lastw+ 64 +flow_flag_lasth+ 128

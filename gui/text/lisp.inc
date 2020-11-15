@@ -2,6 +2,8 @@
 ; text widget
 ;;;;;;;;;;;;;
 
+(import "gui/view/lisp.inc")
+
 (defclass Text ()
 	; (Text) -> text
 	; overide the default 'this' env with a text component

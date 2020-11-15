@@ -2,6 +2,8 @@
 ; grid widget
 ;;;;;;;;;;;;;
 
+(import "gui/view/lisp.inc")
+
 (defclass Grid ()
 	; (Grid) -> grid
 	; overide the default 'this' env with a grid component

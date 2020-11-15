@@ -2,6 +2,8 @@
 ; textfield widget
 ;;;;;;;;;;;;;;;;;;
 
+(import "gui/label/lisp.inc")
+
 (defclass Textfield ()
 	; (Textfield) -> textfield
 	; overide the default 'this' env with a textfield component

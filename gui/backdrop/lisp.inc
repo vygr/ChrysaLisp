@@ -2,6 +2,8 @@
 ; backdrop widget
 ;;;;;;;;;;;;;;;;;
 
+(import "gui/view/lisp.inc")
+
 (defclass Backdrop ()
 	; (Backdrop)-> backdrop
 	; overide the default 'this' env with a backdrop component

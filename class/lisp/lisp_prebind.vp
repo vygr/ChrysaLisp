@@ -34,13 +34,13 @@
 	(assign '((r1 obj_vtable)) '(r3))
 	(switch)
 	(breakif '(r2 /= r3))
-	;not 0 length ?
+	;not 0 length !
 	(assign '((r1 array_length)) '(r2))
 	(breakif '(r2 = 0))
-	;not quoted list ?
+	;not quoted lists !
 	(array-bind-args r1 '(r2))
-	(assign '((r0 lisp_sym_quote)) '(r3))
-	(breakif '(r2 = r3))
+	(assign '((r0 lisp_sym_quote) (r0 lisp_sym_qquote)) '(r3 r4))
+	(breakif '(r2 = r3) '(r2 = r4))
 	(default)
 		;is a real list so down we go
 		(vp-alloc local_size)
@@ -64,13 +64,28 @@
 					;not 0 length !
 					(assign '((r1 array_length)) '(r2))
 					(breakif '(r2 = 0) 'next_elem)
-					;not quoted list !
+					;not quoted lists !
 					(array-bind-args r1 '(r2))
-					(assign '((r0 lisp_sym_quote)) '(r3))
-					(breakif '(r2 = r3) 'next_elem)
+					(assign '((r0 lisp_sym_quote) (r0 lisp_sym_qquote)) '(r3 r4))
+					(breakif '(r2 = r3) '(r2 = r4) 'next_elem)
 					(default)
 						;come back to this branch
-						(call 'array :push_back '((r0 lisp_stack) r1))
+						(assign '((r0 lisp_stack)) '(r0))
+					(errorcases
+						(assign '((r0 array_length) (rsp local_start)) '(r2 r3))
+						(vp-sub-rr r3 r2)
+						(vpif '(r2 >= 1000))
+							(debug-str '("Exessive prebind recursion !"))
+							(break 'next_elem)
+						;; (else)
+						;; 	(assign '(($ maxdepth)) '(r3))
+						;; 	(assign '((r3 0)) '(r4))
+						;; 	(vpif '(r2 > r4))
+						;; 		(assign '(r2) '((r3 0)))
+						;; 		(debug-num "max depth" '(r2))
+						;; 	(endif)
+						(endif))
+						(call 'array :push_back '(r0 r1))
 						(break 'next_elem)
 					(endswitch)
 
@@ -96,7 +111,7 @@
 					;is a list ?
 					(f-bind 'list :vtable r2)
 					(breakif '(r2 /= r3))
-					;not 0 length ?
+					;not 0 length !
 					(assign '((r1 array_length)) '(r2))
 					(breakif '(r2 = 0))
 					;is a lambda ?
@@ -137,5 +152,9 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp :repl_error '(r0 "(prebind form) -> form" error_msg_wrong_num_of_args r1)))
+
+	(vp-align ptr_size)
+(vp-label 'maxdepth)
+	(vp-long 0)
 
 (def-func-end)
