@@ -43,10 +43,10 @@
 		(pop *profile_ret*)))
 
 (defmacro defun (n a &rest _)
-	`(defq ,n (profile-lambda ,n ,a ~(macroexpand _))))
+	`(defq ,n (profile-lambda ,n ,a ~(prebind (macroexpand _)))))
 
 (defmacro defclass (n p &rest _)
 	`(defun ,n ,p (defq *profile_class* ,n this (env -1)) ~_ this))
 
 (defmacro defmethod (n a &rest _)
-	`(def this ,n (profile-lambda ,(sym (cat *profile_class* n)) ,a ~(macroexpand _))))
+	`(def this ,n (profile-lambda ,(sym (cat *profile_class* n)) ,a ~(prebind (macroexpand _)))))

@@ -153,8 +153,8 @@
 (vp-label 'error)
 	(jump 'lisp :repl_error '(r0 "(prebind form) -> form" error_msg_wrong_num_of_args r1)))
 
-	(vp-align ptr_size)
-(vp-label 'maxdepth)
-	(vp-long 0)
+;; 	(vp-align ptr_size)
+;; (vp-label 'maxdepth)
+;; 	(vp-long 0)
 
 (def-func-end)
