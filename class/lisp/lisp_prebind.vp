@@ -1,9 +1,5 @@
 (include "sys/func.inc")
-(include "class/sym/class.inc")
-(include "class/hmap/class.inc")
-(include "class/func/class.inc")
 (include "class/lisp/class.inc")
-(include "lib/consts/chars.inc")
 
 (def-method 'lisp :lisp_prebind)
 	;inputs
@@ -15,146 +11,23 @@
 	;trashes
 	;r1-r14
 
-	(def-struct 'local)
-		(ptr 'this 'form)
-		(pptr 'iter_begin 'iter_end)
-		(uint 'start)
-	(def-struct-end)
-
 	(entry 'lisp :lisp_prebind '(r0 r1))
 
 (errorcases
 	(assign '((r1 array_length)) '(r2))
 	(gotoif '(r2 /= 1) 'error))
 
-	;ref the form and bind it
 	(array-bind-args r1 '(r1))
 	(class/obj/ref r1 r2)
-	(f-bind 'list :vtable r2)
-	(assign '((r1 obj_vtable)) '(r3))
-	(switch)
-	(breakif '(r2 /= r3))
-	;not 0 length !
-	(assign '((r1 array_length)) '(r2))
-	(breakif '(r2 = 0))
-	;not quoted lists !
-	(array-bind-args r1 '(r2))
-	(assign '((r0 lisp_sym_quote) (r0 lisp_sym_qquote)) '(r3 r4))
-	(breakif '(r2 = r3) '(r2 = r4))
-	(default)
-		;is a real list so down we go
-		(vp-alloc local_size)
-		(assign '((r0 lisp_stack) r0 r1) '(r2 (rsp local_this) (rsp local_form)))
-		(assign '((r2 array_length)) '(r2))
-		(assign '(r2) '((rsp local_start)))
-		(loop-start)
-			;loop form elements
-			(class/array/get_both r1 r1 r2)
-			(assign '(r2) '((rsp local_iter_end)))
-			(loop-while '(r1 /= r2))
-				(assign '(r1) '((rsp local_iter_begin)))
-				(vp-cpy-ir r1 0 r1)
-
-				(switch 'next_elem)
-					;is list ?
-					(switch)
-					(f-bind 'list :vtable r2)
-					(assign '((r1 obj_vtable)) '(r3))
-					(breakif '(r2 /= r3))
-					;not 0 length !
-					(assign '((r1 array_length)) '(r2))
-					(breakif '(r2 = 0) 'next_elem)
-					;not quoted lists !
-					(array-bind-args r1 '(r2))
-					(assign '((r0 lisp_sym_quote) (r0 lisp_sym_qquote)) '(r3 r4))
-					(breakif '(r2 = r3) '(r2 = r4) 'next_elem)
-					(default)
-						;come back to this branch
-						(assign '((r0 lisp_stack)) '(r0))
-					(errorcases
-						(assign '((r0 array_length) (rsp local_start)) '(r2 r3))
-						(vp-sub-rr r3 r2)
-						(vpif '(r2 >= 1000))
-							(debug-str '("Exessive prebind recursion !"))
-							(break 'next_elem)
-						;; (else)
-						;; 	(assign '(($ maxdepth)) '(r3))
-						;; 	(assign '((r3 0)) '(r4))
-						;; 	(vpif '(r2 > r4))
-						;; 		(assign '(r2) '((r3 0)))
-						;; 		(debug-num "max depth" '(r2))
-						;; 	(endif)
-						(endif))
-						(call 'array :push_back '(r0 r1))
-						(break 'next_elem)
-					(endswitch)
-
-					;is a symbol ?
-					(switch)
-					(f-bind 'sym :vtable r2)
-					(breakif '(r2 /= r3))
-					;not lambda, macro, qquote or a keyword !
-					(assign '((r0 lisp_sym_lambda) (r0 lisp_sym_macro)
-						(r0 lisp_sym_qquote) (r1 str_data ub)) '(r2 r3 r4 r5))
-					(breakif '(r1 = r2) '(r1 = r3) '(r1 = r4) '(r5 = +char_colon+))
-					;is defined ?
-					(call 'hmap :search '((r0 lisp_environment) r1) '(_ r1 _))
-					(breakif '(r1 = 0))
-					;began with a + ?
-					(assign '((r1 0) (r1 ptr_size)) '(r2 r1))
-					(assign '((r2 str_data ub)) '(r2))
-					(gotoif '(r2 = +char_plus+) 'bind_it)
-					;is a function ?
-					(f-bind 'func :vtable r2)
-					(assign '((r1 obj_vtable)) '(r3))
-					(gotoif '(r2 = r3) 'bind_it)
-					;is a list ?
-					(f-bind 'list :vtable r2)
-					(breakif '(r2 /= r3))
-					;not 0 length !
-					(assign '((r1 array_length)) '(r2))
-					(breakif '(r2 = 0))
-					;is a lambda ?
-					(assign '((rsp local_this)) '(r0))
-					(array-bind-args r1 '(r2))
-					(assign '((r0 lisp_sym_lambda)) '(r3))
-					(breakif '(r2 /= r3))
-					(default)
-					(vp-label 'bind_it)
-						(class/obj/ref r1 r2)
-						(assign '((rsp local_iter_begin)) '(r3))
-						(assign '((r3 0) r1) '(r0 (r3 0)))
-						(call 'obj :deref '(r0))
-					(endswitch)
-				(endswitch)
-
-				(assign '((rsp local_this) (rsp local_iter_begin) (rsp local_iter_end))
-					'(r0 r1 r2))
-				(vp-add-cr ptr_size r1)
-			(loop-end)
-
-			;pop back stack
-			(assign '((r0 lisp_stack)) '(r2))
-			(assign '((rsp local_start) (r2 array_length)) '(r3 r1))
-			(breakif '(r1 = r3))
-			(vp-sub-cr 1 r1)
-			(assign '(r1) '((r2 array_length)))
-			(class/array/get_element r2 r1 r1 r2)
-		(loop-end)
-
-		(assign '((rsp local_form)) '(r1))
-		(vp-free local_size)
-	(endswitch)
+	(vp-push r1)
+	(call 'lisp :repl_bind '(r0 r1) '(r0))
+	(vp-pop r1)
 
 	(exit 'lisp :lisp_prebind '(r0 r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(prebind form) -> form" error_msg_wrong_num_of_args r1)))
-
-;; 	(vp-align ptr_size)
-;; (vp-label 'maxdepth)
-;; 	(vp-long 0)
+	(jump 'lisp :repl_error '(r0 "(prebind form)" error_msg_wrong_num_of_args r1)))
 
 (def-func-end)

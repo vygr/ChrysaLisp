@@ -10,8 +10,8 @@
 	(ui-title-bar title "Launcher" (0xea19) +event_close+)
 	;grid scales all buttons equally
 	(ui-grid grid (:grid_width 2 :grid_height (/ (inc (length *env_launcher_apps*)) 2))
-		(each (lambda (path)
-			(component-connect (ui-button _ (:text path)) +event_button+)) *env_launcher_apps*)))
+		(each (lambda (p)
+			(component-connect (ui-button _ (:text p)) +event_button+)) *env_launcher_apps*)))
 
 (defun app-path (_)
 	(cat "apps/" _ "/app.lisp"))

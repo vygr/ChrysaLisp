@@ -131,7 +131,7 @@
 	lisp_type_sym (<< 1 3)
 	lisp_type_fnc (<< 1 4)
 	lisp_type_env (<< 1 5)
- 	defmacro '(macro (n a &rest _) `(defq ,n (macro ,a ~(prebind _)))))
+ 	defmacro '(macro (n a &rest _) `(defq ,n (macro ,a ~_))))
 
 (defmacro defun (n a &rest _)
 	; (defun name ([arg ...]) body)
@@ -145,10 +145,7 @@
 	; (prin [form ...])
 	; (print [form ...])
 	; (str [form ...])
-	`(defq ,n (lambda ,a ~(prebind _))))
-
-;prebind the previous !
-(each! 0 -1 prebind (list (list defun defmacro)))
+	`(defq ,n (lambda ,a ~_)))
 
 (defmacro defun-unbound (n a &rest _)
 	; (defun-unbound name ([arg ...]) body)
@@ -854,7 +851,7 @@
 (defmacro defmethod (n p &rest _)
 	; (defmethod name ([arg ...]) body)
 	; (. this method ([arg ...]))
-	`(def this ,n (lambda ,p ~(prebind (macroexpand _)))))
+	`(def this ,n (lambda ,p ~(macroexpand _))))
 
 (defmacro defiimethod (n _)
 	; (defiimethod name ffi)
