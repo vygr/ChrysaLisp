@@ -102,12 +102,12 @@ unless until when write-int write-long write-short
 ### boot.inc macros
 
 ```vdu
-# . and ascii-char ascii-code case class compose const curry dec defmacro
-defmacro defun defun each each-rev env? every fnc? fun? get-byte
-get-int get-long get-short get-ubyte get-uint get-ushort if inc let lst? macro?
-method method not notany notevery num? opt or rcurry read-int read-long
-read-short reduced seq? setd some str? sym? times unless until when write-int
-write-long write-short
+# and ascii-char ascii-code case compose const curry dec defclass defiimethod
+defmacro defmethod defun defun-unbound each each-rev env? every fnc? fun?
+get-byte get-int get-long get-short get-ubyte get-uint get-ushort if inc let
+lst? macro? merges not notany notevery num? opt or pairs-into-kv rcurry
+read-int read-long read-short reduced seq? setd some str? structure sym? times
+unless until when write-int write-long write-short
 ```
 
 ### boot.inc functions
