@@ -103,9 +103,9 @@
 	(ui-title-bar _ "Docs" (0xea19) +event_close+)
 	(ui-flow doc_flow (:flow_flags +flow_right_fill+ :font *env_window_font* :color *env_toolbar_col*)
 		(ui-flow index (:flow_flags (logior +flow_flag_down+ +flow_flag_fillw+))
-			(each (lambda (path)
+			(each (lambda (p)
 				(component-connect (ui-button _
-					(:text path :flow_flags (logior +flow_flag_align_vcenter+ +flow_flag_align_hleft+))) +event_button+)) doc_list))
+					(:text p :flow_flags (logior +flow_flag_align_vcenter+ +flow_flag_align_hleft+))) +event_button+)) doc_list))
 		(ui-scroll page_scroll +scroll_flag_vertical+ (:min_width 848 :min_height 800))))
 
 (defun main ()

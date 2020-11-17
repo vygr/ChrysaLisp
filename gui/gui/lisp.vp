@@ -3,6 +3,7 @@
 (include "gui/view/class.inc")
 (include "class/num/class.inc")
 (include "class/lisp/class.inc")
+(include "gui/view/lisp.inc")
 
 (def-method 'gui :lisp_add)
 	;inputs

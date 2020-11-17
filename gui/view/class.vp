@@ -8,6 +8,7 @@
 (include "class/lisp/class.inc")
 (include "class/num/class.inc")
 (include "sys/task/class.inc")
+(include "gui/view/lisp.inc")
 
 (gen-create 'view)
 (gen-vtable 'view)

@@ -3252,6 +3252,18 @@ trashes
 r1-r14
 ```
 
+### lisp::repl_bind -> class/lisp/repl_bind
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = form object iter (pptr)
+outputs
+r0 = lisp object (ptr)
+trashes
+r1-r14
+```
+
 ### lisp::lisp_ffi -> class/lisp/lisp_ffi
 
 ```lisp

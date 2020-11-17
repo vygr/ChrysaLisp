@@ -45,7 +45,7 @@
 	(vdu-load vdu buf 0 0 (length (elem -2 buf)) (dec (length buf))) buf)
 
 (defun main ()
-	(mail-send (array (in-mbox data_in) 10000000)
+	(mail-send (array (in-mbox data_in) 20000000)
 		(defq child_mbox (open-child "apps/chess/child.lisp" kn_call_child)))
 	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
 	(gui-add (view-change mywindow x y w h))

@@ -40,10 +40,6 @@ stream_mail_state_stopped 2
 stream_mail_state_stopping 1
 vdu_char_height 194
 vdu_char_width 192
-+view_flag_at_back+ 8
-+view_flag_dirty_all+ 4
-+view_flag_opaque+ 2
-+view_flag_solid+ 1
 view_flags 128
 view_h 152
 view_w 148

@@ -378,15 +378,15 @@
 				(vpcase `(,c = 2))
 					;curveto
 					(call 'path :pop_back2 {path})
-					(vp-def (path stack pos_x pos_y x y x1 y1 x2 y2 eps data ox oy pixels)
+					(vp-def (pth stack pos_x pos_y x y x1 y1 x2 y2 eps data ox oy pixels)
 						(method-input 'path :gen_cubic))
 					(assign {data, path, stack, pos_x, pos_y, x, y, 0.25, ox, oy, this->font_pixels}
-						`(,data ,path ,stack ,pos_x ,pos_y ,x ,y ,eps ,ox ,oy ,pixels))
+						`(,data ,pth ,stack ,pos_x ,pos_y ,x ,y ,eps ,ox ,oy ,pixels))
 					(assign `((,data font_curve_element_x1) (,data font_curve_element_y1)
 						(,data font_curve_element_x2) (,data font_curve_element_y2)) `(,x1 ,y1 ,x2 ,y2))
 					(trans_xy x1 y1)
 					(trans_xy x2 y2)
-					(call 'path :gen_cubic `(,path ,stack ,pos_x ,pos_y ,x ,y ,x1 ,y1 ,x2 ,y2 ,eps))
+					(call 'path :gen_cubic `(,pth ,stack ,pos_x ,pos_y ,x ,y ,x1 ,y1 ,x2 ,y2 ,eps))
 
 					(assign {data, ox, oy, this->font_pixels} `(,data ,ox ,oy ,pixels))
 					(assign `((,data font_curve_element_x2) (,data font_curve_element_y2)) `(,x2 ,y2))

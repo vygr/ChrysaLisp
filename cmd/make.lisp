@@ -38,8 +38,7 @@
 		in_state int_size join_bevel join_miter join_round kn_call_child kn_call_open
 		long_size out_state ptr_size byte_size short_size stdio_args
 		stream_mail_state_started stream_mail_state_stopped stream_mail_state_stopping
-		vdu_char_height vdu_char_width +view_flag_at_back+ +view_flag_dirty_all+
-		+view_flag_opaque+ +view_flag_solid+ view_flags view_h view_w view_x view_y
+		vdu_char_height vdu_char_width view_flags view_h view_w view_x view_y
 		canvas_flags canvas_color cap_arrow canvas_scale canvas_width canvas_height
 		ev_msg_mouse_x ev_msg_mouse_y ev_type_action
 		)

@@ -1458,7 +1458,7 @@
 
 ## prebind
 
-(prebind form) -> form
+(prebind form)
 
 ## prin
 
