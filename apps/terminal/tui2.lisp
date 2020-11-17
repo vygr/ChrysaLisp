@@ -1,3 +1,20 @@
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; tui2 - Experimental TUI Terminal
+; Adds internal commands in addition to just
+; running commands in cmd/ folder
+;
+; Switch commands:
+; -h -> help for internal commands
+; +x -> adds argument with key
+; -x -> removes argument and key
+; -c -> calls the last external command again
+;
+; Internal commands (needs better support)
+; ls -> list files in current working directory
+; cd -> changes working directory
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 ;imports
 (import "lib/pipe/pipe.inc")
 
