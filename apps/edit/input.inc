@@ -75,7 +75,6 @@
 		(. text_select :insert :selection_mode nil)))
 
 (defun on-paste (msg)
-	(options-print msg)
 	(bind '(cx cy) (get-cursor))
 	(defq buffer (paste-text (get-buffer) cx cy msg))
 	(set-buffer buffer)
