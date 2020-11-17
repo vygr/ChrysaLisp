@@ -2640,6 +2640,40 @@ r1-r14
 
 Super Class: null
 
+### host::exit -> nil
+
+### host::stat -> nil
+
+### host::open -> nil
+
+### host::close -> nil
+
+### host::unlink -> nil
+
+### host::read -> nil
+
+### host::write -> nil
+
+### host::mmap -> nil
+
+### host::munmap -> nil
+
+### host::mprotect -> nil
+
+### host::gettime -> nil
+
+### host::open_shared -> nil
+
+### host::close_shared -> nil
+
+### host::clear_icache -> nil
+
+### host::dirlist -> nil
+
+### host::remove -> nil
+
+### host::sdl_delay -> nil
+
 ### host::sdl_set_main_ready -> nil
 
 ### host::sdl_init -> nil
@@ -2653,8 +2687,6 @@ Super Class: null
 ### host::sdl_create_window_and_renderer -> nil
 
 ### host::sdl_destroy_window -> nil
-
-### host::sdl_delay -> nil
 
 ### host::sdl_create_renderer -> nil
 
@@ -2693,38 +2725,6 @@ Super Class: null
 ### host::sdl_set_render_target -> nil
 
 ### host::sdl_render_clear -> nil
-
-### host::exit -> nil
-
-### host::stat -> nil
-
-### host::open -> nil
-
-### host::close -> nil
-
-### host::unlink -> nil
-
-### host::read -> nil
-
-### host::write -> nil
-
-### host::mmap -> nil
-
-### host::munmap -> nil
-
-### host::mprotect -> nil
-
-### host::gettime -> nil
-
-### host::open_shared -> nil
-
-### host::close_shared -> nil
-
-### host::clear_icache -> nil
-
-### host::dirlist -> nil
-
-### host::remove -> nil
 
 ## hset
 
