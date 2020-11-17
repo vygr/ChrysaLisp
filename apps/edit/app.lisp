@@ -2,10 +2,14 @@
 (import "sys/lisp.inc")
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
+(import "apps/edit/input.inc")
 (import "lib/substr/substr.inc")
 (import "lib/text/syntax.inc")
-(import "apps/edit/input.inc")
 (import "apps/edit/find.inc")
+(import "lib/options/options.inc")
+; (import "apps/edit/menu.lisp")
+; (import "apps/edit/notification.lisp")
+
 
 ;alt,ctl,cmd, and shift key codes.
 (defq left_shift 0x400000E1 left_ctrl_key 0x400000E0 left_alt_key 0x400000E2 left_cmd_key 0x400000E3
@@ -14,70 +18,111 @@
 (structure '+event 0
 	(byte 'close+ 'max+ 'min+ 'resize+ 'layout+ 'scroll+)
 	(byte 'new+ 'save+ 'open+ 'run+ 'closeb+ 'prev+ 'next+ 'find+ 'colorise+)
-	(byte 'find+ 'find_prev+ 'find_next+ 'clear_text+)
+	(byte 'copy+ 'paste+)
+	(byte 'action+ 'find+ 'find_prev+ 'find_next+ 'clear_text+)
 	(byte 'menu+ 'menu_click+)
 	(byte 'close_tab+ 'tabbar+))
 
 (structure '+mbox 0
-	(byte 'task+ 'file+ 'modal+))
+	(byte 'task+ 'file+ 'dialog+ 'clip+))
 ;text structure
 (structure '+text 0
 	(byte 'index+ 'fpath+ 'title+ 'buffer+ 'position+))
+
+(structure '+pos 0
+	(byte 'ox+ 'oy+ 'cx+ 'cy+ 'sx+))
+
 ;select is a an array using the +mbox structure: task+ file+ modal+
 (defq vdu_min_width 40 vdu_min_height 24 vdu_width 60 vdu_height 40 text_store (list) tmp_num 0
 	current_text (list) home_dir (cat "apps/login/" *env_user* "/") picker_mbox nil  picker_mode nil 
-	mbox_array (array (task-mailbox) (mail-alloc-mbox) (mail-alloc-mbox)) find_list (list) find_index 0 
-	sb_line_col_message "" tabbar (Flow) unsaved_buffers (list) burger_open nil
-	tb_font (create-font "fonts/Entypo.ctf" 20) cmd_menu (Window) cmd_menu_grid (Grid)
-	cmd_menu_up nil syn (Syntax) colorise t dirty_vdu t)
+	mbox_array (array (task-mailbox) (mail-alloc-mbox) (mail-alloc-mbox) (mail-alloc-mbox)) 
+	find_list (list) find_index 0 tabbar (Flow) unsaved_buffers (list)  burger_open nil
+	status_bar_msg "" tb_font (create-font "fonts/Entypo.ctf" 20) cmd_menu (Window)
+	cmd_menu_grid (Grid) cmd_menu_up nil syn (Syntax) colorise t dirty_vdu t display_buffer (list))
 
 (ui-window window (:color +argb_grey2+)
-		(ui-title-bar window_title "Edit" (0xea19 0xea1b 0xea1a) +event_close+)
-		(ui-flow window_flow (:flow_flags +flow_down_fill+)
-			(ui-flow toolbar (:color *env_toolbar_col* :flow_flags +flow_right_fill+)
-				(ui-grid _ (:flow_flags +flow_flag_align_hleft+ :grid_width 4 :grid_height 1 :font tb_font)
+	(ui-title-bar window_title "Edit" (0xea19 0xea1b 0xea1a) +event_close+)
+	(ui-flow window_flow (:flow_flags +flow_down_fill+)
+		(ui-flow toolbar (:color *env_toolbar_col* :flow_flags +flow_right_fill+)
+			(ui-grid _ (:flow_flags +flow_flag_align_hleft+ :grid_width 4 :grid_height 1 :font tb_font)
+				(each (lambda (c e)
+					(component-connect (ui-button _ (:font *env_medium_toolbar_font* :text (num-to-utf8 c)
+						:min_height 32 :min_width 32 :border 0)) e)) '(0xe999 0xea07 0xe9ea 0xe95e)
+						(list +event_open+ +event_save+ +event_colorise+ +event_run+)))
+			(ui-flow _ (:flow_flags (logior +flow_flag_align_vcenter+ +flow_right_fill+))
+				(component-connect (ui-button srch (:border 0 :text (num-to-utf8 0xe9cd) 
+					:font *env_small_toolbar_font* :color +argb_white+)) +event_find+)
+				(ui-flow _ (:flow_flags +flow_left_fill+)
+					(component-connect (ui-button burger (:text (num-to-utf8 0xe9d4) 
+						:min_width 32 :border 0 :font *env_small_toolbar_font*)) +event_menu+)
+					(component-connect (ui-button paste_button (:font *env_medium_toolbar_font*
+						:text (num-to-utf8 0xe952) :border 0 :min_width 32)) +event_paste+)
+					(component-connect (ui-button copy_button (:font *env_medium_toolbar_font*
+						:text (num-to-utf8 0xe962) :border 0 :min_width 32)) +event_copy+)
 					(each (lambda (c e)
-						(component-connect (ui-button _ (:font *env_medium_toolbar_font* :text (num-to-utf8 c)
-							:min_height 32 :min_width 32 :border 0)) e)) '(0xe999 0xea07 0xe9ea 0xe95e)
-							(list +event_open+ +event_save+ +event_colorise+ +event_run+)))
-				(ui-flow _ (:flow_flags (logior +flow_flag_align_vcenter+ +flow_right_fill+))
-					(component-connect (ui-button srch (:border 0 :text (num-to-utf8 0xe9cd) 
-						:font *env_small_toolbar_font* :color +argb_white+)) +event_find+)
-					(ui-flow _ (:flow_flags +flow_left_fill+)
-						(component-connect (ui-button burger (:text (num-to-utf8 0xe9d4) 
-							:min_width 32 :border 0 :font *env_small_toolbar_font*)) +event_menu+)
-						(each (lambda (c e)
-							(component-connect (ui-button clrtxt (:border 0 :text (num-to-utf8 c) 
-								:font *env_small_toolbar_font* :color +argb_white+)) e))
-							'(0xe913 0xe910 0xe988) (list +event_find_prev+ +event_find_next+ +event_clear_text+))
-						(ui-textfield mytextfield (:border 0 :color +argb_white+ :text "")))))
-			(ui-flow tab_bar (:color *env_toolbar_col* :flow_flags +flow_left_fill+)
-				(component-connect (ui-button close_buf (:border 0 :text (num-to-utf8 0xe94c) 
-					:font tb_font)) +event_closeb+)
-				(ui-flow tabbar_flow (:flow_flags +flow_right_fill+ :font *env_window_font*)
-					(component-connect (ui-button _ (:border 0 :text (num-to-utf8 0xe94e) :font tb_font)) +event_new+)))
-			(ui-flow status_bar (:color *env_toolbar_col* :flow_flags +flow_right_fill+)
-				(ui-label sb_line_col (:font *env_body_font*  :text "Line XX, Column XX")))
-			(ui-flow vdu_flow (:border 0 :flow_flags +flow_left_fill+)
-				(component-connect (ui-slider slider 
-					(:flow_flags +flow_down_fill+ :border 0)) +event_scroll+)
-				(ui-vdu vdu (:vdu_width vdu_width :ink_color +argb_white+ :vdu_height vdu_height 
-					:min_width vdu_width :min_height vdu_height :font *env_terminal_font*)))))
+						(component-connect (ui-button clrtxt (:border 0 :text (num-to-utf8 c) 
+							:font *env_small_toolbar_font* :color +argb_white+)) e))
+						'(0xe913 0xe910 0xe988) (list +event_find_prev+ +event_find_next+ +event_clear_text+))
+					(component-connect (ui-textfield mytextfield
+						(:border 0 :color +argb_white+ :text "")) +event_action+))))
+		(ui-flow tab_bar (:color *env_toolbar_col* :flow_flags +flow_left_fill+)
+			(component-connect (ui-button close_buf (:border 0 :text (num-to-utf8 0xe94c) 
+				:font tb_font)) +event_closeb+)
+			(ui-flow tabbar_flow (:flow_flags +flow_right_fill+ :font *env_window_font*)
+				(component-connect (ui-button _ (:border 0 :text (num-to-utf8 0xe94e) :font tb_font)) +event_new+)))
+		(ui-flow status_bar (:color *env_toolbar_col* :flow_flags +flow_right_fill+)
+			(ui-label sb_label (:font *env_body_font*  :text "Line XX, Column XX")))
+		(ui-flow vdu_flow (:border 0 :flow_flags +flow_left_fill+)
+			(component-connect (ui-slider slider 
+				(:flow_flags +flow_down_fill+ :border 0)) +event_scroll+)
+			(ui-vdu vdu (:vdu_width vdu_width :ink_color +argb_white+ :vdu_height vdu_height 
+				:min_width vdu_width :min_height vdu_height :font *env_terminal_font*)))))
+
+;display functions
+(defmacro str-to-vdu-array (s &optional fg bg)
+	`(apply array (map (# (+ (if ,bg (<< (canvas-from-argb32 ,bg 15) 48) 0)
+		(if ,fg (<< (canvas-from-argb32 ,fg 15) 32) 0) (code %0))) ,s)))
+
+(defun vdu-highlight (seq)
+	(apply array (map (#(+ (<< (canvas-from-argb32 0xf96a6a6a 15) 48)
+		 (logand %0 0xffffffffffff))) seq)))
+
+;deals with arrays not strings.
+(defun select-text (seq (fxy lxy))
+	(bind '(fx fy lx ly) (sort-xy fxy lxy))
+	(defq seq_front (slice 0 fy seq) seq_back (slice (inc ly) -1 seq) seq_sel (list))
+	(each (lambda (ln)
+		(defq line (elem ln seq) start 0 stop -1)
+		(cond 
+			((= ln fy ly) (push seq_sel (cat (slice 0 fx line)
+					(vdu-highlight (slice fx lx line)) (slice lx -1 line))))
+			((= ln fy) (push seq_sel (cat (slice 0 fx line)
+					(vdu-highlight (slice fx -1 line)))))
+			((= ln ly) (push seq_sel (cat (vdu-highlight (slice 0 lx line))
+					(slice lx -1 line))))
+			(t (push seq_sel (vdu-highlight line)))))
+		(range fy (inc ly)))
+	(cat seq_front seq_sel seq_back))
 
 (defun vdu-colorise ()
-	(cond 
-		(colorise 
-			(vdu-load vdu (map (# (. syn :colorise %0)) (copy buffer)) ox oy cx cy)
+	(bind '(ox oy cx cy sx) (get-position))
+	(setq display_buffer (copy (get-buffer)))
+	(cond
+		(colorise
+			(setq display_buffer (map (# (. syn :colorise %0)) display_buffer))
 			(. syn :set_state :text))
-		(t
-			(vdu-load vdu buffer ox oy cx cy))))
+		(t 	(setq display_buffer (map (#(str-to-vdu-array %0
+					(get :ink_color vdu))) display_buffer))))
+	(when (. text_select :find :selection_mode)
+		(defq fxy_lxy (. text_select :find :selection))
+		(setq display_buffer (select-text display_buffer fxy_lxy)))
+	(vdu-load vdu display_buffer ox oy cx cy))
 
 (defun window-resize (w h)
 	(bind '(_ fpath mytitle buffer position) current_text)
 	(bind '(ox oy cx cy sx) position)
 	(setq vdu_width w vdu_height h)
-	(set sb_line_col :text (cat "Line " (str (inc cy)) ", Column " (str (inc cx)) sb_line_col_message))
-	(. sb_line_col :layout)
+	(update-status)
 	(set vdu :vdu_width w :vdu_height h :min_width w :min_height h)
 	(bind '(x y w h) (apply view-fit (cat (. window :get_pos) (. window :pref_size))))
 	(. window :change_dirty x y w h)
@@ -87,8 +132,7 @@
 	(bind '(index fpath mytitle buffer position) current_text)
 	(bind '(ox oy cx cy sx) position)
 	(set window_title :text fpath)
-	(set sb_line_col :text (cat "Line " (str (inc cy)) ", Column " (str (inc cx)) sb_line_col_message))
-	(. sb_line_col :layout)
+	(update-status)
 	(setq vdu_width w vdu_height h)
 	(set vdu :vdu_width w :vdu_height h :min_width w :min_height h)
 	(bind '(x y w h) (cat (. vdu :get_pos) (view-pref-size vdu)))
@@ -100,6 +144,11 @@
 	(view-dirty-all window)
 	(vdu-colorise))
 
+(defun update-status ()
+	(set sb_label :text (cat "Line " (str (inc cy)) ", Column " (str (inc cx)) status_bar_msg))
+	(. sb_label :layout)
+	(. sb_label :dirty))
+
 (defun view-tabbar ()
 	(. tabbar :sub)
 	(ui-tree tabbar (Grid) (:grid_width (length text_store) :grid_height 1)
@@ -108,31 +157,15 @@
 			(range 0 (length text_store))))
 	(. (. tabbar_flow :add_child tabbar) :layout)
 	(. tab_bar :layout)
-	(. tab_bar :dirty))
-
-(defun mouse-cursor (mouse_xy)
-	(defq buffer (elem +text_buffer+ current_text))
-	(bind '(ox oy cx cy sx) (elem +text_position+ current_text))
-	(defq cursor_xy (list cx cy) +char_wh+ (. vdu :char_size) offset_xy (list ox oy))
-	(setq cursor_xy (map + (map / mouse_xy +char_wh+) offset_xy)
-		cx (elem 0 cursor_xy) cy (elem 1 cursor_xy))
-	;prevent freezing on out of mouse out of bounds.
-	(cond 
-		((>= cy (length buffer)) (setq cy (dec (length buffer))))
-		((< cy 0) (setq cy 0)))
-	(cond 
-		((> cx (length (elem cy buffer))) (setq cx (length (elem cy buffer))))
-		((< cx 0) (setq cx 0 sx 0)))
-	(cursor-visible)
-	(elem-set +text_position+ current_text (list ox oy cx cy sx)))
+	(. tab_bar  :dirty))
 
 ;macros for select-action-on-enter command and data parsing.
-(defmacro split-cd (cd)
-	`(let ((s (slice 1 -2 ,cd))) (split s ":")))
+(defun split-cd (cd)
+	(if (and (starts-with "(" cd) (ends-with ")" cd) (not (starts-with "(find:" cd)))
+		(split (slice 1 -2 cd) ":") (list (cat "" cd))))
 
-(defun select-action-on-enter ()
-	(defq tf_text (get :text mytextfield) tfp (split-cd tf_text) cmd (first tfp) is_find nil)
-	(if (defq data (second tfp)) data (defq data nil))
+(defun select-action-on-enter (a)
+	(defq cmd (first (split-cd a)) data (second (split-cd a)) is_find nil is_dirty nil)
 	(cond
 		((eql cmd "save") (when (not data) (defq data (elem +text_fpath+ current_text)))
 			(save-check data))
@@ -143,25 +176,24 @@
 		((eql cmd "close-all") 
 			(each (lambda (_) (close-check (elem +text_index+ _))) text_store))
 		((eql cmd "open") (when (not data) (defq data (elem +text_fpath+ current_text)))
+			(set mytextfield :text "")
 			(open-check data))
 		((eql cmd "prev") (prev-buffer (elem +text_index+ current_text))
-			(setq sb_line_col_message ""))
+			(setq status_bar_msg ""))
 		((eql cmd "next") (next-buffer (elem +text_index+ current_text))
-			(setq sb_line_col_message ""))
+			(setq status_bar_msg ""))
 		((eql "run" cmd) (when (not data) (defq data (elem +text_fpath+ current_text)))
 			(open-child data kn_call_open)
-			(set mytextfield :text data))
+			(set mytextfield :text data)
+			(set mytextfield :cursor (length data)))
 		((and (eql "find" cmd) data)
-			(set mytextfield :text data) (find-next) (. mytextfield :dirty) (setq is_find t))
+			(set mytextfield :text data)
+			;cursor must be set to prevent slice errors.
+			(set mytextfield :cursor (length data))
+			(find-next) (. mytextfield :dirty) (setq is_find t))
 		(t 	(find-next) (setq is_find t)))
-	(unless is_find (clear-text))
-	(window-layout vdu_width vdu_height))
-
-;return position just below tab_bar
-(defun update-status (tmp_msg)
-	(set sb_line_col :text tmp_msg)
-	(. status_bar :layout) (. status_bar :dirty)
-	(task-sleep 1500000))
+		(window-layout vdu_width vdu_height)
+		(unless is_find	(clear-text)))
 
 (defun notification-position ()
 	(bind '(tw th) (. window_title :get_size))
@@ -169,44 +201,48 @@
 	(bind '(x y w h) (. window :get_bounds))
 	(defq brdr (get :border window) x (+ x brdr) y (+ y brdr th tbh))
 	(list x y tbw th))
-;bar with buttons
+; ;bar with buttons
 (defun confirm (m b &optional c)
 	(bind '(x y w h) (notification-position))
-	(mail-send (list (elem +mbox_modal+ mbox_array)
+	(mail-send (list (elem +mbox_dialog+ mbox_array)
 		m b (if c c *env_toolbar2_col*) 0 x y w h)
-	(defq modal (open-child "apps/messagebar/child.lisp" kn_call_open)))
-	(defq reply (mail-read (elem +mbox_modal+ mbox_array)))
+		(defq modal (open-child "apps/edit/notification.inc" kn_call_open)))
+	(defq reply (mail-read (elem +mbox_dialog+ mbox_array)))
 	(mail-send "" modal) (if (str? reply) reply nil))
-;bar with timer and without buttons. Default is 1.5 seconds.
-(defun notify (m &optional c s)
-	(bind '(x y w h) (notification-position))
-	(mail-send (list (elem +mbox_modal+ mbox_array)
-		m "" (if c c *env_toolbar2_col*) (if s s 1500000) x y w h)
-	(defq modal (open-child "apps/messagebar/child.lisp" kn_call_open)))
-	(mail-send "" modal))
+; ;bar with timer and without buttons. Default is 1.5 seconds.
+; (defun notify (m &optional c s)
+; 	(bind '(x y w h) (notification-position))
+; 	(mail-send (list (elem +mbox_dialog+ mbox_array)
+; 		m "" (if c c *env_toolbar2_col*) (if s s 1500000) x y w h)
+; 		(defq modal (open-child "apps/edit/notification.lisp" kn_call_open)))
+; 	(defq reply (mail-read (elem +mbox_dialog+ mbox_array)))
+; 	(mail-send "" modal))
 
 ;notify, confirm, on open, save, and close.
 (defun open-check (fpath)
-	(cond
-		((defq index (some (lambda (_) 
-			(if (eql fpath (elem +text_fpath+ _)) (elem +text_index+ _) nil)) text_store))
-			(when index (move-to index)))
-		((not (file-stream fpath))
-			(when (eql "Yes" (confirm "File does not exist. Create new file?" 
-				"Yes,No" +argb_yellow+)) (new-buffer fpath)))
-		(t 	(open-buffer fpath))))
+	(open-buffer fpath))
+	; (cond
+	; 	((defq index (some (lambda (_) 
+	; 		(if (eql fpath (elem +text_fpath+ _)) (elem +text_index+ _) nil)) text_store))
+	; 		(when index (move-to-buffer index)))
+	; 	((not (file-stream fpath))
+	; 		(when (eql "Yes" (confirm "File does not exist. Create new file?" 
+	; 			"Yes,No" +argb_yellow+)) (new-buffer fpath)))
+	; 	(t 	(open-buffer fpath))))
 
 (defun save-check (fpath)
-	(cond
-		((and (not (eql fpath (elem +text_fpath+ current_text))) (file-stream fpath))
-			(when (eql "Yes" (confirm "Overwrite existing file?" "Yes, No" +argb_red+))
-				(save-buffer fpath)))
-		((not (file-stream fpath))
-			(notify (cat "Saving file to new path: " fpath ".") +argb_yellow+)
-			(save-buffer fpath))
-		(t 	(save-buffer fpath))))
+	(save-buffer fpath))
+	; (cond
+	; 	((and (not (eql fpath (elem +text_fpath+ current_text))) (file-stream fpath))
+	; 		(when (eql "Yes" (confirm "Overwrite existing file?" "Yes, No" +argb_red+))
+	; 			(save-buffer fpath)))
+	; 	((not (file-stream fpath))
+	; 		(notify (cat "Saving file to new path: " fpath ".") +argb_yellow+)
+	; 		(save-buffer fpath))
+	; 	(t 	(save-buffer fpath))))
 
 (defun close-check (index)
+	; (close-buffer index))
 	(defq reply nil)
 	(cond 
 		((unsaved-buffer index)
@@ -231,7 +267,7 @@
 		buffer (list " ") fpath (if nfpath nfpath (cat home_dir mytitle)))
 	(when nfpath (save-buffer nfpath))
 	(push text_store (list index fpath mytitle buffer pos))
-	(setq current_text (elem index text_store)))
+	(move-to-buffer index))
 
 (defun open-buffer (fpath)
 	(defq i 0 index (length text_store) pos (list 0 0 0 0 0))
@@ -240,7 +276,7 @@
 	(if (eql nil (read-line (file-stream fpath))) (setq buffer (list ""))
 	(each-line (lambda (_) (push buffer _)) (file-stream fpath)))
 	(push text_store (list index fpath mytitle buffer pos))
-	(setq current_text (elem index text_store)))
+	(move-to-buffer index))
 
 (defun save-buffer (fpath)
 	(cond 
@@ -261,7 +297,7 @@
 		((> (length text_store) 1)
 			(setq text_store (erase text_store index (inc index)))
 			(each (lambda (_) (elem-set +text_index+ _ i) (setq i (inc i))) text_store)
-			(setq current_text (prev-buffer index)))))
+			(move-to-buffer (max (dec index) 0)))))
 
 (defun add-to-unsaved-buffers (index)
 	(unless (some (lambda (_) (= index _)) unsaved_buffers)
@@ -276,9 +312,10 @@
 	(some (lambda (_) (if (= index _) t nil)) unsaved_buffers))
 
 ;buffer navigation functions
-(defun move-to (index)
+(defun move-to-buffer (index)
 	(when (< -1 index (length text_store))
 		(setq current_text (elem index text_store))))
+
 (defun prev-buffer (index)
 	(unless (= index 0) (setq index (dec index)))
 	(setq current_text (elem index text_store)))
@@ -288,8 +325,10 @@
 	(setq current_text (elem index text_store)))
 
 (defun clear-text ()
-	(setq find_list (list) find_index 0 sb_line_col_message "")
+	(setq find_list (list) find_index 0 status_bar_msg "")
 	(set mytextfield :text "")
+	;must set cursor to 0 when removing text from textfield.
+	(set mytextfield :cursor 0)
 	(window-layout vdu_width vdu_height))
 
 (defun vdu-input (c)
@@ -312,17 +351,20 @@
 		(set slider :value oy)
 		(elem-set +text_buffer+ current_text buffer)
 		(elem-set +text_position+ current_text (list ox (setq oy (get :value slider)) cx cy sx))
-		(set sb_line_col :text (cat "Line " (str cy) ", Column " (str cx) sb_line_col_message))
-		(. (. sb_line_col :layout) :dirty)
+		(set sb_label :text (cat "Line " (str cy) ", Column " (str cx) status_bar_msg))
+		(. (. sb_label :layout) :dirty)
 		(. slider :dirty)
 		(vdu-colorise)))
 
 (defun main ()
-	(defq id t find_textfield nil mouse_down nil selection (list))
+	(defq id t find_textfield nil mouse_down nil selection (list) 
+		+vdu_char_size+ (. vdu :char_size))
 	;open buffers from pupa or open new buffer
 	(if (empty? *env_edit_auto*) (new-buffer)
 		(each (#(open-buffer %0)) *env_edit_auto*))
 	(setq current_text (elem 0 text_store))
+	(defq clipboard_mbox (str-to-num (second (split 
+			(first (mail-enquire "CLIPBOARD_SERVICE")) ","))))
 	(bind '(w h) (. (component-connect window +event_layout+) :pref_size))
 	(bind '(x y w h) (view-locate w h))
 	(gui-add (view-change window x y w h))
@@ -330,7 +372,7 @@
 	(while id
 		(defq msg (mail-read (elem (defq idx (mail-select mbox_array)) mbox_array)))
 		(cond
-		((= idx +mbox_file+)
+		((= idx +mbox_dialog+)
 			(mail-send "" picker_mbox)
 			(setq picker_mbox nil)
 			(cond
@@ -341,26 +383,37 @@
 					(window-layout vdu_width vdu_height))
 				(t	(open-check msg)
 					(window-layout vdu_width vdu_height))))
+		((= idx +mbox_clip+)
+			;clipboard makes no reply if it is empty.
+			(options-print msg)
+			(on-paste msg))
 		((= (setq id (get-long msg (const ev_msg_target_id))) +event_close+) 
 			(setq id nil))
 		((= id +event_new+) (new-buffer) (window-layout vdu_width vdu_height))
 		((= id +event_save+) (if picker_mbox (mail-send "" picker_mbox))
-			(mail-send (list (elem +mbox_file+ mbox_array) "Save Buffer..." "."  "")
+			(mail-send (list (elem +mbox_dialog+ mbox_array) "Save Buffer..." "."  "")
 				(setq picker_mode t picker_mbox 
 					(open-child "apps/files/child.lisp" kn_call_open))))
 		((= id +event_open+) (if picker_mbox (mail-send "" picker_mbox))
-			(mail-send (list (elem +mbox_file+ mbox_array) "Load Buffer..." "." "")
+			(mail-send (list (elem +mbox_dialog+ mbox_array) "Load Buffer..." "." "")
 				(setq picker_mode nil picker_mbox 
 					(open-child "apps/files/child.lisp" kn_call_open))))
 		((= id +event_run+) (open-child (elem +text_fpath+ current_text) kn_call_open))
 		((= id +event_closeb+) (close-check (elem +text_index+ current_text))
 			(window-layout vdu_width vdu_height))
+		((= id +event_action+) (select-action-on-enter (get :text mytextfield)))
 		((= id +event_find+) 
 			(if (> (length find_list) 0)
 				(progn (setq find_list (list) find_index 0) (open-find)) (open-find)))
 		((= id +event_find_prev+) (when (> (length find_list) 0) (find-prev)))
 		((= id +event_find_next+) (when (> (length find_list) 0)(find-next)))
 		((= id +event_clear_text+) (clear-text))
+		((= id +event_copy+)
+			(defq fxy_lxy (. text_select :find :selection))
+			(. text_select :insert :copied (copy-text (get-buffer) fxy_lxy))
+			(mail-send (list "PUT" (copy-text (get-buffer) fxy_lxy)) clipboard_mbox))
+		((= id +event_paste+)
+			(mail-send (list "GET" (elem +mbox_clip+ mbox_array)) clipboard_mbox))
 		((= id +event_colorise+) (if colorise (setq colorise nil) (setq colorise t)) 
 			(window-layout vdu_width vdu_height))
 		((= id +event_prev+)
@@ -379,7 +432,7 @@
 			(elem-set +text_position+ current_text (list ox (setq oy (get :value slider)) cx cy sx))
 			(vdu-colorise))
 		((<= +event_tabbar+ id (+ +event_tabbar+ (length text_store)))
-			(move-to (- id +event_tabbar+))
+			(move-to-buffer (- id +event_tabbar+))
 			(window-layout vdu_width vdu_height))
 		((= id +event_menu+)
 			(defq cmd_list '("new" "open" "save" "run" "close" "exit"))
@@ -393,11 +446,11 @@
 			(cond 
 				((eql "new" reply) (new-buffer) (window-layout vdu_width vdu_height))
 				((eql "open" reply) (if picker_mbox (mail-send "" picker_mbox))
-					(mail-send (list (elem +mbox_file+ mbox_array) "Load Buffer..." "." "")
+					(mail-send (list (elem +mbox_dialog+ mbox_array) "Load Buffer..." "." "")
 					(setq picker_mode nil picker_mbox 
 						(open-child "apps/files/child.lisp" kn_call_open))))
 				((eql "save" reply) (if picker_mbox (mail-send "" picker_mbox))
-					(mail-send (list (elem +mbox_file+ mbox_array) "Save Buffer..." "."  "")
+					(mail-send (list (elem +mbox_dialog+ mbox_array) "Save Buffer..." "."  "")
 					(setq picker_mode t picker_mbox 
 						(open-child "apps/files/child.lisp" kn_call_open))))
 				((eql "run" reply) (open-child (elem +text_fpath+ current_text) kn_call_open))
@@ -406,21 +459,9 @@
 					(setq id nil)))
 			(mail-send "" menu_mbox))
 		((= id (component-get-id vdu))
-			(cond 
-				((and (= (get-long msg ev_msg_type) ev_type_key)
-					(> (get-int msg ev_msg_key_keycode) 0)
-					(vdu-input (get-int msg ev_msg_key_key))))
-				((and (= (get-long msg ev_msg_type) ev_type_mouse)
-					(/= (get-int msg ev_msg_mouse_buttons) 0))
-					(defq rx (get-int msg ev_msg_mouse_rx) ry (get-int msg ev_msg_mouse_ry)
-						mouse_xy (list rx ry))
-					(mouse-cursor mouse_xy)
-					(window-layout vdu_width vdu_height))))
-		((and (= id (component-get-id mytextfield))
-			(= (get-long msg ev_msg_type) ev_type_key)
-			(> (get-int msg ev_msg_key_keycode) 0)
-			(or (= (get-int msg ev_msg_key_key) 13) (= (get-int msg ev_msg_key_key) 10)))
-			(select-action-on-enter))
+			(vdu-keyboard msg)
+			(vdu-mouse-down msg)
+			(vdu-mouse-up msg))
 		(t	(. window :event msg))))
 	(if picker_mbox (mail-send "" picker_mbox))
 	(. window :hide))
