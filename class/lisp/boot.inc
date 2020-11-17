@@ -266,8 +266,8 @@
 				(throw "Key not symbol !" keys))
 			(each! 0 -1 (lambda (key)
 					(push (elem 0 table) key)
-					(push (elem 1 table) (macroexpand
-						(if (= (length clause_body) 1) (elem 0 clause_body) (cat '(progn) clause_body)))))
+					(push (elem 1 table) (prebind (macroexpand
+						(if (= (length clause_body) 1) (elem 0 clause_body) (cat '(progn) clause_body))))))
 				(list keys)) table) body (list (list) (list)))
 			other (or (find-rev t (elem 0 table)) (find-rev :otherwise (elem 0 table))))
 		`(eval (elem (or (find-rev ,form ',(elem 0 table)) ,other) ',(elem 1 table)))
