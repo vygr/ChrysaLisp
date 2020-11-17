@@ -6,6 +6,7 @@
 (defq text_select (xmap-kv
 		:mouse_state +mouse_up+
 		:selection_mode nil
+		:highlighted nil
 		:selection (list)
 		:clipboard (list)
 		:copied (list)))
@@ -45,7 +46,8 @@
 (defun vdu-keyboard (msg)
 	(and (= (get-long msg ev_msg_type) ev_type_key)
 		(> (get-int msg ev_msg_key_keycode) 0)
-		(vdu-input (get-int msg ev_msg_key_key))))
+		(vdu-input (get-int msg ev_msg_key_key))
+		(. text_select :insert :highlighted nil)))
 
 (defun vdu-mouse-down (msg)
 	(when (and (= (get-long msg ev_msg_type) ev_type_mouse)
@@ -131,8 +133,7 @@
 	(defq seq_sel (list) seq_front (slice 0 fy seq)
 			seq_back (slice (min (inc ly) (length seq)) -1 seq)
 			first_line_front (slice 0 fx (elem fy seq))
-			last_line_back (slice lx -1 (elem ly seq)))
-	(set-cursor fx fy)
+			last_line_back (slice (min lx (length (elem ly seq))) -1 (elem ly seq)))
 	(cat seq_front (list (cat first_line_front last_line_back)) seq_back))
 
 ;;;;;;;;;;;;;;
