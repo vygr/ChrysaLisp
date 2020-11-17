@@ -19,12 +19,41 @@
 ; Uncomment to enable commands segregated after testing
 ; (import "apps/terminal/icmds.lisp")
 
-(defun fn (ic &optional args) (print (cat ic " " args (ascii-char 0x0a))))
+(defq
+  session (xmap-kv
+            :cwd  nil
+            :lsc  nil))
+
+(defun fn (ic &optional args)
+  (print (cat ic " " args (ascii-char 0x0a))))
+
+(defun run-cmd (bfr)
+  ; (run-cmd buffer) -> result of command
+  (catch (setq cmd (pipe-open bfr)) (progn (setq cmd nil) t))
+  (unless cmd
+    (print (cat
+             "Command '"
+             bfr
+             "' Error!"
+             (ascii-char 10)
+             (prompt)))))
+
+(defun last-command (ic &optional args)
+  ; (last-command internal args) -> result of command
+  (run-cmd (gets session :lsc)))
 
 (defq
   ; Internal command dictionary
-  internals (xmap-kv "ls" fn "cd" fn "set" fn)
-  settings  (emap-kv :prompt ">"))
+  internals (xmap-kv
+              "-h"  fn            ; Help
+              "ls"  fn            ; File listing
+              "cd"  fn            ; Change working directory
+              "+x"  fn            ; Add environment value
+              "-x"  fn            ; Remove environment value
+              "-c"  last-command  ; Last command
+              )
+  settings  (emap-kv
+              :prompt ">"))
 
 (defun prompt ()
   (gets settings :prompt))
@@ -44,14 +73,8 @@
       (print (prompt)))
     (t
       ; New command pipe
-      (catch (setq cmd (pipe-open bfr)) (progn (setq cmd nil) t))
-      (unless cmd
-        (print (cat
-                 "Command '"
-                 bfr
-                 "' Error!"
-                 (ascii-char 10)
-                 (prompt)))))))
+      (sets! session :lsc bfr)
+      (run-cmd bfr))))
 
 (defun terminal-input (c)
   ; (terminal-input character)
