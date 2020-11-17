@@ -126,6 +126,15 @@
 	(set-cursor cx cy)
 	(cat seq_front new_sel seq_back))
 
+(defun cut-text (seq (fxy lxy))
+	(bind '(fx fy lx ly) (sort-xy fxy lxy))
+	(defq seq_sel (list) seq_front (slice 0 fy seq)
+			seq_back (slice (min (inc ly) (length seq)) -1 seq)
+			first_line_front (slice 0 fx (elem fy seq))
+			last_line_back (slice lx -1 (elem ly seq)))
+	(set-cursor fx fy)
+	(cat seq_front (list (cat first_line_front last_line_back)) seq_back))
+
 ;;;;;;;;;;;;;;
 ; buffer input
 ;;;;;;;;;;;;;;
