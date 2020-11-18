@@ -40,22 +40,6 @@
 
 (defun noop (&rest _) _)
 
-(defun dump-argparse-object (object)
-  ; (dump-argparse-object object) -> nil
-  (defq plist (dict-property-list object))
-  (each (lambda (el)
-    (defq
-      k (first el)
-      l (second el))
-    (cond
-      ((and (lst? l) (eql (first l) 'lambda))
-        (print k " function" ))
-      (t (print k " " l))))
-    nil))
-
-(defun dump-argparse-objects (objects)
-  (each dump-argparse-object objects))
-
 (defun get-class (self)
   ; (get-class self) -> :clz_n | :clz_unknown
   (gets self :clz :clz_unknown))
@@ -159,7 +143,7 @@
 
 (defun parser-dict()
   ; (parser-dict) -> dict
-  (properties
+  (emap-kv
     :clz :clz_processor   ; Argparse class
     :arguments (list)     ; Collection of arguments
     :commands (list)      ; Collection of commands
@@ -174,7 +158,7 @@
 
 (defun cmd-dict()
   ; (cmd-dict) -> dict
-  (properties
+  (emap-kv
     :clz :clz_command     ; Argparse class
     :arguments (list)     ; Collection of arguments
     :command ""           ; Command string
@@ -187,7 +171,7 @@
 
 (defun arg-dict()
   ; (arg-dict) -> dict
-  (properties
+  (emap-kv
     :clz :clz_argument    ; Argparse class
     :argument nil         ; The :argument flags e.g. ("-s" "--string")
     :required nil         ; Required ?
@@ -233,10 +217,10 @@
               res))
 
 (defun get-either-container (self value)
-  ; (get-either-container self value)
-  (if (defq res (container-for self value :commands :command))
-      res
-      (container-for self value :arguments :argument)))
+  ; (get-either-container self value) -> command | argument
+  (opt
+    (container-for self value :commands :command)
+    (container-for self value :arguments :argument)))
 
 (defun consume-argument (root self argstack result)
   ; (consume-argument root self argstack result)
