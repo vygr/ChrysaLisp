@@ -1,18 +1,18 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; tui2 - Experimental TUI Terminal
-; Adds internal commands in addition to just
-; running commands in cmd/ folder
+; tui2 - Experimental ChrysaLisp TUI Terminal
+; Adds internal switches and functions  in
+; addition to just running commands user cmds
 ;
-; Switch commands:
-; -h -> help for internal commands
-; +x -> adds argument with key
-; -x -> removes argument and key
-; -c -> calls the last external command again
+; To use, substitute tui2.lisp for tui.lisp
+; in funcs.sh
 ;
-; Internal commands (needs better support)
-; ls -> list files in current working directory
-; cd -> changes working directory
+; Internal switches:
+;   See ijmptbl below
+;
+; Planned internal commands (needs better support)
+;   ls -> list files in current working directory
+;   cd -> changes working directory
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;imports
@@ -33,20 +33,54 @@
       (t  ;print char
         (pii-write-char 1 c)))) _))
 
-; Uncomment to enable commands segregated after testing
-; (import "apps/terminal/icmds.lisp")
+(defun prtnl (_)
+  (print (cat _ (ascii-char 0x0a))))
 
+; Much of this should be in separate include
+
+; Session variables
 (defq
   session (xmap-kv
-            :cwd  nil
-            :lsc  nil))
+            :cwd    "./ChrysaLisp"
+            :lsc    ""
+            :prompt ">"))
 
-(defun fn (ic &optional args)
-  (print (cat ic " " args (ascii-char 0x0a))))
+(defun prompt ()
+  ; (prompt) -> string
+  (gets session :prompt))
+
+(defun set-session (ic &optional args)
+  ; (set-session cmd [args]) -> map
+  ; Sets the key (first arg) to value (second arg)
+  ; in the session map
+  (when args
+    (defq spa (split args " "))
+    (sets! session (sym (str ":" (first spa))) (second spa))))
+
+(defun drop-session (ic &optional args)
+  ; (drop-session cmd [args]) -> map
+  ; Removes the key (first arg) from the session map
+  (drop! session (sym (str ":" (first (split args " "))))))
+
+(defun print-session (ic &optional args)
+  ; (print-session cmd [args]) -> map
+  ; prints session values
+  (prtnl "Session vars:")
+  (each (lambda((_k _v)) (prtnl (str " " _k " -> " _v))) (entries session)))
+
+(defun session-sub (bfr)
+  ; (session-sub string) -> string
+  ; Scans string for substitution '@' from session vars
+  (defq res (list))
+  (each (lambda (_v)
+          (if (eql (first _v) "@")
+              (push res (gets session (sym (str ":" (rest _v)))))
+              (push res _v))) (split bfr " "))
+  (join res " "))
 
 (defun run-cmd (bfr)
   ; (run-cmd buffer) -> result of command
-  (catch (setq cmd (pipe-open bfr)) (progn (setq cmd nil) t))
+  (catch (setq cmd (pipe-open (session-sub bfr))) (progn (setq cmd nil) t))
   (unless cmd
     (print (cat
              "Command '"
@@ -57,23 +91,43 @@
 
 (defun last-command (ic &optional args)
   ; (last-command internal args) -> result of command
+  ; TBD indexed command arg (i.e. -c 2)
   (run-cmd (gets session :lsc)))
+
+(defun switch-help (ic &optional args)
+  (prtnl "")
+  (prtnl "Switches:")
+  (prtnl " -h   prints this help")
+  (prtnl " -x   prints session variables")
+  (prtnl " -x+  adds value to session (e.g. -x+ name Joe")
+  (prtnl " -x-  removes value from session (e.g. -x- name)")
+  (prtnl " -c   re-executes last command")
+  (prtnl "")
+  (prtnl "Commands:")
+  (prtnl " ls   List current directory content (not implemented")
+  (prtnl " cd   Change directory (not implemented)")
+  (prtnl "")
+  (prtnl "Other:")
+  (prtnl " @session-var   replaces @session-var with value")
+  (prtnl "   example:")
+  (prtnl "    >cd ../foo/bar ")
+  (prtnl "    >echo @cwd ; results in 'echo ../foo/bar")
+  (prtnl ""))
+
+(defun fn (ic &optional args)
+  (prtnl (str ic " -> not implemented")))
 
 (defq
   ; Internal command dictionary
-  internals (xmap-kv
-              "-h"  fn            ; Help
-              "ls"  fn            ; File listing
-              "cd"  fn            ; Change working directory
-              "+x"  fn            ; Add environment value
-              "-x"  fn            ; Remove environment value
-              "-c"  last-command  ; Last command
-              )
-  settings  (emap-kv
-              :prompt ">"))
-
-(defun prompt ()
-  (gets settings :prompt))
+  ijmptbl (xmap-kv
+              "-h"    switch-help   ; Help
+              "ls"    fn            ; File listing
+              "cd"    fn            ; Change working directory
+              "-x"    print-session ; Prints session values
+              "-x+"   set-session   ; Add session value
+              "-x-"   drop-session  ; Remove session value
+              "-c"    last-command  ; Re-execute past command
+              ))
 
 (defun process-input (bfr)
   ; (process-input buffer) -> prompt
@@ -82,7 +136,7 @@
   (defq
     sp (split bfr " ")
     ic (first sp)
-    in (gets internals ic))
+    in (gets ijmptbl ic))
   (cond
     (in
       ; Found internal command, execute and return
