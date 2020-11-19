@@ -16,6 +16,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;imports
+(import "sys/lisp.inc")
 (import "lib/pipe/pipe.inc")
 
 ;override print for TUI output
@@ -41,7 +42,7 @@
 ; Session variables
 (defq
   session (xmap-kv
-            :cwd    "./ChrysaLisp"
+            :cwd    "../ChrysaLisp"
             :lsc    ""
             :prompt ">"))
 
@@ -51,11 +52,11 @@
 
 (defun set-session (ic &optional args)
   ; (set-session cmd [args]) -> map
-  ; Sets the key (first arg) to value (second arg)
+  ; Sets the key (first arg) to remaining values of arg
   ; in the session map
   (when args
     (defq spa (split args " "))
-    (sets! session (sym (str ":" (first spa))) (second spa))))
+    (sets! session (sym (str ":" (first spa))) (join (rest spa) " "))))
 
 (defun drop-session (ic &optional args)
   ; (drop-session cmd [args]) -> map
@@ -99,20 +100,32 @@
   (prtnl "Switches:")
   (prtnl " -h   prints this help")
   (prtnl " -x   prints session variables")
-  (prtnl " -x+  adds value to session (e.g. -x+ name Joe")
+  (prtnl " -x+  adds value to session (e.g. -x+ name Jane Doe")
   (prtnl " -x-  removes value from session (e.g. -x- name)")
   (prtnl " -c   re-executes last command")
   (prtnl "")
-  (prtnl "Commands:")
-  (prtnl " ls   List current directory content (not implemented")
+  (prtnl "Additioinal Commands:")
+  (prtnl " ls   List directory content. Usage:")
+  (prtnl "    >ls     ; Lists current working directory files")
+  (prtnl "    >ls arg ; List directory content of arg path")
+  (prtnl "")
   (prtnl " cd   Change directory (not implemented)")
   (prtnl "")
   (prtnl "Other:")
   (prtnl " @session-var   replaces @session-var with value")
   (prtnl "   example:")
-  (prtnl "    >cd ../foo/bar ")
-  (prtnl "    >echo @cwd ; results in 'echo ../foo/bar")
+  (prtnl "    >-x+ name Jane Doe")
+  (prtnl "    >echo @name ; results in 'echo Jane Doe")
   (prtnl ""))
+
+(defun list-files (ic &optional args)
+  ; (list-files internal args) -> nil
+  ; Lists files in either cwd or other in argument
+  ; Flags include
+  ; -? TBD
+  (defq targ (if (= (length args) 0) (gets session :cwd) args))
+  (each (#(if (not (or (eql %0 "4") (eql %0 "8")))
+              (prtnl %0))) (split (pii-dirlist targ) ",")))
 
 (defun fn (ic &optional args)
   (prtnl (str ic " -> not implemented")))
@@ -121,7 +134,7 @@
   ; Internal command dictionary
   ijmptbl (xmap-kv
               "-h"    switch-help   ; Help
-              "ls"    fn            ; File listing
+              "ls"    list-files    ; File listing
               "cd"    fn            ; Change working directory
               "-x"    print-session ; Prints session values
               "-x+"   set-session   ; Add session value
