@@ -30,7 +30,7 @@
 (defun make-syms ()
 	(defq *abi* (abi) *cpu* (cpu))
 	(print "Scanning source files...")
-	(defq _syms_ '(
+	(defq _t_syms_ (list) _t_syms_vals_ (list) _syms_ '(
 		cap_butt cap_round cap_square cap_tri component_id ev_msg_action_source_id
 		ev_msg_key_key ev_msg_key_keycode ev_msg_mouse_buttons ev_msg_mouse_rx
 		ev_msg_mouse_ry ev_msg_target_id ev_msg_type ev_type_gui ev_type_key
@@ -43,17 +43,22 @@
 		ev_msg_mouse_x ev_msg_mouse_y ev_type_action
 		)
 		_vals_ (within-compile-env (lambda ()
-			(each include (make-tree "." "class.inc"))
-			(map eval _syms_)))
+			(each include (map (# (slice 2 -1 %0)) (make-tree "." "class.inc")))
+			(map (#
+				(defq st (sym (cat "_t_" %0)))
+				(when (defq stv (get st))
+					(push _t_syms_ st)
+					(push _t_syms_vals_ stv))
+				(eval %0)) _syms_)))
 		stream (file-stream "sys/symbols.inc" file_open_write))
 	(write-line stream ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;")
 	(write-line stream "; VP symbols, autogen do not edit !")
 	(write-line stream ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;")
 	(write-line stream "(defq")
 	(each (lambda (s v)
-		(write stream s)
-		(write-char stream (ascii-code " "))
-		(write-line stream (str v))) _syms_ _vals_)
+		(write-line stream (cat s " " (str v)))) _syms_ _vals_)
+	(each (lambda (s v)
+		(write-line stream (cat s " " (ascii-char 34) v (ascii-char 34)))) _t_syms_ _t_syms_vals_)
 	(write-line stream ")")
 	(print "-> sys/symbols.inc") nil)
 
