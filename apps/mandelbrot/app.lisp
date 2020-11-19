@@ -33,7 +33,7 @@
 		(while (/= (setq xp (inc xp)) x1)
 			(defq r (read-char data) r (if (= r 255) 0 r)
 				g (<< (logand r 0x7f) 9) b (<< (logand r 0x3f) 2))
-			(canvas-plot (canvas-set-color canvas (+ +argb_black+ (<< r 16) g b)) xp yp))
+			(. (. canvas :set_color (+ +argb_black+ (<< r 16) g b)) :plot xp yp))
 		(task-sleep 0))
 	(* (- x1 x) (- y1 y)))
 
@@ -42,7 +42,7 @@
 
 (defun main ()
 	;add window
-	(canvas-swap (canvas-fill canvas +argb_black+))
+	(. (. canvas :fill +argb_black+) :swap)
 	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
 	(gui-add (view-change mywindow x y w h))
 	(reset)
@@ -73,7 +73,7 @@
 			(t	;child tile msg
 				(setq area (- area (tile canvas msg)))
 				(when (or (> (- (defq now (time)) then) 1000000) (= area 0))
-					(canvas-swap canvas)
+					(. canvas :swap)
 					(setq then now))
 					t))))
 	;close

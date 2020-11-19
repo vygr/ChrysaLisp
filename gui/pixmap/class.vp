@@ -1,0 +1,558 @@
+(include "sys/func.inc")
+(include "class/sym/class.inc")
+(include "class/hmap/class.inc")
+(include "class/list/class.inc")
+(include "gui/pixmap/class.inc")
+(include "gui/texture/class.inc")
+(include "class/stream/class.inc")
+(include "class/sstream/class.inc")
+(include "class/fstream/class.inc")
+(include "sys/str/class.inc")
+(include "gui/canvas/lisp.inc")
+(include "gui/gui/class.inc")
+
+(gen-vtable 'pixmap)
+
+(def-method 'pixmap :create)
+	;inputs
+	;r0 = width (pixels)
+	;r1 = height (pixels)
+	;outputs
+	;r0 = 0 if error, else pixmap object (ptr)
+	;trashes
+	;r1-r6
+
+	;save size of data
+	(entry 'pixmap :create '(r0 r1))
+	(assign '(r0 r1) '(r5 r6))
+
+	;create new pixmap object
+	(vp-mul-rr r1 r0)
+	(vp-mul-cr int_size r0)
+	(vp-add-cr pixmap_data r0)
+	(call 'sys_mem :alloc '(r0) '(r0 _))
+	(vpif '(r0 /= 0))
+		;init the object
+		(call 'pixmap :init `(r0 (@ ,(f-path 'pixmap :vtable)) r5 r6) '(r0 r1))
+		(vpif '(r1 = 0))
+			;error with init
+			(call 'sys_mem :free '(r0))
+			(vp-xor-rr r0 r0)
+		(endif)
+	(endif)
+
+	(exit 'pixmap :create '(r0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'pixmap :init)
+	;inputs
+	;r0 = pixmap object (ptr)
+	;r1 = vtable (pptr)
+	;r2 = width (pixels)
+	;r3 = height (pixels)
+	;outputs
+	;r0 = pixmap object (ptr)
+	;r1 = 0 if error, else ok
+	;trashes
+	;r1-r14
+
+	(entry 'pixmap :init '(r0 r1 r2 r3))
+	(assign '(r2 r3) '((r0 pixmap_width) (r0 pixmap_height)))
+	(vp-mul-cr int_size r2)
+	(assign '(r2) '((r0 pixmap_stride)))
+
+	;init parent
+	(s-call 'pixmap :init '(r0 r1) '(r0 r1))
+	(vpif '(r1 /= 0))
+		(vp-push r0)
+		(assign '(0 -32) '(r1 r2))
+		(assign '(r1 r1 r1 r1 r2)
+			'((r0 pixmap_texture) (r0 pixmap_stream) (r0 pixmap_bufp) (r0 pixmap_stream_type)
+			 (r0 pixmap_type)))
+
+		;clear pixel buffer
+		(assign '((r0 pixmap_height) (r0 pixmap_stride)) '(r1 r2))
+		(vp-mul-rr r2 r1)
+		(call 'sys_mem :fill '((& r0 pixmap_data) r1 0))
+		(vp-pop r0)
+	(endif)
+
+	(exit 'pixmap :init '(r0 r1))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'pixmap :deinit)
+	;inputs
+	;r0 = pixmap object (ptr)
+	;outputs
+	;r0 = pixmap object (ptr)
+	;trashes
+	;r1-r14
+
+	(vp-push r0)
+
+	;free any flm stream
+	(call 'stream :deref_if '((r0 pixmap_stream)))
+
+	;free any texture
+	(assign '((rsp 0)) '(r0))
+	(call 'texture :deref_if '((r0 pixmap_texture)))
+
+	(vp-pop r0)
+	(s-jump 'pixmap :deinit '(r0))
+
+(def-func-end)
+
+(def-method 'pixmap :info)
+	;inputs
+	;r0 = c string name (pubyte)
+	;outputs
+	;r0 = -1 if error, else width (pixels)
+	;r1 = -1 if error, else height (pixels)
+	;r2 = -1 if error, else type (uint)
+	;trashes
+	;r0-r14
+
+	(def-struct 'local)
+		(ptr 'name 'stream)
+		(int 'w 'h)
+		(uint 'type)
+	(def-struct-end)
+
+	(vp-alloc local_size)
+	(entry 'pixmap :info '(r0))
+	(assign '(r0) '((rsp local_name)))
+
+	(call 'fstream :create '(r0 file_open_read) '(r0))
+	(vpif '(r0 /= 0))
+		(assign '(r0) '((rsp local_stream)))
+		(call 'pixmap :info_file '((rsp local_name) r0) '((rsp local_w) (rsp local_h) (rsp local_type)))
+		(call 'fstream :deref '((rsp local_stream)))
+		(exit 'pixmap :info '((rsp local_w) (rsp local_h) (rsp local_type)))
+	(else)
+		(exit 'pixmap :info '(-1 -1 -1))
+	(endif)
+
+	(vp-free local_size)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'pixmap :info_file)
+	;inputs
+	;r4 = c string name (pubyte)
+	;r5 = stream object (ptr)
+	;outputs
+	;r0 = -1 if error, else width (pixels)
+	;r1 = -1 if error, else height (pixels)
+	;r2 = -1 if error, else type (uint)
+	;trashes
+	;r0-r14
+
+	(entry 'pixmap :info_file '(r4 r5))
+
+	(call 'sys_str :length '(r4) '(_ r1))
+	(switch)
+	(breakif '(r1 < 4))
+	(vp-add-rr r1 r4)
+	(vp-sub-cr 4 r4)
+	(call 'sys_str :compare '(r4 ".cpm") '(r0))
+	(nextcaseif '(r0 /= 0))
+		(jump 'pixmap :info_cpm '(r5))
+	(else)
+	(call 'sys_str :compare '(r4 ".flm") '(r0))
+	(nextcaseif '(r0 /= 0))
+		(jump 'pixmap :info_cpm '(r5))
+	(else)
+	(call 'sys_str :compare '(r4 ".tga") '(r0))
+	(nextcaseif '(r0 /= 0))
+		(jump 'pixmap :info_tga '(r5))
+	(endswitch)
+
+	(exit 'pixmap :info_file '(-1 -1 -1))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'pixmap :load)
+	;inputs
+	;r0 = c string name (pubyte)
+	;r1 = flags (uint)
+	;outputs
+	;r0 = 0 if error, else shared pixmap object (ptr)
+	;trashes
+	;r0-r14
+
+	(ptr 'this 'name 'sym)
+	(union
+		(ptr 'hash)
+		(ptr 'bucket))
+	(union
+		(ptr 'stream)
+		(pptr 'iter))
+	(uint 'flags)
+
+	(push-scope)
+	(entry 'pixmap :load {name, flags})
+
+	;shared or not
+	(vpif {flags & +load_flag_shared+} 'funcexit)
+		;create hash map ?
+		(assign {ptr($pixmaps)} {hash})
+		(vpifnot {hash})
+			(call 'hmap :create {0, 1} {hash})
+			(assign {hash} {ptr($pixmaps)})
+		(endif)
+
+		;create interned name, lookup in map
+		(call 'sym :intern_cstr {name} {sym})
+		(call 'hmap :find {hash, sym} {_, iter, bucket})
+		(vpifnot {iter})
+			;open file stream
+			(call 'str :create_from_file {name} {this})
+			(breakifnot {this} 'funcexit)
+			(call 'sstream :create {this} {stream})
+			(call 'pixmap :load_file {name, stream} {this})
+			(call 'sstream :deref {stream})
+			(breakifnot {this} 'funcexit)
+			(call 'list :push_back2 {bucket, sym, this})
+			(call 'pixmap :ref {this} {this})
+			(break 'funcexit)
+		(endif)
+		(call 'pixmap :ref {iter[ptr_size]} {this})
+		(call 'sym :deref {sym})
+	(else)
+		;open file stream
+		(call 'str :create_from_file {name} {this})
+		(breakifnot {this})
+		(call 'sstream :create {this} {stream})
+		(call 'pixmap :load_file {name, stream} {this})
+		(vpif {this})
+			(breakifnot {flags & +load_flag_film+})
+			(assign {stream} {this->pixmap_stream})
+			(assign {stream->stream_bufp} {this->pixmap_bufp})
+			(break 'funcexit)
+		(endif)
+		(call 'sstream :deref {stream})
+	(endif)
+
+	(exit 'pixmap :load {this})
+	(pop-scope)
+	(return)
+
+;;;;;;;;;;;;;;;;;
+; interned pixmap
+;;;;;;;;;;;;;;;;;
+
+	(vp-align ptr_size)
+(vp-label 'pixmaps)
+	(vp-long 0)
+
+(def-func-end)
+
+(def-method 'pixmap :load_file)
+	;inputs
+	;r4 = c string name (pubyte)
+	;r5 = stream object (ptr)
+	;outputs
+	;r0 = 0 if error, else pixmap object (ptr)
+	;trashes
+	;r0-r14
+
+	(entry 'pixmap :load_file '(r4 r5))
+
+	(call 'sys_str :length '(r4) '(_ r1))
+	(switch)
+	(breakif '(r1 < 4))
+	(vp-add-rr r1 r4)
+	(vp-sub-cr 4 r4)
+	(call 'sys_str :compare '(r4 ".cpm") '(r0))
+	(nextcaseif '(r0 /= 0))
+		(jump 'pixmap :load_cpm '(r5))
+	(else)
+	(call 'sys_str :compare '(r4 ".flm") '(r0))
+	(nextcaseif '(r0 /= 0))
+		(jump 'pixmap :load_cpm '(r5))
+	(else)
+	(call 'sys_str :compare '(r4 ".tga") '(r0))
+	(nextcaseif '(r0 /= 0))
+		(jump 'pixmap :load_tga '(r5))
+	(endswitch)
+
+	(exit 'pixmap :load_file '(0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'pixmap :save)
+	;inputs
+	;r0 = pixmap object (ptr)
+	;r1 = c string name (pubyte)
+	;r2 = format (uint)
+	;outputs
+	;r0 = 0 if error, else pixmap object (ptr)
+	;trashes
+	;r0-r14
+
+	(ptr 'this 'name 'stream)
+	(uint 'format)
+
+	(push-scope)
+	(entry 'pixmap :save {this, name, format})
+
+	;open file stream
+	(call 'fstream :create {name, file_open_write} {stream})
+	(vpif {stream})
+		(call 'pixmap :save_file {this, name, stream, format} {this})
+		(call 'stream :deref {stream})
+	(else)
+		(assign {0} {this})
+	(endif)
+
+	(exit 'pixmap :save {this})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-method 'pixmap :save_file)
+	;inputs
+	;r4 = pixmap object (ptr)
+	;r5 = c string name (pubyte)
+	;r6 = stream object (ptr)
+	;r7 = format (uint)
+	;outputs
+	;r0 = 0 if error, else pixmap object (ptr)
+	;trashes
+	;r0-r14
+
+	(entry 'pixmap :save_file '(r4 r5 r6 r7))
+
+	(call 'sys_str :length '(r5) '(_ r1))
+	(switch)
+	(breakif '(r1 < 4))
+	(vp-add-rr r1 r5)
+	(vp-sub-cr 4 r5)
+	(call 'sys_str :compare '(r5 ".cpm") '(r0))
+	(nextcaseif '(r0 /= 0))
+		(jump 'pixmap :save_cpm '(r4 r6 r7))
+	(endswitch)
+
+	(exit 'pixmap :save_file '(0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'pixmap :upload 16)
+	;inputs
+	;r0 = pixmap object (ptr)
+	;outputs
+	;r0 = pixmap object (ptr)
+	;trashes
+	;r1-r14
+
+	(entry 'pixmap :upload '(r0))
+
+	(vp-push r0)
+	(call 'sys_task :callback '(r0 ($ callback)))
+	(vp-pop r0)
+
+	(exit 'pixmap :upload '(r0))
+	(vp-ret)
+
+(vp-label 'callback)
+	;inputs
+	;r0 = user data
+
+	(ptr 'this 'surface 'old_stack)
+	(ulong 'tex_id)
+	(uint 'blend_mode)
+
+	(vp-cpy-rr rsp r1)
+	(push-scope)
+	(vp-and-cr -16 rsp)
+	(entry {this, old_stack})
+
+	;free any sdl texture
+	(call 'texture :deref_if {this->pixmap_texture})
+
+	;create SDL surface from pixel buffer, convert to texture
+	(host-call 'host :sdl_create_rgb_surface_from {&this->pixmap_data,
+		this->pixmap_width, this->pixmap_height, 32,
+		this->pixmap_stride, 0xff0000, 0xff00, 0xff, 0xff000000} {surface})
+	(host-call 'host :sdl_create_texture_from_surface (cat {@} (f-path 'gui :statics) {.gui_statics_renderer, surface}) {tex_id})
+	(host-call 'host :sdl_compose_custom_blend_mode
+		{SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA, SDL_BLENDOPERATION_ADD,
+		SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA, SDL_BLENDOPERATION_ADD} {blend_mode})
+	(host-call 'host :sdl_set_texture_blend_mode {tex_id, blend_mode})
+	(host-call 'host :sdl_free_surface {surface})
+	(call 'texture :create {tex_id, this->pixmap_width, this->pixmap_height} {this->pixmap_texture})
+
+	(assign {old_stack} '(rsp))
+	(pop-scope-syms)
+	(return)
+
+(def-func-end)
+
+(def-method 'pixmap :to_premul)
+	;inputs
+	;r1 = color (argb)
+	;outputs
+	;r1 = color premul (argb)
+	;trashes
+	;r1-r3
+
+	(entry 'pixmap :to_premul '(r1))
+
+	(vp-cpy-rr r1 r2)
+	(vp-cpy-rr r1 r3)
+	(vp-shr-cr 24 r1)
+	(vp-and-cr 0xff00ff r2)
+	(vp-and-cr 0xff00 r3)
+	(vp-mul-rr r1 r2)
+	(vp-mul-rr r1 r3)
+	(vp-shl-cr 24 r1)
+	(vp-shr-cr 8 r2)
+	(vp-shr-cr 8 r3)
+	(vp-and-cr 0xff00ff r2)
+	(vp-and-cr 0xff00 r3)
+	(vp-add-rr r2 r1)
+	(vp-add-rr r3 r1)
+
+	(exit 'pixmap :to_premul '(r1))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'pixmap :to_argb)
+	;inputs
+	;r1 = color premul (argb)
+	;outputs
+	;r1 = color (argb)
+	;trashes
+	;r1-r4
+
+	(entry 'pixmap :to_argb '(r1))
+
+	(vp-cpy-rr r1 r3)
+	(vp-shr-cr 24 r3)
+	(vpif '(r3 /= 0) '(r3 /= 0xff))
+		(vp-cpy-rr r0 r4)
+		(vp-xor-rr r2 r2)
+		(vp-cpy-cr (* 255 256) r0)
+		(vp-div-rrr-u r3 r2 r0)
+		(vp-cpy-rr r1 r3)
+		(vp-cpy-rr r1 r2)
+		(vp-shr-cr 24 r1)
+		(vp-and-cr 0xff00ff r3)
+		(vp-and-cr 0xff00 r2)
+		(vp-mul-rr r0 r3)
+		(vp-mul-rr r0 r2)
+		(vp-shl-cr 24 r1)
+		(vp-shr-cr 8 r3)
+		(vp-shr-cr 8 r2)
+		(vp-and-cr 0xff00ff r3)
+		(vp-and-cr 0xff00 r2)
+		(vp-add-rr r3 r1)
+		(vp-add-rr r2 r1)
+		(vp-cpy-rr r4 r0)
+	(endif)
+
+	(exit 'pixmap :to_argb '(r1))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'pixmap :fill)
+	;inputs
+	;r0 = pixmap object (ptr)
+	;r1 = color (argb)
+	;outputs
+	;r0 = pixmap object (ptr)
+	;trashes
+	;r1-r4
+
+	(entry 'pixmap :fill '(r0 r1))
+
+	(call 'pixmap :to_premul '(r1) '(r1))
+	(vp-cpy-rr r1 r2)
+	(vp-shl-cr 32 r1)
+	(vp-cpy-rr r0 r4)
+	(vp-add-rr r1 r2)
+	(assign '((r0 pixmap_height) (r0 pixmap_stride) (& r0 pixmap_data)) '(r1 r3 r0))
+	(vp-mul-rr r3 r1)
+	(call 'sys_mem :fill '(r0 r1 r2))
+
+	(exit 'pixmap :fill '(r4))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'pixmap :as_argb)
+	;inputs
+	;r0 = pixmap object (ptr)
+	;r1 = source pixmap object (ptr)
+	;outputs
+	;r0 = pixmap object (ptr)
+	;trashes
+	;r1-r9
+
+	(entry 'pixmap :as_argb '(r0 r1))
+
+	(assign '((& r0 pixmap_data) (& r1 pixmap_data)) '(r5 r6))
+	(assign '((r0 pixmap_stride) (r0 pixmap_height)) '(r4 r1))
+	(vp-mul-rr r1 r6)
+	(vp-add-rr r5 r6)
+	(vp-xor-rr r8 r8)
+	(vp-xor-rr r9 r9)
+	(loop-start)
+		(vp-cpy-ir-ui r7 0 r1)
+		(vpif '(r1 /= r8))
+			(vp-cpy-rr r1 r8)
+			(call 'pixmap :to_argb '(r1) '(r9))
+		(endif)
+		(vp-cpy-ri-i r9 r5 0)
+		(vp-add-cr int_size r5)
+		(vp-add-cr int_size r7)
+	(loop-until '(r5 = r6))
+
+	(exit 'pixmap :as_argb '(r0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'pixmap :as_premul)
+	;inputs
+	;r0 = pixmap object (ptr)
+	;r1 = source pixmap object (ptr)
+	;outputs
+	;r0 = pixmap object (ptr)
+	;trashes
+	;r1-r8
+
+	(entry 'pixmap :as_premul '(r0 r1))
+
+	(assign '((& r0 pixmap_data) (& r1 pixmap_data)) '(r5 r6))
+	(assign '((r0 pixmap_stride) (r0 pixmap_height)) '(r4 r1))
+	(vp-mul-rr r1 r4)
+	(vp-add-rr r5 r4)
+	(vp-xor-rr r7 r7)
+	(vp-xor-rr r8 r8)
+	(loop-start)
+		(vp-cpy-ir-ui r6 0 r1)
+		(vpif '(r1 /= r7))
+			(vp-cpy-rr r1 r7)
+			(call 'pixmap :to_premul '(r1) '(r8))
+		(endif)
+		(vp-cpy-ri-i r8 r5 0)
+		(vp-add-cr int_size r5)
+		(vp-add-cr int_size r6)
+	(loop-until '(r5 = r4))
+
+	(exit 'pixmap :as_premul '(r0))
+	(vp-ret)
+
+(def-func-end)

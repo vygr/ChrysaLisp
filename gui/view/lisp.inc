@@ -30,7 +30,8 @@
 	(view-fit x y w h))
 
 ;view flags
-(defq +view_flag_solid+ 1 +view_flag_opaque+ 2 +view_flag_dirty_all+ 4 +view_flag_at_back+ 8)
+(unless (get '+view_flag_solid+)
+	(defq +view_flag_solid+ 1 +view_flag_opaque+ 2 +view_flag_dirty_all+ 4 +view_flag_at_back+ 8))
 
 (defmacro view-dirty-all (_)
 	; (view-dirty-all view) -> view

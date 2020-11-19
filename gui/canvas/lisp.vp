@@ -1,8 +1,10 @@
 (include "sys/func.inc")
 (include "gui/canvas/class.inc")
+(include "gui/pixmap/class.inc")
 (include "class/str/class.inc")
 (include "class/fixed/class.inc")
 (include "class/lisp/class.inc")
+(include "gui/canvas/lisp.inc")
 
 (def-method 'canvas :lisp_create)
 	;inputs
@@ -53,9 +55,8 @@
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
-	(defq in (method-input 'canvas :info))
-	(list-bind-args r1 in '(:str))
-	(call 'canvas :info in '(r0 r12 r13))
+	(list-bind-args r1 '(r0) '(:str))
+	(call 'pixmap :info '(r0) '(r0 r12 r13))
 	(call 'num :create '(r0) '(r11))
 	(call 'num :create '(r12) '(r12))
 	(call 'num :create '(r13) '(r13))
@@ -84,24 +85,39 @@
 	;trashes
 	;r1-r14
 
+	(def-struct 'local)
+		(ptr 'this)
+		(uint 'flags)
+	(def-struct-end)
+
 	(entry 'canvas :lisp_load '(r0 r1))
 
 (errorcases
 	(call 'lisp :env_args_sig '(r1 ($ sig) 2) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
-	(vp-push r0)
-	(defq in (method-input 'canvas :load))
-	(list-bind-args r1 in '(:str :num))
-	(call 'canvas :load in '(r0))
-	(vpif '(r0 = 0))
-		(assign '((rsp 0)) '(r0))
-		(call 'obj :ref '((r0 lisp_sym_nil)) '(r0))
-	(endif)
-	(vp-cpy-rr r0 r1)
-	(vp-pop r0)
+	(vp-alloc local_size)
+	(assign '(r0) '((rsp local_this)))
 
-	(exit 'canvas :lisp_load '(r0 r1))
+	(list-bind-args r1 '(r0 r1) '(:str :num))
+	(assign '(r1) '((rsp local_flags)))
+	(call 'pixmap :load '(r0 r1) '(r0))
+	(vpif '(r0 = 0))
+		(assign '((rsp local_this)) '(r1))
+		(assign '((r1 lisp_sym_nil)) '(r1))
+		(class/obj/ref r1 r2)
+	(else)
+		(call 'canvas :create_with_pixmap '(r0) '(r0))
+		(assign '((rsp local_flags)) '(r1))
+		(vp-and-cr +load_flag_noswap+ r1)
+		(vpif '(r1 = 0))
+			(call 'canvas :swap '(r0) '(r0))
+		(endif)
+		(vp-cpy-rr r0 r1)
+	(endif)
+
+	(exit 'canvas :lisp_load '((rsp local_this) r1))
+	(vp-free local_size)
 	(vp-ret)
 
 (errorcases
@@ -121,24 +137,31 @@
 	;trashes
 	;r1-r14
 
+	(def-struct 'local)
+		(ptr 'this 'canvas)
+	(def-struct-end)
+
 	(entry 'canvas :lisp_save '(r0 r1))
 
 (errorcases
 	(call 'lisp :env_args_sig '(r1 ($ sig) 3) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
-	(vp-push r0)
-	(defq in (method-input 'canvas :save))
-	(list-bind-args r1 in '(:canvas :str :num))
-	(call 'canvas :save in '(r0))
+	(vp-alloc local_size)
+	(assign '(r0) '((rsp local_this)))
+	(list-bind-args r1 '(r0 r1 r2) '(:canvas :str :num))
+	(assign '(r0) '((rsp local_canvas)))
+	(call 'pixmap :save '((r0 canvas_pixmap) r1 r2) '(r0))
 	(vpif '(r0 = 0))
 		(assign '((rsp 0)) '(r0))
-		(assign '((r0 lisp_sym_nil)) '(r0))
+		(assign '((r0 lisp_sym_nil)) '(r1))
+	(else)
+		(assign '((rsp local_canvas)) '(r1))
 	(endif)
-	(call 'obj :ref '(r0) '(r1))
-	(vp-pop r0)
+	(class/obj/ref r1 r2)
 
-	(exit 'canvas :lisp_save '(r0 r1))
+	(exit 'canvas :lisp_save '((rsp local_this) r1))
+	(vp-free local_size)
 	(vp-ret)
 
 (errorcases
@@ -165,10 +188,13 @@
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
-	(defq in (method-input 'canvas :fill))
+	(defq in (method-input 'pixmap :fill))
 	(list-bind-args r1 in '(:canvas :num))
-	(call 'canvas :fill in '(r0))
-	(call 'obj :ref '(r0) '(r1))
+	(vp-push (elem 0 in))
+	(assign `((,(elem 0 in) canvas_pixmap)) `(,(elem 0 in)))
+	(call 'pixmap :fill in)
+	(vp-pop r1)
+	(class/obj/ref r1 r2)
 	(vp-pop r0)
 
 	(exit 'canvas :lisp_fill '(r0 r1))
@@ -225,20 +251,27 @@
 	;trashes
 	;r1-r14
 
+	(def-struct 'local)
+		(ptr 'this 'canvas)
+	(def-struct-end)
+
+	(vp-alloc local_size)
 	(entry 'canvas :lisp_next_frame '(r0 r1))
 
 (errorcases
 	(call 'lisp :env_args_sig '(r1 ($ sig) 1) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
-	(vp-push r0)
-	(defq in (method-input 'canvas :next_frame))
-	(list-bind-args r1 in '(:canvas))
-	(call 'canvas :next_frame in '(r0))
-	(call 'obj :ref '(r0) '(r1))
-	(vp-pop r0)
+	(assign '(r0) '((rsp local_this)))
+	(list-bind-args r1 '(r0) '(:canvas))
+	(assign '(r0 (r0 canvas_pixmap)) '((rsp local_canvas) r0))
+	(call 'pixmap :next_frame '(r0))
+	(assign '((rsp local_canvas)) '(r0))
+	(call 'canvas :swap '(r0) '(r1))
+	(class/obj/ref r1 r2)
 
-	(exit 'canvas :lisp_next_frame '(r0 r1))
+	(exit 'canvas :lisp_next_frame '((rsp local_this) r1))
+	(vp-free local_size)
 	(vp-ret)
 
 (errorcases
@@ -364,10 +397,12 @@
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
-	(defq in (method-input 'canvas :resize))
+	(defq in (method-input 'pixmap :resize))
 	(list-bind-args r1 in '(:canvas :canvas))
-	(call 'canvas :resize in '(r0))
-	(call 'obj :ref '(r0) '(r1))
+	(vp-push (elem 0 in))
+	(call 'pixmap :resize `((,(elem 0 in) canvas_pixmap) (,(elem 1 in) canvas_pixmap)))
+	(vp-pop r1)
+	(class/obj/ref r1 r2)
 	(vp-pop r0)
 
 	(exit 'canvas :lisp_resize '(r0 r1))
@@ -397,9 +432,9 @@
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
-	(defq in (method-input 'canvas :to_argb32))
+	(defq in (method-input 'pixmap :to_argb32))
 	(list-bind-args r1 in '(:num :num))
-	(call 'canvas :to_argb32 in '(r0))
+	(call 'pixmap :to_argb32 in '(r0))
 	(call 'num :create '(r0) '(r1))
 	(vp-pop r0)
 
@@ -430,9 +465,9 @@
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
-	(defq in (method-input 'canvas :from_argb32))
+	(defq in (method-input 'pixmap :from_argb32))
 	(list-bind-args r1 in '(:num :num))
-	(call 'canvas :from_argb32 in '(r0))
+	(call 'pixmap :from_argb32 in '(r0))
 	(call 'num :create '(r0) '(r1))
 	(vp-pop r0)
 

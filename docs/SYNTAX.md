@@ -36,9 +36,49 @@
 
 (. button :mouse_up event) -> button
 
+## canvas :fbox
+
+(. canvas :fbox x y width height) -> canvas
+
+## canvas :fill
+
+(. canvas :fill argb) -> canvas
+
+## canvas :fpoly
+
+(. canvas :fpoly x y mode paths) -> canvas
+
+## canvas :next_frame
+
+(. canvas :next_frame) -> canvas
+
+## canvas :plot
+
+(. canvas :plot x y) -> canvas
+
 ## canvas :pref_size
 
 (. canvas :pref_size) -> (width height)
+
+## canvas :resize
+
+(. canvas :resize canvas) -> canvas
+
+## canvas :save
+
+(. canvas :save file format) -> nil | canvas
+
+## canvas :set_color
+
+(. canvas :set_color argb) -> canvas
+
+## canvas :set_flags
+
+(. canvas :set_flags flags) -> canvas
+
+## canvas :swap
+
+(. canvas :swap) -> canvas
 
 ## emap :copy
 
@@ -432,6 +472,10 @@
 
 (Canvas) -> canvas
 
+## Canvas-from-file
+
+(Canvas-from-file file flags) -> nil | canvas
+
 ## Flow
 
 (Flow) -> flow
@@ -599,14 +643,6 @@
 ## canvas-save
 
 (canvas-save canvas path format)
-
-## canvas-set-color
-
-(canvas-set-color canvas argb) -> canvas
-
-## canvas-set-flags
-
-(canvas-set-flags canvas flags) -> canvas
 
 ## canvas-swap
 

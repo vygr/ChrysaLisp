@@ -22,7 +22,7 @@
 	(ui-scroll image_scroll (logior +scroll_flag_vertical+ +scroll_flag_horizontal+)))
 
 (defun win-refresh (_)
-	(bind '(w h) (view-pref-size (setq canvas (canvas-load (elem (setq index _) films) +load_flag_film+))))
+	(bind '(w h) (. (setq canvas (Canvas-from-file (elem (setq index _) films) +load_flag_film+)) :pref_size))
 	(def image_scroll :min_width w :min_height h)
 	(def window_title :text (elem _ films))
 	(. image_scroll :add_child canvas)
@@ -36,7 +36,7 @@
 	(gui-add (view-change mywindow x y w h))
 	(while id
 		(task-sleep 40000)
-		(canvas-swap (canvas-next-frame canvas))
+		(. (. canvas :next_frame) :swap)
 		(while (mail-poll (array (task-mailbox)))
 			(cond
 				((= (setq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) +event_close+)

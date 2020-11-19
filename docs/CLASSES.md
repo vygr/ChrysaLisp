@@ -609,7 +609,7 @@ Super Class: view
 
 ### canvas::create -> gui/canvas/create
 
-### canvas::create_shared -> gui/canvas/create_shared
+### canvas::create_with_pixmap -> gui/canvas/create_with_pixmap
 
 ### canvas::init -> gui/canvas/init
 
@@ -627,13 +627,13 @@ trashes
 r1-r14
 ```
 
-### canvas::init_shared -> gui/canvas/init_shared
+### canvas::init_with_pixmap -> gui/canvas/init_with_pixmap
 
 ```lisp
 inputs
 r0 = canvas object (ptr)
 r1 = vtable (pptr)
-r2 = source canvas object (ptr)
+r2 = pixmap object (ptr)
 outputs
 r0 = canvas object (ptr)
 r1 = 0 if error, else ok
@@ -650,100 +650,6 @@ outputs
 r0 = canvas object (ptr)
 trashes
 r1-r14
-```
-
-### canvas::resize -> gui/canvas/resize
-
-```lisp
-inputs
-r0 = canvas object (ptr)
-r1 = source canvas object (ptr)
-outputs
-r0 = canvas object (ptr)
-trashes
-r1-r14
-```
-
-### canvas::resize_2 -> gui/canvas/resize_2
-
-```lisp
-inputs
-r0 = canvas object (ptr)
-r1 = source canvas object (ptr)
-outputs
-r0 = canvas object (ptr)
-trashes
-r1-r14
-```
-
-### canvas::resize_3 -> gui/canvas/resize_3
-
-```lisp
-inputs
-r0 = canvas object (ptr)
-r1 = source canvas object (ptr)
-outputs
-r0 = canvas object (ptr)
-trashes
-r1-r14
-```
-
-### canvas::fill -> gui/canvas/fill
-
-```lisp
-inputs
-r0 = canvas object (ptr)
-r1 = color (argb)
-outputs
-r0 = canvas object (ptr)
-trashes
-r1-r4
-```
-
-### canvas::to_premul -> gui/canvas/to_premul
-
-```lisp
-inputs
-r1 = color (argb)
-outputs
-r1 = color premul (argb)
-trashes
-r1-r3
-```
-
-### canvas::to_argb -> gui/canvas/to_argb
-
-```lisp
-inputs
-r1 = color premul (argb)
-outputs
-r1 = color (argb)
-trashes
-r1-r4
-```
-
-### canvas::as_argb -> gui/canvas/as_argb
-
-```lisp
-inputs
-r0 = canvas object (ptr)
-r1 = source canvas object (ptr)
-outputs
-r0 = canvas object (ptr)
-trashes
-r1-r9
-```
-
-### canvas::as_premul -> gui/canvas/as_premul
-
-```lisp
-inputs
-r0 = canvas object (ptr)
-r1 = source canvas object (ptr)
-outputs
-r0 = canvas object (ptr)
-trashes
-r1-r8
 ```
 
 ### canvas::set_clip -> gui/canvas/set_clip
@@ -871,180 +777,6 @@ trashes
 r1-r14
 ```
 
-### canvas::info -> gui/canvas/info
-
-```lisp
-inputs
-r0 = c string name (pubyte)
-outputs
-r0 = -1 if error, else width (pixels)
-r1 = -1 if error, else height (pixels)
-r2 = -1 if error, else type (uint)
-trashes
-r0-r14
-```
-
-### canvas::info_file -> gui/canvas/info_file
-
-```lisp
-inputs
-r4 = c string name (pubyte)
-r5 = stream object (ptr)
-outputs
-r0 = -1 if error, else width (pixels)
-r1 = -1 if error, else height (pixels)
-r2 = -1 if error, else type (uint)
-trashes
-r0-r14
-```
-
-### canvas::info_cpm -> gui/canvas/info_cpm
-
-```lisp
-inputs
-r5 = stream object (ptr)
-outputs
-r0 = -1 if error, else width (pixels)
-r1 = -1 if error, else height (pixels)
-r2 = -1 if error, else type (uint)
-trashes
-r0-r14
-```
-
-### canvas::info_tga -> gui/canvas/info_tga
-
-```lisp
-inputs
-r5 = stream object (ptr)
-outputs
-r0 = -1 if error, else width (pixels)
-r1 = -1 if error, else height (pixels)
-r2 = -1 if error, else type (uint)
-trashes
-r0-r14
-```
-
-### canvas::load -> gui/canvas/load
-
-```lisp
-inputs
-r0 = c string name (pubyte)
-r1 = flags (uint)
-outputs
-r0 = 0 if error, else shared canvas object (ptr)
-trashes
-r0-r14
-```
-
-### canvas::load_file -> gui/canvas/load_file
-
-```lisp
-inputs
-r4 = c string name (pubyte)
-r5 = stream object (ptr)
-outputs
-r0 = 0 if error, else canvas object (ptr)
-trashes
-r0-r14
-```
-
-### canvas::load_cpm -> gui/canvas/load_cpm
-
-```lisp
-inputs
-r5 = stream object (ptr)
-outputs
-r0 = 0 if error, else canvas object (ptr)
-trashes
-r0-r14
-```
-
-### canvas::load_tga -> gui/canvas/load_tga
-
-```lisp
-inputs
-r5 = stream object (ptr)
-outputs
-r0 = 0 if error, else canvas object (ptr)
-trashes
-r0-r14
-```
-
-### canvas::to_argb32 -> gui/canvas/to_argb32
-
-```lisp
-inputs
-r1 = col (uint)
-r2 = pixel type (uint)
-outputs
-r1 = col (uint)
-trashes
-r1-r8
-```
-
-### canvas::next_frame -> gui/canvas/next_frame
-
-```lisp
-inputs
-r0 = canvas object (ptr)
-outputs
-r0 = canvas object (ptr)
-trashes
-r1-r14
-```
-
-### canvas::save -> gui/canvas/save
-
-```lisp
-inputs
-r0 = canvas object (ptr)
-r1 = c string name (pubyte)
-r2 = format (uint)
-outputs
-r0 = 0 if error, else canvas object (ptr)
-trashes
-r0-r14
-```
-
-### canvas::save_file -> gui/canvas/save_file
-
-```lisp
-inputs
-r4 = canvas object (ptr)
-r5 = c string name (pubyte)
-r6 = stream object (ptr)
-r7 = format (uint)
-outputs
-r0 = 0 if error, else canvas object (ptr)
-trashes
-r0-r14
-```
-
-### canvas::save_cpm -> gui/canvas/save_cpm
-
-```lisp
-inputs
-r4 = canvas object (ptr)
-r6 = stream object (ptr)
-r7 = format (uint)
-outputs
-r0 = canvas object (ptr)
-trashes
-r0-r14
-```
-
-### canvas::from_argb32 -> gui/canvas/from_argb32
-
-```lisp
-inputs
-r1 = col (uint)
-r2 = pixel type (uint)
-outputs
-r1 = col (uint)
-trashes
-r1-r5
-```
-
 ### canvas::deinit -> gui/canvas/deinit
 
 ```lisp
@@ -1052,19 +784,6 @@ inputs
 r0 = canvas object (ptr)
 outputs
 r0 = canvas object (ptr)
-trashes
-r1-r14
-```
-
-### canvas::pref_size -> gui/canvas/pref_size
-
-```lisp
-inputs
-r0 = canvas object (ptr)
-outputs
-r0 = canvas object (ptr)
-r9 = preferred width (pixels)
-r10 = preferred height (pixels)
 trashes
 r1-r14
 ```
@@ -5219,6 +4938,329 @@ r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+## pixmap
+
+Super Class: obj
+
+### pixmap::vtable -> gui/pixmap/vtable
+
+### pixmap::create -> gui/pixmap/create
+
+```lisp
+inputs
+r0 = width (pixels)
+r1 = height (pixels)
+outputs
+r0 = 0 if error, else pixmap object (ptr)
+trashes
+r1-r6
+```
+
+### pixmap::init -> gui/pixmap/init
+
+```lisp
+inputs
+r0 = pixmap object (ptr)
+r1 = vtable (pptr)
+r2 = width (pixels)
+r3 = height (pixels)
+outputs
+r0 = pixmap object (ptr)
+r1 = 0 if error, else ok
+trashes
+r1-r14
+```
+
+### pixmap::upload -> gui/pixmap/upload
+
+```lisp
+inputs
+r0 = pixmap object (ptr)
+outputs
+r0 = pixmap object (ptr)
+trashes
+r1-r14
+```
+
+### pixmap::resize -> gui/pixmap/resize
+
+```lisp
+inputs
+r0 = pixmap object (ptr)
+r1 = source pixmap object (ptr)
+outputs
+r0 = pixmap object (ptr)
+trashes
+r1-r14
+```
+
+### pixmap::resize_2 -> gui/pixmap/resize_2
+
+```lisp
+inputs
+r0 = pixmap object (ptr)
+r1 = source pixmap object (ptr)
+outputs
+r0 = pixmap object (ptr)
+trashes
+r1-r14
+```
+
+### pixmap::resize_3 -> gui/pixmap/resize_3
+
+```lisp
+inputs
+r0 = pixmap object (ptr)
+r1 = source pixmap object (ptr)
+outputs
+r0 = pixmap object (ptr)
+trashes
+r1-r14
+```
+
+### pixmap::fill -> gui/pixmap/fill
+
+```lisp
+inputs
+r0 = pixmap object (ptr)
+r1 = color (argb)
+outputs
+r0 = pixmap object (ptr)
+trashes
+r1-r4
+```
+
+### pixmap::to_premul -> gui/pixmap/to_premul
+
+```lisp
+inputs
+r1 = color (argb)
+outputs
+r1 = color premul (argb)
+trashes
+r1-r3
+```
+
+### pixmap::to_argb -> gui/pixmap/to_argb
+
+```lisp
+inputs
+r1 = color premul (argb)
+outputs
+r1 = color (argb)
+trashes
+r1-r4
+```
+
+### pixmap::as_argb -> gui/pixmap/as_argb
+
+```lisp
+inputs
+r0 = pixmap object (ptr)
+r1 = source pixmap object (ptr)
+outputs
+r0 = pixmap object (ptr)
+trashes
+r1-r9
+```
+
+### pixmap::as_premul -> gui/pixmap/as_premul
+
+```lisp
+inputs
+r0 = pixmap object (ptr)
+r1 = source pixmap object (ptr)
+outputs
+r0 = pixmap object (ptr)
+trashes
+r1-r8
+```
+
+### pixmap::info -> gui/pixmap/info
+
+```lisp
+inputs
+r0 = c string name (pubyte)
+outputs
+r0 = -1 if error, else width (pixels)
+r1 = -1 if error, else height (pixels)
+r2 = -1 if error, else type (uint)
+trashes
+r0-r14
+```
+
+### pixmap::info_file -> gui/pixmap/info_file
+
+```lisp
+inputs
+r4 = c string name (pubyte)
+r5 = stream object (ptr)
+outputs
+r0 = -1 if error, else width (pixels)
+r1 = -1 if error, else height (pixels)
+r2 = -1 if error, else type (uint)
+trashes
+r0-r14
+```
+
+### pixmap::info_cpm -> gui/pixmap/info_cpm
+
+```lisp
+inputs
+r5 = stream object (ptr)
+outputs
+r0 = -1 if error, else width (pixels)
+r1 = -1 if error, else height (pixels)
+r2 = -1 if error, else type (uint)
+trashes
+r0-r14
+```
+
+### pixmap::info_tga -> gui/pixmap/info_tga
+
+```lisp
+inputs
+r5 = stream object (ptr)
+outputs
+r0 = -1 if error, else width (pixels)
+r1 = -1 if error, else height (pixels)
+r2 = -1 if error, else type (uint)
+trashes
+r0-r14
+```
+
+### pixmap::load -> gui/pixmap/load
+
+```lisp
+inputs
+r0 = c string name (pubyte)
+r1 = flags (uint)
+outputs
+r0 = 0 if error, else shared pixmap object (ptr)
+trashes
+r0-r14
+```
+
+### pixmap::load_file -> gui/pixmap/load_file
+
+```lisp
+inputs
+r4 = c string name (pubyte)
+r5 = stream object (ptr)
+outputs
+r0 = 0 if error, else pixmap object (ptr)
+trashes
+r0-r14
+```
+
+### pixmap::load_cpm -> gui/pixmap/load_cpm
+
+```lisp
+inputs
+r5 = stream object (ptr)
+outputs
+r0 = 0 if error, else pixmap object (ptr)
+trashes
+r0-r14
+```
+
+### pixmap::load_tga -> gui/pixmap/load_tga
+
+```lisp
+inputs
+r5 = stream object (ptr)
+outputs
+r0 = 0 if error, else pixmap object (ptr)
+trashes
+r0-r14
+```
+
+### pixmap::to_argb32 -> gui/pixmap/to_argb32
+
+```lisp
+inputs
+r1 = col (uint)
+r2 = pixel type (uint)
+outputs
+r1 = col (uint)
+trashes
+r1-r8
+```
+
+### pixmap::next_frame -> gui/pixmap/next_frame
+
+```lisp
+inputs
+r0 = pixmap object (ptr)
+outputs
+r0 = pixmap object (ptr)
+trashes
+r1-r14
+```
+
+### pixmap::save -> gui/pixmap/save
+
+```lisp
+inputs
+r0 = pixmap object (ptr)
+r1 = c string name (pubyte)
+r2 = format (uint)
+outputs
+r0 = 0 if error, else pixmap object (ptr)
+trashes
+r0-r14
+```
+
+### pixmap::save_file -> gui/pixmap/save_file
+
+```lisp
+inputs
+r4 = pixmap object (ptr)
+r5 = c string name (pubyte)
+r6 = stream object (ptr)
+r7 = format (uint)
+outputs
+r0 = 0 if error, else pixmap object (ptr)
+trashes
+r0-r14
+```
+
+### pixmap::save_cpm -> gui/pixmap/save_cpm
+
+```lisp
+inputs
+r4 = pixmap object (ptr)
+r6 = stream object (ptr)
+r7 = format (uint)
+outputs
+r0 = pixmap object (ptr)
+trashes
+r0-r14
+```
+
+### pixmap::from_argb32 -> gui/pixmap/from_argb32
+
+```lisp
+inputs
+r1 = col (uint)
+r2 = pixel type (uint)
+outputs
+r1 = col (uint)
+trashes
+r1-r5
+```
+
+### pixmap::deinit -> gui/pixmap/deinit
+
+```lisp
+inputs
+r0 = pixmap object (ptr)
+outputs
+r0 = pixmap object (ptr)
 trashes
 r1-r14
 ```

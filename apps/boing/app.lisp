@@ -7,8 +7,8 @@
 	(byte 'close+ 'max+ 'min+))
 
 (defq id t index 0 xv 4 yv 0
-	frames (map (lambda (_) (canvas-load (cat "apps/boing/taoball_" (str _) ".cpm") +load_flag_shared+)) (range 1 12))
-	sframes (map (lambda (_) (canvas-load (cat "apps/boing/taoball_s_" (str _) ".cpm") +load_flag_shared+)) (range 1 12)))
+	frames (map (lambda (_) (Canvas-from-file (cat "apps/boing/taoball_" (str _) ".cpm") +load_flag_shared+)) (range 1 12))
+	sframes (map (lambda (_) (Canvas-from-file (cat "apps/boing/taoball_s_" (str _) ".cpm") +load_flag_shared+)) (range 1 12)))
 
 (ui-window mywindow ()
 	(ui-title-bar _ "Boing" (0xea19 0xea1b 0xea1a) +event_close+)

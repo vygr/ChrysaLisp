@@ -141,12 +141,12 @@
 		;setup active edge list, edge starts and coverage
 		(assign {0} {tracker_list})
 		(vpifnot {this->canvas_edges_start})
-			(call 'sys_mem :calloc {this->canvas_height * 8 * ptr_size} {this->canvas_edges_start, _})
+			(call 'sys_mem :calloc {this->canvas_pixmap->pixmap_height * 8 * ptr_size} {this->canvas_edges_start, _})
 		(endif)
 		(vpif {this->canvas_flags})
 			(assign {+max_int+, +min_int+} {min_x, max_x})
 			(vpifnot {this->canvas_coverage})
-				(call 'sys_mem :calloc {this->canvas_width} {this->canvas_coverage, _})
+				(call 'sys_mem :calloc {this->canvas_pixmap->pixmap_width} {this->canvas_coverage, _})
 			(endif)
 		(endif)
 

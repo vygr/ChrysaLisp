@@ -1,5 +1,6 @@
 (include "sys/func.inc")
-(include "gui/canvas/class.inc")
+(include "gui/pixmap/class.inc")
+(include "class/str/class.inc")
 (include "gui/ctx/class.inc")
 (include "class/stream/class.inc")
 (include "class/array/class.inc")
@@ -19,7 +20,7 @@
 	(ubyte 'origin)
 (def-struct-end)
 
-(def-method 'canvas :info_tga)
+(def-method 'pixmap :info_tga)
 	;inputs
 	;r5 = stream object (ptr)
 	;outputs
@@ -34,7 +35,7 @@
 	(def-struct-end)
 
 	(vp-alloc local_size)
-	(entry 'canvas :info_tga '(r0))
+	(entry 'pixmap :info_tga '(r0))
 
 	;read header
 	(call 'stream :read '(r0 rsp tga_size) '(_ r1))
@@ -45,7 +46,7 @@
 	(vpcase '(r2 = 32))
 	(vp-label 'okdepth)
 		;return info
-		(exit 'canvas :info_tga '((rsp tga_width) (rsp tga_height) r2))
+		(exit 'pixmap :info_tga '((rsp tga_width) (rsp tga_height) r2))
 		(vp-free local_size)
 		(vp-ret)
 	(vpcase '(r2 = 24))
@@ -53,17 +54,17 @@
 	(endswitch)
 
 	;return error
-	(exit 'canvas :info_tga '(-1 -1 -1))
+	(exit 'pixmap :info_tga '(-1 -1 -1))
 	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'canvas :load_tga)
+(def-method 'pixmap :load_tga)
 	;inputs
 	;r5 = stream object (ptr)
 	;outputs
-	;r0 = 0 if error, else canvas object (ptr)
+	;r0 = 0 if error, else pixmap object (ptr)
 	;trashes
 	;r0-r14
 
@@ -76,19 +77,18 @@
 
 	;save inputs
 	(push-scope)
-	(entry 'canvas :load_tga {stream})
+	(entry 'pixmap :load_tga {stream})
 
 	;read header
 	(call 'stream :read {stream, &header, tga_size} {_, length})
 	(gotoif {length /= tga_size || header.tga_type /= 2} 'error1)
 	(gotoif {header.tga_depth /= 32 && header.tga_depth /= 24} 'error1)
 
-	;create canvas
-	(call 'canvas :create {header.tga_width, header.tga_height, 1} {this})
+	;create pixmap
+	(call 'pixmap :create {header.tga_width, header.tga_height} {this})
 	(vpif {this})
-		(assign {header.tga_depth} {this->canvas_stream_type})
-		(assign {this->canvas_array->array_begin} {data})
-		(assign {data + this->canvas_height * this->canvas_stride} {data_end})
+		(assign {&this->pixmap_data} {data})
+		(assign {data + this->pixmap_height * this->pixmap_stride} {data_end})
 		(assign {0 => bit_pool} {bit_pool_size})
 
 		;decode acording to type
@@ -100,16 +100,16 @@
 			(endif)
 			(assign {col} {*data})
 		(loop-until {(data + int_size => data) = data_end})
-		(call 'canvas :as_premul {this, this})
+		(call 'pixmap :as_premul {this, this})
 	(endif)
 
-	(exit 'canvas :load_tga {this})
+	(exit 'pixmap :load_tga {this})
 	(return)
 
 (vp-label 'error)
-	(call 'canvas :deref {this})
+	(call 'pixmap :deref {this})
 (vp-label 'error1)
-	(exit 'canvas :load_tga '(0))
+	(exit 'pixmap :load_tga '(0))
 	(pop-scope)
 	(return)
 

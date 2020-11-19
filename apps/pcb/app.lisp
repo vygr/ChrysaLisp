@@ -62,11 +62,11 @@
 	(bind '(pcb_width pcb_height pcb_depth) (elem 0 pcb))
 	(defq canvas (Canvas (* (+ pcb_width 4) (f2i zoom)) (* (+ pcb_height 4) (f2i zoom)) canvas_scale)
 		zoom (* zoom (i2f canvas_scale)) pcb_border (* zoom 2.0))
-	(canvas-fill (canvas-set-flags canvas 1) +argb_black+)
+	(. (. canvas :set_flags 1) :fill +argb_black+)
 	(if (= mode 1)
 		(pcb-draw-gerber)
 		(pcb-draw-normal))
-	(canvas-swap canvas))
+	(. canvas :swap))
 
 (defun pcb-draw-normal ()
 	(defq colors (map trans (list +argb_red+ +argb_green+ +argb_blue+ +argb_yellow+ +argb_cyan+ +argb_magenta+)))
@@ -84,18 +84,18 @@
 					) p path_2d)
 				) batched_paths batched_paths_2d)
 			(each! 0 pcb_depth (lambda (layer color)
-				(canvas-set-color canvas color)
-				(canvas-fpoly canvas pcb_border pcb_border 1 layer)
+				(. canvas :set_color color)
+				(. canvas :fpoly pcb_border pcb_border 1 layer)
 				) (list layers colors))
 			;draw vias
 			(each (lambda (path_2d)
 				(each! 1 -1 (lambda (seg_2d)
 					(bind '(x y) (slice 0 2 seg_2d))
 					(setq x (+ x pcb_border) y (+ y pcb_border))
-					(canvas-set-color canvas (const (trans +argb_white+)))
-					(canvas-fpoly canvas x y 0 (circle via_radius))
-					(canvas-set-color canvas (const (trans +argb_black+)))
-					(canvas-fpoly canvas x y 0 (circle (/ via_radius 2.0)))
+					(. canvas :set_color (const (trans +argb_white+)))
+					(. canvas :fpoly x y 0 (circle via_radius))
+					(. canvas :set_color (const (trans +argb_black+)))
+					(. canvas :fpoly x y 0 (circle (/ via_radius 2.0)))
 					) (list path_2d))
 				) batched_paths_2d))
 		;draw pads
@@ -104,24 +104,24 @@
 				(setq pad_radius (* zoom pad_radius) pad_gap (* zoom pad_gap)
 					pad_x (+ (* zoom pad_x) pcb_border) pad_y (+ (* zoom pad_y) pcb_border)
 					pad_shape (to-2d pad_shape))
-				(canvas-set-color canvas (const (trans +argb_white+)))
+				(. canvas :set_color (const (trans +argb_white+)))
 				(cond
 					((= (length pad_shape) 0)
 						;circular pad
-						(canvas-fpoly canvas pad_x pad_y 0 (circle pad_radius)))
+						(. canvas :fpoly pad_x pad_y 0 (circle pad_radius)))
 					((= (length pad_shape) 4)
 						;oval pad
-						(canvas-fpoly canvas pad_x pad_y 0 (oval pad_radius pad_shape)))
+						(. canvas :fpoly pad_x pad_y 0 (oval pad_radius pad_shape)))
 					(t	;polygon pad
-						(canvas-fpoly canvas pad_x pad_y 0 (list pad_shape)))))) pads)
+						(. canvas :fpoly pad_x pad_y 0 (list pad_shape)))))) pads)
 		) (list pcb)))
 
 (defun pcb-draw-gerber ()
 	;first draw in white with gaps
-	(canvas-set-color canvas +argb_white+)
+	(. canvas :set_color +argb_white+)
 	(pcb-draw-layer t)
 	;second draw in black without gaps
-	(canvas-set-color canvas +argb_black+)
+	(. canvas :set_color +argb_black+)
 	(pcb-draw-layer nil))
 
 (defun pcb-draw-layer (with_gaps)
@@ -138,13 +138,13 @@
 							eps join_round cap_round cap_round (list seg_2d)))
 					) p path_2d)
 				) batched_paths batched_paths_2d)
-			(canvas-fpoly canvas pcb_border pcb_border 1 layer)
+			(. canvas :fpoly pcb_border pcb_border 1 layer)
 			;draw vias
 			(each (lambda (path_2d)
 				(each! 1 -1 (lambda (seg_2d)
 					(bind '(x y) (slice 0 2 seg_2d))
 					(setq x (+ x pcb_border) y (+ y pcb_border))
-					(canvas-fpoly canvas x y 0 (circle (+ via_radius (if with_gaps track_gap 0.0))))
+					(. canvas :fpoly x y 0 (circle (+ via_radius (if with_gaps track_gap 0.0))))
 					) (list path_2d))
 				) batched_paths_2d))
 		;draw pads
@@ -156,15 +156,15 @@
 				(cond
 					((= (length pad_shape) 0)
 						;circular pad
-						(canvas-fpoly canvas pad_x pad_y 0 (circle (+ pad_radius (if with_gaps pad_gap 0.0)))))
+						(. canvas :fpoly pad_x pad_y 0 (circle (+ pad_radius (if with_gaps pad_gap 0.0)))))
 					((= (length pad_shape) 4)
 						;oval pad
-						(canvas-fpoly canvas pad_x pad_y 0 (oval (+ pad_radius (if with_gaps pad_gap 0.0)) pad_shape)))
+						(. canvas :fpoly pad_x pad_y 0 (oval (+ pad_radius (if with_gaps pad_gap 0.0)) pad_shape)))
 					(t	;polygon pad
 						(if with_gaps
-							(canvas-fpoly canvas pad_x pad_y 0
+							(. canvas :fpoly pad_x pad_y 0
 								(path-stroke-polygons (list) pad_gap eps join_round (list pad_shape)))
-							(canvas-fpoly canvas pad_x pad_y 0
+							(. canvas :fpoly pad_x pad_y 0
 								(list pad_shape))))))
 			) pads)
 		) (list pcb)))

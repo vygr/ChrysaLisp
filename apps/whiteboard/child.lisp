@@ -6,23 +6,23 @@
 
 (defun fpoly (canvas col mode _)
 	;draw a polygon on a canvas
-	(canvas-set-color canvas col)
-	(canvas-fpoly canvas 0.0 0.0 mode _))
+	(. canvas :set_color col)
+	(. canvas :fpoly 0.0 0.0 mode _))
 
 (defun redraw (dlist)
 	;redraw layer/s
 	(when (/= 0 (logand (elem +dlist_mask+ dlist) 1))
 		(defq canvas (elem +dlist_commited_canvas+ dlist))
-		(canvas-fill canvas 0)
+		(. canvas :fill 0)
 		(each (lambda ((col poly)) (fpoly canvas col 1 poly)) (elem +dlist_commited_polygons+ dlist))
-		(canvas-swap canvas))
+		(. canvas :swap))
 	(when (/= 0 (logand (elem +dlist_mask+ dlist) 2))
 		(defq canvas (elem +dlist_overlay_canvas+ dlist))
-		(canvas-fill canvas 0)
+		(. canvas :fill 0)
 		(each (lambda (p)
 			(bind '(col poly) (flatten p))
 			(fpoly canvas col 1 poly)) (elem +dlist_overlay_paths+ dlist))
-		(canvas-swap canvas))
+		(. canvas :swap))
 	(elem-set +dlist_mask+ dlist 0))
 
 (defun main ()

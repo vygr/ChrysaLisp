@@ -56,12 +56,13 @@
 	files)
 
 (defun all-vp-files ()
-	;filter to only the .vp files
-	(filter (# (not (starts-with "./apps/" %0))) (make-tree "." ".vp")))
+	;filter to only the .vp files, strip off the leading "./"
+	(map (# (slice 2 -1 %0))
+		(filter (# (not (starts-with "./apps/" %0))) (make-tree "." ".vp"))))
 
 (defun all-class-files ()
-	;filter to only the class.inc files
-	(make-tree "." "class.inc"))
+	;filter to only the class.inc files, stri off the leading "./"
+	(map (# (slice 2 -1 %0)) (make-tree "." "class.inc")))
 
 (defun make-info (_)
 	;create lists of immediate dependencies and products

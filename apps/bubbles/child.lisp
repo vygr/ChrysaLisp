@@ -4,8 +4,8 @@
 
 (defun fpoly (canvas col x y _)
 	;draw a polygon on a canvas
-	(canvas-set-color canvas col)
-	(canvas-fpoly canvas x y 0 _))
+	(. canvas :set_color col)
+	(. canvas :fpoly x y 0 _))
 
 (defun circle (r)
 	;cached circle generation, quantised to 1/4 pixel
@@ -47,13 +47,13 @@
 	;redraw layer/s
 	(when (/= 0 (logand (elem +dlist_mask+ dlist) 1))
 		(defq canvas (elem +dlist_layer1_canvas+ dlist))
-		(canvas-fill canvas 0)
+		(. canvas :fill 0)
 		(bind '(sw sh) (. canvas :pref_size))
 		(defq hsw (i2n (>> sw 1)) hsh (i2n (>> sh 1)))
 		(render-verts canvas
 			(sort (# (if (<= (elem -2 (elem 0 %0)) (elem -2 (elem 0 %1))) 1 -1))
 				(clip-verts hsw hsh (elem +dlist_layer1_verts+ dlist))))
-		(canvas-swap canvas))
+		(. canvas :swap))
 	(elem-set +dlist_mask+ dlist 0))
 
 (defun main ()

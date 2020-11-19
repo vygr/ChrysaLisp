@@ -321,10 +321,10 @@
 	`(sym (cat *struct* "_" ,_)))
 
 (defun check-field (_)
-	(setq _ (struct-sym _))
-	(unless (eql *struct* 'local)
-		(and (defq d (get _)) (/= d *struct_sp*)
-			(throw "Field redefined !" _))) _)
+	(setq _ (struct-sym _)))
+	;; (unless (eql *struct* 'local)
+	;; 	(and (defq d (get _)) (/= d *struct_sp*)
+	;; 		(throw "Field redefined !" _))) _)
 
 (defun local-align (&optional _)
 	(setd _ ptr_size)

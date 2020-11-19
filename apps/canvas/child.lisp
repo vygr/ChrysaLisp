@@ -41,11 +41,11 @@
 			_ _)) _))
 
 (defun fpoly (col mode _)
-	(canvas-set-color canvas col)
-	(canvas-fpoly canvas 0.0 0.0 mode _))
+	(. canvas :set_color col)
+	(. canvas :fpoly 0.0 0.0 mode _))
 
 (defun redraw ()
-	(canvas-fill canvas 0)
+	(. canvas :fill 0)
 
 	(fpoly +argb_red+ 0 (transform-norm (* angle (i2f 2)) (list
 		(path -0.5 -0.5 -0.25 0.5 0.0 -0.5 0.25 0.5 0.5 -0.5 -0.05 0.5))))
@@ -98,7 +98,7 @@
 	(fpoly 0xffffffff 0 (transform-copy (+ (/ angle 2.0) +fp_hpi+) fp3))
 	(fpoly 0xffffffff 0 (transform-copy (+ (/ angle 2.0) (* -1.0 +fp_hpi+)) fp4))
 
-	(canvas-swap canvas))
+	(. canvas :swap))
 
 (defun main ()
 	;until quit
