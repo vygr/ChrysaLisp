@@ -41,7 +41,7 @@
 					(setq buf (slice (const (dec (neg vdu_height))) -1 buf))))
 			(t	;char
 				(elem-set -2 buf (cat (elem -2 buf) c))))) s)
-	(if vdu (vdu-load vdu buf 0 0 (length (elem -2 buf)) (dec (length buf)))) buf)
+	(if vdu (. vdu :load buf 0 0 (length (elem -2 buf)) (dec (length buf)))) buf)
 
 (defun set-slider-values ()
 	(defq val (get :value hslider) mho (max 0 (dec (length buf_list))))
@@ -72,7 +72,7 @@
 			(clear buf_list)
 			(clear buf_keys)
 			(setq buf_index nil)
-			(vdu-load vdu '(
+			(. vdu :load '(
 				{ChrysaLisp Debug 0.4}
 				{Toolbar1 buttons act on a single task.}
 				{Toolbar2 buttons act on all tasks.}

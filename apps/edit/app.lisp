@@ -112,7 +112,7 @@
 		(. text_select :insert :highlighted t)
 		(defq fxy_lxy (. text_select :find :selection))
 		(setq display_buffer (select-text display_buffer fxy_lxy)))
-	(vdu-load vdu display_buffer ox oy cx cy))
+	(. vdu :load display_buffer ox oy cx cy))
 
 (defun window-resize (w h)
 	(bind '(_ fpath mytitle buffer position) current_text)

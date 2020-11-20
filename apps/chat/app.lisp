@@ -31,7 +31,7 @@
 					(setq buf (slice (const (dec (neg vdu_height))) -1 buf))))
 			(t	;char
 				(elem-set -2 buf (cat (elem -2 buf) c))))) s)
-	(vdu-load vdu buf 0 0 (length (elem -2 buf)) (dec (length buf))) buf)
+	(. vdu :load buf 0 0 (length (elem -2 buf)) (dec (length buf))) buf)
 
 (defun broadcast (text)
 	(setq text (cat "<" (get :text chat_user) "> " text (ascii-char 10)))

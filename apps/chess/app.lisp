@@ -42,7 +42,7 @@
 					(setq buf (slice (const (dec (neg vdu_height))) -1 buf))))
 			(t	;char
 				(elem-set -2 buf (cat (elem -2 buf) c))))) s)
-	(vdu-load vdu buf 0 0 (length (elem -2 buf)) (dec (length buf))) buf)
+	(. vdu :load buf 0 0 (length (elem -2 buf)) (dec (length buf))) buf)
 
 (defun main ()
 	(mail-send (array (in-mbox data_in) 20000000)

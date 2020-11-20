@@ -74,7 +74,7 @@
 			(bind '(w h) (view-pref-size vdu_widget))
 			(view-change vdu_widget 0 0 w h)
 			(. coloriser :set_state :text)
-			(vdu-load vdu_widget (map (# (. coloriser :colorise %0)) vdu_text) 0 0 0 1000)
+			(. vdu_widget :load (map (# (. coloriser :colorise %0)) vdu_text) 0 0 0 1000)
 			(def (setq line_widget (Backdrop)) :style 1 :color +argb_grey1+ :min_width w :min_height h)
 			(. line_widget :add_child vdu_widget)
 			(setq state :normal word_cnt 0 vdu_text (list)))

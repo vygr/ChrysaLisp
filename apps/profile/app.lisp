@@ -43,12 +43,12 @@
 		(progn
 			(def hslider :value _)
 			(setq buf_index _)
-			(vdu-load vdu (elem +profile_rec_buf+ (elem buf_index buf_list)) 0 0 0 1000))
+			(. vdu :load (elem +profile_rec_buf+ (elem buf_index buf_list)) 0 0 0 1000))
 		(progn
 			(clear buf_list)
 			(clear buf_keys)
 			(setq buf_index nil)
-			(vdu-load vdu '(
+			(. vdu :load '(
 				{ChrysaLisp Profile 0.1}
 				{Toolbar1 buttons act on a single task.}
 				{Toolbar2 buttons act on all tasks.}
@@ -77,7 +77,7 @@
 					(push buf_list (list (list "")))
 					(reset (setq index (dec (length buf_list)))))
 				(elem-set +profile_rec_buf+ (elem index buf_list) (split data (ascii-char 10)))
-				(vdu-load vdu (elem +profile_rec_buf+ (elem buf_index buf_list)) 0 0 0 1000))
+				(. vdu :load (elem +profile_rec_buf+ (elem buf_index buf_list)) 0 0 0 1000))
 			;close ?
 			((= (setq id (get-long msg ev_msg_target_id)) +event_close+)
 				(setq id nil))
