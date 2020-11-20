@@ -1,5 +1,5 @@
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; tui2 - Experimental ChrysaLisp TUI Terminal
 ; Adds internal switches and functions  in
 ; addition to just running commands user cmds
@@ -11,9 +11,12 @@
 ;   See ijmptbl below
 ;
 ; Planned internal commands (needs better support)
-;   ls -> list files in current working directory
+;   ls -> list files
 ;   cd -> changes working directory
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;   rm -> removes files or directory
+; TODO:
+;   Load/reload persisted environmental variables
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;imports
 (import "sys/lisp.inc")
@@ -41,8 +44,9 @@
 
 ; Session variables
 (defq
-  session (xmap-kv
+  session (emap-kv
             :cwd    "../ChrysaLisp"
+            :cpth   "cmd"
             :lsc    ""
             :prompt ">"))
 
@@ -99,9 +103,9 @@
   (prtnl "")
   (prtnl "Switches:")
   (prtnl " -h   prints this help")
-  (prtnl " -x   prints session variables")
-  (prtnl " -x+  adds value to session (e.g. -x+ name Jane Doe")
-  (prtnl " -x-  removes value from session (e.g. -x- name)")
+  (prtnl " -e   prints session variables")
+  (prtnl " -e+  adds value to session (e.g. -e+ name Jane Doe")
+  (prtnl " -e-  removes value from session (e.g. -e- name)")
   (prtnl " -c   re-executes last command")
   (prtnl "")
   (prtnl "Additioinal Commands:")
@@ -110,11 +114,12 @@
   (prtnl "    >ls arg ; List directory content of arg path")
   (prtnl "")
   (prtnl " cd   Change directory (not implemented)")
+  (prtnl " rm   Remove file or directory (not implemented)")
   (prtnl "")
   (prtnl "Other:")
   (prtnl " @session-var   replaces @session-var with value")
   (prtnl "   example:")
-  (prtnl "    >-x+ name Jane Doe")
+  (prtnl "    >-e+ name Jane Doe")
   (prtnl "    >echo @name ; results in 'echo Jane Doe")
   (prtnl ""))
 
@@ -136,9 +141,10 @@
               "-h"    switch-help   ; Help
               "ls"    list-files    ; File listing
               "cd"    fn            ; Change working directory
-              "-x"    print-session ; Prints session values
-              "-x+"   set-session   ; Add session value
-              "-x-"   drop-session  ; Remove session value
+              "rm"    fn            ; Remove file or folder
+              "-e"    print-session ; Prints session values
+              "-e+"   set-session   ; Add session value
+              "-e-"   drop-session  ; Remove session value
               "-c"    last-command  ; Re-execute past command
               ))
 
@@ -195,7 +201,7 @@
 
 (defun main ()
   ;sign on msg
-  (print (cat (const (cat "ChrysaLisp Terminal-2 0.1 - experimental" (ascii-char 10))) (prompt)))
+  (print (cat (const (cat "ChrysaLisp Terminal-2 0.2 - experimental" (ascii-char 10))) (prompt)))
   ;create child and send args
   (mail-send (list (task-mailbox)) (open-child "apps/terminal/tui_child.lisp" kn_call_open))
   (defq cmd nil buffer "")
