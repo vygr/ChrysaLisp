@@ -764,13 +764,21 @@
 (defun import (lib_path &optional _e)
 	; (import path [env]) -> env
 	(unless (str? lib_path) (throw "Not a string !" lib_path))
+	(if (starts-with "./" lib_path) (setq lib_path (slice 2 -1 lib_path)))
 	(if (= (age lib_path) 0) (throw "No such file !" lib_path))
-	(setd _e (penv))
-	(unless (def? '*file_includes* _e)
-		(def _e '*file_includes* (list)))
-	(defq file_list (get '*file_includes* _e))
-	(unless (some (# (eql %0 lib_path)) file_list)
-		(push file_list lib_path)
+	(setd _e (penv)) (defq _ee _e)
+	; does the import allready exist in the environments tree ?
+	(while (env? _ee)
+		(cond
+			((and (defq file_list (def? '*file_includes* _ee))
+					(some (# (eql %0 lib_path)) file_list))
+				(setq _ee t))
+			(t  (setq _ee (penv _ee)))))
+	; if not existing import it here
+	(unless _ee
+		(unless (def? '*file_includes* _e)
+			(def _e '*file_includes* (list)))
+		(push (get '*file_includes* _e) lib_path)
 		(eval `(repl (file-stream ,lib_path) ,lib_path) _e)))
 
 (defmacro read-long (s)
@@ -826,17 +834,13 @@
 
 (defun within-compile-env (_f)
 	; (within-compile-env lambda)
-	(defq *compile_env* (env 503) *compile_includes* (list))
+	(defq *compile_env* (env 503))
 	(defmacro defcvar (&rest b)
 		`(def *compile_env* ~b))
 	(defmacro undefc (&rest b)
 		`(undef *compile_env* ~b))
-	(defun include (_f)
-		(unless (str? _f) (throw "Not a string !" _f))
-		(if (= (age _f) 0) (throw "No such file !" _f))
-		(unless (some (# (eql %0 _f)) *compile_includes*)
-			(push *compile_includes* _f)
-			(eval `(repl (file-stream ,_f) ,_f) *compile_env*)))
+	(defun include (lib_path)
+		(import lib_path *compile_env*))
 	(catch (progn (setq _f (_f) *compile_env* nil) _f)
 		(setq *compile_env* nil)))
 

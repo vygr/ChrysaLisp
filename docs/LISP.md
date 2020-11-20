@@ -159,7 +159,6 @@ remake-platforms
 
 ```vdu
 *compile_env*
-*compile_includes*
 ```
 
 ### `*compile_env*` macros
