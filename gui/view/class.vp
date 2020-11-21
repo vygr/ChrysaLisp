@@ -818,51 +818,6 @@
 
 (def-func-end)
 
-(def-method 'view :pref_size)
-	;inputs
-	;r0 = view object (ptr)
-	;outputs
-	;r0 = view object (ptr)
-	;r9 = preferred width (pixels)
-	;r10 = preferred height (pixels)
-	;trashes
-	;r1-r14
-
-	(ptr 'this 'lisp 'params)
-	(pptr 'value)
-	(uint 'mw 'mh)
-
-	(push-scope)
-	(entry 'view :pref_size {this})
-
-	;do we have a Lisp level pref_size method ?
-	(assign (cat {@} (f-path 'sys_task :statics) {.tk_statics_current_tcb->tk_node_lisp}) {lisp})
-	(vpif {lisp})
-		(call 'sym :get_static_sym {static_sym_pref_size} {value})
-		(call 'view :find {this, value} {_, value, _})
-		(gotoifnot {value} 'vpaction)
-		;call Lisp level handler
-		(call 'view :ref {this})
-		(call 'list :create nil {params})
-		(call 'list :push_back {params, this})
-		(call 'lisp :repl_apply {lisp, params, value[ptr_size]} '(_ r1))
-		(list-bind-args r1 '(r9 r10) '(:num :num))
-		(assign '(r9 r10) {mw, mh})
-		(call 'obj :deref '(r1))
-		(call 'obj :deref {params})
-	(else)
-	(vp-label 'vpaction)
-		;minimum
-		(call 'view :get_long_prop {this, static_sym_min_width} {_, mw})
-		(call 'view :get_long_prop {this, static_sym_min_height} {_, mh})
-	(endif)
-
-	(exit 'view :pref_size {this, mw, mh})
-	(pop-scope)
-	(return)
-
-(def-func-end)
-
 (def-method 'view :get_bounds)
 	;inputs
 	;r0 = view object (ptr)

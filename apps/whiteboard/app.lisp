@@ -105,8 +105,8 @@
 (defun main ()
 	;ui tree initial setup
 	(defq dlist (list 3 (/ 1000000 60) flatten commited_canvas overlay_canvas (list) (list)))
-	(. commited_canvas :set_flags 1)
-	(. overlay_canvas :set_flags 1)
+	(. commited_canvas :set_canvas_flags 1)
+	(. overlay_canvas :set_canvas_flags 1)
 	(. mybackdrop :set_size canvas_width canvas_height)
 	(radio-select ink_buttons 0)
 	(radio-select mode_buttons 0)

@@ -68,13 +68,13 @@
 
 (. canvas :save file format) -> nil | canvas
 
+## canvas :set_canvas_flags
+
+(. canvas :set_canvas_flags flags) -> canvas
+
 ## canvas :set_color
 
 (. canvas :set_color argb) -> canvas
-
-## canvas :set_flags
-
-(. canvas :set_flags flags) -> canvas
 
 ## canvas :swap
 
@@ -208,9 +208,17 @@
 
 (. vdu :char_size) -> (width height)
 
+## vdu :load
+
+(. vdu :load lines offset_x offset_y cursor_x cursor_y) -> vdu
+
 ## vdu :max_size
 
 (. vdu :max_size) -> (width height)
+
+## vdu :pref_size
+
+(. vdu :pref_size) -> (width height)
 
 ## view :add_back
 
@@ -283,6 +291,10 @@
 ## view :lisp_sub
 
 (. view :lisp_sub) -> view
+
+## view :pref_size
+
+(. view :pref_size) -> (width height)
 
 ## view :set_flags
 
@@ -1912,6 +1924,10 @@
 
 (values collection) -> list | nil
 
+## vdu-configure
+
+(vdu-configure vdu)
+
 ## vdu-load
 
 (vdu-load vdu lines ox oy cx cy)
@@ -1963,10 +1979,6 @@
 ## view-locate
 
 (view-locate w h [flag]) -> (x y w h)
-
-## view-pref-size
-
-(view-pref-size view)
 
 ## view-set-bounds
 

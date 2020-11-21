@@ -131,3 +131,36 @@
 	(signature '(vdu list num num num num)))
 
 (def-func-end)
+
+(def-method 'vdu :lisp_configure)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args list object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(entry 'vdu :lisp_configure '(r0 r1))
+
+(errorcases
+	(call 'lisp :env_args_sig '(r1 ($ sig) 1) '(r2))
+	(gotoif '(r2 = 0) 'error))
+
+	(vp-push r0)
+	(defq in (method-input 'vdu :configure))
+	(list-bind-args r1 in '(:vdu))
+	(call 'vdu :configure in '(r1))
+	(class/obj/ref r1 r2)
+	(vp-pop r0)
+
+	(exit 'vdu :lisp_configure '(r0 r1))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp :repl_error '(r0 "(vdu-configure vdu)" error_msg_wrong_types r1))
+	(signature '(vdu)))
+
+(def-func-end)

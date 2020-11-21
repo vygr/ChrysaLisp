@@ -39,8 +39,8 @@
 		; (. canvas :fill argb) -> canvas
 		((ffi _ "gui/canvas/lisp_fill" 0) this argb))
 
-	(defmethod :set_flags (this flags)
-		; (. canvas :set_flags flags) -> canvas
+	(defmethod :set_canvas_flags (this flags)
+		; (. canvas :set_canvas_flags flags) -> canvas
 		(set-field this (const canvas_flags) (const (neg int_size)) flags))
 
 	(defmethod :set_color (this argb)

@@ -68,7 +68,7 @@
 (defun main ()
 	;ui tree initial setup
 	(defq dlist (list 0 rate light_pos layer1_canvas (list)))
-	(. layer1_canvas :set_flags 1)
+	(. layer1_canvas :set_canvas_flags 1)
 	(. mybackdrop :set_size canvas_width canvas_height)
 	(radio-select style_buttons 1)
 	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))

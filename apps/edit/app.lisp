@@ -131,7 +131,7 @@
 	(update-status)
 	(setq vdu_width w vdu_height h)
 	(set vdu :vdu_width w :vdu_height h :min_width w :min_height h)
-	(bind '(x y w h) (cat (. vdu :get_pos) (view-pref-size vdu)))
+	(bind '(x y w h) (cat (. vdu :get_pos) (. vdu :pref_size)))
 	(set vdu :min_width vdu_min_width :min_height vdu_min_height)
 	(view-change vdu x y w h)
 	(def slider :maximum (max 0 (- (length buffer) vdu_height)) :portion vdu_height :value oy)

@@ -33,7 +33,6 @@
 
 (dec-method :draw 'class/view/draw :virtual '(r0 r1) '(r0))
 (dec-method :hit 'gui/view/hit :virtual '(r0 r7 r8) '(r0 r1))
-(dec-method :pref_size 'gui/view/pref_size :virtual '(r0) '(r0 r9 r10))
 (dec-method :layout 'gui/view/layout :virtual '(r0) '(r0))
 
 (dec-method :lisp_create 'gui/view/lisp_create :static '(r0 r1) '(r0 r1))
@@ -41,7 +40,6 @@
 (dec-method :lisp_hide 'gui/view/lisp_hide :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_add 'gui/view/lisp_add :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_add_back 'gui/view/lisp_add_back :static '(r0 r1) '(r0 r1))
-(dec-method :lisp_pref_size 'gui/view/lisp_pref_size :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_change 'gui/view/lisp_change :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_change_dirty 'gui/view/lisp_change_dirty :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_clr_opaque 'gui/view/lisp_clr_opaque :static '(r0 r1) '(r0 r1))

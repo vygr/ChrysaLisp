@@ -1,7 +1,5 @@
 ;lisp bindings
-(ffi view-set-flags "gui/view/lisp_set_flags" 0)
 (ffi view-change "gui/view/lisp_change" 0)
-(ffi view-pref-size "gui/view/lisp_pref_size" 0)
 
 (defun view-set-bounds (view x y w h)
 	; (view-set-bounds view x y w h) -> view
@@ -121,11 +119,11 @@
 			(const view_w) (const int_size) width)
 			(const view_h) (const int_size) height))
 
-	;; (defmethod :pref_size (this)
-	;; 	; (. view :pref_size) -> (width height)
-	;; 	(defq mw (get :min_width this) mw (get :min_height this))
-	;; 	(setd mw 0 mh 0)
-	;; 	(list mw mh))
+	(defmethod :pref_size (this)
+		; (. view :pref_size) -> (width height)
+		(defq mw (get :min_width this) mh (get :min_height this))
+		(setd mw 0 mh 0)
+		(list mw mh))
 
 	(defmethod :layout (this)
 		; (. view :layout) -> view

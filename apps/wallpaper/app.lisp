@@ -28,7 +28,7 @@
 	(. wallpaper :sub)
 	(. (. (setq wallpaper (Canvas w h 1)) :resize
 		(Canvas-from-file (elem index *env_wallpaper_images*) +load_flag_noswap+)) :swap)
-	(gui-add-back (view-change (view-set-flags wallpaper
+	(gui-add-back (view-change (. wallpaper :set_flags
 		(+ (const (+ +view_flag_at_back+ +view_flag_dirty_all+)) flag)
 		(const (+ +view_flag_at_back+ +view_flag_dirty_all+ +view_flag_opaque+))) 0 0 w h)))
 

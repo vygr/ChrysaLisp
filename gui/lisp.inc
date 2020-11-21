@@ -129,15 +129,16 @@
 (defmacro ui-backdrop (n &optional p &rest x)
 	; (ui-backdrop name [props] [body]) -> backdrop
 	(ui-props p :color *env_backdrop_col* :ink_color *env_backdrop_ink_col*)
-	`(ui-element ,n (Backdrop),p ~x))
+	`(ui-element ,n (Backdrop) ,p ~x))
 
 (defmacro ui-progress (n &optional p)
 	; (ui-progress name [props]) -> progress
 	`(ui-element ,n (Progress) ,p))
 
-(defmacro ui-canvas (n w h s)
+(defmacro ui-canvas (n w h s &optional p)
 	; (ui-canvas name width height scale) -> canvas
-	`(ui-element ,n (Canvas ,w ,h ,s)))
+	(ui-props p :color 0)
+	`(ui-element ,n (Canvas ,w ,h ,s) ,p))
 
 (defmacro ui-vdu (n &optional p)
 	; (ui-vdu name [props]) -> vdu

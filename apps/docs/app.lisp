@@ -71,7 +71,7 @@
 			(setq vdu_text (cat '("") vdu_text '("")))
 			(def (defq vdu_widget (Vdu)) :font *env_terminal_font*
 				:vdu_width 80 :vdu_height (length vdu_text) :ink_color +argb_black+)
-			(bind '(w h) (view-pref-size vdu_widget))
+			(bind '(w h) (. vdu_widget :pref_size))
 			(view-change vdu_widget 0 0 w h)
 			(. coloriser :set_state :text)
 			(. vdu_widget :load (map (# (. coloriser :colorise %0)) vdu_text) 0 0 0 1000)

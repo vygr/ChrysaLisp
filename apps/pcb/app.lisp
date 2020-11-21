@@ -62,7 +62,7 @@
 	(bind '(pcb_width pcb_height pcb_depth) (elem 0 pcb))
 	(defq canvas (Canvas (* (+ pcb_width 4) (f2i zoom)) (* (+ pcb_height 4) (f2i zoom)) canvas_scale)
 		zoom (* zoom (i2f canvas_scale)) pcb_border (* zoom 2.0))
-	(. (. canvas :set_flags 1) :fill +argb_black+)
+	(. (. canvas :set_canvas_flags 1) :fill +argb_black+)
 	(if (= mode 1)
 		(pcb-draw-gerber)
 		(pcb-draw-normal))

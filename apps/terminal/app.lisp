@@ -107,7 +107,7 @@
 	(setq vdu_width w vdu_height h)
 	(set vdu :vdu_width w :vdu_height h :min_width w :min_height h)
 	(bind '(x y) (. vdu :get_pos))
-	(bind '(w h) (view-pref-size vdu))
+	(bind '(w h) (. vdu :pref_size))
 	(set vdu :min_width vdu_min_width :min_height vdu_min_height)
 	(view-change vdu x y w h)
 	(print-edit-line))

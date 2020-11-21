@@ -198,41 +198,6 @@
 
 (def-func-end)
 
-(def-method 'view :lisp_pref_size)
-	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
-	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
-	;trashes
-	;r1-r14
-
-	(entry 'view :lisp_pref_size '(r0 r1))
-
-(errorcases
-	(call 'lisp :env_args_sig '(r1 ($ sig) 1) '(r2))
-	(gotoif '(r2 = 0) 'error))
-
-	(vp-push r0)
-	(array-bind-args r1 '(r0))
-	(call 'view :pref_size '(r0) '(_ r9 r10))
-	(call 'num :create '(r9) '(r9))
-	(call 'num :create '(r10) '(r10))
-	(call 'list :create nil '(r0))
-	(call 'list :push_back2 '(r0 r9 r10) '(r1 _ _ _ _))
-	(vp-pop r0)
-
-	(exit 'view :lisp_pref_size '(r0 r1))
-	(vp-ret)
-
-(errorcases
-(vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(view-pref-size view)" error_msg_wrong_types r1))
-	(signature '(view)))
-
-(def-func-end)
-
 (def-method 'view :lisp_change)
 	;inputs
 	;r0 = lisp object (ptr)

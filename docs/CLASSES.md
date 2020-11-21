@@ -8504,18 +8504,7 @@ trashes
 r1-r14
 ```
 
-### vdu::switch_font -> gui/vdu/switch_font
-
-```lisp
-inputs
-r0 = vdu object (ptr)
-outputs
-r0 = vdu object (ptr)
-trashes
-r1-r14
-```
-
-### vdu::switch_size -> gui/vdu/switch_size
+### vdu::configure -> gui/vdu/configure
 
 ```lisp
 inputs
@@ -8552,6 +8541,19 @@ trashes
 r1-r14
 ```
 
+### vdu::lisp_configure -> gui/vdu/lisp_configure
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
 ### vdu::deinit -> gui/vdu/deinit
 
 ```lisp
@@ -8559,19 +8561,6 @@ inputs
 r0 = vdu object (ptr)
 outputs
 r0 = vdu object (ptr)
-trashes
-r1-r14
-```
-
-### vdu::pref_size -> gui/vdu/pref_size
-
-```lisp
-inputs
-r0 = vdu object (ptr)
-outputs
-r0 = vdu object (ptr)
-r9 = preferred width (pixels)
-r10 = preferred height (pixels)
 trashes
 r1-r14
 ```
@@ -8972,19 +8961,6 @@ trashes
 r1
 ```
 
-### view::pref_size -> gui/view/pref_size
-
-```lisp
-inputs
-r0 = view object (ptr)
-outputs
-r0 = view object (ptr)
-r9 = preferred width (pixels)
-r10 = preferred height (pixels)
-trashes
-r1-r14
-```
-
 ### view::layout -> gui/view/layout
 
 ```lisp
@@ -9049,19 +9025,6 @@ r1-r14
 ```
 
 ### view::lisp_add_back -> gui/view/lisp_add_back
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args list object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### view::lisp_pref_size -> gui/view/lisp_pref_size
 
 ```lisp
 inputs
