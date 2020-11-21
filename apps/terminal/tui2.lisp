@@ -13,6 +13,7 @@
 ; Planned internal commands (needs better support)
 ;   ls -> list files
 ;   cd -> changes working directory
+;   mkdir -> make a directory
 ;   rm -> removes files or directory
 ; TODO:
 ;   Load/reload persisted environmental variables
@@ -21,6 +22,9 @@
 ;imports
 (import "sys/lisp.inc")
 (import "lib/pipe/pipe.inc")
+(import "lib/date/date.inc")
+
+; TODO: Setup logging
 
 ;override print for TUI output
 (defun print (_)
@@ -44,11 +48,13 @@
 
 ; Session variables
 (defq
+  tzone   nil
   session (emap-kv
-            :cwd    "../ChrysaLisp"
-            :cpth   "cmd"
-            :lsc    ""
-            :prompt ">"))
+            :cwd    "../ChrysaLisp"     ; Current working directory
+            :cpth   "cmd"               ; Search path for commands
+            :lsc    ""                  ; Last command slot
+            :tz     nil                 ; Timezone
+            :prompt ">"))               ; Prompt specialization
 
 (defun prompt ()
   ; (prompt) -> string
@@ -113,8 +119,9 @@
   (prtnl "    >ls     ; Lists current working directory files")
   (prtnl "    >ls arg ; List directory content of arg path")
   (prtnl "")
-  (prtnl " cd   Change directory (not implemented)")
-  (prtnl " rm   Remove file or directory (not implemented)")
+  (prtnl " cd     Change directory (not implemented)")
+  (prtnl " mkdir  Makes a directory (not implemented)")
+  (prtnl " rm     Remove file or directory (not implemented)")
   (prtnl "")
   (prtnl "Other:")
   (prtnl " @session-var   replaces @session-var with value")
@@ -135,17 +142,44 @@
 (defun fn (ic &optional args)
   (prtnl (str ic " -> not implemented")))
 
+(defun change-directory (ic &optional args)
+  ; (change-directory internal args) -> map
+  ; Changes the working directory
+  ; Implement by adding chdir and getcwd in main.c and
+  ; calling from here
+  ; (if (> (age args) 0)
+  ;     (sets! session :cwd args)
+  ;     (prtnl (str "Directory '" args "' does not exist")))
+  (fn ic))
+
+(defun make-directory (ic &optional args)
+  ; (make-directory internal args) -> ?
+  ; Creates a directory
+  ; Implement by exposing rmkdir in main.c and
+  ; calling from here
+  (fn ic))
+
+(defun del-directory (ic &optional args)
+  ; (del-directory internal args) -> ?
+  ; Remove a directory
+  ; TODO:
+  ;   Recursive switch
+  ;   Prompt
+  ;   Silent
+  (fn ic))
+
 (defq
   ; Internal command dictionary
   ijmptbl (xmap-kv
-              "-h"    switch-help   ; Help
-              "ls"    list-files    ; File listing
-              "cd"    fn            ; Change working directory
-              "rm"    fn            ; Remove file or folder
-              "-e"    print-session ; Prints session values
-              "-e+"   set-session   ; Add session value
-              "-e-"   drop-session  ; Remove session value
-              "-c"    last-command  ; Re-execute past command
+              "-h"    switch-help       ; Help
+              "ls"    list-files        ; File listing
+              "cd"    change-directory  ; Change working directory
+              "mkdir" make-directory    ; Make a directory
+              "rm"    del-directory     ; Remove file or folder
+              "-e"    print-session     ; Prints session values
+              "-e+"   set-session       ; Add session value
+              "-e-"   drop-session      ; Remove session value
+              "-c"    last-command      ; Re-execute past command
               ))
 
 (defun process-input (bfr)
@@ -200,10 +234,17 @@
       (setq buffer (cat buffer (char c))))))
 
 (defun main ()
+  ; Setup variables
+  (setq tzone (get :local_timezone))
+  (sets! session :tz (first tzone))
+  ; TODO: Check and load configuration file
   ;sign on msg
-  (print (cat (const (cat "ChrysaLisp Terminal-2 0.2 - experimental" (ascii-char 10))) (prompt)))
+  (prtnl "ChrysaLisp Terminal-2 0.3 (experimental)")
+  (print (prompt))
   ;create child and send args
-  (mail-send (list (task-mailbox)) (open-child "apps/terminal/tui_child.lisp" kn_call_open))
+  (mail-send
+    (list (task-mailbox))
+    (open-child "apps/terminal/tui_child.lisp" kn_call_open))
   (defq cmd nil buffer "")
   (while t
     (defq data t)
