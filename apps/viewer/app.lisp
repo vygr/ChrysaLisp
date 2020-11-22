@@ -37,22 +37,27 @@
 		(setq files (cat files (all-files d)))) dirs)
 	files)
 
+(defun set-slider (file)
+	;set slider values for this file
+	(defq scroll_max (max 0 (- (length text_buf) vdu_height))
+		scroll_position (min (. scroll_positions :find file) scroll_max))
+	(def (. slider :dirty) :maximum scroll_max :portion vdu_height :value scroll_position)
+	scroll_position)
+
 (defun populate-vdu (file)
+	;load up the vdu widget from this file
 	(. syntax :set_state :text)
 	(setq text_buf (list) current_file file)
-	(defq scroll_position (. scroll_positions :find file))
 	(each-line (lambda (line)
 		(push text_buf (. syntax :colorise
 			(if (> (length line) 0)
 				(apply cat (map (# (if (eql %0 (ascii-char 9)) "    " %0)) line))
 				line))))
 		(file-stream file))
-	(def slider :maximum (max 0 (- (length text_buf) vdu_height)) :portion vdu_height
-		:value scroll_position)
-	(. slider :dirty)
-	(. vdu :load text_buf 0 scroll_position 0 10000))
+	(. vdu :load text_buf 0 (set-slider file) 0 10000))
 
 (defun populate-tree ()
+	;load up the file tree and the first file
 	(defq all_src_files
 		(map (# (slice 2 -1 %0)) (sort cmp (filter (# (or
 			(ends-with ".vp" %0)
@@ -66,22 +71,24 @@
 	(populate-vdu (elem 0 all_src_files)))
 
 (defun window-layout (w h)
+	;layout the window and size the vdu to fit
 	(setq vdu_width w vdu_height h)
 	(set vdu :vdu_width w :vdu_height h :min_width w :min_height h)
 	(bind '(x y) (. vdu :get_pos))
 	(bind '(w h) (. vdu :pref_size))
 	(set vdu :min_width vdu_min_width :min_height vdu_min_height)
 	(view-change vdu x y w h)
-	(. vdu :load text_buf 0 (. scroll_positions :find current_file) 0 10000))
+	(. vdu :load text_buf 0 (set-slider current_file) 0 10000))
 
 (defun window-resize (w h)
+	;size the vdu and layout the window to fit
 	(setq vdu_width w vdu_height h)
 	(set vdu :vdu_width w :vdu_height h :min_width w :min_height h)
 	(bind '(x y w h) (apply view-fit
 		(cat (. mywindow :get_pos) (. mywindow :pref_size))))
 	(set vdu :min_width vdu_min_width :min_height vdu_min_height)
 	(. mywindow :change_dirty x y w h)
-	(. vdu :load text_buf 0 (. scroll_positions :find current_file) 0 10000))
+	(. vdu :load text_buf 0 (set-slider current_file) 0 10000))
 
 (defun main ()
 	(populate-tree)
@@ -108,6 +115,7 @@
 			(. scroll_positions :insert current_file scroll_position)
 			(. vdu :load text_buf 0 scroll_position 0 10000))
 		((= id +event_file_button+)
+			;load up the file selected
 			(if current_button
 				(set (. current_button :dirty) :color +argb_white+))
 			(setq current_button (. mywindow :find_id (get-long msg ev_msg_action_source_id)))
