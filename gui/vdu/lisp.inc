@@ -5,7 +5,9 @@
 (defclass Vdu ()
 	; (Vdu) -> vdu
 	; overide the default 'this' env with a vdu component
+	; inherit from View !
 	(defq this ((ffi _ "gui/vdu/lisp_create" 0)))
+	(each (lambda ((key val)) (def this key val)) (tolist (View)))
 
 	(defmethod :max_size (this)
 		; (. vdu :max_size) -> (width height)

@@ -142,7 +142,7 @@
 
 (defmacro ui-vdu (n &optional p)
 	; (ui-vdu name [props]) -> vdu
-	(ui-props p :font *env_terminal_font*)
+	(ui-props p :font *env_terminal_font* :color 0)
 	`(ui-element ,n (Vdu) ,p))
 
 (defmacro ui-view (n &optional p &rest x)
