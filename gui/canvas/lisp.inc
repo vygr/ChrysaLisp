@@ -12,12 +12,8 @@
 ;load flags
 (defq +load_flag_shared+ 1 +load_flag_film+ 2 +load_flag_noswap+ 4)
 
-(defclass Canvas (width height scale)
-	; (Canvas) -> canvas
-	; overide the default 'this' env with a canvas component
-	; inherit from View !
-	(defq super (View) this ((ffi _ "gui/canvas/lisp_create" 0) width height scale))
-	(each (lambda ((key val)) (def this key val)) (tolist super))
+(defclass Canvas-base ()
+	(defq this (View))
 
 	(defmethod :save (this file format)
 		; (. canvas :save file format) -> nil | canvas
@@ -67,10 +63,18 @@
 			(/ (get-field pixmap (const pixmap_height) (const (neg int_size))) canvas_scale)))
 	)
 
+(defclass Canvas (width height scale)
+	; (Canvas) -> canvas
+	; overide the default 'this' env with a canvas component
+	; inherit from Canvas-base !
+	(defq this ((ffi _ "gui/canvas/lisp_create" 0) width height scale))
+	(each (lambda ((key val)) (def this key val)) (tolist (Canvas-base)))
+	)
+
 (defclass Canvas-from-file (file flags)
 	; (Canvas-from-file file flags) -> nil | canvas
 	; overide the default 'this' env with a canvas component
-	; inherit from Canvas !
+	; inherit from Canvas-base !
 	(defq this ((ffi _ "gui/canvas/lisp_load" 0) file flags))
-	(if this (each (lambda ((key val)) (def this key val)) (tolist (Canvas 1 1 1))))
+	(if this (each (lambda ((key val)) (def this key val)) (tolist (Canvas-base))))
 	)
