@@ -24,7 +24,11 @@
 (import "lib/pipe/pipe.inc")
 (import "lib/date/date.inc")
 
-; TODO: Setup logging
+(import "lib/logging/loganchor.inc")
+
+; Setup logging
+
+(defq tlog (log-anchor "tui2"))
 
 ;override print for TUI output
 (defun print (_)
@@ -130,6 +134,9 @@
   (prtnl "    >echo @name ; results in 'echo Jane Doe")
   (prtnl ""))
 
+(defun grab-flags (coll)
+  (filter (#(eql (first %0) "-")) coll))
+
 (defun list-files (ic &optional args)
   ; (list-files internal args) -> nil
   ; Lists files in either cwd or other in argument
@@ -157,7 +164,13 @@
   ; Creates a directory
   ; Implement by exposing rmkdir in main.c and
   ; calling from here
-  (fn ic))
+  (defq
+    aprs (split args " ")
+    pth  (pop aprs)
+    flgs (grab-flags aprs))
+  (prtnl "With flags:")
+  (each prtnl flgs)
+  (prtnl (str "Creating: " pth)))
 
 (defun del-directory (ic &optional args)
   ; (del-directory internal args) -> ?
@@ -241,6 +254,7 @@
   ;sign on msg
   (prtnl "ChrysaLisp Terminal-2 0.3 (experimental)")
   (print (prompt))
+  (log-debug tlog "Started Terminal 2")
   ;create child and send args
   (mail-send
     (list (task-mailbox))
@@ -257,6 +271,6 @@
         ;pipe is closed
         (pipe-close cmd)
         (setq cmd nil)
-        (print (const (cat (ascii-char 10) ">"))))
+        (print (prompt)))
       (t  ;string from pipe
         (print data)))))
