@@ -42,7 +42,11 @@
 	(setq text_buf (list) current_file file)
 	(defq scroll_position (. scroll_positions :find file))
 	(each-line (lambda (line)
-		(push text_buf (. syntax :colorise line))) (file-stream file))
+		(push text_buf (. syntax :colorise
+			(if (> (length line) 0)
+				(apply cat (map (# (if (eql %0 (ascii-char 9)) "    " %0)) line))
+				line))))
+		(file-stream file))
 	(def slider :maximum (max 0 (- (length text_buf) vdu_height)) :portion vdu_height
 		:value scroll_position)
 	(. slider :dirty)
