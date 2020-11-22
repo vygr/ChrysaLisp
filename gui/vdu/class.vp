@@ -81,7 +81,7 @@
 	(call 'vdu :get_prop {this, static_sym_font} {_, font})
 
 	;draw vdu chars
-	(vpif {font && this->vdu_chars})
+	(vpif {font && this->vdu_chars && this->vdu_textures})
 		(call 'region :bounds {ctx->ctx_dirty_region} {bx, by, bx1, by1})
 		(assign {(bx - ctx->ctx_x) / this->vdu_char_width} {bx})
 		(assign {(bx1 - ctx->ctx_x - 1) / this->vdu_char_width} {bx1})
