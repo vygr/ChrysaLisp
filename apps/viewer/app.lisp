@@ -59,10 +59,16 @@
 (defun populate-tree ()
 	;load up the file tree and the first file
 	(defq all_src_files
-		(map (# (slice 2 -1 %0)) (sort cmp (filter (# (or
-			(ends-with ".vp" %0)
-			(ends-with ".inc" %0)
-			(ends-with ".lisp" %0))) (all-files ".")))))
+		(sort cmp
+			(map (# (slice 2 -1 %0)) (filter (# (or
+				(ends-with ".vp" %0)
+				(ends-with ".inc" %0)
+				(ends-with ".lisp" %0))) (all-files "."))))
+		all_dirs (reduce (lambda (dirs file)
+			(defq dir (find-rev "/" file) dir (if dir (cat (slice 0 dir file) "/.")))
+			(if (and dir (notany (# (eql %0 dir)) dirs))
+				(push dirs dir) dirs)) all_src_files (list)))
+	(each (# (. tree :add_route %0)) all_dirs)
 	(each (# (. tree :add_route %0)) all_src_files)
 	(each (# (. scroll_positions :insert %0 0)) all_src_files)
 	(populate-vdu (elem 0 all_src_files)))

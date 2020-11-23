@@ -37,9 +37,10 @@
 					(. root :add_child node)
 					(setq root tab_child)))
 			(pop route))
-		(def (defq node (Button)) :text (pop route) :border 0)
-		(component-connect node (get :action_event this))
-		(. root :add_child node))
+		(unless (eql (defq file (pop route)) ".")
+			(def (defq node (Button)) :text file :border 0)
+			(component-connect node (get :action_event this))
+			(. root :add_child node)))
 
 	(defmethod :get_route (this node)
 		; (. tree :get_route node) -> route
