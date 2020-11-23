@@ -126,8 +126,7 @@
 			(. vdu :load text_buf 0 scroll_position 0 -1))
 		((= id +event_file_button+)
 			;load up the file selected
-			(if current_button
-				(def (. current_button :dirty) :color +argb_white+))
+			(if current_button (undef (. current_button :dirty) :color))
 			(setq current_button (. mywindow :find_id (get-long msg ev_msg_action_source_id)))
 			(def (. current_button :dirty) :color +argb_grey12+)
 			(populate-vdu (. tree :get_route current_button)))

@@ -96,23 +96,23 @@
 							(cond
 								((/= 0 buttons)
 									;is down now, so move
-									(if (get :mouse_move target) (. target :mouse_move event)))
+									(if (def? :mouse_move target) (. target :mouse_move event)))
 								(t	;is not down now, so release
 									(set this :last_buttons 0)
-									(if (get :mouse_up target) (. target :mouse_up event)))))
+									(if (def? :mouse_up target) (. target :mouse_up event)))))
 						(t	;was not down previously
 							(cond
 								((/= 0 buttons)
 									;is down now, so first down
 									(set this :last_buttons buttons)
-									(if (get :mouse_down target) (. target :mouse_down event)))
+									(if (def? :mouse_down target) (. target :mouse_down event)))
 								(t	;is not down now, so hover
-									(if (get :mouse_hover target) (. target :mouse_hover event)))))))
+									(if (def? :mouse_hover target) (. target :mouse_hover event)))))))
 				((= type (const ev_type_key))
 					(if (>= (get-int event (const ev_msg_key_keycode)) 0)
-						(if (get :key_down target) (. target :key_down event))
-						(if (get :key_up target) (. target :key_up event))))
+						(if (def? :key_down target) (. target :key_down event))
+						(if (def? :key_up target) (. target :key_up event))))
 				((= type (const ev_type_action))
-					(if (get :action target) (. target :action event)))))
+					(if (def? :action target) (. target :action event)))))
 		this)
 	)
