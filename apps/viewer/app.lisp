@@ -16,7 +16,7 @@
 	current_file nil current_button nil)
 
 (ui-window mywindow (:color +argb_grey2+)
-	(ui-title-bar _ "Viewer" (0xea19 0xea1b 0xea1a) +event_close+)
+	(ui-title-bar mytitle "" (0xea19 0xea1b 0xea1a) +event_close+)
 	(ui-flow _ (:flow_flags +flow_right_fill+ :font *env_terminal_font*)
 		(ui-scroll tree_scroll +scroll_flag_vertical+ nil
 			(ui-tree tree (:action_event +event_file_button+ :min_width 0 :color +argb_white+)))
@@ -54,21 +54,28 @@
 				(apply cat (map (# (if (eql %0 (ascii-char 9)) "    " %0)) line))
 				line))))
 		(file-stream file))
-	(. vdu :load text_buf 0 (set-slider file) 0 -1))
+	(. vdu :load text_buf 0 (set-slider file) 0 -1)
+	(def mytitle :text (cat "Viewer -> " file))
+	(. (. mytitle :layout) :dirty))
+
+(defun all-dirs (files)
+	;return all the dir routes
+	(reduce (lambda (dirs file)
+		(defq dir (find-rev "/" file) dir (if dir (cat (slice 0 dir file) "/.")))
+		(if (and dir (notany (# (eql %0 dir)) dirs))
+		(push dirs dir) dirs)) files (list)))
+
+(defun all-src-files (root)
+	;return all the source files from root
+	(map (# (slice 2 -1 %0)) (filter (# (or
+		(ends-with ".vp" %0)
+		(ends-with ".inc" %0)
+		(ends-with ".lisp" %0))) (all-files root))))
 
 (defun populate-tree ()
 	;load up the file tree and the first file
-	(defq all_src_files
-		(sort cmp
-			(map (# (slice 2 -1 %0)) (filter (# (or
-				(ends-with ".vp" %0)
-				(ends-with ".inc" %0)
-				(ends-with ".lisp" %0))) (all-files "."))))
-		all_dirs (reduce (lambda (dirs file)
-			(defq dir (find-rev "/" file) dir (if dir (cat (slice 0 dir file) "/.")))
-			(if (and dir (notany (# (eql %0 dir)) dirs))
-				(push dirs dir) dirs)) all_src_files (list)))
-	(each (# (. tree :add_route %0)) all_dirs)
+	(defq all_src_files (sort cmp (all-src-files ".")))
+	(each (# (. tree :add_route %0)) (all-dirs all_src_files))
 	(each (# (. tree :add_route %0)) all_src_files)
 	(each (# (. scroll_positions :insert %0 0)) all_src_files)
 	(populate-vdu (elem 0 all_src_files)))

@@ -14,6 +14,9 @@
 
 	(defmethod :add_route (this route)
 		; (. tree :add_route route) -> tree
+		; routes are:
+		; "a/b/c/file"
+		; "a/b/."
 		(defq route (reverse (split route "/")) root this)
 		(while (> (length route) 1)
 			(cond
