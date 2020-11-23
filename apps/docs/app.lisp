@@ -83,7 +83,7 @@
 		(t	(push vdu_text line_str))))
 
 (defun populate-page (file)
-	(ui-tree page_flow (Flow) (:flow_flags (logior +flow_flag_right+ +flow_flag_fillh+)
+	(ui-root page_flow (Flow) (:flow_flags (logior +flow_flag_right+ +flow_flag_fillh+)
 			:font *env_window_font*)
 		(ui-label _ (:min_width margin_width :color +argb_grey15+))
 		(ui-flow page_widget (:flow_flags (logior +flow_flag_down+ +flow_flag_fillw+))))

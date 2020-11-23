@@ -147,7 +147,7 @@
 
 (defun view-tabbar ()
 	(. tabbar :sub)
-	(ui-tree tabbar (Grid) (:grid_width (length text_store) :grid_height 1)
+	(ui-root tabbar (Grid) (:grid_width (length text_store) :grid_height 1)
 		(each (lambda (e) (component-connect (ui-button b 
 			(:text (elem +text_title+ (elem _ text_store)) :min_width 32 :border 1)) (+ +event_tabbar+ _)))
 			(range 0 (length text_store))))
