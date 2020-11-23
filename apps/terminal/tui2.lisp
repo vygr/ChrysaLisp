@@ -134,8 +134,19 @@
   (prtnl "    >echo @name ; results in 'echo Jane Doe")
   (prtnl ""))
 
-(defun grab-flags (coll)
-  (filter (#(eql (first %0) "-")) coll))
+(defun not-impl (ic &optional args)
+  (prtnl (str ic " -> not implemented")))
+
+
+(defun split-args (args)
+  ; (split-args string) -> list
+  ; Splits flags from arguments
+  (defq sargs (split args " "))
+  (reduce
+    (lambda (acc el)
+      (if (eql (first el) "-")
+          (push (second acc) el)
+          (push (last acc) el)) acc) sargs (list sargs (list) (list))))
 
 (defun list-files (ic &optional args)
   ; (list-files internal args) -> nil
@@ -144,42 +155,44 @@
   ; -? TBD
   (defq targ (if (= (length args) 0) (gets session :cwd) args))
   (each (#(if (not (or (eql %0 "4") (eql %0 "8")))
-              (prtnl %0))) (split (pii-dirlist targ) ",")))
+              (prtnl %0))) (split (pii-dirlist targ) ","))
+  nil)
 
-(defun fn (ic &optional args)
-  (prtnl (str ic " -> not implemented")))
 
 (defun change-directory (ic &optional args)
-  ; (change-directory internal args) -> map
+  ; (change-directory internal args) -> nil
   ; Changes the working directory
   ; Implement by adding chdir and getcwd in main.c and
   ; calling from here
-  ; (if (> (age args) 0)
-  ;     (sets! session :cwd args)
-  ;     (prtnl (str "Directory '" args "' does not exist")))
-  (fn ic))
+  (not-impl ic)
+  nil)
 
 (defun make-directory (ic &optional args)
-  ; (make-directory internal args) -> ?
+  ; (make-directory internal args) -> nil
   ; Creates a directory
-  ; Implement by exposing rmkdir in main.c and
-  ; calling from here
-  (defq
-    aprs (split args " ")
-    pth  (pop aprs)
-    flgs (grab-flags aprs))
-  (prtnl "With flags:")
-  (each prtnl flgs)
-  (prtnl (str "Creating: " pth)))
+  ; Implement by using (file-stream path file_write_append)
+  ; which is inefficient. Should have a make dir in the
+  ; main kernel
+  (bind '(sargs flags paths) (split-args args))
+  (not-impl ic)
+  nil)
 
 (defun del-directory (ic &optional args)
-  ; (del-directory internal args) -> ?
+  ; (del-directory internal args) -> nil
   ; Remove a directory
   ; TODO:
   ;   Recursive switch
   ;   Prompt
   ;   Silent
-  (fn ic))
+  (bind '(sargs flags paths) (split-args args))
+  (not-impl ic)
+  nil)
+
+(defun disp-date (ic &optional args)
+  ; (disp-date command args) -> nil
+  (bind '(sargs flags paths) (split-args args))
+  (prtnl (encode-date))
+  nil)
 
 (defq
   ; Internal command dictionary
@@ -189,6 +202,7 @@
               "cd"    change-directory  ; Change working directory
               "mkdir" make-directory    ; Make a directory
               "rm"    del-directory     ; Remove file or folder
+              "date"  disp-date         ; Prints date/time
               "-e"    print-session     ; Prints session values
               "-e+"   set-session       ; Add session value
               "-e-"   drop-session      ; Remove session value
