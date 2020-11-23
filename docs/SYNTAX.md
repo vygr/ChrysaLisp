@@ -204,6 +204,14 @@
 
 (. title :mouse_move event) -> title
 
+## tree :add_route
+
+(. tree :add_route route) -> tree
+
+## tree :get_route
+
+(. tree :get_route node) -> route
+
 ## vdu :char_size
 
 (. vdu :char_size) -> (width height)
@@ -523,6 +531,10 @@
 ## Title
 
 (Title) -> title
+
+## Tree
+
+(Tree) -> tree
 
 ## Vdu
 
@@ -1864,6 +1876,10 @@
 
 (ui-props props [props]) -> props
 
+## ui-root
+
+(ui-root name func [props] [body]) -> view
+
 ## ui-scroll
 
 (ui-scroll name [props] [body]) -> scroll
@@ -1890,7 +1906,7 @@
 
 ## ui-tree
 
-(ui-tree name func [props] [body]) -> view
+(ui-tree name [props]) -> tree
 
 ## ui-vdu
 
