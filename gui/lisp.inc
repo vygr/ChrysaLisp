@@ -18,6 +18,7 @@
 (import "gui/title/lisp.inc")
 (import "gui/grid/lisp.inc")
 (import "gui/flow/lisp.inc")
+(import "gui/tree/lisp.inc")
 (import "gui/vdu/lisp.inc")
 (import "gui/button/lisp.inc")
 (import "gui/label/lisp.inc")
@@ -45,8 +46,8 @@
 	; (ui-props props [props]) -> props
 	`(setq ,p (cat ',x (opt ,p '()))))
 
-(defmacro ui-tree (n c &optional p &rest x)
-	; (ui-tree name func [props] [body]) -> view
+(defmacro ui-root (n c &optional p &rest x)
+	; (ui-root name func [props] [body]) -> view
 	(setq p (ui-merge-props p))
 	(if (/= 0 (length p))
 		`(progn (defq _ui (list (defq ,n ,c))) (def ,n ~p) ~x (setq _ui nil))
@@ -63,12 +64,16 @@
 	; (ui-window name [props] [body]) -> window
 	(ui-props p :font *env_window_font* :ink_color *env_ink_col* :color *env_window_col*
 		:border *env_window_border* :shadow *env_window_shadow*)
-	`(ui-tree ,n (Window) ,p
+	`(ui-root ,n (Window) ,p
 		(ui-flow _ (:flow_flags +flow_down_fill+) ~x)))
 
 (defmacro ui-flow (n &optional p &rest x)
 	; (ui-flow name [props] [body]) -> flow
 	`(ui-element ,n (Flow) ,p ~x))
+
+(defmacro ui-tree (n &optional p)
+	; (ui-tree name [props]) -> tree
+	`(ui-element ,n (Tree) ,p))
 
 (defmacro ui-grid (n &optional p &rest x)
 	; (ui-grid name [props] [body]) -> grid
