@@ -24,7 +24,11 @@
 (import "lib/pipe/pipe.inc")
 (import "lib/date/date.inc")
 
-; TODO: Setup logging
+(import "lib/logging/loganchor.inc")
+
+; Setup logging
+
+(defq tlog (log-anchor "tui2"))
 
 ;override print for TUI output
 (defun print (_)
@@ -130,6 +134,20 @@
   (prtnl "    >echo @name ; results in 'echo Jane Doe")
   (prtnl ""))
 
+(defun not-impl (ic &optional args)
+  (prtnl (str ic " -> not implemented")))
+
+
+(defun split-args (args)
+  ; (split-args string) -> list
+  ; Splits flags from arguments
+  (defq sargs (split args " "))
+  (reduce
+    (lambda (acc el)
+      (if (eql (first el) "-")
+          (push (second acc) el)
+          (push (last acc) el)) acc) sargs (list sargs (list) (list))))
+
 (defun list-files (ic &optional args)
   ; (list-files internal args) -> nil
   ; Lists files in either cwd or other in argument
@@ -137,36 +155,44 @@
   ; -? TBD
   (defq targ (if (= (length args) 0) (gets session :cwd) args))
   (each (#(if (not (or (eql %0 "4") (eql %0 "8")))
-              (prtnl %0))) (split (pii-dirlist targ) ",")))
+              (prtnl %0))) (split (pii-dirlist targ) ","))
+  nil)
 
-(defun fn (ic &optional args)
-  (prtnl (str ic " -> not implemented")))
 
 (defun change-directory (ic &optional args)
-  ; (change-directory internal args) -> map
+  ; (change-directory internal args) -> nil
   ; Changes the working directory
   ; Implement by adding chdir and getcwd in main.c and
   ; calling from here
-  ; (if (> (age args) 0)
-  ;     (sets! session :cwd args)
-  ;     (prtnl (str "Directory '" args "' does not exist")))
-  (fn ic))
+  (not-impl ic)
+  nil)
 
 (defun make-directory (ic &optional args)
-  ; (make-directory internal args) -> ?
+  ; (make-directory internal args) -> nil
   ; Creates a directory
-  ; Implement by exposing rmkdir in main.c and
-  ; calling from here
-  (fn ic))
+  ; Implement by using (file-stream path file_write_append)
+  ; which is inefficient. Should have a make dir in the
+  ; main kernel
+  (bind '(sargs flags paths) (split-args args))
+  (not-impl ic)
+  nil)
 
 (defun del-directory (ic &optional args)
-  ; (del-directory internal args) -> ?
+  ; (del-directory internal args) -> nil
   ; Remove a directory
   ; TODO:
   ;   Recursive switch
   ;   Prompt
   ;   Silent
-  (fn ic))
+  (bind '(sargs flags paths) (split-args args))
+  (not-impl ic)
+  nil)
+
+(defun disp-date (ic &optional args)
+  ; (disp-date command args) -> nil
+  (bind '(sargs flags paths) (split-args args))
+  (prtnl (encode-date))
+  nil)
 
 (defq
   ; Internal command dictionary
@@ -176,6 +202,7 @@
               "cd"    change-directory  ; Change working directory
               "mkdir" make-directory    ; Make a directory
               "rm"    del-directory     ; Remove file or folder
+              "date"  disp-date         ; Prints date/time
               "-e"    print-session     ; Prints session values
               "-e+"   set-session       ; Add session value
               "-e-"   drop-session      ; Remove session value
@@ -241,6 +268,7 @@
   ;sign on msg
   (prtnl "ChrysaLisp Terminal-2 0.3 (experimental)")
   (print (prompt))
+  (log-debug tlog "Started Terminal 2")
   ;create child and send args
   (mail-send
     (list (task-mailbox))
@@ -257,6 +285,6 @@
         ;pipe is closed
         (pipe-close cmd)
         (setq cmd nil)
-        (print (const (cat (ascii-char 10) ">"))))
+        (print (prompt)))
       (t  ;string from pipe
         (print data)))))
