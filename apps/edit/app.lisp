@@ -133,7 +133,7 @@
 	(set vdu :vdu_width w :vdu_height h :min_width w :min_height h)
 	(bind '(x y w h) (cat (. vdu :get_pos) (. vdu :pref_size)))
 	(set vdu :min_width vdu_min_width :min_height vdu_min_height)
-	(view-change vdu x y w h)
+	(. vdu :change x y w h)
 	(def slider :maximum (max 0 (- (length buffer) vdu_height)) :portion vdu_height :value oy)
 	(view-tabbar)
 	(. window :layout)
@@ -324,7 +324,7 @@
 			(first (mail-enquire "CLIPBOARD_SERVICE")) ","))))
 	(bind '(w h) (. (component-connect window +event_layout+) :pref_size))
 	(bind '(x y w h) (view-locate w h))
-	(gui-add (view-change window x y w h))
+	(gui-add (. window :change x y w h))
 	(window-layout vdu_width vdu_height)
 	(while id
 		(defq msg (mail-read (elem (defq idx (mail-select mbox_array)) mbox_array)))

@@ -4,7 +4,7 @@
 
 ;screen widget
 (def (defq screen (Backdrop)) :style 0 :color +argb_grey2+ :ink_color +argb_grey1+)
-(view-dirty-all (view-change screen 0 0 1280 960))
+(view-dirty-all (. screen :change 0 0 1280 960))
 
 ;fire up the login app
 (open-child "apps/login/app.lisp" kn_call_open)

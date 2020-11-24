@@ -40,7 +40,7 @@
 			(def (defq _ (Label)) :border 1 :text (if (> (length info) 2) (elem 2 info) "No Info"))
 			(. info_flow :add_child _) (push info_labels _)) new_services)
 		(bind '(w h) (. info_grid :pref_size))
-		(view-change info_grid 0 0 w h))
+		(. info_grid :change 0 0 w h))
 		(view-dirty-all (. info_scroll :layout)))
 
 (defun resize (mh)
@@ -60,7 +60,7 @@
 	(def info_scroll :min_width w :min_height h)
 	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
 	(undef info_scroll :min_width :min_height)
-	(gui-add (view-change mywindow x y w h))
+	(gui-add (. mywindow :change x y w h))
 	;app event loop
 	(while id
 		;next event

@@ -91,7 +91,7 @@
 	(defq all_files (sort cmp (tree dir)) tree_buttons (list) file_buttons (list) current_dir (cat dir "/"))
 	(populate-files all_files current_dir exts)
 	(bind '(x y w h) (apply view-locate (. mywindow :get_size)))
-	(gui-add (view-change mywindow x y w h))
+	(gui-add (. mywindow :change x y w h))
 	(while (cond
 		((eql (defq msg (mail-read (task-mailbox))) "")
 			nil)

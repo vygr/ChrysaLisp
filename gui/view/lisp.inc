@@ -1,14 +1,6 @@
 ;lisp bindings
 (ffi view-change "gui/view/lisp_change" 0)
 
-(defun view-set-bounds (view x y w h)
-	; (view-set-bounds view x y w h) -> view
-	(set-field (set-field (set-field (set-field view
-		(const view_x) (const int_size) x)
-		(const view_y) (const int_size) y)
-		(const view_w) (const int_size) w)
-		(const view_h) (const int_size) h))
-
 (defun view-fit (x y w h)
 	; (view-fit x y w h) -> (x y w h)
 	(bind '(_ _ sw sh) (gui-info))
@@ -28,7 +20,8 @@
 	(view-fit x y w h))
 
 ;view flags
-(defq +view_flag_solid+ 1 +view_flag_opaque+ 2 +view_flag_dirty_all+ 4 +view_flag_at_back+ 8)
+(defq +view_flag_solid+ 1 +view_flag_opaque+ 2 +view_flag_dirty_all+ 4
+	+view_flag_at_back+ 8 +view_flag_hiden+ 16)
 
 (defmacro view-dirty-all (_)
 	; (view-dirty-all view) -> view
@@ -50,6 +43,9 @@
 
 	(defiimethod :dirty "gui/view/lisp_dirty")
 		; (. view :dirty) -> view
+
+	(defiimethod :change "gui/view/lisp_change")
+		; (. view :change x y width height) -> view
 
 	(defiimethod :change_dirty "gui/view/lisp_change_dirty")
 		; (. view :change_dirty x y width height) -> view
@@ -83,6 +79,10 @@
 
 	(defiimethod :hide "gui/view/lisp_hide")
 		; (. view :hide) -> view
+
+	(defmethod :get_flags (this)
+		; (. view :get_flags) -> flags
+		(get-field this (const view_flags) (const (neg int_size))))
 
 	(defmethod :add_child (this child)
 		; (. view :add_child child) -> view

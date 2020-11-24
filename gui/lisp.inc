@@ -71,9 +71,9 @@
 	; (ui-flow name [props] [body]) -> flow
 	`(ui-element ,n (Flow) ,p ~x))
 
-(defmacro ui-tree (n &optional p)
-	; (ui-tree name [props]) -> tree
-	`(ui-element ,n (Tree) ,p))
+(defmacro ui-tree (n e &optional p)
+	; (ui-tree name event [props]) -> tree
+	`(ui-element ,n (Tree ,e) ,p))
 
 (defmacro ui-grid (n &optional p &rest x)
 	; (ui-grid name [props] [body]) -> grid

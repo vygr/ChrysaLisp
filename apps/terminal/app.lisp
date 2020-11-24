@@ -109,13 +109,13 @@
 	(bind '(x y) (. vdu :get_pos))
 	(bind '(w h) (. vdu :pref_size))
 	(set vdu :min_width vdu_min_width :min_height vdu_min_height)
-	(view-change vdu x y w h)
+	(. vdu :change x y w h)
 	(print-edit-line))
 
 (defun main ()
 	;add window
 	(bind '(x y w h) (apply view-locate (. (component-connect mywindow +event_layout+) :pref_size)))
-	(gui-add (view-change mywindow x y w h))
+	(gui-add (. mywindow :change x y w h))
 	;sign on msg
 	(print (str "ChrysaLisp Terminal 1.6" (ascii-char 10)))
 	(print-edit-line)

@@ -39,7 +39,7 @@
 (defun main ()
 	;add window
 	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
-	(gui-add (view-change mywindow x y w h))
+	(gui-add (. mywindow :change x y w h))
 	;app event loop
 	(while (progn
 		;new batch of samples ?

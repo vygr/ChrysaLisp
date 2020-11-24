@@ -24,14 +24,14 @@
 	;allows menu to appear downward and upwards in either direction.
 	(cond
 		((eql pflag :top_left)
-			(view-change window x y w h))
+			(. window :change x y w h))
 		((eql pflag :top_right)
-			(view-change window (- x w) y w h))
+			(. window :change (- x w) y w h))
 		((eql pflag :bottom_left)
-			(view-change window x (+ y h 2) w h))
+			(. window :change x (+ y h 2) w h))
 		((eql pflag :bottom_right)
-			(view-change window (+ (- x w) 2) (+ y h 2) w h))
-		(t 	(view-change window x y w h)))
+			(. window :change (+ (- x w) 2) (+ y h 2) w h))
+		(t 	(. window :change x y w h)))
 	(view-dirty-all window))
 
 (defun main ()
@@ -39,7 +39,7 @@
 	(bind '(reply_mbox btn_list pos pflag) (mail-read (task-mailbox)))
 	(bind '(px py) pos)
 	(bind '(x y w h) (apply view-locate (. window :pref_size)))
-	(gui-add (view-change window x y w h))
+	(gui-add (. window :change x y w h))
 	(build-menu px py pflag)
 	(while (cond
 		((eql (defq msg (mail-read (task-mailbox))) "") nil)

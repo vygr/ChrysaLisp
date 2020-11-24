@@ -20,7 +20,7 @@
 	;ensure the launcher is completely on screen
 	(bind '(w h) (. mywindow :pref_size))
 	(bind '(x y w h) (apply view-locate (push (list (/ (* w 100) 80) h) *env_launcher_position*)))
-	(gui-add (view-change mywindow x y w h))
+	(gui-add (. mywindow :change x y w h))
 	(while (cond
 		((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) +event_close+)
 			nil)

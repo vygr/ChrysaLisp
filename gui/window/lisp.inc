@@ -33,7 +33,7 @@
 		;position any child
 		(bind '(w h) (. this :get_size))
 		(when child
-			(view-change child (+ border shadow) (+ border shadow)
+			(. child :change (+ border shadow) (+ border shadow)
 				(- w (* 2 (+ border shadow))) (- h (* 2 (+ border shadow)))))
 
 		;adjust window transparetncy details based on color and shadow

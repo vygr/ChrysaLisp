@@ -29,7 +29,7 @@
 
 (defun main ()
 	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
-	(gui-add (view-change mywindow x y w h))
+	(gui-add (. mywindow :change x y w h))
 	(defq accum 0 value 0 num 0 lastop nil)
 	(while (cond
 		((>= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) +event_button+)

@@ -29,6 +29,6 @@
 				y (>> (/ (* row h) grid_height) +fp_shift+)
 				x1 (>> (/ (* (inc col) w) grid_width) +fp_shift+)
 				y1 (>> (/ (* (inc row) h) grid_height) +fp_shift+))
-			(view-change child x y (- x1 x) (- y1 y))) (. this :children))
+			(. child :change x y (- x1 x) (- y1 y))) (. this :children))
 		this)
 	)

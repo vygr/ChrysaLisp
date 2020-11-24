@@ -54,10 +54,10 @@
 		(bind '(w h) (. this :get_size))
 		(when vslider
 			(bind '(sw _) (. vslider :pref_size))
-			(view-change vslider (- w sw) 0 sw h))
+			(. vslider :change (- w sw) 0 sw h))
 		(when hslider
 			(bind '(sh _) (. hslider :pref_size))
-			(view-change hslider 0 (- h sh) (- w sw) sh))
+			(. hslider :change 0 (- h sh) (- w sw) sh))
 
 		;position any child
 		(when child

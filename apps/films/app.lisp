@@ -33,7 +33,7 @@
 
 (defun main ()
 	(bind '(x y w h) (apply view-locate (. (win-refresh index) :get_size)))
-	(gui-add (view-change mywindow x y w h))
+	(gui-add (. mywindow :change x y w h))
 	(while id
 		(task-sleep 40000)
 		(. (. canvas :next_frame) :swap)

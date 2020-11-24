@@ -40,7 +40,7 @@
 (defun main ()
 	(defq id t text_buf (list "") select (array (task-mailbox)) entry nil)
 	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
-	(gui-add (view-change mywindow x y w h))
+	(gui-add (. mywindow :change x y w h))
 	(while id
 		(defq idx (mail-select select) msg (mail-read (elem idx select)))
 		(cond

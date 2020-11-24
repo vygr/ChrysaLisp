@@ -72,7 +72,7 @@
 			(def (defq vdu_widget (Vdu)) :font *env_terminal_font*
 				:vdu_width 80 :vdu_height (length vdu_text) :ink_color +argb_black+)
 			(bind '(w h) (. vdu_widget :pref_size))
-			(view-change vdu_widget 0 0 w h)
+			(. vdu_widget :change 0 0 w h)
 			(. coloriser :set_state :text)
 			(. vdu_widget :load (map (# (. coloriser :colorise %0)) vdu_text) 0 0 0 1000)
 			(def (setq line_widget (Backdrop)) :style 1 :color +argb_grey1+ :min_width w :min_height h)
@@ -112,7 +112,7 @@
 	(defq coloriser (Syntax))
 	(populate-page (elem 0 doc_list))
 	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
-	(gui-add (view-change mywindow x y w h))
+	(gui-add (. mywindow :change x y w h))
 	(while (cond
 		((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) +event_close+)
 			nil)

@@ -55,9 +55,9 @@
 (defun main ()
 	(populate-help)
 	(bind '(w h) (. index :pref_size))
-	(view-change index 0 0 (def index_scroll :min_width w) h)
+	(. index :change 0 0 (def index_scroll :min_width w) h)
 	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
-	(gui-add (view-change mywindow x y w h))
+	(gui-add (. mywindow :change x y w h))
 	(while (cond
 		((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) +event_close+)
 			nil)

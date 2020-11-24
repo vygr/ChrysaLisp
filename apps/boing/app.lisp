@@ -18,7 +18,7 @@
 
 (defun main ()
 	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
-	(gui-add (view-change mywindow x y w h))
+	(gui-add (. mywindow :change x y w h))
 	(while id
 		(bind '(_ _ backdrop_width backdrop_height) (. mybackdrop :get_bounds))
 		(defq index (% (inc index) (length frames))
@@ -31,8 +31,8 @@
 		(if (> y (- backdrop_height h)) (setq y (- backdrop_height h) yv -22))
 		(if (< x 0) (setq x 0 xv (abs xv)))
 		(if (> x (- backdrop_width w)) (setq x (- backdrop_width w) xv (neg (abs xv))))
-		(view-set-bounds frame x y w h)
-		(view-set-bounds sframe (+ x 8) (+ y 64) sw sh)
+		(. frame :set_bounds x y w h)
+		(. sframe :set_bounds (+ x 8) (+ y 64) sw sh)
 		(. old_sframe :sub)
 		(. old_frame :sub)
 		(. (. mybackdrop :add_back sframe) :add_front frame)

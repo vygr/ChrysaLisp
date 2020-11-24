@@ -15,7 +15,7 @@
 (defun main ()
 	(. (. canvas :fill 0) :set_canvas_flags 1)
 	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
-	(gui-add (view-change mywindow x y w h))
+	(gui-add (. mywindow :change x y w h))
 	;create child and send args
 	(mail-send (list canvas (i2f canvas_width) (i2f canvas_height) (i2f canvas_scale))
 		(defq mbox (open-child "apps/canvas/child.lisp" kn_call_open)))

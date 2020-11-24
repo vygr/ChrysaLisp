@@ -46,10 +46,10 @@
 	(set title :text title_text)
 	(set label :text label_text)
 	; (bind '(x y w h) (apply view-locate (. flow :pref_size)))
-	; (view-change flow x y w h)
+	; (. flow :change x y w h)
 	; (set title :text title_text)
 	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
-	(view-change mywindow x y (+ 48 w) (+ 12 h)))
+	(. mywindow :change x y (+ 48 w) (+ 12 h)))
 
 (defun main ()
 	;read paramaters from parent

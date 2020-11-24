@@ -64,7 +64,7 @@
 	)
 
 (defclass Canvas (width height scale)
-	; (Canvas) -> canvas
+	; (Canvas width height scale) -> canvas
 	; overide the default 'this' env with a canvas component
 	; inherit from Canvas-base !
 	(defq this ((ffi _ "gui/canvas/lisp_create" 0) width height scale))

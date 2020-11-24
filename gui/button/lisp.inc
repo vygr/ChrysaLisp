@@ -22,7 +22,7 @@
 		(if (/= 0 state)
 			(setq pos (* pos 2)))
 		(bind '(w h) (. this :get_size))
-		(view-change flow pos pos (- w (* border 2)) (- h (* border 2)))
+		(. flow :change pos pos (- w (* border 2)) (- h (* border 2)))
 		(. flow :layout)
 		(. this :set_flags +view_flag_opaque+ +view_flag_opaque+))
 

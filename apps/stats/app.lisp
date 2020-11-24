@@ -56,7 +56,7 @@
 			;open the window once we have data
 			(when (= (setq frame_cnt (inc frame_cnt)) 2)
 				(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
-				(gui-add (view-change mywindow x y w h)))
+				(gui-add (. mywindow :change x y w h)))
 			;resize if number of classes change
 			(when (/= last_max_classes max_classes)
 				(setq last_max_classes max_classes)

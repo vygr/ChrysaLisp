@@ -44,7 +44,7 @@
 	;add window
 	(. (. canvas :fill +argb_black+) :swap)
 	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
-	(gui-add (view-change mywindow x y w h))
+	(gui-add (. mywindow :change x y w h))
 	(reset)
 	;main event loop
 	(while (progn

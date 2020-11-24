@@ -204,6 +204,10 @@
 
 (. title :mouse_move event) -> title
 
+## tree :action
+
+(. tree :action event) -> tree
+
 ## tree :add_route
 
 (. tree :add_route route) -> tree
@@ -248,6 +252,10 @@
 
 (. view :add_opaque x y width height) -> view
 
+## view :change
+
+(. view :change x y width height) -> view
+
 ## view :change_dirty
 
 (. view :change_dirty x y w h)
@@ -275,6 +283,10 @@
 ## view :get_bounds
 
 (. view :get_bounds) -> (x y width height)
+
+## view :get_flags
+
+(. view :get_flags) -> flags
 
 ## view :get_pos
 
@@ -490,7 +502,7 @@
 
 ## Canvas
 
-(Canvas) -> canvas
+(Canvas width height scale) -> canvas
 
 ## Canvas-from-file
 
@@ -534,7 +546,7 @@
 
 ## Tree
 
-(Tree) -> tree
+(Tree event) -> tree
 
 ## Vdu
 
@@ -1906,7 +1918,7 @@
 
 ## ui-tree
 
-(ui-tree name [props]) -> tree
+(ui-tree name event [props]) -> tree
 
 ## ui-vdu
 
@@ -1995,10 +2007,6 @@
 ## view-locate
 
 (view-locate w h [flag]) -> (x y w h)
-
-## view-set-bounds
-
-(view-set-bounds view x y w h) -> view
 
 ## view-set-flags
 

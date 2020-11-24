@@ -7,7 +7,7 @@
 (structure '+event 0
 	(byte 'close+ 'max+ 'min+)
 	(byte 'layout+ 'scroll+)
-	(byte 'tree_button+ 'file_button+))
+	(byte 'tree+ 'tree_route+))
 
 (defq vdu_min_width 16 vdu_min_height 16
 	vdu_max_width 120 vdu_max_height 50
@@ -19,7 +19,9 @@
 	(ui-title-bar mytitle "" (0xea19 0xea1b 0xea1a) +event_close+)
 	(ui-flow _ (:flow_flags +flow_right_fill+ :font *env_terminal_font*)
 		(ui-scroll tree_scroll +scroll_flag_vertical+ nil
-			(ui-tree tree (:action_event +event_file_button+ :min_width 0 :color +argb_white+)))
+			(ui-backdrop mybackdrop (:color +argb_grey15+ :style 1)
+				(component-connect (ui-tree tree +event_tree+
+					(:min_width 0 :color +argb_white+)) +event_tree+)))
 		(ui-flow _ (:flow_flags +flow_left_fill+)
 			(component-connect (ui-slider slider) +event_scroll+)
 			(ui-vdu vdu (:min_width vdu_width :min_height vdu_height
@@ -87,7 +89,7 @@
 	(bind '(x y) (. vdu :get_pos))
 	(bind '(w h) (. vdu :pref_size))
 	(set vdu :min_width vdu_min_width :min_height vdu_min_height)
-	(view-change vdu x y w h)
+	(. vdu :change x y w h)
 	(. vdu :load text_buf 0 (set-slider current_file) 0 -1))
 
 (defun vdu-resize (w h)
@@ -103,9 +105,10 @@
 (defun main ()
 	(populate-tree)
 	(bind '(w h) (. tree :pref_size))
-	(view-change tree 0 0 (def tree_scroll :min_width w) h)
+	(. mybackdrop :change 0 0 w h)
+	(. tree :change 0 0 (def tree_scroll :min_width w) h)
 	(bind '(x y w h) (apply view-locate (. (component-connect mywindow +event_layout+) :pref_size)))
-	(gui-add (view-change mywindow x y w h))
+	(gui-add (. mywindow :change x y w h))
 	(. vdu :load text_buf 0 0 0 -1)
 	(while (cond
 		((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) +event_close+)
@@ -124,7 +127,14 @@
 			(defq scroll_position (get :value slider))
 			(. scroll_positions :insert current_file scroll_position)
 			(. vdu :load text_buf 0 scroll_position 0 -1))
-		((= id +event_file_button+)
+		((= id +event_tree+)
+			;tree view mutation
+			(defq w (get :min_width tree_scroll))
+			(bind '(_ h) (. tree :pref_size))
+			(. mybackdrop :change 0 0 w h)
+			(. tree :change 0 0 w h)
+			(view-dirty-all (. tree_scroll :layout)))
+		((= id +event_tree_route+)
 			;load up the file selected
 			(if current_button (undef (. current_button :dirty) :color))
 			(setq current_button (. mywindow :find_id (get-long msg ev_msg_action_source_id)))
