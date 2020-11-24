@@ -857,8 +857,8 @@
 	; (. this method ([arg ...]))
 	`(def this ,n (lambda ,p ~(macroexpand _))))
 
-(defmacro defiimethod (n _)
-	; (defiimethod name ffi)
+(defmacro deffimethod (n _)
+	; (deffimethod name ffi)
 	`(def this ,n (ffi _ ,_ 0)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;

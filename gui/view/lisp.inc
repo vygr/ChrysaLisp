@@ -32,52 +32,52 @@
 	; overide the default 'this' env with a view component
 	(defq this ((ffi _ "gui/view/lisp_create" 0)))
 
-	(defiimethod :find_id "gui/view/lisp_find_id")
+	(deffimethod :find_id "gui/view/lisp_find_id")
 		; (. view :find_id target_id) -> nil | target_view
 
-	(defiimethod :set_flags "gui/view/lisp_set_flags")
+	(deffimethod :set_flags "gui/view/lisp_set_flags")
 		; (. view :set_flags value mask) -> view
 
-	(defiimethod :add_dirty "gui/view/lisp_add_dirty")
+	(deffimethod :add_dirty "gui/view/lisp_add_dirty")
 		; (. view :add_dirty x y width height) -> view
 
-	(defiimethod :dirty "gui/view/lisp_dirty")
+	(deffimethod :dirty "gui/view/lisp_dirty")
 		; (. view :dirty) -> view
 
-	(defiimethod :change "gui/view/lisp_change")
+	(deffimethod :change "gui/view/lisp_change")
 		; (. view :change x y width height) -> view
 
-	(defiimethod :change_dirty "gui/view/lisp_change_dirty")
+	(deffimethod :change_dirty "gui/view/lisp_change_dirty")
 		; (. view :change_dirty x y width height) -> view
 
-	(defiimethod :add_opaque "gui/view/lisp_add_opaque")
+	(deffimethod :add_opaque "gui/view/lisp_add_opaque")
 		; (. view :add_opaque x y width height) -> view
 
-	(defiimethod :sub_opaque "gui/view/lisp_sub_opaque")
+	(deffimethod :sub_opaque "gui/view/lisp_sub_opaque")
 		; (. view :sub_opaque x y width height) -> view
 
-	(defiimethod :clr_opaque "gui/view/lisp_clr_opaque")
+	(deffimethod :clr_opaque "gui/view/lisp_clr_opaque")
 		; (. view :clr_opaque) -> view
 
-	(defiimethod :children "gui/view/lisp_children")
+	(deffimethod :children "gui/view/lisp_children")
 		; (. view :children) -> (child0 child1 ...)
 
-	(defiimethod :sub "gui/view/lisp_sub")
+	(deffimethod :sub "gui/view/lisp_sub")
 		; (. view :lisp_sub) -> view
 
-	(defiimethod :add_back "gui/view/lisp_add_back")
+	(deffimethod :add_back "gui/view/lisp_add_back")
 		; (. view :add_back child) -> view
 
-	(defiimethod :add_front "gui/view/lisp_add")
+	(deffimethod :add_front "gui/view/lisp_add")
 		; (. view :add_front child) -> view
 
-	(defiimethod :to_front "gui/view/lisp_to_front")
+	(deffimethod :to_front "gui/view/lisp_to_front")
 		; (. view :to_front) -> view
 
-	(defiimethod :to_back "gui/view/lisp_to_back")
+	(deffimethod :to_back "gui/view/lisp_to_back")
 		; (. view :to_back) -> view
 
-	(defiimethod :hide "gui/view/lisp_hide")
+	(deffimethod :hide "gui/view/lisp_hide")
 		; (. view :hide) -> view
 
 	(defmethod :get_flags (this)

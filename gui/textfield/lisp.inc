@@ -11,7 +11,7 @@
 	(def (defq this (Label)) :cursor 0)
 
 	;draw function for compositor...
-	(defiimethod :draw "gui/textfield/draw")
+	(deffimethod :draw "gui/textfield/draw")
 
 	(defmethod :key_down (this event)
 		; (. textfield :key_down event) -> textfield

@@ -11,7 +11,7 @@
 	(def (defq this (View)) :state 0 :value 0 :maximum 0 :portion 0 :downxy 0)
 
 	;draw function for compositor...
-	(defiimethod :draw "gui/slider/draw")
+	(deffimethod :draw "gui/slider/draw")
 
 	(defmethod :pref_size (this)
 		; (. slider :pref_size) -> (width height)

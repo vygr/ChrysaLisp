@@ -11,7 +11,7 @@
 	(defq this (View))
 
 	;draw function for compositor...
-	(defiimethod :draw "gui/progress/draw")
+	(deffimethod :draw "gui/progress/draw")
 
 	(defmethod :pref_size (this)
 		; (. progress :pref_size) -> (width height)

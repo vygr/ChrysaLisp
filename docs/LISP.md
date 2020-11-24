@@ -106,7 +106,7 @@ task-mailbox task-sleep throw time tolist type-of undef while write write-char
 ### boot.inc macros
 
 ```vdu
-# and ascii-char ascii-code case compose const curry dec defclass defiimethod
+# and ascii-char ascii-code case compose const curry dec defclass deffimethod
 defmacro defmethod defun defun-unbound each each-rev env? every fnc? fun?
 get-byte get-int get-long get-short get-ubyte get-uint get-ushort if inc let
 lst? macro? merges not notany notevery num? opt or pairs-into-kv rcurry

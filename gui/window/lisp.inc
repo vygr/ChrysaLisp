@@ -11,7 +11,7 @@
 	(def (defq this (View)) :child nil :last_buttons 0 :is_window t)
 
 	;draw function for compositor...
-	(defiimethod :draw "gui/window/draw")
+	(deffimethod :draw "gui/window/draw")
 
 	(defmethod :add_child (this child)
 		; (. window :add_child child) -> window

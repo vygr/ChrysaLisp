@@ -11,7 +11,7 @@
 	(def (defq this (View)) :color 0)
 
 	;draw function for compositor...
-	(defiimethod :draw "gui/text/draw")
+	(deffimethod :draw "gui/text/draw")
 
 	(defmethod :pref_size (this)
 		; (. text :pref_size) -> (width height)

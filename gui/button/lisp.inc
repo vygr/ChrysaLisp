@@ -11,7 +11,7 @@
 	(def (defq this (Label)) :state 0)
 
 	;draw function for compositor...
-	(defiimethod :draw "gui/button/draw")
+	(deffimethod :draw "gui/button/draw")
 
 	(defmethod :layout (this)
 		; (. button :layout) -> button

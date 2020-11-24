@@ -828,9 +828,9 @@
 
 (defclass name ([arg ...]) body)
 
-## defiimethod
+## deffimethod
 
-(defiimethod name ffi)
+(deffimethod name ffi)
 
 ## defmethod
 

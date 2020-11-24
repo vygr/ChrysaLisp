@@ -11,5 +11,5 @@
 	(defq this (View))
 
 	;draw function for compositor...
-	(defiimethod :draw "gui/backdrop/draw")
+	(deffimethod :draw "gui/backdrop/draw")
 	)

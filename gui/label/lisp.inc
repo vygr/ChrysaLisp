@@ -16,7 +16,7 @@
 	(. label_flow :add_child label_text)
 
 	;draw function for compositor...
-	(defiimethod :draw "gui/label/draw")
+	(deffimethod :draw "gui/label/draw")
 
 	(defmethod :add_child (this child)
 		; (. label :add_child child) -> label
