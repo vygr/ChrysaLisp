@@ -22,8 +22,7 @@
 		(if (/= 0 state)
 			(setq pos (* pos 2)))
 		(bind '(w h) (. this :get_size))
-		(. flow :change pos pos (- w (* border 2)) (- h (* border 2)))
-		(. flow :layout)
+		(. (. flow :change pos pos (- w (* border 2)) (- h (* border 2))) :layout)
 		(. this :set_flags +view_flag_opaque+ +view_flag_opaque+))
 
 	(defmethod :mouse_down (this event)
@@ -35,9 +34,7 @@
 		; (. button :mouse_up event) -> button
 		(when (/= (get :state this) 0)
 			(def this :state 0)
-			(. this :layout)
-			(view-dirty-all this)
-			(component-emit this))
+			(component-emit (view-dirty-all (. this :layout))))
 		this)
 
 	(defmethod :mouse_move (this event)
@@ -47,7 +44,6 @@
 			state (if (and (>= rx 0) (>= ry 0) (< rx w) (< ry h)) 1 0))
 		(when (/= state (get :state this))
 			(def this :state state)
-			(. this :layout)
-			(view-dirty-all this))
+			(view-dirty-all (. this :layout)))
 		this)
 	)
