@@ -69,10 +69,8 @@
 
 (defun all-src-files (root)
 	;return all the source files from root
-	(map (# (slice 2 -1 %0)) (filter (# (or
-		(ends-with ".vp" %0)
-		(ends-with ".inc" %0)
-		(ends-with ".lisp" %0))) (all-files root))))
+	(map (# (slice 2 -1 %0)) (filter (lambda (file)
+		(some (# (ends-with %0 file)) '(".vp" ".inc" ".lisp"))) (all-files root))))
 
 (defun populate-tree ()
 	;load up the file tree and the first file

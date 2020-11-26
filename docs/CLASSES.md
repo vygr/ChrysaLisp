@@ -1958,11 +1958,11 @@ r1-r14
 ```lisp
 inputs
 r0 = fstream object (ptr)
-r1 = position (long)
-r2 = mode (uint)
+r1 = offset (long)
+r2 = pos (uint)
 outputs
 r0 = fstream object (ptr)
-r1 = 0 for ok, else error code
+r1 = -1 for error, else file position
 trashes
 r1-r14
 ```
@@ -2405,6 +2405,8 @@ Super Class: null
 
 ### host::remove -> nil
 
+### host::seek -> nil
+
 ### host::sdl_delay -> nil
 
 ### host::sdl_set_main_ready -> nil
@@ -2458,8 +2460,6 @@ Super Class: null
 ### host::sdl_set_render_target -> nil
 
 ### host::sdl_render_clear -> nil
-
-### host::seek -> nil
 
 ## hset
 
@@ -6694,11 +6694,11 @@ r1-r14
 ```lisp
 inputs
 r0 = stream object (ptr)
-r1 = position (long)
-r2 = mode (ulong)
+r1 = offset (long)
+r2 = pos (uint)
 outputs
 r0 = stream object (ptr)
-r1 = 0 for ok, else error code
+r1 = -1 for error, else file position
 trashes
 r1-r14
 ```
@@ -8107,10 +8107,10 @@ r0
 ```lisp
 inputs
 r0 = fd (ulong)
-r1 = position (long)
-r2 = mode (ulong)
+r1 = offset (long)
+r2 = pos (ulong)
 outputs
-r0 = error code (ulong)
+r0 = -1 if error, else file position (ulong)
 trashes
 r0
 ```

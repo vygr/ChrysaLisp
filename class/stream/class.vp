@@ -474,11 +474,11 @@
 (def-method 'stream :seek)
 	;inputs
 	;r0 = stream object (ptr)
-	;r1 = position (long)
-	;r2 = mode (ulong)
+	;r1 = offset (long)
+	;r2 = pos (uint)
 	;outputs
 	;r0 = stream object (ptr)
-	;r1 = 0 for ok, else error code
+	;r1 = -1 for error, else file position
 	;trashes
 	;r1-r14
 

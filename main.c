@@ -243,6 +243,11 @@ long long mywrite(int fd, void *addr, size_t len)
 	return write(fd, addr, len);
 }
 
+long long myseek(long long fd, long long pos, unsigned char offset)
+{
+	return (lseek(fd, pos, offset));
+}
+
 struct finfo
 {
 	long long mtime;
@@ -543,6 +548,7 @@ mycloseshared,
 myclearicache,
 mylist_dir,
 myremove,
+myseek,
 
 SDL_Delay,
 SDL_SetMainReady,

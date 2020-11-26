@@ -1770,7 +1770,7 @@
 
 ## stream-seek
 
-(stream-seek stream pos mode)
+(stream-seek stream offset pos)
 
 ## string-stream
 

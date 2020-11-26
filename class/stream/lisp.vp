@@ -475,24 +475,19 @@
 	(call 'lisp :env_args_sig '(r1 ($ sig) 3) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
-	(vp-push r0 r1)
-	(defq in (method-input 'stream :flush))
-	(array-bind-args r1 in)
-	(call 'stream :flush in)
-
+	(vp-push r0)
 	(defq in (method-input 'stream :seek))
-	(assign '((rsp 0)) '(r1))
-	(list-bind-args r1 in '(stream num num))
+	(list-bind-args r1 in '(:stream :num :num))
 	(call 'stream :seek in '(_ r0))
 	(call 'num :create '(r0) '(r1))
-	(vp-pop r0 r2)
+	(vp-pop r0)
 
 	(exit 'stream :lisp_seek '(r0 r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(stream-seek stream pos mode)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(r0 "(stream-seek stream offset pos)" error_msg_wrong_types r1))
 	(signature '(stream num num)))
 
 (def-func-end)

@@ -17,6 +17,7 @@
 (dec-method :clear_icache nil :virtual (abi-args 2) '(r0))
 (dec-method :dirlist nil :virtual (abi-args 3) '(r0))
 (dec-method :remove nil :virtual (abi-args 1) '(r0))
+(dec-method :seek nil :virtual (abi-args 3) '(r0))
 
 (dec-method :sdl_delay nil :virtual (abi-args 1) '(r0))
 (dec-method :sdl_set_main_ready nil :virtual (abi-args 0) '(r0))
@@ -45,8 +46,6 @@
 (dec-method :sdl_create_texture nil :virtual (abi-args 5) '(r0))
 (dec-method :sdl_set_render_target nil :virtual (abi-args 2) '(r0))
 (dec-method :sdl_render_clear nil :virtual (abi-args 1) '(r0))
-
-(dec-method :seek nil :virtual (abi-args 3) '(r0))
 
 (defun host-call-table (_1 _2 _5 &optional _3 _4 _6)
 	;_1 = class name

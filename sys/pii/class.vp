@@ -49,10 +49,10 @@
 (def-method 'sys_pii :seek)
 	;inputs
 	;r0 = fd (ulong)
-	;r1 = position (long)
-	;r2 = mode (ulong)
+	;r1 = offset (long)
+	;r2 = pos (ulong)
 	;outputs
-	;r0 = error code (ulong)
+	;r0 = -1 if error, else file position (ulong)
 	;trashes
 	;r0
 
