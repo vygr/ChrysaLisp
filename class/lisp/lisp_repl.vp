@@ -47,8 +47,8 @@
 
 	(call 'stream :read_char {stream} {_, char})
 	(loop-while {char /= -1})
-		(call 'stream :write_flush {this->lisp_stdout})
-		(call 'stream :write_flush {this->lisp_stderr})
+		(call 'stream :flush {this->lisp_stdout})
+		(call 'stream :flush {this->lisp_stderr})
 		(call 'lisp :read {this, stream, char} {_, ast, char})
 ;; (call 'stream :write_cstr {this->lisp_stdout, "read:"})
 ;; (call 'stream :write_char {this->lisp_stdout, +char_lf+})

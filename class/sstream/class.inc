@@ -7,7 +7,7 @@
 (dec-method :ref_string 'class/sstream/ref_string :static '(r0) '(r0 r1))
 
 (dec-method :write_next 'class/sstream/write_next :final)
-(dec-method :write_flush 'class/sstream/write_flush :final)
+(dec-method :flush 'class/sstream/flush :final)
 
 (def-struct 'sstream 'stream)
 (def-struct-end)

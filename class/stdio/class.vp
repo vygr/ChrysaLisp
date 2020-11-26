@@ -75,7 +75,7 @@
 
 	;flush remaining stdout, stderr
 	(vp-push r0)
-	(call 'out :write_flush '((r0 stdio_stderr)))
+	(call 'out :flush '((r0 stdio_stderr)))
 
 	;send stopping on stdout
 	(assign '((rsp 0)) '(r0))

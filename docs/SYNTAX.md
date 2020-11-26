@@ -1768,6 +1768,10 @@
 
 (stream-flush stream)
 
+## stream-seek
+
+(stream-seek stream pos mode)
+
 ## string-stream
 
 (string-stream str)

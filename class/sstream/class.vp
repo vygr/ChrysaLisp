@@ -83,7 +83,7 @@
 
 (def-func-end)
 
-(def-method 'sstream :write_flush)
+(def-method 'sstream :flush)
 	;inputs
 	;r0 = sstream object (ptr)
 	;outputs
@@ -91,7 +91,7 @@
 	;trashes
 	;r1-r14
 
-	(entry 'sstream :write_flush '(r0))
+	(entry 'sstream :flush '(r0))
 
 	;nul byte
 	(assign '((r0 stream_bufp) 0) '(r1 r2))
@@ -103,7 +103,7 @@
 		(vp-cpy-rr r3 r0)
 	(endif)
 
-	(exit 'sstream :write_flush '(r0))
+	(exit 'sstream :flush '(r0))
 	(vp-ret)
 
 (def-func-end)

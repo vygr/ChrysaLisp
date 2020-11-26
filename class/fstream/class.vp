@@ -64,11 +64,8 @@
 
 	(entry 'fstream :deinit '(r0))
 
-	;flush if write mode
-	(assign '((r0 fstream_mode)) '(r1))
-	(vpif '(r1 /= file_open_read))
-		(call 'fstream :write_flush '(r0) '(r0))
-	(endif)
+	;flush any data
+	(call 'fstream :flush '(r0) '(r0))
 
 	;close file
 	(vp-push r0)
@@ -80,7 +77,7 @@
 
 (def-func-end)
 
-(def-method 'fstream :write_flush)
+(def-method 'fstream :flush)
 	;inputs
 	;r0 = fstream object (ptr)
 	;outputs
@@ -88,18 +85,24 @@
 	;trashes
 	;r1-r14
 
-	(entry 'fstream :write_flush '(r0))
+	(entry 'fstream :flush '(r0))
 
-	(assign '((r0 stream_buffer) (r0 stream_bufp)) '(r1 r2))
-	(vp-sub-rr r1 r2)
-	(vpif '(r2 /= 0))
-		(vp-push r0)
-		(assign '(r1) '((r0 stream_bufp)))
-		(call 'sys_pii :write '((r0 fstream_handle) r1 r2))
-		(vp-pop r0)
+	;not in read mode ?
+	(assign '((r0 fstream_mode)) '(r1))
+	(vpif '(r1 /= file_open_read))
+		(assign '((r0 stream_buffer) (r0 stream_bufp)) '(r1 r2))
+		(vp-sub-rr r1 r2)
+		(vpif '(r2 /= 0))
+			(vp-push r0)
+			(call 'sys_pii :write '((r0 fstream_handle) r1 r2))
+			(vp-pop r0)
+		(endif)
 	(endif)
 
-	(exit 'fstream :write_flush '(r0))
+	;clear down bufp and bufe
+	(s-call 'fstream :flush '(r0) '(r0))
+
+	(exit 'fstream :flush '(r0))
 	(vp-ret)
 
 (def-func-end)
@@ -115,6 +118,14 @@
 
 	(entry 'fstream :read_next '(r0))
 
+	;flush any read/write data
+	(call 'fstream :flush '(r0) '(r0))
+
+	;set read mode
+	(vp-cpy-cr file_open_read r1)
+	(assign '(r1) '((r0 fstream_mode)))
+
+	;read next block of data
 	(vp-push r0)
 	(call 'sys_pii :read '((r0 fstream_handle) (r0 stream_buffer) (r0 fstream_buf_len)) '(r1))
 	(vp-pop r0)
@@ -128,6 +139,63 @@
 	(endif)
 
 	(exit 'fstream :read_next '(r0 r1))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'fstream :write_next)
+	;inputs
+	;r0 = fstream object (ptr)
+	;outputs
+	;r0 = fstream object (ptr)
+	;trashes
+	;r1-r14
+
+	(entry 'fstream :write_next '(r0))
+
+	;flush any read/write data
+	(call 'fstream :flush '(r0) '(r0))
+
+	;set write mode
+	(vp-cpy-cr file_open_write r1)
+	(assign '(r1) '((r0 fstream_mode)))
+
+	;set bufp and bufe for writing
+	(assign '((r0 stream_buffer) (r0 fstream_buf_len)) '(r1 r2))
+	(vp-add-rr r1 r2)
+	(assign '(r1 r2) '((r0 stream_bufp) (r0 stream_bufe)))
+
+	(exit 'fstream :write_next '(r0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'fstream :seek)
+	;inputs
+	;r0 = fstream object (ptr)
+	;r1 = position (long)
+	;r2 = mode (uint)
+	;outputs
+	;r0 = fstream object (ptr)
+	;r1 = 0 for ok, else error code
+	;trashes
+	;r1-r14
+
+	(def-struct 'local)
+		(ptr 'this)
+		(long 'pos)
+		(uint 'mode)
+	(def-struct-end)
+
+	(vp-alloc local_size)
+	(entry 'fstream :seek '(r0 (rsp local_pos) (rsp local_mode)))
+	(assign '(r0) '((rsp local_this)))
+
+	(call 'fstream :flush '(r0) '(r0))
+	(call 'sys_pii :seek '((r0 fstream_handle) (rsp local_pos) (rsp local_mode)) '(r1))
+
+	(exit 'fstream :seek '((rsp local_this) r1))
+	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)

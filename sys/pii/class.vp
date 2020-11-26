@@ -46,6 +46,25 @@
 
 (def-func-end)
 
+(def-method 'sys_pii :seek)
+	;inputs
+	;r0 = fd (ulong)
+	;r1 = position (long)
+	;r2 = mode (ulong)
+	;outputs
+	;r0 = error code (ulong)
+	;trashes
+	;r0
+
+	(entry 'sys_pii :seek '(r0 r1 r2))
+	(abi-push-trashed r1 r2 r13 r14)
+	(host-call 'host :seek '(r0 r1 r2) '(r0))
+	(abi-pop-trashed r1 r2 r13 r14)
+	(exit 'sys_pii :seek '(r0))
+	(vp-ret)
+
+(def-func-end)
+
 (def-method 'sys_pii :remove)
 	;inputs
 	;r0 = c string filename (pubyte)

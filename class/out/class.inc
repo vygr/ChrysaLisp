@@ -8,7 +8,7 @@
 (dec-method :wait_acks 'class/out/wait_acks :static '(r0 r1) '(r0))
 
 (dec-method :deinit 'class/out/deinit :final)
-(dec-method :write_flush 'class/out/write_flush :final)
+(dec-method :flush 'class/out/flush :final)
 (dec-method :write_next 'class/out/write_next :final)
 
 (dec-method :lisp_create 'class/out/lisp_create :static '(r0 r1) '(r0 r1))

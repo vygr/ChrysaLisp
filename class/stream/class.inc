@@ -19,8 +19,9 @@
 (dec-method :deinit 'class/stream/deinit :override)
 
 (dec-method :read_next 'class/stream/read_next :virtual '(r0) '(r0 r1))
-(dec-method :write_next 'class/stream/write_flush :virtual '(r0) '(r0))
-(dec-method :write_flush 'class/stream/write_flush :virtual '(r0) '(r0))
+(dec-method :write_next 'class/stream/flush :virtual '(r0) '(r0))
+(dec-method :flush 'class/stream/flush :virtual '(r0) '(r0))
+(dec-method :seek 'class/stream/seek :virtual '(r0 r1 r2) '(r0 r1))
 
 (dec-method :lisp_iostream 'class/stream/lisp_iostream :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_sstream 'class/stream/lisp_sstream :static '(r0 r1) '(r0 r1))
@@ -33,6 +34,7 @@
 (dec-method :lisp_write 'class/stream/lisp_write :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_write_flush 'class/stream/lisp_write_flush :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_write_next 'class/stream/lisp_write_next :static '(r0 r1) '(r0 r1))
+(dec-method :lisp_seek 'class/stream/lisp_seek :static '(r0 r1) '(r0 r1))
 
 (def-struct 'stream 'obj)
 	(ptr 'object 'buffer)
@@ -54,7 +56,7 @@
 	(assign '((r0 stream_bufp) (r0 stream_bufe)) '(r2 r1))
 	(vp-sub-rr r2 r1))
 
-(defun class/stream/write_flush ()
+(defun class/stream/flush ()
 	;inputs
 	;r0 = stream object (ptr)
 	;outputs

@@ -22,7 +22,7 @@
 	(call 'lisp :lisp_prin {this, args} {_, value})
 	(call 'stream :write_char {this->lisp_stdout, +char_lf+})
 	(vpifnot {args->array_length})
-		(call 'stream :write_flush {this->lisp_stdout})
+		(call 'stream :flush {this->lisp_stdout})
 	(endif)
 
 	(exit 'lisp :lisp_print {this, value})

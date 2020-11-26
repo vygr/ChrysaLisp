@@ -443,9 +443,9 @@
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
-	(defq in (method-input 'stream :write_flush))
+	(defq in (method-input 'stream :flush))
 	(array-bind-args r1 in)
-	(call 'stream :write_flush in '(r1))
+	(call 'stream :flush in '(r1))
 	(class/obj/ref r1 r2)
 	(vp-pop r0)
 
@@ -456,5 +456,43 @@
 (vp-label 'error)
 	(jump 'lisp :repl_error '(r0 "(stream-flush stream)" error_msg_wrong_types r1))
 	(signature '(stream)))
+
+(def-func-end)
+
+(def-method 'stream :lisp_seek)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args list object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(entry 'stream :lisp_seek '(r0 r1))
+
+(errorcases
+	(call 'lisp :env_args_sig '(r1 ($ sig) 3) '(r2))
+	(gotoif '(r2 = 0) 'error))
+
+	(vp-push r0 r1)
+	(defq in (method-input 'stream :flush))
+	(array-bind-args r1 in)
+	(call 'stream :flush in)
+
+	(defq in (method-input 'stream :seek))
+	(assign '((rsp 0)) '(r1))
+	(list-bind-args r1 in '(stream num num))
+	(call 'stream :seek in '(_ r0))
+	(call 'num :create '(r0) '(r1))
+	(vp-pop r0 r2)
+
+	(exit 'stream :lisp_seek '(r0 r1))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp :repl_error '(r0 "(stream-seek stream pos mode)" error_msg_wrong_types r1))
+	(signature '(stream num num)))
 
 (def-func-end)

@@ -7,8 +7,9 @@
 
 (dec-method :deinit 'class/fstream/deinit :final)
 (dec-method :read_next 'class/fstream/read_next :final)
-(dec-method :write_next 'class/fstream/write_flush :final)
-(dec-method :write_flush 'class/fstream/write_flush :final)
+(dec-method :write_next 'class/fstream/write_next :final)
+(dec-method :flush 'class/fstream/flush :final)
+(dec-method :seek 'class/fstream/seek :final)
 
 (def-struct 'fstream 'stream)
 	(long 'handle)

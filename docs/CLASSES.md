@@ -1931,7 +1931,7 @@ trashes
 r1-r14
 ```
 
-### fstream::write_next -> class/fstream/write_flush
+### fstream::write_next -> class/fstream/write_next
 
 ```lisp
 inputs
@@ -1942,13 +1942,27 @@ trashes
 r1-r14
 ```
 
-### fstream::write_flush -> class/fstream/write_flush
+### fstream::flush -> class/fstream/flush
 
 ```lisp
 inputs
 r0 = fstream object (ptr)
 outputs
 r0 = fstream object (ptr)
+trashes
+r1-r14
+```
+
+### fstream::seek -> class/fstream/seek
+
+```lisp
+inputs
+r0 = fstream object (ptr)
+r1 = position (long)
+r2 = mode (uint)
+outputs
+r0 = fstream object (ptr)
+r1 = 0 for ok, else error code
 trashes
 r1-r14
 ```
@@ -2444,6 +2458,8 @@ Super Class: null
 ### host::sdl_set_render_target -> nil
 
 ### host::sdl_render_clear -> nil
+
+### host::seek -> nil
 
 ## hset
 
@@ -4602,7 +4618,7 @@ trashes
 r1-r14
 ```
 
-### out::write_flush -> class/out/write_flush
+### out::flush -> class/out/flush
 
 ```lisp
 inputs
@@ -6020,7 +6036,7 @@ trashes
 r1-r14
 ```
 
-### sstream::write_flush -> class/sstream/write_flush
+### sstream::flush -> class/sstream/flush
 
 ```lisp
 inputs
@@ -6651,7 +6667,7 @@ trashes
 r1-r14
 ```
 
-### stream::write_next -> class/stream/write_flush
+### stream::write_next -> class/stream/flush
 
 ```lisp
 inputs
@@ -6662,13 +6678,27 @@ trashes
 r1-r14
 ```
 
-### stream::write_flush -> class/stream/write_flush
+### stream::flush -> class/stream/flush
 
 ```lisp
 inputs
 r0 = stream object (ptr)
 outputs
 r0 = stream object (ptr)
+trashes
+r1-r14
+```
+
+### stream::seek -> class/stream/seek
+
+```lisp
+inputs
+r0 = stream object (ptr)
+r1 = position (long)
+r2 = mode (ulong)
+outputs
+r0 = stream object (ptr)
+r1 = 0 for ok, else error code
 trashes
 r1-r14
 ```
@@ -6804,6 +6834,19 @@ r1-r14
 ```
 
 ### stream::lisp_write_next -> class/stream/lisp_write_next
+
+### stream::lisp_seek -> class/stream/lisp_seek
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
 
 ## sym
 
@@ -8053,6 +8096,19 @@ r0
 ```lisp
 inputs
 r0 = c string filename (pubyte)
+outputs
+r0 = error code (ulong)
+trashes
+r0
+```
+
+### sys_pii::seek -> sys/pii/seek
+
+```lisp
+inputs
+r0 = fd (ulong)
+r1 = position (long)
+r2 = mode (ulong)
 outputs
 r0 = error code (ulong)
 trashes

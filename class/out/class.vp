@@ -87,7 +87,7 @@
 		(call 'out :write_next '(r0) '(r0))
 		(vp-pop r1)
 		(assign '(r1) '((r0 out_state)))
-		(call 'out :write_flush '(r0) '(r0))
+		(call 'out :flush '(r0) '(r0))
 	(endif)
 
 	(exit 'out :set_state '(r0))
@@ -124,7 +124,7 @@
 
 (def-func-end)
 
-(def-method 'out :write_flush)
+(def-method 'out :flush)
 	;inputs
 	;r0 = out object (ptr)
 	;outputs
@@ -132,7 +132,7 @@
 	;trashes
 	;r1-r14
 
-	(entry 'out :write_flush '(r0))
+	(entry 'out :flush '(r0))
 
 	(assign '((r0 stream_buffer)) '(r1))
 	(vpif '(r1 /= 0))
@@ -163,10 +163,10 @@
 		(assign '(r1) '((r0 out_seqnum)))
 
 		;parent actions
-		(s-call 'out :write_flush '(r0) '(r0))
+		(s-call 'out :flush '(r0) '(r0))
 	(endif)
 
-	(exit 'out :write_flush '(r0))
+	(exit 'out :flush '(r0))
 	(vp-ret)
 
 (def-func-end)
@@ -182,7 +182,7 @@
 	(entry 'out :write_next '(r0))
 
 	(vp-push r0)
-	(call 'stream :write_flush '(r0))
+	(call 'stream :flush '(r0))
 	(call 'sys_mail :alloc '(lk_data_size) '(r2 r1))
 	(vp-pop r0)
 	(vp-lea-i r1 lk_data_size r3)

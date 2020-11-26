@@ -371,7 +371,7 @@
 
 (def-func-end)
 
-(def-method 'stream :write_flush)
+(def-method 'stream :flush)
 	;inputs
 	;r0 = stream object (ptr)
 	;outputs
@@ -379,11 +379,11 @@
 	;trashes
 	;r1-r14
 
-	(entry 'stream :write_flush '(r0))
+	(entry 'stream :flush '(r0))
 
-	(class/stream/write_flush)
+	(class/stream/flush)
 
-	(exit 'stream :write_flush '(r0))
+	(exit 'stream :flush '(r0))
 	(vp-ret)
 
 (def-func-end)
@@ -467,6 +467,23 @@
 	(loop-end)
 
 	(exit 'stream :write_bits (list this bit_pool bit_pool_size))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'stream :seek)
+	;inputs
+	;r0 = stream object (ptr)
+	;r1 = position (long)
+	;r2 = mode (ulong)
+	;outputs
+	;r0 = stream object (ptr)
+	;r1 = 0 for ok, else error code
+	;trashes
+	;r1-r14
+
+	(entry 'stream :seek '(r0 r1 r2))
+	(exit 'stream :seek '(r0 -1))
 	(vp-ret)
 
 (def-func-end)

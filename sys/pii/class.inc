@@ -46,6 +46,7 @@
 (dec-method :sdl_set_render_target nil :virtual (abi-args 2) '(r0))
 (dec-method :sdl_render_clear nil :virtual (abi-args 1) '(r0))
 
+(dec-method :seek nil :virtual (abi-args 3) '(r0))
 
 (defun host-call-table (_1 _2 _5 &optional _3 _4 _6)
 	;_1 = class name
@@ -256,6 +257,7 @@
 (dec-method :clear_icache 'sys/pii/clear_icache :static '(r0 r1) '(r0))
 (dec-method :dirlist 'sys/pii/dirlist :static '(r0 r1 r2) '(r0))
 (dec-method :remove 'sys/pii/remove :static '(r0) '(r0))
+(dec-method :seek 'sys/pii/seek :static '(r0 r1 r2) '(r0))
 
 (dec-method :lisp_readchar 'sys/pii/lisp_readchar :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_writechar 'sys/pii/lisp_writechar :static '(r0 r1) '(r0 r1))
