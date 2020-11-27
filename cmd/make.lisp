@@ -43,7 +43,8 @@
 		ev_msg_mouse_x ev_msg_mouse_y ev_type_action
 		)
 		_vals_ (within-compile-env (lambda ()
-			(each include (map (# (slice 2 -1 %0)) (make-tree "." "class.inc")))
+	        (include "sys/func.inc")
+			(each include (all-class-files))
 			(map (#
 				(defq st (sym (cat "_t_" %0)))
 				(when (defq stv (get st))
@@ -138,7 +139,7 @@
 		(save _eat_chunk target))
 	(generate-cmd-help (reduce
 		cmd-collector
-		(sort cmp (map extract-cmd (make-tree "cmd" ".lisp")))
+		(sort cmp (map extract-cmd (all-files "cmd" ".lisp")))
 		(list)))
 	(print "-> docs/COMMANDS.md")
 
@@ -156,7 +157,7 @@
                     ((or (eql _ "defun") (eql _ "defmacro") (eql _ "defclass")
 							(eql _ "defmethod") (eql _ "deffimethod"))
                         (setq state :y))))) (file-stream file)))
-        (cat (make-tree "." "lisp.inc")
+        (cat (all-files "." "lisp.inc")
 			'("class/lisp/boot.inc" "lib/anaphoric/anaphoric.inc" "lib/debug/debug.inc"
 			 "lib/debug/profile.inc" "lib/collections/xmap.inc" "lib/collections/xset.inc"
 			  "lib/collections/emap.inc" "lib/collections/collections.inc")))

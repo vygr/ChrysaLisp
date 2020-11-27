@@ -30,11 +30,11 @@
 
 (defun all-files (root)
 	;all files from root downwards, none recursive
-	;don't include "." or "obj" folders
+	;don't include "." folders
 	(defq stack (list root) files (list))
 	(while (setq root (pop stack))
 		(each! 0 -1 (lambda (file type)
-			(if (notany (# (starts-with %0 file)) '("." "obj"))
+			(unless (starts-with "." file)
 				(push (if (eql type "4") stack files) (cat root "/" file))))
 			(unzip (split (pii-dirlist root) ",") (list (list) (list)))))
 	files)

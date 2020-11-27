@@ -30,14 +30,15 @@
 					(ui-flow files_flow (:flow_flags +flow_down_fill+ :color +argb_white+
 						:min_width 256)))))))
 
-(defun tree (dir)
-	(defq dirs (list) files (list))
-	(each! 0 -1 (lambda (f d)
-		(unless (or (starts-with "." f) (starts-with "obj" f))
-			(push (if (eql "4" d) dirs files) (cat dir "/" f))))
-		(unzip (split (pii-dirlist dir) ",") (list (list) (list))))
-	(each (lambda (d)
-		(setq files (cat files (tree d)))) dirs)
+(defun all-files (root)
+	;all files from root downwards, none recursive
+	;don't include "." folders
+	(defq stack (list root) files (list))
+	(while (setq root (pop stack))
+		(each! 0 -1 (lambda (file type)
+			(unless (starts-with "." file)
+				(push (if (eql type "4") stack files) (cat root "/" file))))
+			(unzip (split (pii-dirlist root) ",") (list (list) (list)))))
 	files)
 
 (defun populate-files (files dir exts)
@@ -88,7 +89,7 @@
 	(bind '(reply_mbox title dir exts) (mail-read (task-mailbox)))
 	(def window_title :text title)
 	(def ext_filter :text exts)
-	(defq all_files (sort cmp (tree dir)) tree_buttons (list) file_buttons (list) current_dir (cat dir "/"))
+	(defq all_files (sort cmp (all-files dir)) tree_buttons (list) file_buttons (list) current_dir (cat dir "/"))
 	(populate-files all_files current_dir exts)
 	(bind '(x y w h) (apply view-locate (. mywindow :get_size)))
 	(gui-add (. mywindow :change x y w h))

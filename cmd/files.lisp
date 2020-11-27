@@ -3,15 +3,18 @@
 (import "sys/lisp.inc")
 (import "lib/options/options.inc")
 
-(defun make-tree (dir ext)
-	(defq dirs (list) files (list))
-	(each! 0 -1
-		(# (unless (starts-with "." %0)
-			(cond
-				((eql "4" %1) (push dirs (cat dir "/" %0)))
-				((ends-with ext %0) (push files (cat dir "/" %0))))))
-		(unzip (split (pii-dirlist dir) ",") (list (list) (list))))
-	(each (# (setq files (cat files (make-tree %0 ext)))) dirs)
+(defun all-files (root ext)
+	;all files from root downwards with extention, none recursive
+	;don't include "." folders
+	(defq stack (list root) files (list))
+	(while (setq root (pop stack))
+		(each! 0 -1 (lambda (file type)
+			(unless (starts-with "." file)
+				(if (eql type "4")
+					(push stack (cat root "/" file))
+					(if (ends-with ext file)
+						(push files (cat root "/" file))))))
+			(unzip (split (pii-dirlist root) ",") (list (list) (list)))))
 	files)
 
 (defq usage `(
@@ -34,4 +37,4 @@
 		(defq postfix (if (< (length args) 2) "." (elem 1 args))
 			prefix (if (< (length args) 3) "" (elem 2 args)))
 		(if (ends-with "/" postfix) (setq postfix (slice 0 -2 postfix)))
-		(each print (make-tree postfix prefix))))
+		(each print (all-files postfix prefix))))
