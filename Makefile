@@ -52,5 +52,5 @@ ifeq ($(OS),Linux)
 endif
 
 clean:
-			rm .clhostenv
+			rm .hostenv
 			rm -rf obj/
