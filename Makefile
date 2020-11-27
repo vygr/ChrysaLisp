@@ -10,13 +10,13 @@ all:		obj/$(CPU)/$(ABI)/$(OS)/main .hostenv
 
 .hostenv:
 ifeq ($(OS), Windows)
-	@echo "USER=$(USERNAME)" > .hostenv
-	@echo "HOME=$(HOMEPATH)" >> .hostenv
-	@echo "PWD=$(CD)" >> .hostenv 			# Not sure about this
+	@echo "USER=%USERNAME%" > .hostenv
+	@echo "HOME=%HOMEPATH%" >> .hostenv
+	@echo "PWD=%CD%" >> .hostenv 			# Not sure about this
 else
 	@echo "USER=$(USER)" > .hostenv
 	@echo "HOME=$(HOME)" >> .hostenv
-	@echo "PWD=$(CURDIR)" >> .hostenv
+	@echo "PWD=$(PWD)" >> .hostenv
 endif
 	@echo "OS=$(OS)" >> .hostenv
 	@echo "CPU=$(CPU)" >> .hostenv
