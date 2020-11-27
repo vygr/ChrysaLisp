@@ -6,7 +6,21 @@ else
 ABI := ARM64
 endif
 
-all:		obj/$(CPU)/$(ABI)/$(OS)/main
+all:		obj/$(CPU)/$(ABI)/$(OS)/main .hostenv
+
+.hostenv:
+ifeq ($(OS), Windows)
+	@echo "USER=%USERNAME%" > .hostenv
+	@echo "HOME=%HOMEPATH%" >> .hostenv
+	@echo "PWD=%CD%" >> .hostenv 			# Not sure about this
+else
+	@echo "USER=$(USER)" > .hostenv
+	@echo "HOME=$(HOME)" >> .hostenv
+	@echo "PWD=$(PWD)" >> .hostenv
+endif
+	@echo "OS=$(OS)" >> .hostenv
+	@echo "CPU=$(CPU)" >> .hostenv
+	@echo "ABI=$(ABI)" >> .hostenv
 
 snapshot:
 			rm -f snapshot.zip
@@ -38,4 +52,5 @@ ifeq ($(OS),Linux)
 endif
 
 clean:
+			rm .clhostenv
 			rm -rf obj/
