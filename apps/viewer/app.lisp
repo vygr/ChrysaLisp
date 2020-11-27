@@ -28,15 +28,15 @@
 				:vdu_width vdu_width :vdu_height vdu_height
 				:ink_color +argb_white+)))))
 
-(defun all-files (dir)
-	;all files from dir downwards
-	(defq dirs (list) files (list))
-	(each! 0 -1 (lambda (f d)
-		(unless (or (starts-with "." f) (starts-with "obj" f))
-			(push (if (eql "4" d) dirs files) (cat dir "/" f))))
-		(unzip (split (pii-dirlist dir) ",") (list (list) (list))))
-	(each (lambda (d)
-		(setq files (cat files (all-files d)))) dirs)
+(defun all-files (root)
+	;all files from root downwards, none recursive
+	;don't include "." or "obj" folders
+	(defq stack (list root) files (list))
+	(while (setq root (pop stack))
+		(each! 0 -1 (lambda (file type)
+			(if (notany (# (starts-with %0 file)) '("." "obj"))
+				(push (if (eql type "4") stack files) (cat root "/" file))))
+			(unzip (split (pii-dirlist root) ",") (list (list) (list)))))
 	files)
 
 (defun set-slider (file)
