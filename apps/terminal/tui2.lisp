@@ -23,46 +23,24 @@
 (import "sys/lisp.inc")
 (import "lib/pipe/pipe.inc")
 (import "lib/date/date.inc")
-
 (import "lib/logging/loganchor.inc")
+
+(import "apps/terminal/tuiutils.lisp")
 
 ; Setup logging
 
 (defq tlog (log-anchor "tui2"))
-
-;override print for TUI output
-(defun print (_)
-  (each (lambda (c)
-    (setq c (code c))
-    (if (= c 13) (setq c 10))
-    (cond
-      ((= c 9)
-        ;print tab
-        (pii-write-char 1 (ascii-code " "))
-        (pii-write-char 1 (ascii-code " "))
-        (pii-write-char 1 (ascii-code " "))
-        (pii-write-char 1 (ascii-code " ")))
-      (t  ;print char
-        (pii-write-char 1 c)))) _))
-
-(defun prtnl (_)
-  (print (cat _ (ascii-char 0x0a))))
 
 ; Much of this should be in separate include
 
 ; Session variables
 (defq
   tzone   nil
-  session (emap-kv
-            :cwd    "../ChrysaLisp"     ; Current working directory
-            :cpth   "cmd"               ; Search path for commands
-            :lsc    ""                  ; Last command slot
-            :tz     nil                 ; Timezone
-            :prompt ">"))               ; Prompt specialization
+  session nil)
 
 (defun prompt ()
   ; (prompt) -> string
-  (gets session :prompt))
+  (gets session "PROMPT"))
 
 (defun set-session (ic &optional args)
   ; (set-session cmd [args]) -> map
@@ -70,12 +48,12 @@
   ; in the session map
   (when args
     (defq spa (split args " "))
-    (sets! session (sym (str ":" (first spa))) (join (rest spa) " "))))
+    (sets! session (first spa) (join (rest spa) " "))))
 
 (defun drop-session (ic &optional args)
   ; (drop-session cmd [args]) -> map
   ; Removes the key (first arg) from the session map
-  (drop! session (sym (str ":" (first (split args " "))))))
+  (drop! session (first (split args " "))))
 
 (defun print-session (ic &optional args)
   ; (print-session cmd [args]) -> map
@@ -89,7 +67,7 @@
   (defq res (list))
   (each (lambda (_v)
           (if (eql (first _v) "@")
-              (push res (gets session (sym (str ":" (rest _v)))))
+              (push res (gets session (rest _v)))
               (push res _v))) (split bfr " "))
   (join res " "))
 
@@ -124,7 +102,9 @@
   (prtnl "    >ls arg ; List directory content of arg path")
   (prtnl "")
   (prtnl " cd     Change directory (not implemented)")
+  (prtnl " cp     Copies a file (not implemented)")
   (prtnl " mkdir  Makes a directory (not implemented)")
+  (prtnl " mv     Moves a file (not implemented)")
   (prtnl " rm     Remove file or directory (not implemented)")
   (prtnl "")
   (prtnl "Other:")
@@ -133,20 +113,6 @@
   (prtnl "    >-e+ name Jane Doe")
   (prtnl "    >echo @name ; results in 'echo Jane Doe")
   (prtnl ""))
-
-(defun not-impl (ic &optional args)
-  (prtnl (str ic " -> not implemented")))
-
-
-(defun split-args (args)
-  ; (split-args string) -> list
-  ; Splits flags from arguments
-  (defq sargs (split args " "))
-  (reduce
-    (lambda (acc el)
-      (if (eql (first el) "-")
-          (push (second acc) el)
-          (push (last acc) el)) acc) sargs (list sargs (list) (list))))
 
 (defun list-files (ic &optional args)
   ; (list-files internal args) -> nil
@@ -157,7 +123,6 @@
   (each (#(if (not (or (eql %0 "4") (eql %0 "8")))
               (prtnl %0))) (split (pii-dirlist targ) ","))
   nil)
-
 
 (defun change-directory (ic &optional args)
   ; (change-directory internal args) -> nil
@@ -198,11 +163,13 @@
   ; Internal command dictionary
   ijmptbl (xmap-kv
               "-h"    switch-help       ; Help
-              "ls"    list-files        ; File listing
               "cd"    change-directory  ; Change working directory
-              "mkdir" make-directory    ; Make a directory
-              "rm"    del-directory     ; Remove file or folder
+              "cp"    copy-file         ; Copy files
               "date"  disp-date         ; Prints date/time
+              "mkdir" make-directory    ; Make a directory
+              "mv"    move-file
+              "ls"    list-files        ; File listing
+              "rm"    del-directory     ; Remove file or folder
               "-e"    print-session     ; Prints session values
               "-e+"   set-session       ; Add session value
               "-e-"   drop-session      ; Remove session value
@@ -263,10 +230,12 @@
 (defun main ()
   ; Setup variables
   (setq tzone (get :local_timezone))
-  (sets! session :tz (first tzone))
   ; TODO: Check and load configuration file
+  (setq session (load-hostenv))
+  (when (not (gets session "TZ"))
+    (sets! session "TZ" (first tzone)))
   ;sign on msg
-  (prtnl "ChrysaLisp Terminal-2 0.3 (experimental)")
+  (prtnl "ChrysaLisp Terminal-2 0.4 (experimental)")
   (print (prompt))
   (log-debug tlog "Started Terminal 2")
   ;create child and send args

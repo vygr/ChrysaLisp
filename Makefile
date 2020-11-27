@@ -12,7 +12,7 @@ all:		obj/$(CPU)/$(ABI)/$(OS)/main .hostenv
 ifeq ($(OS), Windows)
 	@echo "USER=%USERNAME%" > .hostenv
 	@echo "HOME=%HOMEPATH%" >> .hostenv
-	@echo "PWD=%CD%" >> .hostenv 			# Not sure about this
+	@echo "PWD=%CD%" >> .hostenv
 else
 	@echo "USER=$(USER)" > .hostenv
 	@echo "HOME=$(HOME)" >> .hostenv
@@ -52,5 +52,5 @@ ifeq ($(OS),Linux)
 endif
 
 clean:
-			rm .clhostenv
+			rm .hostenv
 			rm -rf obj/
