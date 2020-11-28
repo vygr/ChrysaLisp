@@ -4,8 +4,9 @@
 
 (defun fpoly (canvas col x y _)
 	;draw a polygon on a canvas
-	(. canvas :set_color col)
-	(. canvas :fpoly x y 0 _))
+	(. (. canvas
+		:set_color col)
+		:fpoly x y 0 _))
 
 (defun circle (r)
 	;cached circle generation, quantised to 1/4 pixel

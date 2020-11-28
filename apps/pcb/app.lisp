@@ -62,7 +62,9 @@
 	(bind '(pcb_width pcb_height pcb_depth) (elem 0 pcb))
 	(defq canvas (Canvas (* (+ pcb_width 4) (f2i zoom)) (* (+ pcb_height 4) (f2i zoom)) canvas_scale)
 		zoom (* zoom (i2f canvas_scale)) pcb_border (* zoom 2.0))
-	(. (. canvas :set_canvas_flags 1) :fill +argb_black+)
+	(. (. canvas
+		:set_canvas_flags 1)
+		:fill +argb_black+)
 	(if (= mode 1)
 		(pcb-draw-gerber)
 		(pcb-draw-normal))
@@ -83,20 +85,24 @@
 						(path-stroke-polylines (elem z layers) track_radius eps join_round cap_round cap_round (list seg_2d)))
 					) p path_2d)
 				) batched_paths batched_paths_2d)
-			(each! 0 pcb_depth (lambda (layer color)
-				(. canvas :set_color color)
-				(. canvas :fpoly pcb_border pcb_border 1 layer)
-				) (list layers colors))
+			(each! 0 pcb_depth
+				(lambda (layer color)
+					(. (. canvas
+						:set_color color)
+						:fpoly pcb_border pcb_border 1 layer))
+				(list layers colors))
 			;draw vias
 			(each (lambda (path_2d)
-				(each! 1 -1 (lambda (seg_2d)
-					(bind '(x y) (slice 0 2 seg_2d))
-					(setq x (+ x pcb_border) y (+ y pcb_border))
-					(. canvas :set_color (const (trans +argb_white+)))
-					(. canvas :fpoly x y 0 (circle via_radius))
-					(. canvas :set_color (const (trans +argb_black+)))
-					(. canvas :fpoly x y 0 (circle (/ via_radius 2.0)))
-					) (list path_2d))
+				(each! 1 -1
+					(lambda (seg_2d)
+						(bind '(x y) (slice 0 2 seg_2d))
+						(setq x (+ x pcb_border) y (+ y pcb_border))
+						(. (. (. (. canvas
+							:set_color (const (trans +argb_white+)))
+							:fpoly x y 0 (circle via_radius))
+							:set_color (const (trans +argb_black+)))
+							:fpoly x y 0 (circle (/ via_radius 2.0))))
+					(list path_2d))
 				) batched_paths_2d))
 		;draw pads
 		(each (lambda ((pad_radius pad_gap (pad_x pad_y pad_z) pad_shape))
@@ -141,11 +147,12 @@
 			(. canvas :fpoly pcb_border pcb_border 1 layer)
 			;draw vias
 			(each (lambda (path_2d)
-				(each! 1 -1 (lambda (seg_2d)
-					(bind '(x y) (slice 0 2 seg_2d))
-					(setq x (+ x pcb_border) y (+ y pcb_border))
-					(. canvas :fpoly x y 0 (circle (+ via_radius (if with_gaps track_gap 0.0))))
-					) (list path_2d))
+				(each! 1 -1
+					(lambda (seg_2d)
+						(bind '(x y) (slice 0 2 seg_2d))
+						(setq x (+ x pcb_border) y (+ y pcb_border))
+						(. canvas :fpoly x y 0 (circle (+ via_radius (if with_gaps track_gap 0.0)))))
+					(list path_2d))
 				) batched_paths_2d))
 		;draw pads
 		(each (lambda ((pad_radius pad_gap (pad_x pad_y pad_z) pad_shape))
@@ -170,7 +177,9 @@
 		) (list pcb)))
 
 (defun win-refresh (_)
-	(. (. pcb_scroll :add_child (pcb-load (elem (setq index _) pcbs))) :layout)
+	(. (. pcb_scroll
+		:add_child (pcb-load (elem (setq index _) pcbs)))
+		:layout)
 	(def window_title :text (elem _ pcbs))
 	(. window_title :layout)
 	(view-dirty-all (. mywindow :layout)))
