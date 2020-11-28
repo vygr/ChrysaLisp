@@ -41,7 +41,7 @@
 (ffi pii-read-char "sys/pii/lisp_readchar" 0)
 (ffi pii-write-char "sys/pii/lisp_writechar" 0)
 (ffi pii-dirlist "sys/pii/lisp_dirlist" 0)
-(ffi fstat "sys/pii/lisp_fstat" 0) ; -> (filetime filesize filemode)
+;(ffi pii-fstat "sys/pii/lisp_fstat" 0) ; -> (filetime filesize filemode)
 (ffi pii-remove "sys/pii/lisp_remove" 0)
 (ffi task-mailbox "sys/task/lisp_mailbox" 0)
 (ffi task-sleep "sys/task/lisp_sleep" 0)
