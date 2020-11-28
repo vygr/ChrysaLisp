@@ -85,7 +85,7 @@
 (defun last-command (ic &optional args)
   ; (last-command internal args) -> result of command
   ; TBD indexed command arg (i.e. -c 2)
-  (run-cmd (gets session :lsc)))
+  (run-cmd (gets session "LASTC")))
 
 (defun switch-help (ic &optional args)
   (prtnl "")
@@ -122,35 +122,6 @@
   (defq targ (if (= (length args) 0) (gets session :cwd) args))
   (each (#(if (not (or (eql %0 "4") (eql %0 "8")))
               (prtnl %0))) (split (pii-dirlist targ) ","))
-  nil)
-
-(defun change-directory (ic &optional args)
-  ; (change-directory internal args) -> nil
-  ; Changes the working directory
-  ; Implement by adding chdir and getcwd in main.c and
-  ; calling from here
-  (not-impl ic)
-  nil)
-
-(defun make-directory (ic &optional args)
-  ; (make-directory internal args) -> nil
-  ; Creates a directory
-  ; Implement by using (file-stream path file_write_append)
-  ; which is inefficient. Should have a make dir in the
-  ; main kernel
-  (bind '(sargs flags paths) (split-args args))
-  (not-impl ic)
-  nil)
-
-(defun del-directory (ic &optional args)
-  ; (del-directory internal args) -> nil
-  ; Remove a directory
-  ; TODO:
-  ;   Recursive switch
-  ;   Prompt
-  ;   Silent
-  (bind '(sargs flags paths) (split-args args))
-  (not-impl ic)
   nil)
 
 (defun disp-date (ic &optional args)
@@ -191,7 +162,7 @@
       (print (prompt)))
     (t
       ; New command pipe
-      (sets! session :lsc bfr)
+      (sets! session "LASTC" bfr)
       (run-cmd bfr))))
 
 (defun terminal-input (c)

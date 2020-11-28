@@ -35,8 +35,41 @@
 (defun not-impl (ic &optional args)
   (prtnl (str ic " -> not implemented")))
 
+(defun change-directory (ic &optional args)
+  ; (change-directory internal args) -> nil
+  ; Changes the working directory
+  ; Implement by adding chdir and getcwd in main.c and
+  ; calling from here
+  (not-impl ic)
+  nil)
+
+(defun make-directory (ic &optional args)
+  ; (make-directory internal args) -> nil
+  ; Creates a directory
+  ; Implement by using (file-stream path file_write_append)
+  ; which is inefficient. Should have a make dir in the
+  ; main kernel
+  (bind '(sargs flags paths) (split-args args))
+  (not-impl ic)
+  nil)
+
+(defun del-directory (ic &optional args)
+  ; (del-directory internal args) -> nil
+  ; Remove a directory
+  ; TODO:
+  ;   Recursive switch
+  ;   Prompt
+  ;   Silent
+  (bind '(sargs flags paths) (split-args args))
+  (not-impl ic)
+  nil)
+
 (defun copy-file (ic &optional args)
   (bind '(sargs flags paths) (split-args args))
+  (cond
+    ((> (length paths) 2)
+     (prtnl (str "Usage: cp [] source_file target_file")))
+    (t))
   (not-impl ic))
 
 (defun move-file (ic &optional args)
@@ -83,7 +116,8 @@
        (sets-pairs!
          (load-envmap +source-host-env+)
          "PROMPT" ">"
-         "PATH" "apps:cmd")
+         "LASTC" nil
+         "PATH" "cmd;apps")
        +tenv-file+))
     (t
       (load-envmap +tenv-file+))))
