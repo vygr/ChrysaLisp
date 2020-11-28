@@ -67,7 +67,7 @@
 				;send to network
 				(broadcast (get :text chat_text))
 				(set chat_text :text "")
-				(. (. chat_text :layout) :dirty))
+				(.-> chat_text (:layout) (:dirty)))
 			(t (. mywindow :event msg))))
 	(when entry
 		(broadcast "Has left the chat !")

@@ -62,9 +62,7 @@
 	(bind '(pcb_width pcb_height pcb_depth) (elem 0 pcb))
 	(defq canvas (Canvas (* (+ pcb_width 4) (f2i zoom)) (* (+ pcb_height 4) (f2i zoom)) canvas_scale)
 		zoom (* zoom (i2f canvas_scale)) pcb_border (* zoom 2.0))
-	(. (. canvas
-		:set_canvas_flags 1)
-		:fill +argb_black+)
+	(.-> canvas (:set_canvas_flags 1) (:fill +argb_black+))
 	(if (= mode 1)
 		(pcb-draw-gerber)
 		(pcb-draw-normal))
@@ -87,9 +85,9 @@
 				) batched_paths batched_paths_2d)
 			(each! 0 pcb_depth
 				(lambda (layer color)
-					(. (. canvas
-						:set_color color)
-						:fpoly pcb_border pcb_border 1 layer))
+					(.-> canvas
+						(:set_color color)
+						(:fpoly pcb_border pcb_border 1 layer)))
 				(list layers colors))
 			;draw vias
 			(each (lambda (path_2d)
@@ -97,11 +95,11 @@
 					(lambda (seg_2d)
 						(bind '(x y) (slice 0 2 seg_2d))
 						(setq x (+ x pcb_border) y (+ y pcb_border))
-						(. (. (. (. canvas
-							:set_color (const (trans +argb_white+)))
-							:fpoly x y 0 (circle via_radius))
-							:set_color (const (trans +argb_black+)))
-							:fpoly x y 0 (circle (/ via_radius 2.0))))
+						(.-> canvas
+							(:set_color (const (trans +argb_white+)))
+							(:fpoly x y 0 (circle via_radius))
+							(:set_color (const (trans +argb_black+)))
+							(:fpoly x y 0 (circle (/ via_radius 2.0)))))
 					(list path_2d))
 				) batched_paths_2d))
 		;draw pads
@@ -177,9 +175,9 @@
 		) (list pcb)))
 
 (defun win-refresh (_)
-	(. (. pcb_scroll
-		:add_child (pcb-load (elem (setq index _) pcbs)))
-		:layout)
+	(.-> pcb_scroll
+		(:add_child (pcb-load (elem (setq index _) pcbs)))
+		(:layout))
 	(def window_title :text (elem _ pcbs))
 	(. window_title :layout)
 	(view-dirty-all (. mywindow :layout)))

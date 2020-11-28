@@ -33,7 +33,7 @@
 		(while (/= (setq xp (inc xp)) x1)
 			(defq r (read-char data) r (if (= r 255) 0 r)
 				g (<< (logand r 0x7f) 9) b (<< (logand r 0x3f) 2))
-			(. (. canvas :set_color (+ +argb_black+ (<< r 16) g b)) :plot xp yp))
+			(.-> canvas (:set_color (+ +argb_black+ (<< r 16) g b)) (:plot xp yp)))
 		(task-sleep 0))
 	(* (- x1 x) (- y1 y)))
 
@@ -42,7 +42,7 @@
 
 (defun main ()
 	;add window
-	(. (. canvas :fill +argb_black+) :swap)
+	(.-> canvas (:fill +argb_black+) (:swap))
 	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
 	(gui-add (. mywindow :change x y w h))
 	(reset)

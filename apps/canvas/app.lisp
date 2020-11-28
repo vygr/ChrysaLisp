@@ -13,7 +13,7 @@
 	(ui-canvas canvas canvas_width canvas_height canvas_scale))
 
 (defun main ()
-	(. (. canvas :fill 0) :set_canvas_flags 1)
+	(.-> canvas (:fill 0) (:set_canvas_flags 1))
 	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
 	(gui-add (. mywindow :change x y w h))
 	;create child and send args

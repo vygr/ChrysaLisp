@@ -42,8 +42,8 @@
 				((= shadow 0)
 					(. this :set_flags +view_flag_opaque+ +view_flag_opaque+))
 				(t
-					(. (. this :clr_opaque) :add_opaque (+ border shadow) (+ border shadow)
-						(- w (* 2 (+ border shadow))) (- h (* 2 (+ border shadow))))))))
+					(.-> this (:clr_opaque) (:add_opaque (+ border shadow) (+ border shadow)
+						(- w (* 2 (+ border shadow))) (- h (* 2 (+ border shadow)))))))))
 
 	(defmethod :mouse_down (this event)
 		; (. window :mouse_down event) -> window

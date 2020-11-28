@@ -869,6 +869,13 @@
 	; (deffimethod name ffi)
 	`(def this ,n (ffi _ ,_ 0)))
 
+(defmacro .-> (res &rest frms)
+	; (.-> object form ...)
+	(setq frms (reverse frms))
+	(while (defq frm (pop frms))
+		(setq res (insert frm 0 (list '. res))))
+	res)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Boot extension imports
 ;;;;;;;;;;;;;;;;;;;;;;;;;
