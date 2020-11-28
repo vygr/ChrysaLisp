@@ -582,7 +582,7 @@
 
 ## age
 
-(age path)
+(age path) -> 0 | time ns
 
 ## aif
 
@@ -1500,6 +1500,10 @@
 
 (pii-dirlist path)
 
+## pii-fstat
+
+(pii-fstat path)
+
 ## pii-read-char
 
 (pii-read-char fd)
@@ -1507,6 +1511,10 @@
 ## pii-remove
 
 (pii-remove path)
+
+## pii-time
+
+(pii-time)
 
 ## pii-write-char
 
@@ -1807,10 +1815,6 @@
 ## throw
 
 (throw str form)
-
-## time
-
-(time)
 
 ## times
 

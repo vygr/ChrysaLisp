@@ -1,6 +1,20 @@
 ;import symbols
 (import "sys/symbols.inc")
 
+(ffi task-mailbox "sys/task/lisp_mailbox" 0)
+(ffi task-sleep "sys/task/lisp_sleep" 0)
+(ffi mail-alloc-mbox "sys/mail/lisp_alloc_mbox" 0)
+(ffi mail-declare "sys/mail/lisp_declare" 0)
+(ffi mail-devices "sys/mail/lisp_devices" 0)
+(ffi mail-enquire "sys/mail/lisp_enquire" 0)
+(ffi mail-forget "sys/mail/lisp_forget" 0)
+(ffi mail-free-mbox "sys/mail/lisp_free_mbox" 0)
+(ffi mail-poll "sys/mail/lisp_poll" 0)
+(ffi mail-read "sys/mail/lisp_read" 0)
+(ffi mail-select "sys/mail/lisp_select" 0)
+(ffi mail-send "sys/mail/lisp_send" 0)
+(ffi mem-stats "sys/mem/lisp_stats" 0)
+
 ;some simple structure helpers
 (defmacro structure (n o &rest b)
 	; (structure name offset [body])
@@ -26,26 +40,6 @@
 (defun byte (&rest b)
 	; (byte field ...)
 	(setq _o (align _o byte_size)) (apply struct (cat (list byte_size) b)))
-
-;system lisp bindings
-(ffi mail-declare "sys/mail/lisp_declare" 0)
-(ffi mail-enquire "sys/mail/lisp_enquire" 0)
-(ffi mail-devices "sys/mail/lisp_devices" 0)
-(ffi mail-forget "sys/mail/lisp_forget" 0)
-(ffi mail-poll "sys/mail/lisp_poll" 0)
-(ffi mail-read "sys/mail/lisp_read" 0)
-(ffi mail-select "sys/mail/lisp_select" 0)
-(ffi mail-send "sys/mail/lisp_send" 0)
-(ffi mail-alloc-mbox "sys/mail/lisp_alloc_mbox" 0)
-(ffi mail-free-mbox "sys/mail/lisp_free_mbox" 0)
-(ffi pii-read-char "sys/pii/lisp_readchar" 0)
-(ffi pii-write-char "sys/pii/lisp_writechar" 0)
-(ffi pii-dirlist "sys/pii/lisp_dirlist" 0)
-(ffi fstat "sys/pii/lisp_fstat" 0) ; -> (filetime filesize filemode)
-(ffi pii-remove "sys/pii/lisp_remove" 0)
-(ffi task-mailbox "sys/task/lisp_mailbox" 0)
-(ffi task-sleep "sys/task/lisp_sleep" 0)
-(ffi mem-stats "sys/mem/lisp_stats" 0)
 
 (defun open-child (task mode)
 	; (open-child task mode)

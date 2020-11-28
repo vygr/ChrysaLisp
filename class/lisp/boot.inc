@@ -25,6 +25,7 @@
 (ffi f2r "class/num/lisp_f2r" 0)
 (ffi r2i "class/num/lisp_r2i" 0)
 (ffi r2f "class/num/lisp_r2f" 0)
+(ffi random "class/num/lisp_random" 0)
 
 (ffi >> "class/num/lisp_shr" 0)
 (ffi >>> "class/num/lisp_asr" 0)
@@ -115,9 +116,12 @@
 (ffi prebind "class/lisp/lisp_bindfun" 0)
 (ffi . "class/lisp/lisp_mcall" 0)
 
-(ffi time "sys/pii/lisp_time" 0)
-(ffi age "sys/pii/lisp_age" 0)
-(ffi random "class/num/lisp_random" 0)
+(ffi pii-dirlist "sys/pii/lisp_dirlist" 0)
+(ffi pii-fstat "sys/pii/lisp_fstat" 0) ; -> (array filetime filesize filemode)
+(ffi pii-read-char "sys/pii/lisp_readchar" 0)
+(ffi pii-remove "sys/pii/lisp_remove" 0)
+(ffi pii-time "sys/pii/lisp_time" 0)
+(ffi pii-write-char "sys/pii/lisp_writechar" 0)
 
 ;C++ ChrysaLisp !
 (cond
@@ -751,6 +755,10 @@
 ;;;;;;;;;
 ; Streams
 ;;;;;;;;;
+
+(defun age (_)
+	; (age path) -> 0 | time ns
+	(if (setq _ (pii-fstat _)) (elem 0 _) 0))
 
 (defun load-stream (_)
 	; (load-stream path) -> nil|stream
