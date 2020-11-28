@@ -96,7 +96,7 @@
 			(:vdu (vdu-line)))
 		(if line_widget (. page_widget :add_child line_widget))) (file-stream (cat "docs/" file ".md")))
 	(apply view-change (cat (list page_flow 0 0) (. page_flow :pref_size)))
-	(. (. page_scroll :add_child page_flow) :layout)
+	(.-> page_scroll (:add_child page_flow) :layout)
 	(view-dirty-all (. doc_flow :layout)))
 
 (ui-window mywindow (:color +argb_grey15+)

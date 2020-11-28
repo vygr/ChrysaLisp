@@ -58,7 +58,7 @@
 		(file-stream file))
 	(. vdu :load text_buf 0 (set-slider file) 0 -1)
 	(def mytitle :text (cat "Viewer -> " file))
-	(. (. mytitle :layout) :dirty))
+	(.-> mytitle :layout :dirty))
 
 (defun all-dirs (files)
 	;return all the dir routes

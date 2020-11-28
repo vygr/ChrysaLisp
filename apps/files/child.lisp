@@ -106,7 +106,7 @@
 			(if (eql new_filename old_filename)
 				(mail-send new_filename reply_mbox))
 			(set filename :text new_filename)
-			(. (. filename :layout) :dirty))
+			(.-> filename :layout :dirty))
 		((= id +event_tree_button+)
 			(setq current_dir (get :text (. mywindow :find_id (get-long msg ev_msg_action_source_id))))
 			(populate-files all_files current_dir exts))

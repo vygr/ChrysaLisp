@@ -50,7 +50,7 @@
 						(t (setq num (str-to-num (cat (str num) op)))))
 					(setq value num)))
 			(set display :text (str value))
-			(. (. display :layout) :dirty))
+			(.-> display :layout :dirty))
 		((= id +event_close+)
 			;close button
 			nil)

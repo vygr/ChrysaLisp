@@ -32,7 +32,7 @@
 
 	(defmethod :action (this data)
 		; (. scroll :action data) -> scroll
-		(. (. this :layout) :set_flags +view_flag_dirty_all+ +view_flag_dirty_all+))
+		(.-> this :layout (:set_flags +view_flag_dirty_all+ +view_flag_dirty_all+)))
 
 	(defmethod :pref_size (this)
 		; (. scroll :pref_size) -> (width height)

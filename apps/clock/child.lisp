@@ -43,28 +43,32 @@
 			(push l (transform (path 0.0 0.35 0.0 0.44) (/ (* (i2f a) +fp_2pi+) 12.0) scale))) (range 0 12) (list))))
 
 (defun view-analog-time ()
-	(. clock :fill 0)
-	(. clock :set_color +argb_white+)
-	(. clock :fpoly 0.0 0.0 0 (slice 0 1 face))
-	(. clock :set_color +argb_black+)
-	(. clock :fpoly 0.0 0.0 0 face)
+	(.-> clock
+		(:fill 0)
+		(:set_color +argb_white+)
+		(:fpoly 0.0 0.0 0 (slice 0 1 face))
+		(:set_color +argb_black+)
+		(:fpoly 0.0 0.0 0 face))
 
 	;hour and minute hands
 	(defq _ (path-stroke-polylines (list) (const (* scale 0.02)) eps join_miter cap_round cap_tri
 		(list (transform (path 0.0 0.04 0.0 -0.22) (/ (* hours +fp_2pi+) 12.0) scale)
 			(transform (path 0.0 0.04 0.0 -0.33) (/ (* minutes +fp_2pi+) 60.0) scale))))
-	(. clock :set_color 0xa0000000)
-	(. clock :fpoly (const (* scale 0.01)) (const (* scale 0.01)) 1 _)
-	(. clock :set_color +argb_green+)
-	(. clock :fpoly 0.0 0.0 1 _)
+	(.-> clock
+		(:set_color 0xa0000000)
+		(:fpoly (const (* scale 0.01)) (const (* scale 0.01)) 1 _)
+		(:set_color +argb_green+)
+		(:fpoly 0.0 0.0 1 _))
 
 	;second hand
 	(defq _ (path-stroke-polylines (list) (const (* scale 0.01)) eps join_miter cap_round cap_tri
 		(list (transform (path 0.0 0.04 0.0 -0.38) (/ (* (% seconds 60.0) +fp_2pi+) 60.0) scale))))
-	(. clock :set_color 0xa0000000)
-	(. clock :fpoly (const (* scale 0.01)) (const (* scale 0.01)) 0 _)
-	(. clock :set_color +argb_red+)
-	(. clock :fpoly 0.0 0.0 0 _))
+	(.-> clock
+		(:set_color 0xa0000000)
+		(:fpoly (const (* scale 0.01)) (const (* scale 0.01)) 0 _)
+		(:set_color +argb_red+)
+		(:fpoly 0.0 0.0 0 _))
+	)
 
 (defun main ()
 	;creates local_timezone

@@ -22,7 +22,7 @@
 		(if (/= 0 state)
 			(setq pos (* pos 2)))
 		(bind '(w h) (. this :get_size))
-		(. (. flow :change pos pos (- w (* border 2)) (- h (* border 2))) :layout)
+		(.-> flow (:change pos pos (- w (* border 2)) (- h (* border 2))) :layout)
 		(. this :set_flags +view_flag_opaque+ +view_flag_opaque+))
 
 	(defmethod :mouse_down (this event)

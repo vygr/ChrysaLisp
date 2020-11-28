@@ -135,7 +135,7 @@
 	lisp_type_sym (<< 1 3)
 	lisp_type_fnc (<< 1 4)
 	lisp_type_env (<< 1 5)
- 	defmacro '(macro (n a &rest _) `(defq ,n (macro ,a ~_))))
+	defmacro '(macro (n a &rest _) `(defq ,n (macro ,a ~_))))
 
 (defmacro defun (n a &rest _)
 	; (defun name ([arg ...]) body)
@@ -861,13 +861,22 @@
 	`(defun ,n ,p (defq this (env -1)) ~_ this))
 
 (defmacro defmethod (n p &rest _)
-	; (defmethod name ([arg ...]) body)
-	; (. this method ([arg ...]))
+	; (defmethod name (this [arg ...]) body)
+	; (. this :method [arg ...])
 	`(def this ,n (lambda ,p ~(macroexpand _))))
 
 (defmacro deffimethod (n _)
 	; (deffimethod name ffi)
 	`(def this ,n (ffi _ ,_ 0)))
+
+(defmacro .-> (res &rest frms)
+	; (.-> this form ...)
+	(setq frms (reverse frms))
+	(while (defq frm (pop frms))
+		(if (lst? frm)
+			(setq res (insert frm 0 (list '. res)))
+			(setq res (list '. res frm))))
+	res)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Boot extension imports

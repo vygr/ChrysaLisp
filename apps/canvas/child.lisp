@@ -41,8 +41,7 @@
 			_ _)) _))
 
 (defun fpoly (col mode _)
-	(. canvas :set_color col)
-	(. canvas :fpoly 0.0 0.0 mode _))
+	(.-> canvas (:set_color col) (:fpoly 0.0 0.0 mode _)))
 
 (defun redraw ()
 	(. canvas :fill 0)

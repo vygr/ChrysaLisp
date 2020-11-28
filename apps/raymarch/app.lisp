@@ -29,7 +29,7 @@
 	(while (/= (setq yp (inc yp)) y1)
 		(defq xp (dec x))
 		(while (/= (setq xp (inc xp)) x1)
-			(. (. canvas :set_color (read-int data)) :plot xp yp))
+			(.-> canvas (:set_color (read-int data)) (:plot xp yp)))
 		(task-sleep 0))
 	(* (- x1 x) (- y1 y)))
 
@@ -38,7 +38,7 @@
 
 (defun main ()
 	;add window
-	(. (. canvas :fill +argb_black+) :swap)
+	(.-> canvas (:fill +argb_black+) :swap)
 	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
 	(gui-add (. mywindow :change x y w h))
 	;send first batch of jobs
