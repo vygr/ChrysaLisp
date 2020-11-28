@@ -319,7 +319,7 @@
 		((mail-poll (array (task-mailbox)))
 			(setq quit t)
 			timeout_value)
-		((>= (- (time) start_time) max_time_per_move)
+		((>= (- (pii-time) start_time) max_time_per_move)
 			timeout_value)
 		((= ply 0)
 			(evaluate brd colour))
@@ -340,7 +340,7 @@
 		((mail-poll (array (task-mailbox)))
 			(setq quit t)
 			timeout_value)
-		((>= (- (time) start_time) max_time_per_move)
+		((>= (- (pii-time) start_time) max_time_per_move)
 			timeout_value)
 		((= ply 0)
 			(evaluate brd colour))
@@ -354,7 +354,7 @@
 ;best move for given board position for given colour
 (defun best-move (brd colour history)
 	;start move time, sorted ply0 boards
-	(defq start_time (time) nbrd nil pbrd nil bias (list)
+	(defq start_time (pii-time) nbrd nil pbrd nil bias (list)
 		ply0_boards (sort (lambda (a b) (- (elem 0 b) (elem 0 a)))
 			(map (lambda (brd) (list (evaluate brd colour) brd)) (all-moves brd colour))))
 	;bias against repeat positions
@@ -387,13 +387,13 @@
 (defun main ()
 	;read args from parent
 	(defq msg (mail-read (task-mailbox)) msg_out (out-stream (get-long msg 0)) max_time_per_move (get-long msg long_size)
-		history (list) colour (const white) game_start_time (time) quit nil flicker 100000
+		history (list) colour (const white) game_start_time (pii-time) quit nil flicker 100000
 		brd "RNBQKBNRPPPPPPPP                                pppppppprnbqkbnr")
 	(send-data "b" brd)
 
 	;main event loop
 	(until quit
-		(defq elapsed_time (- (time) game_start_time))
+		(defq elapsed_time (- (pii-time) game_start_time))
 		(send-data "c" (LF) "Elapsed Time: " (time-in-seconds elapsed_time) (LF))
 		(if (= colour (const white))
 			(send-data "s" "White to move:" (LF))

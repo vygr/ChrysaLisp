@@ -8156,6 +8156,8 @@ r1-r14
 
 ### sys_pii::lisp_age -> sys/pii/lisp_age
 
+### sys_pii::lisp_dirlist -> sys/pii/lisp_dirlist
+
 ```lisp
 inputs
 r0 = lisp object (ptr)
@@ -8167,7 +8169,7 @@ trashes
 r1-r14
 ```
 
-### sys_pii::lisp_dirlist -> sys/pii/lisp_dirlist
+### sys_pii::lisp_fstat -> sys/pii/lisp_fstat
 
 ```lisp
 inputs

@@ -31,7 +31,7 @@
 (defun mine-list (l n s w h)
 	(defq count 0 m (list))
 	(while (< count n)
-		(defq r (% (random l) (/ (time) 1000000)))
+		(defq r (% (random l) (/ (pii-time) 1000000)))
 		(unless (or (eql r s) (sfind r m) (some (lambda (_) (= _ r)) (adjacent-elem (elem-coord s w h) w h)))
 			(setq count (inc count)) (push m r))) m)
 

@@ -8,7 +8,7 @@
 (structure '+event 0
 	(byte 'close+))
 
-(defq canvas_width 800 canvas_height 800 canvas_scale 1 then (time)
+(defq canvas_width 800 canvas_height 800 canvas_scale 1 then (pii-time)
 	area (* canvas_width canvas_height canvas_scale canvas_scale) devices (mail-devices)
 	farm (open-farm "apps/raymarch/child.lisp"
 		(min (* 2 (length devices)) (* canvas_height canvas_scale)) kn_call_child devices)
@@ -64,7 +64,7 @@
 					;close farm and clear it
 					(each (lambda (_) (mail-send "" _)) farm)
 					(clear farm))
-				(when (or (> (- (defq now (time)) then) 1000000) (= area 0))
+				(when (or (> (- (defq now (pii-time)) then) 1000000) (= area 0))
 					;swap canvas
 					(setq then now)
 					(. canvas :swap))

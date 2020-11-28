@@ -18,7 +18,7 @@
 
 (defun reset ()
 	(if select (mail-free-mbox (elem 1 select)))
-	(setq then (time) select (array (task-mailbox) (mail-alloc-mbox))
+	(setq then (pii-time) select (array (task-mailbox) (mail-alloc-mbox))
 		area (* canvas_width canvas_height canvas_scale canvas_scale))
 	(mail-send (array (elem 1 select) 0 0 (* canvas_width canvas_scale) (* canvas_height canvas_scale)
 		(* canvas_width canvas_scale) (* canvas_height canvas_scale) center_x center_y zoom (* (length (mail-devices)) 4))
@@ -72,7 +72,7 @@
 					(t (. mywindow :event msg))))
 			(t	;child tile msg
 				(setq area (- area (tile canvas msg)))
-				(when (or (> (- (defq now (time)) then) 1000000) (= area 0))
+				(when (or (> (- (defq now (pii-time)) then) 1000000) (= area 0))
 					(. canvas :swap)
 					(setq then now))
 					t))))

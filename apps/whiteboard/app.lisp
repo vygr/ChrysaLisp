@@ -7,7 +7,7 @@
 	(+ (logand 0xffffff _) 0x60000000))
 
 (defq canvas_width 1024 canvas_height 768 min_width 320 min_height 240 eps 0.25 tol 3.0
-	radiuss (map i2f '(2 6 12)) stroke_radius (elem 0 radiuss) then (time)
+	radiuss (map i2f '(2 6 12)) stroke_radius (elem 0 radiuss) then (pii-time)
 	palette (list +argb_black+ +argb_white+ +argb_red+ +argb_green+ +argb_blue+ +argb_cyan+ +argb_yellow+ +argb_magenta+)
 	palette (cat palette (map trans palette)) undo_stack (list) redo_stack (list)
 	stroke_col (elem 0 palette) stroke_mode +event_pen+ commited_polygons (list) overlay_paths (list)

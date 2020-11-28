@@ -128,13 +128,13 @@
 		(eql (and (not (= _ 5)) (or (> a_ (elem _ maxarg)) (< a_ (elem _ minarg)))) t)) td))
 
 (defun float-time ()
-	(defq seconds (i2f (/ (time) 1000000)) minutes (+ (* 60.0 (i2f 
+	(defq seconds (i2f (/ (pii-time) 1000000)) minutes (+ (* 60.0 (i2f 
 		(elem +tz_offset+ (get :local_timezone)))) (/ seconds 60.0)) 
 		hours (% (/ minutes 60.0) 12.0))
 	(list seconds minutes hours))
-;takes a time value in seconds or uses default (time)
+;takes a time value in seconds or uses default (pii-time)
 (defun date (&optional secs)
-	(defq seconds (/ (time) 1000000))
+	(defq seconds (/ (pii-time) 1000000))
 	(if secs (setq seconds secs))
 	(defq minutes (+ (* 60 (elem +tz_offset+ (get :local_timezone))) (/ seconds 60))
 		hours (/ minutes 60) days (/ hours 24) weeks (/ days 7))
