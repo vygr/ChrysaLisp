@@ -24,7 +24,7 @@
 (import "lib/pipe/pipe.inc")
 (import "lib/date/date.inc")
 (import "lib/logging/loganchor.inc")
-
+(import "lib/fauxfs/fauxfs.inc")
 (import "apps/terminal/tuiutils.lisp")
 
 ; Setup logging
@@ -113,22 +113,6 @@
   (prtnl "    >-e+ name Jane Doe")
   (prtnl "    >echo @name ; results in 'echo Jane Doe")
   (prtnl ""))
-
-(defun list-files (ic &optional args)
-  ; (list-files internal args) -> nil
-  ; Lists files in either cwd or other in argument
-  ; Flags include
-  ; -? TBD
-  (defq targ (if (= (length args) 0) (gets session :cwd) args))
-  (each (#(if (not (or (eql %0 "4") (eql %0 "8")))
-              (prtnl %0))) (split (pii-dirlist targ) ","))
-  nil)
-
-(defun disp-date (ic &optional args)
-  ; (disp-date command args) -> nil
-  (bind '(sargs flags paths) (split-args args))
-  (prtnl (encode-date))
-  nil)
 
 (defq
   ; Internal command dictionary

@@ -76,6 +76,30 @@
   (bind '(sargs flags paths) (split-args args))
   (not-impl ic))
 
+(defun list-files (ic &optional args)
+  ; (list-files internal args) -> nil
+  ; Lists files in either cwd or other in argument
+  ; Flags include
+  ; -? TBD
+  (bind '(sargs flags paths) (split-args args))
+  (defq targs (if (empty? paths)
+                  (list (gets session "PWD"))
+                  paths))
+  (each (lambda(_)
+          (each
+            (lambda (_el)
+              (if (not (or (eql _el "4") (eql _el "8")))
+                  (prtnl _el)))
+            (split (pii-dirlist _) ",")))
+          targs)
+  nil)
+
+(defun disp-date (ic &optional args)
+  ; (disp-date command args) -> nil
+  (bind '(sargs flags paths) (split-args args))
+  (prtnl (encode-date))
+  nil)
+
 (defun load-envmap (filename)
   ; (load-envmap filename) -> map
   ; Loads a map with key/value created from
