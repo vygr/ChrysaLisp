@@ -142,7 +142,7 @@
 
 (defun update-status ()
 	(set sb_label :text (cat "Line " (str (inc cy)) ", Column " (str (inc cx)) status_bar_msg))
-	(.-> sb_label (:layout) (:dirty)))
+	(.-> sb_label :layout :dirty))
 
 (defun view-tabbar ()
 	(. tabbar :sub)
@@ -150,8 +150,8 @@
 		(each (lambda (e) (component-connect (ui-button b 
 			(:text (elem +text_title+ (elem _ text_store)) :min_width 32 :border 1)) (+ +event_tabbar+ _)))
 			(range 0 (length text_store))))
-	(.-> tabbar_flow (:add_child tabbar) (:layout))
-	(.-> tab_bar (:layout) (:dirty)))
+	(.-> tabbar_flow (:add_child tabbar) :layout)
+	(.-> tab_bar :layout :dirty))
 
 ;macros for select-action-on-enter command and data parsing.
 (defun split-cd (cd)

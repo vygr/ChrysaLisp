@@ -873,7 +873,9 @@
 	; (.-> this form ...)
 	(setq frms (reverse frms))
 	(while (defq frm (pop frms))
-		(setq res (insert frm 0 (list '. res))))
+		(if (lst? frm)
+			(setq res (insert frm 0 (list '. res)))
+			(setq res (list '. res frm))))
 	res)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
