@@ -194,7 +194,7 @@
 
 ## .
 
-(. this method ([arg ...]))
+(. this :method [arg ...])
 
 ## title :mouse_down
 
@@ -451,6 +451,10 @@
 ## xset :union
 
 (. xset :union xset) -> xset
+
+## .->
+
+(.-> this form ...)
 
 ## /
 
@@ -834,7 +838,7 @@
 
 ## defmethod
 
-(defmethod name ([arg ...]) body)
+(defmethod name (this [arg ...]) body)
 
 ## defq
 
