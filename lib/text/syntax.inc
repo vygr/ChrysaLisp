@@ -149,7 +149,7 @@
 							;is a global symbol
 							(push col_list (get :ink_globals this)))
 						((eql (elem 0 token) "-")
-							;is a nagative number
+							;is a negative number
 							(push col_list (get :ink_numbers this)))
 						(t	;default text color)
 							(push col_list (get :ink_text this)))))

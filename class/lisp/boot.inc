@@ -871,12 +871,10 @@
 
 (defmacro .-> (res &rest frms)
 	; (.-> this form ...)
-	(setq frms (reverse frms))
-	(while (defq frm (pop frms))
+	(reduce (lambda (res frm)
 		(if (lst? frm)
-			(setq res (insert frm 0 (list '. res)))
-			(setq res (list '. res frm))))
-	res)
+			(insert frm 0 (list '. res))
+			(list '. res frm))) frms res))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Boot extension imports
