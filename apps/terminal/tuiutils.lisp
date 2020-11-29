@@ -4,7 +4,9 @@
 
 (import "lib/fauxfs/fauxfs.inc")
 
-(defq +tenv-file+ "apps/terminal/.hostenv" )
+(defq
+  current_path  nil
+  +tenv-file+   "apps/terminal/.hostenv" )
 
 ;override print for TUI output
 (defun print (_)
@@ -88,30 +90,33 @@
 (defun list-files (ic &optional args)
   ; (list-files internal args) -> nil
   ; Lists files in either cwd or other in argument
+  ; emulates Linux/Darwin 'ls' command
   ; Flags include
   ; -? TBD
   (bind '(sargs flags paths) (_split-args args))
   (defq
     flgs  (_collapse_flags flags)
-    flist (file-lists
-            (if (empty? paths)
-                (list (gets session "PWD"))
-                paths)))
-  (cond
-    ; Long listing for all (files and dirs)
-    ((and (gets flgs "l") (gets flgs "a"))
-     )
-    ; Long listing for files only
-    ((gets flgs "l")
-     )
-    ; Short listing for all
-    ((gets flgs "a")
-     )
-    ; Short listing for files only
-    (t
-      (each (lambda (_)
-              (prtnl (first _))
-              (each prtnl (files-only-short (first (rest _))))) flist)))
+    ; flist (file-lists
+    ;         (if (empty? paths)
+    ;             (list (gets session "PWD"))
+    ;             paths))
+    )
+  (each prtnl (. current_path :all-members))
+  ; (cond
+  ;   ; Long listing for all (files and dirs)
+  ;   ((and (gets flgs "l") (gets flgs "a"))
+  ;    )
+  ;   ; Long listing for files only
+  ;   ((gets flgs "l")
+  ;    )
+  ;   ; Short listing for all
+  ;   ((gets flgs "a")
+  ;    )
+  ;   ; Short listing for files only
+  ;   (t
+  ;     (each (lambda (_)
+  ;             (prtnl (first _))
+  ;             (each prtnl (files-only-short (first (rest _))))) flist)))
   nil)
 
 (defun disp-date (ic &optional args)
@@ -168,4 +173,5 @@
          +tenv-file+))
       (t
         (load-envmap +tenv-file+))))
+  (setq current_path (build-path (gets rm "PWD")))
   rm)
