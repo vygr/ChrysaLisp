@@ -61,6 +61,7 @@
 
 		;tokenise the string starting with the current state
 		;save the state at the end as we may wish to continue
+		(task-sleep 0)
 		(defq state (get :state this) token (list) state_list (list)
 			token_list (list) col_list (list))
 		(each (lambda (c)
@@ -115,19 +116,17 @@
 								(setq token (list) state :text))))
 					(:string1
 						(push token c)
-						(cond
-							((eql c (ascii-char 34))
-								(push state_list state)
-								(push token_list token)
-								(setq token (list) state :text)))
+						(when (eql c (ascii-char 34))
+							(push state_list state)
+							(push token_list token)
+							(setq token (list) state :text))
 						(setq c nil))
 					(:string2
 						(push token c)
-						(cond
-							((eql c "}")
-								(push state_list state)
-								(push token_list token)
-								(setq token (list) state :text)))
+						(when (eql c "}")
+							(push state_list state)
+							(push token_list token)
+							(setq token (list) state :text))
 						(setq c nil)))))
 			line)
 		(push state_list state)

@@ -525,23 +525,20 @@
 	;trashes
 	;r1-r14
 
-	(ptr 'this 'ctx)
-	(pptr 'func)
+	(entry 'view :draw '(r0 r1))
 
-	(push-scope)
-	(entry 'view :draw {this, ctx})
-
-	(call 'sym :get_static_sym {static_sym_draw} {func})
-	(call 'view :find {this, func} {_, func, _})
-	(vpif {func})
-		;call draw method
-		(assign {this, ctx, func[ptr_size]} '(r0 r1 r2))
-		(vp-call-i r2 num_value)
+	(vp-push r0 r1)
+	(call 'sym :get_static_sym '(static_sym_draw) '(r1))
+	(call 'view :find '((rsp ptr_size) r1) '(_ r2 _))
+	(vp-pop r0 r1)
+	(vpif '(r2 /= 0))
+		;jump to draw method
+		(assign '((r2 ptr_size)) '(r2))
+		(vp-jmp-i r2 num_value)
 	(endif)
 
-	(exit 'view :draw {this})
-	(pop-scope)
-	(return)
+	(exit 'view :draw '(r0))
+	(vp-ret)
 
 (def-func-end)
 
