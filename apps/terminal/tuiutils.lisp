@@ -2,6 +2,8 @@
 ; tuiutils - Terminal utilities
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(import "lib/fauxfs/fauxfs.inc")
+
 (defq +tenv-file+ "apps/terminal/.hostenv" )
 
 ;override print for TUI output
@@ -22,8 +24,8 @@
 (defun prtnl (_)
   (print (cat _ (ascii-char 0x0a))))
 
-(defun split-args (args)
-  ; (split-args string) -> list
+(defun _split-args (args)
+  ; (_split-args string) -> list
   ; Splits flags from arguments
   (defq sargs (split args " "))
   (reduce
@@ -31,6 +33,13 @@
       (if (eql (first el) "-")
           (push (second acc) el)
           (push (last acc) el)) acc) sargs (list sargs (list) (list))))
+
+(defun _collapse_flags (flags)
+  ; (_collapse_flags flaglist) -> set
+  ; Returns a set of flags from separate flags arguments
+  (defq flgs (xset))
+  (each (lambda (_) (reduce (#(progn (sets! %0 %1) %0)) (rest _) flgs)) flags)
+  flgs)
 
 (defun not-impl (ic &optional args)
   (prtnl (str ic " -> not implemented")))
@@ -49,7 +58,7 @@
   ; Implement by using (file-stream path file_write_append)
   ; which is inefficient. Should have a make dir in the
   ; main kernel
-  (bind '(sargs flags paths) (split-args args))
+  (bind '(sargs flags paths) (_split-args args))
   (not-impl ic)
   nil)
 
@@ -60,12 +69,12 @@
   ;   Recursive switch
   ;   Prompt
   ;   Silent
-  (bind '(sargs flags paths) (split-args args))
+  (bind '(sargs flags paths) (_split-args args))
   (not-impl ic)
   nil)
 
 (defun copy-file (ic &optional args)
-  (bind '(sargs flags paths) (split-args args))
+  (bind '(sargs flags paths) (_split-args args))
   (cond
     ((> (length paths) 2)
      (prtnl (str "Usage: cp [] source_file target_file")))
@@ -73,7 +82,7 @@
   (not-impl ic))
 
 (defun move-file (ic &optional args)
-  (bind '(sargs flags paths) (split-args args))
+  (bind '(sargs flags paths) (_split-args args))
   (not-impl ic))
 
 (defun list-files (ic &optional args)
@@ -81,22 +90,33 @@
   ; Lists files in either cwd or other in argument
   ; Flags include
   ; -? TBD
-  (bind '(sargs flags paths) (split-args args))
-  (defq targs (if (empty? paths)
-                  (list (gets session "PWD"))
-                  paths))
-  (each (lambda(_)
-          (each
-            (lambda (_el)
-              (if (not (or (eql _el "4") (eql _el "8")))
-                  (prtnl _el)))
-            (split (pii-dirlist _) ",")))
-          targs)
+  (bind '(sargs flags paths) (_split-args args))
+  (defq
+    flgs  (_collapse_flags flags)
+    flist (file-lists
+            (if (empty? paths)
+                (list (gets session "PWD"))
+                paths)))
+  (cond
+    ; Long listing for all (files and dirs)
+    ((and (gets flgs "l") (gets flgs "a"))
+     )
+    ; Long listing for files only
+    ((gets flgs "l")
+     )
+    ; Short listing for all
+    ((gets flgs "a")
+     )
+    ; Short listing for files only
+    (t
+      (each (lambda (_)
+              (prtnl (first _))
+              (each prtnl (files-only-short (first (rest _))))) flist)))
   nil)
 
 (defun disp-date (ic &optional args)
   ; (disp-date command args) -> nil
-  (bind '(sargs flags paths) (split-args args))
+  (bind '(sargs flags paths) (_split-args args))
   (prtnl (encode-date))
   nil)
 

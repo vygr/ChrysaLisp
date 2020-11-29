@@ -20,11 +20,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;imports
-(import "sys/lisp.inc")
 (import "lib/pipe/pipe.inc")
 (import "lib/date/date.inc")
 (import "lib/logging/loganchor.inc")
-(import "lib/fauxfs/fauxfs.inc")
 (import "apps/terminal/tuiutils.lisp")
 
 ; Setup logging
