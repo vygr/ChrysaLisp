@@ -151,17 +151,21 @@
   ; If not found, bootstraps from ChrysaLisp/.hostenv
   ; and copies to ChrysaLisp/apps/terminal/.hostenv
   ; Returns xmap of key/values
-  (defq +source-host-env+ ".hostenv")
+  (defq
+    +source-host-env+ ".hostenv"
+    rm                nil)
   (when (= (age +source-host-env+) 0)
     (throw "Host environment file not found " +source-host-env+))
-  (cond
-    ((= (age +tenv-file+) 0)
-     (save-envmap
-       (sets-pairs!
-         (load-envmap +source-host-env+)
-         "PROMPT" ">"
-         "LASTC" nil
-         "PATH" "cmd;apps")
-       +tenv-file+))
-    (t
-      (load-envmap +tenv-file+))))
+  (setq rm
+    (cond
+      ((= (age +tenv-file+) 0)
+       (save-envmap
+         (sets-pairs!
+           (load-envmap +source-host-env+)
+           "PROMPT" ">"
+           "LASTC" nil
+           "PATH" "cmd;apps")
+         +tenv-file+))
+      (t
+        (load-envmap +tenv-file+))))
+  rm)
