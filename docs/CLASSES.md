@@ -8791,23 +8791,6 @@ trashes
 r1-r14
 ```
 
-### view::get_relative -> gui/view/get_relative
-
-```lisp
-inputs
-r0 = view object (ptr)
-r1 = ancestor view object (ptr)
-r7 = view x (pixels)
-r8 = view y (pixels)
-outputs
-r0 = view object (ptr)
-r1 = ancestor view object (ptr)
-r7 = relative x (pixels)
-r8 = relative y (pixels)
-trashes
-r2, r7-r10
-```
-
 ### view::forward -> gui/view/forward
 
 ```lisp
@@ -8874,23 +8857,6 @@ r1 = 0 if should not descend after down callback
 trashes
 ...
 ```
-
-### view::change -> gui/view/change
-
-```lisp
-inputs
-r0 = view object (ptr)
-r7 = new x (pixels)
-r8 = new y (pixels)
-r9 = new w (pixels)
-r10 = new h (pixels)
-outputs
-r0 = view object (ptr)
-trashes
-r1-r14
-```
-
-### view::change_dirty -> gui/view/change_dirty
 
 ### view::hit_tree -> gui/view/hit_tree
 
@@ -9004,17 +8970,6 @@ r0 = view object (ptr)
 r1 = 0 if not, else hit
 trashes
 r1
-```
-
-### view::layout -> gui/view/layout
-
-```lisp
-inputs
-r0 = view object (ptr)
-outputs
-r0 = view object (ptr)
-trashes
-r1-r14
 ```
 
 ### view::lisp_create -> gui/view/lisp_create

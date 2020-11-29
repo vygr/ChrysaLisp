@@ -516,67 +516,6 @@
 
 (def-func-end)
 
-(def-method 'view :change)
-	;inputs
-	;r0 = view object (ptr)
-	;r7 = new x (pixels)
-	;r8 = new y (pixels)
-	;r9 = new w (pixels)
-	;r10 = new h (pixels)
-	;outputs
-	;r0 = view object (ptr)
-	;trashes
-	;r1-r14
-
-	;save old info
-	(assign '((r0 view_w) (r0 view_h)) '(r11 r12))
-
-	;set new info
-	(call 'view :set_bounds '(r0 r7 r8 r9 r10))
-
-	;layout if changed size
-	(vpif '(r9 = r11) '(r10 = r12))
-		(vp-ret)
-	(endif)
-	(jump 'view :layout '(r0))
-
-(def-func-end)
-
-(def-method 'view :layout)
-	;inputs
-	;r0 = view object (ptr)
-	;outputs
-	;r0 = view object (ptr)
-	;trashes
-	;r1-r14
-
-	(ptr 'this 'lisp 'params)
-	(pptr 'value)
-
-	(push-scope)
-	(entry 'view :layout {this})
-
-	;do we have a Lisp level layout method ?
-	(assign (cat {@} (f-path 'sys_task :statics) {.tk_statics_current_tcb->tk_node_lisp}) {lisp})
-	(vpif {lisp})
-		(call 'sym :get_static_sym {static_sym_layout} {value})
-		(call 'view :find {this, value} {_, value, _})
-		(breakifnot {value})
-		;call Lisp level handler
-		(call 'view :ref {this})
-		(call 'list :create nil {params})
-		(call 'list :push_back {params, this})
-		(call 'lisp :repl_apply {lisp, params, value[ptr_size]} {_, value})
-		(call 'obj :deref {params})
-		(call 'obj :deref {value})
-	(endif)
-
-	(exit 'view :layout {this})
-	(pop-scope)
-	(return)
-
-(def-func-end)
-
 (def-method 'view :draw)
 	;inputs
 	;r0 = view object (ptr)
@@ -664,33 +603,6 @@
 
 (vp-label 'up_callback)
 	(exit 'view :forward_tree_callback '(r0 r1))
-	(vp-ret)
-
-(def-func-end)
-
-(def-method 'view :get_relative)
-	;inputs
-	;r0 = view object (ptr)
-	;r1 = ancestor view object (ptr)
-	;r7 = view x (pixels)
-	;r8 = view y (pixels)
-	;outputs
-	;r0 = view object (ptr)
-	;r1 = ancestor view object (ptr)
-	;r7 = relative x (pixels)
-	;r8 = relative y (pixels)
-	;trashes
-	;r2, r7-r10
-
-	;walk up tree to parent
-	(vp-cpy-rr r0 r2)
-	(loop-while '(r2 /= r1))
-		(assign '((r2 view_x) (r2 view_y)) '(r9 r10))
-		(vp-add-rr r9 r7)
-		(vp-add-rr r10 r8)
-		(assign '((r2 hmap_parent)) '(r2))
-		(assert '(r2 /= 0))
-	(loop-end)
 	(vp-ret)
 
 (def-func-end)

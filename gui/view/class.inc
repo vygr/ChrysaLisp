@@ -15,12 +15,9 @@
 (dec-method :clr_opaque 'gui/view/clr_opaque :static '(r0) '(r0))
 (dec-method :add_opaque 'gui/view/add_opaque :static '(r0 r7 r8 r9 r10) '(r0))
 (dec-method :sub_opaque 'gui/view/sub_opaque :static '(r0 r7 r8 r9 r10) '(r0))
-(dec-method :get_relative 'gui/view/get_relative :static '(r0 r1 r7 r8) '(r0 r7 r8))
 (dec-method :forward 'gui/view/forward :static '(r0 r1 r2) '(r0))
 (dec-method :forward_tree 'gui/view/forward_tree :static '(r0 r1 r2 r3) '(r0))
 (dec-method :backward_tree 'gui/view/backward_tree :static '(r0 r1 r2 r3) '(r0))
-(dec-method :change 'gui/view/change :static '(r0 r7 r8 r9 r10) '(r0))
-(dec-method :change_dirty 'gui/view/change_dirty :static '(r0 r7 r8 r9 r10) '(r0))
 (dec-method :hit_tree 'gui/view/hit_tree :static '(r0 r7 r8) '(r0 r1 r7 r8))
 (dec-method :find_id 'gui/view/find_id :static '(r0 r1) '(r0 r1))
 (dec-method :get_bounds 'gui/view/get_bounds :static '(r0) '(r0 r7 r8 r9 r10))
@@ -33,7 +30,6 @@
 
 (dec-method :draw 'class/view/draw :virtual '(r0 r1) '(r0))
 (dec-method :hit 'gui/view/hit :virtual '(r0 r7 r8) '(r0 r1))
-(dec-method :layout 'gui/view/layout :virtual '(r0) '(r0))
 
 (dec-method :lisp_create 'gui/view/lisp_create :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_sub 'gui/view/lisp_sub :static '(r0 r1) '(r0 r1))

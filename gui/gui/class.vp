@@ -213,7 +213,7 @@
 					{user->local_statics->gui_statics_texture}))
 
 				;change backdrop size, send gui event to all top level views
-				(call 'backdrop :change '{user->local_statics->gui_statics_screen, 0, 0, event.sdl_window_event_data1, event.sdl_window_event_data2})
+				(call 'backdrop :set_bounds '{user->local_statics->gui_statics_screen, 0, 0, event.sdl_window_event_data1, event.sdl_window_event_data2})
 				(call 'backdrop :forward {user->local_statics->gui_statics_screen, user, $send_gui_event})
 				(call 'backdrop :set_flags '{user->local_statics->gui_statics_screen, +view_flag_dirty_all+, +view_flag_dirty_all+})
 				(break)
