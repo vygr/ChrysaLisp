@@ -89,6 +89,7 @@
 		(ui-flow page_widget (:flow_flags (logior +flow_flag_down+ +flow_flag_fillw+))))
 	(defq state :normal word_cnt 0 vdu_text (list))
 	(each-line (lambda (line_str)
+		(task-sleep 0)
 		(defq line_str (trim-end line_str (ascii-char 13)) line_widget nil)
 		(case state
 			(:normal (normal-line))
