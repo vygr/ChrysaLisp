@@ -22,13 +22,13 @@
 		(bind '(w h) (. this :get_size))
 		(defq rx (get-int event ev_msg_mouse_rx) ry (get-int event ev_msg_mouse_ry))
 		(def this :old_value (get :value this) :downxy (if (> w h) rx ry) :state 1)
-		(. (view-dirty-all this) :mouse_move event))
+		(.-> this :dirty_all (:mouse_move event)))
 
 	(defmethod :mouse_up (this event)
 		; (. slider :mouse_up event) -> slider
 		(when (/= (get :state this) 0)
 			(def this :state 0)
-			(view-dirty-all this))
+			(. this :dirty_all))
 		this)
 
 	(defmethod :mouse_move (this event)
@@ -43,9 +43,9 @@
 		(setq new_value (max 0 (min maximum (+ new_value (get :old_value this)))))
 		(when (/= new_value (get :value this))
 			(def this :value new_value)
-			(view-dirty-all (component-emit this)))
+			(. (component-emit this) :dirty_all))
 		(when (/= state (get :state this))
 			(def this :state state)
-			(view-dirty-all this))
+			(. this :dirty_all))
 		this)
 	)

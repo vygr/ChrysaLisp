@@ -1,5 +1,6 @@
 (include "sys/func.inc")
 (include "gui/view/class.inc")
+(include "gui/region/class.inc")
 (include "class/num/class.inc")
 (include "class/str/class.inc")
 (include "class/lisp/class.inc")
@@ -198,7 +199,7 @@
 
 (def-func-end)
 
-(def-method 'view :lisp_change)
+(def-method 'view :lisp_trans_dirty)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -208,59 +209,27 @@
 	;trashes
 	;r1-r14
 
-	(entry 'view :lisp_change '(r0 r1))
+	(entry 'view :lisp_trans_dirty '(r0 r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(r1 ($ sig) 5) '(r2))
+	(call 'lisp :env_args_sig '(r1 ($ sig) 3) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
-	(vp-push r0)
-	(defq in (method-input 'view :change))
-	(list-bind-args r1 in '(:view :num :num :num :num))
-	(call 'view :change in '(r0))
-	(call 'obj :ref '(r0) '(r1))
-	(vp-pop r0)
+	(defq in (method-input 'region :translate))
+	(list-bind-args r1 in '(:view :num :num))
+	(vp-push r0 (elem 0 in))
+	(vp-lea-i (elem 0 in) view_dirty_region (elem 0 in))
+	(call 'region :translate in)
+	(vp-pop r0 r1)
+	(class/obj/ref r1 r2)
 
-	(exit 'view :lisp_change '(r0 r1))
+	(exit 'view :lisp_trans_dirty '(r0 r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(view-change view x y w h)" error_msg_wrong_types r1))
-	(signature '(view num num num num)))
-
-(def-func-end)
-
-(def-method 'view :lisp_change_dirty)
-	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
-	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
-	;trashes
-	;r1-r14
-
-	(entry 'view :lisp_change_dirty '(r0 r1))
-
-(errorcases
-	(call 'lisp :env_args_sig '(r1 ($ sig) 5) '(r2))
-	(gotoif '(r2 = 0) 'error))
-
-	(vp-push r0)
-	(defq in (method-input 'view :change_dirty))
-	(list-bind-args r1 in '(:view :num :num :num :num))
-	(call 'view :change_dirty in '(r0))
-	(call 'obj :ref '(r0) '(r1))
-	(vp-pop r0)
-
-	(exit 'view :lisp_change_dirty '(r0 r1))
-	(vp-ret)
-
-(errorcases
-(vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(. view :change_dirty x y w h)" error_msg_wrong_types r1))
-	(signature '(view num num num num)))
+	(jump 'lisp :repl_error '(r0 "(view-trans-dirty view rx ry)" error_msg_wrong_types r1))
+	(signature '(view num num)))
 
 (def-func-end)
 

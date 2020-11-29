@@ -869,12 +869,12 @@
 	; (deffimethod name ffi)
 	`(def this ,n (ffi _ ,_ 0)))
 
-(defmacro .-> (res &rest frms)
+(defmacro .-> (res &rest frm)
 	; (.-> this form ...)
 	(reduce (lambda (res frm)
 		(if (lst? frm)
 			(insert frm 0 (list '. res))
-			(list '. res frm))) frms res))
+			(list '. res frm))) frm res))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Boot extension imports

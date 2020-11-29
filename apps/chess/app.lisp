@@ -31,7 +31,7 @@
 		(def square :text (elem (find piece "QKRBNPqkrbnp ")
 			(if (= (logand (+ _ (>> _ 3)) 1) 0) "wltvmoqkrbnp " "qkrbnpwltvmo ")))
 		(. square :layout)) squares board)
-	(view-dirty-all chess_grid))
+	(. chess_grid :dirty_all))
 
 (defun vdu-print (vdu buf s)
 	(each (lambda (c)

@@ -28,13 +28,13 @@
 	(defmethod :mouse_down (this event)
 		; (. button :mouse_down event) -> button
 		(def this :state 1)
-		(view-dirty-all (. this :layout)))
+		(.-> this :layout :dirty_all))
 
 	(defmethod :mouse_up (this event)
 		; (. button :mouse_up event) -> button
 		(when (/= (get :state this) 0)
 			(def this :state 0)
-			(component-emit (view-dirty-all (. this :layout))))
+			(component-emit (.-> this :layout :dirty_all)))
 		this)
 
 	(defmethod :mouse_move (this event)
@@ -44,6 +44,6 @@
 			state (if (and (>= rx 0) (>= ry 0) (< rx w) (< ry h)) 1 0))
 		(when (/= state (get :state this))
 			(def this :state state)
-			(view-dirty-all (. this :layout)))
+			(.-> this :layout :dirty_all))
 		this)
 	)

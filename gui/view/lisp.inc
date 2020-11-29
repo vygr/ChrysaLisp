@@ -1,5 +1,4 @@
 ;lisp bindings
-(ffi view-change "gui/view/lisp_change" 0)
 
 (defun view-fit (x y w h)
 	; (view-fit x y w h) -> (x y w h)
@@ -23,10 +22,6 @@
 (defq +view_flag_solid+ 1 +view_flag_opaque+ 2 +view_flag_dirty_all+ 4
 	+view_flag_at_back+ 8 +view_flag_hiden+ 16)
 
-(defmacro view-dirty-all (_)
-	; (view-dirty-all view) -> view
-	`(. ,_ :set_flags +view_flag_dirty_all+ +view_flag_dirty_all+))
-
 (defclass View ()
 	; (View) -> view
 	; overide the default 'this' env with a view component
@@ -41,14 +36,11 @@
 	(deffimethod :add_dirty "gui/view/lisp_add_dirty")
 		; (. view :add_dirty x y width height) -> view
 
+	(deffimethod :trans_dirty "gui/view/lisp_trans_dirty")
+		; (. view :trans_dirty rx ry) -> view
+
 	(deffimethod :dirty "gui/view/lisp_dirty")
 		; (. view :dirty) -> view
-
-	(deffimethod :change "gui/view/lisp_change")
-		; (. view :change x y width height) -> view
-
-	(deffimethod :change_dirty "gui/view/lisp_change_dirty")
-		; (. view :change_dirty x y width height) -> view
 
 	(deffimethod :add_opaque "gui/view/lisp_add_opaque")
 		; (. view :add_opaque x y width height) -> view
@@ -79,6 +71,10 @@
 
 	(deffimethod :hide "gui/view/lisp_hide")
 		; (. view :hide) -> view
+
+	(defmethod :dirty_all (this)
+		; (. view :dirty_all) -> view
+		(. this :set_flags +view_flag_dirty_all+ +view_flag_dirty_all+))
 
 	(defmethod :get_flags (this)
 		; (. view :get_flags) -> flags
@@ -118,6 +114,20 @@
 			(const view_y) (const int_size) y)
 			(const view_w) (const int_size) width)
 			(const view_h) (const int_size) height))
+
+	(defmethod :change (this x y width height)
+		; (. view :change x y width height) -> view
+		(bind '(old_width old_height) (. this :get_size))
+		(. this :set_bounds x y width height)
+		(unless (and (= width old_width) (= height old_height))
+			(. this :layout))
+		this)
+
+	(defmethod :change_dirty (this x y width height)
+		; (. view :change_dirty x y width height) -> view
+		(bind '(old_x old_y) (. this :get_pos))
+		(.-> this :dirty (:change x y width height)
+			(:trans_dirty (- old_x x) (- old_y y)) :dirty_all))
 
 	(defmethod :pref_size (this)
 		; (. view :pref_size) -> (width height)

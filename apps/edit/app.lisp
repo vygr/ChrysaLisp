@@ -136,8 +136,7 @@
 	(. vdu :change x y w h)
 	(def slider :maximum (max 0 (- (length buffer) vdu_height)) :portion vdu_height :value oy)
 	(view-tabbar)
-	(. window :layout)
-	(view-dirty-all window)
+	(.-> window :layout :dirty_all)
 	(vdu-colorise))
 
 (defun update-status ()

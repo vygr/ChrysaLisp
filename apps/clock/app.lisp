@@ -27,7 +27,8 @@
 	(defq mbox (open-child "apps/clock/child.lisp" kn_call_open))
 	;multiply size and scale, as they are only used together in child.
 	(mail-send (list display clock (* (i2f clock_size) (i2f clock_scale))) mbox)
-	(gui-add (apply view-change (cat (list mywindow 0 0) (. mywindow :pref_size))))
+	(bind '(w h) (. mywindow :pref_size))
+	(gui-add (. mywindow :change 0 0 w h))
 	;main app loop
 	(while (cond
 		((= (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id) +event_close+)

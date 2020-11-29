@@ -8892,19 +8892,6 @@ r1-r14
 
 ### view::change_dirty -> gui/view/change_dirty
 
-```lisp
-inputs
-r0 = view object (ptr)
-r7 = new x (pixels)
-r8 = new y (pixels)
-r9 = new w (pixels)
-r10 = new h (pixels)
-outputs
-r0 = view object (ptr)
-trashes
-r1-r14
-```
-
 ### view::hit_tree -> gui/view/hit_tree
 
 ```lisp
@@ -9095,32 +9082,6 @@ trashes
 r1-r14
 ```
 
-### view::lisp_change -> gui/view/lisp_change
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args list object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### view::lisp_change_dirty -> gui/view/lisp_change_dirty
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args list object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
 ### view::lisp_clr_opaque -> gui/view/lisp_clr_opaque
 
 ```lisp
@@ -9161,6 +9122,19 @@ r1-r14
 ```
 
 ### view::lisp_set_flags -> gui/view/lisp_set_flags
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### view::lisp_trans_dirty -> gui/view/lisp_trans_dirty
 
 ```lisp
 inputs

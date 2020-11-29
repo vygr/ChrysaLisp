@@ -258,10 +258,6 @@
 
 ## view :change_dirty
 
-(. view :change_dirty x y w h)
-
-## view :change_dirty
-
 (. view :change_dirty x y width height) -> view
 
 ## view :children
@@ -275,6 +271,10 @@
 ## view :dirty
 
 (. view :dirty) -> view
+
+## view :dirty_all
+
+(. view :dirty_all) -> view
 
 ## view :find_id
 
@@ -339,6 +339,10 @@
 ## view :to_front
 
 (. view :to_front) -> view
+
+## view :trans_dirty
+
+(. view :trans_dirty rx ry) -> view
 
 ## window :add_child
 
@@ -1988,10 +1992,6 @@
 
 (view-add-opaque view x y w h)
 
-## view-change
-
-(view-change view x y w h)
-
 ## view-children
 
 (view-children view)
@@ -2003,10 +2003,6 @@
 ## view-dirty
 
 (view-dirty view)
-
-## view-dirty-all
-
-(view-dirty-all view) -> view
 
 ## view-find-id
 
@@ -2039,6 +2035,10 @@
 ## view-to-front
 
 (view-to-front view)
+
+## view-trans-dirty
+
+(view-trans-dirty view rx ry)
 
 ## when
 

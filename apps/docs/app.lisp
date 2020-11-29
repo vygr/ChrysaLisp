@@ -70,7 +70,7 @@
 		((starts-with "```" line_str)
 			(setq vdu_text (cat '("") vdu_text '("")))
 			(def (defq vdu_widget (Vdu)) :font *env_terminal_font*
-				:vdu_width 80 :vdu_height (length vdu_text) :ink_color +argb_black+)
+				:vdu_width 80 :vdu_height (length vdu_text) :color 0 :ink_color +argb_black+)
 			(bind '(w h) (. vdu_widget :pref_size))
 			(. vdu_widget :change 0 0 w h)
 			(. coloriser :set_state :text)
@@ -95,9 +95,10 @@
 			(:code (lisp-line))
 			(:vdu (vdu-line)))
 		(if line_widget (. page_widget :add_child line_widget))) (file-stream (cat "docs/" file ".md")))
-	(apply view-change (cat (list page_flow 0 0) (. page_flow :pref_size)))
-	(.-> page_scroll (:add_child page_flow) :layout)
-	(view-dirty-all (. doc_flow :layout)))
+	(bind '(w h) (. page_flow :pref_size))
+	(. page_flow :change 0 0 w h)
+	(.-> page_scroll (:add_child page_flow) (:layout))
+	(.-> doc_flow :layout :dirty_all))
 
 (ui-window mywindow (:color +argb_grey15+)
 	(ui-title-bar _ "Docs" (0xea19) +event_close+)

@@ -13,7 +13,7 @@
 (defq +load_flag_shared+ 1 +load_flag_film+ 2 +load_flag_noswap+ 4)
 
 (defclass Canvas-base ()
-	(defq this (View))
+	(def (defq this (View)) :color 0)
 
 	(defmethod :save (this file format)
 		; (. canvas :save file format) -> nil | canvas

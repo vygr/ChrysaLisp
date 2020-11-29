@@ -34,5 +34,5 @@
 				;append key
 				(setq text (insert text cursor (char key)) cursor (inc cursor))))
 		(def this :text text :cursor cursor)
-		(view-dirty-all (. this :layout)))
+		(.-> this :layout :dirty_all))
 	)

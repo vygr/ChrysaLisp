@@ -131,7 +131,7 @@
 			(bind '(_ h) (. tree :pref_size))
 			(. mybackdrop :change 0 0 w h)
 			(. tree :change 0 0 w h)
-			(view-dirty-all (. tree_scroll :layout)))
+			(.-> tree_scroll :layout :dirty_all))
 		((= id +event_tree_route+)
 			;load up the file selected
 			(if current_button (undef (. current_button :dirty) :color))

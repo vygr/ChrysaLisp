@@ -41,7 +41,7 @@
 			(. info_flow :add_child _) (push info_labels _)) new_services)
 		(bind '(w h) (. info_grid :pref_size))
 		(. info_grid :change 0 0 w h))
-		(view-dirty-all (. info_scroll :layout)))
+		(.-> info_scroll :layout :dirty_all))
 
 (defun resize (mh)
 	(bind '(w h) (. info_grid :get_size))

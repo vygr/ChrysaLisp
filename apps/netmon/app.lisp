@@ -52,7 +52,7 @@
 				(def st :text (str (/ vt 100) "." (pad (% vt 100) 2 "0") "|"))
 				(def sm :text (str (/ vm 102400) "|"))
 				(. st :layout) (. sm :layout)) task_scale memory_scale)
-			(view-dirty-all mywindow)
+			(. mywindow :dirty_all)
 			;send out multi-cast sample command
 			(while (/= cpu_count 0)
 				(setq cpu_count (dec cpu_count))

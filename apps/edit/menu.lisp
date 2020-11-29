@@ -32,7 +32,7 @@
 		((eql pflag :bottom_right)
 			(. window :change (+ (- x w) 2) (+ y h 2) w h))
 		(t 	(. window :change x y w h)))
-	(view-dirty-all window))
+	(. window :dirty_all))
 
 (defun main ()
 	;read paramaters from parent

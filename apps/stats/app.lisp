@@ -52,7 +52,7 @@
 			(. name_flow :add_child (setq name_view new_name_view))
 			(. stat_flow :add_child (setq stat_view new_stat_view))
 			(. name_flow :layout) (. stat_flow :layout)
-			(view-dirty-all mywindow)
+			(. mywindow :dirty_all)
 			;open the window once we have data
 			(when (= (setq frame_cnt (inc frame_cnt)) 2)
 				(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))

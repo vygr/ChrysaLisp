@@ -35,7 +35,7 @@
 		; (. label :layout) -> label
 		(defq border (abs (get :border this)))
 		(bind '(w h) (. this :get_size))
-		(. (view-change (get :label_flow this) border border (- w (* border 2)) (- h (* border 2))) :layout)
+		(.-> (get :label_flow this) (:change border border (- w (* border 2)) (- h (* border 2))) :layout)
 		(if (= (>> (get :color this) 24) 0xff)
 			(. this :set_flags +view_flag_opaque+ +view_flag_opaque+)
 			this))

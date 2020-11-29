@@ -76,7 +76,7 @@
 					(catch (setq cmd (pipe-open cmdline)) (progn (setq cmd nil) t))
 					(cond
 						(cmd
-							(view-dirty-all mywindow))
+							(. mywindow :dirty_all))
 						(t
 							(print (cat (const (cat "Pipe Error !" (ascii-char 10)))))
 							(print-edit-line))))
@@ -89,7 +89,7 @@
 				(when (/= (length *line_buf*) 0)
 					(pipe-write cmd *line_buf*))
 				(pipe-close cmd) (setq cmd nil) (line-clear)
-				(view-dirty-all mywindow)
+				(. mywindow :dirty_all)
 				(print-edit-line)))
 		(t	;some key
 			(print-edit-line))))
@@ -154,7 +154,7 @@
 				(pipe-close cmd)
 				(setq cmd nil)
 				(print (cat (ascii-char 10) *env_terminal_prompt* *line_buf*))
-				(view-dirty-all mywindow))
+				(. mywindow :dirty_all))
 			(t	;string from pipe
 				(print data)))))
 	;close window and pipe
