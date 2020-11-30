@@ -1416,6 +1416,10 @@
 
 (nums-sum nums)
 
+## obj-ref
+
+(obj-ref num)
+
 ## odd?
 
 (odd? num) -> bool
@@ -2039,6 +2043,10 @@
 ## view-trans-dirty
 
 (view-trans-dirty view rx ry)
+
+## weak-ref
+
+(weak-ref obj)
 
 ## when
 

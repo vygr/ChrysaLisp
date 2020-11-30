@@ -168,3 +168,77 @@
 	(jump 'lisp :repl_error '(r0 "(hash obj)" error_msg_wrong_num_of_args r1)))
 
 (def-func-end)
+
+(def-method 'obj :lisp_weak_ref)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args list object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(entry 'obj :lisp_weak_ref '(r0 r1))
+
+(errorcases
+	(assign '((r1 array_length)) '(r2))
+	(gotoif '(r2 /= 1) 'error))
+
+	(list-bind-args r1 '(r2) '(:obj))
+	(assign '((r0 lisp_sym_nil)) '(r1))
+	(vpif '(r1 = r2))
+		(class/obj/ref r1 r2)
+	(else)
+		(vp-push r0)
+		(call 'num :create '(r2) '(r1))
+		(vp-pop r0)
+	(endif)
+
+	(exit 'obj :lisp_weak_ref '(r0 r1))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp :repl_error '(r0 "(weak-ref obj)" error_msg_wrong_num_of_args r1))
+	(signature '(obj)))
+
+(def-func-end)
+
+(def-method 'obj :lisp_obj_ref)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args list object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(entry 'obj :lisp_obj_ref '(r0 r1))
+
+(errorcases
+	(assign '((r1 array_length)) '(r2))
+	(gotoif '(r2 /= 1) 'error))
+
+	(list-bind-args r1 '(r2) '(:obj))
+	(assign '((r0 lisp_sym_nil)) '(r1))
+	(vpif '(r1 /= r2))
+	(errorcases
+		(assign `((@ ,(f-path 'num :vtable)) (r2 obj_vtable)) '(r3 r1))
+		(gotoif '(r3 /= r1) 'error1))
+		(assign '((r2 num_value)) '(r1))
+	(endif)
+	(class/obj/ref r1 r2)
+
+	(exit 'obj :lisp_obj_ref '(r0 r1))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error1)
+	(vp-cpy-rr r2 r1)
+(vp-label 'error)
+	(jump 'lisp :repl_error '(r0 "(obj-ref num)" error_msg_wrong_types r1))
+	(signature '(obj)))
+
+(def-func-end)

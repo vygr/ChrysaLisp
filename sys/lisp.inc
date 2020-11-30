@@ -95,11 +95,3 @@
 		(defq tail (get-long (mail-read mbox) long_size))
 		(push ids tail))
 	(mail-free-mbox mbox) ids)
-
-(defun weak-ref (obj)
-	; (weak-ref obj) -> nil | num
-	(if obj (pop (array obj))))
-
-(defun obj-ref (num)
-	; (obj-ref num) -> nil | obj
-	(if num (get-field num (const num_value) 0)))
