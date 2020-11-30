@@ -20,6 +20,8 @@
 (dec-method :lisp_get_field 'class/obj/lisp_get_field :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_set_field 'class/obj/lisp_set_field :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_hash 'class/obj/lisp_hash :static '(r0 r1) '(r0 r1))
+(dec-method :lisp_weak_ref 'class/obj/lisp_weak_ref :static '(r0 r1) '(r0 r1))
+(dec-method :lisp_obj_ref 'class/obj/lisp_obj_ref :static '(r0 r1) '(r0 r1))
 
 (def-struct 'obj)
 	(pptr 'vtable)

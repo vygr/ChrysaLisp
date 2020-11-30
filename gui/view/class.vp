@@ -156,9 +156,14 @@
 	;test parent
 	(assign '((r0 hmap_parent)) '(r1))
 	(vpif '(r1 /= 0))
-		;add dirty
 		(vp-push r0)
-		(call 'view :dirty '(r0))
+
+		;add dirty
+		(assign '((& r0 view_dirty_region) 1 0 0 (r0 view_w) (r0 view_h)) '(r1 r2 r7 r8 r9 r10))
+		(f-bind 'gui :statics r0)
+		(assign '(r2) '((r0 gui_statics_dirty_flag)))
+		(vp-add-cr gui_statics_rect_heap r0)
+		(call 'region :paste_rect '(r0 r1 r7 r8 r9 r10))
 
 		;temp view for update
 		(call 'view :create nil '(r1))
@@ -237,104 +242,6 @@
 			(assign '(r5) '((r0 hmap_parent)))
 		(endif)
 	(endif)
-	(vp-ret)
-
-(def-func-end)
-
-(def-method 'view :add_dirty)
-	;inputs
-	;r0 = view object (ptr)
-	;r7 = x (pixels)
-	;r8 = y (pixels)
-	;r9 = width (pixels)
-	;r10 = height (pixels)
-	;outputs
-	;r0 = view object (ptr)
-	;trashes
-	;r1-r14
-
-	;paste dirty region
-	(vp-push r0)
-	(vp-add-rr r7 r9)
-	(vp-add-rr r8 r10)
-	(assign `((& r0 view_dirty_region) (@ ,(f-path 'gui :statics)) 1) '(r1 r0 r2))
-	(assign '(r2) '((r0 gui_statics_dirty_flag)))
-	(vp-add-cr gui_statics_rect_heap r0)
-	(call 'region :paste_rect '(r0 r1 r7 r8 r9 r10))
-	(vp-pop r0)
-	(vp-ret)
-
-(def-func-end)
-
-(def-method 'view :clr_opaque)
-	;inputs
-	;r0 = view object (ptr)
-	;outputs
-	;r0 = view object (ptr)
-	;trashes
-	;r1-r14
-
-	(entry 'view :clr_opaque '(r0))
-
-	;remove any opaque region
-	(vp-push r0)
-	(vp-lea-i r0 view_opaque_region r1)
-	(f-bind 'gui :statics r0)
-	(vp-add-cr gui_statics_rect_heap r0)
-	(call 'region :free '(r0 r1))
-	(vp-pop r0)
-
-	(exit 'view :clr_opaque '(r0))
-	(vp-ret)
-
-(def-func-end)
-
-(def-method 'view :add_opaque)
-	;inputs
-	;r0 = view object (ptr)
-	;r7 = x (pixels)
-	;r8 = y (pixels)
-	;r9 = width (pixels)
-	;r10 = height (pixels)
-	;outputs
-	;r0 = view object (ptr)
-	;trashes
-	;r1-r14
-
-	;paste opaque region
-	(vp-push r0)
-	(vp-add-rr r7 r9)
-	(vp-add-rr r8 r10)
-	(vp-lea-i r0 view_opaque_region r1)
-	(f-bind 'gui :statics r0)
-	(vp-add-cr gui_statics_rect_heap r0)
-	(call 'region :paste_rect '(r0 r1 r7 r8 r9 r10))
-	(vp-pop r0)
-	(vp-ret)
-
-(def-func-end)
-
-(def-method 'view :sub_opaque)
-	;inputs
-	;r0 = view object (ptr)
-	;r7 = x (pixels)
-	;r8 = y (pixels)
-	;r9 = width (pixels)
-	;r10 = height (pixels)
-	;outputs
-	;r0 = view object (ptr)
-	;trashes
-	;r1-r14
-
-	;cut opaque region
-	(vp-push r0)
-	(vp-add-rr r7 r9)
-	(vp-add-rr r8 r10)
-	(vp-lea-i r0 view_opaque_region r1)
-	(f-bind 'gui :statics r0)
-	(vp-add-cr gui_statics_rect_heap r0)
-	(call 'region :remove_rect '(r0 r1 r7 r8 r9 r10))
-	(vp-pop r0)
 	(vp-ret)
 
 (def-func-end)
@@ -539,20 +446,6 @@
 
 	(exit 'view :draw '(r0))
 	(vp-ret)
-
-(def-func-end)
-
-(def-method 'view :dirty)
-	;inputs
-	;r0 = view object (ptr)
-	;outputs
-	;r0 = view object (ptr)
-	;trashes
-	;r1-r14
-
-	;paste dirty region
-	(assign '((r0 view_w) (r0 view_h)) '(r9 r10))
-	(jump 'view :add_dirty '(r0 0 0 r9 r10))
 
 (def-func-end)
 

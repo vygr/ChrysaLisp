@@ -55,7 +55,6 @@ pixmap_height 48
 ev_msg_mouse_x 20
 ev_msg_mouse_y 24
 ev_type_action 2
-num_value 16
 _t_component_id "l"
 _t_ev_msg_action_source_id "L"
 _t_ev_msg_key_key "I"
@@ -84,5 +83,4 @@ _t_pixmap_width "I"
 _t_pixmap_height "I"
 _t_ev_msg_mouse_x "i"
 _t_ev_msg_mouse_y "i"
-_t_num_value "l"
 )

@@ -1,6 +1,7 @@
 (include "sys/func.inc")
 (include "gui/view/class.inc")
 (include "gui/region/class.inc")
+(include "gui/gui/class.inc")
 (include "class/num/class.inc")
 (include "class/str/class.inc")
 (include "class/lisp/class.inc")
@@ -249,11 +250,17 @@
 	(call 'lisp :env_args_sig '(r1 ($ sig) 1) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
+	;remove any opaque region
 	(vp-push r0)
-	(defq in (method-input 'view :clr_opaque))
-	(list-bind-args r1 in '(:view))
-	(call 'view :clr_opaque in '(r0))
-	(call 'obj :ref '(r0) '(r1))
+	(defq in (method-input 'region :free))
+	(list-bind-args r1 in '(_ :view))
+	(vp-push (elem 1 in))
+	(f-bind 'gui :statics (elem 0 in))
+	(vp-add-cr view_opaque_region (elem 1 in))
+	(vp-add-cr gui_statics_rect_heap (elem 0 in))
+	(call 'region :free in)
+	(vp-pop r1)
+	(class/obj/ref r1 r2)
 	(vp-pop r0)
 
 	(exit 'view :lisp_clr_opaque '(r0 r1))
@@ -282,11 +289,19 @@
 	(call 'lisp :env_args_sig '(r1 ($ sig) 5) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
+	;paste opaque region
 	(vp-push r0)
-	(defq in (method-input 'view :add_opaque))
-	(list-bind-args r1 in '(:view :num :num :num :num))
-	(call 'view :add_opaque in '(r0))
-	(call 'obj :ref '(r0) '(r1))
+	(defq in (method-input 'region :paste_rect))
+	(list-bind-args r1 in '(_ :view :num :num :num :num))
+	(vp-push (elem 1 in))
+	(f-bind 'gui :statics (elem 0 in))
+	(vp-add-rr (elem 2 in) (elem 4 in))
+	(vp-add-rr (elem 3 in) (elem 5 in))
+	(vp-add-cr view_opaque_region (elem 1 in))
+	(vp-add-cr gui_statics_rect_heap (elem 0 in))
+	(call 'region :paste_rect in)
+	(vp-pop r1)
+	(class/obj/ref r1 r2)
 	(vp-pop r0)
 
 	(exit 'view :lisp_add_opaque '(r0 r1))
@@ -315,11 +330,19 @@
 	(call 'lisp :env_args_sig '(r1 ($ sig) 5) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
+	;remove opaque region
 	(vp-push r0)
-	(defq in (method-input 'view :sub_opaque))
-	(list-bind-args r1 in '(:view :num :num :num :num))
-	(call 'view :sub_opaque in '(r0))
-	(call 'obj :ref '(r0) '(r1))
+	(defq in (method-input 'region :remove_rect))
+	(list-bind-args r1 in '(_ :view :num :num :num :num))
+	(vp-push (elem 1 in))
+	(f-bind 'gui :statics (elem 0 in))
+	(vp-add-rr (elem 2 in) (elem 4 in))
+	(vp-add-rr (elem 3 in) (elem 5 in))
+	(vp-add-cr view_opaque_region (elem 1 in))
+	(vp-add-cr gui_statics_rect_heap (elem 0 in))
+	(call 'region :remove_rect in)
+	(vp-pop r1)
+	(class/obj/ref r1 r2)
 	(vp-pop r0)
 
 	(exit 'view :lisp_sub_opaque '(r0 r1))
@@ -381,11 +404,21 @@
 	(call 'lisp :env_args_sig '(r1 ($ sig) 5) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
+	;paste dirty region
 	(vp-push r0)
-	(defq in (method-input 'view :add_dirty))
-	(list-bind-args r1 in '(:view :num :num :num :num))
-	(call 'view :add_dirty in '(r0))
-	(call 'obj :ref '(r0) '(r1))
+	(defq in (method-input 'region :paste_rect))
+	(list-bind-args r1 in '(_ :view :num :num :num :num))
+	(vp-push (elem 1 in))
+	(f-bind 'gui :statics (elem 0 in))
+	(vp-cpy-cr 1 r14)
+	(vp-add-rr (elem 2 in) (elem 4 in))
+	(vp-add-rr (elem 3 in) (elem 5 in))
+	(vp-add-cr view_dirty_region (elem 1 in))
+	(assign '(r14) `((,(elem 0 in) gui_statics_dirty_flag)))
+	(vp-add-cr gui_statics_rect_heap (elem 0 in))
+	(call 'region :paste_rect in)
+	(vp-pop r1)
+	(class/obj/ref r1 r2)
 	(vp-pop r0)
 
 	(exit 'view :lisp_add_dirty '(r0 r1))
@@ -397,38 +430,6 @@
 	(signature '(view num num num num)))
 
 (def-func-end)
-
-(def-method 'view :lisp_dirty)
-	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
-	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
-	;trashes
-	;r1-r14
-
-	(entry 'view :lisp_dirty '(r0 r1))
-
-(errorcases
-	(call 'lisp :env_args_sig '(r1 ($ sig) 1) '(r2))
-	(gotoif '(r2 = 0) 'error))
-
-	(vp-push r0)
-	(call 'list :ref_element '(r1 0) '(_ r0))
-	(call 'view :dirty '(r0) '(r1))
-	(vp-pop r0)
-
-	(exit 'view :lisp_dirty '(r0 r1))
-	(vp-ret)
-
-(errorcases
-(vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(view-dirty view)" error_msg_wrong_types r1))
-	(signature '(view)))
-
-(def-func-end)
-
 
 (def-method 'view :lisp_children)
 	;inputs
