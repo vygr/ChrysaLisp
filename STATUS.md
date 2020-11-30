@@ -5,6 +5,22 @@
 
 ------
 
+Most of the view class methods have now moved out to Lisp ! Huge saving in boot
+image footprint ! From 172KB down to 158KB with very little performance impact
+while at the same time opening up the entire GUI widget system to Lisp level
+coding.
+
+New (obj-ref) and (weak-ref) functions for weak reference support.
+
+New source viewer app and associated Tree widget ! Tree widget can be used by
+other applications and is not limited to just directory structure use.
+
+All directory builder functions converted to be none recursive.
+
+New `lib/collections/xnode.inc` library for easy tree structures.
+
+------
+
 Converged csv, yaml and data exchange libraries to `lib/xchange`. Main includes
 
 * lib/xchange/csv-data.inc  - Reading and writing CSV files
