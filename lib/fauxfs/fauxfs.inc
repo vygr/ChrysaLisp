@@ -92,9 +92,15 @@
     (str pn (if (eql (last pn) "/") "" "/") filename))
   )
 
+; Utilities and misc functions
+
+(defun path-node? (this)
+  ; (path-node? obj) -> t | nil
+  (and (env? this) (get :path_node this)))
+
 (defun build-path (pathname)
   ; (build-path pathname) -> path-node
-  ; Parses pathname and returns a path-node tree
+  ; Parses pathname and returns a sparse path-node tree
   (defq pp
     (reduce (lambda (acc el)
       (cond

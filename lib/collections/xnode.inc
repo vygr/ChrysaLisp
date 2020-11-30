@@ -9,9 +9,9 @@
 (defclass xnode ()
   ; Base tree node abstraction
   (def this
-    :nodes      (xmap)
-    :parent     nil
-    :xnode       t)
+    :children_nodes (xmap)
+    :parent         nil
+    :xnode          t)
 
   (defmethod :get_parent (this)
     ; (. xnode :get_parent) -> xnode | nil
@@ -24,10 +24,29 @@
     (set this :parent parent)
     this)
 
+  (defmethod :root_node (this)
+    ; (. xnode :root_node) -> xnode
+    ; Walks up hierarchy to the root
+    (defq cnode this)
+    (while (defq pnode (get :parent cnode))
+      (setq cnode pnode))
+    cnode)
+
   (defmethod :children (this)
     ; (. xnode :children) -> list
-    ; Return list of unique_id / value tuples
-    (entries (get :nodes this)))
+    ; Return childrenlist of unique_id / value tuples
+    (entries (get :children_nodes this)))
+
+  (defmethod :siblings (this)
+    ; (. xnode :siblings) -> list
+    ; Returns siblings list of unique_id / value tuples
+    ; from my parent if not root
+    (defq uid (. this :unique_id))
+    (cond
+      ((get :parent this)
+        (filter (#(not (eql (first %0) uid)))
+          (entries (get :children_nodes (get :parent this)))))
+      (t '())))
 
   (defmethod :unique_id (this)
     ; (. xnode :unique_id) -> unique_id
@@ -39,18 +58,18 @@
     ; (. xnode :add_node child) -> xnode
     ; Adds a child node if unique_id not in children
     (defq hsh (. child :unique_id))
-    (when (nil? (gets (get :nodes this) hsh))
+    (when (nil? (gets (get :children_nodes this) hsh))
       (. child :set_parent this)
-      (sets! (get :nodes this) hsh child))
+      (sets! (get :children_nodes this) hsh child))
     child)
 
   (defmethod :drop_node (this child)
     ; (. xnode :drop_node child) -> xnode
     ; Removes a child node if unique id in children
     (defq hsh (. child :unique_id))
-    (when (gets (get :nodes this) hsh)
+    (when (gets (get :children_nodes this) hsh)
       (. child :set_parent nil)
-      (drop! (get :nodes this) hsh))
+      (drop! (get :children_nodes this) hsh))
     child)
 
   (defmethod :move (this new_parent)
@@ -100,3 +119,11 @@
   (when parent
     (. parent :add_node this))
 )
+
+(defun xnode? (this)
+  ; (xnode? obj) -> t | nil
+  (and (env? this) (get :xnode this)))
+
+(defun named-xnode? (this)
+  ; (named-xnode? obj) -> t | nil
+  (and (env? this) (get :named_xnode this)))
