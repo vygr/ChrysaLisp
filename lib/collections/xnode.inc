@@ -16,15 +16,15 @@
   (defmethod :get_parent (this)
     ; (. xnode :get_parent) -> xnode | nil
     ; Retrieves the parent node of this node
-    (obj-ref (get :parent this))
-    ; (get :parent this)
+    ; (obj-ref (get :parent this))
+    (get :parent this)
     )
 
   (defmethod :set_parent (this parent)
     ; (. xnode :set_parent parent) -> xnode
     ; Sets the parent node of this node
-    (set this :parent (weak-ref parent))
-    ; (set this :parent parent)
+    ; (set this :parent (weak-ref parent))
+    (set this :parent parent)
     this)
 
   (defmethod :root_node (this)
@@ -78,7 +78,7 @@
   (defmethod :move (this new_parent)
     ; (. xnode :move new_parent) -> xnode
     ; Moves this node to different new parent
-    (defq p (get :parent this))
+    (defq p (. this :get_parent))
     (. new_parent :add_node (if p (. p :drop_node this) this)))
   )
 
@@ -111,7 +111,7 @@
     ; By bottom up walk to root
     (setd suffix "")
     (defq
-      nm (get :node_name this)
+      nm (. this :unique_id)
       pr (. this :get_parent))
     (cond
       (pr
