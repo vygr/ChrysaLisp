@@ -23,7 +23,7 @@
 
 	(defmethod :load (this lines offset_x offset_y cursor_x cursor_y)
 		; (. vdu :load lines offset_x offset_y cursor_x cursor_y) -> vdu
-		((ffi _ "gui/vdu/lisp_load" 0) this lines offset_x offset_y cursor_x cursor_y))
+		(. ((ffi _ "gui/vdu/lisp_load" 0) this lines offset_x offset_y cursor_x cursor_y) :dirty))
 
 	(defmethod :pref_size (this)
 		; (. vdu :pref_size) -> (width height)

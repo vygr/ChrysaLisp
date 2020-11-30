@@ -39,9 +39,6 @@
 	(deffimethod :trans_dirty "gui/view/lisp_trans_dirty")
 		; (. view :trans_dirty rx ry) -> view
 
-	(deffimethod :dirty "gui/view/lisp_dirty")
-		; (. view :dirty) -> view
-
 	(deffimethod :add_opaque "gui/view/lisp_add_opaque")
 		; (. view :add_opaque x y width height) -> view
 
@@ -71,6 +68,11 @@
 
 	(deffimethod :hide "gui/view/lisp_hide")
 		; (. view :hide) -> view
+
+	(defmethod :dirty (this)
+		; (. view :dirty) -> view
+		(bind '(w h) (. this :get_size))
+		(. this :add_dirty 0 0 w h))
 
 	(defmethod :dirty_all (this)
 		; (. view :dirty_all) -> view

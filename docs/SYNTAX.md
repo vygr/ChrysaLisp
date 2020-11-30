@@ -2004,10 +2004,6 @@
 
 (view-clr-opaque view)
 
-## view-dirty
-
-(view-dirty view)
-
 ## view-find-id
 
 (view-find-id view id)

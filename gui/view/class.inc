@@ -10,11 +10,6 @@
 (dec-method :hide 'gui/view/hide :static '(r0) '(r0))
 (dec-method :to_front 'gui/view/to_front :static '(r0) '(r0))
 (dec-method :to_back 'gui/view/to_back :static '(r0) '(r0))
-(dec-method :dirty 'gui/view/dirty :static '(r0) '(r0))
-(dec-method :add_dirty 'gui/view/add_dirty :static '(r0 r7 r8 r9 r10) '(r0))
-(dec-method :clr_opaque 'gui/view/clr_opaque :static '(r0) '(r0))
-(dec-method :add_opaque 'gui/view/add_opaque :static '(r0 r7 r8 r9 r10) '(r0))
-(dec-method :sub_opaque 'gui/view/sub_opaque :static '(r0 r7 r8 r9 r10) '(r0))
 (dec-method :forward 'gui/view/forward :static '(r0 r1 r2) '(r0))
 (dec-method :forward_tree 'gui/view/forward_tree :static '(r0 r1 r2 r3) '(r0))
 (dec-method :backward_tree 'gui/view/backward_tree :static '(r0 r1 r2 r3) '(r0))
@@ -23,6 +18,7 @@
 (dec-method :get_bounds 'gui/view/get_bounds :static '(r0) '(r0 r7 r8 r9 r10))
 (dec-method :set_bounds 'gui/view/set_bounds :static '(r0 r7 r8 r9 r10) '(r0))
 (dec-method :set_flags 'gui/view/set_flags :static '(r0 r1 r2) '(r0 r1))
+
 (dec-method :forward_callback 'class/obj/null :static '(r0 r1) '(r0))
 (dec-method :forward_tree_callback 'class/obj/null :static '(r0 r1) '(r0 r1))
 
@@ -42,7 +38,6 @@
 (dec-method :lisp_set_flags 'gui/view/lisp_set_flags :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_trans_dirty 'gui/view/lisp_trans_dirty :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_add_dirty 'gui/view/lisp_add_dirty :static '(r0 r1) '(r0 r1))
-(dec-method :lisp_dirty 'gui/view/lisp_dirty :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_find_id 'gui/view/lisp_find_id :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_children 'gui/view/lisp_children :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_to_front 'gui/view/lisp_to_front :static '(r0 r1) '(r0 r1))

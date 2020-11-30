@@ -21,7 +21,7 @@
 
 	(defmethod :swap (this)
 		; (. canvas :swap) -> canvas
-		((ffi _ "gui/canvas/lisp_swap" 0) this))
+		(. ((ffi _ "gui/canvas/lisp_swap" 0) this) :dirty))
 
 	(defmethod :next_frame (this)
 		; (. canvas :next_frame) -> canvas

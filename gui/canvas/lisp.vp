@@ -227,7 +227,6 @@
 	(defq in (method-input 'canvas :swap))
 	(list-bind-args r1 in '(:canvas))
 	(call 'canvas :swap in '(r0))
-	(call 'canvas :dirty '(r0) '(r0))
 	(call 'obj :ref '(r0) '(r1))
 	(vp-pop r0)
 

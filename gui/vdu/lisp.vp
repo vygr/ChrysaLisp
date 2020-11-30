@@ -62,7 +62,6 @@
 	(assign '(r0 r1 r2 r3 r4 r5 r6) {this, vdu, lines, ox, oy, cx, cy})
 
 	;load vdu with line text
-	(call 'vdu :dirty {vdu})
 	(call 'sys_mem :fill {vdu->vdu_chars, vdu->vdu_width * vdu->vdu_height * long_size, +char_space+})
 	(assign {lines->array_length - oy} {len})
 	(vpif {len > 0})

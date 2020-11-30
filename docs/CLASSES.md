@@ -8750,73 +8750,6 @@ trashes
 r1-r14
 ```
 
-### view::dirty -> gui/view/dirty
-
-```lisp
-inputs
-r0 = view object (ptr)
-outputs
-r0 = view object (ptr)
-trashes
-r1-r14
-```
-
-### view::add_dirty -> gui/view/add_dirty
-
-```lisp
-inputs
-r0 = view object (ptr)
-r7 = x (pixels)
-r8 = y (pixels)
-r9 = width (pixels)
-r10 = height (pixels)
-outputs
-r0 = view object (ptr)
-trashes
-r1-r14
-```
-
-### view::clr_opaque -> gui/view/clr_opaque
-
-```lisp
-inputs
-r0 = view object (ptr)
-outputs
-r0 = view object (ptr)
-trashes
-r1-r14
-```
-
-### view::add_opaque -> gui/view/add_opaque
-
-```lisp
-inputs
-r0 = view object (ptr)
-r7 = x (pixels)
-r8 = y (pixels)
-r9 = width (pixels)
-r10 = height (pixels)
-outputs
-r0 = view object (ptr)
-trashes
-r1-r14
-```
-
-### view::sub_opaque -> gui/view/sub_opaque
-
-```lisp
-inputs
-r0 = view object (ptr)
-r7 = x (pixels)
-r8 = y (pixels)
-r9 = width (pixels)
-r10 = height (pixels)
-outputs
-r0 = view object (ptr)
-trashes
-r1-r14
-```
-
 ### view::forward -> gui/view/forward
 
 ```lisp
@@ -9129,19 +9062,6 @@ r1-r14
 ```
 
 ### view::lisp_add_dirty -> gui/view/lisp_add_dirty
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args list object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### view::lisp_dirty -> gui/view/lisp_dirty
 
 ```lisp
 inputs
