@@ -16,19 +16,22 @@
   (defmethod :get_parent (this)
     ; (. xnode :get_parent) -> xnode | nil
     ; Retrieves the parent node of this node
-    (get :parent this))
+    (obj-ref (get :parent this))
+    ; (get :parent this)
+    )
 
   (defmethod :set_parent (this parent)
     ; (. xnode :set_parent parent) -> xnode
     ; Sets the parent node of this node
-    (set this :parent parent)
+    (set this :parent (weak-ref parent))
+    ; (set this :parent parent)
     this)
 
   (defmethod :root_node (this)
     ; (. xnode :root_node) -> xnode
     ; Walks up hierarchy to the root
     (defq cnode this)
-    (while (defq pnode (get :parent cnode))
+    (while (defq pnode (. cnode :get_parent))
       (setq cnode pnode))
     cnode)
 
@@ -43,9 +46,9 @@
     ; from my parent if not root
     (defq uid (. this :unique_id))
     (cond
-      ((get :parent this)
+      ((. this :get_parent)
         (filter (#(not (eql (first %0) uid)))
-          (entries (get :children_nodes (get :parent this)))))
+          (entries (get :children_nodes (. this :get_parent)))))
       (t '())))
 
   (defmethod :unique_id (this)

@@ -101,7 +101,7 @@
     ;             (list (gets session "PWD"))
     ;             paths))
     )
-  ; (prtnl (str "Root = " (. (. current_path :root_node) :unique_id)))
+  (prtnl (str "Root = " (. (. current_path :root_node) :unique_id)))
   ; (prtnl (if (path-node? current_path) "Path Node"))
   ; (prtnl (if (named-xnode? current_path) "Named Node"))
   ; (prtnl (if (xnode? current_path) "Xnode"))

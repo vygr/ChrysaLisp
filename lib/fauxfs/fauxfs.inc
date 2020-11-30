@@ -119,7 +119,9 @@
           (push (last acc) el)
           acc)))
     pathname (list (dec (length pathname)) (list) (list))))
-  (reduce
-      (#(path-node %1 %0))
+  (reduce (lambda (acc el)
+      (defq nn (path-node el))
+      (. acc :add_node nn)
+      nn)
     (slice 1 -1 pp) (path-node (elem 0 pp))))
 
