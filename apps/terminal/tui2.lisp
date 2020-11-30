@@ -188,7 +188,7 @@
   (when (not (gets session "TZ"))
     (sets! session "TZ" (first tzone)))
   ;sign on msg
-  (prtnl "ChrysaLisp Terminal-2 0.4 (experimental)")
+  (prtnl "ChrysaLisp Terminal-2 0.5 (experimental)")
   (print (prompt))
   (log-debug tlog "Started Terminal 2")
   ;create child and send args
