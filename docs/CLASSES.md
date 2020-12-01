@@ -1223,28 +1223,6 @@ trashes
 r0-r14
 ```
 
-### ctx::brighter -> gui/ctx/brighter
-
-```lisp
-inputs
-r1 = color (argb)
-outputs
-r1 = brighter color (argb)
-trashes
-r1-r3
-```
-
-### ctx::darker -> gui/ctx/darker
-
-```lisp
-inputs
-r1 = color (argb)
-outputs
-r1 = darker color (argb)
-trashes
-r1-r3
-```
-
 ## error
 
 Super Class: obj
@@ -5120,6 +5098,28 @@ outputs
 r0 = pixmap object (ptr)
 trashes
 r1-r8
+```
+
+### pixmap::brighter -> gui/pixmap/brighter
+
+```lisp
+inputs
+r1 = color (argb)
+outputs
+r1 = brighter color (argb)
+trashes
+r1-r3
+```
+
+### pixmap::darker -> gui/pixmap/darker
+
+```lisp
+inputs
+r1 = color (argb)
+outputs
+r1 = darker color (argb)
+trashes
+r1-r3
 ```
 
 ### pixmap::info -> gui/pixmap/info

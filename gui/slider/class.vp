@@ -1,5 +1,6 @@
 (include "sys/func.inc")
 (include "gui/slider/class.inc")
+(include "gui/pixmap/class.inc")
 (include "class/sym/class.inc")
 (include "gui/ctx/class.inc")
 
@@ -33,13 +34,13 @@
 	(call 'ctx :box {ctx, 0, 0, width, height})
 
 	;draw background
-	(call 'ctx :darker {col} {dcol})
+	(call 'pixmap :darker {col} {dcol})
 	(call 'ctx :set_color {ctx, dcol})
 	(call 'ctx :filled_box {ctx, 1, 1, width - 2, height - 2})
 
 	;draw elevator
 	(vpif {state})
-		(call 'ctx :brighter {col} {col})
+		(call 'pixmap :brighter {col} {col})
 	(endif)
 	(call 'ctx :set_color {ctx, col})
 	(vpif {width > height})
