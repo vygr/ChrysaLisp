@@ -69,11 +69,15 @@
 	(deffimethod :hide "gui/view/lisp_hide")
 		; (. view :hide) -> view
 
-	(deffimethod :connect "gui/component/lisp_connect")
-		; (. view :connect) -> view
-
-	(deffimethod :emit "gui/component/lisp_emit")
+	(deffimethod :emit "gui/view/lisp_emit")
 		; (. view :emit) -> view
+
+	(defmethod :connect (this id)
+		; (. view :connect id) -> view
+		(unless (defq targets (get-field this (const component_target_ids) 0))
+			(set-field this (const component_target_ids) 0 (setq targets (array))))
+		(push targets id)
+		this)
 
 	(defmethod :get_id (this)
 		; (. view :get_id) -> id

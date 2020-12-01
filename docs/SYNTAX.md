@@ -270,7 +270,7 @@
 
 ## view :connect
 
-(. view :connect) -> view
+(. view :connect id) -> view
 
 ## view :dirty
 
@@ -747,14 +747,6 @@
 ## collection?
 
 (collection? obj) -> t | nil
-
-## component-connect
-
-(component-connect component id)
-
-## component-emit
-
-(component-emit component)
 
 ## compose
 
@@ -2011,6 +2003,10 @@
 ## view-clr-opaque
 
 (view-clr-opaque view)
+
+## view-emit
+
+(view-emit view)
 
 ## view-find-id
 
