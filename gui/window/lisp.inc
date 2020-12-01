@@ -78,8 +78,7 @@
 			(setq x1 (max (- ax drag_offx) (+ x w))))
 		(if (/= 0 (logand 8 drag_mode))
 			(setq y1 (max (- ay drag_offy) (+ y h))))
-		(. this :change_dirty x y (- x1 x) (- y1 y))
-		(component-emit this))
+		(.-> this (:change_dirty x y (- x1 x) (- y1 y)) :emit))
 
 	(defmethod :event (this event)
 		; (. window :event event) -> window

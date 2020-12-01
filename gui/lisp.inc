@@ -22,7 +22,6 @@
 (import "gui/vdu/lisp.inc")
 (import "gui/button/lisp.inc")
 (import "gui/label/lisp.inc")
-(import "gui/component/lisp.inc")
 (import "gui/view/lisp.inc")
 (import "gui/path/lisp.inc")
 (import "gui/canvas/lisp.inc")
@@ -107,8 +106,8 @@
 	(setq s (map (lambda (_) (if (num? _) (num-to-utf8 _) _)) s))
 	(ui-props p :text _s)
 	(if l
-		`(each (lambda (_s) (push ,l (component-connect (ui-button __ ,p) (+ _ ,e)))) '(~s))
-		`(each (lambda (_s) (component-connect (ui-button __ ,p) (+ _ ,e))) '(~s))))
+		`(each (lambda (_s) (push ,l (. (ui-button __ ,p) :connect (+ _ ,e)))) '(~s))
+		`(each (lambda (_s) (. (ui-button __ ,p) :connect (+ _ ,e))) '(~s))))
 
 (defmacro ui-tool-bar (n &optional p &rest x)
 	; (ui-tool-bar name [props] [body]) -> flow

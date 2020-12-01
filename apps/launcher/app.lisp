@@ -11,7 +11,7 @@
 	;grid scales all buttons equally
 	(ui-grid grid (:grid_width 2 :grid_height (/ (inc (length *env_launcher_apps*)) 2))
 		(each (lambda (p)
-			(component-connect (ui-button _ (:text p)) +event_button+)) *env_launcher_apps*)))
+			(. (ui-button _ (:text p)) :connect +event_button+)) *env_launcher_apps*)))
 
 (defun app-path (_)
 	(cat "apps/" _ "/app.lisp"))

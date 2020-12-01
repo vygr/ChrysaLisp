@@ -43,33 +43,33 @@
 		(ui-flow toolbar (:color *env_toolbar_col* :flow_flags +flow_right_fill+)
 			(ui-grid _ (:flow_flags +flow_flag_align_hleft+ :grid_width 4 :grid_height 1 :font tb_font)
 				(each (lambda (c e)
-					(component-connect (ui-button _ (:font *env_medium_toolbar_font* :text (num-to-utf8 c)
-						:min_height 32 :min_width 32 :border 0)) e)) '(0xe999 0xea07 0xe9ea 0xe95e)
+					(. (ui-button _ (:font *env_medium_toolbar_font* :text (num-to-utf8 c)
+						:min_height 32 :min_width 32 :border 0)) :connect e)) '(0xe999 0xea07 0xe9ea 0xe95e)
 						(list +event_open+ +event_save+ +event_colorise+ +event_run+)))
 			(ui-flow _ (:flow_flags (logior +flow_flag_align_vcenter+ +flow_right_fill+))
-				(component-connect (ui-button srch (:border 0 :text (num-to-utf8 0xe9cd) 
-					:font *env_small_toolbar_font* :color +argb_white+)) +event_find+)
+				(. (ui-button srch (:border 0 :text (num-to-utf8 0xe9cd) 
+					:font *env_small_toolbar_font* :color +argb_white+)) :connect +event_find+)
 				(ui-flow _ (:flow_flags +flow_left_fill+)
 					(each (lambda (c e) 
-						(component-connect (ui-button _ (:font *env_medium_toolbar_font*
-							:text (num-to-utf8 c) :min_height 32 :min_width 32 :border 0)) e))
+						(. (ui-button _ (:font *env_medium_toolbar_font*
+							:text (num-to-utf8 c) :min_height 32 :min_width 32 :border 0)) :connect e))
 						'(0xe9d4 0xe952 0xe962 0xea08) (list +event_menu+ +event_paste+ +event_copy+ +event_cut+))
 					(each (lambda (c e)
-						(component-connect (ui-button clrtxt (:border 0 :text (num-to-utf8 c) 
-							:font *env_small_toolbar_font* :color +argb_white+)) e))
+						(. (ui-button clrtxt (:border 0 :text (num-to-utf8 c) 
+							:font *env_small_toolbar_font* :color +argb_white+)) :connect e))
 						'(0xe913 0xe910 0xe988) (list +event_find_prev+ +event_find_next+ +event_clear_text+))
-					(component-connect (ui-textfield mytextfield
-						(:border 0 :color +argb_white+ :text "")) +event_action+))))
+					(. (ui-textfield mytextfield
+						(:border 0 :color +argb_white+ :text "")) :connect +event_action+))))
 		(ui-flow tab_bar (:color *env_toolbar_col* :flow_flags +flow_left_fill+)
-			(component-connect (ui-button close_buf (:border 0 :text (num-to-utf8 0xe94c) 
-				:font tb_font)) +event_closeb+)
+			(. (ui-button close_buf (:border 0 :text (num-to-utf8 0xe94c) 
+				:font tb_font)) :connect +event_closeb+)
 			(ui-flow tabbar_flow (:flow_flags +flow_right_fill+ :font *env_window_font*)
-				(component-connect (ui-button _ (:border 0 :text (num-to-utf8 0xe94e) :font tb_font)) +event_new+)))
+				(. (ui-button _ (:border 0 :text (num-to-utf8 0xe94e) :font tb_font)) :connect +event_new+)))
 		(ui-flow status_bar (:color *env_toolbar_col* :flow_flags +flow_right_fill+)
 			(ui-label sb_label (:font *env_body_font* :min_height 24 :text "Line XX, Column XX")))
 		(ui-flow vdu_flow (:border 0 :flow_flags +flow_left_fill+)
-			(component-connect (ui-slider slider 
-				(:flow_flags +flow_down_fill+ :border 0)) +event_scroll+)
+			(. (ui-slider slider 
+				(:flow_flags +flow_down_fill+ :border 0)) :connect +event_scroll+)
 			(ui-vdu vdu (:vdu_width vdu_width :ink_color +argb_white+ :vdu_height vdu_height 
 				:min_width vdu_width :min_height vdu_height :font *env_terminal_font*)))))
 
@@ -146,8 +146,8 @@
 (defun view-tabbar ()
 	(. tabbar :sub)
 	(ui-root tabbar (Grid) (:grid_width (length text_store) :grid_height 1)
-		(each (lambda (e) (component-connect (ui-button b 
-			(:text (elem +text_title+ (elem _ text_store)) :min_width 32 :border 1)) (+ +event_tabbar+ _)))
+		(each (lambda (e) (. (ui-button b 
+			(:text (elem +text_title+ (elem _ text_store)) :min_width 32 :border 1)) :connect (+ +event_tabbar+ _)))
 			(range 0 (length text_store))))
 	(.-> tabbar_flow (:add_child tabbar) :layout)
 	(.-> tab_bar :layout :dirty))
@@ -319,7 +319,7 @@
 	(setq current_text (elem 0 text_store))
 	(defq clipboard_mbox (str-to-num (second (split 
 			(first (mail-enquire "CLIPBOARD_SERVICE")) ","))))
-	(bind '(w h) (. (component-connect window +event_layout+) :pref_size))
+	(bind '(w h) (.-> window (:connect +event_layout+) :pref_size))
 	(bind '(x y w h) (view-locate w h))
 	(gui-add (. window :change x y w h))
 	(window-layout vdu_width vdu_height)
@@ -402,7 +402,7 @@
 			(defq reply (mail-read (elem +mbox_task+ mbox_array)))
 			(mail-send "" menu_mbox)
 			(select-action (cat "(" reply ")")))
-		((= id (component-get-id vdu))
+		((= id (. vdu :get_id))
 			(vdu-keyboard msg)
 			(vdu-mouse-down msg)
 			(vdu-mouse-up msg))

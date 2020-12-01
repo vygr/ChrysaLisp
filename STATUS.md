@@ -22,8 +22,8 @@ All directory builder functions converted to be none recursive.
 
 New `lib/collections/xnode.inc` library for easy tree structures.
 
-New `pixmap` class that separates the pixmap array and GPU upload concept from
-the ability to draw and view a canvas.
+New `pixmap` class that separates the pixel array and GPU upload concept from
+the ability to draw on and view a canvas.
 
 `:darker` and `:brighter` methods moved over to the `pixmap` class.
 

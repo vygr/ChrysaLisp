@@ -69,6 +69,16 @@
 	(deffimethod :hide "gui/view/lisp_hide")
 		; (. view :hide) -> view
 
+	(deffimethod :connect "gui/component/lisp_connect")
+		; (. view :connect) -> view
+
+	(deffimethod :emit "gui/component/lisp_emit")
+		; (. view :emit) -> view
+
+	(defmethod :get_id (this)
+		; (. view :get_id) -> id
+		(get-field this (const component_id) (const long_size)))
+
 	(defmethod :dirty (this)
 		; (. view :dirty) -> view
 		(bind '(w h) (. this :get_size))

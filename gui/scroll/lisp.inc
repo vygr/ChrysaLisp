@@ -17,11 +17,11 @@
 	(def (defq this (View)) :vslider nil :hslider nil :child nil)
 	(when (/= 0 (logand flags +scroll_flag_vertical+))
 		(def this :vslider (defq slider (Slider)))
-		(component-connect slider (component-get-id this))
+		(. slider :connect (. this :get_id))
 		(. this :add_front slider))
 	(when (/= 0 (logand flags +scroll_flag_horizontal+))
 		(def this :hslider (defq slider (Slider)))
-		(component-connect slider (component-get-id this))
+		(. slider :connect (. this :get_id))
 		(. this :add_front slider))
 
 	(defmethod :add_child (this child)

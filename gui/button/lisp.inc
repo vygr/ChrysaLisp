@@ -34,7 +34,7 @@
 		; (. button :mouse_up event) -> button
 		(when (/= (get :state this) 0)
 			(def this :state 0)
-			(component-emit (.-> this :layout :dirty_all)))
+			(.-> this :layout :dirty_all :emit))
 		this)
 
 	(defmethod :mouse_move (this event)

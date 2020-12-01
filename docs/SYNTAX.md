@@ -268,6 +268,10 @@
 
 (. view :clr_opaque) -> view
 
+## view :connect
+
+(. view :connect) -> view
+
 ## view :dirty
 
 (. view :dirty) -> view
@@ -275,6 +279,10 @@
 ## view :dirty_all
 
 (. view :dirty_all) -> view
+
+## view :emit
+
+(. view :emit) -> view
 
 ## view :find_id
 
@@ -287,6 +295,10 @@
 ## view :get_flags
 
 (. view :get_flags) -> flags
+
+## view :get_id
+
+(. view :get_id) -> id
 
 ## view :get_pos
 
@@ -743,10 +755,6 @@
 ## component-emit
 
 (component-emit component)
-
-## component-get-id
-
-(component-get-id component) -> id
 
 ## compose
 
