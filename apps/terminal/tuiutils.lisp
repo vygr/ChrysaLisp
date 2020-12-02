@@ -2,7 +2,7 @@
 ; tuiutils - Terminal utilities
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import "lib/fauxfs/fauxfs.inc")
+(import "lib/pathnode/pathnode.inc")
 
 (defq
   current_path  nil
@@ -93,19 +93,19 @@
   ; emulates Linux/Darwin 'ls' command
   ; Flags include
   ; -? TBD
-  (bind '(sargs flags paths) (_split-args args))
-  (defq
-    flgs  (_collapse_flags flags)
-    ; flist (file-lists
-    ;         (if (empty? paths)
-    ;             (list (gets session "PWD"))
-    ;             paths))
-    )
+  ; (bind '(sargs flags paths) (_split-args args))
+  ; (defq
+  ;   flgs  (_collapse_flags flags)
+  ;   ; flist (file-lists
+  ;   ;         (if (empty? paths)
+  ;   ;             (list (gets session "PWD"))
+  ;   ;             paths))
+  ;   )
   ; (prtnl (str "Root = " (. (. current_path :root_node) :unique_id)))
   ; (prtnl (if (path-node? current_path) "Path Node"))
   ; (prtnl (if (named-xnode? current_path) "Named Node"))
   ; (prtnl (if (xnode? current_path) "Xnode"))
-  (prtnl (str "Listing for " (. current_path :full_name)))
+  ; (prtnl (str "Listing for " (. current_path :full_name)))
   (each prtnl (. current_path :all-members))
   ; (each (lambda (_el) (prtnl (first _el)))
   ;       (. current_path :siblings))
@@ -168,17 +168,21 @@
     rm                nil)
   (when (= (age +source-host-env+) 0)
     (throw "Host environment file not found " +source-host-env+))
+  (defq
+    hf    (load-envmap +source-host-env+)
+    fsep  (if (eql (gets hf "OS") "Windows") (ascii-char 0x5c) "/"))
   (setq rm
     (cond
       ((= (age +tenv-file+) 0)
        (save-envmap
          (sets-pairs!
-           (load-envmap +source-host-env+)
-           "PROMPT" ">"
-           "LASTC" nil
-           "PATH" "cmd;apps")
+           hf
+           "PROMPT"   ">"
+           "LASTC"    nil
+           "PATH"     "cmd;apps"
+           "PATH_SEP" fsep)
          +tenv-file+))
       (t
         (load-envmap +tenv-file+))))
-  (setq current_path (build-path (gets rm "PWD")))
+  (setq current_path (initialize-path (gets rm "PWD") (gets rm "PATH_SEP")))
   rm)

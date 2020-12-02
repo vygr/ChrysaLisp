@@ -1,5 +1,5 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; fauxfs - Faux File System for ChyrsaLisp
+; pathnode - File System folder paths for ChyrsaLisp
 ; Implements a tree hierarchy using the named-xnode
 ; collection
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -39,7 +39,6 @@
 (defmacro exec? (mode)
   `(/= (logand ,mode 1) 0))
 
-
 (defclass path-node (name &optional parent)
   ; file-system path tree
   (def (defq this (named-xnode name parent))
@@ -47,7 +46,8 @@
     :default-all-filter (#(or %0 %0))
     :default-file-filter (#(eql (second %0) "8"))
     :default-dir-filter  (#(eql (second %0) "4"))
-    :path_node t)
+    :path_node t
+    :stat_res  nil)
 
   (defmethod :members (this)
     ; (. path-node :members) -> list
@@ -92,35 +92,67 @@
     (str pn (if (eql (last pn) "/") "" "/") filename))
   )
 
-; Utilities and misc functions
-
 (defun path-node? (this)
   ; (path-node? obj) -> t | nil
   (and (env? this) (get :path_node this)))
 
-(defun build-path (pathname)
-  ; (build-path pathname) -> path-node
-  ; Parses pathname and returns a sparse path-node tree
-  (defq pp
-    (reduce (lambda (acc el)
-      (cond
-        ((= _ (first acc))
-          (when (nempty? (last acc))
-            (push (second acc) (join (push (last acc) el) "")))
-          (second acc))
-        ((and (eql el "/") (empty? (last acc)))
-          (push (second acc) el)
-          acc)
-        ((and (eql el "/") (nempty? (last acc)))
-          (push (second acc) (join (last acc) "") el)
-          (elem-set 2 acc (list))
-          acc)
-      (t
-          (push (last acc) el)
-          acc)))
+; Path string utilities
+
+(defq _dps  "/")  ; default path separator
+
+(defun _strpath-tolist (pathname &optional sep)
+  ; (_strpath-tolist pathname) -> list
+  ; Parses a pathname string into a list of path elements
+  ; example:
+  ; (_strpath-tolist "/Users/bob/here") -> ("/" "Users") "/" "bob" "/" "here")
+  (setd sep _dps)
+  (reduce (lambda (acc el)
+    (bind '(plen path_list wip) acc)
+    (cond
+      ; Last input character
+      ((= _ plen)
+        (when (nempty? wip)
+          (push path_list (join (push wip el) "")))
+        path_list)
+      ; Path segment suffix
+      ; Ignores redundant sep's (i.e. //)
+      ((and (eql el sep) (empty? wip))
+        (when (not (eql sep (last path_list)))
+          (push path_list el))
+        acc)
+      ; Path segment prefix
+      ((and (eql el sep) (nempty? wip))
+        (push path_list (join wip "") el)
+        (elem-set 2 acc (list))
+        acc)
+    (t
+        (push wip el)
+        acc)))
     pathname (list (dec (length pathname)) (list) (list))))
+
+; FS Root, path functions and utilities
+; (defq   _fs_root nil)  ; Set before other paths built
+
+; (when (nil? _fs_root)
+;   (setq _fs_root (path-node sep)))
+
+(defun initialize-path (pathname os_separator)
+  ; (initialize-path pathname os_separator) -> path-node
+  ; Initializes usage of path-nodes by configuring
+  ; os dependant path information then building a
+  ; path hierarcy
+  ; Returns the path-node for pathname
+  (setq _dps os_separator)
+  (defq
+    pp (_strpath-tolist pathname)
+    fp (first pp))
   (reduce (lambda (acc el)
       (defq nn (path-node el))
       (. acc :add_node nn))
-    (slice 1 -1 pp) (path-node (elem 0 pp))))
+    (slice 1 -1 pp) (path-node fp)))
 
+
+(defun build-path (pathname)
+  ; (build-path pathname) -> path-node
+  ; Parses pathname and returns a sparse path-node tree
+  )
