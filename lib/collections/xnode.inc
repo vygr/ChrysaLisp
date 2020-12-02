@@ -119,6 +119,9 @@
       (t
         (str nm suffix))))
 
+  (defmethod :child_for_name (this namestr)
+    (gets (get :children_nodes this) namestr))
+
   (when parent
     (. parent :add_node this))
 )

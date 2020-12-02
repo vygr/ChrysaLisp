@@ -5,6 +5,11 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "sys/lisp.inc")
+(import "lib/date/date.inc")
+
+(defq
+  _pathseparator  "/"
+  _pathnoderoot   nil)  ; default path separator
 
 ; File mode masks
 
@@ -39,15 +44,36 @@
 (defmacro exec? (mode)
   `(/= (logand ,mode 1) 0))
 
+; Easy/default filters
+(defq
+    _default-name-only    first
+    _default-all-filter   (#(or %0 %0))
+    _default-file-filter  (#(eql (second %0) "8"))
+    _default-dir-filter   (#(eql (second %0) "4")))
+
 (defclass path-node (name &optional parent)
   ; file-system path tree
   (def (defq this (named-xnode name parent))
-    :default-name-only first
-    :default-all-filter (#(or %0 %0))
-    :default-file-filter (#(eql (second %0) "8"))
-    :default-dir-filter  (#(eql (second %0) "4"))
     :path_node t
     :stat_res  nil)
+
+  (when (not (get :stat_res this))
+    (set this :stat_res (pii-fstat (. this :full_name))))
+
+  (defmethod :date (this)
+    ; (. path-node :date) -> date
+    ; Returns node mod date from fstat
+    (date (first (get :stat_res this))))
+
+  (defmethod :size (this)
+    ; (. path-node :size) -> number
+    ; Returns node size from fstat
+    (second (get :stat_res this)))
+
+  (defmethod :mode (this)
+    ; (. path-node :mode) -> number
+    ; Returns node mode from fstat
+    (last (get :stat_res this)))
 
   (defmethod :members (this)
     ; (. path-node :members) -> list
@@ -61,8 +87,8 @@
     ; then maps results using name function [name-fn]
     ; Defaults to all members with all names (including hidden dirs and files)
     (setd
-      name-fn (get :default-name-only this)
-      filter-fn (get :default-all-filter this))
+      name-fn _default-name-only
+      filter-fn _default-all-filter)
     (map name-fn (filter filter-fn (. this :members))))
 
   (defmethod :dir-members (this &optional name-fn filter-fn)
@@ -71,8 +97,8 @@
     ; Returns directory type members of path-node [filter-fn]
     ; then maps results using name function [name-fn]
     (setd
-      name-fn (get :default-name-only this)
-      filter-fn (get :default-dir-filter this))
+      name-fn _default-name-only
+      filter-fn _default-dir-filter)
     (. this :all-members name-fn filter-fn))
 
   (defmethod :file-members (this &optional name-fn filter-fn)
@@ -81,15 +107,38 @@
     ; Returns file type members of path-node [filter-fn]
     ; then maps results using name function [name-fn]
     (setd
-      name-fn (get :default-name-only this)
-      filter-fn (get :default-file-filter this))
+      name-fn _default-name-only
+      filter-fn _default-file-filter)
     (. this :all-members name-fn filter-fn))
 
   (defmethod :fqname (this filename)
     ; (. path-node filename) -> string
     ; Returns fully qualifed filename prefixed by pathname
     (defq pn (. this :full_name))
-    (str pn (if (eql (last pn) "/") "" "/") filename))
+    (str pn (if (eql (last pn) _pathseparator) "" _pathseparator) filename))
+
+  (defmethod :expand-downto (this strpathlist)
+    ; (. path-node :expand-downto path-node pathlist) -> path-node
+    ; Builds out children to path provided in strpathlist
+    ; throws exception if any path element is invalid
+    (defun index-of (etf elist)
+      (reduced-reduce (lambda (acc el)
+        (if (eql el etf) (reduced _) nil)) elist t))
+
+    (reduce (lambda (acc el)
+      (cond
+        ((and (eql el _pathseparator) (not (eql el (. acc :unique_id))))
+          (. acc :add_node (path-node _pathseparator)))
+        ((defq cn (. acc :child_for_name el))
+          cn)
+        (t
+          (defq mdirs (. acc :dir-members (#(hash (first %0)))))
+          (if (index-of (hash el) mdirs)
+            (. acc :add_node (path-node el))
+            (throw
+              (str el " is invalid child of path " (. acc :full_name))
+              (. acc :dir-members))))
+        )) strpathlist this))
   )
 
 (defun path-node? (this)
@@ -98,14 +147,12 @@
 
 ; Path string utilities
 
-(defq _dps  "/")  ; default path separator
-
 (defun _strpath-tolist (pathname &optional sep)
   ; (_strpath-tolist pathname) -> list
   ; Parses a pathname string into a list of path elements
   ; example:
   ; (_strpath-tolist "/Users/bob/here") -> ("/" "Users") "/" "bob" "/" "here")
-  (setd sep _dps)
+  (setd sep _pathseparator)
   (reduce (lambda (acc el)
     (bind '(plen path_list wip) acc)
     (cond
@@ -130,26 +177,21 @@
         acc)))
     pathname (list (dec (length pathname)) (list) (list))))
 
-; FS Root, path functions and utilities
-; (defq   _fs_root nil)  ; Set before other paths built
-
-; (when (nil? _fs_root)
-;   (setq _fs_root (path-node sep)))
 
 (defun initialize-path (pathname os_separator)
-  ; (initialize-path pathname os_separator) -> path-node
+  ; (initialize-path pathname [os_separator]) -> path-node
   ; Initializes usage of path-nodes by configuring
   ; os dependant path information then building a
   ; path hierarcy
   ; Returns the path-node for pathname
-  (setq _dps os_separator)
-  (defq
-    pp (_strpath-tolist pathname)
-    fp (first pp))
-  (reduce (lambda (acc el)
-      (defq nn (path-node el))
-      (. acc :add_node nn))
-    (slice 1 -1 pp) (path-node fp)))
+  (setq _pathseparator os_separator)
+  (when (not (eql (first pathname) _pathseparator))
+    (throw "Pathname must start at root with " _pathseparator))
+  (when (nil? _pathnoderoot)
+    (setq _pathnoderoot (path-node _pathseparator)))
+  (if (> (length pathname) 1)
+    (. _pathnoderoot :expand-downto (slice 1 -1 (_strpath-tolist pathname)))
+    _pathnoderoot))
 
 
 (defun build-path (pathname)
