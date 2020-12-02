@@ -37,9 +37,9 @@
 (dec-method :ref_element 'class/array/ref_element :override)
 (dec-method :slice 'class/array/slice :override)
 (dec-method :cat 'class/array/cat :override)
+(dec-method :find 'class/array/find :override)
+(dec-method :rfind 'class/array/rfind :override)
 (dec-method :get_length 'class/array/get_length :final)
-(dec-method :find 'class/array/find :final)
-(dec-method :rfind 'class/array/rfind :final)
 
 (dec-method :lisp_array 'class/array/lisp_array :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_nums 'class/array/lisp_nums :static '(r0 r1) '(r0 r1))

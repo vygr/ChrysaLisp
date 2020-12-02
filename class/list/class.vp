@@ -1,6 +1,7 @@
 (include "sys/func.inc")
 (include "class/list/class.inc")
-(include "class/str/class.inc")
+(include "class/sym/class.inc")
+(include "class/num/class.inc")
 (include "class/stream/class.inc")
 (include "lib/consts/chars.inc")
 
@@ -228,6 +229,146 @@
 
 	(exit 'list :print '((rsp local_this)))
 	(vp-free local_size)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'list :find)
+	;inputs
+	;r0 = list object (ptr)
+	;r1 = element object (ptr)
+	;outputs
+	;r0 = list object (ptr)
+	;r1 = element object (ptr)
+	;r2 = -1, else index (int)
+	;trashes
+	;r2-r14
+
+	(vp-def (this el ovt evt tvt iter_begin iter_end) '(r7 r8 r9 r10 r11 r12 r13))
+
+	(entry 'list :find '(r0 r1))
+
+	;what type of element search ?
+	(f-bind 'sym :vtable ovt)
+	(assign '((r1 obj_vtable)) `(,evt))
+	(vpif `(,evt = ,ovt))
+		;symbol
+		(s-jump 'list :find '(r0 r1))
+	(endif)
+	(assign '(r0 r1) `(,this ,el))
+	(f-bind 'str :vtable ovt)
+	(vpif `(,evt = ,ovt))
+		;string
+		(class/array/get_both this iter_begin iter_end)
+		(gotoif `(,iter_begin = ,iter_end) 'notfound)
+		(loop-start)
+			(assign `((,iter_begin 0)) `(,evt))
+			(assign `((,evt obj_vtable)) `(,tvt))
+			(vpif `(,tvt = ,ovt))
+				(call 'str :same `(,evt ,el))
+				(gotoif `(,(method-output 'str :same 1) = 0) 'found)
+			(endif)
+			(vp-add-cr long_size iter_begin)
+		(loop-until `(,iter_begin = ,iter_end))
+
+		(exit 'list :find `(,this ,el -1))
+		(vp-ret)
+	(endif)
+	(call 'obj :inst_of `(,el (@ ,(f-path 'num :vtable))) '(_ r1))
+	(gotoif '(r1 = 0) 'notfound)
+	;number
+	(class/array/get_both this iter_begin iter_end)
+	(gotoif `(,iter_begin = ,iter_end) 'notfound)
+	(assign `((,el num_value)) `(,ovt))
+	(loop-start)
+		(assign `((,iter_begin 0)) `(,evt))
+		(call 'obj :inst_of `(,evt (@ ,(f-path 'num :vtable))) '(_ r1))
+		(vpif '(r1 /= 0))
+			(assign `((,evt num_value)) '(r0))
+			(gotoif `(r0 = ,ovt) 'found)
+		(endif)
+		(vp-add-cr long_size iter_begin)
+	(loop-until `(,iter_begin = ,iter_end))
+
+(vp-label 'notfound)
+	(exit 'list :find `(,this ,el -1))
+	(vp-ret)
+
+(vp-label 'found)
+	(assign `((,this array_begin)) `(,iter_end))
+	(vp-sub-rr iter_end iter_begin)
+	(vp-shr-cr (log2 long_size) iter_begin)
+
+	(exit 'list :find `(,this ,el ,iter_begin))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'list :rfind)
+	;inputs
+	;r0 = list object (ptr)
+	;r1 = element object (ptr)
+	;outputs
+	;r0 = list object (ptr)
+	;r1 = element object (ptr)
+	;r2 = -1, else index (int)
+	;trashes
+	;r2-r14
+
+	(vp-def (this el ovt evt tvt iter_begin iter_end) '(r7 r8 r9 r10 r11 r12 r13))
+
+	(entry 'list :rfind '(r0 r1))
+
+	;what type of element search ?
+	(f-bind 'sym :vtable ovt)
+	(assign '((r1 obj_vtable)) `(,evt))
+	(vpif `(,evt = ,ovt))
+		;symbol
+		(s-jump 'list :rfind '(r0 r1))
+	(endif)
+	(assign '(r0 r1) `(,this ,el))
+	(f-bind 'str :vtable ovt)
+	(vpif `(,evt = ,ovt))
+		;string
+		(class/array/get_both this iter_end iter_begin)
+		(loop-start 'found)
+			(assign `((,iter_begin ,(neg long_size))) `(,evt))
+			(vp-sub-cr long_size iter_begin)
+			(assign `((,evt obj_vtable)) `(,tvt))
+			(vpif `(,tvt = ,ovt))
+				(call 'str :same `(,evt ,el))
+				(breakif `(,(method-output 'str :same 1) = 0) 'found)
+			(endif)
+		(loop-until `(,iter_begin < ,iter_end))
+		(vp-sub-rr iter_end iter_begin)
+		(vp-asr-cr (log2 long_size) iter_begin)
+
+		(exit 'list :rfind `(,this ,el ,iter_begin))
+		(vp-ret)
+	(endif)
+	(call 'obj :inst_of `(,el (@ ,(f-path 'num :vtable))) '(_ r1))
+	(gotoif '(r1 = 0) 'notfound)
+	;number
+	(class/array/get_both this iter_end iter_begin)
+	(assign `((,el num_value)) `(,ovt))
+	(loop-start 'found2)
+		(assign `((,iter_begin ,(neg long_size))) `(,evt))
+		(vp-sub-cr long_size iter_begin)
+		(assign `((,evt obj_vtable)) `(,tvt))
+		(call 'obj :inst_of `(,evt (@ ,(f-path 'num :vtable))) '(_ r1))
+		(vpif '(r1 /= 0))
+			(assign `((,evt num_value)) '(r0))
+			(breakif `(r0 = ,ovt) 'found2)
+		(endif)
+	(loop-until `(,iter_begin < ,iter_end))
+	(vp-sub-rr iter_end iter_begin)
+	(vp-asr-cr (log2 long_size) iter_begin)
+
+	(exit 'list :rfind `(,this ,el ,iter_begin))
+	(vp-ret)
+
+(vp-label 'notfound)
+	(exit 'list :find `(,this ,el -1))
 	(vp-ret)
 
 (def-func-end)

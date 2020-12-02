@@ -412,18 +412,6 @@ trashes
 r0-r11
 ```
 
-### array::get_length -> class/array/get_length
-
-```lisp
-inputs
-r0 = array object (ptr)
-outputs
-r0 = array object (ptr)
-r1 = array length (uint)
-trashes
-r1
-```
-
 ### array::find -> class/array/find
 
 ```lisp
@@ -450,6 +438,18 @@ r1 = element (long)
 r2 = -1, else index (int)
 trashes
 r2-r4
+```
+
+### array::get_length -> class/array/get_length
+
+```lisp
+inputs
+r0 = array object (ptr)
+outputs
+r0 = array object (ptr)
+r1 = array length (uint)
+trashes
+r1
 ```
 
 ### array::lisp_array -> class/array/lisp_array
@@ -3277,6 +3277,34 @@ outputs
 r0 = list object (ptr)
 trashes
 r1-r14
+```
+
+### list::find -> class/list/find
+
+```lisp
+inputs
+r0 = list object (ptr)
+r1 = element object (ptr)
+outputs
+r0 = list object (ptr)
+r1 = element object (ptr)
+r2 = -1, else index (int)
+trashes
+r2-r14
+```
+
+### list::rfind -> class/list/rfind
+
+```lisp
+inputs
+r0 = list object (ptr)
+r1 = element object (ptr)
+outputs
+r0 = list object (ptr)
+r1 = element object (ptr)
+r2 = -1, else index (int)
+trashes
+r2-r14
 ```
 
 ### list::lisp_list -> class/list/lisp_list

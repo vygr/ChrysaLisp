@@ -13,6 +13,8 @@
 (dec-method :set_element 'class/list/set_element :final)
 (dec-method :append 'class/list/append :final)
 (dec-method :print 'class/list/print :final)
+(dec-method :find 'class/list/find :final)
+(dec-method :rfind 'class/list/rfind :final)
 
 (dec-method :lisp_list 'class/list/lisp_list :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_elemset 'class/list/lisp_elemset :static '(r0 r1) '(r0 r1))
