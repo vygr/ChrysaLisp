@@ -203,10 +203,11 @@
       ((eql data t)
         ;normal mailbox event
         (terminal-input (get-byte (mail-read (task-mailbox)) 0)))
-      ((eql data nil)
+      ((nil? data)
         ;pipe is closed
         (pipe-close cmd)
         (setq cmd nil)
         (print (prompt)))
       (t  ;string from pipe
-        (print data)))))
+        (print data))))
+  )
