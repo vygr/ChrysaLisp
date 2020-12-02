@@ -2,6 +2,7 @@
 (include "gui/gui/class.inc")
 (include "gui/ctx/class.inc")
 (include "gui/progress/class.inc")
+(include "gui/pixmap/class.inc")
 (include "class/sym/class.inc")
 
 (def-method 'progress :draw)
@@ -32,13 +33,13 @@
 	(call 'ctx :box {ctx, 0, 0, width, height})
 
 	;draw middle left
-	(call 'ctx :darker {col} {col})
+	(call 'pixmap :darker {col} {col})
 	(call 'ctx :set_color {ctx, col})
 	(assign {(val * (width - 2)) // max} {infill})
 	(call 'ctx :filled_box {ctx, 1, 1, infill, height - 2})
 
 	;draw middle right
-	(call 'ctx :darker {col} {col})
+	(call 'pixmap :darker {col} {col})
 	(call 'ctx :set_color {ctx, col})
 	(call 'ctx :filled_box {ctx, infill + 1, 1, width - 2 - infill, height - 2})
 

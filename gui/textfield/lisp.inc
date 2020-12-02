@@ -20,7 +20,7 @@
 		(cond
 			((or (= key 10) (= key 13))
 				;enter action
-				(component-emit this))
+				(. this :emit))
 			((and (= key 8) (/= cursor 0) (/= (length text) 0))
 				;backspace
 				(setq cursor (dec cursor) text (erase text cursor (inc cursor))))

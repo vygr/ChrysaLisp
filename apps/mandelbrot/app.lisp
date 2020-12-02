@@ -57,7 +57,7 @@
 					((= (setq id (get-long msg ev_msg_target_id)) +event_close+)
 						;close button
 						nil)
-					((and (= id (component-get-id canvas))
+					((and (= id (. canvas :get_id))
 							(= (get-long msg ev_msg_type) ev_type_mouse)
 							(/= (get-int msg ev_msg_mouse_buttons) 0))
 						;mouse click on the canvas view, zoom in/out, re-center

@@ -23,8 +23,8 @@
 		(ui-buttons (0xe9ec 0xe9d8 0xe917 0xea20 0xe9f6 0xe94b 0xe960 0xe95f) +event_pen+ () mode_buttons))
 	(ui-tool-bar _ (:font *env_medium_toolbar_font*)
 		(each (lambda (col)
-			(push ink_buttons (component-connect (ui-button __ (:ink_color col :text
-				(if (< _ 8) (const (num-to-utf8 0xe982)) (const (num-to-utf8 0xea04)))))
+			(push ink_buttons (. (ui-button __ (:ink_color col :text
+				(if (< _ 8) (const (num-to-utf8 0xe982)) (const (num-to-utf8 0xea04))))) :connect
 					(+ _ +event_black+)))) palette))
 	(ui-scroll image_scroll (logior +scroll_flag_vertical+ +scroll_flag_horizontal+)
 			(:min_width canvas_width :min_height canvas_height)
@@ -190,7 +190,7 @@
 			((= id +event_redo+)
 				;undo
 				(redo))
-			((= id (component-get-id overlay_canvas))
+			((= id (. overlay_canvas :get_id))
 				;event for canvas
 				(when (= (get-long msg (const ev_msg_type)) (const ev_type_mouse))
 					;mouse event in canvas

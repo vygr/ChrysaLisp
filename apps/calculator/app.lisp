@@ -12,7 +12,7 @@
 	(ui-label display (:text "0" :color +argb_white+ :flow_flags +flow_flag_align_hright+ :font (create-font "fonts/OpenSans-Regular.ctf" 24)))
 	(ui-grid _ (:grid_width 4 :grid_height 4 :color *env_toolbar_col* :font (create-font "fonts/OpenSans-Regular.ctf" 42))
 		(each (lambda (text)
-			(component-connect (ui-button _ (:text (if (eql text "C") "AC" text))) +event_button+))
+			(. (ui-button _ (:text (if (eql text "C") "AC" text))) :connect +event_button+))
 			"789/456*123-0=C+")))
 
 (defun do_lastop ()

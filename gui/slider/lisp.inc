@@ -43,7 +43,7 @@
 		(setq new_value (max 0 (min maximum (+ new_value (get :old_value this)))))
 		(when (/= new_value (get :value this))
 			(def this :value new_value)
-			(. (component-emit this) :dirty_all))
+			(.-> this :emit :dirty_all))
 		(when (/= state (get :state this))
 			(def this :state state)
 			(. this :dirty_all))

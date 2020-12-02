@@ -36,7 +36,7 @@
 			:border 1 :text x :min_width (+ bw 24) :min_height (+ bh 8))
 		(def (defq l2 (Label)) :min_width 8 :border 0)
 		(. f :add_child l1)
-		(. f :add_child (component-connect b +event_click+))
+		(. f :add_child (. b :connect +event_click+))
 		(. f :add_child l2)
 		(. f :layout)
 		(. grid :add_child f)) b_text)

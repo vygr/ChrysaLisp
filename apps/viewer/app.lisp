@@ -20,10 +20,10 @@
 	(ui-flow _ (:flow_flags +flow_right_fill+ :font *env_terminal_font*)
 		(ui-scroll tree_scroll +scroll_flag_vertical+ nil
 			(ui-backdrop mybackdrop (:color +argb_grey15+ :style 1)
-				(component-connect (ui-tree tree +event_tree+
-					(:min_width 0 :color +argb_white+)) +event_tree+)))
+				(. (ui-tree tree +event_tree+
+					(:min_width 0 :color +argb_white+)) :connect +event_tree+)))
 		(ui-flow _ (:flow_flags +flow_left_fill+)
-			(component-connect (ui-slider slider) +event_scroll+)
+			(. (ui-slider slider) :connect +event_scroll+)
 			(ui-vdu vdu (:min_width vdu_width :min_height vdu_height
 				:vdu_width vdu_width :vdu_height vdu_height
 				:ink_color +argb_white+)))))
@@ -105,7 +105,7 @@
 	(bind '(w h) (. tree :pref_size))
 	(. mybackdrop :change 0 0 w h)
 	(. tree :change 0 0 (def tree_scroll :min_width w) h)
-	(bind '(x y w h) (apply view-locate (. (component-connect mywindow +event_layout+) :pref_size)))
+	(bind '(x y w h) (apply view-locate (.-> mywindow (:connect +event_layout+) :pref_size)))
 	(gui-add (. mywindow :change x y w h))
 	(. vdu :load text_buf 0 0 0 -1)
 	(while (cond

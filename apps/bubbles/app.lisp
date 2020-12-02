@@ -104,7 +104,7 @@
 		((<= +event_grid+ id +event_axis+)
 			;styles
 			(def (. mybackdrop :dirty) :style (radio-select style_buttons (- id +event_grid+))))
-		((= id (component-get-id layer1_canvas))
+		((= id (. layer1_canvas :get_id))
 			;event for canvas
 			(when (= (get-long msg (const ev_msg_type)) (const ev_type_mouse))
 				;mouse event in canvas

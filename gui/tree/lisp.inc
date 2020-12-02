@@ -32,7 +32,7 @@
 					(def (defq title_flow (Flow)) :flow_flags +flow_right_fill+)
 					(def (defq bt (Button)) :text (num-to-utf8 0xe93b) :min_width 14
 						:font *env_small_toolbar_font* :border 1)
-					(component-connect bt (component-get-id this))
+					(. bt :connect (. this :get_id))
 					(.-> title_flow (:add_child bt) (:add_child (Text)))
 					(.-> node (:add_child title_flow) (:add_child tab_flow))
 					(. root :add_child node)
@@ -40,7 +40,7 @@
 			(pop route))
 		(unless (eql (defq file (pop route)) ".")
 			(def (defq node (Button)) :text file :border 0)
-			(component-connect node (inc (get :action_event this)))
+			(. node :connect (inc (get :action_event this)))
 			(. root :add_child node))
 		this)
 
@@ -60,6 +60,6 @@
 				hiden (logxor (logand (. node :get_flags) +view_flag_hiden+) +view_flag_hiden+))
 			(. node :set_flags hiden +view_flag_hiden+)
 			(def toggle :text (num-to-utf8 (if (= hiden +view_flag_hiden+) 0xe93d 0xe93b)))
-			(component-emit this))
+			(. this :emit))
 		this)
 	)

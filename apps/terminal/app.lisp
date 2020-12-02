@@ -14,7 +14,7 @@
 	(ui-flow _ (:flow_flags +flow_down_fill+)
 		(ui-title-bar _ "Terminal" (0xea19 0xea1b 0xea1a) +event_close+)
 		(ui-flow _ (:flow_flags +flow_left_fill+)
-			(component-connect (ui-slider slider) +event_scroll+)
+			(. (ui-slider slider) :connect +event_scroll+)
 			(ui-vdu vdu (:vdu_width vdu_width :vdu_height vdu_height :min_width vdu_width :min_height vdu_height
 				:ink_color +argb_green+)))))
 
@@ -114,7 +114,7 @@
 
 (defun main ()
 	;add window
-	(bind '(x y w h) (apply view-locate (. (component-connect mywindow +event_layout+) :pref_size)))
+	(bind '(x y w h) (apply view-locate (.-> mywindow (:connect +event_layout+) :pref_size)))
 	(gui-add (. mywindow :change x y w h))
 	;sign on msg
 	(print (str "ChrysaLisp Terminal 1.6" (ascii-char 10)))

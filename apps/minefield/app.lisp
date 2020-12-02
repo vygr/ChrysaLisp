@@ -18,11 +18,11 @@
 						(ui-label game_title (:text "Minefield" :min_width 100 :font (create-font "fonts/OpenSans-Regular.ctf" 20) :flow_flags
 								(logior +flow_flag_align_hcenter+ +flow_flag_align_vcenter+)))
 						(ui-label _ (:text "" :font *env_window_font*))
-						(component-connect (ui-button beginner (:text "Beginner" :min_width 125 :min_height 35)) +event_beginner+)
+						(. (ui-button beginner (:text "Beginner" :min_width 125 :min_height 35)) :connect +event_beginner+)
 						(ui-label _ (:text ""))
-						(component-connect (ui-button medium (:text "Intermediate" :min_width 125 :min_height 35)) +event_intermediate+)
+						(. (ui-button medium (:text "Intermediate" :min_width 125 :min_height 35)) :connect +event_intermediate+)
 						(ui-label _ (:text ""))
-						(component-connect (ui-button expert (:text "Expert" :min_width 125 :min_height 35)) +event_expert+)
+						(. (ui-button expert (:text "Expert" :min_width 125 :min_height 35)) :connect +event_expert+)
 						(ui-label bottom_pad (:text "" :min_height 35)))
 					(ui-label right_pad (:text "" :min_width 25))))
 		(ui-label status_bar (:text "mouse: 00"))))
@@ -75,7 +75,7 @@
 	(defq gwh (* gw gh))
 		; (ui-grid game_grid (:grid_width 1 :grid_height 5)
 	(each (lambda (_)
-		(component-connect (defq mc (Button)) (+ _ +event_click+))
+		(. (defq mc (Button)) :connect (+ _ +event_click+))
 		(def mc :text "" :border 1 :flow_flags 
 			(logior +flow_flag_align_hcenter+ +flow_flag_align_vcenter+) :min_width 32 :min_height 32)
 		(. game_grid :add_child mc)) (range 0 gwh))
@@ -97,18 +97,18 @@
 		(defq value nil)
 		(cond 
 			((eql (elem _ game_map) "f")
-				(component-connect (defq mc (Button)) (+ +event_click+ _))
+				(. (defq mc (Button)) :connect (+ +event_click+ _))
 				(def mc :text "F" :border 1 :flow_flags 
 					(logior +flow_flag_align_hcenter+ +flow_flag_align_vcenter+) :min_width 32 :min_height 32)
 				(. game_grid :add_child mc))			
 			((eql (elem _ game_map) "b")
-				(component-connect (defq mc (Button)) (+ +event_click+ _))
+				(. (defq mc (Button)) :connect (+ +event_click+ _))
 				(def mc :text "" :border 1 :flow_flags 
 					(logior +flow_flag_align_hcenter+ +flow_flag_align_vcenter+) :min_width 32 :min_height 32)
 				(. game_grid :add_child mc))
 			((eql (elem _ game_map) "r")
 				(if (< 0 (elem _ game_board) 9) 
-					(component-connect (defq mc (Label)) (+ +event_click+ _))
+					(. (defq mc (Label)) :connect (+ +event_click+ _))
 					(defq mc (Label)))
 				(def mc :text 
 					(cond 

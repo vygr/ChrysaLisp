@@ -5,6 +5,9 @@
 
 ------
 
+`(stream-seek)` and `(pii-fstat)` support. `(age)` now just a wrapper to
+`(pii-fstat)`
+
 Most of the view class methods have now moved out to Lisp ! Huge saving in boot
 image footprint ! From 172KB down to 158KB with very little performance impact
 while at the same time opening up the entire GUI widget system to Lisp level
@@ -18,6 +21,11 @@ other applications and is not limited to just directory structure use.
 All directory builder functions converted to be none recursive.
 
 New `lib/collections/xnode.inc` library for easy tree structures.
+
+New `pixmap` class that separates the pixel array and GPU upload concept from
+the ability to draw on and view a canvas.
+
+`:darker` and `:brighter` methods moved over to the `pixmap` class.
 
 ------
 
@@ -38,7 +46,7 @@ any situation where this is not desired.
 Start of the move of GUI Widget classes over to Lisp classes. Only the time
 critical compositor methods will remain in VP code.
 
-Rename (class) and (method) ot (defclass) and (defmethod) !
+Rename (class) and (method) to (defclass) and (defmethod) !
 
 ------
 

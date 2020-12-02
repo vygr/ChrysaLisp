@@ -1000,29 +1000,6 @@ trashes
 r1-r2
 ```
 
-### component::connect -> gui/component/connect
-
-```lisp
-inputs
-r0 = component object (ptr)
-r1 = target id (ulong)
-outputs
-r0 = component object (ptr)
-trashes
-r1-r6
-```
-
-### component::emit -> gui/component/emit
-
-```lisp
-inputs
-r0 = component object (ptr)
-outputs
-r0 = component object (ptr)
-trashes
-r1-r14
-```
-
 ### component::get_prop -> gui/component/get_prop
 
 ```lisp
@@ -1049,32 +1026,6 @@ trashes
 r1-r14
 ```
 
-### component::set_prop -> gui/component/set_prop
-
-```lisp
-inputs
-r0 = component object (ptr)
-r1 = static sym num (uint)
-r2 = property object (ptr)
-outputs
-r0 = component object (ptr)
-trashes
-r1-r14
-```
-
-### component::set_long_prop -> gui/component/set_long_prop
-
-```lisp
-inputs
-r0 = component object (ptr)
-r1 = static sym num (uint)
-r2 = property value (long)
-outputs
-r0 = component object (ptr)
-trashes
-r1-r14
-```
-
 ### component::get_long_prop -> gui/component/get_long_prop
 
 ```lisp
@@ -1088,33 +1039,6 @@ trashes
 r1-r14
 ```
 
-### component::set_font_prop -> gui/component/set_font_prop
-
-```lisp
-inputs
-r0 = component object (ptr)
-r1 = static sym num (uint)
-r2 = font c string name (pubyte)
-r3 = font size (pixels)
-outputs
-r0 = component object (ptr)
-trashes
-r1-r14
-```
-
-### component::set_str_prop -> gui/component/set_str_prop
-
-```lisp
-inputs
-r0 = component object (ptr)
-r1 = static sym num (uint)
-r2 = c string (pubyte)
-outputs
-r0 = component object (ptr)
-trashes
-r1-r14
-```
-
 ### component::deinit -> gui/component/deinit
 
 ```lisp
@@ -1122,32 +1046,6 @@ inputs
 r0 = component object (ptr)
 outputs
 r0 = component object (ptr)
-trashes
-r1-r14
-```
-
-### component::lisp_connect -> gui/component/lisp_connect
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args list object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### component::lisp_emit -> gui/component/lisp_emit
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args list object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
 trashes
 r1-r14
 ```
@@ -1221,28 +1119,6 @@ r9 = width (pixels)
 r10 = height (pixels)
 trashes
 r0-r14
-```
-
-### ctx::brighter -> gui/ctx/brighter
-
-```lisp
-inputs
-r1 = color (argb)
-outputs
-r1 = brighter color (argb)
-trashes
-r1-r3
-```
-
-### ctx::darker -> gui/ctx/darker
-
-```lisp
-inputs
-r1 = color (argb)
-outputs
-r1 = darker color (argb)
-trashes
-r1-r3
 ```
 
 ## error
@@ -5120,6 +4996,28 @@ outputs
 r0 = pixmap object (ptr)
 trashes
 r1-r8
+```
+
+### pixmap::brighter -> gui/pixmap/brighter
+
+```lisp
+inputs
+r1 = color (argb)
+outputs
+r1 = brighter color (argb)
+trashes
+r1-r3
+```
+
+### pixmap::darker -> gui/pixmap/darker
+
+```lisp
+inputs
+r1 = color (argb)
+outputs
+r1 = darker color (argb)
+trashes
+r1-r3
 ```
 
 ### pixmap::info -> gui/pixmap/info
@@ -9114,6 +9012,19 @@ r1-r14
 ```
 
 ### view::lisp_to_back -> gui/view/lisp_to_back
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### view::lisp_emit -> gui/view/lisp_emit
 
 ```lisp
 inputs
