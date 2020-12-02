@@ -27,6 +27,9 @@ the ability to draw on and view a canvas.
 
 `:darker` and `:brighter` methods moved over to the `pixmap` class.
 
+`(find)` and `(find-rev)` now cope with list sequence string and number
+lookups.
+
 ------
 
 Converged csv, yaml and data exchange libraries to `lib/xchange`. Main includes
