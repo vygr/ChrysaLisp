@@ -33,7 +33,7 @@
 			(breakif `(,c = +char_lrb+))
 			(breakif `(,c = +char_rrb+))
 			(breakif `(,c = +char_quote+))
-			(gotoif `(,bufp = ,bufe) 'slow_but_sure)
+			(gotoif (list bufp '= bufe) 'slow_but_sure)
 			(assign `((,bufp 0 ub)) `(,c))
 			(vp-add-cr byte_size bufp)
 		(loop-end)

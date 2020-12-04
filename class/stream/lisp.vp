@@ -363,8 +363,8 @@
 
 	(assign `((,args array_length)) `(,value))
 (errorcases
-	(gotoif `(,value < 2) 'error1)
-	(gotoif `(,value > 3) 'error1))
+	(gotoif (list value '< 2) 'error1)
+	(gotoif (list value '> 3) 'error1))
 	(assign `((,args array_begin)) `(,iter_begin))
 	(assign `((,iter_begin 0)) `(,stream))
 
@@ -373,7 +373,7 @@
 	(gotoif `(,(method-output 'obj :inst_of 1) = 0) 'error2))
 
 	(vp-cpy-cr 1 width)
-	(vpif `(,value = 3))
+	(vpif (list value '= 3))
 		(assign `((,iter_begin ,(* ptr_size 2))) '(r0))
 	(errorcases
 		(assign `((@ ,(f-path 'num :vtable)) (r0 obj_vtable)) '(r1 r2))
@@ -397,7 +397,7 @@
 			(call 'stream :write `(,stream (& ,value num_value) ,width))
 			(vp-pop this stream width iter_begin iter_end)
 			(vp-add-cr ptr_size iter_begin)
-		(loop-until `(,iter_begin = ,iter_end))
+		(loop-until (list iter_begin '= iter_end))
 	(else)
 	(errorcases
 		(call 'obj :inst_of `(,value (@ ,(f-path 'num :vtable))))

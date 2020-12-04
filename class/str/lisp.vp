@@ -59,36 +59,36 @@
 	(assign `((,args array_length)) `(,len))
 
 (errorcases
-	(gotoif `(,len < 1) 'error1)
-	(gotoif `(,len > 3) 'error1)
+	(gotoif (list len '< 1) 'error1)
+	(gotoif (list len '> 3) 'error1)
 	(call 'lisp :env_args_sig (list args '($ sig) len) '(r2))
 	(gotoif '(r2 = 0) 'error1))
 
 	(assign `((,args array_begin) 1) `(,iter_begin ,width))
 	(vp-xor-rr index index)
 	(vp-cpy-ir iter_begin 0 value)
-	(vpif `(,len > 1))
+	(vpif (list len '> 1))
 		(vp-cpy-ir iter_begin ptr_size width)
 		(assign `((,width num_value)) `(,width))
 		(vp-sub-cr 1 width)
 		(vp-and-cr (dec long_size) width)
 		(vp-add-cr 1 width)
 	(endif)
-	(vpif `(,len > 2))
+	(vpif (list len '> 2))
 		(vp-cpy-ir iter_begin (* 2 ptr_size) index)
 		(assign `((,index num_value)) `(,index))
 	(endif)
 
 	(vp-cpy-ir-ui value str_length len)
-	(vpif `(,index < 0))
+	(vpif (list index '< 0))
 		(vp-add-rr len index)
 		(vp-add-cr 1 index)
 	(endif)
 
 (errorcases
-	(gotoif `(,index < 0) 'error1)
+	(gotoif (list index '< 0) 'error1)
 	(vp-sub-rr width len)
-	(gotoif `(,index > ,len) 'error1))
+	(gotoif (list index '> len) 'error1))
 
 	(vp-add-cr str_data value)
 	(vp-xor-rr len len)
@@ -125,13 +125,13 @@
 	(assign `((,args array_length)) `(,len))
 
 (errorcases
-	(gotoif `(,len > 2) 'error1)
+	(gotoif (list len '> 2) 'error1)
 	(call 'lisp :env_args_type `(,args (@ ,(f-path 'num :vtable)) 1) '(r2))
 	(gotoif '(r2 = 0) 'error1))
 
 	(assign `((,args array_begin) 1) `(,iter_begin ,width))
 	(vp-cpy-ir iter_begin 0 value)
-	(vpif `(,len > 1))
+	(vpif (list len '> 1))
 		(vp-cpy-ir iter_begin ptr_size width)
 		(assign `((,width num_value)) `(,width))
 		(vp-sub-cr 1 width)

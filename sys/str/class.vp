@@ -181,19 +181,19 @@
 	(vp-add-cr byte_size utf8)
 	(vp-cpy-rr c m)
 	(vp-and-cr 0b10000000 m)
-	(vpif `(,m /= 0))
+	(vpif (list m '/= 0))
 		;not 1 byte
 		(vp-cpy-rr c m)
 		(vp-and-cr 0b11100000 m)
-		(vpif `(,m /= 0b11000000))
+		(vpif (list m '/= 0b11000000))
 			;not 2 byte
 			(vp-cpy-rr c m)
 			(vp-and-cr 0b11110000 m)
-			(vpif `(,m /= 0b11100000))
+			(vpif (list m '/= 0b11100000))
 				;not 3 byte
 				(vp-cpy-rr c m)
 				(vp-and-cr 0b11111000 m)
-				(vpif `(,m /= 0b11110000))
+				(vpif (list m '/= 0b11110000))
 					;not 4 byte
 					(vp-xor-rr c c)
 

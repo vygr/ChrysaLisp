@@ -166,7 +166,7 @@
 
 	(call 'nums :get_both `(,dst) `(,dst ,iter_begin ,iter_end))
 	(vp-xor-rr sum sum)
-	(loop-while `(,iter_begin /= ,iter_end))
+	(loop-while (list iter_begin '/= iter_end))
 		(assign `((,iter_begin 0)) `(,val))
 		(vp-add-cr long_size iter_begin)
 		(vp-add-rr val sum)
@@ -200,7 +200,7 @@
 		(vec-store-long 1 iter_begin)
 		(vp-add-cr long_size iter_begin)
 		(vp-add-cr long_size src)
-	(loop-until `(,iter_begin = ,iter_end))
+	(loop-until (list iter_begin '= iter_end))
 
 	(exit 'nums :scale `(,dst))
 	(vp-ret)
