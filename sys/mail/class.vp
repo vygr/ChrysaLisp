@@ -437,7 +437,7 @@
 	(loop-start)
 		;check if any have mail
 		(call 'sys_mail :poll `(,ids) `(,idx ,iter_begin ,iter_end))
-		(vpif `(,idx /= -1))
+		(vpif (list idx '/= -1))
 			;return mailbox index
 			(exit 'sys_mail :select `(,idx))
 			(vp-ret)

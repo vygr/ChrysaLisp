@@ -98,7 +98,7 @@
 	;r0-r2
 
 	(entry 'sys_mem :alloc '(r0))
-	(errorif `(r0 > ,(- mem_cell_max_size sys_mem_header_size)) 'error)
+	(errorif (list r0 '> (- mem_cell_max_size sys_mem_header_size)) 'error)
 
 	;extra bytes for allocation header
 	(vp-lea-i r0 sys_mem_header_size r1)

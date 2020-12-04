@@ -411,7 +411,7 @@
 		(vp-push num_bits bit_pool bit_pool_size)
 		(call 'stream :read_char (list this) (list this data))
 		(vp-pop num_bits bit_pool bit_pool_size)
-		(gotoif `(,data = -1) 'eof)
+		(gotoif (list data '= -1) 'eof)
 		(vp-shl-rr bit_pool_size data)
 		(vp-add-cr 8 bit_pool_size)
 		(vp-add-rr data bit_pool)

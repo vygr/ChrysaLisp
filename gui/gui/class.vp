@@ -377,7 +377,7 @@
 		(assign '((r4 gui_statics_old_region_index)) '(r2))
 		(loop-start)
 			(vp-add-cr ptr_size r2)
-			(vpif `(r2 = ,(* num_old_regions ptr_size)))
+			(vpif (list r2 '= (* num_old_regions ptr_size)))
 				(vp-xor-rr r2 r2)
 			(endif)
 			(assign '((& r4 gui_statics_old_regions) (r4 gui_statics_old_region_index)) '(r1 r3))
@@ -392,7 +392,7 @@
 
 		;move on to next old region
 		(vp-add-cr ptr_size r2)
-		(vpif `(r2 = ,(* num_old_regions ptr_size)))
+		(vpif (list r2 '= (* num_old_regions ptr_size)))
 			(vp-xor-rr r2 r2)
 		(endif)
 		(assign '((rsp local_root) r2) '(r0 (r4 gui_statics_old_region_index))))

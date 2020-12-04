@@ -99,7 +99,7 @@
 			;get token
 			(call 'stream :read_bits {stream, 8, bit_pool, bit_pool_size} {_, length, bit_pool, bit_pool_size})
 			(assign {length} (list len))
-			(gotoif `(,len = -1) 'error)
+			(gotoif (list len '= -1) 'error)
 			(vpif (list len '>= 128))
 				;run of a pixel
 				(vp-sub-cr 127 len)
@@ -288,7 +288,7 @@
 			;get token, loop back if stream end
 			(loop-start)
 				(call 'stream :read_char {this->pixmap_stream} (list '_ len))
-				(breakif `(,len /= -1))
+				(breakif (list len '/= -1))
 				(assign {this->pixmap_bufp} {this->pixmap_stream->stream_bufp})
 			(loop-end)
 
