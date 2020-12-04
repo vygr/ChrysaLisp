@@ -6,7 +6,6 @@
 (include "class/sym/class.inc")
 (include "class/list/class.inc")
 (include "gui/region/class.inc")
-(include "gui/ctx/class.inc")
 (include "gui/backdrop/class.inc")
 (include "gui/view/lisp.inc")
 
@@ -334,7 +333,6 @@
 
 	(def-struct 'local)
 		(ptr 'root 'ctx_flist 'ctx_next)
-		(struct 'ctx 'ctx)
 		(when (/= num_old_regions 0)
 			(ptr 'damaged_region)
 			(uint 'index))
@@ -403,18 +401,11 @@
 	(assign '(r1) '((rsp local_ctx_flist)))
 	(call 'view :forward_tree '(r0 rsp ($ distribute_down_callback) ($ distribute_up_callback)))
 
-	;draw all on draw list, and free dirty regions
-	(f-bind 'gui :statics r1)
-	(assign '((r1 gui_statics_renderer)) '(r1))
-	(vp-cpy-ri r1 rsp (+ local_ctx ctx_sdl_ctx))
+	;draw all views on draw list, and free dirty regions
 	(loop-flist rsp local_ctx_flist r0 r0)
 		(assign '(r0) '((rsp local_ctx_next)))
 		(vp-sub-cr view_ctx_node r0)
-		(assign '((r0 view_ctx_x) (r0 view_ctx_y)) '(r7 r8))
-		(vp-lea-i rsp local_ctx r1)
-		(vp-lea-i r0 view_dirty_region r2)
-		(assign '(r7 r8 r2) '((r1 ctx_x) (r1 ctx_y) (r1 ctx_dirty_region)))
-		(call 'view :draw '(r0 r1))
+		(call 'view :draw '(r0))
 		(assign '((rsp local_ctx_next)) '(r1))
 		(vp-sub-cr (- view_ctx_node view_dirty_region) r1)
 		(f-bind 'gui :statics r0)

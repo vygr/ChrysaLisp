@@ -6,25 +6,24 @@
 (def-method 'label :draw)
 	;inputs
 	;r0 = label object (ptr)
-	;r1 = draw ctx (ptr)
 	;outputs
 	;r0 = label object (ptr)
 	;trashes
 	;r1-r14
 
 	(def-struct 'local)
-		(ptr 'this 'ctx)
+		(ptr 'this)
 		(int 'border)
 	(def-struct-end)
 
 	(vp-alloc local_size)
-	(entry 'label :draw '(r0 (rsp local_ctx)))
+	(entry 'label :draw '(r0))
 	(assign '(r0) '((rsp local_this)))
 
 	;draw panel
 	(call 'label :get_long_prop '(r0 static_sym_border) '(r0 (rsp local_border)))
 	(call 'label :get_long_prop '(r0 static_sym_color) '(r0 r1))
-	(call 'ctx :panel '((rsp local_ctx) r1 1 (rsp local_border) 0 0 (r0 view_w) (r0 view_h)))
+	(call 'ctx :panel '((rsp local_this) r1 1 (rsp local_border) 0 0 (r0 view_w) (r0 view_h)))
 
 	(exit 'label :draw '((rsp local_this)))
 	(vp-free local_size)

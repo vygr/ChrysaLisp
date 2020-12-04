@@ -6,19 +6,18 @@
 (def-method 'button :draw)
 	;inputs
 	;r0 = button object (ptr)
-	;r1 = draw ctx (ptr)
 	;outputs
 	;r0 = button object (ptr)
 	;trashes
 	;r1-r14
 
 	(def-struct 'local)
-		(ptr 'this 'ctx)
+		(ptr 'this)
 		(int 'border 'col)
 	(def-struct-end)
 
 	(vp-alloc local_size)
-	(entry 'button :draw '(r0 (rsp local_ctx)))
+	(entry 'button :draw '(r0))
 	(assign '(r0) '((rsp local_this)))
 
 	;draw panel, in or out
@@ -29,7 +28,7 @@
 	(vpif '(r1 /= 0))
 		(vp-mul-cr -1 r3)
 	(endif)
-	(call 'ctx :panel '((rsp local_ctx) (rsp local_col) 1 r3 0 0 (r0 view_w) (r0 view_h)))
+	(call 'ctx :panel '((rsp local_this) (rsp local_col) 1 r3 0 0 (r0 view_w) (r0 view_h)))
 
 	(exit 'button :draw '((rsp local_this)))
 	(vp-free local_size)
