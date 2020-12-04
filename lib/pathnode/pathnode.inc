@@ -5,11 +5,13 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "sys/lisp.inc")
+(import "lib/clenv/clenv.inc")
 (import "lib/date/date.inc")
 
 (defq
   _pathseparator  "/"
-  _pathnoderoot   nil)  ; default path separator
+  _pathnoderoot   nil
+  _current_dir    nil)  ; default path separator
 
 ; File mode masks
 
@@ -46,10 +48,15 @@
 
 ; Easy/default filters
 (defq
-    _default-name-only    first
-    _default-all-filter   (#(or %0 %0))
-    _default-file-filter  (#(eql (second %0) "8"))
-    _default-dir-filter   (#(eql (second %0) "4")))
+    _pn-name-only    first
+    _pn-all-filter   (#(t))
+    _pn-file-filter  (#(eql (second %0) "8"))
+    _pn-dir-filter   (#(eql (second %0) "4"))
+    _pn_short-filter (lambda ((_fn _ft))
+                            (when (and
+                              (not (eql _fn "."))
+                              (not (eql _fn ".."))
+                              (not (eql (first _fn) "."))) t)))
 
 (defclass path-node (name &optional parent)
   ; file-system path tree
@@ -75,6 +82,9 @@
     ; Returns node mode from fstat
     (last (get :stat_res this)))
 
+  (defmethod :is_root? (this)
+    (not (. this :get_parent)))
+
   (defmethod :members (this)
     ; (. path-node :members) -> list
     ; Returns list of pairs from pii-dirlist
@@ -87,8 +97,8 @@
     ; then maps results using name function [name-fn]
     ; Defaults to all members with all names (including hidden dirs and files)
     (setd
-      name-fn _default-name-only
-      filter-fn _default-all-filter)
+      name-fn _pn-name-only
+      filter-fn _pn-all-filter)
     (map name-fn (filter filter-fn (. this :members))))
 
   (defmethod :dir-members (this &optional name-fn filter-fn)
@@ -97,8 +107,8 @@
     ; Returns directory type members of path-node [filter-fn]
     ; then maps results using name function [name-fn]
     (setd
-      name-fn _default-name-only
-      filter-fn _default-dir-filter)
+      name-fn _pn-name-only
+      filter-fn _pn-dir-filter)
     (. this :all-members name-fn filter-fn))
 
   (defmethod :file-members (this &optional name-fn filter-fn)
@@ -107,8 +117,8 @@
     ; Returns file type members of path-node [filter-fn]
     ; then maps results using name function [name-fn]
     (setd
-      name-fn _default-name-only
-      filter-fn _default-file-filter)
+      name-fn _pn-name-only
+      filter-fn _pn-file-filter)
     (. this :all-members name-fn filter-fn))
 
   (defmethod :fqname (this filename)
@@ -125,16 +135,43 @@
       (reduced-reduce (lambda (acc el)
         (if (eql el etf) (reduced _) nil)) elist t))
 
-    (reduce (lambda (acc el)
+    (defun prior-segment (this)
+      (defq p1 (. this :get_parent))
       (cond
-        ((and (eql el _pathseparator) (not (eql el (. acc :unique_id))))
-          (. acc :add_node (path-node _pathseparator)))
-        ((defq cn (. acc :child_for_name el))
-          cn)
+        ; Root where this = first sep
+        ((nil? p1)
+          this)
+        ; Parent is root
+        ((nil? (. p1 :get_parent))
+          p1)
         (t
-          (defq mdirs (. acc :dir-members (#(hash (first %0)))))
-          (if (index-of (hash el) mdirs)
-            (. acc :add_node (path-node el))
+          (. p1 :get_parent))))
+
+    (reduce (lambda (acc el)
+      (defq cn (. acc :child_for_name el))
+      (print (. acc :unique_id) " Has child " cn " for " el)
+      (cond
+        ; Relative move
+        ((eql el "..")
+          (defq ps (prior-segment acc))
+          (print "From " (. acc :unique_id) " to " (. ps :unique_id))
+          ps)
+        ; Separator
+        ((eql el _pathseparator)
+          (print "Separator returns same")
+          acc)
+        ; Child already exists
+        (cn
+          (print "Child " (. cn :unique_id))
+          cn)
+        ; Separator handling
+        (t
+          (print "Looking for " el " in " (. acc :dir-members))
+          (if (index-of el (. acc :dir-members))
+            (path-node el
+              (if (. acc :is_root?)
+                acc
+                (path-node _pathseparator acc)))
             (throw
               (str el " is invalid child of path " (. acc :full_name))
               (. acc :dir-members))))
@@ -144,6 +181,15 @@
 (defun path-node? (this)
   ; (path-node? obj) -> t | nil
   (and (env? this) (get :path_node this)))
+
+; Initializing routine
+
+(when (not _pathnoderoot)
+  (setq
+    _pathseparator (gets-enval "PATH_SEP")
+    _pathnoderoot  (path-node _pathseparator)
+    _current_dir   _pathnoderoot))
+
 
 ; Path string utilities
 
@@ -178,21 +224,40 @@
     pathname (list (dec (length pathname)) (list) (list))))
 
 
-(defun initialize-path (pathname os_separator)
-  ; (initialize-path pathname [os_separator]) -> path-node
-  ; Initializes usage of path-nodes by configuring
-  ; os dependant path information then building a
-  ; path hierarcy
+(defun change-dir (pathname)
+  ; (change-dir pathname ) -> path-node
   ; Returns the path-node for pathname
-  (setq _pathseparator os_separator)
-  (when (not (eql (first pathname) _pathseparator))
-    (throw "Pathname must start at root with " _pathseparator))
-  (when (nil? _pathnoderoot)
-    (setq _pathnoderoot (path-node _pathseparator)))
-  (if (> (length pathname) 1)
-    (. _pathnoderoot :expand-downto (slice 1 -1 (_strpath-tolist pathname)))
-    _pathnoderoot))
-
+  ; Will expand tree by building valid path-nodes in pathname
+  (defq
+    path-el (_strpath-tolist pathname)
+    frstel  (first path-el)
+    plen    (length path-el))
+  (print "First element " frstel " from " pathname " list " path-el)
+  (setq _current_dir
+    (cond
+      ; Fully qualified from root
+      ((and (eql frstel _pathseparator) (> plen 1))
+        (. _pathnoderoot :expand-downto (slice 1 -1 path-el)))
+      ; Root
+      ((and (eql frstel _pathseparator) (= plen 1))
+        _pathnoderoot)
+      ; Relative parent path of current directory
+      ((and (eql frstel "..") (> plen 1))
+        (. _current_dir :expand-downto path-el))
+      ((and (eql frstel "..") (= plen 1))
+        (. _current_dir :get_parent))
+      ; Relative current path
+      ((and (empty? path-el) (eql (first pathname) "."))
+        _current_dir)
+      ((and (= plen 1) (eql (first frstel) ".") (eql (second frstel) _pathseparator))
+        _current_dir)
+      ((and
+        (> plen 2)
+        (eql frstel ".")
+        (eql (second path-el) _pathseparator))
+        (. _current_dir :expand-downto (slice 1 -1 path-el)))
+      (t (throw "Unhandled change-dir " pathname))))
+  _current_dir)
 
 (defun build-path (pathname)
   ; (build-path pathname) -> path-node
