@@ -27,7 +27,7 @@
 	(vpif {iter})
 		(assign {iter[ptr_size]} {file})
 		(call 'obj :inst_of (cat {file, @} (f-path 'str :vtable)))
-		(gotoif `(,(method-output 'obj :inst_of 1) = 0) 'nofile)
+		(gotoif (list (method-output 'obj :inst_of 1) '= 0) 'nofile)
 		(assign {&file->str_data} {file})
 	(else)
 	(vp-label 'nofile)

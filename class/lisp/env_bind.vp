@@ -23,7 +23,7 @@
 (errorcases
 	(gotoif (cat {vars->obj_vtable /= @} (f-path 'list :vtable)) 'error1)
 	(call 'obj :inst_of (cat {vals, @} (f-path 'seq :vtable)))
-	(gotoif `(,(method-output 'obj :inst_of 1) = 0) 'error2))
+	(gotoif (list (method-output 'obj :inst_of 1) '= 0) 'error2))
 
 	(assign {0 => index_vars => index_vals} {state})
 	(call 'obj :ref {this->lisp_sym_nil} {value})

@@ -48,7 +48,7 @@
 	(loop-while {iter_begin /= iter_end})
 		(assign {*iter_begin} {this})
 		(call 'sys_str :compare {&this->font_name->str_data, name})
-		(vpif `(,(method-output 'sys_str :compare 0) = 0))
+		(vpif (list (method-output 'sys_str :compare 0) '= 0))
 			(assign {this->font_data} {data})
 			(gotoif {this->font_pixels = pixels} 'found)
 		(endif)
