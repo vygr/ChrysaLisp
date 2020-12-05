@@ -42,7 +42,7 @@
 (defun make-merge (l sl)
 	;merge string into string list
 	(each (lambda (s)
-		(unless (some (# (eql %0 s)) l) (push l s))) sl))
+		(unless (find s l) (push l s))) sl))
 
 (defun all-files (root ext)
 	;all files from root downwards with extention, none recursive

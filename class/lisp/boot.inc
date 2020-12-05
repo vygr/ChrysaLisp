@@ -779,7 +779,7 @@
 	(while (env? _ee)
 		(cond
 			((and (defq file_list (def? '*file_includes* _ee))
-					(some (# (eql %0 lib_path)) file_list))
+					(find lib_path file_list))
 				(setq _ee t))
 			(t  (setq _ee (penv _ee)))))
 	; if not existing import it here

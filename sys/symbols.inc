@@ -6,7 +6,7 @@ cap_butt 0
 cap_round 4
 cap_square 1
 cap_tri 2
-component_id 48
+view_id 120
 ev_msg_action_source_id 16
 ev_msg_key_key 20
 ev_msg_key_keycode 16
@@ -55,8 +55,8 @@ pixmap_height 48
 ev_msg_mouse_x 20
 ev_msg_mouse_y 24
 ev_type_action 2
-component_target_ids 40
-_t_component_id "l"
+view_target_ids 112
+_t_view_id "l"
 _t_ev_msg_action_source_id "L"
 _t_ev_msg_key_key "I"
 _t_ev_msg_key_keycode "I"
@@ -84,5 +84,5 @@ _t_pixmap_width "I"
 _t_pixmap_height "I"
 _t_ev_msg_mouse_x "i"
 _t_ev_msg_mouse_y "i"
-_t_component_target_ids "p"
+_t_view_target_ids "p"
 )

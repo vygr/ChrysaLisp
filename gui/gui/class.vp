@@ -156,7 +156,7 @@
 			(breakifnot {owner_id.id_id})
 			(call 'sys_mail :alloc {ev_msg_mouse_size} {msg, data})
 			(assign {ev_type_mouse} {data->ev_msg_type})
-			(assign {view->component_id} {data->ev_msg_target_id})
+			(assign {view->view_id} {data->ev_msg_target_id})
 			(assign {owner_id.id_id} {msg->msg_dest.id_id})
 			(assign {user->local_mouse_buttons} {data->ev_msg_mouse_buttons})
 			(assign {(event.sdl_mouse_button_event_x => data->ev_msg_mouse_x) - view->view_ctx_x} {data->ev_msg_mouse_rx})
@@ -172,7 +172,7 @@
 			;find view affinity
 			(call 'view :hit_tree {user->local_statics->gui_statics_screen,
 				event.sdl_mouse_button_event_x, event.sdl_mouse_button_event_y} {_, view, _, _})
-			(assign {view->component_id} {user->local_mouse_id})
+			(assign {view->view_id} {user->local_mouse_id})
 			(goto 'send_event)
 		(vpcase {event.sdl_common_event_type = SDL_MOUSEBUTTONUP})
 			;update mouse state
@@ -183,7 +183,7 @@
 			(call 'view :hit_tree {user->local_statics->gui_statics_screen,
 				user->local_statics->gui_statics_mouse_x, user->local_statics->gui_statics_mouse_y}
 				{_, view, _, _})
-			(assign {view->component_id} {user->local_key_id})
+			(assign {view->view_id} {user->local_key_id})
 
 			;find view for keys
 			(call 'view :find_id {user->local_statics->gui_statics_screen, user->local_key_id} {_, view})
@@ -195,7 +195,7 @@
 			(call 'sys_mail :alloc {ev_msg_key_size} {msg, data})
 			(assign {ev_type_key} {data->ev_msg_type})
 			(assign {owner_id.id_id} {msg->msg_dest.id_id})
-			(assign {view->component_id} {data->ev_msg_target_id})
+			(assign {view->view_id} {data->ev_msg_target_id})
 			(assign {event.sdl_keyboard_event_keysym.sdl_keysym_scancode} {data->ev_msg_key_keycode})
 			(call 'cook_key {event.sdl_keyboard_event_keysym.sdl_keysym_sym,
 				event.sdl_keyboard_event_keysym.sdl_keysym_mod} {data->ev_msg_key_key})
@@ -280,7 +280,7 @@
 		(call 'sys_mail :alloc {ev_msg_gui_size} {msg, data})
 		(assign {ev_type_gui} {data->ev_msg_type})
 		(assign {owner_id.id_id} {msg->msg_dest.id_id})
-		(assign {this->component_id} {data->ev_msg_target_id})
+		(assign {this->view_id} {data->ev_msg_target_id})
 		(call 'sys_mail :send {msg})
 	(endif)
 

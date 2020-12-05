@@ -966,87 +966,6 @@ trashes
 r1-r14
 ```
 
-## component
-
-Super Class: hmap
-
-### component::vtable -> gui/component/vtable
-
-### component::init -> gui/component/init
-
-```lisp
-inputs
-r0 = component object (ptr)
-r1 = vtable (pptr)
-outputs
-r0 = component object (ptr)
-r1 = 0 if error, else ok
-trashes
-r1-r14
-```
-
-### component::find_owner -> gui/component/find_owner
-
-```lisp
-inputs
-r0 = component object (ptr)
-outputs
-r0 = component object (ptr)
-r1 = 0, else mailbox id of owner (ulong)
-trashes
-r1-r2
-```
-
-### component::get_prop -> gui/component/get_prop
-
-```lisp
-inputs
-r0 = component object (ptr)
-r1 = static sym num (uint)
-outputs
-r0 = component object (ptr)
-r1 = 0 else, property object (ptr)
-trashes
-r1-r14
-```
-
-### component::ref_prop -> gui/component/ref_prop
-
-```lisp
-inputs
-r0 = component object (ptr)
-r1 = static sym num (uint)
-outputs
-r0 = component object (ptr)
-r1 = 0 else, property object (ptr)
-trashes
-r1-r14
-```
-
-### component::get_long_prop -> gui/component/get_long_prop
-
-```lisp
-inputs
-r0 = component object (ptr)
-r1 = static sym num (uint)
-outputs
-r0 = component object (ptr)
-r1 = property value (long)
-trashes
-r1-r14
-```
-
-### component::deinit -> gui/component/deinit
-
-```lisp
-inputs
-r0 = component object (ptr)
-outputs
-r0 = component object (ptr)
-trashes
-r1-r14
-```
-
 ## ctx
 
 Super Class: null
@@ -1096,7 +1015,7 @@ r0-r14
 
 ```lisp
 inputs
-r3 = view object (ptr)
+r0 = view object (ptr)
 r1 = color (argb)
 trashes
 r0-r14
@@ -8580,7 +8499,7 @@ r1-r14
 
 ## view
 
-Super Class: component
+Super Class: hmap
 
 ### view::vtable -> gui/view/vtable
 
@@ -8805,6 +8724,57 @@ r0 = view object (ptr)
 r1 = new flag values (ulong)
 trashes
 r1-r3
+```
+
+### view::find_owner -> gui/view/find_owner
+
+```lisp
+inputs
+r0 = view object (ptr)
+outputs
+r0 = view object (ptr)
+r1 = 0, else mailbox id of owner (ulong)
+trashes
+r1-r2
+```
+
+### view::get_prop -> gui/view/get_prop
+
+```lisp
+inputs
+r0 = view object (ptr)
+r1 = static sym num (uint)
+outputs
+r0 = view object (ptr)
+r1 = 0 else, property object (ptr)
+trashes
+r1-r14
+```
+
+### view::ref_prop -> gui/view/ref_prop
+
+```lisp
+inputs
+r0 = view object (ptr)
+r1 = static sym num (uint)
+outputs
+r0 = view object (ptr)
+r1 = 0 else, property object (ptr)
+trashes
+r1-r14
+```
+
+### view::get_long_prop -> gui/view/get_long_prop
+
+```lisp
+inputs
+r0 = view object (ptr)
+r1 = static sym num (uint)
+outputs
+r0 = view object (ptr)
+r1 = property value (long)
+trashes
+r1-r14
 ```
 
 ### view::forward_callback -> class/obj/null

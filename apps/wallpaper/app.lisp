@@ -9,11 +9,6 @@
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
 
-(defmacro seq-find (item seq)
-	`(cond 
-		((str? ,seq) (find ,item ,seq))
-		((lst? ,seq) (some (lambda (_e) (if (eql ,item _e) _)) ,seq))))
-
 (defun app-path (_)
 	(cat "apps/" _ "/app.lisp"))
 

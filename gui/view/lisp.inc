@@ -74,14 +74,14 @@
 
 	(defmethod :connect (this id)
 		; (. view :connect id) -> view
-		(unless (defq targets (get-field this (const component_target_ids) 0))
-			(set-field this (const component_target_ids) 0 (setq targets (array))))
+		(unless (defq targets (get-field this (const view_target_ids) 0))
+			(set-field this (const view_target_ids) 0 (setq targets (array))))
 		(push targets id)
 		this)
 
 	(defmethod :get_id (this)
 		; (. view :get_id) -> id
-		(get-field this (const component_id) (const long_size)))
+		(get-field this (const view_id) (const long_size)))
 
 	(defmethod :dirty (this)
 		; (. view :dirty) -> view

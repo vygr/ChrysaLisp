@@ -23,12 +23,16 @@
 	;r1-r14
 
 	;init parent
-	(s-call 'view :init '(r0 r1) '(r0 r1))
+	(s-call 'view :init '(r0 r1 0 1) '(r0 r1))
 	(vpif '(r1 /= 0))
 		;init myself
 		(vp-push r0)
 		(call 'sys_mem :fill `((& r0 view_start) ,(- view_size view_start) 0))
 		(vp-pop r0)
+		(f-bind 'gui :statics r1)
+		(assign '((r1 gui_statics_next_id)) '(r2))
+		(vp-sub-cr 1 r2)
+		(assign '(r2 r2) '((r1 gui_statics_next_id) (r0 view_id)))
 		(vp-cpy-cr +view_flag_solid+ r1)
 		(assign '(r1 (& r0 view_list)) '((r0 view_flags) r1))
 		(lh-init r1 r2)
@@ -68,6 +72,9 @@
 	(call 'region :free '(r0 (& r1 view_dirty_region)))
 	(assign '((rsp 0)) '(r1))
 	(call 'region :free '(r0 (& r1 view_opaque_region)))
+
+	(assign '((rsp 0)) '(r0))
+	(call 'array :deref_if '((r0 view_target_ids)))
 
 	;deinit parent
 	(vp-pop r0)
@@ -480,7 +487,7 @@
 
 	(assign '((r1 local_view)) '(r2))
 	(vpif '(r2 = 0))
-		(assign '((r0 component_id) (r1 local_id)) '(r2 r3))
+		(assign '((r0 view_id) (r1 local_id)) '(r2 r3))
 		(vpif '(r2 = r3))
 			(assign '(r0) '((r1 local_view)))
 			(vp-xor-rr r1 r1)
@@ -634,6 +641,89 @@
 	(assign '(r3) '((r2 gui_statics_dirty_flag)))
 
 	(exit 'view :set_flags '(r0 r1))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'view :find_owner)
+	;inputs
+	;r0 = view object (ptr)
+	;outputs
+	;r0 = view object (ptr)
+	;r1 = 0, else mailbox id of owner (ulong)
+	;trashes
+	;r1-r2
+
+	;walk up tree to parent
+	(vp-cpy-rr r0 r2)
+	(loop-start)
+		(assign `((r2 ,(+ view_owner_id id_id)) (r2 hmap_parent)) '(r1 r2))
+		(breakif '(r1 /= 0))
+	(loop-until '(r2 = 0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'view :ref_prop)
+	;inputs
+	;r0 = view object (ptr)
+	;r1 = static sym num (uint)
+	;outputs
+	;r0 = view object (ptr)
+	;r1 = 0 else, property object (ptr)
+	;trashes
+	;r1-r14
+
+	(entry 'view :ref_prop '(r0 r1))
+
+	(call 'sym :get_static_sym '(r1) '(r1))
+	(call 'view :get '(r0 r1) '(r0 r1))
+
+	(exit 'view :ref_prop '(r0 r1))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'view :get_prop)
+	;inputs
+	;r0 = view object (ptr)
+	;r1 = static sym num (uint)
+	;outputs
+	;r0 = view object (ptr)
+	;r1 = 0 else, property object (ptr)
+	;trashes
+	;r1-r14
+
+	(entry 'view :get_prop '(r0 r1))
+
+	(call 'view :ref_prop '(r0 r1) '(r0 r1))
+	(vpif '(r1 /= 0))
+		(class/obj/ref r1 r2 -1)
+	(endif)
+
+	(exit 'view :get_prop '(r0 r1))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'view :get_long_prop)
+	;inputs
+	;r0 = view object (ptr)
+	;r1 = static sym num (uint)
+	;outputs
+	;r0 = view object (ptr)
+	;r1 = property value (long)
+	;trashes
+	;r1-r14
+
+	(entry 'view :get_long_prop '(r0 r1))
+
+	(call 'view :get_prop '(r0 r1) '(r0 r1))
+	(vpif '(r1 /= 0))
+		(assign '((r1 num_value)) '(r1))
+	(endif)
+
+	(exit 'view :get_long_prop '(r0 r1))
 	(vp-ret)
 
 (def-func-end)

@@ -4,7 +4,7 @@
 (include "class/sstream/class.inc")
 (include "class/lisp/class.inc")
 (include "class/sym/class.inc")
-(include "gui/component/class.inc")
+(include "gui/view/class.inc")
 (include "lib/consts/chars.inc")
 
 (def-func 'class/lisp/run nil 8192)
@@ -12,7 +12,7 @@
 	;inputs
 	;msg of lisp filename
 
-	(ptr 'script 'lisp 'stream 'file 'value 'args)
+	(ptr 'script 'stream 'lisp 'file 'value 'args)
 
 	;init app vars
 	(push-scope)
@@ -49,7 +49,7 @@
 				(call 'stream :flush {lisp->lisp_stderr})
 			(else)
 				;do we have a main ?
-				(call 'component :get_prop {lisp->lisp_environment, static_sym_main} {_, stream})
+				(call 'view :get_prop {lisp->lisp_environment, static_sym_main} {_, stream})
 				(breakifnot {stream})
 				(call 'obj :deref {value})
 				(call 'lisp :repl_apply {lisp, args, stream} {_, value})

@@ -8,14 +8,14 @@
 
 (def-method 'ctx :set_color)
 	;inputs
-	;r3 = view object (ptr)
+	;r0 = view object (ptr)
 	;r1 = color (argb)
 	;trashes
 	;r0-r14
 
 	(vp-def (ctx r g b a) (method-input 'host :sdl_set_render_draw_color))
 
-	(entry 'ctx :set_color '(r3 r1))
+	(entry 'ctx :set_color '(r0 r1))
 
 	(f-bind 'gui :statics r14)
 	(assign '(r1 r1 r1 r1 (r14 gui_statics_renderer)) `(,a ,r ,g ,b ,ctx))
