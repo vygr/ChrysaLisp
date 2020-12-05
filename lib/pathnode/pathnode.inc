@@ -5,11 +5,13 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "sys/lisp.inc")
+(import "lib/clenv/clenv.inc")
 (import "lib/date/date.inc")
 
 (defq
   _pathseparator  "/"
-  _pathnoderoot   nil)  ; default path separator
+  _pathnoderoot   nil
+  _current_dir    nil)  ; default path separator
 
 ; File mode masks
 
@@ -46,10 +48,15 @@
 
 ; Easy/default filters
 (defq
-    _default-name-only    first
-    _default-all-filter   (#(or %0 %0))
-    _default-file-filter  (#(eql (second %0) "8"))
-    _default-dir-filter   (#(eql (second %0) "4")))
+    _pn-name-only    first
+    _pn-all-filter   (#(t))
+    _pn-file-filter  (#(eql (second %0) "8"))
+    _pn-dir-filter   (#(eql (second %0) "4"))
+    _pn_short-filter (lambda ((_fn _ft))
+                            (when (and
+                              (not (eql _fn "."))
+                              (not (eql _fn ".."))
+                              (not (eql (first _fn) "."))) t)))
 
 (defclass path-node (name &optional parent)
   ; file-system path tree
@@ -75,6 +82,9 @@
     ; Returns node mode from fstat
     (last (get :stat_res this)))
 
+  (defmethod :is_root? (this)
+    (not (. this :get_parent)))
+
   (defmethod :members (this)
     ; (. path-node :members) -> list
     ; Returns list of pairs from pii-dirlist
@@ -87,8 +97,8 @@
     ; then maps results using name function [name-fn]
     ; Defaults to all members with all names (including hidden dirs and files)
     (setd
-      name-fn _default-name-only
-      filter-fn _default-all-filter)
+      name-fn _pn-name-only
+      filter-fn _pn-all-filter)
     (map name-fn (filter filter-fn (. this :members))))
 
   (defmethod :dir-members (this &optional name-fn filter-fn)
@@ -97,8 +107,8 @@
     ; Returns directory type members of path-node [filter-fn]
     ; then maps results using name function [name-fn]
     (setd
-      name-fn _default-name-only
-      filter-fn _default-dir-filter)
+      name-fn _pn-name-only
+      filter-fn _pn-dir-filter)
     (. this :all-members name-fn filter-fn))
 
   (defmethod :file-members (this &optional name-fn filter-fn)
@@ -107,8 +117,8 @@
     ; Returns file type members of path-node [filter-fn]
     ; then maps results using name function [name-fn]
     (setd
-      name-fn _default-name-only
-      filter-fn _default-file-filter)
+      name-fn _pn-name-only
+      filter-fn _pn-file-filter)
     (. this :all-members name-fn filter-fn))
 
   (defmethod :fqname (this filename)
@@ -117,82 +127,113 @@
     (defq pn (. this :full_name))
     (str pn (if (eql (last pn) _pathseparator) "" _pathseparator) filename))
 
-  (defmethod :expand-downto (this strpathlist)
-    ; (. path-node :expand-downto path-node pathlist) -> path-node
+  (defmethod :child_segment (this namestr)
+    (cond
+      ((. this :is_root?)
+        (. this :child_for_node_name namestr))
+      ((defq snode (. this :child_for_node_name _pathseparator))
+        (. snode :child_for_node_name namestr))
+      (t nil)))
+
+  (defmethod :expandto (this strpathlist)
+    ; (. path-node :expandto path-node pathlist) -> path-node
     ; Builds out children to path provided in strpathlist
     ; throws exception if any path element is invalid
     (defun index-of (etf elist)
       (reduced-reduce (lambda (acc el)
         (if (eql el etf) (reduced _) nil)) elist t))
 
-    (reduce (lambda (acc el)
+    (defun prior-segment (this)
+      (defq p1 (. this :get_parent))
       (cond
-        ((and (eql el _pathseparator) (not (eql el (. acc :unique_id))))
-          (. acc :add_node (path-node _pathseparator)))
-        ((defq cn (. acc :child_for_name el))
-          cn)
+        ; Root where this = first sep
+        ((nil? p1) this)
+        ; Parent is root
+        ((nil? (. p1 :get_parent)) p1)
+        (t (. p1 :get_parent))))
+
+    (defun new-segment (this node_name)
+      (cond
+        ; No need to add separator to root as it is already
+        ((and (. this :is_root?) (eql node_name _pathseparator))
+          this)
+        ; No need to add separator of root, just add new
+        ((. this :is_root?)
+          (. this :add_node (path-node node_name)))
+        ; Add a separator as child of this and then new to that
         (t
-          (defq mdirs (. acc :dir-members (#(hash (first %0)))))
-          (if (index-of (hash el) mdirs)
-            (. acc :add_node (path-node el))
+          (.
+            (. this :add_node (path-node _pathseparator))
+            :add_node (path-node node_name)))))
+
+    (reduce (lambda (acc el)
+      (defq cn (. acc :child_segment el))
+      (cond
+        ; Relative moves
+        ((or (eql el ".") (eql el _pathseparator)) acc)
+        ; Back up
+        ((eql el "..") (prior-segment acc))
+        ; Child already exists
+        (cn cn)
+        ; Fall through, validate child and add
+        (t
+          (if (index-of el (. acc :dir-members))
+            (new-segment acc el)
             (throw
               (str el " is invalid child of path " (. acc :full_name))
-              (. acc :dir-members))))
-        )) strpathlist this))
+              (. acc :dir-members)))))) strpathlist this))
   )
 
 (defun path-node? (this)
   ; (path-node? obj) -> t | nil
   (and (env? this) (get :path_node this)))
 
+; Initializing routine
+
+(when (not _pathnoderoot)
+  (setq
+    _pathseparator (gets-enval "PATH_SEP")
+    _pathnoderoot  (path-node _pathseparator)
+    _current_dir   _pathnoderoot))
+
 ; Path string utilities
 
-(defun _strpath-tolist (pathname &optional sep)
+(defun _path-tolist (pathname &optional sep)
   ; (_strpath-tolist pathname) -> list
   ; Parses a pathname string into a list of path elements
   ; example:
-  ; (_strpath-tolist "/Users/bob/here") -> ("/" "Users") "/" "bob" "/" "here")
+  ; (_path-tolist "/Users/bob/here") -> ("/" "Users") "/" "bob" "/" "here")
   (setd sep _pathseparator)
-  (reduce (lambda (acc el)
-    (bind '(plen path_list wip) acc)
-    (cond
-      ; Last input character
-      ((= _ plen)
-        (when (nempty? wip)
-          (push path_list (join (push wip el) "")))
-        path_list)
-      ; Path segment suffix
-      ; Ignores redundant sep's (i.e. //)
-      ((and (eql el sep) (empty? wip))
-        (when (not (eql sep (last path_list)))
-          (push path_list el))
-        acc)
-      ; Path segment prefix
-      ((and (eql el sep) (nempty? wip))
-        (push path_list (join wip "") el)
-        (elem-set 2 acc (list))
-        acc)
-    (t
-        (push wip el)
-        acc)))
-    pathname (list (dec (length pathname)) (list) (list))))
+  (defq
+    seed (if (eql (first pathname) sep) (list sep) (list))
+    prsd (split pathname sep)
+    lng  (dec (length prsd)))
+  (reduce
+    (lambda (acc el) (if (= _ lng) (push acc el) (push acc el sep)))
+    prsd seed))
 
-
-(defun initialize-path (pathname os_separator)
-  ; (initialize-path pathname [os_separator]) -> path-node
-  ; Initializes usage of path-nodes by configuring
-  ; os dependant path information then building a
-  ; path hierarcy
+(defun change-dir (pathname)
+  ; (change-dir pathname ) -> path-node
   ; Returns the path-node for pathname
-  (setq _pathseparator os_separator)
-  (when (not (eql (first pathname) _pathseparator))
-    (throw "Pathname must start at root with " _pathseparator))
-  (when (nil? _pathnoderoot)
-    (setq _pathnoderoot (path-node _pathseparator)))
-  (if (> (length pathname) 1)
-    (. _pathnoderoot :expand-downto (slice 1 -1 (_strpath-tolist pathname)))
-    _pathnoderoot))
-
+  ; Will expand tree by building valid path-nodes in pathname
+  (defq
+    path-el (_path-tolist pathname)
+    frstel  (first path-el)
+    plen    (length path-el))
+  (setq _current_dir
+    (cond
+      ; Do nothing
+      ((empty? path-el))
+      ; Fully qualified from root
+      ((and (eql frstel _pathseparator) (> plen 1))
+        (. _pathnoderoot :expandto (slice 1 -1 path-el)))
+      ; Root
+      ((and (eql frstel _pathseparator) (= plen 1))
+        _pathnoderoot)
+      ; Relative current path
+      (t
+        (. _current_dir :expandto path-el))))
+  _current_dir)
 
 (defun build-path (pathname)
   ; (build-path pathname) -> path-node

@@ -31,14 +31,11 @@
 
 ; Much of this should be in separate include
 
-; Session variables
-(defq
-  tzone   nil
-  session nil)
+(defq tzone   nil)
 
 (defun prompt ()
   ; (prompt) -> string
-  (gets session "PROMPT"))
+  (gets-enval "PROMPT"))
 
 (defun set-session (ic &optional args)
   ; (set-session cmd [args]) -> map
@@ -46,18 +43,18 @@
   ; in the session map
   (when args
     (defq spa (split args " "))
-    (sets! session (first spa) (join (rest spa) " "))))
+    (sets-envkvs! (first spa) (join (rest spa) " "))))
 
 (defun drop-session (ic &optional args)
   ; (drop-session cmd [args]) -> map
   ; Removes the key (first arg) from the session map
-  (drop! session (first (split args " "))))
+  (drop! +envcfg+ (first (split args " "))))
 
 (defun print-session (ic &optional args)
   ; (print-session cmd [args]) -> map
   ; prints session values
   (prtnl "Session vars:")
-  (each (lambda((_k _v)) (prtnl (str " " _k " -> " _v))) (entries session)))
+  (each (lambda((_k _v)) (prtnl (str " " _k " -> " _v))) (entries +envcfg+)))
 
 (defun session-sub (bfr)
   ; (session-sub string) -> string
@@ -65,7 +62,7 @@
   (defq res (list))
   (each (lambda (_v)
           (if (eql (first _v) "@")
-              (push res (gets session (rest _v)))
+              (push res (gets-enval (rest _v)))
               (push res _v))) (split bfr " "))
   (join res " "))
 
@@ -83,7 +80,7 @@
 (defun last-command (ic &optional args)
   ; (last-command internal args) -> result of command
   ; TBD indexed command arg (i.e. -c 2)
-  (run-cmd (gets session "LASTC")))
+  (run-cmd (gets-enval "LASTC")))
 
 (defun switch-help (ic &optional args)
   (prtnl "")
@@ -97,9 +94,10 @@
   (prtnl "Additioinal Commands:")
   (prtnl " ls   List directory content. Usage:")
   (prtnl "    >ls     ; Lists current working directory files")
-  (prtnl "    >ls arg ; List directory content of arg path")
   (prtnl "")
-  (prtnl " cd     Change directory (not implemented)")
+  (prtnl " cd   Change directory. Usage:")
+  (prtnl "    >cd newpath ; Change directory to newpath")
+  (prtnl "")
   (prtnl " cp     Copies a file (not implemented)")
   (prtnl " mkdir  Makes a directory (not implemented)")
   (prtnl " mv     Moves a file (not implemented)")
@@ -144,7 +142,7 @@
       (print (prompt)))
     (t
       ; New command pipe
-      (sets! session "LASTC" bfr)
+      (sets-envkvs! "LASTC" bfr)
       (run-cmd bfr))))
 
 (defun terminal-input (c)
@@ -184,11 +182,11 @@
   ; Setup variables
   (setq tzone (get :local_timezone))
   ; TODO: Check and load configuration file
-  (setq session (load-hostenv))
-  (when (not (gets session "TZ"))
-    (sets! session "TZ" (first tzone)))
+  (setup-pathing)
+  (when (not (gets-enval "TZ"))
+    (exports-keyvals! "TZ" (first tzone)))
   ;sign on msg
-  (prtnl "ChrysaLisp Terminal-2 0.5 (experimental)")
+  (prtnl "ChrysaLisp Terminal-2 0.6 (experimental)")
   (print (prompt))
   (log-debug tlog "Started Terminal 2")
   ;create child and send args
