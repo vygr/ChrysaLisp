@@ -578,7 +578,6 @@ Super Class: view
 ```lisp
 inputs
 r0 = view object (ptr)
-r1 = draw ctx (ptr)
 outputs
 r0 = view object (ptr)
 trashes
@@ -594,7 +593,6 @@ Super Class: label
 ```lisp
 inputs
 r0 = button object (ptr)
-r1 = draw ctx (ptr)
 outputs
 r0 = button object (ptr)
 trashes
@@ -793,7 +791,6 @@ r1-r14
 ```lisp
 inputs
 r0 = canvas object (ptr)
-r1 = draw ctx (ptr)
 outputs
 r0 = canvas object (ptr)
 trashes
@@ -1058,7 +1055,7 @@ Super Class: null
 
 ```lisp
 inputs
-r0 = draw ctx (ptr)
+r0 = view object (ptr)
 r7 = x (pixels)
 r8 = y (pixels)
 r9 = width (pixels)
@@ -1071,7 +1068,7 @@ r0-r14
 
 ```lisp
 inputs
-r0 = draw ctx (ptr)
+r0 = view object (ptr)
 r7 = x (pixels)
 r8 = y (pixels)
 r9 = width (pixels)
@@ -1084,7 +1081,7 @@ r0-r14
 
 ```lisp
 inputs
-r0 = draw ctx (ptr)
+r0 = view object (ptr)
 r1 = texture id (ulong)
 r2 = color mod (argb)
 r7 = x (pixels)
@@ -1099,7 +1096,7 @@ r0-r14
 
 ```lisp
 inputs
-r3 = draw ctx (ptr)
+r3 = view object (ptr)
 r1 = color (argb)
 trashes
 r0-r14
@@ -1109,7 +1106,7 @@ r0-r14
 
 ```lisp
 inputs
-r0 = draw ctx (ptr)
+r0 = view object (ptr)
 r1 = color (argb)
 r2 = flags (ulong)
 r3 = depth (int)
@@ -2550,7 +2547,6 @@ Super Class: view
 ```lisp
 inputs
 r0 = label object (ptr)
-r1 = draw ctx (ptr)
 outputs
 r0 = label object (ptr)
 trashes
@@ -5242,7 +5238,6 @@ Super Class: view
 ```lisp
 inputs
 r0 = window object (ptr)
-r1 = draw ctx (ptr)
 outputs
 r0 = window object (ptr)
 trashes
@@ -5936,7 +5931,6 @@ Super Class: view
 ```lisp
 inputs
 r0 = window object (ptr)
-r1 = draw ctx (ptr)
 outputs
 r0 = window object (ptr)
 trashes
@@ -8421,7 +8415,6 @@ Super Class: view
 ```lisp
 inputs
 r0 = text object (ptr)
-r1 = draw ctx (ptr)
 outputs
 r0 = text object (ptr)
 trashes
@@ -8437,7 +8430,6 @@ Super Class: label
 ```lisp
 inputs
 r0 = textfield object (ptr)
-r1 = draw ctx (ptr)
 outputs
 r0 = textfield object (ptr)
 trashes
@@ -8580,7 +8572,6 @@ r1-r14
 ```lisp
 inputs
 r0 = view object (ptr)
-r1 = draw ctx (ptr)
 outputs
 r0 = view object (ptr)
 trashes
@@ -8836,7 +8827,6 @@ r1-r14
 ```lisp
 inputs
 r0 = view object (ptr)
-r1 = draw ctx (ptr)
 outputs
 r0 = view object (ptr)
 trashes
@@ -9074,7 +9064,6 @@ Super Class: view
 ```lisp
 inputs
 r0 = window object (ptr)
-r1 = draw ctx (ptr)
 outputs
 r0 = window object (ptr)
 trashes

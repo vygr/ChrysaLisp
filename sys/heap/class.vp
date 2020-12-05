@@ -177,10 +177,10 @@
 		(loop-start)
 			(vp-cpy-rr cel cel_last)
 			(vp-cpy-ir cel ln_fnode_next cel)
-			(continueif `(,cel = 0) 'block_loop)
+			(continueif (list cel '= 0) 'block_loop)
 
 			;is free cell within this block
-			(continueif `(,cel < ,blk) `(,cel >= ,blk_end))
+			(continueif (list cel '< blk) (list cel '>= blk_end))
 
 			;transfer to blocks free list
 			(vp-cpy-rr cel r0)
@@ -193,7 +193,7 @@
 
 			;count down cells, do we have them all
 			(vp-sub-cr 1 cel_cnt)
-			(continueif `(,cel_cnt /= 0))
+			(continueif (list cel_cnt '/= 0))
 
 			;free the block
 			(vp-cpy-rr blk r0)

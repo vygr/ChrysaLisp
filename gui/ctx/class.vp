@@ -1,12 +1,14 @@
 (include "sys/func.inc")
 (include "sys/pii/class.inc")
 (include "gui/ctx/class.inc")
+(include "gui/gui/class.inc")
+(include "gui/view/class.inc")
 (include "gui/region/class.inc")
 (include "gui/pixmap/class.inc")
 
 (def-method 'ctx :set_color)
 	;inputs
-	;r3 = draw ctx (ptr)
+	;r3 = view object (ptr)
 	;r1 = color (argb)
 	;trashes
 	;r0-r14
@@ -15,7 +17,8 @@
 
 	(entry 'ctx :set_color '(r3 r1))
 
-	(assign '((r3 ctx_sdl_ctx) r1 r1 r1 r1) `(,ctx ,a ,r ,g ,b))
+	(f-bind 'gui :statics r14)
+	(assign '(r1 r1 r1 r1 (r14 gui_statics_renderer)) `(,a ,r ,g ,b ,ctx))
 	(vp-shr-cr 24 a)
 	(vp-shr-cr 16 r)
 	(vp-shr-cr 8 g)
@@ -30,8 +33,8 @@
 
 (defun for-each-visible-rect (_)
 	;for each rect on the dirty region
-	(assign '((rsp local_ctx)) '(r0))
-	(assign '((r0 ctx_dirty_region)) '(r0))
+	(assign '((rsp local_this)) '(r0))
+	(assign '((& r0 view_dirty_region)) '(r0))
 	(loop-flist r0 0 r0 r0)
 		(assign '(r0) '((rsp local_dirty_rect)))
 
@@ -48,8 +51,8 @@
 		(vp-sub-rr r8 r10)
 		(assign '(r7 r8 r9 r10) '((rsp (+ local_clip_rect sdl_rect_x) i) (rsp (+ local_clip_rect sdl_rect_y) i)
 			(rsp (+ local_clip_rect sdl_rect_w) i) (rsp (+ local_clip_rect sdl_rect_h) i)))
-		(assign '((rsp local_ctx)) '(r0))
-		(host-call 'host :sdl_render_set_clip_rect '((r0 ctx_sdl_ctx) (& rsp local_clip_rect)))
+		(f-bind 'gui :statics r0)
+		(host-call 'host :sdl_render_set_clip_rect '((r0 gui_statics_renderer) (& rsp local_clip_rect)))
 
 		;eval body
 		(exec _)
@@ -59,7 +62,7 @@
 
 (def-method 'ctx :blit 16)
 	;inputs
-	;r0 = draw ctx (ptr)
+	;r0 = view object (ptr)
 	;r1 = texture id (ulong)
 	;r2 = color mod (argb)
 	;r7 = x (pixels)
@@ -74,7 +77,7 @@
 		(struct 'srect 'sdl_rect)
 		(struct 'clip_rect 'sdl_rect)
 		(ulong 'texture)
-		(ptr 'ctx 'dirty_rect 'old_stack)
+		(ptr 'this 'dirty_rect 'old_stack)
 	(def-struct-end)
 
 	(vp-cpy-rr rsp r3)
@@ -83,7 +86,7 @@
 	(assign '(r3) '((rsp local_old_stack)))
 
 	;save draw rectangle info
-	(assign '((r0 ctx_x) (r0 ctx_y) r0 r1) '(r11 r12 (rsp local_ctx) (rsp local_texture)))
+	(assign '((r0 view_ctx_x) (r0 view_ctx_y) r0 r1) '(r11 r12 (rsp local_this) (rsp local_texture)))
 	(vp-add-rr r11 r7)
 	(vp-add-rr r12 r8)
 	(assign '(r7 r8 r9 r10) '((rsp (+ local_drect sdl_rect_x) i) (rsp (+ local_drect sdl_rect_y) i)
@@ -105,8 +108,8 @@
 	(for-each-visible-rect
 		'(progn
 			;blit the texture
-			(assign '((rsp local_ctx)) '(r0))
-			(host-call 'host :sdl_render_copy '((r0 ctx_sdl_ctx) (rsp local_texture) (& rsp local_srect) (& rsp local_drect)))))
+			(f-bind 'gui :statics r0)
+			(host-call 'host :sdl_render_copy '((r0 gui_statics_renderer) (rsp local_texture) (& rsp local_srect) (& rsp local_drect)))))
 
 	(vp-cpy-ir rsp local_old_stack rsp)
 	(vp-ret)
@@ -115,7 +118,7 @@
 
 (def-method 'ctx :box 16)
 	;inputs
-	;r0 = draw ctx (ptr)
+	;r0 = view object (ptr)
 	;r7 = x (pixels)
 	;r8 = y (pixels)
 	;r9 = width (pixels)
@@ -126,7 +129,7 @@
 	(def-struct 'local)
 		(struct 'drect 'sdl_rect)
 		(struct 'clip_rect 'sdl_rect)
-		(ptr 'ctx 'dirty_rect 'old_stack)
+		(ptr 'this 'dirty_rect 'old_stack)
 	(def-struct-end)
 
 	(vp-cpy-rr rsp r3)
@@ -135,8 +138,8 @@
 	(assign '(r3) '((rsp local_old_stack)))
 
 	;save draw rectangle info
-	(assign '(r0) '((rsp local_ctx)))
-	(assign '((r0 ctx_x) (r0 ctx_y)) '(r11 r12))
+	(assign '(r0) '((rsp local_this)))
+	(assign '((r0 view_ctx_x) (r0 view_ctx_y)) '(r11 r12))
 	(vp-add-rr r11 r7)
 	(vp-add-rr r12 r8)
 	(assign '(r7 r8 r9 r10) '((rsp (+ local_drect sdl_rect_x) i) (rsp (+ local_drect sdl_rect_y) i)
@@ -145,8 +148,8 @@
 	(for-each-visible-rect
 		'(progn
 			;draw the rectangle
-			(assign '((rsp local_ctx)) '(r0))
-			(host-call 'host :sdl_render_draw_rect '((r0 ctx_sdl_ctx) (& rsp local_drect)))))
+			(f-bind 'gui :statics r0)
+			(host-call 'host :sdl_render_draw_rect '((r0 gui_statics_renderer) (& rsp local_drect)))))
 
 	(vp-cpy-ir rsp local_old_stack rsp)
 	(vp-ret)
@@ -155,7 +158,7 @@
 
 (def-method 'ctx :filled_box 16)
 	;inputs
-	;r0 = draw ctx (ptr)
+	;r0 = view object (ptr)
 	;r7 = x (pixels)
 	;r8 = y (pixels)
 	;r9 = width (pixels)
@@ -166,7 +169,7 @@
 	(def-struct 'local)
 		(struct 'drect 'sdl_rect)
 		(struct 'clip_rect 'sdl_rect)
-		(ptr 'ctx 'dirty_rect 'old_stack)
+		(ptr 'this 'dirty_rect 'old_stack)
 	(def-struct-end)
 
 	(vp-cpy-rr rsp r3)
@@ -175,8 +178,8 @@
 	(assign '(r3) '((rsp local_old_stack)))
 
 	;save draw rectangle info
-	(assign '(r0) '((rsp local_ctx)))
-	(assign '((r0 ctx_x) (r0 ctx_y)) '(r11 r12))
+	(assign '(r0) '((rsp local_this)))
+	(assign '((r0 view_ctx_x) (r0 view_ctx_y)) '(r11 r12))
 	(vp-add-rr r11 r7)
 	(vp-add-rr r12 r8)
 	(assign '(r7 r8 r9 r10) '((rsp (+ local_drect sdl_rect_x) i) (rsp (+ local_drect sdl_rect_y) i)
@@ -185,8 +188,8 @@
 	(for-each-visible-rect
 		'(progn
 			;draw the rectangle
-			(assign '((rsp local_ctx)) '(r0))
-			(host-call 'host :sdl_render_fill_rect '((r0 ctx_sdl_ctx) (& rsp local_drect)))))
+			(f-bind 'gui :statics r0)
+			(host-call 'host :sdl_render_fill_rect '((r0 gui_statics_renderer) (& rsp local_drect)))))
 
 	(vp-cpy-ir rsp local_old_stack rsp)
 	(vp-ret)
@@ -195,7 +198,7 @@
 
 (def-method 'ctx :panel)
 	;inputs
-	;r0 = draw ctx (ptr)
+	;r0 = view object (ptr)
 	;r1 = color (argb)
 	;r2 = flags (ulong)
 	;r3 = depth (int)
@@ -207,7 +210,7 @@
 	;r0-r14
 
 	(def-struct 'local)
-		(ptr 'ctx)
+		(ptr 'this)
 		(long 'flags)
 		(uint 'color)
 		(int 'depth 'x 'y 'w 'h)
@@ -216,7 +219,7 @@
 	;save inputs
 	(vp-alloc local_size)
 	(assign '(r0 r1 r2 r3 r7 r8 r9 r10)
-		'((rsp local_ctx) (rsp local_color) (rsp local_flags) (rsp local_depth)
+		'((rsp local_this) (rsp local_color) (rsp local_flags) (rsp local_depth)
 		(rsp local_x) (rsp local_y) (rsp local_w) (rsp local_h)))
 
 	(vpif '(r2 /= 0))
@@ -230,27 +233,27 @@
 		(vp-shl-cr 1 r11)
 		(vp-sub-rr r11 r9)
 		(vp-sub-rr r11 r10)
-		(call 'ctx :filled_box '((rsp local_ctx) r7 r8 r9 r10))
+		(call 'ctx :filled_box '((rsp local_this) r7 r8 r9 r10))
 	(endif)
 
 	(assign '((rsp local_depth)) '(r11))
 	(vpif '(r11 > 0))
 		;brighter color
 		(call 'pixmap :brighter '((rsp local_color)) '(r1))
-		(call 'ctx :set_color '((rsp local_ctx) r1))
+		(call 'ctx :set_color '((rsp local_this) r1))
 
 		;fill left edge and top
 		(assign '((rsp local_x) (rsp local_y) (rsp local_w) (rsp local_depth)) '(r7 r8 r9 r10))
-		(call 'ctx :filled_box '((rsp local_ctx) r7 r8 r9 r10))
+		(call 'ctx :filled_box '((rsp local_this) r7 r8 r9 r10))
 
 		(assign '((rsp local_x) (rsp local_y) (rsp local_h) (rsp local_depth)) '(r7 r8 r10 r9))
 		(vp-add-rr r9 r8)
 		(vp-sub-rr r9 r10)
-		(call 'ctx :filled_box '((rsp local_ctx) r7 r8 r9 r10))
+		(call 'ctx :filled_box '((rsp local_this) r7 r8 r9 r10))
 
 		;darker color
 		(call 'pixmap :darker '((rsp local_color)) '(r1))
-		(call 'ctx :set_color '((rsp local_ctx) r1))
+		(call 'ctx :set_color '((rsp local_this) r1))
 
 		;fill bottom edge and right
 		(assign '((rsp local_x) (rsp local_y) (rsp local_w) (rsp local_h) (rsp local_depth)) '(r7 r8 r9 r10 r11))
@@ -258,7 +261,7 @@
 		(vp-sub-rr r11 r9)
 		(vp-add-rr r10 r8)
 		(vp-sub-rr r11 r8)
-		(call 'ctx :filled_box '((rsp local_ctx) r7 r8 r9 r11))
+		(call 'ctx :filled_box '((rsp local_this) r7 r8 r9 r11))
 
 		(assign '((rsp local_x) (rsp local_y) (rsp local_w) (rsp local_h) (rsp local_depth)) '(r7 r8 r9 r10 r11))
 		(vp-add-rr r9 r7)
@@ -266,7 +269,7 @@
 		(vp-add-rr r11 r8)
 		(vp-sub-rr r11 r10)
 		(vp-sub-rr r11 r10)
-		(call 'ctx :filled_box '((rsp local_ctx) r7 r8 r11 r10))
+		(call 'ctx :filled_box '((rsp local_this) r7 r8 r11 r10))
 	(else)
 		;sunken panel
 		(vp-mul-cr -1 r11)
@@ -274,34 +277,34 @@
 
 		;darker color
 		(call 'pixmap :darker '((rsp local_color)) '(r1))
-		(call 'ctx :set_color '((rsp local_ctx) r1))
+		(call 'ctx :set_color '((rsp local_this) r1))
 
 		;fill left edge and top
 		(assign '((rsp local_x) (rsp local_y) (rsp local_w) (rsp local_depth)) '(r7 r8 r9 r10))
 		(vp-sub-rr r10 r9)
-		(call 'ctx :filled_box '((rsp local_ctx) r7 r8 r9 r10))
+		(call 'ctx :filled_box '((rsp local_this) r7 r8 r9 r10))
 
 		(assign '((rsp local_x) (rsp local_y) (rsp local_h) (rsp local_depth)) '(r7 r8 r10 r9))
 		(vp-add-rr r9 r8)
 		(vp-sub-rr r9 r10)
 		(vp-sub-rr r9 r10)
-		(call 'ctx :filled_box '((rsp local_ctx) r7 r8 r9 r10))
+		(call 'ctx :filled_box '((rsp local_this) r7 r8 r9 r10))
 
 		;brighter color
 		(call 'pixmap :brighter '((rsp local_color)) '(r1))
-		(call 'ctx :set_color '((rsp local_ctx) r1))
+		(call 'ctx :set_color '((rsp local_this) r1))
 
 		;fill bottom edge and right
 		(assign '((rsp local_x) (rsp local_y) (rsp local_w) (rsp local_h) (rsp local_depth)) '(r7 r8 r9 r10 r11))
 		(vp-add-rr r10 r8)
 		(vp-sub-rr r11 r8)
-		(call 'ctx :filled_box '((rsp local_ctx) r7 r8 r9 r11))
+		(call 'ctx :filled_box '((rsp local_this) r7 r8 r9 r11))
 
 		(assign '((rsp local_x) (rsp local_y) (rsp local_w) (rsp local_h) (rsp local_depth)) '(r7 r8 r9 r10 r11))
 		(vp-add-rr r9 r7)
 		(vp-sub-rr r11 r7)
 		(vp-sub-rr r11 r10)
-		(call 'ctx :filled_box '((rsp local_ctx) r7 r8 r11 r10))
+		(call 'ctx :filled_box '((rsp local_this) r7 r8 r11 r10))
 	(endif)
 
 	(vp-free local_size)

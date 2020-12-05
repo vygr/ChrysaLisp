@@ -188,7 +188,7 @@
 
 (errorcases
 	(call 'obj :inst_of (cat {iter_begin[0], @} (f-path 'stream :vtable)))
-	(gotoif `(,(method-output 'obj :inst_of 1) = 0) 'error2))
+	(gotoif (list (method-output 'obj :inst_of 1) '= 0) 'error2))
 
 	(assign {length, 1} '(r0 r1))
 	(vpif '(r0 = 2))
@@ -363,17 +363,17 @@
 
 	(assign `((,args array_length)) `(,value))
 (errorcases
-	(gotoif `(,value < 2) 'error1)
-	(gotoif `(,value > 3) 'error1))
+	(gotoif (list value '< 2) 'error1)
+	(gotoif (list value '> 3) 'error1))
 	(assign `((,args array_begin)) `(,iter_begin))
 	(assign `((,iter_begin 0)) `(,stream))
 
 (errorcases
 	(call 'obj :inst_of `(,stream (@ ,(f-path 'stream :vtable))))
-	(gotoif `(,(method-output 'obj :inst_of 1) = 0) 'error2))
+	(gotoif (list (method-output 'obj :inst_of 1) '= 0) 'error2))
 
 	(vp-cpy-cr 1 width)
-	(vpif `(,value = 3))
+	(vpif (list value '= 3))
 		(assign `((,iter_begin ,(* ptr_size 2))) '(r0))
 	(errorcases
 		(assign `((@ ,(f-path 'num :vtable)) (r0 obj_vtable)) '(r1 r2))
@@ -389,7 +389,7 @@
 	(vpif '(r0 = r1))
 	(errorcases
 		(call 'lisp :env_args_type `(,value (@ ,(f-path 'num :vtable)) 1))
-		(gotoif `(,(method-output 'lisp :env_args_type 0) = 0) 'error3))
+		(gotoif (list (method-output 'lisp :env_args_type 0) '= 0) 'error3))
 		(class/array/get_both value iter_begin iter_end)
 		(loop-start)
 			(vp-push this stream width iter_begin iter_end)
@@ -397,11 +397,11 @@
 			(call 'stream :write `(,stream (& ,value num_value) ,width))
 			(vp-pop this stream width iter_begin iter_end)
 			(vp-add-cr ptr_size iter_begin)
-		(loop-until `(,iter_begin = ,iter_end))
+		(loop-until (list iter_begin '= iter_end))
 	(else)
 	(errorcases
 		(call 'obj :inst_of `(,value (@ ,(f-path 'num :vtable))))
-		(gotoif `(,(method-output 'obj :inst_of 1) = 0) 'error3))
+		(gotoif (list (method-output 'obj :inst_of 1) '= 0) 'error3))
 		(vp-push this stream)
 		(call 'stream :write `(,stream (& ,value num_value) ,width))
 		(vp-pop this stream)

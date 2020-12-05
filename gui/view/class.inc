@@ -24,7 +24,7 @@
 
 (dec-method :deinit 'gui/view/deinit :override)
 
-(dec-method :draw 'class/view/draw :virtual '(r0 r1) '(r0))
+(dec-method :draw 'class/view/draw :virtual '(r0) '(r0))
 (dec-method :hit 'gui/view/hit :virtual '(r0 r7 r8) '(r0 r1))
 
 (dec-method :lisp_create 'gui/view/lisp_create :static '(r0 r1) '(r0 r1))

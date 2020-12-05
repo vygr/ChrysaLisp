@@ -36,7 +36,7 @@
 		(vp-add-cr hp_heap_size r0)
 		(vp-add-rr r1 r1)
 		(vp-shr-cr 1 r3)
-	(loop-until `(r1 > ,mem_cell_max_size))
+	(loop-until (list r1 '> mem_cell_max_size))
 	(vp-ret)
 
 (def-func-end)
@@ -53,7 +53,7 @@
 		(call 'sys_heap :deinit '(r0) '(r0))
 		(vp-add-cr hp_heap_size r0)
 		(vp-add-rr r6 r6)
-	(loop-until `(r6 > ,mem_cell_max_size))
+	(loop-until (list r6 '> mem_cell_max_size))
 	(vp-ret)
 
 (def-func-end)
@@ -83,7 +83,7 @@
 		(call 'sys_heap :collect '(r0) '(r0))
 		(vp-add-cr hp_heap_size r0)
 		(vp-add-rr r12 r12)
-	(loop-until `(r12 > ,mem_cell_max_size))
+	(loop-until (list r12 '> mem_cell_max_size))
 	(vp-ret)
 
 (def-func-end)
@@ -98,7 +98,7 @@
 	;r0-r2
 
 	(entry 'sys_mem :alloc '(r0))
-	(errorif `(r0 > ,(- mem_cell_max_size sys_mem_header_size)) 'error)
+	(errorif (list r0 '> (- mem_cell_max_size sys_mem_header_size)) 'error)
 
 	;extra bytes for allocation header
 	(vp-lea-i r0 sys_mem_header_size r1)

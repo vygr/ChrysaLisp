@@ -59,20 +59,19 @@
 (def-method 'vdu :draw)
 	;inputs
 	;r0 = view object (ptr)
-	;r1 = draw ctx (ptr)
 	;outputs
 	;r0 = view object (ptr)
 	;trashes
 	;r1-r14
 
-	(ptr 'this 'ctx 'txt 'font)
+	(ptr 'this 'txt 'font)
 	(ulong 'handle 'c)
 	(int 'x 'bx 'by 'bx1 'by1)
 	(uint 'w 'h 'col 'paper 'ink)
 
 	;save inputs
 	(push-scope)
-	(entry 'vdu :draw {this, ctx})
+	(entry 'vdu :draw {this})
 
 	;get properties, do checks for any changes
 	(call 'vdu :get_long_prop {this, static_sym_ink_color} {_, col})
@@ -82,11 +81,11 @@
 
 	;draw vdu chars
 	(vpif {font && this->vdu_chars && this->vdu_textures})
-		(call 'region :bounds {ctx->ctx_dirty_region} {bx, by, bx1, by1})
-		(assign {(bx - ctx->ctx_x) / this->vdu_char_width} {bx})
-		(assign {(bx1 - ctx->ctx_x - 1) / this->vdu_char_width} {bx1})
-		(assign {(by - ctx->ctx_y) / this->vdu_char_height} {by})
-		(assign {(by1 - ctx->ctx_y - 1) / this->vdu_char_height} {by1})
+		(call 'region :bounds {&this->view_dirty_region} {bx, by, bx1, by1})
+		(assign {(bx - this->view_ctx_x) / this->vdu_char_width} {bx})
+		(assign {(bx1 - this->view_ctx_x - 1) / this->vdu_char_width} {bx1})
+		(assign {(by - this->view_ctx_y) / this->vdu_char_height} {by})
+		(assign {(by1 - this->view_ctx_y - 1) / this->vdu_char_height} {by1})
 		(vpif {bx1 >= this->vdu_width})
 			(assign {this->vdu_width - 1} {bx1})
 		(endif)
@@ -112,15 +111,15 @@
 				(endif)
 				(vpif {paper})
 					;do we have any paper to draw ?
-					(call 'ctx :set_color {ctx, paper})
-					(call 'ctx :filled_box {ctx, x * this->vdu_char_width, by * this->vdu_char_height, this->vdu_char_width, this->vdu_char_height})
+					(call 'ctx :set_color {this, paper})
+					(call 'ctx :filled_box {this, x * this->vdu_char_width, by * this->vdu_char_height, this->vdu_char_width, this->vdu_char_height})
 				(endif)
 				(vpif {(c & 0x7fffffff => c) > +char_space+})
 					(breakif {c > 127})
 					(call 'list :get_element {this->vdu_textures, c - 33} {_, txt})
 					(call 'texture :get_metrics {txt} {_, handle, w ,h})
 					(vpif {handle})
-						(call 'ctx :blit {ctx, handle, ink, x * this->vdu_char_width + ((this->vdu_char_width - w) >>> 1), by * this->vdu_char_height, w, h})
+						(call 'ctx :blit {this, handle, ink, x * this->vdu_char_width + ((this->vdu_char_width - w) >>> 1), by * this->vdu_char_height, w, h})
 					(endif)
 				(endif)
 				(assign {x + 1} {x})

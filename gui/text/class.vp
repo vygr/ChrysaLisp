@@ -8,20 +8,19 @@
 (def-method 'text :draw)
 	;inputs
 	;r0 = text object (ptr)
-	;r1 = draw ctx (ptr)
 	;outputs
 	;r0 = text object (ptr)
 	;trashes
 	;r1-r14
 
-	(ptr 'this 'ctx 'txt 'font 'str)
+	(ptr 'this 'txt 'font 'str)
 	(ulong 'handle)
 	(int 'w 'h)
 	(uint 'col)
 
 	;save inputs
 	(push-scope)
-	(entry 'text :draw {this, ctx})
+	(entry 'text :draw {this})
 
 	;get properties, do checks for any changes
 	(call 'text :get_long_prop {this, static_sym_ink_color} {_, col})
@@ -34,7 +33,7 @@
 		(call 'font :sym_texture {font, str} {_, txt})
 		(vpif {txt})
 			(call 'texture :get_metrics {txt} {_, handle, w, h})
-			(call 'ctx :blit {ctx, handle, col, 0, (this->view_h - h) >>> 1, w, h})
+			(call 'ctx :blit {this, handle, col, 0, (this->view_h - h) >>> 1, w, h})
 			(call 'texture :deref {txt})
 		(endif)
 		(call 'sym :deref {str})

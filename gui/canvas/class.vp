@@ -141,23 +141,22 @@
 (def-method 'canvas :draw)
 	;inputs
 	;r0 = canvas object (ptr)
-	;r1 = draw ctx (ptr)
 	;outputs
 	;r0 = canvas object (ptr)
 	;trashes
 	;r1-r14
 
-	(ptr 'this 'ctx)
+	(ptr 'this)
 	(ulong 'handle)
 	(int 'tw 'th)
 
 	(push-scope)
-	(entry 'canvas :draw {this, ctx})
+	(entry 'canvas :draw {this})
 
 	;blit any texture
 	(vpif {this->canvas_texture})
 		(call 'texture :get_metrics {this->canvas_texture} {_, handle, tw, th})
-		(call 'ctx :blit {ctx, handle, 0xffffff, (this->view_w - tw) >>> 1, (this->view_h - th) >>> 1, tw, th})
+		(call 'ctx :blit {this, handle, 0xffffff, (this->view_w - tw) >>> 1, (this->view_h - th) >>> 1, tw, th})
 	(endif)
 
 	(exit 'canvas :draw {this})

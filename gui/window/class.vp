@@ -6,21 +6,20 @@
 (def-method 'window :draw)
 	;inputs
 	;r0 = window object (ptr)
-	;r1 = draw ctx (ptr)
 	;outputs
 	;r0 = window object (ptr)
 	;trashes
 	;r1-r14
 
 	(def-struct 'local)
-		(ptr 'this 'ctx)
+		(ptr 'this)
 		(int 'border 'shadow)
 		(uint 'color)
 	(def-struct-end)
 
 	(vp-alloc local_size)
-	(entry 'window :draw '(r0 r1))
-	(assign '(r0 r1) '((rsp local_this) (rsp local_ctx)))
+	(entry 'window :draw '(r0))
+	(assign '(r0) '((rsp local_this)))
 
 	;draw panel
 	(call 'window :get_long_prop '(r0 static_sym_border) '(r0 (rsp local_border)))
@@ -32,7 +31,7 @@
 	(vp-sub-rr r1 r9)
 	(vp-sub-rr r1 r10)
 	(vp-sub-rr r1 r10)
-	(call 'ctx :panel '((rsp local_ctx) (rsp local_color) 1 (rsp local_border) r1 r1 r9 r10))
+	(call 'ctx :panel '((rsp local_this) (rsp local_color) 1 (rsp local_border) r1 r1 r9 r10))
 	(assign '(0x80000000) '(r1))
 	(assign '(r1) '((rsp local_color)))
 	(loop-start)
@@ -40,7 +39,7 @@
 		(breakif '(r7 <= 0))
 		(assign '((rsp local_color)) '(r1))
 		(breakif '(r1 = 0))
-		(call 'ctx :set_color '((rsp local_ctx) r1))
+		(call 'ctx :set_color '((rsp local_this) r1))
 		(assign '((rsp local_color) 0xff000000 (rsp local_this) (rsp local_shadow)) '(r1 r2 r0 r7))
 		(vp-sub-cr 1 r7)
 		(vp-cpy-rr r1 r3)
@@ -56,7 +55,7 @@
 		(vp-sub-rr r7 r9)
 		(vp-sub-rr r7 r10)
 		(vp-sub-rr r7 r10)
-		(call 'ctx :box '((rsp local_ctx) r7 r7 r9 r10))
+		(call 'ctx :box '((rsp local_this) r7 r7 r9 r10))
 	(loop-end)
 
 	(exit 'window :draw '((rsp local_this)))

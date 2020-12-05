@@ -8,8 +8,3 @@
 (dec-method :panel 'gui/ctx/panel :static '(r0 r1 r2 r3 r7 r8 r9 r10))
 
 ; (dec-method :debug 'gui/ctx/debug :static '(r0 r7 r8 r9 r10))
-
-(def-struct 'ctx)
-	(ptr 'sdl_ctx 'dirty_region)
-	(int 'x 'y)
-(def-struct-end)
