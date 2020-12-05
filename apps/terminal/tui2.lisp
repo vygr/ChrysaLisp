@@ -94,9 +94,10 @@
   (prtnl "Additioinal Commands:")
   (prtnl " ls   List directory content. Usage:")
   (prtnl "    >ls     ; Lists current working directory files")
-  (prtnl "    >ls arg ; List directory content of arg path")
   (prtnl "")
-  (prtnl " cd     Change directory (not implemented)")
+  (prtnl " cd   Change directory. Usage:")
+  (prtnl "    >cd newpath ; Change directory to newpath")
+  (prtnl "")
   (prtnl " cp     Copies a file (not implemented)")
   (prtnl " mkdir  Makes a directory (not implemented)")
   (prtnl " mv     Moves a file (not implemented)")
@@ -185,7 +186,7 @@
   (when (not (gets-enval "TZ"))
     (exports-keyvals! "TZ" (first tzone)))
   ;sign on msg
-  (prtnl "ChrysaLisp Terminal-2 0.5 (experimental)")
+  (prtnl "ChrysaLisp Terminal-2 0.6 (experimental)")
   (print (prompt))
   (log-debug tlog "Started Terminal 2")
   ;create child and send args

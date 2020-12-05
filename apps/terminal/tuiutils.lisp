@@ -47,7 +47,11 @@
   ; Changes the working directory
   ; Implement by adding chdir and getcwd in main.c and
   ; calling from here
-  (not-impl ic)
+  (bind '(sargs flags paths) (_split-args args))
+  (if (or (= (length paths) 0) (> (length paths) 1))
+      (prtnl "Usage: cd pathname")
+      (catch (change-dir (first paths))
+        (prtnl (str "cd " (first paths) ": is not a valid path"))))
   nil)
 
 (defun make-directory (ic &optional args)
@@ -127,6 +131,4 @@
 (defun setup-pathing ()
   ; (setup-pathing) -> nil
   ; Sets current path to last working directory
-  (change-dir (gets-enval "PWD"))
-  ; (setq current_path (initialize-path (gets rm "PWD") (gets rm "PATH_SEP")))
-  )
+  (change-dir (gets-enval "PWD")))

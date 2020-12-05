@@ -5,6 +5,11 @@
 
 ------
 
+New `lib/clenv/clenv.inc` library for accessing `.hostenv` variable assignments.
+
+Updates to `apps/terminal/tui2.lisp` and `lib/collections/xnode.inc`to increase
+shell functionality.
+
 `(stream-seek)` and `(pii-fstat)` support. `(age)` now just a wrapper to
 `(pii-fstat)`
 
