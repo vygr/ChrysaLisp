@@ -119,7 +119,7 @@
       (t
         (str nm suffix))))
 
-  (defmethod :child_for_name (this namestr)
+  (defmethod :child_for_node_name (this namestr)
     (gets (get :children_nodes this) namestr))
 
   (when parent

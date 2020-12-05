@@ -4,10 +4,6 @@
 
 (import "lib/pathnode/pathnode.inc")
 
-(defq
-  current_path  nil
-  +tenv-file+   "apps/terminal/.hostenv" )
-
 ;override print for TUI output
 (defun print (_)
   (each (lambda (c)
@@ -51,7 +47,11 @@
   ; Changes the working directory
   ; Implement by adding chdir and getcwd in main.c and
   ; calling from here
-  (not-impl ic)
+  (bind '(sargs flags paths) (_split-args args))
+  (if (or (= (length paths) 0) (> (length paths) 1))
+      (prtnl "Usage: cd pathname")
+      (catch (change-dir (first paths))
+        (prtnl (str "cd " (first paths) ": is not a valid path"))))
   nil)
 
 (defun make-directory (ic &optional args)
@@ -92,38 +92,34 @@
   ; Lists files in either cwd or other in argument
   ; emulates Linux/Darwin 'ls' command
   ; Flags include
-  ; -? TBD
-  ; (bind '(sargs flags paths) (_split-args args))
-  ; (defq
-  ;   flgs  (_collapse_flags flags)
-  ;   ; flist (file-lists
-  ;   ;         (if (empty? paths)
-  ;   ;             (list (gets session "PWD"))
-  ;   ;             paths))
-  ;   )
-  ; (prtnl (str "Root = " (. (. current_path :root_node) :unique_id)))
-  ; (prtnl (if (path-node? current_path) "Path Node"))
-  ; (prtnl (if (named-xnode? current_path) "Named Node"))
-  ; (prtnl (if (xnode? current_path) "Xnode"))
-  ; (prtnl (str "Listing for " (. current_path :full_name)))
-  (each prtnl (. current_path :all-members))
-  ; (each (lambda (_el) (prtnl (first _el)))
-  ;       (. current_path :siblings))
-  ; (cond
-  ;   ; Long listing for all (files and dirs)
-  ;   ((and (gets flgs "l") (gets flgs "a"))
-  ;    )
-  ;   ; Long listing for files only
-  ;   ((gets flgs "l")
-  ;    )
-  ;   ; Short listing for all
-  ;   ((gets flgs "a")
-  ;    )
-  ;   ; Short listing for files only
-  ;   (t
-  ;     (each (lambda (_)
-  ;             (prtnl (first _))
-  ;             (each prtnl (files-only-short (first (rest _))))) flist)))
+  ; -l List in long format
+  ; -d directories only
+  ; -f files only
+  ; -a All, include directory entries whose names begin with a dot (.)
+  (bind '(sargs flags paths) (_split-args args))
+  (defq
+    flgs  (_collapse_flags flags)
+    flist (if (nempty? paths) paths (list "."))
+    frmt  _pn-name-only
+    fltr  _pn_short-filter
+    mlst  :all-members)
+  (each (lambda (el)
+          (cond
+            ((eql el "l")
+             (setq frmt
+                   (lambda ((_fn _fm))
+                     (str "FL:" _fn))))
+            ((eql el "a")
+             (setq
+                mlst :all-members
+                fltr _pn-all-filter))
+            ((eql el "d")
+             (setq fltr _pn-dir-filter))
+            ((eql el "f")
+             (setq fltr _pn-file-filter))
+            (t t))) (entries flgs))
+
+  (each prtnl (. _current_dir mlst frmt fltr))
   nil)
 
 (defun disp-date (ic &optional args)
@@ -132,57 +128,7 @@
   (prtnl (encode-date))
   nil)
 
-(defun load-envmap (filename)
-  ; (load-envmap filename) -> map
-  ; Loads a map with key/value created from
-  ; key=value
-  ; etc.
-  (defq
-    xm (xmap)
-    fs (file-stream filename))
-  (while (defq ln (read-line fs))
-    (defq splt (split ln "="))
-    (sets! xm (first splt) (second splt)))
-  xm)
-
-(defun save-envmap (xm filename)
-  ; (save-envmap map filename) -> map
-  ; Dumps map to configuration file lines
-  ; key=value
-  ; etc.
-  (defq
-    fs (file-stream filename file_open_write))
-  (each (lambda ((_k _v))
-    (write-line fs (str _k "=" _v))) (entries xm))
-  (stream-flush fs)
-  xm)
-
-(defun load-hostenv ()
-  ; (load-hostenv target-hostenv) -> xmap
-  ; Loads current host environment file
-  ; If not found, bootstraps from ChrysaLisp/.hostenv
-  ; and copies to ChrysaLisp/apps/terminal/.hostenv
-  ; Returns xmap of key/values
-  (defq
-    +source-host-env+ ".hostenv"
-    rm                nil)
-  (when (= (age +source-host-env+) 0)
-    (throw "Host environment file not found " +source-host-env+))
-  (defq
-    hf    (load-envmap +source-host-env+)
-    fsep  (if (eql (gets hf "OS") "Windows") (ascii-char 0x5c) "/"))
-  (setq rm
-    (cond
-      ((= (age +tenv-file+) 0)
-       (save-envmap
-         (sets-pairs!
-           hf
-           "PROMPT"   ">"
-           "LASTC"    nil
-           "PATH"     "cmd;apps"
-           "PATH_SEP" fsep)
-         +tenv-file+))
-      (t
-        (load-envmap +tenv-file+))))
-  (setq current_path (initialize-path (gets rm "PWD") (gets rm "PATH_SEP")))
-  rm)
+(defun setup-pathing ()
+  ; (setup-pathing) -> nil
+  ; Sets current path to last working directory
+  (change-dir (gets-enval "PWD")))
