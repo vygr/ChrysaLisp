@@ -9013,5 +9013,3 @@ trashes
 r1-r14
 ```
 
-### view::lisp_draw -> gui/view/lisp_draw
-

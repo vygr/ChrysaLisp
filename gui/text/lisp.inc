@@ -10,12 +10,14 @@
 	; (Text) -> text
 	; overide the default 'this' env with a text component
 	; inherit from View !
-	(def (defq this (View)) :color 0)
+	(def (defq this (View)) :color 0 :sym_cache nil :text_cache nil)
 
 	(defmethod :draw (this)
 		; (. text :draw) -> text
 		(when (and (defq font (get :font this)) (defq text (get :text this))
-				(defq texture (font-sym-texture font (sym text))))
+				(if (eql (def? :text_cache this) text)
+					(defq texture (font-sym-texture font (get :sym_cache this)))
+					(defq texture (font-sym-texture font (set this :text_cache text :sym_cache (sym text))))))
 			(bind '(tid tw th) (texture-metrics texture))
 			(bind '(w h) (. this :get_size))
 			(. this :ctx_blit tid (get :ink_color this) 0 (>>> (- h th) 1) tw th))

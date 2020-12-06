@@ -47,7 +47,6 @@
 (dec-method :lisp_to_front 'gui/view/lisp_to_front :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_to_back 'gui/view/lisp_to_back :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_emit 'gui/view/lisp_emit :static '(r0 r1) '(r0 r1))
-(dec-method :lisp_draw 'gui/view/lisp_draw :static '(r0 r1) '(r0 r1))
 
 (def-struct 'view 'hmap)
 	(offset 'start)
