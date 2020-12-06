@@ -11,7 +11,7 @@
 
 (defq vdu_min_width 16 vdu_min_height 16
 	vdu_max_width 120 vdu_max_height 50
-	vdu_width 80 vdu_height 50
+	vdu_width 80 vdu_height 50 tabs 4
 	text_buf nil syntax (Syntax) scroll_positions (xmap 101)
 	current_file nil current_button nil)
 
@@ -52,9 +52,19 @@
 	(setq text_buf (list) current_file file)
 	(each-line (lambda (line)
 		(push text_buf (. syntax :colorise
-			(if (> (length line) 0)
-				(apply cat (map (# (if (eql %0 (ascii-char 9)) "    " %0)) line))
-				line))))
+			;tab expantion !
+			(cond
+				((> (length line) 0)
+					(defq cursor 0)
+					(apply cat (map (#
+						(cond
+							((eql %0 (ascii-char 9))
+								(defq padding (- tabs (% cursor tabs)))
+								(setq cursor (+ cursor padding))
+								(slice 0 padding "        "))
+							(t	(setq cursor (inc cursor))
+								%0))) line)))
+				(t	line)))))
 		(file-stream file))
 	(. vdu :load text_buf 0 (set-slider file) 0 -1)
 	(def mytitle :text (cat "Viewer -> " file))

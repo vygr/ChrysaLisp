@@ -72,6 +72,21 @@
 	(deffimethod :emit "gui/view/lisp_emit")
 		; (. view :emit) -> view
 
+	(deffimethod :ctx_set_color "gui/ctx/lisp_set_color")
+		; (. view :ctx_set_color col) -> view
+
+	(deffimethod :ctx_box "gui/ctx/lisp_box")
+		; (. view :ctx_box x y width height) -> view
+
+	(deffimethod :ctx_filled_box "gui/ctx/lisp_filled_box")
+		; (. view :ctx_filled_box x y width height) -> view
+
+	(deffimethod :ctx_blit "gui/ctx/lisp_blit")
+		; (. view :ctx_filled_box tid col x y width height) -> view
+
+	(deffimethod :ctx_panel "gui/ctx/lisp_panel")
+		; (. view :ctx_panel col flags depth x y width height) -> view
+
 	(defmethod :connect (this id)
 		; (. view :connect id) -> view
 		(unless (defq targets (get-field this (const view_target_ids) 0))

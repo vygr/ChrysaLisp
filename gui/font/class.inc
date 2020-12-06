@@ -22,6 +22,7 @@
 (dec-method :lisp_glyph_ranges 'gui/font/lisp_glyph_ranges :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_glyph_paths 'gui/font/lisp_glyph_paths :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_glyph_bounds 'gui/font/lisp_glyph_bounds :static '(r0 r1) '(r0 r1))
+(dec-method :lisp_texture 'gui/font/lisp_texture :static '(r0 r1) '(r0 r1))
 
 (def-struct 'font_statics)
 	(ptr 'intern)

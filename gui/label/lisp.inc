@@ -15,8 +15,10 @@
 	(. this :add_back label_flow)
 	(. label_flow :add_child label_text)
 
-	;draw function for compositor...
-	(deffimethod :draw "gui/label/draw")
+	(defmethod :draw (this)
+		; (. label :draw) -> label
+		(bind '(w h) (. this :get_size))
+		(. this :ctx_panel (get :color this) 1 (get :border this) 0 0 w h))
 
 	(defmethod :add_child (this child)
 		; (. label :add_child child) -> label

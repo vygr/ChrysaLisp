@@ -25,6 +25,7 @@
 (import "gui/view/lisp.inc")
 (import "gui/path/lisp.inc")
 (import "gui/canvas/lisp.inc")
+(import "gui/texture/lisp.inc")
 (import "gui/vdu/lisp.inc")
 (import "gui/font/lisp.inc")
 

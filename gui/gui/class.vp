@@ -6,7 +6,7 @@
 (include "class/sym/class.inc")
 (include "class/list/class.inc")
 (include "gui/region/class.inc")
-(include "gui/backdrop/class.inc")
+(include "gui/view/class.inc")
 (include "gui/view/lisp.inc")
 
 (def-method 'gui :statics)
@@ -52,6 +52,10 @@
 	(call 'list :create nil '(r0))
 	(assign '((rsp local_statics)) '(r1))
 	(assign '(r0) '((r1 gui_statics_temps)))
+
+	;fill in lisp object tls for kernel :lisp_draw callbacks !!!
+	(assign (cat {@} (f-path 'sys_task :statics) {.tk_statics_current_tcb->tk_node_lisp})
+		(cat {@} (f-path 'sys_task :statics) {.tk_statics_kernel_tcb->tk_node_lisp}))
 
 	;gui event loop
 	(call 'sys_task :set_priority '(2))
@@ -212,12 +216,12 @@
 					{user->local_statics->gui_statics_texture}))
 
 				;change backdrop size, send gui event to all top level views
-				(call 'backdrop :set_bounds '{user->local_statics->gui_statics_screen, 0, 0, event.sdl_window_event_data1, event.sdl_window_event_data2})
-				(call 'backdrop :forward {user->local_statics->gui_statics_screen, user, $send_gui_event})
-				(call 'backdrop :set_flags '{user->local_statics->gui_statics_screen, +view_flag_dirty_all+, +view_flag_dirty_all+})
+				(call 'view :set_bounds '{user->local_statics->gui_statics_screen, 0, 0, event.sdl_window_event_data1, event.sdl_window_event_data2})
+				(call 'view :forward {user->local_statics->gui_statics_screen, user, $send_gui_event})
+				(call 'view :set_flags '{user->local_statics->gui_statics_screen, +view_flag_dirty_all+, +view_flag_dirty_all+})
 				(break)
 			(vpcase {event.sdl_window_event_event = SDL_WINDOWEVENT_RESTORED})
-				(call 'backdrop :set_flags '{user->local_statics->gui_statics_screen, +view_flag_dirty_all+, +view_flag_dirty_all+})
+				(call 'view :set_flags '{user->local_statics->gui_statics_screen, +view_flag_dirty_all+, +view_flag_dirty_all+})
 				(break)
 			(endswitch)
 		;;	(break)

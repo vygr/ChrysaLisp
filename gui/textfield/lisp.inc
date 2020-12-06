@@ -3,6 +3,7 @@
 ;;;;;;;;;;;;;;;;;;
 
 (import "gui/label/lisp.inc")
+(import "gui/font/lisp.inc")
 
 (defclass Textfield ()
 	; (Textfield) -> textfield
@@ -10,8 +11,14 @@
 	; inherit from Label !
 	(def (defq this (Label)) :cursor 0)
 
-	;draw function for compositor...
-	(deffimethod :draw "gui/textfield/draw")
+	(defmethod :draw (this)
+		; (. textfield :draw) -> textfield
+		(bind '(w h) (. this :get_size))
+		(. this :ctx_panel (get :color this) 1 (get :border this) 0 0 w h)
+		(when (and (defq font (get :font this)) (defq text (get :text this)))
+			(bind '(tw th) (font-glyph-bounds font (slice 0 (get :cursor this) text)))
+			(.-> this (:ctx_set_color +argb_black+) (:ctx_filled_box tw (>>> (- h th) 1) 2 th)))
+		this)
 
 	(defmethod :key_down (this event)
 		; (. textfield :key_down event) -> textfield

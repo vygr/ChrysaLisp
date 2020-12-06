@@ -56,6 +56,10 @@ ev_msg_mouse_x 20
 ev_msg_mouse_y 24
 ev_type_action 2
 view_target_ids 112
+canvas_texture 176
+texture_handle 16
+texture_width 24
+texture_height 28
 _t_view_id "l"
 _t_ev_msg_action_source_id "L"
 _t_ev_msg_key_key "I"
@@ -85,4 +89,8 @@ _t_pixmap_height "I"
 _t_ev_msg_mouse_x "i"
 _t_ev_msg_mouse_y "i"
 _t_view_target_ids "p"
+_t_canvas_texture "p"
+_t_texture_handle "L"
+_t_texture_width "I"
+_t_texture_height "I"
 )

@@ -20,6 +20,14 @@
 
 (- num num ...)
 
+## backdrop :draw
+
+(. backdrop :draw) -> backdrop
+
+## button :draw
+
+(. button :draw) -> button
+
 ## button :layout
 
 (. button :layout) -> button
@@ -35,6 +43,10 @@
 ## button :mouse_up
 
 (. button :mouse_up event) -> button
+
+## canvas :draw
+
+(. canvas :draw) -> canvas
 
 ## canvas :fbox
 
@@ -140,6 +152,10 @@
 
 (. label :add_child child) -> label
 
+## label :draw
+
+(. label :draw) -> label
+
 ## label :layout
 
 (. label :layout) -> label
@@ -147,6 +163,10 @@
 ## label :pref_size
 
 (. label :pref_size) -> (width height)
+
+## progress :draw
+
+(. progress :draw) -> progress
 
 ## progress :pref_size
 
@@ -168,6 +188,10 @@
 
 (. scroll :pref_size) -> (width height)
 
+## slider :draw
+
+(. slider :draw) -> slider
+
 ## slider :mouse_down
 
 (. slider :mouse_down event) -> slider
@@ -184,9 +208,17 @@
 
 (. slider :pref_size) -> (width height)
 
+## text :draw
+
+(. text :draw) -> text
+
 ## text :pref_size
 
 (. text :pref_size) -> (width height)
+
+## textfield :draw
+
+(. textfield :draw) -> textfield
 
 ## textfield :key_down
 
@@ -271,6 +303,26 @@
 ## view :connect
 
 (. view :connect id) -> view
+
+## view :ctx_box
+
+(. view :ctx_box x y width height) -> view
+
+## view :ctx_filled_box
+
+(. view :ctx_filled_box tid col x y width height) -> view
+
+## view :ctx_filled_box
+
+(. view :ctx_filled_box x y width height) -> view
+
+## view :ctx_panel
+
+(. view :ctx_panel col flags depth x y width height) -> view
+
+## view :ctx_set_color
+
+(. view :ctx_set_color col) -> view
 
 ## view :dirty
 
@@ -359,6 +411,10 @@
 ## window :add_child
 
 (. window :add_child child) -> window
+
+## window :draw
+
+(. window :draw) -> window
 
 ## window :event
 
@@ -660,6 +716,14 @@
 
 (byte field ...)
 
+## canvas-brighter
+
+(canvas-brighter col)
+
+## canvas-darker
+
+(canvas-darker col)
+
 ## canvas-fbox
 
 (canvas-fbox canvas x y w h)
@@ -791,6 +855,26 @@
 ## create-view
 
 (create-view)
+
+## ctx-blit
+
+(ctx-blit view tid col x y w h)
+
+## ctx-box
+
+(ctx-box view x y w h)
+
+## ctx-filled-box
+
+(ctx-filled-box view x y w h)
+
+## ctx-panel
+
+(ctx-panel view col flags depth x y w h)
+
+## ctx-set-color
+
+(ctx-set-color view col)
 
 ## curry
 
@@ -1011,6 +1095,10 @@
 ## font-glyph-ranges
 
 (font-glyph-ranges font)
+
+## font-sym-texture
+
+(font-sym-texture font sym)
 
 ## frac
 
@@ -1823,6 +1911,10 @@
 ## task-sleep
 
 (task-sleep usec)
+
+## texture-metrics
+
+(texture-metrics texture) -> (handle width height)
 
 ## throw
 
