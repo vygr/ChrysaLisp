@@ -203,6 +203,7 @@
   ; Parses a pathname string into a list of path elements
   ; example:
   ; (_path-tolist "/Users/bob/here") -> ("/" "Users") "/" "bob" "/" "here")
+  ; (_path-tolist "/Users/bob/here" "\") -> ("\" "Users") "\" "bob" "\" "here")
   (setd sep _pathseparator)
   (defq
     seed (if (eql (first pathname) sep) (list sep) (list))
@@ -223,7 +224,8 @@
   (setq _current_dir
     (cond
       ; Do nothing
-      ((empty? path-el))
+      ((empty? path-el)
+        _current_dir)
       ; Fully qualified from root
       ((and (eql frstel _pathseparator) (> plen 1))
         (. _pathnoderoot :expandto (slice 1 -1 path-el)))
@@ -232,10 +234,4 @@
         _pathnoderoot)
       ; Relative current path
       (t
-        (. _current_dir :expandto path-el))))
-  _current_dir)
-
-(defun build-path (pathname)
-  ; (build-path pathname) -> path-node
-  ; Parses pathname and returns a sparse path-node tree
-  )
+        (. _current_dir :expandto path-el)))))

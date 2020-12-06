@@ -206,33 +206,40 @@
 
 (defun main ()
   ; Load path-nodes
-  (setup-pathing)
-  ; Sets up timezone
-  (if (nil? (defq tz (gets-enval "TZ")))
-    (exports-keyvals! "TZ" (first (setq tzone (get :local_timezone))))
-    (_set-tz tz))
-
+  (defq continue t)
   ;sign on msg
   (prtnl "ChrysaLisp Terminal-2 0.6 (experimental)")
-  (print (prompt))
   (log-debug tlog "Started Terminal 2")
-  ;create child and send args
-  (mail-send
-    (list (task-mailbox))
-    (open-child "apps/terminal/tui_child.lisp" kn_call_open))
-  (defq cmd nil buffer "")
-  (while t
-    (defq data t)
-    (if cmd (setq data (pipe-read cmd)))
-    (cond
-      ((eql data t)
-        ;normal mailbox event
-        (terminal-input (get-byte (mail-read (task-mailbox)) 0)))
-      ((nil? data)
-        ;pipe is closed
-        (pipe-close cmd)
-        (setq cmd nil)
-        (print (prompt)))
-      (t  ;string from pipe
-        (print data))))
+  (while continue
+    (catch
+      (progn
+        (setup-pathing)
+        ; Sets up timezone
+        (if (nil? (defq tz (gets-enval "TZ")))
+          (exports-keyvals! "TZ" (first (setq tzone (get :local_timezone))))
+          (_set-tz tz))
+        ; Prompt
+        (print (prompt))
+        ;create child and send args
+        (mail-send
+          (list (task-mailbox))
+          (open-child "apps/terminal/tui_child.lisp" kn_call_open))
+        (defq cmd nil buffer "")
+        (while t
+          (defq data t)
+          (if cmd (setq data (pipe-read cmd)))
+          (cond
+            ((eql data t)
+              ;normal mailbox event
+              (terminal-input (get-byte (mail-read (task-mailbox)) 0)))
+            ((nil? data)
+              ;pipe is closed
+              (pipe-close cmd)
+              (setq cmd nil)
+              (print (prompt)))
+            (t  ;string from pipe
+              (print data)))))
+      (progn
+        (prtnl _)
+        (log-debug tlog _))))
   )
