@@ -76,6 +76,7 @@
   nil)
 
 (defun copy-file (ic &optional args)
+  ; (copy-file internal args) -> nil
   (bind '(sargs flags paths) (_split-args args))
   (cond
     ((> (length paths) 2)
@@ -84,6 +85,7 @@
   (not-impl ic))
 
 (defun move-file (ic &optional args)
+  ; (move-file internal args) -> nil
   (bind '(sargs flags paths) (_split-args args))
   (not-impl ic))
 
@@ -125,6 +127,7 @@
 (defun disp-date (ic &optional args)
   ; (disp-date command args) -> nil
   (bind '(sargs flags paths) (_split-args args))
+  (defq :local_timezone tzone)
   (prtnl (encode-date))
   nil)
 

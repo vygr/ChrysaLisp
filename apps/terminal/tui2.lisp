@@ -23,27 +23,47 @@
 (import "lib/pipe/pipe.inc")
 (import "lib/date/date.inc")
 (import "lib/logging/loganchor.inc")
+
+; Setup logging and timezones
+(defq tlog  (log-anchor "tui2"))
+(defq tzone nil)
+
 (import "apps/terminal/tuiutils.lisp")
-
-; Setup logging
-
-(defq tlog (log-anchor "tui2"))
-
-; Much of this should be in separate include
-
-(defq tzone   nil)
 
 (defun prompt ()
   ; (prompt) -> string
   (gets-enval "PROMPT"))
 
+(defun _set-tz (tza)
+  ; (_set-tz timezone-abbreviation) -> nil
+  (defq
+    tz   (timezone-lookup :abbreviation tza))
+  (cond
+    ; Do nothing, they are the same
+    ((and tzone (eql (gets-enval "TZ") tza)))
+     ; We have a hit
+    (tz
+      (log-debug tlog (str "Setting timezone to " tza))
+      (sets-envkvs! "TZ" (first (setq tzone tz))))
+    ; Failed to find
+    (t
+      (prtnl (str tza " not found in timezones")))))
+
 (defun set-session (ic &optional args)
   ; (set-session cmd [args]) -> map
   ; Sets the key (first arg) to remaining values of arg
   ; in the session map
+  ; Special handling is done for "TZ"
   (when args
-    (defq spa (split args " "))
-    (sets-envkvs! (first spa) (join (rest spa) " "))))
+    (defq
+      spa   (split args " ")
+      _key  (first spa)
+      _val  (rest spa))
+    (cond
+      ((eql _key "TZ")
+       (_set-tz (second spa)))
+      (t
+        (sets-envkvs! _key (join _val " "))))))
 
 (defun drop-session (ic &optional args)
   ; (drop-session cmd [args]) -> map
@@ -92,10 +112,13 @@
   (prtnl " -c   re-executes last command")
   (prtnl "")
   (prtnl "Additioinal Commands:")
-  (prtnl " ls   List directory content. Usage:")
+  (prtnl "")
+  (prtnl " date - Displays current date and time")
+  (prtnl "")
+  (prtnl " ls - List directory content. Usage:")
   (prtnl "    >ls     ; Lists current working directory files")
   (prtnl "")
-  (prtnl " cd   Change directory. Usage:")
+  (prtnl " cd - Change directory. Usage:")
   (prtnl "    >cd newpath ; Change directory to newpath")
   (prtnl "")
   (prtnl " cp     Copies a file (not implemented)")
@@ -114,6 +137,7 @@
   ; Internal command dictionary
   ijmptbl (xmap-kv
               "-h"    switch-help       ; Help
+
               "cd"    change-directory  ; Change working directory
               "cp"    copy-file         ; Copy files
               "date"  disp-date         ; Prints date/time
@@ -121,9 +145,11 @@
               "mv"    move-file
               "ls"    list-files        ; File listing
               "rm"    del-directory     ; Remove file or folder
+
               "-e"    print-session     ; Prints session values
               "-e+"   set-session       ; Add session value
               "-e-"   drop-session      ; Remove session value
+
               "-c"    last-command      ; Re-execute past command
               ))
 
@@ -179,33 +205,41 @@
       (setq buffer (cat buffer (char c))))))
 
 (defun main ()
-  ; Setup variables
-  (setq tzone (get :local_timezone))
-  ; TODO: Check and load configuration file
-  (setup-pathing)
-  (when (not (gets-enval "TZ"))
-    (exports-keyvals! "TZ" (first tzone)))
+  ; Load path-nodes
+  (defq continue t)
   ;sign on msg
   (prtnl "ChrysaLisp Terminal-2 0.6 (experimental)")
-  (print (prompt))
   (log-debug tlog "Started Terminal 2")
-  ;create child and send args
-  (mail-send
-    (list (task-mailbox))
-    (open-child "apps/terminal/tui_child.lisp" kn_call_open))
-  (defq cmd nil buffer "")
-  (while t
-    (defq data t)
-    (if cmd (setq data (pipe-read cmd)))
-    (cond
-      ((eql data t)
-        ;normal mailbox event
-        (terminal-input (get-byte (mail-read (task-mailbox)) 0)))
-      ((nil? data)
-        ;pipe is closed
-        (pipe-close cmd)
-        (setq cmd nil)
-        (print (prompt)))
-      (t  ;string from pipe
-        (print data))))
+  (while continue
+    (catch
+      (progn
+        (setup-pathing)
+        ; Sets up timezone
+        (if (nil? (defq tz (gets-enval "TZ")))
+          (exports-keyvals! "TZ" (first (setq tzone (get :local_timezone))))
+          (_set-tz tz))
+        ; Prompt
+        (print (prompt))
+        ;create child and send args
+        (mail-send
+          (list (task-mailbox))
+          (open-child "apps/terminal/tui_child.lisp" kn_call_open))
+        (defq cmd nil buffer "")
+        (while t
+          (defq data t)
+          (if cmd (setq data (pipe-read cmd)))
+          (cond
+            ((eql data t)
+              ;normal mailbox event
+              (terminal-input (get-byte (mail-read (task-mailbox)) 0)))
+            ((nil? data)
+              ;pipe is closed
+              (pipe-close cmd)
+              (setq cmd nil)
+              (print (prompt)))
+            (t  ;string from pipe
+              (print data)))))
+      (progn
+        (prtnl _)
+        (log-debug tlog _))))
   )
