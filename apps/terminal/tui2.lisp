@@ -30,10 +30,24 @@
 
 (import "apps/terminal/tuiutils.lisp")
 
-
 (defun prompt ()
   ; (prompt) -> string
   (gets-enval "PROMPT"))
+
+(defun _set-tz (tza)
+  ; (_set-tz timezone-abbreviation) -> nil
+  (defq
+    tz   (timezone-lookup :abbreviation tza))
+  (cond
+    ; Do nothing, they are the same
+    ((and tzone (eql (gets-enval "TZ") tza)))
+     ; We have a hit
+    (tz
+      (log-debug tlog (str "Setting timezone to " tza))
+      (sets-envkvs! "TZ" (first (setq tzone tz))))
+    ; Failed to find
+    (t
+      (prtnl (str tza " not found in timezones")))))
 
 (defun set-session (ic &optional args)
   ; (set-session cmd [args]) -> map
@@ -47,21 +61,7 @@
       _val  (rest spa))
     (cond
       ((eql _key "TZ")
-       (defq
-         _vrw (second spa)
-         tz   (timezone-lookup :abbreviation _vrw))
-       (if (or (nil? _vrw) (> (length _val) 1))
-         (prtnl "Usage: -e+ TZ abbreviation (e.g. UTC, GMT, EDT, etc...")
-         (cond
-           ; Do nothing, they are the same
-           ((eql (gets-enval "TZ") _vrw))
-           ; We have a hit
-           (tz
-             (log-debug tlog (str "Setting timezone to " _vrw))
-             (sets-envkvs! _key (first (setq tzone tz))))
-           ; Failed to find
-           (t
-             (prtnl (str _vrw " not found in timezones"))))))
+       (_set-tz (second spa)))
       (t
         (sets-envkvs! _key (join _val " "))))))
 
@@ -207,18 +207,11 @@
 (defun main ()
   ; Load path-nodes
   (setup-pathing)
-  ; Setup variables
-  (setq tzone (get :local_timezone))
   ; Sets up timezone
-  (cond
-    ((not (gets-enval "TZ"))
-      (exports-keyvals! "TZ" (first tzone)))
-    ((eql (gets-enval "TZ") "UTC"))
-    (t
-      (defq tz (timezone-lookup :abbreviation (gets-enval "TZ")))
-      (if tz
-        (setq tzone tz)
-        (prtnl (str "Can't find timezone for " (gets-enval "TZ"))))))
+  (if (nil? (defq tz (gets-enval "TZ")))
+    (exports-keyvals! "TZ" (first (setq tzone (get :local_timezone))))
+    (_set-tz tz))
+
   ;sign on msg
   (prtnl "ChrysaLisp Terminal-2 0.6 (experimental)")
   (print (prompt))
