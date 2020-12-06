@@ -23,15 +23,13 @@
 (import "lib/pipe/pipe.inc")
 (import "lib/date/date.inc")
 (import "lib/logging/loganchor.inc")
+
+; Setup logging and timezones
+(defq tlog  (log-anchor "tui2"))
+(defq tzone nil)
+
 (import "apps/terminal/tuiutils.lisp")
 
-; Setup logging
-
-(defq tlog (log-anchor "tui2"))
-
-; Much of this should be in separate include
-
-(defq tzone   nil)
 
 (defun prompt ()
   ; (prompt) -> string
@@ -41,9 +39,31 @@
   ; (set-session cmd [args]) -> map
   ; Sets the key (first arg) to remaining values of arg
   ; in the session map
+  ; Special handling is done for "TZ"
   (when args
-    (defq spa (split args " "))
-    (sets-envkvs! (first spa) (join (rest spa) " "))))
+    (defq
+      spa   (split args " ")
+      _key  (first spa)
+      _val  (rest spa))
+    (cond
+      ((eql _key "TZ")
+       (defq
+         _vrw (second spa)
+         tz   (timezone-lookup :abbreviation _vrw))
+       (if (or (nil? _vrw) (> (length _val) 1))
+         (prtnl "Usage: -e+ TZ abbreviation (e.g. UTC, GMT, EDT, etc...")
+         (cond
+           ; Do nothing, they are the same
+           ((eql (gets-enval "TZ") _vrw))
+           ; We have a hit
+           (tz
+             (log-debug tlog (str "Setting timezone to " _vrw))
+             (sets-envkvs! _key (first (setq tzone tz))))
+           ; Failed to find
+           (t
+             (prtnl (str _vrw " not found in timezones"))))))
+      (t
+        (sets-envkvs! _key (join _val " "))))))
 
 (defun drop-session (ic &optional args)
   ; (drop-session cmd [args]) -> map
@@ -92,10 +112,13 @@
   (prtnl " -c   re-executes last command")
   (prtnl "")
   (prtnl "Additioinal Commands:")
-  (prtnl " ls   List directory content. Usage:")
+  (prtnl "")
+  (prtnl " date - Displays current date and time")
+  (prtnl "")
+  (prtnl " ls - List directory content. Usage:")
   (prtnl "    >ls     ; Lists current working directory files")
   (prtnl "")
-  (prtnl " cd   Change directory. Usage:")
+  (prtnl " cd - Change directory. Usage:")
   (prtnl "    >cd newpath ; Change directory to newpath")
   (prtnl "")
   (prtnl " cp     Copies a file (not implemented)")
@@ -114,6 +137,7 @@
   ; Internal command dictionary
   ijmptbl (xmap-kv
               "-h"    switch-help       ; Help
+
               "cd"    change-directory  ; Change working directory
               "cp"    copy-file         ; Copy files
               "date"  disp-date         ; Prints date/time
@@ -121,9 +145,11 @@
               "mv"    move-file
               "ls"    list-files        ; File listing
               "rm"    del-directory     ; Remove file or folder
+
               "-e"    print-session     ; Prints session values
               "-e+"   set-session       ; Add session value
               "-e-"   drop-session      ; Remove session value
+
               "-c"    last-command      ; Re-execute past command
               ))
 
@@ -179,12 +205,20 @@
       (setq buffer (cat buffer (char c))))))
 
 (defun main ()
+  ; Load path-nodes
+  (setup-pathing)
   ; Setup variables
   (setq tzone (get :local_timezone))
-  ; TODO: Check and load configuration file
-  (setup-pathing)
-  (when (not (gets-enval "TZ"))
-    (exports-keyvals! "TZ" (first tzone)))
+  ; Sets up timezone
+  (cond
+    ((not (gets-enval "TZ"))
+      (exports-keyvals! "TZ" (first tzone)))
+    ((eql (gets-enval "TZ") "UTC"))
+    (t
+      (defq tz (timezone-lookup :abbreviation (gets-enval "TZ")))
+      (if tz
+        (setq tzone tz)
+        (prtnl (str "Can't find timezone for " (gets-enval "TZ"))))))
   ;sign on msg
   (prtnl "ChrysaLisp Terminal-2 0.6 (experimental)")
   (print (prompt))
