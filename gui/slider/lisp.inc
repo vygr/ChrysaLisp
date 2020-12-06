@@ -10,8 +10,32 @@
 	; inherit from View !
 	(def (defq this (View)) :state 0 :value 0 :maximum 0 :portion 0 :downxy 0)
 
-	;draw function for compositor...
-	(deffimethod :draw "gui/slider/draw")
+	(defmethod :draw (this)
+		; (. slider :draw) -> slider
+		(defq maximum (get :maximum this) portion (get :portion this) col (get :color this))
+		;border
+		(bind '(w h) (. this :get_size))
+		(.-> this (:ctx_set_color 0xff000000) (:ctx_box 0 0 w h))
+		;fill middle
+		(.-> this (:ctx_set_color (canvas-darker col)) (:ctx_filled_box 1 1 (- w 2) (- h 2)))
+		;elevator
+		(. this :ctx_set_color (if (= (get :state this) 0) col (canvas-brighter col)))
+		(cond
+			((> w h)
+				(setq w (- w 2))
+				(cond
+					((> maximum 0)
+						(setq portion (/ (* w portion) (+ maximum portion))
+							w (/ (* (get :value this) (- w portion)) maximum)))
+					(t	(setq portion w w 0)))
+				(. this :ctx_filled_box (inc w) 1 portion (- h 2)))
+			(t	(setq h (- h 2))
+				(cond
+					((> maximum 0)
+						(setq portion (/ (* h portion) (+ maximum portion))
+							h (/ (* (get :value this) (- h portion)) maximum)))
+					(t	(setq portion h h 0)))
+				(. this :ctx_filled_box 1 (inc h) (- w 2) portion))))
 
 	(defmethod :pref_size (this)
 		; (. slider :pref_size) -> (width height)

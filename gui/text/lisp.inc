@@ -3,6 +3,8 @@
 ;;;;;;;;;;;;;
 
 (import "gui/view/lisp.inc")
+(import "gui/font/lisp.inc")
+(import "gui/texture/lisp.inc")
 
 (defclass Text ()
 	; (Text) -> text
@@ -10,8 +12,14 @@
 	; inherit from View !
 	(def (defq this (View)) :color 0)
 
-	;draw function for compositor...
-	(deffimethod :draw "gui/text/draw")
+	(defmethod :draw (this)
+		; (. text :draw) -> text
+		(when (and (defq font (get :font this)) (defq text (get :text this))
+				(defq texture (font-sym-texture font (sym text))))
+			(bind '(tid tw th) (texture-metrics texture))
+			(bind '(w h) (. this :get_size))
+			(. this :ctx_blit tid (get :ink_color this) 0 (>>> (- h th) 1) tw th))
+		this)
 
 	(defmethod :pref_size (this)
 		; (. text :pref_size) -> (width height)

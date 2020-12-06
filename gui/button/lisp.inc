@@ -8,18 +8,19 @@
 	; (Button) -> button
 	; overide the default 'this' env with a button component
 	; inherit from Label !
-	(def (defq this (Label)) :state 0)
+	(def (defq this (Label)) :state 1)
 
-	;draw function for compositor...
-	(deffimethod :draw "gui/button/draw")
+	(defmethod :draw (this)
+		; (. button :draw) -> button
+		(bind '(w h) (. this :get_size))
+		(. this :ctx_panel (get :color this) 1 (* (get :border this) (get :state this)) 0 0 w h))
 
 	(defmethod :layout (this)
 		; (. button :layout) -> button
 		(defq flow (get :label_flow this) state (get :state this)
 			border (get :border this) pos border)
-
 		;contents offset or not
-		(if (/= 0 state)
+		(if (/= 1 state)
 			(setq pos (* pos 2)))
 		(bind '(w h) (. this :get_size))
 		(.-> flow (:change pos pos (- w (* border 2)) (- h (* border 2))) :layout)
@@ -27,13 +28,13 @@
 
 	(defmethod :mouse_down (this event)
 		; (. button :mouse_down event) -> button
-		(def this :state 1)
+		(def this :state -1)
 		(.-> this :layout :dirty_all))
 
 	(defmethod :mouse_up (this event)
 		; (. button :mouse_up event) -> button
-		(when (/= (get :state this) 0)
-			(def this :state 0)
+		(when (/= (get :state this) 1)
+			(def this :state 1)
 			(.-> this :layout :dirty_all :emit))
 		this)
 
@@ -41,7 +42,7 @@
 		; (. button :mouse_move event) -> button
 		(bind '(w h) (. this :get_size))
 		(defq rx (get-int event ev_msg_mouse_rx) ry (get-int event ev_msg_mouse_ry)
-			state (if (and (>= rx 0) (>= ry 0) (< rx w) (< ry h)) 1 0))
+			state (if (and (>= rx 0) (>= ry 0) (< rx w) (< ry h)) -1 1))
 		(when (/= state (get :state this))
 			(def this :state state)
 			(.-> this :layout :dirty_all))

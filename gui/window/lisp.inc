@@ -10,8 +10,18 @@
 	; inherit from View !
 	(def (defq this (View)) :child nil :last_buttons 0 :is_window t)
 
-	;draw function for compositor...
-	(deffimethod :draw "gui/window/draw")
+	(defmethod :draw (this)
+		; (. window :draw) -> window
+		(bind '(w h) (. this :get_size))
+		;panel
+		(. this :ctx_panel (get :color this) 1 (get :border this)
+			(defq shadow (get :shadow this)) shadow (- w (* shadow 2)) (- h (* shadow 2)))
+		;shadow
+		(defq col 0x80000000)
+		(while (and (> shadow 0) (/= col 0))
+			(.-> this (:ctx_set_color col) (:ctx_box shadow shadow (- w (* shadow 2)) (- h (* shadow 2))))
+			(setq col (logand 0xff000000 (+ (>> col 1) (>> col 4))) shadow (dec shadow)))
+		this)
 
 	(defmethod :add_child (this child)
 		; (. window :add_child child) -> window

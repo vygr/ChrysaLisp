@@ -569,36 +569,6 @@ trashes
 r1-r14
 ```
 
-## backdrop
-
-Super Class: view
-
-### backdrop::draw -> gui/backdrop/draw
-
-```lisp
-inputs
-r0 = view object (ptr)
-outputs
-r0 = view object (ptr)
-trashes
-r1-r14
-```
-
-## button
-
-Super Class: label
-
-### button::draw -> gui/button/draw
-
-```lisp
-inputs
-r0 = button object (ptr)
-outputs
-r0 = button object (ptr)
-trashes
-r1-r14
-```
-
 ## canvas
 
 Super Class: view
@@ -786,17 +756,6 @@ trashes
 r1-r14
 ```
 
-### canvas::draw -> gui/canvas/draw
-
-```lisp
-inputs
-r0 = canvas object (ptr)
-outputs
-r0 = canvas object (ptr)
-trashes
-r1-r14
-```
-
 ### canvas::lisp_create -> gui/canvas/lisp_create
 
 ```lisp
@@ -966,9 +925,45 @@ trashes
 r1-r14
 ```
 
+### canvas::lisp_darker -> gui/canvas/lisp_darker
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### canvas::lisp_brighter -> gui/canvas/lisp_brighter
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
 ## ctx
 
 Super Class: null
+
+### ctx::set_color -> gui/ctx/set_color
+
+```lisp
+inputs
+r0 = view object (ptr)
+r1 = color (argb)
+trashes
+r0-r14
+```
 
 ### ctx::box -> gui/ctx/box
 
@@ -1011,16 +1006,6 @@ trashes
 r0-r14
 ```
 
-### ctx::set_color -> gui/ctx/set_color
-
-```lisp
-inputs
-r0 = view object (ptr)
-r1 = color (argb)
-trashes
-r0-r14
-```
-
 ### ctx::panel -> gui/ctx/panel
 
 ```lisp
@@ -1035,6 +1020,71 @@ r9 = width (pixels)
 r10 = height (pixels)
 trashes
 r0-r14
+```
+
+### ctx::lisp_set_color -> gui/ctx/lisp_set_color
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### ctx::lisp_box -> gui/ctx/lisp_box
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### ctx::lisp_filled_box -> gui/ctx/lisp_filled_box
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### ctx::lisp_blit -> gui/ctx/lisp_blit
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### ctx::lisp_panel -> gui/ctx/lisp_panel
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
 ```
 
 ## error
@@ -1665,6 +1715,19 @@ r1-r14
 ```
 
 ### font::lisp_glyph_bounds -> gui/font/lisp_glyph_bounds
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### font::lisp_texture -> gui/font/lisp_texture
 
 ```lisp
 inputs
@@ -2453,21 +2516,6 @@ r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-## label
-
-Super Class: view
-
-### label::draw -> gui/label/draw
-
-```lisp
-inputs
-r0 = label object (ptr)
-outputs
-r0 = label object (ptr)
 trashes
 r1-r14
 ```
@@ -5148,21 +5196,6 @@ trashes
 r1-r14
 ```
 
-## progress
-
-Super Class: view
-
-### progress::draw -> gui/progress/draw
-
-```lisp
-inputs
-r0 = window object (ptr)
-outputs
-r0 = window object (ptr)
-trashes
-r1-r14
-```
-
 ## real
 
 Super Class: fixed
@@ -5837,21 +5870,6 @@ r1 = args list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-## slider
-
-Super Class: view
-
-### slider::draw -> gui/slider/draw
-
-```lisp
-inputs
-r0 = window object (ptr)
-outputs
-r0 = window object (ptr)
 trashes
 r1-r14
 ```
@@ -8325,36 +8343,6 @@ trashes
 r1-r14
 ```
 
-## text
-
-Super Class: view
-
-### text::draw -> gui/text/draw
-
-```lisp
-inputs
-r0 = text object (ptr)
-outputs
-r0 = text object (ptr)
-trashes
-r1-r14
-```
-
-## textfield
-
-Super Class: label
-
-### textfield::draw -> gui/textfield/draw
-
-```lisp
-inputs
-r0 = textfield object (ptr)
-outputs
-r0 = textfield object (ptr)
-trashes
-r1-r14
-```
-
 ## texture
 
 Super Class: obj
@@ -9025,18 +9013,5 @@ trashes
 r1-r14
 ```
 
-## window
-
-Super Class: view
-
-### window::draw -> gui/window/draw
-
-```lisp
-inputs
-r0 = window object (ptr)
-outputs
-r0 = window object (ptr)
-trashes
-r1-r14
-```
+### view::lisp_draw -> gui/view/lisp_draw
 

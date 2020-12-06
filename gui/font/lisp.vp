@@ -2,6 +2,7 @@
 (include "gui/font/class.inc")
 (include "class/str/class.inc")
 (include "class/num/class.inc")
+(include "class/sym/class.inc")
 (include "class/lisp/class.inc")
 
 (def-method 'font :lisp_create)
@@ -158,5 +159,41 @@
 (vp-label 'error)
 	(jump 'lisp :repl_error '(r0 "(font-glyph-ranges font)" error_msg_wrong_types r1))
 	(signature '(font)))
+
+(def-func-end)
+
+(def-method 'font :lisp_texture)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args list object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(entry 'font :lisp_texture '(r0 r1))
+
+(errorcases
+	(call 'lisp :env_args_sig '(r1 ($ sig) 2) '(r2))
+	(gotoif '(r2 = 0) 'error))
+
+	(vp-push r0)
+	(defq in (method-input 'font :sym_texture))
+	(list-bind-args r1 in '(:font :sym))
+	(call 'font :sym_texture in '(_ r1))
+	(vp-pop r0)
+	(vpif '(r1 = 0))
+		(assign '((r0 lisp_sym_nil)) '(r1))
+		(class/obj/ref r1 r2)
+	(endif)
+
+	(exit 'font :lisp_texture '(r0 r1))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp :repl_error '(r0 "(font-sym-texture font sym)" error_msg_wrong_types r1))
+	(signature '(font sym)))
 
 (def-func-end)

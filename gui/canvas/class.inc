@@ -17,7 +17,6 @@
 (dec-method :fpoly 'gui/canvas/fpoly :static '(r0 r1 r2 r3 r4) '(r0))
 
 (dec-method :deinit 'gui/canvas/deinit :override)
-(dec-method :draw 'gui/canvas/draw :override)
 
 (dec-method :lisp_create 'gui/canvas/lisp_create :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_info 'gui/canvas/lisp_info :static '(r0 r1) '(r0 r1))
@@ -32,6 +31,8 @@
 (dec-method :lisp_resize 'gui/canvas/lisp_resize :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_to_argb32 'gui/canvas/lisp_to_argb32 :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_from_argb32 'gui/canvas/lisp_from_argb32 :static '(r0 r1) '(r0 r1))
+(dec-method :lisp_darker 'gui/canvas/lisp_darker :static '(r0 r1) '(r0 r1))
+(dec-method :lisp_brighter 'gui/canvas/lisp_brighter :static '(r0 r1) '(r0 r1))
 
 (def-struct 'canvas 'view)
 	(ptr 'pixmap 'edges 'texture)

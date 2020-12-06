@@ -3,17 +3,28 @@
 ;;;;;;;;;;;;;;;
 
 (import "gui/view/lisp.inc")
+(import "gui/texture/lisp.inc")
 
 ;lisp bindings
 (ffi canvas-info "gui/canvas/lisp_info" 0)
 (ffi canvas-to-argb32 "gui/canvas/lisp_to_argb32" 0)
 (ffi canvas-from-argb32 "gui/canvas/lisp_from_argb32" 0)
+(ffi canvas-darker "gui/canvas/lisp_darker" 0)
+(ffi canvas-brighter "gui/canvas/lisp_brighter" 0)
 
 ;load flags
 (defq +load_flag_shared+ 1 +load_flag_film+ 2 +load_flag_noswap+ 4)
 
 (defclass Canvas-base ()
 	(def (defq this (View)) :color 0)
+
+	(defmethod :draw (this)
+		; (. canvas :draw) -> canvas
+		(when (defq texture (get-field this (const canvas_texture) 0))
+			(bind '(tid tw th) (texture-metrics texture))
+			(bind '(w h) (. this :get_size))
+			(. this :ctx_blit tid +argb_white+ (>>> (- w tw) 1) (>>> (- h th) 1) tw th))
+		this)
 
 	(defmethod :save (this file format)
 		; (. canvas :save file format) -> nil | canvas

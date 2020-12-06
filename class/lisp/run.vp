@@ -29,7 +29,7 @@
 	(call 'lisp :create {stream, stream, stream} {lisp})
 	(call 'obj :deref {stream})
 	(vpif {lisp})
-		;;fill in lisp object tls
+		;fill in lisp object tls
 		(assign {lisp} (cat {@} (f-path 'sys_task :statics) {.tk_statics_current_tcb->tk_node_lisp}))
 		;run lisp file
 		(call 'str :create_from_file {&script->str_data} {file})
