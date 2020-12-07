@@ -40,6 +40,9 @@
     ; Return childrenlist of unique_id / value tuples
     (entries (get :children_nodes this)))
 
+  (defmethod :has_child? (this csym)
+    (gets (get :children_nodes this) csym))
+
   (defmethod :siblings (this)
     ; (. xnode :siblings) -> list
     ; Returns siblings list of unique_id / value tuples

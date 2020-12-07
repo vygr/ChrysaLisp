@@ -1,5 +1,6 @@
 OS := $(shell uname)
 CPU := $(shell uname -m)
+DTZ := $(word 5, $(shell date))
 ifeq ($(CPU),x86_64)
 ABI := AMD64
 else
@@ -21,6 +22,7 @@ endif
 	@echo "OS=$(OS)" >> .hostenv
 	@echo "CPU=$(CPU)" >> .hostenv
 	@echo "ABI=$(ABI)" >> .hostenv
+	@echo "TZ=$(DTZ)" >> .hostenv
 
 snapshot:
 			rm -f snapshot.zip

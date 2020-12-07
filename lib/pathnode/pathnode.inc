@@ -64,8 +64,14 @@
     :path_node t
     :stat_res  nil)
 
+  (defmethod :full_path (this)
+    ; (. path-node :full_path) -> string
+    ; Returns the full path string
+    (. this :full_name))
+
+  ; Set stats for node
   (when (not (get :stat_res this))
-    (set this :stat_res (pii-fstat (. this :full_name))))
+    (set this :stat_res (pii-fstat (. this :full_path))))
 
   (defmethod :date (this)
     ; (. path-node :date) -> date
@@ -83,12 +89,14 @@
     (last (get :stat_res this)))
 
   (defmethod :is_root? (this)
+    ; (. path-node :is_root?) -> t | nil
+    ; Tests whether this node is the root
     (not (. this :get_parent)))
 
   (defmethod :members (this)
     ; (. path-node :members) -> list
     ; Returns list of pairs from pii-dirlist
-    (partition 2 (split (pii-dirlist (. this :full_name)) ",")))
+    (partition 2 (split (pii-dirlist (. this :full_path)) ",")))
 
   (defmethod :all-members (this &optional name-fn filter-fn)
     ; (. path-node :all-members [name-fn filter-fn])
@@ -124,7 +132,7 @@
   (defmethod :fqname (this filename)
     ; (. path-node filename) -> string
     ; Returns fully qualifed filename prefixed by pathname
-    (defq pn (. this :full_name))
+    (defq pn (. this :full_path))
     (str pn (if (eql (last pn) _pathseparator) "" _pathseparator) filename))
 
   (defmethod :child_segment (this namestr)
@@ -162,25 +170,30 @@
           (. this :add_node (path-node node_name)))
         ; Add a separator as child of this and then new to that
         (t
-          (.
-            (. this :add_node (path-node _pathseparator))
-            :add_node (path-node node_name)))))
+          (defq msep (opt
+            (. this :has_child? _pathseparator)
+            (. this :add_node (path-node _pathseparator))))
+          (opt
+            (. msep :has_child? node_name)
+            (. msep :add_node (path-node node_name))))))
 
     (reduce (lambda (acc el)
       (defq cn (. acc :child_segment el))
       (cond
         ; Relative moves
-        ((or (eql el ".") (eql el _pathseparator)) acc)
+        ((or (eql el ".") (eql el _pathseparator))
+          acc)
         ; Back up
-        ((eql el "..") (prior-segment acc))
+        ((eql el "..")
+          (prior-segment acc))
         ; Child already exists
         (cn cn)
         ; Fall through, validate child and add
         (t
           (if (index-of el (. acc :dir-members))
-            (new-segment acc el)
+              (new-segment acc el)
             (throw
-              (str el " is invalid child of path " (. acc :full_name))
+              (str el " is invalid child of path " (. acc :full_path))
               (. acc :dir-members)))))) strpathlist this))
   )
 
@@ -203,16 +216,25 @@
   ; Parses a pathname string into a list of path elements
   ; example:
   ; (_path-tolist "/Users/bob/here") -> ("/" "Users") "/" "bob" "/" "here")
+  ; (_path-tolist "/Users/bob/here" "\") -> ("\" "Users") "\" "bob" "\" "here")
   (setd sep _pathseparator)
   (defq
     seed (if (eql (first pathname) sep) (list sep) (list))
     prsd (split pathname sep)
     lng  (dec (length prsd)))
   (reduce
-    (lambda (acc el) (if (= _ lng) (push acc el) (push acc el sep)))
+    (lambda (acc el)
+      ; Expansion of '~'
+      (when (eql el "~")
+        (defq isp (split (gets-enval "HOME") sep))
+        (each! 0 -2 (#(push acc sep %0 sep)) (list isp))
+        (setq el (last isp)))
+      (if (= _ lng)
+        (push acc el)
+        (push acc el sep)))
     prsd seed))
 
-(defun change-dir (pathname)
+(defun node-for (pathname)
   ; (change-dir pathname ) -> path-node
   ; Returns the path-node for pathname
   ; Will expand tree by building valid path-nodes in pathname
@@ -220,22 +242,22 @@
     path-el (_path-tolist pathname)
     frstel  (first path-el)
     plen    (length path-el))
-  (setq _current_dir
-    (cond
-      ; Do nothing
-      ((empty? path-el))
-      ; Fully qualified from root
-      ((and (eql frstel _pathseparator) (> plen 1))
-        (. _pathnoderoot :expandto (slice 1 -1 path-el)))
-      ; Root
-      ((and (eql frstel _pathseparator) (= plen 1))
-        _pathnoderoot)
-      ; Relative current path
-      (t
-        (. _current_dir :expandto path-el))))
-  _current_dir)
+  (cond
+    ; Do nothing
+    ((empty? path-el)
+      _current_dir)
+    ; Root
+    ((and (eql frstel _pathseparator) (= plen 1))
+      _pathnoderoot)
+    ; Fully qualified from root
+    ((and (eql frstel _pathseparator) (> plen 1))
+      (. _pathnoderoot :expandto path-el))
+    ; Relative current path
+    (t
+      (. _current_dir :expandto path-el))))
 
-(defun build-path (pathname)
-  ; (build-path pathname) -> path-node
-  ; Parses pathname and returns a sparse path-node tree
-  )
+(defun change-dir (pathname)
+  ; (change-cdir pathname ) -> path-node
+  ; Returns the path-node for pathname
+  ; Will expand tree by building valid path-nodes in pathname
+  (setq _current_dir (node-for pathname)))

@@ -42,16 +42,22 @@
 (defun not-impl (ic &optional args)
   (prtnl (str ic " -> not implemented")))
 
+(defun current-directory (ic &optional args)
+  (prtnl (. _current_dir :full_path)))
+
 (defun change-directory (ic &optional args)
   ; (change-directory internal args) -> nil
   ; Changes the working directory
   ; Implement by adding chdir and getcwd in main.c and
   ; calling from here
   (bind '(sargs flags paths) (_split-args args))
-  (if (or (= (length paths) 0) (> (length paths) 1))
-      (prtnl "Usage: cd pathname")
-      (catch (change-dir (first paths))
-        (prtnl (str "cd " (first paths) ": is not a valid path"))))
+  (cond
+    ((or (= (length paths) 0) (> (length paths) 1))
+     (prtnl "Usage: cd pathname"))
+    (t
+      (defq path (first paths))
+      (catch (sets-envkvs! "PWD" (. (change-dir path) :full_path))
+        (prtnl (str "cd " path ": is not a valid path")))))
   nil)
 
 (defun make-directory (ic &optional args)
@@ -76,6 +82,7 @@
   nil)
 
 (defun copy-file (ic &optional args)
+  ; (copy-file internal args) -> nil
   (bind '(sargs flags paths) (_split-args args))
   (cond
     ((> (length paths) 2)
@@ -84,6 +91,7 @@
   (not-impl ic))
 
 (defun move-file (ic &optional args)
+  ; (move-file internal args) -> nil
   (bind '(sargs flags paths) (_split-args args))
   (not-impl ic))
 
@@ -125,6 +133,7 @@
 (defun disp-date (ic &optional args)
   ; (disp-date command args) -> nil
   (bind '(sargs flags paths) (_split-args args))
+  (defq :local_timezone tzone)
   (prtnl (encode-date))
   nil)
 
