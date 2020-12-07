@@ -124,6 +124,11 @@
   (prtnl " cp     Copies a file (not implemented)")
   (prtnl " mkdir  Makes a directory (not implemented)")
   (prtnl " mv     Moves a file (not implemented)")
+  (prtnl "")
+  (prtnl " pwd - Print current directory. Usage:")
+  (prtnl "    >cd newpath")
+  (prtnl "    >pwd  ; /Users/yourname/newpath")
+  (prtnl "")
   (prtnl " rm     Remove file or directory (not implemented)")
   (prtnl "")
   (prtnl "Other:")
@@ -137,7 +142,7 @@
   ; Internal command dictionary
   ijmptbl (xmap-kv
               "-h"    switch-help       ; Help
-
+              "pwd"   current-directory ; Print current directory
               "cd"    change-directory  ; Change working directory
               "cp"    copy-file         ; Copy files
               "date"  disp-date         ; Prints date/time
