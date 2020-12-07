@@ -8,7 +8,7 @@
 (dec-method :init_with_pixmap 'gui/canvas/init_with_pixmap :static '(r0 r1 r2) '(r0 r1))
 (dec-method :swap 'gui/canvas/swap :static '(r0) '(r0))
 (dec-method :set_clip 'gui/canvas/set_clip :static '(r0 r7 r8 r9 r10) '(r0))
-(dec-method :set_edges 'gui/canvas/set_edges :static '(r0 r1 r2 r3 r4) '(r0 r1 r2 r3 r4))
+(dec-method :set_edges 'gui/canvas/set_edges :static '(r0 r1 r2 r3 r4) '(r0 r11 r12 r13 r14))
 (dec-method :span_noclip 'gui/canvas/span_noclip :static '(r0 r1 r7 r8 r9) '(r0))
 (dec-method :span 'gui/canvas/span :static '(r0 r1 r7 r8 r9) '(r0))
 (dec-method :pick 'gui/canvas/pick :static '(r0 r7 r8) '(r0 r1))

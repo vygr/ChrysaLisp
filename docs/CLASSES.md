@@ -646,10 +646,10 @@ r3 = y (fixed)
 r4 = y scale (int)
 outputs
 r0 = canvas object (ptr)
-r1 = min_x (fixed)
-r2 = min_y (fixed)
-r3 = max_x (fixed)
-r4 = max_y (fixed)
+r11 = min_x (fixed)
+r12 = min_y (fixed)
+r13 = max_x (fixed)
+r14 = max_y (fixed)
 trashes
 r1-r14
 ```
