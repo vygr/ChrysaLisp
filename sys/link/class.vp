@@ -95,8 +95,9 @@
 
 			;move on to next msg chan
 			(assign {&tx_msg->lk_msg_size} {tx_msg})
-			(breakif {tx_msg /= &tx->lk_chan_size})
-			(assign {&tx->lk_chan_msg0} {tx_msg})
+			(vpif {tx_msg = &tx->lk_chan_size})
+				(assign {&tx->lk_chan_msg0} {tx_msg})
+			(endif)
 
 			;let other links run
 			(call 'sys_task :sleep '(0))
@@ -176,8 +177,9 @@
 
 			;move on to next msg chan
 			(assign {&rx_msg->lk_msg_size} {rx_msg})
-			(breakif {rx_msg /= &rx->lk_chan_size})
-			(assign {&rx->lk_chan_msg0} {rx_msg})
+			(vpif {rx_msg = &rx->lk_chan_size})
+				(assign {&rx->lk_chan_msg0} {rx_msg})
+			(endif)
 
 			;let other links run
 			(call 'sys_task :sleep '(0))
