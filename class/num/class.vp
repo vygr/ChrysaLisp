@@ -2,7 +2,7 @@
 (include "sys/math/class.inc")
 (include "class/num/class.inc")
 (include "class/list/class.inc")
-(include "class/str/class.inc")
+(include "class/sym/class.inc")
 (include "class/stream/class.inc")
 
 (gen-create 'num)
@@ -458,6 +458,28 @@
 (vp-label 'fail)
 	(vp-pop r0)
 	(exit 'num :ne '(r0 0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'num :type)
+	;inputs
+	;r0 = num object (ptr)
+	;outputs
+	;r0 = num object (ptr)
+	;r1 = type list object (ptr)
+	;trashes
+	;r1-r14
+
+	(entry 'num :type '(r0))
+
+	(s-call 'num :type '(r0) '(r0 r1))
+	(vp-push r0 r1)
+	(call 'sym :ref_static_sym '(static_sym_num) '(r1))
+	(call 'list :push_back '((rsp 0) r1) '(r1 _ _ _))
+	(vp-pop r0 r1)
+
+	(exit 'num :type '(r0 r1))
 	(vp-ret)
 
 (def-func-end)

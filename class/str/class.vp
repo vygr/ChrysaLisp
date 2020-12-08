@@ -1,7 +1,7 @@
 (include "sys/func.inc")
 (include "sys/str/class.inc")
 (include "sys/load/class.inc")
-(include "class/str/class.inc")
+(include "class/sym/class.inc")
 (include "class/stream/class.inc")
 (include "class/list/class.inc")
 (include "lib/consts/chars.inc")
@@ -792,6 +792,28 @@
 
 	(exit 'str :print '((rsp local_this)))
 	(vp-free local_size)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'str :type)
+	;inputs
+	;r0 = str object (ptr)
+	;outputs
+	;r0 = str object (ptr)
+	;r1 = type list object (ptr)
+	;trashes
+	;r1-r14
+
+	(entry 'str :type '(r0))
+
+	(s-call 'str :type '(r0) '(r0 r1))
+	(vp-push r0 r1)
+	(call 'sym :ref_static_sym '(static_sym_str) '(r1))
+	(call 'list :push_back '((rsp 0) r1) '(r1 _ _ _))
+	(vp-pop r0 r1)
+
+	(exit 'str :type '(r0 r1))
 	(vp-ret)
 
 (def-func-end)

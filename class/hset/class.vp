@@ -1,5 +1,6 @@
 (include "sys/func.inc")
 (include "class/list/class.inc")
+(include "class/sym/class.inc")
 (include "class/hset/class.inc")
 
 (gen-create 'hset)
@@ -332,6 +333,28 @@
 
 	(exit 'hset :insert '(r0 r1 r2))
 	(vp-free local_size)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'hset :type)
+	;inputs
+	;r0 = hset object (ptr)
+	;outputs
+	;r0 = hset object (ptr)
+	;r1 = type list object (ptr)
+	;trashes
+	;r1-r14
+
+	(entry 'hset :type '(r0))
+
+	(s-call 'hset :type '(r0) '(r0 r1))
+	(vp-push r0 r1)
+	(call 'sym :ref_static_sym '(static_sym_hset) '(r1))
+	(call 'list :push_back '((rsp 0) r1) '(r1 _ _ _))
+	(vp-pop r0 r1)
+
+	(exit 'hset :type '(r0 r1))
 	(vp-ret)
 
 (def-func-end)

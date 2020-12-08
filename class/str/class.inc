@@ -17,6 +17,7 @@
 (dec-method :starts_with 'class/str/starts_with :static '(r0 r1) '(r0 r1))
 (dec-method :same 'class/str/same :static '(r0 r1) '(r0 r1))
 
+(dec-method :type 'class/str/type :override '(r0) '(r0 r1))
 (dec-method :print 'class/str/print :override)
 
 (dec-method :hash 'class/str/hash :final)

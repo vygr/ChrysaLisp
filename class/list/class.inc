@@ -4,6 +4,7 @@
 (dec-method :vtable 'class/list/vtable)
 (dec-method :create 'class/list/create)
 
+(dec-method :type 'class/list/type :override '(r0) '(r0 r1))
 (dec-method :vcreate 'class/list/create :final)
 (dec-method :deinit 'class/list/deinit :final)
 (dec-method :ref_element 'class/list/ref_element :final)

@@ -296,6 +296,18 @@ r1-r2
 
 ### array::sort_callback -> class/obj/null
 
+### array::type -> class/array/type
+
+```lisp
+inputs
+r0 = array object (ptr)
+outputs
+r0 = array object (ptr)
+r1 = type list object (ptr)
+trashes
+r1-r14
+```
+
 ### array::print -> class/array/print
 
 ```lisp
@@ -1844,6 +1856,18 @@ trashes
 r1
 ```
 
+### func::type -> class/func/type
+
+```lisp
+inputs
+r0 = func object (ptr)
+outputs
+r0 = func object (ptr)
+r1 = type list object (ptr)
+trashes
+r1-r14
+```
+
 ### func::print -> class/func/print
 
 ```lisp
@@ -2079,6 +2103,18 @@ r0 = hmap object (ptr)
 r1 = 0, else hmap parent object (ptr)
 outputs
 r0 = hmap object (ptr)
+trashes
+r1-r14
+```
+
+### hmap::type -> class/hmap/type
+
+```lisp
+inputs
+r0 = hmap object (ptr)
+outputs
+r0 = hmap object (ptr)
+r1 = type list object (ptr)
 trashes
 r1-r14
 ```
@@ -2426,6 +2462,18 @@ r1-r14
 ### hset::key_callback -> class/obj/null
 
 ### hset::each_callback -> class/obj/null
+
+### hset::type -> class/hset/type
+
+```lisp
+inputs
+r0 = hset object (ptr)
+outputs
+r0 = hset object (ptr)
+r1 = type list object (ptr)
+trashes
+r1-r14
+```
 
 ### hset::deinit -> class/hset/deinit
 
@@ -3098,19 +3146,6 @@ trashes
 r1-r14
 ```
 
-### lisp::lisp_type -> class/lisp/lisp_type
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args list object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
 ### lisp::lisp_mcall -> class/lisp/lisp_mcall
 
 ```lisp
@@ -3139,6 +3174,18 @@ Super Class: array
 ### list::vtable -> class/list/vtable
 
 ### list::create -> class/list/create
+
+### list::type -> class/list/type
+
+```lisp
+inputs
+r0 = list object (ptr)
+outputs
+r0 = list object (ptr)
+r1 = type list object (ptr)
+trashes
+r1-r14
+```
 
 ### list::vcreate -> class/list/create
 
@@ -3380,6 +3427,18 @@ r0 = num object (ptr)
 r1 = value (long)
 trashes
 none
+```
+
+### num::type -> class/num/type
+
+```lisp
+inputs
+r0 = num object (ptr)
+outputs
+r0 = num object (ptr)
+r1 = type list object (ptr)
+trashes
+r1-r14
 ```
 
 ### num::print -> class/num/print
@@ -4378,6 +4437,18 @@ trashes
 r1-r14
 ```
 
+### obj::type -> class/obj/type
+
+```lisp
+inputs
+r0 = obj object (ptr)
+outputs
+r0 = obj object (ptr)
+r1 = type list object (ptr)
+trashes
+r1-r14
+```
+
 ### obj::deinit -> class/obj/deinit
 
 ```lisp
@@ -4442,6 +4513,19 @@ r1-r14
 ```
 
 ### obj::lisp_obj_ref -> class/obj/lisp_obj_ref
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### obj::lisp_type -> class/obj/lisp_type
 
 ```lisp
 inputs
@@ -5770,6 +5854,18 @@ Super Class: obj
 
 ### seq::rfind -> class/obj/null
 
+### seq::type -> class/seq/type
+
+```lisp
+inputs
+r0 = seq object (ptr)
+outputs
+r0 = seq object (ptr)
+r1 = type list object (ptr)
+trashes
+r1-r14
+```
+
 ### seq::lisp_length -> class/seq/lisp_length
 
 ```lisp
@@ -6161,6 +6257,18 @@ r0 = str object (ptr)
 r1 = 0 if same
 trashes
 r1-r6
+```
+
+### str::type -> class/str/type
+
+```lisp
+inputs
+r0 = str object (ptr)
+outputs
+r0 = str object (ptr)
+r1 = type list object (ptr)
+trashes
+r1-r14
 ```
 
 ### str::print -> class/str/print
@@ -6762,6 +6870,17 @@ trashes
 r1, r3
 ```
 
+### sym::ref_static_sym -> class/sym/ref_static_sym
+
+```lisp
+inputs
+r1 = static sym num (uint)
+outputs
+r1 = sym object (ptr)
+trashes
+r1, r3
+```
+
 ### sym::flush -> class/sym/flush
 
 ```lisp
@@ -6816,6 +6935,18 @@ outputs
 r1 = list of sym objects (ptr)
 trashes
 r0-r14
+```
+
+### sym::type -> class/sym/type
+
+```lisp
+inputs
+r0 = sym object (ptr)
+outputs
+r0 = sym object (ptr)
+r1 = type list object (ptr)
+trashes
+r1-r14
 ```
 
 ### sym::print -> class/sym/print
