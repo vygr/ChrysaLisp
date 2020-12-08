@@ -382,7 +382,7 @@
 	(entry '(r8))
 
 	;start link
-	(call 'sys_task :start `((@ ,(f-path 'sys_link :link))) '(_ r9 _))
+	(call 'sys_task :start `((@ ,(f-path 'sys_link :out))) '(_ r9 _))
 
 	;params message
 	(call 'sys_mail :alloc '(8) '(r0 r1))

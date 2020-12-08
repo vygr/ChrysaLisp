@@ -6947,9 +6947,13 @@ loader is already initialized when we get here !
 
 Super Class: null
 
-### sys_link::init -> sys/link/init
+### sys_link::in -> sys/link/in
 
-### sys_link::link -> sys/link/link
+```lisp
+started by kernel for each link
+```
+
+### sys_link::out -> sys/link/out
 
 ```lisp
 started by kernel for each link
@@ -7238,6 +7242,16 @@ r0-r14
 ```lisp
 info
 parcels going off chip or junk mail task
+```
+
+### sys_mail::ready -> sys/mail/ready
+
+```lisp
+inputs
+r0 = peer cpu id (uint)
+r1 = key num object (ptr)
+outputs
+r0 = 0 if none, else msg (ptr)
 ```
 
 ### sys_mail::lisp_read -> sys/mail/lisp_read
