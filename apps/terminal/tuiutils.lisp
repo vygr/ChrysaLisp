@@ -43,7 +43,10 @@
   (prtnl (str ic " -> not implemented")))
 
 (defun current-directory (ic &optional args)
-  (prtnl (. _current_dir :full_path)))
+  ; (current-directory internal args) -> nil
+  ; Prints the current working directory
+  (prtnl (. _current_dir :full_path))
+  nil)
 
 (defun change-directory (ic &optional args)
   ; (change-directory internal args) -> nil
@@ -67,7 +70,24 @@
   ; which is inefficient. Should have a make dir in the
   ; main kernel
   (bind '(sargs flags paths) (_split-args args))
-  (not-impl ic)
+  (defq cpath nil)
+  (catch
+    (each (lambda (_el)
+            (setq cpath _el)
+            (defq
+              dp    (find-rev _pathseparator _el)
+              pnode nil
+              dname nil)
+            (if dp
+                (setq
+                  pnode (node-for (slice 0 dp _el))
+                  dname (slice (inc dp) -1 _el))
+                (setq
+                  pnode _current_dir
+                  dname _el))
+            (prtnl (str "Add " dname " to " (. pnode :full_path)))
+            ) paths)
+    (prtnl (str "mkdir " cpath ": threw " _)))
   nil)
 
 (defun del-directory (ic &optional args)
@@ -110,7 +130,7 @@
     flist (if (nempty? paths) paths (list "."))
     frmt  _pn-name-only
     fltr  _pn_short-filter
-    mlst  :all-members)
+    mlst  :all_members)
   (each (lambda (el)
           (cond
             ((eql el "l")
@@ -119,7 +139,7 @@
                      (str "FL:" _fn))))
             ((eql el "a")
              (setq
-                mlst :all-members
+                mlst :all_members
                 fltr _pn-all-filter))
             ((eql el "d")
              (setq fltr _pn-dir-filter))

@@ -58,6 +58,7 @@
                               (not (eql _fn ".."))
                               (not (eql (first _fn) "."))) t)))
 
+
 (defclass path-node (name &optional parent)
   ; file-system path tree
   (def (defq this (named-xnode name parent))
@@ -98,8 +99,8 @@
     ; Returns list of pairs from pii-dirlist
     (partition 2 (split (pii-dirlist (. this :full_path)) ",")))
 
-  (defmethod :all-members (this &optional name-fn filter-fn)
-    ; (. path-node :all-members [name-fn filter-fn])
+  (defmethod :all_members (this &optional name-fn filter-fn)
+    ; (. path-node :all_members [name-fn filter-fn])
     ; HOF
     ; Returns filtered members of path-node [filter-fn]
     ; then maps results using name function [name-fn]
@@ -109,25 +110,25 @@
       filter-fn _pn-all-filter)
     (map name-fn (filter filter-fn (. this :members))))
 
-  (defmethod :dir-members (this &optional name-fn filter-fn)
-    ; (. path-node :dir-members [name-fn filter-fn])
+  (defmethod :dir_members (this &optional name-fn filter-fn)
+    ; (. path-node :dir_members [name-fn filter-fn])
     ; HOF
     ; Returns directory type members of path-node [filter-fn]
     ; then maps results using name function [name-fn]
     (setd
       name-fn _pn-name-only
       filter-fn _pn-dir-filter)
-    (. this :all-members name-fn filter-fn))
+    (. this :all_members name-fn filter-fn))
 
-  (defmethod :file-members (this &optional name-fn filter-fn)
-    ; (. path-node :file-members [name-fn filter-fn])
+  (defmethod :file_members (this &optional name-fn filter-fn)
+    ; (. path-node :file_members [name-fn filter-fn])
     ; HOF
     ; Returns file type members of path-node [filter-fn]
     ; then maps results using name function [name-fn]
     (setd
       name-fn _pn-name-only
       filter-fn _pn-file-filter)
-    (. this :all-members name-fn filter-fn))
+    (. this :all_members name-fn filter-fn))
 
   (defmethod :fqname (this filename)
     ; (. path-node filename) -> string
@@ -135,49 +136,51 @@
     (defq pn (. this :full_path))
     (str pn (if (eql (last pn) _pathseparator) "" _pathseparator) filename))
 
-  (defmethod :child_segment (this namestr)
+  (defmethod :child_segment (this node_name)
+    ; (. path-node :child_segment node_name)
     (cond
       ((. this :is_root?)
-        (. this :child_for_node_name namestr))
+        (. this :child_for_node_name node_name))
       ((defq snode (. this :child_for_node_name _pathseparator))
-        (. snode :child_for_node_name namestr))
+        (. snode :child_for_node_name node_name))
       (t nil)))
 
-  (defmethod :expandto (this strpathlist)
+  (defmethod :prior_segment (this)
+    ; (. path-node :prior_segment) -> path-node
+    (defq p1 (. this :get_parent))
+    (cond
+      ; Root where this = first sep
+      ((nil? p1) this)
+      ; Parent is root
+      ((nil? (. p1 :get_parent)) p1)
+      (t (. p1 :get_parent))))
+
+  (defmethod :new_child_segment (this node_name)
+    ; (. path-node :new_segment node_name)
+    ; Adds a new child segment with separator and node if
+    ; doesn't exist
+    (cond
+      ; No need to add separator to root as it is already
+      ((and (. this :is_root?) (eql node_name _pathseparator))
+        this)
+      ; No need to add separator of root, just add new
+      ((. this :is_root?)
+        (. this :add_node (path-node node_name)))
+      ; Add a separator as child of this and then new to that
+      (t
+        (defq msep (opt
+          (. this :has_child? _pathseparator)
+          (. this :add_node (path-node _pathseparator))))
+        (opt
+          (. msep :has_child? node_name)
+          (. msep :add_node (path-node node_name))))))
+
+
+  (defmethod :expandto (this strpathlist &optional handler_fn)
     ; (. path-node :expandto path-node pathlist) -> path-node
     ; Builds out children to path provided in strpathlist
     ; throws exception if any path element is invalid
-    (defun index-of (etf elist)
-      (reduced-reduce (lambda (acc el)
-        (if (eql el etf) (reduced _) nil)) elist t))
-
-    (defun prior-segment (this)
-      (defq p1 (. this :get_parent))
-      (cond
-        ; Root where this = first sep
-        ((nil? p1) this)
-        ; Parent is root
-        ((nil? (. p1 :get_parent)) p1)
-        (t (. p1 :get_parent))))
-
-    (defun new-segment (this node_name)
-      (cond
-        ; No need to add separator to root as it is already
-        ((and (. this :is_root?) (eql node_name _pathseparator))
-          this)
-        ; No need to add separator of root, just add new
-        ((. this :is_root?)
-          (. this :add_node (path-node node_name)))
-        ; Add a separator as child of this and then new to that
-        (t
-          (defq msep (opt
-            (. this :has_child? _pathseparator)
-            (. this :add_node (path-node _pathseparator))))
-          (opt
-            (. msep :has_child? node_name)
-            (. msep :add_node (path-node node_name))))))
-
-    (reduce (lambda (acc el)
+    (reduced-reduce (lambda (acc el)
       (defq cn (. acc :child_segment el))
       (cond
         ; Relative moves
@@ -185,16 +188,18 @@
           acc)
         ; Back up
         ((eql el "..")
-          (prior-segment acc))
+          (. acc :prior_segment))
         ; Child already exists
         (cn cn)
         ; Fall through, validate child and add
         (t
-          (if (index-of el (. acc :dir-members))
-              (new-segment acc el)
-            (throw
-              (str el " is invalid child of path " (. acc :full_path))
-              (. acc :dir-members)))))) strpathlist this))
+          (if (find el (. acc :dir_members))
+              (. acc :new_child_segment el)
+              (if handler_fn
+                (handler_fn el acc _)
+                (throw
+                  (str el " is invalid child of path " (. acc :full_path))
+                  (. acc :dir_members))))))) strpathlist this))
   )
 
 (defun path-node? (this)
@@ -212,7 +217,7 @@
 ; Path string utilities
 
 (defun _path-tolist (pathname &optional sep)
-  ; (_strpath-tolist pathname) -> list
+  ; (_path-tolist pathname) -> list
   ; Parses a pathname string into a list of path elements
   ; example:
   ; (_path-tolist "/Users/bob/here") -> ("/" "Users") "/" "bob" "/" "here")
@@ -234,7 +239,7 @@
         (push acc el sep)))
     prsd seed))
 
-(defun node-for (pathname)
+(defun node-for (pathname &optional handler_fn)
   ; (change-dir pathname ) -> path-node
   ; Returns the path-node for pathname
   ; Will expand tree by building valid path-nodes in pathname
@@ -251,10 +256,28 @@
       _pathnoderoot)
     ; Fully qualified from root
     ((and (eql frstel _pathseparator) (> plen 1))
-      (. _pathnoderoot :expandto path-el))
+      (. _pathnoderoot :expandto path-el handler_fn))
     ; Relative current path
     (t
-      (. _current_dir :expandto path-el))))
+      (. _current_dir :expandto path-el handler_fn))))
+
+(defun make-dir (pathname &optional coe)
+  (setd coe :exception)
+  (defq
+    pname pathname
+    psplt (_path-tolist pname)
+    mhndl (if (eql coe :exception) nil (#(reduced (list %0 %1 %2))))
+    mres  (node-for pname mhndl)
+    cdir  _current_dir)
+  (while (lst? mres)
+    (print
+        "Got as far as " (. (second mres) :full_path)
+        " for " (first mres)
+        " which is in pos " (last mres) " of " pathname
+        " or " (slice (last mres) -1 psplt))
+    (setq mres (second mres)))
+  mres)
+
 
 (defun change-dir (pathname)
   ; (change-cdir pathname ) -> path-node
