@@ -414,11 +414,11 @@
 
 (defun empty? (_)
 	; (empty? form) -> bool
-	(cond ((seq? _) (= (length _) 0)) (t)))
+	(cond ((or (seq? _) (= (type-of _) 0)) (= (length _) 0)) (t)))
 
 (defun nempty? (_)
 	; (nempty? form) -> bool
-	(cond ((seq? _) (/= (length _) 0))))
+	(cond ((or (seq? _) (= (type-of _) 0)) (/= (length _) 0))))
 
 ;;;;;;;;;;;
 ; Sequences
