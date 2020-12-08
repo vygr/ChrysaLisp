@@ -8,7 +8,7 @@
 	;started by kernel for each link
 
 	(struct 'lk_node 'lk_node)
-	(ptr 'task_statics 'params 'msg 'data 'tx 'rx 'mem 'tx_msg 'out_msg 'key)
+	(ptr 'task_statics 'params 'msg 'data 'tx 'rx 'mem 'tx_msg 'key)
 	(pubyte 'pdata)
 	(long 'handle)
 	(uint 'lo_id 'hi_id 'id)
@@ -80,20 +80,18 @@
 		;do we have a free out slot
 		(loop-while {tx_msg->lk_msg_status = lk_chan_status_ready})
 			;see if any off chip mail for this link
-			(call 'sys_mail :ready {lk_node.lk_node_peer_cpu_id, key} '(r0))
-			(breakif '(r0 = 0))
-			(assign '(r0) {out_msg})
-			(ln-remove-node r0 r1)
+			(call 'sys_mail :ready {lk_node.lk_node_peer_cpu_id, key} {msg})
+			(breakifnot {msg})
 
 			;copy message data
-			(call 'sys_mem :copy {out_msg + ln_node_size, &tx_msg->lk_msg_stamp + ln_node_size, msg_stamp_size - ln_node_size})
-			(call 'sys_mem :copy {out_msg->msg_frag_data, &tx_msg->lk_msg_data, (out_msg->msg_frag_length + long_size - 1) & - long_size})
+			(call 'sys_mem :copy {msg + ln_node_size, &tx_msg->lk_msg_stamp + ln_node_size, msg_stamp_size - ln_node_size})
+			(call 'sys_mem :copy {msg->msg_frag_data, &tx_msg->lk_msg_data, (msg->msg_frag_length + long_size - 1) & - long_size})
 
 			;busy status
 			(assign {lk_chan_status_busy} {tx_msg->lk_msg_status})
 
 			;free message
-			(call 'sys_mail :free {out_msg})
+			(call 'sys_mail :free {msg})
 
 			;move on to next msg chan
 			(assign {&tx_msg->lk_msg_size} {tx_msg})

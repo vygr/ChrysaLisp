@@ -7251,7 +7251,7 @@ inputs
 r0 = peer cpu id (uint)
 r1 = key num object (ptr)
 outputs
-r0 = 0 if none, else msg node (ptr)
+r0 = 0 if none, else msg (ptr)
 ```
 
 ### sys_mail::lisp_read -> sys/mail/lisp_read

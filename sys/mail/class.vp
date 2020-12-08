@@ -718,7 +718,7 @@
 	;r0 = peer cpu id (uint)
 	;r1 = key num object (ptr)
 	;outputs
-	;r0 = 0 if none, else msg node (ptr)
+	;r0 = 0 if none, else msg (ptr)
 
 	(vp-def (next node key peer tuple via iter_begin iter_end)
 		'(r13 r12 r11 r10 r9))
@@ -743,6 +743,7 @@
 	(loop-end)
 	(vpif (list next '/= 0))
 		(vp-cpy-rr node next)
+		(ln-remove-node node key)
 	(endif)
 
 	(exit 'sys_mail :ready `(,next))
