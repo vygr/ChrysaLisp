@@ -1,6 +1,6 @@
 OS := $(shell uname)
 CPU := $(shell uname -m)
-DTZ := $(word 5, $(shell date))
+DTZ := $(shell date "+%Z")
 ifeq ($(CPU),x86_64)
 ABI := AMD64
 else
