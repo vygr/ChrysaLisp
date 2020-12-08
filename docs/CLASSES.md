@@ -6947,9 +6947,13 @@ loader is already initialized when we get here !
 
 Super Class: null
 
-### sys_link::init -> sys/link/init
+### sys_link::in -> sys/link/in
 
-### sys_link::link -> sys/link/link
+```lisp
+started by kernel for each link
+```
+
+### sys_link::out -> sys/link/out
 
 ```lisp
 started by kernel for each link

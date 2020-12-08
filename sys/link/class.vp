@@ -5,11 +5,11 @@
 (include "class/num/class.inc")
 (include "class/hmap/class.inc")
 
-(def-method 'sys_link :link)
+(def-method 'sys_link :out)
 	;started by kernel for each link
 
 	(struct 'lk_node 'lk_node)
-	(ptr 'task_statics 'params 'msg 'data 'rx 'tx 'mem 'rx_msg 'tx_msg 'out_msg 'key)
+	(ptr 'task_statics 'params 'msg 'data 'tx 'rx 'mem 'tx_msg 'out_msg 'key)
 	(pubyte 'pdata)
 	(long 'handle)
 	(uint 'lo_id 'hi_id 'id)
@@ -19,7 +19,7 @@
 	;decrement task count
 	;don't count links in load balancing
 	(assign (cat {@} (f-path 'sys_task :statics)) {task_statics})
-	(assign {task_statics->tk_statics_task_count - 1} {task_statics->tk_statics_task_count})
+	(assign {task_statics->tk_statics_task_count - 2} {task_statics->tk_statics_task_count})
 
 	;add link node to link array
 	(call 'array :push_back (cat {@} (f-path 'sys_mail :statics) {.ml_statics_links_array, &lk_node}))
@@ -57,28 +57,32 @@
 	(assign {0 => data->kn_msg_ping_session} {data->kn_msg_ping_hops})
 	(call 'sys_mail :send {msg})
 
-	;tx channel, rx channel
-	;tx msg, rx msg
-	(assign {mem + tx, mem + rx} {tx, rx})
-	(assign {&tx->lk_chan_msg0, &rx->lk_chan_msg0} {tx_msg, rx_msg})
+	;tx channel, tx msg
+	(assign {mem + tx} {tx})
+	(assign {&tx->lk_chan_msg0} {tx_msg})
+
+	;start in link and send params
+	(call 'sys_mail :alloc {16} {msg, data})
+	(call 'sys_task :start (cat {@} (f-path 'sys_link :in)) {_, msg->msg_dest.id_id, _})
+	(assign {&lk_node} {ptr(data + 0)})
+	(assign {mem + rx} {ptr(data + ptr_size)})
+	(call 'sys_mail :send {msg})
 
 	;switch to link priority and sleep to
 	;let other links join us at this priority
 	(call 'sys_task :set_priority '(1))
 	(call 'sys_task :sleep '(10000))
 
-	;read and write messages through the shared buffer
+	;write messages through the shared buffer
 	(loop-start)
-		;exchange task counts
+		;write my task count
 		(assign {task_statics->tk_statics_task_count} {tx->lk_chan_task_count})
-		(assign {rx->lk_chan_task_count} {lk_node.lk_node_task_count})
 
 		;do we have a free out slot
-		(vpif {tx_msg->lk_msg_status = lk_chan_status_ready})
+		(loop-while {tx_msg->lk_msg_status = lk_chan_status_ready})
 			;see if any off chip mail for this link
 			(call 'any_out_mail {lk_node.lk_node_peer_cpu_id, key} '(r0))
 			(breakif '(r0 = 0))
-		(vp-label 'send_msg)
 			(assign '(r0) {out_msg})
 			(ln-remove-node r0 r1)
 
@@ -96,47 +100,13 @@
 			(assign {&tx_msg->lk_msg_size} {tx_msg})
 			(breakif {tx_msg /= &tx->lk_chan_size})
 			(assign {&tx->lk_chan_msg0} {tx_msg})
-		(endif)
 
-		;check for received message
-		(vpif {rx_msg->lk_msg_status = lk_chan_status_busy})
-			;is this msg part of a parcel for this cpu
-			(vpif {rx_msg->lk_msg_stamp.msg_total_length && rx_msg->lk_msg_stamp.msg_dest.id_cpu = id})
-				;copy direct from link buffer to parcel !
-				(call 'sys_mail :in {rx_msg})
-			(else)
-				;allocate msg, copy over data
-				(call 'sys_mail :alloc {rx_msg->lk_msg_stamp.msg_frag_length} {msg, data})
-				(call 'sys_mem :copy {&rx_msg->lk_msg_stamp + ln_node_size, msg + ln_node_size, msg_stamp_size - ln_node_size})
-				(call 'sys_mem :copy {&rx_msg->lk_msg_data, data, rx_msg->lk_msg_stamp.msg_frag_length + long_size - 1) & - long_size})
+			;let other links run
+			(call 'sys_task :sleep '(0))
+		(loop-end)
 
-				;clear status
-				(assign {lk_chan_status_ready} {rx_msg->lk_msg_status})
-
-				;send onwards
-				(call 'sys_mail :send {msg})
-			(endif)
-
-			;move on to next msg chan
-			(assign {&rx_msg->lk_msg_size} {rx_msg})
-			(breakif {rx_msg /= &rx->lk_chan_size})
-			(assign {&rx->lk_chan_msg0} {rx_msg})
-		(endif)
-
-		;let other links run
-		(call 'sys_task :sleep '(0))
-
-		;check status
-		(switch)
-		(breakif {rx_msg->lk_msg_status = lk_chan_status_busy})
-		(vpcase {tx_msg->lk_msg_status = lk_chan_status_ready})
-			;see if any off chip mail for me
-			(call 'any_out_mail {lk_node.lk_node_peer_cpu_id, key} '(r0))
-			(gotoif '(r0 /= 0) 'send_msg)
-		(default)
-			;small sleep if nothing to do
-			(call 'sys_task :sleep '(1000))
-		(endswitch)
+		;small sleep if nothing to do
+		(call 'sys_task :sleep '(500))
 
 		;exit if signaled by kernel
 	(loop-until {lk_node.lk_node_peer_cpu_id = 0xffffffff})
@@ -154,7 +124,7 @@
 	(call 'num :destroy {key})
 
 	;restore task count
-	(assign {task_statics->tk_statics_task_count + 1} {task_statics->tk_statics_task_count})
+	(assign {task_statics->tk_statics_task_count + 2} {task_statics->tk_statics_task_count})
 	(pop-scope)
 	(return)
 
@@ -192,5 +162,72 @@
 
 	(exit `(,next))
 	(vp-ret)
+
+(def-func-end)
+
+(def-method 'sys_link :in)
+	;started by kernel for each link
+
+	(ptr 'lk_node 'msg 'data 'rx 'rx_msg)
+	(uint 'id)
+
+	(push-scope)
+
+	;read params msg from out link
+	(call 'sys_mail :mymail nil {msg, data})
+	(assign {ptr(data + 0)} {lk_node})
+	(assign {ptr(data + ptr_size)} {rx})
+	(call 'sys_mail :free {msg})
+
+	;kernel id, rx msg
+	(call 'sys_kernel :id nil {id})
+	(assign {&rx->lk_chan_msg0} {rx_msg})
+
+	;switch to link priority and sleep to
+	;let other links join us at this priority
+	(call 'sys_task :set_priority '(1))
+	(call 'sys_task :sleep '(10000))
+
+	;read messages from the shared buffer
+	(loop-start)
+		;read neibour task count
+		(assign {rx->lk_chan_task_count} {lk_node->lk_node_task_count})
+
+		;check for received message
+		(loop-while {rx_msg->lk_msg_status = lk_chan_status_busy})
+			;is this msg part of a parcel for this cpu
+			(vpif {rx_msg->lk_msg_stamp.msg_total_length && rx_msg->lk_msg_stamp.msg_dest.id_cpu = id})
+				;copy direct from link buffer to parcel !
+				(call 'sys_mail :in {rx_msg})
+			(else)
+				;allocate msg, copy over data
+				(call 'sys_mail :alloc {rx_msg->lk_msg_stamp.msg_frag_length} {msg, data})
+				(call 'sys_mem :copy {&rx_msg->lk_msg_stamp + ln_node_size, msg + ln_node_size, msg_stamp_size - ln_node_size})
+				(call 'sys_mem :copy {&rx_msg->lk_msg_data, data, rx_msg->lk_msg_stamp.msg_frag_length + long_size - 1) & - long_size})
+
+				;clear status
+				(assign {lk_chan_status_ready} {rx_msg->lk_msg_status})
+
+				;send onwards
+				(call 'sys_mail :send {msg})
+			(endif)
+
+			;move on to next msg chan
+			(assign {&rx_msg->lk_msg_size} {rx_msg})
+			(breakif {rx_msg /= &rx->lk_chan_size})
+			(assign {&rx->lk_chan_msg0} {rx_msg})
+
+			;let other links run
+			(call 'sys_task :sleep '(0))
+		(loop-end)
+
+		;small sleep as nothing to do
+		(call 'sys_task :sleep '(500))
+
+		;exit if signaled by kernel
+	(loop-until {lk_node->lk_node_peer_cpu_id = 0xffffffff})
+
+	(pop-scope)
+	(return)
 
 (def-func-end)
