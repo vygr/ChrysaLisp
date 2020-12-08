@@ -421,7 +421,7 @@
 
 (defun empty? (_)
 	; (empty? form) -> bool
-	(cond ((or (seq? _) (= (type-of _) 0)) (= (length _) 0))))
+	(cond ((or (seq? _) (= (type-of _) 0)) (= (length _) 0)) (t)))
 
 (defun nempty? (_)
 	; (nempty? form) -> bool
