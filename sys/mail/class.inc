@@ -30,6 +30,7 @@
 (dec-method :junk_mail 'sys/mail/junk_mail :static '(r3))
 (dec-method :in 'sys/mail/in :static '(r0))
 (dec-method :out 'sys/mail/out)
+(dec-method :ready 'sys/mail/ready :static '(r0 r1) '(r0))
 
 (dec-method :lisp_read 'sys/mail/lisp_read :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_poll 'sys/mail/lisp_poll :static '(r0 r1) '(r0 r1))

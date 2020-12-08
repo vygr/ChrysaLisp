@@ -3,7 +3,6 @@
 (include "sys/kernel/class.inc")
 (include "class/array/class.inc")
 (include "class/num/class.inc")
-(include "class/hmap/class.inc")
 
 (def-method 'sys_link :out)
 	;started by kernel for each link
@@ -81,7 +80,7 @@
 		;do we have a free out slot
 		(loop-while {tx_msg->lk_msg_status = lk_chan_status_ready})
 			;see if any off chip mail for this link
-			(call 'any_out_mail {lk_node.lk_node_peer_cpu_id, key} '(r0))
+			(call 'sys_mail :ready {lk_node.lk_node_peer_cpu_id, key} '(r0))
 			(breakif '(r0 = 0))
 			(assign '(r0) {out_msg})
 			(ln-remove-node r0 r1)
@@ -127,41 +126,6 @@
 	(assign {task_statics->tk_statics_task_count + 2} {task_statics->tk_statics_task_count})
 	(pop-scope)
 	(return)
-
-(vp-label 'any_out_mail)
-	;inputs
-	;r0 = peer cpu id (uint)
-	;r1 = key num object (ptr)
-	;outputs
-	;r0 = 0 if none, else msg node (ptr)
-
-	(vp-def (next node key peer tuple via iter_begin iter_end)
-		'(r13 r12 r11 r10 r9))
-
-	(entry `(,peer ,key))
-
-	(f-bind 'sys_mail :statics next)
-	(loop-list-forward next ml_statics_offchip_list node next 'exit)
-		(vp-cpy-ir-ui node (+ msg_dest id_cpu) via)
-		(breakif (list peer '= via))
-		(vp-cpy-ri via key num_value)
-		(f-bind 'sys_mail :statics tuple)
-		(call 'hmap :find `((,tuple ml_statics_routing_map) ,key) `(_ ,tuple _))
-		(continueif (list tuple '= 0))
-		(call 'array :get_both `((,tuple ptr_size)) `(_ ,iter_begin ,iter_end))
-		(vp-add-cr (* 2 long_size) iter_begin)
-		(loop-start)
-			(vp-cpy-ir iter_begin 0 via)
-			(vp-add-cr long_size iter_begin)
-			(breakif (list via '= peer) 'exit)
-		(loop-until (list iter_begin '= iter_end))
-	(loop-end)
-	(vpif (list next '/= 0))
-		(vp-cpy-rr node next)
-	(endif)
-
-	(exit `(,next))
-	(vp-ret)
 
 (def-func-end)
 
