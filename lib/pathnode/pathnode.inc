@@ -290,9 +290,9 @@
         ; Current dir based
         (t
           (setq fpath (. _current_dir :fqname pathname))))
-      (setq fpath (str fpath _pathseparator))
-      (when (nil? (defq oc (file-stream fpath file_open_write)))
-        (throw (str "permission exception creating directory " fpath) oc)))
+      (file-stream (str fpath _pathseparator) file_open_write))
+      ; (when (nil? (defq oc (file-stream fpath file_open_write)))
+      ;   (throw (str "permission exception creating directory " fpath) oc))
     (t
       (defq
         pname pathname
@@ -308,9 +308,9 @@
         (when (> (length (slice plistndx -1 psplt)) 1)
           (throw (str "missing intermediate paths " pathname " from ")
             (. pnode :full_path)))
-        (setq fpath (str (. pnode :fqname segname) _pathseparator))
-        (when (nil? (defq oc (file-stream fpath file_open_write)))
-          (throw (str "permission exception creating directory " fpath) oc))))))
+        (file-stream (str (. pnode :fqname segname) _pathseparator) file_open_write)))))
+        ; (when (nil? (defq oc (file-stream fpath file_open_write)))
+        ;   (throw (str "permission exception creating directory " fpath) oc))
 
 (defun change-dir (pathname)
   ; (change-cdir pathname ) -> path-node

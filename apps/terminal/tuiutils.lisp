@@ -68,13 +68,15 @@
   ; Creates a directory
   (bind '(sargs flags paths) (_split-args args))
   (defq flgs  (_collapse_flags flags))
-  (each
-    (lambda (_el)
-      (catch
-        (if (gets flgs "p")
-            (make-dir _el t)
-            (make-dir _el))
-        (prtnl (str "mkdir " _el ": threw " _)))) paths)
+  (if (= (length paths) 0)
+      (prtnl "mkdir [-p] path ...")
+      (each
+        (lambda (_el)
+          (catch
+            (if (gets flgs "p")
+                (make-dir _el t)
+                (make-dir _el))
+            (prtnl (str "mkdir " _el ": threw " _)))) paths))
   nil)
 
 (defun del-directory (ic &optional args)

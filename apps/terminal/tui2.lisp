@@ -124,8 +124,8 @@
   (prtnl " cp     Copies a file (not implemented)")
   (prtnl "")
   (prtnl " mkdir - Makes directories. Usage:")
-  (prtnl "    >make-dir path ...      ; Fails if intermediate segment of path does not exist")
-  (prtnl "    >make-dir -p path ...   ; Creates intermediates segments of path if needed")
+  (prtnl "    >mkdir path ...      ; Fails if intermediate segment of path does not exist")
+  (prtnl "    >mkdir -p path ...   ; Creates intermediates segments of path if needed")
   (prtnl "")
   (prtnl " mv     Moves a file (not implemented)")
   (prtnl "")
@@ -217,7 +217,7 @@
   ; Load path-nodes
   (defq continue t)
   ;sign on msg
-  (prtnl "ChrysaLisp Terminal-2 0.6 (experimental)")
+  (prtnl "ChrysaLisp Terminal-2 0.7 (experimental)")
   (log-debug tlog "Started Terminal 2")
   (while continue
     (catch
