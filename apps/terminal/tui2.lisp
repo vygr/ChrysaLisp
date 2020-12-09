@@ -118,11 +118,15 @@
   (prtnl " ls - List directory content. Usage:")
   (prtnl "    >ls     ; Lists current working directory files")
   (prtnl "")
-  (prtnl " cd - Change directory. Usage:")
+  (prtnl " cd - Changes directory. Usage:")
   (prtnl "    >cd newpath ; Change directory to newpath")
   (prtnl "")
   (prtnl " cp     Copies a file (not implemented)")
-  (prtnl " mkdir  Makes a directory (not implemented)")
+  (prtnl "")
+  (prtnl " mkdir - Makes directories. Usage:")
+  (prtnl "    >mkdir path ...      ; Fails if intermediate segment of path does not exist")
+  (prtnl "    >mkdir -p path ...   ; Creates intermediates segments of path if needed")
+  (prtnl "")
   (prtnl " mv     Moves a file (not implemented)")
   (prtnl "")
   (prtnl " pwd - Print current directory. Usage:")
@@ -213,7 +217,7 @@
   ; Load path-nodes
   (defq continue t)
   ;sign on msg
-  (prtnl "ChrysaLisp Terminal-2 0.6 (experimental)")
+  (prtnl "ChrysaLisp Terminal-2 0.7 (experimental)")
   (log-debug tlog "Started Terminal 2")
   (while continue
     (catch
