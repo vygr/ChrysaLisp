@@ -52,7 +52,6 @@
 (dec-method :lisp_catch 'class/lisp/lisp_catch :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_bind 'class/lisp/lisp_bind :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_read 'class/lisp/lisp_read :static '(r0 r1) '(r0 r1))
-(dec-method :lisp_type 'class/lisp/lisp_type :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_mcall 'class/lisp/lisp_mcall :static '(r0 r1) '(r0 r1))
 
 (dec-method :run 'class/lisp/run)

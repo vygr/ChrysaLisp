@@ -1,6 +1,7 @@
 (include "sys/func.inc")
 (include "class/obj/class.inc")
 (include "class/str/class.inc")
+(include "class/list/class.inc")
 (include "class/stream/class.inc")
 (include "lib/consts/chars.inc")
 
@@ -159,6 +160,26 @@
 	(vp-pop r0)
 
 	(exit 'obj :print '(r0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'obj :type)
+	;inputs
+	;r0 = obj object (ptr)
+	;outputs
+	;r0 = obj object (ptr)
+	;r1 = type list object (ptr)
+	;trashes
+	;r1-r14
+
+	(entry 'obj :type '(r0))
+
+	(vp-push r0)
+	(call 'list :create nil '(r1))
+	(vp-pop r0)
+
+	(exit 'obj :type '(r0 r1))
 	(vp-ret)
 
 (def-func-end)

@@ -44,11 +44,11 @@
 
 (defun debug-fun? (_)
 	; (debug-fun? form)
-	(and (= (type-of _) lisp_type_lst) (/= 0 (length _))
+	(and (find :list (type-of _)) (/= 0 (length _))
 		(not (or (eql 'quote (elem 0 _)) (eql 'debug (elem 0 _))))
-		(= (type-of (elem 0 _)) lisp_type_sym) (setq _ (get (elem 0 _)))
-		(or (= (type-of _) lisp_type_fnc)
-			(and (= (type-of _) lisp_type_lst) (/= 0 (length _)) (eql 'lambda (elem 0 _))))))
+		(find :sym (type-of (elem 0 _))) (setq _ (get (elem 0 _)))
+		(or (find :func (type-of _))
+			(and (find :list (type-of _)) (/= 0 (length _)) (eql 'lambda (elem 0 _))))))
 
 (defun debug-fun (n _)
 	; (debug-fun name list) -> list

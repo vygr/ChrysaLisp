@@ -1,4 +1,28 @@
 (include "sys/func.inc")
 (include "class/seq/class.inc")
+(include "class/sym/class.inc")
+(include "class/list/class.inc")
 
 (gen-vtable 'seq)
+
+(def-method 'seq :type)
+	;inputs
+	;r0 = seq object (ptr)
+	;outputs
+	;r0 = seq object (ptr)
+	;r1 = type list object (ptr)
+	;trashes
+	;r1-r14
+
+	(entry 'seq :type '(r0))
+
+	(s-call 'seq :type '(r0) '(r0 r1))
+	(vp-push r0 r1)
+	(call 'sym :ref_static_sym '(static_sym_seq) '(r1))
+	(call 'list :push_back '((rsp 0) r1) '(r1 _ _ _))
+	(vp-pop r0 r1)
+
+	(exit 'seq :type '(r0 r1))
+	(vp-ret)
+
+(def-func-end)

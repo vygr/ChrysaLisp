@@ -7,6 +7,7 @@
 (dec-method :get_value 'class/num/get_value :static '(r0) '(r0 r1))
 (dec-method :set_value 'class/num/set_value :static '(r0 r1) '(r0 r1))
 
+(dec-method :type 'class/num/type :override '(r0) '(r0 r1))
 (dec-method :print 'class/num/print :override)
 (dec-method :vcreate 'class/num/create :virtual '(r0) '(r0))
 

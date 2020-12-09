@@ -91,9 +91,9 @@
 (ffi reals "class/array/lisp_reals" 0)
 
 (ffi hash "class/obj/lisp_hash" 0)
-(ffi type-of "class/lisp/lisp_type" 0)
 (ffi eql "class/lisp/lisp_eql" 0)
 (ffi copy "class/lisp/lisp_copy" 0)
+(ffi type-of "class/obj/lisp_type" 0)
 
 (ffi macroexpand "class/lisp/lisp_macroexpand" 0)
 
@@ -129,12 +129,6 @@
 	((defq prebind (lambda (_) _))))
 
 (defq t 't nil 'nil
-	lisp_type_lst (<< 1 0)
-	lisp_type_int (<< 1 1)
-	lisp_type_str (<< 1 2)
-	lisp_type_sym (<< 1 3)
-	lisp_type_fnc (<< 1 4)
-	lisp_type_env (<< 1 5)
 	defmacro '(macro (n a &rest _) `(defq ,n (macro ,a ~_))))
 
 (defmacro defun (n a &rest _)
@@ -170,33 +164,32 @@
 
 (defmacro lst? (_)
 	; (lst? form) -> t | nil
-	`(= (type-of ,_) ,lisp_type_lst))
+	`(find :list (type-of ,_)))
 (defmacro num? (_)
 	; (num? form) -> t | nil
-	`(= (type-of ,_) ,lisp_type_int))
+	`(find :num (type-of ,_)))
 (defmacro fnc? (_)
 	; (fnc? form) -> t | nil
-	`(= (type-of ,_) ,lisp_type_fnc))
+	`(find :func (type-of ,_)))
 (defmacro str? (_)
 	; (str? form) -> t | nil
-	`(= (type-of ,_) ,lisp_type_str))
+	`(find :str (type-of ,_)))
 (defmacro sym? (_)
 	; (sym? form) -> t | nil
-	`(= (type-of ,_) ,lisp_type_sym))
+	`(find :sym (type-of ,_)))
 (defmacro env? (_)
 	; (env? form) -> t | nil
-	`(= (type-of ,_) ,lisp_type_env))
+	`(find :hmap (type-of ,_)))
 (defmacro seq? (_)
 	; (seq? form) -> t | nil
-	`(or (= (defq ,(defq __ (gensym)) (type-of ,_)) ,lisp_type_lst)
-		(= ,__ ,lisp_type_str)))
+	`(find :seq (type-of ,_)))
 (defmacro fun? (_)
 	; (fun? form) -> t | nil
-	`(and (= (type-of (defq ,(defq __ (gensym)) ,_)) ,lisp_type_lst)
+	`(and (find :list (type-of (defq ,(defq __ (gensym)) ,_)))
 		(> (length ,__) 0) (eql (elem 0 ,__) 'lambda)))
 (defmacro macro? (_)
 	; (macro? form) -> t | nil
-	`(and (= (type-of (defq ,(defq __ (gensym)) ,_)) ,lisp_type_lst)
+	`(and (find :list (type-of (defq ,(defq __ (gensym)) ,_)))
 		(> (length ,__) 0) (eql (elem 0 ,__) 'macro)))
 
 (defmacro inc (_)
@@ -266,7 +259,7 @@
 	; (case form [(key body)] ...)
 	(if (defq table (reduce-rev (lambda (table (keys &rest clause_body))
 			(unless (lst? keys) (setq keys (list keys)))
-			(unless (some! 0 -1 t (lambda (clause) (= (type-of clause) (const lisp_type_sym))) (list keys))
+			(unless (some! 0 -1 t (lambda (clause) (find :sym (type-of clause))) (list keys))
 				(throw "Key not symbol !" keys))
 			(each! 0 -1 (lambda (key)
 					(push (elem 0 table) key)

@@ -13,6 +13,7 @@
 
 (dec-method :print 'class/obj/print :virtual '(r0 r1) '(r0))
 (dec-method :hash 'class/obj/hash :virtual '(r0) '(r0 r1))
+(dec-method :type 'class/obj/type :virtual '(r0) '(r0 r1))
 (if (> *debug_mode* 1)
 (dec-method :deinit 'class/obj/deinit :virtual '(r0) '(r0))
 (dec-method :deinit 'class/obj/null :virtual '(r0) '(r0)))
@@ -22,6 +23,7 @@
 (dec-method :lisp_hash 'class/obj/lisp_hash :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_weak_ref 'class/obj/lisp_weak_ref :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_obj_ref 'class/obj/lisp_obj_ref :static '(r0 r1) '(r0 r1))
+(dec-method :lisp_type 'class/obj/lisp_type :static '(r0 r1) '(r0 r1))
 
 (def-struct 'obj)
 	(pptr 'vtable)

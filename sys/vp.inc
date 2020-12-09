@@ -203,14 +203,14 @@
 		(elem _ '(b ub s us i ui)) ""))
 
 (defun vp-type (o)
-	(defq i (type-of o))
-	(cond
-		((= i lisp_type_sym)
+	(defq i (pop (type-of o)))
+	(case i
+		(:sym
 			(cond
 				((reg o) 'r)
 				(t 'c)))
-		((= i lisp_type_int) 'c)
-		((= i lisp_type_lst)
+		(:num 'c)
+		(:list
 			(setq i (elem 0 o))
 			(cond
 				((reg i)
@@ -231,7 +231,7 @@
 					(if (reg (elem 1 o))
 						(if (reg (elem 2 o)) '&d '&i) nil))
 				(t 'c)))
-		((= i lisp_type_str) 's)
+		(:str 's)
 		(t nil)))
 
 (defun label-sym (s) (sym (cat "_l_" s)))
