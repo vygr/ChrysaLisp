@@ -48,6 +48,21 @@ function add_link
 	$rv
 }
 
+function wrap
+{
+	param (
+		$cpu,
+		$num_cpu
+	)
+
+	$wp=$(($cpu % $num_cpu))
+	if ( $wp -lt 0 ){
+		$wp=$(($wp + $num_cpu))
+	}
+
+	$wp
+}
+
 function boot_cpu_gui
 {
 	param (
