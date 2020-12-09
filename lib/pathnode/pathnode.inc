@@ -262,22 +262,55 @@
       (. _current_dir :expandto path-el handler_fn))))
 
 (defun make-dir (pathname &optional coe)
-  (setd coe :exception)
-  (defq
-    pname pathname
-    psplt (_path-tolist pname)
-    mhndl (if (eql coe :exception) nil (#(reduced (list %0 %1 %2))))
-    mres  (node-for pname mhndl)
-    cdir  _current_dir)
-  (while (lst? mres)
-    (print
-        "Got as far as " (. (second mres) :full_path)
-        " for " (first mres)
-        " which is in pos " (last mres) " of " pathname
-        " or " (slice (last mres) -1 psplt))
-    (setq mres (second mres)))
-  mres)
+  ; (make-dir pathname [:exception | not-nil]) -> nil | exception
+  ; Attempts to create, on the fs, pathname
+  ; If coe not= :exception then all segments will be built
+  ; If coe nil, then exception is default
+  ; The default will require that the last element is the
+  ; only new one to succeed
 
+  (setd coe :exception)
+  (cond
+    ; Create all paths
+    ((not (eql coe :exception))
+      (defq fpath nil)
+      (cond
+        ; Releative up one
+        ((starts-with (str ".." _pathseparator) pathname)
+          (setq fpath
+            (.
+              (. _current_dir :prior_segment)
+              :fqname (slice 3 -1 pathname))))
+        ; Relative to current dir
+        ((starts-with (str "." _pathseparator) pathname)
+          (setq fpath (. _current_dir :fqname (slice 2 -1 pathname))))
+        ; Root based
+        ((starts-with _pathseparator pathname)
+          (setq fpath pathname))
+        ; Current dir based
+        (t
+          (setq fpath (. _current_dir :fqname pathname))))
+      (setq fpath (str fpath _pathseparator))
+      (when (nil? (defq oc (file-stream fpath file_open_write)))
+        (throw (str "permission exception creating directory " fpath) oc)))
+    (t
+      (defq
+        pname pathname
+        psplt (_path-tolist pname)
+        fpath nil)
+      (when (lst? (defq mres (node-for pname (#(reduced (list %0 %1 %2))))))
+        ; (
+        ;   segname - Offending path segment
+        ;   pnode - path-node where last valid
+        ;   plistndx - index of offending item in path-list
+        ; )
+        (bind '(segname pnode plistndx) mres)
+        (when (> (length (slice plistndx -1 psplt)) 1)
+          (throw (str "missing intermediate paths " pathname " from ")
+            (. pnode :full_path)))
+        (setq fpath (str (. pnode :fqname segname) _pathseparator))
+        (when (nil? (defq oc (file-stream fpath file_open_write)))
+          (throw (str "permission exception creating directory " fpath) oc))))))
 
 (defun change-dir (pathname)
   ; (change-cdir pathname ) -> path-node

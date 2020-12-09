@@ -66,28 +66,15 @@
 (defun make-directory (ic &optional args)
   ; (make-directory internal args) -> nil
   ; Creates a directory
-  ; Implement by using (file-stream path file_write_append)
-  ; which is inefficient. Should have a make dir in the
-  ; main kernel
   (bind '(sargs flags paths) (_split-args args))
-  (defq cpath nil)
-  (catch
-    (each (lambda (_el)
-            (setq cpath _el)
-            (defq
-              dp    (find-rev _pathseparator _el)
-              pnode nil
-              dname nil)
-            (if dp
-                (setq
-                  pnode (node-for (slice 0 dp _el))
-                  dname (slice (inc dp) -1 _el))
-                (setq
-                  pnode _current_dir
-                  dname _el))
-            (prtnl (str "Add " dname " to " (. pnode :full_path)))
-            ) paths)
-    (prtnl (str "mkdir " cpath ": threw " _)))
+  (defq flgs  (_collapse_flags flags))
+  (each
+    (lambda (_el)
+      (catch
+        (if (gets flgs "p")
+            (make-dir _el t)
+            (make-dir _el))
+        (prtnl (str "mkdir " _el ": threw " _)))) paths)
   nil)
 
 (defun del-directory (ic &optional args)
