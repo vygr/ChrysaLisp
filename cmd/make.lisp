@@ -3,18 +3,18 @@
 (import "lib/pipe/pipe.inc")
 (import "lib/options/options.inc")
 
-(defun boot-fncs ()
+(defun boot-funcs ()
 	(defq out (list) e (penv))
 	(while (penv e) (setq e (penv e)))
 	(each (lambda ((k v))
-		(if (fnc? v) (push out k))) (tolist e))
+		(if (func? v) (push out k))) (tolist e))
 	(sort cmp out))
 
-(defun boot-funs ()
+(defun boot-lambdas ()
 	(defq out (list) e (penv))
 	(while (penv e) (setq e (penv e)))
 	(each (lambda ((k v))
-		(if (fun? v) (push out k))) (tolist e))
+		(if (lambda? v) (push out k))) (tolist e))
 	(sort cmp out))
 
 (defun boot-macros ()

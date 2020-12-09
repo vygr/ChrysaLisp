@@ -20,7 +20,7 @@
 		(setq *out_buffer* (str *out_stream*) *pass* (inc *pass*))))
 
 (defun print-emit (_)
-	(and (lst? _) (not (eql (elem 0 _) 'lambda)) (print _)))
+	(and (list? _) (not (eql (elem 0 _) 'lambda)) (print _)))
 
 (defun emit-label (_)
 	(set (penv) _ *pc*))

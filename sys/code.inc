@@ -387,7 +387,7 @@
 			(setq *sym_sp* (+ *sym_sp* s)))))
 
 (defmacro union (&rest _)
-	(if (notevery lst? _)
+	(if (notevery list? _)
 		(throw "Union needs lists as parameters !" _))
 	(cond
 		(*struct*
@@ -426,11 +426,11 @@
 (defun assign-topology-sort ()
 	(defq s *src* d *dst* i 0 c 1000 l (dec (length d)))
 	(while (and (< i l) (/= c 0))
-		(if (setq j (unless (lst? (defq j (elem i d)))
+		(if (setq j (unless (list? (defq j (elem i d)))
 				(some! -1 (inc i) nil (lambda (s d)
 					(cond
-						((and (lst? s) (find-rev j s)) _)
-						((and (lst? d) (find-rev j d)) _)
+						((and (list? s) (find-rev j s)) _)
+						((and (list? d) (find-rev j d)) _)
 						((eql j s) _))) (list s d))))
 			(setq s (cat (slice 0 i s) (slice j (inc j) s) (slice i j s) (slice (inc j) -1 s))
 				d (cat (slice 0 i d) (slice j (inc j) d) (slice i j d) (slice (inc j) -1 d))
@@ -1046,7 +1046,7 @@
 ;;;;;;;;;;;;
 
 (defun print-inst (_)
-	(and (lst? _) (not (eql (elem 0 _) 'lambda)) (print (ascii-char 9) _)))
+	(and (list? _) (not (eql (elem 0 _) 'lambda)) (print (ascii-char 9) _)))
 
 (defun assign-asm-to-script (*src* *dst* _)
 	(unless (= (length *src*) (length (setq *dst* (map trim (split *dst* ",")))))

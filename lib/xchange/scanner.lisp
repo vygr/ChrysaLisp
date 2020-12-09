@@ -103,7 +103,7 @@
     p  (gets scn :possible_simple_keys)
     ke (entries p)
     ln (gets rdr :line))
-  (when (lst? (first ke))
+  (when (list? (first ke))
     (each
       (lambda ((k v))
         (when
@@ -512,7 +512,7 @@
     (setq res (fetch-next scn rdr)))
   (cond
     ; Exception
-    ((lst? res)
+    ((list? res)
      (print "I-> " (gets scn :indent) " " (gets scn :indents))
      (throw (second res) (last res)))
     ; End stream

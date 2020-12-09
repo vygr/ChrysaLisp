@@ -41,8 +41,8 @@
 	(while (penv e) (setq e (penv e)))
 	(each (lambda ((k v))
 		(cond
-			((fnc? v) (def keywords k (get :ink_keyword1 this)))
-			((fun? v) (def keywords k (get :ink_keyword2 this)))
+			((func? v) (def keywords k (get :ink_keyword1 this)))
+			((lambda? v) (def keywords k (get :ink_keyword2 this)))
 			((macro? v) (def keywords k (get :ink_keyword3 this)))))
 		(tolist e))
 

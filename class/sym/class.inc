@@ -43,7 +43,6 @@
 (def-static-sym ":sym")
 (def-static-sym ":array")
 (def-static-sym ":list")
-(def-static-sym ":hset")
 (def-static-sym ":hmap")
 
 (def-static-sym ":font")

@@ -298,16 +298,6 @@ r1-r2
 
 ### array::type -> class/array/type
 
-```lisp
-inputs
-r0 = array object (ptr)
-outputs
-r0 = array object (ptr)
-r1 = type list object (ptr)
-trashes
-r1-r14
-```
-
 ### array::print -> class/array/print
 
 ```lisp
@@ -1858,16 +1848,6 @@ r1
 
 ### func::type -> class/func/type
 
-```lisp
-inputs
-r0 = func object (ptr)
-outputs
-r0 = func object (ptr)
-r1 = type list object (ptr)
-trashes
-r1-r14
-```
-
 ### func::print -> class/func/print
 
 ```lisp
@@ -2108,16 +2088,6 @@ r1-r14
 ```
 
 ### hmap::type -> class/hmap/type
-
-```lisp
-inputs
-r0 = hmap object (ptr)
-outputs
-r0 = hmap object (ptr)
-r1 = type list object (ptr)
-trashes
-r1-r14
-```
 
 ### hmap::deinit -> class/hmap/deinit
 
@@ -2462,18 +2432,6 @@ r1-r14
 ### hset::key_callback -> class/obj/null
 
 ### hset::each_callback -> class/obj/null
-
-### hset::type -> class/hset/type
-
-```lisp
-inputs
-r0 = hset object (ptr)
-outputs
-r0 = hset object (ptr)
-r1 = type list object (ptr)
-trashes
-r1-r14
-```
 
 ### hset::deinit -> class/hset/deinit
 
@@ -3177,16 +3135,6 @@ Super Class: array
 
 ### list::type -> class/list/type
 
-```lisp
-inputs
-r0 = list object (ptr)
-outputs
-r0 = list object (ptr)
-r1 = type list object (ptr)
-trashes
-r1-r14
-```
-
 ### list::vcreate -> class/list/create
 
 ### list::deinit -> class/list/deinit
@@ -3430,16 +3378,6 @@ none
 ```
 
 ### num::type -> class/num/type
-
-```lisp
-inputs
-r0 = num object (ptr)
-outputs
-r0 = num object (ptr)
-r1 = type list object (ptr)
-trashes
-r1-r14
-```
 
 ### num::print -> class/num/print
 
@@ -5856,16 +5794,6 @@ Super Class: obj
 
 ### seq::type -> class/seq/type
 
-```lisp
-inputs
-r0 = seq object (ptr)
-outputs
-r0 = seq object (ptr)
-r1 = type list object (ptr)
-trashes
-r1-r14
-```
-
 ### seq::lisp_length -> class/seq/lisp_length
 
 ```lisp
@@ -6260,16 +6188,6 @@ r1-r6
 ```
 
 ### str::type -> class/str/type
-
-```lisp
-inputs
-r0 = str object (ptr)
-outputs
-r0 = str object (ptr)
-r1 = type list object (ptr)
-trashes
-r1-r14
-```
 
 ### str::print -> class/str/print
 
@@ -6938,16 +6856,6 @@ r0-r14
 ```
 
 ### sym::type -> class/sym/type
-
-```lisp
-inputs
-r0 = sym object (ptr)
-outputs
-r0 = sym object (ptr)
-r1 = type list object (ptr)
-trashes
-r1-r14
-```
 
 ### sym::print -> class/sym/print
 

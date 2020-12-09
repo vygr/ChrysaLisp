@@ -12,7 +12,7 @@
 
 (defun compile (files &optional *abi* *cpu* num_child)
 	(setd *abi* (abi) *cpu* (cpu) num_child (max 1 (/ (* (length (mail-devices)) 80) 100)))
-	(unless (lst? files) (setq files (list files)))
+	(unless (list? files) (setq files (list files)))
 	(setq files (shuffle files))
 	(if (get 'nums)
 		;Native ChrysaLisp
@@ -135,7 +135,7 @@
 					(defq h (slice fn_header_entry (defq l (get-short b fn_header_links)) b)
 						l (slice l (defq p (get-short b fn_header_paths)) b))
 					(def *fsyms* _ (list (cat (char -1 8) (char p 2) h) l (read-paths b))))))
-		(unless (lst? *funcs*) (setq *funcs* (list *funcs*)))
+		(unless (list? *funcs*) (setq *funcs* (list *funcs*)))
 		(defq f (list
 			;must be first function !
 			'sys/load/init

@@ -6,6 +6,7 @@
 
 (gen-create 'hmap)
 (gen-vtable 'hmap)
+(gen-type 'hmap)
 
 (def-method 'hmap :init)
 	;inputs
@@ -449,28 +450,6 @@
 
 	(exit 'hmap :for_each '((rsp local_this)))
 	(vp-free local_size)
-	(vp-ret)
-
-(def-func-end)
-
-(def-method 'hmap :type)
-	;inputs
-	;r0 = hmap object (ptr)
-	;outputs
-	;r0 = hmap object (ptr)
-	;r1 = type list object (ptr)
-	;trashes
-	;r1-r14
-
-	(entry 'hmap :type '(r0))
-
-	(s-call 'hmap :type '(r0) '(r0 r1))
-	(vp-push r0 r1)
-	(call 'sym :ref_static_sym '(static_sym_hmap) '(r1))
-	(call 'list :push_back '((rsp 0) r1) '(r1 _ _ _))
-	(vp-pop r0 r1)
-
-	(exit 'hmap :type '(r0 r1))
 	(vp-ret)
 
 (def-func-end)

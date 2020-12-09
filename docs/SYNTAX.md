@@ -1080,10 +1080,6 @@
 
 (floor num)
 
-## fnc?
-
-(fnc? form) -> t | nil
-
 ## font-glyph-bounds
 
 (font-glyph-bounds font str)
@@ -1104,9 +1100,9 @@
 
 (frac num)
 
-## fun?
+## func?
 
-(fun? form) -> t | nil
+(func? form) -> t | nil
 
 ## gensym
 
@@ -1264,6 +1260,10 @@
 
 (lambda ([arg ...]) body)
 
+## lambda?
+
+(lambda? form) -> t | nil
+
 ## last
 
 (last seq) -> el|nil
@@ -1279,6 +1279,10 @@
 ## list
 
 (list [form ...])
+
+## list?
+
+(list? form) -> t | nil
 
 ## load
 
@@ -1311,10 +1315,6 @@
 ## long
 
 (long field ...)
-
-## lst?
-
-(lst? form) -> t | nil
 
 ## macro?
 

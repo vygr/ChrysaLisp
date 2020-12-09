@@ -21,7 +21,7 @@
     (or (map? _) (set? _)))
 
 (defun indexable? (_)
-    (or (collection? _) (lst? _)))
+    (or (collection? _) (list? _)))
 
 ; Associative structure functions
 
@@ -72,7 +72,7 @@
             (cond
                 ((collection? curr)
                     (setq curr (gets curr _i)))
-                ((lst? curr)
+                ((list? curr)
                     (setq curr (elem _i curr)))
                 (t
                     (throw "Not an indexable collection " (list _i curr)))))

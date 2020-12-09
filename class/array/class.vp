@@ -7,6 +7,7 @@
 
 (gen-create 'array)
 (gen-vtable 'array)
+(gen-type 'array)
 
 (def-method 'array :deinit)
 	;inputs
@@ -575,28 +576,6 @@
 
 	(exit 'array :print '((rsp local_this)))
 	(vp-free local_size)
-	(vp-ret)
-
-(def-func-end)
-
-(def-method 'array :type)
-	;inputs
-	;r0 = array object (ptr)
-	;outputs
-	;r0 = array object (ptr)
-	;r1 = type list object (ptr)
-	;trashes
-	;r1-r14
-
-	(entry 'array :type '(r0))
-
-	(s-call 'array :type '(r0) '(r0 r1))
-	(vp-push r0 r1)
-	(call 'sym :ref_static_sym '(static_sym_array) '(r1))
-	(call 'list :push_back '((rsp 0) r1) '(r1 _ _ _))
-	(vp-pop r0 r1)
-
-	(exit 'array :type '(r0 r1))
 	(vp-ret)
 
 (def-func-end)
