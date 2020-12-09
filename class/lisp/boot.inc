@@ -162,14 +162,14 @@
 	; (exec form)
 	(eval (macroexpand _)))
 
-(defmacro lst? (_)
-	; (lst? form) -> t | nil
+(defmacro list? (_)
+	; (list? form) -> t | nil
 	`(find :list (type-of ,_)))
 (defmacro num? (_)
 	; (num? form) -> t | nil
 	`(find :num (type-of ,_)))
-(defmacro fnc? (_)
-	; (fnc? form) -> t | nil
+(defmacro func? (_)
+	; (func? form) -> t | nil
 	`(find :func (type-of ,_)))
 (defmacro str? (_)
 	; (str? form) -> t | nil
@@ -183,8 +183,8 @@
 (defmacro seq? (_)
 	; (seq? form) -> t | nil
 	`(find :seq (type-of ,_)))
-(defmacro fun? (_)
-	; (fun? form) -> t | nil
+(defmacro lambda? (_)
+	; (lambda? form) -> t | nil
 	`(and (find :list (type-of (defq ,(defq __ (gensym)) ,_)))
 		(> (length ,__) 0) (eql (elem 0 ,__) 'lambda)))
 (defmacro macro? (_)
@@ -258,7 +258,7 @@
 (defmacro case (form &rest body)
 	; (case form [(key body)] ...)
 	(if (defq table (reduce-rev (lambda (table (keys &rest clause_body))
-			(unless (lst? keys) (setq keys (list keys)))
+			(unless (list? keys) (setq keys (list keys)))
 			(unless (some! 0 -1 t (lambda (clause) (find :sym (type-of clause))) (list keys))
 				(throw "Key not symbol !" keys))
 			(each! 0 -1 (lambda (key)
@@ -764,7 +764,7 @@
 
 (defun import (lib_path &optional _e)
 	; (import path [env]) -> env
-	(unless (str? lib_path) (throw "Not a string !" lib_path))
+	(unless (eql :str (pop (type-of lib_path))) (throw "Not a string !" lib_path))
 	(if (starts-with "./" lib_path) (setq lib_path (slice 2 -1 lib_path)))
 	(if (= (age lib_path) 0) (throw "No such file !" lib_path))
 	(setd _e (penv)) (defq _ee _e)
@@ -865,7 +865,7 @@
 (defmacro .-> (res &rest frm)
 	; (.-> this form ...)
 	(reduce (lambda (res frm)
-		(if (lst? frm)
+		(if (list? frm)
 			(insert frm 0 (list '. res))
 			(list '. res frm))) frm res))
 
