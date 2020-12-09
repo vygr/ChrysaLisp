@@ -852,7 +852,13 @@
 
 (defmacro defclass (n s p &rest _)
 	; (defclass name super ([arg ...]) body)
-	(defq class (sym (cat "*class_" n "*")) super (sym (cat "*class_" s "*")))
+	(defq class (sym (cat "*class_" n "*")) super (sym (cat "*class_" s "*"))
+		inits (list) methods (list))
+	(each (lambda (form)
+		(cond
+			((and (list? form) (ends-with "method" (elem 0 form)))
+				(push methods form))
+			(t	(push inits form)))) _)
 	(if s
 		`(progn
 			(defq ,class (env -1))
@@ -861,13 +867,14 @@
 				(unless (def? :initalised ,class)
 					(def ,class :initalised t)
 					(def this :vtable (reduce (lambda (e (key val))
-						(def e key val) e) (tolist ,super) ,class)))
-				~_ this))
+						(def e key val) e) (tolist ,super) ,class))
+					~methods)
+				~inits this))
 		`(progn
 			(defq ,class (env -1))
 			(defun ,n ,p
 				(def (defq this (env -1)) :vtable ,class :super nil)
-				~_ this))))
+				~methods ~inits this))))
 
 (defmacro defmethod (n p &rest _)
 	; (defmethod name (this [arg ...]) body)
