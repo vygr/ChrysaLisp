@@ -4,6 +4,7 @@
 
 (defclass Vdu View ()
 	; (Vdu) -> vdu
+	; overide the default 'this' env with a Vdu component
 	(defq super this this ((ffi _ "gui/vdu/lisp_create" 0)))
 	(each (lambda ((key val)) (def this key val)) (tolist super))
 

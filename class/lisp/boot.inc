@@ -852,14 +852,16 @@
 
 (defmacro defclass (n s p &rest _)
 	; (defclass name super ([arg ...]) body)
-	(defq class (sym (cat "*class_" n "*")))
+	(defq class (sym (cat "*class_" n "*")) super (sym (cat "*class_" s "*")))
 	(if s
 		`(progn
 			(defq ,class (env -1))
 			(defun ,n ,p
-				(def (defq this (,s)) :super (def? :vtable this) :vtable
-					(reduce (lambda (e (key val)) (def e key val) e)
-						(tolist (def? :vtable this)) ,class))
+				(def (defq this (,s)) :vtable ,class :super ,super)
+				(unless (def? :initalised ,class)
+					(def ,class :initalised t)
+					(def this :vtable (reduce (lambda (e (key val))
+						(def e key val) e) (tolist ,super) ,class)))
 				~_ this))
 		`(progn
 			(defq ,class (env -1))
