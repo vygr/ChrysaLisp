@@ -6,11 +6,9 @@
 (import "gui/flow/lisp.inc")
 (import "gui/backdrop/lisp.inc")
 
-(defclass Tree (event)
+(defclass Tree Flow (event)
 	; (Tree event) -> tree
-	; overide the default 'this' env with a tree component
-	; inherit from Flow !
-	(def (defq this (Flow)) :flow_flags +flow_down_fill+ :action_event event)
+	(def this :flow_flags +flow_down_fill+ :action_event event)
 
 	(defmethod :add_route (this route)
 		; (. tree :add_route route) -> tree

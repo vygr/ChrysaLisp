@@ -82,6 +82,8 @@
 					(push p (f-path (sym (elem 1 s)) (sym (elem 2 s)))))
 				((eql _ "(gen-vtable")
 					(push p (f-path (sym (elem 1 s)) :vtable)))
+				((eql _ "(gen-type")
+					(push p (f-path (sym (elem 1 s)) :type)))
 				((eql _ "(gen-create")
 					(push p (f-path (sym (elem 1 s))
 						(if (> (length s) 2) (sym (cat :create_ (elem 2 s))) :create))))

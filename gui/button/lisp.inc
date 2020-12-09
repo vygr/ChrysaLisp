@@ -4,11 +4,9 @@
 
 (import "gui/label/lisp.inc")
 
-(defclass Button ()
+(defclass Button Label ()
 	; (Button) -> button
-	; overide the default 'this' env with a button component
-	; inherit from Label !
-	(def (defq this (Label)) :state 1)
+	(def this :state 1)
 
 	(defmethod :draw (this)
 		; (. button :draw) -> button

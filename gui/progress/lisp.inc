@@ -4,11 +4,8 @@
 
 (import "gui/view/lisp.inc")
 
-(defclass Progress ()
+(defclass Progress View ()
 	; (Progress) -> progress
-	; overide the default 'this' env with a progress component
-	; inherit from View !
-	(defq this (View))
 
 	(defmethod :draw (this)
 		; (. progress :draw) -> progress

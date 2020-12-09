@@ -51,19 +51,23 @@
 	(assign '((r1 array_length)) '(r2))
 	(gotoif '(r2 < 2) 'error))
 
-	(array-bind-args r1 '(r0 r3))
+	(array-bind-args r1 '(r0 r13))
 
 (errorcases
 	(call 'obj :inst_of `(r0 (@ ,(f-path 'hmap :vtable))) '(r0 r1))
-	(assign `((r3 obj_vtable) (@ ,(f-path 'sym :vtable))) '(r4 r5))
+	(assign `((r13 obj_vtable) (@ ,(f-path 'sym :vtable))) '(r4 r5))
 	(gotoif '(r1 = 0) 'error)
 	(gotoif '(r4 /= r5) 'error))
 
-	(call 'hmap :search '(r0 r3) '(r0 r1 _))
+	(assign '(r0) '((rsp local_env)))
+	(call 'sym :get_static_sym '(static_sym_vtable) '(r1))
+	(call 'hmap :find '(r0 r1) '(r0 r1 _))
 	(errorif '(r1 = 0) 'error1)
-	(assign '((r1 ptr_size)) '(r1))
+	(call 'hmap :find '((r1 ptr_size) r13) '(_ r1 _))
+	(errorif '(r1 = 0) 'error1)
+	(assign '((rsp local_env) (r1 ptr_size)) '(r0 r1))
 	(class/obj/ref r0 r2)
-	(assign '(r0 (rsp local_args) r1) '((rsp local_env) r0 (rsp local_func)))
+	(assign '((rsp local_args) r1) '(r0 (rsp local_func)))
 	(d-call 'list :slice '(r0 1 (r0 array_length)) '(_ r0))
 	(d-call 'list :set_element '(r0 (rsp local_env) 0) '(r0))
 	(assign '(r0) '((rsp local_env)))
@@ -83,5 +87,66 @@
 	(assign '((rsp local_this) (rsp local_args)) '(r0 r3))
 	(vp-free local_size)
 	(jump 'lisp :repl_error '(r0 "(. env sym [...])" error_msg_symbol_not_bound r3)))
+
+(def-func-end)
+
+(def-method 'lisp :lisp_scall)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args list object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(def-struct 'local)
+		(ptr 'this 'args 'env 'func)
+	(def-struct-end)
+
+	(vp-alloc local_size)
+	(entry 'lisp :lisp_scall '(r0 r1))
+	(assign '(r0 r1) '((rsp local_this) (rsp local_args)))
+
+(errorcases
+	(assign '((r1 array_length)) '(r2))
+	(gotoif '(r2 < 2) 'error))
+
+	(array-bind-args r1 '(r0 r13))
+
+(errorcases
+	(call 'obj :inst_of `(r0 (@ ,(f-path 'hmap :vtable))) '(r0 r1))
+	(assign `((r13 obj_vtable) (@ ,(f-path 'sym :vtable))) '(r4 r5))
+	(gotoif '(r1 = 0) 'error)
+	(gotoif '(r4 /= r5) 'error))
+
+	(assign '(r0) '((rsp local_env)))
+	(call 'sym :get_static_sym '(static_sym_super) '(r1))
+	(call 'hmap :find '(r0 r1) '(r0 r1 _))
+	(errorif '(r1 = 0) 'error1)
+	(call 'hmap :find '((r1 ptr_size) r13) '(_ r1 _))
+	(errorif '(r1 = 0) 'error1)
+	(assign '((rsp local_env) (r1 ptr_size)) '(r0 r1))
+	(class/obj/ref r0 r2)
+	(assign '((rsp local_args) r1) '(r0 (rsp local_func)))
+	(d-call 'list :slice '(r0 1 (r0 array_length)) '(_ r0))
+	(d-call 'list :set_element '(r0 (rsp local_env) 0) '(r0))
+	(assign '(r0) '((rsp local_env)))
+	(call 'lisp :repl_apply '((rsp local_this) r0 (rsp local_func)) '(_ (rsp local_args)))
+	(call 'list :deref '((rsp local_env)))
+
+	(exit 'lisp :lisp_scall '((rsp local_this) (rsp local_args)))
+	(vp-free local_size)
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(assign '((rsp local_this) (rsp local_args)) '(r0 r3))
+	(vp-free local_size)
+	(jump 'lisp :repl_error '(r0 "(.super env sym [...])" error_msg_wrong_types r3))
+(vp-label 'error1)
+	(assign '((rsp local_this) (rsp local_args)) '(r0 r3))
+	(vp-free local_size)
+	(jump 'lisp :repl_error '(r0 "(.super env sym [...])" error_msg_symbol_not_bound r3)))
 
 (def-func-end)

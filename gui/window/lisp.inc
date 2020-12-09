@@ -4,11 +4,9 @@
 
 (import "gui/view/lisp.inc")
 
-(defclass Window ()
+(defclass Window View ()
 	; (Window) -> window
-	; overide the default 'this' env with a window component
-	; inherit from View !
-	(def (defq this (View)) :child nil :last_buttons 0 :is_window t)
+	(def this :child nil :last_buttons 0 :is_window t)
 
 	(defmethod :draw (this)
 		; (. window :draw) -> window
@@ -105,23 +103,23 @@
 							(cond
 								((/= 0 buttons)
 									;is down now, so move
-									(if (def? :mouse_move target) (. target :mouse_move event)))
+									(if (def? :mouse_move (def? :vtable target)) (. target :mouse_move event)))
 								(t	;is not down now, so release
 									(set this :last_buttons 0)
-									(if (def? :mouse_up target) (. target :mouse_up event)))))
+									(if (def? :mouse_up (def? :vtable target)) (. target :mouse_up event)))))
 						(t	;was not down previously
 							(cond
 								((/= 0 buttons)
 									;is down now, so first down
 									(set this :last_buttons buttons)
-									(if (def? :mouse_down target) (. target :mouse_down event)))
+									(if (def? :mouse_down (def? :vtable target)) (. target :mouse_down event)))
 								(t	;is not down now, so hover
-									(if (def? :mouse_hover target) (. target :mouse_hover event)))))))
+									(if (def? :mouse_hover (def? :vtable target)) (. target :mouse_hover event)))))))
 				((= type (const ev_type_key))
 					(if (>= (get-int event (const ev_msg_key_keycode)) 0)
-						(if (def? :key_down target) (. target :key_down event))
-						(if (def? :key_up target) (. target :key_up event))))
+						(if (def? :key_down (def? :vtable target)) (. target :key_down event))
+						(if (def? :key_up (def? :vtable target)) (. target :key_up event))))
 				((= type (const ev_type_action))
-					(if (def? :action target) (. target :action event)))))
+					(if (def? :action (def? :vtable target)) (. target :action event)))))
 		this)
 	)

@@ -3117,6 +3117,19 @@ trashes
 r1-r14
 ```
 
+### lisp::lisp_scall -> class/lisp/lisp_scall
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
 ### lisp::run -> class/lisp/run
 
 ```lisp

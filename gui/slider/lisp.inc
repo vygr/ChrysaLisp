@@ -4,11 +4,9 @@
 
 (import "gui/view/lisp.inc")
 
-(defclass Slider ()
+(defclass Slider View ()
 	; (Slider) -> slider
-	; overide the default 'this' env with a slider component
-	; inherit from View !
-	(def (defq this (View)) :state 0 :value 0 :maximum 0 :portion 0 :downxy 0)
+	(def this :state 0 :value 0 :maximum 0 :portion 0 :downxy 0)
 
 	(defmethod :draw (this)
 		; (. slider :draw) -> slider

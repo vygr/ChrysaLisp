@@ -5,16 +5,14 @@
 (import "gui/label/lisp.inc")
 (import "gui/font/lisp.inc")
 
-(defclass Textfield ()
+(defclass Textfield Label ()
 	; (Textfield) -> textfield
-	; overide the default 'this' env with a textfield component
-	; inherit from Label !
-	(def (defq this (Label)) :cursor 0)
+	(def this :cursor 0)
 
 	(defmethod :draw (this)
 		; (. textfield :draw) -> textfield
+		(.super this :draw)
 		(bind '(w h) (. this :get_size))
-		(. this :ctx_panel (get :color this) 1 (get :border this) 0 0 w h)
 		(when (and (defq font (get :font this)) (defq text (get :text this)))
 			(bind '(tw th) (font-glyph-bounds font (slice 0 (get :cursor this) text)))
 			(.-> this (:ctx_set_color +argb_black+) (:ctx_filled_box tw (>>> (- h th) 1) 2 th)))

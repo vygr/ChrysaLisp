@@ -528,6 +528,10 @@
 
 (.-> this form ...)
 
+## env sym
+
+(.super env sym [...])
+
 ## /
 
 (/ num num ...)
@@ -918,7 +922,7 @@
 
 ## defclass
 
-(defclass name ([arg ...]) body)
+(defclass name super ([arg ...]) body)
 
 ## deffimethod
 

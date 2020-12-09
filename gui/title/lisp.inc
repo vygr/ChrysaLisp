@@ -4,11 +4,8 @@
 
 (import "gui/label/lisp.inc")
 
-(defclass Title ()
+(defclass Title Label ()
 	; (Title) -> title
-	; overide the default 'this' env with a title component
-	; inherit from Label !
-	(defq this (Label))
 
 	(defmethod :mouse_down (this event)
 		; (. title :mouse_down event) -> title

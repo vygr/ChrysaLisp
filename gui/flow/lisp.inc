@@ -15,11 +15,8 @@
 	+flow_right_fill+ (logior +flow_flag_right+ +flow_flag_fillh+ +flow_flag_lastw+)
 	+flow_left_fill+ (logior +flow_flag_left+ +flow_flag_fillh+ +flow_flag_lastw+))
 
-(defclass Flow ()
+(defclass Flow View ()
 	; (Flow) -> flow
-	; overide the default 'this' env with a flow component
-	; inherit from View !
-	(defq this (View))
 
 	(defmethod :pref_size (this)
 		; (. flow :pref_size) -> (width height)

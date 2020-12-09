@@ -115,6 +115,7 @@
 (ffi print "class/lisp/lisp_print" 0)
 (ffi prebind "class/lisp/lisp_bindfun" 0)
 (ffi . "class/lisp/lisp_mcall" 0)
+(ffi .super "class/lisp/lisp_scall" 0)
 
 (ffi pii-dirlist "sys/pii/lisp_dirlist" 0)
 (ffi pii-fstat "sys/pii/lisp_fstat" 0) ; -> (array filetime filesize filemode)
@@ -849,18 +850,31 @@
 ; classes and methods
 ;;;;;;;;;;;;;;;;;;;;;
 
-(defmacro defclass (n p &rest _)
-	; (defclass name ([arg ...]) body)
-	`(defun ,n ,p (defq this (env -1)) ~_ this))
+(defmacro defclass (n s p &rest _)
+	; (defclass name super ([arg ...]) body)
+	(defq class (sym (cat "*class_" n "*")))
+	(if s
+		`(progn
+			(defq ,class (env -1))
+			(defun ,n ,p
+				(def (defq this (,s)) :super (def? :vtable this) :vtable
+					(reduce (lambda (e (key val)) (def e key val) e)
+						(tolist (def? :vtable this)) ,class))
+				~_ this))
+		`(progn
+			(defq ,class (env -1))
+			(defun ,n ,p
+				(def (defq this (env -1)) :vtable ,class :super nil)
+				~_ this))))
 
 (defmacro defmethod (n p &rest _)
 	; (defmethod name (this [arg ...]) body)
 	; (. this :method [arg ...])
-	`(def this ,n (lambda ,p ~(macroexpand _))))
+	`(def (def? :vtable this) ,n (lambda ,p ~(macroexpand _))))
 
 (defmacro deffimethod (n _)
 	; (deffimethod name ffi)
-	`(def this ,n (ffi _ ,_ 0)))
+	`(def (def? :vtable this) ,n (ffi _ ,_ 0)))
 
 (defmacro .-> (res &rest frm)
 	; (.-> this form ...)

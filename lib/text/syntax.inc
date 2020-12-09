@@ -22,7 +22,7 @@
 		"0123456789"
 		"abcdefghijklmnopqrstuvwxyz"))))
 
-(defclass Syntax ()
+(defclass Syntax nil ()
 	; (Syntax) -> syntax
 	;default colours and state
 	(def this :keywords (defq keywords (env -101)) :state :text

@@ -5,12 +5,10 @@
 (import "gui/flow/lisp.inc")
 (import "gui/text/lisp.inc")
 
-(defclass Label ()
+(defclass Label View ()
 	; (Label) -> label
-	; overide the default 'this' env with a label component
-	; inherit from View !
-	(def (defq label_flow (Flow) label_text (Text) this (View))
-		:label_flow label_flow :label_text label_text)
+	(defq label_flow (Flow) label_text (Text))
+	(def this :label_flow label_flow :label_text label_text)
 	(. label_flow :set_flags 0 -1)
 	(. this :add_back label_flow)
 	(. label_flow :add_child label_text)
