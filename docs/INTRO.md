@@ -79,10 +79,26 @@ provided in the README.md file.
 
 ### Windows 64bit
 
+For command line (batch) usage:
 ```
 .\run_tui.bat
 .\run.bat
 ```
+
+To use PowerShell:
+First configure your PowerShell installation to allow scripts to run
+
+Open PowerShell as administrator (only needs to be done once)
+```
+Set-ExecutionPolicy -ExecutionPolicy Bypass
+```
+
+Run PowerShell
+```
+.\run_tui.ps1
+.\run.ps1
+```
+
 
 ## Stopping
 
