@@ -37,8 +37,6 @@
 	(push *static_syms* _))
 
 (def-static-sym ":vtable")
-(def-static-sym ":super")
-
 (def-static-sym ":num")
 (def-static-sym ":func")
 (def-static-sym ":seq")
@@ -47,7 +45,6 @@
 (def-static-sym ":array")
 (def-static-sym ":list")
 (def-static-sym ":hmap")
-
 (def-static-sym ":font")
 (def-static-sym ":text")
 (def-static-sym ":ink_color")

@@ -121,7 +121,11 @@
 	(gotoif '(r4 /= r5) 'error))
 
 	(assign '(r0) '((rsp local_env)))
-	(call 'sym :get_static_sym '(static_sym_super) '(r1))
+	(call 'sym :get_static_sym '(static_sym_vtable) '(r1))
+	(call 'hmap :find '(r0 r1) '(r0 r1 _))
+	(errorif '(r1 = 0) 'error1)
+	(assign '((r1 ptr_size)) '(r0))
+	(call 'sym :get_static_sym '(static_sym_vtable) '(r1))
 	(call 'hmap :find '(r0 r1) '(r0 r1 _))
 	(errorif '(r1 = 0) 'error1)
 	(call 'hmap :find '((r1 ptr_size) r13) '(_ r1 _))

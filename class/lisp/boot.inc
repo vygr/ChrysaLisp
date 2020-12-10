@@ -863,19 +863,19 @@
 		`(progn
 			(defq ,class (env -1))
 			(defun ,n ,p
-				(def (defq this ,s) :vtable ,class :super ,super)
-				(unless (def? :initalised ,class)
-					(def ,class :initalised t)
+				(def (defq this ,s) :vtable ,class)
+				(unless (def? :vtable ,class)
 					(def this :vtable (reduce (lambda (e (key val))
 						(def e key val) e) (tolist ,super) ,class))
+					(def ,class :vtable ,super)
 					~methods)
 				~inits this))
 		`(progn
 			(defq ,class (env -1))
 			(defun ,n ,p
 				(def (defq this (env -1)) :vtable ,class)
-				(unless (def? :initalised ,class)
-					(def ,class :initalised t)
+				(unless (def? :vtable ,class)
+					(def ,class :vtable t)
 					~methods)
 				~inits this))))
 
