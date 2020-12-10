@@ -4,7 +4,7 @@
 
 (import "gui/view/lisp.inc")
 
-(defclass Grid View ()
+(defclass Grid (View) ()
 	; (Grid) -> grid
 
 	(defmethod :pref_size (this)

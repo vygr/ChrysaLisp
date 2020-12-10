@@ -6,7 +6,7 @@
 (import "gui/font/lisp.inc")
 (import "gui/texture/lisp.inc")
 
-(defclass Text View ()
+(defclass Text (View) ()
 	; (Text) -> text
 	(def this :color 0 :sym_cache nil :text_cache nil)
 

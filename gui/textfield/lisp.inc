@@ -5,7 +5,7 @@
 (import "gui/label/lisp.inc")
 (import "gui/font/lisp.inc")
 
-(defclass Textfield Label ()
+(defclass Textfield (Label) ()
 	; (Textfield) -> textfield
 	(def this :cursor 0)
 
