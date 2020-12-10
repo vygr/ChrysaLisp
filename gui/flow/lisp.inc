@@ -15,7 +15,7 @@
 	+flow_right_fill+ (logior +flow_flag_right+ +flow_flag_fillh+ +flow_flag_lastw+)
 	+flow_left_fill+ (logior +flow_flag_left+ +flow_flag_fillh+ +flow_flag_lastw+))
 
-(defclass Flow (View) ()
+(defclass Flow () (View)
 	; (Flow) -> flow
 
 	(defmethod :pref_size (this)

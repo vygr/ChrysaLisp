@@ -5,7 +5,7 @@
 (import "gui/flow/lisp.inc")
 (import "gui/text/lisp.inc")
 
-(defclass Label (View) ()
+(defclass Label () (View)
 	; (Label) -> label
 	(defq label_flow (Flow) label_text (Text))
 	(def this :label_flow label_flow :label_text label_text)

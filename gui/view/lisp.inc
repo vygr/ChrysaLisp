@@ -22,7 +22,7 @@
 (defq +view_flag_solid+ 1 +view_flag_opaque+ 2 +view_flag_dirty_all+ 4
 	+view_flag_at_back+ 8 +view_flag_hiden+ 16)
 
-(defclass View nil ()
+(defclass View () nil
 	; (View) -> view
 	; overide the default 'this' env with a View component
 	(defq super this this ((ffi _ "gui/view/lisp_create" 0)))

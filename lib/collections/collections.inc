@@ -5,7 +5,7 @@
 (import "lib/collections/emap.inc")
 (import "lib/collections/xmap.inc")
 (import "lib/collections/xset.inc")
-(import "lib/collections/xnode.inc")
+;(import "lib/collections/xnode.inc")
 
 (defun map? (_)
     ; (map? object) -> t | nil

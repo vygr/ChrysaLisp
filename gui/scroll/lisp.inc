@@ -10,7 +10,7 @@
 ;scroll flag combos
 (defq +scroll_flag_both+ (logior +scroll_flag_vertical+ +scroll_flag_horizontal+))
 
-(defclass Scroll (View) (flags)
+(defclass Scroll (flags) (View)
 	; (Scroll flags) -> scroll
 	(def this :vslider nil :hslider nil :child nil)
 	(when (/= 0 (logand flags +scroll_flag_vertical+))

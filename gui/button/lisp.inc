@@ -4,7 +4,7 @@
 
 (import "gui/label/lisp.inc")
 
-(defclass Button (Label) ()
+(defclass Button () (Label)
 	; (Button) -> button
 	(def this :state 1)
 
