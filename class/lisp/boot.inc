@@ -850,8 +850,8 @@
 ; classes and methods
 ;;;;;;;;;;;;;;;;;;;;;
 
-(defmacro defclass (n s p &rest _)
-	; (defclass name (super ...) ([arg ...]) body)
+(defmacro defclass (n p s &rest _)
+	; (defclass name ([arg ...]) body) (super ...)
 	(defq class (sym (cat "*class_" n "*")) super (sym (cat "*class_" (if s (elem 0 s)) "*"))
 		inits (list) methods (list))
 	(each (lambda (form)

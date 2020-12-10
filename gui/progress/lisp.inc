@@ -4,7 +4,7 @@
 
 (import "gui/view/lisp.inc")
 
-(defclass Progress (View) ()
+(defclass Progress () (View)
 	; (Progress) -> progress
 
 	(defmethod :draw (this)
