@@ -36,7 +36,7 @@
 (defun get-by-val (n v in)
 	(let ((out nil))
 		(cond 
-			((lst? (defq element (elem n (elem 0 in))))
+			((list? (defq element (elem n (elem 0 in))))
 				(each (lambda (e) (if (elem-find v (elem +tz_locations+ e)) (setq out e))) in))
 			((num? element) (each (lambda (e) (if (=  (elem n e) v) (setq out e))) in))
 			(t (each (lambda (e) (if (eql (elem n e) v) (setq out e))) in)))

@@ -6,6 +6,7 @@
 (include "sys/str/class.inc")
 
 (gen-vtable 'sym)
+(gen-type 'sym)
 
 (def-method 'sym :statics)
 	;info
@@ -259,28 +260,6 @@
 	(vp-pop r0)
 
 	(exit 'sym :print '(r0))
-	(vp-ret)
-
-(def-func-end)
-
-(def-method 'sym :type)
-	;inputs
-	;r0 = sym object (ptr)
-	;outputs
-	;r0 = sym object (ptr)
-	;r1 = type list object (ptr)
-	;trashes
-	;r1-r14
-
-	(entry 'sym :type '(r0))
-
-	(s-call 'sym :type '(r0) '(r0 r1))
-	(vp-push r0 r1)
-	(call 'sym :ref_static_sym '(static_sym_sym) '(r1))
-	(call 'list :push_back '((rsp 0) r1) '(r1 _ _ _))
-	(vp-pop r0 r1)
-
-	(exit 'sym :type '(r0 r1))
 	(vp-ret)
 
 (def-func-end)

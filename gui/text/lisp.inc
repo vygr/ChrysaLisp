@@ -6,11 +6,9 @@
 (import "gui/font/lisp.inc")
 (import "gui/texture/lisp.inc")
 
-(defclass Text ()
+(defclass Text View ()
 	; (Text) -> text
-	; overide the default 'this' env with a text component
-	; inherit from View !
-	(def (defq this (View)) :color 0 :sym_cache nil :text_cache nil)
+	(def this :color 0 :sym_cache nil :text_cache nil)
 
 	(defmethod :draw (this)
 		; (. text :draw) -> text

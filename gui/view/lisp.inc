@@ -22,10 +22,11 @@
 (defq +view_flag_solid+ 1 +view_flag_opaque+ 2 +view_flag_dirty_all+ 4
 	+view_flag_at_back+ 8 +view_flag_hiden+ 16)
 
-(defclass View ()
+(defclass View nil ()
 	; (View) -> view
-	; overide the default 'this' env with a view component
-	(defq this ((ffi _ "gui/view/lisp_create" 0)))
+	; overide the default 'this' env with a View component
+	(defq super this this ((ffi _ "gui/view/lisp_create" 0)))
+	(each (lambda ((key val)) (def this key val)) (tolist super))
 
 	(deffimethod :find_id "gui/view/lisp_find_id")
 		; (. view :find_id target_id) -> nil | target_view

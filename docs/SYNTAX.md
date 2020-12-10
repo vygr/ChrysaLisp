@@ -528,6 +528,10 @@
 
 (.-> this form ...)
 
+## env sym
+
+(.super env sym [...])
+
 ## /
 
 (/ num num ...)
@@ -918,7 +922,7 @@
 
 ## defclass
 
-(defclass name ([arg ...]) body)
+(defclass name super ([arg ...]) body)
 
 ## deffimethod
 
@@ -1080,10 +1084,6 @@
 
 (floor num)
 
-## fnc?
-
-(fnc? form) -> t | nil
-
 ## font-glyph-bounds
 
 (font-glyph-bounds font str)
@@ -1104,9 +1104,9 @@
 
 (frac num)
 
-## fun?
+## func?
 
-(fun? form) -> t | nil
+(func? form) -> t | nil
 
 ## gensym
 
@@ -1264,6 +1264,10 @@
 
 (lambda ([arg ...]) body)
 
+## lambda?
+
+(lambda? form) -> t | nil
+
 ## last
 
 (last seq) -> el|nil
@@ -1279,6 +1283,10 @@
 ## list
 
 (list [form ...])
+
+## list?
+
+(list? form) -> t | nil
 
 ## load
 
@@ -1311,10 +1319,6 @@
 ## long
 
 (long field ...)
-
-## lst?
-
-(lst? form) -> t | nil
 
 ## macro?
 

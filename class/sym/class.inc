@@ -36,6 +36,9 @@
 	(defcvar (sym (cat "static_sym_" (if (starts-with ":" _) (slice 1 -1 _) _))) (length *static_syms*))
 	(push *static_syms* _))
 
+(def-static-sym ":vtable")
+(def-static-sym ":super")
+
 (def-static-sym ":num")
 (def-static-sym ":func")
 (def-static-sym ":seq")
@@ -43,7 +46,6 @@
 (def-static-sym ":sym")
 (def-static-sym ":array")
 (def-static-sym ":list")
-(def-static-sym ":hset")
 (def-static-sym ":hmap")
 
 (def-static-sym ":font")

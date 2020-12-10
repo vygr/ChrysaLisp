@@ -20,7 +20,7 @@
 		(setq *out_buffer* (str *out_stream*) *pass* (inc *pass*))))
 
 (defun print-emit (_)
-	(and (lst? _) (not (eql (elem 0 _) 'lambda)) (print _)))
+	(and (list? _) (not (eql (elem 0 _) 'lambda)) (print _)))
 
 (defun emit-label (_)
 	(set (penv) _ *pc*))
@@ -203,35 +203,34 @@
 		(elem _ '(b ub s us i ui)) ""))
 
 (defun vp-type (o)
-	(defq i (pop (type-of o)))
-	(case i
+	(case (pop (type-of o))
 		(:sym
 			(cond
-				((reg o) 'r)
-				(t 'c)))
-		(:num 'c)
+				((reg o) :r)
+				(t :c)))
+		(:num :c)
 		(:list
-			(setq i (elem 0 o))
+			(defq i (elem 0 o))
 			(cond
 				((reg i)
 					(setq i (elem 1 o))
 					(cond
 						((reg i)
-							(if (= 2 (length o)) 'd
-								(sym (cat 'd (elem 2 o)))))
+							(if (= 2 (length o)) :d
+								(sym (cat :d (elem 2 o)))))
 						((/= 2 (length o))
-							(sym (cat 'i (elem 2 o))))
-						((num? i) 'i)
+							(sym (cat :i (elem 2 o))))
+						((num? i) :i)
 						((setq i (get (type-sym i)))
-							(sym (cat 'i (vp-type-t i))))
-						(t 'i)))
-				((eql i '@) i)
-				((eql i '$) i)
+							(sym (cat :i (vp-type-t i))))
+						(t :i)))
+				((eql i '@) :@)
+				((eql i '$) :$)
 				((eql i '&)
 					(if (reg (elem 1 o))
-						(if (reg (elem 2 o)) '&d '&i) nil))
-				(t 'c)))
-		(:str 's)
+						(if (reg (elem 2 o)) :&d :&i) nil))
+				(t :c)))
+		(:str :s)
 		(t nil)))
 
 (defun label-sym (s) (sym (cat "_l_" s)))

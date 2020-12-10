@@ -7,7 +7,7 @@
 		b (% ((get :hash_fnc this) key) (get :num_buckets this))
 		e (some (# (if ((get :cmp_fnc this) %0 key) _)) (elem b x))))
 
-(defclass xset (&optional num_buckets cmp_fnc hash_fnc)
+(defclass xset nil (&optional num_buckets cmp_fnc hash_fnc)
 	; (xset [num_buckets cmp_fnc hash_fnc]) -> xset
 	(def this :buckets (list) :num_buckets (setq num_buckets (opt num_buckets 1))
 		:cmp_fnc (opt cmp_fnc eql) :hash_fnc (opt hash_fnc hash) :xset t)

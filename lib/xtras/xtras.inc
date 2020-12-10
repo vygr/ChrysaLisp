@@ -140,7 +140,7 @@
 
 (defun truthy? (_)
   (cond
-    ((lst? _) (nempty? _))
+    ((list? _) (nempty? _))
     (t (not (nil? _)))))
 
 ; Convenience
@@ -192,7 +192,7 @@
   ; arguments through multiple &rest constructs
   (if (and
         (nempty? in-args)
-        (lst? (first in-args)))
+        (list? (first in-args)))
       (first in-args)
       in-args))
 
@@ -221,7 +221,7 @@
   ; functions. Applies inner to each element of form, building up a
   ; data structure of the same type, then applies outer to the result.
   (cond
-    ((lst? form)
+    ((list? form)
       (outer (apply list (map inner form))))
     ((collection? form)
       (defq ce (empty form) cfn (into-fn ce))
@@ -402,7 +402,7 @@
   (sets! (Node :scalar value) :stype stype))
 
 (defun add-child-node! (p c)
-  (when (not (lst? (defq chs (gets p :children))))
+  (when (not (list? (defq chs (gets p :children))))
     (throw "Children of node is not a list" p))
   (push chs c)
   c)
@@ -460,7 +460,7 @@
     ((indexable? odata)
         (cond
           ; Lists
-          ((lst? odata)
+          ((list? odata)
             (set-context! cntxt (SequenceNode))
             (each (#(obj-to-node cntxt %0)) odata)
             (unset-context! cntxt))

@@ -7,6 +7,7 @@
 
 (gen-create 'func)
 (gen-vtable 'func)
+(gen-type 'func)
 
 (def-method 'func :print)
 	;inputs
@@ -30,28 +31,6 @@
 	(vp-pop r0)
 
 	(exit 'func :print '(r0))
-	(vp-ret)
-
-(def-func-end)
-
-(def-method 'func :type)
-	;inputs
-	;r0 = func object (ptr)
-	;outputs
-	;r0 = func object (ptr)
-	;r1 = type list object (ptr)
-	;trashes
-	;r1-r14
-
-	(entry 'func :type '(r0))
-
-	(s-call 'func :type '(r0) '(r0 r1))
-	(vp-push r0 r1)
-	(call 'sym :ref_static_sym '(static_sym_func) '(r1))
-	(call 'list :push_back '((rsp 0) r1) '(r1 _ _ _))
-	(vp-pop r0 r1)
-
-	(exit 'func :type '(r0 r1))
 	(vp-ret)
 
 (def-func-end)

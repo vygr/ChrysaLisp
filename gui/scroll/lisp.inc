@@ -10,11 +10,9 @@
 ;scroll flag combos
 (defq +scroll_flag_both+ (logior +scroll_flag_vertical+ +scroll_flag_horizontal+))
 
-(defclass Scroll (flags)
+(defclass Scroll View (flags)
 	; (Scroll flags) -> scroll
-	; overide the default 'this' env with a scroll component
-	; inherit from View !
-	(def (defq this (View)) :vslider nil :hslider nil :child nil)
+	(def this :vslider nil :hslider nil :child nil)
 	(when (/= 0 (logand flags +scroll_flag_vertical+))
 		(def this :vslider (defq slider (Slider)))
 		(. slider :connect (. this :get_id))

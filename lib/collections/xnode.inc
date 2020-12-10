@@ -6,7 +6,7 @@
 ; the hash function
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defclass xnode ()
+(defclass xnode nil ()
   ; Base tree node abstraction
   (def this
     :children_nodes (xmap)
@@ -96,7 +96,7 @@
 ; /foo/bar/sizzle/steak --etc--
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defclass named-xnode (name &optional parent)
+(defclass named-xnode nil (name &optional parent)
   ; Named tree
   (def (defq this (xnode))
     :node_name    name

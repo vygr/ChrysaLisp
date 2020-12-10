@@ -4,11 +4,8 @@
 
 (import "gui/view/lisp.inc")
 
-(defclass Backdrop ()
+(defclass Backdrop View ()
 	; (Backdrop)-> backdrop
-	; overide the default 'this' env with a backdrop component
-	; inherit from View !
-	(defq this (View))
 
 	(defmethod :draw (this)
 		; (. backdrop :draw) -> backdrop

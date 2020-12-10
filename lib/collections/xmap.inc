@@ -7,7 +7,7 @@
 		b (* (% ((get :hash_fnc this) key) (get :num_buckets this)) 2)
 		e (some (# (if ((get :cmp_fnc this) %0 key) _)) (elem b x))))
 
-(defclass xmap (&optional num_buckets cmp_fnc hash_fnc)
+(defclass xmap nil (&optional num_buckets cmp_fnc hash_fnc)
 	; (xmap [num_buckets cmp_fnc hash_fnc]) -> xmap
 	(def this :buckets (list) :num_buckets (setq num_buckets (opt num_buckets 1))
 		:cmp_fnc (opt cmp_fnc eql) :hash_fnc (opt hash_fnc hash) :xmap t)

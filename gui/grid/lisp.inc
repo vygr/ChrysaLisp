@@ -4,11 +4,8 @@
 
 (import "gui/view/lisp.inc")
 
-(defclass Grid ()
+(defclass Grid View ()
 	; (Grid) -> grid
-	; overide the default 'this' env with a grid component
-	; inherit from View !
-	(defq this (View))
 
 	(defmethod :pref_size (this)
 		; (. grid :pref_size) -> (width height)
