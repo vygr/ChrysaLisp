@@ -59,9 +59,9 @@
                               (not (eql (first _fn) "."))) t)))
 
 
-(defclass path-node nil (name &optional parent)
+(defclass path-node (named-xnode name parent) (name &optional parent)
   ; file-system path tree
-  (def (defq this (named-xnode name parent))
+  (def this
     :path_node t
     :stat_res  nil)
 
