@@ -874,7 +874,10 @@
 			(defq ,class (env -1))
 			(defun ,n ,p
 				(def (defq this (env -1)) :vtable ,class)
-				~methods ~inits this))))
+				(unless (def? :initalised ,class)
+					(def ,class :initalised t)
+					~methods)
+				~inits this))))
 
 (defmacro defmethod (n p &rest _)
 	; (defmethod name (this [arg ...]) body)
