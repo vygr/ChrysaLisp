@@ -4,7 +4,7 @@
 
 (import "gui/view/lisp.inc")
 
-(defclass Slider View ()
+(defclass Slider (View) ()
 	; (Slider) -> slider
 	(def this :state 0 :value 0 :maximum 0 :portion 0 :downxy 0)
 

@@ -6,7 +6,7 @@
 (import "gui/flow/lisp.inc")
 (import "gui/backdrop/lisp.inc")
 
-(defclass Tree Flow (event)
+(defclass Tree (Flow) (event)
 	; (Tree event) -> tree
 	(def this :flow_flags +flow_down_fill+ :action_event event)
 

@@ -4,7 +4,7 @@
 
 (import "gui/view/lisp.inc")
 
-(defclass Window View ()
+(defclass Window (View) ()
 	; (Window) -> window
 	(def this :child nil :last_buttons 0 :is_window t)
 

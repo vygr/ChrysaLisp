@@ -4,7 +4,7 @@
 
 (import "gui/label/lisp.inc")
 
-(defclass Title Label ()
+(defclass Title (Label) ()
 	; (Title) -> title
 
 	(defmethod :mouse_down (this event)
