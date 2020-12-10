@@ -45,8 +45,33 @@
 (defmacro defun (n a &rest _)
 	`(defq ,n (profile-lambda ,n ,a ~(macroexpand _))))
 
-(defmacro defclass (n p &rest _)
-	`(defun ,n ,p (defq *profile_class* ,n this (env -1)) ~_ this))
+(defmacro defclass (n p s &rest _)
+	(defq super (sym (cat "*class_" (if s (elem 0 s)) "*"))
+		class (sym (cat "*class_" n "*")) inits (list) methods (list))
+	(each (lambda (form)
+		(cond
+			((and (list? form) (ends-with "method" (elem 0 form)))
+				(push methods form))
+			(t	(push inits form)))) _)
+	(if s
+		`(progn
+			(defq ,class (env -1))
+			(defun ,n ,p
+				(def (defq *profile_class* ,n this ,s) :vtable ,class)
+				(unless (def? :vtable ,class)
+					(def this :vtable (reduce (lambda (e (key val))
+						(def e key val) e) (tolist ,super) ,class))
+					(def ,class :vtable ,super)
+					~methods)
+				~inits this))
+		`(progn
+			(defq ,class (env -1))
+			(defun ,n ,p
+				(def (defq *profile_class* ,n this (env -1)) :vtable ,class)
+				(unless (def? :vtable ,class)
+					(def ,class :vtable t)
+					~methods)
+				~inits this))))
 
-(defmacro defmethod (n a &rest _)
-	`(def this ,n (profile-lambda ,(sym (cat *profile_class* n)) ,a ~(macroexpand _))))
+(defmacro defmethod (n p &rest _)
+	`(def (def? :vtable this) ,n (profile-lambda ,(sym (cat *profile_class* n)) ,p ~(macroexpand _))))
