@@ -114,6 +114,7 @@
   ; -f files only
   ; -a All, include directory entries whose names begin with a dot (.)
   (bind '(sargs flags paths) (_split-args args))
+  (each prtnl  sargs)
   (defq
     flgs  (_collapse_flags flags)
     flist (if (nempty? paths) paths (list "."))
