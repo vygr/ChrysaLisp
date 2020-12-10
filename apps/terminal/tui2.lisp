@@ -1,6 +1,6 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; tui2 - Experimental ChrysaLisp TUI Terminal
+; tui2 - Alternate ChrysaLisp TUI Terminal
 ; Adds internal switches and functions  in
 ; addition to just running commands user cmds
 ;
@@ -9,14 +9,6 @@
 ;
 ; Internal switches:
 ;   See ijmptbl below
-;
-; Planned internal commands (needs better support)
-;   ls -> list files
-;   cd -> changes working directory
-;   mkdir -> make a directory
-;   rm -> removes files or directory
-; TODO:
-;   Load/reload persisted environmental variables
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;imports
@@ -25,10 +17,22 @@
 (import "lib/logging/loganchor.inc")
 
 ; Setup logging and timezones
-(defq tlog  (log-anchor "tui2"))
-(defq tzone nil)
+(defq
+  tlog      (log-anchor "tui2")
+  +banner+  "ChrysaLisp Terminal-2 0.8 (experimental)"
+  tzone     nil)
 
 (import "apps/terminal/tuiutils.lisp")
+
+(defun session-sub (bfr)
+  ; (session-sub string) -> string
+  ; Scans string for substitution '@' from session vars
+  (defq res (list))
+  (each (lambda (_v)
+          (if (eql (first _v) "@")
+              (push res (gets-enval (rest _v)))
+              (push res _v))) (split bfr " "))
+  (join res " "))
 
 (defun prompt ()
   ; (prompt) -> string
@@ -76,16 +80,6 @@
   (prtnl "Session vars:")
   (each (lambda((_k _v)) (prtnl (str " " _k " -> " _v))) (entries +envcfg+)))
 
-(defun session-sub (bfr)
-  ; (session-sub string) -> string
-  ; Scans string for substitution '@' from session vars
-  (defq res (list))
-  (each (lambda (_v)
-          (if (eql (first _v) "@")
-              (push res (gets-enval (rest _v)))
-              (push res _v))) (split bfr " "))
-  (join res " "))
-
 (defun run-cmd (bfr)
   ; (run-cmd buffer) -> result of command
   (catch (setq cmd (pipe-open (session-sub bfr))) (progn (setq cmd nil) t))
@@ -103,6 +97,8 @@
   (run-cmd (gets-enval "LASTC")))
 
 (defun switch-help (ic &optional args)
+  (prtnl "")
+  (prtnl +banner+)
   (prtnl "")
   (prtnl "Switches:")
   (prtnl " -h   prints this help")
@@ -217,7 +213,7 @@
   ; Load path-nodes
   (defq continue t)
   ;sign on msg
-  (prtnl "ChrysaLisp Terminal-2 0.7 (experimental)")
+  (prtnl +banner+)
   (log-debug tlog "Started Terminal 2")
   (while continue
     (catch
@@ -250,5 +246,6 @@
               (print data)))))
       (progn
         (prtnl _)
-        (log-debug tlog _))))
+        (log-debug tlog _)
+        (print (prompt)))))
   )
