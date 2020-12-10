@@ -2,6 +2,12 @@
 
 ![](./screen_shot_5.png)
 
+------
+
+New `(type-of)` implementation. Now returns a list of keyword symbols
+reflecting the entire class inheritance of the object.
+
+Faster more memory efficient version of the the Lisp class/method system.
 
 ------
 
