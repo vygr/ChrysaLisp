@@ -922,7 +922,7 @@
 
 ## defclass
 
-(defclass name ([arg ...]) body) (super ...)
+(defclass name ([arg ...]) (super ...) body)
 
 ## deffimethod
 
