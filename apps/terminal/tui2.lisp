@@ -19,7 +19,7 @@
 ; Setup logging and timezones
 (defq
   tlog      (log-anchor "tui2")
-  +banner+  "ChrysaLisp Terminal-2 0.8 (experimental)"
+  +banner+  "ChrysaLisp Terminal-2 0.9 (RC-1)"
   tzone     nil)
 
 (import "apps/terminal/tuiutils.lisp")
