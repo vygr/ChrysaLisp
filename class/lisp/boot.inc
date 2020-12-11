@@ -851,9 +851,9 @@
 ;;;;;;;;;;;;;;;;;;;;;
 
 (defmacro defclass (n p s &rest _)
-	; (defclass name ([arg ...]) body) (super ...)
-	(defq class (sym (cat "*class_" n "*")) super (sym (cat "*class_" (if s (elem 0 s)) "*"))
-		inits (list) methods (list))
+	; (defclass name ([arg ...]) (super ...) body)
+	(defq super (sym (cat "*class_" (if s (elem 0 s)) "*"))
+		class (sym (cat "*class_" n "*")) inits (list) methods (list))
 	(each (lambda (form)
 		(cond
 			((and (list? form) (ends-with "method" (elem 0 form)))
@@ -863,19 +863,19 @@
 		`(progn
 			(defq ,class (env -1))
 			(defun ,n ,p
-				(def (defq this ,s) :vtable ,class :super ,super)
-				(unless (def? :initalised ,class)
-					(def ,class :initalised t)
+				(def (defq this ,s) :vtable ,class)
+				(unless (def? :vtable ,class)
 					(def this :vtable (reduce (lambda (e (key val))
 						(def e key val) e) (tolist ,super) ,class))
+					(def ,class :vtable ,super)
 					~methods)
 				~inits this))
 		`(progn
 			(defq ,class (env -1))
 			(defun ,n ,p
 				(def (defq this (env -1)) :vtable ,class)
-				(unless (def? :initalised ,class)
-					(def ,class :initalised t)
+				(unless (def? :vtable ,class)
+					(def ,class :vtable t)
 					~methods)
 				~inits this))))
 
