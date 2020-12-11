@@ -9,9 +9,9 @@
 (import "lib/date/date.inc")
 
 (defq
-  _pathseparator  "/"
+  _pathseparator  "/"   ; default path separator
   _pathnoderoot   nil
-  _current_dir    nil)  ; default path separator
+  _current_dir    nil)
 
 ; File mode masks
 
@@ -56,7 +56,8 @@
                             (when (and
                               (not (eql _fn "."))
                               (not (eql _fn ".."))
-                              (not (eql (first _fn) "."))) t)))
+                              (not (eql (first _fn) "."))) t))
+    _pn_nofind-handler (#(reduced (list %0 %1 %2))))
 
 
 (defclass path-node (name &optional parent) (named-xnode name parent)
@@ -298,7 +299,7 @@
         pname pathname
         psplt (_path-tolist pname)
         fpath nil)
-      (when (lst? (defq mres (node-for pname (#(reduced (list %0 %1 %2))))))
+      (when (list? (defq mres (node-for pname _pn_nofind-handler)))
         ; (
         ;   segname - Offending path segment
         ;   pnode - path-node where last valid

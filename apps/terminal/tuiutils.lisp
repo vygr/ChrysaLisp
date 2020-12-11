@@ -2,8 +2,6 @@
 ; tuiutils - Terminal utilities
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import "lib/pathnode/pathnode.inc")
-
 ;override print for TUI output
 (defun print (_)
   (each (lambda (c)
@@ -63,6 +61,22 @@
         (prtnl (str "cd " path ": is not a valid path")))))
   nil)
 
+(defun copy-file (ic &optional args)
+  ; (copy-file internal args) -> nil
+  (bind '(sargs flags paths) (_split-args args))
+  (cond
+    ((> (length paths) 2)
+     (prtnl (str "Usage: cp [] source_file target_file")))
+    (t))
+  (not-impl ic))
+
+(defun disp-date (ic &optional args)
+  ; (disp-date command args) -> nil
+  (bind '(sargs flags paths) (_split-args args))
+  (defq :local_timezone tzone)
+  (prtnl (encode-date))
+  nil)
+
 (defun make-directory (ic &optional args)
   ; (make-directory internal args) -> nil
   ; Creates a directory
@@ -79,31 +93,6 @@
             (prtnl (str "mkdir " _el ": threw " _)))) paths))
   nil)
 
-(defun del-directory (ic &optional args)
-  ; (del-directory internal args) -> nil
-  ; Remove a directory
-  ; TODO:
-  ;   Recursive switch
-  ;   Prompt
-  ;   Silent
-  (bind '(sargs flags paths) (_split-args args))
-  (not-impl ic)
-  nil)
-
-(defun copy-file (ic &optional args)
-  ; (copy-file internal args) -> nil
-  (bind '(sargs flags paths) (_split-args args))
-  (cond
-    ((> (length paths) 2)
-     (prtnl (str "Usage: cp [] source_file target_file")))
-    (t))
-  (not-impl ic))
-
-(defun move-file (ic &optional args)
-  ; (move-file internal args) -> nil
-  (bind '(sargs flags paths) (_split-args args))
-  (not-impl ic))
-
 (defun list-files (ic &optional args)
   ; (list-files internal args) -> nil
   ; Lists files in either cwd or other in argument
@@ -114,40 +103,68 @@
   ; -f files only
   ; -a All, include directory entries whose names begin with a dot (.)
   (bind '(sargs flags paths) (_split-args args))
-  (each prtnl  sargs)
   (defq
     flgs  (_collapse_flags flags)
-    flist (if (nempty? paths) paths (list "."))
     frmt  _pn-name-only
     fltr  _pn_short-filter
     mlst  :all_members)
-  (each (lambda (el)
-          (cond
-            ((eql el "l")
-             (setq frmt
-                   (lambda ((_fn _fm))
-                     (str "FL:" _fn))))
-            ((eql el "a")
-             (setq
-                mlst :all_members
-                fltr _pn-all-filter))
-            ((eql el "d")
-             (setq fltr _pn-dir-filter))
-            ((eql el "f")
-             (setq fltr _pn-file-filter))
-            (t t))) (entries flgs))
+  (defq
+    flist (if (nempty? paths) paths (list ".")))
 
-  (each prtnl (. _current_dir mlst frmt fltr))
+  (each
+    (lambda (_el)
+      (defq
+        pname _el
+        psplt (_path-tolist pname)
+        fpath nil
+        node  (node-for pname _pn_nofind-handler))
+      (cond
+        ((list? node)
+         (bind '(segname pnode plistndx) node)
+         (prtnl (str "stopped at " (. pnode :full_path)))
+         (prtnl (str "stopped by " segname))
+         (prtnl (str "can't get to " (join (slice plistndx -1 psplt) ""))))
+        (t
+          (prtnl (str "found " (. node :full_path)))))
+          ) flist)
+  ; (each (lambda (el)
+  ;         (cond
+  ;           ((eql el "l")
+  ;            (setq frmt
+  ;                  (lambda ((_fn _fm))
+  ;                    (str "FL:" _fn))))
+  ;           ((eql el "a")
+  ;            (setq
+  ;               mlst :all_members
+  ;               fltr _pn-all-filter))
+  ;           ((eql el "d")
+  ;            (setq fltr _pn-dir-filter))
+  ;           ((eql el "f")
+  ;            (setq fltr _pn-file-filter))
+  ;           (t t))) (entries flgs))
+
+  ; (each prtnl (. _current_dir mlst frmt fltr))
   nil)
 
-(defun disp-date (ic &optional args)
-  ; (disp-date command args) -> nil
+(defun delete-directory (ic &optional args)
+  ; (del-directory internal args) -> nil
+  ; Remove a directory
+  ; TODO:
+  ;   Recursive switch
+  ;   Prompt
+  ;   Silent
   (bind '(sargs flags paths) (_split-args args))
-  (defq :local_timezone tzone)
-  (prtnl (encode-date))
-  nil)
+  (defq flgs  (_collapse_flags flags))
+  (if (= (length paths) 0)
+      (prtnl "rm [-r] [path | file] ...")
+      (each
+        (lambda (_el)
+          (catch
+            (if (gets flgs "r")
+                ; (remove-dir _el t)
+                ; (remove-dir _el)
+                )
+            (prtnl (str "rm " _el ": threw " _)))) paths))
 
-(defun setup-pathing ()
-  ; (setup-pathing) -> nil
-  ; Sets current path to last working directory
-  (change-dir (gets-enval "PWD")))
+  (not-impl ic)
+  nil)
