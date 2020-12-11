@@ -45,8 +45,5 @@
 (defmacro defun (n a &rest _)
 	`(defq ,n (profile-lambda ,n ,a ~(macroexpand _))))
 
-(defmacro defclass (n p &rest _)
-	`(defun ,n ,p (defq *profile_class* ,n this (env -1)) ~_ this))
-
 (defmacro defmethod (n a &rest _)
-	`(def this ,n (profile-lambda ,(sym (cat *profile_class* n)) ,a ~(macroexpand _))))
+	`(def (def? :vtable this) ,n (profile-lambda ,(sym (cat *class* " " n)) ,a ~(macroexpand _))))

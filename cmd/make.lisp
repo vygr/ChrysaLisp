@@ -107,7 +107,7 @@
         (write-line stream (cat "## " cls (ascii-char 10)))
         (write-line stream (cat "Super Class: " super (ascii-char 10)))
         (each (lambda ((methd function))
-            (write-line stream (cat "### " cls ":" methd " -> " function (ascii-char 10)))
+            (write-line stream (cat "### " cls " " methd " -> " function (ascii-char 10)))
             (when (and (defq i (find function functions)) (/= 0 (length (elem i docs))))
                 (write-line stream "```lisp")
                 (each (# (write-line stream %0)) (elem i docs))

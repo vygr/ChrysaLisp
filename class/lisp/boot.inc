@@ -850,8 +850,18 @@
 ; classes and methods
 ;;;;;;;;;;;;;;;;;;;;;
 
-(defmacro defclass (n p s &rest _)
+(defmacro defmethod (n a &rest _)
+	; (defmethod name (this [arg ...]) body)
+	; (. this :method [arg ...])
+	`(def (def? :vtable this) ,n (lambda ,a ~(macroexpand _))))
+
+(defmacro deffimethod (n _)
+	; (deffimethod name ffi)
+	`(def (def? :vtable this) ,n (ffi _ ,_ 0)))
+
+(defmacro defclass (n a s &rest _)
 	; (defclass name ([arg ...]) (super ...) body)
+	(def (penv) '*class* n)
 	(defq super (sym (cat "*class_" (if s (elem 0 s)) "*"))
 		class (sym (cat "*class_" n "*")) inits (list) methods (list))
 	(each (lambda (form)
@@ -862,31 +872,26 @@
 	(if s
 		`(progn
 			(defq ,class (env -1))
-			(defun ,n ,p
+			(defun ,n ,a
 				(def (defq this ,s) :vtable ,class)
 				(unless (def? :vtable ,class)
 					(def this :vtable (reduce (lambda (e (key val))
 						(def e key val) e) (tolist ,super) ,class))
 					(def ,class :vtable ,super)
-					~methods)
+					~methods
+					(defmethod :type_of (this)
+						(push (. this :type_of) ,(sym (cat : n)))))
 				~inits this))
 		`(progn
 			(defq ,class (env -1))
-			(defun ,n ,p
+			(defun ,n ,a
 				(def (defq this (env -1)) :vtable ,class)
 				(unless (def? :vtable ,class)
 					(def ,class :vtable t)
-					~methods)
+					~methods
+					(defmethod :type_of (this)
+						(push (type-of this) :class ,(sym (cat : n)))))
 				~inits this))))
-
-(defmacro defmethod (n p &rest _)
-	; (defmethod name (this [arg ...]) body)
-	; (. this :method [arg ...])
-	`(def (def? :vtable this) ,n (lambda ,p ~(macroexpand _))))
-
-(defmacro deffimethod (n _)
-	; (deffimethod name ffi)
-	`(def (def? :vtable this) ,n (ffi _ ,_ 0)))
 
 (defmacro .-> (res &rest frm)
 	; (.-> this form ...)

@@ -2,6 +2,9 @@
 (import "sys/lisp.inc")
 (import "gui/lisp.inc")
 
+;profiling callbacks on the GUI thread from :draw method !!!
+(defq *profile* (env -1) *profile_ret* (list))
+
 ;screen widget
 (def (defq screen (Backdrop)) :style 0 :color +argb_grey2+ :ink_color +argb_grey1+)
 (.-> screen (:change 0 0 1280 960) :dirty_all)

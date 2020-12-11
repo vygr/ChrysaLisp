@@ -4,11 +4,11 @@
 
 Super Class: seq
 
-### array::vtable -> class/array/vtable
+### array :vtable -> class/array/vtable
 
-### array::create -> class/array/create
+### array :create -> class/array/create
 
-### array::init -> class/array/init
+### array :init -> class/array/init
 
 ```lisp
 inputs
@@ -21,7 +21,7 @@ trashes
 r1-r2
 ```
 
-### array::get_capacity -> class/array/get_capacity
+### array :get_capacity -> class/array/get_capacity
 
 ```lisp
 inputs
@@ -33,7 +33,7 @@ trashes
 r1
 ```
 
-### array::set_capacity -> class/array/set_capacity
+### array :set_capacity -> class/array/set_capacity
 
 ```lisp
 inputs
@@ -45,7 +45,7 @@ trashes
 r1-r5
 ```
 
-### array::set_length -> class/array/set_length
+### array :set_length -> class/array/set_length
 
 ```lisp
 inputs
@@ -58,7 +58,7 @@ trashes
 none
 ```
 
-### array::sort -> class/array/sort
+### array :sort -> class/array/sort
 
 ```lisp
 inputs
@@ -83,7 +83,7 @@ trashes
 r1-r14
 ```
 
-### array::partition -> class/array/partition
+### array :partition -> class/array/partition
 
 ```lisp
 inputs
@@ -108,7 +108,7 @@ trashes
 r1-r14
 ```
 
-### array::get_first -> class/array/get_first
+### array :get_first -> class/array/get_first
 
 ```lisp
 inputs
@@ -120,7 +120,7 @@ trashes
 r1
 ```
 
-### array::get_first2 -> class/array/get_first2
+### array :get_first2 -> class/array/get_first2
 
 ```lisp
 inputs
@@ -133,7 +133,7 @@ trashes
 r1-r2
 ```
 
-### array::get_second -> class/array/get_second
+### array :get_second -> class/array/get_second
 
 ```lisp
 inputs
@@ -145,7 +145,7 @@ trashes
 r1
 ```
 
-### array::get_element -> class/array/get_element
+### array :get_element -> class/array/get_element
 
 ```lisp
 inputs
@@ -158,7 +158,7 @@ trashes
 r1-r2
 ```
 
-### array::get_element2 -> class/array/get_element2
+### array :get_element2 -> class/array/get_element2
 
 ```lisp
 inputs
@@ -172,7 +172,7 @@ trashes
 r1-r2
 ```
 
-### array::push_back -> class/array/push_back
+### array :push_back -> class/array/push_back
 
 ```lisp
 inputs
@@ -187,7 +187,7 @@ trashes
 r2-r5
 ```
 
-### array::push_back2 -> class/array/push_back2
+### array :push_back2 -> class/array/push_back2
 
 ```lisp
 inputs
@@ -204,7 +204,7 @@ trashes
 r3-r5
 ```
 
-### array::pop_back -> class/array/pop_back
+### array :pop_back -> class/array/pop_back
 
 ```lisp
 inputs
@@ -216,7 +216,7 @@ trashes
 r1-r2
 ```
 
-### array::pop_back2 -> class/array/pop_back2
+### array :pop_back2 -> class/array/pop_back2
 
 ```lisp
 inputs
@@ -229,7 +229,7 @@ trashes
 r1-r2
 ```
 
-### array::get_iter -> class/array/get_iter
+### array :get_iter -> class/array/get_iter
 
 ```lisp
 inputs
@@ -242,7 +242,7 @@ trashes
 r1-r2
 ```
 
-### array::get_iters -> class/array/get_iters
+### array :get_iters -> class/array/get_iters
 
 ```lisp
 inputs
@@ -257,7 +257,7 @@ trashes
 r1-r3
 ```
 
-### array::get_begin -> class/array/get_begin
+### array :get_begin -> class/array/get_begin
 
 ```lisp
 inputs
@@ -269,7 +269,7 @@ trashes
 r1
 ```
 
-### array::get_end -> class/array/get_end
+### array :get_end -> class/array/get_end
 
 ```lisp
 inputs
@@ -281,7 +281,7 @@ trashes
 r1-r2
 ```
 
-### array::get_both -> class/array/get_both
+### array :get_both -> class/array/get_both
 
 ```lisp
 inputs
@@ -294,11 +294,11 @@ trashes
 r1-r2
 ```
 
-### array::sort_callback -> class/obj/null
+### array :sort_callback -> class/obj/null
 
-### array::type -> class/array/type
+### array :type -> class/array/type
 
-### array::print -> class/array/print
+### array :print -> class/array/print
 
 ```lisp
 inputs
@@ -310,11 +310,11 @@ trashes
 r1-r14
 ```
 
-### array::vcreate -> class/array/create
+### array :vcreate -> class/array/create
 
-### array::velement -> class/num/create
+### array :velement -> class/num/create
 
-### array::clear -> class/array/clear
+### array :clear -> class/array/clear
 
 ```lisp
 inputs
@@ -325,7 +325,7 @@ trashes
 r1
 ```
 
-### array::ref_back -> class/array/ref_back
+### array :ref_back -> class/array/ref_back
 
 ```lisp
 inputs
@@ -337,7 +337,7 @@ trashes
 r1-r3
 ```
 
-### array::set_element -> class/array/set_element
+### array :set_element -> class/array/set_element
 
 ```lisp
 inputs
@@ -350,7 +350,7 @@ trashes
 r2-r3
 ```
 
-### array::append -> class/array/append
+### array :append -> class/array/append
 
 ```lisp
 inputs
@@ -364,7 +364,7 @@ trashes
 r1-r9
 ```
 
-### array::deinit -> class/array/deinit
+### array :deinit -> class/array/deinit
 
 ```lisp
 inputs
@@ -375,7 +375,7 @@ trashes
 r1-r14
 ```
 
-### array::ref_element -> class/array/ref_element
+### array :ref_element -> class/array/ref_element
 
 ```lisp
 inputs
@@ -388,7 +388,7 @@ trashes
 r1-r3
 ```
 
-### array::slice -> class/array/slice
+### array :slice -> class/array/slice
 
 ```lisp
 inputs
@@ -402,7 +402,7 @@ trashes
 r1-r8
 ```
 
-### array::cat -> class/array/cat
+### array :cat -> class/array/cat
 
 ```lisp
 inputs
@@ -414,7 +414,7 @@ trashes
 r0-r11
 ```
 
-### array::find -> class/array/find
+### array :find -> class/array/find
 
 ```lisp
 inputs
@@ -428,7 +428,7 @@ trashes
 r2-r4
 ```
 
-### array::rfind -> class/array/rfind
+### array :rfind -> class/array/rfind
 
 ```lisp
 inputs
@@ -442,7 +442,7 @@ trashes
 r2-r4
 ```
 
-### array::get_length -> class/array/get_length
+### array :get_length -> class/array/get_length
 
 ```lisp
 inputs
@@ -454,7 +454,7 @@ trashes
 r1
 ```
 
-### array::lisp_array -> class/array/lisp_array
+### array :lisp_array -> class/array/lisp_array
 
 ```lisp
 inputs
@@ -467,7 +467,7 @@ trashes
 r1-r14
 ```
 
-### array::lisp_nums -> class/array/lisp_nums
+### array :lisp_nums -> class/array/lisp_nums
 
 ```lisp
 inputs
@@ -480,7 +480,7 @@ trashes
 r1-r14
 ```
 
-### array::lisp_fixeds -> class/array/lisp_fixeds
+### array :lisp_fixeds -> class/array/lisp_fixeds
 
 ```lisp
 inputs
@@ -493,7 +493,7 @@ trashes
 r1-r14
 ```
 
-### array::lisp_reals -> class/array/lisp_reals
+### array :lisp_reals -> class/array/lisp_reals
 
 ```lisp
 inputs
@@ -506,7 +506,7 @@ trashes
 r1-r14
 ```
 
-### array::lisp_path -> class/array/lisp_path
+### array :lisp_path -> class/array/lisp_path
 
 ```lisp
 inputs
@@ -519,7 +519,7 @@ trashes
 r1-r14
 ```
 
-### array::lisp_clear -> class/array/lisp_clear
+### array :lisp_clear -> class/array/lisp_clear
 
 ```lisp
 inputs
@@ -532,7 +532,7 @@ trashes
 r1-r14
 ```
 
-### array::lisp_push -> class/array/lisp_push
+### array :lisp_push -> class/array/lisp_push
 
 ```lisp
 inputs
@@ -545,7 +545,7 @@ trashes
 r1-r14
 ```
 
-### array::lisp_pop -> class/array/lisp_pop
+### array :lisp_pop -> class/array/lisp_pop
 
 ```lisp
 inputs
@@ -558,7 +558,7 @@ trashes
 r1-r14
 ```
 
-### array::lisp_cap -> class/array/lisp_cap
+### array :lisp_cap -> class/array/lisp_cap
 
 ```lisp
 inputs
@@ -575,13 +575,13 @@ r1-r14
 
 Super Class: view
 
-### canvas::vtable -> gui/canvas/vtable
+### canvas :vtable -> gui/canvas/vtable
 
-### canvas::create -> gui/canvas/create
+### canvas :create -> gui/canvas/create
 
-### canvas::create_with_pixmap -> gui/canvas/create_with_pixmap
+### canvas :create_with_pixmap -> gui/canvas/create_with_pixmap
 
-### canvas::init -> gui/canvas/init
+### canvas :init -> gui/canvas/init
 
 ```lisp
 inputs
@@ -597,7 +597,7 @@ trashes
 r1-r14
 ```
 
-### canvas::init_with_pixmap -> gui/canvas/init_with_pixmap
+### canvas :init_with_pixmap -> gui/canvas/init_with_pixmap
 
 ```lisp
 inputs
@@ -611,7 +611,7 @@ trashes
 r1-r14
 ```
 
-### canvas::swap -> gui/canvas/swap
+### canvas :swap -> gui/canvas/swap
 
 ```lisp
 inputs
@@ -622,7 +622,7 @@ trashes
 r1-r14
 ```
 
-### canvas::set_clip -> gui/canvas/set_clip
+### canvas :set_clip -> gui/canvas/set_clip
 
 ```lisp
 inputs
@@ -637,7 +637,7 @@ trashes
 r1-r2
 ```
 
-### canvas::set_edges -> gui/canvas/set_edges
+### canvas :set_edges -> gui/canvas/set_edges
 
 ```lisp
 inputs
@@ -656,7 +656,7 @@ trashes
 r1-r14
 ```
 
-### canvas::span_noclip -> gui/canvas/span_noclip
+### canvas :span_noclip -> gui/canvas/span_noclip
 
 ```lisp
 inputs
@@ -673,7 +673,7 @@ info
 coverage is 0x0 to 0x80
 ```
 
-### canvas::span -> gui/canvas/span
+### canvas :span -> gui/canvas/span
 
 ```lisp
 inputs
@@ -690,7 +690,7 @@ info
 coverage is 0x0 to 0x80
 ```
 
-### canvas::pick -> gui/canvas/pick
+### canvas :pick -> gui/canvas/pick
 
 ```lisp
 inputs
@@ -704,7 +704,7 @@ trashes
 r1-r14
 ```
 
-### canvas::plot -> gui/canvas/plot
+### canvas :plot -> gui/canvas/plot
 
 ```lisp
 inputs
@@ -717,7 +717,7 @@ trashes
 r1-r14
 ```
 
-### canvas::fbox -> gui/canvas/fbox
+### canvas :fbox -> gui/canvas/fbox
 
 ```lisp
 inputs
@@ -732,7 +732,7 @@ trashes
 r1-r14
 ```
 
-### canvas::fpoly -> gui/canvas/fpoly
+### canvas :fpoly -> gui/canvas/fpoly
 
 ```lisp
 inputs
@@ -747,7 +747,7 @@ trashes
 r1-r14
 ```
 
-### canvas::deinit -> gui/canvas/deinit
+### canvas :deinit -> gui/canvas/deinit
 
 ```lisp
 inputs
@@ -758,7 +758,7 @@ trashes
 r1-r14
 ```
 
-### canvas::lisp_create -> gui/canvas/lisp_create
+### canvas :lisp_create -> gui/canvas/lisp_create
 
 ```lisp
 inputs
@@ -771,7 +771,7 @@ trashes
 r1-r14
 ```
 
-### canvas::lisp_info -> gui/canvas/lisp_info
+### canvas :lisp_info -> gui/canvas/lisp_info
 
 ```lisp
 inputs
@@ -784,7 +784,7 @@ trashes
 r1-r14
 ```
 
-### canvas::lisp_load -> gui/canvas/lisp_load
+### canvas :lisp_load -> gui/canvas/lisp_load
 
 ```lisp
 inputs
@@ -797,7 +797,7 @@ trashes
 r1-r14
 ```
 
-### canvas::lisp_save -> gui/canvas/lisp_save
+### canvas :lisp_save -> gui/canvas/lisp_save
 
 ```lisp
 inputs
@@ -810,7 +810,7 @@ trashes
 r1-r14
 ```
 
-### canvas::lisp_next_frame -> gui/canvas/lisp_next_frame
+### canvas :lisp_next_frame -> gui/canvas/lisp_next_frame
 
 ```lisp
 inputs
@@ -823,7 +823,7 @@ trashes
 r1-r14
 ```
 
-### canvas::lisp_swap -> gui/canvas/lisp_swap
+### canvas :lisp_swap -> gui/canvas/lisp_swap
 
 ```lisp
 inputs
@@ -836,7 +836,7 @@ trashes
 r1-r14
 ```
 
-### canvas::lisp_fill -> gui/canvas/lisp_fill
+### canvas :lisp_fill -> gui/canvas/lisp_fill
 
 ```lisp
 inputs
@@ -849,7 +849,7 @@ trashes
 r1-r14
 ```
 
-### canvas::lisp_plot -> gui/canvas/lisp_plot
+### canvas :lisp_plot -> gui/canvas/lisp_plot
 
 ```lisp
 inputs
@@ -862,7 +862,7 @@ trashes
 r1-r14
 ```
 
-### canvas::lisp_fbox -> gui/canvas/lisp_fbox
+### canvas :lisp_fbox -> gui/canvas/lisp_fbox
 
 ```lisp
 inputs
@@ -875,7 +875,7 @@ trashes
 r1-r14
 ```
 
-### canvas::lisp_fpoly -> gui/canvas/lisp_fpoly
+### canvas :lisp_fpoly -> gui/canvas/lisp_fpoly
 
 ```lisp
 inputs
@@ -888,7 +888,7 @@ trashes
 r1-r14
 ```
 
-### canvas::lisp_resize -> gui/canvas/lisp_resize
+### canvas :lisp_resize -> gui/canvas/lisp_resize
 
 ```lisp
 inputs
@@ -901,7 +901,7 @@ trashes
 r1-r14
 ```
 
-### canvas::lisp_to_argb32 -> gui/canvas/lisp_to_argb32
+### canvas :lisp_to_argb32 -> gui/canvas/lisp_to_argb32
 
 ```lisp
 inputs
@@ -914,7 +914,7 @@ trashes
 r1-r14
 ```
 
-### canvas::lisp_from_argb32 -> gui/canvas/lisp_from_argb32
+### canvas :lisp_from_argb32 -> gui/canvas/lisp_from_argb32
 
 ```lisp
 inputs
@@ -927,7 +927,7 @@ trashes
 r1-r14
 ```
 
-### canvas::lisp_darker -> gui/canvas/lisp_darker
+### canvas :lisp_darker -> gui/canvas/lisp_darker
 
 ```lisp
 inputs
@@ -940,7 +940,7 @@ trashes
 r1-r14
 ```
 
-### canvas::lisp_brighter -> gui/canvas/lisp_brighter
+### canvas :lisp_brighter -> gui/canvas/lisp_brighter
 
 ```lisp
 inputs
@@ -957,7 +957,7 @@ r1-r14
 
 Super Class: null
 
-### ctx::set_color -> gui/ctx/set_color
+### ctx :set_color -> gui/ctx/set_color
 
 ```lisp
 inputs
@@ -967,7 +967,7 @@ trashes
 r0-r14
 ```
 
-### ctx::box -> gui/ctx/box
+### ctx :box -> gui/ctx/box
 
 ```lisp
 inputs
@@ -980,7 +980,7 @@ trashes
 r0-r14
 ```
 
-### ctx::filled_box -> gui/ctx/filled_box
+### ctx :filled_box -> gui/ctx/filled_box
 
 ```lisp
 inputs
@@ -993,7 +993,7 @@ trashes
 r0-r14
 ```
 
-### ctx::blit -> gui/ctx/blit
+### ctx :blit -> gui/ctx/blit
 
 ```lisp
 inputs
@@ -1008,7 +1008,7 @@ trashes
 r0-r14
 ```
 
-### ctx::panel -> gui/ctx/panel
+### ctx :panel -> gui/ctx/panel
 
 ```lisp
 inputs
@@ -1024,7 +1024,7 @@ trashes
 r0-r14
 ```
 
-### ctx::lisp_set_color -> gui/ctx/lisp_set_color
+### ctx :lisp_set_color -> gui/ctx/lisp_set_color
 
 ```lisp
 inputs
@@ -1037,7 +1037,7 @@ trashes
 r1-r14
 ```
 
-### ctx::lisp_box -> gui/ctx/lisp_box
+### ctx :lisp_box -> gui/ctx/lisp_box
 
 ```lisp
 inputs
@@ -1050,7 +1050,7 @@ trashes
 r1-r14
 ```
 
-### ctx::lisp_filled_box -> gui/ctx/lisp_filled_box
+### ctx :lisp_filled_box -> gui/ctx/lisp_filled_box
 
 ```lisp
 inputs
@@ -1063,7 +1063,7 @@ trashes
 r1-r14
 ```
 
-### ctx::lisp_blit -> gui/ctx/lisp_blit
+### ctx :lisp_blit -> gui/ctx/lisp_blit
 
 ```lisp
 inputs
@@ -1076,7 +1076,7 @@ trashes
 r1-r14
 ```
 
-### ctx::lisp_panel -> gui/ctx/lisp_panel
+### ctx :lisp_panel -> gui/ctx/lisp_panel
 
 ```lisp
 inputs
@@ -1093,11 +1093,11 @@ r1-r14
 
 Super Class: obj
 
-### error::vtable -> class/error/vtable
+### error :vtable -> class/error/vtable
 
-### error::create -> class/error/create
+### error :create -> class/error/create
 
-### error::init -> class/error/init
+### error :init -> class/error/init
 
 ```lisp
 inputs
@@ -1115,7 +1115,7 @@ trashes
 r1-r6
 ```
 
-### error::get_description -> class/error/get_description
+### error :get_description -> class/error/get_description
 
 ```lisp
 inputs
@@ -1127,7 +1127,7 @@ trashes
 r1
 ```
 
-### error::get_msg -> class/error/get_msg
+### error :get_msg -> class/error/get_msg
 
 ```lisp
 inputs
@@ -1139,7 +1139,7 @@ trashes
 r1-r5
 ```
 
-### error::get_object -> class/error/get_object
+### error :get_object -> class/error/get_object
 
 ```lisp
 inputs
@@ -1151,7 +1151,7 @@ trashes
 r1
 ```
 
-### error::get_file -> class/error/get_file
+### error :get_file -> class/error/get_file
 
 ```lisp
 inputs
@@ -1163,7 +1163,7 @@ trashes
 r1
 ```
 
-### error::get_line -> class/error/get_line
+### error :get_line -> class/error/get_line
 
 ```lisp
 inputs
@@ -1175,7 +1175,7 @@ trashes
 r1
 ```
 
-### error::deinit -> class/error/deinit
+### error :deinit -> class/error/deinit
 
 ```lisp
 inputs
@@ -1190,11 +1190,11 @@ r1-r14
 
 Super Class: num
 
-### fixed::vtable -> class/fixed/vtable
+### fixed :vtable -> class/fixed/vtable
 
-### fixed::create -> class/fixed/create
+### fixed :create -> class/fixed/create
 
-### fixed::print -> class/fixed/print
+### fixed :print -> class/fixed/print
 
 ```lisp
 inputs
@@ -1206,9 +1206,9 @@ trashes
 r1-r14
 ```
 
-### fixed::vcreate -> class/fixed/create
+### fixed :vcreate -> class/fixed/create
 
-### fixed::mul -> class/fixed/mul
+### fixed :mul -> class/fixed/mul
 
 ```lisp
 inputs
@@ -1221,20 +1221,7 @@ trashes
 r1-r14
 ```
 
-### fixed::div -> class/fixed/div
-
-```lisp
-inputs
-r0 = fixed object (ptr)
-r1 = list of fixed objects (ptr)
-outputs
-r0 = fixed object (ptr)
-r1 = 0 if error, else result fixed object (ptr)
-trashes
-r1-r14
-```
-
-### fixed::mod -> class/fixed/mod
+### fixed :div -> class/fixed/div
 
 ```lisp
 inputs
@@ -1247,7 +1234,20 @@ trashes
 r1-r14
 ```
 
-### fixed::sign -> class/fixed/sign
+### fixed :mod -> class/fixed/mod
+
+```lisp
+inputs
+r0 = fixed object (ptr)
+r1 = list of fixed objects (ptr)
+outputs
+r0 = fixed object (ptr)
+r1 = 0 if error, else result fixed object (ptr)
+trashes
+r1-r14
+```
+
+### fixed :sign -> class/fixed/sign
 
 ```lisp
 inputs
@@ -1259,7 +1259,7 @@ trashes
 r1-r14
 ```
 
-### fixed::sqrt -> class/fixed/sqrt
+### fixed :sqrt -> class/fixed/sqrt
 
 ```lisp
 inputs
@@ -1271,7 +1271,7 @@ trashes
 r1-r14
 ```
 
-### fixed::frac -> class/fixed/frac
+### fixed :frac -> class/fixed/frac
 
 ```lisp
 inputs
@@ -1283,7 +1283,7 @@ trashes
 r1-r14
 ```
 
-### fixed::floor -> class/fixed/floor
+### fixed :floor -> class/fixed/floor
 
 ```lisp
 inputs
@@ -1295,7 +1295,7 @@ trashes
 r1-r14
 ```
 
-### fixed::recip -> class/fixed/recip
+### fixed :recip -> class/fixed/recip
 
 ```lisp
 inputs
@@ -1307,7 +1307,7 @@ trashes
 r1-r14
 ```
 
-### fixed::sin -> class/fixed/sin
+### fixed :sin -> class/fixed/sin
 
 ```lisp
 inputs
@@ -1319,7 +1319,7 @@ trashes
 r1-r14
 ```
 
-### fixed::cos -> class/fixed/cos
+### fixed :cos -> class/fixed/cos
 
 ```lisp
 inputs
@@ -1331,7 +1331,7 @@ trashes
 r1-r14
 ```
 
-### fixed::lisp_sin -> class/fixed/lisp_sin
+### fixed :lisp_sin -> class/fixed/lisp_sin
 
 ```lisp
 inputs
@@ -1344,7 +1344,7 @@ trashes
 r1-r14
 ```
 
-### fixed::lisp_cos -> class/fixed/lisp_cos
+### fixed :lisp_cos -> class/fixed/lisp_cos
 
 ```lisp
 inputs
@@ -1357,7 +1357,7 @@ trashes
 r1-r14
 ```
 
-### fixed::lisp_frac -> class/fixed/lisp_frac
+### fixed :lisp_frac -> class/fixed/lisp_frac
 
 ```lisp
 inputs
@@ -1370,7 +1370,7 @@ trashes
 r1-r14
 ```
 
-### fixed::lisp_floor -> class/fixed/lisp_floor
+### fixed :lisp_floor -> class/fixed/lisp_floor
 
 ```lisp
 inputs
@@ -1383,7 +1383,7 @@ trashes
 r1-r14
 ```
 
-### fixed::lisp_recip -> class/fixed/lisp_recip
+### fixed :lisp_recip -> class/fixed/lisp_recip
 
 ```lisp
 inputs
@@ -1400,15 +1400,15 @@ r1-r14
 
 Super Class: nums
 
-### fixeds::vtable -> class/fixeds/vtable
+### fixeds :vtable -> class/fixeds/vtable
 
-### fixeds::create -> class/fixeds/create
+### fixeds :create -> class/fixeds/create
 
-### fixeds::vcreate -> class/fixeds/create
+### fixeds :vcreate -> class/fixeds/create
 
-### fixeds::velement -> class/fixed/create
+### fixeds :velement -> class/fixed/create
 
-### fixeds::mul -> class/fixeds/mul
+### fixeds :mul -> class/fixeds/mul
 
 ```lisp
 inputs
@@ -1421,7 +1421,7 @@ trashes
 r1-r6
 ```
 
-### fixeds::div -> class/fixeds/div
+### fixeds :div -> class/fixeds/div
 
 ```lisp
 inputs
@@ -1434,7 +1434,7 @@ trashes
 r1-r8
 ```
 
-### fixeds::mod -> class/fixeds/mod
+### fixeds :mod -> class/fixeds/mod
 
 ```lisp
 inputs
@@ -1447,7 +1447,7 @@ trashes
 r1-r8
 ```
 
-### fixeds::scale -> class/fixeds/scale
+### fixeds :scale -> class/fixeds/scale
 
 ```lisp
 inputs
@@ -1460,7 +1460,7 @@ trashes
 r1-r5
 ```
 
-### fixeds::frac -> class/fixeds/frac
+### fixeds :frac -> class/fixeds/frac
 
 ```lisp
 inputs
@@ -1472,7 +1472,7 @@ trashes
 r1-r5
 ```
 
-### fixeds::floor -> class/fixeds/floor
+### fixeds :floor -> class/fixeds/floor
 
 ```lisp
 inputs
@@ -1484,7 +1484,7 @@ trashes
 r1-r5
 ```
 
-### fixeds::lisp_frac -> class/fixeds/lisp_frac
+### fixeds :lisp_frac -> class/fixeds/lisp_frac
 
 ```lisp
 inputs
@@ -1497,7 +1497,7 @@ trashes
 r1-r14
 ```
 
-### fixeds::lisp_floor -> class/fixeds/lisp_floor
+### fixeds :lisp_floor -> class/fixeds/lisp_floor
 
 ```lisp
 inputs
@@ -1514,16 +1514,16 @@ r1-r14
 
 Super Class: obj
 
-### font::vtable -> gui/font/vtable
+### font :vtable -> gui/font/vtable
 
-### font::statics -> gui/font/statics
+### font :statics -> gui/font/statics
 
 ```lisp
 info
 font static data
 ```
 
-### font::open -> gui/font/open
+### font :open -> gui/font/open
 
 ```lisp
 r0 = name c string (pubyte)
@@ -1534,9 +1534,9 @@ trashes
 r0-r14
 ```
 
-### font::create -> gui/font/create
+### font :create -> gui/font/create
 
-### font::init -> gui/font/init
+### font :init -> gui/font/init
 
 ```lisp
 inputs
@@ -1552,14 +1552,14 @@ trashes
 r1-r14
 ```
 
-### font::flush -> gui/font/flush
+### font :flush -> gui/font/flush
 
 ```lisp
 trashes
 r0-r14
 ```
 
-### font::sym_texture -> gui/font/sym_texture
+### font :sym_texture -> gui/font/sym_texture
 
 ```lisp
 inputs
@@ -1572,7 +1572,7 @@ trashes
 r1-r14
 ```
 
-### font::ascii_textures -> gui/font/ascii_textures
+### font :ascii_textures -> gui/font/ascii_textures
 
 ```lisp
 inputs
@@ -1584,7 +1584,7 @@ trashes
 r1-r14
 ```
 
-### font::get_metrics -> gui/font/get_metrics
+### font :get_metrics -> gui/font/get_metrics
 
 ```lisp
 inputs
@@ -1598,7 +1598,7 @@ trashes
 r1-r4
 ```
 
-### font::glyph_data -> gui/font/glyph_data
+### font :glyph_data -> gui/font/glyph_data
 
 ```lisp
 inputs
@@ -1611,7 +1611,7 @@ trashes
 r1-r4
 ```
 
-### font::glyph_ranges -> gui/font/glyph_ranges
+### font :glyph_ranges -> gui/font/glyph_ranges
 
 ```lisp
 inputs
@@ -1623,7 +1623,7 @@ trashes
 r1-r7
 ```
 
-### font::glyph_info -> gui/font/glyph_info
+### font :glyph_info -> gui/font/glyph_info
 
 ```lisp
 inputs
@@ -1636,7 +1636,7 @@ trashes
 r1-r8
 ```
 
-### font::glyph_paths -> gui/font/glyph_paths
+### font :glyph_paths -> gui/font/glyph_paths
 
 ```lisp
 inputs
@@ -1652,7 +1652,7 @@ trashes
 r1-r14
 ```
 
-### font::glyph_bounds -> gui/font/glyph_bounds
+### font :glyph_bounds -> gui/font/glyph_bounds
 
 ```lisp
 inputs
@@ -1666,7 +1666,7 @@ trashes
 r1-r7
 ```
 
-### font::deinit -> gui/font/deinit
+### font :deinit -> gui/font/deinit
 
 ```lisp
 inputs
@@ -1677,7 +1677,7 @@ trashes
 r1-r14
 ```
 
-### font::lisp_create -> gui/font/lisp_create
+### font :lisp_create -> gui/font/lisp_create
 
 ```lisp
 inputs
@@ -1690,7 +1690,7 @@ trashes
 r1-r14
 ```
 
-### font::lisp_glyph_ranges -> gui/font/lisp_glyph_ranges
+### font :lisp_glyph_ranges -> gui/font/lisp_glyph_ranges
 
 ```lisp
 inputs
@@ -1703,7 +1703,7 @@ trashes
 r1-r14
 ```
 
-### font::lisp_glyph_paths -> gui/font/lisp_glyph_paths
+### font :lisp_glyph_paths -> gui/font/lisp_glyph_paths
 
 ```lisp
 inputs
@@ -1716,7 +1716,7 @@ trashes
 r1-r14
 ```
 
-### font::lisp_glyph_bounds -> gui/font/lisp_glyph_bounds
+### font :lisp_glyph_bounds -> gui/font/lisp_glyph_bounds
 
 ```lisp
 inputs
@@ -1729,7 +1729,7 @@ trashes
 r1-r14
 ```
 
-### font::lisp_texture -> gui/font/lisp_texture
+### font :lisp_texture -> gui/font/lisp_texture
 
 ```lisp
 inputs
@@ -1746,11 +1746,11 @@ r1-r14
 
 Super Class: stream
 
-### fstream::vtable -> class/fstream/vtable
+### fstream :vtable -> class/fstream/vtable
 
-### fstream::create -> class/fstream/create
+### fstream :create -> class/fstream/create
 
-### fstream::init -> class/fstream/init
+### fstream :init -> class/fstream/init
 
 ```lisp
 inputs
@@ -1765,7 +1765,7 @@ trashes
 r1-r14
 ```
 
-### fstream::deinit -> class/fstream/deinit
+### fstream :deinit -> class/fstream/deinit
 
 ```lisp
 inputs
@@ -1776,7 +1776,7 @@ trashes
 r1-r14
 ```
 
-### fstream::read_next -> class/fstream/read_next
+### fstream :read_next -> class/fstream/read_next
 
 ```lisp
 inputs
@@ -1788,7 +1788,7 @@ trashes
 r1-r14
 ```
 
-### fstream::write_next -> class/fstream/write_next
+### fstream :write_next -> class/fstream/write_next
 
 ```lisp
 inputs
@@ -1799,7 +1799,7 @@ trashes
 r1-r14
 ```
 
-### fstream::flush -> class/fstream/flush
+### fstream :flush -> class/fstream/flush
 
 ```lisp
 inputs
@@ -1810,7 +1810,7 @@ trashes
 r1-r14
 ```
 
-### fstream::seek -> class/fstream/seek
+### fstream :seek -> class/fstream/seek
 
 ```lisp
 inputs
@@ -1828,11 +1828,11 @@ r1-r14
 
 Super Class: obj
 
-### func::vtable -> class/func/vtable
+### func :vtable -> class/func/vtable
 
-### func::create -> class/func/create
+### func :create -> class/func/create
 
-### func::init -> class/num/init
+### func :init -> class/num/init
 
 ```lisp
 inputs
@@ -1846,9 +1846,9 @@ trashes
 r1
 ```
 
-### func::type -> class/func/type
+### func :type -> class/func/type
 
-### func::print -> class/func/print
+### func :print -> class/func/print
 
 ```lisp
 inputs
@@ -1864,11 +1864,11 @@ r1-r14
 
 Super Class: null
 
-### gui::statics -> gui/gui/statics
+### gui :statics -> gui/gui/statics
 
-### gui::statics_init -> gui/gui/statics_init
+### gui :statics_init -> gui/gui/statics_init
 
-### gui::update -> gui/gui/update
+### gui :update -> gui/gui/update
 
 ```lisp
 inputs
@@ -1877,7 +1877,7 @@ trashes
 r0-r14
 ```
 
-### gui::gui -> gui/gui/gui
+### gui :gui -> gui/gui/gui
 
 ```lisp
 gui process
@@ -1886,7 +1886,7 @@ r0 = lisp object pointer (ptr)
 r1 = lisp args list (ptr)
 ```
 
-### gui::lisp_add -> gui/gui/lisp_add
+### gui :lisp_add -> gui/gui/lisp_add
 
 ```lisp
 inputs
@@ -1899,7 +1899,7 @@ trashes
 r1-r14
 ```
 
-### gui::lisp_add_back -> gui/gui/lisp_add_back
+### gui :lisp_add_back -> gui/gui/lisp_add_back
 
 ```lisp
 inputs
@@ -1912,7 +1912,7 @@ trashes
 r1-r14
 ```
 
-### gui::lisp_info -> gui/gui/lisp_info
+### gui :lisp_info -> gui/gui/lisp_info
 
 ```lisp
 inputs
@@ -1929,11 +1929,11 @@ r1-r14
 
 Super Class: hset
 
-### hmap::vtable -> class/hmap/vtable
+### hmap :vtable -> class/hmap/vtable
 
-### hmap::create -> class/hmap/create
+### hmap :create -> class/hmap/create
 
-### hmap::init -> class/hmap/init
+### hmap :init -> class/hmap/init
 
 ```lisp
 inputs
@@ -1948,7 +1948,7 @@ trashes
 r1-r7
 ```
 
-### hmap::find -> class/hmap/find
+### hmap :find -> class/hmap/find
 
 ```lisp
 inputs
@@ -1962,7 +1962,7 @@ trashes
 r1-r14
 ```
 
-### hmap::erase -> class/hmap/erase
+### hmap :erase -> class/hmap/erase
 
 ```lisp
 inputs
@@ -1975,7 +1975,7 @@ trashes
 r1-r14
 ```
 
-### hmap::for_each -> class/hmap/for_each
+### hmap :for_each -> class/hmap/for_each
 
 ```lisp
 inputs
@@ -1994,7 +1994,7 @@ trashes
 ...
 ```
 
-### hmap::copy -> class/hmap/copy
+### hmap :copy -> class/hmap/copy
 
 ```lisp
 inputs
@@ -2007,7 +2007,7 @@ trashes
 r1-r14
 ```
 
-### hmap::list -> class/hmap/list
+### hmap :list -> class/hmap/list
 
 ```lisp
 inputs
@@ -2019,7 +2019,7 @@ trashes
 r1-r14
 ```
 
-### hmap::insert -> class/hmap/insert
+### hmap :insert -> class/hmap/insert
 
 ```lisp
 inputs
@@ -2034,7 +2034,7 @@ trashes
 r1-r14
 ```
 
-### hmap::search -> class/hmap/search
+### hmap :search -> class/hmap/search
 
 ```lisp
 inputs
@@ -2048,7 +2048,7 @@ trashes
 r1-r14
 ```
 
-### hmap::set -> class/hmap/set
+### hmap :set -> class/hmap/set
 
 ```lisp
 inputs
@@ -2062,7 +2062,7 @@ trashes
 r1-r14
 ```
 
-### hmap::get -> class/hmap/get
+### hmap :get -> class/hmap/get
 
 ```lisp
 inputs
@@ -2075,7 +2075,7 @@ trashes
 r1-r14
 ```
 
-### hmap::set_parent -> class/hmap/set_parent
+### hmap :set_parent -> class/hmap/set_parent
 
 ```lisp
 inputs
@@ -2087,9 +2087,9 @@ trashes
 r1-r14
 ```
 
-### hmap::type -> class/hmap/type
+### hmap :type -> class/hmap/type
 
-### hmap::deinit -> class/hmap/deinit
+### hmap :deinit -> class/hmap/deinit
 
 ```lisp
 inputs
@@ -2100,7 +2100,7 @@ trashes
 r1-r14
 ```
 
-### hmap::lisp_env -> class/hmap/lisp_env
+### hmap :lisp_env -> class/hmap/lisp_env
 
 ```lisp
 inputs
@@ -2113,7 +2113,7 @@ trashes
 r1-r14
 ```
 
-### hmap::lisp_def -> class/hmap/lisp_def
+### hmap :lisp_def -> class/hmap/lisp_def
 
 ```lisp
 inputs
@@ -2126,7 +2126,7 @@ trashes
 r1-r14
 ```
 
-### hmap::lisp_defq -> class/hmap/lisp_defq
+### hmap :lisp_defq -> class/hmap/lisp_defq
 
 ```lisp
 inputs
@@ -2139,7 +2139,7 @@ trashes
 r1-r14
 ```
 
-### hmap::lisp_set -> class/hmap/lisp_set
+### hmap :lisp_set -> class/hmap/lisp_set
 
 ```lisp
 inputs
@@ -2152,7 +2152,7 @@ trashes
 r1-r14
 ```
 
-### hmap::lisp_setq -> class/hmap/lisp_setq
+### hmap :lisp_setq -> class/hmap/lisp_setq
 
 ```lisp
 inputs
@@ -2165,7 +2165,7 @@ trashes
 r1-r14
 ```
 
-### hmap::lisp_get -> class/hmap/lisp_get
+### hmap :lisp_get -> class/hmap/lisp_get
 
 ```lisp
 inputs
@@ -2178,7 +2178,7 @@ trashes
 r1-r14
 ```
 
-### hmap::lisp_defx -> class/hmap/lisp_defx
+### hmap :lisp_defx -> class/hmap/lisp_defx
 
 ```lisp
 inputs
@@ -2191,7 +2191,7 @@ trashes
 r1-r14
 ```
 
-### hmap::lisp_undef -> class/hmap/lisp_undef
+### hmap :lisp_undef -> class/hmap/lisp_undef
 
 ```lisp
 inputs
@@ -2204,7 +2204,7 @@ trashes
 r1-r14
 ```
 
-### hmap::lisp_parent -> class/hmap/lisp_parent
+### hmap :lisp_parent -> class/hmap/lisp_parent
 
 ```lisp
 inputs
@@ -2217,7 +2217,7 @@ trashes
 r1-r14
 ```
 
-### hmap::lisp_list -> class/hmap/lisp_list
+### hmap :lisp_list -> class/hmap/lisp_list
 
 ```lisp
 inputs
@@ -2234,103 +2234,103 @@ r1-r14
 
 Super Class: null
 
-### host::exit -> nil
+### host :exit -> nil
 
-### host::stat -> nil
+### host :stat -> nil
 
-### host::open -> nil
+### host :open -> nil
 
-### host::close -> nil
+### host :close -> nil
 
-### host::unlink -> nil
+### host :unlink -> nil
 
-### host::read -> nil
+### host :read -> nil
 
-### host::write -> nil
+### host :write -> nil
 
-### host::mmap -> nil
+### host :mmap -> nil
 
-### host::munmap -> nil
+### host :munmap -> nil
 
-### host::mprotect -> nil
+### host :mprotect -> nil
 
-### host::gettime -> nil
+### host :gettime -> nil
 
-### host::open_shared -> nil
+### host :open_shared -> nil
 
-### host::close_shared -> nil
+### host :close_shared -> nil
 
-### host::clear_icache -> nil
+### host :clear_icache -> nil
 
-### host::dirlist -> nil
+### host :dirlist -> nil
 
-### host::remove -> nil
+### host :remove -> nil
 
-### host::seek -> nil
+### host :seek -> nil
 
-### host::sdl_delay -> nil
+### host :sdl_delay -> nil
 
-### host::sdl_set_main_ready -> nil
+### host :sdl_set_main_ready -> nil
 
-### host::sdl_init -> nil
+### host :sdl_init -> nil
 
-### host::sdl_get_error -> nil
+### host :sdl_get_error -> nil
 
-### host::sdl_quit -> nil
+### host :sdl_quit -> nil
 
-### host::sdl_create_window -> nil
+### host :sdl_create_window -> nil
 
-### host::sdl_create_window_and_renderer -> nil
+### host :sdl_create_window_and_renderer -> nil
 
-### host::sdl_destroy_window -> nil
+### host :sdl_destroy_window -> nil
 
-### host::sdl_create_renderer -> nil
+### host :sdl_create_renderer -> nil
 
-### host::sdl_set_render_draw_color -> nil
+### host :sdl_set_render_draw_color -> nil
 
-### host::sdl_render_fill_rect -> nil
+### host :sdl_render_fill_rect -> nil
 
-### host::sdl_render_present -> nil
+### host :sdl_render_present -> nil
 
-### host::sdl_render_set_clip_rect -> nil
+### host :sdl_render_set_clip_rect -> nil
 
-### host::sdl_set_render_draw_blend_mode -> nil
+### host :sdl_set_render_draw_blend_mode -> nil
 
-### host::sdl_poll_event -> nil
+### host :sdl_poll_event -> nil
 
-### host::sdl_render_draw_rect -> nil
+### host :sdl_render_draw_rect -> nil
 
-### host::sdl_free_surface -> nil
+### host :sdl_free_surface -> nil
 
-### host::sdl_create_texture_from_surface -> nil
+### host :sdl_create_texture_from_surface -> nil
 
-### host::sdl_destroy_texture -> nil
+### host :sdl_destroy_texture -> nil
 
-### host::sdl_render_copy -> nil
+### host :sdl_render_copy -> nil
 
-### host::sdl_set_texture_blend_mode -> nil
+### host :sdl_set_texture_blend_mode -> nil
 
-### host::sdl_set_texture_color_mod -> nil
+### host :sdl_set_texture_color_mod -> nil
 
-### host::sdl_create_rgb_surface_from -> nil
+### host :sdl_create_rgb_surface_from -> nil
 
-### host::sdl_compose_custom_blend_mode -> nil
+### host :sdl_compose_custom_blend_mode -> nil
 
-### host::sdl_create_texture -> nil
+### host :sdl_create_texture -> nil
 
-### host::sdl_set_render_target -> nil
+### host :sdl_set_render_target -> nil
 
-### host::sdl_render_clear -> nil
+### host :sdl_render_clear -> nil
 
 ## hset
 
 Super Class: obj
 
-### hset::vtable -> class/hset/vtable
+### hset :vtable -> class/hset/vtable
 
-### hset::create -> class/hset/create
+### hset :create -> class/hset/create
 
-### hset::init -> class/hset/init
+### hset :init -> class/hset/init
 
 ```lisp
 inputs
@@ -2345,7 +2345,7 @@ trashes
 r1-r5
 ```
 
-### hset::get_bucket -> class/hset/get_bucket
+### hset :get_bucket -> class/hset/get_bucket
 
 ```lisp
 inputs
@@ -2358,7 +2358,7 @@ trashes
 r1-r14
 ```
 
-### hset::clear -> class/hset/clear
+### hset :clear -> class/hset/clear
 
 ```lisp
 inputs
@@ -2369,7 +2369,7 @@ trashes
 r1-r14
 ```
 
-### hset::for_each -> class/hset/for_each
+### hset :for_each -> class/hset/for_each
 
 ```lisp
 inputs
@@ -2388,7 +2388,7 @@ trashes
 ...
 ```
 
-### hset::find -> class/hset/find
+### hset :find -> class/hset/find
 
 ```lisp
 inputs
@@ -2402,7 +2402,7 @@ trashes
 r1-r14
 ```
 
-### hset::insert -> class/hset/insert
+### hset :insert -> class/hset/insert
 
 ```lisp
 inputs
@@ -2416,7 +2416,7 @@ trashes
 r1-r14
 ```
 
-### hset::erase -> class/hset/erase
+### hset :erase -> class/hset/erase
 
 ```lisp
 inputs
@@ -2429,11 +2429,11 @@ trashes
 r1-r14
 ```
 
-### hset::key_callback -> class/obj/null
+### hset :key_callback -> class/obj/null
 
-### hset::each_callback -> class/obj/null
+### hset :each_callback -> class/obj/null
 
-### hset::deinit -> class/hset/deinit
+### hset :deinit -> class/hset/deinit
 
 ```lisp
 inputs
@@ -2448,11 +2448,11 @@ r1-r14
 
 Super Class: stream
 
-### in::vtable -> class/in/vtable
+### in :vtable -> class/in/vtable
 
-### in::create -> class/in/create
+### in :create -> class/in/create
 
-### in::init -> class/in/init
+### in :init -> class/in/init
 
 ```lisp
 inputs
@@ -2466,7 +2466,7 @@ trashes
 r1-r14
 ```
 
-### in::next_msg -> class/in/next_msg
+### in :next_msg -> class/in/next_msg
 
 ```lisp
 inputs
@@ -2477,7 +2477,7 @@ trashes
 r1-r14
 ```
 
-### in::deinit -> class/in/deinit
+### in :deinit -> class/in/deinit
 
 ```lisp
 inputs
@@ -2488,7 +2488,7 @@ trashes
 r1-r14
 ```
 
-### in::read_next -> class/in/read_next
+### in :read_next -> class/in/read_next
 
 ```lisp
 inputs
@@ -2500,7 +2500,7 @@ trashes
 r1-r14
 ```
 
-### in::lisp_create -> class/in/lisp_create
+### in :lisp_create -> class/in/lisp_create
 
 ```lisp
 inputs
@@ -2513,7 +2513,7 @@ trashes
 r1-r14
 ```
 
-### in::lisp_next_msg -> class/in/lisp_next_msg
+### in :lisp_next_msg -> class/in/lisp_next_msg
 
 ```lisp
 inputs
@@ -2530,11 +2530,11 @@ r1-r14
 
 Super Class: obj
 
-### lisp::vtable -> class/lisp/vtable
+### lisp :vtable -> class/lisp/vtable
 
-### lisp::create -> class/lisp/create
+### lisp :create -> class/lisp/create
 
-### lisp::init -> class/lisp/init
+### lisp :init -> class/lisp/init
 
 ```lisp
 inputs
@@ -2550,7 +2550,7 @@ trashes
 r1-r14
 ```
 
-### lisp::deinit -> class/lisp/deinit
+### lisp :deinit -> class/lisp/deinit
 
 ```lisp
 inputs
@@ -2561,7 +2561,7 @@ trashes
 r1-r14
 ```
 
-### lisp::env_push -> class/lisp/env_push
+### lisp :env_push -> class/lisp/env_push
 
 ```lisp
 inputs
@@ -2572,7 +2572,7 @@ trashes
 r1-r14
 ```
 
-### lisp::env_pop -> class/lisp/env_pop
+### lisp :env_pop -> class/lisp/env_pop
 
 ```lisp
 inputs
@@ -2583,7 +2583,7 @@ trashes
 r1-r14
 ```
 
-### lisp::env_bind -> class/lisp/env_bind
+### lisp :env_bind -> class/lisp/env_bind
 
 ```lisp
 inputs
@@ -2597,7 +2597,7 @@ trashes
 r1-r14
 ```
 
-### lisp::env_args_set -> class/lisp/env_args_set
+### lisp :env_args_set -> class/lisp/env_args_set
 
 ```lisp
 inputs
@@ -2608,7 +2608,7 @@ trashes
 r0-r5
 ```
 
-### lisp::env_args_sig -> class/lisp/env_args_sig
+### lisp :env_args_sig -> class/lisp/env_args_sig
 
 ```lisp
 inputs
@@ -2621,7 +2621,7 @@ trashes
 r2-r7
 ```
 
-### lisp::env_args_type -> class/lisp/env_args_type
+### lisp :env_args_type -> class/lisp/env_args_type
 
 ```lisp
 inputs
@@ -2634,7 +2634,7 @@ trashes
 r2-r7
 ```
 
-### lisp::env_args_match -> class/lisp/env_args_match
+### lisp :env_args_match -> class/lisp/env_args_match
 
 ```lisp
 inputs
@@ -2647,7 +2647,7 @@ trashes
 r2-r7
 ```
 
-### lisp::read -> class/lisp/read
+### lisp :read -> class/lisp/read
 
 ```lisp
 inputs
@@ -2662,7 +2662,7 @@ trashes
 r1-r14
 ```
 
-### lisp::read_char -> class/lisp/read_char
+### lisp :read_char -> class/lisp/read_char
 
 ```lisp
 inputs
@@ -2676,7 +2676,7 @@ trashes
 r1-r14
 ```
 
-### lisp::read_rmacro -> class/lisp/read_rmacro
+### lisp :read_rmacro -> class/lisp/read_rmacro
 
 ```lisp
 inputs
@@ -2692,7 +2692,7 @@ trashes
 r1-r14
 ```
 
-### lisp::read_list -> class/lisp/read_list
+### lisp :read_list -> class/lisp/read_list
 
 ```lisp
 inputs
@@ -2707,7 +2707,7 @@ trashes
 r1-r14
 ```
 
-### lisp::read_sym -> class/lisp/read_sym
+### lisp :read_sym -> class/lisp/read_sym
 
 ```lisp
 inputs
@@ -2722,7 +2722,7 @@ trashes
 r1-r14
 ```
 
-### lisp::read_str -> class/lisp/read_str
+### lisp :read_str -> class/lisp/read_str
 
 ```lisp
 inputs
@@ -2737,7 +2737,7 @@ trashes
 r1-r14
 ```
 
-### lisp::read_num -> class/lisp/read_num
+### lisp :read_num -> class/lisp/read_num
 
 ```lisp
 inputs
@@ -2752,7 +2752,7 @@ trashes
 r1-r14
 ```
 
-### lisp::repl_eval -> class/lisp/repl_eval
+### lisp :repl_eval -> class/lisp/repl_eval
 
 ```lisp
 inputs
@@ -2765,7 +2765,7 @@ trashes
 r1-r14
 ```
 
-### lisp::repl_eval_list -> class/lisp/repl_eval_list
+### lisp :repl_eval_list -> class/lisp/repl_eval_list
 
 ```lisp
 inputs
@@ -2778,7 +2778,7 @@ trashes
 r1-r14
 ```
 
-### lisp::repl_apply -> class/lisp/repl_apply
+### lisp :repl_apply -> class/lisp/repl_apply
 
 ```lisp
 inputs
@@ -2792,7 +2792,7 @@ trashes
 r1-r14
 ```
 
-### lisp::repl_print -> class/lisp/repl_print
+### lisp :repl_print -> class/lisp/repl_print
 
 ```lisp
 inputs
@@ -2805,7 +2805,7 @@ trashes
 r1-r14
 ```
 
-### lisp::repl_expand -> class/lisp/repl_expand
+### lisp :repl_expand -> class/lisp/repl_expand
 
 ```lisp
 inputs
@@ -2817,7 +2817,7 @@ trashes
 r1-r14
 ```
 
-### lisp::repl_error -> class/lisp/repl_error
+### lisp :repl_error -> class/lisp/repl_error
 
 ```lisp
 inputs
@@ -2832,7 +2832,7 @@ trashes
 r1-r14
 ```
 
-### lisp::repl_bind -> class/lisp/repl_bind
+### lisp :repl_bind -> class/lisp/repl_bind
 
 ```lisp
 inputs
@@ -2844,7 +2844,7 @@ trashes
 r1-r14
 ```
 
-### lisp::lisp_ffi -> class/lisp/lisp_ffi
+### lisp :lisp_ffi -> class/lisp/lisp_ffi
 
 ```lisp
 inputs
@@ -2857,7 +2857,7 @@ trashes
 r1-r14
 ```
 
-### lisp::lisp_prebind -> class/lisp/lisp_bindfun
+### lisp :lisp_prebind -> class/lisp/lisp_bindfun
 
 ```lisp
 inputs
@@ -2870,7 +2870,7 @@ trashes
 r1-r14
 ```
 
-### lisp::lisp_macroexpand -> class/lisp/lisp_macroexpand
+### lisp :lisp_macroexpand -> class/lisp/lisp_macroexpand
 
 ```lisp
 inputs
@@ -2883,7 +2883,7 @@ trashes
 r1-r14
 ```
 
-### lisp::lisp_lambda -> class/lisp/lisp_lambda
+### lisp :lisp_lambda -> class/lisp/lisp_lambda
 
 ```lisp
 inputs
@@ -2896,7 +2896,7 @@ trashes
 r1-r14
 ```
 
-### lisp::lisp_quote -> class/lisp/lisp_quote
+### lisp :lisp_quote -> class/lisp/lisp_quote
 
 ```lisp
 inputs
@@ -2909,7 +2909,7 @@ trashes
 r1-r14
 ```
 
-### lisp::lisp_qquote -> class/lisp/lisp_qquote
+### lisp :lisp_qquote -> class/lisp/lisp_qquote
 
 ```lisp
 inputs
@@ -2922,7 +2922,7 @@ trashes
 r1-r14
 ```
 
-### lisp::lisp_eql -> class/lisp/lisp_eql
+### lisp :lisp_eql -> class/lisp/lisp_eql
 
 ```lisp
 inputs
@@ -2935,7 +2935,7 @@ trashes
 r1-r14
 ```
 
-### lisp::lisp_cond -> class/lisp/lisp_cond
+### lisp :lisp_cond -> class/lisp/lisp_cond
 
 ```lisp
 inputs
@@ -2948,7 +2948,7 @@ trashes
 r1-r14
 ```
 
-### lisp::lisp_progn -> class/lisp/lisp_progn
+### lisp :lisp_progn -> class/lisp/lisp_progn
 
 ```lisp
 inputs
@@ -2961,7 +2961,7 @@ trashes
 r1-r14
 ```
 
-### lisp::lisp_while -> class/lisp/lisp_while
+### lisp :lisp_while -> class/lisp/lisp_while
 
 ```lisp
 inputs
@@ -2974,7 +2974,7 @@ trashes
 r1-r14
 ```
 
-### lisp::lisp_print -> class/lisp/lisp_print
+### lisp :lisp_print -> class/lisp/lisp_print
 
 ```lisp
 inputs
@@ -2987,7 +2987,7 @@ trashes
 r1-r14
 ```
 
-### lisp::lisp_prin -> class/lisp/lisp_prin
+### lisp :lisp_prin -> class/lisp/lisp_prin
 
 ```lisp
 inputs
@@ -3000,7 +3000,7 @@ trashes
 r1-r14
 ```
 
-### lisp::lisp_copy -> class/lisp/lisp_copy
+### lisp :lisp_copy -> class/lisp/lisp_copy
 
 ```lisp
 inputs
@@ -3013,7 +3013,7 @@ trashes
 r1-r14
 ```
 
-### lisp::lisp_apply -> class/lisp/lisp_apply
+### lisp :lisp_apply -> class/lisp/lisp_apply
 
 ```lisp
 inputs
@@ -3026,7 +3026,7 @@ trashes
 r1-r14
 ```
 
-### lisp::lisp_repl -> class/lisp/lisp_repl
+### lisp :lisp_repl -> class/lisp/lisp_repl
 
 ```lisp
 inputs
@@ -3039,7 +3039,7 @@ trashes
 r1-r14
 ```
 
-### lisp::lisp_eval -> class/lisp/lisp_eval
+### lisp :lisp_eval -> class/lisp/lisp_eval
 
 ```lisp
 inputs
@@ -3052,7 +3052,7 @@ trashes
 r1-r14
 ```
 
-### lisp::lisp_throw -> class/lisp/lisp_throw
+### lisp :lisp_throw -> class/lisp/lisp_throw
 
 ```lisp
 inputs
@@ -3065,7 +3065,7 @@ trashes
 r1-r14
 ```
 
-### lisp::lisp_catch -> class/lisp/lisp_catch
+### lisp :lisp_catch -> class/lisp/lisp_catch
 
 ```lisp
 inputs
@@ -3078,7 +3078,7 @@ trashes
 r1-r14
 ```
 
-### lisp::lisp_bind -> class/lisp/lisp_bind
+### lisp :lisp_bind -> class/lisp/lisp_bind
 
 ```lisp
 inputs
@@ -3091,7 +3091,7 @@ trashes
 r1-r14
 ```
 
-### lisp::lisp_read -> class/lisp/lisp_read
+### lisp :lisp_read -> class/lisp/lisp_read
 
 ```lisp
 inputs
@@ -3104,7 +3104,7 @@ trashes
 r1-r14
 ```
 
-### lisp::lisp_mcall -> class/lisp/lisp_mcall
+### lisp :lisp_mcall -> class/lisp/lisp_mcall
 
 ```lisp
 inputs
@@ -3117,7 +3117,7 @@ trashes
 r1-r14
 ```
 
-### lisp::lisp_scall -> class/lisp/lisp_scall
+### lisp :lisp_scall -> class/lisp/lisp_scall
 
 ```lisp
 inputs
@@ -3130,7 +3130,7 @@ trashes
 r1-r14
 ```
 
-### lisp::run -> class/lisp/run
+### lisp :run -> class/lisp/run
 
 ```lisp
 lisp run loop task
@@ -3142,15 +3142,15 @@ msg of lisp filename
 
 Super Class: array
 
-### list::vtable -> class/list/vtable
+### list :vtable -> class/list/vtable
 
-### list::create -> class/list/create
+### list :create -> class/list/create
 
-### list::type -> class/list/type
+### list :type -> class/list/type
 
-### list::vcreate -> class/list/create
+### list :vcreate -> class/list/create
 
-### list::deinit -> class/list/deinit
+### list :deinit -> class/list/deinit
 
 ```lisp
 inputs
@@ -3161,7 +3161,7 @@ trashes
 r1-r14
 ```
 
-### list::ref_element -> class/list/ref_element
+### list :ref_element -> class/list/ref_element
 
 ```lisp
 inputs
@@ -3174,7 +3174,7 @@ trashes
 r1-r2
 ```
 
-### list::slice -> class/list/slice
+### list :slice -> class/list/slice
 
 ```lisp
 inputs
@@ -3188,7 +3188,7 @@ trashes
 r1-r8
 ```
 
-### list::clear -> class/list/clear
+### list :clear -> class/list/clear
 
 ```lisp
 inputs
@@ -3199,7 +3199,7 @@ trashes
 r1-r14
 ```
 
-### list::ref_back -> class/list/ref_back
+### list :ref_back -> class/list/ref_back
 
 ```lisp
 inputs
@@ -3211,7 +3211,7 @@ trashes
 r1-r2
 ```
 
-### list::set_element -> class/list/set_element
+### list :set_element -> class/list/set_element
 
 ```lisp
 inputs
@@ -3224,7 +3224,7 @@ trashes
 r1-r14
 ```
 
-### list::append -> class/list/append
+### list :append -> class/list/append
 
 ```lisp
 inputs
@@ -3238,7 +3238,7 @@ trashes
 r1-r9
 ```
 
-### list::print -> class/list/print
+### list :print -> class/list/print
 
 ```lisp
 inputs
@@ -3250,7 +3250,7 @@ trashes
 r1-r14
 ```
 
-### list::find -> class/list/find
+### list :find -> class/list/find
 
 ```lisp
 inputs
@@ -3264,7 +3264,7 @@ trashes
 r2-r14
 ```
 
-### list::rfind -> class/list/rfind
+### list :rfind -> class/list/rfind
 
 ```lisp
 inputs
@@ -3278,7 +3278,7 @@ trashes
 r2-r14
 ```
 
-### list::lisp_list -> class/list/lisp_list
+### list :lisp_list -> class/list/lisp_list
 
 ```lisp
 inputs
@@ -3291,7 +3291,7 @@ trashes
 r1-r14
 ```
 
-### list::lisp_elemset -> class/list/lisp_elemset
+### list :lisp_elemset -> class/list/lisp_elemset
 
 ```lisp
 inputs
@@ -3304,7 +3304,7 @@ trashes
 r1-r14
 ```
 
-### list::lisp_merge -> class/list/lisp_merge
+### list :lisp_merge -> class/list/lisp_merge
 
 ```lisp
 inputs
@@ -3317,7 +3317,7 @@ trashes
 r1-r14
 ```
 
-### list::lisp_part -> class/list/lisp_part
+### list :lisp_part -> class/list/lisp_part
 
 ```lisp
 inputs
@@ -3330,7 +3330,7 @@ trashes
 r1-r14
 ```
 
-### list::lisp_match -> class/list/lisp_match
+### list :lisp_match -> class/list/lisp_match
 
 ```lisp
 inputs
@@ -3347,11 +3347,11 @@ r1-r14
 
 Super Class: obj
 
-### num::vtable -> class/num/vtable
+### num :vtable -> class/num/vtable
 
-### num::create -> class/num/create
+### num :create -> class/num/create
 
-### num::init -> class/num/init
+### num :init -> class/num/init
 
 ```lisp
 inputs
@@ -3365,7 +3365,7 @@ trashes
 r1
 ```
 
-### num::get_value -> class/num/get_value
+### num :get_value -> class/num/get_value
 
 ```lisp
 inputs
@@ -3377,7 +3377,7 @@ trashes
 r1
 ```
 
-### num::set_value -> class/num/set_value
+### num :set_value -> class/num/set_value
 
 ```lisp
 inputs
@@ -3390,9 +3390,9 @@ trashes
 none
 ```
 
-### num::type -> class/num/type
+### num :type -> class/num/type
 
-### num::print -> class/num/print
+### num :print -> class/num/print
 
 ```lisp
 inputs
@@ -3404,22 +3404,9 @@ trashes
 r1-r14
 ```
 
-### num::vcreate -> class/num/create
+### num :vcreate -> class/num/create
 
-### num::add -> class/num/add
-
-```lisp
-inputs
-r0 = num object (ptr)
-r1 = list of num objects (ptr)
-outputs
-r0 = num object (ptr)
-r1 = result num object (ptr)
-trashes
-r1-r14
-```
-
-### num::sub -> class/num/sub
+### num :add -> class/num/add
 
 ```lisp
 inputs
@@ -3432,7 +3419,7 @@ trashes
 r1-r14
 ```
 
-### num::mul -> class/num/mul
+### num :sub -> class/num/sub
 
 ```lisp
 inputs
@@ -3445,7 +3432,7 @@ trashes
 r1-r14
 ```
 
-### num::min -> class/num/min
+### num :mul -> class/num/mul
 
 ```lisp
 inputs
@@ -3458,7 +3445,7 @@ trashes
 r1-r14
 ```
 
-### num::max -> class/num/max
+### num :min -> class/num/min
 
 ```lisp
 inputs
@@ -3471,7 +3458,20 @@ trashes
 r1-r14
 ```
 
-### num::div -> class/num/div
+### num :max -> class/num/max
+
+```lisp
+inputs
+r0 = num object (ptr)
+r1 = list of num objects (ptr)
+outputs
+r0 = num object (ptr)
+r1 = result num object (ptr)
+trashes
+r1-r14
+```
+
+### num :div -> class/num/div
 
 ```lisp
 inputs
@@ -3484,7 +3484,7 @@ trashes
 r1-r14
 ```
 
-### num::mod -> class/num/mod
+### num :mod -> class/num/mod
 
 ```lisp
 inputs
@@ -3497,7 +3497,7 @@ trashes
 r1-r14
 ```
 
-### num::sqrt -> class/num/sqrt
+### num :sqrt -> class/num/sqrt
 
 ```lisp
 inputs
@@ -3509,7 +3509,7 @@ trashes
 r1-r14
 ```
 
-### num::abs -> class/num/abs
+### num :abs -> class/num/abs
 
 ```lisp
 inputs
@@ -3521,7 +3521,7 @@ trashes
 r1-r14
 ```
 
-### num::sign -> class/num/sign
+### num :sign -> class/num/sign
 
 ```lisp
 inputs
@@ -3533,7 +3533,7 @@ trashes
 r1-r14
 ```
 
-### num::neg -> class/num/neg
+### num :neg -> class/num/neg
 
 ```lisp
 inputs
@@ -3545,7 +3545,7 @@ trashes
 r1-r14
 ```
 
-### num::random -> class/num/random
+### num :random -> class/num/random
 
 ```lisp
 inputs
@@ -3557,7 +3557,7 @@ trashes
 r1-r14
 ```
 
-### num::eq -> class/num/eq
+### num :eq -> class/num/eq
 
 ```lisp
 inputs
@@ -3570,7 +3570,7 @@ trashes
 r1-r14
 ```
 
-### num::ne -> class/num/ne
+### num :ne -> class/num/ne
 
 ```lisp
 inputs
@@ -3583,7 +3583,7 @@ trashes
 r1-r14
 ```
 
-### num::lt -> class/num/lt
+### num :lt -> class/num/lt
 
 ```lisp
 inputs
@@ -3596,7 +3596,7 @@ trashes
 r1-r14
 ```
 
-### num::gt -> class/num/gt
+### num :gt -> class/num/gt
 
 ```lisp
 inputs
@@ -3609,7 +3609,7 @@ trashes
 r1-r14
 ```
 
-### num::le -> class/num/le
+### num :le -> class/num/le
 
 ```lisp
 inputs
@@ -3622,7 +3622,7 @@ trashes
 r1-r14
 ```
 
-### num::ge -> class/num/ge
+### num :ge -> class/num/ge
 
 ```lisp
 inputs
@@ -3635,7 +3635,7 @@ trashes
 r1-r14
 ```
 
-### num::lisp_add -> class/num/lisp_add
+### num :lisp_add -> class/num/lisp_add
 
 ```lisp
 inputs
@@ -3648,7 +3648,7 @@ trashes
 r1-r14
 ```
 
-### num::lisp_sub -> class/num/lisp_sub
+### num :lisp_sub -> class/num/lisp_sub
 
 ```lisp
 inputs
@@ -3661,7 +3661,7 @@ trashes
 r1-r14
 ```
 
-### num::lisp_mul -> class/num/lisp_mul
+### num :lisp_mul -> class/num/lisp_mul
 
 ```lisp
 inputs
@@ -3674,7 +3674,7 @@ trashes
 r1-r14
 ```
 
-### num::lisp_div -> class/num/lisp_div
+### num :lisp_div -> class/num/lisp_div
 
 ```lisp
 inputs
@@ -3687,7 +3687,7 @@ trashes
 r1-r14
 ```
 
-### num::lisp_mod -> class/num/lisp_mod
+### num :lisp_mod -> class/num/lisp_mod
 
 ```lisp
 inputs
@@ -3700,7 +3700,7 @@ trashes
 r1-r14
 ```
 
-### num::lisp_min -> class/num/lisp_min
+### num :lisp_min -> class/num/lisp_min
 
 ```lisp
 inputs
@@ -3713,7 +3713,7 @@ trashes
 r1-r14
 ```
 
-### num::lisp_max -> class/num/lisp_max
+### num :lisp_max -> class/num/lisp_max
 
 ```lisp
 inputs
@@ -3726,7 +3726,7 @@ trashes
 r1-r14
 ```
 
-### num::lisp_abs -> class/num/lisp_abs
+### num :lisp_abs -> class/num/lisp_abs
 
 ```lisp
 inputs
@@ -3739,7 +3739,7 @@ trashes
 r1-r14
 ```
 
-### num::lisp_neg -> class/num/lisp_neg
+### num :lisp_neg -> class/num/lisp_neg
 
 ```lisp
 inputs
@@ -3752,7 +3752,7 @@ trashes
 r1-r14
 ```
 
-### num::lisp_sign -> class/num/lisp_sign
+### num :lisp_sign -> class/num/lisp_sign
 
 ```lisp
 inputs
@@ -3765,7 +3765,7 @@ trashes
 r1-r14
 ```
 
-### num::lisp_sqrt -> class/num/lisp_sqrt
+### num :lisp_sqrt -> class/num/lisp_sqrt
 
 ```lisp
 inputs
@@ -3778,7 +3778,7 @@ trashes
 r1-r14
 ```
 
-### num::lisp_random -> class/num/lisp_random
+### num :lisp_random -> class/num/lisp_random
 
 ```lisp
 inputs
@@ -3791,7 +3791,7 @@ trashes
 r1-r14
 ```
 
-### num::lisp_eq -> class/num/lisp_eq
+### num :lisp_eq -> class/num/lisp_eq
 
 ```lisp
 inputs
@@ -3804,7 +3804,7 @@ trashes
 r1-r14
 ```
 
-### num::lisp_ne -> class/num/lisp_ne
+### num :lisp_ne -> class/num/lisp_ne
 
 ```lisp
 inputs
@@ -3817,7 +3817,7 @@ trashes
 r1-r14
 ```
 
-### num::lisp_lt -> class/num/lisp_lt
+### num :lisp_lt -> class/num/lisp_lt
 
 ```lisp
 inputs
@@ -3830,7 +3830,7 @@ trashes
 r1-r14
 ```
 
-### num::lisp_gt -> class/num/lisp_gt
+### num :lisp_gt -> class/num/lisp_gt
 
 ```lisp
 inputs
@@ -3843,7 +3843,7 @@ trashes
 r1-r14
 ```
 
-### num::lisp_le -> class/num/lisp_le
+### num :lisp_le -> class/num/lisp_le
 
 ```lisp
 inputs
@@ -3856,7 +3856,7 @@ trashes
 r1-r14
 ```
 
-### num::lisp_ge -> class/num/lisp_ge
+### num :lisp_ge -> class/num/lisp_ge
 
 ```lisp
 inputs
@@ -3869,7 +3869,7 @@ trashes
 r1-r14
 ```
 
-### num::lisp_and -> class/num/lisp_and
+### num :lisp_and -> class/num/lisp_and
 
 ```lisp
 inputs
@@ -3882,7 +3882,7 @@ trashes
 r1-r14
 ```
 
-### num::lisp_or -> class/num/lisp_or
+### num :lisp_or -> class/num/lisp_or
 
 ```lisp
 inputs
@@ -3895,7 +3895,7 @@ trashes
 r1-r14
 ```
 
-### num::lisp_xor -> class/num/lisp_xor
+### num :lisp_xor -> class/num/lisp_xor
 
 ```lisp
 inputs
@@ -3908,7 +3908,7 @@ trashes
 r1-r14
 ```
 
-### num::lisp_shr -> class/num/lisp_shr
+### num :lisp_shr -> class/num/lisp_shr
 
 ```lisp
 inputs
@@ -3921,7 +3921,7 @@ trashes
 r1-r14
 ```
 
-### num::lisp_asr -> class/num/lisp_asr
+### num :lisp_asr -> class/num/lisp_asr
 
 ```lisp
 inputs
@@ -3934,7 +3934,7 @@ trashes
 r1-r14
 ```
 
-### num::lisp_shl -> class/num/lisp_shl
+### num :lisp_shl -> class/num/lisp_shl
 
 ```lisp
 inputs
@@ -3947,7 +3947,7 @@ trashes
 r1-r14
 ```
 
-### num::lisp_i2f -> class/num/lisp_i2f
+### num :lisp_i2f -> class/num/lisp_i2f
 
 ```lisp
 inputs
@@ -3960,7 +3960,7 @@ trashes
 r1-r14
 ```
 
-### num::lisp_i2r -> class/num/lisp_i2r
+### num :lisp_i2r -> class/num/lisp_i2r
 
 ```lisp
 inputs
@@ -3973,7 +3973,7 @@ trashes
 r1-r14
 ```
 
-### num::lisp_f2i -> class/num/lisp_f2i
+### num :lisp_f2i -> class/num/lisp_f2i
 
 ```lisp
 inputs
@@ -3986,7 +3986,7 @@ trashes
 r1-r14
 ```
 
-### num::lisp_f2r -> class/num/lisp_f2r
+### num :lisp_f2r -> class/num/lisp_f2r
 
 ```lisp
 inputs
@@ -3999,7 +3999,7 @@ trashes
 r1-r14
 ```
 
-### num::lisp_r2i -> class/num/lisp_r2i
+### num :lisp_r2i -> class/num/lisp_r2i
 
 ```lisp
 inputs
@@ -4012,7 +4012,7 @@ trashes
 r1-r14
 ```
 
-### num::lisp_r2f -> class/num/lisp_r2f
+### num :lisp_r2f -> class/num/lisp_r2f
 
 ```lisp
 inputs
@@ -4025,7 +4025,7 @@ trashes
 r1-r14
 ```
 
-### num::hash -> class/num/hash
+### num :hash -> class/num/hash
 
 ```lisp
 inputs
@@ -4041,26 +4041,13 @@ r1-r14
 
 Super Class: array
 
-### nums::vtable -> class/nums/vtable
+### nums :vtable -> class/nums/vtable
 
-### nums::create -> class/nums/create
+### nums :create -> class/nums/create
 
-### nums::vcreate -> class/nums/create
+### nums :vcreate -> class/nums/create
 
-### nums::add -> class/nums/add
-
-```lisp
-inputs
-r0 = nums object (ptr)
-r1 = source1 nums object, can be same (ptr)
-r2 = source2 nums object, can be same (ptr)
-outputs
-r0 = nums object (ptr)
-trashes
-r1-r6
-```
-
-### nums::sub -> class/nums/sub
+### nums :add -> class/nums/add
 
 ```lisp
 inputs
@@ -4073,7 +4060,7 @@ trashes
 r1-r6
 ```
 
-### nums::mul -> class/nums/mul
+### nums :sub -> class/nums/sub
 
 ```lisp
 inputs
@@ -4086,7 +4073,20 @@ trashes
 r1-r6
 ```
 
-### nums::div -> class/nums/div
+### nums :mul -> class/nums/mul
+
+```lisp
+inputs
+r0 = nums object (ptr)
+r1 = source1 nums object, can be same (ptr)
+r2 = source2 nums object, can be same (ptr)
+outputs
+r0 = nums object (ptr)
+trashes
+r1-r6
+```
+
+### nums :div -> class/nums/div
 
 ```lisp
 inputs
@@ -4099,7 +4099,7 @@ trashes
 r1-r8
 ```
 
-### nums::mod -> class/nums/mod
+### nums :mod -> class/nums/mod
 
 ```lisp
 inputs
@@ -4112,7 +4112,7 @@ trashes
 r1-r8
 ```
 
-### nums::abs -> class/nums/abs
+### nums :abs -> class/nums/abs
 
 ```lisp
 inputs
@@ -4124,7 +4124,7 @@ trashes
 r1-r4
 ```
 
-### nums::sum -> class/nums/sum
+### nums :sum -> class/nums/sum
 
 ```lisp
 inputs
@@ -4136,7 +4136,7 @@ trashes
 r1-r4
 ```
 
-### nums::scale -> class/nums/scale
+### nums :scale -> class/nums/scale
 
 ```lisp
 inputs
@@ -4149,7 +4149,7 @@ trashes
 r1-r5
 ```
 
-### nums::lisp_vecop1 -> class/nums/lisp_vecop1
+### nums :lisp_vecop1 -> class/nums/lisp_vecop1
 
 ```lisp
 inputs
@@ -4163,7 +4163,7 @@ trashes
 r1-r14
 ```
 
-### nums::lisp_vecop2 -> class/nums/lisp_vecop2
+### nums :lisp_vecop2 -> class/nums/lisp_vecop2
 
 ```lisp
 inputs
@@ -4177,7 +4177,7 @@ trashes
 r1-r14
 ```
 
-### nums::lisp_add -> class/nums/lisp_add
+### nums :lisp_add -> class/nums/lisp_add
 
 ```lisp
 inputs
@@ -4190,7 +4190,7 @@ trashes
 r1-r14
 ```
 
-### nums::lisp_sub -> class/nums/lisp_sub
+### nums :lisp_sub -> class/nums/lisp_sub
 
 ```lisp
 inputs
@@ -4203,7 +4203,7 @@ trashes
 r1-r14
 ```
 
-### nums::lisp_mul -> class/nums/lisp_mul
+### nums :lisp_mul -> class/nums/lisp_mul
 
 ```lisp
 inputs
@@ -4216,7 +4216,7 @@ trashes
 r1-r14
 ```
 
-### nums::lisp_div -> class/nums/lisp_div
+### nums :lisp_div -> class/nums/lisp_div
 
 ```lisp
 inputs
@@ -4229,7 +4229,7 @@ trashes
 r1-r14
 ```
 
-### nums::lisp_mod -> class/nums/lisp_mod
+### nums :lisp_mod -> class/nums/lisp_mod
 
 ```lisp
 inputs
@@ -4242,7 +4242,7 @@ trashes
 r1-r14
 ```
 
-### nums::lisp_sum -> class/nums/lisp_sum
+### nums :lisp_sum -> class/nums/lisp_sum
 
 ```lisp
 inputs
@@ -4255,7 +4255,7 @@ trashes
 r1-r14
 ```
 
-### nums::lisp_scale -> class/nums/lisp_scale
+### nums :lisp_scale -> class/nums/lisp_scale
 
 ```lisp
 inputs
@@ -4268,7 +4268,7 @@ trashes
 r1-r14
 ```
 
-### nums::lisp_abs -> class/nums/lisp_abs
+### nums :lisp_abs -> class/nums/lisp_abs
 
 ```lisp
 inputs
@@ -4285,11 +4285,11 @@ r1-r14
 
 Super Class: null
 
-### obj::vtable -> class/obj/vtable
+### obj :vtable -> class/obj/vtable
 
-### obj::null -> class/obj/null
+### obj :null -> class/obj/null
 
-### obj::destroy -> class/obj/destroy
+### obj :destroy -> class/obj/destroy
 
 ```lisp
 inputs
@@ -4298,7 +4298,7 @@ trashes
 r0-r14
 ```
 
-### obj::init -> class/obj/init
+### obj :init -> class/obj/init
 
 ```lisp
 inputs
@@ -4311,7 +4311,7 @@ trashes
 r1
 ```
 
-### obj::inst_of -> class/obj/inst_of
+### obj :inst_of -> class/obj/inst_of
 
 ```lisp
 inputs
@@ -4324,7 +4324,7 @@ trashes
 r1-r2
 ```
 
-### obj::ref -> class/obj/ref
+### obj :ref -> class/obj/ref
 
 ```lisp
 inputs
@@ -4335,7 +4335,7 @@ trashes
 r1
 ```
 
-### obj::deref -> class/obj/deref
+### obj :deref -> class/obj/deref
 
 ```lisp
 inputs
@@ -4344,7 +4344,7 @@ trashes
 r0-r14
 ```
 
-### obj::ref_if -> class/obj/ref_if
+### obj :ref_if -> class/obj/ref_if
 
 ```lisp
 inputs
@@ -4355,7 +4355,7 @@ trashes
 r1
 ```
 
-### obj::deref_if -> class/obj/deref_if
+### obj :deref_if -> class/obj/deref_if
 
 ```lisp
 inputs
@@ -4364,7 +4364,7 @@ trashes
 r0-r14
 ```
 
-### obj::print -> class/obj/print
+### obj :print -> class/obj/print
 
 ```lisp
 inputs
@@ -4376,7 +4376,7 @@ trashes
 r1-r14
 ```
 
-### obj::hash -> class/obj/hash
+### obj :hash -> class/obj/hash
 
 ```lisp
 inputs
@@ -4388,7 +4388,7 @@ trashes
 r1-r14
 ```
 
-### obj::type -> class/obj/type
+### obj :type -> class/obj/type
 
 ```lisp
 inputs
@@ -4400,7 +4400,7 @@ trashes
 r1-r14
 ```
 
-### obj::deinit -> class/obj/deinit
+### obj :deinit -> class/obj/deinit
 
 ```lisp
 inputs
@@ -4409,22 +4409,9 @@ trashes
 r0-r14
 ```
 
-### obj::deinit -> class/obj/null
+### obj :deinit -> class/obj/null
 
-### obj::lisp_get_field -> class/obj/lisp_get_field
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args list object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### obj::lisp_set_field -> class/obj/lisp_set_field
+### obj :lisp_get_field -> class/obj/lisp_get_field
 
 ```lisp
 inputs
@@ -4437,7 +4424,7 @@ trashes
 r1-r14
 ```
 
-### obj::lisp_hash -> class/obj/lisp_hash
+### obj :lisp_set_field -> class/obj/lisp_set_field
 
 ```lisp
 inputs
@@ -4450,7 +4437,7 @@ trashes
 r1-r14
 ```
 
-### obj::lisp_weak_ref -> class/obj/lisp_weak_ref
+### obj :lisp_hash -> class/obj/lisp_hash
 
 ```lisp
 inputs
@@ -4463,7 +4450,7 @@ trashes
 r1-r14
 ```
 
-### obj::lisp_obj_ref -> class/obj/lisp_obj_ref
+### obj :lisp_weak_ref -> class/obj/lisp_weak_ref
 
 ```lisp
 inputs
@@ -4476,7 +4463,20 @@ trashes
 r1-r14
 ```
 
-### obj::lisp_type -> class/obj/lisp_type
+### obj :lisp_obj_ref -> class/obj/lisp_obj_ref
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### obj :lisp_type -> class/obj/lisp_type
 
 ```lisp
 inputs
@@ -4493,11 +4493,11 @@ r1-r14
 
 Super Class: stream
 
-### out::vtable -> class/out/vtable
+### out :vtable -> class/out/vtable
 
-### out::create -> class/out/create
+### out :create -> class/out/create
 
-### out::init -> class/out/init
+### out :init -> class/out/init
 
 ```lisp
 inputs
@@ -4511,7 +4511,7 @@ trashes
 r1-r14
 ```
 
-### out::set_state -> class/out/set_state
+### out :set_state -> class/out/set_state
 
 ```lisp
 inputs
@@ -4523,7 +4523,7 @@ trashes
 r1-r14
 ```
 
-### out::wait_acks -> class/out/wait_acks
+### out :wait_acks -> class/out/wait_acks
 
 ```lisp
 inputs
@@ -4535,7 +4535,7 @@ trashes
 r1-r14
 ```
 
-### out::deinit -> class/out/deinit
+### out :deinit -> class/out/deinit
 
 ```lisp
 inputs
@@ -4546,7 +4546,7 @@ trashes
 r1-r14
 ```
 
-### out::flush -> class/out/flush
+### out :flush -> class/out/flush
 
 ```lisp
 inputs
@@ -4557,7 +4557,7 @@ trashes
 r1-r14
 ```
 
-### out::write_next -> class/out/write_next
+### out :write_next -> class/out/write_next
 
 ```lisp
 inputs
@@ -4568,7 +4568,7 @@ trashes
 r1-r14
 ```
 
-### out::lisp_create -> class/out/lisp_create
+### out :lisp_create -> class/out/lisp_create
 
 ```lisp
 inputs
@@ -4585,26 +4585,13 @@ r1-r14
 
 Super Class: fixeds
 
-### path::vtable -> gui/path/vtable
+### path :vtable -> gui/path/vtable
 
-### path::create -> gui/path/create
+### path :create -> gui/path/create
 
-### path::vcreate -> gui/path/create
+### path :vcreate -> gui/path/create
 
-### path::filter_polyline -> gui/path/filter_polyline
-
-```lisp
-inputs
-r0 = path object (ptr)
-r1 = source path object, can be same (ptr)
-r2 = tolerance (fixed)
-outputs
-r0 = path object (ptr)
-trashes
-r1-r14
-```
-
-### path::filter_polygon -> gui/path/filter_polygon
+### path :filter_polyline -> gui/path/filter_polyline
 
 ```lisp
 inputs
@@ -4617,7 +4604,20 @@ trashes
 r1-r14
 ```
 
-### path::transform -> gui/path/transform
+### path :filter_polygon -> gui/path/filter_polygon
+
+```lisp
+inputs
+r0 = path object (ptr)
+r1 = source path object, can be same (ptr)
+r2 = tolerance (fixed)
+outputs
+r0 = path object (ptr)
+trashes
+r1-r14
+```
+
+### path :transform -> gui/path/transform
 
 ```lisp
 inputs
@@ -4635,7 +4635,7 @@ trashes
 r1-r14
 ```
 
-### path::simplify -> gui/path/simplify
+### path :simplify -> gui/path/simplify
 
 ```lisp
 inputs
@@ -4649,7 +4649,7 @@ trashes
 r1-r14
 ```
 
-### path::gen_clerp -> gui/path/gen_clerp
+### path :gen_clerp -> gui/path/gen_clerp
 
 ```lisp
 inputs
@@ -4669,7 +4669,7 @@ trashes
 r1-r14
 ```
 
-### path::gen_arc -> gui/path/gen_arc
+### path :gen_arc -> gui/path/gen_arc
 
 ```lisp
 inputs
@@ -4687,7 +4687,7 @@ trashes
 r1-r14
 ```
 
-### path::gen_quadratic -> gui/path/gen_quadratic
+### path :gen_quadratic -> gui/path/gen_quadratic
 
 ```lisp
 inputs
@@ -4706,7 +4706,7 @@ trashes
 r1-r14
 ```
 
-### path::gen_cubic -> gui/path/gen_cubic
+### path :gen_cubic -> gui/path/gen_cubic
 
 ```lisp
 inputs
@@ -4727,7 +4727,7 @@ trashes
 r1-r14
 ```
 
-### path::stroke_joints -> gui/path/stroke_joints
+### path :stroke_joints -> gui/path/stroke_joints
 
 ```lisp
 inputs
@@ -4748,7 +4748,7 @@ trashes
 r1-r14
 ```
 
-### path::stroke_polylines -> gui/path/stroke_polylines
+### path :stroke_polylines -> gui/path/stroke_polylines
 
 ```lisp
 inputs
@@ -4766,7 +4766,7 @@ trashes
 r1-r14
 ```
 
-### path::stroke_polygons -> gui/path/stroke_polygons
+### path :stroke_polygons -> gui/path/stroke_polygons
 
 ```lisp
 inputs
@@ -4782,7 +4782,7 @@ trashes
 r1-r14
 ```
 
-### path::lisp_transform -> gui/path/lisp_transform
+### path :lisp_transform -> gui/path/lisp_transform
 
 ```lisp
 inputs
@@ -4795,7 +4795,7 @@ trashes
 r1-r14
 ```
 
-### path::lisp_simplify -> gui/path/lisp_simplify
+### path :lisp_simplify -> gui/path/lisp_simplify
 
 ```lisp
 inputs
@@ -4808,7 +4808,7 @@ trashes
 r1-r14
 ```
 
-### path::lisp_filter -> gui/path/lisp_filter
+### path :lisp_filter -> gui/path/lisp_filter
 
 ```lisp
 inputs
@@ -4821,7 +4821,7 @@ trashes
 r1-r14
 ```
 
-### path::lisp_gen_quadratic -> gui/path/lisp_gen_quadratic
+### path :lisp_gen_quadratic -> gui/path/lisp_gen_quadratic
 
 ```lisp
 inputs
@@ -4834,7 +4834,7 @@ trashes
 r1-r14
 ```
 
-### path::lisp_gen_cubic -> gui/path/lisp_gen_cubic
+### path :lisp_gen_cubic -> gui/path/lisp_gen_cubic
 
 ```lisp
 inputs
@@ -4847,7 +4847,7 @@ trashes
 r1-r14
 ```
 
-### path::lisp_gen_arc -> gui/path/lisp_gen_arc
+### path :lisp_gen_arc -> gui/path/lisp_gen_arc
 
 ```lisp
 inputs
@@ -4860,7 +4860,7 @@ trashes
 r1-r14
 ```
 
-### path::lisp_stroke_polylines -> gui/path/lisp_stroke_polylines
+### path :lisp_stroke_polylines -> gui/path/lisp_stroke_polylines
 
 ```lisp
 inputs
@@ -4873,7 +4873,7 @@ trashes
 r1-r14
 ```
 
-### path::lisp_stroke_polygons -> gui/path/lisp_stroke_polygons
+### path :lisp_stroke_polygons -> gui/path/lisp_stroke_polygons
 
 ```lisp
 inputs
@@ -4890,9 +4890,9 @@ r1-r14
 
 Super Class: obj
 
-### pixmap::vtable -> gui/pixmap/vtable
+### pixmap :vtable -> gui/pixmap/vtable
 
-### pixmap::create -> gui/pixmap/create
+### pixmap :create -> gui/pixmap/create
 
 ```lisp
 inputs
@@ -4904,7 +4904,7 @@ trashes
 r1-r6
 ```
 
-### pixmap::init -> gui/pixmap/init
+### pixmap :init -> gui/pixmap/init
 
 ```lisp
 inputs
@@ -4919,7 +4919,7 @@ trashes
 r1-r14
 ```
 
-### pixmap::upload -> gui/pixmap/upload
+### pixmap :upload -> gui/pixmap/upload
 
 ```lisp
 inputs
@@ -4930,19 +4930,7 @@ trashes
 r1-r14
 ```
 
-### pixmap::resize -> gui/pixmap/resize
-
-```lisp
-inputs
-r0 = pixmap object (ptr)
-r1 = source pixmap object (ptr)
-outputs
-r0 = pixmap object (ptr)
-trashes
-r1-r14
-```
-
-### pixmap::resize_2 -> gui/pixmap/resize_2
+### pixmap :resize -> gui/pixmap/resize
 
 ```lisp
 inputs
@@ -4954,7 +4942,7 @@ trashes
 r1-r14
 ```
 
-### pixmap::resize_3 -> gui/pixmap/resize_3
+### pixmap :resize_2 -> gui/pixmap/resize_2
 
 ```lisp
 inputs
@@ -4966,7 +4954,19 @@ trashes
 r1-r14
 ```
 
-### pixmap::fill -> gui/pixmap/fill
+### pixmap :resize_3 -> gui/pixmap/resize_3
+
+```lisp
+inputs
+r0 = pixmap object (ptr)
+r1 = source pixmap object (ptr)
+outputs
+r0 = pixmap object (ptr)
+trashes
+r1-r14
+```
+
+### pixmap :fill -> gui/pixmap/fill
 
 ```lisp
 inputs
@@ -4978,7 +4978,7 @@ trashes
 r1-r4
 ```
 
-### pixmap::to_premul -> gui/pixmap/to_premul
+### pixmap :to_premul -> gui/pixmap/to_premul
 
 ```lisp
 inputs
@@ -4989,7 +4989,7 @@ trashes
 r1-r3
 ```
 
-### pixmap::to_argb -> gui/pixmap/to_argb
+### pixmap :to_argb -> gui/pixmap/to_argb
 
 ```lisp
 inputs
@@ -5000,7 +5000,7 @@ trashes
 r1-r4
 ```
 
-### pixmap::as_argb -> gui/pixmap/as_argb
+### pixmap :as_argb -> gui/pixmap/as_argb
 
 ```lisp
 inputs
@@ -5012,7 +5012,7 @@ trashes
 r1-r9
 ```
 
-### pixmap::as_premul -> gui/pixmap/as_premul
+### pixmap :as_premul -> gui/pixmap/as_premul
 
 ```lisp
 inputs
@@ -5024,7 +5024,7 @@ trashes
 r1-r8
 ```
 
-### pixmap::brighter -> gui/pixmap/brighter
+### pixmap :brighter -> gui/pixmap/brighter
 
 ```lisp
 inputs
@@ -5035,7 +5035,7 @@ trashes
 r1-r3
 ```
 
-### pixmap::darker -> gui/pixmap/darker
+### pixmap :darker -> gui/pixmap/darker
 
 ```lisp
 inputs
@@ -5046,7 +5046,7 @@ trashes
 r1-r3
 ```
 
-### pixmap::info -> gui/pixmap/info
+### pixmap :info -> gui/pixmap/info
 
 ```lisp
 inputs
@@ -5059,7 +5059,7 @@ trashes
 r0-r14
 ```
 
-### pixmap::info_file -> gui/pixmap/info_file
+### pixmap :info_file -> gui/pixmap/info_file
 
 ```lisp
 inputs
@@ -5073,7 +5073,7 @@ trashes
 r0-r14
 ```
 
-### pixmap::info_cpm -> gui/pixmap/info_cpm
+### pixmap :info_cpm -> gui/pixmap/info_cpm
 
 ```lisp
 inputs
@@ -5086,7 +5086,7 @@ trashes
 r0-r14
 ```
 
-### pixmap::info_tga -> gui/pixmap/info_tga
+### pixmap :info_tga -> gui/pixmap/info_tga
 
 ```lisp
 inputs
@@ -5099,7 +5099,7 @@ trashes
 r0-r14
 ```
 
-### pixmap::load -> gui/pixmap/load
+### pixmap :load -> gui/pixmap/load
 
 ```lisp
 inputs
@@ -5111,7 +5111,7 @@ trashes
 r0-r14
 ```
 
-### pixmap::load_file -> gui/pixmap/load_file
+### pixmap :load_file -> gui/pixmap/load_file
 
 ```lisp
 inputs
@@ -5123,7 +5123,7 @@ trashes
 r0-r14
 ```
 
-### pixmap::load_cpm -> gui/pixmap/load_cpm
+### pixmap :load_cpm -> gui/pixmap/load_cpm
 
 ```lisp
 inputs
@@ -5134,7 +5134,7 @@ trashes
 r0-r14
 ```
 
-### pixmap::load_tga -> gui/pixmap/load_tga
+### pixmap :load_tga -> gui/pixmap/load_tga
 
 ```lisp
 inputs
@@ -5145,7 +5145,7 @@ trashes
 r0-r14
 ```
 
-### pixmap::to_argb32 -> gui/pixmap/to_argb32
+### pixmap :to_argb32 -> gui/pixmap/to_argb32
 
 ```lisp
 inputs
@@ -5157,7 +5157,7 @@ trashes
 r1-r8
 ```
 
-### pixmap::next_frame -> gui/pixmap/next_frame
+### pixmap :next_frame -> gui/pixmap/next_frame
 
 ```lisp
 inputs
@@ -5168,7 +5168,7 @@ trashes
 r1-r14
 ```
 
-### pixmap::save -> gui/pixmap/save
+### pixmap :save -> gui/pixmap/save
 
 ```lisp
 inputs
@@ -5181,7 +5181,7 @@ trashes
 r0-r14
 ```
 
-### pixmap::save_file -> gui/pixmap/save_file
+### pixmap :save_file -> gui/pixmap/save_file
 
 ```lisp
 inputs
@@ -5195,7 +5195,7 @@ trashes
 r0-r14
 ```
 
-### pixmap::save_cpm -> gui/pixmap/save_cpm
+### pixmap :save_cpm -> gui/pixmap/save_cpm
 
 ```lisp
 inputs
@@ -5208,7 +5208,7 @@ trashes
 r0-r14
 ```
 
-### pixmap::from_argb32 -> gui/pixmap/from_argb32
+### pixmap :from_argb32 -> gui/pixmap/from_argb32
 
 ```lisp
 inputs
@@ -5220,7 +5220,7 @@ trashes
 r1-r5
 ```
 
-### pixmap::deinit -> gui/pixmap/deinit
+### pixmap :deinit -> gui/pixmap/deinit
 
 ```lisp
 inputs
@@ -5235,11 +5235,11 @@ r1-r14
 
 Super Class: fixed
 
-### real::vtable -> class/real/vtable
+### real :vtable -> class/real/vtable
 
-### real::create -> class/real/create
+### real :create -> class/real/create
 
-### real::print -> class/real/print
+### real :print -> class/real/print
 
 ```lisp
 inputs
@@ -5251,22 +5251,9 @@ trashes
 r1-r14
 ```
 
-### real::vcreate -> class/real/create
+### real :vcreate -> class/real/create
 
-### real::add -> class/real/add
-
-```lisp
-inputs
-r0 = real object (ptr)
-r1 = list of real objects (ptr)
-outputs
-r0 = real object (ptr)
-r1 = result real object (ptr)
-trashes
-r1-r14
-```
-
-### real::sub -> class/real/sub
+### real :add -> class/real/add
 
 ```lisp
 inputs
@@ -5279,7 +5266,7 @@ trashes
 r1-r14
 ```
 
-### real::mul -> class/real/mul
+### real :sub -> class/real/sub
 
 ```lisp
 inputs
@@ -5292,7 +5279,7 @@ trashes
 r1-r14
 ```
 
-### real::div -> class/real/div
+### real :mul -> class/real/mul
 
 ```lisp
 inputs
@@ -5300,12 +5287,12 @@ r0 = real object (ptr)
 r1 = list of real objects (ptr)
 outputs
 r0 = real object (ptr)
-r1 = 0 if error, else result real object (ptr)
+r1 = result real object (ptr)
 trashes
 r1-r14
 ```
 
-### real::mod -> class/real/mod
+### real :div -> class/real/div
 
 ```lisp
 inputs
@@ -5318,7 +5305,20 @@ trashes
 r1-r14
 ```
 
-### real::min -> class/real/min
+### real :mod -> class/real/mod
+
+```lisp
+inputs
+r0 = real object (ptr)
+r1 = list of real objects (ptr)
+outputs
+r0 = real object (ptr)
+r1 = 0 if error, else result real object (ptr)
+trashes
+r1-r14
+```
+
+### real :min -> class/real/min
 
 ```lisp
 inputs
@@ -5331,7 +5331,7 @@ trashes
 r1-r14
 ```
 
-### real::max -> class/real/max
+### real :max -> class/real/max
 
 ```lisp
 inputs
@@ -5344,7 +5344,7 @@ trashes
 r1-r14
 ```
 
-### real::abs -> class/real/abs
+### real :abs -> class/real/abs
 
 ```lisp
 inputs
@@ -5356,7 +5356,7 @@ trashes
 r1-r14
 ```
 
-### real::sign -> class/real/sign
+### real :sign -> class/real/sign
 
 ```lisp
 inputs
@@ -5368,7 +5368,7 @@ trashes
 r1-r14
 ```
 
-### real::neg -> class/real/neg
+### real :neg -> class/real/neg
 
 ```lisp
 inputs
@@ -5380,7 +5380,7 @@ trashes
 r1-r14
 ```
 
-### real::sqrt -> class/real/sqrt
+### real :sqrt -> class/real/sqrt
 
 ```lisp
 inputs
@@ -5392,7 +5392,7 @@ trashes
 r1-r14
 ```
 
-### real::frac -> class/real/frac
+### real :frac -> class/real/frac
 
 ```lisp
 inputs
@@ -5404,7 +5404,7 @@ trashes
 r1-r14
 ```
 
-### real::floor -> class/real/floor
+### real :floor -> class/real/floor
 
 ```lisp
 inputs
@@ -5416,7 +5416,7 @@ trashes
 r1-r14
 ```
 
-### real::recip -> class/real/recip
+### real :recip -> class/real/recip
 
 ```lisp
 inputs
@@ -5428,33 +5428,7 @@ trashes
 r1-r14
 ```
 
-### real::lt -> class/real/lt
-
-```lisp
-inputs
-r0 = real object (ptr)
-r1 = list of real objects (ptr)
-outputs
-r0 = real object (ptr)
-r1 = 0, -1 (int)
-trashes
-r1-r14
-```
-
-### real::gt -> class/real/gt
-
-```lisp
-inputs
-r0 = real object (ptr)
-r1 = list of real objects (ptr)
-outputs
-r0 = real object (ptr)
-r1 = 0, -1 (int)
-trashes
-r1-r14
-```
-
-### real::le -> class/real/le
+### real :lt -> class/real/lt
 
 ```lisp
 inputs
@@ -5467,7 +5441,33 @@ trashes
 r1-r14
 ```
 
-### real::ge -> class/real/ge
+### real :gt -> class/real/gt
+
+```lisp
+inputs
+r0 = real object (ptr)
+r1 = list of real objects (ptr)
+outputs
+r0 = real object (ptr)
+r1 = 0, -1 (int)
+trashes
+r1-r14
+```
+
+### real :le -> class/real/le
+
+```lisp
+inputs
+r0 = real object (ptr)
+r1 = list of real objects (ptr)
+outputs
+r0 = real object (ptr)
+r1 = 0, -1 (int)
+trashes
+r1-r14
+```
+
+### real :ge -> class/real/ge
 
 ```lisp
 inputs
@@ -5484,28 +5484,15 @@ r1-r14
 
 Super Class: fixeds
 
-### reals::vtable -> class/reals/vtable
+### reals :vtable -> class/reals/vtable
 
-### reals::create -> class/reals/create
+### reals :create -> class/reals/create
 
-### reals::vcreate -> class/reals/create
+### reals :vcreate -> class/reals/create
 
-### reals::velement -> class/real/create
+### reals :velement -> class/real/create
 
-### reals::add -> class/reals/add
-
-```lisp
-inputs
-r0 = reals object (ptr)
-r1 = source1 reals object, can be same (ptr)
-r2 = source2 reals object, can be same (ptr)
-outputs
-r0 = reals object (ptr)
-trashes
-r1-r14
-```
-
-### reals::sub -> class/reals/sub
+### reals :add -> class/reals/add
 
 ```lisp
 inputs
@@ -5518,7 +5505,7 @@ trashes
 r1-r14
 ```
 
-### reals::mul -> class/reals/mul
+### reals :sub -> class/reals/sub
 
 ```lisp
 inputs
@@ -5531,7 +5518,7 @@ trashes
 r1-r14
 ```
 
-### reals::div -> class/reals/div
+### reals :mul -> class/reals/mul
 
 ```lisp
 inputs
@@ -5544,7 +5531,7 @@ trashes
 r1-r14
 ```
 
-### reals::mod -> class/reals/mod
+### reals :div -> class/reals/div
 
 ```lisp
 inputs
@@ -5557,7 +5544,20 @@ trashes
 r1-r14
 ```
 
-### reals::abs -> class/reals/abs
+### reals :mod -> class/reals/mod
+
+```lisp
+inputs
+r0 = reals object (ptr)
+r1 = source1 reals object, can be same (ptr)
+r2 = source2 reals object, can be same (ptr)
+outputs
+r0 = reals object (ptr)
+trashes
+r1-r14
+```
+
+### reals :abs -> class/reals/abs
 
 ```lisp
 inputs
@@ -5569,7 +5569,7 @@ trashes
 r1-r14
 ```
 
-### reals::sum -> class/reals/sum
+### reals :sum -> class/reals/sum
 
 ```lisp
 inputs
@@ -5581,7 +5581,7 @@ trashes
 r1-r14
 ```
 
-### reals::scale -> class/reals/scale
+### reals :scale -> class/reals/scale
 
 ```lisp
 inputs
@@ -5594,7 +5594,7 @@ trashes
 r1-r14
 ```
 
-### reals::frac -> class/reals/frac
+### reals :frac -> class/reals/frac
 
 ```lisp
 inputs
@@ -5606,7 +5606,7 @@ trashes
 r1-r14
 ```
 
-### reals::floor -> class/reals/floor
+### reals :floor -> class/reals/floor
 
 ```lisp
 inputs
@@ -5622,7 +5622,7 @@ r1-r14
 
 Super Class: null
 
-### region::translate -> gui/region/translate
+### region :translate -> gui/region/translate
 
 ```lisp
 inputs
@@ -5633,7 +5633,7 @@ trashes
 r1, r11-r14
 ```
 
-### region::bounds -> gui/region/bounds
+### region :bounds -> gui/region/bounds
 
 ```lisp
 inputs
@@ -5647,7 +5647,7 @@ trashes
 r1, r7-r14
 ```
 
-### region::clip_rect -> gui/region/clip_rect
+### region :clip_rect -> gui/region/clip_rect
 
 ```lisp
 inputs
@@ -5663,7 +5663,7 @@ trashes
 r1-r3, r11-r14
 ```
 
-### region::remove_rect -> gui/region/remove_rect
+### region :remove_rect -> gui/region/remove_rect
 
 ```lisp
 inputs
@@ -5679,7 +5679,7 @@ trashes
 r1-r5, r11-r14
 ```
 
-### region::cut_rect -> gui/region/cut_rect
+### region :cut_rect -> gui/region/cut_rect
 
 ```lisp
 inputs
@@ -5696,7 +5696,7 @@ trashes
 r1-r6, r11-r14
 ```
 
-### region::copy_rect -> gui/region/copy_rect
+### region :copy_rect -> gui/region/copy_rect
 
 ```lisp
 inputs
@@ -5713,7 +5713,7 @@ trashes
 r1-r4, r11-r14
 ```
 
-### region::paste_rect -> gui/region/paste_rect
+### region :paste_rect -> gui/region/paste_rect
 
 ```lisp
 inputs
@@ -5729,7 +5729,7 @@ trashes
 r1-r14
 ```
 
-### region::free -> gui/region/free
+### region :free -> gui/region/free
 
 ```lisp
 inputs
@@ -5741,7 +5741,7 @@ trashes
 r1-r3
 ```
 
-### region::copy_region -> gui/region/copy_region
+### region :copy_region -> gui/region/copy_region
 
 ```lisp
 inputs
@@ -5757,7 +5757,7 @@ trashes
 r1-r14
 ```
 
-### region::paste_region -> gui/region/paste_region
+### region :paste_region -> gui/region/paste_region
 
 ```lisp
 inputs
@@ -5772,7 +5772,7 @@ trashes
 r1-r14
 ```
 
-### region::remove_region -> gui/region/remove_region
+### region :remove_region -> gui/region/remove_region
 
 ```lisp
 inputs
@@ -5791,36 +5791,23 @@ r1-r14
 
 Super Class: obj
 
-### seq::vtable -> class/seq/vtable
+### seq :vtable -> class/seq/vtable
 
-### seq::get_length -> class/obj/null
+### seq :get_length -> class/obj/null
 
-### seq::ref_element -> class/obj/null
+### seq :ref_element -> class/obj/null
 
-### seq::slice -> class/obj/null
+### seq :slice -> class/obj/null
 
-### seq::cat -> class/obj/null
+### seq :cat -> class/obj/null
 
-### seq::find -> class/obj/null
+### seq :find -> class/obj/null
 
-### seq::rfind -> class/obj/null
+### seq :rfind -> class/obj/null
 
-### seq::type -> class/seq/type
+### seq :type -> class/seq/type
 
-### seq::lisp_length -> class/seq/lisp_length
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args list object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### seq::lisp_elem -> class/seq/lisp_elem
+### seq :lisp_length -> class/seq/lisp_length
 
 ```lisp
 inputs
@@ -5833,7 +5820,7 @@ trashes
 r1-r14
 ```
 
-### seq::lisp_find -> class/seq/lisp_find
+### seq :lisp_elem -> class/seq/lisp_elem
 
 ```lisp
 inputs
@@ -5846,7 +5833,7 @@ trashes
 r1-r14
 ```
 
-### seq::lisp_rfind -> class/seq/lisp_rfind
+### seq :lisp_find -> class/seq/lisp_find
 
 ```lisp
 inputs
@@ -5859,7 +5846,7 @@ trashes
 r1-r14
 ```
 
-### seq::lisp_slice -> class/seq/lisp_slice
+### seq :lisp_rfind -> class/seq/lisp_rfind
 
 ```lisp
 inputs
@@ -5872,7 +5859,7 @@ trashes
 r1-r14
 ```
 
-### seq::lisp_cat -> class/seq/lisp_cat
+### seq :lisp_slice -> class/seq/lisp_slice
 
 ```lisp
 inputs
@@ -5885,7 +5872,7 @@ trashes
 r1-r14
 ```
 
-### seq::lisp_each -> class/seq/lisp_each
+### seq :lisp_cat -> class/seq/lisp_cat
 
 ```lisp
 inputs
@@ -5898,7 +5885,20 @@ trashes
 r1-r14
 ```
 
-### seq::lisp_some -> class/seq/lisp_some
+### seq :lisp_each -> class/seq/lisp_each
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### seq :lisp_some -> class/seq/lisp_some
 
 ```lisp
 inputs
@@ -5915,11 +5915,11 @@ r1-r14
 
 Super Class: stream
 
-### sstream::vtable -> class/sstream/vtable
+### sstream :vtable -> class/sstream/vtable
 
-### sstream::create -> class/sstream/create
+### sstream :create -> class/sstream/create
 
-### sstream::init -> class/sstream/init
+### sstream :init -> class/sstream/init
 
 ```lisp
 inputs
@@ -5933,7 +5933,7 @@ trashes
 r1-r5
 ```
 
-### sstream::ref_string -> class/sstream/ref_string
+### sstream :ref_string -> class/sstream/ref_string
 
 ```lisp
 inputs
@@ -5945,7 +5945,7 @@ trashes
 r1-r2
 ```
 
-### sstream::write_next -> class/sstream/write_next
+### sstream :write_next -> class/sstream/write_next
 
 ```lisp
 inputs
@@ -5956,7 +5956,7 @@ trashes
 r1-r14
 ```
 
-### sstream::flush -> class/sstream/flush
+### sstream :flush -> class/sstream/flush
 
 ```lisp
 inputs
@@ -5971,11 +5971,11 @@ r1-r14
 
 Super Class: obj
 
-### stdio::vtable -> class/stdio/vtable
+### stdio :vtable -> class/stdio/vtable
 
-### stdio::create -> class/stdio/create
+### stdio :create -> class/stdio/create
 
-### stdio::init -> class/stdio/init
+### stdio :init -> class/stdio/init
 
 ```lisp
 inputs
@@ -5988,7 +5988,7 @@ trashes
 r1-r14
 ```
 
-### stdio::deinit -> class/stdio/deinit
+### stdio :deinit -> class/stdio/deinit
 
 ```lisp
 inputs
@@ -5999,7 +5999,7 @@ trashes
 r1-r14
 ```
 
-### stdio::lisp_create -> class/stdio/lisp_create
+### stdio :lisp_create -> class/stdio/lisp_create
 
 ```lisp
 inputs
@@ -6016,9 +6016,9 @@ r1-r14
 
 Super Class: seq
 
-### str::vtable -> class/str/vtable
+### str :vtable -> class/str/vtable
 
-### str::create_from_buffer -> class/str/create_from_buffer
+### str :create_from_buffer -> class/str/create_from_buffer
 
 ```lisp
 inputs
@@ -6030,7 +6030,7 @@ trashes
 r1-r6
 ```
 
-### str::create_from_cstr -> class/str/create_from_cstr
+### str :create_from_cstr -> class/str/create_from_cstr
 
 ```lisp
 inputs
@@ -6041,7 +6041,7 @@ trashes
 r1-r6
 ```
 
-### str::create_from_file -> class/str/create_from_file
+### str :create_from_file -> class/str/create_from_file
 
 ```lisp
 inputs
@@ -6052,7 +6052,7 @@ trashes
 r1-r6
 ```
 
-### str::create_from_long -> class/str/create_from_long
+### str :create_from_long -> class/str/create_from_long
 
 ```lisp
 inputs
@@ -6064,7 +6064,7 @@ trashes
 r1-r6
 ```
 
-### str::append -> class/str/append
+### str :append -> class/str/append
 
 ```lisp
 inputs
@@ -6076,7 +6076,7 @@ trashes
 r1-r6
 ```
 
-### str::init -> class/str/init
+### str :init -> class/str/init
 
 ```lisp
 inputs
@@ -6091,7 +6091,7 @@ trashes
 r1-r6
 ```
 
-### str::init1 -> class/str/init1
+### str :init1 -> class/str/init1
 
 ```lisp
 inputs
@@ -6106,7 +6106,7 @@ trashes
 r1-r6
 ```
 
-### str::init2 -> class/str/init2
+### str :init2 -> class/str/init2
 
 ```lisp
 inputs
@@ -6121,7 +6121,7 @@ trashes
 r1-r6
 ```
 
-### str::init3 -> class/str/init3
+### str :init3 -> class/str/init3
 
 ```lisp
 inputs
@@ -6135,7 +6135,7 @@ trashes
 r1-r6
 ```
 
-### str::split -> class/str/split
+### str :split -> class/str/split
 
 ```lisp
 inputs
@@ -6148,7 +6148,7 @@ trashes
 r1-r14
 ```
 
-### str::split_char -> class/str/split_char
+### str :split_char -> class/str/split_char
 
 ```lisp
 inputs
@@ -6161,7 +6161,7 @@ trashes
 r1-r14
 ```
 
-### str::compare -> class/str/compare
+### str :compare -> class/str/compare
 
 ```lisp
 inputs
@@ -6174,7 +6174,7 @@ trashes
 r1-r7
 ```
 
-### str::starts_with -> class/str/starts_with
+### str :starts_with -> class/str/starts_with
 
 ```lisp
 inputs
@@ -6187,7 +6187,7 @@ trashes
 r1-r6
 ```
 
-### str::same -> class/str/same
+### str :same -> class/str/same
 
 ```lisp
 inputs
@@ -6200,9 +6200,9 @@ trashes
 r1-r6
 ```
 
-### str::type -> class/str/type
+### str :type -> class/str/type
 
-### str::print -> class/str/print
+### str :print -> class/str/print
 
 ```lisp
 inputs
@@ -6214,7 +6214,7 @@ trashes
 r1-r14
 ```
 
-### str::hash -> class/str/hash
+### str :hash -> class/str/hash
 
 ```lisp
 inputs
@@ -6226,7 +6226,7 @@ trashes
 r1-r4
 ```
 
-### str::get_length -> class/str/get_length
+### str :get_length -> class/str/get_length
 
 ```lisp
 inputs
@@ -6238,7 +6238,7 @@ trashes
 r1
 ```
 
-### str::ref_element -> class/str/ref_element
+### str :ref_element -> class/str/ref_element
 
 ```lisp
 inputs
@@ -6251,7 +6251,7 @@ trashes
 r1-r7
 ```
 
-### str::slice -> class/str/slice
+### str :slice -> class/str/slice
 
 ```lisp
 inputs
@@ -6265,7 +6265,7 @@ trashes
 r1-r7
 ```
 
-### str::cat -> class/str/cat
+### str :cat -> class/str/cat
 
 ```lisp
 inputs
@@ -6277,7 +6277,7 @@ trashes
 r1-r6
 ```
 
-### str::find -> class/str/find
+### str :find -> class/str/find
 
 ```lisp
 inputs
@@ -6291,7 +6291,7 @@ trashes
 r2-r5
 ```
 
-### str::rfind -> class/str/rfind
+### str :rfind -> class/str/rfind
 
 ```lisp
 inputs
@@ -6305,7 +6305,7 @@ trashes
 r2-r4
 ```
 
-### str::lisp_str -> class/str/lisp_str
+### str :lisp_str -> class/str/lisp_str
 
 ```lisp
 inputs
@@ -6318,7 +6318,7 @@ trashes
 r1-r14
 ```
 
-### str::lisp_split -> class/str/lisp_split
+### str :lisp_split -> class/str/lisp_split
 
 ```lisp
 inputs
@@ -6331,7 +6331,7 @@ trashes
 r1-r14
 ```
 
-### str::lisp_code -> class/str/lisp_code
+### str :lisp_code -> class/str/lisp_code
 
 ```lisp
 inputs
@@ -6344,7 +6344,7 @@ trashes
 r1-r14
 ```
 
-### str::lisp_char -> class/str/lisp_char
+### str :lisp_char -> class/str/lisp_char
 
 ```lisp
 inputs
@@ -6357,7 +6357,7 @@ trashes
 r1-r14
 ```
 
-### str::lisp_cmp -> class/str/lisp_cmp
+### str :lisp_cmp -> class/str/lisp_cmp
 
 ```lisp
 inputs
@@ -6370,7 +6370,7 @@ trashes
 r1-r14
 ```
 
-### str::lisp_save -> class/str/lisp_save
+### str :lisp_save -> class/str/lisp_save
 
 ```lisp
 inputs
@@ -6383,7 +6383,7 @@ trashes
 r1-r14
 ```
 
-### str::lisp_load -> class/str/lisp_load
+### str :lisp_load -> class/str/lisp_load
 
 ```lisp
 inputs
@@ -6400,11 +6400,11 @@ r1-r14
 
 Super Class: obj
 
-### stream::vtable -> class/stream/vtable
+### stream :vtable -> class/stream/vtable
 
-### stream::create -> class/stream/create
+### stream :create -> class/stream/create
 
-### stream::init -> class/stream/init
+### stream :init -> class/stream/init
 
 ```lisp
 inputs
@@ -6421,7 +6421,7 @@ trashes
 r1-r5
 ```
 
-### stream::available -> class/stream/available
+### stream :available -> class/stream/available
 
 ```lisp
 inputs
@@ -6433,7 +6433,7 @@ trashes
 r1-r2
 ```
 
-### stream::read_bits -> class/stream/read_bits
+### stream :read_bits -> class/stream/read_bits
 
 ```lisp
 inputs
@@ -6450,7 +6450,7 @@ trashes
 r1-r14
 ```
 
-### stream::write_bits -> class/stream/write_bits
+### stream :write_bits -> class/stream/write_bits
 
 ```lisp
 inputs
@@ -6467,7 +6467,7 @@ trashes
 r1-r14
 ```
 
-### stream::read_char -> class/stream/read_char
+### stream :read_char -> class/stream/read_char
 
 ```lisp
 inputs
@@ -6479,7 +6479,7 @@ trashes
 r1-r14
 ```
 
-### stream::read_line -> class/stream/read_line
+### stream :read_line -> class/stream/read_line
 
 ```lisp
 inputs
@@ -6491,7 +6491,7 @@ trashes
 r1-r14
 ```
 
-### stream::read -> class/stream/read
+### stream :read -> class/stream/read
 
 ```lisp
 inputs
@@ -6505,7 +6505,7 @@ trashes
 r1-r14
 ```
 
-### stream::write_char -> class/stream/write_char
+### stream :write_char -> class/stream/write_char
 
 ```lisp
 inputs
@@ -6517,7 +6517,7 @@ trashes
 r1-r14
 ```
 
-### stream::write -> class/stream/write
+### stream :write -> class/stream/write
 
 ```lisp
 inputs
@@ -6530,7 +6530,7 @@ trashes
 r1-r14
 ```
 
-### stream::write_cstr -> class/stream/write_cstr
+### stream :write_cstr -> class/stream/write_cstr
 
 ```lisp
 inputs
@@ -6542,7 +6542,7 @@ trashes
 r1-r14
 ```
 
-### stream::skip -> class/stream/skip
+### stream :skip -> class/stream/skip
 
 ```lisp
 inputs
@@ -6554,7 +6554,7 @@ trashes
 r1-r14
 ```
 
-### stream::skip_not -> class/stream/skip_not
+### stream :skip_not -> class/stream/skip_not
 
 ```lisp
 inputs
@@ -6566,7 +6566,7 @@ trashes
 r1-r14
 ```
 
-### stream::deinit -> class/stream/deinit
+### stream :deinit -> class/stream/deinit
 
 ```lisp
 inputs
@@ -6577,7 +6577,7 @@ trashes
 r1-r14
 ```
 
-### stream::read_next -> class/stream/read_next
+### stream :read_next -> class/stream/read_next
 
 ```lisp
 inputs
@@ -6589,7 +6589,7 @@ trashes
 r1-r14
 ```
 
-### stream::write_next -> class/stream/flush
+### stream :write_next -> class/stream/flush
 
 ```lisp
 inputs
@@ -6600,7 +6600,7 @@ trashes
 r1-r14
 ```
 
-### stream::flush -> class/stream/flush
+### stream :flush -> class/stream/flush
 
 ```lisp
 inputs
@@ -6611,7 +6611,7 @@ trashes
 r1-r14
 ```
 
-### stream::seek -> class/stream/seek
+### stream :seek -> class/stream/seek
 
 ```lisp
 inputs
@@ -6625,7 +6625,7 @@ trashes
 r1-r14
 ```
 
-### stream::lisp_iostream -> class/stream/lisp_iostream
+### stream :lisp_iostream -> class/stream/lisp_iostream
 
 ```lisp
 inputs
@@ -6638,7 +6638,7 @@ trashes
 r1-r14
 ```
 
-### stream::lisp_sstream -> class/stream/lisp_sstream
+### stream :lisp_sstream -> class/stream/lisp_sstream
 
 ```lisp
 inputs
@@ -6651,7 +6651,7 @@ trashes
 r1-r14
 ```
 
-### stream::lisp_fstream -> class/stream/lisp_fstream
+### stream :lisp_fstream -> class/stream/lisp_fstream
 
 ```lisp
 inputs
@@ -6664,7 +6664,7 @@ trashes
 r1-r14
 ```
 
-### stream::lisp_available -> class/stream/lisp_available
+### stream :lisp_available -> class/stream/lisp_available
 
 ```lisp
 inputs
@@ -6677,7 +6677,7 @@ trashes
 r1-r14
 ```
 
-### stream::lisp_readchar -> class/stream/lisp_readchar
+### stream :lisp_readchar -> class/stream/lisp_readchar
 
 ```lisp
 inputs
@@ -6690,7 +6690,7 @@ trashes
 r1-r14
 ```
 
-### stream::lisp_readline -> class/stream/lisp_readline
+### stream :lisp_readline -> class/stream/lisp_readline
 
 ```lisp
 inputs
@@ -6703,7 +6703,7 @@ trashes
 r1-r14
 ```
 
-### stream::lisp_readavail -> class/stream/lisp_readavail
+### stream :lisp_readavail -> class/stream/lisp_readavail
 
 ```lisp
 inputs
@@ -6716,7 +6716,7 @@ trashes
 r1-r14
 ```
 
-### stream::lisp_writechar -> class/stream/lisp_writechar
+### stream :lisp_writechar -> class/stream/lisp_writechar
 
 ```lisp
 inputs
@@ -6729,7 +6729,7 @@ trashes
 r1-r14
 ```
 
-### stream::lisp_write -> class/stream/lisp_write
+### stream :lisp_write -> class/stream/lisp_write
 
 ```lisp
 inputs
@@ -6742,7 +6742,7 @@ trashes
 r1-r14
 ```
 
-### stream::lisp_write_flush -> class/stream/lisp_write_flush
+### stream :lisp_write_flush -> class/stream/lisp_write_flush
 
 ```lisp
 inputs
@@ -6755,9 +6755,9 @@ trashes
 r1-r14
 ```
 
-### stream::lisp_write_next -> class/stream/lisp_write_next
+### stream :lisp_write_next -> class/stream/lisp_write_next
 
-### stream::lisp_seek -> class/stream/lisp_seek
+### stream :lisp_seek -> class/stream/lisp_seek
 
 ```lisp
 inputs
@@ -6774,23 +6774,23 @@ r1-r14
 
 Super Class: str
 
-### sym::vtable -> class/sym/vtable
+### sym :vtable -> class/sym/vtable
 
-### sym::statics -> class/sym/statics
+### sym :statics -> class/sym/statics
 
 ```lisp
 info
 symbol static data
 ```
 
-### sym::statics_init -> class/sym/statics_init
+### sym :statics_init -> class/sym/statics_init
 
 ```lisp
 trashes
 r0-r14
 ```
 
-### sym::get_static_sym -> class/sym/get_static_sym
+### sym :get_static_sym -> class/sym/get_static_sym
 
 ```lisp
 inputs
@@ -6801,7 +6801,7 @@ trashes
 r1, r3
 ```
 
-### sym::ref_static_sym -> class/sym/ref_static_sym
+### sym :ref_static_sym -> class/sym/ref_static_sym
 
 ```lisp
 inputs
@@ -6812,14 +6812,14 @@ trashes
 r1, r3
 ```
 
-### sym::flush -> class/sym/flush
+### sym :flush -> class/sym/flush
 
 ```lisp
 trashes
 r0-r14
 ```
 
-### sym::intern -> class/sym/intern
+### sym :intern -> class/sym/intern
 
 ```lisp
 inputs
@@ -6833,7 +6833,7 @@ input sym IS derefed
 vtable MUST be a sym
 ```
 
-### sym::intern_str -> class/sym/intern_str
+### sym :intern_str -> class/sym/intern_str
 
 ```lisp
 inputs
@@ -6846,7 +6846,7 @@ info
 input str IS NOT derefed
 ```
 
-### sym::intern_cstr -> class/sym/intern_cstr
+### sym :intern_cstr -> class/sym/intern_cstr
 
 ```lisp
 inputs
@@ -6857,7 +6857,7 @@ trashes
 r0-r14
 ```
 
-### sym::intern_strs -> class/sym/intern_strs
+### sym :intern_strs -> class/sym/intern_strs
 
 ```lisp
 inputs
@@ -6868,9 +6868,9 @@ trashes
 r0-r14
 ```
 
-### sym::type -> class/sym/type
+### sym :type -> class/sym/type
 
-### sym::print -> class/sym/print
+### sym :print -> class/sym/print
 
 ```lisp
 inputs
@@ -6882,7 +6882,7 @@ trashes
 r1-r14
 ```
 
-### sym::lisp_sym -> class/sym/lisp_sym
+### sym :lisp_sym -> class/sym/lisp_sym
 
 ```lisp
 inputs
@@ -6895,7 +6895,7 @@ trashes
 r1-r14
 ```
 
-### sym::lisp_gensym -> class/sym/lisp_gensym
+### sym :lisp_gensym -> class/sym/lisp_gensym
 
 ```lisp
 inputs
@@ -6912,7 +6912,7 @@ r1-r14
 
 Super Class: null
 
-### sys_heap::init -> sys/heap/init
+### sys_heap :init -> sys/heap/init
 
 ```lisp
 inputs
@@ -6926,7 +6926,7 @@ trashes
 r1-r2
 ```
 
-### sys_heap::deinit -> sys/heap/deinit
+### sys_heap :deinit -> sys/heap/deinit
 
 ```lisp
 inputs
@@ -6937,7 +6937,7 @@ trashes
 r1-r5
 ```
 
-### sys_heap::alloc -> sys/heap/alloc
+### sys_heap :alloc -> sys/heap/alloc
 
 ```lisp
 inputs
@@ -6949,7 +6949,7 @@ trashes
 r1-r2
 ```
 
-### sys_heap::free -> sys/heap/free
+### sys_heap :free -> sys/heap/free
 
 ```lisp
 inputs
@@ -6962,7 +6962,7 @@ trashes
 r2
 ```
 
-### sys_heap::collect -> sys/heap/collect
+### sys_heap :collect -> sys/heap/collect
 
 ```lisp
 inputs
@@ -6977,7 +6977,7 @@ r1-r11
 
 Super Class: null
 
-### sys_kernel::id -> sys/kernel/id
+### sys_kernel :id -> sys/kernel/id
 
 ```lisp
 outputs
@@ -6986,7 +6986,7 @@ trashes
 r0
 ```
 
-### sys_kernel::kernel -> sys/kernel/kernel
+### sys_kernel :kernel -> sys/kernel/kernel
 
 ```lisp
 inputs
@@ -6999,13 +6999,13 @@ loader is already initialized when we get here !
 
 Super Class: null
 
-### sys_link::in -> sys/link/in
+### sys_link :in -> sys/link/in
 
 ```lisp
 started by kernel for each link
 ```
 
-### sys_link::out -> sys/link/out
+### sys_link :out -> sys/link/out
 
 ```lisp
 started by kernel for each link
@@ -7015,7 +7015,7 @@ started by kernel for each link
 
 Super Class: null
 
-### sys_list::init -> sys/list/init
+### sys_list :init -> sys/list/init
 
 ```lisp
 inputs
@@ -7026,9 +7026,9 @@ r0 = list header (ptr)
 
 Super Class: null
 
-### sys_load::statics -> sys/load/statics
+### sys_load :statics -> sys/load/statics
 
-### sys_load::init -> sys/load/init
+### sys_load :init -> sys/load/init
 
 ```lisp
 inputs
@@ -7039,7 +7039,7 @@ register inputs are dependant on the platform ABI
 they are extracted via (abi-arg 0) and (abi-arg 1)
 ```
 
-### sys_load::bind -> sys/load/bind
+### sys_load :bind -> sys/load/bind
 
 ```lisp
 input
@@ -7054,28 +7054,28 @@ r1-r7
 
 Super Class: null
 
-### sys_mail::statics -> sys/mail/statics
+### sys_mail :statics -> sys/mail/statics
 
 ```lisp
 info
 mail static data
 ```
 
-### sys_mail::statics_init -> sys/mail/statics_init
+### sys_mail :statics_init -> sys/mail/statics_init
 
 ```lisp
 info
 init the mailbox system, heap, buckets and id
 ```
 
-### sys_mail::statics_init1 -> sys/mail/statics_init1
+### sys_mail :statics_init1 -> sys/mail/statics_init1
 
 ```lisp
 info
 init the mail system
 ```
 
-### sys_mail::alloc_mbox -> sys/mail/alloc_mbox
+### sys_mail :alloc_mbox -> sys/mail/alloc_mbox
 
 ```lisp
 outputs
@@ -7085,7 +7085,7 @@ trashes
 r0-r5
 ```
 
-### sys_mail::free_mbox -> sys/mail/free_mbox
+### sys_mail :free_mbox -> sys/mail/free_mbox
 
 ```lisp
 inputs
@@ -7094,7 +7094,7 @@ trashes
 r0-r4
 ```
 
-### sys_mail::validate -> sys/mail/validate
+### sys_mail :validate -> sys/mail/validate
 
 ```lisp
 inputs
@@ -7105,7 +7105,7 @@ trashes
 r0-r3
 ```
 
-### sys_mail::alloc -> sys/mail/alloc
+### sys_mail :alloc -> sys/mail/alloc
 
 ```lisp
 inputs
@@ -7117,7 +7117,7 @@ trashes
 r0-r4
 ```
 
-### sys_mail::free -> sys/mail/free
+### sys_mail :free -> sys/mail/free
 
 ```lisp
 inputs
@@ -7126,7 +7126,7 @@ trashes
 r0-r14
 ```
 
-### sys_mail::alloc_obj -> sys/mail/alloc_obj
+### sys_mail :alloc_obj -> sys/mail/alloc_obj
 
 ```lisp
 inputs
@@ -7139,7 +7139,7 @@ trashes
 r0-r5
 ```
 
-### sys_mail::free_obj -> sys/mail/free_obj
+### sys_mail :free_obj -> sys/mail/free_obj
 
 ```lisp
 inputs
@@ -7152,7 +7152,7 @@ trashes
 r0-r5
 ```
 
-### sys_mail::send -> sys/mail/send
+### sys_mail :send -> sys/mail/send
 
 ```lisp
 inputs
@@ -7161,7 +7161,7 @@ trashes
 r0-r4
 ```
 
-### sys_mail::read -> sys/mail/read
+### sys_mail :read -> sys/mail/read
 
 ```lisp
 inputs
@@ -7173,7 +7173,7 @@ trashes
 r0-r2
 ```
 
-### sys_mail::poll -> sys/mail/poll
+### sys_mail :poll -> sys/mail/poll
 
 ```lisp
 inputs
@@ -7186,7 +7186,7 @@ trashes
 r0-r6
 ```
 
-### sys_mail::select -> sys/mail/select
+### sys_mail :select -> sys/mail/select
 
 ```lisp
 inputs
@@ -7197,7 +7197,7 @@ trashes
 r0-r8
 ```
 
-### sys_mail::mymail -> sys/mail/mymail
+### sys_mail :mymail -> sys/mail/mymail
 
 ```lisp
 outputs
@@ -7207,7 +7207,7 @@ trashes
 r0-r2
 ```
 
-### sys_mail::service -> sys/mail/service
+### sys_mail :service -> sys/mail/service
 
 ```lisp
 inputs
@@ -7220,7 +7220,7 @@ trashes
 r0-r14
 ```
 
-### sys_mail::ping -> sys/mail/ping
+### sys_mail :ping -> sys/mail/ping
 
 ```lisp
 trashes
@@ -7229,7 +7229,7 @@ info
 ping services out to network
 ```
 
-### sys_mail::declare -> sys/mail/declare
+### sys_mail :declare -> sys/mail/declare
 
 ```lisp
 inputs
@@ -7242,7 +7242,7 @@ trashes
 r0-r14
 ```
 
-### sys_mail::forget -> sys/mail/forget
+### sys_mail :forget -> sys/mail/forget
 
 ```lisp
 inputs
@@ -7251,7 +7251,7 @@ trashes
 r0-r14
 ```
 
-### sys_mail::enquire -> sys/mail/enquire
+### sys_mail :enquire -> sys/mail/enquire
 
 ```lisp
 inputs
@@ -7262,7 +7262,7 @@ trashes
 r0-r14
 ```
 
-### sys_mail::devices -> sys/mail/devices
+### sys_mail :devices -> sys/mail/devices
 
 ```lisp
 outputs
@@ -7271,7 +7271,7 @@ trashes
 r0-r14
 ```
 
-### sys_mail::junk_mail -> sys/mail/junk_mail
+### sys_mail :junk_mail -> sys/mail/junk_mail
 
 ```lisp
 inputs
@@ -7280,7 +7280,7 @@ trashes
 r0-r4
 ```
 
-### sys_mail::in -> sys/mail/in
+### sys_mail :in -> sys/mail/in
 
 ```lisp
 inputs
@@ -7289,14 +7289,14 @@ trashes
 r0-r14
 ```
 
-### sys_mail::out -> sys/mail/out
+### sys_mail :out -> sys/mail/out
 
 ```lisp
 info
 parcels going off chip or junk mail task
 ```
 
-### sys_mail::ready -> sys/mail/ready
+### sys_mail :ready -> sys/mail/ready
 
 ```lisp
 inputs
@@ -7306,7 +7306,7 @@ outputs
 r0 = 0 if none, else msg (ptr)
 ```
 
-### sys_mail::lisp_read -> sys/mail/lisp_read
+### sys_mail :lisp_read -> sys/mail/lisp_read
 
 ```lisp
 inputs
@@ -7319,7 +7319,7 @@ trashes
 r1-r14
 ```
 
-### sys_mail::lisp_poll -> sys/mail/lisp_poll
+### sys_mail :lisp_poll -> sys/mail/lisp_poll
 
 ```lisp
 inputs
@@ -7332,7 +7332,7 @@ trashes
 r1-r14
 ```
 
-### sys_mail::lisp_select -> sys/mail/lisp_select
+### sys_mail :lisp_select -> sys/mail/lisp_select
 
 ```lisp
 inputs
@@ -7345,7 +7345,7 @@ trashes
 r1-r14
 ```
 
-### sys_mail::lisp_send -> sys/mail/lisp_send
+### sys_mail :lisp_send -> sys/mail/lisp_send
 
 ```lisp
 inputs
@@ -7358,7 +7358,7 @@ trashes
 r1-r14
 ```
 
-### sys_mail::lisp_declare -> sys/mail/lisp_declare
+### sys_mail :lisp_declare -> sys/mail/lisp_declare
 
 ```lisp
 inputs
@@ -7371,7 +7371,7 @@ trashes
 r1-r14
 ```
 
-### sys_mail::lisp_enquire -> sys/mail/lisp_enquire
+### sys_mail :lisp_enquire -> sys/mail/lisp_enquire
 
 ```lisp
 inputs
@@ -7384,7 +7384,7 @@ trashes
 r1-r14
 ```
 
-### sys_mail::lisp_forget -> sys/mail/lisp_forget
+### sys_mail :lisp_forget -> sys/mail/lisp_forget
 
 ```lisp
 inputs
@@ -7397,7 +7397,7 @@ trashes
 r1-r14
 ```
 
-### sys_mail::lisp_devices -> sys/mail/lisp_devices
+### sys_mail :lisp_devices -> sys/mail/lisp_devices
 
 ```lisp
 inputs
@@ -7410,7 +7410,7 @@ trashes
 r1-r14
 ```
 
-### sys_mail::lisp_alloc_mbox -> sys/mail/lisp_alloc_mbox
+### sys_mail :lisp_alloc_mbox -> sys/mail/lisp_alloc_mbox
 
 ```lisp
 inputs
@@ -7423,7 +7423,7 @@ trashes
 r1-r14
 ```
 
-### sys_mail::lisp_free_mbox -> sys/mail/lisp_free_mbox
+### sys_mail :lisp_free_mbox -> sys/mail/lisp_free_mbox
 
 ```lisp
 inputs
@@ -7440,7 +7440,7 @@ r1-r14
 
 Super Class: null
 
-### sys_math::i_rand -> sys/math/i_rand
+### sys_math :i_rand -> sys/math/i_rand
 
 ```lisp
 inputs
@@ -7451,7 +7451,7 @@ trashes
 r0-r2
 ```
 
-### sys_math::i_sqrt -> sys/math/i_sqrt
+### sys_math :i_sqrt -> sys/math/i_sqrt
 
 ```lisp
 inputs
@@ -7462,7 +7462,7 @@ trashes
 r0-r3
 ```
 
-### sys_math::f_sqrt -> sys/math/f_sqrt
+### sys_math :f_sqrt -> sys/math/f_sqrt
 
 ```lisp
 inputs
@@ -7473,7 +7473,7 @@ trashes
 r0-r3
 ```
 
-### sys_math::f_sin -> sys/math/f_sin
+### sys_math :f_sin -> sys/math/f_sin
 
 ```lisp
 inputs
@@ -7484,7 +7484,7 @@ trashes
 r0-r4
 ```
 
-### sys_math::f_cos -> sys/math/f_cos
+### sys_math :f_cos -> sys/math/f_cos
 
 ```lisp
 inputs
@@ -7495,7 +7495,7 @@ trashes
 r0-r4
 ```
 
-### sys_math::f_intersect -> sys/math/f_intersect
+### sys_math :f_intersect -> sys/math/f_intersect
 
 ```lisp
 inputs
@@ -7514,7 +7514,7 @@ trashes
 r0-r14
 ```
 
-### sys_math::f_dist_sqd -> sys/math/f_dist_sqd
+### sys_math :f_dist_sqd -> sys/math/f_dist_sqd
 
 ```lisp
 inputs
@@ -7530,7 +7530,7 @@ trashes
 r0-r14
 ```
 
-### sys_math::r_pack -> sys/math/r_pack
+### sys_math :r_pack -> sys/math/r_pack
 
 ```lisp
 inputs
@@ -7542,7 +7542,7 @@ trashes
 r12-r14
 ```
 
-### sys_math::r_add -> sys/math/r_add
+### sys_math :r_add -> sys/math/r_add
 
 ```lisp
 inputs
@@ -7554,7 +7554,7 @@ trashes
 r11-r14
 ```
 
-### sys_math::r_sub -> sys/math/r_sub
+### sys_math :r_sub -> sys/math/r_sub
 
 ```lisp
 inputs
@@ -7566,7 +7566,7 @@ trashes
 r11-r14
 ```
 
-### sys_math::r_mul -> sys/math/r_mul
+### sys_math :r_mul -> sys/math/r_mul
 
 ```lisp
 inputs
@@ -7578,7 +7578,7 @@ trashes
 r11-r14
 ```
 
-### sys_math::r_div -> sys/math/r_div
+### sys_math :r_div -> sys/math/r_div
 
 ```lisp
 inputs
@@ -7590,7 +7590,7 @@ trashes
 r11-r14
 ```
 
-### sys_math::r_mod -> sys/math/r_mod
+### sys_math :r_mod -> sys/math/r_mod
 
 ```lisp
 inputs
@@ -7602,7 +7602,7 @@ trashes
 r9-r14
 ```
 
-### sys_math::r_frac -> sys/math/r_frac
+### sys_math :r_frac -> sys/math/r_frac
 
 ```lisp
 inputs
@@ -7613,7 +7613,7 @@ trashes
 r10-r14
 ```
 
-### sys_math::r_floor -> sys/math/r_floor
+### sys_math :r_floor -> sys/math/r_floor
 
 ```lisp
 inputs
@@ -7624,7 +7624,7 @@ trashes
 r12-r14
 ```
 
-### sys_math::r_i2r -> sys/math/r_i2r
+### sys_math :r_i2r -> sys/math/r_i2r
 
 ```lisp
 inputs
@@ -7635,7 +7635,7 @@ trashes
 r12-r14
 ```
 
-### sys_math::r_f2r -> sys/math/r_f2r
+### sys_math :r_f2r -> sys/math/r_f2r
 
 ```lisp
 inputs
@@ -7646,7 +7646,7 @@ trashes
 r12-r14
 ```
 
-### sys_math::r_r2i -> sys/math/r_r2i
+### sys_math :r_r2i -> sys/math/r_r2i
 
 ```lisp
 inputs
@@ -7657,7 +7657,7 @@ trashes
 r12-r14
 ```
 
-### sys_math::r_r2f -> sys/math/r_r2f
+### sys_math :r_r2f -> sys/math/r_r2f
 
 ```lisp
 inputs
@@ -7672,28 +7672,28 @@ r12-r14
 
 Super Class: null
 
-### sys_mem::statics -> sys/mem/statics
+### sys_mem :statics -> sys/mem/statics
 
 ```lisp
 info
 mem statics data
 ```
 
-### sys_mem::statics_init -> sys/mem/statics_init
+### sys_mem :statics_init -> sys/mem/statics_init
 
 ```lisp
 info
 init mem statics
 ```
 
-### sys_mem::statics_deinit -> sys/mem/statics_deinit
+### sys_mem :statics_deinit -> sys/mem/statics_deinit
 
 ```lisp
 info
 deinit mem statics
 ```
 
-### sys_mem::alloc -> sys/mem/alloc
+### sys_mem :alloc -> sys/mem/alloc
 
 ```lisp
 inputs
@@ -7705,7 +7705,7 @@ trashes
 r0-r2
 ```
 
-### sys_mem::calloc -> sys/mem/calloc
+### sys_mem :calloc -> sys/mem/calloc
 
 ```lisp
 inputs
@@ -7717,7 +7717,7 @@ trashes
 r0-r2
 ```
 
-### sys_mem::free -> sys/mem/free
+### sys_mem :free -> sys/mem/free
 
 ```lisp
 inputs
@@ -7726,7 +7726,7 @@ trashes
 r0-r2
 ```
 
-### sys_mem::fill -> sys/mem/fill
+### sys_mem :fill -> sys/mem/fill
 
 ```lisp
 inputs
@@ -7739,7 +7739,7 @@ trashes
 r0-r3
 ```
 
-### sys_mem::copy -> sys/mem/copy
+### sys_mem :copy -> sys/mem/copy
 
 ```lisp
 inputs
@@ -7753,7 +7753,7 @@ trashes
 r0-r3
 ```
 
-### sys_mem::realloc -> sys/mem/realloc
+### sys_mem :realloc -> sys/mem/realloc
 
 ```lisp
 inputs
@@ -7767,7 +7767,7 @@ trashes
 r0-r5
 ```
 
-### sys_mem::recalloc -> sys/mem/recalloc
+### sys_mem :recalloc -> sys/mem/recalloc
 
 ```lisp
 inputs
@@ -7781,7 +7781,7 @@ trashes
 r0-r7
 ```
 
-### sys_mem::collect -> sys/mem/collect
+### sys_mem :collect -> sys/mem/collect
 
 ```lisp
 trashes
@@ -7790,7 +7790,7 @@ info
 free all unused blocks
 ```
 
-### sys_mem::used -> sys/mem/used
+### sys_mem :used -> sys/mem/used
 
 ```lisp
 outputs
@@ -7799,7 +7799,7 @@ trashes
 r0
 ```
 
-### sys_mem::lisp_stats -> sys/mem/lisp_stats
+### sys_mem :lisp_stats -> sys/mem/lisp_stats
 
 ```lisp
 inputs
@@ -7816,14 +7816,14 @@ r1-r14
 
 Super Class: null
 
-### sys_pii::exit -> sys/pii/exit
+### sys_pii :exit -> sys/pii/exit
 
 ```lisp
 inputs
 r0 = code (long)
 ```
 
-### sys_pii::mmap -> sys/pii/mmap
+### sys_pii :mmap -> sys/pii/mmap
 
 ```lisp
 inputs
@@ -7836,7 +7836,7 @@ trashes
 r0
 ```
 
-### sys_pii::munmap -> sys/pii/munmap
+### sys_pii :munmap -> sys/pii/munmap
 
 ```lisp
 inputs
@@ -7849,7 +7849,7 @@ trashes
 r0
 ```
 
-### sys_pii::mprotect -> sys/pii/mprotect
+### sys_pii :mprotect -> sys/pii/mprotect
 
 ```lisp
 inputs
@@ -7862,7 +7862,7 @@ trashes
 r0
 ```
 
-### sys_pii::open -> sys/pii/open
+### sys_pii :open -> sys/pii/open
 
 ```lisp
 inputs
@@ -7874,7 +7874,7 @@ trashes
 r0
 ```
 
-### sys_pii::close -> sys/pii/close
+### sys_pii :close -> sys/pii/close
 
 ```lisp
 inputs
@@ -7885,7 +7885,7 @@ trashes
 r0
 ```
 
-### sys_pii::open_shared -> sys/pii/open_shared
+### sys_pii :open_shared -> sys/pii/open_shared
 
 ```lisp
 inputs
@@ -7897,7 +7897,7 @@ trashes
 r0
 ```
 
-### sys_pii::close_shared -> sys/pii/close_shared
+### sys_pii :close_shared -> sys/pii/close_shared
 
 ```lisp
 inputs
@@ -7909,7 +7909,7 @@ trashes
 r0
 ```
 
-### sys_pii::unlink -> sys/pii/unlink
+### sys_pii :unlink -> sys/pii/unlink
 
 ```lisp
 inputs
@@ -7920,7 +7920,7 @@ trashes
 r0
 ```
 
-### sys_pii::stat -> sys/pii/stat
+### sys_pii :stat -> sys/pii/stat
 
 ```lisp
 inputs
@@ -7932,7 +7932,7 @@ trashes
 r0
 ```
 
-### sys_pii::write -> sys/pii/write
+### sys_pii :write -> sys/pii/write
 
 ```lisp
 inputs
@@ -7945,7 +7945,7 @@ trashes
 r0
 ```
 
-### sys_pii::write_char -> sys/pii/write_char
+### sys_pii :write_char -> sys/pii/write_char
 
 ```lisp
 inputs
@@ -7957,7 +7957,7 @@ trashes
 r0
 ```
 
-### sys_pii::write_str -> sys/pii/write_str
+### sys_pii :write_str -> sys/pii/write_str
 
 ```lisp
 inputs
@@ -7969,7 +7969,7 @@ trashes
 r0
 ```
 
-### sys_pii::write_num -> sys/pii/write_num
+### sys_pii :write_num -> sys/pii/write_num
 
 ```lisp
 inputs
@@ -7982,7 +7982,7 @@ trashes
 r0
 ```
 
-### sys_pii::read -> sys/pii/read
+### sys_pii :read -> sys/pii/read
 
 ```lisp
 inputs
@@ -7995,7 +7995,7 @@ trashes
 r0
 ```
 
-### sys_pii::read_char -> sys/pii/read_char
+### sys_pii :read_char -> sys/pii/read_char
 
 ```lisp
 inputs
@@ -8006,7 +8006,7 @@ trashes
 r0
 ```
 
-### sys_pii::time -> sys/pii/time
+### sys_pii :time -> sys/pii/time
 
 ```lisp
 outputs
@@ -8015,7 +8015,7 @@ trashes
 r0
 ```
 
-### sys_pii::clear_icache -> sys/pii/clear_icache
+### sys_pii :clear_icache -> sys/pii/clear_icache
 
 ```lisp
 inputs
@@ -8027,7 +8027,7 @@ trashes
 r0
 ```
 
-### sys_pii::dirlist -> sys/pii/dirlist
+### sys_pii :dirlist -> sys/pii/dirlist
 
 ```lisp
 inputs
@@ -8040,7 +8040,7 @@ trashes
 r0
 ```
 
-### sys_pii::remove -> sys/pii/remove
+### sys_pii :remove -> sys/pii/remove
 
 ```lisp
 inputs
@@ -8051,7 +8051,7 @@ trashes
 r0
 ```
 
-### sys_pii::seek -> sys/pii/seek
+### sys_pii :seek -> sys/pii/seek
 
 ```lisp
 inputs
@@ -8064,7 +8064,7 @@ trashes
 r0
 ```
 
-### sys_pii::lisp_readchar -> sys/pii/lisp_readchar
+### sys_pii :lisp_readchar -> sys/pii/lisp_readchar
 
 ```lisp
 inputs
@@ -8077,7 +8077,7 @@ trashes
 r1-r14
 ```
 
-### sys_pii::lisp_writechar -> sys/pii/lisp_writechar
+### sys_pii :lisp_writechar -> sys/pii/lisp_writechar
 
 ```lisp
 inputs
@@ -8090,7 +8090,7 @@ trashes
 r1-r14
 ```
 
-### sys_pii::lisp_time -> sys/pii/lisp_time
+### sys_pii :lisp_time -> sys/pii/lisp_time
 
 ```lisp
 inputs
@@ -8103,22 +8103,9 @@ trashes
 r1-r14
 ```
 
-### sys_pii::lisp_age -> sys/pii/lisp_age
+### sys_pii :lisp_age -> sys/pii/lisp_age
 
-### sys_pii::lisp_dirlist -> sys/pii/lisp_dirlist
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args list object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### sys_pii::lisp_fstat -> sys/pii/lisp_fstat
+### sys_pii :lisp_dirlist -> sys/pii/lisp_dirlist
 
 ```lisp
 inputs
@@ -8131,7 +8118,20 @@ trashes
 r1-r14
 ```
 
-### sys_pii::lisp_remove -> sys/pii/lisp_remove
+### sys_pii :lisp_fstat -> sys/pii/lisp_fstat
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### sys_pii :lisp_remove -> sys/pii/lisp_remove
 
 ```lisp
 inputs
@@ -8148,7 +8148,7 @@ r1-r14
 
 Super Class: null
 
-### sys_str::length -> sys/str/length
+### sys_str :length -> sys/str/length
 
 ```lisp
 inputs
@@ -8160,7 +8160,7 @@ trashes
 r1-r2
 ```
 
-### sys_str::copy -> sys/str/copy
+### sys_str :copy -> sys/str/copy
 
 ```lisp
 inputs
@@ -8173,7 +8173,7 @@ trashes
 r2
 ```
 
-### sys_str::compare -> sys/str/compare
+### sys_str :compare -> sys/str/compare
 
 ```lisp
 inputs
@@ -8185,7 +8185,7 @@ trashes
 r0-r3
 ```
 
-### sys_str::to_long -> sys/str/to_long
+### sys_str :to_long -> sys/str/to_long
 
 ```lisp
 inputs
@@ -8198,7 +8198,7 @@ trashes
 r0-r4
 ```
 
-### sys_str::from_long -> sys/str/from_long
+### sys_str :from_long -> sys/str/from_long
 
 ```lisp
 inputs
@@ -8211,7 +8211,7 @@ trashes
 r0-r4
 ```
 
-### sys_str::read_utf8 -> sys/str/read_utf8
+### sys_str :read_utf8 -> sys/str/read_utf8
 
 ```lisp
 inputs
@@ -8227,21 +8227,21 @@ r0-r2
 
 Super Class: null
 
-### sys_task::statics -> sys/task/statics
+### sys_task :statics -> sys/task/statics
 
 ```lisp
 info
 task statics data
 ```
 
-### sys_task::statics_init -> sys/task/statics_init
+### sys_task :statics_init -> sys/task/statics_init
 
 ```lisp
 info
 init task statics
 ```
 
-### sys_task::tcb -> sys/task/tcb
+### sys_task :tcb -> sys/task/tcb
 
 ```lisp
 outputs
@@ -8250,7 +8250,7 @@ trashes
 r0
 ```
 
-### sys_task::mailbox -> sys/task/mailbox
+### sys_task :mailbox -> sys/task/mailbox
 
 ```lisp
 outputs
@@ -8259,7 +8259,7 @@ trashes
 r0
 ```
 
-### sys_task::callback -> sys/task/callback
+### sys_task :callback -> sys/task/callback
 
 ```lisp
 inputs
@@ -8269,7 +8269,7 @@ trashes
 r0-r14
 ```
 
-### sys_task::start -> sys/task/start
+### sys_task :start -> sys/task/start
 
 ```lisp
 inputs
@@ -8282,14 +8282,14 @@ trashes
 r0-r14
 ```
 
-### sys_task::stop -> sys/task/stop
+### sys_task :stop -> sys/task/stop
 
 ```lisp
 info
 stop current task, switch to next task
 ```
 
-### sys_task::restore -> sys/task/restore
+### sys_task :restore -> sys/task/restore
 
 ```lisp
 trashes
@@ -8298,7 +8298,7 @@ info
 restore next ready task
 ```
 
-### sys_task::count -> sys/task/count
+### sys_task :count -> sys/task/count
 
 ```lisp
 outputs
@@ -8307,7 +8307,7 @@ trashes
 r0
 ```
 
-### sys_task::sleep -> sys/task/sleep
+### sys_task :sleep -> sys/task/sleep
 
 ```lisp
 inputs
@@ -8318,7 +8318,7 @@ info
 0 for yield
 ```
 
-### sys_task::suspend -> sys/task/suspend
+### sys_task :suspend -> sys/task/suspend
 
 ```lisp
 trashes
@@ -8327,7 +8327,7 @@ info
 suspend current task, switch to next task
 ```
 
-### sys_task::resume -> sys/task/resume
+### sys_task :resume -> sys/task/resume
 
 ```lisp
 inputs
@@ -8338,7 +8338,7 @@ trashes
 r1-r2
 ```
 
-### sys_task::defer -> sys/task/defer
+### sys_task :defer -> sys/task/defer
 
 ```lisp
 inputs
@@ -8349,7 +8349,7 @@ info
 restore task
 ```
 
-### sys_task::set_priority -> sys/task/set_priority
+### sys_task :set_priority -> sys/task/set_priority
 
 ```lisp
 inputs
@@ -8358,7 +8358,7 @@ trashes
 r0-r4
 ```
 
-### sys_task::timer -> sys/task/timer
+### sys_task :timer -> sys/task/timer
 
 ```lisp
 outputs
@@ -8369,7 +8369,7 @@ info
 resume tasks ready to run
 ```
 
-### sys_task::open_child -> sys/task/open_child
+### sys_task :open_child -> sys/task/open_child
 
 ```lisp
 inputs
@@ -8381,9 +8381,9 @@ trashes
 r0-r14
 ```
 
-### sys_task::task_callback -> class/obj/null
+### sys_task :task_callback -> class/obj/null
 
-### sys_task::lisp_sleep -> sys/task/lisp_sleep
+### sys_task :lisp_sleep -> sys/task/lisp_sleep
 
 ```lisp
 inputs
@@ -8396,7 +8396,7 @@ trashes
 r1-r14
 ```
 
-### sys_task::lisp_mailbox -> sys/task/lisp_mailbox
+### sys_task :lisp_mailbox -> sys/task/lisp_mailbox
 
 ```lisp
 inputs
@@ -8413,11 +8413,11 @@ r1-r14
 
 Super Class: obj
 
-### texture::vtable -> gui/texture/vtable
+### texture :vtable -> gui/texture/vtable
 
-### texture::create -> gui/texture/create
+### texture :create -> gui/texture/create
 
-### texture::init -> gui/texture/init
+### texture :init -> gui/texture/init
 
 ```lisp
 inputs
@@ -8433,7 +8433,7 @@ trashes
 r1
 ```
 
-### texture::get_metrics -> gui/texture/get_metrics
+### texture :get_metrics -> gui/texture/get_metrics
 
 ```lisp
 inputs
@@ -8447,7 +8447,7 @@ trashes
 r1-r3
 ```
 
-### texture::deinit -> gui/texture/deinit
+### texture :deinit -> gui/texture/deinit
 
 ```lisp
 inputs
@@ -8462,11 +8462,11 @@ r1-r14
 
 Super Class: view
 
-### vdu::vtable -> gui/vdu/vtable
+### vdu :vtable -> gui/vdu/vtable
 
-### vdu::create -> gui/vdu/create
+### vdu :create -> gui/vdu/create
 
-### vdu::init -> gui/vdu/init
+### vdu :init -> gui/vdu/init
 
 ```lisp
 inputs
@@ -8479,7 +8479,7 @@ trashes
 r1-r14
 ```
 
-### vdu::configure -> gui/vdu/configure
+### vdu :configure -> gui/vdu/configure
 
 ```lisp
 inputs
@@ -8490,7 +8490,7 @@ trashes
 r1-r14
 ```
 
-### vdu::lisp_create -> gui/vdu/lisp_create
+### vdu :lisp_create -> gui/vdu/lisp_create
 
 ```lisp
 inputs
@@ -8503,7 +8503,7 @@ trashes
 r1-r14
 ```
 
-### vdu::lisp_load -> gui/vdu/lisp_load
+### vdu :lisp_load -> gui/vdu/lisp_load
 
 ```lisp
 inputs
@@ -8516,7 +8516,7 @@ trashes
 r1-r14
 ```
 
-### vdu::lisp_configure -> gui/vdu/lisp_configure
+### vdu :lisp_configure -> gui/vdu/lisp_configure
 
 ```lisp
 inputs
@@ -8529,7 +8529,7 @@ trashes
 r1-r14
 ```
 
-### vdu::deinit -> gui/vdu/deinit
+### vdu :deinit -> gui/vdu/deinit
 
 ```lisp
 inputs
@@ -8540,7 +8540,7 @@ trashes
 r1-r14
 ```
 
-### vdu::draw -> gui/vdu/draw
+### vdu :draw -> gui/vdu/draw
 
 ```lisp
 inputs
@@ -8555,11 +8555,11 @@ r1-r14
 
 Super Class: hmap
 
-### view::vtable -> gui/view/vtable
+### view :vtable -> gui/view/vtable
 
-### view::create -> gui/view/create
+### view :create -> gui/view/create
 
-### view::init -> gui/view/init
+### view :init -> gui/view/init
 
 ```lisp
 inputs
@@ -8572,7 +8572,7 @@ trashes
 r1-r14
 ```
 
-### view::add_front -> gui/view/add_front
+### view :add_front -> gui/view/add_front
 
 ```lisp
 inputs
@@ -8584,7 +8584,7 @@ trashes
 r1-r3
 ```
 
-### view::add_back -> gui/view/add_back
+### view :add_back -> gui/view/add_back
 
 ```lisp
 inputs
@@ -8596,7 +8596,7 @@ trashes
 r1-r3
 ```
 
-### view::sub -> gui/view/sub
+### view :sub -> gui/view/sub
 
 ```lisp
 inputs
@@ -8607,7 +8607,7 @@ trashes
 r1-r2
 ```
 
-### view::hide -> gui/view/hide
+### view :hide -> gui/view/hide
 
 ```lisp
 inputs
@@ -8618,7 +8618,7 @@ trashes
 r1-r14
 ```
 
-### view::to_front -> gui/view/to_front
+### view :to_front -> gui/view/to_front
 
 ```lisp
 inputs
@@ -8629,7 +8629,7 @@ trashes
 r1-r14
 ```
 
-### view::to_back -> gui/view/to_back
+### view :to_back -> gui/view/to_back
 
 ```lisp
 inputs
@@ -8640,7 +8640,7 @@ trashes
 r1-r14
 ```
 
-### view::forward -> gui/view/forward
+### view :forward -> gui/view/forward
 
 ```lisp
 inputs
@@ -8661,7 +8661,7 @@ trashes
 ...
 ```
 
-### view::forward_tree -> gui/view/forward_tree
+### view :forward_tree -> gui/view/forward_tree
 
 ```lisp
 inputs
@@ -8684,7 +8684,7 @@ trashes
 ...
 ```
 
-### view::backward_tree -> gui/view/backward_tree
+### view :backward_tree -> gui/view/backward_tree
 
 ```lisp
 inputs
@@ -8707,7 +8707,7 @@ trashes
 ...
 ```
 
-### view::hit_tree -> gui/view/hit_tree
+### view :hit_tree -> gui/view/hit_tree
 
 ```lisp
 inputs
@@ -8723,7 +8723,7 @@ trashes
 r1-r3
 ```
 
-### view::find_id -> gui/view/find_id
+### view :find_id -> gui/view/find_id
 
 ```lisp
 inputs
@@ -8736,7 +8736,7 @@ trashes
 r1-r3
 ```
 
-### view::get_bounds -> gui/view/get_bounds
+### view :get_bounds -> gui/view/get_bounds
 
 ```lisp
 inputs
@@ -8751,7 +8751,7 @@ trashes
 r7-r10
 ```
 
-### view::set_bounds -> gui/view/set_bounds
+### view :set_bounds -> gui/view/set_bounds
 
 ```lisp
 inputs
@@ -8766,7 +8766,7 @@ trashes
 none
 ```
 
-### view::set_flags -> gui/view/set_flags
+### view :set_flags -> gui/view/set_flags
 
 ```lisp
 inputs
@@ -8780,7 +8780,7 @@ trashes
 r1-r3
 ```
 
-### view::find_owner -> gui/view/find_owner
+### view :find_owner -> gui/view/find_owner
 
 ```lisp
 inputs
@@ -8792,7 +8792,7 @@ trashes
 r1-r2
 ```
 
-### view::get_prop -> gui/view/get_prop
+### view :get_prop -> gui/view/get_prop
 
 ```lisp
 inputs
@@ -8805,7 +8805,7 @@ trashes
 r1-r14
 ```
 
-### view::ref_prop -> gui/view/ref_prop
+### view :ref_prop -> gui/view/ref_prop
 
 ```lisp
 inputs
@@ -8818,7 +8818,7 @@ trashes
 r1-r14
 ```
 
-### view::get_long_prop -> gui/view/get_long_prop
+### view :get_long_prop -> gui/view/get_long_prop
 
 ```lisp
 inputs
@@ -8831,22 +8831,11 @@ trashes
 r1-r14
 ```
 
-### view::forward_callback -> class/obj/null
+### view :forward_callback -> class/obj/null
 
-### view::forward_tree_callback -> class/obj/null
+### view :forward_tree_callback -> class/obj/null
 
-### view::deinit -> gui/view/deinit
-
-```lisp
-inputs
-r0 = view object (ptr)
-outputs
-r0 = view object (ptr)
-trashes
-r1-r14
-```
-
-### view::draw -> class/view/draw
+### view :deinit -> gui/view/deinit
 
 ```lisp
 inputs
@@ -8857,7 +8846,18 @@ trashes
 r1-r14
 ```
 
-### view::hit -> gui/view/hit
+### view :draw -> class/view/draw
+
+```lisp
+inputs
+r0 = view object (ptr)
+outputs
+r0 = view object (ptr)
+trashes
+r1-r14
+```
+
+### view :hit -> gui/view/hit
 
 ```lisp
 inputs
@@ -8871,7 +8871,7 @@ trashes
 r1
 ```
 
-### view::lisp_create -> gui/view/lisp_create
+### view :lisp_create -> gui/view/lisp_create
 
 ```lisp
 inputs
@@ -8884,7 +8884,7 @@ trashes
 r1-r14
 ```
 
-### view::lisp_sub -> gui/view/lisp_sub
+### view :lisp_sub -> gui/view/lisp_sub
 
 ```lisp
 inputs
@@ -8897,7 +8897,7 @@ trashes
 r1-r14
 ```
 
-### view::lisp_hide -> gui/view/lisp_hide
+### view :lisp_hide -> gui/view/lisp_hide
 
 ```lisp
 inputs
@@ -8910,7 +8910,7 @@ trashes
 r1-r14
 ```
 
-### view::lisp_add -> gui/view/lisp_add
+### view :lisp_add -> gui/view/lisp_add
 
 ```lisp
 inputs
@@ -8923,7 +8923,7 @@ trashes
 r1-r14
 ```
 
-### view::lisp_add_back -> gui/view/lisp_add_back
+### view :lisp_add_back -> gui/view/lisp_add_back
 
 ```lisp
 inputs
@@ -8936,7 +8936,7 @@ trashes
 r1-r14
 ```
 
-### view::lisp_clr_opaque -> gui/view/lisp_clr_opaque
+### view :lisp_clr_opaque -> gui/view/lisp_clr_opaque
 
 ```lisp
 inputs
@@ -8949,7 +8949,7 @@ trashes
 r1-r14
 ```
 
-### view::lisp_add_opaque -> gui/view/lisp_add_opaque
+### view :lisp_add_opaque -> gui/view/lisp_add_opaque
 
 ```lisp
 inputs
@@ -8962,7 +8962,7 @@ trashes
 r1-r14
 ```
 
-### view::lisp_sub_opaque -> gui/view/lisp_sub_opaque
+### view :lisp_sub_opaque -> gui/view/lisp_sub_opaque
 
 ```lisp
 inputs
@@ -8975,7 +8975,7 @@ trashes
 r1-r14
 ```
 
-### view::lisp_set_flags -> gui/view/lisp_set_flags
+### view :lisp_set_flags -> gui/view/lisp_set_flags
 
 ```lisp
 inputs
@@ -8988,7 +8988,7 @@ trashes
 r1-r14
 ```
 
-### view::lisp_trans_dirty -> gui/view/lisp_trans_dirty
+### view :lisp_trans_dirty -> gui/view/lisp_trans_dirty
 
 ```lisp
 inputs
@@ -9001,7 +9001,7 @@ trashes
 r1-r14
 ```
 
-### view::lisp_add_dirty -> gui/view/lisp_add_dirty
+### view :lisp_add_dirty -> gui/view/lisp_add_dirty
 
 ```lisp
 inputs
@@ -9014,7 +9014,7 @@ trashes
 r1-r14
 ```
 
-### view::lisp_find_id -> gui/view/lisp_find_id
+### view :lisp_find_id -> gui/view/lisp_find_id
 
 ```lisp
 inputs
@@ -9027,7 +9027,7 @@ trashes
 r1-r14
 ```
 
-### view::lisp_children -> gui/view/lisp_children
+### view :lisp_children -> gui/view/lisp_children
 
 ```lisp
 inputs
@@ -9040,7 +9040,7 @@ trashes
 r1-r14
 ```
 
-### view::lisp_to_front -> gui/view/lisp_to_front
+### view :lisp_to_front -> gui/view/lisp_to_front
 
 ```lisp
 inputs
@@ -9053,7 +9053,7 @@ trashes
 r1-r14
 ```
 
-### view::lisp_to_back -> gui/view/lisp_to_back
+### view :lisp_to_back -> gui/view/lisp_to_back
 
 ```lisp
 inputs
@@ -9066,7 +9066,7 @@ trashes
 r1-r14
 ```
 
-### view::lisp_emit -> gui/view/lisp_emit
+### view :lisp_emit -> gui/view/lisp_emit
 
 ```lisp
 inputs
