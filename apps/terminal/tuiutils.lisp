@@ -111,38 +111,32 @@
   (defq
     flist (if (nempty? paths) paths (list ".")))
 
+  (defun _print-entry (fqname stat &optional flen)
+    (setd flen nil)
+    (prtnl fqname))
+
   (each
     (lambda (_el)
       (defq
-        pname _el
-        psplt (_path-tolist pname)
         fpath nil
-        node  (node-for pname _pn_nofind-handler))
+        psplt (_path-tolist _el)
+        plen  (dec (length psplt))
+        node  (node-for _el _pn_nofind-handler))
       (cond
         ((list? node)
          (bind '(segname pnode plistndx) node)
          (prtnl (str "stopped at " (. pnode :full_path)))
          (prtnl (str "stopped by " segname))
+         (prtnl (str "at index " plistndx " out of " plen))
+         (when (= plistndx plen)
+           (defq stat (pii-fstat (. pnode :fqname segname)))
+           (if stat
+            (prtnl (str "Is file? " (isfile? (last stat))))
+            (prtnl "No stat")))
          (prtnl (str "can't get to " (join (slice plistndx -1 psplt) ""))))
         (t
           (prtnl (str "found " (. node :full_path)))))
           ) flist)
-  ; (each (lambda (el)
-  ;         (cond
-  ;           ((eql el "l")
-  ;            (setq frmt
-  ;                  (lambda ((_fn _fm))
-  ;                    (str "FL:" _fn))))
-  ;           ((eql el "a")
-  ;            (setq
-  ;               mlst :all_members
-  ;               fltr _pn-all-filter))
-  ;           ((eql el "d")
-  ;            (setq fltr _pn-dir-filter))
-  ;           ((eql el "f")
-  ;            (setq fltr _pn-file-filter))
-  ;           (t t))) (entries flgs))
-
   ; (each prtnl (. _current_dir mlst frmt fltr))
   nil)
 
