@@ -2,8 +2,6 @@
 ; tuiutils - Terminal utilities
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import "lib/pathnode/pathnode.inc")
-
 ;override print for TUI output
 (defun print (_)
   (each (lambda (c)
@@ -63,6 +61,22 @@
         (prtnl (str "cd " path ": is not a valid path")))))
   nil)
 
+(defun copy-file (ic &optional args)
+  ; (copy-file internal args) -> nil
+  (bind '(sargs flags paths) (_split-args args))
+  (cond
+    ((> (length paths) 2)
+     (prtnl (str "Usage: cp [] source_file target_file")))
+    (t))
+  (not-impl ic))
+
+(defun disp-date (ic &optional args)
+  ; (disp-date command args) -> nil
+  (bind '(sargs flags paths) (_split-args args))
+  (defq :local_timezone tzone)
+  (prtnl (encode-date))
+  nil)
+
 (defun make-directory (ic &optional args)
   ; (make-directory internal args) -> nil
   ; Creates a directory
@@ -79,30 +93,36 @@
             (prtnl (str "mkdir " _el ": threw " _)))) paths))
   nil)
 
-(defun del-directory (ic &optional args)
-  ; (del-directory internal args) -> nil
-  ; Remove a directory
-  ; TODO:
-  ;   Recursive switch
-  ;   Prompt
-  ;   Silent
-  (bind '(sargs flags paths) (_split-args args))
-  (not-impl ic)
-  nil)
+(defun _print-long-entry (name stat)
+  ; (_print-long-engry name stat) -> nil
+  ; Prints details about file or directory in name
+  (defq :local_timezone tzone)
+  (bind '(s m h dy mo yr wk) (date (first stat)))
+  (prtnl
+    (str
+      (mode-str stat) " "
+      (fsize-str (second stat)) " "
+      (month-of-the-year mo) " "
+      (pad dy 2 " ") " "
+      (pad h 2 "0") ":" (pad m 2 "0") " "
+      name)))
 
-(defun copy-file (ic &optional args)
-  ; (copy-file internal args) -> nil
-  (bind '(sargs flags paths) (_split-args args))
-  (cond
-    ((> (length paths) 2)
-     (prtnl (str "Usage: cp [] source_file target_file")))
-    (t))
-  (not-impl ic))
+(defun _print-short-list (node memfilter)
+  ; (_print-short-list node filter) -> nil
+  ; Iterates through short listing of path-node
+  ; printing simple content information
+  (each (lambda (_el)
+    (prtnl _el))
+        (. node :all_members nil memfilter)))
 
-(defun move-file (ic &optional args)
-  ; (move-file internal args) -> nil
-  (bind '(sargs flags paths) (_split-args args))
-  (not-impl ic))
+(defun _print-long-list (node memfilter)
+  ; (_print-long-list node filter) -> nil
+  ; Iterates through long listing of path-node
+  ; printing simple content information
+  (each (lambda (_el)
+    (defq fname (. node :fqname _el))
+    (_print-long-entry _el (pii-fstat fname)))
+        (. node :all_members nil memfilter)))
 
 (defun list-files (ic &optional args)
   ; (list-files internal args) -> nil
@@ -110,44 +130,64 @@
   ; emulates Linux/Darwin 'ls' command
   ; Flags include
   ; -l List in long format
-  ; -d directories only
-  ; -f files only
   ; -a All, include directory entries whose names begin with a dot (.)
   (bind '(sargs flags paths) (_split-args args))
-  (each prtnl  sargs)
   (defq
     flgs  (_collapse_flags flags)
-    flist (if (nempty? paths) paths (list "."))
-    frmt  _pn-name-only
-    fltr  _pn_short-filter
-    mlst  :all_members)
-  (each (lambda (el)
-          (cond
-            ((eql el "l")
-             (setq frmt
-                   (lambda ((_fn _fm))
-                     (str "FL:" _fn))))
-            ((eql el "a")
-             (setq
-                mlst :all_members
-                fltr _pn-all-filter))
-            ((eql el "d")
-             (setq fltr _pn-dir-filter))
-            ((eql el "f")
-             (setq fltr _pn-file-filter))
-            (t t))) (entries flgs))
-
-  (each prtnl (. _current_dir mlst frmt fltr))
+    lng?  (gets flgs "l")
+    fltr  (if (gets flgs "a") _pn-all-filter _pn_short-filter)
+    lstfn (if lng? _print-long-list _print-short-list)
+    flist (if (nempty? paths) paths (list ".")))
+  (each
+    (lambda (_el)
+      (defq
+        fpath nil
+        psplt (_path-tolist _el)
+        plen  (dec (length psplt))
+        node  (node-for _el _pn_nofind-handler))
+      (cond
+        ; When an error is found in 'node-for'
+        ((list? node)
+         (bind '(segname pnode plistndx) node)
+         ; If it is the final segment of path
+         (if (= plistndx plen)
+           (progn
+             (defq
+              fname (. pnode :fqname segname)
+              stat (pii-fstat fname))
+             ; And is a file
+             (if (and stat (isfile? stat))
+               (if lng?
+                   (_print-long-entry segname stat)
+                   (prtnl segname))
+               (prtnl (str "ls: " segname ": No such file or directory"))))
+           ; Otherwise it is some segment in path error
+           (prtnl (str "ls: " _el ": No such file or directory"))))
+        ; When we find a cohesive path-node
+        (t
+          (lstfn node fltr))))
+    flist)
   nil)
 
-(defun disp-date (ic &optional args)
-  ; (disp-date command args) -> nil
+(defun delete-directory (ic &optional args)
+  ; (del-directory internal args) -> nil
+  ; Remove a directory
+  ; TODO:
+  ;   Recursive switch
+  ;   Prompt
+  ;   Silent
   (bind '(sargs flags paths) (_split-args args))
-  (defq :local_timezone tzone)
-  (prtnl (encode-date))
-  nil)
+  (defq flgs  (_collapse_flags flags))
+  (if (= (length paths) 0)
+      (prtnl "rm [-r] [path | file] ...")
+      (each
+        (lambda (_el)
+          (catch
+            (if (gets flgs "r")
+                ; (remove-dir _el t)
+                ; (remove-dir _el)
+                )
+            (prtnl (str "rm " _el ": threw " _)))) paths))
 
-(defun setup-pathing ()
-  ; (setup-pathing) -> nil
-  ; Sets current path to last working directory
-  (change-dir (gets-enval "PWD")))
+  (not-impl ic)
+  nil)

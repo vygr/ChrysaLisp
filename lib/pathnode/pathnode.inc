@@ -9,55 +9,92 @@
 (import "lib/date/date.inc")
 
 (defq
-  _pathseparator  "/"
+  _pathseparator  "/"   ; default path separator
   _pathnoderoot   nil
-  _current_dir    nil)  ; default path separator
+  _current_dir    nil)
 
 ; File mode masks
 
-(defmacro isfile? (mode)
-  `(/= (logand ,mode 0x8000) 0))
-(defmacro isdir? (mode)
-  `(/= (logand ,mode 0x4000) 0))
+(defmacro isfile? (stat)
+  `(/= (logand (last ,stat) 0x8000) 0))
 
-(defmacro user-mask (mode)
-  `(logand ,mode 0xe00))
-(defmacro user-id-mask (mode)
-  `(logand ,mode 0x800))
-(defmacro group-id-mask (mode)
-  `(logand ,mode 0x400))
-(defmacro sticky-bit-mask (mode)
-  `(logand ,mode 0x200))
+(defmacro isdir? (stat)
+  `(/= (logand (last ,stat) 0x4000) 0))
+
+(defmacro user-mask (stat)
+  `(logand (last ,stat) 0xe00))
+
+(defmacro user-id-mask (stat)
+  `(logand (last ,stat) 0x800))
+
+(defmacro group-id-mask (stat)
+  `(logand (last ,stat) 0x400))
+
+(defmacro sticky-bit-mask (stat)
+  `(logand (last ,stat) 0x200))
 
 ; These generalize to first 3 bits
-(defmacro owner-mask (mode)
-  `(>> (logand ,mode 0x700) 8))
-(defmacro group-mask (mode)
-  `(>> (logand ,mode 0x070) 4))
-(defmacro other-mask (mode)
-  `(logand ,mode 0x007))
+(defmacro owner-mask (stat)
+  `(>> (logand (last ,stat) 0xfff) 6))
+(defmacro group-mask (stat)
+  `(>> (logand (last ,stat) 0xfff) 3))
+(defmacro other-mask (stat)
+  `(logand (last ,stat) 0x007))
 
-(defmacro noperm? (mode)
-  `(= ,mode 0))
-(defmacro read? (mode)
-  `(/= (logand ,mode 4) 0))
-(defmacro write? (mode)
-  `(/= (logand ,mode 2) 0))
-(defmacro exec? (mode)
-  `(/= (logand ,mode 1) 0))
+;
+(defmacro noperm? (stat)
+  `(= (last ,stat) 0))
+(defmacro read? (mask)
+  `(/= (logand ,mask 4) 0))
+(defmacro write? (mask)
+  `(/= (logand ,mask 2) 0))
+(defmacro exec? (mask)
+  `(/= (logand ,mask 1) 0))
+
+; String utilities
+
+; " nnn sz "
+(defun fsize-str (size)
+  ; (fsize-str size) -> string
+  ; Converts a file size to simple 3 dig with suffix
+  (defq
+    sizes-in (list "   " " KB" " MB" " GB")
+    fsize 1000
+    bsize 0)
+  (while (> size fsize)
+    (setq
+      fsize 1024
+      size (/ size fsize)
+      bsize (inc bsize)))
+  (str " " (pad size 3 " ") (elem bsize sizes-in)))
+
+(defun mode-str (stat)
+  ; (mode-str stat) -> string
+  ; Converts the file/directory stat to permissions string
+  (defq
+    fstr (list (if (isdir? stat) "d" "-"))
+    plst (list (owner-mask stat) (group-mask stat) (other-mask stat)))
+  (each (lambda (_msk)
+    (push fstr
+      (if (read? _msk) "r" "-")
+      (if (write? _msk) "w" "-")
+      (if (exec? _msk) "x" "-"))
+    ) plst)
+  (join fstr ""))
 
 ; Easy/default filters
 (defq
     _pn-name-only    first
-    _pn-all-filter   (#(t))
-    _pn-file-filter  (#(eql (second %0) "8"))
+    _pn-all-filter   (#(eql %0 %0))
     _pn-dir-filter   (#(eql (second %0) "4"))
     _pn_short-filter (lambda ((_fn _ft))
                             (when (and
                               (not (eql _fn "."))
                               (not (eql _fn ".."))
-                              (not (eql (first _fn) "."))) t)))
+                              (not (eql (first _fn) "."))) t))
+    _pn_nofind-handler (#(reduced (list %0 %1 %2))))
 
+; path-node class
 
 (defclass path-node (name &optional parent) (named-xnode name parent)
   ; file-system path tree
@@ -120,15 +157,6 @@
       filter-fn _pn-dir-filter)
     (. this :all_members name-fn filter-fn))
 
-  (defmethod :file_members (this &optional name-fn filter-fn)
-    ; (. path-node :file_members [name-fn filter-fn])
-    ; HOF
-    ; Returns file type members of path-node [filter-fn]
-    ; then maps results using name function [name-fn]
-    (setd
-      name-fn _pn-name-only
-      filter-fn _pn-file-filter)
-    (. this :all_members name-fn filter-fn))
 
   (defmethod :fqname (this filename)
     ; (. path-node filename) -> string
@@ -298,7 +326,7 @@
         pname pathname
         psplt (_path-tolist pname)
         fpath nil)
-      (when (lst? (defq mres (node-for pname (#(reduced (list %0 %1 %2))))))
+      (when (list? (defq mres (node-for pname _pn_nofind-handler)))
         ; (
         ;   segname - Offending path segment
         ;   pnode - path-node where last valid
