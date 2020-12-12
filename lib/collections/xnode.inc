@@ -16,15 +16,15 @@
   (defmethod :get_parent (this)
     ; (. xnode :get_parent) -> xnode | nil
     ; Retrieves the parent node of this node
-    ; (obj-ref (get :parent this))
-    (get :parent this)
+    (obj-ref (get :parent this))
+    ; (get :parent this)
     )
 
   (defmethod :set_parent (this parent)
     ; (. xnode :set_parent parent) -> xnode
     ; Sets the parent node of this node
-    ; (set this :parent (weak-ref parent))
-    (set this :parent parent)
+    (set this :parent (weak-ref parent))
+    ; (set this :parent parent)
     this)
 
   (defmethod :root_node (this)

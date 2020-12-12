@@ -15,11 +15,12 @@
 (import "lib/pipe/pipe.inc")
 (import "lib/date/date.inc")
 (import "lib/logging/loganchor.inc")
+(import "lib/pathnode/pathnode.inc")
 
 ; Setup logging and timezones
 (defq
   tlog      (log-anchor "tui2")
-  +banner+  "ChrysaLisp Terminal-2 0.8 (experimental)"
+  +banner+  "ChrysaLisp Terminal-2 0.9 (RC-1)"
   tzone     nil)
 
 (import "apps/terminal/tuiutils.lisp")
@@ -111,19 +112,18 @@
   (prtnl "")
   (prtnl " date - Displays current date and time")
   (prtnl "")
-  (prtnl " ls - List directory content. Usage:")
-  (prtnl "    >ls     ; Lists current working directory files")
+  (prtnl " ls - List directory contents or file. Usage:")
+  (prtnl "  Synopsis: ls [-la] [file] [directory] ... ")
+  (prtnl "    >ls     ; Simple listing of current directory")
+  (prtnl "    >ls -l  ; Detailed listing of current directory")
+  (prtnl "    >ls -a  ; Simple listing of all current directory")
   (prtnl "")
   (prtnl " cd - Changes directory. Usage:")
   (prtnl "    >cd newpath ; Change directory to newpath")
   (prtnl "")
-  (prtnl " cp     Copies a file (not implemented)")
-  (prtnl "")
   (prtnl " mkdir - Makes directories. Usage:")
   (prtnl "    >mkdir path ...      ; Fails if intermediate segment of path does not exist")
   (prtnl "    >mkdir -p path ...   ; Creates intermediates segments of path if needed")
-  (prtnl "")
-  (prtnl " mv     Moves a file (not implemented)")
   (prtnl "")
   (prtnl " pwd - Print current directory. Usage:")
   (prtnl "    >cd newpath")
@@ -147,9 +147,8 @@
               "cp"    copy-file         ; Copy files
               "date"  disp-date         ; Prints date/time
               "mkdir" make-directory    ; Make a directory
-              "mv"    move-file
               "ls"    list-files        ; File listing
-              "rm"    del-directory     ; Remove file or folder
+              "rm"    delete-directory  ; Remove file or folder
 
               "-e"    print-session     ; Prints session values
               "-e+"   set-session       ; Add session value
@@ -218,7 +217,9 @@
   (while continue
     (catch
       (progn
-        (setup-pathing)
+        ; Set to working directory
+        (change-dir (gets-enval "PWD"))
+        (log-debug tlog (str "Setting _current_dir to " (. _current_dir :full_path)))
         ; Sets up timezone
         (if (nil? (defq tz (gets-enval "TZ")))
           (exports-keyvals! "TZ" (first (setq tzone (get :local_timezone))))
