@@ -14,9 +14,9 @@
 (def-struct-end)
 
 (def-struct 'stdio_msg_init)
-	(struct 'stdout_id 'id)
-	(struct 'stderr_id 'id)
-	(struct 'ack_id 'id)
+	(struct 'stdout_id 'net_id)
+	(struct 'stderr_id 'net_id)
+	(struct 'ack_id 'net_id)
 	(uint 'stdin_mbox_id)
 	(offset 'args)
 (def-struct-end)

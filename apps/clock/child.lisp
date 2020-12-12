@@ -81,7 +81,7 @@
 			;prevents clipping the label
 		(. display :layout))
 	;while not told to quit
-	(until (mail-poll (array (task-mailbox)))
+	(until (mail-poll (list (task-mailbox)))
 		(when clock
 			(make-analog-time)
 			(view-analog-time)

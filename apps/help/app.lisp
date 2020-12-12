@@ -15,7 +15,7 @@
 			(defq f (elem 0 s))
 			(cond
 				(state (cond
-					((eql f "###") (push k (sym (elem 1 s))) (push v ""))
+					((eql f "###") (push k (sym (cat (elem 1 s) " " (elem 2 s)))) (push v ""))
 					((eql f "```lisp") (setq state nil))))
 				((eql f "```") (setq state t))
 				(t (elem-set -2 v (cat (elem -2 v) _ (ascii-char 10))))))) (file-stream "docs/CLASSES.md"))

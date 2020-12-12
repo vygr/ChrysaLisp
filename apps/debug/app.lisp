@@ -13,7 +13,7 @@
 
 ;single instance only
 (when (= (length (mail-enquire "DEBUG_SERVICE")) 0)
-	(defq select (array (task-mailbox) (mail-alloc-mbox))
+	(defq select (list (task-mailbox) (mail-alloc-mbox))
 		entry (mail-declare "DEBUG_SERVICE" (elem -2 select) "Debug Service 0.4"))
 
 (structure '+debug_msg 0

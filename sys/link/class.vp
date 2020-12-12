@@ -50,7 +50,7 @@
 
 	;send link routing message to neighbor kernel
 	(call 'sys_mail :alloc {kn_msg_ping_size} {msg, data})
-	(assign {lk_node.lk_node_peer_cpu_id << 32} {msg->msg_dest.id_id})
+	(assign {lk_node.lk_node_peer_cpu_id << 32} {msg->msg_dest.net_id_id})
 	(assign {kn_call_route} {data->kn_msg_func})
 	(assign {id => data->kn_msg_ping_origin} {data->kn_msg_ping_via})
 	(assign {0 => data->kn_msg_ping_session} {data->kn_msg_ping_hops})
@@ -62,7 +62,7 @@
 
 	;start in link and send params
 	(call 'sys_mail :alloc {16} {msg, data})
-	(call 'sys_task :start (cat {@} (f-path 'sys_link :in)) {_, msg->msg_dest.id_id, _})
+	(call 'sys_task :start (cat {@} (f-path 'sys_link :in)) {_, msg->msg_dest.net_id_id, _})
 	(assign {&lk_node} {ptr(data + 0)})
 	(assign {mem + rx} {ptr(data + ptr_size)})
 	(call 'sys_mail :send {msg})
@@ -159,7 +159,7 @@
 		;check for received message
 		(loop-while {rx_msg->lk_msg_status = lk_chan_status_busy})
 			;is this msg part of a parcel for this cpu
-			(vpif {rx_msg->lk_msg_stamp.msg_total_length && rx_msg->lk_msg_stamp.msg_dest.id_cpu = id})
+			(vpif {rx_msg->lk_msg_stamp.msg_total_length && rx_msg->lk_msg_stamp.msg_dest.net_id_cpu_id = id})
 				;copy direct from link buffer to parcel !
 				(call 'sys_mail :in {rx_msg})
 			(else)

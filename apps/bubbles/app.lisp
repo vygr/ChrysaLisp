@@ -84,7 +84,7 @@
 
 	;main event loop
 	(defq last_state :u id t)
-	(while id (while (mail-poll (array (task-mailbox))) (cond
+	(while id (while (mail-poll (list (task-mailbox))) (cond
 		((= (setq id (get-long (defq msg (mail-read (task-mailbox))) (const ev_msg_target_id))) +event_close+)
 			;close button
 			(setq id nil))

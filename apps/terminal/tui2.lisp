@@ -226,9 +226,9 @@
         ; Prompt
         (print (prompt))
         ;create child and send args
-        (mail-send
-          (list (task-mailbox))
-          (open-child "apps/terminal/tui_child.lisp" kn_call_open))
+		(mail-send
+			(task-mailbox)
+			(open-child "apps/terminal/tui_child.lisp" kn_call_open))
         (defq cmd nil buffer "")
         (while t
           (defq data t)

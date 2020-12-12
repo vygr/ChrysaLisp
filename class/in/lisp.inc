@@ -1,11 +1,13 @@
+(import "sys/lisp.inc")
+
 ;lisp bindings
 (ffi in-stream "class/in/lisp_create" 0)
 (ffi in-next-msg "class/in/lisp_next_msg" 0)
 
 (defun in-mbox (in)
 	; (in-mbox in) -> mbox
-	(+ (logand (task-mailbox) (const (lognot 0xffffffff)))
-		(get-field in (const in_mbox_id) (const (neg int_size)))))
+	(net-id-str (+ (logand (get-long (task-mailbox) 0) (const (lognot 0xffffffff)))
+		(get-field in (const in_mbox_id) (const (neg int_size))))))
 
 (defun in-get-state (in)
 	; (in-get-state in) -> num

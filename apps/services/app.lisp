@@ -52,7 +52,7 @@
 	(. mywindow :change_dirty x y w h))
 
 (defun main ()
-	(defq id t select (array (task-mailbox)) services (list)
+	(defq id t select (list (task-mailbox)) services (list)
 		service_labels (list) mbox_labels (list) info_labels (list))
 	(populate)
 	;add window

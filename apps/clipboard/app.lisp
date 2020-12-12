@@ -9,7 +9,7 @@
 	(byte 'deliver+ 'paste+))
 
 (defun main ()
-	(defq id t select (array (task-mailbox) (mail-alloc-mbox)) clipboard (list) +req_get+ 0 +req_put+ 1)
+	(defq id t select (list (task-mailbox) (mail-alloc-mbox)) clipboard (list) +req_get+ 0 +req_put+ 1)
 	;Start a new clipboard service, only if one isn't currently running.
 	(defq clip_service (mail-declare "CLIPBOARD_SERVICE" (elem 1 select) "Clipboard Service 0.1"))
 	(while id

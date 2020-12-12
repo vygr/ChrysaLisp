@@ -8,13 +8,16 @@
 (structure '+event 0
 	(byte 'close+))
 
+(defun child-msg (mbox &rest _)
+	(cat mbox (apply cat (map (# (char %0 (const long_size))) _))))
+
 (defq canvas_width 800 canvas_height 800 canvas_scale 1 then (pii-time)
 	area (* canvas_width canvas_height canvas_scale canvas_scale) devices (mail-devices)
 	farm (open-farm "apps/raymarch/child.lisp"
 		(min (* 2 (length devices)) (* canvas_height canvas_scale)) kn_call_child devices)
-	select (array (task-mailbox) (mail-alloc-mbox))
-	jobs (map (lambda (y)
-		(array (elem -2 select) 0 y (* canvas_width canvas_scale) (inc y)
+	select (list (task-mailbox) (mail-alloc-mbox))
+	jobs (map (lambda (y) (child-msg (elem -2 select)
+			0 y (* canvas_width canvas_scale) (inc y)
 			(* canvas_width canvas_scale) (* canvas_height canvas_scale)))
 		(range (dec (* canvas_height canvas_scale)) -1)))
 
@@ -56,7 +59,7 @@
 						nil)
 					(t (. mywindow :event msg))))
 			(t	;child tile msg
-				(if (defq child (get-long msg (- (length msg) (const long_size))) next_job (pop jobs))
+				(if (defq child (slice (dec (neg net_id_size)) -1 msg) next_job (pop jobs))
 					;next job
 					(mail-send next_job child))
 				(setq area (- area (tile canvas msg)))

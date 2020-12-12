@@ -12,7 +12,7 @@
 
 ;create child and send args etc
 (defq squares (list) next_char (ascii-code " ")
-	data_in (in-stream) select (array (task-mailbox) (in-mbox data_in))
+	data_in (in-stream) select (list (task-mailbox) (in-mbox data_in))
 	vdu_width 38 vdu_height 12 text_buf (list ""))
 
 (ui-window mywindow (:color +argb_black+)
@@ -45,7 +45,7 @@
 	(. vdu :load buf 0 0 (length (elem -2 buf)) (dec (length buf))) buf)
 
 (defun main ()
-	(mail-send (array (in-mbox data_in) 20000000)
+	(mail-send (cat (in-mbox data_in) "20000000")
 		(defq child_mbox (open-child "apps/chess/child.lisp" kn_call_child)))
 	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
 	(gui-add (. mywindow :change x y w h))

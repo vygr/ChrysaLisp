@@ -1350,7 +1350,7 @@
 
 ## mail-free-mbox
 
-(mail-free-mbox id)
+(mail-free-mbox mbox)
 
 ## mail-poll
 
@@ -1419,6 +1419,14 @@
 ## nempty?
 
 (nempty? form) -> bool
+
+## net-id-str
+
+(net-id-str mbox) -> str
+
+## net_id
+
+(net_id field ...)
 
 ## nil?
 
@@ -1522,19 +1530,19 @@
 
 ## open-child
 
-(open-child task mode)
+(open-child task mode) -> str
 
 ## open-farm
 
-(open-farm task num mode [devices])
+(open-farm task num mode [devices]) -> (list str ...)
 
 ## open-pipe
 
-(open-pipe tasks)
+(open-pipe tasks) -> (list str ...)
 
 ## open-remote
 
-(open-remote task node mode)
+(open-remote task node mode) -> str
 
 ## opt
 

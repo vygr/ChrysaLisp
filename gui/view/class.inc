@@ -52,7 +52,7 @@
 	(offset 'start)
 	(struct 'node 'ln_node)
 	(struct 'list 'lh_list)
-	(struct 'owner_id 'id)
+	(struct 'owner_id 'net_id)
 	(ptr 'dirty_region 'opaque_region 'ctx_node 'target_ids)
 	(long 'id)
 	(uint 'flags)

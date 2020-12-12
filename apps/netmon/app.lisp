@@ -13,8 +13,8 @@
 
 (defq task_bars (list) memory_bars (list) task_scale (list) memory_scale (list)
 	devices (mail-devices) cpu_count (length devices)
-	max_tasks 1 max_memory 1 last_max_tasks 0 last_max_memory 0 select (array (task-mailbox) (mail-alloc-mbox))
-	farm (open-farm "apps/netmon/child" cpu_count kn_call_open devices) sample_msg (array (elem -2 select)))
+	max_tasks 1 max_memory 1 last_max_tasks 0 last_max_memory 0 select (list (task-mailbox) (mail-alloc-mbox))
+	farm (open-farm "apps/netmon/child" cpu_count kn_call_open devices) sample_msg (elem -2 select))
 
 (ui-window mywindow ()
 	(ui-title-bar _ "Network Monitor" (0xea19 0xea1b 0xea1a) +event_close+)
@@ -94,4 +94,4 @@
 	(. mywindow :hide)
 	(mail-free-mbox (pop select))
 	(while (defq mbox (pop farm))
-		(mail-send (const (char +event_close+ long_size)) mbox)))
+		(mail-send "" mbox)))

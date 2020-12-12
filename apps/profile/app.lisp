@@ -13,11 +13,11 @@
 
 ;single instance only
 (when (= (length (mail-enquire "PROFILE_SERVICE")) 0)
-	(defq select (array (task-mailbox) (mail-alloc-mbox))
+	(defq select (list (task-mailbox) (mail-alloc-mbox))
 		entry (mail-declare "PROFILE_SERVICE" (elem -2 select) "Profile Service 0.1"))
 
 (structure '+profile_msg 0
-	(long 'tcb+)
+	(netid 'tcb+)
 	(offset 'data+))
 
 (structure '+profile_rec 0
@@ -66,9 +66,9 @@
 	(while id
 		(defq idx (mail-select select) msg (mail-read (elem idx select)))
 		(cond
-			;new debug msg
+			;new profile msg
 			((/= idx 0)
-				(defq tcb (get-long msg +profile_msg_tcb+)
+				(defq tcb (slice +profile_msg_tcb+ +profile_msg_data+ msg)
 					data (slice +profile_msg_data+ -1 msg)
 					key (sym (str tcb))
 					index (find-rev key buf_keys))

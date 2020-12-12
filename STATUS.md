@@ -9,6 +9,10 @@ reflecting the entire class inheritance of the object.
 
 Faster more memory efficient version of the the Lisp class/method system.
 
+Change all mbox structures at the Lisp interface to be net_id_size strings !
+This is the first stage of changing all network node id's to be multi-byte
+identifiers.
+
 ------
 
 New `lib/clenv/clenv.inc` library for accessing `.hostenv` variable assignments.

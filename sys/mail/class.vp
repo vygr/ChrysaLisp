@@ -346,10 +346,10 @@
 
 	;on or off chip ?
 	(call 'sys_kernel :id '() '(r0))
-	(vp-cpy-ir-ui r4 (+ msg_dest id_cpu) r1)
+	(vp-cpy-ir-ui r4 (+ msg_dest net_id_cpu_id) r1)
 	(vpif '(r0 = r1))
 		;on this chip
-		(call 'sys_mail :validate `((r4 ,(+ msg_dest id_mbox))) '(r1))
+		(call 'sys_mail :validate `((r4 ,(+ msg_dest net_id_mbox_id))) '(r1))
 		(vpif '(r1 = 0))
 			;must use postman task for junk mail
 			(f-bind 'sys_mail :statics r1)
@@ -385,11 +385,11 @@
 
 (def-method 'sys_mail :poll)
 	;inputs
-	;r0 = mailbox id array object (ptr)
+	;r0 = mailbox list object (ptr)
 	;outputs
 	;r0 = -1, else mailbox index (uint)
-	;r4 = mailbox id array begin iter (pptr)
-	;r5 = mailbox id array end iter (pptr)
+	;r4 = mailbox list begin iter (pptr)
+	;r5 = mailbox list end iter (pptr)
 	;trashes
 	;r0-r6
 
@@ -402,7 +402,8 @@
 	(vp-cpy-rr iter iter_begin)
 	(loop-start)
 		(switch)
-		(assign `((,iter id_mbox)) `(,idx))
+		(assign `((,iter 0)) `(,idx))
+		(assign `((,idx ,(+ str_data net_id_mbox_id) ui)) `(,idx))
 		(breakif (list idx '= 0))
 		(call 'sys_mail :validate `(,idx) `(,idx))
 		(breakif (list idx '= 0))
@@ -460,7 +461,8 @@
 	(assign `(,iter_begin) `(,iter))
 	(loop-start)
 		(switch)
-		(assign `((,iter id_mbox)) `(,idx))
+		(assign `((,iter 0)) `(,idx))
+		(assign `((,idx ,(+ str_data net_id_mbox_id) ui)) `(,idx))
 		(breakif (list idx '= 0))
 		(call 'sys_mail :validate `(,idx) `(,idx))
 		(breakif (list idx '= 0))
@@ -475,7 +477,7 @@
 (def-method 'sys_mail :service)
 	;inputs
 	;r0 = service name str object (ptr)
-	;r1 = mailbox id num object (ptr)
+	;r1 = mailbox id str object (ptr)
 	;r2 = service info str object (ptr)
 	;outputs
 	;r0 = service entry str object (ptr)
@@ -492,7 +494,7 @@
 	(call 'obj :ref {info})
 	(call 'list :create nil {cat})
 	(call 'list :push_back {cat, name})
-	(call 'str :create_from_long {id->num_value, -16} {tmp2})
+	(call 'str :create_from_long {long(&id->str_data), -16} {tmp2})
 	(call 'str :create_from_buffer {",0x0000000000000000", 19 - tmp2->str_length} {tmp1})
 	(call 'list :push_back2 {cat, tmp1, tmp2})
 	(call 'str :create_from_buffer {",", 1} {tmp1})
@@ -509,7 +511,7 @@
 (def-method 'sys_mail :declare)
 	;inputs
 	;r0 = service name str object (ptr)
-	;r1 = mailbox id num object (ptr)
+	;r1 = mailbox id str object (ptr)
 	;r2 = service info str object (ptr)
 	;outputs
 	;r0 = service key str object (ptr)
@@ -523,7 +525,7 @@
 	(entry 'sys_mail :declare {name, id, info})
 
 	;insert into service map
-	(call 'num :create {id->num_value >> 32} {key})
+	(call 'num :create {long(&id->str_data) >> 32} {key})
 	(call 'hmap :find (cat {@} (f-path 'sys_mail :statics) {.ml_statics_service_map, key}) {_, tuple, bucket})
 	(vpifnot {tuple})
 		(call 'list :create nil {tuple})
@@ -655,11 +657,11 @@
 		(call 'hset :for_each {set, $callback, &cat})
 		(call 'str :cat {cat.cat_lf, cat.cat_entries} {services})
 		(call 'sys_mail :alloc {kn_msg_ping_services + services->str_length} {msg, data})
-		(assign {key->num_value << 32} {msg->msg_dest.id_id})
+		(assign {key->num_value << 32} {msg->msg_dest.net_id_id})
 		(assign {kn_call_ping} {data->kn_msg_func})
-		(assign {msg->msg_dest.id_cpu} {data->kn_msg_ping_origin})
+		(assign {msg->msg_dest.net_id_cpu_id} {data->kn_msg_ping_origin})
 		(assign {0} {data->kn_msg_ping_hops})
-		(assign {msg->msg_dest.id_cpu} {data->kn_msg_ping_via})
+		(assign {msg->msg_dest.net_id_cpu_id} {data->kn_msg_ping_via})
 		(assign {(mail_statics->ml_statics_session + 1) => mail_statics->ml_statics_session} {data->kn_msg_ping_session})
 		(call 'sys_mem :copy {&services->str_data, &data->kn_msg_ping_services, services->str_length})
 		(call 'sys_mail :send {msg})
@@ -727,7 +729,7 @@
 
 	(f-bind 'sys_mail :statics next)
 	(loop-list-forward next ml_statics_offchip_list node next 'exit)
-		(vp-cpy-ir-ui node (+ msg_dest id_cpu) via)
+		(vp-cpy-ir-ui node (+ msg_dest net_id_cpu_id) via)
 		(breakif (list peer '= via))
 		(vp-cpy-ri via key num_value)
 		(f-bind 'sys_mail :statics tuple)

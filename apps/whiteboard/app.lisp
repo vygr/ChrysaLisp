@@ -12,7 +12,7 @@
 	palette (cat palette (map trans palette)) undo_stack (list) redo_stack (list)
 	stroke_col (elem 0 palette) stroke_mode +event_pen+ commited_polygons (list) overlay_paths (list)
 	radius_buttons (list) style_buttons (list) ink_buttons (list) mode_buttons (list)
-	picker_mbox nil picker_mode nil select (array (task-mailbox) (mail-alloc-mbox)))
+	picker_mbox nil picker_mode nil select (list (task-mailbox) (mail-alloc-mbox)))
 
 (ui-window mywindow ()
 	(ui-title-bar _ "Whiteboard" (0xea19 0xea1b 0xea1a) +event_close+)

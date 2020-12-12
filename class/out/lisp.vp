@@ -1,6 +1,6 @@
 (include "sys/func.inc")
 (include "class/out/class.inc")
-(include "class/num/class.inc")
+(include "class/str/class.inc")
 (include "class/lisp/class.inc")
 
 (def-method 'out :lisp_create)
@@ -21,7 +21,8 @@
 
 	(vp-push r0)
 	(defq in (method-input 'out :create))
-	(list-bind-args r1 in '(:num))
+	(list-bind-args r1 in '(:obj))
+	(vp-cpy-ir (elem 0 in) str_data (elem 0 in))
 	(call 'out :create in '(r1))
 	(vp-pop r0)
 
@@ -31,6 +32,6 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp :repl_error '(r0 "(out-stream mbox)" error_msg_wrong_types r1))
-	(signature '(num)))
+	(signature '(str)))
 
 (def-func-end)

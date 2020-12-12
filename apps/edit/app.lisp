@@ -7,7 +7,6 @@
 (import "lib/text/syntax.inc")
 (import "apps/edit/find.inc")
 
-
 ;alt,ctl,cmd, and shift key codes.
 (defq left_shift 0x400000E1 left_ctrl_key 0x400000E0 left_alt_key 0x400000E2 left_cmd_key 0x400000E3
 	right_shift 0x400000E5 right_alt_key 0x400000E6  right_cmd_key 0x400000E7)
@@ -22,6 +21,7 @@
 
 (structure '+mbox 0
 	(byte 'task+ 'file+ 'dialog+ 'clip+))
+
 ;text structure
 (structure '+text 0
 	(byte 'index+ 'fpath+ 'title+ 'buffer+ 'position+))
@@ -31,8 +31,8 @@
 
 ;select is a an array using the +mbox structure: task+ file+ modal+
 (defq vdu_min_width 40 vdu_min_height 24 vdu_width 60 vdu_height 40 text_store (list) tmp_num 0
-	current_text (list) home_dir (cat "apps/login/" *env_user* "/") picker_mbox nil  picker_mode nil 
-	mbox_array (array (task-mailbox) (mail-alloc-mbox) (mail-alloc-mbox) (mail-alloc-mbox)) 
+	current_text (list) home_dir (cat "apps/login/" *env_user* "/") picker_mbox nil  picker_mode nil
+	mbox_list (list (task-mailbox) (mail-alloc-mbox) (mail-alloc-mbox) (mail-alloc-mbox))
 	find_list (list) find_index 0 tabbar (Flow) unsaved_buffers (list)  burger_open nil
 	status_bar_msg "" tb_font (create-font "fonts/Entypo.ctf" 20) cmd_return ""
 	cmd_menu_up nil syn (Syntax) colorise t dirty_vdu t display_buffer (list))
@@ -300,15 +300,13 @@
 
 (defun on-save-file ()
 	(if picker_mbox (mail-send "" picker_mbox))
-	(mail-send (list (elem +mbox_file+ mbox_array) "Save Buffer..." "."  "")
-			(setq picker_mode t picker_mbox 
-					(open-child "apps/files/child.lisp" kn_call_open))))
+	(mail-send (list (elem +mbox_file+ mbox_list) "Save Buffer..." "."  "")
+			(setq picker_mode t picker_mbox (open-child "apps/files/child.lisp" kn_call_open))))
 
 (defun on-open-file ()
 	(if picker_mbox (mail-send "" picker_mbox))
-	(mail-send (list (elem +mbox_file+ mbox_array) "Load Buffer..." "." "")
-				(setq picker_mode nil picker_mbox 
-					(open-child "apps/files/child.lisp" kn_call_open))))
+	(mail-send (list (elem +mbox_file+ mbox_list) "Load Buffer..." "." "")
+				(setq picker_mode nil picker_mbox (open-child "apps/files/child.lisp" kn_call_open))))
 
 (defun main ()
 	(defq id t find_textfield nil mouse_down nil selection (list) 
@@ -317,14 +315,14 @@
 	(if (empty? *env_edit_auto*) (new-buffer)
 		(each (#(open-buffer %0)) *env_edit_auto*))
 	(setq current_text (elem 0 text_store))
-	(defq clipboard_mbox (str-to-num (second (split 
-			(first (mail-enquire "CLIPBOARD_SERVICE")) ","))))
+	(defq clipboard_mbox (net-id-str (str-to-num (second (split 
+			(first (mail-enquire "CLIPBOARD_SERVICE")) ",")))))
 	(bind '(w h) (.-> window (:connect +event_layout+) :pref_size))
 	(bind '(x y w h) (view-locate w h))
 	(gui-add (. window :change x y w h))
 	(window-layout vdu_width vdu_height)
 	(while id
-		(defq msg (mail-read (elem (defq idx (mail-select mbox_array)) mbox_array)))
+		(defq msg (mail-read (elem (defq idx (mail-select mbox_list)) mbox_list)))
 		(cond
 		((= idx +mbox_file+)
 			(mail-send "" picker_mbox)
@@ -370,7 +368,7 @@
 			(set-cursor cx cy)
 			(set-buffer buffer) (vdu-colorise))
 		((= id +event_paste+)
-			(mail-send (list "GET" (elem +mbox_clip+ mbox_array)) clipboard_mbox))
+			(mail-send (list "GET" (elem +mbox_clip+ mbox_list)) clipboard_mbox))
 		((= id +event_colorise+) (if colorise (setq colorise nil) (setq colorise t)) 
 			(window-layout vdu_width vdu_height))
 		((= id +event_prev+)
@@ -397,9 +395,9 @@
 			(bind '(wx wy ww wh) (apply view-locate (. window :pref_size)))
 			;pos is the rightmost, uppermost position of the menu.
 			(defq pos (list (+ x w) y))
-			(mail-send (list (elem +mbox_task+ mbox_array) cmd_list pos :top_right)
+			(mail-send (list (elem +mbox_task+ mbox_list) cmd_list pos :top_right)
 					(defq menu_mbox (open-child "apps/edit/menu.lisp" kn_call_open)))
-			(defq reply (mail-read (elem +mbox_task+ mbox_array)))
+			(defq reply (mail-read (elem +mbox_task+ mbox_list)))
 			(mail-send "" menu_mbox)
 			(select-action (cat "(" reply ")")))
 		((= id (. vdu :get_id))

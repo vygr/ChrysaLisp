@@ -55,11 +55,11 @@
 	(gotoif '(r2 /= 0) 'error))
 
 	(vp-push r0)
-	(call 'sys_task :mailbox nil '(r0))
-	(call 'num :create '(r0) '(r1))
+	(call 'str :create_from_buffer '(0 net_id_size) '(r2))
+	(call 'sys_task :mailbox nil '((r2 str_data)))
 	(vp-pop r0)
 
-	(exit 'sys_task :lisp_mailbox '(r0 r1))
+	(exit 'sys_task :lisp_mailbox '(r0 r2))
 	(vp-ret)
 
 (errorcases

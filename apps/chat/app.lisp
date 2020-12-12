@@ -35,10 +35,10 @@
 
 (defun broadcast (text)
 	(setq text (cat "<" (get :text chat_user) "> " text (ascii-char 10)))
-	(each (# (mail-send text (str-to-num (elem 1 (split %0 ","))))) (mail-enquire "CHAT_SERVICE")))
+	(each (# (mail-send text (net-id-str (str-to-num (elem 1 (split %0 ",")))))) (mail-enquire "CHAT_SERVICE")))
 
 (defun main ()
-	(defq id t text_buf (list "") select (array (task-mailbox)) entry nil)
+	(defq id t text_buf (list "") select (list (task-mailbox)) entry nil)
 	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
 	(gui-add (. mywindow :change x y w h))
 	(while id

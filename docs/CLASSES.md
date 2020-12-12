@@ -7177,11 +7177,11 @@ r0-r2
 
 ```lisp
 inputs
-r0 = mailbox id array object (ptr)
+r0 = mailbox list object (ptr)
 outputs
 r0 = -1, else mailbox index (uint)
-r4 = mailbox id array begin iter (pptr)
-r5 = mailbox id array end iter (pptr)
+r4 = mailbox list begin iter (pptr)
+r5 = mailbox list end iter (pptr)
 trashes
 r0-r6
 ```
@@ -7212,7 +7212,7 @@ r0-r2
 ```lisp
 inputs
 r0 = service name str object (ptr)
-r1 = mailbox id num object (ptr)
+r1 = mailbox id str object (ptr)
 r2 = service info str object (ptr)
 outputs
 r0 = service entry str object (ptr)
@@ -7234,7 +7234,7 @@ ping services out to network
 ```lisp
 inputs
 r0 = service name str object (ptr)
-r1 = mailbox id num object (ptr)
+r1 = mailbox id str object (ptr)
 r2 = service info str object (ptr)
 outputs
 r0 = service key str object (ptr)
@@ -8256,7 +8256,7 @@ r0
 outputs
 r0 = current task mailbox id (id)
 trashes
-r0
+r0-r1
 ```
 
 ### sys_task :callback -> sys/task/callback

@@ -37,7 +37,7 @@
 	(while id
 		(task-sleep 40000)
 		(.-> canvas :next_frame :swap)
-		(while (mail-poll (array (task-mailbox)))
+		(while (mail-poll (list (task-mailbox)))
 			(cond
 				((= (setq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) +event_close+)
 					(setq id nil))

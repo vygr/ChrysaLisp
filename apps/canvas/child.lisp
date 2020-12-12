@@ -101,7 +101,7 @@
 
 (defun main ()
 	;until quit
-	(until (mail-poll (array (task-mailbox)))
+	(until (mail-poll (list (task-mailbox)))
 		(redraw)
 		(task-sleep 10000)
 		(setq angle (+ angle 0.0025))))

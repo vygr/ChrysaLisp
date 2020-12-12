@@ -114,11 +114,11 @@
 			(bind '(r g b) (scene-ray ray_origin ray_dir))
 			(write-int reply (+ +argb_black+ (>> b 8) (logand g 0xff00) (<< (logand r 0xff00) 8)))
 		(task-sleep 0)))
-	(write-long reply (task-mailbox))
+	(write reply (task-mailbox))
 	(mail-send (str reply) mbox))
 
 (defun main ()
 	;read work request or exit
-	(while (/= 0 (length (defq msg (mail-read (task-mailbox)))))
-		(setq msg (string-stream msg))
-		(apply rect (map (lambda (_) (read-long msg)) (range 0 7)))))
+	(until (eql "" (defq msg (mail-read (task-mailbox))))
+		(defq mbox (slice 0 net_id_size msg) msg (slice net_id_size -1 msg))
+		(apply rect (cat (list mbox) (map (lambda (_) (get-long msg (* _ long_size))) (range 0 6))))))

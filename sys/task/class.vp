@@ -56,9 +56,9 @@
 
 	;fill in destination, reply and function
 	(call 'sys_kernel :id nil {id})
-	(assign {0} {msg->msg_dest.id_mbox})
-	(assign {id => msg->msg_dest.id_cpu} {data->kn_msg_reply_id.id_cpu})
-	(assign {mbox_id} {data->kn_msg_reply_id.id_mbox})
+	(assign {0} {msg->msg_dest.net_id_mbox_id})
+	(assign {id => msg->msg_dest.net_id_cpu_id} {data->kn_msg_reply_id.net_id_cpu_id})
+	(assign {mbox_id} {data->kn_msg_reply_id.net_id_mbox_id})
 	(assign {kn_call_callback} {data->kn_msg_func})
 	(assign {usr} {data->kn_msg_user})
 	(assign {addr} {data->kn_msg_callback_addr})
@@ -91,7 +91,7 @@
 	;outputs
 	;r0 = current task mailbox id (id)
 	;trashes
-	;r0
+	;r0-r1
 
 	(f-bind 'sys_task :statics r0)
 	(assign '((r0 tk_statics_cpu_id) (r0 tk_statics_current_tcb)) '(r1 r0))
@@ -415,7 +415,7 @@
 
 	(ptr 'name 'msg 'data 'mailbox)
 	(uint 'type 'mbox_id 'len)
-	(struct 'id 'id)
+	(struct 'id 'net_id)
 
 	;save task info
 	(push-scope)
@@ -427,24 +427,24 @@
 	;start task
 	(call 'sys_str :length {name} {_, len})
 	(call 'sys_mail :alloc {len + 1 + kn_msg_open_size} {msg, data})
-	(call 'sys_kernel :id nil {msg->msg_dest.id_cpu})
-	(assign {0} {msg->msg_dest.id_mbox})
-	(assign {msg->msg_dest.id_cpu} {data->kn_msg_reply_id.id_cpu})
-	(assign {mbox_id} {data->kn_msg_reply_id.id_mbox})
+	(call 'sys_kernel :id nil {msg->msg_dest.net_id_cpu_id})
+	(assign {0} {msg->msg_dest.net_id_mbox_id})
+	(assign {msg->msg_dest.net_id_cpu_id} {data->kn_msg_reply_id.net_id_cpu_id})
+	(assign {mbox_id} {data->kn_msg_reply_id.net_id_mbox_id})
 	(assign {type} {data->kn_msg_func})
 	(call 'sys_mem :copy {name, &data->kn_msg_open_pathname, len + 1})
 	(call 'sys_mail :send {msg})
 
 	;wait for reply
 	(call 'sys_mail :read {mailbox} {msg, data})
-	(assign {data->kn_msg_reply_id.id_id} {id.id_id})
+	(assign {data->kn_msg_reply_id.net_id_id} {id.net_id_id})
 	(call 'sys_mail :free {msg})
 
 	;free temp mailbox
 	(call 'sys_mail :free_mbox {mbox_id})
 
 	;return ids array
-	(exit 'sys_task :open_child {id.id_id})
+	(exit 'sys_task :open_child {id.net_id_id})
 	(pop-scope)
 	(return)
 

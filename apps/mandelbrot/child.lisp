@@ -23,20 +23,24 @@
 		(task-sleep 0))
 	(mail-send (str reply) mbox))
 
+(defun child-msg (mbox &rest _)
+	(cat mbox (apply cat (map (# (char %0 (const long_size))) _))))
+
 (defun rect (mbox x y x1 y1 w h cx cy z tot)
 	(cond
 		((> (setq tot (/ tot 4)) 0)
 			;split into more tasks
 			(defq farm (open-farm "apps/mandelbrot/child.lisp" 3 kn_call_child)
 				x2 (/ (+ x x1) 2) y2 (/ (+ y y1) 2))
-			(mail-send (array mbox x y x2 y2 w h cx cy z tot) (elem 0 farm))
-			(mail-send (array mbox x2 y x1 y2 w h cx cy z tot) (elem 1 farm))
-			(mail-send (array mbox x y2 x2 y1 w h cx cy z tot) (elem 2 farm))
+			(mail-send (child-msg mbox x y x2 y2 w h cx cy z tot) (elem 0 farm))
+			(mail-send (child-msg mbox x2 y x1 y2 w h cx cy z tot) (elem 1 farm))
+			(mail-send (child-msg mbox x y2 x2 y1 w h cx cy z tot) (elem 2 farm))
 			(rect mbox x2 y2 x1 y1 w h cx cy z tot))
 		(t	;do here
 			(mandel x y x1 y1 w h cx cy z))))
 
 (defun main ()
 	;read work request
-	(defq msg (string-stream (mail-read (task-mailbox))))
-	(apply rect (map (lambda (_) (read-long msg)) (range 0 11))))
+	(defq msg (mail-read (task-mailbox)))
+	(defq mbox (slice 0 net_id_size msg) msg (slice net_id_size -1 msg))
+	(apply rect (cat (list mbox) (map (lambda (_) (get-long msg (* _ long_size))) (range 0 10)))))

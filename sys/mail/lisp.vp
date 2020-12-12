@@ -23,7 +23,8 @@
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
-	(list-bind-args r1 '(r0) '(:num))
+	(list-bind-args r1 '(r0) '(:obj))
+	(vp-cpy-ir r0 str_data r0)
 	(call 'sys_mail :validate '(r0) '(r0))
 	(vpif '(r0 /= 0))
 		(call 'sys_mail :read '(r0) '(r0 _))
@@ -41,7 +42,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp :repl_error '(r0 "(mail-read mbox)" error_msg_wrong_types r1))
-	(signature '(num)))
+	(signature '(str)))
 
 (def-func-end)
 
@@ -62,7 +63,7 @@
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
-	(list-bind-args r1 '(r0) '(:array))
+	(list-bind-args r1 '(r0) '(:list))
 	(call 'sys_mail :poll '(r0) '(r0 _ _))
 	(vpif '(r0 /= -1))
 		(call 'num :create '(r0) '(r1))
@@ -79,7 +80,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp :repl_error '(r0 "(mail-poll mboxs)" error_msg_wrong_types r1))
-	(signature '(array)))
+	(signature '(list)))
 
 (def-func-end)
 
@@ -100,7 +101,7 @@
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
-	(list-bind-args r1 '(r0) '(:array))
+	(list-bind-args r1 '(r0) '(:list))
 	(call 'sys_mail :select '(r0) '(r0))
 	(call 'num :create '(r0) '(r1))
 	(vp-pop r0)
@@ -111,7 +112,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp :repl_error '(r0 "(mail-select mboxs)" error_msg_wrong_types r1))
-	(signature '(array)))
+	(signature '(list)))
 
 (def-func-end)
 
@@ -152,7 +153,7 @@
 	(call 'sys_mail :alloc_obj {value, &value->str_data, value->str_length} {arg2})
 	(call 'obj :deref {value})
 (vp-label 'sendit)
-	(assign {arg1} {arg2->msg_dest.id_id})
+	(assign {ptr(&arg1->str_data)} {arg2->msg_dest.net_id_id})
 	(call 'sys_mail :send {arg2})
 	(call 'obj :ref {arg0} {value})
 
@@ -162,7 +163,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp :repl_error {this, "(mail-send obj mbox)", error_msg_wrong_types, args})
-	(signature '(obj num)))
+	(signature '(obj str)))
 
 	(pop-scope-syms)
 
@@ -196,7 +197,7 @@
 (errorcases
 (vp-label 'error)
 	(jump 'lisp :repl_error '(r0 "(mail-declare name mbox info)" error_msg_wrong_types r1))
-	(signature '(str num str)))
+	(signature '(str str str)))
 
 (def-func-end)
 
@@ -284,14 +285,15 @@
 	(gotoif '(r2 /= 0) 'error))
 
 	(vp-push r0)
+	(call 'str :create_from_buffer '(0 net_id_size) '(r6))
 	(call 'sys_mail :alloc_mbox nil '(r1 _))
 	(call 'sys_kernel :id nil '(r0))
 	(vp-shl-cr 32 r0)
 	(vp-add-rr r1 r0)
-	(call 'num :create '(r0) '(r1))
+	(vp-cpy-ri r0 r6 str_data)
 	(vp-pop r0)
 
-	(exit 'sys_mail :lisp_alloc_mbox '(r0 r1))
+	(exit 'sys_mail :lisp_alloc_mbox '(r0 r6))
 	(vp-ret)
 
 (errorcases
@@ -318,7 +320,8 @@
 
 	(vp-push r0)
 	(defq in (method-input 'sys_mail :free_mbox))
-	(list-bind-args r1 in '(:num))
+	(list-bind-args r1 in '(:obj))
+	(vp-cpy-ir (elem 0 in) str_data (elem 0 in))
 	(call 'sys_mail :free_mbox in)
 	(vp-pop r0)
 	(assign '((r0 lisp_sym_nil)) '(r1))
@@ -329,8 +332,8 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(mail-free-mbox id)" error_msg_wrong_types r1))
-	(signature '(num)))
+	(jump 'lisp :repl_error '(r0 "(mail-free-mbox mbox)" error_msg_wrong_types r1))
+	(signature '(str)))
 
 (def-func-end)
 

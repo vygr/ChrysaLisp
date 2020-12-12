@@ -316,7 +316,7 @@
 ;pvs search
 (defun pvs (brd colour alpha beta ply)
 	(cond
-		((mail-poll (array (task-mailbox)))
+		((mail-poll (list (task-mailbox)))
 			(setq quit t)
 			timeout_value)
 		((>= (- (pii-time) start_time) max_time_per_move)
@@ -337,7 +337,7 @@
 ;negamax search
 (defun negamax (brd colour alpha beta ply)
 	(cond
-		((mail-poll (array (task-mailbox)))
+		((mail-poll (list (task-mailbox)))
 			(setq quit t)
 			timeout_value)
 		((>= (- (pii-time) start_time) max_time_per_move)
@@ -386,7 +386,8 @@
 
 (defun main ()
 	;read args from parent
-	(defq msg (mail-read (task-mailbox)) msg_out (out-stream (get-long msg 0)) max_time_per_move (get-long msg long_size)
+	(defq msg (mail-read (task-mailbox)) msg_out (out-stream (slice 0 net_id_size msg))
+		max_time_per_move (str-to-num (slice net_id_size -1 msg))
 		history (list) colour (const white) game_start_time (pii-time) quit nil flicker 100000
 		brd "RNBQKBNRPPPPPPPP                                pppppppprnbqkbnr")
 	(send-data "b" brd)

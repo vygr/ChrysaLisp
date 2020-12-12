@@ -32,7 +32,7 @@
 		(.-> view (:add_back sframe) (:add_front frame)
 			(:change_dirty x y (+ 8 sw) (+ 32 sh)))
 		(setq id (/= 0 (setq i (dec i))))
-		(while (mail-poll (array (task-mailbox)))
+		(while (mail-poll (list (task-mailbox)))
 			(and (< (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id) 0)
 				(= (get-long msg ev_msg_type) ev_type_mouse)
 				(setq id nil)))

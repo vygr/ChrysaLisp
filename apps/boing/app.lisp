@@ -38,7 +38,7 @@
 		(.-> mybackdrop (:add_back sframe) (:add_front frame))
 		(. sframe :dirty)
 		(. frame :dirty)
-		(while (mail-poll (array (task-mailbox)))
+		(while (mail-poll (list (task-mailbox)))
 			(cond
 				((= (setq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) +event_close+)
 					(setq id nil))

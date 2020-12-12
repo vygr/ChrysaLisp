@@ -47,10 +47,14 @@
 ; mail structures
 ;;;;;;;;;;;;;;;;;
 
-(def-struct 'id)
+(def-struct 'node_id)
+	(ulong 'node1 'node2)
+(def-struct-end)
+
+(def-struct 'net_id)
 	(union
-		(ulong 'id)
-		(uint 'mbox 'cpu))
+		(progn (ulong 'id) (struct 'node_id 'node_id))
+		(uint 'mbox_id 'cpu_id))
 (def-struct-end)
 
 (def-struct 'mbox 'ln_node)
@@ -60,9 +64,10 @@
 (def-struct-end)
 
 (def-struct 'msg 'ln_node)
-	(struct 'dest 'id)
+	(struct 'dest 'net_id)
+	(struct 'src 'net_id)
 	(uint 'frag_length 'frag_offset 'total_length)
-	(struct 'src 'id)
+	(local-align)
 	(offset 'stamp_size)
 	(ptr 'obj 'frag_data)
 (def-struct-end)
@@ -79,3 +84,30 @@
 	(struct 'parcel_list 'lh_list)
 	(struct 'mbox_buckets (* num_mbox_buckets lh_list_size))
 (def-struct-end)
+
+(defun if-netnode-eq (id1 id2 t1 t2)
+	(switch)
+	(assign `((,id1 net_id_cpu_id) (,id2 net_id_cpu_id)) `(,t1 ,t2))
+	(breakif (list t1 '/= t2)))
+
+(defun if-netnode-ne (id1 id2 t1 t2)
+	(switch)
+	(assign `((,id1 net_id_cpu_id) (,id2 net_id_cpu_id)) `(,t1 ,t2))
+	(vpcase (list t1 '/= t2)))
+
+;; (defun if-netnode-eq (id1 id2 t1 t2)
+;; 	(switch)
+;; 	(assign `((,id1 net_id_node1) (,id2 net_id_node1)) `(,t1 ,t2))
+;; 	(breakif (list t1 '/= t2))
+;; 	(assign `((,id1 net_id_node2) (,id2 net_id_node2)) `(,t1 ,t2))
+;; 	(breakif (list t1 '/= t2)))
+
+;; (defun if-netnode-ne (id1 id2 t1 t2)
+;; 	(switch)
+;; 	(assign `((,id1 net_id_node1) (,id2 net_id_node1)) `(,t1 ,t2))
+;; 	(vpcase (list t1 '= t2))
+;; 		(assign `((,id1 net_id_node2) (,id2 net_id_node2)) `(,t1 ,t2))
+;; 		(breakif (list t1 '= t2)))
+
+(defun endifnode ()
+	(endswitch))

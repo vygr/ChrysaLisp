@@ -19,7 +19,7 @@
 	(loop-start 'mail_loop)
 		;read parcel or junk mail
 		(call 'sys_mail :mymail nil {msg, data})
-		(vpif {msg->msg_dest.id_cpu = id})
+		(vpif {msg->msg_dest.net_id_cpu_id = id})
 			;we got some junk mail, just free it for now
 			(call 'sys_mail :free {msg})
 			(continue 'mail_loop)
@@ -41,8 +41,8 @@
 			(call 'obj :ref {msg->msg_obj} {frag->msg_obj})
 
 			;fill in fragment
-			(assign {msg->msg_dest.id_id} {frag->msg_dest.id_id})
-			(assign {(id << 32) + mail_statics->ml_statics_session} {frag->msg_src.id_id})
+			(assign {msg->msg_dest.net_id_id} {frag->msg_dest.net_id_id})
+			(assign {(id << 32) + mail_statics->ml_statics_session} {frag->msg_src.net_id_id})
 			(assign {len} {frag->msg_frag_length})
 			(assign {offset} {frag->msg_frag_offset})
 			(assign {msg->msg_frag_length} {frag->msg_total_length})

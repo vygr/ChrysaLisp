@@ -4,5 +4,5 @@
 
 (defun main ()
 	;read args from parent
-	(while (/= 0 (defq mbox (get-long (mail-read (task-mailbox)) 0)))
+	(until (eql "" (defq mbox (mail-read (task-mailbox))))
 		(mail-send (str (mem-stats 0)) mbox)))

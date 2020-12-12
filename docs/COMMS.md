@@ -146,7 +146,7 @@ current tasks main mailbox.
 
 		;sample reply
 		(call 'sys_mail :alloc {sample_reply_size} {reply, rdata})
-		(assign {data->sample_id} {reply->msg_dest.id_id})
+		(assign {data->sample_id} {reply->msg_dest.net_id_id})
 		(call 'sys_kernel :id nil {rdata->sample_reply_cpu})
 		(call 'sys_task :count nil {rdata->sample_reply_task_count})
 		(call 'sys_mem :used nil {rdata->sample_reply_mem_used})

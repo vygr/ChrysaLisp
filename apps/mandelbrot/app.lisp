@@ -16,12 +16,17 @@
 	(ui-title-bar _ "Mandelbrot" (0xea19) +event_close+)
 	(ui-canvas canvas canvas_width canvas_height canvas_scale))
 
+(defun child-msg (mbox &rest _)
+	(cat mbox (apply cat (map (# (char %0 (const long_size))) _))))
+
 (defun reset ()
 	(if select (mail-free-mbox (elem 1 select)))
-	(setq then (pii-time) select (array (task-mailbox) (mail-alloc-mbox))
+	(setq then (pii-time) select (list (task-mailbox) (mail-alloc-mbox))
 		area (* canvas_width canvas_height canvas_scale canvas_scale))
-	(mail-send (array (elem 1 select) 0 0 (* canvas_width canvas_scale) (* canvas_height canvas_scale)
-		(* canvas_width canvas_scale) (* canvas_height canvas_scale) center_x center_y zoom (* (length (mail-devices)) 4))
+	(mail-send (child-msg (elem 1 select) 0 0
+		(* canvas_width canvas_scale) (* canvas_height canvas_scale)
+		(* canvas_width canvas_scale) (* canvas_height canvas_scale)
+		center_x center_y zoom (* (length (mail-devices)) 4))
 		(open-child "apps/mandelbrot/child.lisp" kn_call_child)))
 
 (defun tile (canvas data)

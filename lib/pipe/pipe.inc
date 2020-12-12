@@ -16,26 +16,26 @@
 		(slice 0 -2 (apply cat (map (lambda (_) (cat _ " ")) cmd)))) (split cmds "|")))
 	(cond
 		;error with pipe element ?
-		((some (lambda (_) (= 0 _)) (defq mboxs (open-pipe cmdpipe)))
+		((some (lambda (_) (= 0 (get-long _ 0))) (defq mboxs (open-pipe cmdpipe)))
 			;send abort to any started pipe elements
-			(each (lambda (_) (if (/= 0 _) (mail-send "" _))) mboxs)
+			(each (lambda (_) (if (/= 0 (get-long _ 0)) (mail-send "" _))) mboxs)
 			nil)
 		(t	;wire up pipe and send args
-			(defq select (array) pipe_streams (list))
+			(defq select (list) pipe_streams (list))
 			(each (lambda (_)
 				(push pipe_streams (in-stream))
 				(push select (in-mbox (elem -2 pipe_streams)))) mboxs)
 			(defq stdout (in-stream) stdout_mbox (in-mbox stdout) ack_mbox (mail-alloc-mbox))
 			(each-rev (lambda (mbox arg stderr_mbox)
 				(mail-send (cat
-					(char stdout_mbox (const long_size))
-					(char stderr_mbox (const long_size))
-					(char ack_mbox (const long_size))
+					stdout_mbox
+					stderr_mbox
+					ack_mbox
 					(char 0 (const int_size)) arg) mbox)
-				(setq stdout_mbox (+ (logand mbox 0xffffffff00000000)
-					(get-int (mail-read ack_mbox) (const (* 3 long_size)))))) mboxs args select)
+				(setq stdout_mbox (net-id-str (+ (logand (get-long mbox 0) 0xffffffff00000000)
+					(get-int (mail-read ack_mbox) (const (* 3 net_id_size))))))) mboxs args select)
 			(push pipe_streams stdout (out-stream stdout_mbox))
-			(push select (in-mbox stdout) (if flag 0 (task-mailbox)))
+			(push select (in-mbox stdout) (if flag (net-id-str 0) (task-mailbox)))
 			(mail-free-mbox ack_mbox)
 			(list t select pipe_streams))))
 

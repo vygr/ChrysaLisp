@@ -18,7 +18,7 @@
 
 (def-struct 'kn_msg)
 	(ulong 'user)
-	(struct 'reply_id 'id)
+	(struct 'reply_id 'net_id)
 	(offset 'reply_size)
 	(ulong 'func)
 (def-struct-end)

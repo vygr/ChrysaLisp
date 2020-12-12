@@ -9,7 +9,7 @@
 (defq stat_data (list) stat_scale (list) devices (mail-devices) frame_cnt 0
 	cpu_count (length devices) max_stats 1 last_max_stats 0
 	farm (open-farm "apps/stats/child.lisp" cpu_count kn_call_open devices) last_max_classes 0 max_classes 1
-	select (array (task-mailbox) (mail-alloc-mbox)) sample_msg (array (elem -2 select)))
+	select (list (task-mailbox) (mail-alloc-mbox)) sample_msg (elem -2 select))
 
 (ui-window mywindow ()
 	(ui-title-bar _ "Object Monitor" (0xea19) +event_close+)
@@ -98,4 +98,4 @@
 	(. mywindow :hide)
 	(mail-free-mbox (pop select))
 	(while (defq mbox (pop farm))
-		(mail-send (const (char +event_close+ long_size)) mbox)))
+		(mail-send "" mbox)))
