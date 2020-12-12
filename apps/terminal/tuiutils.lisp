@@ -93,28 +93,51 @@
             (prtnl (str "mkdir " _el ": threw " _)))) paths))
   nil)
 
+(defun _print-long-entry (name stat)
+  ; (_print-long-engry name stat) -> nil
+  ; Prints details about file or directory in name
+  (defq :local_timezone tzone)
+  (bind '(s m h dy mo yr wk) (date (first stat)))
+  (prtnl
+    (str
+      (mode-str stat) " "
+      (fsize-str (second stat)) " "
+      (month-of-the-year mo) " "
+      (pad dy 2 " ") " "
+      (pad h 2 "0") ":" (pad m 2 "0") " "
+      name)))
+
+(defun _print-short-list (node memfilter)
+  ; (_print-short-list node filter) -> nil
+  ; Iterates through short listing of path-node
+  ; printing simple content information
+  (each (lambda (_el)
+    (prtnl _el))
+        (. node :all_members nil memfilter)))
+
+(defun _print-long-list (node memfilter)
+  ; (_print-long-list node filter) -> nil
+  ; Iterates through long listing of path-node
+  ; printing simple content information
+  (each (lambda (_el)
+    (defq fname (. node :fqname _el))
+    (_print-long-entry _el (pii-fstat fname)))
+        (. node :all_members nil memfilter)))
+
 (defun list-files (ic &optional args)
   ; (list-files internal args) -> nil
   ; Lists files in either cwd or other in argument
   ; emulates Linux/Darwin 'ls' command
   ; Flags include
   ; -l List in long format
-  ; -d directories only
-  ; -f files only
   ; -a All, include directory entries whose names begin with a dot (.)
   (bind '(sargs flags paths) (_split-args args))
   (defq
     flgs  (_collapse_flags flags)
-    frmt  _pn-name-only
-    fltr  _pn_short-filter
-    mlst  :all_members)
-  (defq
+    lng?  (gets flgs "l")
+    fltr  (if (gets flgs "a") _pn-all-filter _pn_short-filter)
+    lstfn (if lng? _print-long-list _print-short-list)
     flist (if (nempty? paths) paths (list ".")))
-
-  (defun _print-entry (fqname stat &optional flen)
-    (setd flen nil)
-    (prtnl fqname))
-
   (each
     (lambda (_el)
       (defq
@@ -123,21 +146,27 @@
         plen  (dec (length psplt))
         node  (node-for _el _pn_nofind-handler))
       (cond
+        ; When an error is found in 'node-for'
         ((list? node)
          (bind '(segname pnode plistndx) node)
-         (prtnl (str "stopped at " (. pnode :full_path)))
-         (prtnl (str "stopped by " segname))
-         (prtnl (str "at index " plistndx " out of " plen))
-         (when (= plistndx plen)
-           (defq stat (pii-fstat (. pnode :fqname segname)))
-           (if stat
-            (prtnl (str "Is file? " (isfile? (last stat))))
-            (prtnl "No stat")))
-         (prtnl (str "can't get to " (join (slice plistndx -1 psplt) ""))))
+         ; If it is the final segment of path
+         (if (= plistndx plen)
+           (progn
+             (defq
+              fname (. pnode :fqname segname)
+              stat (pii-fstat fname))
+             ; And is a file
+             (if (and stat (isfile? stat))
+               (if lng?
+                   (_print-long-entry segname stat)
+                   (prtnl segname))
+               (prtnl (str "ls: " segname ": No such file or directory"))))
+           ; Otherwise it is some segment in path error
+           (prtnl (str "ls: " _el ": No such file or directory"))))
+        ; When we find a cohesive path-node
         (t
-          (prtnl (str "found " (. node :full_path)))))
-          ) flist)
-  ; (each prtnl (. _current_dir mlst frmt fltr))
+          (lstfn node fltr))))
+    flist)
   nil)
 
 (defun delete-directory (ic &optional args)

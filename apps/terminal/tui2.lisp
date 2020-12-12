@@ -15,6 +15,7 @@
 (import "lib/pipe/pipe.inc")
 (import "lib/date/date.inc")
 (import "lib/logging/loganchor.inc")
+(import "lib/pathnode/pathnode.inc")
 
 ; Setup logging and timezones
 (defq
@@ -22,7 +23,6 @@
   +banner+  "ChrysaLisp Terminal-2 0.9 (RC-1)"
   tzone     nil)
 
-(import "lib/pathnode/pathnode.inc")
 (import "apps/terminal/tuiutils.lisp")
 
 (defun session-sub (bfr)
@@ -112,8 +112,11 @@
   (prtnl "")
   (prtnl " date - Displays current date and time")
   (prtnl "")
-  (prtnl " ls - List directory or file. Usage:")
-  (prtnl "    >ls     ; Lists current working directory files")
+  (prtnl " ls - List directory contents or file. Usage:")
+  (prtnl "  Synopsis: ls [-la] [file] [directory] ... ")
+  (prtnl "    >ls     ; Simple listing of current directory")
+  (prtnl "    >ls -l  ; Detailed listing of current directory")
+  (prtnl "    >ls -a  ; Simple listing of all current directory")
   (prtnl "")
   (prtnl " cd - Changes directory. Usage:")
   (prtnl "    >cd newpath ; Change directory to newpath")
@@ -216,6 +219,7 @@
       (progn
         ; Set to working directory
         (change-dir (gets-enval "PWD"))
+        (log-debug tlog (str "Setting _current_dir to " (. _current_dir :full_path)))
         ; Sets up timezone
         (if (nil? (defq tz (gets-enval "TZ")))
           (exports-keyvals! "TZ" (first (setq tzone (get :local_timezone))))
