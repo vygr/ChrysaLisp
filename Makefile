@@ -19,7 +19,8 @@ else
 	@echo "HOME=$(HOME)" >> .hostenv
 	@echo "PWD=$(PWD)" >> .hostenv
 endif
-	@echo "HE_VER=1" >> .hostenv
+	@echo "ROOT=$(PWD)" >> .hostenv
+	@echo "HE_VER=2" >> .hostenv
 	@echo "OS=$(OS)" >> .hostenv
 	@echo "CPU=$(CPU)" >> .hostenv
 	@echo "ABI=$(ABI)" >> .hostenv
