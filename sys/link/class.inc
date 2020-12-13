@@ -19,7 +19,8 @@
 (def-enum-end)
 
 (def-struct 'lk_node)
-	(uint 'peer_cpu_id 'task_count)
+	(uint 'task_count)
+	(int 'peer_cpu_id)
 (def-struct-end)
 
 (def-struct 'lk_msg)
@@ -31,12 +32,15 @@
 
 (def-struct 'lk_chan)
 	(uint 'task_count)
+	(int 'peer_cpu_id)
 	(local-align)
 	(struct 'msg0 'lk_msg)
 	(struct 'msgs (* (/ (- (/ lk_page_size 2) *struct_sp*) lk_msg_size) lk_msg_size))
 (def-struct-end)
 
 (def-struct 'lk_buffer)
+	(int 'towel)
+	(local-align)
 	(struct 'chan_1 'lk_chan)
 	(struct 'chan_2 'lk_chan)
 (def-struct-end)

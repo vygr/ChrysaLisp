@@ -8,10 +8,10 @@
 	;started by kernel for each link
 
 	(struct 'lk_node 'lk_node)
-	(ptr 'task_statics 'params 'msg 'data 'tx 'rx 'mem 'tx_msg 'key)
+	(ptr 'task_statics 'params 'msg 'data 'mem 'tx 'tx_msg 'key)
 	(pubyte 'pdata)
 	(long 'handle)
-	(uint 'lo_id 'hi_id 'id)
+	(uint 'id)
 
 	(push-scope)
 
@@ -20,27 +20,14 @@
 	(assign (cat {@} (f-path 'sys_task :statics)) {task_statics})
 	(assign {task_statics->tk_statics_task_count - 2} {task_statics->tk_statics_task_count})
 
-	;add link node to link array
+	;int and add link node to link array
+	(call 'sys_kernel :id nil {id})
+	(assign {-1, 0} {lk_node.lk_node_peer_cpu_id, lk_node.lk_node_task_count})
 	(call 'array :push_back (cat {@} (f-path 'sys_mail :statics) {.ml_statics_links_array, &lk_node}))
 	(call 'num :create '(0) {key})
 
 	;read params msg from kernel
 	(call 'sys_mail :mymail nil {params, pdata})
-
-	;init link node cpu id and task count
-	(assign {((pdata[0] - 0x30) * 100) + ((pdata[1] - 0x30) * 10) + (pdata[2] - 0x30)} {lo_id})
-	(assign {((pdata[4] - 0x30) * 100) + ((pdata[5] - 0x30) * 10) + (pdata[6] - 0x30)} {hi_id})
-	(call 'sys_kernel :id nil {id})
-	(vpif {id = lo_id})
-		(assign {hi_id} {lk_node.lk_node_peer_cpu_id})
-		(assign {lk_buffer_chan_1} {tx})
-		(assign {lk_buffer_chan_2} {rx})
-	(else)
-		(assign {lo_id} {lk_node.lk_node_peer_cpu_id})
-		(assign {lk_buffer_chan_2} {tx})
-		(assign {lk_buffer_chan_1} {rx})
-	(endif)
-	(assign {0} {lk_node.lk_node_task_count})
 
 	;open shared memory file
 	(call 'sys_pii :open_shared {pdata, lk_buffer_size} {handle})
@@ -48,34 +35,36 @@
 	;map shared object
 	(call 'sys_pii :mmap {lk_buffer_size, handle, mmap_shared} {mem})
 
-	;send link routing message to neighbor kernel
-	(call 'sys_mail :alloc {kn_msg_ping_size} {msg, data})
-	(assign {lk_node.lk_node_peer_cpu_id << 32} {msg->msg_dest.net_id_id})
-	(assign {kn_call_route} {data->kn_msg_func})
-	(assign {id => data->kn_msg_ping_origin} {data->kn_msg_ping_via})
-	(assign {0 => data->kn_msg_ping_session} {data->kn_msg_ping_hops})
-	(call 'sys_mail :send {msg})
-
-	;tx channel, tx msg
-	(assign {mem + tx} {tx})
-	(assign {&tx->lk_chan_msg0} {tx_msg})
+	;put towel down if seams available
+	(vpifnot {mem->lk_buffer_towel})
+		(assign {id} {mem->lk_buffer_towel})
+	(endif)
 
 	;start in link and send params
 	(call 'sys_mail :alloc {16} {msg, data})
 	(call 'sys_task :start (cat {@} (f-path 'sys_link :in)) {_, msg->msg_dest.net_id_id, _})
 	(assign {&lk_node} {ptr(data + 0)})
-	(assign {mem + rx} {ptr(data + ptr_size)})
+	(assign {mem} {ptr(data + ptr_size)})
 	(call 'sys_mail :send {msg})
 
 	;switch to link priority and sleep to
 	;let other links join us at this priority
 	(call 'sys_task :set_priority '(1))
-	(call 'sys_task :sleep '(10000))
+	(call 'sys_task :sleep '(100000))
+
+	;assign tx channel based on the towel I now see
+	(vpif {id = mem->lk_buffer_towel})
+		(assign {mem + lk_buffer_chan_1} {tx})
+	(else)
+		(assign {mem + lk_buffer_chan_2} {tx})
+	(endif)
+	(assign {&tx->lk_chan_msg0} {tx_msg})
 
 	;write messages through the shared buffer
 	(loop-start)
-		;write my task count
-		(assign {task_statics->tk_statics_task_count} {tx->lk_chan_task_count})
+		;write my task count and cpu id
+		(assign {task_statics->tk_statics_task_count, id}
+			{tx->lk_chan_task_count, tx->lk_chan_peer_cpu_id})
 
 		;do we have a free out slot
 		(loop-while {tx_msg->lk_msg_status = lk_chan_status_ready})
@@ -106,8 +95,8 @@
 		;small sleep if nothing to do
 		(call 'sys_task :sleep '(500))
 
-		;exit if signaled by kernel
-	(loop-until {lk_node.lk_node_peer_cpu_id = 0xffffffff})
+		;exit if signaled by kernel...
+	(loop-end)
 
 	;unmap object
 	(call 'sys_pii :munmap {mem, lk_buffer_size, mmap_shared})
@@ -142,19 +131,25 @@
 	(assign {ptr(data + ptr_size)} {rx})
 	(call 'sys_mail :free {msg})
 
-	;kernel id, rx msg
-	(call 'sys_kernel :id nil {id})
-	(assign {&rx->lk_chan_msg0} {rx_msg})
-
 	;switch to link priority and sleep to
 	;let other links join us at this priority
 	(call 'sys_task :set_priority '(1))
-	(call 'sys_task :sleep '(10000))
+	(call 'sys_task :sleep '(100000))
+
+	;assign rx channel
+	(call 'sys_kernel :id nil {id})
+	(vpif {id = rx->lk_buffer_towel})
+		(assign {rx + lk_buffer_chan_2} {rx})
+	(else)
+		(assign {rx + lk_buffer_chan_1} {rx})
+	(endif)
+	(assign {&rx->lk_chan_msg0} {rx_msg})
 
 	;read messages from the shared buffer
 	(loop-start)
-		;read neibour task count
-		(assign {rx->lk_chan_task_count} {lk_node->lk_node_task_count})
+		;read neibour task count and peer id
+		(assign {rx->lk_chan_task_count, rx->lk_chan_peer_cpu_id}
+			{lk_node->lk_node_task_count, lk_node->lk_node_peer_cpu_id})
 
 		;check for received message
 		(loop-while {rx_msg->lk_msg_status = lk_chan_status_busy})
@@ -188,8 +183,8 @@
 		;small sleep as nothing to do
 		(call 'sys_task :sleep '(500))
 
-		;exit if signaled by kernel
-	(loop-until {lk_node->lk_node_peer_cpu_id = 0xffffffff})
+		;exit if signaled by kernel...
+	(loop-end)
 
 	(pop-scope)
 	(return)

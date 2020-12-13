@@ -13,6 +13,9 @@ Change all mbox structures at the Lisp interface to be net_id_size strings !
 This is the first stage of changing all network node id's to be multi-byte
 identifiers.
 
+Dynamic assignment of tx, rx link channels and routing/service pings moved to
+kernel task.
+
 ------
 
 New `lib/clenv/clenv.inc` library for accessing `.hostenv` variable assignments.

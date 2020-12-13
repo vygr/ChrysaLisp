@@ -11,7 +11,7 @@
 
 ;fire up the login app
 (open-child "apps/login/app.lisp" kn_call_open)
-;(open-child "apps/clipboard/app.lisp" kn_call_open)
+(open-child "apps/clipboard/app.lisp" kn_call_open)
 
 ;jump to gui compositor
 ((ffi _ "gui/gui/gui" 0) screen)

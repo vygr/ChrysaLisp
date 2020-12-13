@@ -3,6 +3,7 @@
 (def-class 'sys_kernel)
 (dec-method :id 'sys/kernel/id :static nil '(r0))
 (dec-method :kernel 'sys/kernel/kernel :static '(r0))
+(dec-method :ping 'sys/kernel/ping)
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ; kernel mail functions

@@ -6995,6 +6995,12 @@ info
 loader is already initialized when we get here !
 ```
 
+### sys_kernel :ping -> sys/kernel/ping
+
+```lisp
+started by kernel at boot
+```
+
 ## sys_link
 
 Super Class: null
