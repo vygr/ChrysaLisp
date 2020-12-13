@@ -21,7 +21,7 @@
 ; Registering the anchor
 (structure '+rega_msg 0
   (long 'command+)
-  (long 'receiver+)
+  (offset 'receiver+)
   (offset 'data+))
 
 ; Events for mail_msg_commands
@@ -39,7 +39,8 @@
     'deregister+
     'shutdown+
     'registered+
-    'errored+))
+    'errored+
+    'ping+))
 
 (defun get-logsrvc-mb ()
   ; (get-logsrvc-mb) -> mailbox id | nil
@@ -51,7 +52,7 @@
       (defq res (mail-enquire +logging_srvc_name+))
       (setq log_srvc_mbox_id
         (if (nempty? res)
-            (str-to-num (second (split (first res) ",")))
+            (net-id-str (str-to-num (second (split (first res) ","))))
             (open-child "apps/logger/app.lisp" kn_call_child))))
     (t log_srvc_mbox_id)))
 
@@ -106,12 +107,12 @@
     (each (#
       (when (defq kdx (find full_cnfg (first %0)))
         (elem-set (inc kdx) full_cnfg (second %0))))
-      (partitioin 2 override_pairs)))
+      (partition 2 override_pairs)))
   ; Query state of anchor in service
   (mail-send
     (cat
       (char +log_event_query_anchor_config+ long_size)
-      (char mbx_id long_size)
+      mbx_id
       (str nm))
     (get-logsrvc-mb))
   (defq
@@ -155,7 +156,7 @@
   (mail-send
       (cat
           (char cmd  long_size)
-          (char mbx_id long_size)
+          mbx_id
           (str sstrm))
       (get-logsrvc-mb))
   (defq
@@ -173,3 +174,9 @@
   (mail-send (char +log_event_shutdown+ long_size) (get-logsrvc-mb))
   (setq log_srvc_mbox_id nil))
 
+(defun ping-service ()
+  (mail-send
+    (cat
+      (char +log_event_ping+ long_size)
+      (task-mailbox))
+    (get-logsrvc-mb)))

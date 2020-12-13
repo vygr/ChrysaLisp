@@ -12,7 +12,7 @@
 
 
 (defun log-registration-result (logger)
-  ; (log-registration-result properties) -> properties
+  ; (log-registration-result xmap) -> xmap
   (defq
     msg   (mail-read (gets logger :reciever))
     id    (get-long msg mail_msg_command))
@@ -24,7 +24,7 @@
       (throw "Invalid registration " msg))))
 
 (defun create-logger (mname &optional uses_handler)
-  ; (create-logger name [kw]) -> properties
+  ; (create-logger name [kw]) -> logger
   ; Registers name with logging service and sends optional logger
   ; service to use:
   ;   :log_anchor (default)
@@ -49,7 +49,7 @@
   ; (log-send logger msgtype msg)
   ; Generic send log message to service unless
   ; the service is console
-  (defq msgs (properties
+  (defq msgs (xmap-kv
           :module     (gets logger :token)
           :msg-level  lmsgtype
           :message    (str msg)))

@@ -67,23 +67,27 @@
   ; Iterate through handlers looking for type :file
   ; For each, extend with file information and prepare
   ; for use
-  (each (lambda (ent)
-          (debug-write "each " ent)
+  (catch (each (lambda (ent)
+          (debug-write "  each " ent)
           (cond
             ((eql (gets (second ent) :type) :file)
-             (debug-write "handler setup-> " (first ent))
+             (debug-write "   handler setup-> " (first ent))
              (initialize-logfile-handler (second ent))
              (sets! fsmap (first ent) (second ent))
-             (debug-write "added-> " (first ent)))
+             (debug-write "     added-> " (first ent)))
             (t nil)))
-        (entries handlers))
+        (entries handlers)) (debug-write (str "clfh " _)))
   fsmap)
 
 (defun setup-handler-registry ()
   ; Loads or initializes a registry instance
-  (defq registry (properties :handlers (properties)))
+  (debug-write "Handler registry!")
+  (defq registry (xmap-kv :handlers (xmap)))
   (when (> (age +cfg_registry+) 0)
       (setq registry (first (yaml-read +cfg_registry+))))
+  (each (lambda ((_k _v))
+          (debug-write "  regkey= " _k " regval= " _v))
+        (entries registry))
   registry)
 
 (defun register-log-handler (registry anckw cfg)
@@ -176,7 +180,10 @@
   ; Build the system filesystem logger streams
   (defq fsmaps (xmap))
   (create-log-file-handlers (gets-in cfg :logging :handlers) fsmaps)
-  (debug-write "fsmaps-> " fsmaps)
+  (each (lambda ((_k _v))
+          (debug-write "fskey " _k " fsval " _v))
+        (entries fsmaps))
+  ; (debug-write "fsmaps-> " fsmaps)
   (list
     (gets fsmaps :service_handler)
     (> cfg_age 0)
