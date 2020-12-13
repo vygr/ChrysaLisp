@@ -44,7 +44,3 @@
 	(struct 'chan_1 'lk_chan)
 	(struct 'chan_2 'lk_chan)
 (def-struct-end)
-
-(def-struct 'lk_route)
-	(uint 'hops)
-(def-struct-end)

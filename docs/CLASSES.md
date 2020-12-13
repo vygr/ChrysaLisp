@@ -7008,7 +7008,7 @@ Super Class: null
 ### sys_link :in -> sys/link/in
 
 ```lisp
-started by kernel for each link
+started by out link for each link
 ```
 
 ### sys_link :out -> sys/link/out

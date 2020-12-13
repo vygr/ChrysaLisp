@@ -22,7 +22,7 @@
 
 	;int and add link node to link array
 	(call 'sys_kernel :id nil {id})
-	(assign {-1, 0} {lk_node.lk_node_peer_cpu_id, lk_node.lk_node_task_count})
+	(assign {0, -1} {lk_node.lk_node_task_count, lk_node.lk_node_peer_cpu_id})
 	(call 'array :push_back (cat {@} (f-path 'sys_mail :statics) {.ml_statics_links_array, &lk_node}))
 	(call 'num :create '(0) {key})
 
@@ -35,7 +35,7 @@
 	;map shared object
 	(call 'sys_pii :mmap {lk_buffer_size, handle, mmap_shared} {mem})
 
-	;put towel down if seams available
+	;put my towel down if seams available
 	(vpifnot {mem->lk_buffer_towel})
 		(assign {id} {mem->lk_buffer_towel})
 	(endif)
@@ -118,7 +118,7 @@
 (def-func-end)
 
 (def-method 'sys_link :in)
-	;started by kernel for each link
+	;started by out link for each link
 
 	(ptr 'lk_node 'msg 'data 'rx 'rx_msg)
 	(uint 'id)
