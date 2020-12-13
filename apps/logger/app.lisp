@@ -12,18 +12,18 @@
 
 ;single instance only
 (when (= (length (mail-enquire +logging_srvc_name+)) 0)
-  ; Setup general purpose information
+  ; Setup general purpose informationnet_id_s
   (defq
     registra  (xmap)
     active    t
     entry (mail-declare +logging_srvc_name+ (task-mailbox) "Logging Service 0.5")
-    DEBUG (file-stream "./logs/DEBUG_SERVICE.log" file_open_append)
+    ; DEBUG (file-stream "./logs/DEBUG_SERVICE.log" file_open_append)
     )
 
-  (defun debug-write (&rest _)
-    (write DEBUG (apply str (push _ +nl+)))
-    (stream-flush DEBUG))
-  ; (defun debug-write (&rest _))
+  ; (defun debug-write (&rest _)
+  ;   (write DEBUG (apply str (push _ +nl+)))
+  ;   (stream-flush DEBUG))
+  (defun debug-write (&rest _))
 
   ; Process configuration files
   (bind '(srvc_fh fcfg? conf fmap registry) (process-log-cfg))
@@ -103,8 +103,8 @@
       ((= id +log_event_query_anchor_config+)
        (debug-write " Anchor query config" msg)
        (defq
-         rcvr (slice +rega_msg_receiver+ -1 msg)
-         nm   (slice +rega_msg_data+ -1 msg)
+         rcvr (slice +rega_msg_receiver+ net_id_size msg)
+         nm   (slice (+ +rega_msg_data+ net_id_size) -1 msg)
          akw  (kw nm)
          fhit (kvmap-has-prefix? fmap nm))
        (debug-write "   for name " nm " kw " akw " hit? " fhit)
@@ -120,10 +120,10 @@
 
       ((= id +log_event_register_anchor_activate+)
        ; Get configuration for anchor
-       (debug-write " Anchor Activate")
+       (debug-write " Anchor Activate" msg)
        (defq
-         rcvr  (slice +rega_msg_receiver+ -1 msg)
-         msgd  (deser-anchor-inbound msg)
+         rcvr  (slice +rega_msg_receiver+ net_id_size msg)
+         msgd  (deser-anchor-inbound (slice (+ +rega_msg_data+ net_id_size) -1 msg))
          nmkw  (kw (gets msgd :name))
          hnkw  (gets msgd :handler)
          hndl  (gets (gets registry :handlers) nmkw)
@@ -138,10 +138,12 @@
       ; is already registered and handler is active
 
       ((= id +log_event_register_anchor+)
-       (defq
-         rcvr (slice +rega_msg_receiver+ -1 msg))
+       (debug-write " Reusing anchor " msg)
        (log-write (gets srvc_fh :handle) " Register reuse anchor ")
-       (register-logger (deser-anchor-inbound msg)))
+       (defq
+         rcvr (slice +rega_msg_receiver+ net_id_size msg))
+       (register-logger
+         (deser-anchor-inbound (slice (+ +rega_msg_data+ net_id_size) -1 msg))))
 
       ; Registration (anchor) sends ack with handler configuration
       ; This is called when the anchor determines that it's
@@ -150,9 +152,10 @@
       ; Activate handler and add to fmap
 
       ((= id +log_event_register_anchor_with_configuration+)
+       (debug-write " Register anchor config " msg)
        (defq
-         rcvr (slice +rega_msg_receiver+ -1 msg)
-         msgd (deser-anchor-inbound msg)
+         rcvr  (slice +rega_msg_receiver+ net_id_size msg)
+         msgd  (deser-anchor-inbound (slice (+ +rega_msg_data+ net_id_size) -1 msg))
          nm   (gets msgd :name)
          nmkw (kw nm)
          hnkw (gets msgd :key_name))

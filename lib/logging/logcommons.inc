@@ -7,9 +7,9 @@
 (import "lib/date/date.inc")
 
 (defun log-registration (mname use_handler &optional rcvmb)
-  ; (log-registration name keyword) -> properties
+  ; (log-registration name keyword) -> xmap
   ; Setups the logging registration and optional configuration
-  (sets-pairs! (properties)
+  (xmap-kv
     :name       mname
     :handler    use_handler
     :reciever   (opt rcvmb (mail-alloc-mbox))))

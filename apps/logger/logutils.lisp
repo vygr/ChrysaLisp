@@ -104,7 +104,9 @@
 (defun deser-anchor-inbound (msg)
   ; (deser-inbound mail-msg) -> collection
   ; Deserializes inbound data from mail message
-  (data-xdeser (write (string-stream (cat "")) (slice +rega_msg_data+ -1 msg))))
+
+  (data-xdeser (write (string-stream (cat "")) msg)))
+                      ; (slice +rega_msg_data+ -1 msg))))
 
 (defun kvmap-has-prefix? (_hm nm)
   ; (kvmap-has-prefix? kv-map string) -> kw | nil
