@@ -102,9 +102,9 @@
 						(. mywindow :change_dirty x y w h))
 					(t (. mywindow :event msg))))
 			(t	;child info
-				(defq index (find (get-int msg sample_reply_cpu) devices)
-					task_val (get-int msg sample_reply_task_count)
-					memory_val (get-int msg sample_reply_mem_used)
+				(defq index (find (get-uint msg sample_reply_cpu) devices)
+					task_val (get-uint msg sample_reply_task_count)
+					memory_val (get-uint msg sample_reply_mem_used)
 					task_bar (elem index task_bars) memory_bar (elem index memory_bars))
 				(setq max_tasks (max max_tasks task_val) max_memory (max max_memory memory_val))
 				(def task_bar :maximum last_max_tasks :value task_val)
