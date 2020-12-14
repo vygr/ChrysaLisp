@@ -527,7 +527,7 @@ void *myclearicache(void* addr, size_t len)
 #else
 #ifdef __APPLE__
 #else
-	__clear_cache(addr, addr + len);
+	__clear_cache(addr, (char*)addr + len);
 #endif
 #endif
 	return addr;
