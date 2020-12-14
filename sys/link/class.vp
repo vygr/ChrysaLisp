@@ -20,7 +20,7 @@
 	(assign (cat {@} (f-path 'sys_task :statics)) {task_statics})
 	(assign {task_statics->tk_statics_task_count - 2} {task_statics->tk_statics_task_count})
 
-	;int and add link node to link array
+	;init and add link node to link array
 	(call 'sys_kernel :id nil {id})
 	(assign {0, -1} {lk_node.lk_node_task_count, lk_node.lk_node_peer_cpu_id})
 	(call 'array :push_back (cat {@} (f-path 'sys_mail :statics) {.ml_statics_links_array, &lk_node}))
@@ -68,7 +68,7 @@
 
 		;do we have a free out slot
 		(loop-while {tx_msg->lk_msg_status = lk_chan_status_ready})
-			;see if any off chip mail for this link
+			;see if any mail for this link
 			(call 'sys_mail :ready {lk_node.lk_node_peer_cpu_id, key} {msg})
 			(breakifnot {msg})
 
@@ -153,7 +153,7 @@
 
 		;check for received message
 		(loop-while {rx_msg->lk_msg_status = lk_chan_status_busy})
-			;is this msg part of a parcel for this cpu
+			;is this msg part of a parcel for this node
 			(vpif {rx_msg->lk_msg_stamp.msg_total_length && rx_msg->lk_msg_stamp.msg_dest.net_id_cpu_id = id})
 				;copy direct from link buffer to parcel !
 				(call 'sys_mail :in {rx_msg})

@@ -11,6 +11,7 @@
 #include <fcntl.h>
 #include <string.h>
 #include <stdio.h>
+#include <random>
 #ifdef _WIN64
 	#define _CRT_SECURE_NO_WARNINGS
 	#define DELTA_EPOCH_IN_MICROSECS 11644473600000000Ui64
@@ -18,7 +19,8 @@
 	#include <io.h>
 	#include <windows.h>
 	#include <tchar.h>
-
+	#include <direct.h>
+	#include <conio.h>
 #else
 	#include <sys/mman.h>
 	#include <sys/time.h>
@@ -57,7 +59,7 @@ long long mylist_dir(const char *path, char *buf, size_t buf_len)
 	do
 	{
 		size_t len = strlen(FindData.cFileName);
-		fbuf = realloc(fbuf, fbuf_len + len + 3);
+		fbuf = (char *)realloc(fbuf, fbuf_len + len + 3);
 		memcpy(fbuf + fbuf_len, FindData.cFileName, len);
 		fbuf_len += len;
 		fbuf[fbuf_len++] = ',';
@@ -84,7 +86,7 @@ long long mylist_dir(const char *path, char *buf, size_t buf_len)
 	while ((entry = readdir(dir)) != NULL)
 	{
 		size_t len = strlen(entry->d_name);
-		fbuf = realloc(fbuf, fbuf_len + len + 3);
+		fbuf = (char*)realloc(fbuf, fbuf_len + len + 3);
 		memcpy(fbuf + fbuf_len, entry->d_name, len);
 		fbuf_len += len;
 		fbuf[fbuf_len++] = ',';
@@ -110,7 +112,7 @@ static void rmkdir(const char *path)
 		{
 			*p = 0;
 #ifdef _WIN64
-			mkdir(dirbuf, _S_IREAD | _S_IWRITE);
+			_mkdir(dirbuf); //, _S_IREAD | _S_IWRITE
 #else
 			mkdir(dirbuf, S_IRWXU);
 #endif
@@ -454,7 +456,7 @@ long long mymprotect(void *addr, size_t len, int mode)
 	int old;
 	switch (mode)
 	{
-	case mprotect_none: if (VirtualProtect(addr, len, PAGE_NOACCESS, &old)) return 0;
+	case mprotect_none: if (VirtualProtect(addr, len, PAGE_NOACCESS, (PDWORD)&old)) return 0;
 	}
 #else
 	switch (mode)
@@ -531,52 +533,60 @@ void *myclearicache(void* addr, size_t len)
 	return addr;
 }
 
-static void (*host_funcs[]) = {
-exit,
-mystat,
-myopen,
-close,
-unlink,
-myread,
-mywrite,
-mymmap,
-mymunmap,
-mymprotect,
-gettime,
-myopenshared,
-mycloseshared,
-myclearicache,
-mylist_dir,
-myremove,
-myseek,
+std::random_device rd;
+std::uniform_int_distribution<int> dist(0, 256);
+void myrand(char* addr, size_t len)
+{
+	for (int i = 0; i < len; ++i) addr[i] = dist(rd);
+}
 
-SDL_Delay,
-SDL_SetMainReady,
-SDL_Init,
-SDL_GetError,
-SDL_Quit,
-SDL_CreateWindow,
-SDL_CreateWindowAndRenderer,
-SDL_DestroyWindow,
-SDL_CreateRenderer,
-SDL_SetRenderDrawColor,
-SDL_RenderFillRect,
-SDL_RenderPresent,
-SDL_RenderSetClipRect,
-SDL_SetRenderDrawBlendMode,
-SDL_PollEvent,
-SDL_RenderDrawRect,
-SDL_FreeSurface,
-SDL_CreateTextureFromSurface,
-SDL_DestroyTexture,
-SDL_RenderCopy,
-SDL_SetTextureBlendMode,
-SDL_SetTextureColorMod,
-SDL_CreateRGBSurfaceFrom,
-SDL_ComposeCustomBlendMode,
-SDL_CreateTexture,
-SDL_SetRenderTarget,
-SDL_RenderClear,
+static void (*host_funcs[]) = {
+(void*)exit,
+(void*)mystat,
+(void*)myopen,
+(void*)close,
+(void*)unlink,
+(void*)myread,
+(void*)mywrite,
+(void*)mymmap,
+(void*)mymunmap,
+(void*)mymprotect,
+(void*)gettime,
+(void*)myopenshared,
+(void*)mycloseshared,
+(void*)myclearicache,
+(void*)mylist_dir,
+(void*)myremove,
+(void*)myseek,
+(void*)myrand,
+
+(void*)SDL_Delay,
+(void*)SDL_SetMainReady,
+(void*)SDL_Init,
+(void*)SDL_GetError,
+(void*)SDL_Quit,
+(void*)SDL_CreateWindow,
+(void*)SDL_CreateWindowAndRenderer,
+(void*)SDL_DestroyWindow,
+(void*)SDL_CreateRenderer,
+(void*)SDL_SetRenderDrawColor,
+(void*)SDL_RenderFillRect,
+(void*)SDL_RenderPresent,
+(void*)SDL_RenderSetClipRect,
+(void*)SDL_SetRenderDrawBlendMode,
+(void*)SDL_PollEvent,
+(void*)SDL_RenderDrawRect,
+(void*)SDL_FreeSurface,
+(void*)SDL_CreateTextureFromSurface,
+(void*)SDL_DestroyTexture,
+(void*)SDL_RenderCopy,
+(void*)SDL_SetTextureBlendMode,
+(void*)SDL_SetTextureColorMod,
+(void*)SDL_CreateRGBSurfaceFrom,
+(void*)SDL_ComposeCustomBlendMode,
+(void*)SDL_CreateTexture,
+(void*)SDL_SetRenderTarget,
+(void*)SDL_RenderClear,
 
 };
 
@@ -590,9 +600,10 @@ int main(int argc, char *argv[])
 		{
 			stat(argv[1], &fs);
 			size_t data_size = fs.st_size;
-			uint16_t *data = mymmap(data_size, -1, mmap_exec);
+			uint16_t *data = (uint16_t*)mymmap(data_size, -1, mmap_exec);
 			if (data)
 			{
+				srand(gettime());
 				read(fd, data, data_size);
 				myclearicache(data, data_size);
 				//printf("image start address: 0x%llx\n", (unsigned long long)data);

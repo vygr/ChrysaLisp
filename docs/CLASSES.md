@@ -2268,6 +2268,8 @@ Super Class: null
 
 ### host :seek -> nil
 
+### host :rand -> nil
+
 ### host :sdl_delay -> nil
 
 ### host :sdl_set_main_ready -> nil
@@ -7272,7 +7274,7 @@ r0-r14
 
 ```lisp
 outputs
-r0 = known device cpu array object (ptr)
+r0 = known network nodes list object (ptr)
 trashes
 r0-r14
 ```
@@ -8068,6 +8070,14 @@ outputs
 r0 = -1 if error, else file position (ulong)
 trashes
 r0
+```
+
+### sys_pii :rand -> sys/pii/rand
+
+```lisp
+inputs
+r0 = data buffer pointer (pubyte)
+r1 = length (uint)
 ```
 
 ### sys_pii :lisp_readchar -> sys/pii/lisp_readchar

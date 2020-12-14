@@ -12,9 +12,8 @@
 	(byte 'close+ 'max+ 'min+))
 
 (defq task_bars (list) memory_bars (list) task_scale (list) memory_scale (list)
-	devices (mail-devices) cpu_count (length devices)
-	max_tasks 1 max_memory 1 last_max_tasks 0 last_max_memory 0 select (list (task-mailbox) (mail-alloc-mbox))
-	farm (open-farm "apps/netmon/child" cpu_count kn_call_open devices) sample_msg (elem -2 select))
+	devices nil cpu_count 0 max_tasks 1 max_memory 1 last_max_tasks 0 last_max_memory 0
+	select (list (task-mailbox) (mail-alloc-mbox)) farm (list) sample_msg (elem -2 select))
 
 (ui-window mywindow ()
 	(ui-title-bar _ "Network Monitor" (0xea19 0xea1b 0xea1a) +event_close+)
@@ -25,18 +24,32 @@
 					:font *env_medium_terminal_font*)
 				(times 4 (push task_scale (ui-label _
 					(:text "|" :flow_flags (logior +flow_flag_align_vcenter+ +flow_flag_align_hright+))))))
-			(ui-grid _ (:grid_width 1 :grid_height cpu_count)
-				(times cpu_count (push task_bars (ui-progress _)))))
+			(ui-grid task_grid (:grid_width 1 :grid_height 0)))
 		(ui-flow _ (:color +argb_red+)
 			(ui-label _ (:text "Memory (kb)" :color +argb_white+))
 			(ui-grid _ (:grid_width 4 :grid_height 1 :color +argb_white+
 					:font *env_medium_terminal_font*)
 				(times 4 (push memory_scale (ui-label _
 					(:text "|" :flow_flags (logior +flow_flag_align_vcenter+ +flow_flag_align_hright+))))))
-			(ui-grid _ (:grid_width 1 :grid_height cpu_count)
-				(times cpu_count (push memory_bars (ui-progress _)))))))
+			(ui-grid memory_grid (:grid_width 1 :grid_height 0)))))
+
+(defun reset (new_devices)
+	;reset the app to these known devices
+	(while (defq mbox (pop farm)) (mail-send "" mbox))
+	(setq devices new_devices cpu_count (length devices)
+		farm (open-farm "apps/netmon/child" cpu_count kn_call_open devices))
+	(while (defq progress (pop task_bars)) (. progress :sub))
+	(while (defq progress (pop memory_bars)) (. progress :sub))
+	(times cpu_count
+		(. task_grid :add_child (defq progress (Progress)))
+		(push task_bars progress)
+		(. memory_grid :add_child (defq progress (Progress)))
+		(push memory_bars progress))
+	(set task_grid :grid_height cpu_count)
+	(set memory_grid :grid_height cpu_count))
 
 (defun main ()
+	(reset (sort - (mail-devices)))
 	;add window
 	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
 	(gui-add (. mywindow :change x y w h))
@@ -44,6 +57,14 @@
 	(while (progn
 		;new batch of samples ?
 		(when (= cpu_count (length devices))
+			;should we reset the app ?
+			(defq current_devices (sort - (mail-devices)))
+			(unless (and (= (length current_devices) (length devices))
+						(every eql current_devices devices))
+				(reset current_devices)
+				(bind '(x y w h) (apply view-fit (cat (. mywindow :get_pos) (. mywindow :pref_size))))
+				(. mywindow :change_dirty x y w h))
+
 			;set scales
 			(setq last_max_tasks max_tasks last_max_memory max_memory max_tasks 1 max_memory 1)
 			(each (lambda (st sm)

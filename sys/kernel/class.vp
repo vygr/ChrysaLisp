@@ -55,6 +55,14 @@
 	;init mailer
 	(call 'sys_mail :statics_init1)
 
+	;set random node ID
+	(f-bind 'sys_task :statics r0)
+	(call 'sys_pii :rand '((& r0 tk_statics_cpu_id) int_size))
+	(f-bind 'sys_task :statics r0)
+	(assign '((r0 tk_statics_cpu_id)) '(r1))
+	(vp-and-cr 0x7fffffff r1)
+	(assign '(r1) '((r0 tk_statics_cpu_id)))
+
 	;process command options
 	(call 'opts {argv})
 
@@ -67,7 +75,7 @@
 	(call 'num :deref {key})
 	(call 'array :deref {tuple})
 
-	;start routing ping tesk
+	;start routing pings
 	(call 'sys_task :start (cat {@} (f-path 'sys_kernel :ping)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;
@@ -319,20 +327,6 @@
 	(pop-scope)
 	(return)
 
-(vp-label 'opt_cpu)
-	;inputs
-	;r0 = argv pointer (pubyte)
-	;trashes
-	;r0-r4
-
-	(entry '(r0))
-
-	;set cpu ID
-	(call 'sys_str :to_long '(r0 10) '(r0 _))
-	(f-bind 'sys_task :statics r1)
-	(assign '(r0) '((r1 tk_statics_cpu_id)))
-	(vp-ret)
-
 (vp-label 'opt_run)
 	;inputs
 	;r0 = argv pointer (pubyte)
@@ -400,9 +394,6 @@
 
 	(vp-align ptr_size)
 (vp-label 'options_table)
-	(vp-long `(- ,(label-sym 'opt_cpu) ,(label-sym 'options_table)))
-		(vp-string "-cpu") (vp-byte 0)
-		(vp-align ptr_size)
 	(vp-long `(- ,(label-sym 'opt_run) ,(label-sym 'options_table)))
 		(vp-string "-run") (vp-byte 0)
 		(vp-align ptr_size)

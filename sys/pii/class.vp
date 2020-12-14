@@ -238,10 +238,24 @@
 	;trashes
 	;r0
 
-	(abi-push-trashed r1 r13 r14)
+	(abi-push-trashed r13 r14)
 	(host-call 'host :gettime nil '(r0))
-	(abi-pop-trashed r1 r13 r14)
+	(abi-pop-trashed r13 r14)
 	(exit 'sys_pii :time '(r0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'sys_pii :rand)
+	;inputs
+	;r0 = data buffer pointer (pubyte)
+	;r1 = length (uint)
+
+	(entry 'sys_pii :rand '(r0 r1))
+	(abi-push-trashed r1 r13 r14)
+	(host-call 'host :rand '(r0 r1) '(r0))
+	(abi-pop-trashed r1 r13 r14)
+	(exit 'sys_pii :rand '(r0))
 	(vp-ret)
 
 (def-func-end)

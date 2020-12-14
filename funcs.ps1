@@ -70,10 +70,10 @@ function boot_cpu_gui
 		$lnk
 	)
 	if ( $cpu -lt 1 ){
-		Start-Process -FilePath ./obj/$HCPU/$HABI/$HOS/main -NoNewWindow -ArgumentList "obj/$HCPU/$HABI/sys/boot_image -cpu $cpu $link -run gui/gui/gui.lisp"
+		Start-Process -FilePath ./obj/$HCPU/$HABI/$HOS/main -NoNewWindow -ArgumentList "obj/$HCPU/$HABI/sys/boot_image $link -run gui/gui/gui.lisp"
 	}
 	else {
-		Start-Process -FilePath ./obj/$HCPU/$HABI/$HOS/main -NoNewWindow -ArgumentList "obj/$HCPU/$HABI/sys/boot_image -cpu $cpu $link"
+		Start-Process -FilePath ./obj/$HCPU/$HABI/$HOS/main -NoNewWindow -ArgumentList "obj/$HCPU/$HABI/sys/boot_image $link"
 	}
 }
 
@@ -84,9 +84,9 @@ function boot_cpu_tui
 		$lnk
 	)
 	if ( $cpu -lt 1 ){
-		Start-Process -FilePath ./obj/$HCPU/$HABI/$HOS/main -NoNewWindow -ArgumentList "obj/$HCPU/$HABI/sys/boot_image -cpu $cpu $link -run apps/terminal/tui.lisp"
+		Start-Process -FilePath ./obj/$HCPU/$HABI/$HOS/main -NoNewWindow -ArgumentList "obj/$HCPU/$HABI/sys/boot_image $link -run apps/terminal/tui.lisp"
 	}
 	else {
-		Start-Process -FilePath ./obj/$HCPU/$HABI/$HOS/main -NoNewWindow -ArgumentList "obj/$HCPU/$HABI/sys/boot_image -cpu $cpu $link"
+		Start-Process -FilePath ./obj/$HCPU/$HABI/$HOS/main -NoNewWindow -ArgumentList "obj/$HCPU/$HABI/sys/boot_image $link"
 	}
 }

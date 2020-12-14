@@ -689,11 +689,11 @@
 
 (def-method 'sys_mail :devices)
 	;outputs
-	;r0 = known device cpu array object (ptr)
+	;r0 = known network nodes list object (ptr)
 	;trashes
 	;r0-r14
 
-	(call 'array :create nil '(r0))
+	(call 'list :create nil '(r0))
 	(vp-push r0)
 	(f-bind 'sys_mail :statics r0)
 	(call 'hmap :for_each '((r0 ml_statics_routing_map) ($ callback) (rsp 0)))
@@ -710,8 +710,8 @@
 	(entry 'hmap :each_callback '(r0 r1))
 
 	(assign '((r1 0)) '(r1))
-	(assign '((r1 num_value)) '(r1))
-	(jump 'array :push_back '(r0 r1))
+	(class/obj/ref r1 r2)
+	(jump 'list :push_back '(r0 r1))
 
 (def-func-end)
 

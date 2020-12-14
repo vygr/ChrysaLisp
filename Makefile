@@ -34,24 +34,24 @@ snapshot:
 
 obj/$(CPU)/$(ABI)/$(OS)/main:	obj/$(CPU)/$(ABI)/$(OS)/main.o
 ifeq ($(OS),Darwin)
-			cc -o $@ $@.o -F/Library/Frameworks -Wl,-framework,SDL2 -Wl
+			c++ -o $@ $@.o -F/Library/Frameworks -Wl,-framework,SDL2 -Wl
 endif
 ifeq ($(OS),Linux)
-			cc -o $@ $@.o $(shell sdl2-config --libs)
+			c++ -o $@ $@.o $(shell sdl2-config --libs)
 endif
 
-obj/$(CPU)/$(ABI)/$(OS)/main.o:	main.c Makefile
+obj/$(CPU)/$(ABI)/$(OS)/main.o:	main.cpp Makefile
 			echo $(CPU) > arch
 			echo $(OS) > platform
 			echo $(ABI) > abi
 			unzip -nq snapshot.zip
 ifeq ($(OS),Darwin)
-			cc -c -nostdlib -fno-exceptions \
+			c++ -c -nostdlib -fno-exceptions \
 				-I/Library/Frameworks/SDL2.framework/Headers/ \
 				-o $@ $<
 endif
 ifeq ($(OS),Linux)
-			cc -c -nostdlib -fno-exceptions \
+			c++ -c -nostdlib -fno-exceptions \
 				-I/usr/include/SDL2/ \
 				-o $@ $<
 endif
