@@ -26,7 +26,7 @@
 	;create child and send args
 	(defq mbox (open-child "apps/clock/child.lisp" kn_call_open))
 	;multiply size and scale, as they are only used together in child.
-	(mail-send (list display clock (* (i2f clock_size) (i2f clock_scale))) mbox)
+	(mail-send mbox (list display clock (* (i2f clock_size) (i2f clock_scale))))
 	(bind '(w h) (. mywindow :pref_size))
 	(gui-add (. mywindow :change 0 0 w h))
 	;main app loop
@@ -35,5 +35,5 @@
 			nil)
 		(t (. mywindow :event msg))))
 	;close child and window
-	(mail-send "" mbox)
+	(mail-send mbox "")
 	(. mywindow :hide))

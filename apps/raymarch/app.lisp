@@ -45,7 +45,7 @@
 	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
 	(gui-add (. mywindow :change x y w h))
 	;send first batch of jobs
-	(each (# (mail-send (pop jobs) %0)) farm)
+	(each (# (mail-send %0 (pop jobs))) farm)
 	;main event loop
 	(while (progn
 		;next event
@@ -61,11 +61,11 @@
 			(t	;child tile msg
 				(if (defq child (slice (dec (neg net_id_size)) -1 msg) next_job (pop jobs))
 					;next job
-					(mail-send next_job child))
+					(mail-send child next_job))
 				(setq area (- area (tile canvas msg)))
 				(when (= area 0)
 					;close farm and clear it
-					(each (# (mail-send "" %0)) farm)
+					(each (# (mail-send %0 "")) farm)
 					(clear farm))
 				(when (or (> (- (defq now (pii-time)) then) 1000000) (= area 0))
 					;swap canvas
@@ -75,4 +75,4 @@
 	;close
 	(. mywindow :hide)
 	(mail-free-mbox (pop select))
-	(each (# (mail-send "" %0)) farm))
+	(each (# (mail-send %0 "")) farm))

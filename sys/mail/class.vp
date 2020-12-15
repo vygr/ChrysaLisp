@@ -510,8 +510,8 @@
 
 (def-method 'sys_mail :declare)
 	;inputs
-	;r0 = service name str object (ptr)
-	;r1 = mailbox id str object (ptr)
+	;r0 = mailbox id str object (ptr)
+	;r1 = service name str object (ptr)
 	;r2 = service info str object (ptr)
 	;outputs
 	;r0 = service key str object (ptr)
@@ -522,7 +522,7 @@
 	(pptr 'tuple)
 
 	(push-scope)
-	(entry 'sys_mail :declare {name, id, info})
+	(entry 'sys_mail :declare {id, name, info})
 
 	;insert into service map
 	(call 'num :create {long(&id->str_data) >> 32} {key})

@@ -115,7 +115,7 @@
 			(write-int reply (+ +argb_black+ (>> b 8) (logand g 0xff00) (<< (logand r 0xff00) 8)))
 		(task-sleep 0)))
 	(write reply (task-mailbox))
-	(mail-send (str reply) mbox))
+	(mail-send mbox (str reply)))
 
 (defun main ()
 	;read work request or exit

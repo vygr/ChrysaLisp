@@ -18,7 +18,7 @@
 		;error with pipe element ?
 		((some (lambda (_) (= 0 (get-long _ 0))) (defq mboxs (open-pipe cmdpipe)))
 			;send abort to any started pipe elements
-			(each (lambda (_) (if (/= 0 (get-long _ 0)) (mail-send "" _))) mboxs)
+			(each (lambda (_) (if (/= 0 (get-long _ 0)) (mail-send _ ""))) mboxs)
 			nil)
 		(t	;wire up pipe and send args
 			(defq select (list) pipe_streams (list))
@@ -27,11 +27,11 @@
 				(push select (in-mbox (elem -2 pipe_streams)))) mboxs)
 			(defq stdout (in-stream) stdout_mbox (in-mbox stdout) ack_mbox (mail-alloc-mbox))
 			(each-rev (lambda (mbox arg stderr_mbox)
-				(mail-send (cat
+				(mail-send mbox (cat
 					stdout_mbox
 					stderr_mbox
 					ack_mbox
-					(char 0 (const int_size)) arg) mbox)
+					(char 0 (const int_size)) arg))
 				(setq stdout_mbox (net-id-str (+ (logand (get-long mbox 0) 0xffffffff00000000)
 					(get-int (mail-read ack_mbox) (const (* 3 net_id_size))))))) mboxs args select)
 			(push pipe_streams stdout (out-stream stdout_mbox))

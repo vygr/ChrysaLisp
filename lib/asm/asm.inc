@@ -22,7 +22,7 @@
 				buckets (map (lambda (_) (list)) child_mboxs) err (list))
 			(each (# (push (elem (% _ num_child) buckets) %0)) files)
 			(each (# (push select (defq inbox (in-mbox (elem -2 (push data_in (in-stream))))))
-					(mail-send (str (list (pop buckets) (get-long inbox 0) *abi* *cpu* *debug_mode* *debug_emit* *debug_inst*)) %0))
+					(mail-send %0 (str (list (pop buckets) (get-long inbox 0) *abi* *cpu* *debug_mode* *debug_emit* *debug_inst*))))
 				child_mboxs)
 			(while (/= (length select) 0)
 				;read all child data

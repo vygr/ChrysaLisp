@@ -35,7 +35,7 @@
 
 (defun broadcast (text)
 	(setq text (cat "<" (get :text chat_user) "> " text (ascii-char 10)))
-	(each (# (mail-send text (net-id-str (str-to-num (elem 1 (split %0 ",")))))) (mail-enquire "CHAT_SERVICE")))
+	(each (# (mail-send (net-id-str (str-to-num (elem 1 (split %0 ",")))) text)) (mail-enquire "CHAT_SERVICE")))
 
 (defun main ()
 	(defq id t text_buf (list "") select (list (task-mailbox)) entry nil)
@@ -54,7 +54,7 @@
 				;connect to network
 				(unless entry
 					(push select (mail-alloc-mbox))
-					(setq entry (mail-declare "CHAT_SERVICE" (elem 1 select) "Chat Service 0.1"))
+					(setq entry (mail-declare (elem 1 select) "CHAT_SERVICE" "Chat Service 0.1"))
 					(broadcast "Has joined the chat !")))
 			((= id +event_disconnect+)
 				;disconnect to network

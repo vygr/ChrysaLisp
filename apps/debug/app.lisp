@@ -14,7 +14,7 @@
 ;single instance only
 (when (= (length (mail-enquire "DEBUG_SERVICE")) 0)
 	(defq select (list (task-mailbox) (mail-alloc-mbox))
-		entry (mail-declare "DEBUG_SERVICE" (elem -2 select) "Debug Service 0.4"))
+		entry (mail-declare (elem -2 select) "DEBUG_SERVICE" "Debug Service 0.4"))
 
 (structure '+debug_msg 0
 	(long 'reply_id+ 'tcb+)
@@ -58,7 +58,7 @@
 
 (defun step (_)
 	(when (elem +debug_rec_reply_id+ _)
-		(mail-send "" (elem +debug_rec_reply_id+ _))
+		(mail-send (elem +debug_rec_reply_id+ _) "")
 		(elem-set +debug_rec_reply_id+ _ nil)))
 
 (defun reset (&optional _)
@@ -104,7 +104,7 @@
 				(elem-set +debug_rec_buf+ (defq buf_rec (elem index buf_list))
 					(vdu-print (if (= index buf_index) vdu) (elem +debug_rec_buf+ buf_rec) data))
 				(if (elem +debug_rec_state+ buf_rec)
-					(mail-send "" reply_id)
+					(mail-send reply_id "")
 					(elem-set +debug_rec_reply_id+ buf_rec reply_id)))
 			;close ?
 			((= (setq id (get-long msg ev_msg_target_id)) +event_close+)

@@ -7241,8 +7241,8 @@ ping services out to network
 
 ```lisp
 inputs
-r0 = service name str object (ptr)
-r1 = mailbox id str object (ptr)
+r0 = mailbox id str object (ptr)
+r1 = service name str object (ptr)
 r2 = service info str object (ptr)
 outputs
 r0 = service key str object (ptr)

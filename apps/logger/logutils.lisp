@@ -14,7 +14,7 @@
   ; (service-send mailbox command data)
   ; Sends a mail message from log_service to
   ; mailbox
-  (mail-send (cat (char command long_size) strng) toclient))
+  (mail-send toclient (cat (char command long_size) strng)))
 
 (defun service-send-ser (toclient command data)
   ; (service-send-ser mailbox command data)

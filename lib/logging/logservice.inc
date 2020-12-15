@@ -171,7 +171,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun shutdown-log-service ()
-  (mail-send (char +log_event_shutdown+ long_size) (get-logsrvc-mb))
+  (mail-send (get-logsrvc-mb) (char +log_event_shutdown+ long_size))
   (setq log_srvc_mbox_id nil))
 
 (defun ping-service ()

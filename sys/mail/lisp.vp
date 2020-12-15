@@ -147,23 +147,23 @@
 	(gotoif '(r2 = 0) 'error))
 
 	(call 'lisp :env_args_set {args, 0, &arg0})
-	(call 'obj :inst_of (cat {arg0, @} (f-path 'str :vtable)))
+	(call 'obj :inst_of (cat {arg1, @} (f-path 'str :vtable)))
 	(vpif (list (method-output 'obj :inst_of 1) '/= 0))
-		(call 'sys_mail :alloc_obj {arg0, &arg0->str_data, arg0->str_length} {arg2})
+		(call 'sys_mail :alloc_obj {arg1, &arg1->str_data, arg1->str_length} {arg2})
 		(goto 'sendit)
 	(endif)
-	(call 'obj :inst_of (cat {arg0, @} (f-path 'list :vtable)))
+	(call 'obj :inst_of (cat {arg1, @} (f-path 'list :vtable)))
 	(vpif (list (method-output 'obj :inst_of 1) '/= 0))
-		(call 'sys_mail :alloc_obj {arg0, arg0->array_begin, arg0->array_length * long_size} {arg2})
+		(call 'sys_mail :alloc_obj {arg1, arg1->array_begin, arg1->array_length * long_size} {arg2})
 		(goto 'sendit)
 	(endif)
-	(call 'obj :inst_of (cat {arg0, @} (f-path 'array :vtable)))
+	(call 'obj :inst_of (cat {arg1, @} (f-path 'array :vtable)))
 	(errorif (list (method-output 'obj :inst_of 1) '= 0) 'error)
-	(call 'str :create_from_buffer {arg0->array_begin, arg0->array_length * long_size} {value})
+	(call 'str :create_from_buffer {arg1->array_begin, arg1->array_length * long_size} {value})
 	(call 'sys_mail :alloc_obj {value, &value->str_data, value->str_length} {arg2})
 	(call 'obj :deref {value})
 (vp-label 'sendit)
-	(assign {ptr(&arg1->str_data)} {arg2->msg_dest.net_id_id})
+	(assign {ptr(&arg0->str_data)} {arg2->msg_dest.net_id_id})
 	(call 'sys_mail :send {arg2})
 	(call 'obj :ref {arg0} {value})
 
@@ -172,8 +172,8 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error {this, "(mail-send obj mbox)", error_msg_wrong_types, args})
-	(signature '(obj str)))
+	(jump 'lisp :repl_error {this, "(mail-send mbox obj)", error_msg_wrong_types, args})
+	(signature '(str obj)))
 
 	(pop-scope-syms)
 
@@ -206,7 +206,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(mail-declare name mbox info)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(r0 "(mail-declare mbox name info)" error_msg_wrong_types r1))
 	(signature '(str str str)))
 
 (def-func-end)

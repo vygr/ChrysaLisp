@@ -35,7 +35,7 @@
 
 (defun reset (new_devices)
 	;reset the app to these known devices
-	(while (defq mbox (pop farm)) (mail-send "" mbox))
+	(while (defq mbox (pop farm)) (mail-send mbox ""))
 	(setq devices new_devices cpu_count (length devices)
 		farm (open-farm "apps/netmon/child" cpu_count kn_call_open devices))
 	(while (defq progress (pop task_bars)) (. progress :sub))
@@ -77,7 +77,7 @@
 			;send out multi-cast sample command
 			(while (/= cpu_count 0)
 				(setq cpu_count (dec cpu_count))
-				(mail-send sample_msg (elem cpu_count farm)))
+				(mail-send (elem cpu_count farm) sample_msg))
 			(task-sleep 10000))
 
 		;next event
@@ -115,4 +115,4 @@
 	(. mywindow :hide)
 	(mail-free-mbox (pop select))
 	(while (defq mbox (pop farm))
-		(mail-send "" mbox)))
+		(mail-send mbox "")))
