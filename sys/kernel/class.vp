@@ -66,6 +66,7 @@
 	(call 'opts {argv})
 
 	;start routing pings
+	(call 'node :create {0, node_id_size} {key})
 	(call 'sys_task :start (cat {@} (f-path 'sys_kernel :ping)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;
@@ -124,24 +125,25 @@
 				;new services ping
 				(ptr 'session 'set)
 				(union
-					(ptr 'bucket)
+					(ptr 'bucket 'new_key)
 					(ptr 'services 'entries))
 				(push-scope)
 				;just send to neibours if I am origin !
 				(gotoifnot {(node_id.node_id_node1 - data->kn_msg_ping_origin.node_id_node1)
 							| (node_id.node_id_node2 - data->kn_msg_ping_origin.node_id_node2)} 'to_neibours1)
 				;find/create the service tuple for the origin
-				(call 'node :create {&data->kn_msg_ping_origin, node_id_size} {key})
+				(assign {data->kn_msg_ping_origin.node_id_node1, data->kn_msg_ping_origin.node_id_node2}
+					{key->str_data.node_id_node1, key->str_data.node_id_node2})
 				(call 'hmap :find {mail_statics->ml_statics_service_map, key} {_, tuple, bucket})
 				(vpifnot {tuple})
+					(call 'node :create {&data->kn_msg_ping_origin, node_id_size} {new_key})
 					(call 'list :create nil {tuple})
 					(call 'num :create {0} {session})
 					(call 'hset :create `((@ ,(f-path 'str :same)) 1) {set})
 					(call 'list :push_back2 {tuple, session, set})
-					(call 'list :push_back2 {bucket, key, tuple})
+					(call 'list :push_back2 {bucket, new_key, tuple})
 				(else)
 					(assign {(pptr tuple)[ptr_size]} {tuple})
-					(call 'node :destroy {key})
 				(endif)
 				;add service entries for the origin ?
 				(call 'list :get_first {tuple} {_, session})
@@ -167,20 +169,21 @@
 				(goto 'drop_msg)
 			(vpcase '(r0 = kn_call_route))
 				;new routing ping
-				(ptr 'bucket)
+				(ptr 'bucket 'new_key)
 				(long 'session 'hops)
 				(push-scope)
 				;find/create the routing tuple for the origin
-				(call 'node :create {&data->kn_msg_ping_origin, node_id_size} {key})
+				(assign {data->kn_msg_ping_origin.node_id_node1, data->kn_msg_ping_origin.node_id_node2}
+					{key->str_data.node_id_node1, key->str_data.node_id_node2})
 				(call 'hmap :find {mail_statics->ml_statics_routing_map, key} {_, tuple, bucket})
 				(vpifnot {tuple})
+					(call 'node :create {&data->kn_msg_ping_origin, node_id_size} {new_key})
 					(call 'array :create nil {tuple})
 					;session, hops
 					(call 'array :push_back2 {tuple, -1, -1})
-					(call 'list :push_back2 {bucket, key, tuple})
+					(call 'list :push_back2 {bucket, new_key, tuple})
 				(else)
 					(assign {(pptr tuple)[ptr_size]} {tuple})
-					(call 'node :destroy {key})
 				(endif)
 				;update routing entries for the origin ?
 				(call 'array :get_first2 {tuple} {_, session, hops})
