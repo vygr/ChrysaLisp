@@ -7,8 +7,8 @@ if ( $args.count -lt 1 ){
 }
 else {
 	$num_cpu = $args[0]
-	if ( $num_cpu -gt 1000){
-		$num_cpu = 1000
+	if ( $num_cpu -gt 64){
+		$num_cpu = 64
 	}
 }
 

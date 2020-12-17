@@ -52,7 +52,7 @@
       (defq res (mail-enquire +logging_srvc_name+))
       (setq log_srvc_mbox_id
         (if (nempty? res)
-            (net-id-str (str-to-num (second (split (first res) ","))))
+            (to-net-id (second (split (first res) ",")))
             (open-child "apps/logger/app.lisp" kn_call_child))))
     (t log_srvc_mbox_id)))
 

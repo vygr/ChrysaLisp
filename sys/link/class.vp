@@ -2,7 +2,7 @@
 (include "sys/link/class.inc")
 (include "sys/kernel/class.inc")
 (include "class/array/class.inc")
-(include "class/num/class.inc")
+(include "class/node/class.inc")
 
 (def-method 'sys_link :out)
 	;started by kernel for each link
@@ -11,7 +11,7 @@
 	(ptr 'task_statics 'params 'msg 'data 'mem 'tx 'tx_msg 'key)
 	(pubyte 'pdata)
 	(long 'handle)
-	(uint 'id)
+	(struct 'node_id 'node_id)
 
 	(push-scope)
 
@@ -21,10 +21,11 @@
 	(assign {task_statics->tk_statics_task_count - 2} {task_statics->tk_statics_task_count})
 
 	;init and add link node to link array
-	(call 'sys_kernel :id nil {id})
-	(assign {0, -1} {lk_node.lk_node_task_count, lk_node.lk_node_peer_cpu_id})
+	(call 'sys_kernel :id nil {node_id.node_id_node1, node_id.node_id_node2})
+	(assign {0 => lk_node.lk_node_task_count => lk_node.lk_node_peer_node_id.node_id_node1}
+		{lk_node.lk_node_peer_node_id.node_id_node2})
 	(call 'array :push_back (cat {@} (f-path 'sys_mail :statics) {.ml_statics_links_array, &lk_node}))
-	(call 'num :create '(0) {key})
+	(call 'node :create '(0 node_id_size) {key})
 
 	;read params msg from kernel
 	(call 'sys_mail :mymail nil {params, pdata})
@@ -37,12 +38,15 @@
 
 	;put my towel down if seams available
 	(vpifnot {mem->lk_buffer_towel})
-		(assign {id} {mem->lk_buffer_towel})
+		(assign {node_id.node_id_node1} {mem->lk_buffer_towel})
 	(endif)
 
 	;start in link and send params
 	(call 'sys_mail :alloc {16} {msg, data})
-	(call 'sys_task :start (cat {@} (f-path 'sys_link :in)) {_, msg->msg_dest.net_id_id, _})
+	(call 'sys_task :start (cat {@} (f-path 'sys_link :in))
+		{_, _, msg->msg_dest.net_id_mbox_id,
+		msg->msg_dest.net_id_node_id.node_id_node1,
+		msg->msg_dest.net_id_node_id.node_id_node2})
 	(assign {&lk_node} {ptr(data + 0)})
 	(assign {mem} {ptr(data + ptr_size)})
 	(call 'sys_mail :send {msg})
@@ -53,7 +57,7 @@
 	(call 'sys_task :sleep '(100000))
 
 	;assign tx channel based on the towel I now see
-	(vpif {id = mem->lk_buffer_towel})
+	(vpif {mem->lk_buffer_towel = node_id.node_id_node1})
 		(assign {mem + lk_buffer_chan_1} {tx})
 	(else)
 		(assign {mem + lk_buffer_chan_2} {tx})
@@ -63,13 +67,16 @@
 	;write messages through the shared buffer
 	(loop-start)
 		;write my task count and cpu id
-		(assign {task_statics->tk_statics_task_count, id}
-			{tx->lk_chan_task_count, tx->lk_chan_peer_cpu_id})
+		(assign {node_id.node_id_node1, node_id.node_id_node2, task_statics->tk_statics_task_count}
+			{tx->lk_chan_peer_node_id.node_id_node1, tx->lk_chan_peer_node_id.node_id_node2, tx->lk_chan_task_count})
 
 		;do we have a free out slot
 		(loop-while {tx_msg->lk_msg_status = lk_chan_status_ready})
 			;see if any mail for this link
-			(call 'sys_mail :ready {lk_node.lk_node_peer_cpu_id, key} {msg})
+			(call 'sys_mail :ready
+				{lk_node.lk_node_peer_node_id.node_id_node1,
+				lk_node.lk_node_peer_node_id.node_id_node2,
+				key} {msg})
 			(breakifnot {msg})
 
 			;copy message data
@@ -108,7 +115,7 @@
 	(call 'sys_mail :free {params})
 
 	;remove from links array...
-	(call 'num :destroy {key})
+	(call 'node :destroy {key})
 
 	;restore task count
 	(assign {task_statics->tk_statics_task_count + 2} {task_statics->tk_statics_task_count})
@@ -121,7 +128,7 @@
 	;started by out link for each link
 
 	(ptr 'lk_node 'msg 'data 'rx 'rx_msg)
-	(uint 'id)
+	(struct 'node_id 'node_id)
 
 	(push-scope)
 
@@ -137,8 +144,8 @@
 	(call 'sys_task :sleep '(100000))
 
 	;assign rx channel
-	(call 'sys_kernel :id nil {id})
-	(vpif {id = rx->lk_buffer_towel})
+	(call 'sys_kernel :id nil {node_id.node_id_node1, node_id.node_id_node2})
+	(vpif {rx->lk_buffer_towel = node_id.node_id_node1})
 		(assign {rx + lk_buffer_chan_2} {rx})
 	(else)
 		(assign {rx + lk_buffer_chan_1} {rx})
@@ -148,13 +155,15 @@
 	;read messages from the shared buffer
 	(loop-start)
 		;read neibour task count and peer id
-		(assign {rx->lk_chan_task_count, rx->lk_chan_peer_cpu_id}
-			{lk_node->lk_node_task_count, lk_node->lk_node_peer_cpu_id})
+		(assign {rx->lk_chan_peer_node_id.node_id_node1, rx->lk_chan_peer_node_id.node_id_node2, rx->lk_chan_task_count}
+			{lk_node->lk_node_peer_node_id.node_id_node1, lk_node->lk_node_peer_node_id.node_id_node2, lk_node->lk_node_task_count})
 
 		;check for received message
 		(loop-while {rx_msg->lk_msg_status = lk_chan_status_busy})
 			;is this msg part of a parcel for this node
-			(vpif {rx_msg->lk_msg_stamp.msg_total_length && rx_msg->lk_msg_stamp.msg_dest.net_id_cpu_id = id})
+			(vpif {rx_msg->lk_msg_stamp.msg_total_length
+				&& rx_msg->lk_msg_stamp.msg_dest.net_id_node_id.node_id_node1 = node_id.node_id_node1
+				&& rx_msg->lk_msg_stamp.msg_dest.net_id_node_id.node_id_node2 = node_id.node_id_node2})
 				;copy direct from link buffer to parcel !
 				(call 'sys_mail :in {rx_msg})
 			(else)

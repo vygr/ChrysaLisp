@@ -18,7 +18,7 @@
 (dec-method :get_bounds 'gui/view/get_bounds :static '(r0) '(r0 r7 r8 r9 r10))
 (dec-method :set_bounds 'gui/view/set_bounds :static '(r0 r7 r8 r9 r10) '(r0))
 (dec-method :set_flags 'gui/view/set_flags :static '(r0 r1 r2) '(r0 r1))
-(dec-method :find_owner 'gui/view/find_owner :static '(r0) '(r0 r1))
+(dec-method :find_owner 'gui/view/find_owner :static '(r0) '(r0 r1 r2 r3))
 (dec-method :get_prop 'gui/view/get_prop :static '(r0 r1) '(r0 r1))
 (dec-method :ref_prop 'gui/view/ref_prop :static '(r0 r1) '(r0 r1))
 (dec-method :get_long_prop 'gui/view/get_long_prop :static '(r0 r1) '(r0 r1))

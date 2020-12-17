@@ -1,7 +1,7 @@
 (include "sys/mail/class.inc")
 
 (def-class 'sys_kernel)
-(dec-method :id 'sys/kernel/id :static nil '(r0))
+(dec-method :id 'sys/kernel/id :static nil '(r0 r1))
 (dec-method :kernel 'sys/kernel/kernel :static '(r0))
 (dec-method :ping 'sys/kernel/ping)
 
@@ -33,6 +33,8 @@
 (def-struct-end)
 
 (def-struct 'kn_msg_ping 'kn_msg)
-	(uint 'via 'session 'origin 'hops)
+	(struct 'via 'node_id)
+	(struct 'origin 'node_id)
+	(uint 'session 'hops)
 	(offset 'services)
 (def-struct-end)

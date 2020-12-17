@@ -163,7 +163,9 @@
 	(call 'sys_mail :alloc_obj {value, &value->str_data, value->str_length} {arg2})
 	(call 'obj :deref {value})
 (vp-label 'sendit)
-	(assign {ptr(&arg0->str_data)} {arg2->msg_dest.net_id_id})
+	(assign {ulong(&arg0->str_data.net_id_mbox_id)} {arg2->msg_dest.net_id_mbox_id})
+	(assign {ulong(&arg0->str_data.net_id_node_id.node_id_node1)} {arg2->msg_dest.net_id_node_id.node_id_node1})
+	(assign {ulong(&arg0->str_data.net_id_node_id.node_id_node2)} {arg2->msg_dest.net_id_node_id.node_id_node2})
 	(call 'sys_mail :send {arg2})
 	(call 'obj :ref {arg0} {value})
 
@@ -296,11 +298,10 @@
 
 	(vp-push r0)
 	(call 'str :create_from_buffer '(0 net_id_size) '(r6))
-	(call 'sys_mail :alloc_mbox nil '(r1 _))
-	(call 'sys_kernel :id nil '(r0))
-	(vp-shl-cr 32 r0)
-	(vp-add-rr r1 r0)
-	(vp-cpy-ri r0 r6 str_data)
+	(call 'sys_mail :alloc_mbox nil `((r6 ,(+ str_data net_id_mbox_id)) _))
+	(call 'sys_kernel :id nil
+		`((r6 ,(+ str_data net_id_node_id node_id_node1))
+		(r6 ,(+ str_data net_id_node_id node_id_node2))))
 	(vp-pop r0)
 
 	(exit 'sys_mail :lisp_alloc_mbox '(r0 r6))

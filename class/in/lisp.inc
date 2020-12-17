@@ -6,8 +6,8 @@
 
 (defun in-mbox (in)
 	; (in-mbox in) -> mbox
-	(net-id-str (+ (logand (get-long (task-mailbox) 0) (const (lognot 0xffffffff)))
-		(get-field in (const in_mbox_id) (const (neg int_size))))))
+	(cat (char (get-field in (const in_mbox_id) (const (neg int_size))) (const long_size))
+		(slice (const long_size) -1 (task-mailbox))))
 
 (defun in-get-state (in)
 	; (in-get-state in) -> num

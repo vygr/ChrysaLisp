@@ -6,7 +6,8 @@
 (import "gui/lisp.inc")
 
 (structure 'sample_reply 0
-	(int 'cpu 'task_count 'mem_used))
+	(nodeid 'node)
+	(int 'task_count 'mem_used))
 
 (structure '+event 0
 	(byte 'close+ 'max+ 'min+))
@@ -102,7 +103,7 @@
 						(. mywindow :change_dirty x y w h))
 					(t (. mywindow :event msg))))
 			(t	;child info
-				(defq index (find (get-uint msg sample_reply_cpu) devices)
+				(defq index (find (slice sample_reply_node (+ sample_reply_node node_id_size) msg) devices)
 					task_val (get-uint msg sample_reply_task_count)
 					memory_val (get-uint msg sample_reply_mem_used)
 					task_bar (elem index task_bars) memory_bar (elem index memory_bars))

@@ -1420,10 +1420,6 @@
 
 (nempty? form) -> bool
 
-## net-id-str
-
-(net-id-str mbox) -> str
-
 ## net_id
 
 (net_id field ...)
@@ -1539,10 +1535,6 @@
 ## open-pipe
 
 (open-pipe tasks) -> (list str ...)
-
-## open-remote
-
-(open-remote task node mode) -> str
 
 ## opt
 
@@ -1939,6 +1931,10 @@
 ## to-lower
 
 (to-lower str) -> str
+
+## to-net-id
+
+(to-net-id service_mbox) -> str
 
 ## to-upper
 

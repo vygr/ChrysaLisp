@@ -680,16 +680,20 @@
 	;r0 = view object (ptr)
 	;outputs
 	;r0 = view object (ptr)
-	;r1 = 0, else mailbox id of owner (ulong)
+	;r1-r3 = 0, else mailbox ID of owner (net_id)
 	;trashes
-	;r1-r2
+	;r1-r4
 
 	;walk up tree to parent
-	(vp-cpy-rr r0 r2)
+	(vp-cpy-rr r0 r4)
 	(loop-start)
-		(assign `((r2 ,(+ view_owner_id net_id_id)) (r2 hmap_parent)) '(r1 r2))
-		(breakif '(r1 /= 0))
-	(loop-until '(r2 = 0))
+		(assign
+			`((r4 ,(+ view_owner_id net_id_mbox_id))
+			(r4 ,(+ view_owner_id net_id_node_id node_id_node1))
+			(r4 ,(+ view_owner_id net_id_node_id node_id_node2))
+			(r4 hmap_parent)) '(r1 r2 r3 r4))
+		(breakif '(r1 /= 0) '(r2 /= 0) '(r3 /= 0))
+	(loop-until '(r4 = 0))
 	(vp-ret)
 
 (def-func-end)

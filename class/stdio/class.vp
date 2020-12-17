@@ -35,10 +35,18 @@
 		(call 'sys_mail :mymail nil {msg, data})
 		(vpif {msg->msg_frag_length})
 			;create stdin, stdout, stderr
-			(call 'sys_task :mailbox nil {args})
+			(call 'sys_task :mailbox nil {args, _, _})
 			(call 'in :create {args} {this->stdio_stdin})
-			(call 'out :create {data->stdio_msg_init_stdout_id.net_id_id} {this->stdio_stdout})
-			(call 'out :create {data->stdio_msg_init_stderr_id.net_id_id} {this->stdio_stderr})
+			(call 'out :create
+				{data->stdio_msg_init_stdout_id.net_id_mbox_id,
+				data->stdio_msg_init_stdout_id.net_id_node_id.node_id_node1,
+				data->stdio_msg_init_stdout_id.net_id_node_id.node_id_node2}
+				{this->stdio_stdout})
+			(call 'out :create
+				{data->stdio_msg_init_stderr_id.net_id_mbox_id,
+				data->stdio_msg_init_stderr_id.net_id_node_id.node_id_node1,
+				data->stdio_msg_init_stderr_id.net_id_node_id.node_id_node2}
+				{this->stdio_stderr})
 
 			;create args
 			(call 'str :create_from_buffer {&data->stdio_msg_init_args, msg->msg_frag_length - stdio_msg_init_size} {args})
@@ -46,7 +54,12 @@
 			(call 'str :deref {args})
 
 			;send back ack with stdin mailbox
-			(assign {data->stdio_msg_init_ack_id.net_id_id} {msg->msg_dest.net_id_id})
+			(assign {data->stdio_msg_init_ack_id.net_id_mbox_id}
+				{msg->msg_dest.net_id_mbox_id})
+			(assign {data->stdio_msg_init_ack_id.net_id_node_id.node_id_node1}
+				{msg->msg_dest.net_id_node_id.node_id_node1})
+			(assign {data->stdio_msg_init_ack_id.net_id_node_id.node_id_node2}
+				{msg->msg_dest.net_id_node_id.node_id_node2})
 			(assign {this->stdio_stdin->in_mbox_id} {data->stdio_msg_init_stdin_mbox_id})
 			(call 'sys_mail :send {msg})
 		(else)

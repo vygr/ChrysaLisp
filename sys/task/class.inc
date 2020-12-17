@@ -10,9 +10,9 @@
 (dec-method :statics 'sys/task/statics)
 (dec-method :statics_init 'sys/task/statics_init)
 (dec-method :tcb 'sys/task/tcb :static nil '(r0))
-(dec-method :mailbox 'sys/task/mailbox :static nil '(r0))
+(dec-method :mailbox 'sys/task/mailbox :static nil '(r0 r1 r2))
 (dec-method :callback 'sys/task/callback :static '(r0 r1))
-(dec-method :start 'sys/task/start :static '(r0) '(r0 r1 r2))
+(dec-method :start 'sys/task/start :static '(r0) '(r0 r1 r2 r3 r4))
 (dec-method :stop 'sys/task/stop)
 (dec-method :restore 'sys/task/restore)
 (dec-method :count 'sys/task/count :static nil '(r0))
@@ -22,7 +22,7 @@
 (dec-method :defer 'sys/task/defer :static '(r0))
 (dec-method :set_priority 'sys/task/set_priority :static '(r0))
 (dec-method :timer 'sys/task/timer :static nil '(r0))
-(dec-method :open_child 'sys/task/open_child :static '(r0 r1) '(r0))
+(dec-method :open_child 'sys/task/open_child :static '(r0 r1) '(r0 r1 r2))
 (dec-method :task_callback 'class/obj/null :static '(r0))
 
 (dec-method :lisp_sleep 'sys/task/lisp_sleep :static '(r0 r1) '(r0 r1))
@@ -49,8 +49,9 @@
 (defcvar 'num_task_lists 4)
 
 (def-struct 'tk_statics)
+	(struct 'kernel_node_id 'node_id)
 	(ptr 'current_tcb 'kernel_tcb)
-	(uint 'task_count 'cpu_id)
+	(uint 'task_count)
 	(local-align)
 	;keep these together
 	(struct 'timer_list 'lh_list)
