@@ -81,7 +81,7 @@
 
 			;copy message data
 			(call 'sys_mem :copy {msg + ln_node_size, &tx_msg->lk_msg_stamp + ln_node_size, msg_stamp_size - ln_node_size})
-			(call 'sys_mem :copy {msg->msg_frag_data, &tx_msg->lk_msg_data, (msg->msg_frag_length + long_size - 1) & - long_size})
+			(call 'sys_mem :copy {msg->msg_frag_data, &tx_msg->lk_msg_data, (msg->msg_frag_length + long_size - 1) & -long_size})
 
 			;busy status
 			(assign {lk_chan_status_busy} {tx_msg->lk_msg_status})
@@ -170,7 +170,7 @@
 				;allocate msg, copy over data
 				(call 'sys_mail :alloc {rx_msg->lk_msg_stamp.msg_frag_length} {msg, data})
 				(call 'sys_mem :copy {&rx_msg->lk_msg_stamp + ln_node_size, msg + ln_node_size, msg_stamp_size - ln_node_size})
-				(call 'sys_mem :copy {&rx_msg->lk_msg_data, data, rx_msg->lk_msg_stamp.msg_frag_length + long_size - 1) & - long_size})
+				(call 'sys_mem :copy {&rx_msg->lk_msg_data, data, rx_msg->lk_msg_stamp.msg_frag_length + long_size - 1) & -long_size})
 
 				;clear status
 				(assign {lk_chan_status_ready} {rx_msg->lk_msg_status})
