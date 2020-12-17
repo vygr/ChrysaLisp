@@ -39,10 +39,10 @@
       (t (setd uses_handler :console))))
   (defq lr (log-registration mname uses_handler))
   (mail-send
+    (get-logsrvc-mb)
     (cat
       (char +log_event_register+ long_size)
-      (str (data-xser lr)))
-    (get-logsrvc-mb))
+      (str (data-xser lr))))
   (log-registration-result lr))
 
 (defun log-send (logger lmsgtype msg)
@@ -62,10 +62,10 @@
         (console-log-msg-writer logger msgs)))
     (t
       (mail-send
+        (get-logsrvc-mb)
         (cat
           (char +log_event_logmsg+ long_size)
-          (str (data-xser msgs)))
-        (get-logsrvc-mb)))))
+          (str (data-xser msgs)))))))
 
 ; Convenience loggers
 
