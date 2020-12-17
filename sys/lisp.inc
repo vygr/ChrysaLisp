@@ -51,24 +51,24 @@
 (defun open-child (task mode)
 	; (open-child task mode) -> str
 	(defq mbox (mail-alloc-mbox))
-	(mail-send (cat
+	(mail-send (net-id-str (logand (get-long (task-mailbox) 0) (const (<< -1 32))))
+		(cat
 			(char 0 long_size)
 			mbox
 			(char mode long_size)
-			task (char 0))
-		(net-id-str (logand (get-long (task-mailbox) 0) (const (<< -1 32)))))
+			task (char 0)))
 	(defq id (slice (const long_size) (const (+ long_size net_id_size)) (mail-read mbox)))
 	(mail-free-mbox mbox) id)
 
 (defun open-remote (task node mode)
 	; (open-remote task node mode) -> str
 	(defq mbox (mail-alloc-mbox))
-	(mail-send (cat
+	(mail-send (net-id-str (<< node 32))
+		(cat
 			(char 0 long_size)
 			mbox
 			(char mode long_size)
-			(elem index tasks) (char 0))
-		(net-id-str (<< node 32)))
+			(elem index tasks) (char 0)))
 	(defq id (slice (const long_size) (const (+ long_size net_id_size)) (mail-read mbox)))
 	(mail-free-mbox mbox) id)
 
@@ -77,12 +77,12 @@
 	(defq devices (opt devices (mail-devices)) ids (cap num (list)) mbox (mail-alloc-mbox)
 		index -1 center (+ (/ num 2) (length devices) (opt (find (>> (get-long (task-mailbox) 0) 32) devices) 0)))
 	(while (< (setq index (inc index)) num)
-		(mail-send (cat
+		(mail-send (net-id-str (<< (elem (% (+ index center) (length devices)) devices) 32))
+			(cat
 				(char index long_size)
 				mbox
 				(char mode long_size)
-				task (char 0))
-			(net-id-str (<< (elem (% (+ index center) (length devices)) devices) 32))))
+				task (char 0))))
 	(while (>= (setq index (dec index)) 0)
 		(defq msg (mail-read mbox))
 		(push ids (slice (const long_size) (const (+ long_size net_id_size)) msg)))
@@ -93,12 +93,12 @@
 	(defq devices (mail-devices) ids (cap (length tasks) (list))
 		mbox (mail-alloc-mbox) index -1 tail (task-mailbox))
 	(while (< (setq index (inc index)) (length tasks))
-		(mail-send (cat
+		(mail-send (net-id-str (logand (get-long tail 0) (const (<< -1 32))))
+			(cat
 				(char index long_size)
 				mbox
 				(char kn_call_child long_size)
-				(elem index tasks) (char 0))
-			(net-id-str (logand (get-long tail 0) (const (<< -1 32)))))
+				(elem index tasks) (char 0)))
 		(defq tail (slice (const long_size) (const (+ long_size net_id_size)) (mail-read mbox)))
 		(push ids tail))
 	(mail-free-mbox mbox) ids)

@@ -880,7 +880,7 @@
 					(def ,class :vtable ,super)
 					~methods
 					(defmethod :type_of (this)
-						(push (. this :type_of) ,(sym (cat : n)))))
+						(push (.super this :type_of) ,(sym (cat : n)))))
 				~inits this))
 		`(progn
 			(defq ,class (env -1))

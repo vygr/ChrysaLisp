@@ -61,9 +61,9 @@
 	(while (cond
 		((eql (defq msg (mail-read (task-mailbox))) "")
 			nil)
-		((= (length button_text) 0) (task-sleep sleep_time) (mail-send "" reply_mbox))
+		((= (length button_text) 0) (task-sleep sleep_time) (mail-send reply_mbox ""))
 		((= (defq id (get-long msg ev_msg_target_id)) +event_click+)
 			(defq reply (get :text (. mywindow :find_id (get-long msg ev_msg_action_source_id))))
-			(mail-send reply reply_mbox))
+			(mail-send reply_mbox reply))
 		(t (. mywindow :event msg))))
 		(. mywindow :hide))

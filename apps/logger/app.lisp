@@ -16,7 +16,7 @@
   (defq
     registra  (xmap)
     active    t
-    entry (mail-declare +logging_srvc_name+ (task-mailbox) "Logging Service 0.5")
+    entry (mail-declare (task-mailbox) +logging_srvc_name+ "Logging Service 0.5")
     ; DEBUG (file-stream "./logs/DEBUG_SERVICE.log" file_open_append)
     )
 

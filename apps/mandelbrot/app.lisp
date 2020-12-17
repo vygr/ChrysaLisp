@@ -23,11 +23,11 @@
 	(if select (mail-free-mbox (elem 1 select)))
 	(setq then (pii-time) select (list (task-mailbox) (mail-alloc-mbox))
 		area (* canvas_width canvas_height canvas_scale canvas_scale))
-	(mail-send (child-msg (elem 1 select) 0 0
-		(* canvas_width canvas_scale) (* canvas_height canvas_scale)
-		(* canvas_width canvas_scale) (* canvas_height canvas_scale)
-		center_x center_y zoom (* (length (mail-devices)) 4))
-		(open-child "apps/mandelbrot/child.lisp" kn_call_child)))
+	(mail-send (open-child "apps/mandelbrot/child.lisp" kn_call_child)
+		(child-msg (elem 1 select) 0 0
+			(* canvas_width canvas_scale) (* canvas_height canvas_scale)
+			(* canvas_width canvas_scale) (* canvas_height canvas_scale)
+			center_x center_y zoom (* (length (mail-devices)) 4))))
 
 (defun tile (canvas data)
 	; (tile canvas data) -> area

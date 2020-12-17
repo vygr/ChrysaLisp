@@ -14,7 +14,7 @@
 ;single instance only
 (when (= (length (mail-enquire "PROFILE_SERVICE")) 0)
 	(defq select (list (task-mailbox) (mail-alloc-mbox))
-		entry (mail-declare "PROFILE_SERVICE" (elem -2 select) "Profile Service 0.1"))
+		entry (mail-declare (elem -2 select) "PROFILE_SERVICE" "Profile Service 0.1"))
 
 (structure '+profile_msg 0
 	(netid 'tcb+)

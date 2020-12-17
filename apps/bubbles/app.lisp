@@ -76,7 +76,7 @@
 	(def image_scroll :min_width min_width :min_height min_height)
 
 	;create child and send args
-	(mail-send dlist (defq child_mbox (open-child "apps/bubbles/child.lisp" kn_call_open)))
+	(mail-send (defq child_mbox (open-child "apps/bubbles/child.lisp" kn_call_open)) dlist)
 
 	;random cloud of verts
 	(defq verts (vertex-cloud num_bubbles))
@@ -133,5 +133,5 @@
 		(redraw verts 1)
 		(task-sleep rate))
 	;close child and window
-	(mail-send "" child_mbox)
+	(mail-send child_mbox "")
 	(. mywindow :hide))

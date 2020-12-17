@@ -66,7 +66,7 @@
 			;send out multi-cast sample command
 			(while (/= cpu_count 0)
 				(setq cpu_count (dec cpu_count))
-				(mail-send sample_msg (elem cpu_count farm)))
+				(mail-send (elem cpu_count farm) sample_msg))
 			(clear stat_data) (setq max_classes 1))
 
 		;wait for next event
@@ -98,4 +98,4 @@
 	(. mywindow :hide)
 	(mail-free-mbox (pop select))
 	(while (defq mbox (pop farm))
-		(mail-send "" mbox)))
+		(mail-send mbox "")))

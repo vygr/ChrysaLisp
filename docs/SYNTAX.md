@@ -1334,7 +1334,7 @@
 
 ## mail-declare
 
-(mail-declare name mbox info)
+(mail-declare mbox name info)
 
 ## mail-devices
 
@@ -1366,7 +1366,7 @@
 
 ## mail-send
 
-(mail-send obj mbox)
+(mail-send mbox obj)
 
 ## map
 

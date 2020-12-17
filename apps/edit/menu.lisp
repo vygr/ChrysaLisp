@@ -45,6 +45,6 @@
 		((eql (defq msg (mail-read (task-mailbox))) "") nil)
 		((= +event_click+ (defq id (get-long msg ev_msg_target_id)))
 			(defq reply (get :text (. window :find_id (get-long msg ev_msg_action_source_id))))
-			(mail-send reply reply_mbox))
+			(mail-send reply_mbox reply))
 		(t (. window :event msg))))
 		(. window :hide))

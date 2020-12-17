@@ -117,7 +117,7 @@
 	(def image_scroll :min_width min_width :min_height min_height)
 
 	;create child and send args
-	(mail-send dlist (defq child_mbox (open-child "apps/whiteboard/child.lisp" kn_call_open)))
+	(mail-send (defq child_mbox (open-child "apps/whiteboard/child.lisp" kn_call_open)) dlist)
 
 	;main event loop
 	(defq last_state :u last_point nil last_mid_point nil id t)
@@ -126,7 +126,7 @@
 		(cond
 			((/= idx 0)
 				;save/load picker responce
-				(mail-send "" picker_mbox)
+				(mail-send picker_mbox "")
 				(setq picker_mbox nil)
 				(cond
 					;closed picker
@@ -171,14 +171,14 @@
 				(def (. mybackdrop :dirty) :style (radio-select style_buttons (- id +event_grid+))))
 			((= id +event_save+)
 				;save
-				(if picker_mbox (mail-send "" picker_mbox))
-				(mail-send (list (elem -2 select) "Save Whiteboard..." "." "")
-					(setq picker_mode t picker_mbox (open-child "apps/files/child.lisp" kn_call_open))))
+				(if picker_mbox (mail-send picker_mbox ""))
+				(mail-send (setq picker_mode t picker_mbox (open-child "apps/files/child.lisp" kn_call_open))
+					(list (elem -2 select) "Save Whiteboard..." "." "")))
 			((= id +event_load+)
 				;load
-				(if picker_mbox (mail-send "" picker_mbox))
-				(mail-send (list (elem -2 select) "Load Whiteboard..." "." ".cwb")
-					(setq picker_mode nil picker_mbox (open-child "apps/files/child.lisp" kn_call_open))))
+				(if picker_mbox (mail-send picker_mbox ""))
+				(mail-send (setq picker_mode nil picker_mbox (open-child "apps/files/child.lisp" kn_call_open))
+					(list (elem -2 select) "Load Whiteboard..." "." ".cwb")))
 			((= id +event_clear+)
 				;clear
 				(snapshot)
@@ -240,7 +240,7 @@
 			(t (. mywindow :event msg))))
 	;close child and window
 	(mail-free-mbox (pop select))
-	(mail-send "" child_mbox)
-	(if picker_mbox (mail-send "" picker_mbox))
+	(mail-send child_mbox "")
+	(if picker_mbox (mail-send picker_mbox ""))
 	(. mywindow :hide)
 	(profile-report "Whiteboard App"))

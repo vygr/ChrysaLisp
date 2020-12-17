@@ -21,7 +21,7 @@
 		(while (/= (setq xp (inc xp)) x1)
 			(write-char reply (depth (+ (mbfp-offset xp w z) cx) (+ (mbfp-offset y h z) cy))))
 		(task-sleep 0))
-	(mail-send (str reply) mbox))
+	(mail-send mbox (str reply)))
 
 (defun child-msg (mbox &rest _)
 	(cat mbox (apply cat (map (# (char %0 (const long_size))) _))))
@@ -32,9 +32,9 @@
 			;split into more tasks
 			(defq farm (open-farm "apps/mandelbrot/child.lisp" 3 kn_call_child)
 				x2 (/ (+ x x1) 2) y2 (/ (+ y y1) 2))
-			(mail-send (child-msg mbox x y x2 y2 w h cx cy z tot) (elem 0 farm))
-			(mail-send (child-msg mbox x2 y x1 y2 w h cx cy z tot) (elem 1 farm))
-			(mail-send (child-msg mbox x y2 x2 y1 w h cx cy z tot) (elem 2 farm))
+			(mail-send (elem 0 farm) (child-msg mbox x y x2 y2 w h cx cy z tot))
+			(mail-send (elem 1 farm) (child-msg mbox x2 y x1 y2 w h cx cy z tot))
+			(mail-send (elem 2 farm) (child-msg mbox x y2 x2 y1 w h cx cy z tot))
 			(rect mbox x2 y2 x1 y1 w h cx cy z tot))
 		(t	;do here
 			(mandel x y x1 y1 w h cx cy z))))

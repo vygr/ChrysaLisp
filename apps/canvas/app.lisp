@@ -17,12 +17,12 @@
 	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
 	(gui-add (. mywindow :change x y w h))
 	;create child and send args
-	(mail-send (list canvas (i2f canvas_width) (i2f canvas_height) (i2f canvas_scale))
-		(defq mbox (open-child "apps/canvas/child.lisp" kn_call_open)))
+	(mail-send (defq mbox (open-child "apps/canvas/child.lisp" kn_call_open))
+		(list canvas (i2f canvas_width) (i2f canvas_height) (i2f canvas_scale)))
 	(while (cond
 		((= (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id) +event_close+)
 			nil)
 		(t (. mywindow :event msg))))
 	;close child and mywindow
-	(mail-send "" mbox)
+	(mail-send mbox "")
 	(. mywindow :hide))

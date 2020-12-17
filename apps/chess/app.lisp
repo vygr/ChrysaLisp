@@ -45,8 +45,8 @@
 	(. vdu :load buf 0 0 (length (elem -2 buf)) (dec (length buf))) buf)
 
 (defun main ()
-	(mail-send (cat (in-mbox data_in) "20000000")
-		(defq child_mbox (open-child "apps/chess/child.lisp" kn_call_child)))
+	(mail-send (defq child_mbox (open-child "apps/chess/child.lisp" kn_call_child))
+		(cat (in-mbox data_in) "20000000"))
 	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
 	(gui-add (. mywindow :change x y w h))
 	;main event loop
@@ -68,7 +68,7 @@
 				((eql id "s")
 					(setq text_buf (vdu-print vdu text_buf (slice 1 -1 data))))))))
 	;close child and window, wait for child stream to close
-	(mail-send "" child_mbox)
+	(mail-send child_mbox "")
 	(. mywindow :hide)
 	(until id
 		(setq id (mail-select select))
