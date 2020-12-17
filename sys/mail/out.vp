@@ -8,18 +8,20 @@
 	;parcels going off chip or junk mail task
 
 	(ptr 'msg 'data 'frag 'mail_statics)
-	(uint 'id 'offset 'ammount 'len)
+	(struct 'node_id 'node_id)
+	(uint 'offset 'ammount 'len)
 
 	(push-scope)
 
 	(call 'sys_task :set_priority '(1))
-	(call 'sys_kernel :id nil {id})
+	(call 'sys_kernel :id nil {node_id.node_id_node1, node_id.node_id_node2})
 	(assign (cat {@} (f-path 'sys_mail :statics)) {mail_statics})
 
 	(loop-start 'mail_loop)
 		;read parcel or junk mail
 		(call 'sys_mail :mymail nil {msg, data})
-		(vpif {msg->msg_dest.net_id_cpu_id = id})
+		(vpifnot {(msg->msg_dest.net_id_node_id.node_id_node1 - node_id.node_id_node1)
+			| (msg->msg_dest.net_id_node_id.node_id_node2 - node_id.node_id_node2)})
 			;we got some junk mail, just free it for now
 			(call 'sys_mail :free {msg})
 			(continue 'mail_loop)
@@ -41,8 +43,14 @@
 			(call 'obj :ref {msg->msg_obj} {frag->msg_obj})
 
 			;fill in fragment
-			(assign {msg->msg_dest.net_id_id} {frag->msg_dest.net_id_id})
-			(assign {(id << 32) + mail_statics->ml_statics_session} {frag->msg_src.net_id_id})
+			(assign {msg->msg_dest.net_id_mbox_id} {frag->msg_dest.net_id_mbox_id})
+			(assign {msg->msg_dest.net_id_node_id.node_id_node1} {frag->msg_dest.net_id_node_id.node_id_node1})
+			(assign {msg->msg_dest.net_id_node_id.node_id_node2} {frag->msg_dest.net_id_node_id.node_id_node2})
+
+			(assign {mail_statics->ml_statics_session} {frag->msg_src.net_id_mbox_id})
+			(assign {node_id.node_id_node1} {frag->msg_src.net_id_node_id.node_id_node1})
+			(assign {node_id.node_id_node2} {frag->msg_src.net_id_node_id.node_id_node2})
+
 			(assign {len} {frag->msg_frag_length})
 			(assign {offset} {frag->msg_frag_offset})
 			(assign {msg->msg_frag_length} {frag->msg_total_length})

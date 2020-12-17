@@ -7,6 +7,7 @@
 (include "gui/gui/class.inc")
 (include "class/sym/class.inc")
 (include "class/num/class.inc")
+(include "class/node/class.inc")
 (include "class/hmap/class.inc")
 (include "class/lisp/class.inc")
 (include "lib/consts/chars.inc")
@@ -26,7 +27,9 @@
 		(ptr 'link))
 	(ptr 'task_statics 'mail_statics 'mbox_addr 'msg 'data 'tuple 'key)
 	(pptr 'iter_begin 'iter_end)
-	(uint 'id 'best_cnt 'best_id 'mbox_id)
+	(struct 'best_id 'node_id)
+	(struct 'node_id 'node_id)
+	(uint 'best_cnt)
 
 	(push-scope)
 	(entry {argv})
@@ -49,26 +52,18 @@
 	;start kernel task (get's mailbox id of 0 !)
 	(assign (cat {@} (f-path 'sys_task :statics)) {task_statics})
 	(assign (cat {@} (f-path 'sys_mail :statics)) {mail_statics})
-	(call 'sys_task :start {$fn_entry} {task_statics->tk_statics_kernel_tcb, mbox_id, mbox_addr})
+	(call 'sys_task :start {$fn_entry} {task_statics->tk_statics_kernel_tcb, mbox_addr, _, _, _})
 	(assign {task_statics->tk_statics_kernel_tcb} {task_statics->tk_statics_current_tcb})
 
 	;init mailer
 	(call 'sys_mail :statics_init1)
 
 	;set random node ID
-	(call 'sys_pii :rand {&task_statics->tk_statics_cpu_id, int_size})
+	(call 'sys_pii :rand {&task_statics->tk_statics_kernel_node_id, node_id_size})
+	(call 'sys_kernel :id nil {node_id.node_id_node1, node_id.node_id_node2})
 
 	;process command options
 	(call 'opts {argv})
-
-	;at least myself in the routing map !
- 	(call 'sys_kernel :id nil {id})
- 	(call 'num :create {id} {key})
-	(call 'array :create nil {tuple})
-	(call 'array :push_back2 {tuple, -1, -1})
-	(call 'hmap :insert {mail_statics->ml_statics_routing_map, key, tuple})
-	(call 'num :deref {key})
-	(call 'array :deref {tuple})
 
 	;start routing pings
 	(call 'sys_task :start (cat {@} (f-path 'sys_kernel :ping)))
@@ -93,26 +88,36 @@
 			(vpcase '(r0 = kn_call_open))
 			(vp-label 'run_here)
 				;fill in reply ID, user field is left alone !
-				(assign {data->kn_msg_reply_id.net_id_id} {msg->msg_dest.net_id_id})
-				(call 'opt_run {&data->kn_msg_open_pathname} {data->kn_msg_reply_id.net_id_id})
+				(assign {data->kn_msg_reply_id.net_id_mbox_id} {msg->msg_dest.net_id_mbox_id})
+				(assign {data->kn_msg_reply_id.net_id_node_id.node_id_node1} {msg->msg_dest.net_id_node_id.node_id_node1})
+				(assign {data->kn_msg_reply_id.net_id_node_id.node_id_node2} {msg->msg_dest.net_id_node_id.node_id_node2})
+				(call 'opt_run {&data->kn_msg_open_pathname}
+					{data->kn_msg_reply_id.net_id_mbox_id,
+					data->kn_msg_reply_id.net_id_node_id.node_id_node1,
+					data->kn_msg_reply_id.net_id_node_id.node_id_node2})
 				(assign {kn_msg_reply_size} {msg->msg_frag_length})
 				(call 'sys_mail :send {msg})
 				(break)
 			(vpcase '(r0 = kn_call_child))
 				;find best cpu to run task
-				(assign {task_statics->tk_statics_task_count, id} {best_cnt, best_id})
+				(assign {task_statics->tk_statics_task_count} {best_cnt})
+				(assign {node_id.node_id_node1} {best_id.node_id_node1})
+				(assign {node_id.node_id_node2} {best_id.node_id_node2})
 				(call 'array :get_both {mail_statics->ml_statics_links_array} {_, iter_begin, iter_end})
 				(loop-while {iter_begin /= iter_end})
 					(assign {*iter_begin} {link})
-					(vpif {link->lk_node_task_count < best_cnt})
-						(assign {link->lk_node_task_count} {best_cnt})
-						(assign {link->lk_node_peer_cpu_id} {best_id})
-					(endif)
 					(assign {iter_begin + ptr_size} {iter_begin})
+					(continueifnot {link->lk_node_task_count})
+					(continueif {link->lk_node_task_count >= best_cnt})
+					(assign {link->lk_node_task_count} {best_cnt})
+					(assign {link->lk_node_peer_node_id.node_id_node1} {best_id.node_id_node1})
+					(assign {link->lk_node_peer_node_id.node_id_node2} {best_id.node_id_node2})
 				(loop-end)
-				(gotoif {best_id = id} 'run_here)
+				(gotoifnot {(best_id.node_id_node1 - node_id.node_id_node1)
+						| (best_id.node_id_node2 - node_id.node_id_node2)} 'run_here)
 				;send to better kernel
-				(assign {best_id} {msg->msg_dest.net_id_cpu_id})
+				(assign {best_id.node_id_node1} {msg->msg_dest.net_id_node_id.node_id_node1})
+				(assign {best_id.node_id_node2} {msg->msg_dest.net_id_node_id.node_id_node2})
 				(call 'sys_mail :send {msg})
 				(break)
 			(vpcase '(r0 = kn_call_ping))
@@ -122,8 +127,11 @@
 					(ptr 'bucket)
 					(ptr 'services 'entries))
 				(push-scope)
+				;just send to neibours if I am origin !
+				(gotoifnot {(node_id.node_id_node1 - data->kn_msg_ping_origin.node_id_node1)
+							| (node_id.node_id_node2 - data->kn_msg_ping_origin.node_id_node2)} 'to_neibours1)
 				;find/create the service tuple for the origin
-				(call 'num :create {data->kn_msg_ping_origin} {key})
+				(call 'node :create {&data->kn_msg_ping_origin, node_id_size} {key})
 				(call 'hmap :find {mail_statics->ml_statics_service_map, key} {_, tuple, bucket})
 				(vpifnot {tuple})
 					(call 'list :create nil {tuple})
@@ -133,7 +141,7 @@
 					(call 'list :push_back2 {bucket, key, tuple})
 				(else)
 					(assign {(pptr tuple)[ptr_size]} {tuple})
-					(call 'num :destroy {key})
+					(call 'node :destroy {key})
 				(endif)
 				;add service entries for the origin ?
 				(call 'list :get_first {tuple} {_, session})
@@ -151,26 +159,28 @@
 						(assign {iter_begin + ptr_size} {iter_begin})
 					(loop-end)
 					(call 'list :destroy {entries})
+				(vp-label 'to_neibours1)
 					;flood to neibours
-					(call 'flood_fill {mail_statics, msg, data, id})
+					(call 'flood_fill {mail_statics, msg, data, node_id.node_id_node1, node_id.node_id_node2})
 				(endif)
 				(pop-scope)
 				(goto 'drop_msg)
 			(vpcase '(r0 = kn_call_route))
 				;new routing ping
 				(ptr 'bucket)
-				(ulong 'session 'hops)
+				(long 'session 'hops)
 				(push-scope)
 				;find/create the routing tuple for the origin
-				(call 'num :create {data->kn_msg_ping_origin} {key})
+				(call 'node :create {&data->kn_msg_ping_origin, node_id_size} {key})
 				(call 'hmap :find {mail_statics->ml_statics_routing_map, key} {_, tuple, bucket})
 				(vpifnot {tuple})
 					(call 'array :create nil {tuple})
+					;session, hops
 					(call 'array :push_back2 {tuple, -1, -1})
 					(call 'list :push_back2 {bucket, key, tuple})
 				(else)
 					(assign {(pptr tuple)[ptr_size]} {tuple})
-					(call 'num :destroy {key})
+					(call 'node :destroy {key})
 				(endif)
 				;update routing entries for the origin ?
 				(call 'array :get_first2 {tuple} {_, session, hops})
@@ -189,8 +199,10 @@
 				(vpcase {data->kn_msg_ping_hops = hops})
 				(vp-label 'new_via)
 					;equal route, push via, flood to neibours
-					(call 'array :push_back {tuple, data->kn_msg_ping_via})
-					(call 'flood_fill {mail_statics, msg, data, id})
+					(call 'array :push_back2 {tuple,
+						data->kn_msg_ping_via.node_id_node1,
+						data->kn_msg_ping_via.node_id_node2})
+					(call 'flood_fill {mail_statics, msg, data, node_id.node_id_node1, node_id.node_id_node2})
 				(endswitch)
 				(pop-scope)
 			(vp-label 'drop_msg)
@@ -201,7 +213,9 @@
 				(assign {data->kn_msg_user, data->kn_msg_callback_addr} '(r0 r1))
 				(vp-call-r r1)
 				;reply to originator
-				(assign {data->kn_msg_reply_id.net_id_id} {msg->msg_dest.net_id_id})
+				(assign {data->kn_msg_reply_id.net_id_mbox_id} {msg->msg_dest.net_id_mbox_id})
+				(assign {data->kn_msg_reply_id.net_id_node_id.node_id_node1} {msg->msg_dest.net_id_node_id.node_id_node1})
+				(assign {data->kn_msg_reply_id.net_id_node_id.node_id_node2} {msg->msg_dest.net_id_node_id.node_id_node2})
 				(call 'sys_mail :send {msg})
 			(endswitch)
 		(loop-end)
@@ -257,24 +271,54 @@
 	;r0 = mail statics
 	;r1 = flood msg
 	;r2 = flood data
-	;r3 = kernel id
+	;r3-r4 = kernel node_id
 	;trashes
-	;r0-r11
+	;r0-r14
 
-	(entry '(r0 r7 r8 r3))
+	(vp-def (statics msg data knode1 knode2 vnode1 vnode2 iter_begin iter_end link_node)
+		'(r14 r13 r12 r11 r10 r9 r8 r7 r6 r5))
 
-	(assign '((r8 kn_msg_ping_hops) (r8 kn_msg_ping_via)) '(r10 r9))
-	(vp-add-cr 1 r10)
-	(assign '(r3 r10) '((r8 kn_msg_ping_via) (r8 kn_msg_ping_hops)))
-	(call 'array :get_both '((r0 ml_statics_links_array)) '(_ r10 r11))
-	(loop-while '(r10 /= r11))
-		(vp-cpy-ir r10 0 r6)
-		(vp-add-cr ptr_size r10)
-		(assign '((r6 lk_node_peer_cpu_id) 0xffffffff) '(r6 r0))
-		(continueif '(r6 = r0) '(r6 = r9))
-		(call 'sys_mail :alloc_obj '((r7 msg_obj) r8 (r7 msg_frag_length)) '(r0))
-		(vp-shl-cr 32 r6)
-		(vp-cpy-ri r6 r0 (+ msg_dest net_id_id))
+	(entry `(,statics ,msg ,data ,knode1 ,knode2))
+
+	;inc hops
+	(assign `((,data kn_msg_ping_hops)) '(r0))
+	(vp-add-cr 1 r0)
+	(assign '(r0) `((,data kn_msg_ping_hops)))
+	;old via
+	(assign `((,data ,(+ kn_msg_ping_via node_id_node1))
+			(,data ,(+ kn_msg_ping_via node_id_node2)))
+		`(,vnode1 ,vnode2))
+	;set new via
+	(assign `(,knode1 ,knode2)
+		`((,data ,(+ kn_msg_ping_via node_id_node1))
+		(,data ,(+ kn_msg_ping_via node_id_node2))))
+	;loop over the links
+	(assign `((,statics ml_statics_links_array)) '(r0))
+	(class/array/get_both r0 iter_begin iter_end)
+	(loop-while (list iter_begin '/= iter_end))
+		(assign `((,iter_begin 0)) `(,link_node))
+		(vp-add-cr ptr_size iter_begin)
+		;this links peer
+		(assign `((,link_node ,(+ lk_node_peer_node_id node_id_node1))
+				(,link_node ,(+ lk_node_peer_node_id node_id_node2)))
+			`(,knode1 ,knode2))
+		;not there yet ?
+		(assign `(,knode1 ,knode2) '(r0 r1))
+		(vp-or-rr r1 r0)
+		(continueif '(r0 = 0))
+		;it's the old via ?
+		(assign `(,knode1 ,knode2) '(r0 r1))
+		(vp-sub-rr vnode1 r0)
+		(vp-sub-rr vnode2 r1)
+		(vp-or-rr r1 r0)
+		(continueif '(r0 = 0))
+		;multi-cast the data
+		(call 'sys_mail :alloc_obj `((,msg msg_obj) ,data (,msg msg_frag_length)) '(r0))
+		(vp-xor-rr r1 r1)
+		(assign `(r1 ,knode1 ,knode2)
+			`((r0 ,(+ msg_dest net_id_mbox_id))
+			(r0 ,(+ msg_dest net_id_node_id node_id_node1))
+			(r0 ,(+ msg_dest net_id_node_id node_id_node2))))
 		(call 'sys_mail :send '(r0))
 	(loop-end)
 	(vp-ret)
@@ -325,19 +369,19 @@
 	;inputs
 	;r0 = argv pointer (pubyte)
 	;outputs
-	;r0 = 0 if error, else id (ulong)
+	;r0-r2 = 0 if error, else ID (net_id)
 	;trashes
 	;r0-r14
 
 	(ptr 'arg 'func 'msg)
-	(ulong 'id)
+	(struct 'id 'net_id)
 	(uint 'length)
 
 	(push-scope)
 	(entry {arg})
 
 	;is this a lisp file
-	(assign {0} {id})
+	(assign {0 => id.net_id_mbox_id => id.net_id_node_id.node_id_node1} {id.net_id_node_id.node_id_node2})
 	(call 'sys_str :length {arg} {_, length})
 	(vpif {length >= 5})
 		(call 'sys_str :compare {arg + length - 5, ".lisp"} {length})
@@ -347,10 +391,13 @@
 		(call 'sys_pii :stat (cat {arg, @} (f-path 'sys_load :statics) {.ld_statics_stat_buffer}) {func})
 		(breakif {func})
 		;start lisp run task and send args
-		(call 'sys_task :start `((@ ,(f-path 'lisp :run))) {_, id, _})
+		(call 'sys_task :start `((@ ,(f-path 'lisp :run)))
+			{_, _, id.net_id_mbox_id, id.net_id_node_id.node_id_node1, id.net_id_node_id.node_id_node2})
 		(call 'str :create_from_cstr {arg} {arg})
 		(call 'sys_mail :alloc_obj {arg, &arg->str_data, arg->str_length} {msg})
-		(assign {id} {msg->msg_dest.net_id_id})
+		(assign {id.net_id_mbox_id} {msg->msg_dest.net_id_mbox_id})
+		(assign {id.net_id_node_id.node_id_node1} {msg->msg_dest.net_id_node_id.node_id_node1})
+		(assign {id.net_id_node_id.node_id_node2} {msg->msg_dest.net_id_node_id.node_id_node2})
 		(call 'sys_mail :send {msg})
 		(call 'str :deref {arg})
 	(else)
@@ -358,10 +405,11 @@
 		(call 'sys_load :bind {arg} {func})
 		(breakifnot {func})
 		;start this function as task
-		(call 'sys_task :start {func} {_, id, _})
+		(call 'sys_task :start {func}
+			{_, _, id.net_id_mbox_id, id.net_id_node_id.node_id_node1, id.net_id_node_id.node_id_node2})
 	(endif)
 
-	(exit {id})
+	(exit {id.net_id_mbox_id, id.net_id_node_id.node_id_node1, id.net_id_node_id.node_id_node2})
 	(pop-scope)
 	(return)
 
@@ -369,16 +417,18 @@
 	;inputs
 	;r0 = argv pointer (pubyte)
 	;trashes
-	;r0-r9
+	;r0-r11
 
 	(entry '(r8))
 
 	;start link
-	(call 'sys_task :start `((@ ,(f-path 'sys_link :out))) '(_ r9 _))
+	(call 'sys_task :start `((@ ,(f-path 'sys_link :out))) '(_ _ r9 r10 r11))
 
 	;params message
 	(call 'sys_mail :alloc '(8) '(r0 r1))
-	(vp-cpy-ri r9 r0 (+ msg_dest net_id_id))
+	(vp-cpy-ri r9 r0 (+ msg_dest net_id_mbox_id))
+	(vp-cpy-ri r10 r0 (+ msg_dest net_id_node_id node_id_node1))
+	(vp-cpy-ri r11 r0 (+ msg_dest net_id_node_id node_id_node2))
 	(vp-cpy-rr r0 r3)
 	(call 'sys_str :copy '(r8 r1))
 
@@ -400,12 +450,14 @@
 
 (def-method 'sys_kernel :id)
 	;outputs
-	;r0 = cpu ID (uint)
+	;r0-r1 = node id (node_id)
 	;trashes
-	;r0
+	;r0-r1
 
-	(f-bind 'sys_task :statics r0)
-	(exit 'sys_kernel :id '((r0 tk_statics_cpu_id)))
+	(f-bind 'sys_task :statics r1)
+	(exit 'sys_kernel :id
+		`((r1 ,(+ tk_statics_kernel_node_id node_id_node1))
+		(r1 ,(+ tk_statics_kernel_node_id node_id_node2))))
 	(vp-ret)
 
 (def-func-end)
@@ -413,24 +465,30 @@
 (def-method 'sys_kernel :ping)
 	;started by kernel at boot
 
-	(ptr 'msg 'data)
-	(uint 'id)
+	(ptr 'msg 'data 'statics)
+	(struct 'node_id 'node_id)
 
 	(push-scope)
 
-	;don't count ping, kernel, postman tasks in load balancing
+	;don't count ping or postman tasks in load balancing
 	(assign (cat {@} (f-path 'sys_task :statics)) {msg})
-	(assign {msg->tk_statics_task_count - 3} {msg->tk_statics_task_count})
+	(assign {msg->tk_statics_task_count - 2} {msg->tk_statics_task_count})
 
-	(call 'sys_kernel :id nil {id})
+	(call 'sys_kernel :id nil {node_id.node_id_node1, node_id.node_id_node2})
 	(call 'sys_task :sleep '(2000000))
 	(loop-start)
 		;send routing ping message
 		(call 'sys_mail :alloc {kn_msg_ping_size} {msg, data})
-		(assign {id << 32} {msg->msg_dest.net_id_id})
 		(assign {kn_call_route} {data->kn_msg_func})
-		(assign {id => data->kn_msg_ping_origin} {data->kn_msg_ping_via})
-		(assign {0 => data->kn_msg_ping_session} {data->kn_msg_ping_hops})
+		(assign {0 => data->kn_msg_ping_hops} {msg->msg_dest.net_id_mbox_id})
+		(assign {node_id.node_id_node1} {msg->msg_dest.net_id_node_id.node_id_node1})
+		(assign {node_id.node_id_node2} {msg->msg_dest.net_id_node_id.node_id_node2})
+		(assign {node_id.node_id_node1} {data->kn_msg_ping_origin.node_id_node1})
+		(assign {node_id.node_id_node2} {data->kn_msg_ping_origin.node_id_node2})
+		(assign {node_id.node_id_node1} {data->kn_msg_ping_via.node_id_node1})
+		(assign {node_id.node_id_node2} {data->kn_msg_ping_via.node_id_node2})
+		(assign (cat {@} (f-path 'sys_mail :statics)) {statics})
+		(assign {(statics->ml_statics_session + 1) => statics->ml_statics_session} {data->kn_msg_ping_session})
 		(call 'sys_mail :send {msg})
 		;send services ping message
 		(call 'sys_mail :ping)

@@ -8,10 +8,10 @@ else
 	num_cpu=$1
 fi
 
-#not greater than 100
-if [ $num_cpu -gt 100 ]
+#not greater than 16
+if [ $num_cpu -gt 16 ]
 then
-	num_cpu=100
+	num_cpu=16
 fi
 
 source funcs.sh

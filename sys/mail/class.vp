@@ -5,6 +5,7 @@
 (include "class/sym/class.inc")
 (include "class/hmap/class.inc")
 (include "class/num/class.inc")
+(include "class/node/class.inc")
 (include "lib/consts/chars.inc")
 
 (def-method 'sys_mail :statics)
@@ -43,30 +44,34 @@
 	;init postmen task
 	(vp-xor-rr r0 r0)
 	(assign '(r0) '((r12 ml_statics_session)))
-	(call 'sys_task :start `((@ ,(f-path 'sys_mail :out))) '(_ _ r2))
+	(call 'sys_task :start `((@ ,(f-path 'sys_mail :out))) '(_ r1 _ _ _))
 	(f-bind 'sys_mail :statics r12)
-	(assign '(r2) '((r12 ml_statics_out_mbox_addr)))
+	(assign '(r1) '((r12 ml_statics_out_mbox_addr)))
 
 	;services, links and routing
 	(call 'array :create nil '((r12 ml_statics_links_array)))
-	(call 'hmap :create '(($ key_num) 1) '((r12 ml_statics_service_map)))
-	(call 'hmap :create '(($ key_num) 13) '((r12 ml_statics_routing_map)))
+	(call 'hmap :create '(($ key_node) 1) '((r12 ml_statics_service_map)))
+	(call 'hmap :create '(($ key_node) 1) '((r12 ml_statics_routing_map)))
 
 	;init header heap
 	(jump 'sys_heap :init '((& r12 ml_statics_msg_heap) msg_size 64))
 
-(vp-label 'key_num)
+(vp-label 'key_node)
 	;inputs
-	;r0 = num1 object (ptr)
-	;r1 = num2 object (ptr)
+	;r0 = node1 object (ptr)
+	;r1 = node2 object (ptr)
 	;outputs
-	;r0 = num1 object (ptr)
 	;r1 = 0 if same
+	;trashes
+	;r0-r3
 
 	(entry '(r0 r1))
 
-	(assign '((r0 num_value) (r1 num_value)) '(r0 r1))
-	(vp-sub-rr r0 r1)
+	(assign `((r0 ,(+ str_data node_id_node1)) (r0 ,(+ str_data node_id_node2))
+		(r1 ,(+ str_data node_id_node1)) (r1 ,(+ str_data node_id_node2))) '(r0 r1 r2 r3))
+	(vp-sub-rr r2 r0)
+	(vp-sub-rr r3 r1)
+	(vp-or-rr r0 r1)
 	(vp-ret)
 
 (def-func-end)
@@ -345,9 +350,10 @@
 	(entry 'sys_mail :send '(r4))
 
 	;on or off chip ?
-	(call 'sys_kernel :id '() '(r0))
-	(vp-cpy-ir-ui r4 (+ msg_dest net_id_cpu_id) r1)
-	(vpif '(r0 = r1))
+	(call 'sys_kernel :id '() '(r0 r1))
+	(vp-cpy-ir r4 (+ msg_dest net_id_node_id node_id_node1) r2)
+	(vp-cpy-ir r4 (+ msg_dest net_id_node_id node_id_node2) r3)
+	(vpif '(r0 = r2) '(r1 = r3))
 		;on this chip
 		(call 'sys_mail :validate `((r4 ,(+ msg_dest net_id_mbox_id))) '(r1))
 		(vpif '(r1 = 0))
@@ -494,10 +500,26 @@
 	(call 'obj :ref {info})
 	(call 'list :create nil {cat})
 	(call 'list :push_back {cat, name})
-	(call 'str :create_from_long {long(&id->str_data), -16} {tmp2})
-	(call 'str :create_from_buffer {",0x0000000000000000", 19 - tmp2->str_length} {tmp1})
-	(call 'list :push_back2 {cat, tmp1, tmp2})
 	(call 'str :create_from_buffer {",", 1} {tmp1})
+	(call 'list :push_back {cat, tmp1})
+	(call 'str :create_from_buffer {0, net_id_size * 2} {tmp2})
+	(assign {&id->str_data, &tmp2->str_data, id->str_length} '(r0 r1 r2))
+	(vp-add-rr r0 r2)
+	(loop-start)
+		(vp-cpy-ir-ub r0 0 r3)
+		(vp-cpy-rr r3 r4)
+		(vp-and-cr 0x0f r3)
+		(vp-and-cr 0xf0 r4)
+		(vp-shr-cr 4 r4)
+		(vp-add-cr +char_a+ r3)
+		(vp-add-cr +char_a+ r4)
+		(vp-cpy-ri-b r3 r1 0)
+		(vp-cpy-ri-b r4 r1 byte_size)
+		(vp-add-cr byte_size r0)
+		(vp-add-cr (* byte_size 2) r1)
+	(loop-until '(r0 = r2))
+	(call 'list :push_back {cat, tmp2})
+	(call 'str :ref {tmp1})
 	(call 'list :push_back2 {cat, tmp1, info})
 	(call 'str :cat {name, cat} {name})
 	(call 'list :destroy {cat})
@@ -510,7 +532,7 @@
 
 (def-method 'sys_mail :declare)
 	;inputs
-	;r0 = mailbox id str object (ptr)
+	;r0 = ID str object (net_id)
 	;r1 = service name str object (ptr)
 	;r2 = service info str object (ptr)
 	;outputs
@@ -525,7 +547,7 @@
 	(entry 'sys_mail :declare {id, name, info})
 
 	;insert into service map
-	(call 'num :create {long(&id->str_data) >> 32} {key})
+	(call 'node :create {&id->str_data.net_id_node_id, node_id_size} {key})
 	(call 'hmap :find (cat {@} (f-path 'sys_mail :statics) {.ml_statics_service_map, key}) {_, tuple, bucket})
 	(vpifnot {tuple})
 		(call 'list :create nil {tuple})
@@ -535,7 +557,7 @@
 		(call 'list :push_back2 {bucket, key, tuple})
 	(else)
 		(assign {tuple[ptr_size]} {tuple})
-		(call 'num :destroy {key})
+		(call 'node :destroy {key})
 	(endif)
 	(call 'list :get_second {tuple} {_, set})
 	(call 'sys_mail :service {name, id, info} {name})
@@ -646,7 +668,8 @@
 
 	(push-scope)
 
-	(call 'num :create (cat {@} (f-path 'sys_task :statics) {.tk_statics_cpu_id}) {key})
+	(call 'node :create (cat {@} (f-path 'sys_task :statics)
+		{.tk_statics_kernel_node_id, node_id_size}) {key})
 	(assign (cat {@} (f-path 'sys_mail :statics)) {mail_statics})
 	(call 'hmap :find {mail_statics->ml_statics_service_map, key} {_, tuple, bucket})
 	(vpif {tuple})
@@ -657,19 +680,22 @@
 		(call 'hset :for_each {set, $callback, &cat})
 		(call 'str :cat {cat.cat_lf, cat.cat_entries} {services})
 		(call 'sys_mail :alloc {kn_msg_ping_services + services->str_length} {msg, data})
-		(assign {key->num_value << 32} {msg->msg_dest.net_id_id})
 		(assign {kn_call_ping} {data->kn_msg_func})
-		(assign {msg->msg_dest.net_id_cpu_id} {data->kn_msg_ping_origin})
-		(assign {0} {data->kn_msg_ping_hops})
-		(assign {msg->msg_dest.net_id_cpu_id} {data->kn_msg_ping_via})
 		(assign {(mail_statics->ml_statics_session + 1) => mail_statics->ml_statics_session} {data->kn_msg_ping_session})
+		(assign {0 => data->kn_msg_ping_hops} {msg->msg_dest.net_id_mbox_id})
+		(assign {key->str_data.node_id_node1} {msg->msg_dest.net_id_node_id.node_id_node1})
+		(assign {key->str_data.node_id_node2} {msg->msg_dest.net_id_node_id.node_id_node2})
+		(assign {msg->msg_dest.net_id_node_id.node_id_node1} {data->kn_msg_ping_origin.node_id_node1})
+		(assign {msg->msg_dest.net_id_node_id.node_id_node2} {data->kn_msg_ping_origin.node_id_node2})
+		(assign {msg->msg_dest.net_id_node_id.node_id_node1} {data->kn_msg_ping_via.node_id_node1})
+		(assign {msg->msg_dest.net_id_node_id.node_id_node2} {data->kn_msg_ping_via.node_id_node2})
 		(call 'sys_mem :copy {&services->str_data, &data->kn_msg_ping_services, services->str_length})
 		(call 'sys_mail :send {msg})
 		(call 'list :destroy {cat.cat_entries})
 		(call 'str :destroy {services})
 		(call 'str :destroy {cat.cat_lf})
 	(endif)
-	(jump 'num :destroy {key})
+	(jump 'node :destroy {key})
 
 	(pop-scope-syms)
 
@@ -717,30 +743,38 @@
 
 (def-method 'sys_mail :ready)
 	;inputs
-	;r0 = peer cpu id (uint)
-	;r1 = key num object (ptr)
+	;r0-r1 = peer node id (node_id)
+	;r2 = key node object (ptr)
 	;outputs
 	;r0 = 0 if none, else msg (ptr)
 
-	(vp-def (next node key peer tuple via iter_begin iter_end)
-		'(r13 r12 r11 r10 r9))
+	(vp-def (next node key peer1 peer2 tuple via1 via2 iter_begin iter_end)
+		'(r13 r12 r11 r10 r9 r1))
 
-	(entry 'sys_mail :ready `(,peer ,key))
+	(entry 'sys_mail :ready `(,peer1 ,peer2 ,key))
 
 	(f-bind 'sys_mail :statics next)
 	(loop-list-forward next ml_statics_offchip_list node next 'exit)
-		(vp-cpy-ir-ui node (+ msg_dest net_id_cpu_id) via)
-		(breakif (list peer '= via))
-		(vp-cpy-ri via key num_value)
+		(vp-cpy-ir node (+ msg_dest net_id_node_id node_id_node1) via1)
+		(vp-cpy-ir node (+ msg_dest net_id_node_id node_id_node2) via2)
+		(vpif (list peer1 '= via1))
+			(breakif (list peer2 '= via2) 'exit)
+		(endif)
+		(vp-cpy-ri via1 key (+ str_data node_id_node1))
+		(vp-cpy-ri via2 key (+ str_data node_id_node2))
 		(f-bind 'sys_mail :statics tuple)
 		(call 'hmap :find `((,tuple ml_statics_routing_map) ,key) `(_ ,tuple _))
 		(continueif (list tuple '= 0))
 		(call 'array :get_both `((,tuple ptr_size)) `(_ ,iter_begin ,iter_end))
 		(vp-add-cr (* 2 long_size) iter_begin)
+		(continueif (list iter_begin '= iter_end))
 		(loop-start)
-			(vp-cpy-ir iter_begin 0 via)
-			(vp-add-cr long_size iter_begin)
-			(breakif (list via '= peer) 'exit)
+			(vp-cpy-ir iter_begin node_id_node1 via1)
+			(vp-cpy-ir iter_begin node_id_node2 via2)
+			(vp-add-cr node_id_size iter_begin)
+			(vpif (list via1 '= peer1))
+				(breakif (list via2 '= peer2) 'exit)
+			(endif)
 		(loop-until (list iter_begin '= iter_end))
 	(loop-end)
 	(vpif (list next '/= 0))

@@ -7,8 +7,8 @@ if ( $args.count -lt 1 ){
 }
 else {
 	$cpus = $args[0]
-	if ( $cpus -gt 100){
-		$cpus = 100
+	if ( $cpus -gt 16){
+		$cpus = 16
 	}
 }
 

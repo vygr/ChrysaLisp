@@ -40,48 +40,42 @@
 (defun byte (&rest b)
 	; (byte field ...)
 	(setq _o (align _o byte_size)) (apply struct (cat (list byte_size) b)))
+(defun nodeid (&rest b)
+	; (net_id field ...)
+	(setq _o (align _o long_size)) (apply struct (cat (list node_id_size) b)))
 (defun netid (&rest b)
 	; (net_id field ...)
 	(setq _o (align _o long_size)) (apply struct (cat (list net_id_size) b)))
 
-(defun net-id-str (mbox)
-	; (net-id-str mbox) -> str
-	(cat (char mbox (const long_size)) "                "))
+(defun to-net-id (mbox)
+	; (to-net-id service_mbox) -> str
+	(bind '(e o) (unzip mbox (list (list) (list))))
+	(apply cat (map (# (char
+		(+ (- (code %0) (ascii-code "a"))
+		(<< (- (code %1) (ascii-code "a")) 4)))) e o)))
 
 (defun open-child (task mode)
 	; (open-child task mode) -> str
 	(defq mbox (mail-alloc-mbox))
-	(mail-send (net-id-str (logand (get-long (task-mailbox) 0) (const (<< -1 32))))
+	(mail-send (cat (char 0 (const long_size)) (slice (const long_size) -1 (task-mailbox)))
 		(cat
-			(char 0 long_size)
+			(char 0 (const long_size))
 			mbox
-			(char mode long_size)
+			(char mode (const long_size))
 			task (char 0)))
-	(defq id (slice (const long_size) (const (+ long_size net_id_size)) (mail-read mbox)))
-	(mail-free-mbox mbox) id)
-
-(defun open-remote (task node mode)
-	; (open-remote task node mode) -> str
-	(defq mbox (mail-alloc-mbox))
-	(mail-send (net-id-str (<< node 32))
-		(cat
-			(char 0 long_size)
-			mbox
-			(char mode long_size)
-			(elem index tasks) (char 0)))
 	(defq id (slice (const long_size) (const (+ long_size net_id_size)) (mail-read mbox)))
 	(mail-free-mbox mbox) id)
 
 (defun open-farm (task num mode &optional devices)
 	; (open-farm task num mode [devices]) -> (list str ...)
 	(defq devices (opt devices (mail-devices)) ids (cap num (list)) mbox (mail-alloc-mbox)
-		index -1 center (+ (/ num 2) (length devices) (opt (find (>> (get-long (task-mailbox) 0) 32) devices) 0)))
+		index -1 center (+ (/ num 2) (length devices) (opt (find (slice (const long_size) -1 (task-mailbox)) devices) 0)))
 	(while (< (setq index (inc index)) num)
-		(mail-send (net-id-str (<< (elem (% (+ index center) (length devices)) devices) 32))
+		(mail-send (cat (char 0 (const long_size)) (elem (% (+ index center) (length devices)) devices))
 			(cat
-				(char index long_size)
+				(char index (const long_size))
 				mbox
-				(char mode long_size)
+				(char mode (const long_size))
 				task (char 0))))
 	(while (>= (setq index (dec index)) 0)
 		(defq msg (mail-read mbox))
@@ -93,11 +87,11 @@
 	(defq devices (mail-devices) ids (cap (length tasks) (list))
 		mbox (mail-alloc-mbox) index -1 tail (task-mailbox))
 	(while (< (setq index (inc index)) (length tasks))
-		(mail-send (net-id-str (logand (get-long tail 0) (const (<< -1 32))))
+		(mail-send (cat (char 0 (const long_size)) (slice (const long_size) -1 tail))
 			(cat
-				(char index long_size)
+				(char index (const long_size))
 				mbox
-				(char kn_call_child long_size)
+				(char kn_call_child (const long_size))
 				(elem index tasks) (char 0)))
 		(defq tail (slice (const long_size) (const (+ long_size net_id_size)) (mail-read mbox)))
 		(push ids tail))

@@ -3345,6 +3345,36 @@ trashes
 r1-r14
 ```
 
+## node
+
+Super Class: str
+
+### node :vtable -> class/node/vtable
+
+### node :create -> class/node/create
+
+```lisp
+inputs
+r0 = buffer (pubyte)
+r1 = buffer length (uint)
+outputs
+r0 = 0 if error, else node object (ptr)
+trashes
+r1-r6
+```
+
+### node :hash -> class/node/hash
+
+```lisp
+inputs
+r0 = node object (ptr)
+outputs
+r0 = node object (ptr)
+r1 = hash code (ulong)
+trashes
+r1-r2
+```
+
 ## num
 
 Super Class: obj
@@ -4505,7 +4535,7 @@ Super Class: stream
 inputs
 r0 = out object (ptr)
 r1 = vtable (pptr)
-r2 = target mailbox id (id)
+r2-r4 = target ID (net_id)
 outputs
 r0 = out object (ptr)
 r1 = 0 if error, else ok
@@ -6983,9 +7013,9 @@ Super Class: null
 
 ```lisp
 outputs
-r0 = cpu ID (uint)
+r0-r1 = node id (node_id)
 trashes
-r0
+r0-r1
 ```
 
 ### sys_kernel :kernel -> sys/kernel/kernel
@@ -7241,7 +7271,7 @@ ping services out to network
 
 ```lisp
 inputs
-r0 = mailbox id str object (ptr)
+r0 = ID str object (net_id)
 r1 = service name str object (ptr)
 r2 = service info str object (ptr)
 outputs
@@ -7308,8 +7338,8 @@ parcels going off chip or junk mail task
 
 ```lisp
 inputs
-r0 = peer cpu id (uint)
-r1 = key num object (ptr)
+r0-r1 = peer node id (node_id)
+r2 = key node object (ptr)
 outputs
 r0 = 0 if none, else msg (ptr)
 ```
@@ -8270,9 +8300,9 @@ r0
 
 ```lisp
 outputs
-r0 = current task mailbox id (id)
+r0-r2 = current ID (net_id)
 trashes
-r0-r1
+r0-r2
 ```
 
 ### sys_task :callback -> sys/task/callback
@@ -8292,8 +8322,8 @@ inputs
 r0 = new task func pointer (ptr)
 outputs
 r0 = new task control block (ptr)
-r1 = new task mailbox id (id)
-r2 = new task mailbox address (ptr)
+r1 = new task mailbox address (ptr)
+r2-r4 = new task ID (net_id)
 trashes
 r0-r14
 ```
@@ -8392,7 +8422,7 @@ inputs
 r0 = name c string (pubyte)
 r1 = spawn type (uint)
 outputs
-r0 = mailbox ID (id)
+r0-r2 = net ID (net_id)
 trashes
 r0-r14
 ```
@@ -8803,9 +8833,9 @@ inputs
 r0 = view object (ptr)
 outputs
 r0 = view object (ptr)
-r1 = 0, else mailbox id of owner (ulong)
+r1-r3 = 0, else mailbox ID of owner (net_id)
 trashes
-r1-r2
+r1-r4
 ```
 
 ### view :get_prop -> gui/view/get_prop

@@ -26,7 +26,7 @@
 (defun profile-report (n)
 	; (profile-report name)
 	(when (/= 0 (length (defq services (mail-enquire "PROFILE_SERVICE"))))
-		(mail-send (net-id-str (str-to-num (elem 1 (split (pop services) ","))))
+		(mail-send (to-net-id (elem 1 (split (pop services) ",")))
 			(str (profile-print n (string-stream (cat "")))))))
 
 (defmacro profile-lambda (n a &rest _)

@@ -30,7 +30,7 @@
 (dec-method :junk_mail 'sys/mail/junk_mail :static '(r3))
 (dec-method :in 'sys/mail/in :static '(r0))
 (dec-method :out 'sys/mail/out)
-(dec-method :ready 'sys/mail/ready :static '(r0 r1) '(r0))
+(dec-method :ready 'sys/mail/ready :static '(r0 r1 r2) '(r0))
 
 (dec-method :lisp_read 'sys/mail/lisp_read :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_poll 'sys/mail/lisp_poll :static '(r0 r1) '(r0 r1))
@@ -52,9 +52,8 @@
 (def-struct-end)
 
 (def-struct 'net_id)
-	(union
-		(progn (ulong 'id) (struct 'node_id 'node_id))
-		(uint 'mbox_id 'cpu_id))
+	(ulong 'mbox_id)
+	(struct 'node_id 'node_id)
 (def-struct-end)
 
 (def-struct 'mbox 'ln_node)
@@ -84,30 +83,3 @@
 	(struct 'parcel_list 'lh_list)
 	(struct 'mbox_buckets (* num_mbox_buckets lh_list_size))
 (def-struct-end)
-
-(defun if-netnode-eq (id1 id2 t1 t2)
-	(switch)
-	(assign `((,id1 net_id_cpu_id) (,id2 net_id_cpu_id)) `(,t1 ,t2))
-	(breakif (list t1 '/= t2)))
-
-(defun if-netnode-ne (id1 id2 t1 t2)
-	(switch)
-	(assign `((,id1 net_id_cpu_id) (,id2 net_id_cpu_id)) `(,t1 ,t2))
-	(vpcase (list t1 '/= t2)))
-
-;; (defun if-netnode-eq (id1 id2 t1 t2)
-;; 	(switch)
-;; 	(assign `((,id1 net_id_node1) (,id2 net_id_node1)) `(,t1 ,t2))
-;; 	(breakif (list t1 '/= t2))
-;; 	(assign `((,id1 net_id_node2) (,id2 net_id_node2)) `(,t1 ,t2))
-;; 	(breakif (list t1 '/= t2)))
-
-;; (defun if-netnode-ne (id1 id2 t1 t2)
-;; 	(switch)
-;; 	(assign `((,id1 net_id_node1) (,id2 net_id_node1)) `(,t1 ,t2))
-;; 	(vpcase (list t1 '= t2))
-;; 		(assign `((,id1 net_id_node2) (,id2 net_id_node2)) `(,t1 ,t2))
-;; 		(breakif (list t1 '= t2)))
-
-(defun endifnode ()
-	(endswitch))

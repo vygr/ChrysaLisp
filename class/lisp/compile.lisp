@@ -11,7 +11,7 @@
 	(read (string-stream (mail-read (task-mailbox))) (ascii-code " ")))
 
 ;set up reply stream
-(defq msg_out (out-stream (net-id-str mbox)))
+(defq msg_out (out-stream (apply cat (map (# (char %0)) mbox))))
 
 ;redirect print to my msg_out
 (defun print (&rest args)

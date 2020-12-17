@@ -315,8 +315,8 @@
 	(if (empty? *env_edit_auto*) (new-buffer)
 		(each (#(open-buffer %0)) *env_edit_auto*))
 	(setq current_text (elem 0 text_store))
-	(defq clipboard_mbox (net-id-str (str-to-num (second (split 
-			(first (mail-enquire "CLIPBOARD_SERVICE")) ",")))))
+	(defq clipboard_mbox (to-net-id (second (split 
+			(first (mail-enquire "CLIPBOARD_SERVICE")) ","))))
 	(bind '(w h) (.-> window (:connect +event_layout+) :pref_size))
 	(bind '(x y w h) (view-locate w h))
 	(gui-add (. window :change x y w h))

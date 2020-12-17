@@ -10,15 +10,17 @@
 	;inputs
 	;r0 = out object (ptr)
 	;r1 = vtable (pptr)
-	;r2 = target mailbox id (id)
+	;r2-r4 = target ID (net_id)
 	;outputs
 	;r0 = out object (ptr)
 	;r1 = 0 if error, else ok
 	;trashes
 	;r1-r14
 
-	(entry 'out :init '(r0 r1 r2))
-	(assign '(r2) `((r0 ,(+ out_id net_id_id))))
+	(entry 'out :init '(r0 r1 r2 r3 r4))
+	(assign '(r2) `((r0 ,(+ out_id net_id_mbox_id))))
+	(assign '(r3) `((r0 ,(+ out_id net_id_node_id node_id_node1))))
+	(assign '(r4) `((r0 ,(+ out_id net_id_node_id node_id_node2))))
 
 	;init parent
 	(s-call 'out :init '(r0 r1 0 0 0 0) '(r0 r1))
@@ -134,22 +136,32 @@
 
 	(entry 'out :flush '(r0))
 
-	(assign '((r0 stream_buffer)) '(r1))
-	(vpif '(r1 /= 0))
+	(assign '((r0 stream_buffer)) '(r9))
+	(vpif '(r9 /= 0))
 		(vp-push r0)
 		(vp-xor-rr r2 r2)
 		(assign '(r2) '((r0 stream_buffer)))
 
 		;send current buffer
-		(assign '((r1 msg_frag_data) (r0 stream_bufp)) '(r2 r3))
+		(assign '((r9 msg_frag_data) (r0 stream_bufp)) '(r2 r3))
 		(vp-sub-rr r2 r3)
-		(assign `(r3 (r0 ,(+ out_id net_id_id)) (r0 out_seqnum) (r0 out_state)
-			(r0 out_ack_mbox_id)) '((r1 msg_frag_length) r3 r4 r5 r6))
-		(assign '(r3 r4 r5 r6) `((r1 ,(+ msg_dest net_id_id)) (r2 stream_msg_seqnum)
-			(r2 stream_msg_state) (r2 ,(+ stream_msg_ack_id net_id_mbox_id) ui)))
-
-		(call 'sys_kernel :id nil '((r2 (+ stream_msg_ack_id net_id_cpu_id) i)))
-		(call 'sys_mail :send '(r1))
+		(assign '(r3) '((r9 msg_frag_length)))
+		(assign `((r0 ,(+ out_id net_id_mbox_id))
+				(r0 ,(+ out_id net_id_node_id node_id_node1))
+				(r0 ,(+ out_id net_id_node_id node_id_node2))
+				(r0 out_seqnum) (r0 out_state)
+				(r0 out_ack_mbox_id))
+			'(r3 r4 r5 r6 r7 r8))
+		(assign '(r3 r4 r5 r6 r7 r8)
+			`((r9 ,(+ msg_dest net_id_mbox_id))
+			(r9 ,(+ msg_dest net_id_node_id node_id_node1))
+			(r9 ,(+ msg_dest net_id_node_id node_id_node2))
+			(r2 stream_msg_seqnum) (r2 stream_msg_state)
+			(r2 ,(+ stream_msg_ack_id net_id_mbox_id))))
+		(call 'sys_kernel :id nil
+			`((r2 ,(+ stream_msg_ack_id net_id_node_id node_id_node1))
+			(r2 ,(+ stream_msg_ack_id net_id_node_id node_id_node2))))
+		(call 'sys_mail :send '(r9))
 
 		;wait for acks ?
 		(vp-pop r0)
