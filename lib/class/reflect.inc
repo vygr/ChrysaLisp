@@ -2,11 +2,25 @@
 ; reflect - Reflection Library
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defq
+  +class_prefix+ "*class")
 
-(defmacro class? (_)
-  ; (class-inst? object) -> t | nil
-  ; Predicate for answering if the object is of type class
-  `nil)
+(defmacro meta-class? (_)
+  ; (class-inst? symbol) -> t | nil
+  ; Predicate for answering if a symbol is of type 'class'
+  `(if (and (seq? (defq ,(defq __ (gensym)) ,_)) (> (length ,__) 2))
+    (starts-with +class_prefix+ (last (elem 2 ,__)))
+    nil))
+
+(defmacro meta-class (_)
+  `(progn
+    (defq
+      ,(defq __ (gensym)) ,_)
+    (if (meta-class? ,__)
+      (slice
+        (inc (find "_" (str (last (elem 2 ,__)))))
+        -2 (last (elem 2 ,__)))
+      :none)))
 
 (defmacro class-inst? (_)
   ; (class-inst? object) -> t | nil
@@ -24,16 +38,15 @@
     (last (. ,__ :type_of))
     nil))
 
-(defun type-of? (obj ttype)
+(defmacro class-type-of? (obj ttype)
   ; (type-of? object ctype) -> t | nil
-  ; Predicate for answering of object is
-  ; of a certain type.
-  ; (cond
-  ;   ((find ttype (type-of obj)) t)
-  ;   ((class-inst? obj)
-  ;     (print "object is a class instance of " (. obj :type_of))
-  ;     (print "Checking if is of type " ttype)
-  ;     (find ttype (. obj :type_of)))
-  ;   (t nil))
-  )
-
+  ; Predicate for answering if object is of a certain class type
+  `(progn
+    (defq
+      ,(defq _ttype (gensym)) ,ttype
+      ,(defq _obj (gensym)) ,obj)
+    (cond
+    ((find ,_ttype (type-of ,_obj)) t)
+    ((class-inst? ,_obj)
+      (find ,_ttype (. ,_obj :type_of)))
+    (t nil))))

@@ -21,7 +21,7 @@
 ; Registering the anchor
 (structure '+rega_msg 0
   (long 'command+)
-  (offset 'receiver+)
+  (netid 'receiver+)
   (offset 'data+))
 
 ; Events for mail_msg_commands
