@@ -127,6 +127,9 @@
 					(ptr 'bucket)
 					(ptr 'services 'entries))
 				(push-scope)
+				;just send to neibours if I am origin !
+				(gotoifnot {(node_id.node_id_node1 - data->kn_msg_ping_origin.node_id_node1)
+							| (node_id.node_id_node2 - data->kn_msg_ping_origin.node_id_node2)} 'to_neibours1)
 				;find/create the service tuple for the origin
 				(call 'node :create {&data->kn_msg_ping_origin, node_id_size} {key})
 				(call 'hmap :find {mail_statics->ml_statics_service_map, key} {_, tuple, bucket})
@@ -156,6 +159,7 @@
 						(assign {iter_begin + ptr_size} {iter_begin})
 					(loop-end)
 					(call 'list :destroy {entries})
+				(vp-label 'to_neibours1)
 					;flood to neibours
 					(call 'flood_fill {mail_statics, msg, data, node_id.node_id_node1, node_id.node_id_node2})
 				(endif)
