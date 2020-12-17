@@ -75,8 +75,8 @@
   (if (defq ankw (get '*log_anchor* (penv (env))))
     (progn
       (mail-send
-        (cat (char +log_event_drop_anchor+ long_size) (str ankw))
-        (get-logsrvc-mb))
+        (get-logsrvc-mb)
+        (cat (char +log_event_drop_anchor+ long_size) (str ankw)))
       (undef (penv (env)) '*log_anchor*))))
 
 (defun create-log-anchor (nm henv &rest override_pairs)
@@ -110,11 +110,11 @@
       (partition 2 override_pairs)))
   ; Query state of anchor in service
   (mail-send
+    (get-logsrvc-mb)
     (cat
       (char +log_event_query_anchor_config+ long_size)
       mbx_id
-      (str nm))
-    (get-logsrvc-mb))
+      (str nm)))
   (defq
     qmsg (mail-read mbx_id)
     qid  (get-long qmsg mail_msg_command)
@@ -154,11 +154,11 @@
 
   (write sstrm (str "{" (slice 1 -2 opay) "}"))
   (mail-send
-      (cat
-          (char cmd  long_size)
-          mbx_id
-          (str sstrm))
-      (get-logsrvc-mb))
+    (get-logsrvc-mb)
+    (cat
+      (char cmd  long_size)
+      mbx_id
+      (str sstrm)))
   (defq
     rmsg (mail-read mbx_id)
     rid  (get-long rmsg mail_msg_command))
@@ -176,7 +176,7 @@
 
 (defun ping-service ()
   (mail-send
+    (get-logsrvc-mb)
     (cat
       (char +log_event_ping+ long_size)
-      (task-mailbox))
-    (get-logsrvc-mb)))
+      (task-mailbox))))
