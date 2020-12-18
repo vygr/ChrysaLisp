@@ -96,10 +96,11 @@
 (defmacro class-inst? (_)
   ; (class-inst? object) -> t | nil
   ; Predicate for answering if the object is of type class
-  `(cond
-    ((and (env? (defq ,(defq __ (gensym)) ,_)) (get :vtable ,__))
-      (get :type_of (get :vtable ,__)))
-    (t nil)))
+  `(and (env? (defq ,(defq __ (gensym)) ,_)) (def? :vtable ,__)))
+  ; (cond
+  ;   ((and (env? (defq ,(defq __ (gensym)) ,_)) (def? :vtable ,__))
+  ;     (get :type_of (get :vtable ,__)))
+  ;   (t nil)))
 
 (defmacro class-type (_)
   ; (class-type object) -> keyword | nil
