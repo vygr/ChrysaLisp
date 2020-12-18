@@ -3,12 +3,12 @@ $dir = Get-Location
 
 
 if ( $args.count -lt 1 ){
-	$num_cpu = 3
+	$num_cpu = 4
 }
 else {
 	$num_cpu = $args[0]
-	if ( $num_cpu -gt 3){
-		$num_cpu = 3
+	if ( $num_cpu -gt 4){
+		$num_cpu = 4
 	}
 }
 

@@ -43,18 +43,16 @@
 
 	;start in link and send params
 	(call 'sys_mail :alloc {16} {msg, data})
-	(call 'sys_task :start (cat {@} (f-path 'sys_link :in))
-		{_, _, msg->msg_dest.net_id_mbox_id,
-		msg->msg_dest.net_id_node_id.node_id_node1,
-		msg->msg_dest.net_id_node_id.node_id_node2})
-	(assign {&lk_node} {ptr(data + 0)})
-	(assign {mem} {ptr(data + ptr_size)})
-	(call 'sys_mail :send {msg})
+	(call 'sys_task :start (cat {@} (f-path 'sys_link :in)) '(_ _ r2 r3 r4))
+	(assign {msg, data, &lk_node, mem} '(r0 r1 r5 r6))
+	(save-net-id r0 msg_dest)
+	(assign '(r5 r6) '((r1 0) (r1 ptr_size)))
+	(call 'sys_mail :send '(r0))
 
 	;switch to link priority and sleep to
 	;let other links join us at this priority
 	(call 'sys_task :set_priority '(1))
-	(call 'sys_task :sleep '(100000))
+	(call 'sys_task :sleep '(500000))
 
 	;assign tx channel based on the towel I now see
 	(vpif {mem->lk_buffer_towel = node_id.node_id_node1})
@@ -100,7 +98,7 @@
 		(loop-end)
 
 		;small sleep if nothing to do
-		(call 'sys_task :sleep '(500))
+		(call 'sys_task :sleep '(1000))
 
 		;exit if signaled by kernel...
 	(loop-end)
@@ -141,7 +139,7 @@
 	;switch to link priority and sleep to
 	;let other links join us at this priority
 	(call 'sys_task :set_priority '(1))
-	(call 'sys_task :sleep '(100000))
+	(call 'sys_task :sleep '(1000000))
 
 	;assign rx channel
 	(call 'sys_kernel :id nil {node_id.node_id_node1, node_id.node_id_node2})
@@ -190,7 +188,7 @@
 		(loop-end)
 
 		;small sleep as nothing to do
-		(call 'sys_task :sleep '(500))
+		(call 'sys_task :sleep '(1000))
 
 		;exit if signaled by kernel...
 	(loop-end)

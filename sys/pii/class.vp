@@ -250,6 +250,8 @@
 	;inputs
 	;r0 = data buffer pointer (pubyte)
 	;r1 = length (uint)
+	;trashes
+	;r0
 
 	(entry 'sys_pii :rand '(r0 r1))
 	(abi-push-trashed r1 r13 r14)

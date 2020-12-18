@@ -68,8 +68,10 @@
 
 (defun open-farm (task num mode &optional devices)
 	; (open-farm task num mode [devices]) -> (list str ...)
-	(defq devices (opt devices (mail-devices)) ids (cap num (list)) mbox (mail-alloc-mbox)
-		index -1 center (+ (/ num 2) (length devices) (opt (find (slice (const long_size) -1 (task-mailbox)) devices) 0)))
+	(if (= 0 (length (defq devices (opt devices (mail-devices)))))
+		(setq devices (list (slice (const long_size) -1 (task-mailbox)))))
+	(defq ids (cap num (list)) mbox (mail-alloc-mbox) index -1
+		center (+ (/ num 2) (length devices) (opt (find (slice (const long_size) -1 (task-mailbox)) devices) 0)))
 	(while (< (setq index (inc index)) num)
 		(mail-send (cat (char 0 (const long_size)) (elem (% (+ index center) (length devices)) devices))
 			(cat

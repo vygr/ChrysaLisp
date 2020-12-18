@@ -8108,6 +8108,8 @@ r0
 inputs
 r0 = data buffer pointer (pubyte)
 r1 = length (uint)
+trashes
+r0
 ```
 
 ### sys_pii :lisp_readchar -> sys/pii/lisp_readchar

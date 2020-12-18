@@ -14,6 +14,13 @@
 	(vpif '(r0 /= 0))
 		(vp-cpy-rr r0 r1)
 		(vp-cpy-pr 'seed r0)
+		(vpif '(r0 = 0))
+			;total random at start up
+			(vp-cpy-rr r1 r2)
+			(call 'sys_pii :rand '(($ seed) long_size))
+			(vp-cpy-pr 'seed r0)
+			(vp-cpy-rr r2 r1)
+		(endif)
 		(vp-cpy-rr r0 r2)
 		(vp-shl-cr 21 r2)
 		(vp-xor-rr r2 r0)
@@ -34,7 +41,7 @@
 
 	(vp-align ptr_size)
 (vp-label 'seed)
-	(vp-long 123456789)
+	(vp-long 0)
 
 (def-func-end)
 
