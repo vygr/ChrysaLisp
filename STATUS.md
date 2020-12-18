@@ -239,7 +239,7 @@ Most of the (open-xxx) calls have been converted to Lisp rather than VP. No
 advantage now and we can easily add more task distribution calls at the Lisp
 level. Saved nearly 2KB of boot image.
 
-New (mail-devices) call to return the current known list of network CPU id's.
+New (mail-nodes) call to return the current known list of network CPU id's.
 
 Frank has continued to update the new xtras.inc library with various flavours
 of tree walkers and converted the argparse.inc lib over to use the latest

@@ -12,7 +12,7 @@
 	(cat mbox (apply cat (map (# (char %0 (const long_size))) _))))
 
 (defq canvas_width 800 canvas_height 800 canvas_scale 1 then (pii-time)
-	area (* canvas_width canvas_height canvas_scale canvas_scale) devices (mail-devices)
+	area (* canvas_width canvas_height canvas_scale canvas_scale) devices (mail-nodes)
 	farm (open-farm "apps/raymarch/child.lisp"
 		(min (* 2 (length devices)) (* canvas_height canvas_scale)) kn_call_child devices)
 	select (list (task-mailbox) (mail-alloc-mbox))

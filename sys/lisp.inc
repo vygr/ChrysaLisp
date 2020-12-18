@@ -5,7 +5,7 @@
 (ffi task-sleep "sys/task/lisp_sleep" 0)
 (ffi mail-alloc-mbox "sys/mail/lisp_alloc_mbox" 0)
 (ffi mail-declare "sys/mail/lisp_declare" 0)
-(ffi mail-devices "sys/mail/lisp_devices" 0)
+(ffi mail-nodes "sys/mail/lisp_devices" 0)
 (ffi mail-enquire "sys/mail/lisp_enquire" 0)
 (ffi mail-forget "sys/mail/lisp_forget" 0)
 (ffi mail-free-mbox "sys/mail/lisp_free_mbox" 0)
@@ -74,7 +74,7 @@
 
 (defun open-farm (task num mode &optional devices)
 	; (open-farm task num mode [devices]) -> (list str ...)
-	(if (= 0 (length (defq devices (opt devices (mail-devices)))))
+	(if (= 0 (length (defq devices (opt devices (mail-nodes)))))
 		(setq devices (list (slice (const long_size) -1 (task-mailbox)))))
 	(defq ids (cap num (list)) mbox (mail-alloc-mbox) index -1
 		center (+ (/ num 2) (length devices) (opt (find (slice (const long_size) -1 (task-mailbox)) devices) 0)))
@@ -92,7 +92,7 @@
 
 (defun open-pipe (tasks)
 	; (open-pipe tasks) -> (list str ...)
-	(defq devices (mail-devices) ids (cap (length tasks) (list))
+	(defq devices (mail-nodes) ids (cap (length tasks) (list))
 		mbox (mail-alloc-mbox) index -1 tail (task-mailbox))
 	(while (< (setq index (inc index)) (length tasks))
 		(mail-send (cat (char 0 (const long_size)) (slice (const long_size) -1 tail))

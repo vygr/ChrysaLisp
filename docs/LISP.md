@@ -76,7 +76,7 @@ t
 clear cmp code cond copy def def? defq each! elem elem-set env eql eval f2i f2r
 ffi file-stream find find-rev fixeds gensym get hash i2f i2r io-stream lambda
 length list load logand logior logxor macro macroexpand mail-alloc-mbox
-mail-declare mail-devices mail-enquire mail-forget mail-free-mbox mail-poll
+mail-declare mail-nodes mail-enquire mail-forget mail-free-mbox mail-poll
 mail-read mail-select mail-send match? max mem-stats merge-obj min neg nums
 penv pii-dirlist pii-fstat pii-read-char pii-remove pii-time pii-write-char
 pivot pop prebind prin print progn push quasi-quote quote r2f r2i random read

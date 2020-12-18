@@ -50,7 +50,7 @@
 	(set memory_grid :grid_height cpu_count))
 
 (defun main ()
-	(reset (sort - (mail-devices)))
+	(reset (sort - (mail-nodes)))
 	;add window
 	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
 	(gui-add (. mywindow :change x y w h))
@@ -59,7 +59,7 @@
 		;new batch of samples ?
 		(when (= cpu_count (length devices))
 			;should we reset the app ?
-			(defq current_devices (sort - (mail-devices)))
+			(defq current_devices (sort - (mail-nodes)))
 			(unless (and (= (length current_devices) (length devices))
 						(every eql current_devices devices))
 				(reset current_devices)

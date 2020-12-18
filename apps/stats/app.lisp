@@ -6,7 +6,7 @@
 (structure '+event 0
 	(byte 'close+))
 
-(defq stat_data (list) stat_scale (list) devices (mail-devices) frame_cnt 0
+(defq stat_data (list) stat_scale (list) devices (mail-nodes) frame_cnt 0
 	cpu_count (length devices) max_stats 1 last_max_stats 0
 	farm (open-farm "apps/stats/child.lisp" cpu_count kn_call_open devices) last_max_classes 0 max_classes 1
 	select (list (task-mailbox) (mail-alloc-mbox)) sample_msg (elem -2 select))

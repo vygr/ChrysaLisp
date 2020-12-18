@@ -1336,10 +1336,6 @@
 
 (mail-declare mbox name info)
 
-## mail-devices
-
-(mail-devices)
-
 ## mail-enquire
 
 (mail-enquire prefix)
@@ -1351,6 +1347,10 @@
 ## mail-free-mbox
 
 (mail-free-mbox mbox)
+
+## mail-nodes
+
+(mail-nodes)
 
 ## mail-poll
 
