@@ -69,7 +69,7 @@ regardless, at the Lisp command prompt. This Lisp has a C-Script 'snippets'
 capability to allow mixing of C-Script compiled expressions within assignment
 and function calling code. An elementary optimise pass exists for these
 expressions. Both the virtual assembler and C-Script compiler are written in
-Lisp, look in the *sys/code.inc*, *sys/func.inc*, *sys/x64.inc*, *sys/arm.inc*
+Lisp, look in the *sys/code.inc*, *sys/func.inc*, *sys/x64.inc*, *sys/arm64.inc*
 and *sys/vp.inc* for how this is done. Some of the Lisp primitives are
 constructed via a boot script that each instance of a Lisp class runs on
 construction, see *class/lisp/boot.inc* for details. The compilation and make

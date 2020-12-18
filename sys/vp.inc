@@ -308,5 +308,6 @@
 
 (case *cpu*
 (x86_64 (include "sys/x64.inc"))
-(aarch64 (include "sys/arm.inc"))
+(aarch64 (include "sys/arm64.inc"))
+(vp64 (include "sys/vp64.inc"))
 (t (throw "No such CPU !" *cpu*)))

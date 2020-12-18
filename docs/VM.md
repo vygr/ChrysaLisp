@@ -24,7 +24,7 @@ r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, r13, r14, rsp
 ```
 
 These are mapped to real physical registers by the target processor 'emit'
-functions, look in `sys/x64.inc` and `sys/arm.inc`. On certain processors, like
+functions, look in `sys/x64.inc` and `sys/arm64.inc`. On certain processors, like
 the x86_64, it's worth knowing that r0 and r2 are mapped to rax and rdx when it
 comes to scheduling VP div and rem code ! It makes no difference to the aarch64
 emit functions, so one does tend to make VP divide code use r0 and r2 as it
