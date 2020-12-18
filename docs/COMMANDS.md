@@ -77,6 +77,14 @@ Usage: make [options] [all] [boot] [platforms] [doc] [syms] [it]
     it: all of the above !
 
 ```
+## nodes
+ 
+```lisp
+Usage: nodes [options]
+	options:
+		-h --help: this help info.
+
+```
 ## null
  
 ```lisp

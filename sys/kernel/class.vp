@@ -468,6 +468,8 @@
 	(vp-add-cr 3000000 r0)
 	(call 'sys_task :sleep '(r0))
 	(loop-start)
+		;send services ping message
+		(call 'sys_mail :ping)
 		;send routing ping message
 		(call 'sys_mail :alloc {kn_msg_ping_size} {msg, data})
 		(assign {kn_call_route} {data->kn_msg_func})
@@ -481,8 +483,6 @@
 		(assign (cat {@} (f-path 'sys_mail :statics)) {statics})
 		(assign {(statics->ml_statics_session + 1) => statics->ml_statics_session} {data->kn_msg_ping_session})
 		(call 'sys_mail :send {msg})
-		;send services ping message
-		(call 'sys_mail :ping)
 		(call 'sys_math :i_rand '(1000000) '(r0))
 		(vp-cpy-cr 19000000 r1)
 		(vp-add-rr r1 r0)

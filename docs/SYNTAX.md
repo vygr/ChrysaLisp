@@ -1934,7 +1934,11 @@
 
 ## to-net-id
 
-(to-net-id service_mbox) -> str
+(to-net-id service_id) -> net_id
+
+## to-service-id
+
+(to-service-id net_id) -> service_id
 
 ## to-upper
 

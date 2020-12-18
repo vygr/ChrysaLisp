@@ -47,12 +47,18 @@
 	; (net_id field ...)
 	(setq _o (align _o long_size)) (apply struct (cat (list net_id_size) b)))
 
-(defun to-net-id (mbox)
-	; (to-net-id service_mbox) -> str
-	(bind '(e o) (unzip mbox (list (list) (list))))
+(defun to-net-id (sid)
+	; (to-net-id service_id) -> net_id
+	(bind '(e o) (unzip sid (list (list) (list))))
 	(apply cat (map (# (char
 		(+ (- (code %0) (ascii-code "a"))
 		(<< (- (code %1) (ascii-code "a")) 4)))) e o)))
+
+(defun to-service-id (nid)
+	; (to-service-id net_id) -> service_id
+	(apply cat (map (# (cat
+		(char (+ (logand 0x0f (code %0)) (ascii-code "a")))
+		(char (+ (logand 0x0f (>> (code %0) 4)) (ascii-code "a"))))) nid)))
 
 (defun open-child (task mode)
 	; (open-child task mode) -> str
