@@ -204,7 +204,7 @@
     ((and (= c 8) (/= (length buffer) 0))
       ;backspace
       (setq buffer (slice 0 -2 buffer)))
-    ((<= 32 c 127)
+	((or (= c 9) (<= 32 c 127))
       ;buffer the char
       (setq buffer (cat buffer (char c))))))
 
