@@ -97,8 +97,8 @@
   ; (class-inst? object) -> t | nil
   ; Predicate for answering if the object is of type class
   `(cond
-    ((env? (defq ,(defq __ (gensym)) ,_))
-      (catch (find :class (. ,__ :type_of)) nil))
+    ((and (env? (defq ,(defq __ (gensym)) ,_)) (get :vtable ,__))
+      (get :type_of (get :vtable ,__)))
     (t nil)))
 
 (defmacro class-type (_)
