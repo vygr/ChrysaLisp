@@ -68,6 +68,31 @@
 							(emit-call-jump-i 0x10 b c)
 							(emit-cpy-ir rsp (* ptr_size (+ (length x) 4)) rsp)))))
 			(t (throw "Unknown CPU for WIN64 !" *cpu*))))
+	(VP64
+		(case *cpu*
+			(vp64
+				(defmacro abi-trashed () ''(r1 r2 r7 r8 r9 r10))
+				(defmacro abi-args (&optional _ o) (setd _ 4 o 0) `',(slice o (+ o _) '(r1 r2 r7 r8 r0 r3 r4 r5 r6)))
+				(defun emit-call-abi (r b c &rest x)
+					(cond
+						((= *func_align* 16)
+							(if (odd? (length x))
+								(setq x (cat (list r) x)))
+							(apply emit-push x)
+							(emit-sub-cr 32 rsp)
+							(emit-call-i b c)
+							(emit-add-cr (* ptr_size (+ (length x) 4)) rsp))
+						(t
+							(emit-cpy-rr rsp r)
+							(emit-and-cr -16 rsp)
+							(if (odd? (length x))
+								(defq y (cat (list r) x))
+								(defq y (cat (list r r) x)))
+							(apply emit-push y)
+							(emit-sub-cr 32 rsp)
+							(emit-call-i b c)
+							(emit-cpy-ir rsp (* ptr_size (+ (length x) 4)) rsp)))))
+			(t (throw "Unknown CPU for WIN64 !" *cpu*))))
 	(t (throw "Unknown ABI !" *abi*)))
 
 (defmacro abi-push-trashed (&rest b) (merge-obj b (abi-trashed)) `(vp-push ~b))
