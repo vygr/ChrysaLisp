@@ -31,16 +31,24 @@
 		(t	(emit-short (+ (+ o 3) (<< (reg r) 8)) c (>>> c 16) (>>> c 32) (>>> c 48)))))
 
 (defun emit-cpy-cr (c r) (emit-cr (next-opcode 4) c r))
-(defun emit-add-cr (c r) (emit-cr (next-opcode 4) c r))
-(defun emit-sub-cr (c r) (emit-cr (next-opcode 4) c r))
+(defun emit-add-cr (c r) (unless (= c 0) (emit-cr (next-opcode 4) c r)))
+(defun emit-sub-cr (c r) (unless (= c 0) (emit-cr (next-opcode 4) c r)))
 (defun emit-cmp-cr (c r) (emit-cr (next-opcode 4) c r))
-(defun emit-mul-cr (c r) (emit-cr (next-opcode 4) c r))
-(defun emit-and-cr (c r) (emit-cr (next-opcode 4) c r))
-(defun emit-or-cr (c r) (emit-cr (next-opcode 4) c r))
-(defun emit-xor-cr (c r) (emit-cr (next-opcode 4) c r))
-(defun emit-shl-cr (c r) (emit-cr (next-opcode 4) c r))
-(defun emit-shr-cr (c r) (emit-cr (next-opcode 4) c r))
-(defun emit-asr-cr (c r) (emit-cr (next-opcode 4) c r))
+(defun emit-mul-cr (c r) (unless (= c 1) (emit-cr (next-opcode 4) c r)))
+(defun emit-and-cr (c r) (unless (= c -1) (emit-cr (next-opcode 4) c r)))
+(defun emit-or-cr (c r) (unless (= c 0) (emit-cr (next-opcode 4) c r)))
+(defun emit-xor-cr (c r) (unless (= c 0) (emit-cr (next-opcode 4) c r)))
+
+(defun emit-shift-cr (o c r)
+	(cond
+		((= c 0))
+		((<= 1 c 31)
+			(emit-short (+ o (<< (reg r) 8) (<< c 12))))
+		(t	(throw "emit-shift-cr constant out of range !" c))))
+
+(defun emit-shl-cr (c r) (emit-cr (next-opcode) c r))
+(defun emit-shr-cr (c r) (emit-cr (next-opcode) c r))
+(defun emit-asr-cr (c r) (emit-cr (next-opcode) c r))
 
 (defun emit-cpy-rr (s d) (emit-short (+ (next-opcode) (<< (reg d) 8) (<< (reg s) 12))))
 (defun emit-add-rr (s d) (emit-short (+ (next-opcode) (<< (reg d) 8) (<< (reg s) 12))))
@@ -193,7 +201,7 @@
 
 (defun emit-push (&rest b)
 	(when (/= 0 (length b))
-		(emit-sub-cr (align (* ptr_size (length b)) stack_align) rsp)
+		(emit-alloc (* ptr_size (length b)))
 		(each (lambda (r)
 			(emit-cpy-ri r rsp (* (- (length b) _) ptr_size))) b)))
 
@@ -201,4 +209,4 @@
 	(when (/= 0 (length b))
 		(each (lambda (r)
 			(emit-cpy-ir rsp (* (- (length b) _) ptr_size) r)) b))
-		(emit-add-cr (align (* ptr_size (length b)) stack_align) rsp))
+		(emit-free (* ptr_size (length b))))
