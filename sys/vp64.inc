@@ -22,7 +22,7 @@
 			(emit-short (+ (inc op) (<< (reg r) 8) (<< c 12)) (>>> c 4)))
 		((<= -0x800000000 c 0x7ffffffff)
 			(emit-short (+ (+ op 2) (<< (reg r) 8) (<< c 12)) (>>> c 4) (>>> c 20)))
-		(t	(emit-short (+ (+ op 3) (<< (reg r) 8) (<< c 12)) (>>> c 4) (>>> c 20) (>>> c 36)))))
+		(t	(emit-short (+ (+ op 3) (<< (reg r) 8)) c (>>> c 16) (>>> c 32) (>>> c 48)))))
 
 (defun emit-cpy-cr (c r) (emit-cr c r 0x00))
 (defun emit-add-cr (c r) (emit-cr c r 0x04))
