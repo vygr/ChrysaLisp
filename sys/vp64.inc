@@ -116,6 +116,7 @@
 (defun emit-cpy-ir-ub (s c d) (emit-ir (next-opcode 2) s c d))
 (defun emit-cpy-ir-us (s c d) (emit-ir (next-opcode 2) s c d))
 (defun emit-cpy-ir-ui (s c d) (emit-ir (next-opcode 2) s c d))
+(defun emit-lea-i (s c d) (emit-ir (next-opcode 2) s c d))
 
 (defun emit-ri (o s d c)
 	(cond
@@ -130,23 +131,28 @@
 (defun emit-cpy-ri-s (s d c) (emit-ri (next-opcode 2) s d c))
 (defun emit-cpy-ri-i (s d c) (emit-ri (next-opcode 2) s d c))
 
-(defun emit-cpy-rd (s d1 d2))
-(defun emit-cpy-rd-b (s d2 d1))
-(defun emit-cpy-rd-s (s d2 d1))
-(defun emit-cpy-rd-i (s d2 d1))
+(defun emit-rd (o s d1 d2)
+	(emit-short (+ o (<< (reg d1) 8) (<< (reg d2) 12)) (reg s)))
 
-(defun emit-cpy-dr (s1 s2 d))
-(defun emit-cpy-dr-b (s1 s2 d))
-(defun emit-cpy-dr-s (s1 s2 d))
-(defun emit-cpy-dr-i (s1 s2 d))
-(defun emit-cpy-dr-ub (s1 s2 d))
-(defun emit-cpy-dr-us (s1 s2 d))
-(defun emit-cpy-dr-ui (s1 s2 d))
+(defun emit-cpy-rd (s d1 d2) (emit-rd (next-opcode) s d1 d2))
+(defun emit-cpy-rd-b (s d2 d1) (emit-rd (next-opcode) s d1 d2))
+(defun emit-cpy-rd-s (s d2 d1) (emit-rd (next-opcode) s d1 d2))
+(defun emit-cpy-rd-i (s d2 d1) (emit-rd (next-opcode) s d1 d2))
+
+(defun emit-dr (o s1 s2 d)
+	(emit-short (+ o (<< (reg d) 8) (<< (reg s1) 12)) (reg s2)))
+
+(defun emit-cpy-dr (s1 s2 d) (emit-dr (next-opcode) s1 s2 d))
+(defun emit-cpy-dr-b (s1 s2 d) (emit-dr (next-opcode) s1 s2 d))
+(defun emit-cpy-dr-s (s1 s2 d) (emit-dr (next-opcode) s1 s2 d))
+(defun emit-cpy-dr-i (s1 s2 d) (emit-dr (next-opcode) s1 s2 d))
+(defun emit-cpy-dr-ub (s1 s2 d) (emit-dr (next-opcode) s1 s2 d))
+(defun emit-cpy-dr-us (s1 s2 d) (emit-dr (next-opcode) s1 s2 d))
+(defun emit-cpy-dr-ui (s1 s2 d) (emit-dr (next-opcode) s1 s2 d))
+(defun emit-lea-d (s1 s2 d) (emit-dr (next-opcode) s1 s2 d))
 
 (defun emit-cpy-rp (d l))
 (defun emit-cpy-pr (l d))
-(defun emit-lea-i (s c d))
-(defun emit-lea-d (s1 s2 d))
 (defun emit-lea-p (l d))
 
 (defun emit-call (l))
