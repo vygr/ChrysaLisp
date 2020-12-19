@@ -71,8 +71,8 @@
 	(VP64
 		(case *cpu*
 			(vp64
-				(defmacro abi-trashed () ''(r1 r2 r7 r8 r9 r10))
-				(defmacro abi-args (&optional _ o) (setd _ 4 o 0) `',(slice o (+ o _) '(r1 r2 r7 r8 r0 r3 r4 r5 r6)))
+				(defmacro abi-trashed () ''())
+				(defmacro abi-args (&optional _ o) (setd _ 15 o 0) `',(slice o (+ o _) '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14)))
 				(defun emit-call-abi (r b c &rest x)
 					(cond
 						((= *func_align* 16)
