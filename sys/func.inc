@@ -42,10 +42,10 @@
 		(list '- (label-sym 'fn_links) (label-sym 'fn_start))
 		(list '- (label-sym 'fn_paths) (label-sym 'fn_start))
 		(opt fstack tk_stack_size))
-(vp-label 'fu_name_start)
+(vp-label 'fn_name_start)
 	(vp-string (str *name*))
-	(vp-byte 0 (list '- (label-sym 'fn_entry) (label-sym 'fu_name_start)))
-	(vp-align ptr_size (list '- (label-sym 'fn_entry) (label-sym 'fu_name_start)))
+	(vp-byte 0 (list '- (label-sym 'fn_entry) (label-sym 'fn_name_start)))
+	(vp-align ptr_size (list '- (label-sym 'fn_entry) (label-sym 'fn_name_start)))
 (vp-label 'fn_entry)
 	(push-scope))
 
