@@ -79,8 +79,7 @@
 		emit-alloc emit-free))
 
 (defmacro opt-emit-kills-ops ()
-	''(emit-beq emit-bne emit-blt emit-ble emit-bgt emit-bge emit-jmp emit-jmp-i emit-jmp-r emit-jmp-p
-		emit-alloc emit-free))
+	''(emit-jmp emit-jmp-i emit-jmp-r emit-jmp-p emit-alloc emit-free emit-cmp-cr emit-cmp-rr))
 
 (defmacro opt-emit-two-out-ops ()
 	''(emit-land-rr emit-lnot-rr emit-swp-rr emit-div-rrr emit-div-rrr-u))

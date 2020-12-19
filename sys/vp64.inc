@@ -34,7 +34,7 @@
 (defun emit-add-cr (c r) (unless (= c 0) (emit-cr (next-opcode 4) c r)))
 (defun emit-sub-cr (c r) (unless (= c 0) (emit-cr (next-opcode 4) c r)))
 (defun emit-cmp-cr (c r) (emit-cr (next-opcode 4) c r))
-(defun emit-mul-cr (c r) (emit-cr (next-opcode 4) c r))
+(defun emit-mul-cr (c r) (unless (= c 1) (emit-cr (next-opcode 4) c r)))
 (defun emit-and-cr (c r) (unless (= c -1) (emit-cr (next-opcode 4) c r)))
 (defun emit-or-cr (c r) (unless (= c 0) (emit-cr (next-opcode 4) c r)))
 (defun emit-xor-cr (c r) (unless (= c 0) (emit-cr (next-opcode 4) c r)))
@@ -201,7 +201,7 @@
 
 (defun emit-push (&rest b)
 	(when (/= 0 (length b))
-		(emit-sub-cr (align (* ptr_size (length b)) stack_align) rsp)
+		(emit-alloc (* ptr_size (length b)) rsp)
 		(each (lambda (r)
 			(emit-cpy-ri r rsp (* (- (length b) _) ptr_size))) b)))
 
@@ -209,4 +209,4 @@
 	(when (/= 0 (length b))
 		(each (lambda (r)
 			(emit-cpy-ir rsp (* (- (length b) _) ptr_size) r)) b))
-		(emit-add-cr (align (* ptr_size (length b)) stack_align) rsp))
+		(emit-free (* ptr_size (length b)) rsp))
