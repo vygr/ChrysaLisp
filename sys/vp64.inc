@@ -151,24 +151,41 @@
 (defun emit-cpy-dr-ui (s1 s2 d) (emit-dr (next-opcode) s1 s2 d))
 (defun emit-lea-d (s1 s2 d) (emit-dr (next-opcode) s1 s2 d))
 
-(defun emit-call-jmp (o r c)
+(defun emit-call-jmp-i (o r c)
 	(cond
 		((<= -0x80000 c 0x7ffff)
 			(emit-short (+ o (<< (reg r) 8) (<< c 12)) (>>> c 4)))
-		(t	(throw "emit-call-jmp constant out of range !" c))))
+		(t	(throw "emit-call-jmp-i constant out of range !" c))))
 
-(defun emit-call-r (r) (emit-call-jmp (next-opcode) r 0))
-(defun emit-jmp-r (r) (emit-call-jmp (next-opcode) r 0))
-(defun emit-call-i (r c) (emit-call-jmp (next-opcode) r c))
-(defun emit-jmp-i (r c) (emit-call-jmp (next-opcode) r c))
+(defun emit-call-r (r) (emit-call-jmp-i (next-opcode) r 0))
+(defun emit-jmp-r (r) (emit-call-jmp-i (next-opcode) r 0))
+(defun emit-call-i (r c) (emit-call-jmp-i (next-opcode) r c))
+(defun emit-jmp-i (r c) (emit-call-jmp-i (next-opcode) r c))
 
-(defun emit-cpy-rp (r l))
-(defun emit-cpy-pr (l r))
-(defun emit-lea-p (l r))
-(defun emit-call (l))
-(defun emit-call-p (l))
-(defun emit-jmp (l d))
-(defun emit-jmp-p (l))
+(defun emit-call-jmp-rl (o r l)
+	(defq c (- l *pc*))
+	(cond
+		((<= -0x80000 c 0x7ffff)
+			(emit-short (+ o (<< (reg r) 8) (<< c 12)) (>>> c 4)))
+		(t	(throw "emit-call-jmp-rl constant out of range !" c))))
+
+(defun emit-cpy-rp (r l) (emit-call-jmp-rl (next-opcode) r l))
+(defun emit-cpy-pr (l r) (emit-call-jmp-rl (next-opcode) r l))
+(defun emit-lea-p (l r) (emit-call-jmp-rl (next-opcode) r l))
+
+(defun emit-call-jmp-l (o l)
+	(defq c (- l *pc*))
+	(cond
+		((<= -0x80 c 0x7f)
+			(emit-short (+ o (<< c 8))))
+		((<= -0x800000 c 0x7fffff)
+			(emit-short (+ o (<< c 8)) (>>> c 8)))
+		(t	(throw "emit-call-jmp-l constant out of range !" c))))
+
+(defun emit-call (l) (emit-call-jmp-l (next-opcode 2) l))
+(defun emit-call-p (l) (emit-call-jmp-l (next-opcode 2) l))
+(defun emit-jmp-p (l) (emit-call-jmp-l (next-opcode 2) l))
+(defun emit-jmp (l d) (emit-call-jmp-l (next-opcode 2) l))
 
 (defun emit-alloc (c) (emit-sub-cr (align c stack_align) rsp))
 (defun emit-free (c) (emit-add-cr (align c stack_align) rsp))
