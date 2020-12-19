@@ -2,16 +2,16 @@
 ; VP64 Emit Functions
 ;;;;;;;;;;;;;;;;;;;;;
 
-(defun reg (r)
-	(find-rev r '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 rsp)))
-
-(defcvar 'stack_align 16 'stack_state '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14))
-
 (defq opcode 0)
 (defmacro next-opcode (&optional i)
 	(defq ci opcode)
 	(setq opcode (+ opcode (opt i 1)))
 	ci)
+
+(defun reg (r)
+	(find-rev r '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 rsp)))
+
+(defcvar 'stack_align 16 'stack_state '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14))
 
 (defun stack-init ()
 	(defq tk_state_size (* ptr_size (length stack_state)))
@@ -144,8 +144,8 @@
 (defun emit-cpy-rp (d l))
 (defun emit-cpy-pr (l d))
 
-(defun emit-push (&rest b))
-(defun emit-pop (&rest b))
 (defun emit-alloc (c) (emit-sub-cr (align c stack_align) rsp))
 (defun emit-free (c) (emit-add-cr (align c stack_align) rsp))
-(defun emit-ret ())
+(defun emit-push (&rest b))
+(defun emit-pop (&rest b))
+(defun emit-ret () (emit-short (next-opcode)))
