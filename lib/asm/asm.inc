@@ -213,25 +213,29 @@
 	(defq files (all-vp-files))
 	(make files 'AMD64 'x86_64)
 	(make files 'WIN64 'x86_64)
-	(make files 'ARM64 'aarch64))
+	(make files 'ARM64 'aarch64)
+	(make files 'VP64 'vp64))
 
 (defun make-all-platforms ()
 	(defq files (all-vp-files))
 	(make-all 'AMD64 'x86_64 files)
 	(make-all 'WIN64 'x86_64 files)
-	(make-all 'ARM64 'aarch64 files))
+	(make-all 'ARM64 'aarch64 files)
+	(make-all 'VP64 'vp64 files))
 
 (defun remake-platforms ()
 	(defq files (all-vp-files))
 	(remake 'AMD64 'x86_64 files)
 	(remake 'WIN64 'x86_64 files)
-	(remake 'ARM64 'aarch64 files))
+	(remake 'ARM64 'aarch64 files)
+	(remake 'VP64 'vp64 files))
 
 (defun remake-all-platforms ()
 	(defq files (all-vp-files))
 	(remake-all 'AMD64 'x86_64 files)
 	(remake-all 'WIN64 'x86_64 files)
-	(remake-all 'ARM64 'aarch64 files))
+	(remake-all 'ARM64 'aarch64 files)
+	(remake-all 'VP64 'vp64 files))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ; compile and make tests

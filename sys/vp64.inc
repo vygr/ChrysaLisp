@@ -5,7 +5,7 @@
 (defun reg (r)
 	(find-rev r '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 rsp)))
 
-(defcvar 'stack_align 16 'stack_state '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14))
+(defcvar 'stack_align 16 'stack_state '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 rsp))
 
 (defun stack-init ()
 	(defq tk_state_size (* ptr_size (length stack_state)))
@@ -13,6 +13,46 @@
 	(f-bind 'sys_task :stop r2)
 	(vp-cpy-ri r2 r1 (+ tk_state_size ptr_size))
 	(vp-cpy-ri r4 r1 tk_state_size))
+
+(defun emit-cr (c r op)
+	(cond
+		((<= -0x8 c 0x7)
+			(emit-short (+ op (<< (reg r) 8) (<< c 12))))
+		((<= -0x8000 c 0x7fff)
+			(emit-short (+ (inc op) (<< (reg r) 8) (<< c 12)) (>>> c 4)))
+		((<= -0x80000000 c 0x7fffffff)
+			(emit-short (+ (+ op 2) (<< (reg r) 8) (<< c 12)) (>>> c 4) (>>> c 20)))
+		(t	(emit-short (+ (+ op 3) (<< (reg r) 8) (<< c 12)) (>>> c 4) (>>> c 20) (>>> c 36)))))
+
+(defun emit-cpy-cr (c r) (emit-cr c r 0x00))
+(defun emit-add-cr (c r) (emit-cr c r 0x04))
+(defun emit-sub-cr (c r) (emit-cr c r 0x08))
+(defun emit-cmp-cr (c r) (emit-cr c r 0x10))
+(defun emit-mul-cr (c r) (emit-cr c r 0x14))
+(defun emit-and-cr (c r) (emit-cr c r 0x18))
+(defun emit-or-cr (c r) (emit-cr c r 0x20))
+(defun emit-xor-cr (c r) (emit-cr c r 0x24))
+(defun emit-shl-cr (c r) (emit-cr c r 0x28))
+(defun emit-shr-cr (c r) (emit-cr c r 0x30))
+(defun emit-asr-cr (c r) (emit-cr c r 0x34))
+
+(defun emit-cpy-rr (s d) (emit-short (+ 0x35 (<< (reg d) 8) (<< (reg s) 12))))
+(defun emit-add-rr (s d) (emit-short (+ 0x36 (<< (reg d) 8) (<< (reg s) 12))))
+(defun emit-sub-rr (s d) (emit-short (+ 0x37 (<< (reg d) 8) (<< (reg s) 12))))
+(defun emit-cmp-rr (s d) (emit-short (+ 0x38 (<< (reg d) 8) (<< (reg s) 12))))
+(defun emit-mul-rr (s d) (emit-short (+ 0x39 (<< (reg d) 8) (<< (reg s) 12))))
+(defun emit-and-rr (s d) (emit-short (+ 0x3a (<< (reg d) 8) (<< (reg s) 12))))
+(defun emit-or-rr (s d) (emit-short (+ 0x3b (<< (reg d) 8) (<< (reg s) 12))))
+(defun emit-xor-rr (s d) (emit-short (+ 0x3c (<< (reg d) 8) (<< (reg s) 12))))
+(defun emit-shl-rr (s d) (emit-short (+ 0x3d (<< (reg d) 8) (<< (reg s) 12))))
+(defun emit-shr-rr (s d) (emit-short (+ 0x3e (<< (reg d) 8) (<< (reg s) 12))))
+(defun emit-asr-rr (s d) (emit-short (+ 0x3f (<< (reg d) 8) (<< (reg s) 12))))
+(defun emit-lnot-rr (r d) (emit-short (+ 0x40 (<< (reg d) 8) (<< (reg r) 12))))
+(defun emit-land-rr (s d) (emit-short (+ 0x41 (<< (reg d) 8) (<< (reg s) 12))))
+(defun emit-swp-rr (s d) (emit-short (+ 0x42 (<< (reg d) 8) (<< (reg s) 12))))
+(defun emit-ext-rr (s d) (emit-short (+ 0x43 (<< (reg d) 8) (<< (reg s) 12))))
+(defun emit-div-rrr (s d1 d2) (emit-short (+ 0x44 (<< (reg d1) 8) (<< (reg d2) 12)) (reg s)))
+(defun emit-div-rrr-u (s d1 d2) (emit-short (+ 0x45 (<< (reg d1) 8) (<< (reg d2) 12)) (reg s)))
 
 (defun emit-push (&rest b))
 (defun emit-pop (&rest b))
@@ -80,42 +120,6 @@
 
 (defun emit-cpy-rp (d l))
 (defun emit-cpy-pr (l d))
-
-(defun emit-cpy-cr (c r))
-(defun emit-add-cr (c r))
-(defun emit-sub-cr (c r))
-(defun emit-cmp-cr (c r))
-(defun emit-and-cr (c r))
-(defun emit-or-cr (c r))
-(defun emit-xor-cr (c r))
-
-(defun emit-cpy-rr (s d) (emit-short (+ 0x0 (<< (+ (reg s) (<< (reg d) 4)) 8))))
-(defun emit-add-rr (s d) (emit-short (+ 0x1 (<< (+ (reg s) (<< (reg d) 4)) 8))))
-(defun emit-sub-rr (s d) (emit-short (+ 0x2 (<< (+ (reg s) (<< (reg d) 4)) 8))))
-(defun emit-cmp-rr (s d) (emit-short (+ 0x3 (<< (+ (reg s) (<< (reg d) 4)) 8))))
-(defun emit-and-rr (s d) (emit-short (+ 0x4 (<< (+ (reg s) (<< (reg d) 4)) 8))))
-(defun emit-or-rr (s d) (emit-short (+ 0x5 (<< (+ (reg s) (<< (reg d) 4)) 8))))
-(defun emit-xor-rr (s d) (emit-short (+ 0x6 (<< (+ (reg s) (<< (reg d) 4)) 8))))
-
-(defun emit-lnot-rr (r d))
-(defun emit-land-rr (s d))
-
-(defun emit-shl-cr (c r))
-(defun emit-shr-cr (c r))
-(defun emit-asr-cr (c r))
-
-(defun emit-shl-rr (s d))
-(defun emit-shr-rr (s d))
-(defun emit-asr-rr (s d))
-
-(defun emit-mul-cr (c r))
-(defun emit-mul-rr (s d))
-
-(defun emit-swp-rr (s d))
-(defun emit-ext-rr (s d))
-
-(defun emit-div-rrr (s d1 d2))
-(defun emit-div-rrr-u (s d1 d2))
 
 (defun emit-alloc (c) (emit-sub-cr (align c stack_align) rsp))
 (defun emit-free (c) (emit-add-cr (align c stack_align) rsp))

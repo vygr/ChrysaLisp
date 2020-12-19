@@ -1536,6 +1536,10 @@
 
 (open-pipe tasks) -> (list str ...)
 
+## open-remote
+
+(open-remote task node mode) -> str
+
 ## opt
 
 (opt var val [cond])
