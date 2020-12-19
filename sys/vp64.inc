@@ -189,6 +189,16 @@
 
 (defun emit-alloc (c) (emit-sub-cr (align c stack_align) rsp))
 (defun emit-free (c) (emit-add-cr (align c stack_align) rsp))
-(defun emit-push (&rest b))
-(defun emit-pop (&rest b))
 (defun emit-ret () (emit-short (next-opcode)))
+
+(defun emit-push (&rest b)
+	(when (/= 0 (length b))
+		(emit-sub-cr (align (* ptr_size (length b)) stack_align) rsp)
+		(each (lambda (r)
+			(emit-cpy-ri r rsp (* (- (length b) _) ptr_size))) b)))
+
+(defun emit-pop (&rest b)
+	(when (/= 0 (length b))
+		(each (lambda (r)
+			(emit-cpy-ir rsp (* (- (length b) _) ptr_size) r)) b))
+		(emit-add-cr (align (* ptr_size (length b)) stack_align) rsp))
