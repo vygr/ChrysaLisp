@@ -18,9 +18,9 @@
 	(cond
 		((<= -0x8 c 0x7)
 			(emit-short (+ op (<< (reg r) 8) (<< c 12))))
-		((<= -0x8000 c 0x7fff)
+		((<= -0x80000 c 0x7ffff)
 			(emit-short (+ (inc op) (<< (reg r) 8) (<< c 12)) (>>> c 4)))
-		((<= -0x80000000 c 0x7fffffff)
+		((<= -0x800000000 c 0x7ffffffff)
 			(emit-short (+ (+ op 2) (<< (reg r) 8) (<< c 12)) (>>> c 4) (>>> c 20)))
 		(t	(emit-short (+ (+ op 3) (<< (reg r) 8) (<< c 12)) (>>> c 4) (>>> c 20) (>>> c 36)))))
 
