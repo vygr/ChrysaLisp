@@ -72,6 +72,18 @@
 	(defq id (slice (const long_size) (const (+ long_size net_id_size)) (mail-read mbox)))
 	(mail-free-mbox mbox) id)
 
+(defun open-remote (task node mode)
+	; (open-remote task node mode) -> str
+	(defq mbox (mail-alloc-mbox))
+	(mail-send (cat (char 0 (const long_size)) node)
+		(cat
+			(char 0 (const long_size))
+			mbox
+			(char mode (const long_size))
+			task (char 0)))
+	(defq id (slice (const long_size) (const (+ long_size net_id_size)) (mail-read mbox)))
+	(mail-free-mbox mbox) id)
+
 (defun open-farm (task num mode &optional devices)
 	; (open-farm task num mode [devices]) -> (list str ...)
 	(if (= 0 (length (defq devices (opt devices (mail-nodes)))))
