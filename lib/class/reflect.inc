@@ -65,7 +65,7 @@
     ((or (func? _) (lambda? _) (macro? _))
       :form)
     ((seq? _)
-      :sequence)
+      :expression)
     (t
       :unknown)))
 
@@ -130,15 +130,3 @@
     (defq ,(defq mclass (gensym)) (classkw ,nm))
     (defun ,isname (o)
       (class-type-of? o ,mclass))))
-
-; Test samples
-; (defclass a (v) nil
-;   (def this :x 2 :y 7 z v)
-;   (defmethod f (this))
-;   (defmethod :f (this)))
-
-; (defclass b () (a 3)
-;   (def this :q 1 :r 3)
-;   (defmethod bs (this) ))
-
-; (defclass c () (b))

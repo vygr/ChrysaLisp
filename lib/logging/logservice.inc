@@ -53,7 +53,7 @@
       (setq log_srvc_mbox_id
         (if (nempty? res)
             (to-net-id (second (split (first res) ",")))
-            (open-child "apps/logger/app.lisp" kn_call_child))))
+            (open-child "apps/logger/app.lisp" kn_call_open))))
     (t log_srvc_mbox_id)))
 
 
