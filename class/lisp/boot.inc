@@ -890,7 +890,7 @@
 					(def ,class :vtable t)
 					~methods
 					(defmethod :type_of (this)
-						(push (type-of this) :class ,(sym (cat : n)))))
+						(push (type-of this) ,(sym (cat : n)))))
 				~inits this))))
 
 (defmacro .-> (res &rest frm)
