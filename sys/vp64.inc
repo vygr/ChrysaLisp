@@ -101,19 +101,6 @@
 (defun emit-ble (l d) (emit-branch (next-opcode 2) (- l *pc*) d))
 (defun emit-bgt (l d) (emit-branch (next-opcode 2) (- l *pc*) d))
 
-(defun emit-call (l))
-(defun emit-call-r (r))
-(defun emit-call-i (d c))
-(defun emit-call-p (l))
-(defun emit-jmp (l d))
-(defun emit-jmp-r (r))
-(defun emit-jmp-i (d c))
-(defun emit-jmp-p (l))
-
-(defun emit-lea-i (s c d))
-(defun emit-lea-d (s1 s2 d))
-(defun emit-lea-p (l d))
-
 (defun emit-cpy-ir (s c d))
 (defun emit-cpy-ir-b (s c d))
 (defun emit-cpy-ir-s (s c d))
@@ -143,6 +130,18 @@
 
 (defun emit-cpy-rp (d l))
 (defun emit-cpy-pr (l d))
+(defun emit-lea-i (s c d))
+(defun emit-lea-d (s1 s2 d))
+(defun emit-lea-p (l d))
+
+(defun emit-call (l))
+(defun emit-call-r (r))
+(defun emit-call-i (d c))
+(defun emit-call-p (l))
+(defun emit-jmp (l d))
+(defun emit-jmp-r (r))
+(defun emit-jmp-i (d c))
+(defun emit-jmp-p (l))
 
 (defun emit-alloc (c) (emit-sub-cr (align c stack_align) rsp))
 (defun emit-free (c) (emit-add-cr (align c stack_align) rsp))
