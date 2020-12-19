@@ -201,7 +201,7 @@
 
 (defun emit-push (&rest b)
 	(when (/= 0 (length b))
-		(emit-alloc (* ptr_size (length b)) rsp)
+		(emit-alloc (* ptr_size (length b)))
 		(each (lambda (r)
 			(emit-cpy-ri r rsp (* (- (length b) _) ptr_size))) b)))
 
@@ -209,4 +209,4 @@
 	(when (/= 0 (length b))
 		(each (lambda (r)
 			(emit-cpy-ir rsp (* (- (length b) _) ptr_size) r)) b))
-		(emit-free (* ptr_size (length b)) rsp))
+		(emit-free (* ptr_size (length b))))
