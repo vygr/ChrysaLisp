@@ -179,7 +179,7 @@
 		((<= -0x80 c 0x7f)
 			(emit-short (+ o (<< c 8))))
 		((<= -0x800000 c 0x7fffff)
-			(emit-short (+ o (<< c 8)) (>>> c 8)))
+			(emit-short (+ (inc o) (<< c 8)) (>>> c 8)))
 		(t	(throw "emit-call-jmp-l constant out of range !" c))))
 
 (defun emit-call (l) (emit-call-jmp-l (next-opcode 2) l))
