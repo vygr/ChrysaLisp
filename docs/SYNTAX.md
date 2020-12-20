@@ -920,6 +920,10 @@
 
 (def? var [env])
 
+## defabstractmethod
+
+(defabstractmethod (this [arg ...]) body)
+
 ## defclass
 
 (defclass name ([arg ...]) (super ...) body)

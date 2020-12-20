@@ -855,14 +855,13 @@
 	; (. this :method [arg ...])
 	`(def (def? :vtable this) ,n (lambda ,a ~(macroexpand _))))
 
-(defmacro defabstractmethod (n a)
-	; (defabstractmethod name args)
+(defmacro defabstractmethod (n a &rest _)
+	; (defabstractmethod (this [arg ...]) body)
 	; Declare a method as abstract and will
 	; throw an error if invoked. Concrete
 	; classes deriving from a class with abstractions
 	; should provide the concreate handler
-  	`(def (def? :vtable this) ,n
-  		(lambda ,a (throw "Is abstract method !" ,n) ,n)))
+  	`(def (def? :vtable this) ,n (lambda ,a (throw "Is abstract method !" ,n))))
 
 (defmacro deffimethod (n _)
 	; (deffimethod name ffi)

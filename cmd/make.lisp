@@ -153,7 +153,7 @@
                 (defq _ (elem 0 (split line (const (cat (ascii-char 9) " ()'" (ascii-char 13))))))
                 (cond
                     ((or (eql _ "defun") (eql _ "defmacro") (eql _ "defclass")
-							(eql _ "defmethod") (eql _ "deffimethod"))
+							(eql _ "defmethod") (eql _ "deffimethod") (eql _ "defabstractmethod"))
                         (setq state :y))))) (file-stream file)))
         (cat (all-files "." "lisp.inc")
 			'("class/lisp/boot.inc" "lib/anaphoric/anaphoric.inc" "lib/debug/debug.inc"
