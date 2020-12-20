@@ -18,6 +18,8 @@ kernel task.
 
 Random node id's for all network cpu's.
 
+New vp64.inc byte code target ready for dynamic translator and emulator.
+
 ------
 
 New `lib/clenv/clenv.inc` library for accessing `.hostenv` variable assignments.
