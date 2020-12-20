@@ -96,10 +96,10 @@
 	(defq m (elem d *distance*))
 	(and (/= *pass* 0) (> (abs c) (abs m)) (elem-set d *distance* (setq m c)))
 	(cond
-		((<= -0x80 m 0x7f)
-			(emit-short (+ o (<< c 8))))
-		((<= -0x800000 m 0x7fffff)
-			(emit-short (+ (inc o) (<< c 8)) (>>> c 8)))
+		((<= -0x80 (- m 2) 0x7f)
+			(emit-short (+ o (<< (- c 2) 8))))
+		((<= -0x800000 (- m 4) 0x7fffff)
+			(emit-short (+ (inc o) (<< (- c 4) 8)) (>>> (- c 4) 8)))
 		(t	(throw "emit-branch constant out of range !" c))))
 
 (defun emit-beq (l d) (emit-branch (next-opcode 2) (- l *pc*) d))
@@ -171,9 +171,8 @@
 (defun emit-jmp-i (r c) (emit-call-jmp-i (next-opcode) r c))
 
 (defun emit-call-jmp-rl (o r l)
-	(defq c (- l *pc*))
 	(cond
-		((<= -0x80000 c 0x7ffff)
+		((<= -0x80000 (defq c (- l *pc* 2)) 0x7ffff)
 			(emit-short (+ o (<< (reg r) 8) (<< c 12)) (>>> c 4)))
 		(t	(throw "emit-call-jmp-rl constant out of range !" c))))
 
@@ -182,11 +181,10 @@
 (defun emit-lea-p (l r) (emit-call-jmp-rl (next-opcode) r l))
 
 (defun emit-call-jmp-l (o l)
-	(defq c (- l *pc*))
 	(cond
-		((<= -0x80 c 0x7f)
+		((<= -0x80 (defq c (- l *pc* 2)) 0x7f)
 			(emit-short (+ o (<< c 8))))
-		((<= -0x800000 c 0x7fffff)
+		((<= -0x800000 (defq c (- l *pc* 4)) 0x7fffff)
 			(emit-short (+ (inc o) (<< c 8)) (>>> c 8)))
 		(t	(throw "emit-call-jmp-l constant out of range !" c))))
 
