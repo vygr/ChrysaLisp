@@ -11,7 +11,7 @@
 (defun reg (r)
 	(find-rev r '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 rsp)))
 
-(defcvar 'stack_align 16 'stack_state '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14))
+(defcvar 'stack_align 8 'stack_state '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14))
 
 (defun stack-init ()
 	(defq tk_state_size (* ptr_size (length stack_state)))
@@ -202,11 +202,11 @@
 (defun emit-push (&rest b)
 	(when (/= 0 (length b))
 		(emit-alloc (* ptr_size (length b)))
-		(each (lambda (r)
-			(emit-cpy-ri r rsp (* (- (length b) _) ptr_size))) b)))
+		(each-rev (lambda (r)
+			(emit-cpy-ri r rsp (* (- (length b) 1 _) ptr_size))) b)))
 
 (defun emit-pop (&rest b)
 	(when (/= 0 (length b))
-		(each (lambda (r)
-			(emit-cpy-ir rsp (* (- (length b) _) ptr_size) r)) b))
+		(each-rev (lambda (r)
+			(emit-cpy-ir rsp (* (- (length b) 1 _) ptr_size) r)) b))
 		(emit-free (* ptr_size (length b))))

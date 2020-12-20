@@ -16,8 +16,7 @@
 							(apply emit-push x)
 							(emit-call-jump-i 0x10 b c)
 							(emit-add-cr (* ptr_size (length x)) rsp))
-						(t
-							(setq x (cat (list r r) x))
+						(t	(setq x (cat (list r r) x))
 							(emit-cpy-rr rsp r)
 							(emit-and-cr -16 rsp)
 							(apply emit-push x)
@@ -39,8 +38,7 @@
 							(emit-pop r30))
 						((= 2 l) 
 							(emit-pop r30 r29))
-						(t
-							(emit-cpy-ir rsp (* ptr_size (dec l)) r30)
+						(t	(emit-cpy-ir rsp (* ptr_size (dec l)) r30)
 							(emit-free (* ptr_size l))))))
 			(t (throw "Unknown CPU for ARM64 !" *cpu*))))
 	(WIN64
@@ -57,8 +55,7 @@
 							(emit-sub-cr 32 rsp)
 							(emit-call-jump-i 0x10 b c)
 							(emit-add-cr (* ptr_size (+ (length x) 4)) rsp))
-						(t
-							(emit-cpy-rr rsp r)
+						(t	(emit-cpy-rr rsp r)
 							(emit-and-cr -16 rsp)
 							(if (odd? (length x))
 								(defq y (cat (list r) x))
@@ -73,26 +70,8 @@
 			(vp64
 				(defmacro abi-trashed () ''())
 				(defmacro abi-args (&optional _ o) (setd _ 15 o 0) `',(slice o (+ o _) '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14)))
-				(defun emit-call-abi (r b c &rest x)
-					(cond
-						((= *func_align* 16)
-							(if (odd? (length x))
-								(setq x (cat (list r) x)))
-							(apply emit-push x)
-							(emit-sub-cr 32 rsp)
-							(emit-call-i b c)
-							(emit-add-cr (* ptr_size (+ (length x) 4)) rsp))
-						(t
-							(emit-cpy-rr rsp r)
-							(emit-and-cr -16 rsp)
-							(if (odd? (length x))
-								(defq y (cat (list r) x))
-								(defq y (cat (list r r) x)))
-							(apply emit-push y)
-							(emit-sub-cr 32 rsp)
-							(emit-call-i b c)
-							(emit-cpy-ir rsp (* ptr_size (+ (length x) 4)) rsp)))))
-			(t (throw "Unknown CPU for WIN64 !" *cpu*))))
+				(defun emit-call-abi (r b c &rest x) (emit-call-i b c)))
+			(t (throw "Unknown CPU for VP64 !" *cpu*))))
 	(t (throw "Unknown ABI !" *abi*)))
 
 (defmacro abi-push-trashed (&rest b) (merge-obj b (abi-trashed)) `(vp-push ~b))
