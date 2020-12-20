@@ -192,6 +192,7 @@
 (defun emit-call-p (l) (emit-call-jmp-l (next-opcode 2) l))
 (defun emit-jmp-p (l) (emit-call-jmp-l (next-opcode 2) l))
 (defun emit-jmp (l d) (emit-call-jmp-l (next-opcode 2) l))
+(defun emit-call-abi (r b c &rest x) (emit-call-jmp-i (next-opcode) b c))
 
 (defun emit-alloc (c) (emit-sub-cr (align c stack_align) rsp))
 (defun emit-free (c) (emit-add-cr (align c stack_align) rsp))

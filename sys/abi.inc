@@ -69,8 +69,7 @@
 		(case *cpu*
 			(vp64
 				(defmacro abi-trashed () ''())
-				(defmacro abi-args (&optional _ o) (setd _ 15 o 0) `',(slice o (+ o _) '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14)))
-				(defun emit-call-abi (r b c &rest x) (emit-call-i b c)))
+				(defmacro abi-args (&optional _ o) (setd _ 15 o 0) `',(slice o (+ o _) '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14))))
 			(t (throw "Unknown CPU for VP64 !" *cpu*))))
 	(t (throw "Unknown ABI !" *abi*)))
 
