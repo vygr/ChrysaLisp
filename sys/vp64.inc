@@ -172,7 +172,7 @@
 
 (defun emit-call-jmp-rl (o r l)
 	(cond
-		((<= -0x80000 (defq c (- l *pc* 2)) 0x7ffff)
+		((<= -0x80000 (defq c (- l *pc* 4)) 0x7ffff)
 			(emit-short (+ o (<< (reg r) 8) (<< c 12)) (>>> c 4)))
 		(t	(throw "emit-call-jmp-rl constant out of range !" c))))
 
