@@ -78,6 +78,8 @@
     (print ind (_mclass-id _))
     (when (class-inherits? _)
       (inspect-class (_mclass-super _) (+ sindent 2)))
+    (print ind "  constructor: ")
+    (print ind "    -> " (_mclass-args _))
     (print ind "  variables: ")
     (when (class-hasvars? _)
       (each (lambda ((_f _v))

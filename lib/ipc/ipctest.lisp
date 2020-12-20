@@ -2,26 +2,29 @@
 ; ipctest -
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import "sys/lisp.inc")
-(import "class/lisp.inc")
-(import "lib/ipc/ipcdefs.inc")
+(import "lib/ipc/_ipc.inc")
 
 (when (= (length (mail-enquire "IPC")) 0)
   (defq
-    active  t
-    entry   (mail-declare (task-mailbox) "IPC" "IPC TEST"))
-  (catch (while active
-    (defq
-      id  nil
-      msg (mail-read (task-mailbox)))
-    (if (list? msg)
-      (setq id (first msg) msg (rest msg))
-      (setq id (get-long msg ev_msg_target_id)))
-    (cond
-      ((= id ipc_event_shutdown)
-       (setq active nil))
-      ((= id ipc_event_ping)
-       (print msg))))
-    (progn
-      (setq active nil)))
+    active    t
+    entry     (mail-declare (task-mailbox) "IPC" "IPC TEST")
+    sipc      (server-ipc (task-mailbox)))
+    (while active
+      (bind '(client cmd msg) (. sipc :read))
+      (cond
+        ; Ping event
+        ((= cmd ipc_event_ping)
+          (. sipc :ping client))
+        ; Shutdown event
+        ((= cmd ipc_event_shutdown)
+          (setq active nil)
+          (. sipc :shutdown client))
+        ; Register event
+        ((= cmd ipc_event_register)
+         (. sipc :register_client client))
+        ; Deregister event
+        ((= cmd ipc_event_deregister)
+         (. sipc :deregister_client client))))
+
   (mail-forget entry))
+
