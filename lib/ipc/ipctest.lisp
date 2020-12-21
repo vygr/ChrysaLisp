@@ -14,7 +14,7 @@
       (cond
         ; Ping event
         ((= cmd ipc_event_ping)
-          (. sipc :ping client))
+          (. sipc :client_ping client))
         ; Shutdown event
         ((= cmd ipc_event_shutdown)
           (setq active nil)
