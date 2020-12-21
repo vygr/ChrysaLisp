@@ -263,7 +263,7 @@
 (defun vp-free (c) (emit (list 'emit-free c)))
 (defun vp-ret () (emit (list 'emit-ret)))
 
-(defun vp-call-abi (r b i x) (emit (cat (list 'emit-call-abi r b i) x)))
+(defun vp-call-abi (r b i n x) (emit (cat (list 'emit-call-abi r b i n) x)))
 (defun vp-call (l) (emit (list 'emit-call (label-sym l))))
 (defun vp-call-r (d) (emit (list 'emit-call-r d)))
 (defun vp-call-i (b i) (emit (list 'emit-call-i b i)))

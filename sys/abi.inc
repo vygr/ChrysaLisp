@@ -10,7 +10,7 @@
 			(x86_64
 				(defmacro abi-trashed () ''(r1 r2 r5 r6 r7 r8 r9 r10))
 				(defmacro abi-args (&optional _ o) (setd _ 6 o 0) `',(slice o (+ o _) '(r6 r5 r2 r1 r7 r8 r0 r3 r4)))
-				(defun emit-call-abi (r b c &rest x)
+				(defun emit-call-abi (r b c n &rest x)
 					(cond
 						((= *func_align* 16)
 							(apply emit-push x)
@@ -28,7 +28,7 @@
 			(aarch64
 				(defmacro abi-trashed () ''(r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14))
 				(defmacro abi-args (&optional _ o) (setd _ 8 o 0) `',(slice o (+ o _) '(r0 r1 r2 r3 r4 r5 r6 r7 r8)))
-				(defun emit-call-abi (r b c &rest x)
+				(defun emit-call-abi (r b c n &rest x)
 					(setq x (cat '(r30) x))
 					(apply emit-push x)
 					(emit-cpy-ir b c r29)
@@ -46,7 +46,7 @@
 			(x86_64
 				(defmacro abi-trashed () ''(r1 r2 r7 r8 r9 r10))
 				(defmacro abi-args (&optional _ o) (setd _ 4 o 0) `',(slice o (+ o _) '(r1 r2 r7 r8 r0 r3 r4 r5 r6)))
-				(defun emit-call-abi (r b c &rest x)
+				(defun emit-call-abi (r b c n &rest x)
 					(cond
 						((= *func_align* 16)
 							(if (odd? (length x))
