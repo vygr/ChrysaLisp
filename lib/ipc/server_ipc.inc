@@ -15,12 +15,23 @@
     :server   server
     :registry (xmap))
 
+  (defmethod :service_mb (this)
+    ; (. service-ipc :service-mb) -> mailbox
+    (get :server this))
+
   (defmethod :client_for (this client)
+    ; (. server-ipc :client_for client) -> ipc | nil
+    ; Returns a registered client ipc
+    ; or nil if not registered yet
     (if (ipc? client)
       client
       (gets (get :registry this) client)))
 
   (defmethod :register_client (this client)
+    ; (. server-ipc :register_client client) -> any
+    ; Adds, if needed, client to registry and
+    ; acknowledges a registration request from a
+    ; client ipc
     (defq
       reg (. this :client_for client)
       txt "OK")
@@ -32,6 +43,9 @@
     (. reg :send ipc_event_success txt))
 
   (defmethod :deregister_client (this client)
+    ; (. server-ipc :deregister_client client) -> any
+    ; Removes, if needed, client from registry and
+    ; acknowledges a request from a client ipc
     (defq
       reg (. this :client_for client)
       txt "OK")
@@ -43,6 +57,9 @@
     (. reg :send ipc_event_success txt))
 
   (defmethod :read (this)
+    ; (. server-ipc :read) -> triplet
+    ; Reads messages from the server
+    ; mailbox and prepares for delivery
     (defq
       msg     (mail-read (get :server this))
       client  nil

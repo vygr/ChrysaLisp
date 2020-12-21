@@ -16,14 +16,38 @@
 (import "lib/date/date.inc")
 (import "lib/logging/loganchor.inc")
 (import "lib/pathnode/pathnode.inc")
+(import "lib/ipc/server_ipc.inc")
 
-; Setup logging and timezones
+; Setup logging, service mailbox and timezones
 (defq
   tlog      (log-anchor "tui2")
   +banner+  "ChrysaLisp Terminal-2 0.9 (RC-1)"
+  tmserv    (server-ipc (mail-alloc-mbox))
   tzone     nil)
 
+(mail-declare
+  (. tmserv :service_mb)
+  "TERMINAL_SERVICE"
+  "Terminal Services 0.1")
+
 (import "apps/terminal/tuiutils.lisp")
+
+; Mailbox functions
+
+(defun poll-mbox (ic &optional args)
+  (defq qexist (mail-poll (list (. tmserv :service_mb))))
+  (prtnl (str "Queue mail? " (if qexist "true" "false"))))
+
+(defun service-mbox (ic &optional args)
+  (not-impl ic args))
+
+(defun send-mbox (ic &optional args)
+  (not-impl ic args))
+
+(defun client-mbox (ic &optional args)
+  (not-impl ic args))
+
+; Session functions
 
 (defun session-sub (bfr)
   ; (session-sub string) -> string
@@ -150,6 +174,11 @@
               "ls"    list-files        ; File listing
               "rm"    delete-directory  ; Remove file or folder
 
+              "-rc"   client-mbox       ; Register as client to service
+              "-sc"   send-mbox         ; Send msg from terminal
+              "-mp"   poll-mbox         ; Poll the terminal mailbox
+              "-mr"   poll-mbox         ; Service terminal messages
+
               "-e"    print-session     ; Prints session values
               "-e+"   set-session       ; Add session value
               "-e-"   drop-session      ; Remove session value
@@ -168,6 +197,7 @@
   (cond
     (in
       ; Found internal command, execute and return
+      (prtnl (str "Internal command request " ic))
       (in ic (if (> (length sp) 1) (join (rest sp) " ") ""))
       (print (prompt)))
     (t

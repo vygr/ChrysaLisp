@@ -8,27 +8,11 @@
 
 (defq _ipc_service nil)
 
-(defun ipc-test ()
+(defun ipc-test (node)
   ; (ipc-test) -> mailbox id | nil
   ; Retrieves the service mailbox for local ipc testing
   ; If not found in service registry, start
   ; the service. Otherwise return the mailbox id
-  (cond
-    ((nil? _ipc_service)
-      (defq res (mail-enquire "IPC"))
-      (setq _ipc_service
-        (if (nempty? res)
-            (to-net-id (second (split (first res) ",")))
-            (open-child
-              "lib/ipc/demos.lisp"
-              kn_call_open))))
-    (t _ipc_service)))
-
-(defun remote-ipc-test (node)
-  ; (remote-ipc-test) -> mailbox id | nil
-  ; Retrieves the service mailbox for remote ipc testing
-  ; If not found in service registry, start
-  ; the service on the remote node. Otherwise return the mailbox id
   (cond
     ((nil? _ipc_service)
       (defq res (mail-enquire "IPC"))
@@ -40,7 +24,6 @@
               node
               kn_call_open))))
     (t _ipc_service)))
-
 
 (defclass democ (client server) (client-ipc client server)
   (defmethod :shutdown (this)
@@ -67,7 +50,7 @@
 
 ; To test co-resident (optimized) client/server
 ; >lisp lib/ipc/democ.inc
-; (defq cipc (democ (task-mailbox) (ipc-test)))
+; (defq cipc (democ (task-mailbox) (ipc-test (local-node))))
 ; Threaded messages - Double entries are to see effect
 ; of registering something already registered, etc.
 ; Shutdown is for demo to tell the server to stop
@@ -77,6 +60,6 @@
 
 ; To test different CPU (serializing data) client/server
 ; >lisp lib/ipc/_ipc.inc
-; (defq cipc (client-ipc (task-mailbox) (remote-ipc-test (first _remote_nodes))))
+; (defq cipc (democ (task-mailbox) (ipc-test (remote-node))))
 ; Threaded messages
 ; (.-> cipc :ping :register :register :deregister :deregister :shutdown)

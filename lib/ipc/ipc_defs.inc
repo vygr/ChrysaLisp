@@ -12,9 +12,13 @@
     'shutdown
     'ping))
 
-(defun sdir-mbox (_s)
-  ; (sdir-mbox _s) -> net_id
+(defun mbox-from-decl (_s)
+  ; (mbox-from-decl _s) -> net_id
   (to-net-id (second (split (if (list? _s) (first _s) _s) ","))))
+
+(defun mbox-for (sname)
+  ; (mbox-for string) -> mailbox | nil
+  (mbox-from-decl (mail-enquire sname)))
 
 (defun mbox-node-id (mbox)
   ; (mbox-to-node-id mbox) -> binary string
@@ -24,11 +28,15 @@
   ; (node=? mailbox mailbox) -> t | nil
   (eql (mbox-node-id mboxa) (mbox-node-id mboxb)))
 
-(defq _remote_nodes
-  (let
-    ((res (list))
-     (mid (to-service-id (mbox-node-id (task-mailbox)))))
-    (each
-      (#(unless (eql mid (to-service-id %0)) (push res %0)))
-      (mail-nodes))
-    res))
+(defun local-node ()
+  (mbox-node-id (task-mailbox)))
+
+(defun any-node ()
+  (elem (random (length (defq nodes (mail-nodes)))) nodes))
+
+(defun remote-nodes ()
+  (defq mine (to-service-id (local-node)))
+  (filter (#(not (eql mine (to-service-id %0)))) (mail-nodes)))
+
+(defun remote-node ()
+  (first (remote-nodes)))
