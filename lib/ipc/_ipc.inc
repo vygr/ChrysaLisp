@@ -47,11 +47,10 @@
               kn_call_open))))
     (t _ipc_service)))
 
-(defun _default_msg_handler (cmd msg)
-  ; (_default_msg_handler command msg) -> list
-  ; Handles the receipt of a message by
-  ; just returning a tuple of cmd and msg
-  (list cmd msg))
+(defun _default_msg_handler (&rest data)
+  ; (_default_msg_handler client command data) -> list
+  ; Default handler just returns data tuple
+  data)
 
 ; ipc is the baseline class that performs
 ; the heavy lifting of communication between
@@ -83,12 +82,12 @@
       (. this :get_sink)
       (cond
         ((. this :optimized?)
-          (insert
-            (cond
+          (cat
+            (list (. this :get_source) cmd)
+             (cond
               ((list? msg) msg)
               ((nil? msg) (list))
-              (t (list msg)))
-            0 (list (. this :get_source) cmd)))
+              (t (list msg)))))
       (t
         (str
           (data-xser
@@ -104,10 +103,10 @@
     (defq fmsg (mail-read (. this :get_source)))
     (cond
       ((and (. this :optimized?) (list? fmsg))
-        (handler_fn (second fmsg) (last fmsg)))
+        (handler_fn (first fmsg) (second fmsg) (last fmsg)))
       ((and (not (. this :optimized?)) (str? fmsg))
         (defq mmap (data-xdeser (write (string-stream (cat "")) fmsg)))
-        (handler_fn (gets mmap :command) (gets mmap :data)))
+        (handler_fn (gets mmap :client) (gets mmap :command) (gets mmap :data)))
       (t
         (throw "Receive type undefined " (type-of fmsg)))))
   )
@@ -124,7 +123,7 @@
   (defmethod :shutdown (this)
     ; (. client-ipc :shutdown) -> nil
     ; This is for demo only
-    (bind '(cmd msg)
+    (bind '(client cmd msg)
       (.
         (. this :send ipc_event_shutdown (list))
         :recieve))
@@ -132,33 +131,36 @@
 
   (defmethod :ping (this)
     ; (. client-ipc :ping) -> list
-    (bind '(cmd msg)
+    (bind '(client cmd msg)
       (.
         (. this :send ipc_event_ping)
         :recieve))
-    (print ":ping cmd " cmd " data " msg))
+    (print ":ping cmd " cmd " data " msg)
+    this)
 
   (defmethod :register (this)
     ; (. client_ipc :register) -> t | exception
-    (bind '(cmd msg)
+    (bind '(client cmd msg)
       (.
         (. this :send ipc_event_register)
         :recieve))
     (print ":register response cmd " cmd " data " msg)
     (if (= cmd ipc_event_success)
       (set this :registered t)
-      (throw "Unable to register client " msg)))
+      (throw "Unable to register client " msg))
+    this)
 
   (defmethod :deregister (this)
     ; (. client_ipc :deregister) -> t | exception
-    (bind '(cmd msg)
+    (bind '(client cmd msg)
       (.
         (. this :send ipc_event_deregister)
         :recieve))
     (print ":deregister response cmd " cmd " data " msg)
     (if (= cmd ipc_event_success)
       (set this :registered nil)
-      (throw "Unable to deregister client " msg)))
+      (throw "Unable to deregister client " msg))
+    this)
   )
 
 (gen-class-pred client-ipc)
@@ -193,13 +195,13 @@
       reg (. this :client_for client)
       txt "OK")
     (if reg
-      (drop! (get :registry this) reg)
+      (drop! (get :registry this) (. reg :get_sink))
       (setq
         txt "Not Registered"
         reg (ipc (get :server this) client)))
     (. reg :send ipc_event_success txt))
 
-  (defmethod :ping (this client)
+  (defmethod :client_ping (this client)
     (defq
       reg (. this :client_for client))
     (when (nil? reg)
@@ -242,20 +244,15 @@
 ; To test co-resident (optimized) client/server
 ; >lisp lib/ipc/_ipc.inc
 ; (defq cipc (client-ipc (task-mailbox) (ipc-test)))
-; (. cipc :ping)        ; -> OK
-; (. cipc :register)    ; -> OK
-; (. cipc :register)    ; -> Already registered
-; (. cipc :deregister)  ; -> OK
-; (. cipc :deregister)  ; -> Not registered
-; (. cipc :shutdown)    ; -< OK ... for demo only
-; (setq _ipc_server nil)
+; Threaded messages - Double entries are to see effect
+; of registering something already registered, etc.
+; Shutdown is for demo to tell the server to stop
+; (.-> cipc :ping :register :register :deregister :deregister :shutdown)
+; Clear this for retesting
+; (setq _ipc_service nil)
 
 ; To test different CPU (serializing data) client/server
 ; >lisp lib/ipc/_ipc.inc
 ; (defq cipc (client-ipc (task-mailbox) (remote-ipc-test (first _remote_nodes))))
-; (. cipc :ping)        ; -> OK
-; (. cipc :register)    ; -> OK
-; (. cipc :register)    ; -> Already registered
-; (. cipc :deregister)  ; -> OK
-; (. cipc :deregister)  ; -> Not registered
-; (. cipc :shutdown)    ; -< OK ... for demo only
+; Threaded messages
+; (.-> cipc :ping :register :register :deregister :deregister :shutdown)

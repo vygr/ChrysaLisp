@@ -121,6 +121,24 @@
     ((class-inst? ,_obj) (find ,_ttype (. ,_obj :type_of)))
     (t nil))))
 
+(defun inst-data (_)
+  ; (inst-data object) -> list
+  ; Returns a list of data/value pairs
+  ; if the object is a class instance
+  (when (class-inst? _)
+    (filter
+      (lambda ((_k _v))
+        (not (eql _k :vtable))) (tolist _))))
+
+(defun inspect-inst (_ &optional sindent)
+  (when (defq data (inst-data _))
+    (each (lambda ((_k _v))
+      (prin _k " = "
+        (if (class-inst? _v)
+          (inspect-inst _v)
+          _v))
+      ) data)))
+
 ; Generators
 
 (defmacro gen-class-pred (nm)
