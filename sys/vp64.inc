@@ -198,6 +198,7 @@
 (defun emit-alloc (c) (emit-sub-cr (align c stack_align) rsp))
 (defun emit-free (c) (emit-add-cr (align c stack_align) rsp))
 (defun emit-ret () (emit-short (next-opcode)))
+(defun emit-brk () (emit-short (next-opcode)))
 
 (defun emit-push (&rest b)
 	(when (/= 0 (length b))

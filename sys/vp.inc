@@ -262,6 +262,7 @@
 (defun vp-alloc (c) (emit (list 'emit-alloc c)))
 (defun vp-free (c) (emit (list 'emit-free c)))
 (defun vp-ret () (emit (list 'emit-ret)))
+(defun vp-brk () (emit (list 'emit-brk)))
 
 (defun vp-call-abi (r b i n x) (emit (cat (list 'emit-call-abi r b i n) x)))
 (defun vp-call (l) (emit (list 'emit-call (label-sym l))))
