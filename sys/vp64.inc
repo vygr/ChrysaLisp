@@ -195,7 +195,7 @@
 
 (defun emit-call-abi (r b c n &rest x)
 	(cond
-		((<= -0x8000 c 0x7fff)
+		((<= 0 c (const (- 0x10000 ptr_size)))
 			(emit-short (+ (next-opcode) (<< (reg b) 8) (<< n 12)) c))
 		(t	(throw "emit-call-abi constant out of range !" c))))
 
