@@ -189,9 +189,9 @@
 		(t	(throw "emit-call-jmp-l constant out of range !" c))))
 
 (defun emit-call (l) (emit-call-jmp-l (next-opcode 2) l))
+(defun emit-jmp (l d) (emit-call-jmp-l (next-opcode 2) l))
 (defun emit-call-p (l) (emit-call-jmp-l (next-opcode 2) l))
 (defun emit-jmp-p (l) (emit-call-jmp-l (next-opcode 2) l))
-(defun emit-jmp (l d) (emit-call-jmp-l (next-opcode 2) l))
 
 (defun emit-call-abi (r b c n &rest x)
 	(cond
