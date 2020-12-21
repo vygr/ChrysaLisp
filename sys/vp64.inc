@@ -172,8 +172,8 @@
 
 (defun emit-p (o r l)
 	(cond
-		((<= -0x800000 (defq c (- l *pc* 4)) 0x7fffff)
-			(emit-short (+ o (<< (reg r) 8) (<< c 8)) (>>> c 8)))
+		((<= -0x80000 (defq c (- l *pc* 4)) 0x7ffff)
+			(emit-short (+ o (<< (reg r) 8) (<< c 12)) (>>> c 12)))
 		(t	(throw "emit-p constant out of range !" c))))
 
 (defun emit-cpy-rp (r l) (emit-p (next-opcode) r l))
