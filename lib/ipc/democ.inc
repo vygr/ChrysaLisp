@@ -1,0 +1,82 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; democ - Demonstration client that extends
+; client-ipc for pinging and shutdown
+; Wrapper to generalize client ipc functions
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(import "lib/ipc/client_ipc.inc")
+
+(defq _ipc_service nil)
+
+(defun ipc-test ()
+  ; (ipc-test) -> mailbox id | nil
+  ; Retrieves the service mailbox for local ipc testing
+  ; If not found in service registry, start
+  ; the service. Otherwise return the mailbox id
+  (cond
+    ((nil? _ipc_service)
+      (defq res (mail-enquire "IPC"))
+      (setq _ipc_service
+        (if (nempty? res)
+            (to-net-id (second (split (first res) ",")))
+            (open-child
+              "lib/ipc/demos.lisp"
+              kn_call_open))))
+    (t _ipc_service)))
+
+(defun remote-ipc-test (node)
+  ; (remote-ipc-test) -> mailbox id | nil
+  ; Retrieves the service mailbox for remote ipc testing
+  ; If not found in service registry, start
+  ; the service on the remote node. Otherwise return the mailbox id
+  (cond
+    ((nil? _ipc_service)
+      (defq res (mail-enquire "IPC"))
+      (setq _ipc_service
+        (if (nempty? res)
+            (to-net-id (second (split (first res) ",")))
+            (open-remote
+              "lib/ipc/demos.lisp"
+              node
+              kn_call_open))))
+    (t _ipc_service)))
+
+
+(defclass democ (client server) (client-ipc client server)
+  (defmethod :shutdown (this)
+    ; (. client-ipc :shutdown) -> nil
+    ; This is for demo only
+    (bind '(client cmd msg)
+      (.
+        (. this :send ipc_event_shutdown (list))
+        :recieve))
+    (print ":shutdown response cmd " cmd " data " msg))
+
+  (defmethod :ping (this)
+    ; (. client-ipc :ping) -> list
+    (bind '(client cmd msg)
+      (.
+        (. this :send ipc_event_ping)
+        :recieve))
+    (print ":ping cmd " cmd " data " msg)
+    this)
+  )
+
+; For client side REPL Testing start Terminal with at least 2 CPU
+; ./run_tui.sh 2
+
+; To test co-resident (optimized) client/server
+; >lisp lib/ipc/democ.inc
+; (defq cipc (democ (task-mailbox) (ipc-test)))
+; Threaded messages - Double entries are to see effect
+; of registering something already registered, etc.
+; Shutdown is for demo to tell the server to stop
+; (.-> cipc :ping :register :register :deregister :deregister :shutdown)
+; Clear this for retesting
+; (setq _ipc_service nil)
+
+; To test different CPU (serializing data) client/server
+; >lisp lib/ipc/_ipc.inc
+; (defq cipc (client-ipc (task-mailbox) (remote-ipc-test (first _remote_nodes))))
+; Threaded messages
+; (.-> cipc :ping :register :register :deregister :deregister :shutdown)

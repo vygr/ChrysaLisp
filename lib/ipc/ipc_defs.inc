@@ -1,7 +1,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; ipcdefs - ipc structures
+; ipc_defs - ipc structures and utility
+; functions
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(import "lib/xchange/msg-data.inc")
 
 (structure 'ipc_event 0
   (byte
