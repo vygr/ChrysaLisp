@@ -65,8 +65,8 @@
 (defun emit-land-rr (s d) (emit-short (+ (next-opcode) (<< (reg d) 8) (<< (reg s) 12))))
 (defun emit-swp-rr (s d) (emit-short (+ (next-opcode) (<< (reg d) 8) (<< (reg s) 12))))
 (defun emit-ext-rr (s d) (emit-short (+ (next-opcode) (<< (reg d) 8) (<< (reg s) 12))))
-(defun emit-div-rrr (s d1 d2) (emit-short (+ (next-opcode) (<< (reg d1) 8) (<< (reg d2) 12)) (reg s)))
-(defun emit-div-rrr-u (s d1 d2) (emit-short (+ (next-opcode) (<< (reg d1) 8) (<< (reg d2) 12)) (reg s)))
+(defun emit-div-rrr (s d2 d1) (emit-short (+ (next-opcode) (<< (reg d1) 8) (<< (reg d2) 12)) (reg s)))
+(defun emit-div-rrr-u (s d2 d1) (emit-short (+ (next-opcode) (<< (reg d1) 8) (<< (reg d2) 12)) (reg s)))
 
 (defun emit-scr (o c d)
 	(cond
