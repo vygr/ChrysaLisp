@@ -654,3 +654,4 @@
 (defun emit-alloc (c) (emit-sub-cr (align c stack_align) rsp))
 (defun emit-free (c) (emit-add-cr (align c stack_align) rsp))
 (defun emit-ret () (emit-byte 0xc3))
+(defun emit-brk ())
