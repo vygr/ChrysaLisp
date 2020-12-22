@@ -20,6 +20,8 @@ Random node id's for all network cpu's.
 
 New vp64.inc byte code target ready for dynamic translator and emulator.
 
+New split, slice and gui command apps !
+
 ------
 
 New `lib/clenv/clenv.inc` library for accessing `.hostenv` variable assignments.
