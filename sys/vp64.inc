@@ -155,14 +155,15 @@
 (defun emit-cpy-dr-ui (s1 s2 d) (emit-dr (next-opcode) s1 s2 d))
 (defun emit-lea-d (s1 s2 d) (emit-dr (next-opcode) s1 s2 d))
 
+(defun emit-call-r (r) (emit-short (+ (next-opcode) (<< (reg r) 8))))
+(defun emit-jmp-r (r) (emit-short (+ (next-opcode) (<< (reg r) 8))))
+
 (defun emit-call-jmp-i (o r c)
 	(cond
 		((<= -0x80000 c 0x7ffff)
 			(emit-short (+ o (<< (reg r) 8) (<< c 12)) (>>> c 4)))
 		(t	(throw "emit-call-jmp-i constant out of range !" c))))
 
-(defun emit-call-r (r) (emit-call-jmp-i (next-opcode) r 0))
-(defun emit-jmp-r (r) (emit-call-jmp-i (next-opcode) r 0))
 (defun emit-call-i (r c) (emit-call-jmp-i (next-opcode) r c))
 (defun emit-jmp-i (r c) (emit-call-jmp-i (next-opcode) r c))
 

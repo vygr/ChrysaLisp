@@ -39,6 +39,16 @@ Usage: file [options] [prefix] [postfix]
 	files ./apps/wallpaper/ .tga
 
 ```
+## gui
+ 
+```lisp
+Usage: gui [node ...]
+	options:
+		-h --help: this help info.
+	Launch a GUI on nodes. If none present
+	on command line will read from stdin.
+
+```
 ## head
  
 ```lisp
@@ -111,6 +121,17 @@ Usage: shuffle [options] [line] ...
 	then will shuffle lines from stdin.
 
 ```
+## slice
+ 
+```lisp
+Usage: slice [options]
+	options:
+		-h --help: this help info.
+		-s --start num: default 0.
+		-e --end num: default -1.
+	Slice the lines from stdin to stdout.
+
+```
 ## sort
  
 ```lisp
@@ -119,6 +140,19 @@ Usage: sort [options] [line] ...
 		-h --help: this help info.
 	If no lines given on command line
 	then will sort lines from stdin.
+
+```
+## split
+ 
+```lisp
+Usage: split [options]
+	options:
+		-h --help: this help info.
+		-s --sep separator: default ,.
+		-e --sel: element default nil.
+	Split the lines from stdin to stdout.
+	Optionaly select a specific element of
+	the split.
 
 ```
 ## tail
