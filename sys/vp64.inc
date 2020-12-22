@@ -46,9 +46,9 @@
 			(emit-short (+ o (<< (reg r) 8)) c))
 		(t	(throw "emit-shift-cr constant out of range !" c))))
 
-(defun emit-shl-cr (c r) (emit-cr (next-opcode) c r))
-(defun emit-shr-cr (c r) (emit-cr (next-opcode) c r))
-(defun emit-asr-cr (c r) (emit-cr (next-opcode) c r))
+(defun emit-shl-cr (c r) (emit-shift-cr (next-opcode) c r))
+(defun emit-shr-cr (c r) (emit-shift-cr (next-opcode) c r))
+(defun emit-asr-cr (c r) (emit-shift-cr (next-opcode) c r))
 
 (defun emit-cpy-rr (s d) (emit-short (+ (next-opcode) (<< (reg d) 8) (<< (reg s) 12))))
 (defun emit-add-rr (s d) (emit-short (+ (next-opcode) (<< (reg d) 8) (<< (reg s) 12))))
