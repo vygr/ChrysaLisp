@@ -42,8 +42,8 @@
 (defun emit-shift-cr (o c r)
 	(cond
 		((= c 0))
-		((<= 1 c 31)
-			(emit-short (+ o (<< (reg r) 8) (<< c 12))))
+		((<= 1 c 63)
+			(emit-short (+ o (<< (reg r) 8)) c))
 		(t	(throw "emit-shift-cr constant out of range !" c))))
 
 (defun emit-shl-cr (c r) (emit-cr (next-opcode) c r))
