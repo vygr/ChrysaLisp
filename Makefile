@@ -46,23 +46,23 @@ obj/$(CPU)/$(ABI)/$(OS)/main.o:	main.cpp Makefile
 			echo $(ABI) > abi
 			unzip -nq snapshot.zip
 ifeq ($(OS),Darwin)
-			c++ -c -nostdlib -fno-exceptions \
+			c++ -O3 -c -nostdlib -fno-exceptions \
 				-I/Library/Frameworks/SDL2.framework/Headers/ \
 				-o $@ $<
 endif
 ifeq ($(OS),Linux)
-			c++ -c -nostdlib -fno-exceptions \
+			c++ -O3 -c -nostdlib -fno-exceptions \
 				-I/usr/include/SDL2/ \
 				-o $@ $<
 endif
 
 obj/$(CPU)/$(ABI)/$(OS)/vp64.o:	vp64.cpp Makefile
 ifeq ($(OS),Darwin)
-			c++ -c -nostdlib -fno-exceptions \
+			c++ -O3 -c -nostdlib -fno-exceptions \
 				-o $@ $<
 endif
 ifeq ($(OS),Linux)
-			c++ -c -nostdlib -fno-exceptions \
+			c++ -O3 -c -nostdlib -fno-exceptions \
 				-o $@ $<
 endif
 
