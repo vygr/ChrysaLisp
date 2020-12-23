@@ -528,9 +528,9 @@
 
 (.-> this form ...)
 
-## env sym
+## .super
 
-(.super env sym [...])
+(.super this :method [arg ...])
 
 ## /
 

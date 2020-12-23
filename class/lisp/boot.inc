@@ -115,7 +115,6 @@
 (ffi print "class/lisp/lisp_print" 0)
 (ffi prebind "class/lisp/lisp_bindfun" 0)
 (ffi . "class/lisp/lisp_mcall" 0)
-(ffi .super "class/lisp/lisp_scall" 0)
 
 (ffi pii-dirlist "sys/pii/lisp_dirlist" 0)
 (ffi pii-fstat "sys/pii/lisp_fstat" 0) ; -> (array filetime filesize filemode)
@@ -850,6 +849,10 @@
 ; classes and methods
 ;;;;;;;;;;;;;;;;;;;;;
 
+(defmacro .super (this method &rest _)
+	; (.super this :method [arg ...])
+	`((def? ,method ,(eval *super_class*)) ,this ~_))
+
 (defmacro defmethod (n a &rest _)
 	; (defmethod name (this [arg ...]) body)
 	; (. this :method [arg ...])
@@ -869,9 +872,9 @@
 
 (defmacro defclass (n a s &rest _)
 	; (defclass name ([arg ...]) (super ...) body)
-	(def (penv) '*class* n)
 	(defq super (sym (cat "*class_" (if s (elem 0 s)) "*"))
 		class (sym (cat "*class_" n "*")) inits (list) methods (list))
+	(def (penv) '*class* n '*super_class* super)
 	(each (lambda (form)
 		(cond
 			((and (list? form) (ends-with "method" (elem 0 form)))
