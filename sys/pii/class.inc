@@ -64,7 +64,7 @@
 	(assign _3 s)
 	(when (> (defq ls (length s)) (defq la (length (abi-args))))
 		(setq x (reverse (slice la ls s))))
-	(vp-call-abi _6 _5 (- (elem 4 m) ptr_size) (length _3) x)
+	(vp-call-abi _6 _5 (- (elem 4 m) ptr_size) (length s) x)
 	(if _4 (assign (elem 3 m) _4)))
 
 (defun host-call (_1 _2 &optional _3 _4 _5 _6)
