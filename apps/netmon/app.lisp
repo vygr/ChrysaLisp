@@ -1,6 +1,7 @@
 ;jit compile apps native functions if needed
 (import "lib/asm/asm.inc")
-(make '("apps/netmon/child.vp"))
+(bind '(_ *cpu* *abi*) (split (load-path) "/"))
+(make '("apps/netmon/child.vp") *abi* *cpu*)
 
 ;imports
 (import "gui/lisp.inc")

@@ -1296,6 +1296,10 @@
 
 (load path)
 
+## load-path
+
+(load-path)
+
 ## load-stream
 
 (load-stream path) -> nil|stream

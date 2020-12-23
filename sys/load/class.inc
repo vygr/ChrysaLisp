@@ -10,6 +10,8 @@
 (dec-method :init 'sys/load/init)
 (dec-method :bind 'sys/load/bind :static '(r0) '(r0))
 
+(dec-method :lisp_path 'sys/load/lisp_path :static '(r0 r1) '(r0 r1))
+
 ;;;;;;;;;;;;;;;;;
 ; load structures
 ;;;;;;;;;;;;;;;;;

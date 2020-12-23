@@ -7088,6 +7088,19 @@ trashes
 r1-r7
 ```
 
+### sys_load :lisp_path -> sys/load/lisp_path
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
 ## sys_mail
 
 Super Class: null
