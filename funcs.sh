@@ -47,24 +47,21 @@ function wrap
 function boot_cpu_gui
 {
 	if [ $1 -lt 1 ]
-#	if [ $1 -lt 2 ]
 	then
-		./obj/$CPU/$ABI/$OS/main obj/$CPU/$ABI/sys/boot_image $2 -run gui/gui/gui.lisp &
+		./obj/$CPU/$ABI/$OS/main obj/$CPU/$ABI/sys/boot_image $2 $3 -run gui/gui/gui.lisp &
 	else
-		./obj/$CPU/$ABI/$OS/main obj/$CPU/$ABI/sys/boot_image $2 &
+		./obj/$CPU/$ABI/$OS/main obj/$CPU/$ABI/sys/boot_image $2 $3 &
 	fi
-#	echo $2
 }
 
 function boot_cpu_tui
 {
 	if [ $1 -lt 1 ]
 	then
-		./obj/$CPU/$ABI/$OS/main obj/$CPU/$ABI/sys/boot_image $1 $2 -run apps/terminal/tui.lisp
+		./obj/$CPU/$ABI/$OS/main obj/$CPU/$ABI/sys/boot_image $2 $3 -run apps/terminal/tui.lisp
 	else
-		./obj/$CPU/$ABI/$OS/main obj/$CPU/$ABI/sys/boot_image $2 &
+		./obj/$CPU/$ABI/$OS/main obj/$CPU/$ABI/sys/boot_image $2 $3 &
 	fi
-#	echo $2
 }
 
 ./stop.sh

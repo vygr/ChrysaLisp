@@ -590,11 +590,27 @@ static void (*host_funcs[]) = {
 
 };
 
+#define VP64_STACK_SIZE 8192
+int vp64(uint8_t* data, int64_t *stack, int64_t *argv, int64_t *host_funcs);
+
 int main(int argc, char *argv[])
 {
 	int ret_val = 0;
 	if (argc > 1)
 	{
+		//check for -e option
+		bool run_emu = false;
+		for (int i = 0; i < argc; ++i)
+		{
+			if (!strcmp(argv[i], "-e"))
+			{
+				//override boot image to emu image
+				run_emu = true;
+				argv[1] = (char*)"obj/vp64/VP64/sys/boot_image";
+				break;
+			}
+		}
+
 		long long fd = myopen(argv[1], file_open_read);
 		if (fd != -1)
 		{
@@ -603,14 +619,26 @@ int main(int argc, char *argv[])
 			uint16_t *data = (uint16_t*)mymmap(data_size, -1, mmap_exec);
 			if (data)
 			{
-				srand(gettime());
 				read(fd, data, data_size);
 				myclearicache(data, data_size);
 				//printf("image start address: 0x%llx\n", (unsigned long long)data);
 #ifndef _WIN64
 				fcntl(0, F_SETFL, fcntl(0, F_GETFL, 0) | O_NONBLOCK);
 #endif
-				ret_val = ((int(*)(char*[], void*[]))((char*)data + data[5]))(argv, host_funcs);
+				if (run_emu)
+				{
+					int64_t* stack = (int64_t*)mymmap(VP64_STACK_SIZE, -1, mmap_data);
+					if (stack)
+					{
+						printf("ChrysaLisp vp64 emulator v0.1\n");
+						ret_val = vp64((uint8_t*)data, (int64_t*)((char*)stack + VP64_STACK_SIZE), (int64_t*)argv, (int64_t*)host_funcs);
+						mymunmap(stack, VP64_STACK_SIZE, mmap_data);
+					}
+				}
+				else
+				{
+					ret_val = ((int(*)(char* [], void* []))((char*)data + data[5]))(argv, host_funcs);
+				}
 				mymunmap(data, data_size, mmap_exec);
 			}
 			close(fd);

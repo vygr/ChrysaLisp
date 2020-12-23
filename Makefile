@@ -32,9 +32,9 @@ snapshot:
 			zip -9q snapshot.zip obj/x86_64/AMD64/Darwin obj/x86_64/AMD64/Linux obj/aarch64/ARM64/Linux \
 			`find obj -name "boot_image"` `find obj -name "main.exe"`
 
-obj/$(CPU)/$(ABI)/$(OS)/main:	obj/$(CPU)/$(ABI)/$(OS)/main.o
+obj/$(CPU)/$(ABI)/$(OS)/main:	obj/$(CPU)/$(ABI)/$(OS)/main.o obj/$(CPU)/$(ABI)/$(OS)/vp64.o
 ifeq ($(OS),Darwin)
-			c++ -o $@ $@.o -F/Library/Frameworks -Wl,-framework,SDL2 -Wl
+			c++ -o $@ $@.o obj/$(CPU)/$(ABI)/$(OS)/vp64.o -F/Library/Frameworks -Wl,-framework,SDL2 -Wl
 endif
 ifeq ($(OS),Linux)
 			c++ -o $@ $@.o $(shell sdl2-config --libs)
@@ -53,6 +53,16 @@ endif
 ifeq ($(OS),Linux)
 			c++ -c -nostdlib -fno-exceptions \
 				-I/usr/include/SDL2/ \
+				-o $@ $<
+endif
+
+obj/$(CPU)/$(ABI)/$(OS)/vp64.o:	vp64.cpp Makefile
+ifeq ($(OS),Darwin)
+			c++ -c -nostdlib -fno-exceptions \
+				-o $@ $<
+endif
+ifeq ($(OS),Linux)
+			c++ -c -nostdlib -fno-exceptions \
 				-o $@ $<
 endif
 

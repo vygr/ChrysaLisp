@@ -1,17 +1,22 @@
 #!/bin/bash
 
-#have we got a paramater ?
-if [ -z ${1+x} ]
-then
-	num_cpu=10
-else
-	num_cpu=$1
-fi
+#process args defaults
+num_cpu=10
+emu=""
+for var in "$@"
+do
+	if [ $var == "-e" ]
+	then
+		emu=$var
+	else
+		num_cpu=$var
+	fi
+done
 
-#not greater than 1000
-if [ $num_cpu -gt 1000 ]
+#not greater than 16
+if [ $num_cpu -gt 16 ]
 then
-	num_cpu=1000
+	num_cpu=16
 fi
 
 source funcs.sh
@@ -27,5 +32,5 @@ do
 		c2=$zp
 		add_link $c1 $c2
 	done
-	boot_cpu_gui $cpu "$links"
+	boot_cpu_gui $cpu $emu "$links"
 done

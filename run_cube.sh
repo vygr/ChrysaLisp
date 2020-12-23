@@ -1,12 +1,17 @@
 #!/bin/bash
 
-#have we got a paramater ?
-if [ -z ${1+x} ]
-then
-	num_cpu=4
-else
-	num_cpu=$1
-fi
+#process args defaults
+num_cpu=4
+emu=""
+for var in "$@"
+do
+	if [ $var == "-e" ]
+	then
+		emu=$var
+	else
+		num_cpu=$var
+	fi
+done
 
 #not greater than 4
 if [ $num_cpu -gt 4 ]
@@ -51,7 +56,7 @@ do
 				c2=$zp
 				add_link $c1 $c2
 			done
-			boot_cpu_gui $cpu "$links"
+			boot_cpu_gui $cpu $emu "$links"
 		done
 	done
 done
