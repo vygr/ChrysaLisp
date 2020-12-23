@@ -37,7 +37,7 @@ ifeq ($(OS),Darwin)
 			c++ -o $@ $@.o obj/$(CPU)/$(ABI)/$(OS)/vp64.o -F/Library/Frameworks -Wl,-framework,SDL2 -Wl
 endif
 ifeq ($(OS),Linux)
-			c++ -o $@ $@.o $(shell sdl2-config --libs)
+			c++ -o $@ $@.o obj/$(CPU)/$(ABI)/$(OS)/vp64.o $(shell sdl2-config --libs)
 endif
 
 obj/$(CPU)/$(ABI)/$(OS)/main.o:	main.cpp Makefile

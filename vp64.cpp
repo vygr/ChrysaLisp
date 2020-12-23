@@ -750,7 +750,7 @@ int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_funcs)
 					uint64_t lo;
 					uint64_t hi;
 				};
-				u128 value = {regs[(ir >> 8) & 0xf], regs[(ir >> 12) & 0xf]};
+				u128 value = {(uint64_t)regs[(ir >> 8) & 0xf], (uint64_t)regs[(ir >> 12) & 0xf]};
 				uint64_t div = regs[*pc++];
 				regs[(ir >> 8) & 0xf] = (__uint128_t&)value / div;
 				regs[(ir >> 12) & 0xf] = (__uint128_t&)value % div;
