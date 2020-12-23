@@ -2,15 +2,18 @@ $dir = Get-Location
 . "$dir\funcs.ps1"
 
 #have we got a paramater ?
-if ( $args.count -lt 1 ){
-	$cpus = 10
+$useem, $cpus = use_emulator $args
+if ( $useem -eq $TRUE ){
+    $HCPU = "vp64"
+    $HABI = "VP64"
+    $HOS  = "Windows"
+    Write-Output "Using emulator"
 }
-else {
-	$cpus = $args[0]
-	if ( $cpus -gt 16){
-		$cpus = 16
-	}
+
+if ( $cpus -gt 16){
+	$cpus = 16
 }
+
 
 for ($cpu = $cpus - 1; $cpu -ge 0; $cpu--){
 	$links=""

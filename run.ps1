@@ -6,15 +6,20 @@ $dir = Get-Location
 . "$dir\funcs.ps1"
 
 
-if ( $args.count -lt 1 ){
-	$cpus = 10
+$useem, $cpus = use_emulator $args 10
+if ( $useem -eq $TRUE ){
+    $HCPU = "vp64"
+    $HABI = "VP64"
+    $HOS  = "Windows"
+    Write-Output "Using emulator", $useem, $cpus
 }
-else {
-	$cpus = $args[0]
-	if ( $cpus -gt 16){
-		$cpus = 16
-	}
+
+if ( $cpus -gt 16){
+	$cpus = 16
 }
+
+
+
 
 for ($cpu = $cpus - 1; $cpu -ge 0; $cpu--){
 	$links=""

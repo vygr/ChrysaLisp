@@ -90,3 +90,24 @@ function boot_cpu_tui
 		Start-Process -FilePath ./obj/$HCPU/$HABI/$HOS/main -NoNewWindow -ArgumentList "obj/$HCPU/$HABI/sys/boot_image $link"
 	}
 }
+
+function use_emulator
+{
+    param (
+        $arglist,
+        $cpucount
+    )
+    $rv = $FALSE;
+    $co = $cpucount
+
+    for ($count = 0 ; $count -lt $arglist.count ; $count ++ ){
+        if ( $arglist[$count] -eq '-e'){
+            $rv = $TRUE;
+        }
+        else {
+            $co = $arglist[$count]
+        }    
+    }
+
+    $rv, $co
+}

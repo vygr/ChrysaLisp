@@ -2,14 +2,16 @@ $dir = Get-Location
 . "$dir\funcs.ps1"
 
 
-if ( $args.count -lt 1 ){
-	$num_cpu = 4
+$useem, $num_cpu = use_emulator $args 4
+if ( $useem -eq $TRUE ){
+    $HCPU = "vp64"
+    $HABI = "VP64"
+    $HOS  = "Windows"
+    Write-Output "Using emulator", $useem, $cpus
 }
-else {
-	$num_cpu = $args[0]
-	if ( $num_cpu -gt 4){
-		$num_cpu = 4
-	}
+
+if ( $num_cpu -gt 4){
+	$num_cpu = 4
 }
 
 for ($cpu_z=$num_cpu-1; $cpu_z -ge 0; $cpu_z--){
