@@ -1,5 +1,6 @@
 #!/bin/bash
-killall main -KILL > /dev/null 2>&1
+killall main_gui -KILL > /dev/null 2>&1
+killall main_tui -KILL > /dev/null 2>&1
 
 export TEMP="/tmp/"
 mkdir -p $TEMP

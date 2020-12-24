@@ -48,9 +48,9 @@ function boot_cpu_gui
 {
 	if [ $1 -lt 1 ]
 	then
-		./obj/$CPU/$ABI/$OS/main obj/$CPU/$ABI/sys/boot_image $2 $3 -run gui/gui/gui.lisp &
+		./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $2 $3 -run gui/gui/gui.lisp &
 	else
-		./obj/$CPU/$ABI/$OS/main obj/$CPU/$ABI/sys/boot_image $2 $3 &
+		./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $2 $3 &
 	fi
 }
 
@@ -58,9 +58,9 @@ function boot_cpu_tui
 {
 	if [ $1 -lt 1 ]
 	then
-		./obj/$CPU/$ABI/$OS/main obj/$CPU/$ABI/sys/boot_image $2 $3 -run apps/terminal/tui.lisp
+		./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $2 $3 -run apps/terminal/tui.lisp
 	else
-		./obj/$CPU/$ABI/$OS/main obj/$CPU/$ABI/sys/boot_image $2 $3 &
+		./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $2 $3 &
 	fi
 }
 

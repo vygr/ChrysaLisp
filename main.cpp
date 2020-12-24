@@ -29,7 +29,9 @@
 	#include <dirent.h>
 #endif
 
-#include <SDL.h>
+#ifdef _GUI
+	#include <SDL.h>
+#endif
 
 enum
 {
@@ -566,33 +568,34 @@ static void (*host_funcs[]) = {
 (void*)myseek,
 (void*)myrand,
 (void*)mysleep,
-
-(void*)SDL_SetMainReady,
-(void*)SDL_Init,
-(void*)SDL_GetError,
-(void*)SDL_Quit,
-(void*)SDL_CreateWindow,
-(void*)SDL_CreateWindowAndRenderer,
-(void*)SDL_DestroyWindow,
-(void*)SDL_CreateRenderer,
-(void*)SDL_SetRenderDrawColor,
-(void*)SDL_RenderFillRect,
-(void*)SDL_RenderPresent,
-(void*)SDL_RenderSetClipRect,
-(void*)SDL_SetRenderDrawBlendMode,
-(void*)SDL_PollEvent,
-(void*)SDL_RenderDrawRect,
-(void*)SDL_FreeSurface,
-(void*)SDL_CreateTextureFromSurface,
-(void*)SDL_DestroyTexture,
-(void*)SDL_RenderCopy,
-(void*)SDL_SetTextureBlendMode,
-(void*)SDL_SetTextureColorMod,
-(void*)SDL_CreateRGBSurfaceFrom,
-(void*)SDL_ComposeCustomBlendMode,
-(void*)SDL_CreateTexture,
-(void*)SDL_SetRenderTarget,
-(void*)SDL_RenderClear,
+#ifdef _GUI
+	(void*)SDL_SetMainReady,
+	(void*)SDL_Init,
+	(void*)SDL_GetError,
+	(void*)SDL_Quit,
+	(void*)SDL_CreateWindow,
+	(void*)SDL_CreateWindowAndRenderer,
+	(void*)SDL_DestroyWindow,
+	(void*)SDL_CreateRenderer,
+	(void*)SDL_SetRenderDrawColor,
+	(void*)SDL_RenderFillRect,
+	(void*)SDL_RenderPresent,
+	(void*)SDL_RenderSetClipRect,
+	(void*)SDL_SetRenderDrawBlendMode,
+	(void*)SDL_PollEvent,
+	(void*)SDL_RenderDrawRect,
+	(void*)SDL_FreeSurface,
+	(void*)SDL_CreateTextureFromSurface,
+	(void*)SDL_DestroyTexture,
+	(void*)SDL_RenderCopy,
+	(void*)SDL_SetTextureBlendMode,
+	(void*)SDL_SetTextureColorMod,
+	(void*)SDL_CreateRGBSurfaceFrom,
+	(void*)SDL_ComposeCustomBlendMode,
+	(void*)SDL_CreateTexture,
+	(void*)SDL_SetRenderTarget,
+	(void*)SDL_RenderClear,
+#endif
 };
 
 #define VP64_STACK_SIZE 8192
