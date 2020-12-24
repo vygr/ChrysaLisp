@@ -30,6 +30,14 @@
   ; from another class
   `(list? (_mclass-super ,_)))
 
+(defmacro _mclass-module (_)
+  ; (_mclass-module classname) -> str
+  ; Pulls the module name from class
+  `(last
+    (elem
+      (if (class-inherits? ,_) 2 1)
+      (elem 2 (_mclass-body ,_)))))
+
 (defmacro class-hasvars? (_)
   ; (class-hasvars? symbol) -> t | nil
   ; Predicate for answering if a class declares
@@ -43,7 +51,7 @@
     (seq? (defq ,(defq __ (gensym)) ,_))
     (> (length ,__) 2)
     (list? (_mclass-decl ,__)))
-      (starts-with +class_prefix+ (_mclass-id ,__))))
+    (starts-with +class_prefix+ (_mclass-id ,__))))
 
 (defun classkw (_)
   ; (classkw sym) -> kw
@@ -75,7 +83,7 @@
   (when (class? _)
     (setd sindent 0)
     (defq ind (pad "" sindent))
-    (print ind (_mclass-id _))
+    (print ind (_mclass-id _) " " (_mclass-module _))
     (when (class-inherits? _)
       (inspect-class (_mclass-super _) (+ sindent 2)))
     (print ind "  constructor: ")
