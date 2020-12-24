@@ -872,7 +872,9 @@
 
 (defmacro defclass (n a s &rest _)
 	; (defclass name ([arg ...]) (super ...) body)
-	(defq super (sym (cat "*class_" (if s (elem 0 s)) "*"))
+	(defq
+		module (str *stream_name*)
+		super (sym (cat "*class_" (if s (elem 0 s)) "*"))
 		class (sym (cat "*class_" n "*")) inits (list) methods (list))
 	(def (penv) '*class* n '*super_class* super)
 	(each (lambda (form)
@@ -888,7 +890,7 @@
 				(unless (def? :vtable ,class)
 					(def this :vtable (reduce (lambda (e (key val))
 						(def e key val) e) (tolist ,super) ,class))
-					(def ,class :vtable ,super)
+					(def ,class :vtable ,super :module ,module)
 					~methods
 					(defmethod :type_of (this)
 						(push (.super this :type_of) ,(sym (cat : n)))))
@@ -898,7 +900,7 @@
 			(defun ,n ,a
 				(def (defq this (env -1)) :vtable ,class)
 				(unless (def? :vtable ,class)
-					(def ,class :vtable t)
+					(def ,class :vtable t :module ,module)
 					~methods
 					(defmethod :type_of (this)
 						(push (type-of this) ,(sym (cat : n)))))
