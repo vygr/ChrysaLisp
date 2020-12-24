@@ -38,6 +38,7 @@ snapshot:
 		obj/x86_64/AMD64/Darwin \
 		obj/x86_64/AMD64/Linux \
 		obj/aarch64/ARM64/Linux \
+		obj/aarch64/ARM64/Darwin \
 		`find obj -name "boot_image"` \
 		`find obj -name "main_gui.exe"` \
 		`find obj -name "main_tui.exe"`
