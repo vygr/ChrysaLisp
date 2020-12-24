@@ -22,6 +22,9 @@ New vp64.inc byte code target ready for dynamic translator and emulator.
 
 New split, slice and gui command apps !
 
+Can now launch Emulated vp64 CPU node networks with `-e` launch script option.
+Enjoy.
+
 ------
 
 New `lib/clenv/clenv.inc` library for accessing `.hostenv` variable assignments.
