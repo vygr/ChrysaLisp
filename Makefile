@@ -4,6 +4,7 @@ DTZ := $(shell date "+%Z")
 ifeq ($(CPU),x86_64)
 ABI := AMD64
 else
+CPU := aarch64
 ABI := ARM64
 endif
 
