@@ -84,10 +84,10 @@ function boot_cpu_tui
 		$lnk
 	)
 	if ( $cpu -lt 1 ){
-		Start-Process -FilePath ./obj/$HCPU/$HABI/$HOS/main_gui -NoNewWindow -ArgumentList "obj/$HCPU/$HABI/sys/boot_image $link -run apps/terminal/tui.lisp"
+		Start-Process -FilePath ./obj/$HCPU/$HABI/$HOS/main_tui -NoNewWindow -ArgumentList "obj/$HCPU/$HABI/sys/boot_image $link -run apps/terminal/tui.lisp"
 	}
 	else {
-		Start-Process -FilePath ./obj/$HCPU/$HABI/$HOS/main_gui -NoNewWindow -ArgumentList "obj/$HCPU/$HABI/sys/boot_image $link"
+		Start-Process -FilePath ./obj/$HCPU/$HABI/$HOS/main_tui -NoNewWindow -ArgumentList "obj/$HCPU/$HABI/sys/boot_image $link"
 	}
 }
 
