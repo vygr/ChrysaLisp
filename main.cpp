@@ -12,6 +12,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <random>
+#include <thread>
 #ifdef _WIN64
 	#define _CRT_SECURE_NO_WARNINGS
 	#define DELTA_EPOCH_IN_MICROSECS 11644473600000000Ui64
@@ -540,6 +541,11 @@ void myrand(char* addr, size_t len)
 	for (int i = 0; i < len; ++i) addr[i] = dist(rd);
 }
 
+void mysleep(uint64_t ms)
+{
+	std::this_thread::sleep_for(std::chrono::milliseconds(ms));
+}
+
 static void (*host_funcs[]) = {
 (void*)exit,
 (void*)mystat,
@@ -559,8 +565,8 @@ static void (*host_funcs[]) = {
 (void*)myremove,
 (void*)myseek,
 (void*)myrand,
+(void*)mysleep,
 
-(void*)SDL_Delay,
 (void*)SDL_SetMainReady,
 (void*)SDL_Init,
 (void*)SDL_GetError,
@@ -587,7 +593,6 @@ static void (*host_funcs[]) = {
 (void*)SDL_CreateTexture,
 (void*)SDL_SetRenderTarget,
 (void*)SDL_RenderClear,
-
 };
 
 #define VP64_STACK_SIZE 8192

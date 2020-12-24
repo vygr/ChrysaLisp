@@ -19,8 +19,8 @@
 (dec-method :remove nil :virtual (abi-args 1) '(r0))
 (dec-method :seek nil :virtual (abi-args 3) '(r0))
 (dec-method :rand nil :virtual (abi-args 2) '(r0))
+(dec-method :sleep nil :virtual (abi-args 1) '(r0))
 
-(dec-method :sdl_delay nil :virtual (abi-args 1) '(r0))
 (dec-method :sdl_set_main_ready nil :virtual (abi-args 0) '(r0))
 (dec-method :sdl_init nil :virtual (abi-args 1) '(r0))
 (dec-method :sdl_get_error nil :virtual (abi-args 0) '(r0))

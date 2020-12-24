@@ -2270,7 +2270,7 @@ Super Class: null
 
 ### host :rand -> nil
 
-### host :sdl_delay -> nil
+### host :sleep -> nil
 
 ### host :sdl_set_main_ready -> nil
 
