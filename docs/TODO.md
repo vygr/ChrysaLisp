@@ -22,9 +22,8 @@ network. I'm very tempted to create a link driver based on the Nanomsg library,
 this could prove interesting but would only work on hosted systems, still worth
 doing.
 
-* Create a byte coded version of the VP instructions and implement a runtime
-translator. The runtime translator could be as simple as expanding the byte
-code into the existing emit buffer format and using the existing emit buffer
+* Create a Jit vp64 translator could be as simple as expanding the byte code
+into the existing emit buffer format and using the existing emit buffer
 compilation technique. Heterogeneous applications should work currently, just
 using the separated name spaces in the obj/ directory. But I'd quite like to
 get to the point where there is a single virtual binary package for an
