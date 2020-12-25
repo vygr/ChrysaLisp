@@ -5,7 +5,7 @@
 (defclass emap (&optional num_buckets) nil
 	; (emap [num_buckets]) -> emap
 	(def this :num_buckets (setq num_buckets (opt num_buckets 1))
-		:buckets (env (neg num_buckets)) :emap t)
+		:buckets (env (neg num_buckets)))
 
 	(defmethod :find (this key)
 		; (. emap :find key) -> nil|val
@@ -56,12 +56,12 @@
 		this)
 	)
 
+; Declare (emap? o) -> t | nil
+(class-pred emap)
+
 (defun emap-kv (&rest _)
 	; (emap-kv [key val ...]) -> emap
 	(defq this (emap))
 	(each! 0 -1 (# (. this :insert %0 %1)) (unzip _ (list (list) (list))))
 	this)
 
-(defun emap? (this)
-	; (emap? emap) -> t | nil
-	(and (env? this) (get :emap this)))

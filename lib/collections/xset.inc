@@ -10,7 +10,7 @@
 (defclass xset (&optional num_buckets cmp_fnc hash_fnc) nil
 	; (xset [num_buckets cmp_fnc hash_fnc]) -> xset
 	(def this :buckets (list) :num_buckets (setq num_buckets (opt num_buckets 1))
-		:cmp_fnc (opt cmp_fnc eql) :hash_fnc (opt hash_fnc hash) :xset t)
+		:cmp_fnc (opt cmp_fnc eql) :hash_fnc (opt hash_fnc hash))
 	(while (>= (setq num_buckets (dec num_buckets)) 0)
 		(push (get :buckets this) (list)))
 
@@ -117,9 +117,8 @@
 	(each (# (. this :insert %0)) _)
 	this)
 
-(defun xset? (this)
-	; (xset? xset) -> t | nil
-	(and (env? this) (get :xset this)))
+; Declare (xset? o) -> t | nil
+(class-pred xset)
 
 (undef (env) 'xset-slot)
 

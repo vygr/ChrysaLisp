@@ -10,8 +10,7 @@
   ; Base tree node abstraction
   (def this
     :children_nodes (xmap)
-    :parent         nil
-    :xnode          t)
+    :parent         nil)
 
   (defmethod :get_parent (this)
     ; (. xnode :get_parent) -> xnode | nil
@@ -63,11 +62,14 @@
   (defmethod :add_node (this child)
     ; (. xnode :add_node child) -> xnode
     ; Adds a child node if unique_id not in children
-    (defq hsh (. child :unique_id))
-    (when (nil? (gets (get :children_nodes this) hsh))
-      (. child :set_parent this)
-      (sets! (get :children_nodes this) hsh child))
-    child)
+    (cond
+      ((nil? child) this)
+      (t
+        (defq hsh (. child :unique_id))
+        (when (nil? (gets (get :children_nodes this) hsh))
+          (. child :set_parent this)
+          (sets! (get :children_nodes this) hsh child))
+        child)))
 
   (defmethod :drop_node (this child)
     ; (. xnode :drop_node child) -> xnode
@@ -85,6 +87,9 @@
     (. new_parent :add_node (if p (. p :drop_node this) this)))
   )
 
+; Declare (xnode? o) -> t | nil
+(class-pred xnode)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; named-xnode is a specialization of
 ; xnode that uses names as the unique
@@ -99,8 +104,7 @@
 (defclass named-xnode (name &optional parent) (xnode)
   ; Named tree
   (def this
-    :node_name    name
-    :named_xnode  t)
+    :node_name    name)
 
   (defmethod :unique_id (this)
     ; (. named-xnode :unique_id) -> string
@@ -129,10 +133,5 @@
     (. parent :add_node this))
 )
 
-(defun xnode? (this)
-  ; (xnode? obj) -> t | nil
-  (and (env? this) (get :xnode this)))
-
-(defun named-xnode? (this)
-  ; (named-xnode? obj) -> t | nil
-  (and (env? this) (get :named_xnode this)))
+; Declare (named-xnode? o) -> t | nil
+(class-pred named-xnode)

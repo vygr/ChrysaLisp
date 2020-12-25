@@ -77,4 +77,4 @@
         (throw "Receive type undefined " (type-of fmsg)))))
   )
 
-(gen-class-pred ipc)
+(class-pred ipc)
