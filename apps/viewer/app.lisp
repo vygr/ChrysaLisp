@@ -28,14 +28,22 @@
 				:vdu_width vdu_width :vdu_height vdu_height
 				:ink_color +argb_white+)))))
 
-(defun all-files (root)
-	;all files from root downwards, none recursive
-	;don't include "." folders
+(defun all-src-files (root)
+	;all source files from root downwards, none recursive
 	(defq stack (list root) files (list))
 	(while (setq root (pop stack))
 		(each! 0 -1 (lambda (file type)
-			(unless (starts-with "." file)
-				(push (if (eql type "4") stack files) (cat root "/" file))))
+			(cond
+				((eql type "8")
+					;file
+					(if (or	;src file ?
+							(ends-with ".vp" file)
+							(ends-with ".inc" file)
+							(ends-with ".lisp" file))
+						(push files (cat (slice 2 -1 root) "/" file))))
+				(t	;dir
+					(unless (starts-with "." file)
+						(push stack (cat root "/" file))))))
 			(unzip (split (pii-dirlist root) ",") (list (list) (list)))))
 	files)
 
@@ -75,13 +83,8 @@
 	;return all the dir routes
 	(reduce (lambda (dirs file)
 		(defq dir (find-rev "/" file) dir (if dir (cat (slice 0 dir file) "/.")))
-		(if (and dir (notany (# (eql %0 dir)) dirs))
-		(push dirs dir) dirs)) files (list)))
-
-(defun all-src-files (root)
-	;return all the source files from root
-	(map (# (slice 2 -1 %0)) (filter (lambda (file)
-		(some (# (ends-with %0 file)) '(".vp" ".inc" ".lisp"))) (all-files root))))
+		(if (and dir (not (find dir dirs)))
+			(push dirs dir) dirs)) files (list)))
 
 (defun populate-tree ()
 	;load up the file tree and the first file
