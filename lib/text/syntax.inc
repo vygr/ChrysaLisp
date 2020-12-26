@@ -6,6 +6,9 @@
 (import "gui/canvas/lisp.inc")
 (import "lib/consts/colors.inc")
 
+(defmacro is_text_char (_)
+	(list 'find-rev _ (const (cat (ascii-char 9) "() "))))
+
 (defmacro is_number_char (_)
 	(list 'find-rev _ "0123456789"))
 
@@ -25,7 +28,7 @@
 (defclass Syntax () nil
 	; (Syntax) -> syntax
 	;default colours and state
-	(def this :keywords (defq keywords (env -101)) :state :text
+	(def this :keywords (defq keywords (env -31)) :state :text
 		:ink_keyword1 (<< (canvas-from-argb32 +argb_magenta+ 15) 32)
 		:ink_keyword2 (<< (canvas-from-argb32 +argb_red+ 15) 32)
 		:ink_keyword3 (<< (canvas-from-argb32 +argb_green+ 15) 32)
@@ -69,6 +72,12 @@
 				(case state
 					(:text
 						(cond
+							((is_text_char c)
+								(push token c))
+							((is_symbol_char c)
+								(push state_list state)
+								(push token_list token)
+								(setq token (list c) state :symbol))
 							((eql c ";")
 								(push state_list state)
 								(push token_list token)
@@ -89,10 +98,6 @@
 								(push state_list state)
 								(push token_list token)
 								(setq token (list c) state :number))
-							((is_symbol_char c)
-								(push state_list state)
-								(push token_list token)
-								(setq token (list c) state :symbol))
 							(t	(push token c)))
 						(setq c nil))
 					((:symbol :keysym)
@@ -171,4 +176,4 @@
 			token_list col_list)
 		(apply cat state_list)))
 
-(undef (env) 'is_number_char 'is_allowed_number_char 'is_symbol_char)
+(undef (env) 'is_number_char 'is_allowed_number_char 'is_symbol_char 'is_text_char)

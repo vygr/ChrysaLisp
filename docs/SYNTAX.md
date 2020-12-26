@@ -1670,7 +1670,7 @@
 
 ## profile-report
 
-(profile-report name)
+(profile-report name [reset])
 
 ## progn
 
