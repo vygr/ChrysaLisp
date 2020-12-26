@@ -10,7 +10,7 @@
 (defclass xmap (&optional num_buckets cmp_fnc hash_fnc) nil
 	; (xmap [num_buckets cmp_fnc hash_fnc]) -> xmap
 	(def this :buckets (list) :num_buckets (setq num_buckets (opt num_buckets 1))
-		:cmp_fnc (opt cmp_fnc eql) :hash_fnc (opt hash_fnc hash) :xmap t)
+		:cmp_fnc (opt cmp_fnc eql) :hash_fnc (opt hash_fnc hash))
 	(while (>= (setq num_buckets (dec num_buckets)) 0)
 		(push (get :buckets this) (list) (list)))
 
@@ -93,9 +93,5 @@
 	(defq this (xmap))
 	(each! 0 -1 (# (. this :insert %0 %1)) (unzip _ (list (list) (list))))
 	this)
-
-(defun xmap? (this)
-	; (xmap? xmap) -> t | nil
-	(and (env? this) (get :xmap this)))
 
 (undef (env) 'xmap-slot)

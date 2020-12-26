@@ -39,4 +39,4 @@
     this)
   )
 
-(gen-class-pred client-ipc)
+(class-pred client-ipc)

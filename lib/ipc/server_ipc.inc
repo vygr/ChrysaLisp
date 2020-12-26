@@ -80,3 +80,5 @@
           data    (gets mmap :data))))
     (list (opt (. this :client_for client) client) command data))
   )
+
+(class-pred server-ipc)
