@@ -28,7 +28,9 @@
 	#include <unistd.h>
 	#include <dirent.h>
 #endif
-
+#ifdef __APPLE__
+	#include <libkern/OSCacheControl.h>
+#endif
 #ifdef _GUI
 	#include <SDL.h>
 #endif
@@ -221,7 +223,7 @@ long long mycloseshared(const char *path, long long hndl)
 	if (CloseHandle((HANDLE)hndl)) return 0;
 	return -1;
 #else
-	close(hndl);
+	close((int)hndl);
 	return unlink(path);
 #endif
 }
@@ -250,7 +252,7 @@ long long mywrite(int fd, void *addr, size_t len)
 
 long long myseek(long long fd, long long pos, unsigned char offset)
 {
-	return (lseek(fd, pos, offset));
+	return (lseek((int)fd, pos, offset));
 }
 
 struct finfo
@@ -489,12 +491,12 @@ void *mymmap(size_t len, long long fd, int mode)
 #else
 	switch (mode)
 	{
-	case mmap_data: return mmap(0, len, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANON, fd, 0);
-	case mmap_exec: return mmap(0, len, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE | MAP_ANON, fd, 0);
-	case mmap_shared: return mmap(0, len, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+	case mmap_data: return mmap(0, len, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANON, (int)fd, 0);
+	case mmap_exec: return mmap(0, len, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE | MAP_ANON, (int)fd, 0);
+	case mmap_shared: return mmap(0, len, PROT_READ | PROT_WRITE, MAP_SHARED, (int)fd, 0);
 	}
 #endif
-	return 0;
+	return (void*)-1;
 }
 
 long long mymunmap(void *addr, size_t len, int mode)
@@ -528,10 +530,11 @@ void *myclearicache(void* addr, size_t len)
 {
 #ifdef _WIN64
 #else
-#ifdef __APPLE__
-#else
-	__clear_cache(addr, (char*)addr + len);
-#endif
+	#ifdef __APPLE__
+		sys_icache_invalidate(addr, (size_t)((char*)addr + len));
+	#else
+		__clear_cache(addr, ((char*)addr + len));
+	#endif
 #endif
 	return addr;
 }
@@ -625,9 +628,9 @@ int main(int argc, char *argv[])
 			stat(argv[1], &fs);
 			size_t data_size = fs.st_size;
 			uint16_t *data = (uint16_t*)mymmap(data_size, -1, mmap_exec);
-			if (data)
+			if (data != (uint16_t*)-1)
 			{
-				read(fd, data, data_size);
+				read((int)fd, data, data_size);
 				myclearicache(data, data_size);
 				//printf("image start address: 0x%llx\n", (unsigned long long)data);
 #ifndef _WIN64
@@ -649,8 +652,20 @@ int main(int argc, char *argv[])
 				}
 				mymunmap(data, data_size, mmap_exec);
 			}
-			close(fd);
+			else
+			{
+				printf("Error, READ/WRITE/EXEC pages failed!\n");
+			}
+			close((int)fd);
 		}
+		else
+		{
+			printf("Error, boot_image not found!\n");
+		}
+	}
+	else
+	{
+		printf("Error, no boot_image arg!\n");
 	}
 	return ret_val;
 }
