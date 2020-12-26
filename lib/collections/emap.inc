@@ -56,9 +56,6 @@
 		this)
 	)
 
-; Declare (emap? o) -> t | nil
-(class-pred emap)
-
 (defun emap-kv (&rest _)
 	; (emap-kv [key val ...]) -> emap
 	(defq this (emap))

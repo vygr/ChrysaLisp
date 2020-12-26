@@ -88,9 +88,6 @@
 		this)
 	)
 
-; Declare (xmap? o) -> t | nil
-(class-pred xmap)
-
 (defun xmap-kv (&rest _)
 	; (xmap-kv [key val ...]) -> xmap
 	(defq this (xmap))

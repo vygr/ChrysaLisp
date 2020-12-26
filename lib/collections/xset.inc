@@ -117,9 +117,6 @@
 	(each (# (. this :insert %0)) _)
 	this)
 
-; Declare (xset? o) -> t | nil
-(class-pred xset)
-
 (undef (env) 'xset-slot)
 
 ;tests

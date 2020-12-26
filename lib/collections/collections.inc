@@ -2,7 +2,6 @@
 ; collections - ChyrsaLisp data collections library
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import "lib/class/reflect.inc")
 (import "lib/collections/emap.inc")
 (import "lib/collections/xmap.inc")
 (import "lib/collections/xset.inc")

@@ -87,9 +87,6 @@
     (. new_parent :add_node (if p (. p :drop_node this) this)))
   )
 
-; Declare (xnode? o) -> t | nil
-(class-pred xnode)
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; named-xnode is a specialization of
 ; xnode that uses names as the unique
@@ -133,5 +130,3 @@
     (. parent :add_node this))
 )
 
-; Declare (named-xnode? o) -> t | nil
-(class-pred named-xnode)
