@@ -11,15 +11,16 @@
 (defmacro _mclass-decl  (_) `(elem 2 ,_))  ; Position of declaration info
 (defmacro _mclass-body  (_) `(elem 3 ,_))  ; Position of class body
 (defmacro _mclass-vars  (_) `(elem 4 ,_))  ; Position of class initializers
-
-(defmacro _minst-vtable (_) `(elem 0 ,_))
-(defmacro _minst-module (_) `(second (elem 1 ,_)))
-
 (defmacro _mclass-initblk (_) `(second (_mclass-decl ,_)))
 (defmacro _mclass-init (_)    `(last (_mclass-initblk ,_)))
 (defmacro _mclass-id (_)      `(last (_mclass-decl ,_)))
 (defmacro _mclass-meths (_)   `(rest (last (_mclass-body ,_))))
 (defmacro _mclass-super (_)   `(first (_mclass-init ,_)))
+
+; An instance meta data is a data block containing
+; the super vtable, module information and methods
+(defmacro _minst-vtable (_) `(elem 0 ,_))
+(defmacro _minst-module (_) `(second (elem 1 ,_)))
 
 ; Functions on class declarations
 
