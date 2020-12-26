@@ -14,29 +14,28 @@
 		; (. tree :add_route route) -> tree
 		; routes are:
 		; "a/b/c/file"
-		; "a/b/."
-		(defq route (reverse (split route "/")) root this)
-		(while (> (length route) 1)
+		; "a/b/c/."
+		(defq route (split route "/") root this)
+		(each! 0 -2 (lambda (branch)
 			(cond
-				((defq node (some (# (if (eql (def? :text %0) (elem -2 route)) %0)) (. root :children)))
+				((defq node (some (# (if (eql (def? :text %0) branch) %0)) (. root :children)))
 					;existing route
 					(setq root (elem -2 (. (elem -2 (. node :children)) :children))))
 				(t	;new route, so new node
-					(def (defq node (Flow)) :flow_flags +flow_down_fill+ :text (elem -2 route))
+					(def (defq node (Flow)) :flow_flags +flow_down_fill+ :text branch)
 					(def (defq tab_flow (Flow)) :flow_flags +flow_right_fill+)
 					(def (defq tab (Backdrop)) :min_width 14 :style 1)
 					(def (defq tab_child (Flow)) :flow_flags +flow_down_fill+)
-					(.-> tab_flow (:add_child tab) (:add_child tab_child))
 					(def (defq title_flow (Flow)) :flow_flags +flow_right_fill+)
-					(def (defq bt (Button)) :text (num-to-utf8 0xe93b) :min_width 14
+					(def (defq bt (Button)) :text (const (num-to-utf8 0xe93b)) :min_width 14
 						:font *env_small_toolbar_font* :border 1)
 					(. bt :connect (. this :get_id))
+					(.-> tab_flow (:add_child tab) (:add_child tab_child))
 					(.-> title_flow (:add_child bt) (:add_child (Text)))
 					(.-> node (:add_child title_flow) (:add_child tab_flow))
 					(. root :add_child node)
-					(setq root tab_child)))
-			(pop route))
-		(unless (eql (defq file (pop route)) ".")
+					(setq root tab_child)))) (list route))
+		(unless (eql (defq file (elem -2 route)) ".")
 			(def (defq node (Button)) :text file :border 0)
 			(. node :connect (inc (get :action_event this)))
 			(. root :add_child node))
