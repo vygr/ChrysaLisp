@@ -64,10 +64,6 @@
 
 	;write messages through the shared buffer
 	(loop-start)
-		;write my task count and cpu id
-		(assign {node_id.node_id_node1, node_id.node_id_node2, task_statics->tk_statics_task_count}
-			{tx->lk_chan_peer_node_id.node_id_node1, tx->lk_chan_peer_node_id.node_id_node2, tx->lk_chan_task_count})
-
 		;do we have a free out slot
 		(loop-while {tx_msg->lk_msg_status = lk_chan_status_ready})
 			;see if any mail for this link
@@ -76,6 +72,10 @@
 				lk_node.lk_node_peer_node_id.node_id_node2,
 				key} {msg})
 			(breakifnot {msg})
+
+			;write my task count and cpu id
+			(assign {node_id.node_id_node1, node_id.node_id_node2, task_statics->tk_statics_task_count}
+				{tx_msg->lk_msg_peer_node_id.node_id_node1, tx_msg->lk_msg_peer_node_id.node_id_node2, tx_msg->lk_msg_task_count})
 
 			;copy message data
 			(call 'sys_mem :copy {msg + ln_node_size, &tx_msg->lk_msg_stamp + ln_node_size, msg_stamp_size - ln_node_size})
@@ -96,6 +96,10 @@
 			;let other links run
 			(call 'sys_task :sleep '(0))
 		(loop-end)
+
+		;write my task count and cpu id
+		(assign {node_id.node_id_node1, node_id.node_id_node2, task_statics->tk_statics_task_count}
+			{tx_msg->lk_msg_peer_node_id.node_id_node1, tx_msg->lk_msg_peer_node_id.node_id_node2, tx_msg->lk_msg_task_count})
 
 		;small sleep if nothing to do
 		(call 'sys_task :sleep '(1000))
@@ -152,12 +156,12 @@
 
 	;read messages from the shared buffer
 	(loop-start)
-		;read neibour task count and peer id
-		(assign {rx->lk_chan_peer_node_id.node_id_node1, rx->lk_chan_peer_node_id.node_id_node2, rx->lk_chan_task_count}
-			{lk_node->lk_node_peer_node_id.node_id_node1, lk_node->lk_node_peer_node_id.node_id_node2, lk_node->lk_node_task_count})
-
 		;check for received message
 		(loop-while {rx_msg->lk_msg_status = lk_chan_status_busy})
+			;read neibour task count and peer id
+			(assign {rx_msg->lk_msg_peer_node_id.node_id_node1, rx_msg->lk_msg_peer_node_id.node_id_node2, rx_msg->lk_msg_task_count}
+				{lk_node->lk_node_peer_node_id.node_id_node1, lk_node->lk_node_peer_node_id.node_id_node2, lk_node->lk_node_task_count})
+
 			;is this msg part of a parcel for this node
 			(vpif {rx_msg->lk_msg_stamp.msg_total_length
 				&& rx_msg->lk_msg_stamp.msg_dest.net_id_node_id.node_id_node1 = node_id.node_id_node1
@@ -186,6 +190,10 @@
 			;let other links run
 			(call 'sys_task :sleep '(0))
 		(loop-end)
+
+		;read neibour task count and peer id
+		(assign {rx_msg->lk_msg_peer_node_id.node_id_node1, rx_msg->lk_msg_peer_node_id.node_id_node2, rx_msg->lk_msg_task_count}
+			{lk_node->lk_node_peer_node_id.node_id_node1, lk_node->lk_node_peer_node_id.node_id_node2, lk_node->lk_node_task_count})
 
 		;small sleep as nothing to do
 		(call 'sys_task :sleep '(1000))
