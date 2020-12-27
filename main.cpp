@@ -213,9 +213,10 @@ long long myopenshared(const char *path, size_t len)
 			if (fs.st_size == len) break;
 			sleep(0);
 		}
-		return open(link_buf, O_RDWR, S_IRUSR | S_IWUSR);
+		hndl = open(link_buf, O_RDWR, S_IRUSR | S_IWUSR);
 	}
-	return ftruncate(hndl, len);
+	else if (ftruncate(hndl, len) == -1) return -1;
+	return hndl;
 #endif
 }
 
