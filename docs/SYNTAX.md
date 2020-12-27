@@ -996,10 +996,6 @@
 
 (emap-kv [key val ...]) -> emap
 
-## emap?
-
-(emap? emap) -> t | nil
-
 ## empty
 
 (empty collection) -> collection | nil
@@ -2208,10 +2204,6 @@
 
 (xmap-kv [key val ...]) -> xmap
 
-## xmap?
-
-(xmap? xmap) -> t | nil
-
 ## xset
 
 (xset [num_buckets cmp_fnc hash_fnc]) -> xset
@@ -2219,10 +2211,6 @@
 ## xset-k
 
 (xset-k [key ...]) -> xset
-
-## xset?
-
-(xset? xset) -> t | nil
 
 ## zip
 

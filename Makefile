@@ -49,6 +49,8 @@ ifeq ($(OS),Darwin)
 		obj/$(CPU)/$(ABI)/$(OS)/vp64.o \
 		-F/Library/Frameworks \
 		-Wl,-framework,SDL2 -Wl
+	codesign -f -s - --entitlements main_tui.entitlements \
+		obj/$(CPU)/$(ABI)/$(OS)/main_gui
 endif
 ifeq ($(OS),Linux)
 	c++ -o $@ $@.o \
@@ -60,6 +62,8 @@ obj/$(CPU)/$(ABI)/$(OS)/main_tui:	obj/$(CPU)/$(ABI)/$(OS)/main_tui.o obj/$(CPU)/
 ifeq ($(OS),Darwin)
 	c++ -o $@ $@.o \
 		obj/$(CPU)/$(ABI)/$(OS)/vp64.o
+	codesign -f -s - --entitlements main_tui.entitlements \
+		obj/$(CPU)/$(ABI)/$(OS)/main_tui
 endif
 ifeq ($(OS),Linux)
 	c++ -o $@ $@.o \
