@@ -12,12 +12,12 @@ jobs:
     runs-on: ${ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest, windows-latest, macOS-latest]
 
     steps:
     - uses: actions/checkout@v2
     - name: Install Ubuntu packages
-      if: matrix.os == ubuntu-latest
+      if: matrix.os == 'ubuntu-latest'
       run: sudo apt-get install -y libsdl2-dev libsdl2-ttf-dev
     - name: make clean then make
       run: |
