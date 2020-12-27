@@ -874,6 +874,8 @@
 	; (defclass name ([arg ...]) (super ...) body)
 	(defq
 		module (str *stream_name*)
+		predn  (sym (cat n "?"))
+		kwn	   (cat : n)
 		super (sym (cat "*class_" (if s (elem 0 s)) "*"))
 		class (sym (cat "*class_" n "*")) inits (list) methods (list))
 	(def (penv) '*class* n '*super_class* super)
@@ -885,6 +887,7 @@
 	(if s
 		`(progn
 			(defq ,class (env -1))
+			(defun ,predn (_o) (find ,kwn (. _o :type_of)))
 			(defun ,n ,a
 				(def (defq this ,s) :vtable ,class)
 				(unless (def? :vtable ,class)
@@ -897,6 +900,7 @@
 				~inits this))
 		`(progn
 			(defq ,class (env -1))
+			(defun ,predn (_o) (find ,kwn (. _o :type_of)))
 			(defun ,n ,a
 				(def (defq this (env -1)) :vtable ,class)
 				(unless (def? :vtable ,class)

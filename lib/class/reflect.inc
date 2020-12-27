@@ -4,23 +4,23 @@
 ; the `(defclass ...) macro
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defq
-  +class_prefix+ "*class"
-  +scalar_types+ (xset-k :str :num :sym))
-
 ; A class declaration is a lambda so the meta info
 ; deconstructs the lambda to get at the interesting bits
 
-(defmacro _mclass-args (_) `(elem 1 ,_))  ; Position of class constructor args
-(defmacro _mclass-decl (_) `(elem 2 ,_))  ; Position of declaration info
-(defmacro _mclass-body (_) `(elem 3 ,_))  ; Position of class body
-(defmacro _mclass-vars (_) `(elem 4 ,_))  ; Position of class initializers
-
+(defmacro _mclass-args  (_) `(elem 1 ,_))  ; Position of class constructor args
+(defmacro _mclass-decl  (_) `(elem 2 ,_))  ; Position of declaration info
+(defmacro _mclass-body  (_) `(elem 3 ,_))  ; Position of class body
+(defmacro _mclass-vars  (_) `(elem 4 ,_))  ; Position of class initializers
 (defmacro _mclass-initblk (_) `(second (_mclass-decl ,_)))
 (defmacro _mclass-init (_)    `(last (_mclass-initblk ,_)))
 (defmacro _mclass-id (_)      `(last (_mclass-decl ,_)))
 (defmacro _mclass-meths (_)   `(rest (last (_mclass-body ,_))))
 (defmacro _mclass-super (_)   `(first (_mclass-init ,_)))
+
+; An instance meta data is a data block containing
+; the super vtable, module information and methods
+(defmacro _minst-vtable (_) `(elem 0 ,_))
+(defmacro _minst-module (_) `(second (elem 1 ,_)))
 
 ; Functions on class declarations
 
@@ -51,7 +51,7 @@
     (seq? (defq ,(defq __ (gensym)) ,_))
     (> (length ,__) 2)
     (list? (_mclass-decl ,__)))
-    (starts-with +class_prefix+ (_mclass-id ,__))))
+    (starts-with "*class" (_mclass-id ,__))))
 
 (defun classkw (_)
   ; (classkw sym) -> kw
@@ -68,7 +68,7 @@
   (cond
     ((and (seq? _) (class? (first _)))
       (classkw (first _)))
-    ((gets +scalar_types+ (last (type-of _)))
+    ((find (last (type-of _)) (list :str :num :sym))
       _)
     ((or (func? _) (lambda? _) (macro? _))
       :form)
@@ -131,30 +131,9 @@
 
 (defun inst-data (_)
   ; (inst-data object) -> list
-  ; Returns a list of data/value pairs
+  ; Returns a list of data/value pairs (not including :vtable)
   ; if the object is a class instance
   (when (class-inst? _)
     (filter
       (lambda ((_k _v))
         (not (eql _k :vtable))) (tolist _))))
-
-(defun inspect-inst (_ &optional sindent)
-  (when (defq data (inst-data _))
-    (each (lambda ((_k _v))
-      (prin _k " = "
-        (if (class-inst? _v)
-          (inspect-inst _v)
-          _v))
-      ) data)))
-
-; Generators
-
-(defmacro gen-class-pred (nm)
-  ; (classpred string) -> lambda
-  ; Generates a class predicte in the form of
-  ; (defun nm? (o)) -> t | nil
-  (defq isname (sym (cat nm "?")))
-  `(progn
-    (defq ,(defq mclass (gensym)) (classkw ,nm))
-    (defun ,isname (o)
-      (class-type-of? o ,mclass))))
