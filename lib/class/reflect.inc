@@ -137,15 +137,3 @@
     (filter
       (lambda ((_k _v))
         (not (eql _k :vtable))) (tolist _))))
-
-; Generators
-
-(defmacro class-pred (nm)
-  ; (classpred string) -> lambda
-  ; Generates a class predicte in the form of
-  ; (defun nm? (o)) -> t | nil
-  (defq isname (sym (cat nm "?")))
-  `(progn
-    (defq ,(defq mclass (gensym)) (classkw ,nm))
-    (defun ,isname (o)
-      (class-type-of? o ,mclass))))
