@@ -15,9 +15,9 @@ jobs:
     - uses: actions/checkout@v2
     - name: Install packages
       run: sudo apt-get install -y libsdl2-dev libsdl2-ttf-dev
+    - name: make clean
+      run: make clean
     - name: make
       run: make -j
-    - name: make check
-      run: echo make check
-    - name: make distcheck
-      run: echo make distcheck
+    - name: run_tui
+      run: echo ./run_tui.sh 4
