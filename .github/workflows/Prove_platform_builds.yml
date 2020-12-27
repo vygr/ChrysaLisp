@@ -20,7 +20,7 @@ jobs:
       run: sudo apt-get install -y libsdl2-dev libsdl2-ttf-dev
       if: matrix.os == 'ubuntu-latest'
     - name: Install Mac packages (probably too many)
-      run: brew install sdl sdl_image sdl_mixer sdl_ttf portmidi
+      run: sudo brew install sdl sdl_image sdl_mixer sdl_ttf portmidi && sudo pip install pygame
       if: matrix.os == 'macos-latest'
     - name: make clean then make
       run: make clean && make -j
