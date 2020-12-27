@@ -13,8 +13,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: configure
-      run: sudo apt-get install -y libsdl2-dev 
+    - name: Install packages
+      run: sudo apt-get install -y libsdl2-dev libsdl2-ttf-dev
     - name: make
       run: make -j
     - name: make check
