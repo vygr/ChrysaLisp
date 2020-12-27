@@ -213,10 +213,9 @@ long long myopenshared(const char *path, size_t len)
 			if (fs.st_size == len) break;
 			sleep(0);
 		}
-		hndl = open(link_buf, O_RDWR, S_IRUSR | S_IWUSR);
+		return open(link_buf, O_RDWR, S_IRUSR | S_IWUSR);
 	}
-	else ftruncate(hndl, len);
-	return hndl;
+	return ftruncate(hndl, len);
 #endif
 }
 
@@ -633,27 +632,33 @@ int main(int argc, char *argv[])
 			uint16_t *data = (uint16_t*)mymmap(data_size, -1, mmap_exec);
 			if (data != (uint16_t*)-1)
 			{
-				read((int)fd, data, data_size);
-				myclearicache(data, data_size);
-				//printf("image start address: 0x%llx\n", (unsigned long long)data);
-#ifndef _WIN64
-				fcntl(0, F_SETFL, fcntl(0, F_GETFL, 0) | O_NONBLOCK);
-#endif
-				if (run_emu)
+				if (read((int)fd, data, data_size) == data_size)
 				{
-					int64_t* stack = (int64_t*)mymmap(VP64_STACK_SIZE, -1, mmap_data);
-					if (stack)
+					myclearicache(data, data_size);
+					//printf("image start address: 0x%llx\n", (unsigned long long)data);
+	#ifndef _WIN64
+					fcntl(0, F_SETFL, fcntl(0, F_GETFL, 0) | O_NONBLOCK);
+	#endif
+					if (run_emu)
 					{
-						printf("ChrysaLisp vp64 emulator v0.1\n");
-						ret_val = vp64((uint8_t*)data, (int64_t*)((char*)stack + VP64_STACK_SIZE), (int64_t*)argv, (int64_t*)host_funcs);
-						mymunmap(stack, VP64_STACK_SIZE, mmap_data);
+						int64_t* stack = (int64_t*)mymmap(VP64_STACK_SIZE, -1, mmap_data);
+						if (stack)
+						{
+							printf("ChrysaLisp vp64 emulator v0.1\n");
+							ret_val = vp64((uint8_t*)data, (int64_t*)((char*)stack + VP64_STACK_SIZE), (int64_t*)argv, (int64_t*)host_funcs);
+							mymunmap(stack, VP64_STACK_SIZE, mmap_data);
+						}
 					}
+					else
+					{
+						ret_val = ((int(*)(char* [], void* []))((char*)data + data[5]))(argv, host_funcs);
+					}
+					mymunmap(data, data_size, mmap_exec);
 				}
 				else
 				{
-					ret_val = ((int(*)(char* [], void* []))((char*)data + data[5]))(argv, host_funcs);
+					printf("Error, failed reading boot_image!\n");
 				}
-				mymunmap(data, data_size, mmap_exec);
 			}
 			else
 			{
