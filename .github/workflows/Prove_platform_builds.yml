@@ -24,7 +24,7 @@ jobs:
       run: brew install sdl2
       if: matrix.os == 'macos-latest'
     - name: Debuggging, copy framework
-      run: ls /usr/local/include/SDL2
+      run: cp -r /usr/local/include/SDL2/ /Library/SDL2.framework/
       if: matrix.os == 'macos-latest'
     - name: make clean then make
-      run: make clean && make -j -I /usr/local/include/SDL2
+      run: make clean && make -j
