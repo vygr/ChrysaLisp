@@ -21,7 +21,7 @@ jobs:
       run: sudo apt-get install -y libsdl2-dev libsdl2-ttf-dev
       if: matrix.os == 'ubuntu-latest'
     - name: Install Mac packages (probably too many)
-      run: xcode-select --install
+      run: brew reinstall sdl sdl2
       if: matrix.os == 'macos-latest'
     - name: make clean then make
       run: make clean && make -j
