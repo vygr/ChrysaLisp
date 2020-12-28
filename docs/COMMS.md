@@ -1,10 +1,10 @@
 # Communications
 
 In ChrysaLisp while it is not forbidden for processes to communicate with
-shared memory structures, provided they live on the same CPU, the main means
-that processes use to communicate with each other is via message passing. Each
-process on creation is allocated a main mailbox, processes create messages and
-send these messages between themselves by use of these mailboxes. More
+shared memory structures, provided they live on the same CPU node, the main
+means that processes use to communicate with each other is via message passing.
+Each process on creation is allocated a main mailbox, processes create messages
+and send these messages between themselves by use of these mailboxes. More
 mailboxes can be allocated, if required, to allow other communication
 structures to be created.
 
@@ -26,8 +26,8 @@ mailbox cannot be found.
 
 Mailbox IDs are always a unique 32 bit non repeated identifier. During mail
 delivery any messages using an ID that cannot be validated are treated as junk
-mail and sent to this CPUs Postman task. This postman task just currently frees
-the message but later versions of the system may use this information for
+mail and sent to this nodes Postman task. This postman task just currently
+frees the message but later versions of the system may use this information for
 debugging purposes.
 
 ## Messages
@@ -36,8 +36,8 @@ Messages consist of two parts, the message header and the message body. The
 message body consists of a referenceable object, most often a String object.
 The header is like a postage stamp on the objects data. Large objects will have
 multiple message headers created, by the system, to break up the sending of the
-data into smaller packets. These packets are routed from the source CPU to the
-destination CPU and reconstructed at the destination into the original message
+data into smaller packets. These packets are routed from the source node to the
+destination node and reconstructed at the destination into the original message
 before delivery into the target mailbox.
 
 Individual message packets travel via parallel communication routes across the
@@ -80,43 +80,43 @@ by the `'sys_mail :poll` and `'sys_mail :select` function calls.
 
 ## Process Mailbox ID's
 
-A 64 bit Process mailbox ID consists of a combination of the local mailbox ID
-and the CPU ID. The CPU ID occupies the upper 32 bits, the local mailbox ID
-occupies the lower 32 bits.
+A `net_id` process mailbox ID consists of a combination of the local mailbox ID
+and the CPU `node_id`. The CPU `node_id` occupies the later 128 bits, the local
+mailbox ID occupies the first 64 bits.
 
-Message routing first of all routes messages from the source CPU to the
-destination CPU and then the local mailbox ID is validated before delivery of
-the message into the receivers mailbox. Any message with an invalid local
+Message routing first of all routes messages from the source CPU node to the
+destination CPU node and then the local mailbox ID is validated before delivery
+of the message into the receivers mailbox. Any message with an invalid local
 mailbox ID is discarded as junk mail.
 
-On creation of a process it is allocated a main local mailbox and the 64 bit
-mailbox ID is returned to the creator. There are functions provided to create
-multiple child processes in a single call. Such functions can be used to create
-farms, arrays, and pipelines of processes. These functions return an array of
-64 bit mailboxes IDs. The creator can then go on to wire these mailboxes and
-processes in any communications structure it desires.
+On creation of a process it is allocated a main local mailbox and the `net_id`
+is returned to the creator. There are functions provided to create multiple
+child processes in a single call. Such functions can be used to create farms,
+arrays, and pipelines of processes. These functions return a list of `net_id`s.
+The creator can then go on to wire these mailboxes and processes in any
+communications structure it desires.
 
-Auto allocated main process ID mailboxes do not need to be manually freed, this
+Auto allocated main process mailboxes do not need to be manually freed, this
 will happen when the process shuts down.
 
 ## Services
 
 Functions are also provided to allow mailboxes to be named, via `'sys_mail
-:declare` throughout the network. Such mailboxes are then discoverable by other
-processes via a call to `'sys_mail :enquire` with the given name. A service
-entry can be removed with the `'sys_mail :forget` function.
+:declare`, throughout the network. Such mailboxes are then discoverable by
+other processes via a call to `'sys_mail :enquire` with the given name. A
+service entry can be removed with the `'sys_mail :forget` function.
 
 The system maintains a directory of these service names and the corresponding
-process mailbox IDs. An example service is the current GUI `DEBUG_SERVICE`
+process `net_id`s. An example service is the current GUI `DEBUG_SERVICE`
 application `apps/debug/app.lisp`.
 
 ### Example
 
 This is the network monitoring application child process
-`apps/netmon/child.vp`. This process is launched onto each CPU by use of an
-`(open-farm)` call. The child process simply waits for a command message from
-the parent and either exits or returns a message containing task and memory
-usage information.
+`apps/netmon/child.vp`. This process is launched onto each CPU node by use of
+an `(open-farm)` call. The child process simply waits for a command message
+from the parent and either exits or returns a message containing task and
+memory usage information.
 
 `'sys_mail :mymail` is just a convenience function to read mail from the
 current tasks main mailbox.
@@ -125,12 +125,9 @@ current tasks main mailbox.
 (include "sys/func.inc")
 (include "sys/kernel/class.inc")
 
-(def-struct 'sample)
-	(ulong 'id)
-(def-struct-end)
-
 (def-struct 'sample_reply)
-	(uint 'cpu 'task_count 'mem_used)
+	(struct 'node_id 'node_id)
+	(uint 'task_count 'mem_used)
 (def-struct-end)
 
 (def-func 'apps/netmon/child)
@@ -142,12 +139,16 @@ current tasks main mailbox.
 	(loop-start)
 		;read mail command
 		(call 'sys_mail :mymail nil {msg, data})
-		(breakifnot {data->sample_id})
+		(breakifnot {msg->msg_frag_length})
 
 		;sample reply
 		(call 'sys_mail :alloc {sample_reply_size} {reply, rdata})
-		(assign {data->sample_id} {reply->msg_dest.net_id_id})
-		(call 'sys_kernel :id nil {rdata->sample_reply_cpu})
+		(assign {data->net_id_mbox_id} {reply->msg_dest.net_id_mbox_id})
+		(assign {data->net_id_node_id.node_id_node1} {reply->msg_dest.net_id_node_id.node_id_node1})
+		(assign {data->net_id_node_id.node_id_node2} {reply->msg_dest.net_id_node_id.node_id_node2})
+		(call 'sys_kernel :id nil {
+			rdata->sample_reply_node_id.node_id_node1,
+			rdata->sample_reply_node_id.node_id_node2})
 		(call 'sys_task :count nil {rdata->sample_reply_task_count})
 		(call 'sys_mem :used nil {rdata->sample_reply_mem_used})
 		(call 'sys_mail :send {reply})
@@ -173,10 +174,6 @@ and receiving objects. This uses the `'sys_mail :alloc_obj` and `'sys_mail
 
 It is possible to send a Lisp list to a process that lives on the same CPU,
 this will just pass an object reference between the processes.
-
-Arrays and Strings can be used as message data and these will always be
-received as String objects, even if the destination is on the same CPU. Arrays
-will have their data copied into a String object before sending.
 
 Senders can martial data for sending via a `(str ...)` or `(str (string-stream
 ...))` and Receivers with a `(string-stream msg)` or combined with a `(read
