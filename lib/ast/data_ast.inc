@@ -5,13 +5,15 @@
 ; data AST
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-; (import "lib/class/reflect.inc")
+(import "lib/class/reflect.inc")
 
 (defq
-  data_ast_module     *stream_name*
-  data-scalar-set     (xset-k :str :sym :num)
-  data-sequence-set   (xset-k :list :array)
-  data-collection-set (xset-k :xmap :emap :xset))
+  data-scalar-set       (xset-k :str :sym :num :keyword :boolean)
+  data-sequence-set     (xset-k :list :array)
+  data-collection-types (xmap-kv
+    :xmap xmap
+    :emap emap
+    :xset xset))
 
 ; Base AST class
 (defclass ast () (xnode)
@@ -91,6 +93,9 @@
         (. _c :show_tree (+ indent 2)))
       (values (get :children_nodes this))))
 
+  (defmethod :tolist (this &rest _)
+    (.super this :tolist (get :clz this)))
+
   (defmethod :to_object (this)
     (reduce
       (#(push %0 (. %1 :to_object)))
@@ -108,9 +113,10 @@
 ; :xmap
 ; :xset
 
-(defclass collection-kv (_ colltype) (ast-collection)
+(defclass collection-kv (_ clz colltype) (ast-collection)
   (def this
-    :colltype colltype)
+    :colltype colltype
+    :clz      clz)
 
   (defmethod :show_tree (this &optional indent)
     (defq ind (pad "" indent))
@@ -120,20 +126,24 @@
         (. _c :show_tree (+ indent 2)))
       (values (get :children_nodes this))))
 
+  (defmethod :tolist (this &rest _)
+    (.super this :tolist (get :clz this)))
+
   (defmethod :to_object (this)
     (defq inst ((get :colltype this)))
     ((into-fn inst) inst (.super this :to_object)))
 
   ; collection-kv type constructor
-  (each (#(ast-for this %0)) (entries _)))
+  (when (class-inst? _)
+    (each (#(ast-for this %0)) (entries _))))
 
 ; Class data types
-(defclass ast-class (v clz) (ast)
+(defclass ast-class (v clz module) (ast)
   (def this
-    :clz_name   (sym (slice 1 -1 clz))
-    :path       (_minst-module (tolist (get :vtable v))))
+    :clz_name   clz
+    :path       module)
 
-   (defmethod :tolist (this)
+   (defmethod :tolist (this &rest _)
     (.super this :tolist (get :clz_name this) (get :path this)))
 
    (defmethod :to_object (this)
@@ -146,73 +156,125 @@
 
    (defmethod :show_tree (this &optional indent))
 
-   ; Class type constructor
-  (ast-for this
-    (reduce
-      (lambda (e (k v))
-        (sets! e k v))
-        (inst-data v) (xmap))))
+   ; Class type constructor from object
+   ; ignored when rehydrating
+   (when v
+    (ast-for this
+      (reduce
+        (lambda (e (k v))
+          (sets! e k v))
+          (inst-data v) (xmap)))))
 
-; Recusive walk and produce data AST
 (defun ast-for (p v)
+  ; (ast-for ast data) -> ast
+  ; Recursivly walks the data (v) construct and builds
+  ; the AST tree nodes
+  (defq
+    nt  (last (type-of v))
+    clz (class-type v))
   (. p :add_node
-    (defq
-      nt  (last (type-of v))
-      clz (class-type v)
-      nn
-        (cond
-          ((or (func? v) (lambda? v) (macro? v))
-            (from-scalar "func or lambda or macro" :str))
-          ((gets data-scalar-set nt)
-            (ast-scalar
-              v
-              (case nt
-                (:sym
-                  (cond
-                    ((or (eql v nil) (eql v t))
-                      :boolean)
-                    ((eql (first v) ":")
-                      :keyword)
-                    (t
-                      nt)))
+    (cond
+      ((or (func? v) (lambda? v) (macro? v))
+        (from-scalar "func or lambda or macro" :str))
+      ((gets data-scalar-set nt)
+        (ast-scalar
+          v
+          (case nt
+            (:sym
+              (cond
+                ((or (eql v nil) (eql v t))
+                  :boolean)
+                ((eql (first v) ":")
+                  :keyword)
                 (t
-                  nt))))
-            ; (from-scalar v nt))
-          ((gets data-sequence-set nt)
-            (collection-sequence v nt))
-          ((and (eql nt :hmap) (gets data-collection-set clz))
-            (collection-kv
-              v
-              (case clz
-                (:emap emap)
-                (:xmap xmap)
-                (:xset xset))))
-            ; (from-collection v clz))
-          (clz
-            (ast-class v clz))
-          ((eql nt :hmap)
-            nil)
-          (t
-            (throw "No handling type yet" nt))))))
+                  nt)))
+            (t
+              nt))))
+      ((gets data-sequence-set nt)
+        (collection-sequence v nt))
+      ((and
+        (eql nt :hmap)
+        (defq ct (gets data-collection-types clz)))
+        (collection-kv v clz ct))
+      (clz
+        (ast-class
+          v
+          (sym (slice 1 -1 clz))
+          (_minst-module (tolist (get :vtable v)))))
+      ((eql nt :hmap)
+        nil)
+      (t
+        (throw "No handling type yet" nt)))))
 
-(defun to-ast (data &optional ast-type)
+(defun data-to-ast (data &optional node)
+  ; (data-to-ast data [astnode]) -> ast
+  ; Converts a data object to an ast
   (cond
-    ((nil? ast-type)
-      (ast-for (setd ast-type (ast)) data))
+    ((nil? node)
+      (ast-for (setd node (ast)) data))
     ((and
-      ast-type
-      (class-inst? ast-type)
-      (find :ast (. ast-type :type_of)))
-      (ast-for ast-type data))
+      node
+      (class-inst? node)
+      (find :ast (. node :type_of)))
+      (ast-for node data))
     (t
       (throw "Not a data_ast type" data)))
-  ast-type)
+  node)
 
-(defclass a () nil)
+(defun ast-from (p v)
+  ; (ast-from ast data) -> ast
+  ; Recursivly walks the ast list data (v) construct
+  ; and builds the AST tree nodes
+  (. p :add_node
+    (cond
+      ((gets data-scalar-set (first v))
+        (ast-scalar (second v) (first v)))
+      ((eql (first v) :collection-sequence)
+        (defq clz (second v))
+        (reduce
+          (lambda (acc el) (ast-from acc el) acc)
+          (slice 2 -1 v) (collection-sequence '() clz)))
+      ((eql (first v) :collection-kv)
+        (defq clz (second v))
+        (reduce
+          (lambda (acc el) (ast-from acc el) acc)
+          (slice 2 -1 v)
+          (collection-kv
+            '()
+            clz
+            (gets data-collection-types clz))))
+      ((eql (first v) :ast-class)
+        (defq
+          cl (ast-class nil (second v) (elem 2 v)))
+        (ast-from cl (elem 3 v))
+        cl)
+      (t
+        (throw "Not an ast list type" (first v))))))
 
-(defclass b () (a) (def this :x nil))
+(defun list-to-ast (astlist)
+  ; (list-to-ast astlist) -> ast
+  ; Converts a list generated by (. ast :tolist)
+  ; to an AST
+  (defq node (ast))
+  (ast-from node (second astlist))
+  node)
 
-(defq b1 (b))
-(set b1 :x 7)
-(defq root (ast))
-(to-ast b1 root)
+; (defclass a () nil)
+; (defclass b () (a) (def this :x nil))
+; (defq b1 (b))
+; (set b1 :x 7)
+
+; (defq root (ast))
+; (data-to-ast b1 root)
+; (. root :tolist)
+; (tolist (first (. root :to_object)))
+
+; (defq r1 (ast))
+; (data-to-ast (list 1 2 3) r1)
+; (defq r2 (list-to-ast (. r1 :tolist)))
+
+; (defq r3 (ast))
+; (data-to-ast (xmap-kv :a 1 :b 2 :c 3) r3)
+; (defq r4 (list-to-ast (. r3 :tolist)))
+; (. r4 :tolist)
+;

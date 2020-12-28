@@ -3,6 +3,7 @@
 ; Converts string-stream to ChyrsaLisp object form
 ;
 ; Primary usage is intended to the CPU interchange
+; DEPRECATING - Favoring using lib/ast/data_ast.inc
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "lib/xtras/xtras.inc")
