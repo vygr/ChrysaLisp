@@ -1,5 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; yaml-xchange - ChrysaLisp Mini YAML Data Processor
+; DEPRECATING - Favoring using lib/ast/data_ast.inc
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "lib/xchange/serialize.lisp")
