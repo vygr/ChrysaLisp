@@ -41,7 +41,7 @@
 			(call 'list :push_back2 {args, stream, script})
 			(call 'lisp :lisp_repl {lisp, args} {_, value})
 			(call 'list :clear {args})
-			(vpif {value /= lisp->lisp_sym_nil})
+			(vpif (cat {value->obj_vtable = @} (f-path 'error :vtable)))
 			(vp-label 'error)
 				;error in repl
 				(call 'lisp :repl_print {lisp, lisp->lisp_stderr, value})

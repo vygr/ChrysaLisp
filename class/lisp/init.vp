@@ -77,7 +77,7 @@
 				(call 'str :create_from_buffer {"class/lisp/boot.inc", 19} {file})
 				(call 'list :push_back2 {repl_args, stream, file})
 				(call 'lisp :lisp_repl {this, repl_args} {_, value})
-				(vpif {value /= this->lisp_sym_nil})
+				(vpif (cat {value->obj_vtable = @} (f-path 'error :vtable)))
 					(call 'lisp :repl_print {this, this->lisp_stderr, value})
 					(call 'stream :write_char {this->lisp_stderr, +char_lf+})
 					(call 'stream :flush {this->lisp_stderr})

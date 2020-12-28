@@ -44,6 +44,7 @@
 	(call 'num :create {1} {value})
 	(call 'hmap :set {this->lisp_environment, this->lisp_sym_stream_line, value})
 	(call 'obj :deref {value})
+	(call 'obj :ref {this->lisp_sym_nil} {value})
 
 	(call 'stream :read_char {stream} {_, char})
 	(loop-while {char /= -1})
@@ -64,6 +65,7 @@
 ;; (call 'stream :write_char {this->lisp_stdout, +char_lf+})
 ;; (call 'lisp :repl_print {this, this->lisp_stdout, ast})
 ;; (call 'stream :write_char {this->lisp_stdout, +char_lf+})
+		(call 'obj :deref {value})
 		(call 'lisp :repl_eval {this, ast} {_, value})
 ;; (call 'stream :write_cstr {this->lisp_stdout, "evaled:"})
 ;; (call 'stream :write_char {this->lisp_stdout, +char_lf+})
@@ -74,12 +76,10 @@
 			(call 'lisp :repl_print {this, this->lisp_stdout, value})
 			(call 'stream :write_char {this->lisp_stdout, +char_lf+})
 		(endif)
-		(errorif (cat {value->obj_vtable = @} (f-path 'error :vtable)) 'exit1)
-		(call 'obj :deref {value})
+	(errorcases
+		(breakif (cat {value->obj_vtable = @} (f-path 'error :vtable))))
 	(loop-end)
-	(call 'obj :ref {this->lisp_sym_nil} {value})
 
-(vp-label 'exit1)
 	;pop old file and line info
 	(call 'hmap :set {this->lisp_environment, this->lisp_sym_stream_name, old_file})
 	(call 'obj :deref {old_file})
