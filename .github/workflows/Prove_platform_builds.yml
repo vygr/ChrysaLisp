@@ -18,13 +18,13 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Install Ubuntu packages
-      run: sudo apt-get install -y libsdl2-dev libsdl2-ttf-dev
       if: matrix.os == 'ubuntu-latest'
+      run: sudo apt-get install -y libsdl2-dev libsdl2-ttf-dev
     - name: Install Mac packages, setup framework
       if: matrix.os == 'macos-latest'
-      run: brew install sdl2
-    - name: Debuggging, copy framework
-      if: matrix.os == 'macos-latest'
-      run: sudo mkdir -p /Library/Frameworks/SDL2.framework/Headers/ && sudo cp -r /usr/local/include/SDL2/ /Library/Frameworks/SDL2.framework/Headers/ && ls /Library/Frameworks/SDL2.framework/Headers
-    - name: make clean then make
+      run: brew install sdl2 &&sudo mkdir -p /Library/Frameworks/SDL2.framework/Headers/ && sudo cp -r /usr/local/include/SDL2/ /Library/Frameworks/SDL2.framework/Headers/
+    - name: Install Windows packages
+      if: matrix.os == 'windows-latest'
+      run: wget https://www.libsdl.org/release/SDL2-2.0.14-win32-x64.zip && ls && dir
+    - name: Build (same on all platforms)
       run: make clean && make -j
