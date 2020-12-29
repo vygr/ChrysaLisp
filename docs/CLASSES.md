@@ -2272,57 +2272,61 @@ Super Class: null
 
 ### host :sleep -> nil
 
-### host :sdl_set_main_ready -> nil
+## host_gui
 
-### host :sdl_init -> nil
+Super Class: null
 
-### host :sdl_get_error -> nil
+### host_gui :sdl_set_main_ready -> nil
 
-### host :sdl_quit -> nil
+### host_gui :sdl_init -> nil
 
-### host :sdl_create_window -> nil
+### host_gui :sdl_get_error -> nil
 
-### host :sdl_create_window_and_renderer -> nil
+### host_gui :sdl_quit -> nil
 
-### host :sdl_destroy_window -> nil
+### host_gui :sdl_create_window -> nil
 
-### host :sdl_create_renderer -> nil
+### host_gui :sdl_create_window_and_renderer -> nil
 
-### host :sdl_set_render_draw_color -> nil
+### host_gui :sdl_destroy_window -> nil
 
-### host :sdl_render_fill_rect -> nil
+### host_gui :sdl_create_renderer -> nil
 
-### host :sdl_render_present -> nil
+### host_gui :sdl_set_render_draw_color -> nil
 
-### host :sdl_render_set_clip_rect -> nil
+### host_gui :sdl_render_fill_rect -> nil
 
-### host :sdl_set_render_draw_blend_mode -> nil
+### host_gui :sdl_render_present -> nil
 
-### host :sdl_poll_event -> nil
+### host_gui :sdl_render_set_clip_rect -> nil
 
-### host :sdl_render_draw_rect -> nil
+### host_gui :sdl_set_render_draw_blend_mode -> nil
 
-### host :sdl_free_surface -> nil
+### host_gui :sdl_poll_event -> nil
 
-### host :sdl_create_texture_from_surface -> nil
+### host_gui :sdl_render_draw_rect -> nil
 
-### host :sdl_destroy_texture -> nil
+### host_gui :sdl_free_surface -> nil
 
-### host :sdl_render_copy -> nil
+### host_gui :sdl_create_texture_from_surface -> nil
 
-### host :sdl_set_texture_blend_mode -> nil
+### host_gui :sdl_destroy_texture -> nil
 
-### host :sdl_set_texture_color_mod -> nil
+### host_gui :sdl_render_copy -> nil
 
-### host :sdl_create_rgb_surface_from -> nil
+### host_gui :sdl_set_texture_blend_mode -> nil
 
-### host :sdl_compose_custom_blend_mode -> nil
+### host_gui :sdl_set_texture_color_mod -> nil
 
-### host :sdl_create_texture -> nil
+### host_gui :sdl_create_rgb_surface_from -> nil
 
-### host :sdl_set_render_target -> nil
+### host_gui :sdl_compose_custom_blend_mode -> nil
 
-### host :sdl_render_clear -> nil
+### host_gui :sdl_create_texture -> nil
+
+### host_gui :sdl_set_render_target -> nil
+
+### host_gui :sdl_render_clear -> nil
 
 ## hset
 

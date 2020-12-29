@@ -256,7 +256,7 @@
 		(vpif '(r0 < 1))
 			(vp-cpy-cr 1 r0)
 		(endif)
-		(host-call 'host :sleep '(r0))
+		(host-os-call 'host :sleep '(r0))
 	(loop-end)
 
 	;deinit allocator

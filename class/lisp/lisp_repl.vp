@@ -43,8 +43,6 @@
 	(call 'hmap :set {this->lisp_environment, this->lisp_sym_stream_name, value})
 	(call 'num :create {1} {value})
 	(call 'hmap :set {this->lisp_environment, this->lisp_sym_stream_line, value})
-	(call 'obj :deref {value})
-	(call 'obj :ref {this->lisp_sym_nil} {value})
 
 	(call 'stream :read_char {stream} {_, char})
 	(loop-while {char /= -1})

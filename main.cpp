@@ -554,7 +554,7 @@ void mysleep(uint64_t ms)
 	std::this_thread::sleep_for(std::chrono::milliseconds(ms));
 }
 
-static void (*host_funcs[]) = {
+static void (*host_os_funcs[]) = {
 (void*)exit,
 (void*)mystat,
 (void*)myopen,
@@ -574,6 +574,9 @@ static void (*host_funcs[]) = {
 (void*)myseek,
 (void*)myrand,
 (void*)mysleep,
+};
+
+static void (*host_gui_funcs[]) = {
 #ifdef _GUI
 	(void*)SDL_SetMainReady,
 	(void*)SDL_Init,
@@ -605,7 +608,7 @@ static void (*host_funcs[]) = {
 };
 
 #define VP64_STACK_SIZE 8192
-int vp64(uint8_t* data, int64_t *stack, int64_t *argv, int64_t *host_funcs);
+int vp64(uint8_t* data, int64_t *stack, int64_t *argv, int64_t *host_os_funcs, int64_t *host_gui_funcs);
 
 int main(int argc, char *argv[])
 {
@@ -646,13 +649,21 @@ int main(int argc, char *argv[])
 						if (stack)
 						{
 							printf("ChrysaLisp vp64 emulator v0.1\n");
-							ret_val = vp64((uint8_t*)data, (int64_t*)((char*)stack + VP64_STACK_SIZE), (int64_t*)argv, (int64_t*)host_funcs);
+#ifdef _GUI
+							ret_val = vp64((uint8_t*)data, (int64_t*)((char*)stack + VP64_STACK_SIZE), (int64_t*)argv, (int64_t*)host_os_funcs, (int64_t*)host_gui_funcs);
+#else
+							ret_val = vp64((uint8_t*)data, (int64_t*)((char*)stack + VP64_STACK_SIZE), (int64_t*)argv, (int64_t*)host_os_funcs, (int64_t*)nullptr);
+#endif
 							mymunmap(stack, VP64_STACK_SIZE, mmap_data);
 						}
 					}
 					else
 					{
-						ret_val = ((int(*)(char* [], void* []))((char*)data + data[5]))(argv, host_funcs);
+#ifdef _GUI
+						ret_val = ((int(*)(char* [], void* [], void* []))((char*)data + data[5]))(argv, host_os_funcs, host_gui_funcs);
+#else
+						ret_val = ((int(*)(char* [], void* [], void* []))((char*)data + data[5]))(argv, host_os_funcs, nullptr);
+#endif
 					}
 					mymunmap(data, data_size, mmap_exec);
 				}

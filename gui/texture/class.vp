@@ -26,7 +26,7 @@
 
 	(entry 'sys_task :task_callback '(r0))
 
-	(host-call 'host :sdl_destroy_texture '(r0))
+	(host-gui-call 'host_gui :sdl_destroy_texture '(r0))
 	(vp-ret)
 
 (def-func-end)

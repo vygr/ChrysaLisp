@@ -7,7 +7,7 @@
 	;r0 = code (long)
 
 	(entry 'sys_pii :exit '(r0))
-	(host-call 'host :exit '(r0))
+	(host-os-call 'host :exit '(r0))
 
 (def-func-end)
 
@@ -22,7 +22,7 @@
 
 	(entry 'sys_pii :open '(r0 r1))
 	(abi-push-trashed r1 r13 r14)
-	(host-call 'host :open '(r0 r1) '(r0))
+	(host-os-call 'host :open '(r0 r1) '(r0))
 	(abi-pop-trashed r1 r13 r14)
 	(exit 'sys_pii :open '(r0))
 	(vp-ret)
@@ -39,7 +39,7 @@
 
 	(entry 'sys_pii :close '(r0))
 	(abi-push-trashed r13 r14)
-	(host-call 'host :close '(r0) '(r0))
+	(host-os-call 'host :close '(r0) '(r0))
 	(abi-pop-trashed r13 r14)
 	(exit 'sys_pii :close '(r0))
 	(vp-ret)
@@ -58,7 +58,7 @@
 
 	(entry 'sys_pii :seek '(r0 r1 r2))
 	(abi-push-trashed r1 r2 r13 r14)
-	(host-call 'host :seek '(r0 r1 r2) '(r0))
+	(host-os-call 'host :seek '(r0 r1 r2) '(r0))
 	(abi-pop-trashed r1 r2 r13 r14)
 	(exit 'sys_pii :seek '(r0))
 	(vp-ret)
@@ -75,7 +75,7 @@
 
 	(entry 'sys_pii :remove '(r0))
 	(abi-push-trashed r13 r14)
-	(host-call 'host :remove '(r0) '(r0))
+	(host-os-call 'host :remove '(r0) '(r0))
 	(abi-pop-trashed r13 r14)
 	(exit 'sys_pii :remove '(r0))
 	(vp-ret)
@@ -93,7 +93,7 @@
 
 	(entry 'sys_pii :open_shared '(r0 r1))
 	(abi-push-trashed r1 r13 r14)
-	(host-call 'host :open_shared '(r0 r1) '(r0))
+	(host-os-call 'host :open_shared '(r0 r1) '(r0))
 	(abi-pop-trashed r1 r13 r14)
 	(exit 'sys_pii :open_shared '(r0))
 	(vp-ret)
@@ -111,7 +111,7 @@
 
 	(entry 'sys_pii :close_shared '(r0 r1))
 	(abi-push-trashed r1 r13 r14)
-	(host-call 'host :close_shared '(r0 r1) '(r0))
+	(host-os-call 'host :close_shared '(r0 r1) '(r0))
 	(abi-pop-trashed r1 r13 r14)
 	(exit 'sys_pii :close_shared '(r0))
 	(vp-ret)
@@ -130,7 +130,7 @@
 
 	(entry 'sys_pii :dirlist '(r0 r1 r2))
 	(abi-push-trashed r1 r2 r13 r14)
-	(host-call 'host :dirlist '(r0 r1 r2) '(r0))
+	(host-os-call 'host :dirlist '(r0 r1 r2) '(r0))
 	(abi-pop-trashed r1 r2 r13 r14)
 	(exit 'sys_pii :dirlist '(r0))
 	(vp-ret)
@@ -185,7 +185,7 @@
 	(entry 'sys_pii :write_char '(r0 r1))
 	(abi-push-trashed r1 r13 r14)
 	(vp-push r1)
-	(host-call 'host :write '(r0 rsp 1) '(r0))
+	(host-os-call 'host :write '(r0 rsp 1) '(r0))
 	(vp-free ptr_size)
 	(abi-pop-trashed r1 r13 r14)
 	(exit 'sys_pii :write_char '(r0))
@@ -205,7 +205,7 @@
 
 	(entry 'sys_pii :write '(r0 r1 r2))
 	(abi-push-trashed r1 r2 r13 r14)
-	(host-call 'host :write '(r0 r1 r2) '(r0))
+	(host-os-call 'host :write '(r0 r1 r2) '(r0))
 	(abi-pop-trashed r1 r2 r13 r14)
 	(exit 'sys_pii :write '(r0))
 	(vp-ret)
@@ -225,7 +225,7 @@
 	(abi-push-trashed r1 r3 r13 r14)
 	(vp-cpy-rr r0 r3)
 	(call 'sys_str :length '(r1) '(r0 r1))
-	(host-call 'host :write '(r3 r0 r1) '(r0))
+	(host-os-call 'host :write '(r3 r0 r1) '(r0))
 	(abi-pop-trashed r1 r3 r13 r14)
 	(exit 'sys_pii :write_str '(r0))
 	(vp-ret)
@@ -239,7 +239,7 @@
 	;r0
 
 	(abi-push-trashed r13 r14)
-	(host-call 'host :gettime nil '(r0))
+	(host-os-call 'host :gettime nil '(r0))
 	(abi-pop-trashed r13 r14)
 	(exit 'sys_pii :time '(r0))
 	(vp-ret)
@@ -255,7 +255,7 @@
 
 	(entry 'sys_pii :rand '(r0 r1))
 	(abi-push-trashed r1 r13 r14)
-	(host-call 'host :rand '(r0 r1) '(r0))
+	(host-os-call 'host :rand '(r0 r1) '(r0))
 	(abi-pop-trashed r1 r13 r14)
 	(exit 'sys_pii :rand '(r0))
 	(vp-ret)
@@ -274,7 +274,7 @@
 
 	(entry 'sys_pii :mmap '(r0 r1 r2))
 	(abi-push-trashed r1 r2 r13 r14)
-	(host-call 'host :mmap '(r0 r1 r2) '(r0))
+	(host-os-call 'host :mmap '(r0 r1 r2) '(r0))
 	(abi-pop-trashed r1 r2 r13 r14)
 	(exit 'sys_pii :mmap '(r0))
 	(vp-ret)
@@ -293,7 +293,7 @@
 
 	(entry 'sys_pii :munmap '(r0 r1 r2))
 	(abi-push-trashed r1 r2 r13 r14)
-	(host-call 'host :munmap '(r0 r1 r2) '(r0))
+	(host-os-call 'host :munmap '(r0 r1 r2) '(r0))
 	(abi-pop-trashed r1 r2 r13 r14)
 	(exit 'sys_pii :munmap '(r0))
 	(vp-ret)
@@ -312,7 +312,7 @@
 
 	(entry 'sys_pii :mprotect '(r0 r1 r2))
 	(abi-push-trashed r1 r2 r13 r14)
-	(host-call 'host :mprotect '(r0 r1 r2) '(r0))
+	(host-os-call 'host :mprotect '(r0 r1 r2) '(r0))
 	(abi-pop-trashed r1 r2 r13 r14)
 	(exit 'sys_pii :mprotect '(r0))
 	(vp-ret)
@@ -330,7 +330,7 @@
 
 	(entry 'sys_pii :clear_icache '(r0 r1))
 	(abi-push-trashed r1 r13 r14)
-	(host-call 'host :clear_icache '(r0 r1) '(r0))
+	(host-os-call 'host :clear_icache '(r0 r1) '(r0))
 	(abi-pop-trashed r1 r13 r14)
 	(exit 'sys_pii :clear_icache '(r0))
 	(vp-ret)
@@ -349,7 +349,7 @@
 
 	(entry 'sys_pii :read '(r0 r1 r2))
 	(abi-push-trashed r1 r2 r13 r14)
-	(host-call 'host :read '(r0 r1 r2) '(r0))
+	(host-os-call 'host :read '(r0 r1 r2) '(r0))
 	(abi-pop-trashed r1 r2 r13 r14)
 	(exit 'sys_pii :read '(r0))
 	(vp-ret)
@@ -368,7 +368,7 @@
 	(abi-push-trashed r13 r14)
 	(vp-xor-rr r1 r1)
 	(vp-push r1)
-	(host-call 'host :read '(r0 rsp 1))
+	(host-os-call 'host :read '(r0 rsp 1))
 	(vp-pop r0)
 	(abi-pop-trashed r13 r14)
 	(exit 'sys_pii :read_char '(r0))
@@ -386,7 +386,7 @@
 
 	(entry 'sys_pii :unlink '(r0))
 	(abi-push-trashed r13 r14)
-	(host-call 'host :unlink '(r0) '(r0))
+	(host-os-call 'host :unlink '(r0) '(r0))
 	(abi-pop-trashed r13 r14)
 	(exit 'sys_pii :unlink '(r0))
 	(vp-ret)
@@ -404,7 +404,7 @@
 
 	(entry 'sys_pii :stat '(r0 r1))
 	(abi-push-trashed r1 r13 r14)
-	(host-call 'host :stat '(r0 r1) '(r0))
+	(host-os-call 'host :stat '(r0 r1) '(r0))
 	(abi-pop-trashed r1 r13 r14)
 	(exit 'sys_pii :stat '(r0))
 	(vp-ret)

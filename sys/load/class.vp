@@ -21,10 +21,11 @@
 	;save inputs
 	(tk-save-state)
 	(vp-push (abi-arg 0))
+	(vp-push (abi-arg 2))
 	(vp-cpy-rr (abi-arg 1) r14)
 
 	;allocate relloc/stat/name buffer
-	(host-call-table 'host :mmap r14 '(ld_reloc_buf_size -1 mmap_data) '(r0))
+	(abi-call-table 'host :mmap r14 '(ld_reloc_buf_size -1 mmap_data) '(r0))
 
 	;get loader statics and bind function !
 	(vp-lea-p 'fn_start r5)
@@ -37,8 +38,10 @@
 	(assign '((r4 fn_header_entry)) '(r1))
 	(vp-add-rr r1 r4)
 
-	;save host function table
-	(assign '(r14) '((r5 ld_statics_host_funcs)))
+	;save host function tables
+	(vp-pop r13)
+	(assign '(r13) '((r5 ld_statics_host_gui_funcs)))
+	(assign '(r14) '((r5 ld_statics_host_os_funcs)))
 
 	;init reloc buffer address etc
 	(assign '(r0 r0) '((r5 ld_statics_reloc_stack) (r5 ld_statics_reloc_buffer)))
@@ -73,7 +76,7 @@
 			(vp-call-r r4)
 			(vpif '(r0 = 0))
 				;no such function
-				(host-call-table 'host :write r14 `(2 ($ bind_error) (- ,(label-sym 'bind_error_end) ,(label-sym 'bind_error))))
+				(abi-call-table 'host :write r14 `(2 ($ bind_error) (- ,(label-sym 'bind_error_end) ,(label-sym 'bind_error))))
 				(vp-cpy-ir rsp (* ptr_size 3) r0)
 				(vp-cpy-ir r0 0 r1)
 				(vp-add-rr r0 r1)
@@ -84,9 +87,9 @@
 				(loop-until '(r0 = 0))
 				(vp-sub-rr r1 r2)
 				(vp-sub-cr 1 r2)
-				(host-call-table 'host :write r14 '(2 r1 r2))
-				(host-call-table 'host :write r14 '(2 ($ bind_error_end) 1))
-				(host-call-table 'host :exit r14 '(1))
+				(abi-call-table 'host :write r14 '(2 r1 r2))
+				(abi-call-table 'host :write r14 '(2 ($ bind_error_end) 1))
+				(abi-call-table 'host :exit r14 '(1))
 			(endif)
 			(vp-cpy-rr r0 r1)
 			(vp-pop r0 r2 r3 r4)

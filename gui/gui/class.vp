@@ -89,11 +89,11 @@
 	;create screen window ?
 	(vpifnot {user->local_statics->gui_statics_window})
 		;init sdl2
-		(host-call 'host :sdl_set_main_ready)
-		(host-call 'host :sdl_init {SDL_INIT_VIDEO | SDL_INIT_EVENTS})
+		(host-gui-call 'host_gui :sdl_set_main_ready)
+		(host-gui-call 'host_gui :sdl_init {SDL_INIT_VIDEO | SDL_INIT_EVENTS})
 
 		;create window
-		(host-call 'host :sdl_create_window
+		(host-gui-call 'host_gui :sdl_create_window
 			{$title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
 				user->local_statics->gui_statics_screen->view_w,
 				user->local_statics->gui_statics_screen->view_h,
@@ -103,21 +103,21 @@
 		;create renderer and back buffer
 		(cond
 			((> num_old_regions 0)
-				(host-call 'host :sdl_create_renderer
+				(host-gui-call 'host_gui :sdl_create_renderer
 					{user->local_statics->gui_statics_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC}
 					{user->local_statics->gui_statics_renderer}))
 			(t
-				(host-call 'host :sdl_create_renderer
+				(host-gui-call 'host_gui :sdl_create_renderer
 					{user->local_statics->gui_statics_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_TARGETTEXTURE}
 					{user->local_statics->gui_statics_renderer})
-				(host-call 'host :sdl_create_texture
+				(host-gui-call 'host_gui :sdl_create_texture
 					{user->local_statics->gui_statics_renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_TARGET,
 					user->local_statics->gui_statics_screen->view_w,
 					user->local_statics->gui_statics_screen->view_h}
 					{user->local_statics->gui_statics_texture})))
 
 		;set blend mode
-		(host-call 'host :sdl_set_render_draw_blend_mode {user->local_statics->gui_statics_renderer, SDL_BLENDMODE_BLEND})
+		(host-gui-call 'host_gui :sdl_set_render_draw_blend_mode {user->local_statics->gui_statics_renderer, SDL_BLENDMODE_BLEND})
 	(endif)
 
 	;update screen
@@ -128,22 +128,22 @@
 				(call 'gui :update {user->local_statics->gui_statics_screen}))
 			(t
 				;render to back buffer texture
-				(host-call 'host :sdl_set_render_target {user->local_statics->gui_statics_renderer, user->local_statics->gui_statics_texture})
+				(host-gui-call 'host_gui :sdl_set_render_target {user->local_statics->gui_statics_renderer, user->local_statics->gui_statics_texture})
 				(call 'gui :update {user->local_statics->gui_statics_screen})
-				(host-call 'host :sdl_set_render_target {user->local_statics->gui_statics_renderer, 0})
-				(host-call 'host :sdl_render_copy {user->local_statics->gui_statics_renderer, user->local_statics->gui_statics_texture, 0, 0})))
+				(host-gui-call 'host_gui :sdl_set_render_target {user->local_statics->gui_statics_renderer, 0})
+				(host-gui-call 'host_gui :sdl_render_copy {user->local_statics->gui_statics_renderer, user->local_statics->gui_statics_texture, 0, 0})))
 
 		;swap, clear temps and dirty flag
-		(host-call 'host :sdl_render_present {user->local_statics->gui_statics_renderer})
+		(host-gui-call 'host_gui :sdl_render_present {user->local_statics->gui_statics_renderer})
 		(call 'list :clear {user->local_statics->gui_statics_temps})
 		(assign {0} {user->local_statics->gui_statics_dirty_flag})
 	(endif)
 
 	;any sdl events ?
 	(loop-start)
-		(host-call 'host :sdl_poll_event {0} {flag})
+		(host-gui-call 'host_gui :sdl_poll_event {0} {flag})
 		(breakifnot {flag})
-		(host-call 'host :sdl_poll_event {&event})
+		(host-gui-call 'host_gui :sdl_poll_event {&event})
 		(switch)
 		(vpcase {event.sdl_common_event_type = SDL_MOUSEMOTION})
 			;update mouse state
@@ -224,8 +224,8 @@
 			(vpcase {event.sdl_window_event_event = SDL_WINDOWEVENT_SIZE_CHANGED})
 			(when (= num_old_regions 0)
 				;resize back buffer and redraw in full
-				(host-call 'host :sdl_destroy_texture {user->local_statics->gui_statics_texture})
-				(host-call 'host :sdl_create_texture
+				(host-gui-call 'host_gui :sdl_destroy_texture {user->local_statics->gui_statics_texture})
+				(host-gui-call 'host_gui :sdl_create_texture
 					{user->local_statics->gui_statics_renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_TARGET, event.sdl_window_event_data1, event.sdl_window_event_data2}
 					{user->local_statics->gui_statics_texture}))
 
@@ -268,8 +268,8 @@
 
 	;destroy any window
 	(vpif {user->local_statics->gui_statics_window})
-		(host-call 'host :sdl_destroy_window {user->local_statics->gui_statics_window})
-		(host-call 'host :sdl_quit)
+		(host-gui-call 'host_gui :sdl_destroy_window {user->local_statics->gui_statics_window})
+		(host-gui-call 'host_gui :sdl_quit)
 	(endif)
 
 	;free old regions and deinit region heap

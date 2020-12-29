@@ -347,7 +347,7 @@ std::string opcodeDesc[] = {
 	"VMOP_BRK"
 };
 
-int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_funcs)
+int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_os_funcs, int64_t* host_gui_funcs)
 {
 	int64_t regs[16];
 	int16_t* pc;
@@ -359,7 +359,8 @@ int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_funcs)
 	FuncHeader* pHeader = (FuncHeader*)((uint8_t*)data);
 	pc = (int16_t*)((uint8_t*)data + pHeader->fn_header_entry);
 	regs[0] = (uint64_t)argv;
-	regs[1] = (uint64_t)host_funcs;
+	regs[1] = (uint64_t)host_os_funcs;
+	regs[2] = (uint64_t)host_gui_funcs;
 	regs[15] = (uint64_t)stack;
 
 	for(;;)
