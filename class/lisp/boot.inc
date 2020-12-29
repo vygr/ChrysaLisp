@@ -887,7 +887,7 @@
 	(if s
 		`(progn
 			(defq ,class (env -1))
-			(defun ,predn (_o) (find ,kwn (. _o :type_of)))
+			(defun ,predn (_o) (when (env? _o) (find ,kwn (. _o :type_of))))
 			(defun ,n ,a
 				(def (defq this ,s) :vtable ,class)
 				(unless (def? :vtable ,class)
@@ -900,7 +900,7 @@
 				~inits this))
 		`(progn
 			(defq ,class (env -1))
-			(defun ,predn (_o) (find ,kwn (. _o :type_of)))
+			(defun ,predn (_o) (when (env? _o) (find ,kwn (. _o :type_of))))
 			(defun ,n ,a
 				(def (defq this (env -1)) :vtable ,class)
 				(unless (def? :vtable ,class)
