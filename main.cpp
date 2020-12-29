@@ -38,6 +38,10 @@
 	#define MAP_JIT 0
 #endif
 
+#define VP64_STACK_SIZE 8192
+int vp64(uint8_t* data, int64_t *stack, int64_t *argv, int64_t *host_os_funcs, int64_t *host_gui_funcs);
+bool run_emu = false;
+
 enum
 {
 	file_open_read,
@@ -487,16 +491,22 @@ void *mymmap(size_t len, long long fd, int mode)
 #ifdef _WIN64
 	switch (mode)
 	{
-	case mmap_data: return VirtualAlloc(0, len, MEM_COMMIT, PAGE_READWRITE);
-	case mmap_exec: return VirtualAlloc(0, len, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
-	case mmap_shared: return MapViewOfFile((HANDLE)fd, FILE_MAP_ALL_ACCESS, 0, 0, len);
+	case mmap_exec:
+		if (!run_emu) return VirtualAlloc(0, len, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+	case mmap_data:
+		return VirtualAlloc(0, len, MEM_COMMIT, PAGE_READWRITE);
+	case mmap_shared:
+		return MapViewOfFile((HANDLE)fd, FILE_MAP_ALL_ACCESS, 0, 0, len);
 	}
 #else
 	switch (mode)
 	{
-	case mmap_data: return mmap(0, len, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANON, (int)fd, 0);
-	case mmap_exec: return mmap(0, len, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE | MAP_ANON | MAP_JIT, (int)fd, 0);
-	case mmap_shared: return mmap(0, len, PROT_READ | PROT_WRITE, MAP_SHARED, (int)fd, 0);
+	case mmap_exec:
+		if (!run_emu) return mmap(0, len, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE | MAP_ANON | MAP_JIT, (int)fd, 0);
+	case mmap_data:
+		return mmap(0, len, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANON, (int)fd, 0);
+	case mmap_shared:
+		return mmap(0, len, PROT_READ | PROT_WRITE, MAP_SHARED, (int)fd, 0);
 	}
 #endif
 	return (void*)-1;
@@ -607,16 +617,12 @@ static void (*host_gui_funcs[]) = {
 };
 #endif
 
-#define VP64_STACK_SIZE 8192
-int vp64(uint8_t* data, int64_t *stack, int64_t *argv, int64_t *host_os_funcs, int64_t *host_gui_funcs);
-
 int main(int argc, char *argv[])
 {
 	int ret_val = 0;
 	if (argc > 1)
 	{
 		//check for -e option
-		bool run_emu = false;
 		for (int i = 0; i < argc; ++i)
 		{
 			if (!strcmp(argv[i], "-e"))
