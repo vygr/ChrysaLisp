@@ -8,9 +8,10 @@ CPU := aarch64
 ABI := ARM64
 endif
 
-all:	.hostenv gui tui
-gui:	.hostenv obj/$(CPU)/$(ABI)/$(OS)/main_gui
-tui:	.hostenv obj/$(CPU)/$(ABI)/$(OS)/main_tui
+all:		.hostenv gui tui
+gui:		.hostenv obj/$(CPU)/$(ABI)/$(OS)/main_gui
+tui:		.hostenv obj/$(CPU)/$(ABI)/$(OS)/main_tui
+install:	.hostenv inst
 
 .hostenv:
 ifeq ($(OS), Windows)
@@ -42,6 +43,18 @@ snapshot:
 		`find obj -name "boot_image"` \
 		`find obj -name "main_gui.exe"` \
 		`find obj -name "main_tui.exe"`
+
+inst:
+	@./stop.sh
+	@./obj/$(CPU)/$(ABI)/$(OS)/main_tui -e -l 000-001 -l 008-000 obj/vp64/VP64/sys/boot_image &
+	@./obj/$(CPU)/$(ABI)/$(OS)/main_tui -e -l 001-002 -l 000-001 obj/vp64/VP64/sys/boot_image &
+	@./obj/$(CPU)/$(ABI)/$(OS)/main_tui -e -l 002-003 -l 001-002 obj/vp64/VP64/sys/boot_image &
+	@./obj/$(CPU)/$(ABI)/$(OS)/main_tui -e -l 003-004 -l 002-003 obj/vp64/VP64/sys/boot_image &
+	@./obj/$(CPU)/$(ABI)/$(OS)/main_tui -e -l 004-005 -l 003-004 obj/vp64/VP64/sys/boot_image &
+	@./obj/$(CPU)/$(ABI)/$(OS)/main_tui -e -l 005-006 -l 004-004 obj/vp64/VP64/sys/boot_image &
+	@./obj/$(CPU)/$(ABI)/$(OS)/main_tui -e -l 006-007 -l 005-006 obj/vp64/VP64/sys/boot_image &
+	@./obj/$(CPU)/$(ABI)/$(OS)/main_tui -e -l 007-008 -l 006-007 obj/vp64/VP64/sys/boot_image &
+	@./obj/$(CPU)/$(ABI)/$(OS)/main_tui -e -l 008-000 -l 007-008 obj/vp64/VP64/sys/boot_image -run apps/terminal/install.lisp
 
 obj/$(CPU)/$(ABI)/$(OS)/main_gui:	obj/$(CPU)/$(ABI)/$(OS)/main_gui.o obj/$(CPU)/$(ABI)/$(OS)/vp64.o
 ifeq ($(OS),Darwin)
