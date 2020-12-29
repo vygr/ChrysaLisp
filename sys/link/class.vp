@@ -65,41 +65,47 @@
 	;write messages through the shared buffer
 	(loop-start)
 		;do we have a free out slot
-		(loop-while {tx_msg->lk_msg_status = lk_chan_status_ready})
+		(loop-while {tx_msg->lk_msg_status = lk_chan_status_ready} 'sleep)
+			;write my task count and cpu id
+			(assign {node_id.node_id_node1, node_id.node_id_node2, task_statics->tk_statics_task_count}
+				{tx_msg->lk_msg_peer_node_id.node_id_node1, tx_msg->lk_msg_peer_node_id.node_id_node2, tx_msg->lk_msg_task_count})
+
 			;see if any mail for this link
 			(call 'sys_mail :ready
 				{lk_node.lk_node_peer_node_id.node_id_node1,
 				lk_node.lk_node_peer_node_id.node_id_node2,
 				key} {msg})
-			(breakifnot {msg})
+			(vpif {msg})
+				;copy message data
+				(call 'sys_mem :copy {msg + ln_node_size, &tx_msg->lk_msg_stamp + ln_node_size, msg_stamp_size - ln_node_size})
+				(call 'sys_mem :copy {msg->msg_frag_data, &tx_msg->lk_msg_data, (msg->msg_frag_length + long_size - 1) & -long_size})
+				;busy status
+				(assign {lk_chan_status_busy} {tx_msg->lk_msg_status})
+				;free message
+				(call 'sys_mail :free {msg})
 
-			;write my task count and cpu id
-			(assign {node_id.node_id_node1, node_id.node_id_node2, task_statics->tk_statics_task_count}
-				{tx_msg->lk_msg_peer_node_id.node_id_node1, tx_msg->lk_msg_peer_node_id.node_id_node2, tx_msg->lk_msg_task_count})
+				;move on to next msg chan
+				(assign {&tx_msg->lk_msg_size} {tx_msg})
+				(vpif {tx_msg = &tx->lk_chan_size})
+					(assign {&tx->lk_chan_msg0} {tx_msg})
+				(endif)
+			(else)
+				;just a ping
+				(assign {-1} {tx_msg->lk_msg_stamp.msg_frag_length})
+				;busy status
+				(assign {lk_chan_status_busy} {tx_msg->lk_msg_status})
 
-			;copy message data
-			(call 'sys_mem :copy {msg + ln_node_size, &tx_msg->lk_msg_stamp + ln_node_size, msg_stamp_size - ln_node_size})
-			(call 'sys_mem :copy {msg->msg_frag_data, &tx_msg->lk_msg_data, (msg->msg_frag_length + long_size - 1) & -long_size})
-
-			;busy status
-			(assign {lk_chan_status_busy} {tx_msg->lk_msg_status})
-
-			;free message
-			(call 'sys_mail :free {msg})
-
-			;move on to next msg chan
-			(assign {&tx_msg->lk_msg_size} {tx_msg})
-			(vpif {tx_msg = &tx->lk_chan_size})
-				(assign {&tx->lk_chan_msg0} {tx_msg})
+				;move on to next msg chan
+				(assign {&tx_msg->lk_msg_size} {tx_msg})
+				(vpif {tx_msg = &tx->lk_chan_size})
+					(assign {&tx->lk_chan_msg0} {tx_msg})
+				(endif)
+				(break 'sleep)
 			(endif)
 
 			;let other links run
 			(call 'sys_task :sleep '(0))
 		(loop-end)
-
-		;write my task count and cpu id
-		(assign {node_id.node_id_node1, node_id.node_id_node2, task_statics->tk_statics_task_count}
-			{tx_msg->lk_msg_peer_node_id.node_id_node1, tx_msg->lk_msg_peer_node_id.node_id_node2, tx_msg->lk_msg_task_count})
 
 		;small sleep if nothing to do
 		(call 'sys_task :sleep '(1000))
@@ -162,23 +168,27 @@
 			(assign {rx_msg->lk_msg_peer_node_id.node_id_node1, rx_msg->lk_msg_peer_node_id.node_id_node2, rx_msg->lk_msg_task_count}
 				{lk_node->lk_node_peer_node_id.node_id_node1, lk_node->lk_node_peer_node_id.node_id_node2, lk_node->lk_node_task_count})
 
-			;is this msg part of a parcel for this node
-			(vpif {rx_msg->lk_msg_stamp.msg_total_length
-				&& rx_msg->lk_msg_stamp.msg_dest.net_id_node_id.node_id_node1 = node_id.node_id_node1
-				&& rx_msg->lk_msg_stamp.msg_dest.net_id_node_id.node_id_node2 = node_id.node_id_node2})
-				;copy direct from link buffer to parcel !
-				(call 'sys_mail :in {rx_msg})
+			;is this just a ping ?
+			(vpif {rx_msg->lk_msg_stamp.msg_frag_length /= 0xffffffff})
+				;is this msg part of a parcel for this node
+				(vpif {rx_msg->lk_msg_stamp.msg_total_length
+					&& rx_msg->lk_msg_stamp.msg_dest.net_id_node_id.node_id_node1 = node_id.node_id_node1
+					&& rx_msg->lk_msg_stamp.msg_dest.net_id_node_id.node_id_node2 = node_id.node_id_node2})
+					;copy direct from link buffer to parcel !
+					(call 'sys_mail :in {rx_msg})
+				(else)
+					;allocate msg, copy over data
+					(call 'sys_mail :alloc {rx_msg->lk_msg_stamp.msg_frag_length} {msg, data})
+					(call 'sys_mem :copy {&rx_msg->lk_msg_stamp + ln_node_size, msg + ln_node_size, msg_stamp_size - ln_node_size})
+					(call 'sys_mem :copy {&rx_msg->lk_msg_data, data, rx_msg->lk_msg_stamp.msg_frag_length + long_size - 1) & -long_size})
+					;clear status
+					(assign {lk_chan_status_ready} {rx_msg->lk_msg_status})
+					;send onwards
+					(call 'sys_mail :send {msg})
+				(endif)
 			(else)
-				;allocate msg, copy over data
-				(call 'sys_mail :alloc {rx_msg->lk_msg_stamp.msg_frag_length} {msg, data})
-				(call 'sys_mem :copy {&rx_msg->lk_msg_stamp + ln_node_size, msg + ln_node_size, msg_stamp_size - ln_node_size})
-				(call 'sys_mem :copy {&rx_msg->lk_msg_data, data, rx_msg->lk_msg_stamp.msg_frag_length + long_size - 1) & -long_size})
-
 				;clear status
 				(assign {lk_chan_status_ready} {rx_msg->lk_msg_status})
-
-				;send onwards
-				(call 'sys_mail :send {msg})
 			(endif)
 
 			;move on to next msg chan
@@ -190,10 +200,6 @@
 			;let other links run
 			(call 'sys_task :sleep '(0))
 		(loop-end)
-
-		;read neibour task count and peer id
-		(assign {rx_msg->lk_msg_peer_node_id.node_id_node1, rx_msg->lk_msg_peer_node_id.node_id_node2, rx_msg->lk_msg_task_count}
-			{lk_node->lk_node_peer_node_id.node_id_node1, lk_node->lk_node_peer_node_id.node_id_node2, lk_node->lk_node_task_count})
 
 		;small sleep as nothing to do
 		(call 'sys_task :sleep '(1000))
