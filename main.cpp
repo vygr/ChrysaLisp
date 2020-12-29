@@ -576,8 +576,8 @@ static void (*host_os_funcs[]) = {
 (void*)mysleep,
 };
 
-static void (*host_gui_funcs[]) = {
 #ifdef _GUI
+static void (*host_gui_funcs[]) = {
 	(void*)SDL_SetMainReady,
 	(void*)SDL_Init,
 	(void*)SDL_GetError,
@@ -604,8 +604,8 @@ static void (*host_gui_funcs[]) = {
 	(void*)SDL_CreateTexture,
 	(void*)SDL_SetRenderTarget,
 	(void*)SDL_RenderClear,
-#endif
 };
+#endif
 
 #define VP64_STACK_SIZE 8192
 int vp64(uint8_t* data, int64_t *stack, int64_t *argv, int64_t *host_os_funcs, int64_t *host_gui_funcs);
