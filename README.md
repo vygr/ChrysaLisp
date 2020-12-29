@@ -110,10 +110,9 @@ you want, try launching the GUI on more than CPU 0, look in *funcs.sh* at the
 `boot_cpu_gui` function ! :)
 
 The `-l` command line option creates a link, currently up to 1000 CPU's are
-allowed but that is easy to adjust. The lower numbered CPU always comes first !
-The shared memory link files are created in the tmp folder */tmp*, so for
-example */tmp/000-001* would be the link file for the link between CPU 000 and
-001.
+allowed but that is easy to adjust. The shared memory link files are created in
+the tmp folder */tmp*, so for example */tmp/000-001* would be the link file for
+the link between CPU 000 and 001.
 
 An example network viewed with ps looks like this for a 4x4 mesh network:
 
@@ -160,10 +159,27 @@ following is for OSX and Linux systems. Windows has a pre-built main.exe
 provided, or you can configure Visual Studio to compile things yourself if you
 wish.
 
+### Installing
+
+The first time you download ChrysaLisp you will only have the vp64 emulator
+boot image. You must create the native boot images the first time round. This
+is a little slower than subsequent boots and system compiles but allows us to
+keep the snapshot.zip file as small as possible.
+
+```
+make install
+```
+
+Or on Windows
+
+```
+install.bat
+```
+
 ### Make
 
 ```
-make -j
+make
 ```
 
 ### Run

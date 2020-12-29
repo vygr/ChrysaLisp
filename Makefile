@@ -11,7 +11,7 @@ endif
 all:		.hostenv gui tui
 gui:		.hostenv obj/$(CPU)/$(ABI)/$(OS)/main_gui
 tui:		.hostenv obj/$(CPU)/$(ABI)/$(OS)/main_tui
-install:	.hostenv gui tui inst
+install:	clean .hostenv gui tui inst
 
 .hostenv:
 ifeq ($(OS), Windows)
@@ -40,7 +40,7 @@ snapshot:
 		obj/x86_64/AMD64/Linux \
 		obj/aarch64/ARM64/Linux \
 		obj/aarch64/ARM64/Darwin \
-		`find obj -name "boot_image"` \
+		obj/vp64/VP64/sys/boot_image \
 		`find obj -name "main_gui.exe"` \
 		`find obj -name "main_tui.exe"`
 
