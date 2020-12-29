@@ -27,16 +27,18 @@
 
 (defclass democ (client server) (client-ipc client server)
   (defmethod :shutdown (this)
-    ; (. client-ipc :shutdown) -> nil
+    ; (. democ :shutdown) -> nil
     ; This is for demo only
     (bind '(client cmd msg)
       (.
         (. this :send ipc_event_shutdown (list))
         :recieve))
-    (print ":shutdown response cmd " cmd " data " msg))
+    (print ":shutdown response cmd " cmd " data " msg)
+    this)
 
   (defmethod :ping (this)
-    ; (. client-ipc :ping) -> list
+    ; (. democ :ping) -> list
+    (print "Client ping sending")
     (bind '(client cmd msg)
       (.
         (. this :send ipc_event_ping)
@@ -48,9 +50,10 @@
 ; For client side REPL Testing start Terminal with at least 2 CPU
 ; ./run_tui.sh 2
 
+
 ; To test co-resident (optimized) client/server
 ; >lisp lib/ipc/democ.inc
-; (defq cipc (democ (task-mailbox) (ipc-test (local-node))))
+; (defq cipc (democ (mail-alloc-mbox) (ipc-test (local-node))))
 ; Threaded messages - Double entries are to see effect
 ; of registering something already registered, etc.
 ; Shutdown is for demo to tell the server to stop
@@ -60,6 +63,6 @@
 
 ; To test different CPU (serializing data) client/server
 ; >lisp lib/ipc/_ipc.inc
-; (defq cipc (democ (task-mailbox) (ipc-test (remote-node))))
+; (defq cipc (democ (mail-alloc-mbox) (ipc-test (remote-node))))
 ; Threaded messages
 ; (.-> cipc :ping :register :register :deregister :deregister :shutdown)

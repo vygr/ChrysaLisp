@@ -39,4 +39,3 @@
     this)
   )
 
-(class-pred client-ipc)

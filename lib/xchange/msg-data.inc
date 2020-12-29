@@ -4,10 +4,9 @@
 ; ast conversions
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(import "lib/ast/data_ast.inc")
 (import "lib/xchange/serialize.lisp")
 (import "lib/xchange/deserialize.lisp")
-(import "lib/ast/ast.inc")
-
 
 (defun data-xser (obj &optional sstrm)
   ; (data-xser object [stream]) -> stream | exception

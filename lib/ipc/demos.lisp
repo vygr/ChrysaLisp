@@ -6,17 +6,18 @@
 (import "lib/ipc/server_ipc.inc")
 
 (defclass demos (server) (server-ipc server)
+
    (defmethod :client_ping (this client)
     (defq
-      reg (. this :client_for client))
+      reg (gets (. this :get_registry) client))
     (when (nil? reg)
-      (setq reg (ipc (get :server this) client)))
+      (setq reg (ipc (. this :service_mb) client)))
     ; (throw "server :ping " (ipc? reg))
     (. reg :send ipc_event_success "OK"))
 
-  (defmethod :shutdown (this client)
+  (defmethod :server_shutdown (this client)
     (defq
-      reg (. this :client_for client))
+      reg (gets (. this :get_registry) client))
     (when (nil? reg)
       (setq reg (ipc (get :server this) client)))
     (. reg :send ipc_event_success "OK"))
@@ -25,10 +26,10 @@
 (when (= (length (mail-enquire "IPC")) 0)
   (defq
     active    t
-    entry     (mail-declare (task-mailbox) "IPC" "IPC TEST")
-    sipc      (demos (task-mailbox)))
+    sipc      (demos (task-mailbox))
+    entry     (mail-declare (task-mailbox) "IPC" "IPC TEST"))
     (while active
-      (bind '(client cmd msg) (. sipc :read))
+      (bind '(client cmd msg) (. sipc :read_mail))
       (cond
         ; Ping event
         ((= cmd ipc_event_ping)
@@ -36,7 +37,7 @@
         ; Shutdown event
         ((= cmd ipc_event_shutdown)
           (setq active nil)
-          (. sipc :shutdown client))
+          (. sipc :server_shutdown client))
         ; Register event
         ((= cmd ipc_event_register)
          (. sipc :register_client client))

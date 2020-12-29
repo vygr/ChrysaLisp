@@ -24,8 +24,8 @@
   ; (mbox-to-node-id mbox) -> binary string
   (slice 8 -1 mbox))
 
-(defun node=? (mboxa mboxb)
-  ; (node=? mailbox mailbox) -> t | nil
+(defun node= (mboxa mboxb)
+  ; (node= mailbox mailbox) -> t | nil
   (eql (mbox-node-id mboxa) (mbox-node-id mboxb)))
 
 (defun local-node ()

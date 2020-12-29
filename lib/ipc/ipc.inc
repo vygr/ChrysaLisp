@@ -10,7 +10,6 @@
 (import "sys/lisp.inc")
 (import "class/lisp.inc")
 (import "lib/ipc/ipc_defs.inc")
-(import "lib/class/reflect.inc")
 (import "lib/xchange/msg-data.inc")
 
 (defun _default_msg_handler (&rest data)
@@ -28,7 +27,7 @@
   (def this
        :source      source
        :sink        sink
-       :optimized   (node=? source sink))
+       :optimized   (node= source sink))
 
   (defmethod :get_source (this)
     ; (. ipc :get_source) -> mailbox
@@ -44,37 +43,30 @@
 
   (defmethod :send (this cmd &optional msg)
     ; (. ipc :send cmd [message-block]) -> encoded message
+    (defq em (xmap-kv
+      :command cmd
+      :client (to-service-id (. this :get_source))
+      :data   msg))
     (mail-send
       (. this :get_sink)
       (cond
         ((. this :optimized?)
-          (cat
-            (list (. this :get_source) cmd)
-             (cond
-              ((list? msg) msg)
-              ((nil? msg) (list))
-              (t (list msg)))))
-      (t
-        (str
-          (data-xser
-            (xmap-kv
-              :command  cmd
-              :client   (to-service-id (. this :get_source))
-              :data     msg))))))
+          (data-xlist em))
+        (t
+          (data-xliststr em))))
     this)
 
   (defmethod :recieve (this &optional handler_fn)
     ; (. ipc :receive [receipt handler]) -> result
     (setd handler_fn _default_msg_handler)
-    (defq fmsg (mail-read (. this :get_source)))
-    (cond
-      ((and (. this :optimized?) (list? fmsg))
-        (handler_fn (first fmsg) (second fmsg) (last fmsg)))
-      ((and (not (. this :optimized?)) (str? fmsg))
-        (defq mmap (data-xdeser (write (string-stream (cat "")) fmsg)))
-        (handler_fn (gets mmap :client) (gets mmap :command) (gets mmap :data)))
-      (t
-        (throw "Receive type undefined " (type-of fmsg)))))
+    (defq
+      fmsg (mail-read (. this :get_source)))
+    (defq
+      res  (if (list? fmsg)
+                (first (xlist-data fmsg))
+                (first (xliststr-data fmsg))))
+    (handler_fn
+      (gets res :client)
+      (gets res :command)
+      (gets res :data)))
   )
-
-(class-pred ipc)
