@@ -50,7 +50,8 @@
     (each
       (lambda (_c)
         (. _c :show_tree (+ indent 2)))
-      (values (get :children_nodes this)))))
+      (values (get :children_nodes this))))
+  )
 
 ; Scalar data
 ; AST Type that captures
@@ -72,7 +73,8 @@
 
   (defmethod :show_tree (this &optional indent)
     (defq ind (pad "" indent))
-    (print ind "-> " (. this :type) " " (get :clz this) " . "(get :value this))))
+    (print ind "-> " (. this :type) " " (get :clz this) " . "(get :value this)))
+  )
 
 ; Base collection data type
 (defclass ast-collection () (ast))
@@ -105,7 +107,8 @@
         (array))))
 
   ; collection-sequence type constructor
-  (each (#(ast-for this %0)) _))
+  (each (#(ast-for this %0)) _)
+  )
 
 ; Collection structured data
 ; AST type that captures
@@ -135,7 +138,8 @@
 
   ; collection-kv type constructor
   (when (class-inst? _)
-    (each (#(ast-for this %0)) (entries _))))
+    (each (#(ast-for this %0)) (entries _)))
+  )
 
 ; Class data types
 (defclass ast-class (v clz module) (ast)
@@ -163,7 +167,8 @@
       (reduce
         (lambda (e (k v))
           (sets! e k v))
-          (inst-data v) (xmap)))))
+          (inst-data v) (xmap))))
+   )
 
 (defun ast-for (p v)
   ; (ast-for ast data) -> ast

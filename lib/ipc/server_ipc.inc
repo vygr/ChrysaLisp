@@ -19,13 +19,16 @@
     ; (. service-ipc :service-mb) -> mailbox
     (get :server this))
 
+  (defmethod :get_registry (this)
+    (get :registry this))
+
   (defmethod :client_for (this client)
     ; (. server-ipc :client_for client) -> ipc | nil
     ; Returns a registered client ipc
     ; or nil if not registered yet
-    (if (ipc? client)
+    (if (and (env? client) (ipc? client))
       client
-      (gets (get :registry this) client)))
+      (gets (. this :get_registry) client)))
 
   (defmethod :register_client (this client)
     ; (. server-ipc :register_client client) -> any
@@ -38,8 +41,8 @@
     (if reg
       (setq txt "Already Registered")
       (progn
-        (setq reg (ipc (get :server this) client))
-        (sets! (get :registry this) client reg)))
+        (setq reg (ipc (. this :service_mb) client))
+        (sets! (. this :get_registry) client reg)))
     (. reg :send ipc_event_success txt))
 
   (defmethod :deregister_client (this client)
@@ -50,35 +53,31 @@
       reg (. this :client_for client)
       txt "OK")
     (if reg
-      (drop! (get :registry this) (. reg :get_sink))
+      (drop! (. this :get_registry) (. reg :get_sink))
       (setq
         txt "Not Registered"
-        reg (ipc (get :server this) client)))
+        reg (ipc (. this :service_mb) client)))
     (. reg :send ipc_event_success txt))
 
-  (defmethod :read (this)
+  (defmethod :read_mail (this)
     ; (. server-ipc :read) -> triplet
     ; Reads messages from the server
     ; mailbox and prepares for delivery
     (defq
-      msg     (mail-read (get :server this))
-      client  nil
-      command nil
-      data    nil)
+      msg     (mail-read (. this :service_mb))
+      obj     (if (list? msg)
+                (first (xlist-data msg))
+                (first (xliststr-data msg)))
+      client  (to-net-id (gets obj :client)))
     (cond
-      ((list? msg)
-       (setq
-         client   (first msg)
-         command  (second msg)
-         data     (last msg)))
+      ((gets (. this :get_registry) client)
+        (setq client (gets (. this :get_registry) client)))
       (t
-        (defq mmap
-          (data-xdeser (write (string-stream (cat "")) msg)))
-        (setq
-          client  (to-net-id (gets mmap :client))
-          command (gets mmap :command)
-          data    (gets mmap :data))))
-    (list (opt (. this :client_for client) client) command data))
+        nil))
+    (defq
+      res    (list client
+        (gets obj :command)
+        (gets obj :data)))
+    res)
   )
 
-(class-pred server-ipc)
