@@ -11,7 +11,7 @@ endif
 all:		.hostenv gui tui
 gui:		.hostenv obj/$(CPU)/$(ABI)/$(OS)/main_gui
 tui:		.hostenv obj/$(CPU)/$(ABI)/$(OS)/main_tui
-install:	.hostenv inst
+install:	.hostenv gui tui inst
 
 .hostenv:
 ifeq ($(OS), Windows)
