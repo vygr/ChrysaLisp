@@ -436,7 +436,7 @@
 		(gotoif '(r3 /= r4) 'error3))
 		(call 'hmap :find '((rsp local_env) r1) '(r0 r1 r2))
 		(vpif '(r1 /= 0))
-			(call 'hmap :erase '(r0 r1 r2))
+			(call 'list :erase2 '(r2 r1))
 		(endif)
 		(assign '((rsp local_iter_begin) (rsp local_iter_end)) '(r3 r2))
 		(vp-add-cr ptr_size r3)

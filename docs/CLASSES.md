@@ -1962,19 +1962,6 @@ trashes
 r1-r14
 ```
 
-### hmap :erase -> class/hmap/erase
-
-```lisp
-inputs
-r0 = hmap object (ptr)
-r1 = element iterator (pptr)
-r2 = bucket list object (ptr)
-outputs
-r0 = hmap object (ptr)
-trashes
-r1-r14
-```
-
 ### hmap :for_each -> class/hmap/for_each
 
 ```lisp
@@ -2418,19 +2405,6 @@ outputs
 r0 = hset object (ptr)
 r1 = element iterator (pptr)
 r2 = bucket list object (ptr)
-trashes
-r1-r14
-```
-
-### hset :erase -> class/hset/erase
-
-```lisp
-inputs
-r0 = hset object (ptr)
-r1 = element iterator (pptr)
-r2 = bucket list object (ptr)
-outputs
-r0 = hset object (ptr)
 trashes
 r1-r14
 ```
@@ -3138,6 +3112,30 @@ Super Class: array
 ### list :vtable -> class/list/vtable
 
 ### list :create -> class/list/create
+
+### list :erase -> class/list/erase
+
+```lisp
+inputs
+r0 = list object (ptr)
+r1 = element iterator (pptr)
+outputs
+r0 = list object (ptr)
+trashes
+r1-r14
+```
+
+### list :erase2 -> class/list/erase2
+
+```lisp
+inputs
+r0 = list object (ptr)
+r1 = element iterator (pptr)
+outputs
+r0 = list object (ptr)
+trashes
+r1-r14
+```
 
 ### list :type -> class/list/type
 

@@ -5,7 +5,6 @@
 (dec-method :create 'class/hmap/create)
 (dec-method :init 'class/hmap/init)
 (dec-method :find 'class/hmap/find)
-(dec-method :erase 'class/hmap/erase)
 (dec-method :for_each 'class/hmap/for_each)
 (dec-method :copy 'class/hmap/copy :static '(r0 r1) '(r0 r1))
 (dec-method :list 'class/hmap/list :static '(r0) '(r0 r1))

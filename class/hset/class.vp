@@ -101,46 +101,6 @@
 
 (def-func-end)
 
-(def-method 'hset :erase)
-	;inputs
-	;r0 = hset object (ptr)
-	;r1 = element iterator (pptr)
-	;r2 = bucket list object (ptr)
-	;outputs
-	;r0 = hset object (ptr)
-	;trashes
-	;r1-r14
-
-	(def-struct 'local)
-		(ptr 'this 'iter 'bucket)
-	(def-struct-end)
-
-	;save inputs
-	(vp-alloc local_size)
-	(entry 'hset :erase '((rsp local_this) r1 (rsp local_bucket)))
-	(assign '(r1) '((rsp local_iter)))
-
-	;swap last entry for erased entry
-	(call 'obj :deref '((r1 0)))
-	(assign '((rsp local_bucket)) '(r0))
-	(assign '((r0 array_length)) '(r1))
-	(vp-sub-cr 1 r1)
-	(assign '(r1) '((r0 array_length)))
-	(assign '((r0 array_begin)) '(r0))
-	(vp-shl-cr (log2 ptr_size) r1)
-	(vp-add-rr r0 r1)
-	(assign '((rsp local_iter)) '(r0))
-	(vpif '(r1 /= r0))
-		(assign '((r1 0)) '(r1))
-		(assign '(r1) '((r0 0)))
-	(endif)
-
-	(exit 'hset :erase '((rsp local_this)))
-	(vp-free local_size)
-	(vp-ret)
-
-(def-func-end)
-
 (def-method 'hset :find)
 	;inputs
 	;r0 = hset object (ptr)

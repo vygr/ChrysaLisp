@@ -3,6 +3,8 @@
 (def-class 'list 'array)
 (dec-method :vtable 'class/list/vtable)
 (dec-method :create 'class/list/create)
+(dec-method :erase 'class/list/erase :static '(r0 r1) '(r0))
+(dec-method :erase2 'class/list/erase2 :static '(r0 r1) '(r0))
 
 (dec-method :type 'class/list/type :override '(r0) '(r0 r1))
 (dec-method :vcreate 'class/list/create :final)

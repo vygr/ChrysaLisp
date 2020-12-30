@@ -645,7 +645,7 @@
 	(class/array/get_element r2 r0 r0 r2)
 	(call 'hset :find '(r0 r1) '(r0 r1 r2))
 	(vpif '(r1 /= 0))
-		(jump 'hset :erase '(r0 r1 r2))
+		(jump 'list :erase '(r2 r1))
 	(endif)
 	(vp-ret)
 
