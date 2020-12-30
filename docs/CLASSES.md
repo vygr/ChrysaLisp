@@ -7060,10 +7060,11 @@ Super Class: null
 ```lisp
 inputs
 system argv
-host function table
+host OS function table
+host GUI function table
 info
 register inputs are dependant on the platform ABI
-they are extracted via (abi-arg 0) and (abi-arg 1)
+they are extracted via (abi-arg 0)-(abi-arg 2)
 ```
 
 ### sys_load :bind -> sys/load/bind
