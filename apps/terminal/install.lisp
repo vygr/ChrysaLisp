@@ -5,7 +5,6 @@
 (print "Building documentation and platform native boot image.")
 (print "Please wait...")
 (print)
-(import "lib/pipe/pipe.inc")
 (while (< (length (mail-nodes)) 10) (task-sleep 100000))
 (pipe-run "make docs" (lambda (_) (prin _) (stream-flush (io-stream "stdout"))))
 (pipe-run "make all boot" (lambda (_) (prin _) (stream-flush (io-stream "stdout"))))

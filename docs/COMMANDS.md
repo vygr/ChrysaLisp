@@ -52,15 +52,12 @@ Usage: gui [node ...]
 ## head
  
 ```lisp
-usage: head [-h] [-v] [-c] {} ...
-
-returns lines from beginning of file, defaults to first 10 lines
-
-optional arguments:
-    -h,--help                 displays application help and exits
-    -v,--version              displays application version and exits
-    -c,--count                count of lines from top of file to display
-
+Usage: head [options file]
+	options:
+		-h --help: this help info.
+		-c --count line count: default 10.
+	Returns lines from start of file or stdin.
+	Defaults to first 10 lines.
 
 ```
 ## lisp
@@ -158,15 +155,12 @@ Usage: split [options]
 ## tail
  
 ```lisp
-usage: tail [-h] [-v] [-c] {} ...
-
-returns lines from end of file, defaults to last 10 lines
-
-optional arguments:
-    -h,--help                 displays application help and exits
-    -v,--version              displays application version and exits
-    -c,--count                count of lines from bottom of file to display
-
+Usage: tail [options file]
+	options:
+		-h --help: this help info.
+		-c --count line count: default 10.
+	Returns lines from end of file or stdin.
+	Defaults to last 10 lines.
 
 ```
 ## tee
