@@ -55,7 +55,7 @@ Usage: gui [node ...]
 Usage: head [options file]
 	options:
 		-h --help: this help info.
-		-c --count line count: default 10.
+		-c --count num: default 10.
 	Returns lines from start of file or stdin.
 	Defaults to first 10 lines.
 
@@ -158,7 +158,7 @@ Usage: split [options]
 Usage: tail [options file]
 	options:
 		-h --help: this help info.
-		-c --count line count: default 10.
+		-c --count num: default 10.
 	Returns lines from end of file or stdin.
 	Defaults to last 10 lines.
 
