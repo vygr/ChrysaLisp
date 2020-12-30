@@ -10,7 +10,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;
 
 (def-enum 'kn_call)
-	(enum 'callback 'open 'child 'route 'ping)
+	(enum 'callback 'open 'child 'ping)
 (def-enum-end)
 
 ;;;;;;;;;;;;;;;;;;

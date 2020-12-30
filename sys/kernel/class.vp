@@ -120,56 +120,14 @@
 				(call 'sys_mail :send {msg})
 				(break)
 			(vpcase '(r0 = kn_call_ping))
-				;new services ping
+				;new services/routing ping
 				(ptr 'session 'set)
+				(long 'hops)
 				(union
 					(ptr 'bucket 'new_key)
 					(ptr 'services 'entries))
 				(push-scope)
-				;just send to neibours if I am origin !
-				(gotoifnot {(node_id.node_id_node1 - data->kn_msg_ping_origin.node_id_node1)
-							| (node_id.node_id_node2 - data->kn_msg_ping_origin.node_id_node2)} 'to_neibours1)
-				;find/create the service tuple for the origin
-				(assign {data, key} '(r0 r1))
-				(assign-node-id r0 kn_msg_ping_origin r1 str_data)
-				(call 'hmap :find {mail_statics->ml_statics_service_map, key} {_, tuple, bucket})
-				(vpifnot {tuple})
-					(call 'node :create {&data->kn_msg_ping_origin, node_id_size} {new_key})
-					(call 'list :create nil {tuple})
-					(call 'num :create {0} {session})
-					(call 'hset :create `((@ ,(f-path 'str :same)) 1) {set})
-					(call 'list :push_back2 {tuple, session, set})
-					(call 'list :push_back2 {bucket, new_key, tuple})
-				(else)
-					(assign {(pptr tuple)[ptr_size]} {tuple})
-				(endif)
-				;add service entries for the origin ?
-				(call 'list :get_first {tuple} {_, session})
-				(vpif {data->kn_msg_ping_session > session->num_value})
-					;new session
-					(assign {data->kn_msg_ping_session} {session->num_value})
-					(call 'str :create_from_buffer {&data->kn_msg_ping_services, msg->msg_frag_length - kn_msg_ping_services} {services})
-					(call 'str :split_char {services, +char_lf+} {_, entries})
-					(call 'str :destroy {services})
-					(call 'list :get_both {entries} {_, iter_begin, iter_end})
-					(call 'list :get_second {tuple} {_, set})
-					(call 'hset :clear {set})
-					(loop-while {iter_begin /= iter_end})
-						(call 'hset :insert {set, *iter_begin})
-						(assign {iter_begin + ptr_size} {iter_begin})
-					(loop-end)
-					(call 'list :destroy {entries})
-				(vp-label 'to_neibours1)
-					;flood to neibours
-					(call 'flood_fill {mail_statics, msg, data, node_id.node_id_node1, node_id.node_id_node2})
-				(endif)
-				(pop-scope)
-				(goto 'drop_msg)
-			(vpcase '(r0 = kn_call_route))
-				;new routing ping
-				(ptr 'bucket 'new_key)
-				(long 'session 'hops)
-				(push-scope)
+
 				;find/create the routing tuple for the origin
 				(assign {data, key} '(r0 r1))
 				(assign-node-id r0 kn_msg_ping_origin r1 str_data)
@@ -183,6 +141,7 @@
 				(else)
 					(assign {(pptr tuple)[ptr_size]} {tuple})
 				(endif)
+
 				;update routing entries for the origin ?
 				(call 'array :get_first2 {tuple} {_, session, hops})
 				(switch)
@@ -205,6 +164,43 @@
 						data->kn_msg_ping_via.node_id_node2})
 					(call 'flood_fill {mail_statics, msg, data, node_id.node_id_node1, node_id.node_id_node2})
 				(endswitch)
+
+				;don't update services if I am orign !
+				(vpif {(node_id.node_id_node1 - data->kn_msg_ping_origin.node_id_node1)
+						| (node_id.node_id_node2 - data->kn_msg_ping_origin.node_id_node2)})
+					;find/create the service tuple for the origin
+					(assign {data, key} '(r0 r1))
+					(assign-node-id r0 kn_msg_ping_origin r1 str_data)
+					(call 'hmap :find {mail_statics->ml_statics_service_map, key} {_, tuple, bucket})
+					(vpifnot {tuple})
+						(call 'node :create {&data->kn_msg_ping_origin, node_id_size} {new_key})
+						(call 'list :create nil {tuple})
+						(call 'num :create {0} {session})
+						(call 'hset :create `((@ ,(f-path 'str :same)) 1) {set})
+						(call 'list :push_back2 {tuple, session, set})
+						(call 'list :push_back2 {bucket, new_key, tuple})
+					(else)
+						(assign {(pptr tuple)[ptr_size]} {tuple})
+					(endif)
+
+					;add service entries for the origin ?
+					(call 'list :get_first {tuple} {_, session})
+					(vpif {data->kn_msg_ping_session > session->num_value})
+						;new session
+						(assign {data->kn_msg_ping_session} {session->num_value})
+						(call 'str :create_from_buffer {&data->kn_msg_ping_services, msg->msg_frag_length - kn_msg_ping_services} {services})
+						(call 'str :split_char {services, +char_lf+} {_, entries})
+						(call 'str :destroy {services})
+						(call 'list :get_both {entries} {_, iter_begin, iter_end})
+						(call 'list :get_second {tuple} {_, set})
+						(call 'hset :clear {set})
+						(loop-while {iter_begin /= iter_end})
+							(call 'hset :insert {set, *iter_begin})
+							(assign {iter_begin + ptr_size} {iter_begin})
+						(loop-end)
+						(call 'list :destroy {entries})
+					(endif)
+				(endif)
 				(pop-scope)
 			(vp-label 'drop_msg)
 				(call 'sys_mail :free {msg})
@@ -454,7 +450,7 @@
 (def-method 'sys_kernel :ping)
 	;started by kernel at boot
 
-	(ptr 'msg 'data 'statics)
+	(ptr 'msg)
 	(struct 'node_id 'node_id)
 
 	(push-scope)
@@ -468,21 +464,8 @@
 	(vp-add-cr 3000000 r0)
 	(call 'sys_task :sleep '(r0))
 	(loop-start)
-		;send services ping message
+		;send services/routing ping message
 		(call 'sys_mail :ping)
-		;send routing ping message
-		(call 'sys_mail :alloc {kn_msg_ping_size} {msg, data})
-		(assign {kn_call_route} {data->kn_msg_func})
-		(assign {0 => data->kn_msg_ping_hops} {msg->msg_dest.net_id_mbox_id})
-		(assign {node_id.node_id_node1} {msg->msg_dest.net_id_node_id.node_id_node1})
-		(assign {node_id.node_id_node2} {msg->msg_dest.net_id_node_id.node_id_node2})
-		(assign {node_id.node_id_node1} {data->kn_msg_ping_origin.node_id_node1})
-		(assign {node_id.node_id_node2} {data->kn_msg_ping_origin.node_id_node2})
-		(assign {node_id.node_id_node1} {data->kn_msg_ping_via.node_id_node1})
-		(assign {node_id.node_id_node2} {data->kn_msg_ping_via.node_id_node2})
-		(assign (cat {@} (f-path 'sys_mail :statics)) {statics})
-		(assign {(statics->ml_statics_session + 1) => statics->ml_statics_session} {data->kn_msg_ping_session})
-		(call 'sys_mail :send {msg})
 		(call 'sys_math :i_rand '(1000000) '(r0))
 		(vp-cpy-cr 19000000 r1)
 		(vp-add-rr r1 r0)
