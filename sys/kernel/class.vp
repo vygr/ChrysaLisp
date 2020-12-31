@@ -26,7 +26,7 @@
 	(union
 		(ptr 'argv)
 		(ptr 'link))
-	(ptr 'task_statics 'mail_statics 'mbox_addr 'msg 'data 'tuple 'key)
+	(ptr 'statics 'mbox_addr 'msg 'data 'tuple 'key)
 	(pptr 'iter_begin 'iter_end)
 	(struct 'best_id 'node_id)
 	(struct 'node_id 'node_id)
@@ -51,16 +51,15 @@
 	(call 'sys_mail :statics_init)
 
 	;start kernel task (get's mailbox id of 0 !)
-	(assign (cat {@} (f-path 'sys_task :statics)) {task_statics})
-	(assign (cat {@} (f-path 'sys_mail :statics)) {mail_statics})
-	(call 'sys_task :start {$fn_entry} {task_statics->tk_statics_kernel_tcb, mbox_addr, _, _, _})
-	(assign {task_statics->tk_statics_kernel_tcb} {task_statics->tk_statics_current_tcb})
+	(assign {@sys/statics/statics} {statics })
+	(call 'sys_task :start {$fn_entry} {statics ->statics_sys_task_kernel_tcb, mbox_addr, _, _, _})
+	(assign {statics ->statics_sys_task_kernel_tcb} {statics ->statics_sys_task_current_tcb})
 
 	;init mailer
 	(call 'sys_mail :statics_init1)
 
 	;set random node ID
-	(call 'sys_pii :rand {&task_statics->tk_statics_kernel_node_id, node_id_size})
+	(call 'sys_pii :rand {&statics ->statics_sys_task_kernel_node_id, node_id_size})
 	(call 'sys_kernel :id nil {node_id.node_id_node1, node_id.node_id_node2})
 
 	;process command options
@@ -99,10 +98,10 @@
 				(break)
 			(vpcase '(r0 = kn_call_child))
 				;find best cpu to run task
-				(assign {task_statics->tk_statics_task_count} {best_cnt})
+				(assign {statics ->statics_sys_task_task_count} {best_cnt})
 				(assign {node_id.node_id_node1} {best_id.node_id_node1})
 				(assign {node_id.node_id_node2} {best_id.node_id_node2})
-				(call 'array :get_both {mail_statics->ml_statics_links_array} {_, iter_begin, iter_end})
+				(call 'array :get_both {statics ->statics_sys_mail_links_array} {_, iter_begin, iter_end})
 				(loop-while {iter_begin /= iter_end})
 					(assign {*iter_begin} {link})
 					(assign {iter_begin + ptr_size} {iter_begin})
@@ -131,7 +130,7 @@
 				;find/create the routing tuple for the origin
 				(assign {data, key} '(r0 r1))
 				(assign-node-id r0 kn_msg_ping_origin r1 str_data)
-				(call 'hmap :find {mail_statics->ml_statics_routing_map, key} {_, tuple, bucket})
+				(call 'hmap :find {statics ->statics_sys_mail_routing_map, key} {_, tuple, bucket})
 				(vpifnot {tuple})
 					(call 'node :create {&data->kn_msg_ping_origin, node_id_size} {new_key})
 					(call 'array :create nil {tuple})
@@ -162,7 +161,7 @@
 					(call 'array :push_back2 {tuple,
 						data->kn_msg_ping_via.node_id_node1,
 						data->kn_msg_ping_via.node_id_node2})
-					(call 'flood_fill {mail_statics, msg, data, node_id.node_id_node1, node_id.node_id_node2})
+					(call 'flood_fill {statics , msg, data, node_id.node_id_node1, node_id.node_id_node2})
 				(endswitch)
 
 				;don't update services if I am orign !
@@ -171,7 +170,7 @@
 					;find/create the service tuple for the origin
 					(assign {data, key} '(r0 r1))
 					(assign-node-id r0 kn_msg_ping_origin r1 str_data)
-					(call 'hmap :find {mail_statics->ml_statics_service_map, key} {_, tuple, bucket})
+					(call 'hmap :find {statics ->statics_sys_mail_service_map, key} {_, tuple, bucket})
 					(vpifnot {tuple})
 						(call 'node :create {&data->kn_msg_ping_origin, node_id_size} {new_key})
 						(call 'list :create nil {tuple})
@@ -220,9 +219,9 @@
 		(call 'sys_task :timer nil '(r0))
 
 		;find next task we could defer to
-		(assign {task_statics} '(r3))
-		(assign '((& r3 (+ tk_statics_task_lists lh_list_size))) '(r1))
-		(assign '((& r3 (+ tk_statics_task_lists (* num_task_lists lh_list_size)))) '(r2))
+		(assign {statics } '(r3))
+		(assign '((& r3 (+ statics_sys_task_task_lists lh_list_size))) '(r1))
+		(assign '((& r3 (+ statics_sys_task_task_lists (* num_task_lists lh_list_size)))) '(r2))
 		(loop-start)
 			(lh-get-head r1 0 r4)
 			(ln-get-succ r4 0 r5)
@@ -238,7 +237,7 @@
 
 		;no other task ready to run so
 		;exit if no task waiting for timer
-		(lh-get-head r3 tk_statics_timer_list r2)
+		(lh-get-head r3 statics_sys_task_timer_list r2)
 		(ln-get-succ r2 0 r1)
 		(breakif '(r1 = 0))
 
@@ -285,7 +284,7 @@
 	;set new via
 	(save-node-id data kn_msg_ping_via knode1 knode2)
 	;loop over the links
-	(assign `((,statics ml_statics_links_array)) '(r0))
+	(assign `((,statics statics_sys_mail_links_array)) '(r0))
 	(class/array/get_both r0 iter_begin iter_end)
 	(loop-while (list iter_begin '/= iter_end))
 		(assign `((,iter_begin 0)) `(,link_node))
@@ -375,7 +374,7 @@
 	(endif)
 	(vpifnot {length})
 		;yup it's a .lisp file, check it exists
-		(call 'sys_pii :stat (cat {arg, @} (f-path 'sys_load :statics) {.ld_statics_stat_buffer}) {func})
+		(call 'sys_pii :stat {arg, @sys/statics/statics.statics_sys_load_stat_buffer} {func})
 		(breakif {func})
 		;start lisp run task and send args
 		(call 'sys_task :start `((@ ,(f-path 'lisp :run)))
@@ -439,10 +438,10 @@
 	;trashes
 	;r0-r1
 
-	(f-bind 'sys_task :statics r1)
+	(fn-bind 'sys/statics/statics r1)
 	(exit 'sys_kernel :id
-		`((r1 ,(+ tk_statics_kernel_node_id node_id_node1))
-		(r1 ,(+ tk_statics_kernel_node_id node_id_node2))))
+		`((r1 ,(+ statics_sys_task_kernel_node_id node_id_node1))
+		(r1 ,(+ statics_sys_task_kernel_node_id node_id_node2))))
 	(vp-ret)
 
 (def-func-end)
@@ -456,8 +455,8 @@
 	(push-scope)
 
 	;don't count ping or postman tasks in load balancing
-	(assign (cat {@} (f-path 'sys_task :statics)) {msg})
-	(assign {msg->tk_statics_task_count - 2} {msg->tk_statics_task_count})
+	(assign {@sys/statics/statics} {msg})
+	(assign {msg->statics_sys_task_task_count - 2} {msg->statics_sys_task_task_count})
 
 	(call 'sys_kernel :id nil {node_id.node_id_node1, node_id.node_id_node2})
 	(call 'sys_math :i_rand '(1000000) '(r0))

@@ -6,7 +6,6 @@
 ;;;;;;;;;;;;;;;;;;;
 
 (def-class 'sys_mail)
-(dec-method :statics 'sys/mail/statics)
 (dec-method :statics_init 'sys/mail/statics_init :static)
 (dec-method :statics_init1 'sys/mail/statics_init1 :static)
 (dec-method :alloc_mbox 'sys/mail/alloc_mbox :static nil '(r0 r1))
@@ -73,16 +72,6 @@
 
 ;must be power 2
 (defcvar 'num_mbox_buckets 8)
-
-(def-struct 'ml_statics)
-	(uint 'session 'next_mbox_id)
-	(ptr 'links_array 'routing_map 'service_map 'out_mbox_addr)
-	(struct 'msg_heap 'hp_heap)
-	(struct 'mbox_heap 'hp_heap)
-	(struct 'offchip_list 'lh_list)
-	(struct 'parcel_list 'lh_list)
-	(struct 'mbox_buckets (* num_mbox_buckets lh_list_size))
-(def-struct-end)
 
 ;usefull helpers for net_id and node_id
 

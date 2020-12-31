@@ -76,8 +76,8 @@
 	;_5 = dispatch reg
 	;_6 = temp reg
 	(setd _5 r14 _6 r13)
-	(f-bind 'sys_load :statics _5)
-	(vp-cpy-ir _5 ld_statics_host_os_funcs _5)
+	(fn-bind 'sys/statics/statics _5)
+	(vp-cpy-ir _5 statics_sys_load_host_os_funcs _5)
 	(abi-call-table _1 _2 _5 _3 _4 _6))
 
 (defun host-gui-call (_1 _2 &optional _3 _4 _5 _6)
@@ -88,8 +88,8 @@
 	;_5 = dispatch reg
 	;_6 = temp reg
 	(setd _5 r14 _6 r13)
-	(f-bind 'sys_load :statics _5)
-	(vp-cpy-ir _5 ld_statics_host_gui_funcs _5)
+	(fn-bind 'sys/statics/statics _5)
+	(vp-cpy-ir _5 statics_sys_load_host_gui_funcs _5)
 	(abi-call-table _1 _2 _5 _3 _4 _6))
 
 ;;;;;;;;;;;;;;;

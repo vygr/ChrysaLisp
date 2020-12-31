@@ -66,8 +66,8 @@
 	(entry 'str :create_from_file '(r5))
 
 	;get size of string from file size
-	(f-bind 'sys_load :statics r6)
-	(assign '((r6 ld_statics_stat_buffer)) '(r6))
+	(fn-bind 'sys/statics/statics r6)
+	(assign '((r6 statics_sys_load_stat_buffer)) '(r6))
 	(call 'sys_pii :stat '(r0 r6) '(r0))
 	(vpif '(r0 /= 0))
 	(vp-label 'funcexit)
@@ -112,8 +112,8 @@
 
 	(entry 'str :create_from_long '(r0 r1))
 
-	(assign `((@ ,(f-path 'sys_load :statics))) '(r2))
-	(assign '((r2 ld_statics_reloc_buffer)) '(r5))
+	(assign '((@ sys/statics/statics)) '(r2))
+	(assign '((r2 statics_sys_load_reloc_buffer)) '(r5))
 	(vp-cpy-rr r5 r3)
 	(vpif '(r1 >= 0))
 		(vpif '(r0 < 0))

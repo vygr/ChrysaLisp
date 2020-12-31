@@ -7,7 +7,6 @@
 ;;;;;;;;;;;;;;;;;;;
 
 (def-class 'sys_task)
-(dec-method :statics 'sys/task/statics)
 (dec-method :statics_init 'sys/task/statics_init)
 (dec-method :tcb 'sys/task/tcb :static nil '(r0))
 (dec-method :mailbox 'sys/task/mailbox :static nil '(r0 r1 r2))
@@ -47,16 +46,6 @@
 ;2 GUI process
 ;3 Applications
 (defcvar 'num_task_lists 4)
-
-(def-struct 'tk_statics)
-	(struct 'kernel_node_id 'node_id)
-	(ptr 'current_tcb 'kernel_tcb)
-	(uint 'task_count)
-	(local-align)
-	;keep these together
-	(struct 'timer_list 'lh_list)
-	(struct 'task_lists (* num_task_lists lh_list_size))
-(def-struct-end)
 
 ;;;;;;;;;;;;;
 ; task macros

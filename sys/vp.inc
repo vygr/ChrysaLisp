@@ -279,7 +279,6 @@
 (defun vp-lea-d (b i d) (emit (list 'emit-lea-d b i d)))
 (defun vp-lea-p (l r) (emit (list 'emit-lea-p (label-sym l) r)))
 (defun vp-cpy-pr (l d) (emit (list 'emit-cpy-pr (label-sym l) d)))
-(defun vp-cpy-rp (s l) (emit (list 'emit-cpy-rp s (label-sym l))))
 
 (defun vp-div-rrr (d r q) (emit (list 'emit-div-rrr d r q)))
 (defun vp-div-rrr-u (d r q) (emit (list 'emit-div-rrr-u d r q)))

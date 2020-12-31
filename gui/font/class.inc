@@ -2,7 +2,6 @@
 
 (def-class 'font 'obj)
 (dec-method :vtable 'gui/font/vtable)
-(dec-method :statics 'gui/font/statics)
 (dec-method :open 'gui/font/open :static '(r0 r1) '(r0))
 (dec-method :create 'gui/font/create :static '(r0 r1 r2) '(r0))
 (dec-method :init 'gui/font/init :static '(r0 r1 r2 r3 r4))
@@ -23,11 +22,6 @@
 (dec-method :lisp_glyph_paths 'gui/font/lisp_glyph_paths :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_glyph_bounds 'gui/font/lisp_glyph_bounds :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_texture 'gui/font/lisp_texture :static '(r0 r1) '(r0 r1))
-
-(def-struct 'font_statics)
-	(ptr 'intern)
-	(ulong 'count)
-(def-struct-end)
 
 (def-struct 'font 'obj)
 	(ptr 'data 'sym_map 'name 'chars)

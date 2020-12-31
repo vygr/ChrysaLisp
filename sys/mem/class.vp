@@ -1,32 +1,18 @@
 (include "sys/func.inc")
 (include "sys/heap/class.inc")
-
-(defq mem_cell_min_size 0x000020 mem_cell_max_size 0x4000000
-	max_cell_count (/ (* 32 1024) mem_cell_min_size))
-
-(def-method 'sys_mem :statics)
-	;info
-	;mem statics data
-
-	(times sys_mem_statics_size (vp-byte 0))
-	(let ((s mem_cell_min_size))
-		(while (<= s mem_cell_max_size)
-			(times hp_heap_size (vp-byte 0))
-			(setq s (+ s s))))
-
-(def-func-end)
+(include "sys/statics/class.inc")
 
 (def-method 'sys_mem :statics_init)
 	;info
 	;init mem statics
 
 	;obj list init
-	(f-bind 'sys_mem :statics r0)
-	(assign '((& r0 sys_mem_statics_obj_list)) '(r1))
+	(fn-bind 'sys/statics/statics r0)
+	(assign '((& r0 statics_sys_mem_obj_list)) '(r1))
 	(lh-init r1 r2)
 
 	;mem_slots heaps
-	(vp-add-cr sys_mem_statics_size r0)
+	(vp-add-cr statics_sys_mem_heaps r0)
 	(vp-cpy-cr mem_cell_min_size r1)	;start object size
 	(vp-cpy-cr max_cell_count r3)		;start cell count
 	(loop-start)
@@ -46,9 +32,9 @@
 	;deinit mem statics
 
 	;free memory heaps
-	(f-bind 'sys_mem :statics r0)
+	(fn-bind 'sys/statics/statics r0)
 	(vp-cpy-cr mem_cell_min_size r6)
-	(vp-add-cr sys_mem_statics_size r0)
+	(vp-add-cr statics_sys_mem_heaps r0)
 	(loop-start)
 		(call 'sys_heap :deinit '(r0) '(r0))
 		(vp-add-cr hp_heap_size r0)
@@ -64,8 +50,8 @@
 	;trashes
 	;r0
 
-	(f-bind 'sys_mem :statics r0)
-	(exit 'sys_mem :used '((r0 sys_mem_statics_total)))
+	(fn-bind 'sys/statics/statics r0)
+	(exit 'sys_mem :used '((r0 statics_sys_mem_total)))
 	(vp-ret)
 
 (def-func-end)
@@ -76,9 +62,9 @@
 	;info
 	;free all unused blocks
 
-	(f-bind 'sys_mem :statics r0)
+	(fn-bind 'sys/statics/statics r0)
 	(vp-cpy-cr mem_cell_min_size r12)
-	(vp-add-cr sys_mem_statics_size r0)
+	(vp-add-cr statics_sys_mem_heaps r0)
 	(loop-start)
 		(call 'sys_heap :collect '(r0) '(r0))
 		(vp-add-cr hp_heap_size r0)
@@ -104,8 +90,8 @@
 	(vp-lea-i r0 sys_mem_header_size r1)
 
 	;find object heap
-	(f-bind 'sys_mem :statics r0)
-	(vp-add-cr sys_mem_statics_size r0)
+	(fn-bind 'sys/statics/statics r0)
+	(vp-add-cr statics_sys_mem_heaps r0)
 	(loop-start)
 		(assign '((r0 hp_heap_cellsize)) '(r2))
 		(breakif '(r1 <= r2))

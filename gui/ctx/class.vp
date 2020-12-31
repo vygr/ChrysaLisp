@@ -17,8 +17,8 @@
 
 	(entry 'ctx :set_color '(r0 r1))
 
-	(f-bind 'gui :statics r14)
-	(assign '(r1 r1 r1 r1 (r14 gui_statics_renderer)) `(,a ,r ,g ,b ,ctx))
+	(fn-bind 'sys/statics/statics r14)
+	(assign '(r1 r1 r1 r1 (r14 statics_gui_renderer)) `(,a ,r ,g ,b ,ctx))
 	(vp-shr-cr 24 a)
 	(vp-shr-cr 16 r)
 	(vp-shr-cr 8 g)
@@ -51,8 +51,8 @@
 		(vp-sub-rr r8 r10)
 		(assign '(r7 r8 r9 r10) '((rsp (+ local_clip_rect sdl_rect_x) i) (rsp (+ local_clip_rect sdl_rect_y) i)
 			(rsp (+ local_clip_rect sdl_rect_w) i) (rsp (+ local_clip_rect sdl_rect_h) i)))
-		(f-bind 'gui :statics r0)
-		(host-gui-call 'host_gui :sdl_render_set_clip_rect '((r0 gui_statics_renderer) (& rsp local_clip_rect)))
+		(fn-bind 'sys/statics/statics r0)
+		(host-gui-call 'host_gui :sdl_render_set_clip_rect '((r0 statics_gui_renderer) (& rsp local_clip_rect)))
 
 		;eval body
 		(exec _)
@@ -108,8 +108,8 @@
 	(for-each-visible-rect
 		'(progn
 			;blit the texture
-			(f-bind 'gui :statics r0)
-			(host-gui-call 'host_gui :sdl_render_copy '((r0 gui_statics_renderer) (rsp local_texture) (& rsp local_srect) (& rsp local_drect)))))
+			(fn-bind 'sys/statics/statics r0)
+			(host-gui-call 'host_gui :sdl_render_copy '((r0 statics_gui_renderer) (rsp local_texture) (& rsp local_srect) (& rsp local_drect)))))
 
 	(vp-cpy-ir rsp local_old_stack rsp)
 	(vp-ret)
@@ -148,8 +148,8 @@
 	(for-each-visible-rect
 		'(progn
 			;draw the rectangle
-			(f-bind 'gui :statics r0)
-			(host-gui-call 'host_gui :sdl_render_draw_rect '((r0 gui_statics_renderer) (& rsp local_drect)))))
+			(fn-bind 'sys/statics/statics r0)
+			(host-gui-call 'host_gui :sdl_render_draw_rect '((r0 statics_gui_renderer) (& rsp local_drect)))))
 
 	(vp-cpy-ir rsp local_old_stack rsp)
 	(vp-ret)
@@ -188,8 +188,8 @@
 	(for-each-visible-rect
 		'(progn
 			;draw the rectangle
-			(f-bind 'gui :statics r0)
-			(host-gui-call 'host_gui :sdl_render_fill_rect '((r0 gui_statics_renderer) (& rsp local_drect)))))
+			(fn-bind 'sys/statics/statics r0)
+			(host-gui-call 'host_gui :sdl_render_fill_rect '((r0 statics_gui_renderer) (& rsp local_drect)))))
 
 	(vp-cpy-ir rsp local_old_stack rsp)
 	(vp-ret)

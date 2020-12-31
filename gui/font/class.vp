@@ -14,12 +14,6 @@
 (gen-create 'font)
 (gen-vtable 'font)
 
-(def-method 'font :statics)
-	;info
-	;font static data
-	(times font_statics_size (vp-byte 0))
-(def-func-end)
-
 (def-method 'font :open)
 	;r0 = name c string (pubyte)
 	;r1 = font size (pixels)
@@ -35,10 +29,10 @@
 	(push-scope)
 	(entry 'font :open {name, pixels})
 
-	(assign (cat {@} (f-path 'font :statics) {.font_statics_intern}) {flat_set})
+	(assign {@sys/statics/statics.statics_font_intern} {flat_set})
 	(vpifnot {flat_set})
 		(call 'list :create nil {flat_set})
-		(assign {flat_set} (cat {@} (f-path 'font :statics) {.font_statics_intern}))
+		(assign {flat_set} {@sys/statics/statics.statics_font_intern})
 	(endif)
 
 	;intern font
@@ -435,7 +429,7 @@
 	(ptr 'this 'sym 'txt 'sym_canvas 'paths 'info)
 	(uint 'w 'h)
 	(union
-		(ptr 'font_statics)
+		(ptr 'statics)
 		(pptr 'iter 'bucket))
 
 	(push-scope)
@@ -446,8 +440,8 @@
 	(vpifnot {iter})
 		;create sym canvas
 		(call 'font :glyph_info {this, sym} {_, info})
-		(call 'font :glyph_paths (cat {this, @} (f-path 'sys_task :statics)
-			{.tk_statics_current_tcb->tk_node_tls, info}) {_, paths, w, h})
+		(call 'font :glyph_paths {this, @sys/statics/statics.statics_sys_task_current_tcb->tk_node_tls, info}
+			{_, paths, w, h})
 		(call 'canvas :create {w, h, 2} {sym_canvas})
 		(assign {+argb_white+, 1} {sym_canvas->canvas_color, sym_canvas->canvas_flags})
 		(call 'font :get_metrics {this} {_, h, _, _})
@@ -470,8 +464,8 @@
 		(call 'list :push_back2 {bucket, sym, txt})
 
 		;flush cache ?
-		(assign (cat {@} (f-path 'font :statics)) {font_statics})
-		(vpif {(font_statics->font_statics_count + 1 => font_statics->font_statics_count) >= font_max_word_cache})
+		(assign {@sys/statics/statics} {statics})
+		(vpif {(statics->statics_font_count + 1 => statics->statics_font_count) >= font_max_word_cache})
 			(call 'font :flush)
 		(endif)
 	(else)
@@ -539,7 +533,7 @@
 	(push-scope)
 
 	;must not use iters as kernel callbacks will deshedule us !
-	(assign (cat {0, @} (f-path 'font :statics) {.font_statics_intern}) {index, flat_set})
+	(assign {0, @sys/statics/statics.statics_font_intern} {index, flat_set})
 	(loop-start)
 		(call 'list :get_length {flat_set} {_, length})
 		(breakif {index = length})
@@ -585,10 +579,10 @@
 		(vp-pop r1 r2)
 		(jump 'list :push_back2 '(r0 r1 r2))
 	(default)
-		(f-bind 'font :statics r0)
-		(assign '((r0 font_statics_count)) '(r2))
+		(fn-bind 'sys/statics/statics r0)
+		(assign '((r0 statics_font_count)) '(r2))
 		(vp-sub-cr 1 r2)
-		(assign '(r2) '((r0 font_statics_count)))
+		(assign '(r2) '((r0 statics_font_count)))
 	(endif)
 	(vp-ret)
 

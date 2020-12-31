@@ -29,10 +29,10 @@
 		(vp-push r0)
 		(call 'sys_mem :fill `((& r0 view_start) ,(- view_size view_start) 0))
 		(vp-pop r0)
-		(f-bind 'gui :statics r1)
-		(assign '((r1 gui_statics_next_id)) '(r2))
+		(fn-bind 'sys/statics/statics r1)
+		(assign '((r1 statics_gui_next_id)) '(r2))
 		(vp-sub-cr 1 r2)
-		(assign '(r2 r2) '((r1 gui_statics_next_id) (r0 view_id)))
+		(assign '(r2 r2) '((r1 statics_gui_next_id) (r0 view_id)))
 		(vp-cpy-cr +view_flag_solid+ r1)
 		(assign '(r1 (& r0 view_list)) '((r0 view_flags) r1))
 		(lh-init r1 r2)
@@ -66,8 +66,8 @@
 	(loop-end)
 
 	;free view object data
-	(f-bind 'gui :statics r0)
-	(vp-add-cr gui_statics_rect_heap r0)
+	(fn-bind 'sys/statics/statics r0)
+	(vp-add-cr statics_gui_rect_heap r0)
 	(assign '((rsp 0)) '(r1))
 	(call 'region :free '(r0 (& r1 view_dirty_region)))
 	(assign '((rsp 0)) '(r1))
@@ -166,15 +166,15 @@
 
 		;add dirty
 		(assign '((& r0 view_dirty_region) 1 0 0 (r0 view_w) (r0 view_h)) '(r1 r2 r7 r8 r9 r10))
-		(f-bind 'gui :statics r0)
-		(assign '(r2) '((r0 gui_statics_dirty_flag)))
-		(vp-add-cr gui_statics_rect_heap r0)
+		(fn-bind 'sys/statics/statics r0)
+		(assign '(r2) '((r0 statics_gui_dirty_flag)))
+		(vp-add-cr statics_gui_rect_heap r0)
 		(call 'region :paste_rect '(r0 r1 r7 r8 r9 r10))
 
 		;temp view for update
 		(call 'view :create nil '(r1))
-		(f-bind 'gui :statics r0)
-		(call 'list :push_back '((r0 gui_statics_temps) r1) '(_ r1 _ _))
+		(fn-bind 'sys/statics/statics r0)
+		(call 'list :push_back '((r0 statics_gui_temps) r1) '(_ r1 _ _))
 
 		;remove from parent list and splice in temp
 		(vp-pop r0)
@@ -466,8 +466,8 @@
 				(class/obj/ref r1 r2)
 				(call 'list :push_back '(r0 r1) '(r1 _ _ _))
 				(assign '(r1) '((rsp local_args)))
-				(f-bind 'sys_task :statics r0)
-				(assign '((r0 tk_statics_current_tcb)) '(r0))
+				(fn-bind 'sys/statics/statics r0)
+				(assign '((r0 statics_sys_task_current_tcb)) '(r0))
 				(assign '((r0 tk_node_lisp)) '(r0))
 				(vpif '(r0 /= 0))
 					(call 'lisp :repl_apply '(r0 r1 r13) '(_ r1))
@@ -666,9 +666,9 @@
 	(vp-xor-cr -1 r2)
 	(vp-and-rr r2 r3)
 	(vp-or-rr r3 r1)
-	(assign `(r1 r1 (@ ,(f-path 'gui :statics))) '(r3 (r0 view_flags) r2))
+	(assign '(r1 r1 (@ sys/statics/statics)) '(r3 (r0 view_flags) r2))
 	(vp-and-cr +view_flag_dirty_all+ r3)
-	(assign '(r3) '((r2 gui_statics_dirty_flag)))
+	(assign '(r3) '((r2 statics_gui_dirty_flag)))
 
 	(exit 'view :set_flags '(r0 r1))
 	(vp-ret)

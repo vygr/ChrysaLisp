@@ -309,14 +309,6 @@
 		(t
 			(emit-byte (+ 0x44 (<< dl 3)) (+ (<< s2l 3) s1l) 0))))
 
-(defun emit-cpy-rp (d l)
-	(defq d (reg d) dl (logand 7 d) dh (>> d 3) c (- l *pc* 7))
-	(cond
-		((<= -0x80000000 c 0x7fffffff)
-			(emit-byte (+ 0x48 (<< dh 2)) 0x89 (+ 0x5 (<< dl 3)))
-			(emit-int c))
-		(t (throw "emit-cpy-rp constant out of range !" c))))
-
 (defun emit-cpy-ir-b (s c d) (emit-ir-bs 0xbe s c d))
 (defun emit-cpy-dr-b (s1 s2 d) (emit-dr-bs 0xbe s1 s2 d))
 (defun emit-cpy-ir-ub (s c d) (emit-ir-bs 0xb6 s c d))

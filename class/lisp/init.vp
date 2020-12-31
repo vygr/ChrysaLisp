@@ -50,17 +50,17 @@
 		(call 'obj :ref {stderr} {this->lisp_stderr})
 		(assign {0} {this->lisp_nextsym})
 		;tls stack
-		(assign (cat {@} (f-path 'sys_task :statics) {.tk_statics_current_tcb->tk_node_tls}) {this->lisp_stack})
+		(assign {@sys/statics/statics.statics_sys_task_current_tcb->tk_node_tls} {this->lisp_stack})
 
 		;spin lock if boot env busy
-		(loop-while {ptr($boot_env) = -1})
+		(loop-while {@sys/statics/statics.statics_lisp_boot_env = -1})
 			(call 'sys_task :sleep {100})
 		(loop-end)
 
 		;do we have a shared boot env yet ?
-		(vpifnot {ptr($boot_env)})
+		(vpifnot {@sys/statics/statics.statics_lisp_boot_env})
 			;mark as busy
-			(assign {-1} {ptr($boot_env)})
+			(assign {-1} {@sys/statics/statics.statics_lisp_boot_env})
 
 			;intern standard built in symbols
 			(call 'hmap :create {0, 101} {this->lisp_environment})
@@ -91,15 +91,15 @@
 				;deinit myself and parent
 				(call 'lisp :deinit {this})
 				;mark as free
-				(assign {0} {ptr($boot_env)})
+				(assign {0} {@sys/statics/statics.statics_lisp_boot_env})
 			(else)
 				;save shared boot env
-				(call 'obj :ref {this->lisp_environment} {ptr($boot_env)})
+				(call 'obj :ref {this->lisp_environment} {@sys/statics/statics.statics_lisp_boot_env})
 				(goto 'local_env)
 			(endif)
 		(else)
 			;boot env is my parent env
-			(call 'obj :ref {ptr($boot_env)} {this->lisp_environment})
+			(call 'obj :ref {@sys/statics/statics.statics_lisp_boot_env} {this->lisp_environment})
 		(vp-label 'local_env)
 			(call 'hmap :create {this->lisp_environment->hset_key_callback, 31} {func})
 			(call 'hmap :set_parent {func, this->lisp_environment} {this->lisp_environment})
@@ -142,14 +142,6 @@
 
 	(pop-scope)
 	(return)
-
-;;;;;;;;;;;;;;;;;;;;;;;
-; shared boot eviroment
-;;;;;;;;;;;;;;;;;;;;;;;
-
-	(vp-align ptr_size)
-(vp-label 'boot_env)
-	(vp-long 0)
 
 ;;;;;;;;;;;
 ; built ins

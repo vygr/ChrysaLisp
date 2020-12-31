@@ -7,7 +7,6 @@
 ;;;;;;;;;;;;;;;;;;
 
 (def-class 'gui)
-(dec-method :statics 'gui/gui/statics)
 (dec-method :statics_init 'gui/gui/statics_init)
 (dec-method :update 'gui/gui/update :static '(r0))
 (dec-method :gui 'gui/gui/gui)
@@ -24,15 +23,6 @@
 ;1 for double buffered, 2 for triple buffered etc, assumes previous rendered frames are intact !
 ;when running in buffered modes there may still be issues if SDL does not send EVENT_WINDOW_RESTORED etc
 (defcvar 'num_old_regions 0)
-
-(def-struct 'gui_statics)
-	(struct 'rect_heap 'hp_heap)
-	(ptr 'window 'screen 'temps)
-	(ulong 'renderer 'texture 'next_id)
-	(uint 'dirty_flag 'old_region_index)
-	(int 'mouse_x 'mouse_y)
-	(struct 'old_regions (* num_old_regions ptr_size))
-(def-struct-end)
 
 ;;;;;;;;;;;;;;;;;;;;
 ; gui event msg data

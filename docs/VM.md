@@ -85,7 +85,6 @@ functions.
 #### Register to Memory
 
 ```vdu
-(vp-cpy-rp rs label)
 (vp-cpy-ri rs rb i)
 (vp-cpy-rd rs rb ri)
 (vp-cpy-ri-b rs rb i)

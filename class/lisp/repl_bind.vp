@@ -116,7 +116,7 @@
 				(errorcases
 					(assign '((r0 array_length) (rsp local_start)) '(r2 r3))
 					(vp-sub-rr r3 r2)
-					(vpif '(r2 >= 1000))
+					(vpif '(r2 >= 2000))
 						(debug-str '("Exessive prebind recursion !"))
 						(break 'next_elem)
 					(endif))

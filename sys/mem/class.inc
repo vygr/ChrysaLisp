@@ -5,7 +5,6 @@
 ;;;;;;;;;;;;;;;;;;
 
 (def-class 'sys_mem)
-(dec-method :statics 'sys/mem/statics)
 (dec-method :statics_init 'sys/mem/statics_init)
 (dec-method :statics_deinit 'sys/mem/statics_deinit)
 (dec-method :alloc 'sys/mem/alloc :static '(r0) '(r0 r1))
@@ -20,10 +19,8 @@
 
 (dec-method :lisp_stats 'sys/mem/lisp_stats :static '(r0 r1) '(r0 r1))
 
-(def-struct 'sys_mem_statics)
-	(struct 'obj_list 'lh_list)
-	(long 'total)
-(def-struct-end)
+(defq mem_cell_min_size 0x000020 mem_cell_max_size 0x4000000
+	max_cell_count (/ (* 32 1024) mem_cell_min_size))
 
 (def-struct 'sys_mem_header)
 	(when (> *debug_mode* 1)

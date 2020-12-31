@@ -173,7 +173,6 @@ enum Opcodes
 	VMOP_CALL_I,
 	VMOP_JMP_I,
 
-	VMOP_CPY_RP,
 	VMOP_CPY_PR,
 	VMOP_LEA_P,
 
@@ -327,7 +326,6 @@ std::string opcodeDesc[] = {
 	"VMOP_CALL_I",
 	"VMOP_JMP_I",
 
-	"VMOP_CPY_RP",
 	"VMOP_CPY_PR",
 	"VMOP_LEA_P",
 
@@ -1395,13 +1393,6 @@ int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_os_funcs, i
 			}
 			break;
 
-			case VMOP_CPY_RP:
-			{
-				int64_t o = ((int64_t)*pc++ << 4) + ((ir >> 12) & 0xf);
-				*(int64_t*)((char*)pc + o) = regs[(ir >> 8) & 0xf];
-			}
-			break;
-				
 			case VMOP_CPY_PR:
 			{
 				int64_t o = ((int64_t)*pc++ << 4) + ((ir >> 12) & 0xf);

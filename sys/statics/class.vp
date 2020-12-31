@@ -1,0 +1,8 @@
+(include "sys/func.inc")
+(include "sys/statics/class.inc")
+
+(def-func 'sys/statics/statics)
+	;info
+	;mail static data
+	(times (/ statics_size long_size) (vp-long 0))
+(def-func-end)

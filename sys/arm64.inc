@@ -263,10 +263,6 @@
 (defun emit-cpy-dr-us (s1 s2 d) (emit-dru 0x78606800 15 s1 s2 d))
 (defun emit-cpy-dr-ui (s1 s2 d) (emit-dru 0xb8606800 31 s1 s2 d))
 
-(defun emit-cpy-rp (d l)
-	(emit-lea-p l r29)
-	(emit-cpy-ri d r29 0))
-
 (defun emit-cpy-pr (l d)
 	(cond
 		((<= -0x100000 (defq c (- l *pc*)) 0xffffc)

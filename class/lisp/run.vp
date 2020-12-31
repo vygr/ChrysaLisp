@@ -6,6 +6,7 @@
 (include "class/sym/class.inc")
 (include "gui/view/class.inc")
 (include "lib/consts/chars.inc")
+(include "sys/statics/class.inc")
 
 (def-func 'class/lisp/run nil 8192)
 	;lisp run loop task
@@ -30,7 +31,7 @@
 	(call 'obj :deref {stream})
 	(vpif {lisp})
 		;fill in lisp object tls
-		(assign {lisp} (cat {@} (f-path 'sys_task :statics) {.tk_statics_current_tcb->tk_node_lisp}))
+		(assign {lisp} {@sys/statics/statics.statics_sys_task_current_tcb->tk_node_lisp})
 		;run lisp file
 		(call 'str :create_from_file {&script->str_data} {file})
 		(vpif {file})

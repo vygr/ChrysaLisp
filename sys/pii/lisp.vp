@@ -156,8 +156,8 @@
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
-	(assign `((r1 array_begin) (@ ,(f-path 'sys_load :statics))) '(r0 r1))
-	(assign '((r0 0) (r1 ld_statics_stat_buffer)) '(r0 r1))
+	(assign '((r1 array_begin) (@ sys/statics/statics)) '(r0 r1))
+	(assign '((r0 0) (r1 statics_sys_load_stat_buffer)) '(r0 r1))
 	(call 'sys_pii :stat '((& r0 str_data) r1) '(r0))
 	(vpif '(r0 = 0))
 		(vp-cpy-rr r1 r13)

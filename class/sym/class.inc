@@ -2,7 +2,6 @@
 
 (def-class 'sym 'str)
 (dec-method :vtable 'class/sym/vtable)
-(dec-method :statics 'class/sym/statics)
 (dec-method :statics_init 'class/sym/statics_init)
 (dec-method :get_static_sym 'class/sym/get_static_sym :static '(r1) '(r1))
 (dec-method :ref_static_sym 'class/sym/ref_static_sym :static '(r1) '(r1))
@@ -17,10 +16,6 @@
 
 (dec-method :lisp_sym 'class/sym/lisp_sym :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_gensym 'class/sym/lisp_gensym :static '(r0 r1) '(r0 r1))
-
-(def-struct 'sym_statics)
-	(ptr 'intern 'syms)
-(def-struct-end)
 
 (def-struct 'sym 'str)
 (def-struct-end)

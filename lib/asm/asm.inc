@@ -13,7 +13,7 @@
 (defun compile (files &optional *abi* *cpu* num_child)
 	(setd *abi* (abi) *cpu* (cpu) num_child (max 1 (/ (* (length (mail-nodes)) 80) 100)))
 	(unless (list? files) (setq files (list files)))
-	(setq files (shuffle files))
+	(shuffle files)
 	(if (get 'nums)
 		;Native ChrysaLisp
 		(progn
@@ -144,7 +144,7 @@
 			;must be second function !
 			'sys/load/bind
 			;must be third function !
-			'sys/load/statics))
+			'sys/statics/statics))
 		;load all loader dependents
 		(each-mergeable (# (merge-obj f (elem 2 (load-func %0)))) f)
 		(defq fs (length f))

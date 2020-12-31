@@ -203,16 +203,16 @@ Implementation of the function is defined in the `sys/mail/class.vp` file.
 	;trashes
 	;r0-r14
 
-	(ptr 'mail_statics 'name)
+	(ptr 'statics 'name)
 	(ulong 'id)
 
 	(push-scope)
 	(entry 'sys_mail :declare {name, id})
 
-	(assign (cat {@} (f-path 'sys_mail :statics)) {mail_statics})
+	(assign {@sys/statics/statics} {statics})
 	(call 'sym :intern_cstr {name} {name})
 	(call 'num :create {id} {id})
-	(call 'hmap :insert {mail_statics->ml_statics_service_map, name, id})
+	(call 'hmap :insert {statics->statics_sys_mail_service_map, name, id})
 	(call 'sym :deref {name})
 	(call 'num :deref {id})
 
@@ -249,7 +249,7 @@ This is the output from wrapping the 'hmap 'insert line in the example above:
 
 ```vdu
 	(let ((*debug_inst* t))
-		(call 'hmap :insert {mail_statics->ml_statics_service_map, name, id})
+		(call 'hmap :insert {statics->statics_sys_mail_service_map, name, id})
 	)
 ```
 
@@ -257,7 +257,7 @@ This is the output from wrapping the 'hmap 'insert line in the example above:
 -> obj/Darwin/x86_64/sys/mail/declare
 pre opt:
 	(vp-lea-i rsp 0 _v0)
-	(vp-cpy-cr ml_statics_service_map _v1)
+	(vp-cpy-cr statics_sys_mail_service_map _v1)
 	(vp-cpy-ir _v0 0 _v0)
 	(vp-add-rr _v1 _v0)
 	(vp-cpy-ir _v0 0 _v0)
@@ -267,7 +267,7 @@ pre opt:
 	(vp-cpy-ir _v2 0 _v2)
 post opt:
 	(vp-cpy-ir rsp (+ 0 0) _v0)
-	(vp-cpy-ir _v0 (+ ml_statics_service_map 0) _v0)
+	(vp-cpy-ir _v0 (+ statics_sys_mail_service_map 0) _v0)
 	(vp-cpy-ir rsp (+ 8 0) _v1)
 	(vp-cpy-ir rsp (+ 16 0) _v2)
 ```

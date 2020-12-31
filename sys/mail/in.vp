@@ -15,7 +15,7 @@
 	(entry 'sys_mail :in {rx_msg})
 
 	;look up parcel in mailbox
-	(assign (cat {@} (f-path 'sys_mail :statics) {.ml_statics_parcel_list}) {parcel_list})
+	(assign {@sys/statics/statics.statics_sys_mail_parcel_list} {parcel_list})
 	(vp-def (next node src1 src2 src3 psrc1 psrc2 psrc3))
 	(assign {parcel_list,
 			rx_msg->lk_msg_stamp.msg_src.net_id_mbox_id,

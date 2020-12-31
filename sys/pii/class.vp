@@ -1,6 +1,7 @@
 (include "sys/func.inc")
 (include "sys/str/class.inc")
 (include "sys/pii/class.inc")
+(include "sys/statics/class.inc")
 
 (def-method 'sys_pii :exit)
 	;inputs

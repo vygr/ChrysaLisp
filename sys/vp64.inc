@@ -173,7 +173,6 @@
 			(emit-short (+ o (<< (reg r) 8) (<< c 12)) (>>> c 4)))
 		(t	(throw "emit-p constant out of range !" c))))
 
-(defun emit-cpy-rp (r l) (emit-p (next-opcode) r l))
 (defun emit-cpy-pr (l r) (emit-p (next-opcode) r l))
 (defun emit-lea-p (l r) (emit-p (next-opcode) r l))
 

@@ -1516,13 +1516,6 @@ Super Class: obj
 
 ### font :vtable -> gui/font/vtable
 
-### font :statics -> gui/font/statics
-
-```lisp
-info
-font static data
-```
-
 ### font :open -> gui/font/open
 
 ```lisp
@@ -1863,8 +1856,6 @@ r1-r14
 ## gui
 
 Super Class: null
-
-### gui :statics -> gui/gui/statics
 
 ### gui :statics_init -> gui/gui/statics_init
 
@@ -6797,13 +6788,6 @@ Super Class: str
 
 ### sym :vtable -> class/sym/vtable
 
-### sym :statics -> class/sym/statics
-
-```lisp
-info
-symbol static data
-```
-
 ### sym :statics_init -> class/sym/statics_init
 
 ```lisp
@@ -7053,8 +7037,6 @@ r0 = list header (ptr)
 
 Super Class: null
 
-### sys_load :statics -> sys/load/statics
-
 ### sys_load :init -> sys/load/init
 
 ```lisp
@@ -7094,13 +7076,6 @@ r1-r14
 ## sys_mail
 
 Super Class: null
-
-### sys_mail :statics -> sys/mail/statics
-
-```lisp
-info
-mail static data
-```
 
 ### sys_mail :statics_init -> sys/mail/statics_init
 
@@ -7489,7 +7464,7 @@ r0 = random range (ulong)
 outputs
 r0 = random number in range (ulong)
 trashes
-r0-r2
+r0-r3
 ```
 
 ### sys_math :i_sqrt -> sys/math/i_sqrt
@@ -7712,13 +7687,6 @@ r12-r14
 ## sys_mem
 
 Super Class: null
-
-### sys_mem :statics -> sys/mem/statics
-
-```lisp
-info
-mem statics data
-```
 
 ### sys_mem :statics_init -> sys/mem/statics_init
 
@@ -8277,13 +8245,6 @@ r0-r2
 ## sys_task
 
 Super Class: null
-
-### sys_task :statics -> sys/task/statics
-
-```lisp
-info
-task statics data
-```
 
 ### sys_task :statics_init -> sys/task/statics_init
 

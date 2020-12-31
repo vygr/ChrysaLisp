@@ -7,7 +7,7 @@
 	;info
 	;parcels going off chip or junk mail task
 
-	(ptr 'msg 'data 'frag 'mail_statics)
+	(ptr 'msg 'data 'frag 'statics)
 	(struct 'node_id 'node_id)
 	(uint 'offset 'ammount 'len)
 
@@ -15,7 +15,7 @@
 
 	(call 'sys_task :set_priority '(1))
 	(call 'sys_kernel :id nil {node_id.node_id_node1, node_id.node_id_node2})
-	(assign (cat {@} (f-path 'sys_mail :statics)) {mail_statics})
+	(assign {@sys/statics/statics} {statics})
 
 	(loop-start 'mail_loop)
 		;read parcel or junk mail
@@ -28,7 +28,7 @@
 		(endif)
 
 		;create next parcel id
-		(assign {mail_statics->ml_statics_session + 1} {mail_statics->ml_statics_session})
+		(assign {statics->statics_sys_mail_session + 1} {statics->statics_sys_mail_session})
 
 		;for each fragment
 		(assign {0} {offset})
@@ -39,7 +39,7 @@
 			(vpif {len > lk_data_size})
 				(assign {lk_data_size} {len})
 			(endif)
-			(call 'sys_heap :alloc {&mail_statics->ml_statics_msg_heap} {_, frag})
+			(call 'sys_heap :alloc {&statics->statics_sys_mail_msg_heap} {_, frag})
 			(call 'obj :ref {msg->msg_obj} {frag->msg_obj})
 
 			;fill in fragment
@@ -47,7 +47,7 @@
 			(assign {msg->msg_dest.net_id_node_id.node_id_node1} {frag->msg_dest.net_id_node_id.node_id_node1})
 			(assign {msg->msg_dest.net_id_node_id.node_id_node2} {frag->msg_dest.net_id_node_id.node_id_node2})
 
-			(assign {mail_statics->ml_statics_session} {frag->msg_src.net_id_mbox_id})
+			(assign {statics->statics_sys_mail_session} {frag->msg_src.net_id_mbox_id})
 			(assign {node_id.node_id_node1} {frag->msg_src.net_id_node_id.node_id_node1})
 			(assign {node_id.node_id_node2} {frag->msg_src.net_id_node_id.node_id_node2})
 
@@ -62,7 +62,7 @@
 
 			;queue it on the outgoing packet list
 			(vp-def (head node tmp))
-			(assign {&mail_statics->ml_statics_offchip_list, frag} (list head node))
+			(assign {&statics->statics_sys_mail_offchip_list, frag} (list head node))
 			(lh-add-at-tail head node tmp)
 
 			;let links get at some packets
