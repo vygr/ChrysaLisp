@@ -90,7 +90,7 @@
 
 (defmacro days-in-month (m y)
 	`(let ((months (list 31 28 31 30 31 30 31 31 30 31 30 31)))
-			(if (and (= ,m 1) (leapyear? ,y)) 29 (elem ,m months))))
+			(if (and (= (% ,m 12) 1) (leapyear? ,y)) 29 (elem (% ,m 12) months))))
 
 (defmacro days-in-year (year)
 	`(if (leapyear? ,year) 366 365))
