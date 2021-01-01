@@ -120,7 +120,7 @@
 		;return the list to compile
 		files)) *abi* *cpu*))
 
-(defun make-boot (&optional r *funcs* *abi* *cpu*)
+(defun make-boot (&optional *funcs* *abi* *cpu*)
 	(within-compile-env (lambda ()
 		(setd *funcs* (list) *abi* (abi) *cpu* (cpu))
 		(defq *fsyms* (env -31) z (cat (char 0 8) (char 0 4)))
@@ -142,19 +142,18 @@
 			;must be first function !
 			'sys/load/init
 			;must be second function !
-			'sys/load/bind
-			;must be third function !
-			'sys/statics/statics))
+			'sys/statics/statics
+			;must be included !
+			'sys/kernel/kernel))
 		;load all loader dependents
 		(each-mergeable (# (merge-obj f (elem 2 (load-func %0)))) f)
-		(defq fs (length f))
 		;load up all extra functions requested
 		(merge-obj f (map sym *funcs*))
 		(each load-func f)
-		;if recursive then load up all dependents
-		(if r (each-mergeable (# (merge-obj f (elem 2 (load-func %0)))) f))
-		;sort into order, leaving the loader dependents first !
-		(sort cmp f fs)
+		;load up all dependents
+		(each-mergeable (# (merge-obj f (elem 2 (load-func %0)))) f)
+		;sort into order, leaving the init/statics first !
+		(sort cmp f 2)
 		;list of all function bodies and links in order, list of offsets of header and link sections
 		;and offset of new strings section
 		(defq b (map (# (get %0 *fsyms*)) f) ns (list) nso (list) ho (list) lo (list)
@@ -182,7 +181,7 @@
 
 (defun make-boot-all (&optional *abi* *cpu*)
 	(setd *abi* (abi) *cpu* (cpu))
-	(make-boot nil
+	(make-boot
 		(within-compile-env (lambda ()
 			(include "sys/func.inc")
 			(each include (all-class-files))

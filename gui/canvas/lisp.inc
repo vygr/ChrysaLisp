@@ -28,23 +28,23 @@
 
 	(defmethod :save (this file format)
 		; (. canvas :save file format) -> nil | canvas
-		((ffi _ "gui/canvas/lisp_save" 0) this file format))
+		((const (ffi _ "gui/canvas/lisp_save" 0)) this file format))
 
 	(defmethod :swap (this)
 		; (. canvas :swap) -> canvas
-		(. ((ffi _ "gui/canvas/lisp_swap" 0) this) :dirty))
+		(. ((const (ffi _ "gui/canvas/lisp_swap" 0)) this) :dirty))
 
 	(defmethod :next_frame (this)
 		; (. canvas :next_frame) -> canvas
-		((ffi _ "gui/canvas/lisp_next_frame" 0) this))
+		((const (ffi _ "gui/canvas/lisp_next_frame" 0)) this))
 
 	(defmethod :resize (this that)
 		; (. canvas :resize canvas) -> canvas
-		((ffi _ "gui/canvas/lisp_resize" 0) this that))
+		((const (ffi _ "gui/canvas/lisp_resize" 0)) this that))
 
 	(defmethod :fill (this argb)
 		; (. canvas :fill argb) -> canvas
-		((ffi _ "gui/canvas/lisp_fill" 0) this argb))
+		((const (ffi _ "gui/canvas/lisp_fill" 0)) this argb))
 
 	(defmethod :set_canvas_flags (this flags)
 		; (. canvas :set_canvas_flags flags) -> canvas
@@ -56,15 +56,15 @@
 
 	(defmethod :plot (this x y)
 		; (. canvas :plot x y) -> canvas
-		((ffi _ "gui/canvas/lisp_plot" 0) this x y))
+		((const (ffi _ "gui/canvas/lisp_plot" 0)) this x y))
 
 	(defmethod :fbox (this x y width height)
 		; (. canvas :fbox x y width height) -> canvas
-		((ffi _ "gui/canvas/lisp_fbox" 0) this x y))
+		((const (ffi _ "gui/canvas/lisp_fbox" 0)) this x y))
 
 	(defmethod :fpoly (this x y mode paths)
 		; (. canvas :fpoly x y mode paths) -> canvas
-		((ffi _ "gui/canvas/lisp_fpoly" 0) this x y mode paths))
+		((const (ffi _ "gui/canvas/lisp_fpoly" 0)) this x y mode paths))
 
 	(defmethod :pref_size (this)
 		; (. canvas :pref_size) -> (width height)
@@ -77,13 +77,13 @@
 (defclass Canvas (width height scale) (Canvas-base)
 	; (Canvas width height scale) -> canvas
 	; overide the default 'this' env with a Canvas component
-	(defq super this this ((ffi _ "gui/canvas/lisp_create" 0) width height scale))
+	(defq super this this ((const (ffi _ "gui/canvas/lisp_create" 0)) width height scale))
 	(each (lambda ((key val)) (def this key val)) (tolist super))
 	)
 
 (defclass Canvas-from-file (file flags) (Canvas-base)
 	; (Canvas-from-file file flags) -> nil | canvas
 	; overide the default 'this' env with a Canvas component
-	(defq super this this ((ffi _ "gui/canvas/lisp_load" 0) file flags))
+	(defq super this this ((const (ffi _ "gui/canvas/lisp_load" 0)) file flags))
 	(if this (each (lambda ((key val)) (def this key val)) (tolist super)))
 	)

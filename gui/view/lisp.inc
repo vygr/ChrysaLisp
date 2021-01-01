@@ -25,7 +25,7 @@
 (defclass View () nil
 	; (View) -> view
 	; overide the default 'this' env with a View component
-	(defq super this this ((ffi _ "gui/view/lisp_create" 0)))
+	(defq super this this ((const (ffi _ "gui/view/lisp_create" 0))))
 	(each (lambda ((key val)) (def this key val)) (tolist super))
 
 	(deffimethod :find_id "gui/view/lisp_find_id")
