@@ -91,8 +91,8 @@
 		(loop-end)
 	(loop-end)
 
-	;kernel inputs
-	(assign `(,(str (f-path 'sys_kernel :kernel))) '(r0))
+	;jump to kernel
+	(assign '(($ bind_kernel)) '(r0))
 	(vp-call 'prebind)
 	(vp-cpy-rr r0 r1)
 	(vp-pop r0)
@@ -128,6 +128,12 @@
 	(vp-string "Prebind error: ")
 (vp-label 'bind_error_end)
 	(vp-byte +char_lf+)
+(vp-label 'bind_kernel)
+	(vp-string "sys/kernel/kernel")
+	(vp-byte 0)
+
+	;pad function out to loader page size !
+	(vp-string `(pad "" (- (align *pc* ,ld_page_size) *pc*) (char 0 ,long_size)))
 
 (def-func-end)
 

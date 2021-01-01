@@ -4,5 +4,7 @@
 (def-func 'sys/statics/statics)
 	;info
 	;mail static data
-	(times (/ statics_size long_size) (vp-long 0))
+	(vp-string (pad "" statics_size (char 0 long_size)))
+	;pad function out to loader page size !
+	(vp-string `(pad "" (- (align *pc* ,ld_page_size) *pc*) (char 0 ,long_size)))
 (def-func-end)
