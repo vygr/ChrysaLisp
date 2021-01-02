@@ -7060,6 +7060,17 @@ trashes
 r1-r7
 ```
 
+### sys_load :load -> sys/load/load
+
+```lisp
+input
+r0 = c string function path name (pubyte)
+output
+r0 = 0 else, function entry pointer (ptr)
+trashes
+r1-r7
+```
+
 ### sys_load :lisp_path -> sys/load/lisp_path
 
 ```lisp

@@ -150,8 +150,53 @@
 	;trashes
 	;r1-r7
 
+	(entry 'sys_load :bind '(r6))
+
 	;check if function already present !
-	(vp-cpy-rr r0 r6)
+	(fn-bind 'sys/statics/statics r7)
+	(loop-flist r7 statics_sys_load_function_flist r5 r5)
+		(call 'sys_str :compare '(r6 (& r5 fn_header_pathname)) '(r0))
+	(loop-until '(r0 = 0))
+	(vpif '(r5 /= 0))
+		;found function already loaded
+		(assign '((r5 fn_header_entry)) '(r0))
+		(vp-add-rr r5 r0)
+		(vp-ret)
+	(endif)
+
+	;set the function buffers to RW
+	(loop-flist r7 statics_sys_load_block_flist r3 r3)
+		(call 'sys_pii :mprotect '(r3 ld_block_size mmap_data) '(r0))
+		(assert '(r0 = 0))
+	(loop-end)
+
+	;load the function/s
+	(call 'sys_load :load '(r6) '(r4))
+
+	;set the function buffers to RX
+	(fn-bind 'sys/statics/statics r7)
+	(loop-flist r7 statics_sys_load_block_flist r3 r3)
+		(call 'sys_pii :mprotect '(r3 ld_block_size mmap_exec) '(r0))
+		(assert '(r0 = 0))
+	(loop-end)
+
+	;return function address
+	(exit 'sys_load :bind '(r4))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'sys_load :load)
+	;input
+	;r0 = c string function path name (pubyte)
+	;output
+	;r0 = 0 else, function entry pointer (ptr)
+	;trashes
+	;r1-r7
+
+	(entry 'sys_load :load '(r6))
+
+	;check if function already present !
 	(fn-bind 'sys/statics/statics r7)
 	(loop-flist r7 statics_sys_load_function_flist r5 r5)
 		(call 'sys_str :compare '(r6 (& r5 fn_header_pathname)) '(r0))
@@ -201,12 +246,6 @@
 		(assign '(r0) '((r7 statics_sys_load_block_start)))
 		(vp-add-cr (- ld_block_size ptr_size) r0)
 		(assign '(r0) '((r7 statics_sys_load_block_end)))
-	(else)
-		;set the function buffers to RW
-		(loop-flist r7 statics_sys_load_block_flist r3 r3)
-			(call 'sys_pii :mprotect '(r3 ld_block_size mmap_data) '(r0))
-			(assert '(r0 = 0))
-		(loop-end)
 	(endif)
 
 	;open function file
@@ -309,15 +348,11 @@
 	(vp-cpy-ir r0 (neg ptr_size) r0)
 	(assign '(r0) '((r7 statics_sys_load_reloc_stack)))
 
-	;set the function buffers to RX
-	(loop-flist r7 statics_sys_load_block_flist r4 r4)
-		(call 'sys_pii :mprotect '(r4 ld_block_size mmap_exec) '(r0))
-		(assert '(r0 = 0))
-	(loop-end)
-
 	;return function address
 	(assign '((r3 fn_header_entry)) '(r0))
 	(vp-add-rr r3 r0)
+
+	(exit 'sys_load :bind '(r0))
 	(vp-ret)
 
 (def-func-end)
