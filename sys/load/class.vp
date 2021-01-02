@@ -190,7 +190,7 @@
 	(assign '((r0 stat_fsize)) '(r0))
 	(vpif '(r2 < r0))
 		;not enough so allocate new function buffer
-		(call 'sys_pii :mmap '(ld_block_size -1 mmap_exec) '(r0))
+		(call 'sys_pii :mmap '(ld_block_size -1 mmap_data) '(r0))
 		(assert '(r0 /= 0))
 
 		;add to block list for freeing
@@ -201,6 +201,12 @@
 		(assign '(r0) '((r7 statics_sys_load_block_start)))
 		(vp-add-cr (- ld_block_size ptr_size) r0)
 		(assign '(r0) '((r7 statics_sys_load_block_end)))
+	(else)
+		;set the function buffers to RW
+		(loop-flist r7 statics_sys_load_block_flist r3 r3)
+			(call 'sys_pii :mprotect '(r3 ld_block_size mmap_data) '(r0))
+			(assert '(r0 = 0))
+		(loop-end)
 	(endif)
 
 	;open function file
@@ -302,6 +308,12 @@
 	(assign '((r7 statics_sys_load_reloc_stack)) '(r0))
 	(vp-cpy-ir r0 (neg ptr_size) r0)
 	(assign '(r0) '((r7 statics_sys_load_reloc_stack)))
+
+	;set the function buffers to RX
+	(loop-flist r7 statics_sys_load_block_flist r4 r4)
+		(call 'sys_pii :mprotect '(r4 ld_block_size mmap_exec) '(r0))
+		(assert '(r0 = 0))
+	(loop-end)
 
 	;return function address
 	(assign '((r3 fn_header_entry)) '(r0))
