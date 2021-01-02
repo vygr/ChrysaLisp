@@ -474,7 +474,7 @@ long long mymprotect(void *addr, size_t len, int mode)
 	case mmap_exec:
 		if (!run_emu)
 		{
-			if (VirtualProtect(addr, len, PAGE_EXECUTE_READWRITE, (PDWORD)&old)) return 0;
+			if (VirtualProtect(addr, len, PAGE_EXECUTE_READ, (PDWORD)&old)) return 0;
 			else return -1;
 		}
 	case mmap_data:
@@ -486,7 +486,7 @@ long long mymprotect(void *addr, size_t len, int mode)
 	switch (mode)
 	{
 	case mmap_exec:
-		if (!run_emu) return mprotect(addr, len, PROT_READ | PROT_WRITE | PROT_EXEC);
+		if (!run_emu) return mprotect(addr, len, PROT_READ | PROT_EXEC);
 	case mmap_data:
 		return mprotect(addr, len, PROT_READ | PROT_WRITE);
 	case mmap_none:
@@ -502,7 +502,7 @@ void *mymmap(size_t len, long long fd, int mode)
 	switch (mode)
 	{
 	case mmap_exec:
-		if (!run_emu) return VirtualAlloc(0, len, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+		if (!run_emu) return VirtualAlloc(0, len, MEM_COMMIT, PAGE_EXECUTE_READ);
 	case mmap_data:
 		return VirtualAlloc(0, len, MEM_COMMIT, PAGE_READWRITE);
 	case mmap_shared:
@@ -512,7 +512,7 @@ void *mymmap(size_t len, long long fd, int mode)
 	switch (mode)
 	{
 	case mmap_exec:
-		if (!run_emu) return mmap(0, len, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE | MAP_ANON | MAP_JIT, (int)fd, 0);
+		if (!run_emu) return mmap(0, len, PROT_READ | PROT_EXEC, MAP_PRIVATE | MAP_ANON | MAP_JIT, (int)fd, 0);
 	case mmap_data:
 		return mmap(0, len, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANON, (int)fd, 0);
 	case mmap_shared:
