@@ -82,11 +82,7 @@
 (def-enum-end)
 
 (def-enum 'mmap)
-	(enum 'data 'exec 'shared)
-(def-enum-end)
-
-(def-enum 'mprotect)
-	(enum 'none)
+	(enum 'data 'exec 'shared 'none)
 (def-enum-end)
 
 (def-struct 'stat)

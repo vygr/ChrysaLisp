@@ -104,7 +104,7 @@
 			(assign '(r2 ld_page_size) '((r1 statics_sys_mem_total) r1))
 			(vp-add-rr r5 r4)
 			(vp-sub-rr r1 r4)
-			(call 'sys_pii :mprotect '(r4 r1 mprotect_none) '(r0))
+			(call 'sys_pii :mprotect '(r4 r1 mmap_none) '(r0))
 			(errorif '(r0 /= 0) 'error)
 			(assign '((rsp 0)) '(r0))
 			(ln-add-fnode r0 hp_heap_block_flist r5 r1)

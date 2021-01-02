@@ -459,7 +459,10 @@ long long gettime()
 
 enum
 {
-	mprotect_none
+	mmap_data,
+	mmap_exec,
+	mmap_shared,
+	mmap_none
 };
 
 long long mymprotect(void *addr, size_t len, int mode)
@@ -468,23 +471,30 @@ long long mymprotect(void *addr, size_t len, int mode)
 	int old;
 	switch (mode)
 	{
-	case mprotect_none: if (VirtualProtect(addr, len, PAGE_NOACCESS, (PDWORD)&old)) return 0;
+	case mmap_exec:
+		if (!run_emu)
+		{
+			if (VirtualProtect(addr, len, PAGE_EXECUTE_READWRITE, (PDWORD)&old)) return 0;
+			else return -1;
+		}
+	case mmap_data:
+		if (VirtualProtect(addr, len, PAGE_READWRITE, (PDWORD)&old)) return 0;
+		else return -1;
+	case mmap_none: if (VirtualProtect(addr, len, PAGE_NOACCESS, (PDWORD)&old)) return 0;
 	}
 #else
 	switch (mode)
 	{
-	case mprotect_none: return mprotect(addr, len, 0);
+	case mmap_exec:
+		if (!run_emu) return mprotect(addr, len, PROT_READ | PROT_WRITE | PROT_EXEC);
+	case mmap_data:
+		return mprotect(addr, len, PROT_READ | PROT_WRITE);
+	case mmap_none:
+		return mprotect(addr, len, PROT_NONE);
 	}
 #endif
 	return -1;
 }
-
-enum
-{
-	mmap_data,
-	mmap_exec,
-	mmap_shared
-};
 
 void *mymmap(size_t len, long long fd, int mode)
 {
@@ -639,16 +649,15 @@ int main(int argc, char *argv[])
 		{
 			stat(argv[1], &fs);
 			size_t data_size = fs.st_size;
-			uint16_t *data = (uint16_t*)mymmap(data_size, -1, mmap_exec);
+			uint16_t *data = (uint16_t*)mymmap(data_size, -1, mmap_data);
 			if (data != (uint16_t*)-1)
 			{
 				if (read((int)fd, data, data_size) == data_size)
 				{
-					myclearicache(data, data_size);
 					//printf("image start address: 0x%llx\n", (unsigned long long)data);
-	#ifndef _WIN64
+#ifndef _WIN64
 					fcntl(0, F_SETFL, fcntl(0, F_GETFL, 0) | O_NONBLOCK);
-	#endif
+#endif
 					if (run_emu)
 					{
 						int64_t* stack = (int64_t*)mymmap(VP64_STACK_SIZE, -1, mmap_data);
@@ -665,6 +674,9 @@ int main(int argc, char *argv[])
 					}
 					else
 					{
+						//first page is RX
+						myclearicache(data, data_size);
+						mymprotect(data, 4096, mmap_exec);
 #ifdef _GUI
 						ret_val = ((int(*)(char* [], void* [], void* []))((char*)data + data[5]))(argv, host_os_funcs, host_gui_funcs);
 #else
