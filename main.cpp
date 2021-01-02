@@ -512,7 +512,7 @@ void *mymmap(size_t len, long long fd, int mode)
 	switch (mode)
 	{
 	case mmap_exec:
-		if (!run_emu) return mmap(0, len, PROT_READ | PROT_EXEC, MAP_PRIVATE | MAP_ANON | MAP_JIT, (int)fd, 0);
+		if (!run_emu) return mmap(0, len, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE | MAP_ANON | MAP_JIT, (int)fd, 0);
 	case mmap_data:
 		return mmap(0, len, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANON, (int)fd, 0);
 	case mmap_shared:
