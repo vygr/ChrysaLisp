@@ -552,6 +552,7 @@ long long mymunmap(void *addr, size_t len, int mode)
 void *myclearicache(void* addr, size_t len)
 {
 #ifdef _WIN64
+	FlushInstructionCache(GetCurrentProcess(), addr, len);
 #else
 	#ifdef __APPLE__
 		sys_icache_invalidate(addr, len);
