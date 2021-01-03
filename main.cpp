@@ -34,9 +34,6 @@
 #ifdef _GUI
 	#include <SDL.h>
 #endif
-#ifndef MAP_JIT
-	#define MAP_JIT 0
-#endif
 
 #define VP64_STACK_SIZE 8192
 int vp64(uint8_t* data, int64_t *stack, int64_t *argv, int64_t *host_os_funcs, int64_t *host_gui_funcs);
@@ -512,7 +509,7 @@ void *mymmap(size_t len, long long fd, int mode)
 	switch (mode)
 	{
 	case mmap_exec:
-		if (!run_emu) return mmap(0, len, PROT_READ | PROT_EXEC, MAP_PRIVATE | MAP_ANON | MAP_JIT, (int)fd, 0);
+		if (!run_emu) return mmap(0, len, PROT_READ | PROT_EXEC, MAP_PRIVATE | MAP_ANON, (int)fd, 0);
 	case mmap_data:
 		return mmap(0, len, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANON, (int)fd, 0);
 	case mmap_shared:
