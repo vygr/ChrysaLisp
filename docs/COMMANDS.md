@@ -197,7 +197,23 @@ Usage: unique [options] [line] ...
 ## wc
  
 ```lisp
-usage: wc [-h] [-v] [-f] [-l] [-w] [-c] {} ...
+
+usage: wc [-h] [-v] [-f :file] [-l] [-w] [-c]
+
+details:
+
+        -h   - displays help and exits
+        -v   - displays app version and exits
+        -f   - file to summarize (default: stdin)
+        -l   - include line count in summary (default: nil)
+        -w   - include word count in summary (default: nil)
+        -c   - include character count in summary (default: nil)
+
+```
+## wcseg
+ 
+```lisp
+usage: wcseg [-h] [-v] [-f] [-l] [-w] [-c] {} ...
 
 word counter
 
