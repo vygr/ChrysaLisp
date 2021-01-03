@@ -13,134 +13,176 @@
 	;host GUI function table
 	;info
 	;register inputs are dependant on the platform ABI
-	;they are extracted via (abi-arg 0)-(abi-arg 2)
+	;they are extracted via (abi-arg 0)-(abi-arg 2).
+	;we need to keep the statics function on the front
+	;of the tail block, even though it dosn't get used
+	;because the boot image has relative reference to the
+	;sys/statics/statics string in the header !
+
+	(def-struct 'local)
+		(ptr 'argv 'os 'gui 'statics)
+		(ptr 'boot_static_func 'boot_tail_func)
+		(ptr 'new_static_func 'new_tail_func)
+		(uint 'boot_static_len 'boot_tail_len)
+	(def-struct-end)
+
+	(vp-def (links paths func statics os) '(r10 r11 r12 r13 r14))
 
 	;save inputs
 	(tk-save-state)
-	(vp-push (abi-arg 0))
-	(vp-push (abi-arg 2))
-	(vp-cpy-rr (abi-arg 1) r14)
+	(vp-alloc local_size)
+	(entry 'sys_load :init '((rsp local_argv) (rsp local_os) (rsp local_gui)))
+
+	;get boot block info
+	(assign '(($ fn_start) ($ fn_end)) '(r0 r1))
+	(assign '((r0 0) (r1 fn_header_length)) '(r2 r3))
+	(assign '(r1 r3) '((rsp local_boot_static_func) (rsp local_boot_static_len)))
+	(assign '(r1) '((rsp local_boot_tail_func)))
+	(vp-sub-rr r0 r1)
+	(vp-sub-rr r1 r2)
+	(assign '(r2) '((rsp local_boot_tail_len)))
+
+	;relocate statics and tail to their own mmap regions
+	(assign '((rsp local_os)) `(,os))
+	(abi-call-table 'host :mmap os '((rsp local_boot_static_len) -1 mmap_data) '(r0))
+	(assign '(r0) '((rsp local_new_static_func)))
+	(assign '((rsp local_os)) `(,os))
+	(abi-call-table 'host :mmap os '((rsp local_boot_tail_len) -1 mmap_data) '(r0))
+	(assign '(r0) '((rsp local_new_tail_func)))
+	(call 'memcpy '((rsp local_boot_static_func) (rsp local_new_static_func) (rsp local_boot_static_len)))
+	(call 'memcpy '((rsp local_boot_tail_func) (rsp local_new_tail_func) (rsp local_boot_tail_len)))
 
 	;allocate relloc/stat/name buffer
-	(abi-call-table 'host :mmap r14 '(ld_reloc_buf_size -1 mmap_data) '(r0))
-
-	;get loader statics which folows this function !
-	(vp-lea-p 'fn_end r7)
-	(assign '((r7 fn_header_entry)) '(r1))
-	(vp-add-rr r1 r7)
-
-	;save host function tables
-	(vp-pop r13)
-	(assign '(r13) '((r7 statics_sys_load_host_gui_funcs)))
-	(assign '(r14) '((r7 statics_sys_load_host_os_funcs)))
+	(assign '((rsp local_os)) `(,os))
+	(abi-call-table 'host :mmap os '(ld_reloc_buf_size -1 mmap_data) '(r0))
 
 	;init reloc buffer address etc
-	(assign '(r0 r0) '((r7 statics_sys_load_reloc_stack) (r7 statics_sys_load_reloc_buffer)))
+	(assign '((rsp local_new_static_func)) `(,statics))
+	(assign `((,statics fn_header_entry)) '(r1))
+	(vp-add-rr r1 statics)
+	(assign `(,statics) '((rsp local_statics)))
+	(assign '(r0 r0) `((,statics statics_sys_load_reloc_stack) (,statics statics_sys_load_reloc_buffer)))
 	(vp-add-cr ld_reloc_size r0)
-	(assign '(r0) '((r7 statics_sys_load_name_buffer)))
+	(assign '(r0) `((,statics statics_sys_load_name_buffer)))
 	(vp-add-cr ld_name_size r0)
-	(assign '(r0) '((r7 statics_sys_load_stat_buffer)))
+	(assign '(r0) `((,statics statics_sys_load_stat_buffer)))
 
-	;add all prebound functions to function list
-	(vp-lea-p 'fn_end r11)
+	;save host abi tables
+	(assign '((rsp local_os) (rsp local_gui)) '(r0 r1))
+	(assign '(r0) `((,statics statics_sys_load_host_os_funcs)))
+	(assign '(r1) `((,statics statics_sys_load_host_gui_funcs)))
+
+	;add statics function to function list
+	(assign '((rsp local_new_static_func)) `(,func))
+	(ln-add-fnode statics statics_sys_load_function_flist func r0)
+	;add all tail functions to function list
+	(assign '((rsp local_new_tail_func)) `(,func))
+	(assign `((,func fn_header_length)) '(r0))
+	(vp-add-rr r0 func)
 	(loop-start)
-		(assign '((r11 fn_header_length)) '(r2))
-		(breakif '(r2 = 0))
-		(ln-add-fnode r7 statics_sys_load_function_flist r11 r0)
-		(vp-add-rr r2 r11)
+		(assign `((,func fn_header_length)) '(r0))
+		(breakif '(r0 = 0))
+		(ln-add-fnode statics statics_sys_load_function_flist func r1)
+		(vp-add-rr r0 func)
 	(loop-end)
 
-	;bind all prebound function intra references
-	(vp-lea-p 'fn_end r2)
+	;bind all function intra references
+	(assign '((rsp local_new_tail_func)) `(,func))
+	(assign `((,func fn_header_length)) '(r0))
+	(vp-add-rr r0 func)
 	(loop-start)
-		(assign '((r2 fn_header_length)) '(r1))
-		(breakif '(r1 = 0))
-		(assign '((r2 fn_header_links) (r2 fn_header_paths)) '(r0 r3))
-		(vp-add-rr r2 r0)
-		(vp-add-rr r2 r3)
-		(vp-add-rr r1 r2)
-		(loop-while '(r0 /= r3))
-			(vp-push r0 r2 r3 r4)
-			(vp-cpy-ir r0 0 r1)
-			(vp-add-rr r1 r0)
-			;prebind
-			(vp-call 'prebind)
-			(vpif '(r0 = 0))
-				;no such function
-				(abi-call-table 'host :write r14 `(2 ($ bind_error) (- ,(label-sym 'bind_error_end) ,(label-sym 'bind_error))))
-				(vp-cpy-ir rsp (* ptr_size 3) r0)
-				(vp-cpy-ir r0 0 r1)
-				(vp-add-rr r0 r1)
-				(vp-cpy-rr r1 r2)
-				(loop-start)
-					(vp-cpy-ir-ub r2 0 r0)
-					(vp-add-cr byte_size r2)
-				(loop-until '(r0 = 0))
-				(vp-sub-rr r1 r2)
-				(vp-sub-cr 1 r2)
-				(abi-call-table 'host :write r14 '(2 r1 r2))
-				(abi-call-table 'host :write r14 '(2 ($ bind_error_end) 1))
-				(abi-call-table 'host :exit r14 '(1))
-			(endif)
-			(vp-cpy-rr r0 r1)
-			(vp-pop r0 r2 r3 r4)
-			(vp-cpy-ri r1 r0 0)
-			(vp-add-cr ptr_size r0)
+		(assign `((,func fn_header_length)) '(r0))
+		(breakif '(r0 = 0))
+		(assign `((,func fn_header_links) (,func fn_header_paths)) `(,links ,paths))
+		(vp-add-rr func links)
+		(vp-add-rr func paths)
+		(vp-add-rr r0 func)
+		(loop-while (list links '/= paths))
+			(vp-cpy-ir links 0 r0)
+			(vp-add-rr links r0)
+			(call 'bind `(r0 ,statics) '(r0))
+			(vp-cpy-ri r0 links 0)
+			(vp-add-cr ptr_size links)
 		(loop-end)
 	(loop-end)
 
-	;set boot image after statics to RX
-	(assign '(($ fn_end)) '(r0))
-	(assign '((r0 fn_header_length)) '(r1))
-	(vp-add-rr r1 r0)
-	(vp-sub-rr r0 r11)
-	(abi-call-table 'host :mprotect r14 '(r0 r11 mmap_exec))
+	;set functions to RX
+	(assign '((rsp local_os)) `(,os))
+	(abi-call-table 'host :mprotect os '((rsp local_new_tail_func) (rsp local_boot_tail_len) mmap_exec))
+	(assign '((rsp local_os)) `(,os))
+	(abi-call-table 'host :clear_icache os '((rsp local_new_tail_func) (rsp local_boot_tail_len)))
 
-	;jump to kernel
-	(assign '(($ fn_end) ($ bind_kernel)) '(r7 r0))
-	(assign '((r7 fn_header_entry)) '(r1))
-	(vp-add-rr r1 r7)
-	(vp-call 'prebind)
-	(vp-cpy-rr r0 r1)
-	(vp-pop r0)
+	;call the kernel
+	(call 'bind '(($ bind_kernel) (rsp local_statics)) '(r1))
+	(assign '((rsp local_argv)) '(r0))
 	(vp-call-r r1)
+
+	;free new statics and tail regions etc
+	(assign '((rsp local_statics) (rsp local_os)) `(,statics ,os))
+	(abi-call-table 'host :munmap os `((,statics statics_sys_load_reloc_buffer) ld_reloc_buf_size mmap_data))
+	(assign '((rsp local_os)) `(,os))
+	(abi-call-table 'host :munmap os '((rsp local_new_static_func) (rsp local_boot_static_len) mmap_exec))
+	(assign '((rsp local_os)) `(,os))
+	(abi-call-table 'host :munmap os '((rsp local_new_tail_func) (rsp local_boot_tail_len) mmap_exec))
+
+	;return with code 0
+	(vp-free local_size)
 	(tk-load-state)
-	(vp-cpy-cr 0 r0)
-	(vp-ret)
-
-(vp-label 'prebind)
-	(vp-cpy-rr r0 r6)
-	(loop-flist r7 statics_sys_load_function_flist r5 r5)
-		(vp-cpy-rr r6 r0)
-		(vp-lea-i r5 fn_header_pathname r1)
-		(loop-start)
-			(vp-cpy-ir-ub r0 0 r2)
-			(vp-cpy-ir-ub r1 0 r3)
-			(vp-sub-rr r3 r2)
-			(breakif '(r2 /= 0) '(r3 = 0))
-			(vp-add-cr byte_size r0)
-			(vp-add-cr byte_size r1)
-		(loop-end)
-	(loop-until '(r2 = 0))
-	(vpif '(r5 /= 0))
-		;found function
-		(assign '((r5 fn_header_entry)) '(r0))
-		(vp-add-rr r5 r0)
-		(vp-ret)
-	(endif)
 	(vp-xor-rr r0 r0)
+	(exit 'sys_load :init '(r0))
 	(vp-ret)
 
-(vp-label 'bind_error)
-	(vp-string "Prebind error: ")
-(vp-label 'bind_error_end)
-	(vp-byte +char_lf+)
+(vp-label 'bind)
+	;inputs
+	;r0 = name
+	;r1 = statics
+	;outputs
+	;r0 = func entry point
+	;trashes
+	;r1-r6
+	(vp-def (name stats node str1 str2 c1 c2))
+	(entry `(,name ,stats))
+
+	(loop-flist stats statics_sys_load_function_flist node node)
+		(vp-cpy-rr name str1)
+		(vp-lea-i node fn_header_pathname str2)
+		(loop-start)
+			(vp-cpy-ir-ub str1 0 c1)
+			(vp-cpy-ir-ub str2 0 c2)
+			(vp-sub-rr c2 c1)
+			(breakif (list c1 '/= 0) (list c2 '= 0))
+			(vp-add-cr byte_size str1)
+			(vp-add-cr byte_size str2)
+		(loop-end)
+	(loop-until (list c1 '= 0))
+	(assign `((,node fn_header_entry)) '(r0))
+	(vp-add-rr node r0)
+
+	(exit '(r0))
+	(vp-ret)
+
+(vp-label 'memcpy)
+	;inputs
+	;r0 = src
+	;r1 = dest
+	;r2 = length
+	;trashes
+	;r0-r3
+	(vp-def (src dst len end))
+	(entry `(,src ,dst ,len))
+
+	(assign `((& ,src ,len)) `(,end))
+	(loop-start)
+		(vp-cpy-ir-ub src 0 len)
+		(vp-add-cr byte_size src)
+		(vp-cpy-ri-b len dst 0)
+		(vp-add-cr byte_size dst)
+	(loop-until (list src '= end))
+	(vp-ret)
+
 (vp-label 'bind_kernel)
 	(vp-string "sys/kernel/kernel")
 	(vp-byte 0)
-
-	;pad function out to loader page size !
-	(vp-string `(pad "" (- (align *pc* ,ld_page_size) *pc*) (char 0 ,long_size)))
 
 (def-func-end)
 

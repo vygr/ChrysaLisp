@@ -7046,7 +7046,11 @@ host OS function table
 host GUI function table
 info
 register inputs are dependant on the platform ABI
-they are extracted via (abi-arg 0)-(abi-arg 2)
+they are extracted via (abi-arg 0)-(abi-arg 2).
+we need to keep the statics function on the front
+of the tail block, even though it dosn't get used
+because the boot image has relative reference to the
+sys/statics/statics string in the header !
 ```
 
 ### sys_load :bind -> sys/load/bind

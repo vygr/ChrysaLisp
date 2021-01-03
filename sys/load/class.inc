@@ -6,7 +6,7 @@
 ;;;;;;;;;;;;;;;;;;;
 
 (def-class 'sys_load)
-(dec-method :init 'sys/load/init)
+(dec-method :init 'sys/load/init :static (abi-args 3) '(r0))
 (dec-method :bind 'sys/load/bind :static '(r0) '(r0))
 (dec-method :load 'sys/load/load :static '(r0) '(r0))
 

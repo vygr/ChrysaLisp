@@ -176,6 +176,8 @@
 			f (reduce (# (push %0 (cat %1 (ascii-char 0)))) ns
 				(push (reduce (# (push %0 (elem 0 %1) (elem 1 %1))) b (list)) z))
 			l (reduce (# (+ %0 (length %1))) f 0))
+		;save size in boot image
+		(elem-set 0 f (cat (char l long_size) (slice long_size -1 (elem 0 f))))
 		(each (# (write stream %0)) f)
 		(print "-> " (func-obj 'sys/boot_image) " (" l ")") nil)))
 

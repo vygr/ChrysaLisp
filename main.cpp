@@ -675,9 +675,9 @@ int main(int argc, char *argv[])
 					}
 					else
 					{
-						//first page is RX
+						//swap to RX
 						myclearicache(data, data_size);
-						mymprotect(data, 4096, mmap_exec);
+						mymprotect(data, data_size, mmap_exec);
 #ifdef _GUI
 						ret_val = ((int(*)(char* [], void* [], void* []))((char*)data + data[5]))(argv, host_os_funcs, host_gui_funcs);
 #else
