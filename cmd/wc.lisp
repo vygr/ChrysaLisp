@@ -1,102 +1,94 @@
 ;imports
 (import "class/lisp.inc")
-(import "lib/argparse/argparse.inc")
+(import "lib/argparse/argpclz.lisp")
 
-(defun get-stream (args)
-	; (get-stream args) -> stream
-	(if (find :file_name args)
-		(file-stream (elem (inc (find :file_name args)) args))
-		(io-stream 'stdin)))
+(defun arg-to-stream (arg)
+	; (get-stream arg) -> stream
+ (cond
+   ((sym? arg)
+    (io-stream arg))
+   (t
+     (file-stream arg))))
 
 (defun line-count (res ln)
   ; (line-count res ln) -> ln
-  (defq
-    lndx (inc (find :lines res)))
-  (elem-set lndx res (inc (elem lndx res)))
+  (sets! res :lines (inc (gets res :lines)))
   ln)
 
 (defun word-count (res ln)
   ; (word-count res ln) -> ln
-  (defq
-    lndx (inc (find :words res)))
-  (elem-set lndx res (+ (elem lndx res) (length (split ln " "))))
+  (sets! res :words (+ (gets res :words) (length (split ln " "))))
   ln)
 
 (defun char-count (res ln)
   ; (char-count res ln) -> ln
-  (defq
-    lndx (inc (find :characters res)))
-  (elem-set lndx res (+ (elem lndx res) (length ln)))
+  (sets! res :characters (+ (gets res :characters) (length ln)))
   ln)
 
-; Designated handler for main processor
-(defun main-callback (self args)
-  ; (main-callback self args) -> results
+(defun perform (_cmd)
+  ; (perform parsed_argument_map)
   (defq
-    results (list :lines 0 :words 0 :characters 0)
-    instrm (get-stream args)
-    rnlist (reduce (lambda (acc el)
-                     (cond
-                       ((eql el :lines)
-                         (push acc (curry line-count results)))
-                       ((eql el :words)
-                         (push acc (curry word-count results)))
-                       ((eql el :chars)
-                         (push acc (curry char-count results)))
-                       (t
-                         acc))) args (list)))
+    results (emap-kv :lines 0 :words 0 :characters 0)
+    instrm  (arg-to-stream (gets _cmd 'file))
+    rnlist  (reduce
+              (lambda (acc (_k _v))
+                (cond
+                  ((and (eql _k 'lines) _v)
+                   (push acc (curry line-count results)))
+                  ((and (eql _k 'words) _v)
+                   (push acc (curry word-count results)))
+                  ((and (eql _k 'characters) _v)
+                   (push acc (curry char-count results)))
+                  (t acc)))
+              (entries _cmd) (list)))
+
   (when (/= (length rnlist) 0)
     (while (defq ln (read-line instrm))
             ((apply compose rnlist) ln)))
-  (print results))
+  (print (entries results)))
 
-(defun create-parser (argv)
-  (defq parser (create-argparse (elem 0 argv) "v0.1" (slice 1 -1 argv)))
-  (set-properties parser
-                  :help "word counter"
-                  :handler main-callback
-                  :validator validate-none
-                  :counter +no_count+)
-
-  ; File name argument
-  (add-argument
-    parser
-    (set-properties (create-argument
-                      '("-f" "--file")
-                      "file input to wc")
-                    :type :type_file
-                    :validator validate-file-exists
-                    :counter 1
-                    :dest :file_name))
-  ; Include line count in result
-  (add-argument
-    parser
-    (set-properties (create-argument
-                      '("-l" "--lines")
-                      "display count of lines")
-                    :validator validate-none
-                    :dest :lines))
-  ; Include word count in result
-  (add-argument
-    parser
-    (set-properties (create-argument
-                      '("-w" "--words")
-                      "display count of words")
-                    :validator validate-none
-                    :dest :words))
-  ; Include char count in result
-  (add-argument
-    parser
-    (set-properties (create-argument
-                      '("-c" "--chars")
-                      "display count of characters")
-                    :validator validate-none
-                    :dest :chars))
+(defun create-parser ()
+  ; (create-parser)
+  ; Setup the command line parser
+  (defq
+    parser (argparse "wc"
+                     (emap-kv
+                       :version "v0.1"
+                       :help "word counter")))
+  (. parser :add_action
+     (switch "-f"
+             (emap-kv
+               :type      :file
+               :default   'stdin
+               :validate  :file_exist
+               :help      "file to summarize"
+               :dest      'file)))
+  (. parser :add_action
+     (bool-switch "-l"
+                  (emap-kv
+                    :dest 'lines
+                    :help "include line count in summary")))
+  (. parser :add_action
+     (bool-switch "-w"
+                  (emap-kv
+                    :dest 'words
+                    :help "include word count in summary")))
+  (. parser :add_action
+     (bool-switch "-c"
+                  (emap-kv
+                    :dest 'characters
+                    :help "include character count in summary")))
   parser)
 
 ; Command entry point
 (defun main ()
   ;initialize pipe details and command args, abort on error
   (when (defq stdio (create-stdio))
-    (defq ap (create-parser (stdio-get-args stdio)))
-    (parse ap)))
+    (defq
+      args  (stdio-get-args stdio)
+      ; stdin (io-stream 'stdin)
+      ap    (create-parser))
+    ; (parse ap)
+    (when (defq res (. ap :parse args))
+      (perform res)))
+  0)

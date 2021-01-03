@@ -53,6 +53,16 @@
           (entries (get :children_nodes (. this :get_parent)))))
       (t '())))
 
+  (defmethod :has_sibling? (this uid)
+    (defq
+      myid (. this :unique_id)
+      par  (. this :get_parent))
+    (cond
+      (par
+        (gets (get :children_nodes par) uid))
+      (t
+        nil)))
+
   (defmethod :unique_id (this)
     ; (. xnode :unique_id) -> unique_id
     ; Returns the has of this object
@@ -123,7 +133,7 @@
       (t
         (str nm suffix))))
 
-  (defmethod :child_for_node_name (this namestr)
+  (defmethod :child_node (this namestr)
     (gets (get :children_nodes this) namestr))
 
   (when parent
