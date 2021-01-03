@@ -168,9 +168,9 @@
     ; (. path-node :child_segment node_name)
     (cond
       ((. this :is_root?)
-        (. this :child_for_node_name node_name))
-      ((defq snode (. this :child_for_node_name _pathseparator))
-        (. snode :child_for_node_name node_name))
+        (. this :child_node node_name))
+      ((defq snode (. this :child_node _pathseparator))
+        (. snode :child_node node_name))
       (t nil)))
 
   (defmethod :prior_segment (this)

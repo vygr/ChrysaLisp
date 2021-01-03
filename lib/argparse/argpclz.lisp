@@ -5,9 +5,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun populate-fields (clzi parms)
-  ; (populate-fields class-instance parms-map) -> nil
+  ; (populate-fields argclz parms-map) -> nil
   ; Takes any key/value map and matches key value to
-  ; properties on class
+  ; properties on class instance
   (cond
     ((and parms (map? parms))
      (defq ks (keys (into-map (xmap) (entries parms))))
@@ -21,16 +21,33 @@
      (throw "argparse parameters not a map type" parms)))
   )
 
-(defun display-help (argp args)
-  (print "usage: " (. argp :unique_id))
+(defun display-help (_clzi args)
+  ; (display-help argclz argstring) -> nil
+  (print "usage: " (. _clzi :unique_id))
   nil)
 
-(defun display-version (argp args)
-  (print (. argp :unique_id) ".lisp " (get :version argp))
+(defun display-version (_clzi args)
+  ; (display-version argclz argstring) -> nil
+  (print (. _clzi :unique_id) ".lisp " (get :version _clzi))
   nil)
 
-(defun _nop (val) t)
+(defun _nop (_clzi result)
+  ; (_nop argclz list) -> t
+  t)
 
+(defun file-exist? (_clzi args)
+  ; (file-exists? argclz list) -> nil | exception
+  (when (str? (first args))
+    (if (= (age (first args)) 0)
+           (throw "Failed file existence " args))))
+
+(defun file-not-exist? (_clzi args)
+  ; (file-not-exists? argclz list) -> nil | exception
+  (when (str? (first args))
+    (if (> (age (first args)) 0)
+           (throw "Failed file not expected to exist " args))))
+
+; Built in validation functions
 (defq type-validators
       (xmap-kv
         :none           _nop
@@ -41,18 +58,23 @@
         :real           _nop
         :str            _nop
         :boolean        _nop
-        :file_exist     _nop
-        :file_not_exit  _nop))
+        :file_exist     file-exist?
+        :file_not_exit  file-not-exist?))
 
 (defun immediate-store (_clzi &optional _v)
-  (set _clzi :_result _v))
+  ; (immediate-store argclz list) -> any
+  (set _clzi :_result (first _v)))
 
-(defq actions
+; Built in storage functions
+(defq action-fns
       (xmap-kv
         :store        immediate-store
-        :store_const  (#(immediate-store %0 (get :const %0)))
-        :store_true   (#(immediate-store %0 t))
-        :store_false  (#(immediate-store %0 nil))
+        :store_const  (lambda (_clzi &optional v)
+                        (immediate-store _clzi '((get :const _clzi))))
+        :store_true   (lambda (_clzi &optional v)
+                        (immediate-store _clzi '(t)))
+        :store_false  (lambda (_clzi &optional v)
+                        (immediate-store _clzi '(nil)))
         )
       )
 
@@ -63,8 +85,11 @@
        :help    nil     ; All can have a help string
        :_result nil)
 
-  (defmethod :name  (this) (. this :unique_id))
-  (defmethod :help  (this) (get :help this)))
+  (defmethod :name  (this)
+    (. this :unique_id))
+  (defmethod :help  (this)
+    (get :help this))
+  )
 
 ; Primary application class
 ; Can have both switches and commands
@@ -74,7 +99,6 @@
        :in_args   nil     ; Stores the initial arglist
        :desc      nil     ; Description string
        :usage     nil     ; Usage override string
-       :handler   _nop    ; not sure
        :must_have (list)) ; Must have positional commands
 
   (defmethod :add_action (this arg)
@@ -82,10 +106,11 @@
     ; Adds a switch or command to the argument parser
     (when (or (command? arg) (and (switch? arg) (get :required arg)))
         (push (get :must_have this) (. arg :unique_id)))
+    (. arg :_set_action)
     (. this :add_node arg))
 
   (defmethod :parse (this arglist)
-    ; (. argparse :parse arglist) -> argobject | nil
+    ; (. argparse :parse arglist) -> map | nil
     ; Parses the input argument list and
     ; returns results
     (defq display_immediate nil)
@@ -106,32 +131,90 @@
       (display_immediate
         (display_immediate this arglist))
       (t
-        arglist))
+        ; Build result map
+        (set this :_result
+             (reduce (lambda (acc (_ _v))
+                       (sets! acc (get :dest _v) nil))
+                     (. this :children)
+                     (xmap)))
+        ; Parse arglist
+        (let ((index 0) (len (length arglist)))
+          (while (< index len)
+                 (defq cntxt (. this :child_node (elem index arglist)))
+                 (if cntxt
+                   (setq index (. cntxt :action_parse (inc index) arglist))
+                   (throw "No matching action found " (elem index arglist)))))
+        ; Gather result
+        (reduce (lambda (acc (_ _v))
+                  (sets! acc
+                         (get :dest _v)
+                         (. _v :results)))
+                (. this :children)
+                (get :_result this))))
     )
 
   ; argparse constructor
-  (populate-fields this parms))
+  (populate-fields this parms)
+  )
 
 ; Base action (command/switch) class
 (defclass action (name &optional parms) (argclz name)
   (def this
        :required  nil
-       :action    immediate-store
+       :action    nil
        :const     nil
        :nargs     1
        :default   nil
        :dest      nil
        :type      :str
        :validate  :str
-       :handler   _nop
-       :count     1
        :choices   '()
        :metavar   nil)
 
-  ; (defmethod perform-action (this &optional _v))
+  (defmethod :_set_action (this)
+    (set this :action :store))
+
+  (defmethod :validate_and_store (this res)
+    (defq
+      act (get :action this)
+      val (get :validate this))
+    (cond
+      ((lambda? val)
+       (val this res))
+      (t
+        ((gets type-validators val) this res)))
+    (cond
+      ((lambda? act)
+       (act this res))
+      (t
+        ((gets action-fns act) this res))))
+
+  (defmethod :action_parse (this index arglist)
+    (defq
+      res (list)
+      cnt (get :nargs this)
+      tcnt (+ index cnt))
+    (cond
+      ; No count, likely a boolean switch
+      ((= cnt 0)
+       nil)
+      ; Count exceeds arglist length
+      ((and (> cnt 0) (> tcnt (length arglist)))
+       (throw
+         arglist))
+      (t
+        (setq
+          res (slice index tcnt arglist)
+          index tcnt)))
+    (. this :validate_and_store res)
+    index)
+
+  (defmethod :results (this)
+    (get :_result this))
 
   ; action constructor
   (populate-fields this parms)
+  (set this :_result (get :default this))
   (if (nil? (get :dest this))
       (set this :dest
          (cond
@@ -144,20 +227,22 @@
            (t (sym (cat : name))))))
   )
 
-
+; Base switch class
 (defclass switch (name &optional parms) (action name parms)
   )
 
+; Boolean switch class
 (defclass bool-switch (name &optional parms) (switch name parms)
   (set this
-       :count 0
-       :type  :boolean)
+       :nargs   0
+       :type    :boolean)
+
+  (defmethod :_set_action (this)
+    (set this :action (opt (get :action this) :store_true)))
   )
 
+; Command class
+; All commands are required
 (defclass command (name &optional parms) (action name parms)
   (set this :required t)
-  (defmethod :add_switch (this arg)
-    (if (switch? arg)
-        (. this :add_node arg)
-        (throw "Unknown type " arg)))
   )
