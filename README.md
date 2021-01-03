@@ -14,8 +14,8 @@ C-Script compiler, Lisp interpreter, Debugger, and more...
 ![](./screen_shot_7.png)
 
 
-It runs on MacOS, Windows or Linux for x64, Linux for Aarch64. Will move to
-bare metal eventually but it's useful for now to run hosted while
+It runs on MacOS, Windows or Linux for x64, MacOS or Linux for Aarch64. Will
+move to bare metal eventually but it's useful for now to run hosted while
 experimenting. When time allows I will be doing a VM boot image for UniKernel
 type appliances and a WebAssembly target to play around within the browser.
 

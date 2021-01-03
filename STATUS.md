@@ -25,6 +25,12 @@ New split, slice and gui command apps !
 Can now launch Emulated vp64 CPU node networks with `-e` launch script option.
 Enjoy.
 
+Total rewrite of the boot system and the way it organizes mmap regions.
+
+MacOS M1 silicon version now running TUI (GUI needs SDL crew update for M1...)
+and is showing the fastest benchmark times of any current platform. Under 0.2
+second full build time on the MacBook Air !
+
 ------
 
 New `lib/clenv/clenv.inc` library for accessing `.hostenv` variable assignments.
