@@ -4,6 +4,8 @@
 ; and constraints
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(import "lib/xtras/xtras.inc")
+
 (defun populate-fields (clzi parms)
   ; (populate-fields argclz parms-map) -> nil
   ; Takes any key/value map and matches key value to
@@ -23,7 +25,39 @@
 
 (defun display-help (_clzi args)
   ; (display-help argclz argstring) -> nil
-  (print "usage: " (. _clzi :unique_id))
+  (defq +detsep+ (pad "- " 5 " "))
+  (defun build_help (_clzi_children usage detail)
+    (reduce
+      (lambda (acc (_k _v))
+        (defq bstr _k)
+        (push detail (str
+                       (pad _k 10 " ")
+                       +detsep+
+                       (. _v :help)
+                       " (default: " (get :default _v) ")"))
+        (cond
+          ((and (get :nargs _v) (> (get :nargs _v) 0))
+           (push usage (str "[" _k " " (get :type _v) "]")))
+          (t
+            (push usage (str "[" _k "]"))))
+        acc)
+      _clzi_children t)
+    (list usage detail))
+
+    (bind
+      '(summary detail)
+      (build_help
+        (. _clzi :children)
+        (list "[-h]" "[-v]")
+        (list
+          (str (pad "-h" 10 " ") +detsep+ "displays help and exits")
+          (str (pad "-v" 10 " ") +detsep+ "displays app version and exits"))))
+  (print "")
+  (print "usage: " (. _clzi :unique_id) " " (join summary " "))
+  (print "")
+  (print "details:")
+  (print "")
+  (each print detail)
   nil)
 
 (defun display-version (_clzi args)
@@ -31,41 +65,78 @@
   (print (. _clzi :unique_id) ".lisp " (get :version _clzi))
   nil)
 
-(defun _nop (_clzi result)
-  ; (_nop argclz list) -> t
-  t)
-
-(defun file-exist? (_clzi args)
-  ; (file-exists? argclz list) -> nil | exception
-  (when (str? (first args))
-    (if (= (age (first args)) 0)
-           (throw "Failed file existence " args))))
-
-(defun file-not-exist? (_clzi args)
-  ; (file-not-exists? argclz list) -> nil | exception
-  (when (str? (first args))
-    (if (> (age (first args)) 0)
-           (throw "Failed file not expected to exist " args))))
-
 ; Built in validation functions
+(defun _nop (_clzi)
+  ; (_nop argclz) -> nil
+  ; Does nothing but returns result
+  nil)
+
+; Numeric validators
+(defun int-any (_clzi)
+  ; (int-any argclz) -> val | exception
+  (defq res (get :_result _clzi))
+  (when (not (intstr? res))
+    (throw "Not an integer" res))
+  (set _clzi :_result (to-num res)))
+
+(defun int-positive (_clzi)
+  ; (int-positive argclz) -> val | exception
+  (defq res (int-any _clzi))
+  (when (pos? res)
+    (throw "Not a positive integer" res))
+  res)
+
+(defun int-negative (_clzi)
+  ; (int-negative argclz) -> val | exception
+  (defq res (int-any _clzi))
+  (when (neg? res)
+    (throw "Not a negative integer" res))
+  res)
+
+(defun dec-any (_clzi)
+  ; (dec-any argclz) -> val | exception
+  (defq res (int-any _clzi))
+  (when (not (decstr? res))
+    (throw "Not a decimal number" res))
+  (set _clzi :_result (to-num res)))
+
+; File validators
+(defun file-exists? (_clzi)
+  ; (file-exists? argclz) -> value | exception
+  (defq res (get :_result _clzi))
+  (when (str? res)
+    (if (zero? (age res))
+           (throw "Failed file existence " res)))
+  res)
+
+(defun file-not-exist? (_clzi)
+  ; (file-not-exists? argclz) -> value | exception
+  (defq res (get :_result _clzi))
+  (when (str? res)
+    (if (> (age res) 0)
+           (throw "Failed file not expected to exist " res)))
+  res)
+
+; Built in validation jump table
 (defq type-validators
       (xmap-kv
         :none           _nop
-        :int_any        _nop
-        :int_pos        _nop
-        :int_neg        _nop
+        :int_any        int-any
+        :int_pos        int-positive
+        :int_neg        int-negative
         :counter        _nop
-        :real           _nop
+        :decimal_any    dec-any
         :str            _nop
         :boolean        _nop
-        :file_exist     file-exist?
+        :file_exist     file-exists?
         :file_not_exit  file-not-exist?))
 
+; Built in argument storage functions
 (defun immediate-store (_clzi &optional _v)
   ; (immediate-store argclz list) -> any
   (set _clzi :_result (first _v)))
 
-; Built in storage functions
+; Built in storage jump table
 (defq action-fns
       (xmap-kv
         :store        immediate-store
@@ -82,7 +153,7 @@
 ;
 (defclass argclz (name) (named-xnode name)
   (def this
-       :help    nil     ; All can have a help string
+       :help    "(no help)"
        :_result nil)
 
   (defmethod :name  (this)
@@ -117,7 +188,7 @@
     (cond
       ((or
          (empty? arglist)
-         (and (= (length arglist) 1) (eql (first arglist) (. this :unique_id)))
+         (and (one? (length arglist)) (eql (first arglist) (. this :unique_id)))
          (find "-h" arglist))
        (setq display_immediate display-help))
       ((find "-v" arglist)
@@ -168,48 +239,76 @@
        :dest      nil
        :type      :str
        :validate  :str
-       :choices   '()
+       :choices   nil
        :metavar   nil)
 
   (defmethod :_set_action (this)
+    ; (. action :_set_action) -> any
     (set this :action :store))
 
   (defmethod :validate_and_store (this res)
+    ; (. action :validate_and_store parse_result) -> any | exception
     (defq
       act (get :action this)
-      val (get :validate this))
-    (cond
-      ((lambda? val)
-       (val this res))
-      (t
-        ((gets type-validators val) this res)))
+      val (get :validate this)
+      chc (get :choices this))
+    ; Choice options in effect
+    (when chc
+      ; Must match one
+      (each (lambda (_v)
+              (when (nil? (find _v chc))
+                (throw (str _v " is not a valid choice") chc)))
+            res))
+    ; Store value in :_result
     (cond
       ((lambda? act)
        (act this res))
       (t
-        ((gets action-fns act) this res))))
+        ((gets action-fns act) this res)))
+    ; Validate and convert :_result
+    (cond
+      ((lambda? val)
+       (val this))
+      (t
+        ((gets type-validators val) this)))
+    )
 
   (defmethod :action_parse (this index arglist)
+    ; (. action :action_parse index arglist) -> any | exception
     (defq
       res (list)
       cnt (get :nargs this)
       tcnt (+ index cnt))
     (cond
       ; No count, likely a boolean switch
-      ((= cnt 0)
+      ((zero? cnt)
        nil)
       ; Count exceeds arglist length
       ((and (> cnt 0) (> tcnt (length arglist)))
        (throw
+         (str "Not enough arguments provided for " (. this :unique_id))
          arglist))
       (t
+        ; Validate that arguments consumed do not
+        ; exceed requirement of action
+        (defq
+          sibs (each first (. this :siblings)))
         (setq
-          res (slice index tcnt arglist)
+          res (slice index tcnt arglist))
+        (each (lambda (_s)
+                (when (find _s res)
+                  (throw
+                    (str "Can't satisfy arguments expected for "
+                         (. this :unique_id))
+                    res)))
+              sibs)
+        (setq
           index tcnt)))
     (. this :validate_and_store res)
     index)
 
   (defmethod :results (this)
+    ; (. action :results) -> value
     (get :_result this))
 
   ; action constructor
@@ -238,6 +337,9 @@
        :type    :boolean)
 
   (defmethod :_set_action (this)
+    ; (. bool-switch :_set_action) -> any
+    ; Override action method to reflect
+    ; storage of boolean action
     (set this :action (opt (get :action this) :store_true)))
   )
 

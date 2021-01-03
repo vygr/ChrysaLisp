@@ -123,11 +123,6 @@
   ; Returns true if values are not eql
   (not (eql a b)))
 
-(defun props? (_)
-  ; (props? el) -> bool
-  ; Returns true if argument is a properties type
-  (emap? _))
-
 (defun ndef? (_ &optional e)
   ; (ndef? sym [env]) -> bool
   ; Returns t if sym is not defined in environment
