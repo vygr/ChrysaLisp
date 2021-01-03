@@ -8,13 +8,21 @@
 
 ;Currently defined only for time since unix epoch Jan 1, 1970
 
+
 (structure '+time 0
 	(byte 'second+ 'minute+ 'hour+ 'date+ 'month+ 'year+ 'week+ 'dls+ 'tz+))
 
 (structure '+tz 0
 	(byte 'abbreviation+ 'offset+ 'dls+ 'title+ 'locations+))
 
-(defq unix_epoch '(0 0 0 1 0 1970 0) dls_flag nil 
+
+(defmacro leapyear? (y)
+	`(cond 
+		((and (= (% ,y 100) 0) (/= (% ,y 400) 0)) nil)
+		((= (% ,y 4) 0) t)
+		(t nil)))
+
+(defq unix_epoch '(0 0 0 1 1 1970 0) dls_flag nil 
 	;week_abbr (list "Sun" "Mon" "Tue" "Wed" "Thu" "Fri" "Sat")
 	week_abbr (list "Thu" "Fri" "Sat" "Sun" "Mon" "Tue" "Wed")
 	month_abbr (list "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug" "Sep" "Oct" "Nov" "Dec"))
@@ -59,16 +67,7 @@
 				((eql ,p :location) (get-by-val +tz_locations+ ,v timezones))
 				(t nil))))
 
-;find tz element from tz
-(defmacro timezone-get (tz p)
-	`(cond
-		((eql ,p :abbreviation) (elem +tz_abbreviation+ ,tz))
-		((eql ,p :offset) (elem +tz_offset+ ,tz))
-		((eql ,p :title) (elem +tz_title+ ,tz))
-		((eql ,p :locations) (elem +tz_locations+ ,tz))
-		(t nil)))
-
-;timezone-init creates
+;timezone-init creates the timezone. Use this once you have a location.
 (defmacro timezone-init (tz_loc)
 	`(let ((ltz (list)))
 		(setq ltz (timezone-lookup :location ,tz_loc))
@@ -118,7 +117,9 @@
 	(let ((month 0))
 		(defq year (get-year days) date (get-yeardays days) monthdays (days-in-month month year))
 		(while (> date (setq monthdays (days-in-month month year)))
-			(setq date (- date monthdays) month (inc month)))
+
+			(setq date (- date monthdays) month (inc month))
+			(if (> month 11) (setq month 0)))
 		(list date month year)))
 
 (defun check-date (td)
@@ -132,6 +133,7 @@
 		(elem +tz_offset+ (get :local_timezone)))) (/ seconds 60.0)) 
 		hours (% (/ minutes 60.0) 12.0))
 	(list seconds minutes hours))
+
 ;takes a time value in seconds or uses default (pii-time)
 (defun date (&optional secs)
 	(defq seconds (/ (pii-time) 1000000))
