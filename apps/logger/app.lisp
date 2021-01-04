@@ -5,9 +5,8 @@
 ;imports
 (import "sys/lisp.inc")
 (import "class/lisp.inc")
-(import "lib/logging/logservice.inc")
-(import "lib/logging/logcommons.inc")
 (import "lib/xchange/yaml-data.inc")
+(import "lib/logging/logcommons.inc")
 (import "apps/logger/logutils.lisp")
 
 ;single instance only
@@ -21,7 +20,8 @@
     )
 
   (defun debug-write (&rest _)
-    (write DEBUG (apply str (push _ +nl+)))
+    (setq _ (insert (push _ +nl+) 0 (list (encode-date))))
+    (write DEBUG (apply str _))
     (stream-flush DEBUG))
   ; (defun debug-write (&rest _))
 
