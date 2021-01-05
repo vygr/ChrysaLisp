@@ -6,9 +6,6 @@
 (import "gui/canvas/lisp.inc")
 (import "lib/consts/colors.inc")
 
-(defmacro is_text_char (_)
-	(list 'find-rev _ (const (cat (ascii-char 9) "() "))))
-
 (defmacro is_number_char (_)
 	(list 'find-rev _ "0123456789"))
 
@@ -72,8 +69,6 @@
 				(case state
 					(:text
 						(cond
-							((is_text_char c)
-								(push token c))
 							((eql c ":")
 								(push state_list state)
 								(push token_list token)
