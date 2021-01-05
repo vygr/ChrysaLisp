@@ -30,20 +30,20 @@
       client
       (gets (. this :get_registry) client)))
 
-  (defmethod :register_client (this client)
+  (defmethod :register_client (this client &optional msg)
     ; (. server-ipc :register_client client) -> any
     ; Adds, if needed, client to registry and
     ; acknowledges a registration request from a
     ; client ipc
     (defq
       reg (. this :client_for client)
-      txt "OK")
+      msg (opt msg "OK"))
     (if reg
-      (setq txt "Already Registered")
+      (setq msg "Already Registered")
       (progn
         (setq reg (ipc (. this :service_mb) client))
         (sets! (. this :get_registry) client reg)))
-    (. reg :send ipc_event_success txt))
+    (. reg :send :success msg))
 
   (defmethod :deregister_client (this client)
     ; (. server-ipc :deregister_client client) -> any
@@ -57,7 +57,7 @@
       (setq
         txt "Not Registered"
         reg (ipc (. this :service_mb) client)))
-    (. reg :send ipc_event_success txt))
+    (. reg :send :success txt))
 
   (defmethod :read_mail (this)
     ; (. server-ipc :read) -> triplet
@@ -70,14 +70,12 @@
                 (first (xliststr-data msg)))
       client  (to-net-id (gets obj :client)))
     (cond
-      ((gets (. this :get_registry) client)
-        (setq client (gets (. this :get_registry) client)))
+      ((defq fc (. this :client_for client))
+        (setq client fc))
       (t
         nil))
     (defq
-      res    (list client
-        (gets obj :command)
-        (gets obj :data)))
+      res (list client (gets obj :command) (gets obj :data)))
     res)
   )
 

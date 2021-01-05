@@ -31,7 +31,7 @@
     ; This is for demo only
     (bind '(client cmd msg)
       (.
-        (. this :send ipc_event_shutdown (list))
+        (. this :send :shutdown (list))
         :recieve))
     (print ":shutdown response cmd " cmd " data " msg)
     this)
@@ -41,7 +41,7 @@
     (print "Client ping sending")
     (bind '(client cmd msg)
       (.
-        (. this :send ipc_event_ping)
+        (. this :send :ping)
         :recieve))
     (print ":ping cmd " cmd " data " msg)
     this)

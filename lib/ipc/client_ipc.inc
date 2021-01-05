@@ -12,29 +12,32 @@
 
 (defclass client-ipc (client server) (ipc client server)
   (def this
-    :registered  nil)
+    :registered       nil
+    :registered_data  nil)
 
-  (defmethod :register (this)
+  (defmethod :register (this &optional msg)
     ; (. client_ipc :register) -> t | exception
     (bind '(client cmd msg)
       (.
-        (. this :send ipc_event_register)
+        (. this :send :register msg)
         :recieve))
-    (print ":register response cmd " cmd " data " msg)
-    (if (= cmd ipc_event_success)
-      (set this :registered t)
-      (throw "Unable to register client " msg))
+    (cond
+      ((eql cmd :success)
+        (set this :registered t)
+        (set this :registered_data msg))
+      (t
+        (throw "Unable to register client " msg)))
     this)
 
   (defmethod :deregister (this)
     ; (. client_ipc :deregister) -> t | exception
     (bind '(client cmd msg)
       (.
-        (. this :send ipc_event_deregister)
+        (. this :send :deregister)
         :recieve))
-    (print ":deregister response cmd " cmd " data " msg)
-    (if (= cmd ipc_event_success)
+    (if (eql cmd :success)
       (set this :registered nil)
+      (set this :registered_data nil)
       (throw "Unable to deregister client " msg))
     this)
   )

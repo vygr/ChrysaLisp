@@ -1,16 +1,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; ipc_defs - ipc structures and utility
-; functions
+; ipc_defs - ipc utility functions
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(structure 'ipc_event 0
-  (byte
-    'success
-    'exception
-    'register
-    'deregister
-    'shutdown
-    'ping))
 
 (defun mbox-from-decl (_s)
   ; (mbox-from-decl _s) -> net_id
