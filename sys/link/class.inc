@@ -4,6 +4,7 @@
 
 (def-class 'sys_link)
 (dec-method :link 'sys/link/link)
+(dec-method :usb_link 'sys/link/usb_link)
 (dec-method :in 'sys/link/in)
 (dec-method :out 'sys/link/out)
 

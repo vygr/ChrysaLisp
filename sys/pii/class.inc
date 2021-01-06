@@ -20,6 +20,8 @@
 (dec-method :seek nil :virtual (abi-args 3) '(r0))
 (dec-method :rand nil :virtual (abi-args 2) '(r0))
 (dec-method :sleep nil :virtual (abi-args 1) '(r0))
+(dec-method :start_usb nil :virtual (abi-args 1) '(r0))
+(dec-method :stop_usb nil :virtual (abi-args 1) '(r0))
 
 (def-class 'host_gui)
 (dec-method :sdl_set_main_ready nil :virtual (abi-args 0) '(r0))
@@ -272,6 +274,8 @@
 (dec-method :remove 'sys/pii/remove :static '(r0) '(r0))
 (dec-method :seek 'sys/pii/seek :static '(r0 r1 r2) '(r0))
 (dec-method :rand 'sys/pii/rand :static '(r0 r1) '(r0))
+(dec-method :start_usb 'sys/pii/start_usb :static '(r0) '(r0))
+(dec-method :stop_usb 'sys/pii/stop_usb :static '(r0) '(r0))
 
 (dec-method :lisp_readchar 'sys/pii/lisp_readchar :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_writechar 'sys/pii/lisp_writechar :static '(r0 r1) '(r0 r1))

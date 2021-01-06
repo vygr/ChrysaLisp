@@ -4,6 +4,71 @@
 (include "class/array/class.inc")
 (include "class/node/class.inc")
 
+(def-method 'sys_link :usb_link)
+	;started by kernel for usb link
+
+	(struct 'lk_node 'lk_node)
+	(ptr 'statics 'params 'msg 'data 'mem)
+	(pubyte 'pdata)
+	(struct 'node_id 'node_id)
+
+	(push-scope)
+
+	;decrement task count
+	;don't count links in load balancing
+	(assign {@sys/statics/statics} {statics})
+	(assign {statics->statics_sys_task_task_count - 3} {statics->statics_sys_task_task_count})
+
+	;init and add link node to link array
+	(call 'sys_kernel :id nil {node_id.node_id_node1, node_id.node_id_node2})
+	(assign {0 => lk_node.lk_node_task_count => lk_node.lk_node_peer_node_id.node_id_node1}
+		{lk_node.lk_node_peer_node_id.node_id_node2})
+	(call 'array :push_back {statics->statics_sys_mail_links_array, &lk_node})
+
+	;read params msg from kernel
+	(call 'sys_mail :mymail nil {params, pdata})
+
+	;allocate message buffers
+	(call 'sys_mem :calloc {lk_buffer_size} {mem, _})
+
+	;start C++ usb link thread...
+	(call 'sys_pii :start_usb {mem})
+
+	;start out link and send params
+	(call 'sys_mail :alloc {16} {msg, data})
+	(call 'sys_task :start (cat {@} (f-path 'sys_link :out)) '(_ _ r2 r3 r4))
+	(assign {msg, data, &lk_node, mem} '(r0 r1 r5 r6))
+	(save-net-id r0 msg_dest)
+	(assign '(r5 r6) '((r1 0) (r1 ptr_size)))
+	(call 'sys_mail :send '(r0))
+
+	;start in link and send params
+	(call 'sys_mail :alloc {16} {msg, data})
+	(call 'sys_task :start (cat {@} (f-path 'sys_link :in)) '(_ _ r2 r3 r4))
+	(assign {msg, data, &lk_node, mem} '(r0 r1 r5 r6))
+	(save-net-id r0 msg_dest)
+	(assign '(r5 r6) '((r1 0) (r1 ptr_size)))
+	(call 'sys_mail :send '(r0))
+
+	;wait till link dies or told to quit...
+	(loop-start)
+		(call 'sys_task :sleep '(1000000))
+		;exit if signaled by kernel...
+	(loop-end)
+
+	;stop C++ thread
+	(call 'sys_pii :stop_usb {mem})
+
+	;free message buffers
+	(call 'sys_mem :free {mem})
+
+	;restore task count
+	(assign {statics->statics_sys_task_task_count + 3} {statics->statics_sys_task_task_count})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
 (def-method 'sys_link :link)
 	;started by kernel for each link
 

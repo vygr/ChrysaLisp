@@ -1,4 +1,5 @@
 obj/*
+src/obj/*
 logs/*
 platform
 arch
