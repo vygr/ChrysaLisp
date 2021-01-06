@@ -52,14 +52,14 @@
 
 	;start kernel task (get's mailbox id of 0 !)
 	(assign {@sys/statics/statics} {statics })
-	(call 'sys_task :start {$fn_entry} {statics ->statics_sys_task_kernel_tcb, mbox_addr, _, _, _})
-	(assign {statics ->statics_sys_task_kernel_tcb} {statics ->statics_sys_task_current_tcb})
+	(call 'sys_task :start {$fn_entry} {statics->statics_sys_task_kernel_tcb, mbox_addr, _, _, _})
+	(assign {statics->statics_sys_task_kernel_tcb} {statics->statics_sys_task_current_tcb})
 
 	;init mailer
 	(call 'sys_mail :statics_init1)
 
 	;set random node ID
-	(call 'sys_pii :rand {&statics ->statics_sys_task_kernel_node_id, node_id_size})
+	(call 'sys_pii :rand {&statics->statics_sys_task_kernel_node_id, node_id_size})
 	(call 'sys_kernel :id nil {node_id.node_id_node1, node_id.node_id_node2})
 
 	;process command options
@@ -98,10 +98,10 @@
 				(break)
 			(vpcase '(r0 = kn_call_child))
 				;find best cpu to run task
-				(assign {statics ->statics_sys_task_task_count} {best_cnt})
+				(assign {statics->statics_sys_task_task_count} {best_cnt})
 				(assign {node_id.node_id_node1} {best_id.node_id_node1})
 				(assign {node_id.node_id_node2} {best_id.node_id_node2})
-				(call 'array :get_both {statics ->statics_sys_mail_links_array} {_, iter_begin, iter_end})
+				(call 'array :get_both {statics->statics_sys_mail_links_array} {_, iter_begin, iter_end})
 				(loop-while {iter_begin /= iter_end})
 					(assign {*iter_begin} {link})
 					(assign {iter_begin + ptr_size} {iter_begin})
@@ -130,7 +130,7 @@
 				;find/create the routing tuple for the origin
 				(assign {data, key} '(r0 r1))
 				(assign-node-id r0 kn_msg_ping_origin r1 str_data)
-				(call 'hmap :find {statics ->statics_sys_mail_routing_map, key} {_, tuple, bucket})
+				(call 'hmap :find {statics->statics_sys_mail_routing_map, key} {_, tuple, bucket})
 				(vpifnot {tuple})
 					(call 'node :create {&data->kn_msg_ping_origin, node_id_size} {new_key})
 					(call 'array :create nil {tuple})
@@ -170,7 +170,7 @@
 					;find/create the service tuple for the origin
 					(assign {data, key} '(r0 r1))
 					(assign-node-id r0 kn_msg_ping_origin r1 str_data)
-					(call 'hmap :find {statics ->statics_sys_mail_service_map, key} {_, tuple, bucket})
+					(call 'hmap :find {statics->statics_sys_mail_service_map, key} {_, tuple, bucket})
 					(vpifnot {tuple})
 						(call 'node :create {&data->kn_msg_ping_origin, node_id_size} {new_key})
 						(call 'list :create nil {tuple})
@@ -408,7 +408,7 @@
 	(entry '(r8))
 
 	;start link
-	(call 'sys_task :start `((@ ,(f-path 'sys_link :out))) '(_ _ r9 r10 r11))
+	(call 'sys_task :start `((@ ,(f-path 'sys_link :link))) '(_ _ r9 r10 r11))
 
 	;params message
 	(call 'sys_mail :alloc '(8) '(r0 r1))

@@ -40,4 +40,52 @@ struct fn_header
 	uint16_t pathname;
 };
 
+struct node_id
+{
+	uint64_t m_node1;
+	uint64_t m_node2;
+};
+
+struct net_id
+{
+	uint64_t m_mbox_id;
+	node_id m_node_id;
+};
+
+struct stamp
+{
+	net_id m_dest;
+	net_id m_src;
+	uint32_t m_frag_length;
+	uint32_t m_frag_offset;
+	uint32_t m_total_length;
+	uint32_t m_padding;
+};
+
+//hard values for now...
+const int lk_data_size = 472;
+const int lk_page_size = 4096;
+
+enum
+{
+	lk_chan_status_ready,
+	lk_chan_status_busy
+};
+
+struct lk_msg
+{
+	uint32_t m_status;
+	uint32_t m_hash;
+	node_id m_peer_node_id;
+	uint32_t m_task_count;
+	uint32_t m_padding;
+	stamp m_stamp;
+	char m_data[lk_data_size];
+};
+
+struct lk_chan
+{
+	lk_msg m_msgs[14];
+};
+
 #endif
