@@ -149,19 +149,22 @@
 					;new routing session, clear vias, update session and hops
 					(call 'array :set_length {tuple, 0})
 					(call 'array :push_back2 {tuple, data->kn_msg_ping_session, data->kn_msg_ping_hops})
-					(goto 'new_via)
+					(goto 'flood_via)
 				(vpcase {data->kn_msg_ping_hops < hops})
 					;better route, clear vias, update hops
 					(call 'array :set_length {tuple, 1})
 					(call 'array :push_back {tuple, data->kn_msg_ping_hops})
-					(goto 'new_via)
-				(vpcase {data->kn_msg_ping_hops = hops})
-				(vp-label 'new_via)
-					;equal route, push via, flood to neibours
+				(vp-label 'flood_via)
 					(call 'array :push_back2 {tuple,
 						data->kn_msg_ping_via.node_id_node1,
 						data->kn_msg_ping_via.node_id_node2})
 					(call 'flood_fill {statics , msg, data, node_id.node_id_node1, node_id.node_id_node2})
+					(break)
+				(vpcase {data->kn_msg_ping_hops = hops})
+					;equal route, push via, but no need to flood onwards !
+					(call 'array :push_back2 {tuple,
+						data->kn_msg_ping_via.node_id_node1,
+						data->kn_msg_ping_via.node_id_node2})
 				(endswitch)
 
 				;don't update services if I am orign !
