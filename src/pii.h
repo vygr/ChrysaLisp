@@ -54,12 +54,14 @@ struct net_id
 
 struct stamp
 {
+	uint64_t ln_node_succ;
+	uint64_t ln_node_pred;
 	net_id m_dest;
 	net_id m_src;
 	uint32_t m_frag_length;
 	uint32_t m_frag_offset;
 	uint32_t m_total_length;
-	uint32_t m_padding;
+	uint32_t m_pad;
 };
 
 //hard values for now...
