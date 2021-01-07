@@ -8,10 +8,10 @@ CPU := aarch64
 ABI := ARM64
 endif
 
-all:		.hostenv gui tui
+all:		.hostenv tui gui
 gui:		.hostenv obj/$(CPU)/$(ABI)/$(OS)/main_gui
 tui:		.hostenv obj/$(CPU)/$(ABI)/$(OS)/main_tui
-install:	clean .hostenv gui tui inst
+install:	clean .hostenv tui gui inst
 
 .hostenv:
 ifeq ($(OS), Windows)
