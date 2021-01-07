@@ -533,7 +533,7 @@ void *pii_flush_icache(void* addr, size_t len)
 	#ifdef __APPLE__
 		sys_icache_invalidate(addr, len);
 	#else
-		__clear_cache(addr, ((char*)addr + len));
+		__builtin___clear_cache(addr, ((char*)addr + len));
 	#endif
 #endif
 	return addr;
