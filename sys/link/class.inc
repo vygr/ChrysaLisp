@@ -36,7 +36,7 @@
 
 (def-struct 'lk_chan)
 	(struct 'msg0 'lk_msg)
-	(struct 'msgs (* (/ (- (- (* lk_page_size 2) long_size) *struct_sp*) lk_msg_size) lk_msg_size))
+	(struct 'msgs (* (/ (- (- lk_page_size long_size) *struct_sp*) lk_msg_size) lk_msg_size))
 (def-struct-end)
 
 (def-struct 'lk_buffer)

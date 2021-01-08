@@ -87,7 +87,7 @@ struct lk_msg
 
 struct lk_chan
 {
-	lk_msg m_msgs[14];
+	lk_msg m_msgs[7];
 };
 
 #endif
