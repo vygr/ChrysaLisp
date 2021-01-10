@@ -54,8 +54,6 @@ struct net_id
 
 struct stamp
 {
-	uint64_t ln_node_succ;
-	uint64_t ln_node_pred;
 	net_id m_dest;
 	net_id m_src;
 	uint32_t m_frag_length;
@@ -65,7 +63,7 @@ struct stamp
 };
 
 //hard values for now...
-const int lk_data_size = 472;
+const int lk_data_size = 984;
 const int lk_page_size = 4096;
 
 enum
@@ -80,14 +78,14 @@ struct lk_msg
 	uint32_t m_hash;
 	node_id m_peer_node_id;
 	uint32_t m_task_count;
-	uint32_t m_padding;
+	uint32_t m_pad;
 	stamp m_stamp;
 	char m_data[lk_data_size];
 };
 
 struct lk_chan
 {
-	lk_msg m_msgs[7];
+	lk_msg m_msgs[3];
 };
 
 #endif

@@ -30,6 +30,7 @@
 	(pptr 'iter_begin 'iter_end)
 	(struct 'best_id 'node_id)
 	(struct 'node_id 'node_id)
+	(ulong 'time)
 	(uint 'best_cnt)
 
 	(push-scope)
@@ -127,6 +128,9 @@
 					(ptr 'services 'entries))
 				(push-scope)
 
+				;timestamp
+				(call 'sys_pii :time nil '{time})
+
 				;find/create the routing tuple for the origin
 				(assign {data, key} '(r0 r1))
 				(assign-node-id r0 kn_msg_ping_origin r1 str_data)
@@ -134,7 +138,8 @@
 				(vpifnot {tuple})
 					(call 'node :create {&data->kn_msg_ping_origin, node_id_size} {new_key})
 					(call 'array :create nil {tuple})
-					;session, hops
+					;timestamp, session, hops
+					(call 'array :push_back {tuple, 0})
 					(call 'array :push_back2 {tuple, -1, -1})
 					(call 'list :push_back2 {bucket, new_key, tuple})
 				(else)
@@ -142,17 +147,20 @@
 				(endif)
 
 				;update routing entries for the origin ?
-				(call 'array :get_first2 {tuple} {_, session, hops})
+				(call 'array :get_begin {tuple} '(_ r1))
+				(assign `((r1 ,(* long_size 1)) (r1 ,(* long_size 2))) '(r1 r2))
+				(assign '(r1 r2) {session, hops})
 				(switch)
 				(breakif {data->kn_msg_ping_session < session})
 				(vpcase {data->kn_msg_ping_session > session})
 					;new routing session, clear vias, update session and hops
 					(call 'array :set_length {tuple, 0})
+					(call 'array :push_back {tuple, time})
 					(call 'array :push_back2 {tuple, data->kn_msg_ping_session, data->kn_msg_ping_hops})
 					(goto 'flood_via)
 				(vpcase {data->kn_msg_ping_hops < hops})
 					;better route, clear vias, update hops
-					(call 'array :set_length {tuple, 1})
+					(call 'array :set_length {tuple, 2})
 					(call 'array :push_back {tuple, data->kn_msg_ping_hops})
 				(vp-label 'flood_via)
 					(call 'array :push_back2 {tuple,
@@ -177,8 +185,10 @@
 					(vpifnot {tuple})
 						(call 'node :create {&data->kn_msg_ping_origin, node_id_size} {new_key})
 						(call 'list :create nil {tuple})
-						(call 'num :create {0} {session})
 						(call 'hset :create `((@ ,(f-path 'str :same)) 1) {set})
+						(call 'num :create {0} {session})
+						(call 'list :push_back {tuple, session})
+						(call 'num :create {0} {session})
 						(call 'list :push_back2 {tuple, session, set})
 						(call 'list :push_back2 {bucket, new_key, tuple})
 					(else)
@@ -186,15 +196,17 @@
 					(endif)
 
 					;add service entries for the origin ?
-					(call 'list :get_first {tuple} {_, session})
+					(call 'list :get_second {tuple} {_, session})
 					(vpif {data->kn_msg_ping_session > session->num_value})
 						;new session
 						(assign {data->kn_msg_ping_session} {session->num_value})
+						(call 'list :get_first {tuple} {_, session})
+						(assign {time} {session->num_value})
 						(call 'str :create_from_buffer {&data->kn_msg_ping_services, msg->msg_frag_length - kn_msg_ping_services} {services})
 						(call 'str :split_char {services, +char_lf+} {_, entries})
 						(call 'str :destroy {services})
 						(call 'list :get_both {entries} {_, iter_begin, iter_end})
-						(call 'list :get_second {tuple} {_, set})
+						(call 'list :get_element {tuple, 2} {_, set})
 						(call 'hset :clear {set})
 						(loop-while {iter_begin /= iter_end})
 							(call 'hset :insert {set, *iter_begin})

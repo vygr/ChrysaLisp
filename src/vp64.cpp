@@ -1174,56 +1174,56 @@ int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_os_funcs, i
 				{
 					case 0:
 					{
-                        typedef uint64_t(*FUNCPTR)(void);
-                        FUNCPTR fptr = (FUNCPTR)*(uint64_t*)(regs[(ir >> 8) & 0xf] + ((uint64_t)*(uint16_t*)pc++));
+						typedef uint64_t(*FUNCPTR)(void);
+						FUNCPTR fptr = (FUNCPTR)*(uint64_t*)(regs[(ir >> 8) & 0xf] + ((uint64_t)*(uint16_t*)pc++));
 						regs[0] = (*fptr)();
 					}
 					break;
 
 					case 1:
 					{
-                        typedef uint64_t(*FUNCPTR)(uint64_t);
-                        FUNCPTR fptr = (FUNCPTR)*(uint64_t*)(regs[(ir >> 8) & 0xf] + ((uint64_t)*(uint16_t*)pc++));
+						typedef uint64_t(*FUNCPTR)(uint64_t);
+						FUNCPTR fptr = (FUNCPTR)*(uint64_t*)(regs[(ir >> 8) & 0xf] + ((uint64_t)*(uint16_t*)pc++));
 						regs[0] = (*fptr)(regs[0]);
 					}
 					break;
 
 					case 2:
 					{
-                        typedef uint64_t(*FUNCPTR)(uint64_t, uint64_t);
-                        FUNCPTR fptr = (FUNCPTR)*(uint64_t*)(regs[(ir >> 8) & 0xf] + ((uint64_t)*(uint16_t*)pc++));
+						typedef uint64_t(*FUNCPTR)(uint64_t, uint64_t);
+						FUNCPTR fptr = (FUNCPTR)*(uint64_t*)(regs[(ir >> 8) & 0xf] + ((uint64_t)*(uint16_t*)pc++));
 						regs[0] = (*fptr)(regs[0], regs[1]);
 					}
 					break;
 
 					case 3:
 					{
-                        typedef uint64_t(*FUNCPTR)(uint64_t, uint64_t, uint64_t);
-                        FUNCPTR fptr = (FUNCPTR)*(uint64_t*)(regs[(ir >> 8) & 0xf] + ((uint64_t)*(uint16_t*)pc++));
+						typedef uint64_t(*FUNCPTR)(uint64_t, uint64_t, uint64_t);
+						FUNCPTR fptr = (FUNCPTR)*(uint64_t*)(regs[(ir >> 8) & 0xf] + ((uint64_t)*(uint16_t*)pc++));
 						regs[0] = (*fptr)(regs[0], regs[1], regs[2]);
 					}
 					break;
 
 					case 4:
 					{
-                        typedef uint64_t(*FUNCPTR)(uint64_t, uint64_t, uint64_t, uint64_t);
-                        FUNCPTR fptr = (FUNCPTR)*(uint64_t*)(regs[(ir >> 8) & 0xf] + ((uint64_t)*(uint16_t*)pc++));
+						typedef uint64_t(*FUNCPTR)(uint64_t, uint64_t, uint64_t, uint64_t);
+						FUNCPTR fptr = (FUNCPTR)*(uint64_t*)(regs[(ir >> 8) & 0xf] + ((uint64_t)*(uint16_t*)pc++));
 						regs[0] = (*fptr)(regs[0], regs[1], regs[2], regs[3]);
 					}
 					break;
 
 					case 5:
 					{
-                        typedef uint64_t(*FUNCPTR)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t);
-                        FUNCPTR fptr = (FUNCPTR)*(uint64_t*)(regs[(ir >> 8) & 0xf] + ((uint64_t)*(uint16_t*)pc++));
+						typedef uint64_t(*FUNCPTR)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t);
+						FUNCPTR fptr = (FUNCPTR)*(uint64_t*)(regs[(ir >> 8) & 0xf] + ((uint64_t)*(uint16_t*)pc++));
 						regs[0] = (*fptr)(regs[0], regs[1], regs[2], regs[3], regs[4]);
 					}
 					break;
 
 					case 6:
 					{
-                        typedef uint64_t(*FUNCPTR)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t);
-                        FUNCPTR fptr = (FUNCPTR)*(uint64_t*)(regs[(ir >> 8) & 0xf] + ((uint64_t)*(uint16_t*)pc++));
+						typedef uint64_t(*FUNCPTR)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t);
+						FUNCPTR fptr = (FUNCPTR)*(uint64_t*)(regs[(ir >> 8) & 0xf] + ((uint64_t)*(uint16_t*)pc++));
 						regs[0] = (*fptr)(regs[0], regs[1], regs[2], regs[3], regs[4],
 										regs[5]);
 					}
@@ -1231,8 +1231,8 @@ int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_os_funcs, i
 
 					case 7:
 					{
-                        typedef uint64_t(*FUNCPTR)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t);
-                        FUNCPTR fptr = (FUNCPTR)*(uint64_t*)(regs[(ir >> 8) & 0xf] + ((uint64_t)*(uint16_t*)pc++));
+						typedef uint64_t(*FUNCPTR)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t);
+						FUNCPTR fptr = (FUNCPTR)*(uint64_t*)(regs[(ir >> 8) & 0xf] + ((uint64_t)*(uint16_t*)pc++));
 						regs[0] = (*fptr)(regs[0], regs[1], regs[2], regs[3], regs[4],
 										  regs[5], regs[6]);
 					}
@@ -1240,9 +1240,9 @@ int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_os_funcs, i
 
 					case 8:
 					{
-                        typedef uint64_t(*FUNCPTR)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t,
-                                                   uint64_t, uint64_t);
-                        FUNCPTR fptr = (FUNCPTR)*(uint64_t*)(regs[(ir >> 8) & 0xf] + ((uint64_t)*(uint16_t*)pc++));
+						typedef uint64_t(*FUNCPTR)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t,
+												   uint64_t, uint64_t);
+						FUNCPTR fptr = (FUNCPTR)*(uint64_t*)(regs[(ir >> 8) & 0xf] + ((uint64_t)*(uint16_t*)pc++));
 						regs[0] = (*fptr)(regs[0], regs[1], regs[2], regs[3], regs[4],
 							regs[5], regs[6], regs[7]);
 					}
@@ -1250,9 +1250,9 @@ int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_os_funcs, i
 
 					case 9:
 					{
-                        typedef uint64_t(*FUNCPTR)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t,
-                                                   uint64_t, uint64_t,uint64_t);
-                        FUNCPTR fptr = (FUNCPTR)*(uint64_t*)(regs[(ir >> 8) & 0xf] + ((uint64_t)*(uint16_t*)pc++));
+						typedef uint64_t(*FUNCPTR)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t,
+												   uint64_t, uint64_t,uint64_t);
+						FUNCPTR fptr = (FUNCPTR)*(uint64_t*)(regs[(ir >> 8) & 0xf] + ((uint64_t)*(uint16_t*)pc++));
 						regs[0] = (*fptr)(regs[0], regs[1], regs[2], regs[3], regs[4],
 							regs[5], regs[6], regs[7], regs[8]);
 					}
@@ -1260,9 +1260,9 @@ int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_os_funcs, i
 
 					case 10:
 					{
-                        typedef uint64_t(*FUNCPTR)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t,
-                                                   uint64_t, uint64_t,uint64_t, uint64_t);
-                        FUNCPTR fptr = (FUNCPTR)*(uint64_t*)(regs[(ir >> 8) & 0xf] + ((uint64_t)*(uint16_t*)pc++));
+						typedef uint64_t(*FUNCPTR)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t,
+												   uint64_t, uint64_t,uint64_t, uint64_t);
+						FUNCPTR fptr = (FUNCPTR)*(uint64_t*)(regs[(ir >> 8) & 0xf] + ((uint64_t)*(uint16_t*)pc++));
 						regs[0] = (*fptr)(regs[0], regs[1], regs[2], regs[3], regs[4],
 							regs[5], regs[6], regs[7], regs[8], regs[9]);
 					}
@@ -1270,9 +1270,9 @@ int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_os_funcs, i
 
 					case 11:
 					{
-                        typedef uint64_t(*FUNCPTR)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t,
-                                                   uint64_t, uint64_t, uint64_t, uint64_t, uint64_t);
-                        FUNCPTR fptr = (FUNCPTR)*(uint64_t*)(regs[(ir >> 8) & 0xf] + ((uint64_t)*(uint16_t*)pc++));
+						typedef uint64_t(*FUNCPTR)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t,
+												   uint64_t, uint64_t, uint64_t, uint64_t, uint64_t);
+						FUNCPTR fptr = (FUNCPTR)*(uint64_t*)(regs[(ir >> 8) & 0xf] + ((uint64_t)*(uint16_t*)pc++));
 						regs[0] = (*fptr)(regs[0], regs[1], regs[2], regs[3], regs[4],
 							regs[5], regs[6], regs[7], regs[8], regs[9],
 							regs[10]);
@@ -1281,10 +1281,10 @@ int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_os_funcs, i
 
 					case 12:
 					{
-                        typedef uint64_t(*FUNCPTR)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t,
-                                                   uint64_t, uint64_t, uint64_t, uint64_t, uint64_t,uint64_t);
-                        FUNCPTR fptr = (FUNCPTR)*(uint64_t*)(regs[(ir >> 8) & 0xf] + ((uint64_t)*(uint16_t*)pc++));
-                        regs[0] = (*fptr)(regs[0], regs[1], regs[2], regs[3], regs[4],
+						typedef uint64_t(*FUNCPTR)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t,
+												   uint64_t, uint64_t, uint64_t, uint64_t, uint64_t,uint64_t);
+						FUNCPTR fptr = (FUNCPTR)*(uint64_t*)(regs[(ir >> 8) & 0xf] + ((uint64_t)*(uint16_t*)pc++));
+						regs[0] = (*fptr)(regs[0], regs[1], regs[2], regs[3], regs[4],
 							regs[5], regs[6], regs[7], regs[8], regs[9],
 							regs[10], regs[11]);
 					}
@@ -1292,10 +1292,10 @@ int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_os_funcs, i
 
 					case 13:
 					{
-                        typedef uint64_t(*FUNCPTR)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t,
-                                                   uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t,
-                                                   uint64_t);
-                        FUNCPTR fptr = (FUNCPTR)*(uint64_t*)(regs[(ir >> 8) & 0xf] + ((uint64_t)*(uint16_t*)pc++));
+						typedef uint64_t(*FUNCPTR)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t,
+												   uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t,
+												   uint64_t);
+						FUNCPTR fptr = (FUNCPTR)*(uint64_t*)(regs[(ir >> 8) & 0xf] + ((uint64_t)*(uint16_t*)pc++));
 						regs[0] = (*fptr)(regs[0], regs[1], regs[2], regs[3], regs[4],
 							regs[5], regs[6], regs[7], regs[8], regs[9],
 							regs[10], regs[11], regs[12]);
@@ -1304,10 +1304,10 @@ int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_os_funcs, i
 
 					case 14:
 					{
-                        typedef uint64_t(*FUNCPTR)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t,
-                                                   uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t,
-                                                   uint64_t, uint64_t);
-                        FUNCPTR fptr = (FUNCPTR)*(uint64_t*)(regs[(ir >> 8) & 0xf] + ((uint64_t)*(uint16_t*)pc++));
+						typedef uint64_t(*FUNCPTR)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t,
+												   uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t,
+												   uint64_t, uint64_t);
+						FUNCPTR fptr = (FUNCPTR)*(uint64_t*)(regs[(ir >> 8) & 0xf] + ((uint64_t)*(uint16_t*)pc++));
 						regs[0] = (*fptr)(regs[0], regs[1], regs[2], regs[3], regs[4],
 							regs[5], regs[6], regs[7], regs[8], regs[9],
 							regs[10], regs[11], regs[12], regs[13]);
@@ -1316,10 +1316,10 @@ int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_os_funcs, i
 
 					case 15:
 					{
-                        typedef uint64_t(*FUNCPTR)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t,
-                                                   uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t,
-                                                   uint64_t, uint64_t, uint64_t);
-                        FUNCPTR fptr = (FUNCPTR)*(uint64_t*)(regs[(ir >> 8) & 0xf] + ((uint64_t)*(uint16_t*)pc++));
+						typedef uint64_t(*FUNCPTR)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t,
+												   uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t,
+												   uint64_t, uint64_t, uint64_t);
+						FUNCPTR fptr = (FUNCPTR)*(uint64_t*)(regs[(ir >> 8) & 0xf] + ((uint64_t)*(uint16_t*)pc++));
 						regs[0] = (*fptr)(regs[0], regs[1], regs[2], regs[3], regs[4],
 							regs[5], regs[6], regs[7], regs[8], regs[9],
 							regs[10], regs[11], regs[12], regs[13], regs[14]);

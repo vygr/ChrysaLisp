@@ -9,6 +9,7 @@
 
 	(ptr 'msg 'data 'frag 'statics)
 	(struct 'node_id 'node_id)
+	(ulong 'time)
 	(uint 'offset 'ammount 'len)
 
 	(push-scope)
@@ -31,6 +32,7 @@
 		(assign {statics->statics_sys_mail_session + 1} {statics->statics_sys_mail_session})
 
 		;for each fragment
+		(call 'sys_pii :time nil {time})
 		(assign {0} {offset})
 		(assign {msg->msg_frag_length} {ammount})
 		(loop-start)
@@ -43,6 +45,7 @@
 			(call 'obj :ref {msg->msg_obj} {frag->msg_obj})
 
 			;fill in fragment
+			(assign {time} {frag->msg_timestamp})
 			(assign {msg->msg_dest.net_id_mbox_id} {frag->msg_dest.net_id_mbox_id})
 			(assign {msg->msg_dest.net_id_node_id.node_id_node1} {frag->msg_dest.net_id_node_id.node_id_node1})
 			(assign {msg->msg_dest.net_id_node_id.node_id_node2} {frag->msg_dest.net_id_node_id.node_id_node2})
@@ -64,13 +67,13 @@
 			(vp-def (head node tmp))
 			(assign {&statics->statics_sys_mail_offchip_list, frag} (list head node))
 			(lh-add-at-tail head node tmp)
-
-			;let links get at some packets
-			(call 'sys_task :sleep '(0))
 		(loop-untilnot {ammount})
 
 		;free parcel
 		(call 'sys_mail :free {msg})
+
+		;let other links get at some packets
+		(call 'sys_task :sleep '(0))
 	(loop-end)
 
 	(pop-scope)

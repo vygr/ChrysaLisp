@@ -62,11 +62,13 @@
 (def-struct-end)
 
 (def-struct 'msg 'ln_node)
+	(ulong 'timestamp)
+	(offset 'stamp_start)
 	(struct 'dest 'net_id)
 	(struct 'src 'net_id)
 	(uint 'frag_length 'frag_offset 'total_length)
 	(local-align)
-	(offset 'stamp_size)
+	(offset 'stamp_end)
 	(ptr 'obj 'frag_data)
 (def-struct-end)
 

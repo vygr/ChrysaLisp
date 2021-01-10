@@ -241,12 +241,12 @@ int64_t pii_read(int64_t fd, void *addr, size_t len)
 		return 1;
 	}
 #endif
-	return read(fd, addr, len);
+	return read((int)fd, addr, len);
 }
 
 int64_t pii_write(int64_t fd, void *addr, size_t len)
 {
-	return write(fd, addr, len);
+	return write((int)fd, addr, len);
 }
 
 int64_t pii_seek(int64_t fd, int64_t pos, unsigned char offset)
@@ -553,7 +553,7 @@ void pii_sleep(uint64_t ms)
 
 uint64_t pii_close(uint64_t fd)
 {
-	return close(fd);
+	return close((int)fd);
 }
 
 uint64_t pii_unlink(const char *path)
