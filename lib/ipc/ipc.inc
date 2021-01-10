@@ -53,7 +53,7 @@
         ((. this :optimized?)
           (data-xlist em))
         (t
-          data-xliststr em)))
+          (data-xliststr em))))
     this)
 
   (defmethod :recieve (this &optional handler_fn)

@@ -24,7 +24,8 @@
     (cond
       ((eql cmd :success)
         (set this :registered t)
-        (set this :registered_data msg))
+        (set this :registered_data msg)
+        (print "Registered result " msg))
       (t
         (throw "Unable to register client " msg)))
     this)
@@ -35,10 +36,13 @@
       (.
         (. this :send :deregister)
         :recieve))
-    (if (eql cmd :success)
-      (set this :registered nil)
-      (set this :registered_data nil)
-      (throw "Unable to deregister client " msg))
+    (cond
+      ((eql cmd :success)
+        (set this :registered nil)
+        (set this :registered_data nil)
+        (print "Deregistered result " msg))
+      (t
+        (throw "Unable to deregister client " msg)))
     this)
   )
 

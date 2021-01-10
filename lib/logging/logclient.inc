@@ -32,7 +32,7 @@
   (defmethod :register_logger (this name)
     ; (. log-client :register_logger name) -> result | exception
     (print "Registering logger " name)
-    (.super :register (xmap-kv :name name :kind :logger))
+    (.super this :register (xmap-kv :name name :kind :logger))
     )
 
   (defmethod :send_log_msg (this loglevel msg)
@@ -52,11 +52,11 @@
   (defmethod :shutdown (this)
     ; (. democ :shutdown) -> nil
     ; This is for demo only
+    (print "Client shutdown sending")
     (bind '(client cmd msg)
       (.
         (. this :send :shutdown (list))
         :recieve))
-    (print ":shutdown response cmd " cmd " data " msg)
     this)
 
   (defmethod :ping (this)
@@ -66,7 +66,6 @@
       (.
         (. this :send :ping)
         :recieve))
-    (print ":ping cmd " cmd " data " msg)
     this)
   )
 
@@ -76,7 +75,7 @@
   (defmethod :register_anchor (this name)
     ; (. log-anchor :register  name) -> result | exception
     (print "Registering anchor " name)
-    (. this :register (xmap-kv :name name :kind :anchor))
+    (.super this :register (xmap-kv :name name :kind :anchor))
     )
   )
 

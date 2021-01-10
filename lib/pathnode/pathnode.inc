@@ -268,7 +268,7 @@
     prsd seed))
 
 (defun node-for (pathname &optional handler_fn)
-  ; (change-dir pathname ) -> path-node
+  ; (node-for pathname [exception_handler] ) -> path-node
   ; Returns the path-node for pathname
   ; Will expand tree by building valid path-nodes in pathname
   (defq

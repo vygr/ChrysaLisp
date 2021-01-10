@@ -4,22 +4,29 @@
 
 (import "sys/lisp.inc")
 (import "class/lisp.inc")
+(import "lib/xchange/yaml-data.inc")
+(import "apps/logger/loghandlers.lisp")
 (import "apps/logger/logserver.lisp")
-(import "lib/xtras/xtras.inc")
-(import "lib/date/date.inc")
 
 ;single instance only
 (when (= (length (mail-enquire +logging_srvc_name+)) 0)
   (defq
     active    t
     sipc      (log-server (task-mailbox))
-    entry     (mail-declare (task-mailbox) +logging_srvc_name+ "Logging Service 1.0")
-    DEBUG     (file-stream "./logs/DEBUG_SERVICE.log" file_open_append))
+    debugwrt  (debug-logger)
+    entry     (mail-declare
+                (task-mailbox)
+                +logging_srvc_name+
+                "Logging Service 1.0"))
 
-  (defun debug-write (&rest _)
-    (setq _ (insert (push _ +nl+) 0 (list (encode-date) " ")))
-    (write DEBUG (apply str _))
-    (stream-flush DEBUG))
+  (defmacro debug-write (&rest _)
+    (when (def? 'debugwrt)
+      `(. debugwrt :write :debug ~_)))
+
+  ; Instantiate persistent loggers
+  ; This is both statically defined in logsrvc.yaml and
+  ; any registered loggers from previous seessions
+  (load-loggers)
 
   (while active
     (bind '(client cmd msg) (. sipc :read_mail))
