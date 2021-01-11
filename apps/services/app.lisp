@@ -20,6 +20,14 @@
 				(ui-label _ (:text "Info" :color +argb_white+
 					:flow_flags (logior +flow_flag_align_vcenter+ +flow_flag_align_hcenter+)))))))
 
+(defun resize (mh)
+	(bind '(w h) (. right_flow :get_size))
+	(setq h (min h mh))
+	(def info_scroll :min_width w :min_height h)
+	(bind '(x y w h) (apply view-fit (cat (. mywindow :get_pos) (. mywindow :pref_size))))
+	(undef info_scroll :min_width :min_height)
+	(. mywindow :change_dirty x y w h))
+
 (defun populate ()
 	(defq new_services (mail-enquire ""))
 	(sort cmp new_services)
@@ -40,16 +48,9 @@
 			(def (defq _ (Label)) :border 1 :text (if (> (length info) 2) (elem 2 info) "No Info"))
 			(. info_flow :add_child _) (push info_labels _)) new_services)
 		(bind '(w h) (. right_flow :pref_size))
-		(. right_flow :change 0 0 w h))
-		(.-> info_scroll :layout :dirty_all))
-
-(defun resize (mh)
-	(bind '(w h) (. right_flow :get_size))
-	(setq h (min h mh))
-	(def info_scroll :min_width w :min_height h)
-	(bind '(x y w h) (apply view-fit (cat (. mywindow :get_pos) (. mywindow :pref_size))))
-	(undef info_scroll :min_width :min_height)
-	(. mywindow :change_dirty x y w h))
+		(. right_flow :change 0 0 w h)
+		(.-> info_scroll :layout :dirty_all)
+		(resize 256)))
 
 (defun main ()
 	(defq id t select (list (task-mailbox)) services (list)

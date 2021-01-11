@@ -7023,7 +7023,7 @@ started by kernel for each link
 ### sys_link :usb_link -> sys/link/usb_link
 
 ```lisp
-started by kernel for usb link
+started by kernel for each usb link
 ```
 
 ### sys_link :in -> sys/link/in
