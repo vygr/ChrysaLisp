@@ -57,7 +57,8 @@
   (def this
        :name        name
        :fmi         (gets formatting (gets hnd_map :formatter))
-       :io_instance  nil)
+       :io_instance nil
+       :written     0)
 
   (defabstractmethod :write (this lvl &rest msg))
   (defabstractmethod :open  (this))
@@ -93,10 +94,16 @@
     (when (eql (elem 0 nm) +dblq+)
       (set this :file_name (slice 1 -2 nm)))
     (when (get :rotate this)
-      (open-latest-log
-        (get :name this)
-        (get :file_name this)
-        (get :maxbytes this))))
+      (bind '(fstream sz)
+              (open-latest-log
+                (get :name this)
+                (get :file_name this)
+                (get :backups this)
+                (get :maxbytes this)))
+      (set this
+           :io_instance fstream
+           :written     sz))
+    )
   )
 
 ; logger
