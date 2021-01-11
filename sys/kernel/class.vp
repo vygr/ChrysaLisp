@@ -481,16 +481,22 @@
 (def-method 'sys_kernel :ping)
 	;started by kernel at boot
 
-	(ptr 'msg)
-	(struct 'node_id 'node_id)
+	(def-struct 'local)
+		(ptr 'new_map)
+		(ulong 'now)
+		(struct 'node_id 'node_id)
+	(def-struct-end)
+
+	(ptr 'statics)
+	(struct 'local 'local)
 
 	(push-scope)
 
 	;don't count ping or postman tasks in load balancing
-	(assign {@sys/statics/statics} {msg})
-	(assign {msg->statics_sys_task_task_count - 2} {msg->statics_sys_task_task_count})
+	(assign {@sys/statics/statics} {statics})
+	(assign {statics->statics_sys_task_task_count - 2} {statics->statics_sys_task_task_count})
 
-	(call 'sys_kernel :id nil {node_id.node_id_node1, node_id.node_id_node2})
+	(call 'sys_kernel :id nil {local.local_node_id.node_id_node1, local.local_node_id.node_id_node2})
 	(call 'sys_math :i_rand '(1000000) '(r0))
 	(vp-add-cr 3000000 r0)
 	(call 'sys_task :sleep '(r0))
@@ -498,12 +504,109 @@
 		;send services/routing ping message
 		(call 'sys_mail :ping)
 		(call 'sys_math :i_rand '(1000000) '(r0))
-		(vp-cpy-cr 19000000 r1)
+		(vp-cpy-cr ping_period r1)
 		(vp-add-rr r1 r0)
 		(call 'sys_task :sleep '(r0))
+
+		;purge stale services
+		(call 'sys_pii :time nil {local.local_now})
+		(call 'hmap :create {statics->statics_sys_mail_service_map->hset_key_callback,
+			statics->statics_sys_mail_service_map->hset_num_buckets} {local.local_new_map})
+		(call 'hmap :for_each {statics->statics_sys_mail_service_map, $purge_callback, &local})
+		(call 'hset :deref {statics->statics_sys_mail_service_map})
+		(assign {local.local_new_map} {statics->statics_sys_mail_service_map})
+
+		;purge stale routes
+		(call 'hmap :create {statics->statics_sys_mail_routing_map->hset_key_callback,
+			statics->statics_sys_mail_routing_map->hset_num_buckets} {local.local_new_map})
+		(call 'hmap :for_each {statics->statics_sys_mail_routing_map, $purge_callback1, &local})
+		(call 'hset :deref {statics->statics_sys_mail_routing_map})
+		(assign {local.local_new_map} {statics->statics_sys_mail_routing_map})
+
+		;purge stale messages and parcels
+		(call 'purge_mail {&statics->statics_sys_mail_offchip_list, local.local_now})
+		(call 'purge_mail {&statics->statics_sys_mail_parcel_list, local.local_now})
 	(loop-end)
 
 	(pop-scope)
 	(return)
+
+(vp-label 'purge_callback)
+	;inputs
+	;r0 = predicate data (ptr)
+	;r1 = element iterator (pptr)
+
+	(ptr 'data 'key 'tuple 'bucket)
+	(pptr 'iter)
+
+	(push-scope)
+	(entry 'hmap :each_callback {data, iter})
+
+	(assign {iter[0], iter[ptr_size]} {key, tuple})
+	(vpif {(((key->str_data.node_id_node1 - data->local_node_id.node_id_node1)
+			| (key->str_data.node_id_node2 - data->local_node_id.node_id_node2)) = 0)
+			|| ((data->local_now - tuple->array_begin->num_value) < ping_period * 2)})
+		(call 'obj :ref {key})
+		(call 'obj :ref {tuple})
+		(call 'hset :get_bucket {data->local_new_map, key} {_, bucket})
+		(call 'list :push_back2 {bucket, key, tuple})
+	(endif)
+
+	(pop-scope)
+	(return)
+
+(vp-label 'purge_callback1)
+	;inputs
+	;r0 = predicate data (ptr)
+	;r1 = element iterator (pptr)
+
+	(ptr 'data 'key 'tuple 'bucket)
+	(pptr 'iter)
+
+	(push-scope)
+	(entry 'hmap :each_callback {data, iter})
+
+	(assign {iter[0], iter[ptr_size]} {key, tuple})
+	(vpif {(((key->str_data.node_id_node1 - data->local_node_id.node_id_node1)
+			| (key->str_data.node_id_node2 - data->local_node_id.node_id_node2)) = 0)
+			|| ((data->local_now - (pptr tuple->array_begin)[0]) < ping_period * 2)})
+		(call 'obj :ref {key})
+		(call 'obj :ref {tuple})
+		(call 'hset :get_bucket {data->local_new_map, key} {_, bucket})
+		(call 'list :push_back2 {bucket, key, tuple})
+	(endif)
+
+	(pop-scope)
+	(return)
+
+(vp-label 'purge_mail)
+	;inputs
+	;r0 = mail list (ptr)
+	;r1 = now (ulong)
+
+	(def-struct 'local)
+		(ptr 'next)
+		(ulong 'now)
+	(def-struct-end)
+
+	(vp-def (time now node next))
+
+	(vp-alloc local_size)
+	(entry `(,next ,now))
+
+	(assign `(,now) '((rsp local_now)))
+	(loop-list-forward next 0 node next)
+		(assign `((,node msg_timestamp)) `(,time))
+		(vp-sub-rr now time)
+		(continueif `(,time < ,(* ping_period 2)))
+		(vp-cpy-rr node r0)
+		(ln-remove-node node r1)
+		(assign `(,next) '((rsp local_next)))
+		(call 'sys_mail :free '(r0))
+		(assign '((rsp local_next) (rsp local_now)) `(,next ,now))
+	(loop-end)
+
+	(vp-free local_size)
+	(vp-ret)
 
 (def-func-end)
