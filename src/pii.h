@@ -75,10 +75,8 @@ enum
 struct lk_msg
 {
 	uint32_t m_status;
-	uint32_t m_hash;
-	node_id m_peer_node_id;
 	uint32_t m_task_count;
-	uint32_t m_pad;
+	node_id m_peer_node_id;
 	stamp m_stamp;
 	char m_data[lk_data_size];
 };

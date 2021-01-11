@@ -26,10 +26,8 @@
 (def-struct-end)
 
 (def-struct 'lk_msg)
-	(uint 'status 'hash)
+	(uint 'status 'task_count)
 	(struct 'peer_node_id 'node_id)
-	(uint 'task_count)
-	(local-align)
 	(struct 'stamp (- msg_stamp_end msg_stamp_start))
 	(struct 'data lk_data_size)
 (def-struct-end)
