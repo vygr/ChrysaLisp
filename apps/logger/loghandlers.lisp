@@ -18,10 +18,11 @@
   (each (lambda ((_k _v))
           (def _clzi _k _v)) (entries fmap)))
 
+(defun level-index (lvlkw)
+  (gets-in yamlmap :logging :levels lvlkw))
+
 (defun level-name (lvlkw)
-  (elem
-    (gets-in yamlmap :logging :levels lvlkw)
-    (gets-in yamlmap :logging :levels :logstrs)))
+  (elem (level-index lvlkw) (gets-in yamlmap :logging :levels :logstrs)))
 
 ;;;;;;;;;;;;;;;;;;;;;
 ; Formatting
@@ -61,49 +62,55 @@
        :written     0)
 
   (defabstractmethod :write (this lvl &rest msg))
-  (defabstractmethod :open  (this))
 
   (defmethod :writer (this lvl msg)
-    (defq fmsg (. (get :fmi this) :formatmsg lvl msg))
-    (stream-flush (write (get :io_intance this) fmsg))
-    (length fmsg))
+    (cond
+      ((<= (level-index lvl) (level-index (get :level this)))
+        (defq fmsg (. (get :fmi this) :formatmsg lvl msg))
+        (stream-flush (write (get :io_intance this) fmsg))
+        (length fmsg))
+      (t 0)))
+
   ; Constructor for fields
   (populate-class this hnd_map)
   )
 
 (defclass console-handler (name hnd_map) (handler name hnd_map)
+
   (defmethod :write (this lvl &rest msg)
     ; (. console-handler :write [msgs])
-    (. this :writer lvl msg))
-  (defmethod :open  (this))
+    (set this :written (. this :writer lvl msg)))
+
   )
 
 (defclass file-handler (name hnd_map) (handler name hnd_map)
-  (def this
-       :currentb 0)
-  (defmethod :write (this lvl &rest _)
-    ; (. file-handler :write [msgs])
-    )
 
-  (defmethod :open  (this)
-    )
+  (defmethod :write (this lvl &rest msg)
+    ; (. file-handler :write level [msgs])
+    (set this :written (. this :writer lvl msg))
+    (when (and
+            (get :rotate this)
+            (> (get :written this) (get :maxbytes this)))
+      (bind '(fstream sz) (log-threshold (get :name this) (get :backups this)))
+      (set this
+           :io_instance fstream
+           :written     sz)))
+
   ; Constructor
 
   (progn
     (defq nm (get :file_name this))
     (when (eql (elem 0 nm) +dblq+)
       (set this :file_name (slice 1 -2 nm)))
-    (when (get :rotate this)
-      (bind '(fstream sz)
-              (open-latest-log
-                (get :name this)
-                (get :file_name this)
-                (get :backups this)
-                (get :maxbytes this)))
+    (bind '(fstream sz)
+      (open-latest-log
+        (get :name this)
+        (get :file_name this)
+        (if (get :rotate this) (get :backups this) +max_int+)
+        (if (get :rotate this) (get :maxbytes this) +max_int+)))
       (set this
-           :io_instance fstream
-           :written     sz))
-    )
+       :io_instance fstream
+       :written     sz))
   )
 
 ; logger
@@ -128,6 +135,9 @@
 (defun debug-logger (&optional fake)
   )
 
+(defun logger-configured? (lkeyword)
+  (gets-in yamlmap :logging :loggers lkeyword))
+
 (defun load-loggers ()
   ; Definition file. If the operational
   ; file does not exist, create
@@ -141,19 +151,18 @@
     (t
       (setq yamlmap (first (yaml-read +ACTIVE-CNTRL+)))))
   ; Load formatters
-  (each (lambda ((_k _v))
-          (add-formatter _k _v))
-        (entries (gets-in yamlmap :logging :formatters)))
+  (each (lambda ((_k _v)) (add-formatter _k _v))
+    (entries (gets-in yamlmap :logging :formatters)))
 
   ; Load loggers and handlers
   (each (lambda ((_k _v))
-          (defq hnd_name (gets _v :handler))
-          ; Create logger with handler
-          (sets! loggers _k
-                 (logger _k
-                         hnd_name
-                         (gets-in yamlmap :logging :handlers hnd_name))))
-        (entries (gets-in yamlmap :logging :loggers)))
+      (defq hnd_name (gets _v :handler))
+      ; Create logger with handler
+      (sets! loggers _k
+             (logger _k
+                     hnd_name
+                     (gets-in yamlmap :logging :handlers hnd_name))))
+    (entries (gets-in yamlmap :logging :loggers)))
   )
 
 (defun persist-loggers ()
