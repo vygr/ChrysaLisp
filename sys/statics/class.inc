@@ -19,7 +19,7 @@
 
 	;sys_mail statics
 	(uint 'sys_mail_session 'sys_mail_next_mbox_id)
-	(ptr 'sys_mail_links_array 'sys_mail_routing_map 'sys_mail_service_map 'sys_mail_out_mbox_addr)
+	(ptr 'sys_mail_links_array 'sys_mail_node_map 'sys_mail_out_mbox_addr)
 	(struct 'sys_mail_msg_heap 'hp_heap)
 	(struct 'sys_mail_mbox_heap 'hp_heap)
 	(struct 'sys_mail_offchip_list 'lh_list)
