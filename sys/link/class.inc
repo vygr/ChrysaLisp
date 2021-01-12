@@ -3,6 +3,8 @@
 (include "class/str/class.inc")
 
 (def-class 'sys_link)
+(dec-method :link 'sys/link/link)
+(dec-method :usb_link 'sys/link/usb_link)
 (dec-method :in 'sys/link/in)
 (dec-method :out 'sys/link/out)
 
@@ -12,7 +14,7 @@
 
 ;msg data area max size when allocated as a string object
 ;allowing for heap pointer and null byte, rounded down for faster memcpy
-(defcvar 'lk_data_size (- 512 str_size ptr_size long_size) 'lk_page_size 4096)
+(defcvar 'lk_data_size (- 1024 str_size ptr_size long_size) 'lk_page_size 4096)
 
 (def-enum 'lk_chan_status)
 	(enum 'ready 'busy)
@@ -24,17 +26,15 @@
 (def-struct-end)
 
 (def-struct 'lk_msg)
-	(uint 'status 'hash)
+	(uint 'status 'task_count)
 	(struct 'peer_node_id 'node_id)
-	(uint 'task_count)
-	(local-align)
-	(struct 'stamp msg_stamp_size)
+	(struct 'stamp (- msg_stamp_end msg_stamp_start))
 	(struct 'data lk_data_size)
 (def-struct-end)
 
 (def-struct 'lk_chan)
 	(struct 'msg0 'lk_msg)
-	(struct 'msgs (* (/ (- (- (* lk_page_size 2) long_size) *struct_sp*) lk_msg_size) lk_msg_size))
+	(struct 'msgs (* (/ (- (- lk_page_size long_size) *struct_sp*) lk_msg_size) lk_msg_size))
 (def-struct-end)
 
 (def-struct 'lk_buffer)
@@ -43,3 +43,5 @@
 	(local-align lk_page_size)
 	(struct 'chan_2 'lk_chan)
 (def-struct-end)
+
+;(print lk_data_size " " lk_page_size " " (/ lk_chan_size lk_msg_size))

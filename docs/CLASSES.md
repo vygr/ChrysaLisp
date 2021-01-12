@@ -2250,6 +2250,10 @@ Super Class: null
 
 ### host :sleep -> nil
 
+### host :start_usb -> nil
+
+### host :stop_usb -> nil
+
 ## host_gui
 
 Super Class: null
@@ -7010,17 +7014,21 @@ started by kernel at boot
 
 Super Class: null
 
-### sys_link :in -> sys/link/in
-
-```lisp
-started by out link for each link
-```
-
-### sys_link :out -> sys/link/out
+### sys_link :link -> sys/link/link
 
 ```lisp
 started by kernel for each link
 ```
+
+### sys_link :usb_link -> sys/link/usb_link
+
+```lisp
+started by kernel for each usb link
+```
+
+### sys_link :in -> sys/link/in
+
+### sys_link :out -> sys/link/out
 
 ## sys_list
 
@@ -8094,6 +8102,28 @@ r0
 inputs
 r0 = data buffer pointer (pubyte)
 r1 = length (uint)
+trashes
+r0
+```
+
+### sys_pii :start_usb -> sys/pii/start_usb
+
+```lisp
+inputs
+r0 = link buffer (pubyte)
+outputs
+r0 = error code (ulong)
+trashes
+r0
+```
+
+### sys_pii :stop_usb -> sys/pii/stop_usb
+
+```lisp
+inputs
+r0 = link buffer (pubyte)
+outputs
+r0 = error code (ulong)
 trashes
 r0
 ```

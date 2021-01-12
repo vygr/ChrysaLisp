@@ -8,10 +8,10 @@ CPU := aarch64
 ABI := ARM64
 endif
 
-all:		.hostenv gui tui
+all:		.hostenv tui gui
 gui:		.hostenv obj/$(CPU)/$(ABI)/$(OS)/main_gui
 tui:		.hostenv obj/$(CPU)/$(ABI)/$(OS)/main_tui
-install:	clean .hostenv gui tui inst
+install:	clean .hostenv tui gui inst
 
 .hostenv:
 ifeq ($(OS), Windows)
@@ -80,7 +80,7 @@ ifeq ($(OS),Linux)
 		obj/$(CPU)/$(ABI)/$(OS)/vp64.o
 endif
 
-obj/$(CPU)/$(ABI)/$(OS)/main_gui.o:	main.cpp Makefile
+obj/$(CPU)/$(ABI)/$(OS)/main_gui.o:	src/main.cpp src/pii.h Makefile
 ifeq ($(OS),Darwin)
 	c++ -O3 -c -D_GUI=GUI -nostdlib -fno-exceptions \
 		-I/Library/Frameworks/SDL2.framework/Headers/ \
@@ -92,7 +92,7 @@ ifeq ($(OS),Linux)
 		-o $@ $<
 endif
 
-obj/$(CPU)/$(ABI)/$(OS)/main_tui.o:	main.cpp Makefile
+obj/$(CPU)/$(ABI)/$(OS)/main_tui.o:	src/main.cpp Makefile
 ifeq ($(OS),Darwin)
 	c++ -O3 -c -nostdlib -fno-exceptions \
 		-o $@ $<
@@ -102,7 +102,7 @@ ifeq ($(OS),Linux)
 		-o $@ $<
 endif
 
-obj/$(CPU)/$(ABI)/$(OS)/vp64.o:	vp64.cpp Makefile
+obj/$(CPU)/$(ABI)/$(OS)/vp64.o:	src/vp64.cpp Makefile
 ifeq ($(OS),Darwin)
 	c++ -O3 -c -nostdlib -fno-exceptions \
 		-o $@ $<

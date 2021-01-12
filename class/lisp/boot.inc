@@ -689,12 +689,12 @@
 		(swap _a _ (random (inc _)))) (list _a)) _a)
 
 (defun sorted (_f _a &optional _l _h)
-	; (sorted list [start end]) -> list
+	; (sorted fcmp list [start end]) -> list
 	(setd _l 0 _h (length _a))
 	(sort _f (slice _l _h _a)))
 
 (defun sort (_f _a &optional _l _h)
-	; (sort list [start end]) -> list
+	; (sort fcmp list [start end]) -> list
 	(setd _l 0 _h (length _a))
 	(defq _q (list _l _h))
 	(while (setq _h (pop _q) _l (pop _q))

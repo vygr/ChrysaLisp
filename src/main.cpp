@@ -7,12 +7,14 @@
 	#define S_ISDIR(m) (((m) & S_IFMT) == S_IFDIR)
 #endif
 
+#include "pii.h"
 #include <sys/types.h>
 #include <fcntl.h>
 #include <string.h>
 #include <stdio.h>
 #include <random>
 #include <thread>
+#include <iostream>
 #ifdef _WIN64
 	#define _CRT_SECURE_NO_WARNINGS
 	#define DELTA_EPOCH_IN_MICROSECS 11644473600000000Ui64
@@ -39,17 +41,10 @@
 int vp64(uint8_t* data, int64_t *stack, int64_t *argv, int64_t *host_os_funcs, int64_t *host_gui_funcs);
 bool run_emu = false;
 
-enum
-{
-	file_open_read,
-	file_open_write,
-	file_open_append
-};
-
 char dirbuf[1024];
 
 #ifdef _WIN64
-long long mylist_dir(const char *path, char *buf, size_t buf_len)
+int64_t pii_dirlist(const char *path, char *buf, size_t buf_len)
 {
 	char *fbuf = NULL;
 	size_t fbuf_len = 0;
@@ -85,7 +80,7 @@ long long mylist_dir(const char *path, char *buf, size_t buf_len)
 	return fbuf_len;
 }
 #else
-long long mylist_dir(const char *path, char *buf, size_t buf_len)
+int64_t pii_dirlist(const char *path, char *buf, size_t buf_len)
 {
 	char *fbuf = NULL;
 	size_t fbuf_len = 0;
@@ -130,7 +125,7 @@ static void rmkdir(const char *path)
 	}
 }
 
-long long myopen(const char *path, int mode)
+int64_t pii_open(const char *path, uint64_t mode)
 {
 	int fd;
 #ifdef _WIN64
@@ -198,10 +193,10 @@ long long myopen(const char *path, int mode)
 char link_buf[128];
 struct stat fs;
 
-long long myopenshared(const char *path, size_t len)
+int64_t pii_open_shared(const char *path, size_t len)
 {
 #ifdef _WIN64
-	return (long long)CreateFileMapping(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, len, path);
+	return (int64_t)CreateFileMapping(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, len, path);
 #else
 	strcpy(&link_buf[0], "/tmp/");
 	strcpy(&link_buf[5], path);
@@ -221,7 +216,7 @@ long long myopenshared(const char *path, size_t len)
 #endif
 }
 
-long long mycloseshared(const char *path, long long hndl)
+int64_t pii_close_shared(const char *path, int64_t hndl)
 {
 #ifdef _WIN64
 	if (CloseHandle((HANDLE)hndl)) return 0;
@@ -232,7 +227,7 @@ long long mycloseshared(const char *path, long long hndl)
 #endif
 }
 
-long long myread(int fd, void *addr, size_t len)
+int64_t pii_read(int64_t fd, void *addr, size_t len)
 {
 #ifdef _WIN64
 	if (!fd)
@@ -246,27 +241,20 @@ long long myread(int fd, void *addr, size_t len)
 		return 1;
 	}
 #endif
-	return read(fd, addr, len);
+	return read((int)fd, addr, len);
 }
 
-long long mywrite(int fd, void *addr, size_t len)
+int64_t pii_write(int64_t fd, void *addr, size_t len)
 {
-	return write(fd, addr, len);
+	return write((int)fd, addr, len);
 }
 
-long long myseek(long long fd, long long pos, unsigned char offset)
+int64_t pii_seek(int64_t fd, int64_t pos, unsigned char offset)
 {
 	return (lseek((int)fd, pos, offset));
 }
 
-struct finfo
-{
-	long long mtime;
-	long long fsize;
-	unsigned short mode;
-};
-
-long long mystat(const char *path, struct finfo *st)
+int64_t pii_stat(const char *path, struct pii_stat_info *st)
 {
 	if (stat(path, &fs) != 0) return -1;
 	st->mtime = fs.st_mtime;
@@ -374,7 +362,7 @@ int walk_directory(char* path,
 	{
 		return -1;
 	}
-	// Natural close
+	// Natural pii_close
 	closedir(dir);
 	return foldervisitor(path, FOLDER_POST);
 }
@@ -401,13 +389,13 @@ int folder_visit_remove(const char *fname, int state)
 }
 
 /*
-	long long myremove(const char *fqname) -> 0 | -1
+	int64_t pii_remove(const char *fqname) -> 0 | -1
 	Will remove a file or a directory
 	If a directory name is given, it will walk
 	the directory and remove all files and
 	subdirectories in it's path
 */
-long long myremove(const char *fqname)
+int64_t pii_remove(const char *fqname)
 {
 	int res = -1;
 	if(stat(fqname, &fs) == 0)
@@ -443,26 +431,17 @@ int gettimeofday(struct timeval *tv, struct timezone *tz)
 	}
 	return 0;
 }
-
 #endif
 
 struct timeval tv;
 
-long long gettime()
+int64_t pii_gettime()
 {
 	gettimeofday(&tv, NULL);
-	return (((long long)tv.tv_sec * 1000000) + tv.tv_usec);
+	return (((int64_t)tv.tv_sec * 1000000) + tv.tv_usec);
 }
 
-enum
-{
-	mmap_data,
-	mmap_exec,
-	mmap_shared,
-	mmap_none
-};
-
-long long mymprotect(void *addr, size_t len, int mode)
+int64_t pii_mprotect(void *addr, size_t len, uint64_t mode)
 {
 #ifdef _WIN64
 	int old;
@@ -493,7 +472,7 @@ long long mymprotect(void *addr, size_t len, int mode)
 	return -1;
 }
 
-void *mymmap(size_t len, long long fd, int mode)
+void *pii_mmap(size_t len, int64_t fd, uint64_t mode)
 {
 #ifdef _WIN64
 	switch (mode)
@@ -519,7 +498,7 @@ void *mymmap(size_t len, long long fd, int mode)
 	return (void*)-1;
 }
 
-long long mymunmap(void *addr, size_t len, int mode)
+int64_t pii_munmap(void *addr, size_t len, uint64_t mode)
 {
 #ifdef _WIN64
 	switch (mode)
@@ -546,7 +525,7 @@ long long mymunmap(void *addr, size_t len, int mode)
 	return -1;
 }
 
-void *myclearicache(void* addr, size_t len)
+void *pii_flush_icache(void* addr, size_t len)
 {
 #ifdef _WIN64
 	FlushInstructionCache(GetCurrentProcess(), addr, len);
@@ -554,7 +533,7 @@ void *myclearicache(void* addr, size_t len)
 	#ifdef __APPLE__
 		sys_icache_invalidate(addr, len);
 	#else
-		__clear_cache(addr, ((char*)addr + len));
+		__builtin___clear_cache(addr, ((char*)addr + len));
 	#endif
 #endif
 	return addr;
@@ -562,36 +541,46 @@ void *myclearicache(void* addr, size_t len)
 
 std::random_device rd;
 std::uniform_int_distribution<int> dist(0, 256);
-void myrand(char* addr, size_t len)
+void pii_random(char* addr, size_t len)
 {
 	for (int i = 0; i < len; ++i) addr[i] = dist(rd);
 }
 
-void mysleep(uint64_t ms)
+void pii_sleep(uint64_t ms)
 {
 	std::this_thread::sleep_for(std::chrono::milliseconds(ms));
 }
 
+uint64_t pii_close(uint64_t fd)
+{
+	return close((int)fd);
+}
+
+uint64_t pii_unlink(const char *path)
+{
+	return unlink(path);
+}
+
 static void (*host_os_funcs[]) = {
 (void*)exit,
-(void*)mystat,
-(void*)myopen,
-(void*)close,
-(void*)unlink,
-(void*)myread,
-(void*)mywrite,
-(void*)mymmap,
-(void*)mymunmap,
-(void*)mymprotect,
-(void*)gettime,
-(void*)myopenshared,
-(void*)mycloseshared,
-(void*)myclearicache,
-(void*)mylist_dir,
-(void*)myremove,
-(void*)myseek,
-(void*)myrand,
-(void*)mysleep,
+(void*)pii_stat,
+(void*)pii_open,
+(void*)pii_close,
+(void*)pii_unlink,
+(void*)pii_read,
+(void*)pii_write,
+(void*)pii_mmap,
+(void*)pii_munmap,
+(void*)pii_mprotect,
+(void*)pii_gettime,
+(void*)pii_open_shared,
+(void*)pii_close_shared,
+(void*)pii_flush_icache,
+(void*)pii_dirlist,
+(void*)pii_remove,
+(void*)pii_seek,
+(void*)pii_random,
+(void*)pii_sleep,
 };
 
 #ifdef _GUI
@@ -642,66 +631,54 @@ int main(int argc, char *argv[])
 			}
 		}
 
-		long long fd = myopen(argv[1], file_open_read);
+		int64_t fd = pii_open(argv[1], file_open_read);
 		if (fd != -1)
 		{
 			stat(argv[1], &fs);
 			size_t data_size = fs.st_size;
-			uint16_t *data = (uint16_t*)mymmap(data_size, -1, mmap_data);
+			uint16_t *data = (uint16_t*)pii_mmap(data_size, -1, mmap_data);
 			if (data != (uint16_t*)-1)
 			{
 				if (read((int)fd, data, data_size) == data_size)
 				{
-					//printf("image start address: 0x%llx\n", (unsigned long long)data);
-#ifndef _WIN64
+					//printf("image start address: 0x%llx\n", (unsigned int64_t)data);
+				#ifndef _WIN64
 					fcntl(0, F_SETFL, fcntl(0, F_GETFL, 0) | O_NONBLOCK);
-#endif
+				#endif
 					if (run_emu)
 					{
-						int64_t* stack = (int64_t*)mymmap(VP64_STACK_SIZE, -1, mmap_data);
+						int64_t* stack = (int64_t*)pii_mmap(VP64_STACK_SIZE, -1, mmap_data);
 						if (stack)
 						{
-							printf("ChrysaLisp vp64 emulator v0.1\n");
-#ifdef _GUI
+							std::cout << "ChrysaLisp vp64 emulator v0.1" << std::endl;
+						#ifdef _GUI
 							ret_val = vp64((uint8_t*)data, (int64_t*)((char*)stack + VP64_STACK_SIZE), (int64_t*)argv, (int64_t*)host_os_funcs, (int64_t*)host_gui_funcs);
-#else
+						#else
 							ret_val = vp64((uint8_t*)data, (int64_t*)((char*)stack + VP64_STACK_SIZE), (int64_t*)argv, (int64_t*)host_os_funcs, (int64_t*)nullptr);
-#endif
-							mymunmap(stack, VP64_STACK_SIZE, mmap_data);
+						#endif
+							pii_munmap(stack, VP64_STACK_SIZE, mmap_data);
 						}
 					}
 					else
 					{
 						//swap to RX
-						myclearicache(data, data_size);
-						mymprotect(data, data_size, mmap_exec);
-#ifdef _GUI
+						pii_flush_icache(data, data_size);
+						pii_mprotect(data, data_size, mmap_exec);
+					#ifdef _GUI
 						ret_val = ((int(*)(char* [], void* [], void* []))((char*)data + data[5]))(argv, host_os_funcs, host_gui_funcs);
-#else
+					#else
 						ret_val = ((int(*)(char* [], void* [], void* []))((char*)data + data[5]))(argv, host_os_funcs, nullptr);
-#endif
+					#endif
 					}
-					mymunmap(data, data_size, mmap_exec);
+					pii_munmap(data, data_size, mmap_exec);
 				}
-				else
-				{
-					printf("Error, failed reading boot_image!\n");
-				}
+				else std::cout << "Error, failed reading boot_image!" << std::endl;
 			}
-			else
-			{
-				printf("Error, READ/WRITE/EXEC pages failed!\n");
-			}
-			close((int)fd);
+			else std::cout << "Error, READ/WRITE/EXEC pages failed!" << std::endl;
+			pii_close((int)fd);
 		}
-		else
-		{
-			printf("Error, boot_image not found!\n");
-		}
+		else std::cout << "Error, boot_image not found!" << std::endl;
 	}
-	else
-	{
-		printf("Error, no boot_image arg!\n");
-	}
+	else std::cout << "Error, no boot_image arg!" << std::endl;
 	return ret_val;
 }

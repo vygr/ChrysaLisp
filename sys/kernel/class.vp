@@ -30,6 +30,7 @@
 	(pptr 'iter_begin 'iter_end)
 	(struct 'best_id 'node_id)
 	(struct 'node_id 'node_id)
+	(ulong 'time)
 	(uint 'best_cnt)
 
 	(push-scope)
@@ -52,14 +53,14 @@
 
 	;start kernel task (get's mailbox id of 0 !)
 	(assign {@sys/statics/statics} {statics })
-	(call 'sys_task :start {$fn_entry} {statics ->statics_sys_task_kernel_tcb, mbox_addr, _, _, _})
-	(assign {statics ->statics_sys_task_kernel_tcb} {statics ->statics_sys_task_current_tcb})
+	(call 'sys_task :start {$fn_entry} {statics->statics_sys_task_kernel_tcb, mbox_addr, _, _, _})
+	(assign {statics->statics_sys_task_kernel_tcb} {statics->statics_sys_task_current_tcb})
 
 	;init mailer
 	(call 'sys_mail :statics_init1)
 
 	;set random node ID
-	(call 'sys_pii :rand {&statics ->statics_sys_task_kernel_node_id, node_id_size})
+	(call 'sys_pii :rand {&statics->statics_sys_task_kernel_node_id, node_id_size})
 	(call 'sys_kernel :id nil {node_id.node_id_node1, node_id.node_id_node2})
 
 	;process command options
@@ -98,10 +99,10 @@
 				(break)
 			(vpcase '(r0 = kn_call_child))
 				;find best cpu to run task
-				(assign {statics ->statics_sys_task_task_count} {best_cnt})
+				(assign {statics->statics_sys_task_task_count} {best_cnt})
 				(assign {node_id.node_id_node1} {best_id.node_id_node1})
 				(assign {node_id.node_id_node2} {best_id.node_id_node2})
-				(call 'array :get_both {statics ->statics_sys_mail_links_array} {_, iter_begin, iter_end})
+				(call 'array :get_both {statics->statics_sys_mail_links_array} {_, iter_begin, iter_end})
 				(loop-while {iter_begin /= iter_end})
 					(assign {*iter_begin} {link})
 					(assign {iter_begin + ptr_size} {iter_begin})
@@ -127,14 +128,18 @@
 					(ptr 'services 'entries))
 				(push-scope)
 
+				;timestamp
+				(call 'sys_pii :time nil '{time})
+
 				;find/create the routing tuple for the origin
 				(assign {data, key} '(r0 r1))
 				(assign-node-id r0 kn_msg_ping_origin r1 str_data)
-				(call 'hmap :find {statics ->statics_sys_mail_routing_map, key} {_, tuple, bucket})
+				(call 'hmap :find {statics->statics_sys_mail_routing_map, key} {_, tuple, bucket})
 				(vpifnot {tuple})
 					(call 'node :create {&data->kn_msg_ping_origin, node_id_size} {new_key})
 					(call 'array :create nil {tuple})
-					;session, hops
+					;timestamp, session, hops
+					(call 'array :push_back {tuple, 0})
 					(call 'array :push_back2 {tuple, -1, -1})
 					(call 'list :push_back2 {bucket, new_key, tuple})
 				(else)
@@ -142,26 +147,32 @@
 				(endif)
 
 				;update routing entries for the origin ?
-				(call 'array :get_first2 {tuple} {_, session, hops})
+				(call 'array :get_begin {tuple} '(_ r1))
+				(assign `((r1 ,(* long_size 1)) (r1 ,(* long_size 2))) '(r1 r2))
+				(assign '(r1 r2) {session, hops})
 				(switch)
 				(breakif {data->kn_msg_ping_session < session})
 				(vpcase {data->kn_msg_ping_session > session})
 					;new routing session, clear vias, update session and hops
 					(call 'array :set_length {tuple, 0})
+					(call 'array :push_back {tuple, time})
 					(call 'array :push_back2 {tuple, data->kn_msg_ping_session, data->kn_msg_ping_hops})
-					(goto 'new_via)
+					(goto 'flood_via)
 				(vpcase {data->kn_msg_ping_hops < hops})
 					;better route, clear vias, update hops
-					(call 'array :set_length {tuple, 1})
+					(call 'array :set_length {tuple, 2})
 					(call 'array :push_back {tuple, data->kn_msg_ping_hops})
-					(goto 'new_via)
-				(vpcase {data->kn_msg_ping_hops = hops})
-				(vp-label 'new_via)
-					;equal route, push via, flood to neibours
+				(vp-label 'flood_via)
 					(call 'array :push_back2 {tuple,
 						data->kn_msg_ping_via.node_id_node1,
 						data->kn_msg_ping_via.node_id_node2})
 					(call 'flood_fill {statics , msg, data, node_id.node_id_node1, node_id.node_id_node2})
+					(break)
+				(vpcase {data->kn_msg_ping_hops = hops})
+					;equal route, push via, but no need to flood onwards !
+					(call 'array :push_back2 {tuple,
+						data->kn_msg_ping_via.node_id_node1,
+						data->kn_msg_ping_via.node_id_node2})
 				(endswitch)
 
 				;don't update services if I am orign !
@@ -170,12 +181,14 @@
 					;find/create the service tuple for the origin
 					(assign {data, key} '(r0 r1))
 					(assign-node-id r0 kn_msg_ping_origin r1 str_data)
-					(call 'hmap :find {statics ->statics_sys_mail_service_map, key} {_, tuple, bucket})
+					(call 'hmap :find {statics->statics_sys_mail_service_map, key} {_, tuple, bucket})
 					(vpifnot {tuple})
 						(call 'node :create {&data->kn_msg_ping_origin, node_id_size} {new_key})
 						(call 'list :create nil {tuple})
-						(call 'num :create {0} {session})
 						(call 'hset :create `((@ ,(f-path 'str :same)) 1) {set})
+						(call 'num :create {0} {session})
+						(call 'list :push_back {tuple, session})
+						(call 'num :create {0} {session})
 						(call 'list :push_back2 {tuple, session, set})
 						(call 'list :push_back2 {bucket, new_key, tuple})
 					(else)
@@ -183,15 +196,17 @@
 					(endif)
 
 					;add service entries for the origin ?
-					(call 'list :get_first {tuple} {_, session})
+					(call 'list :get_second {tuple} {_, session})
 					(vpif {data->kn_msg_ping_session > session->num_value})
 						;new session
 						(assign {data->kn_msg_ping_session} {session->num_value})
+						(call 'list :get_first {tuple} {_, session})
+						(assign {time} {session->num_value})
 						(call 'str :create_from_buffer {&data->kn_msg_ping_services, msg->msg_frag_length - kn_msg_ping_services} {services})
 						(call 'str :split_char {services, +char_lf+} {_, entries})
 						(call 'str :destroy {services})
 						(call 'list :get_both {entries} {_, iter_begin, iter_end})
-						(call 'list :get_second {tuple} {_, set})
+						(call 'list :get_element {tuple, 2} {_, set})
 						(call 'hset :clear {set})
 						(loop-while {iter_begin /= iter_end})
 							(call 'hset :insert {set, *iter_begin})
@@ -408,10 +423,12 @@
 	(entry '(r8))
 
 	;start link
-	(call 'sys_task :start `((@ ,(f-path 'sys_link :out))) '(_ _ r9 r10 r11))
+	(call 'sys_task :start `((@ ,(f-path 'sys_link :link))) '(_ _ r9 r10 r11))
 
 	;params message
-	(call 'sys_mail :alloc '(8) '(r0 r1))
+(vp-label 'opt_link_params)
+	(call 'sys_str :length '(r8) '(_ r0))
+	(call 'sys_mail :alloc '(r0) '(r0 r1))
 	(save-net-id r0 msg_dest r9 r10 r11)
 	(vp-cpy-rr r0 r3)
 	(call 'sys_str :copy '(r8 r1))
@@ -420,6 +437,18 @@
 	(call 'sys_mail :send '(r3))
 	(vp-ret)
 
+(vp-label 'opt_usb_link)
+	;inputs
+	;r0 = argv pointer (pubyte)
+	;trashes
+	;r0-r11
+
+	(entry '(r8))
+
+	;start link
+	(call 'sys_task :start `((@ ,(f-path 'sys_link :usb_link))) '(_ _ r9 r10 r11))
+	(goto 'opt_link_params)
+
 	(vp-align ptr_size)
 (vp-label 'options_table)
 	(vp-long `(- ,(label-sym 'opt_run) ,(label-sym 'options_table)))
@@ -427,6 +456,9 @@
 		(vp-align ptr_size)
 	(vp-long `(- ,(label-sym 'opt_link) ,(label-sym 'options_table)))
 		(vp-string "-l") (vp-byte 0)
+		(vp-align ptr_size)
+	(vp-long `(- ,(label-sym 'opt_usb_link) ,(label-sym 'options_table)))
+		(vp-string "-u") (vp-byte 0)
 		(vp-align ptr_size)
 	(vp-long 0)
 
@@ -449,16 +481,22 @@
 (def-method 'sys_kernel :ping)
 	;started by kernel at boot
 
-	(ptr 'msg)
-	(struct 'node_id 'node_id)
+	(def-struct 'local)
+		(ptr 'new_map)
+		(ulong 'now)
+		(struct 'node_id 'node_id)
+	(def-struct-end)
+
+	(ptr 'statics)
+	(struct 'local 'local)
 
 	(push-scope)
 
 	;don't count ping or postman tasks in load balancing
-	(assign {@sys/statics/statics} {msg})
-	(assign {msg->statics_sys_task_task_count - 2} {msg->statics_sys_task_task_count})
+	(assign {@sys/statics/statics} {statics})
+	(assign {statics->statics_sys_task_task_count - 2} {statics->statics_sys_task_task_count})
 
-	(call 'sys_kernel :id nil {node_id.node_id_node1, node_id.node_id_node2})
+	(call 'sys_kernel :id nil {local.local_node_id.node_id_node1, local.local_node_id.node_id_node2})
 	(call 'sys_math :i_rand '(1000000) '(r0))
 	(vp-add-cr 3000000 r0)
 	(call 'sys_task :sleep '(r0))
@@ -466,12 +504,109 @@
 		;send services/routing ping message
 		(call 'sys_mail :ping)
 		(call 'sys_math :i_rand '(1000000) '(r0))
-		(vp-cpy-cr 19000000 r1)
+		(vp-cpy-cr ping_period r1)
 		(vp-add-rr r1 r0)
 		(call 'sys_task :sleep '(r0))
+
+		;purge stale services
+		(call 'sys_pii :time nil {local.local_now})
+		(call 'hmap :create {statics->statics_sys_mail_service_map->hset_key_callback,
+			statics->statics_sys_mail_service_map->hset_num_buckets} {local.local_new_map})
+		(call 'hmap :for_each {statics->statics_sys_mail_service_map, $purge_callback, &local})
+		(call 'hset :deref {statics->statics_sys_mail_service_map})
+		(assign {local.local_new_map} {statics->statics_sys_mail_service_map})
+
+		;purge stale routes
+		(call 'hmap :create {statics->statics_sys_mail_routing_map->hset_key_callback,
+			statics->statics_sys_mail_routing_map->hset_num_buckets} {local.local_new_map})
+		(call 'hmap :for_each {statics->statics_sys_mail_routing_map, $purge_callback1, &local})
+		(call 'hset :deref {statics->statics_sys_mail_routing_map})
+		(assign {local.local_new_map} {statics->statics_sys_mail_routing_map})
+
+		;purge stale messages and parcels
+		(call 'purge_mail {&statics->statics_sys_mail_offchip_list, local.local_now})
+		(call 'purge_mail {&statics->statics_sys_mail_parcel_list, local.local_now})
 	(loop-end)
 
 	(pop-scope)
 	(return)
+
+(vp-label 'purge_callback)
+	;inputs
+	;r0 = predicate data (ptr)
+	;r1 = element iterator (pptr)
+
+	(ptr 'data 'key 'tuple 'bucket)
+	(pptr 'iter)
+
+	(push-scope)
+	(entry 'hmap :each_callback {data, iter})
+
+	(assign {iter[0], iter[ptr_size]} {key, tuple})
+	(vpif {(((key->str_data.node_id_node1 - data->local_node_id.node_id_node1)
+			| (key->str_data.node_id_node2 - data->local_node_id.node_id_node2)) = 0)
+			|| ((data->local_now - tuple->array_begin->num_value) < ping_period * 2)})
+		(call 'obj :ref {key})
+		(call 'obj :ref {tuple})
+		(call 'hset :get_bucket {data->local_new_map, key} {_, bucket})
+		(call 'list :push_back2 {bucket, key, tuple})
+	(endif)
+
+	(pop-scope)
+	(return)
+
+(vp-label 'purge_callback1)
+	;inputs
+	;r0 = predicate data (ptr)
+	;r1 = element iterator (pptr)
+
+	(ptr 'data 'key 'tuple 'bucket)
+	(pptr 'iter)
+
+	(push-scope)
+	(entry 'hmap :each_callback {data, iter})
+
+	(assign {iter[0], iter[ptr_size]} {key, tuple})
+	(vpif {(((key->str_data.node_id_node1 - data->local_node_id.node_id_node1)
+			| (key->str_data.node_id_node2 - data->local_node_id.node_id_node2)) = 0)
+			|| ((data->local_now - (pptr tuple->array_begin)[0]) < ping_period * 2)})
+		(call 'obj :ref {key})
+		(call 'obj :ref {tuple})
+		(call 'hset :get_bucket {data->local_new_map, key} {_, bucket})
+		(call 'list :push_back2 {bucket, key, tuple})
+	(endif)
+
+	(pop-scope)
+	(return)
+
+(vp-label 'purge_mail)
+	;inputs
+	;r0 = mail list (ptr)
+	;r1 = now (ulong)
+
+	(def-struct 'local)
+		(ptr 'next)
+		(ulong 'now)
+	(def-struct-end)
+
+	(vp-def (time now node next))
+
+	(vp-alloc local_size)
+	(entry `(,next ,now))
+
+	(assign `(,now) '((rsp local_now)))
+	(loop-list-forward next 0 node next)
+		(assign `((,node msg_timestamp)) `(,time))
+		(vp-sub-rr now time)
+		(continueif `(,time < ,(* ping_period 2)))
+		(vp-cpy-rr node r0)
+		(ln-remove-node node r1)
+		(assign `(,next) '((rsp local_next)))
+		(call 'sys_mail :free '(r0))
+		(assign '((rsp local_next) (rsp local_now)) `(,next ,now))
+	(loop-end)
+
+	(vp-free local_size)
+	(vp-ret)
 
 (def-func-end)

@@ -38,3 +38,5 @@
 	(uint 'session 'hops)
 	(offset 'services)
 (def-struct-end)
+
+(defcvar 'ping_period 20000000)

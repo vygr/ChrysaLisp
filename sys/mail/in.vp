@@ -18,9 +18,9 @@
 	(assign {@sys/statics/statics.statics_sys_mail_parcel_list} {parcel_list})
 	(vp-def (next node src1 src2 src3 psrc1 psrc2 psrc3))
 	(assign {parcel_list,
-			rx_msg->lk_msg_stamp.msg_src.net_id_mbox_id,
-			rx_msg->lk_msg_stamp.msg_src.net_id_node_id.node_id_node1,
-			rx_msg->lk_msg_stamp.msg_src.net_id_node_id.node_id_node2}
+			rx_msg->lk_msg_stamp.(-msg_stamp_start).msg_src.net_id_mbox_id,
+			rx_msg->lk_msg_stamp.(-msg_stamp_start).msg_src.net_id_node_id.node_id_node1,
+			rx_msg->lk_msg_stamp.(-msg_stamp_start).msg_src.net_id_node_id.node_id_node2}
 		(list next src1 src2 src3))
 	(loop-list-forward next 0 node next)
 		(vp-cpy-ir node (+ msg_src net_id_mbox_id) psrc1)
@@ -30,24 +30,27 @@
 	(assign (list node) {msg})
 	(vpif (list next '= 0))
 		;new parcel
-		(call 'sys_mail :alloc {rx_msg->lk_msg_stamp.msg_total_length} {msg, _})
-		(assign {rx_msg->lk_msg_stamp.msg_dest.net_id_mbox_id} {msg->msg_dest.net_id_mbox_id})
-		(assign {rx_msg->lk_msg_stamp.msg_dest.net_id_node_id.node_id_node1} {msg->msg_dest.net_id_node_id.node_id_node1})
-		(assign {rx_msg->lk_msg_stamp.msg_dest.net_id_node_id.node_id_node2} {msg->msg_dest.net_id_node_id.node_id_node2})
-		(assign {rx_msg->lk_msg_stamp.msg_src.net_id_mbox_id} {msg->msg_src.net_id_mbox_id})
-		(assign {rx_msg->lk_msg_stamp.msg_src.net_id_node_id.node_id_node1} {msg->msg_src.net_id_node_id.node_id_node1})
-		(assign {rx_msg->lk_msg_stamp.msg_src.net_id_node_id.node_id_node2} {msg->msg_src.net_id_node_id.node_id_node2})
-		(assign {rx_msg->lk_msg_stamp.msg_total_length} {msg->msg_total_length})
+		(call 'sys_mail :alloc {rx_msg->lk_msg_stamp.(-msg_stamp_start).msg_total_length} {msg, _})
+		(assign {rx_msg->lk_msg_stamp.(-msg_stamp_start).msg_dest.net_id_mbox_id} {msg->msg_dest.net_id_mbox_id})
+		(assign {rx_msg->lk_msg_stamp.(-msg_stamp_start).msg_dest.net_id_node_id.node_id_node1} {msg->msg_dest.net_id_node_id.node_id_node1})
+		(assign {rx_msg->lk_msg_stamp.(-msg_stamp_start).msg_dest.net_id_node_id.node_id_node2} {msg->msg_dest.net_id_node_id.node_id_node2})
+		(assign {rx_msg->lk_msg_stamp.(-msg_stamp_start).msg_src.net_id_mbox_id} {msg->msg_src.net_id_mbox_id})
+		(assign {rx_msg->lk_msg_stamp.(-msg_stamp_start).msg_src.net_id_node_id.node_id_node1} {msg->msg_src.net_id_node_id.node_id_node1})
+		(assign {rx_msg->lk_msg_stamp.(-msg_stamp_start).msg_src.net_id_node_id.node_id_node2} {msg->msg_src.net_id_node_id.node_id_node2})
+		(assign {rx_msg->lk_msg_stamp.(-msg_stamp_start).msg_total_length} {msg->msg_total_length})
 		(assign {parcel_list, msg} (list next node))
 		(lh-add-at-tail next node src1)
 	(endif)
 
+	;timestamp last change
+	(call 'sys_pii :time nil {msg->msg_timestamp})
+
 	;copy fragment data
-	(assign {rx_msg->lk_msg_stamp.msg_frag_length} {len})
+	(assign {rx_msg->lk_msg_stamp.(-msg_stamp_start).msg_frag_length} {len})
 	(assign {msg->msg_frag_offset + len} {msg->msg_frag_offset})
 	(assign {msg->msg_total_length - len} {msg->msg_total_length})
 	(call 'sys_mem :copy {&rx_msg->lk_msg_data,
-		msg->msg_frag_data + rx_msg->lk_msg_stamp.msg_frag_offset, len})
+		msg->msg_frag_data + rx_msg->lk_msg_stamp.(-msg_stamp_start).msg_frag_offset, len})
 
 	;clear link status
 	(assign {lk_chan_status_ready} {rx_msg->lk_msg_status})

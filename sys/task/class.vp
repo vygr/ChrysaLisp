@@ -290,7 +290,7 @@
 
 	;increment task count
 	(assign {@sys/statics/statics} {statics })
-	(assign {statics ->statics_sys_task_task_count + 1} {statics ->statics_sys_task_task_count})
+	(assign {statics->statics_sys_task_task_count + 1} {statics->statics_sys_task_task_count})
 
 	;create new task control block and task
 	(call 'sys_mem :alloc {ushort(func - ubyte(func - byte_size) - short_size) + tk_node_size} {tcb, tcb_size})
@@ -315,8 +315,8 @@
 	;return tcb and mailbox info
 	(exit 'sys_task :start
 		{tcb, tcb->tk_node_mbox_addr, tcb->tk_node_mbox_id,
-		statics ->statics_sys_task_kernel_node_id.node_id_node1,
-		statics ->statics_sys_task_kernel_node_id.node_id_node2})
+		statics->statics_sys_task_kernel_node_id.node_id_node1,
+		statics->statics_sys_task_kernel_node_id.node_id_node2})
 	(pop-scope)
 	(return)
 
@@ -334,10 +334,10 @@
 
 	;decrement task count
 	(assign {@sys/statics/statics} {statics })
-	(assign {statics ->statics_sys_task_task_count - 1} {statics ->statics_sys_task_task_count})
+	(assign {statics->statics_sys_task_task_count - 1} {statics->statics_sys_task_task_count})
 
 	;free task mailbox and tls
-	(assign {statics ->statics_sys_task_current_tcb} {tcb})
+	(assign {statics->statics_sys_task_current_tcb} {tcb})
 	(call 'sys_mail :free_mbox {tcb->tk_node_mbox_id})
 	(call 'array :deref {tcb->tk_node_tls})
 

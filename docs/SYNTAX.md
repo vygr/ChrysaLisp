@@ -1846,11 +1846,11 @@
 
 ## sort
 
-(sort list [start end]) -> list
+(sort fcmp list [start end]) -> list
 
 ## sorted
 
-(sorted list [start end]) -> list
+(sorted fcmp list [start end]) -> list
 
 ## split
 
