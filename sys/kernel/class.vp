@@ -461,9 +461,8 @@
 	;started by kernel at boot
 
 	(def-struct 'local)
-		(ptr 'new_map)
-		(ulong 'now)
 		(struct 'node_id 'node_id)
+		(ulong 'now)
 	(def-struct-end)
 
 	(ptr 'statics)
@@ -489,11 +488,7 @@
 
 		;purge stale nodes
 		(call 'sys_pii :time nil {local.local_now})
-		(call 'hmap :create {statics->statics_sys_mail_node_map->hset_key_callback,
-			statics->statics_sys_mail_node_map->hset_num_buckets} {local.local_new_map})
 		(call 'hmap :for_each {statics->statics_sys_mail_node_map, $purge_callback, &local})
-		(call 'hset :deref {statics->statics_sys_mail_node_map})
-		(assign {local.local_new_map} {statics->statics_sys_mail_node_map})
 
 		;purge stale messages and parcels
 		(call 'purge_mail {&statics->statics_sys_mail_offchip_list, local.local_now})
@@ -507,23 +502,22 @@
 	;inputs
 	;r0 = predicate data (ptr)
 	;r1 = element iterator (pptr)
+	;r2 = bucket list pointer (ptr)
 
 	(ptr 'data 'key 'tuple 'bucket)
 	(pptr 'iter)
 
 	(push-scope)
-	(entry 'hmap :each_callback {data, iter})
+	(entry 'hmap :each_callback {data, iter, bucket})
 
 	(assign {iter[0], iter[ptr_size]} {key, tuple})
-	(vpif {(((key->str_data.node_id_node1 - data->local_node_id.node_id_node1)
-			| (key->str_data.node_id_node2 - data->local_node_id.node_id_node2)) = 0)
-			|| ((data->local_now - (pptr tuple->array_begin)[ptr_size]) < ping_period * 2)})
-		(call 'obj :ref {key})
-		(call 'obj :ref {tuple})
-		(call 'hset :get_bucket {data->local_new_map, key} {_, bucket})
-		(call 'list :push_back2 {bucket, key, tuple})
-	(else)
+	(switch)
+	(breakifnot {(key->str_data.node_id_node1 - data->local_node_id.node_id_node1)
+				| (key->str_data.node_id_node2 - data->local_node_id.node_id_node2)})
+	(breakif {data->local_now - (pptr tuple->array_begin)[ptr_size] < (ping_period * 2)})
+	(default)
 		(call 'obj :deref {(pptr tuple->array_begin)[0]})
+		(call 'list :erase2 {bucket, iter})
 	(endif)
 
 	(pop-scope)

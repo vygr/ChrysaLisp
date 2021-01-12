@@ -594,8 +594,9 @@
 	;inputs
 	;r0 = predicate data (ptr)
 	;r1 = element iterator (ptr)
+	;r2 = bucket list pointer (ptr)
 
-	(entry 'hmap :each_callback '(r0 r1))
+	(entry 'hmap :each_callback '(r0 r1 r2))
 
 	(assign '((r1 ptr_size) 0) '(r2 r1))
 	(class/array/get_element r2 r1 r1 r2)
@@ -605,8 +606,9 @@
 	;inputs
 	;r0 = predicate data (ptr)
 	;r1 = element iterator (ptr)
+	;r2 = bucket list pointer (ptr)
 
-	(entry 'hset :each_callback '(r0 r1))
+	(entry 'hset :each_callback '(r0 r1 r2))
 
 	(assign '((r1 0)) '(r1))
 	(vp-push r0 r1)
@@ -635,8 +637,9 @@
 	;inputs
 	;r0 = predicate data (ptr)
 	;r1 = element iterator (ptr)
+	;r2 = bucket list pointer (ptr)
 
-	(entry 'hmap :each_callback '(r0 r1))
+	(entry 'hmap :each_callback '(r0 r1 r2))
 
 	(vp-swp-rr r0 r1)
 	(assign '((r0 ptr_size) 0) '(r2 r0))
@@ -710,8 +713,9 @@
 	;inputs
 	;r0 = predicate data (ptr)
 	;r1 = element iterator (ptr)
+	;r2 = bucket list pointer (ptr)
 
-	(entry 'hset :each_callback '(r0 r1))
+	(entry 'hset :each_callback '(r0 r1 r2))
 
 	(assign '((r1 0) (r0 cat_lf)) '(r1 r2))
 	(class/obj/ref r1 r3)
@@ -739,8 +743,9 @@
 	;inputs
 	;r0 = predicate data (ptr)
 	;r1 = element iterator (ptr)
+	;r2 = bucket list pointer (ptr)
 
-	(entry 'hmap :each_callback '(r0 r1))
+	(entry 'hmap :each_callback '(r0 r1 r2))
 
 	(assign '((r1 0)) '(r1))
 	(class/obj/ref r1 r2)

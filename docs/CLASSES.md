@@ -1963,7 +1963,7 @@ r2 = predicate data (ptr)
 outputs
 r0 = hmap object (ptr)
 trashes
-r1-r2...
+r1-r4...
 callback predicate
 inputs
 r0 = predicate data (ptr)
@@ -2367,11 +2367,12 @@ r2 = predicate data (ptr)
 outputs
 r0 = hset object (ptr)
 trashes
-r1-r2...
+r1-r4...
 callback predicate
 inputs
 r0 = predicate data (ptr)
 r1 = element iterator (pptr)
+r2 = bucket list pointer (ptr)
 trashes
 ...
 ```
