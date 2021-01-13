@@ -542,7 +542,7 @@
 	(loop-list-forward next 0 node next)
 		(assign `((,node msg_timestamp)) `(,time))
 		(vp-sub-rr now time)
-		(continueif `(,time < ,(* ping_period 2)))
+		(continueif `(,time >= ,(* ping_period -2)))
 		(vp-cpy-rr node r0)
 		(ln-remove-node node r1)
 		(assign `(,next) '((rsp local_next)))
