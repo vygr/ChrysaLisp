@@ -39,4 +39,4 @@
 	(offset 'services)
 (def-struct-end)
 
-(defcvar 'ping_period 1000000)
+(defcvar 'ping_period 5000000)
