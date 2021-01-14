@@ -12,7 +12,7 @@
 	;init timer/task lists
 	(fn-bind 'sys/statics/statics r0)
 	(vp-add-cr statics_sys_task_timer_list r0)
-	(vp-lea-i r0 (* (inc num_task_lists) lh_list_size) r1)
+	(vp-lea-i r0 (* (+ num_task_lists 1) lh_list_size) r1)
 	(loop-start)
 		(lh-init r0 r2)
 		(vp-add-cr lh_list_size r0)
@@ -383,10 +383,11 @@
 	;trashes
 	;r0-r14
 	;info
-	;resume tasks ready to run
+	;resume tasks ready to run.
+	;mail mailboxes on timouts.
 
-	(fn-bind 'sys/statics/statics r3)
 	(call 'sys_pii :time nil '(r6))
+	(fn-bind 'sys/statics/statics r3)
 	(loop-list-forward r3 statics_sys_task_timer_list r0 r7)
 		(assign '((r0 tk_node_time)) '(r1))
 		(breakif '(r1 > r6))
@@ -397,6 +398,16 @@
 		(ln-remove-node r5 r4)
 		(ln-set-succ r0 0 r1)
 		(call 'sys_task :resume '(r0))
+	(loop-end)
+	(fn-bind 'sys/statics/statics r5)
+	(loop-list-forward r5 statics_sys_mail_timeout_list r5 r7)
+		(assign '((r5 msg_frag_data)) '(r1))
+		(assign '((r1 0)) '(r1))
+		(breakif '(r1 > r6))
+		;remove from timeout list and post
+		(vp-cpy-rr r5 r0)
+		(ln-remove-node r5 r4)
+		(call 'sys_mail :send '(r0))
 	(loop-end)
 
 	(exit 'sys_task :timer '(r6))

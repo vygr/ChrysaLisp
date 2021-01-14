@@ -209,7 +209,7 @@
 			(endswitch)
 		(loop-end)
 
-		;resume any ready tasks on timer list
+		;resume any ready tasks and timeouts on the timer lists
 		(call 'sys_task :timer nil '(r0))
 
 		;find next task we could defer to
@@ -465,38 +465,41 @@
 		(ulong 'now)
 	(def-struct-end)
 
-	(ptr 'statics)
-	(struct 'local 'local)
-
-	(push-scope)
+	(vp-alloc local_size)
 
 	;don't count ping or postman tasks in load balancing
-	(assign {@sys/statics/statics} {statics})
-	(assign {statics->statics_sys_task_task_count - 2} {statics->statics_sys_task_task_count})
+	(fn-bind 'sys/statics/statics r0)
+	(assign '((r0 statics_sys_task_task_count)) '(r1))
+	(vp-sub-cr 2 r1)
+	(assign '(r1) '((r0 statics_sys_task_task_count)))
 
-	(call 'sys_kernel :id nil {local.local_node_id.node_id_node1, local.local_node_id.node_id_node2})
-	(call 'sys_math :i_rand '(1000000) '(r0))
-	(vp-add-cr 3000000 r0)
-	(call 'sys_task :sleep '(r0))
+	(call 'sys_kernel :id nil `((rsp ,(+ local_node_id node_id_node1)) (rsp ,(+ local_node_id node_id_node2))))
+	(vp-cpy-cr 2500000 r4)
 	(loop-start)
-		;send services/routing ping message
-		(call 'sys_mail :ping)
 		(call 'sys_math :i_rand '(1000000) '(r0))
-		(vp-cpy-cr ping_period r1)
-		(vp-add-rr r1 r0)
+		(vp-add-rr r4 r0)
 		(call 'sys_task :sleep '(r0))
 
+		;send services/routing ping message
+		(call 'sys_mail :ping)
+
 		;purge stale nodes
-		(call 'sys_pii :time nil {local.local_now})
-		(call 'hmap :for_each {statics->statics_sys_mail_node_map, $purge_callback, &local})
+		(call 'sys_pii :time nil '((rsp local_now)))
+		(fn-bind 'sys/statics/statics r0)
+		(call 'hmap :for_each '((r0 statics_sys_mail_node_map) ($ purge_callback) rsp))
 
 		;purge stale messages and parcels
-		(call 'purge_mail {&statics->statics_sys_mail_offchip_list, local.local_now})
-		(call 'purge_mail {&statics->statics_sys_mail_parcel_list, local.local_now})
+		(fn-bind 'sys/statics/statics r0)
+		(call 'purge_mail '((& r0 statics_sys_mail_offchip_list) (rsp local_now)))
+		(fn-bind 'sys/statics/statics r0)
+		(call 'purge_mail '((& r0 statics_sys_mail_parcel_list) (rsp local_now)))
+
+		;next ping period
+		(vp-cpy-cr (- ping_period 500000) r4)
 	(loop-end)
 
-	(pop-scope)
-	(return)
+	(vp-free local_size)
+	(vp-ret)
 
 (vp-label 'purge_callback)
 	;inputs
@@ -504,24 +507,36 @@
 	;r1 = element iterator (pptr)
 	;r2 = bucket list pointer (ptr)
 
-	(ptr 'data 'key 'tuple 'bucket)
-	(pptr 'iter)
+	(def-struct 'local)
+		(ptr 'bucket)
+		(pptr 'iter)
+	(def-struct-end)
 
-	(push-scope)
-	(entry 'hmap :each_callback {data, iter, bucket})
+	(vp-def (data iter bucket key tuple kid1 kid2 did1 did2))
 
-	(assign {iter[0], iter[ptr_size]} {key, tuple})
+	(vp-alloc local_size)
+	(entry 'hmap :each_callback `(,data ,iter ,bucket))
+	(assign `(,iter ,bucket) '((rsp local_iter) (rsp local_bucket)))
+
+	(assign `((,iter 0) (,iter ptr_size)) `(,key ,tuple))
+	(load-node-id key str_data kid1 kid2)
+	(load-node-id data (+ local_node_id node_id_node1) did1 did2)
+	(vp-sub-rr did1 kid1)
+	(vp-sub-rr did2 kid2)
+	(vp-or-rr kid2 kid1)
 	(switch)
-	(breakifnot {(key->str_data.node_id_node1 - data->local_node_id.node_id_node1)
-				| (key->str_data.node_id_node2 - data->local_node_id.node_id_node2)})
-	(breakif {data->local_now - (pptr tuple->array_begin)[ptr_size] < (ping_period * 2)})
+	(breakif (list kid1 '= 0))
+	(assign `((,tuple array_begin) (,data local_now)) `(,tuple ,kid1))
+	(assign `((,tuple ptr_size)) `(,kid2))
+	(vp-sub-rr kid2 kid1)
+	(breakif (list kid1 '< (* ping_period 2)))
 	(default)
-		(call 'obj :deref {(pptr tuple->array_begin)[0]})
-		(call 'list :erase2 {bucket, iter})
+		(call 'obj :deref `((,tuple 0)))
+		(call 'list :erase2 '((rsp local_bucket) (rsp local_iter)))
 	(endif)
 
-	(pop-scope)
-	(return)
+	(vp-free local_size)
+	(vp-ret)
 
 (vp-label 'purge_mail)
 	;inputs

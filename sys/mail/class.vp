@@ -14,8 +14,8 @@
 
 	(fn-bind 'sys/statics/statics r12)
 	(vp-xor-rr r0 r0)
-	(assign '(r0 (& r12 statics_sys_mail_mbox_buckets)) '((r12 statics_sys_mail_next_mbox_id) r0))
-	(vp-lea-i r0 (* num_mbox_buckets lh_list_size) r1)
+	(assign '(r0 (& r12 statics_sys_mail_timeout_list)) '((r12 statics_sys_mail_next_mbox_id) r0))
+	(vp-lea-i r0 (* (+ num_mbox_buckets 3) lh_list_size) r1)
 	(loop-start)
 		(lh-init r0 r2)
 		(vp-add-cr lh_list_size r0)
@@ -28,14 +28,8 @@
 	;info
 	;init the mail system
 
-	;init off chip and fragments list
-	(fn-bind 'sys/statics/statics r12)
-	(vp-lea-i r12 statics_sys_mail_offchip_list r0)
-	(lh-init r0 r1)
-	(vp-lea-i r12 statics_sys_mail_parcel_list r0)
-	(lh-init r0 r1)
-
 	;init postmen task
+	(fn-bind 'sys/statics/statics r12)
 	(vp-xor-rr r0 r0)
 	(assign '(r0) '((r12 statics_sys_mail_session)))
 	(call 'sys_task :start `((@ ,(f-path 'sys_mail :out))) '(_ r1 _ _ _))

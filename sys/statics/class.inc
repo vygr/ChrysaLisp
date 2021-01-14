@@ -22,6 +22,8 @@
 	(ptr 'sys_mail_links_array 'sys_mail_node_map 'sys_mail_out_mbox_addr)
 	(struct 'sys_mail_msg_heap 'hp_heap)
 	(struct 'sys_mail_mbox_heap 'hp_heap)
+	;keep these together
+	(struct 'sys_mail_timeout_list 'lh_list)
 	(struct 'sys_mail_offchip_list 'lh_list)
 	(struct 'sys_mail_parcel_list 'lh_list)
 	(struct 'sys_mail_mbox_buckets (* num_mbox_buckets lh_list_size))
