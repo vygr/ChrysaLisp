@@ -30,7 +30,7 @@
 	(each (lambda (b)
 		(def (. b :dirty) :color (if (= _ i) +argb_grey14+ (const *env_toolbar_col*)))) l) i)
 
-(defun redraw (verts mask)
+(defun redraw-layers (verts mask)
 	;redraw layer/s
 	(elem-set +dlist_layer1_verts+ dlist verts)
 	(elem-set +dlist_mask+ dlist (logior (elem +dlist_mask+ dlist) mask)))
@@ -65,9 +65,63 @@
 			(setq vz (neg vz)))
 		(elem-set +vertex_v+ vert (vec vx vy vz))) verts))
 
+(defun fpoly (canvas col x y _)
+	;draw a polygon on a canvas
+	(.-> canvas (:set_color col) (:fpoly x y 0 _)))
+
+(defun circle (r)
+	;cached circle generation, quantised to 1/4 pixel
+	(defq r (* (floor (* r 4.0)) 0.25) i (% (logior r) 13)
+		k (elem i '(()()()()()()()()()()()()())) p (elem i '(()()()()()()()()()()()()())))
+	(cond ((defq i (some (lambda (i) (if (= i r) _)) k)) (elem i p))
+		(t (push k r) (elem -2 (push p (list
+			(path-gen-arc 0.0 0.0 0.0 +fp_2pi+ r 0.25 (path))))))))
+
+(defun lighting ((r g b) z)
+	;very basic attenuation
+	(defq at (/ (const (i2n box_size)) z) r (* r at) g (* g at) b (* b at))
+	(+ 0xd0000000
+		(<< (n2i (* r (const (i2n 0xff)))) 16)
+		(<< (n2i (* g (const (i2n 0xff)))) 8)
+		(n2i (* b (const (i2n 0xff))))))
+
+(defun clip-verts (hsw hsh verts)
+	;clip and project verts
+	(reduce (lambda (out ((x y z) _ r c))
+		(setq z (+ z (const (i2n (+ (* box_size 2) max_vel)))))
+		(when (> z (const (i2n focal_len)))
+			(defq v (vec x y z) w (/ hsw z) h (/ hsh z))
+			(bind '(sx sy sz) (vec-add v (vec-scale (vec-norm
+				(vec-add v (vec-sub (elem +dlist_light_pos+ dlist) v))) r)))
+			(defq x (+ (* x h) hsw) y (+ (* y h) hsh) r (* r h)
+				sx (+ (* sx h) hsw) sy (+ (* sy h) hsh))
+			(push out (list (vec-n2f x y z) (vec-n2f sx sy) (n2f r)
+				(lighting c z) (lighting (const (vec-i2n 1 1 1)) z)))) out)
+		verts (cap (length verts) (list))))
+
+(defun render-verts (canvas verts)
+	;render circular verts
+	(each (lambda (((x y z) (sx sy) r c sc))
+		(fpoly canvas c x y (circle r))
+		(fpoly canvas sc sx sy (circle (* r 0.2)))) verts))
+
+(defun redraw (dlist)
+	;redraw layer/s
+	(when (/= 0 (logand (elem +dlist_mask+ dlist) 1))
+		(defq canvas (elem +dlist_layer1_canvas+ dlist))
+		(. canvas :fill 0)
+		(bind '(sw sh) (. canvas :pref_size))
+		(defq hsw (i2n (>> sw 1)) hsh (i2n (>> sh 1)))
+		(render-verts canvas
+			(sort (# (if (<= (elem -2 (elem 0 %0)) (elem -2 (elem 0 %1))) 1 -1))
+				(clip-verts hsw hsh (elem +dlist_layer1_verts+ dlist))))
+		(. canvas :swap))
+	(elem-set +dlist_mask+ dlist 0))
+
 (defun main ()
 	;ui tree initial setup
-	(defq dlist (list 0 rate light_pos layer1_canvas (list)))
+	(defq dlist (list 0 light_pos layer1_canvas (list))
+		select (list (task-mailbox) (mail-alloc-mbox)))
 	(. layer1_canvas :set_canvas_flags 1)
 	(. mybackdrop :set_size canvas_width canvas_height)
 	(radio-select style_buttons 1)
@@ -75,63 +129,67 @@
 	(gui-add (. mywindow :change x y w h))
 	(def image_scroll :min_width min_width :min_height min_height)
 
-	;create child and send args
-	(mail-send (defq child_mbox (open-child "apps/bubbles/child.lisp" kn_call_open)) dlist)
-
 	;random cloud of verts
 	(defq verts (vertex-cloud num_bubbles))
-	(redraw verts 1)
+	(redraw-layers verts 1)
 
 	;main event loop
 	(defq last_state :u id t)
-	(while id (while (mail-poll (list (task-mailbox))) (cond
-		((= (setq id (get-long (defq msg (mail-read (task-mailbox))) (const ev_msg_target_id))) +event_close+)
-			;close button
-			(setq id nil))
-		((= id +event_min+)
-			;min button
-			(bind '(x y w h) (apply view-fit (cat (. mywindow :get_pos) (. mywindow :pref_size))))
-			(. mywindow :change_dirty x y w h))
-		((= id +event_max+)
-			;max button
-			(def image_scroll :min_width canvas_width :min_height canvas_height)
-			(bind '(x y w h) (apply view-fit (cat (. mywindow :get_pos) (. mywindow :pref_size))))
-			(. mywindow :change_dirty x y w h)
-			(def image_scroll :min_width min_width :min_height min_height))
-		((= id +event_reset+)
-			;reset button
-			(setq verts (vertex-cloud num_bubbles)))
-		((<= +event_grid+ id +event_axis+)
-			;styles
-			(def (. mybackdrop :dirty) :style (radio-select style_buttons (- id +event_grid+))))
-		((= id (. layer1_canvas :get_id))
-			;event for canvas
-			(when (= (get-long msg (const ev_msg_type)) (const ev_type_mouse))
-				;mouse event in canvas
-				(bind '(w h) (. layer1_canvas :get_size))
-				(defq rx (- (get-int msg (const ev_msg_mouse_rx)) (/ w 2))
-					ry (- (get-int msg (const ev_msg_mouse_ry)) (/ h 2)))
+	(mail-timeout (elem -2 select) rate)
+	(while id
+		(defq msg (mail-read (elem (defq idx (mail-select select)) select)))
+		(cond
+			((= idx 0)
+				;main mailbox
 				(cond
-					((/= (get-int msg (const ev_msg_mouse_buttons)) 0)
-						;mouse button is down
-						(case last_state
-							(:d	;was down last time
-								)
-							(:u	;was up last time
-								(setq last_state :d)))
-						;set light pos
-						(elem-set +dlist_light_pos+ dlist
-							(vec-i2n (* rx 4) (* ry 4) (neg (* box_size 4)))))
-					(t	;mouse button is up
-						(case last_state
-							(:d	;was down last time
-								(setq last_state :u))
-							(:u	;was up last time, so we are hovering
-								t))))))
-		(t (. mywindow :event msg))))
-		(vertex-update verts)
-		(redraw verts 1)
-		(task-sleep rate))
-	;close child and window
-	(mail-send child_mbox "")
+					((= (setq id (get-long msg ev_msg_target_id)) +event_close+)
+						(setq id nil))
+					((= id +event_min+)
+						;min button
+						(bind '(x y w h) (apply view-fit (cat (. mywindow :get_pos) (. mywindow :pref_size))))
+						(. mywindow :change_dirty x y w h))
+					((= id +event_max+)
+						;max button
+						(def image_scroll :min_width canvas_width :min_height canvas_height)
+						(bind '(x y w h) (apply view-fit (cat (. mywindow :get_pos) (. mywindow :pref_size))))
+						(. mywindow :change_dirty x y w h)
+						(def image_scroll :min_width min_width :min_height min_height))
+					((= id +event_reset+)
+						;reset button
+						(setq verts (vertex-cloud num_bubbles)))
+					((<= +event_grid+ id +event_axis+)
+						;styles
+						(def (. mybackdrop :dirty) :style (radio-select style_buttons (- id +event_grid+))))
+					((= id (. layer1_canvas :get_id))
+						;event for canvas
+						(when (= (get-long msg (const ev_msg_type)) (const ev_type_mouse))
+							;mouse event in canvas
+							(bind '(w h) (. layer1_canvas :get_size))
+							(defq rx (- (get-int msg (const ev_msg_mouse_rx)) (/ w 2))
+								ry (- (get-int msg (const ev_msg_mouse_ry)) (/ h 2)))
+							(cond
+								((/= (get-int msg (const ev_msg_mouse_buttons)) 0)
+									;mouse button is down
+									(case last_state
+										(:d	;was down last time
+											)
+										(:u	;was up last time
+											(setq last_state :d)))
+									;set light pos
+									(elem-set +dlist_light_pos+ dlist
+										(vec-i2n (* rx 4) (* ry 4) (neg (* box_size 4)))))
+								(t	;mouse button is up
+									(case last_state
+										(:d	;was down last time
+											(setq last_state :u))
+										(:u	;was up last time, so we are hovering
+											t))))))
+					(t (. mywindow :event msg))))
+			(t	;timer event
+				(mail-timeout (elem -2 select) rate)
+				(vertex-update verts)
+				(redraw-layers verts 1)
+				(redraw dlist))))
+	;close window
+	(mail-free-mbox (pop select))
 	(. mywindow :hide))
