@@ -10,19 +10,23 @@
   +SERVICE-CNTRL+ "./apps/logger/logsrvc.yaml"
   +ACTIVE-CNTRL+  "./logs/logdefs.yaml"
   yamlmap         nil
+  levels          nil
   formatting      (xmap)
   loggers         (xmap))
 
 ;
-(defun populate-class (_clzi fmap)
+(defun _populate-class (_clzi fmap)
+  ; (_populate-class instance map) -> any
+  ; Populates a classes properties based
+  ; on key/values from fmap
   (each (lambda ((_k _v))
           (def _clzi _k _v)) (entries fmap)))
 
-(defun level-index (lvlkw)
-  (gets-in yamlmap :logging :levels lvlkw))
+(defun _level-index (lvlkw)
+  (gets-in levels lvlkw))
 
-(defun level-name (lvlkw)
-  (elem (level-index lvlkw) (gets-in yamlmap :logging :levels :logstrs)))
+(defun _level-name (lvlkw)
+  (elem (_level-index lvlkw) (gets-in levels :logstrs)))
 
 ;;;;;;;;;;;;;;;;;;;;;
 ; Formatting
@@ -36,21 +40,22 @@
 
 ; standard formatter
 (defclass stdformat (name fmt) (formatter name fmt)
+
   (defmethod :formatmsg (this lvl msgs)
     (apply str
            (insert
              (push msgs +nl+)
              0
-             (list (encode-date) " [" (level-name lvl) "] "))))
+             (list (encode-date) " [" (_level-name lvl) "] "))))
   )
 
 ; Populate formatters map
-(defun add-formatter (name fmap)
+(defun _add-formatter (name fmap)
   (defq fmtclass
     (cond
       ((eql name :standard) (stdformat name nil))
       (t (formatter name nil))))
-  (populate-class fmtclass fmap)
+  (_populate-class fmtclass fmap)
   (sets! formatting name fmtclass))
 
 ; low level IO log handlers
@@ -61,33 +66,35 @@
        :io_instance nil
        :written     0)
 
-  (defabstractmethod :write (this lvl &rest msg))
+  (defabstractmethod :write (this lvl msgs))
 
   (defmethod :writer (this lvl msg)
     (cond
-      ((<= (level-index lvl) (level-index (get :level this)))
+      ; If the inbound equals or is greater than handler threshold
+      ((>= (_level-index lvl) (_level-index (get :level this)))
         (defq fmsg (. (get :fmi this) :formatmsg lvl msg))
-        (stream-flush (write (get :io_intance this) fmsg))
+        (stream-flush (write (get :io_instance this) fmsg))
         (length fmsg))
       (t 0)))
 
   ; Constructor for fields
-  (populate-class this hnd_map)
+  (_populate-class this hnd_map)
   )
 
 (defclass console-handler (name hnd_map) (handler name hnd_map)
 
-  (defmethod :write (this lvl &rest msg)
+  (defmethod :write (this lvl msgs)
     ; (. console-handler :write [msgs])
-    (set this :written (. this :writer lvl msg)))
+    (set this :written (. this :writer lvl msgs)))
 
   )
 
 (defclass file-handler (name hnd_map) (handler name hnd_map)
 
-  (defmethod :write (this lvl &rest msg)
+  (defmethod :write (this lvl msgs)
     ; (. file-handler :write level [msgs])
-    (set this :written (. this :writer lvl msg))
+    (set this :written
+         (. this :writer lvl msgs))
     (when (and
             (get :rotate this)
             (> (get :written this) (get :maxbytes this)))
@@ -113,12 +120,20 @@
        :written     sz))
   )
 
-; logger
+; Primary logger
+
 (defclass logger (name hnd_name hnd_map) nil
   (def this
        :name    name
        :handler nil)
-  (set this :handler
+
+  (defmethod :write (this src lvl &rest msgs)
+    (. (get :handler this) :write lvl
+       (insert msgs 0 (list (str (get :name this) ":" src " ")))))
+
+  ; Constructor
+  (set this
+       :handler
        (cond
          ((eql (defq htype (gets hnd_map :type)) :stdout)
           (console-handler hnd_name hnd_map))
@@ -128,17 +143,15 @@
            (throw "Unknown handler type" htype))))
   )
 
-(defclass debug-logger (name) nil
-  )
+(defclass faux-logger () nil
+  (defmethod :write (this src lvl &rest msgs)
+    nil))
 
 
-(defun debug-logger (&optional fake)
-  )
+(defun load-loggers (&optional debuglogger)
+  ; (load-loggers [debuglogger]) -> logger | nil
 
-(defun logger-configured? (lkeyword)
-  (gets-in yamlmap :logging :loggers lkeyword))
-
-(defun load-loggers ()
+  (defq dbl nil)
   ; Definition file. If the operational
   ; file does not exist, create
   ; from the static model. Otherwise just read
@@ -150,11 +163,38 @@
        (setq yamlmap (first (yaml-read +SERVICE-CNTRL+)))))
     (t
       (setq yamlmap (first (yaml-read +ACTIVE-CNTRL+)))))
+
+  ; Load levels and normalize strings
+  (setq levels (gets-in yamlmap :logging :levels))
+  (sets! levels :logstrs
+         (reduce (lambda (acc el)
+                   (if (eql (first el) +dblq+)
+                       (push acc (slice 1 -2 el))
+                       (push acc el)))
+                 (gets levels :logstrs)
+                 (list)))
+
   ; Load formatters
-  (each (lambda ((_k _v)) (add-formatter _k _v))
+  (each (lambda ((_k _v)) (_add-formatter _k _v))
     (entries (gets-in yamlmap :logging :formatters)))
 
-  ; Load loggers and handlers
+  ; Load debug logger if requested
+  (setq dbl
+    (if debuglogger
+        (logger
+          :debug
+          :debug_handler
+          (emap-kv
+            :type :file
+            :level :debug
+            :formatter :standard
+            :file_name "DEBUG"
+            :rotate    nil
+            :maxbytes  +max_int+
+            :backups  +max_int+))
+        (faux-logger)))
+
+  ; Load configured loggers and handlers
   (each (lambda ((_k _v))
       (defq hnd_name (gets _v :handler))
       ; Create logger with handler
@@ -163,11 +203,17 @@
                      hnd_name
                      (gets-in yamlmap :logging :handlers hnd_name))))
     (entries (gets-in yamlmap :logging :loggers)))
-  )
+
+  ; Return the debug logger or nil
+  dbl)
+
+(defun handler-for (lkeyword)
+  (when (defq logr (gets loggers lkeyword))
+    (get :handler logr)))
 
 (defun persist-loggers ()
   (yaml-write +ACTIVE-CNTRL+ yamlmap))
 
-(defun new-logger (name handle-spec)
+(defun new-logger (name hnd_map &optional persist)
   )
 

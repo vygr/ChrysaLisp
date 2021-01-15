@@ -6,7 +6,9 @@
 
 (import "lib/ipc/client_ipc.inc")
 
-(defq _log_service_mb nil)
+(defq
+  _log_service_mb nil
+  _anchor_name    nil)
 
 (defun logsrvc-mb (node)
   ; (logsrvc-mb) -> mailbox id | nil
@@ -66,6 +68,7 @@
       (.
         (. this :send :ping)
         :recieve))
+    (print "Ping result = " msg)
     this)
   )
 
@@ -77,6 +80,12 @@
     (print "Registering anchor " name)
     (.super this :register (xmap-kv :name name :kind :anchor))
     )
+  )
+
+(defun log (name)
+  )
+
+(defun log-anchor (name)
   )
 
 ; For client side REPL Testing start Terminal with at least 2 CPU
