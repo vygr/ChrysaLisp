@@ -48,14 +48,13 @@
 	(. node_map :each (lambda (key val) (push old_nodes key)))
 	;test for new nodes
 	(each (lambda (node)
-		(unless (. node_map :find node)
+		(unless (find node old_nodes)
 			(setq mutated t)
 			(defq info (emap) reply_mbox (mail-alloc-mbox) mb (Progress) tb (Progress))
 			(. node_map :insert node info)
 			(.-> info (:insert :mem_used 0)
-				(:insert :task_cnt 0)
 				(:insert :child (const (pad "" net_id_size)))
-				(:insert :reply_select (list reply_mbox))
+				(:insert :select (list reply_mbox))
 				(:insert :memory_bar mb)
 				(:insert :task_bar tb))
 			(. memory_grid :add_child mb)
@@ -67,7 +66,7 @@
 			(setq mutated t)
 			(defq info (. node_map :find node))
 			(mail-send (. info :find :child) "")
-			(mail-free-mbox (pop (. info :find :reply_select)))
+			(mail-free-mbox (pop (. info :find :select)))
 			(. (. info :find :memory_bar) :sub)
 			(. (. info :find :task_bar) :sub))) old_nodes)
 	(def memory_grid :grid_height (length nodes))
@@ -77,7 +76,7 @@
 (defun poll-nodes ()
 	(defq new_max_memory 1 new_max_tasks 1)
 	(. node_map :each (lambda (key val)
-		(when (mail-poll (defq select (. val :find :reply_select)))
+		(when (mail-poll (defq select (. val :find :select)))
 			;reply mail waiting, is it the first responce ?
 			(defq msg (mail-read (elem 0 select)))
 			(cond
@@ -103,7 +102,7 @@
 	;close all child tasks
 	(. node_map :each (lambda (key val)
 		(mail-send (. val :find :child) "")
-		(mail-free-mbox (pop (. val :find :reply_select))))))
+		(mail-free-mbox (pop (. val :find :select))))))
 
 (defun main ()
 	;add window
