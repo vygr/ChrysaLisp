@@ -13,7 +13,7 @@
 (structure '+event 0
 	(byte 'close+ 'max+ 'min+))
 
-(defq task_scale (list) memory_scale (list) max_tasks 1 max_memory 1
+(defq max_tasks 1 max_memory 1
 	rate (/ 1000000 5) id t node_map (xmap)
 	select (list (task-mailbox) (mail-alloc-mbox)))
 
@@ -24,15 +24,15 @@
 			(ui-label _ (:text "Tasks" :color +argb_white+))
 			(ui-grid task_scale_grid (:grid_width 4 :grid_height 1 :color +argb_white+
 					:font *env_medium_terminal_font*)
-				(times 4 (push task_scale (ui-label _
-					(:text "|" :flow_flags (logior +flow_flag_align_vcenter+ +flow_flag_align_hright+))))))
+				(times 4 (ui-label _
+					(:text "|" :flow_flags (logior +flow_flag_align_vcenter+ +flow_flag_align_hright+)))))
 			(ui-grid task_grid (:grid_width 1 :grid_height 0)))
 		(ui-flow _ (:color +argb_red+)
 			(ui-label _ (:text "Memory (kb)" :color +argb_white+))
 			(ui-grid memory_scale_grid (:grid_width 4 :grid_height 1 :color +argb_white+
 					:font *env_medium_terminal_font*)
-				(times 4 (push memory_scale (ui-label _
-					(:text "|" :flow_flags (logior +flow_flag_align_vcenter+ +flow_flag_align_hright+))))))
+				(times 4 (ui-label _
+					(:text "|" :flow_flags (logior +flow_flag_align_vcenter+ +flow_flag_align_hright+)))))
 			(ui-grid memory_grid (:grid_width 1 :grid_height 0)))))
 
 (defun open-monitor (node reply)
@@ -78,7 +78,7 @@
 	(defq new_max_memory 1 new_max_tasks 1)
 	(. node_map :each (lambda (key val)
 		(when (mail-poll (defq select (. val :find :reply_select)))
-			;reply mail waiting, is it the childs first responce ?
+			;reply mail waiting, is it the first responce ?
 			(defq msg (mail-read (elem 0 select)))
 			(cond
 				((eql (defq child (. val :find :child)) (const (pad "" net_id_size)))
@@ -141,6 +141,8 @@
 				;poll node values
 				(poll-nodes)
 				;set scales
+				(defq task_scale (. task_scale_grid :children)
+					memory_scale (. memory_scale_grid :children))
 				(each (lambda (st sm)
 					(defq vt (* (inc _) (/ (* max_tasks 100) (length task_scale)))
 						vm (* (inc _) (/ (* max_memory 100) (length memory_scale))))
