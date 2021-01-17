@@ -211,6 +211,10 @@
   (when (defq logr (gets loggers lkeyword))
     (get :handler logr)))
 
+(defun config-for (name)
+  (when (defq lgr (gets-in yamlmap :logging :loggers (cat : name)))
+    (gets-in yamlmap :logging :handlers (gets lgr :handler))))
+
 (defun persist-loggers ()
   (yaml-write +ACTIVE-CNTRL+ yamlmap))
 

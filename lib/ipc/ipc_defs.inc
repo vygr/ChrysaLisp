@@ -17,7 +17,8 @@
 
 (defun node= (mboxa mboxb)
   ; (node= mailbox mailbox) -> t | nil
-  (eql (mbox-node-id mboxa) (mbox-node-id mboxb)))
+  (if (and mboxa mboxb)
+    (eql (mbox-node-id mboxa) (mbox-node-id mboxb))))
 
 (defun local-node ()
   (mbox-node-id (task-mailbox)))
