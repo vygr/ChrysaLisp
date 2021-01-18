@@ -13,9 +13,12 @@
 (structure '+event 0
 	(byte 'close+ 'max+ 'min+))
 
-(defq max_tasks 1 max_memory 1
+(structure '+select 0
+	(byte 'main+ 'task+ 'reply+ 'nodes+))
+
+(defq max_tasks 1 max_memory 1 last_max_tasks 1 last_max_memory 1
 	rate (/ 1000000 5) id t node_map (xmap)
-	select (list (task-mailbox) (mail-alloc-mbox)))
+	select (list (task-mailbox) (mail-alloc-mbox) (mail-alloc-mbox) (mail-alloc-mbox)))
 
 (ui-window mywindow ()
 	(ui-title-bar _ "Network Monitor" (0xea19 0xea1b 0xea1a) +event_close+)
@@ -50,22 +53,21 @@
 	(each (lambda (node)
 		(unless (find node old_nodes)
 			(setq mutated t)
-			(defq info (emap) reply_mbox (mail-alloc-mbox) mb (Progress) tb (Progress))
-			(. node_map :insert node info)
+			(defq info (emap) mb (Progress) tb (Progress))
+			;must (cat node) to convert to pure string key !
+			(. node_map :insert (cat node) info)
 			(.-> info (:insert :child (const (pad "" net_id_size)))
-				(:insert :select (list reply_mbox))
 				(:insert :memory_bar mb)
 				(:insert :task_bar tb))
 			(. memory_grid :add_child mb)
 			(. task_grid :add_child tb)
-			(open-monitor node reply_mbox))) nodes)
+			(open-monitor node (elem +select_task+ select)))) nodes)
 	;test for vanished nodes
 	(each (lambda (node)
 		(unless (find node nodes)
 			(setq mutated t)
 			(defq info (. node_map :find node))
 			(mail-send (. info :find :child) "")
-			(mail-free-mbox (pop (. info :find :select)))
 			(. (. info :find :memory_bar) :sub)
 			(. (. info :find :task_bar) :sub))) old_nodes)
 	(def memory_grid :grid_height (length nodes))
@@ -73,45 +75,24 @@
 	mutated)
 
 (defun poll-nodes ()
-	(defq new_max_memory 1 new_max_tasks 1)
+	;send out poll requests
 	(. node_map :each (lambda (key val)
-		(when (mail-poll (defq select (. val :find :select)))
-			;reply mail waiting, is it the first responce ?
-			(defq msg (mail-read (elem 0 select)))
-			(cond
-				((eql (defq child (. val :find :child)) (const (pad "" net_id_size)))
-					;yes so set the task id
-					(setq child (slice (const long_size) (const (+ long_size net_id_size)) msg))
-					(. val :insert :child child))
-				(t	;no it's a polling reply
-					(defq task_val (get-uint msg sample_reply_task_count)
-						memory_val (get-uint msg sample_reply_mem_used)
-						task_bar (. val :find :task_bar)
-						memory_bar (. val :find :memory_bar))
-					(setq new_max_memory (max new_max_memory memory_val)
-						new_max_tasks (max new_max_tasks task_val))
-					(def task_bar :maximum max_tasks :value task_val)
-					(def memory_bar :maximum max_memory :value memory_val)
-					(. task_bar :dirty) (. memory_bar :dirty)))
-			;send off new poll
-			(mail-send child (elem 0 select)))))
-	(setq max_memory new_max_memory max_tasks new_max_tasks))
+		(mail-send (. val :find :child) (elem +select_reply+ select)))))
 
 (defun close-children ()
 	;close all child tasks
 	(. node_map :each (lambda (key val)
-		(mail-send (. val :find :child) "")
-		(mail-free-mbox (pop (. val :find :select))))))
+		(mail-send (. val :find :child) ""))))
 
 (defun main ()
 	;add window
 	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
 	(gui-add (. mywindow :change x y w h))
-	(mail-timeout (elem -2 select) 1)
+	(mail-timeout (elem +select_nodes+ select) 1)
 	(while id
 		(defq msg (mail-read (elem (defq idx (mail-select select)) select)))
 		(cond
-			((= idx 0)
+			((= idx +select_main+)
 				;main mailbox
 				(cond
 					((= (setq id (get-long msg ev_msg_target_id)) +event_close+)
@@ -129,26 +110,46 @@
 						(bind '(x y w h) (view-fit x y (/ (* w 5) 3) h))
 						(. mywindow :change_dirty x y w h))
 					(t (. mywindow :event msg))))
+			((= idx +select_task+)
+				;child launch responce
+				(defq child (slice (const long_size) (const (+ long_size net_id_size)) msg)
+					node (slice (const long_size) -1 child) info (. node_map :find node))
+				(when info
+					(. info :insert :child child))
+					;first poll request
+					(mail-send child (elem +select_reply+ select)))
+			((= idx +select_reply+)
+				;child poll responce
+				(when (defq info (. node_map :find (slice sample_reply_node node_id_size msg)))
+					(defq task_val (get-uint msg sample_reply_task_count)
+						memory_val (get-uint msg sample_reply_mem_used)
+						task_bar (. info :find :task_bar)
+						memory_bar (. info :find :memory_bar))
+					(setq max_memory (max max_memory memory_val) max_tasks (max max_tasks task_val))
+					(def task_bar :maximum last_max_tasks :value task_val)
+					(def memory_bar :maximum last_max_memory :value memory_val)
+					(. task_bar :dirty) (. memory_bar :dirty)))
 			(t	;timer event
-				(mail-timeout (elem -2 select) rate)
+				(mail-timeout (elem +select_nodes+ select) rate)
 				(when (refresh-nodes)
 					;nodes have mutated
 					(bind '(x y w h) (apply view-fit
 						(cat (. mywindow :get_pos) (. mywindow :pref_size))))
 					(. mywindow :change_dirty x y w h))
-				;poll node values
-				(poll-nodes)
 				;set scales
 				(defq task_scale (. task_scale_grid :children)
 					memory_scale (. memory_scale_grid :children))
 				(each (lambda (st sm)
-					(defq vt (* (inc _) (/ (* max_tasks 100) (length task_scale)))
-						vm (* (inc _) (/ (* max_memory 100) (length memory_scale))))
+					(defq vt (* (inc _) (/ (* last_max_tasks 100) (length task_scale)))
+						vm (* (inc _) (/ (* last_max_memory 100) (length memory_scale))))
 					(def st :text (str (/ vt 100) "." (pad (% vt 100) 2 "0") "|"))
 					(def sm :text (str (/ vm 102400) "|"))
 					(. st :layout) (. sm :layout)) task_scale memory_scale)
-				(. task_scale_grid :dirty_all) (. memory_scale_grid :dirty_all))))
+				(. task_scale_grid :dirty_all) (. memory_scale_grid :dirty_all)
+				;send out new poll
+				(poll-nodes)
+				(setq last_max_memory max_memory last_max_tasks max_tasks max_memory 1 max_tasks 1))))
 	;close window and children
-	(mail-free-mbox (pop select))
+	(each mail-free-mbox (slice 1 -1 select))
 	(close-children)
 	(. mywindow :hide))
