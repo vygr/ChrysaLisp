@@ -41,6 +41,7 @@
 (dec-method :lisp_devices 'sys/mail/lisp_devices :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_alloc_mbox 'sys/mail/lisp_alloc_mbox :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_free_mbox 'sys/mail/lisp_free_mbox :static '(r0 r1) '(r0 r1))
+(dec-method :lisp_timeout 'sys/mail/lisp_timeout :static '(r0 r1) '(r0 r1))
 
 ;;;;;;;;;;;;;;;;;
 ; mail structures

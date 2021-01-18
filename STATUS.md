@@ -4,6 +4,13 @@
 
 ------
 
+New `(mail-timeout)` function for building timeout select operations.
+
+New `usb-links` branch with USB transfer cable link support for bridging host
+systems.
+
+------
+
 New `(type-of)` implementation. Now returns a list of keyword symbols
 reflecting the entire class inheritance of the object.
 

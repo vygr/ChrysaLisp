@@ -14,8 +14,8 @@
 
 	(fn-bind 'sys/statics/statics r12)
 	(vp-xor-rr r0 r0)
-	(assign '(r0 (& r12 statics_sys_mail_mbox_buckets)) '((r12 statics_sys_mail_next_mbox_id) r0))
-	(vp-lea-i r0 (* num_mbox_buckets lh_list_size) r1)
+	(assign '(r0 (& r12 statics_sys_mail_timeout_list)) '((r12 statics_sys_mail_next_mbox_id) r0))
+	(vp-lea-i r0 (* (+ num_mbox_buckets 3) lh_list_size) r1)
 	(loop-start)
 		(lh-init r0 r2)
 		(vp-add-cr lh_list_size r0)
@@ -28,14 +28,8 @@
 	;info
 	;init the mail system
 
-	;init off chip and fragments list
-	(fn-bind 'sys/statics/statics r12)
-	(vp-lea-i r12 statics_sys_mail_offchip_list r0)
-	(lh-init r0 r1)
-	(vp-lea-i r12 statics_sys_mail_parcel_list r0)
-	(lh-init r0 r1)
-
 	;init postmen task
+	(fn-bind 'sys/statics/statics r12)
 	(vp-xor-rr r0 r0)
 	(assign '(r0) '((r12 statics_sys_mail_session)))
 	(call 'sys_task :start `((@ ,(f-path 'sys_mail :out))) '(_ r1 _ _ _))
@@ -44,8 +38,7 @@
 
 	;services, links and routing
 	(call 'array :create nil '((r12 statics_sys_mail_links_array)))
-	(call 'hmap :create '(($ key_node) 1) '((r12 statics_sys_mail_service_map)))
-	(call 'hmap :create '(($ key_node) 1) '((r12 statics_sys_mail_routing_map)))
+	(call 'hmap :create '(($ key_node) 1) '((r12 statics_sys_mail_node_map)))
 
 	;init header heap
 	(jump 'sys_heap :init '((& r12 statics_sys_mail_msg_heap) msg_size 64))
@@ -535,30 +528,29 @@
 	;trashes
 	;r0-r14
 
-	(ptr 'name 'id 'info 'key 'bucket 'set 'session)
+	(ptr 'name 'id 'info 'key 'bucket 'set)
 	(pptr 'tuple)
+	(ulong 'time)
 
 	(push-scope)
 	(entry 'sys_mail :declare {id, name, info})
 
 	;insert into service map
 	(call 'node :create {&id->str_data.net_id_node_id, node_id_size} {key})
-	(call 'hmap :find {@sys/statics/statics.statics_sys_mail_service_map, key} {_, tuple, bucket})
+	(call 'hmap :find {@sys/statics/statics.statics_sys_mail_node_map, key} {_, tuple, bucket})
 	(vpifnot {tuple})
-		(call 'list :create nil {tuple})
+		(call 'array :create nil {tuple})
 		(call 'hset :create `((@ ,(f-path 'str :same)) 1) {set})
-		(call 'num :create {0} {session})
-		(call 'list :push_back {tuple, session})
-		(call 'num :create {0} {session})
-		(call 'list :push_back2 {tuple, session, set})
+		(call 'array :push_back2 {tuple, set, 0})
+		(call 'array :push_back2 {tuple, -1, -1})
 		(call 'list :push_back2 {bucket, key, tuple})
 	(else)
 		(assign {tuple[ptr_size]} {tuple})
 		(call 'node :destroy {key})
 	(endif)
-	(call 'list :get_first {tuple} {_, session})
-	(call 'sys_pii :time nil {session->num_value})
-	(call 'list :get_element {tuple, 2} {_, set})
+	(call 'sys_pii :time nil {time})
+	(call 'array :set_element {tuple, time, 1})
+	(call 'array :get_first {tuple} {_, set})
 	(call 'sys_mail :service {name, id, info} {name})
 	(call 'hset :insert {set, name})
 	(call 'sys_mail :ping)
@@ -586,7 +578,7 @@
 
 	(call 'list :create nil '((rsp local_entries)))
 	(fn-bind 'sys/statics/statics r0)
-	(call 'hmap :for_each '((r0 statics_sys_mail_service_map) ($ callback1) rsp))
+	(call 'hmap :for_each '((r0 statics_sys_mail_node_map) ($ callback1) rsp))
 
 	(exit 'sys_mail :enquire '((rsp local_entries)))
 	(vp-free local_size)
@@ -596,10 +588,11 @@
 	;inputs
 	;r0 = predicate data (ptr)
 	;r1 = element iterator (ptr)
+	;r2 = bucket list pointer (ptr)
 
-	(entry 'hmap :each_callback '(r0 r1))
+	(entry 'hmap :each_callback '(r0 r1 r2))
 
-	(assign '((r1 ptr_size) 2) '(r2 r1))
+	(assign '((r1 ptr_size) 0) '(r2 r1))
 	(class/array/get_element r2 r1 r1 r2)
 	(jump 'hset :for_each '(r1 ($ callback2) r0))
 
@@ -607,8 +600,9 @@
 	;inputs
 	;r0 = predicate data (ptr)
 	;r1 = element iterator (ptr)
+	;r2 = bucket list pointer (ptr)
 
-	(entry 'hset :each_callback '(r0 r1))
+	(entry 'hset :each_callback '(r0 r1 r2))
 
 	(assign '((r1 0)) '(r1))
 	(vp-push r0 r1)
@@ -630,18 +624,19 @@
 
 	;find in service map and erase
 	(fn-bind 'sys/statics/statics r1)
-	(call 'hmap :for_each '((r1 statics_sys_mail_service_map) ($ callback) r0))
+	(call 'hmap :for_each '((r1 statics_sys_mail_node_map) ($ callback) r0))
 	(jump 'sys_mail :ping)
 
 (vp-label 'callback)
 	;inputs
 	;r0 = predicate data (ptr)
 	;r1 = element iterator (ptr)
+	;r2 = bucket list pointer (ptr)
 
-	(entry 'hmap :each_callback '(r0 r1))
+	(entry 'hmap :each_callback '(r0 r1 r2))
 
 	(vp-swp-rr r0 r1)
-	(assign '((r0 ptr_size) 2) '(r2 r0))
+	(assign '((r0 ptr_size) 0) '(r2 r0))
 	(class/array/get_element r2 r0 r0 r2)
 	(call 'hset :find '(r0 r1) '(r0 r1 r2))
 	(vpif '(r1 /= 0))
@@ -669,12 +664,12 @@
 
 	(call 'node :create {@sys/statics/statics.statics_sys_task_kernel_node_id, node_id_size} {key})
 	(assign {@sys/statics/statics} {statics})
-	(call 'hmap :find {statics->statics_sys_mail_service_map, key} {_, tuple, bucket})
+	(call 'hmap :find {statics->statics_sys_mail_node_map, key} {_, tuple, bucket})
 	(vpif {tuple})
 		(assign {tuple[ptr_size], +char_lf+} {tuple, cat.cat_lf})
 		(call 'str :create_from_buffer {&cat.cat_lf, 1} {cat.cat_lf})
 		(call 'list :create nil {cat.cat_entries})
-		(call 'list :get_element {tuple, 2} {_, set})
+		(call 'array :get_element {tuple, 0} {_, set})
 		(call 'hset :for_each {set, $callback, &cat})
 		(call 'str :cat {cat.cat_lf, cat.cat_entries} {services})
 		(call 'sys_mail :alloc {kn_msg_ping_services + services->str_length} {msg, data})
@@ -712,8 +707,9 @@
 	;inputs
 	;r0 = predicate data (ptr)
 	;r1 = element iterator (ptr)
+	;r2 = bucket list pointer (ptr)
 
-	(entry 'hset :each_callback '(r0 r1))
+	(entry 'hset :each_callback '(r0 r1 r2))
 
 	(assign '((r1 0) (r0 cat_lf)) '(r1 r2))
 	(class/obj/ref r1 r3)
@@ -731,7 +727,7 @@
 	(call 'list :create nil '(r0))
 	(vp-push r0)
 	(fn-bind 'sys/statics/statics r0)
-	(call 'hmap :for_each '((r0 statics_sys_mail_routing_map) ($ callback) (rsp 0)))
+	(call 'hmap :for_each '((r0 statics_sys_mail_node_map) ($ callback) (rsp 0)))
 	(vp-pop r0)
 
 	(exit 'sys_mail :devices '(r0))
@@ -741,8 +737,9 @@
 	;inputs
 	;r0 = predicate data (ptr)
 	;r1 = element iterator (ptr)
+	;r2 = bucket list pointer (ptr)
 
-	(entry 'hmap :each_callback '(r0 r1))
+	(entry 'hmap :each_callback '(r0 r1 r2))
 
 	(assign '((r1 0)) '(r1))
 	(class/obj/ref r1 r2)
@@ -770,10 +767,10 @@
 		(endif)
 		(save-node-id key str_data via1 via2)
 		(fn-bind 'sys/statics/statics tuple)
-		(call 'hmap :find `((,tuple statics_sys_mail_routing_map) ,key) `(_ ,tuple _))
+		(call 'hmap :find `((,tuple statics_sys_mail_node_map) ,key) `(_ ,tuple _))
 		(continueif (list tuple '= 0))
 		(call 'array :get_both `((,tuple ptr_size)) `(_ ,iter_begin ,iter_end))
-		(vp-add-cr (* 3 long_size) iter_begin)
+		(vp-add-cr (* 4 long_size) iter_begin)
 		(continueif (list iter_begin '= iter_end))
 		(loop-start)
 			(load-node-id iter_begin 0 via1 via2)

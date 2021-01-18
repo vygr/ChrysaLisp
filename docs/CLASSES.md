@@ -1963,7 +1963,7 @@ r2 = predicate data (ptr)
 outputs
 r0 = hmap object (ptr)
 trashes
-r1-r2...
+r1-r4...
 callback predicate
 inputs
 r0 = predicate data (ptr)
@@ -2367,11 +2367,12 @@ r2 = predicate data (ptr)
 outputs
 r0 = hset object (ptr)
 trashes
-r1-r2...
+r1-r4...
 callback predicate
 inputs
 r0 = predicate data (ptr)
 r1 = element iterator (pptr)
+r2 = bucket list pointer (ptr)
 trashes
 ...
 ```
@@ -7475,6 +7476,19 @@ trashes
 r1-r14
 ```
 
+### sys_mail :lisp_timeout -> sys/mail/lisp_timeout
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
 ## sys_math
 
 Super Class: null
@@ -8423,7 +8437,8 @@ r0 = current time (ulong)
 trashes
 r0-r14
 info
-resume tasks ready to run
+resume tasks ready to run.
+mail mailboxes on timouts.
 ```
 
 ### sys_task :open_child -> sys/task/open_child

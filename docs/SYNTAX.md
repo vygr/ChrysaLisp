@@ -1372,6 +1372,10 @@
 
 (mail-send mbox obj)
 
+## mail-timeout
+
+(mail-timeout mbox ns)
+
 ## map
 
 (map lambda seq ...) -> list

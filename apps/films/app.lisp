@@ -13,7 +13,8 @@
 		(unzip (split (pii-dirlist p) ",") (list (list) (list))))
 	(sort cmp out))
 
-(defq films (all-films "apps/films/") index 0 canvas nil id t)
+(defq films (all-films "apps/films/") index 0 canvas nil id t
+	select (list (task-mailbox) (mail-alloc-mbox)) rate (/ 1000000 30))
 
 (ui-window mywindow ()
 	(ui-title-bar window_title "" (0xea19) +event_close+)
@@ -34,14 +35,21 @@
 (defun main ()
 	(bind '(x y w h) (apply view-locate (. (win-refresh index) :get_size)))
 	(gui-add (. mywindow :change x y w h))
+	(mail-timeout (elem -2 select) rate)
 	(while id
-		(task-sleep 40000)
-		(.-> canvas :next_frame :swap)
-		(while (mail-poll (list (task-mailbox)))
-			(cond
-				((= (setq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) +event_close+)
-					(setq id nil))
-				((<= +event_prev+ id +event_next+)
-					(win-refresh (% (+ index (dec (* 2 (- id +event_prev+))) (length films)) (length films))))
-				(t (. mywindow :event msg)))))
+		(defq msg (mail-read (elem (defq idx (mail-select select)) select)))
+		(cond
+			((= idx 0)
+				;main mailbox
+				(cond
+					((= (setq id (get-long msg ev_msg_target_id)) +event_close+)
+						(setq id nil))
+					((<= +event_prev+ id +event_next+)
+						(win-refresh (% (+ index (dec (* 2 (- id +event_prev+))) (length films)) (length films))))
+					(t (. mywindow :event msg))))
+			(t	;timer event)
+				(mail-timeout (elem -2 select) rate)
+				(.-> canvas :next_frame :swap))))
+	;close window
+	(mail-free-mbox (pop select))
 	(. mywindow :hide))
