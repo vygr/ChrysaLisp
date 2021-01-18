@@ -207,8 +207,11 @@
   ; Return the debug logger or nil
   dbl)
 
+(defun logger-for (lkeyword)
+  (gets loggers lkeyword))
+
 (defun handler-for (lkeyword)
-  (when (defq logr (gets loggers lkeyword))
+  (when (defq logr (logger-for lkeyword))
     (get :handler logr)))
 
 (defun config-for (name)

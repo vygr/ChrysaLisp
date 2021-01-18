@@ -5,6 +5,7 @@
 ---
 
 logging:
+  version:    1
   levels:
     debug:    0
     info:     1

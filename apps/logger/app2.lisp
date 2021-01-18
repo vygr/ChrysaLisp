@@ -36,7 +36,7 @@
 
   (while active
     (bind '(client cmd msg) (. sipc :read_mail))
-    (debug-write "Processing " cmd)
+    (debug-write "Processing " cmd " registered? " (ipc? client))
     (cond
       ; Ping event
       ((eql cmd :ping)
@@ -61,12 +61,20 @@
 
       ; Register event
       ((eql cmd :register)
+       (debug-write
+         "Received registration for " (gets msg :name)
+         " using " (gets msg :using)
+         " of kind " (gets msg :kind))
        (cond
          ((eql (gets msg :kind) :anchor)
           (debug-write "Anchor registration for " (entries msg)))
          ((eql (gets msg :kind) :logger)
-          (debug-write "Logging registration for " (entries msg))
-          (. sipc :register_client client))
+          (defq lgr (logger-for (gets msg :using)))
+          (. sipc :register_client
+             client
+             (gets msg :name)
+             (get :name lgr)
+             (get :handler lgr)))
          (t
            (debug-write "Unknown registration " (entries msg))
            (mail-forget entry)
@@ -74,6 +82,9 @@
 
       ; Deregister event
       ((eql cmd :deregister)
-       (. sipc :deregister_client client)))
+       (. sipc :deregister_client client))
+      ((eql cmd :logmsg)
+        (debug-write "Received log msg... xmap? " (xmap? msg))
+        (. client :log msg)))
     )
   (mail-forget entry))

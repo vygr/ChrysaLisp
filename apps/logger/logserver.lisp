@@ -4,6 +4,21 @@
 
 (import "lib/ipc/server_ipc.inc")
 
+(defclass log-proxy (src_name log_name server_mb client_mb handler)
+  (ipc server_mb client_mb)
+  (def this
+       :handler     handler
+       :main_logger log_name
+       :src_name    src_name)
+
+  (defmethod :log (this msg)
+    (. (get :handler this) :write (gets msg :level)
+       (insert
+         (list (gets msg :text))
+         0
+         (list (str (get :main_logger this) ":" (get :src_name this) " ")))))
+  )
+
 (defclass log-server (server) (server-ipc server)
 
   ; Methods
@@ -28,7 +43,24 @@
       (setq reg (ipc (get :server this) client)))
     (. reg :send cmd msg))
 
+  ; Overrides
+  (defmethod :register_client (this client src_name log_name handler)
+    ; (. log-server :register_client client name handler) -> any
+    ; Registers a log-proxy for the client for log
+    ; message handling
+
+    (cond
+      ((log-proxy? client)
+        (. client :send :success (xmap-kv :result :registered)))
+      (t
+        (defq
+          msg  (sets! (. levels :copy) :log_level (get :level handler))
+          rc   (log-proxy src_name log_name (. this :service_mb) client handler))
+        (sets! (. this :get_registry) client rc)
+        (. rc :send :success msg))))
+
+  (defmethod :deregister_client (this client)
+    (.super this :deregister_client client))
+
   ; Constructor
   )
-
-; "(:ast (:collection-kv :xmap (:collection-sequence :list (:keyword :command) (:keyword :query_config)) (:collection-sequence :list (:keyword :client) (:str "jaaaaaaaaaaaaaaapbhaopfofeepmjhknfclldkkkkaegnpa")) (:collection-sequence :list (:keyword :data) (:collection-kv :xmap (:collection-sequence :list (:keyword :name) (:str "repl"))))))"

@@ -31,15 +31,17 @@
       (gets (. this :get_registry) client)))
 
   (defmethod :register_client (this client &optional msg)
-    ; (. server-ipc :register_client client) -> any
+    ; (. server-ipc :register_client client msg) -> any
     ; Adds, if needed, client to registry and
     ; acknowledges a registration request from a
     ; client ipc
+    (if msg
+      (sets! msg :result "OK")
+      (setq msg (xmap-kv :result "OK")))
     (defq
-      reg (. this :client_for client)
-      msg (opt msg "OK"))
+      reg (. this :client_for client))
     (if reg
-      (setq msg "Already Registered")
+      (sets! msg :result "Already Registered")
       (progn
         (setq reg (ipc (. this :service_mb) client))
         (sets! (. this :get_registry) client reg)))
@@ -49,15 +51,16 @@
     ; (. server-ipc :deregister_client client) -> any
     ; Removes, if needed, client from registry and
     ; acknowledges a request from a client ipc
+    (setd msg (xmap-kv :result "OK"))
     (defq
       reg (. this :client_for client)
       txt "OK")
     (if reg
       (drop! (. this :get_registry) (. reg :get_sink))
-      (setq
-        txt "Not Registered"
-        reg (ipc (. this :service_mb) client)))
-    (. reg :send :success txt))
+      (progn
+        (sets! msg :result "Not Registered")
+        (setq reg (ipc (. this :service_mb) client))))
+    (. reg :send :success msg))
 
   (defmethod :read_mail (this)
     ; (. server-ipc :read) -> triplet
@@ -78,4 +81,3 @@
       res (list client (gets obj :command) (gets obj :data)))
     res)
   )
-
