@@ -84,7 +84,8 @@
 (defun close-children ()
 	;close all child tasks
 	(. node_map :each (lambda (key val)
-		(mail-send (. val :find :child) ""))))
+		(unless (eql (defq child (. val :find :child)) (const (pad "" net_id_size)))
+			(mail-send child "")))))
 
 (defun main ()
 	;add window
