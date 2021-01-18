@@ -69,7 +69,8 @@
 			(defq info (. node_map :find node))
 			(mail-send (. info :find :child) "")
 			(. (. info :find :memory_bar) :sub)
-			(. (. info :find :task_bar) :sub))) old_nodes)
+			(. (. info :find :task_bar) :sub)
+			(. node_map :erase node))) old_nodes)
 	(def memory_grid :grid_height (length nodes))
 	(def task_grid :grid_height (length nodes))
 	mutated)
@@ -77,7 +78,8 @@
 (defun poll-nodes ()
 	;send out poll requests
 	(. node_map :each (lambda (key val)
-		(mail-send (. val :find :child) (elem +select_reply+ select)))))
+		(unless (eql (defq child (. val :find :child)) (const (pad "" net_id_size)))
+			(mail-send child (elem +select_reply+ select))))))
 
 (defun close-children ()
 	;close all child tasks
