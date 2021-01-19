@@ -1,10 +1,6 @@
 ;imports
 (import "sys/lisp.inc")
 
-(structure 'sample_reply 0
-	(nodeid 'node)
-	(int 'task_count 'mem_used))
-
 (structure '+select 0
 	(byte 'main+ 'timeout+))
 
