@@ -75,18 +75,6 @@
 
 (def-func-end)
 
-(def-method 'sys_task :count)
-	;outputs
-	;r0 = task count (uint)
-	;trashes
-	;r0
-
-	(fn-bind 'sys/statics/statics r0)
-	(exit 'sys_task :count '((r0 statics_sys_task_task_count)))
-	(vp-ret)
-
-(def-func-end)
-
 (def-method 'sys_task :mailbox)
 	;outputs
 	;r0-r2 = current ID (net_id)

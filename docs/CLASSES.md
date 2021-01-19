@@ -7002,6 +7002,19 @@ loader is already initialized when we get here !
 started by kernel at boot
 ```
 
+### sys_kernel :lisp_stats -> sys/kernel/lisp_stats
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
 ## sys_link
 
 Super Class: null
@@ -7827,15 +7840,6 @@ info
 free all unused blocks
 ```
 
-### sys_mem :used -> sys/mem/used
-
-```lisp
-outputs
-r0 = amount (bytes)
-trashes
-r0
-```
-
 ## sys_pii
 
 Super Class: null
@@ -8345,15 +8349,6 @@ trashes
 r0-r14
 info
 restore next ready task
-```
-
-### sys_task :count -> sys/task/count
-
-```lisp
-outputs
-r0 = task count (uint)
-trashes
-r0
 ```
 
 ### sys_task :sleep -> sys/task/sleep

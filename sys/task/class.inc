@@ -14,7 +14,6 @@
 (dec-method :start 'sys/task/start :static '(r0) '(r0 r1 r2 r3 r4))
 (dec-method :stop 'sys/task/stop)
 (dec-method :restore 'sys/task/restore)
-(dec-method :count 'sys/task/count :static nil '(r0))
 (dec-method :sleep 'sys/task/sleep :static '(r0))
 (dec-method :suspend 'sys/task/suspend)
 (dec-method :resume 'sys/task/resume :static '(r0) '(r0))

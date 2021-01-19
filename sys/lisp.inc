@@ -1,6 +1,7 @@
 ;import symbols
 (import "sys/symbols.inc")
 
+(ffi kernel-stats "sys/kernel/lisp_stats" 0)
 (ffi load-path "sys/load/lisp_path" 0)
 (ffi task-mailbox "sys/task/lisp_mailbox" 0)
 (ffi task-sleep "sys/task/lisp_sleep" 0)

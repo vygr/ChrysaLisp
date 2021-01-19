@@ -44,18 +44,6 @@
 
 (def-func-end)
 
-(def-method 'sys_mem :used)
-	;outputs
-	;r0 = amount (bytes)
-	;trashes
-	;r0
-
-	(fn-bind 'sys/statics/statics r0)
-	(exit 'sys_mem :used '((r0 statics_sys_mem_total)))
-	(vp-ret)
-
-(def-func-end)
-
 (def-method 'sys_mem :collect)
 	;trashes
 	;r0-r14

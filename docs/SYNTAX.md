@@ -1256,6 +1256,10 @@
 
 (join list seq) -> seq
 
+## kernel-stats
+
+(kernel-stats)
+
 ## keys
 
 (keys collection) -> list | nil

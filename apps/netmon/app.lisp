@@ -1,9 +1,6 @@
-;jit compile apps native functions if needed
-(import "lib/asm/asm.inc")
-(bind '(_ *cpu* *abi*) (split (load-path) "/"))
-(make '("apps/netmon/child.vp") *abi* *cpu*)
-
 ;imports
+(import "sys/lisp.inc")
+(import "class/lisp.inc")
 (import "gui/lisp.inc")
 
 (structure 'sample_reply 0
@@ -43,7 +40,7 @@
 	(mail-send (cat (char 0 (const long_size)) node)
 		(cat (char 0 (const long_size)) reply
 			(char kn_call_open (const long_size))
-			"apps/netmon/child" (char 0))))
+			"apps/netmon/child.lisp" (char 0))))
 
 (defun refresh-nodes ()
 	;scan known nodes and update node map

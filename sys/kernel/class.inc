@@ -5,6 +5,8 @@
 (dec-method :kernel 'sys/kernel/kernel :static '(r0))
 (dec-method :ping 'sys/kernel/ping)
 
+(dec-method :lisp_stats 'sys/kernel/lisp_stats :static '(r0 r1) '(r0 r1))
+
 ;;;;;;;;;;;;;;;;;;;;;;;
 ; kernel mail functions
 ;;;;;;;;;;;;;;;;;;;;;;;
