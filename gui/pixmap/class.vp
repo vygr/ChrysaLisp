@@ -11,6 +11,7 @@
 (include "gui/canvas/lisp.inc")
 (include "gui/gui/class.inc")
 (include "lib/consts/colors.inc")
+(include "sys/statics/class.inc")
 
 (gen-vtable 'pixmap)
 

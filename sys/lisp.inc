@@ -15,7 +15,6 @@
 (ffi mail-select "sys/mail/lisp_select" 0)
 (ffi mail-send "sys/mail/lisp_send" 0)
 (ffi mail-timeout "sys/mail/lisp_timeout" 0)
-(ffi mem-stats "sys/mem/lisp_stats" 0)
 
 ;some simple structure helpers
 (defmacro structure (n o &rest b)

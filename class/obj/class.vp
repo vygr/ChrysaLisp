@@ -7,23 +7,6 @@
 
 (gen-vtable 'obj)
 
-(when (> *debug_mode* 1)
-(def-method 'obj :deinit)
-	;inputs
-	;r0 = object (ptr)
-	;trashes
-	;r0-r14
-
-	(entry 'obj :deinit '(r0))
-
-	(assign '((& r0 (- sys_mem_header_node sys_mem_header_size))) '(r1))
-	(ln-remove-node r1 r2)
-
-	(exit 'obj :deinit '(r0))
-	(vp-ret)
-
-(def-func-end))
-
 (def-method 'obj :destroy)
 	;inputs
 	;r0 = object (ptr)

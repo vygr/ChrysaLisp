@@ -2,6 +2,7 @@
 (include "class/num/class.inc")
 (include "class/str/class.inc")
 (include "class/lisp/class.inc")
+(include "sys/statics/class.inc")
 
 (def-method 'sys_pii :lisp_readchar)
 	;inputs

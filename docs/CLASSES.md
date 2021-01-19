@@ -4417,15 +4417,6 @@ trashes
 r1-r14
 ```
 
-### obj :deinit -> class/obj/deinit
-
-```lisp
-inputs
-r0 = object (ptr)
-trashes
-r0-r14
-```
-
 ### obj :deinit -> class/obj/null
 
 ### obj :lisp_get_field -> class/obj/lisp_get_field
@@ -7843,19 +7834,6 @@ outputs
 r0 = amount (bytes)
 trashes
 r0
-```
-
-### sys_mem :lisp_stats -> sys/mem/lisp_stats
-
-```lisp
-inputs
-r0 = lisp object (ptr)
-r1 = args list object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
 ```
 
 ## sys_pii

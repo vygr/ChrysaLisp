@@ -1,5 +1,4 @@
 (include "sys/class.inc")
-(include "sys/statics/class.inc")
 
 (def-class 'obj)
 (dec-method :vtable 'class/obj/vtable)
@@ -15,9 +14,7 @@
 (dec-method :print 'class/obj/print :virtual '(r0 r1) '(r0))
 (dec-method :hash 'class/obj/hash :virtual '(r0) '(r0 r1))
 (dec-method :type 'class/obj/type :virtual '(r0) '(r0 r1))
-(if (> *debug_mode* 1)
-(dec-method :deinit 'class/obj/deinit :virtual '(r0) '(r0))
-(dec-method :deinit 'class/obj/null :virtual '(r0) '(r0)))
+(dec-method :deinit 'class/obj/null :virtual '(r0) '(r0))
 
 (dec-method :lisp_get_field 'class/obj/lisp_get_field :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_set_field 'class/obj/lisp_set_field :static '(r0 r1) '(r0 r1))
@@ -45,13 +42,7 @@
 	;trashes
 	;r1
 	(assign '(r1 1) '((r0 obj_vtable) r1))
-	(assign '(r1) '((r0 obj_count)))
-	(when (> *debug_mode* 1)
-		(vp-push r2 r3 r4)
-		(fn-bind 'sys/statics/statics r2)
-		(assign `((& r0 ,(- sys_mem_header_node sys_mem_header_size)) (& r2 statics_sys_mem_obj_list)) '(r3 r2))
-		(lh-add-at-head r2 r3 r4)
-		(vp-pop r2 r3 r4)))
+	(assign '(r1) '((r0 obj_count))))
 
 (defun class/obj/ref (&optional o c x)
 	;inputs

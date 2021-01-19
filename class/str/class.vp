@@ -5,6 +5,7 @@
 (include "class/stream/class.inc")
 (include "class/list/class.inc")
 (include "lib/consts/chars.inc")
+(include "sys/statics/class.inc")
 
 (gen-vtable 'str)
 (gen-type 'str)

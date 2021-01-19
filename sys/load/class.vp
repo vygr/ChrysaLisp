@@ -5,6 +5,7 @@
 (include "class/str/class.inc")
 (include "sys/pii/class.inc")
 (include "lib/consts/chars.inc")
+(include "sys/statics/class.inc")
 
 (def-method 'sys_load :init)
 	;inputs

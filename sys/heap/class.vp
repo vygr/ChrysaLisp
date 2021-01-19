@@ -89,7 +89,7 @@
 		(vp-ret)
 	(endif)
 	(vp-push r3 r4 r5 r0)
-	(if (> *debug_mode* 2)
+	(if (> *debug_mode* 1)
 		(progn
 			;guard page allocator
 			(assign '((r0 hp_heap_cellsize)) '(r4))

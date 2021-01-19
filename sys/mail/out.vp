@@ -2,6 +2,7 @@
 (include "sys/link/class.inc")
 (include "class/obj/class.inc")
 (include "sys/kernel/class.inc")
+(include "sys/statics/class.inc")
 
 (def-method 'sys_mail :out)
 	;info

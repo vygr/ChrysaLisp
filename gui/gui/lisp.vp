@@ -5,6 +5,7 @@
 (include "class/num/class.inc")
 (include "class/lisp/class.inc")
 (include "gui/view/lisp.inc")
+(include "sys/statics/class.inc")
 
 (def-method 'gui :lisp_add)
 	;inputs

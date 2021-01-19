@@ -817,9 +817,8 @@
 ;compilation options
 ;debug_mode 0, release, strip all error checking
 ;debug_mode 1, normal, with error checking
-;debug_mode 2, profiling, with error checking and object stats
-;debug_mode 3, guarded, with error checking, object stats and guard pages
-(defq *debug_mode* 2 *debug_emit* nil *debug_inst* nil)
+;debug_mode 2, guarded, with error checking, object stats and guard pages
+(defq *debug_mode* 1 *debug_emit* nil *debug_inst* nil)
 
 (defun cpu ()
 	; (cpu) -> sym

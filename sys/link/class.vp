@@ -3,6 +3,7 @@
 (include "sys/kernel/class.inc")
 (include "class/array/class.inc")
 (include "class/node/class.inc")
+(include "sys/statics/class.inc")
 
 (def-method 'sys_link :usb_link)
 	;started by kernel for each usb link

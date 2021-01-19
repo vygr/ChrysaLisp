@@ -17,13 +17,9 @@
 (dec-method :collect 'sys/mem/collect)
 (dec-method :used 'sys/mem/used :static nil '(r0))
 
-(dec-method :lisp_stats 'sys/mem/lisp_stats :static '(r0 r1) '(r0 r1))
-
 (defq mem_cell_min_size 0x000020 mem_cell_max_size 0x4000000
 	max_cell_count (/ (* 32 1024) mem_cell_min_size))
 
 (def-struct 'sys_mem_header)
-	(when (> *debug_mode* 1)
-		(struct 'node 'ln_node))
 	(ptr 'heap)
 (def-struct-end)

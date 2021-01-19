@@ -1396,10 +1396,6 @@
 
 (max num num ...)
 
-## mem-stats
-
-(mem-stats options)
-
 ## merge-into!
 
 (merge-into! collection (collections)) -> collection

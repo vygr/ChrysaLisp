@@ -5,6 +5,7 @@
 (include "gui/view/class.inc")
 (include "gui/region/class.inc")
 (include "gui/pixmap/class.inc")
+(include "sys/statics/class.inc")
 
 (def-method 'ctx :set_color)
 	;inputs
