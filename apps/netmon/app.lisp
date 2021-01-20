@@ -60,7 +60,7 @@
 	; (destroy val)
 	;function called when entry is destroyed
 	(unless (eql (defq child (. val :find :child)) (const (pad "" net_id_size)))
-		(mail-send (. val :find :child) ""))
+		(mail-send child ""))
 	(. (. val :find :memory_bar) :sub)
 	(. (. val :find :task_bar) :sub))
 
@@ -135,9 +135,8 @@
 					(def st :text (str (/ vt 100) "." (pad (% vt 100) 2 "0") "|"))
 					(def sm :text (str (/ vm 102400) "|"))
 					(. st :layout) (. sm :layout)) task_scale memory_scale)
-				(. task_scale_grid :dirty_all) (. memory_scale_grid :dirty_all)
-				;send out new poll
-				(. global_tasks :poll)
+				(. task_scale_grid :dirty_all)
+				(. memory_scale_grid :dirty_all)
 				(setq last_max_memory max_memory last_max_tasks max_tasks max_memory 1 max_tasks 1))))
 	;close window and children
 	(each mail-free-mbox (slice 1 -1 select))

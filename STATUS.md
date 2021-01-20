@@ -9,6 +9,9 @@ New `(mail-timeout)` function for building timeout select operations.
 New `usb-links` branch with USB transfer cable link support for bridging host
 systems.
 
+New `lib/task/global.inc` class for managing a dynamic set of tasks, one per
+network node. Netmon app now uses this lib to demo.
+
 ------
 
 New `(type-of)` implementation. Now returns a list of keyword symbols

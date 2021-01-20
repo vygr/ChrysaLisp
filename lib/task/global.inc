@@ -27,12 +27,9 @@
 				((get :destroy this) (. _node_map :find _node))
 				(. _node_map :erase _node))) _old_nodes)
 		(def this :size (length _nodes))
+		;poll all nodes
+		(. _node_map :each (lambda (_k _v) ((get :poll this) _v)))
 		_mutated)
-
-	(defmethod :poll (this)
-		; (. global :poll)
-		;poll tasks
-		(. (get :node_map this) :each (lambda (_k _v) ((get :poll this) _v))))
 
 	(defmethod :close (this)
 		; (. global :close)
