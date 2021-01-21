@@ -26,20 +26,16 @@
 ; Associative structure functions
 
 (defun entries (_)
-    ; (entries collections) -> list | nil
-    ; Returns list of key/value pairs if map
-    ; Returns list of values if set
-    (defq bk (get :buckets _))
-    (cond
-        ((map? _)
-            (cond
-                ((xmap? _)
-                    (defq res (list))
-                    (each! 0 -1 (lambda (_k _v) (push res (list _k _v))) bk)
-                    res)
-                (t (tolist bk))))
-        ((set? _)
-            (first bk))))
+    ; (entries collection) ->  list | nil
+    ; Returns a list of lists (key value) from maps and
+    ; a list from xset, of collection entries
+    (defq rlist nil)
+    (when (collection? _)
+        (setq rlist (list))
+        (if (map? _)
+            (. _ :each (#(push rlist (list %0 %1))))
+            (. _ :each (#(push rlist %0)))))
+    rlist)
 
 (defun keys (_)
     ; (keys collection) -> list | nil
@@ -132,7 +128,8 @@
             (cond
                 ((emap? _coll) (emap))
                 ((xmap? _coll) (xmap))
-                ((xset? _coll) (xset))))
+                ((xset? _coll) (xset))
+                ((list? _coll) (list))))
         (t nil)))
 
 (defun into-map (m lop)

@@ -67,17 +67,15 @@
     ; Reads messages from the server
     ; mailbox and prepares for delivery
     (defq
-      msg     (mail-read (. this :service_mb))
-      obj     (if (list? msg)
-                (first (xlist-data msg))
-                (first (xliststr-data msg)))
-      client  (to-net-id (gets obj :client)))
+      _msg     (mail-read (. this :service_mb))
+      _obj     (if (list? _msg)
+                (first (xlist-data _msg))
+                (first (xliststr-data _msg)))
+      _client  (to-net-id (gets _obj :client)))
     (cond
-      ((defq fc (. this :client_for client))
-        (setq client fc))
+      ((defq fc (. this :client_for _client))
+        (setq _client fc))
       (t
         nil))
-    (defq
-      res (list client (gets obj :command) (gets obj :data)))
-    res)
+    (list _client (gets _obj :command) (gets _obj :data)))
   )

@@ -8,7 +8,7 @@
 
 (defq
   _log_service_mb nil
-  _anchor_kwy     nil)
+  _anchor_kword     nil)
 
 (defun logsrvc-mb (&optional node)
   ; (logsrvc-mb) -> mailbox id | nil
@@ -40,9 +40,8 @@
         :level  loglevel)))
 
   (defmethod :shutdown (this)
-    ; (. democ :shutdown) -> nil
+    ; (. log-client :shutdown) -> log-client
     ; This is for demo only
-    (print "Client shutdown sending")
     (bind '(client cmd msg)
       (.
         (. this :send :shutdown)
@@ -52,8 +51,7 @@
     this)
 
   (defmethod :ping (this)
-    ; (. democ :ping) -> list
-    (print "Client ping sending")
+    ; (. log-client :ping) -> log-client
     (bind '(client cmd msg)
       (.
         (. this :send :ping)
@@ -64,6 +62,11 @@
 
 ; log-anchor
 (defclass log-anchor (&optional client server) (log-client client server)
+
+  (defmethod :shutdown (this)
+    (print "Blanking anchor key: " _anchor_kword)
+    (setq _anchor_kword nil)
+    (.super this :shutdown))
   )
 
 ; Ease of use functions
@@ -82,6 +85,64 @@
 (defun log-critical (logr &rest msg)
   (. logr :send_log_msg :critical msg))
 
+(defun add-anchor-spec (name &optional logspec)
+  ; (add-anchor-spec name [logspec]) -> nil
+  ; Initiates a logging anchor, takes an optional
+  ; logspec if not already configured on server or
+  ; will use default:
+  (when (nil? logspec)
+    (defq
+      hndlkw  (sym (cat _anchor_kword '_handler))
+      _packet  (xmap-kv
+        :name name
+        :logger _anchor_kword
+        :logspec nil)
+      )
+    (sets! _packet :logspec
+      (xmap-kv
+        :logging
+        (xmap-kv
+          :loggers
+          (xmap-kv
+            _anchor_kword (xmap-kv :handler hndlkw))
+          :handlers
+            (xmap-kv
+              hndlkw (xmap-kv
+                :type       :file
+                :level      :info
+                :formatter  :standard
+                :file_name  name
+                :rotate     t
+                :maxbytes   10485760
+                :backups    10))))))
+  (bind '(client reskw msg)
+    (. (. lipc :send :add_handler _packet) :recieve))
+  (print "Result from adding anchor = " reskw " " (entries msg)))
+
+(defun logging-anchor (name &optional logspec)
+  ; (logging-anchor name [logspec]) -> log-anchor
+  (when _anchor_kword
+    (throw "Anchor logger already set " _anchor_kword))
+  (setq _anchor_kword (sym (cat : name)))
+  (defq
+    lipc (log-anchor (mail-alloc-mbox) (logsrvc-mb))
+    ixch  (xmap-kv
+            :name name
+            :kind :anchor
+            :using (cat : name)))
+  (bind '(client reskw msg)
+    (. (. lipc :send :query_config ixch) :recieve))
+  (print "Results of anchor query " (entries msg))
+  (cond
+    ((not (eql reskw :query_result))
+      (throw "Query error " msg))
+    ; If handler is not known yet
+    ((nil? (defq hndkw (gets msg :handler)))
+      (add-anchor-spec name logspec))
+    ((eql _anchor_kword hndkw)
+      (print "Have matching handler")))
+  lipc)
+
 (defun logger (name)
   ; (logging-client name) -> log-client
   ; Default client
@@ -98,8 +159,8 @@
     ((not (eql reskw :query_result))
       (throw "Query error " msg))
     ; If anchored configured
-    (_anchor_kwy
-      (sets! ixch :using _anchor_kwy))
+    (_anchor_kword
+      (sets! ixch :using _anchor_kword))
     ; Else if existing handler
     ((defq hndl (gets msg :handler))
       (sets! ixch :using hndl)))
@@ -111,38 +172,15 @@
 (defun console-logger (name)
   )
 
-(defun logging-anchor (name)
-  (when _anchor_kwy
-    (throw "Anchor logger already set " _anchor_kwy))
-  (defq
-    lipc (log-anchor (mail-alloc-mbox) (logsrvc-mb))
-    ixch  (xmap-kv
-            :name name
-            :using (cat : name)))
-
-
-  (setq _anchor_kwy (sym (cat : name)))
-  _anchor_kwy)
-
-; For client side REPL Testing start Terminal with at least 2 CPU
-; ./run_tui.sh 2
-; >lisp lib/logging/logclient.inc
-; (defq loga (logging-anchor "repl"))
-; Setup anchor logger
-; To test generic logger
-; >lisp lib/logging/logclient.inc
-; (defq lipc (log-anchor (mail-alloc-mbox) (logsrvc-mb (local-node))))
-; Threaded messages - Double entries are to see effect
-; of registering something already registered, etc.
-; Shutdown is for demo to tell the server to stop
-; (.-> lipc :ping (:register_anchor "foo") (:register_anchor "bar") :deregister :deregister :shutdown)
-; Clear this for retesting
-; (setq _log_service_mb nil)
-
-; To test different CPU (serializing data) client/server
+; Regular logging
 ; >lisp lib/logging/logclient.inc
 ; (defq lipc (logger "repl"))
-; Threaded messages
-; (.-> lipc :ping :register :register :deregister :deregister :shutdown)
-; (setq _log_service_mb nil)
+; (log-debug lipc "message"
+; (. lipc :shutdown)
+;
+; Anchoring
+; >lisp lib/logging/logclient.inc
+; (defq lanch (logging-anchor "repl"))
+; (log-debug lanch "message"
+; (. lanch :shutdown)
 

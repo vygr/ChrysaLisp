@@ -107,8 +107,11 @@
 
   (progn
     (defq nm (get :file_name this))
-    (when (eql (elem 0 nm) +dblq+)
-      (set this :file_name (slice 1 -2 nm)))
+    (while (eql (elem 0 nm) +dblq+)
+      (setq nm (slice 1 -2 nm)))
+    (set this :file_name nm)
+    ; (when (eql (elem 0 nm) +dblq+)
+    ;   (set this :file_name (slice 1 -2 nm)))
     (bind '(fstream sz)
       (open-latest-log
         (get :name this)
@@ -221,6 +224,14 @@
 (defun persist-loggers ()
   (yaml-write +ACTIVE-CNTRL+ yamlmap))
 
-(defun new-logger (name hnd_map &optional persist)
-  )
+(defun new-logger (name logkey logcfg hndkey hndcfg)
+  ; (new-logger name logger-key logger-cfg handler-key handler-cfg) -> t | nil
+  (cond
+    ((gets-in yamlmap :logging :loggers logkey)
+     nil)
+    (t
+      (sets! (gets-in yamlmap :logging :loggers) logkey logcfg)
+      (sets! (gets-in yamlmap :logging :handlers) hndkey hndcfg)
+      (persist-loggers)
+      logkey)))
 

@@ -30,6 +30,9 @@
     ; (debug-write msg ...) -> nil
     (eval `(. debugwrt :write +logging_srvc_name+ :debug ~msgs)))
 
+  (defun dbg-write (txt obj)
+    (. debugwrt :write +logging_srvc_name+ :debug txt obj))
+
   (debug-write "Initialized server")
 
   ; Main processing loop
@@ -59,7 +62,29 @@
           :query_result
           (xmap-kv :handler (config-for (gets msg :name)))))
 
+      ; Add logger event
+      ; Persists configuration and creates a client proxy
+      ((eql cmd :add_handler)
+       (defq
+         lname  (gets msg :name)
+         lkey   (gets msg :logger)
+         lspec  (gets msg :logspec)
+         lcfg   (gets-in lspec :logging :loggers lkey)
+         hkey   (gets-in lcfg :handler)
+         hcfg   (gets-in lspec :logging :handlers hkey))
+       (debug-write
+         "Received logspec add for " lname
+         " logger " lkey
+         " handler " hkey)
+       (. sipc
+          :server_send
+          client
+          :add_result
+          (xmap-kv :handler (new-logger lname lkey lcfg hkey hcfg))))
+
       ; Register event
+      ; Creates a client proxy that uses
+      ; the logger identified in 'using'
       ((eql cmd :register)
        (debug-write
          "Received registration for " (gets msg :name)
@@ -83,6 +108,8 @@
       ; Deregister event
       ((eql cmd :deregister)
        (. sipc :deregister_client client))
+
+      ; Log messaging
       ((eql cmd :logmsg)
         (debug-write "Received log msg... xmap? " (xmap? msg))
         (. client :log msg)))

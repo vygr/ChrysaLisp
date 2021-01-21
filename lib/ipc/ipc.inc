@@ -48,11 +48,11 @@
       :optimized  (node= (get :source this) sink)))
 
   (defmethod :optimized? (this)
-    ; (. ipc :optimized) -> mailbox
+    ; (. ipc :optimized) -> boolean
     (get :optimized this))
 
   (defmethod :send (this cmd &optional msg)
-    ; (. ipc :send cmd [message-block]) -> encoded message
+    ; (. ipc :send cmd [message-block]) -> ipc
     (when (or (nil? (get :source this)) (nil? (get :sink this)))
       (throw "IPC not configured with endpoints" (tolist this)))
     (defq em (xmap-kv
