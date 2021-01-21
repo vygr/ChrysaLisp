@@ -31,7 +31,6 @@
 
 (defun tile (canvas data)
 	; (tile canvas data) -> area
-	(setq dirty t)
 	(defq data (string-stream data) x (read-int data) y (read-int data)
 		x1 (read-int data) y1 (read-int data) yp (dec y))
 	(while (/= (setq yp (inc yp)) y1)
@@ -42,7 +41,7 @@
 	(* (- x1 x) (- y1 y)))
 
 ;native versions
-(ffi scene "apps/raymarch/tile" 0)
+(ffi tile "apps/raymarch/tile" 0)
 
 (defun dispatch_job (child)
 	;send another job to child
@@ -96,6 +95,7 @@
 			((= idx +select_reply+)
 				;child responce
 				(dispatch_job (slice (dec (neg net_id_size)) -1 msg))
+				(setq dirty t)
 				(tile canvas msg))
 			(t	;timer event
 				(mail-timeout (elem +select_nodes+ select) rate)
