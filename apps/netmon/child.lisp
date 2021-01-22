@@ -6,8 +6,8 @@
 
 (defun main ()
 	(defq select (list (task-mailbox) (mail-alloc-mbox)) id t +timeout+ 5000000)
-	(mail-timeout (elem +select_timeout+ select) +timeout+)
 	(while id
+		(mail-timeout (elem +select_timeout+ select) +timeout+)
 		(defq msg (mail-read (elem (defq idx (mail-select select)) select)))
 		(cond
 			((or (= idx +select_timeout+) (eql msg ""))
@@ -20,6 +20,5 @@
 				(mail-send msg (cat
 					(slice (const long_size) -1 (task-mailbox))
 					(char task_count (const int_size))
-					(char mem_used (const int_size))))
-				(mail-timeout (elem +select_timeout+ select) +timeout+))))
+					(char mem_used (const int_size)))))))
 	(mail-free-mbox (pop select)))

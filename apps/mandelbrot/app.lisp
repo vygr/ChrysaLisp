@@ -4,7 +4,6 @@
 (make '("apps/mandelbrot/lisp.vp") *abi* *cpu*)
 
 ;imports
-(import "sys/lisp.inc")
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
 (import "lib/task/farm.inc")

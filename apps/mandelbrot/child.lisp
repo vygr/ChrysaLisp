@@ -1,7 +1,4 @@
 ;imports
-(import "sys/lisp.inc")
-(import "class/lisp.inc")
-(import "gui/lisp.inc")
 (import "apps/mandelbrot/mbmath.inc")
 
 (structure '+select 0
@@ -27,13 +24,10 @@
 	(write reply (task-mailbox))
 	(mail-send mbox (str reply)))
 
-(defun child-msg (mbox &rest _)
-	(cat mbox (apply cat (map (# (char %0 (const long_size))) _))))
-
 (defun main ()
 	(defq select (list (task-mailbox) (mail-alloc-mbox)) id t +timeout+ 5000000)
-	(mail-timeout (elem +select_timeout+ select) +timeout+)
 	(while id
+		(mail-timeout (elem +select_timeout+ select) +timeout+)
 		(defq msg (mail-read (elem (defq idx (mail-select select)) select)))
 		(cond
 			((or (= idx +select_timeout+) (eql msg ""))
@@ -43,6 +37,5 @@
 				;main mailbox, reset timeout and reply with stats
 				(mail-timeout (elem +select_timeout+ select) 0)
 				(defq mbox (slice 0 net_id_size msg) msg (slice net_id_size -1 msg))
-				(apply mandel (cat (list mbox) (map (lambda (_) (get-long msg (* _ long_size))) (range 0 9))))
-				(mail-timeout (elem +select_timeout+ select) +timeout+))))
+				(apply mandel (cat (list mbox) (map (lambda (_) (get-long msg (* _ long_size))) (range 0 9)))))))
 	(mail-free-mbox (pop select)))

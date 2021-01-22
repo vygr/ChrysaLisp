@@ -122,8 +122,8 @@
 
 (defun main ()
 	(defq select (list (task-mailbox) (mail-alloc-mbox)) id t +timeout+ 5000000)
-	(mail-timeout (elem +select_timeout+ select) +timeout+)
 	(while id
+		(mail-timeout (elem +select_timeout+ select) +timeout+)
 		(defq msg (mail-read (elem (defq idx (mail-select select)) select)))
 		(cond
 			((or (= idx +select_timeout+) (eql msg ""))
@@ -133,6 +133,5 @@
 				;main mailbox, reset timeout and reply with stats
 				(mail-timeout (elem +select_timeout+ select) 0)
 				(defq mbox (slice 0 net_id_size msg) msg (slice net_id_size -1 msg))
-				(apply rect (cat (list mbox) (map (lambda (_) (get-long msg (* _ long_size))) (range 0 6))))
-				(mail-timeout (elem +select_timeout+ select) +timeout+))))
+				(apply rect (cat (list mbox) (map (lambda (_) (get-long msg (* _ long_size))) (range 0 6)))))))
 	(mail-free-mbox (pop select)))
