@@ -12,6 +12,9 @@ systems.
 New `lib/task/global.inc` class for managing a dynamic set of tasks, one per
 network node. Netmon app now uses this lib to demo.
 
+New `lib/task/farm.inc` class for managing a dynamic set of tasks. Raymarch and
+Mandelbrot apps now uses this lib to demo.
+
 ------
 
 New `(type-of)` implementation. Now returns a list of keyword symbols
