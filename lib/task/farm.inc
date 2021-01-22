@@ -27,5 +27,5 @@
 	(defmethod :close (this)
 		; (. farm :close)
 		;close tasks
-		(. this :each (lambda (_k _v) ((get :destroy this) _k _v))))
+		(. this :each (get :destroy this)))
 	)

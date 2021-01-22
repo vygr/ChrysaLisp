@@ -23,17 +23,17 @@
 		(each (lambda (_node)
 			(unless (find _node _nodes)
 				(setq _mutated t)
-				((get :destroy this) (. this :find _node))
+				((get :destroy this) _key (. this :find _node))
 				(. this :erase _node))) _old_keys)
 		(def this :size (length _nodes))
 		;poll all nodes
-		(. this :each (lambda (_k _v) ((get :poll this) _v)))
+		(. this :each (get :poll this))
 		_mutated)
 
 	(defmethod :close (this)
 		; (. global :close)
 		;close tasks
-		(. this :each (lambda (_k _v) ((get :destroy this) _v))))
+		(. this :each (get :destroy this)))
 
 	(defmethod :size (this)
 		; (. global :size) -> size

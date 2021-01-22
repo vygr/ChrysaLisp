@@ -16,9 +16,6 @@
 (structure '+select 0
 	(byte 'main+ 'task+ 'reply+ 'nodes+))
 
-(defun child-msg (reply &rest _)
-	(cat reply (apply cat (map (# (char %0 (const long_size))) _))))
-
 (defq canvas_width 800 canvas_height 800 canvas_scale 2 rate (/ 1000000 1) id t dirty nil
 	select (list (task-mailbox) (mail-alloc-mbox) (mail-alloc-mbox) (mail-alloc-mbox))
 	center_x (mbfp-from-fixed -0.5) center_y (mbfp-from-fixed 0.0) zoom (mbfp-from-fixed 1.0)
@@ -70,6 +67,9 @@
 	(when (defq job (. val :find :job))
 		(push jobs job)
 		(. val :erase :job)))
+
+(defun child-msg (reply &rest _)
+	(cat reply (apply cat (map (# (char %0 (const long_size))) _))))
 
 (defun reset ()
 	(if farm (. farm :close))

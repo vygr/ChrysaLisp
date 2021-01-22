@@ -56,16 +56,16 @@
 	(monitor key (elem +select_task+ select))
 	val)
 
-(defun destroy (val)
-	; (destroy val)
+(defun destroy (key val)
+	; (destroy key val)
 	;function called when entry is destroyed
 	(unless (eql (defq child (. val :find :child)) (const (pad "" net_id_size)))
 		(mail-send child ""))
 	(. (. val :find :memory_bar) :sub)
 	(. (. val :find :task_bar) :sub))
 
-(defun poll (val)
-	; (poll val)
+(defun poll (key val)
+	; (poll key val)
 	;function called to poll entry
 	(unless (eql (defq child (. val :find :child)) (const (pad "" net_id_size)))
 		(mail-send child (elem +select_reply+ select))))
