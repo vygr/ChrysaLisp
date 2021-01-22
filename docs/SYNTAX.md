@@ -1548,6 +1548,10 @@
 
 (open-remote task node mode) -> str
 
+## open-task
+
+(open-task task node mode reply)
+
 ## opt
 
 (opt var val [cond])
