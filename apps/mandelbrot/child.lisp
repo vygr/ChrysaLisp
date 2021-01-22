@@ -34,7 +34,7 @@
 				;timeout or quit
 				(setq id nil))
 			((= idx +select_main+)
-				;main mailbox, reset timeout and reply with stats
+				;main mailbox, reset timeout and reply with result
 				(mail-timeout (elem +select_timeout+ select) 0)
 				(defq mbox (slice 0 net_id_size msg) msg (slice net_id_size -1 msg))
 				(apply mandel (cat (list mbox) (map (lambda (_) (get-long msg (* _ long_size))) (range 0 9)))))))

@@ -14,7 +14,7 @@
 				;timeout or quit
 				(setq id nil))
 			((= idx +select_main+)
-				;main mailbox, reset timeout and reply with stats
+				;main mailbox, reset timeout and reply with result
 				(mail-timeout (elem +select_timeout+ select) 0)
 				(bind '(task_count mem_used) (kernel-stats))
 				(mail-send msg (cat
