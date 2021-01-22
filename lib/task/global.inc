@@ -11,21 +11,21 @@
 	(defmethod :refresh (this)
 		; (. global :refresh) -> t | nil
 		;scan known nodes and update node map
-		(defq _nodes (mail-nodes) _old_keys (list) _mutated nil)
+		(defq _keys (mail-nodes) _old_keys (list) _mutated nil)
 		(. this :each (lambda (key val) (push _old_keys key)))
 		;test for new nodes
-		(each (lambda (_node)
-			(unless (find _node _old_keys)
+		(each (lambda (_key)
+			(unless (find _key _old_keys)
 				(setq _mutated t)
-				;must (cat _node) to convert to pure string key !
-				(. this :insert (cat _node) ((get :create this) _node)))) _nodes)
+				;must (cat _key) to convert to pure string key !
+				(. this :insert (cat _key) ((get :create this) _key)))) _keys)
 		;test for vanished nodes
-		(each (lambda (_node)
-			(unless (find _node _nodes)
+		(each (lambda (_key)
+			(unless (find _key _keys)
 				(setq _mutated t)
-				((get :destroy this) _key (. this :find _node))
-				(. this :erase _node))) _old_keys)
-		(def this :size (length _nodes))
+				((get :destroy this) _key (. this :find _key))
+				(. this :erase _key))) _old_keys)
+		(def this :size (length _keys))
 		;poll all nodes
 		(. this :each (get :poll this))
 		_mutated)
