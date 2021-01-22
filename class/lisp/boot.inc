@@ -923,8 +923,3 @@
 
 (import "lib/collections/collections.inc")
 
-;;;;;;;;;;;;;;;;;;;;;;;;;
-; Service includes
-;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(import "lib/logging/logservice.inc")
