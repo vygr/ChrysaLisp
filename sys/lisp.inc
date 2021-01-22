@@ -62,27 +62,24 @@
 		(char (+ (logand 0x0f (code %0)) (ascii-code "a")))
 		(char (+ (logand 0x0f (>> (code %0) 4)) (ascii-code "a"))))) nid)))
 
+(defun open-task (task node mode reply)
+	; (open-task task node mode reply)
+	(mail-send (cat (char 0 (const long_size)) node)
+		(cat (char 0 (const long_size)) reply
+			(char mode (const long_size))
+			task (char 0))))
+
 (defun open-child (task mode)
 	; (open-child task mode) -> str
 	(defq mbox (mail-alloc-mbox))
-	(mail-send (cat (char 0 (const long_size)) (slice (const long_size) -1 (task-mailbox)))
-		(cat
-			(char 0 (const long_size))
-			mbox
-			(char mode (const long_size))
-			task (char 0)))
+	(open-task task (slice (const long_size) -1 (task-mailbox)) mode mbox)
 	(defq id (slice (const long_size) (const (+ long_size net_id_size)) (mail-read mbox)))
 	(mail-free-mbox mbox) id)
 
 (defun open-remote (task node mode)
 	; (open-remote task node mode) -> str
 	(defq mbox (mail-alloc-mbox))
-	(mail-send (cat (char 0 (const long_size)) node)
-		(cat
-			(char 0 (const long_size))
-			mbox
-			(char mode (const long_size))
-			task (char 0)))
+	(open-task task node mode mbox)
 	(defq id (slice (const long_size) (const (+ long_size net_id_size)) (mail-read mbox)))
 	(mail-free-mbox mbox) id)
 
@@ -93,12 +90,7 @@
 	(defq ids (cap num (list)) mbox (mail-alloc-mbox) index -1
 		center (+ (/ num 2) (length devices) (opt (find (slice (const long_size) -1 (task-mailbox)) devices) 0)))
 	(while (< (setq index (inc index)) num)
-		(mail-send (cat (char 0 (const long_size)) (elem (% (+ index center) (length devices)) devices))
-			(cat
-				(char index (const long_size))
-				mbox
-				(char mode (const long_size))
-				task (char 0))))
+		(open-task task (elem (% (+ index center) (length devices)) devices) mode mbox))
 	(while (>= (setq index (dec index)) 0)
 		(defq msg (mail-read mbox))
 		(push ids (slice (const long_size) (const (+ long_size net_id_size)) msg)))
@@ -109,12 +101,7 @@
 	(defq devices (mail-nodes) ids (cap (length tasks) (list))
 		mbox (mail-alloc-mbox) index -1 tail (task-mailbox))
 	(while (< (setq index (inc index)) (length tasks))
-		(mail-send (cat (char 0 (const long_size)) (slice (const long_size) -1 tail))
-			(cat
-				(char index (const long_size))
-				mbox
-				(char kn_call_child (const long_size))
-				(elem index tasks) (char 0)))
+		(open-task (elem index tasks) (slice (const long_size) -1 tail) kn_call_child mbox)
 		(defq tail (slice (const long_size) (const (+ long_size net_id_size)) (mail-read mbox)))
 		(push ids tail))
 	(mail-free-mbox mbox) ids)

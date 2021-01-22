@@ -36,13 +36,6 @@
 					(:text "|" :flow_flags (logior +flow_flag_align_vcenter+ +flow_flag_align_hright+)))))
 			(ui-grid memory_grid (:grid_width 1 :grid_height 0)))))
 
-(defun monitor (node reply)
-	;open remote monitor child task
-	(mail-send (cat (char 0 (const long_size)) node)
-		(cat (char 0 (const long_size)) reply
-			(char kn_call_open (const long_size))
-			"apps/netmon/child.lisp" (char 0))))
-
 (defun create (key)
 	; (create key) -> val
 	;function called when entry is created
@@ -53,7 +46,7 @@
 		(:insert :task_bar tb))
 	(. memory_grid :add_child mb)
 	(. task_grid :add_child tb)
-	(monitor key (elem +select_task+ select))
+	(open-task "apps/netmon/child.lisp" key kn_call_open (elem +select_task+ select))
 	val)
 
 (defun destroy (key val)
