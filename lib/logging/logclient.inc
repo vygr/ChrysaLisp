@@ -47,7 +47,6 @@
         (. this :send :shutdown)
         :recieve))
     (setq _log_service_mb nil)
-    (print "Shutdown result = " msg)
     this)
 
   (defmethod :ping (this)
@@ -64,12 +63,11 @@
 (defclass log-anchor (&optional client server) (log-client client server)
 
   (defmethod :shutdown (this)
-    (print "Blanking anchor key: " _anchor_kword)
     (setq _anchor_kword nil)
     (.super this :shutdown))
   )
 
-; Ease of use functions
+; Ease of use log message functions
 (defun log-debug (logr &rest msg)
   (. logr :send_log_msg :debug msg))
 
@@ -85,7 +83,7 @@
 (defun log-critical (logr &rest msg)
   (. logr :send_log_msg :critical msg))
 
-(defun add-anchor-spec (name &optional logspec)
+(defun add-anchor-spec (lipc name &optional logspec)
   ; (add-anchor-spec name [logspec]) -> nil
   ; Initiates a logging anchor, takes an optional
   ; logspec if not already configured on server or
@@ -133,14 +131,21 @@
   (bind '(client reskw msg)
     (. (. lipc :send :query_config ixch) :recieve))
   (print "Results of anchor query " (entries msg))
+  (defq hndkw (gets msg :handler))
   (cond
     ((not (eql reskw :query_result))
       (throw "Query error " msg))
     ; If handler is not known yet
-    ((nil? (defq hndkw (gets msg :handler)))
-      (add-anchor-spec name logspec))
-    ((eql _anchor_kword hndkw)
-      (print "Have matching handler")))
+    ((nil? hndkw)
+      (print "No match, adding configuration for " name)
+      (add-anchor-spec lipc name logspec))
+    (t t))
+  ; I can now register the logger
+  (. lipc :register
+    (xmap-kv
+      :name name
+      :using _anchor_kword
+      :kind  :anchor))
   lipc)
 
 (defun logger (name)
@@ -175,12 +180,12 @@
 ; Regular logging
 ; >lisp lib/logging/logclient.inc
 ; (defq lipc (logger "repl"))
-; (log-debug lipc "message"
+; (log-warn lipc "message"
 ; (. lipc :shutdown)
 ;
 ; Anchoring
 ; >lisp lib/logging/logclient.inc
 ; (defq lanch (logging-anchor "repl"))
-; (log-debug lanch "message"
+; (log-info lanch "message"
 ; (. lanch :shutdown)
 

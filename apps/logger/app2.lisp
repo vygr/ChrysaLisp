@@ -91,8 +91,15 @@
          " using " (gets msg :using)
          " of kind " (gets msg :kind))
        (cond
+         ; Anchor registering
          ((eql (gets msg :kind) :anchor)
-          (debug-write "Anchor registration for " (entries msg)))
+          (defq lgr (logger-for (gets msg :using)))
+          (. sipc :register_client
+             client
+             (gets msg :name )
+             (get :name lgr)
+             (get :handler lgr)))
+         ; Regular client registering
          ((eql (gets msg :kind) :logger)
           (defq lgr (logger-for (gets msg :using)))
           (. sipc :register_client
@@ -111,7 +118,7 @@
 
       ; Log messaging
       ((eql cmd :logmsg)
-        (debug-write "Received log msg... xmap? " (xmap? msg))
+        (dbg-write "Received log msg... " (entries msg))
         (. client :log msg)))
     )
   (mail-forget entry))

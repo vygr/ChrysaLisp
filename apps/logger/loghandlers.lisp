@@ -211,27 +211,39 @@
   dbl)
 
 (defun logger-for (lkeyword)
+  ; (logger-for keyword) -> logger | nil
+  ; Returns a logger with matching keyword name
   (gets loggers lkeyword))
 
 (defun handler-for (lkeyword)
+  ; (handler-for) -> handler | nil
+  ; Returns a keyword matching logger's handler
   (when (defq logr (logger-for lkeyword))
     (get :handler logr)))
 
 (defun config-for (name)
-  (when (defq lgr (gets-in yamlmap :logging :loggers (cat : name)))
-    (gets-in yamlmap :logging :handlers (gets lgr :handler))))
+  ; (config-for name) -> keyword | nil
+  ; Returns the handler keyword given a logger name that matches
+  ; our configuration
+  (when (defq lgr (gets-in yamlmap :logging :loggers (sym (cat : name))))
+    (dbg-write (str "Handler for " name) (gets lgr :handler))
+    (gets lgr :handler)))
 
 (defun persist-loggers ()
+  ; (persiste-loggers) -> any
+  ; Writes the in memory configuration to
+  ; file
   (yaml-write +ACTIVE-CNTRL+ yamlmap))
 
 (defun new-logger (name logkey logcfg hndkey hndcfg)
   ; (new-logger name logger-key logger-cfg handler-key handler-cfg) -> t | nil
-  (cond
-    ((gets-in yamlmap :logging :loggers logkey)
-     nil)
-    (t
-      (sets! (gets-in yamlmap :logging :loggers) logkey logcfg)
-      (sets! (gets-in yamlmap :logging :handlers) hndkey hndcfg)
-      (persist-loggers)
-      logkey)))
+  ; Registers a new logger configuration and persists
+ (sets! (gets-in yamlmap :logging :loggers) logkey logcfg)
+ (sets! (gets-in yamlmap :logging :handlers) hndkey hndcfg)
+ (persist-loggers)
+ ; Instantiate new logger and handler if not already
+ ; loaded
+ (when (nil? (gets loggers logkey))
+   (sets! loggers logkey (logger logkey hndkey hndcfg)))
+ logkey)
 
