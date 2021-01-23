@@ -495,7 +495,13 @@
     ((sym? odata)
      (add-to-context! cntxt (ScalarNode :symbol odata)))
     ((str? odata)
-     (add-to-context! cntxt (ScalarNode :string (cat +dblq+ odata +dblq+))))
+      (cond
+        ((and
+          (not (eql (first odata) +dblq+))
+          (> (length (split odata " ")) 1))
+            (setq odata (cat +dblq+ odata +dblq+)))
+        (t t))
+     (add-to-context! cntxt (ScalarNode :string odata)))
     ((num? odata)
      (add-to-context! cntxt (ScalarNode :number odata)))
     (t

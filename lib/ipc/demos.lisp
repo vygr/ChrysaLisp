@@ -13,14 +13,14 @@
     (when (nil? reg)
       (setq reg (ipc (. this :service_mb) client)))
     ; (throw "server :ping " (ipc? reg))
-    (. reg :send ipc_event_success "OK"))
+    (. reg :send :success "OK"))
 
   (defmethod :server_shutdown (this client)
     (defq
       reg (gets (. this :get_registry) client))
     (when (nil? reg)
       (setq reg (ipc (get :server this) client)))
-    (. reg :send ipc_event_success "OK"))
+    (. reg :send :success "OK"))
   )
 
 (when (= (length (mail-enquire "IPC")) 0)
@@ -32,17 +32,17 @@
       (bind '(client cmd msg) (. sipc :read_mail))
       (cond
         ; Ping event
-        ((= cmd ipc_event_ping)
+        ((eql cmd :ping)
           (. sipc :client_ping client))
         ; Shutdown event
-        ((= cmd ipc_event_shutdown)
+        ((eql cmd :shutdown)
           (setq active nil)
           (. sipc :server_shutdown client))
         ; Register event
-        ((= cmd ipc_event_register)
+        ((eql cmd :register)
          (. sipc :register_client client))
         ; Deregister event
-        ((= cmd ipc_event_deregister)
+        ((eql cmd :deregister)
          (. sipc :deregister_client client))))
 
   (mail-forget entry))

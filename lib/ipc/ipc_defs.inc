@@ -1,16 +1,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; ipc_defs - ipc structures and utility
-; functions
+; ipc_defs - ipc utility functions
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(structure 'ipc_event 0
-  (byte
-    'success
-    'exception
-    'register
-    'deregister
-    'shutdown
-    'ping))
 
 (defun mbox-from-decl (_s)
   ; (mbox-from-decl _s) -> net_id
@@ -26,7 +17,8 @@
 
 (defun node= (mboxa mboxb)
   ; (node= mailbox mailbox) -> t | nil
-  (eql (mbox-node-id mboxa) (mbox-node-id mboxb)))
+  (if (and mboxa mboxb)
+    (eql (mbox-node-id mboxa) (mbox-node-id mboxb))))
 
 (defun local-node ()
   (mbox-node-id (task-mailbox)))

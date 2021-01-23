@@ -69,7 +69,10 @@
     (list (get :clz this) (get :value this)))
 
   (defmethod :to_object (this)
-    (get :value this))
+    (defq v (get :value this))
+    (when (and (eql (get :clz this) :str) (find "_" v))
+      (setq v (join (split v "_") " ")))
+    v)
 
   (defmethod :show_tree (this &optional indent)
     (defq ind (pad "" indent))
@@ -182,6 +185,8 @@
       ((or (func? v) (lambda? v) (macro? v))
         (from-scalar "func or lambda or macro" :str))
       ((gets data-scalar-set nt)
+        (when (eql nt :str)
+          (setq v (join (split v " ") "_")))
         (ast-scalar
           v
           (case nt

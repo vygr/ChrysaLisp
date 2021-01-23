@@ -30,54 +30,52 @@
       client
       (gets (. this :get_registry) client)))
 
-  (defmethod :register_client (this client)
-    ; (. server-ipc :register_client client) -> any
+  (defmethod :register_client (this client &optional msg)
+    ; (. server-ipc :register_client client msg) -> any
     ; Adds, if needed, client to registry and
     ; acknowledges a registration request from a
     ; client ipc
+    (if msg
+      (sets! msg :result "OK")
+      (setq msg (xmap-kv :result "OK")))
     (defq
-      reg (. this :client_for client)
-      txt "OK")
+      reg (. this :client_for client))
     (if reg
-      (setq txt "Already Registered")
+      (sets! msg :result "Already Registered")
       (progn
         (setq reg (ipc (. this :service_mb) client))
         (sets! (. this :get_registry) client reg)))
-    (. reg :send ipc_event_success txt))
+    (. reg :send :success msg))
 
   (defmethod :deregister_client (this client)
     ; (. server-ipc :deregister_client client) -> any
     ; Removes, if needed, client from registry and
     ; acknowledges a request from a client ipc
+    (setd msg (xmap-kv :result "OK"))
     (defq
       reg (. this :client_for client)
       txt "OK")
     (if reg
       (drop! (. this :get_registry) (. reg :get_sink))
-      (setq
-        txt "Not Registered"
-        reg (ipc (. this :service_mb) client)))
-    (. reg :send ipc_event_success txt))
+      (progn
+        (sets! msg :result "Not Registered")
+        (setq reg (ipc (. this :service_mb) client))))
+    (. reg :send :success msg))
 
   (defmethod :read_mail (this)
     ; (. server-ipc :read) -> triplet
     ; Reads messages from the server
     ; mailbox and prepares for delivery
     (defq
-      msg     (mail-read (. this :service_mb))
-      obj     (if (list? msg)
-                (first (xlist-data msg))
-                (first (xliststr-data msg)))
-      client  (to-net-id (gets obj :client)))
+      _msg     (mail-read (. this :service_mb))
+      _obj     (if (list? _msg)
+                (first (xlist-data _msg))
+                (first (xliststr-data _msg)))
+      _client  (to-net-id (gets _obj :client)))
     (cond
-      ((gets (. this :get_registry) client)
-        (setq client (gets (. this :get_registry) client)))
+      ((defq fc (. this :client_for _client))
+        (setq _client fc))
       (t
         nil))
-    (defq
-      res    (list client
-        (gets obj :command)
-        (gets obj :data)))
-    res)
+    (list _client (gets _obj :command) (gets _obj :data)))
   )
-

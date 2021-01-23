@@ -2,194 +2,123 @@
 ; logger - ChrysaLisp Logging Service
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;imports
 (import "sys/lisp.inc")
 (import "class/lisp.inc")
-(import "lib/xchange/yaml-data.inc")
-(import "lib/logging/logcommons.inc")
-(import "apps/logger/logutils.lisp")
+
+(defq
+  +logging_srvc+  "LOG_SERVICE")
 
 ;single instance only
-(when (= (length (mail-enquire +logging_srvc_name+)) 0)
-  ; Setup general purpose informationnet_id_s
+(when (= (length (mail-enquire +logging_srvc+)) 0)
+
+  (import "lib/xchange/yaml-data.inc")
+  (import "apps/logger/loghandlers.lisp")
+  (import "apps/logger/logserver.lisp")
+
+  ; Instantiate persistent loggers
+  ; These are initially defined in logsrvc.yaml,
+  ; persisted to the log directory and then modified
+  ; over time
+
   (defq
-    registra  (xmap)
     active    t
-    entry (mail-declare (task-mailbox) +logging_srvc_name+ "Logging Service 0.5")
-    DEBUG (file-stream "./logs/DEBUG_SERVICE.log" file_open_append)
-    )
+    sipc      (log-server (task-mailbox))
+    debugwrt  (load-loggers t)
+    entry     (mail-declare
+                (task-mailbox)
+                +logging_srvc+
+                "Logging Service 1.0"))
 
-  (defun debug-write (&rest _)
-    (setq _ (insert (push _ +nl+) 0 (list (encode-date))))
-    (write DEBUG (apply str _))
-    (stream-flush DEBUG))
-  ; (defun debug-write (&rest _))
+  (defun debug-write (&rest msgs)
+    ; (debug-write msg ...) -> nil
+    (eval `(. debugwrt :write +logging_srvc+ :debug ~msgs)))
 
-  ; Process configuration files
-  (bind '(srvc_fh fcfg? conf fmap registry) (process-log-cfg))
+  (defun dbg-write (txt obj)
+    (. debugwrt :write +logging_srvc+ :debug txt obj))
 
-  (log-write (gets srvc_fh :handle) " Starting LOG_SERVICE")
-  (debug-write "Log Service Started")
+  (debug-write "Initialized server")
 
-  (defun log-msg-writer (msg)
-    ; (log-msg-writer mail-message) -> stream
-    (defq
-      msgd (deser-inbound msg)
-      cnfg (gets registra (gets msgd :module))
-      hndl (loghandler fmap cnfg)
-      mlvl (gets msgd :msg-level))
-    (when (>= (log-level-index cnfg mlvl)
-              (log-level-index cnfg (gets hndl :level)))
-      (log-write (gets hndl :handle) (str
-                 " ["(log-level-string cnfg mlvl)"] "
-                 (gets cnfg :name)": ") (gets msgd :message))))
+  ; Main processing loop
 
-
-  (defun register-logger (config)
-    ; (register-logger properties) -> ?
-
-    (defq chsh (hash config))
-    ; Basics
-    (sets-pairs! config
-      :log_lvl :info
-      :token chsh
-      :levels (gets-in conf :logging :levels))
-    ; Resolve handler
-    (case (gets config :handler)
-      ; Keyword cases
-      ((:console)
-       (defq hndl (gets-in conf :logging :loggers :console :handler))
-       (sets-pairs! config
-          :log_lvl (gets-in conf :logging :handlers hndl :level)
-          :handler hndl))
-      ((:file)
-       (defq hndl (gets-in conf :logging :loggers :file :handler))
-       (sets-pairs! config
-          :log_lvl (gets (gets fmap hndl) :level)
-          :handler hndl))
-      ((:system)
-       (defq hndl (gets-in conf :logging :loggers :system :handler))
-       (sets-pairs! config
-          :log_lvl (gets (gets fmap hndl):level)
-          :handler hndl))
-      ; Use other handler, like an anchor handler
-      (t
-        (defq hndl (gets fmap (gets config :handler)))
-        (if hndl
-            (sets! config :log_lvl (gets hndl :level))
-            (throw "Can't find config handler " config))))
-    ; Capture configuration locally
-    (sets! registra chsh config)
-    (service-send-ser (gets config :reciever) +log_event_registered+ config))
-
-  ; Log Service Processing loop
-  (catch (while active
-    (debug-write "Log Service Loop")
+  (while active
+    (bind '(client cmd msg) (. sipc :read_mail))
+    (debug-write "Processing " cmd " registered? " (ipc? client))
     (cond
-      ; Shutdown (admin)
-      ((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) +log_event_shutdown+)
-        (log-write (gets srvc_fh :handle) " Shutting down ")
-        ; (log-write DEBUG " Shutting down ")
-        (setq active nil))
+      ; Ping event
+      ((eql cmd :ping)
+       (. sipc :client_ping client))
 
-      ; Ping aliveness
-      ((= id +log_event_ping+)
+      ; Shutdown event
+      ((eql cmd :shutdown)
+       (debug-write "Received 'shutdown' to service")
+       (setq active nil)
+       (. sipc :server_shutdown client))
+
+      ; Query to see if :name has handler configured
+      ((eql cmd :query_config)
+       (debug-write "Received query_config for " (gets msg :name))
+       ; Return handler if found else nil
+       (. sipc
+          :server_send
+          client
+          :query_result
+          (xmap-kv :handler (config-for (gets msg :name)))))
+
+      ; Add logger event
+      ; Persists configuration and creates a client proxy
+      ((eql cmd :add_handler)
        (defq
-         rcvr (slice +rega_msg_receiver+
-                     (const (+ +rega_msg_receiver+ net_id_size)) msg))
-       (log-write (gets srvc_fh :handle) " Received ping "))
+         lname  (gets msg :name)
+         lkey   (gets msg :logger)
+         lspec  (gets msg :logspec)
+         lcfg   (gets-in lspec :logging :loggers lkey)
+         hkey   (gets-in lcfg :handler)
+         hcfg   (gets-in lspec :logging :handlers hkey))
+       (debug-write
+         "Received logspec add for " lname
+         " logger " lkey
+         " handler " hkey)
+       (. sipc
+          :server_send
+          client
+          :add_result
+          (xmap-kv :handler (new-logger lname lkey lcfg hkey hcfg))))
 
-      ; Information request about registrations (admin)
-      ; Returns ack with
-      ((= id +log_event_query_anchor_config+)
-       (debug-write " Anchor query config" msg)
-       (defq
-         rcvr (slice +rega_msg_receiver+ (const (+ +rega_msg_receiver+ net_id_size)) msg)
-         nm   (slice +rega_msg_data+ -1 msg)
-         akw  (kw nm)
-         fhit (kvmap-has-prefix? fmap nm))
-       (debug-write "   for name " nm " kw " akw " hit? " fhit)
-       (service-send
-         rcvr
-         +log_event_anchor_info+
-         (cat (if (gets (gets registry :handlers) akw) "true" "false")
-              "," (if fhit fhit "false"))))
+      ; Register event
+      ; Creates a client proxy that uses
+      ; the logger identified in 'using'
+      ((eql cmd :register)
+       (debug-write
+         "Received registration for " (gets msg :name)
+         " using " (gets msg :using)
+         " of kind " (gets msg :kind))
+       (cond
+         ; Anchor registering
+         ((eql (gets msg :kind) :anchor)
+          (defq lgr (logger-for (gets msg :using)))
+          (. sipc :register_client
+             client
+             (gets msg :name )
+             (get :name lgr)
+             (get :handler lgr)))
+         ; Regular client registering
+         ((eql (gets msg :kind) :logger)
+          (defq lgr (logger-for (gets msg :using)))
+          (. sipc :register_client
+             client
+             (gets msg :name)
+             (get :name lgr)
+             (get :handler lgr)))
+         (t
+           (mail-forget entry)
+           (throw "Unknown registration " (entries msg)))))
 
-      ; Registration (anchor) using persistent configuration
-      ; This is called when anchor detects a configuration is
-      ; already registered but the handler is not started
+      ; Deregister event
+      ((eql cmd :deregister)
+       (. sipc :deregister_client client))
 
-      ((= id +log_event_register_anchor_activate+)
-       ; Get configuration for anchor
-       (debug-write " Anchor Activate" msg)
-       (defq
-         rcvr  (slice +rega_msg_receiver+
-                      (const (+ +rega_msg_receiver+ net_id_size)) msg)
-         msgd  (deser-anchor-inbound (slice +rega_msg_data+ -1 msg))
-         nmkw  (kw (gets msgd :name))
-         hnkw  (gets msgd :handler)
-         hndl  (gets (gets registry :handlers) nmkw)
-         chndl (copy hndl))
-       (log-write (gets srvc_fh :handle) " Activating anchor " nmkw)
-        ; Start handler with handler keyname provided
-       (sets! fmap hnkw (initialize-logfile-handler chndl))
-       (register-logger msgd))
-
-      ; Registration (anchor) using persistent configuration
-      ; This is called when the anchor detects a configuration
-      ; is already registered and handler is active
-
-      ((= id +log_event_register_anchor+)
-       (debug-write " Reusing anchor " msg)
-       (log-write (gets srvc_fh :handle) " Register reuse anchor ")
-       (defq
-         rcvr  (slice +rega_msg_receiver+
-                      (const (+ +rega_msg_receiver+ net_id_size)) msg))
-       (register-logger
-         (deser-anchor-inbound (slice (+ +rega_msg_data+ net_id_size) -1 msg))))
-
-      ; Registration (anchor) sends ack with handler configuration
-      ; This is called when the anchor determines that it's
-      ; configuration has not been persisted so:
-      ; Add to registry and persist
-      ; Activate handler and add to fmap
-
-      ((= id +log_event_register_anchor_with_configuration+)
-       (debug-write " Register anchor config " msg)
-       (defq
-         rcvr  (slice +rega_msg_receiver+
-                      (const (+ +rega_msg_receiver+ net_id_size)) msg)
-         msgd  (deser-anchor-inbound (slice +rega_msg_data+ -1 msg))
-         nm   (gets msgd :name)
-         nmkw (kw nm)
-         hnkw (gets msgd :key_name))
-       (drop! msgd :name)
-       (drop! msgd :key_name)
-       (log-write (gets srvc_fh :handle) " Configuring anchor " nm)
-       ; Register handler
-       (register-log-handler registry nmkw msgd)
-       ; Add to handler execution map
-       (sets! fmap hnkw (initialize-logfile-handler msgd))
-       ; Register the logger instance
-       (register-logger (log-registration nm hnkw rcvr)))
-
-      ((= id +log_event_drop_anchor+)
-       (defq anckw (kw (slice mail_msg_data -1 msg)))
-       (log-write (gets srvc_fh :handle) " Dropping anchor " anckw))
-
-      ; Registration (client)
-      ((= id +log_event_register+)
-       (defq msgd (deser-inbound msg))
-       (register-logger msgd))
-
-      ; Log Message (client)
-      ((= id +log_event_logmsg+)
-       (log-msg-writer msg))
-      ; Should throw exception
-      (t
-        (log-write (gets srvc_fh :handle) " Unknown " msg)
-        ; (log-write DEBUG " Unknown " msg)
-        )))
-    (debug-write "Exception " _))
-  (mail-forget entry)
-)
+      ; Log messaging
+      ((eql cmd :logmsg)
+        (. client :log msg)))
+    )
+  (mail-forget entry))

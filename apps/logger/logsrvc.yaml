@@ -5,6 +5,7 @@
 ---
 
 logging:
+  version:    1
   levels:
     debug:    0
     info:     1
@@ -52,7 +53,7 @@ logging:
   loggers:
     console:
       handler: :console_handler
-    file:
+    applog:
       handler: :app_file_handler
     service:
       handler: :service_handler

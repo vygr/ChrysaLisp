@@ -23,7 +23,7 @@
 ; source - considered the client mailbox for receiving messages
 ; sink - considered the server mailbox to send message to
 
-(defclass ipc (source sink) nil
+(defclass ipc (&optional source sink) nil
   (def this
        :source      source
        :sink        sink
@@ -33,16 +33,28 @@
     ; (. ipc :get_source) -> mailbox
     (get :source this))
 
+  (defmethod :set_source (this source)
+    (set this
+      :source     source
+      :optimized  (node= source (get :sink this))))
+
   (defmethod :get_sink (this)
     ; (. ipc :get_sink) -> mailbox
     (get :sink this))
 
+  (defmethod :set_sink (this source)
+    (set this
+      :sink       sink
+      :optimized  (node= (get :source this) sink)))
+
   (defmethod :optimized? (this)
-    ; (. ipc :optimized) -> mailbox
+    ; (. ipc :optimized) -> boolean
     (get :optimized this))
 
   (defmethod :send (this cmd &optional msg)
-    ; (. ipc :send cmd [message-block]) -> encoded message
+    ; (. ipc :send cmd [message-block]) -> ipc
+    (when (or (nil? (get :source this)) (nil? (get :sink this)))
+      (throw "IPC not configured with endpoints" (tolist this)))
     (defq em (xmap-kv
       :command cmd
       :client (to-service-id (. this :get_source))
@@ -58,6 +70,8 @@
 
   (defmethod :recieve (this &optional handler_fn)
     ; (. ipc :receive [receipt handler]) -> result
+    (when (or (nil? (get :source this)) (nil? (get :sink this)))
+      (throw "IPC not configured with endpoints" (tolist this)))
     (setd handler_fn _default_msg_handler)
     (defq
       fmsg (mail-read (. this :get_source)))
