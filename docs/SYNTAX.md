@@ -1010,7 +1010,7 @@
 
 ## entries
 
-(entries collections) -> list | nil
+(entries collection) ->  list | nil
 
 ## env
 
