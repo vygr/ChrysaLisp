@@ -265,8 +265,8 @@
 	;trashes
 	;r0-r14
 
-	(vp-def (statics msg data knode1 knode2 vnode1 vnode2 iter_begin iter_end link_node)
-		'(r14 r13 r12 r11 r10 r9 r8 r7 r6 r5))
+	(vp-def (msg data knode1 knode2 vnode1 vnode2 iter_begin iter_end iter link_node statics)
+		'(r14 r13 r12 r11 r10 r9 r8 r7 r6 r5 r4))
 
 	(entry `(,statics ,msg ,data ,knode1 ,knode2))
 
@@ -280,10 +280,11 @@
 	(save-node-id data kn_msg_ping_via knode1 knode2)
 	;loop over the links
 	(assign `((,statics statics_sys_mail_links_array)) '(r0))
-	(class/array/get_both r0 iter_begin iter_end)
-	(loop-while (list iter_begin '/= iter_end))
-		(assign `((,iter_begin 0)) `(,link_node))
-		(vp-add-cr ptr_size iter_begin)
+	(class/array/get_both r0 iter iter_end)
+	(vp-cpy-rr iter iter_begin)
+	(loop-while (list iter '/= iter_end) 'next_link)
+		(assign `((,iter 0)) `(,link_node))
+		(vp-add-cr ptr_size iter)
 		;this links peer
 		(load-node-id link_node lk_node_peer_node_id knode1 knode2)
 		;not there yet ?
@@ -296,6 +297,22 @@
 		(vp-sub-rr vnode2 r1)
 		(vp-or-rr r1 r0)
 		(continueif '(r0 = 0))
+		;have we sent to this node allready ?
+		(vp-cpy-rr iter_begin r2)
+		(loop-start)
+			(assign '((r2 0)) `(,link_node))
+			(vp-add-cr ptr_size r2)
+			(breakif (list r2 '= iter))
+			(load-node-id link_node lk_node_peer_node_id r0 r1)
+			(vp-sub-rr knode1 r0)
+			(vp-sub-rr knode2 r1)
+			(vp-or-rr r1 r0)
+			(vpif '(r0 = 0))
+				(debug-str '("."))
+				(continue 'next_link)
+			(endif)
+;			(continueif '(r0 = 0) 'next_link)
+		(loop-end)
 		;multi-cast the data
 		(call 'sys_mail :alloc_obj `((,msg msg_obj) ,data (,msg msg_frag_length)) '(r0))
 		(vp-xor-rr r1 r1)
