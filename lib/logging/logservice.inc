@@ -6,12 +6,14 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "sys/lisp.inc")
+(import "lib/date/date.inc")
 (import "lib/ipc/client_ipc.inc")
 
 (defq
   +logging_srvc+  "LOG_SERVICE"
   _log_service_mb nil
-  _anchor_kword   nil)
+  _anchor_kword   nil
+  clog    nil)
 
 (defun logsrvc-mb (&optional node)
   ; (logsrvc-mb) -> mailbox id | nil
@@ -71,6 +73,33 @@
     (.super this :shutdown))
   )
 
+; log-console
+(defclass log-console (level) (log-client)
+  (def this
+    :level level)
+
+  (defmethod :change_level (this level)
+    (set this :level level))
+
+  (defmethod :send_log_msg (this loglevel msg)
+    (prin (apply str
+           (insert
+             (push msg +nl+)
+             0
+             (list (encode-date) " [" loglevel "] ")))))
+
+  (defmethod :shutdown (this)
+    (. this :send_log_msg :error "Shutdown requires non-console logger"))
+
+  (defmethod :ping (this)
+    (. this :send_log_msg :error "Ping requires non-console logger"))
+  )
+
+; Allocate a console loggger
+
+(when (nil? clog)
+  (setq clog (log-console :info)))
+
 ; Ease of use log message functions
 (defun log-debug (logr &rest msg)
   (. logr :send_log_msg :debug msg))
@@ -119,17 +148,17 @@
                 :backups    10))))))
   (bind '(client reskw msg)
     (. (. lipc :send :add_handler _packet) :recieve))
-  (when (not (eql reskv :add_result))
+  (when (not (eql reskw :add_result))
     (throw "Unable to add anchor configuration " (entries msg)))
   lipc)
 
-(defun anchor-logger (name &optional logspec)
+(defun anchor-logger (name &optional lnode logspec)
   ; (anchor-logger name [logspec]) -> log-anchor
   (when _anchor_kword
     (throw "Anchor logger already set " _anchor_kword))
   (setq _anchor_kword (sym (cat : name)))
   (defq
-    lipc (log-anchor (mail-alloc-mbox) (logsrvc-mb))
+    lipc (log-anchor (mail-alloc-mbox) (logsrvc-mb lnode))
     ixch  (xmap-kv
             :name name
             :kind :anchor
@@ -152,12 +181,12 @@
       :kind  :anchor))
   lipc)
 
-(defun logger (name)
+(defun logger (name &optional lnode)
   ; (logging-client name) -> log-client
   ; Default client
   ;   Uses anchor if it exists, else uses :applog
   (defq
-    lipc (log-client (mail-alloc-mbox) (logsrvc-mb))
+    lipc (log-client (mail-alloc-mbox) (logsrvc-mb lnode))
     ixch  (xmap-kv
             :name name
             :using :applog))
@@ -178,13 +207,20 @@
   ; (print "Reg results " (entries (get :registered_data lipc)))
   lipc)
 
+(defun console-logger ()
+  ; (console-logger) -> log-console
+  clog)
+
 ; Regular logging
 ; (defq lipc (logger "repl"))
-; (log-warn lipc "message"
+; (log-warning lipc "message"
 ; (. lipc :shutdown)
 ;
 ; Anchoring
-; (defq lanch (logging-anchor "repl"))
+; (defq lanch (anchor-logger "repl"))
 ; (log-info lanch "message"
 ; (. lanch :shutdown)
+;
+; Console logging
+; (log-warning clog "This is a warning")
 

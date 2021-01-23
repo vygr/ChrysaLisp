@@ -13,14 +13,13 @@
 
 ;imports
 (import "lib/pipe/pipe.inc")
-(import "lib/date/date.inc")
-(import "lib/logging/loganchor.inc")
+(import "lib/logging/logservice.inc")
 (import "lib/pathnode/pathnode.inc")
 (import "lib/ipc/server_ipc.inc")
 
 ; Setup logging, service mailbox and timezones
 (defq
-  tlog      (log-anchor "tui2")
+  tlog      (anchor-logger "tui2" (local-node))
   +banner+  "ChrysaLisp Terminal-2 0.9 (RC-1)"
   tmserv    (server-ipc (mail-alloc-mbox))
   tzone     nil)
@@ -72,7 +71,7 @@
     ((and tzone (eql (gets-enval "TZ") tza)))
      ; We have a hit
     (tz
-      (log-debug tlog (str "Setting timezone to " tza))
+      ; (log-debug tlog (str "Setting timezone to " tza))
       (sets-envkvs! "TZ" (first (setq tzone tz))))
     ; Failed to find
     (t
@@ -243,13 +242,13 @@
   (defq continue t)
   ;sign on msg
   (prtnl +banner+)
-  (log-debug tlog "Started Terminal 2")
+  (log-info tlog "Started Terminal 2")
   (while continue
     (catch
       (progn
         ; Set to working directory
         (change-dir (gets-enval "PWD"))
-        (log-debug tlog (str "Setting _current_dir to " (. _current_dir :full_path)))
+        ; (log-debug tlog (str "Setting _current_dir to " (. _current_dir :full_path)))
         ; Sets up timezone
         (if (nil? (defq tz (gets-enval "TZ")))
           (exports-keyvals! "TZ" (first (setq tzone (get :local_timezone))))
@@ -275,6 +274,6 @@
               (print data)))))
       (progn
         (prtnl _)
-        (log-debug tlog _)
+        ; (log-debug tlog _)
         (print (prompt)))))
   )

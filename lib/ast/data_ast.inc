@@ -70,7 +70,7 @@
 
   (defmethod :to_object (this)
     (defq v (get :value this))
-    (when (and (eql (get :clz this) :str) (sym? v))
+    (when (and (eql (get :clz this) :str) (find "_" v))
       (setq v (join (split v "_") " ")))
     v)
 
@@ -186,7 +186,7 @@
         (from-scalar "func or lambda or macro" :str))
       ((gets data-scalar-set nt)
         (when (eql nt :str)
-          (setq v (sym (join (split v " ") "_"))))
+          (setq v (join (split v " ") "_")))
         (ast-scalar
           v
           (case nt
