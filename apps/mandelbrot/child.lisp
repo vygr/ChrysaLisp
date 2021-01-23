@@ -1,4 +1,5 @@
 ;imports
+(import "sys/lisp.inc")
 (import "apps/mandelbrot/mbmath.inc")
 
 (structure '+select 0
