@@ -307,11 +307,7 @@
 			(vp-sub-rr knode1 r0)
 			(vp-sub-rr knode2 r1)
 			(vp-or-rr r1 r0)
-			(vpif '(r0 = 0))
-				(debug-str '("."))
-				(continue 'next_link)
-			(endif)
-;			(continueif '(r0 = 0) 'next_link)
+			(continueif '(r0 = 0) 'next_link)
 		(loop-end)
 		;multi-cast the data
 		(call 'sys_mail :alloc_obj `((,msg msg_obj) ,data (,msg msg_frag_length)) '(r0))
