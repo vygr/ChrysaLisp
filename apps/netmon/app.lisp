@@ -15,7 +15,7 @@
 	(byte 'main+ 'task+ 'reply+ 'nodes+))
 
 (defq max_tasks 1 max_memory 1 last_max_tasks 1 last_max_memory 1
-	rate (/ 1000000 5) id t
+	rate (/ 1000000 5) retry_timeout 1000000 id t
 	select (list (task-mailbox) (mail-alloc-mbox) (mail-alloc-mbox) (mail-alloc-mbox)))
 
 (ui-window mywindow ()
@@ -42,6 +42,7 @@
 	(defq val (emap) mb (Progress) tb (Progress))
 	(.-> val
 		(:insert :child (const (pad "" net_id_size)))
+		(:insert :timestamp (pii-time))
 		(:insert :memory_bar mb)
 		(:insert :task_bar tb))
 	(. memory_grid :add_child mb)
@@ -67,7 +68,7 @@
 	;add window
 	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
 	(gui-add (. mywindow :change x y w h))
-	(defq global_tasks (Global create destroy poll))
+	(defq global_tasks (Global create destroy))
 	(mail-timeout (elem +select_nodes+ select) 1)
 	(while id
 		(defq msg (mail-read (elem (defq idx (mail-select select)) select)))
@@ -108,10 +109,11 @@
 					(setq max_memory (max max_memory memory_val) max_tasks (max max_tasks task_val))
 					(def task_bar :maximum last_max_tasks :value task_val)
 					(def memory_bar :maximum last_max_memory :value memory_val)
-					(. task_bar :dirty) (. memory_bar :dirty)))
+					(. task_bar :dirty) (. memory_bar :dirty)
+					(. val :insert :timestamp (pii-time))))
 			(t	;timer event
 				(mail-timeout (elem +select_nodes+ select) rate)
-				(when (. global_tasks :refresh)
+				(when (. global_tasks :refresh retry_timeout)
 					;nodes have mutated
 					(defq size (. global_tasks :size))
 					(def memory_grid :grid_height size)
@@ -130,7 +132,9 @@
 					(. st :layout) (. sm :layout)) task_scale memory_scale)
 				(. task_scale_grid :dirty_all)
 				(. memory_scale_grid :dirty_all)
-				(setq last_max_memory max_memory last_max_tasks max_tasks max_memory 1 max_tasks 1))))
+				(setq last_max_memory max_memory last_max_tasks max_tasks max_memory 1 max_tasks 1)
+				;poll all nodes
+				(. global_tasks :each poll))))
 	;close window and children
 	(each mail-free-mbox (slice 1 -1 select))
 	(. global_tasks :close)
