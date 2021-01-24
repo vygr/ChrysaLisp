@@ -25,7 +25,7 @@
 							(when (> (- _now _then) _timeout)
 								(setq _mutated t)
 								((get :destroy this) _key _val)
-								(. this :insert _key ((get :create this) _key))))))
+								(. this :insert _key ((get :create this) _key _now))))))
 				(t	;not found
 					(setq _mutated t)
 					((get :destroy this) _key (. this :find _key))
@@ -35,7 +35,7 @@
 			(unless (find _key _old_keys)
 				(setq _mutated t)
 				;must (cat _key) to convert to pure string key !
-				(. this :insert (cat _key) ((get :create this) _key)))) _keys)
+				(. this :insert (cat _key) ((get :create this) _key _now)))) _keys)
 		(def this :size (length _keys))
 		_mutated)
 

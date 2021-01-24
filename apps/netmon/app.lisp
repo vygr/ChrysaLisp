@@ -36,13 +36,13 @@
 					(:text "|" :flow_flags (logior +flow_flag_align_vcenter+ +flow_flag_align_hright+)))))
 			(ui-grid memory_grid (:grid_width 1 :grid_height 0)))))
 
-(defun create (key)
-	; (create key) -> val
+(defun create (key now)
+	; (create key now) -> val
 	;function called when entry is created
 	(defq val (emap) mb (Progress) tb (Progress))
 	(.-> val
 		(:insert :child (const (pad "" net_id_size)))
-		(:insert :timestamp (pii-time))
+		(:insert :timestamp now)
 		(:insert :memory_bar mb)
 		(:insert :task_bar tb))
 	(. memory_grid :add_child mb)
@@ -94,11 +94,11 @@
 			((= idx +select_task+)
 				;child launch responce
 				(defq child (slice (const long_size) (const (+ long_size net_id_size)) msg)
-					node (slice (const long_size) -1 child) val (. global_tasks :find node))
+					val (. global_tasks :find (slice (const long_size) -1 child)))
 				(when val
-					(. val :insert :child child))
-					;first poll request
-					(mail-send child (elem +select_reply+ select)))
+					(.-> val
+						(:insert :child child)
+						(:insert :timestamp (pii-time)))))
 			((= idx +select_reply+)
 				;child poll responce
 				(when (defq val (. global_tasks :find (slice sample_reply_node node_id_size msg)))
@@ -118,6 +118,8 @@
 					(defq size (. global_tasks :size))
 					(def memory_grid :grid_height size)
 					(def task_grid :grid_height size)
+					(. memory_grid :layout)
+					(. task_grid :layout)
 					(bind '(x y w h) (apply view-fit
 						(cat (. mywindow :get_pos) (. mywindow :pref_size))))
 					(. mywindow :change_dirty x y w h))
