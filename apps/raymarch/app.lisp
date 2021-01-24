@@ -17,7 +17,8 @@
 (defun child-msg (reply &rest _)
 	(cat reply (apply cat (map (# (char %0 (const long_size))) _))))
 
-(defq canvas_width 800 canvas_height 800 canvas_scale 1 rate (/ 1000000 1) id t dirty nil
+(defq canvas_width 800 canvas_height 800 canvas_scale 1
+	rate (/ 1000000 1) retry_timeout 2000000 id t dirty nil
 	select (list (task-mailbox) (mail-alloc-mbox) (mail-alloc-mbox) (mail-alloc-mbox))
 	jobs (map (lambda (y) (child-msg (elem +select_reply+ select)
 			0 y (* canvas_width canvas_scale) (inc y)
@@ -44,10 +45,15 @@
 
 (defun dispatch_job (child)
 	;send another job to child
-	(. (defq val (. farm :find child)) :erase :job)
-	(when (defq job (pop jobs))
-		(. val :insert :job job)
-		(mail-send child job)))
+	(when (defq val (. farm :find child))
+		(.-> val
+			(:erase :job)
+			(:erase :timestamp))
+		(when (defq job (pop jobs))
+			(.-> val
+				(:insert :job job)
+				(:insert :timestamp (pii-time)))
+			(mail-send child job))))
 
 (defun create (nodes)
 	; (create nodes)
@@ -92,7 +98,7 @@
 				(tile canvas msg))
 			(t	;timer event
 				(mail-timeout (elem +select_nodes+ select) rate)
-				(. farm :refresh)
+				(. farm :refresh retry_timeout)
 				(when dirty
 					(setq dirty nil)
 					(. canvas :swap)
