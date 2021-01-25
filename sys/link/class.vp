@@ -12,7 +12,7 @@
 	(ptr 'statics 'params 'msg 'data 'mem)
 	(pubyte 'pdata)
 	(struct 'node_id 'node_id)
-	(uint 'idx 'running)
+	(int 'idx 'running)
 
 	(push-scope)
 
@@ -21,11 +21,10 @@
 	(assign {@sys/statics/statics} {statics})
 	(assign {statics->statics_sys_task_task_count - 3} {statics->statics_sys_task_task_count})
 
-	;init and add link node to link array
+	;init node
 	(call 'sys_kernel :id nil {node_id.node_id_node1, node_id.node_id_node2})
 	(assign {0 => lk_node.lk_node_task_count => lk_node.lk_node_peer_node_id.node_id_node1}
 		{lk_node.lk_node_peer_node_id.node_id_node2})
-	(call 'array :push_back {statics->statics_sys_mail_links_array, &lk_node})
 
 	;read params msg from kernel
 	(call 'sys_mail :mymail nil {params, pdata})
@@ -56,7 +55,7 @@
 	(loop-start)
 		(call 'sys_task :sleep '(1000000))
 		;check if link is running or not
-		(call 'array :find {statics->statics_sys_mail_links_array, &lk_node} {_, idx})
+		(call 'array :find {statics->statics_sys_mail_links_array, &lk_node} {_, _, idx})
 		(call 'sys_pii :usb_running {mem} {running})
 		(vpif {running})
 			(vpif {idx = -1})

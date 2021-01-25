@@ -296,6 +296,18 @@ r1-r2
 
 ### array :sort_callback -> class/obj/null
 
+### array :erase -> class/array/erase
+
+```lisp
+inputs
+r0 = array object (ptr)
+r1 = element iterator (pptr)
+outputs
+r0 = array object (ptr)
+trashes
+r2-r3
+```
+
 ### array :type -> class/array/type
 
 ### array :print -> class/array/print
@@ -2253,6 +2265,8 @@ Super Class: null
 ### host :usb_start -> nil
 
 ### host :usb_stop -> nil
+
+### host :usb_running -> nil
 
 ## host_gui
 
@@ -8114,6 +8128,17 @@ r0
 ```
 
 ### sys_pii :usb_stop -> sys/pii/usb_stop
+
+```lisp
+inputs
+r0 = link buffer (pubyte)
+outputs
+r0 = error code (ulong)
+trashes
+r0
+```
+
+### sys_pii :usb_running -> sys/pii/usb_running
 
 ```lisp
 inputs

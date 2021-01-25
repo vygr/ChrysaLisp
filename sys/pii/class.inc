@@ -277,6 +277,7 @@
 (dec-method :rand 'sys/pii/rand :static '(r0 r1) '(r0))
 (dec-method :usb_start 'sys/pii/usb_start :static '(r0) '(r0))
 (dec-method :usb_stop 'sys/pii/usb_stop :static '(r0) '(r0))
+(dec-method :usb_running 'sys/pii/usb_running :static '(r0) '(r0))
 
 (dec-method :lisp_readchar 'sys/pii/lisp_readchar :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_writechar 'sys/pii/lisp_writechar :static '(r0 r1) '(r0 r1))
