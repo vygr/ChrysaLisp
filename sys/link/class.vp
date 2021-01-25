@@ -12,6 +12,7 @@
 	(ptr 'statics 'params 'msg 'data 'mem)
 	(pubyte 'pdata)
 	(struct 'node_id 'node_id)
+	(uint 'idx 'running)
 
 	(push-scope)
 
@@ -33,7 +34,7 @@
 	(call 'sys_mem :calloc {lk_buffer_size} {mem, _})
 
 	;start C++ usb link thread...
-	(call 'sys_pii :start_usb {mem})
+	(call 'sys_pii :usb_start {mem})
 
 	;start out link and send params
 	(call 'sys_mail :alloc {16} {msg, data})
@@ -54,11 +55,23 @@
 	;wait till link dies or told to quit...
 	(loop-start)
 		(call 'sys_task :sleep '(1000000))
-		;exit if signaled by kernel...
+		;check if link is running or not
+		(call 'array :find {statics->statics_sys_mail_links_array, &lk_node} {_, idx})
+		(call 'sys_pii :usb_running {mem} {running})
+		(vpif {running})
+			(vpif {idx = -1})
+				(call 'array :push_back {statics->statics_sys_mail_links_array, &lk_node})
+			(endif)
+		(else)
+			(vpif {idx /= -1})
+				(call 'array :get_iter {statics->statics_sys_mail_links_array, idx} {_, data})
+				(call 'array :erase {statics->statics_sys_mail_links_array, data})
+			(endif)
+		(endif)
 	(loop-end)
 
 	;stop C++ thread
-	(call 'sys_pii :stop_usb {mem})
+	(call 'sys_pii :usb_stop {mem})
 
 	;free message buffers
 	(call 'sys_mem :free {mem})

@@ -579,3 +579,31 @@
 	(vp-ret)
 
 (def-func-end)
+
+(def-method 'array :erase)
+	;inputs
+	;r0 = array object (ptr)
+	;r1 = element iterator (pptr)
+	;outputs
+	;r0 = array object (ptr)
+	;trashes
+	;r2-r3
+
+	(entry 'array :erase '(r0 r1))
+
+	;swap last entry for erased entry
+	(assign '((r0 array_length)) '(r2))
+	(vp-sub-cr 1 r2)
+	(assign '(r2) '((r0 array_length)))
+	(assign '((r0 array_begin)) '(r3))
+	(vp-shl-cr (log2 ptr_size) r2)
+	(vp-add-rr r3 r2)
+	(vpif '(r2 /= r1))
+		(assign '((r1 0)) '(r3))
+		(assign '(r3) '((r2 0)))
+	(endif)
+
+	(exit 'array :erase '(r0))
+	(vp-ret)
+
+(def-func-end)

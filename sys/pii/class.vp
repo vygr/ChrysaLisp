@@ -412,7 +412,7 @@
 
 (def-func-end)
 
-(def-method 'sys_pii :start_usb)
+(def-method 'sys_pii :usb_start)
 	;inputs
 	;r0 = link buffer (pubyte)
 	;outputs
@@ -420,16 +420,16 @@
 	;trashes
 	;r0
 
-	(entry 'sys_pii :start_usb '(r0))
+	(entry 'sys_pii :usb_start '(r0))
 	(abi-push-trashed r13 r14)
-	(host-os-call 'host :start_usb '(r0) '(r0))
+	(host-os-call 'host :usb_start '(r0) '(r0))
 	(abi-pop-trashed r13 r14)
-	(exit 'sys_pii :start_usb '(r0))
+	(exit 'sys_pii :usb_start '(r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'sys_pii :stop_usb)
+(def-method 'sys_pii :usb_stop)
 	;inputs
 	;r0 = link buffer (pubyte)
 	;outputs
@@ -437,11 +437,28 @@
 	;trashes
 	;r0
 
-	(entry 'sys_pii :stop_usb '(r0))
+	(entry 'sys_pii :usb_stop '(r0))
 	(abi-push-trashed r13 r14)
-	(host-os-call 'host :stop_usb '(r0) '(r0))
+	(host-os-call 'host :usb_stop '(r0) '(r0))
 	(abi-pop-trashed r13 r14)
-	(exit 'sys_pii :stop_usb '(r0))
+	(exit 'sys_pii :usb_stop '(r0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'sys_pii :usb_running)
+	;inputs
+	;r0 = link buffer (pubyte)
+	;outputs
+	;r0 = error code (ulong)
+	;trashes
+	;r0
+
+	(entry 'sys_pii :usb_running '(r0))
+	(abi-push-trashed r13 r14)
+	(host-os-call 'host :usb_running '(r0) '(r0))
+	(abi-pop-trashed r13 r14)
+	(exit 'sys_pii :usb_running '(r0))
 	(vp-ret)
 
 (def-func-end)

@@ -43,7 +43,7 @@
 ;native versions
 (ffi tile "apps/raymarch/tile" 0)
 
-(defun dispatch_job (child)
+(defun dispatch-job (child)
 	;send another job to child
 	(when (defq val (. farm :find child))
 		(.-> val
@@ -90,10 +90,10 @@
 				;child launch responce
 				(defq child (slice (const long_size) (const (+ long_size net_id_size)) msg))
 				(. farm :insert child (emap))
-				(dispatch_job child))
+				(dispatch-job child))
 			((= idx +select_reply+)
 				;child responce
-				(dispatch_job (slice (dec (neg net_id_size)) -1 msg))
+				(dispatch-job (slice (dec (neg net_id_size)) -1 msg))
 				(setq dirty t)
 				(tile canvas msg))
 			(t	;timer event

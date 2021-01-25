@@ -2250,9 +2250,9 @@ Super Class: null
 
 ### host :sleep -> nil
 
-### host :start_usb -> nil
+### host :usb_start -> nil
 
-### host :stop_usb -> nil
+### host :usb_stop -> nil
 
 ## host_gui
 
@@ -8102,7 +8102,7 @@ trashes
 r0
 ```
 
-### sys_pii :start_usb -> sys/pii/start_usb
+### sys_pii :usb_start -> sys/pii/usb_start
 
 ```lisp
 inputs
@@ -8113,7 +8113,7 @@ trashes
 r0
 ```
 
-### sys_pii :stop_usb -> sys/pii/stop_usb
+### sys_pii :usb_stop -> sys/pii/usb_stop
 
 ```lisp
 inputs
