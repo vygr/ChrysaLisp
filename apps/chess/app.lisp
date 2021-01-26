@@ -6,15 +6,20 @@
 ;imports
 (import "gui/lisp.inc")
 (import "lib/consts/colors.inc")
+(import "apps/chess/app.inc")
 
 (structure '+event 0
 	(byte 'close+)
 	(byte 'button+))
 
+(structure '+select 0
+	(byte 'main+ 'reply+))
+
 ;create child and send args etc
-(defq squares (list) next_char (ascii-code " ")
-	data_in (in-stream) select (list (task-mailbox) (in-mbox data_in))
-	vdu_width 38 vdu_height 12 text_buf (list ""))
+(defq squares (list) vdu_width 38 vdu_height 12 text_buf nil flicker 100000
+	select (list (task-mailbox) (mail-alloc-mbox)) id t child_mbox nil
+	brd "RNBQKBNRPPPPPPPP                                pppppppprnbqkbnr"
+	history (list brd) white 1 black -1 color white start_time (pii-time))
 
 (ui-window mywindow (:color +argb_black+)
 	(ui-flow _ (:flow_flags +flow_down_fill+)
@@ -45,38 +50,53 @@
 				(elem-set -2 buf (cat (elem -2 buf) c))))) s)
 	(. vdu :load buf 0 0 (length (elem -2 buf)) (dec (length buf))) buf)
 
+(defun time-in-seconds (_)
+	(str (/ _ 1000000) "." (pad (% _ 1000000) 6 "00000")))
+
+(defun next_move ()
+	(setq text_buf (list ""))
+	(vdu-print vdu text_buf (cat (LF) "Elapsed Time: " (time-in-seconds (- (pii-time) start_time)) (LF)))
+	(if (= color (const white))
+		(vdu-print vdu text_buf (cat "White to move:" (LF)))
+		(vdu-print vdu text_buf (cat "Black to move:" (LF))))
+	(mail-send (setq child_mbox (open-child "apps/chess/child.lisp" kn_call_child))
+		(cat
+			(elem +select_reply+ select)
+			(char 10000000 long_size)
+			(char color long_size)
+			brd (apply cat history))))
+
 (defun main ()
-	(mail-send (defq child_mbox (open-child "apps/chess/child.lisp" kn_call_child))
-		(cat (in-mbox data_in) "20000000"))
+	(display-board brd)
 	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
 	(gui-add (. mywindow :change x y w h))
+	(next_move)
 	;main event loop
-	(while (cond
-		((= (mail-select select) 0)
-			;GUI event from main mailbox
-			(cond
-				((= (get-long (defq msg (mail-read (elem 0 select))) ev_msg_target_id) +event_close+)
-					nil)
-				(t (. mywindow :event msg))))
-		(t	;from child stream
-			(bind '(data next_char) (read data_in next_char))
-			(cond
-				((eql (defq id (elem 0 data)) "b")
-					(display-board (slice 1 -1 data)))
-				((eql id "c")
-					(setq text_buf (list ""))
-					(vdu-print vdu text_buf (slice 1 -1 data)))
-				((eql id "s")
-					(setq text_buf (vdu-print vdu text_buf (slice 1 -1 data))))))))
-	;close child and window, wait for child stream to close
-	(mail-send child_mbox "")
-	(. mywindow :hide)
-	(until id
-		(setq id (mail-select select))
+	(while id
+		(defq msg (mail-read (elem (defq idx (mail-select select)) select)))
 		(cond
-			((= id 0)
-				;GUI event from main mailbox
-				(mail-read (elem 0 select)))
-			(t	;from child stream
-				(bind '(data next_char) (read data_in next_char))
-				(setq id (= next_char -1))))))
+			((= idx +select_main+)
+				;main mailbox
+				(cond
+					((= (setq id (get-long msg ev_msg_target_id)) +event_close+)
+						(setq id nil))
+					(t (. mywindow :event msg))))
+			((= idx +select_reply+)
+				;child reply
+				(cond
+					((eql (defq id (elem 0 msg)) "b")
+						(defq new_brd (slice 1 -1 msg))
+						(each (lambda (_)
+							(display-board brd)
+							(task-sleep flicker)
+							(display-board new_brd)
+							(task-sleep flicker)) (range 0 2))
+						(setq color (neg color) brd new_brd)
+						(push history brd)
+						(next_move))
+					((eql id "s")
+						(setq text_buf (vdu-print vdu text_buf (slice 1 -1 msg))))))))
+	;close child and window
+	(each mail-free-mbox (slice 1 -1 select))
+	(mail-send child_mbox "")
+	(. mywindow :hide))

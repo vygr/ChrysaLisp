@@ -1,14 +1,7 @@
 ;imports
 (import "sys/lisp.inc")
 (import "class/lisp.inc")
-
-;lf macro
-(defmacro LF ()
-	(ascii-char 10))
-
-;send data packet to parent
-(defmacro send-data (id &rest data)
-	`(stream-flush (write msg_out (str {"} ,id ~data {"}))))
+(import "apps/chess/app.inc")
 
 ;piece map accses
 (defmacro piece-map (_ i)
@@ -39,7 +32,7 @@
 ;piece capture actions, per vector
 (defq no_capture 0 may_capture 1 must_capture 2)
 
-;map board square contents to piece type/colour
+;map board square contents to piece type/color
 (defq piece_type_map (list "PRNBKQprnbkq "
 	(list black black black black black black white white white white white white empty)))
 
@@ -232,9 +225,9 @@
 ;native versions
 (ffi piece-scans "apps/chess/piece-scans" 0)
 
-;test if king of given colour is in check
-(defun in-check (brd colour)
-	(if (= colour (const black))
+;test if king of given color is in check
+(defun in-check (brd color)
+	(if (= color (const black))
 		(defq king_piece "K" tests (list black_tests))
 		(defq king_piece "k" tests (list white_tests)))
 	;find king index on board
@@ -244,8 +237,8 @@
 			(some! 0 -1 nil (lambda (piece)
 				(find-rev piece hit_pieces)) pieces)) tests))
 
-;evaluate (score) a board for the colour given
-(defun evaluate (brd colour)
+;evaluate (score) a board for the color given
+(defun evaluate (brd color)
 	(defq black_score 0 white_score 0)
 	(each! 0 -1 (lambda (piece)
 		;add score for position on the board, piece type, near center, clear lines etc
@@ -254,12 +247,12 @@
 			(if (> (code piece) (ascii-code "Z"))
 				(setq white_score (+ white_score (elem 64 eval_values) (elem _ eval_values)))
 				(setq black_score (+ black_score (elem 64 eval_values) (elem _ eval_values)))))) (list brd))
-	(* (- white_score black_score) colour))
+	(* (- white_score black_score) color))
 
 ;generate all boards for a piece index and moves possibility, filtering out boards where king is in check
-(defun piece-moves (yield brd index colour moves)
+(defun piece-moves (yield brd index color moves)
 	(defq piece (elem index brd) cx (logand index 7) cy (>> index 3)
-		promote (if (= colour (const black)) '("QRBN") '("qrbn")))
+		promote (if (= color (const black)) '("QRBN") '("qrbn")))
 	(each! 0 -1 (lambda ((dx dy len flag))
 		(defq x cx y cy)
 		;special length for pawns so we can adjust for starting 2 hop
@@ -274,7 +267,7 @@
 					(defq newindex (+ (* y 8) x) newpiece (elem newindex brd)
 						newtype (piece-map piece_type_map newpiece))
 					(cond
-						((= newtype colour)
+						((= newtype color)
 							;hit one of our own piece type (black hit black etc)
 							(setq len 0))
 						((and (= flag (const no_capture)) (/= newtype (const empty)))
@@ -290,11 +283,11 @@
 									;try all the pawn promotion possibilities
 									(each! 0 -1 (lambda (promote_piece)
 										(setq newbrd (cat (slice 0 newindex newbrd) promote_piece (slice (inc newindex) -1 newbrd)))
-										(unless (in-check newbrd colour)
+										(unless (in-check newbrd color)
 											(push yield newbrd))) promote))
 								(t	;generate this as a possible move
 									(setq newbrd (cat (slice 0 newindex newbrd) piece (slice (inc newindex) -1 newbrd)))
-									(unless (in-check newbrd colour)
+									(unless (in-check newbrd color)
 										(push yield newbrd))))
 							(if (and (= flag (const may_capture)) (/= newtype (const empty)))
 								;may capture and we did so !
@@ -303,75 +296,73 @@
 					(setq len 0))))) (list moves)))
 
 ;generate all moves (boards) for the given colours turn
-(defun all-moves (brd colour)
+(defun all-moves (brd color)
 	;enumarate the board square by square
 	(task-sleep 0)
-	(defq yield (list) is_black (= colour (const black)))
+	(defq yield (list) is_black (= color (const black)))
 	(each! 0 -1 (lambda (piece)
 		(unless (eql piece " ")
 			(when (eql (< (code piece) (ascii-code "Z")) is_black)
 				;one of our pieces ! so gather all boards from possible moves of this piece
-				(piece-moves yield brd _ colour (piece-map moves_map piece))))) (list brd)) yield)
+				(piece-moves yield brd _ color (piece-map moves_map piece))))) (list brd)) yield)
 
 ;pvs search
-(defun pvs (brd colour alpha beta ply)
+(defun pvs (brd color alpha beta ply)
 	(cond
 		((mail-poll (list (task-mailbox)))
-			(setq quit t)
 			timeout_value)
 		((>= (- (pii-time) start_time) max_time_per_move)
 			timeout_value)
 		((= ply 0)
-			(evaluate brd colour))
-		(t	(defq next_boards (all-moves brd colour))
+			(evaluate brd color))
+		(t	(defq next_boards (all-moves brd color))
 			(some! 0 -1 nil (lambda (brd)
 				(cond
 					((= _ 0)
-						(defq value (neg (pvs brd (neg colour) (neg beta) (neg alpha) (dec ply)))))
-					(t	(defq value (neg (pvs brd (neg colour) (dec (neg alpha)) (neg alpha) (dec ply))))
+						(defq value (neg (pvs brd (neg color) (neg beta) (neg alpha) (dec ply)))))
+					(t	(defq value (neg (pvs brd (neg color) (dec (neg alpha)) (neg alpha) (dec ply))))
 						(if (< alpha value beta)
-							(setq value (neg (pvs brd (neg colour) (neg beta) (neg value) (dec ply)))))))
+							(setq value (neg (pvs brd (neg color) (neg beta) (neg value) (dec ply)))))))
 				(>= (setq alpha (max alpha value)) beta)) (list next_boards))
 			alpha)))
 
 ;negamax search
-(defun negamax (brd colour alpha beta ply)
+(defun negamax (brd color alpha beta ply)
 	(cond
 		((mail-poll (list (task-mailbox)))
-			(setq quit t)
 			timeout_value)
 		((>= (- (pii-time) start_time) max_time_per_move)
 			timeout_value)
 		((= ply 0)
-			(evaluate brd colour))
-		(t	(defq value +min_int+ next_boards (all-moves brd colour))
+			(evaluate brd color))
+		(t	(defq value +min_int+ next_boards (all-moves brd color))
 			(some! 0 -1 nil (lambda (brd)
-				(setq value (max value (neg (negamax brd (neg colour) (neg beta) (neg alpha) (dec ply))))
+				(setq value (max value (neg (negamax brd (neg color) (neg beta) (neg alpha) (dec ply))))
 					alpha (max alpha value))
 				(>= alpha beta)) (list next_boards))
 			value)))
 
-;best move for given board position for given colour
-(defun best-move (brd colour history)
+;best move for given board position for given color
+(defun best-move (brd color history)
 	;start move time, sorted ply0 boards
 	(defq start_time (pii-time) nbrd nil pbrd nil bias (list)
 		ply0_boards (sort (lambda (a b) (- (elem 0 b) (elem 0 a)))
-			(map (lambda (brd) (list (evaluate brd colour) brd)) (all-moves brd colour))))
+			(map (lambda (brd) (list (evaluate brd color) brd)) (all-moves brd color))))
 	;bias against repeat positions
 	(each! 0 -1 (lambda ((ply0_score brd))
 		(push bias (* queen_value (reduce (lambda (cnt past_brd)
 				(if (eql past_brd brd) (inc cnt) cnt)) history 0)))) (list ply0_boards))
 	;iterative deepening of ply so we allways have a best move to go with if the time expires
 	(some! 0 -1 nil (lambda (ply)
-		(send-data "s" (LF) "Ply" ply " ")
+		(mail-send reply_mbox (str "s" (LF) "Ply" ply " "))
 		(defq value +min_int+ alpha +min_int+ beta +max_int+
 			timeout (some! 0 -1 nil (lambda ((ply0_score brd))
-				(defq score (neg (negamax brd (neg colour) (neg beta) (neg alpha) (dec ply))))
+				(defq score (neg (negamax brd (neg color) (neg beta) (neg alpha) (dec ply))))
 				(cond
 					((or (<= (- score (elem _ bias)) value) (= (abs score) (const timeout_value)))
-						(send-data "s" "."))
+						(mail-send reply_mbox (cat "s" ".")))
 					(t	(setq value score pbrd brd)
-						(send-data "s" "*")))
+						(mail-send reply_mbox (cat "s" "*"))))
 				(setq alpha (max alpha value))
 				(cond
 					((= (abs score) (const timeout_value))
@@ -381,40 +372,24 @@
 			(setq nbrd (if pbrd pbrd nbrd) pbrd nil))) (list (range 1 max_ply)))
 	nbrd)
 
-(defun time-in-seconds (_)
-		(str (/ _ 1000000) "." (pad (% _ 1000000) 6 "00000")))
-
 (defun main ()
-	;read args from parent
-	(defq msg (mail-read (task-mailbox)) msg_out (out-stream (slice 0 net_id_size msg))
-		max_time_per_move (str-to-num (slice net_id_size -1 msg))
-		history (list) colour (const white) game_start_time (pii-time) quit nil flicker 100000
-		brd "RNBQKBNRPPPPPPPP                                pppppppprnbqkbnr")
-	(send-data "b" brd)
-
-	;main event loop
-	(until quit
-		(defq elapsed_time (- (pii-time) game_start_time))
-		(send-data "c" (LF) "Elapsed Time: " (time-in-seconds elapsed_time) (LF))
-		(if (= colour (const white))
-			(send-data "s" "White to move:" (LF))
-			(send-data "s" "Black to move:" (LF)))
-		(defq new_brd (best-move brd colour history))
-		(cond
-			((not new_brd)
-				(if (in-check brd colour)
-					(send-data "s" (LF) "** Checkmate **" (LF) (LF))
-					(send-data "s" (LF) "** Stalemate **" (LF) (LF)))
-				(setq quit t))
-			((>= (reduce (lambda (cnt past_brd)
-					(if (eql past_brd brd) (inc cnt) cnt)) history 0) 3)
-				(send-data "s" (LF) "** Draw **" (LF) (LF))
-				(setq quit t))
-			(t	(each (lambda (_)
-					(send-data "b" brd)
-					(task-sleep flicker)
-					(send-data "b" new_brd)
-					(task-sleep flicker)) (range 0 2))
-				(push history new_brd)
-				(setq colour (neg colour) brd new_brd))))
-	(mail-read (task-mailbox)))
+	;read job
+	(defq msg (mail-read (task-mailbox))
+		reply_mbox (slice +job_reply+ (+ +job_reply+ net_id_size) msg)
+		max_time_per_move (get-long msg +job_move_time+)
+		color (get-long msg +job_color+)
+		brd (slice +job_board+ (+ +job_board+ 64) msg)
+		history (list) history_offset (+ +job_board+ 64))
+	(while (< history_offset (length msg))
+		(push history (slice history_offset (setq history_offset (+ history_offset 64)) msg)))
+	;next move
+	(defq new_brd (best-move brd color history))
+	(cond
+		((not new_brd)
+			(if (in-check brd color)
+				(mail-send reply_mbox (cat "s" (LF) "** Checkmate **" (LF) (LF)))
+				(mail-send reply_mbox (cat "s" (LF) "** Stalemate **" (LF) (LF)))))
+		((>= (reduce (lambda (cnt past_brd)
+				(if (eql past_brd brd) (inc cnt) cnt)) history 0) 3)
+			(mail-send reply_mbox (cat "s" (LF) "** Draw **" (LF) (LF))))
+		(t	(mail-send reply_mbox (cat "b" new_brd)))))
