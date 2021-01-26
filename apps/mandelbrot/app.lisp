@@ -18,7 +18,7 @@
 (defq canvas_width 800 canvas_height 800 canvas_scale 2 rate (/ 1000000 1) id t dirty nil
 	select (list (task-mailbox) (mail-alloc-mbox) (mail-alloc-mbox) (mail-alloc-mbox))
 	center_x (mbfp-from-fixed -0.5) center_y (mbfp-from-fixed 0.0) zoom (mbfp-from-fixed 1.0)
-	jobs nil farm nil retry_timeout 1000000)
+	jobs nil farm nil retry_timeout 5000000)
 
 (ui-window mywindow ()
 	(ui-title-bar _ "Mandelbrot" (0xea19) +event_close+)
@@ -43,14 +43,16 @@
 (defun dispatch-job (child)
 	;send another job to child
 	(when (defq val (. farm :find child))
-		(.-> val
-			(:erase :job)
-			(:erase :timestamp))
-		(when (defq job (pop jobs))
-			(.-> val
-				(:insert :job job)
-				(:insert :timestamp (pii-time)))
-			(mail-send child job))))
+		(cond
+			((defq job (pop jobs))
+				(.-> val
+					(:insert :job job)
+					(:insert :timestamp (pii-time)))
+				(mail-send child job))
+			(t	;no jobs in que
+				(.-> val
+					(:erase :job)
+					(:erase :timestamp))))))
 
 (defun create (nodes)
 	; (create nodes)

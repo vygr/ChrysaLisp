@@ -13,31 +13,32 @@
 	(defmethod :refresh (this &optional _timeout)
 		; (. farm :refresh [_timeout]) -> t | nil
 		;scan known nodes and update map
-		(defq _keys (mail-nodes) _old_keys (list) _mutated nil _now (pii-time))
-		(. this :each (lambda (key val) (push _old_keys key)))
+		(defq _keys (mail-nodes) _old_keys (list) _old_vals (list)
+			_create (get :create this) _destroy (get :destroy this)
+			_mutated nil _now (pii-time))
+		(. this :each (lambda (key val) (push _old_keys key) (push _old_vals val)))
 		;test for vanished and timeout nodes
-		(each (lambda (_key)
+		(each (lambda (_key _val)
 			(cond
 				((find (slice (const long_size) -1 _key) _keys)
 					;found, so check timestamp
-					(when _timeout
-						(defq _val (. this :find _key) _then (. _val :find :timestamp))
-						(when _then
-							;there is a timestamp field
-							(when (> (- _now _then) _timeout)
-								(setq _mutated t)
-								((get :destroy this) _key _val)
-								(. this :erase _key)
-								((get :create this) _keys)))))
+					(and _timeout
+						(defq _then (. _val :find :timestamp))
+						(> (- _now _then) _timeout)
+						(progn
+							(setq _mutated t)
+							(_destroy _key _val)
+							(. this :erase _key)
+							(_create _keys))))
 				(t	;not found
 					(setq _mutated t)
-					((get :destroy this) _key (. this :find _key))
+					(_destroy _key _val)
 					(. this :erase _key)
-					((get :create this) _keys)))) _old_keys)
+					(_create _keys)))) _old_keys _old_vals)
 		_mutated)
 
 	(defmethod :close (this)
 		; (. farm :close)
 		;close tasks
-		(. this :each (get :destroy this)))
+		(.-> this (:each (get :destroy this)) :empty))
 	)
