@@ -26,9 +26,6 @@
 (defq king_value 100000 queen_value 900 rook_value 500 bishop_value 330
 	knight_value 320 pawn_value 100 mate_value (* king_value 10) timeout_value (* mate_value 2))
 
-;board square/piece types
-(defq white 1 empty 0 black -1)
-
 ;piece capture actions, per vector
 (defq no_capture 0 may_capture 1 must_capture 2)
 
@@ -387,9 +384,9 @@
 	(cond
 		((not new_brd)
 			(if (in-check brd color)
-				(mail-send reply_mbox (cat "s" (LF) "** Checkmate **" (LF) (LF)))
-				(mail-send reply_mbox (cat "s" (LF) "** Stalemate **" (LF) (LF)))))
+				(mail-send reply_mbox (cat "e" (LF) "** Checkmate **" (LF)))
+				(mail-send reply_mbox (cat "e" (LF) "** Stalemate **" (LF)))))
 		((>= (reduce (lambda (cnt past_brd)
 				(if (eql past_brd brd) (inc cnt) cnt)) history 0) 3)
-			(mail-send reply_mbox (cat "s" (LF) "** Draw **" (LF) (LF))))
+			(mail-send reply_mbox (cat "e" (LF) "** Draw **" (LF))))
 		(t	(mail-send reply_mbox (cat "b" new_brd)))))

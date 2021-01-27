@@ -13,9 +13,9 @@
 	(byte 'close+))
 
 (structure '+select 0
-	(byte 'main+ 'task+ 'reply+ 'nodes+))
+	(byte 'main+ 'task+ 'reply+ 'timer+))
 
-(defq canvas_width 800 canvas_height 800 canvas_scale 2 rate (/ 1000000 1) id t dirty nil
+(defq canvas_width 800 canvas_height 800 canvas_scale 2 timer_rate (/ 1000000 1) id t dirty nil
 	select (list (task-mailbox) (mail-alloc-mbox) (mail-alloc-mbox) (mail-alloc-mbox))
 	center_x (mbfp-from-fixed -0.5) center_y (mbfp-from-fixed 0.0) zoom (mbfp-from-fixed 1.0)
 	jobs nil farm nil retry_timeout 5000000)
@@ -89,7 +89,7 @@
 	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
 	(gui-add (. mywindow :change x y w h))
 	(reset)
-	(mail-timeout (elem +select_nodes+ select) rate)
+	(mail-timeout (elem +select_timer+ select) timer_rate)
 	(while id
 		(defq msg (mail-read (elem (defq idx (mail-select select)) select)))
 		(cond
@@ -123,7 +123,7 @@
 				(setq dirty t)
 				(tile canvas msg))
 			(t	;timer event
-				(mail-timeout (elem +select_nodes+ select) rate)
+				(mail-timeout (elem +select_timer+ select) timer_rate)
 				(. farm :refresh retry_timeout)
 				(when dirty
 					(setq dirty nil)
