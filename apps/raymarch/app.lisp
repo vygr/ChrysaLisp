@@ -110,6 +110,6 @@
 							(setq working (or working (. val :find :job)))))
 						(unless working (. farm :close)))))))
 	;close window and children
-	(each mail-free-mbox (slice 1 -1 select))
 	(. farm :close)
+	(each mail-free-mbox (slice 1 -1 select))
 	(. mywindow :hide))

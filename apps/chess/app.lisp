@@ -16,9 +16,8 @@
 (structure '+select 0
 	(byte 'main+ 'task+ 'reply+ 'timer+))
 
-;create child and send args etc
 (defq vdu_width 38 vdu_height 12 text_buf nil
-	flicker (/ 1000000 10) timer_rate (/ 1000000 1) max_move_time 10000000 id t child_mbox nil
+	flicker_rate (/ 1000000 10) timer_rate (/ 1000000 1) max_move_time 10000000 id t
 	select (list (task-mailbox) (mail-alloc-mbox) (mail-alloc-mbox) (mail-alloc-mbox))
 	brd "RNBQKBNRPPPPPPPP                                pppppppprnbqkbnr"
 	history (list brd) color white start_time (pii-time))
@@ -26,7 +25,8 @@
 (ui-window mywindow (:color +argb_black+)
 	(ui-flow _ (:flow_flags +flow_down_fill+)
 		(ui-title-bar _ "Chess" (0xea19) +event_close+)
-		(ui-grid chess_grid (:grid_width 8 :grid_height 8 :font (create-font "fonts/Chess.ctf" 42) :border 1 :text " ")
+		(ui-grid chess_grid (:grid_width 8 :grid_height 8 :font (create-font "fonts/Chess.ctf" 42)
+				:border 1 :text " ")
 			(each (lambda (i)
 				(if (= (logand (+ i (>> i 3)) 1) 0)
 					(defq paper +argb_white+ ink +argb_black+)
@@ -113,9 +113,9 @@
 						(defq new_brd (slice 1 -1 msg))
 						(each (lambda (_)
 							(display-board brd)
-							(task-sleep flicker)
+							(task-sleep flicker_rate)
 							(display-board new_brd)
-							(task-sleep flicker)) (range 0 2))
+							(task-sleep flicker_rate)) (range 0 2))
 						(setq color (neg color) brd new_brd)
 						(push history brd)
 						(. farm :close)
@@ -131,6 +131,6 @@
 				(mail-timeout (elem +select_timer+ select) timer_rate)
 				(. farm :refresh (+ max_move_time 1000000)))))
 	;close window and children
-	(each mail-free-mbox (slice 1 -1 select))
 	(. farm :close)
+	(each mail-free-mbox (slice 1 -1 select))
 	(. mywindow :hide))
