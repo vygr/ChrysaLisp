@@ -20,7 +20,7 @@
 	flicker_rate (/ 1000000 10) timer_rate (/ 1000000 1) max_move_time 10000000 id t
 	select (list (task-mailbox) (mail-alloc-mbox) (mail-alloc-mbox) (mail-alloc-mbox))
 	brd "RNBQKBNRPPPPPPPP                                pppppppprnbqkbnr"
-	history (list brd) color white start_time (pii-time))
+	history (list brd) color white start_time (pii-time) replys (list) next_seq 0)
 
 (ui-window mywindow (:color +argb_black+)
 	(ui-flow _ (:flow_flags +flow_down_fill+)
@@ -69,7 +69,10 @@
 		(cat (LF) "Elapsed Time: " (time-in-seconds (- (pii-time) start_time)) (LF))))
 	(if (= color (const white))
 		(vdu-print vdu text_buf (cat "White to move:" (LF)))
-		(vdu-print vdu text_buf (cat "Black to move:" (LF)))))
+		(vdu-print vdu text_buf (cat "Black to move:" (LF))))
+	;reset reply sequence
+	(clear replys)
+	(setq next_seq 0))
 
 (defun create (nodes)
 	; (create nodes)
@@ -106,27 +109,33 @@
 				(. farm :insert child (emap))
 				(dispatch-job child))
 			((= idx +select_reply+)
-				;child reply
-				(cond
-					;move
-					((eql (defq id (elem 0 msg)) "b")
-						(defq new_brd (slice 1 -1 msg))
-						(each (lambda (_)
-							(display-board brd)
-							(task-sleep flicker_rate)
-							(display-board new_brd)
-							(task-sleep flicker_rate)) (range 0 2))
-						(setq color (neg color) brd new_brd)
-						(push history brd)
-						(. farm :close)
-						(setq farm (Farm create destroy 1)))
-					;end
-					((eql id "e")
-						(setq text_buf (vdu-print vdu (list "") (slice 1 -1 msg)))
-						(. farm :close))
-					;status
-					((eql id "s")
-						(vdu-print vdu text_buf (slice 1 -1 msg)))))
+				;child reply, process in sequence order
+				(sort (# (- (get-long %1 0) (get-long %0 0))) (push replys msg))
+				(while (and (/= (length replys) 0)
+							(= (get-long (elem -2 replys) 0) next_seq))
+					(setq msg (pop replys) next_seq (inc next_seq))
+					(defq data_type (elem (const long_size) msg)
+						data (slice (const (inc long_size)) -1 msg))
+					(cond
+						;move
+						((eql data_type "b")
+							(defq new_brd data)
+							(each (lambda (_)
+								(display-board brd)
+								(task-sleep flicker_rate)
+								(display-board new_brd)
+								(task-sleep flicker_rate)) (range 0 2))
+							(setq color (neg color) brd new_brd)
+							(push history brd)
+							(. farm :close)
+							(setq farm (Farm create destroy 1)))
+						;end
+						((eql data_type "e")
+							(setq text_buf (vdu-print vdu (list "") data))
+							(. farm :close))
+						;status
+						((eql data_type "s")
+							(vdu-print vdu text_buf data)))))
 			(t	;timer event
 				(mail-timeout (elem +select_timer+ select) timer_rate)
 				(. farm :refresh (+ max_move_time 1000000)))))

@@ -339,6 +339,11 @@
 				(>= alpha beta)) (list next_boards))
 			value)))
 
+(defun reply (data)
+	;send msg to parent, sequenced
+	(mail-send reply_mbox (cat (char next_seq (const long_size)) data))
+	(setq next_seq (inc next_seq)))
+
 ;best move for given board position for given color
 (defun best-move (brd color history)
 	;start move time, sorted ply0 boards
@@ -351,15 +356,15 @@
 				(if (eql past_brd brd) (inc cnt) cnt)) history 0)))) (list ply0_boards))
 	;iterative deepening of ply so we allways have a best move to go with if the time expires
 	(some! 0 -1 nil (lambda (ply)
-		(mail-send reply_mbox (str "s" (LF) "Ply" ply " "))
+		(reply (str "s" (LF) "Ply" ply " "))
 		(defq value +min_int+ alpha +min_int+ beta +max_int+
 			timeout (some! 0 -1 nil (lambda ((ply0_score brd))
 				(defq score (neg (negamax brd (neg color) (neg beta) (neg alpha) (dec ply))))
 				(cond
 					((or (<= (- score (elem _ bias)) value) (= (abs score) (const timeout_value)))
-						(mail-send reply_mbox (cat "s" ".")))
+						(reply (cat "s" ".")))
 					(t	(setq value score pbrd brd)
-						(mail-send reply_mbox (cat "s" "*"))))
+						(reply (cat "s" "*"))))
 				(setq alpha (max alpha value))
 				(cond
 					((= (abs score) (const timeout_value))
@@ -376,7 +381,8 @@
 		max_time_per_move (get-long msg +job_move_time+)
 		color (get-long msg +job_color+)
 		brd (slice +job_board+ (+ +job_board+ 64) msg)
-		history (list) history_offset (+ +job_board+ 64))
+		history (list) history_offset (+ +job_board+ 64)
+		next_seq 0)
 	(while (< history_offset (length msg))
 		(push history (slice history_offset (setq history_offset (+ history_offset 64)) msg)))
 	;next move
@@ -384,9 +390,9 @@
 	(cond
 		((not new_brd)
 			(if (in-check brd color)
-				(mail-send reply_mbox (cat "e" (LF) "** Checkmate **" (LF)))
-				(mail-send reply_mbox (cat "e" (LF) "** Stalemate **" (LF)))))
+				(reply (cat "e" (LF) "** Checkmate **" (LF)))
+				(reply (cat "e" (LF) "** Stalemate **" (LF)))))
 		((>= (reduce (lambda (cnt past_brd)
 				(if (eql past_brd brd) (inc cnt) cnt)) history 0) 3)
-			(mail-send reply_mbox (cat "e" (LF) "** Draw **" (LF))))
-		(t	(mail-send reply_mbox (cat "b" new_brd)))))
+			(reply (cat "e" (LF) "** Draw **" (LF))))
+		(t	(reply (cat "b" new_brd)))))
