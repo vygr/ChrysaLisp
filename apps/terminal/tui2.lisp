@@ -19,7 +19,7 @@
 
 ; Setup logging, service mailbox and timezones
 (defq
-  tlog      (anchor-logger "tui2" (local-node))
+  tlog      (anchor-logger "tui2")
   +banner+  "ChrysaLisp Terminal-2 0.9 (RC-1)"
   tmserv    (server-ipc (mail-alloc-mbox))
   tzone     nil)
@@ -71,7 +71,7 @@
     ((and tzone (eql (gets-enval "TZ") tza)))
      ; We have a hit
     (tz
-      ; (log-debug tlog (str "Setting timezone to " tza))
+      (log-info tlog (str "Setting timezone to " tza))
       (sets-envkvs! "TZ" (first (setq tzone tz))))
     ; Failed to find
     (t
