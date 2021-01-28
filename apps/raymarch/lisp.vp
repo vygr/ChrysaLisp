@@ -54,7 +54,7 @@
 
 (def-func-end)
 
-(def-func 'apps/raymarch/ray-march)
+(def-func 'apps/raymarch/ray_march)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)

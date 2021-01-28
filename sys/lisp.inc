@@ -105,3 +105,14 @@
 		(defq tail (slice (const long_size) (const (+ long_size net_id_size)) (mail-read mbox)))
 		(push ids tail))
 	(mail-free-mbox mbox) ids)
+
+;jit helper, lock file is not very effective here...
+(defun jit (prefix file products)
+	(bind '(_ *cpu* *abi*) (split (load-path) "/"))
+	(defq obj_prefix (cat "obj/" *cpu* "/" *abi* "/" prefix)
+		lock_file (cat obj_prefix "lock") file (cat prefix file))
+	(while (/= (age lock_file) 0) (task-sleep 1000))
+	(when (some (# (> (age file) (age (cat obj_prefix %0)))) products)
+		(save "lock" lock_file)
+		(within-compile-env (lambda () (include file)))
+		(pii-remove lock_file)))

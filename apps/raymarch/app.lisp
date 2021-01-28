@@ -1,7 +1,6 @@
-;jit compile apps native functions if needed
-(import "lib/asm/asm.inc")
-(bind '(_ *cpu* *abi*) (split (load-path) "/"))
-(make '("apps/raymarch/lisp.vp") *abi* *cpu*)
+;jit compile apps native functions
+(import "sys/lisp.inc")
+(jit "apps/raymarch/" "lisp.vp" '("tile"))
 
 ;imports
 (import "class/lisp.inc")
