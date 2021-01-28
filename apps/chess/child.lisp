@@ -306,7 +306,7 @@
 ;pvs search
 (defun pvs (brd color alpha beta ply)
 	(cond
-		((mail-poll (list (task-mailbox)))
+		((mail-poll select)
 			timeout_value)
 		((>= (- (pii-time) start_time) max_time_per_move)
 			timeout_value)
@@ -326,7 +326,7 @@
 ;negamax search
 (defun negamax (brd color alpha beta ply)
 	(cond
-		((mail-poll (list (task-mailbox)))
+		((mail-poll select)
 			timeout_value)
 		((>= (- (pii-time) start_time) max_time_per_move)
 			timeout_value)
@@ -374,25 +374,37 @@
 			(setq nbrd (if pbrd pbrd nbrd) pbrd nil))) (list (range 1 max_ply)))
 	nbrd)
 
+(structure '+select 0
+	(byte 'main+ 'timeout+))
+
 (defun main ()
-	;read job
-	(defq msg (mail-read (task-mailbox))
-		reply_mbox (slice +job_reply+ (+ +job_reply+ net_id_size) msg)
-		max_time_per_move (get-long msg +job_move_time+)
-		color (get-long msg +job_color+)
-		brd (slice +job_board+ (+ +job_board+ 64) msg)
-		history (list) history_offset (+ +job_board+ 64)
-		next_seq 0)
-	(while (< history_offset (length msg))
-		(push history (slice history_offset (setq history_offset (+ history_offset 64)) msg)))
-	;next move
-	(defq new_brd (best-move brd color history))
+	(defq select (list (task-mailbox) (mail-alloc-mbox)))
+	(mail-timeout (elem +select_timeout+ select) 1000000)
+	(defq msg (mail-read (elem (defq idx (mail-select select)) select)))
 	(cond
-		((not new_brd)
-			(if (in-check brd color)
-				(reply (cat "e" (LF) "** Checkmate **" (LF)))
-				(reply (cat "e" (LF) "** Stalemate **" (LF)))))
-		((>= (reduce (lambda (cnt past_brd)
-				(if (eql past_brd brd) (inc cnt) cnt)) history 0) 3)
-			(reply (cat "e" (LF) "** Draw **" (LF))))
-		(t	(reply (cat "b" new_brd)))))
+		;timeout or quit
+		((or (= idx +select_timeout+) (eql msg "")))
+		;main mailbox, reset timeout and reply with move
+		((= idx +select_main+)
+			(mail-timeout (elem +select_timeout+ select) 0)
+			;read job
+			(defq reply_mbox (slice +job_reply+ (+ +job_reply+ net_id_size) msg)
+				max_time_per_move (get-long msg +job_move_time+)
+				color (get-long msg +job_color+)
+				brd (slice +job_board+ (+ +job_board+ 64) msg)
+				history (list) history_offset (+ +job_board+ 64)
+				next_seq 0)
+			(while (< history_offset (length msg))
+				(push history (slice history_offset (setq history_offset (+ history_offset 64)) msg)))
+			;next move
+			(defq new_brd (best-move brd color history))
+			(cond
+				((not new_brd)
+					(if (in-check brd color)
+						(reply (cat "e" (LF) "** Checkmate **" (LF)))
+						(reply (cat "e" (LF) "** Stalemate **" (LF)))))
+				((>= (reduce (lambda (cnt past_brd)
+						(if (eql past_brd brd) (inc cnt) cnt)) history 0) 3)
+					(reply (cat "e" (LF) "** Draw **" (LF))))
+				(t	(reply (cat "b" new_brd))))))
+	(mail-free-mbox (pop select)))
