@@ -138,6 +138,6 @@
 				;poll all nodes
 				(. global_tasks :each poll))))
 	;close window and children
-	(each mail-free-mbox (slice 1 -1 select))
 	(. global_tasks :close)
+	(each mail-free-mbox (slice 1 -1 select))
 	(. mywindow :hide))
