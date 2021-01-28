@@ -46,7 +46,7 @@
 
 ;native versions
 (ffi scene "apps/raymarch/scene" 0)
-(ffi ray-march "apps/raymarch/ray-march" 0)
+(ffi ray-march "apps/raymarch/ray_march" 0)
 
 (defun get-normal (p)
 	(vec-norm (fixeds
