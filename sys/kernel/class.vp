@@ -69,7 +69,10 @@
 
 	;start routing pings
 	(call 'node :create {0, node_id_size} {key})
-	(call 'sys_task :start (cat {@} (f-path 'sys_kernel :ping)))
+	(call 'sys_load :bind `(,(str (f-path 'sys_kernel :ping))) '(r0))
+	(vpif '(r0 /= 0))
+		(call 'sys_task :start '(r0))
+	(endif)
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ; main kernel task loop
@@ -385,7 +388,9 @@
 		(call 'sys_pii :stat {arg, @sys/statics/statics.statics_sys_load_stat_buffer} {func})
 		(breakif {func})
 		;start lisp run task and send args
-		(call 'sys_task :start `((@ ,(f-path 'lisp :run)))
+		(call 'sys_load :bind `(,(str (f-path 'lisp :run))) '(r0))
+		(breakif '(r0 = 0))
+		(call 'sys_task :start '(r0)
 			{_, _, id.net_id_mbox_id, id.net_id_node_id.node_id_node1, id.net_id_node_id.node_id_node2})
 		(call 'str :create_from_cstr {arg} {arg})
 		(call 'sys_mail :alloc_obj {arg, &arg->str_data, arg->str_length} {msg})
@@ -413,21 +418,25 @@
 	;trashes
 	;r0-r11
 
-	(entry '(r8))
+	(entry '(r0))
 
 	;start link
-	(call 'sys_task :start `((@ ,(f-path 'sys_link :link))) '(_ _ r9 r10 r11))
-
-	;params message
-(vp-label 'opt_link_params)
-	(call 'sys_str :length '(r8) '(_ r0))
-	(call 'sys_mail :alloc '(r0) '(r0 r1))
-	(save-net-id r0 msg_dest r9 r10 r11)
-	(vp-cpy-rr r0 r3)
-	(call 'sys_str :copy '(r8 r1))
-
-	;send to link task
-	(call 'sys_mail :send '(r3))
+	(vp-push r0)
+	(assign `(,(str (f-path 'sys_link :link))) '(r0))
+(vp-label 'opt_link_run)
+	(call 'sys_load :bind '(r0) '(r0))
+	(vp-pop r8)
+	(vpif '(r0 /= 0))
+		(call 'sys_task :start '(r0) '(_ _ r9 r10 r11))
+		;params message
+		(call 'sys_str :length '(r8) '(_ r0))
+		(call 'sys_mail :alloc '(r0) '(r0 r1))
+		(save-net-id r0 msg_dest r9 r10 r11)
+		(vp-cpy-rr r0 r3)
+		(call 'sys_str :copy '(r8 r1))
+		;send to link task
+		(call 'sys_mail :send '(r3))
+	(endif)
 	(vp-ret)
 
 (vp-label 'opt_usb_link)
@@ -436,11 +445,12 @@
 	;trashes
 	;r0-r11
 
-	(entry '(r8))
+	(entry '(r0))
 
 	;start link
-	(call 'sys_task :start `((@ ,(f-path 'sys_link :usb_link))) '(_ _ r9 r10 r11))
-	(goto 'opt_link_params)
+	(vp-push r0)
+	(assign `(,(str (f-path 'sys_link :usb_link))) '(r0))
+	(goto 'opt_link_run)
 
 	(vp-align ptr_size)
 (vp-label 'options_table)

@@ -15,6 +15,13 @@ network node. Netmon app now uses this lib to demo.
 New `lib/task/farm.inc` class for managing a dynamic set of tasks. Raymarch and
 Mandelbrot apps now uses this lib to demo.
 
+Chess app demo now uses a single child Farm worker for each move calculation.
+It is now fault tolerant and will restart the move calculation if it times out
+or the node the worker is on dies.
+
+Dynamic bind the `'lisp :run` `'sys_kernel :ping` `'sys_link :link` and
+`'sys_link :usb_link` tasks. This drops the smallest boot image by 25KB.
+
 ------
 
 New `(type-of)` implementation. Now returns a list of keyword symbols
