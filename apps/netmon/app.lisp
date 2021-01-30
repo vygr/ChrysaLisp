@@ -39,8 +39,7 @@
 (defun create (key now)
 	; (create key now) -> val
 	;function called when entry is created
-	(defq val (emap) mb (Progress) tb (Progress))
-	(.-> val
+	(.-> (defq mb (Progress) tb (Progress) val (emap))
 		(:insert :child (const (pad "" net_id_size)))
 		(:insert :timestamp now)
 		(:insert :memory_bar mb)

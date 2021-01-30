@@ -46,5 +46,4 @@
 (def-static-sym ":vdu_width")
 (def-static-sym ":vdu_height")
 (def-static-sym ":draw")
-(def-static-sym ":lisp_draw")
 (def-static-sym "main")
