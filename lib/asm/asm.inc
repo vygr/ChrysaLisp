@@ -3,36 +3,70 @@
 ;;;;;;;;;;;;;;
 
 ;imports
-(import "sys/lisp.inc")
 (import "class/lisp.inc")
-
-;C++ ChrysaLisp ?
-(unless (get 'nums)
-	(defun mail-nodes () '(0)))
+(import "lib/task/farm.inc")
 
 (defun compile (files &optional *abi* *cpu* num_child)
-	(setd *abi* (abi) *cpu* (cpu) num_child (max 1 (/ (* (length (mail-nodes)) 80) 100)))
 	(unless (list? files) (setq files (list files)))
-	(shuffle files)
-	(if (get 'nums)
-		;Native ChrysaLisp
-		(progn
-			(defq data_in (list) select (list) num_child (min num_child (length files))
-				child_mboxs (open-farm "class/lisp/compile.lisp" num_child kn_call_child)
-				buckets (map (lambda (_) (list)) child_mboxs) err (list))
-			(each (# (push (elem (% _ num_child) buckets) %0)) files)
-			(each (# (push select (defq inbox (in-mbox (elem -2 (push data_in (in-stream))))))
-					(mail-send %0 (str (list (pop buckets) (map (# (code %0)) inbox) *abi* *cpu* *debug_mode* *debug_emit* *debug_inst*))))
-				child_mboxs)
-			(while (/= (length select) 0)
-				;read all child data
-				(each-line (# (if (starts-with "Error:" %0) (push err %0) (print %0)))
-					(elem (defq idx (mail-select select)) data_in))
-				;child closed
-				(setq data_in (erase data_in idx (inc idx)) select (erase select idx (inc idx))))
-			(each print err))
-		;C++ ChrysaLisp !
-		(within-compile-env (# (each include files))))
+	(setd *abi* (abi) *cpu* (cpu) num_child (max 1 (/ (* (length (mail-nodes)) 80) 100)))
+	(setq num_child (min num_child (length (shuffle files))))
+	(structure '+select 0
+		(byte 'task+ 'reply+ 'timer+))
+	(defun dispatch-job (child)
+		;send another job to child
+		(when (defq val (. farm :find child))
+			(cond
+				((defq job (pop jobs))
+					(.-> val (:insert :job job) (:insert :timestamp (pii-time)))
+					(mail-send child job))
+				(t	;no jobs in que
+					(.-> val (:erase :job) (:erase :timestamp))))))
+	(defun create (nodes)
+		; (create nodes)
+		;function called when entry is created
+		(open-task "class/lisp/compile.lisp" (elem (random (length nodes)) nodes)
+			kn_call_child (elem +select_task+ select)))
+	(defun destroy (key val)
+		; (destroy key val)
+		;function called when entry is destroyed
+		(mail-send key "")
+		(when (defq job (. val :find :job))
+			(push jobs job)
+			(.-> val (:erase :job) (:erase :timestamp))))
+	(when (/= num_child 0)
+		(defq timer_rate (/ 1000000 1) retry_timeout 5000000
+			select (list (mail-alloc-mbox) (mail-alloc-mbox) (mail-alloc-mbox))
+			jobs (list) errors (list) working t)
+		(times num_child (push jobs (list)))
+		(setq jobs (map (# (str (list
+				(to-service-id (elem +select_reply+ select))
+				%0 *abi* *cpu* *debug_mode* *debug_emit* *debug_inst*)))
+			(unzip files jobs)))
+		(defq farm (Farm create destroy num_child))
+		(mail-timeout (elem +select_timer+ select) timer_rate)
+		(while working
+			(defq msg (mail-read (elem (defq idx (mail-select select)) select)))
+			(cond
+				((= idx +select_task+)
+					;child launch responce
+					(defq child (slice (const long_size) (const (+ long_size net_id_size)) msg))
+					(. farm :insert child (emap))
+					(dispatch-job child))
+				((= idx +select_reply+)
+					;child worker responce
+					(dispatch-job (to-net-id (pop (defq msg (split msg (ascii-char 10))))))
+					(each (# (if (starts-with "Error:" %0) (push errors %0) (print %0))) msg)
+					;all jobs done ?
+					(when (= 0 (length jobs))
+						(setq working nil)
+						(. farm :each (lambda (key val)
+							(setq working (or working (. val :find :job)))))))
+				(t	;timer event
+					(mail-timeout (elem +select_timer+ select) timer_rate)
+					(. farm :refresh retry_timeout))))
+		(. farm :close)
+		(each mail-free-mbox select)
+		(each print errors))
 	(print "Done") nil)
 
 ;;;;;;;;;;;;;

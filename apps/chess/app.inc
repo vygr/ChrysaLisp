@@ -1,6 +1,5 @@
 ;lf macro
-(defmacro LF ()
-	(ascii-char 10))
+(defmacro LF () (ascii-char 10))
 
 ;board square/piece types
 (defq white 1 empty 0 black -1)
@@ -9,5 +8,5 @@
 (structure '+job 0
 	(netid 'reply+)
 	(long 'move_time+)
-	(long 'color+)
+	(byte 'color+)
 	(offset 'board+))

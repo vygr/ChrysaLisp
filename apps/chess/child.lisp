@@ -393,7 +393,7 @@
 			;read job
 			(defq reply_mbox (slice +job_reply+ (+ +job_reply+ net_id_size) msg)
 				max_time_per_move (get-long msg +job_move_time+)
-				color (get-long msg +job_color+)
+				color (get-byte msg +job_color+)
 				brd (slice +job_board+ (+ +job_board+ 64) msg)
 				history (list) history_offset (+ +job_board+ 64)
 				next_seq 0)

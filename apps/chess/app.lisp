@@ -54,19 +54,16 @@
 
 (defun dispatch-job (child)
 	;send job to child
-	(defq val (. farm :find child))
-	(. val :insert :timestamp (pii-time))
+	(.-> farm (:find child) (:insert :timestamp (pii-time)))
 	(mail-send child (cat
 		(elem +select_reply+ select)
 		(char max_move_time long_size)
-		(char color long_size)
+		(char color)
 		brd (apply cat history)))
 	;update display
 	(setq text_buf (vdu-print vdu (list "")
-		(cat (LF) "Elapsed Time: " (time-in-seconds (- (pii-time) start_time)) (LF))))
-	(if (= color (const white))
-		(vdu-print vdu text_buf (cat "White to move:" (LF)))
-		(vdu-print vdu text_buf (cat "Black to move:" (LF))))
+		(cat (LF) "Elapsed Time: " (time-in-seconds (- (pii-time) start_time)) (LF)
+			(if (= color (const white)) "White to move:" "Black to move:") (LF))))
 	;reset reply sequence
 	(clear replys)
 	(setq next_seq 0))
@@ -116,14 +113,12 @@
 					(cond
 						;move
 						((eql data_type "b")
-							(defq new_brd data)
 							(each (lambda (_)
 								(display-board brd)
 								(task-sleep flicker_rate)
-								(display-board new_brd)
+								(display-board data)
 								(task-sleep flicker_rate)) (range 0 2))
-							(setq color (neg color) brd new_brd)
-							(push history brd)
+							(push history (setq color (neg color) brd data))
 							(. farm :close)
 							(setq farm (Farm create destroy 1)))
 						;end
