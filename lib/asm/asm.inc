@@ -12,15 +12,6 @@
 	(setq num_child (min num_child (length (shuffle files))))
 	(structure '+select 0
 		(byte 'task+ 'reply+ 'timer+))
-	(defun dispatch-job (child)
-		;send another job to child
-		(when (defq val (. farm :find child))
-			(cond
-				((defq job (pop jobs))
-					(.-> val (:insert :job job) (:insert :timestamp (pii-time)))
-					(mail-send child job))
-				(t	;no jobs in que
-					(.-> val (:erase :job) (:erase :timestamp))))))
 	(defun create (nodes)
 		; (create nodes)
 		;function called when entry is created
@@ -34,7 +25,7 @@
 			(push jobs job)
 			(.-> val (:erase :job) (:erase :timestamp))))
 	(when (/= num_child 0)
-		(defq timer_rate (/ 1000000 1) retry_timeout 5000000
+		(defq timer_rate (/ 1000000 1) retry_timeout 60000000
 			select (list (mail-alloc-mbox) (mail-alloc-mbox) (mail-alloc-mbox))
 			jobs (list) errors (list) working t)
 		(times num_child (push jobs (list)))
@@ -50,11 +41,14 @@
 				((= idx +select_task+)
 					;child launch responce
 					(defq child (slice (const long_size) (const (+ long_size net_id_size)) msg))
-					(. farm :insert child (emap))
-					(dispatch-job child))
+					(. farm :insert child (defq val (emap)))
+					;send job to child
+					(when (defq job (pop jobs))
+						(.-> val (:insert :job job) (:insert :timestamp (pii-time)))
+						(mail-send child job)))
 				((= idx +select_reply+)
 					;child worker responce
-					(dispatch-job (to-net-id (pop (defq msg (split msg (ascii-char 10))))))
+					(. farm :erase (to-net-id (pop (defq msg (split msg (ascii-char 10))))))
 					(each (# (if (starts-with "Error:" %0) (push errors %0) (print %0))) msg)
 					;all jobs done ?
 					(when (= 0 (length jobs))
