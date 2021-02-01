@@ -8,14 +8,23 @@
 
 (defun compile (files &optional *abi* *cpu* num_child)
 	(unless (list? files) (setq files (list files)))
-	(setd *abi* (abi) *cpu* (cpu) num_child (max 1 (/ (* (length (mail-nodes)) 80) 100)))
+	(setd *abi* (abi) *cpu* (cpu) num_child (max 1 (/ (* (defq next_node (length (mail-nodes))) 80) 100)))
 	(setq num_child (min num_child (length (shuffle files))))
 	(structure '+select 0
 		(byte 'task+ 'reply+ 'timer+))
+	(defun dispatch-job (child)
+		;send job to child
+		(when (defq val (. farm :find child))
+			(cond
+				((defq job (pop jobs))
+					(.-> val (:insert :job job) (:insert :timestamp (pii-time)))
+					(mail-send child job))
+				(t	(.-> val (:erase :job) (:erase :timestamp))))))
 	(defun create (nodes)
 		; (create nodes)
 		;function called when entry is created
-		(open-task "class/lisp/compile.lisp" (elem (random (length nodes)) nodes)
+		(open-task "class/lisp/compile.lisp"
+			(elem (setq next_node (% (inc next_node) (length nodes))) nodes)
 			kn_call_child (elem +select_task+ select)))
 	(defun destroy (key val)
 		; (destroy key val)
@@ -25,7 +34,7 @@
 			(push jobs job)
 			(.-> val (:erase :job) (:erase :timestamp))))
 	(when (/= num_child 0)
-		(defq timer_rate (/ 1000000 1) working t jobs (list) errors (list)
+		(defq timer_rate (/ 1000000 1) working t jobs (list) errors (list) next_node (random next_node)
 			retry_timeout (if (starts-with "obj/vp64" (load-path)) 100000000 10000000)
 			select (list (mail-alloc-mbox) (mail-alloc-mbox) (mail-alloc-mbox)))
 		(times num_child (push jobs (list)))
@@ -41,15 +50,13 @@
 				((= idx +select_task+)
 					;child launch responce
 					(defq child (slice (const long_size) (const (+ long_size net_id_size)) msg))
-					(. farm :insert child (defq val (emap)))
-					;send job to child
-					(when (defq job (pop jobs))
-						(.-> val (:insert :job job) (:insert :timestamp (pii-time)))
-						(mail-send child job)))
+					(. farm :insert child (emap))
+					(dispatch-job child))
 				((= idx +select_reply+)
 					;child worker responce
-					(. farm :erase (to-net-id (pop (defq msg (split msg (ascii-char 10))))))
+					(dispatch-job (to-net-id (pop (defq msg (split msg (ascii-char 10))))))
 					(each (# (if (starts-with "Error:" %0) (push errors %0) (print %0))) msg)
+					(stream-flush (io-stream 'stdout))
 					;all jobs done ?
 					(when (= 0 (length jobs))
 						(setq working nil)
