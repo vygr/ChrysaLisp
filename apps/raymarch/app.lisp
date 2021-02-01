@@ -17,7 +17,8 @@
 	(cat reply (apply cat (map (# (char %0 (const long_size))) _))))
 
 (defq canvas_width 800 canvas_height 800 canvas_scale 1
-	timer_rate (/ 1000000 1) retry_timeout 5000000 id t dirty nil
+	timer_rate (/ 1000000 1) id t dirty nil
+	retry_timeout (if (starts-with "obj/vp64" (load-path)) 50000000 5000000)
 	select (list (task-mailbox) (mail-alloc-mbox) (mail-alloc-mbox) (mail-alloc-mbox))
 	jobs (map (lambda (y) (child-msg (elem +select_reply+ select)
 			0 y (* canvas_width canvas_scale) (inc y)
