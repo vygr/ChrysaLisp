@@ -12,24 +12,26 @@
 	(setq num_child (min num_child (length (shuffle files))))
 	(structure '+select 0
 		(byte 'task+ 'reply+ 'timer+))
-	(defun dispatch-job (child)
-		;send job to child
-		(when (defq val (. farm :find child))
-			(cond
-				((defq job (pop jobs))
-					(.-> val (:insert :job job) (:insert :timestamp (pii-time)))
-					(mail-send child job))
-				(t	(.-> val (:erase :job) (:erase :timestamp))))))
-	(defun create (nodes)
-		; (create nodes)
+	(defun dispatch-job (key val)
+		;send another job to child
+		(cond
+			((defq job (pop jobs))
+				(.-> val (:insert :job job) (:insert :timestamp (pii-time)))
+				(mail-send (. val :find :child) (cat
+					(char key (const long_size)) (elem +select_reply+ select) job)))
+			(t	;no jobs in que
+				(.-> val (:erase :job) (:erase :timestamp)))))
+	(defun create (key val nodes)
+		; (create key val nodes)
 		;function called when entry is created
 		(open-task "class/lisp/compile.lisp"
 			(elem (setq next_node (% (inc next_node) (length nodes))) nodes)
-			kn_call_child (elem +select_task+ select)))
+			kn_call_child key (elem +select_task+ select)))
 	(defun destroy (key val)
 		; (destroy key val)
 		;function called when entry is destroyed
-		(mail-send key "")
+		(when (defq child (. val :find :child))
+			(mail-send child ""))
 		(when (defq job (. val :find :job))
 			(push jobs job)
 			(.-> val (:erase :job) (:erase :timestamp))))
@@ -38,9 +40,7 @@
 			retry_timeout (if (starts-with "obj/vp64" (load-path)) 100000000 10000000)
 			select (list (mail-alloc-mbox) (mail-alloc-mbox) (mail-alloc-mbox)))
 		(times num_child (push jobs (list)))
-		(setq jobs (map (# (str (list
-				(to-service-id (elem +select_reply+ select))
-				%0 *abi* *cpu* *debug_mode* *debug_emit* *debug_inst*)))
+		(setq jobs (map (# (str (list %0 *abi* *cpu* *debug_mode* *debug_emit* *debug_inst*)))
 			(unzip files jobs)))
 		(defq farm (Farm create destroy num_child))
 		(mail-timeout (elem +select_timer+ select) timer_rate)
@@ -49,12 +49,15 @@
 			(cond
 				((= idx +select_task+)
 					;child launch responce
-					(defq child (slice (const long_size) (const (+ long_size net_id_size)) msg))
-					(. farm :insert child (emap))
-					(dispatch-job child))
+					(defq key (get-long msg 0) child (slice (const long_size) (const (+ long_size net_id_size)) msg))
+					(when (defq val (. farm :find key))
+						(. val :insert :child child)
+						(dispatch-job key val)))
 				((= idx +select_reply+)
 					;child worker responce
-					(dispatch-job (to-net-id (pop (defq msg (split msg (ascii-char 10))))))
+					(defq key (str-to-num (pop (defq msg (split msg (ascii-char 10))))))
+					(when (defq val (. farm :find key))
+						(dispatch-job key val))
 					(each (# (if (starts-with "Error:" %0) (push errors %0) (print %0))) msg)
 					(stream-flush (io-stream 'stdout))
 					;all jobs done ?

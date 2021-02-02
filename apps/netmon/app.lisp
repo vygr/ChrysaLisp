@@ -46,7 +46,7 @@
 		(:insert :task_bar tb))
 	(. memory_grid :add_child mb)
 	(. task_grid :add_child tb)
-	(open-task "apps/netmon/child.lisp" key kn_call_open (elem +select_task+ select))
+	(open-task "apps/netmon/child.lisp" key kn_call_open 0 (elem +select_task+ select))
 	val)
 
 (defun destroy (key val)

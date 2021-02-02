@@ -1550,7 +1550,7 @@
 
 ## open-task
 
-(open-task task node mode reply)
+(open-task task node mode key_num reply)
 
 ## opt
 

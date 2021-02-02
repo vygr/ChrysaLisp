@@ -40,43 +40,43 @@
 ;native versions
 (ffi tile "apps/mandelbrot/tile" 0)
 
-(defun dispatch-job (child)
+(defun dispatch-job (key val)
 	;send another job to child
-	(when (defq val (. farm :find child))
-		(cond
-			((defq job (pop jobs))
-				(.-> val
-					(:insert :job job)
-					(:insert :timestamp (pii-time)))
-				(mail-send child job))
-			(t	;no jobs in que
-				(.-> val
-					(:erase :job)
-					(:erase :timestamp))))))
+	(cond
+		((defq job (pop jobs))
+			(.-> val
+				(:insert :job job)
+				(:insert :timestamp (pii-time)))
+			(mail-send (. val :find :child)
+				(cat (char key (const long_size)) (elem +select_reply+ select) job)))
+		(t	;no jobs in que
+			(.-> val
+				(:erase :job)
+				(:erase :timestamp)))))
 
-(defun create (nodes)
-	; (create nodes)
+(defun create (key val nodes)
+	; (create key val nodes)
 	;function called when entry is created
 	(open-task "apps/mandelbrot/child.lisp" (elem (random (length nodes)) nodes)
-		kn_call_child (elem +select_task+ select)))
+		kn_call_child key (elem +select_task+ select)))
 
 (defun destroy (key val)
 	; (destroy key val)
 	;function called when entry is destroyed
-	(mail-send key "")
+	(when (defq child (. val :find :child))
+		(mail-send child ""))
 	(when (defq job (. val :find :job))
 		(push jobs job)
 		(. val :erase :job)))
 
-(defun child-msg (reply &rest _)
-	(cat reply (apply cat (map (# (char %0 (const long_size))) _))))
+(defun child-msg (&rest _)
+	(apply cat (map (# (char %0 (const long_size))) _)))
 
 (defun reset ()
 	(if farm (. farm :close))
 	(mail-free-mbox (elem +select_reply+ select))
 	(elem-set +select_reply+ select (mail-alloc-mbox))
-	(setq jobs (map (lambda (y)
-			(child-msg (elem +select_reply+ select)
+	(setq jobs (map (lambda (y) (child-msg
 				0 y (* canvas_width canvas_scale) (inc y)
 				(* canvas_width canvas_scale) (* canvas_height canvas_scale)
 				center_x center_y zoom))
@@ -114,12 +114,15 @@
 					(t (. mywindow :event msg))))
 			((= idx +select_task+)
 				;child launch responce
-				(defq child (slice (const long_size) (const (+ long_size net_id_size)) msg))
-				(. farm :insert child (emap))
-				(dispatch-job child))
+				(defq key (get-long msg 0) child (slice (const long_size) (const (+ long_size net_id_size)) msg))
+				(when (defq val (. farm :find key))
+					(. val :insert :child child)
+					(dispatch-job key val)))
 			((= idx +select_reply+)
 				;child responce
-				(dispatch-job (slice (dec (neg net_id_size)) -1 msg))
+				(defq key (get-long msg (- (length msg) (const long_size))))
+				(when (defq val (. farm :find key))
+					(dispatch-job key val))
 				(setq dirty t)
 				(tile canvas msg))
 			(t	;timer event

@@ -52,10 +52,10 @@
 (defun time-in-seconds (_)
 	(str (/ _ 1000000) "." (pad (% _ 1000000) 6 "00000")))
 
-(defun dispatch-job (child)
+(defun dispatch-job (key val)
 	;send job to child
-	(.-> farm (:find child) (:insert :timestamp (pii-time)))
-	(mail-send child (cat
+	(. val :insert :timestamp (pii-time))
+	(mail-send (. val :find :child) (cat
 		(elem +select_reply+ select)
 		(char max_move_time long_size)
 		(char color)
@@ -68,16 +68,16 @@
 	(clear replys)
 	(setq next_seq 0))
 
-(defun create (nodes)
-	; (create nodes)
+(defun create (key val nodes)
+	; (create key val nodes)
 	;function called when entry is created
 	(open-task "apps/chess/child.lisp" (elem (random (length nodes)) nodes)
-		kn_call_child (elem +select_task+ select)))
+		kn_call_child key (elem +select_task+ select)))
 
 (defun destroy (key val)
 	; (destroy key val)
 	;function called when entry is destroyed
-	(mail-send key "")
+	(when (defq child (. val :find :child)) (mail-send child ""))
 	(mail-free-mbox (elem +select_reply+ select))
 	(elem-set +select_reply+ select (mail-alloc-mbox)))
 
@@ -99,9 +99,10 @@
 					(t (. mywindow :event msg))))
 			((= idx +select_task+)
 				;child launch responce
-				(defq child (slice (const long_size) (const (+ long_size net_id_size)) msg))
-				(. farm :insert child (emap))
-				(dispatch-job child))
+				(defq key (get-long msg 0) child (slice (const long_size) (const (+ long_size net_id_size)) msg))
+				(when (defq val (. farm :find key))
+					(. val :insert :child child)
+					(dispatch-job key val)))
 			((= idx +select_reply+)
 				;child reply, process in sequence order
 				(sort (# (- (get-long %1 0) (get-long %0 0))) (push replys msg))

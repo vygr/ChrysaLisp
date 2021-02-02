@@ -8,6 +8,11 @@
 (structure '+select 0
 	(byte 'main+ 'timeout+))
 
+(structure '+job 0
+	(long 'key+)
+	(netid 'reply+)
+	(long 'x+ 'y+ 'x1+ 'y1+ 'w+ 'h+ 'cx+ 'cy+ 'z+))
+
 (defun depth (x0 y0)
 	(defq i -1 xc 0 yc 0 x2 0 y2 0)
 	(while (and (/= (setq i (inc i)) 255) (< (+ x2 y2) (mbfp-from-fixed 4.0)))
@@ -17,7 +22,7 @@
 ;native versions
 (ffi depth "apps/mandelbrot/depth" 0)
 
-(defun mandel (mbox x y x1 y1 w h cx cy z)
+(defun mandel (key mbox x y x1 y1 w h cx cy z)
 	(write-int (defq reply (string-stream (cat ""))) (list x y x1 y1))
 	(setq y (dec y))
 	(while (/= (setq y (inc y)) y1)
@@ -25,7 +30,7 @@
 		(while (/= (setq xp (inc xp)) x1)
 			(write-char reply (depth (+ (mbfp-offset xp w z) cx) (+ (mbfp-offset y h z) cy))))
 		(task-sleep 0))
-	(write reply (task-mailbox))
+	(write-long reply key)
 	(mail-send mbox (str reply)))
 
 (defun main ()
@@ -40,6 +45,8 @@
 			((= idx +select_main+)
 				;main mailbox, reset timeout and reply with result
 				(mail-timeout (elem +select_timeout+ select) 0)
-				(defq mbox (slice 0 net_id_size msg) msg (slice net_id_size -1 msg))
-				(apply mandel (cat (list mbox) (map (lambda (_) (get-long msg (* _ long_size))) (range 0 9)))))))
+				(defq key (get-long msg +job_key+)
+					mbox (slice +job_reply+ (const (+ +job_reply+ net_id_size)) msg)
+					msg (slice (const (+ +job_reply+ net_id_size)) -1 msg))
+				(apply mandel (cat (list key mbox) (map (lambda (_) (get-long msg (* _ long_size))) (range 0 9)))))))
 	(mail-free-mbox (pop select)))

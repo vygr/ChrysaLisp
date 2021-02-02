@@ -10,8 +10,10 @@
 (structure '+select 0
 	(byte 'main+ 'timeout+))
 
-(structure 'work 0
-	(long 'width 'height 'y))
+(structure '+job 0
+	(long 'key+)
+	(netid 'reply+)
+	(long 'x+ 'y+ 'x1+ 'y1+ 'w+ 'h+))
 
 (defq
 	+eps+ 0.1
@@ -108,7 +110,7 @@
 						r (* r +ref_coef+)))
 			(vec-clamp color 0.0 0.999))))
 
-(defun rect (mbox x y x1 y1 w h)
+(defun rect (key mbox x y x1 y1 w h)
 	(write-int (defq reply (string-stream (cat ""))) (list x y x1 y1))
 	(defq w2 (/ w 2) h2 (/ h 2) y (dec y))
 	(while (/= (setq y (inc y)) y1)
@@ -120,7 +122,7 @@
 			(bind '(r g b) (scene-ray ray_origin ray_dir))
 			(write-int reply (+ +argb_black+ (>> b 8) (logand g 0xff00) (<< (logand r 0xff00) 8)))
 		(task-sleep 0)))
-	(write reply (task-mailbox))
+	(write-long reply key)
 	(mail-send mbox (str reply)))
 
 (defun main ()
@@ -135,6 +137,8 @@
 			((= idx +select_main+)
 				;main mailbox, reset timeout and reply with result
 				(mail-timeout (elem +select_timeout+ select) 0)
-				(defq mbox (slice 0 net_id_size msg) msg (slice net_id_size -1 msg))
-				(apply rect (cat (list mbox) (map (lambda (_) (get-long msg (* _ long_size))) (range 0 6)))))))
+				(defq key (get-long msg +job_key+)
+					mbox (slice +job_reply+ (const (+ +job_reply+ net_id_size)) msg)
+					msg (slice (const (+ +job_reply+ net_id_size)) -1 msg))
+				(apply rect (cat (list key mbox) (map (lambda (_) (get-long msg (* _ long_size))) (range 0 6)))))))
 	(mail-free-mbox (pop select)))
