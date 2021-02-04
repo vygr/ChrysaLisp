@@ -158,26 +158,24 @@
 
 	;current total
 	(fn-bind 'sys/statics/statics r0)
-	(vp-cpy-ir r0 statics_sys_mem_total total)
+	(assign '((r0 statics_sys_mem_total)) `(,total))
 
 	;loop over all blocks
-	(vp-cpy-ir-ui this hp_heap_cellsize cel_size)
+	(assign `((,this hp_heap_cellsize)) `(,cel_size))
 	(loop-flist this hp_heap_block_flist blk blk_last 'block_loop)
 		;clear list headers, get count
 		(vp-xor-rr r0 r0)
-		(vp-cpy-ri r0 blk hp_block_free_flist)
-		(vp-cpy-ri r0 blk hp_block_free_flist_tail)
-		(vp-cpy-ir-ui blk hp_block_cellcnt cel_cnt)
+		(assign `(r0 r0 (,blk hp_block_cellcnt))
+			`((,blk hp_block_free_flist) (,blk hp_block_free_flist_tail) ,cel_cnt))
 
 		;range of this block
-		(vp-cpy-ir-ui blk hp_block_blocksize blk_end)
+		(assign `((,blk hp_block_blocksize)) `(,blk_end))
 		(vp-add-rr blk blk_end)
 
 		;loop over free cells
-		(vp-lea-i this hp_heap_free_flist cel)
+		(assign `((& ,this hp_heap_free_flist)) `(,cel))
 		(loop-start)
-			(vp-cpy-rr cel cel_last)
-			(vp-cpy-ir cel ln_fnode_next cel)
+			(assign `(,cel (,cel ln_fnode_next)) `(,cel_last ,cel))
 			(continueif (list cel '= 0) 'block_loop)
 
 			;is free cell within this block
@@ -186,10 +184,10 @@
 			;transfer to blocks free list
 			(vp-cpy-rr cel r0)
 			(ln-remove-fnode cel cel_last)
-			(vp-cpy-ir blk hp_block_free_flist_tail r1)
+			(assign `((,blk hp_block_free_flist_tail)) '(r1))
 			(ln-add-fnode blk hp_block_free_flist r0 r2)
 			(vpif '(r1 = 0))
-				(vp-cpy-ri r0 blk hp_block_free_flist_tail)
+				(assign '(r0) `((,blk hp_block_free_flist_tail)))
 			(endif)
 
 			;count down cells, do we have them all
@@ -197,8 +195,7 @@
 			(continueif (list cel_cnt '/= 0))
 
 			;free the block
-			(vp-cpy-rr blk r0)
-			(vp-cpy-ir-ui blk hp_block_blocksize r1)
+			(assign `(,blk (,blk hp_block_blocksize)) '(r0 r1))
 			(ln-remove-fnode blk blk_last)
 			(vp-sub-rr r1 total)
 			(call 'sys_pii :munmap '(r0 r1 mmap_data))
@@ -209,17 +206,15 @@
 	;loop over all blocks
 	(loop-flist this hp_heap_block_flist blk blk)
 		;splice any free cells onto free list
-		(vp-cpy-ir blk hp_block_free_flist r0)
+		(assign `((,blk hp_block_free_flist)) '(r0))
 		(continueif '(r0 = 0))
-		(vp-cpy-ir blk hp_block_free_flist_tail r1)
-		(vp-cpy-ir this hp_heap_free_flist r2)
-		(vp-cpy-ri r0 this hp_heap_free_flist)
-		(assign '(r2) '((r1 ln_fnode_next)))
+		(assign `((,blk hp_block_free_flist_tail) (,this hp_heap_free_flist)) '(r1 r2))
+		(assign '(r0 r2) `((,this hp_heap_free_flist) (r1 ln_fnode_next)))
 	(loop-end)
 
 	;current total
 	(fn-bind 'sys/statics/statics r0)
-	(vp-cpy-ri total r0 statics_sys_mem_total)
+	(assign `(,total) '((r0 statics_sys_mem_total)))
 
 	(exit 'sys_heap :collect `(,this))
 	(vp-ret)
