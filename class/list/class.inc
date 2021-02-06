@@ -3,8 +3,6 @@
 (def-class 'list 'array)
 (dec-method :vtable 'class/list/vtable)
 (dec-method :create 'class/list/create)
-(dec-method :erase 'class/list/erase :static '(r0 r1) '(r0))
-(dec-method :erase2 'class/list/erase2 :static '(r0 r1) '(r0))
 
 (dec-method :type 'class/list/type :override '(r0) '(r0 r1))
 (dec-method :vcreate 'class/list/create :final)
@@ -18,6 +16,8 @@
 (dec-method :print 'class/list/print :final)
 (dec-method :find 'class/list/find :final)
 (dec-method :rfind 'class/list/rfind :final)
+(dec-method :erase 'class/list/erase :final)
+(dec-method :erase2 'class/list/erase2 :final)
 
 (dec-method :lisp_list 'class/list/lisp_list :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_elemset 'class/list/lisp_elemset :static '(r0 r1) '(r0 r1))

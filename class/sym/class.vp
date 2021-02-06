@@ -206,8 +206,7 @@
 	;r0-r14
 
 	(fn-bind 'sys/statics/statics r0)
-	(call 'hset :for_each '((r0 statics_sym_intern) ($ flush_callback) 0))
-	(vp-ret)
+	(jump 'hset :for_each '((r0 statics_sym_intern) ($ flush_callback) 0))
 
 (vp-label 'flush_callback)
 	;inputs

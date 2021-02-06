@@ -378,36 +378,16 @@
 	;r1 = element iterator (pptr)
 	;outputs
 	;r0 = list object (ptr)
+	;r1 = element iterator (pptr)
 	;trashes
-	;r1-r14
+	;r2-r14
 
-	(def-struct 'local)
-		(ptr 'this 'iter)
-	(def-struct-end)
+	(entry 'list :erase '(r0 r1))
 
-	;save inputs
-	(vp-alloc local_size)
-	(entry 'list :erase '((rsp local_this) r1))
-	(assign '(r1) '((rsp local_iter)))
-
-	;swap last entry for erased entry
+	(vp-push r0 r1)
 	(call 'obj :deref '((r1 0)))
-	(assign '((rsp local_this)) '(r0))
-	(assign '((r0 array_length)) '(r1))
-	(vp-sub-cr 1 r1)
-	(assign '(r1) '((r0 array_length)))
-	(assign '((r0 array_begin)) '(r0))
-	(vp-shl-cr (log2 ptr_size) r1)
-	(vp-add-rr r0 r1)
-	(assign '((rsp local_iter)) '(r0))
-	(vpif '(r1 /= r0))
-		(assign '((r1 0)) '(r1))
-		(assign '(r1) '((r0 0)))
-	(endif)
-
-	(exit 'list :erase '((rsp local_this)))
-	(vp-free local_size)
-	(vp-ret)
+	(vp-pop r0 r1)
+	(s-jump 'list :erase '(r0 r1))
 
 (def-func-end)
 
@@ -417,37 +397,17 @@
 	;r1 = element iterator (pptr)
 	;outputs
 	;r0 = list object (ptr)
+	;r1 = element iterator (pptr)
 	;trashes
-	;r1-r14
+	;r2-r14
 
-	(def-struct 'local)
-		(ptr 'this 'iter)
-	(def-struct-end)
+	(entry 'list :erase2 '(r0 r1))
 
-	;save inputs
-	(vp-alloc local_size)
-	(entry 'list :erase2 '((rsp local_this) r1))
-	(assign '(r1) '((rsp local_iter)))
-
-	;swap last entry for erased entry
+	(vp-push r0 r1)
 	(call 'obj :deref '((r1 0)))
-	(assign '((rsp local_iter)) '(r1))
+	(assign '((rsp 0)) '(r1))
 	(call 'obj :deref '((r1 ptr_size)))
-	(assign '((rsp local_this)) '(r0))
-	(assign '((r0 array_length)) '(r1))
-	(vp-sub-cr 2 r1)
-	(assign '(r1) '((r0 array_length)))
-	(assign '((r0 array_begin)) '(r0))
-	(vp-shl-cr (log2 ptr_size) r1)
-	(vp-add-rr r0 r1)
-	(assign '((rsp local_iter)) '(r0))
-	(vpif '(r1 /= r0))
-		(assign '((r1 0) (r1 ptr_size)) '(r1 r2))
-		(assign '(r1 r2) '((r0 0) (r0 ptr_size)))
-	(endif)
-
-	(exit 'list :erase2 '((rsp local_this)))
-	(vp-free local_size)
-	(vp-ret)
+	(vp-pop r0 r1)
+	(s-jump 'list :erase2 '(r0 r1))
 
 (def-func-end)

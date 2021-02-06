@@ -296,18 +296,6 @@ r1-r2
 
 ### array :sort_callback -> class/obj/null
 
-### array :erase -> class/array/erase
-
-```lisp
-inputs
-r0 = array object (ptr)
-r1 = element iterator (pptr)
-outputs
-r0 = array object (ptr)
-trashes
-r2-r3
-```
-
 ### array :type -> class/array/type
 
 ### array :print -> class/array/print
@@ -374,6 +362,32 @@ outputs
 r0 = array object (ptr)
 trashes
 r1-r9
+```
+
+### array :erase -> class/array/erase
+
+```lisp
+inputs
+r0 = array object (ptr)
+r1 = element iterator (pptr)
+outputs
+r0 = array object (ptr)
+r1 = element iterator (pptr)
+trashes
+r2-r3
+```
+
+### array :erase2 -> class/array/erase2
+
+```lisp
+inputs
+r0 = array object (ptr)
+r1 = element iterator (pptr)
+outputs
+r0 = array object (ptr)
+r1 = element iterator (pptr)
+trashes
+r2-r3
 ```
 
 ### array :deinit -> class/array/deinit
@@ -3123,30 +3137,6 @@ Super Class: array
 
 ### list :create -> class/list/create
 
-### list :erase -> class/list/erase
-
-```lisp
-inputs
-r0 = list object (ptr)
-r1 = element iterator (pptr)
-outputs
-r0 = list object (ptr)
-trashes
-r1-r14
-```
-
-### list :erase2 -> class/list/erase2
-
-```lisp
-inputs
-r0 = list object (ptr)
-r1 = element iterator (pptr)
-outputs
-r0 = list object (ptr)
-trashes
-r1-r14
-```
-
 ### list :type -> class/list/type
 
 ### list :vcreate -> class/list/create
@@ -3275,6 +3265,32 @@ outputs
 r0 = list object (ptr)
 r1 = element object (ptr)
 r2 = -1, else index (int)
+trashes
+r2-r14
+```
+
+### list :erase -> class/list/erase
+
+```lisp
+inputs
+r0 = list object (ptr)
+r1 = element iterator (pptr)
+outputs
+r0 = list object (ptr)
+r1 = element iterator (pptr)
+trashes
+r2-r14
+```
+
+### list :erase2 -> class/list/erase2
+
+```lisp
+inputs
+r0 = list object (ptr)
+r1 = element iterator (pptr)
+outputs
+r0 = list object (ptr)
+r1 = element iterator (pptr)
 trashes
 r2-r14
 ```
