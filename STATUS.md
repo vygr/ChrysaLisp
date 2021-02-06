@@ -4,6 +4,11 @@
 
 ------
 
+Host main.cpp pii_sleep function now standardized on usec for time interval
+like other the other time functions. As we are no longer using SDL sleep call.
+
+------
+
 New `(mail-timeout)` function for building timeout select operations.
 
 New `usb-links` branch with USB transfer cable link support for bridging host

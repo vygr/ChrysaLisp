@@ -546,9 +546,9 @@ void pii_random(char* addr, size_t len)
 	for (int i = 0; i < len; ++i) addr[i] = dist(rd);
 }
 
-void pii_sleep(uint64_t ms)
+void pii_sleep(uint64_t usec)
 {
-	std::this_thread::sleep_for(std::chrono::milliseconds(ms));
+	std::this_thread::sleep_for(std::chrono::microseconds(usec));
 }
 
 uint64_t pii_close(uint64_t fd)

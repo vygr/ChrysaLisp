@@ -240,15 +240,8 @@
 		(breakif '(r1 = 0))
 
 		;may as well go to sleep till next wake time then
-		(vp-swp-rr r0 r2)
-		(assign '((r0 tk_node_time)) '(r0))
-		(vp-sub-rr r2 r0)
-		(vp-cpy-cr 1000 r3)
-		(vp-xor-rr r2 r2)
-		(vp-div-rrr r3 r2 r0)
-		(vpif '(r0 < 1))
-			(vp-cpy-cr 1 r0)
-		(endif)
+		(assign '(r0 (r2 tk_node_time)) '(r1 r0))
+		(vp-sub-rr r1 r0)
 		(host-os-call 'host :sleep '(r0))
 	(loop-end)
 
