@@ -29,14 +29,15 @@
 		:ink_keyword1 (<< (canvas-from-argb32 +argb_magenta+ 15) 32)
 		:ink_keyword2 (<< (canvas-from-argb32 +argb_red+ 15) 32)
 		:ink_keyword3 (<< (canvas-from-argb32 +argb_green+ 15) 32)
+		:ink_keyword4 (<< (canvas-from-argb32 +argb_cyan+ 15) 32)
 		:ink_strings (<< (canvas-from-argb32 +argb_orange+ 15) 32)
 		:ink_numbers (<< (canvas-from-argb32 +argb_yellow+ 15) 32)
 		:ink_keysyms (<< (canvas-from-argb32 +argb_cyan+ 15) 32)
 		:ink_constants (<< (canvas-from-argb32 +argb_yellow+ 15) 32)
-		:ink_globals (<< (canvas-from-argb32 +argb_blue+ 15) 32)
+		:ink_globals (<< (canvas-from-argb32 +argb_steel+ 15) 32)
 		:ink_comments (<< (canvas-from-argb32 +argb_grey12+ 15) 32)
 		:ink_text (<< (canvas-from-argb32 +argb_white+ 15) 32))
-	;default keywords
+	;defaults from boot environment
 	(defq e (penv))
 	(while (penv e) (setq e (penv e)))
 	(each (lambda ((k v))
@@ -45,6 +46,9 @@
 			((lambda? v) (def keywords k (get :ink_keyword2 this)))
 			((macro? v) (def keywords k (get :ink_keyword3 this)))))
 		(tolist e))
+	(each (lambda (k)
+			(def keywords k (get :ink_keyword4 this)))
+		'(t nil &rest &optional))
 
 	(defmethod :set_state (this state)
 		; (. syntax :set_state state) -> syntax
