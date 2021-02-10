@@ -296,6 +296,17 @@ r1-r2
 
 ### array :sort_callback -> class/obj/null
 
+### array :deinit -> class/array/deinit
+
+```lisp
+inputs
+r0 = array object (ptr)
+outputs
+r0 = array object (ptr)
+trashes
+r1-r14
+```
+
 ### array :type -> class/array/type
 
 ### array :print -> class/array/print
@@ -304,97 +315,6 @@ r1-r2
 inputs
 r0 = array object (ptr)
 r1 = stream object (ptr)
-outputs
-r0 = array object (ptr)
-trashes
-r1-r14
-```
-
-### array :vcreate -> class/array/create
-
-### array :velement -> class/num/create
-
-### array :clear -> class/array/clear
-
-```lisp
-inputs
-r0 = array object (ptr)
-outputs
-r0 = array object (ptr)
-trashes
-r1
-```
-
-### array :ref_back -> class/array/ref_back
-
-```lisp
-inputs
-r0 = array object (ptr)
-outputs
-r0 = array object (ptr)
-r1 = num object (ptr)
-trashes
-r1-r3
-```
-
-### array :set_element -> class/array/set_element
-
-```lisp
-inputs
-r0 = array object (ptr)
-r1 = element object (ptr)
-r2 = element index (uint)
-outputs
-r0 = array object (ptr)
-trashes
-r2-r3
-```
-
-### array :append -> class/array/append
-
-```lisp
-inputs
-r0 = array object (ptr)
-r1 = source array object (ptr)
-r2 = element start index (uint)
-r3 = element end index (uint)
-outputs
-r0 = array object (ptr)
-trashes
-r1-r9
-```
-
-### array :erase -> class/array/erase
-
-```lisp
-inputs
-r0 = array object (ptr)
-r1 = element iterator (pptr)
-outputs
-r0 = array object (ptr)
-r1 = element iterator (pptr)
-trashes
-r2-r3
-```
-
-### array :erase2 -> class/array/erase2
-
-```lisp
-inputs
-r0 = array object (ptr)
-r1 = element iterator (pptr)
-outputs
-r0 = array object (ptr)
-r1 = element iterator (pptr)
-trashes
-r2-r3
-```
-
-### array :deinit -> class/array/deinit
-
-```lisp
-inputs
-r0 = array object (ptr)
 outputs
 r0 = array object (ptr)
 trashes
@@ -478,6 +398,86 @@ r0 = array object (ptr)
 r1 = array length (uint)
 trashes
 r1
+```
+
+### array :vcreate -> class/array/create
+
+### array :velement -> class/num/create
+
+### array :clear -> class/array/clear
+
+```lisp
+inputs
+r0 = array object (ptr)
+outputs
+r0 = array object (ptr)
+trashes
+r1
+```
+
+### array :ref_back -> class/array/ref_back
+
+```lisp
+inputs
+r0 = array object (ptr)
+outputs
+r0 = array object (ptr)
+r1 = num object (ptr)
+trashes
+r1-r3
+```
+
+### array :set_element -> class/array/set_element
+
+```lisp
+inputs
+r0 = array object (ptr)
+r1 = element object (ptr)
+r2 = element index (uint)
+outputs
+r0 = array object (ptr)
+trashes
+r2-r3
+```
+
+### array :append -> class/array/append
+
+```lisp
+inputs
+r0 = array object (ptr)
+r1 = source array object (ptr)
+r2 = element start index (uint)
+r3 = element end index (uint)
+outputs
+r0 = array object (ptr)
+trashes
+r1-r9
+```
+
+### array :erase -> class/array/erase
+
+```lisp
+inputs
+r0 = array object (ptr)
+r1 = element iterator (pptr)
+outputs
+r0 = array object (ptr)
+r1 = element iterator (pptr)
+trashes
+r2-r3
+```
+
+### array :erase2 -> class/array/erase2
+
+```lisp
+inputs
+r0 = array object (ptr)
+r1 = element iterator (pptr)
+outputs
+r0 = array object (ptr)
+r1 = element iterator (pptr)
+trashes
+r2-r3
 ```
 
 ### array :lisp_array -> class/array/lisp_array

@@ -61,14 +61,14 @@
 	(entry 'array :find '(r0 r1))
 
 	(class/array/get_both r0 r2 r3)
-	(gotoif '(r2 = r3) 'notfound)
-	(loop-start)
-		(assign '((r2 0)) '(r4))
-		(gotoif '(r1 = r4) 'found)
-		(vp-add-cr long_size r2)
-	(loop-until '(r2 = r3))
+	(vpif '(r2 /= r3))
+		(loop-start)
+			(assign '((r2 0)) '(r4))
+			(gotoif '(r1 = r4) 'found)
+			(vp-add-cr long_size r2)
+		(loop-until '(r2 = r3))
+	(endif)
 
-(vp-label 'notfound)
 	(exit 'array :find '(r0 r1 -1))
 	(vp-ret)
 

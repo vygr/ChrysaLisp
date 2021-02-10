@@ -25,8 +25,17 @@
 (dec-method :get_both 'class/array/get_both :static '(r0) '(r0 r1 r2))
 (dec-method :sort_callback 'class/obj/null :static '(r0 r1 r2) '(r0))
 
+(dec-method :deinit 'class/array/deinit :override)
 (dec-method :type 'class/array/type :override '(r0) '(r0 r1))
 (dec-method :print 'class/array/print :override)
+
+(dec-method :ref_element 'class/array/ref_element :override)
+(dec-method :slice 'class/array/slice :override)
+(dec-method :cat 'class/array/cat :override)
+(dec-method :find 'class/array/find :override)
+(dec-method :rfind 'class/array/rfind :override)
+(dec-method :get_length 'class/array/get_length :final)
+
 (dec-method :vcreate 'class/array/create :virtual '(r0) '(r0))
 (dec-method :velement 'class/num/create :virtual '(r0) '(r0))
 (dec-method :clear 'class/array/clear :virtual '(r0) '(r0))
@@ -35,14 +44,6 @@
 (dec-method :append 'class/array/append :virtual '(r0 r1 r2 r3) '(r0))
 (dec-method :erase 'class/array/erase :virtual '(r0 r1) '(r0 r1))
 (dec-method :erase2 'class/array/erase2 :virtual '(r0 r1) '(r0 r1))
-
-(dec-method :deinit 'class/array/deinit :override)
-(dec-method :ref_element 'class/array/ref_element :override)
-(dec-method :slice 'class/array/slice :override)
-(dec-method :cat 'class/array/cat :override)
-(dec-method :find 'class/array/find :override)
-(dec-method :rfind 'class/array/rfind :override)
-(dec-method :get_length 'class/array/get_length :final)
 
 (dec-method :lisp_array 'class/array/lisp_array :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_nums 'class/array/lisp_nums :static '(r0 r1) '(r0 r1))
