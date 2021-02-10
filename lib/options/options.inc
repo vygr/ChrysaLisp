@@ -10,8 +10,7 @@
 (defun options-find (optlist arg)
 	; (options-find optlist arg) -> nil|opt_entry
 	(some (lambda (opt_entry)
-		(if (some (lambda (_)
-				(eql arg _)) (elem 0 opt_entry)) opt_entry)) optlist))
+		(if (find arg (elem 0 opt_entry)) opt_entry)) optlist))
 
 (defun options (stdio optlist)
 	; (options stdio optlist) -> nil|args
