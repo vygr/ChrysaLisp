@@ -24,6 +24,8 @@
 	(defun create (key val nodes)
 		; (create key val nodes)
 		;function called when entry is created
+		(if (= 0 (length nodes))
+			(setq nodes (list (slice (const long_size) -1 (task-mailbox)))))
 		(open-task "class/lisp/compile.lisp"
 			(elem (setq next_node (% (inc next_node) (length nodes))) nodes)
 			kn_call_child key (elem +select_task+ select)))
