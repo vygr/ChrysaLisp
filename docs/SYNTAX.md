@@ -1536,10 +1536,6 @@
 
 (open-child task mode) -> str
 
-## open-farm
-
-(open-farm task num mode [devices]) -> (list str ...)
-
 ## open-pipe
 
 (open-pipe tasks) -> (list str ...)

@@ -112,11 +112,9 @@ application `apps/debug/app.lisp`.
 
 ### Example
 
-This is the network monitoring application child process
-`apps/netmon/child.vp`. This process is launched onto each CPU node by use of
-an `(open-farm)` call. The child process simply waits for a command message
-from the parent and either exits or returns a message containing task and
-memory usage information.
+This is a network monitoring application child process `apps/netmon/child.vp`.
+The child process simply waits for a command message from the parent and either
+exits or returns a message containing task and memory usage information.
 
 `'sys_mail :mymail` is just a convenience function to read mail from the
 current tasks main mailbox.

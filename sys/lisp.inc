@@ -82,19 +82,6 @@
 	(defq id (slice (const long_size) (const (+ long_size net_id_size)) (mail-read mbox)))
 	(mail-free-mbox mbox) id)
 
-(defun open-farm (task num mode &optional devices)
-	; (open-farm task num mode [devices]) -> (list str ...)
-	(if (= 0 (length (defq devices (opt devices (mail-nodes)))))
-		(setq devices (list (slice (const long_size) -1 (task-mailbox)))))
-	(defq ids (cap num (list)) mbox (mail-alloc-mbox) index -1
-		center (+ (/ num 2) (length devices) (opt (find (slice (const long_size) -1 (task-mailbox)) devices) 0)))
-	(while (< (setq index (inc index)) num)
-		(open-task task (elem (% (+ index center) (length devices)) devices) mode 0 mbox))
-	(while (>= (setq index (dec index)) 0)
-		(defq msg (mail-read mbox))
-		(push ids (slice (const long_size) (const (+ long_size net_id_size)) msg)))
-	(mail-free-mbox mbox) ids)
-
 (defun open-pipe (tasks)
 	; (open-pipe tasks) -> (list str ...)
 	(defq devices (mail-nodes) ids (cap (length tasks) (list))
