@@ -240,7 +240,7 @@
 	(assign '(r0 r1) '((rsp local_this) (rsp local_key)))
 
 	;search hash bucket
-	(call 'hmap :find '(r0 r1) '(r0 r1 r2))
+	(call 'hmap :find '(r0 r1) '(_ r1 r2))
 	(assign '(r2) '((rsp local_bucket)))
 	(vpif '(r1 = 0))
 		;new key, (key could be same as value !)
