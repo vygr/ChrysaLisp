@@ -26,34 +26,36 @@
 (defq max_ply 10 max_chess_moves (/ 218 2) max_search_entries 10000)
 
 ;piece values, in centipawns
-(defq king_value 100000 queen_value 900 rook_value 500 bishop_value 330
-	knight_value 320 pawn_value 100 mate_value (* king_value 10) timeout_value (* mate_value 2))
+(defq +king_value+ 100000 +queen_value+ 900 +rook_value+ 500
+	+bishop_value+ 330 +knight_value+ 320 +pawn_value+ 100
+	+mate_value+ (* +king_value+ 10) +timeout_value+ (* +mate_value+ 2))
 
 ;piece capture actions, per vector
-(defq no_capture 0 may_capture 1 must_capture 2)
+(defq +no_capture+ 0 +may_capture+ 1 +must_capture+ 2)
 
 ;map board square contents to piece type/color
 (defq piece_type_map (list "PRNBKQprnbkq "
-	(list black black black black black black white white white white white white empty)))
+	(list +black+ +black+ +black+ +black+ +black+ +black+
+		+white+ +white+ +white+ +white+ +white+ +white+ +empty+)))
 
 ;piece move vectors and capture actions
 (defq black_pawn_moves (list
-		(array 0 1 0 no_capture) (array -1 1 1 must_capture) (array 1 1 1 must_capture))
+		(array 0 1 0 +no_capture+) (array -1 1 1 +must_capture+) (array 1 1 1 +must_capture+))
 	white_pawn_moves (list
-		(array 0 -1 0 no_capture) (array -1 -1 1 must_capture) (array 1 -1 1 must_capture))
+		(array 0 -1 0 +no_capture+) (array -1 -1 1 +must_capture+) (array 1 -1 1 +must_capture+))
 	rook_moves (list
-		(array 0 -1 7 may_capture) (array -1 0 7 may_capture) (array 0 1 7 may_capture) (array 1 0 7 may_capture))
+		(array 0 -1 7 +may_capture+) (array -1 0 7 +may_capture+) (array 0 1 7 +may_capture+) (array 1 0 7 +may_capture+))
 	bishop_moves (list
-		(array -1 -1 7 may_capture) (array 1 1 7 may_capture) (array -1 1 7 may_capture) (array 1 -1 7 may_capture))
+		(array -1 -1 7 +may_capture+) (array 1 1 7 +may_capture+) (array -1 1 7 +may_capture+) (array 1 -1 7 +may_capture+))
 	knight_moves (list
-		(array -2 1 1 may_capture) (array 2 -1 1 may_capture) (array 2 1 1 may_capture) (array -2 -1 1 may_capture)
-		(array -1 -2 1 may_capture) (array -1 2 1 may_capture) (array 1 -2 1 may_capture) (array 1 2 1 may_capture))
+		(array -2 1 1 +may_capture+) (array 2 -1 1 +may_capture+) (array 2 1 1 +may_capture+) (array -2 -1 1 +may_capture+)
+		(array -1 -2 1 +may_capture+) (array -1 2 1 +may_capture+) (array 1 -2 1 +may_capture+) (array 1 2 1 +may_capture+))
 	queen_moves (list
-		(array 0 -1 7 may_capture) (array -1 0 7 may_capture) (array 0 1 7 may_capture) (array 1 0 7 may_capture)
-		(array -1 -1 7 may_capture) (array 1 1 7 may_capture) (array -1 1 7 may_capture) (array 1 -1 7 may_capture))
+		(array 0 -1 7 +may_capture+) (array -1 0 7 +may_capture+) (array 0 1 7 +may_capture+) (array 1 0 7 +may_capture+)
+		(array -1 -1 7 +may_capture+) (array 1 1 7 +may_capture+) (array -1 1 7 +may_capture+) (array 1 -1 7 +may_capture+))
 	king_moves (list
-		(array 0 -1 1 may_capture) (array -1 0 1 may_capture) (array 0 1 1 may_capture) (array 1 0 1 may_capture)
-		(array -1 -1 1 may_capture) (array 1 1 1 may_capture) (array -1 1 1 may_capture) (array 1 -1 1 may_capture)))
+		(array 0 -1 1 +may_capture+) (array -1 0 1 +may_capture+) (array 0 1 1 +may_capture+) (array 1 0 1 +may_capture+)
+		(array -1 -1 1 +may_capture+) (array 1 1 1 +may_capture+) (array -1 1 1 +may_capture+) (array 1 -1 1 +may_capture+)))
 
 ;map piece to its movement possibilities
 (defq moves_map (list "PpRrBbNnQqKk"
@@ -89,7 +91,7 @@
 	0 0 0 20 20 0 0 0
 	5 -5 -10 0 0 -10 -5 5
 	5 10 10 -20 -20 10 10 5
-	0 0 0 0 0 0 0 0 pawn_value)
+	0 0 0 0 0 0 0 0 +pawn_value+)
 	black_pawn_eval_values (array
 	0 0 0 0 0 0 0 0
 	5 10 10 -20 -20 10 10 5
@@ -98,7 +100,7 @@
 	5 5 10 25 25 10 5 5
 	10 10 20 30 30 20 10 10
 	50 50 50 50 50 50 50 50
-	0 0 0 0 0 0 0 0 pawn_value))
+	0 0 0 0 0 0 0 0 +pawn_value+))
 
 ;knight values for board evaluation
 (defq white_knight_eval_values (array
@@ -109,7 +111,7 @@
 	-30 0 15 20 20 15 0 -30
 	-30 5 10 15 15 10 5 -30
 	-40 -20 0 5 5 0 -20 -40
-	-50 -40 -30 -30 -30 -30 -40 -50 knight_value)
+	-50 -40 -30 -30 -30 -30 -40 -50 +knight_value+)
 	black_knight_eval_values (array
 	-50 -40 -30 -30 -30 -30 -40 -50
 	-40 -20 0 5 5 0 -20 -40
@@ -118,7 +120,7 @@
 	-30 5 15 20 20 15 5 -30
 	-30 0 10 15 15 10 0 -30
 	-40 -20 0 0 0 0 -20 -40
-	-50 -40 -30 -30 -30 -30 -40 -50 knight_value))
+	-50 -40 -30 -30 -30 -30 -40 -50 +knight_value+))
 
 ;bishop values for board evaluation
 (defq white_bishop_eval_values (array
@@ -129,7 +131,7 @@
 	-10 0 10 10 10 10 0 -10
 	-10 10 10 10 10 10 10 -10
 	-10 5 0 0 0 0 5 -10
-	-20 -10 -10 -10 -10 -10 -10 -20 bishop_value)
+	-20 -10 -10 -10 -10 -10 -10 -20 +bishop_value+)
 	black_bishop_eval_values (array
 	-20 -10 -10 -10 -10 -10 -10 -20
 	-10 5 0 0 0 0 5 -10
@@ -138,7 +140,7 @@
 	-10 5 5 10 10 5 5 -10
 	-10 0 5 10 10 5 0 -10
 	-10 0 0 0 0 0 0 -10
-	-20 -10 -10 -10 -10 -10 -10 -20 bishop_value))
+	-20 -10 -10 -10 -10 -10 -10 -20 +bishop_value+))
 
 ;rook values for board evaluation
 (defq white_rook_eval_values (array
@@ -149,7 +151,7 @@
 	-5 0 0 0 0 0 0 -5
 	-5 0 0 0 0 0 0 -5
 	-5 0 0 0 0 0 0 -5
-	0 0 0 5 5 0 0 0 rook_value)
+	0 0 0 5 5 0 0 0 +rook_value+)
 	black_rook_eval_values (array
 	0 0 0 5 5 0 0 0
 	-5 0 0 0 0 0 0 -5
@@ -158,7 +160,7 @@
 	-5 0 0 0 0 0 0 -5
 	-5 0 0 0 0 0 0 -5
 	5 10 10 10 10 10 10 5
-	0 0 0 0 0 0 0 0 rook_value))
+	0 0 0 0 0 0 0 0 +rook_value+))
 
 ;queen values for board evaluation
 (defq white_queen_eval_values (array
@@ -169,7 +171,7 @@
 	0 0 5 5 5 5 0 -5
 	-10 5 5 5 5 5 0 -10
 	-10 0 5 0 0 0 0 -10
-	-20 -10 -10 -5 -5 -10 -10 -20 queen_value)
+	-20 -10 -10 -5 -5 -10 -10 -20 +queen_value+)
 	black_queen_eval_values (array
 	-20 -10 -10 -5 -5 -10 -10 -20
 	-10 0 5 0 0 0 0 -10
@@ -178,7 +180,7 @@
 	-5 0 5 5 5 5 0 -5
 	-10 0 5 5 5 5 0 -10
 	-10 0 0 0 0 0 0 -10
-	-20 -10 -10 -5 -5 -10 -10 -20 queen_value))
+	-20 -10 -10 -5 -5 -10 -10 -20 +queen_value+))
 
 ;king values for board evaluation
 (defq white_king_eval_values (array
@@ -189,7 +191,7 @@
 	-20 -30 -30 -40 -40 -30 -30 -20
 	-10 -20 -20 -20 -20 -20 -20 -10
 	20 20 0 0 0 0 20 20
-	20 30 10 0 0 10 30 20 king_value)
+	20 30 10 0 0 10 30 20 +king_value+)
 	black_king_eval_values (array
 	20 30 10 0 0 10 30 20
 	20 20 0 0 0 0 20 20
@@ -198,7 +200,7 @@
 	-30 -40 -40 -50 -50 -40 -40 -30
 	-30 -40 -40 -50 -50 -40 -40 -30
 	-30 -40 -40 -50 -50 -40 -40 -30
-	-30 -40 -40 -50 -50 -40 -40 -30 king_value))
+	-30 -40 -40 -50 -50 -40 -40 -30 +king_value+))
 
 ;map piece to evaluation value table
 (defq piece_evaluation_map (list "KQRBNPkqrbnp"
@@ -217,7 +219,7 @@
 				((and (<= 0 (setq x (+ x dx)) 7) (<= 0 (setq y (+ y dy)) 7))
 					;still on the board
 					(unless (eql (defq piece (elem (+ (* y 8) x) brd)) " ")
-						;not empty square so yield piece
+						;not +empty+ square so yield piece
 						(setq yield (cat yield piece) len 0)))
 				(t	;off the edge
 					(setq len 0))))) (list vectors)) yield)
@@ -227,7 +229,7 @@
 
 ;test if king of given color is in check
 (defun in-check (brd color)
-	(if (= color (const black))
+	(if (= color +black+)
 		(defq king_piece "K" tests (list black_tests))
 		(defq king_piece "k" tests (list white_tests)))
 	;find king index on board
@@ -252,7 +254,7 @@
 ;generate all boards for a piece index and moves possibility, filtering out boards where king is in check
 (defun piece-moves (yield brd index color moves)
 	(defq piece (elem index brd) cx (logand index 7) cy (>> index 3)
-		promote (if (= color (const black)) '("QRBN") '("qrbn")))
+		promote (if (= color +black+) '("QRBN") '("qrbn")))
 	(each! 0 -1 (lambda ((dx dy len flag))
 		(defq x cx y cy)
 		;special length for pawns so we can adjust for starting 2 hop
@@ -268,13 +270,13 @@
 						newtype (piece-map piece_type_map newpiece))
 					(cond
 						((= newtype color)
-							;hit one of our own piece type (black hit black etc)
+							;hit one of our own piece type (+black+ hit +black+ etc)
 							(setq len 0))
-						((and (= flag (const no_capture)) (/= newtype (const empty)))
-							;not suposed to capture and not empty square
+						((and (= flag +no_capture+) (/= newtype +empty+))
+							;not suposed to capture and not +empty+ square
 							(setq len 0))
-						((and (= flag (const must_capture)) (= newtype (const empty)))
-							;must capture and got empty square
+						((and (= flag +must_capture+) (= newtype +empty+))
+							;must capture and got +empty+ square
 							(setq len 0))
 						(t	;try this move
 							(defq newbrd (cat (slice 0 index brd) " " (slice (inc index) -1 brd)))
@@ -289,7 +291,7 @@
 									(setq newbrd (cat (slice 0 newindex newbrd) piece (slice (inc newindex) -1 newbrd)))
 									(unless (in-check newbrd color)
 										(push yield newbrd))))
-							(if (and (= flag (const may_capture)) (/= newtype (const empty)))
+							(if (and (= flag +may_capture+) (/= newtype +empty+))
 								;may capture and we did so !
 								(setq len 0)))))
 				(t	;gone off the board
@@ -299,7 +301,7 @@
 (defun all-moves (brd color)
 	;enumarate the board square by square
 	(task-sleep 0)
-	(defq yield (list) is_black (= color (const black)))
+	(defq yield (list) is_black (= color +black+))
 	(each! 0 -1 (lambda (piece)
 		(unless (eql piece " ")
 			(when (eql (< (code piece) (ascii-code "Z")) is_black)
@@ -310,9 +312,9 @@
 (defun pvs (brd color alpha beta ply)
 	(cond
 		((mail-poll select)
-			timeout_value)
+			+timeout_value+)
 		((>= (- (pii-time) start_time) max_time_per_move)
-			timeout_value)
+			+timeout_value+)
 		((= ply 0)
 			(evaluate brd color))
 		(t	(defq next_boards (all-moves brd color))
@@ -330,9 +332,9 @@
 (defun negamax (brd color alpha beta ply)
 	(cond
 		((mail-poll select)
-			timeout_value)
+			+timeout_value+)
 		((>= (- (pii-time) start_time) max_time_per_move)
-			timeout_value)
+			+timeout_value+)
 		((= ply 0)
 			(evaluate brd color))
 		(t	(defq value +min_int+ next_boards (all-moves brd color))
@@ -349,30 +351,31 @@
 
 ;best move for given board position for given color
 (defun best-move (brd color history)
-	;start move time, sorted ply0 boards
-	(defq start_time (pii-time) nbrd nil pbrd nil bias (list)
-		ply0_boards (sort (lambda (a b) (- (elem 0 b) (elem 0 a)))
-			(map (lambda (brd) (list (evaluate brd color) brd)) (all-moves brd color))))
-	;bias against repeat positions
-	(each! 0 -1 (lambda ((ply0_score brd))
-		(push bias (* queen_value (reduce (lambda (cnt past_brd)
-				(if (eql past_brd brd) (inc cnt) cnt)) history 0)))) (list ply0_boards))
+	;start move time, scored and biased ply0 boards
+	(defq start_time (pii-time) nbrd nil pbrd nil ply0_brds
+		(map (lambda (brd)
+			(list (evaluate brd color)
+				(* +queen_value+ (reduce (lambda (cnt past_brd) (if (eql past_brd brd) (inc cnt) cnt)) history 0))
+				brd)) (all-moves brd color)))
 	;iterative deepening of ply so we allways have a best move to go with if the time expires
 	(some! 0 -1 nil (lambda (ply)
 		(reply (str "s" (LF) "Ply" ply " "))
-		(defq value +min_int+ alpha +min_int+ beta +max_int+
-			timeout (some! 0 -1 nil (lambda ((ply0_score brd))
-				(defq score (neg (negamax brd (neg color) (neg beta) (neg alpha) (dec ply))))
-				(cond
-					((or (<= (- score (elem _ bias)) value) (= (abs score) (const timeout_value)))
-						(reply (cat "s" ".")))
-					(t	(setq value score pbrd brd)
-						(reply (cat "s" "*"))))
-				(setq alpha (max alpha value))
-				(cond
-					((= (abs score) (const timeout_value))
-						timeout_value)
-					((>= alpha beta)))) (list ply0_boards)))
+		(defq value +min_int+ alpha +min_int+ beta +max_int+ timeout
+			(some! 0 -1 nil (lambda (ply0_brd)
+					(bind '(_ bias brd) ply0_brd)
+					(elem-set 0 ply0_brd (defq score
+						(neg (negamax brd (neg color) (neg beta) (neg alpha) (dec ply)))))
+					(cond
+						((or (<= (- score bias) value) (= (abs score) +timeout_value+))
+							(reply (cat "s" ".")))
+						(t	(setq value score pbrd brd)
+							(reply (cat "s" "*"))))
+					(setq alpha (max alpha value))
+					(cond
+						((= (abs score) +timeout_value+)
+							+timeout_value+)
+						((>= alpha beta))))
+				(list (sort (lambda (a b) (- (elem 0 b) (elem 0 a))) ply0_brds))))
 		(if (num? timeout) t
 			(setq nbrd (if pbrd pbrd nbrd) pbrd nil))) (list (range 1 max_ply)))
 	nbrd)

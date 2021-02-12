@@ -14,10 +14,10 @@
 	(byte 'main+ 'task+ 'reply+ 'timer+))
 
 (defq vdu_width 38 vdu_height 12 text_buf nil
-	flicker_rate (/ 1000000 10) timer_rate (/ 1000000 1) max_move_time 10000000 id t
+	flicker_rate (/ 1000000 8) timer_rate (/ 1000000 1) max_move_time 10000000 id t
 	select (list (task-mailbox) (mail-alloc-mbox) (mail-alloc-mbox) (mail-alloc-mbox))
 	brd "RNBQKBNRPPPPPPPP                                pppppppprnbqkbnr"
-	history (list brd) color white start_time (pii-time) replys (list) next_seq 0)
+	history (list brd) color +white+ start_time (pii-time) replys (list) next_seq 0)
 
 (ui-window mywindow (:color +argb_black+)
 	(ui-flow _ (:flow_flags +flow_down_fill+)
@@ -63,7 +63,7 @@
 	;update display
 	(setq text_buf (vdu-print vdu (list "")
 		(cat (LF) "Elapsed Time: " (time-in-seconds (- (pii-time) start_time)) (LF)
-			(if (= color (const white)) "White to move:" "Black to move:") (LF))))
+			(if (= color +white+) "White to move:" "Black to move:") (LF))))
 	;reset reply sequence
 	(clear replys)
 	(setq next_seq 0))
