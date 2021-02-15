@@ -5,7 +5,7 @@
 (print "Building platform native boot image.")
 (print "Please wait...")
 (print)
-(while (< (length (mail-nodes)) 10) (task-sleep 100000))
+(while (< (length (mail-nodes)) 9) (task-sleep 100000))
 (pipe-run "make all boot" (lambda (_) (prin _) (stream-flush (io-stream "stdout"))))
 (print)
 (print "Install complete.")

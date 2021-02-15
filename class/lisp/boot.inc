@@ -123,11 +123,6 @@
 (ffi pii-time "sys/pii/lisp_time" 0)
 (ffi pii-write-char "sys/pii/lisp_writechar" 0)
 
-;C++ ChrysaLisp !
-(cond
-	((get 'nums))
-	((defq prebind (lambda (_) _))))
-
 (defq t 't nil 'nil
 	defmacro '(macro (n a &rest _) `(defq ,n (macro ,a ~_))))
 

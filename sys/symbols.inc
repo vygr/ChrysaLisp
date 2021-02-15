@@ -30,7 +30,6 @@ join_round 2
 kn_call_child 2
 kn_call_open 1
 long_size 8
-out_state 92
 ptr_size 8
 byte_size 1
 short_size 2
@@ -73,7 +72,6 @@ _t_ev_msg_target_id "L"
 _t_ev_msg_type "L"
 _t_in_mbox_id "I"
 _t_in_state "I"
-_t_out_state "I"
 _t_stdio_args "p"
 _t_vdu_char_height "S"
 _t_vdu_char_width "S"
