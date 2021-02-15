@@ -449,10 +449,10 @@
 	(call 'view :find '((rsp local_this) r1) '(_ r2 _))
 	(vpif '(r2 /= 0))
 		(call 'sym :get_static_sym '(static_sym_draw) '(r1))
-		(call 'view :find '((r2 ptr_size) r1) '(_ r1 _))
+		(call 'view :find '((r2 +ptr_size+) r1) '(_ r1 _))
 		(vpif '(r1 /= 0))
 			;jump to VP draw method ?
-			(assign '((r1 ptr_size)) '(r1))
+			(assign '((r1 +ptr_size+)) '(r1))
 			(f-bind 'func :vtable r0)
 			(assign '((r1 obj_vtable)) '(r2))
 			(vpif '(r0 = r2))

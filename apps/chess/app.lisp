@@ -57,7 +57,7 @@
 	(. val :insert :timestamp (pii-time))
 	(mail-send (. val :find :child) (cat
 		(elem +select_reply+ select)
-		(char max_move_time long_size)
+		(char max_move_time +long_size+)
 		(char color)
 		brd (apply cat history)))
 	;update display
@@ -99,7 +99,7 @@
 					(t (. mywindow :event msg))))
 			((= idx +select_task+)
 				;child launch responce
-				(defq key (get-long msg 0) child (slice (const long_size) (const (+ long_size net_id_size)) msg))
+				(defq key (get-long msg 0) child (slice +long_size+ (const (+ +long_size+ net_id_size)) msg))
 				(when (defq val (. farm :find key))
 					(. val :insert :child child)
 					(dispatch-job key val)))
@@ -109,8 +109,8 @@
 				(while (and (/= (length replys) 0)
 							(= (get-long (elem -2 replys) 0) next_seq))
 					(setq msg (pop replys) next_seq (inc next_seq))
-					(defq data_type (elem (const long_size) msg)
-						data (slice (const (inc long_size)) -1 msg))
+					(defq data_type (elem +long_size+ msg)
+						data (slice (const (inc +long_size+)) -1 msg))
 					(cond
 						;move
 						((eql data_type "b")

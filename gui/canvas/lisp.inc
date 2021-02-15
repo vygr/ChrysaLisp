@@ -48,11 +48,11 @@
 
 	(defmethod :set_canvas_flags (this flags)
 		; (. canvas :set_canvas_flags flags) -> canvas
-		(set-field this (const canvas_flags) (const (neg int_size)) flags))
+		(set-field this (const canvas_flags) (const (neg +int_size+)) flags))
 
 	(defmethod :set_color (this argb)
 		; (. canvas :set_color argb) -> canvas
-		(set-field this (const canvas_color) (const (neg int_size)) argb))
+		(set-field this (const canvas_color) (const (neg +int_size+)) argb))
 
 	(defmethod :plot (this x y)
 		; (. canvas :plot x y) -> canvas
@@ -68,10 +68,10 @@
 
 	(defmethod :pref_size (this)
 		; (. canvas :pref_size) -> (width height)
-		(defq canvas_scale (get-field this (const canvas_scale) (const (neg int_size)))
+		(defq canvas_scale (get-field this (const canvas_scale) (const (neg +int_size+)))
 			pixmap (get-field this (const canvas_pixmap) 0))
-		(list (/ (get-field pixmap (const pixmap_width) (const (neg int_size))) canvas_scale)
-			(/ (get-field pixmap (const pixmap_height) (const (neg int_size))) canvas_scale)))
+		(list (/ (get-field pixmap (const pixmap_width) (const (neg +int_size+))) canvas_scale)
+			(/ (get-field pixmap (const pixmap_height) (const (neg +int_size+))) canvas_scale)))
 	)
 
 (defclass Canvas (width height scale) (Canvas-base)

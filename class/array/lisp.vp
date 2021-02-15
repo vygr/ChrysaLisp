@@ -112,7 +112,7 @@
 		(assign '(r1) '((rsp local_iter_begin)))
 		(call 'array :clear '((r1 0)) '(r0))
 		(assign '((rsp local_iter_begin) (rsp local_iter_end)) '(r1 r2))
-		(vp-add-cr ptr_size r1)
+		(vp-add-cr +ptr_size+ r1)
 	(loop-until '(r1 = r2))
 	(call 'obj :ref '(r0) '(r0))
 
@@ -226,7 +226,7 @@
 	(gotoif (list argc '< 2) 'error))
 	(class/array/get_both args iter_begin iter_end)
 	(assign `((,iter_begin 0)) `(,args))
-	(vp-add-cr ptr_size iter_begin)
+	(vp-add-cr +ptr_size+ iter_begin)
 (errorcases
 	(f-bind 'num :vtable obj)
 	(assign `((,args obj_vtable)) `(,res))
@@ -234,7 +234,7 @@
 	(assign `((,args num_value)) `(,argc))
 	(loop-start)
 		(assign `((,iter_begin 0)) `(,obj))
-		(vp-add-cr ptr_size iter_begin)
+		(vp-add-cr +ptr_size+ iter_begin)
 	(errorcases
 		(call 'obj :inst_of `(,obj (@ ,(f-path 'array :vtable))) `(,obj ,res))
 		(gotoif (list res '= 0) 'error))

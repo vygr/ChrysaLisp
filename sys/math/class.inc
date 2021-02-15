@@ -82,22 +82,22 @@
 (defun vec-load-int (n r &optional i)
 	(setd i 0)
 	(each (lambda (v)
-		(vp-cpy-ir-i r (+ i (* _ int_size)) v)) (vec-push n)))
+		(vp-cpy-ir-i r (+ i (* _ +int_size+)) v)) (vec-push n)))
 
 (defun vec-store-int (n r &optional i)
 	(setd i 0)
 	(each (lambda (v)
-		(vp-cpy-ri-i v r (+ i (* _ int_size)))) (vec-pop n)))
+		(vp-cpy-ri-i v r (+ i (* _ +int_size+)))) (vec-pop n)))
 
 (defun vec-load-long (n r &optional i)
 	(setd i 0)
 	(each (lambda (v)
-		(vp-cpy-ir r (+ i (* _ long_size)) v)) (vec-push n)))
+		(vp-cpy-ir r (+ i (* _ +long_size+)) v)) (vec-push n)))
 
 (defun vec-store-long (n r &optional i)
 	(setd i 0)
 	(each (lambda (v)
-		(vp-cpy-ri v r (+ i (* _ long_size)))) (vec-pop n)))
+		(vp-cpy-ri v r (+ i (* _ +long_size+)))) (vec-pop n)))
 
 (defun vec-clr (n &optional v)
 	(setd v (vec-top n))

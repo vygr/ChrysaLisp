@@ -16,9 +16,9 @@
 
 	(entry 'sys_heap :init '(r0 r1 r2))
 
-	;align cell to ptr_size
-	(vp-add-cr (dec ptr_size) r1)
-	(vp-and-cr (neg ptr_size) r1)
+	;align cell to +ptr_size+
+	(vp-add-cr (dec +ptr_size+) r1)
+	(vp-and-cr (neg +ptr_size+) r1)
 	(assign '(r1) '((r0 hp_heap_cellsize)))
 
 	;at least 1 cell !

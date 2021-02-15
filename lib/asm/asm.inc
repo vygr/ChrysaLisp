@@ -18,14 +18,14 @@
 			((defq job (pop jobs))
 				(.-> val (:insert :job job) (:insert :timestamp (pii-time)))
 				(mail-send (. val :find :child) (cat
-					(char key (const long_size)) (elem +select_reply+ select) job)))
+					(char key +long_size+) (elem +select_reply+ select) job)))
 			(t	;no jobs in que
 				(.-> val (:erase :job) (:erase :timestamp)))))
 	(defun create (key val nodes)
 		; (create key val nodes)
 		;function called when entry is created
 		(if (= 0 (length nodes))
-			(setq nodes (list (slice (const long_size) -1 (task-mailbox)))))
+			(setq nodes (list (slice +long_size+ -1 (task-mailbox)))))
 		(open-task "class/lisp/compile.lisp"
 			(elem (setq next_node (% (inc next_node) (length nodes))) nodes)
 			kn_call_child key (elem +select_task+ select)))
@@ -51,7 +51,7 @@
 			(cond
 				((= idx +select_task+)
 					;child launch responce
-					(defq key (get-long msg 0) child (slice (const long_size) (const (+ long_size net_id_size)) msg))
+					(defq key (get-long msg 0) child (slice +long_size+ (const (+ +long_size+ net_id_size)) msg))
 					(when (defq val (. farm :find key))
 						(. val :insert :child child)
 						(dispatch-job key val)))
@@ -217,7 +217,7 @@
 				(push (reduce (# (push %0 (elem 0 %1) (elem 1 %1))) b (list)) z))
 			l (reduce (# (+ %0 (length %1))) f 0))
 		;save size in boot image
-		(elem-set 0 f (cat (char l long_size) (slice long_size -1 (elem 0 f))))
+		(elem-set 0 f (cat (char l +long_size+) (slice +long_size+ -1 (elem 0 f))))
 		(each (# (write stream %0)) f)
 		(print "-> " (func-obj 'sys/boot_image) " (" l ")") nil)))
 

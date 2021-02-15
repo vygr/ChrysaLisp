@@ -14,10 +14,10 @@
 (defcvar 'stack_align 8 'stack_state '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14))
 
 (defun stack-init ()
-	(defq tk_state_size (* ptr_size (length stack_state)))
-	(vp-sub-cr (+ tk_state_size (* ptr_size 2)) r1)
+	(defq tk_state_size (* +ptr_size+ (length stack_state)))
+	(vp-sub-cr (+ tk_state_size (* +ptr_size+ 2)) r1)
 	(f-bind 'sys_task :stop r2)
-	(vp-cpy-ri r2 r1 (+ tk_state_size ptr_size))
+	(vp-cpy-ri r2 r1 (+ tk_state_size +ptr_size+))
 	(vp-cpy-ri r4 r1 tk_state_size))
 
 (defun emit-cr (o c r)
@@ -191,7 +191,7 @@
 
 (defun emit-call-abi (r b c n &rest x)
 	(cond
-		((<= 0 c (const (- 0x10000 ptr_size)))
+		((<= 0 c (const (- 0x10000 +ptr_size+)))
 			(emit-short (+ (next-opcode) (<< (reg b) 8) (<< n 12)) c))
 		(t	(throw "emit-call-abi constant out of range !" c))))
 
@@ -202,12 +202,12 @@
 
 (defun emit-push (&rest b)
 	(when (/= 0 (length b))
-		(emit-alloc (* ptr_size (length b)))
+		(emit-alloc (* +ptr_size+ (length b)))
 		(each-rev (lambda (r)
-			(emit-cpy-ri r rsp (* (- (length b) 1 _) ptr_size))) b)))
+			(emit-cpy-ri r rsp (* (- (length b) 1 _) +ptr_size+))) b)))
 
 (defun emit-pop (&rest b)
 	(when (/= 0 (length b))
 		(each-rev (lambda (r)
-			(emit-cpy-ir rsp (* (- (length b) 1 _) ptr_size) r)) b))
-		(emit-free (* ptr_size (length b))))
+			(emit-cpy-ir rsp (* (- (length b) 1 _) +ptr_size+) r)) b))
+		(emit-free (* +ptr_size+ (length b))))

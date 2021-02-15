@@ -281,7 +281,7 @@
 	(assign {statics->statics_sys_task_task_count + 1} {statics->statics_sys_task_task_count})
 
 	;create new task control block and task
-	(call 'sys_mem :alloc {ushort(func - ubyte(func - byte_size) - short_size) + tk_node_size} {tcb, tcb_size})
+	(call 'sys_mem :alloc {ushort(func - ubyte(func - +byte_size+) - +short_size+) + tk_node_size} {tcb, tcb_size})
 (errorcases
 	(call 'sys_mem :fill {tcb, tcb_size, 0}))
 
@@ -342,7 +342,7 @@
 		(vpif {*stack /= 0})
 			(abort "Stack overrun !")
 		(endif)
-		(assign {stack + ptr_size} {stack})
+		(assign {stack + +ptr_size+} {stack})
 	(loop-end))
 
 	;free our task control block

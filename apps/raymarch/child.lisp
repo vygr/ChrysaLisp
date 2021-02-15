@@ -140,5 +140,5 @@
 				(defq key (get-long msg +job_key+)
 					mbox (slice +job_reply+ (const (+ +job_reply+ net_id_size)) msg)
 					msg (slice (const (+ +job_reply+ net_id_size)) -1 msg))
-				(apply rect (cat (list key mbox) (map (lambda (_) (get-long msg (* _ long_size))) (range 0 6)))))))
+				(apply rect (cat (list key mbox) (map (lambda (_) (get-long msg (* _ +long_size+))) (range 0 6)))))))
 	(mail-free-mbox (pop select)))

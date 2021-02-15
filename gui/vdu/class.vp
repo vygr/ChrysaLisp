@@ -95,7 +95,7 @@
 		(loop-while {by <= by1})
 			(assign {bx} {x})
 			(loop-while {x <= bx1})
-				(assign {(this->vdu_chars)[(by * this->vdu_width + x) * long_size]} {c})
+				(assign {(this->vdu_chars)[(by * this->vdu_width + x) * +long_size+]} {c})
 				(vpif {c >> 32 => ink})
 					;has attributes
 					(call 'pixmap :to_argb32 {ink >> 16, 15} {paper})
@@ -165,7 +165,7 @@
 	(vpif {w /= this->vdu_width || h /= this->vdu_height})
 		(assign {w, h} {this->vdu_width, this->vdu_height})
 		(call 'sys_mem :free {this->vdu_chars})
-		(call 'sys_mem :alloc {this->vdu_width * h * long_size} {this->vdu_chars, size})
+		(call 'sys_mem :alloc {this->vdu_width * h * +long_size+} {this->vdu_chars, size})
 		(call 'sys_mem :fill {this->vdu_chars, size, +char_space+})
 	(endif)
 	(call 'font :deref_if {font})

@@ -57,7 +57,7 @@
 			;is it a compiled function ?
 			(call 'hmap :search '((r0 lisp_environment) r1) '(_ r1 _))
 			(breakif '(r1 = 0))
-			(assign '((r1 ptr_size)) '(r1))
+			(assign '((r1 +ptr_size+)) '(r1))
 			(f-bind 'func :vtable r2)
 			(assign '((r1 obj_vtable)) '(r3))
 			(gotoif '(r2 = r3) 'bind_it)
@@ -80,7 +80,7 @@
 				(call 'obj :deref '(r0))
 				;skip recursion on this element
 				(assign '((rsp local_iter_begin)) '(r1))
-				(vp-add-cr ptr_size r1)
+				(vp-add-cr +ptr_size+ r1)
 				(goto 'skip_first)
 			(endswitch)
 
@@ -124,7 +124,7 @@
 				(endif)
 
 				(assign '((rsp local_iter_begin) (rsp local_iter_end)) '(r1 r2))
-				(vp-add-cr ptr_size r1)
+				(vp-add-cr +ptr_size+ r1)
 			(loop-end)
 
 		(vp-label 'next_list)

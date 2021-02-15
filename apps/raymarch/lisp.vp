@@ -138,14 +138,14 @@
 
 	(list-bind-args r1 '(r0 r1) '(:canvas :str))
 	(array-get-args r1 '(r7 r8 r9 r10) 'ui)
-	(vp-add-cr (* 4 int_size) r1)
+	(vp-add-cr (* 4 +int_size+) r1)
 	(assign '(r0 r1 r7 r8 r9 r10 r8) {canvas, data, x, y, x1, y1, yp})
 	(loop-start)
 		(assign {x} {xp})
 		(loop-start)
 			(assign {*data} {canvas->canvas_color})
 			(call 'canvas :plot {canvas, xp, yp})
-			(assign {data + int_size} {data})
+			(assign {data + +int_size+} {data})
 		(loop-until {(xp + 1 => xp) = x1})
 	(loop-until {(yp + 1 => yp) = y1})
 

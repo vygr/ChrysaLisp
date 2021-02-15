@@ -192,7 +192,7 @@
 
 	(assign {length, 1} '(r0 r1))
 	(vpif '(r0 = 2))
-		(assign {iter_begin[ptr_size]} '(r0))
+		(assign {iter_begin[+ptr_size+]} '(r0))
 	(errorcases
 		(assign `((@ ,(f-path 'num :vtable)) (r0 obj_vtable)) '(r1 r2))
 		(gotoif '(r1 /= r2) 'error3))
@@ -374,7 +374,7 @@
 
 	(vp-cpy-cr 1 width)
 	(vpif (list value '= 3))
-		(assign `((,iter_begin ,(* ptr_size 2))) '(r0))
+		(assign `((,iter_begin ,(* +ptr_size+ 2))) '(r0))
 	(errorcases
 		(assign `((@ ,(f-path 'num :vtable)) (r0 obj_vtable)) '(r1 r2))
 		(gotoif '(r1 /= r2) 'error3))
@@ -384,7 +384,7 @@
 		(vp-add-cr 1 width)
 	(endif)
 
-	(assign `((,iter_begin ptr_size)) `(,value))
+	(assign `((,iter_begin +ptr_size+)) `(,value))
 	(assign `((,value obj_vtable) (@ ,(f-path 'list :vtable))) '(r0 r1))
 	(vpif '(r0 = r1))
 	(errorcases
@@ -396,7 +396,7 @@
 			(assign `((,iter_begin 0)) `(,value))
 			(call 'stream :write `(,stream (& ,value num_value) ,width))
 			(vp-pop this stream width iter_begin iter_end)
-			(vp-add-cr ptr_size iter_begin)
+			(vp-add-cr +ptr_size+ iter_begin)
 		(loop-until (list iter_begin '= iter_end))
 	(else)
 	(errorcases

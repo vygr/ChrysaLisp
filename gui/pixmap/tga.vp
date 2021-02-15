@@ -98,7 +98,7 @@
 				(assign {+argb_black+ + col} {col})
 			(endif)
 			(assign {col} {*data})
-		(loop-until {(data + int_size => data) = data_end})
+		(loop-until {(data + +int_size+ => data) = data_end})
 		(call 'pixmap :as_premul {this, this})
 	(endif)
 

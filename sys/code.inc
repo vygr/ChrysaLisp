@@ -311,8 +311,7 @@
 ; data structures
 ;;;;;;;;;;;;;;;;;
 
-(defcvar '*struct* nil '*struct_sp* nil
-	'null_size 0 'byte_size 1 'short_size 2 'int_size 4 'long_size 8 'ptr_size 8)
+(defcvar '*struct* nil '*struct_sp* nil)
 
 (defmacro type-sym (_)
 	`(sym (str "_t_" ,_)))
@@ -327,7 +326,7 @@
 			(throw "Field redefined !" _))) _)
 
 (defun local-align (&optional _)
-	(setd _ ptr_size)
+	(setd _ +ptr_size+)
 	(if *struct*
 		(setq *struct_sp* (align *struct_sp* _))
 		(setq *sym_sp* (align *sym_sp* _))))
@@ -350,24 +349,24 @@
 					(def-sym _ 'var *sym_sp* ,y)
 					(setq *sym_sp* (+ *sym_sp* ,s))))) f)))
 
-(def-type byte byte_size "b")
-(def-type ubyte byte_size "B")
-(def-type short short_size "s")
-(def-type ushort short_size "S")
-(def-type int int_size "i")
-(def-type uint int_size "I")
-(def-type long long_size "l")
-(def-type ulong long_size "L")
-(def-type ptr ptr_size "p")
-(def-type pbyte ptr_size "pb")
-(def-type pubyte ptr_size "pB")
-(def-type pshort ptr_size "ps")
-(def-type pushort ptr_size "pS")
-(def-type pint ptr_size "pi")
-(def-type puint ptr_size "pI")
-(def-type plong ptr_size "pl")
-(def-type pulong ptr_size "pL")
-(def-type pptr ptr_size "pp")
+(def-type byte +byte_size+ "b")
+(def-type ubyte +byte_size+ "B")
+(def-type short +short_size+ "s")
+(def-type ushort +short_size+ "S")
+(def-type int +int_size+ "i")
+(def-type uint +int_size+ "I")
+(def-type long +long_size+ "l")
+(def-type ulong +long_size+ "L")
+(def-type ptr +ptr_size+ "p")
+(def-type pbyte +ptr_size+ "pb")
+(def-type pubyte +ptr_size+ "pB")
+(def-type pshort +ptr_size+ "ps")
+(def-type pushort +ptr_size+ "pS")
+(def-type pint +ptr_size+ "pi")
+(def-type puint +ptr_size+ "pI")
+(def-type plong +ptr_size+ "pl")
+(def-type pulong +ptr_size+ "pL")
+(def-type pptr +ptr_size+ "pp")
 
 (defun offset (_)
 	(cond

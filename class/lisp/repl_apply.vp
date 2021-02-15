@@ -24,7 +24,7 @@
 	(vpif '(r3 = r4))
 		;built in or compiled function
 		(assign '((r2 num_value)) '(r2))
-		(vp-and-cr (neg ptr_size) r2)
+		(vp-and-cr (neg +ptr_size+) r2)
 		(vp-jmp-r r2)
 	(endif)
 
@@ -45,7 +45,7 @@
 	(endif))
 
 	(vp-alloc local_size)
-	(vp-add-cr ptr_size r3)
+	(vp-add-cr +ptr_size+ r3)
 	(assign '(r0 r1 r3 r4)
 		'((rsp local_this) (rsp local_value) (rsp local_iter_begin) (rsp local_iter_end)))
 
@@ -59,7 +59,7 @@
 		(f-bind 'error :vtable r4)
 		(breakif '(r3 = r4)))
 		(assign '((rsp local_iter_begin) (rsp local_iter_end)) '(r2 r3))
-		(vp-add-cr ptr_size r2)
+		(vp-add-cr +ptr_size+ r2)
 		(breakif '(r2 = r3))
 		(assign '(r2) '((rsp local_iter_begin)))
 		(call 'obj :deref '(r1))

@@ -42,7 +42,7 @@
 				(vpif '(r2 = r12))
 					(call 'array :push_back '(r0 r1) '(r0 r1 _ _))
 				(endif)
-				(vp-add-cr ptr_size r1)
+				(vp-add-cr +ptr_size+ r1)
 			(loop-end)
 
 			;pop back stack

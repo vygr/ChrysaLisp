@@ -346,7 +346,7 @@
 
 (defun reply (data)
 	;send msg to parent, sequenced
-	(mail-send reply_mbox (cat (char next_seq (const long_size)) data))
+	(mail-send reply_mbox (cat (char next_seq +long_size+) data))
 	(setq next_seq (inc next_seq)))
 
 ;best move for given board position for given color

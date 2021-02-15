@@ -46,7 +46,7 @@
 (vp-label 'fn_name_start)
 	(vp-string (str *name*))
 	(vp-byte 0 (list '- (label-sym 'fn_entry) (label-sym 'fn_name_start)))
-	(vp-align ptr_size (list '- (label-sym 'fn_entry) (label-sym 'fn_name_start)))
+	(vp-align +ptr_size+ (list '- (label-sym 'fn_entry) (label-sym 'fn_name_start)))
 (vp-label 'fn_entry)
 	(push-scope))
 
@@ -55,7 +55,7 @@
 	(each (lambda (s)
 	(vp-label (string-sym _))
 		(vp-string s) (vp-byte 0)) *strings*)
-	(vp-align ptr_size)
+	(vp-align +ptr_size+)
 (vp-label 'fn_links)
 	(each (lambda (s)
 	(vp-label (link-sym _))
@@ -64,7 +64,7 @@
 	(each (lambda (s)
 	(vp-label (path-sym _))
 		(vp-string (str s)) (vp-byte 0)) *paths*)
-	(vp-align ptr_size)
+	(vp-align +ptr_size+)
 (vp-label 'fn_end)
 	(opt-emit-buffer)
 	(when *debug_emit*

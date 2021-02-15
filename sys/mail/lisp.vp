@@ -156,7 +156,7 @@
 (errorcases
 	(call 'obj :inst_of (cat {arg1, @} (f-path 'list :vtable)))
 	(gotoif (list (method-output 'obj :inst_of 1) '= 0) 'error))
-	(call 'sys_mail :alloc_obj {arg1, arg1->array_begin, arg1->array_length * long_size} {arg2})
+	(call 'sys_mail :alloc_obj {arg1, arg1->array_begin, arg1->array_length * +long_size+} {arg2})
 (vp-label 'sendit)
 	(assign {arg0, arg2} '(r1 r0))
 	(assign-net-id r1 str_data r0 msg_dest)
@@ -413,7 +413,7 @@
 		;calculate wake time
 		(call 'sys_pii :time nil '(r0))
 		(vp-add-rr r0 r13)
-		(call 'sys_mail :alloc '(long_size) '(r0 r1))
+		(call 'sys_mail :alloc '(+long_size+) '(r0 r1))
 		(assign '(r13) '((r1 0)))
 		(load-net-id r12 str_data r2 r3 r4)
 		(save-net-id r0 msg_dest r2 r3 r4)

@@ -36,16 +36,16 @@
 	(push-scope)
 	(entry 'pixmap :resize {this, source})
 
-	(call 'sys_mem :alloc {(this->pixmap_width + 1) * int_size} {buf, _})
+	(call 'sys_mem :alloc {(this->pixmap_width + 1) * +int_size+} {buf, _})
 	(assign {(source->pixmap_width * 256) </ this->pixmap_width} {fw})
 	(assign {(source->pixmap_height * 256) </ this->pixmap_height} {fh})
 
 	(assign {0} {x2})
 	(loop-while {x2 < this->pixmap_width})
-		(assign {x2 *> fw} {(buf)[x2 * int_size]})
+		(assign {x2 *> fw} {(buf)[x2 * +int_size+]})
 		(assign {x2 + 1} {x2})
 	(loop-end)
-	(assign {source->pixmap_width * 256} {(buf)[x2 * int_size]})
+	(assign {source->pixmap_width * 256} {(buf)[x2 * +int_size+]})
 
 	(assign {&this->pixmap_size} {data})
 	(assign {0} {y2})
@@ -57,9 +57,9 @@
 
 		(assign {0} {x2})
 		(loop-while {x2 < this->pixmap_width})
-			(assign {(buf)[x2 * int_size]} {x1a})
+			(assign {(buf)[x2 * +int_size+]} {x1a})
 			(assign {x1a >> 8} {x1c})
-			(assign {(buf)[(x2 + 1) * int_size] - 1} {x1b})
+			(assign {(buf)[(x2 + 1) * +int_size+] - 1} {x1b})
 			(assign {x1b >> 8} {x1d})
 
 			(assign {0 => a => r => g => b} {q})
@@ -81,7 +81,7 @@
 				(endif)
 				(assign (list weight_y) {weight_y})
 
-				(assign {&source->pixmap_size + ((y * source->pixmap_width + x1c) * int_size)} {sdata})
+				(assign {&source->pixmap_size + ((y * source->pixmap_width + x1c) * +int_size+)} {sdata})
 				(assign {x1c} {x})
 				(loop-while {x <= x1d})
 					(vp-def (weight_x x1c x1d x x1a x1b))
@@ -104,7 +104,7 @@
 					(assign {r, g, b, a, q, sdata, weight_x * weight_y}
 						(list r g b a q sdata weight))
 					(vp-cpy-ir-ui sdata 0 sa)
-					(vp-add-cr int_size sdata)
+					(vp-add-cr +int_size+ sdata)
 					(vp-cpy-rr sa sr)
 					(vp-cpy-rr sa sg)
 					(vp-cpy-rr sa sb)
@@ -148,7 +148,7 @@
 			(vp-add-rr b r)
 			(vp-add-rr a r)
 			(vp-cpy-ri-i r data 0)
-			(vp-add-cr int_size data)
+			(vp-add-cr +int_size+ data)
 			(assign (list data) {data})
 
 			(assign {x2 + 1} {x2})
@@ -190,7 +190,7 @@
 			(vp-and-rr mga ga)
 			(vp-and-rr mrb rb)
 
-			(vp-cpy-ir-ui sdata int_size sga)
+			(vp-cpy-ir-ui sdata +int_size+ sga)
 			(vp-add-rr sw sdata)
 			(vp-cpy-rr sga srb)
 			(vp-and-rr mga sga)
@@ -205,7 +205,7 @@
 			(vp-add-rr sga ga)
 			(vp-add-rr srb rb)
 
-			(vp-cpy-ir-ui sdata int_size sga)
+			(vp-cpy-ir-ui sdata +int_size+ sga)
 			(vp-sub-rr sw sdata)
 			(vp-cpy-rr sga srb)
 			(vp-and-rr mga sga)
@@ -221,8 +221,8 @@
 			(vp-add-rr ga rb)
 			(vp-cpy-ri-i rb data 0)
 
-			(vp-add-cr int_size data)
-			(vp-add-cr (* 2 int_size) sdata)
+			(vp-add-cr +int_size+ data)
+			(vp-add-cr (* 2 +int_size+) sdata)
 		(loop-end)
 		(vp-add-rr sw sdata)
 	(loop-end)
@@ -260,14 +260,14 @@
 			(vp-and-rr mga ga)
 			(vp-and-rr mrb rb)
 
-			(vp-cpy-ir-ui sdata int_size sga)
+			(vp-cpy-ir-ui sdata +int_size+ sga)
 			(vp-cpy-rr sga srb)
 			(vp-and-rr mga sga)
 			(vp-and-rr mrb srb)
 			(vp-add-rr sga ga)
 			(vp-add-rr srb rb)
 
-			(vp-cpy-ir-ui sdata (* 2 int_size) sga)
+			(vp-cpy-ir-ui sdata (* 2 +int_size+) sga)
 			(vp-add-rr sw sdata)
 			(vp-cpy-rr sga srb)
 			(vp-and-rr mga sga)
@@ -282,14 +282,14 @@
 			(vp-add-rr sga ga)
 			(vp-add-rr srb rb)
 
-			(vp-cpy-ir-ui sdata int_size sga)
+			(vp-cpy-ir-ui sdata +int_size+ sga)
 			(vp-cpy-rr sga srb)
 			(vp-and-rr mga sga)
 			(vp-and-rr mrb srb)
 			(vp-add-rr sga ga)
 			(vp-add-rr srb rb)
 
-			(vp-cpy-ir-ui sdata (* 2 int_size) sga)
+			(vp-cpy-ir-ui sdata (* 2 +int_size+) sga)
 			(vp-add-rr sw sdata)
 			(vp-cpy-rr sga srb)
 			(vp-and-rr mga sga)
@@ -304,14 +304,14 @@
 			(vp-add-rr sga ga)
 			(vp-add-rr srb rb)
 
-			(vp-cpy-ir-ui sdata int_size sga)
+			(vp-cpy-ir-ui sdata +int_size+ sga)
 			(vp-cpy-rr sga srb)
 			(vp-and-rr mga sga)
 			(vp-and-rr mrb srb)
 			(vp-add-rr sga ga)
 			(vp-add-rr srb rb)
 
-			(vp-cpy-ir-ui sdata (* 2 int_size) sga)
+			(vp-cpy-ir-ui sdata (* 2 +int_size+) sga)
 			(vp-sub-rr sw sdata)
 			(vp-cpy-rr sga srb)
 			(vp-sub-rr sw sdata)
@@ -344,8 +344,8 @@
 			(vp-add-rr sga rb)
 			(vp-cpy-ri-i rb data 0)
 
-			(vp-add-cr int_size data)
-			(vp-add-cr (* 3 int_size) sdata)
+			(vp-add-cr +int_size+ data)
+			(vp-add-cr (* 3 +int_size+) sdata)
 		(loop-end)
 		(vp-add-rr sw sdata)
 		(vp-add-rr sw sdata)

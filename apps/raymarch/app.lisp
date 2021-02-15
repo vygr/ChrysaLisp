@@ -14,7 +14,7 @@
 	(byte 'main+ 'task+ 'reply+ 'timer+))
 
 (defun child-msg (&rest _)
-	(apply cat (map (# (char %0 (const long_size))) _)))
+	(apply cat (map (# (char %0 +long_size+)) _)))
 
 (defq canvas_width 800 canvas_height 800 canvas_scale 1
 	timer_rate (/ 1000000 1) id t dirty nil
@@ -51,7 +51,7 @@
 				(:insert :job job)
 				(:insert :timestamp (pii-time)))
 			(mail-send (. val :find :child)
-				(cat (char key (const long_size)) (elem +select_reply+ select) job)))
+				(cat (char key +long_size+) (elem +select_reply+ select) job)))
 		(t	;no jobs in que
 			(.-> val
 				(:erase :job)
@@ -91,13 +91,13 @@
 					(t (. mywindow :event msg))))
 			((= idx +select_task+)
 				;child launch responce
-				(defq key (get-long msg 0) child (slice (const long_size) (const (+ long_size net_id_size)) msg))
+				(defq key (get-long msg 0) child (slice +long_size+ (const (+ +long_size+ net_id_size)) msg))
 				(when (defq val (. farm :find key))
 					(. val :insert :child child)
 					(dispatch-job key val)))
 			((= idx +select_reply+)
 				;child responce
-				(defq key (get-long msg (- (length msg) (const long_size))))
+				(defq key (get-long msg (- (length msg) +long_size+)))
 				(when (defq val (. farm :find key))
 					(dispatch-job key val))
 				(setq dirty t)

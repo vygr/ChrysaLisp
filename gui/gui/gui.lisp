@@ -9,8 +9,8 @@
 
 	;single instance only on this node
 	(defq gui_services (mail-enquire "GUI_SERVICE")
-		node (slice (const long_size) -1 (task-mailbox)))
-	(when (notany (# (eql node (slice (const long_size) -1
+		node (slice +long_size+ -1 (task-mailbox)))
+	(when (notany (# (eql node (slice +long_size+ -1
 			(to-net-id (elem 1 (split %0 ",")))))) gui_services)
 		(mail-declare (task-mailbox) "GUI_SERVICE" "GUI Service 0.2")
 

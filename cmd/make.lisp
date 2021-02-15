@@ -32,13 +32,13 @@
 			ev_msg_key_key ev_msg_key_keycode ev_msg_mouse_buttons ev_msg_mouse_rx
 			ev_msg_mouse_ry ev_msg_target_id ev_msg_type ev_type_gui ev_type_key
 			ev_type_mouse file_open_append file_open_read file_open_write in_mbox_id
-			in_state int_size join_bevel join_miter join_round kn_call_child kn_call_open
-			long_size ptr_size byte_size short_size stdio_args stream_mail_state_started
-			stream_mail_state_stopped stream_mail_state_stopping vdu_char_height
-			vdu_char_width view_flags view_h view_w view_x view_y canvas_flags
-			canvas_color cap_arrow canvas_scale canvas_pixmap pixmap_width pixmap_height
-			ev_msg_mouse_x ev_msg_mouse_y ev_type_action view_target_ids canvas_texture
-			texture_handle texture_width texture_height net_id_size node_id_size)
+			in_state join_bevel join_miter join_round kn_call_child kn_call_open
+			stdio_args stream_mail_state_started stream_mail_state_stopped
+			stream_mail_state_stopping vdu_char_height vdu_char_width view_flags view_h
+			view_w view_x view_y canvas_flags canvas_color cap_arrow canvas_scale
+			canvas_pixmap pixmap_width pixmap_height ev_msg_mouse_x ev_msg_mouse_y
+			ev_type_action view_target_ids canvas_texture texture_handle texture_width
+			texture_height net_id_size node_id_size)
 		_vals_ (within-compile-env (lambda ()
 	        (include "sys/func.inc")
 			(each include (all-class-files))

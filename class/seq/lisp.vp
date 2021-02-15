@@ -163,7 +163,7 @@
 		(vpif '(r1 < r8))
 			(vp-cpy-rr r1 r8)
 		(endif)
-		(vp-add-cr ptr_size r6)
+		(vp-add-cr +ptr_size+ r6)
 	(loop-end)
 
 	(assign '((rsp local_this)) '(r0))
@@ -202,7 +202,7 @@
 			(loop-start)
 				(call 'seq :ref_element '((r10 0) r9) '(_ r1))
 				(call 'list :push_back '((rsp local_params) r1))
-				(vp-add-cr ptr_size r10)
+				(vp-add-cr +ptr_size+ r10)
 			(loop-until '(r10 = r11))
 
 			(call 'num :create '(r9) '(r2))
@@ -281,7 +281,7 @@
 		(vpif '(r1 < r8))
 			(vp-cpy-rr r1 r8)
 		(endif)
-		(vp-add-cr ptr_size r6)
+		(vp-add-cr +ptr_size+ r6)
 	(loop-end)
 
 	(call 'obj :ref '(r11) '((rsp local_value)))
@@ -320,7 +320,7 @@
 			(loop-start)
 				(call 'seq :ref_element '((r10 0) r9) '(_ r1))
 				(call 'list :push_back '((rsp local_params) r1))
-				(vp-add-cr ptr_size r10)
+				(vp-add-cr +ptr_size+ r10)
 			(loop-until '(r10 = r11))
 
 			(call 'num :create '(r9) '(r2))

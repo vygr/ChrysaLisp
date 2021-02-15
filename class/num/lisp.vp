@@ -171,7 +171,7 @@
 	(vpif '(r1 /= r2))
 		(loop-start)
 			(vp-cpy-ir r1 0 r3)
-			(vp-add-cr ptr_size r1)
+			(vp-add-cr +ptr_size+ r1)
 			(assign '((r3 num_value)) '(r3))
 			(exec p)
 		(loop-until '(r1 = r2))

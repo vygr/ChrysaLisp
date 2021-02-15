@@ -124,6 +124,8 @@
 (ffi pii-write-char "sys/pii/lisp_writechar" 0)
 
 (defq t 't nil 'nil
+	null_size 0 +byte_size+ 1 +short_size+ 2
+	+int_size+ 4 +long_size+ 8 +ptr_size+ 8
 	defmacro '(macro (n a &rest _) `(defq ,n (macro ,a ~_))))
 
 (defmacro defun (n a &rest _)

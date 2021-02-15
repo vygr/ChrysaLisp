@@ -92,8 +92,8 @@
 					(t (. mywindow :event msg))))
 			((= idx +select_task+)
 				;child launch responce
-				(defq child (slice (const long_size) (const (+ long_size net_id_size)) msg)
-					val (. global_tasks :find (slice (const long_size) -1 child)))
+				(defq child (slice +long_size+ (const (+ +long_size+ net_id_size)) msg)
+					val (. global_tasks :find (slice +long_size+ -1 child)))
 				(when val
 					(.-> val
 						(:insert :child child)

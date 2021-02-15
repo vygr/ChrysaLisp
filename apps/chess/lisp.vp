@@ -55,9 +55,9 @@
 			(assign `((,brd r0 ub)) '(r0))
 			(continueif (list r0 '= +char_space+))
 			(assign '(r0) `((,yield_data 0 ub)))
-			(vp-add-cr byte_size yield_data)
+			(vp-add-cr +byte_size+ yield_data)
 		(endswitch)
-		(vp-add-cr ptr_size iter_begin)
+		(vp-add-cr +ptr_size+ iter_begin)
 	(loop-until (list iter_begin '= iter_end))
 
 	(assign '((rsp local_yield) 0) '(r1 r0))

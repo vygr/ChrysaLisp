@@ -40,7 +40,7 @@
 	(call 'sys_task :start (cat {@} (f-path 'sys_link :out)) '(_ _ r2 r3 r4))
 	(assign {msg, data, &lk_node, mem} '(r0 r1 r5 r6))
 	(save-net-id r0 msg_dest)
-	(assign '(r5 r6) '((r1 0) (r1 ptr_size)))
+	(assign '(r5 r6) '((r1 0) (r1 +ptr_size+)))
 	(call 'sys_mail :send '(r0))
 
 	;start in link and send params
@@ -48,7 +48,7 @@
 	(call 'sys_task :start (cat {@} (f-path 'sys_link :in)) '(_ _ r2 r3 r4))
 	(assign {msg, data, &lk_node, mem} '(r0 r1 r5 r6))
 	(save-net-id r0 msg_dest)
-	(assign '(r5 r6) '((r1 0) (r1 ptr_size)))
+	(assign '(r5 r6) '((r1 0) (r1 +ptr_size+)))
 	(call 'sys_mail :send '(r0))
 
 	;wait till link dies or told to quit...
@@ -123,7 +123,7 @@
 	(call 'sys_task :start (cat {@} (f-path 'sys_link :out)) '(_ _ r2 r3 r4))
 	(assign {msg, data, &lk_node, mem} '(r0 r1 r5 r6))
 	(save-net-id r0 msg_dest)
-	(assign '(r5 r6) '((r1 0) (r1 ptr_size)))
+	(assign '(r5 r6) '((r1 0) (r1 +ptr_size+)))
 	(call 'sys_mail :send '(r0))
 
 	;start in link and send params
@@ -131,7 +131,7 @@
 	(call 'sys_task :start (cat {@} (f-path 'sys_link :in)) '(_ _ r2 r3 r4))
 	(assign {msg, data, &lk_node, mem} '(r0 r1 r5 r6))
 	(save-net-id r0 msg_dest)
-	(assign '(r5 r6) '((r1 0) (r1 ptr_size)))
+	(assign '(r5 r6) '((r1 0) (r1 +ptr_size+)))
 	(call 'sys_mail :send '(r0))
 
 	;wait till link dies or told to quit...
@@ -169,7 +169,7 @@
 	;read params msg
 	(call 'sys_mail :mymail nil {msg, data})
 	(assign {ptr(data + 0)} {lk_node})
-	(assign {ptr(data + ptr_size)} {tx})
+	(assign {ptr(data + +ptr_size+)} {tx})
 	(call 'sys_mail :free {msg})
 
 	;switch to link priority and sleep to
@@ -202,7 +202,7 @@
 			(vpif {msg})
 				;copy message data
 				(call 'sys_mem :copy {&msg->msg_stamp_start, &tx_msg->lk_msg_stamp, msg_stamp_end - msg_stamp_start})
-				(call 'sys_mem :copy {msg->msg_frag_data, &tx_msg->lk_msg_data, (msg->msg_frag_length + long_size - 1) & -long_size})
+				(call 'sys_mem :copy {msg->msg_frag_data, &tx_msg->lk_msg_data, (msg->msg_frag_length + +long_size+ - 1) & -+long_size+})
 				;busy status
 				(assign {lk_chan_status_busy} {tx_msg->lk_msg_status})
 				;free message
@@ -254,7 +254,7 @@
 	;read params msg
 	(call 'sys_mail :mymail nil {msg, data})
 	(assign {ptr(data + 0)} {lk_node})
-	(assign {ptr(data + ptr_size)} {rx})
+	(assign {ptr(data + +ptr_size+)} {rx})
 	(call 'sys_mail :free {msg})
 
 	;switch to link priority and sleep to
@@ -291,7 +291,7 @@
 					;allocate msg, copy over data
 					(call 'sys_mail :alloc {rx_msg->lk_msg_stamp.(-msg_stamp_start).msg_frag_length} {msg, data})
 					(call 'sys_mem :copy {&rx_msg->lk_msg_stamp, &msg->msg_stamp_start, msg_stamp_end - msg_stamp_start})
-					(call 'sys_mem :copy {&rx_msg->lk_msg_data, data, rx_msg->lk_msg_stamp.(-msg_stamp_start).msg_frag_length + long_size - 1) & -long_size})
+					(call 'sys_mem :copy {&rx_msg->lk_msg_data, data, rx_msg->lk_msg_stamp.(-msg_stamp_start).msg_frag_length + +long_size+ - 1) & -+long_size+})
 					;clear status
 					(assign {lk_chan_status_ready} {rx_msg->lk_msg_status})
 					;send onwards

@@ -51,7 +51,7 @@
 				(call 'hmap :search '((r0 lisp_environment) r3) '(_ r1 _))
 				(breakif '(r1 = 0))
 				;is a list ?
-				(assign '((r1 ptr_size)) '(r1))
+				(assign '((r1 +ptr_size+)) '(r1))
 				(f-bind 'list :vtable r2)
 				(assign '((r1 obj_vtable)) '(r3))
 				(breakif '(r2 /= r3))
@@ -98,7 +98,7 @@
 					(vpif '(r2 = r7))
 						(call 'array :push_back '(r0 r1) '(r0 r1 _ _))
 					(endif)
-					(vp-add-cr ptr_size r1)
+					(vp-add-cr +ptr_size+ r1)
 				(loop-until '(r1 = r6))
 			(endswitch)
 

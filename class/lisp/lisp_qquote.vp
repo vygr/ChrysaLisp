@@ -52,7 +52,7 @@
 		(assign '((rsp local_iter_begin) (rsp local_iter_end)) '(r2 r3))
 		(breakif '(r2 = r3))
 		(vp-cpy-ir r2 0 r1)
-		(vp-add-cr ptr_size r2)
+		(vp-add-cr +ptr_size+ r2)
 		(assign '(r2) '((rsp local_iter_begin)))
 
 		;do we eval this element ?
@@ -97,7 +97,7 @@
 		(vp-label 'push_list_copy1)
 			(class/obj/ref r1 r2)
 			(call 'list :push_back '((rsp local_list) r1) '(_ _ _ r3))
-			(call 'expand '((rsp local_this) (& r3 (neg ptr_size)) r6 r7))
+			(call 'expand '((rsp local_this) (& r3 (neg +ptr_size+)) r6 r7))
 			(break)
 		(vp-label 'push_elem_ref)
 			(class/obj/ref r1 r2)

@@ -26,10 +26,10 @@
 	(gotoif '(r2 = 0) 'error))
 
 	(call 'list :get_begin {args} {_, iter_begin})
-	(call 'sys_load :bind {&iter_begin[ptr_size * 2]->str_data} {value})
+	(call 'sys_load :bind {&iter_begin[+ptr_size+ * 2]->str_data} {value})
 	(errorifnot {value} 'error)
-	(call 'func :create {value | iter_begin[ptr_size * 3]->num_value} {value})
-	(call 'hmap :insert {this->lisp_environment, iter_begin[ptr_size], value})
+	(call 'func :create {value | iter_begin[+ptr_size+ * 3]->num_value} {value})
+	(call 'hmap :insert {this->lisp_environment, iter_begin[+ptr_size+], value})
 
 	(exit 'lisp :lisp_ffi {this, value})
 	(return)

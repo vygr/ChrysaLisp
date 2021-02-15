@@ -31,10 +31,10 @@
 					stdout_mbox
 					stderr_mbox
 					ack_mbox
-					(char 0 (const int_size)) arg))
+					(char 0 +int_size+) arg))
 				(setq stdout_mbox (cat
-					(char (get-int (mail-read ack_mbox) (const (* 3 net_id_size))) (const long_size))
-					(slice (const long_size) -1 mbox)))) mboxs args select)
+					(char (get-int (mail-read ack_mbox) (const (* 3 net_id_size))) +long_size+)
+					(slice +long_size+ -1 mbox)))) mboxs args select)
 			(push pipe_streams stdout (out-stream stdout_mbox))
 			(push select (in-mbox stdout) (if flag (to-net-id (pad "" (const (* net_id_size 2)) "a")) (task-mailbox)))
 			(mail-free-mbox ack_mbox)

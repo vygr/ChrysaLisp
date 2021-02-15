@@ -30,7 +30,7 @@
 
 	;create new pixmap object
 	(vp-mul-rr r1 r0)
-	(vp-mul-cr int_size r0)
+	(vp-mul-cr +int_size+ r0)
 	(vp-add-cr pixmap_data r0)
 	(call 'sys_mem :alloc '(r0) '(r0 _))
 	(vpif '(r0 /= 0))
@@ -62,7 +62,7 @@
 
 	(entry 'pixmap :init '(r0 r1 r2 r3))
 	(assign '(r2 r3) '((r0 pixmap_width) (r0 pixmap_height)))
-	(vp-mul-cr int_size r2)
+	(vp-mul-cr +int_size+ r2)
 	(assign '(r2) '((r0 pixmap_stride)))
 
 	;init parent
@@ -224,7 +224,7 @@
 			(call 'pixmap :ref {this} {this})
 			(break 'funcexit)
 		(endif)
-		(call 'pixmap :ref {iter[ptr_size]} {this})
+		(call 'pixmap :ref {iter[+ptr_size+]} {this})
 		(call 'sym :deref {sym})
 	(else)
 		;open file stream
@@ -509,8 +509,8 @@
 			(call 'pixmap :to_argb '(r1) '(r9))
 		(endif)
 		(vp-cpy-ri-i r9 r5 0)
-		(vp-add-cr int_size r5)
-		(vp-add-cr int_size r7)
+		(vp-add-cr +int_size+ r5)
+		(vp-add-cr +int_size+ r7)
 	(loop-until '(r5 = r6))
 
 	(exit 'pixmap :as_argb '(r0))
@@ -542,8 +542,8 @@
 			(call 'pixmap :to_premul '(r1) '(r8))
 		(endif)
 		(vp-cpy-ri-i r8 r5 0)
-		(vp-add-cr int_size r5)
-		(vp-add-cr int_size r6)
+		(vp-add-cr +int_size+ r5)
+		(vp-add-cr +int_size+ r6)
 	(loop-until '(r5 = r4))
 
 	(exit 'pixmap :as_premul '(r0))

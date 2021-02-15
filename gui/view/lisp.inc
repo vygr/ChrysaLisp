@@ -97,7 +97,7 @@
 
 	(defmethod :get_id (this)
 		; (. view :get_id) -> id
-		(get-field this (const view_id) (const long_size)))
+		(get-field this (const view_id) +long_size+))
 
 	(defmethod :dirty (this)
 		; (. view :dirty) -> view
@@ -110,7 +110,7 @@
 
 	(defmethod :get_flags (this)
 		; (. view :get_flags) -> flags
-		(get-field this (const view_flags) (const (neg int_size))))
+		(get-field this (const view_flags) (const (neg +int_size+))))
 
 	(defmethod :add_child (this child)
 		; (. view :add_child child) -> view
@@ -118,34 +118,34 @@
 
 	(defmethod :get_pos (this)
 		; (. view :get_pos) -> (x y)
-		(list (get-field this (const view_x) (const int_size))
-			(get-field this (const view_y) (const int_size))))
+		(list (get-field this (const view_x) +int_size+)
+			(get-field this (const view_y) +int_size+)))
 
 	(defmethod :get_size (this)
 		; (. view :get_size) -> (width height)
-		(list (get-field this (const view_w) (const int_size))
-			(get-field this (const view_h) (const int_size))))
+		(list (get-field this (const view_w) +int_size+)
+			(get-field this (const view_h) +int_size+)))
 
 	(defmethod :set_size (this width height)
 		; (. view :set_size width height) -> view
 		(set-field (set-field this
-			(const view_w) (const int_size) width)
-			(const view_h) (const int_size) height))
+			(const view_w) +int_size+ width)
+			(const view_h) +int_size+ height))
 
 	(defmethod :get_bounds (this)
 		; (. view :get_bounds) -> (x y width height)
-		(list (get-field this (const view_x) (const int_size))
-			(get-field this (const view_y) (const int_size))
-			(get-field this (const view_w) (const int_size))
-			(get-field this (const view_h) (const int_size))))
+		(list (get-field this (const view_x) +int_size+)
+			(get-field this (const view_y) +int_size+)
+			(get-field this (const view_w) +int_size+)
+			(get-field this (const view_h) +int_size+)))
 
 	(defmethod :set_bounds (this x y width height)
 		; (. view :set_size x y width height) -> view
 		(set-field (set-field (set-field (set-field this
-			(const view_x) (const int_size) x)
-			(const view_y) (const int_size) y)
-			(const view_w) (const int_size) width)
-			(const view_h) (const int_size) height))
+			(const view_x) +int_size+ x)
+			(const view_y) +int_size+ y)
+			(const view_w) +int_size+ width)
+			(const view_h) +int_size+ height))
 
 	(defmethod :change (this x y width height)
 		; (. view :change x y width height) -> view

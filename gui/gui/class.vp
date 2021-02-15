@@ -271,10 +271,10 @@
 
 	;free old regions and deinit region heap
 	(assign {&user->local_statics->statics_gui_old_regions} {iter_begin})
-	(assign {&iter_begin[num_old_regions * ptr_size]} {iter_end})
+	(assign {&iter_begin[num_old_regions * +ptr_size+]} {iter_end})
 	(loop-while {iter_begin /= iter_end})
 		(call 'region :free {user->local_statics->statics_gui_rect_heap, iter_begin})
-		(assign {iter_begin + ptr_size} {iter_end})
+		(assign {iter_begin + +ptr_size+} {iter_end})
 	(loop-end)
 	(call 'sys_heap :deinit {user->local_statics->statics_gui_rect_heap})
 
@@ -331,7 +331,7 @@
 				(vp-cpy-ir-ub r2 1 r0)
 				(break 'exit)
 			(endif)
-			(vp-add-cr short_size r2)
+			(vp-add-cr +short_size+ r2)
 		(loop-end)
 	(endif)
 
@@ -396,8 +396,8 @@
 		;paste new damaged region into all old damaged regions
 		(assign '((r4 statics_gui_old_region_index)) '(r2))
 		(loop-start)
-			(vp-add-cr ptr_size r2)
-			(vpif (list r2 '= (* num_old_regions ptr_size)))
+			(vp-add-cr +ptr_size+ r2)
+			(vpif (list r2 '= (* num_old_regions +ptr_size+)))
 				(vp-xor-rr r2 r2)
 			(endif)
 			(assign '((& r4 statics_gui_old_regions) (r4 statics_gui_old_region_index)) '(r1 r3))
@@ -411,8 +411,8 @@
 		(assign '(r0) '((r1 r2)))
 
 		;move on to next old region
-		(vp-add-cr ptr_size r2)
-		(vpif (list r2 '= (* num_old_regions ptr_size)))
+		(vp-add-cr +ptr_size+ r2)
+		(vpif (list r2 '= (* num_old_regions +ptr_size+)))
 			(vp-xor-rr r2 r2)
 		(endif)
 		(assign '((rsp local_root) r2) '(r0 (r4 statics_gui_old_region_index))))

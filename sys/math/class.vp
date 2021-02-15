@@ -19,7 +19,7 @@
 		(vpif '(r0 = 0))
 			;total random at start up
 			(vp-cpy-rr r1 r2)
-			(call 'sys_pii :rand '((& r3 statics_sys_math_seed) long_size))
+			(call 'sys_pii :rand '((& r3 statics_sys_math_seed) +long_size+))
 			(vp-cpy-ir r3 statics_sys_math_seed r0)
 			(vp-cpy-rr r2 r1)
 		(endif)

@@ -93,7 +93,7 @@ And the implementation of this is in the `class/str/class.vp` file:
 		(vpif '(r3 /= r4))
 			(loop-start)
 				(vp-cpy-ir-ub r3 0 r2)
-				(vp-add-cr byte_size r3)
+				(vp-add-cr +byte_size+ r3)
 				(vp-add-rr r2 r1)
 				(vp-cpy-rr r1 r2)
 				(vp-shl-cr 10 r1)

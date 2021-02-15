@@ -582,7 +582,7 @@
 		(assign {*iter_begin} {data->ev_msg_target_id})
 		(assign {args->view_id} {data->ev_msg_action_source_id})
 		(call 'sys_mail :send {msg})
-		(assign {iter_begin + long_size} {iter_begin})
+		(assign {iter_begin + +long_size+} {iter_begin})
 	(loop-end)
 	(endswitch)
 

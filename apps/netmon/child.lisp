@@ -18,7 +18,7 @@
 				(mail-timeout (elem +select_timeout+ select) 0)
 				(bind '(task_count mem_used) (kernel-stats))
 				(mail-send msg (cat
-					(slice (const long_size) -1 (task-mailbox))
-					(char task_count (const int_size))
-					(char mem_used (const int_size)))))))
+					(slice +long_size+ -1 (task-mailbox))
+					(char task_count +int_size+)
+					(char mem_used +int_size+))))))
 	(mail-free-mbox (pop select)))

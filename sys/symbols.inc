@@ -23,16 +23,11 @@ file_open_read 0
 file_open_write 1
 in_mbox_id 84
 in_state 96
-int_size 4
 join_bevel 1
 join_miter 0
 join_round 2
 kn_call_child 2
 kn_call_open 1
-long_size 8
-ptr_size 8
-byte_size 1
-short_size 2
 stdio_args 40
 stream_mail_state_started 0
 stream_mail_state_stopped 2

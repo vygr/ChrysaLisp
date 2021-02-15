@@ -66,7 +66,7 @@
 	(ulong 'gui_renderer 'gui_texture 'gui_next_id)
 	(uint 'gui_dirty_flag 'gui_old_region_index)
 	(int 'gui_mouse_x 'gui_mouse_y)
-	(struct 'gui_old_regions (* num_old_regions ptr_size))
+	(struct 'gui_old_regions (* num_old_regions +ptr_size+))
 	(local-align)
 
 	;pixmap statics

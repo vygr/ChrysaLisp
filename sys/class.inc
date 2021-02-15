@@ -77,7 +77,7 @@
 			((:virtual :final)
 				(push (elem 0 *class*) _1)
 				(push (elem 1 *class*) (list _2 _3 _4 _5
-					(elem-set 2 *class* (+ (elem 2 *class*) ptr_size)))))
+					(elem-set 2 *class* (+ (elem 2 *class*) +ptr_size+)))))
 			(:override
 				(throw "Method does not exist !" _1))
 			(t (throw "Must use static, virtual, final or override ! " _3)))))
@@ -411,7 +411,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun signature (_)
-	(vp-align short_size)
+	(vp-align +short_size+)
 (vp-label 'sig)
 	(each (lambda (_)
 		(vp-short `(- ,(label-sym (link-sym (fn-find-link (f-path _ :vtable)))) *pc*))) _))

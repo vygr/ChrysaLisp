@@ -15,13 +15,13 @@
 						((= *func_align* 16)
 							(apply emit-push x)
 							(emit-call-jump-i 0x10 b c)
-							(emit-add-cr (* ptr_size (length x)) rsp))
+							(emit-add-cr (* +ptr_size+ (length x)) rsp))
 						(t	(setq x (cat (list r r) x))
 							(emit-cpy-rr rsp r)
 							(emit-and-cr -16 rsp)
 							(apply emit-push x)
 							(emit-call-jump-i 0x10 b c)
-							(emit-cpy-ir rsp (* ptr_size (- (length x) 2)) rsp)))))
+							(emit-cpy-ir rsp (* +ptr_size+ (- (length x) 2)) rsp)))))
 			(t (throw "Unknown CPU for AMD64 !" *cpu*))))
 	(ARM64
 		(case *cpu*
@@ -38,8 +38,8 @@
 							(emit-pop r30))
 						((= 2 l) 
 							(emit-pop r30 r29))
-						(t	(emit-cpy-ir rsp (* ptr_size (dec l)) r30)
-							(emit-free (* ptr_size l))))))
+						(t	(emit-cpy-ir rsp (* +ptr_size+ (dec l)) r30)
+							(emit-free (* +ptr_size+ l))))))
 			(t (throw "Unknown CPU for ARM64 !" *cpu*))))
 	(WIN64
 		(case *cpu*
@@ -54,7 +54,7 @@
 							(apply emit-push x)
 							(emit-sub-cr 32 rsp)
 							(emit-call-jump-i 0x10 b c)
-							(emit-add-cr (* ptr_size (+ (length x) 4)) rsp))
+							(emit-add-cr (* +ptr_size+ (+ (length x) 4)) rsp))
 						(t	(emit-cpy-rr rsp r)
 							(emit-and-cr -16 rsp)
 							(if (odd? (length x))
@@ -63,7 +63,7 @@
 							(apply emit-push y)
 							(emit-sub-cr 32 rsp)
 							(emit-call-jump-i 0x10 b c)
-							(emit-cpy-ir rsp (* ptr_size (+ (length x) 4)) rsp)))))
+							(emit-cpy-ir rsp (* +ptr_size+ (+ (length x) 4)) rsp)))))
 			(t (throw "Unknown CPU for WIN64 !" *cpu*))))
 	(VP64
 		(case *cpu*

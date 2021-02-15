@@ -190,7 +190,7 @@
 ;;;;;;;;;;;;;;;;;;;;
 
 (defun lh-list-object (l)
-	(vp-align ptr_size)
+	(vp-align +ptr_size+)
 (vp-label l)
 	(times lh_list_size (vp-byte 0)))
 

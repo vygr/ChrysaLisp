@@ -62,14 +62,14 @@
 	(call 'sym :get_static_sym '(static_sym_vtable) '(r1))
 	(call 'hmap :find '(r0 r1) '(_ r1 _))
 	(errorif '(r1 = 0) 'error1)
-	(call 'hmap :find '((r1 ptr_size) r13) '(_ r1 _))
+	(call 'hmap :find '((r1 +ptr_size+) r13) '(_ r1 _))
 	(errorif '(r1 = 0) 'error1)
 
-	(assign '((r1 ptr_size) (rsp local_args)) '(r2 r1))
+	(assign '((r1 +ptr_size+) (rsp local_args)) '(r2 r1))
 	(assign '((r1 array_begin) (r1 array_length)) '(r5 r6))
-	(assign '((r5 0) (r5 ptr_size)) '(r3 r4))
-	(assign '(r4 r3) '((r5 0) (r5 ptr_size)))
-	(vp-add-cr ptr_size r5)
+	(assign '((r5 0) (r5 +ptr_size+)) '(r3 r4))
+	(assign '(r4 r3) '((r5 0) (r5 +ptr_size+)))
+	(vp-add-cr +ptr_size+ r5)
 	(vp-sub-cr 1 r6)
 	(assign '(r5 r6) '((r1 array_begin) (r1 array_length)))
 
@@ -77,7 +77,7 @@
 
 	(assign '((rsp local_args))  '(r4))
 	(assign '((r4 array_begin) (r4 array_length)) '(r3 r2))
-	(vp-sub-cr ptr_size r3)
+	(vp-sub-cr +ptr_size+ r3)
 	(vp-add-cr 1 r2)
 	(assign '(r3 r2) '((r4 array_begin) (r4 array_length)))
 

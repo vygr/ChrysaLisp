@@ -29,7 +29,7 @@
 		(assign '(r1) '((rsp local_stream)))
 		(call 'hmap :search '((r0 lisp_environment) (r0 lisp_sym_stream_line)) '(_ r1 _))
 		(vpif '(r1 /= 0))
-			(assign '((r1 ptr_size)) '(r1))
+			(assign '((r1 +ptr_size+)) '(r1))
 			(assign '((r1 num_value)) '(r2))
 			(vp-add-cr 1 r2)
 			(assign '(r2) '((r1 num_value)))

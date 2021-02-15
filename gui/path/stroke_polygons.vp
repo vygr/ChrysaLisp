@@ -32,16 +32,16 @@
 			(call 'list :get_both {*iter_begin_polygons} {_, iter_begin_polyline, iter_end_polyline})
 			(call 'path :create nil {polygon})
 			(call 'path :stroke_joints {polygon, stack, iter_begin_polyline, iter_end_polyline,
-				iter_end_polyline[-long_size * 4], iter_end_polyline[-long_size * 3],
-				iter_end_polyline[-long_size * 2], iter_end_polyline[-long_size], radius, eps, join_style})
+				iter_end_polyline[-+long_size+ * 4], iter_end_polyline[-+long_size+ * 3],
+				iter_end_polyline[-+long_size+ * 2], iter_end_polyline[-+long_size+], radius, eps, join_style})
 			(call 'list :push_back {this, polygon})
 			(call 'path :create nil {polygon})
-			(call 'path :stroke_joints {polygon, stack, iter_end_polyline - 2 * long_size,
-				iter_begin_polyline - 2 * long_size,
-				iter_begin_polyline[long_size * 2], iter_begin_polyline[long_size * 3],
-				iter_begin_polyline[0], iter_begin_polyline[long_size], radius, eps, join_style})
+			(call 'path :stroke_joints {polygon, stack, iter_end_polyline - 2 * +long_size+,
+				iter_begin_polyline - 2 * +long_size+,
+				iter_begin_polyline[+long_size+ * 2], iter_begin_polyline[+long_size+ * 3],
+				iter_begin_polyline[0], iter_begin_polyline[+long_size+], radius, eps, join_style})
 			(call 'list :push_back {this, polygon})
-			(assign {iter_begin_polygons + ptr_size} {iter_begin_polygons})
+			(assign {iter_begin_polygons + +ptr_size+} {iter_begin_polygons})
 		(loop-end)
 	(endif)
 
