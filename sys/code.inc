@@ -332,7 +332,7 @@
 		(setq *sym_sp* (align *sym_sp* _))))
 
 (defun def-struct (s &optional o)
-	(setq *struct* s *struct_sp* (eval (sym (cat (opt o "null") "_size")))))
+	(setq *struct* s *struct_sp* (if o (eval (sym (cat o "_size"))) 0)))
 
 (defun def-struct-end ()
 	(defcvar (sym (cat *struct* "_size")) *struct_sp* '*struct* nil '*struct_sp* nil))
