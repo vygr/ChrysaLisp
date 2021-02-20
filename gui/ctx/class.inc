@@ -12,5 +12,3 @@
 (dec-method :lisp_filled_box 'gui/ctx/lisp_filled_box :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_blit 'gui/ctx/lisp_blit :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_panel 'gui/ctx/lisp_panel :static '(r0 r1) '(r0 r1))
-
-; (dec-method :debug 'gui/ctx/debug :static '(r0 r7 r8 r9 r10))

@@ -7,6 +7,8 @@
 Host main.cpp pii_sleep function now standardized on usec for time interval
 like other the other time functions. As we are no longer using SDL sleep call.
 
+Changed the install network to a 3x3 mesh to not overload the Raspberry PI.
+
 ------
 
 New `(mail-timeout)` function for building timeout select operations.
