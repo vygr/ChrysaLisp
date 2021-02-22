@@ -224,6 +224,10 @@
 
 (. textfield :key_down event) -> textfield
 
+## textfield :layout
+
+(. textfield :layout) -> textfield
+
 ## .
 
 (. this :method [arg ...])

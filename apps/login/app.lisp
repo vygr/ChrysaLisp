@@ -14,8 +14,8 @@
 			(ui-label _ (:text "Username:"))
 			(ui-label _ (:text "Password:")))
 		(ui-grid _ (:grid_width 1 :grid_height 2 :color +argb_white+)
-			(ui-textfield username (:text (if (defq old (load "apps/login/current")) old "Guest")))
-			(ui-textfield password (:text "****************"))))
+			(ui-textfield username (:clear_text (if (defq old (load "apps/login/current")) old "Guest")))
+			(ui-textfield password (:clear_text "Guest" :mode t :min_width 192))))
 	(ui-grid _ (:grid_width 2 :grid_height 1)
 		(ui-buttons ("Login" "Create") +event_login+)))
 
@@ -25,7 +25,7 @@
 	(. mywindow :change_dirty (/ (- pw w) 2) (/ (- ph h) 2) w h))
 
 (defun get-username ()
-	(if (eql (defq user (get :text username)) "") "Guest" user))
+	(if (eql (defq user (get :clear_text username)) "") "Guest" user))
 
 (defun main ()
 	;add centered, wait a little for GUI to get going...

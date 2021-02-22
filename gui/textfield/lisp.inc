@@ -7,7 +7,7 @@
 
 (defclass Textfield () (Label)
 	; (Textfield) -> textfield
-	(def this :cursor 0)
+	(def this :cursor 0 :clear_text "" :mode nil)
 
 	(defmethod :draw (this)
 		; (. textfield :draw) -> textfield
@@ -18,10 +18,17 @@
 			(.-> this (:ctx_set_color +argb_black+) (:ctx_filled_box tw (>>> (- h th) 1) 2 th)))
 		this)
 
+	(defmethod :layout (this)
+		; (. textfield :layout) -> textfield
+		(if (get :mode this)
+			(def this :text (pad "" (length (get :clear_text this)) "******************"))
+			(def this :text (get :clear_text this)))
+		(.super this :layout))
+
 	(defmethod :key_down (this event)
 		; (. textfield :key_down event) -> textfield
 		(defq key (get-uint event ev_msg_key_key) cursor (get :cursor this)
-			text (get :text this))
+			text (get :clear_text this))
 		(cond
 			((or (= key 10) (= key 13))
 				;enter action
@@ -38,6 +45,6 @@
 			((<= 32 key 127)
 				;append key
 				(setq text (insert text cursor (char key)) cursor (inc cursor))))
-		(def this :text text :cursor cursor)
+		(def this :clear_text text :cursor cursor)
 		(.-> this :layout :dirty_all))
 	)

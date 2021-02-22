@@ -16,11 +16,11 @@
 		(ui-buttons (0xe9ed 0xe9e8) +event_connect+))
 	(ui-flow _ (:flow_flags +flow_right_fill+ :ink_color +argb_white+ :color +argb_white+ :ink_color +argb_black+)
 		(ui-label _ (:text "User:"))
-		(. (ui-textfield chat_user (:text "guest")) :connect +event_connect+))
+		(. (ui-textfield chat_user (:clear_text "guest")) :connect +event_connect+))
 	(ui-vdu vdu (:vdu_width vdu_width :vdu_height vdu_height :ink_color +argb_white+))
 	(ui-flow _ (:flow_flags +flow_right_fill+ :ink_color +argb_white+ :color +argb_white+ :ink_color +argb_black+)
 		(ui-label _ (:text "Chat:"))
-		(. (ui-textfield chat_text (:text "")) :connect +event_send+)))
+		(. (ui-textfield chat_text (:clear_text "")) :connect +event_send+)))
 
 (defun vdu-print (vdu buf s)
 	(each (lambda (c)

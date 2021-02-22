@@ -59,7 +59,7 @@
 							:font *env_small_toolbar_font* :color +argb_white+)) :connect e))
 						'(0xe913 0xe910 0xe988) (list +event_find_prev+ +event_find_next+ +event_clear_text+))
 					(. (ui-textfield mytextfield
-						(:border 0 :color +argb_white+ :text "")) :connect +event_action+))))
+						(:border 0 :color +argb_white+ :clear_text "")) :connect +event_action+))))
 		(ui-flow tab_bar (:color *env_toolbar_col* :flow_flags +flow_left_fill+)
 			(. (ui-button close_buf (:border 0 :text (num-to-utf8 0xe94c) 
 				:font tb_font)) :connect +event_closeb+)
