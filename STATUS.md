@@ -9,6 +9,9 @@ like other the other time functions. As we are no longer using SDL sleep call.
 
 Changed the install network to a 3x3 mesh to not overload the Raspberry PI.
 
+Textfield widget now has :clear_text property. This is mapped to :text property
+depending on the value of a :mode (nil | t) property.
+
 ------
 
 New `(mail-timeout)` function for building timeout select operations.
