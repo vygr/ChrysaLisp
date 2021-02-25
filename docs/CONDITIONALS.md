@@ -202,6 +202,6 @@ only if all the preceding test clauses prove to be false !
 ```
 
 In this example the working symbol is set if working is not already set, and if
-not then then it is set to the value of the `(. val :find :job)` statement. So
-this Farm loop will only set the value of working once then skip all the next
-clauses.
+not then it is set to the value of the `(. val :find :job)` statement. So this
+Farm child entry loop will only set the value of working once then quickly skip
+all the next clauses.
