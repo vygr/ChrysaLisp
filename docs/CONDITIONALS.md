@@ -1,0 +1,207 @@
+# Conditionals
+
+In this document we cover the ChrysaLisp conditional statements. The types
+available, plus the tricks you can pull with them.
+
+## cond
+
+`(cond (tst [...]) (tst [...]))` is the root VP native code implemented
+conditional statement. All other conditionals are based on `(cond ...)`. In
+many other Lisps the root is the `(if ...)` and cond is constructed from a
+ladder of if's. Not so here.
+
+All others are macros that use `(cond ...)` to generate code for you that uses
+`(cond ...)` or your behalf.
+
+Cond takes a list of test forms and following bodies to execute if that test
+form evaluates as not `nil`. Note this says *not nil* and that is significant.
+Any value other than `nil` is *not nil* !
+
+Only the first test that evaluates as not `nil` has its body executed. Also if
+the body is empty the none `nil` value returned by the test is the returned
+value from the `(cond ...)` statement ! That can be very useful. If no test
+clauses proves to be not `nil` then `nil` is returned from the `(cond ...)`.
+
+So let's see a few examples:
+
+```lisp
+(cond
+	((= a 0)
+		(print "a is 0"))
+	((= a 1)
+		(print "a is 1"))
+	((= b 0)
+		(print "b is 0"))
+	((= b 1)
+		(print "b is 1"))
+	(t
+		(print "no test is none nil!")))
+```
+
+Here the tests using symbol `a` have precedence over those with symbol `b` and
+the final clause will happen if no other clause.
+
+```lisp
+(cond
+	(a nil)
+	(t))
+```
+
+Here if `a` is not `nil` then return `nil` else return `t`. So a simple logical not.
+
+It is possible to evaluate a test and bind the result to a symbol that is then
+used in the remaining clauses ! These are not static tests based on the value
+of the symbols used at the entry to the `(cond ...)` !
+
+```lisp
+(cond
+	((= (defq id (get-mail-id msg)) +evt_close+)
+		;close app
+		)
+	((= id +evt_min+)
+		;minimize app
+		)
+	((= id +evt_max+)
+		;maximize app
+		)
+	(t
+		;ui event for window....
+		))
+```
+
+## if
+
+`(if tst form [else_form])` is a simple way to make a test evaluation and
+execute a form if the test is not `nil` and optionally evaluate a separate form
+if the test evaluates to `nil`.
+
+```lisp
+(if (= a 0)
+	(print "a is 0)
+	(print "a is not 0"))
+```
+
+The return value of the `(if ...)` is the value of the form evaluated, or `nil`
+if the form is empty.
+
+## when
+
+`(when tst body)` is a way to evaluate a body of statements if the test clause
+is not `nil`. Not just a single form but an implicit `(progn ...)`.
+
+```lisp
+(when (> z (const (i2n focal_len)))
+	(defq v (vec x y z) w (/ hsw z) h (/ hsh z))
+	(bind '(sx sy sz) (vec-add v (vec-scale (vec-norm
+		(vec-add v (vec-sub (elem +dlist_light_pos+ dlist) v))) r)))
+	(defq x (+ (* x h) hsw) y (+ (* y h) hsh) r (* r h)
+		sx (+ (* sx h) hsw) sy (+ (* sy h) hsh))
+	(push out (list (vec-n2f x y z) (vec-n2f sx sy) (n2f r)
+		(lighting c z) (lighting (const (vec-i2n 1 1 1)) z))))
+```
+
+## unless
+
+`(unless tst body)` is the opposite to `(when ...)`. It just evaluates the test
+form and executes the body if the result is `nil`.
+
+```lisp
+(unless (eql (defq file (elem -2 route)) ".")
+	(def (defq node (Button)) :text file :border 0)
+	(. node :connect (inc (get :action_event this)))
+	(. root :add_child node))
+```
+
+## while
+
+`(while tst body)` is like `(when ...)` but it will loop until the tst clauses
+fails.
+
+```lisp
+(while (< b e)
+	(push l b)
+	(setq b (+ b s)))
+```
+
+## until
+
+`(until tst body)` is like `(unless ...)` but like `(while ...)` will loop
+until the test clause fails.
+
+```lisp
+(until (def? :is_window window)
+	(setq window (penv window)))
+```
+
+## case
+
+`(case key (v0 body) (v1 body) ... (t ...))` is a variant of cond that acts
+like a fast switch. The `key` form is evaluated and must evaluate to a symbol
+or key symbol. A jump is then made to the matching body clause, or if no match,
+the optional `t` clause.
+
+```lisp
+(case state
+	(:symbol
+		(cond
+			((defq ink (get (sym (apply cat token)) (get :keywords this)))
+				;present in keyword map
+				(push col_list ink))
+			((eql (elem 0 token) "+")
+				;is a constant symbol
+				(push col_list (get :ink_constants this)))
+			((eql (elem 0 token) "*")
+				;is a global symbol
+				(push col_list (get :ink_globals this)))
+			((eql (elem 0 token) "-")
+				;is a negative number
+				(push col_list (get :ink_numbers this)))
+			(t	;default text color)
+				(push col_list (get :ink_text this)))))
+	((:string1 :string2)
+		(push col_list (get :ink_strings this)))
+	(:number
+		(push col_list (get :ink_numbers this)))
+	(:keysym
+		(push col_list (get :ink_keysyms this)))
+	(:comment
+		(push col_list (get :ink_comments this)))
+	(:text
+		(push col_list (get :ink_text this))))
+```
+
+# Tricks with logical statements
+
+`(and ...)` and `(or ...)` can be use as conditional operations as they are
+implemented as a ladder of `(if ..)` by their respective macros.
+
+## and
+
+For the `(and ...)` the forms will be evaluated one by one and will exit if
+that clause proves to be false. Therefore you can use it to execute a body of
+code only if all the preceding test clauses prove to be true !
+
+```lisp
+(and (= (get-long msg (const ev_msg_type)) (const ev_type_mouse))
+		(/= 0 (get-int msg (const ev_msg_mouse_buttons)))
+	(setq mouse_down (get-int msg (const ev_msg_mouse_buttons))))
+```
+
+In this example the mouse_down symbol is only set if the previous 2 clauses
+prove to be not `nil`.
+
+## or
+
+For the `(or ...)` the forms will be evaluated one by one and will exit if that
+clause proves to be true. Therefore you can use it to execute a body of code
+only if all the preceding test clauses prove to be false !
+
+```lisp
+(. farm :each (lambda (key val)
+	(setq working (or working (. val :find :job)))))
+```
+
+In this example the working symbol is set if working is not already set, and if
+not then then it is set to the value of the `(. val :find :job)` statement. So
+this Farm loop will only set the value of working once then skip all the next
+clauses.
