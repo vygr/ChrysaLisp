@@ -10,7 +10,7 @@ conditional statement. All other conditionals are based on `(cond ...)`. In
 many other Lisps the root is the `(if ...)` and cond is constructed from a
 ladder of if's. Not so here.
 
-All others are macros that use `(cond ...)` to generate code for you that uses
+All others are macros that use `(cond ...)` and generate code for you that uses
 `(cond ...)` or your behalf.
 
 Cond takes a list of test forms and following bodies to execute if that test
@@ -24,7 +24,7 @@ clauses proves to be not `nil` then `nil` is returned from the `(cond ...)`.
 
 So let's see a few examples:
 
-```lisp
+```vdu
 (cond
 	((= a 0)
 		(print "a is 0"))
@@ -41,7 +41,7 @@ So let's see a few examples:
 Here the tests using symbol `a` have precedence over those with symbol `b` and
 the final clause will happen if no other clause.
 
-```lisp
+```vdu
 (cond
 	(a nil)
 	(t))
@@ -53,7 +53,7 @@ It is possible to evaluate a test and bind the result to a symbol that is then
 used in the remaining clauses ! These are not static tests based on the value
 of the symbols used at the entry to the `(cond ...)` !
 
-```lisp
+```vdu
 (cond
 	((= (defq id (get-mail-id msg)) +evt_close+)
 		;close app
@@ -75,9 +75,9 @@ of the symbols used at the entry to the `(cond ...)` !
 execute a form if the test is not `nil` and optionally evaluate a separate form
 if the test evaluates to `nil`.
 
-```lisp
+```vdu
 (if (= a 0)
-	(print "a is 0)
+	(print "a is 0")
 	(print "a is not 0"))
 ```
 
@@ -89,7 +89,7 @@ if the form is empty.
 `(when tst body)` is a way to evaluate a body of statements if the test clause
 is not `nil`. Not just a single form but an implicit `(progn ...)`.
 
-```lisp
+```vdu
 (when (> z (const (i2n focal_len)))
 	(defq v (vec x y z) w (/ hsw z) h (/ hsh z))
 	(bind '(sx sy sz) (vec-add v (vec-scale (vec-norm
@@ -105,7 +105,7 @@ is not `nil`. Not just a single form but an implicit `(progn ...)`.
 `(unless tst body)` is the opposite to `(when ...)`. It just evaluates the test
 form and executes the body if the result is `nil`.
 
-```lisp
+```vdu
 (unless (eql (defq file (elem -2 route)) ".")
 	(def (defq node (Button)) :text file :border 0)
 	(. node :connect (inc (get :action_event this)))
@@ -117,7 +117,7 @@ form and executes the body if the result is `nil`.
 `(while tst body)` is like `(when ...)` but it will loop until the tst clauses
 fails.
 
-```lisp
+```vdu
 (while (< b e)
 	(push l b)
 	(setq b (+ b s)))
@@ -128,7 +128,7 @@ fails.
 `(until tst body)` is like `(unless ...)` but like `(while ...)` will loop
 until the test clause fails.
 
-```lisp
+```vdu
 (until (def? :is_window window)
 	(setq window (penv window)))
 ```
@@ -140,7 +140,7 @@ like a fast switch. The `key` form is evaluated and must evaluate to a symbol
 or key symbol. A jump is then made to the matching body clause, or if no match,
 the optional `t` clause.
 
-```lisp
+```vdu
 (case state
 	(:symbol
 		(cond
@@ -181,7 +181,7 @@ For the `(and ...)` the forms will be evaluated one by one and will exit if
 that clause proves to be false. Therefore you can use it to execute a body of
 code only if all the preceding test clauses prove to be true !
 
-```lisp
+```vdu
 (and (= (get-long msg (const ev_msg_type)) (const ev_type_mouse))
 		(/= 0 (get-int msg (const ev_msg_mouse_buttons)))
 	(setq mouse_down (get-int msg (const ev_msg_mouse_buttons))))
@@ -196,7 +196,7 @@ For the `(or ...)` the forms will be evaluated one by one and will exit if that
 clause proves to be true. Therefore you can use it to execute a body of code
 only if all the preceding test clauses prove to be false !
 
-```lisp
+```vdu
 (. farm :each (lambda (key val)
 	(setq working (or working (. val :find :job)))))
 ```
