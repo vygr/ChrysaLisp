@@ -2,10 +2,10 @@
 ; VP symbols, autogen do not edit !
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defq
-cap_butt 0
-cap_round 4
-cap_square 1
-cap_tri 2
++cap_butt+ 0
++cap_round+ 4
++cap_square+ 1
++cap_tri+ 2
 view_id 136
 ev_msg_action_source_id 16
 ev_msg_key_key 20
@@ -23,9 +23,9 @@ file_open_read 0
 file_open_write 1
 in_mbox_id 84
 in_state 96
-join_bevel 1
-join_miter 0
-join_round 2
++join_bevel+ 1
++join_miter+ 0
++join_round+ 2
 kn_call_child 2
 kn_call_open 1
 stdio_args 40
@@ -41,7 +41,7 @@ view_x 156
 view_y 160
 canvas_flags 240
 canvas_color 236
-cap_arrow 3
++cap_arrow+ 3
 canvas_scale 216
 canvas_pixmap 176
 pixmap_width 44

@@ -33,12 +33,12 @@
 
 (defun create-clockface ()
 	;create static clock face
-	(path-stroke-polygons face (* scale 0.02) eps join_miter
+	(path-stroke-polygons face (* scale 0.02) eps +join_miter+
 		(list (path-gen-arc (* scale 0.5) (* scale 0.5) 0.0 +fp_2pi+ (* scale 0.48) eps (path))))
-	(path-stroke-polylines face (* scale 0.03) eps join_miter cap_butt cap_butt
+	(path-stroke-polylines face (* scale 0.03) eps +join_miter+ +cap_butt+ +cap_butt+
 		(reduce (lambda (l a)
 			(push l (transform (path 0.0 0.35 0.0 0.44) (* (i2f a) +fp_hpi+) scale))) (range 0 4) (list)))
-	(path-stroke-polylines face (* scale 0.01) eps join_miter cap_butt cap_butt
+	(path-stroke-polylines face (* scale 0.01) eps +join_miter+ +cap_butt+ +cap_butt+
 		(reduce (lambda (l a)
 			(push l (transform (path 0.0 0.35 0.0 0.44) (/ (* (i2f a) +fp_2pi+) 12.0) scale))) (range 0 12) (list))))
 
@@ -51,7 +51,7 @@
 		(:fpoly 0.0 0.0 0 face))
 
 	;hour and minute hands
-	(defq _ (path-stroke-polylines (list) (const (* scale 0.02)) eps join_miter cap_round cap_tri
+	(defq _ (path-stroke-polylines (list) (const (* scale 0.02)) eps +join_miter+ +cap_round+ +cap_tri+
 		(list (transform (path 0.0 0.04 0.0 -0.22) (/ (* hours +fp_2pi+) 12.0) scale)
 			(transform (path 0.0 0.04 0.0 -0.33) (/ (* minutes +fp_2pi+) 60.0) scale))))
 	(.-> clock
@@ -61,7 +61,7 @@
 		(:fpoly 0.0 0.0 1 _))
 
 	;second hand
-	(defq _ (path-stroke-polylines (list) (const (* scale 0.01)) eps join_miter cap_round cap_tri
+	(defq _ (path-stroke-polylines (list) (const (* scale 0.01)) eps +join_miter+ +cap_round+ +cap_tri+
 		(list (transform (path 0.0 0.04 0.0 -0.38) (/ (* (% seconds 60.0) +fp_2pi+) 60.0) scale))))
 	(.-> clock
 		(:set_color 0xa0000000)

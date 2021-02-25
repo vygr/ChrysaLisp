@@ -52,16 +52,16 @@
 			(cond
 				((= mode +event_arrow1+)
 					;flatten to arrow1
-					(path-stroke-polylines (list) rad (const eps) (const join_bevel) (const cap_butt) (const cap_arrow) (list pnts)))
+					(path-stroke-polylines (list) rad (const eps) +join_bevel+ +cap_butt+ +cap_arrow+ (list pnts)))
 				((= mode +event_arrow2+)
 					;flatten to arrow2
-					(path-stroke-polylines (list) rad (const eps) (const join_bevel) (const cap_arrow) (const cap_arrow) (list pnts)))
+					(path-stroke-polylines (list) rad (const eps) +join_bevel+ +cap_arrow+ +cap_arrow+ (list pnts)))
 				((= mode +event_box+)
 					;flatten to box
-					(path-stroke-polygons (list) rad (const eps) (const join_miter) (list (path x y x1 y x1 y1 x y1))))
+					(path-stroke-polygons (list) rad (const eps) +join_miter+ (list (path x y x1 y x1 y1 x y1))))
 				((= mode +event_circle+)
 					;flatten to circle
-					(path-stroke-polygons (list) rad (const eps) (const join_bevel)
+					(path-stroke-polygons (list) rad (const eps) +join_bevel+
 						(list (path-gen-arc x y 0.0 +fp_2pi+ (vec-length (vec-sub (path x y) (path x1 y1)))
 							(const eps) (path)))))
 				((= mode +event_fbox+)
@@ -72,7 +72,7 @@
 					(list (path-gen-arc x y 0.0 +fp_2pi+ (vec-length (vec-sub (path x y) (path x1 y1)))
 						(const eps) (path))))
 				(t	;flatten to pen stroke
-					(path-stroke-polylines (list) rad (const eps) (const join_bevel) (const cap_round) (const cap_round) (list pnts))))))))
+					(path-stroke-polylines (list) rad (const eps) +join_bevel+ +cap_round+ +cap_round+ (list pnts))))))))
 
 (defun snapshot ()
 	;take a snapshot of the canvas state

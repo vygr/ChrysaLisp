@@ -84,7 +84,7 @@
 			(vpcase {(c < 0.01) && (c > -0.01) || (c1 < -0.9)})
 				;acuracy limit
 				(goto 'do_bevel)
-			(vpcase {c <= 0 || join_style = join_miter})
+			(vpcase {c <= 0 || join_style = +join_miter+})
 				;mitre join
 				(vec-load 2 {p1x, p1y})
 				(vec-dup 2)
@@ -93,7 +93,7 @@
 				(vec-store 4 {p3x, p3y, p1x, p1y})
 				(call 'sys_math :f_intersect {p3x, p3y, p1x, p1y, l1_vx, l1_vy, l2_vx, l2_vy} {p1x, p1y})
 				(goto 'out_p1)
-			(vpcase {join_style = join_bevel})
+			(vpcase {join_style = +join_bevel+})
 			(vp-label 'do_bevel)
 				;bevel join
 				(vec-load 2 {p1x, p1y})
