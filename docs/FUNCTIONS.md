@@ -30,6 +30,17 @@ are aligned to a +ptr_size+.
 
 ### Header fields
 
+```vdu
+(def-struct 'fn_header 'ln_fnode)
+	(ushort 'length)
+	(ushort 'entry)
+	(ushort 'links)
+	(ushort 'paths)
+	(ushort 'stack)
+	(offset 'pathname)
+(def-struct-end)
+```
+
 * ulong/ptr ln_fnode: In a bound function the address of the next function in
 the function list. When unbound -1.
 
@@ -138,15 +149,15 @@ Virtual bind to method.
 
 ### d-call
 
-De-Virtualise call method.
+De-Virtualize call method.
 
 ### d-jump
 
-De-Virtualise jump to method.
+De-Virtualize jump to method.
 
 ### d-bind
 
-De-Virtualise bind to method.
+De-Virtualize bind to method.
 
 ### r-call
 

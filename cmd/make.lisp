@@ -100,8 +100,8 @@
                                 (merge-obj syntax (list (sym line)))))))) (file-stream file))) *imports*)))
     ;create classes docs
     (sort (# (cmp (elem 0 %0) (elem 0 %1))) classes)
-    (defq stream (file-stream "docs/CLASSES.md" file_open_write))
-    (write-line stream (const (str "# Classes" (ascii-char 10))))
+    (defq stream (file-stream "docs/VP_CLASSES.md" file_open_write))
+    (write-line stream (const (str "# VP Classes" (ascii-char 10))))
     (each (lambda ((cls super &rest methds))
         (write-line stream (cat "## " cls (ascii-char 10)))
         (write-line stream (cat "Super Class: " super (ascii-char 10)))
@@ -111,7 +111,7 @@
                 (write-line stream "```lisp")
                 (each (# (write-line stream %0)) (elem i docs))
                 (write-line stream (const (str "```" (ascii-char 10)))))) methds)) classes)
-    (print "-> docs/CLASSES.md")
+    (print "-> docs/VP_CLASSES.md")
 
 	;create commands docs
 	(defq target 'docs/COMMANDS.md)
