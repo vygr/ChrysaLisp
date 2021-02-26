@@ -2,7 +2,7 @@
 
 Assembler/C-Script/Lisp 64 bit, MIMD, multi CPU, multi threaded, multi core,
 multi user Parallel OS. With GUI, Terminal, OO Assembler, Class libraries,
-C-Script compiler, Lisp interpreter, Debugger, and more...
+C-Script compiler, Lisp interpreter, Debugger, Profiler, and more...
 
 
 ![](./screen_shot_1.png)
@@ -24,9 +24,9 @@ the network is modelled as a separate host process, point to point links use
 shared memory to simulate CPU to CPU, point to point, bi directional
 connections. There is no global bus based networking on purpose.
 
-There is a virtual CPU instruction set to avoid use of x64/ARM native
-instructions. Currently it compiles to native code but there is no reason it
-can't also go via a byte code form and runtime translation.
+There is a virtual CPU instruction set to avoid use of x64/ARM/VP64 native
+instructions. Currently it compiles directly to native code but there is no
+reason it can't also go via a byte code form and runtime translation.
 
 Register juggling for parameter passing is eliminated by having all functions
 define their register interface and parameter source and destinations are
@@ -88,11 +88,11 @@ seconds. It ain't slow !
 
 You can enable a guard page memory allocator if chasing a buffer overrun bug.
 Look in the *sys/heap/heap.vp* file alloc function and enable the guard page
-version and rebuild with `(remake)`. Also enable the `printf` in the *main.c*
-file in order to be able to calculate the instruction offset from the crash
-dumps IP. Then you can load up *obj/cpu/abi/sys/boot_image* into any hex dump
-and find exactly which instruction is faulting. Sometimes it's the only way to
-find them!
+version and rebuild with `(remake)`. Also enable the `printf` in the
+*main_tui.cpp* file in order to be able to calculate the instruction offset
+from the crash dumps IP. Then you can load up *obj/cpu/abi/sys/boot_image* into
+any hex dump and find exactly which instruction is faulting. Sometimes it's the
+only way to find them!
 
 Network link routing tables are created on booting a link, and the process is
 distributed in nature, each link starts a flood fill that eventually reaches
@@ -243,6 +243,8 @@ Stop with:
 ./stop.sh
 ```
 
+### Snapshot
+
 Snapshot with:
 
 ```
@@ -250,9 +252,23 @@ make snapshot
 ```
 
 This will create a *snapshot.zip* file of the *obj/* directory containing only
-the directory structure and *boot_image* files ! Used to create the more
-compact *snapshot.zip* that goes up on Github. This must come after creation of
-`(make-all-platforms)` *boot_image* set !
+the host directory structures, the pre-compiled Windows *main_gui.exe* and
+*main_tui.exe* plus the VP64 *boot_image* files !
+
+Used to create the more compact *snapshot.zip* that goes up on Github. This
+must come after creation of `(make-all-platforms)` *boot_image* set !
+
+```
+obj/x86_64/AMD64/Darwin/
+obj/x86_64/AMD64/Linux/
+obj/aarch64/ARM64/Linux/
+obj/aarch64/ARM64/Darwin/
+obj/vp64/VP64/sys/boot_image
+obj/x86_64/WIN64/Windows/main_gui.exe
+obj/x86_64/WIN64/Windows/main_tui.exe
+```
+
+### Clean
 
 Clean with:
 
