@@ -55,18 +55,18 @@ of the symbols used at the entry to the `(cond ...)` !
 
 ```vdu
 (cond
-	((= (defq id (get-mail-id msg)) +evt_close+)
+	((= (defq id (get-long msg ev_msg_target_id)) +event_close+)
 		;close app
 		)
-	((= id +evt_min+)
+	((= id +event_min+)
 		;minimize app
 		)
-	((= id +evt_max+)
+	((= id +event_max+)
 		;maximize app
 		)
 	(t
 		;ui event for window....
-		))
+		(. mywindow :event msg)))
 ```
 
 ## if
@@ -178,8 +178,8 @@ implemented as a ladder of `(if ..)` by their respective macros.
 ## and
 
 For the `(and ...)` the forms will be evaluated one by one and will exit if
-that clause proves to be false. Therefore you can use it to execute a body of
-code only if all the preceding test clauses prove to be true !
+that clause proves to be false. Therefore you can use it to execute a form only
+if all the preceding test clauses prove to be true !
 
 ```vdu
 (and (= (get-long msg (const ev_msg_type)) (const ev_type_mouse))
@@ -193,8 +193,8 @@ prove to be not `nil`.
 ## or
 
 For the `(or ...)` the forms will be evaluated one by one and will exit if that
-clause proves to be true. Therefore you can use it to execute a body of code
-only if all the preceding test clauses prove to be false !
+clause proves to be true. Therefore you can use it to execute a form only if
+all the preceding test clauses prove to be false !
 
 ```vdu
 (. farm :each (lambda (key val)
