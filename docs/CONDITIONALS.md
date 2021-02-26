@@ -115,7 +115,7 @@ form and executes the body if the result is `nil`.
 ## while
 
 `(while tst body)` is like `(when ...)` but it will loop until the tst clause
-fails.
+fails. This is a VP native coded root function !
 
 ```vdu
 (while (< b e)
