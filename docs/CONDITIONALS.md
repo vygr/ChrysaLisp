@@ -20,7 +20,7 @@ Any value other than `nil` is *not nil* !
 Only the first test that evaluates as not `nil` has its body executed. Also if
 the body is empty the none `nil` value returned by the test is the returned
 value from the `(cond ...)` statement ! That can be very useful. If no test
-clauses proves to be not `nil` then `nil` is returned from the `(cond ...)`.
+clause proves to be not `nil` then `nil` is returned from the `(cond ...)`.
 
 So let's see a few examples:
 
@@ -114,7 +114,7 @@ form and executes the body if the result is `nil`.
 
 ## while
 
-`(while tst body)` is like `(when ...)` but it will loop until the tst clauses
+`(while tst body)` is like `(when ...)` but it will loop until the tst clause
 fails.
 
 ```vdu
@@ -126,7 +126,7 @@ fails.
 ## until
 
 `(until tst body)` is like `(unless ...)` but like `(while ...)` will loop
-until the test clause fails.
+until the test clause succeeds.
 
 ```vdu
 (until (def? :is_window window)
