@@ -74,13 +74,13 @@ t
 ```vdu
 % * + - . / /= < << <= = > >= >> >>> abs apply array bind cap cat catch char
 clear cmp code cond copy def def? defq each! elem elem-set env eql eval f2i f2r
-ffi file-stream find find-rev fixeds gensym get hash i2f i2r io-stream lambda
-length list load logand logior logxor macro macroexpand match? max merge-obj
-min neg nums penv pii-dirlist pii-fstat pii-read-char pii-remove pii-time
-pii-write-char pivot pop prebind prin print progn push quasi-quote quote r2f
-r2i random read read-avail read-char read-line reals repl save set setq slice
-some! split str string-stream sym throw tolist type-of undef while write
-write-char
+ffi file-stream find find-rev fixeds gensym get hash i2f i2r if io-stream
+lambda length list load logand logior logxor macro macroexpand match? max
+merge-obj min neg nums penv pii-dirlist pii-fstat pii-read-char pii-remove
+pii-time pii-write-char pivot pop prebind prin print progn push quasi-quote
+quote r2f r2i random read read-avail read-char read-line reals repl save set
+setq slice some! split str string-stream sym throw tolist type-of undef while
+write write-char
 ```
 
 ### boot.inc symbols
@@ -108,7 +108,7 @@ write-char
 # .-> .super and ascii-char ascii-code case compose const curry dec
 defabstractmethod defclass deffimethod defmacro defmethod defun defun-unbound
 each each-rev env? every func? get-byte get-int get-long get-short get-ubyte
-get-uint get-ushort if inc lambda? let list? macro? merges not notany notevery
+get-uint get-ushort inc lambda? let list? macro? merges not notany notevery
 num? opt or pairs-into-kv rcurry read-int read-long read-short reduced seq?
 setd some str? sym? times unless until when write-int write-long write-short
 ```

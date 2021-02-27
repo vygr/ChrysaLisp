@@ -1194,7 +1194,7 @@
 
 ## if
 
-(if tst form [eform])
+(if tst form [else_form])
 
 ## import
 

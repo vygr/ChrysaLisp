@@ -3,19 +3,78 @@
 In this document we cover the ChrysaLisp conditional statements. The types
 available, plus the tricks you can pull with them.
 
+## if
+
+`(if tst form [else_form])` is a VP native code implemented conditional
+statement. It is a simple way to make a test evaluation and execute a form if
+the test is not `nil` and optionally evaluate a separate form if the test
+evaluates to `nil`.
+
+```vdu
+(if (= a 0)
+	(print "a is 0")
+	(print "a is not 0"))
+```
+
+The return value of the `(if ...)` is the value of the form evaluated, or `nil`
+if the form is empty.
+
+## when
+
+`(when tst body)` is a way to evaluate a body of statements if the test clause
+is not `nil`. Not just a single form but an implicit `(progn ...)`.
+
+```vdu
+(when (> z (const (i2n focal_len)))
+	(defq v (vec x y z) w (/ hsw z) h (/ hsh z))
+	(bind '(sx sy sz) (vec-add v (vec-scale (vec-norm
+		(vec-add v (vec-sub (elem +dlist_light_pos+ dlist) v))) r)))
+	(defq x (+ (* x h) hsw) y (+ (* y h) hsh) r (* r h)
+		sx (+ (* sx h) hsw) sy (+ (* sy h) hsh))
+	(push out (list (vec-n2f x y z) (vec-n2f sx sy) (n2f r)
+		(lighting c z) (lighting (const (vec-i2n 1 1 1)) z))))
+```
+
+## unless
+
+`(unless tst body)` is the opposite to `(when ...)`. It just evaluates the test
+form and executes the body if the result is `nil`.
+
+```vdu
+(unless (eql (defq file (elem -2 route)) ".")
+	(def (defq node (Button)) :text file :border 0)
+	(. node :connect (inc (get :action_event this)))
+	(. root :add_child node))
+```
+
+## while
+
+`(while tst body)` is a VP native code implemented conditional statement. It is
+like `(when ...)` but it will loop until the tst clause fails. This is a VP
+native coded root function !
+
+```vdu
+(while (< b e)
+	(push l b)
+	(setq b (+ b s)))
+```
+
+## until
+
+`(until tst body)` is like `(unless ...)` but like `(while ...)` will loop
+until the test clause succeeds.
+
+```vdu
+(until (def? :is_window window)
+	(setq window (penv window)))
+```
+
 ## cond
 
-`(cond (tst [...]) (tst [...]))` is the root VP native code implemented
-conditional statement. All other conditionals are based on `(cond ...)`. In
-many other Lisps the root is the `(if ...)` and cond is constructed from a
-ladder of if's. Not so here.
-
-All others are macros that use `(cond ...)` and generate code for you that uses
-`(cond ...)` or your behalf.
-
-Cond takes a list of test forms and following bodies to execute if that test
-form evaluates as not `nil`. Note this says *not nil* and that is significant.
-Any value other than `nil` is *not nil* !
+`(cond (tst [...]) (tst [...]))` is a VP native code implemented conditional
+statement. It takes a list of test forms and following bodies to execute if
+that test form evaluates as not `nil`. Note this says *not nil* and that is
+significant. Any value other than `nil` is *not nil* !
 
 Only the first test that evaluates as not `nil` has its body executed. Also if
 the body is empty the none `nil` value returned by the test is the returned
@@ -67,70 +126,6 @@ of the symbols used at the entry to the `(cond ...)` !
 	(t
 		;ui event for window....
 		(. mywindow :event msg)))
-```
-
-## if
-
-`(if tst form [else_form])` is a simple way to make a test evaluation and
-execute a form if the test is not `nil` and optionally evaluate a separate form
-if the test evaluates to `nil`.
-
-```vdu
-(if (= a 0)
-	(print "a is 0")
-	(print "a is not 0"))
-```
-
-The return value of the `(if ...)` is the value of the form evaluated, or `nil`
-if the form is empty.
-
-## when
-
-`(when tst body)` is a way to evaluate a body of statements if the test clause
-is not `nil`. Not just a single form but an implicit `(progn ...)`.
-
-```vdu
-(when (> z (const (i2n focal_len)))
-	(defq v (vec x y z) w (/ hsw z) h (/ hsh z))
-	(bind '(sx sy sz) (vec-add v (vec-scale (vec-norm
-		(vec-add v (vec-sub (elem +dlist_light_pos+ dlist) v))) r)))
-	(defq x (+ (* x h) hsw) y (+ (* y h) hsh) r (* r h)
-		sx (+ (* sx h) hsw) sy (+ (* sy h) hsh))
-	(push out (list (vec-n2f x y z) (vec-n2f sx sy) (n2f r)
-		(lighting c z) (lighting (const (vec-i2n 1 1 1)) z))))
-```
-
-## unless
-
-`(unless tst body)` is the opposite to `(when ...)`. It just evaluates the test
-form and executes the body if the result is `nil`.
-
-```vdu
-(unless (eql (defq file (elem -2 route)) ".")
-	(def (defq node (Button)) :text file :border 0)
-	(. node :connect (inc (get :action_event this)))
-	(. root :add_child node))
-```
-
-## while
-
-`(while tst body)` is like `(when ...)` but it will loop until the tst clause
-fails. This is a VP native coded root function !
-
-```vdu
-(while (< b e)
-	(push l b)
-	(setq b (+ b s)))
-```
-
-## until
-
-`(until tst body)` is like `(unless ...)` but like `(while ...)` will loop
-until the test clause succeeds.
-
-```vdu
-(until (def? :is_window window)
-	(setq window (penv window)))
 ```
 
 ## case
