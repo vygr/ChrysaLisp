@@ -50,8 +50,7 @@ form and executes the body if the result is `nil`.
 ## while
 
 `(while tst body)` is a VP native code implemented conditional statement. It is
-like `(when ...)` but it will loop until the tst clause fails. This is a VP
-native coded root function !
+like `(when ...)` but it will loop until the tst clause fails.
 
 ```vdu
 (while (< b e)
