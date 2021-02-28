@@ -3,12 +3,15 @@
 In this document we cover the ChrysaLisp conditional statements. The types
 available, plus the tricks you can pull with them.
 
+Note that true means *not nil* and that is significant. Any value other than
+`nil` is *not nil* !
+
 ## if
 
 `(if tst form [else_form])` is a VP native code implemented conditional
-statement. It is a simple way to make a test evaluation and execute a form if
-the test is not `nil` and optionally evaluate a separate form if the test
-evaluates to `nil`.
+statement. It is a simple way to make a test evaluation and evaluate a form if
+the test is true and optionally evaluate a separate form if the test evaluates
+to `nil`.
 
 ```vdu
 (if (= a 0)
@@ -22,7 +25,7 @@ if the form is empty.
 ## when
 
 `(when tst body)` is a way to evaluate a body of statements if the test clause
-is not `nil`. Not just a single form but an implicit `(progn ...)`.
+is true. Not just a single form but an implicit `(progn ...)`.
 
 ```vdu
 (when (> z (const (i2n focal_len)))
@@ -38,7 +41,7 @@ is not `nil`. Not just a single form but an implicit `(progn ...)`.
 ## unless
 
 `(unless tst body)` is the opposite to `(when ...)`. It just evaluates the test
-form and executes the body if the result is `nil`.
+form and evaluates the body if the result is `nil`.
 
 ```vdu
 (unless (eql (defq file (elem -2 route)) ".")
@@ -50,7 +53,7 @@ form and executes the body if the result is `nil`.
 ## while
 
 `(while tst body)` is a VP native code implemented conditional statement. It is
-like `(when ...)` but it will loop until the tst clause fails.
+like `(when ...)` but it will loop while the test clause is true.
 
 ```vdu
 (while (< b e)
@@ -60,8 +63,8 @@ like `(when ...)` but it will loop until the tst clause fails.
 
 ## until
 
-`(until tst body)` is like `(unless ...)` but like `(while ...)` will loop
-until the test clause succeeds.
+`(until tst body)` is like `(unless ...)` but will loop until the test clause
+is true.
 
 ```vdu
 (until (def? :is_window window)
@@ -70,15 +73,14 @@ until the test clause succeeds.
 
 ## cond
 
-`(cond (tst [...]) (tst [...]))` is a VP native code implemented conditional
-statement. It takes a list of test forms and following bodies to execute if
-that test form evaluates as not `nil`. Note this says *not nil* and that is
-significant. Any value other than `nil` is *not nil* !
+`(cond [(tst [...])] ...)` is a VP native code implemented conditional
+statement. It takes a list of test forms and following bodies to evaluate if
+that test form evaluates as true.
 
-Only the first test that evaluates as not `nil` has its body executed. Also if
-the body is empty the none `nil` value returned by the test is the returned
-value from the `(cond ...)` statement ! That can be very useful. If no test
-clause proves to be not `nil` then `nil` is returned from the `(cond ...)`.
+Only the first test that evaluates as true has its body evaluated. Also if the
+body is empty the true value returned by the test is the returned value from
+the `(cond ...)` statement ! That can be very useful. If no test clause proves
+to be true then `nil` is returned from the `(cond ...)`.
 
 So let's see a few examples:
 
@@ -105,7 +107,7 @@ the final clause will happen if no other clause.
 	(t))
 ```
 
-Here if `a` is not `nil` then return `nil` else return `t`. So a simple logical not.
+Here if `a` is true then return `nil` else return `t`. So a simple logical not.
 
 It is possible to evaluate a test and bind the result to a symbol that is then
 used in the remaining clauses ! These are not static tests based on the value
@@ -167,12 +169,12 @@ the optional `t` clause.
 # Tricks with logical statements
 
 `(and ...)` and `(or ...)` can be use as conditional operations as they are
-implemented as a ladder of `(if ..)` by their respective macros.
+implemented as if a ladder of `(if ..)` by their respective macros.
 
 ## and
 
 For the `(and ...)` the forms will be evaluated one by one and will exit if
-that clause proves to be false. Therefore you can use it to execute a form only
+that clause evaluates as `nil`. Therefore you can use it to execute a form only
 if all the preceding test clauses prove to be true !
 
 ```vdu
@@ -182,7 +184,7 @@ if all the preceding test clauses prove to be true !
 ```
 
 In this example the mouse_down symbol is only set if the previous 2 clauses
-prove to be not `nil`.
+prove to be true.
 
 ## or
 
