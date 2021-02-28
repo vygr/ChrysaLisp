@@ -198,7 +198,7 @@
 
 (defmacro opt (x y &optional z)
 	; (opt var val [cond])
-	(cond (z `(cond (,x ,z) (t ,y))) (t `(cond (,x ,x) (t ,y)))))
+	(if z `(if ,x ,z ,y) `(if ,x ,x ,y)))
 (defmacro setd (&rest _)
 	; (setd var val [var val] ...)
 	(defq i -2 l (list 'setq))
@@ -235,10 +235,9 @@
 
 (defmacro or (&rest _)
 	; (or [tst] ...) -> nil | tst
-	(cond
-		((= (length _) 0) nil)
-		((= (length _) 1) (elem 0 _))
-		(t `(if (defq ,(defq _x (gensym)) ,(elem 0 _)) ,_x (or ~(slice 1 -1 _))))))
+	(defq out (list cond))
+	(each! 0 -1 (lambda (&rest c) (push out c)) (list _))
+	out)
 
 (defmacro and (&rest _)
 	; (and [tst] ...) -> t | nil | tst
@@ -406,11 +405,11 @@
 
 (defun empty? (_)
 	; (empty? form) -> bool
-	(cond ((seq? _) (= (length _) 0)) (t)))
+	(if (seq? _) (= (length _) 0) t))
 
 (defun nempty? (_)
 	; (nempty? form) -> bool
-	(cond ((seq? _) (/= (length _) 0))))
+	(if (seq? _) (/= (length _) 0)))
 
 ;;;;;;;;;;;
 ; Sequences
