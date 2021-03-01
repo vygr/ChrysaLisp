@@ -280,8 +280,7 @@
 
 (defmacro compose (&rest _)
 	; (compose lambda lambda) -> lambda
-	`(lambda (_) ,(reduce (lambda (x y)
-		(list y x)) _ '_)))
+	`(lambda (_) ,(reduce (lambda (x y) (list y x)) _ '_)))
 
 (defun range (b e &optional s)
 	; (range start end [step]) -> list
@@ -702,25 +701,25 @@
 
 (defmacro get-ubyte (s o)
 	; (get-ubyte str index) -> num
-	(list 'code s 1 o))
-(defmacro get-byte (s o)
-	; (get-byte str index) -> num
-	`(>>> (<< (code ,s 1 ,o) 56) 56))
+	(list 'code s +byte_size+ o))
 (defmacro get-ushort (s o)
 	; (get-ushort str index) -> num
-	(list 'code s 2 o))
-(defmacro get-short (s o)
-	; (get-short str index) -> num
-	`(>>> (<< (code ,s 2 ,o) 48) 48))
+	(list 'code s +short_size+ o))
 (defmacro get-uint (s o)
 	; (get-uint str index) -> num
-	(list 'code s 4 o))
-(defmacro get-int (s o)
-	; (get-int str index) -> num
-	`(>>> (<< (code ,s 4 ,o) 32) 32))
+	(list 'code s +int_size+ o))
 (defmacro get-long (s o)
 	; (get-long str index) -> num
-	(list 'code s 8 o))
+	(list 'code s +long_size+ o))
+(defmacro get-byte (s o)
+	; (get-byte str index) -> num
+	`(>>> (<< (code ,s +byte_size+ ,o) 56) 56))
+(defmacro get-short (s o)
+	; (get-short str index) -> num
+	`(>>> (<< (code ,s +short_size+ ,o) 48) 48))
+(defmacro get-int (s o)
+	; (get-int str index) -> num
+	`(>>> (<< (code ,s +int_size+ ,o) 32) 32))
 (defun get-cstr (s o)
 	; (get-cstr str index) -> str
 	(defq k o)
@@ -731,10 +730,10 @@
 (defun type-to-size (_)
 	; (type-to-size sym) -> num
 	(case _
-		((i ui) 4)
-		((s us) 2)
-		((b ub) 1)
-		(t 8)))
+		((i ui) +int_size+)
+		((s us) +short_size+)
+		((b ub) +byte_size+)
+		(t +long_size+)))
 
 ;;;;;;;;;
 ; Streams
