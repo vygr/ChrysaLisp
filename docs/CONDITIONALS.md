@@ -73,7 +73,7 @@ is true.
 
 ## cond
 
-`(cond [(tst [...])] ...)` is a VP native code implemented conditional
+`(cond [(tst [body])] ...)` is a VP native code implemented conditional
 statement. It takes a list of test forms and following bodies to evaluate if
 that test form evaluates as true.
 

@@ -826,7 +826,7 @@
 
 ## cond
 
-(cond [(tst body)] ...)
+(cond [(tst [body])] ...)
 
 ## const
 
