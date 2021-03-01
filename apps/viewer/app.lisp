@@ -54,26 +54,11 @@
 	(def (. slider :dirty) :maximum scroll_max :portion vdu_height :value scroll_position)
 	scroll_position)
 
-(defun expand-tabs (line tabs)
-	;tab expantion
-	(cond
-		((> (length line) 0)
-			(defq cursor 0)
-			(apply cat (map (#
-				(cond
-					((eql %0 (ascii-char 9))
-						(defq padding (- tabs (% cursor tabs)))
-						(setq cursor (+ cursor padding))
-						(slice 0 padding "        "))
-					(t	(setq cursor (inc cursor))
-						%0))) line)))
-		(t	line)))
-
 (defun populate-vdu (file)
 	;load up the vdu widget from this file
 	(. syntax :set_state :text)
 	(setq text_buf (list) current_file file)
-	(each-line (lambda (line) (push text_buf (. syntax :colorise (expand-tabs line tabs))))
+	(each-line (lambda (line) (push text_buf (. syntax :colorise (. syntax :expand_tabs line tabs))))
 		(file-stream file))
 	(. vdu :load text_buf 0 (set-slider file) 0 -1)
 	(def mytitle :text (cat "Viewer -> " file))

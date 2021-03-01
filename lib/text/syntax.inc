@@ -173,6 +173,23 @@
 		(each (lambda (token ink)
 				(push state_list (apply array (map (# (+ (code %0) ink)) token))))
 			token_list col_list)
-		(apply cat state_list)))
+		(apply cat state_list))
+
+	(defmethod :expand_tabs (this line tabs)
+		; (. syntax :expand_tabs str tabs) -> str
+		;tab expantion of string
+		(cond
+			((> (length line) 0)
+				(defq cursor 0)
+				(apply cat (map (#
+					(cond
+						((eql %0 (ascii-char 9))
+							(defq padding (- tabs (% cursor tabs)))
+							(setq cursor (+ cursor padding))
+							(slice 0 padding "        "))
+						(t	(setq cursor (inc cursor))
+							%0))) line)))
+			(t	line)))
+	)
 
 (undef (env) 'is_number_char 'is_allowed_number_char 'is_symbol_char 'is_text_char)

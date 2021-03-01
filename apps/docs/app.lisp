@@ -55,15 +55,7 @@
 	(cond
 		((starts-with "```" line_str)
 			(setq state :normal word_cnt 0))
-		((defq tab_pos (find-rev (ascii-char 9) line_str))
-			(def (setq line_widget (Flow)) :flow_flags +flow_right_fill+)
-			(def (defq tab_widget (Text)) :text (pad "    " (* 4 (inc tab_pos))))
-			(def (defq code_widget (Text)) :text (slice (inc tab_pos) -1 line_str)
-				:font *env_terminal_font* :ink_color +argb_blue+)
-			(. line_widget :add_back tab_widget)
-			(. line_widget :add_back code_widget))
-		(t
-			(def (setq line_widget (Text)) :text line_str
+		(t	(def (setq line_widget (Text)) :text (. coloriser :expand_tabs line_str 4)
 				:font *env_terminal_font* :ink_color +argb_blue+))))
 
 (defun vdu-line ()
@@ -79,9 +71,7 @@
 			(def (setq line_widget (Backdrop)) :style 1 :color +argb_grey1+ :min_width w :min_height h)
 			(. line_widget :add_child vdu_widget)
 			(setq state :normal word_cnt 0 vdu_text (list)))
-		((defq tab_pos (find-rev (ascii-char 9) line_str))
-			(push vdu_text (cat (pad "    " (* 4 (inc tab_pos))) (slice (inc tab_pos) -1 line_str))))
-		(t	(push vdu_text line_str))))
+		(t	(push vdu_text (. coloriser :expand_tabs line_str 4)))))
 
 (defun populate-page (file)
 	(ui-root page_flow (Flow) (:flow_flags (logior +flow_flag_right+ +flow_flag_fillh+)
