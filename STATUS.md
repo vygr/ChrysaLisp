@@ -17,6 +17,9 @@ Implemented `(if ...)` in VP code ! Nice performance boost across the system.
 Implemented `(or ...)` as a single `(cond ..)` statement, no more uses
 `(gensysm)` symbols for each clause !
 
+Always build the EMU vp64 boot_image in release mode ! This takes 20% off the
+install time and shrinks the snapshot.zip.
+
 ------
 
 New `(mail-timeout)` function for building timeout select operations.
