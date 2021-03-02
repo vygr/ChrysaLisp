@@ -111,7 +111,7 @@
 	(call 'sys_pii :open_shared {pdata, lk_buffer_size} {handle})
 
 	;map shared object
-	(call 'sys_pii :mmap {lk_buffer_size, handle, mmap_shared} {mem})
+	(call 'sys_pii :mmap {lk_buffer_size, handle, +mmap_shared+} {mem})
 
 	;put my towel down if seams available
 	(vpifnot {mem->lk_buffer_towel})
@@ -141,7 +141,7 @@
 	(loop-end)
 
 	;unmap object
-	(call 'sys_pii :munmap {mem, lk_buffer_size, mmap_shared})
+	(call 'sys_pii :munmap {mem, lk_buffer_size, +mmap_shared+})
 
 	;close it
 	(call 'sys_pii :close_shared {pdata, handle})

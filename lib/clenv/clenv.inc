@@ -16,7 +16,7 @@
   ; key=value
   ; etc.
   (setd cfgmap +envcfg+)
-  (defq fs (file-stream filename file_open_read))
+  (defq fs (file-stream filename +file_open_read+))
   (while (defq ln (read-line fs))
     (bind '(_k _v) (split ln "="))
     (sets! cfgmap _k (if (eql _v "nil") nil _v)))
@@ -34,7 +34,7 @@
   ; key=value
   ; etc.
   (defq
-    fs (file-stream _envfilekey file_open_write))
+    fs (file-stream _envfilekey +file_open_write+))
   (each (lambda ((_k _v))
     (write-line fs (str _k "=" _v))) (entries +envcfg+))
   (stream-flush fs))

@@ -76,7 +76,7 @@
 	(defq in (method-input 'fstream :create))
 	(vpif '(r2 = 1))
 		(list-bind-args r1 (slice 0 1 in) '(:str))
-		(assign '(file_open_read) (slice 1 2 in))
+		(assign '(+file_open_read+) (slice 1 2 in))
 	(else)
 		(list-bind-args r1 in '(:str :num))
 	(endif)

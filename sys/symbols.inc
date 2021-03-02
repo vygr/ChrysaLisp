@@ -18,9 +18,9 @@ ev_msg_type 8
 ev_type_gui 3
 ev_type_key 1
 ev_type_mouse 0
-file_open_append 2
-file_open_read 0
-file_open_write 1
++file_open_append+ 2
++file_open_read+ 0
++file_open_write+ 1
 in_mbox_id 84
 in_state 96
 +join_bevel+ 1

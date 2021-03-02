@@ -14,6 +14,9 @@ depending on the value of a :mode (nil | t) property.
 
 Implemented `(if ...)` in VP code ! Nice performance boost across the system.
 
+Implemented `(or ...)` as a single `(cond ..)` statement, no more uses
+`(gensysm)` symbols for each clause !
+
 ------
 
 New `(mail-timeout)` function for building timeout select operations.

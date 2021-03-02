@@ -226,7 +226,7 @@
 		(assign '(r0 r1 r3) '(r6 (r0 str_hashcode) (r0 str_length)))
 
 		;open file
-		(call 'sys_pii :open '(r2 file_open_read) '(r4))
+		(call 'sys_pii :open '(r2 +file_open_read+) '(r4))
 
 		;read into buffer
 		(vp-lea-i r6 str_data r0)

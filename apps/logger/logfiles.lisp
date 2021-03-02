@@ -58,7 +58,7 @@
   ; its stats into list and returns stream
   (defq
     lname (_genlog-name lprefix)
-    flog  (file-stream lname file_open_append))
+    flog  (file-stream lname +file_open_append+))
   (push llist (list lname (pii-fstat lname)))
   flog)
 
@@ -95,7 +95,7 @@
      (setq fstrm (_genlog-new lprefix logs)))
     ; Open recent
     (t
-      (setq fstrm (file-stream (first (last logs)) file_open_append))))
+      (setq fstrm (file-stream (first (last logs)) +file_open_append+))))
 
   ; Check max files to keep
   (when (> (length logs) max_count)

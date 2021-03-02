@@ -45,17 +45,17 @@
 
 	;relocate statics and tail to their own mmap regions
 	(assign '((rsp local_os)) `(,os))
-	(abi-call-table 'host :mmap os '((rsp local_boot_static_len) -1 mmap_data) '(r0))
+	(abi-call-table 'host :mmap os '((rsp local_boot_static_len) -1 +mmap_data+) '(r0))
 	(assign '(r0) '((rsp local_new_static_func)))
 	(assign '((rsp local_os)) `(,os))
-	(abi-call-table 'host :mmap os '((rsp local_boot_tail_len) -1 mmap_data) '(r0))
+	(abi-call-table 'host :mmap os '((rsp local_boot_tail_len) -1 +mmap_data+) '(r0))
 	(assign '(r0) '((rsp local_new_tail_func)))
 	(call 'memcpy '((rsp local_boot_static_func) (rsp local_new_static_func) (rsp local_boot_static_len)))
 	(call 'memcpy '((rsp local_boot_tail_func) (rsp local_new_tail_func) (rsp local_boot_tail_len)))
 
 	;allocate relloc/stat/name buffer
 	(assign '((rsp local_os)) `(,os))
-	(abi-call-table 'host :mmap os '(ld_reloc_buf_size -1 mmap_data) '(r0))
+	(abi-call-table 'host :mmap os '(ld_reloc_buf_size -1 +mmap_data+) '(r0))
 
 	;init reloc buffer address etc
 	(assign '((rsp local_new_static_func)) `(,statics))
@@ -109,7 +109,7 @@
 
 	;set functions to RX
 	(assign '((rsp local_os)) `(,os))
-	(abi-call-table 'host :mprotect os '((rsp local_new_tail_func) (rsp local_boot_tail_len) mmap_exec))
+	(abi-call-table 'host :mprotect os '((rsp local_new_tail_func) (rsp local_boot_tail_len) +mmap_exec+))
 	(assign '((rsp local_os)) `(,os))
 	(abi-call-table 'host :clear_icache os '((rsp local_new_tail_func) (rsp local_boot_tail_len)))
 
@@ -120,11 +120,11 @@
 
 	;free new statics and tail regions etc
 	(assign '((rsp local_statics) (rsp local_os)) `(,statics ,os))
-	(abi-call-table 'host :munmap os `((,statics statics_sys_load_reloc_buffer) ld_reloc_buf_size mmap_data))
+	(abi-call-table 'host :munmap os `((,statics statics_sys_load_reloc_buffer) ld_reloc_buf_size +mmap_data+))
 	(assign '((rsp local_os)) `(,os))
-	(abi-call-table 'host :munmap os '((rsp local_new_static_func) (rsp local_boot_static_len) mmap_exec))
+	(abi-call-table 'host :munmap os '((rsp local_new_static_func) (rsp local_boot_static_len) +mmap_exec+))
 	(assign '((rsp local_os)) `(,os))
-	(abi-call-table 'host :munmap os '((rsp local_new_tail_func) (rsp local_boot_tail_len) mmap_exec))
+	(abi-call-table 'host :munmap os '((rsp local_new_tail_func) (rsp local_boot_tail_len) +mmap_exec+))
 
 	;return with code 0
 	(vp-free local_size)
@@ -211,7 +211,7 @@
 
 	;set the function buffers to RW
 	(loop-flist r7 statics_sys_load_block_flist r3 r3)
-		(call 'sys_pii :mprotect '(r3 ld_block_size mmap_data) '(r0))
+		(call 'sys_pii :mprotect '(r3 ld_block_size +mmap_data+) '(r0))
 		(assert '(r0 = 0))
 	(loop-end)
 
@@ -221,7 +221,7 @@
 	;set the function buffers to RX
 	(fn-bind 'sys/statics/statics r7)
 	(loop-flist r7 statics_sys_load_block_flist r3 r3)
-		(call 'sys_pii :mprotect '(r3 ld_block_size mmap_exec) '(r0))
+		(call 'sys_pii :mprotect '(r3 ld_block_size +mmap_exec+) '(r0))
 		(assert '(r0 = 0))
 	(loop-end)
 
@@ -280,7 +280,7 @@
 	(assign '((r0 stat_fsize)) '(r0))
 	(vpif '(r2 < r0))
 		;not enough so allocate new function buffer
-		(call 'sys_pii :mmap '(ld_block_size -1 mmap_data) '(r0))
+		(call 'sys_pii :mmap '(ld_block_size -1 +mmap_data+) '(r0))
 		(assert '(r0 /= 0))
 
 		;add to block list for freeing
@@ -294,7 +294,7 @@
 	(endif)
 
 	;open function file
-	(call 'sys_pii :open '(r6 file_open_read) '(r6))
+	(call 'sys_pii :open '(r6 +file_open_read+) '(r6))
 
 	;read into buffer
 	(assign '((r7 statics_sys_load_stat_buffer)) '(r2))

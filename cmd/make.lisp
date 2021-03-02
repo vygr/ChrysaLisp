@@ -31,7 +31,7 @@
 			+cap_butt+ +cap_round+ +cap_square+ +cap_tri+ view_id ev_msg_action_source_id
 			ev_msg_key_key ev_msg_key_keycode ev_msg_mouse_buttons ev_msg_mouse_rx
 			ev_msg_mouse_ry ev_msg_target_id ev_msg_type ev_type_gui ev_type_key
-			ev_type_mouse file_open_append file_open_read file_open_write in_mbox_id
+			ev_type_mouse +file_open_append+ +file_open_read+ +file_open_write+ in_mbox_id
 			in_state +join_bevel+ +join_miter+ +join_round+ kn_call_child kn_call_open
 			stdio_args stream_mail_state_started stream_mail_state_stopped
 			stream_mail_state_stopping vdu_char_height vdu_char_width view_flags view_h
@@ -48,7 +48,7 @@
 					(push _t_syms_ st)
 					(push _t_syms_vals_ stv))
 				(eval %0)) _syms_)))
-		stream (file-stream "sys/symbols.inc" file_open_write))
+		stream (file-stream "sys/symbols.inc" +file_open_write+))
 	(write-line stream ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;")
 	(write-line stream "; VP symbols, autogen do not edit !")
 	(write-line stream ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;")
@@ -100,7 +100,7 @@
                                 (merge-obj syntax (list (sym line)))))))) (file-stream file))) *imports*)))
     ;create classes docs
     (sort (# (cmp (elem 0 %0) (elem 0 %1))) classes)
-    (defq stream (file-stream "docs/VP_CLASSES.md" file_open_write))
+    (defq stream (file-stream "docs/VP_CLASSES.md" +file_open_write+))
     (write-line stream (const (str "# VP Classes" (ascii-char 10))))
     (each (lambda ((cls super &rest methds))
         (write-line stream (cat "## " cls (ascii-char 10)))
@@ -159,7 +159,7 @@
 			 "lib/debug/profile.inc" "lib/collections/xmap.inc" "lib/collections/xset.inc"
 			  "lib/collections/emap.inc" "lib/collections/collections.inc")))
     (sort cmp syntax)
-    (defq stream (file-stream "docs/SYNTAX.md" file_open_write))
+    (defq stream (file-stream "docs/SYNTAX.md" +file_open_write+))
     (write-line stream (const (str "# Syntax" (ascii-char 10))))
     (each (lambda (line)
         (defq form (elem 0 (defq body (split line (const (cat (ascii-char 9) " )"))))))

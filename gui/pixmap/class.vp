@@ -128,7 +128,7 @@
 	(entry 'pixmap :info '(r0))
 	(assign '(r0) '((rsp local_name)))
 
-	(call 'fstream :create '(r0 file_open_read) '(r0))
+	(call 'fstream :create '(r0 +file_open_read+) '(r0))
 	(vpif '(r0 /= 0))
 		(assign '(r0) '((rsp local_stream)))
 		(call 'pixmap :info_file '((rsp local_name) r0) '((rsp local_w) (rsp local_h) (rsp local_type)))
@@ -298,7 +298,7 @@
 	(entry 'pixmap :save {this, name, format})
 
 	;open file stream
-	(call 'fstream :create {name, file_open_write} {stream})
+	(call 'fstream :create {name, +file_open_write+} {stream})
 	(vpif {stream})
 		(call 'pixmap :save_file {this, name, stream, format} {this})
 		(call 'stream :deref {stream})

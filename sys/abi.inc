@@ -77,12 +77,12 @@
 (defmacro abi-pop-trashed (&rest b) (merge-obj b (abi-trashed)) `(vp-pop ~b))
 (defmacro abi-arg (_) (elem _ (abi-args 6)))
 
-(def-enum 'file_open)
-	(enum 'read 'write 'append)
+(def-enum '+file_open)
+	(enum 'read+ 'write+ 'append+)
 (def-enum-end)
 
-(def-enum 'mmap)
-	(enum 'data 'exec 'shared 'none)
+(def-enum '+mmap)
+	(enum 'data+ 'exec+ 'shared+ 'none+)
 (def-enum-end)
 
 (def-struct 'stat)

@@ -212,7 +212,7 @@
 					(+ (elem (find-rev %0 ns) nso) so)) (+ u (* _ 8))) 8)) (elem 2 %0)) "")))) b)
 		;build list of all sections of boot image
 		;concatenate all sections and write out
-		(defq stream (file-stream (func-obj 'sys/boot_image) file_open_write)
+		(defq stream (file-stream (func-obj 'sys/boot_image) +file_open_write+)
 			f (reduce (# (push %0 (cat %1 (ascii-char 0)))) ns
 				(push (reduce (# (push %0 (elem 0 %1) (elem 1 %1))) b (list)) z))
 			l (reduce (# (+ %0 (length %1))) f 0))
