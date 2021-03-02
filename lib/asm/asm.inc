@@ -255,6 +255,7 @@
 	(make files 'AMD64 'x86_64)
 	(make files 'WIN64 'x86_64)
 	(make files 'ARM64 'aarch64)
+	(defq *debug_mode* 0)
 	(make files 'VP64 'vp64))
 
 (defun make-all-platforms ()
@@ -262,6 +263,7 @@
 	(make-all 'AMD64 'x86_64 files)
 	(make-all 'WIN64 'x86_64 files)
 	(make-all 'ARM64 'aarch64 files)
+	(defq *debug_mode* 0)
 	(make-all 'VP64 'vp64 files))
 
 (defun remake-platforms ()
@@ -269,6 +271,7 @@
 	(remake 'AMD64 'x86_64 files)
 	(remake 'WIN64 'x86_64 files)
 	(remake 'ARM64 'aarch64 files)
+	(defq *debug_mode* 0)
 	(remake 'VP64 'vp64 files))
 
 (defun remake-all-platforms ()
@@ -276,6 +279,7 @@
 	(remake-all 'AMD64 'x86_64 files)
 	(remake-all 'WIN64 'x86_64 files)
 	(remake-all 'ARM64 'aarch64 files)
+	(defq *debug_mode* 0)
 	(remake-all 'VP64 'vp64 files))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
