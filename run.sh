@@ -1,6 +1,7 @@
 #!/bin/bash
 
 #process args defaults
+base_cpu=0
 num_cpu=10
 emu=""
 for var in "$@"
@@ -26,11 +27,7 @@ do
 	links=""
 	for ((lcpu=0; lcpu<$num_cpu; lcpu++))
 	do
-		zero_pad $cpu
-		c1=$zp
-		zero_pad $lcpu
-		c2=$zp
-		add_link $c1 $c2
+		add_link $cpu $lcpu
 	done
 	boot_cpu_gui $cpu $emu "$links"
 done

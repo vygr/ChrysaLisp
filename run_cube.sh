@@ -1,6 +1,7 @@
 #!/bin/bash
 
 #process args defaults
+base_cpu=0
 num_cpu=4
 emu=""
 for var in "$@"
@@ -32,29 +33,17 @@ do
 			for ((lcpu_z=$cpu_z-1; lcpu_z<=$cpu_z+1; lcpu_z++))
 			do
 				wrap $lcpu_z
-				zero_pad $cpu
-				c1=$zp
-				zero_pad $(($wp*$num_cpu*$num_cpu + $cpu_y*$num_cpu + $cpu_x))
-				c2=$zp
-				add_link $c1 $c2
+				add_link $cpu $(($wp*$num_cpu*$num_cpu + $cpu_y*$num_cpu + $cpu_x))
 			done
 			for ((lcpu_y=$cpu_y-1; lcpu_y<=$cpu_y+1; lcpu_y++))
 			do
 				wrap $lcpu_y
-				zero_pad $cpu
-				c1=$zp
-				zero_pad $(($cpu_z*$num_cpu*$num_cpu + $wp*$num_cpu + $cpu_x))
-				c2=$zp
-				add_link $c1 $c2
+				add_link $cpu $(($cpu_z*$num_cpu*$num_cpu + $wp*$num_cpu + $cpu_x))
 			done
 			for ((lcpu_x=$cpu_x-1; lcpu_x<=$cpu_x+1; lcpu_x++))
 			do
 				wrap $lcpu_x
-				zero_pad $cpu
-				c1=$zp
-				zero_pad $(($cpu_z*$num_cpu*$num_cpu + $cpu_y*$num_cpu + $wp))
-				c2=$zp
-				add_link $c1 $c2
+				add_link $cpu $(($cpu_z*$num_cpu*$num_cpu + $cpu_y*$num_cpu + $wp))
 			done
 			boot_cpu_gui $cpu $emu "$links"
 		done

@@ -20,13 +20,17 @@ function zero_pad
 
 function add_link
 {
-	if [ $1 != $2 ]
+	zero_pad $(($1 + $base_cpu))
+	l1=$zp
+	zero_pad $(($2 + $base_cpu))
+	l2=$zp
+	if [ $l1 != $l2 ]
 	then
-		if [ $1 -lt $2 ]
+		if [ $l1 -lt $l2 ]
 		then
-			nl=$1-$2
+			nl=$l1-$l2
 		else
-			nl=$2-$1
+			nl=$l2-$l1
 		fi
 		if [[ "$links" != *"$nl"* ]]
 		then
