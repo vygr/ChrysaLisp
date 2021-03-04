@@ -20,6 +20,15 @@ Implemented `(or ...)` as a single `(cond ..)` statement, no more uses
 Always build the EMU vp64 boot_image in release mode ! This takes 20% off the
 install time and shrinks the snapshot.zip.
 
+Improvements to the launch scripts to allow base cpu offset... optional -n, -e
+and -b parameters. If the base offset is other than 0, the default, then the
+`./stop.sh` script will not be called before launching the new network !
+
+[-n cnt] number of nodes
+[-b base] base offset
+[-e] emulator mode
+[-h] help
+
 ------
 
 New `(mail-timeout)` function for building timeout select operations.

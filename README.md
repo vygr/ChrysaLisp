@@ -185,7 +185,7 @@ make
 ### Run
 
 ```
-./run_tui.sh <num_cpus>
+./run_tui.sh [-n num_cpus] [-e] [-b base_cpu]
 ```
 
 Text user interface based fully connected network. Each CPU has links to every
@@ -193,7 +193,7 @@ other CPU. Careful with this as you can end up with a very large number of link
 files and shared memory regions. CPU 0 launches a terminal to the host system.
 
 ```
-./run.sh <num_cpus>
+./run.sh [-n num_cpus] [-e] [-b base_cpu]
 ```
 
 Fully connected network. Each CPU has links to every other CPU. Careful with
@@ -201,35 +201,35 @@ this as you can end up with a very large number of link files and shared memory
 regions. CPU 0 launches a GUI.
 
 ```
-./run_star.sh <num_cpus>
+./run_star.sh [-n num_cpus] [-e] [-b base_cpu]
 ```
 
 Star connected network. Each CPU has a link to the first CPU. CPU 0 launches a
 GUI.
 
 ```
-./run_ring.sh <num_cpus>
+./run_ring.sh [-n num_cpus] [-e] [-b base_cpu]
 ```
 
 Ring connected network. Each CPU has links to the next and previous CPU's. CPU
 0 launches a GUI.
 
 ```
-./run_tree.sh <num_cpus>
+./run_tree.sh [-n num_cpus] [-e] [-b base_cpu]
 ```
 
 Tree connected network. Each CPU has links to its parent CPU and up to two
 child CPU's. CPU 0 launches a GUI.
 
 ```
-./run_mesh.sh <num_cpus on a side>
+./run_mesh.sh [-n num_cpus on a side] [-e] [-b base_cpu]
 ```
 
 Mesh connected network. Each CPU has links to 4 adjacent CPU's. This is similar
 to Transputer meshes. CPU 0 launches a GUI.
 
 ```
-./run_cube.sh <num_cpus on a side>
+./run_cube.sh [-n num_cpus on a side] [-e] [-b base_cpu]
 ```
 
 Cube connected network. Each CPU has links to 6 adjacent CPU's. This is similar

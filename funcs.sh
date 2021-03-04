@@ -68,4 +68,47 @@ function boot_cpu_tui
 	fi
 }
 
-./stop.sh
+function main
+{
+	num_cpu=$1
+	max_cpu=$2
+	shift 2
+	base_cpu=0
+	emu=""
+	while [ "$#" -gt 0 ]; do
+	case $1 in
+		-e)
+			emu=$1;
+			shift
+			;;
+		-n)
+			num_cpu=$2
+			shift 2
+			;;
+		-b)
+			base_cpu=$2
+			shift 2
+			;;
+		*)	echo "Unknown Option" $1
+			echo "[-n cnt] number of nodes"
+			echo "[-b base] base offset"
+			echo "[-e] emulator mode"
+			echo "[-h] help"
+			num_cpu=0
+			break
+			;;
+	esac
+	done
+
+	#not greater than 16
+	if [ $num_cpu -gt $max_cpu ]
+	then
+		num_cpu=$max_cpu
+	fi
+
+	#shutdown all nodes if base is 0
+	if [ $base_cpu -eq 0 ]
+	then
+		./stop.sh
+	fi
+}
