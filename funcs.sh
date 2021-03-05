@@ -89,8 +89,7 @@ function main
 			base_cpu=$2
 			shift 2
 			;;
-		*)	echo "Unknown Option" $1
-			echo "[-n cnt] number of nodes"
+		*)	echo "[-n cnt] number of nodes"
 			echo "[-b base] base offset"
 			echo "[-e] emulator mode"
 			echo "[-h] help"
