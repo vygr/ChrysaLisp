@@ -29,6 +29,9 @@ and -b parameters. If the base offset is other than 0, the default, then the
 [-e] emulator mode
 [-h] help
 
+Added `link` command to allow bringing up a SHMEM link driver from the TUI or
+GUI command line.
+
 ------
 
 New `(mail-timeout)` function for building timeout select operations.
