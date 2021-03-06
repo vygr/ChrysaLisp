@@ -48,7 +48,7 @@
 		(tolist e))
 	(each (lambda (k)
 			(def keywords k (get :ink_keyword4 this)))
-		'(t nil &rest &optional))
+		'(t nil &rest &optional r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 rsp))
 
 	(defmethod :set_state (this state)
 		; (. syntax :set_state state) -> syntax
