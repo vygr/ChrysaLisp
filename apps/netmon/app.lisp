@@ -14,7 +14,7 @@
 (structure '+select 0
 	(byte 'main+ 'task+ 'reply+ 'nodes+))
 
-(defq max_tasks 1 max_memory 1 last_max_tasks 1 last_max_memory 1 rate (/ 1000000 3) id t
+(defq max_tasks 1 max_memory 1 last_max_tasks 1 last_max_memory 1 rate (/ 1000000 2) id t
 	select (list (task-mailbox) (mail-alloc-mbox) (mail-alloc-mbox) (mail-alloc-mbox))
 	retry_timeout (if (starts-with "obj/vp64" (load-path)) 10000000 1000000))
 
