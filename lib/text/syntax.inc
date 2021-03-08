@@ -17,7 +17,7 @@
 
 (defmacro is_symbol_char (_)
 	(list 'find-rev _ (const (cat
-		"!@#$%^&*_+-=[];\:|,./<>?`~'"
+		"!@#$%^&*_+-=[];\:|./<>?`~'"
 		"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 		"0123456789"
 		"abcdefghijklmnopqrstuvwxyz"))))

@@ -166,13 +166,19 @@
 		(cond
 			((and (starts-with "(." form) (eql (elem 1 body) "this"))
 				(write-line stream (cat "## " (slice 1 -1 form) (ascii-char 10)))
-				(write-line stream (cat line (ascii-char 10))))
+				(write-line stream (cat "```lisp" (ascii-char 10)))
+				(write-line stream (cat line (ascii-char 10)))
+				(write-line stream (cat "```" (ascii-char 10))))
 			((starts-with "(." form)
-				(write-line stream (cat "## " (cat (elem 1 body) " " (elem 2 body)) (ascii-char 10)))
-				(write-line stream (cat line (ascii-char 10))))
+				(write-line stream (cat "## " (elem 1 body) " " (elem 2 body) (ascii-char 10)))
+				(write-line stream (cat "```lisp" (ascii-char 10)))
+				(write-line stream (cat line (ascii-char 10)))
+				(write-line stream (cat "```" (ascii-char 10))))
 			((starts-with "(" form)
 				(write-line stream (cat "## " (slice 1 -1 form) (ascii-char 10)))
-				(write-line stream (cat line (ascii-char 10)))))) syntax)
+				(write-line stream (cat "```lisp" (ascii-char 10)))
+				(write-line stream (cat line (ascii-char 10)))
+				(write-line stream (cat "```" (ascii-char 10)))))) syntax)
     (print "-> docs/SYNTAX.md"))
 
 (defq usage `(

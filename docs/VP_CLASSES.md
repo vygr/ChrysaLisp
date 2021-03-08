@@ -2690,7 +2690,7 @@ r2 = next char (uint)
 r3 = sym object (ptr)
 outputs
 r0 = lisp object (ptr)
-r1 = list list object (ptr)
+r1 = list object (ptr)
 r2 = next char (uint)
 trashes
 r1-r14
@@ -2705,7 +2705,7 @@ r1 = stream object (ptr)
 r2 = next char (uint)
 outputs
 r0 = lisp object (ptr)
-r1 = list list object (ptr)
+r1 = list object (ptr)
 r2 = next char (uint)
 trashes
 r1-r14
@@ -2774,7 +2774,7 @@ r1-r14
 ```lisp
 inputs
 r0 = lisp object (ptr)
-r1 = list list object (ptr)
+r1 = list object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
