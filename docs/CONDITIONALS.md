@@ -94,8 +94,7 @@ So let's see a few examples:
 		(print "b is 0"))
 	((= b 1)
 		(print "b is 1"))
-	(t
-		(print "no test is none nil!")))
+	(t	(print "no test is none nil!")))
 ```
 
 Here the tests using symbol `a` have precedence over those with symbol `b` and
@@ -124,8 +123,7 @@ of the symbols used at the entry to the `(cond ...)` !
 	((= id +event_max+)
 		;maximize app
 		)
-	(t
-		;ui event for window....
+	(t	;ui event for window....
 		(. mywindow :event msg)))
 ```
 
@@ -179,7 +177,7 @@ if all the preceding test clauses prove to be true !
 
 ```vdu
 (and (= (get-long msg (const ev_msg_type)) (const ev_type_mouse))
-		(/= 0 (get-int msg (const ev_msg_mouse_buttons)))
+	(/= 0 (get-int msg (const ev_msg_mouse_buttons)))
 	(setq mouse_down (get-int msg (const ev_msg_mouse_buttons))))
 ```
 

@@ -4,7 +4,7 @@
 
 ```lisp
 
-(# (< %0 0)) -> (lambda (%0) (< %0 0))
+(# (< %9 %0 %3) ...) -> (lambda (%0 %3 %9) (< %9 %0 %3) ...)
 
 ```
 
@@ -4325,6 +4325,14 @@
 ```lisp
 
 (view-trans-dirty view rx ry)
+
+```
+
+## walk-list
+
+```lisp
+
+(walk-list list fnc_element lambda_down lambda_up)
 
 ```
 

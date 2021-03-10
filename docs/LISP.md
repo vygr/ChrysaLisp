@@ -125,8 +125,8 @@ named-xnode? neg? nempty? nil? nlo nlz nto ntz num-to-char num-to-utf8 odd? pad
 partition pos? pow range reduce reduce-rev reduced-reduce reduced-reduce-rev
 rest reverse second set? sets! sets-in! sets-pairs! shuffle shuffled sort
 sorted starts-with str-to-num swap to-lower to-upper trim trim-end trim-start
-type-to-size unzip updates-in! values within-compile-env write-line xmap
-xmap-kv xmap? xnode xnode? xset xset-k xset? zip
+type-to-size unzip updates-in! values walk-list within-compile-env write-line
+xmap xmap-kv xmap? xnode xnode? xset xset-k xset? zip
 ```
 
 ## Within any cmd/lisp.lisp instance

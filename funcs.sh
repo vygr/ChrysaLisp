@@ -99,7 +99,7 @@ function main
 	esac
 	done
 
-	#not greater than 16
+	#not greater than $max_cpu
 	if [ $num_cpu -gt $max_cpu ]
 	then
 		num_cpu=$max_cpu

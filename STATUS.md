@@ -4,6 +4,12 @@
 
 ------
 
+Added nesting to the `(#)` macro ! Plus arbitrary % parameters not just
+starting from %0. This comes with the addition to `boot.inc` of a `(walk-list
+list elm_fnc down_fnc up_fnc)` function ! Enjoy.
+
+------
+
 Host main.cpp pii_sleep function now standardized on usec for time interval
 like other the other time functions. As we are no longer using SDL sleep call.
 

@@ -371,13 +371,6 @@
 	; (reduced accum)
 	`(progn (setq __x t) ,_a))
 
-(defmacro # (&rest b)
-	; (# (< %0 0)) -> (lambda (%0) (< %0 0))
-	(defq s (filter (lambda (_) (find _ '(%0 %1 %2 %3 %4 %5 %6 %7 %8 %9)))
-				(merge-obj (list) (map sym (split (str b) "( )"))))
-		p (slice 0 (length s) '(%0 %1 %2 %3 %4 %5 %6 %7 %8 %9)))
-	`(lambda ,p ~b))
-
 ;;;;;;;;;;;;
 ; Predicates
 ;;;;;;;;;;;;
@@ -462,14 +455,14 @@
 	; (intern list form [lambda]) -> form
 	(setd _c eql)
 	(cond
-		((some (# (if (_c %0 _i) %0)) _l))
+		((some (lambda (_) (if (_c _ _i) _)) _l))
 		(t (push _l _i) _i)))
 
 (defun intern-seq (_s &optional _l _c)
 	; (intern-seq seq [list lambda]) -> list
 	(setd _c eql)
 	(reduce (lambda (_l _e)
-		(push _l (if (defq _i (some (# (if (_c %0 _e) %0)) _l)) _i _e))) _s (opt _l (list))))
+		(push _l (if (defq _i (some (lambda (_) (if (_c _ _e) _)) _l)) _i _e))) _s (opt _l (list))))
 
 (defun partition (cnt seq)
 	; (partition count seq) -> list of lists
@@ -627,9 +620,9 @@
 			((eql i "x") (setq b 16 _ (slice 2 -1 _)))
 			((eql i "o") (setq b 8 _ (slice 2 -1 _)))
 			((eql i "b") (setq b 2 _ (slice 2 -1 _)))))
-	(each (# (if (eql %0 ".")
+	(each (lambda (_) (if (eql _ ".")
 			(setq f 1)
-			(setq n (+ (* n b) (char-to-num %0)) f (* f b)))) _)
+			(setq n (+ (* n b) (char-to-num _)) f (* f b)))) _)
 	(if (= f 0) (* n m) (/ (<< (* n m) +fp_shift+) f)))
 
 (defun num-to-utf8 (_)
@@ -734,6 +727,50 @@
 		((s us) +short_size+)
 		((b ub) +byte_size+)
 		(t +long_size+)))
+
+(defun walk-list (_l _f _fd _fu)
+	; (walk-list list fnc_element lambda_down lambda_up)
+	;only if fnc_down returns nil will it will step down into that list.
+	;fnc_up is allways called to balence calls to fnc_down.
+	(defq _stack (list _l 0))
+	(while (defq _ (pop _stack) _l (pop _stack))
+		(cond
+			((= (length _l) 0)
+				;zero length list
+				(_fd _l) (_fu _l))
+			((= _ 0)
+				;enter list ?
+				(cond
+					((_fd _l)
+						(_fu _l))
+					(t	(push _stack _l 1)
+						(if (list? (defq _e (elem 0 _l))) (push _stack _e 0))
+						(_f _e))))
+			((< _ (length _l))
+				;element of list
+				(push _stack _l (inc _))
+				(if (list? (defq _e (elem _ _l))) (push _stack _e 0))
+				(_f _e))
+			(t	;exit list
+				(_fu _l)))))
+
+(defmacro # (&rest _)
+	; (# (< %9 %0 %3) ...) -> (lambda (%0 %3 %9) (< %9 %0 %3) ...)
+	(defq args (list) scopes (list))
+	(walk-list _
+		;element func
+		(lambda (_)
+			(and (= (length scopes) 0) (sym? _) (find _ '(%0 %1 %2 %3 %4 %5 %6 %7 %8 %9))
+				(merge-obj args (list _))))
+		;enter list func
+		(lambda (_)
+			(and (> (length _) 0) (eql (elem 0 _) '#)
+				(push scopes _)))
+		;exit list func
+		(lambda (_)
+			(and (> (length scopes) 0) (eql (elem -2 scopes) _)
+				(pop scopes))))
+	`(lambda ,(sort cmp args) ~_))
 
 ;;;;;;;;;
 ; Streams
