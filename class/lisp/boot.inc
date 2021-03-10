@@ -756,20 +756,17 @@
 
 (defmacro # (&rest _)
 	; (# (< %9 %0 %3) ...) -> (lambda (%0 %3 %9) (< %9 %0 %3) ...)
-	(defq args (list) scopes (list))
+	(defq args (list))
 	(walk-list _
 		;element func
 		(lambda (_)
-			(and (= (length scopes) 0) (sym? _) (find _ '(%0 %1 %2 %3 %4 %5 %6 %7 %8 %9))
+			(and (sym? _) (find _ '(%0 %1 %2 %3 %4 %5 %6 %7 %8 %9))
 				(merge-obj args (list _))))
 		;enter list func
 		(lambda (_)
-			(and (> (length _) 0) (eql (elem 0 _) '#)
-				(push scopes _)))
+			(and (> (length _) 0) (eql (elem 0 _) '#) t))
 		;exit list func
-		(lambda (_)
-			(and (> (length scopes) 0) (eql (elem -2 scopes) _)
-				(pop scopes))))
+		progn)
 	`(lambda ,(sort cmp args) ~_))
 
 ;;;;;;;;;
