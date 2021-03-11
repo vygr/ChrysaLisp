@@ -155,11 +155,16 @@ t
 t
 ```
 
-## Map and Reduce
+## Map, Reduce and Filter
 
-Mapping and reduction transform a sequence by either transforming each element
-or combining each element to a single result. Reduction can take an optional
-start value.
+Mapping transforms a sequence by transforming each element via a function to
+produce a list of the transformed elements.
+
+Reduction transforms a sequence by combining each element to produce a single
+result. Reduction can take an optional start value.
+
+Filtering transforms a sequence by producing a list of all the elements that
+pass the filter test function.
 
 These also come in `(map-rev)` and `(reduce-rev)` flavours.
 
@@ -176,4 +181,6 @@ These also come in `(map-rev)` and `(reduce-rev)` flavours.
 ("A" "B" "C" "D")
 (reduce-rev (# (push %0 %1)) "ABCD" (list))
 ("D" "C" "B" "A")
+(filter (# (< %0 3)) '(0 1 2 3 4 5 6 7 8 9))
+(0 1 2)
 ```

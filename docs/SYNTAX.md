@@ -4332,7 +4332,7 @@
 
 ```lisp
 
-(walk-list list fnc_element lambda_down lambda_up)
+(walk-list list fnc_element fnc_in fnc_out)
 
 ```
 

@@ -728,21 +728,21 @@
 		((b ub) +byte_size+)
 		(t +long_size+)))
 
-(defun walk-list (_l _f _fd _fu)
-	; (walk-list list fnc_element lambda_down lambda_up)
-	;only if fnc_down returns nil will it will step down into that list.
-	;fnc_up is allways called to balence calls to fnc_down.
+(defun walk-list (_l _f _fi _fo)
+	; (walk-list list fnc_element fnc_in fnc_out)
+	;if fnc_in returns nil will it will step down into that list.
+	;fnc_out is allways called to balence calls to fnc_in.
 	(defq _stack (list _l 0))
 	(while (defq _ (pop _stack) _l (pop _stack))
 		(cond
 			((= (length _l) 0)
 				;zero length list
-				(_fd _l) (_fu _l))
+				(_fi _l) (_fo _l))
 			((= _ 0)
 				;enter list ?
 				(cond
-					((_fd _l)
-						(_fu _l))
+					((_fi _l)
+						(_fo _l))
 					(t	(push _stack _l 1)
 						(if (list? (defq _e (elem 0 _l))) (push _stack _e 0))
 						(_f _e))))
@@ -752,7 +752,7 @@
 				(if (list? (defq _e (elem _ _l))) (push _stack _e 0))
 				(_f _e))
 			(t	;exit list
-				(_fu _l)))))
+				(_fo _l)))))
 
 (defmacro # (&rest _)
 	; (# (< %9 %0 %3) ...) -> (lambda (%0 %3 %9) (< %9 %0 %3) ...)
@@ -764,7 +764,7 @@
 				(merge-obj args (list _))))
 		;enter list func
 		(lambda (_)
-			(and (> (length _) 0) (eql (elem 0 _) '#) t))
+			(and (> (length _) 0) (eql (elem 0 _) '#)))
 		;exit list func
 		progn)
 	`(lambda ,(sort cmp args) ~_))
