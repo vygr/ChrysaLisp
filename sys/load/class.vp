@@ -401,3 +401,31 @@
 	(vp-ret)
 
 (def-func-end)
+
+(def-method 'sys_load :find)
+	;inputs
+	;r0 = code pointer (ptr)
+	;outputs
+	;r0 = 0, else function header pointer (ptr)
+	;r1 = function header offset (uint)
+	;trashes
+	;r0-r2
+
+	(vp-def (cptr node_end node))
+
+	(entry 'sys_load :find `(,cptr))
+
+	(fn-bind 'sys/statics/statics node)
+	(loop-flist node statics_sys_load_function_flist node node)
+		(assign `((,node fn_header_entry)) `(,node_end))
+		(vp-add-rr node node_end)
+		(continueif (list cptr '< node_end))
+		(assign `((,node fn_header_links)) `(,node_end))
+		(vp-add-rr node node_end)
+	(loop-until (list cptr '< node_end))
+	(vp-sub-rr node cptr)
+
+	(exit 'sys_load :find `(,node ,cptr))
+	(vp-ret)
+
+(def-func-end)

@@ -7131,6 +7131,18 @@ trashes
 r1-r7
 ```
 
+### sys_load :find -> sys/load/find
+
+```lisp
+inputs
+r0 = code pointer (ptr)
+outputs
+r0 = 0, else function header pointer (ptr)
+r1 = function header offset (uint)
+trashes
+r0-r2
+```
+
 ### sys_load :lisp_path -> sys/load/lisp_path
 
 ```lisp
@@ -8478,6 +8490,15 @@ outputs
 r0-r2 = net ID (net_id)
 trashes
 r0-r14
+```
+
+### sys_task :dump -> sys/task/dump
+
+```lisp
+inputs
+rsp = task stack pointer (ptr)
+trashes
+none
 ```
 
 ### sys_task :task_callback -> class/obj/null

@@ -4,6 +4,7 @@
 (include "class/list/class.inc")
 (include "class/str/class.inc")
 (include "sys/statics/class.inc")
+(include "lib/consts/chars.inc")
 
 (def-method 'sys_task :statics_init)
 	;info
@@ -280,7 +281,7 @@
 	(assign {@sys/statics/statics} {statics })
 	(assign {statics->statics_sys_task_task_count + 1} {statics->statics_sys_task_task_count})
 
-	;create new task control block and task
+	;create new task control block and stack
 	(call 'sys_mem :alloc {ushort(func - ubyte(func - +byte_size+) - +short_size+) + tk_node_size} {tcb, tcb_size})
 (errorcases
 	(call 'sys_mem :fill {tcb, tcb_size, 0}))
@@ -293,7 +294,7 @@
 	;init task control block stack, pc and stop address's
 	(assign {tcb, tcb + tcb_size, 0, num_task_lists - 1, func} '(r0 r1 r2 r3 r4))
 	(ln-set-succ r0 0 r2)
-	(assign '(r3) '((r0 tk_node_priority)))
+	(assign '(r3 r1) '((r0 tk_node_priority) (r0 tk_node_stack_top)))
 	(stack-init)
 	(assign '(r1) {tcb->tk_node_stack})
 
@@ -459,5 +460,36 @@
 		id.net_id_node_id.node_id_node2})
 	(pop-scope)
 	(return)
+
+(def-func-end)
+
+(def-method 'sys_task :dump)
+	;inputs
+	;rsp = task stack pointer (ptr)
+	;trashes
+	;none
+
+	(vp-def (stack_top sptr node node_offset) '(r3 r4))
+
+	(vp-push r0 r1 r2 r3 r4)
+
+	(fn-bind 'sys/statics/statics stack_top)
+	(assign `((,stack_top statics_sys_task_current_tcb) (& rsp ,(* +ptr_size+ 5))) `(,stack_top ,sptr))
+	(assign `((,stack_top tk_node_stack_top)) `(,stack_top))
+	(loop-while (list sptr '<= stack_top))
+		(call 'sys_load :find `((,sptr 0)) `(,node ,node_offset))
+		(vpif (list node '/= 0))
+			(vp-push node_offset)
+			(call 'sys_pii :write_str `(2 (& ,node fn_header_pathname)))
+			(call 'sys_pii :write_str `(2 " ("))
+			(vp-pop node_offset)
+			(call 'sys_pii :write_num `(2 ,node_offset 10))
+			(call 'sys_pii :write_str `(2 ,(cat ")" (ascii-char +char_lf+))))
+		(endif)
+		(vp-add-cr +ptr_size+ sptr)
+	(loop-end)
+
+	(vp-pop r0 r1 r2 r3 r4)
+	(vp-ret)
 
 (def-func-end)
