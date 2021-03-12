@@ -4,7 +4,6 @@
 (include "class/list/class.inc")
 (include "class/str/class.inc")
 (include "sys/statics/class.inc")
-(include "lib/consts/chars.inc")
 
 (def-method 'sys_task :statics_init)
 	;info
@@ -476,7 +475,7 @@
 	(fn-bind 'sys/statics/statics stack_top)
 	(assign `((,stack_top statics_sys_task_current_tcb) (& rsp ,(* +ptr_size+ 5))) `(,stack_top ,sptr))
 	(assign `((,stack_top tk_node_stack_top)) `(,stack_top))
-	(loop-while (list sptr '<= stack_top))
+	(loop-while (list sptr '< stack_top))
 		(call 'sys_load :find `((,sptr 0)) `(,node ,node_offset))
 		(vpif (list node '/= 0))
 			(vp-push node_offset)
@@ -484,7 +483,7 @@
 			(call 'sys_pii :write_str `(2 " ("))
 			(vp-pop node_offset)
 			(call 'sys_pii :write_num `(2 ,node_offset 10))
-			(call 'sys_pii :write_str `(2 ,(cat ")" (ascii-char +char_lf+))))
+			(call 'sys_pii :write_str `(2 ,(cat ")" (ascii-char 10))))
 		(endif)
 		(vp-add-cr +ptr_size+ sptr)
 	(loop-end)

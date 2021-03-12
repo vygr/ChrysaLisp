@@ -11,8 +11,8 @@
 	(defq tk_state_size (* +ptr_size+ (length stack_state)))
 	(vp-sub-cr (+ tk_state_size (* +ptr_size+ 2)) r1)
 	(f-bind 'sys_task :stop r2)
-	(vp-cpy-ri r2 r1 (+ tk_state_size +ptr_size+))
-	(vp-cpy-ri r4 r1 tk_state_size))
+	(vp-cpy-ri r4 r1 tk_state_size)
+	(vp-cpy-ri r2 r1 (+ tk_state_size +ptr_size+)))
 
 (defun emit-rr (o s d)
 	(defq s (reg s) d (reg d))
