@@ -98,7 +98,10 @@
 
 (errorcases
 (vp-label 'error)
-	(call 'sys_pii :write_str `(2 ,(cat "Malloc fail !!!" (ascii-char 10))))
+	(vp-cpy-rr r0 r2)
+	(call 'sys_pii :write_str `(2 "Malloc fail !!! "))
+	(call 'sys_pii :write_num `(2 r2 16))
+	(call 'sys_pii :write_str `(2 ,(ascii-char 10)))
 	(call 'sys_task :dump)
 	(exit 'sys_mem :alloc '(0 0))
 	(vp-ret))
