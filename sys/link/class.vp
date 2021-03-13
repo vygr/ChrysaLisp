@@ -203,6 +203,7 @@
 				;copy message data
 				(call 'sys_mem :copy {&msg->msg_stamp_start, &tx_msg->lk_msg_stamp, msg_stamp_end - msg_stamp_start})
 				(call 'sys_mem :copy {msg->msg_frag_data, &tx_msg->lk_msg_data, (msg->msg_frag_length + +long_size+ - 1) & -+long_size+})
+				(call 'sys_task :sleep '(0))
 				;busy status
 				(assign {lk_chan_status_busy} {tx_msg->lk_msg_status})
 				;free message
@@ -216,6 +217,7 @@
 			(else)
 				;just a ping
 				(assign {-1} {tx_msg->lk_msg_stamp.(-msg_stamp_start).msg_frag_length})
+				(call 'sys_task :sleep '(0))
 				;busy status
 				(assign {lk_chan_status_busy} {tx_msg->lk_msg_status})
 
@@ -226,9 +228,6 @@
 				(endif)
 				(break 'sleep)
 			(endif)
-
-			;let other links run
-			(call 'sys_task :sleep '(0))
 		(loop-end)
 
 		;small sleep if nothing to do
