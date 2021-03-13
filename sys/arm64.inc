@@ -248,7 +248,7 @@
 
 (defun emit-cpy-ir-ub (s c d) (emit-iru 0 0x38400000 s c d))
 (defun emit-cpy-ir-us (s c d) (emit-iru 1 0x78400000 s c d))
-(defun emit-cpy-ir-ui (s c d) (emit-iru 2 0xb8400000 s c d))
+(defun emit-cpy-ir-ui (s c d) (emit-ir 2 0xb8400000 s c d))
 
 (defun emit-cpy-rd (s d1 d2) (emit-rd 0xf8206800 s d2 d1))
 (defun emit-cpy-rd-b (s d2 d1) (emit-rd 0x38206800 s d2 d1))
