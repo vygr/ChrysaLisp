@@ -6078,7 +6078,7 @@ r1 = buffer length (uint)
 outputs
 r0 = 0 if error, else str object (ptr)
 trashes
-r1-r6
+r0-r6
 ```
 
 ### str :create_from_cstr -> class/str/create_from_cstr
@@ -6089,7 +6089,7 @@ r0 = c string (pubyte)
 outputs
 r0 = 0 if error, else str object (ptr)
 trashes
-r1-r6
+r0-r6
 ```
 
 ### str :create_from_file -> class/str/create_from_file
@@ -6100,7 +6100,7 @@ r0 = file name c string (pubyte)
 outputs
 r0 = 0 if error, else str object (ptr)
 trashes
-r1-r6
+r0-r6
 ```
 
 ### str :create_from_long -> class/str/create_from_long
@@ -6112,7 +6112,7 @@ r1 = base, - for unsigned, (long)
 outputs
 r0 = 0 if error, else str object (ptr)
 trashes
-r1-r6
+r0-r6
 ```
 
 ### str :append -> class/str/append
@@ -7213,7 +7213,7 @@ outputs
 r0 = mail message (ptr)
 r1 = string data (pubyte)
 trashes
-r0-r4
+r0-r6
 ```
 
 ### sys_mail :free -> sys/mail/free
