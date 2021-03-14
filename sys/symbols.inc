@@ -54,8 +54,6 @@ canvas_texture 192
 texture_handle 16
 texture_width 24
 texture_height 28
-net_id_size 24
-node_id_size 16
 _t_view_id "l"
 _t_ev_msg_action_source_id "L"
 _t_ev_msg_key_key "I"

@@ -2280,6 +2280,14 @@
 
 ```
 
+## get-netid
+
+```lisp
+
+(get-netid str index) -> netid
+
+```
+
 ## get-short
 
 ```lisp

@@ -124,8 +124,14 @@
 (ffi pii-time "sys/pii/lisp_time" 0)
 (ffi pii-write-char "sys/pii/lisp_writechar" 0)
 
+(ffi get-field "class/obj/lisp_get_field" 0)
+(ffi set-field "class/obj/lisp_set_field" 0)
+(ffi weak-ref "class/obj/lisp_weak_ref" 0)
+(ffi obj-ref "class/obj/lisp_obj_ref" 0)
+
 (defq t 't nil 'nil
 	+byte_size+ 1 +short_size+ 2 +int_size+ 4 +long_size+ 8 +ptr_size+ 8
+	+str_data+ 24 +node_id_size+ 16 +net_id_size+ 24
 	defmacro '(macro (n a &rest _) `(defq ,n (macro ,a ~_))))
 
 (defmacro defun (n a &rest _)
@@ -694,25 +700,31 @@
 
 (defmacro get-ubyte (s o)
 	; (get-ubyte str index) -> num
-	(list 'code s +byte_size+ o))
+	`(get-field ,s (+ +str_data+ ,o) ,(neg +byte_size+)))
 (defmacro get-ushort (s o)
 	; (get-ushort str index) -> num
-	(list 'code s +short_size+ o))
+	`(get-field ,s (+ +str_data+ ,o) ,(neg +short_size+)))
 (defmacro get-uint (s o)
 	; (get-uint str index) -> num
-	(list 'code s +int_size+ o))
+	`(get-field ,s (+ +str_data+ ,o) ,(neg +int_size+)))
 (defmacro get-long (s o)
 	; (get-long str index) -> num
-	(list 'code s +long_size+ o))
+	`(get-field ,s (+ +str_data+ ,o) ,(neg +long_size+)))
 (defmacro get-byte (s o)
 	; (get-byte str index) -> num
-	`(>>> (<< (code ,s +byte_size+ ,o) 56) 56))
+	`(get-field ,s (+ +str_data+ ,o) +byte_size+))
 (defmacro get-short (s o)
 	; (get-short str index) -> num
-	`(>>> (<< (code ,s +short_size+ ,o) 48) 48))
+	`(get-field ,s (+ +str_data+ ,o) +short_size+))
 (defmacro get-int (s o)
 	; (get-int str index) -> num
-	`(>>> (<< (code ,s +int_size+ ,o) 32) 32))
+	`(get-field ,s (+ +str_data+ ,o) +int_size+))
+(defmacro get-nodeid (s o)
+	; (get-netid str index) -> netid
+	`(slice ,o (+ ,o +node_id_size+) ,s))
+(defmacro get-netid (s o)
+	; (get-netid str index) -> netid
+	`(slice ,o (+ ,o +net_id_size+) ,s))
 (defun get-cstr (s o)
 	; (get-cstr str index) -> str
 	(defq k o)

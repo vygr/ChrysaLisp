@@ -114,7 +114,7 @@
 					(t (. mywindow :event msg))))
 			((= idx +select_task+)
 				;child launch responce
-				(defq key (get-long msg 0) child (slice +long_size+ (const (+ +long_size+ net_id_size)) msg))
+				(defq key (get-long msg 0) child (get-netid msg +long_size+))
 				(when (defq val (. farm :find key))
 					(. val :insert :child child)
 					(dispatch-job key val)))

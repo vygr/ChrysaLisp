@@ -40,7 +40,7 @@
 	; (create key now) -> val
 	;function called when entry is created
 	(.-> (defq mb (Progress) tb (Progress) val (emap))
-		(:insert :child (const (pad "" net_id_size)))
+		(:insert :child (const (pad "" +net_id_size+)))
 		(:insert :timestamp now)
 		(:insert :memory_bar mb)
 		(:insert :task_bar tb))
@@ -52,7 +52,7 @@
 (defun destroy (key val)
 	; (destroy key val)
 	;function called when entry is destroyed
-	(unless (eql (defq child (. val :find :child)) (const (pad "" net_id_size)))
+	(unless (eql (defq child (. val :find :child)) (const (pad "" +net_id_size+)))
 		(mail-send child ""))
 	(. (. val :find :memory_bar) :sub)
 	(. (. val :find :task_bar) :sub))
@@ -60,7 +60,7 @@
 (defun poll (key val)
 	; (poll key val)
 	;function called to poll entry
-	(unless (eql (defq child (. val :find :child)) (const (pad "" net_id_size)))
+	(unless (eql (defq child (. val :find :child)) (const (pad "" +net_id_size+)))
 		(mail-send child (elem +select_reply+ select))))
 
 (defun main ()
@@ -92,7 +92,7 @@
 					(t (. mywindow :event msg))))
 			((= idx +select_task+)
 				;child launch responce
-				(defq child (slice +long_size+ (const (+ +long_size+ net_id_size)) msg)
+				(defq child (get-netid msg +long_size+)
 					val (. global_tasks :find (slice +long_size+ -1 child)))
 				(when val
 					(.-> val
@@ -100,7 +100,7 @@
 						(:insert :timestamp (pii-time)))))
 			((= idx +select_reply+)
 				;child poll responce
-				(when (defq val (. global_tasks :find (slice sample_reply_node node_id_size msg)))
+				(when (defq val (. global_tasks :find (get-nodeid msg sample_reply_node)))
 					(defq task_val (get-uint msg sample_reply_task_count)
 						memory_val (get-uint msg sample_reply_mem_used)
 						task_bar (. val :find :task_bar)

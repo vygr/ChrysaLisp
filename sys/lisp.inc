@@ -44,10 +44,10 @@
 	(setq _o (align _o +byte_size+)) (apply struct (cat (list +byte_size+) b)))
 (defun nodeid (&rest b)
 	; (net_id field ...)
-	(setq _o (align _o +long_size+)) (apply struct (cat (list node_id_size) b)))
+	(setq _o (align _o +long_size+)) (apply struct (cat (list +node_id_size+) b)))
 (defun netid (&rest b)
 	; (net_id field ...)
-	(setq _o (align _o +long_size+)) (apply struct (cat (list net_id_size) b)))
+	(setq _o (align _o +long_size+)) (apply struct (cat (list +net_id_size+) b)))
 
 (defun to-net-id (sid)
 	; (to-net-id service_id) -> net_id
@@ -72,14 +72,14 @@
 	; (open-child task mode) -> str
 	(defq mbox (mail-alloc-mbox))
 	(open-task task (slice +long_size+ -1 (task-mailbox)) mode 0 mbox)
-	(defq id (slice +long_size+ (const (+ +long_size+ net_id_size)) (mail-read mbox)))
+	(defq id (get-netid (mail-read mbox) +long_size+))
 	(mail-free-mbox mbox) id)
 
 (defun open-remote (task node mode)
 	; (open-remote task node mode) -> str
 	(defq mbox (mail-alloc-mbox))
 	(open-task task node mode 0 mbox)
-	(defq id (slice +long_size+ (const (+ +long_size+ net_id_size)) (mail-read mbox)))
+	(defq id (get-netid (mail-read mbox) +long_size+))
 	(mail-free-mbox mbox) id)
 
 (defun open-pipe (tasks)
@@ -88,7 +88,7 @@
 		mbox (mail-alloc-mbox) index -1 tail (task-mailbox))
 	(while (< (setq index (inc index)) (length tasks))
 		(open-task (elem index tasks) (slice +long_size+ -1 tail) kn_call_child 0 mbox)
-		(defq tail (slice +long_size+ (const (+ +long_size+ net_id_size)) (mail-read mbox)))
+		(defq tail (get-netid (mail-read mbox) +long_size+))
 		(push ids tail))
 	(mail-free-mbox mbox) ids)
 

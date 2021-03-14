@@ -97,7 +97,7 @@
 								(push state_list state)
 								(push token_list token)
 								(setq token (list c) state :symbol))
-							(t	(push token c)))
+							((push token c)))
 						(setq c nil))
 					((:symbol :keysym)
 						(cond
@@ -189,7 +189,7 @@
 							(slice 0 padding "        "))
 						(t	(setq cursor (inc cursor))
 							%0))) line)))
-			(t	line)))
+			(line)))
 	)
 
-(undef (env) 'is_number_char 'is_allowed_number_char 'is_symbol_char 'is_text_char)
+(undef (env) 'is_number_char 'is_allowed_number_char 'is_symbol_char)

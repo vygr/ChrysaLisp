@@ -491,7 +491,7 @@
 	(call 'list :push_back {cat, name})
 	(call 'str :create_from_buffer {",", 1} {tmp1})
 	(call 'list :push_back {cat, tmp1})
-	(call 'str :create_from_buffer {0, net_id_size * 2} {tmp2})
+	(call 'str :create_from_buffer {0, +net_id_size+ * 2} {tmp2})
 	(assign {&id->str_data, &tmp2->str_data, id->str_length} '(r0 r1 r2))
 	(vp-add-rr r0 r2)
 	(loop-start)
@@ -537,7 +537,7 @@
 	(entry 'sys_mail :declare {id, name, info})
 
 	;insert into service map
-	(call 'node :create {&id->str_data.net_id_node_id, node_id_size} {key})
+	(call 'node :create {&id->str_data.net_id_node_id, +node_id_size+} {key})
 	(call 'hmap :find {@sys/statics/statics.statics_sys_mail_node_map, key} {_, tuple, bucket})
 	(vpifnot {tuple})
 		(call 'array :create nil {tuple})
@@ -663,7 +663,7 @@
 
 	(push-scope)
 
-	(call 'node :create {@sys/statics/statics.statics_sys_task_kernel_node_id, node_id_size} {key})
+	(call 'node :create {@sys/statics/statics.statics_sys_task_kernel_node_id, +node_id_size+} {key})
 	(assign {@sys/statics/statics} {statics})
 	(call 'hmap :find {statics->statics_sys_mail_node_map, key} {_, tuple, bucket})
 	(vpif {tuple})
@@ -772,7 +772,7 @@
 		(continueif (list iter_begin '= iter_end))
 		(loop-start)
 			(load-node-id iter_begin 0 via1 via2)
-			(vp-add-cr node_id_size iter_begin)
+			(vp-add-cr +node_id_size+ iter_begin)
 			(vpif (list via1 '= peer1))
 				(breakif (list via2 '= peer2) 'exit)
 			(endif)

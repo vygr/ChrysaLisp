@@ -164,7 +164,7 @@
 	(push-scope)
 
 	(assign {@sys/statics/statics} {statics})
-	(call 'node :create '(0 node_id_size) {key})
+	(call 'node :create '(0 +node_id_size+) {key})
 
 	;read params msg
 	(call 'sys_mail :mymail nil {msg, data})

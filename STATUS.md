@@ -8,6 +8,14 @@ Added nesting to the `(#)` macro ! Plus arbitrary % parameters not just
 starting from %0. This comes with the addition to `boot.inc` of a `(walk-list
 list elm_fnc down_fnc up_fnc)` function ! Enjoy.
 
+Promotion of `(get-field)` `(set-field)` `(obj-ref)` and `(weak-ref)` to
+*boot.inc*.
+
+`(get-xxx)` macros now uses `(get-field)` and addition of `(get-nodeid)` and
+`(get-netid)` macros.
+
+Addition of +net_id_size+ and +node_id_size+ symbols.
+
 ------
 
 Host main.cpp pii_sleep function now standardized on usec for time interval

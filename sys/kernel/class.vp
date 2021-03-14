@@ -61,14 +61,14 @@
 	(call 'sys_mail :statics_init1)
 
 	;set random node ID
-	(call 'sys_pii :rand {&statics->statics_sys_task_kernel_node_id, node_id_size})
+	(call 'sys_pii :rand {&statics->statics_sys_task_kernel_node_id, +node_id_size+})
 	(call 'sys_kernel :id nil {node_id.node_id_node1, node_id.node_id_node2})
 
 	;process command options
 	(call 'opts {argv})
 
 	;start routing pings
-	(call 'node :create {0, node_id_size} {key})
+	(call 'node :create {0, +node_id_size+} {key})
 	(call 'sys_load :bind `(,(str (f-path 'sys_kernel :ping))) '(r0))
 	(vpif '(r0 /= 0))
 		(call 'sys_task :start '(r0))
@@ -140,7 +140,7 @@
 				(assign-node-id r0 kn_msg_ping_origin r1 str_data)
 				(call 'hmap :find {statics->statics_sys_mail_node_map, key} {_, tuple, bucket})
 				(vpifnot {tuple})
-					(call 'node :create {&data->kn_msg_ping_origin, node_id_size} {new_key})
+					(call 'node :create {&data->kn_msg_ping_origin, +node_id_size+} {new_key})
 					(call 'array :create nil {tuple})
 					;service set, time, session, hops, then any vias...
 					(call 'hset :create `((@ ,(f-path 'str :same)) 1) {set})

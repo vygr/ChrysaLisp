@@ -394,7 +394,7 @@
 		((= idx +select_main+)
 			(mail-timeout (elem +select_timeout+ select) 0)
 			;read job
-			(defq reply_mbox (slice +job_reply+ (+ +job_reply+ net_id_size) msg)
+			(defq reply_mbox (get-netid msg +job_reply+)
 				max_time_per_move (get-long msg +job_move_time+)
 				color (get-byte msg +job_color+)
 				brd (slice +job_board+ (+ +job_board+ 64) msg)

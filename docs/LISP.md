@@ -63,10 +63,7 @@ the environment chain is searched to see if a macro exists.
 ### Built in symbols
 
 ```vdu
-&rest
-&optional
-nil
-t
+&rest &optional nil t
 ```
 
 ### Built in functions
@@ -74,32 +71,22 @@ t
 ```vdu
 % * + - . / /= < << <= = > >= >> >>> abs apply array bind cap cat catch char
 clear cmp code cond copy def def? defq each! elem elem-set env eql eval f2i f2r
-ffi file-stream find find-rev fixeds gensym get hash i2f i2r if io-stream
-lambda length list load logand logior logxor macro macroexpand match? max
-merge-obj min neg nums penv pii-dirlist pii-fstat pii-read-char pii-remove
-pii-time pii-write-char pivot pop prebind prin print progn push quasi-quote
-quote r2f r2i random read read-avail read-char read-line reals repl save set
-setq slice some! split str string-stream sym throw tolist type-of undef while
-write write-char
+ffi file-stream find find-rev fixeds gensym get get-field hash i2f i2r if
+io-stream lambda length list load logand logior logxor macro macroexpand match?
+max merge-obj min neg nums obj-ref penv pii-dirlist pii-fstat pii-read-char
+pii-remove pii-time pii-write-char pivot pop prebind prin print progn push
+quasi-quote quote r2f r2i random read read-avail read-char read-line reals repl
+save set set-field setq slice some! split str string-stream sym throw tolist
+type-of undef weak-ref while write write-char
 ```
 
 ### boot.inc symbols
 
 ```vdu
-+min_long+
-+max_long+
-+min_int+
-+max_int+
-+fp_shift+
-+fp_2pi+
-+fp_pi+
-+fp_hpi+
-+fp_rpi+
-+fp_int_mask+
-+fp_frac_mask+
-*debug_mode*
-*debug_emit*
-*debug_inst*
++byte_size+ +short_size+ +int_size+ +long_size+ +ptr_size+ +str_data+
++node_id_size+ +net_id_size+ +min_long+ +max_long+ +min_int+ +max_int+
++fp_shift+ +fp_2pi+ +fp_pi+ +fp_hpi+ +fp_rpi+ +fp_int_mask+ +fp_frac_mask+
+*debug_mode* *debug_emit* *debug_inst*
 ```
 
 ### boot.inc macros
@@ -107,10 +94,11 @@ write write-char
 ```vdu
 # .-> .super and ascii-char ascii-code case compose const curry dec
 defabstractmethod defclass deffimethod defmacro defmethod defun defun-unbound
-each each-rev env? every func? get-byte get-int get-long get-short get-ubyte
-get-uint get-ushort inc lambda? let list? macro? merges not notany notevery
-num? opt or pairs-into-kv rcurry read-int read-long read-short reduced seq?
-setd some str? sym? times unless until when write-int write-long write-short
+each each-rev env? every func? get-byte get-int get-long get-netid get-nodeid
+get-short get-ubyte get-uint get-ushort inc lambda? let list? macro? merges not
+notany notevery num? opt or pairs-into-kv rcurry read-int read-long read-short
+reduced seq? setd some str? sym? times unless until when write-int write-long
+write-short
 ```
 
 ### boot.inc functions
@@ -134,19 +122,8 @@ xmap xmap-kv xmap? xnode xnode? xset xset-k xset? zip
 ### asm.inc functions
 
 ```vdu
-all-vp-files
-compile
-compile-pipe
-compile-test
-make
-make-all
-make-all-platforms
-make-boot
-make-boot-all
-make-info
-make-platforms
-make-test
-remake
+all-vp-files compile compile-pipe compile-test make make-all make-all-platforms
+make-boot make-boot-all make-info make-platforms make-test remake
 remake-platforms
 ```
 
@@ -161,8 +138,7 @@ remake-platforms
 ### `*compile_env*` macros
 
 ```vdu
-defcvar
-undefc
+defcvar undefc
 ```
 
 ### `*compile_env*` functions
