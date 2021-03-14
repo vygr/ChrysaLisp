@@ -709,7 +709,7 @@
 	`(get-field ,s (+ +str_data+ ,o) ,(neg +int_size+)))
 (defmacro get-long (s o)
 	; (get-long str index) -> num
-	`(get-field ,s (+ +str_data+ ,o) ,(neg +long_size+)))
+	`(get-field ,s (+ +str_data+ ,o) +long_size+))
 (defmacro get-byte (s o)
 	; (get-byte str index) -> num
 	`(get-field ,s (+ +str_data+ ,o) +byte_size+))
@@ -720,7 +720,7 @@
 	; (get-int str index) -> num
 	`(get-field ,s (+ +str_data+ ,o) +int_size+))
 (defmacro get-nodeid (s o)
-	; (get-netid str index) -> netid
+	; (get-nodeid str index) -> nodeid
 	`(slice ,o (+ ,o +node_id_size+) ,s))
 (defmacro get-netid (s o)
 	; (get-netid str index) -> netid

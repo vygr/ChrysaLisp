@@ -2288,6 +2288,14 @@
 
 ```
 
+## get-nodeid
+
+```lisp
+
+(get-nodeid str index) -> nodeid
+
+```
+
 ## get-short
 
 ```lisp
