@@ -34,9 +34,8 @@
 			stream_mail_state_started stream_mail_state_stopped
 			stream_mail_state_stopping vdu_char_height vdu_char_width view_flags view_h
 			view_w view_x view_y canvas_flags canvas_color +cap_arrow+ canvas_scale
-			canvas_pixmap pixmap_width pixmap_height ev_msg_mouse_x ev_msg_mouse_y
-			ev_type_action view_target_ids canvas_texture texture_handle texture_width
-			texture_height)
+			canvas_pixmap pixmap_width pixmap_height view_target_ids canvas_texture
+			texture_handle texture_width texture_height)
 		_vals_ (within-compile-env (lambda ()
 	        (include "sys/func.inc")
 			(each include (all-class-files))

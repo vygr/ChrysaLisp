@@ -35,9 +35,6 @@ canvas_scale 216
 canvas_pixmap 176
 pixmap_width 44
 pixmap_height 48
-ev_msg_mouse_x 20
-ev_msg_mouse_y 24
-ev_type_action 2
 view_target_ids 128
 canvas_texture 192
 texture_handle 16
@@ -60,8 +57,6 @@ _t_canvas_scale "I"
 _t_canvas_pixmap "p"
 _t_pixmap_width "I"
 _t_pixmap_height "I"
-_t_ev_msg_mouse_x "i"
-_t_ev_msg_mouse_y "i"
 _t_view_target_ids "p"
 _t_canvas_texture "p"
 _t_texture_handle "L"
