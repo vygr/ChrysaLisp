@@ -1,7 +1,7 @@
 ;Visual buffer input
 ; TODO: custom margins and line wrap
-(structure '+mouse 0
-	(byte 'up+ 'down+ 'double_click+ 'long_click+ 'hover+))
+(structure mouse 0
+	(byte up down double_click long_click hover))
 
 (defq text_select (xmap-kv
 		:mouse_state +mouse_up+
@@ -44,16 +44,16 @@
 	(list cx cy))
 
 (defun vdu-keyboard (msg)
-	(and (= (get-long msg ev_msg_type) ev_type_key)
-		(> (get-int msg ev_msg_key_keycode) 0)
-		(vdu-input (get-int msg ev_msg_key_key))
+	(and (= (getf msg +ev_msg_type+) +ev_type_key+)
+		(> (getf msg +ev_msg_key_keycode+) 0)
+		(vdu-input (getf msg +ev_msg_key_key+))
 		(. text_select :insert :highlighted nil)))
 
 (defun vdu-mouse-down (msg)
-	(when (and (= (get-long msg ev_msg_type) ev_type_mouse)
-			(/= (get-int msg ev_msg_mouse_buttons) 0)
-		(defq mxy (list (get-int msg ev_msg_mouse_rx)
-				(get-int msg ev_msg_mouse_ry))))
+	(when (and (= (getf msg +ev_msg_type+) +ev_type_mouse+)
+			(/= (getf msg +ev_msg_mouse_buttons+) 0)
+		(defq mxy (list (getf msg +ev_msg_mouse_rx+)
+				(getf msg +ev_msg_mouse_ry+))))
 		(defq buffer (get-buffer))
 		(bind '(ox oy _ _ sx) (get-position))
 		(bind '(cx cy) (mouse-xy (get-buffer) mxy))
@@ -69,8 +69,8 @@
 
 (defun vdu-mouse-up (msg)
 	(when (and (= (. text_select :find :mouse_state) +mouse_down+)
-		(= (get-long msg ev_msg_type) ev_type_mouse)
-		(= (get-int msg ev_msg_mouse_buttons) 0))
+		(= (getf msg +ev_msg_type+) +ev_type_mouse+)
+		(= (getf msg +ev_msg_mouse_buttons+) 0))
 		(. text_select :insert :mouse_state +mouse_up+)
 		(. text_select :insert :selection_mode nil)))
 

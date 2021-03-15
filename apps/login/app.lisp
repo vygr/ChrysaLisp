@@ -4,8 +4,8 @@
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
 
-(structure '+event 0
-	(byte 'login+ 'create+))
+(structure event 0
+	(byte login create))
 
 (ui-window mywindow ()
 	(ui-title-bar _ "Login Manager" () ())
@@ -33,8 +33,8 @@
 	(gui-add mywindow)
 	(position-window)
 	(while (cond
-		((and (< (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) 0)
-			(= (get-long msg ev_msg_type) ev_type_gui))
+		((and (< (defq id (getf (defq msg (mail-read (task-mailbox))) +ev_msg_target_id+)) 0)
+			(= (getf msg +ev_msg_type+) +ev_type_gui+))
 			;resized GUI
 			(position-window))
 		((= id +event_login+)

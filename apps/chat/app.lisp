@@ -3,10 +3,10 @@
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
 
-(structure '+event 0
-	(byte 'close+)
-	(byte 'connect+ 'disconnect+)
-	(byte 'send+))
+(structure event 0
+	(byte close)
+	(byte connect disconnect)
+	(byte send))
 
 (defq vdu_width 60 vdu_height 30)
 
@@ -47,7 +47,7 @@
 			((/= idx 0)
 				;chat text from network
 				(setq text_buf (vdu-print vdu text_buf msg)))
-			((= (setq id (get-long msg ev_msg_target_id)) +event_close+)
+			((= (setq id (getf msg +ev_msg_target_id+)) +event_close+)
 				;close
 				(setq id nil))
 			((= id +event_connect+)

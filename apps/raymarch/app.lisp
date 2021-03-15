@@ -7,11 +7,11 @@
 (import "gui/lisp.inc")
 (import "lib/task/farm.inc")
 
-(structure '+event 0
-	(byte 'close+))
+(structure event 0
+	(byte close))
 
-(structure '+select 0
-	(byte 'main+ 'task+ 'reply+ 'timer+))
+(structure select 0
+	(byte main task reply timer))
 
 (defun child-msg (&rest _)
 	(apply cat (map (# (char %0 +long_size+)) _)))
@@ -85,7 +85,7 @@
 			((= idx +select_main+)
 				;main mailbox
 				(cond
-					((= (setq id (get-long msg ev_msg_target_id)) +event_close+)
+					((= (setq id (getf msg +ev_msg_target_id+)) +event_close+)
 						;close button
 						(setq id nil))
 					(t (. mywindow :event msg))))

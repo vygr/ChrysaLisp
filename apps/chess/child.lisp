@@ -11,16 +11,16 @@
 	`(elem (find-rev ,i ,(elem 0 (eval _))) (elem 1 ,_)))
 
 ;description of a pieces check influence
-(structure 'vector 0
-	(byte 'dx 'dy 'len))
+(structure vector 0
+	(byte dx dy len))
 
 ;description of a pieces movement and capture action
-(structure 'move vector_size
-	(byte 'flag))
+(structure move +vector_size+
+	(byte flag))
 
 ;check test, array of pieces that must not be on this vectors from the king
-(structure 'test 0
-	(byte 'pieces 'vectors))
+(structure test 0
+	(byte pieces vectors))
 
 ;control paramaters
 (defq max_ply 10 max_chess_moves (/ 218 2) max_search_entries 10000)
@@ -380,8 +380,8 @@
 			(setq nbrd (if pbrd pbrd nbrd) pbrd nil))) (list (range 1 max_ply)))
 	nbrd)
 
-(structure '+select 0
-	(byte 'main+ 'timeout+))
+(structure select 0
+	(byte main timeout))
 
 (defun main ()
 	(defq select (list (task-mailbox) (mail-alloc-mbox)))
@@ -394,9 +394,9 @@
 		((= idx +select_main+)
 			(mail-timeout (elem +select_timeout+ select) 0)
 			;read job
-			(defq reply_mbox (get-netid msg +job_reply+)
-				max_time_per_move (get-long msg +job_move_time+)
-				color (get-byte msg +job_color+)
+			(defq reply_mbox (getf msg +job_reply+)
+				max_time_per_move (getf msg +job_move_time+)
+				color (getf msg +job_color+)
 				brd (slice +job_board+ (+ +job_board+ 64) msg)
 				history (list) history_offset (+ +job_board+ 64)
 				next_seq 0)

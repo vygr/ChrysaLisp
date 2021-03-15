@@ -3,8 +3,8 @@
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
 
-(structure '+event 0
-	(byte 'click+))
+(structure event 0
+	(byte click))
 
 (ui-window window (:border 1)
 	(ui-flow btn_menu (:flow_flags +flow_down_fill+)
@@ -43,8 +43,8 @@
 	(build-menu px py pflag)
 	(while (cond
 		((eql (defq msg (mail-read (task-mailbox))) "") nil)
-		((= +event_click+ (defq id (get-long msg ev_msg_target_id)))
-			(defq reply (get :text (. window :find_id (get-long msg ev_msg_action_source_id))))
+		((= +event_click+ (defq id (getf msg +ev_msg_target_id+)))
+			(defq reply (get :text (. window :find_id (getf msg +ev_msg_action_source_id+))))
 			(mail-send reply_mbox reply))
 		(t (. window :event msg))))
 		(. window :hide))

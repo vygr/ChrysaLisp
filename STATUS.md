@@ -9,12 +9,17 @@ starting from %0. This comes with the addition to `boot.inc` of a `(walk-list
 list elm_fnc down_fnc up_fnc)` function ! Enjoy.
 
 Promotion of `(get-field)` `(set-field)` `(obj-ref)` and `(weak-ref)` to
-*boot.inc*.
+`boot.inc`.
 
 `(get-xxx)` macros now uses `(get-field)` and addition of `(get-nodeid)` and
 `(get-netid)` macros.
 
 Addition of +net_id_size+ and +node_id_size+ symbols.
+
+`(structure)` macro promoted to `boot.inc` with new `(getf)` macro. Structure
+not only creates constant symbols ie `+name_field+` for the field offsets but
+also type symbols `+name_field_t+` to allow the `(getf)` macro to create the
+correct accessor.
 
 ------
 

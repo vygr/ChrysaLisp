@@ -880,6 +880,44 @@
 	(catch (progn (setq _f (_f) *compile_env* nil) _f)
 		(setq *compile_env* nil)))
 
+;;;;;;;;;;;;;;;;;;;;;;;
+; structures and fields
+;;;;;;;;;;;;;;;;;;;;;;;
+
+(defmacro structure (name offset &rest lines)
+	; (structure name offset [(byte field ...)] ...)
+	(defq syms (list) values (list) offset (eval offset))
+	(defun new_field (type size alignment)
+		(setq offset (align offset alignment))
+		(push syms (sym (cat "+" name "_" field "+")) (sym (cat "+" name "_" field "_t+")))
+		(push values offset type)
+		(setq offset (+ offset size)))
+	(each (lambda (line)
+		(each! 1 -1 (lambda (field)
+			(case (elem 0 line)
+				(offset (push syms (sym (cat "+" name "_" field "+"))) (push values offset))
+				(byte (new_field +byte_size+ +byte_size+ +byte_size+))
+				(short (new_field +short_size+ +short_size+ +short_size+))
+				(int (new_field +int_size+ +int_size+ +int_size+))
+				(long (new_field +long_size+ +long_size+ +long_size+))
+				(ubyte (new_field (const (neg +byte_size+)) +byte_size+ +byte_size+))
+				(ushort (new_field (const (neg +short_size+)) +short_size+ +short_size+))
+				(uint (new_field (const (neg +int_size+)) +int_size+ +int_size+))
+				(ulong (new_field +long_size+ +long_size+ +long_size+))
+				(nodeid (new_field +node_id_size+ +node_id_size+ +long_size+))
+				(netid (new_field +net_id_size+ +net_id_size+ +long_size+))))
+			(list line))) lines)
+	(push syms (sym (cat "+" name "_size+")))
+	(push values offset)
+	`(bind ',syms ',values))
+
+(defmacro getf (s field)
+	; (getf str field) -> value
+	(defq type (eval (sym (cat (slice 0 -2 field) "_t+"))) field (eval field))
+	(if (> type +long_size+)
+		`(slice ,field ,(+ field type) ,s)
+		`(get-field ,s ,(+ +str_data+ field) ,type)))
+
 ;;;;;;;;;;;;;;;;;;;;;
 ; classes and methods
 ;;;;;;;;;;;;;;;;;;;;;

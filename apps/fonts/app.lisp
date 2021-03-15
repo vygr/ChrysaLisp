@@ -3,9 +3,9 @@
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
 
-(structure '+event 0
-	(byte 'close+)
-	(byte 'prev+ 'next+))
+(structure event 0
+	(byte close)
+	(byte prev next))
 
 (defun num-to-hex-str (_)
 	(cat "0x"
@@ -57,7 +57,7 @@
 	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
 	(gui-add (. mywindow :change x y w h))
 	(while (cond
-		((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) +event_close+)
+		((= (defq id (getf (defq msg (mail-read (task-mailbox))) +ev_msg_target_id+)) +event_close+)
 			;close button
 			nil)
 		((<= +event_prev+ id +event_next+)

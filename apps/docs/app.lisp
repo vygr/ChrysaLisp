@@ -4,12 +4,13 @@
 (import "gui/lisp.inc")
 (import "lib/text/syntax.inc")
 
-(structure '+event 0
-	(byte 'close+ 'button+))
+(structure event 0
+	(byte close button))
 
 (defq margin_width (* 8 3)
-	doc_list '("VM" "ASSIGNMENT" "STRUCTURE" "COMMS" "FUNCTIONS" "LISP" "ENVIRONMENT"
-	"CONDITIONALS" "ITERATION" "TERMINAL" "COMMANDS" "DIARY" "SYNTAX" "VP_CLASSES"
+	doc_list '("VM" "VP_ASSIGNMENT" "VP_STRUCTURE" "VP_FUNCTIONS" "VP_CLASSES" "COMMS"
+	"LISP" "ENVIRONMENT" "CONDITIONALS" "ITERATION" "SYNTAX"
+	"TERMINAL" "COMMANDS" "DIARY"
 	"INTRO" "TAOS" "TODO"))
 
 (defun normal-line ()
@@ -107,9 +108,9 @@
 	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
 	(gui-add (. mywindow :change x y w h))
 	(while (cond
-		((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) +event_close+)
+		((= (defq id (getf (defq msg (mail-read (task-mailbox))) +ev_msg_target_id+)) +event_close+)
 			nil)
 		((= id +event_button+)
-			(populate-page (get :text (. mywindow :find_id (get-long msg ev_msg_action_source_id)))))
+			(populate-page (get :text (. mywindow :find_id (getf msg +ev_msg_action_source_id+)))))
 		(t (. mywindow :event msg))))
 	(. mywindow :hide))

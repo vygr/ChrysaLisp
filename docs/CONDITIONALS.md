@@ -114,7 +114,7 @@ of the symbols used at the entry to the `(cond ...)` !
 
 ```vdu
 (cond
-	((= (defq id (get-long msg ev_msg_target_id)) +event_close+)
+	((= (defq id (getf msg +ev_msg_target_id+)) +event_close+)
 		;close app
 		)
 	((= id +event_min+)
@@ -176,9 +176,9 @@ that clause evaluates as `nil`. Therefore you can use it to execute a form only
 if all the preceding test clauses prove to be true !
 
 ```vdu
-(and (= (get-long msg (const ev_msg_type)) (const ev_type_mouse))
-	(/= 0 (get-int msg (const ev_msg_mouse_buttons)))
-	(setq mouse_down (get-int msg (const ev_msg_mouse_buttons))))
+(and (= (getf msg +ev_msg_type+) +ev_type_mouse+)
+	(/= 0 (getf msg +ev_msg_mouse_buttons+))
+	(setq mouse_down (getf msg +ev_msg_mouse_buttons+)))
 ```
 
 In this example the mouse_down symbol is only set if the previous 2 clauses

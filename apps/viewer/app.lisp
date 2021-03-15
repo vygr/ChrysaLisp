@@ -4,10 +4,10 @@
 (import "gui/lisp.inc")
 (import "lib/text/syntax.inc")
 
-(structure '+event 0
-	(byte 'close+ 'max+ 'min+)
-	(byte 'layout+ 'scroll+)
-	(byte 'tree+ 'tree_route+))
+(structure event 0
+	(byte close max min)
+	(byte layout scroll)
+	(byte tree tree_route))
 
 (defq vdu_min_width 16 vdu_min_height 16
 	vdu_max_width 120 vdu_max_height 50
@@ -108,7 +108,7 @@
 	(gui-add (. mywindow :change x y w h))
 	(. vdu :load text_buf 0 0 0 -1)
 	(while (cond
-		((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) +event_close+)
+		((= (defq id (getf (defq msg (mail-read (task-mailbox))) +ev_msg_target_id+)) +event_close+)
 			nil)
 		((= id +event_layout+)
 			;user window resize
@@ -134,7 +134,7 @@
 		((= id +event_tree_route+)
 			;load up the file selected
 			(if current_button (undef (. current_button :dirty) :color))
-			(setq current_button (. mywindow :find_id (get-long msg ev_msg_action_source_id)))
+			(setq current_button (. mywindow :find_id (getf msg +ev_msg_action_source_id+)))
 			(def (. current_button :dirty) :color +argb_grey12+)
 			(populate-vdu (. tree :get_route current_button)))
 		(t (. mywindow :event msg))))

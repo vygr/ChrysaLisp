@@ -5,13 +5,13 @@
 ;imports
 (import "apps/mandelbrot/mbmath.inc")
 
-(structure '+select 0
-	(byte 'main+ 'timeout+))
+(structure select 0
+	(byte main timeout))
 
-(structure '+job 0
-	(long 'key+)
-	(netid 'reply+)
-	(long 'x+ 'y+ 'x1+ 'y1+ 'w+ 'h+ 'cx+ 'cy+ 'z+))
+(structure job 0
+	(long key)
+	(netid reply)
+	(long x y x1 y1 w h cx cy z))
 
 (defun depth (x0 y0)
 	(defq i -1 xc 0 yc 0 x2 0 y2 0)
@@ -45,8 +45,8 @@
 			((= idx +select_main+)
 				;main mailbox, reset timeout and reply with result
 				(mail-timeout (elem +select_timeout+ select) 0)
-				(defq key (get-long msg +job_key+)
-					mbox (get-netid msg +job_reply+)
+				(defq key (getf msg +job_key+)
+					mbox (getf msg +job_reply+)
 					msg (slice +job_x+ -1 msg))
 				(apply mandel (cat (list key mbox) (map (lambda (_) (get-long msg (* _ +long_size+))) (range 0 9)))))))
 	(mail-free-mbox (pop select)))

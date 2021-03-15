@@ -4,15 +4,15 @@
 (import "gui/lisp.inc")
 (import "lib/task/global.inc")
 
-(structure 'sample_reply 0
-	(nodeid 'node)
-	(int 'task_count 'mem_used))
+(structure sample_reply 0
+	(nodeid node)
+	(uint task_count mem_used))
 
-(structure '+event 0
-	(byte 'close+ 'max+ 'min+))
+(structure event 0
+	(byte close max min))
 
-(structure '+select 0
-	(byte 'main+ 'task+ 'reply+ 'nodes+))
+(structure select 0
+	(byte main task reply nodes))
 
 (defq max_tasks 1 max_memory 1 last_max_tasks 1 last_max_memory 1 rate (/ 1000000 2) id t
 	select (list (task-mailbox) (mail-alloc-mbox) (mail-alloc-mbox) (mail-alloc-mbox))
@@ -75,7 +75,7 @@
 			((= idx +select_main+)
 				;main mailbox
 				(cond
-					((= (setq id (get-long msg ev_msg_target_id)) +event_close+)
+					((= (setq id (getf msg +ev_msg_target_id+)) +event_close+)
 						;close button
 						(setq id nil))
 					((= id +event_min+)
@@ -100,9 +100,9 @@
 						(:insert :timestamp (pii-time)))))
 			((= idx +select_reply+)
 				;child poll responce
-				(when (defq val (. global_tasks :find (get-nodeid msg sample_reply_node)))
-					(defq task_val (get-uint msg sample_reply_task_count)
-						memory_val (get-uint msg sample_reply_mem_used)
+				(when (defq val (. global_tasks :find (getf msg +sample_reply_node+)))
+					(defq task_val (getf msg +sample_reply_task_count+)
+						memory_val (getf msg +sample_reply_mem_used+)
 						task_bar (. val :find :task_bar)
 						memory_bar (. val :find :memory_bar))
 					(setq max_memory (max max_memory memory_val) max_tasks (max max_tasks task_val))

@@ -3,9 +3,9 @@
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
 
-(structure '+event 0
-	(byte 'close+)
-	(byte 'prev+ 'next+))
+(structure event 0
+	(byte close)
+	(byte prev next))
 
 (defun all-images (p)
 	(defq out (list))
@@ -36,7 +36,7 @@
 	(bind '(x y w h) (apply view-locate (. (win-refresh index) :get_size)))
 	(gui-add (. mywindow :change x y w h))
 	(while (cond
-		((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) +event_close+)
+		((= (defq id (getf (defq msg (mail-read (task-mailbox))) +ev_msg_target_id+)) +event_close+)
 			nil)
 		((<= +event_prev+ id +event_next+)
 			(win-refresh (% (+ index (dec (* 2 (- id +event_prev+))) (length images)) (length images))))

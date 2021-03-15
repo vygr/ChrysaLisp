@@ -35,10 +35,10 @@
 	(refresh-wallpaper)
 	(while t
 		(cond
-			((and (< (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id) 0)
-					(= (get-long msg ev_msg_type) ev_type_gui))
+			((and (< (getf (defq msg (mail-read (task-mailbox))) +ev_msg_target_id+) 0)
+					(= (getf msg +ev_msg_type+) +ev_type_gui+))
 				;resized GUI
 				(refresh-wallpaper))
-			((and (= (get-long msg ev_msg_type) ev_type_mouse) (= (get-int msg ev_msg_mouse_buttons) 0))
+			((and (= (getf msg +ev_msg_type+) +ev_type_mouse+) (= (getf msg +ev_msg_mouse_buttons+) 0))
 				;run launcher
 				(open-child (app-path "launcher") kn_call_open)))))

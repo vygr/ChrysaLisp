@@ -3,9 +3,9 @@
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
 
-(structure '+event 0
-	(byte 'close+ 'max+ 'min+)
-	(byte 'button+))
+(structure event 0
+	(byte close max min)
+	(byte button))
 
 (ui-window mywindow ()
 	(ui-title-bar _ "Calculator" (0xea19 0xea1b 0xea1a) +event_close+)
@@ -32,8 +32,8 @@
 	(gui-add (. mywindow :change x y w h))
 	(defq accum 0 value 0 num 0 lastop nil)
 	(while (cond
-		((>= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) +event_button+)
-			(defq op (get :text (. mywindow :find_id (get-long msg ev_msg_action_source_id))))
+		((>= (defq id (getf (defq msg (mail-read (task-mailbox))) +ev_msg_target_id+)) +event_button+)
+			(defq op (get :text (. mywindow :find_id (getf msg +ev_msg_action_source_id+))))
 			(cond
 				((eql op "AC")
 					(setq accum 0 value 0 num 0 lastop nil))

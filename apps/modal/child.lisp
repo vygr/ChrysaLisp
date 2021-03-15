@@ -2,8 +2,8 @@
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
 
-(structure '+event 0
-	(byte 'click+))
+(structure event 0
+	(byte click))
 
 (defmacro ui-margin (m e)
 	`(ui-flow _ (:flow_flags +flow_right_fill+)
@@ -62,8 +62,8 @@
 		((eql (defq msg (mail-read (task-mailbox))) "")
 			nil)
 		((= (length button_text) 0) (task-sleep sleep_time) (mail-send reply_mbox ""))
-		((= (defq id (get-long msg ev_msg_target_id)) +event_click+)
-			(defq reply (get :text (. mywindow :find_id (get-long msg ev_msg_action_source_id))))
+		((= (defq id (getf msg +ev_msg_target_id+)) +event_click+)
+			(defq reply (get :text (. mywindow :find_id (getf msg +ev_msg_action_source_id+))))
 			(mail-send reply_mbox reply))
 		(t (. mywindow :event msg))))
 		(. mywindow :hide))

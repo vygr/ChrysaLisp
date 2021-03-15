@@ -2,10 +2,10 @@
 (import "lib/math/math.inc")
 (import "apps/bubbles/app.inc")
 
-(structure '+event 0
-	(byte 'close+ 'max+ 'min+)
-	(byte 'reset+)
-	(byte 'grid+ 'plain+ 'axis+))
+(structure event 0
+	(byte close max min)
+	(byte reset)
+	(byte grid plain axis))
 
 (defq canvas_width 600 canvas_height 600 min_width 300 min_height 300
 	style_buttons (list) rate (/ 1000000 60) base 0.3
@@ -142,7 +142,7 @@
 			((= idx 0)
 				;main mailbox
 				(cond
-					((= (setq id (get-long msg ev_msg_target_id)) +event_close+)
+					((= (setq id (getf msg +ev_msg_target_id+)) +event_close+)
 						(setq id nil))
 					((= id +event_min+)
 						;min button
@@ -162,13 +162,13 @@
 						(def (. mybackdrop :dirty) :style (radio-select style_buttons (- id +event_grid+))))
 					((= id (. layer1_canvas :get_id))
 						;event for canvas
-						(when (= (get-long msg (const ev_msg_type)) (const ev_type_mouse))
+						(when (= (getf msg +ev_msg_type+) +ev_type_mouse+)
 							;mouse event in canvas
 							(bind '(w h) (. layer1_canvas :get_size))
-							(defq rx (- (get-int msg (const ev_msg_mouse_rx)) (/ w 2))
-								ry (- (get-int msg (const ev_msg_mouse_ry)) (/ h 2)))
+							(defq rx (- (getf msg +ev_msg_mouse_rx+) (/ w 2))
+								ry (- (getf msg +ev_msg_mouse_ry+) (/ h 2)))
 							(cond
-								((/= (get-int msg (const ev_msg_mouse_buttons)) 0)
+								((/= (getf msg +ev_msg_mouse_buttons+) 0)
 									;mouse button is down
 									(case last_state
 										(:d	;was down last time

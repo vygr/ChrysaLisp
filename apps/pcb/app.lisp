@@ -4,10 +4,10 @@
 (import "gui/lisp.inc")
 (import "lib/math/math.inc")
 
-(structure '+event 0
-	(byte 'close+)
-	(byte 'prev+ 'next+ 'scale_down+ 'scale_up+ 'mode_normal+ 'mode_gerber+)
-	(byte 'show_all+ 'show_1+ 'show_2+ 'show_3+ 'show_4+))
+(structure event 0
+	(byte close)
+	(byte prev next scale_down scale_up mode_normal mode_gerber)
+	(byte show_all show_1 show_2 show_3 show_4))
 
 (defun all-pcbs (p)
 	(defq out (list))
@@ -184,7 +184,7 @@
 	(bind '(x y w h) (apply view-locate (. (win-refresh index) :pref_size)))
 	(gui-add (. mywindow :change x y w h))
 	(while (cond
-		((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) +event_close+)
+		((= (defq id (getf (defq msg (mail-read (task-mailbox))) +ev_msg_target_id+)) +event_close+)
 			nil)
 		((<= +event_prev+ id +event_next+)
 			(win-refresh (% (+ index (dec (* 2 (- id +event_prev+))) (length pcbs)) (length pcbs))))

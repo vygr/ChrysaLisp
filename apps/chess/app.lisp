@@ -6,12 +6,12 @@
 (import "lib/task/farm.inc")
 (import "apps/chess/app.inc")
 
-(structure '+event 0
-	(byte 'close+)
-	(byte 'button+))
+(structure event 0
+	(byte close)
+	(byte button))
 
-(structure '+select 0
-	(byte 'main+ 'task+ 'reply+ 'timer+))
+(structure select 0
+	(byte main task reply timer))
 
 (defq vdu_width 38 vdu_height 12 text_buf nil
 	flicker_rate (/ 1000000 8) timer_rate (/ 1000000 1) max_move_time 10000000 id t
@@ -93,7 +93,7 @@
 			((= idx +select_main+)
 				;main mailbox
 				(cond
-					((= (setq id (get-long msg ev_msg_target_id)) +event_close+)
+					((= (setq id (getf msg +ev_msg_target_id+)) +event_close+)
 						;close button
 						(setq id nil))
 					(t (. mywindow :event msg))))

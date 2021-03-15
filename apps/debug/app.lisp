@@ -3,11 +3,11 @@
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
 
-(structure '+event 0
-	(byte 'hvalue+)
-	(byte 'play+ 'pause+ 'step+ 'clear+)
-	(byte 'play_all+ 'pause_all+ 'step_all+ 'clear_all+)
-	(byte 'close+))
+(structure event 0
+	(byte hvalue)
+	(byte play pause step clear)
+	(byte play_all pause_all step_all clear_all)
+	(byte close))
 
 (defq vdu_width 60 vdu_height 40 buf_keys (list) buf_list (list) buf_index nil id t)
 
@@ -16,12 +16,12 @@
 	(defq select (list (task-mailbox) (mail-alloc-mbox))
 		entry (mail-declare (elem -2 select) "DEBUG_SERVICE" "Debug Service 0.4"))
 
-(structure '+debug_msg 0
-	(long 'reply_id+ 'tcb+)
-	(offset 'data+))
+(structure debug_msg 0
+	(long reply_id tcb)
+	(offset data))
 
-(structure '+debug_rec 0
-	(byte 'buf+ 'state+ 'reply_id+))
+(structure debug_rec 0
+	(byte buf state reply_id))
 
 (ui-window mywindow (:color 0xc0000000)
 	(ui-flow _ (:flow_flags +flow_down_fill+)
@@ -92,8 +92,8 @@
 		(cond
 			;new debug msg
 			((/= idx 0)
-				(defq reply_id (get-long msg +debug_msg_reply_id+)
-					tcb (get-long msg +debug_msg_tcb+)
+				(defq reply_id (getf msg +debug_msg_reply_id+)
+					tcb (getf msg +debug_msg_tcb+)
 					data (slice +debug_msg_data+ -1 msg)
 					key (sym (str (>> reply_id 32) ":" tcb))
 					index (find-rev key buf_keys))
@@ -107,7 +107,7 @@
 					(mail-send reply_id "")
 					(elem-set +debug_rec_reply_id+ buf_rec reply_id)))
 			;close ?
-			((= (setq id (get-long msg ev_msg_target_id)) +event_close+)
+			((= (setq id (getf msg +ev_msg_target_id+)) +event_close+)
 				(setq id nil))
 			;moved task slider
 			((= id +event_hvalue+)

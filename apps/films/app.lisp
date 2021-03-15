@@ -3,9 +3,9 @@
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
 
-(structure '+event 0
-	(byte 'close+)
-	(byte 'prev+ 'next+))
+(structure event 0
+	(byte close)
+	(byte prev next))
 
 (defun all-films (p)
 	(defq out (list))
@@ -42,7 +42,7 @@
 			((= idx 0)
 				;main mailbox
 				(cond
-					((= (setq id (get-long msg ev_msg_target_id)) +event_close+)
+					((= (setq id (getf msg +ev_msg_target_id+)) +event_close+)
 						(setq id nil))
 					((<= +event_prev+ id +event_next+)
 						(win-refresh (% (+ index (dec (* 2 (- id +event_prev+))) (length films)) (length films))))

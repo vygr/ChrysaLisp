@@ -9,12 +9,11 @@
 ;Currently defined only for time since unix epoch Jan 1, 1970
 
 
-(structure '+time 0
-	(byte 'second+ 'minute+ 'hour+ 'date+ 'month+ 'year+ 'week+ 'dls+ 'tz+))
+(structure time 0
+	(byte second minute hour date month year week dls tz))
 
-(structure '+tz 0
-	(byte 'abbreviation+ 'offset+ 'dls+ 'title+ 'locations+))
-
+(structure tz 0
+	(byte abbreviation offset dls title locations))
 
 (defmacro leapyear? (y)
 	`(cond 

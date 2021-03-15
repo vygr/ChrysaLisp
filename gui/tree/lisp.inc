@@ -52,7 +52,7 @@
 
 	(defmethod :action (this event)
 		; (. tree :action event) -> tree
-		(when (defq toggle (. this :find_id (get-long event ev_msg_action_source_id)))
+		(when (defq toggle (. this :find_id (getf event +ev_msg_action_source_id+)))
 			(defq node (elem -2 (. (penv (penv toggle)) :children))
 				hiden (logxor (logand (. node :get_flags) +view_flag_hiden+) +view_flag_hiden+))
 			(. node :set_flags hiden +view_flag_hiden+)

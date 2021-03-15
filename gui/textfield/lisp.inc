@@ -27,7 +27,7 @@
 
 	(defmethod :key_down (this event)
 		; (. textfield :key_down event) -> textfield
-		(defq key (get-uint event ev_msg_key_key) cursor (get :cursor this)
+		(defq key (getf event +ev_msg_key_key+) cursor (get :cursor this)
 			text (get :clear_text this))
 		(cond
 			((or (= key 10) (= key 13))

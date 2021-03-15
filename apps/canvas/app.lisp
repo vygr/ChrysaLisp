@@ -4,8 +4,8 @@
 (import "gui/lisp.inc")
 (import "lib/math/math.inc")
 
-(structure '+event 0
-	(byte 'close+))
+(structure event 0
+	(byte close))
 
 (defq canvas_width 600 canvas_height 600 canvas_scale 1 id t
 	f_canvas_width (i2f canvas_width) f_canvas_height (i2f canvas_height) f_canvas_scale (i2f canvas_scale)
@@ -109,7 +109,7 @@
 			((= idx 0)
 				;main mailbox
 				(cond
-					((= (get-long msg ev_msg_target_id) +event_close+)
+					((= (getf msg +ev_msg_target_id+) +event_close+)
 						(setq id nil))
 					(t (. mywindow :event msg))))
 			(t	;timer event

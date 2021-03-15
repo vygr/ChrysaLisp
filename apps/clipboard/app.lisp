@@ -4,9 +4,9 @@
 (import "gui/lisp.inc")
 (import "lib/options/options.inc")
 
-(structure '+event 0
-	(byte 'close+)
-	(byte 'deliver+ 'paste+))
+(structure event 0
+	(byte close)
+	(byte deliver paste))
 
 ;single instance only
 (when (= (length (mail-enquire "CLIPBOARD_SERVICE")) 0)
@@ -26,7 +26,7 @@
 							(mail-send (second msg) reply)))
 					((eql req_type "PUT")
 						(push clipboard (second msg)))))
-			((= (setq id (get-long msg ev_msg_target_id)) +event_close+)
+			((= (setq id (getf msg +ev_msg_target_id+)) +event_close+)
 				;close
 				(setq id nil))))
 	;shutdown, if requested.

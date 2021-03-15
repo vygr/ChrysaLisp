@@ -4,8 +4,8 @@
 (import "lib/anaphoric/anaphoric.inc")
 (import "apps/minefield/board.inc")
 
-(structure '+event 0
-	(byte 'close+ 'beginner+ 'intermediate+ 'expert+ 'click+))
+(structure event 0
+	(byte close beginner intermediate expert click))
 
 (ui-window mywindow ()
 	(ui-flow window_flow (:flow_flags +flow_down_fill+)
@@ -133,7 +133,7 @@
 	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
 	(gui-add (. mywindow :change x y w h))
 	(while (cond
-		((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) +event_close+)
+		((= (defq id (getf (defq msg (mail-read (task-mailbox))) +ev_msg_target_id+)) +event_close+)
 			nil)
 		((= id +event_beginner+) (setq started t) (board-layout (setq difficulty beginner_settings)))
 		((= id +event_intermediate+) (setq started t) (board-layout (setq difficulty intermediate_settings)))
@@ -160,8 +160,8 @@
 				(t nil))
 			(is-game-over))
 		(t
-			(and (= (get-long msg (const ev_msg_type)) (const ev_type_mouse))
-				(/= 0 (get-int msg (const ev_msg_mouse_buttons)))
-				(setq mouse_down (get-int msg (const ev_msg_mouse_buttons))))
+			(and (= (getf msg +ev_msg_type+) +ev_type_mouse+)
+				(/= 0 (getf msg +ev_msg_mouse_buttons+))
+				(setq mouse_down (getf msg +ev_msg_mouse_buttons+)))
 			(. mywindow :event msg))))
 	(. mywindow :hide))

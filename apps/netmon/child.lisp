@@ -1,8 +1,8 @@
 ;imports
 (import "sys/lisp.inc")
 
-(structure '+select 0
-	(byte 'main+ 'timeout+))
+(structure select 0
+	(byte main timeout))
 
 (defun main ()
 	(defq select (list (task-mailbox) (mail-alloc-mbox)) id t +timeout+ 5000000)

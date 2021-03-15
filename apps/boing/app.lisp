@@ -3,8 +3,8 @@
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
 
-(structure '+event 0
-	(byte 'close+ 'max+ 'min+))
+(structure event 0
+	(byte close max min))
 
 (defq id t index 0 xv 4 yv 0
 	frames (map (lambda (_) (Canvas-from-file (cat "apps/boing/taoball_" (str _) ".cpm") +load_flag_shared+)) (range 1 12))
@@ -27,7 +27,7 @@
 			((= idx 0)
 				;main mailbox
 				(cond
-					((= (setq id (get-long msg ev_msg_target_id)) +event_close+)
+					((= (setq id (getf msg +ev_msg_target_id+)) +event_close+)
 						(setq id nil))
 					((= id +event_min+)
 						;min button

@@ -7,13 +7,13 @@
 (import "gui/lisp.inc")
 (import "lib/math/math.inc")
 
-(structure '+select 0
-	(byte 'main+ 'timeout+))
+(structure select 0
+	(byte main timeout))
 
-(structure '+job 0
-	(long 'key+)
-	(netid 'reply+)
-	(long 'x+ 'y+ 'x1+ 'y1+ 'w+ 'h+))
+(structure job 0
+	(long key)
+	(netid reply)
+	(long x y x1 y1 w h))
 
 (defq
 	+eps+ 0.1
@@ -137,8 +137,8 @@
 			((= idx +select_main+)
 				;main mailbox, reset timeout and reply with result
 				(mail-timeout (elem +select_timeout+ select) 0)
-				(defq key (get-long msg +job_key+)
-					mbox (get-netid msg +job_reply+)
+				(defq key (getf msg +job_key+)
+					mbox (getf msg +job_reply+)
 					msg (slice +job_x+ -1 msg))
 				(apply rect (cat (list key mbox) (map (lambda (_) (get-long msg (* _ +long_size+))) (range 0 6)))))))
 	(mail-free-mbox (pop select)))

@@ -8,11 +8,11 @@
 (import "lib/task/farm.inc")
 (import "apps/mandelbrot/mbmath.inc")
 
-(structure '+event 0
-	(byte 'close+))
+(structure event 0
+	(byte close))
 
-(structure '+select 0
-	(byte 'main+ 'task+ 'reply+ 'timer+))
+(structure select 0
+	(byte main task reply timer))
 
 (defq canvas_width 800 canvas_height 800 canvas_scale 2 timer_rate (/ 1000000 1) id t dirty nil
 	select (list (task-mailbox) (mail-alloc-mbox) (mail-alloc-mbox) (mail-alloc-mbox))
@@ -96,19 +96,19 @@
 			((= idx +select_main+)
 				;main mailbox
 				(cond
-					((= (setq id (get-long msg ev_msg_target_id)) +event_close+)
+					((= (setq id (getf msg +ev_msg_target_id+)) +event_close+)
 						;close button
 						(setq id nil))
 					((and (= id (. canvas :get_id))
-							(= (get-long msg ev_msg_type) ev_type_mouse)
-							(/= (get-int msg ev_msg_mouse_buttons) 0))
+							(= (getf msg +ev_msg_type+) +ev_type_mouse+)
+							(/= (getf msg +ev_msg_mouse_buttons+) 0))
 						;mouse click on the canvas view, zoom in/out, re-center
 						(bind '(w h) (. canvas :get_size))
-						(defq rx (- (get-int msg ev_msg_mouse_rx) (/ (- w canvas_width) 2))
-							ry (- (get-int msg ev_msg_mouse_ry) (/ (- h canvas_height) 2)))
+						(defq rx (- (getf msg +ev_msg_mouse_rx+) (/ (- w canvas_width) 2))
+							ry (- (getf msg +ev_msg_mouse_ry+) (/ (- h canvas_height) 2)))
 						(setq center_x (+ center_x (mbfp-offset rx canvas_width zoom))
 							center_y (+ center_y (mbfp-offset ry canvas_height zoom))
-							zoom (mbfp-mul zoom (if (= 0 (logand (get-int msg ev_msg_mouse_buttons) 2))
+							zoom (mbfp-mul zoom (if (= 0 (logand (getf msg +ev_msg_mouse_buttons+) 2))
 								(mbfp-from-fixed 0.5) (mbfp-from-fixed 2.0))))
 						(reset))
 					(t (. mywindow :event msg))))

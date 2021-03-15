@@ -6,13 +6,13 @@
 (import "sys/lisp.inc")
 (import "class/lisp.inc")
 
-(structure '+select 0
-	(byte 'main+ 'timeout+))
+(structure select 0
+	(byte main timeout))
 
-(structure '+job 0
-	(long 'key+)
-	(netid 'reply+)
-	(offset 'params+))
+(structure job 0
+	(long key)
+	(netid reply)
+	(offset params))
 
 ;redirect print
 (defun print (&rest args)
@@ -32,8 +32,8 @@
 				;clear timeout
 				(mail-timeout (elem +select_timeout+ select) 0)
 				;read job
-				(defq reply_key (get-long msg +job_key+)
-					reply_mbox (slice +job_reply+ +job_params+ msg))
+				(defq reply_key (getf msg +job_key+)
+					reply_mbox (getf msg +job_reply+))
 				(bind '((files *abi* *cpu* *debug_mode* *debug_emit* *debug_inst*) _)
 					(read (string-stream (slice +job_params+ -1 msg)) (ascii-code " ")))
 				;compile the file list and catch any errors

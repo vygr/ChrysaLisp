@@ -147,7 +147,7 @@
 			((= idx 0)
 				;main mailbox
 				(cond
-					((= (setq id (get-long msg (const ev_msg_target_id))) +event_close+)
+					((= (setq id (getf msg +ev_msg_target_id+)) +event_close+)
 						;close button
 						(setq id nil))
 					((= id +event_min+)
@@ -195,12 +195,12 @@
 						(redo))
 					((= id (. overlay_canvas :get_id))
 						;event for canvas
-						(when (= (get-long msg (const ev_msg_type)) (const ev_type_mouse))
+						(when (= (getf msg +ev_msg_type+) +ev_type_mouse+)
 							;mouse event in canvas
-							(defq new_point (path (i2f (get-int msg (const ev_msg_mouse_rx)))
-								(i2f (get-int msg (const ev_msg_mouse_ry)))))
+							(defq new_point (path (i2f (getf msg +ev_msg_mouse_rx+))
+								(i2f (getf msg +ev_msg_mouse_ry+))))
 							(cond
-								((/= (get-int msg (const ev_msg_mouse_buttons)) 0)
+								((/= (getf msg +ev_msg_mouse_buttons+) 0)
 									;mouse button is down
 									(case last_state
 										(:d	;was down last time, what draw mode ?

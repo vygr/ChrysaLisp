@@ -3,11 +3,18 @@
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
 
-(structure '+event 0
-	(byte 'close+)
-	(byte 'hvalue+)
-	(byte 'clear+)
-	(byte 'clear_all+))
+(structure event 0
+	(byte close)
+	(byte hvalue)
+	(byte clear)
+	(byte clear_all))
+
+(structure profile_msg 0
+	(netid tcb)
+	(offset data))
+
+(structure profile_rec 0
+	(byte buf))
 
 (defq vdu_width 60 vdu_height 40 buf_keys (list) buf_list (list) buf_index nil id t)
 
@@ -15,13 +22,6 @@
 (when (= (length (mail-enquire "PROFILE_SERVICE")) 0)
 	(defq select (list (task-mailbox) (mail-alloc-mbox))
 		entry (mail-declare (elem -2 select) "PROFILE_SERVICE" "Profile Service 0.1"))
-
-(structure '+profile_msg 0
-	(netid 'tcb+)
-	(offset 'data+))
-
-(structure '+profile_rec 0
-	(byte 'buf+))
 
 (ui-window mywindow (:color 0xc0000000)
 	(ui-flow _ (:flow_flags +flow_down_fill+)
@@ -68,7 +68,7 @@
 		(cond
 			;new profile msg
 			((/= idx 0)
-				(defq tcb (slice +profile_msg_tcb+ +profile_msg_data+ msg)
+				(defq tcb (getf msg +profile_msg_tcb+)
 					data (slice +profile_msg_data+ -1 msg)
 					key (sym (str tcb))
 					index (find-rev key buf_keys))
@@ -79,7 +79,7 @@
 				(elem-set +profile_rec_buf+ (elem index buf_list) (split data (ascii-char 10)))
 				(. vdu :load (elem +profile_rec_buf+ (elem buf_index buf_list)) 0 0 0 1000))
 			;close ?
-			((= (setq id (get-long msg ev_msg_target_id)) +event_close+)
+			((= (setq id (getf msg +ev_msg_target_id+)) +event_close+)
 				(setq id nil))
 			;moved task slider
 			((= id +event_hvalue+)

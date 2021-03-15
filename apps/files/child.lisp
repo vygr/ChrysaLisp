@@ -3,10 +3,10 @@
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
 
-(structure '+event 0
-	(byte 'close+)
-	(byte 'file_button+ 'tree_button+)
-	(byte 'exts_action+ 'ok_action+))
+(structure event 0
+	(byte close)
+	(byte file_button tree_button)
+	(byte exts_action ok_action))
 
 (ui-window mywindow nil
 	(ui-flow _ (:flow_flags +flow_down_fill+)
@@ -96,19 +96,19 @@
 	(while (cond
 		((eql (defq msg (mail-read (task-mailbox))) "")
 			nil)
-		((= (defq id (get-long msg ev_msg_target_id)) +event_close+)
+		((= (defq id (getf msg +ev_msg_target_id+)) +event_close+)
 			(mail-send reply_mbox ""))
 		((= id +event_ok_action+)
 			(mail-send reply_mbox (get :clear_text filename)))
 		((= id +event_file_button+)
 			(defq old_filename (get :clear_text filename) new_filename (cat current_dir
-				(get :text (. mywindow :find_id (get-long msg ev_msg_action_source_id)))))
+				(get :text (. mywindow :find_id (getf msg +ev_msg_action_source_id+)))))
 			(if (eql new_filename old_filename)
 				(mail-send reply_mbox new_filename))
 			(set filename :clear_text new_filename)
 			(.-> filename :layout :dirty))
 		((= id +event_tree_button+)
-			(setq current_dir (get :text (. mywindow :find_id (get-long msg ev_msg_action_source_id))))
+			(setq current_dir (get :text (. mywindow :find_id (getf msg +ev_msg_action_source_id+))))
 			(populate-files all_files current_dir exts))
 		((= id +event_exts_action+)
 			(setq exts (get :clear_text ext_filter))

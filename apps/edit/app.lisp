@@ -11,23 +11,23 @@
 (defq left_shift 0x400000E1 left_ctrl_key 0x400000E0 left_alt_key 0x400000E2 left_cmd_key 0x400000E3
 	right_shift 0x400000E5 right_alt_key 0x400000E6  right_cmd_key 0x400000E7)
 
-(structure '+event 0
-	(byte 'close+ 'max+ 'min+ 'resize+ 'layout+ 'scroll+)
-	(byte 'new+ 'save+ 'open+ 'run+ 'closeb+ 'prev+ 'next+ 'find+ 'colorise+)
-	(byte 'cut+ 'copy+ 'paste+)
-	(byte 'action+ 'find+ 'find_prev+ 'find_next+ 'clear_text+)
-	(byte 'menu+ 'menu_click+)
-	(byte 'close_tab+ 'tabbar+))
+(structure event 0
+	(byte close max min resize layout scroll)
+	(byte new save open run closeb prev next find colorise)
+	(byte cut copy paste)
+	(byte action find find_prev find_next clear_text)
+	(byte menu menu_click)
+	(byte close_tab tabbar))
 
-(structure '+mbox 0
-	(byte 'task+ 'file+ 'dialog+ 'clip+))
+(structure mbox 0
+	(byte task file dialog clip))
 
 ;text structure
-(structure '+text 0
-	(byte 'index+ 'fpath+ 'title+ 'buffer+ 'position+))
+(structure text 0
+	(byte index fpath title buffer position))
 
-(structure '+pos 0
-	(byte 'ox+ 'oy+ 'cx+ 'cy+ 'sx+))
+(structure pos 0
+	(byte ox oy cx cy sx))
 
 ;select is a an array using the +mbox structure: task+ file+ modal+
 (defq vdu_min_width 40 vdu_min_height 24 vdu_width 60 vdu_height 40 text_store (list) tmp_num 0
@@ -338,7 +338,7 @@
 		((= idx +mbox_clip+)
 			;clipboard makes no reply if it is empty.
 			(on-paste msg))
-		((= (setq id (get-long msg (const ev_msg_target_id))) +event_close+) 
+		((= (setq id (getf msg +ev_msg_target_id+)) +event_close+) 
 			(setq id nil))
 		((= id +event_new+) (new-buffer) (window-layout vdu_width vdu_height))
 		((= id +event_save+) 

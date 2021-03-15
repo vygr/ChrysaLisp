@@ -4,9 +4,9 @@
 (import "lib/pipe/pipe.inc")
 (import "apps/terminal/input.inc")
 
-(structure '+event 0
-	(byte 'close+ 'max+ 'min+)
-	(byte 'layout+ 'scroll+))
+(structure event 0
+	(byte close max min)
+	(byte layout scroll))
 
 (defq cmd nil vdu_width 60 vdu_height 40 vdu_min_width 16 vdu_min_height 16 text_buf (list ""))
 
@@ -127,7 +127,7 @@
 			((eql data t)
 				;normal mailbox event
 				(cond
-					((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) +event_close+)
+					((= (defq id (getf (defq msg (mail-read (task-mailbox))) +ev_msg_target_id+)) +event_close+)
 						nil)
 					((= id +event_layout+)
 						;user window resize
@@ -145,9 +145,9 @@
 						(. vdu :load text_buf 0 (get :value slider) cx cy))
 					(t	;gui event
 						(. mywindow :event msg)
-						(and (= (get-long msg ev_msg_type) ev_type_key)
-							(> (get-int msg ev_msg_key_keycode) 0)
-							(terminal-input (get-int msg ev_msg_key_key)))
+						(and (= (getf msg +ev_msg_type+) +ev_type_key+)
+							(> (getf msg +ev_msg_key_keycode+) 0)
+							(terminal-input (getf msg +ev_msg_key_key+)))
 						t)))
 			((eql data nil)
 				;pipe is closed

@@ -3,8 +3,8 @@
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
 
-(structure '+event 0
-	(byte 'close+ 'button+))
+(structure event 0
+	(byte close button))
 
 (defq keys (list) vals (list) vdu_height 40 text_buf (list ""))
 
@@ -59,10 +59,10 @@
 	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
 	(gui-add (. mywindow :change x y w h))
 	(while (cond
-		((= (defq id (get-long (defq msg (mail-read (task-mailbox))) ev_msg_target_id)) +event_close+)
+		((= (defq id (getf (defq msg (mail-read (task-mailbox))) +ev_msg_target_id+)) +event_close+)
 			nil)
 		((= id +event_button+)
-			(defq _ (find-rev (sym (get :text (. mywindow :find_id (get-long msg ev_msg_action_source_id)))) keys))
+			(defq _ (find-rev (sym (get :text (. mywindow :find_id (getf msg +ev_msg_action_source_id+)))) keys))
 			(when _
 				(setq text_buf (vdu-print vdu text_buf (str
 					"----------------------" (ascii-char 10)

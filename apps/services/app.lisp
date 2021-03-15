@@ -3,8 +3,8 @@
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
 
-(structure '+event 0
-	(byte 'close+ 'max+ 'min+))
+(structure event 0
+	(byte close max min))
 
 (ui-window mywindow ()
 	(ui-title-bar _ "Services" (0xea19 0xea1b 0xea1a) +event_close+)
@@ -67,7 +67,7 @@
 		;next event
 		(while (defq idx (mail-poll select))
 			(cond
-				((= (setq id (get-long (defq msg (mail-read (elem idx select))) ev_msg_target_id)) +event_close+)
+				((= (setq id (getf (defq msg (mail-read (elem idx select))) +ev_msg_target_id+)) +event_close+)
 					;close button
 					(setq id nil))
 				((= id +event_min+)

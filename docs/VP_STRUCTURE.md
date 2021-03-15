@@ -1,4 +1,4 @@
-# Structuring
+# VP Structuring
 
 This document covers the various structuring elements of VP/C-Script source
 code. Conditionals, loops, switches, structures, enums, bits, classes, objects
