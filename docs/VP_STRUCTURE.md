@@ -101,44 +101,44 @@ The end result is a set of symbols and assigned values of:
 
 ```vdu
 sue_a -> 0
-_t_sue_a -> "b"
+sue_a_t -> "b"
 sue_b -> 1
-_t_sue_b -> "b"
+sue_b_t -> "b"
 sue_c -> 2
-_t_sue_c -> "b"
+sue_c_t -> "b"
 sue_size -> 3
 
 carl_a -> 0
-_t_carl_a -> "s"
+carl_a_t -> "s"
 carl_b -> 2
-_t_carl_b -> "s"
+carl_b_t -> "s"
 carl_c -> 4
-_t_carl_c -> "s"
+carl_c_t -> "s"
 carl_size -> 6
 
 bob_a -> 0
-_t_bob_a -> nil
+bob_a_t -> nil
 bob_b -> 0
-_t_bob_b -> nil
+bob_b_t -> nil
 bob_c -> 6
-_t_bob_c -> "s"
+bob_c_t -> "s"
 bob_d -> 8
-_t_bob_d -> "i"
+bob_d_t -> "i"
 bob_o -> 12
 bob_e -> 16
-_t_bob_e -> "l"
+bob_e_t -> "l"
 bob_f -> 24
-_t_bob_f -> "p"
+bob_f_t -> "p"
 bob_size -> 32
 
 mary_a -> 32
-_t_mary_a -> "S"
+mary_a_t -> "S"
 mary_b -> 36
-_t_mary_b -> "I"
+mary_b_t -> "I"
 mary_c -> 40
-_t_mary_c -> "pL"
+mary_c_t -> "pL"
 mary_d -> 48
-_t_mary_d -> "pp"
+mary_d_t -> "pp"
 mary_size -> 56
 ```
 

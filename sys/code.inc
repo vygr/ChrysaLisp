@@ -324,7 +324,7 @@
 (defcvar '*struct* nil '*struct_sp* nil)
 
 (defmacro type-sym (_)
-	`(sym (str "_t_" ,_)))
+	`(sym (str ,_ "_t")))
 
 (defmacro struct-sym (_)
 	`(sym (cat *struct* "_" ,_)))

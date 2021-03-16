@@ -196,7 +196,7 @@
 	`(progn (defcvar ~l) (apply push (cat (list *func_syms*) ',_))))
 
 (defmacro type-sym (_)
-	`(sym (str "_t_" ,_)))
+	`(sym (str ,_ "_t")))
 
 (defun vp-type-t (_)
 	(if (setq _ (find-rev (elem 0 _) "bBsSiI"))

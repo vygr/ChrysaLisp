@@ -40,7 +40,7 @@
 	        (include "sys/func.inc")
 			(each include (all-class-files))
 			(map (#
-				(defq st (sym (cat "_t_" %0)))
+				(defq st (sym (cat %0 "_t")))
 				(when (defq stv (get st))
 					(push _t_syms_ st)
 					(push _t_syms_vals_ stv))
