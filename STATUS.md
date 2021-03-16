@@ -17,9 +17,12 @@ Promotion of `(get-field)` `(set-field)` `(obj-ref)` and `(weak-ref)` to
 Addition of +net_id_size+ and +node_id_size+ symbols.
 
 `(structure)` macro promoted to `boot.inc` with new `(getf)` macro. Structure
-not only creates constant symbols ie `+name_field+` for the field offsets but
-also type symbols `+name_field_t+` to allow the `(getf)` macro to create the
+not only creates constant symbols ie `name_field` for the field offsets but
+also type symbols `name_field_t` to allow the `(getf)` macro to create the
 correct accessor.
+
+No longer enforce constant format on structure member symbols. Standardize on
+trailing "_t" for type symbols.
 
 ------
 
