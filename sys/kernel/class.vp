@@ -484,10 +484,10 @@
 
 	(vp-alloc local_size)
 
-	;don't count kernel, ping or postman tasks in load balancing
+	;don't count ping or postman tasks in load balancing
 	(fn-bind 'sys/statics/statics r0)
 	(assign '((r0 statics_sys_task_task_count)) '(r1))
-	(vp-sub-cr 3 r1)
+	(vp-sub-cr 2 r1)
 	(assign '(r1) '((r0 statics_sys_task_task_count)))
 
 	(call 'sys_kernel :id nil `((rsp ,(+ local_node_id node_id_node1)) (rsp ,(+ local_node_id node_id_node2))))
