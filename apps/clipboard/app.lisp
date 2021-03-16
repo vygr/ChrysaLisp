@@ -4,7 +4,7 @@
 (import "gui/lisp.inc")
 (import "lib/options/options.inc")
 
-(structure event 0
+(structure +event 0
 	(byte close)
 	(byte deliver paste))
 
@@ -14,7 +14,7 @@
 		clip_service (mail-declare (elem -2 select) "CLIPBOARD_SERVICE" "Clipboard Service 0.1"))
 
 (defun main ()
-	(defq id t clipboard (list) +req_get+ 0 +req_put+ 1)
+	(defq id t clipboard (list) +req_get 0 +req_put 1)
 	(while id
 		(defq idx (mail-select select) msg (mail-read (elem idx select)))
 		(cond
@@ -26,7 +26,7 @@
 							(mail-send (second msg) reply)))
 					((eql req_type "PUT")
 						(push clipboard (second msg)))))
-			((= (setq id (getf msg +ev_msg_target_id+)) +event_close+)
+			((= (setq id (getf msg +ev_msg_target_id)) +event_close)
 				;close
 				(setq id nil))))
 	;shutdown, if requested.

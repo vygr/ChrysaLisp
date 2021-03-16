@@ -5,10 +5,10 @@
 (import "lib/xtras/xtras.inc")
 
 (defq
-  +indent2+   2
-  +indent4+   4
-  +no_count+  0
-  +max_count+ 999)
+  +indent2   2
+  +indent4   4
+  +no_count  0
+  +max_count 999)
 
 ; Potential utility macros to embed in ChrysaLisp
 
@@ -151,7 +151,7 @@
     :application ""       ; Placeholder for app name
     :version ""           ; Placeholder for version
     :required nil         ; Does it requires free form input?
-    :counter +no_count+   ; Max freeform input
+    :counter +no_count   ; Max freeform input
     :validator validate-none       ; Free form value validator
     :handler noop         ; Handler for resulting parsed input
     :help ""))             ; Placeholder for help text
@@ -163,7 +163,7 @@
     :arguments (list)     ; Collection of arguments
     :command ""           ; Command string
     :required nil         ; Does it requires free form input?
-    :counter +no_count+   ; Max freeform input
+    :counter +no_count   ; Max freeform input
     :dest :command        ; Results key
     :validator validate-none       ; Validation function
     :handler noop         ; Handler for resulting parsed input
@@ -175,7 +175,7 @@
     :clz :clz_argument    ; Argparse class
     :argument nil         ; The :argument flags e.g. ("-s" "--string")
     :required nil         ; Required ?
-    :counter +no_count+   ; Max count of args following switch
+    :counter +no_count   ; Max count of args following switch
     :dest :argument       ; Results key
     :validator noop       ; Validator function
     :handler noop         ; Handler function
@@ -280,7 +280,7 @@
     workers (or
       (> (length (gets self :arguments)) 2)
       (> (length (gets self :commands)) 0)
-      (> (gets self :counter) +no_count+))
+      (> (gets self :counter) +no_count))
     hndlr (gets self :handler)
     rarg  (reverse arglist))
   (if (and arglist workers)
@@ -319,8 +319,8 @@
 ; Help dump
 
 (defun format-row (arg arg:help)
-  (defq colbuff (-  30 (+ (length arg) +indent4+)))
-  (str (pad "" +indent4+) arg (pad "" colbuff) arg:help))
+  (defq colbuff (-  30 (+ (length arg) +indent4)))
+  (str (pad "" +indent4) arg (pad "" colbuff) arg:help))
 
 (defun format-command-str (cmds)
   ; (format-command-str seq) -> "{el [,el]}"
@@ -351,26 +351,26 @@
   ; Print usage string
   (print (format-usage-str self arglist cmdstr))
   ; Print :application :help
-  (print +nl+ (gets self :help) +nl+)
+  (print +nl (gets self :help) +nl)
   ; Print argparse :arguments
   (print "optional arguments:")
   (print (reduce (lambda (acc el)
                  (defq args (gets el :argument))
                  (cat acc
                       (format-row (join args ",") (gets el :help))
-                      +nl+))
+                      +nl))
                  arglist ""))
   ; Print argparse :commands
   ; TODO: Need additional {cmd [,cmd]} when memory exception fixed
   (when (/= (length cmdlist) 0)
-    (print "Actions:" +nl+
-           (pad "" +indent2+) cmdstr +nl+
+    (print "Actions:" +nl
+           (pad "" +indent2) cmdstr +nl
            (reduce (lambda (acc el)
                      (cat acc
                           (format-row
                             (gets el :command)
                             (gets el :help))
-                          +nl+))
+                          +nl))
                    cmdlist "")))
   (list "-h"))
 
@@ -378,7 +378,7 @@
   ; (dump-version self)
   ; Spit the :version
   (print (gets self :application)
-         (pad "" +indent2+)
+         (pad "" +indent2)
          (gets self :version))
   (list "-v"))
 

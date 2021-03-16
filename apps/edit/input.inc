@@ -1,10 +1,10 @@
 ;Visual buffer input
 ; TODO: custom margins and line wrap
-(structure mouse 0
+(structure +mouse 0
 	(byte up down double_click long_click hover))
 
 (defq text_select (xmap-kv
-		:mouse_state +mouse_up+
+		:mouse_state +mouse_up
 		:selection_mode nil
 		:highlighted nil
 		:selection (list)
@@ -23,44 +23,44 @@
 	(if (= (length seq) 1) t nil))
 
 (defun get-buffer ()
-	(elem +text_buffer+ current_text))
+	(elem +text_buffer current_text))
 
 (defun get-position ()
-	(elem +text_position+ current_text))
+	(elem +text_position current_text))
 
 (defun get-cursor ()
-	(list (elem +pos_cx+ (get-position)) (elem +pos_cy+ (get-position))))
+	(list (elem +pos_cx (get-position)) (elem +pos_cy (get-position))))
 
 (defun set-buffer (buf)
-	(elem-set +text_buffer+ current_text buf))
+	(elem-set +text_buffer current_text buf))
 
 (defun set-position (ox oy cx cy sx)
 	(cursor-visible)
-	(elem-set +text_position+ current_text (list ox oy cx cy sx)))
+	(elem-set +text_position current_text (list ox oy cx cy sx)))
 
 (defun set-cursor (cx cy)
-	(elem-set +pos_cx+ (get-position) cx)
-	(elem-set +pos_cy+ (get-position) cy)
+	(elem-set +pos_cx (get-position) cx)
+	(elem-set +pos_cy (get-position) cy)
 	(list cx cy))
 
 (defun vdu-keyboard (msg)
-	(and (= (getf msg +ev_msg_type+) +ev_type_key+)
-		(> (getf msg +ev_msg_key_keycode+) 0)
-		(vdu-input (getf msg +ev_msg_key_key+))
+	(and (= (getf msg +ev_msg_type) +ev_type_key)
+		(> (getf msg +ev_msg_key_keycode) 0)
+		(vdu-input (getf msg +ev_msg_key_key))
 		(. text_select :insert :highlighted nil)))
 
 (defun vdu-mouse-down (msg)
-	(when (and (= (getf msg +ev_msg_type+) +ev_type_mouse+)
-			(/= (getf msg +ev_msg_mouse_buttons+) 0)
-		(defq mxy (list (getf msg +ev_msg_mouse_rx+)
-				(getf msg +ev_msg_mouse_ry+))))
+	(when (and (= (getf msg +ev_msg_type) +ev_type_mouse)
+			(/= (getf msg +ev_msg_mouse_buttons) 0)
+		(defq mxy (list (getf msg +ev_msg_mouse_rx)
+				(getf msg +ev_msg_mouse_ry))))
 		(defq buffer (get-buffer))
 		(bind '(ox oy _ _ sx) (get-position))
 		(bind '(cx cy) (mouse-xy (get-buffer) mxy))
 		(cursor-visible)
 		(set-cursor cx cy)
-		(when (= (. text_select :find :mouse_state) +mouse_up+)
-			(. text_select :insert :mouse_state +mouse_down+)
+		(when (= (. text_select :find :mouse_state) +mouse_up)
+			(. text_select :insert :mouse_state +mouse_down)
 			(. text_select :insert :selection (list (get-cursor) (get-cursor))))
 		(pop 	(. text_select :find :selection))
 		(push 	(. text_select :find :selection) (get-cursor))
@@ -68,10 +68,10 @@
 		(vdu-colorise)))
 
 (defun vdu-mouse-up (msg)
-	(when (and (= (. text_select :find :mouse_state) +mouse_down+)
-		(= (getf msg +ev_msg_type+) +ev_type_mouse+)
-		(= (getf msg +ev_msg_mouse_buttons+) 0))
-		(. text_select :insert :mouse_state +mouse_up+)
+	(when (and (= (. text_select :find :mouse_state) +mouse_down)
+		(= (getf msg +ev_msg_type) +ev_type_mouse)
+		(= (getf msg +ev_msg_mouse_buttons) 0))
+		(. text_select :insert :mouse_state +mouse_up)
 		(. text_select :insert :selection_mode nil)))
 
 (defun on-paste (msg)

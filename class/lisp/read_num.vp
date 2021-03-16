@@ -28,19 +28,19 @@
 	(entry 'lisp :read_num {this, stream, char})
 
 	(assign {char} {sign})
-	(vpif {char = +char_minus+})
+	(vpif {char = +char_minus})
 		(call 'stream :read_char {stream} {_, char})
-		(breakif {char >= +char_0+})
+		(breakif {char >= +char_0})
 		(call 'sym :intern_cstr {"-"} {num})
 		(goto 'exit)
 	(endif)
 
 	(call 'str :create_from_buffer {0, str_gap} {string})
 	(call 'sstream :create {string} {str_stream})
-	(loop-while {char = +char_dot+
-				|| char >= +char_0+ && char <= +char_9+
-				|| char >= +char_a+ && char <= +char_z+
-				|| char >= +char_A+ && char <= +char_Z+})
+	(loop-while {char = +char_dot
+				|| char >= +char_0 && char <= +char_9
+				|| char >= +char_a && char <= +char_z
+				|| char >= +char_A && char <= +char_Z})
 		(call 'stream :write_char {str_stream, char})
 		(call 'stream :read_char {stream} {_, char})
 	(loop-end)
@@ -50,11 +50,11 @@
 	;pick base
 	(assign {&string->str_data} {buffer})
 	(assign {ubyte(buffer + 1)} {val})
-	(vpif {val = +char_x+})
+	(vpif {val = +char_x})
 		(assign {buffer + 2, 16} {buffer, val})
-	(elseif {val = +char_o+})
+	(elseif {val = +char_o})
 		(assign {buffer + 2, 8} {buffer, val})
-	(elseif {val = +char_b+})
+	(elseif {val = +char_b})
 		(assign {buffer + 2, 2} {buffer, val})
 	(else)
 		(assign {10} {val})
@@ -62,7 +62,7 @@
 
 	;create the number
 	(call 'sys_str :to_long {buffer, val} {val, num})
-	(vpif {sign = +char_minus+})
+	(vpif {sign = +char_minus})
 		(assign {-val} {val})
 	(endif)
 	(vpif {num})

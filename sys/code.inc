@@ -195,33 +195,43 @@
 ; enums
 ;;;;;;;
 
-(defun def-enum (_1 &optional _2)
-	(defcvar '*enum* _1 '*enum_offset* (opt _2 0)))
-
-(defun def-enum-end ()
-	(undefc '*enum* '*enum_offset*))
-
-(defun enum (&rest _)
-	(each (lambda (_)
-		(and (defq d (get (setq _ (sym (cat *enum* "_" _))))) (/= d *enum_offset*)
-			(throw "Enum redefined !" _))
-		(defcvar _ *enum_offset* '*enum_offset* (inc *enum_offset*))) _))
+(defmacro def-enum (name base &rest lines)
+	; (def-enum name base [(enum field ...)] ...)
+	(if (def? (sym (cat name "_size")) *compile_env*) (throw "Enum redefined !" name))
+	(defq syms (list) values (list) base (eval base))
+	(defun new_field (size)
+		(push syms (sym (cat name "_" field)))
+		(push values base)
+		(setq base (+ base size)))
+	(each (lambda (line)
+		(each! 1 -1 (lambda (field)
+			(case (elem 0 line)
+				(enum (new_field +byte_size))))
+			(list line))) lines)
+	(push syms (sym (cat name "_size")))
+	(push values base)
+	`(eval '(bind ',syms ',values) *compile_env*))
 
 ;;;;;;
 ; bits
 ;;;;;;
 
-(defun def-bit (_1 &optional _2)
-	(defcvar '*bit* _1 '*bit_offset* (opt _2 0)))
-
-(defun def-bit-end ()
-	(undefc '*bit* '*bit_offset*))
-
-(defun bit (&rest _)
-	(each (lambda (_)
-		(and (defq d (get (setq _ (sym (cat *bit* "_" _))))) (/= d (<< 1 *bit_offset*))
-			(throw "Bit redefined !" _))
-		(defcvar _ (<< 1 *bit_offset*) '*bit_offset* (inc *bit_offset*))) _))
+(defmacro def-bit (name base &rest lines)
+	; (def-bit name base [(bit field ...)] ...)
+	(if (def? (sym (cat name "_size")) *compile_env*) (throw "Bit redefined !" name))
+	(defq syms (list) values (list) base (eval base))
+	(defun new_bit ()
+		(push syms (sym (cat name "_" field)))
+		(push values (<< 1 base))
+		(setq base (inc base)))
+	(each (lambda (line)
+		(each! 1 -1 (lambda (field)
+			(case (elem 0 line)
+				(bit (new_bit))))
+			(list line))) lines)
+	(push syms (sym (cat name "_size")))
+	(push values base)
+	`(eval '(bind ',syms ',values) *compile_env*))
 
 ;;;;;;;;;;;;;;
 ; symbol table
@@ -326,7 +336,7 @@
 			(throw "Field redefined !" _))) _)
 
 (defun local-align (&optional _)
-	(setd _ +ptr_size+)
+	(setd _ +ptr_size)
 	(if *struct*
 		(setq *struct_sp* (align *struct_sp* _))
 		(setq *sym_sp* (align *sym_sp* _))))
@@ -349,24 +359,24 @@
 					(def-sym _ 'var *sym_sp* ,y)
 					(setq *sym_sp* (+ *sym_sp* ,s))))) f)))
 
-(def-type byte +byte_size+ "b")
-(def-type ubyte +byte_size+ "B")
-(def-type short +short_size+ "s")
-(def-type ushort +short_size+ "S")
-(def-type int +int_size+ "i")
-(def-type uint +int_size+ "I")
-(def-type long +long_size+ "l")
-(def-type ulong +long_size+ "L")
-(def-type ptr +ptr_size+ "p")
-(def-type pbyte +ptr_size+ "pb")
-(def-type pubyte +ptr_size+ "pB")
-(def-type pshort +ptr_size+ "ps")
-(def-type pushort +ptr_size+ "pS")
-(def-type pint +ptr_size+ "pi")
-(def-type puint +ptr_size+ "pI")
-(def-type plong +ptr_size+ "pl")
-(def-type pulong +ptr_size+ "pL")
-(def-type pptr +ptr_size+ "pp")
+(def-type byte +byte_size "b")
+(def-type ubyte +byte_size "B")
+(def-type short +short_size "s")
+(def-type ushort +short_size "S")
+(def-type int +int_size "i")
+(def-type uint +int_size "I")
+(def-type long +long_size "l")
+(def-type ulong +long_size "L")
+(def-type ptr +ptr_size "p")
+(def-type pbyte +ptr_size "pb")
+(def-type pubyte +ptr_size "pB")
+(def-type pshort +ptr_size "ps")
+(def-type pushort +ptr_size "pS")
+(def-type pint +ptr_size "pi")
+(def-type puint +ptr_size "pI")
+(def-type plong +ptr_size "pl")
+(def-type pulong +ptr_size "pL")
+(def-type pptr +ptr_size "pp")
 
 (defun offset (_)
 	(cond
@@ -538,7 +548,7 @@
 							(token-push c s)
 							(setq p (inc i) u (logand (- s 12) 1)))
 						((and (= s 9) (= u 1))
-							;+XYZ+ symbol !
+							;+XYZ symbol !
 							(setq m 1))
 						((>= s 5)
 							;-*~!+.?^</%&|=>

@@ -34,7 +34,7 @@
 		(assign '((rsp local_this)) '(r0))
 		(vpif '(r1 >= 3))
 			(assign '((r0 fstream_mode) r1) '(r2 (r0 fstream_handle)))
-			(breakif '(r2 = +file_open_read+))
+			(breakif '(r2 = +file_open_read))
 			(assign '((rsp local_buf) (r0 fstream_buf_len)) '(r1 r2))
 			(vp-add-rr r2 r1)
 			(assign '(r1) '((r0 stream_bufe)))
@@ -89,7 +89,7 @@
 
 	;not in read mode ?
 	(assign '((r0 fstream_mode)) '(r1))
-	(vpif '(r1 /= +file_open_read+))
+	(vpif '(r1 /= +file_open_read))
 		(assign '((r0 stream_buffer) (r0 stream_bufp)) '(r1 r2))
 		(vp-sub-rr r1 r2)
 		(vpif '(r2 /= 0))
@@ -122,7 +122,7 @@
 	(call 'fstream :flush '(r0) '(r0))
 
 	;set read mode
-	(vp-cpy-cr +file_open_read+ r1)
+	(vp-cpy-cr +file_open_read r1)
 	(assign '(r1) '((r0 fstream_mode)))
 
 	;read next block of data
@@ -157,7 +157,7 @@
 	(call 'fstream :flush '(r0) '(r0))
 
 	;set write mode
-	(vp-cpy-cr +file_open_write+ r1)
+	(vp-cpy-cr +file_open_write r1)
 	(assign '(r1) '((r0 fstream_mode)))
 
 	;set bufp and bufe for writing

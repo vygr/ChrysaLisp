@@ -1,22 +1,22 @@
 ;gui events for Lisp level (getf)
 
-(structure ev_type 0
+(structure +ev_type 0
 	(byte mouse key action gui))
 
-(structure ev_msg 0
+(structure +ev_msg 0
 	(ulong target_id type))
 
-(structure ev_msg_mouse +ev_msg_size+
+(structure +ev_msg_mouse +ev_msg_size
 	(uint buttons)
 	(int x y rx ry))
 
-(structure ev_msg_key +ev_msg_size+
+(structure +ev_msg_key +ev_msg_size
 	(uint keycode key))
 
-(structure ev_msg_action +ev_msg_size+
+(structure +ev_msg_action +ev_msg_size
 	(ulong source_id))
 
-(structure ev_msg_gui +ev_msg_size+)
+(structure +ev_msg_gui +ev_msg_size)
 
 ;lisp bindings
 
@@ -39,8 +39,8 @@
 	(view-fit x y w h))
 
 ;view flags
-(defq +view_flag_solid+ 1 +view_flag_opaque+ 2 +view_flag_dirty_all+ 4
-	+view_flag_at_back+ 8 +view_flag_hiden+ 16)
+(defq +view_flag_solid 1 +view_flag_opaque 2 +view_flag_dirty_all 4
+	+view_flag_at_back 8 +view_flag_hiden 16)
 
 (defclass View () nil
 	; (View) -> view
@@ -117,7 +117,7 @@
 
 	(defmethod :get_id (this)
 		; (. view :get_id) -> id
-		(get-field this (const view_id) +long_size+))
+		(get-field this (const view_id) +long_size))
 
 	(defmethod :dirty (this)
 		; (. view :dirty) -> view
@@ -126,11 +126,11 @@
 
 	(defmethod :dirty_all (this)
 		; (. view :dirty_all) -> view
-		(. this :set_flags +view_flag_dirty_all+ +view_flag_dirty_all+))
+		(. this :set_flags +view_flag_dirty_all +view_flag_dirty_all))
 
 	(defmethod :get_flags (this)
 		; (. view :get_flags) -> flags
-		(get-field this (const view_flags) (const (neg +int_size+))))
+		(get-field this (const view_flags) (const (neg +int_size))))
 
 	(defmethod :add_child (this child)
 		; (. view :add_child child) -> view
@@ -138,34 +138,34 @@
 
 	(defmethod :get_pos (this)
 		; (. view :get_pos) -> (x y)
-		(list (get-field this (const view_x) +int_size+)
-			(get-field this (const view_y) +int_size+)))
+		(list (get-field this (const view_x) +int_size)
+			(get-field this (const view_y) +int_size)))
 
 	(defmethod :get_size (this)
 		; (. view :get_size) -> (width height)
-		(list (get-field this (const view_w) +int_size+)
-			(get-field this (const view_h) +int_size+)))
+		(list (get-field this (const view_w) +int_size)
+			(get-field this (const view_h) +int_size)))
 
 	(defmethod :set_size (this width height)
 		; (. view :set_size width height) -> view
 		(set-field (set-field this
-			(const view_w) +int_size+ width)
-			(const view_h) +int_size+ height))
+			(const view_w) +int_size width)
+			(const view_h) +int_size height))
 
 	(defmethod :get_bounds (this)
 		; (. view :get_bounds) -> (x y width height)
-		(list (get-field this (const view_x) +int_size+)
-			(get-field this (const view_y) +int_size+)
-			(get-field this (const view_w) +int_size+)
-			(get-field this (const view_h) +int_size+)))
+		(list (get-field this (const view_x) +int_size)
+			(get-field this (const view_y) +int_size)
+			(get-field this (const view_w) +int_size)
+			(get-field this (const view_h) +int_size)))
 
 	(defmethod :set_bounds (this x y width height)
 		; (. view :set_size x y width height) -> view
 		(set-field (set-field (set-field (set-field this
-			(const view_x) +int_size+ x)
-			(const view_y) +int_size+ y)
-			(const view_w) +int_size+ width)
-			(const view_h) +int_size+ height))
+			(const view_x) +int_size x)
+			(const view_y) +int_size y)
+			(const view_w) +int_size width)
+			(const view_h) +int_size height))
 
 	(defmethod :change (this x y width height)
 		; (. view :change x y width height) -> view
@@ -190,6 +190,6 @@
 	(defmethod :layout (this)
 		; (. view :layout) -> view
 		(if (= (>> (get :color this) 24) 0xff)
-			(. this :set_flags +view_flag_opaque+ +view_flag_opaque+)
+			(. this :set_flags +view_flag_opaque +view_flag_opaque)
 			this))
 	)

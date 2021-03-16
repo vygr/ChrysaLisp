@@ -17,16 +17,14 @@ Allow you to define a set of incrementing constants. You can set the first
 value and each subsequent symbol gets the current value plus one.
 
 ```vdu
-(def-enum 'bert 24)
-	(enum 'a 'b 'c)
-	(enum 'd)
-	(enum 'e 'f)
-(def-enum-end)
+(def-enum bert 24
+	(enum a b c)
+	(enum d)
+	(enum e f))
 ```
 
-This example will start the enum count at 24, this is an optional value, and
-will default to 0 if not present. The end result is a set of symbols and
-assigned values of:
+This example will start the enum count at 24. The end result is a set of
+symbols and assigned values of:
 
 ```vdu
 bert_a -> 24
@@ -35,6 +33,7 @@ bert_c -> 26
 bert_d -> 27
 bert_e -> 28
 bert_f -> 29
+bert_size -> 30
 ```
 
 ### Bits
@@ -43,16 +42,14 @@ Allow you to define a set of bit masks. Again you can set the initial bit
 offset and for each subsequent bit the mask is shifted left by 1.
 
 ```vdu
-(def-bit 'alf 2)
-	(bit 'a 'b 'c)
-	(bit 'd)
-	(bit 'e 'f)
-(def-bit-end)
+(def-bit alf 2
+	(bit a b c)
+	(bit d)
+	(bit e f))
 ```
 
-This example will start the bit offset at 2, a mask value of 4, this is an
-optional value, and will default to 0 if not present. The end result is a set
-of symbols and assigned values of:
+This example will start the bit offset at 2, a mask value of 4. The end result
+is a set of symbols and assigned values of:
 
 ```vdu
 alf_a -> 4
@@ -61,6 +58,7 @@ alf_c -> 16
 alf_d -> 32
 alf_e -> 64
 alf_f -> 128
+alf_size -> 256
 ```
 
 ### Structures

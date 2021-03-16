@@ -109,7 +109,7 @@
 	(else)
 		(call 'canvas :create_with_pixmap '(r0) '(r0))
 		(assign '((rsp local_flags)) '(r1))
-		(vp-and-cr +load_flag_noswap+ r1)
+		(vp-and-cr +load_flag_noswap r1)
 		(vpif '(r1 = 0))
 			(call 'canvas :swap '(r0) '(r0))
 		(endif)

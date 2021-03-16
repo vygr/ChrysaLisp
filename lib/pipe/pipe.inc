@@ -6,7 +6,7 @@
 (import "class/lisp.inc")
 
 ;pipe tuple structure
-(structure pipe 0
+(structure +pipe 0
 	(byte state select streams))
 
 (defun pipe-open (cmds &optional flag)
@@ -31,12 +31,12 @@
 					stdout_mbox
 					stderr_mbox
 					ack_mbox
-					(char 0 +int_size+) arg))
+					(char 0 +int_size) arg))
 				(setq stdout_mbox (cat
-					(char (get-int (mail-read ack_mbox) (const (* 3 +net_id_size+))) +long_size+)
-					(slice +long_size+ -1 mbox)))) mboxs args select)
+					(char (get-int (mail-read ack_mbox) (const (* 3 +net_id_size))) +long_size)
+					(slice +long_size -1 mbox)))) mboxs args select)
 			(push pipe_streams stdout (out-stream stdout_mbox))
-			(push select (in-mbox stdout) (if flag (to-net-id (pad "" (const (* +net_id_size+ 2)) "a")) (task-mailbox)))
+			(push select (in-mbox stdout) (if flag (to-net-id (pad "" (const (* +net_id_size 2)) "a")) (task-mailbox)))
 			(mail-free-mbox ack_mbox)
 			(list t select pipe_streams))))
 
@@ -53,21 +53,21 @@
 (defun pipe-read (pipe)
 	(cond
 		;nil if pipe closed
-		((elem +pipe_state+ pipe)
+		((elem +pipe_state pipe)
 			;pipe is open
 			(cond
 				;t if task mailbox
-				((= (- (defq idx (mail-select (elem +pipe_select+ pipe)))
-						(length (elem +pipe_select+ pipe))) -1))
+				((= (- (defq idx (mail-select (elem +pipe_select pipe)))
+						(length (elem +pipe_select pipe))) -1))
 				(t	;must be stdout or one of the stderr's
 					(if (/= (in-get-state (in-next-msg
-								(defq msg_in (elem idx (elem +pipe_streams+ pipe)))))
+								(defq msg_in (elem idx (elem +pipe_streams pipe)))))
 							(const stream_mail_state_started))
-						(elem-set +pipe_state+ pipe nil))
+						(elem-set +pipe_state pipe nil))
 					(read-avail msg_in))))))
 
 (defun pipe-write (pipe s)
-	(stream-flush (write (elem -2 (elem +pipe_streams+ pipe)) s)))
+	(stream-flush (write (elem -2 (elem +pipe_streams pipe)) s)))
 
 (defun pipe-run (cmdline &optional out)
 	; (pipe-run cmdline &optional outfun)

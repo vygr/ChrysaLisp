@@ -3,7 +3,7 @@
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
 
-(structure event 0
+(structure +event 0
 	(byte close)
 	(byte prev next))
 
@@ -17,13 +17,13 @@
 	select (list (task-mailbox) (mail-alloc-mbox)) rate (/ 1000000 30))
 
 (ui-window mywindow ()
-	(ui-title-bar window_title "" (0xea19) +event_close+)
+	(ui-title-bar window_title "" (0xea19) +event_close)
 	(ui-tool-bar _ ()
-		(ui-buttons (0xe91d 0xe91e) +event_prev+))
-	(ui-scroll image_scroll (logior +scroll_flag_vertical+ +scroll_flag_horizontal+)))
+		(ui-buttons (0xe91d 0xe91e) +event_prev))
+	(ui-scroll image_scroll (logior +scroll_flag_vertical +scroll_flag_horizontal)))
 
 (defun win-refresh (_)
-	(bind '(w h) (. (setq canvas (Canvas-from-file (elem (setq index _) films) +load_flag_film+)) :pref_size))
+	(bind '(w h) (. (setq canvas (Canvas-from-file (elem (setq index _) films) +load_flag_film)) :pref_size))
 	(def image_scroll :min_width w :min_height h)
 	(def window_title :text (elem _ films))
 	(. image_scroll :add_child canvas)
@@ -42,10 +42,10 @@
 			((= idx 0)
 				;main mailbox
 				(cond
-					((= (setq id (getf msg +ev_msg_target_id+)) +event_close+)
+					((= (setq id (getf msg +ev_msg_target_id)) +event_close)
 						(setq id nil))
-					((<= +event_prev+ id +event_next+)
-						(win-refresh (% (+ index (dec (* 2 (- id +event_prev+))) (length films)) (length films))))
+					((<= +event_prev id +event_next)
+						(win-refresh (% (+ index (dec (* 2 (- id +event_prev))) (length films)) (length films))))
 					(t (. mywindow :event msg))))
 			(t	;timer event)
 				(mail-timeout (elem -2 select) rate)

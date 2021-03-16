@@ -3,31 +3,31 @@
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
 
-(structure event 0
+(structure +event 0
 	(byte close)
 	(byte file_button tree_button)
 	(byte exts_action ok_action))
 
 (ui-window mywindow nil
-	(ui-flow _ (:flow_flags +flow_down_fill+)
-		(ui-title-bar window_title "" (0xea19) +event_close+)
-		(ui-flow _ (:flow_flags +flow_right_fill+)
-			(ui-buttons (0xe93a) +event_ok_action+ (:font *env_toolbar_font*))
+	(ui-flow _ (:flow_flags +flow_down_fill)
+		(ui-title-bar window_title "" (0xea19) +event_close)
+		(ui-flow _ (:flow_flags +flow_right_fill)
+			(ui-buttons (0xe93a) +event_ok_action (:font *env_toolbar_font*))
 			(ui-label _ (:text "Filename:"))
-			(. (ui-textfield filename (:clear_text "")) :connect +event_ok_action+))
-		(ui-flow _ (:flow_flags +flow_right_fill+)
+			(. (ui-textfield filename (:clear_text "")) :connect +event_ok_action))
+		(ui-flow _ (:flow_flags +flow_right_fill)
 			(ui-label _ (:text "Filter:"))
-			(. (ui-textfield ext_filter (:clear_text "")) :connect +event_exts_action+))
-		(ui-flow _ (:flow_flags +flow_right_fill+ :font *env_terminal_font* :color +argb_white+ :border 1)
-			(ui-flow _ (:flow_flags +flow_down_fill+)
+			(. (ui-textfield ext_filter (:clear_text "")) :connect +event_exts_action))
+		(ui-flow _ (:flow_flags +flow_right_fill :font *env_terminal_font* :color +argb_white :border 1)
+			(ui-flow _ (:flow_flags +flow_down_fill)
 				(ui-label _ (:text "Folders" :font *env_window_font*))
-				(ui-scroll tree_scroll +scroll_flag_vertical+ nil
-					(ui-flow tree_flow (:flow_flags +flow_down_fill+ :color +argb_white+
+				(ui-scroll tree_scroll +scroll_flag_vertical nil
+					(ui-flow tree_flow (:flow_flags +flow_down_fill :color +argb_white
 						:min_width 256))))
-			(ui-flow _ (:flow_flags +flow_down_fill+)
+			(ui-flow _ (:flow_flags +flow_down_fill)
 				(ui-label _ (:text "Files" :font *env_window_font*))
-				(ui-scroll files_scroll +scroll_flag_vertical+ nil
-					(ui-flow files_flow (:flow_flags +flow_down_fill+ :color +argb_white+
+				(ui-scroll files_scroll +scroll_flag_vertical nil
+					(ui-flow files_flow (:flow_flags +flow_down_fill :color +argb_white
 						:min_width 256)))))))
 
 (defun all-files (root)
@@ -59,12 +59,12 @@
 	(clear tree_buttons file_buttons)
 	(each (lambda (_)
 		(def (defq b (Button)) :text _)
-		(if (eql _ dir) (def b :color +argb_grey14+))
-		(. tree_flow :add_child (. b :connect +event_tree_button+))
+		(if (eql _ dir) (def b :color +argb_grey14))
+		(. tree_flow :add_child (. b :connect +event_tree_button))
 		(push tree_buttons b)) dirs_with_exts)
 	(each (lambda (_)
 		(def (defq b (Button)) :text _)
-		(. files_flow :add_child (. b :connect +event_file_button+))
+		(. files_flow :add_child (. b :connect +event_file_button))
 		(push file_buttons b)) files_within_dir)
 	;layout and size window
 	(bind '(_ ch) (. tree_scroll :get_size))
@@ -96,21 +96,21 @@
 	(while (cond
 		((eql (defq msg (mail-read (task-mailbox))) "")
 			nil)
-		((= (defq id (getf msg +ev_msg_target_id+)) +event_close+)
+		((= (defq id (getf msg +ev_msg_target_id)) +event_close)
 			(mail-send reply_mbox ""))
-		((= id +event_ok_action+)
+		((= id +event_ok_action)
 			(mail-send reply_mbox (get :clear_text filename)))
-		((= id +event_file_button+)
+		((= id +event_file_button)
 			(defq old_filename (get :clear_text filename) new_filename (cat current_dir
-				(get :text (. mywindow :find_id (getf msg +ev_msg_action_source_id+)))))
+				(get :text (. mywindow :find_id (getf msg +ev_msg_action_source_id)))))
 			(if (eql new_filename old_filename)
 				(mail-send reply_mbox new_filename))
 			(set filename :clear_text new_filename)
 			(.-> filename :layout :dirty))
-		((= id +event_tree_button+)
-			(setq current_dir (get :text (. mywindow :find_id (getf msg +ev_msg_action_source_id+))))
+		((= id +event_tree_button)
+			(setq current_dir (get :text (. mywindow :find_id (getf msg +ev_msg_action_source_id))))
 			(populate-files all_files current_dir exts))
-		((= id +event_exts_action+)
+		((= id +event_exts_action)
 			(setq exts (get :clear_text ext_filter))
 			(populate-files all_files current_dir exts))
 		(t (. mywindow :event msg))))

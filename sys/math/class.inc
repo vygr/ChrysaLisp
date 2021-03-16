@@ -38,7 +38,7 @@
 	;r0 = sqrt (fixed)
 	;trashes
 	;r0-r3
-	(vp-shl-cr +fp_shift+ r0)
+	(vp-shl-cr +fp_shift r0)
 	(call 'sys_math :i_sqrt '(r0) '(r0)))
 
 ;;;;;;;;;;;;;;;;;;;;;
@@ -82,22 +82,22 @@
 (defun vec-load-int (n r &optional i)
 	(setd i 0)
 	(each (lambda (v)
-		(vp-cpy-ir-i r (+ i (* _ +int_size+)) v)) (vec-push n)))
+		(vp-cpy-ir-i r (+ i (* _ +int_size)) v)) (vec-push n)))
 
 (defun vec-store-int (n r &optional i)
 	(setd i 0)
 	(each (lambda (v)
-		(vp-cpy-ri-i v r (+ i (* _ +int_size+)))) (vec-pop n)))
+		(vp-cpy-ri-i v r (+ i (* _ +int_size)))) (vec-pop n)))
 
 (defun vec-load-long (n r &optional i)
 	(setd i 0)
 	(each (lambda (v)
-		(vp-cpy-ir r (+ i (* _ +long_size+)) v)) (vec-push n)))
+		(vp-cpy-ir r (+ i (* _ +long_size)) v)) (vec-push n)))
 
 (defun vec-store-long (n r &optional i)
 	(setd i 0)
 	(each (lambda (v)
-		(vp-cpy-ri v r (+ i (* _ +long_size+)))) (vec-pop n)))
+		(vp-cpy-ri v r (+ i (* _ +long_size)))) (vec-pop n)))
 
 (defun vec-clr (n &optional v)
 	(setd v (vec-top n))
@@ -124,18 +124,18 @@
 	(bind '(r) (vec-tmp 1))
 	(each (lambda (v)
 		(vpif (list v '>= 0))
-			(vp-and-cr +fp_frac_mask+ v)
+			(vp-and-cr +fp_frac_mask v)
 		(else)
 			(vp-cpy-rr v r)
-			(vp-cpy-cr (<< 1 +fp_shift+) v)
-			(vp-and-cr +fp_frac_mask+ r)
+			(vp-cpy-cr (<< 1 +fp_shift) v)
+			(vp-and-cr +fp_frac_mask r)
 			(vp-sub-rr r v)
 		(endif)) v))
 
 (defun vec-floor (n &optional v)
 	(setd v (vec-top n))
 	(each (lambda (v)
-		(vp-and-cr +fp_int_mask+ v)) v))
+		(vp-and-cr +fp_int_mask v)) v))
 
 (defun vec-add (n &optional v2 v1)
 	(setd v2 (vec-pop n) v1 (vec-top n))
@@ -172,13 +172,13 @@
 
 (defun vec-fmul (n &optional v2 v1)
 	(vec-mul n v2 v1)
-	(vec-asr n +fp_shift+ v1))
+	(vec-asr n +fp_shift v1))
 
 (defun vec-fdiv (n &optional v2 v1)
 	(defq v3 (vec-tmp n))
 	(setd v2 (vec-pop n) v1 (vec-top n))
 	(each (lambda (v)
-		(vp-shl-cr +fp_shift+ v)) v1)
+		(vp-shl-cr +fp_shift v)) v1)
 	(each (lambda (v3 v1)
 		(vp-ext-rr v1 v3)) v3 v1)
 	(each (lambda (v3 v2 v1)
@@ -190,7 +190,7 @@
 	(each (lambda (v1 v2)
 		(vp-cpy-rr v1 v2)) v1 v2)
 	(each (lambda (v)
-		(vp-cpy-cr (<< 1 (* 2 +fp_shift+)) v)) v1)
+		(vp-cpy-cr (<< 1 (* 2 +fp_shift)) v)) v1)
 	(each (lambda (v)
 		(vp-xor-rr v v)) v3)
 	(each (lambda (v2 v3 v1)
@@ -203,13 +203,13 @@
 	(each (lambda (v4 v1)
 		(vp-cpy-rr v1 v4)) v4 v1)
 	(each (lambda (v)
-		(vp-shl-cr +fp_shift+ v)) v1)
+		(vp-shl-cr +fp_shift v)) v1)
 	(each (lambda (v3 v1)
 		(vp-ext-rr v1 v3)) v3 v1)
 	(each (lambda (v3 v2 v1)
 		(vp-div-rrr v2 v3 v1)) v3 v2 v1)
 	(each (lambda (v)
-		(vp-asr-cr +fp_shift+ v)) v1)
+		(vp-asr-cr +fp_shift v)) v1)
 	(each (lambda (v2 v1)
 		(vp-mul-rr v1 v2)) v2 v1)
 	(each (lambda (v4 v1)
@@ -252,7 +252,7 @@
 
 (defun vec-fsquare (n &optional v)
 	(vec-square n v)
-	(vec-asr n +fp_shift+ v))
+	(vec-asr n +fp_shift v))
 
 (defun vec-scale (n &optional s v)
 	(setd s (elem 0 (vec-pop 1)) v (vec-top n))
@@ -263,7 +263,7 @@
 
 (defun vec-fscale (n &optional s v)
 	(vec-scale n s v)
-	(vec-asr n +fp_shift+ v))
+	(vec-asr n +fp_shift v))
 
 (defun vec-sum (n)
 	(reduce (lambda (v1 v2)
@@ -302,7 +302,7 @@
 	(setd v2 (vec-pop n))
 	(each (lambda (v)
 		(vp-mul-rr (elem (- n _ 1) v2) v)) (vec-top n))
-	(vec-asr n +fp_shift+)
+	(vec-asr n +fp_shift)
 	(vec-dif n))
 
 (defun vec-flength-squared (n)
@@ -328,7 +328,7 @@
 	(vpif (list l '= 0))
 		(vec-clr n)
 	(else)
-		(vp-cpy-cr (<< (<< 1 +fp_shift+) +fp_shift+) rl)
+		(vp-cpy-cr (<< (<< 1 +fp_shift) +fp_shift) rl)
 		(vp-xor-rr rh rh)
 		(vp-div-rrr l rh rl)
 		(vec-fscale n rl)

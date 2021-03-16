@@ -14,11 +14,10 @@
 
 ;msg data area max size when allocated as a string object
 ;allowing for heap pointer and null byte, rounded down for faster memcpy
-(defcvar 'lk_data_size (- 1024 str_size +ptr_size+ +long_size+) 'lk_page_size 4096)
+(defcvar 'lk_data_size (- 1024 str_size +ptr_size +long_size) 'lk_page_size 4096)
 
-(def-enum 'lk_chan_status)
-	(enum 'ready 'busy)
-(def-enum-end)
+(def-enum lk_chan_status 0
+	(enum ready busy))
 
 (def-struct 'lk_node)
 	(struct 'peer_node_id 'node_id)
@@ -34,7 +33,7 @@
 
 (def-struct 'lk_chan)
 	(struct 'msg0 'lk_msg)
-	(struct 'msgs (* (/ (- (- lk_page_size +long_size+) *struct_sp*) lk_msg_size) lk_msg_size))
+	(struct 'msgs (* (/ (- (- lk_page_size +long_size) *struct_sp*) lk_msg_size) lk_msg_size))
 (def-struct-end)
 
 (def-struct 'lk_buffer)

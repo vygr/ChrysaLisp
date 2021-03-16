@@ -30,13 +30,13 @@
 (defmacro vec-f2n (&rest _)
 	`(vec ~(map (lambda (_) (list 'f2n _)) _)))
 
-(structure dlist 0
+(structure +dlist 0
 	(byte mask light_pos layer1_canvas layer1_verts))
 
-(structure path 0
+(structure +path 0
 	(byte mode color radius path))
 
-(structure vertex 0
+(structure +vertex 0
 	(byte p v r c))
 
 (defq box_size 500 focal_len 1 max_vel 5 num_bubbles 50 bubble_radius 70

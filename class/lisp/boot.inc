@@ -130,8 +130,8 @@
 (ffi obj-ref "class/obj/lisp_obj_ref" 0)
 
 (defq t 't nil 'nil
-	+byte_size+ 1 +short_size+ 2 +int_size+ 4 +long_size+ 8 +ptr_size+ 8
-	+str_data+ 24 +node_id_size+ 16 +net_id_size+ 24
+	+byte_size 1 +short_size 2 +int_size 4 +long_size 8 +ptr_size 8
+	+str_data 24 +node_id_size 16 +net_id_size 24
 	defmacro '(macro (n a &rest _) `(defq ,n (macro ,a ~_))))
 
 (defmacro defun (n a &rest _)
@@ -488,7 +488,7 @@
 ; Math functions
 ;;;;;;;;;;;;;;;;
 
-(defq +min_long+ (<< -1 63) +max_long+ (>> -1 1) +min_int+ (<< -1 31) +max_int+ (>> -1 33))
+(defq +min_long (<< -1 63) +max_long (>> -1 1) +min_int (<< -1 31) +max_int (>> -1 33))
 
 (defun neg? (_)
 	; (neg? num) -> bool
@@ -551,8 +551,8 @@
 ; Fixed point math
 ;;;;;;;;;;;;;;;;;;
 
-(defq +fp_shift+ 16 +fp_int_mask+ (<< -1 +fp_shift+) +fp_frac_mask+ (lognot +fp_int_mask+)
-	+fp_2pi+ 6.283185 +fp_pi+ 3.141592 +fp_hpi+ 1.570796 +fp_rpi+ 0.318309)
+(defq +fp_shift 16 +fp_int_mask (<< -1 +fp_shift) +fp_frac_mask (lognot +fp_int_mask)
+	+fp_2pi 6.283185 +fp_pi 3.141592 +fp_hpi 1.570796 +fp_rpi 0.318309)
 
 ;;;;;;;;;;;
 ; Utilities
@@ -629,7 +629,7 @@
 	(each (lambda (_) (if (eql _ ".")
 			(setq f 1)
 			(setq n (+ (* n b) (char-to-num _)) f (* f b)))) _)
-	(if (= f 0) (* n m) (/ (<< (* n m) +fp_shift+) f)))
+	(if (= f 0) (* n m) (/ (<< (* n m) +fp_shift) f)))
 
 (defun num-to-utf8 (_)
 	; (num-to-utf8 num) -> str
@@ -700,31 +700,31 @@
 
 (defmacro get-ubyte (s o)
 	; (get-ubyte str index) -> num
-	`(get-field ,s (+ +str_data+ ,o) ,(neg +byte_size+)))
+	`(get-field ,s (+ +str_data ,o) ,(neg +byte_size)))
 (defmacro get-ushort (s o)
 	; (get-ushort str index) -> num
-	`(get-field ,s (+ +str_data+ ,o) ,(neg +short_size+)))
+	`(get-field ,s (+ +str_data ,o) ,(neg +short_size)))
 (defmacro get-uint (s o)
 	; (get-uint str index) -> num
-	`(get-field ,s (+ +str_data+ ,o) ,(neg +int_size+)))
+	`(get-field ,s (+ +str_data ,o) ,(neg +int_size)))
 (defmacro get-long (s o)
 	; (get-long str index) -> num
-	`(get-field ,s (+ +str_data+ ,o) +long_size+))
+	`(get-field ,s (+ +str_data ,o) +long_size))
 (defmacro get-byte (s o)
 	; (get-byte str index) -> num
-	`(get-field ,s (+ +str_data+ ,o) +byte_size+))
+	`(get-field ,s (+ +str_data ,o) +byte_size))
 (defmacro get-short (s o)
 	; (get-short str index) -> num
-	`(get-field ,s (+ +str_data+ ,o) +short_size+))
+	`(get-field ,s (+ +str_data ,o) +short_size))
 (defmacro get-int (s o)
 	; (get-int str index) -> num
-	`(get-field ,s (+ +str_data+ ,o) +int_size+))
+	`(get-field ,s (+ +str_data ,o) +int_size))
 (defmacro get-nodeid (s o)
 	; (get-nodeid str index) -> nodeid
-	`(slice ,o (+ ,o +node_id_size+) ,s))
+	`(slice ,o (+ ,o +node_id_size) ,s))
 (defmacro get-netid (s o)
 	; (get-netid str index) -> netid
-	`(slice ,o (+ ,o +net_id_size+) ,s))
+	`(slice ,o (+ ,o +net_id_size) ,s))
 (defun get-cstr (s o)
 	; (get-cstr str index) -> str
 	(defq k o)
@@ -735,10 +735,10 @@
 (defun type-to-size (_)
 	; (type-to-size sym) -> num
 	(case _
-		((i ui) +int_size+)
-		((s us) +short_size+)
-		((b ub) +byte_size+)
-		(t +long_size+)))
+		((i ui) +int_size)
+		((s us) +short_size)
+		((b ub) +byte_size)
+		(t +long_size)))
 
 (defun walk-list (_l _f _fi _fo)
 	; (walk-list list fnc_element fnc_in fnc_out)
@@ -885,38 +885,39 @@
 ;;;;;;;;;;;;;;;;;;;;;;;
 
 (defmacro structure (name base &rest lines)
-	; (structure name base [(byte field ...)] ...)
+	; (structure +name base [(byte field ...)] ...)
+	(if (get (sym (cat name "_size"))) (throw "Structure redefined !" name))
 	(defq syms (list) values (list) base (eval base))
 	(defun new_field (type size alignment)
 		(setq base (align base alignment))
-		(push syms (sym (cat "+" name "_" field "+")) (sym (cat "+" name "_" field "_t+")))
+		(push syms (sym (cat name "_" field)) (sym (cat name "_" field "_t")))
 		(push values base type)
 		(setq base (+ base size)))
 	(each (lambda (line)
 		(each! 1 -1 (lambda (field)
 			(case (elem 0 line)
-				(offset (push syms (sym (cat "+" name "_" field "+"))) (push values base))
-				(byte (new_field +byte_size+ +byte_size+ +byte_size+))
-				(short (new_field +short_size+ +short_size+ +short_size+))
-				(int (new_field +int_size+ +int_size+ +int_size+))
-				(long (new_field +long_size+ +long_size+ +long_size+))
-				(ubyte (new_field (const (neg +byte_size+)) +byte_size+ +byte_size+))
-				(ushort (new_field (const (neg +short_size+)) +short_size+ +short_size+))
-				(uint (new_field (const (neg +int_size+)) +int_size+ +int_size+))
-				(ulong (new_field +long_size+ +long_size+ +long_size+))
-				(nodeid (new_field +node_id_size+ +node_id_size+ +byte_size+))
-				(netid (new_field +net_id_size+ +net_id_size+ +byte_size+))))
+				(offset (push syms (sym (cat name "_" field))) (push values base))
+				(byte (new_field +byte_size +byte_size +byte_size))
+				(short (new_field +short_size +short_size +short_size))
+				(int (new_field +int_size +int_size +int_size))
+				(long (new_field +long_size +long_size +long_size))
+				(ubyte (new_field (const (neg +byte_size)) +byte_size +byte_size))
+				(ushort (new_field (const (neg +short_size)) +short_size +short_size))
+				(uint (new_field (const (neg +int_size)) +int_size +int_size))
+				(ulong (new_field +long_size +long_size +long_size))
+				(nodeid (new_field +node_id_size +node_id_size +byte_size))
+				(netid (new_field +net_id_size +net_id_size +byte_size))))
 			(list line))) lines)
-	(push syms (sym (cat "+" name "_size+")))
+	(push syms (sym (cat name "_size")))
 	(push values base)
 	`(bind ',syms ',values))
 
 (defmacro getf (s field)
 	; (getf str field) -> value
-	(defq type (eval (sym (cat (slice 0 -2 field) "_t+"))) field (eval field))
-	(if (> type +long_size+)
+	(defq type (eval (sym (cat (slice 0 -1 field) "_t"))) field (eval field))
+	(if (> type +long_size)
 		`(slice ,field ,(+ field type) ,s)
-		`(get-field ,s ,(+ +str_data+ field) ,type)))
+		`(get-field ,s ,(+ +str_data field) ,type)))
 
 ;;;;;;;;;;;;;;;;;;;;;
 ; classes and methods

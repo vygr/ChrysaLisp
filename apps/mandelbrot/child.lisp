@@ -5,10 +5,10 @@
 ;imports
 (import "apps/mandelbrot/mbmath.inc")
 
-(structure select 0
+(structure +select 0
 	(byte main timeout))
 
-(structure job 0
+(structure +job 0
 	(long key)
 	(netid reply)
 	(long x y x1 y1 w h cx cy z))
@@ -34,19 +34,19 @@
 	(mail-send mbox (str reply)))
 
 (defun main ()
-	(defq select (list (task-mailbox) (mail-alloc-mbox)) id t +timeout+ 5000000)
+	(defq select (list (task-mailbox) (mail-alloc-mbox)) id t +timeout 5000000)
 	(while id
-		(mail-timeout (elem +select_timeout+ select) +timeout+)
+		(mail-timeout (elem +select_timeout select) +timeout)
 		(defq msg (mail-read (elem (defq idx (mail-select select)) select)))
 		(cond
-			((or (= idx +select_timeout+) (eql msg ""))
+			((or (= idx +select_timeout) (eql msg ""))
 				;timeout or quit
 				(setq id nil))
-			((= idx +select_main+)
+			((= idx +select_main)
 				;main mailbox, reset timeout and reply with result
-				(mail-timeout (elem +select_timeout+ select) 0)
-				(defq key (getf msg +job_key+)
-					mbox (getf msg +job_reply+)
-					msg (slice +job_x+ -1 msg))
-				(apply mandel (cat (list key mbox) (map (lambda (_) (get-long msg (* _ +long_size+))) (range 0 9)))))))
+				(mail-timeout (elem +select_timeout select) 0)
+				(defq key (getf msg +job_key)
+					mbox (getf msg +job_reply)
+					msg (slice +job_x -1 msg))
+				(apply mandel (cat (list key mbox) (map (lambda (_) (get-long msg (* _ +long_size))) (range 0 9)))))))
 	(mail-free-mbox (pop select)))

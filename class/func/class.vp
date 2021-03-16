@@ -21,7 +21,7 @@
 	(entry 'func :print '(r0 r1))
 
 	(vp-push r0)
-	(call 'stream :write_char '(r1 +char_hash+) '(r0))
+	(call 'stream :write_char '(r1 +char_hash) '(r0))
 	(assign '((rsp 0)) '(r1))
 	(assign '((r1 num_value)) '(r1))
 	(vp-and-cr -8 r1)

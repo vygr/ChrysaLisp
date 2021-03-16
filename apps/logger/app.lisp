@@ -6,10 +6,10 @@
 (import "class/lisp.inc")
 
 (defq
-  +logging_srvc+  "LOG_SERVICE")
+  +logging_srvc  "LOG_SERVICE")
 
 ;single instance only
-(when (= (length (mail-enquire +logging_srvc+)) 0)
+(when (= (length (mail-enquire +logging_srvc)) 0)
 
   (import "lib/xchange/yaml-data.inc")
   (import "apps/logger/loghandlers.lisp")
@@ -26,15 +26,15 @@
     debugwrt  (load-loggers t)
     entry     (mail-declare
                 (task-mailbox)
-                +logging_srvc+
+                +logging_srvc
                 "Logging Service 1.0"))
 
   (defun debug-write (&rest msgs)
     ; (debug-write msg ...) -> nil
-    (eval `(. debugwrt :write +logging_srvc+ :debug ~msgs)))
+    (eval `(. debugwrt :write +logging_srvc :debug ~msgs)))
 
   (defun dbg-write (txt obj)
-    (. debugwrt :write +logging_srvc+ :debug txt obj))
+    (. debugwrt :write +logging_srvc :debug txt obj))
 
   (debug-write "Initialized server")
 

@@ -44,7 +44,7 @@
   (defmethod :formatmsg (this lvl msgs)
     (apply str
            (insert
-             (push msgs +nl+)
+             (push msgs +nl)
              0
              (list (encode-date) " [" (_level-name lvl) "] "))))
   )
@@ -107,17 +107,17 @@
 
   (progn
     (defq nm (get :file_name this))
-    (while (eql (elem 0 nm) +dblq+)
+    (while (eql (elem 0 nm) +dblq)
       (setq nm (slice 1 -2 nm)))
     (set this :file_name nm)
-    ; (when (eql (elem 0 nm) +dblq+)
+    ; (when (eql (elem 0 nm) +dblq)
     ;   (set this :file_name (slice 1 -2 nm)))
     (bind '(fstream sz)
       (open-latest-log
         (get :name this)
         (get :file_name this)
-        (if (get :rotate this) (get :backups this) +max_int+)
-        (if (get :rotate this) (get :maxbytes this) +max_int+)))
+        (if (get :rotate this) (get :backups this) +max_int)
+        (if (get :rotate this) (get :maxbytes this) +max_int)))
       (set this
        :io_instance fstream
        :written     sz))
@@ -171,7 +171,7 @@
   (setq levels (gets-in yamlmap :logging :levels))
   (sets! levels :logstrs
          (reduce (lambda (acc el)
-                   (if (eql (first el) +dblq+)
+                   (if (eql (first el) +dblq)
                        (push acc (slice 1 -2 el))
                        (push acc el)))
                  (gets levels :logstrs)
@@ -193,8 +193,8 @@
             :formatter :standard
             :file_name "DEBUG"
             :rotate    nil
-            :maxbytes  +max_int+
-            :backups  +max_int+))
+            :maxbytes  +max_int
+            :backups  +max_int))
         (faux-logger)))
 
   ; Load configured loggers and handlers

@@ -3,14 +3,14 @@
 		(each (lambda (ln) (when (not (eql nil (defq found (substr ss ln))))
 			(defq y _)
 			(each (lambda (x) (push find_list (list x y))) found)))
-				(elem +text_buffer+ current_text))
+				(elem +text_buffer current_text))
 		(setq find_index 0)))
 
 (defun open-find ()
 	;if there is a previous search, clear and conduct a new one.
 	(when (/= (length find_list) 0) (setq find_list (list) find_index 0))
 	(find-in-buffer (setq find_textfield (get :text mytextfield)))
-	(bind '(ox oy cx cy sx) (elem +text_position+ current_text))
+	(bind '(ox oy cx cy sx) (elem +text_position current_text))
 	(cond
 		((> (defq fl_len (length find_list)) 0)
 			(bind '(fx fy) (first find_list))

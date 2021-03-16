@@ -14,13 +14,13 @@
 	(import "lib/debug/debug.inc")
 	(defmacro defun (&rest _) `(defun-debug ~_)))
 
-(structure dlist 0
+(structure +dlist 0
 	(byte mask commited_canvas overlay_canvas commited_polygons overlay_paths))
 
-(structure path 0
+(structure +path 0
 	(byte mode color radius path))
 
-(structure event 0
+(structure +event 0
 	(byte close max min)
 	(byte save load clear undo redo)
 	(byte grid plain axis lines)

@@ -8,23 +8,23 @@
 ; Constants
 
 (defq
-  +nl+          (char 0x0a)
-  +eof+         (char 0x00)
-  +dblq+        (char 0x22)
-  +singq+       (char 0x27)
-  +kw_ind+      (char 0x3a)
-  +upper_chars+ "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-  +lower_chars+ "abcdefghijklmnopqrstuvwxyz"
-  +bin_prefix+  "0bB"
-  +oct_prefix+  "0oO"
-  +hex_prefix+  "0xX"
-  +oct_chars+   "01234567"
-  +bin_chars+   "01"
-  +plus_minus+  "-+"
-  +dec_point+   "."
-  +numeric_chars+ (cat +oct_chars+ "89")
-  +hex_chars+ (cat +numeric_chars+ (slice 0 6 +upper_chars+) (slice 0 6 +lower_chars+))
-  +alpha_num+ (cat +numeric_chars+ +upper_chars+ +lower_chars+))
+  +nl          (char 0x0a)
+  +eof         (char 0x00)
+  +dblq        (char 0x22)
+  +singq       (char 0x27)
+  +kw_ind      (char 0x3a)
+  +upper_chars "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+  +lower_chars "abcdefghijklmnopqrstuvwxyz"
+  +bin_prefix  "0bB"
+  +oct_prefix  "0oO"
+  +hex_prefix  "0xX"
+  +oct_chars   "01234567"
+  +bin_chars   "01"
+  +plus_minus  "-+"
+  +dec_point   "."
+  +numeric_chars (cat +oct_chars "89")
+  +hex_chars (cat +numeric_chars (slice 0 6 +upper_chars) (slice 0 6 +lower_chars))
+  +alpha_num (cat +numeric_chars +upper_chars +lower_chars))
 
 ; Predicates
 
@@ -35,21 +35,21 @@
 (defun intstr? (_)
   ; (intstr? val) -> t | nil
   (cond
-    ((not (find +dec_point+ _))
-      (numcharset? _ +numeric_chars+))
+    ((not (find +dec_point _))
+      (numcharset? _ +numeric_chars))
     (t
       nil)))
 
 (defun decstr? (_)
   ; (decstr? val) -> t | nil
-  (if (find +dec_point+ _)
+  (if (find +dec_point _)
     (progn
       (defq
-        psplit (split _ +dec_point+))
+        psplit (split _ +dec_point))
       (and
         (= (length psplit) 2)
-        (numcharset? (first psplit) +numeric_chars+)
-        (numcharset? (second psplit) +numeric_chars+)))
+        (numcharset? (first psplit) +numeric_chars)
+        (numcharset? (second psplit) +numeric_chars)))
     nil))
 
 (defun _!base10str? (_ prefix charset)
@@ -65,13 +65,13 @@
       nil)))
 
 (defun hexstr? (_)
-  (_!base10str? _ +hex_prefix+ +hex_chars+))
+  (_!base10str? _ +hex_prefix +hex_chars))
 
 (defun octstr? (_)
-  (_!base10str? _ +oct_prefix+ +oct_chars+))
+  (_!base10str? _ +oct_prefix +oct_chars))
 
 (defun binstr? (_)
-  (_!base10str? _ +bin_prefix+ +bin_chars+))
+  (_!base10str? _ +bin_prefix +bin_chars))
 
 (defun numstr-type (_)
   ; (numstr-type el) -> numeric string tuple
@@ -98,7 +98,7 @@
         ((intstr? _)
           (push res :integer _ nil 10))
         ((decstr? _)
-          (defq sp (split _ +dec_point+))
+          (defq sp (split _ +dec_point))
           (push res :decimal (first sp) (second sp) 10))
         (t (push res :nan _ nil nil)))))
 
@@ -159,12 +159,12 @@
   ; (str-is-ints? s) -> :true | :false
   ; TODO: Deprecate for numstr?
   (defq instr
-    (if (find (first s) +plus_minus+)
+    (if (find (first s) +plus_minus)
       (rest s)
       s))
   (reduced-reduce
       (lambda (acc el)
-        (if  (find el +numeric_chars+)
+        (if  (find el +numeric_chars)
           acc
           (reduced :false))
         ) instr :true))
@@ -176,9 +176,9 @@
   ; (kw "foo") -> :foo
   ; (kw ":foo") -> :foo
   (if (and (not (kw? _)) (or (str? _) (sym? _)))
-    (if (eql (first _) +kw_ind+)
+    (if (eql (first _) +kw_ind)
       (sym _)
-      (sym (str +kw_ind+ _)))
+      (sym (str +kw_ind _)))
     (throw "Expected symbol or string, found " _)))
 
 (defun strip-rest (in-args)
@@ -497,9 +497,9 @@
     ((str? odata)
       (cond
         ((and
-          (not (eql (first odata) +dblq+))
+          (not (eql (first odata) +dblq))
           (> (length (split odata " ")) 1))
-            (setq odata (cat +dblq+ odata +dblq+)))
+            (setq odata (cat +dblq odata +dblq)))
         (t t))
      (add-to-context! cntxt (ScalarNode :string odata)))
     ((num? odata)
@@ -545,10 +545,10 @@
   (write (pp-write-pad sstrm cntxt) el))
 
 (defun pp-iwcr (sstrm cntxt el)
-  (write (pp-iw sstrm cntxt el) +nl+))
+  (write (pp-iw sstrm cntxt el) +nl))
 
 (defun pp-map-container (sstrm cntxt el)
-  (write (pp-write-pad (write sstrm +nl+) cntxt) (str el +nl+)))
+  (write (pp-write-pad (write sstrm +nl) cntxt) (str el +nl)))
 
 (defun node-to-pprint (sstrm in-args ast)
   (defq recur (curry node-to-pprint sstrm in-args))

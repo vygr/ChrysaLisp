@@ -48,7 +48,7 @@
 		(when (= (>> (get :color this) 24) 0xff)
 			(cond
 				((= shadow 0)
-					(. this :set_flags +view_flag_opaque+ +view_flag_opaque+))
+					(. this :set_flags +view_flag_opaque +view_flag_opaque))
 				(t
 					(.-> this :clr_opaque (:add_opaque (+ border shadow) (+ border shadow)
 						(- w (* 2 (+ border shadow))) (- h (* 2 (+ border shadow)))))))))
@@ -56,7 +56,7 @@
 	(defmethod :mouse_down (this event)
 		; (. window :mouse_down event) -> window
 		(bind '(w h) (. this :get_size))
-		(defq rx (getf event +ev_msg_mouse_rx+) ry (getf event +ev_msg_mouse_ry+)
+		(defq rx (getf event +ev_msg_mouse_rx) ry (getf event +ev_msg_mouse_ry)
 			border (get :border this) shadow (get :shadow this)
 			drag_mode 0 drag_offx 0 drag_offy 0)
 		(if (< rx (+ border shadow))
@@ -72,7 +72,7 @@
 
 	(defmethod :mouse_move (this event)
 		; (. window :mouse_move event) -> window
-		(defq ax (getf event +ev_msg_mouse_x+) ay (getf event +ev_msg_mouse_y+)
+		(defq ax (getf event +ev_msg_mouse_x) ay (getf event +ev_msg_mouse_y)
 			drag_mode (get :drag_mode this) drag_offx (get :drag_offx this)
 			drag_offy (get :drag_offy this))
 		(bind '(x y x1 y1) (. this :get_bounds))
@@ -90,13 +90,13 @@
 
 	(defmethod :event (this event)
 		; (. window :event event) -> window
-		(defq target (. this :find_id (getf event +ev_msg_target_id+))
-			type (getf event +ev_msg_type+))
+		(defq target (. this :find_id (getf event +ev_msg_target_id))
+			type (getf event +ev_msg_type))
 		(when target
 			(cond
-				((= type +ev_type_mouse+)
+				((= type +ev_type_mouse)
 					;so what state are we in ?
-					(defq buttons (getf event +ev_msg_mouse_buttons+))
+					(defq buttons (getf event +ev_msg_mouse_buttons))
 					(cond
 						((/= 0 (get :last_buttons this))
 							;was down previously
@@ -115,11 +115,11 @@
 									(if (def? :mouse_down (def? :vtable target)) (. target :mouse_down event)))
 								(t	;is not down now, so hover
 									(if (def? :mouse_hover (def? :vtable target)) (. target :mouse_hover event)))))))
-				((= type +ev_type_key+)
-					(if (>= (getf event +ev_msg_key_keycode+) 0)
+				((= type +ev_type_key)
+					(if (>= (getf event +ev_msg_key_keycode) 0)
 						(if (def? :key_down (def? :vtable target)) (. target :key_down event))
 						(if (def? :key_up (def? :vtable target)) (. target :key_up event))))
-				((= type +ev_type_action+)
+				((= type +ev_type_action)
 					(if (def? :action (def? :vtable target)) (. target :action event)))))
 		this)
 	)

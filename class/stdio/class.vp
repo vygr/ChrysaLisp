@@ -50,7 +50,7 @@
 
 			;create args
 			(call 'str :create_from_buffer {&data->stdio_msg_init_args, msg->msg_frag_length - stdio_msg_init_size} {args})
-			(call 'str :split_char {args, +char_space+} {_, this->stdio_args})
+			(call 'str :split_char {args, +char_space} {_, this->stdio_args})
 			(call 'str :deref {args})
 
 			;send back ack with stdin mailbox

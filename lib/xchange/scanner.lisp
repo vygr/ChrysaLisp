@@ -154,7 +154,7 @@
   cbreakz (const (cat "" blank cr lf))
   ebreakz (const (cat "" cr lf tab blank eof)))
 (defq
-  notplain (const (cat "" "-?:,[]{}#&*!|>%@`" +singq+ ebreakz)))
+  notplain (const (cat "" "-?:,[]{}#&*!|>%@`" +singq ebreakz)))
 
 ; Checkers
 (defun check-document-indicator (rdr dset)

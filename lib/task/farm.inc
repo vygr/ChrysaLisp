@@ -34,7 +34,7 @@
 		(each (lambda (_key _val)
 			(cond
 				((or (not (defq _child (. _val :find :child)))
-					(find (slice +long_size+ -1 _child) _nodes))
+					(find (slice +long_size -1 _child) _nodes))
 					;waiting on child launching, or found child in nodes, so check timestamp
 					(and _timeout
 						(defq _then (. _val :find :timestamp))

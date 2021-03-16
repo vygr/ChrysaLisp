@@ -10,7 +10,7 @@
 	(unless (list? files) (setq files (list files)))
 	(setd *abi* (abi) *cpu* (cpu) num_child (max 1 (/ (* (defq next_node (length (mail-nodes))) 80) 100)))
 	(setq num_child (min num_child (length (shuffle files))))
-	(structure select 0
+	(structure +select 0
 		(byte task reply timer))
 	(defun dispatch-job (key val)
 		;send another job to child
@@ -18,17 +18,17 @@
 			((defq job (pop jobs))
 				(.-> val (:insert :job job) (:insert :timestamp (pii-time)))
 				(mail-send (. val :find :child) (cat
-					(char key +long_size+) (elem +select_reply+ select) job)))
+					(char key +long_size) (elem +select_reply select) job)))
 			(t	;no jobs in que
 				(.-> val (:erase :job) (:erase :timestamp)))))
 	(defun create (key val nodes)
 		; (create key val nodes)
 		;function called when entry is created
 		(if (= 0 (length nodes))
-			(setq nodes (list (slice +long_size+ -1 (task-mailbox)))))
+			(setq nodes (list (slice +long_size -1 (task-mailbox)))))
 		(open-task "class/lisp/compile.lisp"
 			(elem (setq next_node (% (inc next_node) (length nodes))) nodes)
-			kn_call_child key (elem +select_task+ select)))
+			kn_call_child key (elem +select_task select)))
 	(defun destroy (key val)
 		; (destroy key val)
 		;function called when entry is destroyed
@@ -45,17 +45,17 @@
 		(setq jobs (map (# (str (list %0 *abi* *cpu* *debug_mode* *debug_emit* *debug_inst*)))
 			(unzip files jobs)))
 		(defq farm (Farm create destroy num_child))
-		(mail-timeout (elem +select_timer+ select) timer_rate)
+		(mail-timeout (elem +select_timer select) timer_rate)
 		(while working
 			(defq msg (mail-read (elem (defq idx (mail-select select)) select)))
 			(cond
-				((= idx +select_task+)
+				((= idx +select_task)
 					;child launch responce
-					(defq key (get-long msg 0) child (get-netid msg +long_size+))
+					(defq key (get-long msg 0) child (get-netid msg +long_size))
 					(when (defq val (. farm :find key))
 						(. val :insert :child child)
 						(dispatch-job key val)))
-				((= idx +select_reply+)
+				((= idx +select_reply)
 					;child worker responce
 					(defq key (str-to-num (pop (defq msg (split msg (ascii-char 10))))))
 					(when (defq val (. farm :find key))
@@ -68,7 +68,7 @@
 						(. farm :each (lambda (key val)
 							(setq working (or working (. val :find :job)))))))
 				(t	;timer event
-					(mail-timeout (elem +select_timer+ select) timer_rate)
+					(mail-timeout (elem +select_timer select) timer_rate)
 					(. farm :refresh retry_timeout))))
 		(. farm :close)
 		(each mail-free-mbox select)
@@ -212,12 +212,12 @@
 					(+ (elem (find-rev %0 ns) nso) so)) (+ u (* _ 8))) 8)) (elem 2 %0)) "")))) b)
 		;build list of all sections of boot image
 		;concatenate all sections and write out
-		(defq stream (file-stream (func-obj 'sys/boot_image) +file_open_write+)
+		(defq stream (file-stream (func-obj 'sys/boot_image) +file_open_write)
 			f (reduce (# (push %0 (cat %1 (ascii-char 0)))) ns
 				(push (reduce (# (push %0 (elem 0 %1) (elem 1 %1))) b (list)) z))
 			l (reduce (# (+ %0 (length %1))) f 0))
 		;save size in boot image
-		(elem-set 0 f (cat (char l +long_size+) (slice +long_size+ -1 (elem 0 f))))
+		(elem-set 0 f (cat (char l +long_size) (slice +long_size -1 (elem 0 f))))
 		(each (# (write stream %0)) f)
 		(print "-> " (func-obj 'sys/boot_image) " (" l ")") nil)))
 

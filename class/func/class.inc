@@ -8,9 +8,8 @@
 (dec-method :type 'class/func/type :override '(r0) '(r0 r1))
 (dec-method :print 'class/func/print :override)
 
-(def-enum 'func_type)
-	(enum 'args_eval 'args_raw)
-(def-enum-end)
+(def-enum func_type 0
+	(enum args_eval args_raw))
 
 (def-struct 'func 'num)
 (def-struct-end)

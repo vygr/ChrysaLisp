@@ -37,9 +37,9 @@
 
 	(vpif {iter_i /= iter_j})
 		(vpif {iter_j > iter_i})
-			(assign {2 * +long_size+} {step})
+			(assign {2 * +long_size} {step})
 		(else)
-			(assign {-2 * +long_size+} {step})
+			(assign {-2 * +long_size} {step})
 		(endif)
 
 		(vec-set 0)
@@ -58,7 +58,7 @@
 			(vec-load 4 {p2, l2_v, l2_npv, l2_rv})
 			(vec-store 4 {p1, l1_v, l1_npv, l1_rv})
 			(assign {iter_i[0]} {p2x})
-			(assign {iter_i[+long_size+]} {p2y})
+			(assign {iter_i[+long_size]} {p2y})
 			(assign {iter_i + step} {iter_i})
 			(vec-load 2 {p2x, p2y} {p1x, p1y})
 			(vec-sub 2)
@@ -84,7 +84,7 @@
 			(vpcase {(c < 0.01) && (c > -0.01) || (c1 < -0.9)})
 				;acuracy limit
 				(goto 'do_bevel)
-			(vpcase {c <= 0 || join_style = +join_miter+})
+			(vpcase {c <= 0 || join_style = +join_miter})
 				;mitre join
 				(vec-load 2 {p1x, p1y})
 				(vec-dup 2)
@@ -93,7 +93,7 @@
 				(vec-store 4 {p3x, p3y, p1x, p1y})
 				(call 'sys_math :f_intersect {p3x, p3y, p1x, p1y, l1_vx, l1_vy, l2_vx, l2_vy} {p1x, p1y})
 				(goto 'out_p1)
-			(vpcase {join_style = +join_bevel+})
+			(vpcase {join_style = +join_bevel})
 			(vp-label 'do_bevel)
 				;bevel join
 				(vec-load 2 {p1x, p1y})

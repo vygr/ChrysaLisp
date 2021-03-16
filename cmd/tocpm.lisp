@@ -6,7 +6,7 @@
 (defun conv-file (in_file)
 	(unless (eql in_file "")
 		(defq out_file (cat (slice 0 (find-rev "." in_file) in_file) ".cpm")
-			canvas (Canvas-from-file in_file +load_flag_noswap+))
+			canvas (Canvas-from-file in_file +load_flag_noswap))
 		(. canvas :save out_file format)
 		(print in_file " -> " out_file)
 		(stream-flush (io-stream 'stdout))))

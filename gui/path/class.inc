@@ -32,10 +32,8 @@
 (def-struct 'path 'fixeds)
 (def-struct-end)
 
-(def-enum '+join)
-	(enum 'miter+ 'bevel+ 'round+)
-(def-enum-end)
+(def-enum +join 0
+	(enum miter bevel round))
 
-(def-enum '+cap)
-	(enum 'butt+ 'square+ 'tri+ 'arrow+ 'round+)
-(def-enum-end)
+(def-enum +cap 0
+	(enum butt square tri arrow round))

@@ -21,7 +21,7 @@
 	(assign '((r1 array_begin)) '(r1))
 	(vp-push r0 r1 r2)
 
-	(call 'lisp :repl_eval '(r0 (r1 +ptr_size+)) '(r0 r1))
+	(call 'lisp :repl_eval '(r0 (r1 +ptr_size)) '(r0 r1))
 (errorcases
 	(assign `((r1 obj_vtable) (@ ,(f-path 'error :vtable))) '(r2 r3))
 	(gotoif '(r2 = r3) 'error1))
@@ -30,13 +30,13 @@
 	(vpif '(r1 /= r2))
 		(call 'obj :deref '(r1))
 		(vp-pop r0 r1 r2)
-		(jump 'lisp :repl_eval '(r0 (r1 (* 2 +ptr_size+))))
+		(jump 'lisp :repl_eval '(r0 (r1 (* 2 +ptr_size))))
 	(endif)
 	(assign '((rsp 0)) '(r2))
 	(vpif '(r2 = 4))
 		(call 'obj :deref '(r1))
 		(vp-pop r0 r1 r2)
-		(jump 'lisp :repl_eval '(r0 (r1 (* 3 +ptr_size+))))
+		(jump 'lisp :repl_eval '(r0 (r1 (* 3 +ptr_size))))
 	(endif)
 	(vp-pop r0 r2 r3)
 
@@ -44,7 +44,7 @@
 	(vp-ret)
 
 (vp-label 'error1)
-	(vp-free (* 3 +ptr_size+))
+	(vp-free (* 3 +ptr_size))
 	(exit 'lisp :lisp_if '(r0 r1))
 	(vp-ret)
 

@@ -187,7 +187,7 @@
 	(abi-push-trashed r1 r13 r14)
 	(vp-push r1)
 	(host-os-call 'host :write '(r0 rsp 1) '(r0))
-	(vp-free +ptr_size+)
+	(vp-free +ptr_size)
 	(abi-pop-trashed r1 r13 r14)
 	(exit 'sys_pii :write_char '(r0))
 	(vp-ret)

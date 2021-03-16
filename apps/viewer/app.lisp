@@ -4,7 +4,7 @@
 (import "gui/lisp.inc")
 (import "lib/text/syntax.inc")
 
-(structure event 0
+(structure +event 0
 	(byte close max min)
 	(byte layout scroll)
 	(byte tree tree_route))
@@ -15,18 +15,18 @@
 	text_buf nil syntax (Syntax) scroll_positions (xmap 101)
 	current_file nil current_button nil)
 
-(ui-window mywindow (:color +argb_grey2+)
-	(ui-title-bar mytitle "" (0xea19 0xea1b 0xea1a) +event_close+)
-	(ui-flow _ (:flow_flags +flow_right_fill+ :font *env_terminal_font*)
-		(ui-scroll tree_scroll +scroll_flag_vertical+ nil
-			(ui-backdrop mybackdrop (:color +argb_grey15+ :style 1)
-				(. (ui-tree tree +event_tree+
-					(:min_width 0 :color +argb_white+)) :connect +event_tree+)))
-		(ui-flow _ (:flow_flags +flow_left_fill+)
-			(. (ui-slider slider) :connect +event_scroll+)
+(ui-window mywindow (:color +argb_grey2)
+	(ui-title-bar mytitle "" (0xea19 0xea1b 0xea1a) +event_close)
+	(ui-flow _ (:flow_flags +flow_right_fill :font *env_terminal_font*)
+		(ui-scroll tree_scroll +scroll_flag_vertical nil
+			(ui-backdrop mybackdrop (:color +argb_grey15 :style 1)
+				(. (ui-tree tree +event_tree
+					(:min_width 0 :color +argb_white)) :connect +event_tree)))
+		(ui-flow _ (:flow_flags +flow_left_fill)
+			(. (ui-slider slider) :connect +event_scroll)
 			(ui-vdu vdu (:min_width vdu_width :min_height vdu_height
 				:vdu_width vdu_width :vdu_height vdu_height
-				:ink_color +argb_white+)))))
+				:ink_color +argb_white)))))
 
 (defun all-src-files (root)
 	;all source files from root downwards, none recursive
@@ -104,38 +104,38 @@
 	(bind '(w h) (. tree :pref_size))
 	(. mybackdrop :change 0 0 w h)
 	(. tree :change 0 0 (def tree_scroll :min_width w) h)
-	(bind '(x y w h) (apply view-locate (.-> mywindow (:connect +event_layout+) :pref_size)))
+	(bind '(x y w h) (apply view-locate (.-> mywindow (:connect +event_layout) :pref_size)))
 	(gui-add (. mywindow :change x y w h))
 	(. vdu :load text_buf 0 0 0 -1)
 	(while (cond
-		((= (defq id (getf (defq msg (mail-read (task-mailbox))) +ev_msg_target_id+)) +event_close+)
+		((= (defq id (getf (defq msg (mail-read (task-mailbox))) +ev_msg_target_id)) +event_close)
 			nil)
-		((= id +event_layout+)
+		((= id +event_layout)
 			;user window resize
 			(apply window-resize (. vdu :max_size)))
-		((= id +event_min+)
+		((= id +event_min)
 			;min button
 			(vdu-resize vdu_min_width vdu_min_height))
-		((= id +event_max+)
+		((= id +event_max)
 			;max button
 			(vdu-resize vdu_max_width vdu_max_height))
-		((= id +event_scroll+)
+		((= id +event_scroll)
 			;user scroll bar
 			(defq scroll_position (get :value slider))
 			(. scroll_positions :insert current_file scroll_position)
 			(. vdu :load text_buf 0 scroll_position 0 -1))
-		((= id +event_tree+)
+		((= id +event_tree)
 			;tree view mutation
 			(defq w (get :min_width tree_scroll))
 			(bind '(_ h) (. tree :pref_size))
 			(. mybackdrop :change 0 0 w h)
 			(. tree :change 0 0 w h)
 			(.-> tree_scroll :layout :dirty_all))
-		((= id +event_tree_route+)
+		((= id +event_tree_route)
 			;load up the file selected
 			(if current_button (undef (. current_button :dirty) :color))
-			(setq current_button (. mywindow :find_id (getf msg +ev_msg_action_source_id+)))
-			(def (. current_button :dirty) :color +argb_grey12+)
+			(setq current_button (. mywindow :find_id (getf msg +ev_msg_action_source_id)))
+			(def (. current_button :dirty) :color +argb_grey12)
 			(populate-vdu (. tree :get_route current_button)))
 		(t (. mywindow :event msg))))
 	(. mywindow :hide))

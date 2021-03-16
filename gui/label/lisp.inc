@@ -37,6 +37,6 @@
 		(bind '(w h) (. this :get_size))
 		(.-> (get :label_flow this) (:change border border (- w (* border 2)) (- h (* border 2))) :layout)
 		(if (= (>> (get :color this) 24) 0xff)
-			(. this :set_flags +view_flag_opaque+ +view_flag_opaque+)
+			(. this :set_flags +view_flag_opaque +view_flag_opaque)
 			this))
 	)

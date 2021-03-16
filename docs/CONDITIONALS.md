@@ -31,7 +31,7 @@ is true. Not just a single form but an implicit `(progn ...)`.
 (when (> z (const (i2n focal_len)))
 	(defq v (vec x y z) w (/ hsw z) h (/ hsh z))
 	(bind '(sx sy sz) (vec-add v (vec-scale (vec-norm
-		(vec-add v (vec-sub (elem +dlist_light_pos+ dlist) v))) r)))
+		(vec-add v (vec-sub (elem +dlist_light_pos dlist) v))) r)))
 	(defq x (+ (* x h) hsw) y (+ (* y h) hsh) r (* r h)
 		sx (+ (* sx h) hsw) sy (+ (* sy h) hsh))
 	(push out (list (vec-n2f x y z) (vec-n2f sx sy) (n2f r)
@@ -114,13 +114,13 @@ of the symbols used at the entry to the `(cond ...)` !
 
 ```vdu
 (cond
-	((= (defq id (getf msg +ev_msg_target_id+)) +event_close+)
+	((= (defq id (getf msg +ev_msg_target_id)) +event_close)
 		;close app
 		)
-	((= id +event_min+)
+	((= id +event_min)
 		;minimize app
 		)
-	((= id +event_max+)
+	((= id +event_max)
 		;maximize app
 		)
 	(t	;ui event for window....
@@ -176,9 +176,9 @@ that clause evaluates as `nil`. Therefore you can use it to execute a form only
 if all the preceding test clauses prove to be true !
 
 ```vdu
-(and (= (getf msg +ev_msg_type+) +ev_type_mouse+)
-	(/= 0 (getf msg +ev_msg_mouse_buttons+))
-	(setq mouse_down (getf msg +ev_msg_mouse_buttons+)))
+(and (= (getf msg +ev_msg_type) +ev_type_mouse)
+	(/= 0 (getf msg +ev_msg_mouse_buttons))
+	(setq mouse_down (getf msg +ev_msg_mouse_buttons)))
 ```
 
 In this example the mouse_down symbol is only set if the previous 2 clauses

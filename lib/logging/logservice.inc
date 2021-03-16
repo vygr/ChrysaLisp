@@ -10,7 +10,7 @@
 (import "lib/ipc/client_ipc.inc")
 
 (defq
-  +logging_srvc+  "LOG_SERVICE"
+  +logging_srvc  "LOG_SERVICE"
   _log_service_mb nil
   _anchor_kword   nil
   clog    nil)
@@ -25,7 +25,7 @@
     ((nil? _log_service_mb)
       (setd node (remote-node))
       (defq
-        res   (mail-enquire +logging_srvc+))
+        res   (mail-enquire +logging_srvc))
       (setq _log_service_mb
         (if (nempty? res)
             (to-net-id (second (split (first res) ",")))
@@ -84,7 +84,7 @@
   (defmethod :send_log_msg (this loglevel msg)
     (prin (apply str
            (insert
-             (push msg +nl+)
+             (push msg +nl)
              0
              (list (encode-date) " [" loglevel "] ")))))
 

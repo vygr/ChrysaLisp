@@ -5,8 +5,8 @@
 (import "lib/pathnode/pathnode.inc")
 
 (defq
-  +LOGPATH+       "/logs"
-  +LOGEXT+        ".log"
+  +LOGPATH       "/logs"
+  +LOGEXT        ".log"
   _logs_path      nil
   _log_registry   (xmap))
 
@@ -17,7 +17,7 @@
 ;     :logs   sorted list of (logname (pii-fstat array)))
 
 (when (nil? _logs_path)
-  (setq _logs_path (node-for (str (gets-enval "ROOT") +LOGPATH+))))
+  (setq _logs_path (node-for (str (gets-enval "ROOT") +LOGPATH))))
 
 (defun _prefix-filter (lprefix entry)
   ; (_prefix-filter fname-prefix value-to-check)
@@ -50,7 +50,7 @@
 (defun _genlog-name (lprefix)
   ; (_genlog-name lprefix)
   ; Generates a new log file name using timestamp
-  (str (. _logs_path :fqname lprefix) "-" (pii-time) +LOGEXT+))
+  (str (. _logs_path :fqname lprefix) "-" (pii-time) +LOGEXT))
 
 (defun _genlog-new (lprefix llist)
   ; (_genlog-new lprefix llist)
@@ -58,7 +58,7 @@
   ; its stats into list and returns stream
   (defq
     lname (_genlog-name lprefix)
-    flog  (file-stream lname +file_open_append+))
+    flog  (file-stream lname +file_open_append))
   (push llist (list lname (pii-fstat lname)))
   flog)
 
@@ -95,7 +95,7 @@
      (setq fstrm (_genlog-new lprefix logs)))
     ; Open recent
     (t
-      (setq fstrm (file-stream (first (last logs)) +file_open_append+))))
+      (setq fstrm (file-stream (first (last logs)) +file_open_append))))
 
   ; Check max files to keep
   (when (> (length logs) max_count)

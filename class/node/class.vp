@@ -16,7 +16,7 @@
 	(entry 'node :create '(r5 r6))
 
 	;create new str object
-	(call 'sys_mem :alloc '((& r1 (+ str_size +byte_size+))) '(r0 _))
+	(call 'sys_mem :alloc '((& r1 (+ str_size +byte_size))) '(r0 _))
 	(vpif '(r0 /= 0))
 		;init the object
 		(call 'node :init `(r0 (@ ,(f-path 'node :vtable)) r5 r6) '(r0 r1))

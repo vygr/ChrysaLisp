@@ -96,7 +96,7 @@
     ((and
        (eql (first (last (gets cmd :parents))) :value)
        (gets (gets cmd :in-args) :vals-to-kw)
-       (eql (first v) +kw_ind+))
+       (eql (first v) +kw_ind))
      (setq v (kw v)))
     (t
       (if (neql? (defq ch (parse-boolean v)) :nomatch)

@@ -11,9 +11,8 @@
 ; kernel mail functions
 ;;;;;;;;;;;;;;;;;;;;;;;
 
-(def-enum 'kn_call)
-	(enum 'callback 'open 'child 'ping)
-(def-enum-end)
+(def-enum kn_call 0
+	(enum callback open child ping))
 
 ;;;;;;;;;;;;;;;;;;
 ; kernel mail data

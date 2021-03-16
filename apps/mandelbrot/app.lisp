@@ -8,10 +8,10 @@
 (import "lib/task/farm.inc")
 (import "apps/mandelbrot/mbmath.inc")
 
-(structure event 0
+(structure +event 0
 	(byte close))
 
-(structure select 0
+(structure +select 0
 	(byte main task reply timer))
 
 (defq canvas_width 800 canvas_height 800 canvas_scale 2 timer_rate (/ 1000000 1) id t dirty nil
@@ -21,7 +21,7 @@
 	jobs nil farm nil)
 
 (ui-window mywindow ()
-	(ui-title-bar _ "Mandelbrot" (0xea19) +event_close+)
+	(ui-title-bar _ "Mandelbrot" (0xea19) +event_close)
 	(ui-canvas canvas canvas_width canvas_height canvas_scale))
 
 (defun tile (canvas data)
@@ -33,7 +33,7 @@
 		(while (/= (setq xp (inc xp)) x1)
 			(defq r (read-char data) r (if (= r 255) 0 r)
 				g (<< (logand r 0x7f) 9) b (<< (logand r 0x3f) 2))
-			(.-> canvas (:set_color (+ +argb_black+ (<< r 16) g b)) (:plot xp yp)))
+			(.-> canvas (:set_color (+ +argb_black (<< r 16) g b)) (:plot xp yp)))
 		(task-sleep 0))
 	(* (- x1 x) (- y1 y)))
 
@@ -48,7 +48,7 @@
 				(:insert :job job)
 				(:insert :timestamp (pii-time)))
 			(mail-send (. val :find :child)
-				(cat (char key +long_size+) (elem +select_reply+ select) job)))
+				(cat (char key +long_size) (elem +select_reply select) job)))
 		(t	;no jobs in que
 			(.-> val
 				(:erase :job)
@@ -58,7 +58,7 @@
 	; (create key val nodes)
 	;function called when entry is created
 	(open-task "apps/mandelbrot/child.lisp" (elem (random (length nodes)) nodes)
-		kn_call_child key (elem +select_task+ select)))
+		kn_call_child key (elem +select_task select)))
 
 (defun destroy (key val)
 	; (destroy key val)
@@ -70,12 +70,12 @@
 		(. val :erase :job)))
 
 (defun child-msg (&rest _)
-	(apply cat (map (# (char %0 +long_size+)) _)))
+	(apply cat (map (# (char %0 +long_size)) _)))
 
 (defun reset ()
 	(if farm (. farm :close))
-	(mail-free-mbox (elem +select_reply+ select))
-	(elem-set +select_reply+ select (mail-alloc-mbox))
+	(mail-free-mbox (elem +select_reply select))
+	(elem-set +select_reply select (mail-alloc-mbox))
 	(setq jobs (map (lambda (y) (child-msg
 				0 y (* canvas_width canvas_scale) (inc y)
 				(* canvas_width canvas_scale) (* canvas_height canvas_scale)
@@ -85,48 +85,48 @@
 
 (defun main ()
 	;add window
-	(.-> canvas (:fill +argb_black+) :swap)
+	(.-> canvas (:fill +argb_black) :swap)
 	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
 	(gui-add (. mywindow :change x y w h))
 	(reset)
-	(mail-timeout (elem +select_timer+ select) timer_rate)
+	(mail-timeout (elem +select_timer select) timer_rate)
 	(while id
 		(defq msg (mail-read (elem (defq idx (mail-select select)) select)))
 		(cond
-			((= idx +select_main+)
+			((= idx +select_main)
 				;main mailbox
 				(cond
-					((= (setq id (getf msg +ev_msg_target_id+)) +event_close+)
+					((= (setq id (getf msg +ev_msg_target_id)) +event_close)
 						;close button
 						(setq id nil))
 					((and (= id (. canvas :get_id))
-							(= (getf msg +ev_msg_type+) +ev_type_mouse+)
-							(/= (getf msg +ev_msg_mouse_buttons+) 0))
+							(= (getf msg +ev_msg_type) +ev_type_mouse)
+							(/= (getf msg +ev_msg_mouse_buttons) 0))
 						;mouse click on the canvas view, zoom in/out, re-center
 						(bind '(w h) (. canvas :get_size))
-						(defq rx (- (getf msg +ev_msg_mouse_rx+) (/ (- w canvas_width) 2))
-							ry (- (getf msg +ev_msg_mouse_ry+) (/ (- h canvas_height) 2)))
+						(defq rx (- (getf msg +ev_msg_mouse_rx) (/ (- w canvas_width) 2))
+							ry (- (getf msg +ev_msg_mouse_ry) (/ (- h canvas_height) 2)))
 						(setq center_x (+ center_x (mbfp-offset rx canvas_width zoom))
 							center_y (+ center_y (mbfp-offset ry canvas_height zoom))
-							zoom (mbfp-mul zoom (if (= 0 (logand (getf msg +ev_msg_mouse_buttons+) 2))
+							zoom (mbfp-mul zoom (if (= 0 (logand (getf msg +ev_msg_mouse_buttons) 2))
 								(mbfp-from-fixed 0.5) (mbfp-from-fixed 2.0))))
 						(reset))
 					(t (. mywindow :event msg))))
-			((= idx +select_task+)
+			((= idx +select_task)
 				;child launch responce
-				(defq key (get-long msg 0) child (get-netid msg +long_size+))
+				(defq key (get-long msg 0) child (get-netid msg +long_size))
 				(when (defq val (. farm :find key))
 					(. val :insert :child child)
 					(dispatch-job key val)))
-			((= idx +select_reply+)
+			((= idx +select_reply)
 				;child responce
-				(defq key (get-long msg (- (length msg) +long_size+)))
+				(defq key (get-long msg (- (length msg) +long_size)))
 				(when (defq val (. farm :find key))
 					(dispatch-job key val))
 				(setq dirty t)
 				(tile canvas msg))
 			(t	;timer event
-				(mail-timeout (elem +select_timer+ select) timer_rate)
+				(mail-timeout (elem +select_timer select) timer_rate)
 				(. farm :refresh retry_timeout)
 				(when dirty
 					(setq dirty nil)

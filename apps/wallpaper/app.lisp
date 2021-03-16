@@ -15,16 +15,16 @@
 (defun refresh-wallpaper ()
 	;pick nearest wallpaper to screen size
 	(bind '(w h) (. screen :get_size))
-	(defq index 0 err +max_int+ flag 0)
+	(defq index 0 err +max_int flag 0)
 	(each (lambda ((iw ih it))
 		(defq iw (- w iw) ih (- h ih) new_err (+ (* iw iw) (* ih ih)))
 		(when (< new_err err)
-			(setq err new_err index _ flag (if (= it 32) 0 +view_flag_opaque+)))) images_info)
+			(setq err new_err index _ flag (if (= it 32) 0 +view_flag_opaque)))) images_info)
 	(. wallpaper :sub)
 	(gui-add-back (.-> (setq wallpaper (Canvas w h 1))
-		(:resize (Canvas-from-file (elem index *env_wallpaper_images*) +load_flag_noswap+)) :swap
-		(:set_flags (+ (const (+ +view_flag_at_back+ +view_flag_dirty_all+)) flag)
-			(const (+ +view_flag_at_back+ +view_flag_dirty_all+ +view_flag_opaque+)))
+		(:resize (Canvas-from-file (elem index *env_wallpaper_images*) +load_flag_noswap)) :swap
+		(:set_flags (+ (const (+ +view_flag_at_back +view_flag_dirty_all)) flag)
+			(const (+ +view_flag_at_back +view_flag_dirty_all +view_flag_opaque)))
 		(:change 0 0 w h))))
 
 (defun main ()
@@ -35,10 +35,10 @@
 	(refresh-wallpaper)
 	(while t
 		(cond
-			((and (< (getf (defq msg (mail-read (task-mailbox))) +ev_msg_target_id+) 0)
-					(= (getf msg +ev_msg_type+) +ev_type_gui+))
+			((and (< (getf (defq msg (mail-read (task-mailbox))) +ev_msg_target_id) 0)
+					(= (getf msg +ev_msg_type) +ev_type_gui))
 				;resized GUI
 				(refresh-wallpaper))
-			((and (= (getf msg +ev_msg_type+) +ev_type_mouse+) (= (getf msg +ev_msg_mouse_buttons+) 0))
+			((and (= (getf msg +ev_msg_type) +ev_type_mouse) (= (getf msg +ev_msg_mouse_buttons) 0))
 				;run launcher
 				(open-child (app-path "launcher") kn_call_open)))))

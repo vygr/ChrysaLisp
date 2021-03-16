@@ -3,16 +3,16 @@
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
 
-(structure event 0
+(structure +event 0
 	(byte close max min)
 	(byte button))
 
 (ui-window mywindow ()
-	(ui-title-bar _ "Calculator" (0xea19 0xea1b 0xea1a) +event_close+)
-	(ui-label display (:text "0" :color +argb_white+ :flow_flags +flow_flag_align_hright+ :font (create-font "fonts/OpenSans-Regular.ctf" 24)))
+	(ui-title-bar _ "Calculator" (0xea19 0xea1b 0xea1a) +event_close)
+	(ui-label display (:text "0" :color +argb_white :flow_flags +flow_flag_align_hright :font (create-font "fonts/OpenSans-Regular.ctf" 24)))
 	(ui-grid _ (:grid_width 4 :grid_height 4 :color *env_toolbar_col* :font (create-font "fonts/OpenSans-Regular.ctf" 42))
 		(each (lambda (text)
-			(. (ui-button _ (:text (if (eql text "C") "AC" text))) :connect +event_button+))
+			(. (ui-button _ (:text (if (eql text "C") "AC" text))) :connect +event_button))
 			"789/456*123-0=C+")))
 
 (defun do_lastop ()
@@ -32,8 +32,8 @@
 	(gui-add (. mywindow :change x y w h))
 	(defq accum 0 value 0 num 0 lastop nil)
 	(while (cond
-		((>= (defq id (getf (defq msg (mail-read (task-mailbox))) +ev_msg_target_id+)) +event_button+)
-			(defq op (get :text (. mywindow :find_id (getf msg +ev_msg_action_source_id+))))
+		((>= (defq id (getf (defq msg (mail-read (task-mailbox))) +ev_msg_target_id)) +event_button)
+			(defq op (get :text (. mywindow :find_id (getf msg +ev_msg_action_source_id))))
 			(cond
 				((eql op "AC")
 					(setq accum 0 value 0 num 0 lastop nil))
@@ -51,14 +51,14 @@
 					(setq value num)))
 			(set display :text (str value))
 			(.-> display :layout :dirty))
-		((= id +event_close+)
+		((= id +event_close)
 			;close button
 			nil)
-		((= id +event_min+)
+		((= id +event_min)
 			;min button
 			(bind '(x y w h) (apply view-fit (cat (. mywindow :get_pos) (. mywindow :pref_size))))
 			(. mywindow :change_dirty x y w h))
-		((= id +event_max+)
+		((= id +event_max)
 			;max button
 			(bind '(x y w h) (apply view-fit (cat (. mywindow :get_pos) '(512 512))))
 			(. mywindow :change_dirty x y w h))

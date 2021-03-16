@@ -3,7 +3,7 @@
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
 
-(structure event 0
+(structure +event 0
 	(byte hvalue)
 	(byte play pause step clear)
 	(byte play_all pause_all step_all clear_all)
@@ -16,21 +16,21 @@
 	(defq select (list (task-mailbox) (mail-alloc-mbox))
 		entry (mail-declare (elem -2 select) "DEBUG_SERVICE" "Debug Service 0.4"))
 
-(structure debug_msg 0
+(structure +debug_msg 0
 	(long reply_id tcb)
 	(offset data))
 
-(structure debug_rec 0
+(structure +debug_rec 0
 	(byte buf state reply_id))
 
 (ui-window mywindow (:color 0xc0000000)
-	(ui-flow _ (:flow_flags +flow_down_fill+)
-		(ui-title-bar _ "Debug" (0xea19) +event_close+)
+	(ui-flow _ (:flow_flags +flow_down_fill)
+		(ui-title-bar _ "Debug" (0xea19) +event_close)
 		(ui-tool-bar _ ()
-			(ui-buttons (0xe95e 0xe95d 0xe95c 0xe960) +event_play+)
-			(ui-buttons (0xe95e 0xe95d 0xe95c 0xe960) +event_play_all+ (:color (const *env_toolbar2_col*))))
-		(. (ui-slider hslider (:value 0)) :connect +event_hvalue+)
-		(ui-vdu vdu (:vdu_width vdu_width :vdu_height vdu_height :ink_color +argb_yellow+))))
+			(ui-buttons (0xe95e 0xe95d 0xe95c 0xe960) +event_play)
+			(ui-buttons (0xe95e 0xe95d 0xe95c 0xe960) +event_play_all (:color (const *env_toolbar2_col*))))
+		(. (ui-slider hslider (:value 0)) :connect +event_hvalue)
+		(ui-vdu vdu (:vdu_width vdu_width :vdu_height vdu_height :ink_color +argb_yellow))))
 
 (defun vdu-print (vdu buf s)
 	(each (lambda (c)
@@ -49,17 +49,17 @@
 	(. hslider :dirty))
 
 (defun play (_)
-	(unless (elem +debug_rec_state+ _)
+	(unless (elem +debug_rec_state _)
 		(step _))
-	(elem-set +debug_rec_state+ _ t))
+	(elem-set +debug_rec_state _ t))
 
 (defun pause (_)
-	(elem-set +debug_rec_state+ _ nil))
+	(elem-set +debug_rec_state _ nil))
 
 (defun step (_)
-	(when (elem +debug_rec_reply_id+ _)
-		(mail-send (elem +debug_rec_reply_id+ _) "")
-		(elem-set +debug_rec_reply_id+ _ nil)))
+	(when (elem +debug_rec_reply_id _)
+		(mail-send (elem +debug_rec_reply_id _) "")
+		(elem-set +debug_rec_reply_id _ nil)))
 
 (defun reset (&optional _)
 	(setd _ -1)
@@ -67,7 +67,7 @@
 		(progn
 			(def hslider :value _)
 			(setq buf_index _)
-			(vdu-print vdu (elem +debug_rec_buf+ (elem buf_index buf_list)) ""))
+			(vdu-print vdu (elem +debug_rec_buf (elem buf_index buf_list)) ""))
 		(progn
 			(clear buf_list)
 			(clear buf_keys)
@@ -92,56 +92,56 @@
 		(cond
 			;new debug msg
 			((/= idx 0)
-				(defq reply_id (getf msg +debug_msg_reply_id+)
-					tcb (getf msg +debug_msg_tcb+)
-					data (slice +debug_msg_data+ -1 msg)
+				(defq reply_id (getf msg +debug_msg_reply_id)
+					tcb (getf msg +debug_msg_tcb)
+					data (slice +debug_msg_data -1 msg)
 					key (sym (str (>> reply_id 32) ":" tcb))
 					index (find-rev key buf_keys))
 				(unless index
 					(push buf_keys key)
 					(push buf_list (list (list "") nil nil))
 					(reset (setq index (dec (length buf_list)))))
-				(elem-set +debug_rec_buf+ (defq buf_rec (elem index buf_list))
-					(vdu-print (if (= index buf_index) vdu) (elem +debug_rec_buf+ buf_rec) data))
-				(if (elem +debug_rec_state+ buf_rec)
+				(elem-set +debug_rec_buf (defq buf_rec (elem index buf_list))
+					(vdu-print (if (= index buf_index) vdu) (elem +debug_rec_buf buf_rec) data))
+				(if (elem +debug_rec_state buf_rec)
 					(mail-send reply_id "")
-					(elem-set +debug_rec_reply_id+ buf_rec reply_id)))
+					(elem-set +debug_rec_reply_id buf_rec reply_id)))
 			;close ?
-			((= (setq id (getf msg +ev_msg_target_id+)) +event_close+)
+			((= (setq id (getf msg +ev_msg_target_id)) +event_close)
 				(setq id nil))
 			;moved task slider
-			((= id +event_hvalue+)
+			((= id +event_hvalue)
 				(reset (get :value hslider)))
 			;pressed play button
-			((= id +event_play+)
+			((= id +event_play)
 				(when buf_index
 					(play (elem buf_index buf_list))))
 			;pressed pause button
-			((= id +event_pause+)
+			((= id +event_pause)
 				(when buf_index
 					(pause (elem buf_index buf_list))))
 			;pressed step button
-			((= id +event_step+)
+			((= id +event_step)
 				(when buf_index
 					(step (elem buf_index buf_list))))
 			;pressed clear button
-			((= id +event_clear+)
+			((= id +event_clear)
 				(when buf_index
 					(step (elem buf_index buf_list))
 					(setq buf_keys (cat (slice 0 buf_index buf_keys) (slice (inc buf_index) -1 buf_keys)))
 					(setq buf_list (cat (slice 0 buf_index buf_list) (slice (inc buf_index) -1 buf_list)))
 					(reset (min buf_index (dec (length buf_list))))))
 			;pressed play all button
-			((= id +event_play_all+)
+			((= id +event_play_all)
 				(each play buf_list))
 			;pressed pause all button
-			((= id +event_pause_all+)
+			((= id +event_pause_all)
 				(each pause buf_list))
 			;pressed step all button
-			((= id +event_step_all+)
+			((= id +event_step_all)
 				(each step buf_list))
 			;pressed clear all button
-			((= id +event_clear_all+)
+			((= id +event_clear_all)
 				(each step buf_list)
 				(reset))
 			;otherwise

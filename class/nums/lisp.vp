@@ -36,7 +36,7 @@
 		(call 'nums :set_capacity `(,dst ,len1) `(,dst))
 		(call 'nums :set_length `(,dst ,len1) `(,dst _))
 	(else)
-		(vp-cpy-ir iter_begin (* +ptr_size+ 2) dst)
+		(vp-cpy-ir iter_begin (* +ptr_size 2) dst)
 	(errorcases
 		(assign `((,dst array_length)) `(,len2))
 		(gotoif (list len1 '/= len2) 'error))
@@ -87,7 +87,7 @@
 		(call 'nums :set_capacity `(,dst ,len1) `(,dst))
 		(call 'nums :set_length `(,dst ,len1) `(,dst _))
 	(else)
-		(vp-cpy-ir iter_begin (* +ptr_size+ 1) dst)
+		(vp-cpy-ir iter_begin (* +ptr_size 1) dst)
 	(errorcases
 		(assign `((,dst array_length)) `(,len2))
 		(gotoif (list len1 '/= len2) 'error))
@@ -307,7 +307,7 @@
 		(call 'nums :set_capacity `(,dst ,len1) `(,dst))
 		(call 'nums :set_length `(,dst ,len1) `(,dst _))
 	(else)
-		(vp-cpy-ir iter_begin (* +ptr_size+ 2) dst)
+		(vp-cpy-ir iter_begin (* +ptr_size 2) dst)
 	(errorcases
 		(assign `((,dst array_length)) `(,len2))
 		(gotoif (list len1 '/= len2) 'error))

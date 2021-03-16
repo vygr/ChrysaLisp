@@ -83,9 +83,9 @@ type-of undef weak-ref while write write-char
 ### boot.inc symbols
 
 ```vdu
-+byte_size+ +short_size+ +int_size+ +long_size+ +ptr_size+ +str_data+
-+node_id_size+ +net_id_size+ +min_long+ +max_long+ +min_int+ +max_int+
-+fp_shift+ +fp_2pi+ +fp_pi+ +fp_hpi+ +fp_rpi+ +fp_int_mask+ +fp_frac_mask+
++byte_size +short_size +int_size +long_size +ptr_size +str_data
++node_id_size +net_id_size +min_long +max_long +min_int +max_int
++fp_shift +fp_2pi +fp_pi +fp_hpi +fp_rpi +fp_int_mask +fp_frac_mask
 *debug_mode* *debug_emit* *debug_inst*
 ```
 

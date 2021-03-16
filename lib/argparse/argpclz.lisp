@@ -25,14 +25,14 @@
 
 (defun display-help (_clzi args)
   ; (display-help argclz argstring) -> nil
-  (defq +detsep+ (pad "- " 5 " "))
+  (defq +detsep (pad "- " 5 " "))
   (defun build_help (_clzi_children usage detail)
     (reduce
       (lambda (acc (_k _v))
         (defq bstr _k)
         (push detail (str
                        (pad _k 10 " ")
-                       +detsep+
+                       +detsep
                        (. _v :help)
                        " (default: " (get :default _v) ")"))
         (cond
@@ -50,8 +50,8 @@
         (. _clzi :children)
         (list "[-h]" "[-v]")
         (list
-          (str (pad "-h" 10 " ") +detsep+ "displays help and exits")
-          (str (pad "-v" 10 " ") +detsep+ "displays app version and exits"))))
+          (str (pad "-h" 10 " ") +detsep "displays help and exits")
+          (str (pad "-v" 10 " ") +detsep "displays app version and exits"))))
   (print "")
   (print "usage: " (. _clzi :unique_id) " " (join summary " "))
   (print "")

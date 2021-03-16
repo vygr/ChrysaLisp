@@ -6,17 +6,17 @@
 (defq clock_size 256 clock_scale 1)
 
 ;define events we will use
-(structure event 0
+(structure +event 0
 	(byte close))
 
 ;create a window
 (ui-window mywindow ()
-	(ui-title-bar _ "Clock" (0xea19) +event_close+)
+	(ui-title-bar _ "Clock" (0xea19) +event_close)
 	(if (eql *env_clock_analog* t)
 		(ui-canvas clock clock_size clock_size clock_scale) (defq clock nil))
 	(if (eql *env_clock_digital* t)
 		(ui-label display (:text "xxx hh:mm:ss"
-			:flow_flags (logior +flow_flag_align_hcenter+ +flow_flag_align_vcenter+)
+			:flow_flags (logior +flow_flag_align_hcenter +flow_flag_align_vcenter)
 			:font (create-font "fonts/Hack-Regular.ctf" 44)))
 		(defq display nil)))
 
@@ -31,7 +31,7 @@
 	(gui-add (. mywindow :change 0 0 w h))
 	;main app loop
 	(while (cond
-		((= (getf (defq msg (mail-read (task-mailbox))) +ev_msg_target_id+) +event_close+)
+		((= (getf (defq msg (mail-read (task-mailbox))) +ev_msg_target_id) +event_close)
 			nil)
 		(t (. mywindow :event msg))))
 	;close child and window

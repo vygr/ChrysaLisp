@@ -281,7 +281,7 @@
 	(assign {statics->statics_sys_task_task_count + 1} {statics->statics_sys_task_task_count})
 
 	;create new task control block and stack
-	(call 'sys_mem :alloc {ushort(func - ubyte(func - +byte_size+) - +short_size+) + tk_node_size} {tcb, tcb_size})
+	(call 'sys_mem :alloc {ushort(func - ubyte(func - +byte_size) - +short_size) + tk_node_size} {tcb, tcb_size})
 (errorcases
 	(call 'sys_mem :fill {tcb, tcb_size, 0}))
 
@@ -342,7 +342,7 @@
 		(vpif {*stack /= 0})
 			(abort "Stack overrun !")
 		(endif)
-		(assign {stack + +ptr_size+} {stack})
+		(assign {stack + +ptr_size} {stack})
 	(loop-end))
 
 	;free our task control block
@@ -473,7 +473,7 @@
 	(vp-push r0 r1 r2 r3 r4)
 
 	(fn-bind 'sys/statics/statics stack_top)
-	(assign `((,stack_top statics_sys_task_current_tcb) (& rsp ,(* +ptr_size+ 5))) `(,stack_top ,sptr))
+	(assign `((,stack_top statics_sys_task_current_tcb) (& rsp ,(* +ptr_size 5))) `(,stack_top ,sptr))
 	(assign `((,stack_top tk_node_stack_top)) `(,stack_top))
 	(loop-while (list sptr '< stack_top))
 		(call 'sys_load :find `((,sptr 0)) `(,node ,node_offset))
@@ -485,7 +485,7 @@
 			(call 'sys_pii :write_num `(2 ,node_offset 10))
 			(call 'sys_pii :write_str `(2 ,(cat ")" (ascii-char 10))))
 		(endif)
-		(vp-add-cr +ptr_size+ sptr)
+		(vp-add-cr +ptr_size sptr)
 	(loop-end)
 
 	(vp-pop r0 r1 r2 r3 r4)

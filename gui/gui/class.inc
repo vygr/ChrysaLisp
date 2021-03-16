@@ -28,9 +28,8 @@
 ; gui event msg data
 ;;;;;;;;;;;;;;;;;;;;
 
-(def-enum 'ev_type)
-	(enum 'mouse 'key 'action 'gui)
-(def-enum-end)
+(def-enum ev_type 0
+	(enum mouse key action gui))
 
 (def-struct 'ev_msg)
 	(ulong 'target_id 'type)

@@ -32,22 +32,22 @@
 
 (defun open-task (task node mode key_num reply)
 	; (open-task task node mode key_num reply)
-	(mail-send (cat (char 0 +long_size+) node)
-		(cat (char key_num +long_size+) reply
-			(char mode +long_size+) task (char 0))))
+	(mail-send (cat (char 0 +long_size) node)
+		(cat (char key_num +long_size) reply
+			(char mode +long_size) task (char 0))))
 
 (defun open-child (task mode)
 	; (open-child task mode) -> str
 	(defq mbox (mail-alloc-mbox))
-	(open-task task (slice +long_size+ -1 (task-mailbox)) mode 0 mbox)
-	(defq id (get-netid (mail-read mbox) +long_size+))
+	(open-task task (slice +long_size -1 (task-mailbox)) mode 0 mbox)
+	(defq id (get-netid (mail-read mbox) +long_size))
 	(mail-free-mbox mbox) id)
 
 (defun open-remote (task node mode)
 	; (open-remote task node mode) -> str
 	(defq mbox (mail-alloc-mbox))
 	(open-task task node mode 0 mbox)
-	(defq id (get-netid (mail-read mbox) +long_size+))
+	(defq id (get-netid (mail-read mbox) +long_size))
 	(mail-free-mbox mbox) id)
 
 (defun open-pipe (tasks)
@@ -55,8 +55,8 @@
 	(defq devices (mail-nodes) ids (cap (length tasks) (list))
 		mbox (mail-alloc-mbox) index -1 tail (task-mailbox))
 	(while (< (setq index (inc index)) (length tasks))
-		(open-task (elem index tasks) (slice +long_size+ -1 tail) kn_call_child 0 mbox)
-		(defq tail (get-netid (mail-read mbox) +long_size+))
+		(open-task (elem index tasks) (slice +long_size -1 tail) kn_call_child 0 mbox)
+		(defq tail (get-netid (mail-read mbox) +long_size))
 		(push ids tail))
 	(mail-free-mbox mbox) ids)
 

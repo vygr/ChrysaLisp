@@ -20,7 +20,7 @@
 ; Setup logging, service mailbox and timezones
 (defq
   tlog      (anchor-logger "tui2")
-  +banner+  "ChrysaLisp Terminal-2 0.9 (RC-1)"
+  +banner  "ChrysaLisp Terminal-2 0.9 (RC-1)"
   tmserv    (server-ipc (mail-alloc-mbox))
   tzone     nil)
 
@@ -96,13 +96,13 @@
 (defun drop-session (ic &optional args)
   ; (drop-session cmd [args]) -> map
   ; Removes the key (first arg) from the session map
-  (drop! +envcfg+ (first (split args " "))))
+  (drop! +envcfg (first (split args " "))))
 
 (defun print-session (ic &optional args)
   ; (print-session cmd [args]) -> map
   ; prints session values
   (prtnl "Session vars:")
-  (each (lambda((_k _v)) (prtnl (str " " _k " -> " _v))) (entries +envcfg+)))
+  (each (lambda((_k _v)) (prtnl (str " " _k " -> " _v))) (entries +envcfg)))
 
 (defun run-cmd (bfr)
   ; (run-cmd buffer) -> result of command
@@ -122,7 +122,7 @@
 
 (defun switch-help (ic &optional args)
   (prtnl "")
-  (prtnl +banner+)
+  (prtnl +banner)
   (prtnl "")
   (prtnl "Switches:")
   (prtnl " -h   prints this help")
@@ -241,7 +241,7 @@
   ; Load path-nodes
   (defq continue t)
   ;sign on msg
-  (prtnl +banner+)
+  (prtnl +banner)
   (log-info tlog "Started Terminal 2")
   (while continue
     (catch

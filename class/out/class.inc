@@ -27,6 +27,5 @@
 
 (defcvar 'out_ack_shift 5)
 
-(def-enum 'stream_mail_state)
-	(enum 'started 'stopping 'stopped)
-(def-enum-end)
+(def-enum stream_mail_state 0
+	(enum started stopping stopped))

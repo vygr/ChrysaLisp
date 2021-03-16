@@ -3,22 +3,22 @@
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
 
-(structure event 0
+(structure +event 0
 	(byte close max min))
 
 (ui-window mywindow ()
-	(ui-title-bar _ "Services" (0xea19 0xea1b 0xea1a) +event_close+)
-	(ui-scroll info_scroll +scroll_flag_vertical+ nil
-		(ui-flow right_flow (:flow_flags +flow_right_fill+)
-			(ui-flow service_flow (:flow_flags +flow_down_fill+)
-				(ui-label _ (:text "Service" :color +argb_white+
-					:flow_flags (logior +flow_flag_align_vcenter+ +flow_flag_align_hcenter+))))
-			(ui-flow mbox_flow (:flow_flags +flow_down_fill+)
-				(ui-label _ (:text "Mailbox" :color +argb_white+
-					:flow_flags (logior +flow_flag_align_vcenter+ +flow_flag_align_hcenter+))))
-			(ui-flow info_flow (:flow_flags +flow_down_fill+)
-				(ui-label _ (:text "Info" :color +argb_white+
-					:flow_flags (logior +flow_flag_align_vcenter+ +flow_flag_align_hcenter+)))))))
+	(ui-title-bar _ "Services" (0xea19 0xea1b 0xea1a) +event_close)
+	(ui-scroll info_scroll +scroll_flag_vertical nil
+		(ui-flow right_flow (:flow_flags +flow_right_fill)
+			(ui-flow service_flow (:flow_flags +flow_down_fill)
+				(ui-label _ (:text "Service" :color +argb_white
+					:flow_flags (logior +flow_flag_align_vcenter +flow_flag_align_hcenter))))
+			(ui-flow mbox_flow (:flow_flags +flow_down_fill)
+				(ui-label _ (:text "Mailbox" :color +argb_white
+					:flow_flags (logior +flow_flag_align_vcenter +flow_flag_align_hcenter))))
+			(ui-flow info_flow (:flow_flags +flow_down_fill)
+				(ui-label _ (:text "Info" :color +argb_white
+					:flow_flags (logior +flow_flag_align_vcenter +flow_flag_align_hcenter)))))))
 
 (defun resize (mh)
 	(bind '(w h) (. right_flow :get_size))
@@ -67,13 +67,13 @@
 		;next event
 		(while (defq idx (mail-poll select))
 			(cond
-				((= (setq id (getf (defq msg (mail-read (elem idx select))) +ev_msg_target_id+)) +event_close+)
+				((= (setq id (getf (defq msg (mail-read (elem idx select))) +ev_msg_target_id)) +event_close)
 					;close button
 					(setq id nil))
-				((= id +event_min+)
+				((= id +event_min)
 					;min button
 					(resize 256))
-				((= id +event_max+)
+				((= id +event_max)
 					;max button
 					(resize 640))
 				(t (. mywindow :event msg))))

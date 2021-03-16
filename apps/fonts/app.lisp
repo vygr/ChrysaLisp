@@ -3,7 +3,7 @@
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
 
-(structure event 0
+(structure +event 0
 	(byte close)
 	(byte prev next))
 
@@ -22,11 +22,11 @@
 		(defq s (logand s (neg grid_width)) e (align e grid_width) n (/ (- e s) grid_width))
 		(setq grid_height (+ grid_height n))
 		(each (lambda (c)
-			(def (defq c (+ s (* c grid_width)) l (Label)) :flow_flags  (const (logior +flow_flag_right+ +flow_flag_align_vcenter+))
+			(def (defq c (+ s (* c grid_width)) l (Label)) :flow_flags  (const (logior +flow_flag_right +flow_flag_align_vcenter))
 				:border 0 :font (const *env_small_terminal_font*) :text (num-to-hex-str c))
 			(. symbol_grid :add_child l)
 			(each (lambda (c)
-				(def (defq l (Label)) :border -1 :flow_flags  +flow_flag_align_hcenter+ :text (num-to-utf8 c))
+				(def (defq l (Label)) :border -1 :flow_flags  +flow_flag_align_hcenter :text (num-to-utf8 c))
 				(. symbol_grid :add_child l)) (range c (+ c grid_width)))) (range 0 n)))
 	(def symbol_grid :grid_width (inc grid_width) :grid_height grid_height
 		:color (const *env_toolbar_col*) :font font)
@@ -46,21 +46,21 @@
 (defq index 1 fonts (all-fonts "fonts/"))
 
 (ui-window mywindow ()
-	(ui-title-bar _ "Fonts" (0xea19) +event_close+)
-	(ui-tool-bar _ (:flow_flags +flow_right_fill+)
-		(ui-buttons (0xe91d 0xe91e) +event_prev+)
+	(ui-title-bar _ "Fonts" (0xea19) +event_close)
+	(ui-tool-bar _ (:flow_flags +flow_right_fill)
+		(ui-buttons (0xe91d 0xe91e) +event_prev)
 		(ui-label fontname (:font *env_window_font* :border -1)))
-	(ui-scroll symbol_scroll +scroll_flag_vertical+))
+	(ui-scroll symbol_scroll +scroll_flag_vertical))
 
 (defun main ()
 	(win-refresh index)
 	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
 	(gui-add (. mywindow :change x y w h))
 	(while (cond
-		((= (defq id (getf (defq msg (mail-read (task-mailbox))) +ev_msg_target_id+)) +event_close+)
+		((= (defq id (getf (defq msg (mail-read (task-mailbox))) +ev_msg_target_id)) +event_close)
 			;close button
 			nil)
-		((<= +event_prev+ id +event_next+)
-			(win-refresh (% (+ index (dec (* 2 (- id +event_prev+))) (length fonts)) (length fonts))))
+		((<= +event_prev id +event_next)
+			(win-refresh (% (+ index (dec (* 2 (- id +event_prev))) (length fonts)) (length fonts))))
 		(t (. mywindow :event msg))))
 	(. mywindow :hide))

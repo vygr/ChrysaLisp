@@ -106,7 +106,7 @@
 
 	(entry 'hmap :each_callback '(r0 r1 r2))
 
-	(assign '((r1 0) (r1 +ptr_size+)) '(r1 r2))
+	(assign '((r1 0) (r1 +ptr_size)) '(r1 r2))
 	(class/obj/ref r1 r3)
 	(class/obj/ref r2 r3)
 	(vp-push r1 r2)
@@ -149,7 +149,7 @@
 
 	(entry 'hset :each_callback '(r0 r1 r2))
 
-	(assign '(r0 (r1 0) (r1 +ptr_size+)) '(r6 r7 r8))
+	(assign '(r0 (r1 0) (r1 +ptr_size)) '(r6 r7 r8))
 	(call 'list :create nil '(r0))
 	(class/obj/ref r7 r1)
 	(class/obj/ref r8 r1)
@@ -187,7 +187,7 @@
 		(loop-while '(r1 /= r3))
 			(assign '((r1 0)) '(r5))
 			(breakif '(r4 = r5) 'exit)
-			(vp-add-cr (* +ptr_size+ 2) r1)
+			(vp-add-cr (* +ptr_size 2) r1)
 		(loop-end)
 		(vp-xor-rr r1 r1)
 	(else)
@@ -206,7 +206,7 @@
 				(break 'exit)
 			(endif)
 			(assign '((rsp local_iter_begin) (rsp local_iter_end)) '(r1 r2))
-			(vp-add-cr (* +ptr_size+ 2) r1)
+			(vp-add-cr (* +ptr_size 2) r1)
 		(loop-end)
 		(assign '((rsp local_this) (rsp local_bucket)) '(r0 r2))
 		(vp-xor-rr r1 r1)
@@ -248,11 +248,11 @@
 		(class/obj/ref r1 r0)
 		(class/obj/ref r2 r0)
 		(call 'list :push_back2 '((rsp local_bucket) r1 r2) '(r0 _ _ _ r4))
-		(assign '((& r4 (neg (* +ptr_size+ 2))) r0) '(r1 r2))
+		(assign '((& r4 (neg (* +ptr_size 2))) r0) '(r1 r2))
 	(else)
 		;old key
-		(assign '((rsp local_value) (r1 +ptr_size+) r1) '(r2 r0 (rsp local_iter)))
-		(assign '(r2) '((r1 +ptr_size+)))
+		(assign '((rsp local_value) (r1 +ptr_size) r1) '(r2 r0 (rsp local_iter)))
+		(assign '(r2) '((r1 +ptr_size)))
 		(class/obj/ref r2 r3)
 		(call 'obj :deref '(r0))
 		(assign '((rsp local_iter) (rsp local_bucket)) '(r1 r2))
@@ -317,8 +317,8 @@
 
 	(call 'hmap :search '(r0 r1) '(r0 r1 _))
 	(vpif '(r1 /= 0))
-		(assign '((rsp local_value) (r1 +ptr_size+)) '(r2 r0))
-		(assign '(r2) '((r1 +ptr_size+)))
+		(assign '((rsp local_value) (r1 +ptr_size)) '(r2 r0))
+		(assign '(r2) '((r1 +ptr_size)))
 		(class/obj/ref r2 r3)
 		(call 'obj :deref '(r0))
 		(assign '((rsp local_this) (rsp local_value)) '(r0 r1))
@@ -344,7 +344,7 @@
 
 	(call 'hmap :search '(r0 r1) '(r0 r1 _))
 	(vpif '(r1 /= 0))
-		(assign '((r1 +ptr_size+)) '(r1))
+		(assign '((r1 +ptr_size)) '(r1))
 		(class/obj/ref r1 r2)
 	(endif)
 
@@ -392,7 +392,7 @@
 			(assign '((rsp local_bucket) (rsp local_iter_begin) (rsp local_iter_end)) '(r2 r1 r4))
 			(class/array/get_end r2 r0 r3)
 			(gotoif '(r0 /= r4) 'erased)
-			(vp-add-cr (* +ptr_size+ 2) r1)
+			(vp-add-cr (* +ptr_size 2) r1)
 		(loop-end)
 	(else)
 		(class/array/get_both r2 r1 r0)
@@ -409,10 +409,10 @@
 				(assign '((rsp local_bucket) (rsp local_iter_begin) (rsp local_iter_end)) '(r2 r1 r4))
 				(class/array/get_end r2 r0 r3)
 				(gotoif '(r0 /= r4) 'erased1)
-				(vp-add-cr (* +ptr_size+ 2) r1)
+				(vp-add-cr (* +ptr_size 2) r1)
 			(loop-end)
 			(assign '((rsp local_iter_begin1) (rsp local_iter_end1)) '(r1 r2))
-			(vp-add-cr +ptr_size+ r1)
+			(vp-add-cr +ptr_size r1)
 		(loop-until '(r1 = r2))
 	(endif)
 

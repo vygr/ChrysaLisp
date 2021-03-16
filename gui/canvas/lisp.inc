@@ -13,7 +13,7 @@
 (ffi canvas-brighter "gui/canvas/lisp_brighter" 0)
 
 ;load flags
-(defq +load_flag_shared+ 1 +load_flag_film+ 2 +load_flag_noswap+ 4)
+(defq +load_flag_shared 1 +load_flag_film 2 +load_flag_noswap 4)
 
 (defclass Canvas-base () (View)
 	(def this :color 0)
@@ -23,7 +23,7 @@
 		(when (defq texture (get-field this (const canvas_texture) 0))
 			(bind '(tid tw th) (texture-metrics texture))
 			(bind '(w h) (. this :get_size))
-			(. this :ctx_blit tid +argb_white+ (>>> (- w tw) 1) (>>> (- h th) 1) tw th))
+			(. this :ctx_blit tid +argb_white (>>> (- w tw) 1) (>>> (- h th) 1) tw th))
 		this)
 
 	(defmethod :save (this file format)
@@ -48,11 +48,11 @@
 
 	(defmethod :set_canvas_flags (this flags)
 		; (. canvas :set_canvas_flags flags) -> canvas
-		(set-field this (const canvas_flags) (const (neg +int_size+)) flags))
+		(set-field this (const canvas_flags) (const (neg +int_size)) flags))
 
 	(defmethod :set_color (this argb)
 		; (. canvas :set_color argb) -> canvas
-		(set-field this (const canvas_color) (const (neg +int_size+)) argb))
+		(set-field this (const canvas_color) (const (neg +int_size)) argb))
 
 	(defmethod :plot (this x y)
 		; (. canvas :plot x y) -> canvas
@@ -68,10 +68,10 @@
 
 	(defmethod :pref_size (this)
 		; (. canvas :pref_size) -> (width height)
-		(defq canvas_scale (get-field this (const canvas_scale) (const (neg +int_size+)))
+		(defq canvas_scale (get-field this (const canvas_scale) (const (neg +int_size)))
 			pixmap (get-field this (const canvas_pixmap) 0))
-		(list (/ (get-field pixmap (const pixmap_width) (const (neg +int_size+))) canvas_scale)
-			(/ (get-field pixmap (const pixmap_height) (const (neg +int_size+))) canvas_scale)))
+		(list (/ (get-field pixmap (const pixmap_width) (const (neg +int_size))) canvas_scale)
+			(/ (get-field pixmap (const pixmap_height) (const (neg +int_size))) canvas_scale)))
 	)
 
 (defclass Canvas (width height scale) (Canvas-base)

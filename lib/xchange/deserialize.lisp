@@ -20,7 +20,7 @@
         "]" :lste
         " " :space
         ":" :mkey
-        +dblq+ :strng
+        +dblq :strng
         "*" :boolean))
 
 (defun set-obj-ctx! (cntxt n)
@@ -67,7 +67,7 @@
   (defq
     res (list)
     lst (last sst))
-  (while (not (eql lst +dblq+))
+  (while (not (eql lst +dblq))
     (push res (pop sst))
     (setq lst (last sst)))
   (pop sst)

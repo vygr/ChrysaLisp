@@ -8,15 +8,15 @@
 (defq
   +source-host-env+ ".hostenv"
   _envfilekey       nil
-  +envcfg+          (xmap))
+  +envcfg          (xmap))
 
 (defun __load-envcfg (filename &optional cfgmap)
   ; (__load-envcfg filename) -> nil
   ; Loads a map with key/value created from
   ; key=value
   ; etc.
-  (setd cfgmap +envcfg+)
-  (defq fs (file-stream filename +file_open_read+))
+  (setd cfgmap +envcfg)
+  (defq fs (file-stream filename +file_open_read))
   (while (defq ln (read-line fs))
     (bind '(_k _v) (split ln "="))
     (sets! cfgmap _k (if (eql _v "nil") nil _v)))
@@ -26,7 +26,7 @@
   ; (gets-enval key) -> val | nil
   ; Gets value for key from environment configuration
   ; else returns nil
-  (gets +envcfg+ key))
+  (gets +envcfg key))
 
 (defun __save-envcfg ()
   ; (__save-envcfg map filename) -> map
@@ -34,21 +34,21 @@
   ; key=value
   ; etc.
   (defq
-    fs (file-stream _envfilekey +file_open_write+))
+    fs (file-stream _envfilekey +file_open_write))
   (each (lambda ((_k _v))
-    (write-line fs (str _k "=" _v))) (entries +envcfg+))
+    (write-line fs (str _k "=" _v))) (entries +envcfg))
   (stream-flush fs))
 
 (defun exports-keyvals! (&rest kvs)
   ; (exports-keyvals k v ....) -> nil
   ; Adds or modifies values for keys and persists configuration
-  (each (lambda ((_k _v)) (sets! +envcfg+ _k _v)) (partition 2 kvs))
+  (each (lambda ((_k _v)) (sets! +envcfg _k _v)) (partition 2 kvs))
   (__save-envcfg))
 
 (defun sets-envkvs! (&rest kvs)
   ; (sets-envkvs! k v ....) -> nil
   ; Adds or modifies values for keys
-  (each (lambda ((_k _v)) (sets! +envcfg+ _k _v)) (partition 2 kvs)))
+  (each (lambda ((_k _v)) (sets! +envcfg _k _v)) (partition 2 kvs)))
 
 (defun __one_time ()
   ; (__one_time) -> nil
@@ -71,7 +71,7 @@
   ; When there is no hostenv yet for user
   (if (= (age _envfilekey) 0)
     (progn
-      (merge-into! +envcfg+ bmap)
+      (merge-into! +envcfg bmap)
       (exports-keyvals!
         "PROMPT"      ">"
         "LASTC"       nil
@@ -81,11 +81,11 @@
       ; Load the existing user .hostenv
       ; And compare for differences
       (__load-envcfg _envfilekey)
-      (if (not (eql (defq cv (gets bmap "HE_VER")) (gets +envcfg+ "HE_VER")))
-        (sets! +envcfg+ "HE_VER" cv))
+      (if (not (eql (defq cv (gets bmap "HE_VER")) (gets +envcfg "HE_VER")))
+        (sets! +envcfg "HE_VER" cv))
       (each (lambda ((_k _v))
-        (when (nil? (gets +envcfg+ _k))
-          (sets! +envcfg+ _k _v))) (entries bmap))
+        (when (nil? (gets +envcfg _k))
+          (sets! +envcfg _k _v))) (entries bmap))
       (__save-envcfg))))
 
 ; Autoload the configuration
