@@ -914,7 +914,7 @@
 
 (defmacro getf (s field)
 	; (getf str field) -> value
-	(defq type (eval (sym (cat (slice 0 -1 field) "_t"))) field (eval field))
+	(defq type (eval (sym (cat field "_t"))) field (eval field))
 	(if (> type +long_size)
 		`(slice ,field ,(+ field type) ,s)
 		`(get-field ,s ,(+ +str_data field) ,type)))
