@@ -12,10 +12,9 @@
 
 (dec-method :deinit 'class/error/deinit :final)
 
-(def-struct 'error 'obj)
-	(ptr 'description 'object 'file)
-	(uint 'msg 'line)
-(def-struct-end)
+(def-struct error obj_size
+	(ptr description object file)
+	(uint msg line))
 
 ;;;;;;;;;;;;;;;;
 ; inline methods

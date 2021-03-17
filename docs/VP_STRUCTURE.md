@@ -70,31 +70,27 @@ Field offsets are aligned to the natural alignment for that type ! The size of
 the entire structure is not aligned.
 
 ```vdu
-(def-struct 'sue)
-	(byte 'a 'b 'c)
-(def-struct-end)
+(def-struct sue 0
+	(byte a b c))
 
-(def-struct 'carl)
-	(short 'a 'b 'c)
-(def-struct-end)
+(def-struct carl 0
+	(short a b c))
 
-(def-struct 'bob)
+(def-struct bob 0
 	(union
-		(struct 'a 'sue)
-		(struct 'b 'carl))
-	(short 'c)
-	(int 'd)
-	(offset 'o)
-	(long 'e)
-	(ptr 'f)
-(def-struct-end)
+		(struct a sue_size)
+		(struct b carl_size))
+	(short c)
+	(int d)
+	(offset o)
+	(long e)
+	(ptr f))
 
-(def-struct 'mary 'bob)
-	(ushort 'a)
-	(uint 'b)
-	(pulong 'c)
-	(pptr 'd)
-(def-struct-end)
+(def-struct mary bob_size
+	(ushort a)
+	(uint b)
+	(pulong c)
+	(pptr d))
 ```
 
 The end result is a set of symbols and assigned values of:
@@ -346,10 +342,9 @@ This is an example of a 'pair class, first the `class.inc` file.
 
 (dec-method :deinit 'class/pair/deinit :final)
 
-(def-struct 'pair 'obj)
-	(ptr 'first)
-	(ptr 'second)
-(def-struct-end)
+(def-struct pair obj_size
+	(ptr first)
+	(ptr second))
 
 ;;;;;;;;;;;;;;;;;
 ; inline methods

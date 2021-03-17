@@ -6,14 +6,13 @@
 ; func structures
 ;;;;;;;;;;;;;;;;;
 
-(def-struct 'fn_header 'ln_fnode)
-	(ushort 'length)
-	(ushort 'entry)
-	(ushort 'links)
-	(ushort 'paths)
-	(ushort 'stack)
-	(offset 'pathname)
-(def-struct-end)
+(def-struct fn_header ln_fnode_size
+	(ushort length)
+	(ushort entry)
+	(ushort links)
+	(ushort paths)
+	(ushort stack)
+	(offset pathname))
 
 ;;;;;;;;;;;
 ; functions

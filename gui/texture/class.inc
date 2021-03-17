@@ -8,10 +8,9 @@
 
 (dec-method :deinit 'gui/texture/deinit :final)
 
-(def-struct 'texture 'obj)
-	(ulong 'handle)
-	(uint 'width 'height)
-(def-struct-end)
+(def-struct texture obj_size
+	(ulong handle)
+	(uint width height))
 
 ;;;;;;;;;;;;;;;;
 ; inline methods

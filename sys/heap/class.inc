@@ -16,15 +16,13 @@
 ; heap structures
 ;;;;;;;;;;;;;;;;;
 
-(def-struct 'hp_heap)
-	(ptr 'free_flist 'block_flist)
-	(uint 'cellsize 'blocksize)
-(def-struct-end)
+(def-struct hp_heap 0
+	(ptr free_flist block_flist)
+	(uint cellsize blocksize))
 
-(def-struct 'hp_block 'ln_fnode)
-	(ptr 'free_flist 'free_flist_tail)
-	(uint 'blocksize 'cellcnt)
-(def-struct-end)
+(def-struct hp_block ln_fnode_size
+	(ptr free_flist free_flist_tail)
+	(uint blocksize cellcnt))
 
 ;;;;;;;;;;;;;;;;
 ; inline methods

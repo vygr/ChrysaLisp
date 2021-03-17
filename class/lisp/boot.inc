@@ -885,7 +885,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;
 
 (defmacro structure (name base &rest lines)
-	; (structure +name base [(byte field ...)] ...)
+	; (structure name base [(byte field ...)] ...)
 	(if (get (sym (cat name "_size"))) (throw "Structure redefined !" name))
 	(defq syms (list) values (list) base (eval base))
 	(defun new_field (type size alignment)

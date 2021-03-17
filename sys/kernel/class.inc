@@ -18,26 +18,22 @@
 ; kernel mail data
 ;;;;;;;;;;;;;;;;;;
 
-(def-struct 'kn_msg)
-	(ulong 'user)
-	(struct 'reply_id 'net_id)
-	(offset 'reply_size)
-	(ulong 'func)
-(def-struct-end)
+(def-struct kn_msg 0
+	(ulong user)
+	(struct reply_id net_id_size)
+	(offset reply_size)
+	(ulong func))
 
-(def-struct 'kn_msg_callback 'kn_msg)
-	(ptr 'addr)
-(def-struct-end)
+(def-struct kn_msg_callback kn_msg_size
+	(ptr addr))
 
-(def-struct 'kn_msg_open 'kn_msg)
-	(offset 'pathname)
-(def-struct-end)
+(def-struct kn_msg_open kn_msg_size
+	(offset pathname))
 
-(def-struct 'kn_msg_ping 'kn_msg)
-	(struct 'via 'node_id)
-	(struct 'origin 'node_id)
-	(uint 'session 'hops)
-	(offset 'services)
-(def-struct-end)
+(def-struct kn_msg_ping kn_msg_size
+	(struct via node_id_size)
+	(struct origin node_id_size)
+	(uint session hops)
+	(offset services))
 
 (defcvar 'ping_period 5000000)

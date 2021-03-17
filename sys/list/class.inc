@@ -12,17 +12,14 @@
 ; list structures
 ;;;;;;;;;;;;;;;;;
 
-(def-struct 'lh_list)
-	(ptr 'head 'tail 'tailpred)
-(def-struct-end)
+(def-struct lh_list 0
+	(ptr head tail tailpred))
 
-(def-struct 'ln_node)
-	(ptr 'succ 'pred)
-(def-struct-end)
+(def-struct ln_node 0
+	(ptr succ pred))
 
-(def-struct 'ln_fnode)
-	(ptr 'next)
-(def-struct-end)
+(def-struct ln_fnode 0
+	(ptr next))
 
 ;;;;;;;;;;;;;;;;;;
 ; list node macros

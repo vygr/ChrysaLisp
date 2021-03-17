@@ -13,9 +13,8 @@
 (dec-method :deinit 'gui/vdu/deinit :final)
 (dec-method :draw 'gui/vdu/draw :final)
 
-(def-struct 'vdu 'view)
-	(ptr 'font 'textures)
-	(plong 'chars)
-	(uint 'width 'height)
-	(ushort 'char_width 'char_height)
-(def-struct-end)
+(def-struct vdu view_size
+	(ptr font textures)
+	(plong chars)
+	(uint width height)
+	(ushort char_width char_height))

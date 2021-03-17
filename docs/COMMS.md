@@ -123,10 +123,9 @@ current tasks main mailbox.
 (include "sys/func.inc")
 (include "sys/kernel/class.inc")
 
-(def-struct 'sample_reply)
-	(struct 'node_id 'node_id)
-	(uint 'task_count 'mem_used)
-(def-struct-end)
+(def-struct sample_reply 0
+	(struct node_id node_id_size)
+	(uint task_count mem_used))
 
 (def-func 'apps/netmon/child)
 	;monitor task

@@ -28,6 +28,5 @@
 (dec-method :lisp_parent 'class/hmap/lisp_parent :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_list 'class/hmap/lisp_list :static '(r0 r1) '(r0 r1))
 
-(def-struct 'hmap 'hset)
-	(ptr 'parent)
-(def-struct-end)
+(def-struct hmap hset_size
+	(ptr parent))

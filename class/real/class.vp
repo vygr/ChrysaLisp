@@ -17,9 +17,8 @@
 	;trashes
 	;r1-r14
 
-	(def-struct 'local)
-		(ptr 'this 'stream 'tmp)
-	(def-struct-end)
+	(def-struct local 0
+		(ptr this stream tmp))
 
 	(vp-alloc local_size)
 	(entry 'real :print '(r0 r1))

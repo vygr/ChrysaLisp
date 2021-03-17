@@ -26,5 +26,4 @@
 (dec-method :lisp_scale 'class/nums/lisp_scale :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_abs 'class/nums/lisp_abs :static '(r0 r1) '(r0 r1))
 
-(def-struct 'nums 'array)
-(def-struct-end)
+(def-struct nums array_size)

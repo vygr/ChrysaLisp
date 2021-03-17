@@ -11,9 +11,8 @@
 (dec-method :flush 'class/fstream/flush :final)
 (dec-method :seek 'class/fstream/seek :final)
 
-(def-struct 'fstream 'stream)
-	(long 'handle)
-	(uint 'mode 'buf_len)
-(def-struct-end)
+(def-struct fstream stream_size
+	(long handle)
+	(uint mode buf_len))
 
 (defcvar 'fstream_buf_size 4096)

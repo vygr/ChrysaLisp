@@ -163,21 +163,19 @@
 (defcvar 'SDL_PIXELFORMAT_RGBA8888 0x16462004)
 (defcvar 'SDL_PIXELFORMAT_ARGB8888 0x16362004)
 
-(def-struct 'sdl_rect)
-	(int 'x 'y 'w 'h)
-(def-struct-end)
+(def-struct sdl_rect 0
+	(int x y w h))
 
-(def-struct 'sdl_surface)
-	(int 'flags)
-	(long 'format)
-	(int 'w 'h 'pitch)
-	(long 'pixels 'userdata)
-	(int 'locked)
-	(long 'lockdata)
-	(struct 'clip 'sdl_rect)
-	(long 'map)
-	(int 'obj)
-(def-struct-end)
+(def-struct sdl_surface 0
+	(int flags)
+	(long format)
+	(int w h pitch)
+	(long pixels userdata)
+	(int locked)
+	(long lockdata)
+	(struct clip sdl_rect_size)
+	(long map)
+	(int obj))
 
 (defcvar 'SDL_RELEASED 0)
 (defcvar 'SDL_PRESSED 1)
@@ -208,49 +206,41 @@
 (defcvar 'SDL_WINDOWEVENT_TAKE_FOCUS 0xf)
 (defcvar 'SDL_WINDOWEVENT_HIT_TEST 0x10)
 
-(def-struct 'sdl_common_event)
+(def-struct sdl_common_event 0
 	;SDL_KEYDOWN, SDL_KEYUP etc
-	(uint 'type 'timestamp)
-(def-struct-end)
+	(uint type timestamp))
 
-(def-struct 'sdl_keysym)
-	(int 'scancode 'sym)
-	(ushort 'mod)
-	(uint 'unused)
-(def-struct-end)
+(def-struct sdl_keysym 0
+	(int scancode sym)
+	(ushort mod)
+	(uint unused))
 
-(def-struct 'sdl_keyboard_event)
-	(uint 'type 'timestamp 'windowid)
-	(ubyte 'state 'repeat 'padding2 'padding3)
-	(struct 'keysym 'sdl_keysym)
-(def-struct-end)
+(def-struct sdl_keyboard_event 0
+	(uint type timestamp windowid)
+	(ubyte state repeat padding2 padding3)
+	(struct keysym sdl_keysym_size))
 
-(def-struct 'sdl_mouse_motion_event)
-	(uint 'type 'timestamp 'windowid 'which 'state)
-	(int 'x 'y 'xrel 'yrel)
-(def-struct-end)
+(def-struct sdl_mouse_motion_event 0
+	(uint type timestamp windowid which state)
+	(int x y xrel yrel))
 
-(def-struct 'sdl_mouse_button_event)
-	(uint 'type 'timestamp 'windowid 'which)
-	(ubyte 'button 'state 'clicks 'padding1)
-	(int 'x 'y)
-(def-struct-end)
+(def-struct sdl_mouse_button_event 0
+	(uint type timestamp windowid which)
+	(ubyte button state clicks padding1)
+	(int x y))
 
-(def-struct 'sdl_mouse_wheel_event)
-	(uint 'type 'timestamp 'windowid 'which)
-	(int 'x 'y)
-	(uint 'direction)
-(def-struct-end)
+(def-struct sdl_mouse_wheel_event 0
+	(uint type timestamp windowid which)
+	(int x y)
+	(uint direction))
 
-(def-struct 'sdl_quit_event)
-	(uint 'type 'timestamp)
-(def-struct-end)
+(def-struct sdl_quit_event 0
+	(uint type timestamp))
 
-(def-struct 'sdl_window_event)
-	(uint 'type 'timestamp 'windowid)
-	(ubyte 'event 'padding1 'padding2 'padding3)
-	(int 'data1 'data2)
-(def-struct-end)
+(def-struct sdl_window_event 0
+	(uint type timestamp windowid)
+	(ubyte event padding1 padding2 padding3)
+	(int data1 data2))
 
 (def-class 'sys_pii)
 (dec-method :exit 'sys/pii/exit :static '(r0))

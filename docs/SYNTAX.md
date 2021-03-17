@@ -3780,7 +3780,7 @@
 
 ```lisp
 
-(structure +name base [(byte field ...)] ...)
+(structure name base [(byte field ...)] ...)
 
 ```
 

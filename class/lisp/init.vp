@@ -9,10 +9,9 @@
 (include "lib/consts/chars.inc")
 (include "sys/statics/class.inc")
 
-(def-struct 'built_in)
-	(ushort 'symbol)
-	(ushort 'field)
-(def-struct-end)
+(def-struct built_in 0
+	(ushort symbol)
+	(ushort field))
 
 (defun built-in (s f)
 	;s = symbol

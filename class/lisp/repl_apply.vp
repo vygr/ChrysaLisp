@@ -13,9 +13,8 @@
 	;trashes
 	;r1-r14
 
-	(def-struct 'local)
-		(ptr 'this 'value 'iter_begin 'iter_end)
-	(def-struct-end)
+	(def-struct local 0
+		(ptr this value iter_begin iter_end))
 
 	(entry 'lisp :repl_apply '(r0 r1 r2))
 

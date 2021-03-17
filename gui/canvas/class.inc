@@ -34,14 +34,12 @@
 (dec-method :lisp_darker 'gui/canvas/lisp_darker :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_brighter 'gui/canvas/lisp_brighter :static '(r0 r1) '(r0 r1))
 
-(def-struct 'canvas 'view)
-	(ptr 'pixmap 'edges 'texture)
-	(pptr 'edges_start)
-	(pubyte 'coverage)
-	(uint 'scale 'cx 'cy 'cx1 'cy1 'color 'flags)
-(def-struct-end)
+(def-struct canvas view_size
+	(ptr pixmap edges texture)
+	(pptr edges_start)
+	(pubyte coverage)
+	(uint scale cx cy cx1 cy1 color flags))
 
-(def-struct 'edge 'ln_fnode)
-	(int 'x 'ys 'ye 'w 'dda)
-	(local-align)
-(def-struct-end)
+(def-struct edge ln_fnode_size
+	(int x ys ye w dda)
+	(local-align))

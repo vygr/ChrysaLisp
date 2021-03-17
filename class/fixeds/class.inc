@@ -18,5 +18,4 @@
 (dec-method :lisp_frac 'class/fixeds/lisp_frac :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_floor 'class/fixeds/lisp_floor :static '(r0 r1) '(r0 r1))
 
-(def-struct 'fixeds 'nums)
-(def-struct-end)
+(def-struct fixeds nums_size)

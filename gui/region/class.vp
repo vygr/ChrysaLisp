@@ -216,10 +216,9 @@
 	;trashes
 	;r1-r14
 
-	(def-struct 'local)
-		(ptr 'slist)
-		(int 'dx 'dy)
-	(def-struct-end)
+	(def-struct local 0
+		(ptr slist)
+		(int dx dy))
 
 	;save inputs
 	(vp-alloc local_size)
@@ -802,10 +801,9 @@
 	;trashes
 	;r1-r14
 
-	(def-struct 'local)
-		(ptr 'node 'dlist)
-		(int 'dx 'dy)
-	(def-struct-end)
+	(def-struct local 0
+		(ptr node dlist)
+		(int dx dy))
 
 	;save inputs
 	(vp-alloc local_size)
@@ -1091,10 +1089,9 @@
 	;trashes
 	;r1-r14
 
-	(def-struct 'local)
-		(ptr 'dlist)
-		(int 'dx 'dy)
-	(def-struct-end)
+	(def-struct local 0
+		(ptr dlist)
+		(int dx dy))
 
 	;save inputs
 	(vp-alloc local_size)

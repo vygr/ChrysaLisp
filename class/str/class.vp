@@ -780,9 +780,8 @@
 	;trashes
 	;r1-r14
 
-	(def-struct 'local)
-		(ptr 'this 'stream)
-	(def-struct-end)
+	(def-struct local 0
+		(ptr this stream))
 
 	(vp-alloc local_size)
 	(entry 'str :print '(r0 r1))

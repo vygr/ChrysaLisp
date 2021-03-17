@@ -326,9 +326,8 @@
 		;trashes
 		;r1-r14
 
-	(def-struct 'local)
-		(ptr 'this 'func 'ctx 'pivot 'iter 'lower 'upper)
-	(def-struct-end)
+	(def-struct local 0
+		(ptr this func ctx pivot iter lower upper))
 
 	(vp-alloc local_size)
 	(entry 'array :partition '(r0 r1 r2 r3 r4))
@@ -545,10 +544,9 @@
 	;trashes
 	;r1-r14
 
-	(def-struct 'local)
-		(ptr 'this 'stream)
-		(plong 'iter_begin 'iter_end)
-	(def-struct-end)
+	(def-struct local 0
+		(ptr this stream)
+		(plong iter_begin iter_end))
 
 	(vp-alloc local_size)
 	(entry 'array :print '(r0 r1))

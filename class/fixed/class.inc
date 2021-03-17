@@ -25,5 +25,4 @@
 (dec-method :lisp_floor 'class/fixed/lisp_floor :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_recip 'class/fixed/lisp_recip :static '(r0 r1) '(r0 r1))
 
-(def-struct 'fixed 'num)
-(def-struct-end)
+(def-struct fixed num_size)

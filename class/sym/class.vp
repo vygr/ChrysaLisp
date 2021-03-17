@@ -174,10 +174,9 @@
 	;trashes
 	;r0-r14
 
-	(def-struct 'local)
-		(ptr 'this 'syms 'sym)
-		(pptr 'iter_begin 'iter_end)
-	(def-struct-end)
+	(def-struct local 0
+		(ptr this syms sym)
+		(pptr iter_begin iter_end))
 
 	(vp-alloc local_size)
 	(entry 'sym :intern_strs '(r1))

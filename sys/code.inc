@@ -321,98 +321,102 @@
 ; data structures
 ;;;;;;;;;;;;;;;;;
 
-(defcvar '*struct* nil '*struct_sp* nil)
+(defmacro def-struct (name base &rest lines)
+	; (def-struct name base [(byte field ...)] ...)
+	(unless (eql (cat name "_size") "local_size")
+		(if (def? (sym (cat name "_size")) *compile_env*) (throw "Structure redefined !" name)))
+	(defq syms (list) values (list) base (eval base))
+	(defun new_field (type size alignment)
+		(setq base (align base alignment))
+		(push syms (sym (cat name "_" field)) (sym (cat name "_" field "_t")))
+		(push values base type)
+		(setq base (+ base size)))
+	(each (lambda (line)
+		(case (elem 0 line)
+			(local-align
+				(if (> (length line) 1)
+					(setq base (align base (eval (elem 1 line))))
+					(setq base (align base +long_size))))
+			(offset
+				(push syms (sym (cat name "_" (elem 1 line))))
+				(push values base))
+			(struct
+				(push syms (sym (cat name "_" (elem 1 line))) (sym (cat name "_" (elem 1 line) "_t")))
+				(push values base nil)
+				(setq base (+ base (eval (elem 2 line)))))
+			(t
+				(each! 1 -1 (lambda (field)
+					(case (elem 0 line)
+						(byte (new_field "b" +byte_size +byte_size))
+						(short (new_field "s" +short_size +short_size))
+						(int (new_field "i" +int_size +int_size))
+						(long (new_field "l" +long_size +long_size))
+						(ubyte (new_field "B" +byte_size +byte_size))
+						(ushort (new_field "S" +short_size +short_size))
+						(uint (new_field "I" +int_size +int_size))
+						(ulong (new_field "L" +long_size +long_size))
+						(ptr (new_field "p" +ptr_size +ptr_size))
+						(pptr (new_field "pp" +ptr_size +ptr_size))
+						(pubyte (new_field "pB" +ptr_size +ptr_size))
+						(pushort (new_field "pS" +ptr_size +ptr_size))
+						(puint (new_field "pI" +ptr_size +ptr_size))
+						(pulong (new_field "pL" +ptr_size +ptr_size))
+						(pbyte (new_field "pb" +ptr_size +ptr_size))
+						(pshort (new_field "ps" +ptr_size +ptr_size))
+						(pint (new_field "pi" +ptr_size +ptr_size))
+						(plong (new_field "pl" +ptr_size +ptr_size))))
+					(list line))))) lines)
+	(push syms (sym (cat name "_size")))
+	(push values base)
+	`(eval '(bind ',syms ',values) *compile_env*))
 
 (defmacro type-sym (_)
 	`(sym (str ,_ "_t")))
 
-(defmacro struct-sym (_)
-	`(sym (cat *struct* "_" ,_)))
-
-(defun check-field (_)
-	(setq _ (struct-sym _))
-	(unless (eql *struct* 'local)
-		(and (defq d (get _)) (/= d *struct_sp*)
-			(throw "Field redefined !" _))) _)
-
 (defun local-align (&optional _)
 	(setd _ +ptr_size)
-	(if *struct*
-		(setq *struct_sp* (align *struct_sp* _))
-		(setq *sym_sp* (align *sym_sp* _))))
+	(setq *sym_sp* (align *sym_sp* _)))
 
-(defun def-struct (s &optional o)
-	(setq *struct* s *struct_sp* (if o (eval (sym (cat o "_size"))) 0)))
-
-(defun def-struct-end ()
-	(defcvar (sym (cat *struct* "_size")) *struct_sp* '*struct* nil '*struct_sp* nil))
-
-(defmacro def-type (n s y)
+(defmacro def-type (n y s)
 	`(defun ,n (&rest f)
 		(each (lambda (_)
 			(local-align ,s)
-			(cond
-				(*struct*
-					(defcvar (setq _ (check-field _)) *struct_sp* (type-sym _) ,y
-						'*struct_sp* (+ *struct_sp* ,s)))
-				(t
-					(def-sym _ 'var *sym_sp* ,y)
-					(setq *sym_sp* (+ *sym_sp* ,s))))) f)))
+			(def-sym _ 'var *sym_sp* ,y)
+			(setq *sym_sp* (+ *sym_sp* ,s))) f)))
 
-(def-type byte +byte_size "b")
-(def-type ubyte +byte_size "B")
-(def-type short +short_size "s")
-(def-type ushort +short_size "S")
-(def-type int +int_size "i")
-(def-type uint +int_size "I")
-(def-type long +long_size "l")
-(def-type ulong +long_size "L")
-(def-type ptr +ptr_size "p")
-(def-type pbyte +ptr_size "pb")
-(def-type pubyte +ptr_size "pB")
-(def-type pshort +ptr_size "ps")
-(def-type pushort +ptr_size "pS")
-(def-type pint +ptr_size "pi")
-(def-type puint +ptr_size "pI")
-(def-type plong +ptr_size "pl")
-(def-type pulong +ptr_size "pL")
-(def-type pptr +ptr_size "pp")
-
-(defun offset (_)
-	(cond
-		(*struct*
-			(defcvar (check-field _) *struct_sp*))
-		(t
-			(throw "Attempt to define offset into local stack !" _))))
+(def-type byte "b" +byte_size)
+(def-type ubyte "B" +byte_size)
+(def-type short "s" +short_size)
+(def-type ushort "S" +short_size)
+(def-type int "i" +int_size)
+(def-type uint "I" +int_size)
+(def-type long "l" +long_size)
+(def-type ulong "L" +long_size)
+(def-type ptr "p" +ptr_size)
+(def-type pbyte "pb" +ptr_size)
+(def-type pubyte "pB" +ptr_size)
+(def-type pshort "ps" +ptr_size)
+(def-type pushort "pS" +ptr_size)
+(def-type pint "pi" +ptr_size)
+(def-type puint "pI" +ptr_size)
+(def-type plong "pl" +ptr_size)
+(def-type pulong "pL" +ptr_size)
+(def-type pptr "pp" +ptr_size)
 
 (defun struct (_ s)
 	(if (sym? s) (setq s (eval (sym (cat s "_size")))))
-	(cond
-		(*struct*
-			(defcvar (setq _ (check-field _)) *struct_sp* (type-sym _) nil
-				'*struct_sp* (+ *struct_sp* s)))
-		(t
-			(def-sym _ 'var *sym_sp* 0 "")
-			(setq *sym_sp* (+ *sym_sp* s)))))
+	(def-sym _ 'var *sym_sp* 0 "")
+	(setq *sym_sp* (+ *sym_sp* s)))
 
 (defmacro union (&rest _)
 	(if (notevery list? _)
 		(throw "Union needs lists as parameters !" _))
-	(cond
-		(*struct*
-			(defq o *struct_sp* m o)
-			(each (lambda (_)
-				(setq *struct_sp* o)
-				(eval _)
-				(setq m (max m *struct_sp*))) _)
-			(setq *struct_sp* m))
-		(t
-			(defq o *sym_sp* m o)
-			(each (lambda (_)
-				(setq *sym_sp* o)
-				(eval _)
-				(setq m (max m *sym_sp*))) _)
-			(setq *sym_sp* m))))
+	(defq o *sym_sp* m o)
+	(each (lambda (_)
+		(setq *sym_sp* o)
+		(eval _)
+		(setq m (max m *sym_sp*))) _)
+	(setq *sym_sp* m))
 
 ;;;;;;;;;;;;;;;;;;;;
 ; parameter handling

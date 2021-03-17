@@ -13,11 +13,10 @@
 	;trashes
 	;r1-r14
 
-	(def-struct 'local)
-		(ptr 'this 'form 'args 'macro)
-		(pptr 'iter)
-		(uint 'start)
-	(def-struct-end)
+	(def-struct local 0
+		(ptr this form args macro)
+		(pptr iter)
+		(uint start))
 
 	(entry 'lisp :repl_expand '(r0 r1))
 

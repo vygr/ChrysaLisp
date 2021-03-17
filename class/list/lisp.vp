@@ -119,9 +119,8 @@
 	;trashes
 	;r1-r14
 
-	(def-struct 'pdata)
-		(ptr 'this 'func 'params)
-	(def-struct-end)
+	(def-struct pdata 0
+		(ptr this func params))
 
 	(ptr 'this 'func)
 	(union

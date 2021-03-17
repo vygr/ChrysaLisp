@@ -67,9 +67,8 @@
 
 (dec-method :hash 'class/num/hash :override '(r0) '(r0 r1))
 
-(def-struct 'num 'obj)
-	(long 'value)
-(def-struct-end)
+(def-struct num obj_size
+	(long value))
 
 ;;;;;;;;;;;;;;;;
 ; inline methods

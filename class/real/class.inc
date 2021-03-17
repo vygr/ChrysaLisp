@@ -27,5 +27,4 @@
 (dec-method :le 'class/real/le :override)
 (dec-method :ge 'class/real/ge :override)
 
-(def-struct 'real 'fixed)
-(def-struct-end)
+(def-struct real fixed_size)

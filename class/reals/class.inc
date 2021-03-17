@@ -18,5 +18,4 @@
 (dec-method :frac 'class/reals/frac :override)
 (dec-method :floor 'class/reals/floor :override)
 
-(def-struct 'reals 'fixeds)
-(def-struct-end)
+(def-struct reals fixeds_size)

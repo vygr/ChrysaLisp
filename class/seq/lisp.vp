@@ -135,10 +135,9 @@
 	;trashes
 	;r1-r14
 
-	(def-struct 'local)
-		(ptr 'this 'args 'value 'func 'params)
-		(int 'dir 'start 'end)
-	(def-struct-end)
+	(def-struct local 0
+		(ptr this args value func params)
+		(int dir start end))
 
 	(entry 'seq :lisp_each '(r0 r1))
 
@@ -253,10 +252,9 @@
 	;trashes
 	;r1-r14
 
-	(def-struct 'local)
-		(ptr 'this 'args 'value 'mode 'func 'params)
-		(int 'dir 'start 'end)
-	(def-struct-end)
+	(def-struct local 0
+		(ptr this args value mode func params)
+		(int dir start end))
 
 	(entry 'seq :lisp_some '(r0 r1))
 

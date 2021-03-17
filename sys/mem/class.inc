@@ -19,6 +19,5 @@
 (defq mem_cell_min_size 0x000020 mem_cell_max_size 0x4000000
 	max_cell_count (/ (* 32 1024) mem_cell_min_size))
 
-(def-struct 'sys_mem_header)
-	(ptr 'heap)
-(def-struct-end)
+(def-struct sys_mem_header 0
+	(ptr heap))

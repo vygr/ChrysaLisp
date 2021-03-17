@@ -18,10 +18,9 @@
 	;trashes
 	;r1-r14
 
-	(def-struct 'local)
-		(ptr 'this 'stream 'tmp)
-		(ulong 'value)
-	(def-struct-end)
+	(def-struct local 0
+		(ptr this stream tmp)
+		(ulong value))
 
 	(vp-alloc local_size)
 	(entry 'fixed :print '(r0 r1))

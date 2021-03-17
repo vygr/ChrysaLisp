@@ -23,10 +23,9 @@
 (dec-method :lisp_obj_ref 'class/obj/lisp_obj_ref :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_type 'class/obj/lisp_type :static '(r0 r1) '(r0 r1))
 
-(def-struct 'obj)
-	(pptr 'vtable)
-	(uint 'count)
-(def-struct-end)
+(def-struct obj 0
+	(pptr vtable)
+	(uint count))
 
 ;;;;;;;;;;;;;;;;
 ; inline methods

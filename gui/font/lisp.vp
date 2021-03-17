@@ -52,9 +52,8 @@
 	;trashes
 	;r1-r14
 
-	(def-struct 'local)
-		(ptr 'this 'info 'paths)
-	(def-struct-end)
+	(def-struct local 0
+		(ptr this info paths))
 
 	(entry 'font :lisp_glyph_paths '(r0 r1))
 
@@ -94,10 +93,9 @@
 	;trashes
 	;r1-r14
 
-	(def-struct 'local)
-		(ptr 'this 'info)
-		(uint 'w 'h)
-	(def-struct-end)
+	(def-struct local 0
+		(ptr this info)
+		(uint w h))
 
 	(entry 'font :lisp_glyph_bounds '(r0 r1))
 

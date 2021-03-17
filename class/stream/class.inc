@@ -36,10 +36,9 @@
 (dec-method :lisp_write_next 'class/stream/lisp_write_next :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_seek 'class/stream/lisp_seek :static '(r0 r1) '(r0 r1))
 
-(def-struct 'stream 'obj)
-	(ptr 'object 'buffer)
-	(pubyte 'bufp 'bufe)
-(def-struct-end)
+(def-struct stream obj_size
+	(ptr object buffer)
+	(pubyte bufp bufe))
 
 ;;;;;;;;;;;;;;;;
 ; inline methods

@@ -570,9 +570,8 @@
 	;trashes
 	;r0-r14
 
-	(def-struct 'local)
-		(ptr 'prefix 'entries)
-	(def-struct-end)
+	(def-struct local 0
+		(ptr prefix entries))
 
 	(vp-alloc local_size)
 	(entry 'sys_mail :enquire '((rsp local_prefix)))
@@ -653,9 +652,8 @@
 	;info
 	;ping services out to network
 
-	(def-struct 'cat)
-		(ptr 'entries 'lf)
-	(def-struct-end)
+	(def-struct cat 0
+		(ptr entries lf))
 
 	(ptr 'key 'bucket 'set 'msg 'data 'services 'statics)
 	(pptr 'tuple)

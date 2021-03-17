@@ -6,5 +6,4 @@
 
 (dec-method :hash 'class/node/hash :override)
 
-(def-struct 'node 'str)
-(def-struct-end)
+(def-struct node str_size)

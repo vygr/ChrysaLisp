@@ -35,9 +35,8 @@
 
 (dec-method :deinit 'gui/pixmap/deinit :override)
 
-(def-struct 'pixmap 'obj)
-	(ptr 'texture 'stream 'bufp)
-	(uint 'stream_type 'width 'height 'stride 'type)
+(def-struct pixmap obj_size
+	(ptr texture stream bufp)
+	(uint stream_type width height stride type)
 	(local-align)
-	(offset 'data)
-(def-struct-end)
+	(offset data))

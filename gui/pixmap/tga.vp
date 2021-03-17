@@ -5,19 +5,18 @@
 (include "class/array/class.inc")
 (include "lib/consts/colors.inc")
 
-(def-struct 'tga)
-	(ubyte 'imagedata)	;id field offset
-	(ubyte 'colmap)		;color map
-	(ubyte 'type)		;targa type
-	(ubyte 'a 'b)		;nint16 colmap_fei	;color map origin (non aligned !)
-	(ubyte 'c 'd)		;nint16 colmap_num	;color map number (non aligned !)
-	(ubyte 'colmap_size)	;color map size
-	(struct 'pad 4)		;padding ?
-	(ushort 'width)
-	(ushort 'height)
-	(ubyte 'depth)
-	(ubyte 'origin)
-(def-struct-end)
+(def-struct tga 0
+	(ubyte imagedata)	;id field offset
+	(ubyte colmap)		;color map
+	(ubyte type)		;targa type
+	(ubyte a b)			;nint16 colmap_fei	;color map origin (non aligned !)
+	(ubyte c d)			;nint16 colmap_num	;color map number (non aligned !)
+	(ubyte colmap_size)	;color map size
+	(struct pad 4)		;padding ?
+	(ushort width)
+	(ushort height)
+	(ubyte depth)
+	(ubyte origin))
 
 (def-method 'pixmap :info_tga)
 	;inputs
@@ -29,9 +28,8 @@
 	;trashes
 	;r0-r14
 
-	(def-struct 'local)
-		(struct 'header 'tga)
-	(def-struct-end)
+	(def-struct local 0
+		(struct header tga_size))
 
 	(vp-alloc local_size)
 	(entry 'pixmap :info_tga '(r0))

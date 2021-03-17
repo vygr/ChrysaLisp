@@ -9,5 +9,4 @@
 (dec-method :write_next 'class/sstream/write_next :final)
 (dec-method :flush 'class/sstream/flush :final)
 
-(def-struct 'sstream 'stream)
-(def-struct-end)
+(def-struct sstream stream_size)

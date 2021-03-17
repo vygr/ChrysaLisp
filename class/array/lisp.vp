@@ -94,10 +94,9 @@
 	;trashes
 	;r1-r14
 
-	(def-struct 'local)
-		(ptr 'this)
-		(pptr 'iter_begin 'iter_end)
-	(def-struct-end)
+	(def-struct local 0
+		(ptr this)
+		(pptr iter_begin iter_end))
 
 	(entry 'array :lisp_clear '(r0 r1))
 

@@ -13,6 +13,5 @@
 (dec-method :paste_region 'gui/region/paste_region :static '(r0 r1 r2 r7 r8) '(r0))
 (dec-method :remove_region 'gui/region/remove_region :static '(r0 r1 r2 r7 r8) '(r0))
 
-(def-struct 'rect 'ln_fnode)
-	(int 'x 'y 'x1 'y1)
-(def-struct-end)
+(def-struct rect ln_fnode_size
+	(int x y x1 y1))

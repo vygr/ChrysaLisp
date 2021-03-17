@@ -26,12 +26,11 @@
 	;r0 = lisp object pointer (ptr)
 	;r1 = lisp args list (ptr)
 
-	(def-struct 'local)
-		(ptr 'statics 'this)
-		(ulong 'mouse_id 'key_id)
-		(uint 'mouse_buttons)
-		(ubyte 'quit)
-	(def-struct-end)
+	(def-struct local 0
+		(ptr statics this)
+		(ulong mouse_id key_id)
+		(uint mouse_buttons)
+		(ubyte quit))
 
 	;init vars
 	(vp-alloc local_size)
@@ -353,12 +352,10 @@
 	;trashes
 	;r0-r14
 
-	(def-struct 'local)
-		(ptr 'root 'ctx_flist 'ctx_next)
-		(when (/= num_old_regions 0)
-			(ptr 'damaged_region)
-			(uint 'index))
-	(def-struct-end)
+	(def-struct local 0
+		(ptr root ctx_flist ctx_next)
+		(ptr damaged_region)
+		(uint index))
 
 	;save inputs
 	(vp-alloc local_size)
@@ -461,9 +458,8 @@
 	(vp-ret)
 
 (vp-label 'visible_down_callback)
-	(def-struct 'vis)
-		(ptr 'this 'root 'next 'region)
-	(def-struct-end)
+	(def-struct vis 0
+		(ptr this root next region))
 
 	;save inputs
 	(vp-alloc vis_size)
@@ -625,9 +621,8 @@
 	(vp-ret)
 
 (vp-label 'distribute_down_callback)
-	(def-struct 'dist)
-		(ptr 'this 'data 'next)
-	(def-struct-end)
+	(def-struct dist 0
+		(ptr this data next))
 
 	;save inputs
 	(vp-alloc dist_size)

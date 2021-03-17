@@ -5,15 +5,14 @@
 (include "class/array/class.inc")
 (include "lib/consts/colors.inc")
 
-(def-struct 'cpm)
-	(uint 'ident)		;ident '.CPM' or '.FLM'
-	(uint 'bytes)		;0 if not known, else total size
-	(uint 'version)		;version number
-	(uint 'type)		;image type
-	(uint 'width)		;image w
-	(uint 'height)		;image h
-	(uint 'trans)		;image transparent colour
-(def-struct-end)
+(def-struct cpm 0
+	(uint ident)		;ident .CPM or .FLM
+	(uint bytes)		;0 if not known, else total size
+	(uint version)		;version number
+	(uint type)			;image type
+	(uint width)		;image w
+	(uint height)		;image h
+	(uint trans))		;image transparent colour
 
 (def-method 'pixmap :info_cpm)
 	;inputs
@@ -25,9 +24,8 @@
 	;trashes
 	;r0-r14
 
-	(def-struct 'local)
-		(struct 'header 'cpm)
-	(def-struct-end)
+	(def-struct local 0
+		(struct header cpm_size))
 
 	(vp-alloc local_size)
 	(entry 'pixmap :info_cpm '(r0))

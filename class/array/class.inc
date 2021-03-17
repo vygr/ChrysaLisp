@@ -55,11 +55,10 @@
 (dec-method :lisp_pop 'class/array/lisp_pop :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_cap 'class/array/lisp_cap :static '(r0 r1) '(r0 r1))
 
-(def-struct 'array 'seq)
-	(pulong 'begin)
-	(uint 'length 'capacity)
-	(ulong 'e0 'e1 'e2 'e3)
-(def-struct-end)
+(def-struct array seq_size
+	(pulong begin)
+	(uint length capacity)
+	(ulong e0 e1 e2 e3))
 
 ;;;;;;;;;;;;;;;;
 ; inline methods

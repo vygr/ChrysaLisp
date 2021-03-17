@@ -47,31 +47,27 @@
 ; mail structures
 ;;;;;;;;;;;;;;;;;
 
-(def-struct 'node_id)
-	(ulong 'node1 'node2)
-(def-struct-end)
+(def-struct node_id 0
+	(ulong node1 node2))
 
-(def-struct 'net_id)
-	(ulong 'mbox_id)
-	(struct 'node_id 'node_id)
-(def-struct-end)
+(def-struct net_id 0
+	(ulong mbox_id)
+	(struct node_id node_id_size))
 
-(def-struct 'mbox 'ln_node)
-	(struct 'list 'lh_list)
-	(ptr 'tcb)
-	(uint 'id)
-(def-struct-end)
+(def-struct mbox ln_node_size
+	(struct list lh_list_size)
+	(ptr tcb)
+	(uint id))
 
-(def-struct 'msg 'ln_node)
-	(ulong 'timestamp)
-	(offset 'stamp_start)
-	(struct 'dest 'net_id)
-	(struct 'src 'net_id)
-	(uint 'frag_length 'frag_offset 'total_length)
+(def-struct msg ln_node_size
+	(ulong timestamp)
+	(offset stamp_start)
+	(struct dest net_id_size)
+	(struct src net_id_size)
+	(uint frag_length frag_offset total_length)
 	(local-align)
-	(offset 'stamp_end)
-	(ptr 'obj 'frag_data)
-(def-struct-end)
+	(offset stamp_end)
+	(ptr obj frag_data))
 
 ;must be power 2
 (defcvar 'num_mbox_buckets 8)

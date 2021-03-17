@@ -29,8 +29,7 @@
 (dec-method :lisp_stroke_polylines 'gui/path/lisp_stroke_polylines :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_stroke_polygons 'gui/path/lisp_stroke_polygons :static '(r0 r1) '(r0 r1))
 
-(def-struct 'path 'fixeds)
-(def-struct-end)
+(def-struct path fixeds_size)
 
 (def-enum +join 0
 	(enum miter bevel round))

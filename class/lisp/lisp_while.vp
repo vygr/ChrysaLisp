@@ -11,10 +11,9 @@
 	;trashes
 	;r1-r14
 
-	(def-struct 'local)
-		(ptr 'this)
-		(pptr 'iter_start 'iter_begin 'iter_end)
-	(def-struct-end)
+	(def-struct local 0
+		(ptr this)
+		(pptr iter_start iter_begin iter_end))
 
 	(entry 'lisp :lisp_while '(r0 r1))
 

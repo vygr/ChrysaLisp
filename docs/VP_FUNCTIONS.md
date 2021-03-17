@@ -31,14 +31,13 @@ are aligned to a +ptr_size.
 ### Header fields
 
 ```vdu
-(def-struct 'fn_header 'ln_fnode)
-	(ushort 'length)
-	(ushort 'entry)
-	(ushort 'links)
-	(ushort 'paths)
-	(ushort 'stack)
-	(offset 'pathname)
-(def-struct-end)
+(def-struct fn_header ln_fnode_size
+	(ushort length)
+	(ushort entry)
+	(ushort links)
+	(ushort paths)
+	(ushort stack)
+	(offset pathname))
 ```
 
 * ulong/ptr ln_fnode: In a bound function the address of the next function in

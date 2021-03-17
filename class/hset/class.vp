@@ -18,9 +18,8 @@
 	;trashes
 	;r1-r5
 
-	(def-struct 'local)
-		(ptr 'this)
-	(def-struct-end)
+	(def-struct local 0
+		(ptr this))
 
 	;save inputs
 	(vp-alloc local_size)
@@ -112,10 +111,9 @@
 	;trashes
 	;r1-r14
 
-	(def-struct 'local)
-		(ptr 'this 'key 'bucket)
-		(pptr 'iter_begin 'iter_end)
-	(def-struct-end)
+	(def-struct local 0
+		(ptr this key bucket)
+		(pptr iter_begin iter_end))
 
 	;save inputs
 	(vp-alloc local_size)
@@ -177,10 +175,9 @@
 		;trashes
 		;...
 
-	(def-struct 'local)
-		(ptr 'this 'predicate 'predicate_data 'bucket)
-		(pptr 'iter_begin 'iter_end 'iter_begin1 'iter_end1)
-	(def-struct-end)
+	(def-struct local 0
+		(ptr this predicate predicate_data bucket)
+		(pptr iter_begin iter_end iter_begin1 iter_end1))
 
 	;save inputs
 	(vp-alloc local_size)
@@ -240,10 +237,9 @@
 	;trashes
 	;r1-r14
 
-	(def-struct 'local)
-		(ptr 'this)
-		(uint 'length)
-	(def-struct-end)
+	(def-struct local 0
+		(ptr this)
+		(uint length))
 
 	(entry 'hset :get_bucket '(r0 r1))
 
@@ -281,9 +277,8 @@
 	;trashes
 	;r1-r14
 
-	(def-struct 'local)
-		(ptr 'this 'key)
-	(def-struct-end)
+	(def-struct local 0
+		(ptr this key))
 
 	;save inputs
 	(vp-alloc local_size)

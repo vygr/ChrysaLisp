@@ -34,11 +34,10 @@
 	;r2 = qcnt (uint)
 	;r3 = ucnt (uint)
 
-	(def-struct 'local)
-		(ptr 'this 'list)
-		(pptr 'iter 'iter_begin 'iter_end)
-		(uint 'qcnt 'ucnt)
-	(def-struct-end)
+	(def-struct local 0
+		(ptr this list)
+		(pptr iter iter_begin iter_end)
+		(uint qcnt ucnt))
 
 	(entry '(r0 r1 r2 r3))
 

@@ -73,13 +73,12 @@
 	;trashes
 	;r0-r14
 
-	(def-struct 'local)
-		(struct 'drect 'sdl_rect)
-		(struct 'srect 'sdl_rect)
-		(struct 'clip_rect 'sdl_rect)
-		(ulong 'texture)
-		(ptr 'this 'dirty_rect 'old_stack)
-	(def-struct-end)
+	(def-struct local 0
+		(struct drect sdl_rect_size)
+		(struct srect sdl_rect_size)
+		(struct clip_rect sdl_rect_size)
+		(ulong texture)
+		(ptr this dirty_rect old_stack))
 
 	(vp-cpy-rr rsp r3)
 	(vp-alloc local_size)
@@ -127,11 +126,10 @@
 	;trashes
 	;r0-r14
 
-	(def-struct 'local)
-		(struct 'drect 'sdl_rect)
-		(struct 'clip_rect 'sdl_rect)
-		(ptr 'this 'dirty_rect 'old_stack)
-	(def-struct-end)
+	(def-struct local 0
+		(struct drect sdl_rect_size)
+		(struct clip_rect sdl_rect_size)
+		(ptr this dirty_rect old_stack))
 
 	(vp-cpy-rr rsp r3)
 	(vp-alloc local_size)
@@ -167,11 +165,10 @@
 	;trashes
 	;r0-r14
 
-	(def-struct 'local)
-		(struct 'drect 'sdl_rect)
-		(struct 'clip_rect 'sdl_rect)
-		(ptr 'this 'dirty_rect 'old_stack)
-	(def-struct-end)
+	(def-struct local 0
+		(struct drect sdl_rect_size)
+		(struct clip_rect sdl_rect_size)
+		(ptr this dirty_rect old_stack))
 
 	(vp-cpy-rr rsp r3)
 	(vp-alloc local_size)
@@ -210,12 +207,11 @@
 	;trashes
 	;r0-r14
 
-	(def-struct 'local)
-		(ptr 'this)
-		(long 'flags)
-		(uint 'color)
-		(int 'depth 'x 'y 'w 'h)
-	(def-struct-end)
+	(def-struct local 0
+		(ptr this)
+		(long flags)
+		(uint color)
+		(int depth x y w h))
 
 	;save inputs
 	(vp-alloc local_size)

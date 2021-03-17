@@ -33,11 +33,10 @@
 
 (defcvar 'tk_stack_size (* 1024 4))
 
-(def-struct 'tk_node 'ln_node)
-	(ptr 'stack 'stack_top 'mbox_addr 'lisp 'tls)
-	(ulong 'time)
-	(uint 'priority 'mbox_id)
-(def-struct-end)
+(def-struct tk_node ln_node_size
+	(ptr stack stack_top mbox_addr lisp tls)
+	(ulong time)
+	(uint priority mbox_id))
 
 ;number of distinct priorities
 ;currently experimenting with

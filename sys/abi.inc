@@ -83,10 +83,9 @@
 (def-enum +mmap 0
 	(enum data exec shared none))
 
-(def-struct 'stat)
-	(long 'mtime 'fsize)
-	(ushort 'mode)
-(def-struct-end)
+(def-struct stat 0
+	(long mtime fsize)
+	(ushort mode))
 
 (defcvar 's_ifmt 0xf000)
 (defcvar 's_ifdir 0x4000)

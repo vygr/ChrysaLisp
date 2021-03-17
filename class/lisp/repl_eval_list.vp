@@ -11,10 +11,9 @@
 	;trashes
 	;r1-r14
 
-	(def-struct 'local)
-		(ptr 'this)
-		(pptr 'iter_begin 'iter_end)
-	(def-struct-end)
+	(def-struct local 0
+		(ptr this)
+		(pptr iter_begin iter_end))
 
 	(vp-alloc local_size)
 	(entry 'lisp :repl_eval_list '(r0 r1))

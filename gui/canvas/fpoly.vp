@@ -19,13 +19,12 @@
 	;trashes
 	;r1-r14
 
-	(def-struct 'local)
-		(ptr 'this)
-		(pint 'iter_edge1 'iter_edge2 'iter_begin_polygon 'iter_end_polygon)
-		(pptr 'iter_end_polygons 'iter_begin_polygons)
-		(int 'x 'y)
-		(uint 'length 'yscale)
-	(def-struct-end)
+	(def-struct local 0
+		(ptr this)
+		(pint iter_edge1 iter_edge2 iter_begin_polygon iter_end_polygon)
+		(pptr iter_end_polygons iter_begin_polygons)
+		(int x y)
+		(uint length yscale))
 
 	(vp-def (xlow iter_edge2 xhigh x y x1 x2 y1 y2 cy cy1 xs ys xe ye))
 

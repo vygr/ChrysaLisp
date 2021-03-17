@@ -23,33 +23,26 @@
 (dec-method :lisp_glyph_bounds 'gui/font/lisp_glyph_bounds :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_texture 'gui/font/lisp_texture :static '(r0 r1) '(r0 r1))
 
-(def-struct 'font 'obj)
-	(ptr 'data 'sym_map 'name 'chars)
-	(uint 'pixels)
-(def-struct-end)
+(def-struct font obj_size
+	(ptr data sym_map name chars)
+	(uint pixels))
 
-(def-struct 'font_data)
-	(int 'ascent 'descent)
-(def-struct-end)
+(def-struct font_data 0
+	(int ascent descent))
 
-(def-struct 'font_page)
-	(uint 'end 'start)
-(def-struct-end)
+(def-struct font_page 0
+	(uint end start))
 
-(def-struct 'font_path)
-	(uint 'width 'len)
-(def-struct-end)
+(def-struct font_path 0
+	(uint width len))
 
-(def-struct 'font_path_element)
-	(uint 'type)
-(def-struct-end)
+(def-struct font_path_element 0
+	(uint type))
 
-(def-struct 'font_line_element 'font_path_element)
-	(int 'x 'y)
-(def-struct-end)
+(def-struct font_line_element font_path_element_size
+	(int x y))
 
-(def-struct 'font_curve_element 'font_line_element)
-	(int 'x1 'y1 'x2 'y2)
-(def-struct-end)
+(def-struct font_curve_element font_line_element_size
+	(int x1 y1 x2 y2))
 
 (defcvar 'font_max_word_cache 1024)

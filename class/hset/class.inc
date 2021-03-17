@@ -14,7 +14,6 @@
 
 (dec-method :deinit 'class/hset/deinit :override)
 
-(def-struct 'hset 'obj)
-	(uint 'num_buckets)
-	(ptr 'buckets 'key_callback)
-(def-struct-end)
+(def-struct hset obj_size
+	(uint num_buckets)
+	(ptr buckets key_callback))

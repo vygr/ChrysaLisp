@@ -271,9 +271,8 @@
 		;trashes
 		;...
 
-	(def-struct 'local)
-		(ptr 'this 'data 'callback)
-	(def-struct-end)
+	(def-struct local 0
+		(ptr this data callback))
 
 	(vp-alloc local_size)
 	(assign '(r0 r1 r2) '((rsp local_this) (rsp local_data) (rsp local_callback)))
@@ -318,9 +317,8 @@
 		;trashes
 		;...
 
-	(def-struct 'local)
-		(ptr 'this 'data 'down 'up)
-	(def-struct-end)
+	(def-struct local 0
+		(ptr this data down up))
 
 	(vp-alloc local_size)
 	(assign '(r0 r1 r2 r3 r0) '((rsp local_this) (rsp local_data) (rsp local_down) (rsp local_up) r1))
@@ -384,9 +382,8 @@
 		;trashes
 		;...
 
-	(def-struct 'local)
-		(ptr 'this 'data 'down 'up)
-	(def-struct-end)
+	(def-struct local 0
+		(ptr this data down up))
 
 	(vp-alloc local_size)
 	(assign '(r0 r1 r2 r3 r0) '((rsp local_this) (rsp local_data) (rsp local_down) (rsp local_up) r1))
@@ -438,9 +435,8 @@
 	;trashes
 	;r1-r14
 
-	(def-struct 'local)
-		(ptr 'this 'args)
-	(def-struct-end)
+	(def-struct local 0
+		(ptr this args))
 
 	(vp-alloc local_size)
 	(entry 'view :draw '((rsp local_this)))
@@ -495,10 +491,9 @@
 	;trashes
 	;r1-r3
 
-	(def-struct 'local)
-		(ptr 'this 'view)
-		(ulong 'id)
-	(def-struct-end)
+	(def-struct local 0
+		(ptr this view)
+		(ulong id))
 
 	;save inputs
 	(vp-alloc local_size)
@@ -574,9 +569,8 @@
 	;trashes
 	;r1-r3
 
-	(def-struct 'local)
-		(ptr 'this 'hit)
-	(def-struct-end)
+	(def-struct local 0
+		(ptr this hit))
 
 	;save inputs
 	(vp-alloc local_size)

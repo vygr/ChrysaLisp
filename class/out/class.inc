@@ -13,17 +13,15 @@
 
 (dec-method :lisp_create 'class/out/lisp_create :static '(r0 r1) '(r0 r1))
 
-(def-struct 'out 'stream)
-	(struct 'id 'net_id)
-	(ptr 'ack_mbox_addr)
-	(uint 'ack_mbox_id 'ack_seqnum 'seqnum 'state)
-(def-struct-end)
+(def-struct out stream_size
+	(struct id net_id_size)
+	(ptr ack_mbox_addr)
+	(uint ack_mbox_id ack_seqnum seqnum state))
 
-(def-struct 'stream_msg)
-	(struct 'ack_id 'net_id)
-	(uint 'seqnum 'state)
-	(offset 'data)
-(def-struct-end)
+(def-struct stream_msg 0
+	(struct ack_id net_id_size)
+	(uint seqnum state)
+	(offset data))
 
 (defcvar 'out_ack_shift 5)
 

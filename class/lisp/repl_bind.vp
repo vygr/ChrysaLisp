@@ -14,11 +14,10 @@
 	;trashes
 	;r1-r14
 
-	(def-struct 'local)
-		(ptr 'this 'form)
-		(pptr 'iter_begin 'iter_end)
-		(uint 'start)
-	(def-struct-end)
+	(def-struct local 0
+		(ptr this form)
+		(pptr iter_begin iter_end)
+		(uint start))
 
 	(entry 'lisp :repl_bind '(r0 r1))
 

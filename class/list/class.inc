@@ -25,8 +25,7 @@
 (dec-method :lisp_part 'class/list/lisp_part :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_match 'class/list/lisp_match :static '(r0 r1) '(r0 r1))
 
-(def-struct 'list 'array)
-(def-struct-end)
+(def-struct list array_size)
 
 ;;;;;;;;;;;;;;;;;;;
 ; paramater helpers

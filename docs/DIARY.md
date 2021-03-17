@@ -142,11 +142,10 @@ report me in your "hash code I have written" blog :)
 Here we see the field defined in the `str` instance.
 
 ```vdu
-(def-struct 'str 'seq)
-	(uint 'length 'hashcode)
+(def-struct str seq_size
+	(uint length hashcode)
 	(local-align)
-	(offset 'data)
-(def-struct-end)
+	(offset data))
 ```
 
 ## Lisp level binding

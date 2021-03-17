@@ -12,8 +12,7 @@
 (dec-method :lisp_create 'class/in/lisp_create :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_next_msg 'class/in/lisp_next_msg :static '(r0 r1) '(r0 r1))
 
-(def-struct 'in 'stream)
-	(struct 'list 'lh_list)
-	(ptr 'mbox_addr)
-	(uint 'mbox_oid 'mbox_id 'ack_seqnum 'seqnum 'state)
-(def-struct-end)
+(def-struct in stream_size
+	(struct list lh_list_size)
+	(ptr mbox_addr)
+	(uint mbox_oid mbox_id ack_seqnum seqnum state))

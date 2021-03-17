@@ -20,5 +20,4 @@
 (dec-method :lisp_each 'class/seq/lisp_each :static '(r0 r1) '(r0 r1))
 (dec-method :lisp_some 'class/seq/lisp_some :static '(r0 r1) '(r0 r1))
 
-(def-struct 'seq 'obj)
-(def-struct-end)
+(def-struct seq obj_size)

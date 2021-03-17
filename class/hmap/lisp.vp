@@ -6,10 +6,9 @@
 (include "lib/consts/chars.inc")
 
 (defun defset (_ p)
-	(def-struct 'local)
-		(ptr 'this 'args 'env)
-		(pptr 'iter_begin 'iter_end)
-	(def-struct-end)
+	(def-struct local 0
+		(ptr this args env)
+		(pptr iter_begin iter_end))
 	(vp-alloc local_size)
 	(entry 'hmap _ '(r0 r1))
 	(assign '(r0 r1) '((rsp local_this) (rsp local_args)))
@@ -114,10 +113,9 @@
 (def-func-end)
 
 (defun defsetq (_ p)
-	(def-struct 'local)
-		(ptr 'this 'args 'val)
-		(pptr 'iter_begin 'iter_end)
-	(def-struct-end)
+	(def-struct local 0
+		(ptr this args val)
+		(pptr iter_begin iter_end))
 	(vp-alloc local_size)
 	(entry 'hmap _ '(r0 r1))
 	(assign '(r0 r1) '((rsp local_this) (rsp local_args)))
@@ -408,10 +406,9 @@
 	;trashes
 	;r1-r14
 
-	(def-struct 'local)
-		(ptr 'this 'args 'env)
-		(pptr 'iter_begin 'iter_end)
-	(def-struct-end)
+	(def-struct local 0
+		(ptr this args env)
+		(pptr iter_begin iter_end))
 
 	(vp-alloc local_size)
 	(entry 'hmap :lisp_undef '(r0 r1))

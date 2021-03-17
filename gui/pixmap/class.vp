@@ -118,11 +118,10 @@
 	;trashes
 	;r0-r14
 
-	(def-struct 'local)
-		(ptr 'name 'stream)
-		(int 'w 'h)
-		(uint 'type)
-	(def-struct-end)
+	(def-struct local 0
+		(ptr name stream)
+		(int w h)
+		(uint type))
 
 	(vp-alloc local_size)
 	(entry 'pixmap :info '(r0))

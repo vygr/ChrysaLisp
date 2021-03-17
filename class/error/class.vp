@@ -21,9 +21,8 @@
 	;trashes
 	;r1-r6
 
-	(def-struct 'local)
-		(ptr 'this)
-	(def-struct-end)
+	(def-struct local 0
+		(ptr this))
 
 	;save inputs
 	(vp-alloc local_size)

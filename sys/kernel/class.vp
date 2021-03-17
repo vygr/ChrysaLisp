@@ -477,10 +477,9 @@
 (def-method 'sys_kernel :ping)
 	;started by kernel at boot
 
-	(def-struct 'local)
-		(struct 'node_id 'node_id)
-		(ulong 'now)
-	(def-struct-end)
+	(def-struct local 0
+		(struct node_id node_id_size)
+		(ulong now))
 
 	(vp-alloc local_size)
 
@@ -524,10 +523,9 @@
 	;r1 = element iterator (pptr)
 	;r2 = bucket list pointer (ptr)
 
-	(def-struct 'local)
-		(ptr 'bucket)
-		(pptr 'iter)
-	(def-struct-end)
+	(def-struct local 0
+		(ptr bucket)
+		(pptr iter))
 
 	(vp-def (data iter bucket key tuple kid1 kid2 did1 did2))
 
@@ -560,10 +558,9 @@
 	;r0 = mail list (ptr)
 	;r1 = now (ulong)
 
-	(def-struct 'local)
-		(ptr 'next)
-		(ulong 'now)
-	(def-struct-end)
+	(def-struct local 0
+		(ptr next)
+		(ulong now))
 
 	(vp-def (time now node next))
 

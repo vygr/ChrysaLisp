@@ -16,9 +16,8 @@
 	;trashes
 	;r1-r14
 
-	(def-struct 'local)
-		(ptr 'this 'vtable 'path 'buf)
-	(def-struct-end)
+	(def-struct local 0
+		(ptr this vtable path buf))
 
 	(vp-alloc local_size)
 	(entry 'fstream :init '((rsp local_this) (rsp local_vtable) (rsp local_path) (r0 fstream_mode)))
@@ -181,11 +180,10 @@
 	;trashes
 	;r1-r14
 
-	(def-struct 'local)
-		(ptr 'this)
-		(long 'off)
-		(uint 'pos)
-	(def-struct-end)
+	(def-struct local 0
+		(ptr this)
+		(long off)
+		(uint pos))
 
 	(vp-alloc local_size)
 	(entry 'fstream :seek '(r0 (rsp local_off) (rsp local_pos)))
