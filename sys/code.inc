@@ -239,6 +239,10 @@
 
 (defcvar '*sym_sp* 0 '*syms* (list))
 
+(defmacro local-align (&optional _)
+	(setd _ +ptr_size)
+	`(setq *sym_sp* (align *sym_sp* ,_)))
+
 (defmacro new-scope ()
 	'(push *syms* (list 0 (list) (list))))
 
@@ -319,10 +323,6 @@
 
 (defmacro type-sym (_)
 	`(sym (str ,_ "_t")))
-
-(defmacro local-align (&optional _)
-	(setd _ +ptr_size)
-	`(setq *sym_sp* (align *sym_sp* ,_)))
 
 (defmacro struct (_ s)
 	`(progn

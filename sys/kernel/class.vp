@@ -34,12 +34,6 @@
 	(ulong time)
 	(uint best_cnt)
 
-	(ptr session set)
-	(long hops)
-	(union
-		(ptr bucket new_key)
-		(ptr services entries))
-
 	(push-scope)
 	(entry {argv})
 
@@ -131,6 +125,13 @@
 				(break)
 			(vpcase '(r0 = kn_call_ping))
 				;new services/routing ping
+				(ptr session set)
+				(long hops)
+				(union
+					(ptr bucket new_key)
+					(ptr services entries))
+				(push-scope)
+
 				;timestamp
 				(call 'sys_pii :time nil '{time})
 
@@ -198,6 +199,7 @@
 					(call 'list :destroy {entries})
 				(endswitch)
 			(vp-label 'drop_msg)
+				(pop-scope)
 				(call 'sys_mail :free {msg})
 				(break)
 			(vpcase '(r0 = kn_call_callback))
