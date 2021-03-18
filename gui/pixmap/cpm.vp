@@ -63,7 +63,7 @@
 	(ptr 'this 'stream)
 	(puint 'data 'data_end)
 	(ulong 'bit_pool)
-	(struct 'header 'cpm)
+	(struct 'header cpm_size)
 	(int 'length 'bit_pool_size 'bits)
 	(ulong 'col)
 
@@ -168,7 +168,7 @@
 	(ptr 'this 'stream)
 	(puint 'data 'data1 'data2)
 	(ulong 'bit_pool)
-	(struct 'header 'cpm)
+	(struct 'header cpm_size)
 	(int 'bit_pool_size)
 	(uint 'format 'bits 'i 'j 'state 'len 'col 'next_col)
 

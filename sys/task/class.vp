@@ -37,7 +37,7 @@
 	(endif)
 
 	(ptr 'usr 'addr 'msg 'data 'mbox_addr)
-	(struct 'node_id 'node_id)
+	(struct 'node_id node_id_size)
 	(uint 'mbox_id)
 
 	(push-scope)
@@ -418,7 +418,7 @@
 
 	(ptr 'name 'msg 'data 'mailbox)
 	(uint 'type 'mbox_id 'len)
-	(struct 'id 'net_id)
+	(struct 'id net_id_size)
 
 	;save task info
 	(push-scope)

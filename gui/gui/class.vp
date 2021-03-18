@@ -73,7 +73,7 @@
 	;r0 = user data
 
 	(ptr 'user 'msg 'data 'view 'old_stack)
-	(struct 'owner_id 'net_id)
+	(struct 'owner_id net_id_size)
 	(int 'flag)
 	(struct 'event 256)
 
@@ -284,7 +284,7 @@
 (vp-label 'send_gui_event)
 	;send gui event
 	(ptr 'this 'user 'msg 'data)
-	(struct 'owner_id 'net_id)
+	(struct 'owner_id net_id_size)
 
 	(push-scope)
 	(entry {this, user})

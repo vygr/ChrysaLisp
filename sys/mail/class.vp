@@ -657,7 +657,7 @@
 
 	(ptr 'key 'bucket 'set 'msg 'data 'services 'statics)
 	(pptr 'tuple)
-	(struct 'cat 'cat)
+	(struct 'cat cat_size)
 
 	(push-scope)
 

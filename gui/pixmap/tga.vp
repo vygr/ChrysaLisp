@@ -68,7 +68,7 @@
 	(ptr 'this 'stream)
 	(puint 'data 'data_end)
 	(ulong 'bit_pool)
-	(struct 'header 'tga)
+	(struct 'header tga_size)
 	(int 'length 'bit_pool_size)
 	(ulong 'col)
 

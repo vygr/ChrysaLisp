@@ -384,6 +384,14 @@
 			(def-sym _ 'var *sym_sp* ,y)
 			(setq *sym_sp* (+ *sym_sp* ,s))) f)))
 
+(defmacro def-type1 (cmd type size)
+	`(defmacro ,cmd (&rest fields)
+		(each (lambda (_)
+			(local-align ,size)
+			(def-sym (eval _) 'var *sym_sp* ,type)
+			(setq *sym_sp* (+ *sym_sp* ,size))) fields)
+		nil))
+
 (def-type byte "b" +byte_size)
 (def-type ubyte "B" +byte_size)
 (def-type short "s" +short_size)
@@ -404,7 +412,6 @@
 (def-type pptr "pp" +ptr_size)
 
 (defun struct (_ s)
-	(if (sym? s) (setq s (eval (sym (cat s "_size")))))
 	(def-sym _ 'var *sym_sp* 0 "")
 	(setq *sym_sp* (+ *sym_sp* s)))
 

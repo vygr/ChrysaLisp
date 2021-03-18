@@ -29,8 +29,8 @@
 		(ptr 'link))
 	(ptr 'statics 'mbox_addr 'msg 'data 'tuple 'key)
 	(pptr 'iter_begin 'iter_end)
-	(struct 'best_id 'node_id)
-	(struct 'node_id 'node_id)
+	(struct 'best_id node_id_size)
+	(struct 'node_id node_id_size)
 	(ulong 'time)
 	(uint 'best_cnt)
 
@@ -364,7 +364,7 @@
 	;r0-r14
 
 	(ptr 'arg 'func 'msg)
-	(struct 'id 'net_id)
+	(struct 'id net_id_size)
 	(uint 'length)
 
 	(push-scope)

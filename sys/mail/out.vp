@@ -9,7 +9,7 @@
 	;parcels going off chip or junk mail task
 
 	(ptr 'msg 'data 'frag 'statics)
-	(struct 'node_id 'node_id)
+	(struct 'node_id node_id_size)
 	(ulong 'time)
 	(uint 'offset 'ammount 'len)
 
