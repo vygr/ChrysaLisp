@@ -50,7 +50,7 @@
 			(def keywords k (get :ink_keyword4 this)))
 		'(t nil &rest &optional
 			r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 rsp
-			byte ubyte short ushort int uint long ulong ptr
+			byte ubyte short ushort int uint long ulong ptr union struct
 			pbyte pubyte pshort pushort pint puint plong pulong pptr
 			nodeid netid offset))
 

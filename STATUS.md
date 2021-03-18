@@ -24,6 +24,9 @@ correct accessor.
 No longer enforce constant format on structure member symbols. Standardize on
 trailing "_t" for type symbols.
 
+`(def-struct)`, `(def-enum)` and `(def-bit)` now implemented as macros. Deleted
+`(def-struct-end)`, `(def-enum-end)` and `(def-bit-end)`.
+
 ------
 
 Host main.cpp pii_sleep function now standardized on usec for time interval
