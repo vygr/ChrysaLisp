@@ -19,10 +19,11 @@
 	;trashes
 	;r1-r14
 
-	(ptr this args msg data)
-	(union
-		(ptr vtable)
-		(ulong ok))
+	(def-vars
+		(ptr this args msg data)
+		(union
+			(ptr vtable)
+			(ulong ok)))
 
 	;read init args
 	(push-scope)

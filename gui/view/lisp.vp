@@ -551,9 +551,10 @@
 	;trashes
 	;r1-r14
 
-	(ptr this args msg data)
-	(plong iter_begin iter_end)
-	(struct owner_id net_id_size)
+	(def-vars
+		(ptr this args msg data)
+		(plong iter_begin iter_end)
+		(struct owner_id net_id_size))
 
 	(push-scope)
 	(entry 'view :lisp_emit {this, args})

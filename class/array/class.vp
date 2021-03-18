@@ -383,14 +383,15 @@
 		;trashes
 		;r1-r14
 
-	(ptr this func ctx stack)
-	(pptr pivot iter_begin)
-	(union
-		(uint low high)
-		(ulong interval))
-	(union
-		(pptr lower upper)
-		(uint start length))
+	(def-vars
+		(ptr this func ctx stack)
+		(pptr pivot iter_begin)
+		(union
+			(uint low high)
+			(ulong interval))
+		(union
+			(pptr lower upper)
+			(uint start length)))
 
 	(push-scope)
 	(entry 'array :sort {this, stack, lower, upper, func, ctx})

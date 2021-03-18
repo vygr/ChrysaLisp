@@ -13,7 +13,8 @@
 	;inputs
 	;msg of lisp filename
 
-	(ptr script stream lisp file value args)
+	(def-vars
+		(ptr script stream lisp file value args))
 
 	;init app vars
 	(push-scope)

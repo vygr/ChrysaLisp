@@ -9,8 +9,9 @@
 	;trashes
 	;r1-r14
 
-	(ptr this)
-	(pptr iter)
+	(def-vars
+		(ptr this)
+		(pptr iter))
 
 	(push-scope)
 	(entry 'lisp :deinit {this})

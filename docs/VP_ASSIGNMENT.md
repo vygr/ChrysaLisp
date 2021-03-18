@@ -136,25 +136,27 @@ the same as Lisp level symbols, they are managed by a few scope creation and
 variable declaration functions.
 
 ```vdu
-	(byte x y ...)
-	(ubyte x y ...)
-	(short x y ...)
-	(ushort x y ...)
-	(int x y ...)
-	(uint x y ...)
-	(long x y ...)
-	(ulong x y ...)
-	(ptr this that ...)
-	(pptr p_this p_that ...)
-	(pbyte p_x p_y ...)
-	(pubyte p_x p_y ...)
-	(pshort p_x p_y ...)
-	(pushort p_x p_y ...)
-	(pint p_x p_y ...)
-	(puint p_x p_y ...)
-	(plong p_x p_y ...)
-	(pulong p_x p_y ...)
-	(union (...) (...) ...)
+	(def-vars
+		(byte x y ...)
+		(ubyte x y ...)
+		(short x y ...)
+		(ushort x y ...)
+		(int x y ...)
+		(uint x y ...)
+		(long x y ...)
+		(ulong x y ...)
+		(ptr this that ...)
+		(pptr p_this p_that ...)
+		(pbyte p_x p_y ...)
+		(pubyte p_x p_y ...)
+		(pshort p_x p_y ...)
+		(pushort p_x p_y ...)
+		(pint p_x p_y ...)
+		(puint p_x p_y ...)
+		(plong p_x p_y ...)
+		(pulong p_x p_y ...)
+		(union (...) (...) ...)
+		...)
 ```
 
 After declaring the variables and their types, you follow this with a
@@ -203,8 +205,9 @@ Implementation of the function is defined in the `sys/mail/class.vp` file.
 	;trashes
 	;r0-r14
 
-	(ptr statics name)
-	(ulong id)
+	(def-vars
+		(ptr statics name)
+		(ulong id))
 
 	(push-scope)
 	(entry 'sys_mail :declare {name, id})

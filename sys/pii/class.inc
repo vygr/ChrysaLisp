@@ -280,7 +280,8 @@
 ;debug helpers
 (defun debug-num (s n)
 	(when (> *debug_mode* 0)
-		(ptr _a _b _c)
+		(def-vars
+			(ptr _a _b _c))
 		(push-scope)
 		(assign '(r0 r1 r2) {_a, _b, _c})
 		(fn-string (cat s ": ") r1)
@@ -294,7 +295,8 @@
 
 (defun debug-str (s)
 	(when (> *debug_mode* 0)
-		(ptr _a _b)
+		(def-vars
+			(ptr _a _b))
 		(push-scope)
 		(assign '(r0 r1) {_a, _b})
 		(assign s '(r1))

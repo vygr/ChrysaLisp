@@ -13,13 +13,14 @@
 	;trashes
 	;r1-r14
 
-	(ptr this that stack)
-	(union
-		(ulong span rspan)
-		(uint first last index rlast))
-	(int p1x p1y p2x p2y p3x p3y)
-	(uint start length)
-	(int eps max dist)
+	(def-vars
+		(ptr this that stack)
+		(union
+			(ulong span rspan)
+			(uint first last index rlast))
+		(int p1x p1y p2x p2y p3x p3y)
+		(uint start length)
+		(int eps max dist))
 
 	(push-scope)
 	(entry 'path :simplify {this, that, stack, eps})

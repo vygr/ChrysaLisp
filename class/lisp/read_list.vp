@@ -16,8 +16,9 @@
 	;trashes
 	;r1-r14
 
-	(ptr this stream list ast)
-	(int char)
+	(def-vars
+		(ptr this stream list ast)
+		(int char))
 
 	(push-scope)
 	(entry 'lisp :read_list {this, stream, char})

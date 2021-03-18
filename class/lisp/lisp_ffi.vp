@@ -15,8 +15,9 @@
 	;trashes
 	;r1-r14
 
-	(ptr this value args)
-	(pptr iter_begin)
+	(def-vars
+		(ptr this value args)
+		(pptr iter_begin))
 
 	(push-scope)
 	(entry 'lisp :lisp_ffi {this, args})

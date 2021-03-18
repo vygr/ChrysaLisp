@@ -65,12 +65,13 @@
 	;trashes
 	;r0-r14
 
-	(ptr this stream)
-	(puint data data_end)
-	(ulong bit_pool)
-	(struct header tga_size)
-	(int length bit_pool_size)
-	(ulong col)
+	(def-vars
+		(ptr this stream)
+		(puint data data_end)
+		(ulong bit_pool)
+		(struct header tga_size)
+		(int length bit_pool_size)
+		(ulong col))
 
 	;save inputs
 	(push-scope)

@@ -8,11 +8,12 @@
 (def-method 'sys_link :usb_link)
 	;started by kernel for each usb link
 
-	(struct lk_node lk_node_size)
-	(ptr statics params msg data mem)
-	(pubyte pdata)
-	(struct node_id node_id_size)
-	(int idx running)
+	(def-vars
+		(struct lk_node lk_node_size)
+		(ptr statics params msg data mem)
+		(pubyte pdata)
+		(struct node_id node_id_size)
+		(int idx running))
 
 	(push-scope)
 
@@ -85,11 +86,12 @@
 (def-method 'sys_link :link)
 	;started by kernel for each link
 
-	(struct lk_node lk_node_size)
-	(ptr statics params msg data mem)
-	(pubyte pdata)
-	(long handle)
-	(struct node_id node_id_size)
+	(def-vars
+		(struct lk_node lk_node_size)
+		(ptr statics params msg data mem)
+		(pubyte pdata)
+		(long handle)
+		(struct node_id node_id_size))
 
 	(push-scope)
 
@@ -158,8 +160,9 @@
 
 (def-method 'sys_link :out)
 
-	(ptr statics lk_node msg data tx tx_msg key)
-	(struct node_id node_id_size)
+	(def-vars
+		(ptr statics lk_node msg data tx tx_msg key)
+		(struct node_id node_id_size))
 
 	(push-scope)
 
@@ -245,8 +248,9 @@
 
 (def-method 'sys_link :in)
 
-	(ptr lk_node msg data rx rx_msg)
-	(struct node_id node_id_size)
+	(def-vars
+		(ptr lk_node msg data rx rx_msg)
+		(struct node_id node_id_size))
 
 	(push-scope)
 

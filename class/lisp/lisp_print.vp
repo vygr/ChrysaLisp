@@ -14,7 +14,8 @@
 	;trashes
 	;r1-r14
 
-	(ptr this args value)
+	(def-vars
+		(ptr this args value))
 
 	(push-scope)
 	(entry 'lisp :lisp_print {this, args})

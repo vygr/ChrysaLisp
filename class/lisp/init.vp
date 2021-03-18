@@ -32,11 +32,12 @@
 	;trashes
 	;r1-r14
 
-	(ptr this)
-	(union
-		(ptr vtable stdin stdout stderr func)
-		(ptr repl_args value file stream))
-	(ulong ok)
+	(def-vars
+		(ptr this)
+		(union
+			(ptr vtable stdin stdout stderr func)
+			(ptr repl_args value file stream))
+		(ulong ok))
 
 	(push-scope)
 	(entry 'lisp :init {this, vtable, stdin, stdout, stderr})
@@ -113,7 +114,8 @@
 	(return)
 
 (vp-label 'create_env_info)
-	(ptr this symbol table)
+	(def-vars
+		(ptr this symbol table))
 
 	(push-scope)
 	(entry {this})

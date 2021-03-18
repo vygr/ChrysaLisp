@@ -23,9 +23,10 @@
 	;trashes
 	;r0-r14
 
-	(ptr this name flat_set data)
-	(pptr iter_begin iter_end)
-	(uint pixels)
+	(def-vars
+		(ptr this name flat_set data)
+		(pptr iter_begin iter_end)
+		(uint pixels))
 
 	(push-scope)
 	(entry 'font :open {name, pixels})
@@ -74,11 +75,12 @@
 	;trashes
 	;r1-r14
 
-	(ptr this name data)
-	(union
-		(ptr vtable)
-		(ulong ok))
-	(uint pixels)
+	(def-vars
+		(ptr this name data)
+		(union
+			(ptr vtable)
+			(ulong ok))
+		(uint pixels))
 
 	(push-scope)
 	(entry 'font :init {this, vtable, name, data, pixels})
@@ -337,11 +339,12 @@
 		(vp-asr-cr 7 rx)
 		(vp-asr-cr 7 ry))
 
-	(ptr this stack paths path info)
-	(pptr iter_begin iter_end)
-	(puint data data_end)
-	(int x y pos_x pos_y)
-	(uint width height gap ox oy)
+	(def-vars
+		(ptr this stack paths path info)
+		(pptr iter_begin iter_end)
+		(puint data data_end)
+		(int x y pos_x pos_y)
+		(uint width height gap ox oy))
 
 	(push-scope)
 	(entry 'font :glyph_paths {this, stack, info})
@@ -427,11 +430,12 @@
 	;trashes
 	;r1-r14
 
-	(ptr this sym txt sym_canvas paths info)
-	(uint w h)
-	(union
-		(ptr statics)
-		(pptr iter bucket))
+	(def-vars
+		(ptr this sym txt sym_canvas paths info)
+		(uint w h)
+		(union
+			(ptr statics)
+			(pptr iter bucket)))
 
 	(push-scope)
 	(entry 'font :sym_texture {this, sym})
@@ -488,8 +492,9 @@
 	;trashes
 	;r1-r14
 
-	(ptr this sym txt chars)
-	(uint code)
+	(def-vars
+		(ptr this sym txt chars)
+		(uint code))
 
 	;save inputs
 	(push-scope)
@@ -528,8 +533,9 @@
 	;trashes
 	;r0-r14
 
-	(ptr font new_map flat_set tmp)
-	(uint length index)
+	(def-vars
+		(ptr font new_map flat_set tmp)
+		(uint length index))
 
 	(push-scope)
 

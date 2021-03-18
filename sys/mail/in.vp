@@ -9,8 +9,9 @@
 	;trashes
 	;r0-r14
 
-	(ptr rx_msg msg parcel_list)
-	(uint len)
+	(def-vars
+		(ptr rx_msg msg parcel_list)
+		(uint len))
 
 	(push-scope)
 	(entry 'sys_mail :in {rx_msg})

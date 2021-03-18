@@ -479,7 +479,8 @@
 	;trashes
 	;r0-r14
 
-	(ptr name id info cat tmp1 tmp2)
+	(def-vars
+		(ptr name id info cat tmp1 tmp2))
 
 	(push-scope)
 	(entry 'sys_mail :service {name, id, info})
@@ -529,9 +530,10 @@
 	;trashes
 	;r0-r14
 
-	(ptr name id info key bucket set)
-	(pptr tuple)
-	(ulong time)
+	(def-vars
+		(ptr name id info key bucket set)
+		(pptr tuple)
+		(ulong time))
 
 	(push-scope)
 	(entry 'sys_mail :declare {id, name, info})
@@ -655,9 +657,10 @@
 	(def-struct cat 0
 		(ptr entries lf))
 
-	(ptr key bucket set msg data services statics)
-	(pptr tuple)
-	(struct cat cat_size)
+	(def-vars
+		(ptr key bucket set msg data services statics)
+		(pptr tuple)
+		(struct cat cat_size))
 
 	(push-scope)
 

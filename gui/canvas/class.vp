@@ -146,7 +146,8 @@
 	;trashes
 	;r1-r14
 
-	(ptr this pixmap texture)
+	(def-vars
+		(ptr this pixmap texture))
 
 	(push-scope)
 	(entry 'canvas :swap {this})
@@ -434,8 +435,9 @@
 	;trashes
 	;r1-r14
 
-	(ptr this)
-	(int x y w h)
+	(def-vars
+		(ptr this)
+		(int x y w h))
 
 	(push-scope)
 	(entry 'canvas :fbox {this, x, y, w, h})

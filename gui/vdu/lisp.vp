@@ -45,11 +45,12 @@
 	;trashes
 	;r1-r14
 
-	(ptr this vdu lines line)
-	(pptr iter_begin iter_end)
-	(plong cursor)
-	(uint ox oy cx cy col)
-	(int len)
+	(def-vars
+		(ptr this vdu lines line)
+		(pptr iter_begin iter_end)
+		(plong cursor)
+		(uint ox oy cx cy col)
+		(int len))
 
 	(entry 'vdu :lisp_load '(r0 r1))
 

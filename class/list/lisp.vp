@@ -122,16 +122,17 @@
 	(def-struct pdata 0
 		(ptr this func params))
 
-	(ptr this func)
-	(union
-		(ptr args)
-		(ptr params))
-
-	(ptr value list)
-	(pptr iter_begin liter hiter)
-	(int start end)
+	(def-vars
+		(ptr this func)
+		(union
+			(ptr args)
+			(ptr params))
+		(ptr value list)
+		(pptr iter_begin liter hiter)
+		(int start end))
 (errorcases
-	(int length))
+	(def-vars
+		(int length)))
 
 	(push-scope)
 	(entry 'list :lisp_part {this, args})
@@ -171,13 +172,14 @@
 	(pop-scope-syms)
 
 (vp-label 'callback)
-	(ptr pdata)
-	(union
-		(pptr liter)
-		(ptr value))
-	(union
-		(pptr hiter)
-		(int result))
+	(def-vars
+		(ptr pdata)
+		(union
+			(pptr liter)
+			(ptr value))
+		(union
+			(pptr hiter)
+			(int result)))
 
 	(push-scope)
 	(entry 'array :sort_callback {pdata, liter, hiter})

@@ -12,9 +12,10 @@
 	;trashes
 	;r1-r14
 
-	(ptr this that)
-	(plong iter_begin iter_end iter_this)
-	(int eps)
+	(def-vars
+		(ptr this that)
+		(plong iter_begin iter_end iter_this)
+		(int eps))
 
 	(push-scope)
 	(entry 'path :filter_polyline {this, that, eps})

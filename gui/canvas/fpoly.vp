@@ -167,13 +167,14 @@
 	;trashes
 	;r1-r14
 
-	(ptr this)
-	(union
-		(ptr polygons)
-		(pint sorted_list)
-		(pint tracker_node tracker_last tracker_list))
-	(int ys ye xs xe x y om min_x max_x)
-	(uint mode yscale cy cy1)
+	(def-vars
+		(ptr this)
+		(union
+			(ptr polygons)
+			(pint sorted_list)
+			(pint tracker_node tracker_last tracker_list))
+		(int ys ye xs xe x y om min_x max_x)
+		(uint mode yscale cy cy1))
 
 	(push-scope)
 	(entry 'canvas :fpoly {this, x, y, mode, polygons})

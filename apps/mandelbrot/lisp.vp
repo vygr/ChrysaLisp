@@ -71,9 +71,10 @@
 	;trashes
 	;r1-r14
 
-	(ptr this canvas)
-	(pubyte data)
-	(uint x y x1 y1 xp yp col)
+	(def-vars
+		(ptr this canvas)
+		(pubyte data)
+		(uint x y x1 y1 xp yp col))
 
 	(entry '(r0 r1))
 

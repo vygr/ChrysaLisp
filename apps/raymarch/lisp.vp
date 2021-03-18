@@ -123,9 +123,10 @@
 	;trashes
 	;r1-r14
 
-	(ptr this canvas)
-	(puint data)
-	(uint x y x1 y1 xp yp)
+	(def-vars
+		(ptr this canvas)
+		(puint data)
+		(uint x y x1 y1 xp yp))
 
 	(entry '(r0 r1))
 

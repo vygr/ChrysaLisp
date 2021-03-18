@@ -187,14 +187,15 @@
 	;trashes
 	;r0-r14
 
-	(ptr this name sym)
-	(union
-		(ptr hash)
-		(ptr bucket))
-	(union
-		(ptr stream)
-		(pptr iter))
-	(uint flags)
+	(def-vars
+		(ptr this name sym)
+		(union
+			(ptr hash)
+			(ptr bucket))
+		(union
+			(ptr stream)
+			(pptr iter))
+		(uint flags))
 
 	(push-scope)
 	(entry 'pixmap :load {name, flags})
@@ -290,8 +291,9 @@
 	;trashes
 	;r0-r14
 
-	(ptr this name stream)
-	(uint format)
+	(def-vars
+		(ptr this name stream)
+		(uint format))
 
 	(push-scope)
 	(entry 'pixmap :save {this, name, format})
@@ -360,9 +362,10 @@
 	;inputs
 	;r0 = user data
 
-	(ptr this surface old_stack)
-	(ulong tex_id)
-	(uint blend_mode)
+	(def-vars
+		(ptr this surface old_stack)
+		(ulong tex_id)
+		(uint blend_mode))
 
 	(vp-cpy-rr rsp r1)
 	(push-scope)

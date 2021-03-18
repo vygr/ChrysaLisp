@@ -64,10 +64,11 @@
 	;trashes
 	;r1-r14
 
-	(ptr this txt font)
-	(ulong handle c)
-	(int x bx by bx1 by1)
-	(uint w h col paper ink)
+	(def-vars
+		(ptr this txt font)
+		(ulong handle c)
+		(int x bx by bx1 by1)
+		(uint w h col paper ink))
 
 	;save inputs
 	(push-scope)
@@ -142,8 +143,9 @@
 	;trashes
 	;r1-r14
 
-	(ptr this font)
-	(uint w h size)
+	(def-vars
+		(ptr this font)
+		(uint w h size))
 
 	;save inputs
 	(push-scope)

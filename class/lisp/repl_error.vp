@@ -16,9 +16,10 @@
 	;trashes
 	;r1-r14
 
-	(ptr this desc payload file value)
-	(pptr iter)
-	(uint msg line)
+	(def-vars
+		(ptr this desc payload file value)
+		(pptr iter)
+		(uint msg line))
 
 	(push-scope)
 	(entry 'lisp :repl_error {this, desc, msg, payload})

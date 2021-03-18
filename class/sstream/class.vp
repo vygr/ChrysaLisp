@@ -56,8 +56,9 @@
 	;trashes
 	;r1-r14
 
-	(ptr this new_str)
-	(uint length)
+	(def-vars
+		(ptr this new_str)
+		(uint length))
 
 	(push-scope)
 	(entry 'sstream :write_next {this})

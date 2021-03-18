@@ -233,15 +233,64 @@
 	(push values base)
 	`(eval '(bind ',syms ',values) *compile_env*))
 
-;;;;;;;;;;;;;;
-; symbol table
-;;;;;;;;;;;;;;
+;;;;;;;;;;;;
+; structures
+;;;;;;;;;;;;
+
+(defmacro def-struct (name base &rest lines)
+	; (def-struct name base [(byte field ...)] ...)
+	(unless (eql (cat name "_size") "local_size")
+		(if (def? (sym (cat name "_size")) *compile_env*) (throw "Structure redefined !" name)))
+	(defq syms (list) values (list) base (eval base))
+	(defun new_field (type size alignment)
+		(setq base (align base alignment))
+		(push syms (sym (cat name "_" field)) (sym (cat name "_" field "_t")))
+		(push values base type)
+		(setq base (+ base size)))
+	(each (lambda (line)
+		(case (elem 0 line)
+			(local-align
+				(if (> (length line) 1)
+					(setq base (align base (eval (elem 1 line))))
+					(setq base (align base +long_size))))
+			(offset
+				(push syms (sym (cat name "_" (elem 1 line))))
+				(push values base))
+			(struct
+				(push syms (sym (cat name "_" (elem 1 line))) (sym (cat name "_" (elem 1 line) "_t")))
+				(push values base nil)
+				(setq base (+ base (eval (elem 2 line)))))
+			(t
+				(each! 1 -1 (lambda (field)
+					(case (elem 0 line)
+						(byte (new_field "b" +byte_size +byte_size))
+						(short (new_field "s" +short_size +short_size))
+						(int (new_field "i" +int_size +int_size))
+						(long (new_field "l" +long_size +long_size))
+						(ubyte (new_field "B" +byte_size +byte_size))
+						(ushort (new_field "S" +short_size +short_size))
+						(uint (new_field "I" +int_size +int_size))
+						(ulong (new_field "L" +long_size +long_size))
+						(ptr (new_field "p" +ptr_size +ptr_size))
+						(pptr (new_field "pp" +ptr_size +ptr_size))
+						(pubyte (new_field "pB" +ptr_size +ptr_size))
+						(pushort (new_field "pS" +ptr_size +ptr_size))
+						(puint (new_field "pI" +ptr_size +ptr_size))
+						(pulong (new_field "pL" +ptr_size +ptr_size))
+						(pbyte (new_field "pb" +ptr_size +ptr_size))
+						(pshort (new_field "ps" +ptr_size +ptr_size))
+						(pint (new_field "pi" +ptr_size +ptr_size))
+						(plong (new_field "pl" +ptr_size +ptr_size))))
+					(list line))))) lines)
+	(push syms (sym (cat name "_size")))
+	(push values base)
+	`(eval '(bind ',syms ',values) *compile_env*))
+
+;;;;;;;;;;;
+; variables
+;;;;;;;;;;;
 
 (defcvar '*sym_sp* 0 '*syms* (list))
-
-(defmacro local-align (&optional _)
-	(setd _ +ptr_size)
-	`(setq *sym_sp* (align *sym_sp* ,_)))
 
 (defmacro new-scope ()
 	'(push *syms* (list 0 (list) (list))))
@@ -252,7 +301,7 @@
 			(setq o (+ o (elem 0 _)))) (list *syms*)) o)
 
 (defun push-scope ()
-	(local-align stack_align)
+	(setq *sym_sp* (align *sym_sp* stack_align))
 	(elem-set 0 (elem -3 (new-scope)) *sym_sp*)
 	(when (/= *sym_sp* 0)
 		(when *debug_inst*
@@ -321,219 +370,63 @@
 	;_4 compile macro
 	(def-sym _1 'op (* _2 2) (opt _3 0) (opt _4 compile-null)))
 
-(defmacro type-sym (_)
-	`(sym (str ,_ "_t")))
-
-(defmacro struct (_ s)
-	`(progn
-		(def-sym ',_ 'var *sym_sp* 0 "")
-		(setq *sym_sp* (+ *sym_sp* ,s))))
-
-(defmacro union (&rest _)
-	(if (notevery list? _)
-		(throw "Union needs lists as parameters !" _))
-	(defq o (gensym) m (gensym))
-	(setq _ (reduce (lambda (l _)
-		(push l _ `(setq ,m (max ,m *sym_sp*) *sym_sp* ,o))) _ (list)))
-	`(progn
-		(defq ,o *sym_sp* ,m *sym_sp*)
-		~_
-		(setq *sym_sp* ,m)))
-
-(defmacro byte (&rest _)
-	(setq _ (reduce (lambda (l _)
-		(push l
-			`(def-sym ',_ 'var *sym_sp* "b")
-			'(setq *sym_sp* (+ *sym_sp* +byte_size)))) _ (list)))
-	`(progn ~_))
-
-(defmacro ubyte (&rest _)
-	(setq _ (reduce (lambda (l _)
-		(push l
-			`(def-sym ',_ 'var *sym_sp* "B")
-			'(setq *sym_sp* (+ *sym_sp* +byte_size)))) _ (list)))
-	`(progn ~_))
-
-(defmacro short (&rest _)
-	(setq _ (reduce (lambda (l _)
-		(push l
-			`(def-sym ',_ 'var *sym_sp* "s")
-			'(setq *sym_sp* (+ *sym_sp* +short_size))))
-		_ (list '(local-align +short_size))))
-	`(progn ~_))
-
-(defmacro ushort (&rest _)
-	(setq _ (reduce (lambda (l _)
-		(push l
-			`(def-sym ',_ 'var *sym_sp* "S")
-			'(setq *sym_sp* (+ *sym_sp* +short_size))))
-		_ (list '(local-align +short_size))))
-	`(progn ~_))
-
-(defmacro int (&rest _)
-	(setq _ (reduce (lambda (l _)
-		(push l
-			`(def-sym ',_ 'var *sym_sp* "i")
-			'(setq *sym_sp* (+ *sym_sp* +int_size))))
-		_ (list '(local-align +int_size))))
-	`(progn ~_))
-
-(defmacro uint (&rest _)
-	(setq _ (reduce (lambda (l _)
-		(push l
-			`(def-sym ',_ 'var *sym_sp* "I")
-			'(setq *sym_sp* (+ *sym_sp* +int_size))))
-		_ (list '(local-align +int_size))))
-	`(progn ~_))
-
-(defmacro long (&rest _)
-	(setq _ (reduce (lambda (l _)
-		(push l
-			`(def-sym ',_ 'var *sym_sp* "l")
-			'(setq *sym_sp* (+ *sym_sp* +long_size))))
-		_ (list '(local-align +long_size))))
-	`(progn ~_))
-
-(defmacro ulong (&rest _)
-	(setq _ (reduce (lambda (l _)
-		(push l
-			`(def-sym ',_ 'var *sym_sp* "L")
-			'(setq *sym_sp* (+ *sym_sp* +long_size))))
-		_ (list '(local-align +long_size))))
-	`(progn ~_))
-
-(defmacro ptr (&rest _)
-	(setq _ (reduce (lambda (l _)
-		(push l
-			`(def-sym ',_ 'var *sym_sp* "p")
-			'(setq *sym_sp* (+ *sym_sp* +ptr_size))))
-		_ (list '(local-align +ptr_size))))
-	`(progn ~_))
-
-(defmacro pbyte (&rest _)
-	(setq _ (reduce (lambda (l _)
-		(push l
-			`(def-sym ',_ 'var *sym_sp* "pb")
-			'(setq *sym_sp* (+ *sym_sp* +ptr_size))))
-		_ (list '(local-align +ptr_size))))
-	`(progn ~_))
-
-(defmacro pubyte (&rest _)
-	(setq _ (reduce (lambda (l _)
-		(push l
-			'(local-align +ptr_size)
-			`(def-sym ',_ 'var *sym_sp* "pB")
-			'(setq *sym_sp* (+ *sym_sp* +ptr_size)))) _ (list)))
-	`(progn ~_))
-
-(defmacro pshort (&rest _)
-	(setq _ (reduce (lambda (l _)
-		(push l
-			`(def-sym ',_ 'var *sym_sp* "ps")
-			'(setq *sym_sp* (+ *sym_sp* +ptr_size))))
-		_ (list '(local-align +ptr_size))))
-	`(progn ~_))
-
-(defmacro pushort (&rest _)
-	(setq _ (reduce (lambda (l _)
-		(push l
-			`(def-sym ',_ 'var *sym_sp* "pS")
-			'(setq *sym_sp* (+ *sym_sp* +ptr_size))))
-		_ (list '(local-align +ptr_size))))
-	`(progn ~_))
-
-(defmacro pint (&rest _)
-	(setq _ (reduce (lambda (l _)
-		(push l
-			`(def-sym ',_ 'var *sym_sp* "pi")
-			'(setq *sym_sp* (+ *sym_sp* +ptr_size))))
-		_ (list '(local-align +ptr_size))))
-	`(progn ~_))
-
-(defmacro puint (&rest _)
-	(setq _ (reduce (lambda (l _)
-		(push l
-			`(def-sym ',_ 'var *sym_sp* "pI")
-			'(setq *sym_sp* (+ *sym_sp* +ptr_size))))
-		_ (list '(local-align +ptr_size))))
-	`(progn ~_))
-
-(defmacro plong (&rest _)
-	(setq _ (reduce (lambda (l _)
-		(push l
-			`(def-sym ',_ 'var *sym_sp* "pl")
-			'(setq *sym_sp* (+ *sym_sp* +ptr_size))))
-		_ (list '(local-align +ptr_size))))
-	`(progn ~_))
-
-(defmacro pulong (&rest _)
-	(setq _ (reduce (lambda (l _)
-		(push l
-			`(def-sym ',_ 'var *sym_sp* "pL")
-			'(setq *sym_sp* (+ *sym_sp* +ptr_size))))
-		_ (list '(local-align +ptr_size))))
-	`(progn ~_))
-
-(defmacro pptr (&rest _)
-	(setq _ (reduce (lambda (l _)
-		(push l
-			`(def-sym ',_ 'var *sym_sp* "pp")
-			'(setq *sym_sp* (+ *sym_sp* +ptr_size))))
-		_ (list '(local-align +ptr_size))))
-	`(progn ~_))
-
-;;;;;;;;;;;;;;;;;
-; data structures
-;;;;;;;;;;;;;;;;;
-
-(defmacro def-struct (name base &rest lines)
-	; (def-struct name base [(byte field ...)] ...)
-	(unless (eql (cat name "_size") "local_size")
-		(if (def? (sym (cat name "_size")) *compile_env*) (throw "Structure redefined !" name)))
-	(defq syms (list) values (list) base (eval base))
-	(defun new_field (type size alignment)
-		(setq base (align base alignment))
-		(push syms (sym (cat name "_" field)) (sym (cat name "_" field "_t")))
-		(push values base type)
-		(setq base (+ base size)))
+(defmacro def-vars (&rest lines)
+	; (def-vars [(byte field ...)] ...)
+	(defq prog (list progn))
+	(defun new_var (type size)
+		(push prog
+			`(def-sym ',var 'var *sym_sp* ,type)
+			`(setq *sym_sp* (+ *sym_sp* ,size))))
 	(each (lambda (line)
 		(case (elem 0 line)
 			(local-align
 				(if (> (length line) 1)
-					(setq base (align base (eval (elem 1 line))))
-					(setq base (align base +long_size))))
-			(offset
-				(push syms (sym (cat name "_" (elem 1 line))))
-				(push values base))
+					(push prog `(setq *sym_sp* (align *sym_sp* ,(eval (elem 1 line)))))
+					(push prog '(setq *sym_sp* (align *sym_sp* +long_size)))))
 			(struct
-				(push syms (sym (cat name "_" (elem 1 line))) (sym (cat name "_" (elem 1 line) "_t")))
-				(push values base nil)
-				(setq base (+ base (eval (elem 2 line)))))
+				(push prog
+					`(def-sym ',(elem 1 line) 'var *sym_sp* 0 "")
+					`(setq *sym_sp* (+ *sym_sp* ,(eval (elem 2 line))))))
+			(union
+				(defq o (gensym) m (gensym))
+				(push prog `(defq ,o *sym_sp* ,m *sym_sp*))
+				(each! 1 -1 (lambda (_)
+					(push prog
+						`(def-vars ,_)
+						`(setq ,m (max ,m *sym_sp*) *sym_sp* ,o))) (list line))
+				(push prog `(setq *sym_sp* ,m)))
 			(t
-				(each! 1 -1 (lambda (field)
+				(if (defq alignment (find (elem 0 line)
+						'(short int long ushort uint ulong ptr pptr
+							pubyte pushort puint pulong pbyte pshort pint plong)))
+					(push prog
+						`(setq *sym_sp* (align *sym_sp* ,(elem alignment
+							'(+short_size +int_size +long_size +short_size
+								+int_size +long_size +ptr_size +ptr_size
+								+ptr_size +ptr_size +ptr_size +ptr_size
+								+ptr_size +ptr_size +ptr_size +ptr_size))))))
+				(each! 1 -1 (lambda (var)
 					(case (elem 0 line)
-						(byte (new_field "b" +byte_size +byte_size))
-						(short (new_field "s" +short_size +short_size))
-						(int (new_field "i" +int_size +int_size))
-						(long (new_field "l" +long_size +long_size))
-						(ubyte (new_field "B" +byte_size +byte_size))
-						(ushort (new_field "S" +short_size +short_size))
-						(uint (new_field "I" +int_size +int_size))
-						(ulong (new_field "L" +long_size +long_size))
-						(ptr (new_field "p" +ptr_size +ptr_size))
-						(pptr (new_field "pp" +ptr_size +ptr_size))
-						(pubyte (new_field "pB" +ptr_size +ptr_size))
-						(pushort (new_field "pS" +ptr_size +ptr_size))
-						(puint (new_field "pI" +ptr_size +ptr_size))
-						(pulong (new_field "pL" +ptr_size +ptr_size))
-						(pbyte (new_field "pb" +ptr_size +ptr_size))
-						(pshort (new_field "ps" +ptr_size +ptr_size))
-						(pint (new_field "pi" +ptr_size +ptr_size))
-						(plong (new_field "pl" +ptr_size +ptr_size))))
+						(byte (new_var "b" +byte_size))
+						(short (new_var "s" +short_size))
+						(int (new_var "i" +int_size))
+						(long (new_var "l" +long_size))
+						(ubyte (new_var "B" +byte_size))
+						(ushort (new_var "S" +short_size))
+						(uint (new_var "I" +int_size))
+						(ulong (new_var "L" +long_size))
+						(ptr (new_var "p" +ptr_size))
+						(pptr (new_var "pp" +ptr_size))
+						(pubyte (new_var "pB" +ptr_size))
+						(pushort (new_var "pS" +ptr_size))
+						(puint (new_var "pI" +ptr_size))
+						(pulong (new_var "pL" +ptr_size))
+						(pbyte (new_var "pb" +ptr_size))
+						(pshort (new_var "ps" +ptr_size))
+						(pint (new_var "pi" +ptr_size))
+						(plong (new_var "pl" +ptr_size))))
 					(list line))))) lines)
-	(push syms (sym (cat name "_size")))
-	(push values base)
-	`(eval '(bind ',syms ',values) *compile_env*))
+	prog)
 
 ;;;;;;;;;;;;;;;;;;;;
 ; parameter handling
@@ -850,9 +743,9 @@
 		((not (defq s (get-sym _)))
 			;not in symbol table so figure out what it is
 			(cond
-				((get (type-sym _))
+				((get (sym (str _ "_t")))
 					;field/member
-					(add-inst (list 'vp-cpy-cr _ (push-reg (eval (type-sym _))))))
+					(add-inst (list 'vp-cpy-cr _ (push-reg (eval (sym (str _ "_t")))))))
 				((get _)
 					;equate
 					(compile-const _))

@@ -137,8 +137,9 @@
 	;trashes
 	;r1-r14
 
-	(ptr this args value)
-	(ulong arg0 arg1 arg2)
+	(def-vars
+		(ptr this args value)
+		(ulong arg0 arg1 arg2))
 
 	(push-scope)
 	(entry 'sys_mail :lisp_send {this, args})
