@@ -30,7 +30,7 @@
 	(byte join_style cap1_style cap2_style)
 
 	(push-scope)
-	(used-syms 'l2_pv 'p3 'p4)
+	(used-syms l2_pv p3 p4)
 	(entry 'path :stroke_polylines {this, stack, iter_end_polylines, radius, eps, join_style, cap1_style, cap2_style})
 
 	(vpif {radius >= 0.5})

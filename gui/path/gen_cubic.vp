@@ -30,7 +30,7 @@
 	(int eps)
 
 	(push-scope)
-	(used-syms 'p23)
+	(used-syms p23)
 	(entry 'path :gen_cubic {this, stack, p1x, p1y, p2x, p2y, p3x, p3y, p4x, p4y, eps})
 
 	;output first point

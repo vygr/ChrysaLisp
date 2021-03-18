@@ -307,8 +307,8 @@
 			(elem _ (elem 2 s)))) (list *syms*)))
 	(when a (elem-set -2 a t)) a)
 
-(defun used-syms (&rest _)
-	(each get-sym _))
+(defmacro used-syms (&rest _)
+	(each get-sym _) nil)
 
 (defun operator (_1 _2 &optional _3 _4)
 	;_1 name
