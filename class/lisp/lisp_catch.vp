@@ -13,10 +13,10 @@
 	;trashes
 	;r1-r14
 
-	(ptr 'this 'args 'value 'str_args 'str_value)
-	(pptr 'iter_begin)
+	(ptr this args value str_args str_value)
+	(pptr iter_begin)
 (errorcases
-	(uint 'length))
+	(uint length))
 
 	(push-scope)
 	(entry 'lisp :lisp_catch {this, args})

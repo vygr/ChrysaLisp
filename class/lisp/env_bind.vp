@@ -14,8 +14,8 @@
 	;trashes
 	;r1-r14
 
-	(ptr 'this 'vars 'vals 'symbol 'value 'args)
-	(uint 'index_vars 'index_vals 'len_vars 'len_vals 'state)
+	(ptr this vars vals symbol value args)
+	(uint index_vars index_vals len_vars len_vals state)
 
 	(push-scope)
 	(entry 'lisp :env_bind {this, vars, vals})

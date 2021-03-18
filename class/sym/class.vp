@@ -13,9 +13,9 @@
 	;trashes
 	;r0-r14
 
-	(ptr 'sym 'syms)
-	(pubyte 'next)
-	(uint 'length)
+	(ptr sym syms)
+	(pubyte next)
+	(uint length)
 
 	(push-scope)
 	(entry 'sym :statics_init {})

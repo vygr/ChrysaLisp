@@ -12,9 +12,9 @@
 	;trashes
 	;r1-r14
 
-	(ptr 'this 'that)
-	(pptr 'iter_begin 'iter_end)
-	(int 'eps)
+	(ptr this that)
+	(pptr iter_begin iter_end)
+	(int eps)
 
 	(push-scope)
 	(entry 'path :filter_polygon {this, that, eps})

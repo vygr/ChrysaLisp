@@ -16,9 +16,9 @@
 	;trashes
 	;r1-r14
 
-	(ptr 'this 'args 'stream 'ast 'value 'old_file 'old_line)
-	(int 'char)
-	(uint 'length)
+	(ptr this args stream ast value old_file old_line)
+	(int char)
+	(uint length)
 
 	(push-scope)
 	(entry 'lisp :lisp_repl {this, args})

@@ -317,6 +317,171 @@
 	;_4 compile macro
 	(def-sym _1 'op (* _2 2) (opt _3 0) (opt _4 compile-null)))
 
+(defmacro type-sym (_)
+	`(sym (str ,_ "_t")))
+
+(defmacro local-align (&optional _)
+	(setd _ +ptr_size)
+	`(setq *sym_sp* (align *sym_sp* ,_)))
+
+(defmacro struct (_ s)
+	`(progn
+		(def-sym ',_ 'var *sym_sp* 0 "")
+		(setq *sym_sp* (+ *sym_sp* ,s))))
+
+(defmacro union (&rest _)
+	(if (notevery list? _)
+		(throw "Union needs lists as parameters !" _))
+	(defq o (gensym) m (gensym))
+	(setq _ (reduce (lambda (l _)
+		(push l _ `(setq ,m (max ,m *sym_sp*) *sym_sp* ,o))) _ (list)))
+	`(progn
+		(defq ,o *sym_sp* ,m *sym_sp*)
+		~_
+		(setq *sym_sp* ,m)))
+
+(defmacro byte (&rest _)
+	(setq _ (reduce (lambda (l _)
+		(push l
+			`(def-sym ',_ 'var *sym_sp* "b")
+			'(setq *sym_sp* (+ *sym_sp* +byte_size)))) _ (list)))
+	`(progn ~_))
+
+(defmacro ubyte (&rest _)
+	(setq _ (reduce (lambda (l _)
+		(push l
+			`(def-sym ',_ 'var *sym_sp* "B")
+			'(setq *sym_sp* (+ *sym_sp* +byte_size)))) _ (list)))
+	`(progn ~_))
+
+(defmacro short (&rest _)
+	(setq _ (reduce (lambda (l _)
+		(push l
+			`(def-sym ',_ 'var *sym_sp* "s")
+			'(setq *sym_sp* (+ *sym_sp* +short_size))))
+		_ (list '(local-align +short_size))))
+	`(progn ~_))
+
+(defmacro ushort (&rest _)
+	(setq _ (reduce (lambda (l _)
+		(push l
+			`(def-sym ',_ 'var *sym_sp* "S")
+			'(setq *sym_sp* (+ *sym_sp* +short_size))))
+		_ (list '(local-align +short_size))))
+	`(progn ~_))
+
+(defmacro int (&rest _)
+	(setq _ (reduce (lambda (l _)
+		(push l
+			`(def-sym ',_ 'var *sym_sp* "i")
+			'(setq *sym_sp* (+ *sym_sp* +int_size))))
+		_ (list '(local-align +int_size))))
+	`(progn ~_))
+
+(defmacro uint (&rest _)
+	(setq _ (reduce (lambda (l _)
+		(push l
+			`(def-sym ',_ 'var *sym_sp* "I")
+			'(setq *sym_sp* (+ *sym_sp* +int_size))))
+		_ (list '(local-align +int_size))))
+	`(progn ~_))
+
+(defmacro long (&rest _)
+	(setq _ (reduce (lambda (l _)
+		(push l
+			`(def-sym ',_ 'var *sym_sp* "l")
+			'(setq *sym_sp* (+ *sym_sp* +long_size))))
+		_ (list '(local-align +long_size))))
+	`(progn ~_))
+
+(defmacro ulong (&rest _)
+	(setq _ (reduce (lambda (l _)
+		(push l
+			`(def-sym ',_ 'var *sym_sp* "L")
+			'(setq *sym_sp* (+ *sym_sp* +long_size))))
+		_ (list '(local-align +long_size))))
+	`(progn ~_))
+
+(defmacro ptr (&rest _)
+	(setq _ (reduce (lambda (l _)
+		(push l
+			`(def-sym ',_ 'var *sym_sp* "p")
+			'(setq *sym_sp* (+ *sym_sp* +ptr_size))))
+		_ (list '(local-align +ptr_size))))
+	`(progn ~_))
+
+(defmacro pbyte (&rest _)
+	(setq _ (reduce (lambda (l _)
+		(push l
+			`(def-sym ',_ 'var *sym_sp* "pb")
+			'(setq *sym_sp* (+ *sym_sp* +ptr_size))))
+		_ (list '(local-align +ptr_size))))
+	`(progn ~_))
+
+(defmacro pubyte (&rest _)
+	(setq _ (reduce (lambda (l _)
+		(push l
+			'(local-align +ptr_size)
+			`(def-sym ',_ 'var *sym_sp* "pB")
+			'(setq *sym_sp* (+ *sym_sp* +ptr_size)))) _ (list)))
+	`(progn ~_))
+
+(defmacro pshort (&rest _)
+	(setq _ (reduce (lambda (l _)
+		(push l
+			`(def-sym ',_ 'var *sym_sp* "ps")
+			'(setq *sym_sp* (+ *sym_sp* +ptr_size))))
+		_ (list '(local-align +ptr_size))))
+	`(progn ~_))
+
+(defmacro pushort (&rest _)
+	(setq _ (reduce (lambda (l _)
+		(push l
+			`(def-sym ',_ 'var *sym_sp* "pS")
+			'(setq *sym_sp* (+ *sym_sp* +ptr_size))))
+		_ (list '(local-align +ptr_size))))
+	`(progn ~_))
+
+(defmacro pint (&rest _)
+	(setq _ (reduce (lambda (l _)
+		(push l
+			`(def-sym ',_ 'var *sym_sp* "pi")
+			'(setq *sym_sp* (+ *sym_sp* +ptr_size))))
+		_ (list '(local-align +ptr_size))))
+	`(progn ~_))
+
+(defmacro puint (&rest _)
+	(setq _ (reduce (lambda (l _)
+		(push l
+			`(def-sym ',_ 'var *sym_sp* "pI")
+			'(setq *sym_sp* (+ *sym_sp* +ptr_size))))
+		_ (list '(local-align +ptr_size))))
+	`(progn ~_))
+
+(defmacro plong (&rest _)
+	(setq _ (reduce (lambda (l _)
+		(push l
+			`(def-sym ',_ 'var *sym_sp* "pl")
+			'(setq *sym_sp* (+ *sym_sp* +ptr_size))))
+		_ (list '(local-align +ptr_size))))
+	`(progn ~_))
+
+(defmacro pulong (&rest _)
+	(setq _ (reduce (lambda (l _)
+		(push l
+			`(def-sym ',_ 'var *sym_sp* "pL")
+			'(setq *sym_sp* (+ *sym_sp* +ptr_size))))
+		_ (list '(local-align +ptr_size))))
+	`(progn ~_))
+
+(defmacro pptr (&rest _)
+	(setq _ (reduce (lambda (l _)
+		(push l
+			`(def-sym ',_ 'var *sym_sp* "pp")
+			'(setq *sym_sp* (+ *sym_sp* +ptr_size))))
+		_ (list '(local-align +ptr_size))))
+	`(progn ~_))
+
 ;;;;;;;;;;;;;;;;;
 ; data structures
 ;;;;;;;;;;;;;;;;;
@@ -369,61 +534,6 @@
 	(push syms (sym (cat name "_size")))
 	(push values base)
 	`(eval '(bind ',syms ',values) *compile_env*))
-
-(defmacro type-sym (_)
-	`(sym (str ,_ "_t")))
-
-(defun local-align (&optional _)
-	(setd _ +ptr_size)
-	(setq *sym_sp* (align *sym_sp* _)))
-
-(defmacro def-type (n y s)
-	`(defun ,n (&rest f)
-		(each (lambda (_)
-			(local-align ,s)
-			(def-sym _ 'var *sym_sp* ,y)
-			(setq *sym_sp* (+ *sym_sp* ,s))) f)))
-
-(defmacro def-type1 (cmd type size)
-	`(defmacro ,cmd (&rest fields)
-		(each (lambda (_)
-			(local-align ,size)
-			(def-sym (eval _) 'var *sym_sp* ,type)
-			(setq *sym_sp* (+ *sym_sp* ,size))) fields)
-		nil))
-
-(def-type byte "b" +byte_size)
-(def-type ubyte "B" +byte_size)
-(def-type short "s" +short_size)
-(def-type ushort "S" +short_size)
-(def-type int "i" +int_size)
-(def-type uint "I" +int_size)
-(def-type long "l" +long_size)
-(def-type ulong "L" +long_size)
-(def-type ptr "p" +ptr_size)
-(def-type pbyte "pb" +ptr_size)
-(def-type pubyte "pB" +ptr_size)
-(def-type pshort "ps" +ptr_size)
-(def-type pushort "pS" +ptr_size)
-(def-type pint "pi" +ptr_size)
-(def-type puint "pI" +ptr_size)
-(def-type plong "pl" +ptr_size)
-(def-type pulong "pL" +ptr_size)
-(def-type pptr "pp" +ptr_size)
-
-(defun struct (_ s)
-	(def-sym _ 'var *sym_sp* 0 "")
-	(setq *sym_sp* (+ *sym_sp* s)))
-
-(defmacro union (&rest _)
-	(if (notevery list? _)
-		(throw "Union needs lists as parameters !" _))
-	(defq o *sym_sp* m o)
-	(each (lambda (_)
-		(setq *sym_sp* o)
-		(eval _)
-		(setq m (max m *sym_sp*))) _)
-	(setq *sym_sp* m))
 
 ;;;;;;;;;;;;;;;;;;;;
 ; parameter handling

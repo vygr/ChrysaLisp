@@ -424,7 +424,7 @@
 	;trashes
 	;r0-r14
 
-	(int 'px 'py 'p1x 'p1y 'p2x 'p2y)
+	(int px py p1x p1y p2x p2y)
 
 	(push-scope)
 	(entry 'sys_math :f_dist_sqd {px, py, p1x, p1y, p2x, p2y})

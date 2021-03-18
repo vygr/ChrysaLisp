@@ -11,8 +11,8 @@
 	;trashes
 	;r1-r14
 
-	(ptr 'this 'args)
-	(pptr 'iter_begin 'iter_end)
+	(ptr this args)
+	(pptr iter_begin iter_end)
 
 	(vp-def (this value iter_end iter_begin tmp vtable))
 

@@ -60,12 +60,12 @@
 	;trashes
 	;r0-r14
 
-	(ptr 'this 'stream)
-	(puint 'data 'data_end)
-	(ulong 'bit_pool)
-	(struct 'header cpm_size)
-	(int 'length 'bit_pool_size 'bits)
-	(ulong 'col)
+	(ptr this stream)
+	(puint data data_end)
+	(ulong bit_pool)
+	(struct header cpm_size)
+	(int length bit_pool_size bits)
+	(ulong col)
 
 	;save inputs
 	(push-scope)
@@ -165,12 +165,12 @@
 	;trashes
 	;r0-r14
 
-	(ptr 'this 'stream)
-	(puint 'data 'data1 'data2)
-	(ulong 'bit_pool)
-	(struct 'header cpm_size)
-	(int 'bit_pool_size)
-	(uint 'format 'bits 'i 'j 'state 'len 'col 'next_col)
+	(ptr this stream)
+	(puint data data1 data2)
+	(ulong bit_pool)
+	(struct header cpm_size)
+	(int bit_pool_size)
+	(uint format bits i j state len col next_col)
 
 	;save inputs
 	(push-scope)
@@ -266,10 +266,10 @@
 	;trashes
 	;r1-r14
 
-	(ptr 'this)
-	(puint 'data 'data_end)
-	(ulong 'col)
-	(int 'length)
+	(ptr this)
+	(puint data data_end)
+	(ulong col)
+	(int length)
 
 	;save inputs
 	(push-scope)

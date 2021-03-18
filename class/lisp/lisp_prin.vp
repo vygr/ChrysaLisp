@@ -13,10 +13,10 @@
 	;trashes
 	;r1-r14
 
-	(ptr 'this 'value)
+	(ptr this value)
 	(union
-		(ptr 'args)
-		(pptr 'iter_begin 'iter_end))
+		(ptr args)
+		(pptr iter_begin iter_end))
 
 	(push-scope)
 	(entry 'lisp :lisp_prin {this, args})

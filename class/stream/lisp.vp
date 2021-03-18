@@ -173,11 +173,11 @@
 	;trashes
 	;r1-r14
 
-	(ptr 'this 'args 'value)
-	(pptr 'iter_begin)
-	(pubyte 'chars)
-	(int 'length)
-	(uint 'width)
+	(ptr this args value)
+	(pptr iter_begin)
+	(pubyte chars)
+	(int length)
+	(uint width)
 
 	(push-scope)
 	(entry 'stream :lisp_readchar {this, args})

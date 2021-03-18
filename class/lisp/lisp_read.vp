@@ -13,8 +13,8 @@
 	;trashes
 	;r1-r14
 
-	(ptr 'this 'args 'value 'form)
-	(int 'next_char)
+	(ptr this args value form)
+	(int next_char)
 
 	(push-scope)
 	(entry 'lisp :lisp_read {this, args})

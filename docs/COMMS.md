@@ -130,7 +130,7 @@ current tasks main mailbox.
 (def-func 'apps/netmon/child)
 	;monitor task
 
-	(ptr 'msg 'data 'reply 'rdata)
+	(ptr msg data reply rdata)
 
 	(push-scope)
 	(loop-start)

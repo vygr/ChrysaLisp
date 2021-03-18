@@ -25,14 +25,14 @@
 	;loader is already initialized when we get here !
 
 	(union
-		(ptr 'argv)
-		(ptr 'link))
-	(ptr 'statics 'mbox_addr 'msg 'data 'tuple 'key)
-	(pptr 'iter_begin 'iter_end)
-	(struct 'best_id node_id_size)
-	(struct 'node_id node_id_size)
-	(ulong 'time)
-	(uint 'best_cnt)
+		(ptr argv)
+		(ptr link))
+	(ptr statics mbox_addr msg data tuple key)
+	(pptr iter_begin iter_end)
+	(struct best_id node_id_size)
+	(struct node_id node_id_size)
+	(ulong time)
+	(uint best_cnt)
 
 	(push-scope)
 	(entry {argv})
@@ -125,11 +125,11 @@
 				(break)
 			(vpcase '(r0 = kn_call_ping))
 				;new services/routing ping
-				(ptr 'session 'set)
-				(long 'hops)
+				(ptr session set)
+				(long hops)
 				(union
-					(ptr 'bucket 'new_key)
-					(ptr 'services 'entries))
+					(ptr bucket new_key)
+					(ptr services entries))
 				(push-scope)
 
 				;timestamp
@@ -321,11 +321,11 @@
 	;info
 	;process command options
 
-	(pptr 'argv)
-	(ptr 'arg)
-	(plong 'table)
-	(long 'offset)
-	(int 'len)
+	(pptr argv)
+	(ptr arg)
+	(plong table)
+	(long offset)
+	(int len)
 
 	(push-scope)
 	(entry {argv})
@@ -363,9 +363,9 @@
 	;trashes
 	;r0-r14
 
-	(ptr 'arg 'func 'msg)
-	(struct 'id net_id_size)
-	(uint 'length)
+	(ptr arg func msg)
+	(struct id net_id_size)
+	(uint length)
 
 	(push-scope)
 	(entry {arg})

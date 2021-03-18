@@ -19,10 +19,10 @@
 	;trashes
 	;r1-r14
 
-	(ptr 'this 'stream 'str_stream 'string 'num)
-	(pubyte 'buffer)
-	(long 'val)
-	(int 'char 'sign)
+	(ptr this stream str_stream string num)
+	(pubyte buffer)
+	(long val)
+	(int char sign)
 
 	(push-scope)
 	(entry 'lisp :read_num {this, stream, char})

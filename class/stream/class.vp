@@ -161,8 +161,8 @@
 	;trashes
 	;r1-r14
 
-	(ptr 'this 'str_stream 'value)
-	(int 'ch)
+	(ptr this str_stream value)
+	(int ch)
 
 	(push-scope)
 	(entry 'stream :read_line {this})

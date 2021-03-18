@@ -36,9 +36,9 @@
 		(vp-jmp-r r1)
 	(endif)
 
-	(ptr 'usr 'addr 'msg 'data 'mbox_addr)
-	(struct 'node_id node_id_size)
-	(uint 'mbox_id)
+	(ptr usr addr msg data mbox_addr)
+	(struct node_id node_id_size)
+	(uint mbox_id)
 
 	(push-scope)
 	(entry 'sys_task :callback {usr, addr})
@@ -270,8 +270,8 @@
 	;trashes
 	;r0-r14
 
-	(ptr 'func 'statics  'tcb)
-	(ulong 'tcb_size)
+	(ptr func statics  tcb)
+	(ulong tcb_size)
 
 	(push-scope)
 	(entry 'sys_task :start {func})
@@ -314,9 +314,9 @@
 	;info
 	;stop current task, switch to next task
 
-	(ptr 'statics  'tcb)
+	(ptr statics  tcb)
 (errorcases
-	(pptr 'stack 'stack_end))
+	(pptr stack stack_end))
 
 	(push-scope)
 
@@ -416,9 +416,9 @@
 	;trashes
 	;r0-r14
 
-	(ptr 'name 'msg 'data 'mailbox)
-	(uint 'type 'mbox_id 'len)
-	(struct 'id net_id_size)
+	(ptr name msg data mailbox)
+	(uint type mbox_id len)
+	(struct id net_id_size)
 
 	;save task info
 	(push-scope)

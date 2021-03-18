@@ -17,8 +17,8 @@
 	;trashes
 	;r1-r14
 
-	(ptr 'this 'stream 'str_stream 'value)
-	(int 'char 'cchar)
+	(ptr this stream str_stream value)
+	(int char cchar)
 
 	(push-scope)
 	(entry 'lisp :read_str {this, stream, cchar})
