@@ -548,7 +548,8 @@ void pii_random(char* addr, size_t len)
 
 void pii_sleep(uint64_t usec)
 {
-	std::this_thread::sleep_for(std::chrono::microseconds(usec));
+	uint64_t delay = std::max(usec, static_cast<uint64_t>(1));
+	std::this_thread::sleep_for(std::chrono::microseconds(delay));
 }
 
 uint64_t pii_close(uint64_t fd)
