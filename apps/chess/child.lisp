@@ -380,8 +380,8 @@
 			(setq nbrd (if pbrd pbrd nbrd) pbrd nil))) (list (range 1 max_ply)))
 	nbrd)
 
-(structure +select 0
-	(byte main timeout))
+(enums +select 0
+	(enum main timeout))
 
 (defun main ()
 	(defq select (list (task-mailbox) (mail-alloc-mbox)))

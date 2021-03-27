@@ -3,9 +3,9 @@
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
 
-(structure +event 0
-	(byte close max min)
-	(byte button))
+(enums +event 0
+	(enum close max min)
+	(enum button))
 
 (ui-window mywindow ()
 	(ui-title-bar _ "Calculator" (0xea19 0xea1b 0xea1a) +event_close)

@@ -949,6 +949,27 @@
 		((no) `(slice ,field ,(+ field +node_id_size) ,s))
 		((ne) `(slice ,field ,(+ field +net_id_size) ,s))))
 
+;;;;;;;
+; enums
+;;;;;;;
+
+(defmacro enums (name base &rest lines)
+	; enum name base [(enum field ...)] ...)
+	(if (get (sym (cat name "_size"))) (throw "Enum redefined !" name))
+	(defq syms (list) values (list) base (eval base))
+	(defun new_field (size)
+		(push syms (sym (cat name "_" field)))
+		(push values base)
+		(setq base (+ base size)))
+	(each (lambda (line)
+		(each! 1 -1 (lambda (field)
+			(case (elem 0 line)
+				(enum (new_field +byte_size))))
+			(list line))) lines)
+	(push syms (sym (cat name "_size")))
+	(push values base)
+	`(bind ',syms ',values))
+
 ;;;;;;;;;;;;;;;;;;;;;
 ; classes and methods
 ;;;;;;;;;;;;;;;;;;;;;

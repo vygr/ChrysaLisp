@@ -3,10 +3,10 @@
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
 
-(structure +event 0
-	(byte close)
-	(byte file_button tree_button)
-	(byte exts_action ok_action))
+(enums +event 0
+	(enum close)
+	(enum file_button tree_button)
+	(enum exts_action ok_action))
 
 (ui-window mywindow nil
 	(ui-flow _ (:flow_flags +flow_down_fill)

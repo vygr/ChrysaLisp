@@ -160,15 +160,15 @@
 			(breakifnot {owner_id.net_id_mbox_id
 				| owner_id.net_id_node_id.node_id_node1
 				| owner_id.net_id_node_id.node_id_node2})
-			(call 'sys_mail :alloc {ev_msg_mouse_size} {msg, data})
-			(assign {ev_type_mouse} {data->ev_msg_type})
-			(assign {view->view_id} {data->ev_msg_target_id})
+			(call 'sys_mail :alloc {+ev_msg_mouse_size} {msg, data})
+			(assign {+ev_type_mouse} {data-> +ev_msg_type})
+			(assign {view->view_id} {data-> +ev_msg_target_id})
 			(assign {owner_id.net_id_mbox_id} {msg->msg_dest.net_id_mbox_id})
 			(assign {owner_id.net_id_node_id.node_id_node1} {msg->msg_dest.net_id_node_id.node_id_node1})
 			(assign {owner_id.net_id_node_id.node_id_node2} {msg->msg_dest.net_id_node_id.node_id_node2})
-			(assign {user->local_mouse_buttons} {data->ev_msg_mouse_buttons})
-			(assign {(event.sdl_mouse_button_event_x => data->ev_msg_mouse_x) - view->view_ctx_x} {data->ev_msg_mouse_rx})
-			(assign {(event.sdl_mouse_button_event_y => data->ev_msg_mouse_y) - view->view_ctx_y} {data->ev_msg_mouse_ry})
+			(assign {user->local_mouse_buttons} {data-> +ev_msg_mouse_buttons})
+			(assign {(event.sdl_mouse_button_event_x => data-> +ev_msg_mouse_x) - view->view_ctx_x} {data-> +ev_msg_mouse_rx})
+			(assign {(event.sdl_mouse_button_event_y => data-> +ev_msg_mouse_y) - view->view_ctx_y} {data-> +ev_msg_mouse_ry})
 			(call 'sys_mail :send {msg})
 			(breakif {user->local_mouse_buttons})
 			(assign {0} {user->local_mouse_id})
@@ -205,15 +205,15 @@
 				| owner_id.net_id_node_id.node_id_node2})
 
 			;send event message
-			(call 'sys_mail :alloc {ev_msg_key_size} {msg, data})
-			(assign {ev_type_key} {data->ev_msg_type})
-			(assign {view->view_id} {data->ev_msg_target_id})
+			(call 'sys_mail :alloc {+ev_msg_key_size} {msg, data})
+			(assign {+ev_type_key} {data-> +ev_msg_type})
+			(assign {view->view_id} {data-> +ev_msg_target_id})
 			(assign {owner_id.net_id_mbox_id} {msg->msg_dest.net_id_mbox_id})
 			(assign {owner_id.net_id_node_id.node_id_node1} {msg->msg_dest.net_id_node_id.node_id_node1})
 			(assign {owner_id.net_id_node_id.node_id_node2} {msg->msg_dest.net_id_node_id.node_id_node2})
-			(assign {event.sdl_keyboard_event_keysym.sdl_keysym_scancode} {data->ev_msg_key_keycode})
+			(assign {event.sdl_keyboard_event_keysym.sdl_keysym_scancode} {data-> +ev_msg_key_keycode})
 			(call 'cook_key {event.sdl_keyboard_event_keysym.sdl_keysym_sym,
-				event.sdl_keyboard_event_keysym.sdl_keysym_mod} {data->ev_msg_key_key})
+				event.sdl_keyboard_event_keysym.sdl_keysym_mod} {data-> +ev_msg_key_key})
 			(call 'sys_mail :send {msg})
 			(break)
 		(vpcase {event.sdl_common_event_type = SDL_WINDOWEVENT})
@@ -299,12 +299,12 @@
 	(vpif {owner_id.net_id_mbox_id
 			| owner_id.net_id_node_id.node_id_node1
 			| owner_id.net_id_node_id.node_id_node2})
-		(call 'sys_mail :alloc {ev_msg_gui_size} {msg, data})
-		(assign {ev_type_gui} {data->ev_msg_type})
+		(call 'sys_mail :alloc {+ev_msg_gui_size} {msg, data})
+		(assign {+ev_type_gui} {data-> +ev_msg_type})
 		(assign {owner_id.net_id_mbox_id} {msg->msg_dest.net_id_mbox_id})
 		(assign {owner_id.net_id_node_id.node_id_node1} {msg->msg_dest.net_id_node_id.node_id_node1})
 		(assign {owner_id.net_id_node_id.node_id_node2} {msg->msg_dest.net_id_node_id.node_id_node2})
-		(assign {this->view_id} {data->ev_msg_target_id})
+		(assign {this->view_id} {data-> +ev_msg_target_id})
 		(call 'sys_mail :send {msg})
 	(endif)
 

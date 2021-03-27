@@ -6,8 +6,8 @@
 (import "class/lisp.inc")
 
 ;pipe tuple structure
-(structure +pipe 0
-	(byte state select streams))
+(enums +pipe 0
+	(enum state select streams))
 
 (defun pipe-open (cmds &optional flag)
 	(defq cmdpipe (list) args (map (lambda (cmd)

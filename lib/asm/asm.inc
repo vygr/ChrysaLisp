@@ -10,8 +10,8 @@
 	(unless (list? files) (setq files (list files)))
 	(setd *abi* (abi) *cpu* (cpu) num_child (max 1 (/ (* (defq next_node (length (mail-nodes))) 80) 100)))
 	(setq num_child (min num_child (length (shuffle files))))
-	(structure +select 0
-		(byte task reply timer))
+	(enums +select 0
+		(enum task reply timer))
 	(defun dispatch-job (key val)
 		;send another job to child
 		(cond

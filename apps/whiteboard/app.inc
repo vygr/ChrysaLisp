@@ -14,17 +14,17 @@
 	(import "lib/debug/debug.inc")
 	(defmacro defun (&rest _) `(defun-debug ~_)))
 
-(structure +dlist 0
-	(byte mask commited_canvas overlay_canvas commited_polygons overlay_paths))
+(enums +dlist 0
+	(enum mask commited_canvas overlay_canvas commited_polygons overlay_paths))
 
-(structure +path 0
-	(byte mode color radius path))
+(enums +path 0
+	(enum mode color radius path))
 
-(structure +event 0
-	(byte close max min)
-	(byte save load clear undo redo)
-	(byte grid plain axis lines)
-	(byte radius1 radius2 radius3)
-	(byte pen line arrow1 arrow2 box circle fbox fcircle)
-	(byte black white red green blue cyan yellow magenta
+(enums +event 0
+	(enum close max min)
+	(enum save load clear undo redo)
+	(enum grid plain axis lines)
+	(enum radius1 radius2 radius3)
+	(enum pen line arrow1 arrow2 box circle fbox fcircle)
+	(enum black white red green blue cyan yellow magenta
 		tblack twhite tred tgreen tblue tcyan tyellow tmagenta))

@@ -4,8 +4,8 @@
 (import "gui/lisp.inc")
 (import "lib/text/syntax.inc")
 
-(structure +event 0
-	(byte close button))
+(enums +event 0
+	(enum close button))
 
 (defq margin_width (* 8 3)
 	doc_list '("VM" "VP_ASSIGNMENT" "VP_STRUCTURE" "VP_FUNCTIONS" "VP_CLASSES" "COMMS"

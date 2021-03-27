@@ -6,12 +6,12 @@
 (import "lib/task/farm.inc")
 (import "apps/chess/app.inc")
 
-(structure +event 0
-	(byte close)
-	(byte button))
+(enums +event 0
+	(enum close)
+	(enum button))
 
-(structure +select 0
-	(byte main task reply timer))
+(enums +select 0
+	(enum main task reply timer))
 
 (defq vdu_width 38 vdu_height 12 text_buf nil
 	flicker_rate (/ 1000000 8) timer_rate (/ 1000000 1) max_move_time 10000000 id t

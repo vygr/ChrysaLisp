@@ -4,9 +4,9 @@
 (import "lib/pipe/pipe.inc")
 (import "apps/terminal/input.inc")
 
-(structure +event 0
-	(byte close max min)
-	(byte layout scroll))
+(enums +event 0
+	(enum close max min)
+	(enum layout scroll))
 
 (defq cmd nil vdu_width 60 vdu_height 40 vdu_min_width 16 vdu_min_height 16 text_buf (list ""))
 

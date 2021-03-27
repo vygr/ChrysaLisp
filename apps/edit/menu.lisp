@@ -3,8 +3,8 @@
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
 
-(structure +event 0
-	(byte click))
+(enums +event 0
+	(enum click))
 
 (ui-window window (:border 1)
 	(ui-flow btn_menu (:flow_flags +flow_down_fill)

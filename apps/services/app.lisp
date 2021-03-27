@@ -3,8 +3,8 @@
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
 
-(structure +event 0
-	(byte close max min))
+(enums +event 0
+	(enum close max min))
 
 (ui-window mywindow ()
 	(ui-title-bar _ "Services" (0xea19 0xea1b 0xea1a) +event_close)

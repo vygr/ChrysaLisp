@@ -8,11 +8,11 @@
 (import "lib/task/farm.inc")
 (import "apps/mandelbrot/mbmath.inc")
 
-(structure +event 0
-	(byte close))
+(enums +event 0
+	(enum close))
 
-(structure +select 0
-	(byte main task reply timer))
+(enums +select 0
+	(enum main task reply timer))
 
 (defq canvas_width 800 canvas_height 800 canvas_scale 2 timer_rate (/ 1000000 1) id t dirty nil
 	select (list (task-mailbox) (mail-alloc-mbox) (mail-alloc-mbox) (mail-alloc-mbox))

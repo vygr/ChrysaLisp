@@ -3,8 +3,8 @@
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
 
-(structure +event 0
-	(byte close button))
+(enums +event 0
+	(enum close button))
 
 (ui-window mywindow ()
 	(ui-title-bar title "Launcher" (0xea19) +event_close)

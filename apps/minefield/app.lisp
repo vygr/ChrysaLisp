@@ -4,8 +4,8 @@
 (import "lib/anaphoric/anaphoric.inc")
 (import "apps/minefield/board.inc")
 
-(structure +event 0
-	(byte close beginner intermediate expert click))
+(enums +event 0
+	(enum close beginner intermediate expert click))
 
 (ui-window mywindow ()
 	(ui-flow window_flow (:flow_flags +flow_down_fill)

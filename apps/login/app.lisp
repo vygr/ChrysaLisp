@@ -4,8 +4,8 @@
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
 
-(structure +event 0
-	(byte login create))
+(enums +event 0
+	(enum login create))
 
 (ui-window mywindow ()
 	(ui-title-bar _ "Login Manager" () ())

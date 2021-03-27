@@ -7,11 +7,11 @@
 (import "gui/lisp.inc")
 (import "lib/task/farm.inc")
 
-(structure +event 0
-	(byte close))
+(enums +event 0
+	(enum close))
 
-(structure +select 0
-	(byte main task reply timer))
+(enums +select 0
+	(enum main task reply timer))
 
 (defun child-msg (&rest _)
 	(apply cat (map (# (char %0 +long_size)) _)))

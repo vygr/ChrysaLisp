@@ -27,6 +27,9 @@ trailing "_t" for type symbols.
 `(def-struct)`, `(def-enum)` and `(def-bit)` now implemented as macros. Deleted
 `(def-struct-end)`, `(def-enum-end)` and `(def-bit-end)`.
 
+Introduction of `(enums)` at Lisp level in `boot.inc`. Enums fields are not
+typed, they have no auto `xxx_t` symbol created.
+
 ------
 
 Host main.cpp pii_sleep function now standardized on usec for time interval
@@ -649,7 +652,7 @@ the wrong mailbox !
 
 ------
 
-GUI process now sends out a ev_type_gui event to all top level components on a
+GUI process now sends out a +ev_type_gui event to all top level components on a
 GUI resize event. This allows apps to resize themselves or in the case of the
 new wallpaper app demo, maybe switch to better fitting assets etc.
 

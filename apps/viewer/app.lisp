@@ -4,10 +4,10 @@
 (import "gui/lisp.inc")
 (import "lib/text/syntax.inc")
 
-(structure +event 0
-	(byte close max min)
-	(byte layout scroll)
-	(byte tree tree_route))
+(enums +event 0
+	(enum close max min)
+	(enum layout scroll)
+	(enum tree tree_route))
 
 (defq vdu_min_width 16 vdu_min_height 16
 	vdu_max_width 120 vdu_max_height 50

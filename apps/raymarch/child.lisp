@@ -7,8 +7,8 @@
 (import "gui/lisp.inc")
 (import "lib/math/math.inc")
 
-(structure +select 0
-	(byte main timeout))
+(enums +select 0
+	(enum main timeout))
 
 (structure +job 0
 	(long key)

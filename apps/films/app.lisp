@@ -3,9 +3,9 @@
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
 
-(structure +event 0
-	(byte close)
-	(byte prev next))
+(enums +event 0
+	(enum close)
+	(enum prev next))
 
 (defun all-films (p)
 	(defq out (list))

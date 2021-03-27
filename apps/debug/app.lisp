@@ -3,11 +3,11 @@
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
 
-(structure +event 0
-	(byte hvalue)
-	(byte play pause step clear)
-	(byte play_all pause_all step_all clear_all)
-	(byte close))
+(enums +event 0
+	(enum hvalue)
+	(enum play pause step clear)
+	(enum play_all pause_all step_all clear_all)
+	(enum close))
 
 (defq vdu_width 60 vdu_height 40 buf_keys (list) buf_list (list) buf_index nil id t)
 

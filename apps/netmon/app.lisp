@@ -8,11 +8,11 @@
 	(nodeid node)
 	(uint task_count mem_used))
 
-(structure +event 0
-	(byte close max min))
+(enums +event 0
+	(enum close max min))
 
-(structure +select 0
-	(byte main task reply nodes))
+(enums +select 0
+	(enum main task reply nodes))
 
 (defq max_tasks 1 max_memory 1 last_max_tasks 1 last_max_memory 1 rate (/ 1000000 2) id t
 	select (list (task-mailbox) (mail-alloc-mbox) (mail-alloc-mbox) (mail-alloc-mbox))

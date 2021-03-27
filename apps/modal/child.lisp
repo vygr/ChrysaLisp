@@ -2,8 +2,8 @@
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
 
-(structure +event 0
-	(byte click))
+(enums +event 0
+	(enum click))
 
 (defmacro ui-margin (m e)
 	`(ui-flow _ (:flow_flags +flow_right_fill)

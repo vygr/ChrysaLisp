@@ -3,10 +3,10 @@
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
 
-(structure +event 0
-	(byte close)
-	(byte connect disconnect)
-	(byte send))
+(enums +event 0
+	(enum close)
+	(enum connect disconnect)
+	(enum send))
 
 (defq vdu_width 60 vdu_height 30)
 

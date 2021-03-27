@@ -6,8 +6,8 @@
 (defq clock_size 256 clock_scale 1)
 
 ;define events we will use
-(structure +event 0
-	(byte close))
+(enums +event 0
+	(enum close))
 
 ;create a window
 (ui-window mywindow ()

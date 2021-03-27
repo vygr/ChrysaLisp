@@ -3,8 +3,8 @@
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
 
-(structure +event 0
-	(byte close button))
+(enums +event 0
+	(enum close button))
 
 (defq keys (list) vals (list) vdu_height 40 text_buf (list ""))
 

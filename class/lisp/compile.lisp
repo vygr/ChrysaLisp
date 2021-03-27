@@ -6,8 +6,8 @@
 (import "sys/lisp.inc")
 (import "class/lisp.inc")
 
-(structure +select 0
-	(byte main timeout))
+(enums +select 0
+	(enum main timeout))
 
 (structure +job 0
 	(long key)

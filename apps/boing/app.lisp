@@ -3,8 +3,8 @@
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
 
-(structure +event 0
-	(byte close max min))
+(enums +event 0
+	(enum close max min))
 
 (defq id t index 0 xv 4 yv 0
 	frames (map (lambda (_) (Canvas-from-file (cat "apps/boing/taoball_" (str _) ".cpm") +load_flag_shared)) (range 1 12))

@@ -2,10 +2,10 @@
 (import "lib/math/math.inc")
 (import "apps/bubbles/app.inc")
 
-(structure +event 0
-	(byte close max min)
-	(byte reset)
-	(byte grid plain axis))
+(enums +event 0
+	(enum close max min)
+	(enum reset)
+	(enum grid plain axis))
 
 (defq canvas_width 600 canvas_height 600 min_width 300 min_height 300
 	style_buttons (list) rate (/ 1000000 60) base 0.3

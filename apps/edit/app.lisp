@@ -11,13 +11,13 @@
 (defq left_shift 0x400000E1 left_ctrl_key 0x400000E0 left_alt_key 0x400000E2 left_cmd_key 0x400000E3
 	right_shift 0x400000E5 right_alt_key 0x400000E6  right_cmd_key 0x400000E7)
 
-(structure +event 0
-	(byte close max min resize layout scroll)
-	(byte new save open run closeb prev next find colorise)
-	(byte cut copy paste)
-	(byte action find find_prev find_next clear_text)
-	(byte menu menu_click)
-	(byte close_tab tabbar))
+(enums +event 0
+	(enum close max min resize layout scroll)
+	(enum new save open run closeb prev next find colorise)
+	(enum cut copy paste)
+	(enum action find find_prev find_next clear_text)
+	(enum menu menu_click)
+	(enum close_tab tabbar))
 
 (structure +mbox 0
 	(byte task file dialog clip))

@@ -3,11 +3,11 @@
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
 
-(structure +event 0
-	(byte close)
-	(byte hvalue)
-	(byte clear)
-	(byte clear_all))
+(enums +event 0
+	(enum close)
+	(enum hvalue)
+	(enum clear)
+	(enum clear_all))
 
 (structure +profile_msg 0
 	(netid tcb)

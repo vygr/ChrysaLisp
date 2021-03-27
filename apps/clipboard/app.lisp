@@ -4,9 +4,9 @@
 (import "gui/lisp.inc")
 (import "lib/options/options.inc")
 
-(structure +event 0
-	(byte close)
-	(byte deliver paste))
+(enums +event 0
+	(enum close)
+	(enum deliver paste))
 
 ;single instance only
 (when (= (length (mail-enquire "CLIPBOARD_SERVICE")) 0)

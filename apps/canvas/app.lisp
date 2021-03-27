@@ -4,8 +4,8 @@
 (import "gui/lisp.inc")
 (import "lib/math/math.inc")
 
-(structure +event 0
-	(byte close))
+(enums +event 0
+	(enum close))
 
 (defq canvas_width 600 canvas_height 600 canvas_scale 1 id t
 	f_canvas_width (i2f canvas_width) f_canvas_height (i2f canvas_height) f_canvas_scale (i2f canvas_scale)
