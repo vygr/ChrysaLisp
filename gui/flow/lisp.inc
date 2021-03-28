@@ -5,10 +5,11 @@
 (import "gui/view/lisp.inc")
 
 ;flow flags
-(defq +flow_flag_left 1 +flow_flag_right 2 +flow_flag_up 4 +flow_flag_down 8
-	+flow_flag_fillw 16 +flow_flag_fillh 32 +flow_flag_lastw 64 +flow_flag_lasth 128
-	+flow_flag_align_hcenter 256 +flow_flag_align_hleft 512 +flow_flag_align_hright 1024
-	+flow_flag_align_vcenter 2048 +flow_flag_align_vtop 4096 +flow_flag_align_vbottom 8192)
+(bits +flow_flag 0
+	(bit left right up down)
+	(bit fillw fillh lastw lasth)
+	(bit align_hcenter align_hleft align_hright)
+	(bit align_vcenter align_vtop align_vbottom))
 
 ;useful flow combos
 (defq +flow_down_fill (logior +flow_flag_down +flow_flag_fillw +flow_flag_lasth)

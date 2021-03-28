@@ -5,7 +5,8 @@
 (import "gui/slider/lisp.inc")
 
 ;scroll flags
-(defq +scroll_flag_vertical 1 +scroll_flag_horizontal 2)
+(bits +scroll_flag 0
+	(bit vertical horizontal))
 
 ;scroll flag combos
 (defq +scroll_flag_both (logior +scroll_flag_vertical +scroll_flag_horizontal))

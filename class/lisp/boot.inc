@@ -954,8 +954,8 @@
 ;;;;;;;
 
 (defmacro enums (name base &rest lines)
-	; enum name base [(enum field ...)] ...)
-	(if (get (sym (cat name "_size"))) (throw "Enum redefined !" name))
+	; (enums name base [(enum field ...)] ...)
+	(if (get (sym (cat name "_size"))) (throw "Enums redefined !" name))
 	(defq syms (list) values (list) base (eval base))
 	(defun new_field (size)
 		(push syms (sym (cat name "_" field)))
@@ -965,6 +965,27 @@
 		(each! 1 -1 (lambda (field)
 			(case (elem 0 line)
 				(enum (new_field +byte_size))))
+			(list line))) lines)
+	(push syms (sym (cat name "_size")))
+	(push values base)
+	`(bind ',syms ',values))
+
+;;;;;;
+; bits
+;;;;;;
+
+(defmacro bits (name base &rest lines)
+	; (bits name base [(bit field ...)] ...)
+	(if (get (sym (cat name "_size"))) (throw "Bits redefined !" name))
+	(defq syms (list) values (list) base (eval base))
+	(defun new_bit ()
+		(push syms (sym (cat name "_" field)))
+		(push values (<< 1 base))
+		(setq base (inc base)))
+	(each (lambda (line)
+		(each! 1 -1 (lambda (field)
+			(case (elem 0 line)
+				(bit (new_bit))))
 			(list line))) lines)
 	(push syms (sym (cat name "_size")))
 	(push values base)

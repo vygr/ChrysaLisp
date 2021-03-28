@@ -20,8 +20,8 @@
 	(view-fit x y w h))
 
 ;view flags
-(defq +view_flag_solid 1 +view_flag_opaque 2 +view_flag_dirty_all 4
-	+view_flag_at_back 8 +view_flag_hiden 16)
+(bits +view_flag 0
+	(bit solid opaque dirty_all at_back hiden))
 
 (defclass View () nil
 	; (View) -> view

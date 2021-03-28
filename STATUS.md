@@ -30,6 +30,9 @@ trailing "_t" for type symbols.
 Introduction of `(enums)` at Lisp level in `boot.inc`. Enums fields are not
 typed, they have no auto `xxx_t` symbol created.
 
+Introduction of `(bits)` at Lisp level in `boot.inc`. Bits fields also are not
+typed, they have no auto `xxx_t` symbol created.
+
 ------
 
 Host main.cpp pii_sleep function now standardized on usec for time interval

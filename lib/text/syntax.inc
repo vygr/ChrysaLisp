@@ -52,7 +52,7 @@
 			r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 rsp
 			byte ubyte short ushort int uint long ulong ptr union struct
 			pbyte pubyte pshort pushort pint puint plong pulong pptr
-			nodeid netid offset enum))
+			nodeid netid offset enum bit))
 
 	(defmethod :set_state (this state)
 		; (. syntax :set_state state) -> syntax

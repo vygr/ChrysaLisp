@@ -1440,6 +1440,14 @@
 
 ```
 
+## bits
+
+```lisp
+
+(bits name base [(bit field ...)] ...)
+
+```
+
 ## canvas-brighter
 
 ```lisp
@@ -2021,6 +2029,14 @@
 ```lisp
 
 (entries collection) ->  list | nil
+
+```
+
+## enums
+
+```lisp
+
+(enums name base [(enum field ...)] ...)
 
 ```
 
