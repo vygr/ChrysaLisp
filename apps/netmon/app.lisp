@@ -92,7 +92,7 @@
 					(t (. mywindow :event msg))))
 			((= idx +select_task)
 				;child launch responce
-				(defq child (get-netid msg +long_size)
+				(defq child (getf msg +kn_msg_reply_id)
 					val (. global_tasks :find (slice +long_size -1 child)))
 				(when val
 					(.-> val
