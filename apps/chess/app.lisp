@@ -105,15 +105,14 @@
 					(dispatch-job key val)))
 			((= idx +select_reply)
 				;child reply, process in sequence order
-				(sort (# (- (get-long %1 0) (get-long %0 0))) (push replys msg))
+				(sort (# (- (getf %1 +reply_seq) (getf %0 +reply_seq))) (push replys msg))
 				(while (and (/= (length replys) 0)
-							(= (get-long (elem -2 replys) 0) next_seq))
+							(= (getf (elem -2 replys) +reply_seq) next_seq))
 					(setq msg (pop replys) next_seq (inc next_seq))
-					(defq data_type (elem +long_size msg)
-						data (slice (const (inc +long_size)) -1 msg))
+					(defq data_type (getf msg +reply_type) data (slice +reply_data -1 msg))
 					(cond
 						;move
-						((eql data_type "b")
+						((eql data_type (ascii-code "b"))
 							(each (lambda (_)
 								(display-board brd)
 								(task-sleep flicker_rate)
@@ -123,11 +122,11 @@
 							(. farm :close)
 							(setq farm (Farm create destroy 1)))
 						;end
-						((eql data_type "e")
+						((eql data_type (ascii-code "e"))
 							(setq text_buf (vdu-print vdu (list "") data))
 							(. farm :close))
 						;status
-						((eql data_type "s")
+						((eql data_type (ascii-code "s"))
 							(vdu-print vdu text_buf data)))))
 			(t	;timer event
 				(mail-timeout (elem +select_timer select) timer_rate)

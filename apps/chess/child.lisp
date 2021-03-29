@@ -11,16 +11,16 @@
 	`(elem (find-rev ,i ,(elem 0 (eval _))) (elem 1 ,_)))
 
 ;description of a pieces check influence
-(structure +vector 0
-	(byte dx dy len))
+(enums +vector 0
+	(enum dx dy len))
 
 ;description of a pieces movement and capture action
-(structure +move +vector_size
-	(byte flag))
+(enums +move +vector_size
+	(enum flag))
 
 ;check test, array of pieces that must not be on this vectors from the king
-(structure +test 0
-	(byte pieces vectors))
+(enums +test 0
+	(enum pieces vectors))
 
 ;control paramaters
 (defq max_ply 10 max_chess_moves (/ 218 2) max_search_entries 10000)

@@ -10,3 +10,9 @@
 	(long move_time)
 	(byte color)
 	(offset board))
+
+;child reply
+(structure +reply 0
+	(long seq)
+	(byte type)
+	(offset data))
