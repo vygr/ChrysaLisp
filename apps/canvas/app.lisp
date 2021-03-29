@@ -4,6 +4,9 @@
 (import "gui/lisp.inc")
 (import "lib/math/math.inc")
 
+(enums +select 0
+	(enum main timer))
+
 (enums +event 0
 	(enum close))
 
@@ -102,18 +105,19 @@
 	(.-> canvas (:fill 0) (:set_canvas_flags 1))
 	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
 	(gui-add (. mywindow :change x y w h))
-	(mail-timeout (elem -2 select) rate)
+	(mail-timeout (elem +select_timer select) rate)
 	(while id
 		(defq msg (mail-read (elem (defq idx (mail-select select)) select)))
 		(cond
-			((= idx 0)
+			((= idx +select_main)
 				;main mailbox
 				(cond
 					((= (getf msg +ev_msg_target_id) +event_close)
 						(setq id nil))
 					(t (. mywindow :event msg))))
-			(t	;timer event
-				(mail-timeout (elem -2 select) rate)
+			((= idx +select_timer)
+				;timer event
+				(mail-timeout (elem +select_timer select) rate)
 				(redraw)
 				(setq angle (+ angle 0.0025)))))
 	;close window

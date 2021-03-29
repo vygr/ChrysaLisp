@@ -2,6 +2,9 @@
 (import "lib/math/math.inc")
 (import "apps/bubbles/app.inc")
 
+(enums +select 0
+	(enum main timer))
+
 (enums +event 0
 	(enum close max min)
 	(enum reset)
@@ -135,11 +138,11 @@
 
 	;main event loop
 	(defq last_state :u id t)
-	(mail-timeout (elem -2 select) rate)
+	(mail-timeout (elem +select_timer select) rate)
 	(while id
 		(defq msg (mail-read (elem (defq idx (mail-select select)) select)))
 		(cond
-			((= idx 0)
+			((= idx +select_main)
 				;main mailbox
 				(cond
 					((= (setq id (getf msg +ev_msg_target_id)) +event_close)
@@ -185,8 +188,9 @@
 										(:u	;was up last time, so we are hovering
 											t))))))
 					(t (. mywindow :event msg))))
-			(t	;timer event
-				(mail-timeout (elem -2 select) rate)
+			((= idx +select_timer)
+				;timer event
+				(mail-timeout (elem +select_timer select) rate)
 				(vertex-update verts)
 				(redraw-layers verts 1)
 				(redraw dlist))))

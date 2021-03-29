@@ -2,6 +2,9 @@
 (import "lib/math/math.inc")
 (import "apps/whiteboard/app.inc")
 
+(enums +select 0
+	(enum main picker timer))
+
 (defun trans (_)
 	;transparent colour
 	(+ (logand 0xffffff _) 0x60000000))
@@ -140,11 +143,11 @@
 
 	;main event loop
 	(defq last_state :u last_point nil last_mid_point nil id t)
-	(mail-timeout (elem -2 select) rate)
+	(mail-timeout (elem +select_timer select) rate)
 	(while id
 		(defq msg (mail-read (elem (defq idx (mail-select select)) select)))
 		(cond
-			((= idx 0)
+			((= idx +select_main)
 				;main mailbox
 				(cond
 					((= (setq id (getf msg +ev_msg_target_id)) +event_close)
@@ -176,12 +179,12 @@
 						;save
 						(if picker_mbox (mail-send picker_mbox ""))
 						(mail-send (setq picker_mode t picker_mbox (open-child "apps/files/child.lisp" kn_call_open))
-							(list (elem 1 select) "Save Whiteboard..." "." "")))
+							(list (elem +select_picker select) "Save Whiteboard..." "." "")))
 					((= id +event_load)
 						;load
 						(if picker_mbox (mail-send picker_mbox ""))
 						(mail-send (setq picker_mode nil picker_mbox (open-child "apps/files/child.lisp" kn_call_open))
-							(list (elem 1 select) "Load Whiteboard..." "." ".cwb")))
+							(list (elem +select_picker select) "Load Whiteboard..." "." ".cwb")))
 					((= id +event_clear)
 						;clear
 						(snapshot)
@@ -241,7 +244,7 @@
 										(:u	;was up last time, so we are hovering
 											t))))))
 					(t	(. mywindow :event msg))))
-			((= idx 1)
+			((= idx +select_picker)
 				;save/load picker responce
 				(mail-send picker_mbox "")
 				(setq picker_mbox nil)
@@ -262,7 +265,7 @@
 										(apply path _)) p))) (elem 1 data)))
 								(redraw-layers 1))))))
 			(t	;timer event
-				(mail-timeout (elem -2 select) rate)
+				(mail-timeout (elem +select_timer select) rate)
 				(redraw dlist))))
 	;close window
 	(each mail-free-mbox (slice 1 -1 select))

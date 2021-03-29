@@ -3,6 +3,9 @@
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
 
+(enums +select 0
+	(enum main timer))
+
 (enums +event 0
 	(enum close)
 	(enum prev next))
@@ -35,11 +38,11 @@
 (defun main ()
 	(bind '(x y w h) (apply view-locate (. (win-refresh index) :get_size)))
 	(gui-add (. mywindow :change x y w h))
-	(mail-timeout (elem -2 select) rate)
+	(mail-timeout (elem +select_timer select) rate)
 	(while id
 		(defq msg (mail-read (elem (defq idx (mail-select select)) select)))
 		(cond
-			((= idx 0)
+			((= idx +select_main)
 				;main mailbox
 				(cond
 					((= (setq id (getf msg +ev_msg_target_id)) +event_close)
@@ -47,8 +50,9 @@
 					((<= +event_prev id +event_next)
 						(win-refresh (% (+ index (dec (* 2 (- id +event_prev))) (length films)) (length films))))
 					(t (. mywindow :event msg))))
-			(t	;timer event)
-				(mail-timeout (elem -2 select) rate)
+			((= idx +select_timer)
+				;timer event)
+				(mail-timeout (elem +select_timer select) rate)
 				(.-> canvas :next_frame :swap))))
 	;close window
 	(mail-free-mbox (pop select))
