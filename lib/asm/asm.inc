@@ -8,7 +8,8 @@
 
 (defun compile (files &optional *abi* *cpu* num_child)
 	(unless (list? files) (setq files (list files)))
-	(setd *abi* (abi) *cpu* (cpu) num_child (max 1 (/ (* (defq next_node (length (mail-nodes))) 80) 100)))
+	(defq nxt_node (length (mail-nodes)))
+	(setd *abi* (abi) *cpu* (cpu) num_child (max 1 (/ (* nxt_node 80) 100)))
 	(setq num_child (min num_child (length (shuffle files))))
 	(enums +select 0
 		(enum task reply timer))
@@ -27,8 +28,8 @@
 		(if (= 0 (length nodes))
 			(setq nodes (list (slice +long_size -1 (task-mailbox)))))
 		(open-task "lib/asm/asm.lisp"
-			(elem (setq next_node (% (inc next_node) (length nodes))) nodes)
-			kn_call_child key (elem +select_task select)))
+			(elem (setq nxt_node (% (inc nxt_node) (length nodes))) nodes)
+			+kn_call_child key (elem +select_task select)))
 	(defun destroy (key val)
 		; (destroy key val)
 		;function called when entry is destroyed
@@ -38,7 +39,7 @@
 			(push jobs job)
 			(.-> val (:erase :job) (:erase :timestamp))))
 	(when (/= num_child 0)
-		(defq timer_rate (/ 1000000 1) working t jobs (list) errors (list) next_node (random next_node)
+		(defq timer_rate (/ 1000000 1) working t jobs (list) errors (list) nxt_node (random nxt_node)
 			retry_timeout (if (starts-with "obj/vp64" (load-path)) 100000000 10000000)
 			select (list (mail-alloc-mbox) (mail-alloc-mbox) (mail-alloc-mbox)))
 		(times num_child (push jobs (list)))

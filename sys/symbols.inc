@@ -15,8 +15,6 @@ in_state 96
 +join_bevel 1
 +join_miter 0
 +join_round 2
-kn_call_child 2
-kn_call_open 1
 stdio_args 40
 stream_mail_state_started 0
 stream_mail_state_stopped 2

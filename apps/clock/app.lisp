@@ -24,7 +24,7 @@
 	;if analog clear clock face
 	(if clock (.-> clock (:fill 0) (:set_canvas_flags 1)))
 	;create child and send args
-	(defq mbox (open-child "apps/clock/child.lisp" kn_call_open))
+	(defq mbox (open-child "apps/clock/child.lisp" +kn_call_open))
 	;multiply size and scale, as they are only used together in child.
 	(mail-send mbox (list display clock (* (i2f clock_size) (i2f clock_scale))))
 	(bind '(w h) (. mywindow :pref_size))

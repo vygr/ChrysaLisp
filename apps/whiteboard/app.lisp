@@ -178,12 +178,12 @@
 					((= id +event_save)
 						;save
 						(if picker_mbox (mail-send picker_mbox ""))
-						(mail-send (setq picker_mode t picker_mbox (open-child "apps/files/child.lisp" kn_call_open))
+						(mail-send (setq picker_mode t picker_mbox (open-child "apps/files/child.lisp" +kn_call_open))
 							(list (elem +select_picker select) "Save Whiteboard..." "." "")))
 					((= id +event_load)
 						;load
 						(if picker_mbox (mail-send picker_mbox ""))
-						(mail-send (setq picker_mode nil picker_mbox (open-child "apps/files/child.lisp" kn_call_open))
+						(mail-send (setq picker_mode nil picker_mbox (open-child "apps/files/child.lisp" +kn_call_open))
 							(list (elem +select_picker select) "Load Whiteboard..." "." ".cwb")))
 					((= id +event_clear)
 						;clear

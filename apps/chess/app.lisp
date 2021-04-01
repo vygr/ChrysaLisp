@@ -72,7 +72,7 @@
 	; (create key val nodes)
 	;function called when entry is created
 	(open-task "apps/chess/child.lisp" (elem (random (length nodes)) nodes)
-		kn_call_child key (elem +select_task select)))
+		+kn_call_child key (elem +select_task select)))
 
 (defun destroy (key val)
 	; (destroy key val)

@@ -20,6 +20,6 @@
 		;start shmem links !
 		(if (<= (length args) 1)
 			;from stdin
-			(each-line (# (mail-send (open-child "sys/link/link" kn_call_child) %0)) (io-stream 'stdin))
+			(each-line (# (mail-send (open-child "sys/link/link" +kn_call_child) %0)) (io-stream 'stdin))
 			;from args
-			(each (# (mail-send (open-child "sys/link/link" kn_call_child) %0)) (slice 1 -1 args)))))
+			(each (# (mail-send (open-child "sys/link/link" +kn_call_child) %0)) (slice 1 -1 args)))))

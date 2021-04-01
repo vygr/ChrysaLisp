@@ -58,7 +58,7 @@
 	;sign on msg
 	(print (cat (const (cat "ChrysaLisp Terminal 1.5" (ascii-char 10))) (prompt)))
 	;create child and send args
-	(mail-send (open-child "apps/terminal/tui_child.lisp" kn_call_open) (task-mailbox))
+	(mail-send (open-child "apps/terminal/tui_child.lisp" +kn_call_open) (task-mailbox))
 	(defq cmd nil buffer "")
 	(while t
 		(defq data t)

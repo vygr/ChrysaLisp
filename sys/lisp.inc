@@ -1,5 +1,6 @@
 ;import symbols
 (import "sys/symbols.inc")
+(import "sys/kernel/lisp.inc")
 
 (ffi kernel-stats "sys/kernel/lisp_stats" 0)
 (ffi load-path "sys/load/lisp_path" 0)
@@ -30,12 +31,6 @@
 		(char (+ (logand 0x0f (code %0)) (ascii-code "a")))
 		(char (+ (logand 0x0f (>> (code %0) 4)) (ascii-code "a"))))) nid)))
 
-(structure +kn_msg 0
-	(ulong key)
-	(netid reply_id +net_id_size)
-	(offset reply_size)
-	(ulong func))
-
 (defun open-task (task node mode key_num reply)
 	; (open-task task node mode key_num reply)
 	(mail-send (cat (char 0 +long_size) node)
@@ -61,7 +56,7 @@
 	(defq devices (mail-nodes) ids (cap (length tasks) (list))
 		mbox (mail-alloc-mbox) index -1 tail (task-mailbox))
 	(while (< (setq index (inc index)) (length tasks))
-		(open-task (elem index tasks) (slice +long_size -1 tail) kn_call_child 0 mbox)
+		(open-task (elem index tasks) (slice +long_size -1 tail) +kn_call_child 0 mbox)
 		(defq tail (getf (mail-read mbox) +kn_msg_reply_id))
 		(push ids tail))
 	(mail-free-mbox mbox) ids)

@@ -30,7 +30,7 @@
 	(defq _t_syms_ (list) _t_syms_vals_ (list) _syms_ '(
 			+cap_butt +cap_round +cap_square +cap_tri view_id +file_open_append
 			+file_open_read +file_open_write in_mbox_id in_state +join_bevel
-			+join_miter +join_round kn_call_child kn_call_open stdio_args
+			+join_miter +join_round stdio_args
 			stream_mail_state_started stream_mail_state_stopped
 			stream_mail_state_stopping vdu_char_height vdu_char_width view_flags view_h
 			view_w view_x view_y canvas_flags canvas_color +cap_arrow canvas_scale

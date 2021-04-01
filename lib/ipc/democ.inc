@@ -22,7 +22,7 @@
             (open-remote
               "lib/ipc/demos.lisp"
               node
-              kn_call_open))))
+              +kn_call_open))))
     (t _ipc_service)))
 
 (defclass democ (client server) (client-ipc client server)

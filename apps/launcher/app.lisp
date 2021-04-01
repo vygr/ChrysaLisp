@@ -25,7 +25,7 @@
 		((= (defq id (getf (defq msg (mail-read (task-mailbox))) +ev_msg_target_id)) +event_close)
 			nil)
 		((= id +event_button)
-			(open-child (app-path (get :text (. mywindow :find_id (getf msg +ev_msg_action_source_id)))) kn_call_open)
+			(open-child (app-path (get :text (. mywindow :find_id (getf msg +ev_msg_action_source_id)))) +kn_call_open)
 			nil)
 		(t (. mywindow :event msg))))
 	(. mywindow :hide))

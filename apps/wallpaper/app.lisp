@@ -31,7 +31,7 @@
 	(defq images_info (map canvas-info *env_wallpaper_images*) wallpaper (View)
 			screen (penv (gui-add-back wallpaper)))
 	(each (lambda (_)
-		(open-child (app-path _) kn_call_open)) *env_launcher_auto_apps*)
+		(open-child (app-path _) +kn_call_open)) *env_launcher_auto_apps*)
 	(refresh-wallpaper)
 	(while t
 		(cond
@@ -41,4 +41,4 @@
 				(refresh-wallpaper))
 			((and (= (getf msg +ev_msg_type) +ev_type_mouse) (= (getf msg +ev_msg_mouse_buttons) 0))
 				;run launcher
-				(open-child (app-path "launcher") kn_call_open)))))
+				(open-child (app-path "launcher") +kn_call_open)))))

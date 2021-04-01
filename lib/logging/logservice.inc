@@ -32,7 +32,7 @@
             (open-remote
               "apps/logger/app.lisp"
               node
-              kn_call_open))))
+              +kn_call_open))))
     (t _log_service_mb)))
 
 ; log-client
