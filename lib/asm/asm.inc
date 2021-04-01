@@ -26,7 +26,7 @@
 		;function called when entry is created
 		(if (= 0 (length nodes))
 			(setq nodes (list (slice +long_size -1 (task-mailbox)))))
-		(open-task "class/lisp/compile.lisp"
+		(open-task "lib/asm/asm.lisp"
 			(elem (setq next_node (% (inc next_node) (length nodes))) nodes)
 			kn_call_child key (elem +select_task select)))
 	(defun destroy (key val)
