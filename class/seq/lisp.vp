@@ -426,7 +426,7 @@
 	(vpcase (list ovtable '= vtable))
 	(errorcases
 		(assign `((,element obj_vtable)) `(,ovtable))
-		(gotoif (list ovtable '/= vtable) 'error))
+		(gotoif (list ovtable '/= vtable) 'error1))
 		(list-cast-args `(,element) '(:char))
 		(goto 'dofind)
 	(default)
@@ -488,7 +488,7 @@
 	(vpcase (list ovtable '= vtable))
 	(errorcases
 		(assign `((,element obj_vtable)) `(,ovtable))
-		(gotoif (list ovtable '/= vtable) 'error))
+		(gotoif (list ovtable '/= vtable) 'error1))
 		(list-cast-args `(,element) '(:char))
 		(goto 'dofind)
 	(default)

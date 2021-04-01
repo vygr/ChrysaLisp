@@ -500,7 +500,7 @@
 
 (defun odd? (_)
 	; (odd? num) -> bool
-	(/= 0 (logand 1 _)))
+	(= 1 (logand 1 _)))
 
 (defun even? (_)
 	; (even? num) -> bool
