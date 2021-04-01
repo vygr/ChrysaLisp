@@ -27,7 +27,7 @@
 	(set (penv) _ *pc*))
 
 (defun emit-byte (&rest _)
-	(write-char *out_stream* _ 1)
+	(write-char *out_stream* _)
 	(setq *pc* (+ *pc* (length _))))
 
 (defun emit-short (&rest _)

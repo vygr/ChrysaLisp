@@ -18,6 +18,8 @@
 (defun print (&rest args)
 	(push msg (apply str (push args (ascii-char 10)))))
 
+;(import "lib/debug/profile.inc")
+
 (defun main ()
 	(defq select (list (task-mailbox) (mail-alloc-mbox)) working t +timeout 5000000)
 	(while working
@@ -44,4 +46,5 @@
 				;send reply
 				(print reply_key)
 				(mail-send reply_mbox (apply cat msg)))))
+	;(profile-report "Asm")
 	(mail-free-mbox (pop select)))
