@@ -3150,6 +3150,19 @@ Super Class: array
 
 ### list :create -> class/list/create
 
+### list :deep_copy -> class/list/deep_copy
+
+```lisp
+inputs
+r0 = list object (ptr)
+r1 = stack array object (ptr)
+outputs
+r0 = list object (ptr)
+r1 = copy list object (ptr)
+trashes
+r1-r14
+```
+
 ### list :type -> class/list/type
 
 ### list :vcreate -> class/list/create
