@@ -34,8 +34,7 @@
 				;clear timeout
 				(mail-timeout (elem +select_timeout select) 0)
 				;read job
-				(defq reply_key (getf msg +job_key)
-					reply_mbox (getf msg +job_reply))
+				(defq reply_key (getf msg +job_key) reply_mbox (getf msg +job_reply))
 				(bind '((files *abi* *cpu* *debug_mode* *debug_emit* *debug_inst*) _)
 					(read (string-stream (slice +job_params -1 msg)) (ascii-code " ")))
 				;compile the file list and catch any errors

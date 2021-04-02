@@ -80,8 +80,9 @@
 				(endswitch)
 
 				;down this lists branches
-				(assign '((rsp local_this) (rsp local_form)) '(r0 r1))
+				(assign '((rsp local_this) (rsp local_form)) '(r0 r6))
 				(assign '((r0 lisp_stack)) '(r0))
+
 			(errorcases
 				(assign '((r0 array_length) (rsp local_start)) '(r2 r3))
 				(vp-sub-rr r3 r2)
@@ -89,15 +90,17 @@
 					(debug-str '("Exessive macro recursion !"))
 					(break 'next_iter)
 				(endif))
-				(class/array/get_both r1 r1 r6)
+
+				;push in reverse so as we pop we traverse left to right !
+				(class/array/get_both r6 r6 r1)
 				(f-bind 'list :vtable r7)
 				(loop-start)
-					(vp-cpy-ir r1 0 r2)
+					(vp-cpy-ir r1 (neg +ptr_size) r2)
+					(vp-sub-cr +ptr_size r1)
 					(assign '((r2 obj_vtable)) '(r2))
 					(vpif '(r2 = r7))
 						(call 'array :push_back '(r0 r1) '(r0 r1 _ _))
 					(endif)
-					(vp-add-cr +ptr_size r1)
 				(loop-until '(r1 = r6))
 			(endswitch)
 

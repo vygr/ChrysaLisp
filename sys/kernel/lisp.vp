@@ -1,8 +1,5 @@
 (include "sys/func.inc")
 (include "sys/kernel/class.inc")
-(include "sys/task/class.inc")
-(include "sys/mem/class.inc")
-(include "class/num/class.inc")
 (include "class/lisp/class.inc")
 (include "sys/statics/class.inc")
 

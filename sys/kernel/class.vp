@@ -200,7 +200,7 @@
 					(loop-end)
 					(call 'list :destroy {entries})
 				(endswitch)
-			(vp-label 'drop_msg)
+
 				(pop-scope)
 				(call 'sys_mail :free {msg})
 				(break)
