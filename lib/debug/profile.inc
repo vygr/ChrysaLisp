@@ -4,8 +4,8 @@
 
 (import "sys/lisp.inc")
 
-(structure +prof 0
-	(byte cnt rcnt acc))
+(enums +prof 0
+	(enum cnt rcnt acc))
 
 (defq *profile* (env -401) *profile_ret* (list))
 

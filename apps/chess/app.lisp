@@ -113,11 +113,11 @@
 					(cond
 						;move
 						((eql data_type (ascii-code "b"))
-							(each (lambda (_)
+							(times 3
 								(display-board brd)
 								(task-sleep flicker_rate)
 								(display-board data)
-								(task-sleep flicker_rate)) (range 0 2))
+								(task-sleep flicker_rate))
 							(push history (setq color (neg color) brd data))
 							(. farm :close)
 							(setq farm (Farm create destroy 1)))

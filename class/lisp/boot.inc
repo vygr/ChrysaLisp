@@ -52,6 +52,7 @@
 (ffi merge-obj "class/list/lisp_merge" 0)
 (ffi pivot "class/list/lisp_part" 0)
 (ffi match? "class/list/lisp_match" 0)
+(ffi copy "class/list/lisp_copy" 0)
 
 (ffi str "class/str/lisp_str" 0)
 (ffi split "class/str/lisp_split" 0)
@@ -92,7 +93,6 @@
 
 (ffi hash "class/obj/lisp_hash" 0)
 (ffi eql "class/lisp/lisp_eql" 0)
-(ffi copy "class/lisp/lisp_copy" 0)
 (ffi type-of "class/obj/lisp_type" 0)
 
 (ffi macroexpand "class/lisp/lisp_macroexpand" 0)
