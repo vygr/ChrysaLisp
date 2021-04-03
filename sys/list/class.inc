@@ -1,7 +1,7 @@
 (include "sys/class.inc")
 
-(def-class 'sys_list)
-(dec-method :init 'sys/list/init :static '(r0))
+(def-class sys_list nil
+	(dec-method :init sys/list/init :static (r0)))
 
 (defun sys/list/init ()
 	;inputs

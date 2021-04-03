@@ -10,77 +10,70 @@
 (defmacro super-sym (_)
 	`(sym (cat "_super_" ,_)))
 
-(defcvar '*class* nil (class-sym 'null) '(()()0) '*args* (list))
+(defcvar '*class* nil (class-sym nil) '(()()0) '*args* (list))
 
 (defun vtable-emit (_1)
 	;_1 = class name
-	(if (eql (defq _ (eval (super-sym _1))) 'null)
+	(if (eql (defq _ (eval (super-sym _1))) nil)
 		(vp-long 0)
 		(fn-add-link (f-path _ :vtable)))
 	(each (lambda (_)
 		(if (or (eql (elem 1 _) :virtual) (eql (elem 1 _) :final))
 			(fn-add-link (elem 0 _)))) (elem 1 (eval (class-sym _1)))))
 
-(defun def-class (_1 &optional _2)
-	;_1 = class name
-	;_2 = super class name
-	(setd _2 'null)
-	(defq _ (eval (class-sym _2)))
-	(setq *class* (list (cat (elem 0 _)) (cat (elem 1 _)) (elem 2 _)))
-	(defcvar (super-sym _1) _2 (class-sym _1) *class*))
-
 (defun override ()
 	(setq m (cat m))
-	(elem-set 0 m _2)
+	(elem-set 0 m mfunc)
 	(elem-set s (elem 1 *class*) m)
-	(if _4 (elem-set 2 m _4))
-	(if _5 (elem-set 3 m _5)))
+	(if regs_in (elem-set 2 m regs_in))
+	(if regs_out (elem-set 3 m regs_out)))
 
-(defun dec-method (_1 _2 &optional _3 _4 _5)
-	;_1 = member name
-	;_2 = member function
-	;_3 = mode (static/virtual/final/override)
-	;_4 = in regs
-	;_5 = out regs
-	(setd _3 :static)
-	(defq m (if (defq s (find-rev _1 (elem 0 *class*))) (elem s (elem 1 *class*))))
-	(if m
-		(case _3
-			;existing method
-			(:static
-				(if (eql (elem 1 m) :static)
-					(override)
-					(throw "Virtual method already exists !" _1)))
-			(:final
-				(case (elem 1 m)
-					(:virtual
+(defmacro def-class (cls spr &rest lines)
+	(defq _ (eval (class-sym spr)))
+	(setq *class* (list (cat (elem 0 _)) (cat (elem 1 _)) (elem 2 _)))
+	(defcvar (super-sym cls) spr (class-sym cls) *class*)
+	(each (lambda ((_ mname mfunc &optional mtype regs_in regs_out))
+		(setd mtype :static)
+		(and regs_in (match? regs_in '(abi-args _)) (setq regs_in (eval regs_in)))
+		(defq m (if (defq s (find-rev mname (elem 0 *class*))) (elem s (elem 1 *class*))))
+		(if m
+			(case mtype
+				;existing method
+				(:static
+					(if (eql (elem 1 m) :static)
 						(override)
-						(elem-set 1 m _3))
-					(:final
-						(throw "Virtual method is final !" _1))
-					(t (throw "Static method already exists !" _1))))
-			(:override
-				(case (elem 1 m)
-					(:virtual
-						(override))
-					(:final
-						(throw "Virtual method is final !" _1))
-					(t (throw "Static method already exists !" _1))))
-			(:virtual
-				(throw "Method already exists !, use override ?" _1))
-			(t (throw "Must use static, virtual, final or override ! " _3)))
-		(case _3
-			;new method
-			(:static
-				(push (elem 0 *class*) _1)
-				(push (elem 1 *class*) (list _2 _3 _4 _5)))
-			((:virtual :final)
-				(push (elem 0 *class*) _1)
-				(push (elem 1 *class*) (list _2 _3 _4 _5
-					(elem-set 2 *class* (+ (elem 2 *class*) +ptr_size)))))
-			(:override
-				(throw "Method does not exist !" _1))
-			(t (throw "Must use static, virtual, final or override ! " _3)))))
+						(throw "Virtual method already exists !" mname)))
+				(:final
+					(case (elem 1 m)
+						(:virtual
+							(override)
+							(elem-set 1 m mtype))
+						(:final
+							(throw "Virtual method is final !" mname))
+						(t (throw "Static method already exists !" mname))))
+				(:override
+					(case (elem 1 m)
+						(:virtual
+							(override))
+						(:final
+							(throw "Virtual method is final !" mname))
+						(t (throw "Static method already exists !" mname))))
+				(:virtual
+					(throw "Method already exists !, use override ?" mname))
+				(t (throw "Must use static, virtual, final or override ! " mtype)))
+			(case mtype
+				;new method
+				(:static
+					(push (elem 0 *class*) mname)
+					(push (elem 1 *class*) (list mfunc mtype regs_in regs_out)))
+				((:virtual :final)
+					(push (elem 0 *class*) mname)
+					(push (elem 1 *class*) (list mfunc mtype regs_in regs_out
+						(elem-set 2 *class* (+ (elem 2 *class*) +ptr_size)))))
+				(:override
+					(throw "Method does not exist !" mname))
+				(t (throw "Must use static, virtual, final or override ! " mtype))))) lines)
+	nil)
 
 (defun def-method (_1 _2 &optional _3)
 	;_1 = class name

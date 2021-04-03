@@ -191,8 +191,8 @@ Register inputs and outputs are declared in the `sys/mail/class.inc` file just
 as with a VP function.
 
 ```vdu
-(def-class 'sys_mail)
-(dec-method :declare 'sys/mail/declare :static '(r0 r1))
+(def-class sys_mail nil
+	(dec-method :declare sys/mail/declare :static (r0 r1)))
 ```
 
 Implementation of the function is defined in the `sys/mail/class.vp` file.

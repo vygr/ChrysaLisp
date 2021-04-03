@@ -27,7 +27,7 @@ level code.
 In the `obj` base class there exists this virtual method definition:
 
 ```vdu
-(dec-method :hash 'class/obj/hash :virtual '(r0) '(r0 r1))
+(dec-method :hash class/obj/hash :virtual (r0) (r0 r1))
 ```
 
 The implementation for the `obj` class is:
@@ -67,7 +67,7 @@ The method override, which happens to be `final` in this case, is defined in
 the `class/str/class.inc` file.
 
 ```vdu
-(dec-method :hash 'class/str/hash :final)
+(dec-method :hash class/str/hash :final)
 ```
 
 And the implementation of this is in the `class/str/class.vp` file:
@@ -161,7 +161,7 @@ in that file for other functions so we will just add one to the end.
 First we need to add a declaration to `class/obj/class.inc` for the new method:
 
 ```vdu
-(dec-method :lisp_hash 'class/obj/lisp_hash :static '(r0 r1) '(r0 r1))
+(dec-method :lisp_hash class/obj/lisp_hash :static (r0 r1) (r0 r1))
 ```
 
 And here is the new binding method we add to `class/obj/lisp.vp`:

@@ -81,7 +81,7 @@
                         ((eql _ "include")
                             (make-merge *imports* (list (elem 1 s))))
                         ((eql _ "def-class")
-                            (push classes (list (elem 1 s) (if (= 3 (length s)) (elem 2 s) "null"))))
+                            (push classes (list (elem 1 s) (elem 2 s))))
                         ((eql _ "dec-method")
                             (push (elem -2 classes) (list (elem 1 s) (sym (elem 2 s)))))
                         ((eql _ "def-method")

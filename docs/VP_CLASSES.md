@@ -981,7 +981,7 @@ r1-r14
 
 ## ctx
 
-Super Class: null
+Super Class: nil
 
 ### ctx :set_color -> gui/ctx/set_color
 
@@ -1881,7 +1881,7 @@ r1-r14
 
 ## gui
 
-Super Class: null
+Super Class: nil
 
 ### gui :statics_init -> gui/gui/statics_init
 
@@ -2236,7 +2236,7 @@ r1-r14
 
 ## host
 
-Super Class: null
+Super Class: nil
 
 ### host :exit -> nil
 
@@ -2284,7 +2284,7 @@ Super Class: null
 
 ## host_gui
 
-Super Class: null
+Super Class: nil
 
 ### host_gui :sdl_set_main_ready -> nil
 
@@ -4358,7 +4358,7 @@ r1-r14
 
 ## obj
 
-Super Class: null
+Super Class: nil
 
 ### obj :vtable -> class/obj/vtable
 
@@ -5686,7 +5686,7 @@ r1-r14
 
 ## region
 
-Super Class: null
+Super Class: nil
 
 ### region :translate -> gui/region/translate
 
@@ -6969,7 +6969,7 @@ r1-r14
 
 ## sys_heap
 
-Super Class: null
+Super Class: nil
 
 ### sys_heap :init -> sys/heap/init
 
@@ -7034,7 +7034,7 @@ r1-r11
 
 ## sys_kernel
 
-Super Class: null
+Super Class: nil
 
 ### sys_kernel :id -> sys/kernel/id
 
@@ -7075,7 +7075,7 @@ r1-r14
 
 ## sys_link
 
-Super Class: null
+Super Class: nil
 
 ### sys_link :link -> sys/link/link
 
@@ -7095,7 +7095,7 @@ started by kernel for each usb link
 
 ## sys_list
 
-Super Class: null
+Super Class: nil
 
 ### sys_list :init -> sys/list/init
 
@@ -7106,7 +7106,7 @@ r0 = list header (ptr)
 
 ## sys_load
 
-Super Class: null
+Super Class: nil
 
 ### sys_load :init -> sys/load/init
 
@@ -7173,7 +7173,7 @@ r1-r14
 
 ## sys_mail
 
-Super Class: null
+Super Class: nil
 
 ### sys_mail :statics_init -> sys/mail/statics_init
 
@@ -7565,7 +7565,7 @@ r1-r14
 
 ## sys_math
 
-Super Class: null
+Super Class: nil
 
 ### sys_math :i_rand -> sys/math/i_rand
 
@@ -7797,7 +7797,7 @@ r12-r14
 
 ## sys_mem
 
-Super Class: null
+Super Class: nil
 
 ### sys_mem :statics_init -> sys/mem/statics_init
 
@@ -7912,7 +7912,7 @@ free all unused blocks
 
 ## sys_pii
 
-Super Class: null
+Super Class: nil
 
 ### sys_pii :exit -> sys/pii/exit
 
@@ -8287,7 +8287,7 @@ r1-r14
 
 ## sys_str
 
-Super Class: null
+Super Class: nil
 
 ### sys_str :length -> sys/str/length
 
@@ -8366,7 +8366,7 @@ r0-r2
 
 ## sys_task
 
-Super Class: null
+Super Class: nil
 
 ### sys_task :statics_init -> sys/task/statics_init
 

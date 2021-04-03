@@ -2,11 +2,11 @@
 (include "sys/mail/class.inc")
 (include "class/str/class.inc")
 
-(def-class 'sys_link)
-(dec-method :link 'sys/link/link)
-(dec-method :usb_link 'sys/link/usb_link)
-(dec-method :in 'sys/link/in)
-(dec-method :out 'sys/link/out)
+(def-class sys_link nil
+	(dec-method :link sys/link/link)
+	(dec-method :usb_link sys/link/usb_link)
+	(dec-method :in sys/link/in)
+	(dec-method :out sys/link/out))
 
 ;;;;;;;;;;;;;;;;;
 ; link structures
