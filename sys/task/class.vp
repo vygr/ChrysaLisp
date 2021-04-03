@@ -5,7 +5,7 @@
 (include "class/str/class.inc")
 (include "sys/statics/class.inc")
 
-(def-method sys_task :statics_init)
+(def-method 'sys_task :statics_init)
 	;info
 	;init task statics
 
@@ -21,7 +21,7 @@
 
 (def-func-end)
 
-(def-method sys_task :callback)
+(def-method 'sys_task :callback)
 	;inputs
 	;r0 = user data address (ptr)
 	;r1 = callback address (ptr)
@@ -76,7 +76,7 @@
 
 (def-func-end)
 
-(def-method sys_task :mailbox)
+(def-method 'sys_task :mailbox)
 	;outputs
 	;r0-r2 = current ID (net_id)
 	;trashes
@@ -94,7 +94,7 @@
 
 (def-func-end)
 
-(def-method sys_task :restore)
+(def-method 'sys_task :restore)
 	;trashes
 	;r0-r14
 	;info
@@ -116,7 +116,7 @@
 
 (def-func-end)
 
-(def-method sys_task :defer)
+(def-method 'sys_task :defer)
 	;inputs
 	;r0 = task control node to defer to (ptr)
 	;trashes
@@ -139,7 +139,7 @@
 
 (def-func-end)
 
-(def-method sys_task :suspend)
+(def-method 'sys_task :suspend)
 	;trashes
 	;none
 	;info
@@ -164,7 +164,7 @@
 
 (def-func-end)
 
-(def-method sys_task :resume)
+(def-method 'sys_task :resume)
 	;inputs
 	;r0 = task control node to resume (ptr)
 	;outputs
@@ -191,7 +191,7 @@
 
 (def-func-end)
 
-(def-method sys_task :sleep)
+(def-method 'sys_task :sleep)
 	;inputs
 	;r0 = time delay in usec (ulong)
 	;trashes
@@ -236,7 +236,7 @@
 
 (def-func-end)
 
-(def-method sys_task :set_priority)
+(def-method 'sys_task :set_priority)
 	;inputs
 	;r0 = priority (uint)
 	;trashes
@@ -261,7 +261,7 @@
 
 (def-func-end)
 
-(def-method sys_task :start)
+(def-method 'sys_task :start)
 	;inputs
 	;r0 = new task func pointer (ptr)
 	;outputs
@@ -312,7 +312,7 @@
 
 (def-func-end)
 
-(def-method sys_task :stop)
+(def-method 'sys_task :stop)
 	;info
 	;stop current task, switch to next task
 
@@ -357,7 +357,7 @@
 
 (def-func-end)
 
-(def-method sys_task :tcb)
+(def-method 'sys_task :tcb)
 	;outputs
 	;r0 = current task tcb (ptr)
 	;trashes
@@ -369,7 +369,7 @@
 
 (def-func-end)
 
-(def-method sys_task :timer)
+(def-method 'sys_task :timer)
 	;outputs
 	;r0 = current time (ulong)
 	;trashes
@@ -411,7 +411,7 @@
 ; single child process
 ;;;;;;;;;;;;;;;;;;;;;;
 
-(def-method sys_task :open_child)
+(def-method 'sys_task :open_child)
 	;inputs
 	;r0 = name c string (pubyte)
 	;r1 = spawn type (uint)
@@ -467,7 +467,7 @@
 
 (def-func-end)
 
-(def-method sys_task :dump)
+(def-method 'sys_task :dump)
 	;inputs
 	;rsp = task stack pointer (ptr)
 	;trashes

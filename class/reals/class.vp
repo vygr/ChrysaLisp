@@ -36,7 +36,7 @@
 	(exit 'reals _ `(,dst))
 	(vp-ret))
 
-(def-method reals :add)
+(def-method 'reals :add)
 	;inputs
 	;r0 = reals object (ptr)
 	;r1 = source1 reals object, can be same (ptr)
@@ -51,7 +51,7 @@
 
 (def-func-end)
 
-(def-method reals :sub)
+(def-method 'reals :sub)
 	;inputs
 	;r0 = reals object (ptr)
 	;r1 = source1 reals object, can be same (ptr)
@@ -66,7 +66,7 @@
 
 (def-func-end)
 
-(def-method reals :mul)
+(def-method 'reals :mul)
 	;inputs
 	;r0 = reals object (ptr)
 	;r1 = source1 reals object, can be same (ptr)
@@ -101,7 +101,7 @@
 	(exit 'reals _ `(,dst 0))
 	(vp-ret)))
 
-(def-method reals :div)
+(def-method 'reals :div)
 	;inputs
 	;r0 = reals object (ptr)
 	;r1 = source1 reals object, can be same (ptr)
@@ -120,7 +120,7 @@
 
 (def-func-end)
 
-(def-method reals :mod)
+(def-method 'reals :mod)
 	;inputs
 	;r0 = reals object (ptr)
 	;r1 = source1 reals object, can be same (ptr)
@@ -139,7 +139,7 @@
 
 (def-func-end)
 
-(def-method reals :frac)
+(def-method 'reals :frac)
 	;inputs
 	;r0 = reals object (ptr)
 	;r1 = source reals object, can be same (ptr)
@@ -153,7 +153,7 @@
 
 (def-func-end)
 
-(def-method reals :floor)
+(def-method 'reals :floor)
 	;inputs
 	;r0 = reals object (ptr)
 	;r1 = source reals object, can be same (ptr)
@@ -167,7 +167,7 @@
 
 (def-func-end)
 
-(def-method reals :abs)
+(def-method 'reals :abs)
 	;inputs
 	;r0 = reals object (ptr)
 	;r1 = source reals object, can be same (ptr)
@@ -187,7 +187,7 @@
 
 (def-func-end)
 
-(def-method reals :scale)
+(def-method 'reals :scale)
 	;inputs
 	;r0 = reals object (ptr)
 	;r1 = source reals object, can be same (ptr)
@@ -214,7 +214,7 @@
 
 (def-func-end)
 
-(def-method reals :sum)
+(def-method 'reals :sum)
 	;inputs
 	;r0 = reals object (ptr)
 	;outputs

@@ -75,8 +75,8 @@
 				(t (throw "Must use static, virtual, final or override ! " mtype))))) lines)
 	nil)
 
-(defmacro def-method (class member &optional alignment)
-	`(def-func ',(f-path class member) ,alignment))
+(defun def-method (class member &optional alignment)
+	(def-func (f-path class member) alignment))
 
 ;;;;;;;;;;;;;;;;;;
 ; function helpers

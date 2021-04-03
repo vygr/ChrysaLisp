@@ -408,7 +408,7 @@ Second the `class.vp` file.
 (gen-create 'pair)
 (gen-vtable 'pair)
 
-(def-method pair :deinit)
+(def-method 'pair :deinit)
 	;inputs
 	;r0 = pair object (ptr)
 	;outputs
@@ -427,7 +427,7 @@ Second the `class.vp` file.
 
 (def-func-end)
 
-(def-method pair :ref_first)
+(def-method 'pair :ref_first)
 	;inputs
 	;r0 = pair object (ptr)
 	;outputs
@@ -446,7 +446,7 @@ Second the `class.vp` file.
 
 (def-func-end)
 
-(def-method pair :ref_second)
+(def-method 'pair :ref_second)
 	;inputs
 	;r0 = pair object (ptr)
 	;outputs
@@ -465,7 +465,7 @@ Second the `class.vp` file.
 
 (def-func-end)
 
-(def-method pair :set_first)
+(def-method 'pair :set_first)
 	;inputs
 	;r0 = pair object (ptr)
 	;r1 = object (ptr)
@@ -486,7 +486,7 @@ Second the `class.vp` file.
 
 (def-func-end)
 
-(def-method pair :set_second)
+(def-method 'pair :set_second)
 	;inputs
 	;r0 = pair object (ptr)
 	;r1 = object (ptr)

@@ -8,7 +8,7 @@
 (gen-create 'real)
 (gen-vtable 'real)
 
-(def-method real :print)
+(def-method 'real :print)
 	;inputs
 	;r0 = real object (ptr)
 	;r1 = stream object (ptr)
@@ -64,7 +64,7 @@
 	(exit 'real _ '(r0 r1))
 	(vp-ret))
 
-(def-method real :add)
+(def-method 'real :add)
 	;inputs
 	;r0 = real object (ptr)
 	;r1 = list of real objects (ptr)
@@ -79,7 +79,7 @@
 
 (def-func-end)
 
-(def-method real :sub)
+(def-method 'real :sub)
 	;inputs
 	;r0 = real object (ptr)
 	;r1 = list of real objects (ptr)
@@ -94,7 +94,7 @@
 
 (def-func-end)
 
-(def-method real :mul)
+(def-method 'real :mul)
 	;inputs
 	;r0 = real object (ptr)
 	;r1 = list of real objects (ptr)
@@ -126,7 +126,7 @@
 	(exit 'num _ `(,this ,args))
 	(vp-ret))
 
-(def-method real :min)
+(def-method 'real :min)
 	;inputs
 	;r0 = real object (ptr)
 	;r1 = list of real objects (ptr)
@@ -146,7 +146,7 @@
 
 (def-func-end)
 
-(def-method real :max)
+(def-method 'real :max)
 	;inputs
 	;r0 = real object (ptr)
 	;r1 = list of real objects (ptr)
@@ -190,7 +190,7 @@
 	(exit 'real _ '(r0 r3))
 	(vp-ret))
 
-(def-method real :div)
+(def-method 'real :div)
 	;inputs
 	;r0 = real object (ptr)
 	;r1 = list of real objects (ptr)
@@ -205,7 +205,7 @@
 
 (def-func-end)
 
-(def-method real :mod)
+(def-method 'real :mod)
 	;inputs
 	;r0 = real object (ptr)
 	;r1 = list of real objects (ptr)
@@ -241,7 +241,7 @@
 	(exit 'real _ '(r0 0))
 	(vp-ret))
 
-(def-method real :ge)
+(def-method 'real :ge)
 	;inputs
 	;r0 = real object (ptr)
 	;r1 = list of real objects (ptr)
@@ -259,7 +259,7 @@
 
 (def-func-end)
 
-(def-method real :gt)
+(def-method 'real :gt)
 	;inputs
 	;r0 = real object (ptr)
 	;r1 = list of real objects (ptr)
@@ -277,7 +277,7 @@
 
 (def-func-end)
 
-(def-method real :le)
+(def-method 'real :le)
 	;inputs
 	;r0 = real object (ptr)
 	;r1 = list of real objects (ptr)
@@ -295,7 +295,7 @@
 
 (def-func-end)
 
-(def-method real :lt)
+(def-method 'real :lt)
 	;inputs
 	;r0 = real object (ptr)
 	;r1 = list of real objects (ptr)
@@ -313,7 +313,7 @@
 
 (def-func-end)
 
-(def-method real :sqrt)
+(def-method 'real :sqrt)
 	;inputs
 	;r0 = real object (ptr)
 	;outputs
@@ -336,7 +336,7 @@
 
 (def-func-end)
 
-(def-method real :frac)
+(def-method 'real :frac)
 	;inputs
 	;r0 = real object (ptr)
 	;outputs
@@ -357,7 +357,7 @@
 
 (def-func-end)
 
-(def-method real :floor)
+(def-method 'real :floor)
 	;inputs
 	;r0 = real object (ptr)
 	;outputs
@@ -378,7 +378,7 @@
 
 (def-func-end)
 
-(def-method real :recip)
+(def-method 'real :recip)
 	;inputs
 	;r0 = real object (ptr)
 	;outputs
@@ -400,7 +400,7 @@
 
 (def-func-end)
 
-(def-method real :abs)
+(def-method 'real :abs)
 	;inputs
 	;r0 = real object (ptr)
 	;outputs
@@ -428,7 +428,7 @@
 
 (def-func-end)
 
-(def-method real :neg)
+(def-method 'real :neg)
 	;inputs
 	;r0 = real object (ptr)
 	;outputs
@@ -450,7 +450,7 @@
 
 (def-func-end)
 
-(def-method real :sign)
+(def-method 'real :sign)
 	;inputs
 	;r0 = real object (ptr)
 	;outputs

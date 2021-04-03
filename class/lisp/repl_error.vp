@@ -4,7 +4,7 @@
 (include "class/num/class.inc")
 (include "class/lisp/class.inc")
 
-(def-method lisp :repl_error)
+(def-method 'lisp :repl_error)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = description c string (pubyte)

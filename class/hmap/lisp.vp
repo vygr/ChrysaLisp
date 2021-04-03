@@ -42,7 +42,7 @@
 	(vp-free local_size)
 	(vp-ret))
 
-(def-method hmap :lisp_def)
+(def-method 'hmap :lisp_def)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -72,7 +72,7 @@
 
 (def-func-end)
 
-(def-method hmap :lisp_set)
+(def-method 'hmap :lisp_set)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -153,7 +153,7 @@
 	(vp-free local_size)
 	(vp-ret))
 
-(def-method hmap :lisp_defq)
+(def-method 'hmap :lisp_defq)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -180,7 +180,7 @@
 
 (def-func-end)
 
-(def-method hmap :lisp_setq)
+(def-method 'hmap :lisp_setq)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -217,7 +217,7 @@
 
 (def-func-end)
 
-(def-method hmap :lisp_get)
+(def-method 'hmap :lisp_get)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -263,7 +263,7 @@
 
 (def-func-end)
 
-(def-method hmap :lisp_defx)
+(def-method 'hmap :lisp_defx)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -309,7 +309,7 @@
 
 (def-func-end)
 
-(def-method hmap :lisp_env)
+(def-method 'hmap :lisp_env)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -365,7 +365,7 @@
 
 (def-func-end)
 
-(def-method hmap :lisp_list)
+(def-method 'hmap :lisp_list)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -396,7 +396,7 @@
 
 (def-func-end)
 
-(def-method hmap :lisp_undef)
+(def-method 'hmap :lisp_undef)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -462,7 +462,7 @@
 
 (def-func-end)
 
-(def-method hmap :lisp_parent)
+(def-method 'hmap :lisp_parent)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)

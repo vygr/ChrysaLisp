@@ -3,7 +3,7 @@
 (include "sys/pii/class.inc")
 (include "sys/statics/class.inc")
 
-(def-method sys_pii :exit)
+(def-method 'sys_pii :exit)
 	;inputs
 	;r0 = code (long)
 
@@ -12,7 +12,7 @@
 
 (def-func-end)
 
-(def-method sys_pii :open)
+(def-method 'sys_pii :open)
 	;inputs
 	;r0 = c string filename (pubyte)
 	;r1 = mode (ulong)
@@ -30,7 +30,7 @@
 
 (def-func-end)
 
-(def-method sys_pii :close)
+(def-method 'sys_pii :close)
 	;inputs
 	;r0 = fd (ulong)
 	;outputs
@@ -47,7 +47,7 @@
 
 (def-func-end)
 
-(def-method sys_pii :seek)
+(def-method 'sys_pii :seek)
 	;inputs
 	;r0 = fd (ulong)
 	;r1 = offset (long)
@@ -66,7 +66,7 @@
 
 (def-func-end)
 
-(def-method sys_pii :remove)
+(def-method 'sys_pii :remove)
 	;inputs
 	;r0 = c string filename (pubyte)
 	;outputs
@@ -83,7 +83,7 @@
 
 (def-func-end)
 
-(def-method sys_pii :open_shared)
+(def-method 'sys_pii :open_shared)
 	;inputs
 	;r0 = c string filename (pubyte)
 	;r1 = length (ulong)
@@ -101,7 +101,7 @@
 
 (def-func-end)
 
-(def-method sys_pii :close_shared)
+(def-method 'sys_pii :close_shared)
 	;inputs
 	;r0 = c string filename (pubyte)
 	;r1 = handle (long)
@@ -119,7 +119,7 @@
 
 (def-func-end)
 
-(def-method sys_pii :dirlist)
+(def-method 'sys_pii :dirlist)
 	;inputs
 	;r0 = c string pathname (pubyte)
 	;r1 = buffer pointer (ptr)
@@ -138,7 +138,7 @@
 
 (def-func-end)
 
-(def-method sys_pii :write_num)
+(def-method 'sys_pii :write_num)
 	;inputs
 	;r0 = fd (ulong)
 	;r1 = number (ulong)
@@ -174,7 +174,7 @@
 
 (def-func-end)
 
-(def-method sys_pii :write_char)
+(def-method 'sys_pii :write_char)
 	;inputs
 	;r0 = fd (ulong)
 	;r1 = char (ulong)
@@ -194,7 +194,7 @@
 
 (def-func-end)
 
-(def-method sys_pii :write)
+(def-method 'sys_pii :write)
 	;inputs
 	;r0 = fd (ulong)
 	;r1 = buffer (pubyte)
@@ -213,7 +213,7 @@
 
 (def-func-end)
 
-(def-method sys_pii :write_str)
+(def-method 'sys_pii :write_str)
 	;inputs
 	;r0 = fd (ulong)
 	;r1 = c string (pubyte)
@@ -233,7 +233,7 @@
 
 (def-func-end)
 
-(def-method sys_pii :time)
+(def-method 'sys_pii :time)
 	;outputs
 	;r0 = time in usec (ulong)
 	;trashes
@@ -247,7 +247,7 @@
 
 (def-func-end)
 
-(def-method sys_pii :rand)
+(def-method 'sys_pii :rand)
 	;inputs
 	;r0 = data buffer pointer (pubyte)
 	;r1 = length (uint)
@@ -263,7 +263,7 @@
 
 (def-func-end)
 
-(def-method sys_pii :mmap)
+(def-method 'sys_pii :mmap)
 	;inputs
 	;r0 = len (ulong)
 	;r1 = fd (ulong)
@@ -282,7 +282,7 @@
 
 (def-func-end)
 
-(def-method sys_pii :munmap)
+(def-method 'sys_pii :munmap)
 	;inputs
 	;r0 = buffer (ptr)
 	;r1 = len (ulong)
@@ -301,7 +301,7 @@
 
 (def-func-end)
 
-(def-method sys_pii :mprotect)
+(def-method 'sys_pii :mprotect)
 	;inputs
 	;r0 = buffer (ptr)
 	;r1 = len (ulong)
@@ -320,7 +320,7 @@
 
 (def-func-end)
 
-(def-method sys_pii :clear_icache)
+(def-method 'sys_pii :clear_icache)
 	;inputs
 	;r0 = address (pubyte)
 	;r1 = length (ulong)
@@ -338,7 +338,7 @@
 
 (def-func-end)
 
-(def-method sys_pii :read)
+(def-method 'sys_pii :read)
 	;inputs
 	;r0 = fd (ulong)
 	;r1 = buffer (ptr)
@@ -357,7 +357,7 @@
 
 (def-func-end)
 
-(def-method sys_pii :read_char)
+(def-method 'sys_pii :read_char)
 	;inputs
 	;r0 = fd (ulong)
 	;outputs
@@ -377,7 +377,7 @@
 
 (def-func-end)
 
-(def-method sys_pii :unlink)
+(def-method 'sys_pii :unlink)
 	;inputs
 	;r0 = c string filename (pubyte)
 	;outputs
@@ -394,7 +394,7 @@
 
 (def-func-end)
 
-(def-method sys_pii :stat)
+(def-method 'sys_pii :stat)
 	;inputs
 	;r0 = c string filename (pubyte)
 	;r1 = stat buf (ptr)
@@ -412,7 +412,7 @@
 
 (def-func-end)
 
-(def-method sys_pii :usb_start)
+(def-method 'sys_pii :usb_start)
 	;inputs
 	;r0 = link buffer (pubyte)
 	;outputs
@@ -429,7 +429,7 @@
 
 (def-func-end)
 
-(def-method sys_pii :usb_stop)
+(def-method 'sys_pii :usb_stop)
 	;inputs
 	;r0 = link buffer (pubyte)
 	;outputs
@@ -446,7 +446,7 @@
 
 (def-func-end)
 
-(def-method sys_pii :usb_running)
+(def-method 'sys_pii :usb_running)
 	;inputs
 	;r0 = link buffer (pubyte)
 	;outputs

@@ -5,7 +5,7 @@
 (gen-create 'sstream)
 (gen-vtable 'sstream)
 
-(def-method sstream :init)
+(def-method 'sstream :init)
 	;inputs
 	;r0 = sstream object (ptr)
 	;r1 = vtable (pptr)
@@ -23,7 +23,7 @@
 
 (def-func-end)
 
-(def-method sstream :ref_string)
+(def-method 'sstream :ref_string)
 	;inputs
 	;r0 = sstream object (ptr)
 	;outputs
@@ -48,7 +48,7 @@
 
 (def-func-end)
 
-(def-method sstream :write_next)
+(def-method 'sstream :write_next)
 	;inputs
 	;r0 = sstream object (ptr)
 	;outputs
@@ -84,7 +84,7 @@
 
 (def-func-end)
 
-(def-method sstream :flush)
+(def-method 'sstream :flush)
 	;inputs
 	;r0 = sstream object (ptr)
 	;outputs

@@ -5,7 +5,7 @@
 (gen-create 'in)
 (gen-vtable 'in)
 
-(def-method in :init)
+(def-method 'in :init)
 	;inputs
 	;r0 = in object (ptr)
 	;r1 = vtable (pptr)
@@ -47,7 +47,7 @@
 
 (def-func-end)
 
-(def-method in :deinit)
+(def-method 'in :deinit)
 	;inputs
 	;r0 = in object (ptr)
 	;outputs
@@ -88,7 +88,7 @@
 
 (def-func-end)
 
-(def-method in :next_msg)
+(def-method 'in :next_msg)
 	;inputs
 	;r0 = in object (ptr)
 	;outputs
@@ -185,7 +185,7 @@
 
 (def-func-end)
 
-(def-method in :read_next)
+(def-method 'in :read_next)
 	;inputs
 	;r0 = in object (ptr)
 	;outputs

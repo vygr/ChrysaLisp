@@ -14,7 +14,7 @@
 	(exit 'array (sym (cat :lisp_ _)) '(r6 r7))
 	(vp-ret))
 
-(def-method array :lisp_array)
+(def-method 'array :lisp_array)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -28,7 +28,7 @@
 
 (def-func-end)
 
-(def-method array :lisp_nums)
+(def-method 'array :lisp_nums)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -42,7 +42,7 @@
 
 (def-func-end)
 
-(def-method array :lisp_fixeds)
+(def-method 'array :lisp_fixeds)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -56,7 +56,7 @@
 
 (def-func-end)
 
-(def-method array :lisp_reals)
+(def-method 'array :lisp_reals)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -70,7 +70,7 @@
 
 (def-func-end)
 
-(def-method array :lisp_path)
+(def-method 'array :lisp_path)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -84,7 +84,7 @@
 
 (def-func-end)
 
-(def-method array :lisp_clear)
+(def-method 'array :lisp_clear)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -125,7 +125,7 @@
 
 (def-func-end)
 
-(def-method array :lisp_pop)
+(def-method 'array :lisp_pop)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -163,7 +163,7 @@
 
 (def-func-end)
 
-(def-method array :lisp_push)
+(def-method 'array :lisp_push)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -206,7 +206,7 @@
 
 (def-func-end)
 
-(def-method array :lisp_cap)
+(def-method 'array :lisp_cap)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)

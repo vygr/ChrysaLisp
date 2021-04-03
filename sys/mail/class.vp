@@ -9,7 +9,7 @@
 (include "class/node/class.inc")
 (include "lib/consts/chars.inc")
 
-(def-method sys_mail :statics_init)
+(def-method 'sys_mail :statics_init)
 	;info
 	;init the mailbox system, heap, buckets and id
 
@@ -25,7 +25,7 @@
 
 (def-func-end)
 
-(def-method sys_mail :statics_init1)
+(def-method 'sys_mail :statics_init1)
 	;info
 	;init the mail system
 
@@ -64,7 +64,7 @@
 
 (def-func-end)
 
-(def-method sys_mail :alloc_mbox)
+(def-method 'sys_mail :alloc_mbox)
 	;outputs
 	;r0 = mailbox id (uint)
 	;r1 = mailbox address (ptr)
@@ -104,7 +104,7 @@
 
 (def-func-end)
 
-(def-method sys_mail :free_mbox)
+(def-method 'sys_mail :free_mbox)
 	;inputs
 	;r0 = mailbox id (uint)
 	;trashes
@@ -130,7 +130,7 @@
 
 (def-func-end)
 
-(def-method sys_mail :junk_mail)
+(def-method 'sys_mail :junk_mail)
 	;inputs
 	;r3 = mail list pointer (ptr)
 	;trashes
@@ -164,7 +164,7 @@
 
 (def-func-end)
 
-(def-method sys_mail :validate)
+(def-method 'sys_mail :validate)
 	;inputs
 	;r0 = mailbox id (uint)
 	;outputs
@@ -196,7 +196,7 @@
 
 (def-func-end)
 
-(def-method sys_mail :mymail)
+(def-method 'sys_mail :mymail)
 	;outputs
 	;r0 = mail address (ptr)
 	;r1 = string data (pubyte)
@@ -209,7 +209,7 @@
 
 (def-func-end)
 
-(def-method sys_mail :alloc)
+(def-method 'sys_mail :alloc)
 	;inputs
 	;r0 = mail size (bytes)
 	;outputs
@@ -233,7 +233,7 @@
 
 (def-func-end)
 
-(def-method sys_mail :alloc_obj)
+(def-method 'sys_mail :alloc_obj)
 	;inputs
 	;r0 = object (ptr)
 	;r1 = data (pubyte)
@@ -257,7 +257,7 @@
 
 (def-func-end)
 
-(def-method sys_mail :free)
+(def-method 'sys_mail :free)
 	;inputs
 	;r0 = mail message (ptr)
 	;trashes
@@ -276,7 +276,7 @@
 
 (def-func-end)
 
-(def-method sys_mail :free_obj)
+(def-method 'sys_mail :free_obj)
 	;inputs
 	;r0 = mail message (ptr)
 	;outputs
@@ -302,7 +302,7 @@
 
 (def-func-end)
 
-(def-method sys_mail :read)
+(def-method 'sys_mail :read)
 	;inputs
 	;r0 = mailbox address (ptr)
 	;outputs
@@ -329,7 +329,7 @@
 
 (def-func-end)
 
-(def-method sys_mail :send)
+(def-method 'sys_mail :send)
 	;inputs
 	;r0 = mail message (ptr)
 	;trashes
@@ -378,7 +378,7 @@
 
 (def-func-end)
 
-(def-method sys_mail :poll)
+(def-method 'sys_mail :poll)
 	;inputs
 	;r0 = mailbox list object (ptr)
 	;outputs
@@ -418,7 +418,7 @@
 
 (def-func-end)
 
-(def-method sys_mail :select)
+(def-method 'sys_mail :select)
 	;inputs
 	;r0 = mailbox id array object (ptr)
 	;outputs
@@ -469,7 +469,7 @@
 
 (def-func-end)
 
-(def-method sys_mail :service)
+(def-method 'sys_mail :service)
 	;inputs
 	;r0 = service name str object (ptr)
 	;r1 = mailbox id str object (ptr)
@@ -520,7 +520,7 @@
 
 (def-func-end)
 
-(def-method sys_mail :declare)
+(def-method 'sys_mail :declare)
 	;inputs
 	;r0 = ID str object (net_id)
 	;r1 = service name str object (ptr)
@@ -564,7 +564,7 @@
 
 (def-func-end)
 
-(def-method sys_mail :enquire)
+(def-method 'sys_mail :enquire)
 	;inputs
 	;r0 = service prefix str object (ptr)
 	;outputs
@@ -618,7 +618,7 @@
 
 (def-func-end)
 
-(def-method sys_mail :forget)
+(def-method 'sys_mail :forget)
 	;inputs
 	;r0 = service key str object (ptr)
 	;trashes
@@ -648,7 +648,7 @@
 
 (def-func-end)
 
-(def-method sys_mail :ping)
+(def-method 'sys_mail :ping)
 	;trashes
 	;r0-r14
 	;info
@@ -717,7 +717,7 @@
 
 (def-func-end)
 
-(def-method sys_mail :devices)
+(def-method 'sys_mail :devices)
 	;outputs
 	;r0 = known network nodes list object (ptr)
 	;trashes
@@ -746,7 +746,7 @@
 
 (def-func-end)
 
-(def-method sys_mail :ready)
+(def-method 'sys_mail :ready)
 	;inputs
 	;r0-r1 = peer node id (node_id)
 	;r2 = key node object (ptr)

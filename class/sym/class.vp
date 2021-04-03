@@ -9,7 +9,7 @@
 (gen-vtable 'sym)
 (gen-type 'sym)
 
-(def-method sym :statics_init)
+(def-method 'sym :statics_init)
 	;trashes
 	;r0-r14
 
@@ -45,7 +45,7 @@
 
 (def-func-end)
 
-(def-method sym :get_static_sym)
+(def-method 'sym :get_static_sym)
 	;inputs
 	;r1 = static sym num (uint)
 	;outputs
@@ -64,7 +64,7 @@
 
 (def-func-end)
 
-(def-method sym :ref_static_sym)
+(def-method 'sym :ref_static_sym)
 	;inputs
 	;r1 = static sym num (uint)
 	;outputs
@@ -82,7 +82,7 @@
 
 (def-func-end)
 
-(def-method sym :intern)
+(def-method 'sym :intern)
 	;inputs
 	;r0 = sym object (ptr)
 	;outputs
@@ -115,7 +115,7 @@
 
 (def-func-end)
 
-(def-method sym :intern_str)
+(def-method 'sym :intern_str)
 	;inputs
 	;r0 = str object (ptr)
 	;outputs
@@ -153,7 +153,7 @@
 
 (def-func-end)
 
-(def-method sym :intern_cstr)
+(def-method 'sym :intern_cstr)
 	;inputs
 	;r0 = c string pointer (pubyte)
 	;outputs
@@ -167,7 +167,7 @@
 
 (def-func-end)
 
-(def-method sym :intern_strs)
+(def-method 'sym :intern_strs)
 	;inputs
 	;r1 = list of string objects (ptr)
 	;outputs
@@ -201,7 +201,7 @@
 
 (def-func-end)
 
-(def-method sym :flush)
+(def-method 'sym :flush)
 	;trashes
 	;r0-r14
 
@@ -225,7 +225,7 @@
 
 (def-func-end)
 
-(def-method sym :print)
+(def-method 'sym :print)
 	;inputs
 	;r0 = sym object (ptr)
 	;r1 = stream object (ptr)

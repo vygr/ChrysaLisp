@@ -18,7 +18,7 @@
 	(ubyte depth)
 	(ubyte origin))
 
-(def-method pixmap :info_tga)
+(def-method 'pixmap :info_tga)
 	;inputs
 	;r5 = stream object (ptr)
 	;outputs
@@ -57,7 +57,7 @@
 
 (def-func-end)
 
-(def-method pixmap :load_tga)
+(def-method 'pixmap :load_tga)
 	;inputs
 	;r5 = stream object (ptr)
 	;outputs

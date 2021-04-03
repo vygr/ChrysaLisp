@@ -3,7 +3,7 @@
 (include "sys/mail/class.inc")
 (include "sys/statics/class.inc")
 
-(def-method sys_mail :in)
+(def-method 'sys_mail :in)
 	;inputs
 	;r0 = link input msg buffer (ptr)
 	;trashes

@@ -4,7 +4,7 @@
 (include "class/str/class.inc")
 (include "class/lisp/class.inc")
 
-(def-method sys_task :lisp_sleep)
+(def-method 'sys_task :lisp_sleep)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -38,7 +38,7 @@
 
 (def-func-end)
 
-(def-method sys_task :lisp_mailbox)
+(def-method 'sys_task :lisp_mailbox)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)

@@ -9,7 +9,7 @@
 (gen-create 'fixed)
 (gen-vtable 'fixed)
 
-(def-method fixed :print)
+(def-method 'fixed :print)
 	;inputs
 	;r0 = fixed object (ptr)
 	;r1 = stream object (ptr)
@@ -79,7 +79,7 @@
 	(exit 'fixed _ '(r0 r1))
 	(vp-ret))
 
-(def-method fixed :mul)
+(def-method 'fixed :mul)
 	;inputs
 	;r0 = fixed object (ptr)
 	;r1 = list of fixed objects (ptr)
@@ -120,7 +120,7 @@
 	(exit 'fixed _ '(r0 r3))
 	(vp-ret))
 
-(def-method fixed :div)
+(def-method 'fixed :div)
 	;inputs
 	;r0 = fixed object (ptr)
 	;r1 = list of fixed objects (ptr)
@@ -138,7 +138,7 @@
 
 (def-func-end)
 
-(def-method fixed :mod)
+(def-method 'fixed :mod)
 	;inputs
 	;r0 = fixed object (ptr)
 	;r1 = list of fixed objects (ptr)
@@ -183,7 +183,7 @@
 	(exit 'fixed _ '(r0 r1))
 	(vp-ret))
 
-(def-method fixed :sqrt)
+(def-method 'fixed :sqrt)
 	;inputs
 	;r0 = fixed object (ptr)
 	;outputs
@@ -197,7 +197,7 @@
 
 (def-func-end)
 
-(def-method fixed :sign)
+(def-method 'fixed :sign)
 	;inputs
 	;r0 = fixed object (ptr)
 	;outputs
@@ -218,7 +218,7 @@
 
 (def-func-end)
 
-(def-method fixed :sin)
+(def-method 'fixed :sin)
 	;inputs
 	;r0 = fixed object (ptr)
 	;outputs
@@ -232,7 +232,7 @@
 
 (def-func-end)
 
-(def-method fixed :cos)
+(def-method 'fixed :cos)
 	;inputs
 	;r0 = fixed object (ptr)
 	;outputs
@@ -246,7 +246,7 @@
 
 (def-func-end)
 
-(def-method fixed :frac)
+(def-method 'fixed :frac)
 	;inputs
 	;r0 = fixed object (ptr)
 	;outputs
@@ -262,7 +262,7 @@
 
 (def-func-end)
 
-(def-method fixed :floor)
+(def-method 'fixed :floor)
 	;inputs
 	;r0 = fixed object (ptr)
 	;outputs
@@ -278,7 +278,7 @@
 
 (def-func-end)
 
-(def-method fixed :recip)
+(def-method 'fixed :recip)
 	;inputs
 	;r0 = fixed object (ptr)
 	;outputs

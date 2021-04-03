@@ -1,7 +1,7 @@
 (include "sys/func.inc")
 (include "class/lisp/class.inc")
 
-(def-method lisp :repl_eval_list)
+(def-method 'lisp :repl_eval_list)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = list object (ptr)

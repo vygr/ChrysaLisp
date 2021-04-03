@@ -1,7 +1,7 @@
 (include "sys/func.inc")
 (include "class/lisp/class.inc")
 
-(def-method lisp :lisp_macroexpand)
+(def-method 'lisp :lisp_macroexpand)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)

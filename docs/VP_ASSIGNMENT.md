@@ -198,7 +198,7 @@ as with a VP function.
 Implementation of the function is defined in the `sys/mail/class.vp` file.
 
 ```vdu
-(def-method sys_mail :declare)
+(def-method 'sys_mail :declare)
 	;inputs
 	;r0 = mailbox name c string (pubyte)
 	;r1 = mailbox id (ulong)

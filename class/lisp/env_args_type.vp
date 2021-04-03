@@ -1,7 +1,7 @@
 (include "sys/func.inc")
 (include "class/lisp/class.inc")
 
-(def-method lisp :env_args_sig)
+(def-method 'lisp :env_args_sig)
 	;inputs
 	;r1 = args list object (ptr)
 	;r3 = signiture pointer (pushort)
@@ -38,7 +38,7 @@
 
 (def-func-end)
 
-(def-method lisp :env_args_type)
+(def-method 'lisp :env_args_type)
 	;inputs
 	;r1 = args list object (ptr)
 	;r3 = vtable pointer (ptr)
@@ -72,7 +72,7 @@
 
 (def-func-end)
 
-(def-method lisp :env_args_match)
+(def-method 'lisp :env_args_match)
 	;inputs
 	;r1 = args list object (ptr)
 	;r3 = vtable pointer (ptr)

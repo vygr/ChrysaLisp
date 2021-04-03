@@ -68,7 +68,7 @@
 	(exit 'nums _ `(,dst))
 	(vp-ret))
 
-(def-method nums :add)
+(def-method 'nums :add)
 	;inputs
 	;r0 = nums object (ptr)
 	;r1 = source1 nums object, can be same (ptr)
@@ -82,7 +82,7 @@
 
 (def-func-end)
 
-(def-method nums :sub)
+(def-method 'nums :sub)
 	;inputs
 	;r0 = nums object (ptr)
 	;r1 = source1 nums object, can be same (ptr)
@@ -96,7 +96,7 @@
 
 (def-func-end)
 
-(def-method nums :mul)
+(def-method 'nums :mul)
 	;inputs
 	;r0 = nums object (ptr)
 	;r1 = source1 nums object, can be same (ptr)
@@ -110,7 +110,7 @@
 
 (def-func-end)
 
-(def-method nums :div)
+(def-method 'nums :div)
 	;inputs
 	;r0 = nums object (ptr)
 	;r1 = source1 nums object, can be same (ptr)
@@ -124,7 +124,7 @@
 
 (def-func-end)
 
-(def-method nums :mod)
+(def-method 'nums :mod)
 	;inputs
 	;r0 = nums object (ptr)
 	;r1 = source1 nums object, can be same (ptr)
@@ -138,7 +138,7 @@
 
 (def-func-end)
 
-(def-method nums :abs)
+(def-method 'nums :abs)
 	;inputs
 	;r0 = nums object (ptr)
 	;r1 = source nums object, can be same (ptr)
@@ -151,7 +151,7 @@
 
 (def-func-end)
 
-(def-method nums :sum)
+(def-method 'nums :sum)
 	;inputs
 	;r0 = nums object (ptr)
 	;outputs
@@ -177,7 +177,7 @@
 
 (def-func-end)
 
-(def-method nums :scale)
+(def-method 'nums :scale)
 	;inputs
 	;r0 = nums object (ptr)
 	;r1 = source nums object, can be same (ptr)

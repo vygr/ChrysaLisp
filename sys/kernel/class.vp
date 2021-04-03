@@ -18,7 +18,7 @@
 ; kernel task
 ;;;;;;;;;;;;;
 
-(def-method sys_kernel :kernel)
+(def-method 'sys_kernel :kernel)
 	;inputs
 	;r0 = argv pointer (pptr)
 	;info
@@ -464,7 +464,7 @@
 
 (def-func-end)
 
-(def-method sys_kernel :id)
+(def-method 'sys_kernel :id)
 	;outputs
 	;r0-r1 = node id (node_id)
 	;trashes
@@ -478,7 +478,7 @@
 
 (def-func-end)
 
-(def-method sys_kernel :ping)
+(def-method 'sys_kernel :ping)
 	;started by kernel at boot
 
 	(def-struct local 0

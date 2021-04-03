@@ -2,7 +2,7 @@
 (include "gui/pixmap/class.inc")
 (include "class/array/class.inc")
 
-(def-method pixmap :resize)
+(def-method 'pixmap :resize)
 	;inputs
 	;r0 = pixmap object (ptr)
 	;r1 = source pixmap object (ptr)
@@ -163,7 +163,7 @@
 
 (def-func-end)
 
-(def-method pixmap :resize_2)
+(def-method 'pixmap :resize_2)
 	;inputs
 	;r0 = pixmap object (ptr)
 	;r1 = source pixmap object (ptr)
@@ -233,7 +233,7 @@
 
 (def-func-end)
 
-(def-method pixmap :resize_3)
+(def-method 'pixmap :resize_3)
 	;inputs
 	;r0 = pixmap object (ptr)
 	;r1 = source pixmap object (ptr)

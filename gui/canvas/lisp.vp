@@ -6,7 +6,7 @@
 (include "class/lisp/class.inc")
 (include "gui/canvas/lisp.inc")
 
-(def-method canvas :lisp_create)
+(def-method 'canvas :lisp_create)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -38,7 +38,7 @@
 
 (def-func-end)
 
-(def-method canvas :lisp_info)
+(def-method 'canvas :lisp_info)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -75,7 +75,7 @@
 
 (def-func-end)
 
-(def-method canvas :lisp_load)
+(def-method 'canvas :lisp_load)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -126,7 +126,7 @@
 
 (def-func-end)
 
-(def-method canvas :lisp_save)
+(def-method 'canvas :lisp_save)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -169,7 +169,7 @@
 
 (def-func-end)
 
-(def-method canvas :lisp_fill)
+(def-method 'canvas :lisp_fill)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -205,7 +205,7 @@
 
 (def-func-end)
 
-(def-method canvas :lisp_swap)
+(def-method 'canvas :lisp_swap)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -238,7 +238,7 @@
 
 (def-func-end)
 
-(def-method canvas :lisp_next_frame)
+(def-method 'canvas :lisp_next_frame)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -277,7 +277,7 @@
 
 (def-func-end)
 
-(def-method canvas :lisp_plot)
+(def-method 'canvas :lisp_plot)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -310,7 +310,7 @@
 
 (def-func-end)
 
-(def-method canvas :lisp_fbox)
+(def-method 'canvas :lisp_fbox)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -343,7 +343,7 @@
 
 (def-func-end)
 
-(def-method canvas :lisp_fpoly)
+(def-method 'canvas :lisp_fpoly)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -376,7 +376,7 @@
 
 (def-func-end)
 
-(def-method canvas :lisp_resize)
+(def-method 'canvas :lisp_resize)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -411,7 +411,7 @@
 
 (def-func-end)
 
-(def-method canvas :lisp_to_argb32)
+(def-method 'canvas :lisp_to_argb32)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -444,7 +444,7 @@
 
 (def-func-end)
 
-(def-method canvas :lisp_from_argb32)
+(def-method 'canvas :lisp_from_argb32)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -477,7 +477,7 @@
 
 (def-func-end)
 
-(def-method canvas :lisp_darker)
+(def-method 'canvas :lisp_darker)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -510,7 +510,7 @@
 
 (def-func-end)
 
-(def-method canvas :lisp_brighter)
+(def-method 'canvas :lisp_brighter)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)

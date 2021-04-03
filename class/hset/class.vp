@@ -6,7 +6,7 @@
 (gen-create 'hset)
 (gen-vtable 'hset)
 
-(def-method hset :init)
+(def-method 'hset :init)
 	;inputs
 	;r0 = hset object (ptr)
 	;r1 = vtable (pptr)
@@ -52,7 +52,7 @@
 
 (def-func-end)
 
-(def-method hset :deinit)
+(def-method 'hset :deinit)
 	;inputs
 	;r0 = hset object (ptr)
 	;outputs
@@ -69,7 +69,7 @@
 
 (def-func-end)
 
-(def-method hset :clear)
+(def-method 'hset :clear)
 	;inputs
 	;r0 = hset object (ptr)
 	;outputs
@@ -100,7 +100,7 @@
 
 (def-func-end)
 
-(def-method hset :find)
+(def-method 'hset :find)
 	;inputs
 	;r0 = hset object (ptr)
 	;r1 = key object (ptr)
@@ -158,7 +158,7 @@
 
 (def-func-end)
 
-(def-method hset :for_each)
+(def-method 'hset :for_each)
 	;inputs
 	;r0 = hset object (ptr)
 	;r1 = predicate function (ptr)
@@ -227,7 +227,7 @@
 
 (def-func-end)
 
-(def-method hset :get_bucket)
+(def-method 'hset :get_bucket)
 	;inputs
 	;r0 = hset object (ptr)
 	;r1 = key object (ptr)
@@ -266,7 +266,7 @@
 
 (def-func-end)
 
-(def-method hset :insert)
+(def-method 'hset :insert)
 	;inputs
 	;r0 = hset object (ptr)
 	;r1 = key object (ptr)

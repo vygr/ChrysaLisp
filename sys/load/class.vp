@@ -7,7 +7,7 @@
 (include "lib/consts/chars.inc")
 (include "sys/statics/class.inc")
 
-(def-method sys_load :init)
+(def-method 'sys_load :init)
 	;inputs
 	;system argv
 	;host OS function table
@@ -186,7 +186,7 @@
 
 (def-func-end)
 
-(def-method sys_load :bind)
+(def-method 'sys_load :bind)
 	;input
 	;r0 = c string function path name (pubyte)
 	;output
@@ -230,7 +230,7 @@
 
 (def-func-end)
 
-(def-method sys_load :load)
+(def-method 'sys_load :load)
 	;input
 	;r0 = c string function path name (pubyte)
 	;output
@@ -401,7 +401,7 @@
 
 (def-func-end)
 
-(def-method sys_load :find)
+(def-method 'sys_load :find)
 	;inputs
 	;r0 = code pointer (ptr)
 	;outputs

@@ -8,7 +8,7 @@
 (include "class/num/class.inc")
 (include "class/lisp/class.inc")
 
-(def-method stream :lisp_iostream)
+(def-method 'stream :lisp_iostream)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -52,7 +52,7 @@
 
 (def-func-end)
 
-(def-method stream :lisp_fstream)
+(def-method 'stream :lisp_fstream)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -97,7 +97,7 @@
 
 (def-func-end)
 
-(def-method stream :lisp_sstream)
+(def-method 'stream :lisp_sstream)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -130,7 +130,7 @@
 
 (def-func-end)
 
-(def-method stream :lisp_available)
+(def-method 'stream :lisp_available)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -163,7 +163,7 @@
 
 (def-func-end)
 
-(def-method stream :lisp_readchar)
+(def-method 'stream :lisp_readchar)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -242,7 +242,7 @@
 
 (def-func-end)
 
-(def-method stream :lisp_readline)
+(def-method 'stream :lisp_readline)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -278,7 +278,7 @@
 
 (def-func-end)
 
-(def-method stream :lisp_readavail)
+(def-method 'stream :lisp_readavail)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -312,7 +312,7 @@
 
 (def-func-end)
 
-(def-method stream :lisp_write)
+(def-method 'stream :lisp_write)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -347,7 +347,7 @@
 
 (def-func-end)
 
-(def-method stream :lisp_writechar)
+(def-method 'stream :lisp_writechar)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -427,7 +427,7 @@
 
 (def-func-end)
 
-(def-method stream :lisp_write_flush)
+(def-method 'stream :lisp_write_flush)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -460,7 +460,7 @@
 
 (def-func-end)
 
-(def-method stream :lisp_seek)
+(def-method 'stream :lisp_seek)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)

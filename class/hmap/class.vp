@@ -8,7 +8,7 @@
 (gen-vtable 'hmap)
 (gen-type 'hmap)
 
-(def-method hmap :init)
+(def-method 'hmap :init)
 	;inputs
 	;r0 = hmap object (ptr)
 	;r1 = vtable (pptr)
@@ -28,7 +28,7 @@
 
 (def-func-end)
 
-(def-method hmap :deinit)
+(def-method 'hmap :deinit)
 	;inputs
 	;r0 = hmap object (ptr)
 	;outputs
@@ -45,7 +45,7 @@
 
 (def-func-end)
 
-(def-method hmap :set_parent)
+(def-method 'hmap :set_parent)
 	;inputs
 	;r0 = hmap object (ptr)
 	;r1 = 0, else hmap parent object (ptr)
@@ -67,7 +67,7 @@
 
 (def-func-end)
 
-(def-method hmap :copy)
+(def-method 'hmap :copy)
 	;inputs
 	;r0 = hmap object (ptr)
 	;r1 = num buckets (uint)
@@ -115,7 +115,7 @@
 
 (def-func-end)
 
-(def-method hmap :list)
+(def-method 'hmap :list)
 	;inputs
 	;r0 = hmap object (ptr)
 	;outputs
@@ -156,7 +156,7 @@
 
 (def-func-end)
 
-(def-method hmap :find)
+(def-method 'hmap :find)
 	;inputs
 	;r0 = hmap object (ptr)
 	;r1 = key object (ptr)
@@ -215,7 +215,7 @@
 
 (def-func-end)
 
-(def-method hmap :insert)
+(def-method 'hmap :insert)
 	;inputs
 	;r0 = hmap object (ptr)
 	;r1 = key object (ptr)
@@ -260,7 +260,7 @@
 
 (def-func-end)
 
-(def-method hmap :search)
+(def-method 'hmap :search)
 	;inputs
 	;r0 = hmap object (ptr)
 	;r1 = key object (ptr)
@@ -292,7 +292,7 @@
 
 (def-func-end)
 
-(def-method hmap :set)
+(def-method 'hmap :set)
 	;inputs
 	;r0 = hmap object (ptr)
 	;r1 = key object (ptr)
@@ -324,7 +324,7 @@
 
 (def-func-end)
 
-(def-method hmap :get)
+(def-method 'hmap :get)
 	;inputs
 	;r0 = hmap object (ptr)
 	;r1 = key object (ptr)
@@ -347,7 +347,7 @@
 
 (def-func-end)
 
-(def-method hmap :for_each)
+(def-method 'hmap :for_each)
 	;inputs
 	;r0 = hmap object (ptr)
 	;r1 = predicate function (ptr)

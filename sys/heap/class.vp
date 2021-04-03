@@ -3,7 +3,7 @@
 (include "sys/pii/class.inc")
 (include "sys/statics/class.inc")
 
-(def-method sys_heap :init)
+(def-method 'sys_heap :init)
 	;inputs
 	;r0 = heap (ptr)
 	;r1 = cell size (bytes)
@@ -41,7 +41,7 @@
 
 (def-func-end)
 
-(def-method sys_heap :deinit)
+(def-method 'sys_heap :deinit)
 	;inputs
 	;r0 = heap (ptr)
 	;outputs
@@ -68,7 +68,7 @@
 
 (def-func-end)
 
-(def-method sys_heap :alloc)
+(def-method 'sys_heap :alloc)
 	;inputs
 	;r0 = heap (ptr)
 	;outputs
@@ -143,7 +143,7 @@
 
 (def-func-end)
 
-(def-method sys_heap :collect)
+(def-method 'sys_heap :collect)
 	;inputs
 	;r0 = heap (ptr)
 	;outputs

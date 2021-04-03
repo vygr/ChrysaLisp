@@ -9,7 +9,7 @@
 (gen-create 'stdio)
 (gen-vtable 'stdio)
 
-(def-method stdio :init)
+(def-method 'stdio :init)
 	;inputs
 	;r0 = stdio object (ptr)
 	;r1 = vtable (pptr)
@@ -77,7 +77,7 @@
 
 (def-func-end)
 
-(def-method stdio :deinit)
+(def-method 'stdio :deinit)
 	;inputs
 	;r0 = stdio object (ptr)
 	;outputs

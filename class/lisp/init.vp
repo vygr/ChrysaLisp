@@ -19,7 +19,7 @@
 	(vp-short
 		`(- ,(label-sym (string-sym (fn-add-string s))) *pc*) f))
 
-(def-method lisp :init)
+(def-method 'lisp :init)
 	;inputs
 	;r0 = lisp object object (ptr)
 	;r1 = vtable (pptr)

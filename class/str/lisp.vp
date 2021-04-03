@@ -4,7 +4,7 @@
 (include "class/sstream/class.inc")
 (include "class/lisp/class.inc")
 
-(def-method str :lisp_split)
+(def-method 'str :lisp_split)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -42,7 +42,7 @@
 
 (def-func-end)
 
-(def-method str :lisp_code)
+(def-method 'str :lisp_code)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -108,7 +108,7 @@
 
 (def-func-end)
 
-(def-method str :lisp_char)
+(def-method 'str :lisp_char)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -149,7 +149,7 @@
 
 (def-func-end)
 
-(def-method str :lisp_cmp)
+(def-method 'str :lisp_cmp)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -181,7 +181,7 @@
 
 (def-func-end)
 
-(def-method str :lisp_save)
+(def-method 'str :lisp_save)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -220,7 +220,7 @@
 
 (def-func-end)
 
-(def-method str :lisp_load)
+(def-method 'str :lisp_load)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -254,7 +254,7 @@
 
 (def-func-end)
 
-(def-method str :lisp_str)
+(def-method 'str :lisp_str)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)

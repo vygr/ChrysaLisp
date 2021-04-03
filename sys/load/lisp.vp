@@ -3,7 +3,7 @@
 (include "class/str/class.inc")
 (include "class/lisp/class.inc")
 
-(def-method sys_load :lisp_path)
+(def-method 'sys_load :lisp_path)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)

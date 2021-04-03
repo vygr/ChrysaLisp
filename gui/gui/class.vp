@@ -10,7 +10,7 @@
 (include "gui/view/lisp.inc")
 (include "sys/statics/class.inc")
 
-(def-method gui :statics_init)
+(def-method 'gui :statics_init)
 
 	;init region heap
 	(fn-bind 'sys/statics/statics r4)
@@ -349,7 +349,7 @@
 
 (def-func-end)
 
-(def-method gui :update)
+(def-method 'gui :update)
 	;inputs
 	;r0 = root view object (ptr)
 	;trashes

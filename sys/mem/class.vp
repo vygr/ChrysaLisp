@@ -2,7 +2,7 @@
 (include "sys/heap/class.inc")
 (include "sys/statics/class.inc")
 
-(def-method sys_mem :statics_init)
+(def-method 'sys_mem :statics_init)
 	;info
 	;init mem statics
 
@@ -27,7 +27,7 @@
 
 (def-func-end)
 
-(def-method sys_mem :statics_deinit)
+(def-method 'sys_mem :statics_deinit)
 	;info
 	;deinit mem statics
 
@@ -44,7 +44,7 @@
 
 (def-func-end)
 
-(def-method sys_mem :collect)
+(def-method 'sys_mem :collect)
 	;trashes
 	;r0-r14
 	;info
@@ -62,7 +62,7 @@
 
 (def-func-end)
 
-(def-method sys_mem :alloc)
+(def-method 'sys_mem :alloc)
 	;inputs
 	;r0 = minimum amount (bytes)
 	;outputs
@@ -108,7 +108,7 @@
 
 (def-func-end)
 
-(def-method sys_mem :calloc)
+(def-method 'sys_mem :calloc)
 	;inputs
 	;r0 = minimum amount (bytes)
 	;outputs
@@ -131,7 +131,7 @@
 
 (def-func-end)
 
-(def-method sys_mem :free)
+(def-method 'sys_mem :free)
 	;inputs
 	;r0 = address (ptr)
 	;trashes
@@ -149,7 +149,7 @@
 
 (def-func-end)
 
-(def-method sys_mem :realloc)
+(def-method 'sys_mem :realloc)
 	;inputs
 	;r0 = block address (ptr)
 	;r1 = block size (bytes)
@@ -190,7 +190,7 @@
 
 (def-func-end)
 
-(def-method sys_mem :recalloc)
+(def-method 'sys_mem :recalloc)
 	;inputs
 	;r0 = block address (ptr)
 	;r1 = block size (bytes)
@@ -237,7 +237,7 @@
 
 (def-func-end)
 
-(def-method sys_mem :copy)
+(def-method 'sys_mem :copy)
 	;inputs
 	;r0 = source address (ptr)
 	;r1 = destination address (ptr)
@@ -290,7 +290,7 @@
 
 (def-func-end)
 
-(def-method sys_mem :fill)
+(def-method 'sys_mem :fill)
 	;inputs
 	;r0 = address (ptr)
 	;r1 = length (bytes)
