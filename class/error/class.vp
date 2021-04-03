@@ -6,7 +6,7 @@
 (gen-create 'error)
 (gen-vtable 'error)
 
-(def-method 'error :init)
+(def-method error :init)
 	;inputs
 	;r0 = error object (ptr)
 	;r1 = vtable (pptr)
@@ -49,7 +49,7 @@
 
 (def-func-end)
 
-(def-method 'error :deinit)
+(def-method error :deinit)
 	;inputs
 	;r0 = error object (ptr)
 	;outputs
@@ -68,7 +68,7 @@
 
 (def-func-end)
 
-(def-method 'error :get_msg)
+(def-method error :get_msg)
 	;inputs
 	;r0 = error object (ptr)
 	;outputs

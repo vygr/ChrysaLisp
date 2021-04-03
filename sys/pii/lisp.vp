@@ -4,7 +4,7 @@
 (include "class/lisp/class.inc")
 (include "sys/statics/class.inc")
 
-(def-method 'sys_pii :lisp_readchar)
+(def-method sys_pii :lisp_readchar)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -36,7 +36,7 @@
 
 (def-func-end)
 
-(def-method 'sys_pii :lisp_writechar)
+(def-method sys_pii :lisp_writechar)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -71,7 +71,7 @@
 
 (def-func-end)
 
-(def-method 'sys_pii :lisp_time)
+(def-method sys_pii :lisp_time)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -101,7 +101,7 @@
 
 (def-func-end)
 
-(def-method 'sys_pii :lisp_dirlist)
+(def-method sys_pii :lisp_dirlist)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -140,7 +140,7 @@
 
 (def-func-end)
 
-(def-method 'sys_pii :lisp_fstat)
+(def-method sys_pii :lisp_fstat)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -182,7 +182,7 @@
 
 (def-func-end)
 
-(def-method 'sys_pii :lisp_remove)
+(def-method sys_pii :lisp_remove)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)

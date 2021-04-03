@@ -3,7 +3,7 @@
 (include "class/sym/class.inc")
 (include "class/lisp/class.inc")
 
-(def-method 'list :lisp_list)
+(def-method list :lisp_list)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -22,7 +22,7 @@
 
 (def-func-end)
 
-(def-method 'list :lisp_elemset)
+(def-method list :lisp_elemset)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -67,7 +67,7 @@
 
 (def-func-end)
 
-(def-method 'list :lisp_merge)
+(def-method list :lisp_merge)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -109,7 +109,7 @@
 
 (def-func-end)
 
-(def-method 'list :lisp_part)
+(def-method list :lisp_part)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -201,7 +201,7 @@
 
 (def-func-end)
 
-(def-method 'list :lisp_match)
+(def-method list :lisp_match)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -254,7 +254,7 @@
 
 (def-func-end)
 
-(def-method 'list :lisp_copy)
+(def-method list :lisp_copy)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)

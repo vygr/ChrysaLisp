@@ -2,7 +2,7 @@
 (include "sys/math/class.inc")
 (include "sys/statics/class.inc")
 
-(def-method 'sys_math :i_rand)
+(def-method sys_math :i_rand)
 	;inputs
 	;r0 = random range (ulong)
 	;outputs
@@ -43,7 +43,7 @@
 
 (def-func-end)
 
-(def-method 'sys_math :i_sqrt)
+(def-method sys_math :i_sqrt)
 	;inputs
 	;r0 = number (ulong)
 	;outputs
@@ -79,7 +79,7 @@
 
 (def-func-end)
 
-(def-method 'sys_math :f_sin)
+(def-method sys_math :f_sin)
 	;inputs
 	;r0 = angle in radians (fixed)
 	;outputs
@@ -208,7 +208,7 @@
 
 (def-func-end)
 
-(def-method 'sys_math :f_cos)
+(def-method sys_math :f_cos)
 	;inputs
 	;r0 = angle in radians (fixed)
 	;outputs
@@ -349,7 +349,7 @@
 
 (def-func-end)
 
-(def-method 'sys_math :f_intersect)
+(def-method sys_math :f_intersect)
 	;inputs
 	;r0 = p1x (fixed)
 	;r1 = p1y (fixed)
@@ -411,7 +411,7 @@
 
 (def-func-end)
 
-(def-method 'sys_math :f_dist_sqd)
+(def-method sys_math :f_dist_sqd)
 	;inputs
 	;r0 = px (fixed)
 	;r1 = py (fixed)
@@ -511,7 +511,7 @@
 		(vp-xor-rr re re)
 	(endif))
 
-(def-method 'sys_math :r_pack)
+(def-method sys_math :r_pack)
 	;inputs
 	;r13 = exponent (long)
 	;r14 = mantisa (long)
@@ -532,7 +532,7 @@
 
 (def-func-end)
 
-(def-method 'sys_math :r_add)
+(def-method sys_math :r_add)
 	;inputs
 	;r13 = real (32:32)
 	;r14 = real (32:32)
@@ -564,7 +564,7 @@
 
 (def-func-end)
 
-(def-method 'sys_math :r_sub)
+(def-method sys_math :r_sub)
 	;inputs
 	;r13 = real (32:32)
 	;r14 = real (32:32)
@@ -596,7 +596,7 @@
 
 (def-func-end)
 
-(def-method 'sys_math :r_mul)
+(def-method sys_math :r_mul)
 	;inputs
 	;r13 = real (32:32)
 	;r14 = real (32:32)
@@ -619,7 +619,7 @@
 
 (def-func-end)
 
-(def-method 'sys_math :r_div)
+(def-method sys_math :r_div)
 	;inputs
 	;r13 = real (32:32)
 	;r14 = real (32:32)
@@ -644,7 +644,7 @@
 
 (def-func-end)
 
-(def-method 'sys_math :r_mod)
+(def-method sys_math :r_mod)
 	;inputs
 	;r13 = real (32:32)
 	;r14 = real (32:32)
@@ -669,7 +669,7 @@
 
 (def-func-end)
 
-(def-method 'sys_math :r_frac)
+(def-method sys_math :r_frac)
 	;inputs
 	;r13 = real (32:32)
 	;outputs
@@ -695,7 +695,7 @@
 
 (def-func-end)
 
-(def-method 'sys_math :r_floor)
+(def-method sys_math :r_floor)
 	;inputs
 	;r13 = real (32:32)
 	;outputs
@@ -715,7 +715,7 @@
 
 (def-func-end)
 
-(def-method 'sys_math :r_i2r)
+(def-method sys_math :r_i2r)
 	;inputs
 	;r14 = num (long)
 	;outputs
@@ -729,7 +729,7 @@
 
 (def-func-end)
 
-(def-method 'sys_math :r_f2r)
+(def-method sys_math :r_f2r)
 	;inputs
 	;r14 = num (fixed)
 	;outputs
@@ -743,7 +743,7 @@
 
 (def-func-end)
 
-(def-method 'sys_math :r_r2i)
+(def-method sys_math :r_r2i)
 	;inputs
 	;r13 = real (32:32)
 	;outputs
@@ -772,7 +772,7 @@
 
 (def-func-end)
 
-(def-method 'sys_math :r_r2f)
+(def-method sys_math :r_r2f)
 	;inputs
 	;r13 = real (32:32)
 	;outputs

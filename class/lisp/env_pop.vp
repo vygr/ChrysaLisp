@@ -2,7 +2,7 @@
 (include "class/hmap/class.inc")
 (include "class/lisp/class.inc")
 
-(def-method 'lisp :env_pop)
+(def-method lisp :env_pop)
 	;inputs
 	;r0 = lisp object (ptr)
 	;outputs

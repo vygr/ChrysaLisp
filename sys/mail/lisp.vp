@@ -7,7 +7,7 @@
 (include "class/lisp/class.inc")
 (include "sys/statics/class.inc")
 
-(def-method 'sys_mail :lisp_read)
+(def-method sys_mail :lisp_read)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -47,7 +47,7 @@
 
 (def-func-end)
 
-(def-method 'sys_mail :lisp_poll)
+(def-method sys_mail :lisp_poll)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -90,7 +90,7 @@
 
 (def-func-end)
 
-(def-method 'sys_mail :lisp_select)
+(def-method sys_mail :lisp_select)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -127,7 +127,7 @@
 
 (def-func-end)
 
-(def-method 'sys_mail :lisp_send)
+(def-method sys_mail :lisp_send)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -176,7 +176,7 @@
 
 (def-func-end)
 
-(def-method 'sys_mail :lisp_declare)
+(def-method sys_mail :lisp_declare)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -208,7 +208,7 @@
 
 (def-func-end)
 
-(def-method 'sys_mail :lisp_enquire)
+(def-method sys_mail :lisp_enquire)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -240,7 +240,7 @@
 
 (def-func-end)
 
-(def-method 'sys_mail :lisp_forget)
+(def-method sys_mail :lisp_forget)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -275,7 +275,7 @@
 
 (def-func-end)
 
-(def-method 'sys_mail :lisp_alloc_mbox)
+(def-method sys_mail :lisp_alloc_mbox)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -308,7 +308,7 @@
 
 (def-func-end)
 
-(def-method 'sys_mail :lisp_free_mbox)
+(def-method sys_mail :lisp_free_mbox)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -343,7 +343,7 @@
 
 (def-func-end)
 
-(def-method 'sys_mail :lisp_devices)
+(def-method sys_mail :lisp_devices)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -372,7 +372,7 @@
 
 (def-func-end)
 
-(def-method 'sys_mail :lisp_timeout)
+(def-method sys_mail :lisp_timeout)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)

@@ -9,7 +9,7 @@
 (gen-create 'stream)
 (gen-vtable 'stream)
 
-(def-method 'stream :init)
+(def-method stream :init)
 	;inputs
 	;r0 = stream object (ptr)
 	;r1 = vtable (pptr)
@@ -35,7 +35,7 @@
 
 (def-func-end)
 
-(def-method 'stream :deinit)
+(def-method stream :deinit)
 	;inputs
 	;r0 = stream object (ptr)
 	;outputs
@@ -59,7 +59,7 @@
 
 (def-func-end)
 
-(def-method 'stream :read)
+(def-method stream :read)
 	;inputs
 	;r0 = stream object (ptr)
 	;r1 = buffer (pubyte)
@@ -123,7 +123,7 @@
 
 (def-func-end)
 
-(def-method 'stream :read_char)
+(def-method stream :read_char)
 	;inputs
 	;r0 = stream object (ptr)
 	;outputs
@@ -152,7 +152,7 @@
 
 (def-func-end)
 
-(def-method 'stream :read_line)
+(def-method stream :read_line)
 	;inputs
 	;r0 = stream object (ptr)
 	;outputs
@@ -204,7 +204,7 @@
 
 (def-func-end)
 
-(def-method 'stream :read_next)
+(def-method stream :read_next)
 	;inputs
 	;r0 = stream object (ptr)
 	;outputs
@@ -219,7 +219,7 @@
 
 (def-func-end)
 
-(def-method 'stream :skip)
+(def-method stream :skip)
 	;inputs
 	;r0 = stream object (ptr)
 	;r1 = char to skip (uint)
@@ -252,7 +252,7 @@
 
 (def-func-end)
 
-(def-method 'stream :skip_not)
+(def-method stream :skip_not)
 	;inputs
 	;r0 = stream object (ptr)
 	;r1 = char to not skip (uint)
@@ -285,7 +285,7 @@
 
 (def-func-end)
 
-(def-method 'stream :write)
+(def-method stream :write)
 	;inputs
 	;r0 = stream object (ptr)
 	;r1 = buffer (pubyte)
@@ -327,7 +327,7 @@
 
 (def-func-end)
 
-(def-method 'stream :write_char)
+(def-method stream :write_char)
 	;inputs
 	;r0 = stream object (ptr)
 	;r1 = char (uint)
@@ -356,7 +356,7 @@
 
 (def-func-end)
 
-(def-method 'stream :write_cstr)
+(def-method stream :write_cstr)
 	;inputs
 	;r0 = stream object (ptr)
 	;r1 = buffer (pubyte)
@@ -372,7 +372,7 @@
 
 (def-func-end)
 
-(def-method 'stream :flush)
+(def-method stream :flush)
 	;inputs
 	;r0 = stream object (ptr)
 	;outputs
@@ -389,7 +389,7 @@
 
 (def-func-end)
 
-(def-method 'stream :read_bits)
+(def-method stream :read_bits)
 	;inputs
 	;r0 = stream object (ptr)
 	;r1 = num bits (uint)
@@ -435,7 +435,7 @@
 
 (def-func-end)
 
-(def-method 'stream :write_bits)
+(def-method stream :write_bits)
 	;inputs
 	;r0 = stream object (ptr)
 	;r1 = data (uint)
@@ -472,7 +472,7 @@
 
 (def-func-end)
 
-(def-method 'stream :seek)
+(def-method stream :seek)
 	;inputs
 	;r0 = stream object (ptr)
 	;r1 = offset (long)

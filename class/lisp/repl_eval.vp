@@ -5,7 +5,7 @@
 (include "class/lisp/class.inc")
 (include "lib/consts/chars.inc")
 
-(def-method 'lisp :repl_eval)
+(def-method lisp :repl_eval)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = form object (ptr)

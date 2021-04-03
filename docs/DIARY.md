@@ -33,7 +33,7 @@ In the `obj` base class there exists this virtual method definition:
 The implementation for the `obj` class is:
 
 ```vdu
-(def-method 'obj :hash)
+(def-method obj :hash)
 	;inputs
 	;r0 = object (ptr)
 	;outputs
@@ -73,7 +73,7 @@ the `class/str/class.inc` file.
 And the implementation of this is in the `class/str/class.vp` file:
 
 ```vdu
-(def-method 'str :hash)
+(def-method str :hash)
 	;inputs
 	;r0 = str object (ptr)
 	;outputs
@@ -167,7 +167,7 @@ First we need to add a declaration to `class/obj/class.inc` for the new method:
 And here is the new binding method we add to `class/obj/lisp.vp`:
 
 ```vdu
-(def-method 'obj :lisp_hash)
+(def-method obj :lisp_hash)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)

@@ -3,7 +3,7 @@
 (include "class/sym/class.inc")
 (include "class/lisp/class.inc")
 
-(def-method 'lisp :env_bind)
+(def-method lisp :env_bind)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = vars list object (ptr)

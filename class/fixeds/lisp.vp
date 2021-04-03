@@ -3,7 +3,7 @@
 (include "class/fixeds/class.inc")
 (include "class/lisp/class.inc")
 
-(def-method 'fixeds :lisp_frac)
+(def-method fixeds :lisp_frac)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -31,7 +31,7 @@
 
 (def-func-end)
 
-(def-method 'fixeds :lisp_floor)
+(def-method fixeds :lisp_floor)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)

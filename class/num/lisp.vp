@@ -16,7 +16,7 @@
 	(exit 'num (sym (cat :lisp_ (slice 1 -1 _))) '(r0 r1))
 	(vp-ret))
 
-(def-method 'num :lisp_add)
+(def-method num :lisp_add)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -34,7 +34,7 @@
 
 (def-func-end)
 
-(def-method 'num :lisp_sub)
+(def-method num :lisp_sub)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -52,7 +52,7 @@
 
 (def-func-end)
 
-(def-method 'num :lisp_mul)
+(def-method num :lisp_mul)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -70,7 +70,7 @@
 
 (def-func-end)
 
-(def-method 'num :lisp_min)
+(def-method num :lisp_min)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -88,7 +88,7 @@
 
 (def-func-end)
 
-(def-method 'num :lisp_max)
+(def-method num :lisp_max)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -120,7 +120,7 @@
 	(exit 'num (sym (cat :lisp_ (slice 1 -1 _))) '(r0 r1))
 	(vp-ret))
 
-(def-method 'num :lisp_div)
+(def-method num :lisp_div)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -140,7 +140,7 @@
 
 (def-func-end)
 
-(def-method 'num :lisp_mod)
+(def-method num :lisp_mod)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -181,7 +181,7 @@
 	(exit 'num (sym (cat :lisp_ (slice 1 -1 _))) '(r0 r1))
 	(vp-ret))
 
-(def-method 'num :lisp_and)
+(def-method num :lisp_and)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -200,7 +200,7 @@
 
 (def-func-end)
 
-(def-method 'num :lisp_or)
+(def-method num :lisp_or)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -219,7 +219,7 @@
 
 (def-func-end)
 
-(def-method 'num :lisp_xor)
+(def-method num :lisp_xor)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -251,7 +251,7 @@
 	(exit 'num (sym (cat :lisp_ (slice 1 -1 _))) '(r0 r1))
 	(vp-ret))
 
-(def-method 'num :lisp_asr)
+(def-method num :lisp_asr)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -271,7 +271,7 @@
 
 (def-func-end)
 
-(def-method 'num :lisp_shl)
+(def-method num :lisp_shl)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -291,7 +291,7 @@
 
 (def-func-end)
 
-(def-method 'num :lisp_shr)
+(def-method num :lisp_shr)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -329,7 +329,7 @@
 	(exit 'num (sym (cat :lisp_ (slice 1 -1 _))) '(r0 r1))
 	(vp-ret))
 
-(def-method 'num :lisp_eq)
+(def-method num :lisp_eq)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -347,7 +347,7 @@
 
 (def-func-end)
 
-(def-method 'num :lisp_ge)
+(def-method num :lisp_ge)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -365,7 +365,7 @@
 
 (def-func-end)
 
-(def-method 'num :lisp_gt)
+(def-method num :lisp_gt)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -383,7 +383,7 @@
 
 (def-func-end)
 
-(def-method 'num :lisp_le)
+(def-method num :lisp_le)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -401,7 +401,7 @@
 
 (def-func-end)
 
-(def-method 'num :lisp_lt)
+(def-method num :lisp_lt)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -419,7 +419,7 @@
 
 (def-func-end)
 
-(def-method 'num :lisp_ne)
+(def-method num :lisp_ne)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -450,7 +450,7 @@
 	(exit 'num (sym (cat :lisp_ (slice 1 -1 _))) '(r0 r1))
 	(vp-ret))
 
-(def-method 'num :lisp_random)
+(def-method num :lisp_random)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -469,7 +469,7 @@
 
 (def-func-end)
 
-(def-method 'num :lisp_neg)
+(def-method num :lisp_neg)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -488,7 +488,7 @@
 
 (def-func-end)
 
-(def-method 'num :lisp_sign)
+(def-method num :lisp_sign)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -507,7 +507,7 @@
 
 (def-func-end)
 
-(def-method 'num :lisp_abs)
+(def-method num :lisp_abs)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -526,7 +526,7 @@
 
 (def-func-end)
 
-(def-method 'num :lisp_sqrt)
+(def-method num :lisp_sqrt)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -562,7 +562,7 @@
 
 (def-func-end)
 
-(def-method 'num :lisp_i2f)
+(def-method num :lisp_i2f)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -595,7 +595,7 @@
 
 (def-func-end)
 
-(def-method 'num :lisp_i2r)
+(def-method num :lisp_i2r)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -629,7 +629,7 @@
 
 (def-func-end)
 
-(def-method 'num :lisp_f2i)
+(def-method num :lisp_f2i)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -662,7 +662,7 @@
 
 (def-func-end)
 
-(def-method 'num :lisp_f2r)
+(def-method num :lisp_f2r)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -696,7 +696,7 @@
 
 (def-func-end)
 
-(def-method 'num :lisp_r2i)
+(def-method num :lisp_r2i)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -730,7 +730,7 @@
 
 (def-func-end)
 
-(def-method 'num :lisp_r2f)
+(def-method num :lisp_r2f)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)

@@ -7,7 +7,7 @@
 (include "gui/view/lisp.inc")
 (include "sys/statics/class.inc")
 
-(def-method 'gui :lisp_add)
+(def-method gui :lisp_add)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -47,7 +47,7 @@
 
 (def-func-end)
 
-(def-method 'gui :lisp_add_back)
+(def-method gui :lisp_add_back)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -87,7 +87,7 @@
 
 (def-func-end)
 
-(def-method 'gui :lisp_info)
+(def-method gui :lisp_info)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)

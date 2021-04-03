@@ -3,7 +3,7 @@
 (include "class/list/class.inc")
 (include "sys/math/class.inc")
 
-(def-method 'path :stroke_joints)
+(def-method path :stroke_joints)
 	;inputs
 	;r0 = path object (ptr)
 	;r1 = stack array object (ptr)

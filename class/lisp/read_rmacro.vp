@@ -2,7 +2,7 @@
 (include "class/stream/class.inc")
 (include "class/lisp/class.inc")
 
-(def-method 'lisp :read_rmacro)
+(def-method lisp :read_rmacro)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = stream object (ptr)

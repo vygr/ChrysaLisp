@@ -9,7 +9,7 @@
 (gen-vtable 'array)
 (gen-type 'array)
 
-(def-method 'array :deinit)
+(def-method array :deinit)
 	;inputs
 	;r0 = array object (ptr)
 	;outputs
@@ -30,7 +30,7 @@
 
 (def-func-end)
 
-(def-method 'array :clear)
+(def-method array :clear)
 	;inputs
 	;r0 = array object (ptr)
 	;outputs
@@ -47,7 +47,7 @@
 
 (def-func-end)
 
-(def-method 'array :find)
+(def-method array :find)
 	;inputs
 	;r0 = array object (ptr)
 	;r1 = element (long)
@@ -82,7 +82,7 @@
 
 (def-func-end)
 
-(def-method 'array :rfind)
+(def-method array :rfind)
 	;inputs
 	;r0 = array object (ptr)
 	;r1 = element (long)
@@ -109,7 +109,7 @@
 
 (def-func-end)
 
-(def-method 'array :get_length)
+(def-method array :get_length)
 	;inputs
 	;r0 = array object (ptr)
 	;outputs
@@ -127,7 +127,7 @@
 
 (def-func-end)
 
-(def-method 'array :push_back)
+(def-method array :push_back)
 	;inputs
 	;r0 = array object (ptr)
 	;r1 = element (long)
@@ -163,7 +163,7 @@
 
 (def-func-end)
 
-(def-method 'array :push_back2)
+(def-method array :push_back2)
 	;inputs
 	;r0 = array object (ptr)
 	;r1 = element1 (long)
@@ -201,7 +201,7 @@
 
 (def-func-end)
 
-(def-method 'array :ref_back)
+(def-method array :ref_back)
 	;inputs
 	;r0 = array object (ptr)
 	;outputs
@@ -224,7 +224,7 @@
 
 (def-func-end)
 
-(def-method 'array :ref_element)
+(def-method array :ref_element)
 	;inputs
 	;r0 = array object (ptr)
 	;r1 = element index (uint)
@@ -245,7 +245,7 @@
 
 (def-func-end)
 
-(def-method 'array :set_capacity)
+(def-method array :set_capacity)
 	;inputs
 	;r0 = array object (ptr)
 	;r1 = capacity (uint)
@@ -285,7 +285,7 @@
 
 (def-func-end)
 
-(def-method 'array :set_element)
+(def-method array :set_element)
 	;inputs
 	;r0 = array object (ptr)
 	;r1 = element object (ptr)
@@ -304,7 +304,7 @@
 
 (def-func-end)
 
-(def-method 'array :partition)
+(def-method array :partition)
 	;inputs
 	;r0 = array object (ptr)
 	;r1 = lower partition iter (plong)
@@ -361,7 +361,7 @@
 
 (def-func-end)
 
-(def-method 'array :sort)
+(def-method array :sort)
 	;inputs
 	;r0 = array object (ptr)
 	;r1 = stack array object (ptr)
@@ -420,7 +420,7 @@
 
 (def-func-end)
 
-(def-method 'array :slice)
+(def-method array :slice)
 	;inputs
 	;r0 = array object (ptr)
 	;r1 = element start index (uint)
@@ -459,7 +459,7 @@
 
 (def-func-end)
 
-(def-method 'array :append)
+(def-method array :append)
 	;inputs
 	;r0 = array object (ptr)
 	;r1 = source array object (ptr)
@@ -500,7 +500,7 @@
 
 (def-func-end)
 
-(def-method 'array :cat)
+(def-method array :cat)
 	;inputs
 	;r0 = array object (ptr)
 	;r1 = list of array objects (ptr)
@@ -536,7 +536,7 @@
 
 (def-func-end)
 
-(def-method 'array :print)
+(def-method array :print)
 	;inputs
 	;r0 = array object (ptr)
 	;r1 = stream object (ptr)
@@ -579,7 +579,7 @@
 
 (def-func-end)
 
-(def-method 'array :erase)
+(def-method array :erase)
 	;inputs
 	;r0 = array object (ptr)
 	;r1 = element iterator (pptr)
@@ -607,7 +607,7 @@
 
 (def-func-end)
 
-(def-method 'array :erase2)
+(def-method array :erase2)
 	;inputs
 	;r0 = array object (ptr)
 	;r1 = element iterator (pptr)

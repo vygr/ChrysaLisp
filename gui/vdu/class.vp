@@ -13,7 +13,7 @@
 (gen-create 'vdu)
 (gen-vtable 'vdu)
 
-(def-method 'vdu :init)
+(def-method vdu :init)
 	;inputs
 	;r0 = vdu object (ptr)
 	;r1 = vtable (pptr)
@@ -35,7 +35,7 @@
 
 (def-func-end)
 
-(def-method 'vdu :deinit)
+(def-method vdu :deinit)
 	;inputs
 	;r0 = vdu object (ptr)
 	;outputs
@@ -56,7 +56,7 @@
 
 (def-func-end)
 
-(def-method 'vdu :draw)
+(def-method vdu :draw)
 	;inputs
 	;r0 = view object (ptr)
 	;outputs
@@ -135,7 +135,7 @@
 
 (def-func-end)
 
-(def-method 'vdu :configure)
+(def-method vdu :configure)
 	;inputs
 	;r0 = vdu object (ptr)
 	;outputs

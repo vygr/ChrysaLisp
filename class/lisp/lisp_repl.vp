@@ -6,7 +6,7 @@
 (include "class/sym/class.inc")
 (include "lib/consts/chars.inc")
 
-(def-method 'lisp :lisp_repl)
+(def-method lisp :lisp_repl)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)

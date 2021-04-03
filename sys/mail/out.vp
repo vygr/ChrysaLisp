@@ -4,7 +4,7 @@
 (include "sys/kernel/class.inc")
 (include "sys/statics/class.inc")
 
-(def-method 'sys_mail :out)
+(def-method sys_mail :out)
 	;info
 	;parcels going off chip or junk mail task
 

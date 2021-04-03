@@ -3,7 +3,7 @@
 (include "class/str/class.inc")
 (include "class/lisp/class.inc")
 
-(def-method 'out :lisp_create)
+(def-method out :lisp_create)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)

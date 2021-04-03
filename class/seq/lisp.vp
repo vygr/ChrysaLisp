@@ -6,7 +6,7 @@
 (include "gui/path/class.inc")
 (include "class/lisp/class.inc")
 
-(def-method 'seq :lisp_length)
+(def-method seq :lisp_length)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -38,7 +38,7 @@
 
 (def-func-end)
 
-(def-method 'seq :lisp_elem)
+(def-method seq :lisp_elem)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -79,7 +79,7 @@
 
 (def-func-end)
 
-(def-method 'seq :lisp_slice)
+(def-method seq :lisp_slice)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -125,7 +125,7 @@
 
 (def-func-end)
 
-(def-method 'seq :lisp_each)
+(def-method seq :lisp_each)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -242,7 +242,7 @@
 
 (def-func-end)
 
-(def-method 'seq :lisp_some)
+(def-method seq :lisp_some)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -367,7 +367,7 @@
 
 (def-func-end)
 
-(def-method 'seq :lisp_cat)
+(def-method seq :lisp_cat)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -399,7 +399,7 @@
 
 (def-func-end)
 
-(def-method 'seq :lisp_find)
+(def-method seq :lisp_find)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -461,7 +461,7 @@
 
 (def-func-end)
 
-(def-method 'seq :lisp_rfind)
+(def-method seq :lisp_rfind)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)

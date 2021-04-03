@@ -9,7 +9,7 @@
 (gen-vtable 'func)
 (gen-type 'func)
 
-(def-method 'func :print)
+(def-method func :print)
 	;inputs
 	;r0 = func object (ptr)
 	;r1 = stream object (ptr)

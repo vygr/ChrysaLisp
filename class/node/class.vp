@@ -3,7 +3,7 @@
 
 (gen-vtable 'node)
 
-(def-method 'node :create)
+(def-method node :create)
 	;inputs
 	;r0 = buffer (pubyte)
 	;r1 = buffer length (uint)
@@ -32,7 +32,7 @@
 
 (def-func-end)
 
-(def-method 'node :hash)
+(def-method node :hash)
 	;inputs
 	;r0 = node object (ptr)
 	;outputs

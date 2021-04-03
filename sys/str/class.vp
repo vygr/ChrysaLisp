@@ -1,7 +1,7 @@
 (include "sys/func.inc")
 (include "sys/str/class.inc")
 
-(def-method 'sys_str :compare)
+(def-method sys_str :compare)
 	;inputs
 	;r0 = c string1 (pubyte)
 	;r1 = c string2 (pubyte)
@@ -24,7 +24,7 @@
 
 (def-func-end)
 
-(def-method 'sys_str :copy)
+(def-method sys_str :copy)
 	;inputs
 	;r0 = c string (pubyte)
 	;r1 = c string copy (pubyte)
@@ -46,7 +46,7 @@
 
 (def-func-end)
 
-(def-method 'sys_str :from_long)
+(def-method sys_str :from_long)
 	;inputs
 	;r0 = number (ulong)
 	;r1 = c string buffer (pubyte)
@@ -87,7 +87,7 @@
 
 (def-func-end)
 
-(def-method 'sys_str :length)
+(def-method sys_str :length)
 	;inputs
 	;r0 = c string (pubyte)
 	;outputs
@@ -109,7 +109,7 @@
 
 (def-func-end)
 
-(def-method 'sys_str :to_long)
+(def-method sys_str :to_long)
 	;inputs
 	;r0 = c string (pubyte)
 	;r1 = base (ulong)
@@ -154,7 +154,7 @@
 
 (def-func-end)
 
-(def-method 'sys_str :read_utf8)
+(def-method sys_str :read_utf8)
 	;inputs
 	;r0 = utf8 data pointer (pubyte)
 	;outputs

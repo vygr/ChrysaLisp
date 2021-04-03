@@ -7,7 +7,7 @@
 
 (gen-vtable 'obj)
 
-(def-method 'obj :destroy)
+(def-method obj :destroy)
 	;inputs
 	;r0 = object (ptr)
 	;trashes
@@ -20,7 +20,7 @@
 
 (def-func-end)
 
-(def-method 'obj :hash)
+(def-method obj :hash)
 	;inputs
 	;r0 = object (ptr)
 	;outputs
@@ -35,7 +35,7 @@
 
 (def-func-end)
 
-(def-method 'obj :inst_of)
+(def-method obj :inst_of)
 	;inputs
 	;r0 = object (ptr)
 	;r1 = vtable of tested type (ptr)
@@ -60,13 +60,13 @@
 
 (def-func-end)
 
-(def-method 'obj :null)
+(def-method obj :null)
 
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'obj :deref)
+(def-method obj :deref)
 	;inputs
 	;r0 = object (ptr)
 	;trashes
@@ -87,7 +87,7 @@
 
 (def-func-end)
 
-(def-method 'obj :deref_if)
+(def-method obj :deref_if)
 	;inputs
 	;r0 = 0, else object (ptr)
 	;trashes
@@ -102,7 +102,7 @@
 
 (def-func-end)
 
-(def-method 'obj :ref_if)
+(def-method obj :ref_if)
 	;inputs
 	;r0 = 0, else object (ptr)
 	;outputs
@@ -122,7 +122,7 @@
 
 (def-func-end)
 
-(def-method 'obj :print)
+(def-method obj :print)
 	;inputs
 	;r0 = object (ptr)
 	;r1 = stream object (ptr)
@@ -147,7 +147,7 @@
 
 (def-func-end)
 
-(def-method 'obj :type)
+(def-method obj :type)
 	;inputs
 	;r0 = obj object (ptr)
 	;outputs

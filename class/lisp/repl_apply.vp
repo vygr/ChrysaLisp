@@ -2,7 +2,7 @@
 (include "class/func/class.inc")
 (include "class/lisp/class.inc")
 
-(def-method 'lisp :repl_apply)
+(def-method lisp :repl_apply)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)

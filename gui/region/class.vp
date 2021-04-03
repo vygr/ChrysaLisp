@@ -1,7 +1,7 @@
 (include "sys/func.inc")
 (include "gui/region/class.inc")
 
-(def-method 'region :clip_rect)
+(def-method region :clip_rect)
 	;inputs
 	;r0 = region heap (ptr)
 	;r1 = source region listhead (ptr)
@@ -50,7 +50,7 @@
 
 (def-func-end)
 
-(def-method 'region :copy_rect)
+(def-method region :copy_rect)
 	;inputs
 	;r0 = region heap (ptr)
 	;r1 = source region listhead (ptr)
@@ -203,7 +203,7 @@
 
 (def-func-end)
 
-(def-method 'region :copy_region)
+(def-method region :copy_region)
 	;inputs
 	;r0 = region heap (ptr)
 	;r1 = source region listhead (ptr)
@@ -241,7 +241,7 @@
 
 (def-func-end)
 
-(def-method 'region :cut_rect)
+(def-method region :cut_rect)
 	;inputs
 	;r0 = region heap (ptr)
 	;r1 = source region listhead (ptr)
@@ -568,7 +568,7 @@
 
 (def-func-end)
 
-(def-method 'region :free)
+(def-method region :free)
 	;inputs
 	;r0 = region heap (ptr)
 	;r1 = source region listhead (ptr)
@@ -591,7 +591,7 @@
 
 (def-func-end)
 
-(def-method 'region :paste_rect)
+(def-method region :paste_rect)
 	;inputs
 	;r0 = region heap (ptr)
 	;r1 = dest region listhead (ptr)
@@ -789,7 +789,7 @@
 
 (def-func-end)
 
-(def-method 'region :paste_region)
+(def-method region :paste_region)
 	;inputs
 	;r0 = region heap (ptr)
 	;r1 = source region listhead (ptr)
@@ -827,7 +827,7 @@
 
 (def-func-end)
 
-(def-method 'region :remove_rect)
+(def-method region :remove_rect)
 	;inputs
 	;r0 = region heap (ptr)
 	;r1 = source region listhead (ptr)
@@ -1077,7 +1077,7 @@
 
 (def-func-end)
 
-(def-method 'region :remove_region)
+(def-method region :remove_region)
 	;inputs
 	;r0 = region heap (ptr)
 	;r1 = source region listhead (ptr)
@@ -1114,7 +1114,7 @@
 
 (def-func-end)
 
-(def-method 'region :translate)
+(def-method region :translate)
 	;inputs
 	;r1 = region listhead (ptr)
 	;r7 = x translation (pixels)
@@ -1137,7 +1137,7 @@
 
 (def-func-end)
 
-(def-method 'region :bounds)
+(def-method region :bounds)
 	;inputs
 	;r1 = region listhead (ptr)
 	;outputs

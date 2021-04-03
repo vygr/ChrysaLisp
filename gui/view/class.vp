@@ -13,7 +13,7 @@
 (gen-create 'view)
 (gen-vtable 'view)
 
-(def-method 'view :init)
+(def-method view :init)
 	;inputs
 	;r0 = view object (ptr)
 	;r1 = vtable (pptr)
@@ -42,7 +42,7 @@
 
 (def-func-end)
 
-(def-method 'view :deinit)
+(def-method view :deinit)
 	;inputs
 	;r0 = view object (ptr)
 	;outputs
@@ -83,7 +83,7 @@
 
 (def-func-end)
 
-(def-method 'view :add_front)
+(def-method view :add_front)
 	;inputs
 	;r0 = view object (ptr)
 	;r1 = child view object (ptr)
@@ -106,7 +106,7 @@
 
 (def-func-end)
 
-(def-method 'view :add_back)
+(def-method view :add_back)
 	;inputs
 	;r0 = view object (ptr)
 	;r1 = child view object (ptr)
@@ -129,7 +129,7 @@
 
 (def-func-end)
 
-(def-method 'view :sub)
+(def-method view :sub)
 	;inputs
 	;r0 = view object (ptr)
 	;outputs
@@ -152,7 +152,7 @@
 
 (def-func-end)
 
-(def-method 'view :hide)
+(def-method view :hide)
 	;inputs
 	;r0 = view object (ptr)
 	;outputs
@@ -196,7 +196,7 @@
 
 (def-func-end)
 
-(def-method 'view :to_front)
+(def-method view :to_front)
 	;inputs
 	;r0 = view object (ptr)
 	;outputs
@@ -218,7 +218,7 @@
 
 (def-func-end)
 
-(def-method 'view :to_back)
+(def-method view :to_back)
 	;inputs
 	;r0 = view object (ptr)
 	;outputs
@@ -253,7 +253,7 @@
 
 (def-func-end)
 
-(def-method 'view :forward)
+(def-method view :forward)
 	;inputs
 	;r0 = view object (ptr)
 	;r1 = user data pointer (ptr)
@@ -297,7 +297,7 @@
 
 (def-func-end)
 
-(def-method 'view :forward_tree)
+(def-method view :forward_tree)
 	;inputs
 	;r0 = view object (ptr)
 	;r1 = user data pointer
@@ -362,7 +362,7 @@
 
 (def-func-end)
 
-(def-method 'view :backward_tree)
+(def-method view :backward_tree)
 	;inputs
 	;r0 = view object (ptr)
 	;r1 = user data pointer
@@ -427,7 +427,7 @@
 
 (def-func-end)
 
-(def-method 'view :draw)
+(def-method view :draw)
 	;inputs
 	;r0 = view object (ptr)
 	;outputs
@@ -481,7 +481,7 @@
 
 (def-func-end)
 
-(def-method 'view :find_id)
+(def-method view :find_id)
 	;inputs
 	;r0 = view object (ptr)
 	;r1 = target id (long)
@@ -528,7 +528,7 @@
 
 (def-func-end)
 
-(def-method 'view :hit)
+(def-method view :hit)
 	;inputs
 	;r0 = view object (ptr)
 	;r7 = x (pixels)
@@ -556,7 +556,7 @@
 
 (def-func-end)
 
-(def-method 'view :hit_tree)
+(def-method view :hit_tree)
 	;inputs
 	;r0 = view object (ptr)
 	;r7 = x (pixels)
@@ -610,7 +610,7 @@
 
 (def-func-end)
 
-(def-method 'view :get_bounds)
+(def-method view :get_bounds)
 	;inputs
 	;r0 = view object (ptr)
 	;outputs
@@ -627,7 +627,7 @@
 
 (def-func-end)
 
-(def-method 'view :set_bounds)
+(def-method view :set_bounds)
 	;inputs
 	;r0 = view object (ptr)
 	;r7 = x (pixels)
@@ -644,7 +644,7 @@
 
 (def-func-end)
 
-(def-method 'view :set_flags)
+(def-method view :set_flags)
 	;inputs
 	;r0 = view object (ptr)
 	;r1 = flag values (ulong)
@@ -670,7 +670,7 @@
 
 (def-func-end)
 
-(def-method 'view :find_owner)
+(def-method view :find_owner)
 	;inputs
 	;r0 = view object (ptr)
 	;outputs
@@ -693,7 +693,7 @@
 
 (def-func-end)
 
-(def-method 'view :ref_prop)
+(def-method view :ref_prop)
 	;inputs
 	;r0 = view object (ptr)
 	;r1 = static sym num (uint)
@@ -713,7 +713,7 @@
 
 (def-func-end)
 
-(def-method 'view :get_prop)
+(def-method view :get_prop)
 	;inputs
 	;r0 = view object (ptr)
 	;r1 = static sym num (uint)
@@ -735,7 +735,7 @@
 
 (def-func-end)
 
-(def-method 'view :get_long_prop)
+(def-method view :get_long_prop)
 	;inputs
 	;r0 = view object (ptr)
 	;r1 = static sym num (uint)

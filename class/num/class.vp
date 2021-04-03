@@ -9,7 +9,7 @@
 (gen-vtable 'num)
 (gen-type 'num)
 
-(def-method 'num :hash)
+(def-method num :hash)
 	;inputs
 	;r0 = num (ptr)
 	;outputs
@@ -24,7 +24,7 @@
 
 (def-func-end)
 
-(def-method 'num :print)
+(def-method num :print)
 	;inputs
 	;r0 = num object (ptr)
 	;r1 = stream object (ptr)
@@ -69,7 +69,7 @@
 	(exit 'num _ '(r0 r1))
 	(vp-ret))
 
-(def-method 'num :add)
+(def-method num :add)
 	;inputs
 	;r0 = num object (ptr)
 	;r1 = list of num objects (ptr)
@@ -84,7 +84,7 @@
 
 (def-func-end)
 
-(def-method 'num :sub)
+(def-method num :sub)
 	;inputs
 	;r0 = num object (ptr)
 	;r1 = list of num objects (ptr)
@@ -99,7 +99,7 @@
 
 (def-func-end)
 
-(def-method 'num :mul)
+(def-method num :mul)
 	;inputs
 	;r0 = num object (ptr)
 	;r1 = list of num objects (ptr)
@@ -131,7 +131,7 @@
 	(exit 'num _ `(,this ,args))
 	(vp-ret))
 
-(def-method 'num :min)
+(def-method num :min)
 	;inputs
 	;r0 = num object (ptr)
 	;r1 = list of num objects (ptr)
@@ -150,7 +150,7 @@
 
 (def-func-end)
 
-(def-method 'num :max)
+(def-method num :max)
 	;inputs
 	;r0 = num object (ptr)
 	;r1 = list of num objects (ptr)
@@ -193,7 +193,7 @@
 	(exit 'num _ '(r0 r3))
 	(vp-ret))
 
-(def-method 'num :div)
+(def-method num :div)
 	;inputs
 	;r0 = num object (ptr)
 	;r1 = list of num objects (ptr)
@@ -210,7 +210,7 @@
 
 (def-func-end)
 
-(def-method 'num :mod)
+(def-method num :mod)
 	;inputs
 	;r0 = num object (ptr)
 	;r1 = list of num objects (ptr)
@@ -240,7 +240,7 @@
 	(exit 'num _ '(r0 r1))
 	(vp-ret))
 
-(def-method 'num :sqrt)
+(def-method num :sqrt)
 	;inputs
 	;r0 = num object (ptr)
 	;outputs
@@ -254,7 +254,7 @@
 
 (def-func-end)
 
-(def-method 'num :random)
+(def-method num :random)
 	;inputs
 	;r0 = num object (ptr)
 	;outputs
@@ -268,7 +268,7 @@
 
 (def-func-end)
 
-(def-method 'num :abs)
+(def-method num :abs)
 	;inputs
 	;r0 = num object (ptr)
 	;outputs
@@ -285,7 +285,7 @@
 
 (def-func-end)
 
-(def-method 'num :neg)
+(def-method num :neg)
 	;inputs
 	;r0 = num object (ptr)
 	;outputs
@@ -299,7 +299,7 @@
 
 (def-func-end)
 
-(def-method 'num :sign)
+(def-method num :sign)
 	;inputs
 	;r0 = num object (ptr)
 	;outputs
@@ -341,7 +341,7 @@
 	(exit 'num _ '(r0 0))
 	(vp-ret))
 
-(def-method 'num :eq)
+(def-method num :eq)
 	;inputs
 	;r0 = num object (ptr)
 	;r1 = list of num objects (ptr)
@@ -356,7 +356,7 @@
 
 (def-func-end)
 
-(def-method 'num :ge)
+(def-method num :ge)
 	;inputs
 	;r0 = num object (ptr)
 	;r1 = list of num objects (ptr)
@@ -373,7 +373,7 @@
 
 (def-func-end)
 
-(def-method 'num :gt)
+(def-method num :gt)
 	;inputs
 	;r0 = num object (ptr)
 	;r1 = list of num objects (ptr)
@@ -390,7 +390,7 @@
 
 (def-func-end)
 
-(def-method 'num :le)
+(def-method num :le)
 	;inputs
 	;r0 = num object (ptr)
 	;r1 = list of num objects (ptr)
@@ -407,7 +407,7 @@
 
 (def-func-end)
 
-(def-method 'num :lt)
+(def-method num :lt)
 	;inputs
 	;r0 = num object (ptr)
 	;r1 = list of num objects (ptr)
@@ -424,7 +424,7 @@
 
 (def-func-end)
 
-(def-method 'num :ne)
+(def-method num :ne)
 	;inputs
 	;r0 = num object (ptr)
 	;r1 = list of num objects (ptr)

@@ -1,7 +1,7 @@
 (include "sys/func.inc")
 (include "class/lisp/class.inc")
 
-(def-method 'lisp :deinit)
+(def-method lisp :deinit)
 	;inputs
 	;r0 = lisp object (ptr)
 	;outputs

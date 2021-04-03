@@ -10,7 +10,7 @@
 (gen-vtable 'str)
 (gen-type 'str)
 
-(def-method 'str :create_from_buffer)
+(def-method str :create_from_buffer)
 	;inputs
 	;r0 = buffer (pubyte)
 	;r1 = buffer length (uint)
@@ -40,7 +40,7 @@
 
 (def-func-end)
 
-(def-method 'str :create_from_cstr)
+(def-method str :create_from_cstr)
 	;inputs
 	;r0 = c string (pubyte)
 	;outputs
@@ -56,7 +56,7 @@
 
 (def-func-end)
 
-(def-method 'str :create_from_file)
+(def-method str :create_from_file)
 	;inputs
 	;r0 = file name c string (pubyte)
 	;outputs
@@ -103,7 +103,7 @@
 
 (def-func-end)
 
-(def-method 'str :create_from_long)
+(def-method str :create_from_long)
 	;inputs
 	;r0 = number (long)
 	;r1 = base, - for unsigned, (long)
@@ -136,7 +136,7 @@
 
 (def-func-end)
 
-(def-method 'str :init)
+(def-method str :init)
 	;inputs
 	;r0 = str object (ptr)
 	;r1 = vtable (pptr)
@@ -170,7 +170,7 @@
 
 (def-func-end)
 
-(def-method 'str :init1)
+(def-method str :init1)
 	;inputs
 	;r0 = str object (ptr)
 	;r1 = vtable (pptr)
@@ -205,7 +205,7 @@
 
 (def-func-end)
 
-(def-method 'str :init2)
+(def-method str :init2)
 	;inputs
 	;r0 = str object (ptr)
 	;r1 = vtable (pptr)
@@ -247,7 +247,7 @@
 
 (def-func-end)
 
-(def-method 'str :init3)
+(def-method str :init3)
 	;inputs
 	;r0 = str object (ptr)
 	;r1 = vtable (pptr)
@@ -284,7 +284,7 @@
 
 (def-func-end)
 
-(def-method 'str :append)
+(def-method str :append)
 	;inputs
 	;r0 = str object (ptr)
 	;r1 = str object (ptr)
@@ -318,7 +318,7 @@
 
 (def-func-end)
 
-(def-method 'str :cat)
+(def-method str :cat)
 	;inputs
 	;r0 = str object (ptr)
 	;r1 = list of str objects (ptr)
@@ -357,7 +357,7 @@
 
 (def-func-end)
 
-(def-method 'str :compare)
+(def-method str :compare)
 	;inputs
 	;r0 = str object (ptr)
 	;r1 = str object (ptr)
@@ -400,7 +400,7 @@
 
 (def-func-end)
 
-(def-method 'str :same)
+(def-method str :same)
 	;inputs
 	;r0 = str object (ptr)
 	;r1 = str object (ptr)
@@ -429,7 +429,7 @@
 
 (def-func-end)
 
-(def-method 'str :starts_with)
+(def-method str :starts_with)
 	;inputs
 	;r0 = str prefix object (ptr)
 	;r1 = str object (ptr)
@@ -501,7 +501,7 @@
 
 (def-func-end)
 
-(def-method 'str :get_length)
+(def-method str :get_length)
 	;inputs
 	;r0 = str object (ptr)
 	;outputs
@@ -519,7 +519,7 @@
 
 (def-func-end)
 
-(def-method 'str :hash)
+(def-method str :hash)
 	;inputs
 	;r0 = str object (ptr)
 	;outputs
@@ -568,7 +568,7 @@
 
 (def-func-end)
 
-(def-method 'str :ref_element)
+(def-method str :ref_element)
 	;inputs
 	;r0 = str object (ptr)
 	;r1 = char index (uint)
@@ -589,7 +589,7 @@
 
 (def-func-end)
 
-(def-method 'str :slice)
+(def-method str :slice)
 	;inputs
 	;r0 = str object (ptr)
 	;r1 = element start index (uint)
@@ -616,7 +616,7 @@
 
 (def-func-end)
 
-(def-method 'str :split)
+(def-method str :split)
 	;inputs
 	;r0 = str object (ptr)
 	;r1 = split chars str object (ptr)
@@ -667,7 +667,7 @@
 
 (def-func-end)
 
-(def-method 'str :split_char)
+(def-method str :split_char)
 	;inputs
 	;r0 = str object (ptr)
 	;r1 = split char (uint)
@@ -718,7 +718,7 @@
 
 (def-func-end)
 
-(def-method 'str :find)
+(def-method str :find)
 	;inputs
 	;r0 = str object (ptr)
 	;r1 = search char (uint)
@@ -746,7 +746,7 @@
 
 (def-func-end)
 
-(def-method 'str :rfind)
+(def-method str :rfind)
 	;inputs
 	;r0 = str object (ptr)
 	;r1 = search char (uint)
@@ -771,7 +771,7 @@
 
 (def-func-end)
 
-(def-method 'str :print)
+(def-method str :print)
 	;inputs
 	;r0 = str object (ptr)
 	;r1 = stream object (ptr)

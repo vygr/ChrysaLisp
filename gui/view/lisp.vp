@@ -7,7 +7,7 @@
 (include "class/lisp/class.inc")
 (include "sys/statics/class.inc")
 
-(def-method 'view :lisp_create)
+(def-method view :lisp_create)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -36,7 +36,7 @@
 
 (def-func-end)
 
-(def-method 'view :lisp_find_id)
+(def-method view :lisp_find_id)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -73,7 +73,7 @@
 
 (def-func-end)
 
-(def-method 'view :lisp_sub)
+(def-method view :lisp_sub)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -104,7 +104,7 @@
 
 (def-func-end)
 
-(def-method 'view :lisp_hide)
+(def-method view :lisp_hide)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -135,7 +135,7 @@
 
 (def-func-end)
 
-(def-method 'view :lisp_add)
+(def-method view :lisp_add)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -168,7 +168,7 @@
 
 (def-func-end)
 
-(def-method 'view :lisp_add_back)
+(def-method view :lisp_add_back)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -201,7 +201,7 @@
 
 (def-func-end)
 
-(def-method 'view :lisp_trans_dirty)
+(def-method view :lisp_trans_dirty)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -235,7 +235,7 @@
 
 (def-func-end)
 
-(def-method 'view :lisp_clr_opaque)
+(def-method view :lisp_clr_opaque)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -274,7 +274,7 @@
 
 (def-func-end)
 
-(def-method 'view :lisp_add_opaque)
+(def-method view :lisp_add_opaque)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -315,7 +315,7 @@
 
 (def-func-end)
 
-(def-method 'view :lisp_sub_opaque)
+(def-method view :lisp_sub_opaque)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -356,7 +356,7 @@
 
 (def-func-end)
 
-(def-method 'view :lisp_set_flags)
+(def-method view :lisp_set_flags)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -389,7 +389,7 @@
 
 (def-func-end)
 
-(def-method 'view :lisp_add_dirty)
+(def-method view :lisp_add_dirty)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -432,7 +432,7 @@
 
 (def-func-end)
 
-(def-method 'view :lisp_children)
+(def-method view :lisp_children)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -475,7 +475,7 @@
 
 (def-func-end)
 
-(def-method 'view :lisp_to_front)
+(def-method view :lisp_to_front)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -508,7 +508,7 @@
 
 (def-func-end)
 
-(def-method 'view :lisp_to_back)
+(def-method view :lisp_to_back)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -541,7 +541,7 @@
 
 (def-func-end)
 
-(def-method 'view :lisp_emit)
+(def-method view :lisp_emit)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)

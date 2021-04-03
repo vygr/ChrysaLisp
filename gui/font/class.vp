@@ -15,7 +15,7 @@
 (gen-create 'font)
 (gen-vtable 'font)
 
-(def-method 'font :open)
+(def-method font :open)
 	;r0 = name c string (pubyte)
 	;r1 = font size (pixels)
 	;outputs
@@ -62,7 +62,7 @@
 
 (def-func-end)
 
-(def-method 'font :init)
+(def-method font :init)
 	;inputs
 	;r0 = font object (ptr)
 	;r1 = vtable (pptr)
@@ -110,7 +110,7 @@
 
 (def-func-end)
 
-(def-method 'font :deinit)
+(def-method font :deinit)
 	;inputs
 	;r0 = font object (ptr)
 	;outputs
@@ -135,7 +135,7 @@
 
 (def-func-end)
 
-(def-method 'font :get_metrics)
+(def-method font :get_metrics)
 	;inputs
 	;r0 = font object (ptr)
 	;outputs
@@ -163,7 +163,7 @@
 
 (def-func-end)
 
-(def-method 'font :glyph_data)
+(def-method font :glyph_data)
 	;inputs
 	;r0 = font object (ptr)
 	;r1 = char code (uint)
@@ -207,7 +207,7 @@
 
 (def-func-end)
 
-(def-method 'font :glyph_ranges)
+(def-method font :glyph_ranges)
 	;inputs
 	;r0 = font object (ptr)
 	;outputs
@@ -240,7 +240,7 @@
 
 (def-func-end)
 
-(def-method 'font :glyph_info)
+(def-method font :glyph_info)
 	;inputs
 	;r0 = font object (ptr)
 	;r1 = utf8 encoded str object (ptr)
@@ -269,7 +269,7 @@
 
 (def-func-end)
 
-(def-method 'font :glyph_bounds)
+(def-method font :glyph_bounds)
 	;inputs
 	;r0 = font object (ptr)
 	;r1 = glyph info array object (ptr)
@@ -318,7 +318,7 @@
 
 (def-func-end)
 
-(def-method 'font :glyph_paths)
+(def-method font :glyph_paths)
 	;inputs
 	;r0 = font object (ptr)
 	;r1 = stack array object (ptr)
@@ -420,7 +420,7 @@
 
 (def-func-end)
 
-(def-method 'font :sym_texture)
+(def-method font :sym_texture)
 	;inputs
 	;r0 = font object (ptr)
 	;r1 = utf8 encoded sym object (ptr)
@@ -483,7 +483,7 @@
 
 (def-func-end)
 
-(def-method 'font :ascii_textures)
+(def-method font :ascii_textures)
 	;inputs
 	;r0 = font object (ptr)
 	;outputs
@@ -529,7 +529,7 @@
 
 (def-func-end)
 
-(def-method 'font :flush)
+(def-method font :flush)
 	;trashes
 	;r0-r14
 

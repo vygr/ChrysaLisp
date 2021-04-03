@@ -17,7 +17,7 @@
 (gen-create 'canvas)
 (gen-create 'canvas 'with_pixmap)
 
-(def-method 'canvas :init)
+(def-method canvas :init)
 	;inputs
 	;r0 = canvas object (ptr)
 	;r1 = vtable (pptr)
@@ -63,7 +63,7 @@
 
 (def-func-end)
 
-(def-method 'canvas :init_with_pixmap)
+(def-method canvas :init_with_pixmap)
 	;inputs
 	;r0 = canvas object (ptr)
 	;r1 = vtable (pptr)
@@ -105,7 +105,7 @@
 
 (def-func-end)
 
-(def-method 'canvas :deinit)
+(def-method canvas :deinit)
 	;inputs
 	;r0 = canvas object (ptr)
 	;outputs
@@ -138,7 +138,7 @@
 
 (def-func-end)
 
-(def-method 'canvas :swap)
+(def-method canvas :swap)
 	;inputs
 	;r0 = canvas object (ptr)
 	;outputs
@@ -174,7 +174,7 @@
 
 (def-func-end)
 
-(def-method 'canvas :set_clip)
+(def-method canvas :set_clip)
 	;inputs
 	;r0 = canvas object (ptr)
 	;r7 = x (pixels)
@@ -212,7 +212,7 @@
 
 (def-func-end)
 
-(def-method 'canvas :span_noclip)
+(def-method canvas :span_noclip)
 	;inputs
 	;r0 = canvas object (ptr)
 	;r1 = coverage (ulong)
@@ -295,7 +295,7 @@
 
 (def-func-end)
 
-(def-method 'canvas :span)
+(def-method canvas :span)
 	;inputs
 	;r0 = canvas object (ptr)
 	;r1 = coverage (ulong)
@@ -328,7 +328,7 @@
 
 (def-func-end)
 
-(def-method 'canvas :pick)
+(def-method canvas :pick)
 	;inputs
 	;r0 = canvas object (ptr)
 	;r7 = x (pixels)
@@ -359,7 +359,7 @@
 
 (def-func-end)
 
-(def-method 'canvas :plot)
+(def-method canvas :plot)
 	;inputs
 	;r0 = canvas object (ptr)
 	;r7 = x (pixels)
@@ -423,7 +423,7 @@
 
 (def-func-end)
 
-(def-method 'canvas :fbox)
+(def-method canvas :fbox)
 	;inputs
 	;r0 = canvas object (ptr)
 	;r7 = x (pixels)

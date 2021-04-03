@@ -4,7 +4,7 @@
 (gen-create 'fstream)
 (gen-vtable 'fstream)
 
-(def-method 'fstream :init)
+(def-method fstream :init)
 	;inputs
 	;r0 = fstream object (ptr)
 	;r1 = vtable (pptr)
@@ -53,7 +53,7 @@
 
 (def-func-end)
 
-(def-method 'fstream :deinit)
+(def-method fstream :deinit)
 	;inputs
 	;r0 = fstream object (ptr)
 	;outputs
@@ -76,7 +76,7 @@
 
 (def-func-end)
 
-(def-method 'fstream :flush)
+(def-method fstream :flush)
 	;inputs
 	;r0 = fstream object (ptr)
 	;outputs
@@ -106,7 +106,7 @@
 
 (def-func-end)
 
-(def-method 'fstream :read_next)
+(def-method fstream :read_next)
 	;inputs
 	;r0 = fstream object (ptr)
 	;outputs
@@ -142,7 +142,7 @@
 
 (def-func-end)
 
-(def-method 'fstream :write_next)
+(def-method fstream :write_next)
 	;inputs
 	;r0 = fstream object (ptr)
 	;outputs
@@ -169,7 +169,7 @@
 
 (def-func-end)
 
-(def-method 'fstream :seek)
+(def-method fstream :seek)
 	;inputs
 	;r0 = fstream object (ptr)
 	;r1 = offset (long)

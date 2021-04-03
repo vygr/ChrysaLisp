@@ -7,7 +7,7 @@
 (include "gui/pixmap/class.inc")
 (include "sys/statics/class.inc")
 
-(def-method 'ctx :set_color)
+(def-method ctx :set_color)
 	;inputs
 	;r0 = view object (ptr)
 	;r1 = color (argb)
@@ -61,7 +61,7 @@
 		(assign '((rsp local_dirty_rect)) '(r0))
 	(loop-end))
 
-(def-method 'ctx :blit 16)
+(def-method ctx :blit 16)
 	;inputs
 	;r0 = view object (ptr)
 	;r1 = texture id (ulong)
@@ -116,7 +116,7 @@
 
 (def-func-end)
 
-(def-method 'ctx :box 16)
+(def-method ctx :box 16)
 	;inputs
 	;r0 = view object (ptr)
 	;r7 = x (pixels)
@@ -155,7 +155,7 @@
 
 (def-func-end)
 
-(def-method 'ctx :filled_box 16)
+(def-method ctx :filled_box 16)
 	;inputs
 	;r0 = view object (ptr)
 	;r7 = x (pixels)
@@ -194,7 +194,7 @@
 
 (def-func-end)
 
-(def-method 'ctx :panel)
+(def-method ctx :panel)
 	;inputs
 	;r0 = view object (ptr)
 	;r1 = color (argb)

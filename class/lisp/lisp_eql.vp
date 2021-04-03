@@ -3,7 +3,7 @@
 (include "class/func/class.inc")
 (include "class/lisp/class.inc")
 
-(def-method 'lisp :lisp_eql)
+(def-method lisp :lisp_eql)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)

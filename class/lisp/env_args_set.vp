@@ -2,7 +2,7 @@
 (include "class/num/class.inc")
 (include "class/lisp/class.inc")
 
-(def-method 'lisp :env_args_set)
+(def-method lisp :env_args_set)
 	;inputs
 	;r0 = args list object (ptr)
 	;r3 = args offset (uint)

@@ -4,7 +4,7 @@
 (include "class/str/class.inc")
 (include "lib/consts/chars.inc")
 
-(def-method 'lisp :read_list)
+(def-method lisp :read_list)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = stream object (ptr)

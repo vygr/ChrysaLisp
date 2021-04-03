@@ -2,7 +2,7 @@
 (include "gui/path/class.inc")
 (include "sys/math/class.inc")
 
-(def-method 'path :gen_cubic)
+(def-method path :gen_cubic)
 	;inputs
 	;r0 = path object (ptr)
 	;r1 = stack array object (ptr)

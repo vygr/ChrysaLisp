@@ -15,7 +15,7 @@
 
 (gen-vtable 'pixmap)
 
-(def-method 'pixmap :create)
+(def-method pixmap :create)
 	;inputs
 	;r0 = width (pixels)
 	;r1 = height (pixels)
@@ -48,7 +48,7 @@
 
 (def-func-end)
 
-(def-method 'pixmap :init)
+(def-method pixmap :init)
 	;inputs
 	;r0 = pixmap object (ptr)
 	;r1 = vtable (pptr)
@@ -86,7 +86,7 @@
 
 (def-func-end)
 
-(def-method 'pixmap :deinit)
+(def-method pixmap :deinit)
 	;inputs
 	;r0 = pixmap object (ptr)
 	;outputs
@@ -108,7 +108,7 @@
 
 (def-func-end)
 
-(def-method 'pixmap :info)
+(def-method pixmap :info)
 	;inputs
 	;r0 = c string name (pubyte)
 	;outputs
@@ -142,7 +142,7 @@
 
 (def-func-end)
 
-(def-method 'pixmap :info_file)
+(def-method pixmap :info_file)
 	;inputs
 	;r4 = c string name (pubyte)
 	;r5 = stream object (ptr)
@@ -178,7 +178,7 @@
 
 (def-func-end)
 
-(def-method 'pixmap :load)
+(def-method pixmap :load)
 	;inputs
 	;r0 = c string name (pubyte)
 	;r1 = flags (uint)
@@ -247,7 +247,7 @@
 
 (def-func-end)
 
-(def-method 'pixmap :load_file)
+(def-method pixmap :load_file)
 	;inputs
 	;r4 = c string name (pubyte)
 	;r5 = stream object (ptr)
@@ -281,7 +281,7 @@
 
 (def-func-end)
 
-(def-method 'pixmap :save)
+(def-method pixmap :save)
 	;inputs
 	;r0 = pixmap object (ptr)
 	;r1 = c string name (pubyte)
@@ -313,7 +313,7 @@
 
 (def-func-end)
 
-(def-method 'pixmap :save_file)
+(def-method pixmap :save_file)
 	;inputs
 	;r4 = pixmap object (ptr)
 	;r5 = c string name (pubyte)
@@ -341,7 +341,7 @@
 
 (def-func-end)
 
-(def-method 'pixmap :upload 16)
+(def-method pixmap :upload 16)
 	;inputs
 	;r0 = pixmap object (ptr)
 	;outputs
@@ -393,7 +393,7 @@
 
 (def-func-end)
 
-(def-method 'pixmap :to_premul)
+(def-method pixmap :to_premul)
 	;inputs
 	;r1 = color (argb)
 	;outputs
@@ -423,7 +423,7 @@
 
 (def-func-end)
 
-(def-method 'pixmap :to_argb)
+(def-method pixmap :to_argb)
 	;inputs
 	;r1 = color premul (argb)
 	;outputs
@@ -462,7 +462,7 @@
 
 (def-func-end)
 
-(def-method 'pixmap :fill)
+(def-method pixmap :fill)
 	;inputs
 	;r0 = pixmap object (ptr)
 	;r1 = color (argb)
@@ -487,7 +487,7 @@
 
 (def-func-end)
 
-(def-method 'pixmap :as_argb)
+(def-method pixmap :as_argb)
 	;inputs
 	;r0 = pixmap object (ptr)
 	;r1 = source pixmap object (ptr)
@@ -520,7 +520,7 @@
 
 (def-func-end)
 
-(def-method 'pixmap :as_premul)
+(def-method pixmap :as_premul)
 	;inputs
 	;r0 = pixmap object (ptr)
 	;r1 = source pixmap object (ptr)
@@ -553,7 +553,7 @@
 
 (def-func-end)
 
-(def-method 'pixmap :brighter)
+(def-method pixmap :brighter)
 	;inputs
 	;r1 = color (argb)
 	;outputs
@@ -572,7 +572,7 @@
 
 (def-func-end)
 
-(def-method 'pixmap :darker)
+(def-method pixmap :darker)
 	;inputs
 	;r1 = color (argb)
 	;outputs

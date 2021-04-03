@@ -69,7 +69,7 @@
 	(exit 'fixeds _ `(,dst))
 	(vp-ret))
 
-(def-method 'fixeds :mul)
+(def-method fixeds :mul)
 	;inputs
 	;r0 = fixeds object (ptr)
 	;r1 = source1 fixeds object, can be same (ptr)
@@ -83,7 +83,7 @@
 
 (def-func-end)
 
-(def-method 'fixeds :div)
+(def-method fixeds :div)
 	;inputs
 	;r0 = fixeds object (ptr)
 	;r1 = source1 fixeds object, can be same (ptr)
@@ -97,7 +97,7 @@
 
 (def-func-end)
 
-(def-method 'fixeds :mod)
+(def-method fixeds :mod)
 	;inputs
 	;r0 = fixeds object (ptr)
 	;r1 = source1 fixeds object, can be same (ptr)
@@ -111,7 +111,7 @@
 
 (def-func-end)
 
-(def-method 'fixeds :frac)
+(def-method fixeds :frac)
 	;inputs
 	;r0 = fixeds object (ptr)
 	;r1 = source fixeds object, can be same (ptr)
@@ -124,7 +124,7 @@
 
 (def-func-end)
 
-(def-method 'fixeds :floor)
+(def-method fixeds :floor)
 	;inputs
 	;r0 = fixeds object (ptr)
 	;r1 = source fixeds object, can be same (ptr)
@@ -137,7 +137,7 @@
 
 (def-func-end)
 
-(def-method 'fixeds :scale)
+(def-method fixeds :scale)
 	;inputs
 	;r0 = fixeds object (ptr)
 	;r1 = source fixeds object, can be same (ptr)

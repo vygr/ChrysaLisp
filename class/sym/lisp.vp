@@ -2,7 +2,7 @@
 (include "class/sym/class.inc")
 (include "class/lisp/class.inc")
 
-(def-method 'sym :lisp_sym)
+(def-method sym :lisp_sym)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -45,7 +45,7 @@
 
 (def-func-end)
 
-(def-method 'sym :lisp_gensym)
+(def-method sym :lisp_gensym)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)

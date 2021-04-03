@@ -260,7 +260,7 @@ and will return the comparison value in register r0.
 Implementation of the function is defined in the `sys/str/class.vp` file.
 
 ```vdu
-(def-method 'sys_str :compare)
+(def-method sys_str :compare)
 	;inputs
 	;r0 = c string1 (pubyte)
 	;r1 = c string2 (pubyte)
@@ -286,7 +286,7 @@ Implementation of the function is defined in the `sys/str/class.vp` file.
 
 So let's go through the important lines in this function.
 
-First of all the `(def-method 'sys_str :compare)` is doing the same job as a
+First of all the `(def-method sys_str :compare)` is doing the same job as a
 `(def-func)` would do, it's a wrapper function to simplify writing the
 `(def-func)` that also does some extra checks to make sure you actually do have
 a `(dec-method)` for it in the include file. The `(def-func-end)` just wraps

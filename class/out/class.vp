@@ -6,7 +6,7 @@
 (gen-create 'out)
 (gen-vtable 'out)
 
-(def-method 'out :init)
+(def-method out :init)
 	;inputs
 	;r0 = out object (ptr)
 	;r1 = vtable (pptr)
@@ -40,7 +40,7 @@
 
 (def-func-end)
 
-(def-method 'out :deinit)
+(def-method out :deinit)
 	;inputs
 	;r0 = out object (ptr)
 	;outputs
@@ -71,7 +71,7 @@
 
 (def-func-end)
 
-(def-method 'out :set_state)
+(def-method out :set_state)
 	;inputs
 	;r0 = out object (ptr)
 	;r1 = state (uint)
@@ -97,7 +97,7 @@
 
 (def-func-end)
 
-(def-method 'out :wait_acks)
+(def-method out :wait_acks)
 	;inputs
 	;r0 = out object (ptr)
 	;r1 = msg ack num (uint)
@@ -126,7 +126,7 @@
 
 (def-func-end)
 
-(def-method 'out :flush)
+(def-method out :flush)
 	;inputs
 	;r0 = out object (ptr)
 	;outputs
@@ -183,7 +183,7 @@
 
 (def-func-end)
 
-(def-method 'out :write_next)
+(def-method out :write_next)
 	;inputs
 	;r0 = out object (ptr)
 	;outputs

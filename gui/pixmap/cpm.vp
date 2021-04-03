@@ -14,7 +14,7 @@
 	(uint height)		;image h
 	(uint trans))		;image transparent colour
 
-(def-method 'pixmap :info_cpm)
+(def-method pixmap :info_cpm)
 	;inputs
 	;r5 = stream object (ptr)
 	;outputs
@@ -52,7 +52,7 @@
 
 (def-func-end)
 
-(def-method 'pixmap :load_cpm)
+(def-method pixmap :load_cpm)
 	;inputs
 	;r5 = stream object (ptr)
 	;outputs
@@ -156,7 +156,7 @@
 
 (def-func-end)
 
-(def-method 'pixmap :save_cpm)
+(def-method pixmap :save_cpm)
 	;inputs
 	;r4 = pixmap object (ptr)
 	;r6 = stream object (ptr)
@@ -260,7 +260,7 @@
 
 (def-func-end)
 
-(def-method 'pixmap :next_frame)
+(def-method pixmap :next_frame)
 	;inputs
 	;r0 = pixmap object (ptr)
 	;outputs
@@ -325,7 +325,7 @@
 
 (def-func-end)
 
-(def-method 'pixmap :to_argb32)
+(def-method pixmap :to_argb32)
 	;inputs
 	;r1 = col (uint)
 	;r2 = pixel type (uint)
@@ -426,7 +426,7 @@
 
 (def-func-end)
 
-(def-method 'pixmap :from_argb32)
+(def-method pixmap :from_argb32)
 	;inputs
 	;r1 = col (uint)
 	;r2 = pixel type (uint)

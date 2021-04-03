@@ -4,7 +4,7 @@
 (include "class/lisp/class.inc")
 (include "class/num/class.inc")
 
-(def-method 'ctx :lisp_set_color)
+(def-method ctx :lisp_set_color)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -39,7 +39,7 @@
 
 (def-func-end)
 
-(def-method 'ctx :lisp_box)
+(def-method ctx :lisp_box)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -74,7 +74,7 @@
 
 (def-func-end)
 
-(def-method 'ctx :lisp_filled_box)
+(def-method ctx :lisp_filled_box)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -109,7 +109,7 @@
 
 (def-func-end)
 
-(def-method 'ctx :lisp_panel)
+(def-method ctx :lisp_panel)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -144,7 +144,7 @@
 
 (def-func-end)
 
-(def-method 'ctx :lisp_blit)
+(def-method ctx :lisp_blit)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)

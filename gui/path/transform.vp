@@ -2,7 +2,7 @@
 (include "gui/path/class.inc")
 (include "sys/math/class.inc")
 
-(def-method 'path :transform)
+(def-method path :transform)
 	;inputs
 	;r0 = path object (ptr)
 	;r1 = source path object, can be same (ptr)
