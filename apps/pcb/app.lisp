@@ -66,7 +66,7 @@
 	(if (= mode 1)
 		(pcb-draw-gerber)
 		(pcb-draw-normal))
-	(. canvas :swap))
+	canvas)
 
 (defun pcb-draw-normal ()
 	(defq colors (map trans (list +argb_red +argb_green +argb_blue +argb_yellow +argb_cyan +argb_magenta)))
@@ -175,10 +175,11 @@
 		) (list pcb)))
 
 (defun win-refresh (_)
-	(.-> pcb_scroll (:add_child (pcb-load (elem (setq index _) pcbs))) :layout)
 	(def window_title :text (elem _ pcbs))
 	(. window_title :layout)
-	(.-> mywindow :layout :dirty_all))
+	(.-> pcb_scroll (:add_child (defq canvas (pcb-load (elem (setq index _) pcbs)))) :layout)
+	(. canvas :swap)
+	(. mywindow :dirty_all))
 
 (defun main ()
 	(bind '(x y w h) (apply view-locate (. (win-refresh index) :pref_size)))
