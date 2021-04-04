@@ -10,32 +10,31 @@
 (defmacro super-sym (_)
 	`(sym (cat "_super_" ,_)))
 
-(defcvar '*class* nil (class-sym nil) '(()()0) '*args* (list))
+(defcvar (class-sym nil) '(()()0) '*args* (list))
 
-(defun vtable-emit (_1)
-	;_1 = class name
-	(if (eql (defq _ (eval (super-sym _1))) nil)
+(defun vtable-emit (class)
+	(if (eql (defq _ (eval (super-sym class))) nil)
 		(vp-long 0)
 		(fn-add-link (f-path _ :vtable)))
 	(each (lambda (_)
 		(if (or (eql (elem 1 _) :virtual) (eql (elem 1 _) :final))
-			(fn-add-link (elem 0 _)))) (elem 1 (eval (class-sym _1)))))
+			(fn-add-link (elem 0 _)))) (elem 1 (eval (class-sym class)))))
 
 (defun override ()
 	(setq m (cat m))
 	(elem-set 0 m mfunc)
-	(elem-set s (elem 1 *class*) m)
+	(elem-set s (elem 1 vtable) m)
 	(if regs_in (elem-set 2 m regs_in))
 	(if regs_out (elem-set 3 m regs_out)))
 
-(defmacro def-class (cls spr &rest lines)
-	(defq _ (eval (class-sym spr)))
-	(setq *class* (list (cat (elem 0 _)) (cat (elem 1 _)) (elem 2 _)))
-	(defcvar (super-sym cls) spr (class-sym cls) *class*)
+(defmacro def-class (class super &rest lines)
+	(defq _ (eval (class-sym super))
+		vtable (list (cat (elem 0 _)) (cat (elem 1 _)) (elem 2 _))
+		class_sym (class-sym class) super_sym (super-sym class))
 	(each (lambda ((_ mname mfunc &optional mtype regs_in regs_out))
 		(setd mtype :static)
 		(and regs_in (match? regs_in '(abi-args _)) (setq regs_in (eval regs_in)))
-		(defq m (if (defq s (find-rev mname (elem 0 *class*))) (elem s (elem 1 *class*))))
+		(defq m (if (defq s (find-rev mname (elem 0 vtable))) (elem s (elem 1 vtable))))
 		(if m
 			(case mtype
 				;existing method
@@ -64,16 +63,16 @@
 			(case mtype
 				;new method
 				(:static
-					(push (elem 0 *class*) mname)
-					(push (elem 1 *class*) (list mfunc mtype regs_in regs_out)))
+					(push (elem 0 vtable) mname)
+					(push (elem 1 vtable) (list mfunc mtype regs_in regs_out)))
 				((:virtual :final)
-					(push (elem 0 *class*) mname)
-					(push (elem 1 *class*) (list mfunc mtype regs_in regs_out
-						(elem-set 2 *class* (+ (elem 2 *class*) +ptr_size)))))
+					(push (elem 0 vtable) mname)
+					(push (elem 1 vtable) (list mfunc mtype regs_in regs_out
+						(elem-set 2 vtable (+ (elem 2 vtable) +ptr_size)))))
 				(:override
 					(throw "Method does not exist !" mname))
 				(t (throw "Must use static, virtual, final or override ! " mtype))))) lines)
-	nil)
+	`(defcvar ',super_sym ',super ',class_sym ',vtable))
 
 (defun def-method (class member &optional alignment)
 	(def-func (f-path class member) alignment))
