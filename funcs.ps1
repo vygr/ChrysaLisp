@@ -1,6 +1,6 @@
-$HCPU = "x86_64"
-$HABI = "WIN64"
-$HOS  = "Windows"
+$NHCPU = "x86_64"
+$NHABI = "WIN64"
+$NHOS  = "Windows"
 
 function zero_pad {
 
@@ -29,6 +29,8 @@ function add_link
 		$dst,
 		$links
 	)
+    $src = zero_pad $($src + $bcpu);
+    $dst = zero_pad $($dst + $bcpu);
 	if ( $src -ne $dst ){
 		if ( $src -lt $dst ){
 			$nl="$src-$dst"
@@ -67,13 +69,14 @@ function boot_cpu_gui
 {
 	param (
 		$cpu,
-		$lnk
+		$link
 	)
+    $cmd = "./obj/$($NHCPU)/$($NHABI)/$($NHOS)/main_gui"
 	if ( $cpu -lt 1 ){
-		Start-Process -FilePath ./obj/$HCPU/$HABI/$HOS/main_gui -NoNewWindow -ArgumentList "obj/$HCPU/$HABI/sys/boot_image $link -run gui/gui/gui.lisp"
+		Start-Process -FilePath $cmd -NoNewWindow -ArgumentList "obj/$($HCPU)/$($HABI)/sys/boot_image $link -run gui/gui/gui.lisp"
 	}
 	else {
-		Start-Process -FilePath ./obj/$HCPU/$HABI/$HOS/main_gui -NoNewWindow -ArgumentList "obj/$HCPU/$HABI/sys/boot_image $link"
+		Start-Process -FilePath $cmd -NoNewWindow -ArgumentList "obj/$($HCPU)/$($HABI)/sys/boot_image $link"
 	}
 }
 
@@ -81,33 +84,14 @@ function boot_cpu_tui
 {
 	param (
 		$cpu,
-		$lnk
+		$link
 	)
+    $cmd = "./obj/$($NHCPU)/$($NHABI)/$($NHOS)/main_tui";
 	if ( $cpu -lt 1 ){
-		Start-Process -FilePath ./obj/$HCPU/$HABI/$HOS/main_tui -NoNewWindow -ArgumentList "obj/$HCPU/$HABI/sys/boot_image $link -run apps/terminal/tui.lisp"
+		Start-Process -FilePath $cmd -NoNewWindow -ArgumentList "obj/$(HCPU)/$(HABI)/sys/boot_image $link -run apps/terminal/tui.lisp"
 	}
 	else {
-		Start-Process -FilePath ./obj/$HCPU/$HABI/$HOS/main_tui -NoNewWindow -ArgumentList "obj/$HCPU/$HABI/sys/boot_image $link"
+		Start-Process -FilePath $cmd -NoNewWindow -ArgumentList "obj/$(HCPU)/$(HABI)/sys/boot_image $link"
 	}
 }
 
-function use_emulator
-{
-    param (
-        $arglist,
-        $cpucount
-    )
-    $rv = $FALSE;
-    $co = $cpucount
-
-    for ($count = 0 ; $count -lt $arglist.count ; $count ++ ){
-        if ( $arglist[$count] -eq '-e'){
-            $rv = $TRUE;
-        }
-        else {
-            $co = $arglist[$count]
-        }    
-    }
-
-    $rv, $co
-}
