@@ -20,7 +20,6 @@
 	(dec-method :defer sys/task/defer :static (r0))
 	(dec-method :set_priority sys/task/set_priority :static (r0))
 	(dec-method :timer sys/task/timer :static nil (r0))
-	(dec-method :open_child sys/task/open_child :static (r0 r1) (r0 r1 r2))
 	(dec-method :dump sys/task/dump)
 	(dec-method :task_callback class/obj/null :static (r0))
 	(dec-method :lisp_sleep sys/task/lisp_sleep :static (r0 r1) (r0 r1))

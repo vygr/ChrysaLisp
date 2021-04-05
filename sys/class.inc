@@ -10,7 +10,7 @@
 (defmacro super-sym (_)
 	`(sym (cat "_super_" ,_)))
 
-(defcvar (class-sym nil) '(()()0) '*args* (list))
+(defcvar (class-sym nil) '(()()0))
 
 (defun vtable-emit (class)
 	(if (eql (defq _ (eval (super-sym class))) nil)

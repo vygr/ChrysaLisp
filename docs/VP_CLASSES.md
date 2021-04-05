@@ -8495,18 +8495,6 @@ resume tasks ready to run.
 mail mailboxes on timouts.
 ```
 
-### sys_task :open_child -> sys/task/open_child
-
-```lisp
-inputs
-r0 = name c string (pubyte)
-r1 = spawn type (uint)
-outputs
-r0-r2 = net ID (net_id)
-trashes
-r0-r14
-```
-
 ### sys_task :dump -> sys/task/dump
 
 ```lisp
