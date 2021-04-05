@@ -4,6 +4,15 @@
 
 ------
 
+New launch scripts for Windows powershell, that implement the -n -e -b -h
+options, care of Martyn Blyss.
+
+Removal of 'task :open_child as now redundant.
+
+VP version of 'task :callback.
+
+------
+
 Added nesting to the `(#)` macro ! Plus arbitrary % parameters not just
 starting from %0. This comes with the addition to `boot.inc` of a `(walk-list
 list elm_fnc down_fnc up_fnc)` function ! Enjoy.

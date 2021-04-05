@@ -217,7 +217,7 @@ And we can incorporate this new binding into the boot_image with:
 ```vdu
 >make boot
 Done
-image -> obj/x86_64/AMD64/sys/boot_image (171828)
+image -> obj/x86_64/AMD64/sys/boot_image (161268)
 ```
 
 So we are done ? Not quite, we still need to define the Lisp level command that

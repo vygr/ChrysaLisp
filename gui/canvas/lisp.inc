@@ -13,7 +13,8 @@
 (ffi canvas-brighter "gui/canvas/lisp_brighter" 0)
 
 ;load flags
-(defq +load_flag_shared 1 +load_flag_film 2 +load_flag_noswap 4)
+(bits +load_flag 0
+	(bit shared film noswap))
 
 (defclass Canvas-base () (View)
 	(def this :color 0)

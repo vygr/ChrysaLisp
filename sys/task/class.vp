@@ -374,7 +374,6 @@
 	(loop-list-forward r3 statics_sys_task_timer_list r0 r7)
 		(assign '((r0 tk_node_time)) '(r1))
 		(breakif '(r1 > r6))
-
 		;remove from timer list and resume
 		(vp-cpy-rr r0 r5)
 		(vp-xor-rr r1 r1)
