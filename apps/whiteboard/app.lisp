@@ -22,7 +22,7 @@
 	(ui-title-bar _ "Whiteboard" (0xea19 0xea1b 0xea1a) +event_close)
 	(ui-tool-bar _ ()
 		(ui-buttons (0xea07 0xe9e9 0xe970 0xe9fe 0xe99d) +event_save)
-		(ui-buttons (0xe9a3 0xe976 0xe9f0 0xe9d4) +event_grid () style_buttons)
+		(ui-buttons (0xe976 0xe9a3 0xe9d4 0xe9f0) +event_grid () style_buttons)
 		(ui-buttons (0xe979 0xe97d 0xe97b) +event_radius1 () radius_buttons)
 		(ui-buttons (0xe9ec 0xe9d8 0xe917 0xea20 0xe9f6 0xe94b 0xe960 0xe95f) +event_pen () mode_buttons))
 	(ui-tool-bar _ (:font *env_medium_toolbar_font*)
@@ -32,7 +32,7 @@
 					(+ _ +event_black)))) palette))
 	(ui-scroll image_scroll (logior +scroll_flag_vertical +scroll_flag_horizontal)
 			(:min_width canvas_width :min_height canvas_height)
-		(ui-backdrop mybackdrop (:color 0xffF8F8FF :ink_color 0xffADD8E6 :style 1)
+		(ui-backdrop mybackdrop (:color 0xffF8F8FF :ink_color 0xffADD8E6)
 			(ui-canvas overlay_canvas canvas_width canvas_height 1)
 			(ui-canvas commited_canvas canvas_width canvas_height 1))))
 
@@ -136,7 +136,7 @@
 	(radio-select ink_buttons 0)
 	(radio-select mode_buttons 0)
 	(radio-select radius_buttons 0)
-	(radio-select style_buttons 1)
+	(radio-select style_buttons 0)
 	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
 	(gui-add (. mywindow :change x y w h))
 	(def image_scroll :min_width min_width :min_height min_height)
@@ -174,7 +174,7 @@
 						(setq stroke_radius (elem (radio-select radius_buttons (- id +event_radius1)) radiuss)))
 					((<= +event_grid id +event_lines)
 						;styles
-						(def (. mybackdrop :dirty) :style (radio-select style_buttons (- id +event_grid))))
+						(def (. mybackdrop :dirty) :style (elem (radio-select style_buttons (- id +event_grid)) '(nil :grid :lines :axis))))
 					((= id +event_save)
 						;save
 						(if picker_mbox (mail-send picker_mbox ""))

@@ -22,10 +22,10 @@
 	(ui-title-bar _ "Bubbles" (0xea19 0xea1b 0xea1a) +event_close)
 	(ui-tool-bar _ ()
 		(ui-buttons (0xe938) +event_reset)
-		(ui-buttons (0xe9a3 0xe976 0xe9f0) +event_grid () style_buttons))
+		(ui-buttons (0xe976 0xe9a3 0xe9f0) +event_grid () style_buttons))
 	(ui-scroll image_scroll (logior +scroll_flag_vertical +scroll_flag_horizontal)
 			(:min_width canvas_width :min_height canvas_height)
-		(ui-backdrop mybackdrop (:color +argb_black :ink_color +argb_grey8 :style 1)
+		(ui-backdrop mybackdrop (:color +argb_black :ink_color +argb_grey8)
 			(ui-canvas layer1_canvas canvas_width canvas_height 1))))
 
 (defun radio-select (l i)
@@ -127,7 +127,7 @@
 		select (list (task-mailbox) (mail-alloc-mbox)))
 	(. layer1_canvas :set_canvas_flags 1)
 	(. mybackdrop :set_size canvas_width canvas_height)
-	(radio-select style_buttons 1)
+	(radio-select style_buttons 0)
 	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
 	(gui-add (. mywindow :change x y w h))
 	(def image_scroll :min_width min_width :min_height min_height)
@@ -162,7 +162,7 @@
 						(setq verts (vertex-cloud num_bubbles)))
 					((<= +event_grid id +event_axis)
 						;styles
-						(def (. mybackdrop :dirty) :style (radio-select style_buttons (- id +event_grid))))
+						(def (. mybackdrop :dirty) :style (elem (radio-select style_buttons (- id +event_grid)) '(nil :grid :axis))))
 					((= id (. layer1_canvas :get_id))
 						;event for canvas
 						(when (= (getf msg +ev_msg_type) +ev_type_mouse)

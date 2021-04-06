@@ -19,7 +19,7 @@
 	(ui-title-bar mytitle "" (0xea19 0xea1b 0xea1a) +event_close)
 	(ui-flow _ (:flow_flags +flow_right_fill :font *env_terminal_font*)
 		(ui-scroll tree_scroll +scroll_flag_vertical nil
-			(ui-backdrop mybackdrop (:color +argb_grey15 :style 1)
+			(ui-backdrop mybackdrop (:color +argb_grey15)
 				(. (ui-tree tree +event_tree
 					(:min_width 0 :color +argb_white)) :connect +event_tree)))
 		(ui-flow _ (:flow_flags +flow_left_fill)

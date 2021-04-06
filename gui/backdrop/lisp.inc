@@ -6,6 +6,7 @@
 
 (defclass Backdrop () (View)
 	; (Backdrop)-> backdrop
+	(def this :style nil)
 
 	(defmethod :draw (this)
 		; (. backdrop :draw) -> backdrop
@@ -14,9 +15,8 @@
 			(:ctx_set_color (get :color this))
 			(:ctx_filled_box 0 0 w h)
 			(:ctx_set_color (get :ink_color this)))
-		(cond
-			((= (defq style (get :style this)) 0)
-				;grid
+		(case (get :style this)
+			(:grid
 				(defq x (- (% (>> w 1) 32) 32) y 0)
 				(while (< x w)
 					(. this :ctx_filled_box x y 1 h)
@@ -25,11 +25,7 @@
 				(while (< y h)
 					(. this :ctx_filled_box x y w 1)
 					(setq y (+ y 32))))
-			((= style 1)
-				;plain
-				)
-			((= style 2)
-				;axis
+			(:axis
 				(.-> this
 					(:ctx_filled_box (>> w 1) 0 1 h)
 					(:ctx_filled_box 0 (>> h 1) w 1))
@@ -41,8 +37,7 @@
 				(while (< y h)
 					(. this :ctx_filled_box x y 32 1)
 					(setq y (+ y 32))))
-			((= style 3)
-				;lines
+			(:lines
 				(defq y 0)
 				(while (< y h)
 					(. this :ctx_filled_box 0 y w 1)

@@ -24,7 +24,7 @@
 				(t	;new route, so new node
 					(def (defq node (Flow)) :flow_flags +flow_down_fill :text branch)
 					(def (defq tab_flow (Flow)) :flow_flags +flow_right_fill)
-					(def (defq tab (Backdrop)) :min_width 14 :style 1)
+					(def (defq tab (Backdrop)) :min_width 14)
 					(def (defq tab_child (Flow)) :flow_flags +flow_down_fill)
 					(def (defq title_flow (Flow)) :flow_flags +flow_right_fill)
 					(def (defq bt (Button)) :text (const (num-to-utf8 0xe93b)) :min_width 14
