@@ -28,21 +28,18 @@
 	;trashes
 	;r0-r14
 
+	(vp-def (tcb ktcb usr addr msg data)
+		'(r7 r8 r9 r10 r11 r12))
+
 	;test if we are the kernel task
-	(fn-bind 'sys/statics/statics r2)
-	(assign '((r2 statics_sys_task_current_tcb) (r2 statics_sys_task_kernel_tcb)) '(r3 r2))
-	(vpif '(r2 = r3))
+	(fn-bind 'sys/statics/statics tcb)
+	(assign `((,tcb statics_sys_task_current_tcb) (,tcb statics_sys_task_kernel_tcb)) `(,tcb ,ktcb))
+	(vpif (list tcb '= ktcb))
 		;yes we can just do local call
 		(vp-jmp-r r1)
 	(endif)
 
-	(vp-def (mid maddr usr addr msg data)
-		'(r7 r8 r9 r10 r11 r12))
-
 	(entry 'sys_task :callback `(,usr ,addr))
-
-	;alloc temp mailbox
-	(call 'sys_mail :alloc_mbox nil `(,mid ,maddr))
 
 	;allocate mail message
 	(call 'sys_mail :alloc '(+kn_msg_callback_size) `(,msg ,data))
@@ -51,19 +48,15 @@
 	(call 'sys_kernel :id nil '(r0 r1))
 	(vp-xor-rr r2 r2)
 	(save-net-id msg msg_dest r2 r0 r1)
-	(save-net-id data +kn_msg_reply_id mid r0 r1)
 	(vp-cpy-cr +kn_call_callback r0)
 	(assign `(,usr) `((,data +kn_msg_key)))
 	(assign '(r0) `((,data +kn_msg_func)))
+	(assign `(,tcb) `((,data ,(+ +kn_msg_reply_id net_id_mbox_id))))
 	(assign `(,addr) `((,data +kn_msg_callback_addr)))
 
-	;send mail to kernel then wait for reply
+	;send mail to kernel then suspend till kernel wakes us
 	(call 'sys_mail :send `(,msg))
-	(call 'sys_mail :read `(,maddr) `(,msg _))
-
-	;free reply mail and temp mailbox
-	(call 'sys_mail :free_mbox `(,mid))
-	(jump 'sys_mail :free `(,msg))
+	(jump 'sys_task :suspend)
 
 (def-func-end)
 
