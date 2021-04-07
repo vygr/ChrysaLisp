@@ -41,3 +41,7 @@
 (def-struct edge ln_fnode_size
 	(int x ys ye w dda)
 	(local-align))
+
+;load flags
+(def-bit load_flag 0
+	(bit shared film noswap))

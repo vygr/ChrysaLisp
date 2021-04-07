@@ -3,12 +3,12 @@
 (include "class/hmap/class.inc")
 (include "class/list/class.inc")
 (include "gui/pixmap/class.inc")
+(include "gui/canvas/class.inc")
 (include "gui/texture/class.inc")
 (include "class/stream/class.inc")
 (include "class/sstream/class.inc")
 (include "class/fstream/class.inc")
 (include "sys/str/class.inc")
-(include "gui/canvas/lisp.inc")
 (include "gui/gui/class.inc")
 (include "lib/consts/colors.inc")
 (include "sys/statics/class.inc")
@@ -201,7 +201,7 @@
 	(entry 'pixmap :load {name, flags})
 
 	;shared or not
-	(vpif {flags & +load_flag_shared} 'funcexit)
+	(vpif {flags & load_flag_shared} 'funcexit)
 		;create hash map ?
 		(assign {@sys/statics/statics.statics_pixmap_intern} {hash})
 		(vpifnot {hash})
@@ -233,7 +233,7 @@
 		(call 'sstream :create {this} {stream})
 		(call 'pixmap :load_file {name, stream} {this})
 		(vpif {this})
-			(breakifnot {flags & +load_flag_film})
+			(breakifnot {flags & load_flag_film})
 			(assign {stream} {this->pixmap_stream})
 			(assign {stream->stream_bufp} {this->pixmap_bufp})
 			(break 'funcexit)

@@ -19,7 +19,6 @@
 	(pubyte coverage)
 	(uint scale cx cy cx1 cy1 color flags))
 
-;load flags
 (bits +load_flag 0
 	(bit shared film noswap))
 

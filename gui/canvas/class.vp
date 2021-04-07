@@ -3,7 +3,6 @@
 (include "sys/str/class.inc")
 (include "gui/canvas/class.inc")
 (include "gui/pixmap/class.inc")
-(include "gui/canvas/lisp.inc")
 (include "class/list/class.inc")
 (include "class/sym/class.inc")
 (include "class/sstream/class.inc")
