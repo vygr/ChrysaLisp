@@ -53,3 +53,7 @@
 	(long id)
 	(uint flags)
 	(int ctx_x ctx_y x y w h))
+
+;view flags
+(def-bit view_flag 0
+	(bit solid opaque dirty_all at_back hiden))

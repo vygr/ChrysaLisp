@@ -934,7 +934,7 @@
 	`(bind ',syms ',values))
 
 (defmacro getf (s field &optional o)
-	; (getf str|obj field [offset]) -> value
+	; (getf obj field [offset]) -> value
 	(defq type (eval (sym (cat field "_t"))) field (eval field) o (opt o +str_data))
 	(case (sym type)
 		(b `(get-field ,s ,(+ o field) +byte_size))
@@ -950,7 +950,7 @@
 		((ne) `(slice ,field ,(+ field +net_id_size) ,s))))
 
 (defmacro setf (s field v &optional o)
-	; (setf str|obj field value [offset])
+	; (setf obj field value [offset]) -> obj
 	(defq type (eval (sym (cat field "_t"))) field (eval field) o (opt o +str_data))
 	(case (sym type)
 		(b `(set-field ,s ,(+ o field) +byte_size ,v))

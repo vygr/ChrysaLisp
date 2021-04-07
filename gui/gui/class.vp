@@ -7,7 +7,6 @@
 (include "class/list/class.inc")
 (include "gui/region/class.inc")
 (include "gui/view/class.inc")
-(include "gui/view/lisp.inc")
 (include "sys/statics/class.inc")
 
 (def-method 'gui :statics_init)
@@ -229,10 +228,10 @@
 				;change backdrop size, send gui event to all top level views
 				(call 'view :set_bounds '{user->local_statics->statics_gui_screen, 0, 0, event.sdl_window_event_data1, event.sdl_window_event_data2})
 				(call 'view :forward {user->local_statics->statics_gui_screen, user, $send_gui_event})
-				(call 'view :set_flags '{user->local_statics->statics_gui_screen, +view_flag_dirty_all, +view_flag_dirty_all})
+				(call 'view :set_flags '{user->local_statics->statics_gui_screen, view_flag_dirty_all, view_flag_dirty_all})
 				(break)
 			(vpcase {event.sdl_window_event_event = SDL_WINDOWEVENT_RESTORED})
-				(call 'view :set_flags '{user->local_statics->statics_gui_screen, +view_flag_dirty_all, +view_flag_dirty_all})
+				(call 'view :set_flags '{user->local_statics->statics_gui_screen, view_flag_dirty_all, view_flag_dirty_all})
 				(break)
 			(endswitch)
 		;;	(break)
@@ -478,7 +477,7 @@
 		;remove my opaque region from ancestors
 		(vp-xor-rr r2 r2)
 		(assign '(r2 (r1 view_flags)) '((rsp vis_region) r3))
-		(vp-and-cr +view_flag_opaque r3)
+		(vp-and-cr view_flag_opaque r3)
 		(vpif '(r3 /= 0))
 			;remove entire view from ancestors
 			(assign '(0 0 (r1 view_w) (r1 view_h)) '(r7 r8 r9 r10))
@@ -603,11 +602,11 @@
 	;if dirty all flag then paste entire view onto parent
 	(assign '((rsp vis_this)) '(r2))
 	(assign '((r2 view_flags)) '(r3))
-	(vp-and-cr +view_flag_dirty_all r3)
+	(vp-and-cr view_flag_dirty_all r3)
 	(vpif '(r3 /= 0))
 		;clear dirty all flag
 		(assign '((r2 view_flags)) '(r3))
-		(vp-and-cr (lognot +view_flag_dirty_all) r3)
+		(vp-and-cr (lognot view_flag_dirty_all) r3)
 		(assign '(r3 (r2 view_x) (r2 view_y) (r2 view_w) (r2 view_h)) '((r2 view_flags) r7 r8 r9 r10))
 		(vp-add-rr r7 r9)
 		(vp-add-rr r8 r10)
@@ -656,7 +655,7 @@
 		(vpif '(r1 /= 0))
 			;remove my opaque region from ancestors
 			(assign '((r2 view_flags)) '(r3))
-			(vp-and-cr +view_flag_opaque r3)
+			(vp-and-cr view_flag_opaque r3)
 			(vpif '(r3 /= 0))
 				;remove entire view from ancestors
 				(loop-start)

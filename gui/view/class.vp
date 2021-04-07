@@ -7,7 +7,6 @@
 (include "class/lisp/class.inc")
 (include "class/func/class.inc")
 (include "sys/task/class.inc")
-(include "gui/view/lisp.inc")
 (include "sys/statics/class.inc")
 
 (gen-create 'view)
@@ -34,7 +33,7 @@
 		(assign '((r1 statics_gui_next_id)) '(r2))
 		(vp-sub-cr 1 r2)
 		(assign '(r2 r2) '((r1 statics_gui_next_id) (r0 view_id)))
-		(vp-cpy-cr +view_flag_solid r1)
+		(vp-cpy-cr view_flag_solid r1)
 		(assign '(r1 (& r0 view_list)) '((r0 view_flags) r1))
 		(lh-init r1 r2)
 	(endif)
@@ -211,7 +210,7 @@
 		(vpif '(r1 /= 0))
 			(vp-cpy-rr r0 r5)
 			(call 'view :add_front '(r4 r0))
-			(jump 'view :set_flags '(r5 +view_flag_dirty_all +view_flag_dirty_all))
+			(jump 'view :set_flags '(r5 view_flag_dirty_all view_flag_dirty_all))
 		(endif)
 	(endif)
 	(vp-ret)
@@ -237,7 +236,7 @@
 			(breakif '(r3 = 0))
 			(vp-lea-i r1 (neg view_node) r4)
 			(assign '((r4 view_flags)) '(r4))
-			(vp-and-cr +view_flag_at_back r4)
+			(vp-and-cr view_flag_at_back r4)
 		(loop-until '(r4 /= 0))
 		(vpif '(r1 /= r2))
 			;no, so move to front of back item
@@ -546,7 +545,7 @@
 			(vpif '(r8 < r1))
 				;hit ?
 				(assign '((r0 view_flags)) '(r1))
-				(vp-and-cr +view_flag_solid r1)
+				(vp-and-cr view_flag_solid r1)
 				(vp-ret)
 			(endif)
 		(endif)
@@ -662,7 +661,7 @@
 	(vp-and-rr r2 r3)
 	(vp-or-rr r3 r1)
 	(assign '(r1 r1 (@ sys/statics/statics)) '(r3 (r0 view_flags) r2))
-	(vp-and-cr +view_flag_dirty_all r3)
+	(vp-and-cr view_flag_dirty_all r3)
 	(assign '(r3) '((r2 statics_gui_dirty_flag)))
 
 	(exit 'view :set_flags '(r0 r1))

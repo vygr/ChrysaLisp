@@ -13,7 +13,6 @@
 	(uint flags)
 	(int ctx_x ctx_y x y w h))
 
-;view flags
 (bits +view_flag 0
 	(bit solid opaque dirty_all at_back hiden))
 

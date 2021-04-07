@@ -4,7 +4,6 @@
 (include "gui/view/class.inc")
 (include "class/num/class.inc")
 (include "class/lisp/class.inc")
-(include "gui/view/lisp.inc")
 (include "sys/statics/class.inc")
 
 (def-method 'gui :lisp_add)
@@ -31,7 +30,7 @@
 	(call 'sys_task :mailbox nil '(r1 r2 r3))
 	(vp-pop r0)
 	(save-net-id r0 view_owner_id r1 r2 r3)
-	(call 'view :set_flags '(r0 +view_flag_dirty_all +view_flag_dirty_all) '(r1 _))
+	(call 'view :set_flags '(r0 view_flag_dirty_all view_flag_dirty_all) '(r1 _))
 	(class/obj/ref r1 r2 2)
 	(vp-pop r0)
 
@@ -69,7 +68,7 @@
 	(call 'sys_task :mailbox nil '(r1 r2 r3))
 	(vp-pop r0)
 	(save-net-id r0 view_owner_id r1 r2 r3)
-	(call 'view :set_flags '(r0 +view_flag_dirty_all +view_flag_dirty_all) '(r1 _))
+	(call 'view :set_flags '(r0 view_flag_dirty_all view_flag_dirty_all) '(r1 _))
 	(class/obj/ref r1 r2 2)
 	(vp-pop r0)
 
