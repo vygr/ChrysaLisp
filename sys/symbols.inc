@@ -35,9 +35,6 @@ pixmap_width 44
 pixmap_height 48
 view_target_ids 128
 canvas_texture 192
-texture_handle 16
-texture_width 24
-texture_height 28
 view_id_t "l"
 in_mbox_id_t "I"
 in_state_t "I"
@@ -57,7 +54,4 @@ pixmap_width_t "I"
 pixmap_height_t "I"
 view_target_ids_t "p"
 canvas_texture_t "p"
-texture_handle_t "L"
-texture_width_t "I"
-texture_height_t "I"
 )

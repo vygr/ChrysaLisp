@@ -18,9 +18,7 @@
 	;r1-r14
 
 	(entry 'out :init '(r0 r1 r2 r3 r4))
-	(assign '(r2) `((r0 ,(+ out_id net_id_mbox_id))))
-	(assign '(r3) `((r0 ,(+ out_id net_id_node_id node_id_node1))))
-	(assign '(r4) `((r0 ,(+ out_id net_id_node_id node_id_node2))))
+	(save-net-id r0 out_id r2 r3 r4)
 
 	;init parent
 	(s-call 'out :init '(r0 r1 0 0 0 0) '(r0 r1))
@@ -146,17 +144,12 @@
 		(assign '((r9 msg_frag_data) (r0 stream_bufp)) '(r2 r3))
 		(vp-sub-rr r2 r3)
 		(assign '(r3) '((r9 msg_frag_length)))
-		(assign `((r0 ,(+ out_id net_id_mbox_id))
-				(r0 ,(+ out_id net_id_node_id node_id_node1))
-				(r0 ,(+ out_id net_id_node_id node_id_node2))
-				(r0 out_seqnum) (r0 out_state)
-				(r0 out_ack_mbox_id))
-			'(r3 r4 r5 r6 r7 r8))
-		(assign '(r3 r4 r5 r6 r7 r8)
-			`((r9 ,(+ msg_dest net_id_mbox_id))
-			(r9 ,(+ msg_dest net_id_node_id node_id_node1))
-			(r9 ,(+ msg_dest net_id_node_id node_id_node2))
-			(r2 stream_msg_seqnum) (r2 stream_msg_state)
+		(load-net-id r0 out_id r3 r4 r5)
+		(assign `((r0 out_seqnum) (r0 out_state) (r0 out_ack_mbox_id))
+			'(r6 r7 r8))
+		(save-net-id r9 msg_dest r3 r4 r5)
+		(assign '(r6 r7 r8)
+			`((r2 stream_msg_seqnum) (r2 stream_msg_state)
 			(r2 ,(+ stream_msg_ack_id net_id_mbox_id))))
 		(call 'sys_kernel :id nil
 			`((r2 ,(+ stream_msg_ack_id net_id_node_id node_id_node1))

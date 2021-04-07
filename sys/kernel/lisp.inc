@@ -1,13 +1,7 @@
-;;;;;;;;;;;;;;;;;;;;;;;
-; kernel mail functions
-;;;;;;;;;;;;;;;;;;;;;;;
+;Lisp (getf)
 
 (enums +kn_call 0
 	(enum callback open child ping))
-
-;;;;;;;;;;;;;;;;;;
-; kernel mail data
-;;;;;;;;;;;;;;;;;;
 
 (structure +kn_msg 0
 	(ulong key)
