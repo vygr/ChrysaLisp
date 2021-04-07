@@ -16,7 +16,7 @@
 "Usage: tocmp [options] [path] ...
 	options:
 		-h --help: this help info.
-		-f --format 1|8|16|15|24|32: default 32.
+		-f --format 1|8|15|16|24|32: default 32.
 	Load the images and save as .cpm images.
 	If no paths given on command line
 	then paths are read from stdin.")
