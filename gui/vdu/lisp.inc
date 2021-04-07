@@ -2,6 +2,14 @@
 ; vdu widget
 ;;;;;;;;;;;;
 
+(import "gui/view/lisp.inc")
+
+(structure +vdu +view_size
+	(ptr font textures)
+	(plong chars)
+	(uint width height)
+	(ushort char_width char_height))
+
 (defclass Vdu () (View)
 	; (Vdu) -> vdu
 	; overide the default 'this' env with a Vdu component
@@ -10,15 +18,12 @@
 
 	(defmethod :max_size (this)
 		; (. vdu :max_size) -> (width height)
-		(list (/ (get-field this (const view_w) +int_size)
-				(get-field this (const vdu_char_width) (const (neg +short_size))))
-			(/ (get-field this (const view_h) +int_size)
-				(get-field this (const vdu_char_height) (const (neg +short_size))))))
+		(list (/ (getf this +view_w 0) (getf this +vdu_char_width 0))
+			(/ (getf this +view_h 0) (getf this +vdu_char_height 0))))
 
 	(defmethod :char_size (this)
 		; (. vdu :char_size) -> (width height)
-		(list (get-field this (const vdu_char_width) (const (neg +short_size)))
-			(get-field this (const vdu_char_height) (const (neg +short_size)))))
+		(list (getf this +vdu_char_width 0) (getf this +vdu_char_height 0)))
 
 	(defmethod :load (this lines offset_x offset_y cursor_x cursor_y)
 		; (. vdu :load lines offset_x offset_y cursor_x cursor_y) -> vdu
@@ -29,7 +34,7 @@
 		((const (ffi _ "gui/vdu/lisp_configure" 0)) this)
 		(defq vdu_width (get :vdu_width this) vdu_height (get :vdu_height this)
 			mw (get :min_width this) mh (get :min_height this)
-			cw (get-field this (const vdu_char_width) (const (neg +short_size)))
-			ch (get-field this (const vdu_char_height) (const (neg +short_size))))
+			cw (getf this +vdu_char_width 0)
+			ch (getf this +vdu_char_height 0))
 		(list (* (if mw mw vdu_width) cw) (* (if mh mh vdu_height) ch)))
 	)

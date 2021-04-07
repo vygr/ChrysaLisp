@@ -24,38 +24,6 @@
 		(if (macro? v) (push out k))) (tolist e))
 	(sort cmp out))
 
-(defun make-syms ()
-	(defq *abi* (abi) *cpu* (cpu))
-	(print "Scanning source files...")
-	(defq _t_syms_ (list) _t_syms_vals_ (list) _syms_ '(
-			+cap_butt +cap_round +cap_square +cap_tri view_id +file_open_append
-			+file_open_read +file_open_write in_mbox_id in_state +join_bevel
-			+join_miter +join_round stdio_args
-			stream_mail_state_started stream_mail_state_stopped
-			stream_mail_state_stopping vdu_char_height vdu_char_width view_flags view_h
-			view_w view_x view_y canvas_flags canvas_color +cap_arrow canvas_scale
-			canvas_pixmap pixmap_width pixmap_height view_target_ids canvas_texture)
-		_vals_ (within-compile-env (lambda ()
-	        (include "sys/func.inc")
-			(each include (all-class-files))
-			(map (#
-				(defq st (sym (cat %0 "_t")))
-				(when (defq stv (get st))
-					(push _t_syms_ st)
-					(push _t_syms_vals_ stv))
-				(eval %0)) _syms_)))
-		stream (file-stream "sys/symbols.inc" +file_open_write))
-	(write-line stream ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;")
-	(write-line stream "; VP symbols, autogen do not edit !")
-	(write-line stream ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;")
-	(write-line stream "(defq")
-	(each (lambda (s v)
-		(write-line stream (cat s " " (str v)))) _syms_ _vals_)
-	(each (lambda (s v)
-		(write-line stream (cat s " " (ascii-char 34) v (ascii-char 34)))) _t_syms_ _t_syms_vals_)
-	(write-line stream ")")
-	(print "-> sys/symbols.inc") nil)
-
 (defun make-docs ()
     (defq *abi* (abi) *cpu* (cpu))
     (defun chop (_)
@@ -179,14 +147,13 @@
 
 (defq usage `(
 (("-h" "--help")
-"Usage: make [options] [all] [boot] [platforms] [doc] [syms] [it]
+"Usage: make [options] [all] [boot] [platforms] [doc] [it]
     options:
         -h --help: this help info.
     all: include all .vp files.
     boot: create a boot image.
     platforms: for all platforms not just the host.
     docs: scan source files and create documentation.
-    syms: scan source files and create VP sys/symbols.inc.
     it: all of the above !")
 ))
 
@@ -196,9 +163,9 @@
             (defq stdio (create-stdio))
             (defq args (options stdio usage)))
         (defq args (map sym args) all (find-rev 'all args) boot (find-rev 'boot args) platforms (find-rev 'platforms args)
-            docs (find-rev 'docs args) syms (find-rev 'syms args) it (find-rev 'it args))
+            docs (find-rev 'docs args) it (find-rev 'it args))
         (cond
-            (it (make-syms) (make-docs) (remake-all-platforms))
+            (it (make-docs) (remake-all-platforms))
             ((and boot all platforms) (remake-all-platforms))
             ((and boot all) (remake-all))
             ((and boot platforms) (remake-platforms))
@@ -207,5 +174,4 @@
             (platforms (make-platforms))
             (boot (remake))
             (docs (make-docs))
-            (syms (make-syms))
             (t (make)))))

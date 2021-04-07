@@ -84,14 +84,13 @@ Usage: lisp [options] [path] ...
 ## make
  
 ```lisp
-Usage: make [options] [all] [boot] [platforms] [doc] [syms] [it]
+Usage: make [options] [all] [boot] [platforms] [doc] [it]
     options:
         -h --help: this help info.
     all: include all .vp files.
     boot: create a boot image.
     platforms: for all platforms not just the host.
     docs: scan source files and create documentation.
-    syms: scan source files and create VP sys/symbols.inc.
     it: all of the above !
 
 ```

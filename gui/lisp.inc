@@ -1,5 +1,4 @@
 ;import symbols
-(import "sys/symbols.inc")
 (import "apps/login/pupa.inc")
 (import "lib/consts/colors.inc")
 
@@ -28,6 +27,7 @@
 (import "gui/texture/lisp.inc")
 (import "gui/vdu/lisp.inc")
 (import "gui/font/lisp.inc")
+(import "gui/pixmap/lisp.inc")
 
 ;ui tree helper macros
 (defun ui-merge-props (p)

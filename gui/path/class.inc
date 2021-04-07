@@ -26,8 +26,8 @@
 
 (def-struct path fixeds_size)
 
-(def-enum +join 0
+(def-enum join 0
 	(enum miter bevel round))
 
-(def-enum +cap 0
+(def-enum cap 0
 	(enum butt square tri arrow round))

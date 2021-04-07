@@ -2340,7 +2340,7 @@
 
 ```lisp
 
-(getf str field) -> value
+(getf str|obj field [offset]) -> value
 
 ```
 
@@ -3605,6 +3605,14 @@
 ```lisp
 
 (setd var val [var val] ...)
+
+```
+
+## setf
+
+```lisp
+
+(setf str|obj field value [offset])
 
 ```
 

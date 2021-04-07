@@ -1,4 +1,4 @@
-; Lisp (getf)
+; Lisp (getf ...)
 
 (structure +obj 0
 	(pptr vtable)

@@ -4,6 +4,7 @@
 
 (import "gui/view/lisp.inc")
 (import "gui/texture/lisp.inc")
+(import "gui/pixmap/lisp.inc")
 
 ;lisp bindings
 (ffi canvas-info "gui/canvas/lisp_info" 0)
@@ -11,6 +12,12 @@
 (ffi canvas-from-argb32 "gui/canvas/lisp_from_argb32" 0)
 (ffi canvas-darker "gui/canvas/lisp_darker" 0)
 (ffi canvas-brighter "gui/canvas/lisp_brighter" 0)
+
+(structure +canvas +view_size
+	(ptr pixmap edges texture)
+	(pptr edges_start)
+	(pubyte coverage)
+	(uint scale cx cy cx1 cy1 color flags))
 
 ;load flags
 (bits +load_flag 0
@@ -21,7 +28,7 @@
 
 	(defmethod :draw (this)
 		; (. canvas :draw) -> canvas
-		(when (defq texture (get-field this (const canvas_texture) 0))
+		(when (defq texture (getf this +canvas_texture 0))
 			(bind '(tid tw th) (texture-metrics texture))
 			(bind '(w h) (. this :get_size))
 			(. this :ctx_blit tid +argb_white (>>> (- w tw) 1) (>>> (- h th) 1) tw th))
@@ -49,11 +56,11 @@
 
 	(defmethod :set_canvas_flags (this flags)
 		; (. canvas :set_canvas_flags flags) -> canvas
-		(set-field this (const canvas_flags) (const (neg +int_size)) flags))
+		(setf this +canvas_flags flags 0))
 
 	(defmethod :set_color (this argb)
 		; (. canvas :set_color argb) -> canvas
-		(set-field this (const canvas_color) (const (neg +int_size)) argb))
+		(setf this +canvas_color argb 0))
 
 	(defmethod :plot (this x y)
 		; (. canvas :plot x y) -> canvas
@@ -69,10 +76,10 @@
 
 	(defmethod :pref_size (this)
 		; (. canvas :pref_size) -> (width height)
-		(defq canvas_scale (get-field this (const canvas_scale) (const (neg +int_size)))
-			pixmap (get-field this (const canvas_pixmap) 0))
-		(list (/ (get-field pixmap (const pixmap_width) (const (neg +int_size))) canvas_scale)
-			(/ (get-field pixmap (const pixmap_height) (const (neg +int_size))) canvas_scale)))
+		(defq canvas_scale (getf this +canvas_scale 0)
+			pixmap (getf this +canvas_pixmap 0))
+		(list (/ (getf pixmap +pixmap_width 0) canvas_scale)
+			(/ (getf pixmap +pixmap_height 0) canvas_scale)))
 	)
 
 (defclass Canvas (width height scale) (Canvas-base)

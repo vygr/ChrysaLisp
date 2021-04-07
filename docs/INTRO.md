@@ -149,12 +149,6 @@ make docs
 Scan source files and create the reference documents.
 
 ```lisp
-make syms
-```
-
-Scan source files and create the VP `sys/symbols.inc` file.
-
-```lisp
 make platforms
 ```
 

@@ -1,5 +1,4 @@
 ;import symbols
-(import "sys/symbols.inc")
 (import "sys/kernel/lisp.inc")
 
 (ffi kernel-stats "sys/kernel/lisp_stats" 0)
@@ -71,3 +70,6 @@
 		(save "lock" lock_file)
 		(within-compile-env (lambda () (include file)))
 		(pii-remove lock_file)))
+
+(enums +file_open 0
+	(enum read write append))

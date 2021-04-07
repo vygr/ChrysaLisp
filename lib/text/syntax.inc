@@ -2,7 +2,6 @@
 ; syntax highlighter object
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import "sys/symbols.inc")
 (import "gui/canvas/lisp.inc")
 (import "lib/consts/colors.inc")
 

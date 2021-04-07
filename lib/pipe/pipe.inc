@@ -47,7 +47,7 @@
 	;wait for stdout and stderr streams to stop
 	(while (/= (length select) 0)
 		(if (= (in-get-state (in-next-msg (elem (defq idx (mail-select select)) pipe_streams)))
-				(const stream_mail_state_stopped))
+				+stream_mail_state_stopped)
 			(setq pipe_streams (erase pipe_streams idx (inc idx)) select (erase select idx (inc idx))))))
 
 (defun pipe-read (pipe)
@@ -62,7 +62,7 @@
 				(t	;must be stdout or one of the stderr's
 					(if (/= (in-get-state (in-next-msg
 								(defq msg_in (elem idx (elem +pipe_streams pipe)))))
-							(const stream_mail_state_started))
+							+stream_mail_state_started)
 						(elem-set +pipe_state pipe nil))
 					(read-avail msg_in))))))
 

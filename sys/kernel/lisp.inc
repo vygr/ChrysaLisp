@@ -1,4 +1,4 @@
-;Lisp (getf)
+; Lisp (getf ...)
 
 (enums +kn_call 0
 	(enum callback open child ping))

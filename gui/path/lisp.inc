@@ -7,3 +7,9 @@
 (ffi path-stroke-polygons "gui/path/lisp_stroke_polygons" 0)
 (ffi path-stroke-polylines "gui/path/lisp_stroke_polylines" 0)
 (ffi path-transform "gui/path/lisp_transform" 0)
+
+(enums +join 0
+	(enum miter bevel round))
+
+(enums +cap 0
+	(enum butt square tri arrow round))
