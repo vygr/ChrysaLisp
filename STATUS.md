@@ -11,6 +11,14 @@ Removal of 'task :open_child as now redundant.
 
 VP version of 'task :callback.
 
+New `(env-push)` and `(env-pop)` functions for manual environment handling.
+
+VP assembler functions now use a transient environment between the
+`(def-method)` and `(def-func-end)`.
+
+`(vp-def)` macro now checks to ensure no symbols are redefined from outside the
+function.
+
 ------
 
 Added nesting to the `(#)` macro ! Plus arbitrary % parameters not just
