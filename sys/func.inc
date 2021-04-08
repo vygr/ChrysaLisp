@@ -31,6 +31,7 @@
 	(str "rs_" _))
 
 (defun def-func (*name* &optional falign fstack)
+	(env-push)
 	(emit-reset)
 	(setq *func_name* *name* *switch_nxt* 0 *func_align* (opt falign stack_align))
 	(clear *strings* *paths* *links* *func_syms*)
@@ -71,7 +72,8 @@
 	(emit-passes)
 	(apply undef (cat (list *compile_env*) *func_syms*))
 	(save *out_buffer* (cat "obj/" *cpu* "/" *abi* "/" (str *func_name*)))
-	(print "-> " (str "obj/" *cpu* "/" *abi* "/" (str *func_name*) " (" (length *out_buffer*) ")")))
+	(print "-> " (str "obj/" *cpu* "/" *abi* "/" (str *func_name*) " (" (length *out_buffer*) ")"))
+	(env-pop))
 
 (defun fn-add-string (s)
 	(defq i -1)

@@ -201,6 +201,10 @@ are not within the current functions environment.
 You can create private or library/object specific environments and access them
 with `(eval form [e])` !
 
+It is possible to manually push a new environment and manually pop the current
+environment using the `(env-push)` and `(env-pop)` functions ! This is
+extremely low level and should be used with caution !
+
 ### Properties
 
 Properties are just environments created and managed by user code. While they

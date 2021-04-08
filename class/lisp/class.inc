@@ -7,8 +7,8 @@
 	(dec-method :create class/lisp/create :static (r0 r1 r2) (r0))
 	(dec-method :init class/lisp/init :static (r0 r1 r2 r3 r4))
 	(dec-method :deinit class/lisp/deinit :final)
-	(dec-method :env_push class/lisp/env_push :static (r0) (r0))
-	(dec-method :env_pop class/lisp/env_pop :static (r0) (r0))
+	(dec-method :env_push class/lisp/env_push :static (r0) (r0 r1))
+	(dec-method :env_pop class/lisp/env_pop :static (r0) (r0 r1))
 	(dec-method :env_bind class/lisp/env_bind :static (r0 r1 r2) (r0 r1))
 	(dec-method :env_args_set class/lisp/env_args_set :static (r0 r3 r5))
 	(dec-method :env_args_sig class/lisp/env_args_sig :static (r1 r3 r4) (r2))
@@ -50,6 +50,8 @@
 	(dec-method :lisp_bind class/lisp/lisp_bind :static (r0 r1) (r0 r1))
 	(dec-method :lisp_read class/lisp/lisp_read :static (r0 r1) (r0 r1))
 	(dec-method :lisp_mcall class/lisp/lisp_mcall :static (r0 r1) (r0 r1))
+	(dec-method :lisp_env_push class/lisp/lisp_env_push :static (r0 r1) (r0 r1))
+	(dec-method :lisp_env_pop class/lisp/lisp_env_pop :static (r0 r1) (r0 r1))
 	(dec-method :run class/lisp/run))
 
 (def-struct lisp obj_size

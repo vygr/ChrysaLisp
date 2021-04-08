@@ -2572,6 +2572,7 @@ inputs
 r0 = lisp object (ptr)
 outputs
 r0 = lisp object (ptr)
+r1 = hmap object (ptr)
 trashes
 r1-r14
 ```
@@ -2583,6 +2584,7 @@ inputs
 r0 = lisp object (ptr)
 outputs
 r0 = lisp object (ptr)
+r1 = hmap object (ptr)
 trashes
 r1-r14
 ```
@@ -3111,6 +3113,32 @@ r1-r14
 ```
 
 ### lisp :lisp_mcall -> class/lisp/lisp_mcall
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### lisp :lisp_env_push -> class/lisp/lisp_env_push
+
+```lisp
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### lisp :lisp_env_pop -> class/lisp/lisp_env_pop
 
 ```lisp
 inputs

@@ -2048,6 +2048,22 @@
 
 ```
 
+## env-pop
+
+```lisp
+
+(env-pop)
+
+```
+
+## env-push
+
+```lisp
+
+(env-push)
+
+```
+
 ## env?
 
 ```lisp

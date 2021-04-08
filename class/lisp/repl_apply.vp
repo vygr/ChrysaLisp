@@ -48,7 +48,7 @@
 	(assign '(r0 r1 r3 r4)
 		'((rsp local_this) (rsp local_value) (rsp local_iter_begin) (rsp local_iter_end)))
 
-	(call 'lisp :env_push '(r0) '(r0))
+	(call 'lisp :env_push '(r0) '(r0 _))
 	(assign '((rsp local_iter_begin)) '(r1))
 	(call 'lisp :env_bind '(r0 (r1 0) (rsp local_value)) '(r0 r1))
 	(assign '(r1) '((rsp local_value)))
@@ -66,7 +66,7 @@
 		(call 'lisp :repl_eval '((rsp local_this) (r2 0)) '(r0 r1))
 		(assign '(r1) '((rsp local_value)))
 	(loop-end)
-	(call 'lisp :env_pop '(r0) '(r0))
+	(call 'lisp :env_pop '(r0) '(r0 _))
 
 	(exit 'lisp :repl_apply '(r0 (rsp local_value)))
 	(vp-free local_size)

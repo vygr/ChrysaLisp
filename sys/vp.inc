@@ -190,6 +190,9 @@
 (each (# (defcvar %0 %0)) '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 rsp))
 
 (defmacro vp-def (_ &optional l)
+	(if (> (length (defq v (filter (lambda (_)
+			(and (def? _ *compile_env*) (not (find _ *func_syms*)))) _))) 0)
+		(throw "VP redefine !" v))
 	(defq v '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14))
 	(setq l (apply cat (map (lambda (x y)
 		(list (list 'quote x) y)) _ (if l (merge-obj (cat (eval l)) v) v))))

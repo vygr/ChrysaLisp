@@ -105,7 +105,7 @@
 		(filter (# (not (starts-with "./apps/" %0))) (all-files "." ".vp"))))
 
 (defun all-class-files ()
-	;filter to only the class.inc files, stri off the leading "./"
+	;filter to only the class.inc files, strip off the leading "./"
 	(map (# (slice 2 -1 %0)) (all-files "." "class.inc")))
 
 (defun make-info (_)
@@ -304,5 +304,5 @@
 
 (defun compile-test (&optional *abi* *cpu*)
 	(setd *abi* (abi) *cpu* (cpu))
-	(each (# (compile %0 *abi* *cpu*)) (defq f (all-vp-files)))
-	(compile f *abi* *cpu* 1))
+	(each (# (compile %0 *abi* *cpu*)) (defq files (all-vp-files)))
+	(compile (cat (all-class-files) files) *abi* *cpu* 1))
