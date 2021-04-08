@@ -46,6 +46,7 @@ if ( $showhelp -eq $TRUE ){
 		Write-Output "[-h] help";
 }
 else {
+    $cpus = $ncpu;
     for ($cpu = $cpus - 1; $cpu -ge 0; $cpu--){
 	    $links=""
 	    for ($lcpu = 0; $lcpu -lt $cpus; $lcpu++)
