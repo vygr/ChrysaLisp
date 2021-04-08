@@ -118,7 +118,8 @@
 
 (defmacro ui-textfield (n &optional p)
 	; (ui-textfield name [props]) -> textfield
-	(ui-props p :flow_flags (logior +flow_flag_right +flow_flag_align_vcenter) :border *env_textfield_border*)
+	(ui-props p :flow_flags (logior +flow_flag_right +flow_flag_align_vcenter)
+		:border *env_textfield_border* :text "")
 	`(ui-element ,n (Textfield) ,p))
 
 (defmacro ui-slider (n &optional p)
