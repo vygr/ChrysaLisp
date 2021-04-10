@@ -32,19 +32,20 @@
 	;all source files from root downwards, none recursive
 	(defq stack (list root) files (list))
 	(while (setq root (pop stack))
-		(each! 0 -1 (lambda (file type)
-			(cond
-				((eql type "8")
-					;file
-					(if (or	;src file ?
-							(ends-with ".vp" file)
-							(ends-with ".inc" file)
-							(ends-with ".lisp" file))
-						(push files (cat (slice 2 -1 root) "/" file))))
-				(t	;dir
-					(unless (starts-with "." file)
-						(push stack (cat root "/" file))))))
-			(unzip (split (pii-dirlist root) ",") (list (list) (list)))))
+		(unless (starts-with "./obj" root)
+			(each! 0 -1 (lambda (file type)
+				(cond
+					((eql type "8")
+						;file
+						(if (or	;src file ?
+								(ends-with ".vp" file)
+								(ends-with ".inc" file)
+								(ends-with ".lisp" file))
+							(push files (cat (slice 2 -1 root) "/" file))))
+					(t	;dir
+						(unless (starts-with "." file)
+							(push stack (cat root "/" file))))))
+				(unzip (split (pii-dirlist root) ",") (list (list) (list))))))
 	files)
 
 (defun set-slider (file)
