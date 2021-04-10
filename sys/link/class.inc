@@ -36,7 +36,7 @@
 (def-struct lk_buffer 0
 	(struct chan_1 lk_chan_size)
 	(ulong towel)
-	(local-align lk_page_size)
+	(align lk_page_size)
 	(struct chan_2 lk_chan_size))
 
 ;(print lk_data_size " " lk_page_size " " (/ lk_chan_size lk_msg_size))

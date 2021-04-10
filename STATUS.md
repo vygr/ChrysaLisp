@@ -4,6 +4,11 @@
 
 ------
 
+Rename 'local-align' just 'align' as it's no longer a function but a simple
+symbol.
+
+------
+
 New launch scripts for Windows powershell, that implement the -n -e -b -h
 options, care of Martyn Blyss.
 

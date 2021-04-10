@@ -7,7 +7,7 @@
 (enums +event 0
 	(enum close button))
 
-(defq margin_width (* 8 3)
+(defq +margin_width (* 8 3)
 	doc_list '("VM" "VP_ASSIGNMENT" "VP_STRUCTURE" "VP_FUNCTIONS" "VP_CLASSES" "COMMS"
 	"LISP" "ENVIRONMENT" "CONDITIONALS" "ITERATION" "SYNTAX"
 	"TERMINAL" "COMMANDS" "DIARY"
@@ -77,7 +77,7 @@
 (defun populate-page (file)
 	(ui-root page_flow (Flow) (:flow_flags (logior +flow_flag_right +flow_flag_fillh)
 			:font *env_window_font*)
-		(ui-label _ (:min_width margin_width :color +argb_grey15))
+		(ui-label _ (:min_width +margin_width :color +argb_grey15))
 		(ui-flow page_widget (:flow_flags (logior +flow_flag_down +flow_flag_fillw))))
 	(defq state :normal word_cnt 0 vdu_text (list))
 	(each-line (lambda (line_str)

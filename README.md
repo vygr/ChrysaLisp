@@ -2,7 +2,8 @@
 
 Assembler/C-Script/Lisp 64 bit, MIMD, multi CPU, multi threaded, multi core,
 multi user Parallel OS. With GUI, Terminal, OO Assembler, Class libraries,
-C-Script compiler, Lisp interpreter, Debugger, Profiler, and more...
+C-Script compiler, Lisp interpreter, Debugger, Profiler, Vector Font engine and
+more...
 
 
 ![](./screen_shot_1.png)

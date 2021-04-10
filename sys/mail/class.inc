@@ -64,7 +64,7 @@
 	(struct dest net_id_size)
 	(struct src net_id_size)
 	(uint frag_length frag_offset total_length)
-	(local-align)
+	(align)
 	(offset stamp_end)
 	(ptr obj frag_data))
 

@@ -144,7 +144,7 @@ Here we see the field defined in the `str` instance.
 ```vdu
 (def-struct str seq_size
 	(uint length hashcode)
-	(local-align)
+	(align)
 	(offset data))
 ```
 

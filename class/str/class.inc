@@ -35,7 +35,7 @@
 
 (def-struct str seq_size
 	(uint length hashcode)
-	(local-align)
+	(align)
 	(offset data))
 
 (defun roundup (_)

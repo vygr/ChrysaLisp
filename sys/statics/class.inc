@@ -11,11 +11,11 @@
 	(struct sys_task_kernel_node_id node_id_size)
 	(ptr sys_task_current_tcb sys_task_kernel_tcb)
 	(uint sys_task_task_count)
-	(local-align)
+	(align)
 	;keep these together
 	(struct sys_task_timer_list lh_list_size)
 	(struct sys_task_task_lists (* num_task_lists lh_list_size))
-	(local-align)
+	(align)
 
 	;sys_mail statics
 	(uint sys_mail_session sys_mail_next_mbox_id)
@@ -27,7 +27,7 @@
 	(struct sys_mail_offchip_list lh_list_size)
 	(struct sys_mail_parcel_list lh_list_size)
 	(struct sys_mail_mbox_buckets (* num_mbox_buckets lh_list_size))
-	(local-align)
+	(align)
 
 	;sys_mem statics
 	(struct sys_mem_obj_list lh_list_size)
@@ -37,7 +37,7 @@
 			(defq s mem_cell_min_size h 0)
 			(while (<= s mem_cell_max_size)
 				(setq h (+ h hp_heap_size) s (+ s s))) h))
-	(local-align)
+	(align)
 
 	;sys_load statics
 	(ptr sys_load_host_os_funcs sys_load_host_gui_funcs
@@ -45,20 +45,20 @@
 		sys_load_block_start sys_load_block_end
 		sys_load_reloc_stack sys_load_reloc_buffer
 		sys_load_stat_buffer sys_load_name_buffer)
-	(local-align)
+	(align)
 
 	;sys_math seed
 	(long sys_math_seed)
-	(local-align)
+	(align)
 
 	;sym statics
 	(ptr sym_intern sym_syms)
-	(local-align)
+	(align)
 
 	;font statics
 	(ptr font_intern)
 	(ulong font_count)
-	(local-align)
+	(align)
 
 	;gui statics
 	(struct gui_rect_heap hp_heap_size)
@@ -67,12 +67,12 @@
 	(uint gui_dirty_flag gui_old_region_index)
 	(int gui_mouse_x gui_mouse_y)
 	(struct gui_old_regions (* num_old_regions +ptr_size))
-	(local-align)
+	(align)
 
 	;pixmap statics
 	(ptr pixmap_intern)
-	(local-align)
+	(align)
 
 	;lisp statics
 	(ptr lisp_boot_env)
-	(local-align))
+	(align))

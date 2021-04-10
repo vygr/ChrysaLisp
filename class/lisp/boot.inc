@@ -321,13 +321,13 @@
 
 (defun map (_f &rest _)
 	; (map lambda seq ...) -> list
-	(defq _l (list))
+	(defq _l (cap (length (elem 0 _)) (list)))
 	(each! 0 -1 (lambda (&rest _p)
 		(push _l (apply _f _p))) _) _l)
 
 (defun map-rev (_f &rest _)
 	; (map-rev lambda seq ...) -> list
-	(defq _l (list))
+	(defq _l (cap (length (elem 0 _)) (list)))
 	(each! -1 0 (lambda (&rest _p)
 		(push _l (apply _f _p))) _) _l)
 

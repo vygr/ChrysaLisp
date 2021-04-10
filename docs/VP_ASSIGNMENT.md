@@ -280,8 +280,7 @@ compile option for the system. The various mode are:
 
 * 0 release, strip all error checking
 * 1 normal, with error checking
-* 2 profiling, with error checking and object stats
-* 3 guarded, with error checking, object stats and guard pages
+* 2 guarded, with error checking, object stats and guard pages
 
 The `(errorcases)`, `(errorif)` and `(errorifnot)` macros alow you to
 conditionally include source code if the `*debug_mode*` is greater than 0.
