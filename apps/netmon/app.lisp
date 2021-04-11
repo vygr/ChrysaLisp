@@ -23,9 +23,9 @@
 	(ui-grid _ (:grid_width 2 :grid_height 1 :flow_flags +flow_down_fill :maximum 100 :value 0)
 		(ui-flow _ (:color +argb_green)
 			(ui-label _ (:text "Tasks" :color +argb_white))
-			(ui-grid task_scale_grid (:grid_width 8 :grid_height 1 :color +argb_white
+			(ui-grid task_scale_grid (:grid_width 10 :grid_height 1 :color +argb_white
 					:font *env_medium_terminal_font*)
-				(times 8 (ui-label _
+				(times 10 (ui-label _
 					(:text "|" :flow_flags (logior +flow_flag_align_vcenter +flow_flag_align_hright)))))
 			(ui-grid task_grid (:grid_width 1 :grid_height 0)))
 		(ui-flow _ (:color +argb_red)

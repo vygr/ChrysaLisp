@@ -594,9 +594,10 @@
 	; (ends-with str str) -> t | nil
 	(and (>= (length _) (length p)) (eql p (slice (dec (neg (length p))) -1 _))))
 
-(defun align (_ _a)
-	; (align num pow2) -> num
-	(logand (+ _ (dec _a)) (neg _a)))
+(defun align (num div)
+	; (align num div) -> num
+	(if (= (% num div) 0) num
+		(+ (* (/ num div) div) div)))
 
 (defun char-to-num (_)
 	; (char-to-num char) -> num
