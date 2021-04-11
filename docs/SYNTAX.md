@@ -1348,7 +1348,7 @@
 
 ```lisp
 
-(align num pow2) -> num
+(align num div) -> num
 
 ```
 
