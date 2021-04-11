@@ -23,9 +23,9 @@
 	(ui-grid _ (:grid_width 2 :grid_height 1 :flow_flags +flow_down_fill :maximum 100 :value 0)
 		(ui-flow _ (:color +argb_green)
 			(ui-label _ (:text "Tasks" :color +argb_white))
-			(ui-grid task_scale_grid (:grid_width 4 :grid_height 1 :color +argb_white
+			(ui-grid task_scale_grid (:grid_width 8 :grid_height 1 :color +argb_white
 					:font *env_medium_terminal_font*)
-				(times 4 (ui-label _
+				(times 8 (ui-label _
 					(:text "|" :flow_flags (logior +flow_flag_align_vcenter +flow_flag_align_hright)))))
 			(ui-grid task_grid (:grid_width 1 :grid_height 0)))
 		(ui-flow _ (:color +argb_red)
@@ -105,7 +105,8 @@
 						memory_val (getf msg +sample_reply_mem_used)
 						task_bar (. val :find :task_bar)
 						memory_bar (. val :find :memory_bar))
-					(setq max_memory (max max_memory memory_val) max_tasks (max max_tasks task_val))
+					(setq max_memory (max max_memory memory_val)
+						max_tasks (align (max max_tasks task_val) (length task_scale)))
 					(def task_bar :maximum last_max_tasks :value task_val)
 					(def memory_bar :maximum last_max_memory :value memory_val)
 					(. task_bar :dirty) (. memory_bar :dirty)
@@ -125,12 +126,14 @@
 				;set scales
 				(defq task_scale (. task_scale_grid :children)
 					memory_scale (. memory_scale_grid :children))
-				(each (lambda (st sm)
-					(defq vt (* (inc _) (/ (* last_max_tasks 100) (length task_scale)))
-						vm (* (inc _) (/ (* last_max_memory 100) (length memory_scale))))
-					(def st :text (str (/ vt 100) "." (pad (% vt 100) 2 "0") "|"))
+				(each (lambda (st)
+					(defq vt (* (inc _) (/ (* last_max_tasks 100) (length task_scale))))
+					(def st :text (str (/ vt 100) "|"))
+					(. st :layout)) task_scale)
+				(each (lambda (sm)
+					(defq vm (* (inc _) (/ (* last_max_memory 100) (length memory_scale))))
 					(def sm :text (str (/ vm 102400) "|"))
-					(. st :layout) (. sm :layout)) task_scale memory_scale)
+					(. sm :layout)) memory_scale)
 				(. task_scale_grid :dirty_all)
 				(. memory_scale_grid :dirty_all)
 				(setq last_max_memory max_memory last_max_tasks max_tasks max_memory 1 max_tasks 1)

@@ -85,12 +85,10 @@
 	; (Canvas width height scale) -> canvas
 	; overide the default 'this' env with a Canvas component
 	(defq super this this ((const (ffi _ "gui/canvas/lisp_create" 0)) width height scale))
-	(each (lambda ((key val)) (def this key val)) (tolist super))
-	)
+	(each (lambda ((key val)) (def this key val)) (tolist super)))
 
 (defclass Canvas-from-file (file flags) (Canvas-base)
 	; (Canvas-from-file file flags) -> nil | canvas
 	; overide the default 'this' env with a Canvas component
 	(defq super this this ((const (ffi _ "gui/canvas/lisp_load" 0)) file flags))
-	(if this (each (lambda ((key val)) (def this key val)) (tolist super)))
-	)
+	(if this (each (lambda ((key val)) (def this key val)) (tolist super))))
