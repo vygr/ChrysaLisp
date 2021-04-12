@@ -3768,6 +3768,14 @@
 
 ```
 
+## str-alloc
+
+```lisp
+
+(str-alloc size)
+
+```
+
 ## str-to-num
 
 ```lisp

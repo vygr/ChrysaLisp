@@ -61,6 +61,7 @@
 (ffi cmp "class/str/lisp_cmp" 0)
 (ffi save "class/str/lisp_save" 0)
 (ffi load "class/str/lisp_load" 0)
+(ffi str-alloc "class/str/lisp_create" 0)
 
 (ffi sym "class/sym/lisp_sym" 0)
 (ffi gensym "class/sym/lisp_gensym" 0)

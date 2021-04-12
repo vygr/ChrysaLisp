@@ -31,7 +31,8 @@
 	(dec-method :lisp_char class/str/lisp_char :static (r0 r1) (r0 r1))
 	(dec-method :lisp_cmp class/str/lisp_cmp :static (r0 r1) (r0 r1))
 	(dec-method :lisp_save class/str/lisp_save :static (r0 r1) (r0 r1))
-	(dec-method :lisp_load class/str/lisp_load :static (r0 r1) (r0 r1)))
+	(dec-method :lisp_load class/str/lisp_load :static (r0 r1) (r0 r1))
+	(dec-method :lisp_create class/str/lisp_create :static (r0 r1) (r0 r1)))
 
 (def-struct str seq_size
 	(uint length hashcode)

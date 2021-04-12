@@ -3,10 +3,7 @@
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
 (import "lib/task/global.inc")
-
-(structure +sample_reply 0
-	(nodeid node)
-	(uint task_count mem_used))
+(import "apps/netmon/app.inc")
 
 (enums +event 0
 	(enum close max min))
@@ -100,9 +97,9 @@
 						(:insert :timestamp (pii-time)))))
 			((= idx +select_reply)
 				;child poll responce
-				(when (defq val (. global_tasks :find (getf msg +sample_reply_node)))
-					(defq task_val (getf msg +sample_reply_task_count)
-						memory_val (getf msg +sample_reply_mem_used)
+				(when (defq val (. global_tasks :find (getf msg +reply_node)))
+					(defq task_val (getf msg +reply_task_count)
+						memory_val (getf msg +reply_mem_used)
 						task_bar (. val :find :task_bar)
 						memory_bar (. val :find :memory_bar))
 					(setq max_memory (max max_memory memory_val)

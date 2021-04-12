@@ -79,7 +79,20 @@
 		(S `(set-field ,s ,(+ o field) ,(neg +short_size) ,v))
 		(I `(set-field ,s ,(+ o field) ,(neg +int_size) ,v))
 		(L `(set-field ,s ,(+ o field) ,(neg +long_size) ,v))
-		((p pp pb pB ps pS pi pI pl pL) `(set-field ,s ,(+ o field) 0 ,v))))
+		((p pp pb pB ps pS pi pI pl pL) `(set-field ,s ,(+ o field) 0 ,v))
+		((no)
+			(defq _s (gensym) _v (gensym))
+			`(progn
+				(defq ,_s ,s ,_v ,v)
+				(set-field ,_s ,(+ o field) +long_size (get-field ,_v +str_data +long_size))
+				(set-field ,_s ,(+ o field +long_size) +long_size (get-field ,_v ,(+ +str_data +long_size) +long_size))))
+		((ne)
+			(defq _s (gensym) _v (gensym))
+			`(progn
+				(defq ,_s ,s ,_v ,v)
+				(set-field ,_s ,(+ o field) +long_size (get-field ,_v +str_data +long_size))
+				(set-field ,_s ,(+ o field +long_size) +long_size (get-field ,_v ,(+ +str_data +long_size) +long_size))
+				(set-field ,_s ,(+ o field (* +long_size 2)) +long_size (get-field ,_v ,(+ +str_data (* +long_size 2)) +long_size))))))
 
 ;;;;;;;
 ; enums

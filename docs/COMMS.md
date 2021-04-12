@@ -123,7 +123,7 @@ current tasks main mailbox.
 (include "sys/func.inc")
 (include "sys/kernel/class.inc")
 
-(def-struct sample_reply 0
+(def-struct reply 0
 	(struct node_id node_id_size)
 	(uint task_count mem_used))
 
@@ -140,15 +140,15 @@ current tasks main mailbox.
 		(breakifnot {msg->msg_frag_length})
 
 		;sample reply
-		(call 'sys_mail :alloc {sample_reply_size} {reply, rdata})
+		(call 'sys_mail :alloc {reply_size} {reply, rdata})
 		(assign {data->net_id_mbox_id} {reply->msg_dest.net_id_mbox_id})
 		(assign {data->net_id_node_id.node_id_node1} {reply->msg_dest.net_id_node_id.node_id_node1})
 		(assign {data->net_id_node_id.node_id_node2} {reply->msg_dest.net_id_node_id.node_id_node2})
 		(call 'sys_kernel :id nil {
-			rdata->sample_reply_node_id.node_id_node1,
-			rdata->sample_reply_node_id.node_id_node2})
-		(call 'sys_task :count nil {rdata->sample_reply_task_count})
-		(call 'sys_mem :used nil {rdata->sample_reply_mem_used})
+			rdata->reply_node_id.node_id_node1,
+			rdata->reply_node_id.node_id_node2})
+		(call 'sys_task :count nil {rdata->reply_task_count})
+		(call 'sys_mem :used nil {rdata->reply_mem_used})
 		(call 'sys_mail :send {reply})
 		(call 'sys_mail :free {msg})
 
