@@ -6,7 +6,7 @@
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
 (import "lib/task/farm.inc")
-(import "apps/mandelbrot/mbmath.inc")
+(import "apps/mandelbrot/app.inc")
 
 (enums +event 0
 	(enum close))
@@ -48,7 +48,9 @@
 				(:insert :job job)
 				(:insert :timestamp (pii-time)))
 			(mail-send (. val :find :child)
-				(cat (char key +long_size) (elem +select_reply select) job)))
+				(setf-> job
+					(+job_key key)
+					(+job_reply (elem +select_reply select)))))
 		(t	;no jobs in que
 			(.-> val
 				(:erase :job)
@@ -69,17 +71,21 @@
 		(push jobs job)
 		(. val :erase :job)))
 
-(defun child-msg (&rest _)
-	(apply cat (map (# (char %0 +long_size)) _)))
-
 (defun reset ()
 	(if farm (. farm :close))
 	(mail-free-mbox (elem +select_reply select))
 	(elem-set +select_reply select (mail-alloc-mbox))
-	(setq jobs (map (lambda (y) (child-msg
-				0 y (* canvas_width canvas_scale) (inc y)
-				(* canvas_width canvas_scale) (* canvas_height canvas_scale)
-				center_x center_y zoom))
+	(setq jobs (map (lambda (y)
+			(setf-> (str-alloc +job_size)
+				(+job_x 0)
+				(+job_y y)
+				(+job_x1 (* canvas_width canvas_scale))
+				(+job_y1 (inc y))
+				(+job_w (* canvas_width canvas_scale))
+				(+job_h (* canvas_height canvas_scale))
+				(+job_cx center_x)
+				(+job_cy center_y)
+				(+job_z zoom)))
 			(range (dec (* canvas_height canvas_scale)) -1))
 		farm (Farm create destroy (* 2 (length (mail-nodes))))))
 

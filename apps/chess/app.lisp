@@ -55,11 +55,11 @@
 (defun dispatch-job (key val)
 	;send job to child
 	(. val :insert :timestamp (pii-time))
-	(mail-send (. val :find :child) (cat
-		(elem +select_reply select)
-		(char max_move_time +long_size)
-		(char color)
-		brd (apply cat history)))
+	(mail-send (. val :find :child)
+		(setf-> (cat (str-alloc +job_size) brd (apply cat history))
+			(+job_reply (elem +select_reply select))
+			(+job_move_time max_move_time)
+			(+job_color color)))
 	;update display
 	(setq text_buf (vdu-print vdu (list "")
 		(cat (LF) "Elapsed Time: " (time-in-seconds (- (pii-time) start_time)) (LF)

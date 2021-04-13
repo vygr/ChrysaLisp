@@ -6,14 +6,10 @@
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
 (import "lib/math/math.inc")
+(import "apps/raymarch/app.inc")
 
 (enums +select 0
 	(enum main timeout))
-
-(structure +job 0
-	(long key)
-	(netid reply)
-	(long x y x1 y1 w h))
 
 (defq
 	+eps 0.1
@@ -126,14 +122,14 @@
 	(mail-send mbox (str reply)))
 
 (defun main ()
-	(defq select (list (task-mailbox) (mail-alloc-mbox)) id t +timeout 5000000)
-	(while id
+	(defq select (list (task-mailbox) (mail-alloc-mbox)) running t +timeout 5000000)
+	(while running
 		(mail-timeout (elem +select_timeout select) +timeout)
 		(defq msg (mail-read (elem (defq idx (mail-select select)) select)))
 		(cond
 			((or (= idx +select_timeout) (eql msg ""))
 				;timeout or quit
-				(setq id nil))
+				(setq running nil))
 			((= idx +select_main)
 				;main mailbox, reset timeout and reply with result
 				(mail-timeout (elem +select_timeout select) 0)

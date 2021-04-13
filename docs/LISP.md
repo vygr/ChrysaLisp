@@ -98,7 +98,7 @@ each each-rev env? every func? get-byte get-int get-long get-netid get-nodeid
 get-short get-ubyte get-uint get-ushort inc lambda? let list? macro? merges not
 notany notevery num? opt or pairs-into-kv rcurry read-int read-long read-short
 reduced seq? setd some str? sym? times unless until when write-int write-long
-write-short structure getf setf
+write-short structure getf setf setf->
 ```
 
 ### boot.inc functions

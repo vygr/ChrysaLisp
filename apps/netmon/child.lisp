@@ -18,8 +18,8 @@
 				;main mailbox, reset timeout and reply with info
 				(mail-timeout (elem +select_timeout select) 0)
 				(bind '(task_count mem_used) (kernel-stats))
-				(mail-send msg (setf (setf (setf (str-alloc +reply_size)
-					+reply_node (slice +long_size -1 (task-mailbox)))
-					+reply_task_count task_count)
-					+reply_mem_used mem_used)))))
+				(mail-send msg (setf-> (str-alloc +reply_size)
+					(+reply_node (slice +long_size -1 (task-mailbox)))
+					(+reply_task_count task_count)
+					(+reply_mem_used mem_used))))))
 	(mail-free-mbox (pop select)))

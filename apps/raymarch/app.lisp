@@ -6,6 +6,7 @@
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
 (import "lib/task/farm.inc")
+(import "apps/raymarch/app.inc")
 
 (enums +event 0
 	(enum close))
@@ -13,16 +14,18 @@
 (enums +select 0
 	(enum main task reply timer))
 
-(defun child-msg (&rest _)
-	(apply cat (map (# (char %0 +long_size)) _)))
-
 (defq canvas_width 800 canvas_height 800 canvas_scale 1
 	timer_rate (/ 1000000 1) id t dirty nil
 	retry_timeout (if (starts-with "obj/vp64" (load-path)) 50000000 5000000)
 	select (list (task-mailbox) (mail-alloc-mbox) (mail-alloc-mbox) (mail-alloc-mbox))
-	jobs (map (lambda (y) (child-msg
-			0 y (* canvas_width canvas_scale) (inc y)
-			(* canvas_width canvas_scale) (* canvas_height canvas_scale)))
+	jobs (map (lambda (y)
+			(setf-> (str-alloc +job_size)
+				(+job_x 0)
+				(+job_y y)
+				(+job_x1 (* canvas_width canvas_scale))
+				(+job_y1 (inc y))
+				(+job_w (* canvas_width canvas_scale))
+				(+job_h (* canvas_height canvas_scale))))
 		(range (dec (* canvas_height canvas_scale)) -1)))
 
 (ui-window mywindow ()
@@ -51,7 +54,9 @@
 				(:insert :job job)
 				(:insert :timestamp (pii-time)))
 			(mail-send (. val :find :child)
-				(cat (char key +long_size) (elem +select_reply select) job)))
+				(setf-> job
+					(+job_key key)
+					(+job_reply (elem +select_reply select)))))
 		(t	;no jobs in que
 			(.-> val
 				(:erase :job)

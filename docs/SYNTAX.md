@@ -3632,6 +3632,14 @@
 
 ```
 
+## setf->
+
+```lisp
+
+(setf-> msg form ...)
+
+```
+
 ## setq
 
 ```lisp

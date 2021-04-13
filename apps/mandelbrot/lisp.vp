@@ -4,7 +4,7 @@
 (include "gui/canvas/class.inc")
 (include "class/lisp/class.inc")
 (include "lib/consts/colors.inc")
-(include "apps/mandelbrot/mbmath.inc")
+(include "apps/mandelbrot/app.inc")
 
 (def-func 'apps/mandelbrot/depth)
 	;inputs

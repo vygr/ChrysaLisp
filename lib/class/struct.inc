@@ -64,8 +64,8 @@
 		(I `(get-field ,s ,(+ o field) ,(neg +int_size)))
 		(L `(get-field ,s ,(+ o field) ,(neg +long_size)))
 		((p pp pb pB ps pS pi pI pl pL) `(get-field ,s ,(+ o field) 0))
-		((no) `(slice ,field ,(+ field +node_id_size) ,s))
-		((ne) `(slice ,field ,(+ field +net_id_size) ,s))))
+		((no) `(get-field ,s ,(+ o field) +node_id_size))
+		((ne) `(get-field ,s ,(+ o field) +net_id_size))))
 
 (defmacro setf (s field v &optional o)
 	; (setf obj field value [offset]) -> obj
@@ -80,19 +80,15 @@
 		(I `(set-field ,s ,(+ o field) ,(neg +int_size) ,v))
 		(L `(set-field ,s ,(+ o field) ,(neg +long_size) ,v))
 		((p pp pb pB ps pS pi pI pl pL) `(set-field ,s ,(+ o field) 0 ,v))
-		((no)
-			(defq _s (gensym) _v (gensym))
-			`(progn
-				(defq ,_s ,s ,_v ,v)
-				(set-field ,_s ,(+ o field) +long_size (get-field ,_v +str_data +long_size))
-				(set-field ,_s ,(+ o field +long_size) +long_size (get-field ,_v ,(+ +str_data +long_size) +long_size))))
-		((ne)
-			(defq _s (gensym) _v (gensym))
-			`(progn
-				(defq ,_s ,s ,_v ,v)
-				(set-field ,_s ,(+ o field) +long_size (get-field ,_v +str_data +long_size))
-				(set-field ,_s ,(+ o field +long_size) +long_size (get-field ,_v ,(+ +str_data +long_size) +long_size))
-				(set-field ,_s ,(+ o field (* +long_size 2)) +long_size (get-field ,_v ,(+ +str_data (* +long_size 2)) +long_size))))))
+		((no) `(set-field ,s ,(+ o field) +node_id_size ,v))
+		((ne) `(set-field ,s ,(+ o field) +net_id_size ,v))))
+
+(defmacro setf-> (res &rest frm)
+	; (setf-> msg form ...)
+	(reduce (lambda (res frm)
+		(if (list? frm)
+			(insert frm 0 (list 'setf res))
+			(list 'setf res frm))) frm res))
 
 ;;;;;;;
 ; enums

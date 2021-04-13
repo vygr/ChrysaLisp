@@ -344,9 +344,12 @@
 				(>= alpha beta)) (list next_boards))
 			value)))
 
-(defun reply (data)
+(defun reply (type data)
 	;send msg to parent, sequenced
-	(mail-send reply_mbox (cat (char next_seq +long_size) data))
+	(mail-send reply_mbox
+		(setf-> (cat (str-alloc +reply_size) data)
+	 		(+reply_seq next_seq)
+	 		(+reply_type (code type))))
 	(setq next_seq (inc next_seq)))
 
 ;best move for given board position for given color
@@ -359,7 +362,7 @@
 				brd)) (all-moves brd color)))
 	;iterative deepening of ply so we allways have a best move to go with if the time expires
 	(some! 0 -1 nil (lambda (ply)
-		(reply (str "s" (LF) "Ply" ply " "))
+		(reply "s" (str (LF) "Ply" ply " "))
 		(defq value +min_int alpha +min_int beta +max_int timeout
 			(some! 0 -1 nil (lambda (ply0_brd)
 					(bind '(_ bias brd) ply0_brd)
@@ -367,9 +370,9 @@
 						(neg (negamax brd (neg color) (neg beta) (neg alpha) (dec ply)))))
 					(cond
 						((or (<= (- score bias) value) (= (abs score) +timeout_value))
-							(reply (cat "s" ".")))
+							(reply "s" "."))
 						(t	(setq value score pbrd brd)
-							(reply (cat "s" "*"))))
+							(reply "s" "*")))
 					(setq alpha (max alpha value))
 					(cond
 						((= (abs score) +timeout_value)
@@ -407,10 +410,10 @@
 			(cond
 				((not new_brd)
 					(if (in-check brd color)
-						(reply (cat "e" (LF) "** Checkmate **" (LF)))
-						(reply (cat "e" (LF) "** Stalemate **" (LF)))))
+						(reply "e" (cat (LF) "** Checkmate **" (LF)))
+						(reply "e" (cat (LF) "** Stalemate **" (LF)))))
 				((>= (reduce (lambda (cnt past_brd)
 						(if (eql past_brd brd) (inc cnt) cnt)) history 0) 3)
-					(reply (cat "e" (LF) "** Draw **" (LF))))
-				(t	(reply (cat "b" new_brd))))))
+					(reply "e" (cat (LF) "** Draw **" (LF))))
+				(t	(reply "b" new_brd)))))
 	(mail-free-mbox (pop select)))
