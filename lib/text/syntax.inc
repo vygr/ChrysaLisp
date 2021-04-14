@@ -5,21 +5,26 @@
 (import "gui/canvas/lisp.inc")
 (import "lib/consts/colors.inc")
 
-(defmacro is_number_char (_)
-	(list 'find-rev _ "0123456789"))
-
-(defmacro is_allowed_number_char (_)
-	(list 'find-rev _ (const (cat
+(defq +is_number_char
+		"0123456789"
+	+is_allowed_number_char (cat
 		"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 		"abcdefghijklmnopqrstuvwxyz"
-		".0123456789"))))
-
-(defmacro is_symbol_char (_)
-	(list 'find-rev _ (const (cat
-		"!@#$%^&*_+-=[];\:|./<>?`~'"
+		".0123456789")
+	+is_symbol_char (cat
 		"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 		"0123456789"
-		"abcdefghijklmnopqrstuvwxyz"))))
+		"!@#$%^&*_+-=[];\:|./<>?`~'"
+		"abcdefghijklmnopqrstuvwxyz"))
+
+(defmacro is_number_char (_)
+	(list 'find-rev _ +is_number_char))
+
+(defmacro is_allowed_number_char (_)
+	(list 'find-rev _ +is_allowed_number_char))
+
+(defmacro is_symbol_char (_)
+	(list 'find-rev _ +is_symbol_char))
 
 (defclass Syntax () nil
 	; (Syntax) -> syntax
@@ -195,4 +200,5 @@
 			(line)))
 	)
 
-(undef (env) 'is_number_char 'is_allowed_number_char 'is_symbol_char)
+(undef (env) 'is_number_char 'is_allowed_number_char 'is_symbol_char
+	 '+is_number_char '+is_allowed_number_char '+is_symbol_char)
