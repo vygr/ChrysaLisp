@@ -2,6 +2,7 @@
 (import "sys/lisp.inc")
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
+(import "apps/debug/app.inc")
 
 (enums +event 0
 	(enum hvalue)
@@ -16,12 +17,8 @@
 	(defq select (list (task-mailbox) (mail-alloc-mbox))
 		entry (mail-declare (elem -2 select) "DEBUG_SERVICE" "Debug Service 0.4"))
 
-(structure +debug_msg 0
-	(long reply_id tcb)
-	(offset data))
-
-(structure +debug_rec 0
-	(byte buf state reply_id))
+(enums +debug_rec 0
+	(enum buf state reply_id))
 
 (ui-window mywindow (:color 0xc0000000)
 	(ui-flow _ (:flow_flags +flow_down_fill)
@@ -92,10 +89,9 @@
 		(cond
 			;new debug msg
 			((/= idx 0)
-				(defq reply_id (getf msg +debug_msg_reply_id)
-					tcb (getf msg +debug_msg_tcb)
-					data (slice +debug_msg_data -1 msg)
-					key (sym (str (>> reply_id 32) ":" tcb))
+				(defq reply_id (getf msg +debug_reply)
+					key (sym (getf msg +debug_origin))
+					data (slice +debug_data -1 msg)
 					index (find-rev key buf_keys))
 				(unless index
 					(push buf_keys key)

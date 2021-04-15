@@ -5,7 +5,7 @@
 ;quick profiling switch
 (if t	;t for profiling
 	(import "lib/debug/profile.inc")
-	(defun profile-print (&rest _)))
+	(defun profile-report (&rest _)))
 
 (import "gui/lisp.inc")
 
