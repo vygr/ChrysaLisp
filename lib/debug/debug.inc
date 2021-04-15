@@ -16,14 +16,9 @@
 		(mail-read mbox)
 		(mail-free-mbox mbox)))
 
-(defun debug-str (_)
-	; (debug-str str) -> str
-	(apply cat (map (# (if (or (< (code %0) 32) (= (code %0) 34)) "." %0)) _)))
-
 (defun debug-format (n e)
 	; (debug-format name env)
 	(setq e (tolist e))
-	(each (# (if (str? (elem 1 %0)) (elem-set 1 %0 (debug-str %0)))) e)
 	(sort (# (cmp (elem 0 %0) (elem 0 %1))) e)
 	(write (defq msg (string-stream (cat "")))
 		(cat (defq u (cat "+" (pad "" (+ (length n) 2) "--------") "+"))
@@ -34,8 +29,7 @@
 		(if (> (length val) 36)
 			(setq val (cat (slice 0 36 val) " ...")))
 		(if (> (length val) 0)
-			(setq val (apply cat (map (lambda (_)
-				(if (<= 32 (code _) 126) _ ".")) val))))
+			(setq val (apply cat (map (# (if (<= 32 (code %0) 126) %0 ".")) val))))
 		(write msg (cat var " : " val (ascii-char 10)))) e)
 	(debug-send (str msg (ascii-char 10))))
 
@@ -48,11 +42,10 @@
 
 (defun debug-fun? (_)
 	; (debug-fun? form)
-	(and (find :list (type-of _)) (/= 0 (length _))
+	(and (list? _) (/= 0 (length _))
 		(not (or (eql 'quote (elem 0 _)) (eql 'debug (elem 0 _))))
-		(find :sym (type-of (elem 0 _))) (setq _ (get (elem 0 _)))
-		(or (find :func (type-of _))
-			(and (find :list (type-of _)) (/= 0 (length _)) (eql 'lambda (elem 0 _))))))
+		(sym? (elem 0 _)) (setq _ (get (elem 0 _)))
+		(or (func? _) (lambda? _))))
 
 (defun debug-fun (n _)
 	; (debug-fun name list) -> list
