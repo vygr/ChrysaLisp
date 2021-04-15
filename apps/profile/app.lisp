@@ -13,8 +13,8 @@
 	(netid tcb)
 	(offset data))
 
-(structure +profile_rec 0
-	(byte buf))
+(enums +profile_rec 0
+	(enum buf))
 
 (defq vdu_width 60 vdu_height 40 buf_keys (list) buf_list (list) buf_index nil id t)
 

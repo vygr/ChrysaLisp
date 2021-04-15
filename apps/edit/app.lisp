@@ -19,15 +19,15 @@
 	(enum menu menu_click)
 	(enum close_tab tabbar))
 
-(structure +mbox 0
-	(byte task file dialog clip))
+(enums +mbox 0
+	(enum task file dialog clip))
 
 ;text structure
-(structure +text 0
-	(byte index fpath title buffer position))
+(enums +text 0
+	(enum index fpath title buffer position))
 
-(structure +pos 0
-	(byte ox oy cx cy sx))
+(enums +pos 0
+	(enum ox oy cx cy sx))
 
 ;select is a an array using the +mbox structure: task file modal
 (defq vdu_min_width 40 vdu_min_height 24 vdu_width 60 vdu_height 40 text_store (list) tmp_num 0

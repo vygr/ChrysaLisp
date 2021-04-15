@@ -112,7 +112,7 @@
 					(defq data_type (getf msg +reply_type) data (slice +reply_data -1 msg))
 					(cond
 						;move
-						((eql data_type (ascii-code "b"))
+						((= data_type (ascii-code "b"))
 							(times 3
 								(display-board brd)
 								(task-sleep flicker_rate)
@@ -122,11 +122,11 @@
 							(. farm :close)
 							(setq farm (Farm create destroy 1)))
 						;end
-						((eql data_type (ascii-code "e"))
+						((= data_type (ascii-code "e"))
 							(setq text_buf (vdu-print vdu (list "") data))
 							(. farm :close))
 						;status
-						((eql data_type (ascii-code "s"))
+						((= data_type (ascii-code "s"))
 							(vdu-print vdu text_buf data)))))
 			(t	;timer event
 				(mail-timeout (elem +select_timer select) timer_rate)

@@ -1,7 +1,7 @@
 ;Visual buffer input
 ; TODO: custom margins and line wrap
-(structure +mouse 0
-	(byte up down double_click long_click hover))
+(enums +mouse 0
+	(enum up down double_click long_click hover))
 
 (defq text_select (xmap-kv
 		:mouse_state +mouse_up
