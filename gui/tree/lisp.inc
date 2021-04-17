@@ -8,7 +8,7 @@
 
 (defclass Tree (event) (Flow)
 	; (Tree event) -> tree
-	(def this :flow_flags +flow_down_fill :action_event event)
+	(def this :flow_flags +flow_down_fill :action_event event :border 0)
 
 	(defmethod :add_route (this route)
 		; (. tree :add_route route) -> tree
@@ -29,16 +29,15 @@
 					(def (defq title_flow (Flow)) :flow_flags +flow_right_fill)
 					(def (defq toggle (Button)) :text (const (num-to-utf8 0xe93b)) :min_width 14
 						:font *env_small_toolbar_font* :border 1)
-					(def (defq title (Button)) :border 0)
 					(. toggle :connect (. this :get_id))
- 					(. title :connect (+ (get :action_event this) 1))
  					(.-> tab_flow (:add_child tab) (:add_child tab_child))
-					(.-> title_flow (:add_child toggle) (:add_child title))
+					(.-> title_flow (:add_child toggle) (:add_child
+						(. (Button) :connect (+ (get :action_event this) 1))))
 					(.-> node (:add_child title_flow) (:add_child tab_flow))
 					(. root :add_child node)
 					(setq root tab_child)))) (list route))
 		(unless (eql (defq file (elem -2 route)) ".")
-			(def (defq node (Button)) :text file :border 0)
+			(def (defq node (Button)) :text file)
 			(. node :connect (+ (get :action_event this) 2))
 			(. root :add_child node))
 		this)

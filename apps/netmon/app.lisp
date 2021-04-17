@@ -11,8 +11,9 @@
 (enums +select 0
 	(enum main task reply nodes))
 
-(defq max_tasks 1 max_memory 1 last_max_tasks 1 last_max_memory 1 rate (/ 1000000 2) id t
-	select (list (task-mailbox) (mail-alloc-mbox) (mail-alloc-mbox) (mail-alloc-mbox))
+(defq task_scale_size 10 max_tasks task_scale_size last_max_tasks max_tasks
+	mem_scale_size 4 max_memory (* 1024 16384) last_max_memory max_memory rate (/ 1000000 2)
+	id t select (list (task-mailbox) (mail-alloc-mbox) (mail-alloc-mbox) (mail-alloc-mbox))
 	retry_timeout (if (starts-with "obj/vp64" (load-path)) 10000000 1000000))
 
 (ui-window mywindow ()
@@ -20,16 +21,16 @@
 	(ui-grid _ (:grid_width 2 :grid_height 1 :flow_flags +flow_down_fill :maximum 100 :value 0)
 		(ui-flow _ (:color +argb_green)
 			(ui-label _ (:text "Tasks" :color +argb_white))
-			(ui-grid task_scale_grid (:grid_width 10 :grid_height 1 :color +argb_white
+			(ui-grid task_scale_grid (:grid_width task_scale_size :grid_height 1 :color +argb_white
 					:font *env_medium_terminal_font*)
-				(times 10 (ui-label _
+				(times task_scale_size (ui-label _
 					(:text "|" :flow_flags (logior +flow_flag_align_vcenter +flow_flag_align_hright)))))
 			(ui-grid task_grid (:grid_width 1 :grid_height 0)))
 		(ui-flow _ (:color +argb_red)
 			(ui-label _ (:text "Memory (kb)" :color +argb_white))
-			(ui-grid memory_scale_grid (:grid_width 4 :grid_height 1 :color +argb_white
+			(ui-grid memory_scale_grid (:grid_width mem_scale_size :grid_height 1 :color +argb_white
 					:font *env_medium_terminal_font*)
-				(times 4 (ui-label _
+				(times mem_scale_size (ui-label _
 					(:text "|" :flow_flags (logior +flow_flag_align_vcenter +flow_flag_align_hright)))))
 			(ui-grid memory_grid (:grid_width 1 :grid_height 0)))))
 
@@ -133,7 +134,8 @@
 					(. sm :layout)) memory_scale)
 				(. task_scale_grid :dirty_all)
 				(. memory_scale_grid :dirty_all)
-				(setq last_max_memory max_memory last_max_tasks max_tasks max_memory 1 max_tasks 1)
+				(setq last_max_memory max_memory last_max_tasks max_tasks
+					max_memory (* 1024 16384) max_tasks task_scale_size)
 				;poll all nodes
 				(. global_tasks :each poll))))
 	;close window and children
