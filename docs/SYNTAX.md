@@ -1816,14 +1816,6 @@
 
 ```
 
-## debug-str
-
-```lisp
-
-(debug-str str) -> str
-
-```
-
 ## dec
 
 ```lisp

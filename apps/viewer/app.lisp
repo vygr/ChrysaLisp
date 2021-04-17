@@ -7,21 +7,20 @@
 (enums +event 0
 	(enum close max min)
 	(enum layout scroll)
-	(enum tree tree_route))
+	(enum tree_action folder_action leaf_action))
 
 (defq vdu_min_width 16 vdu_min_height 16
 	vdu_max_width 120 vdu_max_height 50
 	vdu_width 80 vdu_height 50 tabs 4
 	text_buf nil syntax (Syntax) scroll_positions (xmap 101)
-	current_file nil current_button nil)
+	current_file nil selected_node nil)
 
 (ui-window mywindow (:color +argb_grey2)
 	(ui-title-bar mytitle "" (0xea19 0xea1b 0xea1a) +event_close)
 	(ui-flow _ (:flow_flags +flow_right_fill :font *env_terminal_font*)
 		(ui-scroll tree_scroll +scroll_flag_vertical nil
-			(ui-backdrop mybackdrop (:color +argb_grey15)
-				(. (ui-tree tree +event_tree
-					(:min_width 0 :color +argb_white)) :connect +event_tree)))
+			(. (ui-tree tree +event_tree_action (:min_width 0 :color +argb_white))
+				:connect +event_tree_action))
 		(ui-flow _ (:flow_flags +flow_left_fill)
 			(. (ui-slider slider) :connect +event_scroll)
 			(ui-vdu vdu (:min_width vdu_width :min_height vdu_height
@@ -103,7 +102,6 @@
 (defun main ()
 	(populate-tree)
 	(bind '(w h) (. tree :pref_size))
-	(. mybackdrop :change 0 0 w h)
 	(. tree :change 0 0 (def tree_scroll :min_width w) h)
 	(bind '(x y w h) (apply view-locate (.-> mywindow (:connect +event_layout) :pref_size)))
 	(gui-add (. mywindow :change x y w h))
@@ -125,18 +123,22 @@
 			(defq scroll_position (get :value slider))
 			(. scroll_positions :insert current_file scroll_position)
 			(. vdu :load text_buf 0 scroll_position 0 -1))
-		((= id +event_tree)
-			;tree view mutation
+		((= id +event_tree_action)
+			;tree view action
 			(defq w (get :min_width tree_scroll))
 			(bind '(_ h) (. tree :pref_size))
-			(. mybackdrop :change 0 0 w h)
 			(. tree :change 0 0 w h)
 			(.-> tree_scroll :layout :dirty_all))
-		((= id +event_tree_route)
+		((= id +event_leaf_action)
 			;load up the file selected
-			(if current_button (undef (. current_button :dirty) :color))
-			(setq current_button (. mywindow :find_id (getf msg +ev_msg_action_source_id)))
-			(def (. current_button :dirty) :color +argb_grey12)
-			(populate-vdu (. tree :get_route current_button)))
+			(if selected_node (undef (. selected_node :dirty) :color))
+			(setq selected_node (. mywindow :find_id (getf msg +ev_msg_action_source_id)))
+			(def (. selected_node :dirty) :color +argb_grey12)
+			(populate-vdu (. tree :get_route selected_node)))
+		((= id +event_folder_action)
+			;highlight the folder selected
+			(if selected_node (undef (. selected_node :dirty) :color))
+			(setq selected_node (. mywindow :find_id (getf msg +ev_msg_action_source_id)))
+			(def (. selected_node :dirty) :color +argb_grey12))
 		(t (. mywindow :event msg))))
 	(. mywindow :hide))
