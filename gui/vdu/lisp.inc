@@ -33,7 +33,7 @@
 		; (. vdu :pref_size) -> (width height)
 		((const (ffi _ "gui/vdu/lisp_configure" 0)) this)
 		(defq vdu_width (get :vdu_width this) vdu_height (get :vdu_height this)
-			mw (get :min_width this) mh (get :min_height this)
+			mw (def? :min_width this) mh (def? :min_height this)
 			cw (getf this +vdu_char_width 0)
 			ch (getf this +vdu_char_height 0))
 		(list (* (if mw mw vdu_width) cw) (* (if mh mh vdu_height) ch)))

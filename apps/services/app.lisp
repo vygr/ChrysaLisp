@@ -25,7 +25,6 @@
 	(setq h (min h mh))
 	(def info_scroll :min_width w :min_height h)
 	(bind '(x y w h) (apply view-fit (cat (. mywindow :get_pos) (. mywindow :pref_size))))
-	(undef info_scroll :min_width :min_height)
 	(. mywindow :change_dirty x y w h))
 
 (defun populate ()
@@ -60,7 +59,6 @@
 	(bind '(w h) (. right_flow :get_size))
 	(def info_scroll :min_width w :min_height h)
 	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
-	(undef info_scroll :min_width :min_height)
 	(gui-add (. mywindow :change x y w h))
 	;app event loop
 	(while id

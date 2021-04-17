@@ -22,7 +22,7 @@
 	(defmethod :pref_size (this)
 		; (. flow :pref_size) -> (width height)
 		(defq flow_flags (get :flow_flags this) pw 0 ph 0
-			mw (get :min_width this) mh (get :min_height this))
+			mw (def? :min_width this) mh (def? :min_height this))
 		(setd mw 0 mh 0)
 		(each (lambda (child)
 			(when (= 0 (logand (. child :get_flags) +view_flag_hiden))

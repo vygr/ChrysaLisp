@@ -36,7 +36,7 @@
 	(defmethod :pref_size (this)
 		; (. scroll :pref_size) -> (width height)
 		(defq hslider (get :hslider this) vslider (get :vslider this)
-			mw (get :min_width this) mh (get :min_height this))
+			mw (def? :min_width this) mh (def? :min_height this))
 		(setd mw 0 mh 0)
 		(if vslider
 			(setq mw (+ mw (pop (. vslider :pref_size)))))

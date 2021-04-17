@@ -166,7 +166,7 @@
 
 	(defmethod :pref_size (this)
 		; (. view :pref_size) -> (width height)
-		(defq mw (get :min_width this) mh (get :min_height this))
+		(defq mw (def? :min_width this) mh (def? :min_height this))
 		(setd mw 0 mh 0)
 		(list mw mh))
 

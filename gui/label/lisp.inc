@@ -25,7 +25,7 @@
 
 	(defmethod :pref_size (this)
 		; (. label :pref_size) -> (width height)
-		(defq mw (get :min_width this) mh (get :min_height this)
+		(defq mw (def? :min_width this) mh (def? :min_height this)
 			border (abs (get :border this)))
 		(setd mw 0 mh 0)
 		(bind '(w h) (. (get :label_flow this) :pref_size))
