@@ -76,8 +76,16 @@
 				{Slider to switch between tasks.}
 				{}
 				{In Lisp files:}
+				{}
 				{add (import "lib/debug/debug.inc")}
-				{then use (defun-debug name ([arg ...]) body)}) 0 0 0 1000)))
+				{to debug all functions.}
+				{}
+				{Or:}
+				{}
+				{add (import "apps/debug/app.inc")}
+				{then use}
+				{(debug-send xxx yyy zzz ...)}
+				{as a single stepping debug print.}) 0 0 0 1000)))
 	(set-slider-values))
 
 (defun main ()
