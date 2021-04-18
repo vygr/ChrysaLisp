@@ -122,7 +122,7 @@
 			'("class/lisp/boot.inc" "lib/anaphoric/anaphoric.inc" "lib/debug/debug.inc"
 			 "lib/debug/profile.inc" "lib/collections/xmap.inc" "lib/collections/xset.inc"
 			  "lib/collections/emap.inc" "lib/collections/collections.inc" "lib/class/class.inc"
-			  "lib/class/struct.inc")))
+			  "lib/class/struct.inc" "apps/debug/app.inc")))
     (sort cmp syntax)
     (defq stream (file-stream "docs/SYNTAX.md" +file_open_write))
     (write-line stream (const (str "# Syntax" (ascii-char 10))))

@@ -1812,7 +1812,7 @@
 
 ```lisp
 
-(debug-send string)
+(debug-send form ...)
 
 ```
 
@@ -1885,14 +1885,6 @@
 ```lisp
 
 (defun name ([arg ...]) body)
-
-```
-
-## defun-debug
-
-```lisp
-
-(defun-debug name ([arg ...]) body)
 
 ```
 

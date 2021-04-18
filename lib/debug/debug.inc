@@ -46,6 +46,5 @@
 				(elem-set _ l (cat '(debug) (list n e)))
 				(push s e))) l)) _)
 
-(defmacro defun-debug (n a &rest _)
-	; (defun-debug name ([arg ...]) body)
+(defmacro defun (n a &rest _)
 	`(defq ,n (lambda ,a ~(macroexpand (debug-fun (str n) _)))))

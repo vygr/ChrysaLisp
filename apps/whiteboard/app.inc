@@ -11,8 +11,7 @@
 
 ;quick debug switch
 (when nil	;t for debug
-	(import "lib/debug/debug.inc")
-	(defmacro defun (&rest _) `(defun-debug ~_)))
+	(import "lib/debug/debug.inc"))
 
 (enums +dlist 0
 	(enum mask commited_canvas overlay_canvas commited_polygons overlay_paths))
