@@ -2,6 +2,10 @@
 ; generic hash set object
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;so we don't trash anything in the parent environment
+;while we build up the class...
+(env-push)
+
 (defmacro xset-slot ()
 	`(defq x (get :buckets this)
 		b (% ((get :hash_fnc this) key) (get :num_buckets this))
@@ -111,10 +115,12 @@
 		this)
 	)
 
+;export to the outside environment and wipe the temp environment.
+(def (penv) '*class_xset* *class_xset* 'xset xset 'xset? xset?)
+(env-pop)
+
 (defun xset-k (&rest _)
 	; (xset-k [key ...]) -> xset
 	(defq this (xset))
 	(each (# (. this :insert %0)) _)
 	this)
-
-(undef (env) 'xset-slot)

@@ -2,6 +2,10 @@
 ; generic hash map object
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;so we don't trash anything in the parent environment
+;while we build up the class...
+(env-push)
+
 (defmacro xmap-slot ()
 	`(defq x (get :buckets this)
 		b (* (% ((get :hash_fnc this) key) (get :num_buckets this)) 2)
@@ -88,10 +92,12 @@
 		this)
 	)
 
+;export to the outside environment and wipe the temp environment.
+(def (penv) '*class_xmap* *class_xmap* 'xmap xmap 'xmap? xmap?)
+(env-pop)
+
 (defun xmap-kv (&rest _)
 	; (xmap-kv [key val ...]) -> xmap
 	(defq this (xmap))
 	(each! 0 -1 (# (. this :insert %0 %1)) (unzip _ (list (list) (list))))
 	this)
-
-(undef (env) 'xmap-slot)

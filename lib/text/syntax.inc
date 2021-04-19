@@ -5,6 +5,10 @@
 (import "gui/canvas/lisp.inc")
 (import "lib/consts/colors.inc")
 
+;so we don't trash anything in the parent environment
+;while we build up the Syntax class...
+(env-push)
+
 (defq +is_number_char
 		"0123456789"
 	+is_allowed_number_char (cat
@@ -200,5 +204,6 @@
 			(line)))
 	)
 
-(undef (env) 'is_number_char 'is_allowed_number_char 'is_symbol_char
-	 '+is_number_char '+is_allowed_number_char '+is_symbol_char)
+;export to the outside environment and wipe the temp environment.
+(def (penv) '*class_Syntax* *class_Syntax* 'Syntax Syntax 'Syntax? Syntax?)
+(env-pop)
