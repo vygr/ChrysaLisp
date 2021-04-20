@@ -116,7 +116,8 @@
 	)
 
 ;export to the outside environment and wipe the temp environment.
-(def (penv) '*class_xset* *class_xset* 'xset xset 'xset? xset?)
+(export (penv) 
+	*class_xset* xset xset?)
 (env-pop)
 
 (defun xset-k (&rest _)

@@ -121,9 +121,9 @@
 				(when (opt-emit-find-rr (const opt-emit-trashes-with-calls?) _ (elem 2 e) (elem 1 e))
 					(elem-set _ *emit_buffer* (lambda))))
 			))
-	(list *emit_buffer*)))
+		(list *emit_buffer*)))
 
-;export to the outside environment and wipe the temp environment.
-(def (penv)
-	'opt-emit-buffer opt-emit-buffer)
+;export symbols to the outside environment and wipe the temp environment.
+(export (penv)
+	opt-emit-buffer)
 (env-pop)

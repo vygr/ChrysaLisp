@@ -14,6 +14,8 @@ must move to another room where there is admin access.
 New `(setf-> msg field ...)` macro and extended `(set-field) (get-field)`
 functions to ease message creation.
 
+New `(export env sym ...)` macro to go along with `(env-push) ... (env-pop)`.
+
 ------
 
 New launch scripts for Windows powershell, that implement the -n -e -b -h

@@ -2104,6 +2104,14 @@
 
 ```
 
+## export
+
+```lisp
+
+(export env sym ...)
+
+```
+
 ## f2i
 
 ```lisp

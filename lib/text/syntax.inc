@@ -205,5 +205,6 @@
 	)
 
 ;export to the outside environment and wipe the temp environment.
-(def (penv) '*class_Syntax* *class_Syntax* 'Syntax Syntax 'Syntax? Syntax?)
+(export (penv)
+	*class_Syntax* Syntax Syntax?)
 (env-pop)

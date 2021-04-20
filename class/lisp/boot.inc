@@ -561,6 +561,11 @@
 ; Utilities
 ;;;;;;;;;;;
 
+(defmacro export (e &rest syms)
+	; (export env sym ...)
+	`(def ,e ~(reduce (lambda (l _)
+		(push l (list 'quote _) _)) syms (list))))
+
 (defmacro ascii-code (_)
 	; (ascii-code char) -> num
 	(code _))

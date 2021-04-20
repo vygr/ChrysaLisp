@@ -93,7 +93,8 @@
 	)
 
 ;export to the outside environment and wipe the temp environment.
-(def (penv) '*class_xmap* *class_xmap* 'xmap xmap 'xmap? xmap?)
+(export (penv)
+	*class_xmap* xmap xmap?)
 (env-pop)
 
 (defun xmap-kv (&rest _)

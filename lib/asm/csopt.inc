@@ -112,6 +112,6 @@
 			)))
 
 ;export to the outside environment and wipe the temp environment.
-(def (penv)
-	'opt-inst-list opt-inst-list)
+(export (penv)
+	opt-inst-list)
 (env-pop)

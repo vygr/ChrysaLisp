@@ -462,12 +462,8 @@
 (new-scope)
 
 ;export to the outside environment and wipe the temp environment.
-(def (penv)
-	'cscript-tokenize cscript-tokenize
-	'cscript-reverse-polish cscript-reverse-polish
-	'cscript-compile cscript-compile
-	'reset-reg-stack reset-reg-stack
-	'set-reg-map set-reg-map
-	'compile-deref? compile-deref?
-	'compile-arrow compile-arrow)
+(export (penv)
+	cscript-tokenize cscript-reverse-polish cscript-compile
+	reset-reg-stack set-reg-map
+	compile-deref? compile-arrow)
 (env-pop)
