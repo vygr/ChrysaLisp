@@ -397,6 +397,7 @@
 ;;;;;;;;;
 
 (include "lib/asm/cscript.inc")
+(include "lib/asm/csopt.inc")
 
 ;;;;;;;;;;;;
 ; assignment
