@@ -170,7 +170,7 @@
 							(push out_types :operator))
 						(t	(setq x nil))))
 				(push token_stack token))
-			(t	;number, symbol, string, symbol, path, label
+			(t	;number, symbol, string, path, label
 				(push out_tokens token)
 				(push out_types type)))) tokenize_output)
 	(while (defq _ (pop token_stack))
@@ -182,11 +182,11 @@
 ; compilation
 ;;;;;;;;;;;;;
 
-(defcvar '*vreg* '(_v0 _v1 _v2 _v3 _v4 _v5 _v6 _v7 _v8 _v9 _v10 _v11 _v12 _v13 _v14 _v15))
-(each (lambda (_) (defcvar _ nil)) *vreg*)
+(defq +vreg ''(_v0 _v1 _v2 _v3 _v4 _v5 _v6 _v7 _v8 _v9 _v10 _v11 _v12 _v13 _v14 _v15))
+(each (lambda (_) (defcvar _ nil)) +vreg)
 
 (defmacro vreg-sym (_)
-	(list 'elem _ '*vreg*))
+	(list 'elem _ '+vreg))
 
 (defmacro add-inst (&rest b)
 	(cat '(push *inst*) b))
@@ -204,12 +204,12 @@
 	'(vreg-sym (length *vregt*)))
 
 (defmacro reset-reg-stack (_)
-	`(defq *vreg* *vreg* *inst* (push (clear '()) progn)
+	`(defq *inst* (push (clear '()) progn)
 		*vregt* (slice 0 ,_ '(nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil))))
 
 (defun set-reg-map (l &optional _)
 	(setd _ '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14))
-	(each (lambda (_ r) (set (env) _ r)) *vreg* (if (/= 0 (length l)) (merge-obj l _) _)))
+	(each (lambda (_ r) (set (env) _ r)) +vreg (if (/= 0 (length l)) (merge-obj l _) _)))
 
 (defun push-reg (_)
 	(vreg-sym (dec (length (push *vregt* _)))))
@@ -415,35 +415,27 @@
 ; optimizer
 ;;;;;;;;;;;
 
-(defmacro opt-sxx-cr-ops ()
-	''(vp-seq-cr vp-sne-cr vp-sle-cr vp-sge-cr vp-sgt-cr vp-slt-cr))
-
-(defmacro opt-sxx-rr-ops ()
-	''(vp-seq-rr vp-sne-rr vp-sle-rr vp-sge-rr vp-sgt-rr vp-slt-rr))
-
-(defmacro opt-read-ops ()
-	''(vp-cpy-ir vp-cpy-ir-b vp-cpy-ir-s vp-cpy-ir-i vp-cpy-ir-ub vp-cpy-ir-us vp-cpy-ir-ui))
-
-(defmacro opt-write-ops ()
-	''(vp-cpy-ri vp-cpy-ri-b vp-cpy-ri-s vp-cpy-ri-i))
-
-(defmacro opt-rr-ops ()
-	''(vp-add-rr vp-sub-rr vp-mul-rr vp-and-rr vp-or-rr vp-xor-rr vp-shl-rr vp-shr-rr vp-asr-rr))
-
-(defmacro opt-cr-ops ()
-	''(vp-add-cr vp-sub-cr vp-mul-cr vp-and-cr vp-or-cr vp-xor-cr vp-shl-cr vp-shr-cr vp-asr-cr))
-
-(defmacro opt-fold-cpy-ops ()
-	''(+ - * logand logior logxor << >> >>>))
-
-(defmacro opt-fold-cr-ops ()
-	''(+ + * logand logior logxor + + +))
-
-(defmacro opt-cr-fuse-ops ()
-	''(vp-add-cr vp-sub-cr))
+(defq +opt_sxx_cr_ops
+		''(vp-seq-cr vp-sne-cr vp-sle-cr vp-sge-cr vp-sgt-cr vp-slt-cr)
+	+opt_sxx_rr_ops
+		''(vp-seq-rr vp-sne-rr vp-sle-rr vp-sge-rr vp-sgt-rr vp-slt-rr)
+	+opt_read_ops
+		''(vp-cpy-ir vp-cpy-ir-b vp-cpy-ir-s vp-cpy-ir-i vp-cpy-ir-ub vp-cpy-ir-us vp-cpy-ir-ui)
+	+opt_write_ops
+		''(vp-cpy-ri vp-cpy-ri-b vp-cpy-ri-s vp-cpy-ri-i)
+	+opt_rr_ops
+		''(vp-add-rr vp-sub-rr vp-mul-rr vp-and-rr vp-or-rr vp-xor-rr vp-shl-rr vp-shr-rr vp-asr-rr)
+	+opt_cr_ops
+		''(vp-add-cr vp-sub-cr vp-mul-cr vp-and-cr vp-or-cr vp-xor-cr vp-shl-cr vp-shr-cr vp-asr-cr)
+	+opt_fold_cpy_ops
+		''(+ - * logand logior logxor << >> >>>)
+	+opt_fold_cr_ops
+		''(+ + * logand logior logxor + + +)
+	+opt_cr_fuse_ops
+		''(vp-add-cr vp-sub-cr))
 
 (defmacro opt-uses (r _)
-	`(find-rev ,r ,_))
+	(list 'find-rev r _))
 
 (defun opt-find-1 (_ r x)
 	(setq _ (some! _ 0 nil (lambda (e)
@@ -465,7 +457,7 @@
 	(while (< (setq i (inc i)) (length *inst*))
 		(cond
 			;variable loading and offset folding
-			((find-rev (defq e (elem i *inst*) o (elem 0 e)) (opt-read-ops))
+			((find-rev (defq e (elem i *inst*) o (elem 0 e)) +opt_read_ops)
 				(when (opt-find-2 i (defq r (elem 1 e)) `(vp-lea-i rsp _ ,r) `(vp-add-cr _ ,r))
 					(cond
 						((= m 0)
@@ -476,7 +468,7 @@
 							(setq i (dec i))))
 					(elem-set p *inst* (lambda))))
 			;variable writing and offset folding
-			((find-rev o (opt-write-ops))
+			((find-rev o +opt_write_ops)
 				(when (opt-find-2 i (defq r (elem 2 e)) `(vp-lea-i rsp _ ,r) `(vp-add-cr _ ,r))
 					(cond
 						((= m 0)
@@ -492,25 +484,25 @@
 				(elem-set 1 e s)
 				(setq i (dec i)))
 			;constant propagation
-			((defq c (find-rev o (opt-rr-ops)))
+			((defq c (find-rev o +opt_rr_ops))
 				(when (opt-find-1 i (defq r (elem 1 e)) `(vp-cpy-cr _ ,r))
-					(elem-set 0 e (elem c (opt-cr-ops)))
+					(elem-set 0 e (elem c +opt_cr_ops))
 					(elem-set 1 e (elem 1 (elem p *inst*)))
 					(elem-set p *inst* (lambda))
 					(setq i (dec i))))
 			;arithmetic reassignment and constant folding
-			((and (defq c (find-rev o (opt-cr-ops)))
+			((and (defq c (find-rev o +opt_cr_ops))
 				(opt-find-2 i (defq r (elem 2 e)) `(vp-cpy-cr _ ,r) (list o '_ r)))
 					(cond
 						((= m 0)
-							(setq c (elem c (opt-fold-cpy-ops)))
+							(setq c (elem c +opt_fold_cpy_ops))
 							(elem-set 0 e 'vp-cpy-cr))
 						((= m 1)
-							(setq c (elem c (opt-fold-cr-ops)))))
+							(setq c (elem c +opt_fold_cr_ops))))
 					(elem-set 1 e (list c (elem 1 (elem p *inst*)) (elem 1 e)))
 					(elem-set p *inst* (lambda)))
 			;constant fusion
-			((and (defq c (find-rev o (opt-cr-fuse-ops)))
+			((and (defq c (find-rev o +opt_cr_fuse_ops))
 				(opt-find-2 i (defq r (elem 2 e)) `(vp-add-cr _ ,r) `(vp-sub-cr _ ,r)))
 					(cond
 						((= m 0)
@@ -520,10 +512,10 @@
 					(elem-set 1 e (list c (elem 1 e) (elem 1 (elem p *inst*))))
 					(elem-set p *inst* (lambda)))
 			;compare constant forwarding
-			((and (defq c (find-rev o (opt-sxx-rr-ops)))
+			((and (defq c (find-rev o +opt_sxx_rr_ops))
 				(opt-find-1 i (defq r (elem 1 e)) `(vp-cpy-cr _ ,r))
 				(<= -0x80000000 (defq v (eval (elem 1 (elem p *inst*)))) 0x7fffffff))
-					(elem-set 0 e (elem c (opt-sxx-cr-ops)))
+					(elem-set 0 e (elem c +opt_sxx_cr_ops))
 					(elem-set 1 e v)
 					(elem-set p *inst* (lambda)))
 			)))
