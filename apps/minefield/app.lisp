@@ -25,7 +25,7 @@
 						(. (ui-button expert (:text "Expert" :min_width 125 :min_height 35)) :connect +event_expert)
 						(ui-label bottom_pad (:text "" :min_height 35)))
 					(ui-label right_pad (:text "" :min_width 25))))
-		(ui-label status_bar (:text "mouse: 00"))))
+		(ui-label status_bar (:text " "))))
 
 (defun clicked-blank (cell)
 	(defq work (list cell))
@@ -63,7 +63,7 @@
 			(setq message "You Won!" game_over t))
 		(t nil))
 	(set status_bar :text message)
-	(. status_bar :dirty))
+	(.-> status_bar :layout :dirty))
 
 (defun colorize (value)
 	(elem value '(+argb_black 0x000000ff 0x00006600 0x00ff0000 +argb_magenta 
