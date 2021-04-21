@@ -634,7 +634,10 @@
 		(cond
 			((eql i "x") (setq b 16 _ (slice 2 -1 _)))
 			((eql i "o") (setq b 8 _ (slice 2 -1 _)))
-			((eql i "b") (setq b 2 _ (slice 2 -1 _)))))
+			((eql i "b") (setq b 2 _ (slice 2 -1 _)))
+			((eql i "X") (setq b 16 _ (slice 2 -1 _)))
+			((eql i "O") (setq b 8 _ (slice 2 -1 _)))
+			((eql i "B") (setq b 2 _ (slice 2 -1 _)))))
 	(each (lambda (_) (if (eql _ ".")
 			(setq f 1)
 			(setq n (+ (* n b) (char-to-num _)) f (* f b)))) _)

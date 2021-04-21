@@ -129,10 +129,10 @@ of the symbols used at the entry to the `(cond ...)` !
 
 ## case
 
-`(case key (v0 body) (v1 body) ... (t ...))` is a variant of cond that acts
-like a fast switch. The `key` form is evaluated and must evaluate to a symbol
-or key symbol. A jump is then made to the matching body clause, or if no match,
-the optional `t` clause.
+`(case key (s0 body) ((s1 s2) body) ... (t ...))` is a variant of cond that
+acts like a fast switch. The `key` form is evaluated and must evaluate to a
+symbol or key symbol. A jump is then made to the matching body clause, or if no
+match, the optional `t` clause.
 
 ```vdu
 (case state
