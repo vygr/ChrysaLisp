@@ -412,6 +412,9 @@
 			(:label (compile-label (sym token)))
 			(:string (compile-string token)))) rpn_output))
 
+(defun cscript (_)
+	(cscript-compile (cscript-reverse-polish (cscript-tokenize _))))
+
 ;define C-Script operators...
 (new-scope)
 (operator "ptr" 0 1 compile-cast)
@@ -464,7 +467,7 @@
 
 ;module
 (export (penv)
-	cscript-tokenize cscript-reverse-polish cscript-compile
+	cscript
 	reset-reg-stack set-reg-map
 	compile-deref? compile-arrow)
 (env-pop)
