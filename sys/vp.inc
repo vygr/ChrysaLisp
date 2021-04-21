@@ -3,21 +3,21 @@
 ;;;;;;;;;;;;;
 
 (defmacro emit (&rest _)
-	`(push *emit_buffer* ~_))
+	`(push *emit_list* ~_))
 
 (defun emit-reset ()
-	(defcvar '*emit_buffer* (push (clear '()) progn) '*distance* (clear '())
+	(defcvar '*emit_list* (push (clear '()) progn) '*distance* (clear '())
 		'*out_buffer* "" '*old_out_buffer* ""))
 
 (defun emit-passes ()
 	(defcvar '*pass* 0 '*pc* 0 '*out_stream* (string-stream *out_buffer*))
 	(defq b nil)
-	(eval (prebind *emit_buffer*) *compile_env*)
+	(eval (prebind *emit_list*) *compile_env*)
 	(setq *out_buffer* (str *out_stream*) *pass* (inc *pass*))
 	(until (eql *out_buffer* *old_out_buffer*)
 		(task-sleep 0)
 		(setq b *old_out_buffer* *old_out_buffer* *out_buffer* *out_stream* (string-stream b) *pc* 0)
-		(eval *emit_buffer* *compile_env*)
+		(eval *emit_list* *compile_env*)
 		(setq *out_buffer* (str *out_stream*) *pass* (inc *pass*))))
 
 (defun print-emit (_)

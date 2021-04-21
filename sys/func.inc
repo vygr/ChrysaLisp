@@ -66,9 +66,9 @@
 		(vp-string (str s)) (vp-byte 0)) *paths*)
 	(vp-align +ptr_size)
 (vp-label 'fn_end)
-	(opt-emit-buffer)
+	(opt-emit-list *emit_list*)
 	(when *debug_emit*
-		(each print-emit *emit_buffer*))
+		(each print-emit *emit_list*))
 	(emit-passes)
 	(apply undef (cat (list *compile_env*) *func_syms*))
 	(save *out_buffer* (cat "obj/" *cpu* "/" *abi* "/" (str *func_name*)))

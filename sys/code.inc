@@ -496,7 +496,7 @@
 		(when *debug_inst*
 			(print "pre opt:")
 			(each print-inst *inst*))
-		(opt-inst-list)
+		(opt-inst-list *inst*)
 		(when *debug_inst*
 			(print "post opt:")
 			(each print-inst *inst*))
@@ -514,7 +514,7 @@
 		(when *debug_inst*
 			(print "pre opt:")
 			(each print-inst *inst*))
-		(opt-inst-list)
+		(opt-inst-list *inst*)
 		(when *debug_inst*
 			(print "post opt:")
 			(each print-inst *inst*))
@@ -536,7 +536,7 @@
 		(when *debug_inst*
 			(print "pre opt:")
 			(each print-inst *inst*))
-		(opt-inst-list)
+		(opt-inst-list *inst*)
 		(when *debug_inst*
 			(print "post opt:")
 			(each print-inst *inst*))

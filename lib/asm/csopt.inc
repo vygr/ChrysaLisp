@@ -32,7 +32,7 @@
 	(setq _ (some! _ 0 nil (lambda (e)
 				(cond
 					((match? e x) _)
-					((opt-uses r e) -1))) (list *inst*))
+					((opt-uses r e) -1))) (list inst_list))
 		p (and _ (/= _ -1) _)))
 
 (defun opt-find-2 (_ r x y)
@@ -40,35 +40,35 @@
 				(cond
 					((match? e x) (setq m 0) _)
 					((match? e y) (setq m 1) _)
-					((opt-uses r e) -1))) (list *inst*))
+					((opt-uses r e) -1))) (list inst_list))
 		p (and _ (/= _ -1) _)))
 
-(defun opt-inst-list ()
+(defun opt-inst-list (inst_list)
 	(defq i 0 p nil m nil)
-	(while (< (setq i (inc i)) (length *inst*))
+	(while (< (setq i (inc i)) (length inst_list))
 		(cond
 			;variable loading and offset folding
-			((find-rev (defq e (elem i *inst*) o (elem 0 e)) +opt_read_ops)
+			((find-rev (defq e (elem i inst_list) o (elem 0 e)) +opt_read_ops)
 				(when (opt-find-2 i (defq r (elem 1 e)) `(vp-lea-i rsp _ ,r) `(vp-add-cr _ ,r))
 					(cond
 						((= m 0)
 							(elem-set 1 e rsp)
-							(elem-set 2 e `(+ ,(elem 2 (elem p *inst*)) ,(elem 2 e))))
+							(elem-set 2 e `(+ ,(elem 2 (elem p inst_list)) ,(elem 2 e))))
 						((= m 1)
-							(elem-set 2 e `(+ ,(elem 1 (elem p *inst*)) ,(elem 2 e)))
+							(elem-set 2 e `(+ ,(elem 1 (elem p inst_list)) ,(elem 2 e)))
 							(setq i (dec i))))
-					(elem-set p *inst* (lambda))))
+					(elem-set p inst_list (lambda))))
 			;variable writing and offset folding
 			((find-rev o +opt_write_ops)
 				(when (opt-find-2 i (defq r (elem 2 e)) `(vp-lea-i rsp _ ,r) `(vp-add-cr _ ,r))
 					(cond
 						((= m 0)
 							(elem-set 2 e rsp)
-							(elem-set 3 e `(+ ,(elem 2 (elem p *inst*)) ,(elem 3 e))))
+							(elem-set 3 e `(+ ,(elem 2 (elem p inst_list)) ,(elem 3 e))))
 						((= m 1)
-							(elem-set 3 e `(+ ,(elem 1 (elem p *inst*)) ,(elem 3 e)))
+							(elem-set 3 e `(+ ,(elem 1 (elem p inst_list)) ,(elem 3 e)))
 							(setq i (dec i))))
-					(elem-set p *inst* (lambda))))
+					(elem-set p inst_list (lambda))))
 			;strength reduction
 			((and (eql o 'vp-mul-cr) (defq s (log2 (eval (elem 1 e)))))
 				(elem-set 0 e 'vp-shl-cr)
@@ -78,8 +78,8 @@
 			((defq c (find-rev o +opt_rr_ops))
 				(when (opt-find-1 i (defq r (elem 1 e)) `(vp-cpy-cr _ ,r))
 					(elem-set 0 e (elem c +opt_cr_ops))
-					(elem-set 1 e (elem 1 (elem p *inst*)))
-					(elem-set p *inst* (lambda))
+					(elem-set 1 e (elem 1 (elem p inst_list)))
+					(elem-set p inst_list (lambda))
 					(setq i (dec i))))
 			;arithmetic reassignment and constant folding
 			((and (defq c (find-rev o +opt_cr_ops))
@@ -90,8 +90,8 @@
 							(elem-set 0 e 'vp-cpy-cr))
 						((= m 1)
 							(setq c (elem c +opt_fold_cr_ops))))
-					(elem-set 1 e (list c (elem 1 (elem p *inst*)) (elem 1 e)))
-					(elem-set p *inst* (lambda)))
+					(elem-set 1 e (list c (elem 1 (elem p inst_list)) (elem 1 e)))
+					(elem-set p inst_list (lambda)))
 			;constant fusion
 			((and (defq c (find-rev o +opt_cr_fuse_ops))
 				(opt-find-2 i (defq r (elem 2 e)) `(vp-add-cr _ ,r) `(vp-sub-cr _ ,r)))
@@ -100,15 +100,15 @@
 							(setq c (elem c '(+ -))))
 						((= m 1)
 							(setq c (elem c '(- +)))))
-					(elem-set 1 e (list c (elem 1 e) (elem 1 (elem p *inst*))))
-					(elem-set p *inst* (lambda)))
+					(elem-set 1 e (list c (elem 1 e) (elem 1 (elem p inst_list))))
+					(elem-set p inst_list (lambda)))
 			;compare constant forwarding
 			((and (defq c (find-rev o +opt_sxx_rr_ops))
 				(opt-find-1 i (defq r (elem 1 e)) `(vp-cpy-cr _ ,r))
-				(<= -0x80000000 (defq v (eval (elem 1 (elem p *inst*)))) 0x7fffffff))
+				(<= -0x80000000 (defq v (eval (elem 1 (elem p inst_list)))) 0x7fffffff))
 					(elem-set 0 e (elem c +opt_sxx_cr_ops))
 					(elem-set 1 e v)
-					(elem-set p *inst* (lambda)))
+					(elem-set p inst_list (lambda)))
 			)))
 
 ;export to the outside environment and wipe the temp environment.

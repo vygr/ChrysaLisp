@@ -65,7 +65,7 @@
 				(not (eql b (elem 3 e)))
 				(= i (eval (elem 2 e))))
 				(setq c 3) _)
-			((k b e) -1))) (list *emit_buffer*)))
+			((k b e) -1))) (list emit_list)))
 	(and _ (/= _ -1) _))
 
 (defun opt-emit-find-rw1 (k _ ra rb w b i)
@@ -80,7 +80,7 @@
 				(not (eql b (elem 3 e)))
 				(= i (eval (elem 2 e))))
 				(setq c 3) _)
-			((k b e) -1))) (list *emit_buffer*)))
+			((k b e) -1))) (list emit_list)))
 	(and _ (/= _ -1) _))
 
 (defun opt-emit-find-rr (k _ rs rd)
@@ -88,10 +88,10 @@
 		(cond
 			((match? e `(emit-cpy-rr ,rs ,rd)) _)
 			((opt-trashes? rs e) -1)
-			((k rd e) -1))) (list *emit_buffer*)))
+			((k rd e) -1))) (list emit_list)))
 	(and _ (/= _ -1) _))
 
-(defun opt-emit-buffer ()
+(defun opt-emit-list (emit_list)
 	(each! 2 -1 (lambda (e)
 		(cond
 			;read after read/write
@@ -100,10 +100,10 @@
 								(elem c +opt_emit_read_ops)
 								(elem c +opt_emit_write_ops)
 								(elem 1 e) (eval (elem 2 e))))
-					(defq r (elem c (elem w *emit_buffer*)))
+					(defq r (elem c (elem w emit_list)))
 					(when (not (some! (inc w) _ nil (lambda (_)
-							(opt-emit-trashes? r _)) (list *emit_buffer*)))
-						(elem-set _ *emit_buffer*
+							(opt-emit-trashes? r _)) (list emit_list)))
+						(elem-set _ emit_list
 							(if (eql r (elem 3 e))
 								(lambda)
 								`(emit-cpy-rr ,r ,(elem 3 e)))))))
@@ -115,15 +115,15 @@
 								(elem c +opt_emit_write_ops1)
 								(elem 2 e) (eval (elem 3 e))))
 					(when (= c 1)
-						(elem-set w *emit_buffer* (lambda)))))
+						(elem-set w emit_list (lambda)))))
 			;redundant copies
 			((eql o 'emit-cpy-rr)
 				(when (opt-emit-find-rr (const opt-emit-trashes-with-calls?) _ (elem 2 e) (elem 1 e))
-					(elem-set _ *emit_buffer* (lambda))))
+					(elem-set _ emit_list (lambda))))
 			))
-		(list *emit_buffer*)))
+		(list emit_list)))
 
 ;export symbols to the outside environment and wipe the temp environment.
 (export (penv)
-	opt-emit-buffer)
+	opt-emit-list)
 (env-pop)
