@@ -2,8 +2,7 @@
 ; generic hash map object
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;so we don't trash anything in the parent environment
-;while we build up the class...
+;module
 (env-push)
 
 (defmacro xmap-slot ()
@@ -92,7 +91,7 @@
 		this)
 	)
 
-;export to the outside environment and wipe the temp environment.
+;module
 (export (penv)
 	*class_xmap* xmap xmap?)
 (env-pop)

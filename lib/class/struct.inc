@@ -2,7 +2,10 @@
 ; structures and fields
 ;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun structure (type size alignment)
+;module
+(env-push)
+
+(defun new_field (type size alignment)
 	(setq base (align base alignment))
 	(push syms (sym (cat name "_" field)) (sym (cat name "_" field "_t")))
 	(push values base type)
@@ -28,26 +31,26 @@
 			(setq base max_base))
 		(t	(each! 1 -1 (lambda (field)
 				(case (elem 0 line)
-					(byte (structure "b" +byte_size +byte_size))
-					(ubyte (structure "B" +byte_size +byte_size))
-					(short (structure "s" +short_size +short_size))
-					(ushort (structure "S" +short_size +short_size))
-					(int (structure "i" +int_size +int_size))
-					(uint (structure "I" +int_size +int_size))
-					(long (structure "l" +long_size +long_size))
-					(ulong (structure "L" +long_size +long_size))
-					(ptr (structure "p" +ptr_size +ptr_size))
-					(pptr (structure "pp" +ptr_size +ptr_size))
-					(pubyte (structure "pB" +ptr_size +ptr_size))
-					(pushort (structure "pS" +ptr_size +ptr_size))
-					(puint (structure "pI" +ptr_size +ptr_size))
-					(pulong (structure "pL" +ptr_size +ptr_size))
-					(pbyte (structure "pb" +ptr_size +ptr_size))
-					(pshort (structure "ps" +ptr_size +ptr_size))
-					(pint (structure "pi" +ptr_size +ptr_size))
-					(plong (structure "pl" +ptr_size +ptr_size))
-					(nodeid (structure "no" +node_id_size +byte_size))
-					(netid (structure "ne" +net_id_size +byte_size))))
+					(byte (new_field "b" +byte_size +byte_size))
+					(ubyte (new_field "B" +byte_size +byte_size))
+					(short (new_field "s" +short_size +short_size))
+					(ushort (new_field "S" +short_size +short_size))
+					(int (new_field "i" +int_size +int_size))
+					(uint (new_field "I" +int_size +int_size))
+					(long (new_field "l" +long_size +long_size))
+					(ulong (new_field "L" +long_size +long_size))
+					(ptr (new_field "p" +ptr_size +ptr_size))
+					(pptr (new_field "pp" +ptr_size +ptr_size))
+					(pubyte (new_field "pB" +ptr_size +ptr_size))
+					(pushort (new_field "pS" +ptr_size +ptr_size))
+					(puint (new_field "pI" +ptr_size +ptr_size))
+					(pulong (new_field "pL" +ptr_size +ptr_size))
+					(pbyte (new_field "pb" +ptr_size +ptr_size))
+					(pshort (new_field "ps" +ptr_size +ptr_size))
+					(pint (new_field "pi" +ptr_size +ptr_size))
+					(plong (new_field "pl" +ptr_size +ptr_size))
+					(nodeid (new_field "no" +node_id_size +byte_size))
+					(netid (new_field "ne" +net_id_size +byte_size))))
 				(list line)))) base)
 
 (defmacro structure (name base &rest lines)
@@ -103,7 +106,7 @@
 ; enums
 ;;;;;;;
 
-(defun enums (size)
+(defun new_enum (size)
 	(push syms (sym (cat name "_" field)))
 	(push values base)
 	(setq base (+ base size)))
@@ -115,7 +118,7 @@
 	(each (lambda (line)
 		(each! 1 -1 (lambda (field)
 			(case (elem 0 line)
-				(enum (enums +byte_size))))
+				(enum (new_enum +byte_size))))
 			(list line))) lines)
 	(push syms (sym (cat name "_size")))
 	(push values base)
@@ -125,7 +128,7 @@
 ; bits
 ;;;;;;
 
-(defun bits ()
+(defun new_bit ()
 	(push syms (sym (cat name "_" field)))
 	(push values (<< 1 base))
 	(setq base (inc base)))
@@ -137,8 +140,13 @@
 	(each (lambda (line)
 		(each! 1 -1 (lambda (field)
 			(case (elem 0 line)
-				(bit (bits))))
+				(bit (new_bit))))
 			(list line))) lines)
 	(push syms (sym (cat name "_size")))
 	(push values base)
 	`(bind ',syms ',values))
+
+;module
+(export (penv)
+	structure _structure getf setf setf-> enums bits)
+(env-pop)

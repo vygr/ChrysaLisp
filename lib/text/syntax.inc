@@ -5,8 +5,7 @@
 (import "gui/canvas/lisp.inc")
 (import "lib/consts/colors.inc")
 
-;so we don't trash anything in the parent environment
-;while we build up the Syntax class...
+;module
 (env-push)
 
 (defq +is_number_char
@@ -192,7 +191,7 @@
 			(line)))
 	)
 
-;export to the outside environment and wipe the temp environment.
+;module
 (export (penv)
 	*class_Syntax* Syntax Syntax?)
 (env-pop)

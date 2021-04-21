@@ -2,8 +2,9 @@
 ; C-Script compiler
 ;;;;;;;;;;;;;;;;;;;
 
-;so we don't trash anything in the parent environment
-;while we build up the functions...
+(include "sys/code.inc")
+
+;module
 (env-push)
 
 (defq +symbol_chars "+ABCDEFGHIJKLMNOPQRSTUVWXYZ_/0123456789abcdefghijklmnopqrstuvwxyz"
@@ -461,7 +462,7 @@
 (operator "]" 14)
 (new-scope)
 
-;export to the outside environment and wipe the temp environment.
+;module
 (export (penv)
 	cscript-tokenize cscript-reverse-polish cscript-compile
 	reset-reg-stack set-reg-map

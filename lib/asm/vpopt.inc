@@ -2,8 +2,7 @@
 ; VP optimizer
 ;;;;;;;;;;;;;;
 
-;so we don't trash anything in the parent environment
-;while we build up the functions...
+;module
 (env-push)
 
 (defq
@@ -123,7 +122,7 @@
 			))
 		(list emit_list)))
 
-;export symbols to the outside environment and wipe the temp environment.
+;module
 (export (penv)
 	opt-emit-list)
 (env-pop)

@@ -3,8 +3,10 @@
 ; assignment
 ;;;;;;;;;;;;
 
-;so we don't trash anything in the parent environment
-;while we build up the functions...
+(include "lib/asm/cscript.inc")
+(include "lib/asm/csopt.inc")
+
+;module
 (env-push)
 
 (defun assign-ignored-to-asm ()
@@ -157,7 +159,7 @@
 			(assign-asm-to-script src dst _)
 			(assign-asm-to-asm src dst))))
 
-;export to the outside environment and wipe the temp environment.
+;module
 (export (penv)
 	assign)
 (env-pop)

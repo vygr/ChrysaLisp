@@ -5,6 +5,9 @@
 (import "sys/lisp.inc")
 (import "class/lisp.inc")
 
+;module
+(env-push)
+
 ;pipe tuple structure
 (enums +pipe 0
 	(enum state select streams))
@@ -82,3 +85,8 @@
 				(setq cmd nil))
 			(t	;string from pipe
 				(out data)))))
+
+;module
+(export (penv)
+	pipe-open pipe-read pipe-write pipe-close pipe-run)
+(env-pop)

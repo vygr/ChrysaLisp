@@ -2,8 +2,7 @@
 ; C-Script optimizer
 ;;;;;;;;;;;;;;;;;;;;
 
-;so we don't trash anything in the parent environment
-;while we build up the functions...
+;module
 (env-push)
 
 (defq +opt_sxx_cr_ops
@@ -111,7 +110,7 @@
 					(elem-set p inst_list (lambda)))
 			)))
 
-;export to the outside environment and wipe the temp environment.
+;module
 (export (penv)
 	opt-inst-list)
 (env-pop)

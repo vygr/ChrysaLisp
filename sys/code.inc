@@ -392,15 +392,8 @@
 					(list line))))) lines)
 	prog)
 
-;;;;;;;;;
-; cscript
-;;;;;;;;;
-
-(include "lib/asm/cscript.inc")
-(include "lib/asm/csopt.inc")
-
-;;;;;;;;;;;;
-; assignment
-;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;
+; assignment and cscript
+;;;;;;;;;;;;;;;;;;;;;;;;
 
 (include "lib/asm/assign.inc")

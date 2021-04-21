@@ -2,6 +2,9 @@
 ; options prosessing
 ;;;;;;;;;;;;;;;;;;;;
 
+;module
+(env-push)
+
 (defun options-print (&rest _)
 	; (options-print &rest _)
 	(stream-flush (write (io-stream 'stdout)
@@ -33,3 +36,8 @@
 				(setq args '() out_args nil))
 			;arg to output
 			(push out_args arg))) out_args)
+
+;module
+(export (penv)
+	options)
+(env-pop)
