@@ -312,9 +312,9 @@
 	;load register list from iter
 	(cond
 		((eql type nil)
-			(assign-asm-to-asm regs (map (lambda (r) (list i (* +long_size _))) regs)))
+			(assign regs (map (lambda (r) (list i (* +long_size _))) regs)))
 		(t	(defq s (type-to-size type))
-			(assign-asm-to-asm regs (map (lambda (r) (list i (* s _) type)) regs)))))
+			(assign regs (map (lambda (r) (list i (* s _) type)) regs)))))
 
 (defun array-get-args (i regs &optional type)
 	;inputs
@@ -324,9 +324,9 @@
 	;save register list to iter
 	(cond
 		((eql type nil)
-			(assign-asm-to-asm (map (lambda (r) (list i (* +long_size _))) regs) regs))
+			(assign (map (lambda (r) (list i (* +long_size _))) regs) regs))
 		(t	(defq s (type-to-size type))
-			(assign-asm-to-asm (map (lambda (r) (list i (* s _) type)) regs) regs))))
+			(assign (map (lambda (r) (list i (* s _) type)) regs) regs))))
 
 (defun array-map-args (regs pos)
 	;inputs

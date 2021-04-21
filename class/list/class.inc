@@ -37,7 +37,7 @@
 	;'({:num :str :char _} ...)
 	;outputs
 	;cast register list
-	(assign-asm-to-asm (map (lambda (r _)
+	(assign (map (lambda (r _)
 		(case _
 			((:num :fixed :real) (list r num_value))
 			(:str (list '& r str_data))

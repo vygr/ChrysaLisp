@@ -105,4 +105,4 @@
 ;;;;;;;;;;;;;;;;;;
 
 (defun class/num/get_values (src &optional dst)
-	(assign-asm-to-asm (map (lambda (_) (list _ num_value)) src) (opt dst src)))
+	(assign (map (lambda (_) (list _ num_value)) src) (opt dst src)))
