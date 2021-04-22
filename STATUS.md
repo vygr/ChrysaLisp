@@ -7,14 +7,15 @@
 Rename 'local-align' just 'align' as it's no longer a function but a simple
 symbol.
 
-New Element room for Chrysalisp OS, #ChrysaLisp-OS:matrix.org, unfortunately
-Gary Boyd admin of the old room has gone dark, I sincerely hope he is OK. But we
-must move to another room where there is admin access.
+New Element room for Chrysalisp OS, #ChrysaLisp-OS@matrix.org, unfortunately
+Gary Boyd admin of the old room has gone dark, I sincerely hope he is OK. But
+we must move to another room where there is admin access.
 
 New `(setf-> msg field ...)` macro and extended `(set-field) (get-field)`
 functions to ease message creation.
 
-New `(export env sym ...)` macro to go along with `(env-push) ... (env-pop)`.
+New `(export env sym ...)` macro to go along with `(env-push) ... (env-pop)`. A
+new Module technique !
 
 ------
 

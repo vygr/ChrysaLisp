@@ -240,3 +240,44 @@ beyond the default of 1, if it's going to contain an extremely large number of
 symbol bindings ! Environments are just a chain of hash maps, and there is a
 trade off to be made between a single bucket and its great cache line affects
 and massive amounts of entries swamping those cache affects !
+
+### Modules
+
+A module is an imported library or class that prepares or defines its own
+internal workings within a transient environment and then exports only those
+symbols and functions it wishes to be know externally.
+
+First of all a new empty environment is pushed using `(env-push)`. Then you are
+free to define new functions and variables, constants etc and use them to
+construct other functions and classes. These symbols will not be visible to the
+outside world, only the symbols functions and classes you deliberately export
+with the `(export env sym1 ...)` macro.
+
+In effect all your 'workings' will be turned into anonymous references due to
+the effect of `(prebind)` as the library is read in via the `(repl ...)` !
+
+```vdu
+;module
+(env-push)
+
+...
+
+(defun xyz (p1 p2)
+	...)
+
+(defun yzx (p1 p2)
+	...)
+
+(defun myfunc (a b c)
+	(xyz a (yzx b c)))
+
+...
+
+;module
+(export (penv)
+	myfunc ...)
+(env-pop)
+```
+
+Here the functions `(xyz p1 p2) (yzx p1 p2)` are not visible to the outside,
+only the final `(myfunc a b c)`.

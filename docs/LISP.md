@@ -17,7 +17,7 @@ scope, but again this was too good an efficiency feature to miss out on. So you
 do have to be careful not to create cycles, so think about how your code works.
 
 No tail recursion optimization ! There is a single looping function provided in
-native code, `(while)`, every other looping constructs build on this primitive.
+native code, `(while)`, every other looping construct builds on this primitive.
 There are also two native primitives `(some!)` and `(each!)` that provide
 generic access to iterating over a slice of a sequence/s, while calling a
 function on the grouped elements. Standard `(some)` and `(each)` are built on
