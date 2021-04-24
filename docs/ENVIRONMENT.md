@@ -245,12 +245,12 @@ and massive amounts of entries swamping those cache affects !
 
 A module is an imported library or class that prepares or defines its own
 internal workings within a transient environment and then exports only those
-symbols and functions it wishes to be know externally.
+symbols and functions it wishes to be known externally.
 
 First of all a new empty environment is pushed using `(env-push)`. Then you are
 free to define new functions and variables, constants etc and use them to
 construct other functions and classes. These symbols will not be visible to the
-outside world, only the symbols functions and classes you deliberately export
+outside world, only the symbols, functions and classes you deliberately export
 with the `(export env sym1 ...)` macro.
 
 In effect all your 'workings' will be turned into anonymous references due to

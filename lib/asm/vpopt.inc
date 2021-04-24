@@ -95,10 +95,11 @@
 		(cond
 			;read after read/write
 			((defq c (find-rev (defq o (elem 0 e)) +opt_emit_read_ops))
-				(when (defq w (opt-emit-find-rw (const opt-emit-trashes-reads?) _
-								(elem c +opt_emit_read_ops)
-								(elem c +opt_emit_write_ops)
-								(elem 1 e) (eval (elem 2 e))))
+				(when (defq w (opt-emit-find-rw
+						(const opt-emit-trashes-reads?) _
+						(elem c +opt_emit_read_ops)
+						(elem c +opt_emit_write_ops)
+						(elem 1 e) (eval (elem 2 e))))
 					(defq r (elem c (elem w emit_list)))
 					(when (not (some! (inc w) _ nil (lambda (_)
 							(opt-emit-trashes? r _)) (list emit_list)))
@@ -108,16 +109,20 @@
 								`(emit-cpy-rr ,r ,(elem 3 e)))))))
 			;write after write
 			((defq c (find-rev o +opt_emit_write_ops1))
-				(when (defq w (opt-emit-find-rw1 (const opt-emit-trashes-with-kills?) _
-								(elem c +opt_emit_read_ops1)
-								(elem c +opt_emit_read_ops2)
-								(elem c +opt_emit_write_ops1)
-								(elem 2 e) (eval (elem 3 e))))
+				(when (defq w (opt-emit-find-rw1
+						(const opt-emit-trashes-with-kills?) _
+						(elem c +opt_emit_read_ops1)
+						(elem c +opt_emit_read_ops2)
+						(elem c +opt_emit_write_ops1)
+						(elem 2 e) (eval (elem 3 e))))
 					(when (= c 1)
 						(elem-set w emit_list (lambda)))))
 			;redundant copies
 			((eql o 'emit-cpy-rr)
-				(when (opt-emit-find-rr (const opt-emit-trashes-with-calls?) _ (elem 2 e) (elem 1 e))
+				(when (opt-emit-find-rr
+						(const opt-emit-trashes-with-calls?) _
+						(elem 2 e)
+						(elem 1 e))
 					(elem-set _ emit_list (lambda))))
 			))
 		(list emit_list)))
