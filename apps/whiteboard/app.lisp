@@ -5,6 +5,9 @@
 (enums +select 0
 	(enum main picker timer))
 
+(bits +layer 0
+	(bit commited overlay))
+
 (defun trans (_)
 	;transparent colour
 	(+ (logand 0xffffff _) 0x60000000))
@@ -16,7 +19,7 @@
 	stroke_col (elem 0 palette) stroke_mode +event_pen commited_polygons (list) overlay_paths (list)
 	radius_buttons (list) style_buttons (list) ink_buttons (list) mode_buttons (list)
 	picker_mbox nil picker_mode nil select (list (task-mailbox) (mail-alloc-mbox) (mail-alloc-mbox))
-	rate (/ 1000000 60))
+	rate (/ 1000000 60) +layer_all (+ +layer_commited +layer_overlay))
 
 (ui-window mywindow ()
 	(ui-title-bar _ "Whiteboard" (0xea19 0xea1b 0xea1a) +event_close)
@@ -82,29 +85,29 @@
 	(push undo_stack (cat commited_polygons))
 	(clear redo_stack))
 
+(defun redraw-layers (mask)
+	;redraw layer/s
+	(elem-set +dlist_commited_polygons dlist (cat commited_polygons))
+	(elem-set +dlist_overlay_paths dlist (cat overlay_paths))
+	(elem-set +dlist_mask dlist (logior (elem +dlist_mask dlist) mask)))
+
 (defun undo ()
 	;move state from undo to redo stack and restore old state
 	(when (/= 0 (length undo_stack))
 		(push redo_stack commited_polygons)
 		(setq commited_polygons (pop undo_stack))
-		(redraw-layers 1)))
+		(redraw-layers +layer_commited)))
 
 (defun redo ()
 	;move state from redo to undo stack and restore old state
 	(when (/= 0 (length redo_stack))
 		(push undo_stack commited_polygons)
 		(setq commited_polygons (pop redo_stack))
-		(redraw-layers 1)))
+		(redraw-layers +layer_commited)))
 
 (defun commit (p)
 	;commit a stroke to the canvas
 	(push commited_polygons (flatten p)))
-
-(defun redraw-layers (mask)
-	;redraw layer/s
-	(elem-set +dlist_commited_polygons dlist (cat commited_polygons))
-	(elem-set +dlist_overlay_paths dlist (cat overlay_paths))
-	(elem-set +dlist_mask dlist (logior (elem +dlist_mask dlist) mask)))
 
 (defun fpoly (canvas col mode _)
 	;draw a polygon on a canvas
@@ -113,12 +116,13 @@
 
 (defun redraw (dlist)
 	;redraw layer/s
-	(when (/= 0 (logand (elem +dlist_mask dlist) 1))
+	(when (/= 0 (logand (elem +dlist_mask dlist) +layer_commited))
 		(defq canvas (elem +dlist_commited_canvas dlist))
 		(. canvas :fill 0)
-		(each (lambda ((col poly)) (fpoly canvas col +winding_none_zero poly)) (elem +dlist_commited_polygons dlist))
+		(each (lambda ((col poly))
+			(fpoly canvas col +winding_none_zero poly)) (elem +dlist_commited_polygons dlist))
 		(. canvas :swap))
-	(when (/= 0 (logand (elem +dlist_mask dlist) 2))
+	(when (/= 0 (logand (elem +dlist_mask dlist) +layer_overlay))
 		(defq canvas (elem +dlist_overlay_canvas dlist))
 		(. canvas :fill 0)
 		(each (lambda (p)
@@ -129,7 +133,7 @@
 
 (defun main ()
 	;ui tree initial setup
-	(defq dlist (list 3 commited_canvas overlay_canvas (list) (list)))
+	(defq dlist (list +layer_all commited_canvas overlay_canvas (list) (list)))
 	(. commited_canvas :set_canvas_flags +canvas_flag_antialias)
 	(. overlay_canvas :set_canvas_flags +canvas_flag_antialias)
 	(. mybackdrop :set_size canvas_width canvas_height)
@@ -189,7 +193,7 @@
 						;clear
 						(snapshot)
 						(clear commited_polygons)
-						(redraw-layers 1))
+						(redraw-layers +layer_commited))
 					((= id +event_undo)
 						;undo
 						(undo))
@@ -221,15 +225,15 @@
 															(const eps) stroke)
 														(path-filter (const tol) stroke stroke)
 														(setq last_point new_point last_mid_point mid_point)
-														(redraw-layers 2)))
+														(redraw-layers +layer_overlay)))
 												(t	;a shape mode
 													(elem-set +path_path (elem -2 overlay_paths) (cat last_point new_point))
-													(redraw-layers 2)))
+													(redraw-layers +layer_overlay)))
 											)
 										(:u	;was up last time, so start new stroke
 											(setq last_state :d last_point new_point last_mid_point new_point)
 											(push overlay_paths (list stroke_mode stroke_col stroke_radius new_point))
-											(redraw-layers 2))))
+											(redraw-layers +layer_overlay))))
 								(t	;mouse button is up
 									(case last_state
 										(:d	;was down last time, so last point and commit stroke
@@ -240,7 +244,7 @@
 											(path-filter 0.5 stroke stroke)
 											(each commit overlay_paths)
 											(clear overlay_paths)
-											(redraw-layers 3))
+											(redraw-layers +layer_all))
 										(:u	;was up last time, so we are hovering
 											t))))))
 					(t	(. mywindow :event msg))))
@@ -263,7 +267,7 @@
 								(setq commited_polygons (map (lambda ((c p))
 									(list c (map (lambda (_)
 										(apply path _)) p))) (elem 1 data)))
-								(redraw-layers 1))))))
+								(redraw-layers +layer_commited))))))
 			(t	;timer event
 				(mail-timeout (elem +select_timer select) rate)
 				(redraw dlist))))
