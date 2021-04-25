@@ -22,7 +22,7 @@
 
 (defun main ()
 	;if analog clear clock face
-	(if clock (.-> clock (:fill 0) (:set_canvas_flags 1)))
+	(if clock (.-> clock (:fill 0) (:set_canvas_flags +canvas_flag_antialias)))
 	;create child and send args
 	(defq mbox (open-child "apps/clock/child.lisp" +kn_call_open))
 	;multiply size and scale, as they are only used together in child.

@@ -62,7 +62,7 @@
 	(bind '(pcb_width pcb_height pcb_depth) (elem 0 pcb))
 	(defq canvas (Canvas (* (+ pcb_width 4) (f2i zoom)) (* (+ pcb_height 4) (f2i zoom)) canvas_scale)
 		zoom (* zoom (i2f canvas_scale)) pcb_border (* zoom 2.0))
-	(.-> canvas (:set_canvas_flags 1) (:fill +argb_black))
+	(.-> canvas (:set_canvas_flags +canvas_flag_antialias) (:fill +argb_black))
 	(if (= mode 1)
 		(pcb-draw-gerber)
 		(pcb-draw-normal))
@@ -87,7 +87,7 @@
 				(lambda (layer color)
 					(.-> canvas
 						(:set_color color)
-						(:fpoly pcb_border pcb_border 1 layer)))
+						(:fpoly pcb_border pcb_border +winding_none_zero layer)))
 				(list layers colors))
 			;draw vias
 			(each (lambda (path_2d)
@@ -97,9 +97,9 @@
 						(setq x (+ x pcb_border) y (+ y pcb_border))
 						(.-> canvas
 							(:set_color (const (trans +argb_white)))
-							(:fpoly x y 0 (circle via_radius))
+							(:fpoly x y +winding_odd_even (circle via_radius))
 							(:set_color (const (trans +argb_black)))
-							(:fpoly x y 0 (circle (/ via_radius 2.0)))))
+							(:fpoly x y +winding_odd_even (circle (/ via_radius 2.0)))))
 					(list path_2d))
 				) batched_paths_2d))
 		;draw pads
@@ -112,12 +112,12 @@
 				(cond
 					((= (length pad_shape) 0)
 						;circular pad
-						(. canvas :fpoly pad_x pad_y 0 (circle pad_radius)))
+						(. canvas :fpoly pad_x pad_y +winding_odd_even (circle pad_radius)))
 					((= (length pad_shape) 4)
 						;oval pad
-						(. canvas :fpoly pad_x pad_y 0 (oval pad_radius pad_shape)))
+						(. canvas :fpoly pad_x pad_y +winding_odd_even (oval pad_radius pad_shape)))
 					(t	;polygon pad
-						(. canvas :fpoly pad_x pad_y 0 (list pad_shape)))))) pads)
+						(. canvas :fpoly pad_x pad_y +winding_odd_even (list pad_shape)))))) pads)
 		) (list pcb)))
 
 (defun pcb-draw-gerber ()
@@ -142,14 +142,14 @@
 							eps +join_round +cap_round +cap_round (list seg_2d)))
 					) p path_2d)
 				) batched_paths batched_paths_2d)
-			(. canvas :fpoly pcb_border pcb_border 1 layer)
+			(. canvas :fpoly pcb_border pcb_border +winding_none_zero layer)
 			;draw vias
 			(each (lambda (path_2d)
 				(each! 1 -1
 					(lambda (seg_2d)
 						(bind '(x y) (slice 0 2 seg_2d))
 						(setq x (+ x pcb_border) y (+ y pcb_border))
-						(. canvas :fpoly x y 0 (circle (+ via_radius (if with_gaps track_gap 0.0)))))
+						(. canvas :fpoly x y +winding_odd_even (circle (+ via_radius (if with_gaps track_gap 0.0)))))
 					(list path_2d))
 				) batched_paths_2d))
 		;draw pads
@@ -161,15 +161,15 @@
 				(cond
 					((= (length pad_shape) 0)
 						;circular pad
-						(. canvas :fpoly pad_x pad_y 0 (circle (+ pad_radius (if with_gaps pad_gap 0.0)))))
+						(. canvas :fpoly pad_x pad_y +winding_odd_even (circle (+ pad_radius (if with_gaps pad_gap 0.0)))))
 					((= (length pad_shape) 4)
 						;oval pad
-						(. canvas :fpoly pad_x pad_y 0 (oval (+ pad_radius (if with_gaps pad_gap 0.0)) pad_shape)))
+						(. canvas :fpoly pad_x pad_y +winding_odd_even (oval (+ pad_radius (if with_gaps pad_gap 0.0)) pad_shape)))
 					(t	;polygon pad
 						(if with_gaps
-							(. canvas :fpoly pad_x pad_y 0
+							(. canvas :fpoly pad_x pad_y +winding_odd_even
 								(path-stroke-polygons (list) pad_gap eps +join_round (list pad_shape)))
-							(. canvas :fpoly pad_x pad_y 0
+							(. canvas :fpoly pad_x pad_y +winding_odd_even
 								(list pad_shape))))))
 			) pads)
 		) (list pcb)))

@@ -22,6 +22,12 @@
 (bits +load_flag 0
 	(bit shared film noswap))
 
+(bits +canvas_flag 0
+	(bit antialias))
+
+(enums +winding 0
+	(enum odd_even none_zero))
+
 (defclass Canvas-base () (View)
 	(def this :color 0)
 
@@ -69,9 +75,9 @@
 		; (. canvas :fbox x y width height) -> canvas
 		((const (ffi _ "gui/canvas/lisp_fbox" 0)) this x y))
 
-	(defmethod :fpoly (this x y mode paths)
-		; (. canvas :fpoly x y mode paths) -> canvas
-		((const (ffi _ "gui/canvas/lisp_fpoly" 0)) this x y mode paths))
+	(defmethod :fpoly (this x y winding_mode paths)
+		; (. canvas :fpoly x y winding_mode paths) -> canvas
+		((const (ffi _ "gui/canvas/lisp_fpoly" 0)) this x y winding_mode paths))
 
 	(defmethod :pref_size (this)
 		; (. canvas :pref_size) -> (width height)

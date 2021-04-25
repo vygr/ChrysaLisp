@@ -46,9 +46,9 @@
 	(.-> clock
 		(:fill 0)
 		(:set_color +argb_white)
-		(:fpoly 0.0 0.0 0 (slice 0 1 face))
+		(:fpoly 0.0 0.0 +winding_odd_even (slice 0 1 face))
 		(:set_color +argb_black)
-		(:fpoly 0.0 0.0 0 face))
+		(:fpoly 0.0 0.0 +winding_odd_even face))
 
 	;hour and minute hands
 	(defq _ (path-stroke-polylines (list) (const (* scale 0.02)) eps +join_miter +cap_round +cap_tri
@@ -56,18 +56,18 @@
 			(transform (path 0.0 0.04 0.0 -0.33) (/ (* minutes +fp_2pi) 60.0) scale))))
 	(.-> clock
 		(:set_color 0xa0000000)
-		(:fpoly (const (* scale 0.01)) (const (* scale 0.01)) 1 _)
+		(:fpoly (const (* scale 0.01)) (const (* scale 0.01)) +winding_none_zero _)
 		(:set_color +argb_green)
-		(:fpoly 0.0 0.0 1 _))
+		(:fpoly 0.0 0.0 +winding_none_zero _))
 
 	;second hand
 	(defq _ (path-stroke-polylines (list) (const (* scale 0.01)) eps +join_miter +cap_round +cap_tri
 		(list (transform (path 0.0 0.04 0.0 -0.38) (/ (* (% seconds 60.0) +fp_2pi) 60.0) scale))))
 	(.-> clock
 		(:set_color 0xa0000000)
-		(:fpoly (const (* scale 0.01)) (const (* scale 0.01)) 0 _)
+		(:fpoly (const (* scale 0.01)) (const (* scale 0.01)) +winding_odd_even _)
 		(:set_color +argb_red)
-		(:fpoly 0.0 0.0 0 _))
+		(:fpoly 0.0 0.0 +winding_odd_even _))
 	)
 
 (defun main ()

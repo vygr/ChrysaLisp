@@ -70,7 +70,7 @@
 
 (defun fpoly (canvas col x y _)
 	;draw a polygon on a canvas
-	(.-> canvas (:set_color col) (:fpoly x y 0 _)))
+	(.-> canvas (:set_color col) (:fpoly x y +winding_odd_even _)))
 
 (defun circle (r)
 	;cached circle generation, quantised to 1/4 pixel
@@ -125,7 +125,7 @@
 	;ui tree initial setup
 	(defq dlist (list 0 light_pos layer1_canvas (list))
 		select (list (task-mailbox) (mail-alloc-mbox)))
-	(. layer1_canvas :set_canvas_flags 1)
+	(. layer1_canvas :set_canvas_flags +canvas_flag_antialias)
 	(. mybackdrop :set_size canvas_width canvas_height)
 	(radio-select style_buttons 0)
 	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))

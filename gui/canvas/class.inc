@@ -45,3 +45,11 @@
 ;load flags
 (def-bit load_flag 0
 	(bit shared film noswap))
+
+;flags
+(def-bit canvas_flag 0
+	(bit antialias))
+
+;winding
+(def-enum winding 0
+	(enum odd_even none_zero))

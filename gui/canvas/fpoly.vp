@@ -161,7 +161,7 @@
 	;r0 = canvas object (ptr)
 	;r1 = x (fixed)
 	;r2 = y (fixed)
-	;r3 = winding mode (0/1)
+	;r3 = winding mode (winding_odd_even, winding_none_zero)
 	;r4 = list of path objects (ptr)
 	;outputs
 	;r0 = canvas object (ptr)
@@ -355,7 +355,7 @@
 				;draw spans for mode
 				(vp-def (this c x1 ys x2 w v tracker_node) (method-input 'canvas :span))
 				(assign {mode, this, &tracker_list} (list v this tracker_node))
-				(vpif (list v '= 0))
+				(vpif (list v '= winding_odd_even))
 					;odd even
 					(loop-start)
 						(ln-next-fnode tracker_node tracker_node)
