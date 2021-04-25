@@ -125,8 +125,8 @@ Will emit:
 Passing a string parameter will invoke the C-Script parser and compiler ! This
 is where things start to get quite high level for an assembler ! This basic C
 style expression compiler is just an assembler macro set, you can look at the
-implementation in detail in the `sys/code.inc` file. It's quite a simple, parse
--> reverse-polish -> compile -> optimise -> emit.
+implementation in detail in the `lib/asm/cscript.inc` file. It's quite a
+simple, tokenize -> reverse-polish -> compile -> optimise -> emit.
 
 While it's possible to use the compilation to do basic things like math, it
 really starts to get interesting when combined with some other functions that

@@ -116,7 +116,7 @@
 
 ```lisp
 
-(. canvas :fpoly x y mode paths) -> canvas
+(. canvas :fpoly x y winding_mode paths) -> canvas
 
 ```
 

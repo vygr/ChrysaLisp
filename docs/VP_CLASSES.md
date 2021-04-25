@@ -765,7 +765,7 @@ inputs
 r0 = canvas object (ptr)
 r1 = x (fixed)
 r2 = y (fixed)
-r3 = winding mode (0/1)
+r3 = winding mode (winding_odd_even, winding_none_zero)
 r4 = list of path objects (ptr)
 outputs
 r0 = canvas object (ptr)
