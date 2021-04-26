@@ -9,9 +9,8 @@
 	; (Label) -> label
 	(defq label_flow (Flow) label_text (Text))
 	(def this :label_flow label_flow :label_text label_text)
-	(. label_flow :set_flags 0 -1)
+	(.-> label_flow (:set_flags 0 -1) (:add_child label_text))
 	(. this :add_back label_flow)
-	(. label_flow :add_child label_text)
 
 	(defmethod :draw (this)
 		; (. label :draw) -> label

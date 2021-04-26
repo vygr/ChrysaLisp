@@ -450,7 +450,7 @@
 		(call 'canvas :create {w, h, 2} {sym_canvas})
 		(assign {+argb_white, 1} {sym_canvas->canvas_color, sym_canvas->canvas_flags})
 		(call 'font :get_metrics {this} {_, h, _, _})
-		(call 'canvas :fpoly {sym_canvas, 0, h << (+fp_shift + 1), 0, paths})
+		(call 'canvas :fpoly {sym_canvas, 0, h << (+fp_shift + 1), winding_odd_even, paths})
 
 		;take texture from canvas
 		(call 'canvas :swap {sym_canvas})

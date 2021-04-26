@@ -34,7 +34,7 @@
 	(. vdu :load buf 0 0 (length (elem -2 buf)) (dec (length buf))) buf)
 
 (defun broadcast (text)
-	(setq text (cat "<" (get :text chat_user) "> " text (ascii-char 10)))
+	(setq text (cat "<" (get :clear_text chat_user) "> " text (ascii-char 10)))
 	(each (# (mail-send (to-net-id (elem 1 (split %0 ","))) text)) (mail-enquire "CHAT_SERVICE")))
 
 (defun main ()
@@ -65,8 +65,8 @@
 					(setq entry nil)))
 			((= id +event_send)
 				;send to network
-				(broadcast (get :text chat_text))
-				(set chat_text :text "")
+				(broadcast (get :clear_text chat_text))
+				(set chat_text :clear_text "")
 				(.-> chat_text :layout :dirty))
 			(t (. mywindow :event msg))))
 	(when entry
