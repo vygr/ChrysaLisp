@@ -1,7 +1,4 @@
 ;class lisp bindings
-(ffi stream-avail "class/stream/lisp_available" 0)
-(ffi stream-flush "class/stream/lisp_write_flush" 0)
-(ffi stream-seek "class/stream/lisp_seek" 0)
 (import "class/num/lisp.inc")
 (import "class/fixed/lisp.inc")
 (import "class/nums/lisp.inc")
