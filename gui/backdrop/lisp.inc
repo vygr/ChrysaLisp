@@ -30,11 +30,11 @@
 				(.-> this
 					(:ctx_filled_box (>> w 1) 0 1 h)
 					(:ctx_filled_box 0 (>> h 1) w 1))
-				(defq x (- (% (>> w 1) spaceing) spaceing) y (- (>> h 1) 16))
+				(defq x (- (% (>> w 1) spaceing) spaceing) y (- (>> h 1) (/ spaceing 2)))
 				(while (< x w)
 					(. this :ctx_filled_box x y 1 spaceing)
 					(setq x (+ x spaceing)))
-				(setq y (- (% (>> h 1) spaceing) spaceing) x (- (>> w 1) 16))
+				(setq y (- (% (>> h 1) spaceing) spaceing) x (- (>> w 1) (/ spaceing 2)))
 				(while (< y h)
 					(. this :ctx_filled_box x y spaceing 1)
 					(setq y (+ y spaceing))))
