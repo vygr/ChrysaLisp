@@ -110,11 +110,11 @@ The system maintains a directory of these service names and the corresponding
 process `net_id`s. An example service is the current GUI `DEBUG_SERVICE`
 application `apps/debug/app.lisp`.
 
-### Example
+### VP example
 
-This is a network monitoring application child process `apps/netmon/child.vp`.
-The child process simply waits for a command message from the parent and either
-exits or returns a message containing task and memory usage information.
+This is a network monitoring application child process. The child process
+simply waits for a command message from the parent and either exits or returns
+a message containing task and memory usage information.
 
 `'sys_mail :mymail` is just a convenience function to read mail from the
 current tasks main mailbox.
@@ -183,3 +183,60 @@ contain a single 64bit value of the current time. This can be used for
 animation callback purposes or in combination with `'sys_mail :select` to
 provided timed mailbox read functionality. If the time delay given is 0 the
 call will remove the entry from the timer list.
+
+### Lisp example using getf, setf, setf-> and str-alloc
+
+In order to ease simple message construction sending and receiving, you can use
+the `(structure)` macros in conjunction with raw string allocation and the
+field access macros `(getf) (setf) (setf->)` !
+
+Let's look at the Netmon application as an example. This application creates a
+child task on each network node by use of the `(Global)` class and polls each
+child to request node specific information.
+
+The application defines a polling message structure in the
+`apps/netmon/app.inc` file.
+
+```vdu
+(structure +reply 0
+	(nodeid node)
+	(uint task_count mem_used))
+```
+
+Looking at the parent task `apps/netmon/app.lisp` it then sends out, at regular
+intervals, a polling message to each child task, that consists of the parents
+reply mailbox. Note that the `(elem +select_reply select)` will just be the
+mailbox id string returned from its earlier call to `(mail-alloc-mbox)`.
+
+```vdu
+(defun poll (key val)
+	; (poll key val)
+	;function called to poll entry
+	(unless (eql (defq child (. val :find :child)) (const (pad "" +net_id_size)))
+		(mail-send child (elem +select_reply select))))
+```
+
+The child task `apps/netmon/child.lisp`, within its event loop, receives and
+replies to the parent request by using `(str-alloc)` and `(setf->)` to build
+the reply message.
+
+```vdu
+...
+	(bind '(task_count mem_used) (kernel-stats))
+	(mail-send msg (setf-> (str-alloc +reply_size)
+		(+reply_node (slice +long_size -1 (task-mailbox)))
+		(+reply_task_count task_count)
+		(+reply_mem_used mem_used)))
+...
+```
+
+On receipt of the child's reply the parent unpacks the response using `(getf)`.
+
+```vdu
+...
+	;child poll response
+	(when (defq val (. global_tasks :find (getf msg +reply_node)))
+		(defq task_val (getf msg +reply_task_count)
+			memory_val (getf msg +reply_mem_used)))
+...
+```
