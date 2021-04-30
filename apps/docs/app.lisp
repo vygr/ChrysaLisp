@@ -7,7 +7,7 @@
 (enums +event 0
 	(enum close button))
 
-(defq +margin_width (* 8 3) syntax (Syntax) handlers (emap)
+(defq +margin_width (* 8 3) syntax (Syntax) handlers (emap) scroll_pos (xmap)
 	doc_list '("VP_VM" "VP_ASSIGNMENT" "VP_STRUCTURE" "VP_FUNCTIONS" "VP_CLASSES"
 	"LISP" "ENVIRONMENT" "CONDITIONALS" "ITERATION" "COMMS" "SYNTAX"
 	"TERMINAL" "COMMANDS" "DIARY"
@@ -29,8 +29,9 @@
 	((. handlers :find state) state page "")
 	(bind '(w h) (. page_flow :pref_size))
 	(. page_flow :change 0 0 w h)
-	(.-> page_scroll (:add_child page_flow) (:layout))
 	(def page_scroll :min_width w)
+	(def (get :vslider page_scroll) :value (if (defq pos (. scroll_pos :find file)) pos 0))
+	(.-> page_scroll (:add_child page_flow) (:layout))
 	(.-> doc_flow :layout :dirty_all))
 
 (ui-window mywindow (:color +argb_grey15)
@@ -43,13 +44,14 @@
 		(ui-scroll page_scroll +scroll_flag_vertical (:min_height 900))))
 
 (defun main ()
-	(populate-page (elem 0 doc_list))
+	(populate-page (defq file (elem 0 doc_list)))
 	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
 	(gui-add (. mywindow :change x y w h))
 	(while (cond
 		((= (defq id (getf (defq msg (mail-read (task-mailbox))) +ev_msg_target_id)) +event_close)
 			nil)
 		((= id +event_button)
-			(populate-page (get :text (. mywindow :find_id (getf msg +ev_msg_action_source_id)))))
+			(. scroll_pos :insert file (get :value (get :vslider page_scroll)))
+			(populate-page (setq file (get :text (. mywindow :find_id (getf msg +ev_msg_action_source_id))))))
 		(t (. mywindow :event msg))))
 	(. mywindow :hide))
