@@ -2392,6 +2392,14 @@
 
 ```
 
+## handler
+
+```lisp
+
+(handler state page line) -> state
+
+```
+
 ## hash
 
 ```lisp

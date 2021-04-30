@@ -1,5 +1,4 @@
 ## cat
- 
 ```lisp
 Usage: cat [options] [path] ...
 	options:
@@ -9,7 +8,6 @@ Usage: cat [options] [path] ...
 
 ```
 ## dump
- 
 ```lisp
 Usage: dump [options] [path] ...
 	options:
@@ -19,7 +17,6 @@ Usage: dump [options] [path] ...
 
 ```
 ## echo
- 
 ```lisp
 Usage: echo [options] arg ...
 	options:
@@ -27,7 +24,6 @@ Usage: echo [options] arg ...
 
 ```
 ## files
- 
 ```lisp
 Usage: file [options] [prefix] [postfix]
 	options:
@@ -40,7 +36,6 @@ Usage: file [options] [prefix] [postfix]
 
 ```
 ## gui
- 
 ```lisp
 Usage: gui [node ...]
 	options:
@@ -50,7 +45,6 @@ Usage: gui [node ...]
 
 ```
 ## head
- 
 ```lisp
 Usage: head [options file]
 	options:
@@ -61,7 +55,6 @@ Usage: head [options file]
 
 ```
 ## link
- 
 ```lisp
 Usage: link [options] 000-000 ...
 	options:
@@ -72,7 +65,6 @@ Usage: link [options] 000-000 ...
 
 ```
 ## lisp
- 
 ```lisp
 Usage: lisp [options] [path] ...
 	options:
@@ -82,7 +74,6 @@ Usage: lisp [options] [path] ...
 
 ```
 ## make
- 
 ```lisp
 Usage: make [options] [all] [boot] [platforms] [doc] [it]
     options:
@@ -95,7 +86,6 @@ Usage: make [options] [all] [boot] [platforms] [doc] [it]
 
 ```
 ## nodes
- 
 ```lisp
 Usage: nodes [options]
 	options:
@@ -103,7 +93,6 @@ Usage: nodes [options]
 
 ```
 ## null
- 
 ```lisp
 Usage: null [options]
 	options:
@@ -111,7 +100,6 @@ Usage: null [options]
 
 ```
 ## sdir
- 
 ```lisp
 Usage: sdir [options] [prefix]
 	options:
@@ -119,7 +107,6 @@ Usage: sdir [options] [prefix]
 
 ```
 ## shuffle
- 
 ```lisp
 Usage: shuffle [options] [line] ...
 	options:
@@ -129,7 +116,6 @@ Usage: shuffle [options] [line] ...
 
 ```
 ## slice
- 
 ```lisp
 Usage: slice [options]
 	options:
@@ -140,7 +126,6 @@ Usage: slice [options]
 
 ```
 ## sort
- 
 ```lisp
 Usage: sort [options] [line] ...
 	options:
@@ -150,7 +135,6 @@ Usage: sort [options] [line] ...
 
 ```
 ## split
- 
 ```lisp
 Usage: split [options]
 	options:
@@ -163,7 +147,6 @@ Usage: split [options]
 
 ```
 ## tail
- 
 ```lisp
 Usage: tail [options file]
 	options:
@@ -174,7 +157,6 @@ Usage: tail [options file]
 
 ```
 ## tee
- 
 ```lisp
 Usage: tee [options] [path] ...
 	options:
@@ -183,7 +165,6 @@ Usage: tee [options] [path] ...
 
 ```
 ## tocpm
- 
 ```lisp
 Usage: tocmp [options] [path] ...
 	options:
@@ -195,7 +176,6 @@ Usage: tocmp [options] [path] ...
 
 ```
 ## unique
- 
 ```lisp
 Usage: unique [options] [line] ...
 	options:
@@ -205,7 +185,6 @@ Usage: unique [options] [line] ...
 
 ```
 ## wc
- 
 ```lisp
 
 usage: wc [-h] [-v] [-f :file] [-l] [-w] [-c]
@@ -221,7 +200,6 @@ details:
 
 ```
 ## wcseg
- 
 ```lisp
 usage: wcseg [-h] [-v] [-f] [-l] [-w] [-c] {} ...
 

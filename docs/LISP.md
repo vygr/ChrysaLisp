@@ -28,7 +28,7 @@ like `(map)`, `(filter)`, `(reduce)`, `(each)` etc. I've not found the lack of
 tail recursion a problem.
 
 There is no `(return)` statement !!! Functions run till they naturally exit,
-there is no option to break out in the middle of a loop and `(return)`... I
+there is no option to break out in the middle of a loop and `(return)` ... I
 view this as promoting a clean functional design, but you might like to
 disagree ;)
 

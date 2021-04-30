@@ -96,7 +96,11 @@ in the right direction. To see it run, just copy this into a file called
 Of note:
 
 * Line  6 - Import to use functions from the Lisp class include
+
 * Line  9 - Main entry point of command
+
 * Line 11 - Creates `stdin stdout stderr and args` in the command environment and tests for success
+
 * Line 19 - Fetches the arguments list passed to the command and omit the first entry which is the name of the command
+
 * Lines 21 through 25 - The body of the command
