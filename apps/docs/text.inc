@@ -1,5 +1,3 @@
-;text section handler
-
 ;module
 (env-push)
 

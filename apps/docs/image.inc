@@ -1,5 +1,3 @@
-;image section handler
-
 ;module
 (env-push)
 

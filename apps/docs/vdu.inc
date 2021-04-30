@@ -1,5 +1,3 @@
-;vdu section handler
-
 ;module
 (env-push)
 
@@ -16,8 +14,8 @@
 				:ink_color +argb_black)
 			(bind '(w h) (. vdu :pref_size))
 			(. vdu :change 0 0 w h)
-			(. coloriser :set_state :text)
-			(. vdu :load (map (# (. coloriser :colorise %0)) (cat '("") lines '(""))) 0 0 0 1000)
+			(. syntax :set_state :text)
+			(. vdu :load (map (# (. syntax :colorise %0)) (cat '("") lines '(""))) 0 0 0 1000)
 			(def (defq backdrop (Backdrop))
 				:color +argb_grey1
 				:min_width w
@@ -27,7 +25,7 @@
 			(.-> page (:add_child backdrop) (:add_child text))
 			(clear lines)
 			:text)
-		(t	(push lines (. coloriser :expand_tabs line 4))
+		(t	(push lines (. syntax :expand_tabs line 4))
 			state)))
 
 ;module

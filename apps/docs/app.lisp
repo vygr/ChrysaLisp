@@ -7,17 +7,16 @@
 (enums +event 0
 	(enum close button))
 
-(defq +margin_width (* 8 3) coloriser (Syntax) handlers (emap)
+(defq +margin_width (* 8 3) syntax (Syntax) handlers (emap)
 	doc_list '("VP_VM" "VP_ASSIGNMENT" "VP_STRUCTURE" "VP_FUNCTIONS" "VP_CLASSES"
 	"LISP" "ENVIRONMENT" "CONDITIONALS" "ITERATION" "COMMS" "SYNTAX"
 	"TERMINAL" "COMMANDS" "DIARY"
 	"INTRO" "TAOS" "TODO"))
 
 (defun populate-page (file)
-	(ui-root page_flow (Flow) (:flow_flags (logior +flow_flag_right +flow_flag_fillh)
-			:font *env_window_font*)
+	(ui-root page_flow (Flow) (:flow_flags +flow_right_fill :font *env_window_font*)
 		(ui-label _ (:min_width +margin_width :color +argb_grey15))
-		(ui-flow page (:flow_flags (logior +flow_flag_down +flow_flag_fillw) :min_width 800))
+		(ui-flow page (:flow_flags +flow_down_fill :min_width 800))
 		(ui-label _ (:min_width +margin_width :color +argb_grey15)))
 	(defq state :text)
 	(each-line (lambda (line)

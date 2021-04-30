@@ -1,5 +1,3 @@
-;lisp section handler
-
 ;module
 (env-push)
 
@@ -11,7 +9,7 @@
 			(. page :add_child text)
 			:text)
 		(t	(def (defq text (Text))
-				:text (. coloriser :expand_tabs line 4)
+				:text (. syntax :expand_tabs line 4)
 				:font *env_terminal_font*
 				:ink_color +argb_blue)
 			(. page :add_child text)
