@@ -154,7 +154,10 @@
 	(vp-push r0)
 	(array-bind-args r1 '(r0 r1))
 	(class/obj/ref r0 r2)
-	(class/obj/ref r1 r2)
+	(assign '((r1 hmap_parent)) '(r2))
+	(vpif '(r2 = 0))
+		(class/obj/ref r1 r2)
+	(endif)
 	(call 'view :add_front '(r0 r1) '(r1))
 	(vp-pop r0)
 
@@ -187,7 +190,10 @@
 	(vp-push r0)
 	(array-bind-args r1 '(r0 r1))
 	(class/obj/ref r0 r2)
-	(class/obj/ref r1 r2)
+	(assign '((r1 hmap_parent)) '(r2))
+	(vpif '(r2 = 0))
+		(class/obj/ref r1 r2)
+	(endif)
 	(call 'view :add_back '(r0 r1) '(r1))
 	(vp-pop r0)
 
