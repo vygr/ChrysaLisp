@@ -10,7 +10,7 @@ Super Class: seq
 
 ### array :init -> class/array/init
 
-```lisp
+```code
 inputs
 r0 = array object (ptr)
 r1 = vtable (pptr)
@@ -23,7 +23,7 @@ r1-r2
 
 ### array :get_capacity -> class/array/get_capacity
 
-```lisp
+```code
 inputs
 r0 = array object (ptr)
 outputs
@@ -35,7 +35,7 @@ r1
 
 ### array :set_capacity -> class/array/set_capacity
 
-```lisp
+```code
 inputs
 r0 = array object (ptr)
 r1 = capacity (uint)
@@ -47,7 +47,7 @@ r1-r5
 
 ### array :set_length -> class/array/set_length
 
-```lisp
+```code
 inputs
 r0 = array object (ptr)
 r1 = length (uint)
@@ -60,7 +60,7 @@ none
 
 ### array :sort -> class/array/sort
 
-```lisp
+```code
 inputs
 r0 = array object (ptr)
 r1 = stack array object (ptr)
@@ -85,7 +85,7 @@ r1-r14
 
 ### array :partition -> class/array/partition
 
-```lisp
+```code
 inputs
 r0 = array object (ptr)
 r1 = lower partition iter (plong)
@@ -110,7 +110,7 @@ r1-r14
 
 ### array :get_first -> class/array/get_first
 
-```lisp
+```code
 inputs
 r0 = array object (ptr)
 outputs
@@ -122,7 +122,7 @@ r1
 
 ### array :get_first2 -> class/array/get_first2
 
-```lisp
+```code
 inputs
 r0 = array object (ptr)
 outputs
@@ -135,7 +135,7 @@ r1-r2
 
 ### array :get_second -> class/array/get_second
 
-```lisp
+```code
 inputs
 r0 = array object (ptr)
 outputs
@@ -147,7 +147,7 @@ r1
 
 ### array :get_element -> class/array/get_element
 
-```lisp
+```code
 inputs
 r0 = array object (ptr)
 r1 = element index (uint)
@@ -160,7 +160,7 @@ r1-r2
 
 ### array :get_element2 -> class/array/get_element2
 
-```lisp
+```code
 inputs
 r0 = array object (ptr)
 r1 = element index (uint)
@@ -174,7 +174,7 @@ r1-r2
 
 ### array :push_back -> class/array/push_back
 
-```lisp
+```code
 inputs
 r0 = array object (ptr)
 r1 = element (long)
@@ -189,7 +189,7 @@ r2-r5
 
 ### array :push_back2 -> class/array/push_back2
 
-```lisp
+```code
 inputs
 r0 = array object (ptr)
 r1 = element1 (long)
@@ -206,7 +206,7 @@ r3-r5
 
 ### array :pop_back -> class/array/pop_back
 
-```lisp
+```code
 inputs
 r0 = array object (ptr)
 outputs
@@ -218,7 +218,7 @@ r1-r2
 
 ### array :pop_back2 -> class/array/pop_back2
 
-```lisp
+```code
 inputs
 r0 = array object (ptr)
 outputs
@@ -231,7 +231,7 @@ r1-r2
 
 ### array :get_iter -> class/array/get_iter
 
-```lisp
+```code
 inputs
 r0 = array object (ptr)
 r1 = element index (uint)
@@ -244,7 +244,7 @@ r1-r2
 
 ### array :get_iters -> class/array/get_iters
 
-```lisp
+```code
 inputs
 r0 = array object (ptr)
 r1 = begin index (uint)
@@ -259,7 +259,7 @@ r1-r3
 
 ### array :get_begin -> class/array/get_begin
 
-```lisp
+```code
 inputs
 r0 = array object (ptr)
 outputs
@@ -271,7 +271,7 @@ r1
 
 ### array :get_end -> class/array/get_end
 
-```lisp
+```code
 inputs
 r0 = array object (ptr)
 outputs
@@ -283,7 +283,7 @@ r1-r2
 
 ### array :get_both -> class/array/get_both
 
-```lisp
+```code
 inputs
 r0 = array object (ptr)
 outputs
@@ -298,7 +298,7 @@ r1-r2
 
 ### array :deinit -> class/array/deinit
 
-```lisp
+```code
 inputs
 r0 = array object (ptr)
 outputs
@@ -311,7 +311,7 @@ r1-r14
 
 ### array :print -> class/array/print
 
-```lisp
+```code
 inputs
 r0 = array object (ptr)
 r1 = stream object (ptr)
@@ -323,7 +323,7 @@ r1-r14
 
 ### array :ref_element -> class/array/ref_element
 
-```lisp
+```code
 inputs
 r0 = array object (ptr)
 r1 = element index (uint)
@@ -336,7 +336,7 @@ r1-r3
 
 ### array :slice -> class/array/slice
 
-```lisp
+```code
 inputs
 r0 = array object (ptr)
 r1 = element start index (uint)
@@ -350,7 +350,7 @@ r1-r8
 
 ### array :cat -> class/array/cat
 
-```lisp
+```code
 inputs
 r0 = array object (ptr)
 r1 = list of array objects (ptr)
@@ -362,7 +362,7 @@ r0-r11
 
 ### array :find -> class/array/find
 
-```lisp
+```code
 inputs
 r0 = array object (ptr)
 r1 = element (long)
@@ -376,7 +376,7 @@ r2-r4
 
 ### array :rfind -> class/array/rfind
 
-```lisp
+```code
 inputs
 r0 = array object (ptr)
 r1 = element (long)
@@ -390,7 +390,7 @@ r2-r4
 
 ### array :get_length -> class/array/get_length
 
-```lisp
+```code
 inputs
 r0 = array object (ptr)
 outputs
@@ -406,7 +406,7 @@ r1
 
 ### array :clear -> class/array/clear
 
-```lisp
+```code
 inputs
 r0 = array object (ptr)
 outputs
@@ -417,7 +417,7 @@ r1
 
 ### array :ref_back -> class/array/ref_back
 
-```lisp
+```code
 inputs
 r0 = array object (ptr)
 outputs
@@ -429,7 +429,7 @@ r1-r3
 
 ### array :set_element -> class/array/set_element
 
-```lisp
+```code
 inputs
 r0 = array object (ptr)
 r1 = element object (ptr)
@@ -442,7 +442,7 @@ r2-r3
 
 ### array :append -> class/array/append
 
-```lisp
+```code
 inputs
 r0 = array object (ptr)
 r1 = source array object (ptr)
@@ -456,7 +456,7 @@ r1-r9
 
 ### array :erase -> class/array/erase
 
-```lisp
+```code
 inputs
 r0 = array object (ptr)
 r1 = element iterator (pptr)
@@ -469,7 +469,7 @@ r2-r3
 
 ### array :erase2 -> class/array/erase2
 
-```lisp
+```code
 inputs
 r0 = array object (ptr)
 r1 = element iterator (pptr)
@@ -482,7 +482,7 @@ r2-r3
 
 ### array :lisp_array -> class/array/lisp_array
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -495,7 +495,7 @@ r1-r14
 
 ### array :lisp_nums -> class/array/lisp_nums
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -508,7 +508,7 @@ r1-r14
 
 ### array :lisp_fixeds -> class/array/lisp_fixeds
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -521,7 +521,7 @@ r1-r14
 
 ### array :lisp_reals -> class/array/lisp_reals
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -534,7 +534,7 @@ r1-r14
 
 ### array :lisp_path -> class/array/lisp_path
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -547,7 +547,7 @@ r1-r14
 
 ### array :lisp_clear -> class/array/lisp_clear
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -560,7 +560,7 @@ r1-r14
 
 ### array :lisp_push -> class/array/lisp_push
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -573,7 +573,7 @@ r1-r14
 
 ### array :lisp_pop -> class/array/lisp_pop
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -586,7 +586,7 @@ r1-r14
 
 ### array :lisp_cap -> class/array/lisp_cap
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -609,7 +609,7 @@ Super Class: view
 
 ### canvas :init -> gui/canvas/init
 
-```lisp
+```code
 inputs
 r0 = canvas object (ptr)
 r1 = vtable (pptr)
@@ -625,7 +625,7 @@ r1-r14
 
 ### canvas :init_with_pixmap -> gui/canvas/init_with_pixmap
 
-```lisp
+```code
 inputs
 r0 = canvas object (ptr)
 r1 = vtable (pptr)
@@ -639,7 +639,7 @@ r1-r14
 
 ### canvas :swap -> gui/canvas/swap
 
-```lisp
+```code
 inputs
 r0 = canvas object (ptr)
 outputs
@@ -650,7 +650,7 @@ r1-r14
 
 ### canvas :set_clip -> gui/canvas/set_clip
 
-```lisp
+```code
 inputs
 r0 = canvas object (ptr)
 r7 = x (pixels)
@@ -665,7 +665,7 @@ r1-r2
 
 ### canvas :set_edges -> gui/canvas/set_edges
 
-```lisp
+```code
 inputs
 r0 = canvas object (ptr)
 r1 = list of path objects (ptr)
@@ -684,7 +684,7 @@ r1-r14
 
 ### canvas :span_noclip -> gui/canvas/span_noclip
 
-```lisp
+```code
 inputs
 r0 = canvas object (ptr)
 r1 = coverage (ulong)
@@ -701,7 +701,7 @@ coverage is 0x0 to 0x80
 
 ### canvas :span -> gui/canvas/span
 
-```lisp
+```code
 inputs
 r0 = canvas object (ptr)
 r1 = coverage (ulong)
@@ -718,7 +718,7 @@ coverage is 0x0 to 0x80
 
 ### canvas :pick -> gui/canvas/pick
 
-```lisp
+```code
 inputs
 r0 = canvas object (ptr)
 r7 = x (pixels)
@@ -732,7 +732,7 @@ r1-r14
 
 ### canvas :plot -> gui/canvas/plot
 
-```lisp
+```code
 inputs
 r0 = canvas object (ptr)
 r7 = x (pixels)
@@ -745,7 +745,7 @@ r1-r14
 
 ### canvas :fbox -> gui/canvas/fbox
 
-```lisp
+```code
 inputs
 r0 = canvas object (ptr)
 r7 = x (pixels)
@@ -760,7 +760,7 @@ r1-r14
 
 ### canvas :fpoly -> gui/canvas/fpoly
 
-```lisp
+```code
 inputs
 r0 = canvas object (ptr)
 r1 = x (fixed)
@@ -775,7 +775,7 @@ r1-r14
 
 ### canvas :deinit -> gui/canvas/deinit
 
-```lisp
+```code
 inputs
 r0 = canvas object (ptr)
 outputs
@@ -786,7 +786,7 @@ r1-r14
 
 ### canvas :lisp_create -> gui/canvas/lisp_create
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -799,7 +799,7 @@ r1-r14
 
 ### canvas :lisp_info -> gui/canvas/lisp_info
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -812,7 +812,7 @@ r1-r14
 
 ### canvas :lisp_load -> gui/canvas/lisp_load
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -825,7 +825,7 @@ r1-r14
 
 ### canvas :lisp_save -> gui/canvas/lisp_save
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -838,7 +838,7 @@ r1-r14
 
 ### canvas :lisp_next_frame -> gui/canvas/lisp_next_frame
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -851,7 +851,7 @@ r1-r14
 
 ### canvas :lisp_swap -> gui/canvas/lisp_swap
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -864,7 +864,7 @@ r1-r14
 
 ### canvas :lisp_fill -> gui/canvas/lisp_fill
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -877,7 +877,7 @@ r1-r14
 
 ### canvas :lisp_plot -> gui/canvas/lisp_plot
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -890,7 +890,7 @@ r1-r14
 
 ### canvas :lisp_fbox -> gui/canvas/lisp_fbox
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -903,7 +903,7 @@ r1-r14
 
 ### canvas :lisp_fpoly -> gui/canvas/lisp_fpoly
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -916,7 +916,7 @@ r1-r14
 
 ### canvas :lisp_resize -> gui/canvas/lisp_resize
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -929,7 +929,7 @@ r1-r14
 
 ### canvas :lisp_to_argb32 -> gui/canvas/lisp_to_argb32
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -942,7 +942,7 @@ r1-r14
 
 ### canvas :lisp_from_argb32 -> gui/canvas/lisp_from_argb32
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -955,7 +955,7 @@ r1-r14
 
 ### canvas :lisp_darker -> gui/canvas/lisp_darker
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -968,7 +968,7 @@ r1-r14
 
 ### canvas :lisp_brighter -> gui/canvas/lisp_brighter
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -985,7 +985,7 @@ Super Class: nil
 
 ### ctx :set_color -> gui/ctx/set_color
 
-```lisp
+```code
 inputs
 r0 = view object (ptr)
 r1 = color (argb)
@@ -995,7 +995,7 @@ r0-r14
 
 ### ctx :box -> gui/ctx/box
 
-```lisp
+```code
 inputs
 r0 = view object (ptr)
 r7 = x (pixels)
@@ -1008,7 +1008,7 @@ r0-r14
 
 ### ctx :filled_box -> gui/ctx/filled_box
 
-```lisp
+```code
 inputs
 r0 = view object (ptr)
 r7 = x (pixels)
@@ -1021,7 +1021,7 @@ r0-r14
 
 ### ctx :blit -> gui/ctx/blit
 
-```lisp
+```code
 inputs
 r0 = view object (ptr)
 r1 = texture id (ulong)
@@ -1036,7 +1036,7 @@ r0-r14
 
 ### ctx :panel -> gui/ctx/panel
 
-```lisp
+```code
 inputs
 r0 = view object (ptr)
 r1 = color (argb)
@@ -1052,7 +1052,7 @@ r0-r14
 
 ### ctx :lisp_set_color -> gui/ctx/lisp_set_color
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -1065,7 +1065,7 @@ r1-r14
 
 ### ctx :lisp_box -> gui/ctx/lisp_box
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -1078,7 +1078,7 @@ r1-r14
 
 ### ctx :lisp_filled_box -> gui/ctx/lisp_filled_box
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -1091,7 +1091,7 @@ r1-r14
 
 ### ctx :lisp_blit -> gui/ctx/lisp_blit
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -1104,7 +1104,7 @@ r1-r14
 
 ### ctx :lisp_panel -> gui/ctx/lisp_panel
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -1125,7 +1125,7 @@ Super Class: obj
 
 ### error :init -> class/error/init
 
-```lisp
+```code
 inputs
 r0 = error object (ptr)
 r1 = vtable (pptr)
@@ -1143,7 +1143,7 @@ r1-r6
 
 ### error :get_description -> class/error/get_description
 
-```lisp
+```code
 inputs
 r0 = error object (ptr)
 outputs
@@ -1155,7 +1155,7 @@ r1
 
 ### error :get_msg -> class/error/get_msg
 
-```lisp
+```code
 inputs
 r0 = error object (ptr)
 outputs
@@ -1167,7 +1167,7 @@ r1-r5
 
 ### error :get_object -> class/error/get_object
 
-```lisp
+```code
 inputs
 r0 = error object (ptr)
 outputs
@@ -1179,7 +1179,7 @@ r1
 
 ### error :get_file -> class/error/get_file
 
-```lisp
+```code
 inputs
 r0 = error object (ptr)
 outputs
@@ -1191,7 +1191,7 @@ r1
 
 ### error :get_line -> class/error/get_line
 
-```lisp
+```code
 inputs
 r0 = error object (ptr)
 outputs
@@ -1203,7 +1203,7 @@ r1
 
 ### error :deinit -> class/error/deinit
 
-```lisp
+```code
 inputs
 r0 = error object (ptr)
 outputs
@@ -1222,7 +1222,7 @@ Super Class: num
 
 ### fixed :print -> class/fixed/print
 
-```lisp
+```code
 inputs
 r0 = fixed object (ptr)
 r1 = stream object (ptr)
@@ -1236,7 +1236,7 @@ r1-r14
 
 ### fixed :mul -> class/fixed/mul
 
-```lisp
+```code
 inputs
 r0 = fixed object (ptr)
 r1 = list of fixed objects (ptr)
@@ -1249,7 +1249,7 @@ r1-r14
 
 ### fixed :div -> class/fixed/div
 
-```lisp
+```code
 inputs
 r0 = fixed object (ptr)
 r1 = list of fixed objects (ptr)
@@ -1262,7 +1262,7 @@ r1-r14
 
 ### fixed :mod -> class/fixed/mod
 
-```lisp
+```code
 inputs
 r0 = fixed object (ptr)
 r1 = list of fixed objects (ptr)
@@ -1275,7 +1275,7 @@ r1-r14
 
 ### fixed :sign -> class/fixed/sign
 
-```lisp
+```code
 inputs
 r0 = fixed object (ptr)
 outputs
@@ -1287,7 +1287,7 @@ r1-r14
 
 ### fixed :sqrt -> class/fixed/sqrt
 
-```lisp
+```code
 inputs
 r0 = fixed object (ptr)
 outputs
@@ -1299,7 +1299,7 @@ r1-r14
 
 ### fixed :frac -> class/fixed/frac
 
-```lisp
+```code
 inputs
 r0 = fixed object (ptr)
 outputs
@@ -1311,7 +1311,7 @@ r1-r14
 
 ### fixed :floor -> class/fixed/floor
 
-```lisp
+```code
 inputs
 r0 = fixed object (ptr)
 outputs
@@ -1323,7 +1323,7 @@ r1-r14
 
 ### fixed :recip -> class/fixed/recip
 
-```lisp
+```code
 inputs
 r0 = fixed object (ptr)
 outputs
@@ -1335,7 +1335,7 @@ r1-r14
 
 ### fixed :sin -> class/fixed/sin
 
-```lisp
+```code
 inputs
 r0 = fixed object (ptr)
 outputs
@@ -1347,7 +1347,7 @@ r1-r14
 
 ### fixed :cos -> class/fixed/cos
 
-```lisp
+```code
 inputs
 r0 = fixed object (ptr)
 outputs
@@ -1359,7 +1359,7 @@ r1-r14
 
 ### fixed :lisp_sin -> class/fixed/lisp_sin
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -1372,7 +1372,7 @@ r1-r14
 
 ### fixed :lisp_cos -> class/fixed/lisp_cos
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -1385,7 +1385,7 @@ r1-r14
 
 ### fixed :lisp_frac -> class/fixed/lisp_frac
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -1398,7 +1398,7 @@ r1-r14
 
 ### fixed :lisp_floor -> class/fixed/lisp_floor
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -1411,7 +1411,7 @@ r1-r14
 
 ### fixed :lisp_recip -> class/fixed/lisp_recip
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -1436,7 +1436,7 @@ Super Class: nums
 
 ### fixeds :mul -> class/fixeds/mul
 
-```lisp
+```code
 inputs
 r0 = fixeds object (ptr)
 r1 = source1 fixeds object, can be same (ptr)
@@ -1449,7 +1449,7 @@ r1-r6
 
 ### fixeds :div -> class/fixeds/div
 
-```lisp
+```code
 inputs
 r0 = fixeds object (ptr)
 r1 = source1 fixeds object, can be same (ptr)
@@ -1462,7 +1462,7 @@ r1-r8
 
 ### fixeds :mod -> class/fixeds/mod
 
-```lisp
+```code
 inputs
 r0 = fixeds object (ptr)
 r1 = source1 fixeds object, can be same (ptr)
@@ -1475,7 +1475,7 @@ r1-r8
 
 ### fixeds :scale -> class/fixeds/scale
 
-```lisp
+```code
 inputs
 r0 = fixeds object (ptr)
 r1 = source fixeds object, can be same (ptr)
@@ -1488,7 +1488,7 @@ r1-r5
 
 ### fixeds :frac -> class/fixeds/frac
 
-```lisp
+```code
 inputs
 r0 = fixeds object (ptr)
 r1 = source fixeds object, can be same (ptr)
@@ -1500,7 +1500,7 @@ r1-r5
 
 ### fixeds :floor -> class/fixeds/floor
 
-```lisp
+```code
 inputs
 r0 = fixeds object (ptr)
 r1 = source fixeds object, can be same (ptr)
@@ -1512,7 +1512,7 @@ r1-r5
 
 ### fixeds :lisp_frac -> class/fixeds/lisp_frac
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -1525,7 +1525,7 @@ r1-r14
 
 ### fixeds :lisp_floor -> class/fixeds/lisp_floor
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -1544,7 +1544,7 @@ Super Class: obj
 
 ### font :open -> gui/font/open
 
-```lisp
+```code
 r0 = name c string (pubyte)
 r1 = font size (pixels)
 outputs
@@ -1557,7 +1557,7 @@ r0-r14
 
 ### font :init -> gui/font/init
 
-```lisp
+```code
 inputs
 r0 = font object (ptr)
 r1 = vtable (pptr)
@@ -1573,14 +1573,14 @@ r1-r14
 
 ### font :flush -> gui/font/flush
 
-```lisp
+```code
 trashes
 r0-r14
 ```
 
 ### font :sym_texture -> gui/font/sym_texture
 
-```lisp
+```code
 inputs
 r0 = font object (ptr)
 r1 = utf8 encoded sym object (ptr)
@@ -1593,7 +1593,7 @@ r1-r14
 
 ### font :ascii_textures -> gui/font/ascii_textures
 
-```lisp
+```code
 inputs
 r0 = font object (ptr)
 outputs
@@ -1605,7 +1605,7 @@ r1-r14
 
 ### font :get_metrics -> gui/font/get_metrics
 
-```lisp
+```code
 inputs
 r0 = font object (ptr)
 outputs
@@ -1619,7 +1619,7 @@ r1-r4
 
 ### font :glyph_data -> gui/font/glyph_data
 
-```lisp
+```code
 inputs
 r0 = font object (ptr)
 r1 = char code (uint)
@@ -1632,7 +1632,7 @@ r1-r4
 
 ### font :glyph_ranges -> gui/font/glyph_ranges
 
-```lisp
+```code
 inputs
 r0 = font object (ptr)
 outputs
@@ -1644,7 +1644,7 @@ r1-r7
 
 ### font :glyph_info -> gui/font/glyph_info
 
-```lisp
+```code
 inputs
 r0 = font object (ptr)
 r1 = utf8 encoded str object (ptr)
@@ -1657,7 +1657,7 @@ r1-r8
 
 ### font :glyph_paths -> gui/font/glyph_paths
 
-```lisp
+```code
 inputs
 r0 = font object (ptr)
 r1 = stack array object (ptr)
@@ -1673,7 +1673,7 @@ r1-r14
 
 ### font :glyph_bounds -> gui/font/glyph_bounds
 
-```lisp
+```code
 inputs
 r0 = font object (ptr)
 r1 = glyph info array object (ptr)
@@ -1687,7 +1687,7 @@ r1-r7
 
 ### font :deinit -> gui/font/deinit
 
-```lisp
+```code
 inputs
 r0 = font object (ptr)
 outputs
@@ -1698,7 +1698,7 @@ r1-r14
 
 ### font :lisp_create -> gui/font/lisp_create
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -1711,7 +1711,7 @@ r1-r14
 
 ### font :lisp_glyph_ranges -> gui/font/lisp_glyph_ranges
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -1724,7 +1724,7 @@ r1-r14
 
 ### font :lisp_glyph_paths -> gui/font/lisp_glyph_paths
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -1737,7 +1737,7 @@ r1-r14
 
 ### font :lisp_glyph_bounds -> gui/font/lisp_glyph_bounds
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -1750,7 +1750,7 @@ r1-r14
 
 ### font :lisp_texture -> gui/font/lisp_texture
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -1771,7 +1771,7 @@ Super Class: stream
 
 ### fstream :init -> class/fstream/init
 
-```lisp
+```code
 inputs
 r0 = fstream object (ptr)
 r1 = vtable (pptr)
@@ -1786,7 +1786,7 @@ r1-r14
 
 ### fstream :deinit -> class/fstream/deinit
 
-```lisp
+```code
 inputs
 r0 = fstream object (ptr)
 outputs
@@ -1797,7 +1797,7 @@ r1-r14
 
 ### fstream :read_next -> class/fstream/read_next
 
-```lisp
+```code
 inputs
 r0 = fstream object (ptr)
 outputs
@@ -1809,7 +1809,7 @@ r1-r14
 
 ### fstream :write_next -> class/fstream/write_next
 
-```lisp
+```code
 inputs
 r0 = fstream object (ptr)
 outputs
@@ -1820,7 +1820,7 @@ r1-r14
 
 ### fstream :flush -> class/fstream/flush
 
-```lisp
+```code
 inputs
 r0 = fstream object (ptr)
 outputs
@@ -1831,7 +1831,7 @@ r1-r14
 
 ### fstream :seek -> class/fstream/seek
 
-```lisp
+```code
 inputs
 r0 = fstream object (ptr)
 r1 = offset (long)
@@ -1853,7 +1853,7 @@ Super Class: obj
 
 ### func :init -> class/num/init
 
-```lisp
+```code
 inputs
 r0 = num object (ptr)
 r1 = vtable (pptr)
@@ -1869,7 +1869,7 @@ r1
 
 ### func :print -> class/func/print
 
-```lisp
+```code
 inputs
 r0 = func object (ptr)
 r1 = stream object (ptr)
@@ -1887,7 +1887,7 @@ Super Class: nil
 
 ### gui :update -> gui/gui/update
 
-```lisp
+```code
 inputs
 r0 = root view object (ptr)
 trashes
@@ -1896,7 +1896,7 @@ r0-r14
 
 ### gui :gui -> gui/gui/gui
 
-```lisp
+```code
 gui process
 inputs
 r0 = lisp object pointer (ptr)
@@ -1905,7 +1905,7 @@ r1 = lisp args list (ptr)
 
 ### gui :lisp_add -> gui/gui/lisp_add
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -1918,7 +1918,7 @@ r1-r14
 
 ### gui :lisp_add_back -> gui/gui/lisp_add_back
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -1931,7 +1931,7 @@ r1-r14
 
 ### gui :lisp_info -> gui/gui/lisp_info
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -1952,7 +1952,7 @@ Super Class: hset
 
 ### hmap :init -> class/hmap/init
 
-```lisp
+```code
 inputs
 r0 = hmap object (ptr)
 r1 = vtable (pptr)
@@ -1967,7 +1967,7 @@ r1-r7
 
 ### hmap :find -> class/hmap/find
 
-```lisp
+```code
 inputs
 r0 = hmap object (ptr)
 r1 = key object (ptr)
@@ -1981,7 +1981,7 @@ r1-r14
 
 ### hmap :for_each -> class/hmap/for_each
 
-```lisp
+```code
 inputs
 r0 = hmap object (ptr)
 r1 = predicate function (ptr)
@@ -2000,7 +2000,7 @@ trashes
 
 ### hmap :copy -> class/hmap/copy
 
-```lisp
+```code
 inputs
 r0 = hmap object (ptr)
 r1 = num buckets (uint)
@@ -2013,7 +2013,7 @@ r1-r14
 
 ### hmap :list -> class/hmap/list
 
-```lisp
+```code
 inputs
 r0 = hmap object (ptr)
 outputs
@@ -2025,7 +2025,7 @@ r1-r14
 
 ### hmap :insert -> class/hmap/insert
 
-```lisp
+```code
 inputs
 r0 = hmap object (ptr)
 r1 = key object (ptr)
@@ -2040,7 +2040,7 @@ r1-r14
 
 ### hmap :search -> class/hmap/search
 
-```lisp
+```code
 inputs
 r0 = hmap object (ptr)
 r1 = key object (ptr)
@@ -2054,7 +2054,7 @@ r1-r14
 
 ### hmap :set -> class/hmap/set
 
-```lisp
+```code
 inputs
 r0 = hmap object (ptr)
 r1 = key object (ptr)
@@ -2068,7 +2068,7 @@ r1-r14
 
 ### hmap :get -> class/hmap/get
 
-```lisp
+```code
 inputs
 r0 = hmap object (ptr)
 r1 = key object (ptr)
@@ -2081,7 +2081,7 @@ r1-r14
 
 ### hmap :set_parent -> class/hmap/set_parent
 
-```lisp
+```code
 inputs
 r0 = hmap object (ptr)
 r1 = 0, else hmap parent object (ptr)
@@ -2095,7 +2095,7 @@ r1-r14
 
 ### hmap :deinit -> class/hmap/deinit
 
-```lisp
+```code
 inputs
 r0 = hmap object (ptr)
 outputs
@@ -2106,7 +2106,7 @@ r1-r14
 
 ### hmap :lisp_env -> class/hmap/lisp_env
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -2119,7 +2119,7 @@ r1-r14
 
 ### hmap :lisp_def -> class/hmap/lisp_def
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -2132,7 +2132,7 @@ r1-r14
 
 ### hmap :lisp_defq -> class/hmap/lisp_defq
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -2145,7 +2145,7 @@ r1-r14
 
 ### hmap :lisp_set -> class/hmap/lisp_set
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -2158,7 +2158,7 @@ r1-r14
 
 ### hmap :lisp_setq -> class/hmap/lisp_setq
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -2171,7 +2171,7 @@ r1-r14
 
 ### hmap :lisp_get -> class/hmap/lisp_get
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -2184,7 +2184,7 @@ r1-r14
 
 ### hmap :lisp_defx -> class/hmap/lisp_defx
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -2197,7 +2197,7 @@ r1-r14
 
 ### hmap :lisp_undef -> class/hmap/lisp_undef
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -2210,7 +2210,7 @@ r1-r14
 
 ### hmap :lisp_parent -> class/hmap/lisp_parent
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -2223,7 +2223,7 @@ r1-r14
 
 ### hmap :lisp_list -> class/hmap/lisp_list
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -2348,7 +2348,7 @@ Super Class: obj
 
 ### hset :init -> class/hset/init
 
-```lisp
+```code
 inputs
 r0 = hset object (ptr)
 r1 = vtable (pptr)
@@ -2363,7 +2363,7 @@ r1-r5
 
 ### hset :get_bucket -> class/hset/get_bucket
 
-```lisp
+```code
 inputs
 r0 = hset object (ptr)
 r1 = key object (ptr)
@@ -2376,7 +2376,7 @@ r1-r14
 
 ### hset :clear -> class/hset/clear
 
-```lisp
+```code
 inputs
 r0 = hset object (ptr)
 outputs
@@ -2387,7 +2387,7 @@ r1-r14
 
 ### hset :for_each -> class/hset/for_each
 
-```lisp
+```code
 inputs
 r0 = hset object (ptr)
 r1 = predicate function (ptr)
@@ -2407,7 +2407,7 @@ trashes
 
 ### hset :find -> class/hset/find
 
-```lisp
+```code
 inputs
 r0 = hset object (ptr)
 r1 = key object (ptr)
@@ -2421,7 +2421,7 @@ r1-r14
 
 ### hset :insert -> class/hset/insert
 
-```lisp
+```code
 inputs
 r0 = hset object (ptr)
 r1 = key object (ptr)
@@ -2439,7 +2439,7 @@ r1-r14
 
 ### hset :deinit -> class/hset/deinit
 
-```lisp
+```code
 inputs
 r0 = hset object (ptr)
 outputs
@@ -2458,7 +2458,7 @@ Super Class: stream
 
 ### in :init -> class/in/init
 
-```lisp
+```code
 inputs
 r0 = in object (ptr)
 r1 = vtable (pptr)
@@ -2472,7 +2472,7 @@ r1-r14
 
 ### in :next_msg -> class/in/next_msg
 
-```lisp
+```code
 inputs
 r0 = in object (ptr)
 outputs
@@ -2483,7 +2483,7 @@ r1-r14
 
 ### in :deinit -> class/in/deinit
 
-```lisp
+```code
 inputs
 r0 = in object (ptr)
 outputs
@@ -2494,7 +2494,7 @@ r1-r14
 
 ### in :read_next -> class/in/read_next
 
-```lisp
+```code
 inputs
 r0 = in object (ptr)
 outputs
@@ -2506,7 +2506,7 @@ r1-r14
 
 ### in :lisp_create -> class/in/lisp_create
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -2519,7 +2519,7 @@ r1-r14
 
 ### in :lisp_next_msg -> class/in/lisp_next_msg
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -2540,7 +2540,7 @@ Super Class: obj
 
 ### lisp :init -> class/lisp/init
 
-```lisp
+```code
 inputs
 r0 = lisp object object (ptr)
 r1 = vtable (pptr)
@@ -2556,7 +2556,7 @@ r1-r14
 
 ### lisp :deinit -> class/lisp/deinit
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 outputs
@@ -2567,7 +2567,7 @@ r1-r14
 
 ### lisp :env_push -> class/lisp/env_push
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 outputs
@@ -2579,7 +2579,7 @@ r1-r14
 
 ### lisp :env_pop -> class/lisp/env_pop
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 outputs
@@ -2591,7 +2591,7 @@ r1-r14
 
 ### lisp :env_bind -> class/lisp/env_bind
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = vars list object (ptr)
@@ -2605,7 +2605,7 @@ r1-r14
 
 ### lisp :env_args_set -> class/lisp/env_args_set
 
-```lisp
+```code
 inputs
 r0 = args list object (ptr)
 r3 = args offset (uint)
@@ -2616,7 +2616,7 @@ r0-r5
 
 ### lisp :env_args_sig -> class/lisp/env_args_sig
 
-```lisp
+```code
 inputs
 r1 = args list object (ptr)
 r3 = signiture pointer (pushort)
@@ -2629,7 +2629,7 @@ r2-r7
 
 ### lisp :env_args_type -> class/lisp/env_args_type
 
-```lisp
+```code
 inputs
 r1 = args list object (ptr)
 r3 = vtable pointer (ptr)
@@ -2642,7 +2642,7 @@ r2-r7
 
 ### lisp :env_args_match -> class/lisp/env_args_match
 
-```lisp
+```code
 inputs
 r1 = args list object (ptr)
 r3 = vtable pointer (ptr)
@@ -2655,7 +2655,7 @@ r2-r7
 
 ### lisp :read -> class/lisp/read
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = stream object (ptr)
@@ -2670,7 +2670,7 @@ r1-r14
 
 ### lisp :read_char -> class/lisp/read_char
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = stream object (ptr)
@@ -2684,7 +2684,7 @@ r1-r14
 
 ### lisp :read_rmacro -> class/lisp/read_rmacro
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = stream object (ptr)
@@ -2700,7 +2700,7 @@ r1-r14
 
 ### lisp :read_list -> class/lisp/read_list
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = stream object (ptr)
@@ -2715,7 +2715,7 @@ r1-r14
 
 ### lisp :read_sym -> class/lisp/read_sym
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = stream object (ptr)
@@ -2730,7 +2730,7 @@ r1-r14
 
 ### lisp :read_str -> class/lisp/read_str
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = stream object (ptr)
@@ -2745,7 +2745,7 @@ r1-r14
 
 ### lisp :read_num -> class/lisp/read_num
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = stream object (ptr)
@@ -2760,7 +2760,7 @@ r1-r14
 
 ### lisp :repl_eval -> class/lisp/repl_eval
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = form object (ptr)
@@ -2773,7 +2773,7 @@ r1-r14
 
 ### lisp :repl_eval_list -> class/lisp/repl_eval_list
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = list object (ptr)
@@ -2786,7 +2786,7 @@ r1-r14
 
 ### lisp :repl_apply -> class/lisp/repl_apply
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -2800,7 +2800,7 @@ r1-r14
 
 ### lisp :repl_print -> class/lisp/repl_print
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = stream object (ptr)
@@ -2813,7 +2813,7 @@ r1-r14
 
 ### lisp :repl_expand -> class/lisp/repl_expand
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = form object iter (pptr)
@@ -2825,7 +2825,7 @@ r1-r14
 
 ### lisp :repl_error -> class/lisp/repl_error
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = description c string (pubyte)
@@ -2840,7 +2840,7 @@ r1-r14
 
 ### lisp :repl_bind -> class/lisp/repl_bind
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = form object iter (pptr)
@@ -2852,7 +2852,7 @@ r1-r14
 
 ### lisp :lisp_ffi -> class/lisp/lisp_ffi
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -2865,7 +2865,7 @@ r1-r14
 
 ### lisp :lisp_prebind -> class/lisp/lisp_bindfun
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -2878,7 +2878,7 @@ r1-r14
 
 ### lisp :lisp_macroexpand -> class/lisp/lisp_macroexpand
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -2891,7 +2891,7 @@ r1-r14
 
 ### lisp :lisp_lambda -> class/lisp/lisp_lambda
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -2904,7 +2904,7 @@ r1-r14
 
 ### lisp :lisp_quote -> class/lisp/lisp_quote
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -2917,7 +2917,7 @@ r1-r14
 
 ### lisp :lisp_qquote -> class/lisp/lisp_qquote
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -2930,7 +2930,7 @@ r1-r14
 
 ### lisp :lisp_eql -> class/lisp/lisp_eql
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -2943,7 +2943,7 @@ r1-r14
 
 ### lisp :lisp_if -> class/lisp/lisp_if
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -2956,7 +2956,7 @@ r1-r14
 
 ### lisp :lisp_cond -> class/lisp/lisp_cond
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -2969,7 +2969,7 @@ r1-r14
 
 ### lisp :lisp_progn -> class/lisp/lisp_progn
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -2982,7 +2982,7 @@ r1-r14
 
 ### lisp :lisp_while -> class/lisp/lisp_while
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -2995,7 +2995,7 @@ r1-r14
 
 ### lisp :lisp_print -> class/lisp/lisp_print
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -3008,7 +3008,7 @@ r1-r14
 
 ### lisp :lisp_prin -> class/lisp/lisp_prin
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -3023,7 +3023,7 @@ r1-r14
 
 ### lisp :lisp_apply -> class/lisp/lisp_apply
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -3036,7 +3036,7 @@ r1-r14
 
 ### lisp :lisp_repl -> class/lisp/lisp_repl
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -3049,7 +3049,7 @@ r1-r14
 
 ### lisp :lisp_eval -> class/lisp/lisp_eval
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -3062,7 +3062,7 @@ r1-r14
 
 ### lisp :lisp_throw -> class/lisp/lisp_throw
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -3075,7 +3075,7 @@ r1-r14
 
 ### lisp :lisp_catch -> class/lisp/lisp_catch
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -3088,7 +3088,7 @@ r1-r14
 
 ### lisp :lisp_bind -> class/lisp/lisp_bind
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -3101,7 +3101,7 @@ r1-r14
 
 ### lisp :lisp_read -> class/lisp/lisp_read
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -3114,7 +3114,7 @@ r1-r14
 
 ### lisp :lisp_mcall -> class/lisp/lisp_mcall
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -3127,7 +3127,7 @@ r1-r14
 
 ### lisp :lisp_env_push -> class/lisp/lisp_env_push
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -3140,7 +3140,7 @@ r1-r14
 
 ### lisp :lisp_env_pop -> class/lisp/lisp_env_pop
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -3153,7 +3153,7 @@ r1-r14
 
 ### lisp :run -> class/lisp/run
 
-```lisp
+```code
 lisp run loop task
 inputs
 msg of lisp filename
@@ -3169,7 +3169,7 @@ Super Class: array
 
 ### list :deep_copy -> class/list/deep_copy
 
-```lisp
+```code
 inputs
 r0 = list object (ptr)
 r1 = stack array object (ptr)
@@ -3186,7 +3186,7 @@ r1-r14
 
 ### list :deinit -> class/list/deinit
 
-```lisp
+```code
 inputs
 r0 = list object (ptr)
 outputs
@@ -3197,7 +3197,7 @@ r1-r14
 
 ### list :ref_element -> class/list/ref_element
 
-```lisp
+```code
 inputs
 r0 = list object (ptr)
 r1 = element index (uint)
@@ -3210,7 +3210,7 @@ r1-r2
 
 ### list :slice -> class/list/slice
 
-```lisp
+```code
 inputs
 r0 = list object (ptr)
 r1 = element start index (uint)
@@ -3224,7 +3224,7 @@ r1-r8
 
 ### list :clear -> class/list/clear
 
-```lisp
+```code
 inputs
 r0 = list object (ptr)
 outputs
@@ -3235,7 +3235,7 @@ r1-r14
 
 ### list :ref_back -> class/list/ref_back
 
-```lisp
+```code
 inputs
 r0 = list object (ptr)
 outputs
@@ -3247,7 +3247,7 @@ r1-r2
 
 ### list :set_element -> class/list/set_element
 
-```lisp
+```code
 inputs
 r0 = list object (ptr)
 r1 = element object (ptr)
@@ -3260,7 +3260,7 @@ r1-r14
 
 ### list :append -> class/list/append
 
-```lisp
+```code
 inputs
 r0 = list object (ptr)
 r1 = source list object (ptr)
@@ -3274,7 +3274,7 @@ r1-r9
 
 ### list :print -> class/list/print
 
-```lisp
+```code
 inputs
 r0 = list object (ptr)
 r1 = stream object (ptr)
@@ -3286,7 +3286,7 @@ r1-r14
 
 ### list :find -> class/list/find
 
-```lisp
+```code
 inputs
 r0 = list object (ptr)
 r1 = element object (ptr)
@@ -3300,7 +3300,7 @@ r2-r14
 
 ### list :rfind -> class/list/rfind
 
-```lisp
+```code
 inputs
 r0 = list object (ptr)
 r1 = element object (ptr)
@@ -3314,7 +3314,7 @@ r2-r14
 
 ### list :erase -> class/list/erase
 
-```lisp
+```code
 inputs
 r0 = list object (ptr)
 r1 = element iterator (pptr)
@@ -3327,7 +3327,7 @@ r2-r14
 
 ### list :erase2 -> class/list/erase2
 
-```lisp
+```code
 inputs
 r0 = list object (ptr)
 r1 = element iterator (pptr)
@@ -3340,7 +3340,7 @@ r2-r14
 
 ### list :lisp_list -> class/list/lisp_list
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -3353,7 +3353,7 @@ r1-r14
 
 ### list :lisp_elemset -> class/list/lisp_elemset
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -3366,7 +3366,7 @@ r1-r14
 
 ### list :lisp_merge -> class/list/lisp_merge
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -3379,7 +3379,7 @@ r1-r14
 
 ### list :lisp_part -> class/list/lisp_part
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -3392,7 +3392,7 @@ r1-r14
 
 ### list :lisp_match -> class/list/lisp_match
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -3405,7 +3405,7 @@ r1-r14
 
 ### list :lisp_copy -> class/list/lisp_copy
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -3424,7 +3424,7 @@ Super Class: str
 
 ### node :create -> class/node/create
 
-```lisp
+```code
 inputs
 r0 = buffer (pubyte)
 r1 = buffer length (uint)
@@ -3436,7 +3436,7 @@ r1-r6
 
 ### node :hash -> class/node/hash
 
-```lisp
+```code
 inputs
 r0 = node object (ptr)
 outputs
@@ -3456,7 +3456,7 @@ Super Class: obj
 
 ### num :init -> class/num/init
 
-```lisp
+```code
 inputs
 r0 = num object (ptr)
 r1 = vtable (pptr)
@@ -3470,7 +3470,7 @@ r1
 
 ### num :get_value -> class/num/get_value
 
-```lisp
+```code
 inputs
 r0 = num object (ptr)
 outputs
@@ -3482,7 +3482,7 @@ r1
 
 ### num :set_value -> class/num/set_value
 
-```lisp
+```code
 inputs
 r0 = num object (ptr)
 r1 = value (long)
@@ -3497,7 +3497,7 @@ none
 
 ### num :print -> class/num/print
 
-```lisp
+```code
 inputs
 r0 = num object (ptr)
 r1 = stream object (ptr)
@@ -3511,7 +3511,7 @@ r1-r14
 
 ### num :add -> class/num/add
 
-```lisp
+```code
 inputs
 r0 = num object (ptr)
 r1 = list of num objects (ptr)
@@ -3524,7 +3524,7 @@ r1-r14
 
 ### num :sub -> class/num/sub
 
-```lisp
+```code
 inputs
 r0 = num object (ptr)
 r1 = list of num objects (ptr)
@@ -3537,7 +3537,7 @@ r1-r14
 
 ### num :mul -> class/num/mul
 
-```lisp
+```code
 inputs
 r0 = num object (ptr)
 r1 = list of num objects (ptr)
@@ -3550,7 +3550,7 @@ r1-r14
 
 ### num :min -> class/num/min
 
-```lisp
+```code
 inputs
 r0 = num object (ptr)
 r1 = list of num objects (ptr)
@@ -3563,7 +3563,7 @@ r1-r14
 
 ### num :max -> class/num/max
 
-```lisp
+```code
 inputs
 r0 = num object (ptr)
 r1 = list of num objects (ptr)
@@ -3576,7 +3576,7 @@ r1-r14
 
 ### num :div -> class/num/div
 
-```lisp
+```code
 inputs
 r0 = num object (ptr)
 r1 = list of num objects (ptr)
@@ -3589,7 +3589,7 @@ r1-r14
 
 ### num :mod -> class/num/mod
 
-```lisp
+```code
 inputs
 r0 = num object (ptr)
 r1 = list of num objects (ptr)
@@ -3602,7 +3602,7 @@ r1-r14
 
 ### num :sqrt -> class/num/sqrt
 
-```lisp
+```code
 inputs
 r0 = num object (ptr)
 outputs
@@ -3614,7 +3614,7 @@ r1-r14
 
 ### num :abs -> class/num/abs
 
-```lisp
+```code
 inputs
 r0 = num object (ptr)
 outputs
@@ -3626,7 +3626,7 @@ r1-r14
 
 ### num :sign -> class/num/sign
 
-```lisp
+```code
 inputs
 r0 = num object (ptr)
 outputs
@@ -3638,7 +3638,7 @@ r1-r14
 
 ### num :neg -> class/num/neg
 
-```lisp
+```code
 inputs
 r0 = num object (ptr)
 outputs
@@ -3650,7 +3650,7 @@ r1-r14
 
 ### num :random -> class/num/random
 
-```lisp
+```code
 inputs
 r0 = num object (ptr)
 outputs
@@ -3662,7 +3662,7 @@ r1-r14
 
 ### num :eq -> class/num/eq
 
-```lisp
+```code
 inputs
 r0 = num object (ptr)
 r1 = list of num objects (ptr)
@@ -3675,7 +3675,7 @@ r1-r14
 
 ### num :ne -> class/num/ne
 
-```lisp
+```code
 inputs
 r0 = num object (ptr)
 r1 = list of num objects (ptr)
@@ -3688,7 +3688,7 @@ r1-r14
 
 ### num :lt -> class/num/lt
 
-```lisp
+```code
 inputs
 r0 = num object (ptr)
 r1 = list of num objects (ptr)
@@ -3701,7 +3701,7 @@ r1-r14
 
 ### num :gt -> class/num/gt
 
-```lisp
+```code
 inputs
 r0 = num object (ptr)
 r1 = list of num objects (ptr)
@@ -3714,7 +3714,7 @@ r1-r14
 
 ### num :le -> class/num/le
 
-```lisp
+```code
 inputs
 r0 = num object (ptr)
 r1 = list of num objects (ptr)
@@ -3727,7 +3727,7 @@ r1-r14
 
 ### num :ge -> class/num/ge
 
-```lisp
+```code
 inputs
 r0 = num object (ptr)
 r1 = list of num objects (ptr)
@@ -3740,7 +3740,7 @@ r1-r14
 
 ### num :lisp_add -> class/num/lisp_add
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -3753,7 +3753,7 @@ r1-r14
 
 ### num :lisp_sub -> class/num/lisp_sub
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -3766,7 +3766,7 @@ r1-r14
 
 ### num :lisp_mul -> class/num/lisp_mul
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -3779,7 +3779,7 @@ r1-r14
 
 ### num :lisp_div -> class/num/lisp_div
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -3792,7 +3792,7 @@ r1-r14
 
 ### num :lisp_mod -> class/num/lisp_mod
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -3805,7 +3805,7 @@ r1-r14
 
 ### num :lisp_min -> class/num/lisp_min
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -3818,7 +3818,7 @@ r1-r14
 
 ### num :lisp_max -> class/num/lisp_max
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -3831,7 +3831,7 @@ r1-r14
 
 ### num :lisp_abs -> class/num/lisp_abs
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -3844,7 +3844,7 @@ r1-r14
 
 ### num :lisp_neg -> class/num/lisp_neg
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -3857,7 +3857,7 @@ r1-r14
 
 ### num :lisp_sign -> class/num/lisp_sign
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -3870,7 +3870,7 @@ r1-r14
 
 ### num :lisp_sqrt -> class/num/lisp_sqrt
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -3883,7 +3883,7 @@ r1-r14
 
 ### num :lisp_random -> class/num/lisp_random
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -3896,7 +3896,7 @@ r1-r14
 
 ### num :lisp_eq -> class/num/lisp_eq
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -3909,7 +3909,7 @@ r1-r14
 
 ### num :lisp_ne -> class/num/lisp_ne
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -3922,7 +3922,7 @@ r1-r14
 
 ### num :lisp_lt -> class/num/lisp_lt
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -3935,7 +3935,7 @@ r1-r14
 
 ### num :lisp_gt -> class/num/lisp_gt
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -3948,7 +3948,7 @@ r1-r14
 
 ### num :lisp_le -> class/num/lisp_le
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -3961,7 +3961,7 @@ r1-r14
 
 ### num :lisp_ge -> class/num/lisp_ge
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -3974,7 +3974,7 @@ r1-r14
 
 ### num :lisp_and -> class/num/lisp_and
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -3987,7 +3987,7 @@ r1-r14
 
 ### num :lisp_or -> class/num/lisp_or
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -4000,7 +4000,7 @@ r1-r14
 
 ### num :lisp_xor -> class/num/lisp_xor
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -4013,7 +4013,7 @@ r1-r14
 
 ### num :lisp_shr -> class/num/lisp_shr
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -4026,7 +4026,7 @@ r1-r14
 
 ### num :lisp_asr -> class/num/lisp_asr
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -4039,7 +4039,7 @@ r1-r14
 
 ### num :lisp_shl -> class/num/lisp_shl
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -4052,7 +4052,7 @@ r1-r14
 
 ### num :lisp_i2f -> class/num/lisp_i2f
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -4065,7 +4065,7 @@ r1-r14
 
 ### num :lisp_i2r -> class/num/lisp_i2r
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -4078,7 +4078,7 @@ r1-r14
 
 ### num :lisp_f2i -> class/num/lisp_f2i
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -4091,7 +4091,7 @@ r1-r14
 
 ### num :lisp_f2r -> class/num/lisp_f2r
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -4104,7 +4104,7 @@ r1-r14
 
 ### num :lisp_r2i -> class/num/lisp_r2i
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -4117,7 +4117,7 @@ r1-r14
 
 ### num :lisp_r2f -> class/num/lisp_r2f
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -4130,7 +4130,7 @@ r1-r14
 
 ### num :hash -> class/num/hash
 
-```lisp
+```code
 inputs
 r0 = num (ptr)
 outputs
@@ -4152,7 +4152,7 @@ Super Class: array
 
 ### nums :add -> class/nums/add
 
-```lisp
+```code
 inputs
 r0 = nums object (ptr)
 r1 = source1 nums object, can be same (ptr)
@@ -4165,7 +4165,7 @@ r1-r6
 
 ### nums :sub -> class/nums/sub
 
-```lisp
+```code
 inputs
 r0 = nums object (ptr)
 r1 = source1 nums object, can be same (ptr)
@@ -4178,7 +4178,7 @@ r1-r6
 
 ### nums :mul -> class/nums/mul
 
-```lisp
+```code
 inputs
 r0 = nums object (ptr)
 r1 = source1 nums object, can be same (ptr)
@@ -4191,7 +4191,7 @@ r1-r6
 
 ### nums :div -> class/nums/div
 
-```lisp
+```code
 inputs
 r0 = nums object (ptr)
 r1 = source1 nums object, can be same (ptr)
@@ -4204,7 +4204,7 @@ r1-r8
 
 ### nums :mod -> class/nums/mod
 
-```lisp
+```code
 inputs
 r0 = nums object (ptr)
 r1 = source1 nums object, can be same (ptr)
@@ -4217,7 +4217,7 @@ r1-r8
 
 ### nums :abs -> class/nums/abs
 
-```lisp
+```code
 inputs
 r0 = nums object (ptr)
 r1 = source nums object, can be same (ptr)
@@ -4229,7 +4229,7 @@ r1-r4
 
 ### nums :sum -> class/nums/sum
 
-```lisp
+```code
 inputs
 r0 = nums object (ptr)
 outputs
@@ -4241,7 +4241,7 @@ r1-r4
 
 ### nums :scale -> class/nums/scale
 
-```lisp
+```code
 inputs
 r0 = nums object (ptr)
 r1 = source nums object, can be same (ptr)
@@ -4254,7 +4254,7 @@ r1-r5
 
 ### nums :lisp_vecop1 -> class/nums/lisp_vecop1
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -4268,7 +4268,7 @@ r1-r14
 
 ### nums :lisp_vecop2 -> class/nums/lisp_vecop2
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -4282,7 +4282,7 @@ r1-r14
 
 ### nums :lisp_add -> class/nums/lisp_add
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -4295,7 +4295,7 @@ r1-r14
 
 ### nums :lisp_sub -> class/nums/lisp_sub
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -4308,7 +4308,7 @@ r1-r14
 
 ### nums :lisp_mul -> class/nums/lisp_mul
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -4321,7 +4321,7 @@ r1-r14
 
 ### nums :lisp_div -> class/nums/lisp_div
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -4334,7 +4334,7 @@ r1-r14
 
 ### nums :lisp_mod -> class/nums/lisp_mod
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -4347,7 +4347,7 @@ r1-r14
 
 ### nums :lisp_sum -> class/nums/lisp_sum
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -4360,7 +4360,7 @@ r1-r14
 
 ### nums :lisp_scale -> class/nums/lisp_scale
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -4373,7 +4373,7 @@ r1-r14
 
 ### nums :lisp_abs -> class/nums/lisp_abs
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -4394,7 +4394,7 @@ Super Class: nil
 
 ### obj :destroy -> class/obj/destroy
 
-```lisp
+```code
 inputs
 r0 = object (ptr)
 trashes
@@ -4403,7 +4403,7 @@ r0-r14
 
 ### obj :init -> class/obj/init
 
-```lisp
+```code
 inputs
 r0 = object (ptr)
 r1 = vtable (pptr)
@@ -4416,7 +4416,7 @@ r1
 
 ### obj :inst_of -> class/obj/inst_of
 
-```lisp
+```code
 inputs
 r0 = object (ptr)
 r1 = vtable of tested type (ptr)
@@ -4429,7 +4429,7 @@ r1-r2
 
 ### obj :ref -> class/obj/ref
 
-```lisp
+```code
 inputs
 r0 = object (ptr)
 outputs
@@ -4440,7 +4440,7 @@ r1
 
 ### obj :deref -> class/obj/deref
 
-```lisp
+```code
 inputs
 r0 = object (ptr)
 trashes
@@ -4449,7 +4449,7 @@ r0-r14
 
 ### obj :ref_if -> class/obj/ref_if
 
-```lisp
+```code
 inputs
 r0 = 0, else object (ptr)
 outputs
@@ -4460,7 +4460,7 @@ r1
 
 ### obj :deref_if -> class/obj/deref_if
 
-```lisp
+```code
 inputs
 r0 = 0, else object (ptr)
 trashes
@@ -4469,7 +4469,7 @@ r0-r14
 
 ### obj :print -> class/obj/print
 
-```lisp
+```code
 inputs
 r0 = object (ptr)
 r1 = stream object (ptr)
@@ -4481,7 +4481,7 @@ r1-r14
 
 ### obj :hash -> class/obj/hash
 
-```lisp
+```code
 inputs
 r0 = object (ptr)
 outputs
@@ -4493,7 +4493,7 @@ r1-r14
 
 ### obj :type -> class/obj/type
 
-```lisp
+```code
 inputs
 r0 = obj object (ptr)
 outputs
@@ -4507,7 +4507,7 @@ r1-r14
 
 ### obj :lisp_get_field -> class/obj/lisp_get_field
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -4520,7 +4520,7 @@ r1-r14
 
 ### obj :lisp_set_field -> class/obj/lisp_set_field
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -4533,7 +4533,7 @@ r1-r14
 
 ### obj :lisp_hash -> class/obj/lisp_hash
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -4546,7 +4546,7 @@ r1-r14
 
 ### obj :lisp_weak_ref -> class/obj/lisp_weak_ref
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -4559,7 +4559,7 @@ r1-r14
 
 ### obj :lisp_obj_ref -> class/obj/lisp_obj_ref
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -4572,7 +4572,7 @@ r1-r14
 
 ### obj :lisp_type -> class/obj/lisp_type
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -4593,7 +4593,7 @@ Super Class: stream
 
 ### out :init -> class/out/init
 
-```lisp
+```code
 inputs
 r0 = out object (ptr)
 r1 = vtable (pptr)
@@ -4607,7 +4607,7 @@ r1-r14
 
 ### out :set_state -> class/out/set_state
 
-```lisp
+```code
 inputs
 r0 = out object (ptr)
 r1 = state (uint)
@@ -4619,7 +4619,7 @@ r1-r14
 
 ### out :wait_acks -> class/out/wait_acks
 
-```lisp
+```code
 inputs
 r0 = out object (ptr)
 r1 = msg ack num (uint)
@@ -4631,7 +4631,7 @@ r1-r14
 
 ### out :deinit -> class/out/deinit
 
-```lisp
+```code
 inputs
 r0 = out object (ptr)
 outputs
@@ -4642,7 +4642,7 @@ r1-r14
 
 ### out :flush -> class/out/flush
 
-```lisp
+```code
 inputs
 r0 = out object (ptr)
 outputs
@@ -4653,7 +4653,7 @@ r1-r14
 
 ### out :write_next -> class/out/write_next
 
-```lisp
+```code
 inputs
 r0 = out object (ptr)
 outputs
@@ -4664,7 +4664,7 @@ r1-r14
 
 ### out :lisp_create -> class/out/lisp_create
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -4687,7 +4687,7 @@ Super Class: fixeds
 
 ### path :filter_polyline -> gui/path/filter_polyline
 
-```lisp
+```code
 inputs
 r0 = path object (ptr)
 r1 = source path object, can be same (ptr)
@@ -4700,7 +4700,7 @@ r1-r14
 
 ### path :filter_polygon -> gui/path/filter_polygon
 
-```lisp
+```code
 inputs
 r0 = path object (ptr)
 r1 = source path object, can be same (ptr)
@@ -4713,7 +4713,7 @@ r1-r14
 
 ### path :transform -> gui/path/transform
 
-```lisp
+```code
 inputs
 r0 = path object (ptr)
 r1 = source path object, can be same (ptr)
@@ -4731,7 +4731,7 @@ r1-r14
 
 ### path :simplify -> gui/path/simplify
 
-```lisp
+```code
 inputs
 r0 = path object (ptr)
 r1 = source path object (ptr)
@@ -4745,7 +4745,7 @@ r1-r14
 
 ### path :gen_clerp -> gui/path/gen_clerp
 
-```lisp
+```code
 inputs
 r0 = path object (ptr)
 r1 = stack array object (ptr)
@@ -4765,7 +4765,7 @@ r1-r14
 
 ### path :gen_arc -> gui/path/gen_arc
 
-```lisp
+```code
 inputs
 r0 = path object (ptr)
 r1 = stack array object (ptr)
@@ -4783,7 +4783,7 @@ r1-r14
 
 ### path :gen_quadratic -> gui/path/gen_quadratic
 
-```lisp
+```code
 inputs
 r0 = path object (ptr)
 r1 = stack array object (ptr)
@@ -4802,7 +4802,7 @@ r1-r14
 
 ### path :gen_cubic -> gui/path/gen_cubic
 
-```lisp
+```code
 inputs
 r0 = path object (ptr)
 r1 = stack array object (ptr)
@@ -4823,7 +4823,7 @@ r1-r14
 
 ### path :stroke_joints -> gui/path/stroke_joints
 
-```lisp
+```code
 inputs
 r0 = path object (ptr)
 r1 = stack array object (ptr)
@@ -4844,7 +4844,7 @@ r1-r14
 
 ### path :stroke_polylines -> gui/path/stroke_polylines
 
-```lisp
+```code
 inputs
 r0 = output list of path objects (ptr)
 r1 = stack array object (ptr)
@@ -4862,7 +4862,7 @@ r1-r14
 
 ### path :stroke_polygons -> gui/path/stroke_polygons
 
-```lisp
+```code
 inputs
 r0 = output list of path objects (ptr)
 r1 = stack array object (ptr)
@@ -4878,7 +4878,7 @@ r1-r14
 
 ### path :lisp_transform -> gui/path/lisp_transform
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -4891,7 +4891,7 @@ r1-r14
 
 ### path :lisp_simplify -> gui/path/lisp_simplify
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -4904,7 +4904,7 @@ r1-r14
 
 ### path :lisp_filter -> gui/path/lisp_filter
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -4917,7 +4917,7 @@ r1-r14
 
 ### path :lisp_gen_quadratic -> gui/path/lisp_gen_quadratic
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -4930,7 +4930,7 @@ r1-r14
 
 ### path :lisp_gen_cubic -> gui/path/lisp_gen_cubic
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -4943,7 +4943,7 @@ r1-r14
 
 ### path :lisp_gen_arc -> gui/path/lisp_gen_arc
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -4956,7 +4956,7 @@ r1-r14
 
 ### path :lisp_stroke_polylines -> gui/path/lisp_stroke_polylines
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -4969,7 +4969,7 @@ r1-r14
 
 ### path :lisp_stroke_polygons -> gui/path/lisp_stroke_polygons
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -4988,7 +4988,7 @@ Super Class: obj
 
 ### pixmap :create -> gui/pixmap/create
 
-```lisp
+```code
 inputs
 r0 = width (pixels)
 r1 = height (pixels)
@@ -5000,7 +5000,7 @@ r1-r6
 
 ### pixmap :init -> gui/pixmap/init
 
-```lisp
+```code
 inputs
 r0 = pixmap object (ptr)
 r1 = vtable (pptr)
@@ -5015,7 +5015,7 @@ r1-r14
 
 ### pixmap :upload -> gui/pixmap/upload
 
-```lisp
+```code
 inputs
 r0 = pixmap object (ptr)
 outputs
@@ -5026,7 +5026,7 @@ r1-r14
 
 ### pixmap :resize -> gui/pixmap/resize
 
-```lisp
+```code
 inputs
 r0 = pixmap object (ptr)
 r1 = source pixmap object (ptr)
@@ -5038,7 +5038,7 @@ r1-r14
 
 ### pixmap :resize_2 -> gui/pixmap/resize_2
 
-```lisp
+```code
 inputs
 r0 = pixmap object (ptr)
 r1 = source pixmap object (ptr)
@@ -5050,7 +5050,7 @@ r1-r14
 
 ### pixmap :resize_3 -> gui/pixmap/resize_3
 
-```lisp
+```code
 inputs
 r0 = pixmap object (ptr)
 r1 = source pixmap object (ptr)
@@ -5062,7 +5062,7 @@ r1-r14
 
 ### pixmap :fill -> gui/pixmap/fill
 
-```lisp
+```code
 inputs
 r0 = pixmap object (ptr)
 r1 = color (argb)
@@ -5074,7 +5074,7 @@ r1-r4
 
 ### pixmap :to_premul -> gui/pixmap/to_premul
 
-```lisp
+```code
 inputs
 r1 = color (argb)
 outputs
@@ -5085,7 +5085,7 @@ r1-r3
 
 ### pixmap :to_argb -> gui/pixmap/to_argb
 
-```lisp
+```code
 inputs
 r1 = color premul (argb)
 outputs
@@ -5096,7 +5096,7 @@ r1-r4
 
 ### pixmap :as_argb -> gui/pixmap/as_argb
 
-```lisp
+```code
 inputs
 r0 = pixmap object (ptr)
 r1 = source pixmap object (ptr)
@@ -5108,7 +5108,7 @@ r1-r9
 
 ### pixmap :as_premul -> gui/pixmap/as_premul
 
-```lisp
+```code
 inputs
 r0 = pixmap object (ptr)
 r1 = source pixmap object (ptr)
@@ -5120,7 +5120,7 @@ r1-r8
 
 ### pixmap :brighter -> gui/pixmap/brighter
 
-```lisp
+```code
 inputs
 r1 = color (argb)
 outputs
@@ -5131,7 +5131,7 @@ r1-r3
 
 ### pixmap :darker -> gui/pixmap/darker
 
-```lisp
+```code
 inputs
 r1 = color (argb)
 outputs
@@ -5142,7 +5142,7 @@ r1-r3
 
 ### pixmap :info -> gui/pixmap/info
 
-```lisp
+```code
 inputs
 r0 = c string name (pubyte)
 outputs
@@ -5155,7 +5155,7 @@ r0-r14
 
 ### pixmap :info_file -> gui/pixmap/info_file
 
-```lisp
+```code
 inputs
 r4 = c string name (pubyte)
 r5 = stream object (ptr)
@@ -5169,7 +5169,7 @@ r0-r14
 
 ### pixmap :info_cpm -> gui/pixmap/info_cpm
 
-```lisp
+```code
 inputs
 r5 = stream object (ptr)
 outputs
@@ -5182,7 +5182,7 @@ r0-r14
 
 ### pixmap :info_tga -> gui/pixmap/info_tga
 
-```lisp
+```code
 inputs
 r5 = stream object (ptr)
 outputs
@@ -5195,7 +5195,7 @@ r0-r14
 
 ### pixmap :load -> gui/pixmap/load
 
-```lisp
+```code
 inputs
 r0 = c string name (pubyte)
 r1 = flags (uint)
@@ -5207,7 +5207,7 @@ r0-r14
 
 ### pixmap :load_file -> gui/pixmap/load_file
 
-```lisp
+```code
 inputs
 r4 = c string name (pubyte)
 r5 = stream object (ptr)
@@ -5219,7 +5219,7 @@ r0-r14
 
 ### pixmap :load_cpm -> gui/pixmap/load_cpm
 
-```lisp
+```code
 inputs
 r5 = stream object (ptr)
 outputs
@@ -5230,7 +5230,7 @@ r0-r14
 
 ### pixmap :load_tga -> gui/pixmap/load_tga
 
-```lisp
+```code
 inputs
 r5 = stream object (ptr)
 outputs
@@ -5241,7 +5241,7 @@ r0-r14
 
 ### pixmap :to_argb32 -> gui/pixmap/to_argb32
 
-```lisp
+```code
 inputs
 r1 = col (uint)
 r2 = pixel type (uint)
@@ -5253,7 +5253,7 @@ r1-r8
 
 ### pixmap :next_frame -> gui/pixmap/next_frame
 
-```lisp
+```code
 inputs
 r0 = pixmap object (ptr)
 outputs
@@ -5264,7 +5264,7 @@ r1-r14
 
 ### pixmap :save -> gui/pixmap/save
 
-```lisp
+```code
 inputs
 r0 = pixmap object (ptr)
 r1 = c string name (pubyte)
@@ -5277,7 +5277,7 @@ r0-r14
 
 ### pixmap :save_file -> gui/pixmap/save_file
 
-```lisp
+```code
 inputs
 r4 = pixmap object (ptr)
 r5 = c string name (pubyte)
@@ -5291,7 +5291,7 @@ r0-r14
 
 ### pixmap :save_cpm -> gui/pixmap/save_cpm
 
-```lisp
+```code
 inputs
 r4 = pixmap object (ptr)
 r6 = stream object (ptr)
@@ -5304,7 +5304,7 @@ r0-r14
 
 ### pixmap :from_argb32 -> gui/pixmap/from_argb32
 
-```lisp
+```code
 inputs
 r1 = col (uint)
 r2 = pixel type (uint)
@@ -5316,7 +5316,7 @@ r1-r5
 
 ### pixmap :deinit -> gui/pixmap/deinit
 
-```lisp
+```code
 inputs
 r0 = pixmap object (ptr)
 outputs
@@ -5335,7 +5335,7 @@ Super Class: fixed
 
 ### real :print -> class/real/print
 
-```lisp
+```code
 inputs
 r0 = real object (ptr)
 r1 = stream object (ptr)
@@ -5349,7 +5349,7 @@ r1-r14
 
 ### real :add -> class/real/add
 
-```lisp
+```code
 inputs
 r0 = real object (ptr)
 r1 = list of real objects (ptr)
@@ -5362,7 +5362,7 @@ r1-r14
 
 ### real :sub -> class/real/sub
 
-```lisp
+```code
 inputs
 r0 = real object (ptr)
 r1 = list of real objects (ptr)
@@ -5375,7 +5375,7 @@ r1-r14
 
 ### real :mul -> class/real/mul
 
-```lisp
+```code
 inputs
 r0 = real object (ptr)
 r1 = list of real objects (ptr)
@@ -5388,7 +5388,7 @@ r1-r14
 
 ### real :div -> class/real/div
 
-```lisp
+```code
 inputs
 r0 = real object (ptr)
 r1 = list of real objects (ptr)
@@ -5401,7 +5401,7 @@ r1-r14
 
 ### real :mod -> class/real/mod
 
-```lisp
+```code
 inputs
 r0 = real object (ptr)
 r1 = list of real objects (ptr)
@@ -5414,7 +5414,7 @@ r1-r14
 
 ### real :min -> class/real/min
 
-```lisp
+```code
 inputs
 r0 = real object (ptr)
 r1 = list of real objects (ptr)
@@ -5427,7 +5427,7 @@ r1-r14
 
 ### real :max -> class/real/max
 
-```lisp
+```code
 inputs
 r0 = real object (ptr)
 r1 = list of real objects (ptr)
@@ -5440,7 +5440,7 @@ r1-r14
 
 ### real :abs -> class/real/abs
 
-```lisp
+```code
 inputs
 r0 = real object (ptr)
 outputs
@@ -5452,7 +5452,7 @@ r1-r14
 
 ### real :sign -> class/real/sign
 
-```lisp
+```code
 inputs
 r0 = real object (ptr)
 outputs
@@ -5464,7 +5464,7 @@ r1-r14
 
 ### real :neg -> class/real/neg
 
-```lisp
+```code
 inputs
 r0 = real object (ptr)
 outputs
@@ -5476,7 +5476,7 @@ r1-r14
 
 ### real :sqrt -> class/real/sqrt
 
-```lisp
+```code
 inputs
 r0 = real object (ptr)
 outputs
@@ -5488,7 +5488,7 @@ r1-r14
 
 ### real :frac -> class/real/frac
 
-```lisp
+```code
 inputs
 r0 = real object (ptr)
 outputs
@@ -5500,7 +5500,7 @@ r1-r14
 
 ### real :floor -> class/real/floor
 
-```lisp
+```code
 inputs
 r0 = real object (ptr)
 outputs
@@ -5512,7 +5512,7 @@ r1-r14
 
 ### real :recip -> class/real/recip
 
-```lisp
+```code
 inputs
 r0 = real object (ptr)
 outputs
@@ -5524,7 +5524,7 @@ r1-r14
 
 ### real :lt -> class/real/lt
 
-```lisp
+```code
 inputs
 r0 = real object (ptr)
 r1 = list of real objects (ptr)
@@ -5537,7 +5537,7 @@ r1-r14
 
 ### real :gt -> class/real/gt
 
-```lisp
+```code
 inputs
 r0 = real object (ptr)
 r1 = list of real objects (ptr)
@@ -5550,7 +5550,7 @@ r1-r14
 
 ### real :le -> class/real/le
 
-```lisp
+```code
 inputs
 r0 = real object (ptr)
 r1 = list of real objects (ptr)
@@ -5563,7 +5563,7 @@ r1-r14
 
 ### real :ge -> class/real/ge
 
-```lisp
+```code
 inputs
 r0 = real object (ptr)
 r1 = list of real objects (ptr)
@@ -5588,7 +5588,7 @@ Super Class: fixeds
 
 ### reals :add -> class/reals/add
 
-```lisp
+```code
 inputs
 r0 = reals object (ptr)
 r1 = source1 reals object, can be same (ptr)
@@ -5601,7 +5601,7 @@ r1-r14
 
 ### reals :sub -> class/reals/sub
 
-```lisp
+```code
 inputs
 r0 = reals object (ptr)
 r1 = source1 reals object, can be same (ptr)
@@ -5614,7 +5614,7 @@ r1-r14
 
 ### reals :mul -> class/reals/mul
 
-```lisp
+```code
 inputs
 r0 = reals object (ptr)
 r1 = source1 reals object, can be same (ptr)
@@ -5627,7 +5627,7 @@ r1-r14
 
 ### reals :div -> class/reals/div
 
-```lisp
+```code
 inputs
 r0 = reals object (ptr)
 r1 = source1 reals object, can be same (ptr)
@@ -5640,7 +5640,7 @@ r1-r14
 
 ### reals :mod -> class/reals/mod
 
-```lisp
+```code
 inputs
 r0 = reals object (ptr)
 r1 = source1 reals object, can be same (ptr)
@@ -5653,7 +5653,7 @@ r1-r14
 
 ### reals :abs -> class/reals/abs
 
-```lisp
+```code
 inputs
 r0 = reals object (ptr)
 r1 = source reals object, can be same (ptr)
@@ -5665,7 +5665,7 @@ r1-r14
 
 ### reals :sum -> class/reals/sum
 
-```lisp
+```code
 inputs
 r0 = reals object (ptr)
 outputs
@@ -5677,7 +5677,7 @@ r1-r14
 
 ### reals :scale -> class/reals/scale
 
-```lisp
+```code
 inputs
 r0 = reals object (ptr)
 r1 = source reals object, can be same (ptr)
@@ -5690,7 +5690,7 @@ r1-r14
 
 ### reals :frac -> class/reals/frac
 
-```lisp
+```code
 inputs
 r0 = reals object (ptr)
 r1 = source reals object, can be same (ptr)
@@ -5702,7 +5702,7 @@ r1-r14
 
 ### reals :floor -> class/reals/floor
 
-```lisp
+```code
 inputs
 r0 = reals object (ptr)
 r1 = source reals object, can be same (ptr)
@@ -5718,7 +5718,7 @@ Super Class: nil
 
 ### region :translate -> gui/region/translate
 
-```lisp
+```code
 inputs
 r1 = region listhead (ptr)
 r7 = x translation (pixels)
@@ -5729,7 +5729,7 @@ r1, r11-r14
 
 ### region :bounds -> gui/region/bounds
 
-```lisp
+```code
 inputs
 r1 = region listhead (ptr)
 outputs
@@ -5743,7 +5743,7 @@ r1, r7-r14
 
 ### region :clip_rect -> gui/region/clip_rect
 
-```lisp
+```code
 inputs
 r0 = region heap (ptr)
 r1 = source region listhead (ptr)
@@ -5759,7 +5759,7 @@ r1-r3, r11-r14
 
 ### region :remove_rect -> gui/region/remove_rect
 
-```lisp
+```code
 inputs
 r0 = region heap (ptr)
 r1 = source region listhead (ptr)
@@ -5775,7 +5775,7 @@ r1-r5, r11-r14
 
 ### region :cut_rect -> gui/region/cut_rect
 
-```lisp
+```code
 inputs
 r0 = region heap (ptr)
 r1 = source region listhead (ptr)
@@ -5792,7 +5792,7 @@ r1-r6, r11-r14
 
 ### region :copy_rect -> gui/region/copy_rect
 
-```lisp
+```code
 inputs
 r0 = region heap (ptr)
 r1 = source region listhead (ptr)
@@ -5809,7 +5809,7 @@ r1-r4, r11-r14
 
 ### region :paste_rect -> gui/region/paste_rect
 
-```lisp
+```code
 inputs
 r0 = region heap (ptr)
 r1 = dest region listhead (ptr)
@@ -5825,7 +5825,7 @@ r1-r14
 
 ### region :free -> gui/region/free
 
-```lisp
+```code
 inputs
 r0 = region heap (ptr)
 r1 = source region listhead (ptr)
@@ -5837,7 +5837,7 @@ r1-r3
 
 ### region :copy_region -> gui/region/copy_region
 
-```lisp
+```code
 inputs
 r0 = region heap (ptr)
 r1 = source region listhead (ptr)
@@ -5853,7 +5853,7 @@ r1-r14
 
 ### region :paste_region -> gui/region/paste_region
 
-```lisp
+```code
 inputs
 r0 = region heap (ptr)
 r1 = source region listhead (ptr)
@@ -5868,7 +5868,7 @@ r1-r14
 
 ### region :remove_region -> gui/region/remove_region
 
-```lisp
+```code
 inputs
 r0 = region heap (ptr)
 r1 = source region listhead (ptr)
@@ -5903,7 +5903,7 @@ Super Class: obj
 
 ### seq :lisp_length -> class/seq/lisp_length
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -5916,7 +5916,7 @@ r1-r14
 
 ### seq :lisp_elem -> class/seq/lisp_elem
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -5929,7 +5929,7 @@ r1-r14
 
 ### seq :lisp_find -> class/seq/lisp_find
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -5942,7 +5942,7 @@ r1-r14
 
 ### seq :lisp_rfind -> class/seq/lisp_rfind
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -5955,7 +5955,7 @@ r1-r14
 
 ### seq :lisp_slice -> class/seq/lisp_slice
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -5968,7 +5968,7 @@ r1-r14
 
 ### seq :lisp_cat -> class/seq/lisp_cat
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -5981,7 +5981,7 @@ r1-r14
 
 ### seq :lisp_each -> class/seq/lisp_each
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -5994,7 +5994,7 @@ r1-r14
 
 ### seq :lisp_some -> class/seq/lisp_some
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -6015,7 +6015,7 @@ Super Class: stream
 
 ### sstream :init -> class/sstream/init
 
-```lisp
+```code
 inputs
 r0 = sstream object (ptr)
 r1 = vtable (pptr)
@@ -6029,7 +6029,7 @@ r1-r5
 
 ### sstream :ref_string -> class/sstream/ref_string
 
-```lisp
+```code
 inputs
 r0 = sstream object (ptr)
 outputs
@@ -6041,7 +6041,7 @@ r1-r2
 
 ### sstream :write_next -> class/sstream/write_next
 
-```lisp
+```code
 inputs
 r0 = sstream object (ptr)
 outputs
@@ -6052,7 +6052,7 @@ r1-r14
 
 ### sstream :flush -> class/sstream/flush
 
-```lisp
+```code
 inputs
 r0 = sstream object (ptr)
 outputs
@@ -6071,7 +6071,7 @@ Super Class: obj
 
 ### stdio :init -> class/stdio/init
 
-```lisp
+```code
 inputs
 r0 = stdio object (ptr)
 r1 = vtable (pptr)
@@ -6084,7 +6084,7 @@ r1-r14
 
 ### stdio :deinit -> class/stdio/deinit
 
-```lisp
+```code
 inputs
 r0 = stdio object (ptr)
 outputs
@@ -6095,7 +6095,7 @@ r1-r14
 
 ### stdio :lisp_create -> class/stdio/lisp_create
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -6114,7 +6114,7 @@ Super Class: seq
 
 ### str :create_from_buffer -> class/str/create_from_buffer
 
-```lisp
+```code
 inputs
 r0 = buffer (pubyte)
 r1 = buffer length (uint)
@@ -6126,7 +6126,7 @@ r0-r6
 
 ### str :create_from_cstr -> class/str/create_from_cstr
 
-```lisp
+```code
 inputs
 r0 = c string (pubyte)
 outputs
@@ -6137,7 +6137,7 @@ r0-r6
 
 ### str :create_from_file -> class/str/create_from_file
 
-```lisp
+```code
 inputs
 r0 = file name c string (pubyte)
 outputs
@@ -6148,7 +6148,7 @@ r0-r6
 
 ### str :create_from_long -> class/str/create_from_long
 
-```lisp
+```code
 inputs
 r0 = number (long)
 r1 = base, - for unsigned, (long)
@@ -6160,7 +6160,7 @@ r0-r6
 
 ### str :append -> class/str/append
 
-```lisp
+```code
 inputs
 r0 = str object (ptr)
 r1 = str object (ptr)
@@ -6172,7 +6172,7 @@ r1-r6
 
 ### str :init -> class/str/init
 
-```lisp
+```code
 inputs
 r0 = str object (ptr)
 r1 = vtable (pptr)
@@ -6187,7 +6187,7 @@ r1-r6
 
 ### str :init1 -> class/str/init1
 
-```lisp
+```code
 inputs
 r0 = str object (ptr)
 r1 = vtable (pptr)
@@ -6202,7 +6202,7 @@ r1-r6
 
 ### str :init2 -> class/str/init2
 
-```lisp
+```code
 inputs
 r0 = str object (ptr)
 r1 = vtable (pptr)
@@ -6217,7 +6217,7 @@ r1-r6
 
 ### str :init3 -> class/str/init3
 
-```lisp
+```code
 inputs
 r0 = str object (ptr)
 r1 = vtable (pptr)
@@ -6231,7 +6231,7 @@ r1-r6
 
 ### str :split -> class/str/split
 
-```lisp
+```code
 inputs
 r0 = str object (ptr)
 r1 = split chars str object (ptr)
@@ -6244,7 +6244,7 @@ r1-r14
 
 ### str :split_char -> class/str/split_char
 
-```lisp
+```code
 inputs
 r0 = str object (ptr)
 r1 = split char (uint)
@@ -6257,7 +6257,7 @@ r1-r14
 
 ### str :compare -> class/str/compare
 
-```lisp
+```code
 inputs
 r0 = str object (ptr)
 r1 = str object (ptr)
@@ -6270,7 +6270,7 @@ r1-r7
 
 ### str :starts_with -> class/str/starts_with
 
-```lisp
+```code
 inputs
 r0 = str prefix object (ptr)
 r1 = str object (ptr)
@@ -6283,7 +6283,7 @@ r1-r6
 
 ### str :same -> class/str/same
 
-```lisp
+```code
 inputs
 r0 = str object (ptr)
 r1 = str object (ptr)
@@ -6298,7 +6298,7 @@ r1-r6
 
 ### str :print -> class/str/print
 
-```lisp
+```code
 inputs
 r0 = str object (ptr)
 r1 = stream object (ptr)
@@ -6310,7 +6310,7 @@ r1-r14
 
 ### str :hash -> class/str/hash
 
-```lisp
+```code
 inputs
 r0 = str object (ptr)
 outputs
@@ -6322,7 +6322,7 @@ r1-r4
 
 ### str :get_length -> class/str/get_length
 
-```lisp
+```code
 inputs
 r0 = str object (ptr)
 outputs
@@ -6334,7 +6334,7 @@ r1
 
 ### str :ref_element -> class/str/ref_element
 
-```lisp
+```code
 inputs
 r0 = str object (ptr)
 r1 = char index (uint)
@@ -6347,7 +6347,7 @@ r1-r7
 
 ### str :slice -> class/str/slice
 
-```lisp
+```code
 inputs
 r0 = str object (ptr)
 r1 = element start index (uint)
@@ -6361,7 +6361,7 @@ r1-r7
 
 ### str :cat -> class/str/cat
 
-```lisp
+```code
 inputs
 r0 = str object (ptr)
 r1 = list of str objects (ptr)
@@ -6373,7 +6373,7 @@ r1-r6
 
 ### str :find -> class/str/find
 
-```lisp
+```code
 inputs
 r0 = str object (ptr)
 r1 = search char (uint)
@@ -6387,7 +6387,7 @@ r2-r5
 
 ### str :rfind -> class/str/rfind
 
-```lisp
+```code
 inputs
 r0 = str object (ptr)
 r1 = search char (uint)
@@ -6401,7 +6401,7 @@ r2-r4
 
 ### str :lisp_str -> class/str/lisp_str
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -6414,7 +6414,7 @@ r1-r14
 
 ### str :lisp_split -> class/str/lisp_split
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -6427,7 +6427,7 @@ r1-r14
 
 ### str :lisp_code -> class/str/lisp_code
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -6440,7 +6440,7 @@ r1-r14
 
 ### str :lisp_char -> class/str/lisp_char
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -6453,7 +6453,7 @@ r1-r14
 
 ### str :lisp_cmp -> class/str/lisp_cmp
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -6466,7 +6466,7 @@ r1-r14
 
 ### str :lisp_save -> class/str/lisp_save
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -6479,7 +6479,7 @@ r1-r14
 
 ### str :lisp_load -> class/str/lisp_load
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -6492,7 +6492,7 @@ r1-r14
 
 ### str :lisp_create -> class/str/lisp_create
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -6513,7 +6513,7 @@ Super Class: obj
 
 ### stream :init -> class/stream/init
 
-```lisp
+```code
 inputs
 r0 = stream object (ptr)
 r1 = vtable (pptr)
@@ -6530,7 +6530,7 @@ r1-r5
 
 ### stream :available -> class/stream/available
 
-```lisp
+```code
 inputs
 r0 = stream object (ptr)
 outputs
@@ -6542,7 +6542,7 @@ r1-r2
 
 ### stream :read_bits -> class/stream/read_bits
 
-```lisp
+```code
 inputs
 r0 = stream object (ptr)
 r1 = num bits (uint)
@@ -6559,7 +6559,7 @@ r1-r14
 
 ### stream :write_bits -> class/stream/write_bits
 
-```lisp
+```code
 inputs
 r0 = stream object (ptr)
 r1 = data (uint)
@@ -6576,7 +6576,7 @@ r1-r14
 
 ### stream :read_char -> class/stream/read_char
 
-```lisp
+```code
 inputs
 r0 = stream object (ptr)
 outputs
@@ -6588,7 +6588,7 @@ r1-r14
 
 ### stream :read_line -> class/stream/read_line
 
-```lisp
+```code
 inputs
 r0 = stream object (ptr)
 outputs
@@ -6600,7 +6600,7 @@ r1-r14
 
 ### stream :read -> class/stream/read
 
-```lisp
+```code
 inputs
 r0 = stream object (ptr)
 r1 = buffer (pubyte)
@@ -6614,7 +6614,7 @@ r1-r14
 
 ### stream :write_char -> class/stream/write_char
 
-```lisp
+```code
 inputs
 r0 = stream object (ptr)
 r1 = char (uint)
@@ -6626,7 +6626,7 @@ r1-r14
 
 ### stream :write -> class/stream/write
 
-```lisp
+```code
 inputs
 r0 = stream object (ptr)
 r1 = buffer (pubyte)
@@ -6639,7 +6639,7 @@ r1-r14
 
 ### stream :write_cstr -> class/stream/write_cstr
 
-```lisp
+```code
 inputs
 r0 = stream object (ptr)
 r1 = buffer (pubyte)
@@ -6651,7 +6651,7 @@ r1-r14
 
 ### stream :skip -> class/stream/skip
 
-```lisp
+```code
 inputs
 r0 = stream object (ptr)
 r1 = char to skip (uint)
@@ -6663,7 +6663,7 @@ r1-r14
 
 ### stream :skip_not -> class/stream/skip_not
 
-```lisp
+```code
 inputs
 r0 = stream object (ptr)
 r1 = char to not skip (uint)
@@ -6675,7 +6675,7 @@ r1-r14
 
 ### stream :deinit -> class/stream/deinit
 
-```lisp
+```code
 inputs
 r0 = stream object (ptr)
 outputs
@@ -6686,7 +6686,7 @@ r1-r14
 
 ### stream :read_next -> class/stream/read_next
 
-```lisp
+```code
 inputs
 r0 = stream object (ptr)
 outputs
@@ -6698,7 +6698,7 @@ r1-r14
 
 ### stream :write_next -> class/stream/flush
 
-```lisp
+```code
 inputs
 r0 = stream object (ptr)
 outputs
@@ -6709,7 +6709,7 @@ r1-r14
 
 ### stream :flush -> class/stream/flush
 
-```lisp
+```code
 inputs
 r0 = stream object (ptr)
 outputs
@@ -6720,7 +6720,7 @@ r1-r14
 
 ### stream :seek -> class/stream/seek
 
-```lisp
+```code
 inputs
 r0 = stream object (ptr)
 r1 = offset (long)
@@ -6734,7 +6734,7 @@ r1-r14
 
 ### stream :lisp_iostream -> class/stream/lisp_iostream
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -6747,7 +6747,7 @@ r1-r14
 
 ### stream :lisp_sstream -> class/stream/lisp_sstream
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -6760,7 +6760,7 @@ r1-r14
 
 ### stream :lisp_fstream -> class/stream/lisp_fstream
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -6773,7 +6773,7 @@ r1-r14
 
 ### stream :lisp_available -> class/stream/lisp_available
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -6786,7 +6786,7 @@ r1-r14
 
 ### stream :lisp_readchar -> class/stream/lisp_readchar
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -6799,7 +6799,7 @@ r1-r14
 
 ### stream :lisp_readline -> class/stream/lisp_readline
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -6812,7 +6812,7 @@ r1-r14
 
 ### stream :lisp_readavail -> class/stream/lisp_readavail
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -6825,7 +6825,7 @@ r1-r14
 
 ### stream :lisp_writechar -> class/stream/lisp_writechar
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -6838,7 +6838,7 @@ r1-r14
 
 ### stream :lisp_write -> class/stream/lisp_write
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -6851,7 +6851,7 @@ r1-r14
 
 ### stream :lisp_write_flush -> class/stream/lisp_write_flush
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -6866,7 +6866,7 @@ r1-r14
 
 ### stream :lisp_seek -> class/stream/lisp_seek
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -6885,14 +6885,14 @@ Super Class: str
 
 ### sym :statics_init -> class/sym/statics_init
 
-```lisp
+```code
 trashes
 r0-r14
 ```
 
 ### sym :get_static_sym -> class/sym/get_static_sym
 
-```lisp
+```code
 inputs
 r1 = static sym num (uint)
 outputs
@@ -6903,7 +6903,7 @@ r1, r3
 
 ### sym :ref_static_sym -> class/sym/ref_static_sym
 
-```lisp
+```code
 inputs
 r1 = static sym num (uint)
 outputs
@@ -6914,14 +6914,14 @@ r1, r3
 
 ### sym :flush -> class/sym/flush
 
-```lisp
+```code
 trashes
 r0-r14
 ```
 
 ### sym :intern -> class/sym/intern
 
-```lisp
+```code
 inputs
 r0 = sym object (ptr)
 outputs
@@ -6935,7 +6935,7 @@ vtable MUST be a sym
 
 ### sym :intern_str -> class/sym/intern_str
 
-```lisp
+```code
 inputs
 r0 = str object (ptr)
 outputs
@@ -6948,7 +6948,7 @@ input str IS NOT derefed
 
 ### sym :intern_cstr -> class/sym/intern_cstr
 
-```lisp
+```code
 inputs
 r0 = c string pointer (pubyte)
 outputs
@@ -6959,7 +6959,7 @@ r0-r14
 
 ### sym :intern_strs -> class/sym/intern_strs
 
-```lisp
+```code
 inputs
 r1 = list of string objects (ptr)
 outputs
@@ -6972,7 +6972,7 @@ r0-r14
 
 ### sym :print -> class/sym/print
 
-```lisp
+```code
 inputs
 r0 = sym object (ptr)
 r1 = stream object (ptr)
@@ -6984,7 +6984,7 @@ r1-r14
 
 ### sym :lisp_sym -> class/sym/lisp_sym
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -6997,7 +6997,7 @@ r1-r14
 
 ### sym :lisp_gensym -> class/sym/lisp_gensym
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -7014,7 +7014,7 @@ Super Class: nil
 
 ### sys_heap :init -> sys/heap/init
 
-```lisp
+```code
 inputs
 r0 = heap (ptr)
 r1 = cell size (bytes)
@@ -7028,7 +7028,7 @@ r1-r2
 
 ### sys_heap :deinit -> sys/heap/deinit
 
-```lisp
+```code
 inputs
 r0 = heap (ptr)
 outputs
@@ -7039,7 +7039,7 @@ r1-r5
 
 ### sys_heap :alloc -> sys/heap/alloc
 
-```lisp
+```code
 inputs
 r0 = heap (ptr)
 outputs
@@ -7051,7 +7051,7 @@ r1-r2
 
 ### sys_heap :free -> sys/heap/free
 
-```lisp
+```code
 inputs
 r0 = heap (ptr)
 r1 = cell (ptr)
@@ -7064,7 +7064,7 @@ r2
 
 ### sys_heap :collect -> sys/heap/collect
 
-```lisp
+```code
 inputs
 r0 = heap (ptr)
 outputs
@@ -7079,7 +7079,7 @@ Super Class: nil
 
 ### sys_kernel :id -> sys/kernel/id
 
-```lisp
+```code
 outputs
 r0-r1 = node id (node_id)
 trashes
@@ -7088,7 +7088,7 @@ r0-r1
 
 ### sys_kernel :kernel -> sys/kernel/kernel
 
-```lisp
+```code
 inputs
 r0 = argv pointer (pptr)
 info
@@ -7097,13 +7097,13 @@ loader is already initialized when we get here !
 
 ### sys_kernel :ping -> sys/kernel/ping
 
-```lisp
+```code
 started by kernel at boot
 ```
 
 ### sys_kernel :lisp_stats -> sys/kernel/lisp_stats
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -7120,13 +7120,13 @@ Super Class: nil
 
 ### sys_link :link -> sys/link/link
 
-```lisp
+```code
 started by kernel for each link
 ```
 
 ### sys_link :usb_link -> sys/link/usb_link
 
-```lisp
+```code
 started by kernel for each usb link
 ```
 
@@ -7140,7 +7140,7 @@ Super Class: nil
 
 ### sys_list :init -> sys/list/init
 
-```lisp
+```code
 inputs
 r0 = list header (ptr)
 ```
@@ -7151,7 +7151,7 @@ Super Class: nil
 
 ### sys_load :init -> sys/load/init
 
-```lisp
+```code
 inputs
 system argv
 host OS function table
@@ -7167,7 +7167,7 @@ to the 'sys/statics/statics' string in its header !
 
 ### sys_load :bind -> sys/load/bind
 
-```lisp
+```code
 input
 r0 = c string function path name (pubyte)
 output
@@ -7178,7 +7178,7 @@ r1-r7
 
 ### sys_load :load -> sys/load/load
 
-```lisp
+```code
 input
 r0 = c string function path name (pubyte)
 output
@@ -7189,7 +7189,7 @@ r1-r7
 
 ### sys_load :find -> sys/load/find
 
-```lisp
+```code
 inputs
 r0 = code pointer (ptr)
 outputs
@@ -7201,7 +7201,7 @@ r0-r2
 
 ### sys_load :lisp_path -> sys/load/lisp_path
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -7218,21 +7218,21 @@ Super Class: nil
 
 ### sys_mail :statics_init -> sys/mail/statics_init
 
-```lisp
+```code
 info
 init the mailbox system, heap, buckets and id
 ```
 
 ### sys_mail :statics_init1 -> sys/mail/statics_init1
 
-```lisp
+```code
 info
 init the mail system
 ```
 
 ### sys_mail :alloc_mbox -> sys/mail/alloc_mbox
 
-```lisp
+```code
 outputs
 r0 = mailbox id (uint)
 r1 = mailbox address (ptr)
@@ -7242,7 +7242,7 @@ r0-r5
 
 ### sys_mail :free_mbox -> sys/mail/free_mbox
 
-```lisp
+```code
 inputs
 r0 = mailbox id (uint)
 trashes
@@ -7251,7 +7251,7 @@ r0-r4
 
 ### sys_mail :validate -> sys/mail/validate
 
-```lisp
+```code
 inputs
 r0 = mailbox id (uint)
 outputs
@@ -7262,7 +7262,7 @@ r0-r3
 
 ### sys_mail :alloc -> sys/mail/alloc
 
-```lisp
+```code
 inputs
 r0 = mail size (bytes)
 outputs
@@ -7274,7 +7274,7 @@ r0-r6
 
 ### sys_mail :free -> sys/mail/free
 
-```lisp
+```code
 inputs
 r0 = mail message (ptr)
 trashes
@@ -7283,7 +7283,7 @@ r0-r14
 
 ### sys_mail :alloc_obj -> sys/mail/alloc_obj
 
-```lisp
+```code
 inputs
 r0 = object (ptr)
 r1 = data (pubyte)
@@ -7296,7 +7296,7 @@ r0-r5
 
 ### sys_mail :free_obj -> sys/mail/free_obj
 
-```lisp
+```code
 inputs
 r0 = mail message (ptr)
 outputs
@@ -7309,7 +7309,7 @@ r0-r5
 
 ### sys_mail :send -> sys/mail/send
 
-```lisp
+```code
 inputs
 r0 = mail message (ptr)
 trashes
@@ -7318,7 +7318,7 @@ r0-r4
 
 ### sys_mail :read -> sys/mail/read
 
-```lisp
+```code
 inputs
 r0 = mailbox address (ptr)
 outputs
@@ -7330,7 +7330,7 @@ r0-r2
 
 ### sys_mail :poll -> sys/mail/poll
 
-```lisp
+```code
 inputs
 r0 = mailbox list object (ptr)
 outputs
@@ -7343,7 +7343,7 @@ r0-r6
 
 ### sys_mail :select -> sys/mail/select
 
-```lisp
+```code
 inputs
 r0 = mailbox id array object (ptr)
 outputs
@@ -7354,7 +7354,7 @@ r0-r8
 
 ### sys_mail :mymail -> sys/mail/mymail
 
-```lisp
+```code
 outputs
 r0 = mail address (ptr)
 r1 = string data (pubyte)
@@ -7364,7 +7364,7 @@ r0-r2
 
 ### sys_mail :service -> sys/mail/service
 
-```lisp
+```code
 inputs
 r0 = service name str object (ptr)
 r1 = mailbox id str object (ptr)
@@ -7377,7 +7377,7 @@ r0-r14
 
 ### sys_mail :ping -> sys/mail/ping
 
-```lisp
+```code
 trashes
 r0-r14
 info
@@ -7386,7 +7386,7 @@ ping services out to network
 
 ### sys_mail :declare -> sys/mail/declare
 
-```lisp
+```code
 inputs
 r0 = ID str object (net_id)
 r1 = service name str object (ptr)
@@ -7399,7 +7399,7 @@ r0-r14
 
 ### sys_mail :forget -> sys/mail/forget
 
-```lisp
+```code
 inputs
 r0 = service key str object (ptr)
 trashes
@@ -7408,7 +7408,7 @@ r0-r14
 
 ### sys_mail :enquire -> sys/mail/enquire
 
-```lisp
+```code
 inputs
 r0 = service prefix str object (ptr)
 outputs
@@ -7419,7 +7419,7 @@ r0-r14
 
 ### sys_mail :devices -> sys/mail/devices
 
-```lisp
+```code
 outputs
 r0 = known network nodes list object (ptr)
 trashes
@@ -7428,7 +7428,7 @@ r0-r14
 
 ### sys_mail :junk_mail -> sys/mail/junk_mail
 
-```lisp
+```code
 inputs
 r3 = mail list pointer (ptr)
 trashes
@@ -7437,7 +7437,7 @@ r0-r4
 
 ### sys_mail :in -> sys/mail/in
 
-```lisp
+```code
 inputs
 r0 = link input msg buffer (ptr)
 trashes
@@ -7446,14 +7446,14 @@ r0-r14
 
 ### sys_mail :out -> sys/mail/out
 
-```lisp
+```code
 info
 parcels going off chip or junk mail task
 ```
 
 ### sys_mail :ready -> sys/mail/ready
 
-```lisp
+```code
 inputs
 r0-r1 = peer node id (node_id)
 r2 = key node object (ptr)
@@ -7463,7 +7463,7 @@ r0 = 0 if none, else msg (ptr)
 
 ### sys_mail :lisp_read -> sys/mail/lisp_read
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -7476,7 +7476,7 @@ r1-r14
 
 ### sys_mail :lisp_poll -> sys/mail/lisp_poll
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -7489,7 +7489,7 @@ r1-r14
 
 ### sys_mail :lisp_select -> sys/mail/lisp_select
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -7502,7 +7502,7 @@ r1-r14
 
 ### sys_mail :lisp_send -> sys/mail/lisp_send
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -7515,7 +7515,7 @@ r1-r14
 
 ### sys_mail :lisp_declare -> sys/mail/lisp_declare
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -7528,7 +7528,7 @@ r1-r14
 
 ### sys_mail :lisp_enquire -> sys/mail/lisp_enquire
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -7541,7 +7541,7 @@ r1-r14
 
 ### sys_mail :lisp_forget -> sys/mail/lisp_forget
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -7554,7 +7554,7 @@ r1-r14
 
 ### sys_mail :lisp_devices -> sys/mail/lisp_devices
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -7567,7 +7567,7 @@ r1-r14
 
 ### sys_mail :lisp_alloc_mbox -> sys/mail/lisp_alloc_mbox
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -7580,7 +7580,7 @@ r1-r14
 
 ### sys_mail :lisp_free_mbox -> sys/mail/lisp_free_mbox
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -7593,7 +7593,7 @@ r1-r14
 
 ### sys_mail :lisp_timeout -> sys/mail/lisp_timeout
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -7610,7 +7610,7 @@ Super Class: nil
 
 ### sys_math :i_rand -> sys/math/i_rand
 
-```lisp
+```code
 inputs
 r0 = random range (ulong)
 outputs
@@ -7621,7 +7621,7 @@ r0-r3
 
 ### sys_math :i_sqrt -> sys/math/i_sqrt
 
-```lisp
+```code
 inputs
 r0 = number (ulong)
 outputs
@@ -7632,7 +7632,7 @@ r0-r3
 
 ### sys_math :f_sqrt -> sys/math/f_sqrt
 
-```lisp
+```code
 inputs
 r0 = number (fixed)
 outputs
@@ -7643,7 +7643,7 @@ r0-r3
 
 ### sys_math :f_sin -> sys/math/f_sin
 
-```lisp
+```code
 inputs
 r0 = angle in radians (fixed)
 outputs
@@ -7654,7 +7654,7 @@ r0-r4
 
 ### sys_math :f_cos -> sys/math/f_cos
 
-```lisp
+```code
 inputs
 r0 = angle in radians (fixed)
 outputs
@@ -7665,7 +7665,7 @@ r0-r4
 
 ### sys_math :f_intersect -> sys/math/f_intersect
 
-```lisp
+```code
 inputs
 r0 = p1x (fixed)
 r1 = p1y (fixed)
@@ -7684,7 +7684,7 @@ r0-r14
 
 ### sys_math :f_dist_sqd -> sys/math/f_dist_sqd
 
-```lisp
+```code
 inputs
 r0 = px (fixed)
 r1 = py (fixed)
@@ -7700,7 +7700,7 @@ r0-r14
 
 ### sys_math :r_pack -> sys/math/r_pack
 
-```lisp
+```code
 inputs
 r13 = exponent (long)
 r14 = mantisa (long)
@@ -7712,7 +7712,7 @@ r12-r14
 
 ### sys_math :r_add -> sys/math/r_add
 
-```lisp
+```code
 inputs
 r13 = real (32:32)
 r14 = real (32:32)
@@ -7724,7 +7724,7 @@ r11-r14
 
 ### sys_math :r_sub -> sys/math/r_sub
 
-```lisp
+```code
 inputs
 r13 = real (32:32)
 r14 = real (32:32)
@@ -7736,7 +7736,7 @@ r11-r14
 
 ### sys_math :r_mul -> sys/math/r_mul
 
-```lisp
+```code
 inputs
 r13 = real (32:32)
 r14 = real (32:32)
@@ -7748,7 +7748,7 @@ r11-r14
 
 ### sys_math :r_div -> sys/math/r_div
 
-```lisp
+```code
 inputs
 r13 = real (32:32)
 r14 = real (32:32)
@@ -7760,7 +7760,7 @@ r11-r14
 
 ### sys_math :r_mod -> sys/math/r_mod
 
-```lisp
+```code
 inputs
 r13 = real (32:32)
 r14 = real (32:32)
@@ -7772,7 +7772,7 @@ r9-r14
 
 ### sys_math :r_frac -> sys/math/r_frac
 
-```lisp
+```code
 inputs
 r13 = real (32:32)
 outputs
@@ -7783,7 +7783,7 @@ r10-r14
 
 ### sys_math :r_floor -> sys/math/r_floor
 
-```lisp
+```code
 inputs
 r13 = real (32:32)
 outputs
@@ -7794,7 +7794,7 @@ r12-r14
 
 ### sys_math :r_i2r -> sys/math/r_i2r
 
-```lisp
+```code
 inputs
 r14 = num (long)
 outputs
@@ -7805,7 +7805,7 @@ r12-r14
 
 ### sys_math :r_f2r -> sys/math/r_f2r
 
-```lisp
+```code
 inputs
 r14 = num (fixed)
 outputs
@@ -7816,7 +7816,7 @@ r12-r14
 
 ### sys_math :r_r2i -> sys/math/r_r2i
 
-```lisp
+```code
 inputs
 r13 = real (32:32)
 outputs
@@ -7827,7 +7827,7 @@ r12-r14
 
 ### sys_math :r_r2f -> sys/math/r_r2f
 
-```lisp
+```code
 inputs
 r13 = real (32:32)
 outputs
@@ -7842,21 +7842,21 @@ Super Class: nil
 
 ### sys_mem :statics_init -> sys/mem/statics_init
 
-```lisp
+```code
 info
 init mem statics
 ```
 
 ### sys_mem :statics_deinit -> sys/mem/statics_deinit
 
-```lisp
+```code
 info
 deinit mem statics
 ```
 
 ### sys_mem :alloc -> sys/mem/alloc
 
-```lisp
+```code
 inputs
 r0 = minimum amount (bytes)
 outputs
@@ -7868,7 +7868,7 @@ r0-r2
 
 ### sys_mem :calloc -> sys/mem/calloc
 
-```lisp
+```code
 inputs
 r0 = minimum amount (bytes)
 outputs
@@ -7880,7 +7880,7 @@ r0-r2
 
 ### sys_mem :free -> sys/mem/free
 
-```lisp
+```code
 inputs
 r0 = address (ptr)
 trashes
@@ -7889,7 +7889,7 @@ r0-r2
 
 ### sys_mem :fill -> sys/mem/fill
 
-```lisp
+```code
 inputs
 r0 = address (ptr)
 r1 = length (bytes)
@@ -7902,7 +7902,7 @@ r0-r3
 
 ### sys_mem :copy -> sys/mem/copy
 
-```lisp
+```code
 inputs
 r0 = source address (ptr)
 r1 = destination address (ptr)
@@ -7916,7 +7916,7 @@ r0-r3
 
 ### sys_mem :realloc -> sys/mem/realloc
 
-```lisp
+```code
 inputs
 r0 = block address (ptr)
 r1 = block size (bytes)
@@ -7930,7 +7930,7 @@ r0-r5
 
 ### sys_mem :recalloc -> sys/mem/recalloc
 
-```lisp
+```code
 inputs
 r0 = block address (ptr)
 r1 = block size (bytes)
@@ -7944,7 +7944,7 @@ r0-r7
 
 ### sys_mem :collect -> sys/mem/collect
 
-```lisp
+```code
 trashes
 r0-r14
 info
@@ -7957,14 +7957,14 @@ Super Class: nil
 
 ### sys_pii :exit -> sys/pii/exit
 
-```lisp
+```code
 inputs
 r0 = code (long)
 ```
 
 ### sys_pii :mmap -> sys/pii/mmap
 
-```lisp
+```code
 inputs
 r0 = len (ulong)
 r1 = fd (ulong)
@@ -7977,7 +7977,7 @@ r0
 
 ### sys_pii :munmap -> sys/pii/munmap
 
-```lisp
+```code
 inputs
 r0 = buffer (ptr)
 r1 = len (ulong)
@@ -7990,7 +7990,7 @@ r0
 
 ### sys_pii :mprotect -> sys/pii/mprotect
 
-```lisp
+```code
 inputs
 r0 = buffer (ptr)
 r1 = len (ulong)
@@ -8003,7 +8003,7 @@ r0
 
 ### sys_pii :open -> sys/pii/open
 
-```lisp
+```code
 inputs
 r0 = c string filename (pubyte)
 r1 = mode (ulong)
@@ -8015,7 +8015,7 @@ r0
 
 ### sys_pii :close -> sys/pii/close
 
-```lisp
+```code
 inputs
 r0 = fd (ulong)
 outputs
@@ -8026,7 +8026,7 @@ r0
 
 ### sys_pii :open_shared -> sys/pii/open_shared
 
-```lisp
+```code
 inputs
 r0 = c string filename (pubyte)
 r1 = length (ulong)
@@ -8038,7 +8038,7 @@ r0
 
 ### sys_pii :close_shared -> sys/pii/close_shared
 
-```lisp
+```code
 inputs
 r0 = c string filename (pubyte)
 r1 = handle (long)
@@ -8050,7 +8050,7 @@ r0
 
 ### sys_pii :unlink -> sys/pii/unlink
 
-```lisp
+```code
 inputs
 r0 = c string filename (pubyte)
 outputs
@@ -8061,7 +8061,7 @@ r0
 
 ### sys_pii :stat -> sys/pii/stat
 
-```lisp
+```code
 inputs
 r0 = c string filename (pubyte)
 r1 = stat buf (ptr)
@@ -8073,7 +8073,7 @@ r0
 
 ### sys_pii :write -> sys/pii/write
 
-```lisp
+```code
 inputs
 r0 = fd (ulong)
 r1 = buffer (pubyte)
@@ -8086,7 +8086,7 @@ r0
 
 ### sys_pii :write_char -> sys/pii/write_char
 
-```lisp
+```code
 inputs
 r0 = fd (ulong)
 r1 = char (ulong)
@@ -8098,7 +8098,7 @@ r0
 
 ### sys_pii :write_str -> sys/pii/write_str
 
-```lisp
+```code
 inputs
 r0 = fd (ulong)
 r1 = c string (pubyte)
@@ -8110,7 +8110,7 @@ r0
 
 ### sys_pii :write_num -> sys/pii/write_num
 
-```lisp
+```code
 inputs
 r0 = fd (ulong)
 r1 = number (ulong)
@@ -8123,7 +8123,7 @@ r0
 
 ### sys_pii :read -> sys/pii/read
 
-```lisp
+```code
 inputs
 r0 = fd (ulong)
 r1 = buffer (ptr)
@@ -8136,7 +8136,7 @@ r0
 
 ### sys_pii :read_char -> sys/pii/read_char
 
-```lisp
+```code
 inputs
 r0 = fd (ulong)
 outputs
@@ -8147,7 +8147,7 @@ r0
 
 ### sys_pii :time -> sys/pii/time
 
-```lisp
+```code
 outputs
 r0 = time in usec (ulong)
 trashes
@@ -8156,7 +8156,7 @@ r0
 
 ### sys_pii :clear_icache -> sys/pii/clear_icache
 
-```lisp
+```code
 inputs
 r0 = address (pubyte)
 r1 = length (ulong)
@@ -8168,7 +8168,7 @@ r0
 
 ### sys_pii :dirlist -> sys/pii/dirlist
 
-```lisp
+```code
 inputs
 r0 = c string pathname (pubyte)
 r1 = buffer pointer (ptr)
@@ -8181,7 +8181,7 @@ r0
 
 ### sys_pii :remove -> sys/pii/remove
 
-```lisp
+```code
 inputs
 r0 = c string filename (pubyte)
 outputs
@@ -8192,7 +8192,7 @@ r0
 
 ### sys_pii :seek -> sys/pii/seek
 
-```lisp
+```code
 inputs
 r0 = fd (ulong)
 r1 = offset (long)
@@ -8205,7 +8205,7 @@ r0
 
 ### sys_pii :rand -> sys/pii/rand
 
-```lisp
+```code
 inputs
 r0 = data buffer pointer (pubyte)
 r1 = length (uint)
@@ -8215,7 +8215,7 @@ r0
 
 ### sys_pii :usb_start -> sys/pii/usb_start
 
-```lisp
+```code
 inputs
 r0 = link buffer (pubyte)
 outputs
@@ -8226,7 +8226,7 @@ r0
 
 ### sys_pii :usb_stop -> sys/pii/usb_stop
 
-```lisp
+```code
 inputs
 r0 = link buffer (pubyte)
 outputs
@@ -8237,7 +8237,7 @@ r0
 
 ### sys_pii :usb_running -> sys/pii/usb_running
 
-```lisp
+```code
 inputs
 r0 = link buffer (pubyte)
 outputs
@@ -8248,7 +8248,7 @@ r0
 
 ### sys_pii :lisp_readchar -> sys/pii/lisp_readchar
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -8261,7 +8261,7 @@ r1-r14
 
 ### sys_pii :lisp_writechar -> sys/pii/lisp_writechar
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -8274,7 +8274,7 @@ r1-r14
 
 ### sys_pii :lisp_time -> sys/pii/lisp_time
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -8289,7 +8289,7 @@ r1-r14
 
 ### sys_pii :lisp_dirlist -> sys/pii/lisp_dirlist
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -8302,7 +8302,7 @@ r1-r14
 
 ### sys_pii :lisp_fstat -> sys/pii/lisp_fstat
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -8315,7 +8315,7 @@ r1-r14
 
 ### sys_pii :lisp_remove -> sys/pii/lisp_remove
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -8332,7 +8332,7 @@ Super Class: nil
 
 ### sys_str :length -> sys/str/length
 
-```lisp
+```code
 inputs
 r0 = c string (pubyte)
 outputs
@@ -8344,7 +8344,7 @@ r1-r2
 
 ### sys_str :copy -> sys/str/copy
 
-```lisp
+```code
 inputs
 r0 = c string (pubyte)
 r1 = c string copy (pubyte)
@@ -8357,7 +8357,7 @@ r2
 
 ### sys_str :compare -> sys/str/compare
 
-```lisp
+```code
 inputs
 r0 = c string1 (pubyte)
 r1 = c string2 (pubyte)
@@ -8369,7 +8369,7 @@ r0-r3
 
 ### sys_str :to_long -> sys/str/to_long
 
-```lisp
+```code
 inputs
 r0 = c string (pubyte)
 r1 = base (ulong)
@@ -8382,7 +8382,7 @@ r0-r4
 
 ### sys_str :from_long -> sys/str/from_long
 
-```lisp
+```code
 inputs
 r0 = number (ulong)
 r1 = c string buffer (pubyte)
@@ -8395,7 +8395,7 @@ r0-r4
 
 ### sys_str :read_utf8 -> sys/str/read_utf8
 
-```lisp
+```code
 inputs
 r0 = utf8 data pointer (pubyte)
 outputs
@@ -8411,14 +8411,14 @@ Super Class: nil
 
 ### sys_task :statics_init -> sys/task/statics_init
 
-```lisp
+```code
 info
 init task statics
 ```
 
 ### sys_task :tcb -> sys/task/tcb
 
-```lisp
+```code
 outputs
 r0 = current task tcb (ptr)
 trashes
@@ -8427,7 +8427,7 @@ r0
 
 ### sys_task :mailbox -> sys/task/mailbox
 
-```lisp
+```code
 outputs
 r0-r2 = current ID (net_id)
 trashes
@@ -8436,7 +8436,7 @@ r0-r2
 
 ### sys_task :callback -> sys/task/callback
 
-```lisp
+```code
 inputs
 r0 = user data address (ptr)
 r1 = callback address (ptr)
@@ -8446,7 +8446,7 @@ r0-r14
 
 ### sys_task :start -> sys/task/start
 
-```lisp
+```code
 inputs
 r0 = new task func pointer (ptr)
 outputs
@@ -8459,14 +8459,14 @@ r0-r14
 
 ### sys_task :stop -> sys/task/stop
 
-```lisp
+```code
 info
 stop current task, switch to next task
 ```
 
 ### sys_task :restore -> sys/task/restore
 
-```lisp
+```code
 trashes
 r0-r14
 info
@@ -8475,7 +8475,7 @@ restore next ready task
 
 ### sys_task :sleep -> sys/task/sleep
 
-```lisp
+```code
 inputs
 r0 = time delay in usec (ulong)
 trashes
@@ -8486,7 +8486,7 @@ info
 
 ### sys_task :suspend -> sys/task/suspend
 
-```lisp
+```code
 trashes
 none
 info
@@ -8495,7 +8495,7 @@ suspend current task, switch to next task
 
 ### sys_task :resume -> sys/task/resume
 
-```lisp
+```code
 inputs
 r0 = task control node to resume (ptr)
 outputs
@@ -8506,7 +8506,7 @@ r1-r2
 
 ### sys_task :defer -> sys/task/defer
 
-```lisp
+```code
 inputs
 r0 = task control node to defer to (ptr)
 trashes
@@ -8517,7 +8517,7 @@ restore task
 
 ### sys_task :set_priority -> sys/task/set_priority
 
-```lisp
+```code
 inputs
 r0 = priority (uint)
 trashes
@@ -8526,7 +8526,7 @@ r0-r4
 
 ### sys_task :timer -> sys/task/timer
 
-```lisp
+```code
 outputs
 r0 = current time (ulong)
 trashes
@@ -8538,7 +8538,7 @@ mail mailboxes on timouts.
 
 ### sys_task :dump -> sys/task/dump
 
-```lisp
+```code
 inputs
 rsp = task stack pointer (ptr)
 trashes
@@ -8549,7 +8549,7 @@ none
 
 ### sys_task :lisp_sleep -> sys/task/lisp_sleep
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -8562,7 +8562,7 @@ r1-r14
 
 ### sys_task :lisp_mailbox -> sys/task/lisp_mailbox
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -8583,7 +8583,7 @@ Super Class: obj
 
 ### texture :init -> gui/texture/init
 
-```lisp
+```code
 inputs
 r0 = texture object (ptr)
 r1 = vtable (pptr)
@@ -8599,7 +8599,7 @@ r1
 
 ### texture :get_metrics -> gui/texture/get_metrics
 
-```lisp
+```code
 inputs
 r0 = texture object (ptr)
 outputs
@@ -8613,7 +8613,7 @@ r1-r3
 
 ### texture :deinit -> gui/texture/deinit
 
-```lisp
+```code
 inputs
 r0 = texture object (ptr)
 outputs
@@ -8632,7 +8632,7 @@ Super Class: view
 
 ### vdu :init -> gui/vdu/init
 
-```lisp
+```code
 inputs
 r0 = vdu object (ptr)
 r1 = vtable (pptr)
@@ -8645,7 +8645,7 @@ r1-r14
 
 ### vdu :configure -> gui/vdu/configure
 
-```lisp
+```code
 inputs
 r0 = vdu object (ptr)
 outputs
@@ -8656,7 +8656,7 @@ r1-r14
 
 ### vdu :lisp_create -> gui/vdu/lisp_create
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -8669,7 +8669,7 @@ r1-r14
 
 ### vdu :lisp_load -> gui/vdu/lisp_load
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -8682,7 +8682,7 @@ r1-r14
 
 ### vdu :lisp_configure -> gui/vdu/lisp_configure
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -8695,7 +8695,7 @@ r1-r14
 
 ### vdu :deinit -> gui/vdu/deinit
 
-```lisp
+```code
 inputs
 r0 = vdu object (ptr)
 outputs
@@ -8706,7 +8706,7 @@ r1-r14
 
 ### vdu :draw -> gui/vdu/draw
 
-```lisp
+```code
 inputs
 r0 = view object (ptr)
 outputs
@@ -8725,7 +8725,7 @@ Super Class: hmap
 
 ### view :init -> gui/view/init
 
-```lisp
+```code
 inputs
 r0 = view object (ptr)
 r1 = vtable (pptr)
@@ -8738,7 +8738,7 @@ r1-r14
 
 ### view :add_front -> gui/view/add_front
 
-```lisp
+```code
 inputs
 r0 = view object (ptr)
 r1 = child view object (ptr)
@@ -8750,7 +8750,7 @@ r1-r3
 
 ### view :add_back -> gui/view/add_back
 
-```lisp
+```code
 inputs
 r0 = view object (ptr)
 r1 = child view object (ptr)
@@ -8762,7 +8762,7 @@ r1-r3
 
 ### view :sub -> gui/view/sub
 
-```lisp
+```code
 inputs
 r0 = view object (ptr)
 outputs
@@ -8773,7 +8773,7 @@ r1-r2
 
 ### view :hide -> gui/view/hide
 
-```lisp
+```code
 inputs
 r0 = view object (ptr)
 outputs
@@ -8784,7 +8784,7 @@ r1-r14
 
 ### view :to_front -> gui/view/to_front
 
-```lisp
+```code
 inputs
 r0 = view object (ptr)
 outputs
@@ -8795,7 +8795,7 @@ r1-r14
 
 ### view :to_back -> gui/view/to_back
 
-```lisp
+```code
 inputs
 r0 = view object (ptr)
 outputs
@@ -8806,7 +8806,7 @@ r1-r14
 
 ### view :forward -> gui/view/forward
 
-```lisp
+```code
 inputs
 r0 = view object (ptr)
 r1 = user data pointer (ptr)
@@ -8827,7 +8827,7 @@ trashes
 
 ### view :forward_tree -> gui/view/forward_tree
 
-```lisp
+```code
 inputs
 r0 = view object (ptr)
 r1 = user data pointer
@@ -8850,7 +8850,7 @@ trashes
 
 ### view :backward_tree -> gui/view/backward_tree
 
-```lisp
+```code
 inputs
 r0 = view object (ptr)
 r1 = user data pointer
@@ -8873,7 +8873,7 @@ trashes
 
 ### view :hit_tree -> gui/view/hit_tree
 
-```lisp
+```code
 inputs
 r0 = view object (ptr)
 r7 = x (pixels)
@@ -8889,7 +8889,7 @@ r1-r3
 
 ### view :find_id -> gui/view/find_id
 
-```lisp
+```code
 inputs
 r0 = view object (ptr)
 r1 = target id (long)
@@ -8902,7 +8902,7 @@ r1-r3
 
 ### view :get_bounds -> gui/view/get_bounds
 
-```lisp
+```code
 inputs
 r0 = view object (ptr)
 outputs
@@ -8917,7 +8917,7 @@ r7-r10
 
 ### view :set_bounds -> gui/view/set_bounds
 
-```lisp
+```code
 inputs
 r0 = view object (ptr)
 r7 = x (pixels)
@@ -8932,7 +8932,7 @@ none
 
 ### view :set_flags -> gui/view/set_flags
 
-```lisp
+```code
 inputs
 r0 = view object (ptr)
 r1 = flag values (ulong)
@@ -8946,7 +8946,7 @@ r1-r3
 
 ### view :find_owner -> gui/view/find_owner
 
-```lisp
+```code
 inputs
 r0 = view object (ptr)
 outputs
@@ -8958,7 +8958,7 @@ r1-r4
 
 ### view :get_prop -> gui/view/get_prop
 
-```lisp
+```code
 inputs
 r0 = view object (ptr)
 r1 = static sym num (uint)
@@ -8971,7 +8971,7 @@ r1-r14
 
 ### view :ref_prop -> gui/view/ref_prop
 
-```lisp
+```code
 inputs
 r0 = view object (ptr)
 r1 = static sym num (uint)
@@ -8984,7 +8984,7 @@ r1-r14
 
 ### view :get_long_prop -> gui/view/get_long_prop
 
-```lisp
+```code
 inputs
 r0 = view object (ptr)
 r1 = static sym num (uint)
@@ -9001,7 +9001,7 @@ r1-r14
 
 ### view :deinit -> gui/view/deinit
 
-```lisp
+```code
 inputs
 r0 = view object (ptr)
 outputs
@@ -9012,7 +9012,7 @@ r1-r14
 
 ### view :draw -> class/view/draw
 
-```lisp
+```code
 inputs
 r0 = view object (ptr)
 outputs
@@ -9023,7 +9023,7 @@ r1-r14
 
 ### view :hit -> gui/view/hit
 
-```lisp
+```code
 inputs
 r0 = view object (ptr)
 r7 = x (pixels)
@@ -9037,7 +9037,7 @@ r1
 
 ### view :lisp_create -> gui/view/lisp_create
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -9050,7 +9050,7 @@ r1-r14
 
 ### view :lisp_sub -> gui/view/lisp_sub
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -9063,7 +9063,7 @@ r1-r14
 
 ### view :lisp_hide -> gui/view/lisp_hide
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -9076,7 +9076,7 @@ r1-r14
 
 ### view :lisp_add -> gui/view/lisp_add
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -9089,7 +9089,7 @@ r1-r14
 
 ### view :lisp_add_back -> gui/view/lisp_add_back
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -9102,7 +9102,7 @@ r1-r14
 
 ### view :lisp_clr_opaque -> gui/view/lisp_clr_opaque
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -9115,7 +9115,7 @@ r1-r14
 
 ### view :lisp_add_opaque -> gui/view/lisp_add_opaque
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -9128,7 +9128,7 @@ r1-r14
 
 ### view :lisp_sub_opaque -> gui/view/lisp_sub_opaque
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -9141,7 +9141,7 @@ r1-r14
 
 ### view :lisp_set_flags -> gui/view/lisp_set_flags
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -9154,7 +9154,7 @@ r1-r14
 
 ### view :lisp_trans_dirty -> gui/view/lisp_trans_dirty
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -9167,7 +9167,7 @@ r1-r14
 
 ### view :lisp_add_dirty -> gui/view/lisp_add_dirty
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -9180,7 +9180,7 @@ r1-r14
 
 ### view :lisp_find_id -> gui/view/lisp_find_id
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -9193,7 +9193,7 @@ r1-r14
 
 ### view :lisp_children -> gui/view/lisp_children
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -9206,7 +9206,7 @@ r1-r14
 
 ### view :lisp_to_front -> gui/view/lisp_to_front
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -9219,7 +9219,7 @@ r1-r14
 
 ### view :lisp_to_back -> gui/view/lisp_to_back
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)
@@ -9232,7 +9232,7 @@ r1-r14
 
 ### view :lisp_emit -> gui/view/lisp_emit
 
-```lisp
+```code
 inputs
 r0 = lisp object (ptr)
 r1 = args list object (ptr)

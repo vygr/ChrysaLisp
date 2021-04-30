@@ -56,7 +56,7 @@
 	(cond
 		((starts-with "```" line)
 			;section start
-			(if (eql (setq state (sym (cat ":" (slice 3 -1 line)))) :) :lisp state))
+			(if (eql (setq state (sym (cat ":" (slice 3 -1 line)))) :) :code state))
 		(t	;body text
 			(cond
 				((eql line "")

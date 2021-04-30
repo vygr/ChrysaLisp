@@ -237,7 +237,7 @@ color format.
 New profiling lib ! `lib/debug/profile.inc`. Whiteboard app nows runs
 profiling to demo the output.
 
-```lisp
+```code
 Whiteboard App
 Fun:           redraw Cnt:    261 Total ns:     1481
 Fun:          flatten Cnt:     13 Total ns:     1278
@@ -378,7 +378,7 @@ get promoted to part of the (read) function. Thanks to FrancC01 for inspiring
 this addition.
 
 eg.
-```lisp
+```code
 (map (# (< %0 0)) '(1 2 3 4 5 6 -6 -7 -8 0 7))
 (nil nil nil nil nil nil t t t nil nil)
 ```

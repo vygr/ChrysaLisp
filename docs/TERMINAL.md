@@ -65,7 +65,7 @@ bare bones command but is useful to call out some particulars to get you going
 in the right direction. To see it run, just copy this into a file called
 `hw.lisp` and place it in the `cmd/` folder:
 
-```lisp
+```code
 01: ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 02: ; hw.lisp - hello world example
 03: ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

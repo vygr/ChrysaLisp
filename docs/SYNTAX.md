@@ -2,7 +2,7 @@
 
 ## #
 
-```lisp
+```code
 
 (# (< %9 %0 %3) ...) -> (lambda (%0 %3 %9) (< %9 %0 %3) ...)
 
@@ -10,7 +10,7 @@
 
 ## %
 
-```lisp
+```code
 
 (% num num ...)
 
@@ -18,7 +18,7 @@
 
 ## *
 
-```lisp
+```code
 
 (* num num ...)
 
@@ -26,7 +26,7 @@
 
 ## +
 
-```lisp
+```code
 
 (+ num num ...)
 
@@ -34,7 +34,7 @@
 
 ## -
 
-```lisp
+```code
 
 (- num num ...)
 
@@ -42,7 +42,7 @@
 
 ## backdrop :draw
 
-```lisp
+```code
 
 (. backdrop :draw) -> backdrop
 
@@ -50,7 +50,7 @@
 
 ## button :draw
 
-```lisp
+```code
 
 (. button :draw) -> button
 
@@ -58,7 +58,7 @@
 
 ## button :layout
 
-```lisp
+```code
 
 (. button :layout) -> button
 
@@ -66,7 +66,7 @@
 
 ## button :mouse_down
 
-```lisp
+```code
 
 (. button :mouse_down event) -> button
 
@@ -74,7 +74,7 @@
 
 ## button :mouse_move
 
-```lisp
+```code
 
 (. button :mouse_move event) -> button
 
@@ -82,7 +82,7 @@
 
 ## button :mouse_up
 
-```lisp
+```code
 
 (. button :mouse_up event) -> button
 
@@ -90,7 +90,7 @@
 
 ## canvas :draw
 
-```lisp
+```code
 
 (. canvas :draw) -> canvas
 
@@ -98,7 +98,7 @@
 
 ## canvas :fbox
 
-```lisp
+```code
 
 (. canvas :fbox x y width height) -> canvas
 
@@ -106,7 +106,7 @@
 
 ## canvas :fill
 
-```lisp
+```code
 
 (. canvas :fill argb) -> canvas
 
@@ -114,7 +114,7 @@
 
 ## canvas :fpoly
 
-```lisp
+```code
 
 (. canvas :fpoly x y winding_mode paths) -> canvas
 
@@ -122,7 +122,7 @@
 
 ## canvas :next_frame
 
-```lisp
+```code
 
 (. canvas :next_frame) -> canvas
 
@@ -130,7 +130,7 @@
 
 ## canvas :plot
 
-```lisp
+```code
 
 (. canvas :plot x y) -> canvas
 
@@ -138,7 +138,7 @@
 
 ## canvas :pref_size
 
-```lisp
+```code
 
 (. canvas :pref_size) -> (width height)
 
@@ -146,7 +146,7 @@
 
 ## canvas :resize
 
-```lisp
+```code
 
 (. canvas :resize canvas) -> canvas
 
@@ -154,7 +154,7 @@
 
 ## canvas :save
 
-```lisp
+```code
 
 (. canvas :save file format) -> nil | canvas
 
@@ -162,7 +162,7 @@
 
 ## canvas :set_canvas_flags
 
-```lisp
+```code
 
 (. canvas :set_canvas_flags flags) -> canvas
 
@@ -170,7 +170,7 @@
 
 ## canvas :set_color
 
-```lisp
+```code
 
 (. canvas :set_color argb) -> canvas
 
@@ -178,7 +178,7 @@
 
 ## canvas :swap
 
-```lisp
+```code
 
 (. canvas :swap) -> canvas
 
@@ -186,7 +186,7 @@
 
 ## emap :copy
 
-```lisp
+```code
 
 (. emap :copy) -> emap
 
@@ -194,7 +194,7 @@
 
 ## emap :deep_copy
 
-```lisp
+```code
 
 (. emap :deep_copy) -> emap
 
@@ -202,7 +202,7 @@
 
 ## emap :each
 
-```lisp
+```code
 
 (. emap :each lambda)
 
@@ -210,7 +210,7 @@
 
 ## emap :empty
 
-```lisp
+```code
 
 (. emap :empty) -> emap
 
@@ -218,7 +218,7 @@
 
 ## emap :erase
 
-```lisp
+```code
 
 (. emap :erase key) -> emap
 
@@ -226,7 +226,7 @@
 
 ## emap :find
 
-```lisp
+```code
 
 (. emap :find key) -> nil|val
 
@@ -234,7 +234,7 @@
 
 ## emap :insert
 
-```lisp
+```code
 
 (. emap :insert key val) -> emap
 
@@ -242,7 +242,7 @@
 
 ## emap :move
 
-```lisp
+```code
 
 (. emap :move) -> emap
 
@@ -250,7 +250,7 @@
 
 ## emap :resize
 
-```lisp
+```code
 
 (. emap :resize num_buckets) -> emap
 
@@ -258,7 +258,7 @@
 
 ## env sym
 
-```lisp
+```code
 
 (. env sym [...])
 
@@ -266,7 +266,7 @@
 
 ## flow :layout
 
-```lisp
+```code
 
 (. flow :layout) -> flow
 
@@ -274,7 +274,7 @@
 
 ## flow :pref_size
 
-```lisp
+```code
 
 (. flow :pref_size) -> (width height)
 
@@ -282,7 +282,7 @@
 
 ## grid :layout
 
-```lisp
+```code
 
 (. grid :layout) -> grid
 
@@ -290,7 +290,7 @@
 
 ## grid :pref_size
 
-```lisp
+```code
 
 (. grid :pref_size) -> (width height)
 
@@ -298,7 +298,7 @@
 
 ## label :add_child
 
-```lisp
+```code
 
 (. label :add_child child) -> label
 
@@ -306,7 +306,7 @@
 
 ## label :draw
 
-```lisp
+```code
 
 (. label :draw) -> label
 
@@ -314,7 +314,7 @@
 
 ## label :layout
 
-```lisp
+```code
 
 (. label :layout) -> label
 
@@ -322,7 +322,7 @@
 
 ## label :pref_size
 
-```lisp
+```code
 
 (. label :pref_size) -> (width height)
 
@@ -330,7 +330,7 @@
 
 ## progress :draw
 
-```lisp
+```code
 
 (. progress :draw) -> progress
 
@@ -338,7 +338,7 @@
 
 ## progress :pref_size
 
-```lisp
+```code
 
 (. progress :pref_size) -> (width height)
 
@@ -346,7 +346,7 @@
 
 ## scroll :action
 
-```lisp
+```code
 
 (. scroll :action data) -> scroll
 
@@ -354,7 +354,7 @@
 
 ## scroll :add_child
 
-```lisp
+```code
 
 (. scroll :add_child child) -> scroll
 
@@ -362,7 +362,7 @@
 
 ## scroll :layout
 
-```lisp
+```code
 
 (. scroll :layout) -> scroll
 
@@ -370,7 +370,7 @@
 
 ## scroll :pref_size
 
-```lisp
+```code
 
 (. scroll :pref_size) -> (width height)
 
@@ -378,7 +378,7 @@
 
 ## slider :draw
 
-```lisp
+```code
 
 (. slider :draw) -> slider
 
@@ -386,7 +386,7 @@
 
 ## slider :mouse_down
 
-```lisp
+```code
 
 (. slider :mouse_down event) -> slider
 
@@ -394,7 +394,7 @@
 
 ## slider :mouse_move
 
-```lisp
+```code
 
 (. slider :mouse_move event) -> slider
 
@@ -402,7 +402,7 @@
 
 ## slider :mouse_up
 
-```lisp
+```code
 
 (. slider :mouse_up event) -> slider
 
@@ -410,7 +410,7 @@
 
 ## slider :pref_size
 
-```lisp
+```code
 
 (. slider :pref_size) -> (width height)
 
@@ -418,7 +418,7 @@
 
 ## text :draw
 
-```lisp
+```code
 
 (. text :draw) -> text
 
@@ -426,7 +426,7 @@
 
 ## text :pref_size
 
-```lisp
+```code
 
 (. text :pref_size) -> (width height)
 
@@ -434,7 +434,7 @@
 
 ## textfield :draw
 
-```lisp
+```code
 
 (. textfield :draw) -> textfield
 
@@ -442,7 +442,7 @@
 
 ## textfield :key_down
 
-```lisp
+```code
 
 (. textfield :key_down event) -> textfield
 
@@ -450,7 +450,7 @@
 
 ## textfield :layout
 
-```lisp
+```code
 
 (. textfield :layout) -> textfield
 
@@ -458,7 +458,7 @@
 
 ## .
 
-```lisp
+```code
 
 (. this :method [arg ...])
 
@@ -466,7 +466,7 @@
 
 ## title :mouse_down
 
-```lisp
+```code
 
 (. title :mouse_down event) -> title
 
@@ -474,7 +474,7 @@
 
 ## title :mouse_move
 
-```lisp
+```code
 
 (. title :mouse_move event) -> title
 
@@ -482,7 +482,7 @@
 
 ## tree :action
 
-```lisp
+```code
 
 (. tree :action event) -> tree
 
@@ -490,7 +490,7 @@
 
 ## tree :add_route
 
-```lisp
+```code
 
 (. tree :add_route route) -> tree
 
@@ -498,7 +498,7 @@
 
 ## tree :get_route
 
-```lisp
+```code
 
 (. tree :get_route node) -> route
 
@@ -506,7 +506,7 @@
 
 ## vdu :char_size
 
-```lisp
+```code
 
 (. vdu :char_size) -> (width height)
 
@@ -514,7 +514,7 @@
 
 ## vdu :load
 
-```lisp
+```code
 
 (. vdu :load lines offset_x offset_y cursor_x cursor_y) -> vdu
 
@@ -522,7 +522,7 @@
 
 ## vdu :max_size
 
-```lisp
+```code
 
 (. vdu :max_size) -> (width height)
 
@@ -530,7 +530,7 @@
 
 ## vdu :pref_size
 
-```lisp
+```code
 
 (. vdu :pref_size) -> (width height)
 
@@ -538,7 +538,7 @@
 
 ## view :add_back
 
-```lisp
+```code
 
 (. view :add_back child) -> view
 
@@ -546,7 +546,7 @@
 
 ## view :add_child
 
-```lisp
+```code
 
 (. view :add_child child) -> view
 
@@ -554,7 +554,7 @@
 
 ## view :add_dirty
 
-```lisp
+```code
 
 (. view :add_dirty x y width height) -> view
 
@@ -562,7 +562,7 @@
 
 ## view :add_front
 
-```lisp
+```code
 
 (. view :add_front child) -> view
 
@@ -570,7 +570,7 @@
 
 ## view :add_opaque
 
-```lisp
+```code
 
 (. view :add_opaque x y width height) -> view
 
@@ -578,7 +578,7 @@
 
 ## view :change
 
-```lisp
+```code
 
 (. view :change x y width height) -> view
 
@@ -586,7 +586,7 @@
 
 ## view :change_dirty
 
-```lisp
+```code
 
 (. view :change_dirty x y width height) -> view
 
@@ -594,7 +594,7 @@
 
 ## view :children
 
-```lisp
+```code
 
 (. view :children) -> (child0 child1 ...)
 
@@ -602,7 +602,7 @@
 
 ## view :clr_opaque
 
-```lisp
+```code
 
 (. view :clr_opaque) -> view
 
@@ -610,7 +610,7 @@
 
 ## view :connect
 
-```lisp
+```code
 
 (. view :connect id) -> view
 
@@ -618,7 +618,7 @@
 
 ## view :ctx_box
 
-```lisp
+```code
 
 (. view :ctx_box x y width height) -> view
 
@@ -626,7 +626,7 @@
 
 ## view :ctx_filled_box
 
-```lisp
+```code
 
 (. view :ctx_filled_box tid col x y width height) -> view
 
@@ -634,7 +634,7 @@
 
 ## view :ctx_filled_box
 
-```lisp
+```code
 
 (. view :ctx_filled_box x y width height) -> view
 
@@ -642,7 +642,7 @@
 
 ## view :ctx_panel
 
-```lisp
+```code
 
 (. view :ctx_panel col flags depth x y width height) -> view
 
@@ -650,7 +650,7 @@
 
 ## view :ctx_set_color
 
-```lisp
+```code
 
 (. view :ctx_set_color col) -> view
 
@@ -658,7 +658,7 @@
 
 ## view :dirty
 
-```lisp
+```code
 
 (. view :dirty) -> view
 
@@ -666,7 +666,7 @@
 
 ## view :dirty_all
 
-```lisp
+```code
 
 (. view :dirty_all) -> view
 
@@ -674,7 +674,7 @@
 
 ## view :emit
 
-```lisp
+```code
 
 (. view :emit) -> view
 
@@ -682,7 +682,7 @@
 
 ## view :find_id
 
-```lisp
+```code
 
 (. view :find_id target_id) -> nil | target_view
 
@@ -690,7 +690,7 @@
 
 ## view :get_bounds
 
-```lisp
+```code
 
 (. view :get_bounds) -> (x y width height)
 
@@ -698,7 +698,7 @@
 
 ## view :get_flags
 
-```lisp
+```code
 
 (. view :get_flags) -> flags
 
@@ -706,7 +706,7 @@
 
 ## view :get_id
 
-```lisp
+```code
 
 (. view :get_id) -> id
 
@@ -714,7 +714,7 @@
 
 ## view :get_pos
 
-```lisp
+```code
 
 (. view :get_pos) -> (x y)
 
@@ -722,7 +722,7 @@
 
 ## view :get_size
 
-```lisp
+```code
 
 (. view :get_size) -> (width height)
 
@@ -730,7 +730,7 @@
 
 ## view :hide
 
-```lisp
+```code
 
 (. view :hide)
 
@@ -738,7 +738,7 @@
 
 ## view :hide
 
-```lisp
+```code
 
 (. view :hide) -> view
 
@@ -746,7 +746,7 @@
 
 ## view :layout
 
-```lisp
+```code
 
 (. view :layout) -> view
 
@@ -754,7 +754,7 @@
 
 ## view :lisp_sub
 
-```lisp
+```code
 
 (. view :lisp_sub) -> view
 
@@ -762,7 +762,7 @@
 
 ## view :pref_size
 
-```lisp
+```code
 
 (. view :pref_size) -> (width height)
 
@@ -770,7 +770,7 @@
 
 ## view :set_flags
 
-```lisp
+```code
 
 (. view :set_flags value mask) -> view
 
@@ -778,7 +778,7 @@
 
 ## view :set_size
 
-```lisp
+```code
 
 (. view :set_size width height) -> view
 
@@ -786,7 +786,7 @@
 
 ## view :set_size
 
-```lisp
+```code
 
 (. view :set_size x y width height) -> view
 
@@ -794,7 +794,7 @@
 
 ## view :sub_opaque
 
-```lisp
+```code
 
 (. view :sub_opaque x y width height) -> view
 
@@ -802,7 +802,7 @@
 
 ## view :to_back
 
-```lisp
+```code
 
 (. view :to_back) -> view
 
@@ -810,7 +810,7 @@
 
 ## view :to_front
 
-```lisp
+```code
 
 (. view :to_front) -> view
 
@@ -818,7 +818,7 @@
 
 ## view :trans_dirty
 
-```lisp
+```code
 
 (. view :trans_dirty rx ry) -> view
 
@@ -826,7 +826,7 @@
 
 ## window :add_child
 
-```lisp
+```code
 
 (. window :add_child child) -> window
 
@@ -834,7 +834,7 @@
 
 ## window :draw
 
-```lisp
+```code
 
 (. window :draw) -> window
 
@@ -842,7 +842,7 @@
 
 ## window :event
 
-```lisp
+```code
 
 (. window :event event) -> window
 
@@ -850,7 +850,7 @@
 
 ## window :layout
 
-```lisp
+```code
 
 (. window :layout) -> window
 
@@ -858,7 +858,7 @@
 
 ## window :mouse_down
 
-```lisp
+```code
 
 (. window :mouse_down event) -> window
 
@@ -866,7 +866,7 @@
 
 ## window :mouse_move
 
-```lisp
+```code
 
 (. window :mouse_move event) -> window
 
@@ -874,7 +874,7 @@
 
 ## window :pref_size
 
-```lisp
+```code
 
 (. window :pref_size) -> (width height)
 
@@ -882,7 +882,7 @@
 
 ## xmap :copy
 
-```lisp
+```code
 
 (. xmap :copy) -> xmap
 
@@ -890,7 +890,7 @@
 
 ## xmap :deep_copy
 
-```lisp
+```code
 
 (. xmap :deep_copy) -> xmap
 
@@ -898,7 +898,7 @@
 
 ## xmap :each
 
-```lisp
+```code
 
 (. xmap :each lambda)
 
@@ -906,7 +906,7 @@
 
 ## xmap :empty
 
-```lisp
+```code
 
 (. xmap :empty) -> xmap
 
@@ -914,7 +914,7 @@
 
 ## xmap :erase
 
-```lisp
+```code
 
 (. xmap :erase key) -> xmap
 
@@ -922,7 +922,7 @@
 
 ## xmap :find
 
-```lisp
+```code
 
 (. xmap :find key) -> nil|val
 
@@ -930,7 +930,7 @@
 
 ## xmap :insert
 
-```lisp
+```code
 
 (. xmap :insert key val) -> xmap
 
@@ -938,7 +938,7 @@
 
 ## xmap :move
 
-```lisp
+```code
 
 (. xmap :move) -> xmap
 
@@ -946,7 +946,7 @@
 
 ## xmap :resize
 
-```lisp
+```code
 
 (. xmap :resize num_buckets) -> xmap
 
@@ -954,7 +954,7 @@
 
 ## xset :copy
 
-```lisp
+```code
 
 (. xset :copy) -> xset
 
@@ -962,7 +962,7 @@
 
 ## xset :deep_copy
 
-```lisp
+```code
 
 (. xset :deep_copy) -> xset
 
@@ -970,7 +970,7 @@
 
 ## xset :difference
 
-```lisp
+```code
 
 (. xset :difference xset) -> xset
 
@@ -978,7 +978,7 @@
 
 ## xset :each
 
-```lisp
+```code
 
 (. xset :each lambda)
 
@@ -986,7 +986,7 @@
 
 ## xset :empty
 
-```lisp
+```code
 
 (. xset :empty) -> xset
 
@@ -994,7 +994,7 @@
 
 ## xset :erase
 
-```lisp
+```code
 
 (. xset :erase key) -> xset
 
@@ -1002,7 +1002,7 @@
 
 ## xset :find
 
-```lisp
+```code
 
 (. xset :find key) -> nil|key
 
@@ -1010,7 +1010,7 @@
 
 ## xset :insert
 
-```lisp
+```code
 
 (. xset :insert key) -> xset
 
@@ -1018,7 +1018,7 @@
 
 ## xset :intersect
 
-```lisp
+```code
 
 (. xset :intersect xset) -> xset
 
@@ -1026,7 +1026,7 @@
 
 ## xset :move
 
-```lisp
+```code
 
 (. xset :move) -> xset
 
@@ -1034,7 +1034,7 @@
 
 ## xset :not_intersect
 
-```lisp
+```code
 
 (. xset :not_intersect xset) -> xset
 
@@ -1042,7 +1042,7 @@
 
 ## xset :resize
 
-```lisp
+```code
 
 (. xset :resize num_buckets) -> xset
 
@@ -1050,7 +1050,7 @@
 
 ## xset :union
 
-```lisp
+```code
 
 (. xset :union xset) -> xset
 
@@ -1058,7 +1058,7 @@
 
 ## .->
 
-```lisp
+```code
 
 (.-> this form ...)
 
@@ -1066,7 +1066,7 @@
 
 ## .super
 
-```lisp
+```code
 
 (.super this :method [arg ...])
 
@@ -1074,7 +1074,7 @@
 
 ## /
 
-```lisp
+```code
 
 (/ num num ...)
 
@@ -1082,7 +1082,7 @@
 
 ## /=
 
-```lisp
+```code
 
 (/= num num ...)
 
@@ -1090,7 +1090,7 @@
 
 ## <
 
-```lisp
+```code
 
 (< num num ...)
 
@@ -1098,7 +1098,7 @@
 
 ## <<
 
-```lisp
+```code
 
 (<< num cnt)
 
@@ -1106,7 +1106,7 @@
 
 ## <=
 
-```lisp
+```code
 
 (<= num num ...)
 
@@ -1114,7 +1114,7 @@
 
 ## =
 
-```lisp
+```code
 
 (= num num ...)
 
@@ -1122,7 +1122,7 @@
 
 ## >
 
-```lisp
+```code
 
 (> num num ...)
 
@@ -1130,7 +1130,7 @@
 
 ## >=
 
-```lisp
+```code
 
 (>= num num ...)
 
@@ -1138,7 +1138,7 @@
 
 ## >>
 
-```lisp
+```code
 
 (>> num cnt)
 
@@ -1146,7 +1146,7 @@
 
 ## >>>
 
-```lisp
+```code
 
 (>>> num cnt)
 
@@ -1154,7 +1154,7 @@
 
 ## Backdrop
 
-```lisp
+```code
 
 (Backdrop)-> backdrop
 
@@ -1162,7 +1162,7 @@
 
 ## Button
 
-```lisp
+```code
 
 (Button) -> button
 
@@ -1170,7 +1170,7 @@
 
 ## Canvas
 
-```lisp
+```code
 
 (Canvas width height scale) -> canvas
 
@@ -1178,7 +1178,7 @@
 
 ## Canvas-from-file
 
-```lisp
+```code
 
 (Canvas-from-file file flags) -> nil | canvas
 
@@ -1186,7 +1186,7 @@
 
 ## Flow
 
-```lisp
+```code
 
 (Flow) -> flow
 
@@ -1194,7 +1194,7 @@
 
 ## Grid
 
-```lisp
+```code
 
 (Grid) -> grid
 
@@ -1202,7 +1202,7 @@
 
 ## Label
 
-```lisp
+```code
 
 (Label) -> label
 
@@ -1210,7 +1210,7 @@
 
 ## Progress
 
-```lisp
+```code
 
 (Progress) -> progress
 
@@ -1218,7 +1218,7 @@
 
 ## Scroll
 
-```lisp
+```code
 
 (Scroll flags) -> scroll
 
@@ -1226,7 +1226,7 @@
 
 ## Slider
 
-```lisp
+```code
 
 (Slider) -> slider
 
@@ -1234,7 +1234,7 @@
 
 ## Text
 
-```lisp
+```code
 
 (Text) -> text
 
@@ -1242,7 +1242,7 @@
 
 ## Textfield
 
-```lisp
+```code
 
 (Textfield) -> textfield
 
@@ -1250,7 +1250,7 @@
 
 ## Title
 
-```lisp
+```code
 
 (Title) -> title
 
@@ -1258,7 +1258,7 @@
 
 ## Tree
 
-```lisp
+```code
 
 (Tree event) -> tree
 
@@ -1266,7 +1266,7 @@
 
 ## Vdu
 
-```lisp
+```code
 
 (Vdu) -> vdu
 
@@ -1274,7 +1274,7 @@
 
 ## View
 
-```lisp
+```code
 
 (View) -> view
 
@@ -1282,7 +1282,7 @@
 
 ## Window
 
-```lisp
+```code
 
 (Window) -> window
 
@@ -1290,7 +1290,7 @@
 
 ## aand
 
-```lisp
+```code
 
 (aand [form] ...)
 
@@ -1298,7 +1298,7 @@
 
 ## abi
 
-```lisp
+```code
 
 (abi) -> sym
 
@@ -1306,7 +1306,7 @@
 
 ## abs
 
-```lisp
+```code
 
 (abs num)
 
@@ -1314,7 +1314,7 @@
 
 ## acond
 
-```lisp
+```code
 
 (acond (tst body) ...)
 
@@ -1322,7 +1322,7 @@
 
 ## aeach
 
-```lisp
+```code
 
 (aeach seq body)
 
@@ -1330,7 +1330,7 @@
 
 ## age
 
-```lisp
+```code
 
 (age path) -> 0 | time ns
 
@@ -1338,7 +1338,7 @@
 
 ## aif
 
-```lisp
+```code
 
 (aif form form [form])
 
@@ -1346,7 +1346,7 @@
 
 ## align
 
-```lisp
+```code
 
 (align num div) -> num
 
@@ -1354,7 +1354,7 @@
 
 ## and
 
-```lisp
+```code
 
 (and [tst] ...) -> t | nil | tst
 
@@ -1362,7 +1362,7 @@
 
 ## apply
 
-```lisp
+```code
 
 (apply lambda list)
 
@@ -1370,7 +1370,7 @@
 
 ## array
 
-```lisp
+```code
 
 (array [form ...])
 
@@ -1378,7 +1378,7 @@
 
 ## ascii-char
 
-```lisp
+```code
 
 (ascii-char num) -> char
 
@@ -1386,7 +1386,7 @@
 
 ## ascii-code
 
-```lisp
+```code
 
 (ascii-code char) -> num
 
@@ -1394,7 +1394,7 @@
 
 ## ascii-lower
 
-```lisp
+```code
 
 (ascii-lower num) -> num
 
@@ -1402,7 +1402,7 @@
 
 ## ascii-upper
 
-```lisp
+```code
 
 (ascii-upper num) -> num
 
@@ -1410,7 +1410,7 @@
 
 ## asome
 
-```lisp
+```code
 
 (asome seq body)
 
@@ -1418,7 +1418,7 @@
 
 ## awhen
 
-```lisp
+```code
 
 (awhen form body)
 
@@ -1426,7 +1426,7 @@
 
 ## awhile
 
-```lisp
+```code
 
 (awhile form body)
 
@@ -1434,7 +1434,7 @@
 
 ## bind
 
-```lisp
+```code
 
 (bind (param ...) seq)
 
@@ -1442,7 +1442,7 @@
 
 ## bits
 
-```lisp
+```code
 
 (bits name base [(bit field ...)] ...)
 
@@ -1450,7 +1450,7 @@
 
 ## canvas-brighter
 
-```lisp
+```code
 
 (canvas-brighter col)
 
@@ -1458,7 +1458,7 @@
 
 ## canvas-darker
 
-```lisp
+```code
 
 (canvas-darker col)
 
@@ -1466,7 +1466,7 @@
 
 ## canvas-fbox
 
-```lisp
+```code
 
 (canvas-fbox canvas x y w h)
 
@@ -1474,7 +1474,7 @@
 
 ## canvas-fill
 
-```lisp
+```code
 
 (canvas-fill canvas argb)
 
@@ -1482,7 +1482,7 @@
 
 ## canvas-fpoly
 
-```lisp
+```code
 
 (canvas-fpoly canvas x y mode list)
 
@@ -1490,7 +1490,7 @@
 
 ## canvas-from-argb32
 
-```lisp
+```code
 
 (canvas-from-argb32 pixel type)
 
@@ -1498,7 +1498,7 @@
 
 ## canvas-info
 
-```lisp
+```code
 
 (canvas-info path)
 
@@ -1506,7 +1506,7 @@
 
 ## canvas-load
 
-```lisp
+```code
 
 (canvas-load path flags)
 
@@ -1514,7 +1514,7 @@
 
 ## canvas-next-frame
 
-```lisp
+```code
 
 (canvas-next-frame canvas)
 
@@ -1522,7 +1522,7 @@
 
 ## canvas-plot
 
-```lisp
+```code
 
 (canvas-plot canvas x y)
 
@@ -1530,7 +1530,7 @@
 
 ## canvas-resize
 
-```lisp
+```code
 
 (canvas-resize canvas canvas)
 
@@ -1538,7 +1538,7 @@
 
 ## canvas-save
 
-```lisp
+```code
 
 (canvas-save canvas path format)
 
@@ -1546,7 +1546,7 @@
 
 ## canvas-swap
 
-```lisp
+```code
 
 (canvas-swap canvas)
 
@@ -1554,7 +1554,7 @@
 
 ## canvas-to-argb32
 
-```lisp
+```code
 
 (canvas-to-argb32 pixel type)
 
@@ -1562,7 +1562,7 @@
 
 ## cap
 
-```lisp
+```code
 
 (cap len array ...)
 
@@ -1570,7 +1570,7 @@
 
 ## case
 
-```lisp
+```code
 
 (case form [(key body)] ...)
 
@@ -1578,7 +1578,7 @@
 
 ## cat
 
-```lisp
+```code
 
 (cat seq ...)
 
@@ -1586,7 +1586,7 @@
 
 ## catch
 
-```lisp
+```code
 
 (catch form eform)
 
@@ -1594,7 +1594,7 @@
 
 ## char
 
-```lisp
+```code
 
 (char num [width])
 
@@ -1602,7 +1602,7 @@
 
 ## char-to-num
 
-```lisp
+```code
 
 (char-to-num char) -> num
 
@@ -1610,7 +1610,7 @@
 
 ## clear
 
-```lisp
+```code
 
 (clear array ...)
 
@@ -1618,7 +1618,7 @@
 
 ## cmp
 
-```lisp
+```code
 
 (cmp str str)
 
@@ -1626,7 +1626,7 @@
 
 ## code
 
-```lisp
+```code
 
 (code str [width index])
 
@@ -1634,7 +1634,7 @@
 
 ## collection?
 
-```lisp
+```code
 
 (collection? obj) -> t | nil
 
@@ -1642,7 +1642,7 @@
 
 ## compose
 
-```lisp
+```code
 
 (compose lambda lambda) -> lambda
 
@@ -1650,7 +1650,7 @@
 
 ## cond
 
-```lisp
+```code
 
 (cond [(tst [body])] ...)
 
@@ -1658,7 +1658,7 @@
 
 ## const
 
-```lisp
+```code
 
 (const form)
 
@@ -1666,7 +1666,7 @@
 
 ## copy
 
-```lisp
+```code
 
 (copy form)
 
@@ -1674,7 +1674,7 @@
 
 ## cos
 
-```lisp
+```code
 
 (cos angle)
 
@@ -1682,7 +1682,7 @@
 
 ## cpu
 
-```lisp
+```code
 
 (cpu) -> sym
 
@@ -1690,7 +1690,7 @@
 
 ## create-canvas
 
-```lisp
+```code
 
 (create-canvas width height scale)
 
@@ -1698,7 +1698,7 @@
 
 ## create-font
 
-```lisp
+```code
 
 (create-font name pixels)
 
@@ -1706,7 +1706,7 @@
 
 ## create-stdio
 
-```lisp
+```code
 
 (create-stdio)
 
@@ -1714,7 +1714,7 @@
 
 ## create-vdu
 
-```lisp
+```code
 
 (create-vdu)
 
@@ -1722,7 +1722,7 @@
 
 ## create-view
 
-```lisp
+```code
 
 (create-view)
 
@@ -1730,7 +1730,7 @@
 
 ## ctx-blit
 
-```lisp
+```code
 
 (ctx-blit view tid col x y w h)
 
@@ -1738,7 +1738,7 @@
 
 ## ctx-box
 
-```lisp
+```code
 
 (ctx-box view x y w h)
 
@@ -1746,7 +1746,7 @@
 
 ## ctx-filled-box
 
-```lisp
+```code
 
 (ctx-filled-box view x y w h)
 
@@ -1754,7 +1754,7 @@
 
 ## ctx-panel
 
-```lisp
+```code
 
 (ctx-panel view col flags depth x y w h)
 
@@ -1762,7 +1762,7 @@
 
 ## ctx-set-color
 
-```lisp
+```code
 
 (ctx-set-color view col)
 
@@ -1770,7 +1770,7 @@
 
 ## curry
 
-```lisp
+```code
 
 (curry lambda var ...) -> lambda
 
@@ -1778,7 +1778,7 @@
 
 ## debug
 
-```lisp
+```code
 
 (debug name form)
 
@@ -1786,7 +1786,7 @@
 
 ## debug-format
 
-```lisp
+```code
 
 (debug-format name env)
 
@@ -1794,7 +1794,7 @@
 
 ## debug-fun
 
-```lisp
+```code
 
 (debug-fun name list) -> list
 
@@ -1802,7 +1802,7 @@
 
 ## debug-fun?
 
-```lisp
+```code
 
 (debug-fun? form)
 
@@ -1810,7 +1810,7 @@
 
 ## debug-send
 
-```lisp
+```code
 
 (debug-send form ...)
 
@@ -1818,7 +1818,7 @@
 
 ## dec
 
-```lisp
+```code
 
 (dec num) -> num
 
@@ -1826,7 +1826,7 @@
 
 ## def
 
-```lisp
+```code
 
 (def env var val [var val] ...)
 
@@ -1834,7 +1834,7 @@
 
 ## def?
 
-```lisp
+```code
 
 (def? var [env])
 
@@ -1842,7 +1842,7 @@
 
 ## defabstractmethod
 
-```lisp
+```code
 
 (defabstractmethod (this [arg ...]) body)
 
@@ -1850,7 +1850,7 @@
 
 ## defclass
 
-```lisp
+```code
 
 (defclass name ([arg ...]) (super ...) body)
 
@@ -1858,7 +1858,7 @@
 
 ## deffimethod
 
-```lisp
+```code
 
 (deffimethod name ffi)
 
@@ -1866,7 +1866,7 @@
 
 ## defmethod
 
-```lisp
+```code
 
 (defmethod name (this [arg ...]) body)
 
@@ -1874,7 +1874,7 @@
 
 ## defq
 
-```lisp
+```code
 
 (defq var val [var val] ...)
 
@@ -1882,7 +1882,7 @@
 
 ## defun
 
-```lisp
+```code
 
 (defun name ([arg ...]) body)
 
@@ -1890,7 +1890,7 @@
 
 ## defun-unbound
 
-```lisp
+```code
 
 (defun-unbound name ([arg ...]) body)
 
@@ -1898,7 +1898,7 @@
 
 ## drop!
 
-```lisp
+```code
 
 (drop! collection key) -> collection
 
@@ -1906,7 +1906,7 @@
 
 ## each
 
-```lisp
+```code
 
 (each lambda seq ...)
 
@@ -1914,7 +1914,7 @@
 
 ## each!
 
-```lisp
+```code
 
 (each! start end lambda (seq ...))
 
@@ -1922,7 +1922,7 @@
 
 ## each-line
 
-```lisp
+```code
 
 (each-line lambda stream)
 
@@ -1930,7 +1930,7 @@
 
 ## each-mergeable
 
-```lisp
+```code
 
 (each-mergeable lambda seq) -> seq
 
@@ -1938,7 +1938,7 @@
 
 ## each-mergeable-rev
 
-```lisp
+```code
 
 (each-mergeable-rev lambda seq) -> seq
 
@@ -1946,7 +1946,7 @@
 
 ## each-rev
 
-```lisp
+```code
 
 (each-rev lambda seq ...)
 
@@ -1954,7 +1954,7 @@
 
 ## elem
 
-```lisp
+```code
 
 (elem index seq)
 
@@ -1962,7 +1962,7 @@
 
 ## elem-set
 
-```lisp
+```code
 
 (elem-set index list val)
 
@@ -1970,7 +1970,7 @@
 
 ## emap
 
-```lisp
+```code
 
 (emap [num_buckets]) -> emap
 
@@ -1978,7 +1978,7 @@
 
 ## emap-kv
 
-```lisp
+```code
 
 (emap-kv [key val ...]) -> emap
 
@@ -1986,7 +1986,7 @@
 
 ## empty
 
-```lisp
+```code
 
 (empty collection) -> collection | nil
 
@@ -1994,7 +1994,7 @@
 
 ## empty?
 
-```lisp
+```code
 
 (empty? form) -> bool
 
@@ -2002,7 +2002,7 @@
 
 ## ends-with
 
-```lisp
+```code
 
 (ends-with str str) -> t | nil
 
@@ -2010,7 +2010,7 @@
 
 ## entries
 
-```lisp
+```code
 
 (entries collection) ->  list | nil
 
@@ -2018,7 +2018,7 @@
 
 ## enums
 
-```lisp
+```code
 
 (enums name base [(enum field ...)] ...)
 
@@ -2026,7 +2026,7 @@
 
 ## env
 
-```lisp
+```code
 
 (env [num])
 
@@ -2034,7 +2034,7 @@
 
 ## env-pop
 
-```lisp
+```code
 
 (env-pop)
 
@@ -2042,7 +2042,7 @@
 
 ## env-push
 
-```lisp
+```code
 
 (env-push)
 
@@ -2050,7 +2050,7 @@
 
 ## env?
 
-```lisp
+```code
 
 (env? form) -> t | nil
 
@@ -2058,7 +2058,7 @@
 
 ## eql
 
-```lisp
+```code
 
 (eql form form)
 
@@ -2066,7 +2066,7 @@
 
 ## erase
 
-```lisp
+```code
 
 (erase seq start end) -> seq
 
@@ -2074,7 +2074,7 @@
 
 ## eval
 
-```lisp
+```code
 
 (eval form [env])
 
@@ -2082,7 +2082,7 @@
 
 ## even?
 
-```lisp
+```code
 
 (even? num) -> bool
 
@@ -2090,7 +2090,7 @@
 
 ## every
 
-```lisp
+```code
 
 (every lambda seq ...) -> nil|form
 
@@ -2098,7 +2098,7 @@
 
 ## exec
 
-```lisp
+```code
 
 (exec form)
 
@@ -2106,7 +2106,7 @@
 
 ## export
 
-```lisp
+```code
 
 (export env sym ...)
 
@@ -2114,7 +2114,7 @@
 
 ## f2i
 
-```lisp
+```code
 
 (f2i fixed)
 
@@ -2122,7 +2122,7 @@
 
 ## f2r
 
-```lisp
+```code
 
 (f2r fixed)
 
@@ -2130,7 +2130,7 @@
 
 ## ffi
 
-```lisp
+```code
 
 (ffi sym path flags)
 
@@ -2138,7 +2138,7 @@
 
 ## file-stream
 
-```lisp
+```code
 
 (file-stream path [mode])
 
@@ -2146,7 +2146,7 @@
 
 ## filter
 
-```lisp
+```code
 
 (filter lambda seq) -> list
 
@@ -2154,7 +2154,7 @@
 
 ## find
 
-```lisp
+```code
 
 (find elem seq)
 
@@ -2162,7 +2162,7 @@
 
 ## find-rev
 
-```lisp
+```code
 
 (find-rev elem seq)
 
@@ -2170,7 +2170,7 @@
 
 ## first
 
-```lisp
+```code
 
 (first seq) -> el|nil
 
@@ -2178,7 +2178,7 @@
 
 ## fixeds
 
-```lisp
+```code
 
 (fixeds [form ...])
 
@@ -2186,7 +2186,7 @@
 
 ## floor
 
-```lisp
+```code
 
 (floor num)
 
@@ -2194,7 +2194,7 @@
 
 ## font-glyph-bounds
 
-```lisp
+```code
 
 (font-glyph-bounds font str)
 
@@ -2202,7 +2202,7 @@
 
 ## font-glyph-paths
 
-```lisp
+```code
 
 (font-glyph-paths font str)
 
@@ -2210,7 +2210,7 @@
 
 ## font-glyph-ranges
 
-```lisp
+```code
 
 (font-glyph-ranges font)
 
@@ -2218,7 +2218,7 @@
 
 ## font-sym-texture
 
-```lisp
+```code
 
 (font-sym-texture font sym)
 
@@ -2226,7 +2226,7 @@
 
 ## frac
 
-```lisp
+```code
 
 (frac num)
 
@@ -2234,7 +2234,7 @@
 
 ## func?
 
-```lisp
+```code
 
 (func? form) -> t | nil
 
@@ -2242,7 +2242,7 @@
 
 ## gensym
 
-```lisp
+```code
 
 (gensym)
 
@@ -2250,7 +2250,7 @@
 
 ## get
 
-```lisp
+```code
 
 (get var [env])
 
@@ -2258,7 +2258,7 @@
 
 ## get-byte
 
-```lisp
+```code
 
 (get-byte str index) -> num
 
@@ -2266,7 +2266,7 @@
 
 ## get-cstr
 
-```lisp
+```code
 
 (get-cstr str index) -> str
 
@@ -2274,7 +2274,7 @@
 
 ## get-field
 
-```lisp
+```code
 
 (get-field obj field size|0)
 
@@ -2282,7 +2282,7 @@
 
 ## get-int
 
-```lisp
+```code
 
 (get-int str index) -> num
 
@@ -2290,7 +2290,7 @@
 
 ## get-long
 
-```lisp
+```code
 
 (get-long str index) -> num
 
@@ -2298,7 +2298,7 @@
 
 ## get-netid
 
-```lisp
+```code
 
 (get-netid str index) -> netid
 
@@ -2306,7 +2306,7 @@
 
 ## get-nodeid
 
-```lisp
+```code
 
 (get-nodeid str index) -> nodeid
 
@@ -2314,7 +2314,7 @@
 
 ## get-short
 
-```lisp
+```code
 
 (get-short str index) -> num
 
@@ -2322,7 +2322,7 @@
 
 ## get-ubyte
 
-```lisp
+```code
 
 (get-ubyte str index) -> num
 
@@ -2330,7 +2330,7 @@
 
 ## get-uint
 
-```lisp
+```code
 
 (get-uint str index) -> num
 
@@ -2338,7 +2338,7 @@
 
 ## get-ushort
 
-```lisp
+```code
 
 (get-ushort str index) -> num
 
@@ -2346,7 +2346,7 @@
 
 ## getf
 
-```lisp
+```code
 
 (getf obj field [offset]) -> value
 
@@ -2354,7 +2354,7 @@
 
 ## gets
 
-```lisp
+```code
 
 (gets collection k [if_nil]) -> value | if_nil | nil
 
@@ -2362,7 +2362,7 @@
 
 ## gets-in
 
-```lisp
+```code
 
 (gets-in collection key-path) -> value | nil
 
@@ -2370,7 +2370,7 @@
 
 ## gui-add
 
-```lisp
+```code
 
 (gui-add view)
 
@@ -2378,7 +2378,7 @@
 
 ## gui-add-back
 
-```lisp
+```code
 
 (gui-add-back view)
 
@@ -2386,23 +2386,15 @@
 
 ## gui-info
 
-```lisp
+```code
 
 (gui-info)
 
 ```
 
-## handler
-
-```lisp
-
-(handler state page line) -> state
-
-```
-
 ## hash
 
-```lisp
+```code
 
 (hash obj)
 
@@ -2410,7 +2402,7 @@
 
 ## i2f
 
-```lisp
+```code
 
 (i2f num)
 
@@ -2418,7 +2410,7 @@
 
 ## i2r
 
-```lisp
+```code
 
 (i2r num)
 
@@ -2426,7 +2418,7 @@
 
 ## identity
 
-```lisp
+```code
 
 (identity any) -> any
 
@@ -2434,7 +2426,7 @@
 
 ## if
 
-```lisp
+```code
 
 (if tst form [else_form])
 
@@ -2442,7 +2434,7 @@
 
 ## import
 
-```lisp
+```code
 
 (import path [env]) -> env
 
@@ -2450,7 +2442,7 @@
 
 ## in-get-state
 
-```lisp
+```code
 
 (in-get-state in) -> num
 
@@ -2458,7 +2450,7 @@
 
 ## in-mbox
 
-```lisp
+```code
 
 (in-mbox in) -> mbox
 
@@ -2466,7 +2458,7 @@
 
 ## in-next-msg
 
-```lisp
+```code
 
 (in-next-msg in)
 
@@ -2474,7 +2466,7 @@
 
 ## in-set-state
 
-```lisp
+```code
 
 (in-set-state in num) -> in
 
@@ -2482,7 +2474,7 @@
 
 ## in-stream
 
-```lisp
+```code
 
 (in-stream)
 
@@ -2490,7 +2482,7 @@
 
 ## inc
 
-```lisp
+```code
 
 (inc num) -> num
 
@@ -2498,7 +2490,7 @@
 
 ## insert
 
-```lisp
+```code
 
 (insert seq pos seq) -> seq
 
@@ -2506,7 +2498,7 @@
 
 ## intern
 
-```lisp
+```code
 
 (intern list form [lambda]) -> form
 
@@ -2514,7 +2506,7 @@
 
 ## intern-seq
 
-```lisp
+```code
 
 (intern-seq seq [list lambda]) -> list
 
@@ -2522,7 +2514,7 @@
 
 ## into-fn
 
-```lisp
+```code
 
 (into-fn collection) -> fn
 
@@ -2530,7 +2522,7 @@
 
 ## into-map
 
-```lisp
+```code
 
 (into-map map list-of-pairs) -> map
 
@@ -2538,7 +2530,7 @@
 
 ## into-set
 
-```lisp
+```code
 
 (into-set set list-of-elements) -> set
 
@@ -2546,7 +2538,7 @@
 
 ## io-stream
 
-```lisp
+```code
 
 (io-stream io)
 
@@ -2554,7 +2546,7 @@
 
 ## join
 
-```lisp
+```code
 
 (join list seq) -> seq
 
@@ -2562,7 +2554,7 @@
 
 ## kernel-stats
 
-```lisp
+```code
 
 (kernel-stats)
 
@@ -2570,7 +2562,7 @@
 
 ## keys
 
-```lisp
+```code
 
 (keys collection) -> list | nil
 
@@ -2578,7 +2570,7 @@
 
 ## lambda
 
-```lisp
+```code
 
 (lambda ([arg ...]) body)
 
@@ -2586,7 +2578,7 @@
 
 ## lambda?
 
-```lisp
+```code
 
 (lambda? form) -> t | nil
 
@@ -2594,7 +2586,7 @@
 
 ## last
 
-```lisp
+```code
 
 (last seq) -> el|nil
 
@@ -2602,7 +2594,7 @@
 
 ## length
 
-```lisp
+```code
 
 (length seq)
 
@@ -2610,7 +2602,7 @@
 
 ## let
 
-```lisp
+```code
 
 (let ([(var val) ...]) body)
 
@@ -2618,7 +2610,7 @@
 
 ## list
 
-```lisp
+```code
 
 (list [form ...])
 
@@ -2626,7 +2618,7 @@
 
 ## list?
 
-```lisp
+```code
 
 (list? form) -> t | nil
 
@@ -2634,7 +2626,7 @@
 
 ## load
 
-```lisp
+```code
 
 (load path)
 
@@ -2642,7 +2634,7 @@
 
 ## load-path
 
-```lisp
+```code
 
 (load-path)
 
@@ -2650,7 +2642,7 @@
 
 ## load-stream
 
-```lisp
+```code
 
 (load-stream path) -> nil|stream
 
@@ -2658,7 +2650,7 @@
 
 ## log2
 
-```lisp
+```code
 
 (log2 num) -> num
 
@@ -2666,7 +2658,7 @@
 
 ## logand
 
-```lisp
+```code
 
 (logand [num] ...)
 
@@ -2674,7 +2666,7 @@
 
 ## logior
 
-```lisp
+```code
 
 (logior [num] ...)
 
@@ -2682,7 +2674,7 @@
 
 ## lognot
 
-```lisp
+```code
 
 (lognot num) -> num
 
@@ -2690,7 +2682,7 @@
 
 ## logxor
 
-```lisp
+```code
 
 (logxor [num] ...)
 
@@ -2698,7 +2690,7 @@
 
 ## macro?
 
-```lisp
+```code
 
 (macro? form) -> t | nil
 
@@ -2706,7 +2698,7 @@
 
 ## macroexpand
 
-```lisp
+```code
 
 (macroexpand form)
 
@@ -2714,7 +2706,7 @@
 
 ## mail-alloc-mbox
 
-```lisp
+```code
 
 (mail-alloc-mbox)
 
@@ -2722,7 +2714,7 @@
 
 ## mail-declare
 
-```lisp
+```code
 
 (mail-declare mbox name info)
 
@@ -2730,7 +2722,7 @@
 
 ## mail-enquire
 
-```lisp
+```code
 
 (mail-enquire prefix)
 
@@ -2738,7 +2730,7 @@
 
 ## mail-forget
 
-```lisp
+```code
 
 (mail-forget key)
 
@@ -2746,7 +2738,7 @@
 
 ## mail-free-mbox
 
-```lisp
+```code
 
 (mail-free-mbox mbox)
 
@@ -2754,7 +2746,7 @@
 
 ## mail-nodes
 
-```lisp
+```code
 
 (mail-nodes)
 
@@ -2762,7 +2754,7 @@
 
 ## mail-poll
 
-```lisp
+```code
 
 (mail-poll mboxs)
 
@@ -2770,7 +2762,7 @@
 
 ## mail-read
 
-```lisp
+```code
 
 (mail-read mbox)
 
@@ -2778,7 +2770,7 @@
 
 ## mail-select
 
-```lisp
+```code
 
 (mail-select mboxs)
 
@@ -2786,7 +2778,7 @@
 
 ## mail-send
 
-```lisp
+```code
 
 (mail-send mbox obj)
 
@@ -2794,7 +2786,7 @@
 
 ## mail-timeout
 
-```lisp
+```code
 
 (mail-timeout mbox ns)
 
@@ -2802,7 +2794,7 @@
 
 ## map
 
-```lisp
+```code
 
 (map lambda seq ...) -> list
 
@@ -2810,7 +2802,7 @@
 
 ## map-rev
 
-```lisp
+```code
 
 (map-rev lambda seq ...) -> list
 
@@ -2818,7 +2810,7 @@
 
 ## map?
 
-```lisp
+```code
 
 (map? object) -> t | nil
 
@@ -2826,7 +2818,7 @@
 
 ## match?
 
-```lisp
+```code
 
 (match? list list)
 
@@ -2834,7 +2826,7 @@
 
 ## max
 
-```lisp
+```code
 
 (max num num ...)
 
@@ -2842,7 +2834,7 @@
 
 ## merge-into!
 
-```lisp
+```code
 
 (merge-into! collection (collections)) -> collection
 
@@ -2850,7 +2842,7 @@
 
 ## merge-obj
 
-```lisp
+```code
 
 (merge-obj dlist slist) -> dlist
 
@@ -2858,7 +2850,7 @@
 
 ## merges
 
-```lisp
+```code
 
 (merges (collections)) -> collection
 
@@ -2866,7 +2858,7 @@
 
 ## min
 
-```lisp
+```code
 
 (min num num ...)
 
@@ -2874,7 +2866,7 @@
 
 ## neg
 
-```lisp
+```code
 
 (neg num)
 
@@ -2882,7 +2874,7 @@
 
 ## neg?
 
-```lisp
+```code
 
 (neg? num) -> bool
 
@@ -2890,7 +2882,7 @@
 
 ## nempty?
 
-```lisp
+```code
 
 (nempty? form) -> bool
 
@@ -2898,7 +2890,7 @@
 
 ## nil?
 
-```lisp
+```code
 
 (nil? o) -> bool
 
@@ -2906,7 +2898,7 @@
 
 ## nlo
 
-```lisp
+```code
 
 (nlo num) -> num
 
@@ -2914,7 +2906,7 @@
 
 ## nlz
 
-```lisp
+```code
 
 (nlz num) -> num
 
@@ -2922,7 +2914,7 @@
 
 ## not
 
-```lisp
+```code
 
 (not form) -> t | nil
 
@@ -2930,7 +2922,7 @@
 
 ## notany
 
-```lisp
+```code
 
 (notany lambda seq ...) -> t | nil
 
@@ -2938,7 +2930,7 @@
 
 ## notevery
 
-```lisp
+```code
 
 (notevery lambda seq ...) -> t | nil
 
@@ -2946,7 +2938,7 @@
 
 ## nto
 
-```lisp
+```code
 
 (nto num) -> num
 
@@ -2954,7 +2946,7 @@
 
 ## ntz
 
-```lisp
+```code
 
 (ntz num) -> num
 
@@ -2962,7 +2954,7 @@
 
 ## num-to-char
 
-```lisp
+```code
 
 (num-to-char num) -> char
 
@@ -2970,7 +2962,7 @@
 
 ## num-to-utf8
 
-```lisp
+```code
 
 (num-to-utf8 num) -> str
 
@@ -2978,7 +2970,7 @@
 
 ## num?
 
-```lisp
+```code
 
 (num? form) -> t | nil
 
@@ -2986,7 +2978,7 @@
 
 ## nums
 
-```lisp
+```code
 
 (nums [form ...])
 
@@ -2994,7 +2986,7 @@
 
 ## nums-abs
 
-```lisp
+```code
 
 (nums-abs nums [nums])
 
@@ -3002,7 +2994,7 @@
 
 ## nums-add
 
-```lisp
+```code
 
 (nums-add nums nums [nums])
 
@@ -3010,7 +3002,7 @@
 
 ## nums-div
 
-```lisp
+```code
 
 (nums-div nums nums [nums])
 
@@ -3018,7 +3010,7 @@
 
 ## nums-floor
 
-```lisp
+```code
 
 (nums-floor fixeds [fixeds])
 
@@ -3026,7 +3018,7 @@
 
 ## nums-frac
 
-```lisp
+```code
 
 (nums-frac fixeds [fixeds])
 
@@ -3034,7 +3026,7 @@
 
 ## nums-mod
 
-```lisp
+```code
 
 (nums-mod nums nums [nums])
 
@@ -3042,7 +3034,7 @@
 
 ## nums-mul
 
-```lisp
+```code
 
 (nums-mul nums nums [nums])
 
@@ -3050,7 +3042,7 @@
 
 ## nums-scale
 
-```lisp
+```code
 
 (nums-scale nums scale [nums])
 
@@ -3058,7 +3050,7 @@
 
 ## nums-sub
 
-```lisp
+```code
 
 (nums-sub nums nums [nums])
 
@@ -3066,7 +3058,7 @@
 
 ## nums-sum
 
-```lisp
+```code
 
 (nums-sum nums)
 
@@ -3074,7 +3066,7 @@
 
 ## obj-ref
 
-```lisp
+```code
 
 (obj-ref num)
 
@@ -3082,7 +3074,7 @@
 
 ## odd?
 
-```lisp
+```code
 
 (odd? num) -> bool
 
@@ -3090,7 +3082,7 @@
 
 ## open-child
 
-```lisp
+```code
 
 (open-child task mode) -> str
 
@@ -3098,7 +3090,7 @@
 
 ## open-pipe
 
-```lisp
+```code
 
 (open-pipe tasks) -> (list str ...)
 
@@ -3106,7 +3098,7 @@
 
 ## open-remote
 
-```lisp
+```code
 
 (open-remote task node mode) -> str
 
@@ -3114,7 +3106,7 @@
 
 ## open-task
 
-```lisp
+```code
 
 (open-task task node mode key_num reply)
 
@@ -3122,7 +3114,7 @@
 
 ## opt
 
-```lisp
+```code
 
 (opt var val [cond])
 
@@ -3130,7 +3122,7 @@
 
 ## or
 
-```lisp
+```code
 
 (or [tst] ...) -> nil | tst
 
@@ -3138,7 +3130,7 @@
 
 ## out-stream
 
-```lisp
+```code
 
 (out-stream mbox)
 
@@ -3146,7 +3138,7 @@
 
 ## pad
 
-```lisp
+```code
 
 (pad form width [str]) -> str
 
@@ -3154,7 +3146,7 @@
 
 ## pairs-into-kv
 
-```lisp
+```code
 
 (pairs-into-kv list) -> emap
 
@@ -3162,7 +3154,7 @@
 
 ## partition
 
-```lisp
+```code
 
 (partition count seq) -> list of lists
 
@@ -3170,7 +3162,7 @@
 
 ## path
 
-```lisp
+```code
 
 (path [form ...])
 
@@ -3178,7 +3170,7 @@
 
 ## path-filter
 
-```lisp
+```code
 
 (path-filter tol src dst)
 
@@ -3186,7 +3178,7 @@
 
 ## path-gen-arc
 
-```lisp
+```code
 
 (path-gen-arc cx cy start end radius tol dst) -> dst
 
@@ -3194,7 +3186,7 @@
 
 ## path-gen-cubic
 
-```lisp
+```code
 
 (path-gen-cubic p1x p1y p2x p2y p3x p3y p4x p4y tol dst) -> dst
 
@@ -3202,7 +3194,7 @@
 
 ## path-gen-quadratic
 
-```lisp
+```code
 
 (path-gen-quadratic p1x p1y p2x p2y p3x p3y tol dst) -> dst
 
@@ -3210,7 +3202,7 @@
 
 ## path-simplify
 
-```lisp
+```code
 
 (path-simplify tol src dst)
 
@@ -3218,7 +3210,7 @@
 
 ## path-stroke-polygons
 
-```lisp
+```code
 
 (path-stroke-polygons dst radius tol join src) -> dst
 
@@ -3226,7 +3218,7 @@
 
 ## path-stroke-polylines
 
-```lisp
+```code
 
 (path-stroke-polylines dst radius tol join cap1 cap2 src) -> dst
 
@@ -3234,7 +3226,7 @@
 
 ## path-transform
 
-```lisp
+```code
 
 (path-transform m1x m1y m2x m2y trx try src dst)
 
@@ -3242,7 +3234,7 @@
 
 ## penv
 
-```lisp
+```code
 
 (penv [env])
 
@@ -3250,7 +3242,7 @@
 
 ## pii-dirlist
 
-```lisp
+```code
 
 (pii-dirlist path)
 
@@ -3258,7 +3250,7 @@
 
 ## pii-fstat
 
-```lisp
+```code
 
 (pii-fstat path)
 
@@ -3266,7 +3258,7 @@
 
 ## pii-read-char
 
-```lisp
+```code
 
 (pii-read-char fd)
 
@@ -3274,7 +3266,7 @@
 
 ## pii-remove
 
-```lisp
+```code
 
 (pii-remove path)
 
@@ -3282,7 +3274,7 @@
 
 ## pii-time
 
-```lisp
+```code
 
 (pii-time)
 
@@ -3290,7 +3282,7 @@
 
 ## pii-write-char
 
-```lisp
+```code
 
 (pii-write-char fd char)
 
@@ -3298,7 +3290,7 @@
 
 ## pivot
 
-```lisp
+```code
 
 (pivot lambda list start end)
 
@@ -3306,7 +3298,7 @@
 
 ## pop
 
-```lisp
+```code
 
 (pop array)
 
@@ -3314,7 +3306,7 @@
 
 ## pos?
 
-```lisp
+```code
 
 (pos? num) -> bool
 
@@ -3322,7 +3314,7 @@
 
 ## pow
 
-```lisp
+```code
 
 (pow base exponent) -> integer
 
@@ -3330,7 +3322,7 @@
 
 ## prebind
 
-```lisp
+```code
 
 (prebind form)
 
@@ -3338,7 +3330,7 @@
 
 ## prin
 
-```lisp
+```code
 
 (prin [form ...])
 
@@ -3346,7 +3338,7 @@
 
 ## print
 
-```lisp
+```code
 
 (print [form ...])
 
@@ -3354,7 +3346,7 @@
 
 ## profile-print
 
-```lisp
+```code
 
 (profile-print name [stream]) -> stdout|stream
 
@@ -3362,7 +3354,7 @@
 
 ## profile-report
 
-```lisp
+```code
 
 (profile-report name [reset])
 
@@ -3370,7 +3362,7 @@
 
 ## progn
 
-```lisp
+```code
 
 (progn [form ...])
 
@@ -3378,7 +3370,7 @@
 
 ## push
 
-```lisp
+```code
 
 (push array form ...)
 
@@ -3386,7 +3378,7 @@
 
 ## quasi-quote
 
-```lisp
+```code
 
 (quasi-quote form)
 
@@ -3394,7 +3386,7 @@
 
 ## quote
 
-```lisp
+```code
 
 (quote form)
 
@@ -3402,7 +3394,7 @@
 
 ## r2f
 
-```lisp
+```code
 
 (r2f real)
 
@@ -3410,7 +3402,7 @@
 
 ## r2i
 
-```lisp
+```code
 
 (r2i real)
 
@@ -3418,7 +3410,7 @@
 
 ## random
 
-```lisp
+```code
 
 (random num)
 
@@ -3426,7 +3418,7 @@
 
 ## range
 
-```lisp
+```code
 
 (range start end [step]) -> list
 
@@ -3434,7 +3426,7 @@
 
 ## rcurry
 
-```lisp
+```code
 
 (rcurry lambda var ...) -> lambda
 
@@ -3442,7 +3434,7 @@
 
 ## read
 
-```lisp
+```code
 
 (read stream last_char)
 
@@ -3450,7 +3442,7 @@
 
 ## read-avail
 
-```lisp
+```code
 
 (read-avail stream)
 
@@ -3458,7 +3450,7 @@
 
 ## read-char
 
-```lisp
+```code
 
 (read-char stream [width])
 
@@ -3466,7 +3458,7 @@
 
 ## read-int
 
-```lisp
+```code
 
 (read-int stream) -> num
 
@@ -3474,7 +3466,7 @@
 
 ## read-line
 
-```lisp
+```code
 
 (read-line stream)
 
@@ -3482,7 +3474,7 @@
 
 ## read-long
 
-```lisp
+```code
 
 (read-long stream) -> num
 
@@ -3490,7 +3482,7 @@
 
 ## read-short
 
-```lisp
+```code
 
 (read-short stream) -> num
 
@@ -3498,7 +3490,7 @@
 
 ## reals
 
-```lisp
+```code
 
 (reals [form ...])
 
@@ -3506,7 +3498,7 @@
 
 ## recip
 
-```lisp
+```code
 
 (recip num)
 
@@ -3514,7 +3506,7 @@
 
 ## reduce
 
-```lisp
+```code
 
 (reduce lambda seq [accum]) -> form
 
@@ -3522,7 +3514,7 @@
 
 ## reduce-rev
 
-```lisp
+```code
 
 (reduce-rev lambda seq [accum]) -> form
 
@@ -3530,7 +3522,7 @@
 
 ## reduced
 
-```lisp
+```code
 
 (reduced accum)
 
@@ -3538,7 +3530,7 @@
 
 ## reduced-reduce
 
-```lisp
+```code
 
 (reduced-reduce lambda seq [accum]) -> form
 
@@ -3546,7 +3538,7 @@
 
 ## reduced-reduce-rev
 
-```lisp
+```code
 
 (reduced-reduce-rev lambda seq [accum]) -> form
 
@@ -3554,7 +3546,7 @@
 
 ## repl
 
-```lisp
+```code
 
 (repl stream path)
 
@@ -3562,7 +3554,7 @@
 
 ## rest
 
-```lisp
+```code
 
 (rest seq) -> nil|seq
 
@@ -3570,7 +3562,7 @@
 
 ## reverse
 
-```lisp
+```code
 
 (reverse list) -> list
 
@@ -3578,7 +3570,7 @@
 
 ## save
 
-```lisp
+```code
 
 (save str path)
 
@@ -3586,7 +3578,7 @@
 
 ## second
 
-```lisp
+```code
 
 (second seq) -> el|nil
 
@@ -3594,7 +3586,7 @@
 
 ## seq?
 
-```lisp
+```code
 
 (seq? form) -> t | nil
 
@@ -3602,7 +3594,7 @@
 
 ## set
 
-```lisp
+```code
 
 (set env var val [var val] ...)
 
@@ -3610,7 +3602,7 @@
 
 ## set-field
 
-```lisp
+```code
 
 (set-field obj field size|0 val)
 
@@ -3618,7 +3610,7 @@
 
 ## setd
 
-```lisp
+```code
 
 (setd var val [var val] ...)
 
@@ -3626,7 +3618,7 @@
 
 ## setf
 
-```lisp
+```code
 
 (setf obj field value [offset]) -> obj
 
@@ -3634,7 +3626,7 @@
 
 ## setf->
 
-```lisp
+```code
 
 (setf-> msg form ...)
 
@@ -3642,7 +3634,7 @@
 
 ## setq
 
-```lisp
+```code
 
 (setq var val [var val] ...)
 
@@ -3650,7 +3642,7 @@
 
 ## sets!
 
-```lisp
+```code
 
 (sets! collection key value) -> collection
 
@@ -3658,7 +3650,7 @@
 
 ## sets-pairs!
 
-```lisp
+```code
 
 (sets-pairs! collection))
 
@@ -3666,7 +3658,7 @@
 
 ## shuffle
 
-```lisp
+```code
 
 (shuffle list [start end]) -> list
 
@@ -3674,7 +3666,7 @@
 
 ## shuffled
 
-```lisp
+```code
 
 (shuffled list [start end]) -> list
 
@@ -3682,7 +3674,7 @@
 
 ## sign
 
-```lisp
+```code
 
 (sign num)
 
@@ -3690,7 +3682,7 @@
 
 ## sin
 
-```lisp
+```code
 
 (sin angle)
 
@@ -3698,7 +3690,7 @@
 
 ## slice
 
-```lisp
+```code
 
 (slice start end seq)
 
@@ -3706,7 +3698,7 @@
 
 ## some
 
-```lisp
+```code
 
 (some lambda seq ...) -> nil|form
 
@@ -3714,7 +3706,7 @@
 
 ## some!
 
-```lisp
+```code
 
 (some! start end mode lambda (seq ...))
 
@@ -3722,7 +3714,7 @@
 
 ## sort
 
-```lisp
+```code
 
 (sort fcmp list [start end]) -> list
 
@@ -3730,7 +3722,7 @@
 
 ## sorted
 
-```lisp
+```code
 
 (sorted fcmp list [start end]) -> list
 
@@ -3738,7 +3730,7 @@
 
 ## split
 
-```lisp
+```code
 
 (split str chars)
 
@@ -3746,7 +3738,7 @@
 
 ## sqrt
 
-```lisp
+```code
 
 (sqrt num)
 
@@ -3754,7 +3746,7 @@
 
 ## starts-with
 
-```lisp
+```code
 
 (starts-with str str) -> t | nil
 
@@ -3762,7 +3754,7 @@
 
 ## stdio-get-args
 
-```lisp
+```code
 
 (stdio-get-args stdio) -> list
 
@@ -3770,7 +3762,7 @@
 
 ## str
 
-```lisp
+```code
 
 (str [form ...])
 
@@ -3778,7 +3770,7 @@
 
 ## str-alloc
 
-```lisp
+```code
 
 (str-alloc size)
 
@@ -3786,7 +3778,7 @@
 
 ## str-to-num
 
-```lisp
+```code
 
 (str-to-num str) -> num
 
@@ -3794,7 +3786,7 @@
 
 ## str?
 
-```lisp
+```code
 
 (str? form) -> t | nil
 
@@ -3802,7 +3794,7 @@
 
 ## stream-avail
 
-```lisp
+```code
 
 (stream-avail stream)
 
@@ -3810,7 +3802,7 @@
 
 ## stream-flush
 
-```lisp
+```code
 
 (stream-flush stream)
 
@@ -3818,7 +3810,7 @@
 
 ## stream-seek
 
-```lisp
+```code
 
 (stream-seek stream offset pos)
 
@@ -3826,7 +3818,7 @@
 
 ## string-stream
 
-```lisp
+```code
 
 (string-stream str)
 
@@ -3834,7 +3826,7 @@
 
 ## structure
 
-```lisp
+```code
 
 (structure name base [(byte field ...)] ...)
 
@@ -3842,7 +3834,7 @@
 
 ## swap
 
-```lisp
+```code
 
 (swap list index index)
 
@@ -3850,7 +3842,7 @@
 
 ## sym
 
-```lisp
+```code
 
 (sym str)
 
@@ -3858,7 +3850,7 @@
 
 ## sym?
 
-```lisp
+```code
 
 (sym? form) -> t | nil
 
@@ -3866,7 +3858,7 @@
 
 ## task-mailbox
 
-```lisp
+```code
 
 (task-mailbox)
 
@@ -3874,7 +3866,7 @@
 
 ## task-sleep
 
-```lisp
+```code
 
 (task-sleep usec)
 
@@ -3882,7 +3874,7 @@
 
 ## texture-metrics
 
-```lisp
+```code
 
 (texture-metrics texture) -> (handle width height)
 
@@ -3890,7 +3882,7 @@
 
 ## throw
 
-```lisp
+```code
 
 (throw str form)
 
@@ -3898,7 +3890,7 @@
 
 ## times
 
-```lisp
+```code
 
 (times num body)
 
@@ -3906,7 +3898,7 @@
 
 ## to-lower
 
-```lisp
+```code
 
 (to-lower str) -> str
 
@@ -3914,7 +3906,7 @@
 
 ## to-net-id
 
-```lisp
+```code
 
 (to-net-id service_id) -> net_id
 
@@ -3922,7 +3914,7 @@
 
 ## to-service-id
 
-```lisp
+```code
 
 (to-service-id net_id) -> service_id
 
@@ -3930,7 +3922,7 @@
 
 ## to-upper
 
-```lisp
+```code
 
 (to-upper str) -> str
 
@@ -3938,7 +3930,7 @@
 
 ## tolist
 
-```lisp
+```code
 
 (tolist env)
 
@@ -3946,7 +3938,7 @@
 
 ## trim
 
-```lisp
+```code
 
 (trim str [str]) -> str
 
@@ -3954,7 +3946,7 @@
 
 ## trim-end
 
-```lisp
+```code
 
 (trim-end str [str]) -> str
 
@@ -3962,7 +3954,7 @@
 
 ## trim-start
 
-```lisp
+```code
 
 (trim-start str [str]) -> str
 
@@ -3970,7 +3962,7 @@
 
 ## type-of
 
-```lisp
+```code
 
 (type-of obj)
 
@@ -3978,7 +3970,7 @@
 
 ## type-to-size
 
-```lisp
+```code
 
 (type-to-size sym) -> num
 
@@ -3986,7 +3978,7 @@
 
 ## ui-backdrop
 
-```lisp
+```code
 
 (ui-backdrop name [props] [body]) -> backdrop
 
@@ -3994,7 +3986,7 @@
 
 ## ui-button
 
-```lisp
+```code
 
 (ui-button name [props] [body]) -> button
 
@@ -4002,7 +3994,7 @@
 
 ## ui-buttons
 
-```lisp
+```code
 
 (ui-buttons symbols events [props] [group])
 
@@ -4010,7 +4002,7 @@
 
 ## ui-canvas
 
-```lisp
+```code
 
 (ui-canvas name width height scale) -> canvas
 
@@ -4018,7 +4010,7 @@
 
 ## ui-element
 
-```lisp
+```code
 
 (ui-element name func [props] [body]) -> view
 
@@ -4026,7 +4018,7 @@
 
 ## ui-flow
 
-```lisp
+```code
 
 (ui-flow name [props] [body]) -> flow
 
@@ -4034,7 +4026,7 @@
 
 ## ui-grid
 
-```lisp
+```code
 
 (ui-grid name [props] [body]) -> grid
 
@@ -4042,7 +4034,7 @@
 
 ## ui-label
 
-```lisp
+```code
 
 (ui-label name [props] [body]) -> label
 
@@ -4050,7 +4042,7 @@
 
 ## ui-merge-props
 
-```lisp
+```code
 
 (ui-merge-props props) -> props
 
@@ -4058,7 +4050,7 @@
 
 ## ui-progress
 
-```lisp
+```code
 
 (ui-progress name [props]) -> progress
 
@@ -4066,7 +4058,7 @@
 
 ## ui-props
 
-```lisp
+```code
 
 (ui-props props [props]) -> props
 
@@ -4074,7 +4066,7 @@
 
 ## ui-root
 
-```lisp
+```code
 
 (ui-root name func [props] [body]) -> view
 
@@ -4082,7 +4074,7 @@
 
 ## ui-scroll
 
-```lisp
+```code
 
 (ui-scroll name [props] [body]) -> scroll
 
@@ -4090,7 +4082,7 @@
 
 ## ui-slider
 
-```lisp
+```code
 
 (ui-slider name [props]) -> slider
 
@@ -4098,7 +4090,7 @@
 
 ## ui-textfield
 
-```lisp
+```code
 
 (ui-textfield name [props]) -> textfield
 
@@ -4106,7 +4098,7 @@
 
 ## ui-title
 
-```lisp
+```code
 
 (ui-title name [props]) -> title
 
@@ -4114,7 +4106,7 @@
 
 ## ui-title-bar
 
-```lisp
+```code
 
 (ui-title-bar name title symbols events [props]) -> flow
 
@@ -4122,7 +4114,7 @@
 
 ## ui-tool-bar
 
-```lisp
+```code
 
 (ui-tool-bar name [props] [body]) -> flow
 
@@ -4130,7 +4122,7 @@
 
 ## ui-tree
 
-```lisp
+```code
 
 (ui-tree name event [props]) -> tree
 
@@ -4138,7 +4130,7 @@
 
 ## ui-vdu
 
-```lisp
+```code
 
 (ui-vdu name [props]) -> vdu
 
@@ -4146,7 +4138,7 @@
 
 ## ui-view
 
-```lisp
+```code
 
 (ui-view name [props] [body]) -> view
 
@@ -4154,7 +4146,7 @@
 
 ## ui-window
 
-```lisp
+```code
 
 (ui-window name [props] [body]) -> window
 
@@ -4162,7 +4154,7 @@
 
 ## undef
 
-```lisp
+```code
 
 (undef env var [var] ...)
 
@@ -4170,7 +4162,7 @@
 
 ## unless
 
-```lisp
+```code
 
 (unless tst body)
 
@@ -4178,7 +4170,7 @@
 
 ## until
 
-```lisp
+```code
 
 (until tst body)
 
@@ -4186,7 +4178,7 @@
 
 ## unzip
 
-```lisp
+```code
 
 (unzip seq buckets) -> buckets
 
@@ -4194,7 +4186,7 @@
 
 ## values
 
-```lisp
+```code
 
 (values collection) -> list | nil
 
@@ -4202,7 +4194,7 @@
 
 ## vdu-configure
 
-```lisp
+```code
 
 (vdu-configure vdu)
 
@@ -4210,7 +4202,7 @@
 
 ## vdu-load
 
-```lisp
+```code
 
 (vdu-load vdu lines ox oy cx cy)
 
@@ -4218,7 +4210,7 @@
 
 ## view-add-back
 
-```lisp
+```code
 
 (view-add-back parent child)
 
@@ -4226,7 +4218,7 @@
 
 ## view-add-dirty
 
-```lisp
+```code
 
 (view-add-dirty view x y w h)
 
@@ -4234,7 +4226,7 @@
 
 ## view-add-front
 
-```lisp
+```code
 
 (view-add-front parent child)
 
@@ -4242,7 +4234,7 @@
 
 ## view-add-opaque
 
-```lisp
+```code
 
 (view-add-opaque view x y w h)
 
@@ -4250,7 +4242,7 @@
 
 ## view-children
 
-```lisp
+```code
 
 (view-children view)
 
@@ -4258,7 +4250,7 @@
 
 ## view-clr-opaque
 
-```lisp
+```code
 
 (view-clr-opaque view)
 
@@ -4266,7 +4258,7 @@
 
 ## view-emit
 
-```lisp
+```code
 
 (view-emit view)
 
@@ -4274,7 +4266,7 @@
 
 ## view-find-id
 
-```lisp
+```code
 
 (view-find-id view id)
 
@@ -4282,7 +4274,7 @@
 
 ## view-fit
 
-```lisp
+```code
 
 (view-fit x y w h) -> (x y w h)
 
@@ -4290,7 +4282,7 @@
 
 ## view-locate
 
-```lisp
+```code
 
 (view-locate w h [flag]) -> (x y w h)
 
@@ -4298,7 +4290,7 @@
 
 ## view-set-flags
 
-```lisp
+```code
 
 (view-set-flags view flags mask)
 
@@ -4306,7 +4298,7 @@
 
 ## view-sub
 
-```lisp
+```code
 
 (view-sub view)
 
@@ -4314,7 +4306,7 @@
 
 ## view-sub-opaque
 
-```lisp
+```code
 
 (view-sub-opaque view x y w h)
 
@@ -4322,7 +4314,7 @@
 
 ## view-to-back
 
-```lisp
+```code
 
 (view-to-back view)
 
@@ -4330,7 +4322,7 @@
 
 ## view-to-front
 
-```lisp
+```code
 
 (view-to-front view)
 
@@ -4338,7 +4330,7 @@
 
 ## view-trans-dirty
 
-```lisp
+```code
 
 (view-trans-dirty view rx ry)
 
@@ -4346,7 +4338,7 @@
 
 ## walk-list
 
-```lisp
+```code
 
 (walk-list list fnc_element fnc_in fnc_out)
 
@@ -4354,7 +4346,7 @@
 
 ## weak-ref
 
-```lisp
+```code
 
 (weak-ref obj)
 
@@ -4362,7 +4354,7 @@
 
 ## when
 
-```lisp
+```code
 
 (when tst body)
 
@@ -4370,7 +4362,7 @@
 
 ## while
 
-```lisp
+```code
 
 (while tst body)
 
@@ -4378,7 +4370,7 @@
 
 ## within-compile-env
 
-```lisp
+```code
 
 (within-compile-env lambda)
 
@@ -4386,7 +4378,7 @@
 
 ## write
 
-```lisp
+```code
 
 (write stream str)
 
@@ -4394,7 +4386,7 @@
 
 ## write-char
 
-```lisp
+```code
 
 (write-char stream list|num [width])
 
@@ -4402,7 +4394,7 @@
 
 ## write-int
 
-```lisp
+```code
 
 (write-int stream num|list) -> stream
 
@@ -4410,7 +4402,7 @@
 
 ## write-line
 
-```lisp
+```code
 
 (write-line stream str) -> stream
 
@@ -4418,7 +4410,7 @@
 
 ## write-long
 
-```lisp
+```code
 
 (write-long stream num|list) -> stream
 
@@ -4426,7 +4418,7 @@
 
 ## write-short
 
-```lisp
+```code
 
 (write-short stream num|list) -> stream
 
@@ -4434,7 +4426,7 @@
 
 ## xmap
 
-```lisp
+```code
 
 (xmap [num_buckets cmp_fnc hash_fnc]) -> xmap
 
@@ -4442,7 +4434,7 @@
 
 ## xmap-kv
 
-```lisp
+```code
 
 (xmap-kv [key val ...]) -> xmap
 
@@ -4450,7 +4442,7 @@
 
 ## xset
 
-```lisp
+```code
 
 (xset [num_buckets cmp_fnc hash_fnc]) -> xset
 
@@ -4458,7 +4450,7 @@
 
 ## xset-k
 
-```lisp
+```code
 
 (xset-k [key ...]) -> xset
 
@@ -4466,7 +4458,7 @@
 
 ## zip
 
-```lisp
+```code
 
 (zip seq ...) -> list
 

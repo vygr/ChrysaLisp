@@ -1,5 +1,5 @@
 ## cat
-```lisp
+```code
 Usage: cat [options] [path] ...
 	options:
 		-h --help: this help info.
@@ -8,7 +8,7 @@ Usage: cat [options] [path] ...
 
 ```
 ## dump
-```lisp
+```code
 Usage: dump [options] [path] ...
 	options:
 		-h --help: this help info.
@@ -17,14 +17,14 @@ Usage: dump [options] [path] ...
 
 ```
 ## echo
-```lisp
+```code
 Usage: echo [options] arg ...
 	options:
 		-h --help: this help info.
 
 ```
 ## files
-```lisp
+```code
 Usage: file [options] [prefix] [postfix]
 	options:
 		-h --help: this help info.
@@ -36,7 +36,7 @@ Usage: file [options] [prefix] [postfix]
 
 ```
 ## gui
-```lisp
+```code
 Usage: gui [node ...]
 	options:
 		-h --help: this help info.
@@ -45,7 +45,7 @@ Usage: gui [node ...]
 
 ```
 ## head
-```lisp
+```code
 Usage: head [options file]
 	options:
 		-h --help: this help info.
@@ -55,7 +55,7 @@ Usage: head [options file]
 
 ```
 ## link
-```lisp
+```code
 Usage: link [options] 000-000 ...
 	options:
 		-h --help: this help info.
@@ -65,7 +65,7 @@ Usage: link [options] 000-000 ...
 
 ```
 ## lisp
-```lisp
+```code
 Usage: lisp [options] [path] ...
 	options:
 		-h --help: this help info.
@@ -74,7 +74,7 @@ Usage: lisp [options] [path] ...
 
 ```
 ## make
-```lisp
+```code
 Usage: make [options] [all] [boot] [platforms] [doc] [it]
     options:
         -h --help: this help info.
@@ -86,28 +86,28 @@ Usage: make [options] [all] [boot] [platforms] [doc] [it]
 
 ```
 ## nodes
-```lisp
+```code
 Usage: nodes [options]
 	options:
 		-h --help: this help info.
 
 ```
 ## null
-```lisp
+```code
 Usage: null [options]
 	options:
 		-h --help: this help info.
 
 ```
 ## sdir
-```lisp
+```code
 Usage: sdir [options] [prefix]
 	options:
 		-h --help: this help info.
 
 ```
 ## shuffle
-```lisp
+```code
 Usage: shuffle [options] [line] ...
 	options:
 		-h --help: this help info.
@@ -116,7 +116,7 @@ Usage: shuffle [options] [line] ...
 
 ```
 ## slice
-```lisp
+```code
 Usage: slice [options]
 	options:
 		-h --help: this help info.
@@ -126,7 +126,7 @@ Usage: slice [options]
 
 ```
 ## sort
-```lisp
+```code
 Usage: sort [options] [line] ...
 	options:
 		-h --help: this help info.
@@ -135,7 +135,7 @@ Usage: sort [options] [line] ...
 
 ```
 ## split
-```lisp
+```code
 Usage: split [options]
 	options:
 		-h --help: this help info.
@@ -147,7 +147,7 @@ Usage: split [options]
 
 ```
 ## tail
-```lisp
+```code
 Usage: tail [options file]
 	options:
 		-h --help: this help info.
@@ -157,7 +157,7 @@ Usage: tail [options file]
 
 ```
 ## tee
-```lisp
+```code
 Usage: tee [options] [path] ...
 	options:
 		-h --help: this help info.
@@ -165,7 +165,7 @@ Usage: tee [options] [path] ...
 
 ```
 ## tocpm
-```lisp
+```code
 Usage: tocmp [options] [path] ...
 	options:
 		-h --help: this help info.
@@ -176,7 +176,7 @@ Usage: tocmp [options] [path] ...
 
 ```
 ## unique
-```lisp
+```code
 Usage: unique [options] [line] ...
 	options:
 		-h --help: this help info.
@@ -185,7 +185,7 @@ Usage: unique [options] [line] ...
 
 ```
 ## wc
-```lisp
+```code
 
 usage: wc [-h] [-v] [-f :file] [-l] [-w] [-c]
 
@@ -200,7 +200,7 @@ details:
 
 ```
 ## wcseg
-```lisp
+```code
 usage: wcseg [-h] [-v] [-f] [-l] [-w] [-c] {} ...
 
 word counter
