@@ -1,5 +1,9 @@
 # TODO
 
+```image
+apps/images/magicbox.cpm
+```
+
 In no particular order but to just to ensure I get thoughts down. I'll keep
 adding to this as I go along. If anybody would like to try helping out, then
 just get in touch.

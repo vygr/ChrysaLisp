@@ -1,5 +1,9 @@
 # Taos
 
+```image
+apps/images/logo.cpm
+```
+
 Because it existed and not many people know of it. What we deserve is a modern
 version of what Taos did, expanded to modern systems and with global scope that
 the modern world has. This brief was written by the guys at Tantric

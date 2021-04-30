@@ -22,11 +22,10 @@
 				:color +argb_grey1
 				:min_width w
 				:min_height h)
-			(. backdrop :add_child vdu)
-			(. page :add_child backdrop)
-			(clear lines)
 			(def (defq text (Text)) :text "")
-			(. page :add_child text)
+			(. backdrop :add_child vdu)
+			(.-> page (:add_child backdrop) (:add_child text))
+			(clear lines)
 			:text)
 		(t	(push lines (. coloriser :expand_tabs line 4))
 			state)))

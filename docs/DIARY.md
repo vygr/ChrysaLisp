@@ -1,5 +1,9 @@
 # Diary of a new feature
 
+```image
+apps/images/molecule.cpm
+```
+
 This is an example of adding a new feature to ChrysaLisp. From the VP assembler
 support at the lowest level to the user visible Lisp function available for
 Lisp apps to make use of.

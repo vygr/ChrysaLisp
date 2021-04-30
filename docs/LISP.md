@@ -1,5 +1,9 @@
 # Lisp
 
+```image
+apps/images/chrysalisp.cpm
+```
+
 It's probably worth a few words specifically about the included Lisp and how it
 works, and how many rules it breaks ! The reason for doing the Lisp was to
 allow me to create an assembler to replace NASM, I was not concerned with
