@@ -64,7 +64,10 @@
                                 (merge-obj syntax (list (sym line)))))))) (file-stream file))) *imports*)))
     ;create classes docs
     (sort (# (cmp (elem 0 %0) (elem 0 %1))) classes)
-    (defq stream (file-stream "docs/VP_CLASSES.md" +file_open_write))
+    (defq stream (file-stream "docs/VP_CLASSES.md" +file_open_write)
+		classes (map (lambda ((a b &rest c))
+			(sort (# (cmp (elem 0 %0) (elem 0 %1))) c)
+			(cat (list a b) c)) classes))
     (write-line stream (const (str "# VP Classes" (ascii-char 10))))
     (each (lambda ((cls super &rest methds))
         (write-line stream (cat "## " cls (ascii-char 10)))
@@ -163,8 +166,8 @@
     (when (and
             (defq stdio (create-stdio))
             (defq args (options stdio usage)))
-        (defq args (map sym args) all (find-rev 'all args) boot (find-rev 'boot args) platforms (find-rev 'platforms args)
-            docs (find-rev 'docs args) it (find-rev 'it args))
+        (defq args (map sym args) all (find-rev 'all args) boot (find-rev 'boot args)
+			platforms (find-rev 'platforms args) docs (find-rev 'docs args) it (find-rev 'it args))
         (cond
             (it (make-docs) (remake-all-platforms))
             ((and boot all platforms) (remake-all-platforms))
