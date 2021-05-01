@@ -23,7 +23,9 @@
 		;look for "-", pass through if not
 		(defq arg (elem 0 args) args (slice 1 -1 args))
 		(if (starts-with "-" arg)
-			(if (defq opt_entry (or (options-find optlist arg) (options-find optlist "-h")))
+			(if (defq opt_entry (or
+					(options-find optlist arg)
+					(options-find optlist "-h")))
 				;found an entry, else help
 				(cond
 					((str? (elem 1 opt_entry))

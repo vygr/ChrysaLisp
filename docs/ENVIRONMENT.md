@@ -256,28 +256,8 @@ with the `(export env sym1 ...)` macro.
 In effect all your 'workings' will be turned into anonymous references due to
 the effect of `(prebind)` as the library is read in via the `(repl ...)` !
 
-```vdu
-;module
-(env-push)
-
-...
-
-(defun xyz (p1 p2)
-	...)
-
-(defun yzx (p1 p2)
-	...)
-
-(defun myfunc (a b c)
-	(xyz a (yzx b c)))
-
-...
-
-;module
-(export (penv)
-	myfunc ...)
-(env-pop)
+```file
+lib/options/options.inc
 ```
 
-Here the functions `(xyz p1 p2) (yzx p1 p2)` are not visible to the outside,
-only the final `(myfunc a b c)`.
+Here only the final function `(options)` is visible to the outside.

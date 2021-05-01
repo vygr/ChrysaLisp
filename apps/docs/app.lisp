@@ -13,6 +13,12 @@
 	"TERMINAL" "COMMANDS" "DIARY"
 	"INTRO" "TAOS" "TODO"))
 
+(defun handler-func (state)
+	(unless (defq handler (. handlers :find state))
+		(import (cat "apps/docs/" (slice 1 -1 state) ".inc"))
+		(. handlers :insert state handler))
+	handler)
+
 (defun populate-page (file)
 	(ui-root page_flow (Flow) (:flow_flags +flow_right_fill :font *env_window_font*)
 		(ui-label _ (:min_width +margin_width :color +argb_grey15))
@@ -21,12 +27,9 @@
 	(defq state :text)
 	(each-line (lambda (line)
 			(task-sleep 0)
-			(unless (defq handler (. handlers :find state))
-				(import (cat "apps/docs/" (slice 1 -1 state) ".inc"))
-				(. handlers :insert state handler))
-			(setq state (handler state page (trim-end line (ascii-char 13)))))
+			(setq state ((handler-func state) state page (trim-end line (ascii-char 13)))))
 		(file-stream (cat "docs/" file ".md")))
-	((. handlers :find state) state page "")
+	((handler-func state) state page "")
 	(bind '(w h) (. page_flow :pref_size))
 	(. page_flow :change 0 0 w h)
 	(def page_scroll :min_width w)

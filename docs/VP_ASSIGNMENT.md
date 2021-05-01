@@ -249,12 +249,12 @@ functions final instructions. Be sure to `(setq *debug_inst* nil)` and `(setq
 *debug_emit* nil)` after the section of code or function to turn emit printing
 off.
 
-This is the output from wrapping the 'hmap 'insert line in the example above:
+This is the output from wrapping the `'hmap :insert` line in the example above:
 
 ```vdu
-	(let ((*debug_inst* t))
-		(call 'hmap :insert {statics->statics_sys_mail_service_map, name, id})
-	)
+(let ((*debug_inst* t))
+	(call 'hmap :insert {statics->statics_sys_mail_service_map, name, id})
+)
 ```
 
 ```vdu

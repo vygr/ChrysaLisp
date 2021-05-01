@@ -6,7 +6,8 @@
 	(enum main timeout))
 
 (defun main ()
-	(defq select (list (task-mailbox) (mail-alloc-mbox)) running t +timeout 5000000)
+	(defq select (list (task-mailbox) (mail-alloc-mbox))
+		running t +timeout 5000000)
 	(while running
 		(mail-timeout (elem +select_timeout select) +timeout)
 		(defq msg (mail-read (elem (defq idx (mail-select select)) select)))
