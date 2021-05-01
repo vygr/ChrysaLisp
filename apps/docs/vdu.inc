@@ -13,9 +13,10 @@
 				:color 0
 				:ink_color +argb_black)
 			(bind '(w h) (. vdu :pref_size))
-			(. vdu :change 0 0 w h)
 			(. syntax :set_state :text)
-			(. vdu :load (map (# (. syntax :colorise %0)) (cat '("") lines '(""))) 0 0 0 1000)
+			(.-> vdu
+				(:change 0 0 w h)
+				(:load (map (# (. syntax :colorise %0)) (cat '("") lines '(""))) 0 0 0 1000))
 			(def (defq backdrop (Backdrop))
 				:color +argb_grey1
 				:min_width w

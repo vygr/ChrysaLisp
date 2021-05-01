@@ -62,7 +62,7 @@ Function and macro definitions are scoped and visible only within the scope of
 the declaring function. There is no global macro list. During macro expansion
 the environment chain is searched to see if a macro exists.
 
-## Within any Lisp instance
+## Within a Lisp instance
 
 ### Built in symbols
 
@@ -84,7 +84,7 @@ save set set-field setq slice some! split str string-stream sym throw tolist
 type-of undef weak-ref while write write-char
 ```
 
-### boot.inc symbols
+### `boot.inc` symbols
 
 ```vdu
 +byte_size +short_size +int_size +long_size +ptr_size +str_data
@@ -93,7 +93,7 @@ type-of undef weak-ref while write write-char
 *debug_mode* *debug_emit* *debug_inst*
 ```
 
-### boot.inc macros
+### `boot.inc` macros
 
 ```vdu
 # .-> .super and ascii-char ascii-code case compose const curry dec
@@ -105,7 +105,7 @@ reduced seq? setd some str? sym? times unless until when write-int write-long
 write-short structure getf setf setf-> export
 ```
 
-### boot.inc functions
+### `boot.inc` functions
 
 ```vdu
 abi age align ascii-lower ascii-upper char-to-num collection? cpu drop!
@@ -121,9 +121,9 @@ type-to-size unzip updates-in! values walk-list within-compile-env write-line
 xmap xmap-kv xmap? xnode xnode? xset xset-k xset? zip
 ```
 
-## Within any cmd/lisp.lisp instance
+## Within a `cmd/lisp.lisp` instance
 
-### asm.inc functions
+### `asm.inc` functions
 
 ```vdu
 all-vp-files compile compile-pipe compile-test make make-all make-all-platforms
@@ -131,7 +131,7 @@ make-boot make-boot-all make-info make-platforms make-test remake
 remake-platforms
 ```
 
-## Within a `*compile_env*` enviroment
+## Within a `*compile_env*` environment
 
 ### `*compile_env*` symbols
 
