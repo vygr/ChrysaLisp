@@ -26,7 +26,7 @@ path string pool may have been stripped after binding in order to save memory
 space.
 
 The total size of a function and the start of the code and path Vtable sections
-are aligned to a +ptr_size.
+are aligned to a `+ptr_size`.
 
 ### Header fields
 
@@ -40,30 +40,31 @@ are aligned to a +ptr_size.
 	(offset pathname))
 ```
 
-* ulong/ptr ln_fnode: In a bound function the address of the next function in
+* `ulong/ptr ln_fnode`: In a bound function the address of the next function in
 the function list. When unbound -1.
 
-* ushort fn_header_length: Total length of the function in bytes.
+* `ushort fn_header_length`: Total length of the function in bytes.
 
-* ushort fn_header_entry: Offset in bytes to the code entry point.
+* `ushort fn_header_entry`: Offset in bytes to the code entry point.
 
-* ushort fn_header_links: Offset in bytes to the external function Vtable.
-Vtable entries are +ptr_size. In unbound format they are relative offsets to
+* `ushort fn_header_links`: Offset in bytes to the external function Vtable.
+Vtable entries are `+ptr_size`. In unbound format they are relative offsets to
 entries in the path pool. In bound format they are pointers to the code section
 of the external functions.
 
-* ushort fn_header_paths: Offset in bytes to the path string pool. 0 terminated
-C style strings.
+* `ushort fn_header_paths`: Offset in bytes to the path string pool. 0
+terminated C style strings.
 
-* ushort fn_header_stack: Stack amount in bytes required by function. Currently
-this is a default value for all unless specified as an optional argument via
-def-func. A process main function uses this value to allocate the initial stack
-requirement but in future a debug mode stack check will check at each function
-entry point that there is enough stack remaining for the function invocation.
+* `ushort fn_header_stack`: Stack amount in bytes required by function.
+Currently this is a default value for all unless specified as an optional
+argument via `(def-func)`. A process main function uses this value to allocate
+the initial stack requirement but in future a debug mode stack check will check
+at each function entry point that there is enough stack remaining for the
+function invocation.
 
-* offset fn_header_pathname: The actual pathname of the function. 0 terminated
-C style string, followed by padding bytes, of at least a single byte, of the
-offset from the code section to the string start.
+* `offset fn_header_pathname`: The actual pathname of the function. 0
+terminated C style string, followed by padding bytes, of at least a single
+byte, of the offset from the code section to the string start.
 
 ## Low level Vtable, string, and calling/jumping
 

@@ -28,8 +28,8 @@ Let's start with a simple example.
 	(assign '(r0 r1 42) '(r1 r2 r3))
 ```
 
-We wish to assign register r0 to r1 and register r1 to r2 and the constant 42
-to r3. Sounds simple enough. So we just emit:
+We wish to assign register `r0` to `r1` and register `r1` to `r2` and the
+constant `42` to `r3`. Sounds simple enough. So we just emit:
 
 ```vdu
 	(vp-cpy-rr r0 r1)
@@ -37,12 +37,13 @@ to r3. Sounds simple enough. So we just emit:
 	(vp-cpy-cr 42 r3)
 ```
 
-Job done, yes ? Err, no. You've just corrupted what was in r1 prior to copying
-it to r2 ! The `(assign)` function does a topological sort on the parameters
-you provide to make sure this does not happen ! If it cannot guarantee a cycle
-free set of copy instructions then it will throw an error and expect you to
-sort the problem out. This happens far less often than you might imagine, but
-occasionally you will need to break the cycle with a temp register.
+Job done, yes ? Err, no. You've just corrupted what was in `r1` prior to
+copying it to `r2` ! The `(assign)` function does a topological sort on the
+parameters you provide to make sure this does not happen ! If it cannot
+guarantee a cycle free set of copy instructions then it will throw an error and
+expect you to sort the problem out. This happens far less often than you might
+imagine, but occasionally you will need to break the cycle with a temp
+register.
 
 The above example actually gets emitted as:
 
@@ -185,7 +186,7 @@ These are in addition to the C/C++ style operators.
 
 ## C-Script function example
 
-This is the system level mailbox declaration function. `sys_mail::declare`
+This is the system level mailbox declaration function. `'sys_mail :declare`
 
 Register inputs and outputs are declared in the `sys/mail/class.inc` file just
 as with a VP function.

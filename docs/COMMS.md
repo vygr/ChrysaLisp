@@ -92,7 +92,7 @@ mailbox ID is discarded as junk mail.
 On creation of a process it is allocated a main local mailbox and the `net_id`
 is returned to the creator. There are functions provided to create multiple
 child processes in a single call. Such functions can be used to create farms,
-arrays, and pipelines of processes. These functions return a list of `net_id`.
+arrays, and pipelines of processes. These functions return a list of `net_id`s.
 The creator can then go on to wire these mailboxes and processes in any
 communications structure it desires.
 

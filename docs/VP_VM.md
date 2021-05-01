@@ -24,16 +24,16 @@ r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, r13, r14, rsp
 ```
 
 These are mapped to real physical registers by the target processor 'emit'
-functions, look in `sys/x64.inc` and `sys/arm64.inc`. On certain processors, like
-the x86_64, it's worth knowing that r0 and r2 are mapped to rax and rdx when it
-comes to scheduling VP div and rem code ! It makes no difference to the aarch64
-emit functions, so one does tend to make VP divide code use r0 and r2 as it
-really helps the x86_64 code generation quality.
+functions, look in `sys/x64.inc` and `sys/arm64.inc`. On certain processors,
+like the x86_64, it's worth knowing that `r0` and `r2` are mapped to rax and
+rdx when it comes to scheduling VP div and rem code ! It makes no difference to
+the aarch64 emit functions, so one does tend to make VP divide code use `r0`
+and `r2` as it really helps the x86_64 code generation quality.
 
 You can use the `(vp-def)` macro to assign register equated symbols to help
 your source look nice. Or bind symbols to registers, via `(method-input)` and
 `(method-output)`, that match function entry/exit parameters if you desire. A
-great example of this is the `canvas::fpoly`, or the `canvas::resize_2`
+great example of this is the `'canvas :fpoly`, or the `'canvas :resize_2`
 functions.
 
 ### VP Assembler
@@ -245,7 +245,7 @@ feature.
 
 ## VP function example
 
-This is the system level string compare function. `sys_str::compare`
+This is the system level string compare function. `'sys_str :compare`
 
 Register inputs and outputs are declared in the `sys/str/class.inc` file.
 
@@ -254,8 +254,8 @@ Register inputs and outputs are declared in the `sys/str/class.inc` file.
 	(dec-method :compare sys/str/compare :static (r0 r1) (r0)))
 ```
 
-So this function will take the C style input char*'s in registers r0 and r1,
-and will return the comparison value in register r0.
+So this function will take the C style input char*'s in registers `r0` and
+`r1`, and will return the comparison value in register `r0`.
 
 Implementation of the function is defined in the `sys/str/class.vp` file.
 
@@ -298,17 +298,16 @@ Next there is a section of documentation, this format can be parsed out by the
 `make docs` command line tool. Parsed documentation ends up in the
 `docs/VP_CLASSES.md` file.
 
-The `(entry 'sys_str :compare '(r0 r1))` and `(exit 'sys_str :compare
-'(r2))` calls are helpers to make sure input and output parameters get copied
-to the correct registers. They enforce the `(def-method)` input and output
-register declarations by use of two `(assign)` calls. The register lists
-provided here are auto assigned from and to the declared register input and
-output lists ! In this case the entry of `'(r0 r1)` turns into an `(assign '(r0
-r1) '(r0 r1))` which ends up emitting no code, but the exit of `'(r2)` does an
-`(assign '(r2) '(r0))` which emits a `(vp-cpy-rr r2 r0)` ensuring that the
-result in r2 ends up copied to the declared output r0. So entry and exit
-helpers ensure your function sticks to its declared contract with the outside
-world.
+The `(entry 'sys_str :compare '(r0 r1))` and `(exit 'sys_str :compare '(r2))`
+calls are helpers to make sure input and output parameters get copied to the
+correct registers. They enforce the `(def-method)` input and output register
+declarations by use of two `(assign)` calls. The register lists provided here
+are auto assigned from and to the declared register input and output lists ! In
+this case the entry of `'(r0 r1)` turns into an `(assign '(r0 r1) '(r0 r1))`
+which ends up emitting no code, but the exit of `'(r2)` does an `(assign '(r2)
+'(r0))` which emits a `(vp-cpy-rr r2 r0)` ensuring that the result in `r2` ends
+up copied to the declared output `r0`. So entry and exit helpers ensure your
+function sticks to its declared contract with the outside world.
 
 The other lines that are not basic VP code instructions are `(loop-start)`,
 `(loop-end)` and `(breakif)` functions. These are structured coding functions
