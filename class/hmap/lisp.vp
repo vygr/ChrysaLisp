@@ -438,8 +438,7 @@
 		(assign '((rsp local_iter_begin) (rsp local_iter_end)) '(r3 r2))
 		(vp-add-cr +ptr_size r3)
 	(loop-until '(r3 = r2))
-	(assign '((rsp local_this)) '(r0))
-	(assign '((r0 lisp_sym_nil)) '(r1))
+	(assign '((rsp local_this) (rsp local_env)) '(r0 r1))
 	(class/obj/ref r1 r2)
 
 	(exit 'hmap :lisp_undef '(r0 r1))
