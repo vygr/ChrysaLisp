@@ -6,7 +6,7 @@ available, plus the tricks you can pull with them.
 Note that true means *not nil* and that is significant. Any value other than
 `nil` is *not nil* !
 
-## if
+### if
 
 `(if tst form [else_form])` is a VP native code implemented conditional
 statement. It is a simple way to make a test evaluation and evaluate a form if
@@ -22,7 +22,7 @@ to `nil`.
 The return value of the `(if ...)` is the value of the form evaluated, or `nil`
 if the form is empty.
 
-## when
+### when
 
 `(when tst body)` is a way to evaluate a body of statements if the test clause
 is true. Not just a single form but an implicit `(progn ...)`.
@@ -38,7 +38,7 @@ is true. Not just a single form but an implicit `(progn ...)`.
 		(lighting c z) (lighting (const (vec-i2n 1 1 1)) z))))
 ```
 
-## unless
+### unless
 
 `(unless tst body)` is the opposite to `(when ...)`. It just evaluates the test
 form and evaluates the body if the result is `nil`.
@@ -50,7 +50,7 @@ form and evaluates the body if the result is `nil`.
 	(. root :add_child node))
 ```
 
-## while
+### while
 
 `(while tst body)` is a VP native code implemented conditional statement. It is
 like `(when ...)` but it will loop while the test clause is true.
@@ -61,7 +61,7 @@ like `(when ...)` but it will loop while the test clause is true.
 	(setq b (+ b s)))
 ```
 
-## until
+### until
 
 `(until tst body)` is like `(unless ...)` but will loop until the test clause
 is true.
@@ -71,7 +71,7 @@ is true.
 	(setq window (penv window)))
 ```
 
-## cond
+### cond
 
 `(cond [(tst [body])] ...)` is a VP native code implemented conditional
 statement. It takes a list of test forms and following bodies to evaluate if
@@ -127,7 +127,7 @@ of the symbols used at the entry to the `(cond ...)` !
 		(. mywindow :event msg)))
 ```
 
-## case
+### case
 
 `(case key (s0 body) ((s1 s2) body) ... (t ...))` is a variant of cond that
 acts like a fast switch. The `key` form is evaluated and must evaluate to a
@@ -164,12 +164,12 @@ match, the optional `t` clause.
 		(push col_list (get :ink_text this))))
 ```
 
-# Tricks with logical statements
+## Tricks with logical statements
 
 `(and ...)` and `(or ...)` can be use as conditional operations as they are
 implemented as if a ladder of `(if ..)` by their respective macros.
 
-## and
+### and
 
 For the `(and ...)` the forms will be evaluated one by one and will exit if
 that clause evaluates as `nil`. Therefore you can use it to execute a form only
@@ -184,7 +184,7 @@ if all the preceding test clauses prove to be true !
 In this example the mouse_down symbol is only set if the previous 2 clauses
 prove to be true.
 
-## or
+### or
 
 For the `(or ...)` the forms will be evaluated one by one and will exit if that
 clause proves to be true. Therefore you can use it to execute a form only if

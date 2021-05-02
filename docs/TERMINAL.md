@@ -58,7 +58,7 @@ reusable libraries to locate them under the `lib/` folder where each library
 has it's own subfolder. Within these subfolders you will find one or more files
 that have an `.inc` extension.
 
-### Hello World example
+## Hello World example
 
 C'mon, there always is a 'Hello World' example isn't there? The following is a
 bare bones command but is useful to call out some particulars to get you going
