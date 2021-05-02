@@ -7,7 +7,7 @@
 (enums +event 0
 	(enum close button))
 
-(defq +margin_width (* 8 3) syntax (Syntax) handlers (emap) scroll_pos (xmap)
+(defq +margin_width (* 8 3) syntax (Syntax) handlers (emap) scroll_pos (xmap) button nil
 	doc_list '("VP_VM" "VP_ASSIGNMENT" "VP_STRUCTURE" "VP_FUNCTIONS" "VP_CLASSES"
 	"LISP" "ENVIRONMENT" "CONDITIONALS" "ITERATION" "COMMS" "SYNTAX"
 	"TERMINAL" "COMMANDS" "DIARY"
@@ -54,7 +54,10 @@
 		((= (defq id (getf (defq msg (mail-read (task-mailbox))) +ev_msg_target_id)) +event_close)
 			nil)
 		((= id +event_button)
+			(if button (undef (. button :dirty) :color))
 			(. scroll_pos :insert file (get :value (get :vslider page_scroll)))
-			(populate-page (setq file (get :text (. mywindow :find_id (getf msg +ev_msg_action_source_id))))))
+			(setq button (. mywindow :find_id (getf msg +ev_msg_action_source_id)))
+			(def (. button :dirty) :color +argb_grey14)
+			(populate-page (setq file (get :text button))))
 		(t (. mywindow :event msg))))
 	(. mywindow :hide))
