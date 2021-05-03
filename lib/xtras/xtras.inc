@@ -193,13 +193,6 @@
 
 ; Sequence forms
 
-(defmacro interleave (seq1 seq2)
-  ; (interleave seq1 seq2) -> list
-  ; Returns a list of the first item in each seq, then the second etc.
-  ; example:
-  ; (interleave (:a :b :c) (0 1 2)) -> (:a 0 :b 1 :c 2)
-  `(zip ,seq1 ,seq2))
-
 ; Properties (a.k.a. list of pairs [k v]) forms
 ; Deprecated and is using an `emap` under the covers
 

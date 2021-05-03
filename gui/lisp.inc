@@ -32,15 +32,14 @@
 ;ui tree helper macros
 (defun ui-merge-props (p)
 	; (ui-merge-props props) -> props
-	(defq ps (list) pv (list))
+	(defq ps (clear '()) pv (clear '()))
 	(each! 0 -1 (lambda (s v)
 		(cond
 			((defq i (find-rev s ps))
 				(elem-set i ps s) (elem-set i pv v))
 			(t	(push ps s) (push pv v))))
 		(unzip (opt p '()) (list (list) (list))))
-	(setq p (list))
-	(each (lambda (s v) (push p s v)) ps pv) p)
+	(zip ps pv))
 
 (defmacro ui-props (p &rest x)
 	; (ui-props props [props]) -> props

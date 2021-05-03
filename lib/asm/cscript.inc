@@ -7,6 +7,10 @@
 ;module
 (env-push)
 
+;;;;;;;;;;;
+; tokenizer
+;;;;;;;;;;;
+
 (defq +symbol_chars "+ABCDEFGHIJKLMNOPQRSTUVWXYZ_/0123456789abcdefghijklmnopqrstuvwxyz"
 	+path_chars "ABCDEFGHIJKLMNOPQRSTUVWXYZ_/0123456789abcdefghijklmnopqrstuvwxyz"
 	+label_chars "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_abcdefghijklmnopqrstuvwxyz"

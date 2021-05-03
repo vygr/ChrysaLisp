@@ -450,11 +450,11 @@
 	(reduce (lambda (b e)
 		(push (elem (% _ (length b)) b) e) b) l b))
 
-(defun zip (&rest b)
+(defun zip (&rest _)
 	; (zip seq ...) -> list
-	(defq l (list))
-	(each! 0 -1 (lambda (&rest _)
-		(setq l (cat l _))) b) l)
+	(defq l (cap (length (elem 0 _)) (list)))
+	(each! 0 -1 (lambda (&rest _) (push l _)) _)
+	(apply cat l))
 
 (defun reverse (_)
 	; (reverse list) -> list
