@@ -53,7 +53,7 @@ The implementation for the `obj` class is:
 (def-func-end)
 ```
 
-It's defined to trash all registers because this is a `virtual` method, who
+It's defined to trash all registers because this is a `:virtual` method, who
 knows what code actually gets run when you call the `:hash` method ? It's very
 likely that all the registers are going to be trashed by any hash function of
 any interest.
@@ -63,11 +63,11 @@ hash value ! Cheap and cheerful but not exactly a good distribution of hash
 values, but it gives us the ability to call the `:hash` method of any object
 and get back a value we can use.
 
-Subclasses `override` this method to provide better support for the type of
+Subclasses `:override` this method to provide better support for the type of
 object of the subclass. For example a very important one is for `str` and `sym`
 objects, the core of the ChrysaLisp environment system.
 
-The method override, which happens to be `final` in this case, is defined in
+The method override, which happens to be `:final` in this case, is defined in
 the `class/str/class.inc` file.
 
 ```vdu

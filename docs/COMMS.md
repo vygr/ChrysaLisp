@@ -197,10 +197,8 @@ child to request node specific information.
 The application defines a polling message structure in the
 `apps/netmon/app.inc` file.
 
-```vdu
-(structure +reply 0
-	(nodeid node)
-	(uint task_count mem_used))
+```file
+apps/netmon/app.inc
 ```
 
 Looking at the parent task `apps/netmon/app.lisp` it then sends out, at regular
@@ -209,11 +207,13 @@ reply mailbox. Note that the `(elem +select_reply select)` will just be the
 mailbox id string returned from its earlier call to `(mail-alloc-mbox)`.
 
 ```vdu
+...
 (defun poll (key val)
 	; (poll key val)
 	;function called to poll entry
 	(unless (eql (defq child (. val :find :child)) (const (pad "" +net_id_size)))
 		(mail-send child (elem +select_reply select))))
+...
 ```
 
 The child task `apps/netmon/child.lisp`, within its event loop, receives and
