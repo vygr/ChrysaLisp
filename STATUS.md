@@ -17,6 +17,10 @@ functions to ease message creation.
 New `(export env sym ...)` macro to go along with `(env-push) ... (env-pop)`. A
 new Module technique !
 
+Docs app rewrite to use dynamically loaded section handler modules. Added new
+'image' module for embed images and 'file' section to embed source code. Also
+rewrote the :text section handler to allow heading underlines and text flow.
+
 ------
 
 New launch scripts for Windows powershell, that implement the -n -e -b -h
