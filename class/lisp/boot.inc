@@ -454,7 +454,7 @@
 	; (zip seq ...) -> list
 	(defq l (cap (length (elem 0 _)) (list)))
 	(each! 0 -1 (lambda (&rest _) (push l _)) _)
-	(apply cat l))
+	(if (= 0 (length l)) l (apply cat l)))
 
 (defun reverse (_)
 	; (reverse list) -> list
