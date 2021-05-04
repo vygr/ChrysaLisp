@@ -55,7 +55,7 @@
                             (setq state :y)
                             (push docs (list))
                             (push functions (f-path (sym (elem 1 s)) (sym (elem 2 s)))))
-                        ((or (eql _ "def-func") (eql _ "defun") (eql _ "defun-unbound"))
+                        ((or (eql _ "def-func") (eql _ "defun"))
                             (setq state :y)
                             (push docs (list))
                             (push functions (sym (elem 1 s))))

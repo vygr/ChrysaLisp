@@ -44,7 +44,7 @@
 
 (defun handler (state page line)
 	; (handler state page line) -> state
-	(defq lines '() body '())
+	(defq words '())
 	(cond
 		((starts-with "```" line)
 			;section start
@@ -53,13 +53,10 @@
 			(cond
 				((eql line "")
 					;body paragraph end
-					(when (> (length lines) 0)
-						(each (lambda (line)
-							(each (lambda (word)
-								(push body word)) (line-words line))) lines)
-						(paragraph body)
+					(when (> (length words) 0)
+						(paragraph words)
 						(blank-line)
-						(clear body) (clear lines)))
+						(clear words)))
 				((starts-with "#### " line)
 					(paragraph (line-words (slice 5 -1 line)) 22)
 					(blank-line))
@@ -74,7 +71,8 @@
 					(paragraph (line-words (slice 2 -1 line)) 34)
 					(under-line 4)
 					(blank-line))
-				(t	(push lines line)))
+				(t	(each (lambda (word)
+						(push words word)) (line-words line))))
 			state)))
 
 ;module

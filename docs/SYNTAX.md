@@ -1888,14 +1888,6 @@
 
 ```
 
-## defun-unbound
-
-```code
-
-(defun-unbound name ([arg ...]) body)
-
-```
-
 ## drop!
 
 ```code

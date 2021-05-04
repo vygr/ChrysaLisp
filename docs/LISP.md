@@ -97,11 +97,11 @@ type-of undef weak-ref while write write-char
 
 ```vdu
 # .-> .super and ascii-char ascii-code case compose const curry dec
-defabstractmethod defclass deffimethod defmacro defmethod defun defun-unbound
-each each-rev env? every func? get-byte get-int get-long get-netid get-nodeid
-get-short get-ubyte get-uint get-ushort inc lambda? let list? macro? merges not
-notany notevery num? opt or pairs-into-kv rcurry read-int read-long read-short
-reduced seq? setd some str? sym? times unless until when write-int write-long
+defabstractmethod defclass deffimethod defmacro defmethod defun each each-rev
+env? every func? get-byte get-int get-long get-netid get-nodeid get-short
+get-ubyte get-uint get-ushort inc lambda? let list? macro? merges not notany
+notevery num? opt or pairs-into-kv rcurry read-int read-long read-short reduced
+seq? setd some str? sym? times unless until when write-int write-long
 write-short structure getf setf setf-> export
 ```
 

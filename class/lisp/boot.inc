@@ -151,10 +151,6 @@
 	; (str [form ...])
 	`(defq ,n (lambda ,a ~_)))
 
-(defmacro defun-unbound (n a &rest _)
-	; (defun-unbound name ([arg ...]) body)
-	`(defq ,n (lambda ,a ~_)))
-
 (defmacro const (_)
 	; (const form)
 	(eval (macroexpand _)))
