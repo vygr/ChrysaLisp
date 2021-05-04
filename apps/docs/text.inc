@@ -15,12 +15,12 @@
 		flow (line-flow size))
 	(when (and (> (length words) 0)
 			(eql (elem 0 words) "* "))
-		;needs a bullet
+		;needs a bullet and indent
 		(def (defq text (Text))
 			:text (cat " " (num-to-utf8 0xe979) " ") 
 			:font (create-font "fonts/Entypo.ctf" 24))
 		(. flow :add_child text)
-		(setq index 1 cnt (elem 0 (. text :pref_size))))
+		(setq index 1 cnt (defq indent_width (elem 0 (. text :pref_size)))))
 	(each! index -1 (lambda (word)
 		(. flow :add_child (defq text (Text)))
 		(if (starts-with "`" word)
@@ -31,8 +31,14 @@
 		(def text :text word)
 		(bind '(w _) (. text :pref_size))
 		(when (> (setq cnt (+ cnt w)) page_width)
-			(setq cnt w flow (line-flow size))
-			(. flow :add_child text))) (list words)))
+			(setq flow (line-flow size))
+			(when (> index 0)
+				;indent
+				(def (defq indent (Backdrop)) :min_width indent_width)
+				(. flow :add_child indent)
+				(setq w (+ w indent_width)))
+			(. flow :add_child text)
+			(setq cnt w))) (list words)))
 
 (defun blank-line ()
 	(def (defq text (Text)) :text "")

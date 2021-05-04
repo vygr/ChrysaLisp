@@ -20,10 +20,11 @@
 	handler)
 
 (defun populate-page (file)
-	(ui-root page_flow (Flow) (:flow_flags +flow_right_fill :font *env_window_font*)
-		(ui-label _ (:min_width +margin_width :color +argb_grey15))
+	(ui-root page_flow (Flow) (:flow_flags +flow_right_fill :font *env_window_font*
+			:color (get :color mywindow))
+		(ui-label _ (:min_width +margin_width))
 		(ui-flow page (:flow_flags +flow_down_fill :min_width 800))
-		(ui-label _ (:min_width +margin_width :color +argb_grey15)))
+		(ui-label _ (:min_width +margin_width)))
 	(defq state :text)
 	(each-line (lambda (line)
 			(task-sleep 0)
