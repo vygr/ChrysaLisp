@@ -18,7 +18,8 @@
 (ui-window mywindow ()
 	(ui-title-bar _ "Clock" (0xea19) +event_close)
 	(if (eql *env_clock_analog* t)
-		(ui-canvas clock clock_size clock_size clock_scale) (defq clock nil))
+		(ui-canvas clock clock_size clock_size clock_scale)
+		(defq clock nil))
 	(if (eql *env_clock_digital* t)
 		(ui-label display (:text "xxx hh:mm:ss"
 			:flow_flags (logior +flow_flag_align_hcenter +flow_flag_align_vcenter)
@@ -85,8 +86,9 @@
 (defun main ()
 	;creates local_timezone
 	(timezone-init *env_clock_timezone*)
-	(.-> clock (:fill 0) (:set_canvas_flags +canvas_flag_antialias))
-	(create-clockface (* (i2f clock_size) (i2f clock_scale)))
+	(when clock
+		(.-> clock (:fill 0) (:set_canvas_flags +canvas_flag_antialias))
+		(create-clockface (* (i2f clock_size) (i2f clock_scale))))
 	(bind '(w h) (. mywindow :pref_size))
 	(gui-add (. mywindow :change 0 0 w h))
 	(mail-timeout (elem +select_timer select) 1)
@@ -102,11 +104,13 @@
 			((= idx +select_timer)
 				;timer event
 				(mail-timeout (elem +select_timer select) rate)
-				(make-analog-time)
-				(view-analog-time (* (i2f clock_size) (i2f clock_scale)))
-				(. clock :swap)
-				(make-digital-time)
-				(set display :text (view-digital-time))
-				(.-> display :layout :dirty))))
+				(when clock
+					(make-analog-time)
+					(view-analog-time (* (i2f clock_size) (i2f clock_scale)))
+					(. clock :swap))
+				(when display
+					(make-digital-time)
+					(set display :text (view-digital-time))
+					(.-> display :layout :dirty)))))
 	(mail-free-mbox (pop select))
 	(. mywindow :hide))
