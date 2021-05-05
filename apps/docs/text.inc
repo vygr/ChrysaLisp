@@ -17,8 +17,8 @@
 			(eql (elem 0 words) "* "))
 		;needs a bullet and indent
 		(def (defq text (Text))
-			:text (cat " " (num-to-utf8 0xe979) " ") 
-			:font (create-font "fonts/Entypo.ctf" 24))
+			:text (cat (num-to-utf8 0xe95f) "    ") 
+			:font (create-font "fonts/Entypo.ctf" 10))
 		(. flow :add_child text)
 		(setq index 1 cnt (defq indent_width (elem 0 (. text :pref_size)))))
 	(each! index -1 (lambda (word)
