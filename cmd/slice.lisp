@@ -7,8 +7,8 @@
 "Usage: slice [options]
 	options:
 		-h --help: this help info.
-		-s --start num: default 0.
-		-e --end num: default -1.
+		-s --start num: start char index, default 0.
+		-e --end num: end char index, default -1.
 	Slice the lines from stdin to stdout.")
 (("-s" "--start")
 	,(lambda (args arg)

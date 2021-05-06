@@ -37,16 +37,20 @@
 "Usage: dump [options] [path] ...
 	options:
 		-h --help: this help info.
+		-c --chunk num: chunk size, default 8.
 	If no paths given on command line
 	then will dump stdin.")
+(("-c" "--chunk")
+	,(lambda (args arg)
+		(setq chunk_size (str-to-num (elem 0 args)))
+		(slice 1 -1 args)))
 ))
 
 (defun main ()
 	;initialize pipe details and command args, abort on error
 	(when (and
 			(defq stdio (create-stdio))
-			(defq args (options stdio usage)))
-		(defq chunk_size 8)
+			(defq chunk_size 8 args (options stdio usage)))
 		(if (<= (length args) 1)
 			;dump from stdin
 			(dump-file (io-stream 'stdin))

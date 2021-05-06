@@ -12,6 +12,7 @@ Usage: cat [options] [path] ...
 Usage: dump [options] [path] ...
 	options:
 		-h --help: this help info.
+		-c --chunk num: chunk size, default 8.
 	If no paths given on command line
 	then will dump stdin.
 
@@ -49,7 +50,7 @@ Usage: gui [node ...]
 Usage: head [options file]
 	options:
 		-h --help: this help info.
-		-c --count num: default 10.
+		-c --count num: line count, default 10.
 	Returns lines from start of file or stdin.
 	Defaults to first 10 lines.
 
@@ -120,8 +121,8 @@ Usage: shuffle [options] [line] ...
 Usage: slice [options]
 	options:
 		-h --help: this help info.
-		-s --start num: default 0.
-		-e --end num: default -1.
+		-s --start num: start char index, default 0.
+		-e --end num: end char index, default -1.
 	Slice the lines from stdin to stdout.
 
 ```
@@ -140,7 +141,7 @@ Usage: split [options]
 	options:
 		-h --help: this help info.
 		-s --sep separator: default ,.
-		-e --sel: element default nil.
+		-e --sel num: selected element, default nil.
 	Split the lines from stdin to stdout.
 	Optionaly select a specific element of
 	the split.
@@ -151,7 +152,7 @@ Usage: split [options]
 Usage: tail [options file]
 	options:
 		-h --help: this help info.
-		-c --count num: default 10.
+		-c --count num: line count, default 10.
 	Returns lines from end of file or stdin.
 	Defaults to last 10 lines.
 
@@ -169,7 +170,7 @@ Usage: tee [options] [path] ...
 Usage: tocmp [options] [path] ...
 	options:
 		-h --help: this help info.
-		-f --format 1|8|15|16|24|32: default 32.
+		-f --format 1|8|15|16|24|32: pixel format, default 32.
 	Load the images and save as .cpm images.
 	If no paths given on command line
 	then paths are read from stdin.

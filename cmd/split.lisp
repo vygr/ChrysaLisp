@@ -8,7 +8,7 @@
 	options:
 		-h --help: this help info.
 		-s --sep separator: default ,.
-		-e --sel: element default nil.
+		-e --sel num: selected element, default nil.
 	Split the lines from stdin to stdout.
 	Optionaly select a specific element of
 	the split.")
