@@ -331,12 +331,12 @@
         ",") "}")))
 
 (defun format-usage-str (self arglist cmdstr)
-  ; (format-usage-str self arglist cmdstr) -> "usage ..."
+  ; (format-usage-str self arglist cmdstr) -> "Usage ..."
   (str (reduce
          (lambda (acc el)
            (cat acc (str "[" (first (gets el :argument)) "] ")))
          arglist
-         (str "usage: "
+         (str "Usage: "
           (gets self :application)
           " "))
     cmdstr " ..."))

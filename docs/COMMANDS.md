@@ -188,9 +188,9 @@ Usage: unique [options] [line] ...
 ## wc
 ```code
 
-usage: wc [-h] [-v] [-f :file] [-l] [-w] [-c]
+Usage: wc [-h] [-v] [-f :file] [-l] [-w] [-c]
 
-details:
+Details:
 
         -h   - displays help and exits
         -v   - displays app version and exits
@@ -202,7 +202,7 @@ details:
 ```
 ## wcseg
 ```code
-usage: wcseg [-h] [-v] [-f] [-l] [-w] [-c] {} ...
+Usage: wcseg [-h] [-v] [-f] [-l] [-w] [-c] {} ...
 
 word counter
 
