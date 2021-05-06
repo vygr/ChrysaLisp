@@ -70,8 +70,8 @@ in the right direction. To see it run, just copy this into a file called
 02:	; hw.lisp - hello world example
 03:	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 04:
-05:	;imports
-06:	(import "class/lisp.inc")
+05:	06:	(import "class/lisp.inc")
+06:
 07:
 08:	; Command entry point
 09:	(defun main ()

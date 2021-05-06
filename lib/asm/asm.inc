@@ -2,7 +2,6 @@
 ; VP Assembler
 ;;;;;;;;;;;;;;
 
-;imports
 (import "class/lisp.inc")
 (import "lib/task/farm.inc")
 

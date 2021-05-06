@@ -1,4 +1,3 @@
-;imports
 (import "sys/lisp.inc")
 
 (defun main ()

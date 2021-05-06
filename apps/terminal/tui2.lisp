@@ -11,7 +11,6 @@
 ;   See ijmptbl below
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;imports
 (import "lib/pipe/pipe.inc")
 (import "lib/logging/logservice.inc")
 (import "lib/pathnode/pathnode.inc")

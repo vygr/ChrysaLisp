@@ -1,4 +1,3 @@
-;imports
 (import "class/lisp.inc")
 (import "lib/argparse/argpclz.lisp")
 

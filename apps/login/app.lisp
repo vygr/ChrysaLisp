@@ -1,4 +1,3 @@
-;imports
 (defq *env_user* "Guest")
 (import "sys/lisp.inc")
 (import "class/lisp.inc")

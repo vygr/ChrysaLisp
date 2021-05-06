@@ -2,7 +2,6 @@
 (import "sys/lisp.inc")
 (jit "apps/chess/" "lisp.vp" '("piece_scans"))
 
-;imports
 (import "class/lisp.inc")
 (import "apps/chess/app.inc")
 

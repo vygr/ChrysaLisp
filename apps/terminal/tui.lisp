@@ -1,4 +1,3 @@
-;imports
 (import "lib/pipe/pipe.inc")
 
 (defq tmbox (mail-alloc-mbox))

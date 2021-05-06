@@ -1,4 +1,3 @@
-;imports
 (import "sys/lisp.inc")
 (import "class/lisp.inc")
 (import "lib/options/options.inc")

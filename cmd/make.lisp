@@ -1,4 +1,3 @@
-;imports
 (import "lib/asm/asm.inc")
 (import "lib/pipe/pipe.inc")
 (import "lib/options/options.inc")

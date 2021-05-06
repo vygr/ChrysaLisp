@@ -4,7 +4,6 @@
 ;which they appear. No warranty is given, and no liability for use or
 ;distribution is expressed or implied by the works' original copyright holder.
 
-;imports
 (import "sys/lisp.inc")
 (import "class/lisp.inc")
 (import "gui/lisp.inc")

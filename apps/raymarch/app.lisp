@@ -2,7 +2,6 @@
 (import "sys/lisp.inc")
 (jit "apps/raymarch/" "lisp.vp" '("tile"))
 
-;imports
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
 (import "lib/task/farm.inc")

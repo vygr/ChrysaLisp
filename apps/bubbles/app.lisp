@@ -1,4 +1,3 @@
-;imports
 (import "lib/math/math.inc")
 (import "apps/bubbles/app.inc")
 

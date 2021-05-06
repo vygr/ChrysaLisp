@@ -2,7 +2,6 @@
 (import "sys/lisp.inc")
 (jit "apps/raymarch/" "lisp.vp" '("ray_march" "scene"))
 
-;imports
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
 (import "lib/math/math.inc")
