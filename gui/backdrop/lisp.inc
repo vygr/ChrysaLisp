@@ -5,7 +5,7 @@
 (import "gui/view/lisp.inc")
 
 (defclass Backdrop () (View)
-	; (Backdrop)-> backdrop
+	; (Backdrop) -> backdrop
 	(def this :style nil :spaceing 32)
 
 	(defmethod :draw (this)

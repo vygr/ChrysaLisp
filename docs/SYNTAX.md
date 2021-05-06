@@ -1,4458 +1,3344 @@
 # Syntax
 
-## #
+### #
 
 ```code
-
 (# (< %9 %0 %3) ...) -> (lambda (%0 %3 %9) (< %9 %0 %3) ...)
-
 ```
 
-## %
+### %
 
 ```code
-
 (% num num ...)
-
 ```
 
-## *
+### *
 
 ```code
-
 (* num num ...)
-
 ```
 
-## +
+### +
 
 ```code
-
 (+ num num ...)
-
 ```
 
-## -
+### -
 
 ```code
-
 (- num num ...)
-
 ```
 
-## backdrop :draw
+### backdrop :draw
 
 ```code
-
 (. backdrop :draw) -> backdrop
-
 ```
 
-## button :draw
+### button :draw
 
 ```code
-
 (. button :draw) -> button
-
 ```
 
-## button :layout
+### button :layout
 
 ```code
-
 (. button :layout) -> button
-
 ```
 
-## button :mouse_down
+### button :mouse_down
 
 ```code
-
 (. button :mouse_down event) -> button
-
 ```
 
-## button :mouse_move
+### button :mouse_move
 
 ```code
-
 (. button :mouse_move event) -> button
-
 ```
 
-## button :mouse_up
+### button :mouse_up
 
 ```code
-
 (. button :mouse_up event) -> button
-
 ```
 
-## canvas :draw
+### canvas :draw
 
 ```code
-
 (. canvas :draw) -> canvas
-
 ```
 
-## canvas :fbox
+### canvas :fbox
 
 ```code
-
 (. canvas :fbox x y width height) -> canvas
-
 ```
 
-## canvas :fill
+### canvas :fill
 
 ```code
-
 (. canvas :fill argb) -> canvas
-
 ```
 
-## canvas :fpoly
+### canvas :fpoly
 
 ```code
-
 (. canvas :fpoly x y winding_mode paths) -> canvas
-
 ```
 
-## canvas :next_frame
+### canvas :next_frame
 
 ```code
-
 (. canvas :next_frame) -> canvas
-
 ```
 
-## canvas :plot
+### canvas :plot
 
 ```code
-
 (. canvas :plot x y) -> canvas
-
 ```
 
-## canvas :pref_size
+### canvas :pref_size
 
 ```code
-
 (. canvas :pref_size) -> (width height)
-
 ```
 
-## canvas :resize
+### canvas :resize
 
 ```code
-
 (. canvas :resize canvas) -> canvas
-
 ```
 
-## canvas :save
+### canvas :save
 
 ```code
-
 (. canvas :save file format) -> nil | canvas
-
 ```
 
-## canvas :set_canvas_flags
+### canvas :set_canvas_flags
 
 ```code
-
 (. canvas :set_canvas_flags flags) -> canvas
-
 ```
 
-## canvas :set_color
+### canvas :set_color
 
 ```code
-
 (. canvas :set_color argb) -> canvas
-
 ```
 
-## canvas :swap
+### canvas :swap
 
 ```code
-
 (. canvas :swap) -> canvas
-
 ```
 
-## emap :copy
+### emap :copy
 
 ```code
-
 (. emap :copy) -> emap
-
 ```
 
-## emap :deep_copy
+### emap :deep_copy
 
 ```code
-
 (. emap :deep_copy) -> emap
-
 ```
 
-## emap :each
+### emap :each
 
 ```code
-
 (. emap :each lambda)
-
 ```
 
-## emap :empty
+### emap :empty
 
 ```code
-
 (. emap :empty) -> emap
-
 ```
 
-## emap :erase
+### emap :erase
 
 ```code
-
 (. emap :erase key) -> emap
-
 ```
 
-## emap :find
+### emap :find
 
 ```code
-
 (. emap :find key) -> nil|val
-
 ```
 
-## emap :insert
+### emap :insert
 
 ```code
-
 (. emap :insert key val) -> emap
-
 ```
 
-## emap :move
+### emap :move
 
 ```code
-
 (. emap :move) -> emap
-
 ```
 
-## emap :resize
+### emap :resize
 
 ```code
-
 (. emap :resize num_buckets) -> emap
-
 ```
 
-## env sym
+### env sym
 
 ```code
-
 (. env sym [...])
-
 ```
 
-## flow :layout
+### flow :layout
 
 ```code
-
 (. flow :layout) -> flow
-
 ```
 
-## flow :pref_size
+### flow :pref_size
 
 ```code
-
 (. flow :pref_size) -> (width height)
-
 ```
 
-## grid :layout
+### grid :layout
 
 ```code
-
 (. grid :layout) -> grid
-
 ```
 
-## grid :pref_size
+### grid :pref_size
 
 ```code
-
 (. grid :pref_size) -> (width height)
-
 ```
 
-## label :add_child
+### label :add_child
 
 ```code
-
 (. label :add_child child) -> label
-
 ```
 
-## label :draw
+### label :draw
 
 ```code
-
 (. label :draw) -> label
-
 ```
 
-## label :layout
+### label :layout
 
 ```code
-
 (. label :layout) -> label
-
 ```
 
-## label :pref_size
+### label :pref_size
 
 ```code
-
 (. label :pref_size) -> (width height)
-
 ```
 
-## progress :draw
+### progress :draw
 
 ```code
-
 (. progress :draw) -> progress
-
 ```
 
-## progress :pref_size
+### progress :pref_size
 
 ```code
-
 (. progress :pref_size) -> (width height)
-
 ```
 
-## scroll :action
+### scroll :action
 
 ```code
-
 (. scroll :action data) -> scroll
-
 ```
 
-## scroll :add_child
+### scroll :add_child
 
 ```code
-
 (. scroll :add_child child) -> scroll
-
 ```
 
-## scroll :layout
+### scroll :layout
 
 ```code
-
 (. scroll :layout) -> scroll
-
 ```
 
-## scroll :pref_size
+### scroll :pref_size
 
 ```code
-
 (. scroll :pref_size) -> (width height)
-
 ```
 
-## slider :draw
+### slider :draw
 
 ```code
-
 (. slider :draw) -> slider
-
 ```
 
-## slider :mouse_down
+### slider :mouse_down
 
 ```code
-
 (. slider :mouse_down event) -> slider
-
 ```
 
-## slider :mouse_move
+### slider :mouse_move
 
 ```code
-
 (. slider :mouse_move event) -> slider
-
 ```
 
-## slider :mouse_up
+### slider :mouse_up
 
 ```code
-
 (. slider :mouse_up event) -> slider
-
 ```
 
-## slider :pref_size
+### slider :pref_size
 
 ```code
-
 (. slider :pref_size) -> (width height)
-
 ```
 
-## text :draw
+### text :draw
 
 ```code
-
 (. text :draw) -> text
-
 ```
 
-## text :pref_size
+### text :pref_size
 
 ```code
-
 (. text :pref_size) -> (width height)
-
 ```
 
-## textfield :draw
+### textfield :draw
 
 ```code
-
 (. textfield :draw) -> textfield
-
 ```
 
-## textfield :key_down
+### textfield :key_down
 
 ```code
-
 (. textfield :key_down event) -> textfield
-
 ```
 
-## textfield :layout
+### textfield :layout
 
 ```code
-
 (. textfield :layout) -> textfield
-
 ```
 
-## .
+### .
 
 ```code
-
 (. this :method [arg ...])
-
 ```
 
-## title :mouse_down
+### title :mouse_down
 
 ```code
-
 (. title :mouse_down event) -> title
-
 ```
 
-## title :mouse_move
+### title :mouse_move
 
 ```code
-
 (. title :mouse_move event) -> title
-
 ```
 
-## tree :action
+### tree :action
 
 ```code
-
 (. tree :action event) -> tree
-
 ```
 
-## tree :add_route
+### tree :add_route
 
 ```code
-
 (. tree :add_route route) -> tree
-
 ```
 
-## tree :get_route
+### tree :get_route
 
 ```code
-
 (. tree :get_route node) -> route
-
 ```
 
-## vdu :char_size
+### vdu :char_size
 
 ```code
-
 (. vdu :char_size) -> (width height)
-
 ```
 
-## vdu :load
+### vdu :load
 
 ```code
-
 (. vdu :load lines offset_x offset_y cursor_x cursor_y) -> vdu
-
 ```
 
-## vdu :max_size
+### vdu :max_size
 
 ```code
-
 (. vdu :max_size) -> (width height)
-
 ```
 
-## vdu :pref_size
+### vdu :pref_size
 
 ```code
-
 (. vdu :pref_size) -> (width height)
-
 ```
 
-## view :add_back
+### view :add_back
 
 ```code
-
 (. view :add_back child) -> view
-
 ```
 
-## view :add_child
+### view :add_child
 
 ```code
-
 (. view :add_child child) -> view
-
 ```
 
-## view :add_dirty
+### view :add_dirty
 
 ```code
-
 (. view :add_dirty x y width height) -> view
-
 ```
 
-## view :add_front
+### view :add_front
 
 ```code
-
 (. view :add_front child) -> view
-
 ```
 
-## view :add_opaque
+### view :add_opaque
 
 ```code
-
 (. view :add_opaque x y width height) -> view
-
 ```
 
-## view :change
+### view :change
 
 ```code
-
 (. view :change x y width height) -> view
-
 ```
 
-## view :change_dirty
+### view :change_dirty
 
 ```code
-
 (. view :change_dirty x y width height) -> view
-
 ```
 
-## view :children
+### view :children
 
 ```code
-
 (. view :children) -> (child0 child1 ...)
-
 ```
 
-## view :clr_opaque
+### view :clr_opaque
 
 ```code
-
 (. view :clr_opaque) -> view
-
 ```
 
-## view :connect
+### view :connect
 
 ```code
-
 (. view :connect id) -> view
-
 ```
 
-## view :ctx_box
+### view :ctx_box
 
 ```code
-
 (. view :ctx_box x y width height) -> view
-
 ```
 
-## view :ctx_filled_box
+### view :ctx_filled_box
 
 ```code
-
 (. view :ctx_filled_box tid col x y width height) -> view
-
 ```
 
-## view :ctx_filled_box
+### view :ctx_filled_box
 
 ```code
-
 (. view :ctx_filled_box x y width height) -> view
-
 ```
 
-## view :ctx_panel
+### view :ctx_panel
 
 ```code
-
 (. view :ctx_panel col flags depth x y width height) -> view
-
 ```
 
-## view :ctx_set_color
+### view :ctx_set_color
 
 ```code
-
 (. view :ctx_set_color col) -> view
-
 ```
 
-## view :dirty
+### view :dirty
 
 ```code
-
 (. view :dirty) -> view
-
 ```
 
-## view :dirty_all
+### view :dirty_all
 
 ```code
-
 (. view :dirty_all) -> view
-
 ```
 
-## view :emit
+### view :emit
 
 ```code
-
 (. view :emit) -> view
-
 ```
 
-## view :find_id
+### view :find_id
 
 ```code
-
 (. view :find_id target_id) -> nil | target_view
-
 ```
 
-## view :get_bounds
+### view :get_bounds
 
 ```code
-
 (. view :get_bounds) -> (x y width height)
-
 ```
 
-## view :get_flags
+### view :get_flags
 
 ```code
-
 (. view :get_flags) -> flags
-
 ```
 
-## view :get_id
+### view :get_id
 
 ```code
-
 (. view :get_id) -> id
-
 ```
 
-## view :get_pos
+### view :get_pos
 
 ```code
-
 (. view :get_pos) -> (x y)
-
 ```
 
-## view :get_size
+### view :get_size
 
 ```code
-
 (. view :get_size) -> (width height)
-
 ```
 
-## view :hide
+### view :hide
 
 ```code
-
 (. view :hide)
-
 ```
 
-## view :hide
+### view :hide
 
 ```code
-
 (. view :hide) -> view
-
 ```
 
-## view :layout
+### view :layout
 
 ```code
-
 (. view :layout) -> view
-
 ```
 
-## view :lisp_sub
+### view :lisp_sub
 
 ```code
-
 (. view :lisp_sub) -> view
-
 ```
 
-## view :pref_size
+### view :pref_size
 
 ```code
-
 (. view :pref_size) -> (width height)
-
 ```
 
-## view :set_flags
+### view :set_flags
 
 ```code
-
 (. view :set_flags value mask) -> view
-
 ```
 
-## view :set_size
+### view :set_size
 
 ```code
-
 (. view :set_size width height) -> view
-
 ```
 
-## view :set_size
+### view :set_size
 
 ```code
-
 (. view :set_size x y width height) -> view
-
 ```
 
-## view :sub_opaque
+### view :sub_opaque
 
 ```code
-
 (. view :sub_opaque x y width height) -> view
-
 ```
 
-## view :to_back
+### view :to_back
 
 ```code
-
 (. view :to_back) -> view
-
 ```
 
-## view :to_front
+### view :to_front
 
 ```code
-
 (. view :to_front) -> view
-
 ```
 
-## view :trans_dirty
+### view :trans_dirty
 
 ```code
-
 (. view :trans_dirty rx ry) -> view
-
 ```
 
-## window :add_child
+### window :add_child
 
 ```code
-
 (. window :add_child child) -> window
-
 ```
 
-## window :draw
+### window :draw
 
 ```code
-
 (. window :draw) -> window
-
 ```
 
-## window :event
+### window :event
 
 ```code
-
 (. window :event event) -> window
-
 ```
 
-## window :layout
+### window :layout
 
 ```code
-
 (. window :layout) -> window
-
 ```
 
-## window :mouse_down
+### window :mouse_down
 
 ```code
-
 (. window :mouse_down event) -> window
-
 ```
 
-## window :mouse_move
+### window :mouse_move
 
 ```code
-
 (. window :mouse_move event) -> window
-
 ```
 
-## window :pref_size
+### window :pref_size
 
 ```code
-
 (. window :pref_size) -> (width height)
-
 ```
 
-## xmap :copy
+### xmap :copy
 
 ```code
-
 (. xmap :copy) -> xmap
-
 ```
 
-## xmap :deep_copy
+### xmap :deep_copy
 
 ```code
-
 (. xmap :deep_copy) -> xmap
-
 ```
 
-## xmap :each
+### xmap :each
 
 ```code
-
 (. xmap :each lambda)
-
 ```
 
-## xmap :empty
+### xmap :empty
 
 ```code
-
 (. xmap :empty) -> xmap
-
 ```
 
-## xmap :erase
+### xmap :erase
 
 ```code
-
 (. xmap :erase key) -> xmap
-
 ```
 
-## xmap :find
+### xmap :find
 
 ```code
-
 (. xmap :find key) -> nil|val
-
 ```
 
-## xmap :insert
+### xmap :insert
 
 ```code
-
 (. xmap :insert key val) -> xmap
-
 ```
 
-## xmap :move
+### xmap :move
 
 ```code
-
 (. xmap :move) -> xmap
-
 ```
 
-## xmap :resize
+### xmap :resize
 
 ```code
-
 (. xmap :resize num_buckets) -> xmap
-
 ```
 
-## xset :copy
+### xset :copy
 
 ```code
-
 (. xset :copy) -> xset
-
 ```
 
-## xset :deep_copy
+### xset :deep_copy
 
 ```code
-
 (. xset :deep_copy) -> xset
-
 ```
 
-## xset :difference
+### xset :difference
 
 ```code
-
 (. xset :difference xset) -> xset
-
 ```
 
-## xset :each
+### xset :each
 
 ```code
-
 (. xset :each lambda)
-
 ```
 
-## xset :empty
+### xset :empty
 
 ```code
-
 (. xset :empty) -> xset
-
 ```
 
-## xset :erase
+### xset :erase
 
 ```code
-
 (. xset :erase key) -> xset
-
 ```
 
-## xset :find
+### xset :find
 
 ```code
-
 (. xset :find key) -> nil|key
-
 ```
 
-## xset :insert
+### xset :insert
 
 ```code
-
 (. xset :insert key) -> xset
-
 ```
 
-## xset :intersect
+### xset :intersect
 
 ```code
-
 (. xset :intersect xset) -> xset
-
 ```
 
-## xset :move
+### xset :move
 
 ```code
-
 (. xset :move) -> xset
-
 ```
 
-## xset :not_intersect
+### xset :not_intersect
 
 ```code
-
 (. xset :not_intersect xset) -> xset
-
 ```
 
-## xset :resize
+### xset :resize
 
 ```code
-
 (. xset :resize num_buckets) -> xset
-
 ```
 
-## xset :union
+### xset :union
 
 ```code
-
 (. xset :union xset) -> xset
-
 ```
 
-## .->
+### .->
 
 ```code
-
 (.-> this form ...)
-
 ```
 
-## .super
+### .super
 
 ```code
-
 (.super this :method [arg ...])
-
 ```
 
-## /
+### /
 
 ```code
-
 (/ num num ...)
-
 ```
 
-## /=
+### /=
 
 ```code
-
 (/= num num ...)
-
 ```
 
-## <
+### <
 
 ```code
-
 (< num num ...)
-
 ```
 
-## <<
+### <<
 
 ```code
-
 (<< num cnt)
-
 ```
 
-## <=
+### <=
 
 ```code
-
 (<= num num ...)
-
 ```
 
-## =
+### =
 
 ```code
-
 (= num num ...)
-
 ```
 
-## >
+### >
 
 ```code
-
 (> num num ...)
-
 ```
 
-## >=
+### >=
 
 ```code
-
 (>= num num ...)
-
 ```
 
-## >>
+### >>
 
 ```code
-
 (>> num cnt)
-
 ```
 
-## >>>
+### >>>
 
 ```code
-
 (>>> num cnt)
-
 ```
 
-## Backdrop
+### Backdrop
 
 ```code
-
-(Backdrop)-> backdrop
-
+(Backdrop) -> backdrop
 ```
 
-## Button
+### Button
 
 ```code
-
 (Button) -> button
-
 ```
 
-## Canvas
+### Canvas
 
 ```code
-
 (Canvas width height scale) -> canvas
-
 ```
 
-## Canvas-from-file
+### Canvas-from-file
 
 ```code
-
 (Canvas-from-file file flags) -> nil | canvas
-
 ```
 
-## Flow
+### Flow
 
 ```code
-
 (Flow) -> flow
-
 ```
 
-## Grid
+### Grid
 
 ```code
-
 (Grid) -> grid
-
 ```
 
-## Label
+### Label
 
 ```code
-
 (Label) -> label
-
 ```
 
-## Progress
+### Progress
 
 ```code
-
 (Progress) -> progress
-
 ```
 
-## Scroll
+### Scroll
 
 ```code
-
 (Scroll flags) -> scroll
-
 ```
 
-## Slider
+### Slider
 
 ```code
-
 (Slider) -> slider
-
 ```
 
-## Text
+### Text
 
 ```code
-
 (Text) -> text
-
 ```
 
-## Textfield
+### Textfield
 
 ```code
-
 (Textfield) -> textfield
-
 ```
 
-## Title
+### Title
 
 ```code
-
 (Title) -> title
-
 ```
 
-## Tree
+### Tree
 
 ```code
-
 (Tree event) -> tree
-
 ```
 
-## Vdu
+### Vdu
 
 ```code
-
 (Vdu) -> vdu
-
 ```
 
-## View
+### View
 
 ```code
-
 (View) -> view
-
 ```
 
-## Window
+### Window
 
 ```code
-
 (Window) -> window
-
 ```
 
-## aand
+### aand
 
 ```code
-
 (aand [form] ...)
-
 ```
 
-## abi
+### abi
 
 ```code
-
 (abi) -> sym
-
 ```
 
-## abs
+### abs
 
 ```code
-
 (abs num)
-
 ```
 
-## acond
+### acond
 
 ```code
-
 (acond (tst body) ...)
-
 ```
 
-## aeach
+### aeach
 
 ```code
-
 (aeach seq body)
-
 ```
 
-## age
+### age
 
 ```code
-
 (age path) -> 0 | time ns
-
 ```
 
-## aif
+### aif
 
 ```code
-
 (aif form form [form])
-
 ```
 
-## align
+### align
 
 ```code
-
 (align num div) -> num
-
 ```
 
-## and
+### and
 
 ```code
-
 (and [tst] ...) -> t | nil | tst
-
 ```
 
-## apply
+### apply
 
 ```code
-
 (apply lambda list)
-
 ```
 
-## array
+### array
 
 ```code
-
 (array [form ...])
-
 ```
 
-## ascii-char
+### ascii-char
 
 ```code
-
 (ascii-char num) -> char
-
 ```
 
-## ascii-code
+### ascii-code
 
 ```code
-
 (ascii-code char) -> num
-
 ```
 
-## ascii-lower
+### ascii-lower
 
 ```code
-
 (ascii-lower num) -> num
-
 ```
 
-## ascii-upper
+### ascii-upper
 
 ```code
-
 (ascii-upper num) -> num
-
 ```
 
-## asome
+### asome
 
 ```code
-
 (asome seq body)
-
 ```
 
-## awhen
+### awhen
 
 ```code
-
 (awhen form body)
-
 ```
 
-## awhile
+### awhile
 
 ```code
-
 (awhile form body)
-
 ```
 
-## bind
+### bind
 
 ```code
-
 (bind (param ...) seq)
-
 ```
 
-## bits
+### bits
 
 ```code
-
 (bits name base [(bit field ...)] ...)
-
 ```
 
-## canvas-brighter
+### canvas-brighter
 
 ```code
-
 (canvas-brighter col)
-
 ```
 
-## canvas-darker
+### canvas-darker
 
 ```code
-
 (canvas-darker col)
-
 ```
 
-## canvas-fbox
+### canvas-fbox
 
 ```code
-
 (canvas-fbox canvas x y w h)
-
 ```
 
-## canvas-fill
+### canvas-fill
 
 ```code
-
 (canvas-fill canvas argb)
-
 ```
 
-## canvas-fpoly
+### canvas-fpoly
 
 ```code
-
 (canvas-fpoly canvas x y mode list)
-
 ```
 
-## canvas-from-argb32
+### canvas-from-argb32
 
 ```code
-
 (canvas-from-argb32 pixel type)
-
 ```
 
-## canvas-info
+### canvas-info
 
 ```code
-
 (canvas-info path)
-
 ```
 
-## canvas-load
+### canvas-load
 
 ```code
-
 (canvas-load path flags)
-
 ```
 
-## canvas-next-frame
+### canvas-next-frame
 
 ```code
-
 (canvas-next-frame canvas)
-
 ```
 
-## canvas-plot
+### canvas-plot
 
 ```code
-
 (canvas-plot canvas x y)
-
 ```
 
-## canvas-resize
+### canvas-resize
 
 ```code
-
 (canvas-resize canvas canvas)
-
 ```
 
-## canvas-save
+### canvas-save
 
 ```code
-
 (canvas-save canvas path format)
-
 ```
 
-## canvas-swap
+### canvas-swap
 
 ```code
-
 (canvas-swap canvas)
-
 ```
 
-## canvas-to-argb32
+### canvas-to-argb32
 
 ```code
-
 (canvas-to-argb32 pixel type)
-
 ```
 
-## cap
+### cap
 
 ```code
-
 (cap len array ...)
-
 ```
 
-## case
+### case
 
 ```code
-
 (case form [(key body)] ...)
-
 ```
 
-## cat
+### cat
 
 ```code
-
 (cat seq ...)
-
 ```
 
-## catch
+### catch
 
 ```code
-
 (catch form eform)
-
 ```
 
-## char
+### char
 
 ```code
-
 (char num [width])
-
 ```
 
-## char-to-num
+### char-to-num
 
 ```code
-
 (char-to-num char) -> num
-
 ```
 
-## clear
+### clear
 
 ```code
-
 (clear array ...)
-
 ```
 
-## cmp
+### cmp
 
 ```code
-
 (cmp str str)
-
 ```
 
-## code
+### code
 
 ```code
-
 (code str [width index])
-
 ```
 
-## collection?
+### collection?
 
 ```code
-
 (collection? obj) -> t | nil
-
 ```
 
-## compose
+### compose
 
 ```code
-
 (compose lambda lambda) -> lambda
-
 ```
 
-## cond
+### cond
 
 ```code
-
 (cond [(tst [body])] ...)
-
 ```
 
-## const
+### const
 
 ```code
-
 (const form)
-
 ```
 
-## copy
+### copy
 
 ```code
-
 (copy form)
-
 ```
 
-## cos
+### cos
 
 ```code
-
 (cos angle)
-
 ```
 
-## cpu
+### cpu
 
 ```code
-
 (cpu) -> sym
-
 ```
 
-## create-canvas
+### create-canvas
 
 ```code
-
 (create-canvas width height scale)
-
 ```
 
-## create-font
+### create-font
 
 ```code
-
 (create-font name pixels)
-
 ```
 
-## create-stdio
+### create-stdio
 
 ```code
-
 (create-stdio)
-
 ```
 
-## create-vdu
+### create-vdu
 
 ```code
-
 (create-vdu)
-
 ```
 
-## create-view
+### create-view
 
 ```code
-
 (create-view)
-
 ```
 
-## ctx-blit
+### ctx-blit
 
 ```code
-
 (ctx-blit view tid col x y w h)
-
 ```
 
-## ctx-box
+### ctx-box
 
 ```code
-
 (ctx-box view x y w h)
-
 ```
 
-## ctx-filled-box
+### ctx-filled-box
 
 ```code
-
 (ctx-filled-box view x y w h)
-
 ```
 
-## ctx-panel
+### ctx-panel
 
 ```code
-
 (ctx-panel view col flags depth x y w h)
-
 ```
 
-## ctx-set-color
+### ctx-set-color
 
 ```code
-
 (ctx-set-color view col)
-
 ```
 
-## curry
+### curry
 
 ```code
-
 (curry lambda var ...) -> lambda
-
 ```
 
-## debug
+### debug
 
 ```code
-
 (debug name form)
-
 ```
 
-## debug-format
+### debug-format
 
 ```code
-
 (debug-format name env)
-
 ```
 
-## debug-fun
+### debug-fun
 
 ```code
-
 (debug-fun name list) -> list
-
 ```
 
-## debug-fun?
+### debug-fun?
 
 ```code
-
 (debug-fun? form)
-
 ```
 
-## debug-send
+### debug-send
 
 ```code
-
 (debug-send form ...)
-
 ```
 
-## dec
+### dec
 
 ```code
-
 (dec num) -> num
-
 ```
 
-## def
+### def
 
 ```code
-
 (def env var val [var val] ...)
-
 ```
 
-## def?
+### def?
 
 ```code
-
 (def? var [env])
-
 ```
 
-## defabstractmethod
+### defabstractmethod
 
 ```code
-
 (defabstractmethod (this [arg ...]) body)
-
 ```
 
-## defclass
+### defclass
 
 ```code
-
 (defclass name ([arg ...]) (super ...) body)
-
 ```
 
-## deffimethod
+### deffimethod
 
 ```code
-
 (deffimethod name ffi)
-
 ```
 
-## defmethod
+### defmethod
 
 ```code
-
 (defmethod name (this [arg ...]) body)
-
 ```
 
-## defq
+### defq
 
 ```code
-
 (defq var val [var val] ...)
-
 ```
 
-## defun
+### defun
 
 ```code
-
 (defun name ([arg ...]) body)
-
 ```
 
-## drop!
+### drop!
 
 ```code
-
 (drop! collection key) -> collection
-
 ```
 
-## each
+### each
 
 ```code
-
 (each lambda seq ...)
-
 ```
 
-## each!
+### each!
 
 ```code
-
 (each! start end lambda (seq ...))
-
 ```
 
-## each-line
+### each-line
 
 ```code
-
 (each-line lambda stream)
-
 ```
 
-## each-mergeable
+### each-mergeable
 
 ```code
-
 (each-mergeable lambda seq) -> seq
-
 ```
 
-## each-mergeable-rev
+### each-mergeable-rev
 
 ```code
-
 (each-mergeable-rev lambda seq) -> seq
-
 ```
 
-## each-rev
+### each-rev
 
 ```code
-
 (each-rev lambda seq ...)
-
 ```
 
-## elem
+### elem
 
 ```code
-
 (elem index seq)
-
 ```
 
-## elem-set
+### elem-set
 
 ```code
-
 (elem-set index list val)
-
 ```
 
-## emap
+### emap
 
 ```code
-
 (emap [num_buckets]) -> emap
-
 ```
 
-## emap-kv
+### emap-kv
 
 ```code
-
 (emap-kv [key val ...]) -> emap
-
 ```
 
-## empty
+### empty
 
 ```code
-
 (empty collection) -> collection | nil
-
 ```
 
-## empty?
+### empty?
 
 ```code
-
 (empty? form) -> bool
-
 ```
 
-## ends-with
+### ends-with
 
 ```code
-
 (ends-with str str) -> t | nil
-
 ```
 
-## entries
+### entries
 
 ```code
-
 (entries collection) ->  list | nil
-
 ```
 
-## enums
+### enums
 
 ```code
-
 (enums name base [(enum field ...)] ...)
-
 ```
 
-## env
+### env
 
 ```code
-
 (env [num])
-
 ```
 
-## env-pop
+### env-pop
 
 ```code
-
 (env-pop)
-
 ```
 
-## env-push
+### env-push
 
 ```code
-
 (env-push)
-
 ```
 
-## env?
+### env?
 
 ```code
-
 (env? form) -> t | nil
-
 ```
 
-## eql
+### eql
 
 ```code
-
 (eql form form)
-
 ```
 
-## erase
+### erase
 
 ```code
-
 (erase seq start end) -> seq
-
 ```
 
-## eval
+### eval
 
 ```code
-
 (eval form [env])
-
 ```
 
-## even?
+### even?
 
 ```code
-
 (even? num) -> bool
-
 ```
 
-## every
+### every
 
 ```code
-
 (every lambda seq ...) -> nil|form
-
 ```
 
-## exec
+### exec
 
 ```code
-
 (exec form)
-
 ```
 
-## export
+### export
 
 ```code
-
 (export env sym ...)
-
 ```
 
-## f2i
+### f2i
 
 ```code
-
 (f2i fixed)
-
 ```
 
-## f2r
+### f2r
 
 ```code
-
 (f2r fixed)
-
 ```
 
-## ffi
+### ffi
 
 ```code
-
 (ffi sym path flags)
-
 ```
 
-## file-stream
+### file-stream
 
 ```code
-
 (file-stream path [mode])
-
 ```
 
-## filter
+### filter
 
 ```code
-
 (filter lambda seq) -> list
-
 ```
 
-## find
+### find
 
 ```code
-
 (find elem seq)
-
 ```
 
-## find-rev
+### find-rev
 
 ```code
-
 (find-rev elem seq)
-
 ```
 
-## first
+### first
 
 ```code
-
 (first seq) -> el|nil
-
 ```
 
-## fixeds
+### fixeds
 
 ```code
-
 (fixeds [form ...])
-
 ```
 
-## floor
+### floor
 
 ```code
-
 (floor num)
-
 ```
 
-## font-glyph-bounds
+### font-glyph-bounds
 
 ```code
-
 (font-glyph-bounds font str)
-
 ```
 
-## font-glyph-paths
+### font-glyph-paths
 
 ```code
-
 (font-glyph-paths font str)
-
 ```
 
-## font-glyph-ranges
+### font-glyph-ranges
 
 ```code
-
 (font-glyph-ranges font)
-
 ```
 
-## font-sym-texture
+### font-sym-texture
 
 ```code
-
 (font-sym-texture font sym)
-
 ```
 
-## frac
+### frac
 
 ```code
-
 (frac num)
-
 ```
 
-## func?
+### func?
 
 ```code
-
 (func? form) -> t | nil
-
 ```
 
-## gensym
+### gensym
 
 ```code
-
 (gensym)
-
 ```
 
-## get
+### get
 
 ```code
-
 (get var [env])
-
 ```
 
-## get-byte
+### get-byte
 
 ```code
-
 (get-byte str index) -> num
-
 ```
 
-## get-cstr
+### get-cstr
 
 ```code
-
 (get-cstr str index) -> str
-
 ```
 
-## get-field
+### get-field
 
 ```code
-
 (get-field obj field size|0)
-
 ```
 
-## get-int
+### get-int
 
 ```code
-
 (get-int str index) -> num
-
 ```
 
-## get-long
+### get-long
 
 ```code
-
 (get-long str index) -> num
-
 ```
 
-## get-netid
+### get-netid
 
 ```code
-
 (get-netid str index) -> netid
-
 ```
 
-## get-nodeid
+### get-nodeid
 
 ```code
-
 (get-nodeid str index) -> nodeid
-
 ```
 
-## get-short
+### get-short
 
 ```code
-
 (get-short str index) -> num
-
 ```
 
-## get-ubyte
+### get-ubyte
 
 ```code
-
 (get-ubyte str index) -> num
-
 ```
 
-## get-uint
+### get-uint
 
 ```code
-
 (get-uint str index) -> num
-
 ```
 
-## get-ushort
+### get-ushort
 
 ```code
-
 (get-ushort str index) -> num
-
 ```
 
-## getf
+### getf
 
 ```code
-
 (getf obj field [offset]) -> value
-
 ```
 
-## gets
+### gets
 
 ```code
-
 (gets collection k [if_nil]) -> value | if_nil | nil
-
 ```
 
-## gets-in
+### gets-in
 
 ```code
-
 (gets-in collection key-path) -> value | nil
-
 ```
 
-## gui-add
+### gui-add
 
 ```code
-
 (gui-add view)
-
 ```
 
-## gui-add-back
+### gui-add-back
 
 ```code
-
 (gui-add-back view)
-
 ```
 
-## gui-info
+### gui-info
 
 ```code
-
 (gui-info)
-
 ```
 
-## hash
+### hash
 
 ```code
-
 (hash obj)
-
 ```
 
-## i2f
+### i2f
 
 ```code
-
 (i2f num)
-
 ```
 
-## i2r
+### i2r
 
 ```code
-
 (i2r num)
-
 ```
 
-## identity
+### identity
 
 ```code
-
 (identity any) -> any
-
 ```
 
-## if
+### if
 
 ```code
-
 (if tst form [else_form])
-
 ```
 
-## import
+### import
 
 ```code
-
 (import path [env]) -> env
-
 ```
 
-## in-get-state
+### in-get-state
 
 ```code
-
 (in-get-state in) -> num
-
 ```
 
-## in-mbox
+### in-mbox
 
 ```code
-
 (in-mbox in) -> mbox
-
 ```
 
-## in-next-msg
+### in-next-msg
 
 ```code
-
 (in-next-msg in)
-
 ```
 
-## in-set-state
+### in-set-state
 
 ```code
-
 (in-set-state in num) -> in
-
 ```
 
-## in-stream
+### in-stream
 
 ```code
-
 (in-stream)
-
 ```
 
-## inc
+### inc
 
 ```code
-
 (inc num) -> num
-
 ```
 
-## insert
+### insert
 
 ```code
-
 (insert seq pos seq) -> seq
-
 ```
 
-## intern
+### intern
 
 ```code
-
 (intern list form [lambda]) -> form
-
 ```
 
-## intern-seq
+### intern-seq
 
 ```code
-
 (intern-seq seq [list lambda]) -> list
-
 ```
 
-## into-fn
+### into-fn
 
 ```code
-
 (into-fn collection) -> fn
-
 ```
 
-## into-map
+### into-map
 
 ```code
-
 (into-map map list-of-pairs) -> map
-
 ```
 
-## into-set
+### into-set
 
 ```code
-
 (into-set set list-of-elements) -> set
-
 ```
 
-## io-stream
+### io-stream
 
 ```code
-
 (io-stream io)
-
 ```
 
-## join
+### join
 
 ```code
-
 (join list seq) -> seq
-
 ```
 
-## kernel-stats
+### kernel-stats
 
 ```code
-
 (kernel-stats)
-
 ```
 
-## keys
+### keys
 
 ```code
-
 (keys collection) -> list | nil
-
 ```
 
-## lambda
+### lambda
 
 ```code
-
 (lambda ([arg ...]) body)
-
 ```
 
-## lambda?
+### lambda?
 
 ```code
-
 (lambda? form) -> t | nil
-
 ```
 
-## last
+### last
 
 ```code
-
 (last seq) -> el|nil
-
 ```
 
-## length
+### length
 
 ```code
-
 (length seq)
-
 ```
 
-## let
+### let
 
 ```code
-
 (let ([(var val) ...]) body)
-
 ```
 
-## list
+### list
 
 ```code
-
 (list [form ...])
-
 ```
 
-## list?
+### list?
 
 ```code
-
 (list? form) -> t | nil
-
 ```
 
-## load
+### load
 
 ```code
-
 (load path)
-
 ```
 
-## load-path
+### load-path
 
 ```code
-
 (load-path)
-
 ```
 
-## load-stream
+### load-stream
 
 ```code
-
 (load-stream path) -> nil|stream
-
 ```
 
-## log2
+### log2
 
 ```code
-
 (log2 num) -> num
-
 ```
 
-## logand
+### logand
 
 ```code
-
 (logand [num] ...)
-
 ```
 
-## logior
+### logior
 
 ```code
-
 (logior [num] ...)
-
 ```
 
-## lognot
+### lognot
 
 ```code
-
 (lognot num) -> num
-
 ```
 
-## logxor
+### logxor
 
 ```code
-
 (logxor [num] ...)
-
 ```
 
-## macro?
+### macro?
 
 ```code
-
 (macro? form) -> t | nil
-
 ```
 
-## macroexpand
+### macroexpand
 
 ```code
-
 (macroexpand form)
-
 ```
 
-## mail-alloc-mbox
+### mail-alloc-mbox
 
 ```code
-
 (mail-alloc-mbox)
-
 ```
 
-## mail-declare
+### mail-declare
 
 ```code
-
 (mail-declare mbox name info)
-
 ```
 
-## mail-enquire
+### mail-enquire
 
 ```code
-
 (mail-enquire prefix)
-
 ```
 
-## mail-forget
+### mail-forget
 
 ```code
-
 (mail-forget key)
-
 ```
 
-## mail-free-mbox
+### mail-free-mbox
 
 ```code
-
 (mail-free-mbox mbox)
-
 ```
 
-## mail-nodes
+### mail-nodes
 
 ```code
-
 (mail-nodes)
-
 ```
 
-## mail-poll
+### mail-poll
 
 ```code
-
 (mail-poll mboxs)
-
 ```
 
-## mail-read
+### mail-read
 
 ```code
-
 (mail-read mbox)
-
 ```
 
-## mail-select
+### mail-select
 
 ```code
-
 (mail-select mboxs)
-
 ```
 
-## mail-send
+### mail-send
 
 ```code
-
 (mail-send mbox obj)
-
 ```
 
-## mail-timeout
+### mail-timeout
 
 ```code
-
 (mail-timeout mbox ns)
-
 ```
 
-## map
+### map
 
 ```code
-
 (map lambda seq ...) -> list
-
 ```
 
-## map-rev
+### map-rev
 
 ```code
-
 (map-rev lambda seq ...) -> list
-
 ```
 
-## map?
+### map?
 
 ```code
-
 (map? object) -> t | nil
-
 ```
 
-## match?
+### match?
 
 ```code
-
 (match? list list)
-
 ```
 
-## max
+### max
 
 ```code
-
 (max num num ...)
-
 ```
 
-## merge-into!
+### merge-into!
 
 ```code
-
 (merge-into! collection (collections)) -> collection
-
 ```
 
-## merge-obj
+### merge-obj
 
 ```code
-
 (merge-obj dlist slist) -> dlist
-
 ```
 
-## merges
+### merges
 
 ```code
-
 (merges (collections)) -> collection
-
 ```
 
-## min
+### min
 
 ```code
-
 (min num num ...)
-
 ```
 
-## neg
+### neg
 
 ```code
-
 (neg num)
-
 ```
 
-## neg?
+### neg?
 
 ```code
-
 (neg? num) -> bool
-
 ```
 
-## nempty?
+### nempty?
 
 ```code
-
 (nempty? form) -> bool
-
 ```
 
-## nil?
+### nil?
 
 ```code
-
 (nil? o) -> bool
-
 ```
 
-## nlo
+### nlo
 
 ```code
-
 (nlo num) -> num
-
 ```
 
-## nlz
+### nlz
 
 ```code
-
 (nlz num) -> num
-
 ```
 
-## not
+### not
 
 ```code
-
 (not form) -> t | nil
-
 ```
 
-## notany
+### notany
 
 ```code
-
 (notany lambda seq ...) -> t | nil
-
 ```
 
-## notevery
+### notevery
 
 ```code
-
 (notevery lambda seq ...) -> t | nil
-
 ```
 
-## nto
+### nto
 
 ```code
-
 (nto num) -> num
-
 ```
 
-## ntz
+### ntz
 
 ```code
-
 (ntz num) -> num
-
 ```
 
-## num-to-char
+### num-to-char
 
 ```code
-
 (num-to-char num) -> char
-
 ```
 
-## num-to-utf8
+### num-to-utf8
 
 ```code
-
 (num-to-utf8 num) -> str
-
 ```
 
-## num?
+### num?
 
 ```code
-
 (num? form) -> t | nil
-
 ```
 
-## nums
+### nums
 
 ```code
-
 (nums [form ...])
-
 ```
 
-## nums-abs
+### nums-abs
 
 ```code
-
 (nums-abs nums [nums])
-
 ```
 
-## nums-add
+### nums-add
 
 ```code
-
 (nums-add nums nums [nums])
-
 ```
 
-## nums-div
+### nums-div
 
 ```code
-
 (nums-div nums nums [nums])
-
 ```
 
-## nums-floor
+### nums-floor
 
 ```code
-
 (nums-floor fixeds [fixeds])
-
 ```
 
-## nums-frac
+### nums-frac
 
 ```code
-
 (nums-frac fixeds [fixeds])
-
 ```
 
-## nums-mod
+### nums-mod
 
 ```code
-
 (nums-mod nums nums [nums])
-
 ```
 
-## nums-mul
+### nums-mul
 
 ```code
-
 (nums-mul nums nums [nums])
-
 ```
 
-## nums-scale
+### nums-scale
 
 ```code
-
 (nums-scale nums scale [nums])
-
 ```
 
-## nums-sub
+### nums-sub
 
 ```code
-
 (nums-sub nums nums [nums])
-
 ```
 
-## nums-sum
+### nums-sum
 
 ```code
-
 (nums-sum nums)
-
 ```
 
-## obj-ref
+### obj-ref
 
 ```code
-
 (obj-ref num)
-
 ```
 
-## odd?
+### odd?
 
 ```code
-
 (odd? num) -> bool
-
 ```
 
-## open-child
+### open-child
 
 ```code
-
 (open-child task mode) -> str
-
 ```
 
-## open-pipe
+### open-pipe
 
 ```code
-
 (open-pipe tasks) -> (list str ...)
-
 ```
 
-## open-remote
+### open-remote
 
 ```code
-
 (open-remote task node mode) -> str
-
 ```
 
-## open-task
+### open-task
 
 ```code
-
 (open-task task node mode key_num reply)
-
 ```
 
-## opt
+### opt
 
 ```code
-
 (opt var val [cond])
-
 ```
 
-## or
+### or
 
 ```code
-
 (or [tst] ...) -> nil | tst
-
 ```
 
-## out-stream
+### out-stream
 
 ```code
-
 (out-stream mbox)
-
 ```
 
-## pad
+### pad
 
 ```code
-
 (pad form width [str]) -> str
-
 ```
 
-## pairs-into-kv
+### pairs-into-kv
 
 ```code
-
 (pairs-into-kv list) -> emap
-
 ```
 
-## partition
+### partition
 
 ```code
-
 (partition count seq) -> list of lists
-
 ```
 
-## path
+### path
 
 ```code
-
 (path [form ...])
-
 ```
 
-## path-filter
+### path-filter
 
 ```code
-
 (path-filter tol src dst)
-
 ```
 
-## path-gen-arc
+### path-gen-arc
 
 ```code
-
 (path-gen-arc cx cy start end radius tol dst) -> dst
-
 ```
 
-## path-gen-cubic
+### path-gen-cubic
 
 ```code
-
 (path-gen-cubic p1x p1y p2x p2y p3x p3y p4x p4y tol dst) -> dst
-
 ```
 
-## path-gen-quadratic
+### path-gen-quadratic
 
 ```code
-
 (path-gen-quadratic p1x p1y p2x p2y p3x p3y tol dst) -> dst
-
 ```
 
-## path-simplify
+### path-simplify
 
 ```code
-
 (path-simplify tol src dst)
-
 ```
 
-## path-stroke-polygons
+### path-stroke-polygons
 
 ```code
-
 (path-stroke-polygons dst radius tol join src) -> dst
-
 ```
 
-## path-stroke-polylines
+### path-stroke-polylines
 
 ```code
-
 (path-stroke-polylines dst radius tol join cap1 cap2 src) -> dst
-
 ```
 
-## path-transform
+### path-transform
 
 ```code
-
 (path-transform m1x m1y m2x m2y trx try src dst)
-
 ```
 
-## penv
+### penv
 
 ```code
-
 (penv [env])
-
 ```
 
-## pii-dirlist
+### pii-dirlist
 
 ```code
-
 (pii-dirlist path)
-
 ```
 
-## pii-fstat
+### pii-fstat
 
 ```code
-
 (pii-fstat path)
-
 ```
 
-## pii-read-char
+### pii-read-char
 
 ```code
-
 (pii-read-char fd)
-
 ```
 
-## pii-remove
+### pii-remove
 
 ```code
-
 (pii-remove path)
-
 ```
 
-## pii-time
+### pii-time
 
 ```code
-
 (pii-time)
-
 ```
 
-## pii-write-char
+### pii-write-char
 
 ```code
-
 (pii-write-char fd char)
-
 ```
 
-## pivot
+### pivot
 
 ```code
-
 (pivot lambda list start end)
-
 ```
 
-## pop
+### pop
 
 ```code
-
 (pop array)
-
 ```
 
-## pos?
+### pos?
 
 ```code
-
 (pos? num) -> bool
-
 ```
 
-## pow
+### pow
 
 ```code
-
 (pow base exponent) -> integer
-
 ```
 
-## prebind
+### prebind
 
 ```code
-
 (prebind form)
-
 ```
 
-## prin
+### prin
 
 ```code
-
 (prin [form ...])
-
 ```
 
-## print
+### print
 
 ```code
-
 (print [form ...])
-
 ```
 
-## profile-print
+### profile-print
 
 ```code
-
 (profile-print name [stream]) -> stdout|stream
-
 ```
 
-## profile-report
+### profile-report
 
 ```code
-
 (profile-report name [reset])
-
 ```
 
-## progn
+### progn
 
 ```code
-
 (progn [form ...])
-
 ```
 
-## push
+### push
 
 ```code
-
 (push array form ...)
-
 ```
 
-## quasi-quote
+### quasi-quote
 
 ```code
-
 (quasi-quote form)
-
 ```
 
-## quote
+### quote
 
 ```code
-
 (quote form)
-
 ```
 
-## r2f
+### r2f
 
 ```code
-
 (r2f real)
-
 ```
 
-## r2i
+### r2i
 
 ```code
-
 (r2i real)
-
 ```
 
-## random
+### random
 
 ```code
-
 (random num)
-
 ```
 
-## range
+### range
 
 ```code
-
 (range start end [step]) -> list
-
 ```
 
-## rcurry
+### rcurry
 
 ```code
-
 (rcurry lambda var ...) -> lambda
-
 ```
 
-## read
+### read
 
 ```code
-
 (read stream last_char)
-
 ```
 
-## read-avail
+### read-avail
 
 ```code
-
 (read-avail stream)
-
 ```
 
-## read-char
+### read-char
 
 ```code
-
 (read-char stream [width])
-
 ```
 
-## read-int
+### read-int
 
 ```code
-
 (read-int stream) -> num
-
 ```
 
-## read-line
+### read-line
 
 ```code
-
 (read-line stream)
-
 ```
 
-## read-long
+### read-long
 
 ```code
-
 (read-long stream) -> num
-
 ```
 
-## read-short
+### read-short
 
 ```code
-
 (read-short stream) -> num
-
 ```
 
-## reals
+### reals
 
 ```code
-
 (reals [form ...])
-
 ```
 
-## recip
+### recip
 
 ```code
-
 (recip num)
-
 ```
 
-## reduce
+### reduce
 
 ```code
-
 (reduce lambda seq [accum]) -> form
-
 ```
 
-## reduce-rev
+### reduce-rev
 
 ```code
-
 (reduce-rev lambda seq [accum]) -> form
-
 ```
 
-## reduced
+### reduced
 
 ```code
-
 (reduced accum)
-
 ```
 
-## reduced-reduce
+### reduced-reduce
 
 ```code
-
 (reduced-reduce lambda seq [accum]) -> form
-
 ```
 
-## reduced-reduce-rev
+### reduced-reduce-rev
 
 ```code
-
 (reduced-reduce-rev lambda seq [accum]) -> form
-
 ```
 
-## repl
+### repl
 
 ```code
-
 (repl stream path)
-
 ```
 
-## rest
+### rest
 
 ```code
-
 (rest seq) -> nil|seq
-
 ```
 
-## reverse
+### reverse
 
 ```code
-
 (reverse list) -> list
-
 ```
 
-## save
+### save
 
 ```code
-
 (save str path)
-
 ```
 
-## second
+### second
 
 ```code
-
 (second seq) -> el|nil
-
 ```
 
-## seq?
+### seq?
 
 ```code
-
 (seq? form) -> t | nil
-
 ```
 
-## set
+### set
 
 ```code
-
 (set env var val [var val] ...)
-
 ```
 
-## set-field
+### set-field
 
 ```code
-
 (set-field obj field size|0 val)
-
 ```
 
-## setd
+### setd
 
 ```code
-
 (setd var val [var val] ...)
-
 ```
 
-## setf
+### setf
 
 ```code
-
 (setf obj field value [offset]) -> obj
-
 ```
 
-## setf->
+### setf->
 
 ```code
-
 (setf-> msg form ...)
-
 ```
 
-## setq
+### setq
 
 ```code
-
 (setq var val [var val] ...)
-
 ```
 
-## sets!
+### sets!
 
 ```code
-
 (sets! collection key value) -> collection
-
 ```
 
-## sets-pairs!
+### sets-pairs!
 
 ```code
-
 (sets-pairs! collection))
-
 ```
 
-## shuffle
+### shuffle
 
 ```code
-
 (shuffle list [start end]) -> list
-
 ```
 
-## shuffled
+### shuffled
 
 ```code
-
 (shuffled list [start end]) -> list
-
 ```
 
-## sign
+### sign
 
 ```code
-
 (sign num)
-
 ```
 
-## sin
+### sin
 
 ```code
-
 (sin angle)
-
 ```
 
-## slice
+### slice
 
 ```code
-
 (slice start end seq)
-
 ```
 
-## some
+### some
 
 ```code
-
 (some lambda seq ...) -> nil|form
-
 ```
 
-## some!
+### some!
 
 ```code
-
 (some! start end mode lambda (seq ...))
-
 ```
 
-## sort
+### sort
 
 ```code
-
 (sort fcmp list [start end]) -> list
-
 ```
 
-## sorted
+### sorted
 
 ```code
-
 (sorted fcmp list [start end]) -> list
-
 ```
 
-## split
+### split
 
 ```code
-
 (split str chars)
-
 ```
 
-## sqrt
+### sqrt
 
 ```code
-
 (sqrt num)
-
 ```
 
-## starts-with
+### starts-with
 
 ```code
-
 (starts-with str str) -> t | nil
-
 ```
 
-## stdio-get-args
+### stdio-get-args
 
 ```code
-
 (stdio-get-args stdio) -> list
-
 ```
 
-## str
+### str
 
 ```code
-
 (str [form ...])
-
 ```
 
-## str-alloc
+### str-alloc
 
 ```code
-
 (str-alloc size)
-
 ```
 
-## str-to-num
+### str-to-num
 
 ```code
-
 (str-to-num str) -> num
-
 ```
 
-## str?
+### str?
 
 ```code
-
 (str? form) -> t | nil
-
 ```
 
-## stream-avail
+### stream-avail
 
 ```code
-
 (stream-avail stream)
-
 ```
 
-## stream-flush
+### stream-flush
 
 ```code
-
 (stream-flush stream)
-
 ```
 
-## stream-seek
+### stream-seek
 
 ```code
-
 (stream-seek stream offset pos)
-
 ```
 
-## string-stream
+### string-stream
 
 ```code
-
 (string-stream str)
-
 ```
 
-## structure
+### structure
 
 ```code
-
 (structure name base [(byte field ...)] ...)
-
 ```
 
-## swap
+### swap
 
 ```code
-
 (swap list index index)
-
 ```
 
-## sym
+### sym
 
 ```code
-
 (sym str)
-
 ```
 
-## sym?
+### sym?
 
 ```code
-
 (sym? form) -> t | nil
-
 ```
 
-## task-mailbox
+### task-mailbox
 
 ```code
-
 (task-mailbox)
-
 ```
 
-## task-sleep
+### task-sleep
 
 ```code
-
 (task-sleep usec)
-
 ```
 
-## texture-metrics
+### texture-metrics
 
 ```code
-
 (texture-metrics texture) -> (handle width height)
-
 ```
 
-## throw
+### throw
 
 ```code
-
 (throw str form)
-
 ```
 
-## times
+### times
 
 ```code
-
 (times num body)
-
 ```
 
-## to-lower
+### to-lower
 
 ```code
-
 (to-lower str) -> str
-
 ```
 
-## to-net-id
+### to-net-id
 
 ```code
-
 (to-net-id service_id) -> net_id
-
 ```
 
-## to-service-id
+### to-service-id
 
 ```code
-
 (to-service-id net_id) -> service_id
-
 ```
 
-## to-upper
+### to-upper
 
 ```code
-
 (to-upper str) -> str
-
 ```
 
-## tolist
+### tolist
 
 ```code
-
 (tolist env)
-
 ```
 
-## trim
+### trim
 
 ```code
-
 (trim str [str]) -> str
-
 ```
 
-## trim-end
+### trim-end
 
 ```code
-
 (trim-end str [str]) -> str
-
 ```
 
-## trim-start
+### trim-start
 
 ```code
-
 (trim-start str [str]) -> str
-
 ```
 
-## type-of
+### type-of
 
 ```code
-
 (type-of obj)
-
 ```
 
-## type-to-size
+### type-to-size
 
 ```code
-
 (type-to-size sym) -> num
-
 ```
 
-## ui-backdrop
+### ui-backdrop
 
 ```code
-
 (ui-backdrop name [props] [body]) -> backdrop
-
 ```
 
-## ui-button
+### ui-button
 
 ```code
-
 (ui-button name [props] [body]) -> button
-
 ```
 
-## ui-buttons
+### ui-buttons
 
 ```code
-
 (ui-buttons symbols events [props] [group])
-
 ```
 
-## ui-canvas
+### ui-canvas
 
 ```code
-
 (ui-canvas name width height scale) -> canvas
-
 ```
 
-## ui-element
+### ui-element
 
 ```code
-
 (ui-element name func [props] [body]) -> view
-
 ```
 
-## ui-flow
+### ui-flow
 
 ```code
-
 (ui-flow name [props] [body]) -> flow
-
 ```
 
-## ui-grid
+### ui-grid
 
 ```code
-
 (ui-grid name [props] [body]) -> grid
-
 ```
 
-## ui-label
+### ui-label
 
 ```code
-
 (ui-label name [props] [body]) -> label
-
 ```
 
-## ui-merge-props
+### ui-merge-props
 
 ```code
-
 (ui-merge-props props) -> props
-
 ```
 
-## ui-progress
+### ui-progress
 
 ```code
-
 (ui-progress name [props]) -> progress
-
 ```
 
-## ui-props
+### ui-props
 
 ```code
-
 (ui-props props [props]) -> props
-
 ```
 
-## ui-root
+### ui-root
 
 ```code
-
 (ui-root name func [props] [body]) -> view
-
 ```
 
-## ui-scroll
+### ui-scroll
 
 ```code
-
 (ui-scroll name [props] [body]) -> scroll
-
 ```
 
-## ui-slider
+### ui-slider
 
 ```code
-
 (ui-slider name [props]) -> slider
-
 ```
 
-## ui-textfield
+### ui-textfield
 
 ```code
-
 (ui-textfield name [props]) -> textfield
-
 ```
 
-## ui-title
+### ui-title
 
 ```code
-
 (ui-title name [props]) -> title
-
 ```
 
-## ui-title-bar
+### ui-title-bar
 
 ```code
-
 (ui-title-bar name title symbols events [props]) -> flow
-
 ```
 
-## ui-tool-bar
+### ui-tool-bar
 
 ```code
-
 (ui-tool-bar name [props] [body]) -> flow
-
 ```
 
-## ui-tree
+### ui-tree
 
 ```code
-
 (ui-tree name event [props]) -> tree
-
 ```
 
-## ui-vdu
+### ui-vdu
 
 ```code
-
 (ui-vdu name [props]) -> vdu
-
 ```
 
-## ui-view
+### ui-view
 
 ```code
-
 (ui-view name [props] [body]) -> view
-
 ```
 
-## ui-window
+### ui-window
 
 ```code
-
 (ui-window name [props] [body]) -> window
-
 ```
 
-## undef
+### undef
 
 ```code
-
 (undef env var [var] ...)
-
 ```
 
-## unless
+### unless
 
 ```code
-
 (unless tst body)
-
 ```
 
-## until
+### until
 
 ```code
-
 (until tst body)
-
 ```
 
-## unzip
+### unzip
 
 ```code
-
 (unzip seq buckets) -> buckets
-
 ```
 
-## values
+### values
 
 ```code
-
 (values collection) -> list | nil
-
 ```
 
-## vdu-configure
+### vdu-configure
 
 ```code
-
 (vdu-configure vdu)
-
 ```
 
-## vdu-load
+### vdu-load
 
 ```code
-
 (vdu-load vdu lines ox oy cx cy)
-
 ```
 
-## view-add-back
+### view-add-back
 
 ```code
-
 (view-add-back parent child)
-
 ```
 
-## view-add-dirty
+### view-add-dirty
 
 ```code
-
 (view-add-dirty view x y w h)
-
 ```
 
-## view-add-front
+### view-add-front
 
 ```code
-
 (view-add-front parent child)
-
 ```
 
-## view-add-opaque
+### view-add-opaque
 
 ```code
-
 (view-add-opaque view x y w h)
-
 ```
 
-## view-children
+### view-children
 
 ```code
-
 (view-children view)
-
 ```
 
-## view-clr-opaque
+### view-clr-opaque
 
 ```code
-
 (view-clr-opaque view)
-
 ```
 
-## view-emit
+### view-emit
 
 ```code
-
 (view-emit view)
-
 ```
 
-## view-find-id
+### view-find-id
 
 ```code
-
 (view-find-id view id)
-
 ```
 
-## view-fit
+### view-fit
 
 ```code
-
 (view-fit x y w h) -> (x y w h)
-
 ```
 
-## view-locate
+### view-locate
 
 ```code
-
 (view-locate w h [flag]) -> (x y w h)
-
 ```
 
-## view-set-flags
+### view-set-flags
 
 ```code
-
 (view-set-flags view flags mask)
-
 ```
 
-## view-sub
+### view-sub
 
 ```code
-
 (view-sub view)
-
 ```
 
-## view-sub-opaque
+### view-sub-opaque
 
 ```code
-
 (view-sub-opaque view x y w h)
-
 ```
 
-## view-to-back
+### view-to-back
 
 ```code
-
 (view-to-back view)
-
 ```
 
-## view-to-front
+### view-to-front
 
 ```code
-
 (view-to-front view)
-
 ```
 
-## view-trans-dirty
+### view-trans-dirty
 
 ```code
-
 (view-trans-dirty view rx ry)
-
 ```
 
-## walk-list
+### walk-list
 
 ```code
-
 (walk-list list fnc_element fnc_in fnc_out)
-
 ```
 
-## weak-ref
+### weak-ref
 
 ```code
-
 (weak-ref obj)
-
 ```
 
-## when
+### when
 
 ```code
-
 (when tst body)
-
 ```
 
-## while
+### while
 
 ```code
-
 (while tst body)
-
 ```
 
-## within-compile-env
+### within-compile-env
 
 ```code
-
 (within-compile-env lambda)
-
 ```
 
-## write
+### write
 
 ```code
-
 (write stream str)
-
 ```
 
-## write-char
+### write-char
 
 ```code
-
 (write-char stream list|num [width])
-
 ```
 
-## write-int
+### write-int
 
 ```code
-
 (write-int stream num|list) -> stream
-
 ```
 
-## write-line
+### write-line
 
 ```code
-
 (write-line stream str) -> stream
-
 ```
 
-## write-long
+### write-long
 
 ```code
-
 (write-long stream num|list) -> stream
-
 ```
 
-## write-short
+### write-short
 
 ```code
-
 (write-short stream num|list) -> stream
-
 ```
 
-## xmap
+### xmap
 
 ```code
-
 (xmap [num_buckets cmp_fnc hash_fnc]) -> xmap
-
 ```
 
-## xmap-kv
+### xmap-kv
 
 ```code
-
 (xmap-kv [key val ...]) -> xmap
-
 ```
 
-## xset
+### xset
 
 ```code
-
 (xset [num_buckets cmp_fnc hash_fnc]) -> xset
-
 ```
 
-## xset-k
+### xset-k
 
 ```code
-
 (xset-k [key ...]) -> xset
-
 ```
 
-## zip
+### zip
 
 ```code
-
 (zip seq ...) -> list
-
 ```
 
