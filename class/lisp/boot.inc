@@ -456,19 +456,6 @@
 	; (reverse list) -> list
 	(map-rev progn _))
 
-(defun intern (_l _i &optional _c)
-	; (intern list form [lambda]) -> form
-	(setd _c eql)
-	(cond
-		((some (lambda (_) (if (_c _ _i) _)) _l))
-		(t (push _l _i) _i)))
-
-(defun intern-seq (_s &optional _l _c)
-	; (intern-seq seq [list lambda]) -> list
-	(setd _c eql)
-	(reduce (lambda (_l _e)
-		(push _l (if (defq _i (some (lambda (_) (if (_c _ _e) _)) _l)) _i _e))) _s (opt _l (list))))
-
 (defun partition (cnt seq)
 	; (partition count seq) -> list of lists
 	(cond
@@ -604,7 +591,7 @@
 (defun char-to-num (_)
 	; (char-to-num char) -> num
 	(elem (code _)
-		(const (cat (list quote) (list (intern-seq
+		(const (cat (list quote) (list
 			'(-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 			-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 0 1 2 3
 			4 5 6 7 8 9 -1 -1 -1 -1 -1 -1 -1 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24
@@ -614,7 +601,7 @@
 			-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 			-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 			-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
-			-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1)))))))
+			-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1))))))
 
 (defun num-to-char (_)
 	; (num-to-char num) -> char

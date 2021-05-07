@@ -2,12 +2,52 @@
 (include "sys/math/class.inc")
 (include "class/num/class.inc")
 (include "class/list/class.inc")
+(include "class/hset/class.inc")
 (include "class/sym/class.inc")
 (include "class/stream/class.inc")
+(include "sys/statics/class.inc")
 
 (gen-create 'num)
 (gen-vtable 'num)
 (gen-type 'num)
+
+(def-method 'num :intern)
+	;inputs
+	;r0 = num object (ptr)
+	;outputs
+	;r0 = interned num object (ptr)
+	;trashes
+	;r0-r14
+
+	(entry 'num :intern '(r0))
+
+	(vp-push r0)
+	(fn-bind 'sys/statics/statics r0)
+	(assign '((r0 statics_num_intern)) '(r0))
+	(vpif '(r0 = 0))
+		(call 'hset :create `(($ cmp_num) num_num_buckets) '(r0))
+		(fn-bind 'sys/statics/statics r1)
+		(assign '(r0) '((r1 statics_num_intern)))
+	(endif)
+	(call 'hset :insert '(r0 (rsp 0)) '(_ r1 _))
+	(call 'obj :ref '((r1 0)) '(r3))
+	(vp-pop r0)
+	(call 'obj :deref '(r0))
+
+	(exit 'num :intern '(r3))
+	(vp-ret)
+
+(vp-label 'cmp_num)
+	(vp-cpy-rr r1 r2)
+	(assign '((r0 obj_vtable) (r1 obj_vtable)) '(r3 r1))
+	(vp-sub-rr r3 r1)
+	(vpif '(r1 = 0))
+		(assign '((r0 num_value) (r2 num_value)) '(r3 r1))
+		(vp-sub-rr r3 r1)
+	(endif)
+	(vp-ret)
+
+(def-func-end)
 
 (def-method 'num :hash)
 	;inputs

@@ -1866,18 +1866,6 @@
 (insert seq pos seq) -> seq
 ```
 
-### intern
-
-```code
-(intern list form [lambda]) -> form
-```
-
-### intern-seq
-
-```code
-(intern-seq seq [list lambda]) -> list
-```
-
 ### into-fn
 
 ```code

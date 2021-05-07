@@ -55,6 +55,10 @@
 	(ptr sym_intern sym_syms)
 	(align)
 
+	;num statics
+	(ptr num_intern)
+	(align)
+
 	;font statics
 	(ptr font_intern)
 	(ulong font_count)

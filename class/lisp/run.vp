@@ -64,8 +64,11 @@
 	(endif)
 	(call 'str :deref {script})
 
-	;flush interned symbols and mem blocks
-	(call 'sym :flush)
+	;flush interned symbols, nums and mem blocks
+	(fn-bind 'sys/statics/statics r0)
+	(call 'hset :flush '((r0 statics_sym_intern)))
+	(fn-bind 'sys/statics/statics r0)
+	(call 'hset :flush '((r0 statics_num_intern)))
 	(call 'sys_mem :collect)
 
 	(pop-scope)
