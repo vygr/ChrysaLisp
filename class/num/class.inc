@@ -28,6 +28,7 @@
 	(dec-method :le class/num/le :virtual (r0 r1) (r0 r1))
 	(dec-method :ge class/num/ge :virtual (r0 r1) (r0 r1))
 	(dec-method :intern class/num/intern :static (r0) (r0))
+	(dec-method :lisp_intern class/num/lisp_intern :static (r0 r1) (r0 r1))
 	(dec-method :lisp_add class/num/lisp_add :static (r0 r1) (r0 r1))
 	(dec-method :lisp_sub class/num/lisp_sub :static (r0 r1) (r0 r1))
 	(dec-method :lisp_mul class/num/lisp_mul :static (r0 r1) (r0 r1))
@@ -63,7 +64,7 @@
 (def-struct num obj_size
 	(long value))
 
-(defcvar 'num_num_buckets 31)
+(defcvar 'num_num_buckets 101)
 
 ;;;;;;;;;;;;;;;;
 ; inline methods

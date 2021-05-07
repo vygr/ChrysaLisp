@@ -81,7 +81,7 @@ max merge-obj min neg nums obj-ref penv pii-dirlist pii-fstat pii-read-char
 pii-remove pii-time pii-write-char pivot pop prebind prin print progn push
 quasi-quote quote r2f r2i random read read-avail read-char read-line reals repl
 save set set-field setq slice some! split str string-stream sym throw tolist
-type-of undef weak-ref while write write-char
+type-of undef weak-ref while write write-char num-intern
 ```
 
 ### `boot.inc` symbols
@@ -111,14 +111,14 @@ write-short structure getf setf setf-> export
 abi age align ascii-lower ascii-upper char-to-num collection? cpu drop!
 each-line each-mergeable each-mergeable-rev emap emap-kv emap? empty empty?
 ends-with entries erase even? exec filter first get-cstr gets gets-in identity
-import indexable? insert intern intern-seq into-fn into-map into-set join keys
-last load-stream log2 lognot map map-rev map? merge-into! named-xnode
-named-xnode? neg? nempty? nil? nlo nlz nto ntz num-to-char num-to-utf8 odd? pad
-partition pos? pow range reduce reduce-rev reduced-reduce reduced-reduce-rev
-rest reverse second set? sets! sets-in! sets-pairs! shuffle shuffled sort
-sorted starts-with str-to-num swap to-lower to-upper trim trim-end trim-start
-type-to-size unzip updates-in! values walk-list within-compile-env write-line
-xmap xmap-kv xmap? xnode xnode? xset xset-k xset? zip
+import indexable? insert into-fn into-map into-set join keys last load-stream
+log2 lognot map map-rev map? merge-into! named-xnode named-xnode? neg? nempty?
+nil? nlo nlz nto ntz num-to-char num-to-utf8 odd? pad partition pos? pow range
+reduce reduce-rev reduced-reduce reduced-reduce-rev rest reverse second set?
+sets! sets-in! sets-pairs! shuffle shuffled sort sorted starts-with str-to-num
+swap to-lower to-upper trim trim-end trim-start type-to-size unzip updates-in!
+values walk-list within-compile-env write-line xmap xmap-kv xmap? xnode xnode?
+xset xset-k xset? zip
 ```
 
 ## Within a `cmd/lisp.lisp` instance

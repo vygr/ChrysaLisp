@@ -201,6 +201,9 @@ critical compositor methods will remain in VP code.
 
 Rename (class) and (method) to (defclass) and (defmethod) !
 
+New `(num-intern)` for manual internment of number objects. `(read)` now
+interns number objects.
+
 ------
 
 New (class), (method), (method) and (.) macro in `class/lisp/boot.inc` to

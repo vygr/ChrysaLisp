@@ -197,7 +197,7 @@
 
 (defun def-enum (size)
 	(push syms (sym (cat name "_" field)))
-	(push values base)
+	(push values (num-intern base))
 	(setq base (+ base size)))
 
 (defmacro def-enum (name base &rest lines)
@@ -210,7 +210,7 @@
 				(enum (def-enum +byte_size))))
 			(list line))) lines)
 	(push syms (sym (cat name "_size")))
-	(push values base)
+	(push values (num-intern base))
 	`(eval '(bind ',syms ',values) *compile_env*))
 
 ;;;;;;
@@ -219,7 +219,7 @@
 
 (defun def-bit ()
 	(push syms (sym (cat name "_" field)))
-	(push values (<< 1 base))
+	(push values (num-intern (<< 1 base)))
 	(setq base (inc base)))
 
 (defmacro def-bit (name base &rest lines)
@@ -232,7 +232,7 @@
 				(bit (def-bit))))
 			(list line))) lines)
 	(push syms (sym (cat name "_size")))
-	(push values base)
+	(push values (num-intern base))
 	`(eval '(bind ',syms ',values) *compile_env*))
 
 ;;;;;;;;;;;;
@@ -247,7 +247,7 @@
 	(each (lambda (line)
 		(setq base (_structure base line))) lines)
 	(push syms (sym (cat name "_size")))
-	(push values base)
+	(push values (num-intern base))
 	`(eval '(bind ',syms ',values) *compile_env*))
 
 ;;;;;;;;;;;

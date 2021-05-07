@@ -2196,6 +2196,12 @@
 (ntz num) -> num
 ```
 
+### num-intern
+
+```code
+(num-intern num)
+```
+
 ### num-to-char
 
 ```code

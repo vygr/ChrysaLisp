@@ -26,6 +26,7 @@
 (ffi r2i "class/num/lisp_r2i" 0)
 (ffi r2f "class/num/lisp_r2f" 0)
 (ffi random "class/num/lisp_random" 0)
+(ffi num-intern "class/num/lisp_intern" 0)
 
 (ffi >> "class/num/lisp_shr" 0)
 (ffi >>> "class/num/lisp_asr" 0)

@@ -8,7 +8,7 @@
 (defun new_field (type size alignment)
 	(setq base (align base alignment))
 	(push syms (sym (cat name "_" field)) (sym (cat name "_" field "_t")))
-	(push values base type)
+	(push values (num-intern base) type)
 	(setq base (+ base size)))
 
 (defun _structure (base line)
@@ -19,10 +19,10 @@
 				(setq base (align base +long_size))))
 		(offset
 			(push syms (sym (cat name "_" (elem 1 line))))
-			(push values base))
+			(push values (num-intern base)))
 		(struct
 			(push syms (sym (cat name "_" (elem 1 line))) (sym (cat name "_" (elem 1 line) "_t")))
-			(push values base nil)
+			(push values (num-intern base) nil)
 			(setq base (+ base (eval (elem 2 line)))))
 		(union
 			(defq union_base base max_base base)
@@ -60,7 +60,7 @@
 	(each (lambda (line)
 		(setq base (_structure base line))) lines)
 	(push syms (sym (cat name "_size")))
-	(push values base)
+	(push values (num-intern base))
 	`(bind ',syms ',values))
 
 (defmacro getf (s field &optional o)
@@ -108,7 +108,7 @@
 
 (defun new_enum (size)
 	(push syms (sym (cat name "_" field)))
-	(push values base)
+	(push values (num-intern base))
 	(setq base (+ base size)))
 
 (defmacro enums (name base &rest lines)
@@ -121,7 +121,7 @@
 				(enum (new_enum +byte_size))))
 			(list line))) lines)
 	(push syms (sym (cat name "_size")))
-	(push values base)
+	(push values (num-intern base))
 	`(bind ',syms ',values))
 
 ;;;;;;
@@ -130,7 +130,7 @@
 
 (defun new_bit ()
 	(push syms (sym (cat name "_" field)))
-	(push values (<< 1 base))
+	(push values (num-intern (<< 1 base)))
 	(setq base (inc base)))
 
 (defmacro bits (name base &rest lines)
@@ -143,7 +143,7 @@
 				(bit (new_bit))))
 			(list line))) lines)
 	(push syms (sym (cat name "_size")))
-	(push values base)
+	(push values (num-intern base))
 	`(bind ',syms ',values))
 
 ;module
