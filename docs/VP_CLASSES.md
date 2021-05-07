@@ -2382,6 +2382,17 @@ trashes
 r1-r14
 ```
 
+### hset :flush -> class/hset/flush
+
+```code
+inputs
+r0 = hset object (ptr)
+outputs
+r0 = hset object (ptr)
+trashes
+r1-r14
+```
+
 ### hset :for_each -> class/hset/for_each
 
 ```code
@@ -3565,6 +3576,17 @@ r0 = num object (ptr)
 r1 = 0 if error, else ok
 trashes
 r1
+```
+
+### num :intern -> class/num/intern
+
+```code
+inputs
+r0 = num object (ptr)
+outputs
+r0 = interned num object (ptr)
+trashes
+r0-r14
 ```
 
 ### num :le -> class/num/le
@@ -6880,13 +6902,6 @@ r1-r14
 ## sym
 
 Super Class: str
-
-### sym :flush -> class/sym/flush
-
-```code
-trashes
-r0-r14
-```
 
 ### sym :get_static_sym -> class/sym/get_static_sym
 

@@ -300,3 +300,30 @@
 	(vp-ret)
 
 (def-func-end)
+
+(def-method 'hset :flush)
+	;inputs
+	;r0 = hset object (ptr)
+	;outputs
+	;r0 = hset object (ptr)
+	;trashes
+	;r1-r14
+
+	(jump 'hset :for_each '(r0 ($ flush_callback) 0))
+
+(vp-label 'flush_callback)
+	;inputs
+	;r0 = predicate data (ptr)
+	;r1 = element iterator (pptr)
+	;r2 = bucket list pointer (ptr)
+
+	(entry 'hset :each_callback '(r0 r1 r2))
+
+	(assign '((r1 0)) '(r0))
+	(assign '((r0 obj_count)) '(r0))
+	(vpif '(r0 = 1))
+		(jump 'list :erase '(r2 r1))
+	(endif)
+	(vp-ret)
+
+(def-func-end)
