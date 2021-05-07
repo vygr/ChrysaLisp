@@ -92,12 +92,13 @@
 
 (defmacro ui-label (n &optional p &rest x)
 	; (ui-label name [props] [body]) -> label
-	(ui-props p :flow_flags (logior +flow_flag_right +flow_flag_align_vcenter) :border *env_label_border*)
+	(ui-props p :flow_flags (num-intern (logior +flow_flag_right +flow_flag_align_vcenter))
+		:border *env_label_border*)
 	`(ui-element ,n (Label) ,p ~x))
 
 (defmacro ui-button (n &optional p &rest x)
 	; (ui-button name [props] [body]) -> button
-	(ui-props p :flow_flags (logior +flow_flag_down +flow_flag_align_hcenter +flow_flag_align_vcenter)
+	(ui-props p :flow_flags (num-intern (logior +flow_flag_down +flow_flag_align_hcenter +flow_flag_align_vcenter))
 		:border *env_button_border*)
 	`(ui-element ,n (Button) ,p ~x))
 
@@ -111,13 +112,13 @@
 
 (defmacro ui-tool-bar (n &optional p &rest x)
 	; (ui-tool-bar name [props] [body]) -> flow
-	(ui-props p :flow_flags (logior +flow_flag_right +flow_flag_fillh) :color *env_toolbar_col*
-		:font *env_toolbar_font*)
+	(ui-props p :flow_flags (num-intern (logior +flow_flag_right +flow_flag_fillh))
+		:color *env_toolbar_col* :font *env_toolbar_font*)
 	`(ui-flow ,n ,p ~x))
 
 (defmacro ui-textfield (n &optional p)
 	; (ui-textfield name [props]) -> textfield
-	(ui-props p :flow_flags (logior +flow_flag_right +flow_flag_align_vcenter)
+	(ui-props p :flow_flags (num-intern (logior +flow_flag_right +flow_flag_align_vcenter))
 		:border *env_textfield_border* :text "")
 	`(ui-element ,n (Textfield) ,p))
 

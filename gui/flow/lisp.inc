@@ -12,9 +12,9 @@
 	(bit align_vcenter align_vtop align_vbottom))
 
 ;useful flow combos
-(defq +flow_down_fill (logior +flow_flag_down +flow_flag_fillw +flow_flag_lasth)
-	+flow_right_fill (logior +flow_flag_right +flow_flag_fillh +flow_flag_lastw)
-	+flow_left_fill (logior +flow_flag_left +flow_flag_fillh +flow_flag_lastw))
+(defq +flow_down_fill (num-intern (logior +flow_flag_down +flow_flag_fillw +flow_flag_lasth))
+	+flow_right_fill (num-intern (logior +flow_flag_right +flow_flag_fillh +flow_flag_lastw))
+	+flow_left_fill (num-intern (logior +flow_flag_left +flow_flag_fillh +flow_flag_lastw)))
 
 (defclass Flow () (View)
 	; (Flow) -> flow
@@ -27,9 +27,9 @@
 		(each (lambda (child)
 			(when (= 0 (logand (. child :get_flags) +view_flag_hiden))
 				(bind '(w h) (. child :pref_size))
-				(if (/= 0 (logand flow_flags (const (logior +flow_flag_left +flow_flag_right))))
+				(if (/= 0 (logand flow_flags (const (num-intern (logior +flow_flag_left +flow_flag_right)))))
 					(setq pw (+ pw w)))
-				(if (/= 0 (logand flow_flags (const (logior +flow_flag_up +flow_flag_down))))
+				(if (/= 0 (logand flow_flags (const (num-intern (logior +flow_flag_up +flow_flag_down)))))
 					(setq ph (+ ph h)))
 				(setq pw (max w pw) ph (max h ph)))) (. this :children))
 		(list (max pw mw) (max ph mh)))
@@ -65,7 +65,7 @@
 
 					;alignment
 					(when (/= 0 (logand flow_flags
-							(const (logior +flow_flag_align_hcenter +flow_flag_align_hleft +flow_flag_align_hright))))
+							(const (num-intern (logior +flow_flag_align_hcenter +flow_flag_align_hleft +flow_flag_align_hright)))))
 						(cond
 							((/= 0 (logand flow_flags +flow_flag_align_hleft))
 								(setq cx 0))
@@ -73,7 +73,7 @@
 								(setq cx (- fw cw)))
 							(t	(setq cx (/ (- fw cw) 2)))))
 					(when (/= 0 (logand flow_flags
-							(const (logior +flow_flag_align_vcenter +flow_flag_align_vtop +flow_flag_align_vbottom))))
+							(const (num-intern (logior +flow_flag_align_vcenter +flow_flag_align_vtop +flow_flag_align_vbottom)))))
 						(cond
 							((/= 0 (logand flow_flags +flow_flag_align_vtop))
 								(setq cy 0))

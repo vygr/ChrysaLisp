@@ -9,7 +9,7 @@
 	(bit vertical horizontal))
 
 ;scroll flag combos
-(defq +scroll_flag_both (logior +scroll_flag_vertical +scroll_flag_horizontal))
+(defq +scroll_flag_both (num-intern (logior +scroll_flag_vertical +scroll_flag_horizontal)))
 
 (defclass Scroll (flags) (View)
 	; (Scroll flags) -> scroll
