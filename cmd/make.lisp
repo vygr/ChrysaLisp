@@ -2,27 +2,6 @@
 (import "lib/pipe/pipe.inc")
 (import "lib/options/options.inc")
 
-(defun boot-funcs ()
-	(defq out (list) e (penv))
-	(while (penv e) (setq e (penv e)))
-	(each (lambda ((k v))
-		(if (func? v) (push out k))) (tolist e))
-	(sort cmp out))
-
-(defun boot-lambdas ()
-	(defq out (list) e (penv))
-	(while (penv e) (setq e (penv e)))
-	(each (lambda ((k v))
-		(if (lambda? v) (push out k))) (tolist e))
-	(sort cmp out))
-
-(defun boot-macros ()
-	(defq out (list) e (penv))
-	(while (penv e) (setq e (penv e)))
-	(each (lambda ((k v))
-		(if (macro? v) (push out k))) (tolist e))
-	(sort cmp out))
-
 (defun make-docs ()
     (defq *abi* (abi) *cpu* (cpu))
     (defun chop (_)
