@@ -25,6 +25,12 @@ the network is modelled as a separate host process, point to point links use
 shared memory to simulate CPU to CPU, point to point, bi directional
 connections. There is no global bus based networking on purpose.
 
+The usb-links branch has the ability to use a usb3/usb2 Prolific chip 'copy'
+cable to join heterogeneous host networks ! This demonstrates that the
+simulated peer to peer network on a single machine does actually translate to
+real world parallel hardware ! Plus it's rather cool to string your MacBook and
+Windows laptops together with your PI4's to create your own dev network.
+
 There is a virtual CPU instruction set to avoid use of x64/ARM/VP64 native
 instructions. Currently it compiles directly to native code but there is no
 reason it can't also go via a byte code form and runtime translation.
