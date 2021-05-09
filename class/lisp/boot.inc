@@ -570,11 +570,13 @@
 
 (defun to-upper (_)
 	; (to-upper str) -> str
-	(apply cat (map (lambda (_) (char (ascii-upper (code _)))) _)))
+	(if (eql _ "") ""
+		(apply cat (map (lambda (_) (char (ascii-upper (code _)))) _))))
 
 (defun to-lower (_)
 	; (to-lower str) -> str
-	(apply cat (map (lambda (_) (char (ascii-lower (code _)))) _)))
+	(if (eql _ "") ""
+		(apply cat (map (lambda (_) (char (ascii-lower (code _)))) _))))
 
 (defun starts-with (p _)
 	; (starts-with str str) -> t | nil
