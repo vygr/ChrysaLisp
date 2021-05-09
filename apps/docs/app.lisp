@@ -14,7 +14,8 @@
 
 (defun handler-func (state)
 	(unless (defq handler (. handlers :find state))
-		(import (cat "apps/docs/" (slice 1 -1 state) ".inc"))
+		(defq module (cat "apps/docs/" state ".inc"))
+		(repl (file-stream module) module)
 		(. handlers :insert state handler))
 	handler)
 
