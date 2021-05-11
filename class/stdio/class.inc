@@ -12,7 +12,7 @@
 
 (def-struct stdio_msg_init 0
 	(struct stdout_id net_id_size)
+	(offset reply)
 	(struct stderr_id net_id_size)
 	(struct ack_id net_id_size)
-	(uint stdin_mbox_id)
 	(offset args))

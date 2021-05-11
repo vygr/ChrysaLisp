@@ -8,7 +8,6 @@
 ;module
 (env-push)
 
-;pipe tuple structure
 (enums +pipe 0
 	(enum state select streams))
 
@@ -30,14 +29,11 @@
 				(push select (in-mbox (elem -2 pipe_streams)))) mboxs)
 			(defq stdout (in-stream) stdout_mbox (in-mbox stdout) ack_mbox (mail-alloc-mbox))
 			(each-rev (lambda (mbox arg stderr_mbox)
-				(mail-send mbox (cat
-					stdout_mbox
-					stderr_mbox
-					ack_mbox
-					(char 0 +int_size) arg))
-				(setq stdout_mbox (cat
-					(char (get-int (mail-read ack_mbox) (const (* 3 +net_id_size))) +long_size)
-					(slice +long_size -1 mbox)))) mboxs args select)
+				(mail-send mbox (setf-> (cat (str-alloc +stdio_msg_init_size) arg)
+					(+stdio_msg_init_stdout stdout_mbox)
+					(+stdio_msg_init_stderr stderr_mbox)
+					(+stdio_msg_init_ack ack_mbox)))
+				(setq stdout_mbox (getf (mail-read ack_mbox) +stdio_msg_init_stdout))) mboxs args select)
 			(push pipe_streams stdout (out-stream stdout_mbox))
 			(push select (in-mbox stdout) (if flag (to-net-id (pad "" (const (* +net_id_size 2)) "a")) (task-mailbox)))
 			(mail-free-mbox ack_mbox)
