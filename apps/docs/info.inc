@@ -2,25 +2,22 @@
 (env-push)
 
 (defun boot-funcs ()
-	(defq out (list) e (penv))
+	(defq e (penv))
 	(while (penv e) (setq e (penv e)))
-	(each (lambda ((k v))
-		(if (func? v) (push out k))) (tolist e))
-	(sort cmp out))
+	(sort cmp (reduce (lambda (_ (k v))
+		(if (func? v) (push _ k) _)) (tolist e) (list))))
 
 (defun boot-lambdas ()
-	(defq out (list) e (penv))
+	(defq e (penv))
 	(while (penv e) (setq e (penv e)))
-	(each (lambda ((k v))
-		(if (lambda? v) (push out k))) (tolist e))
-	(sort cmp out))
+	(sort cmp (reduce (lambda (_ (k v))
+		(if (lambda? v) (push _ k) _)) (tolist e) (list))))
 
 (defun boot-macros ()
-	(defq out (list) e (penv))
+	(defq e (penv))
 	(while (penv e) (setq e (penv e)))
-	(each (lambda ((k v))
-		(if (macro? v) (push out k))) (tolist e))
-	(sort cmp out))
+	(sort cmp (reduce (lambda (_ (k v))
+		(if (macro? v) (push _ k) _)) (tolist e) (list))))
 
 (defun paragraph (words)
 	(defq cnt 0 line_width 80 line '())
@@ -42,11 +39,11 @@
 		((starts-with "```" line)
 			:text)
 		(t	(case (sym line)
-				(funcs
+				(boot-funcs
 					(paragraph (boot-funcs)))
-				(macros
+				(boot-macros
 					(paragraph (boot-macros)))
-				(lambdas
+				(boot-lambdas
 					(paragraph (boot-lambdas))))
 			state)))
 

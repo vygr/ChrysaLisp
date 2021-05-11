@@ -73,7 +73,7 @@ the environment chain is searched to see if a macro exists.
 ### Built in functions
 
 ```info
-funcs
+boot-funcs
 ```
 
 ### `boot.inc` symbols
@@ -88,13 +88,13 @@ funcs
 ### `boot.inc` macros
 
 ```info
-macros
+boot-macros
 ```
 
 ### `boot.inc` functions
 
 ```info
-lambdas
+boot-lambdas
 ```
 
 ## Within a `cmd/lisp.lisp` instance
