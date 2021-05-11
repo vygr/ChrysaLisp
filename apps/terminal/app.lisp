@@ -1,6 +1,6 @@
 (import "sys/lisp.inc")
 (import "gui/lisp.inc")
-(import "lib/pipe/pipe.inc")
+(import "lib/task/pipe.inc")
 (import "apps/terminal/input.inc")
 
 (enums +event 0
@@ -69,10 +69,10 @@
 			(cond
 				(cmd
 					;feed active pipe
-					(pipe-write cmd (cat cmdline (ascii-char 10))))
+					(. cmd :write (cat cmdline (ascii-char 10))))
 				((/= (length cmdline) 0)
 					;new pipe
-					(catch (setq cmd (pipe-open cmdline)) (progn (setq cmd nil) t))
+					(catch (setq cmd (Pipe cmdline)) (progn (setq cmd nil) t))
 					(cond
 						(cmd
 							(. mywindow :dirty_all))
@@ -86,8 +86,8 @@
 			(when cmd
 				;feed active pipe, then EOF
 				(when (/= (length *line_buf*) 0)
-					(pipe-write cmd *line_buf*))
-				(pipe-close cmd) (setq cmd nil) (line-clear)
+					(. cmd :write *line_buf*))
+				(. cmd :close) (setq cmd nil) (line-clear)
 				(. mywindow :dirty_all)
 				(print-edit-line)))
 		(t	;some key
@@ -121,7 +121,7 @@
 	;main event loop
 	(while (progn
 		(defq data t)
-		(if cmd (setq data (pipe-read cmd)))
+		(if cmd (setq data (. cmd :read)))
 		(cond
 			((eql data t)
 				;normal mailbox event
@@ -150,7 +150,7 @@
 						t)))
 			((eql data nil)
 				;pipe is closed
-				(pipe-close cmd)
+				(. cmd :close)
 				(setq cmd nil)
 				(print (cat (ascii-char 10) *env_terminal_prompt* *line_buf*))
 				(. mywindow :dirty_all))
@@ -158,4 +158,4 @@
 				(print data)))))
 	;close window and pipe
 	(. mywindow :hide)
-	(if cmd (pipe-close cmd)))
+	(if cmd (. cmd :close)))

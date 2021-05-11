@@ -1,4 +1,4 @@
-(import "lib/pipe/pipe.inc")
+(import "lib/task/pipe.inc")
 
 (defq tmbox (mail-alloc-mbox))
 (mail-declare tmbox "TERMINAL_SERVICE" "Terminal Services 0.1")
@@ -28,12 +28,12 @@
 			(cond
 				(cmd
 					;feed active pipe
-					(pipe-write cmd (cat buffer (ascii-char 10))))
+					(. cmd :write cmd (cat buffer (ascii-char 10))))
 				(t	;start new pipe
 					(cond
 						((/= (length buffer) 0)
 							;new pipe
-							(catch (setq cmd (pipe-open buffer)) (progn (setq cmd nil) t))
+							(catch (setq cmd (Pipe buffer)) (progn (setq cmd nil) t))
 							(unless cmd (print (cat (const (cat "Pipe Error !" (ascii-char 10))) (prompt)))))
 						(t (print (prompt))))))
 			(setq buffer ""))
@@ -42,8 +42,8 @@
 			(when cmd
 				;feed active pipe, then EOF
 				(when (/= (length buffer) 0)
-					(pipe-write cmd buffer))
-				(pipe-close cmd)
+					(. cmd :write buffer))
+				(. cmd :close)
 				(setq cmd nil buffer "")
 				(print (cat (ascii-char 10) (prompt)))))
 		((and (= c 8) (/= (length buffer) 0))
@@ -61,14 +61,14 @@
 	(defq cmd nil buffer "")
 	(while t
 		(defq data t)
-		(if cmd (setq data (pipe-read cmd)))
+		(if cmd (setq data (. cmd :read)))
 		(cond
 			((eql data t)
 				;normal mailbox event
 				(terminal-input (get-byte (mail-read (task-mailbox)) 0)))
 			((eql data nil)
 				;pipe is closed
-				(pipe-close cmd)
+				(. cmd :close)
 				(setq cmd nil)
 				(print (const (cat (ascii-char 10) ">"))))
 			(t	;string from pipe

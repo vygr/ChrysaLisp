@@ -1,5 +1,5 @@
 (import "lib/asm/asm.inc")
-(import "lib/pipe/pipe.inc")
+(import "lib/task/pipe.inc")
 (import "lib/options/options.inc")
 
 (defun make-docs ()
@@ -77,7 +77,7 @@
 		(setq _eat_chunk (cat _eat_chunk (wrap-block _x))))
 		(each (lambda (el)
 		(setq _eat_chunk (cat _eat_chunk (str "## " (first el) (const (ascii-char 10)))))
-		(pipe-run (second el) _eat)) lst)
+		(Pipe-run (second el) _eat)) lst)
 		(save _eat_chunk target))
 	(generate-cmd-help (reduce
 		cmd-collector

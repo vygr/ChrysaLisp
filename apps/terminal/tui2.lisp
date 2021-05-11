@@ -11,7 +11,7 @@
 ;   See ijmptbl below
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import "lib/pipe/pipe.inc")
+(import "lib/task/pipe.inc")
 (import "lib/logging/logservice.inc")
 (import "lib/pathnode/pathnode.inc")
 (import "lib/ipc/server_ipc.inc")
@@ -105,7 +105,7 @@
 
 (defun run-cmd (bfr)
   ; (run-cmd buffer) -> result of command
-  (catch (setq cmd (pipe-open (session-sub bfr))) (progn (setq cmd nil) t))
+  (catch (setq cmd (Pipe (session-sub bfr))) (progn (setq cmd nil) t))
   (unless cmd
     (print (cat
              "Command '"
@@ -212,7 +212,7 @@
       (cond
         (cmd
           ;feed active pipe
-          (pipe-write cmd (cat buffer (ascii-char 10))))
+          (. cmd :write (cat buffer (ascii-char 10))))
         (t  ; otherwise
           (cond
             ((/= (length buffer) 0)
@@ -225,8 +225,8 @@
       (when cmd
         ;feed active pipe, then EOF
         (when (/= (length buffer) 0)
-          (pipe-write cmd buffer))
-        (pipe-close cmd)
+          (. cmd :write buffer))
+        (. cmd :close)
         (setq cmd nil buffer "")
         (print (cat (ascii-char 10) (prompt)))))
     ((and (= c 8) (/= (length buffer) 0))
@@ -259,14 +259,14 @@
         (defq cmd nil buffer "")
         (while t
           (defq data t)
-          (if cmd (setq data (pipe-read cmd)))
+          (if cmd (setq data (. cmd :read)))
           (cond
             ((eql data t)
               ;normal mailbox event
               (terminal-input (get-byte (mail-read (task-mailbox)) 0)))
             ((nil? data)
               ;pipe is closed
-              (pipe-close cmd)
+              (.cmd :close)
               (setq cmd nil)
               (print (prompt)))
             (t  ;string from pipe
