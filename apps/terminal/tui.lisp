@@ -28,7 +28,7 @@
 			(cond
 				(cmd
 					;feed active pipe
-					(. cmd :write cmd (cat buffer (ascii-char 10))))
+					(. cmd :write (cat buffer (ascii-char 10))))
 				(t	;start new pipe
 					(cond
 						((/= (length buffer) 0)
