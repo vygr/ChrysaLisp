@@ -77,7 +77,7 @@
 		(setq _eat_chunk (cat _eat_chunk (wrap-block _x))))
 		(each (lambda (el)
 		(setq _eat_chunk (cat _eat_chunk (str "## " (first el) (const (ascii-char 10)))))
-		(Pipe-run (second el) _eat)) lst)
+		(pipe-run (second el) _eat)) lst)
 		(save _eat_chunk target))
 	(generate-cmd-help (reduce
 		cmd-collector

@@ -6,7 +6,7 @@
 (print "Please wait...")
 (print)
 (while (< (length (mail-nodes)) 9) (task-sleep 100000))
-(Pipe-run "make all boot" (lambda (_) (prin _) (stream-flush (io-stream "stdout"))))
+(pipe-run "make all boot" (lambda (_) (prin _) (stream-flush (io-stream "stdout"))))
 (print)
 (print "Install complete.")
 (print)

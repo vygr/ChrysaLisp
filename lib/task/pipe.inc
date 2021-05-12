@@ -36,20 +36,17 @@
 
 	(defmethod :read (this)
 		; (. pipe :read) -> nil | t | data
-		(cond
-			;nil if pipe closed
-			((get :state this)
-				;pipe is open
-				(cond
-					;t if task mailbox
-					((= (- (defq idx (mail-select (get :select this)))
-							(length (get :select this))) -1))
-					(t	;must be stdout or one of the stderr's
-						(if (/= (in-get-state (in-next-msg
-									(defq msg_in (elem idx (get :streams this)))))
-								+stream_mail_state_started)
-							(def this :state nil))
-						(read-avail msg_in))))))
+		;nil if pipe closed
+		;t if task mailbox
+		(if (get :state this)
+			(cond
+				((= (- (defq idx (mail-select (get :select this))) (length (get :select this))) -1))
+				(t	;must be stdout or one of the stderr's
+					(if (/= (in-get-state (in-next-msg
+								(defq msg_in (elem idx (get :streams this)))))
+							+stream_mail_state_started)
+						(def this :state nil))
+					(read-avail msg_in)))))
 
 	(defmethod :write (this string)
 		; (. pipe :write string) -> pipe
@@ -71,8 +68,8 @@
 		this)
 	)
 
-(defun Pipe-run (cmdline &optional out)
-	; (Pipe-run cmdline &optional outfun)
+(defun pipe-run (cmdline &optional out)
+	; (pipe-run cmdline &optional outfun)
 	(setd out print)
 	(defq cmd (Pipe cmdline t))
 	(while cmd
