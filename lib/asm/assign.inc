@@ -98,11 +98,11 @@
 		(each (# (cscript %0) (compile-arrow)) dst)
 		(when *debug_inst*
 			(print "pre opt:")
-			(each print-inst *inst*))
+			(each (const print-inst) *inst*))
 		(opt-inst-list *inst*)
 		(when *debug_inst*
 			(print "post opt:")
-			(each print-inst *inst*))
+			(each (const print-inst) *inst*))
 		(set-reg-map (reverse src) _)
 		(eval *inst* *compile_env*)))
 
@@ -114,11 +114,11 @@
 		(each (# (cscript %0) (compile-deref?)) src)
 		(when *debug_inst*
 			(print "pre opt:")
-			(each print-inst *inst*))
+			(each (const print-inst) *inst*))
 		(opt-inst-list *inst*)
 		(when *debug_inst*
 			(print "post opt:")
-			(each print-inst *inst*))
+			(each (const print-inst) *inst*))
 		(set-reg-map (cat dst) _)
 		(eval *inst* *compile_env*)))
 
@@ -133,11 +133,11 @@
 		(each-rev (# (cscript %0) (compile-arrow)) dst)
 		(when *debug_inst*
 			(print "pre opt:")
-			(each print-inst *inst*))
+			(each (const print-inst) *inst*))
 		(opt-inst-list *inst*)
 		(when *debug_inst*
 			(print "post opt:")
-			(each print-inst *inst*))
+			(each (const print-inst) *inst*))
 		(set-reg-map '() _)
 		(eval *inst* *compile_env*)))
 
