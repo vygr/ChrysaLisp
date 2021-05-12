@@ -28,14 +28,14 @@
 	(list 'find-rev r _))
 
 (defun opt-find-1 (_ r x)
-	(setq _ (some! _ 0 nil (lambda (e)
+	(setq _ (some! _ 1 nil (lambda (e)
 				(cond
 					((match? e x) _)
 					((opt-uses r e) -1))) (list inst_list))
 		p (and _ (/= _ -1) _)))
 
 (defun opt-find-2 (_ r x y)
-	(setq _ (some! _ 0 nil (lambda (e)
+	(setq _ (some! _ 1 nil (lambda (e)
 				(cond
 					((match? e x) (setq m 0) _)
 					((match? e y) (setq m 1) _)

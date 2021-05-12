@@ -56,12 +56,12 @@
 			(call 'str :deref {args})
 
 			;send back ack with stdin mailbox
-			(assign {data->stdio_msg_init_ack_id.net_id_mbox_id}
-				{msg->msg_dest.net_id_mbox_id})
-			(assign {data->stdio_msg_init_ack_id.net_id_node_id.node_id_node1}
-				{msg->msg_dest.net_id_node_id.node_id_node1})
-			(assign {data->stdio_msg_init_ack_id.net_id_node_id.node_id_node2}
-				{msg->msg_dest.net_id_node_id.node_id_node2})
+			(assign {data->stdio_msg_init_ack_id.net_id_mbox_id,
+					data->stdio_msg_init_ack_id.net_id_node_id.node_id_node1,
+					data->stdio_msg_init_ack_id.net_id_node_id.node_id_node2}
+				{msg->msg_dest.net_id_mbox_id,
+					msg->msg_dest.net_id_node_id.node_id_node1,
+					msg->msg_dest.net_id_node_id.node_id_node2})
 			(assign {this->stdio_stdin->in_mbox_id}
 				{data->stdio_msg_init_stdout_id.net_id_mbox_id})
 			(call 'sys_kernel :id nil
