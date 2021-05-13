@@ -48,9 +48,11 @@
 	(vp-byte 0 (list '- (label-sym 'fn_entry) (label-sym 'fn_name_start)))
 	(vp-align +ptr_size (list '- (label-sym 'fn_entry) (label-sym 'fn_name_start)))
 (vp-label 'fn_entry)
-	(push-scope))
+	(push-scope)
+	(defcvar '*emit_start* (length *emit_list*)))
 
 (defun def-func-end ()
+	(defcvar '*emit_end* (length *emit_list*))
 	(pop-scope-checked)
 	(each (lambda (s)
 	(vp-label (string-sym _))
@@ -66,7 +68,7 @@
 		(vp-string (str s)) (vp-byte 0)) *paths*)
 	(vp-align +ptr_size)
 (vp-label 'fn_end)
-	(opt-emit-list *emit_list*)
+	(opt-emit-list *emit_list* *emit_start* *emit_end*)
 	(when *debug_emit*
 		(each print-emit *emit_list*))
 	(emit-passes)
