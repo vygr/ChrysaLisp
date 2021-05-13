@@ -72,14 +72,14 @@
 
 (defun find-past-rr (_ rs rd)
 	(find-past
-		((match? op (list 'emit-cpy-rr rs rd)) _)
+		((match? op `(emit-cpy-rr ,rs ,rd)) _)
 		((trashes-reg? rs op) -1)
 		((trashes-reg? rd op) -1)
 		((find-rev (elem 0 op) +opt_emit_call_ops) -1)))
 
 (defun find-past-r (_ rd)
 	(find-past
-		((match? op (list 'emit-cpy-rr '_ rd)) _)
+		((match? op `(emit-cpy-rr _ ,rd)) _)
 		((uses? rd op) -1)
 		((find-rev (elem 0 op) +opt_emit_kill_ops) -1)
 		((find-rev (elem 0 op) +opt_emit_call_ops) -1)))

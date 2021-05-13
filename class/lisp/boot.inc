@@ -225,7 +225,7 @@
 
 (defmacro not (_)
 	; (not form) -> t | nil
-	(list if _ nil t))
+	`(if ,_ nil t))
 
 (defmacro when (x &rest _)
 	; (when tst body)
@@ -818,27 +818,27 @@
 
 (defmacro read-long (s)
 	; (read-long stream) -> num
-	(list 'read-char s 8))
+	`(read-char ,s 8))
 
 (defmacro read-int (s)
 	; (read-int stream) -> num
-	(list 'read-char s 4))
+	`(read-char ,s 4))
 
 (defmacro read-short (s)
 	; (read-short stream) -> num
-	(list 'read-char s 2))
+	`(read-char ,s 2))
 
 (defmacro write-long (s n)
 	; (write-long stream num|list) -> stream
-	(list 'write-char s n 8))
+	`(write-char ,s ,n 8))
 
 (defmacro write-int (s n)
 	; (write-int stream num|list) -> stream
-	(list 'write-char s n 4))
+	`(write-char ,s ,n 4))
 
 (defmacro write-short (s n)
 	; (write-short stream num|list) -> stream
-	(list 'write-char s n 2))
+	`(write-char ,s ,n 2))
 
 (defun write-line (s _)
 	; (write-line stream str) -> stream

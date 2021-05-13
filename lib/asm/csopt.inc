@@ -83,7 +83,7 @@
 					(setq _ (dec _))))
 			;arithmetic reassignment and constant folding
 			((and (defq c (find-rev o +opt_cr_ops))
-					(defq p (opt-find-2 _ (defq r (elem 2 op)) `(vp-cpy-cr _ ,r) (list o '_ r))))
+					(defq p (opt-find-2 _ (defq r (elem 2 op)) `(vp-cpy-cr _ ,r) `(,o _ ,r))))
 				(cond
 					((= m 0)
 						(setq c (elem c +opt_fold_cpy_ops))
