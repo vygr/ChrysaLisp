@@ -5,13 +5,13 @@
 
 (enums +event 0
 	(enum close max min)
-	(enum layout scroll)
+	(enum layout xscroll yscroll)
 	(enum tree_action folder_action leaf_action))
 
 (defq vdu_min_width 16 vdu_min_height 16
 	vdu_max_width 120 vdu_max_height 50
 	vdu_width 80 vdu_height 50 tabs 4
-	text_buf nil syntax (Syntax) scroll_positions (xmap 101)
+	text_buf nil syntax (Syntax) scroll_map (xmap 31) max_width 256
 	current_file nil selected_node nil)
 
 (ui-window mywindow (:color +argb_grey2)
@@ -21,10 +21,12 @@
 			(. (ui-tree tree +event_tree_action (:min_width 0 :color +argb_white))
 				:connect +event_tree_action))
 		(ui-flow _ (:flow_flags +flow_left_fill)
-			(. (ui-slider slider) :connect +event_scroll)
-			(ui-vdu vdu (:min_width vdu_width :min_height vdu_height
-				:vdu_width vdu_width :vdu_height vdu_height
-				:ink_color +argb_white)))))
+			(. (ui-slider yslider) :connect +event_yscroll)
+			(ui-flow _ (:flow_flags +flow_up_fill)
+				(. (ui-slider xslider) :connect +event_xscroll)
+				(ui-vdu vdu (:min_width vdu_width :min_height vdu_height
+					:vdu_width vdu_width :vdu_height vdu_height
+					:ink_color +argb_white))))))
 
 (defun all-src-files (root)
 	;all source files from root downwards, none recursive
@@ -46,20 +48,29 @@
 				(unzip (split (pii-dirlist root) ",") (list (list) (list))))))
 	files)
 
-(defun set-slider (file)
+(defun set-sliders (file)
 	;set slider values for this file
-	(defq scroll_max (max 0 (- (length text_buf) vdu_height))
-		scroll_position (min (. scroll_positions :find file) scroll_max))
-	(def (. slider :dirty) :maximum scroll_max :portion vdu_height :value scroll_position)
-	scroll_position)
+	(bind '(scroll_x scroll_y) (. scroll_map :find file))
+	(defq scroll_maxx (max 0 (- max_width vdu_width))
+		scroll_maxy (max 0 (- (length text_buf) vdu_height))
+		scroll_x (min scroll_x scroll_maxx)
+		scroll_y (min scroll_y scroll_maxy))
+	(def (. xslider :dirty) :maximum scroll_maxx :portion vdu_width :value scroll_x)
+	(def (. yslider :dirty) :maximum scroll_maxy :portion vdu_height :value scroll_y)
+	(. scroll_map :insert file (list scroll_x scroll_y))
+	(list scroll_x scroll_y))
 
 (defun populate-vdu (file)
 	;load up the vdu widget from this file
 	(. syntax :set_state :text)
-	(setq text_buf (list) current_file file)
-	(each-line (lambda (line) (push text_buf (. syntax :colorise (. syntax :expand_tabs line tabs))))
+	(setq text_buf (list) current_file file max_width 0)
+	(each-line (lambda (line)
+			(setq line (. syntax :expand_tabs line tabs)
+				max_width (max max_width (length line)))
+			(push text_buf (. syntax :colorise line)))
 		(file-stream file))
-	(. vdu :load text_buf 0 (set-slider file) 0 -1)
+	(bind '(scroll_x scroll_y) (set-sliders file))
+	(. vdu :load text_buf scroll_x scroll_y 0 -1)
 	(def mytitle :text (cat "Viewer -> " file))
 	(.-> mytitle :layout :dirty))
 
@@ -75,7 +86,7 @@
 	(defq all_src_files (sort cmp (all-src-files ".")))
 	(each (# (. tree :add_route %0)) (all-dirs all_src_files))
 	(each (# (. tree :add_route %0)) all_src_files)
-	(each (# (. scroll_positions :insert %0 0)) all_src_files)
+	(each (# (. scroll_map :insert %0 '(0 0))) all_src_files)
 	(populate-vdu (elem 0 all_src_files)))
 
 (defun window-resize (w h)
@@ -84,9 +95,9 @@
 	(set vdu :vdu_width w :vdu_height h :min_width w :min_height h)
 	(bind '(x y) (. vdu :get_pos))
 	(bind '(w h) (. vdu :pref_size))
+	(bind '(scroll_x scroll_y) (set-sliders current_file))
 	(set vdu :min_width vdu_min_width :min_height vdu_min_height)
-	(. vdu :change x y w h)
-	(. vdu :load text_buf 0 (set-slider current_file) 0 -1))
+	(.-> vdu (:change x y w h) (:load text_buf scroll_x scroll_y 0 -1)))
 
 (defun vdu-resize (w h)
 	;size the vdu and layout the window to fit
@@ -96,7 +107,8 @@
 		(cat (. mywindow :get_pos) (. mywindow :pref_size))))
 	(set vdu :min_width vdu_min_width :min_height vdu_min_height)
 	(. mywindow :change_dirty x y w h)
-	(. vdu :load text_buf 0 (set-slider current_file) 0 -1))
+	(bind '(scroll_x scroll_y) (set-sliders current_file))
+	(. vdu :load text_buf scroll_x scroll_y 0 -1))
 
 (defun main ()
 	(populate-tree)
@@ -117,11 +129,18 @@
 		((= id +event_max)
 			;max button
 			(vdu-resize vdu_max_width vdu_max_height))
-		((= id +event_scroll)
-			;user scroll bar
-			(defq scroll_position (get :value slider))
-			(. scroll_positions :insert current_file scroll_position)
-			(. vdu :load text_buf 0 scroll_position 0 -1))
+		((= id +event_xscroll)
+			;user xscroll bar
+			(bind '(scroll_x scroll_y) (. scroll_map :find current_file))
+			(defq scroll_x (get :value xslider))
+			(. scroll_map :insert current_file (list scroll_x scroll_y))
+			(. vdu :load text_buf scroll_x scroll_y 0 -1))
+		((= id +event_yscroll)
+			;user yscroll bar
+			(bind '(scroll_x scroll_y) (. scroll_map :find current_file))
+			(defq scroll_y (get :value yslider))
+			(. scroll_map :insert current_file (list scroll_x scroll_y))
+			(. vdu :load text_buf scroll_x scroll_y 0 -1))
 		((= id +event_tree_action)
 			;tree view action
 			(defq w (get :min_width tree_scroll))
