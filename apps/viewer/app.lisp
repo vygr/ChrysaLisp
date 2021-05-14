@@ -1,7 +1,7 @@
 (import "sys/lisp.inc")
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
-(import "lib/text/syntax.inc")
+(import "lib/text/buffer.inc")
 
 (enums +event 0
 	(enum close max min)
@@ -11,7 +11,7 @@
 (defq vdu_min_width 16 vdu_min_height 16
 	vdu_max_width 120 vdu_max_height 50
 	vdu_width 80 vdu_height 50 tabs 4
-	text_buf nil syntax (Syntax) scroll_map (xmap 31) max_width 256
+	text_buf (Buffer) scroll_map (xmap 31)
 	current_file nil selected_node nil)
 
 (ui-window mywindow (:color +argb_grey2)
@@ -51,8 +51,9 @@
 (defun set-sliders (file)
 	;set slider values for this file
 	(bind '(scroll_x scroll_y) (. scroll_map :find file))
-	(defq scroll_maxx (max 0 (- max_width vdu_width))
-		scroll_maxy (max 0 (- (length text_buf) vdu_height))
+	(bind '(text_width text_height) (. text_buf :get_size))
+	(defq scroll_maxx (max 0 (- text_width vdu_width))
+		scroll_maxy (max 0 (- text_height vdu_height))
 		scroll_x (min scroll_x scroll_maxx)
 		scroll_y (min scroll_y scroll_maxy))
 	(def (. xslider :dirty) :maximum scroll_maxx :portion vdu_width :value scroll_x)
@@ -62,15 +63,9 @@
 
 (defun populate-vdu (file)
 	;load up the vdu widget from this file
-	(. syntax :set_state :text)
-	(setq text_buf (list) current_file file max_width 0)
-	(each-line (lambda (line)
-			(setq line (. syntax :expand_tabs line tabs)
-				max_width (max max_width (length line)))
-			(push text_buf (. syntax :colorise line)))
-		(file-stream file))
+	(. text_buf :file_load (setq current_file file))
 	(bind '(scroll_x scroll_y) (set-sliders file))
-	(. vdu :load text_buf scroll_x scroll_y 0 -1)
+	(.-> text_buf (:set_scroll scroll_x scroll_y) (:set_cursor -1 -1) (:vdu_load vdu))
 	(def mytitle :text (cat "Viewer -> " file))
 	(.-> mytitle :layout :dirty))
 
@@ -97,7 +92,7 @@
 	(bind '(w h) (. vdu :pref_size))
 	(bind '(scroll_x scroll_y) (set-sliders current_file))
 	(set vdu :min_width vdu_min_width :min_height vdu_min_height)
-	(.-> vdu (:change x y w h) (:load text_buf scroll_x scroll_y 0 -1)))
+	(.-> text_buf (:set_scroll scroll_x scroll_y) (:vdu_load (. vdu :change x y w h))))
 
 (defun vdu-resize (w h)
 	;size the vdu and layout the window to fit
@@ -108,7 +103,7 @@
 	(set vdu :min_width vdu_min_width :min_height vdu_min_height)
 	(. mywindow :change_dirty x y w h)
 	(bind '(scroll_x scroll_y) (set-sliders current_file))
-	(. vdu :load text_buf scroll_x scroll_y 0 -1))
+	(.-> text_buf (:set_scroll scroll_x scroll_y) (:vdu_load vdu)))
 
 (defun main ()
 	(populate-tree)
@@ -116,7 +111,7 @@
 	(. tree :change 0 0 (def tree_scroll :min_width w) h)
 	(bind '(x y w h) (apply view-locate (.-> mywindow (:connect +event_layout) :pref_size)))
 	(gui-add (. mywindow :change x y w h))
-	(. vdu :load text_buf 0 0 0 -1)
+	(. text_buf :vdu_load vdu)
 	(while (cond
 		((= (defq id (getf (defq msg (mail-read (task-mailbox))) +ev_msg_target_id)) +event_close)
 			nil)
@@ -134,17 +129,17 @@
 			(bind '(scroll_x scroll_y) (. scroll_map :find current_file))
 			(defq scroll_x (get :value xslider))
 			(. scroll_map :insert current_file (list scroll_x scroll_y))
-			(. vdu :load text_buf scroll_x scroll_y 0 -1))
+			(.-> text_buf (:set_scroll scroll_x scroll_y) (:vdu_load vdu)))
 		((= id +event_yscroll)
 			;user yscroll bar
 			(bind '(scroll_x scroll_y) (. scroll_map :find current_file))
 			(defq scroll_y (get :value yslider))
 			(. scroll_map :insert current_file (list scroll_x scroll_y))
-			(. vdu :load text_buf scroll_x scroll_y 0 -1))
+			(.-> text_buf (:set_scroll scroll_x scroll_y) (:vdu_load vdu)))
 		((= id +event_tree_action)
 			;tree view action
+			(bind '(w h) (. tree :pref_size))
 			(defq w (get :min_width tree_scroll))
-			(bind '(_ h) (. tree :pref_size))
 			(. tree :change 0 0 w h)
 			(.-> tree_scroll :layout :dirty_all))
 		((= id +event_leaf_action)
