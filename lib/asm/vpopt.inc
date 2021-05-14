@@ -28,7 +28,7 @@
 		''(emit-pop))
 
 (defmacro uses? (r op)
-	(list 'find-rev r op))
+	`(find-rev ,r ,op))
 
 (defmacro trashes-reg? (r op)
 	`(cond

@@ -25,7 +25,7 @@
 		''(vp-add-cr vp-sub-cr))
 
 (defmacro uses? (r op)
-	(list 'find-rev r op))
+	`(find-rev ,r ,op))
 
 (defmacro find-past (&rest _)
 	`(and (defq _ (some! _ 1 nil
