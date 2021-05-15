@@ -4,52 +4,38 @@
 ;default key bindings map
 (defq key_map (xmap))
 
+(defmacro binding (key &rest _)
+	`(. key_map :insert ,key
+		(lambda () ~_ (refresh))))
+
 ;cursor left
-(. key_map :insert 0x40000050
-	(lambda ()
-		(. text_buf :cursor_left)
-		(refresh)))
+(binding 0x40000050
+	(. text_buf :cursor_left))
 ;cursor right
-(. key_map :insert 0x4000004f
-	(lambda ()
-		(. text_buf :cursor_right)
-		(refresh)))
+(binding 0x4000004f
+	(. text_buf :cursor_right))
 ;cursor up
-(. key_map :insert 0x40000052
-	(lambda ()
-		(. text_buf :cursor_up)
-		(refresh)))
+(binding 0x40000052
+	(. text_buf :cursor_up))
 ;cursor down
-(. key_map :insert 0x40000051
-	(lambda ()
-		(. text_buf :cursor_down)
-		(refresh)))
+(binding 0x40000051
+	(. text_buf :cursor_down))
 ;line break
-(. key_map :insert 10
-	(lambda ()
-		(. text_buf :break)
-		(refresh)))
-(. key_map :insert 13
-	(lambda ()
-		(. text_buf :break)
-		(refresh)))
+(binding 10
+	(. text_buf :break))
+(binding 13
+	(. text_buf :break))
 ;backspace
-(. key_map :insert 8
-	(lambda ()
-		(. text_buf :backspace)
-		(refresh)))
+(binding 8
+	(. text_buf :backspace))
 ;delete
-(. key_map :insert 127
-	(lambda ()
-		(. text_buf :delete)
-		(refresh)))
+(binding 127
+	(. text_buf :delete))
 ;tab
-(. key_map :insert 9
-	(lambda ()
-		(bind '(x y) (. text_buf :get_cursor))
-		(defq tab_width (get :tab_width text_buf))
-		(. text_buf :insert (pad "" (- tab_width (% x tab_width)) "        "))
-		(refresh)))
+(binding 9
+	(bind '(x y) (. text_buf :get_cursor))
+	(defq tab_width (get :tab_width text_buf))
+	(. text_buf :insert (pad "" (- tab_width (% x tab_width)) "        ")))
 
 ;module
 (export (penv)
