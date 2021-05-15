@@ -201,7 +201,7 @@
 			(cond
 				((defq action (. key_map :find (defq c (getf msg +ev_msg_key_key))))
 					;call bound key action
-					(action))
+					(action) (refresh))
 				((<= 32 c 126)
 					;insert the char
 					(. text_buf :insert (char c))

@@ -7,13 +7,13 @@
 ;module
 (env-push)
 
-(defun check_spaning_states (string)
+(defun check-spaning-states (string)
 	(if (or (find (ascii-char 34) string)
 			(find "{" string)
 			(find "}" string))
 		(setq buffer_colored (cat buffer))))
 
-(defmacro mutate_buffer (&rest _)
+(defmacro mutate-buffer (&rest _)
 	`(progn
 		(bind '(x y) (. this :get_cursor))
 		(bind '(x y) (. this :constrain x y))
@@ -74,6 +74,7 @@
 	(defmethod :vdu_load (this vdu)
 		; (. buffer :vdu_load vdu) -> buffer
 		(when (get :dirty this)
+			(set this :dirty nil)
 			(defq syntax (get :syntax this)
 				buffer (get :buffer this)
 				buffer_colored (get :buffer_colored this)
@@ -83,12 +84,11 @@
 					(cond
 						((and (array? line_array) (eql state start_state))
 							(setq state end_state))
-						(t	(. syntax :set_state state)
-							(elem-set _ buffer_colored (. syntax :colorise line))
-							(elem-set _ buffer_states (list state
-								(setq state (. syntax :get_state)))))))
-				buffer buffer_colored buffer_states)
-			(set this :dirty nil))
+						(t	(elem-set _ buffer_colored
+								(.-> syntax (:set_state state) (:colorise line)))
+							(elem-set _ buffer_states
+								(list state (setq state (. syntax :get_state)))))))
+				buffer buffer_colored buffer_states))
 		(. vdu :load
 			(get :buffer_colored this)
 			(get :scroll_x this) (get :scroll_y this)
@@ -102,8 +102,8 @@
 			x (max 0 (if (>= y h) 0 (min x (length (elem y buffer))))))
 		(list x y))
 
-	(defmethod :cursor_left (this)
-		; (. buffer :cursor_left) -> buffer
+	(defmethod :left (this)
+		; (. buffer :left) -> buffer
 		(bind '(x y) (. this :get_cursor))
 		(if (< (setq x (dec x)) 0)
 			(if (< (setq y (dec y)) 0)
@@ -112,8 +112,8 @@
 		(bind '(x y) (. this :constrain x y))
 		(. this :set_cursor x y))
 
-	(defmethod :cursor_right (this)
-		; (. buffer :cursor_right) -> buffer
+	(defmethod :right (this)
+		; (. buffer :right) -> buffer
 		(bind '(x y) (. this :get_cursor))
 		(defq buffer (get :buffer this) h (length buffer)
 			w (if (>= y h) 0 (length (elem y buffer))))
@@ -124,21 +124,21 @@
 		(bind '(x y) (. this :constrain x y))
 		(. this :set_cursor x y))
 
-	(defmethod :cursor_down (this)
-		; (. buffer :cursor_down) -> buffer
+	(defmethod :down (this)
+		; (. buffer :down) -> buffer
 		(bind '(x y) (. this :get_cursor))
 		(bind '(x y) (. this :constrain x (inc y)))
 		(. this :set_cursor x y))
 
-	(defmethod :cursor_up (this)
-		; (. buffer :cursor_up) -> buffer
+	(defmethod :up (this)
+		; (. buffer :up) -> buffer
 		(bind '(x y) (. this :get_cursor))
 		(bind '(x y) (. this :constrain x (dec y)))
 		(. this :set_cursor x y))
 
 	(defmethod :break (this)
 		; (. buffer :break) -> buffer
-		(mutate_buffer
+		(mutate-buffer
 			(cond
 				((>= y h)
 					(setq buffer (insert buffer y '("")))
@@ -156,7 +156,7 @@
 
 	(defmethod :backspace (this)
 		; (. buffer :backspace) -> buffer
-		(mutate_buffer
+		(mutate-buffer
 			(cond
 				((and (<= x 0) (<= y 0)))
 				((>= y h)
@@ -168,14 +168,14 @@
 					(setq buffer (erase buffer (inc y) (+ y 2)))
 					(setq buffer_colored (erase buffer_colored (inc y) (+ y 2)))
 					(setq buffer_states (erase buffer_states (inc y) (+ y 2))))
-				(t	(check_spaning_states (slice (dec x) x (elem y buffer)))
+				(t	(check-spaning-states (slice (dec x) x (elem y buffer)))
 					(elem-set y buffer (erase (elem y buffer) (dec x) x))
 					(elem-set y buffer_colored (elem y buffer))
 					(setq x (dec x))))))
 
 	(defmethod :delete (this)
 		; (. buffer :delete) -> buffer
-		(mutate_buffer
+		(mutate-buffer
 			(cond
 				((>= y h))
 				((>= x (length (elem y buffer)))
@@ -185,13 +185,13 @@
 						(setq buffer (erase buffer (inc y) (+ y 2)))
 						(setq buffer_colored (erase buffer_colored (inc y) (+ y 2)))
 						(setq buffer_states (erase buffer_states (inc y) (+ y 2)))))
-				(t	(check_spaning_states (slice x (inc x) (elem y buffer)))
+				(t	(check-spaning-states (slice x (inc x) (elem y buffer)))
 					(elem-set y buffer (erase (elem y buffer) x (inc x)))
 					(elem-set y buffer_colored (elem y buffer))))))
 
 	(defmethod :insert (this string)
 		; (. buffer :insert string) -> buffer
-		(mutate_buffer
+		(mutate-buffer
 			(cond
 				((>= y h)
 					(setq buffer (insert buffer y (list string)))
@@ -199,7 +199,7 @@
 					(setq buffer_states (insert buffer_states y '((nil nil)))))
 				(t	(elem-set y buffer (insert (elem y buffer) x string))
 					(elem-set y buffer_colored (elem y buffer))))
-			(check_spaning_states string)
+			(check-spaning-states string)
 			(setq x (+ x (length string)))))
 	)
 

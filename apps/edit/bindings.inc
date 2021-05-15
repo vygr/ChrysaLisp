@@ -5,21 +5,20 @@
 (defq key_map (xmap))
 
 (defmacro binding (key &rest _)
-	`(. key_map :insert ,key
-		(lambda () ~_ (refresh))))
+	`(. key_map :insert ,key (lambda () ~_)))
 
 ;cursor left
 (binding 0x40000050
-	(. text_buf :cursor_left))
+	(. text_buf :left))
 ;cursor right
 (binding 0x4000004f
-	(. text_buf :cursor_right))
+	(. text_buf :right))
 ;cursor up
 (binding 0x40000052
-	(. text_buf :cursor_up))
+	(. text_buf :up))
 ;cursor down
 (binding 0x40000051
-	(. text_buf :cursor_down))
+	(. text_buf :down))
 ;line break
 (binding 10
 	(. text_buf :break))
