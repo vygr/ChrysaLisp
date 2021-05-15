@@ -7,6 +7,25 @@
 ;module
 (env-push)
 
+(defun check_spaning_states (string)
+	(if (or (find (ascii-char 34) string)
+			(find "{" string)
+			(find "}" string))
+		(setq buffer_colored (copy buffer))))
+
+(defmacro mutate_buffer (&rest _)
+	`(progn
+		(bind '(x y) (. this :get_cursor))
+		(bind '(x y) (. this :constrain x y))
+		(defq buffer (get :buffer this)
+			buffer_colored (get :buffer_colored this)
+			buffer_states (get :buffer_states this)
+			h (length buffer))
+		~_
+		(set this :buffer buffer :buffer_colored buffer_colored
+			:buffer_states buffer_states :dirty t)
+		(. this :set_cursor x y)))
+
 (defclass Buffer () nil
 	; (Buffer) -> buffer
 	(def this :buffer (list) :buffer_colored (list) :buffer_states (list)
@@ -118,97 +137,69 @@
 
 	(defmethod :break (this)
 		; (. buffer :break) -> buffer
-		(bind '(x y) (. this :get_cursor))
-		(bind '(x y) (. this :constrain x y))
-		(defq buffer (get :buffer this)
-			buffer_colored (get :buffer_colored this)
-			buffer_states (get :buffer_states this)
-			h (length buffer))
-		(cond
-			((>= y h)
-				(setq buffer (insert buffer y '("")))
-				(setq buffer_colored (insert buffer_colored y '("")))
-				(setq buffer_states (insert buffer_states y '(nil))))
-			(t	(defq front (slice 0 x (elem y buffer))
-					back (slice x -1 (elem y buffer)))
-				(elem-set y buffer front)
-				(elem-set y buffer_colored front)
-				(elem-set y buffer_states nil)
-				(setq buffer (insert buffer (inc y) (list back)))
-				(setq buffer_colored (insert buffer_colored (inc y) (list back)))
-				(setq buffer_states (insert buffer_states (inc y) '(nil)))))
-		(set this :buffer buffer :buffer_colored buffer_colored
-			:buffer_states buffer_states :dirty t)
-		(. this :set_cursor 0 (inc y)))
+		(mutate_buffer
+			(cond
+				((>= y h)
+					(setq buffer (insert buffer y '("")))
+					(setq buffer_colored (insert buffer_colored y '("")))
+					(setq buffer_states (insert buffer_states y '(nil))))
+				(t	(defq front (slice 0 x (elem y buffer))
+						back (slice x -1 (elem y buffer)))
+					(elem-set y buffer front)
+					(elem-set y buffer_colored front)
+					(elem-set y buffer_states nil)
+					(setq buffer (insert buffer (inc y) (list back)))
+					(setq buffer_colored (insert buffer_colored (inc y) (list back)))
+					(setq buffer_states (insert buffer_states (inc y) '(nil)))))
+			(setq x 0 y (inc y))))
 
 	(defmethod :backspace (this)
 		; (. buffer :backspace) -> buffer
-		(bind '(x y) (. this :get_cursor))
-		(bind '(x y) (. this :constrain x y))
-		(defq buffer (get :buffer this)
-			buffer_colored (get :buffer_colored this)
-			buffer_states (get :buffer_states this)
-			h (length buffer))
-		(cond
-			((and (<= x 0) (<= y 0)))
-			((>= y h)
-				(setq y (dec y) x (length (elem y buffer))))
-			((<= x 0)
-				(setq y (dec y) x (length (elem y buffer)))
-				(elem-set y buffer (cat (elem y buffer) (elem (inc y) buffer)))
-				(elem-set y buffer_colored (elem y buffer))
-				(setq buffer (erase buffer (inc y) (+ y 2)))
-				(setq buffer_colored (erase buffer_colored (inc y) (+ y 2)))
-				(setq buffer_states (erase buffer_states (inc y) (+ y 2))))
-			(t	(elem-set y buffer (erase (elem y buffer) (dec x) x))
-				(elem-set y buffer_colored (elem y buffer))
-				(setq x (dec x))))
-		(set this :buffer buffer :buffer_colored buffer_colored
-			:buffer_states buffer_states :dirty t)
-		(. this :set_cursor x y))
-
-	(defmethod :delete (this)
-		; (. buffer :delete) -> buffer
-		(bind '(x y) (. this :get_cursor))
-		(bind '(x y) (. this :constrain x y))
-		(defq buffer (get :buffer this)
-			buffer_colored (get :buffer_colored this)
-			buffer_states (get :buffer_states this)
-			h (length buffer))
-		(cond
-			((>= y h))
-			((>= x (length (elem y buffer)))
-				(when (< y (dec h))
+		(mutate_buffer
+			(cond
+				((and (<= x 0) (<= y 0)))
+				((>= y h)
+					(setq y (dec y) x (length (elem y buffer))))
+				((<= x 0)
+					(setq y (dec y) x (length (elem y buffer)))
 					(elem-set y buffer (cat (elem y buffer) (elem (inc y) buffer)))
 					(elem-set y buffer_colored (elem y buffer))
 					(setq buffer (erase buffer (inc y) (+ y 2)))
 					(setq buffer_colored (erase buffer_colored (inc y) (+ y 2)))
-					(setq buffer_states (erase buffer_states (inc y) (+ y 2)))))
-			(t	(elem-set y buffer (erase (elem y buffer) x (inc x)))
-				(elem-set y buffer_colored (elem y buffer))))
-		(set this :buffer buffer :buffer_colored buffer_colored
-			:buffer_states buffer_states :dirty t)
-		(. this :set_cursor x y))
+					(setq buffer_states (erase buffer_states (inc y) (+ y 2))))
+				(t	(check_spaning_states (slice (dec x) x (elem y buffer)))
+					(elem-set y buffer (erase (elem y buffer) (dec x) x))
+					(elem-set y buffer_colored (elem y buffer))
+					(setq x (dec x))))))
+
+	(defmethod :delete (this)
+		; (. buffer :delete) -> buffer
+		(mutate_buffer
+			(cond
+				((>= y h))
+				((>= x (length (elem y buffer)))
+					(when (< y (dec h))
+						(elem-set y buffer (cat (elem y buffer) (elem (inc y) buffer)))
+						(elem-set y buffer_colored (elem y buffer))
+						(setq buffer (erase buffer (inc y) (+ y 2)))
+						(setq buffer_colored (erase buffer_colored (inc y) (+ y 2)))
+						(setq buffer_states (erase buffer_states (inc y) (+ y 2)))))
+				(t	(check_spaning_states (slice x (inc x) (elem y buffer)))
+					(elem-set y buffer (erase (elem y buffer) x (inc x)))
+					(elem-set y buffer_colored (elem y buffer))))))
 
 	(defmethod :insert (this string)
 		; (. buffer :insert string) -> buffer
-		(bind '(x y) (. this :get_cursor))
-		(bind '(x y) (. this :constrain x y))
-		(defq buffer (get :buffer this)
-			buffer_colored (get :buffer_colored this)
-			buffer_states (get :buffer_states this)
-			h (length buffer))
-		(cond
-			((>= y h)
-				(setq buffer (insert buffer y (list string)))
-				(setq buffer_colored (insert buffer_colored y (list string)))
-				(setq buffer_states (insert buffer_states y '(nil))))
-			(t	
-				(elem-set y buffer (insert (elem y buffer) x string))
-				(elem-set y buffer_colored (elem y buffer))))
-		(set this :buffer buffer :buffer_colored buffer_colored
-			:buffer_states buffer_states :dirty t)
-		(. this :set_cursor (+ x (length string)) y))
+		(mutate_buffer
+			(cond
+				((>= y h)
+					(setq buffer (insert buffer y (list string)))
+					(setq buffer_colored (insert buffer_colored y (list string)))
+					(setq buffer_states (insert buffer_states y '(nil))))
+				(t	(elem-set y buffer (insert (elem y buffer) x string))
+					(elem-set y buffer_colored (elem y buffer))))
+			(check_spaning_states string)
+			(setq x (+ x (length string)))))
 	)
 
 ;module
