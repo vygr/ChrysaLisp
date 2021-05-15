@@ -23,9 +23,6 @@
 (defq *env_clock_timezone* "Etc/GMT" *env_clock_analog* t *env_clock_digital* t 
 	*env_clock_twelve_hour* t  *env_clock_seconds* t  *env_clock_pad_hour* nil *env_clock_dotw* t)
 
-;default text files to open when edit opens
-(defq *env_edit_auto* '("apps/edit/message"))
-
 ;widget property defaults
 (ffi create-font "gui/font/lisp_create" 0)
 (defq *env_window_col* 0xffc0c0c0 *env_title_col* 0xffe0e0e0 *env_slider_col* 0xffe0e0e0

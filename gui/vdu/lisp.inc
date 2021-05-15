@@ -25,6 +25,10 @@
 		; (. vdu :char_size) -> (width height)
 		(list (getf this +vdu_char_width 0) (getf this +vdu_char_height 0)))
 
+	(defmethod :vdu_size (this)
+		; (. vdu :vdu_size) -> (width height)
+		(list (get :vdu_width this) (get :vdu_height this)))
+
 	(defmethod :load (this lines offset_x offset_y cursor_x cursor_y)
 		; (. vdu :load lines offset_x offset_y cursor_x cursor_y) -> vdu
 		(. ((const (ffi _ "gui/vdu/lisp_load" 0)) this lines offset_x offset_y cursor_x cursor_y) :dirty))
