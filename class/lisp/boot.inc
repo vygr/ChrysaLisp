@@ -165,6 +165,9 @@
 	; (exec form)
 	(eval (macroexpand _)))
 
+(defmacro array? (_)
+	; (array? form) -> t | nil
+	`(find :array (type-of ,_)))
 (defmacro list? (_)
 	; (list? form) -> t | nil
 	`(find :list (type-of ,_)))

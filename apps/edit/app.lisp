@@ -10,7 +10,7 @@
 
 (defq vdu_min_width 16 vdu_min_height 16
 	vdu_max_width 120 vdu_max_height 50
-	vdu_width 80 vdu_height 50 tabs 4
+	vdu_width 80 vdu_height 40 tabs 4
 	text_buf (Buffer) scroll_map (xmap 31)
 	current_file nil selected_node nil id t mouse_state :u)
 

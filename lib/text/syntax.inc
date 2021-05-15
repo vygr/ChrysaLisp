@@ -66,6 +66,10 @@
 		(set this :state state)
 		this)
 
+	(defmethod :get_state (this)
+		; (. syntax :get_state) -> state
+		(get :state this))
+
 	(defmethod :set_colors (this colors)
 		; (. syntax :set_colors xmap) -> syntax
 		(. colors :each (# (set this %0 (<< (canvas-from-argb32 %1 15) 32))))

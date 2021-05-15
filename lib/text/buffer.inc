@@ -9,7 +9,8 @@
 
 (defclass Buffer () nil
 	; (Buffer) -> buffer
-	(def this :buffer (list) :buffer_colored (list) :dirty nil :syntax (Syntax)
+	(def this :buffer (list) :buffer_colored (list) :buffer_states (list)
+		:dirty nil :syntax (Syntax)
 		:cursor_x 0 :cursor_y 0 :scroll_x 0 :scroll_y 0
 		:max_width 0 :tab_width 4)
 
@@ -37,25 +38,37 @@
 
 	(defmethod :file_load (this filepath)
 		; (. buffer :file_load filepath) -> buffer
-		(defq syntax (get :syntax this) buffer (list)
+		(defq syntax (get :syntax this)
+			buffer (list) buffer_colored (list) buffer_states (list)
 			max_width 0 tab_width (get :tab_width this))
 		(each-line (lambda (line)
 				(setq line (. syntax :expand_tabs line tab_width)
 					max_width (max max_width (length line)))
-				(push buffer line))
+				(push buffer line)
+				(push buffer_colored line)
+				(push buffer_states nil))
 			(file-stream filepath))
-		(set this :dirty t :buffer buffer :max_width max_width)
+		(set this :buffer buffer :buffer_colored buffer_colored
+			:buffer_states buffer_states :max_width max_width :dirty t)
 		this)
 
 	(defmethod :vdu_load (this vdu)
 		; (. buffer :vdu_load vdu) -> buffer
 		(when (get :dirty this)
-			(defq buffer_colored (list) syntax (get :syntax this))
-			(. syntax :set_state :text)
-			(each (lambda (line)
-					(push buffer_colored (. syntax :colorise line)))
-				(get :buffer this))
-			(set this :buffer_colored buffer_colored :dirty nil))
+			(defq syntax (get :syntax this)
+				buffer (get :buffer this)
+				buffer_colored (get :buffer_colored this)
+				buffer_states (get :buffer_states this)
+				state :text)
+			(each (lambda (line line_array line_state)
+					(cond
+						((and (array? line_array) (eql line_state state)))
+						(t	(. syntax :set_state state)
+							(elem-set _ buffer_colored (. syntax :colorise line))
+							(elem-set _ buffer_states state)
+							(setq state (. syntax :get_state)))))
+				buffer buffer_colored buffer_states)
+			(set this :dirty nil))
 		(. vdu :load
 			(get :buffer_colored this)
 			(get :scroll_x this) (get :scroll_y this)
@@ -107,22 +120,35 @@
 		; (. buffer :break) -> buffer
 		(bind '(x y) (. this :get_cursor))
 		(bind '(x y) (. this :constrain x y))
-		(defq buffer (get :buffer this) h (length buffer))
+		(defq buffer (get :buffer this)
+			buffer_colored (get :buffer_colored this)
+			buffer_states (get :buffer_states this)
+			h (length buffer))
 		(cond
 			((>= y h)
-				(set this :buffer (insert buffer y '(""))))
+				(setq buffer (insert buffer y '("")))
+				(setq buffer_colored (insert buffer_colored y '("")))
+				(setq buffer_states (insert buffer_states y '(nil))))
 			(t	(defq front (slice 0 x (elem y buffer))
 					back (slice x -1 (elem y buffer)))
 				(elem-set y buffer front)
-				(set this :buffer (insert buffer (inc y) (list back)))))
-		(set this :dirty t)
+				(elem-set y buffer_colored front)
+				(elem-set y buffer_states nil)
+				(setq buffer (insert buffer (inc y) (list back)))
+				(setq buffer_colored (insert buffer_colored (inc y) (list back)))
+				(setq buffer_states (insert buffer_states (inc y) '(nil)))))
+		(set this :buffer buffer :buffer_colored buffer_colored
+			:buffer_states buffer_states :dirty t)
 		(. this :set_cursor 0 (inc y)))
 
 	(defmethod :backspace (this)
 		; (. buffer :backspace) -> buffer
 		(bind '(x y) (. this :get_cursor))
 		(bind '(x y) (. this :constrain x y))
-		(defq buffer (get :buffer this) h (length buffer))
+		(defq buffer (get :buffer this)
+			buffer_colored (get :buffer_colored this)
+			buffer_states (get :buffer_states this)
+			h (length buffer))
 		(cond
 			((and (<= x 0) (<= y 0)))
 			((>= y h)
@@ -130,37 +156,58 @@
 			((<= x 0)
 				(setq y (dec y) x (length (elem y buffer)))
 				(elem-set y buffer (cat (elem y buffer) (elem (inc y) buffer)))
-				(set this :buffer (erase buffer (inc y) (+ y 2))))
+				(elem-set y buffer_colored (elem y buffer))
+				(setq buffer (erase buffer (inc y) (+ y 2)))
+				(setq buffer_colored (erase buffer_colored (inc y) (+ y 2)))
+				(setq buffer_states (erase buffer_states (inc y) (+ y 2))))
 			(t	(elem-set y buffer (erase (elem y buffer) (dec x) x))
+				(elem-set y buffer_colored (elem y buffer))
 				(setq x (dec x))))
-		(set this :dirty t)
+		(set this :buffer buffer :buffer_colored buffer_colored
+			:buffer_states buffer_states :dirty t)
 		(. this :set_cursor x y))
 
 	(defmethod :delete (this)
 		; (. buffer :delete) -> buffer
 		(bind '(x y) (. this :get_cursor))
 		(bind '(x y) (. this :constrain x y))
-		(defq buffer (get :buffer this) h (length buffer))
+		(defq buffer (get :buffer this)
+			buffer_colored (get :buffer_colored this)
+			buffer_states (get :buffer_states this)
+			h (length buffer))
 		(cond
 			((>= y h))
 			((>= x (length (elem y buffer)))
 				(when (< y (dec h))
 					(elem-set y buffer (cat (elem y buffer) (elem (inc y) buffer)))
-					(set this :buffer (erase buffer (inc y) (+ y 2)))))
-			(t	(elem-set y buffer (erase (elem y buffer) x (inc x)))))
-		(set this :dirty t)
+					(elem-set y buffer_colored (elem y buffer))
+					(setq buffer (erase buffer (inc y) (+ y 2)))
+					(setq buffer_colored (erase buffer_colored (inc y) (+ y 2)))
+					(setq buffer_states (erase buffer_states (inc y) (+ y 2)))))
+			(t	(elem-set y buffer (erase (elem y buffer) x (inc x)))
+				(elem-set y buffer_colored (elem y buffer))))
+		(set this :buffer buffer :buffer_colored buffer_colored
+			:buffer_states buffer_states :dirty t)
 		(. this :set_cursor x y))
 
 	(defmethod :insert (this string)
 		; (. buffer :insert string) -> buffer
 		(bind '(x y) (. this :get_cursor))
 		(bind '(x y) (. this :constrain x y))
-		(defq buffer (get :buffer this) h (length buffer))
+		(defq buffer (get :buffer this)
+			buffer_colored (get :buffer_colored this)
+			buffer_states (get :buffer_states this)
+			h (length buffer))
 		(cond
 			((>= y h)
-				(set this :buffer (insert buffer y (list string))))
-			(t	(elem-set y buffer (insert (elem y buffer) x string))))
-		(set this :dirty t)
+				(setq buffer (insert buffer y (list string)))
+				(setq buffer_colored (insert buffer_colored y (list string)))
+				(setq buffer_states (insert buffer_states y '(nil))))
+			(t	
+				(elem-set y buffer (insert (elem y buffer) x string))
+				(elem-set y buffer_colored (elem y buffer))))
+		(set this :buffer buffer :buffer_colored buffer_colored
+			:buffer_states buffer_states :dirty t)
 		(. this :set_cursor (+ x (length string)) y))
 	)
 
