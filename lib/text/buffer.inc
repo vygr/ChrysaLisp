@@ -154,7 +154,9 @@
 			(cond
 				((and (<= x 0) (<= y 0)))
 				((>= y h)
-					(setq y (dec y) x (length (elem y buffer))))
+					(setq y (dec y) x (length (elem y buffer)))
+					(when (<= x 0)
+						(pop buffer) (pop buffer_colored) (pop buffer_states)))
 				((<= x 0)
 					(setq y (dec y) x (length (elem y buffer)))
 					(elem-set y buffer (cat (elem y buffer) (elem (inc y) buffer)))

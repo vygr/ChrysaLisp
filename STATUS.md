@@ -4,6 +4,14 @@
 
 ------
 
+VP and CScript optimizers improved for clarity and extra cases.
+
+Edit app re-write started. Basic editing first stage.
+
+Key modifiers passed in GUI key events.
+
+------
+
 Rename 'local-align' just 'align' as it's no longer a function but a simple
 symbol.
 

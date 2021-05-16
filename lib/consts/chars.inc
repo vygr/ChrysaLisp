@@ -4,6 +4,7 @@
 
 (defq
 	+char_backspace 8
+	+char_delete 127
 	+char_tab 9
 	+char_lf 10
 	+char_cr 13

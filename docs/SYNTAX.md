@@ -402,6 +402,12 @@
 (. vdu :pref_size) -> (width height)
 ```
 
+### vdu :vdu_size
+
+```code
+(. vdu :vdu_size) -> (width height)
+```
+
 ### view :add_back
 
 ```code
@@ -1030,6 +1036,12 @@
 
 ```code
 (array [form ...])
+```
+
+### array?
+
+```code
+(array? form) -> t | nil
 ```
 
 ### ascii-char

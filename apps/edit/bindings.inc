@@ -2,41 +2,41 @@
 (env-push)
 
 ;default key bindings map
-(defq key_map (xmap))
+(defq key_map (xmap) key_map_control (xmap))
 
-(defmacro binding (key &rest _)
-	`(. key_map :insert ,key (lambda () ~_)))
+(defmacro binding (kmap key &rest _)
+	`(. ,kmap :insert ,key (lambda () ~_)))
 
 ;cursor left
-(binding 0x40000050
+(binding key_map 0x40000050
 	(. text_buf :left))
 ;cursor right
-(binding 0x4000004f
+(binding key_map 0x4000004f
 	(. text_buf :right))
 ;cursor up
-(binding 0x40000052
+(binding key_map 0x40000052
 	(. text_buf :up))
 ;cursor down
-(binding 0x40000051
+(binding key_map 0x40000051
 	(. text_buf :down))
 ;line break
-(binding 10
+(binding key_map +char_lf
 	(. text_buf :break))
-(binding 13
+(binding key_map +char_cr
 	(. text_buf :break))
 ;backspace
-(binding 8
+(binding key_map +char_backspace
 	(. text_buf :backspace))
 ;delete
-(binding 127
+(binding key_map +char_delete
 	(. text_buf :delete))
 ;tab
-(binding 9
+(binding key_map +char_tab
 	(bind '(x y) (. text_buf :get_cursor))
 	(defq tab_width (get :tab_width text_buf))
 	(. text_buf :insert (pad "" (- tab_width (% x tab_width)) "        ")))
 
 ;module
 (export (penv)
-	key_map)
+	key_map key_map_control)
 (env-pop)

@@ -212,7 +212,8 @@
 			(assign {owner_id.net_id_node_id.node_id_node2} {msg->msg_dest.net_id_node_id.node_id_node2})
 			(assign {event.sdl_keyboard_event_keysym.sdl_keysym_scancode} {data->ev_msg_key_keycode})
 			(call 'cook_key {event.sdl_keyboard_event_keysym.sdl_keysym_sym,
-				event.sdl_keyboard_event_keysym.sdl_keysym_mod} {data->ev_msg_key_key})
+					event.sdl_keyboard_event_keysym.sdl_keysym_mod}
+				{data->ev_msg_key_key, data->ev_msg_key_mod})
 			(call 'sys_mail :send {msg})
 			(break)
 		(vpcase {event.sdl_common_event_type = SDL_WINDOWEVENT})
@@ -317,18 +318,20 @@
 	;r1 = mod
 	;outputs
 	;r0 = cooked key
+	;r1 = mod
 	;trashes
-	;r0-r2
+	;r0-r3
 
 	(entry '(r0 r1))
 
-	(vp-and-cr 0x2003 r1)
-	(vpif '(r1 /= 0) 'exit)
+	(vp-cpy-rr r1 r2)
+	(vp-and-cr 0x2003 r2)
+	(vpif '(r2 /= 0) 'exit)
 		(assign '(($ shifted)) '(r2))
 		(loop-start)
-			(vp-cpy-ir-ub r2 0 r1)
-			(breakif '(r1 = 0))
-			(vpif '(r1 = r0))
+			(vp-cpy-ir-ub r2 0 r3)
+			(breakif '(r3 = 0))
+			(vpif '(r3 = r0))
 				(vp-cpy-ir-ub r2 1 r0)
 				(break 'exit)
 			(endif)
@@ -336,7 +339,7 @@
 		(loop-end)
 	(endif)
 
-	(exit '(r0))
+	(exit '(r0 r1))
 	(vp-ret)
 
 (vp-label 'title)

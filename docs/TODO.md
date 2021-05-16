@@ -70,8 +70,6 @@ forth for the maker community. SDL over frame buffer version for PI3, maybe
 just needs testing, but needs doing. L4 micro kernel hosted version could prove
 interesting.
 
-* Better cooking of key modifiers !
-
 * Network wide DHT based object store, provided as a service. I've been
 planning a network wide object store that presents itself as a standard service
 and uses a distributed hash table technique to store objects throughout the

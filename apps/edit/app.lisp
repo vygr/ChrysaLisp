@@ -1,6 +1,7 @@
 (import "sys/lisp.inc")
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
+(import "lib/consts/chars.inc")
 (import "lib/text/buffer.inc")
 
 (enums +event 0
@@ -198,13 +199,18 @@
 		((and (= (getf msg +ev_msg_type) +ev_type_key)
 				(> (getf msg +ev_msg_key_keycode) 0))
 			;key event
+			(defq key (getf msg +ev_msg_key_key) mod (getf msg +ev_msg_key_mod))
 			(cond
-				((defq action (. key_map :find (defq c (getf msg +ev_msg_key_key))))
+				((/= 0 (logand mod (const (+ +ev_key_mod_control +ev_key_mod_command))))
+					;call bound control/command key action
+					(when (defq action (. key_map_control :find key))
+						(action) (refresh)))
+				((defq action (. key_map :find key))
 					;call bound key action
 					(action) (refresh))
-				((<= 32 c 126)
+				((<= +char_space key +char_tilda)
 					;insert the char
-					(. text_buf :insert (char c))
+					(. text_buf :insert (char key))
 					(refresh))))
 		(t	;gui event
 			(. mywindow :event msg))))

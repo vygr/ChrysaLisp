@@ -34,7 +34,7 @@
 	(int x y rx ry))
 
 (def-struct ev_msg_key ev_msg_size
-	(uint keycode key))
+	(uint keycode key mod))
 
 (def-struct ev_msg_action ev_msg_size
 	(ulong source_id))

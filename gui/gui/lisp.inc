@@ -11,9 +11,18 @@
 	(int x y rx ry))
 
 (structure +ev_msg_key +ev_msg_size
-	(uint keycode key))
+	(uint keycode key mod))
 
 (structure +ev_msg_action +ev_msg_size
 	(ulong source_id))
 
 (structure +ev_msg_gui +ev_msg_size)
+
+(defq +ev_key_mod_left_shift 0x1 +ev_key_mod_right_shift 0x2
+	+ev_key_mod_left_option 0x100 +ev_key_mod_right_option 0x200
+	+ev_key_mod_left_command 0x400 +ev_key_mod_right_command 0x800
+	+ev_key_mod_caps_lock 0x2000
+	+ev_key_mod_control 0x40
+	+ev_key_mod_shift (+ +ev_key_mod_left_shift +ev_key_mod_right_shift)
+	+ev_key_mod_option (+ +ev_key_mod_left_option +ev_key_mod_right_option)
+	+ev_key_mod_command (+ +ev_key_mod_left_command +ev_key_mod_right_command))
