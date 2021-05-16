@@ -7,12 +7,6 @@
 ;module
 (env-push)
 
-(defun check-spaning-states (string)
-	(if (or (find (ascii-char 34) string)
-			(find "{" string)
-			(find "}" string))
-		(setq buffer_colored (cat buffer))))
-
 (defmacro mutate-buffer (&rest _)
 	`(progn
 		(bind '(x y) (. this :get_cursor))
@@ -168,8 +162,7 @@
 					(setq buffer (erase buffer (inc y) (+ y 2)))
 					(setq buffer_colored (erase buffer_colored (inc y) (+ y 2)))
 					(setq buffer_states (erase buffer_states (inc y) (+ y 2))))
-				(t	(check-spaning-states (slice (dec x) x (elem y buffer)))
-					(elem-set y buffer (erase (elem y buffer) (dec x) x))
+				(t	(elem-set y buffer (erase (elem y buffer) (dec x) x))
 					(elem-set y buffer_colored (elem y buffer))
 					(setq x (dec x))))))
 
@@ -185,8 +178,7 @@
 						(setq buffer (erase buffer (inc y) (+ y 2)))
 						(setq buffer_colored (erase buffer_colored (inc y) (+ y 2)))
 						(setq buffer_states (erase buffer_states (inc y) (+ y 2)))))
-				(t	(check-spaning-states (slice x (inc x) (elem y buffer)))
-					(elem-set y buffer (erase (elem y buffer) x (inc x)))
+				(t	(elem-set y buffer (erase (elem y buffer) x (inc x)))
 					(elem-set y buffer_colored (elem y buffer))))))
 
 	(defmethod :insert (this string)
@@ -199,7 +191,6 @@
 					(setq buffer_states (insert buffer_states y '((nil nil)))))
 				(t	(elem-set y buffer (insert (elem y buffer) x string))
 					(elem-set y buffer_colored (elem y buffer))))
-			(check-spaning-states string)
 			(setq x (+ x (length string)))))
 	)
 
