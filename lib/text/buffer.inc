@@ -221,9 +221,9 @@
 		; (. buffer :undo) -> buffer
 		(when (defq undo (pop (get :undo_stack this)))
 			(defq redo_stack (cat (get :redo_stack this)))
-			(bind '(_ x y &rest _) undo)
+			(bind '(state x y &rest _) undo)
 			(. this :set_cursor x y)
-			(case (elem 0 undo)
+			(case state
 				(:break (. this :break))
 				(:backspace (. this :backspace))
 				(:insert (. this :insert (pop undo))))
@@ -234,9 +234,9 @@
 		; (. buffer :redo) -> buffer
 		(defq redo_stack (cat (get :redo_stack this)))
 		(when (defq redo (pop redo_stack))
-			(bind '(_ x y &rest _) redo)
+			(bind '(state x y &rest _) redo)
 			(. this :set_cursor x y)
-			(case (elem 0 redo)
+			(case state
 				(:break (. this :break))
 				(:backspace (. this :backspace))
 				(:insert (. this :insert (pop redo))))
