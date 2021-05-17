@@ -202,6 +202,8 @@
 				(defq whitespace "")
 				(apply cat (reduce (#
 					(cond
+						((eql whitespace "X")
+							(push %0 %1))
 						((eql %1 " ")
 							(setq whitespace (cat whitespace " "))
 							(when (= (length whitespace) tab_width)
@@ -209,7 +211,7 @@
 								(push %0 (ascii-char 9)))
 							%0)
 						(t	(push %0 whitespace %1)
-							(setq whitespace "")
+							(setq whitespace "X")
 							%0))) string (list))))
 			(string)))
 	)
