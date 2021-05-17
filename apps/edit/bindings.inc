@@ -34,7 +34,15 @@
 (binding key_map +char_tab
 	(bind '(x y) (. text_buf :get_cursor))
 	(defq tab_width (get :tab_width text_buf))
-	(. text_buf :insert (pad "" (- tab_width (% x tab_width)) "        ")))
+	(times (- tab_width (% x tab_width))
+		(. text_buf :insert " ")))
+
+;undo
+(binding key_map_control +char_z
+	(. text_buf :undo))
+;redo
+(binding key_map_control +char_Z
+	(. text_buf :redo))
 
 ;module
 (export (penv)

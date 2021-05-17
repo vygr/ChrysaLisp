@@ -16,6 +16,7 @@
 			buffer_states (get :buffer_states this)
 			h (length buffer))
 		~_
+		(clear (get :redo_stack this))
 		(set this :buffer buffer :buffer_colored buffer_colored
 			:buffer_states buffer_states :dirty t)
 		(. this :set_cursor x y)))
@@ -23,7 +24,7 @@
 (defclass Buffer () nil
 	; (Buffer) -> buffer
 	(def this :buffer (list) :buffer_colored (list) :buffer_states (list)
-		:dirty nil :syntax (Syntax)
+		:dirty nil :syntax (Syntax) :undo_stack (list) :redo_stack (list)
 		:cursor_x 0 :cursor_y 0 :scroll_x 0 :scroll_y 0
 		:max_width 0 :tab_width 4)
 
@@ -55,12 +56,14 @@
 			buffer (list) buffer_colored (list) buffer_states (list)
 			max_width 0 tab_width (get :tab_width this))
 		(each-line (lambda (line)
-				(setq line (. syntax :expand_tabs line tab_width)
+				(setq line (. syntax :expand_tabs
+						(trim line (const (char +char_cr))) tab_width)
 					max_width (max max_width (length line)))
 				(push buffer line)
 				(push buffer_colored line)
 				(push buffer_states '(nil nil)))
 			(file-stream filepath))
+			(clear (get :undo_stack this) (get :redo_stack this))
 		(set this :buffer buffer :buffer_colored buffer_colored
 			:buffer_states buffer_states :max_width max_width :dirty t)
 		this)
@@ -146,7 +149,8 @@
 					(setq buffer (insert buffer (inc y) (list back)))
 					(setq buffer_colored (insert buffer_colored (inc y) (list back)))
 					(setq buffer_states (insert buffer_states (inc y) '((nil nil))))))
-			(setq x 0 y (inc y))))
+			(setq x 0 y (inc y))
+			(push (get :undo_stack this) (list :backspace x y))))
 
 	(defmethod :backspace (this)
 		; (. buffer :backspace) -> buffer
@@ -156,17 +160,21 @@
 				((>= y h)
 					(setq y (dec y) x (length (elem y buffer)))
 					(when (<= x 0)
-						(pop buffer) (pop buffer_colored) (pop buffer_states)))
+						(pop buffer) (pop buffer_colored) (pop buffer_states)
+						(push (get :undo_stack this) (list :break x y))))
 				((<= x 0)
 					(setq y (dec y) x (length (elem y buffer)))
 					(elem-set y buffer (cat (elem y buffer) (elem (inc y) buffer)))
 					(elem-set y buffer_colored (elem y buffer))
 					(setq buffer (erase buffer (inc y) (+ y 2)))
 					(setq buffer_colored (erase buffer_colored (inc y) (+ y 2)))
-					(setq buffer_states (erase buffer_states (inc y) (+ y 2))))
-				(t	(elem-set y buffer (erase (elem y buffer) (dec x) x))
+					(setq buffer_states (erase buffer_states (inc y) (+ y 2)))
+					(push (get :undo_stack this) (list :break x y)))
+				(t	(defq undo (slice (dec x) x (elem y buffer)))
+					(elem-set y buffer (erase (elem y buffer) (dec x) x))
 					(elem-set y buffer_colored (elem y buffer))
-					(setq x (dec x))))))
+					(setq x (dec x))
+					(push (get :undo_stack this) (list :insert x y undo))))))
 
 	(defmethod :delete (this)
 		; (. buffer :delete) -> buffer
@@ -179,9 +187,12 @@
 						(elem-set y buffer_colored (elem y buffer))
 						(setq buffer (erase buffer (inc y) (+ y 2)))
 						(setq buffer_colored (erase buffer_colored (inc y) (+ y 2)))
-						(setq buffer_states (erase buffer_states (inc y) (+ y 2)))))
-				(t	(elem-set y buffer (erase (elem y buffer) x (inc x)))
-					(elem-set y buffer_colored (elem y buffer))))))
+						(setq buffer_states (erase buffer_states (inc y) (+ y 2)))
+						(push (get :undo_stack this) (list :break x y))))
+				(t	(defq undo (slice x (inc x) (elem y buffer)))
+					(elem-set y buffer (erase (elem y buffer) x (inc x)))
+					(elem-set y buffer_colored (elem y buffer))
+					(push (get :undo_stack this) (list :insert x y undo))))))
 
 	(defmethod :insert (this string)
 		; (. buffer :insert string) -> buffer
@@ -193,7 +204,35 @@
 					(setq buffer_states (insert buffer_states y '((nil nil)))))
 				(t	(elem-set y buffer (insert (elem y buffer) x string))
 					(elem-set y buffer_colored (elem y buffer))))
-			(setq x (+ x (length string)))))
+			(setq x (+ x (length string)))
+			(push (get :undo_stack this) (list :backspace x y))))
+
+	(defmethod :undo (this)
+		; (. buffer :undo) -> buffer
+		(when (defq undo (pop (get :undo_stack this)))
+			(defq redo_stack (cat (get :redo_stack this)))
+			(bind '(_ x y &rest _) undo)
+			(. this :set_cursor x y)
+			(case (elem 0 undo)
+				(:break (. this :break))
+				(:backspace (. this :backspace))
+				(:insert (. this :insert (pop undo))))
+			(push (set this :redo_stack redo_stack) (pop (get :undo_stack this))))
+		this)
+
+	(defmethod :redo (this)
+		; (. buffer :redo) -> buffer
+		(defq redo_stack (cat (get :redo_stack this)))
+		(when (defq redo (pop redo_stack))
+			(bind '(_ x y &rest _) redo)
+			(. this :set_cursor x y)
+			(case (elem 0 redo)
+				(:break (. this :break))
+				(:backspace (. this :backspace))
+				(:insert (. this :insert (pop redo))))
+			(set this :redo_stack redo_stack))
+		this)
+
 	)
 
 ;module
