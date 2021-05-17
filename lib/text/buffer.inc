@@ -69,6 +69,15 @@
 			:buffer_states buffer_states :max_width max_width :dirty t)
 		this)
 
+	(defmethod :file_save (this filepath)
+		; (. buffer :file_save filepath) -> buffer
+		(defq syntax (get :syntax this) tab_width (get :tab_width this)
+			stream (file-stream filepath +file_open_write))
+		(each (lambda (line)
+				(write-line stream (. syntax :compress_tabs line tab_width)))
+			(get :buffer this))
+		this)
+
 	(defmethod :vdu_load (this vdu)
 		; (. buffer :vdu_load vdu) -> buffer
 		(when (get :dirty this)

@@ -178,21 +178,40 @@
 			token_list col_list)
 		(apply cat state_list))
 
-	(defmethod :expand_tabs (this line tabs)
-		; (. syntax :expand_tabs str tabs) -> str
+	(defmethod :expand_tabs (this string tab_width)
+		; (. syntax :expand_tabs string tab_width) -> string
 		;tab expantion of string
 		(cond
-			((> (length line) 0)
+			((> (length string) 0)
 				(defq cursor 0)
 				(apply cat (map (#
 					(cond
 						((eql %0 (ascii-char 9))
-							(defq padding (- tabs (% cursor tabs)))
+							(defq padding (- tab_width (% cursor tab_width)))
 							(setq cursor (+ cursor padding))
 							(slice 0 padding "        "))
 						(t	(setq cursor (inc cursor))
-							%0))) line)))
-			(line)))
+							%0))) string)))
+			(string)))
+
+	(defmethod :compress_tabs (this string tab_width)
+		; (. syntax :compress_tabs string tab_width) -> string
+		;tab compression of string
+		(cond
+			((> (length string) 0)
+				(defq whitespace "")
+				(apply cat (reduce (#
+					(cond
+						((eql %1 " ")
+							(setq whitespace (cat whitespace " "))
+							(when (= (length whitespace) tab_width)
+								(setq whitespace "")
+								(push %0 (ascii-char 9)))
+							%0)
+						(t	(push %0 whitespace %1)
+							(setq whitespace "")
+							%0))) string (list))))
+			(string)))
 	)
 
 ;module

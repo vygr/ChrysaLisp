@@ -38,11 +38,14 @@
 		(. text_buf :insert " ")))
 
 ;undo
-(binding key_map_control +char_z
+(binding key_map_control (code "z")
 	(. text_buf :undo))
 ;redo
-(binding key_map_control +char_Z
+(binding key_map_control (code "Z")
 	(. text_buf :redo))
+;save
+(binding key_map_control (code "s")
+	(. text_buf :file_save current_file))
 
 ;module
 (export (penv)
