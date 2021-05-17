@@ -3,6 +3,7 @@
 ;;;;;;;;;;;;;;;;;;;;
 
 (import "lib/text/syntax.inc")
+(import "lib/consts/chars.inc")
 
 ;module
 (env-push)
@@ -63,7 +64,7 @@
 				(push buffer_colored line)
 				(push buffer_states '(nil nil)))
 			(file-stream filepath))
-			(clear (get :undo_stack this) (get :redo_stack this))
+		(clear (get :undo_stack this) (get :redo_stack this))
 		(set this :buffer buffer :buffer_colored buffer_colored
 			:buffer_states buffer_states :max_width max_width :dirty t)
 		this)
