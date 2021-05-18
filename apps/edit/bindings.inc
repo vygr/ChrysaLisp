@@ -1,3 +1,5 @@
+(import "lib/consts/chars.inc")
+
 ;module
 (env-push)
 
@@ -37,14 +39,23 @@
 	(. text_buf :insert (pad "" (- tab_width (% x tab_width)) "        ")))
 
 ;undo
-(binding key_map_control (code "z")
+(binding key_map_control (ascii-code "z")
 	(. text_buf :undo))
 ;redo
-(binding key_map_control (code "Z")
+(binding key_map_control (ascii-code "Z")
 	(. text_buf :redo))
 ;save
-(binding key_map_control (code "s")
+(binding key_map_control (ascii-code "s")
 	(. text_buf :file_save current_file))
+;cut
+(binding key_map_control (ascii-code "x")
+	(. text_buf :cut))
+;copy
+(binding key_map_control (ascii-code "c")
+	(. text_buf :copy))
+;paste
+(binding key_map_control (ascii-code "v")
+	(. text_buf :paste (join '("" "test" "" "" "one" "two" "") (ascii-char +char_lf))))
 
 ;module
 (export (penv)

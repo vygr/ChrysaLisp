@@ -8,7 +8,7 @@
 	(enum close max min)
 	(enum layout xscroll yscroll)
 	(enum tree_action folder_action leaf_action)
-	(enum save undo redo))
+	(enum save undo redo cut copy paste))
 
 (defq vdu_min_width 16 vdu_min_height 16
 	vdu_max_width 120 vdu_max_height 50
@@ -19,7 +19,7 @@
 (ui-window mywindow (:color +argb_grey2)
 	(ui-title-bar mytitle "" (0xea19 0xea1b 0xea1a) +event_close)
 	(ui-tool-bar _ ()
-		(ui-buttons (0xea07 0xe9fe 0xe99d) +event_save))
+		(ui-buttons (0xea07 0xe9fe 0xe99d 0xea08 0xe9ca 0xe9c9) +event_save))
 	(ui-flow _ (:flow_flags +flow_right_fill :font *env_terminal_font*)
 		(ui-scroll tree_scroll +scroll_flag_vertical nil
 			(. (ui-tree tree +event_tree_action (:min_width 0 :color +argb_white))
@@ -154,6 +154,18 @@
 		((= id +event_redo)
 			;redo
 			(. text_buf :redo)
+			(refresh))
+		((= id +event_cut)
+			;cut
+			(. text_buf :cut)
+			(refresh))
+		((= id +event_copy)
+			;copy
+			(. text_buf :copy)
+			(refresh))
+		((= id +event_paste)
+			;copy
+			(. text_buf :paste (join '("" "test" "" "" "one" "two" "") (ascii-char +char_lf)))
 			(refresh))
 		((= id +event_xscroll)
 			;user xscroll bar

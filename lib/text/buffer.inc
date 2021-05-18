@@ -22,6 +22,17 @@
 			:buffer_states buffer_states :dirty t)
 		(. this :set_cursor x y)))
 
+(defun redo ()
+	(. this :set_cursor x y)
+	(case state
+		(:break (. this :break))
+		(:backspace (. this :backspace data))
+		(:insert (. this :insert data))))
+
+(defun undo ()
+	(redo)
+	(push redo_stack (pop undo_stack)))
+
 (defclass Buffer () nil
 	; (Buffer) -> buffer
 	(def this :buffer (list) :buffer_colored (list) :buffer_states (list)
@@ -218,32 +229,59 @@
 			(setq x (+ x (length string)))
 			(push (get :undo_stack this) (list :backspace x y (length string)))))
 
+	(defmethod :cut (this)
+		; (. buffer :cut) -> string
+		(join '("" "cut result" "") (ascii-char +char_lf)))
+
+	(defmethod :copy (this)
+		; (. buffer :copy) -> string
+		(join '("" "copy result" "") (ascii-char +char_lf)))
+
+	(defmethod :paste (this string)
+		; (. buffer :paste string) -> this
+		(push (defq undo_stack (get :undo_stack this)) '(:mark))
+		(while (defq idx (find (ascii-char +char_lf) string))
+			(when (> idx 0)
+				(. this :insert (slice 0 idx string)))
+			(. this :break)
+			(setq string (slice (inc idx) -1 string)))
+		(if (> (length string) 0) (. this :insert string))
+		(push undo_stack '(:mark))
+		this)
+
 	(defmethod :undo (this)
 		; (. buffer :undo) -> buffer
-		(when (defq data (pop (get :undo_stack this)))
+		(when (defq data (pop (defq undo_stack (get :undo_stack this))))
 			(defq redo_stack (cat (get :redo_stack this)))
-			(bind '(state x y &optional data) data)
-			(. this :set_cursor x y)
-			(case state
-				(:break (. this :break))
-				(:backspace (. this :backspace data))
-				(:insert (. this :insert data)))
-			(push (set this :redo_stack redo_stack) (pop (get :undo_stack this))))
+			(bind '(state &optional x y data) data)
+			(cond
+				((eql state :mark)
+					(push redo_stack '(:mark))
+					(bind '(state &optional x y data) (pop undo_stack))
+					(until (eql state :mark)
+						(undo)
+						(bind '(state &optional x y data) (pop undo_stack)))
+					(push redo_stack '(:mark)))
+				(t	(undo)))
+			(set this :redo_stack redo_stack))
 		this)
 
 	(defmethod :redo (this)
 		; (. buffer :redo) -> buffer
-		(defq redo_stack (cat (get :redo_stack this)))
-		(when (defq data (pop redo_stack))
-			(bind '(state x y &optional data) data)
-			(. this :set_cursor x y)
-			(case state
-				(:break (. this :break))
-				(:backspace (. this :backspace data))
-				(:insert (. this :insert data)))
+		(when (defq data (pop (defq redo_stack (get :redo_stack this))))
+			(defq undo_stack (get :undo_stack this) redo_stack (cat redo_stack))
+			(bind '(state &optional x y data) data)
+			(cond
+				((eql state :mark)
+					(push undo_stack '(:mark))
+					(bind '(state &optional x y data) (pop redo_stack))
+					(until (eql state :mark)
+						(redo)
+						(bind '(state &optional x y data) (pop redo_stack)))
+					(push undo_stack '(:mark)))
+				(t	(redo)))
 			(set this :redo_stack redo_stack))
 		this)
-
 	)
 
 ;module

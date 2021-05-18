@@ -3,6 +3,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "gui/canvas/lisp.inc")
+(import "lib/consts/chars.inc")
 (import "lib/consts/colors.inc")
 
 ;module
@@ -123,7 +124,7 @@
 								(setq token (list) state :text))))
 					(:string1
 						(push token c)
-						(when (eql c (ascii-char 34))
+						(when (eql c (ascii-char +char_double_quote))
 							(push state_list state)
 							(push token_list token)
 							(setq token (list) state :text))
@@ -186,7 +187,7 @@
 				(defq cursor 0)
 				(apply cat (map (#
 					(cond
-						((eql %0 (ascii-char 9))
+						((eql %0 (ascii-char +char_tab))
 							(defq padding (- tab_width (% cursor tab_width)))
 							(setq cursor (+ cursor padding))
 							(slice 0 padding "        "))
@@ -208,7 +209,7 @@
 							(setq whitespace (cat whitespace " "))
 							(when (= (length whitespace) tab_width)
 								(setq whitespace "")
-								(push %0 (ascii-char 9)))
+								(push %0 (ascii-char +char_tab)))
 							%0)
 						(t	(push %0 whitespace %1)
 							(setq whitespace "X")

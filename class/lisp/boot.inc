@@ -410,7 +410,7 @@
 
 (defun nempty? (_)
 	; (nempty? form) -> bool
-	(if (seq? _) (/= (length _) 0)))
+	(if (seq? _) (> (length _) 0)))
 
 ;;;;;;;;;;;
 ; Sequences
@@ -559,7 +559,7 @@
 
 (defmacro ascii-char (_)
 	; (ascii-char num) -> char
-	(char _))
+	(char (eval _)))
 
 (defun ascii-upper (_)
 	; (ascii-upper num) -> num
