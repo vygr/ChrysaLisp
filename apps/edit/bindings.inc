@@ -34,8 +34,7 @@
 (binding key_map +char_tab
 	(bind '(x y) (. text_buf :get_cursor))
 	(defq tab_width (get :tab_width text_buf))
-	(times (- tab_width (% x tab_width))
-		(. text_buf :insert " ")))
+	(. text_buf :insert (pad "" (- tab_width (% x tab_width)) "        ")))
 
 ;undo
 (binding key_map_control (code "z")

@@ -162,9 +162,10 @@
 			(setq x 0 y (inc y))
 			(push (get :undo_stack this) (list :backspace x y))))
 
-	(defmethod :backspace (this)
-		; (. buffer :backspace) -> buffer
+	(defmethod :backspace (this &optional num)
+		; (. buffer :backspace &optional num) -> buffer
 		(mutate-buffer
+			(setd num 1)
 			(cond
 				((and (<= x 0) (<= y 0)))
 				((>= y h)
@@ -180,10 +181,10 @@
 					(setq buffer_colored (erase buffer_colored (inc y) (+ y 2)))
 					(setq buffer_states (erase buffer_states (inc y) (+ y 2)))
 					(push (get :undo_stack this) (list :break x y)))
-				(t	(defq undo (slice (dec x) x (elem y buffer)))
-					(elem-set y buffer (erase (elem y buffer) (dec x) x))
+				(t	(defq undo (slice (- x num) x (elem y buffer)))
+					(elem-set y buffer (erase (elem y buffer) (- x num) x))
 					(elem-set y buffer_colored (elem y buffer))
-					(setq x (dec x))
+					(setq x (- x num))
 					(push (get :undo_stack this) (list :insert x y undo))))))
 
 	(defmethod :delete (this)
@@ -215,31 +216,31 @@
 				(t	(elem-set y buffer (insert (elem y buffer) x string))
 					(elem-set y buffer_colored (elem y buffer))))
 			(setq x (+ x (length string)))
-			(push (get :undo_stack this) (list :backspace x y))))
+			(push (get :undo_stack this) (list :backspace x y (length string)))))
 
 	(defmethod :undo (this)
 		; (. buffer :undo) -> buffer
-		(when (defq undo (pop (get :undo_stack this)))
+		(when (defq data (pop (get :undo_stack this)))
 			(defq redo_stack (cat (get :redo_stack this)))
-			(bind '(state x y &rest _) undo)
+			(bind '(state x y &optional data) data)
 			(. this :set_cursor x y)
 			(case state
 				(:break (. this :break))
-				(:backspace (. this :backspace))
-				(:insert (. this :insert (pop undo))))
+				(:backspace (. this :backspace data))
+				(:insert (. this :insert data)))
 			(push (set this :redo_stack redo_stack) (pop (get :undo_stack this))))
 		this)
 
 	(defmethod :redo (this)
 		; (. buffer :redo) -> buffer
 		(defq redo_stack (cat (get :redo_stack this)))
-		(when (defq redo (pop redo_stack))
-			(bind '(state x y &rest _) redo)
+		(when (defq data (pop redo_stack))
+			(bind '(state x y &optional data) data)
 			(. this :set_cursor x y)
 			(case state
 				(:break (. this :break))
-				(:backspace (. this :backspace))
-				(:insert (. this :insert (pop redo))))
+				(:backspace (. this :backspace data))
+				(:insert (. this :insert data)))
 			(set this :redo_stack redo_stack))
 		this)
 
