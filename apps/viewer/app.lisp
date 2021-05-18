@@ -65,7 +65,7 @@
 	;load up the vdu widget from this file
 	(. text_buf :file_load (setq current_file file))
 	(bind '(scroll_x scroll_y) (set-sliders file))
-	(.-> text_buf (:set_scroll scroll_x scroll_y) (:set_cursor -1 -1) (:vdu_load vdu))
+	(.-> text_buf (:set_cursor -1 -1) (:vdu_load vdu scroll_x scroll_y))
 	(def mytitle :text (cat "Viewer -> " file))
 	(.-> mytitle :layout :dirty))
 
@@ -92,7 +92,7 @@
 	(bind '(w h) (. vdu :pref_size))
 	(bind '(scroll_x scroll_y) (set-sliders current_file))
 	(set vdu :min_width vdu_min_width :min_height vdu_min_height)
-	(.-> text_buf (:set_scroll scroll_x scroll_y) (:vdu_load (. vdu :change x y w h))))
+	(. text_buf :vdu_load (. vdu :change x y w h) scroll_x scroll_y))
 
 (defun vdu-resize (w h)
 	;size the vdu and layout the window to fit
@@ -103,7 +103,7 @@
 	(set vdu :min_width vdu_min_width :min_height vdu_min_height)
 	(. mywindow :change_dirty x y w h)
 	(bind '(scroll_x scroll_y) (set-sliders current_file))
-	(.-> text_buf (:set_scroll scroll_x scroll_y) (:vdu_load vdu)))
+	(. text_buf :vdu_load (. vdu :change x y w h) scroll_x scroll_y))
 
 (defun main ()
 	(populate-tree)
@@ -111,7 +111,7 @@
 	(. tree :change 0 0 (def tree_scroll :min_width w) h)
 	(bind '(x y w h) (apply view-locate (.-> mywindow (:connect +event_layout) :pref_size)))
 	(gui-add (. mywindow :change x y w h))
-	(. text_buf :vdu_load vdu)
+	(. text_buf :vdu_load vdu 0 0)
 	(while (cond
 		((= (defq id (getf (defq msg (mail-read (task-mailbox))) +ev_msg_target_id)) +event_close)
 			nil)
@@ -135,7 +135,7 @@
 			(bind '(scroll_x scroll_y) (. scroll_map :find current_file))
 			(defq scroll_y (get :value yslider))
 			(. scroll_map :insert current_file (list scroll_x scroll_y))
-			(.-> text_buf (:set_scroll scroll_x scroll_y) (:vdu_load vdu)))
+			(. text_buf :vdu_load vdu scroll_x scroll_y))
 		((= id +event_tree_action)
 			;tree view action
 			(bind '(w h) (. tree :pref_size))

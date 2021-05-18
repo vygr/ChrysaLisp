@@ -37,17 +37,7 @@
 	; (Buffer) -> buffer
 	(def this :buffer (list) :buffer_colored (list) :buffer_states (list)
 		:dirty nil :syntax (Syntax) :undo_stack (list) :redo_stack (list)
-		:cursor_x 0 :cursor_y 0 :scroll_x 0 :scroll_y 0
-		:max_width 0 :tab_width 4)
-
-	(defmethod :set_scroll (this x y)
-		; (. buffer :set_scroll x y) -> buffer
-		(set this :scroll_x x :scroll_y y)
-		this)
-
-	(defmethod :get_scroll (this)
-		; (. buffer :get_scroll) -> (x y)
-		(list (get :scroll_x this) (get :scroll_y this)))
+		:cursor_x 0 :cursor_y 0 :max_width 0 :tab_width 4)
 
 	(defmethod :set_cursor (this x y)
 		; (. buffer :set_cursor x y) -> buffer
@@ -89,8 +79,8 @@
 			(get :buffer this))
 		this)
 
-	(defmethod :vdu_load (this vdu)
-		; (. buffer :vdu_load vdu) -> buffer
+	(defmethod :vdu_load (this vdu scroll_x scroll_y)
+		; (. buffer :vdu_load vdu scroll_x scroll_y) -> buffer
 		(when (get :dirty this)
 			(set this :dirty nil)
 			(defq syntax (get :syntax this)
@@ -109,8 +99,7 @@
 				buffer buffer_colored buffer_states))
 		(. vdu :load
 			(get :buffer_colored this)
-			(get :scroll_x this) (get :scroll_y this)
-			(get :cursor_x this) (get :cursor_y this))
+			scroll_x scroll_y (get :cursor_x this) (get :cursor_y this))
 		this)
 
 	(defmethod :constrain (this x y)
