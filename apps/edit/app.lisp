@@ -7,7 +7,8 @@
 (enums +event 0
 	(enum close max min)
 	(enum layout xscroll yscroll)
-	(enum tree_action folder_action leaf_action))
+	(enum tree_action folder_action leaf_action)
+	(enum save undo redo))
 
 (defq vdu_min_width 16 vdu_min_height 16
 	vdu_max_width 120 vdu_max_height 50
@@ -17,6 +18,8 @@
 
 (ui-window mywindow (:color +argb_grey2)
 	(ui-title-bar mytitle "" (0xea19 0xea1b 0xea1a) +event_close)
+	(ui-tool-bar _ ()
+		(ui-buttons (0xea07 0xe9fe 0xe99d) +event_save))
 	(ui-flow _ (:flow_flags +flow_right_fill :font *env_terminal_font*)
 		(ui-scroll tree_scroll +scroll_flag_vertical nil
 			(. (ui-tree tree +event_tree_action (:min_width 0 :color +argb_white))
@@ -141,6 +144,17 @@
 		((= id +event_max)
 			;max button
 			(vdu-resize vdu_max_width vdu_max_height))
+		((= id +event_save)
+			;save
+			(. text_buf :file_save current_file))
+		((= id +event_undo)
+			;undo
+			(. text_buf :undo)
+			(refresh))
+		((= id +event_redo)
+			;redo
+			(. text_buf :redo)
+			(refresh))
 		((= id +event_xscroll)
 			;user xscroll bar
 			(bind '(scroll_x scroll_y) (. scroll_map :find current_file))
