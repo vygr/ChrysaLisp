@@ -1,6 +1,7 @@
 (import "sys/lisp.inc")
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
+(import "apps/clipboard/app.inc")
 (import "lib/consts/chars.inc")
 (import "lib/text/buffer.inc")
 
@@ -156,17 +157,17 @@
 			(. text_buf :redo)
 			(refresh))
 		((= id +event_cut)
-			;cut
-			(. text_buf :cut)
+			;cut selection to clipboard
+			(clipboard-put (. text_buf :cut))
 			(refresh))
 		((= id +event_copy)
-			;copy
-			(. text_buf :copy)
-			(refresh))
+			;copy selection to clipboard
+			(clipboard-put (. text_buf :copy)))
 		((= id +event_paste)
-			;copy
-			(. text_buf :paste (join '("" "test" "" "" "one" "two" "") (ascii-char +char_lf)))
-			(refresh))
+			;paste from clipboard if present
+			(unless (eql (defq data (clipboard-get)) "")
+				(. text_buf :paste data)
+				(refresh)))
 		((= id +event_xscroll)
 			;user xscroll bar
 			(bind '(scroll_x scroll_y) (. scroll_map :find current_file))

@@ -1,5 +1,3 @@
-(import "lib/consts/chars.inc")
-
 ;module
 (env-push)
 
@@ -49,13 +47,14 @@
 	(. text_buf :file_save current_file))
 ;cut
 (binding key_map_control (ascii-code "x")
-	(. text_buf :cut))
+	(clipboard-put (. text_buf :cut)))
 ;copy
 (binding key_map_control (ascii-code "c")
-	(. text_buf :copy))
+	(clipboard-put (. text_buf :copy)))
 ;paste
 (binding key_map_control (ascii-code "v")
-	(. text_buf :paste (join '("" "test" "" "" "one" "two" "") (ascii-char +char_lf))))
+	(unless (eql (defq data (clipboard-get)) "")
+		(. text_buf :paste data)))
 
 ;module
 (export (penv)

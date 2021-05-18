@@ -1,24 +1,16 @@
-(enums +event 0
-	(enum close))
-
-(defq select (list (task-mailbox) (mail-alloc-mbox))
-	clip_service (mail-declare (elem -2 select) "CLIPBOARD_SERVICE" "Clipboard Service 0.1"))
+(import "apps/clipboard/app.inc")
 
 (defun main ()
-	(defq id t clipboard (list))
-	(while id
-		(defq idx (mail-select select) msg (mail-read (elem idx select)))
+	(defq clip_service (mail-declare (task-mailbox) "CLIPBOARD_SERVICE" "Clipboard Service 0.2")
+		clipboard (list))
+	(while t
+		(defq msg (mail-read (task-mailbox)))
 		(cond
-			((/= idx 0)
-				(cond
-					((eql (defq req_type (first msg)) "GET")
-						(unless (empty? clipboard)
-							(defq reply (last clipboard))
-							(mail-send (second msg) reply)))
-					((eql req_type "PUT")
-						(push clipboard (second msg)))))
-			(t	;close
-				(setq id nil))))
-	;shutdown, if requested.
-	(mail-free-mbox (pop select))
+			((= (defq type (getf msg +clipboard_event_type)) +clip_type_put)
+				;put string on clipboard
+				(push clipboard (slice +clipboard_put_data -1 msg)))
+			((= type +clip_type_get)
+				;get string from clipboard
+				(mail-send (getf msg +clipboard_get_reply)
+					(if (defq data (pop clipboard)) data "")))))
 	(mail-forget clip_service))

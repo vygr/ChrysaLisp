@@ -10,6 +10,8 @@ Edit app re-write started. Basic editing first stage.
 
 Key modifiers passed in GUI key events.
 
+New text Buffer class. `lib/text/buffer.inc`
+
 ------
 
 Rename 'local-align' just 'align' as it's no longer a function but a simple
