@@ -11,11 +11,12 @@
 	(enum tree_action folder_action leaf_action)
 	(enum save undo redo cut copy paste))
 
-(defq vdu_min_width 16 vdu_min_height 16
-	vdu_max_width 120 vdu_max_height 50
-	vdu_width 80 vdu_height 40 tabs 4
-	text_buf (Buffer) scroll_map (xmap 31)
-	current_file nil selected_node nil id t mouse_state :u)
+(defq vdu_min_width 16 vdu_min_height 16 vdu_max_width 120 vdu_max_height 50
+	vdu_width 80 vdu_height 40 tabs 4 anchor_x 0 anchor_y 0
+	text_buf (Buffer) scroll_map (xmap 31) underlay (list)
+	current_file nil selected_node nil id t mouse_state :u
+	+selected (apply array (map (lambda (_) 0x80000000) (range 0 1024)))
+	+not_selected (apply array (map (lambda (_) 0) (range 0 1024))))
 
 (ui-window mywindow (:color +argb_grey2)
 	(ui-title-bar mytitle "" (0xea19 0xea1b 0xea1a) +event_close)
@@ -29,9 +30,13 @@
 			(. (ui-slider yslider) :connect +event_yscroll)
 			(ui-flow _ (:flow_flags +flow_up_fill)
 				(. (ui-slider xslider) :connect +event_xscroll)
-				(ui-vdu vdu (:min_width vdu_width :min_height vdu_height
-					:vdu_width vdu_width :vdu_height vdu_height
-					:ink_color +argb_white))))))
+				(ui-flow _ (:flow_flags +flow_stack_fill)
+					(ui-vdu vdu (:min_width vdu_width :min_height vdu_height
+						:vdu_width vdu_width :vdu_height vdu_height
+						:ink_color +argb_white))
+					(ui-vdu vdu_underlay (:vdu_width vdu_width :vdu_height vdu_height
+						:min_width 0 :min_height 0
+						:ink_color +argb_grey6)))))))
 
 (defun all-src-files (root)
 	;all source files from root downwards, none recursive
@@ -53,6 +58,38 @@
 				(unzip (split (pii-dirlist root) ",") (list (list) (list))))))
 	files)
 
+(defun create-underlay ()
+	;create the underlay
+	(bind '(x y) (. text_buf :get_cursor))
+	(if (<= y anchor_y)
+		(defq x1 anchor_x y1 anchor_y)
+		(defq x1 x y1 y x anchor_x y anchor_y))
+	(and (= y y1) (> x x1)
+		(defq tx x x x1 x1 tx))
+	(setq underlay (cap y1 (list)))
+	(defq uy 0 buffer (get :buffer text_buf))
+	(while (< uy y)
+		(push underlay "")
+		(setq uy (inc uy)))
+	(cond
+		((= y y1)
+			(push underlay (cat (slice 0 x +not_selected) (slice x x1 +selected))))
+		(t	(push underlay (cat (slice 0 x +not_selected) (slice x (length (elem y buffer)) +selected)))
+			(while (< (setq y (inc y)) y1)
+				(push underlay (slice 0 (length (elem y buffer)) +selected)))
+			(push underlay (slice 0 x1 +selected)))))
+
+(defun clear-underlay ()
+	;clear the underlay
+	(bind '(x y) (. text_buf :get_cursor))
+	(setq anchor_x x anchor_y y)
+	(clear underlay))
+
+(defun load-display (scroll_x scroll_y)
+	;load the vdu widgets with the text and selection underlay
+	(. text_buf :vdu_load vdu scroll_x scroll_y)
+	(. vdu_underlay :load underlay scroll_x scroll_y -1 -1))
+
 (defun set-sliders (file)
 	;set slider values for this file
 	(bind '(scroll_x scroll_y) (. scroll_map :find file))
@@ -69,8 +106,10 @@
 (defun populate-vdu (file)
 	;load up the vdu widget from this file
 	(. text_buf :file_load (setq current_file file))
+	(clear-underlay)
 	(bind '(scroll_x scroll_y) (set-sliders file))
-	(.-> text_buf (:set_cursor 0 0) (:vdu_load vdu scroll_x scroll_y))
+	(. text_buf :set_cursor 0 0)
+	(load-display scroll_x scroll_y)
 	(def mytitle :text (cat "Edit -> " file))
 	(.-> mytitle :layout :dirty))
 
@@ -93,35 +132,41 @@
 	;layout the window and size the vdu to fit
 	(setq vdu_width w vdu_height h)
 	(set vdu :vdu_width w :vdu_height h :min_width w :min_height h)
+	(set vdu_underlay :vdu_width w :vdu_height h)
 	(bind '(x y) (. vdu :get_pos))
 	(bind '(w h) (. vdu :pref_size))
 	(bind '(scroll_x scroll_y) (set-sliders current_file))
 	(set vdu :min_width vdu_min_width :min_height vdu_min_height)
-	(. text_buf :vdu_load (. vdu :change x y w h) scroll_x scroll_y))
+	(set vdu_underlay :min_width vdu_min_width :min_height vdu_min_height)
+	(. vdu :change x y w h)
+	(. vdu_underlay :change x y w h)
+	(load-display scroll_x scroll_y))
 
 (defun vdu-resize (w h)
 	;size the vdu and layout the window to fit
 	(setq vdu_width w vdu_height h)
 	(set vdu :vdu_width w :vdu_height h :min_width w :min_height h)
+	(set vdu_underlay :vdu_width w :vdu_height h)
 	(bind '(x y w h) (apply view-fit
 		(cat (. mywindow :get_pos) (. mywindow :pref_size))))
 	(set vdu :min_width vdu_min_width :min_height vdu_min_height)
+	(set vdu_underlay :min_width vdu_min_width :min_height vdu_min_height)
 	(. mywindow :change_dirty x y w h)
 	(bind '(scroll_x scroll_y) (set-sliders current_file))
-	(. text_buf :vdu_load vdu scroll_x scroll_y))
+	(load-display scroll_x scroll_y))
 
 (defun refresh ()
 	;refresh display and ensure cursor is visible
 	(bind '(cx cy) (. text_buf :get_cursor))
-	(bind '(sx sy) (. scroll_map :find current_file))
+	(bind '(scroll_x scroll_y) (. scroll_map :find current_file))
 	(bind '(w h) (. vdu :vdu_size))
-	(if (< cx sx) (setq sx cx))
-	(if (< cy sy) (setq sy cy))
-	(if (>= cx (+ sx w)) (setq sx (- cx w -1)))
-	(if (>= cy (+ sy h)) (setq sy (- cy h -1)))
-	(. scroll_map :insert current_file (list sx sy))
-	(bind '(sx sy) (set-sliders current_file))
-	(. text_buf :vdu_load vdu sx sy))
+	(if (< cx scroll_x) (setq scroll_x cx))
+	(if (< cy scroll_y) (setq scroll_y cy))
+	(if (>= cx (+ scroll_x w)) (setq scroll_x (- cx w -1)))
+	(if (>= cy (+ scroll_y h)) (setq scroll_y (- cy h -1)))
+	(. scroll_map :insert current_file (list scroll_x scroll_y))
+	(bind '(scroll_x scroll_y) (set-sliders current_file))
+	(load-display scroll_x scroll_y))
 
 ;import key binding after any editor functions are defind !
 (import "apps/edit/bindings.inc")
@@ -132,7 +177,7 @@
 	(. tree :change 0 0 (def tree_scroll :min_width w) h)
 	(bind '(x y w h) (apply view-locate (.-> mywindow (:connect +event_layout) :pref_size)))
 	(gui-add (. mywindow :change x y w h))
-	(. text_buf :vdu_load vdu 0 0)
+	(load-display 0 0)
 	(while id (cond
 		((= (setq id (getf (defq msg (mail-read (task-mailbox))) +ev_msg_target_id)) +event_close)
 			(setq id nil))
@@ -173,13 +218,13 @@
 			(bind '(scroll_x scroll_y) (. scroll_map :find current_file))
 			(defq scroll_x (get :value xslider))
 			(. scroll_map :insert current_file (list scroll_x scroll_y))
-			(. text_buf :vdu_load vdu scroll_x scroll_y))
+			(load-display scroll_x scroll_y))
 		((= id +event_yscroll)
 			;user yscroll bar
 			(bind '(scroll_x scroll_y) (. scroll_map :find current_file))
 			(defq scroll_y (get :value yslider))
 			(. scroll_map :insert current_file (list scroll_x scroll_y))
-			(. text_buf :vdu_load vdu scroll_x scroll_y))
+			(load-display scroll_x scroll_y))
 		((= id +event_tree_action)
 			;tree view action
 			(bind '(w h) (. tree :pref_size))
@@ -211,18 +256,19 @@
 						(:d	;was down last time
 							(bind '(x y) (. text_buf :constrain x y))
 							(. text_buf :set_cursor x y)
-							(refresh))
+							(create-underlay))
 						(:u	;was up last time
 							(bind '(x y) (. text_buf :constrain x y))
 							(. text_buf :set_cursor x y)
-							(refresh)
-							(setq mouse_state :d))))
+							(setq anchor_x x anchor_y y mouse_state :d)
+							(create-underlay))))
 				(t	;mouse button is up
 					(case mouse_state
 						(:d	;was down last time
 							(setq mouse_state :u))
 						(:u	;was up last time
-							)))))
+							))))
+			(refresh))
 		((and (= (getf msg +ev_msg_type) +ev_type_key)
 				(> (getf msg +ev_msg_key_keycode) 0))
 			;key event
@@ -231,14 +277,15 @@
 				((/= 0 (logand mod (const (+ +ev_key_mod_control +ev_key_mod_command))))
 					;call bound control/command key action
 					(when (defq action (. key_map_control :find key))
-						(action) (refresh)))
+						(action)))
 				((defq action (. key_map :find key))
 					;call bound key action
-					(action) (refresh))
+					(action))
 				((<= +char_space key +char_tilda)
 					;insert the char
-					(. text_buf :insert (char key))
-					(refresh))))
+					(. text_buf :insert (char key))))
+			(clear-underlay)
+			(refresh))
 		(t	;gui event
 			(. mywindow :event msg))))
 	(. mywindow :hide))

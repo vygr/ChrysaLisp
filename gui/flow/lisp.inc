@@ -15,7 +15,8 @@
 (defq +flow_down_fill (num-intern (logior +flow_flag_down +flow_flag_fillw +flow_flag_lasth))
 	+flow_up_fill (num-intern (logior +flow_flag_up +flow_flag_fillw +flow_flag_lasth))
 	+flow_right_fill (num-intern (logior +flow_flag_right +flow_flag_fillh +flow_flag_lastw))
-	+flow_left_fill (num-intern (logior +flow_flag_left +flow_flag_fillh +flow_flag_lastw)))
+	+flow_left_fill (num-intern (logior +flow_flag_left +flow_flag_fillh +flow_flag_lastw))
+	+flow_stack_fill (num-intern (logior +flow_flag_fillw +flow_flag_fillh +flow_flag_lastw +flow_flag_lasth)))
 
 (defclass Flow () (View)
 	; (Flow) -> flow
