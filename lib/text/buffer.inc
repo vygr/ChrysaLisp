@@ -27,7 +27,8 @@
 	(case state
 		(:break (. this :break))
 		(:backspace (. this :backspace data))
-		(:insert (. this :insert data))))
+		(:insert (. this :insert data))
+		(:cursor (push undo_stack (list :cursor x y)))))
 
 (defun undo ()
 	(redo)
@@ -221,14 +222,14 @@
 
 	(defmethod :cut (this anchor_x anchor_y)
 		; (. buffer :cut anchor_x anchor_y) -> string
-		(bind '(sx sy) (. this :get_cursor))
-		(bind '(sx sy) (. this :constrain sx sy))
+		(bind '(x y) (. this :get_cursor))
+		(bind '(sx sy) (. this :constrain x y))
 		(bind '(sx1 sy1) (. this :constrain anchor_x anchor_y))
 		(cond
 			((and (= sx sx1) (= sy sy1)) "")
 			(t	(if (> sy sy1) (defq tx sx ty sy sx sx1 sy sy1 sx1 tx sy1 ty))
 				(and (= sy sy1) (> sx sx1) (defq tx sx sx sx1 sx1 tx))
-				(push (defq undo_stack (get :undo_stack this)) '(:mark))
+				(push (defq undo_stack (get :undo_stack this)) '(:mark) (list :cursor x y))
 				(defq lines (list))
 				(. this :set_cursor sx sy)
 				(cond
