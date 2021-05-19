@@ -4,63 +4,42 @@
 ;default key bindings map
 (defq key_map (xmap) key_map_control (xmap))
 
-(defmacro binding (kmap key &rest _)
-	`(. ,kmap :insert ,key (lambda () ~_)))
+(defmacro binding (kmap key action)
+	`(. ,kmap :insert ,key ,(eval action)))
 
 ;cursor left
-(binding key_map 0x40000050
-	(. text_buf :left))
+(binding key_map 0x40000050 action-left)
 ;cursor right
-(binding key_map 0x4000004f
-	(. text_buf :right))
+(binding key_map 0x4000004f action-right)
 ;cursor up
-(binding key_map 0x40000052
-	(. text_buf :up))
+(binding key_map 0x40000052 action-up)
 ;cursor down
-(binding key_map 0x40000051
-	(. text_buf :down))
+(binding key_map 0x40000051 action-down)
 ;line break
-(binding key_map +char_lf
-	(. text_buf :cut anchor_x anchor_y)
-	(. text_buf :break))
-(binding key_map +char_cr
-	(. text_buf :cut anchor_x anchor_y)
-	(. text_buf :break))
+(binding key_map +char_lf action-break)
+(binding key_map +char_cr action-break)
 ;backspace
-(binding key_map +char_backspace
-	(if (eql (. text_buf :cut anchor_x anchor_y) "")
-		(. text_buf :backspace)))
+(binding key_map +char_backspace action-backspace)
 ;delete
-(binding key_map +char_delete
-	(if (eql (. text_buf :cut anchor_x anchor_y) "")
-		(. text_buf :delete)))
+(binding key_map +char_delete action-delete)
 ;tab
-(binding key_map +char_tab
-	(. text_buf :cut anchor_x anchor_y)
-	(bind '(x y) (. text_buf :get_cursor))
-	(defq tab_width (get :tab_width text_buf))
-	(. text_buf :insert (pad "" (- tab_width (% x tab_width)) "        ")))
-
+(binding key_map +char_tab action-tab)
 ;undo
-(binding key_map_control (ascii-code "z")
-	(. text_buf :undo))
+(binding key_map_control (ascii-code "z") action-undo)
 ;redo
-(binding key_map_control (ascii-code "Z")
-	(. text_buf :redo))
+(binding key_map_control (ascii-code "Z") action-redo)
 ;save
-(binding key_map_control (ascii-code "s")
-	(. text_buf :file_save current_file))
+(binding key_map_control (ascii-code "s") action-save)
 ;cut
-(binding key_map_control (ascii-code "x")
-	(clipboard-put (. text_buf :cut anchor_x anchor_y)))
+(binding key_map_control (ascii-code "x") action-cut)
 ;copy
-(binding key_map_control (ascii-code "c")
-	(clipboard-put (. text_buf :copy anchor_x anchor_y)))
+(binding key_map_control (ascii-code "c") action-copy)
 ;paste
-(binding key_map_control (ascii-code "v")
-	(unless (eql (defq data (clipboard-get)) "")
-		(. text_buf :cut anchor_x anchor_y)
-		(. text_buf :paste data)))
+(binding key_map_control (ascii-code "v") action-paste)
+;minimise
+(binding key_map_control (ascii-code "-") action-minimise)
+;maximise
+(binding key_map_control (ascii-code "=") action-maximise)
 
 ;module
 (export (penv)

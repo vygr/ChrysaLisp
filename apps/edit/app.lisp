@@ -166,7 +166,8 @@
 	(bind '(scroll_x scroll_y) (set-sliders current_file))
 	(load-display scroll_x scroll_y))
 
-;import key binding after any editor functions are defind !
+;import editor actions and key bindings
+(import "apps/edit/actions.inc")
 (import "apps/edit/bindings.inc")
 
 (defun main ()
@@ -179,40 +180,17 @@
 	(while id (cond
 		((= (setq id (getf (defq msg (mail-read (task-mailbox))) +ev_msg_target_id)) +event_close)
 			(setq id nil))
+		((= id +event_min) (action-minimise))
+		((= id +event_max) (action-maximise))
+		((= id +event_save) (action-save))
+		((= id +event_undo) (action-undo))
+		((= id +event_redo) (action-redo))
+		((= id +event_cut) (action-cut))
+		((= id +event_copy) (action-copy))
+		((= id +event_paste) (action-paste))
 		((= id +event_layout)
 			;user window resize
 			(apply window-resize (. vdu :max_size)))
-		((= id +event_min)
-			;min button
-			(vdu-resize vdu_min_width vdu_min_height))
-		((= id +event_max)
-			;max button
-			(vdu-resize vdu_max_width vdu_max_height))
-		((= id +event_save)
-			;save
-			(. text_buf :file_save current_file))
-		((= id +event_undo)
-			;undo
-			(. text_buf :undo)
-			(refresh))
-		((= id +event_redo)
-			;redo
-			(. text_buf :redo)
-			(refresh))
-		((= id +event_cut)
-			;cut selection to clipboard
-			(clipboard-put (. text_buf :cut anchor_x anchor_y))
-			(clear-underlay) (refresh))
-		((= id +event_copy)
-			;copy selection to clipboard
-			(clipboard-put (. text_buf :copy anchor_x anchor_y))
-			(clear-underlay) (refresh))
-		((= id +event_paste)
-			;paste from clipboard if present
-			(unless (eql (defq data (clipboard-get)) "")
-				(. text_buf :cut anchor_x anchor_y)
-				(. text_buf :paste data)
-				(clear-underlay) (refresh)))
 		((= id +event_xscroll)
 			;user xscroll bar
 			(bind '(scroll_x scroll_y) (. scroll_map :find current_file))
@@ -277,16 +255,15 @@
 				((/= 0 (logand mod (const (+ +ev_key_mod_control +ev_key_mod_command))))
 					;call bound control/command key action
 					(when (defq action (. key_map_control :find key))
-						(action) (clear-underlay)))
+						(action)))
 				((defq action (. key_map :find key))
 					;call bound key action
-					(action) (clear-underlay))
+					(action))
 				((<= +char_space key +char_tilda)
 					;insert the char
 					(. text_buf :cut anchor_x anchor_y)
 					(. text_buf :insert (char key))
-					(clear-underlay)))
-			(refresh))
+					(clear-underlay) (refresh))))
 		(t	;gui event
 			(. mywindow :event msg))))
 	(. mywindow :hide))
