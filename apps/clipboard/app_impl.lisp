@@ -8,7 +8,8 @@
 		(cond
 			((= (defq type (getf msg +clipboard_event_type)) +clip_type_put)
 				;put string on clipboard
-				(push clipboard (slice +clipboard_put_data -1 msg)))
+				(setq clipboard (insert clipboard 0
+					(list (slice +clipboard_put_data -1 msg)))))
 			((= type +clip_type_get)
 				;get string from clipboard
 				(mail-send (getf msg +clipboard_get_reply)
