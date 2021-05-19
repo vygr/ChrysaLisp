@@ -210,6 +210,7 @@
 		((= id +event_paste)
 			;paste from clipboard if present
 			(unless (eql (defq data (clipboard-get)) "")
+				(. text_buf :cut anchor_x anchor_y)
 				(. text_buf :paste data)
 				(clear-underlay) (refresh)))
 		((= id +event_xscroll)

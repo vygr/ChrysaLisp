@@ -59,6 +59,7 @@
 ;paste
 (binding key_map_control (ascii-code "v")
 	(unless (eql (defq data (clipboard-get)) "")
+		(. text_buf :cut anchor_x anchor_y)
 		(. text_buf :paste data)))
 
 ;module
