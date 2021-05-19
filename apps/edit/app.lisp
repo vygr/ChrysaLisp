@@ -11,7 +11,7 @@
 	(enum tree_action folder_action leaf_action)
 	(enum save undo redo cut copy paste))
 
-(defq vdu_min_width 16 vdu_min_height 16 vdu_max_width 120 vdu_max_height 50
+(defq vdu_min_width 16 vdu_min_height 16 vdu_max_width 120 vdu_max_height 48
 	vdu_width 80 vdu_height 40 tabs 4 anchor_x 0 anchor_y 0
 	text_buf (Buffer) scroll_map (xmap 31) underlay (list)
 	current_file nil selected_node nil id t mouse_state :u
