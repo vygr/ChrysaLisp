@@ -72,9 +72,9 @@
 	(cond
 		((= y y1)
 			(push underlay (cat (slice 0 x +not_selected) (slice x x1 +selected))))
-		(t	(push underlay (cat (slice 0 x +not_selected) (slice x (length (elem y buffer)) +selected)))
+		(t	(push underlay (cat (slice 0 x +not_selected) (slice x (inc (length (elem y buffer))) +selected)))
 			(while (< (setq y (inc y)) y1)
-				(push underlay (slice 0 (length (elem y buffer)) +selected)))
+				(push underlay (slice 0 (inc (length (elem y buffer))) +selected)))
 			(push underlay (slice 0 x1 +selected)))))
 
 (defun clear-underlay ()
