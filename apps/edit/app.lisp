@@ -66,11 +66,9 @@
 		(defq x1 x y1 y x anchor_x y anchor_y))
 	(and (= y y1) (> x x1)
 		(defq tx x x x1 x1 tx))
-	(setq underlay (cap y1 (list)))
-	(defq uy 0 buffer (get :buffer text_buf))
-	(while (< uy y)
-		(push underlay "")
-		(setq uy (inc uy)))
+	(setq underlay (cap y1 (clear underlay)))
+	(defq uy -1 buffer (get :buffer text_buf))
+	(while (< (setq uy (inc uy)) y) (push underlay ""))
 	(cond
 		((= y y1)
 			(push underlay (cat (slice 0 x +not_selected) (slice x x1 +selected))))
@@ -203,16 +201,17 @@
 			(refresh))
 		((= id +event_cut)
 			;cut selection to clipboard
-			(clipboard-put (. text_buf :cut))
-			(refresh))
+			(clipboard-put (. text_buf :cut anchor_x anchor_y))
+			(clear-underlay) (refresh))
 		((= id +event_copy)
 			;copy selection to clipboard
-			(clipboard-put (. text_buf :copy)))
+			(clipboard-put (. text_buf :copy anchor_x anchor_y))
+			(clear-underlay) (refresh))
 		((= id +event_paste)
 			;paste from clipboard if present
 			(unless (eql (defq data (clipboard-get)) "")
 				(. text_buf :paste data)
-				(refresh)))
+				(clear-underlay) (refresh)))
 		((= id +event_xscroll)
 			;user xscroll bar
 			(bind '(scroll_x scroll_y) (. scroll_map :find current_file))
@@ -277,14 +276,15 @@
 				((/= 0 (logand mod (const (+ +ev_key_mod_control +ev_key_mod_command))))
 					;call bound control/command key action
 					(when (defq action (. key_map_control :find key))
-						(action)))
+						(action) (clear-underlay)))
 				((defq action (. key_map :find key))
 					;call bound key action
-					(action))
+					(action) (clear-underlay))
 				((<= +char_space key +char_tilda)
 					;insert the char
-					(. text_buf :insert (char key))))
-			(clear-underlay)
+					(. text_buf :cut anchor_x anchor_y)
+					(. text_buf :insert (char key))
+					(clear-underlay)))
 			(refresh))
 		(t	;gui event
 			(. mywindow :event msg))))

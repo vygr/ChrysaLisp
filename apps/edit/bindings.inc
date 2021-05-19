@@ -21,17 +21,22 @@
 	(. text_buf :down))
 ;line break
 (binding key_map +char_lf
+	(. text_buf :cut anchor_x anchor_y)
 	(. text_buf :break))
 (binding key_map +char_cr
+	(. text_buf :cut anchor_x anchor_y)
 	(. text_buf :break))
 ;backspace
 (binding key_map +char_backspace
-	(. text_buf :backspace))
+	(if (eql (. text_buf :cut anchor_x anchor_y) "")
+		(. text_buf :backspace)))
 ;delete
 (binding key_map +char_delete
-	(. text_buf :delete))
+	(if (eql (. text_buf :cut anchor_x anchor_y) "")
+		(. text_buf :delete)))
 ;tab
 (binding key_map +char_tab
+	(. text_buf :cut anchor_x anchor_y)
 	(bind '(x y) (. text_buf :get_cursor))
 	(defq tab_width (get :tab_width text_buf))
 	(. text_buf :insert (pad "" (- tab_width (% x tab_width)) "        ")))
@@ -47,10 +52,10 @@
 	(. text_buf :file_save current_file))
 ;cut
 (binding key_map_control (ascii-code "x")
-	(clipboard-put (. text_buf :cut)))
+	(clipboard-put (. text_buf :cut anchor_x anchor_y)))
 ;copy
 (binding key_map_control (ascii-code "c")
-	(clipboard-put (. text_buf :copy)))
+	(clipboard-put (. text_buf :copy anchor_x anchor_y)))
 ;paste
 (binding key_map_control (ascii-code "v")
 	(unless (eql (defq data (clipboard-get)) "")

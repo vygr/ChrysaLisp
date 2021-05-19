@@ -187,9 +187,10 @@
 					(setq x (- x num))
 					(push (get :undo_stack this) (list :insert x y undo))))))
 
-	(defmethod :delete (this)
-		; (. buffer :delete) -> buffer
+	(defmethod :delete (this &optional num)
+		; (. buffer :delete &optional num) -> buffer
 		(mutate-buffer
+			(setd num 1)
 			(cond
 				((>= y h))
 				((>= x (length (elem y buffer)))
@@ -200,8 +201,8 @@
 						(setq buffer_colored (erase buffer_colored (inc y) (+ y 2)))
 						(setq buffer_states (erase buffer_states (inc y) (+ y 2)))
 						(push (get :undo_stack this) (list :break x y))))
-				(t	(defq undo (slice x (inc x) (elem y buffer)))
-					(elem-set y buffer (erase (elem y buffer) x (inc x)))
+				(t	(defq undo (slice x (+ x num) (elem y buffer)))
+					(elem-set y buffer (erase (elem y buffer) x (+ x num)))
 					(elem-set y buffer_colored (elem y buffer))
 					(push (get :undo_stack this) (list :insert x y undo))))))
 
@@ -218,13 +219,54 @@
 			(setq x (+ x (length string)))
 			(push (get :undo_stack this) (list :backspace x y (length string)))))
 
-	(defmethod :cut (this)
-		; (. buffer :cut) -> string
-		(join '("" "cut result" "") (ascii-char +char_lf)))
+	(defmethod :cut (this anchor_x anchor_y)
+		; (. buffer :cut anchor_x anchor_y) -> string
+		(bind '(sx sy) (. this :get_cursor))
+		(bind '(sx sy) (. this :constrain sx sy))
+		(bind '(sx1 sy1) (. this :constrain anchor_x anchor_y))
+		(cond
+			((and (= sx sx1) (= sy sy1)) "")
+			(t	(if (> sy sy1) (defq tx sx ty sy sx sx1 sy sy1 sx1 tx sy1 ty))
+				(and (= sy sy1) (> sx sx1) (defq tx sx sx sx1 sx1 tx))
+				(push (defq undo_stack (get :undo_stack this)) '(:mark))
+				(defq lines (list))
+				(. this :set_cursor sx sy)
+				(cond
+					((= sy sy1)
+						(push lines (slice sx sx1 (elem sy (get :buffer this))))
+						(. this :delete (- sx1 sx)))
+					(t	(while (<= sy (setq sy1 (dec sy1)))
+							(push lines (slice sx -1 (elem sy (get :buffer this))) (ascii-char +char_lf))
+							(if (> (defq gap (- (length (elem sy (get :buffer this))) sx)) 0)
+								(. this :delete gap))
+							(. this :delete))
+						(when (and (> sx1 0) (< sy (length (get :buffer this))))
+							(push lines (slice sx (+ sx sx1) (elem sy (get :buffer this))))
+							(. this :delete sx1))))
+				(push undo_stack '(:mark))
+				(apply cat lines))))
 
-	(defmethod :copy (this)
-		; (. buffer :copy) -> string
-		(join '("" "copy result" "") (ascii-char +char_lf)))
+	(defmethod :copy (this anchor_x anchor_y)
+		; (. buffer :copy anchor_x anchor_y) -> string
+		(bind '(sx sy) (. this :get_cursor))
+		(bind '(sx sy) (. this :constrain sx sy))
+		(bind '(sx1 sy1) (. this :constrain anchor_x anchor_y))
+		(cond
+			((and (= sx sx1) (= sy sy1)) "")
+			(t	(if (> sy sy1) (defq tx sx ty sy sx sx1 sy sy1 sx1 tx sy1 ty))
+				(and (= sy sy1) (> sx sx1) (defq tx sx sx sx1 sx1 tx))
+				(defq buffer (get :buffer this))
+				(cond
+					((= sy sy1)
+						(slice sx sx1 (elem sy buffer)))
+					(t	(defq lines
+							(list (slice sx -1 (elem sy buffer)) (ascii-char +char_lf)))
+						(while (< (setq sy (inc sy)) sy1)
+							(push lines (elem sy buffer) (ascii-char +char_lf)))
+						(apply cat (push lines
+							(if (>= sy (length buffer))
+								(ascii-char +char_lf)
+								(slice 0 sx1 (elem sy buffer))))))))))
 
 	(defmethod :paste (this string)
 		; (. buffer :paste string) -> this
