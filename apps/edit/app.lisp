@@ -8,7 +8,8 @@
 (enums +event 0
 	(enum close max min)
 	(enum layout xscroll yscroll)
-	(enum tree_action folder_action leaf_action)
+	(enum file_tree_action file_folder_action file_leaf_action)
+	(enum open_tree_action open_folder_action open_leaf_action)
 	(enum save undo redo cut copy paste))
 
 (defq vdu_min_width 16 vdu_min_height 16 vdu_max_width 120 vdu_max_height 48
@@ -23,9 +24,17 @@
 	(ui-tool-bar _ ()
 		(ui-buttons (0xea07 0xe9fe 0xe99d 0xea08 0xe9ca 0xe9c9) +event_save))
 	(ui-flow _ (:flow_flags +flow_right_fill :font *env_terminal_font*)
-		(ui-scroll tree_scroll +scroll_flag_vertical nil
-			(. (ui-tree tree +event_tree_action (:min_width 0 :color +argb_white))
-				:connect +event_tree_action))
+		(ui-grid tree_grid (:grid_width 1 :grid_height 2 :color +argb_grey14)
+			(ui-flow _ (:flow_flags +flow_down_fill)
+				(ui-label _ (:text "Open" :border 1))
+				(ui-scroll open_tree_scroll +scroll_flag_vertical nil
+					(. (ui-tree open_tree +event_open_tree_action (:min_width 0 :color +argb_white))
+						:connect +event_open_tree_action)))
+			(ui-flow _ (:flow_flags +flow_down_fill)
+				(ui-label _ (:text "Project" :border 1))
+				(ui-scroll file_tree_scroll +scroll_flag_vertical nil
+					(. (ui-tree file_tree +event_file_tree_action (:min_width 0 :color +argb_white))
+						:connect +event_file_tree_action))))
 		(ui-flow _ (:flow_flags +flow_left_fill)
 			(. (ui-slider yslider) :connect +event_yscroll)
 			(ui-flow _ (:flow_flags +flow_up_fill)
@@ -134,13 +143,14 @@
 		(if (and dir (not (find dir dirs)))
 			(push dirs dir) dirs)) files (list)))
 
-(defun populate-tree ()
-	;load up the file tree and the first file
+(defun populate-file-tree ()
+	;load up the file tree
 	(defq all_src_files (sort cmp (all-src-files ".")))
-	(each (# (. tree :add_route %0)) (all-dirs all_src_files))
-	(each (# (. tree :add_route %0)) all_src_files)
+	(each (# (. file_tree :add_route %0)) (all-dirs all_src_files))
+	(each (# (. file_tree :add_route %0)) all_src_files)
 	(each (# (. scroll_map :insert %0 '(0 0 0 0))) all_src_files)
-	(populate-vdu (elem 0 all_src_files)))
+	(populate-vdu (elem 0 all_src_files))
+	(. open_tree :add_route current_file))
 
 (defun window-resize (w h)
 	;layout the window and size the vdu to fit
@@ -174,9 +184,12 @@
 (import "apps/edit/bindings.inc")
 
 (defun main ()
-	(populate-tree)
-	(bind '(w h) (. tree :pref_size))
-	(. tree :change 0 0 (def tree_scroll :min_width w) h)
+	(populate-file-tree)
+	(bind '(ow oh) (. open_tree :pref_size))
+	(bind '(fw fh) (. file_tree :pref_size))
+	(. open_tree :change 0 0 (def open_tree_scroll :min_height oh :min_width fw) oh)
+	(. file_tree :change 0 0 (def file_tree_scroll :min_width fw) fh)
+	(bind '(w h) (. tree_grid :pref_size))
 	(bind '(x y w h) (apply view-locate (.-> mywindow (:connect +event_layout) :pref_size)))
 	(gui-add (. mywindow :change x y w h))
 	(load-display 0 0)
@@ -208,23 +221,38 @@
 			(defq scroll_y (get :value yslider))
 			(. scroll_map :insert current_file (list scroll_x scroll_y x y))
 			(load-display scroll_x scroll_y))
-		((= id +event_tree_action)
+		((= id +event_file_tree_action)
 			;tree view action
-			(bind '(w h) (. tree :pref_size))
-			(defq w (get :min_width tree_scroll))
-			(. tree :change 0 0 w h)
-			(.-> tree_scroll :layout :dirty_all))
-		((= id +event_leaf_action)
+			(bind '(w h) (. file_tree :pref_size))
+			(defq w (get :min_width file_tree_scroll))
+			(. file_tree :change 0 0 w h)
+			(.-> file_tree_scroll :layout :dirty_all))
+		((= id +event_file_leaf_action)
 			;load up the file selected
 			(if selected_node (undef (. selected_node :dirty) :color))
 			(setq selected_node (. mywindow :find_id (getf msg +ev_msg_action_source_id)))
 			(def (. selected_node :dirty) :color +argb_grey12)
-			(populate-vdu (. tree :get_route selected_node)))
-		((= id +event_folder_action)
+			(defq file (. file_tree :get_route selected_node))
+			(. open_tree :add_route file)
+			(bind '(w h) (. open_tree :pref_size))
+			(defq w (get :min_width open_tree_scroll))
+			(. open_tree :change 0 0 w h)
+			(.-> open_tree_scroll :layout :dirty_all)
+			(populate-vdu file))
+		((= id +event_file_folder_action)
 			;highlight the folder selected
 			(if selected_node (undef (. selected_node :dirty) :color))
 			(setq selected_node (. mywindow :find_id (getf msg +ev_msg_action_source_id)))
 			(def (. selected_node :dirty) :color +argb_grey12))
+		((= id +event_open_tree_action)
+			;open tree view action
+			(bind '(w h) (. open_tree :pref_size))
+			(defq w (get :min_width open_tree_scroll))
+			(. open_tree :change 0 0 w h)
+			(.-> open_tree_scroll :layout :dirty_all))
+		((= id +event_open_leaf_action)
+			;switch to the file selected
+			)
 		((and (= id (. vdu :get_id)) (= (getf msg +ev_msg_type) +ev_type_mouse))
 			;mouse event on display
 			(bind '(cw ch) (. vdu :char_size))

@@ -113,7 +113,6 @@
 					(:set_cursor (length trimed_line) _)
 					(:delete (- (length line) (length trimed_line)))))) (get :buffer this))
 		(push undo_stack '(:mark))
-		(set this :dirty t)
 		(. this :set_cursor x y))
 
 	(defmethod :vdu_load (this vdu scroll_x scroll_y)
