@@ -97,19 +97,24 @@
 
 	(defmethod :trim (this)
 		; (. buffer :trim) -> buffer
-		(defq buffer (get :buffer this) buffer_colored (get :buffer_colored this)
-			buffer_states (get :buffer_states this))
+		(bind '(x y) (. this :get_cursor))
+		(bind '(x y) (. this :constrain x y))
+		(push (defq undo_stack (get :undo_stack this)) '(:mark) (list :cursor x y))
 		;trim front
-		(while (and (> (length buffer) 0) (eql (elem 0 buffer) ""))
-			(setq buffer (slice 1 -1 buffer) buffer_colored (slice 1 -1 buffer_colored)
-				buffer_states (slice 1 -1 buffer_states)))
+		(while (and (> (length (get :buffer this)) 0) (eql (elem 0 (get :buffer this)) ""))
+			(.-> this (:set_cursor 0 0) :delete))
 		;trim end
-		(while (and (> (length buffer) 0) (eql (elem -2 buffer) ""))
-			(pop buffer) (pop buffer_colored) (pop buffer_states))
-		(set this :buffer buffer :buffer_colored buffer_colored :buffer_states buffer_states)
-		;trim end
-		(each (lambda (line) (elem-set _ buffer (trim-end line))) buffer)
-		this)
+		(while (and (> (length (get :buffer this)) 0) (eql (elem -2 (get :buffer this)) ""))
+			(.-> this (:set_cursor 0 (dec (length (get :buffer this)))) :backspace))
+		;trim lines
+		(each (lambda (line)
+			(unless (eql (defq trimed_line (trim-end line)) line)
+				(.-> this
+					(:set_cursor (length trimed_line) _)
+					(:delete (- (length line) (length trimed_line)))))) (get :buffer this))
+		(push undo_stack '(:mark))
+		(set this :dirty t)
+		(. this :set_cursor x y))
 
 	(defmethod :vdu_load (this vdu scroll_x scroll_y)
 		; (. buffer :vdu_load vdu scroll_x scroll_y) -> buffer

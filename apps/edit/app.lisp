@@ -15,8 +15,8 @@
 	vdu_width 80 vdu_height 40 tabs 4 anchor_x 0 anchor_y 0
 	text_buf (Buffer) scroll_map (xmap 31) underlay (list)
 	current_file nil selected_node nil id t mouse_state :u
-	+selected (apply array (map (lambda (_) 0x80000000) (range 0 1024)))
-	+not_selected (apply array (map (lambda (_) 0) (range 0 1024))))
+	+selected (apply array (map (lambda (_) 0x80000000) (str-alloc 1024)))
+	+not_selected (apply array (map (lambda (_) 0) (str-alloc 1024))))
 
 (ui-window mywindow (:color +argb_grey2)
 	(ui-title-bar mytitle "" (0xea19 0xea1b 0xea1a) +event_close)
