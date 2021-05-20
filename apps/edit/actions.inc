@@ -44,10 +44,14 @@
 (defun action-redo ()
 	(. text_buf :redo)
 	(clear-selection) (refresh))
+;trim
+(defun action-trim ()
+	(. text_buf :trim)
+	(clear-selection) (refresh))
 ;save
 (defun action-save ()
-	(. text_buf :file_save current_file)
-	(clear-selection) (refresh))
+	(action-trim)
+	(. text_buf :file_save current_file))
 ;cut
 (defun action-cut ()
 	(clipboard-put (. text_buf :cut anchor_x anchor_y))

@@ -89,8 +89,15 @@
 	(defmethod :file_save (this filepath)
 		; (. buffer :file_save filepath) -> buffer
 		(defq syntax (get :syntax this) tab_width (get :tab_width this)
-			stream (file-stream filepath +file_open_write)
-			buffer (get :buffer this) buffer_colored (get :buffer_colored this)
+			stream (file-stream filepath +file_open_write))
+		(each (lambda (line)
+				(write-line stream (. syntax :compress_tabs line tab_width)))
+			(get :buffer this))
+		this)
+
+	(defmethod :trim (this)
+		; (. buffer :trim) -> buffer
+		(defq buffer (get :buffer this) buffer_colored (get :buffer_colored this)
 			buffer_states (get :buffer_states this))
 		;trim front
 		(while (and (> (length buffer) 0) (eql (elem 0 buffer) ""))
@@ -100,11 +107,8 @@
 		(while (and (> (length buffer) 0) (eql (elem -2 buffer) ""))
 			(pop buffer) (pop buffer_colored) (pop buffer_states))
 		(set this :buffer buffer :buffer_colored buffer_colored :buffer_states buffer_states)
-		(each (lambda (line)
-				;trim lines as we save them
-				(setq line (elem-set _ buffer (trim-end line)))
-				(write-line stream (. syntax :compress_tabs line tab_width)))
-			buffer)
+		;trim end
+		(each (lambda (line) (elem-set _ buffer (trim-end line))) buffer)
 		this)
 
 	(defmethod :vdu_load (this vdu scroll_x scroll_y)
