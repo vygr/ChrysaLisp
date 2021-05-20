@@ -82,7 +82,8 @@
 			(file-stream filepath))
 		(clear (get :undo_stack this) (get :redo_stack this))
 		(set this :buffer buffer :buffer_colored buffer_colored
-			:buffer_states buffer_states :max_width max_width :dirty t)
+			:buffer_states buffer_states :max_width max_width
+			:cursor_x 0 :cursor_y 0 :dirty t)
 		this)
 
 	(defmethod :file_save (this filepath)

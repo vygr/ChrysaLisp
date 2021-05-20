@@ -89,6 +89,21 @@
 	(. text_buf :vdu_load vdu scroll_x scroll_y)
 	(. vdu_underlay :load underlay scroll_x scroll_y -1 -1))
 
+(defun refresh ()
+	;refresh display and ensure cursor is visible
+	(bind '(x y) (. text_buf :get_cursor))
+	(bind '(x y) (. text_buf :constrain x y))
+	(. text_buf :set_cursor x y)
+	(bind '(scroll_x scroll_y) (. scroll_map :find current_file))
+	(bind '(w h) (. vdu :vdu_size))
+	(if (< x scroll_x) (setq scroll_x x))
+	(if (< y scroll_y) (setq scroll_y y))
+	(if (>= x (+ scroll_x w)) (setq scroll_x (- x w -1)))
+	(if (>= y (+ scroll_y h)) (setq scroll_y (- y h -1)))
+	(. scroll_map :insert current_file (list scroll_x scroll_y))
+	(bind '(scroll_x scroll_y) (set-sliders current_file))
+	(load-display scroll_x scroll_y))
+
 (defun set-sliders (file)
 	;set slider values for this file
 	(bind '(scroll_x scroll_y) (. scroll_map :find file))
@@ -105,10 +120,7 @@
 (defun populate-vdu (file)
 	;load up the vdu widget from this file
 	(. text_buf :file_load (setq current_file file))
-	(clear-selection)
-	(bind '(scroll_x scroll_y) (set-sliders file))
-	(. text_buf :set_cursor 0 0)
-	(load-display scroll_x scroll_y)
+	(set-sliders file) (clear-selection) (refresh)
 	(def mytitle :text (cat "Edit -> " file))
 	(.-> mytitle :layout :dirty))
 
@@ -151,21 +163,6 @@
 	(set vdu :min_width vdu_min_width :min_height vdu_min_height)
 	(set vdu_underlay :min_width vdu_min_width :min_height vdu_min_height)
 	(. mywindow :change_dirty x y w h)
-	(bind '(scroll_x scroll_y) (set-sliders current_file))
-	(load-display scroll_x scroll_y))
-
-(defun refresh ()
-	;refresh display and ensure cursor is visible
-	(bind '(x y) (. text_buf :get_cursor))
-	(bind '(x y) (. text_buf :constrain x y))
-	(. text_buf :set_cursor x y)
-	(bind '(scroll_x scroll_y) (. scroll_map :find current_file))
-	(bind '(w h) (. vdu :vdu_size))
-	(if (< x scroll_x) (setq scroll_x x))
-	(if (< y scroll_y) (setq scroll_y y))
-	(if (>= x (+ scroll_x w)) (setq scroll_x (- x w -1)))
-	(if (>= y (+ scroll_y h)) (setq scroll_y (- y h -1)))
-	(. scroll_map :insert current_file (list scroll_x scroll_y))
 	(bind '(scroll_x scroll_y) (set-sliders current_file))
 	(load-display scroll_x scroll_y))
 
