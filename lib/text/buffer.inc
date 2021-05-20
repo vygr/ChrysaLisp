@@ -97,13 +97,13 @@
 	(defmethod :vdu_load (this vdu scroll_x scroll_y)
 		; (. buffer :vdu_load vdu scroll_x scroll_y) -> buffer
 		(when (get :dirty this)
-			(set this :dirty nil)
 			(defq syntax (get :syntax this)
 				buffer (get :buffer this)
 				buffer_colored (get :buffer_colored this)
 				buffer_states (get :buffer_states this)
-				state :text)
+				state :text max_width 0)
 			(each (lambda (line line_array (start_state end_state))
+					(setq max_width (max max_width (length line)))
 					(cond
 						((and (array? line_array) (eql state start_state))
 							(setq state end_state))
@@ -111,7 +111,8 @@
 								(.-> syntax (:set_state state) (:colorise line)))
 							(elem-set _ buffer_states
 								(list state (setq state (. syntax :get_state)))))))
-				buffer buffer_colored buffer_states))
+				buffer buffer_colored buffer_states)
+			(set this :max_width max_width :dirty nil))
 		(. vdu :load
 			(get :buffer_colored this)
 			scroll_x scroll_y (get :cursor_x this) (get :cursor_y this))
