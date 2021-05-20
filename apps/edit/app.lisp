@@ -58,7 +58,7 @@
 				(unzip (split (pii-dirlist root) ",") (list (list) (list))))))
 	files)
 
-(defun create-underlay ()
+(defun create-selection ()
 	;create the underlay
 	(bind '(x y) (. text_buf :get_cursor))
 	(defq x1 anchor_x y1 anchor_y)
@@ -78,7 +78,7 @@
 				(push underlay (slice 0 (inc (length (elem y buffer))) +selected)))
 			(push underlay (slice 0 x1 +selected)))))
 
-(defun clear-underlay ()
+(defun clear-selection ()
 	;clear the underlay
 	(bind '(x y) (. text_buf :get_cursor))
 	(setq anchor_x x anchor_y y)
@@ -105,7 +105,7 @@
 (defun populate-vdu (file)
 	;load up the vdu widget from this file
 	(. text_buf :file_load (setq current_file file))
-	(clear-underlay)
+	(clear-selection)
 	(bind '(scroll_x scroll_y) (set-sliders file))
 	(. text_buf :set_cursor 0 0)
 	(load-display scroll_x scroll_y)
@@ -156,13 +156,15 @@
 
 (defun refresh ()
 	;refresh display and ensure cursor is visible
-	(bind '(cx cy) (. text_buf :get_cursor))
+	(bind '(x y) (. text_buf :get_cursor))
+	(bind '(x y) (. text_buf :constrain x y))
+	(. text_buf :set_cursor x y)
 	(bind '(scroll_x scroll_y) (. scroll_map :find current_file))
 	(bind '(w h) (. vdu :vdu_size))
-	(if (< cx scroll_x) (setq scroll_x cx))
-	(if (< cy scroll_y) (setq scroll_y cy))
-	(if (>= cx (+ scroll_x w)) (setq scroll_x (- cx w -1)))
-	(if (>= cy (+ scroll_y h)) (setq scroll_y (- cy h -1)))
+	(if (< x scroll_x) (setq scroll_x x))
+	(if (< y scroll_y) (setq scroll_y y))
+	(if (>= x (+ scroll_x w)) (setq scroll_x (- x w -1)))
+	(if (>= y (+ scroll_y h)) (setq scroll_y (- y h -1)))
 	(. scroll_map :insert current_file (list scroll_x scroll_y))
 	(bind '(scroll_x scroll_y) (set-sliders current_file))
 	(load-display scroll_x scroll_y))
@@ -235,12 +237,12 @@
 						(:d	;was down last time
 							(bind '(x y) (. text_buf :constrain x y))
 							(. text_buf :set_cursor x y)
-							(create-underlay))
+							(create-selection))
 						(:u	;was up last time
 							(bind '(x y) (. text_buf :constrain x y))
 							(. text_buf :set_cursor x y)
 							(setq anchor_x x anchor_y y mouse_state :d)
-							(create-underlay))))
+							(create-selection))))
 				(t	;mouse button is up
 					(case mouse_state
 						(:d	;was down last time
@@ -264,7 +266,7 @@
 					;insert the char
 					(. text_buf :cut anchor_x anchor_y)
 					(. text_buf :insert (char key))
-					(clear-underlay) (refresh))))
+					(clear-selection) (refresh))))
 		(t	;gui event
 			(. mywindow :event msg))))
 	(. mywindow :hide))
