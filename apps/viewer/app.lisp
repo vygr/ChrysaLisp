@@ -129,7 +129,7 @@
 			(bind '(scroll_x scroll_y) (. scroll_map :find current_file))
 			(defq scroll_x (get :value xslider))
 			(. scroll_map :insert current_file (list scroll_x scroll_y))
-			(.-> text_buf (:set_scroll scroll_x scroll_y) (:vdu_load vdu)))
+			(. text_buf :vdu_load vdu scroll_x scroll_y))
 		((= id +event_yscroll)
 			;user yscroll bar
 			(bind '(scroll_x scroll_y) (. scroll_map :find current_file))
