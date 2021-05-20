@@ -6,7 +6,8 @@
 (enums +event 0
 	(enum close max min)
 	(enum layout xscroll yscroll)
-	(enum tree_action folder_action leaf_action))
+	(enum tree_action)
+	(enum folder_action leaf_action))
 
 (defq vdu_min_width 16 vdu_min_height 16
 	vdu_max_width 120 vdu_max_height 50
@@ -18,7 +19,7 @@
 	(ui-title-bar mytitle "" (0xea19 0xea1b 0xea1a) +event_close)
 	(ui-flow _ (:flow_flags +flow_right_fill :font *env_terminal_font*)
 		(ui-scroll tree_scroll +scroll_flag_vertical nil
-			(. (ui-tree tree +event_tree_action (:min_width 0 :color +argb_white))
+			(. (ui-tree tree +event_folder_action (:min_width 0 :color +argb_white))
 				:connect +event_tree_action))
 		(ui-flow _ (:flow_flags +flow_left_fill)
 			(. (ui-slider yslider) :connect +event_yscroll)
@@ -108,7 +109,9 @@
 (defun main ()
 	(populate-tree)
 	(bind '(w h) (. tree :pref_size))
-	(. tree :change 0 0 (def tree_scroll :min_width w) h)
+	(def tree :min_width w)
+	(def tree_scroll :min_width w)
+	(. tree :change 0 0 w h)
 	(bind '(x y w h) (apply view-locate (.-> mywindow (:connect +event_layout) :pref_size)))
 	(gui-add (. mywindow :change x y w h))
 	(. text_buf :vdu_load vdu 0 0)
@@ -137,11 +140,9 @@
 			(. scroll_map :insert current_file (list scroll_x scroll_y))
 			(. text_buf :vdu_load vdu scroll_x scroll_y))
 		((= id +event_tree_action)
-			;tree view action
-			(bind '(w h) (. tree :pref_size))
-			(defq w (get :min_width tree_scroll))
-			(. tree :change 0 0 w h)
-			(.-> tree_scroll :layout :dirty_all))
+			;any tree view action
+			(defq scroll (penv (. mywindow :find_id (getf msg +ev_msg_action_source_id))))
+			(.-> scroll :layout :dirty_all))
 		((= id +event_leaf_action)
 			;load up the file selected
 			(if selected_node (undef (. selected_node :dirty) :color))

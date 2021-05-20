@@ -8,8 +8,9 @@
 (enums +event 0
 	(enum close max min)
 	(enum layout xscroll yscroll)
-	(enum file_tree_action file_folder_action file_leaf_action)
-	(enum open_tree_action open_folder_action open_leaf_action)
+	(enum tree_action)
+	(enum file_folder_action file_leaf_action)
+	(enum open_folder_action open_leaf_action)
 	(enum save undo redo cut copy paste))
 
 (defq vdu_min_width 16 vdu_min_height 16 vdu_max_width 120 vdu_max_height 48
@@ -28,13 +29,13 @@
 			(ui-flow _ (:flow_flags +flow_down_fill)
 				(ui-label _ (:text "Open" :border 1))
 				(ui-scroll open_tree_scroll +scroll_flag_vertical nil
-					(. (ui-tree open_tree +event_open_tree_action (:min_width 0 :color +argb_white))
-						:connect +event_open_tree_action)))
+					(. (ui-tree open_tree +event_open_folder_action (:min_width 0 :color +argb_white))
+						:connect +event_tree_action)))
 			(ui-flow _ (:flow_flags +flow_down_fill)
 				(ui-label _ (:text "Project" :border 1))
 				(ui-scroll file_tree_scroll +scroll_flag_vertical nil
-					(. (ui-tree file_tree +event_file_tree_action (:min_width 0 :color +argb_white))
-						:connect +event_file_tree_action))))
+					(. (ui-tree file_tree +event_file_folder_action (:min_width 0 :color +argb_white))
+						:connect +event_tree_action))))
 		(ui-flow _ (:flow_flags +flow_left_fill)
 			(. (ui-slider yslider) :connect +event_yscroll)
 			(ui-flow _ (:flow_flags +flow_up_fill)
@@ -187,8 +188,12 @@
 	(populate-file-tree)
 	(bind '(ow oh) (. open_tree :pref_size))
 	(bind '(fw fh) (. file_tree :pref_size))
-	(. open_tree :change 0 0 (def open_tree_scroll :min_height oh :min_width fw) oh)
-	(. file_tree :change 0 0 (def file_tree_scroll :min_width fw) fh)
+	(def open_tree :min_width fw)
+	(def file_tree :min_width fw)
+	(def open_tree_scroll :min_width fw :min_height oh)
+	(def file_tree_scroll :min_width fw)
+	(. open_tree :change 0 0 fw oh)
+	(. file_tree :change 0 0 fw fh)
 	(bind '(w h) (. tree_grid :pref_size))
 	(bind '(x y w h) (apply view-locate (.-> mywindow (:connect +event_layout) :pref_size)))
 	(gui-add (. mywindow :change x y w h))
@@ -221,12 +226,6 @@
 			(defq scroll_y (get :value yslider))
 			(. scroll_map :insert current_file (list scroll_x scroll_y x y))
 			(load-display scroll_x scroll_y))
-		((= id +event_file_tree_action)
-			;tree view action
-			(bind '(w h) (. file_tree :pref_size))
-			(defq w (get :min_width file_tree_scroll))
-			(. file_tree :change 0 0 w h)
-			(.-> file_tree_scroll :layout :dirty_all))
 		((= id +event_file_leaf_action)
 			;load up the file selected
 			(if selected_node (undef (. selected_node :dirty) :color))
@@ -244,12 +243,10 @@
 			(if selected_node (undef (. selected_node :dirty) :color))
 			(setq selected_node (. mywindow :find_id (getf msg +ev_msg_action_source_id)))
 			(def (. selected_node :dirty) :color +argb_grey12))
-		((= id +event_open_tree_action)
-			;open tree view action
-			(bind '(w h) (. open_tree :pref_size))
-			(defq w (get :min_width open_tree_scroll))
-			(. open_tree :change 0 0 w h)
-			(.-> open_tree_scroll :layout :dirty_all))
+		((= id +event_tree_action)
+			;any tree view action
+			(defq scroll (penv (. mywindow :find_id (getf msg +ev_msg_action_source_id))))
+			(.-> scroll :layout :dirty_all))
 		((= id +event_open_leaf_action)
 			;switch to the file selected
 			)
