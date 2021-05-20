@@ -8,6 +8,9 @@ In no particular order but to just to ensure I get thoughts down. I'll keep
 adding to this as I go along. If anybody would like to try helping out, then
 just get in touch.
 
+* Create a SVG import library. This should parse basic SVG files and convert
+them to ChrysaLisp vector format.
+
 * Add support for FPU to the VM. Scalar float/double support first of all maybe
 eventually create a FPU accelerated version of the vector math DSL.
 
