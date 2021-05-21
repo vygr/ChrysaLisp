@@ -111,14 +111,14 @@
 
 (defun action-file-leaf-action ()
 	;load up the file selected
-	(if selected-file-node (undef (. selected-file-node :dirty) :color))
-	(if selected-open-node (undef (. selected-open-node :dirty) :color))
-	(setq selected-file-node (. mywindow :find_id (getf msg +ev_msg_action_source_id)))
-	(def (. selected-file-node :dirty) :color +argb_grey12)
-	(defq file (. file_tree :get_route selected-file-node))
+	(if selected_file_node (undef (. selected_file_node :dirty) :color))
+	(if selected_open_node (undef (. selected_open_node :dirty) :color))
+	(setq selected_file_node (. mywindow :find_id (getf msg +ev_msg_action_source_id)))
+	(def (. selected_file_node :dirty) :color +argb_grey12)
+	(defq file (. file_tree :get_route selected_file_node))
 	(. open_tree :add_route file)
-	(setq selected-open-node (. open_tree :find_node file))
-	(def (. selected-open-node :dirty) :color +argb_grey12)
+	(setq selected_open_node (. open_tree :find_node file))
+	(def (. selected_open_node :dirty) :color +argb_grey12)
 	(bind '(w h) (. open_tree :pref_size))
 	(. open_tree :change 0 0 w h)
 	(.-> open_tree_scroll :layout :dirty_all)
@@ -126,20 +126,44 @@
 
 (defun action-open-leaf-action ()
 	;switch to the file selected
-	(if selected-file-node (undef (. selected-file-node :dirty) :color))
-	(if selected-open-node (undef (. selected-open-node :dirty) :color))
-	(setq selected-open-node (. mywindow :find_id (getf msg +ev_msg_action_source_id)))
-	(def (. selected-open-node :dirty) :color +argb_grey12)
-	(defq file (. open_tree :get_route selected-open-node))
-	(setq selected-file-node (. file_tree :find_node file))
-	(def (. selected-file-node :dirty) :color +argb_grey12)
+	(if selected_file_node (undef (. selected_file_node :dirty) :color))
+	(if selected_open_node (undef (. selected_open_node :dirty) :color))
+	(setq selected_open_node (. mywindow :find_id (getf msg +ev_msg_action_source_id)))
+	(def (. selected_open_node :dirty) :color +argb_grey12)
+	(defq file (. open_tree :get_route selected_open_node))
+	(setq selected_file_node (. file_tree :find_node file))
+	(def (. selected_file_node :dirty) :color +argb_grey12)
 	(populate-vdu file))
+
+(defun action-new ()
+	(when (and
+			(not (eql (defq file (get :text name_text)) ""))
+			(= (age file) 0))
+		;file does not exist
+		(save "" file)
+		(if selected_file_node (undef (. selected_file_node :dirty) :color))
+		(if selected_open_node (undef (. selected_open_node :dirty) :color))
+		(. open_tree :add_route file)
+		(. file_tree :add_route file)
+		(setq selected_open_node (. open_tree :find_node file))
+		(setq selected_file_node (. file_tree :find_node file))
+		(def (. selected_open_node :dirty) :color +argb_grey12)
+		(def (. selected_file_node :dirty) :color +argb_grey12)
+		(bind '(w h) (. open_tree :pref_size))
+		(. open_tree :change 0 0 w h)
+		(.-> open_tree_scroll :layout :dirty_all)
+		(bind '(w h) (. file_tree :pref_size))
+		(. file_tree :change 0 0 w h)
+		(.-> file_tree_scroll :layout :dirty_all)
+		(. scroll_map :insert file '(0 0 0 0))
+		(populate-vdu file)))
 
 (defq event_map (xmap-kv
 		+event_close action-close
 		+event_min action-minimise
 		+event_max action-maximise
 		+event_save action-save
+		+event_new action-new
 		+event_undo action-undo
 		+event_redo action-redo
 		+event_cut action-cut

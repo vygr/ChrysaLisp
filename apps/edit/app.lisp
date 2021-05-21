@@ -11,19 +11,24 @@
 	(enum tree_action)
 	(enum file_folder_action file_leaf_action)
 	(enum open_folder_action open_leaf_action)
-	(enum save undo redo cut copy paste))
+	(enum undo redo cut copy paste)
+	(enum prev next save new))
 
 (defq vdu_min_width 16 vdu_min_height 16 vdu_max_width 120 vdu_max_height 48
 	vdu_width 80 vdu_height 40 tabs 4 anchor_x 0 anchor_y 0 mouse_state :u
 	text_buf (Buffer) scroll_map (xmap 31) underlay (list)
-	current_file nil selected-file-node nil selected-open-node nil
+	current_file nil selected_file_node nil selected_open_node nil
 	+selected (apply array (map (lambda (_) 0x80000000) (str-alloc 1024)))
 	+not_selected (apply array (map (lambda (_) 0) (str-alloc 1024))))
 
 (ui-window mywindow (:color +argb_grey2)
 	(ui-title-bar mytitle "" (0xea19 0xea1b 0xea1a) +event_close)
-	(ui-tool-bar _ ()
-		(ui-buttons (0xea07 0xe9fe 0xe99d 0xea08 0xe9ca 0xe9c9) +event_save))
+	(ui-flow _ (:flow_flags +flow_right_fill)
+		(ui-tool-bar _ ()
+			(ui-buttons (0xe9fe 0xe99d 0xea08 0xe9ca 0xe9c9) +event_undo)
+			(ui-buttons (0xe91d 0xe91e 0xea07 0xe9f0) +event_prev
+				(:color (const *env_toolbar2_col*))))
+		(ui-textfield name_text (:hint_text "new filename" :clear_text "" :color +argb_white)))
 	(ui-flow _ (:flow_flags +flow_right_fill :font *env_terminal_font*)
 		(ui-flow _ (:flow_flags +flow_stack_fill)
 			(ui-grid tree_grid (:grid_width 1 :grid_height 2 :color +argb_grey14)
@@ -232,7 +237,8 @@
 							(:u	;was up last time
 								))))
 				(refresh))
-			((and (= (getf msg +ev_msg_type) +ev_type_key)
+			((and (not (= id (. name_text :get_id)))
+					(= (getf msg +ev_msg_type) +ev_type_key)
 					(> (getf msg +ev_msg_key_keycode) 0))
 				;key event
 				(defq key (getf msg +ev_msg_key_key) mod (getf msg +ev_msg_key_mod))
