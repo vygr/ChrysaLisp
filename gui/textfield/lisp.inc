@@ -15,7 +15,9 @@
 		(bind '(w h) (. this :get_size))
 		(when (and (defq font (get :font this)) (defq text (get :text this)))
 			(bind '(tw th) (font-glyph-bounds font (slice 0 (min (get :cursor this) (length text)) text)))
-			(.-> this (:ctx_set_color +argb_black) (:ctx_filled_box tw (>>> (- h th) 1) 2 th)))
+			(.-> this
+				(:ctx_set_color (get :ink_color this))
+				(:ctx_filled_box tw (>>> (- h th) 1) 2 th)))
 		this)
 
 	(defmethod :layout (this)
@@ -39,16 +41,23 @@
 			((or (= key 10) (= key 13))
 				;enter action
 				(. this :emit))
-			((and (= key 8) (/= cursor 0) (/= (length text) 0))
+			((= key 8)
 				;backspace
-				(setq cursor (dec cursor) text (erase text cursor (inc cursor))))
-			((and (= key 0x40000050) (/= cursor 0))
+				(and (/= cursor 0) (/= (length text) 0)
+					(setq cursor (dec cursor) text (erase text cursor (inc cursor)))))
+			((= key 127)
+				;delete
+				(and (/= cursor (length text)) (/= (length text) 0)
+					(setq text (erase text cursor (inc cursor)))))
+			((= key 0x40000050)
 				;left
-				(setq cursor (dec cursor)))
-			((and (= key 0x4000004f) (/= cursor (length text)))
+				(and (/= cursor 0)
+					(setq cursor (dec cursor))))
+			((= key 0x4000004f)
 				;right
-				(setq cursor (inc cursor)))
-			((<= 32 key 127)
+				(and (/= cursor (length text))
+					(setq cursor (inc cursor))))
+			((<= 32 key 126)
 				;append key
 				(setq text (insert text cursor (char key)) cursor (inc cursor))))
 		(def this :clear_text text :cursor cursor)
