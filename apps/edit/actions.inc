@@ -137,7 +137,7 @@
 
 (defun action-new ()
 	(when (and
-			(not (eql (defq file (get :text name_text)) ""))
+			(not (eql (defq file (get :clear_text name_text)) ""))
 			(= (age file) 0))
 		;file does not exist
 		(save "" file)
