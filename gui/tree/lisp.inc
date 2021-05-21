@@ -43,6 +43,21 @@
 			(. root :add_child node))
 		this)
 
+	(defmethod :find_node (this route)
+		; (. tree :find_node route) -> node
+		; routes are:
+		; "a/b/c/file"
+		; "a/b/c/."
+		(defq route (split route "/") root this)
+		(every (lambda (branch)
+			(cond
+				((defq node (some (# (if (eql (def? :text %0) branch) %0)) (. root :children)))
+					;existing route
+					(setq root (elem -2 (. (elem -2 (. node :children)) :children)))
+					node)
+				(t	;new route, so failed
+					nil))) route))
+
 	(defmethod :get_route (this node)
 		; (. tree :get_route node) -> route
 		(defq route (list))

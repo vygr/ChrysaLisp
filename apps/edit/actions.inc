@@ -104,32 +104,36 @@
 	(. scroll_map :insert current_file (list scroll_x scroll_y x y))
 	(load-display scroll_x scroll_y))
 
-(defun action-file-leaf-action ()
-	;load up the file selected
-	(if selected_node (undef (. selected_node :dirty) :color))
-	(setq selected_node (. mywindow :find_id (getf msg +ev_msg_action_source_id)))
-	(def (. selected_node :dirty) :color +argb_grey12)
-	(defq file (. file_tree :get_route selected_node))
-	(. open_tree :add_route file)
-	(bind '(w h) (. open_tree :pref_size))
-	(. open_tree :change 0 0 w h)
-	(.-> open_tree_scroll :layout :dirty_all)
-	(populate-vdu file))
-
-(defun action-file-folder-action ()
-	;highlight the folder selected
-	(if selected_node (undef (. selected_node :dirty) :color))
-	(setq selected_node (. mywindow :find_id (getf msg +ev_msg_action_source_id)))
-	(def (. selected_node :dirty) :color +argb_grey12))
-
 (defun action-tree-action ()
 	;any tree mutate action
 	(defq scroll (penv (. mywindow :find_id (getf msg +ev_msg_action_source_id))))
 	(.-> scroll :layout :dirty_all))
 
+(defun action-file-leaf-action ()
+	;load up the file selected
+	(if selected-file-node (undef (. selected-file-node :dirty) :color))
+	(if selected-open-node (undef (. selected-open-node :dirty) :color))
+	(setq selected-file-node (. mywindow :find_id (getf msg +ev_msg_action_source_id)))
+	(def (. selected-file-node :dirty) :color +argb_grey12)
+	(defq file (. file_tree :get_route selected-file-node))
+	(. open_tree :add_route file)
+	(setq selected-open-node (. open_tree :find_node file))
+	(def (. selected-open-node :dirty) :color +argb_grey12)
+	(bind '(w h) (. open_tree :pref_size))
+	(. open_tree :change 0 0 w h)
+	(.-> open_tree_scroll :layout :dirty_all)
+	(populate-vdu file))
+
 (defun action-open-leaf-action ()
 	;switch to the file selected
-	)
+	(if selected-file-node (undef (. selected-file-node :dirty) :color))
+	(if selected-open-node (undef (. selected-open-node :dirty) :color))
+	(setq selected-open-node (. mywindow :find_id (getf msg +ev_msg_action_source_id)))
+	(def (. selected-open-node :dirty) :color +argb_grey12)
+	(defq file (. open_tree :get_route selected-open-node))
+	(setq selected-file-node (. file_tree :find_node file))
+	(def (. selected-file-node :dirty) :color +argb_grey12)
+	(populate-vdu file))
 
 (defq event_map (xmap-kv
 		+event_close action-close
@@ -146,7 +150,6 @@
 		+event_xscroll action-xscroll
 		+event_yscroll action-yscroll
 		+event_file_leaf_action action-file-leaf-action
-		+event_file_folder_action action-file-folder-action
 		+event_tree_action action-tree-action
 		+event_open_leaf_action action-open-leaf-action)
 

@@ -12,6 +12,11 @@ Key modifiers passed in GUI key events.
 
 New text Buffer class. `lib/text/buffer.inc`
 
+New :find_node method on GUI Tree class.
+
+Editor now has cut/paste/copy/undo/redo and has start of multi buffers and
+project file trees.
+
 ------
 
 Rename 'local-align' just 'align' as it's no longer a function but a simple

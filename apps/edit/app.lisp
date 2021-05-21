@@ -14,9 +14,9 @@
 	(enum save undo redo cut copy paste))
 
 (defq vdu_min_width 16 vdu_min_height 16 vdu_max_width 120 vdu_max_height 48
-	vdu_width 80 vdu_height 40 tabs 4 anchor_x 0 anchor_y 0
+	vdu_width 80 vdu_height 40 tabs 4 anchor_x 0 anchor_y 0 mouse_state :u
 	text_buf (Buffer) scroll_map (xmap 31) underlay (list)
-	current_file nil selected_node nil mouse_state :u
+	current_file nil selected-file-node nil selected-open-node nil
 	+selected (apply array (map (lambda (_) 0x80000000) (str-alloc 1024)))
 	+not_selected (apply array (map (lambda (_) 0) (str-alloc 1024))))
 
