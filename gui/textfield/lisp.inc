@@ -7,7 +7,7 @@
 
 (defclass Textfield () (Label)
 	; (Textfield) -> textfield
-	(def this :cursor 0 :clear_text "" :mode nil)
+	(def this :cursor 0 :clear_text "" :hint_text "" :text "" :mode nil)
 
 	(defmethod :draw (this)
 		; (. textfield :draw) -> textfield
@@ -20,9 +20,15 @@
 
 	(defmethod :layout (this)
 		; (. textfield :layout) -> textfield
-		(if (get :mode this)
-			(def this :text (pad "" (length (get :clear_text this)) "******************"))
-			(def this :text (get :clear_text this)))
+		(cond
+			((eql (defq text (get :clear_text this)) "")
+				(defq text (get :hint_text this) mode nil)
+				(def this :ink_color (get :hint_color this)))
+			(t	(defq mode (get :mode this))
+				(def this :ink_color (get :no_hint_color this))))
+		(if mode
+			(def this :text (pad "" (length text) "******************"))
+			(def this :text text))
 		(.super this :layout))
 
 	(defmethod :key_down (this event)

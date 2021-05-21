@@ -62,6 +62,7 @@
 (defmacro ui-window (n &optional p &rest x)
 	; (ui-window name [props] [body]) -> window
 	(ui-props p :font *env_window_font* :ink_color *env_ink_col* :color *env_window_col*
+		:hint_color *env_hint_col* :no_hint_color *env_no_hint_col*
 		:border *env_window_border* :shadow *env_window_shadow*)
 	`(ui-root ,n (Window) ,p
 		(ui-flow _ (:flow_flags +flow_down_fill) ~x)))
@@ -119,7 +120,7 @@
 (defmacro ui-textfield (n &optional p)
 	; (ui-textfield name [props]) -> textfield
 	(ui-props p :flow_flags (num-intern (logior +flow_flag_right +flow_flag_align_vcenter))
-		:border *env_textfield_border* :text "")
+		:border *env_textfield_border*)
 	`(ui-element ,n (Textfield) ,p))
 
 (defmacro ui-slider (n &optional p)

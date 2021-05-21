@@ -372,6 +372,12 @@
 (. tree :add_route route) -> tree
 ```
 
+### tree :find_node
+
+```code
+(. tree :find_node route) -> node
+```
+
 ### tree :get_route
 
 ```code

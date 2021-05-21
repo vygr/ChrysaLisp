@@ -14,7 +14,7 @@
 			(ui-label _ (:text "Password:")))
 		(ui-grid _ (:grid_width 1 :grid_height 2 :color +argb_white)
 			(ui-textfield username (:clear_text (if (defq old (load "apps/login/current")) old "Guest")))
-			(ui-textfield password (:clear_text "Guest" :mode t :min_width 192))))
+			(ui-textfield password (:hint_text "password" :mode t :min_width 192))))
 	(ui-grid _ (:grid_width 2 :grid_height 1)
 		(ui-buttons ("Login" "Create") +event_login)))
 
