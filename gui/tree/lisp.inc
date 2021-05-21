@@ -30,7 +30,7 @@
 					(def (defq toggle (Button)) :text (const (num-to-utf8 0xe93b)) :min_width 14
 						:font *env_small_toolbar_font* :border 1)
 					(. toggle :connect (. this :get_id))
- 					(.-> tab_flow (:add_child tab) (:add_child tab_child))
+					(.-> tab_flow (:add_child tab) (:add_child tab_child))
 					(.-> title_flow (:add_child toggle) (:add_child
 						(. (Button) :connect (get :action_event this))))
 					(.-> node (:add_child title_flow) (:add_child tab_flow))

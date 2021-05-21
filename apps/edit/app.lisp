@@ -16,7 +16,7 @@
 (defq vdu_min_width 16 vdu_min_height 16 vdu_max_width 120 vdu_max_height 48
 	vdu_width 80 vdu_height 40 tabs 4 anchor_x 0 anchor_y 0
 	text_buf (Buffer) scroll_map (xmap 31) underlay (list)
-	current_file nil selected_node nil id t mouse_state :u
+	current_file nil selected_node nil mouse_state :u
 	+selected (apply array (map (lambda (_) 0x80000000) (str-alloc 1024)))
 	+not_selected (apply array (map (lambda (_) 0) (str-alloc 1024))))
 
@@ -25,17 +25,19 @@
 	(ui-tool-bar _ ()
 		(ui-buttons (0xea07 0xe9fe 0xe99d 0xea08 0xe9ca 0xe9c9) +event_save))
 	(ui-flow _ (:flow_flags +flow_right_fill :font *env_terminal_font*)
-		(ui-grid tree_grid (:grid_width 1 :grid_height 2 :color +argb_grey14)
-			(ui-flow _ (:flow_flags +flow_down_fill)
-				(ui-label _ (:text "Open" :border 1))
-				(ui-scroll open_tree_scroll +scroll_flag_vertical nil
-					(. (ui-tree open_tree +event_open_folder_action (:min_width 0 :color +argb_white))
-						:connect +event_tree_action)))
-			(ui-flow _ (:flow_flags +flow_down_fill)
-				(ui-label _ (:text "Project" :border 1))
-				(ui-scroll file_tree_scroll +scroll_flag_vertical nil
-					(. (ui-tree file_tree +event_file_folder_action (:min_width 0 :color +argb_white))
-						:connect +event_tree_action))))
+		(ui-flow _ (:flow_flags +flow_stack_fill)
+			(ui-grid tree_grid (:grid_width 1 :grid_height 2 :color +argb_grey14)
+				(ui-flow _ (:flow_flags +flow_down_fill)
+					(ui-label _ (:text "Open" :border 1))
+					(ui-scroll open_tree_scroll +scroll_flag_vertical nil
+						(. (ui-tree open_tree +event_open_folder_action (:min_width 0 :color +argb_white))
+							:connect +event_tree_action)))
+				(ui-flow _ (:flow_flags +flow_down_fill)
+					(ui-label _ (:text "Project" :border 1))
+					(ui-scroll file_tree_scroll +scroll_flag_vertical nil
+						(. (ui-tree file_tree +event_file_folder_action (:min_width 0 :color +argb_white))
+							:connect +event_tree_action))))
+			(ui-backdrop _ (:color +argb_white)))
 		(ui-flow _ (:flow_flags +flow_left_fill)
 			(. (ui-slider yslider) :connect +event_yscroll)
 			(ui-flow _ (:flow_flags +flow_up_fill)
@@ -180,9 +182,8 @@
 	(bind '(scroll_x scroll_y) (set-sliders current_file))
 	(load-display scroll_x scroll_y))
 
-;import editor actions and key bindings
+;import editor actions and bindings
 (import "apps/edit/actions.inc")
-(import "apps/edit/bindings.inc")
 
 (defun main ()
 	(populate-file-tree)
@@ -194,106 +195,60 @@
 	(def file_tree_scroll :min_width fw)
 	(. open_tree :change 0 0 fw oh)
 	(. file_tree :change 0 0 fw fh)
-	(bind '(w h) (. tree_grid :pref_size))
 	(bind '(x y w h) (apply view-locate (.-> mywindow (:connect +event_layout) :pref_size)))
 	(gui-add (. mywindow :change x y w h))
 	(load-display 0 0)
-	(while id (cond
-		((= (setq id (getf (defq msg (mail-read (task-mailbox))) +ev_msg_target_id)) +event_close)
-			(setq id nil))
-		((= id +event_min) (action-minimise))
-		((= id +event_max) (action-maximise))
-		((= id +event_save) (action-save))
-		((= id +event_undo) (action-undo))
-		((= id +event_redo) (action-redo))
-		((= id +event_cut) (action-cut))
-		((= id +event_copy) (action-copy))
-		((= id +event_paste) (action-paste))
-		((= id +event_layout)
-			;user window resize
-			(apply window-resize (. vdu :max_size)))
-		((= id +event_xscroll)
-			;user xscroll bar
-			(bind '(scroll_x scroll_y x y) (. scroll_map :find current_file))
-			(bind '(x y) (. text_buf :get_cursor))
-			(defq scroll_x (get :value xslider))
-			(. scroll_map :insert current_file (list scroll_x scroll_y x y))
-			(load-display scroll_x scroll_y))
-		((= id +event_yscroll)
-			;user yscroll bar
-			(bind '(scroll_x scroll_y x y) (. scroll_map :find current_file))
-			(bind '(x y) (. text_buf :get_cursor))
-			(defq scroll_y (get :value yslider))
-			(. scroll_map :insert current_file (list scroll_x scroll_y x y))
-			(load-display scroll_x scroll_y))
-		((= id +event_file_leaf_action)
-			;load up the file selected
-			(if selected_node (undef (. selected_node :dirty) :color))
-			(setq selected_node (. mywindow :find_id (getf msg +ev_msg_action_source_id)))
-			(def (. selected_node :dirty) :color +argb_grey12)
-			(defq file (. file_tree :get_route selected_node))
-			(. open_tree :add_route file)
-			(bind '(w h) (. open_tree :pref_size))
-			(defq w (get :min_width open_tree_scroll))
-			(. open_tree :change 0 0 w h)
-			(.-> open_tree_scroll :layout :dirty_all)
-			(populate-vdu file))
-		((= id +event_file_folder_action)
-			;highlight the folder selected
-			(if selected_node (undef (. selected_node :dirty) :color))
-			(setq selected_node (. mywindow :find_id (getf msg +ev_msg_action_source_id)))
-			(def (. selected_node :dirty) :color +argb_grey12))
-		((= id +event_tree_action)
-			;any tree view action
-			(defq scroll (penv (. mywindow :find_id (getf msg +ev_msg_action_source_id))))
-			(.-> scroll :layout :dirty_all))
-		((= id +event_open_leaf_action)
-			;switch to the file selected
-			)
-		((and (= id (. vdu :get_id)) (= (getf msg +ev_msg_type) +ev_type_mouse))
-			;mouse event on display
-			(bind '(cw ch) (. vdu :char_size))
-			(bind '(sx sy x y) (. scroll_map :find current_file))
-			(defq x (getf msg +ev_msg_mouse_rx) y (getf msg +ev_msg_mouse_ry))
-			(setq x (if (>= x 0) x (- x cw)) y (if (>= y 0) y (- y ch)))
-			(setq x (+ sx (/ x cw)) y (+ sy (/ y ch)))
-			(cond
-				((/= (getf msg +ev_msg_mouse_buttons) 0)
-					;mouse button is down
-					(case mouse_state
-						(:d	;was down last time
-							(bind '(x y) (. text_buf :constrain x y))
-							(. text_buf :set_cursor x y)
-							(create-selection))
-						(:u	;was up last time
-							(bind '(x y) (. text_buf :constrain x y))
-							(. text_buf :set_cursor x y)
-							(setq anchor_x x anchor_y y mouse_state :d)
-							(create-selection))))
-				(t	;mouse button is up
-					(case mouse_state
-						(:d	;was down last time
-							(setq mouse_state :u))
-						(:u	;was up last time
-							))))
-			(refresh))
-		((and (= (getf msg +ev_msg_type) +ev_type_key)
-				(> (getf msg +ev_msg_key_keycode) 0))
-			;key event
-			(defq key (getf msg +ev_msg_key_key) mod (getf msg +ev_msg_key_mod))
-			(cond
-				((/= 0 (logand mod (const (+ +ev_key_mod_control +ev_key_mod_command))))
-					;call bound control/command key action
-					(when (defq action (. key_map_control :find key))
-						(action)))
-				((defq action (. key_map :find key))
-					;call bound key action
-					(action))
-				((<= +char_space key +char_tilda)
-					;insert the char
-					(. text_buf :cut anchor_x anchor_y)
-					(. text_buf :insert (char key))
-					(clear-selection) (refresh))))
-		(t	;gui event
-			(. mywindow :event msg))))
+	(defq running t)
+	(while running
+		(cond
+			((defq id (getf (defq msg (mail-read (task-mailbox))) +ev_msg_target_id)
+					action (. event_map :find id))
+				;call bound event action
+				(action))
+			((and (= id (. vdu :get_id)) (= (getf msg +ev_msg_type) +ev_type_mouse))
+				;mouse event on display
+				(bind '(cw ch) (. vdu :char_size))
+				(bind '(sx sy x y) (. scroll_map :find current_file))
+				(defq x (getf msg +ev_msg_mouse_rx) y (getf msg +ev_msg_mouse_ry))
+				(setq x (if (>= x 0) x (- x cw)) y (if (>= y 0) y (- y ch)))
+				(setq x (+ sx (/ x cw)) y (+ sy (/ y ch)))
+				(cond
+					((/= (getf msg +ev_msg_mouse_buttons) 0)
+						;mouse button is down
+						(case mouse_state
+							(:d	;was down last time
+								(bind '(x y) (. text_buf :constrain x y))
+								(. text_buf :set_cursor x y)
+								(create-selection))
+							(:u	;was up last time
+								(bind '(x y) (. text_buf :constrain x y))
+								(. text_buf :set_cursor x y)
+								(setq anchor_x x anchor_y y mouse_state :d)
+								(create-selection))))
+					(t	;mouse button is up
+						(case mouse_state
+							(:d	;was down last time
+								(setq mouse_state :u))
+							(:u	;was up last time
+								))))
+				(refresh))
+			((and (= (getf msg +ev_msg_type) +ev_type_key)
+					(> (getf msg +ev_msg_key_keycode) 0))
+				;key event
+				(defq key (getf msg +ev_msg_key_key) mod (getf msg +ev_msg_key_mod))
+				(cond
+					((/= 0 (logand mod (const (+ +ev_key_mod_control +ev_key_mod_command))))
+						;call bound control/command key action
+						(when (defq action (. key_map_control :find key))
+							(action)))
+					((defq action (. key_map :find key))
+						;call bound key action
+						(action))
+					((<= +char_space key +char_tilda)
+						;insert the char
+						(. text_buf :cut anchor_x anchor_y)
+						(. text_buf :insert (char key))
+						(clear-selection) (refresh))))
+			(t	;gui event
+				(. mywindow :event msg))))
 	(. mywindow :hide))
