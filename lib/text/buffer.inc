@@ -240,7 +240,7 @@
 					(push (get :undo_stack this) (list :break x y)))
 				((> x 0)
 					(defq undo (slice (- x num) x (elem y buffer)))
-					(set-line y front (erase (elem y buffer) (- x num) x))
+					(set-line y (erase (elem y buffer) (- x num) x))
 					(setq x (- x num))
 					(push (get :undo_stack this) (list :insert x y undo)))
 				(t	(setq y (dec y) x (length (elem y buffer)))
