@@ -17,6 +17,34 @@
 	(. text_buf :down)
 	(clear-selection) (refresh))
 
+(defun action-left-select ()
+	(unless shift_select
+		(bind '(x y) (. text_buf :get_cursor))
+		(setq anchor_x x anchor_y y shift_select t))
+	(. text_buf :left)
+	(create-selection) (refresh))
+
+(defun action-right-select ()
+	(unless shift_select
+		(bind '(x y) (. text_buf :get_cursor))
+		(setq anchor_x x anchor_y y shift_select t))
+	(. text_buf :right)
+	(create-selection) (refresh))
+
+(defun action-up-select ()
+	(unless shift_select
+		(bind '(x y) (. text_buf :get_cursor))
+		(setq anchor_x x anchor_y y shift_select t))
+	(. text_buf :up)
+	(create-selection) (refresh))
+
+(defun action-down-select ()
+	(unless shift_select
+		(bind '(x y) (. text_buf :get_cursor))
+		(setq anchor_x x anchor_y y shift_select t))
+	(. text_buf :down)
+	(create-selection) (refresh))
+
 (defun action-break ()
 	(. text_buf :cut anchor_x anchor_y)
 	(. text_buf :break)
@@ -188,6 +216,12 @@
 		+char_delete action-delete
 		+char_tab action-tab)
 
+	key_map_shift (xmap-kv
+		0x40000050 action-left-select
+		0x4000004f action-right-select
+		0x40000052 action-up-select
+		0x40000051 action-down-select)
+
 	key_map_control (xmap-kv
 		(ascii-code "a") action-select-all
 		(ascii-code "z") action-undo
@@ -202,5 +236,5 @@
 
 ;module
 (export (penv)
-	event_map key_map key_map_control)
+	event_map key_map key_map_shift key_map_control)
 (env-pop)

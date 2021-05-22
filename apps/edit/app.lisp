@@ -16,7 +16,7 @@
 
 (defq vdu_min_width 16 vdu_min_height 16 vdu_max_width 120 vdu_max_height 48
 	vdu_width 80 vdu_height 40 tabs 4 anchor_x 0 anchor_y 0 mouse_state :u
-	text_buf (Buffer) scroll_map (xmap 31) underlay (list)
+	text_buf (Buffer) scroll_map (xmap 31) underlay (list) shift_select nil
 	current_file nil selected_file_node nil selected_open_node nil
 	+selected (apply array (map (lambda (_) 0x80000000) (str-alloc 1024)))
 	+not_selected (apply array (map (lambda (_) 0) (str-alloc 1024))))
@@ -99,7 +99,7 @@
 (defun clear-selection ()
 	;clear the underlay
 	(bind '(x y) (. text_buf :get_cursor))
-	(setq anchor_x x anchor_y y)
+	(setq anchor_x x anchor_y y shift_select nil)
 	(clear underlay))
 
 (defun load-display (scroll_x scroll_y)
@@ -188,10 +188,9 @@
 	(bind '(scroll_x scroll_y) (set-sliders current_file))
 	(load-display scroll_x scroll_y))
 
-;import editor actions and bindings
-(import "apps/edit/actions.inc")
-
 (defun main ()
+	;import editor actions and bindings
+	(import "apps/edit/actions.inc")
 	(populate-file-tree)
 	(bind '(ow oh) (. open_tree :pref_size))
 	(bind '(fw fh) (. file_tree :pref_size))
@@ -229,7 +228,7 @@
 							(:u	;was up last time
 								(bind '(x y) (. text_buf :constrain x y))
 								(. text_buf :set_cursor x y)
-								(setq anchor_x x anchor_y y mouse_state :d)
+								(setq anchor_x x anchor_y y shift_select nil mouse_state :d)
 								(create-selection))))
 					(t	;mouse button is up
 						(case mouse_state
@@ -246,8 +245,15 @@
 				(cond
 					((/= 0 (logand mod (const (+ +ev_key_mod_control +ev_key_mod_command))))
 						;call bound control/command key action
-						(when (defq action (. key_map_control :find key))
-							(action)))
+						(when (defq action (. key_map_control :find key)) (action)))
+					((/= 0 (logand mod +ev_key_mod_shift))
+						;call bound shift key action, else insert
+						(cond
+							((defq action (. key_map_shift :find key)) (action))
+							((<= +char_space key +char_tilda)
+								(. text_buf :cut anchor_x anchor_y)
+								(. text_buf :insert (char key))
+								(clear-selection) (refresh))))
 					((defq action (. key_map :find key))
 						;call bound key action
 						(action))
