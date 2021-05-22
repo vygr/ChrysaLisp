@@ -25,7 +25,7 @@
 	(ui-title-bar mytitle "" (0xea19 0xea1b 0xea1a) +event_close)
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-tool-bar _ ()
-			(ui-buttons (0xe9fe 0xe99d 0xea08 0xe9ca 0xe9c9 0xe915 0xe91a) +event_undo)
+			(ui-buttons (0xe9fe 0xe99d 0xea08 0xe9ca 0xe9c9 0xe90a 0xe90b) +event_undo)
 			(ui-buttons (0xe91d 0xe91e 0xea07 0xe9f0) +event_prev
 				(:color (const *env_toolbar2_col*))))
 		(. (ui-textfield name_text (:hint_text "new filename" :clear_text "" :color +argb_white))
