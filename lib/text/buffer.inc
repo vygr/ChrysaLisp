@@ -60,7 +60,7 @@
 			:buffer_states buffer_states :dirty t)
 		(. this :set_cursor x y)))
 
-(defmacro select-buffer (&rest _)
+(defmacro get-selection ()
 	`(progn
 		(bind '(x y) (. this :get_cursor))
 		(bind '(sx sy) (. this :constrain x y))
@@ -69,7 +69,11 @@
 			(defq sx (logxor sx sx1) sx1 (logxor sx sx1) sx (logxor sx sx1)
 				sy (logxor sy sy1) sy1 (logxor sy sy1) sy (logxor sy sy1)))
 		(and (= sy sy1) (> sx sx1)
-			(defq sx (logxor sx sx1) sx1 (logxor sx sx1) sx (logxor sx sx1)))
+			(defq sx (logxor sx sx1) sx1 (logxor sx sx1) sx (logxor sx sx1)))))
+
+(defmacro select-buffer (&rest _)
+	`(progn
+		(get-selection)
 		(cond
 			((and (= sx sx1) (= sy sy1)) "")
 			(t	(bind '(w h) (. this :get_size))
@@ -146,6 +150,38 @@
 						(:delete (- (length line) (length trimed_line)))))) (list (get :buffer this)))
 			(push undo_stack '(:mark))
 			(. this :set_cursor x y)))
+
+	(defmethod :tab_left (this anchor_x anchor_y)
+		; (. buffer :tab_left anchor_x anchor_y) -> buffer
+		(get-selection)
+		(if (> sx1 0) (setq sy1 (inc sy1)))
+		(push (defq undo_stack (get :undo_stack this)) '(:mark) (list :cursor x y))
+		(defq tab_width (get :tab_width this))
+		(each! sy sy1 (lambda (line)
+				(defq spaces 0 idx -1)
+				(unless (eql line "")
+					(while (and (< (setq idx (inc idx)) (length line))
+								(eql (elem idx line) " "))
+						(setq spaces (inc spaces))))
+				(if (> spaces 0)
+					(.-> this (:set_cursor 0 _) (:delete (min tab_width spaces)))))
+			(list (get :buffer this)))
+		(push undo_stack '(:mark))
+		(. this :set_cursor x y))
+
+	(defmethod :tab_right (this anchor_x anchor_y)
+		; (. buffer :tab_right anchor_x anchor_y) -> buffer
+		(get-selection)
+		(if (> sx1 0) (setq sy1 (inc sy1)))
+		(push (defq undo_stack (get :undo_stack this)) '(:mark) (list :cursor x y))
+		(defq tab (pad "" (get :tab_width this) "        "))
+		(each! sy sy1 (lambda (line)
+			(unless (eql line "")
+				(.-> this
+					(:set_cursor 0 _)
+					(:insert tab)))) (list (get :buffer this)))
+		(push undo_stack '(:mark))
+		(. this :set_cursor x y))
 
 	(defmethod :vdu_load (this vdu scroll_x scroll_y)
 		; (. buffer :vdu_load vdu scroll_x scroll_y) -> buffer

@@ -11,7 +11,7 @@
 	(enum tree_action)
 	(enum file_folder_action file_leaf_action)
 	(enum open_folder_action open_leaf_action)
-	(enum undo redo cut copy paste)
+	(enum undo redo cut copy paste tab_left tab_right)
 	(enum prev next save new))
 
 (defq vdu_min_width 16 vdu_min_height 16 vdu_max_width 120 vdu_max_height 48
@@ -25,7 +25,7 @@
 	(ui-title-bar mytitle "" (0xea19 0xea1b 0xea1a) +event_close)
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-tool-bar _ ()
-			(ui-buttons (0xe9fe 0xe99d 0xea08 0xe9ca 0xe9c9) +event_undo)
+			(ui-buttons (0xe9fe 0xe99d 0xea08 0xe9ca 0xe9c9 0xe915 0xe91a) +event_undo)
 			(ui-buttons (0xe91d 0xe91e 0xea07 0xe9f0) +event_prev
 				(:color (const *env_toolbar2_col*))))
 		(. (ui-textfield name_text (:hint_text "new filename" :clear_text "" :color +argb_white))

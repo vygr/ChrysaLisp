@@ -45,6 +45,14 @@
 	(. text_buf :down)
 	(create-selection) (refresh))
 
+(defun action-left-tab ()
+	(. text_buf :tab_left anchor_x anchor_y)
+	(refresh))
+
+(defun action-right-tab ()
+	(. text_buf :tab_right anchor_x anchor_y)
+	(refresh))
+
 (defun action-break ()
 	(. text_buf :cut anchor_x anchor_y)
 	(. text_buf :break)
@@ -199,7 +207,8 @@
 		+event_cut action-cut
 		+event_copy action-copy
 		+event_paste action-paste
-		+event_paste action-paste
+		+event_tab_left action-left-tab
+		+event_tab_right action-right-tab
 		+event_layout action-layout
 		+event_xscroll action-xscroll
 		+event_yscroll action-yscroll
@@ -234,7 +243,9 @@
 		(ascii-code "c") action-copy
 		(ascii-code "v") action-paste
 		(ascii-code "-") action-minimise
-		(ascii-code "=") action-maximise))
+		(ascii-code "=") action-maximise
+		0x40000050 action-left-tab
+		0x4000004f action-right-tab))
 
 ;module
 (export (penv)
