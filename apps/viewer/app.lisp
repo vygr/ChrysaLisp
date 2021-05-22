@@ -12,7 +12,7 @@
 (defq vdu_min_width 16 vdu_min_height 16
 	vdu_max_width 120 vdu_max_height 50
 	vdu_width 80 vdu_height 50 tabs 4
-	text_buf (Buffer) scroll_map (xmap 31)
+	text_buf (Buffer) meta_map (xmap 31)
 	current_file nil selected_node nil)
 
 (ui-window mywindow (:color +argb_grey2)
@@ -51,7 +51,7 @@
 
 (defun set-sliders (file)
 	;set slider values for this file
-	(bind '(scroll_x scroll_y) (. scroll_map :find file))
+	(bind '(scroll_x scroll_y) (. meta_map :find file))
 	(bind '(text_width text_height) (. text_buf :get_size))
 	(defq scroll_maxx (max 0 (- text_width vdu_width))
 		scroll_maxy (max 0 (- text_height vdu_height))
@@ -59,7 +59,7 @@
 		scroll_y (min scroll_y scroll_maxy))
 	(def (. xslider :dirty) :maximum scroll_maxx :portion vdu_width :value scroll_x)
 	(def (. yslider :dirty) :maximum scroll_maxy :portion vdu_height :value scroll_y)
-	(. scroll_map :insert file (list scroll_x scroll_y))
+	(. meta_map :insert file (list scroll_x scroll_y))
 	(list scroll_x scroll_y))
 
 (defun populate-vdu (file)
@@ -82,7 +82,7 @@
 	(defq all_src_files (sort cmp (all-src-files ".")))
 	(each (# (. tree :add_route %0)) (all-dirs all_src_files))
 	(each (# (. tree :add_route %0)) all_src_files)
-	(each (# (. scroll_map :insert %0 '(0 0))) all_src_files)
+	(each (# (. meta_map :insert %0 '(0 0))) all_src_files)
 	(populate-vdu (elem 0 all_src_files)))
 
 (defun window-resize (w h)
@@ -129,15 +129,15 @@
 			(vdu-resize vdu_max_width vdu_max_height))
 		((= id +event_xscroll)
 			;user xscroll bar
-			(bind '(scroll_x scroll_y) (. scroll_map :find current_file))
+			(bind '(scroll_x scroll_y) (. meta_map :find current_file))
 			(defq scroll_x (get :value xslider))
-			(. scroll_map :insert current_file (list scroll_x scroll_y))
+			(. meta_map :insert current_file (list scroll_x scroll_y))
 			(. text_buf :vdu_load vdu scroll_x scroll_y))
 		((= id +event_yscroll)
 			;user yscroll bar
-			(bind '(scroll_x scroll_y) (. scroll_map :find current_file))
+			(bind '(scroll_x scroll_y) (. meta_map :find current_file))
 			(defq scroll_y (get :value yslider))
-			(. scroll_map :insert current_file (list scroll_x scroll_y))
+			(. meta_map :insert current_file (list scroll_x scroll_y))
 			(. text_buf :vdu_load vdu scroll_x scroll_y))
 		((= id +event_tree_action)
 			;any tree view action

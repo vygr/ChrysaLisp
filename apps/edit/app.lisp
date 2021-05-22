@@ -14,12 +14,12 @@
 	(enum undo redo cut copy paste tab_left tab_right)
 	(enum prev next save new))
 
-(defq vdu_min_width 16 vdu_min_height 16 vdu_max_width 120 vdu_max_height 48
+(defq vdu_min_width 32 vdu_min_height 16 vdu_max_width 120 vdu_max_height 48
 	vdu_width 80 vdu_height 40 tabs 4 anchor_x 0 anchor_y 0 mouse_state :u
-	text_buf (Buffer) scroll_map (xmap 31) underlay (list) shift_select nil
+	text_buf (Buffer) meta_map (xmap 31) underlay (list) shift_select nil
 	current_file nil selected_file_node nil selected_open_node nil
-	+selected (apply array (map (lambda (_) 0x80000000) (str-alloc 1024)))
-	+not_selected (apply array (map (lambda (_) 0) (str-alloc 1024))))
+	+selected (apply array (map (lambda (_) 0x80000000) (str-alloc 8192)))
+	+not_selected (apply array (map (lambda (_) 0) (str-alloc 8192))))
 
 (ui-window mywindow (:color +argb_grey2)
 	(ui-title-bar mytitle "" (0xea19 0xea1b 0xea1a) +event_close)
@@ -109,7 +109,7 @@
 
 (defun refresh ()
 	;refresh display and ensure cursor is visible
-	(bind '(scroll_x scroll_y x y) (. scroll_map :find current_file))
+	(bind '(scroll_x scroll_y x y) (. meta_map :find current_file))
 	(bind '(x y) (. text_buf :get_cursor))
 	(bind '(x y) (. text_buf :constrain x y))
 	(. text_buf :set_cursor x y)
@@ -118,13 +118,13 @@
 	(if (< y scroll_y) (setq scroll_y y))
 	(if (>= x (+ scroll_x w)) (setq scroll_x (- x w -1)))
 	(if (>= y (+ scroll_y h)) (setq scroll_y (- y h -1)))
-	(. scroll_map :insert current_file (list scroll_x scroll_y x y))
+	(. meta_map :insert current_file (list scroll_x scroll_y x y))
 	(bind '(scroll_x scroll_y) (set-sliders current_file))
 	(load-display scroll_x scroll_y))
 
 (defun set-sliders (file)
 	;set slider values for this file
-	(bind '(scroll_x scroll_y x y) (. scroll_map :find current_file))
+	(bind '(scroll_x scroll_y x y) (. meta_map :find current_file))
 	(bind '(w h) (. text_buf :get_size))
 	(bind '(x y) (. text_buf :get_cursor))
 	(defq scroll_maxx (max 0 (- w vdu_width -1))
@@ -133,13 +133,13 @@
 		scroll_y (min scroll_y scroll_maxy))
 	(def (. xslider :dirty) :maximum scroll_maxx :portion vdu_width :value scroll_x)
 	(def (. yslider :dirty) :maximum scroll_maxy :portion vdu_height :value scroll_y)
-	(. scroll_map :insert file (list scroll_x scroll_y x y))
+	(. meta_map :insert file (list scroll_x scroll_y x y))
 	(list scroll_x scroll_y))
 
 (defun populate-vdu (file)
 	;load up the vdu widget from this file
 	(. text_buf :file_load (setq current_file file))
-	(bind '(_ _ x y) (. scroll_map :find current_file))
+	(bind '(_ _ x y) (. meta_map :find current_file))
 	(. text_buf :set_cursor x y)
 	(clear-selection) (refresh)
 	(def mytitle :text (cat "Edit -> " file))
@@ -157,7 +157,7 @@
 	(defq all_src_files (sort cmp (all-src-files ".")))
 	(each (# (. file_tree :add_route %0)) (all-dirs all_src_files))
 	(each (# (. file_tree :add_route %0)) all_src_files)
-	(each (# (. scroll_map :insert %0 '(0 0 0 0))) all_src_files)
+	(each (# (. meta_map :insert %0 '(0 0 0 0))) all_src_files)
 	(populate-vdu (elem 0 all_src_files))
 	(. open_tree :add_route current_file))
 
@@ -213,7 +213,7 @@
 			((and (= id (. vdu :get_id)) (= (getf msg +ev_msg_type) +ev_type_mouse))
 				;mouse event on display
 				(bind '(cw ch) (. vdu :char_size))
-				(bind '(sx sy x y) (. scroll_map :find current_file))
+				(bind '(sx sy x y) (. meta_map :find current_file))
 				(defq x (getf msg +ev_msg_mouse_rx) y (getf msg +ev_msg_mouse_ry))
 				(setq x (if (>= x 0) x (- x cw)) y (if (>= y 0) y (- y ch)))
 				(setq x (+ sx (/ x cw)) y (+ sy (/ y ch)))

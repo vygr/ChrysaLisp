@@ -47,11 +47,11 @@
 
 (defun action-left-tab ()
 	(. text_buf :tab_left anchor_x anchor_y)
-	(refresh))
+	(create-selection) (refresh))
 
 (defun action-right-tab ()
 	(. text_buf :tab_right anchor_x anchor_y)
-	(refresh))
+	(create-selection) (refresh))
 
 (defun action-break ()
 	(. text_buf :cut anchor_x anchor_y)
@@ -106,7 +106,7 @@
 		(clear-selection) (refresh)))
 
 (defun action-select-all ()
-	(bind '(_ y) (. text_buf :get_size))
+	(bind '(x y) (. text_buf :get_size))
 	(setq anchor_x 0 anchor_y 0)
 	(. text_buf :set_cursor 0 y)
 	(create-selection) (refresh))
@@ -126,18 +126,18 @@
 
 (defun action-xscroll ()
 	;user xscroll bar
-	(bind '(scroll_x scroll_y x y) (. scroll_map :find current_file))
+	(bind '(scroll_x scroll_y x y) (. meta_map :find current_file))
 	(bind '(x y) (. text_buf :get_cursor))
 	(defq scroll_x (get :value xslider))
-	(. scroll_map :insert current_file (list scroll_x scroll_y x y))
+	(. meta_map :insert current_file (list scroll_x scroll_y x y))
 	(load-display scroll_x scroll_y))
 
 (defun action-yscroll ()
 	;user yscroll bar
-	(bind '(scroll_x scroll_y x y) (. scroll_map :find current_file))
+	(bind '(scroll_x scroll_y x y) (. meta_map :find current_file))
 	(bind '(x y) (. text_buf :get_cursor))
 	(defq scroll_y (get :value yslider))
-	(. scroll_map :insert current_file (list scroll_x scroll_y x y))
+	(. meta_map :insert current_file (list scroll_x scroll_y x y))
 	(load-display scroll_x scroll_y))
 
 (defun action-tree-action ()
@@ -193,7 +193,7 @@
 		(bind '(w h) (. file_tree :pref_size))
 		(. file_tree :change 0 0 w h)
 		(.-> file_tree_scroll :layout :dirty_all)
-		(. scroll_map :insert file '(0 0 0 0))
+		(. meta_map :insert file '(0 0 0 0))
 		(populate-vdu file)))
 
 (defq event_map (xmap-kv
