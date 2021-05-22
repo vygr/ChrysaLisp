@@ -36,6 +36,144 @@
 (. backdrop :draw) -> backdrop
 ```
 
+### buffer :backspace
+
+```code
+(. buffer :backspace &optional num) -> buffer
+```
+
+### buffer :break
+
+```code
+(. buffer :break) -> buffer
+```
+
+### buffer :constrain
+
+```code
+(. buffer :constrain x y) -> (list x y)
+```
+
+### buffer :copy
+
+```code
+(. buffer :copy anchor_x anchor_y) -> string
+```
+
+### buffer :cut
+
+```code
+(. buffer :cut anchor_x anchor_y) -> string
+```
+
+### buffer :delete
+
+```code
+(. buffer :delete &optional num) -> buffer
+```
+
+### buffer :down
+
+```code
+(. buffer :down) -> buffer
+```
+
+### buffer :file_load
+
+```code
+(. buffer :file_load filepath) -> buffer
+```
+
+### buffer :file_save
+
+```code
+(. buffer :file_save filepath) -> buffer
+```
+
+### buffer :get_cursor
+
+```code
+(. buffer :get_cursor) -> (x y)
+```
+
+### buffer :get_size
+
+```code
+(. buffer :get_size) -> (width height)
+```
+
+### buffer :insert
+
+```code
+(. buffer :insert string) -> buffer
+```
+
+### buffer :left
+
+```code
+(. buffer :left) -> buffer
+```
+
+### buffer :paste
+
+```code
+(. buffer :paste string) -> this
+```
+
+### buffer :redo
+
+```code
+(. buffer :redo) -> buffer
+```
+
+### buffer :right
+
+```code
+(. buffer :right) -> buffer
+```
+
+### buffer :set_cursor
+
+```code
+(. buffer :set_cursor x y) -> buffer
+```
+
+### buffer :tab_left
+
+```code
+(. buffer :tab_left anchor_x anchor_y) -> buffer
+```
+
+### buffer :tab_right
+
+```code
+(. buffer :tab_right anchor_x anchor_y) -> buffer
+```
+
+### buffer :trim
+
+```code
+(. buffer :trim) -> buffer
+```
+
+### buffer :undo
+
+```code
+(. buffer :undo) -> buffer
+```
+
+### buffer :up
+
+```code
+(. buffer :up) -> buffer
+```
+
+### buffer :vdu_load
+
+```code
+(. buffer :vdu_load vdu scroll_x scroll_y) -> buffer
+```
+
 ### button :draw
 
 ```code
@@ -198,6 +336,18 @@
 (. env sym [...])
 ```
 
+### farm :close
+
+```code
+(. farm :close)
+```
+
+### farm :refresh
+
+```code
+(. farm :refresh [_timeout]) -> t | nil
+```
+
 ### flow :layout
 
 ```code
@@ -208,6 +358,24 @@
 
 ```code
 (. flow :pref_size) -> (width height)
+```
+
+### global :close
+
+```code
+(. global :close)
+```
+
+### global :refresh
+
+```code
+(. global :refresh [_timeout]) -> t | nil
+```
+
+### global :size
+
+```code
+(. global :size) -> size
 ```
 
 ### grid :layout
@@ -244,6 +412,24 @@
 
 ```code
 (. label :pref_size) -> (width height)
+```
+
+### pipe :close
+
+```code
+(. pipe :close) -> pipe
+```
+
+### pipe :read
+
+```code
+(. pipe :read) -> nil | t | data
+```
+
+### pipe :write
+
+```code
+(. pipe :write string) -> pipe
 ```
 
 ### progress :draw
@@ -310,6 +496,42 @@
 
 ```code
 (. slider :pref_size) -> (width height)
+```
+
+### syntax :colorise
+
+```code
+(. syntax :colorise str) -> array
+```
+
+### syntax :compress_tabs
+
+```code
+(. syntax :compress_tabs string tab_width) -> string
+```
+
+### syntax :expand_tabs
+
+```code
+(. syntax :expand_tabs string tab_width) -> string
+```
+
+### syntax :get_state
+
+```code
+(. syntax :get_state) -> state
+```
+
+### syntax :set_colors
+
+```code
+(. syntax :set_colors xmap) -> syntax
+```
+
+### syntax :set_state
+
+```code
+(. syntax :set_state state) -> syntax
 ```
 
 ### text :draw
@@ -882,6 +1104,12 @@
 (Backdrop) -> backdrop
 ```
 
+### Buffer
+
+```code
+(Buffer) -> buffer
+```
+
 ### Button
 
 ```code
@@ -900,10 +1128,22 @@
 (Canvas-from-file file flags) -> nil | canvas
 ```
 
+### Farm
+
+```code
+(Farm fnc_create fnc_destroy size) -> farm
+```
+
 ### Flow
 
 ```code
 (Flow) -> flow
+```
+
+### Global
+
+```code
+(Global fnc_create fnc_destroy) -> global
 ```
 
 ### Grid
@@ -916,6 +1156,12 @@
 
 ```code
 (Label) -> label
+```
+
+### Pipe
+
+```code
+(Pipe cmds &optional flag) -> pipe | nil
 ```
 
 ### Progress
@@ -934,6 +1180,12 @@
 
 ```code
 (Slider) -> slider
+```
+
+### Syntax
+
+```code
+(Syntax) -> syntax
 ```
 
 ### Text
@@ -2470,6 +2722,12 @@
 
 ```code
 (pii-write-char fd char)
+```
+
+### pipe-run
+
+```code
+(pipe-run cmdline &optional outfun)
 ```
 
 ### pivot
