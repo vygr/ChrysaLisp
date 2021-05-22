@@ -8,34 +8,11 @@
 ;module
 (env-push)
 
-(defmacro mutate-buffer (&rest _)
-	`(progn
-		(bind '(x y) (. this :get_cursor))
-		(bind '(x y) (. this :constrain x y))
-		(bind '(w h) (. this :get_size))
-		(defq buffer (get :buffer this)
-			buffer_colored (get :buffer_colored this)
-			buffer_states (get :buffer_states this))
-		~_
-		(clear (get :redo_stack this))
-		(set this :buffer buffer :buffer_colored buffer_colored
-			:buffer_states buffer_states :dirty t)
-		(. this :set_cursor x y)))
-
-(defmacro select-buffer (&rest _)
-	`(progn
-		(bind '(x y) (. this :get_cursor))
-		(bind '(sx sy) (. this :constrain x y))
-		(bind '(sx1 sy1) (. this :constrain anchor_x anchor_y))
-		(if (> sy sy1)
-			(defq sx (logxor sx sx1) sx1 (logxor sx sx1) sx (logxor sx sx1)
-				sy (logxor sy sy1) sy1 (logxor sy sy1) sy (logxor sy sy1)))
-		(and (= sy sy1) (> sx sx1)
-			(defq sx (logxor sx sx1) sx1 (logxor sx sx1) sx (logxor sx sx1)))
-		(cond
-			((and (= sx sx1) (= sy sy1)) "")
-			(t	(bind '(w h) (. this :get_size))
-				~_))))
+(defun last-line ()
+	(when (or (= (length buffer) 0) (not (eql (elem -2 buffer) "")))
+		(push buffer "")
+		(push buffer_colored "")
+		(push buffer_states '(nil nil))))
 
 (defun erase-line (y)
 	(setq buffer (erase buffer y (inc y)))
@@ -67,6 +44,36 @@
 	(defq idx (redo))
 	(until (= idx (length undo_stack))
 		(push redo_stack (pop undo_stack))))
+
+(defmacro mutate-buffer (&rest _)
+	`(progn
+		(bind '(x y) (. this :get_cursor))
+		(bind '(x y) (. this :constrain x y))
+		(bind '(w h) (. this :get_size))
+		(defq buffer (get :buffer this)
+			buffer_colored (get :buffer_colored this)
+			buffer_states (get :buffer_states this))
+		~_
+		(clear (get :redo_stack this))
+		(last-line)
+		(set this :buffer buffer :buffer_colored buffer_colored
+			:buffer_states buffer_states :dirty t)
+		(. this :set_cursor x y)))
+
+(defmacro select-buffer (&rest _)
+	`(progn
+		(bind '(x y) (. this :get_cursor))
+		(bind '(sx sy) (. this :constrain x y))
+		(bind '(sx1 sy1) (. this :constrain anchor_x anchor_y))
+		(if (> sy sy1)
+			(defq sx (logxor sx sx1) sx1 (logxor sx sx1) sx (logxor sx sx1)
+				sy (logxor sy sy1) sy1 (logxor sy sy1) sy (logxor sy sy1)))
+		(and (= sy sy1) (> sx sx1)
+			(defq sx (logxor sx sx1) sx1 (logxor sx sx1) sx (logxor sx sx1)))
+		(cond
+			((and (= sx sx1) (= sy sy1)) "")
+			(t	(bind '(w h) (. this :get_size))
+				~_))))
 
 (defclass Buffer () nil
 	; (Buffer) -> buffer
@@ -100,10 +107,7 @@
 				(push buffer_colored line)
 				(push buffer_states '(nil nil)))
 			(file-stream filepath))
-		(when (or (= (length buffer) 0) (not (eql (elem -2 buffer) "")))
-			(push buffer "")
-			(push buffer_colored "")
-			(push buffer_states '(nil nil)))
+		(last-line)
 		(clear (get :undo_stack this) (get :redo_stack this))
 		(set this :buffer buffer :buffer_colored buffer_colored
 			:buffer_states buffer_states :max_width max_width
@@ -217,37 +221,26 @@
 		(mutate-buffer
 			(defq front (slice 0 x (elem y buffer)) back (slice x -1 (elem y buffer)))
 			(set-line y front)
-			(setq x 0 y (inc y))
-			(insert-line y back)
-			(push (get :undo_stack this) (list :backspace x y))))
+			(insert-line (setq x 0 y (inc y)) back)
+			(push (get :undo_stack this) (list :backspace x y))
+			(if (> y h)
+				(push (get :undo_stack this) (list :delete 0 y)))))
 
 	(defmethod :backspace (this &optional num)
 		; (. buffer :backspace &optional num) -> buffer
 		(mutate-buffer
 			(setd num 1)
 			(cond
-				((and (= x 0) (= y 0)))
-				((>= y h)
-					(push (get :undo_stack this) (list :cursor x y))
+				((and (<= x 0) (<= y 0)))
+				((= x 0)
 					(setq y (dec y) x (length (elem y buffer)))
-					(when (= x 0)
-						(erase-line y)
-						(setq y (dec y) x (length (elem y buffer)))
-						(push (get :undo_stack this) (list :break x y))))
-				((= (length (elem y buffer)) 0)
-					(erase-line y)
-					(setq y (dec y) x (length (elem y buffer)))
+					(set-line y (cat (elem y buffer) (elem (inc y) buffer)))
+					(erase-line (inc y))
 					(push (get :undo_stack this) (list :break x y)))
-				((> x 0)
-					(defq undo (slice (- x num) x (elem y buffer)))
+				(t	(defq undo (slice (- x num) x (elem y buffer)))
 					(set-line y (erase (elem y buffer) (- x num) x))
 					(setq x (- x num))
-					(push (get :undo_stack this) (list :insert x y undo)))
-				(t	(setq y (dec y) x (length (elem y buffer)))
-					(set-line y (cat (elem y buffer) (elem (inc y) buffer)))
-					(when (< (inc y) h)
-						(erase-line (inc y))
-						(push (get :undo_stack this) (list :break x y)))))))
+					(push (get :undo_stack this) (list :insert x y undo))))))
 
 	(defmethod :delete (this &optional num)
 		; (. buffer :delete &optional num) -> buffer
@@ -255,31 +248,22 @@
 			(setd num 1)
 			(cond
 				((>= y h))
-				((= (length (elem y buffer)) 0)
-					(erase-line y)
+				((>= x (length (elem y buffer)))
+					(set-line y (cat (elem y buffer) (elem (inc y) buffer)))
+					(erase-line (inc y))
 					(push (get :undo_stack this) (list :break x y)))
-				((< x (length (elem y buffer)))
-					(defq undo (slice x (+ x num) (elem y buffer)))
+				(t	(defq undo (slice x (+ x num) (elem y buffer)))
 					(set-line y (erase (elem y buffer) x (+ x num)))
-					(push (get :undo_stack this) (list :insert x y undo)))
-				(t	(set-line y (cat (elem y buffer) (elem (inc y) buffer)))
-					(when (< (inc y) h)
-						(erase-line (inc y))
-						(push (get :undo_stack this) (list :break x y)))))))
+					(push (get :undo_stack this) (list :insert x y undo))))))
 
 	(defmethod :insert (this string)
 		; (. buffer :insert string) -> buffer
 		(mutate-buffer
-			(cond
-				((>= y h)
-					(insert-line y string)
-					(setq x (+ x (length string)))
-					(push (get :undo_stack this)
-						(list :backspace 0 y)
-						(list :backspace x y (length string))))
-				(t	(set-line y (insert (elem y buffer) x string))
-					(setq x (+ x (length string)))
-					(push (get :undo_stack this) (list :backspace x y (length string)))))))
+			(set-line y (insert (elem y buffer) x string))
+			(setq x (+ x (length string)))
+			(if (>= y h)
+				(push (get :undo_stack this) (list :delete 0 y)))
+			(push (get :undo_stack this) (list :backspace x y (length string)))))
 
 	(defmethod :cut (this anchor_x anchor_y)
 		; (. buffer :cut anchor_x anchor_y) -> string
