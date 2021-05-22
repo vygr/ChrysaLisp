@@ -169,6 +169,8 @@
 			(= (age file) 0))
 		;file does not exist
 		(save "" file)
+		(def name_text :clear_text "" :cursor 0)
+		(.-> name_text :layout :dirty_all)
 		(if selected_file_node (undef (. selected_file_node :dirty) :color))
 		(if selected_open_node (undef (. selected_open_node :dirty) :color))
 		(. open_tree :add_route file)
