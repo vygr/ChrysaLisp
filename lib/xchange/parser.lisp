@@ -23,7 +23,7 @@
   cmd)
 
 (defmacro peek-last (col)
-  ; (peek-last stack) -> el|nil
+  ; (peek-last stack) -> el | nil
   `(if (not (empty? ,col))
     (last ,col)
     nil))

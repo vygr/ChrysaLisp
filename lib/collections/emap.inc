@@ -8,7 +8,7 @@
 		:buckets (env (neg num_buckets)))
 
 	(defmethod :find (this key)
-		; (. emap :find key) -> nil|val
+		; (. emap :find key) -> nil | val
 		(get key (get :buckets this)))
 
 	(defmethod :insert (this key val)

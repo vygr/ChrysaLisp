@@ -51,7 +51,7 @@
 	(mail-free-mbox mbox) id)
 
 (defun open-pipe (tasks)
-	; (open-pipe tasks) -> (list str ...)
+	; (open-pipe tasks) -> (str ...)
 	(defq devices (mail-nodes) ids (cap (length tasks) (list))
 		mbox (mail-alloc-mbox) index -1 tail (task-mailbox))
 	(while (< (setq index (inc index)) (length tasks))

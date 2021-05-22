@@ -385,11 +385,11 @@
 ;;;;;;;;;;;;
 
 (defmacro some (f &rest _)
-	; (some lambda seq ...) -> nil|form
+	; (some lambda seq ...) -> nil | form
 	`(some! 0 -1 nil ,f (list ~_)))
 
 (defmacro every (f &rest _)
-	; (every lambda seq ...) -> nil|form
+	; (every lambda seq ...) -> nil | form
 	`(some! 0 -1 t ,f (list ~_)))
 
 (defmacro notany (f &rest _)
@@ -417,19 +417,19 @@
 ;;;;;;;;;;;
 
 (defun first (_)
-	; (first seq) -> el|nil
+	; (first seq) -> el | nil
 	(if (and (not (nil? _)) (> (length _) 0)) (elem 0 _)))
 
 (defun second (_)
-	; (second seq) -> el|nil
+	; (second seq) -> el | nil
 	(if (and (not (nil? _)) (> (length _) 1)) (elem 1 _)))
 
 (defun last (_)
-	; (last seq) -> el|nil
+	; (last seq) -> el | nil
 	(if (and (not (nil? _)) (> (length _) 0)) (elem -2 _)))
 
 (defun rest (_)
-	; (rest seq) -> nil|seq
+	; (rest seq) -> nil | seq
 	(if (and (not (nil? _)) (> (length _) 0)) (slice 1 -1 _) (list)))
 
 (defun erase (s b e)
@@ -791,7 +791,7 @@
 	(if (setq _ (pii-fstat _)) (elem 0 _) 0))
 
 (defun load-stream (_)
-	; (load-stream path) -> nil|stream
+	; (load-stream path) -> nil | stream
 	(if (defq _ (load _)) (string-stream _)))
 
 (defun each-line (_f _)

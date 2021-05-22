@@ -17,18 +17,18 @@
     (if (eql ,ss _tvar) _)) ,slst))
 
 (defmacro stack-pop (stack)
-  ; (stack-pop stack) -> el|nil
+  ; (stack-pop stack) -> el | nil
   `(pop ,stack))
 
 (defmacro stack-push (stack el)
-  ; (stack-push stack) -> el|nil
+  ; (stack-push stack) -> el | nil
   `(push ,stack ,el))
 
 (defmacro stack-empty? (stack)
   `(= (length ,stack) 0))
 
 (defmacro stack-peek (stack)
-  ; (stack-peek stack) -> el|nil
+  ; (stack-peek stack) -> el | nil
   `(if (not (stack-empty? ,stack))
     (last ,stack)
     nil))

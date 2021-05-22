@@ -10,7 +10,7 @@
 (defq *profile* (env -401) *profile_ret* (list))
 
 (defun profile-print (n &optional s)
-	; (profile-print name [stream]) -> stdout|stream
+	; (profile-print name [stream]) -> stdout | stream
 	(setd s (io-stream 'stdout))
 	(defq e (tolist *profile*) m (reduce (lambda (a (k v)) (max a (length k))) e 0))
 	(write s (cat (task-mailbox) n (ascii-char 10)))

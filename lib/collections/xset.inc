@@ -18,7 +18,7 @@
 		(push (get :buckets this) (list)))
 
 	(defmethod :find (this key)
-		; (. xset :find key) -> nil|key
+		; (. xset :find key) -> nil | key
 		(xset-slot)
 		(if e (elem e (elem b x))))
 

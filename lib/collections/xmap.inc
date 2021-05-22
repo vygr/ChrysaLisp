@@ -18,7 +18,7 @@
 		(push (get :buckets this) (list) (list)))
 
 	(defmethod :find (this key)
-		; (. xmap :find key) -> nil|val
+		; (. xmap :find key) -> nil | val
 		(xmap-slot)
 		(if e (elem e (elem (inc b) x))))
 

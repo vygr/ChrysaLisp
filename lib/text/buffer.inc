@@ -208,7 +208,7 @@
 		this)
 
 	(defmethod :constrain (this x y)
-		; (. buffer :constrain x y) -> (list x y)
+		; (. buffer :constrain x y) -> (x y)
 		(bind '(w h) (. this :get_size))
 		(defq buffer (get :buffer this))
 		(cond

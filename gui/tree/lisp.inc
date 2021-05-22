@@ -44,10 +44,9 @@
 		this)
 
 	(defmethod :find_node (this route)
-		; (. tree :find_node route) -> node
+		; (. tree :find_node route) -> node | nil
 		; routes are:
-		; "a/b/c/file"
-		; "a/b/c/."
+		; "a/b/c/node"
 		(defq route (split route "/") root this)
 		(every (lambda (branch)
 			(cond

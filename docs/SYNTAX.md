@@ -51,7 +51,7 @@
 ### buffer :constrain
 
 ```code
-(. buffer :constrain x y) -> (list x y)
+(. buffer :constrain x y) -> (x y)
 ```
 
 ### buffer :copy
@@ -309,7 +309,7 @@
 ### emap :find
 
 ```code
-(. emap :find key) -> nil|val
+(. emap :find key) -> nil | val
 ```
 
 ### emap :insert
@@ -597,7 +597,7 @@
 ### tree :find_node
 
 ```code
-(. tree :find_node route) -> node
+(. tree :find_node route) -> node | nil
 ```
 
 ### tree :get_route
@@ -927,7 +927,7 @@
 ### xmap :find
 
 ```code
-(. xmap :find key) -> nil|val
+(. xmap :find key) -> nil | val
 ```
 
 ### xmap :insert
@@ -987,7 +987,7 @@
 ### xset :find
 
 ```code
-(. xset :find key) -> nil|key
+(. xset :find key) -> nil | key
 ```
 
 ### xset :insert
@@ -1833,7 +1833,7 @@
 ### every
 
 ```code
-(every lambda seq ...) -> nil|form
+(every lambda seq ...) -> nil | form
 ```
 
 ### exec
@@ -1893,7 +1893,7 @@
 ### first
 
 ```code
-(first seq) -> el|nil
+(first seq) -> el | nil
 ```
 
 ### fixeds
@@ -2193,7 +2193,7 @@
 ### last
 
 ```code
-(last seq) -> el|nil
+(last seq) -> el | nil
 ```
 
 ### length
@@ -2235,7 +2235,7 @@
 ### load-stream
 
 ```code
-(load-stream path) -> nil|stream
+(load-stream path) -> nil | stream
 ```
 
 ### log2
@@ -2577,7 +2577,7 @@
 ### open-pipe
 
 ```code
-(open-pipe tasks) -> (list str ...)
+(open-pipe tasks) -> (str ...)
 ```
 
 ### open-remote
@@ -2775,7 +2775,7 @@
 ### profile-print
 
 ```code
-(profile-print name [stream]) -> stdout|stream
+(profile-print name [stream]) -> stdout | stream
 ```
 
 ### profile-report
@@ -2931,7 +2931,7 @@
 ### rest
 
 ```code
-(rest seq) -> nil|seq
+(rest seq) -> nil | seq
 ```
 
 ### reverse
@@ -2949,7 +2949,7 @@
 ### second
 
 ```code
-(second seq) -> el|nil
+(second seq) -> el | nil
 ```
 
 ### seq?
@@ -3039,7 +3039,7 @@
 ### some
 
 ```code
-(some lambda seq ...) -> nil|form
+(some lambda seq ...) -> nil | form
 ```
 
 ### some!
