@@ -83,7 +83,7 @@
 	; (Buffer mode) -> buffer
 	(def this :buffer (list "") :buffer_colored (list "") :buffer_states (list '(nil nil))
 		:dirty nil :syntax (Syntax) :undo_stack (list) :redo_stack (list)
-		:cursor_x 0 :cursor_y 0 :max_width 0 :tab_width 4 :mode mode)
+		:cursor_x 0 :cursor_y 0 :max_width 0 :tab_width 4 :wrap_width 79 :mode mode)
 
 	(defmethod :set_cursor (this x y)
 		; (. buffer :set_cursor x y) -> buffer
@@ -150,6 +150,35 @@
 						(:delete (- (length line) (length trimed_line)))))) (list (get :buffer this)))
 			(push undo_stack '(:mark))
 			(. this :set_cursor x y)))
+
+	(defmethod :reflow (this)
+		; (. buffer :reflow) -> buffer
+		(bind '(x y) (. this :get_cursor))
+		(bind '(x y) (. this :constrain x y))
+		(push (defq undo_stack (get :undo_stack this)) '(:mark) (list :cursor x y))
+		;find start line
+		(while (and (> (setq y (dec y)) -1) (not (eql (elem y (get :buffer this)) ""))))
+		;collect words
+		(defq y (inc y) words (list))
+		(until (eql (defq line (elem y (get :buffer this))) "")
+			(setq words (cat words (split line " ")))
+			(.-> this (:set_cursor 0 y) (:delete (length line)) :delete))
+		;flow insert them
+		(defq wrap_width (get :wrap_width this) line "")
+		(each (lambda (word)
+			(cond
+				((> (+ (length line) (length word)) wrap_width)
+					(.-> this (:insert (trim-end line)) :break)
+					(setq line (cat word " ")))
+				((eql line "")
+					(setq line (cat word " ")))
+				(t	(setq line (cat line word " "))))) words)
+		(unless (eql line "")
+			(.-> this (:insert (trim-end line)) :break))
+		(bind '(x y) (. this :get_cursor))
+		(bind '(x y) (. this :constrain x (inc y)))
+		(. this :set_cursor x y)
+		(push undo_stack '(:mark)))
 
 	(defmethod :tab_left (this anchor_x anchor_y)
 		; (. buffer :tab_left anchor_x anchor_y) -> buffer

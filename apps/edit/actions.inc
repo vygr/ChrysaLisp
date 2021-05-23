@@ -54,6 +54,10 @@
 	(. current_buffer :break)
 	(clear-selection) (refresh))
 
+(defun action-reflow ()
+	(. current_buffer :reflow)
+	(clear-selection) (refresh))
+
 (defun action-backspace ()
 	(when (eql (. current_buffer :cut anchor_x anchor_y) "")
 		(. current_buffer :backspace))
@@ -195,6 +199,7 @@
 		+event_paste action-paste
 		+event_tab_left action-left-tab
 		+event_tab_right action-right-tab
+		+event_reflow action-reflow
 		+event_layout action-layout
 		+event_xscroll action-xscroll
 		+event_yscroll action-yscroll
@@ -232,6 +237,7 @@
 		(ascii-code "=") action-maximise
 		(ascii-code "n") action-next-buffer
 		(ascii-code "p") action-prev-buffer
+		(ascii-code "q") action-reflow
 		0x40000050 action-left-tab
 		0x4000004f action-right-tab))
 
