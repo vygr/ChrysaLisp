@@ -2,113 +2,110 @@
 (env-push)
 
 (defun action-left ()
-	(. text_buf :left)
+	(. current_buffer :left)
 	(clear-selection) (refresh))
 
 (defun action-right ()
-	(. text_buf :right)
+	(. current_buffer :right)
 	(clear-selection) (refresh))
 
 (defun action-up ()
-	(. text_buf :up)
+	(. current_buffer :up)
 	(clear-selection) (refresh))
 
 (defun action-down ()
-	(. text_buf :down)
+	(. current_buffer :down)
 	(clear-selection) (refresh))
 
 (defun action-left-select ()
 	(unless shift_select
-		(bind '(x y) (. text_buf :get_cursor))
-		(setq anchor_x x anchor_y y shift_select t))
-	(. text_buf :left)
+		(setq anchor_x cursor_x anchor_y cursor_y shift_select t))
+	(. current_buffer :left)
 	(create-selection) (refresh))
 
 (defun action-right-select ()
 	(unless shift_select
-		(bind '(x y) (. text_buf :get_cursor))
-		(setq anchor_x x anchor_y y shift_select t))
-	(. text_buf :right)
+		(setq anchor_x cursor_x anchor_y cursor_y shift_select t))
+	(. current_buffer :right)
 	(create-selection) (refresh))
 
 (defun action-up-select ()
 	(unless shift_select
-		(bind '(x y) (. text_buf :get_cursor))
-		(setq anchor_x x anchor_y y shift_select t))
-	(. text_buf :up)
+		(setq anchor_x cursor_x anchor_y cursor_y shift_select t))
+	(. current_buffer :up)
 	(create-selection) (refresh))
 
 (defun action-down-select ()
 	(unless shift_select
-		(bind '(x y) (. text_buf :get_cursor))
-		(setq anchor_x x anchor_y y shift_select t))
-	(. text_buf :down)
+		(setq anchor_x cursor_x anchor_y cursor_y shift_select t))
+	(. current_buffer :down)
 	(create-selection) (refresh))
 
 (defun action-left-tab ()
-	(. text_buf :tab_left anchor_x anchor_y)
+	(. current_buffer :tab_left anchor_x anchor_y)
 	(create-selection) (refresh))
 
 (defun action-right-tab ()
-	(. text_buf :tab_right anchor_x anchor_y)
+	(. current_buffer :tab_right anchor_x anchor_y)
 	(create-selection) (refresh))
 
 (defun action-break ()
-	(. text_buf :cut anchor_x anchor_y)
-	(. text_buf :break)
+	(. current_buffer :cut anchor_x anchor_y)
+	(. current_buffer :break)
 	(clear-selection) (refresh))
 
 (defun action-backspace ()
-	(when (eql (. text_buf :cut anchor_x anchor_y) "")
-		(. text_buf :backspace))
+	(when (eql (. current_buffer :cut anchor_x anchor_y) "")
+		(. current_buffer :backspace))
 	(clear-selection) (refresh))
 
 (defun action-delete ()
-	(when (eql (. text_buf :cut anchor_x anchor_y) "")
-		(. text_buf :delete))
+	(when (eql (. current_buffer :cut anchor_x anchor_y) "")
+		(. current_buffer :delete))
 	(clear-selection) (refresh))
 
 (defun action-tab ()
-	(. text_buf :cut anchor_x anchor_y)
-	(bind '(x y) (. text_buf :get_cursor))
-	(defq tab_width (get :tab_width text_buf))
-	(. text_buf :insert (pad "" (- tab_width (% x tab_width)) "        "))
+	(. current_buffer :cut anchor_x anchor_y)
+	(bind '(x y) (. current_buffer :get_cursor))
+	(defq tab_width (get :tab_width current_buffer))
+	(. current_buffer :insert (pad "" (- tab_width (% x tab_width)) "        "))
 	(clear-selection) (refresh))
 
 (defun action-undo ()
-	(. text_buf :undo)
+	(. current_buffer :undo)
 	(clear-selection) (refresh))
 
 (defun action-redo ()
-	(. text_buf :redo)
+	(. current_buffer :redo)
 	(clear-selection) (refresh))
 
 (defun action-trim ()
-	(. text_buf :trim)
+	(. current_buffer :trim)
 	(clear-selection) (refresh))
 
 (defun action-save ()
-	(action-trim)
-	(. text_buf :file_save current_file))
+	(when current_file
+		(action-trim)
+		(. current_buffer :file_save current_file)))
 
 (defun action-cut ()
-	(clipboard-put (. text_buf :cut anchor_x anchor_y))
+	(clipboard-put (. current_buffer :cut anchor_x anchor_y))
 	(clear-selection) (refresh))
 
 (defun action-copy ()
-	(clipboard-put (. text_buf :copy anchor_x anchor_y))
+	(clipboard-put (. current_buffer :copy anchor_x anchor_y))
 	(clear-selection) (refresh))
 
 (defun action-paste ()
 	(unless (eql (defq data (clipboard-get)) "")
-		(. text_buf :cut anchor_x anchor_y)
-		(. text_buf :paste data)
+		(. current_buffer :cut anchor_x anchor_y)
+		(. current_buffer :paste data)
 		(clear-selection) (refresh)))
 
 (defun action-select-all ()
-	(bind '(x y) (. text_buf :get_size))
-	(setq anchor_x 0 anchor_y 0)
-	(. text_buf :set_cursor 0 y)
+	(bind '(x y) (. current_buffer :get_size))
+	(setq anchor_x 0 anchor_y 0 cursor_x 0 cursor_y y)
+	(. current_buffer :set_cursor cursor_x cursor_y)
 	(create-selection) (refresh))
 
 (defun action-minimise ()
@@ -126,19 +123,13 @@
 
 (defun action-xscroll ()
 	;user xscroll bar
-	(bind '(scroll_x scroll_y x y) (. meta_map :find current_file))
-	(bind '(x y) (. text_buf :get_cursor))
-	(defq scroll_x (get :value xslider))
-	(. meta_map :insert current_file (list scroll_x scroll_y x y))
-	(load-display scroll_x scroll_y))
+	(setq scroll_x (get :value xslider))
+	(load-display))
 
 (defun action-yscroll ()
 	;user yscroll bar
-	(bind '(scroll_x scroll_y x y) (. meta_map :find current_file))
-	(bind '(x y) (. text_buf :get_cursor))
-	(defq scroll_y (get :value yslider))
-	(. meta_map :insert current_file (list scroll_x scroll_y x y))
-	(load-display scroll_x scroll_y))
+	(setq scroll_y (get :value yslider))
+	(load-display))
 
 (defun action-tree-action ()
 	;any tree mutate action
@@ -177,7 +168,7 @@
 			(= (age file) 0))
 		;file does not exist
 		(save "" file)
-		(def name_text :clear_text "" :cursor 0)
+		(def name_text :cursor 0 :clear_text "")
 		(.-> name_text :layout :dirty_all)
 		(if selected_file_node (undef (. selected_file_node :dirty) :color))
 		(if selected_open_node (undef (. selected_open_node :dirty) :color))
@@ -193,7 +184,6 @@
 		(bind '(w h) (. file_tree :pref_size))
 		(. file_tree :change 0 0 w h)
 		(.-> file_tree_scroll :layout :dirty_all)
-		(. meta_map :insert file '(0 0 0 0))
 		(populate-vdu file)))
 
 (defq event_map (xmap-kv
