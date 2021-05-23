@@ -20,7 +20,7 @@
 
 (defq vdu_min_width 32 vdu_min_height 16 vdu_max_width 120 vdu_max_height 48
 	vdu_width 80 vdu_height 40 tabs 4 mouse_state :u
-	meta_map (xmap 31) underlay (list) shift_select nil
+	meta_map (xmap) underlay (list) shift_select nil
 	current_file nil selected_file_node nil selected_open_node nil
 	+selected (apply array (map (lambda (_) 0x80000000) (str-alloc 8192)))
 	+not_selected (apply array (map (lambda (_) 0) (str-alloc 8192))))
@@ -150,7 +150,7 @@
 		current_buffer buffer current_file file)
 	(. buffer :set_cursor x y)
 	(create-selection) (refresh)
-	(def mytitle :text (cat "Edit -> " file))
+	(def mytitle :text (cat "Edit -> " (if file file "<scratch pad>")))
 	(.-> mytitle :layout :dirty))
 
 (defun all-dirs (files)
@@ -191,6 +191,22 @@
 	(set vdu_underlay :min_width vdu_min_width :min_height vdu_min_height)
 	(. mywindow :change_dirty x y w h)
 	(set-sliders) (load-display))
+
+(defun select-node (file)
+	;highlight the selected file
+	(if selected_file_node (undef (. selected_file_node :dirty) :color))
+	(if selected_open_node (undef (. selected_open_node :dirty) :color))
+	(when file
+		(setq selected_open_node (. open_tree :find_node file))
+		(setq selected_file_node (. file_tree :find_node file))
+		(def (. selected_open_node :dirty) :color +argb_grey12)
+		(def (. selected_file_node :dirty) :color +argb_grey12)
+		(bind '(w h) (. open_tree :pref_size))
+		(. open_tree :change 0 0 w h)
+		(bind '(w h) (. file_tree :pref_size))
+		(. file_tree :change 0 0 w h)
+		(.-> open_tree_scroll :layout :dirty_all)
+		(.-> file_tree_scroll :layout :dirty_all)))
 
 ;import editor actions and bindings
 (import "apps/edit/actions.inc")
