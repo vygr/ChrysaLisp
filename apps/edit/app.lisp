@@ -188,9 +188,10 @@
 	(bind '(scroll_x scroll_y) (set-sliders current_file))
 	(load-display scroll_x scroll_y))
 
+;import editor actions and bindings
+(import "apps/edit/actions.inc")
+
 (defun main ()
-	;import editor actions and bindings
-	(import "apps/edit/actions.inc")
 	(populate-file-tree)
 	(bind '(ow oh) (. open_tree :pref_size))
 	(bind '(fw fh) (. file_tree :pref_size))
@@ -237,7 +238,7 @@
 							(:u	;was up last time
 								))))
 				(refresh))
-			((and (not (= id (. name_text :get_id)))
+			((and (not (Textfield? (. mywindow :find_id id)))
 					(= (getf msg +ev_msg_type) +ev_type_key)
 					(> (getf msg +ev_msg_key_keycode) 0))
 				;key event
