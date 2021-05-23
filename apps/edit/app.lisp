@@ -14,10 +14,6 @@
 	(enum undo redo cut copy paste reflow tab_left tab_right)
 	(enum prev next save new))
 
-(enums +meta 0
-	(enum cursor_x cursor_y anchor_x anchor_y scroll_x scroll_y)
-	(enum buffer))
-
 (defq vdu_min_width 32 vdu_min_height 16 vdu_max_width 120 vdu_max_height 48
 	vdu_width 80 vdu_height 40 tabs 4 mouse_state :u
 	meta_map (xmap) underlay (list) shift_select nil
@@ -115,24 +111,21 @@
 
 (defun set-sliders ()
 	;set slider values for current file
-	(bind '(x y ax ay sx sy current_buffer) (. meta_map :find current_file))
-	(bind '(w h) (. current_buffer :get_size))
-	(bind '(x y) (. current_buffer :get_cursor))
+	(bind '(x y ax ay sx sy buffer) (. meta_map :find current_file))
+	(bind '(w h) (. buffer :get_size))
 	(defq smaxx (max 0 (- w vdu_width -1))
 		smaxy (max 0 (- h vdu_height -1))
 		sx (min sx smaxx)
 		sy (min sy smaxy))
 	(def (. xslider :dirty) :maximum smaxx :portion vdu_width :value sx)
 	(def (. yslider :dirty) :maximum smaxy :portion vdu_height :value sy)
-	(. meta_map :insert current_file (list x y ax ay sx sy current_buffer))
+	(. meta_map :insert current_file (list x y ax ay sx sy buffer))
 	(setq scroll_x sx scroll_y sy))
 
 (defun refresh ()
 	;refresh display and ensure cursor is visible
 	(bind '(x y ax ay sx sy buffer) (. meta_map :find current_file))
 	(bind '(x y) (. buffer :get_cursor))
-	(bind '(x y) (. buffer :constrain x y))
-	(. buffer :set_cursor x y)
 	(bind '(w h) (. vdu :vdu_size))
 	(if (< x sx) (setq sx x))
 	(if (< y sy) (setq sy y))
@@ -168,7 +161,8 @@
 	(defq all_src_files (sort cmp (all-src-files ".")))
 	(each (# (. file_tree :add_route %0)) (all-dirs all_src_files))
 	(each (# (. file_tree :add_route %0)) all_src_files)
-	(populate-vdu nil))
+	(populate-vdu nil)
+	(select-node nil))
 
 (defun window-resize (w h)
 	;layout the window and size the vdu to fit
@@ -203,32 +197,26 @@
 		(setq selected_open_node (. open_tree :find_node file))
 		(setq selected_file_node (. file_tree :find_node file))
 		(def (. selected_open_node :dirty) :color +argb_grey12)
-		(def (. selected_file_node :dirty) :color +argb_grey12)
-		(bind '(w h) (. open_tree :pref_size))
-		(. open_tree :change 0 0 w h)
-		(bind '(w h) (. file_tree :pref_size))
-		(. file_tree :change 0 0 w h)
-		(.-> open_tree_scroll :layout :dirty_all)
-		(.-> file_tree_scroll :layout :dirty_all)))
+		(def (. selected_file_node :dirty) :color +argb_grey12))
+	(bind '(w h) (. file_tree :pref_size))
+	(. file_tree :change 0 0 w h)
+	(def file_tree :min_width w)
+	(def file_tree_scroll :min_width w)
+	(bind '(w h) (. open_tree :pref_size))
+	(. open_tree :change 0 0 w h)
+	(.-> open_tree_scroll :layout :dirty_all)
+	(.-> file_tree_scroll :layout :dirty_all))
 
 ;import editor actions and bindings
 (import "apps/edit/actions.inc")
 
 (defun main ()
-	(bind '(cursor_x cursor_y anchor_x anchor_y scroll_x scroll_y current_buffer running)
-		'(0 0 0 0 0 0 nil t))
+	(defq cursor_x 0 cursor_y 0 anchor_x 0 anchor_y 0 scroll_x 0 scroll_y 0
+		current_buffer nil running t)
 	(populate-file-tree)
-	(bind '(ow oh) (. open_tree :pref_size))
-	(bind '(fw fh) (. file_tree :pref_size))
-	(def open_tree :min_width fw)
-	(def file_tree :min_width fw)
-	(def open_tree_scroll :min_width fw :min_height oh)
-	(def file_tree_scroll :min_width fw)
-	(. open_tree :change 0 0 fw oh)
-	(. file_tree :change 0 0 fw fh)
 	(bind '(x y w h) (apply view-locate (.-> mywindow (:connect +event_layout) :pref_size)))
 	(gui-add (. mywindow :change x y w h))
-	(load-display)
+	(refresh)
 	(while running
 		(cond
 			((defq id (getf (defq msg (mail-read (task-mailbox))) +ev_msg_target_id)

@@ -142,8 +142,10 @@ current tasks main mailbox.
 		;sample reply
 		(call 'sys_mail :alloc {reply_size} {reply, rdata})
 		(assign {data->net_id_mbox_id} {reply->msg_dest.net_id_mbox_id})
-		(assign {data->net_id_node_id.node_id_node1} {reply->msg_dest.net_id_node_id.node_id_node1})
-		(assign {data->net_id_node_id.node_id_node2} {reply->msg_dest.net_id_node_id.node_id_node2})
+		(assign {data->net_id_node_id.node_id_node1}
+			{reply->msg_dest.net_id_node_id.node_id_node1})
+		(assign {data->net_id_node_id.node_id_node2}
+			{reply->msg_dest.net_id_node_id.node_id_node2})
 		(call 'sys_kernel :id nil {
 			rdata->reply_node_id.node_id_node1,
 			rdata->reply_node_id.node_id_node2})
