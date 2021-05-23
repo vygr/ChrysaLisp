@@ -79,11 +79,11 @@
 			(t	(bind '(w h) (. this :get_size))
 				~_))))
 
-(defclass Buffer () nil
-	; (Buffer) -> buffer
+(defclass Buffer (&optional mode) nil
+	; (Buffer mode) -> buffer
 	(def this :buffer (list "") :buffer_colored (list "") :buffer_states (list '(nil nil))
 		:dirty nil :syntax (Syntax) :undo_stack (list) :redo_stack (list)
-		:cursor_x 0 :cursor_y 0 :max_width 0 :tab_width 4)
+		:cursor_x 0 :cursor_y 0 :max_width 0 :tab_width 4 :mode mode)
 
 	(defmethod :set_cursor (this x y)
 		; (. buffer :set_cursor x y) -> buffer
@@ -190,10 +190,11 @@
 				buffer (get :buffer this)
 				buffer_colored (get :buffer_colored this)
 				buffer_states (get :buffer_states this)
-				state :text max_width 0)
+				state :text max_width 0 mode (get :mode this))
 			(each (lambda (line line_array (start_state end_state))
 					(setq max_width (max max_width (length line)))
 					(cond
+						(mode)
 						((and (array? line_array) (eql state start_state))
 							(setq state end_state))
 						(t	(elem-set _ buffer_colored

@@ -1107,7 +1107,7 @@
 ### Buffer
 
 ```code
-(Buffer) -> buffer
+(Buffer mode) -> buffer
 ```
 
 ### Button

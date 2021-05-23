@@ -72,8 +72,10 @@
 						(if (or	;src file ?
 								(ends-with ".vp" file)
 								(ends-with ".inc" file)
-								(ends-with ".lisp" file))
-							(push files (cat (slice 2 -1 root) "/" file))))
+								(ends-with ".lisp" file)
+								(ends-with ".md" file))
+							(push files (cat (slice
+								(if (eql root "./") 2 1) -1 root) "/" file))))
 					(t	;dir
 						(unless (starts-with "." file)
 							(push stack (cat root "/" file))))))
@@ -143,7 +145,8 @@
 	;load up the vdu widget from this file
 	;must create a fresh buffer if not seen this before !
 	(unless (. meta_map :find file)
-		(. meta_map :insert file (list 0 0 0 0 0 0 (defq buffer (Buffer))))
+		(defq mode (if (ends-with ".md" file) t nil))
+		(. meta_map :insert file (list 0 0 0 0 0 0 (defq buffer (Buffer mode))))
 		(if file (. buffer :file_load file)))
 	(bind '(x y ax ay sx sy buffer) (. meta_map :find file))
 	(setq cursor_x x cursor_y y anchor_x ax anchor_y ay
