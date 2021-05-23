@@ -83,7 +83,7 @@
 	; (Buffer mode) -> buffer
 	(def this :buffer (list "") :buffer_colored (list "") :buffer_states (list '(nil nil))
 		:dirty nil :syntax (Syntax) :undo_stack (list) :redo_stack (list)
-		:cursor_x 0 :cursor_y 0 :max_width 0 :tab_width 4 :wrap_width 79 :mode mode)
+		:cursor_x 0 :cursor_y 0 :max_width 0 :tab_width 4 :wrap_width 80 :mode mode)
 
 	(defmethod :set_cursor (this x y)
 		; (. buffer :set_cursor x y) -> buffer
@@ -164,7 +164,7 @@
 			(setq words (cat words (split line " ")))
 			(.-> this (:set_cursor 0 y) (:delete (length line)) :delete))
 		;flow insert them
-		(defq wrap_width (get :wrap_width this) line "")
+		(defq wrap_width (dec (get :wrap_width this)) line "")
 		(each (lambda (word)
 			(cond
 				((> (+ (length line) (length word)) wrap_width)
