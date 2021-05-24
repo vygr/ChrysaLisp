@@ -217,7 +217,7 @@
 			(string)))
 
 	(defmethod :text_flow (this words line_width)
-		; (. syntax :text_flow words) -> (str ...)
+		; (. syntax :text_flow words line_width) -> lines
 		;word reflow
 		(defq cnt 0 line (clear '()) lines (list))
 		(each (lambda (word)

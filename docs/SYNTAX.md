@@ -126,6 +126,12 @@
 (. buffer :redo) -> buffer
 ```
 
+### buffer :reflow
+
+```code
+(. buffer :reflow) -> buffer
+```
+
 ### buffer :right
 
 ```code
@@ -532,6 +538,12 @@
 
 ```code
 (. syntax :set_state state) -> syntax
+```
+
+### syntax :text_flow
+
+```code
+(. syntax :text_flow words line_width) -> lines
 ```
 
 ### text :draw
