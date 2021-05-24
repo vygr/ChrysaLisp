@@ -504,7 +504,7 @@
 	(vpifnot {this->font_chars})
 		;note, don't write to member var yet in case flush gets called !
 		(call 'list :create nil {chars})
-		(call 'list :set_capacity {chars, 127 - 33})
+		(call 'list :set_capacity {chars, 128 - 33})
 		(assign {33} {code})
 		(loop-start)
 			(call 'sym :intern_cstr {&code} {sym})
@@ -513,7 +513,7 @@
 				(call 'list :push_back {chars, txt})
 			(endif)
 			(call 'sym :deref {sym})
-		(loop-until {(code + 1 => code) = 127})
+		(loop-until {(code + 1 => code) = 128})
 		(vpif {this->font_chars})
 			;another thread got to it during a flush !
 			(call 'list :deref {chars})

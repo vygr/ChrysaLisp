@@ -116,7 +116,7 @@
 					(call 'ctx :filled_box {this, x * this->vdu_char_width, by * this->vdu_char_height, this->vdu_char_width, this->vdu_char_height})
 				(endif)
 				(vpif {(c & 0x7fffffff => c) > +char_space})
-					(breakif {c > 127})
+					(breakif {c > 0x7f})
 					(call 'list :get_element {this->vdu_textures, c - 33} {_, txt})
 					(call 'texture :get_metrics {txt} {_, handle, w ,h})
 					(vpif {handle})
