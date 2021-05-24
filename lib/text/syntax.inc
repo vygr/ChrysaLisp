@@ -228,8 +228,7 @@
 					(setq cnt (+ (length word) 1)))
 				(t	(push line word)))) words)
 		(if (> (length line) 0)
-			(push lines (join line " "))
-			(lines)))
+			(push lines (join line " ")) lines))
 	)
 
 ;module
