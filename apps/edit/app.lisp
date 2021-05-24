@@ -14,8 +14,8 @@
 	(enum undo redo cut copy paste reflow tab_left tab_right)
 	(enum prev next save new))
 
-(defq vdu_min_width 32 vdu_min_height 16 vdu_max_width 120 vdu_max_height 48
-	vdu_width 80 vdu_height 40 tabs 4 mouse_state :u
+(defq vdu_min_width 32 vdu_min_height 16 vdu_max_width 100 vdu_max_height 48
+	vdu_width 80 vdu_height 40 mouse_state :u
 	meta_map (xmap) underlay (list) shift_select nil
 	current_file nil selected_file_node nil selected_open_node nil
 	+selected (apply array (map (lambda (_) 0x80000000) (str-alloc 8192)))

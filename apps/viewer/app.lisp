@@ -9,9 +9,9 @@
 	(enum tree_action)
 	(enum folder_action leaf_action))
 
-(defq vdu_min_width 16 vdu_min_height 16
-	vdu_max_width 120 vdu_max_height 50
-	vdu_width 80 vdu_height 50 tabs 4
+(defq vdu_min_width 32 vdu_min_height 16
+	vdu_max_width 100 vdu_max_height 48
+	vdu_width 80 vdu_height 48
 	text_buf (Buffer) meta_map (xmap 31)
 	current_file nil selected_node nil)
 
@@ -105,7 +105,7 @@
 	(set vdu :min_width vdu_min_width :min_height vdu_min_height)
 	(. mywindow :change_dirty x y w h)
 	(bind '(scroll_x scroll_y) (set-sliders current_file))
-	(. text_buf :vdu_load (. vdu :change x y w h) scroll_x scroll_y))
+	(. text_buf :vdu_load vdu scroll_x scroll_y))
 
 (defun main ()
 	(populate-tree)
