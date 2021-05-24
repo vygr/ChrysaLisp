@@ -18,10 +18,12 @@
 (ui-window mywindow (:color +argb_grey2)
 	(ui-title-bar mytitle "" (0xea19 0xea1b 0xea1a) +event_close)
 	(ui-flow _ (:flow_flags +flow_right_fill)
-		(ui-scroll tree_scroll +scroll_flag_vertical nil
-			(. (ui-tree tree +event_folder_action
-					(:min_width 0 :color +argb_white :font *env_medium_terminal_font*))
-				:connect +event_tree_action))
+		(ui-flow _ (:flow_flags +flow_stack_fill)
+			(ui-scroll tree_scroll +scroll_flag_vertical nil
+				(. (ui-tree tree +event_folder_action
+						(:min_width 0 :color +argb_white :font *env_medium_terminal_font*))
+					:connect +event_tree_action))
+			(ui-backdrop _ (:color +argb_white)))
 		(ui-flow _ (:flow_flags +flow_left_fill :font *env_terminal_font*)
 			(. (ui-slider yslider) :connect +event_yscroll)
 			(ui-flow _ (:flow_flags +flow_up_fill)
@@ -141,9 +143,9 @@
 			(. meta_map :insert current_file (list scroll_x scroll_y))
 			(. text_buf :vdu_load vdu scroll_x scroll_y))
 		((= id +event_tree_action)
-			;any tree view action
-			(defq scroll (penv (. mywindow :find_id (getf msg +ev_msg_action_source_id))))
-			(.-> scroll :layout :dirty_all))
+			;any tree mutate action
+			(.-> (penv (. mywindow :find_id (getf msg +ev_msg_action_source_id)))
+				:layout :dirty_all))
 		((= id +event_leaf_action)
 			;load up the file selected
 			(if selected_node (undef (. selected_node :dirty) :color))
