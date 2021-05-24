@@ -4,6 +4,7 @@
 (include "class/sym/class.inc")
 (include "class/num/class.inc")
 (include "class/lisp/class.inc")
+(include "class/nums/class.inc")
 (include "lib/consts/chars.inc")
 
 (def-method 'vdu :lisp_create)
@@ -91,7 +92,9 @@
 				(endif)
 			(else)
 			(errorcases
-				(gotoif (cat {line->obj_vtable /= @} (f-path 'array :vtable)) 'exit))
+				(vpif (cat {line->obj_vtable /= @} (f-path 'array :vtable)))
+					(gotoif (cat {line->obj_vtable /= @} (f-path 'nums :vtable)) 'exit)
+				(endif))
 				(vpif {(line->array_length - ox => len) > 0})
 					;copy longs to longs
 					(assign {line->array_begin + (ox * +long_size), cursor, len, vdu->vdu_width} '(r0 r1 r2 r3))

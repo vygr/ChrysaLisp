@@ -18,8 +18,8 @@
 	vdu_width 80 vdu_height 40 mouse_state :u
 	meta_map (xmap) underlay (list) shift_select nil
 	current_file nil selected_file_node nil selected_open_node nil
-	+selected (apply array (map (lambda (_) 0x80000000) (str-alloc 8192)))
-	+not_selected (apply array (map (lambda (_) 0) (str-alloc 8192))))
+	+selected (apply nums (map (lambda (_) 0x80000000) (str-alloc 8192)))
+	+not_selected (nums-sub +selected +selected))
 
 (ui-window mywindow (:color +argb_grey2)
 	(ui-title-bar mytitle "Edit" (0xea19 0xea1b 0xea1a) +event_close)
