@@ -17,11 +17,12 @@
 
 (ui-window mywindow (:color +argb_grey2)
 	(ui-title-bar mytitle "" (0xea19 0xea1b 0xea1a) +event_close)
-	(ui-flow _ (:flow_flags +flow_right_fill :font *env_terminal_font*)
+	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-scroll tree_scroll +scroll_flag_vertical nil
-			(. (ui-tree tree +event_folder_action (:min_width 0 :color +argb_white))
+			(. (ui-tree tree +event_folder_action
+					(:min_width 0 :color +argb_white :font *env_medium_terminal_font*))
 				:connect +event_tree_action))
-		(ui-flow _ (:flow_flags +flow_left_fill)
+		(ui-flow _ (:flow_flags +flow_left_fill :font *env_terminal_font*)
 			(. (ui-slider yslider) :connect +event_yscroll)
 			(ui-flow _ (:flow_flags +flow_up_fill)
 				(. (ui-slider xslider) :connect +event_xscroll)

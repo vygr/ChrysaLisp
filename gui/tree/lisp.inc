@@ -15,6 +15,7 @@
 		; routes are:
 		; "a/b/c/file"
 		; "a/b/c/."
+		(bind '(toggle_width _) (font-glyph-bounds (get :font this) ">"))
 		(defq route (split route "/") root this)
 		(each! 0 -2 (lambda (branch)
 			(cond
@@ -24,11 +25,10 @@
 				(t	;new route, so new node
 					(def (defq node (Flow)) :flow_flags +flow_down_fill :text branch)
 					(def (defq tab_flow (Flow)) :flow_flags +flow_right_fill)
-					(def (defq tab (Backdrop)) :min_width 14)
+					(def (defq tab (Backdrop)) :min_width toggle_width)
 					(def (defq tab_child (Flow)) :flow_flags +flow_down_fill)
 					(def (defq title_flow (Flow)) :flow_flags +flow_right_fill)
-					(def (defq toggle (Button)) :text (const (num-to-utf8 0xe93b)) :min_width 14
-						:font *env_small_toolbar_font* :border 1)
+					(def (defq toggle (Button)) :text "^" :min_width toggle_width :border 0)
 					(. toggle :connect (. this :get_id))
 					(.-> tab_flow (:add_child tab) (:add_child tab_child))
 					(.-> title_flow (:add_child toggle) (:add_child
@@ -72,7 +72,7 @@
 			(defq node (elem -2 (. (penv (penv toggle)) :children))
 				hiden (logxor (logand (. node :get_flags) +view_flag_hiden) +view_flag_hiden))
 			(. node :set_flags hiden +view_flag_hiden)
-			(def toggle :text (num-to-utf8 (if (= hiden +view_flag_hiden) 0xe93d 0xe93b)))
+			(def toggle :text (if (= hiden +view_flag_hiden) ">" "^"))
 			(bind '(x y) (. this :get_pos))
 			(bind '(w h) (. this :pref_size))
 			(.-> this (:change x y w h) :emit))

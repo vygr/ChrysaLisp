@@ -30,25 +30,27 @@
 				(:color (const *env_toolbar2_col*))))
 		(. (ui-textfield name_text (:hint_text "new filename" :clear_text "" :color +argb_white))
 			:connect +event_new))
-	(ui-flow _ (:flow_flags +flow_right_fill :font *env_terminal_font*)
+	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-flow _ (:flow_flags +flow_stack_fill)
 			(ui-grid tree_grid (:grid_width 1 :grid_height 2 :color +argb_grey14)
 				(ui-flow _ (:flow_flags +flow_down_fill)
 					(ui-label _ (:text "Open" :border 1))
 					(ui-scroll open_tree_scroll +scroll_flag_vertical nil
-						(. (ui-tree open_tree +event_open_folder_action (:min_width 0 :color +argb_white))
+						(. (ui-tree open_tree +event_open_folder_action
+								(:min_width 0 :color +argb_white :font *env_medium_terminal_font*))
 							:connect +event_tree_action)))
 				(ui-flow _ (:flow_flags +flow_down_fill)
 					(ui-label _ (:text "Project" :border 1))
 					(ui-scroll file_tree_scroll +scroll_flag_vertical nil
-						(. (ui-tree file_tree +event_file_folder_action (:min_width 0 :color +argb_white))
+						(. (ui-tree file_tree +event_file_folder_action
+								(:min_width 0 :color +argb_white :font *env_medium_terminal_font*))
 							:connect +event_tree_action))))
 			(ui-backdrop _ (:color +argb_white)))
 		(ui-flow _ (:flow_flags +flow_left_fill)
 			(. (ui-slider yslider) :connect +event_yscroll)
 			(ui-flow _ (:flow_flags +flow_up_fill)
 				(. (ui-slider xslider) :connect +event_xscroll)
-				(ui-flow _ (:flow_flags +flow_stack_fill)
+				(ui-flow _ (:flow_flags +flow_stack_fill :font *env_terminal_font*)
 					(ui-vdu vdu (:min_width vdu_width :min_height vdu_height
 						:vdu_width vdu_width :vdu_height vdu_height
 						:ink_color +argb_white))
