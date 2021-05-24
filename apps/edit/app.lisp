@@ -240,7 +240,7 @@
 							(:u	;was up last time
 								(bind '(x y) (. current_buffer :constrain x y))
 								(. current_buffer :set_cursor x y)
-								(setq anchor_x x anchor_y y shift_select nil mouse_state :d)
+								(setq anchor_x x anchor_y y shift_select t mouse_state :d)
 								(create-selection))))
 					(t	;mouse button is up
 						(case mouse_state

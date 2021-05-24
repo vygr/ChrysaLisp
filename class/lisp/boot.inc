@@ -442,7 +442,8 @@
 
 (defun join (l j)
 	; (join list seq) -> seq
-	(pop (setq l (reduce (lambda (x y) (push x y j)) l (list))))
+	(pop (setq l (reduce (lambda (x y) (push x y j))
+		l (cap (* (length l) 2) (list)))))
 	(apply cat l))
 
 (defun unzip (l b)

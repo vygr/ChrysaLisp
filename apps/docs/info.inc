@@ -20,18 +20,10 @@
 		(if (macro? v) (push _ k) _)) (tolist e) (list))))
 
 (defun paragraph (words)
-	(defq cnt 0 line_width 80 line '())
-	(each (lambda (word)
-		(cond
-			((> (setq cnt (+ cnt (length word) 1)) line_width)
-				((handler-func :vdu) :vdu page (join line " "))
-				(push (clear line) word)
-				(setq cnt (+ (length word) 1)))
-			(t	(push line word)))) words)
-	(if (> (length line) 0)
-		((handler-func :vdu) :vdu page (join line " ")))
-	((handler-func :vdu) :vdu page "```")
-	(clear line))
+	(each (lambda (line)
+			((handler-func :vdu) :vdu page line))
+		(. syntax :text_flow words 80))
+	((handler-func :vdu) :vdu page "```"))
 
 (defun handler (state page line)
 	; (handler state page line) -> state

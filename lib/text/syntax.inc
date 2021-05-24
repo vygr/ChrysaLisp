@@ -215,6 +215,21 @@
 							(setq whitespace "X")
 							%0))) string (list))))
 			(string)))
+
+	(defmethod :text_flow (this words line_width)
+		; (. syntax :text_flow words) -> (str ...)
+		;word reflow
+		(defq cnt 0 line (clear '()) lines (list))
+		(each (lambda (word)
+			(cond
+				((> (setq cnt (+ cnt (length word) 1)) line_width)
+					(push lines (join line " "))
+					(push (clear line) word)
+					(setq cnt (+ (length word) 1)))
+				(t	(push line word)))) words)
+		(if (> (length line) 0)
+			(push lines (join line " "))
+			(lines)))
 	)
 
 ;module

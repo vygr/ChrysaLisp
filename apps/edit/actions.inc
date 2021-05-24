@@ -107,8 +107,8 @@
 		(clear-selection) (refresh)))
 
 (defun action-select-all ()
-	(bind '(x y) (. current_buffer :get_size))
-	(setq anchor_x 0 anchor_y 0 cursor_x 0 cursor_y y)
+	(setq anchor_x 0 anchor_y 0 cursor_x 0
+		cursor_y (bind '(x y) (. current_buffer :get_size)))
 	(. current_buffer :set_cursor cursor_x cursor_y)
 	(create-selection) (refresh))
 
@@ -137,27 +137,24 @@
 
 (defun action-tree-action ()
 	;any tree mutate action
-	(defq node (penv (. mywindow :find_id (getf msg +ev_msg_action_source_id))))
-	(.-> node :layout :dirty_all))
+	(.-> (penv (. mywindow :find_id (getf msg +ev_msg_action_source_id)))
+		:layout :dirty_all))
 
 (defun action-file-leaf-action ()
 	;load up the file selected
-	(defq node (. mywindow :find_id (getf msg +ev_msg_action_source_id))
-		file (. file_tree :get_route node))
-	(. open_tree :add_route file)
+	(. open_tree :add_route (defq file (. file_tree :get_route
+		(. mywindow :find_id (getf msg +ev_msg_action_source_id)))))
 	(select-node file)
 	(populate-vdu file))
 
 (defun action-open-leaf-action ()
 	;switch to the file selected
-	(defq node (. mywindow :find_id (getf msg +ev_msg_action_source_id))
-		file (. open_tree :get_route node))
-	(select-node file)
+	(select-node (defq file (. open_tree :get_route
+		(. mywindow :find_id (getf msg +ev_msg_action_source_id)))))
 	(populate-vdu file))
 
 (defun action-new ()
-	(when (and
-			(not (eql (defq file (get :clear_text name_text)) ""))
+	(when (and (not (eql (defq file (get :clear_text name_text)) ""))
 			(= (age file) 0))
 		;file does not exist
 		(save "" file)
