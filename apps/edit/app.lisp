@@ -115,7 +115,7 @@
 	(when (bind '(x y) (. current_buffer :left_bracket))
 		(when (bind '(x1 y1) (. current_buffer :right_bracket))
 			(cap (inc y1) underlay)
-			(defq uy -1 buffer (get :buffer current_buffer))
+			(defq uy -1)
 			(while (< (setq uy (inc uy)) y) (push underlay ""))
 			(cond
 				((= y y1)
