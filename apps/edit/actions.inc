@@ -118,14 +118,14 @@
 
 (defun action-select-all ()
 	(bind '(x y) (. current_buffer :get_size))
-	(setq anchor_x 0 anchor_y 0)
+	(setq anchor_x 0 anchor_y 0 shift_select t)
 	(. current_buffer :set_cursor 0 y)
 	(create-selection) (refresh))
 
 (defun action-select-block ()
 	(when (bind '(x y) (. current_buffer :left_bracket))
 		(when (bind '(x1 y1) (. current_buffer :right_bracket))
-			(setq anchor_x x anchor_y y)
+			(setq anchor_x x anchor_y y shift_select t)
 			(. current_buffer :set_cursor (inc x1) y1)
 			(create-selection) (refresh))))
 
