@@ -18,9 +18,10 @@
 	vdu_width 80 vdu_height 40 mouse_state :u
 	meta_map (xmap) underlay (list) shift_select nil
 	current_file nil selected_file_node nil selected_open_node nil
-	+selected (apply nums (map (lambda (_) 0x80000000) (str-alloc 8192)))
+	+selected (apply nums (map (lambda (_)
+		(const (<< (canvas-from-argb32 +argb_grey6 15) 48))) (str-alloc 8192)))
 	+not_selected (nums-sub +selected +selected)
-	+bracket_char (nums 0x80000000))
+	+bracket_char (nums 0x7f))
 
 (ui-window mywindow (:color +argb_grey2)
 	(ui-title-bar mytitle "Edit" (0xea19 0xea1b 0xea1a) +event_close)
@@ -57,7 +58,7 @@
 						:ink_color +argb_white))
 					(ui-vdu vdu_underlay (:vdu_width vdu_width :vdu_height vdu_height
 						:min_width 0 :min_height 0
-						:ink_color +argb_grey6)))))))
+						:ink_color +argb_white)))))))
 
 (defun all-src-files (root)
 	;all source files from root downwards, none recursive
@@ -109,47 +110,21 @@
 	;clear the underlay to just bracket indicators
 	(bind '(x y) (. current_buffer :get_cursor))
 	(bind '(x y) (. current_buffer :constrain x y))
-	(bind '(w h) (. current_buffer :get_size))
 	(setq anchor_x x anchor_y y shift_select nil)
-	(defq buffer (get :buffer current_buffer) y1 y x1 x c1 0 c2 0)
-	;search line for start
-	(while (and (/= c1 1) (>= (setq x (dec x)) 0))
-		(cond
-			((eql (elem x (elem y buffer)) "(") (setq c1 (inc c1)))
-			((eql (elem x (elem y buffer)) ")") (setq c1 (dec c1)))))
-	;search lines above for start
-	(while (and (/= c1 1) (>= (setq y (dec y)) 0))
-		(setq x (length (elem y buffer)))
-		(while (and (/= c1 1) (>= (setq x (dec x)) 0))
-			(cond
-				((eql (elem x (elem y buffer)) "(") (setq c1 (inc c1)))
-				((eql (elem x (elem y buffer)) ")") (setq c1 (dec c1))))))
-	;search line for end
-	(while (and (/= c2 1) (< (setq x1 (inc x1)) (length (elem y1 buffer))))
-		(cond
-			((eql (elem x1 (elem y1 buffer)) ")") (setq c2 (inc c2)))
-			((eql (elem x1 (elem y1 buffer)) "(") (setq c2 (dec c2)))))
-	;search lines above for end
-	(while (and (/= c2 1) (< (setq y1 (inc y1)) h))
-		(setq x1 -1)
-		(while (and (/= c2 1) (< (setq x1 (inc x1)) (length (elem y1 buffer))))
-			(cond
-				((eql (elem x1 (elem y1 buffer)) ")") (setq c2 (inc c2)))
-				((eql (elem x1 (elem y1 buffer)) "(") (setq c2 (dec c2))))))
 	(clear underlay)
-	(when (and (= c1 1) (= c2 1))
-		;we matched !!!
-		(cap (inc y1) underlay)
-		(defq uy -1 buffer (get :buffer current_buffer))
-		(while (< (setq uy (inc uy)) y) (push underlay ""))
-		(cond
-			((= y y1)
-				(push underlay (cat
-					(slice 0 x +not_selected) +bracket_char
-					(slice x (dec x1) +not_selected) +bracket_char)))
-			(t	(push underlay (cat (slice 0 x +not_selected) +bracket_char))
-				(while (< (setq y (inc y)) y1) (push underlay ""))
-				(push underlay (cat (slice 0 x1 +not_selected) +bracket_char))))))
+	(when (bind '(x y) (. current_buffer :left_bracket))
+		(when (bind '(x1 y1) (. current_buffer :right_bracket))
+			(cap (inc y1) underlay)
+			(defq uy -1 buffer (get :buffer current_buffer))
+			(while (< (setq uy (inc uy)) y) (push underlay ""))
+			(cond
+				((= y y1)
+					(push underlay (cat
+						(slice 0 x +not_selected) +bracket_char
+						(slice x (dec x1) +not_selected) +bracket_char)))
+				(t	(push underlay (cat (slice 0 x +not_selected) +bracket_char))
+					(while (< (setq y (inc y)) y1) (push underlay ""))
+					(push underlay (cat (slice 0 x1 +not_selected) +bracket_char)))))))
 
 (defun load-display ()
 	;load the vdu widgets with the text and selection underlay
