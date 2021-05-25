@@ -8,6 +8,8 @@ This is an example of adding a new feature to ChrysaLisp. From the VP assembler
 support at the lowest level to the user visible Lisp function available for
 Lisp apps to make use of.
 
+## Requirement
+
 Recently a request came up about being able to create fast hash set and hash
 map structures at the Lisp level. Now ChrysaLisp already has a VP level class
 for hash maps and hash sets, but they are specialized for handling the
@@ -245,7 +247,7 @@ like the right kind of group to put this new `(hash)` function in.
 Reboot the system and lets try this out in the repl:
 
 ```vdu
-./run_tui.sh 
+./run_tui.sh
 ChrysaLisp Terminal 1.5
 >lisp
 ChrysaLisp 1.3
