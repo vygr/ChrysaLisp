@@ -16,7 +16,7 @@
 
 (defq vdu_min_width 32 vdu_min_height 16 vdu_max_width 100 vdu_max_height 48
 	vdu_width 80 vdu_height 40 mouse_state :u
-	meta_map (xmap) underlay (list) shift_select nil
+	meta_map (xmap) underlay (list)
 	current_file nil selected_file_node nil selected_open_node nil
 	+selected (apply nums (map (lambda (_)
 		(const (<< (canvas-from-argb32 +argb_grey6 15) 48))) (str-alloc 8192)))
@@ -133,27 +133,26 @@
 
 (defun set-sliders ()
 	;set slider values for current file
-	(bind '(x y ax ay sx sy buffer) (. meta_map :find current_file))
+	(bind '(x y ax ay sx sy ss buffer) (. meta_map :find current_file))
 	(bind '(w h) (. buffer :get_size))
 	(defq smaxx (max 0 (- w vdu_width -1))
 		smaxy (max 0 (- h vdu_height -1))
-		sx (min sx smaxx)
-		sy (min sy smaxy))
+		sx (min sx smaxx) sy (min sy smaxy))
 	(def (. xslider :dirty) :maximum smaxx :portion vdu_width :value sx)
 	(def (. yslider :dirty) :maximum smaxy :portion vdu_height :value sy)
-	(. meta_map :insert current_file (list x y ax ay sx sy buffer))
+	(. meta_map :insert current_file (list x y ax ay sx sy ss buffer))
 	(setq scroll_x sx scroll_y sy))
 
 (defun refresh ()
 	;refresh display and ensure cursor is visible
-	(bind '(x y ax ay sx sy buffer) (. meta_map :find current_file))
+	(bind '(x y ax ay sx sy ss buffer) (. meta_map :find current_file))
 	(bind '(x y) (. buffer :get_cursor))
 	(bind '(w h) (. vdu :vdu_size))
 	(if (< x sx) (setq sx x))
 	(if (< y sy) (setq sy y))
 	(if (>= x (+ sx w)) (setq sx (- x w -1)))
 	(if (>= y (+ sy h)) (setq sy (- y h -1)))
-	(. meta_map :insert current_file (list x y ax ay sx sy buffer))
+	(. meta_map :insert current_file (list x y ax ay sx sy ss buffer))
 	(set-sliders) (load-display))
 
 (defun populate-vdu (file)
@@ -161,13 +160,16 @@
 	;must create a fresh buffer if not seen this before !
 	(unless (. meta_map :find file)
 		(defq mode (if (ends-with ".md" file) t nil))
-		(. meta_map :insert file (list 0 0 0 0 0 0 (defq buffer (Buffer mode))))
+		(. meta_map :insert file (list 0 0 0 0 0 0 nil (defq buffer (Buffer mode))))
 		(if file (. buffer :file_load file)))
-	(bind '(x y ax ay sx sy buffer) (. meta_map :find file))
-	(setq cursor_x x cursor_y y anchor_x ax anchor_y ay
+	(bind '(x y ax ay sx sy ss buffer) (. meta_map :find file))
+	(setq cursor_x x cursor_y y anchor_x ax anchor_y ay shift_select ss
 		current_buffer buffer current_file file)
 	(. buffer :set_cursor x y)
-	(create-selection) (refresh)
+	(if (and (= x anchor_x) (= y anchor_y))
+		(clear-selection)
+		(create-selection))
+	(refresh)
 	(def mytitle :text (cat "Edit -> " (if file file "<scratch pad>")))
 	(.-> mytitle :layout :dirty))
 
@@ -234,7 +236,7 @@
 
 (defun main ()
 	(defq cursor_x 0 cursor_y 0 anchor_x 0 anchor_y 0 scroll_x 0 scroll_y 0
-		current_buffer nil running t)
+		shift_select nil current_buffer nil running t)
 	(populate-file-tree)
 	(bind '(x y w h) (apply view-locate (.-> mywindow (:connect +event_layout) :pref_size)))
 	(gui-add (. mywindow :change x y w h))
@@ -303,5 +305,5 @@
 		;update meta data
 		(bind '(cursor_x cursor_y) (. current_buffer :get_cursor))
 		(. meta_map :insert current_file
-			(list cursor_x cursor_y anchor_x anchor_y scroll_x scroll_y current_buffer)))
+			(list cursor_x cursor_y anchor_x anchor_y scroll_x scroll_y shift_select current_buffer)))
 	(. mywindow :hide))
