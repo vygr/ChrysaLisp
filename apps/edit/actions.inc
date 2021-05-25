@@ -17,6 +17,16 @@
 	(. current_buffer :down)
 	(clear-selection) (refresh))
 
+(defun action-left-bracket ()
+	(when (bind '(x y) (. current_buffer :left_bracket))
+		(. current_buffer :set_cursor x y)
+		(clear-selection) (refresh)))
+
+(defun action-right-bracket ()
+	(when (bind '(x y) (. current_buffer :right_bracket))
+		(. current_buffer :set_cursor x y)
+		(clear-selection) (refresh)))
+
 (defun action-left-select ()
 	(unless shift_select
 		(setq anchor_x cursor_x anchor_y cursor_y shift_select t))
@@ -107,10 +117,17 @@
 		(clear-selection) (refresh)))
 
 (defun action-select-all ()
-	(setq anchor_x 0 anchor_y 0 cursor_x 0
-		cursor_y (bind '(x y) (. current_buffer :get_size)))
-	(. current_buffer :set_cursor cursor_x cursor_y)
+	(bind '(x y) (. current_buffer :get_size))
+	(setq anchor_x 0 anchor_y 0)
+	(. current_buffer :set_cursor 0 y)
 	(create-selection) (refresh))
+
+(defun action-select-block ()
+	(when (bind '(x y) (. current_buffer :left_bracket))
+		(when (bind '(x1 y1) (. current_buffer :right_bracket))
+			(setq anchor_x x anchor_y y)
+			(. current_buffer :set_cursor (inc x1) y1)
+			(create-selection) (refresh))))
 
 (defun action-minimise ()
 	(vdu-resize vdu_min_width vdu_min_height))
@@ -223,6 +240,7 @@
 
 	key_map_control (xmap-kv
 		(ascii-code "a") action-select-all
+		(ascii-code "b") action-select-block
 		(ascii-code "z") action-undo
 		(ascii-code "Z") action-redo
 		(ascii-code "s") action-save
@@ -235,6 +253,8 @@
 		(ascii-code "n") action-next-buffer
 		(ascii-code "p") action-prev-buffer
 		(ascii-code "q") action-reflow
+		(ascii-code "9") action-left-bracket
+		(ascii-code "0") action-right-bracket
 		0x40000050 action-left-tab
 		0x4000004f action-right-tab))
 
