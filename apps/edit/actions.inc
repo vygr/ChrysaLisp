@@ -93,6 +93,11 @@
 	(. current_buffer :redo)
 	(clear-selection) (refresh))
 
+(defun action-rewind ()
+	(while (> (length (get :undo_stack current_buffer)) 0)
+		(. current_buffer :undo))
+	(clear-selection) (refresh))
+
 (defun action-trim ()
 	(. current_buffer :trim)
 	(clear-selection) (refresh))
@@ -198,65 +203,68 @@
 	(select-node (elem idx live_buffers))
 	(populate-vdu (elem idx live_buffers)))
 
-(defq event_map (xmap-kv
-		+event_close action-close
-		+event_min action-minimise
-		+event_max action-maximise
-		+event_save action-save
-		+event_new action-new
-		+event_next action-next-buffer
-		+event_prev action-prev-buffer
-		+event_undo action-undo
-		+event_redo action-redo
-		+event_cut action-cut
-		+event_copy action-copy
-		+event_paste action-paste
-		+event_tab_left action-left-tab
-		+event_tab_right action-right-tab
-		+event_reflow action-reflow
-		+event_layout action-layout
-		+event_xscroll action-xscroll
-		+event_yscroll action-yscroll
-		+event_file_leaf_action action-file-leaf-action
-		+event_tree_action action-tree-action
-		+event_open_leaf_action action-open-leaf-action)
+(defq
+event_map (xmap-kv
+	+event_close action-close
+	+event_min action-minimise
+	+event_max action-maximise
+	+event_save action-save
+	+event_new action-new
+	+event_next action-next-buffer
+	+event_prev action-prev-buffer
+	+event_undo action-undo
+	+event_redo action-redo
+	+event_rewind action-rewind
+	+event_cut action-cut
+	+event_copy action-copy
+	+event_paste action-paste
+	+event_tab_left action-left-tab
+	+event_tab_right action-right-tab
+	+event_reflow action-reflow
+	+event_layout action-layout
+	+event_xscroll action-xscroll
+	+event_yscroll action-yscroll
+	+event_file_leaf_action action-file-leaf-action
+	+event_tree_action action-tree-action
+	+event_open_leaf_action action-open-leaf-action)
 
-	key_map (xmap-kv
-		0x40000050 action-left
-		0x4000004f action-right
-		0x40000052 action-up
-		0x40000051 action-down
-		+char_lf action-break
-		+char_cr action-break
-		+char_backspace action-backspace
-		+char_delete action-delete
-		+char_tab action-tab)
+key_map (xmap-kv
+	0x40000050 action-left
+	0x4000004f action-right
+	0x40000052 action-up
+	0x40000051 action-down
+	+char_lf action-break
+	+char_cr action-break
+	+char_backspace action-backspace
+	+char_delete action-delete
+	+char_tab action-tab)
 
-	key_map_shift (xmap-kv
-		0x40000050 action-left-select
-		0x4000004f action-right-select
-		0x40000052 action-up-select
-		0x40000051 action-down-select)
+key_map_shift (xmap-kv
+	0x40000050 action-left-select
+	0x4000004f action-right-select
+	0x40000052 action-up-select
+	0x40000051 action-down-select)
 
-	key_map_control (xmap-kv
-		(ascii-code "a") action-select-all
-		(ascii-code "b") action-select-block
-		(ascii-code "z") action-undo
-		(ascii-code "Z") action-redo
-		(ascii-code "s") action-save
-		(ascii-code "t") action-trim
-		(ascii-code "x") action-cut
-		(ascii-code "c") action-copy
-		(ascii-code "v") action-paste
-		(ascii-code "-") action-minimise
-		(ascii-code "=") action-maximise
-		(ascii-code "n") action-next-buffer
-		(ascii-code "p") action-prev-buffer
-		(ascii-code "q") action-reflow
-		(ascii-code "9") action-left-bracket
-		(ascii-code "0") action-right-bracket
-		0x40000050 action-left-tab
-		0x4000004f action-right-tab))
+key_map_control (xmap-kv
+	(ascii-code "a") action-select-all
+	(ascii-code "b") action-select-block
+	(ascii-code "z") action-undo
+	(ascii-code "Z") action-redo
+	(ascii-code "r") action-rewind
+	(ascii-code "s") action-save
+	(ascii-code "t") action-trim
+	(ascii-code "x") action-cut
+	(ascii-code "c") action-copy
+	(ascii-code "v") action-paste
+	(ascii-code "-") action-minimise
+	(ascii-code "=") action-maximise
+	(ascii-code "n") action-next-buffer
+	(ascii-code "p") action-prev-buffer
+	(ascii-code "q") action-reflow
+	(ascii-code "9") action-left-bracket
+	(ascii-code "0") action-right-bracket
+	0x40000050 action-left-tab
+	0x4000004f action-right-tab))
 
 ;module
 (export (penv)

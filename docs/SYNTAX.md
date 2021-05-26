@@ -114,6 +114,12 @@
 (. buffer :left) -> buffer
 ```
 
+### buffer :left_bracket
+
+```code
+(. buffer :left_bracket) -> (x y) | (nil nil)
+```
+
 ### buffer :paste
 
 ```code
@@ -136,6 +142,12 @@
 
 ```code
 (. buffer :right) -> buffer
+```
+
+### buffer :right_bracket
+
+```code
+(. buffer :right_bracket) -> (x y) | (nil nil)
 ```
 
 ### buffer :set_cursor

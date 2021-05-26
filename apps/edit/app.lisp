@@ -11,12 +11,11 @@
 	(enum tree_action)
 	(enum file_folder_action file_leaf_action)
 	(enum open_folder_action open_leaf_action)
-	(enum undo redo cut copy paste reflow tab_left tab_right)
+	(enum undo redo rewind cut copy paste reflow tab_left tab_right)
 	(enum prev next save new))
 
 (defq vdu_min_width 32 vdu_min_height 16 vdu_max_width 100 vdu_max_height 48
-	vdu_width 80 vdu_height 40 mouse_state :u
-	meta_map (xmap) underlay (list)
+	vdu_width 80 vdu_height 40 mouse_state :u meta_map (xmap) underlay (list)
 	current_file nil selected_file_node nil selected_open_node nil
 	+selected (apply nums (map (lambda (_)
 		(const (<< (canvas-from-argb32 +argb_grey6 15) 48))) (str-alloc 8192)))
@@ -27,7 +26,7 @@
 	(ui-title-bar mytitle "Edit" (0xea19 0xea1b 0xea1a) +event_close)
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-tool-bar _ ()
-			(ui-buttons (0xe9fe 0xe99d 0xea08 0xe9ca 0xe9c9 0xe909 0xe90a 0xe90b) +event_undo)
+			(ui-buttons (0xe9fe 0xe99d 0xe9ff 0xea08 0xe9ca 0xe9c9 0xe909 0xe90a 0xe90b) +event_undo)
 			(ui-buttons (0xe91d 0xe91e 0xea07 0xe9f0) +event_prev
 				(:color (const *env_toolbar2_col*))))
 		(. (ui-textfield name_text (:hint_text "new filename" :clear_text "" :color +argb_white))
@@ -36,13 +35,13 @@
 		(ui-flow _ (:flow_flags +flow_stack_fill)
 			(ui-grid tree_grid (:grid_width 1 :grid_height 2 :color +argb_grey14)
 				(ui-flow _ (:flow_flags +flow_down_fill)
-					(ui-label _ (:text "Open" :border 1))
+					(ui-label _ (:text "Open"))
 					(ui-scroll open_tree_scroll +scroll_flag_vertical nil
 						(. (ui-tree open_tree +event_open_folder_action
 								(:min_width 0 :color +argb_white :font *env_medium_terminal_font*))
 							:connect +event_tree_action)))
 				(ui-flow _ (:flow_flags +flow_down_fill)
-					(ui-label _ (:text "Project" :border 1))
+					(ui-label _ (:text "Project"))
 					(ui-scroll file_tree_scroll +scroll_flag_vertical nil
 						(. (ui-tree file_tree +event_file_folder_action
 								(:min_width 0 :color +argb_white :font *env_medium_terminal_font*))
