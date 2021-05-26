@@ -149,7 +149,9 @@
 						(:set_cursor (length trimed_line) _)
 						(:delete (- (length line) (length trimed_line)))))) (list (get :buffer this)))
 			(push undo_stack '(:mark))
-			(. this :set_cursor x y)))
+			(bind '(x y) (. this :constrain x y))
+			(. this :set_cursor x y))
+		this)
 
 	(defmethod :reflow (this)
 		; (. buffer :reflow) -> buffer
@@ -167,10 +169,10 @@
 		(each (lambda (line)
 				(.-> this (:insert line) :break))
 			(. (get :syntax this) :text_flow words (get :wrap_width this)))
+		(push undo_stack '(:mark))
 		(bind '(x y) (. this :get_cursor))
 		(bind '(x y) (. this :constrain x (inc y)))
-		(. this :set_cursor x y)
-		(push undo_stack '(:mark)))
+		(. this :set_cursor x y))
 
 	(defmethod :tab_left (this anchor_x anchor_y)
 		; (. buffer :tab_left anchor_x anchor_y) -> buffer
