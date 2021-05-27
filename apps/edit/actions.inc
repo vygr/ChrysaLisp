@@ -103,9 +103,11 @@
 	(clear-selection) (refresh))
 
 (defun action-save ()
-	(when current_file
-		(action-trim)
-		(. current_buffer :file_save current_file)))
+	(if current_file (. (. current_buffer :trim) :file_save current_file)))
+
+(defun action-save-all ()
+	(. meta_map :each (lambda (file (_ _ _ _ _ _ _ buffer))
+		(if file (. (. buffer :trim) :file_save file)))))
 
 (defun action-cut ()
 	(clipboard-put (. current_buffer :cut anchor_x anchor_y))
@@ -267,6 +269,7 @@ event_map (xmap-kv
 	+event_min action-minimise
 	+event_max action-maximise
 	+event_save action-save
+	+event_save_all action-save-all
 	+event_new action-new
 	+event_next action-next-buffer
 	+event_prev action-prev-buffer
@@ -318,6 +321,7 @@ key_map_control (xmap-kv
 	(ascii-code "z") action-undo
 	(ascii-code "Z") action-redo
 	(ascii-code "s") action-save
+	(ascii-code "S") action-save-all
 	(ascii-code "t") action-trim
 	(ascii-code "x") action-cut
 	(ascii-code "c") action-copy
