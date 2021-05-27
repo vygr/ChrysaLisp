@@ -207,10 +207,10 @@
 	(unless (eql (defq pattern (get :clear_text find_text)) "")
 		(when (> (length (defq found (. current_buffer :find pattern))) 0)
 			(when (defq next (some (#
-						(bind '(x y) %0)
-						(if (or (> y cursor_y)
-								(and (= y cursor_y) (> x cursor_x)))
-							%0)) found))
+					(bind '(x y) %0)
+					(if (or (> y cursor_y)
+							(and (= y cursor_y) (> x cursor_x)))
+						%0)) found))
 				(bind '(x y) next)
 				(setq anchor_x x anchor_y y)
 				(. current_buffer :set_cursor (+ x (length pattern)) y)
@@ -220,15 +220,46 @@
 	(unless (eql (defq pattern (get :clear_text find_text)) "")
 		(when (> (length (defq found (. current_buffer :find pattern))) 0)
 			(when (defq next (some-rev (#
-						(bind '(x y) %0)
-						(setq x (+ x (length pattern)))
-						(if (or (< y cursor_y)
-								(and (= y cursor_y) (< x cursor_x)))
-							%0)) found))
+					(bind '(x y) %0)
+					(setq x (+ x (length pattern)))
+					(if (or (< y cursor_y)
+							(and (= y cursor_y) (< x cursor_x)))
+						%0)) found))
 				(bind '(x y) next)
 				(setq anchor_x (+ x (length pattern)) anchor_y y)
 				(. current_buffer :set_cursor x y)
 				(create-selection) (refresh)))))
+
+(defun action-replace ()
+	(unless (or (eql (defq pattern (get :clear_text find_text)) "")
+				(eql (defq replace (get :clear_text replace_text)) "")
+				(eql pattern replace))
+		(cond
+			((and (or (/= anchor_x cursor_x) (/= anchor_y cursor_y))
+				(eql (. current_buffer :copy anchor_x anchor_y) pattern))
+					(. current_buffer :cut anchor_x anchor_y)
+					(. current_buffer :insert replace)
+					(clear-selection) (refresh))
+			((> (length (defq found (. current_buffer :find pattern))) 0)
+				(when (defq next (some (#
+						(bind '(x y) %0)
+						(if (or (> y cursor_y)
+								(and (= y cursor_y) (>= x cursor_x)))
+							%0)) found))
+					(bind '(x y) next)
+					(.-> current_buffer (:set_cursor x y) (:cut (+ x (length pattern)) y))
+					(. current_buffer :insert replace)
+					(clear-selection) (refresh))))))
+
+(defun action-replace-all ()
+	(unless (or (eql (defq pattern (get :clear_text find_text)) "")
+				(eql (defq replace (get :clear_text replace_text)) "")
+				(eql pattern replace))
+		(each-rev (lambda ((x y))
+				(.-> current_buffer (:set_cursor x y) (:cut (+ x (length pattern)) y))
+				(. current_buffer :insert replace))
+			(. current_buffer :find pattern))
+		(clear-selection) (refresh)))
 
 (defq
 event_map (xmap-kv
@@ -241,6 +272,8 @@ event_map (xmap-kv
 	+event_prev action-prev-buffer
 	+event_find_down action-find-down
 	+event_find_up action-find-up
+	+event_replace action-replace
+	+event_replace_all action-replace-all
 	+event_undo action-undo
 	+event_redo action-redo
 	+event_rewind action-rewind
@@ -279,9 +312,11 @@ key_map_control (xmap-kv
 	(ascii-code "b") action-select-block
 	(ascii-code "f") action-find-down
 	(ascii-code "F") action-find-up
+	(ascii-code "f") action-find-down
+	(ascii-code "r") action-replace
+	(ascii-code "R") action-replace-all
 	(ascii-code "z") action-undo
 	(ascii-code "Z") action-redo
-	(ascii-code "r") action-rewind
 	(ascii-code "s") action-save
 	(ascii-code "t") action-trim
 	(ascii-code "x") action-cut
