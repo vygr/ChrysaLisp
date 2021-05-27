@@ -388,6 +388,10 @@
 	; (some lambda seq ...) -> nil | form
 	`(some! 0 -1 nil ,f (list ~_)))
 
+(defmacro some-rev (f &rest _)
+	; (some-rev lambda seq ...) -> nil | form
+	`(some! -1 0 nil ,f (list ~_)))
+
 (defmacro every (f &rest _)
 	; (every lambda seq ...) -> nil | form
 	`(some! 0 -1 t ,f (list ~_)))

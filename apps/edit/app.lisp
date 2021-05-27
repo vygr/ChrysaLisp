@@ -13,7 +13,7 @@
 	(enum open_folder_action open_leaf_action)
 	(enum undo redo rewind cut copy paste reflow tab_left tab_right)
 	(enum prev next save new)
-	(enum search replace replace_all))
+	(enum find_down find_up replace replace_all))
 
 (defq vdu_min_width 32 vdu_min_height 16 vdu_max_width 100 vdu_max_height 46
 	vdu_width 80 vdu_height 40 mouse_state :u meta_map (xmap) underlay (list)
@@ -35,9 +35,9 @@
 	(ui-grid _ (:grid_width 2 :grid_height 1)
 		(ui-flow _ (:flow_flags +flow_right_fill)
 			(ui-tool-bar _ ()
-				(ui-buttons (0xe9cd) +event_search))
-			(. (ui-textfield save_text (:hint_text "search" :clear_text "" :color +argb_white))
-				:connect +event_search))
+				(ui-buttons (0xe914 0xe91b) +event_find_down))
+			(. (ui-textfield find_text (:hint_text "find" :clear_text "" :color +argb_white))
+				:connect +event_find_down))
 		(ui-flow _ (:flow_flags +flow_right_fill)
 			(ui-tool-bar _ ()
 				(ui-buttons (0xe95c 0xe95e) +event_replace))

@@ -90,6 +90,12 @@
 (. buffer :file_save filepath) -> buffer
 ```
 
+### buffer :find
+
+```code
+(. buffer :find) -> ([(x y)] ...)
+```
+
 ### buffer :get_cursor
 
 ```code
@@ -3070,6 +3076,12 @@
 
 ```code
 (some! start end mode lambda (seq ...))
+```
+
+### some-rev
+
+```code
+(some-rev lambda seq ...) -> nil | form
 ```
 
 ### sort

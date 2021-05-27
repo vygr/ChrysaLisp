@@ -203,6 +203,33 @@
 	(select-node (elem idx live_buffers))
 	(populate-vdu (elem idx live_buffers)))
 
+(defun action-find-down ()
+	(unless (eql (defq pattern (get :clear_text find_text)) "")
+		(when (> (length (defq found (. current_buffer :find pattern))) 0)
+			(when (defq next (some (#
+						(bind '(x y) %0)
+						(if (or (> y cursor_y)
+								(and (= y cursor_y) (> x cursor_x)))
+							%0)) found))
+				(bind '(x y) next)
+				(setq anchor_x x anchor_y y)
+				(. current_buffer :set_cursor (+ x (length pattern)) y)
+				(create-selection) (refresh)))))
+
+(defun action-find-up ()
+	(unless (eql (defq pattern (get :clear_text find_text)) "")
+		(when (> (length (defq found (. current_buffer :find pattern))) 0)
+			(when (defq next (some-rev (#
+						(bind '(x y) %0)
+						(setq x (+ x (length pattern)))
+						(if (or (< y cursor_y)
+								(and (= y cursor_y) (< x cursor_x)))
+							%0)) found))
+				(bind '(x y) next)
+				(setq anchor_x (+ x (length pattern)) anchor_y y)
+				(. current_buffer :set_cursor x y)
+				(create-selection) (refresh)))))
+
 (defq
 event_map (xmap-kv
 	+event_close action-close
@@ -212,6 +239,8 @@ event_map (xmap-kv
 	+event_new action-new
 	+event_next action-next-buffer
 	+event_prev action-prev-buffer
+	+event_find_down action-find-down
+	+event_find_up action-find-up
 	+event_undo action-undo
 	+event_redo action-redo
 	+event_rewind action-rewind
@@ -248,6 +277,8 @@ key_map_shift (xmap-kv
 key_map_control (xmap-kv
 	(ascii-code "a") action-select-all
 	(ascii-code "b") action-select-block
+	(ascii-code "f") action-find-down
+	(ascii-code "F") action-find-up
 	(ascii-code "z") action-undo
 	(ascii-code "Z") action-redo
 	(ascii-code "r") action-rewind

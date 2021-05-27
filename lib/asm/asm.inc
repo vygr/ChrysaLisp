@@ -287,7 +287,7 @@
 ; compile and make tests
 ;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun make-test (&optional i &optional *abi* *cpu*)
+(defun make-test (&optional i *abi* *cpu*)
 	(setd *abi* (abi) *cpu* (cpu))
 	(defun time-in-seconds (_)
 		(str (/ _ 1000000) "." (pad (% _ 1000000) 6 "00000")))
