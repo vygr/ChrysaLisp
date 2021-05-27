@@ -4,6 +4,8 @@
 
 (import "gui/label/lisp.inc")
 (import "gui/font/lisp.inc")
+(import "lib/consts/chars.inc")
+(import "apps/clipboard/app.inc")
 
 (defclass Textfield () (Label)
 	; (Textfield) -> textfield
@@ -35,9 +37,17 @@
 
 	(defmethod :key_down (this event)
 		; (. textfield :key_down event) -> textfield
-		(defq key (getf event +ev_msg_key_key) text (get :clear_text this)
-			cursor (min (get :cursor this) (length text)))
+		(defq key (getf event +ev_msg_key_key) mod (getf event +ev_msg_key_mod)
+			text (get :clear_text this) cursor (min (get :cursor this) (length text)))
 		(cond
+			((/= 0 (logand mod (const (+ +ev_key_mod_control +ev_key_mod_command))))
+				;control/command key
+				(cond
+					((= key (ascii-code "v"))
+						;paste
+						(unless (eql (defq data (clipboard-get)) "")
+							(unless (defq cursor (find (ascii-char +char_lf) data)) (setq cursor -1))
+							(setq text (slice 0 cursor data) cursor (length text))))))
 			((or (= key 10) (= key 13))
 				;enter action
 				(. this :emit))
