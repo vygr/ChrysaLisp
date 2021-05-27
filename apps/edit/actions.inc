@@ -211,7 +211,7 @@
 			(when (defq next (some (#
 					(bind '(x y) %0)
 					(if (or (> y cursor_y)
-							(and (= y cursor_y) (> x cursor_x)))
+							(and (= y cursor_y) (>= x cursor_x)))
 						%0)) found))
 				(bind '(x y) next)
 				(setq anchor_x x anchor_y y)
@@ -223,7 +223,6 @@
 		(when (> (length (defq found (. current_buffer :find pattern))) 0)
 			(when (defq next (some-rev (#
 					(bind '(x y) %0)
-					(setq x (+ x (length pattern)))
 					(if (or (< y cursor_y)
 							(and (= y cursor_y) (< x cursor_x)))
 						%0)) found))
