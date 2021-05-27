@@ -4,6 +4,14 @@
 
 ------
 
+Find and replace added to the Editor app. Multiple buffers, save all buffers,
+rewind all, paragraph reflow, tab in/out block, jump to left/right matched
+brackets, select block and live matched bracket hinting.
+
+cntrl-v paste to Textfields.
+
+------
+
 VP and CScript optimizers improved for clarity and extra cases.
 
 Edit app re-write started. Basic editing first stage.

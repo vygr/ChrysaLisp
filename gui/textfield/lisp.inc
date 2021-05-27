@@ -68,7 +68,7 @@
 				(and (/= cursor (length text))
 					(setq cursor (inc cursor))))
 			((<= +char_space key +char_tilda)
-				;append key
+				;insert char
 				(setq text (insert text cursor (char key)) cursor (inc cursor))))
 		(def this :clear_text text :cursor cursor)
 		(.-> this :layout :dirty_all))

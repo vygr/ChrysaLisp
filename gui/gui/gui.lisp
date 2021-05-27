@@ -20,7 +20,8 @@
 		(mail-declare (task-mailbox) "GUI_SERVICE" "GUI Service 0.2")
 
 		;screen widget
-		(def (defq screen (Backdrop)) :style :grid :color +argb_grey2 :ink_color +argb_grey1)
+		(def (defq screen (Backdrop)) :style :grid :color +argb_grey2
+			:ink_color +argb_grey1)
 		(.-> screen (:change 0 0 1280 960) :dirty_all)
 
 		;fire up the login app
