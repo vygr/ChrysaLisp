@@ -32,13 +32,20 @@
 
 (defun redo ()
 	(defq idx (length undo_stack))
-	(. this :set_cursor x y)
 	(case state
-		(:break (. this :break))
-		(:insert (. this :insert data))
-		(:delete (. this :delete data))
-		(:backspace (. this :backspace data))
-		(:cursor (push undo_stack (list :cursor x y))))
+		(:break
+			(.-> this (:set_cursor x y) :break))
+		(:insert
+			(.-> this (:set_cursor x y) (:insert data)))
+		(:delete
+			(.-> this (:set_cursor x y) (:delete data)))
+		(:backspace
+			(.-> this (:set_cursor x y) (:backspace data)))
+		(:cursor
+			(. this :set_cursor x y)
+			(push undo_stack (list :cursor x y)))
+		(:mark
+			(push undo_stack (list :mark x))))
 	idx)
 
 (defun undo ()
@@ -85,7 +92,11 @@
 	(def this :buffer (list "") :buffer_colored (list "") :buffer_states (list '(nil nil))
 		:dirty nil :syntax (Syntax) :undo_stack (list) :redo_stack (list)
 		:cursor_x 0 :cursor_y 0 :max_width 0 :tab_width 4 :wrap_width 80
-		:mode mode :lps nil :lps_pattern nil)
+		:mode mode :lps nil :lps_pattern nil :next_mark -1)
+
+	(defmethod :next_mark (this)
+		; (. buffer :next_mark) -> num
+		(set this :next_mark (inc (get :next_mark this))))
 
 	(defmethod :set_cursor (this x y)
 		; (. buffer :set_cursor x y) -> buffer
@@ -135,7 +146,8 @@
 		(when (> h 0)
 			(bind '(x y) (. this :get_cursor))
 			(bind '(x y) (. this :constrain x y))
-			(push (defq undo_stack (get :undo_stack this)) '(:mark) (list :cursor x y))
+			(push (defq undo_stack (get :undo_stack this))
+				(list :mark (defq mark (. this :next_mark))) (list :cursor x y))
 			;trim front
 			(while (and (> (bind '(w h) (. this :get_size)) 0)
 						(eql (elem 0 (get :buffer this)) ""))
@@ -150,7 +162,7 @@
 					(.-> this
 						(:set_cursor (length trimed_line) _)
 						(:delete (- (length line) (length trimed_line)))))) (list (get :buffer this)))
-			(push undo_stack '(:mark))
+			(push undo_stack (list :mark mark))
 			(bind '(x y) (. this :constrain x y))
 			(. this :set_cursor x y))
 		this)
@@ -159,7 +171,8 @@
 		; (. buffer :reflow) -> buffer
 		(bind '(x y) (. this :get_cursor))
 		(bind '(x y) (. this :constrain x y))
-		(push (defq undo_stack (get :undo_stack this)) '(:mark) (list :cursor x y))
+		(push (defq undo_stack (get :undo_stack this))
+			(list :mark (defq mark (. this :next_mark))) (list :cursor x y))
 		;find start line
 		(while (and (> (setq y (dec y)) -1) (not (eql (elem y (get :buffer this)) ""))))
 		;collect words
@@ -171,7 +184,7 @@
 		(each (lambda (line)
 				(.-> this (:insert line) :break))
 			(. (get :syntax this) :text_flow words (get :wrap_width this)))
-		(push undo_stack '(:mark))
+		(push undo_stack (list :mark mark))
 		(bind '(x y) (. this :get_cursor))
 		(bind '(x y) (. this :constrain x (inc y)))
 		(. this :set_cursor x y))
@@ -180,7 +193,8 @@
 		; (. buffer :tab_left anchor_x anchor_y) -> buffer
 		(get-selection)
 		(if (> sx1 0) (setq sy1 (inc sy1)))
-		(push (defq undo_stack (get :undo_stack this)) '(:mark) (list :cursor x y))
+		(push (defq undo_stack (get :undo_stack this))
+			(list :mark (defq mark (. this :next_mark))) (list :cursor x y))
 		(defq tab_width (get :tab_width this))
 		(each! sy sy1 (lambda (line)
 				(defq idx -1)
@@ -191,21 +205,22 @@
 				(if (> idx 0)
 					(.-> this (:set_cursor 0 _) (:delete (min tab_width idx)))))
 			(list (get :buffer this)))
-		(push undo_stack '(:mark))
+		(push undo_stack (list :mark mark))
 		(. this :set_cursor x y))
 
 	(defmethod :tab_right (this anchor_x anchor_y)
 		; (. buffer :tab_right anchor_x anchor_y) -> buffer
 		(get-selection)
 		(if (> sx1 0) (setq sy1 (inc sy1)))
-		(push (defq undo_stack (get :undo_stack this)) '(:mark) (list :cursor x y))
+		(push (defq undo_stack (get :undo_stack this))
+			(list :mark (defq mark (. this :next_mark))) (list :cursor x y))
 		(defq tab (pad "" (get :tab_width this) "        "))
 		(each! sy sy1 (lambda (line)
 			(unless (eql line "")
 				(.-> this
 					(:set_cursor 0 _)
 					(:insert tab)))) (list (get :buffer this)))
-		(push undo_stack '(:mark))
+		(push undo_stack (list :mark mark))
 		(. this :set_cursor x y))
 
 	(defmethod :vdu_load (this vdu scroll_x scroll_y)
@@ -281,12 +296,17 @@
 	(defmethod :break (this)
 		; (. buffer :break) -> buffer
 		(mutate-buffer
-			(defq front (slice 0 x (elem y buffer)) back (slice x -1 (elem y buffer)))
+			(defq front (slice 0 x (elem y buffer)) back (slice x -1 (elem y buffer))
+				undo_stack (get :undo_stack this))
 			(set-line y front)
 			(insert-line (setq x 0 y (inc y)) back)
-			(push (get :undo_stack this) (list :backspace x y))
-			(if (> y h)
-				(push (get :undo_stack this) (list :delete 0 y)))))
+			(cond	
+				((<= y h)
+					(push undo_stack (list :backspace x y)))
+				(t	(push undo_stack
+						(list :mark (defq mark (. this :next_mark)))
+						(list :backspace x y) (list :delete 0 y)
+						(list :mark mark))))))
 
 	(defmethod :backspace (this &optional num)
 		; (. buffer :backspace &optional num) -> buffer
@@ -330,7 +350,8 @@
 	(defmethod :cut (this anchor_x anchor_y)
 		; (. buffer :cut anchor_x anchor_y) -> string
 		(select-buffer
-			(push (defq undo_stack (get :undo_stack this)) '(:mark) (list :cursor x y))
+			(push (defq undo_stack (get :undo_stack this))
+				(list :mark (defq mark (. this :next_mark))) (list :cursor x y))
 			(defq lines (list))
 			(. this :set_cursor sx sy)
 			(cond
@@ -345,7 +366,7 @@
 					(when (and (> sx1 0) (< sy (bind '(w h) (. this :get_size))))
 						(push lines (slice sx (+ sx sx1) (elem sy (get :buffer this))))
 						(. this :delete sx1))))
-			(push undo_stack '(:mark))
+			(push undo_stack (list :mark mark))
 			(apply cat lines)))
 
 	(defmethod :copy (this anchor_x anchor_y)
@@ -365,14 +386,15 @@
 
 	(defmethod :paste (this string)
 		; (. buffer :paste string) -> this
-		(push (defq undo_stack (get :undo_stack this)) '(:mark))
+		(push (defq undo_stack (get :undo_stack this))
+			(list :mark (defq mark (. this :next_mark))))
 		(while (defq idx (find (ascii-char +char_lf) string))
 			(when (> idx 0)
 				(. this :insert (slice 0 idx string)))
 			(. this :break)
 			(setq string (slice (inc idx) -1 string)))
 		(if (> (length string) 0) (. this :insert string))
-		(push undo_stack '(:mark))
+		(push undo_stack (list :mark mark))
 		this)
 
 	(defmethod :undo (this)
@@ -382,12 +404,11 @@
 			(bind '(state &optional x y data) data)
 			(cond
 				((eql state :mark)
-					(push redo_stack '(:mark))
-					(bind '(state &optional x y data) (pop undo_stack))
-					(until (eql state :mark)
-						(undo)
-						(bind '(state &optional x y data) (pop undo_stack)))
-					(push redo_stack '(:mark)))
+					(undo)
+					(defq outer x x -1)
+					(until (and (eql state :mark) (= x outer))
+						(bind '(state &optional x y data) (pop undo_stack))
+						(undo)))
 				(t	(undo)))
 			(set this :redo_stack redo_stack))
 		this)
@@ -399,12 +420,11 @@
 			(bind '(state &optional x y data) data)
 			(cond
 				((eql state :mark)
-					(push undo_stack '(:mark))
-					(bind '(state &optional x y data) (pop redo_stack))
-					(until (eql state :mark)
-						(redo)
-						(bind '(state &optional x y data) (pop redo_stack)))
-					(push undo_stack '(:mark)))
+					(redo)
+					(defq outer x x -1)
+					(until (and (eql state :mark) (= x outer))
+						(bind '(state &optional x y data) (pop redo_stack))
+						(redo)))
 				(t	(redo)))
 			(set this :redo_stack redo_stack))
 		this)

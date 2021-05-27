@@ -233,8 +233,7 @@
 
 (defun action-replace ()
 	(unless (or (eql (defq pattern (get :clear_text find_text)) "")
-				(eql (defq replace (get :clear_text replace_text)) "")
-				(eql pattern replace))
+				(eql (defq replace (get :clear_text replace_text)) pattern))
 		(cond
 			((and (or (/= anchor_x cursor_x) (/= anchor_y cursor_y))
 				(eql (. current_buffer :copy anchor_x anchor_y) pattern))
@@ -249,17 +248,20 @@
 							%0)) found))
 					(bind '(x y) next)
 					(.-> current_buffer (:set_cursor x y) (:cut (+ x (length pattern)) y))
-					(. current_buffer :insert replace)
+					(unless (eql replace "") (. current_buffer :insert replace))
 					(clear-selection) (refresh))))))
 
 (defun action-replace-all ()
 	(unless (or (eql (defq pattern (get :clear_text find_text)) "")
-				(eql (defq replace (get :clear_text replace_text)) "")
-				(eql pattern replace))
+				(eql (defq replace (get :clear_text replace_text)) pattern))
+		(push (defq undo_stack (get :undo_stack current_buffer))
+			(list :mark (defq mark (. current_buffer :next_mark)))
+			(list :cursor cursor_x cursor_y))
 		(each-rev (lambda ((x y))
 				(.-> current_buffer (:set_cursor x y) (:cut (+ x (length pattern)) y))
-				(. current_buffer :insert replace))
+				(unless (eql replace "") (. current_buffer :insert replace)))
 			(. current_buffer :find pattern))
+		(push undo_stack (list :mark mark))
 		(clear-selection) (refresh)))
 
 (defq
