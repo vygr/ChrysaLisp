@@ -30,7 +30,7 @@
 			(ui-buttons (0xe9fe 0xe99d 0xe9ff 0xea08 0xe9ca 0xe9c9 0xe909 0xe90a 0xe90b) +event_undo)
 			(ui-buttons (0xe91d 0xe91e 0xe97e 0xea07 0xe9f0) +event_prev
 				(:color (const *env_toolbar2_col*))))
-		(. (ui-textfield name_text (:hint_text "new filename" :clear_text "" :color +argb_white))
+		(. (ui-textfield name_text (:hint_text "new file" :clear_text "" :color +argb_white))
 			:connect +event_new))
 	(ui-grid _ (:grid_width 2 :grid_height 1)
 		(ui-flow _ (:flow_flags +flow_right_fill)

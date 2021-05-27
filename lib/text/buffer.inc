@@ -84,7 +84,8 @@
 	; (Buffer mode) -> buffer
 	(def this :buffer (list "") :buffer_colored (list "") :buffer_states (list '(nil nil))
 		:dirty nil :syntax (Syntax) :undo_stack (list) :redo_stack (list)
-		:cursor_x 0 :cursor_y 0 :max_width 0 :tab_width 4 :wrap_width 80 :mode mode)
+		:cursor_x 0 :cursor_y 0 :max_width 0 :tab_width 4 :wrap_width 80
+		:mode mode :lps nil :lps_pattern nil)
 
 	(defmethod :set_cursor (this x y)
 		; (. buffer :set_cursor x y) -> buffer
@@ -461,13 +462,16 @@
 		(if (= c 1) (list x y) '(nil nil)))
 
 	(defmethod :find (this pattern)
-		; (. buffer :find) -> ([(x y)] ...)
+		; (. buffer :find pattern) -> ([(x y)] ...)
 		(bind '(w h) (. this :get_size))
-		(defq out (list))
+		(defq out (list) lps (get :lps this))
+		(unless (eql (get :lps_pattern this) pattern)
+			(setq lps (substr-lps pattern))
+			(set this :lps lps :lps_pattern pattern))
 		(each! 0 h (lambda (line)
 				(when (> (length line) 0)
 					(defq idx _)
-					(each (# (push out (list %0 idx))) (substr pattern line))))
+					(each (# (push out (list %0 idx))) (substr pattern line lps))))
 			(list (get :buffer this))) out)
 	)
 
