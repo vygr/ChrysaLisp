@@ -16,8 +16,8 @@
 	(enum find_down find_up replace replace_all))
 
 (defq *current_file* nil *selected_file_node* nil *selected_open_node* nil
+	*vdu_width* 80 *vdu_height* 40 *meta_map* (xmap) *underlay* (list)
 	+vdu_min_width 32 +vdu_min_height 16 +vdu_max_width 100 +vdu_max_height 46
-	vdu_width 80 vdu_height 40 mouse_state :u *meta_map* (xmap) underlay (list)
 	+selected (apply nums (map (lambda (_)
 		(const (<< (canvas-from-argb32 +argb_grey6 15) 48))) (str-alloc 8192)))
 	+not_selected (nums-sub +selected +selected)
@@ -45,7 +45,7 @@
 				:connect +event_replace)))
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-flow _ (:flow_flags +flow_stack_fill)
-			(ui-grid tree_grid (:grid_width 1 :grid_height 2 :color +argb_grey14)
+			(ui-grid _ (:grid_width 1 :grid_height 2 :color +argb_grey14)
 				(ui-flow _ (:flow_flags +flow_down_fill)
 					(ui-label _ (:text "Open"))
 					(ui-scroll *open_tree_scroll* +scroll_flag_vertical nil
@@ -64,10 +64,10 @@
 			(ui-flow _ (:flow_flags +flow_up_fill)
 				(. (ui-slider *xslider*) :connect +event_xscroll)
 				(ui-flow _ (:flow_flags +flow_stack_fill :font *env_terminal_font*)
-					(ui-vdu *vdu* (:min_width vdu_width :min_height vdu_height
-						:vdu_width vdu_width :vdu_height vdu_height
+					(ui-vdu *vdu* (:min_width *vdu_width* :min_height *vdu_height*
+						:vdu_width *vdu_width* :vdu_height *vdu_height*
 						:ink_color +argb_white))
-					(ui-vdu *vdu_underlay* (:vdu_width vdu_width :vdu_height vdu_height
+					(ui-vdu *vdu_underlay* (:vdu_width *vdu_width* :vdu_height *vdu_height*
 						:min_width 0 :min_height 0
 						:ink_color +argb_white)))))))
 
@@ -80,21 +80,21 @@
 				(cond
 					((eql type "8")
 						;file
-						(if (or	;src file ?
+						(if (or ;src file ?
 								(ends-with ".vp" file)
 								(ends-with ".inc" file)
 								(ends-with ".lisp" file)
 								(ends-with ".md" file))
 							(push files (cat (slice
 								(if (eql root "./") 2 1) -1 root) "/" file))))
-					(t	;dir
+					(t  ;dir
 						(unless (starts-with "." file)
 							(push stack (cat root "/" file))))))
 				(unzip (split (pii-dirlist root) ",") (list (list) (list))))))
 	files)
 
 (defun create-selection ()
-	;create the underlay
+	;create the underlay vdu
 	(bind '(x y) (. *current_buffer* :get_cursor))
 	(defq x1 *anchor_x* y1 *anchor_y*)
 	(if (> y y1)
@@ -102,55 +102,55 @@
 			y (logxor y y1) y1 (logxor y y1) y (logxor y y1)))
 	(and (= y y1) (> x x1)
 		(defq x (logxor x x1) x1 (logxor x x1) x (logxor x x1)))
-	(cap (inc y1) (clear underlay))
+	(cap (inc y1) (clear *underlay*))
 	(defq uy -1 buffer (get :buffer *current_buffer*))
-	(while (< (setq uy (inc uy)) y) (push underlay ""))
+	(while (< (setq uy (inc uy)) y) (push *underlay* ""))
 	(cond
 		((= y y1)
-			(push underlay (cat
+			(push *underlay* (cat
 				(slice 0 x +not_selected)
 				(slice x x1 +selected))))
-		(t	(push underlay (cat
+		(t  (push *underlay* (cat
 				(slice 0 x +not_selected)
 				(slice x (inc (length (elem y buffer))) +selected)))
 			(while (< (setq y (inc y)) y1)
-				(push underlay (slice 0 (inc (length (elem y buffer))) +selected)))
-			(push underlay (slice 0 x1 +selected)))))
+				(push *underlay* (slice 0 (inc (length (elem y buffer))) +selected)))
+			(push *underlay* (slice 0 x1 +selected)))))
 
 (defun clear-selection ()
-	;clear the underlay to just bracket indicators
+	;clear the underlay vdu to just bracket indicators
 	(bind '(x y) (. *current_buffer* :get_cursor))
 	(bind '(x y) (. *current_buffer* :constrain x y))
 	(setq *anchor_x* x *anchor_y* y *shift_select* nil)
-	(clear underlay)
+	(clear *underlay*)
 	(when (bind '(x y) (. *current_buffer* :left_bracket))
 		(when (bind '(x1 y1) (. *current_buffer* :right_bracket))
-			(cap (inc y1) underlay)
+			(cap (inc y1) *underlay*)
 			(defq uy -1)
-			(while (< (setq uy (inc uy)) y) (push underlay ""))
+			(while (< (setq uy (inc uy)) y) (push *underlay* ""))
 			(cond
 				((= y y1)
-					(push underlay (cat
+					(push *underlay* (cat
 						(slice 0 x +not_selected) +bracket_char
 						(slice x (dec x1) +not_selected) +bracket_char)))
-				(t	(push underlay (cat (slice 0 x +not_selected) +bracket_char))
-					(while (< (setq y (inc y)) y1) (push underlay ""))
-					(push underlay (cat (slice 0 x1 +not_selected) +bracket_char)))))))
+				(t  (push *underlay* (cat (slice 0 x +not_selected) +bracket_char))
+					(while (< (setq y (inc y)) y1) (push *underlay* ""))
+					(push *underlay* (cat (slice 0 x1 +not_selected) +bracket_char)))))))
 
 (defun load-display ()
-	;load the vdu widgets with the text and selection underlay
+	;load the vdu widgets with the text and selection
 	(. *current_buffer* :vdu_load *vdu* *scroll_x* *scroll_y*)
-	(. *vdu_underlay* :load underlay *scroll_x* *scroll_y* -1 -1))
+	(. *vdu_underlay* :load *underlay* *scroll_x* *scroll_y* -1 -1))
 
 (defun set-sliders ()
 	;set slider values for current file
 	(bind '(x y ax ay sx sy ss buffer) (. *meta_map* :find *current_file*))
 	(bind '(w h) (. buffer :get_size))
-	(defq smaxx (max 0 (- w vdu_width -1))
-		smaxy (max 0 (- h vdu_height -1))
+	(defq smaxx (max 0 (- w *vdu_width* -1))
+		smaxy (max 0 (- h *vdu_height* -1))
 		sx (min sx smaxx) sy (min sy smaxy))
-	(def (. *xslider* :dirty) :maximum smaxx :portion vdu_width :value sx)
-	(def (. *yslider* :dirty) :maximum smaxy :portion vdu_height :value sy)
+	(def (. *xslider* :dirty) :maximum smaxx :portion *vdu_width* :value sx)
+	(def (. *yslider* :dirty) :maximum smaxy :portion *vdu_height* :value sy)
 	(. *meta_map* :insert *current_file* (list x y ax ay sx sy ss buffer))
 	(setq *scroll_x* sx *scroll_y* sy))
 
@@ -200,8 +200,8 @@
 	(select-node nil))
 
 (defun window-resize (w h)
-	;layout the window and size the *vdu* to fit
-	(setq vdu_width w vdu_height h)
+	;layout the window and size the vdu to fit
+	(setq *vdu_width* w *vdu_height* h)
 	(set *vdu* :vdu_width w :vdu_height h :min_width w :min_height h)
 	(set *vdu_underlay* :vdu_width w :vdu_height h)
 	(bind '(x y) (. *vdu* :get_pos))
@@ -213,8 +213,8 @@
 	(set-sliders) (load-display))
 
 (defun vdu-resize (w h)
-	;size the *vdu* and layout the window to fit
-	(setq vdu_width w vdu_height h)
+	;size the vdu and layout the window to fit
+	(setq *vdu_width* w *vdu_height* h)
 	(set *vdu* :vdu_width w :vdu_height h :min_width w :min_height h)
 	(set *vdu_underlay* :vdu_width w :vdu_height h)
 	(bind '(x y w h) (apply view-fit
@@ -247,7 +247,7 @@
 
 (defun main ()
 	(defq *cursor_x* 0 *cursor_y* 0 *anchor_x* 0 *anchor_y* 0 *scroll_x* 0 *scroll_y* 0
-		*shift_select* nil *current_buffer* nil *running* t)
+		*shift_select* nil *current_buffer* nil *running* t mouse_state :u)
 	(populate-file-tree)
 	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :pref_size)))
 	(gui-add (. *window* :change x y w h))
@@ -268,22 +268,22 @@
 					((/= (getf *msg* +ev_msg_mouse_buttons) 0)
 						;mouse button is down
 						(case mouse_state
-							(:d	;was down last time
+							(:d ;was down last time
 								(bind '(x y) (. *current_buffer* :constrain x y))
 								(. *current_buffer* :set_cursor x y)
 								(create-selection))
-							(:u	;was up last time
+							(:u ;was up last time
 								(bind '(x y) (. *current_buffer* :constrain x y))
 								(. *current_buffer* :set_cursor x y)
 								(setq *anchor_x* x *anchor_y* y *shift_select* t mouse_state :d)
 								(create-selection))))
-					(t	;mouse button is up
+					(t  ;mouse button is up
 						(case mouse_state
-							(:d	;was down last time
+							(:d ;was down last time
 								(bind '(x y) (. *current_buffer* :get_cursor))
 								(and (= *anchor_x* x) (= *anchor_y* y) (clear-selection))
 								(setq mouse_state :u))
-							(:u	;was up last time
+							(:u ;was up last time
 								))))
 				(refresh))
 			((and (not (Textfield? (. *window* :find_id id)))
@@ -299,15 +299,14 @@
 						;call bound shift key action, else insert
 						(cond
 							((defq action (. key_map_shift :find key)) (action))
-							((<= +char_space key +char_tilda)
-								(action-insert key))))
+							((<= +char_space key +char_tilda) (action-insert key))))
 					((defq action (. key_map :find key))
 						;call bound key action
 						(action))
 					((<= +char_space key +char_tilda)
 						;insert the char
 						(action-insert key))))
-			(t	;gui event
+			(t  ;gui event
 				(. *window* :event *msg*)))
 		;update meta data
 		(bind '(*cursor_x* *cursor_y*) (. *current_buffer* :get_cursor))
@@ -315,4 +314,3 @@
 			(list *cursor_x* *cursor_y* *anchor_x* *anchor_y*
 				*scroll_x* *scroll_y* *shift_select* *current_buffer*)))
 	(. *window* :hide))
- 

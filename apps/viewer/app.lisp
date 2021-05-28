@@ -11,7 +11,7 @@
 
 (defq +vdu_min_width 32 +vdu_min_height 16
 	+vdu_max_width 100 +vdu_max_height 48
-	vdu_width 80 vdu_height 48 mouse_state :u
+	*vdu_width* 80 *vdu_height* 48
 	*current_buffer* (Buffer) *meta_map* (xmap 31)
 	*current_file* nil *selected_file_node* nil)
 
@@ -28,8 +28,8 @@
 			(. (ui-slider *yslider*) :connect +event_yscroll)
 			(ui-flow _ (:flow_flags +flow_up_fill)
 				(. (ui-slider *xslider*) :connect +event_xscroll)
-				(ui-vdu *vdu* (:min_width vdu_width :min_height vdu_height
-					:vdu_width vdu_width :vdu_height vdu_height
+				(ui-vdu *vdu* (:min_width *vdu_width* :min_height *vdu_height*
+					:vdu_width *vdu_width* :vdu_height *vdu_height*
 					:ink_color +argb_white))))))
 
 (defun all-src-files (root)
@@ -41,14 +41,14 @@
 				(cond
 					((eql type "8")
 						;file
-						(if (or	;src file ?
+						(if (or ;src file ?
 								(ends-with ".vp" file)
 								(ends-with ".inc" file)
 								(ends-with ".lisp" file)
 								(ends-with ".md" file))
 							(push files (cat (slice
 								(if (eql root "./") 2 1) -1 root) "/" file))))
-					(t	;dir
+					(t  ;dir
 						(unless (starts-with "." file)
 							(push stack (cat root "/" file))))))
 				(unzip (split (pii-dirlist root) ",") (list (list) (list))))))
@@ -62,11 +62,11 @@
 	;set slider values for current file
 	(bind '(x y ax ay sx sy m ss) (. *meta_map* :find *current_file*))
 	(bind '(w h) (. *current_buffer* :get_size))
-	(defq smaxx (max 0 (- w vdu_width -1))
-		smaxy (max 0 (- h vdu_height -1))
+	(defq smaxx (max 0 (- w *vdu_width* -1))
+		smaxy (max 0 (- h *vdu_height* -1))
 		sx (min sx smaxx) sy (min sy smaxy))
-	(def (. *xslider* :dirty) :maximum smaxx :portion vdu_width :value sx)
-	(def (. *yslider* :dirty) :maximum smaxy :portion vdu_height :value sy)
+	(def (. *xslider* :dirty) :maximum smaxx :portion *vdu_width* :value sx)
+	(def (. *yslider* :dirty) :maximum smaxy :portion *vdu_height* :value sy)
 	(. *meta_map* :insert *current_file* (list x y ax ay sx sy m ss))
 	(setq *scroll_x* sx *scroll_y* sy))
 
@@ -114,8 +114,8 @@
 	(select-node nil))
 
 (defun window-resize (w h)
-	;layout the window and size the *vdu* to fit
-	(setq vdu_width w vdu_height h)
+	;layout the window and size the vdu to fit
+	(setq *vdu_width* w *vdu_height* h)
 	(set *vdu* :vdu_width w :vdu_height h :min_width w :min_height h)
 	(bind '(x y) (. *vdu* :get_pos))
 	(bind '(w h) (. *vdu* :pref_size))
@@ -124,8 +124,8 @@
 	(set-sliders) (load-display))
 
 (defun vdu-resize (w h)
-	;size the *vdu* and layout the window to fit
-	(setq vdu_width w vdu_height h)
+	;size the vdu and layout the window to fit
+	(setq *vdu_width* w *vdu_height* h)
 	(set *vdu* :vdu_width w :vdu_height h :min_width w :min_height h)
 	(bind '(x y w h) (apply view-fit
 		(cat (. *window* :get_pos) (. *window* :pref_size))))
@@ -150,7 +150,7 @@
 
 (defun main ()
 	(defq *cursor_x* 0 *cursor_y* 0 *anchor_x* 0 *anchor_y* 0 *scroll_x* 0 *scroll_y* 0
-		mode nil *shift_select* nil *running* t)
+		mode nil *shift_select* nil *running* t mouse_state :u)
 	(populate-file-tree)
 	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :pref_size)))
 	(gui-add (. *window* :change x y w h))
@@ -171,19 +171,19 @@
 					((/= (getf *msg* +ev_msg_mouse_buttons) 0)
 						;mouse button is down
 						(case mouse_state
-							(:d	;was down last time
+							(:d ;was down last time
 								(bind '(x y) (. *current_buffer* :constrain x y))
 								(. *current_buffer* :set_cursor x y))
-							(:u	;was up last time
+							(:u ;was up last time
 								(bind '(x y) (. *current_buffer* :constrain x y))
 								(. *current_buffer* :set_cursor x y)
 								(setq *anchor_x* x *anchor_y* y *shift_select* t mouse_state :d))))
-					(t	;mouse button is up
+					(t  ;mouse button is up
 						(case mouse_state
-							(:d	;was down last time
+							(:d ;was down last time
 								(bind '(x y) (. *current_buffer* :get_cursor))
 								(setq mouse_state :u))
-							(:u	;was up last time
+							(:u ;was up last time
 								))))
 				(refresh))
 			((and (not (Textfield? (. *window* :find_id id)))
@@ -201,11 +201,10 @@
 					((defq action (. key_map :find key))
 						;call bound key action
 						(action))))
-			(t	;gui event
+			(t  ;gui event
 				(. *window* :event *msg*)))
 		;update meta data
 		(bind '(*cursor_x* *cursor_y*) (. *current_buffer* :get_cursor))
 		(. *meta_map* :insert *current_file*
 			(list *cursor_x* *cursor_y* *anchor_x* *anchor_y* *scroll_x* *scroll_y* mode *shift_select*)))
 	(. *window* :hide))
- 
