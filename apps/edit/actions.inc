@@ -129,7 +129,7 @@
 
 (defun action-save-all ()
 	(. *meta_map* :each (lambda (file (_ _ _ _ _ _ _ buffer))
-		(if file (. (. buffer :trim) :file_save file)))))
+		(if file (.-> buffer :trim (:file_save file))))))
 
 (defun action-cut ()
 	(clipboard-put (. *current_buffer* :cut *anchor_x* *anchor_y*))
@@ -146,9 +146,9 @@
 		(clear-selection) (refresh)))
 
 (defun action-select-all ()
-	(bind '(x y) (. *current_buffer* :get_size))
+	(bind '(w h) (. *current_buffer* :get_size))
 	(setq *anchor_x* 0 *anchor_y* 0 *shift_select* t)
-	(. *current_buffer* :set_cursor 0 y)
+	(. *current_buffer* :set_cursor 0 h)
 	(create-selection) (refresh))
 
 (defun action-select-block ()
@@ -230,8 +230,7 @@
 (defun action-find-down ()
 	(unless (eql (defq pattern (get :clear_text *find_text*)) "")
 		(when (> (length (defq found (. *current_buffer* :find pattern))) 0)
-			(when (defq next (some (#
-					(bind '(x y) %0)
+			(when (defq next (some (# (bind '(x y) %0)
 					(if (or (> y *cursor_y*)
 							(and (= y *cursor_y*) (>= x *cursor_x*)))
 						%0)) found))
@@ -243,8 +242,7 @@
 (defun action-find-up ()
 	(unless (eql (defq pattern (get :clear_text *find_text*)) "")
 		(when (> (length (defq found (. *current_buffer* :find pattern))) 0)
-			(when (defq next (some-rev (#
-					(bind '(x y) %0)
+			(when (defq next (some-rev (# (bind '(x y) %0)
 					(if (or (< y *cursor_y*)
 							(and (= y *cursor_y*) (< x *cursor_x*)))
 						%0)) found))
@@ -262,12 +260,10 @@
 					(list :mark (defq mark (. *current_buffer* :next_mark)))
 					(list :cursor *cursor_x* *cursor_y*))
 				(. *current_buffer* :cut *anchor_x* *anchor_y*)
-				(. *current_buffer* :insert replace)
-				(. *current_buffer* :push_undo (list :mark mark))
+				(.-> *current_buffer* (:insert replace) (:push_undo (list :mark mark)))
 				(clear-selection) (refresh))
 			((> (length (defq found (. *current_buffer* :find pattern))) 0)
-				(when (defq next (some (#
-						(bind '(x y) %0)
+				(when (defq next (some (# (bind '(x y) %0)
 						(if (or (> y *cursor_y*)
 								(and (= y *cursor_y*) (>= x *cursor_x*)))
 							%0)) found))
@@ -275,9 +271,7 @@
 						(list :mark (defq mark (. *current_buffer* :next_mark)))
 						(list :cursor *cursor_x* *cursor_y*))
 					(bind '(x y) next)
-					(.-> *current_buffer*
-						(:set_cursor x y)
-						(:cut (+ x (length pattern)) y))
+					(.-> *current_buffer* (:set_cursor x y) (:cut (+ x (length pattern)) y))
 					(unless (eql replace "") (. *current_buffer* :insert replace))
 					(. *current_buffer* :push_undo (list :mark mark))
 					(clear-selection) (refresh))))))
@@ -290,9 +284,7 @@
 				(list :mark (defq mark (. *current_buffer* :next_mark)))
 				(list :cursor *cursor_x* *cursor_y*))
 			(each-rev (lambda ((x y))
-					(.-> *current_buffer*
-						(:set_cursor x y)
-						(:cut (+ x (length pattern)) y))
+					(.-> *current_buffer* (:set_cursor x y) (:cut (+ x (length pattern)) y))
 					(unless (eql replace "") (. *current_buffer* :insert replace)))
 				found)
 			(. *current_buffer* :push_undo (list :mark mark))
@@ -318,33 +310,39 @@
 
 (defun action-ordered ()
 	(when (selection?)
-		(. *current_buffer* :push_undo
-			(list :mark (defq mark (. *current_buffer* :next_mark)))
-			(list :cursor *cursor_x* *cursor_y*))
 		(bind '(sy sy1) (line-selection))
-		(. *current_buffer* :set_cursor 0 sy1)
-		(defq lines (split (. *current_buffer* :cut 0 sy) (ascii-char +char_lf))
-			text (cat (join (sort cmp lines) (ascii-char +char_lf)) (ascii-char +char_lf)))
+		(setq *anchor_x* 0 *anchor_y* sy)
+		(.-> *current_buffer*
+			(:push_undo
+				(list :mark (defq mark (. *current_buffer* :next_mark)))
+				(list :cursor *cursor_x* *cursor_y*))
+			(:set_cursor 0 sy1))
+		(defq text (cat (join
+			(sort cmp (split (. *current_buffer* :cut 0 sy) (ascii-char +char_lf)))
+			(ascii-char +char_lf)) (ascii-char +char_lf)))
 		(.-> *current_buffer*
 			(:paste text)
 			(:push_undo (list :mark mark)))
-		(clear-selection) (refresh)))
+		(create-selection) (refresh)))
 
 (defun action-ordered-unique ()
 	(when (selection?)
-		(. *current_buffer* :push_undo
-			(list :mark (defq mark (. *current_buffer* :next_mark)))
-			(list :cursor *cursor_x* *cursor_y*))
 		(bind '(sy sy1) (line-selection))
-		(. *current_buffer* :set_cursor 0 sy1)
-		(defq lines
-			(reduce (# (if (or (<= (length %0) 0) (not (eql (elem -2 %0) %1))) (push %0 %1) %0))
-				(split (. *current_buffer* :cut 0 sy) (ascii-char +char_lf)) (list))
-			text (cat (join (sort cmp lines) (ascii-char +char_lf)) (ascii-char +char_lf)))
+		(setq *anchor_x* 0 *anchor_y* sy)
+		(.-> *current_buffer*
+			(:push_undo
+				(list :mark (defq mark (. *current_buffer* :next_mark)))
+				(list :cursor *cursor_x* *cursor_y*))
+			(:set_cursor 0 sy1))
+		(defq text (cat (join
+				(reduce (# (if (or (<= (length %0) 0)
+									(not (eql (elem -2 %0) %1))) (push %0 %1) %0))
+				(sort cmp (split (. *current_buffer* :cut 0 sy) (ascii-char +char_lf)))
+				(list)) (ascii-char +char_lf)) (ascii-char +char_lf)))
 		(.-> *current_buffer*
 			(:paste text)
 			(:push_undo (list :mark mark)))
-		(clear-selection) (refresh)))
+		(create-selection) (refresh)))
 
 (defq
 event_map (xmap-kv
