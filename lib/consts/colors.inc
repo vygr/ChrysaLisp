@@ -29,5 +29,5 @@
 	+argb_grey15 0xfff0f0f0
 
 	+argb_orange 0xffffa500
-	+argb_steel 0xff4682b4
+	+argb_steel 0xff66a2d4
 )

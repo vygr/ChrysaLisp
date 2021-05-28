@@ -10,6 +10,8 @@ brackets, select block and live matched bracket hinting.
 
 cntrl-v paste to Textfields.
 
+Viewer app updated to new Edit event dispatch system.
+
 ------
 
 VP and CScript optimizers improved for clarity and extra cases.

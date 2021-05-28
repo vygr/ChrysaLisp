@@ -222,8 +222,8 @@
 					(:insert tab)))) (list (get :buffer this)))
 		(.-> this (:push_undo (list :mark mark)) (:set_cursor x y)))
 
-	(defmethod :vdu_load (this vdu scroll_x scroll_y)
-		; (. buffer :vdu_load vdu scroll_x scroll_y) -> buffer
+	(defmethod :vdu_load (this vdu *scroll_x* *scroll_y*)
+		; (. buffer :vdu_load vdu *scroll_x* *scroll_y*) -> buffer
 		(when (get :dirty this)
 			(defq syntax (get :syntax this)
 				buffer (get :buffer this)
@@ -244,7 +244,7 @@
 			(set this :max_width max_width :dirty nil))
 		(. vdu :load
 			(get :buffer_colored this)
-			scroll_x scroll_y (get :cursor_x this) (get :cursor_y this))
+			*scroll_x* *scroll_y* (get :cursor_x this) (get :cursor_y this))
 		this)
 
 	(defmethod :constrain (this x y)
@@ -428,9 +428,9 @@
 
 	(defmethod :left_bracket (this)
 		; (. buffer :left_bracket) -> (x y) | (nil nil)
-		(bind '(x y) (. current_buffer :get_cursor))
-		(bind '(x y) (. current_buffer :constrain x y))
-		(bind '(w h) (. current_buffer :get_size))
+		(bind '(x y) (. this :get_cursor))
+		(bind '(x y) (. this :constrain x y))
+		(bind '(w h) (. this :get_size))
 		(defq buffer (get :buffer this) buffer_colored (get :buffer_colored this)
 			ink_text (get :ink_text (get :syntax this)) c 0)
 		(when (array? (defq line_colored (elem y buffer_colored)))
@@ -454,9 +454,9 @@
 
 	(defmethod :right_bracket (this)
 		; (. buffer :right_bracket) -> (x y) | (nil nil)
-		(bind '(x y) (. current_buffer :get_cursor))
-		(bind '(x y) (. current_buffer :constrain x y))
-		(bind '(w h) (. current_buffer :get_size))
+		(bind '(x y) (. this :get_cursor))
+		(bind '(x y) (. this :constrain x y))
+		(bind '(w h) (. this :get_size))
 		(defq buffer (get :buffer this) buffer_colored (get :buffer_colored this)
 			ink_text (get :ink_text (get :syntax this)) c 0)
 		(when (array? (defq line_colored (elem y buffer_colored)))
