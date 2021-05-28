@@ -282,6 +282,24 @@
 			(. *current_buffer* :push_undo (list :mark mark))
 			(clear-selection) (refresh))))
 
+(defun action-to-lower ()
+	(when (or (/= *anchor_x* *cursor_x*) (/= *anchor_y* *cursor_y*))
+		(. *current_buffer* :push_undo
+			(list :mark (defq mark (. *current_buffer* :next_mark)))
+			(list :cursor *cursor_x* *cursor_y*))
+		(defq text (. *current_buffer* :cut *anchor_x* *anchor_y*))
+		(.-> *current_buffer* (:paste (to-lower text)) (:push_undo (list :mark mark)))
+		(refresh)))
+
+(defun action-to-upper ()
+	(when (or (/= *anchor_x* *cursor_x*) (/= *anchor_y* *cursor_y*))
+		(. *current_buffer* :push_undo
+			(list :mark (defq mark (. *current_buffer* :next_mark)))
+			(list :cursor *cursor_x* *cursor_y*))
+		(defq text (. *current_buffer* :cut *anchor_x* *anchor_y*))
+		(.-> *current_buffer* (:paste (to-upper text)) (:push_undo (list :mark mark)))
+		(refresh)))
+
 (defq
 event_map (xmap-kv
 	+event_close action-close
@@ -352,6 +370,8 @@ key_map_control (xmap-kv
 	(ascii-code "q") action-reflow
 	(ascii-code "9") action-left-bracket
 	(ascii-code "0") action-right-bracket
+	(ascii-code "u") action-to-upper
+	(ascii-code "l") action-to-lower
 	0x40000050 action-left-tab
 	0x4000004f action-right-tab))
 
