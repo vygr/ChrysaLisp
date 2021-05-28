@@ -177,7 +177,8 @@ second full build time on the MacBook Air !
 
 ------
 
-New `lib/clenv/clenv.inc` library for accessing `.hostenv` variable assignments.
+New `lib/clenv/clenv.inc` library for accessing `.hostenv` variable
+assignments.
 
 Updates to `apps/terminal/tui2.lisp` and `lib/collections/xnode.inc`to increase
 shell functionality.
@@ -252,8 +253,8 @@ Added (def?) built in function.
 
 ------
 
-New !!! hot off the press ChrysaLisp IDE for Windows to start with, but coming to
-Mac and Linux soon... https://github.com/PaulBlythe/Chrysalisp-IDE
+New !!! hot off the press ChrysaLisp IDE for Windows to start with, but coming
+to Mac and Linux soon... https://github.com/PaulBlythe/Chrysalisp-IDE
 
 Promoted (odd?) (even?) (pow) (neg?) (pos?) to boot.inc.
 
@@ -315,7 +316,8 @@ prebuilt main.exe for folks that want to try the Windows version. Many thanks
 to Martyn Bliss aka BananaEarwig for the new build. This should fix the GUI
 issue on Windows as well as bring the new (file-stream) open options.
 
-Removed (def:) macro as this is now redundant since the keyword symbols addition.
+Removed (def:) macro as this is now redundant since the keyword symbols
+addition.
 
 Corrected (#) macro after testing with pre-binding turned off.
 
@@ -566,9 +568,10 @@ then improved several old macros that had been showing issues with this.
 
 ------
 
-Nuclearfall has set up an IRC channel on irc.freenode.net at #ChrysaLisp. The room
-should be available 24-7 and I'll keep this open all the time I'm awake. Users
-of Riot.im can also access the channel on matrix.org at #Chrysalisp:matrix.org
+Nuclearfall has set up an IRC channel on irc.freenode.net at #ChrysaLisp. The
+room should be available 24-7 and I'll keep this open all the time I'm awake.
+Users of Riot.im can also access the channel on matrix.org at
+#Chrysalisp:matrix.org
 
 New Whiteboard app, with shamed face to Neauoire as it took so long to get
 round to doing this. Despite it being my day job, or maybe because it's my day
@@ -622,7 +625,8 @@ functions ! Silly me.
 
 Fixed a misalignment of stat buffer structure within the relocation buffer.
 
-Fixed a missing save of the this pointer in the canvas::lisp_glyph_paths method.
+Fixed a missing save of the this pointer in the canvas::lisp_glyph_paths
+method.
 
 Fixed a bad bug in sys_mail::mbox_free ! Not even using the correct statics !
 

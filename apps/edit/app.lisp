@@ -294,23 +294,19 @@
 				(cond
 					((/= 0 (logand mod (const (+ +ev_key_mod_control +ev_key_mod_command))))
 						;call bound control/command key action
-						(when (defq action (. key_map_control :find key)) (action)))
+						(if (defq action (. key_map_control :find key)) (action)))
 					((/= 0 (logand mod +ev_key_mod_shift))
 						;call bound shift key action, else insert
 						(cond
 							((defq action (. key_map_shift :find key)) (action))
 							((<= +char_space key +char_tilda)
-								(. current_buffer :cut anchor_x anchor_y)
-								(. current_buffer :insert (char key))
-								(clear-selection) (refresh))))
+								(action-insert))))
 					((defq action (. key_map :find key))
 						;call bound key action
 						(action))
 					((<= +char_space key +char_tilda)
 						;insert the char
-						(. current_buffer :cut anchor_x anchor_y)
-						(. current_buffer :insert (char key))
-						(clear-selection) (refresh))))
+						(action-insert))))
 			(t	;gui event
 				(. mywindow :event msg)))
 		;update meta data
@@ -318,3 +314,4 @@
 		(. meta_map :insert current_file
 			(list cursor_x cursor_y anchor_x anchor_y scroll_x scroll_y shift_select current_buffer)))
 	(. mywindow :hide))
+ 

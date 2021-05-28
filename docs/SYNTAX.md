@@ -93,7 +93,7 @@
 ### buffer :find
 
 ```code
-(. buffer :find) -> ([(x y)] ...)
+(. buffer :find pattern) -> ([(x y)] ...)
 ```
 
 ### buffer :get_cursor
@@ -126,10 +126,22 @@
 (. buffer :left_bracket) -> (x y) | (nil nil)
 ```
 
+### buffer :next_mark
+
+```code
+(. buffer :next_mark) -> num
+```
+
 ### buffer :paste
 
 ```code
-(. buffer :paste string) -> this
+(. buffer :paste string) -> buffer
+```
+
+### buffer :push_undo
+
+```code
+(. buffer :push_undo record ...) -> buffer
 ```
 
 ### buffer :redo

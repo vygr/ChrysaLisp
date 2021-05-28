@@ -1,6 +1,11 @@
 ;module
 (env-push)
 
+(defun action-insert ()
+	(. current_buffer :cut anchor_x anchor_y)
+	(. current_buffer :insert (char key))
+	(clear-selection) (refresh))
+
 (defun action-left ()
 	(. current_buffer :left)
 	(clear-selection) (refresh))
@@ -237,12 +242,12 @@
 		(cond
 			((and (or (/= anchor_x cursor_x) (/= anchor_y cursor_y))
 				(eql (. current_buffer :copy anchor_x anchor_y) pattern))
-					(push (defq undo_stack (get :undo_stack current_buffer))
+					(. current_buffer :push_undo
 						(list :mark (defq mark (. current_buffer :next_mark)))
 						(list :cursor cursor_x cursor_y))
 					(. current_buffer :cut anchor_x anchor_y)
 					(. current_buffer :insert replace)
-					(push undo_stack (list :mark mark))
+					(. current_buffer :push_undo (list :mark mark))
 					(clear-selection) (refresh))
 			((> (length (defq found (. current_buffer :find pattern))) 0)
 				(when (defq next (some (#
@@ -250,7 +255,7 @@
 						(if (or (> y cursor_y)
 								(and (= y cursor_y) (>= x cursor_x)))
 							%0)) found))
-					(push (defq undo_stack (get :undo_stack current_buffer))
+					(. current_buffer :push_undo
 						(list :mark (defq mark (. current_buffer :next_mark)))
 						(list :cursor cursor_x cursor_y))
 					(bind '(x y) next)
@@ -258,14 +263,14 @@
 						(:set_cursor x y)
 						(:cut (+ x (length pattern)) y))
 					(unless (eql replace "") (. current_buffer :insert replace))
-					(push undo_stack (list :mark mark))
+					(. current_buffer :push_undo (list :mark mark))
 					(clear-selection) (refresh))))))
 
 (defun action-replace-all ()
 	(unless (or (eql (defq pattern (get :clear_text find_text)) "")
 				(eql (defq replace (get :clear_text replace_text)) pattern))
 		(when (> (length (defq found (. current_buffer :find pattern))) 0)
-			(push (defq undo_stack (get :undo_stack current_buffer))
+			(. current_buffer :push_undo
 				(list :mark (defq mark (. current_buffer :next_mark)))
 				(list :cursor cursor_x cursor_y))
 			(each-rev (lambda ((x y))
@@ -274,7 +279,7 @@
 						(:cut (+ x (length pattern)) y))
 					(unless (eql replace "") (. current_buffer :insert replace)))
 				found)
-			(push undo_stack (list :mark mark))
+			(. current_buffer :push_undo (list :mark mark))
 			(clear-selection) (refresh))))
 
 (defq
@@ -352,5 +357,5 @@ key_map_control (xmap-kv
 
 ;module
 (export (penv)
-	event_map key_map key_map_shift key_map_control)
+	event_map key_map key_map_shift key_map_control action-insert)
 (env-pop)
