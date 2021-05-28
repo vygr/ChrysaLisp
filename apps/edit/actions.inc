@@ -101,11 +101,14 @@
 	(clear-selection) (refresh))
 
 (defun action-tab ()
-	(. *current_buffer* :cut *anchor_x* *anchor_y*)
-	(bind '(x y) (. *current_buffer* :get_cursor))
-	(defq tab_width (get :tab_width *current_buffer*))
-	(. *current_buffer* :insert (pad "" (- tab_width (% x tab_width)) "        "))
-	(clear-selection) (refresh))
+	(cond
+		((= *anchor_y* *cursor_y*)
+			(. *current_buffer* :cut *anchor_x* *anchor_y*)
+			(bind '(x y) (. *current_buffer* :get_cursor))
+			(defq tab_width (get :tab_width *current_buffer*))
+			(. *current_buffer* :insert (pad "" (- tab_width (% x tab_width)) "        "))
+			(clear-selection) (refresh))
+		((action-right-tab))))
 
 (defun action-undo ()
 	(. *current_buffer* :undo)
@@ -389,7 +392,8 @@ key_map_shift (xmap-kv
 	0x40000050 action-left-select
 	0x4000004f action-right-select
 	0x40000052 action-up-select
-	0x40000051 action-down-select)
+	0x40000051 action-down-select
+	+char_tab action-left-tab)
 
 key_map_control (xmap-kv
 	(ascii-code "a") action-select-all
@@ -417,9 +421,7 @@ key_map_control (xmap-kv
 	(ascii-code "u") action-to-upper
 	(ascii-code "l") action-to-lower
 	(ascii-code "o") action-ordered
-	(ascii-code "O") action-ordered-unique
-	0x40000050 action-left-tab
-	0x4000004f action-right-tab))
+	(ascii-code "O") action-ordered-unique))
 
 ;module
 (export (penv)
