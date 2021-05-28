@@ -1,6 +1,9 @@
 ;module
 (env-push)
 
+(defmacro selection? ()
+	'(or (/= *anchor_x* *cursor_x*) (/= *anchor_y* *cursor_y*)))
+
 (defun action-insert (key)
 	(. *current_buffer* :cut *anchor_x* *anchor_y*)
 	(. *current_buffer* :insert (char key))
@@ -240,15 +243,14 @@
 	(unless (or (eql (defq pattern (get :clear_text *find_text*)) "")
 				(eql (defq replace (get :clear_text *replace_text*)) pattern))
 		(cond
-			((and (or (/= *anchor_x* *cursor_x*) (/= *anchor_y* *cursor_y*))
-				(eql (. *current_buffer* :copy *anchor_x* *anchor_y*) pattern))
-					(. *current_buffer* :push_undo
-						(list :mark (defq mark (. *current_buffer* :next_mark)))
-						(list :cursor *cursor_x* *cursor_y*))
-					(. *current_buffer* :cut *anchor_x* *anchor_y*)
-					(. *current_buffer* :insert replace)
-					(. *current_buffer* :push_undo (list :mark mark))
-					(clear-selection) (refresh))
+			((and (selection?) (eql (. *current_buffer* :copy *anchor_x* *anchor_y*) pattern))
+				(. *current_buffer* :push_undo
+					(list :mark (defq mark (. *current_buffer* :next_mark)))
+					(list :cursor *cursor_x* *cursor_y*))
+				(. *current_buffer* :cut *anchor_x* *anchor_y*)
+				(. *current_buffer* :insert replace)
+				(. *current_buffer* :push_undo (list :mark mark))
+				(clear-selection) (refresh))
 			((> (length (defq found (. *current_buffer* :find pattern))) 0)
 				(when (defq next (some (#
 						(bind '(x y) %0)
@@ -283,7 +285,7 @@
 			(clear-selection) (refresh))))
 
 (defun action-to-lower ()
-	(when (or (/= *anchor_x* *cursor_x*) (/= *anchor_y* *cursor_y*))
+	(when (selection?)
 		(. *current_buffer* :push_undo
 			(list :mark (defq mark (. *current_buffer* :next_mark)))
 			(list :cursor *cursor_x* *cursor_y*))
@@ -292,13 +294,39 @@
 		(refresh)))
 
 (defun action-to-upper ()
-	(when (or (/= *anchor_x* *cursor_x*) (/= *anchor_y* *cursor_y*))
+	(when (selection?)
 		(. *current_buffer* :push_undo
 			(list :mark (defq mark (. *current_buffer* :next_mark)))
 			(list :cursor *cursor_x* *cursor_y*))
 		(defq text (. *current_buffer* :cut *anchor_x* *anchor_y*))
 		(.-> *current_buffer* (:paste (to-upper text)) (:push_undo (list :mark mark)))
 		(refresh)))
+
+(defun action-ordered ()
+	(when (selection?)
+		(. *current_buffer* :push_undo
+			(list :mark (defq mark (. *current_buffer* :next_mark)))
+			(list :cursor *cursor_x* *cursor_y*))
+		(defq lines (split (. *current_buffer* :cut *anchor_x* *anchor_y*) (ascii-char +char_lf))
+			text (cat (join (sort cmp lines) (ascii-char +char_lf)) (ascii-char +char_lf)))
+		(.-> *current_buffer*
+			(:paste text)
+			(:push_undo (list :mark mark)))
+		(clear-selection) (refresh)))
+
+(defun action-ordered-unique ()
+	(when (selection?)
+		(. *current_buffer* :push_undo
+			(list :mark (defq mark (. *current_buffer* :next_mark)))
+			(list :cursor *cursor_x* *cursor_y*))
+		(defq lines
+			(reduce (# (if (or (<= (length %0) 0) (not (eql (elem -2 %0) %1))) (push %0 %1) %0))
+				(split (. *current_buffer* :cut *anchor_x* *anchor_y*) (ascii-char +char_lf)) (list))
+			text (cat (join (sort cmp lines) (ascii-char +char_lf)) (ascii-char +char_lf)))
+		(.-> *current_buffer*
+			(:paste text)
+			(:push_undo (list :mark mark)))
+		(clear-selection) (refresh)))
 
 (defq
 event_map (xmap-kv
@@ -372,6 +400,8 @@ key_map_control (xmap-kv
 	(ascii-code "0") action-right-bracket
 	(ascii-code "u") action-to-upper
 	(ascii-code "l") action-to-lower
+	(ascii-code "o") action-ordered
+	(ascii-code "O") action-ordered-unique
 	0x40000050 action-left-tab
 	0x4000004f action-right-tab))
 
