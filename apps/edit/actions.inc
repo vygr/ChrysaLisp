@@ -1,8 +1,22 @@
 ;module
 (env-push)
 
-(defmacro selection? ()
-	'(or (/= *anchor_x* *cursor_x*) (/= *anchor_y* *cursor_y*)))
+(defun selection? ()
+	(or (/= *anchor_x* *cursor_x*) (/= *anchor_y* *cursor_y*)))
+
+(defun sort-selection ()
+	(defq sx *cursor_x* sy *cursor_y* sx1 *anchor_x* sy1 *anchor_y*)
+	(if (> sy sy1)
+		(defq sx (logxor sx sx1) sx1 (logxor sx sx1) sx (logxor sx sx1)
+			sy (logxor sy sy1) sy1 (logxor sy sy1) sy (logxor sy sy1)))
+	(and (= sy sy1) (> sx sx1)
+		(defq sx (logxor sx sx1) sx1 (logxor sx sx1) sx (logxor sx sx1)))
+	(list sx sy sx1 sy1))
+
+(defun line-selection ()
+	(bind '(sx sy sx1 sy1) (sort-selection))
+	(if (> sx1 0) (setq sy1 (inc sy1)))
+	(list sy sy1))
 
 (defun action-insert (key)
 	(. *current_buffer* :cut *anchor_x* *anchor_y*)
@@ -307,7 +321,9 @@
 		(. *current_buffer* :push_undo
 			(list :mark (defq mark (. *current_buffer* :next_mark)))
 			(list :cursor *cursor_x* *cursor_y*))
-		(defq lines (split (. *current_buffer* :cut *anchor_x* *anchor_y*) (ascii-char +char_lf))
+		(bind '(sy sy1) (line-selection))
+		(. *current_buffer* :set_cursor 0 sy1)
+		(defq lines (split (. *current_buffer* :cut 0 sy) (ascii-char +char_lf))
 			text (cat (join (sort cmp lines) (ascii-char +char_lf)) (ascii-char +char_lf)))
 		(.-> *current_buffer*
 			(:paste text)
@@ -319,9 +335,11 @@
 		(. *current_buffer* :push_undo
 			(list :mark (defq mark (. *current_buffer* :next_mark)))
 			(list :cursor *cursor_x* *cursor_y*))
+		(bind '(sy sy1) (line-selection))
+		(. *current_buffer* :set_cursor 0 sy1)
 		(defq lines
 			(reduce (# (if (or (<= (length %0) 0) (not (eql (elem -2 %0) %1))) (push %0 %1) %0))
-				(split (. *current_buffer* :cut *anchor_x* *anchor_y*) (ascii-char +char_lf)) (list))
+				(split (. *current_buffer* :cut 0 sy) (ascii-char +char_lf)) (list))
 			text (cat (join (sort cmp lines) (ascii-char +char_lf)) (ascii-char +char_lf)))
 		(.-> *current_buffer*
 			(:paste text)
