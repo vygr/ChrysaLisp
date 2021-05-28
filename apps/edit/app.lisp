@@ -292,7 +292,8 @@
 				;key event
 				(defq key (getf *msg* +ev_msg_key_key) mod (getf *msg* +ev_msg_key_mod))
 				(cond
-					((/= 0 (logand mod (const (+ +ev_key_mod_control +ev_key_mod_command))))
+					((/= 0 (logand mod (const
+							(+ +ev_key_mod_control +ev_key_mod_option +ev_key_mod_command))))
 						;call bound control/command key action
 						(if (defq action (. key_map_control :find key)) (action)))
 					((/= 0 (logand mod +ev_key_mod_shift))
