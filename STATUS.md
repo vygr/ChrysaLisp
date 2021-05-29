@@ -12,7 +12,9 @@ cntrl-v paste to Textfields.
 
 Viewer app updated to new Edit event dispatch system.
 
-Edit app saves/restores users open file list.
+Edit app saves/restores users open file list. Added asction-close-buffer.
+
+New `(some-rev)` added to `boot.inc`.
 
 ------
 

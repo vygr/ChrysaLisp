@@ -12,12 +12,12 @@
 	(enum file_folder_action file_leaf_action)
 	(enum open_folder_action open_leaf_action)
 	(enum undo redo rewind cut copy paste reflow tab_left tab_right)
-	(enum prev next save_all save new)
+	(enum prev next close_buffer save_all save new)
 	(enum find_down find_up replace replace_all))
 
 (defq *current_file* nil *selected_file_node* nil *selected_open_node* nil
 	*vdu_width* 80 *vdu_height* 40 *meta_map* (xmap) *underlay* (list) *open_files* (list)
-	+vdu_min_width 32 +vdu_min_height 16 +vdu_max_width 100 +vdu_max_height 46
+	+vdu_min_width 40 +vdu_min_height 16 +vdu_max_width 100 +vdu_max_height 46
 	+selected (apply nums (map (lambda (_)
 		(const (<< (canvas-from-argb32 +argb_grey6 15) 48))) (str-alloc 8192)))
 	+not_selected (nums-sub +selected +selected)
@@ -28,7 +28,7 @@
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-tool-bar _ ()
 			(ui-buttons (0xe9fe 0xe99d 0xe9ff 0xea08 0xe9ca 0xe9c9 0xe909 0xe90a 0xe90b) +event_undo)
-			(ui-buttons (0xe91d 0xe91e 0xe97e 0xea07 0xe9f0) +event_prev
+			(ui-buttons (0xe91d 0xe91e 0xe929 0xe97e 0xea07 0xe9f0) +event_prev
 				(:color (const *env_toolbar2_col*))))
 		(. (ui-textfield *name_text* (:hint_text "new file" :clear_text "" :color +argb_white))
 			:connect +event_new))
@@ -201,18 +201,20 @@
 	(each (# (. *file_tree* :add_route %0)) all_src_files))
 
 (defun populate-open-tree ()
+	;reload open tree
+	(sort cmp *open_files*)
+	(each (# (. %0 :sub)) (. *open_tree* :children))
+	(each (# (. *open_tree* :add_route %0)) (all-dirs *open_files*))
+	(each (# (populate-vdu %0) (. *open_tree* :add_route %0)) *open_files*))
+
+(defun load-open-files ()
 	;load user open files
 	(when (defq stream (file-stream (cat *env_home* "editor_open_files")))
 		(each-line (lambda (file)
 			(unless (find file *open_files*)
-				(push *open_files* file))) stream)
-		(sort cmp *open_files*)
-		(each (# (. *open_tree* :add_route %0)) (all-dirs *open_files*))
-		(each (# (populate-vdu %0) (. *open_tree* :add_route %0)) *open_files*))
-	(populate-vdu nil)
-	(select-node nil))
+				(push *open_files* file))) stream)))
 
-(defun save-open-tree ()
+(defun save-open-files ()
 	;save user open files
 	(when (defq stream (file-stream (cat *env_home* "editor_open_files") +file_open_write))
 		(each (lambda (file)
@@ -267,8 +269,11 @@
 (defun main ()
 	(defq *cursor_x* 0 *cursor_y* 0 *anchor_x* 0 *anchor_y* 0 *scroll_x* 0 *scroll_y* 0
 		*shift_select* nil *current_buffer* nil *running* t mouse_state :u)
+	(load-open-files)
 	(populate-file-tree)
 	(populate-open-tree)
+	(populate-vdu nil)
+	(select-node nil)
 	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :pref_size)))
 	(gui-add (. *window* :change x y w h))
 	(refresh)
@@ -335,4 +340,4 @@
 			(list *cursor_x* *cursor_y* *anchor_x* *anchor_y*
 				*scroll_x* *scroll_y* *shift_select* *current_buffer*)))
 	(. *window* :hide)
-	(save-open-tree))
+	(save-open-files))

@@ -330,11 +330,23 @@
 		(.-> *current_buffer* (:paste text) (:push_undo (list :mark mark)))
 		(create-selection) (refresh)))
 
+(defun action-close-buffer ()
+	(when *current_file*
+		(each (# (. %0 :sub)) (. *open_tree* :children))
+		(. *meta_map* :erase *current_file*)
+		(when (defq idx (find *current_file* *open_files*))
+			(setq *open_files* (erase *open_files* idx (inc idx))))
+		(populate-open-tree)
+		(defq file (if (> (length *open_files*) 0) (elem 0 *open_files*)))
+		(populate-vdu file)
+		(select-node file)))
+
 (defq
 event_map (xmap-kv
 	+event_close action-close
 	+event_min action-minimise
 	+event_max action-maximise
+	+event_close_buffer action-close-buffer
 	+event_save action-save
 	+event_save_all action-save-all
 	+event_new action-new

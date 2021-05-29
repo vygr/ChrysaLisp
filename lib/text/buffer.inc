@@ -88,7 +88,7 @@
 		:mode mode :lps nil :lps_pattern nil :next_mark -1)
 
 	(defmethod :next_mark (this)
-		; (. buffer :next_mark) -> num
+		; (. buffer :next_mark) -> mark
 		(set this :next_mark (inc (get :next_mark this))))
 
 	(defmethod :push_undo (this &rest records)
@@ -483,8 +483,7 @@
 		(bind '(w h) (. this :get_size))
 		(defq out (list) lps (get :lps this))
 		(unless (eql (get :lps_pattern this) pattern)
-			(setq lps (substr-lps pattern))
-			(set this :lps lps :lps_pattern pattern))
+			(set this :lps (setq lps (substr-lps pattern)) :lps_pattern pattern))
 		(each! 0 h (lambda (line)
 				(when (> (length line) 0)
 					(defq idx _)
