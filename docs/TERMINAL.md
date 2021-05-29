@@ -66,31 +66,31 @@ in the right direction. To see it run, just copy this into a file called
 `hw.lisp` and place it in the `cmd/` folder:
 
 ```code
-01:	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-02:	; hw.lisp - hello world example
-03:	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+01: ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+02: ; hw.lisp - hello world example
+03: ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 04:
-05:	06:	(import "class/lisp.inc")
+05: 06: (import "class/lisp.inc")
 06:
 07:
-08:	; Command entry point
-09:	(defun main ()
-10: 	;initialize pipe details and command args, abort on error
-11:		(when (defq stdio (create-stdio))
-12:			; create-stdio connects:
-13:			; stdin  - Console input stream
-14:			; stdout - Console output stream
-15:			; stderr - Console error stream
-16:			; args   - List of command line arguments
+08: ; Command entry point
+09: (defun main ()
+10:     ;initialize pipe details and command args, abort on error
+11:     (when (defq stdio (create-stdio))
+12:         ; create-stdio connects:
+13:         ; stdin  - Console input stream
+14:         ; stdout - Console output stream
+15:         ; stderr - Console error stream
+16:         ; args   - List of command line arguments
 17:
-18:			; Get the args and omit command name at position 0
-19:			(defq args (slice 1 -1 (stdio-get-args stdio)))
-20:			; prin to stdout without CR
-21:			(prin "Hello World")
-22:			; Test for greeting
-23:			(if (> (length args) 0)
-24:				(print ": " (join args " "))
-25:				(print "!"))))
+18:         ; Get the args and omit command name at position 0
+19:         (defq args (slice 1 -1 (stdio-get-args stdio)))
+20:         ; prin to stdout without CR
+21:         (prin "Hello World")
+22:         ; Test for greeting
+23:         (if (> (length args) 0)
+24:             (print ": " (join args " "))
+25:             (print "!"))))
 ```
 
 Of note:
@@ -99,9 +99,11 @@ Of note:
 
 * Line  9 - Main entry point of command
 
-* Line 11 - Creates `stdin stdout stderr and args` in the command environment and tests for success
+* Line 11 - Creates `stdin stdout stderr and args` in the command environment
+and tests for success
 
-* Line 19 - Fetches the arguments list passed to the command and omit the first entry which is the name of the command
+* Line 19 - Fetches the arguments list passed to the command and omit the first
+entry which is the name of the command
 
 * Lines 21 through 25 - The body of the command
 

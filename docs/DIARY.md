@@ -271,7 +271,8 @@ Well we seam to have got our error cases right !
 976379024
 ```
 
-My work here is done :) Enjoy building wonderful search acceleration structures folks.
+My work here is done :) Enjoy building wonderful search acceleration structures
+folks.
 
 ## Results
 
