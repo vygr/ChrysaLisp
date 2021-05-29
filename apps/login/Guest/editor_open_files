@@ -1,2 +1,4 @@
+STATUS.md
 apps/edit/actions.inc
 apps/edit/app.lisp
+lib/text/buffer.inc

@@ -12,6 +12,8 @@ cntrl-v paste to Textfields.
 
 Viewer app updated to new Edit event dispatch system.
 
+Edit app saves/restores users open file list.
+
 ------
 
 VP and CScript optimizers improved for clarity and extra cases.
