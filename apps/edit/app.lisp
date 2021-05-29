@@ -205,9 +205,10 @@
 	(when (defq stream (file-stream (cat *env_home* "editor_open_files")))
 		(each-line (lambda (file)
 			(unless (find file *open_files*)
-				(push *open_files* file)
-				(populate-vdu file)
-				(. *open_tree* :add_route file))) stream))
+				(push *open_files* file))) stream)
+		(sort cmp *open_files*)
+		(each (# (. *open_tree* :add_route %0)) (all-dirs *open_files*))
+		(each (# (populate-vdu %0) (. *open_tree* :add_route %0)) *open_files*))
 	(populate-vdu nil)
 	(select-node nil))
 
