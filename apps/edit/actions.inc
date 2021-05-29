@@ -53,33 +53,33 @@
 	(unless *shift_select*
 		(setq *anchor_x* *cursor_x* *anchor_y* *cursor_y* *shift_select* t))
 	(. *current_buffer* :left)
-	(create-selection) (refresh))
+	(refresh))
 
 (defun action-right-select ()
 	(unless *shift_select*
 		(setq *anchor_x* *cursor_x* *anchor_y* *cursor_y* *shift_select* t))
 	(. *current_buffer* :right)
-	(create-selection) (refresh))
+	(refresh))
 
 (defun action-up-select ()
 	(unless *shift_select*
 		(setq *anchor_x* *cursor_x* *anchor_y* *cursor_y* *shift_select* t))
 	(. *current_buffer* :up)
-	(create-selection) (refresh))
+	(refresh))
 
 (defun action-down-select ()
 	(unless *shift_select*
 		(setq *anchor_x* *cursor_x* *anchor_y* *cursor_y* *shift_select* t))
 	(. *current_buffer* :down)
-	(create-selection) (refresh))
+	(refresh))
 
 (defun action-left-tab ()
 	(. *current_buffer* :tab_left *anchor_x* *anchor_y*)
-	(create-selection) (refresh))
+	(refresh))
 
 (defun action-right-tab ()
 	(. *current_buffer* :tab_right *anchor_x* *anchor_y*)
-	(create-selection) (refresh))
+	(refresh))
 
 (defun action-break ()
 	(. *current_buffer* :cut *anchor_x* *anchor_y*)
@@ -140,7 +140,7 @@
 
 (defun action-copy ()
 	(clipboard-put (. *current_buffer* :copy *anchor_x* *anchor_y*))
-	(clear-selection) (refresh))
+	(refresh))
 
 (defun action-paste ()
 	(unless (eql (defq data (clipboard-get)) "")
@@ -152,14 +152,14 @@
 	(bind '(w h) (. *current_buffer* :get_size))
 	(setq *anchor_x* 0 *anchor_y* 0 *shift_select* t)
 	(. *current_buffer* :set_cursor 0 h)
-	(create-selection) (refresh))
+	(refresh))
 
 (defun action-select-block ()
 	(when (bind '(x y) (. *current_buffer* :left_bracket))
 		(when (bind '(x1 y1) (. *current_buffer* :right_bracket))
 			(setq *anchor_x* x *anchor_y* y *shift_select* t)
 			(. *current_buffer* :set_cursor (inc x1) y1)
-			(create-selection) (refresh))))
+			(refresh))))
 
 (defun action-minimise ()
 	(vdu-resize +vdu_min_width +vdu_min_height))
@@ -240,7 +240,7 @@
 				(bind '(x y) next)
 				(setq *anchor_x* x *anchor_y* y)
 				(. *current_buffer* :set_cursor (+ x (length pattern)) y)
-				(create-selection) (refresh)))))
+				(refresh)))))
 
 (defun action-find-up ()
 	(unless (eql (defq pattern (get :clear_text *find_text*)) "")
@@ -252,7 +252,7 @@
 				(bind '(x y) next)
 				(setq *anchor_x* (+ x (length pattern)) *anchor_y* y)
 				(. *current_buffer* :set_cursor x y)
-				(create-selection) (refresh)))))
+				(refresh)))))
 
 (defun action-replace ()
 	(unless (or (eql (defq pattern (get :clear_text *find_text*)) "")
@@ -263,7 +263,7 @@
 				(list :cursor *cursor_x* *cursor_y*))
 			(. *current_buffer* :cut *anchor_x* *anchor_y*)
 			(.-> *current_buffer* (:insert replace) (:push_undo (list :mark mark)))
-			(create-selection) (refresh))
+			(refresh))
 		(action-find-down)))
 
 (defun action-replace-all ()
@@ -278,7 +278,7 @@
 					(unless (eql replace "") (. *current_buffer* :insert replace)))
 				found)
 			(. *current_buffer* :push_undo (list :mark mark))
-			(clear-selection) (refresh))))
+			(refresh))))
 
 (defun action-to-lower ()
 	(when (selection?)
@@ -311,7 +311,7 @@
 			(sort cmp (split (. *current_buffer* :cut 0 y) (ascii-char +char_lf)))
 			(ascii-char +char_lf)) (ascii-char +char_lf)))
 		(.-> *current_buffer* (:paste text) (:push_undo (list :mark mark)))
-		(create-selection) (refresh)))
+		(refresh)))
 
 (defun action-ordered-unique ()
 	(when (selection?)
@@ -328,7 +328,7 @@
 				(sort cmp (split (. *current_buffer* :cut 0 y) (ascii-char +char_lf)))
 				(list)) (ascii-char +char_lf)) (ascii-char +char_lf)))
 		(.-> *current_buffer* (:paste text) (:push_undo (list :mark mark)))
-		(create-selection) (refresh)))
+		(refresh)))
 
 (defun action-close-buffer ()
 	(when *current_file*
@@ -336,8 +336,8 @@
 		(. *meta_map* :erase *current_file*)
 		(when (defq idx (find *current_file* *open_files*))
 			(setq *open_files* (erase *open_files* idx (inc idx))))
+		(defq file (first *open_files*))
 		(populate-open-tree)
-		(defq file (if (> (length *open_files*) 0) (elem 0 *open_files*)))
 		(populate-vdu file)
 		(select-node file)))
 

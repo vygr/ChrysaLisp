@@ -21,7 +21,7 @@
 	+selected (apply nums (map (lambda (_)
 		(const (<< (canvas-from-argb32 +argb_grey6 15) 48))) (str-alloc 8192)))
 	+not_selected (nums-sub +selected +selected)
-	+bracket_char (nums 0x7f))
+	+bracket_char (nums 0x7f) +state_filename "editor_open_files")
 
 (ui-window *window* (:color +argb_grey2)
 	(ui-title-bar *title* "Edit" (0xea19 0xea1b 0xea1a) +event_close)
@@ -93,6 +93,12 @@
 				(unzip (split (pii-dirlist root) ",") (list (list) (list))))))
 	files)
 
+(defun clear-selection ()
+	;clear the underlay vdu to just bracket indicators
+	(bind '(x y) (. *current_buffer* :get_cursor))
+	(bind '(x y) (. *current_buffer* :constrain x y))
+	(setq *anchor_x* x *anchor_y* y *shift_select* nil))
+
 (defun create-selection ()
 	;create the underlay vdu
 	(bind '(x y) (. *current_buffer* :get_cursor))
@@ -117,11 +123,8 @@
 				(push *underlay* (slice 0 (inc (length (elem y buffer))) +selected)))
 			(push *underlay* (slice 0 x1 +selected)))))
 
-(defun clear-selection ()
-	;clear the underlay vdu to just bracket indicators
-	(bind '(x y) (. *current_buffer* :get_cursor))
-	(bind '(x y) (. *current_buffer* :constrain x y))
-	(setq *anchor_x* x *anchor_y* y *shift_select* nil)
+(defun create-brackets ()
+	;create the underlay vdu to just bracket indicators
 	(clear *underlay*)
 	(when (bind '(x y) (. *current_buffer* :left_bracket))
 		(when (bind '(x1 y1) (. *current_buffer* :right_bracket))
@@ -140,6 +143,10 @@
 (defun load-display ()
 	;load the vdu widgets with the text and selection
 	(. *current_buffer* :vdu_load *vdu* *scroll_x* *scroll_y*)
+	(bind '(x y) (. *current_buffer* :get_cursor))
+	(if (and (= x *anchor_x*) (= y *anchor_y*))
+		(create-brackets)
+		(create-selection))
 	(. *vdu_underlay* :load *underlay* *scroll_x* *scroll_y* -1 -1))
 
 (defun set-sliders ()
@@ -180,9 +187,6 @@
 	(setq *cursor_x* x *cursor_y* y *anchor_x* ax *anchor_y* ay *shift_select* ss
 		*current_buffer* buffer *current_file* file)
 	(. buffer :set_cursor x y)
-	(if (and (= x *anchor_x*) (= y *anchor_y*))
-		(clear-selection)
-		(create-selection))
 	(refresh)
 	(def *title* :text (cat "Edit -> " (if file file "<scratch pad>")))
 	(.-> *title* :layout :dirty))
@@ -209,14 +213,14 @@
 
 (defun load-open-files ()
 	;load user open files
-	(when (defq stream (file-stream (cat *env_home* "editor_open_files")))
+	(when (defq stream (file-stream (cat *env_home* +state_filename)))
 		(each-line (lambda (file)
 			(unless (find file *open_files*)
 				(push *open_files* file))) stream)))
 
 (defun save-open-files ()
 	;save user open files
-	(when (defq stream (file-stream (cat *env_home* "editor_open_files") +file_open_write))
+	(when (defq stream (file-stream (cat *env_home* +state_filename) +file_open_write))
 		(each (lambda (file)
 			(write-line stream file)) (sort cmp *open_files*))))
 
@@ -295,18 +299,15 @@
 						(case mouse_state
 							(:d ;was down last time
 								(bind '(x y) (. *current_buffer* :constrain x y))
-								(. *current_buffer* :set_cursor x y)
-								(create-selection))
+								(. *current_buffer* :set_cursor x y))
 							(:u ;was up last time
 								(bind '(x y) (. *current_buffer* :constrain x y))
 								(. *current_buffer* :set_cursor x y)
-								(setq *anchor_x* x *anchor_y* y *shift_select* t mouse_state :d)
-								(create-selection))))
+								(setq *anchor_x* x *anchor_y* y *shift_select* t mouse_state :d))))
 					(t  ;mouse button is up
 						(case mouse_state
 							(:d ;was down last time
 								(bind '(x y) (. *current_buffer* :get_cursor))
-								(and (= *anchor_x* x) (= *anchor_y* y) (clear-selection))
 								(setq mouse_state :u))
 							(:u ;was up last time
 								))))
