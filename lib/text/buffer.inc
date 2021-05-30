@@ -139,89 +139,6 @@
 			(list (get :buffer this)))
 		this)
 
-	(defmethod :trim (this)
-		; (. buffer :trim) -> buffer
-		(bind '(w h) (. this :get_size))
-		(when (> h 0)
-			(bind '(x y) (. this :get_cursor))
-			(bind '(x y) (. this :constrain x y))
-			(. this :push_undo
-				(list :mark (defq mark (. this :next_mark)))
-				(list :cursor x y))
-			;trim front
-			(while (and (> (bind '(w h) (. this :get_size)) 0)
-						(eql (elem 0 (get :buffer this)) ""))
-				(.-> this (:set_cursor 0 0) :delete))
-			;trim end
-			(while (and (> (bind '(w h) (. this :get_size)) 0)
-						(eql (elem (dec h) (get :buffer this)) ""))
-				(.-> this (:set_cursor 0 (dec h)) :backspace))
-			;trim lines
-			(each! 0 h (lambda (line)
-				(unless (eql (defq trimed_line (trim-end line)) line)
-					(.-> this
-						(:set_cursor (length trimed_line) _)
-						(:delete (- (length line) (length trimed_line)))))) (list (get :buffer this)))
-			(bind '(x y) (. this :constrain x y))
-			(.-> this (:push_undo (list :mark mark)) (:set_cursor x y)))
-		this)
-
-	(defmethod :reflow (this)
-		; (. buffer :reflow) -> buffer
-		(bind '(x y) (. this :get_cursor))
-		(bind '(x y) (. this :constrain x y))
-		(. this :push_undo
-			(list :mark (defq mark (. this :next_mark)))
-			(list :cursor x y))
-		;find start line
-		(while (and (> (setq y (dec y)) -1) (not (eql (elem y (get :buffer this)) ""))))
-		;collect words
-		(defq y (inc y) words (list))
-		(until (eql (defq line (elem y (get :buffer this))) "")
-			(setq words (cat words (split line " ")))
-			(.-> this (:set_cursor 0 y) (:delete (length line)) :delete))
-		;flow insert them
-		(each (lambda (line)
-				(.-> this (:insert line) :break))
-			(. (get :syntax this) :text_flow words (get :wrap_width this)))
-		(bind '(x y) (. this :get_cursor))
-		(bind '(x y) (. this :constrain x (inc y)))
-		(.-> this (:push_undo (list :mark mark)) (:set_cursor x y)))
-
-	(defmethod :tab_left (this anchor_x anchor_y)
-		; (. buffer :tab_left anchor_x anchor_y) -> buffer
-		(get-selection)
-		(if (> sx1 0) (setq sy1 (inc sy1)))
-		(. this :push_undo
-			(list :mark (defq mark (. this :next_mark)))
-			(list :cursor x y))
-		(defq tab_width (get :tab_width this))
-		(each! sy sy1 (lambda (line)
-				(defq idx -1)
-				(while (and
-					(< (setq idx (inc idx)) (length line))
-					(< idx tab_width)
-					(eql (elem idx line) " ")))
-				(if (> idx 0)
-					(.-> this (:set_cursor 0 _) (:delete (min tab_width idx)))))
-			(list (get :buffer this)))
-		(.-> this (:push_undo (list :mark mark)) (:set_cursor x y)))
-
-	(defmethod :tab_right (this anchor_x anchor_y)
-		; (. buffer :tab_right anchor_x anchor_y) -> buffer
-		(get-selection)
-		(if (> sx1 0) (setq sy1 (inc sy1)))
-		(. this :push_undo
-			(list :mark (defq mark (. this :next_mark)))
-			(list :cursor x y))
-		(defq tab (pad "" (get :tab_width this) "        "))
-		(each! sy sy1 (lambda (line)
-			(unless (eql line "")
-				(.-> this
-					(:set_cursor 0 _)
-					(:insert tab)))) (list (get :buffer this)))
-		(.-> this (:push_undo (list :mark mark)) (:set_cursor x y)))
-
 	(defmethod :vdu_load (this vdu scroll_x scroll_y)
 		; (. buffer :vdu_load vdu scroll_x scroll_y) -> buffer
 		(when (get :dirty this)
@@ -490,13 +407,95 @@
 						((eql (elem x line) "(") (setq c (dec c)))))))
 		(if (= c 1) (list x y) '(nil nil)))
 
+	(defmethod :trim (this)
+		; (. buffer :trim) -> buffer
+		(bind '(w h) (. this :get_size))
+		(when (> h 0)
+			(bind '(x y) (. this :get_cursor))
+			(bind '(x y) (. this :constrain x y))
+			(. this :push_undo
+				(list :mark (defq mark (. this :next_mark)))
+				(list :cursor x y))
+			;trim front
+			(while (and (> (bind '(w h) (. this :get_size)) 0)
+						(eql (elem 0 (get :buffer this)) ""))
+				(.-> this (:set_cursor 0 0) :delete))
+			;trim end
+			(while (and (> (bind '(w h) (. this :get_size)) 0)
+						(eql (elem (dec h) (get :buffer this)) ""))
+				(.-> this (:set_cursor 0 (dec h)) :backspace))
+			;trim lines
+			(each! 0 h (lambda (line)
+				(unless (eql (defq trimed_line (trim-end line)) line)
+					(.-> this
+						(:set_cursor (length trimed_line) _)
+						(:delete (- (length line) (length trimed_line)))))) (list (get :buffer this)))
+			(bind '(x y) (. this :constrain x y))
+			(.-> this (:push_undo (list :mark mark)) (:set_cursor x y)))
+		this)
+
+	(defmethod :reflow (this)
+		; (. buffer :reflow) -> buffer
+		(bind '(x y) (. this :get_cursor))
+		(bind '(x y) (. this :constrain x y))
+		(. this :push_undo
+			(list :mark (defq mark (. this :next_mark)))
+			(list :cursor x y))
+		;find start line
+		(while (and (> (setq y (dec y)) -1) (not (eql (elem y (get :buffer this)) ""))))
+		;collect words
+		(defq y (inc y) words (list))
+		(until (eql (defq line (elem y (get :buffer this))) "")
+			(setq words (cat words (split line " ")))
+			(.-> this (:set_cursor 0 y) (:delete (length line)) :delete))
+		;flow insert them
+		(each (lambda (line)
+				(.-> this (:insert line) :break))
+			(. (get :syntax this) :text_flow words (get :wrap_width this)))
+		(bind '(x y) (. this :get_cursor))
+		(bind '(x y) (. this :constrain x (inc y)))
+		(.-> this (:push_undo (list :mark mark)) (:set_cursor x y)))
+
+	(defmethod :tab_left (this anchor_x anchor_y)
+		; (. buffer :tab_left anchor_x anchor_y) -> buffer
+		(get-selection)
+		(if (> sx1 0) (setq sy1 (inc sy1)))
+		(. this :push_undo
+			(list :mark (defq mark (. this :next_mark)))
+			(list :cursor x y))
+		(defq tab_width (get :tab_width this))
+		(each! sy sy1 (lambda (line)
+				(defq idx -1)
+				(while (and
+					(< (setq idx (inc idx)) (length line))
+					(< idx tab_width)
+					(eql (elem idx line) " ")))
+				(if (> idx 0)
+					(.-> this (:set_cursor 0 _) (:delete (min tab_width idx)))))
+			(list (get :buffer this)))
+		(.-> this (:push_undo (list :mark mark)) (:set_cursor x y)))
+
+	(defmethod :tab_right (this anchor_x anchor_y)
+		; (. buffer :tab_right anchor_x anchor_y) -> buffer
+		(get-selection)
+		(if (> sx1 0) (setq sy1 (inc sy1)))
+		(. this :push_undo
+			(list :mark (defq mark (. this :next_mark)))
+			(list :cursor x y))
+		(defq tab (pad "" (get :tab_width this) "        "))
+		(each! sy sy1 (lambda (line)
+			(unless (eql line "")
+				(.-> this
+					(:set_cursor 0 _)
+					(:insert tab)))) (list (get :buffer this)))
+		(.-> this (:push_undo (list :mark mark)) (:set_cursor x y)))
+
 	(defmethod :find (this pattern)
 		; (. buffer :find pattern) -> ([(x y)] ...)
-		(bind '(w h) (. this :get_size))
 		(defq out (list) lps (get :lps this))
 		(unless (eql (get :lps_pattern this) pattern)
 			(set this :lps (setq lps (substr-lps pattern)) :lps_pattern pattern))
-		(each! 0 h (lambda (line)
+		(each! 0 (bind '(w h) (. this :get_size)) (lambda (line)
 				(when (> (length line) 0)
 					(defq idx _)
 					(each (# (push out (list %0 idx))) (substr pattern line lps))))
