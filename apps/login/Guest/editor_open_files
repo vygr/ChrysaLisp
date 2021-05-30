@@ -1,4 +1,4 @@
-STATUS.md
-apps/edit/actions.inc
-apps/edit/app.lisp
-lib/text/buffer.inc
+("STATUS.md" (28 18 28 18 0 0 nil))
+("apps/edit/actions.inc" (0 0 0 0 0 118 nil))
+("apps/edit/app.lisp" (0 225 0 225 0 199 nil))
+("lib/text/buffer.inc" (0 0 0 0 0 0 nil))

@@ -16,6 +16,8 @@ Edit app saves/restores users open file list. Added asction-close-buffer.
 
 New `(some-rev)` added to `boot.inc`.
 
+Editor saves file meta info.
+
 ------
 
 VP and CScript optimizers improved for clarity and extra cases.

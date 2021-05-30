@@ -173,16 +173,20 @@
 	(. *meta_map* :insert *current_file* (list x y ax ay sx sy ss buffer))
 	(set-sliders) (load-display))
 
-(defun populate-vdu (file)
-	;load up the vdu widget from this file
-	;must create a fresh buffer if not seen this before !
+(defun populate-file (file x y ax ay sx sy ss)
+	;create new file buffer
 	(unless (. *meta_map* :find file)
 		(defq mode (if (ends-with ".md" file) t nil))
-		(. *meta_map* :insert file (list 0 0 0 0 0 0 nil (defq buffer (Buffer mode))))
+		(. *meta_map* :insert file (list x y ax ay sx sy ss (defq buffer (Buffer mode))))
 		(when file
 			(. buffer :file_load file)
 			(unless (find file *open_files*)
-				(push *open_files* file))))
+				(push *open_files* file)))))
+
+(defun populate-vdu (file)
+	;load up the vdu widget from this file
+	;must create a fresh buffer if not seen this before !
+	(populate-file file 0 0 0 0 0 0 nil)
 	(bind '(x y ax ay sx sy ss buffer) (. *meta_map* :find file))
 	(setq *cursor_x* x *cursor_y* y *anchor_x* ax *anchor_y* ay *shift_select* ss
 		*current_buffer* buffer *current_file* file)
@@ -214,15 +218,18 @@
 (defun load-open-files ()
 	;load user open files
 	(when (defq stream (file-stream (cat *env_home* +state_filename)))
-		(each-line (lambda (file)
-			(unless (find file *open_files*)
-				(push *open_files* file))) stream)))
+		(each-line (lambda (line)
+				(bind '(form _) (read (string-stream line) +char_space))
+				(bind '(file (x y ax ay sx sy ss)) form)
+				(populate-file file x y ax ay sx sy ss))
+			stream)))
 
 (defun save-open-files ()
 	;save user open files
 	(when (defq stream (file-stream (cat *env_home* +state_filename) +file_open_write))
 		(each (lambda (file)
-			(write-line stream file)) (sort cmp *open_files*))))
+				(write-line stream (str (list file (slice 0 -2 (. *meta_map* :find file))))))
+			(sort cmp *open_files*))))
 
 (defun window-resize (w h)
 	;layout the window and size the vdu to fit
