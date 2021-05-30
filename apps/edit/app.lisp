@@ -203,7 +203,7 @@
 			(push dirs dir) dirs)) files (list)))
 
 (defun populate-file-tree ()
-	;load up the file tree and a blank Buffer
+	;load up the file tree
 	(defq all_src_files (sort cmp (all-src-files ".")))
 	(each (# (. *file_tree* :add_route %0)) (all-dirs all_src_files))
 	(each (# (. *file_tree* :add_route %0)) all_src_files))

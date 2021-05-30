@@ -83,8 +83,7 @@
 
 (defun action-break ()
 	(. *current_buffer* :push_undo
-		(list :mark (defq mark (. *current_buffer* :next_mark)))
-		(list :cursor *cursor_x* *cursor_y*))
+		(list :mark (defq mark (. *current_buffer* :next_mark))))
 	(. *current_buffer* :cut *anchor_x* *anchor_y*)
 	(bind '(x y) (.-> *current_buffer* :break :get_cursor))
 	(defq line (elem (dec y) (get :buffer *current_buffer*))
@@ -267,8 +266,7 @@
 				(eql (defq replace (get :clear_text *replace_text*)) pattern))
 		(when (eql (. *current_buffer* :copy *anchor_x* *anchor_y*) pattern)
 			(. *current_buffer* :push_undo
-				(list :mark (defq mark (. *current_buffer* :next_mark)))
-				(list :cursor *cursor_x* *cursor_y*))
+				(list :mark (defq mark (. *current_buffer* :next_mark))))
 			(. *current_buffer* :cut *anchor_x* *anchor_y*)
 			(.-> *current_buffer* (:insert replace) (:push_undo (list :mark mark)))
 			(refresh))
@@ -291,8 +289,7 @@
 (defun action-to-lower ()
 	(when (selection?)
 		(. *current_buffer* :push_undo
-			(list :mark (defq mark (. *current_buffer* :next_mark)))
-			(list :cursor *cursor_x* *cursor_y*))
+			(list :mark (defq mark (. *current_buffer* :next_mark))))
 		(defq text (to-lower (. *current_buffer* :cut *anchor_x* *anchor_y*)))
 		(.-> *current_buffer* (:paste text) (:push_undo (list :mark mark)))
 		(refresh)))
@@ -300,8 +297,7 @@
 (defun action-to-upper ()
 	(when (selection?)
 		(. *current_buffer* :push_undo
-			(list :mark (defq mark (. *current_buffer* :next_mark)))
-			(list :cursor *cursor_x* *cursor_y*))
+			(list :mark (defq mark (. *current_buffer* :next_mark))))
 		(defq text (to-upper (. *current_buffer* :cut *anchor_x* *anchor_y*)))
 		(.-> *current_buffer* (:paste text) (:push_undo (list :mark mark)))
 		(refresh)))
