@@ -82,8 +82,17 @@
 	(refresh))
 
 (defun action-break ()
+	(. *current_buffer* :push_undo
+		(list :mark (defq mark (. *current_buffer* :next_mark)))
+		(list :cursor *cursor_x* *cursor_y*))
 	(. *current_buffer* :cut *anchor_x* *anchor_y*)
-	(. *current_buffer* :break)
+	(bind '(x y) (.-> *current_buffer* :break :get_cursor))
+	(defq indent (some (#
+			(unless (eql %0 (ascii-char +char_space)) _))
+		(elem (dec y) (get :buffer *current_buffer*))))
+	(if indent
+		(. *current_buffer* :insert (pad "" indent "        ")))
+	(. *current_buffer* :push_undo (list :mark mark))
 	(clear-selection) (refresh))
 
 (defun action-reflow ()
@@ -128,7 +137,7 @@
 	(clear-selection) (refresh))
 
 (defun action-save ()
-	(if *current_file* (. (. *current_buffer* :trim) :file_save *current_file*)))
+	(if *current_file* (.-> *current_buffer* :trim (:file_save *current_file*))))
 
 (defun action-save-all ()
 	(. *meta_map* :each (lambda (file (_ _ _ _ _ _ _ buffer))
