@@ -87,11 +87,10 @@
 		(list :cursor *cursor_x* *cursor_y*))
 	(. *current_buffer* :cut *anchor_x* *anchor_y*)
 	(bind '(x y) (.-> *current_buffer* :break :get_cursor))
-	(defq indent (some (#
-			(unless (eql %0 (ascii-char +char_space)) _))
-		(elem (dec y) (get :buffer *current_buffer*))))
-	(if indent
-		(. *current_buffer* :insert (pad "" indent "        ")))
+	(defq line (elem (dec y) (get :buffer *current_buffer*))
+		indent (some (# (unless (eql %0 (ascii-char +char_space)) _)) line))
+	(unless indent (setq indent (length line)))
+	(if (> indent 0) (. *current_buffer* :insert (pad "" indent "        ")))
 	(. *current_buffer* :push_undo (list :mark mark))
 	(clear-selection) (refresh))
 
