@@ -74,14 +74,6 @@
 	(refresh))
 
 (defun action-left-tab ()
-	(. *current_buffer* :tab_left *anchor_x* *anchor_y*)
-	(refresh))
-
-(defun action-right-tab ()
-	(. *current_buffer* :tab_right *anchor_x* *anchor_y*)
-	(refresh))
-
-(defun action-left-tab ()
 	(defq buffer *current_buffer* tab_width (. buffer :get_tab))
 	(bind '(y y1) (line-selection))
 	(. buffer :push_undo

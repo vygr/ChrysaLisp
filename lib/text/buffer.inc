@@ -80,10 +80,10 @@
 			(t  (bind '(w h) (. this :get_size))
 				~_))))
 
-(defclass Buffer (&optional mode) nil
-	; (Buffer mode) -> buffer
+(defclass Buffer (&optional mode syntax) nil
+	; (Buffer [mode syntax]) -> buffer
 	(def this :buffer (list "") :buffer_colored (list "") :buffer_states (list '(nil nil))
-		:dirty nil :syntax (Syntax) :undo_stack (list) :redo_stack (list)
+		:dirty nil :syntax (opt syntax (Syntax)) :undo_stack (list) :redo_stack (list)
 		:cursor_x 0 :cursor_y 0 :max_width 0 :tab_width 4 :wrap_width 80
 		:mode mode :lps nil :lps_pattern nil :next_mark -1)
 

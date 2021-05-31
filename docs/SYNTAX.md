@@ -1155,7 +1155,7 @@
 ### Buffer
 
 ```code
-(Buffer mode) -> buffer
+(Buffer [mode syntax]) -> buffer
 ```
 
 ### Button
