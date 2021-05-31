@@ -459,7 +459,7 @@
 	(defmethod :tab_left (this anchor_x anchor_y)
 		; (. buffer :tab_left anchor_x anchor_y) -> buffer
 		(get-selection)
-		(if (> sx1 0) (setq sy1 (inc sy1)))
+		(if (or (> sx1 0) (= sy sy1)) (setq sy1 (inc sy1)))
 		(. this :push_undo
 			(list :mark (defq mark (. this :next_mark)))
 			(list :cursor x y))
@@ -478,7 +478,7 @@
 	(defmethod :tab_right (this anchor_x anchor_y)
 		; (. buffer :tab_right anchor_x anchor_y) -> buffer
 		(get-selection)
-		(if (> sx1 0) (setq sy1 (inc sy1)))
+		(if (or (> sx1 0) (= sy sy1)) (setq sy1 (inc sy1)))
 		(. this :push_undo
 			(list :mark (defq mark (. this :next_mark)))
 			(list :cursor x y))
