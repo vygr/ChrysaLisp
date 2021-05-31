@@ -15,7 +15,7 @@
 	*current_buffer* (Buffer) *meta_map* (xmap 31)
 	*current_file* nil *selected_file_node* nil)
 
-(ui-window *window* (:color +argb_grey2)
+(ui-window *window* (:color +argb_grey1)
 	(ui-title-bar *title* "" (0xea19 0xea1b 0xea1a) +event_close)
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-flow _ (:flow_flags +flow_stack_fill)

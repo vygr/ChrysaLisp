@@ -26,7 +26,7 @@
 			(.-> page (:add_child backdrop) (:add_child text))
 			(clear lines)
 			:text)
-		(t	(push lines (. syntax :expand_tabs line 4))
+		(t  (push lines (. syntax :expand_tabs line 4))
 			state)))
 
 ;module
