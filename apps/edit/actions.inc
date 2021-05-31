@@ -364,21 +364,14 @@
 				(. *current_buffer* :set_cursor x y)
 				(refresh)))))
 
-(defun set-find-text ()
-	(when (selection?)
+(defun action-set-find-text ()
+	(if (selection?)
 		(when (> (length (defq text
 				(split (. *current_buffer* :copy *anchor_x* *anchor_y*)
 					(ascii-char +char_lf)))) 0)
-		(set *find_text* :clear_text (elem 0 text))
-		(.-> *find_text* :layout :dirty))))
-
-(defun action-find-down-select ()
-	(set-find-text)
-	(action-find-down))
-
-(defun action-find-up-select ()
-	(set-find-text)
-	(action-find-up))
+			(setq text (elem 0 text))
+			(set *find_text* :clear_text text :cursor (length text))
+			(.-> *find_text* :layout :dirty))))
 
 (defun action-replace ()
 	(unless (or (eql (defq pattern (get :clear_text *find_text*)) "")
@@ -518,8 +511,7 @@ key_map_control (xmap-kv
 	(ascii-code "b") action-select-block
 	(ascii-code "w") action-select-word
 	(ascii-code "l") action-select-line
-	(ascii-code "f") action-find-down-select
-	(ascii-code "F") action-find-up-select
+	(ascii-code "f") action-set-find-text
 	(ascii-code "r") action-replace
 	(ascii-code "R") action-replace-all
 	(ascii-code "z") action-undo
