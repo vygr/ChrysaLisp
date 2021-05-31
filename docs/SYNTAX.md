@@ -102,10 +102,40 @@
 (. buffer :get_cursor) -> (x y)
 ```
 
+### buffer :get_line
+
+```code
+(. buffer :get_line y) -> line
+```
+
 ### buffer :get_size
 
 ```code
 (. buffer :get_size) -> (width height)
+```
+
+### buffer :get_syntax
+
+```code
+(. buffer :get_syntax) -> syntax
+```
+
+### buffer :get_tab
+
+```code
+(. buffer :get_tab) -> tab_width
+```
+
+### buffer :get_text_buffer
+
+```code
+(. buffer :get_text_buffer) -> text_buffer
+```
+
+### buffer :get_wrap
+
+```code
+(. buffer :get_wrap) -> wrap_width
 ```
 
 ### buffer :insert
@@ -150,12 +180,6 @@
 (. buffer :redo) -> buffer
 ```
 
-### buffer :reflow
-
-```code
-(. buffer :reflow) -> buffer
-```
-
 ### buffer :right
 
 ```code
@@ -172,24 +196,6 @@
 
 ```code
 (. buffer :set_cursor x y) -> buffer
-```
-
-### buffer :tab_left
-
-```code
-(. buffer :tab_left anchor_x anchor_y) -> buffer
-```
-
-### buffer :tab_right
-
-```code
-(. buffer :tab_right anchor_x anchor_y) -> buffer
-```
-
-### buffer :trim
-
-```code
-(. buffer :trim) -> buffer
 ```
 
 ### buffer :undo

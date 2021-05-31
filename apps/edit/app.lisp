@@ -22,7 +22,7 @@
 		(const (<< (canvas-from-argb32 +argb_grey6 15) 48))) (str-alloc 8192)))
 	+not_selected (nums-sub +selected +selected)
 	+bracket_char (nums 0x7f) +state_filename "editor_open_files"
-	+click_time 250000 then (pii-time) click_count 0)
+	+click_time 400000 then (pii-time) click_count 0)
 
 (ui-window *window* (:color +argb_grey2)
 	(ui-title-bar *title* "Edit" (0xea19 0xea1b 0xea1a) +event_close)
@@ -110,7 +110,7 @@
 	(and (= y y1) (> x x1)
 		(defq x (logxor x x1) x1 (logxor x x1) x (logxor x x1)))
 	(cap (inc y1) (clear *underlay*))
-	(defq uy -1 buffer (get :buffer *current_buffer*))
+	(defq uy -1 buffer (. *current_buffer* :get_text_buffer))
 	(while (< (setq uy (inc uy)) y) (push *underlay* ""))
 	(cond
 		((= y y1)
