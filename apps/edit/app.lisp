@@ -95,13 +95,13 @@
 	files)
 
 (defun clear-selection ()
-	;clear the underlay vdu to just bracket indicators
+	;clear the selection
 	(bind '(x y) (. *current_buffer* :get_cursor))
 	(bind '(x y) (. *current_buffer* :constrain x y))
 	(setq *anchor_x* x *anchor_y* y *shift_select* nil))
 
 (defun create-selection ()
-	;create the underlay vdu
+	;create the underlay for block selection
 	(bind '(x y) (. *current_buffer* :get_cursor))
 	(defq x1 *anchor_x* y1 *anchor_y*)
 	(if (> y y1)
@@ -114,9 +114,7 @@
 	(while (< (setq uy (inc uy)) y) (push *underlay* ""))
 	(cond
 		((= y y1)
-			(push *underlay* (cat
-				(slice 0 x +not_selected)
-				(slice x x1 +selected))))
+			(push *underlay* (cat (slice 0 x +not_selected) (slice x x1 +selected))))
 		(t  (push *underlay* (cat
 				(slice 0 x +not_selected)
 				(slice x (inc (length (elem y buffer))) +selected)))
@@ -125,7 +123,7 @@
 			(push *underlay* (slice 0 x1 +selected)))))
 
 (defun create-brackets ()
-	;create the underlay vdu to just bracket indicators
+	;create the underlay for just bracket indicators
 	(clear *underlay*)
 	(when (bind '(x y) (. *current_buffer* :left_bracket))
 		(when (bind '(x1 y1) (. *current_buffer* :right_bracket))

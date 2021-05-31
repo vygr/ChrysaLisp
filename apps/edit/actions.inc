@@ -127,11 +127,9 @@
 	(clear-selection) (refresh))
 
 (defun action-reflow ()
-	(bind '(x y) (. (defq buffer *current_buffer*) :get_cursor))
-	(bind '(x y) (. buffer :constrain x y))
-	(. buffer :push_undo
+	(. (defq buffer *current_buffer*) :push_undo
 		(list :mark (defq mark (. buffer :next_mark)))
-		(list :cursor x y))
+		(list :cursor *cursor_x* (defq y *cursor_y*)))
 	;find start line
 	(while (and (> (setq y (dec y)) -1)
 				(not (eql (. buffer :get_line y) ""))))
