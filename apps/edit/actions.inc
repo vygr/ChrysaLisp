@@ -161,6 +161,23 @@
 	(. *current_buffer* :set_cursor 0 h)
 	(refresh))
 
+(defun action-select-word ()
+	(defq line (elem *cursor_y* (get :buffer *current_buffer*))
+		x (some! *cursor_x* 0 nil (#
+			(if (find %0 " ()") (inc _))) (list line))
+		x1 (some! *cursor_x* -1 nil (#
+			(if (find %0 " ()") _)) (list line)))
+	(unless x (setq x 0))
+	(unless x1 (setq x1 (length line)))
+	(setq *anchor_x* x *anchor_y* *cursor_y* *shift_select* t)
+	(. *current_buffer* :set_cursor x1 *cursor_y*)
+	(refresh))
+
+(defun action-select-line ()
+	(setq *anchor_x* 0 *anchor_y* *cursor_y* *shift_select* t)
+	(. *current_buffer* :set_cursor 0 (inc *cursor_y*))
+	(refresh))
+
 (defun action-select-block ()
 	(when (bind '(x y) (. *current_buffer* :left_bracket))
 		(when (bind '(x1 y1) (. *current_buffer* :right_bracket))
@@ -397,9 +414,10 @@ key_map_shift (xmap-kv
 key_map_control (xmap-kv
 	(ascii-code "a") action-select-all
 	(ascii-code "b") action-select-block
+	(ascii-code "w") action-select-word
+	(ascii-code "l") action-select-line
 	(ascii-code "f") action-find-down
 	(ascii-code "F") action-find-up
-	(ascii-code "f") action-find-down
 	(ascii-code "r") action-replace
 	(ascii-code "R") action-replace-all
 	(ascii-code "z") action-undo
@@ -418,11 +436,12 @@ key_map_control (xmap-kv
 	(ascii-code "9") action-left-bracket
 	(ascii-code "0") action-right-bracket
 	(ascii-code "u") action-to-upper
-	(ascii-code "l") action-to-lower
+	(ascii-code "U") action-to-lower
 	(ascii-code "o") action-ordered
 	(ascii-code "O") action-ordered-unique))
 
 ;module
 (export (penv)
-	event_map key_map key_map_shift key_map_control action-insert)
+	event_map key_map key_map_shift key_map_control
+	action-insert action-select-word action-select-line)
 (env-pop)
