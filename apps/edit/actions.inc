@@ -114,9 +114,10 @@
 	(refresh))
 
 (defun action-break ()
-	(. (defq buffer *current_buffer*) :push_undo
-		(list :mark (defq mark (. buffer :next_mark))))
-	(. buffer :cut *anchor_x* *anchor_y*)
+	(.-> (defq buffer *current_buffer*)
+		(:push_undo
+			(list :mark (defq mark (. buffer :next_mark))))
+		(:cut *anchor_x* *anchor_y*))
 	(bind '(x y) (.-> buffer :break :get_cursor))
 	(defq line (. buffer :get_line (dec y))
 		indent (some (# (unless (eql %0 (ascii-char +char_space)) _)) line))
@@ -161,10 +162,14 @@
 (defun action-tab ()
 	(cond
 		((= *anchor_y* *cursor_y*)
-			(. (defq buffer *current_buffer*) :cut *anchor_x* *anchor_y*)
+			(defq buffer *current_buffer* tab_width (. buffer :get_tab))
+			(.-> buffer
+				(:push_undo (list :mark (defq mark (. buffer :next_mark))))
+				(:cut *anchor_x* *anchor_y*))
 			(bind '(x y) (. buffer :get_cursor))
-			(defq tab_width (get :tab_width buffer))
-			(. buffer :insert (pad "" (- tab_width (% x tab_width)) "        "))
+			(.-> buffer
+				(:insert (pad "" (- tab_width (% x tab_width)) "        "))
+				(:push_undo (list :mark mark)))
 			(clear-selection) (refresh))
 		((action-right-tab))))
 
@@ -183,11 +188,9 @@
 
 (defun trim-buffer (buffer)
 	(when (> (bind '(w h) (. buffer :get_size)) 0)
-		(bind '(x y) (. buffer :get_cursor))
-		(bind '(x y) (. buffer :constrain x y))
 		(. buffer :push_undo
 			(list :mark (defq mark (. buffer :next_mark)))
-			(list :cursor x y))
+			(list :cursor *cursor_x* *cursor_y*))
 		;trim front
 		(while (and (> (bind '(w h) (. buffer :get_size)) 0)
 					(eql (. buffer :get_line 0) ""))
@@ -203,7 +206,7 @@
 						(:set_cursor (length trimed_line) _)
 						(:delete (- (length line) (length trimed_line))))))
 			(list (. buffer :get_text_buffer)))
-		(bind '(x y) (. buffer :constrain x y))
+		(bind '(x y) (. buffer :constrain *cursor_x* *cursor_y*))
 		(.-> buffer (:push_undo (list :mark mark)) (:set_cursor x y)))
 	buffer)
 
@@ -231,8 +234,13 @@
 
 (defun action-paste ()
 	(unless (eql (defq data (clipboard-get)) "")
-		(. *current_buffer* :cut *anchor_x* *anchor_y*)
-		(. *current_buffer* :paste data)
+		(. (defq buffer *current_buffer*) :push_undo
+			(list :mark (defq mark (. buffer :next_mark)))
+			(list :cursor *cursor_x* *cursor_y*))
+		(. buffer :cut *anchor_x* *anchor_y*)
+		(.-> buffer
+			(:paste data)
+			(:push_undo (list :mark mark)))
 		(clear-selection) (refresh)))
 
 (defun action-select-all ()
