@@ -7,7 +7,7 @@
 	"files" "clock" "calculator" "fonts" "chat" "images" "films" "whiteboard" "pcb"
 	"boing" "freeball" "bubbles" "canvas" "raymarch" "mandelbrot" "chess"
 	"minefield")
-	*env_launcher_auto_apps* '("clock" "terminal"))
+	*env_launcher_auto_apps* '("terminal"))
 
 ;launcher placement from xy :center :top :bottom :left :right)
 (defq *env_launcher_position* :center)
@@ -20,7 +20,7 @@
 (defq *env_terminal_prompt* (cat *env_user* ">") *env_terminal_lines* 1000)
 
 ;timezones must be locations not abbreviations. See lib/date/date.inc for more info.
-(defq *env_clock_timezone* "Etc/GMT" *env_clock_analog* t *env_clock_digital* t 
+(defq *env_clock_timezone* "Etc/GMT" *env_clock_analog* t *env_clock_digital* t
 	*env_clock_twelve_hour* t  *env_clock_seconds* t  *env_clock_pad_hour* nil *env_clock_dotw* t)
 
 ;widget property defaults
