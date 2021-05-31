@@ -129,7 +129,7 @@
 ### buffer :next_mark
 
 ```code
-(. buffer :next_mark) -> num
+(. buffer :next_mark) -> mark
 ```
 
 ### buffer :paste

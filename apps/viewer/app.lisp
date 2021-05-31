@@ -145,7 +145,7 @@
 	(def *file_tree_scroll* :min_width w)
 	(.-> *file_tree_scroll* :layout :dirty_all))
 
-;import editor actions and bindings
+;import actions and bindings
 (import "apps/viewer/actions.inc")
 
 (defun main ()
@@ -181,7 +181,6 @@
 					(t  ;mouse button is up
 						(case mouse_state
 							(:d ;was down last time
-								(bind '(x y) (. *current_buffer* :get_cursor))
 								(setq mouse_state :u))
 							(:u ;was up last time
 								))))

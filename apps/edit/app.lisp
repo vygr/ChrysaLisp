@@ -21,7 +21,8 @@
 	+selected (apply nums (map (lambda (_)
 		(const (<< (canvas-from-argb32 +argb_grey6 15) 48))) (str-alloc 8192)))
 	+not_selected (nums-sub +selected +selected)
-	+bracket_char (nums 0x7f) +state_filename "editor_open_files")
+	+bracket_char (nums 0x7f) +state_filename "editor_open_files"
+	+click_time 250000 then (pii-time) click_count 0)
 
 (ui-window *window* (:color +argb_grey2)
 	(ui-title-bar *title* "Edit" (0xea19 0xea1b 0xea1a) +event_close)
@@ -273,7 +274,7 @@
 	(.-> *open_tree_scroll* :layout :dirty_all)
 	(.-> *file_tree_scroll* :layout :dirty_all))
 
-;import editor actions and bindings
+;import actions and bindings
 (import "apps/edit/actions.inc")
 
 (defun main ()
@@ -313,8 +314,16 @@
 					(t  ;mouse button is up
 						(case mouse_state
 							(:d ;was down last time
-								(bind '(x y) (. *current_buffer* :get_cursor))
-								(setq mouse_state :u))
+								(defq now (pii-time))
+								(if (< (- now then) +click_time)
+									(setq click_count (inc click_count))
+									(setq click_count 0))
+								(setq then now mouse_state :u)
+								(cond
+									((= click_count 1)
+										(action-select-word))
+									((= click_count 2)
+										(action-select-line))))
 							(:u ;was up last time
 								))))
 				(refresh))
