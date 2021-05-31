@@ -308,8 +308,9 @@
 
 (defun action-open-leaf-action ()
 	;switch to the file selected
-	(select-node (defq file (. *open_tree* :get_route
+	(. *file_tree* :add_route (defq file (. *open_tree* :get_route
 		(. *window* :find_id (getf *msg* +ev_msg_action_source_id)))))
+	(select-node file)
 	(populate-vdu file))
 
 (defun action-new ()
