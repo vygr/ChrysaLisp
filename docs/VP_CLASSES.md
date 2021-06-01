@@ -9233,7 +9233,7 @@ outputs
 r0 = view object (ptr)
 r1 = new flag values (ulong)
 trashes
-r1-r3
+r1-r4
 ```
 
 ### view :sub -> gui/view/sub

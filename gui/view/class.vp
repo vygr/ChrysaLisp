@@ -652,7 +652,7 @@
 	;r0 = view object (ptr)
 	;r1 = new flag values (ulong)
 	;trashes
-	;r1-r3
+	;r1-r4
 
 	(entry 'view :set_flags '(r0 r1 r2))
 
@@ -660,8 +660,10 @@
 	(vp-xor-cr -1 r2)
 	(vp-and-rr r2 r3)
 	(vp-or-rr r3 r1)
-	(assign '(r1 r1 (@ sys/statics/statics)) '(r3 (r0 view_flags) r2))
+	(assign '((@ sys/statics/statics) r1 r1) '(r2 r3 (r0 view_flags)))
+	(assign '((r2 statics_gui_dirty_flag)) '(r4))
 	(vp-and-cr view_flag_dirty_all r3)
+	(vp-or-rr r4 r3)
 	(assign '(r3) '((r2 statics_gui_dirty_flag)))
 
 	(exit 'view :set_flags '(r0 r1))
