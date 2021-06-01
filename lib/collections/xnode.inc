@@ -11,8 +11,6 @@
 	(def this
 		:children_nodes (xmap)
 		:parent nil)
-	(if parent
-		(. parent :add_node this))
 
 	(defmethod :get_parent (this)
 		; (. xnode :get_parent) -> xnode | nil
@@ -112,8 +110,8 @@
 
 (defclass named-xnode (name &optional parent) (xnode)
 	; Named tree
-	(def this
-		:node_name name)
+	(def this :node_name name)
+	(if parent (. parent :add_node this))
 
 	(defmethod :unique_id (this)
 		; (. named-xnode :unique_id) -> string
