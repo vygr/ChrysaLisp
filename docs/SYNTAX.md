@@ -102,12 +102,6 @@
 (. buffer :get_cursor) -> (x y)
 ```
 
-### buffer :get_line
-
-```code
-(. buffer :get_line y) -> line
-```
-
 ### buffer :get_size
 
 ```code
@@ -120,22 +114,28 @@
 (. buffer :get_syntax) -> syntax
 ```
 
-### buffer :get_tab
+### buffer :get_tab_width
 
 ```code
-(. buffer :get_tab) -> tab_width
+(. buffer :get_tab_width) -> tab_width
 ```
 
-### buffer :get_text_buffer
+### buffer :get_text_line
 
 ```code
-(. buffer :get_text_buffer) -> text_buffer
+(. buffer :get_text_line y) -> line
 ```
 
-### buffer :get_wrap
+### buffer :get_text_lines
 
 ```code
-(. buffer :get_wrap) -> wrap_width
+(. buffer :get_text_lines) -> lines
+```
+
+### buffer :get_wrap_width
+
+```code
+(. buffer :get_wrap_width) -> wrap_width
 ```
 
 ### buffer :insert

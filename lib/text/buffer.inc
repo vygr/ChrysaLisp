@@ -114,20 +114,20 @@
 		; (. buffer :get_syntax) -> syntax
 		(get :syntax this))
 
-	(defmethod :get_wrap (this)
-		; (. buffer :get_wrap) -> wrap_width
+	(defmethod :get_wrap_width (this)
+		; (. buffer :get_wrap_width) -> wrap_width
 		(get :wrap_width this))
 
-	(defmethod :get_tab (this)
-		; (. buffer :get_tab) -> tab_width
+	(defmethod :get_tab_width (this)
+		; (. buffer :get_tab_width) -> tab_width
 		(get :tab_width this))
 
-	(defmethod :get_text_buffer (this)
-		; (. buffer :get_text_buffer) -> text_buffer
+	(defmethod :get_text_lines (this)
+		; (. buffer :get_text_lines) -> lines
 		(get :buffer this))
 
-	(defmethod :get_line (this y)
-		; (. buffer :get_line y) -> line
+	(defmethod :get_text_line (this y)
+		; (. buffer :get_text_line y) -> line
 		(elem y (get :buffer this)))
 
 	(defmethod :file_load (this filepath)

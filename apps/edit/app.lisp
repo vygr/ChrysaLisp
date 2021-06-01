@@ -111,7 +111,7 @@
 	(and (= y y1) (> x x1)
 		(defq x (logxor x x1) x1 (logxor x x1) x (logxor x x1)))
 	(cap (inc y1) (clear *underlay*))
-	(defq uy -1 buffer (. *current_buffer* :get_text_buffer))
+	(defq uy -1 buffer (. *current_buffer* :get_text_lines))
 	(while (< (setq uy (inc uy)) y) (push *underlay* ""))
 	(cond
 		((= y y1)
@@ -323,7 +323,9 @@
 									((= click_count 1)
 										(action-select-word))
 									((= click_count 2)
-										(action-select-line))))
+										(action-select-line))
+									((= click_count 3)
+										(action-select-paragraph))))
 							(:u ;was up last time
 								))))
 				(refresh))

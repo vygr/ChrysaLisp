@@ -1,6 +1,14 @@
 ;module
 (env-push)
 
+(defmacro undoable (&rest body)
+	`(progn
+		(. (defq buffer *current_buffer*) :push_undo
+			(list :mark (defq mark (. buffer :next_mark)))
+			(list :cursor *cursor_x* *cursor_y*))
+		~body
+		(. buffer :push_undo (list :mark mark))))
+
 (defun selection? ()
 	(or (/= *anchor_x* *cursor_x*) (/= *anchor_y* *cursor_y*)))
 
@@ -74,69 +82,61 @@
 	(refresh))
 
 (defun action-left-tab ()
-	(defq buffer *current_buffer* tab_width (. buffer :get_tab))
-	(bind '(y y1) (line-selection))
-	(. buffer :push_undo
-		(list :mark (defq mark (. buffer :next_mark)))
-		(list :cursor *cursor_x* *cursor_y*))
-	(each! y y1 (lambda (line)
-			(defq idx -1)
-			(while (and
-				(< (setq idx (inc idx)) (length line))
-				(< idx tab_width)
-				(eql (elem idx line) " ")))
-			(if (> idx 0)
-				(.-> buffer (:set_cursor 0 _) (:delete (min tab_width idx)))))
-		(list (. buffer :get_text_buffer)))
-	(.-> buffer (:push_undo (list :mark mark)) (:set_cursor *cursor_x* *cursor_y*))
+	(undoable
+		(defq tab_width (. buffer :get_tab_width))
+		(bind '(y y1) (line-selection))
+		(each! y y1 (lambda (line)
+				(defq idx -1)
+				(while (and
+					(< (setq idx (inc idx)) (length line))
+					(< idx tab_width)
+					(eql (elem idx line) " ")))
+				(if (> idx 0)
+					(.-> buffer (:set_cursor 0 _) (:delete (min tab_width idx)))))
+			(list (. buffer :get_text_lines)))
+		(. buffer :set_cursor *cursor_x* *cursor_y*))
 	(refresh))
 
 (defun action-right-tab ()
-	(defq buffer *current_buffer* tab (pad "" (. buffer :get_tab) "        "))
-	(bind '(y y1) (line-selection))
-	(. buffer :push_undo
-		(list :mark (defq mark (. buffer :next_mark)))
-		(list :cursor *cursor_x* *cursor_y*))
-	(each! y y1 (lambda (line)
-		(unless (eql line "")
-			(.-> buffer
-				(:set_cursor 0 _)
-				(:insert tab)))) (list (. buffer :get_text_buffer)))
-	(.-> buffer (:push_undo (list :mark mark)) (:set_cursor *cursor_x* *cursor_y*))
+	(undoable
+		(defq tab (pad "" (. buffer :get_tab_width) "        "))
+		(bind '(y y1) (line-selection))
+		(each! y y1 (lambda (line)
+				(unless (eql line "")
+					(.-> buffer
+						(:set_cursor 0 _)
+						(:insert tab))))
+			(list (. buffer :get_text_lines)))
+		(. buffer :set_cursor *cursor_x* *cursor_y*))
 	(refresh))
 
 (defun action-break ()
-	(.-> (defq buffer *current_buffer*)
-		(:push_undo
-			(list :mark (defq mark (. buffer :next_mark))))
-		(:cut *anchor_x* *anchor_y*))
-	(bind '(x y) (.-> buffer :break :get_cursor))
-	(defq line (. buffer :get_line (dec y))
-		indent (some (# (unless (eql %0 (ascii-char +char_space)) _)) line))
-	(unless indent (setq indent (length line)))
-	(if (> indent 0) (. buffer :insert (pad "" indent "        ")))
-	(. buffer :push_undo (list :mark mark))
+	(undoable
+		(. buffer :cut *anchor_x* *anchor_y*)
+		(bind '(x y) (.-> buffer :break :get_cursor))
+		(defq line (. buffer :get_text_line (dec y))
+			indent (some (# (unless (eql %0 (ascii-char +char_space)) _)) line))
+		(unless indent (setq indent (length line)))
+		(if (> indent 0) (. buffer :insert (pad "" indent "        "))))
 	(clear-selection) (refresh))
 
 (defun action-reflow ()
-	(. (defq buffer *current_buffer*) :push_undo
-		(list :mark (defq mark (. buffer :next_mark)))
-		(list :cursor *cursor_x* (defq y *cursor_y*)))
-	;find start line
-	(while (and (> (setq y (dec y)) -1)
-				(not (eql (. buffer :get_line y) ""))))
-	;collect words
-	(defq y (inc y) words (list))
-	(until (eql (defq line (. buffer :get_line y)) "")
-		(setq words (cat words (split line " ")))
-		(.-> buffer (:set_cursor 0 y) (:delete (length line)) :delete))
-	;flow insert them
-	(each (lambda (line)
-			(.-> buffer (:insert line) :break))
-		(. (. buffer :get_syntax) :text_flow words (. buffer :get_wrap)))
-	(bind '(x y) (. buffer :get_cursor))
-	(bind '(x y) (. buffer :constrain x (inc y)))
-	(.-> buffer (:push_undo (list :mark mark)) (:set_cursor x y))
+	(undoable
+		(defq y (some! *cursor_y* 0 nil
+					(# (if (= (length %0) 0) (inc _)))
+				(list (. buffer :get_text_lines)))
+			y1 (some! *cursor_y* (bind '(w h) (. buffer :get_size)) nil
+					(# (if (= (length %0) 0) _))
+				(list (. buffer :get_text_lines))))
+		(unless y (setq y 0))
+		(unless y1 (setq y1 h))
+		(each (lambda (line) (.-> buffer (:insert line) :break))
+			(. (. buffer :get_syntax) :text_flow
+				(split (.-> buffer (:set_cursor 0 y) (:cut 0 y1)) (const (cat " " (ascii-char +char_lf))))
+				(. buffer :get_wrap_width)))
+		(bind '(x y) (. buffer :get_cursor))
+		(bind '(x y) (. buffer :constrain x (inc y)))
+		(. buffer :set_cursor x y))
 	(clear-selection) (refresh))
 
 (defun action-backspace ()
@@ -152,14 +152,11 @@
 (defun action-tab ()
 	(cond
 		((= *anchor_y* *cursor_y*)
-			(defq buffer *current_buffer* tab_width (. buffer :get_tab))
-			(.-> buffer
-				(:push_undo (list :mark (defq mark (. buffer :next_mark))))
-				(:cut *anchor_x* *anchor_y*))
-			(bind '(x y) (. buffer :get_cursor))
-			(.-> buffer
-				(:insert (pad "" (- tab_width (% x tab_width)) "        "))
-				(:push_undo (list :mark mark)))
+			(undoable
+				(defq tab_width (. buffer :get_tab_width))
+				(. buffer :cut *anchor_x* *anchor_y*)
+				(bind '(x y) (. buffer :get_cursor))
+				(. buffer :insert (pad "" (- tab_width (% x tab_width)) "        ")))
 			(clear-selection) (refresh))
 		((action-right-tab))))
 
@@ -176,29 +173,27 @@
 		(. *current_buffer* :undo))
 	(clear-selection) (refresh))
 
-(defun trim-buffer (buffer)
-	(when (> (bind '(w h) (. buffer :get_size)) 0)
-		(. buffer :push_undo
-			(list :mark (defq mark (. buffer :next_mark)))
-			(list :cursor *cursor_x* *cursor_y*))
-		;trim front
-		(while (and (> (bind '(w h) (. buffer :get_size)) 0)
-					(eql (. buffer :get_line 0) ""))
-			(.-> buffer (:set_cursor 0 0) :delete))
-		;trim end
-		(while (and (> (bind '(w h) (. buffer :get_size)) 0)
-					(eql (. buffer :get_line (dec h)) ""))
-			(.-> buffer (:set_cursor 0 (dec h)) :backspace))
-		;trim lines
-		(each! 0 h (lambda (line)
-				(unless (eql (defq trimed_line (trim-end line)) line)
-					(.-> buffer
-						(:set_cursor (length trimed_line) _)
-						(:delete (- (length line) (length trimed_line))))))
-			(list (. buffer :get_text_buffer)))
-		(bind '(x y) (. buffer :constrain *cursor_x* *cursor_y*))
-		(.-> buffer (:push_undo (list :mark mark)) (:set_cursor x y)))
-	buffer)
+(defun trim-buffer (*current_buffer*)
+	(when (> (bind '(w h) (. *current_buffer* :get_size)) 0)
+		(undoable
+			;trim front
+			(while (and (> (bind '(w h) (. buffer :get_size)) 0)
+						(eql (. buffer :get_text_line 0) ""))
+				(.-> buffer (:set_cursor 0 0) :delete))
+			;trim end
+			(while (and (> (bind '(w h) (. buffer :get_size)) 0)
+						(eql (. buffer :get_text_line (dec h)) ""))
+				(.-> buffer (:set_cursor 0 (dec h)) :backspace))
+			;trim lines
+			(each! 0 h (lambda (line)
+					(unless (eql (defq trimed_line (trim-end line)) line)
+						(.-> buffer
+							(:set_cursor (length trimed_line) _)
+							(:delete (- (length line) (length trimed_line))))))
+				(list (. buffer :get_text_lines)))
+			(bind '(x y) (. buffer :constrain *cursor_x* *cursor_y*))
+		(. buffer :set_cursor x y)))
+	*current_buffer*)
 
 (defun action-trim ()
 	(trim-buffer *current_buffer*)
@@ -224,13 +219,9 @@
 
 (defun action-paste ()
 	(unless (eql (defq data (clipboard-get)) "")
-		(. (defq buffer *current_buffer*) :push_undo
-			(list :mark (defq mark (. buffer :next_mark)))
-			(list :cursor *cursor_x* *cursor_y*))
-		(. buffer :cut *anchor_x* *anchor_y*)
-		(.-> buffer
-			(:paste data)
-			(:push_undo (list :mark mark)))
+		(undoable
+			(. buffer :cut *anchor_x* *anchor_y*)
+			(. buffer :paste data))
 		(clear-selection) (refresh)))
 
 (defun action-select-all ()
@@ -240,7 +231,7 @@
 	(refresh))
 
 (defun action-select-word ()
-	(defq line (. *current_buffer* :get_line *cursor_y*)
+	(defq line (. *current_buffer* :get_text_line *cursor_y*)
 		x (some! *cursor_x* 0 nil (#
 			(if (find %0 " ()") (inc _))) (list line))
 		x1 (some! *cursor_x* -1 nil (#
@@ -256,12 +247,41 @@
 	(. *current_buffer* :set_cursor 0 (inc *cursor_y*))
 	(refresh))
 
+(defun action-select-paragraph ()
+	(defq y (some! *cursor_y* 0 nil
+				(# (if (= (length %0) 0) (inc _)))
+			(list (. (defq buffer *current_buffer*) :get_text_lines)))
+		y1 (some! *cursor_y* (bind '(w h) (. buffer :get_size)) nil
+				(# (if (= (length %0) 0) _))
+			(list (. buffer :get_text_lines))))
+	(unless y (setq y 0))
+	(unless y1 (setq y1 h))
+	(setq *anchor_x* 0 *anchor_y* y *shift_select* t)
+	(. buffer :set_cursor 0 y1)
+	(refresh))
+
 (defun action-select-block ()
 	(when (bind '(x y) (. (defq buffer *current_buffer*) :left_bracket))
 		(when (bind '(x1 y1) (. buffer :right_bracket))
 			(setq *anchor_x* x *anchor_y* y *shift_select* t)
 			(. buffer :set_cursor (inc x1) y1)
 			(refresh))))
+
+(defun action-cut-word ()
+	(action-select-word)
+	(action-cut))
+
+(defun action-cut-line ()
+	(action-select-line)
+	(action-cut))
+
+(defun action-cut-paragraph ()
+	(action-select-paragraph)
+	(action-cut))
+
+(defun action-cut-block ()
+	(action-select-block)
+	(action-cut))
 
 (defun action-minimise ()
 	(vdu-resize +vdu_min_width +vdu_min_height))
@@ -369,74 +389,60 @@
 (defun action-replace ()
 	(unless (or (eql (defq pattern (get :clear_text *find_text*)) "")
 				(eql (defq replace (get :clear_text *replace_text*)) pattern))
-		(when (eql (. (defq buffer *current_buffer*) :copy *anchor_x* *anchor_y*) pattern)
-			(. buffer :push_undo
-				(list :mark (defq mark (. buffer :next_mark))))
-			(. buffer :cut *anchor_x* *anchor_y*)
-			(.-> buffer (:insert replace) (:push_undo (list :mark mark)))
+		(when (eql (. *current_buffer* :copy *anchor_x* *anchor_y*) pattern)
+			(undoable
+				(. buffer :cut *anchor_x* *anchor_y*)
+				(. buffer :insert replace))
 			(refresh))
 		(action-find-down)))
 
 (defun action-replace-all ()
 	(unless (or (eql (defq pattern (get :clear_text *find_text*)) "")
 				(eql (defq replace (get :clear_text *replace_text*)) pattern))
-		(when (> (length (defq found (. (defq buffer *current_buffer*) :find pattern))) 0)
-			(. buffer :push_undo
-				(list :mark (defq mark (. buffer :next_mark)))
-				(list :cursor *cursor_x* *cursor_y*))
-			(each-rev (lambda ((x y))
-					(.-> buffer (:set_cursor x y) (:cut (+ x (length pattern)) y))
-					(unless (eql replace "") (. buffer :insert replace)))
-				found)
-			(. buffer :push_undo (list :mark mark))
+		(when (> (length (defq found (. *current_buffer* :find pattern))) 0)
+			(undoable
+				(each-rev (lambda ((x y))
+						(.-> buffer (:set_cursor x y) (:cut (+ x (length pattern)) y))
+						(unless (eql replace "") (. buffer :insert replace)))
+					found))
 			(refresh))))
 
 (defun action-to-lower ()
 	(when (selection?)
-		(. (defq buffer *current_buffer*) :push_undo
-			(list :mark (defq mark (. buffer :next_mark))))
-		(defq text (to-lower (. buffer :cut *anchor_x* *anchor_y*)))
-		(.-> buffer (:paste text) (:push_undo (list :mark mark)))
+		(undoable
+			(. buffer :paste (to-lower (. buffer :cut *anchor_x* *anchor_y*))))
 		(refresh)))
 
 (defun action-to-upper ()
 	(when (selection?)
-		(. (defq buffer *current_buffer*) :push_undo
-			(list :mark (defq mark (. buffer :next_mark))))
-		(defq text (to-upper (. buffer :cut *anchor_x* *anchor_y*)))
-		(.-> buffer (:paste text) (:push_undo (list :mark mark)))
+		(undoable
+			(. buffer :paste (to-upper (. buffer :cut *anchor_x* *anchor_y*))))
 		(refresh)))
 
 (defun action-ordered ()
 	(when (selection?)
-		(bind '(y y1) (line-selection))
-		(setq *anchor_x* 0 *anchor_y* y)
-		(.-> (defq buffer *current_buffer*)
-			(:push_undo
-				(list :mark (defq mark (. buffer :next_mark)))
-				(list :cursor *cursor_x* *cursor_y*))
-			(:set_cursor 0 y1))
-		(defq text (cat (join
-			(sort cmp (split (. buffer :cut 0 y) (ascii-char +char_lf)))
-			(ascii-char +char_lf)) (ascii-char +char_lf)))
-		(.-> buffer (:paste text) (:push_undo (list :mark mark)))
+		(undoable
+			(bind '(y y1) (line-selection))
+			(setq *anchor_x* 0 *anchor_y* y)
+			(. buffer :set_cursor 0 y1)
+			(defq text (cat (join
+				(sort cmp (split (. buffer :cut 0 y) (ascii-char +char_lf)))
+				(ascii-char +char_lf)) (ascii-char +char_lf)))
+			(. buffer :paste text))
 		(refresh)))
 
 (defun action-ordered-unique ()
 	(when (selection?)
-		(bind '(y y1) (line-selection))
-		(setq *anchor_x* 0 *anchor_y* y)
-		(.-> (defq buffer *current_buffer*)
-			(:push_undo
-				(list :mark (defq mark (. buffer :next_mark)))
-				(list :cursor *cursor_x* *cursor_y*))
-			(:set_cursor 0 y1))
-		(defq text (cat (join
+		(undoable
+			(bind '(y y1) (line-selection))
+			(setq *anchor_x* 0 *anchor_y* y)
+			(. buffer :set_cursor 0 y1)
+			(defq text (cat (join
 				(reduce (# (if (or (<= (length %0) 0)
 								(not (eql (elem -2 %0) %1))) (push %0 %1) %0))
 				(sort cmp (split (. buffer :cut 0 y) (ascii-char +char_lf)))
 				(list)) (ascii-char +char_lf)) (ascii-char +char_lf)))
-		(.-> buffer (:paste text) (:push_undo (list :mark mark)))
+			(. buffer :paste text))
 		(refresh)))
 
 (defun action-close-buffer ()
@@ -502,8 +508,13 @@ key_map_shift (xmap-kv
 key_map_control (xmap-kv
 	(ascii-code "a") action-select-all
 	(ascii-code "b") action-select-block
+	(ascii-code "B") action-cut-block
 	(ascii-code "w") action-select-word
+	(ascii-code "W") action-cut-word
 	(ascii-code "l") action-select-line
+	(ascii-code "L") action-cut-line
+	(ascii-code "p") action-select-paragraph
+	(ascii-code "P") action-cut-paragraph
 	(ascii-code "f") action-set-find-text
 	(ascii-code "r") action-replace
 	(ascii-code "R") action-replace-all
@@ -518,7 +529,7 @@ key_map_control (xmap-kv
 	(ascii-code "-") action-minimise
 	(ascii-code "=") action-maximise
 	(ascii-code "n") action-next-buffer
-	(ascii-code "p") action-prev-buffer
+	(ascii-code "N") action-prev-buffer
 	(ascii-code "q") action-reflow
 	(ascii-code "9") action-left-bracket
 	(ascii-code "0") action-right-bracket
@@ -530,5 +541,5 @@ key_map_control (xmap-kv
 ;module
 (export (penv)
 	event_map key_map key_map_shift key_map_control
-	action-insert action-select-word action-select-line)
+	action-insert action-select-word action-select-line action-select-paragraph)
 (env-pop)
