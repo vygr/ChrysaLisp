@@ -26,8 +26,8 @@
 	(if (or (> sx1 0) (= sy sy1)) (setq sy1 (inc sy1)))
 	(list sy sy1))
 
-(defun select-word (buffer)
-	(defq line (. buffer :get_text_line *cursor_y*)
+(defun select-word ()
+	(defq line (. *current_buffer* :get_text_line *cursor_y*)
 		x (some! *cursor_x* 0 nil (#
 			(if (find %0 " ()") (inc _))) (list line))
 		x1 (some! *cursor_x* -1 nil (#
@@ -36,13 +36,13 @@
 	(unless x1 (setq x1 (length line)))
 	(list x x1))
 
-(defun select-paragraph (buffer)
+(defun select-paragraph ()
 	(defq y (some! *cursor_y* 0 nil
 				(# (if (= (length %0) 0) (inc _)))
-			(list (. buffer :get_text_lines)))
-		y1 (some! *cursor_y* (bind '(w h) (. buffer :get_size)) nil
+			(list (. *current_buffer* :get_text_lines)))
+		y1 (some! *cursor_y* (bind '(w h) (. *current_buffer* :get_size)) nil
 				(# (if (= (length %0) 0) _))
-			(list (. buffer :get_text_lines))))
+			(list (. *current_buffer* :get_text_lines))))
 	(unless y (setq y 0))
 	(unless y1 (setq y1 h))
 	(list y y1))
@@ -143,7 +143,7 @@
 
 (defun action-reflow ()
 	(undoable
-		(bind '(y y1) (select-paragraph buffer))
+		(bind '(y y1) (select-paragraph))
 		(each (lambda (line) (.-> buffer (:insert line) :break))
 			(. (. buffer :get_syntax) :text_flow
 				(split (.-> buffer (:set_cursor 0 y) (:cut 0 y1)) (const (cat " " (ascii-char +char_lf))))
@@ -245,7 +245,7 @@
 	(refresh))
 
 (defun action-select-word ()
-	(bind '(x x1) (select-word *current_buffer*))
+	(bind '(x x1) (select-word))
 	(setq *anchor_x* x *anchor_y* *cursor_y* *shift_select* t)
 	(. *current_buffer* :set_cursor x1 *cursor_y*)
 	(refresh))
@@ -256,7 +256,7 @@
 	(refresh))
 
 (defun action-select-paragraph ()
-	(bind '(y y1) (select-paragraph *current_buffer*))
+	(bind '(y y1) (select-paragraph))
 	(setq *anchor_x* 0 *anchor_y* y *shift_select* t)
 	(. *current_buffer* :set_cursor 0 y1)
 	(refresh))
@@ -406,7 +406,7 @@
 						(.-> buffer (:set_cursor x y) (:cut (+ x (length pattern)) y))
 						(unless (eql replace "") (. buffer :insert replace)))
 					found))
-			(refresh))))
+			(clear-selection) (refresh))))
 
 (defun action-to-lower ()
 	(when (selection?)
@@ -425,11 +425,9 @@
 		(undoable
 			(bind '(y y1) (select-lines))
 			(setq *anchor_x* 0 *anchor_y* y)
-			(. buffer :set_cursor 0 y1)
-			(defq text (cat (join
-				(sort cmp (split (. buffer :cut 0 y) (ascii-char +char_lf)))
-				(ascii-char +char_lf)) (ascii-char +char_lf)))
-			(. buffer :paste text))
+			(. buffer :paste (cat (join
+				(sort cmp (split (.-> buffer (:set_cursor 0 y1) (:cut 0 y)) (ascii-char +char_lf)))
+				(ascii-char +char_lf)) (ascii-char +char_lf))))
 		(refresh)))
 
 (defun action-ordered-unique ()
@@ -437,13 +435,11 @@
 		(undoable
 			(bind '(y y1) (select-lines))
 			(setq *anchor_x* 0 *anchor_y* y)
-			(. buffer :set_cursor 0 y1)
-			(defq text (cat (join
+			(. buffer :paste (cat (join
 				(reduce (# (if (or (<= (length %0) 0)
 								(not (eql (elem -2 %0) %1))) (push %0 %1) %0))
-				(sort cmp (split (. buffer :cut 0 y) (ascii-char +char_lf)))
-				(list)) (ascii-char +char_lf)) (ascii-char +char_lf)))
-			(. buffer :paste text))
+				(sort cmp (split (.-> buffer (:set_cursor 0 y1) (:cut 0 y)) (ascii-char +char_lf)))
+				(list)) (ascii-char +char_lf)) (ascii-char +char_lf))))
 		(refresh)))
 
 (defun action-close-buffer ()
