@@ -21,10 +21,31 @@
 		(defq sx (logxor sx sx1) sx1 (logxor sx sx1) sx (logxor sx sx1)))
 	(list sx sy sx1 sy1))
 
-(defun line-selection ()
+(defun select-lines ()
 	(bind '(sx sy sx1 sy1) (sort-selection))
 	(if (or (> sx1 0) (= sy sy1)) (setq sy1 (inc sy1)))
 	(list sy sy1))
+
+(defun select-word (buffer)
+	(defq line (. buffer :get_text_line *cursor_y*)
+		x (some! *cursor_x* 0 nil (#
+			(if (find %0 " ()") (inc _))) (list line))
+		x1 (some! *cursor_x* -1 nil (#
+			(if (find %0 " ()") _)) (list line)))
+	(unless x (setq x 0))
+	(unless x1 (setq x1 (length line)))
+	(list x x1))
+
+(defun select-paragraph (buffer)
+	(defq y (some! *cursor_y* 0 nil
+				(# (if (= (length %0) 0) (inc _)))
+			(list (. buffer :get_text_lines)))
+		y1 (some! *cursor_y* (bind '(w h) (. buffer :get_size)) nil
+				(# (if (= (length %0) 0) _))
+			(list (. buffer :get_text_lines))))
+	(unless y (setq y 0))
+	(unless y1 (setq y1 h))
+	(list y y1))
 
 (defun action-insert (key)
 	(. *current_buffer* :cut *anchor_x* *anchor_y*)
@@ -84,7 +105,7 @@
 (defun action-left-tab ()
 	(undoable
 		(defq tab_width (. buffer :get_tab_width))
-		(bind '(y y1) (line-selection))
+		(bind '(y y1) (select-lines))
 		(each! y y1 (lambda (line)
 				(defq idx -1)
 				(while (and
@@ -100,7 +121,7 @@
 (defun action-right-tab ()
 	(undoable
 		(defq tab (pad "" (. buffer :get_tab_width) "        "))
-		(bind '(y y1) (line-selection))
+		(bind '(y y1) (select-lines))
 		(each! y y1 (lambda (line)
 				(unless (eql line "")
 					(.-> buffer
@@ -122,14 +143,7 @@
 
 (defun action-reflow ()
 	(undoable
-		(defq y (some! *cursor_y* 0 nil
-					(# (if (= (length %0) 0) (inc _)))
-				(list (. buffer :get_text_lines)))
-			y1 (some! *cursor_y* (bind '(w h) (. buffer :get_size)) nil
-					(# (if (= (length %0) 0) _))
-				(list (. buffer :get_text_lines))))
-		(unless y (setq y 0))
-		(unless y1 (setq y1 h))
+		(bind '(y y1) (select-paragraph buffer))
 		(each (lambda (line) (.-> buffer (:insert line) :break))
 			(. (. buffer :get_syntax) :text_flow
 				(split (.-> buffer (:set_cursor 0 y) (:cut 0 y1)) (const (cat " " (ascii-char +char_lf))))
@@ -231,13 +245,7 @@
 	(refresh))
 
 (defun action-select-word ()
-	(defq line (. *current_buffer* :get_text_line *cursor_y*)
-		x (some! *cursor_x* 0 nil (#
-			(if (find %0 " ()") (inc _))) (list line))
-		x1 (some! *cursor_x* -1 nil (#
-			(if (find %0 " ()") _)) (list line)))
-	(unless x (setq x 0))
-	(unless x1 (setq x1 (length line)))
+	(bind '(x x1) (select-word *current_buffer*))
 	(setq *anchor_x* x *anchor_y* *cursor_y* *shift_select* t)
 	(. *current_buffer* :set_cursor x1 *cursor_y*)
 	(refresh))
@@ -248,16 +256,9 @@
 	(refresh))
 
 (defun action-select-paragraph ()
-	(defq y (some! *cursor_y* 0 nil
-				(# (if (= (length %0) 0) (inc _)))
-			(list (. (defq buffer *current_buffer*) :get_text_lines)))
-		y1 (some! *cursor_y* (bind '(w h) (. buffer :get_size)) nil
-				(# (if (= (length %0) 0) _))
-			(list (. buffer :get_text_lines))))
-	(unless y (setq y 0))
-	(unless y1 (setq y1 h))
+	(bind '(y y1) (select-paragraph *current_buffer*))
 	(setq *anchor_x* 0 *anchor_y* y *shift_select* t)
-	(. buffer :set_cursor 0 y1)
+	(. *current_buffer* :set_cursor 0 y1)
 	(refresh))
 
 (defun action-select-block ()
@@ -422,7 +423,7 @@
 (defun action-ordered ()
 	(when (selection?)
 		(undoable
-			(bind '(y y1) (line-selection))
+			(bind '(y y1) (select-lines))
 			(setq *anchor_x* 0 *anchor_y* y)
 			(. buffer :set_cursor 0 y1)
 			(defq text (cat (join
@@ -434,7 +435,7 @@
 (defun action-ordered-unique ()
 	(when (selection?)
 		(undoable
-			(bind '(y y1) (line-selection))
+			(bind '(y y1) (select-lines))
 			(setq *anchor_x* 0 *anchor_y* y)
 			(. buffer :set_cursor 0 y1)
 			(defq text (cat (join
