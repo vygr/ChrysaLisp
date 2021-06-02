@@ -19,6 +19,9 @@
 	(enum prev next close_buffer save_all save new)
 	(enum find_down find_up replace replace_all))
 
+(enums +select 0
+	(enum main tip))
+
 (defq *current_file* nil *selected_file_node* nil *selected_open_node* nil
 	*vdu_width* 80 *vdu_height* 40 *meta_map* (xmap) *underlay* (list)
 	*open_files* (list) *syntax* (Syntax)
@@ -27,12 +30,14 @@
 		(const (<< (canvas-from-argb32 +argb_grey6 15) 48))) (str-alloc 8192)))
 	+not_selected (nums-sub +selected +selected)
 	+bracket_char (nums 0x7f) +state_filename "editor_open_files"
-	+click_time 400000 then (pii-time) click_count 0)
+	+click_time 400000 then (pii-time) click_count 0
+	+tip_time 1000000 tip_id +max_long tip nil
+	select (list (task-mailbox) (mail-alloc-mbox)))
 
 (ui-window *window* (:color +argb_grey1)
 	(ui-title-bar *title* "Edit" (0xea19 0xea1b 0xea1a) +event_close)
 	(ui-flow _ (:flow_flags +flow_right_fill)
-		(ui-tool-bar _ ()
+		(ui-tool-bar edit_toolbar ()
 			(ui-buttons (0xe9fe 0xe99d 0xe9ff
 				0xea08 0xe9ca 0xe9c9
 				0xe909 0xe90d 0xe90a 0xe90b
@@ -40,23 +45,20 @@
 				0xea36 0xea33 0xea27 0xea28) +event_undo))
 		(ui-backdrop _ (:color (const *env_toolbar_col*))))
 	(ui-flow _ (:flow_flags +flow_right_fill)
-		(ui-tool-bar _ ()
+		(ui-tool-bar buffer_toolbar (:color (const *env_toolbar2_col*))
 			(ui-buttons (0xe91d 0xe91e 0xe929
-					0xe97e 0xea07 0xe9f0) +event_prev
-				(:color (const *env_toolbar2_col*))))
+					0xe97e 0xea07 0xe9f0) +event_prev))
 		(ui-grid _ (:grid_width 3 :grid_height 1)
 			(. (ui-textfield *name_text* (:hint_text "new file" :clear_text "" :color +argb_white))
 				:connect +event_new)
 			(ui-flow _ (:flow_flags +flow_right_fill)
-				(ui-tool-bar _ ()
-					(ui-buttons (0xe914 0xe91b) +event_find_down
-						(:color (const *env_toolbar2_col*))))
+				(ui-tool-bar find_toolbar (:color (const *env_toolbar2_col*))
+					(ui-buttons (0xe914 0xe91b) +event_find_down))
 				(. (ui-textfield *find_text* (:hint_text "find" :clear_text "" :color +argb_white))
 					:connect +event_find_down))
 			(ui-flow _ (:flow_flags +flow_right_fill)
-				(ui-tool-bar _ ()
-					(ui-buttons (0xe95c 0xe95e) +event_replace
-						(:color (const *env_toolbar2_col*))))
+				(ui-tool-bar replace_toolbar (:color (const *env_toolbar2_col*))
+					(ui-buttons (0xe95c 0xe95e) +event_replace))
 				(. (ui-textfield *replace_text* (:hint_text "replace" :clear_text "" :color +argb_white))
 					:connect +event_replace))))
 	(ui-flow _ (:flow_flags +flow_right_fill)
@@ -288,6 +290,27 @@
 	(.-> *open_tree_scroll* :layout :dirty_all)
 	(.-> *file_tree_scroll* :layout :dirty_all))
 
+(defun tooltips ()
+	(each (lambda (button tip_text) (def button :tip_text tip_text))
+		(. edit_toolbar :children)
+		'("undo" "redo" "rewind" "cut" "copy" "paste" "reflow" "select paragraph"
+			"undent" "indent" "select form" "start form" "end form" "to upper"
+			"to lower" "ordered" "unique"))
+	(each (lambda (button tip_text) (def button :tip_text tip_text))
+		(. buffer_toolbar :children)
+		'("previous" "next" "close" "save all" "save" "new"))
+	(each (lambda (button tip_text) (def button :tip_text tip_text))
+		(. find_toolbar :children)
+		'("find down" "find up"))
+	(each (lambda (button tip_text) (def button :tip_text tip_text))
+		(. replace_toolbar :children)
+		'("replace" "replace all")))
+
+(defun clear-tip ()
+	(if tip (. tip :hide))
+	(setq tip nil tip_id +max_long)
+	(mail-timeout (elem +select_tip select) 0))
+
 ;import actions and bindings
 (import "apps/edit/actions.inc")
 
@@ -299,77 +322,100 @@
 	(populate-open-tree)
 	(populate-vdu nil)
 	(select-node nil)
+	(tooltips)
 	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :pref_size)))
 	(gui-add (. *window* :change x y w h))
 	(refresh)
 	(while *running*
+		(defq *msg* (mail-read (elem (defq idx (mail-select select)) select)))
 		(cond
-			((defq id (getf (defq *msg* (mail-read (task-mailbox))) +ev_msg_target_id)
-					action (. event_map :find id))
-				;call bound event action
-				(action))
-			((and (= id (. *vdu* :get_id)) (= (getf *msg* +ev_msg_type) +ev_type_mouse))
-				;mouse event on display
-				(bind '(w h) (. *vdu* :char_size))
-				(defq x (getf *msg* +ev_msg_mouse_rx) y (getf *msg* +ev_msg_mouse_ry))
-				(setq x (if (>= x 0) x (- x w)) y (if (>= y 0) y (- y h)))
-				(setq x (+ *scroll_x* (/ x w)) y (+ *scroll_y* (/ y h)))
+			((= idx +select_main)
+				;main mailbox
 				(cond
-					((/= (getf *msg* +ev_msg_mouse_buttons) 0)
-						;mouse button is down
-						(case mouse_state
-							(:d ;was down last time
-								(bind '(x y) (. *current_buffer* :constrain x y))
-								(. *current_buffer* :set_cursor x y))
-							(:u ;was up last time
-								(bind '(x y) (. *current_buffer* :constrain x y))
-								(. *current_buffer* :set_cursor x y)
-								(setq *anchor_x* x *anchor_y* y *shift_select* t mouse_state :d))))
-					(t  ;mouse button is up
-						(case mouse_state
-							(:d ;was down last time
-								(defq now (pii-time))
-								(if (< (- now then) +click_time)
-									(setq click_count (inc click_count))
-									(setq click_count 0))
-								(setq then now mouse_state :u)
-								(cond
-									((= click_count 1)
-										(action-select-word))
-									((= click_count 2)
-										(action-select-line))
-									((= click_count 3)
-										(action-select-paragraph))))
-							(:u ;was up last time
-								))))
-				(refresh))
-			((and (not (Textfield? (. *window* :find_id id)))
-					(= (getf *msg* +ev_msg_type) +ev_type_key)
-					(> (getf *msg* +ev_msg_key_keycode) 0))
-				;key event
-				(defq key (getf *msg* +ev_msg_key_key) mod (getf *msg* +ev_msg_key_mod))
-				(cond
-					((/= 0 (logand mod (const
-							(+ +ev_key_mod_control +ev_key_mod_option +ev_key_mod_command))))
-						;call bound control/command key action
-						(if (defq action (. key_map_control :find key)) (action)))
-					((/= 0 (logand mod +ev_key_mod_shift))
-						;call bound shift key action, else insert
-						(cond
-							((defq action (. key_map_shift :find key)) (action))
-							((<= +char_space key +char_tilda) (action-insert key))))
-					((defq action (. key_map :find key))
-						;call bound key action
+					((defq id (getf *msg* +ev_msg_target_id) action (. event_map :find id))
+						;call bound event action
 						(action))
-					((<= +char_space key +char_tilda)
-						;insert the char
-						(action-insert key))))
-			(t  ;gui event
-				(. *window* :event *msg*)))
-		;update meta data
-		(bind '(*cursor_x* *cursor_y*) (. *current_buffer* :get_cursor))
-		(. *meta_map* :insert *current_file*
-			(list *cursor_x* *cursor_y* *anchor_x* *anchor_y*
-				*scroll_x* *scroll_y* *shift_select* *current_buffer*)))
+					((and (= id (. *vdu* :get_id)) (= (getf *msg* +ev_msg_type) +ev_type_mouse))
+						;mouse event on display
+						(clear-tip)
+						(bind '(w h) (. *vdu* :char_size))
+						(defq x (getf *msg* +ev_msg_mouse_rx) y (getf *msg* +ev_msg_mouse_ry))
+						(setq x (if (>= x 0) x (- x w)) y (if (>= y 0) y (- y h)))
+						(setq x (+ *scroll_x* (/ x w)) y (+ *scroll_y* (/ y h)))
+						(cond
+							((/= (getf *msg* +ev_msg_mouse_buttons) 0)
+								;mouse button is down
+								(case mouse_state
+									(:d ;was down last time
+										(bind '(x y) (. *current_buffer* :constrain x y))
+										(. *current_buffer* :set_cursor x y))
+									(:u ;was up last time
+										(bind '(x y) (. *current_buffer* :constrain x y))
+										(. *current_buffer* :set_cursor x y)
+										(setq *anchor_x* x *anchor_y* y *shift_select* t mouse_state :d))))
+							(t  ;mouse button is up
+								(case mouse_state
+									(:d ;was down last time
+										(defq now (pii-time))
+										(if (< (- now then) +click_time)
+											(setq click_count (inc click_count))
+											(setq click_count 0))
+										(setq then now mouse_state :u)
+										(cond
+											((= click_count 1)
+												(action-select-word))
+											((= click_count 2)
+												(action-select-line))
+											((= click_count 3)
+												(action-select-paragraph))))
+									(:u ;was up last time
+										))))
+						(refresh))
+					((and (not (Textfield? (. *window* :find_id id)))
+							(= (getf *msg* +ev_msg_type) +ev_type_key)
+							(> (getf *msg* +ev_msg_key_keycode) 0))
+						;key event
+						(clear-tip)
+						(defq key (getf *msg* +ev_msg_key_key) mod (getf *msg* +ev_msg_key_mod))
+						(cond
+							((/= 0 (logand mod (const
+									(+ +ev_key_mod_control +ev_key_mod_option +ev_key_mod_command))))
+								;call bound control/command key action
+								(if (defq action (. key_map_control :find key)) (action)))
+							((/= 0 (logand mod +ev_key_mod_shift))
+								;call bound shift key action, else insert
+								(cond
+									((defq action (. key_map_shift :find key)) (action))
+									((<= +char_space key +char_tilda) (action-insert key))))
+							((defq action (. key_map :find key))
+								;call bound key action
+								(action))
+							((<= +char_space key +char_tilda)
+								;insert the char
+								(action-insert key))))
+					(t  ;gui event, plus check for tip text
+						(clear-tip)
+						(. *window* :event *msg*)
+						(when (and (= (getf *msg* +ev_msg_type) +ev_type_mouse)
+								(= (getf *msg* +ev_msg_mouse_buttons) 0))
+							;hovering mouse
+							(when (def? :tip_text (. *window* :find_id id))
+								(mail-timeout (elem +select_tip select) +tip_time)
+								(setq tip_id id)))))
+				;update meta data
+				(bind '(*cursor_x* *cursor_y*) (. *current_buffer* :get_cursor))
+				(. *meta_map* :insert *current_file*
+					(list *cursor_x* *cursor_y* *anchor_x* *anchor_y*
+						*scroll_x* *scroll_y* *shift_select* *current_buffer*)))
+			((= idx +select_tip)
+				;tip timeout mail
+				(when (defq tip_text (def? :tip_text (. *window* :find_id tip_id)))
+					(def (setq tip (Label)) :text tip_text :color +argb_white
+						:font *env_tip_font* :border 0 :flow_flags 0)
+					(. tip :set_flags 0 +view_flag_solid)
+					(bind '(x y w h) (apply view-locate (push (. tip :pref_size) :bottom)))
+					(gui-add (. tip :change x y w h))))))
+	(clear-tip)
 	(. *window* :hide)
+	(each mail-free-mbox (slice 1 -1 select))
 	(save-open-files))
