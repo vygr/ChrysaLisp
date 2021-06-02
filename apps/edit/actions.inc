@@ -159,7 +159,8 @@
 		(bind '(y y1) (select-paragraph))
 		(each (lambda (line) (.-> buffer (:insert line) :break))
 			(. (. buffer :get_syntax) :text_flow
-				(split (.-> buffer (:set_cursor 0 y) (:cut 0 y1)) (const (cat " " (ascii-char +char_lf))))
+				(split (.-> buffer (:set_cursor 0 y) (:cut 0 y1))
+					(const (cat " " (ascii-char +char_lf))))
 				(. buffer :get_wrap_width)))
 		(bind '(x y) (. buffer :get_cursor))
 		(bind '(x y) (. buffer :constrain x (inc y)))
