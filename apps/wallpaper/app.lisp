@@ -28,7 +28,7 @@
 
 (defun main ()
 	(defq images_info (map canvas-info *env_wallpaper_images*) wallpaper (View)
-			screen (penv (gui-add-back wallpaper)))
+			screen (penv (gui-add-back wallpaper)) mouse_state :u)
 	(each (lambda (_)
 		(open-child (app-path _) +kn_call_open)) *env_launcher_auto_apps*)
 	(refresh-wallpaper)
@@ -38,6 +38,21 @@
 					(= (getf msg +ev_msg_type) +ev_type_gui))
 				;resized GUI
 				(refresh-wallpaper))
-			((and (= (getf msg +ev_msg_type) +ev_type_mouse) (= (getf msg +ev_msg_mouse_buttons) 0))
-				;run launcher
-				(open-child (app-path "launcher") +kn_call_open)))))
+			((= (getf msg +ev_msg_type) +ev_type_mouse)
+				;mouse event
+				(cond
+					((/= (getf msg +ev_msg_mouse_buttons) 0)
+						;mouse button is down
+						(case mouse_state
+							(:d ;was down last time
+								)
+							(:u ;was up last time
+								(setq mouse_state :d))))
+					(t  ;mouse button is up
+						(case mouse_state
+							(:d ;was down last time
+								;run launcher
+								(open-child (app-path "launcher") +kn_call_open)
+								(setq mouse_state :u))
+							(:u ;was up last time
+								))))))))
