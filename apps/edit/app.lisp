@@ -348,11 +348,13 @@
 								(case mouse_state
 									(:d ;was down last time
 										(bind '(x y) (. *current_buffer* :constrain x y))
-										(. *current_buffer* :set_cursor x y))
+										(. *current_buffer* :set_cursor x y)
+										(refresh))
 									(:u ;was up last time
 										(bind '(x y) (. *current_buffer* :constrain x y))
 										(. *current_buffer* :set_cursor x y)
-										(setq *anchor_x* x *anchor_y* y *shift_select* t mouse_state :d))))
+										(setq *anchor_x* x *anchor_y* y *shift_select* t mouse_state :d)
+										(refresh))))
 							(t  ;mouse button is up
 								(case mouse_state
 									(:d ;was down last time
@@ -367,10 +369,10 @@
 											((= click_count 2)
 												(action-select-line))
 											((= click_count 3)
-												(action-select-paragraph))))
+												(action-select-paragraph)))
+										(refresh))
 									(:u ;was up last time
-										))))
-						(refresh))
+										)))))
 					((and (not (Textfield? (. *window* :find_id id)))
 							(= (getf *msg* +ev_msg_type) +ev_type_key)
 							(> (getf *msg* +ev_msg_key_keycode) 0))
