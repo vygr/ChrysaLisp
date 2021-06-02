@@ -504,6 +504,12 @@
 (. scroll :layout) -> scroll
 ```
 
+### scroll :mouse_wheel
+
+```code
+(. scroll :mouse_wheel event) -> scroll
+```
+
 ### scroll :pref_size
 
 ```code

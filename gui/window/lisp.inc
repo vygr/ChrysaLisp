@@ -2,7 +2,7 @@
 ; window widget
 ;;;;;;;;;;;;;;;
 
-(import "gui/view/lisp.inc")
+(import "gui/scroll/lisp.inc")
 
 (defclass Window () (View)
 	; (Window) -> window
@@ -119,6 +119,9 @@
 					(if (>= (getf event +ev_msg_key_keycode) 0)
 						(if (def? :key_down (def? :vtable target)) (. target :key_down event))
 						(if (def? :key_up (def? :vtable target)) (. target :key_up event))))
+				((= type +ev_type_wheel)
+					(while (and target (not (Scroll? target))) (setq target (penv target)))
+					(and target (def? :mouse_wheel (def? :vtable target)) (. target :mouse_wheel event)))
 				((= type +ev_type_action)
 					(if (def? :action (def? :vtable target)) (. target :action event)))))
 		this)

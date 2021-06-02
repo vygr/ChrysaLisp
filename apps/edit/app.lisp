@@ -374,7 +374,7 @@
 									(:u ;mouse hover event
 										)))))
 					((and (= id (. *vdu* :get_id)) (= (getf *msg* +ev_msg_type) +ev_type_wheel))
-						;wheel event on display
+						;wheel event on display area
 						(clear-tip)
 						(bind '(x y ax ay sx sy ss buffer) (. *meta_map* :find *current_file*))
 						(setq sx (+ *scroll_x* (getf *msg* +ev_msg_wheel_x))

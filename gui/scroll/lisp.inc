@@ -38,10 +38,8 @@
 		(defq hslider (get :hslider this) vslider (get :vslider this)
 			mw (def? :min_width this) mh (def? :min_height this))
 		(setd mw 0 mh 0)
-		(if vslider
-			(setq mw (+ mw (pop (. vslider :pref_size)))))
-		(if hslider
-			(setq mh (+ mh (pop (. hslider :pref_size)))))
+		(if vslider (setq mw (+ mw (pop (. vslider :pref_size)))))
+		(if hslider (setq mh (+ mh (pop (. hslider :pref_size)))))
 		(list mw mh))
 
 	(defmethod :layout (this)
@@ -65,11 +63,18 @@
 			(when vslider
 				(unless (setq vval (get :value vslider)) (setq vval 0))
 				(defq mo (max 0 (- ch (- h sh))))
-				(def vslider :maximum mo :portion (- h sh) :value (setq vval (min vval mo))))
+				(def vslider :maximum mo :portion (- h sh) :value (setq vval (max 0 (min vval mo)))))
 			(when hslider
 				(unless (setq hval (get :value hslider)) (setq hval 0))
 				(defq mo (max 0 (- cw (- w sw))))
-				(def hslider :maximum mo :portion (- w sw) :value (setq hval (min hval mo))))
+				(def hslider :maximum mo :portion (- w sw) :value (setq hval (max 0 (min hval mo)))))
 			(. child :set_bounds (neg hval) (neg vval) cw ch))
 		this)
+
+	(defmethod :mouse_wheel (this event)
+		; (. scroll :mouse_wheel event) -> scroll
+		(defq hslider (get :hslider this) vslider (get :vslider this))
+		(if hslider (def hslider :value (+ (get :value hslider) (* 16 (getf event +ev_msg_wheel_x)))))
+		(if vslider (def vslider :value (- (get :value vslider) (* 16 (getf event +ev_msg_wheel_y)))))
+		(. this :action event))
 	)
