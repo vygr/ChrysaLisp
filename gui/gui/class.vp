@@ -143,9 +143,14 @@
 		(switch)
 		(vpcase {event.sdl_common_event_type = SDL_MOUSEMOTION})
 			;update mouse state
-			(assign {event.sdl_mouse_motion_event_state} {user->local_mouse_buttons})
 			(assign {event.sdl_mouse_button_event_x} {user->local_statics->statics_gui_mouse_x})
 			(assign {event.sdl_mouse_button_event_y} {user->local_statics->statics_gui_mouse_y})
+			(assign {event.sdl_mouse_motion_event_state} {user->local_mouse_buttons})
+			(vpifnot {event.sdl_mouse_motion_event_state})
+				(call 'view :hit_tree {user->local_statics->statics_gui_screen,
+					event.sdl_mouse_button_event_x, event.sdl_mouse_button_event_y} {_, view, _, _})
+				(assign {view->view_id} {user->local_mouse_id})
+			(endif)
 
 			;send event message
 		(vp-label 'send_event)
