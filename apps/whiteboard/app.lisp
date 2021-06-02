@@ -199,53 +199,51 @@
 					((= id +event_redo)
 						;undo
 						(redo))
-					((= id (. overlay_canvas :get_id))
-						;event for canvas
-						(when (= (getf msg +ev_msg_type) +ev_type_mouse)
-							;mouse event in canvas
-							(defq new_point (path (i2f (getf msg +ev_msg_mouse_rx))
-								(i2f (getf msg +ev_msg_mouse_ry))))
-							(cond
-								((/= (getf msg +ev_msg_mouse_buttons) 0)
-									;mouse button is down
-									(case last_state
-										(:d	;was down last time, what draw mode ?
-											(cond
-												((= stroke_mode +event_pen)
-													;pen mode, so extend last stroke ?
-													(defq stroke (elem +path_path (elem -2 overlay_paths))
-														mid_vec (vec-sub new_point last_point))
-													(when (>= (vec-length-squared mid_vec) (* stroke_radius stroke_radius))
-														(defq mid_point (vec-add last_point (vec-scale mid_vec 0.5)))
-														(path-gen-quadratic
-															(elem 0 last_mid_point) (elem 1 last_mid_point)
-															(elem 0 last_point) (elem 1 last_point)
-															(elem 0 mid_point) (elem 1 mid_point)
-															(const eps) stroke)
-														(path-filter (const tol) stroke stroke)
-														(setq last_point new_point last_mid_point mid_point)
-														(redraw-layers +layer_overlay)))
-												(t	;a shape mode
-													(elem-set +path_path (elem -2 overlay_paths) (cat last_point new_point))
+					((and (= id (. overlay_canvas :get_id)) (= (getf msg +ev_msg_type) +ev_type_mouse))
+						;mouse event for canvas
+						(defq new_point (path (i2f (getf msg +ev_msg_mouse_rx))
+							(i2f (getf msg +ev_msg_mouse_ry))))
+						(cond
+							((/= (getf msg +ev_msg_mouse_buttons) 0)
+								;mouse button is down
+								(case last_state
+									(:d	;was down last time, what draw mode ?
+										(cond
+											((= stroke_mode +event_pen)
+												;pen mode, so extend last stroke ?
+												(defq stroke (elem +path_path (elem -2 overlay_paths))
+													mid_vec (vec-sub new_point last_point))
+												(when (>= (vec-length-squared mid_vec) (* stroke_radius stroke_radius))
+													(defq mid_point (vec-add last_point (vec-scale mid_vec 0.5)))
+													(path-gen-quadratic
+														(elem 0 last_mid_point) (elem 1 last_mid_point)
+														(elem 0 last_point) (elem 1 last_point)
+														(elem 0 mid_point) (elem 1 mid_point)
+														(const eps) stroke)
+													(path-filter (const tol) stroke stroke)
+													(setq last_point new_point last_mid_point mid_point)
 													(redraw-layers +layer_overlay)))
-											)
-										(:u	;was up last time, so start new stroke
-											(setq last_state :d last_point new_point last_mid_point new_point)
-											(push overlay_paths (list stroke_mode stroke_col stroke_radius new_point))
-											(redraw-layers +layer_overlay))))
-								(t	;mouse button is up
-									(case last_state
-										(:d	;was down last time, so last point and commit stroke
-											(snapshot)
-											(setq last_state :u)
-											(defq stroke (elem +path_path (elem -2 overlay_paths)))
-											(push stroke (elem 0 new_point) (elem 1 new_point))
-											(path-filter 0.5 stroke stroke)
-											(each commit overlay_paths)
-											(clear overlay_paths)
-											(redraw-layers +layer_all))
-										(:u	;was up last time, so we are hovering
-											t))))))
+											(t	;a shape mode
+												(elem-set +path_path (elem -2 overlay_paths) (cat last_point new_point))
+												(redraw-layers +layer_overlay)))
+										)
+									(:u	;was up last time, so start new stroke
+										(setq last_state :d last_point new_point last_mid_point new_point)
+										(push overlay_paths (list stroke_mode stroke_col stroke_radius new_point))
+										(redraw-layers +layer_overlay))))
+							(t	;mouse button is up
+								(case last_state
+									(:d	;was down last time, so last point and commit stroke
+										(snapshot)
+										(setq last_state :u)
+										(defq stroke (elem +path_path (elem -2 overlay_paths)))
+										(push stroke (elem 0 new_point) (elem 1 new_point))
+										(path-filter 0.5 stroke stroke)
+										(each commit overlay_paths)
+										(clear overlay_paths)
+										(redraw-layers +layer_all))
+									(:u	;was up last time, so we are hovering
+										t)))))
 					(t	(. mywindow :event msg))))
 			((= idx +select_picker)
 				;save/load picker responce

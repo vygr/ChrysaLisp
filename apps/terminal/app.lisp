@@ -142,6 +142,14 @@
 						(defq cx (if cmd *line_pos* (+ (length *env_terminal_prompt*) *line_pos*))
 							cy (dec (length text_buf)))
 						(. vdu :load text_buf 0 (get :value slider) cx cy))
+					((= (getf msg +ev_msg_type) +ev_type_wheel)
+						;wheel event
+						(defq cx (if cmd *line_pos* (+ (length *env_terminal_prompt*) *line_pos*))
+							cy (dec (length text_buf)))
+						(set slider :value (min (get :maximum slider) (max 0
+							(- (get :value slider) (getf msg +ev_msg_wheel_y)))))
+						(. slider :dirty)
+						(. vdu :load text_buf 0 (get :value slider) cx cy))
 					(t	;gui event
 						(. mywindow :event msg)
 						(and (= (getf msg +ev_msg_type) +ev_type_key)
