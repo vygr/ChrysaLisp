@@ -11,7 +11,11 @@
 	(enum tree_action)
 	(enum file_folder_action file_leaf_action)
 	(enum open_folder_action open_leaf_action)
-	(enum undo redo rewind cut copy paste reflow tab_left tab_right)
+	(enum undo redo rewind
+		cut copy paste
+		reflow paragraph tab_left tab_right
+		block bracket_left bracket_right
+		toupper tolower ordered unique)
 	(enum prev next close_buffer save_all save new)
 	(enum find_down find_up replace replace_all))
 
@@ -29,22 +33,31 @@
 	(ui-title-bar *title* "Edit" (0xea19 0xea1b 0xea1a) +event_close)
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-tool-bar _ ()
-			(ui-buttons (0xe9fe 0xe99d 0xe9ff 0xea08 0xe9ca 0xe9c9 0xe909 0xe90a 0xe90b) +event_undo)
-			(ui-buttons (0xe91d 0xe91e 0xe929 0xe97e 0xea07 0xe9f0) +event_prev
+			(ui-buttons (0xe9fe 0xe99d 0xe9ff
+				0xea08 0xe9ca 0xe9c9
+				0xe909 0xe90d 0xe90a 0xe90b
+				0xe955 0xe93c 0xe93d
+				0xea36 0xea33 0xea27 0xea28) +event_undo)))
+	(ui-flow _ (:flow_flags +flow_right_fill)
+		(ui-tool-bar _ ()
+			(ui-buttons (0xe91d 0xe91e 0xe929
+					0xe97e 0xea07 0xe9f0) +event_prev
 				(:color (const *env_toolbar2_col*))))
-		(. (ui-textfield *name_text* (:hint_text "new file" :clear_text "" :color +argb_white))
-			:connect +event_new))
-	(ui-grid _ (:grid_width 2 :grid_height 1)
-		(ui-flow _ (:flow_flags +flow_right_fill)
-			(ui-tool-bar _ ()
-				(ui-buttons (0xe914 0xe91b) +event_find_down))
-			(. (ui-textfield *find_text* (:hint_text "find" :clear_text "" :color +argb_white))
-				:connect +event_find_down))
-		(ui-flow _ (:flow_flags +flow_right_fill)
-			(ui-tool-bar _ ()
-				(ui-buttons (0xe95c 0xe95e) +event_replace))
-			(. (ui-textfield *replace_text* (:hint_text "replace" :clear_text "" :color +argb_white))
-				:connect +event_replace)))
+		(ui-grid _ (:grid_width 3 :grid_height 1)
+			(. (ui-textfield *name_text* (:hint_text "new file" :clear_text "" :color +argb_white))
+				:connect +event_new)
+			(ui-flow _ (:flow_flags +flow_right_fill)
+				(ui-tool-bar _ ()
+					(ui-buttons (0xe914 0xe91b) +event_find_down
+						(:color (const *env_toolbar2_col*))))
+				(. (ui-textfield *find_text* (:hint_text "find" :clear_text "" :color +argb_white))
+					:connect +event_find_down))
+			(ui-flow _ (:flow_flags +flow_right_fill)
+				(ui-tool-bar _ ()
+					(ui-buttons (0xe95c 0xe95e) +event_replace
+						(:color (const *env_toolbar2_col*))))
+				(. (ui-textfield *replace_text* (:hint_text "replace" :clear_text "" :color +argb_white))
+					:connect +event_replace))))
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-flow _ (:flow_flags +flow_stack_fill)
 			(ui-grid _ (:grid_width 1 :grid_height 2 :color +argb_grey14)

@@ -66,11 +66,8 @@
 		(bind '(x y) (. this :get_cursor))
 		(bind '(sx sy) (. this :constrain x y))
 		(bind '(sx1 sy1) (. this :constrain anchor_x anchor_y))
-		(if (> sy sy1)
-			(defq sx (logxor sx sx1) sx1 (logxor sx sx1) sx (logxor sx sx1)
-				sy (logxor sy sy1) sy1 (logxor sy sy1) sy (logxor sy sy1)))
-		(and (= sy sy1) (> sx sx1)
-			(defq sx (logxor sx sx1) sx1 (logxor sx sx1) sx (logxor sx sx1)))))
+		(if (> sy sy1) (defq st sx sx sx1 sx1 st st sy sy sy1 sy1 st))
+		(and (= sy sy1) (> sx sx1) (defq st sx sx sx1 sx1 st))))
 
 (defmacro select-buffer (&rest _)
 	`(progn

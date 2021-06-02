@@ -1,12 +1,12 @@
 ;module
 (env-push)
 
-(defmacro undoable (&rest body)
+(defmacro undoable (&rest _)
 	`(progn
 		(. (defq buffer *current_buffer*) :push_undo
 			(list :mark (defq mark (. buffer :next_mark)))
 			(list :cursor *cursor_x* *cursor_y*))
-		~body
+		~_
 		(. buffer :push_undo (list :mark mark))))
 
 (defun selection? ()
@@ -14,11 +14,8 @@
 
 (defun sort-selection ()
 	(defq sx *cursor_x* sy *cursor_y* sx1 *anchor_x* sy1 *anchor_y*)
-	(if (> sy sy1)
-		(defq sx (logxor sx sx1) sx1 (logxor sx sx1) sx (logxor sx sx1)
-			sy (logxor sy sy1) sy1 (logxor sy sy1) sy (logxor sy sy1)))
-	(and (= sy sy1) (> sx sx1)
-		(defq sx (logxor sx sx1) sx1 (logxor sx sx1) sx (logxor sx sx1)))
+	(if (> sy sy1) (defq st sx sx sx1 sx1 st st sy sy sy1 sy1 st))
+	(and (= sy sy1) (> sx sx1) (defq st sx sx sx1 sx1 st))
 	(list sx sy sx1 sy1))
 
 (defun select-lines ()
@@ -190,14 +187,14 @@
 		(undoable
 			;trim front
 			(defq y (some! 0 h nil
-						(# (unless (= (length %0) 0) _))
-					(list (. buffer :get_text_lines))))
+					(# (unless (= (length %0) 0) _))
+				(list (. buffer :get_text_lines))))
 			(unless y (setq y h))
 			(.-> buffer (:set_cursor 0 y) (:cut 0 0))
 			;trim end
 			(defq y (some! (bind '(w h) (. buffer :get_size)) 0 nil
-						(# (unless (= (length %0) 0) (inc _)))
-					(list (. buffer :get_text_lines))))
+					(# (unless (= (length %0) 0) (inc _)))
+				(list (. buffer :get_text_lines))))
 			(unless y (setq y 0))
 			(.-> buffer (:set_cursor 0 y) (:cut 0 h))
 			;trim lines
@@ -479,6 +476,14 @@ event_map (xmap-kv
 	+event_tab_left action-left-tab
 	+event_tab_right action-right-tab
 	+event_reflow action-reflow
+	+event_paragraph action-select-paragraph
+	+event_block action-select-block
+	+event_bracket_left action-left-bracket
+	+event_bracket_right action-right-bracket
+	+event_toupper action-to-upper
+	+event_tolower action-to-lower
+	+event_ordered action-ordered
+	+event_unique action-ordered-unique
 	+event_layout action-layout
 	+event_xscroll action-xscroll
 	+event_yscroll action-yscroll
