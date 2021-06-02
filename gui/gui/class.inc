@@ -24,7 +24,7 @@
 (defcvar 'num_old_regions 0)
 
 (def-enum ev_type 0
-	(enum mouse key action gui))
+	(enum mouse key action gui wheel))
 
 (def-struct ev_msg 0
 	(ulong target_id type))
@@ -32,6 +32,10 @@
 (def-struct ev_msg_mouse ev_msg_size
 	(uint buttons)
 	(int x y rx ry))
+
+(def-struct ev_msg_wheel ev_msg_size
+	(uint direction)
+	(int x y))
 
 (def-struct ev_msg_key ev_msg_size
 	(uint keycode key mod))

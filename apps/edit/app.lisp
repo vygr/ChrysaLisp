@@ -171,7 +171,7 @@
 	(bind '(w h) (. buffer :get_size))
 	(defq smaxx (max 0 (- w *vdu_width* -1))
 		smaxy (max 0 (- h *vdu_height* -1))
-		sx (min sx smaxx) sy (min sy smaxy))
+		sx (max 0 (min sx smaxx)) sy (max 0 (min sy smaxy)))
 	(def (. *xslider* :dirty) :maximum smaxx :portion *vdu_width* :value sx)
 	(def (. *yslider* :dirty) :maximum smaxy :portion *vdu_height* :value sy)
 	(. *meta_map* :insert *current_file* (list x y ax ay sx sy ss buffer))
@@ -294,8 +294,8 @@
 	(each (lambda (button tip_text) (def button :tip_text tip_text))
 		(. edit_toolbar :children)
 		'("undo" "redo" "rewind" "cut" "copy" "paste" "reflow" "select paragraph"
-			"undent" "indent" "select form" "start form" "end form" "to upper"
-			"to lower" "ordered" "unique"))
+			"undent" "indent" "select form" "start form" "end form" "upper case"
+			"lower case" "sort" "unique"))
 	(each (lambda (button tip_text) (def button :tip_text tip_text))
 		(. buffer_toolbar :children)
 		'("previous" "next" "close" "save all" "save" "new"))
@@ -346,18 +346,18 @@
 							((/= (getf *msg* +ev_msg_mouse_buttons) 0)
 								;mouse button is down
 								(case mouse_state
-									(:d ;was down last time
+									(:d ;mouse drag event
 										(bind '(x y) (. *current_buffer* :constrain x y))
 										(. *current_buffer* :set_cursor x y)
 										(refresh))
-									(:u ;was up last time
+									(:u ;mouse down event
 										(bind '(x y) (. *current_buffer* :constrain x y))
 										(. *current_buffer* :set_cursor x y)
 										(setq *anchor_x* x *anchor_y* y *shift_select* t mouse_state :d)
 										(refresh))))
 							(t  ;mouse button is up
 								(case mouse_state
-									(:d ;was down last time
+									(:d ;mouse up event
 										(defq now (pii-time))
 										(if (< (- now then) +click_time)
 											(setq click_count (inc click_count))
@@ -371,8 +371,16 @@
 											((= click_count 3)
 												(action-select-paragraph)))
 										(refresh))
-									(:u ;was up last time
+									(:u ;mouse hover event
 										)))))
+					((and (= id (. *vdu* :get_id)) (= (getf *msg* +ev_msg_type) +ev_type_wheel))
+						;wheel event on display
+						(clear-tip)
+						(bind '(x y ax ay sx sy ss buffer) (. *meta_map* :find *current_file*))
+						(setq sx (+ *scroll_x* (getf *msg* +ev_msg_wheel_x))
+							sy (- *scroll_y* (getf *msg* +ev_msg_wheel_y)))
+						(. *meta_map* :insert *current_file* (list x y ax ay sx sy ss buffer))
+						(set-sliders) (load-display))
 					((and (not (Textfield? (. *window* :find_id id)))
 							(= (getf *msg* +ev_msg_type) +ev_type_key)
 							(> (getf *msg* +ev_msg_key_keycode) 0))
@@ -417,7 +425,7 @@
 					(. tip :set_flags 0 +view_flag_solid)
 					(bind '(x y w h) (apply view-locate (push (. tip :pref_size) :bottom)))
 					(gui-add (. tip :change x y w h))))))
+	(each mail-free-mbox (slice 1 -1 select))
 	(clear-tip)
 	(. *window* :hide)
-	(each mail-free-mbox (slice 1 -1 select))
 	(save-open-files))

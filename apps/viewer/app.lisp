@@ -64,7 +64,7 @@
 	(bind '(w h) (. *current_buffer* :get_size))
 	(defq smaxx (max 0 (- w *vdu_width* -1))
 		smaxy (max 0 (- h *vdu_height* -1))
-		sx (min sx smaxx) sy (min sy smaxy))
+		sx (max 0 (min sx smaxx)) sy (max 0 (min sy smaxy)))
 	(def (. *xslider* :dirty) :maximum smaxx :portion *vdu_width* :value sx)
 	(def (. *yslider* :dirty) :maximum smaxy :portion *vdu_height* :value sy)
 	(. *meta_map* :insert *current_file* (list x y ax ay sx sy m ss))
@@ -187,6 +187,13 @@
 								(refresh))
 							(:u ;was up last time
 								)))))
+			((and (= id (. *vdu* :get_id)) (= (getf *msg* +ev_msg_type) +ev_type_wheel))
+				;wheel event on display
+				(bind '(x y ax ay sx sy ss buffer) (. *meta_map* :find *current_file*))
+				(setq sx (+ *scroll_x* (getf *msg* +ev_msg_wheel_x))
+					sy (- *scroll_y* (getf *msg* +ev_msg_wheel_y)))
+				(. *meta_map* :insert *current_file* (list x y ax ay sx sy ss buffer))
+				(set-sliders) (load-display))
 			((and (not (Textfield? (. *window* :find_id id)))
 					(= (getf *msg* +ev_msg_type) +ev_type_key)
 					(> (getf *msg* +ev_msg_key_keycode) 0))
