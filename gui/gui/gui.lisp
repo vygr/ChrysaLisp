@@ -1,4 +1,3 @@
-
 (import "sys/lisp.inc")
 
 ;can this node host a GUI ?

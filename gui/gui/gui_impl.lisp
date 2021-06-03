@@ -46,7 +46,8 @@
 						(setf view +view_owner_id owner 0)
 						(. screen :add_back view)
 						(. view :set_flags +view_flag_dirty_all +view_flag_dirty_all)))
-				(mail-send reply msg))
+				(mail-send reply msg)
+				(setq view nil msg nil owner nil reply nil))
 			((= idx +select_timer)
 				;timer event
 				(mail-timeout (elem +select_timer select) rate)
