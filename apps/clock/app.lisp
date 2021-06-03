@@ -89,7 +89,7 @@
 		(.-> clock (:fill 0) (:set_canvas_flags +canvas_flag_antialias))
 		(create-clockface (* (i2f clock_size) (i2f clock_scale))))
 	(bind '(w h) (. mywindow :pref_size))
-	(gui-add (. mywindow :change 0 0 w h))
+	(gui-add-front (. mywindow :change 0 0 w h))
 	(mail-timeout (elem +select_timer select) 1)
 	(while id
 		(defq msg (mail-read (elem (defq idx (mail-select select)) select)))
@@ -112,4 +112,4 @@
 					(set display :text (view-digital-time))
 					(.-> display :layout :dirty)))))
 	(mail-free-mbox (pop select))
-	(. mywindow :hide))
+	(gui-sub mywindow))

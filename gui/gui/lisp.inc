@@ -1,3 +1,8 @@
+;lisp bindings
+(ffi gui-info "gui/gui/lisp_info" 0)
+(ffi gui-init "gui/gui/lisp_init" 0)
+(ffi gui-update "gui/gui/lisp_update" 0)
+
 ;gui events for Lisp level (getf)
 
 (enums +ev_type 0
@@ -30,3 +35,38 @@
 	+ev_key_mod_shift (+ +ev_key_mod_left_shift +ev_key_mod_right_shift)
 	+ev_key_mod_option (+ +ev_key_mod_left_option +ev_key_mod_right_option)
 	+ev_key_mod_command (+ +ev_key_mod_left_command +ev_key_mod_right_command))
+
+;add/sub from screen
+
+(defun gui-sub (view)
+	(when (/= 0 (length (defq services (mail-enquire "GUI_SERVICE"))))
+		(setq services (filter (# (eql
+			(slice +long_size -1 (task-mailbox))
+			(slice +long_size -1 %0))) (map (# (to-net-id (elem 1 (split %0 ",")))) services)))
+		(defq mbox (mail-alloc-mbox))
+		(mail-send (pop services) (list 0 view (task-mailbox) mbox))
+		(mail-read mbox)
+		(mail-free-mbox mbox)
+		view))
+
+(defun gui-add-front (view)
+	(when (/= 0 (length (defq services (mail-enquire "GUI_SERVICE"))))
+		(setq services (filter (# (eql
+			(slice +long_size -1 (task-mailbox))
+			(slice +long_size -1 %0))) (map (# (to-net-id (elem 1 (split %0 ",")))) services)))
+		(defq mbox (mail-alloc-mbox))
+		(mail-send (pop services) (list 1 view (task-mailbox) mbox))
+		(mail-read mbox)
+		(mail-free-mbox mbox)
+		view))
+
+(defun gui-add-back (view)
+	(when (/= 0 (length (defq services (mail-enquire "GUI_SERVICE"))))
+		(setq services (filter (# (eql
+			(slice +long_size -1 (task-mailbox))
+			(slice +long_size -1 %0))) (map (# (to-net-id (elem 1 (split %0 ",")))) services)))
+		(defq mbox (mail-alloc-mbox))
+		(mail-send (pop services) (list 2 view (task-mailbox) mbox))
+		(mail-read mbox)
+		(mail-free-mbox mbox)
+		view))

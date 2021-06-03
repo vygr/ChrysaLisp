@@ -11,7 +11,7 @@
 	(ui-element sframe (elem 0 sframes)))
 
 (defun main ()
-	(defq screen (penv (gui-add view)))
+	(defq screen (penv (gui-add-front view)))
 	(while id
 		(bind '(_ _ screen_width screen_height) (. screen :get_bounds))
 		(defq index (% (inc index) (length frames))
@@ -34,6 +34,7 @@
 		(while (mail-poll (list (task-mailbox)))
 			(and (< (getf (defq msg (mail-read (task-mailbox))) +ev_msg_target_id) 0)
 				(= (getf msg +ev_msg_type) +ev_type_mouse)
+				(/= (getf msg +ev_msg_mouse_buttons) 0)
 				(setq id nil)))
 		(task-sleep 40000))
-	(. view :hide))
+	(gui-sub view))

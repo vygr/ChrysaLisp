@@ -141,7 +141,7 @@
 	(radio-select radius_buttons 0)
 	(radio-select style_buttons 0)
 	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
-	(gui-add (. mywindow :change x y w h))
+	(gui-add-front (. mywindow :change x y w h))
 	(def image_scroll :min_width min_width :min_height min_height)
 
 	;main event loop
@@ -271,5 +271,5 @@
 	;close window
 	(each mail-free-mbox (slice 1 -1 select))
 	(if picker_mbox (mail-send picker_mbox ""))
-	(. mywindow :hide)
+	(gui-sub mywindow)
 	(profile-report "Whiteboard App"))

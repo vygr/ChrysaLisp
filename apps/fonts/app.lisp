@@ -54,7 +54,7 @@
 (defun main ()
 	(win-refresh index)
 	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
-	(gui-add (. mywindow :change x y w h))
+	(gui-add-front (. mywindow :change x y w h))
 	(while (cond
 		((= (defq id (getf (defq msg (mail-read (task-mailbox))) +ev_msg_target_id)) +event_close)
 			;close button
@@ -62,4 +62,4 @@
 		((<= +event_prev id +event_next)
 			(win-refresh (% (+ index (dec (* 2 (- id +event_prev))) (length fonts)) (length fonts))))
 		(t (. mywindow :event msg))))
-	(. mywindow :hide))
+	(gui-sub mywindow))

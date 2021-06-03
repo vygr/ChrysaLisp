@@ -56,7 +56,7 @@
 
 (defun main ()
 	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
-	(gui-add (. mywindow :change x y w h))
+	(gui-add-front (. mywindow :change x y w h))
 	(reset)
 	(while id
 		(defq idx (mail-select select) msg (mail-read (elem idx select)))
@@ -92,4 +92,4 @@
 			(t (. mywindow :event msg))))
 	(mail-forget entry)
 	(mail-free-mbox (pop select))
-	(. mywindow :hide))
+	(gui-sub mywindow))

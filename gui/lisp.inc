@@ -3,9 +3,6 @@
 (import "lib/consts/colors.inc")
 
 ;lisp bindings
-(ffi gui-add "gui/gui/lisp_add" 0)
-(ffi gui-add-back "gui/gui/lisp_add_back" 0)
-(ffi gui-info "gui/gui/lisp_info" 0)
 (ffi path "class/array/lisp_path" 0)
 (import "gui/view/lisp.inc")
 (import "gui/window/lisp.inc")

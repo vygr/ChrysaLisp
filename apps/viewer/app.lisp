@@ -153,7 +153,7 @@
 		mode nil *shift_select* nil *running* t mouse_state :u)
 	(populate-file-tree)
 	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :pref_size)))
-	(gui-add (. *window* :change x y w h))
+	(gui-add-front (. *window* :change x y w h))
 	(refresh)
 	(while *running*
 		(cond
@@ -215,4 +215,4 @@
 		(bind '(*cursor_x* *cursor_y*) (. *current_buffer* :get_cursor))
 		(. *meta_map* :insert *current_file*
 			(list *cursor_x* *cursor_y* *anchor_x* *anchor_y* *scroll_x* *scroll_y* mode *shift_select*)))
-	(. *window* :hide))
+	(gui-sub *window*))

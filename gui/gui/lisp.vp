@@ -6,7 +6,7 @@
 (include "class/lisp/class.inc")
 (include "sys/statics/class.inc")
 
-(def-method 'gui :lisp_add)
+(def-method 'gui :lisp_init)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -16,35 +16,44 @@
 	;trashes
 	;r1-r14
 
-	(entry 'gui :lisp_add '(r0 r1))
+	(entry 'gui :lisp_init '(r0 r1))
 
 (errorcases
 	(call 'lisp :env_args_sig '(r1 ($ sig) 1) '(r2))
-	(gotoif '(r2 = 0) 'error1))
+	(gotoif '(r2 = 0) 'error))
 
-	(vp-push r0)
-	(list-bind-args r1 '(r0) '(:view))
-	(vp-push r0)
-	(fn-bind 'sys/statics/statics r2)
-	(call 'view :add_front '((r2 statics_gui_screen) r0))
-	(call 'sys_task :mailbox nil '(r1 r2 r3))
-	(vp-pop r0)
-	(save-net-id r0 view_owner_id r1 r2 r3)
-	(call 'view :set_flags '(r0 view_flag_dirty_all view_flag_dirty_all) '(r1 _))
-	(class/obj/ref r1 r2 2)
-	(vp-pop r0)
+	(list-bind-args r1 '(r1) '(:view))
+	(vp-push r0 r1)
 
-	(exit 'gui :lisp_add '(r0 r1))
+	;save background view for screen
+	(fn-bind 'sys/statics/statics r0)
+	(class/obj/ref r1 r2)
+	(assign '(r1) '((r0 statics_gui_screen)))
+	;temp objects
+	(call 'list :create nil '(r0))
+	(fn-bind 'sys/statics/statics r1)
+	(assign '(r0) '((r1 statics_gui_temps)))
+	;fill in lisp object tls for kernel :lisp_draw callbacks !!!
+	(assign '((r1 statics_sys_task_current_tcb) (r1 statics_sys_task_kernel_tcb)) '(r2 r3))
+	(assign '((r2 tk_node_lisp)) '(r2))
+	(assign '(r2) '((r3 tk_node_lisp)))
+	;gui priority
+	(call 'sys_task :set_priority '(2))
+
+	(vp-pop r0 r1)
+	(class/obj/ref r1 r2)
+
+	(exit 'gui :lisp_init '(r0 r1))
 	(vp-ret)
 
 (errorcases
-(vp-label 'error1)
-	(jump 'lisp :repl_error '(r0 "(gui-add view)" error_msg_wrong_types r1))
+(vp-label 'error)
+	(jump 'lisp :repl_error '(r0 "(gui-init screen)" error_msg_wrong_types r1))
 	(signature '(view)))
 
 (def-func-end)
 
-(def-method 'gui :lisp_add_back)
+(def-method 'gui :lisp_update)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -54,30 +63,24 @@
 	;trashes
 	;r1-r14
 
-	(entry 'gui :lisp_add_back '(r0 r1))
+	(entry 'gui :lisp_update '(r0 r1))
 
 (errorcases
 	(call 'lisp :env_args_sig '(r1 ($ sig) 1) '(r2))
-	(gotoif '(r2 = 0) 'error1))
+	(gotoif '(r2 = 0) 'error))
 
-	(vp-push r0)
-	(list-bind-args r1 '(r0) '(:view))
-	(vp-push r0)
-	(fn-bind 'sys/statics/statics r2)
-	(call 'view :add_back '((r2 statics_gui_screen) r0))
-	(call 'sys_task :mailbox nil '(r1 r2 r3))
-	(vp-pop r0)
-	(save-net-id r0 view_owner_id r1 r2 r3)
-	(call 'view :set_flags '(r0 view_flag_dirty_all view_flag_dirty_all) '(r1 _))
-	(class/obj/ref r1 r2 2)
-	(vp-pop r0)
+	(list-bind-args r1 '(r1) '(:view))
+	(vp-push r0 r1)
+	(call 'gui :update '(r1))
+	(vp-pop r0 r1)
+	(class/obj/ref r1 r2)
 
-	(exit 'gui :lisp_add_back '(r0 r1))
+	(exit 'gui :lisp_update '(r0 r1))
 	(vp-ret)
 
 (errorcases
-(vp-label 'error1)
-	(jump 'lisp :repl_error '(r0 "(gui-add-back view)" error_msg_wrong_types r1))
+(vp-label 'error)
+	(jump 'lisp :repl_error '(r0 "(gui-update screen)" error_msg_wrong_types r1))
 	(signature '(view)))
 
 (def-func-end)

@@ -837,12 +837,6 @@
 ### view :hide
 
 ```code
-(. view :hide)
-```
-
-### view :hide
-
-```code
 (. view :hide) -> view
 ```
 
@@ -2094,22 +2088,22 @@
 (gets-in collection key-path) -> value | nil
 ```
 
-### gui-add
-
-```code
-(gui-add view)
-```
-
-### gui-add-back
-
-```code
-(gui-add-back view)
-```
-
 ### gui-info
 
 ```code
 (gui-info)
+```
+
+### gui-init
+
+```code
+(gui-init screen)
+```
+
+### gui-update
+
+```code
+(gui-update screen)
 ```
 
 ### hash
@@ -3532,6 +3526,12 @@
 
 ```code
 (view-fit x y w h) -> (x y w h)
+```
+
+### view-hide
+
+```code
+(view-hide view)
 ```
 
 ### view-locate

@@ -58,7 +58,7 @@
 	(bind '(w h) (. right_flow :get_size))
 	(def info_scroll :min_width w :min_height h)
 	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
-	(gui-add (. mywindow :change x y w h))
+	(gui-add-front (. mywindow :change x y w h))
 	;app event loop
 	(while id
 		;next event
@@ -77,4 +77,4 @@
 		(task-sleep 10000)
 		(populate))
 	;close window
-	(. mywindow :hide))
+	(gui-sub mywindow))

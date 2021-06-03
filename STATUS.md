@@ -18,6 +18,12 @@ New `(some-rev)` added to `boot.inc`.
 
 Editor saves file meta info.
 
+Tool tips experiment in the Editor.
+
+Mouse wheel support added across the GUI. Apps and Scroll widget.
+
+GUI event loop moved out to Lisp.
+
 ------
 
 VP and CScript optimizers improved for clarity and extra cases.

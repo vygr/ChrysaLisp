@@ -307,7 +307,7 @@
 		'("replace" "replace all")))
 
 (defun clear-tip ()
-	(if tip (. tip :hide))
+	(if tip (gui-sub tip))
 	(setq tip nil tip_id +max_long)
 	(mail-timeout (elem +select_tip select) 0))
 
@@ -324,7 +324,7 @@
 	(select-node nil)
 	(tooltips)
 	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :pref_size)))
-	(gui-add (. *window* :change x y w h))
+	(gui-add-front (. *window* :change x y w h))
 	(refresh)
 	(while *running*
 		(defq *msg* (mail-read (elem (defq idx (mail-select select)) select)))
@@ -424,8 +424,8 @@
 						:font *env_tip_font* :border 0 :flow_flags 0)
 					(. tip :set_flags 0 +view_flag_solid)
 					(bind '(x y w h) (apply view-locate (push (. tip :pref_size) :bottom)))
-					(gui-add (. tip :change x y w h))))))
+					(gui-add-front (. tip :change x y w h))))))
 	(each mail-free-mbox (slice 1 -1 select))
 	(clear-tip)
-	(. *window* :hide)
+	(gui-sub *window*)
 	(save-open-files))

@@ -123,6 +123,7 @@
 	(vp-push r0)
 	(array-bind-args r1 '(r0))
 	(call 'view :hide '(r0) '(r1))
+	(class/obj/ref r1 r2)
 	(vp-pop r0)
 
 	(exit 'view :lisp_hide '(r0 r1))
@@ -130,7 +131,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(. view :hide)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(r0 "(view-hide view)" error_msg_wrong_types r1))
 	(signature '(view)))
 
 (def-func-end)

@@ -7,7 +7,7 @@
 	(offset start)
 	(struct node +ln_node_size)
 	(struct list +lh_list_size)
-	(struct owner_id +net_id_size)
+	(netid owner_id)
 	(ptr dirty_region opaque_region ctx_node target_ids)
 	(long id)
 	(uint flags)

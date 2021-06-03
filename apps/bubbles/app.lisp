@@ -128,7 +128,7 @@
 	(. mybackdrop :set_size canvas_width canvas_height)
 	(radio-select style_buttons 0)
 	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
-	(gui-add (. mywindow :change x y w h))
+	(gui-add-front (. mywindow :change x y w h))
 	(def image_scroll :min_width min_width :min_height min_height)
 
 	;random cloud of verts
@@ -162,9 +162,8 @@
 					((<= +event_grid id +event_axis)
 						;styles
 						(def (. mybackdrop :dirty) :style (elem (radio-select style_buttons (- id +event_grid)) '(nil :grid :axis))))
-					((= id (. layer1_canvas :get_id))
-						;event for canvas
-						(when (= (getf msg +ev_msg_type) +ev_type_mouse)
+					((and (= id (. layer1_canvas :get_id))
+						(= (getf msg +ev_msg_type) +ev_type_mouse))
 							;mouse event in canvas
 							(bind '(w h) (. layer1_canvas :get_size))
 							(defq rx (- (getf msg +ev_msg_mouse_rx) (/ w 2))
@@ -185,7 +184,7 @@
 										(:d	;was down last time
 											(setq last_state :u))
 										(:u	;was up last time, so we are hovering
-											t))))))
+											t)))))
 					(t (. mywindow :event msg))))
 			((= idx +select_timer)
 				;timer event
@@ -195,4 +194,4 @@
 				(redraw dlist))))
 	;close window
 	(mail-free-mbox (pop select))
-	(. mywindow :hide))
+	(gui-sub mywindow))

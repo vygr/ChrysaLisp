@@ -114,7 +114,7 @@
 (defun main ()
 	;add window
 	(bind '(x y w h) (apply view-locate (.-> mywindow (:connect +event_layout) :pref_size)))
-	(gui-add (. mywindow :change x y w h))
+	(gui-add-front (. mywindow :change x y w h))
 	;sign on msg
 	(print (str "ChrysaLisp Terminal 1.6" (ascii-char 10)))
 	(print-edit-line)
@@ -165,5 +165,5 @@
 			(t	;string from pipe
 				(print data)))))
 	;close window and pipe
-	(. mywindow :hide)
+	(gui-sub mywindow)
 	(if cmd (. cmd :close)))

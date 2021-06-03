@@ -28,9 +28,8 @@
 	(if (eql (defq user (get :clear_text username)) "") "Guest" user))
 
 (defun main ()
-	;add centered, wait a little for GUI to get going...
-	(task-sleep 10000)
-	(gui-add mywindow)
+	;add centered
+	(gui-add-front mywindow)
 	(position-window)
 	(while (cond
 		((and (< (defq id (getf (defq msg (mail-read (task-mailbox))) +ev_msg_target_id)) 0)
@@ -59,4 +58,4 @@
 					nil)
 				(t	t)))
 		(t (. mywindow :event msg))))
-	(. mywindow :hide))
+	(gui-sub mywindow))

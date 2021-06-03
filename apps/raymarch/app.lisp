@@ -80,7 +80,7 @@
 	;add window
 	(.-> canvas (:fill +argb_black) :swap)
 	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
-	(gui-add (. mywindow :change x y w h))
+	(gui-add-front (. mywindow :change x y w h))
 	(defq farm (Farm create destroy (* 2 (length (mail-nodes)))))
 	(mail-timeout (elem +select_timer select) timer_rate)
 	(while id
@@ -120,4 +120,4 @@
 	;close window and children
 	(. farm :close)
 	(each mail-free-mbox (slice 1 -1 select))
-	(. mywindow :hide))
+	(gui-sub mywindow))

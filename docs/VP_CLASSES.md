@@ -1883,42 +1883,42 @@ r1-r14
 
 Super Class: nil
 
-### gui :gui -> gui/gui/gui
-
-```code
-gui process
-inputs
-r0 = lisp object pointer (ptr)
-r1 = lisp args list (ptr)
-```
-
-### gui :lisp_add -> gui/gui/lisp_add
+### gui :composit -> gui/gui/composit
 
 ```code
 inputs
-r0 = lisp object (ptr)
-r1 = args list object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
+r0 = root view object (ptr)
 trashes
-r1-r14
-```
-
-### gui :lisp_add_back -> gui/gui/lisp_add_back
-
-```code
-inputs
-r0 = lisp object (ptr)
-r1 = args list object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
+r0-r14
 ```
 
 ### gui :lisp_info -> gui/gui/lisp_info
+
+```code
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### gui :lisp_init -> gui/gui/lisp_init
+
+```code
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### gui :lisp_update -> gui/gui/lisp_update
 
 ```code
 inputs
@@ -1937,9 +1937,7 @@ r1-r14
 
 ```code
 inputs
-r0 = root view object (ptr)
-trashes
-r0-r14
+r0 = screen view object (ptr)
 ```
 
 ## hmap

@@ -28,7 +28,7 @@
 
 (defun main ()
 	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
-	(gui-add (. mywindow :change x y w h))
+	(gui-add-front (. mywindow :change x y w h))
 	(defq accum 0 value 0 num 0 lastop nil)
 	(while (cond
 		((>= (defq id (getf (defq msg (mail-read (task-mailbox))) +ev_msg_target_id)) +event_button)
@@ -62,4 +62,4 @@
 			(bind '(x y w h) (apply view-fit (cat (. mywindow :get_pos) '(512 512))))
 			(. mywindow :change_dirty x y w h))
 		(t (. mywindow :event msg))))
-	(. mywindow :hide))
+	(gui-sub mywindow))

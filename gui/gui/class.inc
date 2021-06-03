@@ -9,9 +9,9 @@
 (def-class gui nil
 	(dec-method :statics_init gui/gui/statics_init)
 	(dec-method :update gui/gui/update :static (r0))
-	(dec-method :gui gui/gui/gui)
-	(dec-method :lisp_add gui/gui/lisp_add :static (r0 r1) (r0 r1))
-	(dec-method :lisp_add_back gui/gui/lisp_add_back :static (r0 r1) (r0 r1))
+	(dec-method :composit gui/gui/composit :static (r0))
+	(dec-method :lisp_init gui/gui/lisp_init :static (r0 r1) (r0 r1))
+	(dec-method :lisp_update gui/gui/lisp_update :static (r0 r1) (r0 r1))
 	(dec-method :lisp_info gui/gui/lisp_info :static (r0 r1) (r0 r1)))
 
 ;;;;;;;;;;;;;;;;

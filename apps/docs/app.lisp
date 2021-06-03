@@ -50,7 +50,7 @@
 (defun main ()
 	(populate-page (defq file (elem 0 doc_list)))
 	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
-	(gui-add (. mywindow :change x y w h))
+	(gui-add-front (. mywindow :change x y w h))
 	(while (cond
 		((= (defq id (getf (defq msg (mail-read (task-mailbox))) +ev_msg_target_id)) +event_close)
 			nil)
@@ -61,4 +61,4 @@
 			(def (. button :dirty) :color +argb_grey14)
 			(populate-page (setq file (get :text button))))
 		(t (. mywindow :event msg))))
-	(. mywindow :hide))
+	(gui-sub mywindow))

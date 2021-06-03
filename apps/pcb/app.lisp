@@ -182,7 +182,7 @@
 
 (defun main ()
 	(bind '(x y w h) (apply view-locate (. (win-refresh index) :pref_size)))
-	(gui-add (. mywindow :change x y w h))
+	(gui-add-front (. mywindow :change x y w h))
 	(while (cond
 		((= (defq id (getf (defq msg (mail-read (task-mailbox))) +ev_msg_target_id)) +event_close)
 			nil)
@@ -198,4 +198,4 @@
 			(setq mode (- id +event_mode_normal))
 			(win-refresh index))
 		(t (. mywindow :event msg))))
-	(. mywindow :hide))
+	(gui-sub mywindow))

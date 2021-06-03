@@ -19,71 +19,31 @@
 
 (def-func-end)
 
-(def-func 'gui/gui/gui 16)
-	;gui process
+(def-func 'gui/gui/update 16)
 	;inputs
-	;r0 = lisp object pointer (ptr)
-	;r1 = lisp args list (ptr)
-
-	(def-struct local 0
-		(ptr statics this)
-		(ulong mouse_id key_id)
-		(uint mouse_buttons)
-		(ubyte quit))
-
-	;init vars
-	(vp-alloc local_size)
-	(fn-bind 'sys/statics/statics r2)
-	(assign '(r0 r2) '((rsp local_this) (rsp local_statics)))
-	(vp-xor-rr r3 r3)
-	(assign '(r3 r3 r3 r3)
-		'((rsp local_mouse_id) (rsp local_key_id) (rsp local_mouse_buttons) (rsp local_quit)))
-
-	;save background view for screen
-	(array-bind-args r1 '(r1))
-	(assign '(r1) '((r2 statics_gui_screen)))
-
-	;temp objects
-	(call 'list :create nil '(r0))
-	(assign '((rsp local_statics)) '(r1))
-	(assign '(r0) '((r1 statics_gui_temps)))
-
-	;fill in lisp object tls for kernel :lisp_draw callbacks !!!
-	(assign {@sys/statics/statics.statics_sys_task_current_tcb->tk_node_lisp}
-		{@sys/statics/statics.statics_sys_task_kernel_tcb->tk_node_lisp})
-
-	;gui event loop
-	(call 'sys_task :set_priority '(2))
-	(loop-start)
-		;kernel callback for update
-		(call 'sys_task :callback '(rsp ($ update_callback)))
-		;frame rate of gui updates
-		(call 'sys_task :sleep '((/ 1000000 60)))
-		(assign '((rsp local_quit)) '(r0))
-	(loop-until '(r0 /= 0))
-
-	;deinit
-	(call 'sys_task :callback '(rsp ($ deinit_callback)))
-	(vp-free local_size)
-	(vp-ret)
-
-(vp-label 'update_callback)
-	;inputs
-	;r0 = user data
+	;r0 = screen view object (ptr)
 
 	(def-vars
-		(ptr user msg data view old_stack)
+		(ptr statics msg data view old_stack)
 		(struct owner_id net_id_size)
 		(int flag)
 		(struct event 256))
 
-	(vp-cpy-rr rsp r1)
+	;kernel callback for update
+	(jump 'sys_task :callback '(0 ($ update_callback)))
+
+(vp-label 'update_callback)
+	(vp-cpy-rr rsp r0)
 	(push-scope)
 	(vp-and-cr -16 rsp)
-	(entry {user, old_stack})
+	(entry {old_stack})
+
+	;statics
+	(fn-bind 'sys/statics/statics r0)
+	(assign '(r0) {statics})
 
 	;create screen window ?
-	(vpifnot {user->local_statics->statics_gui_window})
+	(vpifnot {statics->statics_gui_window})
 		;init sdl2
 		(host-gui-call 'host_gui :sdl_set_main_ready)
 		(host-gui-call 'host_gui :sdl_init {SDL_INIT_VIDEO | SDL_INIT_EVENTS})
@@ -91,46 +51,46 @@
 		;create window
 		(host-gui-call 'host_gui :sdl_create_window
 			{$title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-				user->local_statics->statics_gui_screen->view_w,
-				user->local_statics->statics_gui_screen->view_h,
+				statics->statics_gui_screen->view_w,
+				statics->statics_gui_screen->view_h,
 				SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE}
-			{user->local_statics->statics_gui_window})
+			{statics->statics_gui_window})
 
 		;create renderer and back buffer
 		(cond
 			((> num_old_regions 0)
 				(host-gui-call 'host_gui :sdl_create_renderer
-					{user->local_statics->statics_gui_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC}
-					{user->local_statics->statics_gui_renderer}))
+					{statics->statics_gui_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC}
+					{statics->statics_gui_renderer}))
 			(t	(host-gui-call 'host_gui :sdl_create_renderer
-					{user->local_statics->statics_gui_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_TARGETTEXTURE}
-					{user->local_statics->statics_gui_renderer})
+					{statics->statics_gui_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_TARGETTEXTURE}
+					{statics->statics_gui_renderer})
 				(host-gui-call 'host_gui :sdl_create_texture
-					{user->local_statics->statics_gui_renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_TARGET,
-					user->local_statics->statics_gui_screen->view_w,
-					user->local_statics->statics_gui_screen->view_h}
-					{user->local_statics->statics_gui_texture})))
+					{statics->statics_gui_renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_TARGET,
+					statics->statics_gui_screen->view_w,
+					statics->statics_gui_screen->view_h}
+					{statics->statics_gui_texture})))
 
 		;set blend mode
-		(host-gui-call 'host_gui :sdl_set_render_draw_blend_mode {user->local_statics->statics_gui_renderer, SDL_BLENDMODE_BLEND})
+		(host-gui-call 'host_gui :sdl_set_render_draw_blend_mode {statics->statics_gui_renderer, SDL_BLENDMODE_BLEND})
 	(endif)
 
 	;update screen
-	(vpif {user->local_statics->statics_gui_dirty_flag})
+	(vpif {statics->statics_gui_dirty_flag})
 		(cond
 			((> num_old_regions 0)
 				;no render to texture
-				(call 'gui :update {user->local_statics->statics_gui_screen}))
+				(call 'gui :composit {statics->statics_gui_screen}))
 			(t	;render to back buffer texture
-				(host-gui-call 'host_gui :sdl_set_render_target {user->local_statics->statics_gui_renderer, user->local_statics->statics_gui_texture})
-				(call 'gui :update {user->local_statics->statics_gui_screen})
-				(host-gui-call 'host_gui :sdl_set_render_target {user->local_statics->statics_gui_renderer, 0})
-				(host-gui-call 'host_gui :sdl_render_copy {user->local_statics->statics_gui_renderer, user->local_statics->statics_gui_texture, 0, 0})))
+				(host-gui-call 'host_gui :sdl_set_render_target {statics->statics_gui_renderer, statics->statics_gui_texture})
+				(call 'gui :composit {statics->statics_gui_screen})
+				(host-gui-call 'host_gui :sdl_set_render_target {statics->statics_gui_renderer, 0})
+				(host-gui-call 'host_gui :sdl_render_copy {statics->statics_gui_renderer, statics->statics_gui_texture, 0, 0})))
 
 		;swap, clear temps and dirty flag
-		(host-gui-call 'host_gui :sdl_render_present {user->local_statics->statics_gui_renderer})
-		(call 'list :clear {user->local_statics->statics_gui_temps})
-		(assign {0} {user->local_statics->statics_gui_dirty_flag})
+		(host-gui-call 'host_gui :sdl_render_present {statics->statics_gui_renderer})
+		(call 'list :clear {statics->statics_gui_temps})
+		(assign {0} {statics->statics_gui_dirty_flag})
 	(endif)
 
 	;any sdl events ?
@@ -141,7 +101,7 @@
 		(switch)
 		(vpcase {event.sdl_common_event_type = SDL_MOUSEWHEEL})
 			;find view for wheel
-			(call 'view :find_id {user->local_statics->statics_gui_screen, user->local_mouse_id} {_, view})
+			(call 'view :find_id {statics->statics_gui_screen, statics->statics_gui_mouse_id} {_, view})
 			(breakifnot {view})
 			(call 'view :find_owner {view}
 				{_, owner_id.net_id_mbox_id,
@@ -164,17 +124,17 @@
 			(break)
 		(vpcase {event.sdl_common_event_type = SDL_MOUSEMOTION})
 			;update mouse state
-			(assign {event.sdl_mouse_button_event_x} {user->local_statics->statics_gui_mouse_x})
-			(assign {event.sdl_mouse_button_event_y} {user->local_statics->statics_gui_mouse_y})
-			(assign {event.sdl_mouse_motion_event_state} {user->local_mouse_buttons})
+			(assign {event.sdl_mouse_button_event_x} {statics->statics_gui_mouse_x})
+			(assign {event.sdl_mouse_button_event_y} {statics->statics_gui_mouse_y})
+			(assign {event.sdl_mouse_motion_event_state} {statics->statics_gui_mouse_buttons})
 			(vpifnot {event.sdl_mouse_motion_event_state})
-				(call 'view :hit_tree {user->local_statics->statics_gui_screen,
+				(call 'view :hit_tree {statics->statics_gui_screen,
 					event.sdl_mouse_button_event_x, event.sdl_mouse_button_event_y} {_, view, _, _})
-				(assign {view->view_id} {user->local_mouse_id})
+				(assign {view->view_id} {statics->statics_gui_mouse_id})
 			(endif)
 			;send event message
 		(vp-label 'send_event)
-			(call 'view :find_id {user->local_statics->statics_gui_screen, user->local_mouse_id} {_, view})
+			(call 'view :find_id {statics->statics_gui_screen, statics->statics_gui_mouse_id} {_, view})
 			(breakifnot {view})
 			(call 'view :find_owner {view}
 				{_, owner_id.net_id_mbox_id,
@@ -189,32 +149,34 @@
 			(assign {owner_id.net_id_mbox_id} {msg->msg_dest.net_id_mbox_id})
 			(assign {owner_id.net_id_node_id.node_id_node1} {msg->msg_dest.net_id_node_id.node_id_node1})
 			(assign {owner_id.net_id_node_id.node_id_node2} {msg->msg_dest.net_id_node_id.node_id_node2})
-			(assign {user->local_mouse_buttons} {data->ev_msg_mouse_buttons})
+			(assign {statics->statics_gui_mouse_buttons} {data->ev_msg_mouse_buttons})
 			(assign {(event.sdl_mouse_button_event_x => data->ev_msg_mouse_x) - view->view_ctx_x} {data->ev_msg_mouse_rx})
 			(assign {(event.sdl_mouse_button_event_y => data->ev_msg_mouse_y) - view->view_ctx_y} {data->ev_msg_mouse_ry})
 			(call 'sys_mail :send {msg})
 			(break)
 		(vpcase {event.sdl_common_event_type = SDL_MOUSEBUTTONDOWN})
 			;update mouse state
-			(assign {event.sdl_mouse_button_event_button | user->local_mouse_buttons} {user->local_mouse_buttons})
+			(assign {event.sdl_mouse_button_event_button | statics->statics_gui_mouse_buttons}
+				{statics->statics_gui_mouse_buttons})
 			;find view affinity
-			(call 'view :hit_tree {user->local_statics->statics_gui_screen,
+			(call 'view :hit_tree {statics->statics_gui_screen,
 				event.sdl_mouse_button_event_x, event.sdl_mouse_button_event_y} {_, view, _, _})
-			(assign {view->view_id} {user->local_mouse_id})
+			(assign {view->view_id} {statics->statics_gui_mouse_id})
 			(goto 'send_event)
 		(vpcase {event.sdl_common_event_type = SDL_MOUSEBUTTONUP})
 			;update mouse state
-			(assign {event.sdl_mouse_button_event_button ^ user->local_mouse_buttons} {user->local_mouse_buttons})
+			(assign {event.sdl_mouse_button_event_button ^ statics->statics_gui_mouse_buttons}
+				{statics->statics_gui_mouse_buttons})
 			(goto 'send_event)
 		(vpcase {event.sdl_common_event_type = SDL_KEYDOWN})
 			;find keyboard id
-			(call 'view :hit_tree {user->local_statics->statics_gui_screen,
-				user->local_statics->statics_gui_mouse_x, user->local_statics->statics_gui_mouse_y}
+			(call 'view :hit_tree {statics->statics_gui_screen,
+				statics->statics_gui_mouse_x, statics->statics_gui_mouse_y}
 				{_, view, _, _})
-			(assign {view->view_id} {user->local_key_id})
+			(assign {view->view_id} {statics->statics_gui_key_id})
 
 			;find view for keys
-			(call 'view :find_id {user->local_statics->statics_gui_screen, user->local_key_id} {_, view})
+			(call 'view :find_id {statics->statics_gui_screen, statics->statics_gui_key_id} {_, view})
 			(breakifnot {view})
 			(call 'view :find_owner {view}
 				{_, owner_id.net_id_mbox_id,
@@ -242,18 +204,18 @@
 			(vpcase {event.sdl_window_event_event = SDL_WINDOWEVENT_SIZE_CHANGED})
 			(when (= num_old_regions 0)
 				;resize back buffer and redraw in full
-				(host-gui-call 'host_gui :sdl_destroy_texture {user->local_statics->statics_gui_texture})
+				(host-gui-call 'host_gui :sdl_destroy_texture {statics->statics_gui_texture})
 				(host-gui-call 'host_gui :sdl_create_texture
-					{user->local_statics->statics_gui_renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_TARGET, event.sdl_window_event_data1, event.sdl_window_event_data2}
-					{user->local_statics->statics_gui_texture}))
+					{statics->statics_gui_renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_TARGET, event.sdl_window_event_data1, event.sdl_window_event_data2}
+					{statics->statics_gui_texture}))
 
 				;change backdrop size, send gui event to all top level views
-				(call 'view :set_bounds '{user->local_statics->statics_gui_screen, 0, 0, event.sdl_window_event_data1, event.sdl_window_event_data2})
-				(call 'view :forward {user->local_statics->statics_gui_screen, user, $send_gui_event})
-				(call 'view :set_flags '{user->local_statics->statics_gui_screen, view_flag_dirty_all, view_flag_dirty_all})
+				(call 'view :set_bounds '{statics->statics_gui_screen, 0, 0, event.sdl_window_event_data1, event.sdl_window_event_data2})
+				(call 'view :forward {statics->statics_gui_screen, 0, $send_gui_event})
+				(call 'view :set_flags '{statics->statics_gui_screen, view_flag_dirty_all, view_flag_dirty_all})
 				(break)
 			(vpcase {event.sdl_window_event_event = SDL_WINDOWEVENT_RESTORED})
-				(call 'view :set_flags '{user->local_statics->statics_gui_screen, view_flag_dirty_all, view_flag_dirty_all})
+				(call 'view :set_flags '{statics->statics_gui_screen, view_flag_dirty_all, view_flag_dirty_all})
 				(break)
 			(endswitch)
 		;;	(break)
@@ -272,33 +234,33 @@
 	;r0 = user data
 
 	(def-vars
-		(ptr user old_stack iter_begin iter_end))
+		(ptr statics old_stack iter_begin iter_end))
 
 	(vp-cpy-rr rsp r1)
 	(push-scope)
 	(vp-and-cr -16 rsp)
-	(entry {user, old_stack})
+	(entry {statics, old_stack})
 
 	;free any screen
-	(vpif {user->local_statics->statics_gui_screen})
-		(call 'view :deref {user->local_statics->statics_gui_screen})
-		(assign {0} {user->local_statics->statics_gui_screen})
+	(vpif {statics->statics_gui_screen})
+		(call 'view :deref {statics->statics_gui_screen})
+		(assign {0} {statics->statics_gui_screen})
 	(endif)
 
 	;destroy any window
-	(vpif {user->local_statics->statics_gui_window})
-		(host-gui-call 'host_gui :sdl_destroy_window {user->local_statics->statics_gui_window})
+	(vpif {statics->statics_gui_window})
+		(host-gui-call 'host_gui :sdl_destroy_window {statics->statics_gui_window})
 		(host-gui-call 'host_gui :sdl_quit)
 	(endif)
 
 	;free old regions and deinit region heap
-	(assign {&user->local_statics->statics_gui_old_regions} {iter_begin})
+	(assign {&statics->statics_gui_old_regions} {iter_begin})
 	(assign {&iter_begin[num_old_regions * +ptr_size]} {iter_end})
 	(loop-while {iter_begin /= iter_end})
-		(call 'region :free {user->local_statics->statics_gui_rect_heap, iter_begin})
+		(call 'region :free {statics->statics_gui_rect_heap, iter_begin})
 		(assign {iter_begin + +ptr_size} {iter_end})
 	(loop-end)
-	(call 'sys_heap :deinit {user->local_statics->statics_gui_rect_heap})
+	(call 'sys_heap :deinit {statics->statics_gui_rect_heap})
 
 	(assign {old_stack} '(rsp))
 	(pop-scope-syms)
@@ -372,7 +334,7 @@
 
 (def-func-end)
 
-(def-method 'gui :update)
+(def-method 'gui :composit)
 	;inputs
 	;r0 = root view object (ptr)
 	;trashes
@@ -385,7 +347,7 @@
 
 	;save inputs
 	(vp-alloc local_size)
-	(entry 'gui :update '(r0))
+	(entry 'gui :composit '(r0))
 	(assign '(r0) '((rsp local_root)))
 
 	;iterate through views back to front

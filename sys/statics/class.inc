@@ -67,9 +67,11 @@
 	;gui statics
 	(struct gui_rect_heap hp_heap_size)
 	(ptr gui_window gui_screen gui_temps)
-	(ulong gui_renderer gui_texture gui_next_id)
-	(uint gui_dirty_flag gui_old_region_index)
+	(ulong gui_renderer gui_texture gui_next_id
+		gui_mouse_id gui_key_id)
+	(uint gui_dirty_flag gui_old_region_index gui_mouse_buttons)
 	(int gui_mouse_x gui_mouse_y)
+	(align)
 	(struct gui_old_regions (* num_old_regions +ptr_size))
 	(align)
 

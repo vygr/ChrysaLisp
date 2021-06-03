@@ -63,7 +63,7 @@
 (defun main ()
 	;add window
 	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
-	(gui-add (. mywindow :change x y w h))
+	(gui-add-front (. mywindow :change x y w h))
 	(defq global_tasks (Global create destroy))
 	(mail-timeout (elem +select_nodes select) 1)
 	(while id
@@ -140,4 +140,4 @@
 	;close window and children
 	(. global_tasks :close)
 	(each mail-free-mbox (slice 1 -1 select))
-	(. mywindow :hide))
+	(gui-sub mywindow))

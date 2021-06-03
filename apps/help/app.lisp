@@ -56,7 +56,7 @@
 	(bind '(w h) (. index :pref_size))
 	(. index :change 0 0 (def index_scroll :min_width w) h)
 	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
-	(gui-add (. mywindow :change x y w h))
+	(gui-add-front (. mywindow :change x y w h))
 	(while (cond
 		((= (defq id (getf (defq msg (mail-read (task-mailbox))) +ev_msg_target_id)) +event_close)
 			nil)
@@ -70,4 +70,4 @@
 					(elem _ vals)
 					"----------------------" (ascii-char 10) (ascii-char 10))))))
 		(t (. mywindow :event msg))))
-	(. mywindow :hide))
+	(gui-sub mywindow))
