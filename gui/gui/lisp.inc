@@ -12,7 +12,7 @@
 	(ulong target_id type))
 
 (structure +ev_msg_mouse +ev_msg_size
-	(uint buttons)
+	(uint buttons count)
 	(int x y rx ry))
 
 (structure +ev_msg_wheel +ev_msg_size

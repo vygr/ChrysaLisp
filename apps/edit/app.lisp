@@ -30,7 +30,6 @@
 		(const (<< (canvas-from-argb32 +argb_grey6 15) 48))) (str-alloc 8192)))
 	+not_selected (nums-sub +selected +selected)
 	+bracket_char (nums 0x7f) +state_filename "editor_open_files"
-	+click_time 400000 then (pii-time) click_count 0
 	+tip_time 1000000 tip_id +max_long tip nil
 	select (list (task-mailbox) (mail-alloc-mbox)))
 
@@ -358,11 +357,7 @@
 							(t  ;mouse button is up
 								(case mouse_state
 									(:d ;mouse up event
-										(defq now (pii-time))
-										(if (< (- now then) +click_time)
-											(setq click_count (inc click_count))
-											(setq click_count 0))
-										(setq then now mouse_state :u)
+										(defq click_count (getf *msg* +ev_msg_mouse_count))
 										(cond
 											((= click_count 1)
 												(action-select-word))
@@ -370,6 +365,7 @@
 												(action-select-line))
 											((= click_count 3)
 												(action-select-paragraph)))
+										(setq mouse_state :u)
 										(refresh))
 									(:u ;mouse hover event
 										)))))

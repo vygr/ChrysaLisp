@@ -47,10 +47,10 @@
 						(. screen :add_back view)
 						(. view :set_flags +view_flag_dirty_all +view_flag_dirty_all)))
 				(mail-send reply msg)
-				(setq view nil msg nil owner nil reply nil))
+				(undef (env) 'msg 'view 'owner 'reply))
 			((= idx +select_timer)
 				;timer event
 				(mail-timeout (elem +select_timer select) rate)
 				(gui-update screen))))
-	(each mail-free-mbox (slice 1 -1select))
+	(each mail-free-mbox (slice 1 -1 select))
 	(mail-forget service))

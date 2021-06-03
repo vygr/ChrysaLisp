@@ -25,6 +25,7 @@
 
 	(def-vars
 		(ptr statics msg data view old_stack)
+		(ulong now)
 		(struct owner_id net_id_size)
 		(int flag)
 		(struct event 256))
@@ -113,15 +114,10 @@
 			;send event message
 			(call 'sys_mail :alloc {ev_msg_wheel_size} {msg, data})
 			(assign {ev_type_wheel} {data->ev_msg_type})
-			(assign {view->view_id} {data->ev_msg_target_id})
-			(assign {owner_id.net_id_mbox_id} {msg->msg_dest.net_id_mbox_id})
-			(assign {owner_id.net_id_node_id.node_id_node1} {msg->msg_dest.net_id_node_id.node_id_node1})
-			(assign {owner_id.net_id_node_id.node_id_node2} {msg->msg_dest.net_id_node_id.node_id_node2})
 			(assign {event.sdl_mouse_wheel_event_x} {data->ev_msg_wheel_x})
 			(assign {event.sdl_mouse_wheel_event_y} {data->ev_msg_wheel_y})
 			(assign {event.sdl_mouse_wheel_event_direction} {data->ev_msg_wheel_direction})
-			(call 'sys_mail :send {msg})
-			(break)
+			(goto 'send_event1)
 		(vpcase {event.sdl_common_event_type = SDL_MOUSEMOTION})
 			;update mouse state
 			(assign {event.sdl_mouse_button_event_x} {statics->statics_gui_mouse_x})
@@ -145,13 +141,15 @@
 				| owner_id.net_id_node_id.node_id_node2})
 			(call 'sys_mail :alloc {ev_msg_mouse_size} {msg, data})
 			(assign {ev_type_mouse} {data->ev_msg_type})
+			(assign {statics->statics_gui_mouse_buttons} {data->ev_msg_mouse_buttons})
+			(assign {statics->statics_gui_count} {data->ev_msg_mouse_count})
+			(assign {(event.sdl_mouse_button_event_x => data->ev_msg_mouse_x) - view->view_ctx_x} {data->ev_msg_mouse_rx})
+			(assign {(event.sdl_mouse_button_event_y => data->ev_msg_mouse_y) - view->view_ctx_y} {data->ev_msg_mouse_ry})
+		(vp-label 'send_event1)
 			(assign {view->view_id} {data->ev_msg_target_id})
 			(assign {owner_id.net_id_mbox_id} {msg->msg_dest.net_id_mbox_id})
 			(assign {owner_id.net_id_node_id.node_id_node1} {msg->msg_dest.net_id_node_id.node_id_node1})
 			(assign {owner_id.net_id_node_id.node_id_node2} {msg->msg_dest.net_id_node_id.node_id_node2})
-			(assign {statics->statics_gui_mouse_buttons} {data->ev_msg_mouse_buttons})
-			(assign {(event.sdl_mouse_button_event_x => data->ev_msg_mouse_x) - view->view_ctx_x} {data->ev_msg_mouse_rx})
-			(assign {(event.sdl_mouse_button_event_y => data->ev_msg_mouse_y) - view->view_ctx_y} {data->ev_msg_mouse_ry})
 			(call 'sys_mail :send {msg})
 			(break)
 		(vpcase {event.sdl_common_event_type = SDL_MOUSEBUTTONDOWN})
@@ -167,6 +165,13 @@
 			;update mouse state
 			(assign {event.sdl_mouse_button_event_button ^ statics->statics_gui_mouse_buttons}
 				{statics->statics_gui_mouse_buttons})
+			(call 'sys_pii :time nil {now})
+			(vpif {(now - statics->statics_gui_then) < 400000})
+				(assign {statics->statics_gui_count + 1} {statics->statics_gui_count})
+			(else)
+				(assign {0} {statics->statics_gui_count})
+			(endif)
+			(assign {now} {statics->statics_gui_then})
 			(goto 'send_event)
 		(vpcase {event.sdl_common_event_type = SDL_KEYDOWN})
 			;find keyboard id
@@ -174,7 +179,6 @@
 				statics->statics_gui_mouse_x, statics->statics_gui_mouse_y}
 				{_, view, _, _})
 			(assign {view->view_id} {statics->statics_gui_key_id})
-
 			;find view for keys
 			(call 'view :find_id {statics->statics_gui_screen, statics->statics_gui_key_id} {_, view})
 			(breakifnot {view})
@@ -185,20 +189,14 @@
 			(breakifnot {owner_id.net_id_mbox_id
 				| owner_id.net_id_node_id.node_id_node1
 				| owner_id.net_id_node_id.node_id_node2})
-
 			;send event message
 			(call 'sys_mail :alloc {ev_msg_key_size} {msg, data})
 			(assign {ev_type_key} {data->ev_msg_type})
-			(assign {view->view_id} {data->ev_msg_target_id})
-			(assign {owner_id.net_id_mbox_id} {msg->msg_dest.net_id_mbox_id})
-			(assign {owner_id.net_id_node_id.node_id_node1} {msg->msg_dest.net_id_node_id.node_id_node1})
-			(assign {owner_id.net_id_node_id.node_id_node2} {msg->msg_dest.net_id_node_id.node_id_node2})
 			(assign {event.sdl_keyboard_event_keysym.sdl_keysym_scancode} {data->ev_msg_key_keycode})
 			(call 'cook_key {event.sdl_keyboard_event_keysym.sdl_keysym_sym,
 					event.sdl_keyboard_event_keysym.sdl_keysym_mod}
 				{data->ev_msg_key_key, data->ev_msg_key_mod})
-			(call 'sys_mail :send {msg})
-			(break)
+			(goto 'send_event1)
 		(vpcase {event.sdl_common_event_type = SDL_WINDOWEVENT})
 			(switch)
 			(vpcase {event.sdl_window_event_event = SDL_WINDOWEVENT_SIZE_CHANGED})
@@ -208,7 +206,6 @@
 				(host-gui-call 'host_gui :sdl_create_texture
 					{statics->statics_gui_renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_TARGET, event.sdl_window_event_data1, event.sdl_window_event_data2}
 					{statics->statics_gui_texture}))
-
 				;change backdrop size, send gui event to all top level views
 				(call 'view :set_bounds '{statics->statics_gui_screen, 0, 0, event.sdl_window_event_data1, event.sdl_window_event_data2})
 				(call 'view :forward {statics->statics_gui_screen, 0, $send_gui_event})
