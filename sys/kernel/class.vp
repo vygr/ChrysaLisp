@@ -81,7 +81,7 @@
 
 	;loop till no other tasks running
 	(call 'sys_task :set_priority '(0))
-	(loop-start)
+	(loop-start 'exit)
 		;service all kernel mail
 		(loop-start 'kernel_loop)
 			;check if any mail
@@ -235,25 +235,30 @@
 		(endif)
 
 		;no other task ready to run so
-		;exit if no task waiting for timer
-		(lh-get-head r3 statics_sys_task_timer_list r2)
-		(ln-get-succ r2 0 r1)
-		(breakif '(r1 = 0))
-
-		;may as well go to sleep till next wake time then
-		(assign '((r2 tk_node_time)) '(r2))
-		(lh-get-head r3 statics_sys_mail_timeout_list r3)
-		(ln-get-succ r3 0 r1)
-		(vpif '(r1 /= 0))
-			(assign '((r3 msg_frag_data)) '(r1))
-			(assign '((r1 0)) '(r1))
-			(breakif '(r1 > r2))
-			;shorter time on mail timeout list !
-			(vp-cpy-rr r1 r2)
+		;exit if no tasks waiting for timers
+		(lh-get-head r3 statics_sys_task_timer_list r4)
+		(lh-get-head r3 statics_sys_mail_timeout_list r5)
+		(ln-get-succ r4 0 r1)
+		(ln-get-succ r5 0 r2)
+		(vpif '(r1 = 0))
+			(breakif '(r2 = 0) 'exit)
 		(endif)
-		(assign '(r0 r2) '(r1 r0))
-		(vp-sub-rr r1 r0)
-		(host-os-call 'host :sleep '(r0))
+
+		;go to sleep till next wake time then
+		(vp-cpy-cr +max_long r6)
+		(vp-cpy-rr r6 r7)
+		(vpif '(r1 /= 0))
+			(assign '((r4 tk_node_time)) '(r6))
+		(endif)
+		(vpif '(r2 /= 0))
+			(assign '((r5 msg_frag_data)) '(r7))
+			(assign '((r7 0)) '(r7))
+		(endif)
+		(vpif '(r7 < r6))
+			(vp-cpy-rr r7 r6)
+		(endif)
+		(vp-sub-rr r0 r6)
+		(host-os-call 'host :sleep '(r6))
 	(loop-end)
 
 	;deinit allocator
