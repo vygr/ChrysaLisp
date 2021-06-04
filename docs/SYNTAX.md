@@ -1086,6 +1086,12 @@
 (.-> this form ...)
 ```
 
+### .?
+
+```code
+(.? this method) -> nil | lambda
+```
+
 ### .super
 
 ```code

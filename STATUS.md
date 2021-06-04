@@ -24,6 +24,8 @@ Mouse wheel support added across the GUI. Apps and Scroll widget.
 
 GUI event loop moved out to Lisp.
 
+New (.?) macro.
+
 ------
 
 VP and CScript optimizers improved for clarity and extra cases.
