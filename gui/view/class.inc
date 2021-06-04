@@ -41,15 +41,14 @@
 	(dec-method :lisp_find_id gui/view/lisp_find_id :static (r0 r1) (r0 r1))
 	(dec-method :lisp_children gui/view/lisp_children :static (r0 r1) (r0 r1))
 	(dec-method :lisp_to_front gui/view/lisp_to_front :static (r0 r1) (r0 r1))
-	(dec-method :lisp_to_back gui/view/lisp_to_back :static (r0 r1) (r0 r1))
-	(dec-method :lisp_emit gui/view/lisp_emit :static (r0 r1) (r0 r1)))
+	(dec-method :lisp_to_back gui/view/lisp_to_back :static (r0 r1) (r0 r1)))
 
 (def-struct view hmap_size
 	(offset start)
 	(struct node ln_node_size)
 	(struct list lh_list_size)
 	(struct owner_id net_id_size)
-	(ptr dirty_region opaque_region ctx_node target_ids)
+	(ptr dirty_region opaque_region ctx_node)
 	(long id)
 	(uint flags)
 	(int ctx_x ctx_y x y w h))

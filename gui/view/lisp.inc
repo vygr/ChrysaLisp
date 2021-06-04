@@ -8,7 +8,7 @@
 	(struct node +ln_node_size)
 	(struct list +lh_list_size)
 	(netid owner_id)
-	(ptr dirty_region opaque_region ctx_node target_ids)
+	(ptr dirty_region opaque_region ctx_node)
 	(long id)
 	(uint flags)
 	(int ctx_x ctx_y x y w h))
@@ -39,6 +39,7 @@
 	; overide the default 'this' env with a View component
 	(defq super this this ((const (ffi _ "gui/view/lisp_create" 0))))
 	(each (lambda ((key val)) (def this key val)) (tolist super))
+	(def this :targets (array))
 
 	(deffimethod :find_id "gui/view/lisp_find_id")
 		; (. view :find_id target_id) -> nil | target_view
@@ -82,9 +83,6 @@
 	(deffimethod :hide "gui/view/lisp_hide")
 		; (. view :hide) -> view
 
-	(deffimethod :emit "gui/view/lisp_emit")
-		; (. view :emit) -> view
-
 	(deffimethod :ctx_set_color "gui/ctx/lisp_set_color")
 		; (. view :ctx_set_color col) -> view
 
@@ -99,13 +97,6 @@
 
 	(deffimethod :ctx_panel "gui/ctx/lisp_panel")
 		; (. view :ctx_panel col flags depth x y width height) -> view
-
-	(defmethod :connect (this id)
-		; (. view :connect id) -> view
-		(unless (defq targets (getf this +view_target_ids 0))
-			(setf this +view_target_ids (setq targets (array)) 0))
-		(push targets id)
-		this)
 
 	(defmethod :get_id (this)
 		; (. view :get_id) -> id
@@ -175,4 +166,28 @@
 		(if (= (>> (get :color this) 24) 0xff)
 			(. this :set_flags +view_flag_opaque +view_flag_opaque)
 			this))
+
+	(defmethod :find_owner (this)
+		; (. view :find_owner) -> nil | netid
+		(defq root this)
+		(while (and root (eql (defq id (getf root +view_owner_id 0))
+					(const (pad "" +net_id_size (ascii-char 0)))))
+			(setq root (penv root)))
+		(if root id))
+
+	(defmethod :connect (this id)
+		; (. view :connect id) -> view
+		(push (get :targets this) id)
+		this)
+
+	(defmethod :emit (this)
+		; (. view :emit) -> view
+		(when (defq mbox (. this :find_owner))
+			(defq source_id (. this :get_id))
+			(each (lambda (id)
+				(mail-send mbox (setf-> (str-alloc +ev_msg_action_size)
+					(+ev_msg_type +ev_type_action)
+					(+ev_msg_target_id id)
+					(+ev_msg_action_source_id source_id)))) (get :targets this)))
+		this)
 	)

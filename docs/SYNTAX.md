@@ -804,6 +804,12 @@
 (. view :find_id target_id) -> nil | target_view
 ```
 
+### view :find_owner
+
+```code
+(. view :find_owner) -> nil | netid
+```
+
 ### view :get_bounds
 
 ```code
@@ -3508,12 +3514,6 @@
 
 ```code
 (view-clr-opaque view)
-```
-
-### view-emit
-
-```code
-(view-emit view)
 ```
 
 ### view-find-id

@@ -73,9 +73,6 @@
 	(assign '((rsp 0)) '(r1))
 	(call 'region :free '(r0 (& r1 view_opaque_region)))
 
-	(assign '((rsp 0)) '(r0))
-	(call 'array :deref_if '((r0 view_target_ids)))
-
 	;deinit parent
 	(vp-pop r0)
 	(s-jump 'view :deinit '(r0))
