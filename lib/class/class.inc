@@ -2,8 +2,8 @@
 ; classes and methods
 ;;;;;;;;;;;;;;;;;;;;;
 
-(defmacro method? (this method)
-	; (method? this method) -> nil | lambda
+(defmacro .? (this method)
+	; (.? this method) -> nil | lambda
 	`(def? ,method (def? :vtable ,this)))
 
 (defmacro .super (this method &rest _)

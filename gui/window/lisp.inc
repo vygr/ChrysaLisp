@@ -103,26 +103,26 @@
 							(cond
 								((/= 0 buttons)
 									;is down now, so move
-									(if (method? target :mouse_move) (. target :mouse_move event)))
+									(if (.? target :mouse_move) (. target :mouse_move event)))
 								(t	;is not down now, so release
 									(set this :last_buttons 0)
-									(if (method? target :mouse_up) (. target :mouse_up event)))))
+									(if (.? target :mouse_up) (. target :mouse_up event)))))
 						(t	;was not down previously
 							(cond
 								((/= 0 buttons)
 									;is down now, so first down
 									(set this :last_buttons buttons)
-									(if (method? target :mouse_down) (. target :mouse_down event)))
+									(if (.? target :mouse_down) (. target :mouse_down event)))
 								(t	;is not down now, so hover
-									(if (method? target :mouse_hover) (. target :mouse_hover event)))))))
+									(if (.? target :mouse_hover) (. target :mouse_hover event)))))))
 				((= type +ev_type_key)
 					(if (>= (getf event +ev_msg_key_keycode) 0)
-						(if (method? target :key_down) (. target :key_down event))
-						(if (method? target :key_up) (. target :key_up event))))
+						(if (.? target :key_down) (. target :key_down event))
+						(if (.? target :key_up) (. target :key_up event))))
 				((= type +ev_type_wheel)
 					(while (and target (not (Scroll? target))) (setq target (penv target)))
-					(and target (method? target :mouse_wheel) (. target :mouse_wheel event)))
+					(and target (.? target :mouse_wheel) (. target :mouse_wheel event)))
 				((= type +ev_type_action)
-					(if (method? target :action) (. target :action event)))))
+					(if (.? target :action) (. target :action event)))))
 		this)
 	)
