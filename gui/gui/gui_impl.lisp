@@ -1,19 +1,19 @@
 ;import into the shared root env of this node !
-;comment <- lines out if need to...
-(defq e (env))
-(while (penv e) (setq e (penv e))) ;<-
-(eval '(env 307) e) ;<-
-(import "sys/lisp.inc" e)
-(import "class/lisp.inc" e)
-(import "gui/lisp.inc" e)
-
-(enums +select 0
-	(enum main timer))
+(defq _ (env))
+;comment next two lines out if need to...
+(while (penv _) (setq _ (penv _)))
+(eval '(env 307) _)
+(import "sys/lisp.inc" _)
+(import "class/lisp.inc" _)
+(import "gui/lisp.inc" _)
 
 ;profiling callbacks on the GUI thread from :draw method !!!
 (defq *profile* (env -1) *profile_ret* (list)
 	select (list (task-mailbox) (mail-alloc-mbox))
 	rate (/ 1000000 60) id t)
+
+(enums +select 0
+	(enum main timer))
 
 (defun main ()
 	;declare service

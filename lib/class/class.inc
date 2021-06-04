@@ -2,6 +2,10 @@
 ; classes and methods
 ;;;;;;;;;;;;;;;;;;;;;
 
+(defmacro method? (this method)
+	; (method? this method) -> nil | lambda
+	`(def? ,method (def? :vtable ,this)))
+
 (defmacro .super (this method &rest _)
 	; (.super this :method [arg ...])
 	`((def? ,method ,(eval *super_class*)) ,this ~_))
