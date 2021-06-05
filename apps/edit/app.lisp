@@ -359,11 +359,11 @@
 									(:d ;mouse up event
 										(defq click_count (getf *msg* +ev_msg_mouse_count))
 										(cond
-											((= click_count 1)
-												(action-select-word))
 											((= click_count 2)
-												(action-select-line))
+												(action-select-word))
 											((= click_count 3)
+												(action-select-line))
+											((= click_count 4)
 												(action-select-paragraph)))
 										(setq mouse_state :u)
 										(refresh))

@@ -1,7 +1,9 @@
 ;lisp bindings
 (ffi gui-info "gui/gui/lisp_info" 0)
 (ffi gui-init "gui/gui/lisp_init" 0)
+(ffi gui-deinit "gui/gui/lisp_deinit" 0)
 (ffi gui-update "gui/gui/lisp_update" 0)
+(ffi gui-event "gui/gui/lisp_event" 0)
 
 ;gui events for Lisp level (getf)
 

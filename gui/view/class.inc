@@ -40,6 +40,7 @@
 	(dec-method :lisp_add_dirty gui/view/lisp_add_dirty :static (r0 r1) (r0 r1))
 	(dec-method :lisp_find_id gui/view/lisp_find_id :static (r0 r1) (r0 r1))
 	(dec-method :lisp_children gui/view/lisp_children :static (r0 r1) (r0 r1))
+	(dec-method :lisp_hit_tree gui/view/lisp_hit_tree :static (r0 r1) (r0 r1))
 	(dec-method :lisp_to_front gui/view/lisp_to_front :static (r0 r1) (r0 r1))
 	(dec-method :lisp_to_back gui/view/lisp_to_back :static (r0 r1) (r0 r1)))
 

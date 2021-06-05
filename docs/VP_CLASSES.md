@@ -1892,6 +1892,32 @@ trashes
 r0-r14
 ```
 
+### gui :lisp_deinit -> gui/gui/lisp_deinit
+
+```code
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### gui :lisp_event -> gui/gui/lisp_event
+
+```code
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
 ### gui :lisp_info -> gui/gui/lisp_info
 
 ```code
@@ -1937,7 +1963,9 @@ r1-r14
 
 ```code
 inputs
-r0 = screen view object (ptr)
+r0 = mouse x
+r1 = mouse y
+r2 = update flags
 ```
 
 ## hmap
@@ -9089,6 +9117,19 @@ r1-r14
 ```
 
 ### view :lisp_hide -> gui/view/lisp_hide
+
+```code
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### view :lisp_hit_tree -> gui/view/lisp_hit_tree
 
 ```code
 inputs

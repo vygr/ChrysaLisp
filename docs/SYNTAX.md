@@ -846,6 +846,12 @@
 (. view :hide) -> view
 ```
 
+### view :hit_tree
+
+```code
+(. view :hit_tree x y) -> (hit_view | nil rx ry)
+```
+
 ### view :layout
 
 ```code
@@ -2100,6 +2106,18 @@
 (gets-in collection key-path) -> value | nil
 ```
 
+### gui-deinit
+
+```code
+(gui-deinit)
+```
+
+### gui-event
+
+```code
+(gui-event)
+```
+
 ### gui-info
 
 ```code
@@ -2115,7 +2133,7 @@
 ### gui-update
 
 ```code
-(gui-update screen)
+(gui-update mx my flags)
 ```
 
 ### hash
@@ -3538,6 +3556,12 @@
 
 ```code
 (view-hide view)
+```
+
+### view-hit-tree
+
+```code
+(view-hit-tree view x y)
 ```
 
 ### view-locate

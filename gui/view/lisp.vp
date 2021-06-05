@@ -547,3 +547,45 @@
 	(signature '(view)))
 
 (def-func-end)
+
+(def-method 'view :lisp_hit_tree)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args list object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(entry 'view :lisp_hit_tree '(r0 r1))
+
+(errorcases
+	(call 'lisp :env_args_sig '(r1 ($ sig) 3) '(r2))
+	(gotoif '(r2 = 0) 'error))
+
+	(vp-push r0)
+	(defq in (method-input 'view :hit_tree))
+	(list-bind-args r1 in '(:view :num :num))
+	(call 'view :hit_tree in '(_ r10 r11 r12))
+	(vpif '(r10 = 0))
+		(assign '((rsp 0)) '(r10))
+		(assign '((r10 lisp_sym_nil)) '(r10))
+	(endif)
+	(class/obj/ref r10 r0)
+	(call 'num :create '(r11) '(r11))
+	(call 'num :create '(r12) '(r12))
+	(call 'list :create nil '(r0))
+	(call 'list :push_back '(r0 r10) '(r0 _ _ _))
+	(call 'list :push_back2 '(r0 r11 r12) '(r1 _ _ _ _))
+	(vp-pop r0)
+
+	(exit 'view :lisp_hit_tree '(r0 r1))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp :repl_error '(r0 "(view-hit-tree view x y)" error_msg_wrong_types r1))
+	(signature '(view num num)))
+
+(def-func-end)

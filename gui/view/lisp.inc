@@ -44,6 +44,9 @@
 	(deffimethod :find_id "gui/view/lisp_find_id")
 		; (. view :find_id target_id) -> nil | target_view
 
+	(deffimethod :hit_tree "gui/view/lisp_hit_tree")
+		; (. view :hit_tree x y) -> (hit_view | nil rx ry)
+
 	(deffimethod :set_flags "gui/view/lisp_set_flags")
 		; (. view :set_flags value mask) -> view
 

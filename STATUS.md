@@ -22,9 +22,10 @@ Tool tips experiment in the Editor.
 
 Mouse wheel support added across the GUI. Apps and Scroll widget.
 
-GUI event loop moved out to Lisp.
-
 New (.?) macro.
+
+GUI event loop moved out to Lisp. And move the SDL event queue handling out to
+Lisp !
 
 ------
 

@@ -13,24 +13,24 @@
 
 	;init region heap
 	(fn-bind 'sys/statics/statics r4)
-	(vp-xor-rr r0 r0)
-	(assign '(r0 r0) '((r4 statics_gui_mouse_x) (r4 statics_gui_mouse_y)))
 	(jump 'sys_heap :init '((& r4 statics_gui_rect_heap) rect_size 32))
 
 (def-func-end)
 
-(def-func 'gui/gui/update 16)
+(def-method 'gui :update 16)
 	;inputs
-	;r0 = screen view object (ptr)
+	;r0 = mouse x
+	;r1 = mouse y
+	;r2 = update flags
 
 	(def-vars
-		(ptr statics msg data view old_stack)
-		(ulong now)
-		(struct owner_id net_id_size)
-		(int flag)
-		(struct event 256))
+		(ptr statics old_stack))
+
+	(entry 'gui :update '(r0 r1 r2))
 
 	;kernel callback for update
+	(fn-bind 'sys/statics/statics r3)
+	(assign '(r0 r1 r2) '((r3 statics_gui_mouse_x) (r3 statics_gui_mouse_y) (r3 statics_gui_flags)))
 	(jump 'sys_task :callback '(0 ($ update_callback)))
 
 (vp-label 'update_callback)
@@ -76,6 +76,17 @@
 		(host-gui-call 'host_gui :sdl_set_render_draw_blend_mode {statics->statics_gui_renderer, SDL_BLENDMODE_BLEND})
 	(endif)
 
+	;resize back buffer ?
+	(when (= num_old_regions 0)
+	(vpif {statics->statics_gui_flags})
+		;resize back buffer and redraw in full
+		(host-gui-call 'host_gui :sdl_destroy_texture {statics->statics_gui_texture})
+		(host-gui-call 'host_gui :sdl_create_texture
+			{statics->statics_gui_renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_TARGET,
+				statics->statics_gui_screen->view_w, statics->statics_gui_screen->view_h}
+			{statics->statics_gui_texture})
+	(endif))
+
 	;update screen
 	(vpif {statics->statics_gui_dirty_flag})
 		(cond
@@ -94,234 +105,12 @@
 		(assign {0} {statics->statics_gui_dirty_flag})
 	(endif)
 
-	;any sdl events ?
-	(loop-start)
-		(host-gui-call 'host_gui :sdl_poll_event {0} {flag})
-		(breakifnot {flag})
-		(host-gui-call 'host_gui :sdl_poll_event {&event})
-		(switch)
-		(vpcase {event.sdl_common_event_type = SDL_MOUSEWHEEL})
-			;find view for wheel
-			(call 'view :hit_tree {statics->statics_gui_screen,
-				statics->statics_gui_mouse_x, statics->statics_gui_mouse_y}
-				{_, view, _, _})
-			(call 'view :find_owner {view}
-				{_, owner_id.net_id_mbox_id,
-				owner_id.net_id_node_id.node_id_node1,
-				owner_id.net_id_node_id.node_id_node2})
-			(breakifnot {owner_id.net_id_mbox_id
-				| owner_id.net_id_node_id.node_id_node1
-				| owner_id.net_id_node_id.node_id_node2})
-			;send event message
-			(call 'sys_mail :alloc {ev_msg_wheel_size} {msg, data})
-			(assign {ev_type_wheel} {data->ev_msg_type})
-			(assign {event.sdl_mouse_wheel_event_x} {data->ev_msg_wheel_x})
-			(assign {event.sdl_mouse_wheel_event_y} {data->ev_msg_wheel_y})
-			(assign {event.sdl_mouse_wheel_event_direction} {data->ev_msg_wheel_direction})
-			(goto 'send_event1)
-		(vpcase {event.sdl_common_event_type = SDL_MOUSEMOTION})
-			;update mouse state
-			(assign {event.sdl_mouse_button_event_x} {statics->statics_gui_mouse_x})
-			(assign {event.sdl_mouse_button_event_y} {statics->statics_gui_mouse_y})
-			(assign {event.sdl_mouse_motion_event_state} {statics->statics_gui_mouse_buttons})
-			(vpifnot {statics->statics_gui_mouse_buttons})
-		(vp-label 'send_event2)
-				(call 'view :hit_tree {statics->statics_gui_screen,
-					event.sdl_mouse_button_event_x, event.sdl_mouse_button_event_y} {_, view, _, _})
-				(assign {view->view_id} {statics->statics_gui_mouse_id})
-			(endif)
-			;send event message
-		(vp-label 'send_event)
-			(call 'view :find_id {statics->statics_gui_screen, statics->statics_gui_mouse_id} {_, view})
-			(breakifnot {view})
-			(call 'view :find_owner {view}
-				{_, owner_id.net_id_mbox_id,
-				owner_id.net_id_node_id.node_id_node1,
-				owner_id.net_id_node_id.node_id_node2})
-			(breakifnot {owner_id.net_id_mbox_id
-				| owner_id.net_id_node_id.node_id_node1
-				| owner_id.net_id_node_id.node_id_node2})
-			(call 'sys_mail :alloc {ev_msg_mouse_size} {msg, data})
-			(assign {ev_type_mouse} {data->ev_msg_type})
-			(assign {statics->statics_gui_mouse_buttons} {data->ev_msg_mouse_buttons})
-			(assign {statics->statics_gui_count} {data->ev_msg_mouse_count})
-			(assign {(event.sdl_mouse_button_event_x => data->ev_msg_mouse_x) - view->view_ctx_x} {data->ev_msg_mouse_rx})
-			(assign {(event.sdl_mouse_button_event_y => data->ev_msg_mouse_y) - view->view_ctx_y} {data->ev_msg_mouse_ry})
-		(vp-label 'send_event1)
-			(assign {view->view_id} {data->ev_msg_target_id})
-			(assign {owner_id.net_id_mbox_id} {msg->msg_dest.net_id_mbox_id})
-			(assign {owner_id.net_id_node_id.node_id_node1} {msg->msg_dest.net_id_node_id.node_id_node1})
-			(assign {owner_id.net_id_node_id.node_id_node2} {msg->msg_dest.net_id_node_id.node_id_node2})
-			(call 'sys_mail :send {msg})
-			(break)
-		(vpcase {event.sdl_common_event_type = SDL_MOUSEBUTTONDOWN})
-			;update mouse state
-			(assign {event.sdl_mouse_button_event_button | statics->statics_gui_mouse_buttons}
-				{statics->statics_gui_mouse_buttons})
-			(goto 'send_event2)
-		(vpcase {event.sdl_common_event_type = SDL_MOUSEBUTTONUP})
-			;update mouse state
-			(assign {event.sdl_mouse_button_event_button ^ statics->statics_gui_mouse_buttons}
-				{statics->statics_gui_mouse_buttons})
-			(call 'sys_pii :time nil {now})
-			(vpif {(now - statics->statics_gui_then) < 400000})
-				(assign {statics->statics_gui_count + 1} {statics->statics_gui_count})
-			(else)
-				(assign {0} {statics->statics_gui_count})
-			(endif)
-			(assign {now} {statics->statics_gui_then})
-			(goto 'send_event)
-		(vpcase {event.sdl_common_event_type = SDL_KEYDOWN})
-			;find keyboard target view
-			(call 'view :hit_tree {statics->statics_gui_screen,
-				statics->statics_gui_mouse_x, statics->statics_gui_mouse_y}
-				{_, view, _, _})
-			(call 'view :find_owner {view}
-				{_, owner_id.net_id_mbox_id,
-				owner_id.net_id_node_id.node_id_node1,
-				owner_id.net_id_node_id.node_id_node2})
-			(breakifnot {owner_id.net_id_mbox_id
-				| owner_id.net_id_node_id.node_id_node1
-				| owner_id.net_id_node_id.node_id_node2})
-			;send event message
-			(call 'sys_mail :alloc {ev_msg_key_size} {msg, data})
-			(assign {ev_type_key} {data->ev_msg_type})
-			(assign {event.sdl_keyboard_event_keysym.sdl_keysym_scancode} {data->ev_msg_key_keycode})
-			(call 'cook_key {event.sdl_keyboard_event_keysym.sdl_keysym_sym,
-					event.sdl_keyboard_event_keysym.sdl_keysym_mod}
-				{data->ev_msg_key_key, data->ev_msg_key_mod})
-			(goto 'send_event1)
-		(vpcase {event.sdl_common_event_type = SDL_WINDOWEVENT})
-			(switch)
-			(vpcase {event.sdl_window_event_event = SDL_WINDOWEVENT_SIZE_CHANGED})
-			(when (= num_old_regions 0)
-				;resize back buffer and redraw in full
-				(host-gui-call 'host_gui :sdl_destroy_texture {statics->statics_gui_texture})
-				(host-gui-call 'host_gui :sdl_create_texture
-					{statics->statics_gui_renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_TARGET, event.sdl_window_event_data1, event.sdl_window_event_data2}
-					{statics->statics_gui_texture}))
-				;change backdrop size, send gui event to all top level views
-				(call 'view :set_bounds '{statics->statics_gui_screen, 0, 0, event.sdl_window_event_data1, event.sdl_window_event_data2})
-				(call 'view :forward {statics->statics_gui_screen, 0, $send_gui_event})
-				(call 'view :set_flags '{statics->statics_gui_screen, view_flag_dirty_all, view_flag_dirty_all})
-				(break)
-			(vpcase {event.sdl_window_event_event = SDL_WINDOWEVENT_RESTORED})
-				(call 'view :set_flags '{statics->statics_gui_screen, view_flag_dirty_all, view_flag_dirty_all})
-				(break)
-			(endswitch)
-		;;	(break)
-		;; (vpcase {event.sdl_common_event_type = SDL_QUIT})
-		;; 	(assign {-1} {user->local_quit})
-		;; 	(break)
-		(endswitch)
-	(loop-end)
-
 	(assign {old_stack} '(rsp))
 	(pop-scope-syms)
 	(return)
-
-(vp-label 'deinit_callback)
-	;inputs
-	;r0 = user data
-
-	(def-vars
-		(ptr statics old_stack iter_begin iter_end))
-
-	(vp-cpy-rr rsp r1)
-	(push-scope)
-	(vp-and-cr -16 rsp)
-	(entry {statics, old_stack})
-
-	;free any screen
-	(vpif {statics->statics_gui_screen})
-		(call 'view :deref {statics->statics_gui_screen})
-		(assign {0} {statics->statics_gui_screen})
-	(endif)
-
-	;destroy any window
-	(vpif {statics->statics_gui_window})
-		(host-gui-call 'host_gui :sdl_destroy_window {statics->statics_gui_window})
-		(host-gui-call 'host_gui :sdl_quit)
-	(endif)
-
-	;free old regions and deinit region heap
-	(assign {&statics->statics_gui_old_regions} {iter_begin})
-	(assign {&iter_begin[num_old_regions * +ptr_size]} {iter_end})
-	(loop-while {iter_begin /= iter_end})
-		(call 'region :free {statics->statics_gui_rect_heap, iter_begin})
-		(assign {iter_begin + +ptr_size} {iter_end})
-	(loop-end)
-	(call 'sys_heap :deinit {statics->statics_gui_rect_heap})
-
-	(assign {old_stack} '(rsp))
-	(pop-scope-syms)
-	(return)
-
-(vp-label 'send_gui_event)
-	;send gui event
-	(def-vars
-		(ptr this user msg data)
-		(struct owner_id net_id_size))
-
-	(push-scope)
-	(entry {this, user})
-
-	(call 'view :find_owner {this}
-		{_, owner_id.net_id_mbox_id,
-		owner_id.net_id_node_id.node_id_node1,
-		owner_id.net_id_node_id.node_id_node2})
-	(vpif {owner_id.net_id_mbox_id
-			| owner_id.net_id_node_id.node_id_node1
-			| owner_id.net_id_node_id.node_id_node2})
-		(call 'sys_mail :alloc {ev_msg_gui_size} {msg, data})
-		(assign {ev_type_gui} {data->ev_msg_type})
-		(assign {owner_id.net_id_mbox_id} {msg->msg_dest.net_id_mbox_id})
-		(assign {owner_id.net_id_node_id.node_id_node1} {msg->msg_dest.net_id_node_id.node_id_node1})
-		(assign {owner_id.net_id_node_id.node_id_node2} {msg->msg_dest.net_id_node_id.node_id_node2})
-		(assign {this->view_id} {data->ev_msg_target_id})
-		(call 'sys_mail :send {msg})
-	(endif)
-
-	(exit {this})
-	(pop-scope)
-	(return)
-
-(vp-label 'cook_key)
-	;inputs
-	;r0 = key
-	;r1 = mod
-	;outputs
-	;r0 = cooked key
-	;r1 = mod
-	;trashes
-	;r0-r3
-
-	(entry '(r0 r1))
-
-	(vp-cpy-rr r1 r2)
-	(vp-and-cr 0x2003 r2)
-	(vpif '(r2 /= 0) 'exit)
-		(assign '(($ shifted)) '(r2))
-		(loop-start)
-			(vp-cpy-ir-ub r2 0 r3)
-			(breakif '(r3 = 0))
-			(vpif '(r3 = r0))
-				(vp-cpy-ir-ub r2 1 r0)
-				(break 'exit)
-			(endif)
-			(vp-add-cr +short_size r2)
-		(loop-end)
-	(endif)
-
-	(exit '(r0 r1))
-	(vp-ret)
 
 (vp-label 'title)
 	(vp-string "ChrysaLisp GUI Window") (vp-byte 0)
-(vp-label 'shifted)
-	(vp-string "qQwWeErRtTyYuUiIoOpPaAsSdDfFgGhHjJkKlLzZxXcCvVbBnNmM")
-	(vp-string "1!2@3#4$5%6^7&8*9(0)§±-_=+[{]};:\|,<.>/?`~'")
-	(vp-byte 34 0)
 
 (def-func-end)
 
