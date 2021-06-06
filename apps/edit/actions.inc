@@ -453,8 +453,37 @@
 		(populate-vdu file)
 		(select-node file)))
 
+(defun action-comment-block ()
+	(undoable
+		(bind '(y y1) (select-lines))
+		(each! y y1 (lambda (line)
+				(.-> buffer
+					(:set_cursor 0 _)
+					(:insert ";; ")))
+			(list (. buffer :get_text_lines)))
+		(bind '(x y) (. buffer :get_cursor))
+		(bind '(x y) (. buffer :constrain x (inc y)))
+		(. buffer :set_cursor x y))
+	(clear-selection) (refresh))
+
+(defun action-uncomment-block ()
+	(undoable
+		(bind '(y y1) (select-lines))
+		(each! y y1 (lambda (line)
+				(if (starts-with ";; " line)
+					(.-> buffer
+						(:set_cursor 0 _)
+						(:delete 3))))
+			(list (. buffer :get_text_lines)))
+		(bind '(x y) (. buffer :get_cursor))
+		(bind '(x y) (. buffer :constrain x (inc y)))
+		(. buffer :set_cursor x y))
+	(clear-selection) (refresh))
+
 (defq
 event_map (xmap-kv
+	+event_comment action-comment-block
+	+event_uncomment action-uncomment-block
 	+event_close action-close
 	+event_min action-minimise
 	+event_max action-maximise
@@ -511,6 +540,8 @@ key_map_shift (xmap-kv
 	+char_tab action-left-tab)
 
 key_map_control (xmap-kv
+	(ascii-code "/") action-comment-block
+	(ascii-code "?") action-uncomment-block
 	(ascii-code "a") action-select-all
 	(ascii-code "b") action-select-block
 	(ascii-code "B") action-cut-block

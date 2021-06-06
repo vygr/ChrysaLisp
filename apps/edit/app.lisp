@@ -15,7 +15,8 @@
 		cut copy paste
 		reflow paragraph tab_left tab_right
 		block bracket_left bracket_right
-		toupper tolower ordered unique)
+		toupper tolower ordered unique
+		comment uncomment)
 	(enum prev next close_buffer save_all save new)
 	(enum find_down find_up replace replace_all))
 
@@ -41,7 +42,8 @@
 				0xea08 0xe9ca 0xe9c9
 				0xe909 0xe90d 0xe90a 0xe90b
 				0xe955 0xe93c 0xe93d
-				0xea36 0xea33 0xea27 0xea28) +event_undo))
+				0xea36 0xea33 0xea27 0xea28
+				0xea3b 0xea26) +event_undo))
 		(ui-backdrop _ (:color (const *env_toolbar_col*))))
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-tool-bar buffer_toolbar (:color (const *env_toolbar2_col*))
@@ -294,7 +296,7 @@
 		(. edit_toolbar :children)
 		'("undo" "redo" "rewind" "cut" "copy" "paste" "reflow" "select paragraph"
 			"undent" "indent" "select form" "start form" "end form" "upper case"
-			"lower case" "sort" "unique"))
+			"lower case" "sort" "unique" "comment" "uncomment"))
 	(each (lambda (button tip_text) (def button :tip_text tip_text))
 		(. buffer_toolbar :children)
 		'("previous" "next" "close" "save all" "save" "new"))

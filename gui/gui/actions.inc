@@ -1,7 +1,7 @@
 ;module
 (env-push)
 
-(defun cook_key (key mod)
+(defun cook_key (key_code key mod)
 	(and (/= (logand mod (const (logior +ev_key_mod_caps_lock +ev_key_mod_shift))) 0)
 		(defq i (find (char key) "§1234567890-=qwertyuiop[]asdfghjkl;\`zxcvbnm,./'"))
 		(setq key (code (elem i (const (cat "±!@#$%^&*()_+QWERTYUIOP{}ASDFGHJKL:|~ZXCVBNM<>?" (char 34)))))))
@@ -81,13 +81,12 @@
 			(+ev_msg_type +ev_type_key)
 			(+ev_msg_target_id *mouse_id*)
 			(+ev_msg_key_keycode key_code)
-			(+ev_msg_key_key (cook_key key mod))
+			(+ev_msg_key_key (cook_key key_code key mod))
 			(+ev_msg_key_mod mod)))))
 
 (defun action-window ()
-	(defq event (getf msg +sdl_window_event_event))
 	(cond
-		((= event +SDL_WINDOWEVENT_SIZE_CHANGED)
+		((= (defq event (getf msg +sdl_window_event_event)) +SDL_WINDOWEVENT_SIZE_CHANGED)
 			(.-> *screen*
 				(:set_bounds 0 0
 					(getf msg +sdl_window_event_data1)
@@ -106,8 +105,7 @@
 	;nil soon...
 	(setq id t))
 
-(defq
-event_map (xmap-kv
+(defq event_map (xmap-kv
 	+SDL_MOUSEWHEEL action-mouse-wheel
 	+SDL_MOUSEMOTION action-mouse-motion
 	+SDL_MOUSEBUTTONDOWN action-mouse-button-down
