@@ -9,14 +9,6 @@
 (include "gui/view/class.inc")
 (include "sys/statics/class.inc")
 
-(def-method 'gui :statics_init)
-
-	;init region heap
-	(fn-bind 'sys/statics/statics r4)
-	(jump 'sys_heap :init '((& r4 statics_gui_rect_heap) rect_size 32))
-
-(def-func-end)
-
 (def-method 'gui :update 16)
 	;inputs
 	;r0 = mouse x
@@ -63,7 +55,7 @@
 				(host-gui-call 'host_gui :sdl_create_renderer
 					{statics->statics_gui_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC}
 					{statics->statics_gui_renderer}))
-			(t	(host-gui-call 'host_gui :sdl_create_renderer
+			(t  (host-gui-call 'host_gui :sdl_create_renderer
 					{statics->statics_gui_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_TARGETTEXTURE}
 					{statics->statics_gui_renderer})
 				(host-gui-call 'host_gui :sdl_create_texture
@@ -93,7 +85,7 @@
 			((> num_old_regions 0)
 				;no render to texture
 				(call 'gui :composit {statics->statics_gui_screen}))
-			(t	;render to back buffer texture
+			(t  ;render to back buffer texture
 				(host-gui-call 'host_gui :sdl_set_render_target {statics->statics_gui_renderer, statics->statics_gui_texture})
 				(call 'gui :composit {statics->statics_gui_screen})
 				(host-gui-call 'host_gui :sdl_set_render_target {statics->statics_gui_renderer, 0})

@@ -47,9 +47,6 @@
 	;init tasks
 	(call 'sys_task :statics_init)
 
-	;init gui
-	(call 'gui :statics_init)
-
 	;init mailer mailbox list
 	(call 'sys_mail :statics_init)
 

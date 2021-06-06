@@ -1957,8 +1957,6 @@ trashes
 r1-r14
 ```
 
-### gui :statics_init -> gui/gui/statics_init
-
 ### gui :update -> gui/gui/update
 
 ```code
