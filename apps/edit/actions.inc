@@ -456,17 +456,19 @@
 (defun action-comment-block ()
 	(undoable
 		(bind '(y y1) (select-lines))
+		(setq *anchor_x* 0 *anchor_y* y)
 		(each! y y1 (lambda (line)
 				(.-> buffer (:set_cursor 0 _) (:insert ";; ")))
 			(list (. buffer :get_text_lines)))
 		(bind '(x y) (. buffer :get_cursor))
 		(bind '(x y) (. buffer :constrain 0 (inc y)))
 		(. buffer :set_cursor x y))
-	(clear-selection) (refresh))
+	(refresh))
 
 (defun action-uncomment-block ()
 	(undoable
 		(bind '(y y1) (select-lines))
+		(setq *anchor_x* 0 *anchor_y* y)
 		(each! y y1 (lambda (line)
 				(if (starts-with ";; " line)
 					(.-> buffer (:set_cursor 0 _) (:delete 3))))
@@ -474,7 +476,7 @@
 		(bind '(x y) (. buffer :get_cursor))
 		(bind '(x y) (. buffer :constrain 0 (inc y)))
 		(. buffer :set_cursor x y))
-	(clear-selection) (refresh))
+	(refresh))
 
 (defq
 event_map (xmap-kv
