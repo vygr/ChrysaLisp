@@ -462,7 +462,7 @@
 					(:insert ";; ")))
 			(list (. buffer :get_text_lines)))
 		(bind '(x y) (. buffer :get_cursor))
-		(bind '(x y) (. buffer :constrain x (inc y)))
+		(bind '(x y) (. buffer :constrain 0 (inc y)))
 		(. buffer :set_cursor x y))
 	(clear-selection) (refresh))
 
@@ -476,7 +476,7 @@
 						(:delete 3))))
 			(list (. buffer :get_text_lines)))
 		(bind '(x y) (. buffer :get_cursor))
-		(bind '(x y) (. buffer :constrain x (inc y)))
+		(bind '(x y) (. buffer :constrain 0 (inc y)))
 		(. buffer :set_cursor x y))
 	(clear-selection) (refresh))
 
