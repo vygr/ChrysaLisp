@@ -230,7 +230,7 @@
 	(sort cmp *open_files*)
 	(each (# (. %0 :sub)) (. *open_tree* :children))
 	(each (# (. *open_tree* :add_route %0)) (all-dirs *open_files*))
-	(each (# (populate-vdu %0) (. *open_tree* :add_route %0)) *open_files*))
+	(each (# (. *open_tree* :add_route %0)) *open_files*))
 
 (defun load-open-files ()
 	;load users open file tree

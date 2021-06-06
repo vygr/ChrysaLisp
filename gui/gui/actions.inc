@@ -103,7 +103,7 @@
 
 (defun action-quit ()
 	;nil soon...
-	(setq id t))
+	(setq *running* t))
 
 (defq event_map (xmap-kv
 	+SDL_MOUSEWHEEL action-mouse-wheel

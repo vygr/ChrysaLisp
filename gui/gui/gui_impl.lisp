@@ -14,7 +14,7 @@
 (defq *profile* (env -1) *profile_ret* (list)
 	*mouse_x* 0 *mouse_y* 0 *mouse_buttons* 0 *mouse_id* 0
 	select (list (task-mailbox) (mail-alloc-mbox))
-	rate (/ 1000000 60) id t)
+	rate (/ 1000000 60) *running* t)
 
 (enums +select 0
 	(enum main timer))
@@ -30,7 +30,7 @@
 	(open-child "apps/login/app.lisp" +kn_call_open)
 	(open-child "apps/clipboard/app.lisp" +kn_call_open)
 	(mail-timeout (elem +select_timer select) rate)
-	(while id
+	(while *running*
 		(defq msg (mail-read (elem (defq idx (mail-select select)) select)))
 		(cond
 			((= idx +select_main)
