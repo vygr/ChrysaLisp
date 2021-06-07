@@ -76,18 +76,32 @@
 	(clear-selection) (refresh))
 
 (defun action-left ()
-	(. *current_buffer* :left)
+	(cond
+		((selection?)
+			(bind '(sx sy sx1 sy1) (sort-selection))
+			(. *current_buffer* :set_cursor sx sy))
+		(t  (. *current_buffer* :left)))
 	(clear-selection) (refresh))
 
 (defun action-right ()
-	(. *current_buffer* :right)
+	(cond
+		((selection?)
+			(bind '(sx sy sx1 sy1) (sort-selection))
+			(. *current_buffer* :set_cursor sx1 sy1))
+		(t  (. *current_buffer* :right)))
 	(clear-selection) (refresh))
 
 (defun action-up ()
+	(when (selection?)
+		(bind '(sx sy sx1 sy1) (sort-selection))
+		(. *current_buffer* :set_cursor sx sy))
 	(. *current_buffer* :up)
 	(clear-selection) (refresh))
 
 (defun action-down ()
+	(when (selection?)
+		(bind '(sx sy sx1 sy1) (sort-selection))
+		(. *current_buffer* :set_cursor sx1 sy1))
 	(. *current_buffer* :down)
 	(clear-selection) (refresh))
 
