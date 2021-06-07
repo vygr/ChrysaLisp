@@ -540,11 +540,12 @@
 		(t  (radio-select macro_toolbar -1))))
 
 (defun action-macro-playback ()
-	(each (lambda ((action &rest params))
-			(apply action params)
-			(bind '(x y) (. *current_buffer* :get_cursor))
-			(setq *cursor_x* x *cursor_y* y))
-		*macro_actions*)
+	(undoable
+		(each (lambda ((action &rest params))
+				(apply action params)
+				(bind '(x y) (. *current_buffer* :get_cursor))
+				(setq *cursor_x* x *cursor_y* y))
+			*macro_actions*))
 	(clear-selection) (refresh))
 
 (defq
@@ -648,7 +649,7 @@ key_map_control (xmap-kv
 	(ascii-code "o") action-ordered
 	(ascii-code "O") action-ordered-unique)
 
-recorded_list (list
+recorded_actions_list (list
 	action-backspace action-break action-comment-block action-copy action-cut
 	action-cut-block action-cut-line action-cut-paragraph action-cut-word
 	action-delete action-down action-down-select action-end action-end-select
@@ -664,6 +665,6 @@ recorded_list (list
 
 ;module
 (export (penv)
-	event_map key_map key_map_shift key_map_control recorded_list
+	event_map key_map key_map_shift key_map_control recorded_actions_list
 	action-insert action-select-word action-select-line action-select-paragraph)
 (env-pop)

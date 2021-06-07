@@ -323,7 +323,7 @@
 (import "apps/edit/actions.inc")
 
 (defun record-action (action &rest params)
-	(and *macro_record* (find action recorded_list)
+	(and *macro_record* (find action recorded_actions_list)
 		(push *macro_actions* (cat (list action) params)))
 	(apply action params))
 
