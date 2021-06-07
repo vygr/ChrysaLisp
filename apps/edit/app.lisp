@@ -322,9 +322,9 @@
 ;import actions and bindings
 (import "apps/edit/actions.inc")
 
-(defun record-action (action &rest params)
+(defun dispatch-action (action &rest params)
 	(and *macro_record* (find action recorded_actions_list)
-		(push *macro_actions* (cat (list action) params)))
+		(push *macro_actions* `(,action ~params)))
 	(apply action params))
 
 (defun main ()
@@ -347,7 +347,7 @@
 				(cond
 					((defq id (getf *msg* +ev_msg_target_id) action (. event_map :find id))
 						;call bound event action
-						(record-action action))
+						(dispatch-action action))
 					((and (= id (. *vdu* :get_id)) (= (getf *msg* +ev_msg_type) +ev_type_mouse))
 						;mouse event on display
 						(clear-tip)
@@ -374,11 +374,11 @@
 										(defq click_count (getf *msg* +ev_msg_mouse_count))
 										(cond
 											((= click_count 2)
-												(record-action action-select-word))
+												(dispatch-action action-select-word))
 											((= click_count 3)
-												(record-action action-select-line))
+												(dispatch-action action-select-line))
 											((= click_count 4)
-												(record-action action-select-paragraph)))
+												(dispatch-action action-select-paragraph)))
 										(setq mouse_state :u)
 										(refresh))
 									(:u ;mouse hover event
@@ -402,20 +402,20 @@
 									(+ +ev_key_mod_control +ev_key_mod_option +ev_key_mod_command))))
 								;call bound control/command key action
 								(if (defq action (. key_map_control :find key))
-									(record-action action)))
+									(dispatch-action action)))
 							((/= 0 (logand mod +ev_key_mod_shift))
 								;call bound shift key action, else insert
 								(cond
 									((defq action (. key_map_shift :find key))
-										(record-action action))
+										(dispatch-action action))
 									((<= +char_space key +char_tilda)
-										(record-action action-insert key))))
+										(dispatch-action action-insert key))))
 							((defq action (. key_map :find key))
 								;call bound key action
-								(record-action action))
+								(dispatch-action action))
 							((<= +char_space key +char_tilda)
 								;insert the char
-								(record-action action-insert key))))
+								(dispatch-action action-insert key))))
 					(t  ;gui event, plus check for tip text
 						(clear-tip)
 						(. *window* :event *msg*)

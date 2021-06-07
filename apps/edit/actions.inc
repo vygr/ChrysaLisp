@@ -1,13 +1,8 @@
 ;module
 (env-push)
 
-(defq +whole_word_chars (cat
-	"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-	"abcdefghijklmnopqrstuvwxyz"
-	"_-0123456789"))
-
-(defmacro is-whole-word-char? (_)
-	(list 'find-rev _ +whole_word_chars))
+(defmacro is-not-whole-word-char? (_)
+	`(find ,_ " (){}[]"))
 
 (defun radio-select (toolbar idx)
 	(each (lambda (button)
@@ -40,9 +35,9 @@
 (defun select-word ()
 	(defq line (. *current_buffer* :get_text_line *cursor_y*)
 		x (some! *cursor_x* 0 nil (#
-			(unless (is-whole-word-char? %0) (inc _))) (list line))
+			(if (is-not-whole-word-char? %0) (inc _))) (list line))
 		x1 (some! *cursor_x* -1 nil (#
-		   (unless (is-whole-word-char? %0) _)) (list line)))
+		   (if (is-not-whole-word-char? %0) _)) (list line)))
 	(unless x (setq x 0))
 	(unless x1 (setq x1 (length line)))
 	(list x x1))
@@ -401,10 +396,10 @@
 				(defq line (. *current_buffer* :get_text_line y) x1 (+ x pattern_len))
 				(cond
 					((eql pattern line))
-					((= x 0) (not (is-whole-word-char? (elem x1 line))))
-					((= x1 (length line)) (not (is-whole-word-char? (elem (dec x) line))))
-					((and (not (is-whole-word-char? (elem (dec x) line))))
-						(not (is-whole-word-char? (elem x1 line))))))
+					((= x 0) (is-not-whole-word-char? (elem x1 line)))
+					((= x1 (length line)) (is-not-whole-word-char? (elem (dec x) line)))
+					((and (is-not-whole-word-char? (elem (dec x) line)))
+						(is-not-whole-word-char? (elem x1 line)))))
 				found))) found)
 
 (defun action-find-down ()
@@ -543,7 +538,7 @@
 	(undoable
 		(each (lambda ((action &rest params))
 				(apply action params)
-				(bind '(x y) (. *current_buffer* :get_cursor))
+				(bind '(x y) (. buffer :get_cursor))
 				(setq *cursor_x* x *cursor_y* y))
 			*macro_actions*))
 	(clear-selection) (refresh))
