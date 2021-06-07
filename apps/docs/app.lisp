@@ -58,7 +58,7 @@
 			(if button (undef (. button :dirty) :color))
 			(. scroll_pos :insert file (get :value (get :vslider page_scroll)))
 			(setq button (. mywindow :find_id (getf msg +ev_msg_action_source_id)))
-			(def (. button :dirty) :color +argb_grey14)
+			(def (. button :dirty) :color *env_radio_col*)
 			(populate-page (setq file (get :text button))))
 		(t (. mywindow :event msg))))
 	(gui-sub mywindow))

@@ -10,7 +10,7 @@
 	(enum grid plain axis))
 
 (defq canvas_width 600 canvas_height 600 min_width 300 min_height 300
-	style_buttons (list) rate (/ 1000000 60) base 0.3
+	rate (/ 1000000 60) base 0.3
 	palette (map (lambda (_) (vec-i2n
 			(/ (logand (>> _ 16) 0xff) 0xff)
 			(/ (logand (>> _ 8) 0xff) 0xff)
@@ -19,18 +19,19 @@
 
 (ui-window mywindow ()
 	(ui-title-bar _ "Bubbles" (0xea19 0xea1b 0xea1a) +event_close)
-	(ui-tool-bar _ ()
-		(ui-buttons (0xe938) +event_reset)
-		(ui-buttons (0xe976 0xe9a3 0xe9f0) +event_grid () style_buttons))
+	(ui-flow _ (:flow_flags +flow_right_fill)
+		(ui-tool-bar _ () (ui-buttons (0xe938) +event_reset))
+		(ui-tool-bar style_toolbar () (ui-buttons (0xe976 0xe9a3 0xe9f0) +event_grid)))
 	(ui-scroll image_scroll (logior +scroll_flag_vertical +scroll_flag_horizontal)
 			(:min_width canvas_width :min_height canvas_height)
 		(ui-backdrop mybackdrop (:color +argb_black :ink_color +argb_grey8)
 			(ui-canvas layer1_canvas canvas_width canvas_height 1))))
 
-(defun radio-select (l i)
-	;radio select buttons
-	(each (lambda (b)
-		(def (. b :dirty) :color (if (= _ i) +argb_grey14 (const *env_toolbar_col*)))) l) i)
+(defun radio-select (toolbar idx)
+	(each (lambda (button)
+			(undef (. button :dirty) :color)
+			(if (= _ idx) (def button :color *env_radio_col*)))
+		(. toolbar :children)) idx)
 
 (defun redraw-layers (verts mask)
 	;redraw layer/s
@@ -126,7 +127,7 @@
 		select (list (task-mailbox) (mail-alloc-mbox)))
 	(. layer1_canvas :set_canvas_flags +canvas_flag_antialias)
 	(. mybackdrop :set_size canvas_width canvas_height)
-	(radio-select style_buttons 0)
+	(radio-select style_toolbar 0)
 	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
 	(gui-add-front (. mywindow :change x y w h))
 	(def image_scroll :min_width min_width :min_height min_height)
@@ -161,7 +162,7 @@
 						(setq verts (vertex-cloud num_bubbles)))
 					((<= +event_grid id +event_axis)
 						;styles
-						(def (. mybackdrop :dirty) :style (elem (radio-select style_buttons (- id +event_grid)) '(nil :grid :axis))))
+						(def (. mybackdrop :dirty) :style (elem (radio-select style_toolbar (- id +event_grid)) '(nil :grid :axis))))
 					((and (= id (. layer1_canvas :get_id))
 						(= (getf msg +ev_msg_type) +ev_type_mouse))
 							;mouse event in canvas

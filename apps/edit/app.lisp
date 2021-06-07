@@ -18,7 +18,8 @@
 		toupper tolower ordered unique
 		comment uncomment)
 	(enum prev next close_buffer save_all save new)
-	(enum find_down find_up replace replace_all))
+	(enum find_down find_up whole_words)
+	(enum replace replace_all))
 
 (enums +select 0
 	(enum main tip))
@@ -31,7 +32,7 @@
 		(const (<< (canvas-from-argb32 +argb_grey6 15) 48))) (str-alloc 8192)))
 	+not_selected (nums-sub +selected +selected)
 	+bracket_char (nums 0x7f) +state_filename "editor_open_files"
-	+tip_time 1000000 tip_id +max_long tip nil
+	+tip_time 1000000 tip_id +max_long tip nil *whole_words* nil
 	select (list (task-mailbox) (mail-alloc-mbox)))
 
 (ui-window *window* (:color +argb_grey1)
@@ -43,18 +44,17 @@
 				0xe909 0xe90d 0xe90a 0xe90b
 				0xe955 0xe93c 0xe93d
 				0xea36 0xea33 0xea27 0xea28
-				0xea3b 0xea26) +event_undo))
+				0xe9c4 0xe9d4) +event_undo))
 		(ui-backdrop _ (:color (const *env_toolbar_col*))))
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-tool-bar buffer_toolbar (:color (const *env_toolbar2_col*))
-			(ui-buttons (0xe91d 0xe91e 0xe929
-					0xe97e 0xea07 0xe9f0) +event_prev))
+			(ui-buttons (0xe91d 0xe91e 0xe929 0xe97e 0xea07 0xe9f0) +event_prev))
 		(ui-grid _ (:grid_width 3 :grid_height 1)
 			(. (ui-textfield *name_text* (:hint_text "new file" :clear_text "" :color +argb_white))
 				:connect +event_new)
 			(ui-flow _ (:flow_flags +flow_right_fill)
 				(ui-tool-bar find_toolbar (:color (const *env_toolbar2_col*))
-					(ui-buttons (0xe914 0xe91b) +event_find_down))
+					(ui-buttons (0xe914 0xe91b 0xe9cd) +event_find_down))
 				(. (ui-textfield *find_text* (:hint_text "find" :clear_text "" :color +argb_white))
 					:connect +event_find_down))
 			(ui-flow _ (:flow_flags +flow_right_fill)
@@ -302,7 +302,7 @@
 		'("previous" "next" "close" "save all" "save" "new"))
 	(each (lambda (button tip_text) (def button :tip_text tip_text))
 		(. find_toolbar :children)
-		'("find down" "find up"))
+		'("find down" "find up" "whole words"))
 	(each (lambda (button tip_text) (def button :tip_text tip_text))
 		(. replace_toolbar :children)
 		'("replace" "replace all")))

@@ -16,32 +16,32 @@
 	palette (list +argb_black +argb_white +argb_red +argb_green +argb_blue +argb_cyan +argb_yellow +argb_magenta)
 	palette (cat palette (map trans palette)) undo_stack (list) redo_stack (list)
 	stroke_col (elem 0 palette) stroke_mode +event_pen commited_polygons (list) overlay_paths (list)
-	radius_buttons (list) style_buttons (list) ink_buttons (list) mode_buttons (list)
 	picker_mbox nil picker_mode nil select (list (task-mailbox) (mail-alloc-mbox) (mail-alloc-mbox))
 	rate (/ 1000000 60) +layer_all (+ +layer_commited +layer_overlay))
 
 (ui-window mywindow ()
 	(ui-title-bar _ "Whiteboard" (0xea19 0xea1b 0xea1a) +event_close)
-	(ui-tool-bar _ ()
-		(ui-buttons (0xea07 0xe9e9 0xe970 0xe9fe 0xe99d) +event_save)
-		(ui-buttons (0xe976 0xe9a3 0xe9d4 0xe9f0) +event_grid () style_buttons)
-		(ui-buttons (0xe979 0xe97d 0xe97b) +event_radius1 () radius_buttons)
-		(ui-buttons (0xe9ec 0xe9d8 0xe917 0xea20 0xe9f6 0xe94b 0xe960 0xe95f) +event_pen () mode_buttons))
-	(ui-tool-bar _ (:font *env_medium_toolbar_font*)
+	(ui-flow _ (:flow_flags +flow_right_fill)
+		(ui-tool-bar _ () (ui-buttons (0xea07 0xe9e9 0xe970 0xe9fe 0xe99d) +event_save))
+		(ui-tool-bar style_toolbar () (ui-buttons (0xe976 0xe9a3 0xe9d4 0xe9f0) +event_grid))
+		(ui-tool-bar radius_toolbar () (ui-buttons (0xe979 0xe97d 0xe97b) +event_radius1))
+		(ui-tool-bar mode_toolbar () (ui-buttons (0xe9ec 0xe9d8 0xe917 0xea20 0xe9f6 0xe94b 0xe960 0xe95f) +event_pen)))
+	(ui-tool-bar ink_toolbar (:font *env_medium_toolbar_font* :color (const *env_toolbar2_col*))
 		(each (lambda (col)
-			(push ink_buttons (. (ui-button __ (:ink_color col :text
+			(. (ui-button __ (:ink_color col :text
 				(if (< _ 8) (const (num-to-utf8 0xe982)) (const (num-to-utf8 0xea04))))) :connect
-					(+ _ +event_black)))) palette))
+					(+ _ +event_black))) palette))
 	(ui-scroll image_scroll (logior +scroll_flag_vertical +scroll_flag_horizontal)
 			(:min_width canvas_width :min_height canvas_height)
 		(ui-backdrop mybackdrop (:color 0xffF8F8FF :ink_color 0xffADD8E6)
 			(ui-canvas overlay_canvas canvas_width canvas_height 1)
 			(ui-canvas commited_canvas canvas_width canvas_height 1))))
 
-(defun radio-select (l i)
-	;radio select buttons
-	(each (lambda (b)
-		(def (. b :dirty) :color (if (= _ i) +argb_grey14 (const *env_toolbar_col*)))) l) i)
+(defun radio-select (toolbar idx)
+	(each (lambda (button)
+			(undef (. button :dirty) :color)
+			(if (= _ idx) (def button :color *env_radio_col*)))
+		(. toolbar :children)) idx)
 
 (defun flatten ((mode col rad pnts))
 	;flatten path to polygon
@@ -136,10 +136,10 @@
 	(. commited_canvas :set_canvas_flags +canvas_flag_antialias)
 	(. overlay_canvas :set_canvas_flags +canvas_flag_antialias)
 	(. mybackdrop :set_size canvas_width canvas_height)
-	(radio-select ink_buttons 0)
-	(radio-select mode_buttons 0)
-	(radio-select radius_buttons 0)
-	(radio-select style_buttons 0)
+	(radio-select ink_toolbar 0)
+	(radio-select mode_toolbar 0)
+	(radio-select radius_toolbar 0)
+	(radio-select style_toolbar 0)
 	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
 	(gui-add-front (. mywindow :change x y w h))
 	(def image_scroll :min_width min_width :min_height min_height)
@@ -168,16 +168,16 @@
 						(def image_scroll :min_width min_width :min_height min_height))
 					((<= +event_black id +event_tmagenta)
 						;ink pot
-						(setq stroke_col (elem (radio-select ink_buttons (- id +event_black)) palette)))
+						(setq stroke_col (elem (radio-select ink_toolbar (- id +event_black)) palette)))
 					((<= +event_pen id +event_fcircle)
 						;draw mode
-						(setq stroke_mode (+ (radio-select mode_buttons (- id +event_pen)) +event_pen)))
+						(setq stroke_mode (+ (radio-select mode_toolbar (- id +event_pen)) +event_pen)))
 					((<= +event_radius1 id +event_radius3)
 						;stroke radius
-						(setq stroke_radius (elem (radio-select radius_buttons (- id +event_radius1)) radiuss)))
+						(setq stroke_radius (elem (radio-select radius_toolbar (- id +event_radius1)) radiuss)))
 					((<= +event_grid id +event_lines)
 						;styles
-						(def (. mybackdrop :dirty) :style (elem (radio-select style_buttons (- id +event_grid)) '(nil :grid :lines :axis))))
+						(def (. mybackdrop :dirty) :style (elem (radio-select style_toolbar (- id +event_grid)) '(nil :grid :lines :axis))))
 					((= id +event_save)
 						;save
 						(if picker_mbox (mail-send picker_mbox ""))

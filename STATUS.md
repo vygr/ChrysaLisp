@@ -12,7 +12,7 @@ cntrl-v paste to Textfields.
 
 Viewer app updated to new Edit event dispatch system.
 
-Edit app saves/restores users open file list. Added asction-close-buffer.
+Edit app saves/restores users open file list. Added action-close-buffer.
 
 New `(some-rev)` added to `boot.inc`.
 
@@ -29,9 +29,11 @@ Lisp !
 
 GUI_SERVICE event->action map.
 
-Add action-comment-block and action-uncomment-block axctions to the Editor.
+Add action-comment-block and action-uncomment-block actions to the Editor.
 
 Lazy colouring of buffers on state restore.
+
+Whole word search toggle in Editor search/replace.
 
 ------
 

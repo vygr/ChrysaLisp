@@ -100,13 +100,11 @@
 		:border *env_button_border*)
 	`(ui-element ,n (Button) ,p ~x))
 
-(defmacro ui-buttons (s e &optional p l)
+(defmacro ui-buttons (s e &optional p)
 	; (ui-buttons symbols events [props] [group])
 	(setq s (map (lambda (_) (if (num? _) (num-to-utf8 _) _)) s))
 	(ui-props p :text _s)
-	(if l
-		`(each (lambda (_s) (push ,l (. (ui-button __ ,p) :connect (+ _ ,e)))) '(~s))
-		`(each (lambda (_s) (. (ui-button __ ,p) :connect (+ _ ,e))) '(~s))))
+	`(each (lambda (_s) (. (ui-button __ ,p) :connect (+ _ ,e))) '(~s)))
 
 (defmacro ui-tool-bar (n &optional p &rest x)
 	; (ui-tool-bar name [props] [body]) -> flow

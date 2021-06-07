@@ -32,7 +32,6 @@
 	(class/obj/ref r1 r2)
 	(assign '(r1) '((r0 statics_gui_screen)))
 	;init region heap
-	(fn-bind 'sys/statics/statics r0)
 	(call 'sys_heap :init '((& r0 statics_gui_rect_heap) rect_size 32))
 	;temp objects
 	(call 'list :create nil '(r0))

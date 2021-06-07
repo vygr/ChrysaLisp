@@ -1,6 +1,12 @@
 ;module
 (env-push)
 
+(defun radio-select (toolbar idx)
+	(each (lambda (button)
+			(undef (. button :dirty) :color)
+			(if (= _ idx) (def button :color *env_radio_col*)))
+		(. toolbar :children)) idx)
+
 (defmacro undoable (&rest _)
 	`(progn
 		(. (defq buffer *current_buffer*) :push_undo
@@ -354,9 +360,34 @@
 	(select-node (elem idx live_buffers))
 	(populate-vdu (elem idx live_buffers)))
 
+(defun action-whole-words ()
+	(setq *whole_words* (not *whole_words*))
+	(radio-select find_toolbar (if *whole_words* 2 -1)))
+
+(defq +is_whole_word_char (cat
+	"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	"abcdefghijklmnopqrstuvwxyz"
+	"_0123456789"))
+
+(defmacro is_whole_word_char (_)
+	(list 'find-rev _ +is_whole_word_char))
+
+(defun filter-whole-words (found pattern)
+	(when *whole_words*
+		(defq pattern_len (length pattern) found
+			(filter (lambda ((x y))
+				(defq line (. *current_buffer* :get_text_line y) x1 (+ x pattern_len))
+				(cond
+					((eql pattern line))
+					((= x 0) (not (is_whole_word_char (elem x1 line))))
+					((= x1 (length line)) (not (is_whole_word_char (elem (dec x) line))))
+					((and (not (is_whole_word_char (elem (dec x) line))))
+						(not (is_whole_word_char (elem x1 line))))))
+				found))) found)
+
 (defun action-find-down ()
 	(unless (eql (defq pattern (get :clear_text *find_text*)) "")
-		(when (> (length (defq found (. *current_buffer* :find pattern))) 0)
+		(when (> (length (defq found (filter-whole-words (. *current_buffer* :find pattern) pattern))) 0)
 			(when (defq next (some (# (bind '(x y) %0)
 					(if (or (> y *cursor_y*)
 							(and (= y *cursor_y*) (>= x *cursor_x*)))
@@ -368,7 +399,7 @@
 
 (defun action-find-up ()
 	(unless (eql (defq pattern (get :clear_text *find_text*)) "")
-		(when (> (length (defq found (. *current_buffer* :find pattern))) 0)
+		(when (> (length (defq found (filter-whole-words (. *current_buffer* :find pattern) pattern))) 0)
 			(when (defq next (some-rev (# (bind '(x y) %0)
 					(if (or (< y *cursor_y*)
 							(and (= y *cursor_y*) (< x *cursor_x*)))
@@ -400,7 +431,7 @@
 (defun action-replace-all ()
 	(unless (or (eql (defq pattern (get :clear_text *find_text*)) "")
 				(eql (defq replace (get :clear_text *replace_text*)) pattern))
-		(when (> (length (defq found (. *current_buffer* :find pattern))) 0)
+		(when (> (length (defq found (filter-whole-words (. *current_buffer* :find pattern) pattern))) 0)
 			(undoable
 				(each-rev (lambda ((x y))
 						(.-> buffer (:set_cursor x y) (:cut (+ x (length pattern)) y))
@@ -493,6 +524,7 @@ event_map (xmap-kv
 	+event_prev action-prev-buffer
 	+event_find_down action-find-down
 	+event_find_up action-find-up
+	+event_whole_words action-whole-words
 	+event_replace action-replace
 	+event_replace_all action-replace-all
 	+event_undo action-undo

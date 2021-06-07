@@ -21,9 +21,9 @@
 (ui-window mywindow (:color 0xc0000000)
 	(ui-flow _ (:flow_flags +flow_down_fill)
 		(ui-title-bar _ "Profile" (0xea19) +event_close)
-		(ui-tool-bar _ ()
-			(ui-buttons (0xe960) +event_clear)
-			(ui-buttons (0xe960) +event_clear_all (:color (const *env_toolbar2_col*))))
+		(ui-flow _ (:flow_flags +flow_right_fill)
+			(ui-tool-bar _ () (ui-buttons (0xe960) +event_clear))
+			(ui-tool-bar _ (:color (const *env_toolbar2_col*)) (ui-buttons (0xe960) +event_clear_all)))
 		(. (ui-slider hslider (:value 0)) :connect +event_hvalue)
 		(ui-vdu vdu (:vdu_width vdu_width :vdu_height vdu_height :ink_color +argb_yellow))))
 
