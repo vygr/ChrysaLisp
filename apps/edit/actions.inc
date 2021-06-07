@@ -1,7 +1,7 @@
 ;module
 (env-push)
 
-(defmacro is-not-whole-word-char? (_)
+(defmacro not-whole-word-char? (_)
 	`(find ,_ " (){}[]"))
 
 (defun radio-select (toolbar idx)
@@ -35,19 +35,19 @@
 (defun select-word ()
 	(defq line (. *current_buffer* :get_text_line *cursor_y*)
 		x (some! *cursor_x* 0 nil (#
-			(if (is-not-whole-word-char? %0) (inc _))) (list line))
+			(if (not-whole-word-char? %0) (inc _))) (list line))
 		x1 (some! *cursor_x* -1 nil (#
-		   (if (is-not-whole-word-char? %0) _)) (list line)))
+		   (if (not-whole-word-char? %0) _)) (list line)))
 	(unless x (setq x 0))
 	(unless x1 (setq x1 (length line)))
 	(list x x1))
 
 (defun select-paragraph ()
 	(defq y (some! *cursor_y* 0 nil
-				(# (if (= (length %0) 0) (inc _)))
+				(# (if (every (# (eql " " %1)) %0) (inc _)))
 			(list (. *current_buffer* :get_text_lines)))
 		y1 (some! *cursor_y* (bind '(w h) (. *current_buffer* :get_size)) nil
-				(# (if (= (length %0) 0) _))
+				(# (if (every (# (eql " " %1)) %0) _))
 			(list (. *current_buffer* :get_text_lines))))
 	(unless y (setq y 0))
 	(unless y1 (setq y1 h))
@@ -396,10 +396,10 @@
 				(defq line (. *current_buffer* :get_text_line y) x1 (+ x pattern_len))
 				(cond
 					((eql pattern line))
-					((= x 0) (is-not-whole-word-char? (elem x1 line)))
-					((= x1 (length line)) (is-not-whole-word-char? (elem (dec x) line)))
-					((and (is-not-whole-word-char? (elem (dec x) line)))
-						(is-not-whole-word-char? (elem x1 line)))))
+					((= x 0) (not-whole-word-char? (elem x1 line)))
+					((= x1 (length line)) (not-whole-word-char? (elem (dec x) line)))
+					((and (not-whole-word-char? (elem (dec x) line)))
+						(not-whole-word-char? (elem x1 line)))))
 				found))) found)
 
 (defun action-find-down ()
@@ -532,7 +532,8 @@
 		(*macro_record*
 			(radio-select macro_toolbar 1)
 			(clear *macro_actions*))
-		(t  (radio-select macro_toolbar -1))))
+		(t  (radio-select macro_toolbar -1)))
+	(clear-selection) (refresh))
 
 (defun action-macro-playback ()
 	(undoable
@@ -610,6 +611,8 @@ key_map_shift (xmap-kv
 	+char_tab action-left-tab)
 
 key_map_control (xmap-kv
+	(ascii-code "M") action-macro-record
+	(ascii-code "m") action-macro-playback
 	(ascii-code "/") action-comment-block
 	(ascii-code "?") action-uncomment-block
 	(ascii-code "a") action-select-all
@@ -632,8 +635,8 @@ key_map_control (xmap-kv
 	(ascii-code "x") action-cut
 	(ascii-code "c") action-copy
 	(ascii-code "v") action-paste
-	(ascii-code "-") action-minimise
 	(ascii-code "=") action-maximise
+	(ascii-code "-") action-minimise
 	(ascii-code "n") action-next-buffer
 	(ascii-code "N") action-prev-buffer
 	(ascii-code "q") action-reflow

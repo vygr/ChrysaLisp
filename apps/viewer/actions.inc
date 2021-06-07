@@ -71,8 +71,8 @@ key_map (xmap-kv
 key_map_shift (xmap-kv)
 
 key_map_control (xmap-kv
-	(ascii-code "-") action-minimise
-	(ascii-code "=") action-maximise))
+	(ascii-code "=") action-maximise
+	(ascii-code "-") action-minimise))
 
 ;module
 (export (penv)
