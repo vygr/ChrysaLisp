@@ -1,6 +1,14 @@
 ;module
 (env-push)
 
+(defq +whole_word_chars (cat
+	"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	"abcdefghijklmnopqrstuvwxyz"
+	"_0123456789"))
+
+(defmacro is-whole-word-char? (_)
+	(list 'find-rev _ +whole_word_chars))
+
 (defun radio-select (toolbar idx)
 	(each (lambda (button)
 			(undef (. button :dirty) :color)
@@ -32,9 +40,9 @@
 (defun select-word ()
 	(defq line (. *current_buffer* :get_text_line *cursor_y*)
 		x (some! *cursor_x* 0 nil (#
-			(if (find %0 " ()") (inc _))) (list line))
+			(unless (is-whole-word-char? %0) (inc _))) (list line))
 		x1 (some! *cursor_x* -1 nil (#
-			(if (find %0 " ()") _)) (list line)))
+		   (unless (is-whole-word-char? %0) _)) (list line)))
 	(unless x (setq x 0))
 	(unless x1 (setq x1 (length line)))
 	(list x x1))
@@ -364,14 +372,6 @@
 	(setq *whole_words* (not *whole_words*))
 	(radio-select find_toolbar (if *whole_words* 2 -1)))
 
-(defq +is_whole_word_char (cat
-	"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-	"abcdefghijklmnopqrstuvwxyz"
-	"_0123456789"))
-
-(defmacro is_whole_word_char (_)
-	(list 'find-rev _ +is_whole_word_char))
-
 (defun filter-whole-words (found pattern)
 	(when *whole_words*
 		(defq pattern_len (length pattern) found
@@ -379,10 +379,10 @@
 				(defq line (. *current_buffer* :get_text_line y) x1 (+ x pattern_len))
 				(cond
 					((eql pattern line))
-					((= x 0) (not (is_whole_word_char (elem x1 line))))
-					((= x1 (length line)) (not (is_whole_word_char (elem (dec x) line))))
-					((and (not (is_whole_word_char (elem (dec x) line))))
-						(not (is_whole_word_char (elem x1 line))))))
+					((= x 0) (not (is-whole-word-char? (elem x1 line))))
+					((= x1 (length line)) (not (is-whole-word-char? (elem (dec x) line))))
+					((and (not (is-whole-word-char? (elem (dec x) line))))
+						(not (is-whole-word-char? (elem x1 line))))))
 				found))) found)
 
 (defun action-find-down ()

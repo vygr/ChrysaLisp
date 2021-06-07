@@ -21,31 +21,31 @@
 	+bracket_chars "()[]"
 	+stringy_chars (cat (ascii-char 34) "$@"))
 
-(defmacro is_symbol_char (_)
+(defmacro is-symbol-char? (_)
 	(list 'find-rev _ +symbol_chars))
 
-(defmacro is_path_char (_)
+(defmacro is-path-char? (_)
 	(list 'find-rev _ +path_chars))
 
-(defmacro is_label_char (_)
+(defmacro is-label-char? (_)
 	(list 'find-rev _ +label_chars))
 
-(defmacro is_number_char (_)
+(defmacro is-number-char? (_)
 	(list 'find-rev _ +number_chars))
 
-(defmacro is_folow_on_number_char (_)
+(defmacro is-folow-on-number-char? (_)
 	(list 'find-rev _ +folow_on_number_chars))
 
-(defmacro is_op_char (_)
+(defmacro is-op-char? (_)
 	(list 'find-rev _ +op_chars))
 
-(defmacro is_folow_on_op_char (_)
+(defmacro is-folow-on-op-char? (_)
 	(list 'find-rev _ +folow_on_op_chars))
 
-(defmacro is_bracket_char (_)
+(defmacro is-bracket-char? (_)
 	(list 'find-rev _ +bracket_chars))
 
-(defmacro is_stringy_char (_)
+(defmacro is-stringy-char? (_)
 	(list 'find-rev _ +stringy_chars))
 
 (defun cscript-tokenize (line)
@@ -55,28 +55,28 @@
 			(case state
 				(:space
 					(cond
-						((defq _ (is_stringy_char c))
+						((defq _ (is-stringy-char? c))
 							(setq state (elem _ '(:string :label :path))))
 						((and (eql c "+") unary)
 							(push token c)
 							(setq state :symbol))
-						((is_op_char c)
+						((is-op-char? c)
 							(push token c)
 							(setq state :operator))
-						((is_number_char c)
+						((is-number-char? c)
 							(push token c)
 							(setq state :number))
-						((is_symbol_char c)
+						((is-symbol-char? c)
 							(push token c)
 							(setq state :symbol))
-						((defq _ (is_bracket_char c))
+						((defq _ (is-bracket-char? c))
 							(push out_types (elem _ '(:lrb :rrb :lsb :rsb)))
 							(push out_tokens c)
 							(setq unary (elem _ '(t nil t nil)))))
 					(setq c nil))
 				(:symbol
 					(cond
-						((is_symbol_char c)
+						((is-symbol-char? c)
 							(push token c)
 							(setq c nil))
 						(t	(cond
@@ -88,7 +88,7 @@
 							(setq state :space unary nil))))
 				(:number
 					(cond
-						((is_folow_on_number_char c)
+						((is-folow-on-number-char? c)
 							(push token c)
 							(setq c nil))
 						(t	(push out_types state)
@@ -106,7 +106,7 @@
 					(setq c nil))
 				(:path
 					(cond
-						((is_path_char c)
+						((is-path-char? c)
 							(push token c)
 							(setq c nil))
 						(t 	(push out_types state)
@@ -115,7 +115,7 @@
 							(setq state :space unary nil))))
 				(:label
 					(cond
-						((is_label_char c)
+						((is-label-char? c)
 							(push token c)
 							(setq c nil))
 						(t 	(push out_types state)
@@ -124,7 +124,7 @@
 							(setq state :space unary nil))))
 				(:operator
 					(cond
-						((is_folow_on_op_char c)
+						((is-folow-on-op-char? c)
 							(push token c)
 							(setq c nil))
 						(t	(cond

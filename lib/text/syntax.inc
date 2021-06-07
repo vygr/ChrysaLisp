@@ -9,26 +9,26 @@
 ;module
 (env-push)
 
-(defq +is_number_char
+(defq +number_chars
 		"0123456789"
-	+is_allowed_number_char (cat
+	+allowed_number_chars (cat
 		"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 		"abcdefghijklmnopqrstuvwxyz"
 		".0123456789")
-	+is_symbol_char (cat
+	+symbol_chars (cat
 		"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 		"0123456789"
 		"!@#$%^&*_+-=[];\:|./<>?`~'"
 		"abcdefghijklmnopqrstuvwxyz"))
 
-(defmacro is_number_char (_)
-	(list 'find-rev _ +is_number_char))
+(defmacro is-number-char? (_)
+	(list 'find-rev _ +number_chars))
 
-(defmacro is_allowed_number_char (_)
-	(list 'find-rev _ +is_allowed_number_char))
+(defmacro is-allowed-number-char? (_)
+	(list 'find-rev _ +allowed_number_chars))
 
-(defmacro is_symbol_char (_)
-	(list 'find-rev _ +is_symbol_char))
+(defmacro is-symbol-char? (_)
+	(list 'find-rev _ +symbol_chars))
 
 (defclass Syntax () nil
 	; (Syntax) -> syntax
@@ -93,11 +93,11 @@
 								(push state_list state)
 								(push token_list token)
 								(setq token (list c) state (elem _ '(:string1 :string2 :keysym :comment))))
-							((is_number_char c)
+							((is-number-char? c)
 								(push state_list state)
 								(push token_list token)
 								(setq token (list c) state :number))
-							((is_symbol_char c)
+							((is-symbol-char? c)
 								(push state_list state)
 								(push token_list token)
 								(setq token (list c) state :symbol))
@@ -105,7 +105,7 @@
 						(setq c nil))
 					((:symbol :keysym)
 						(cond
-							((is_symbol_char c)
+							((is-symbol-char? c)
 								(push token c)
 								(setq c nil))
 							(t	(push state_list state)
@@ -116,7 +116,7 @@
 						(setq c nil))
 					(:number
 						(cond
-							((is_allowed_number_char c)
+							((is-allowed-number-char? c)
 								(push token c)
 								(setq c nil))
 							(t	(push state_list state)

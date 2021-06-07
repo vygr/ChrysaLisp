@@ -26,13 +26,13 @@
 
 (defq *current_file* nil *selected_file_node* nil *selected_open_node* nil
 	*vdu_width* 80 *vdu_height* 40 *meta_map* (xmap) *underlay* (list)
-	*open_files* (list) *syntax* (Syntax)
+	*open_files* (list) *syntax* (Syntax) *whole_words* nil
 	+vdu_min_width 40 +vdu_min_height 16 +vdu_max_width 100 +vdu_max_height 46
 	+selected (apply nums (map (lambda (_)
 		(const (<< (canvas-from-argb32 +argb_grey6 15) 48))) (str-alloc 8192)))
 	+not_selected (nums-sub +selected +selected)
 	+bracket_char (nums 0x7f) +state_filename "editor_open_files"
-	+tip_time 1000000 tip_id +max_long tip nil *whole_words* nil
+	+tip_time 1000000 tip_id +max_long tip nil
 	select (list (task-mailbox) (mail-alloc-mbox)))
 
 (ui-window *window* (:color +argb_grey1)

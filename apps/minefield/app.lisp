@@ -45,7 +45,7 @@
 (defun right-clicked-button (cell)
 	(elem-set cell game_map "f")
 	(rebuild-board)
-	(is-game-over))
+	(is-game-over?))
 
 (defun clicked-value (cell)
 	(elem-set cell game_map "r")
@@ -55,7 +55,7 @@
 	(elem-set cell game_map "r")
 	(rebuild-board))
 
-(defun is-game-over (&optional lost)
+(defun is-game-over? (&optional lost)
 	(defq message "")
 	(cond 
 		(game_over (setq message "You Lost!"))
@@ -158,7 +158,7 @@
 						((eql (elem cid game_map) "f") (clicked-flag cid))
 						(t nil)))
 				(t nil))
-			(is-game-over))
+			(is-game-over?))
 		(t
 			(and (= (getf msg +ev_msg_type) +ev_type_mouse)
 				(/= 0 (getf msg +ev_msg_mouse_buttons))
