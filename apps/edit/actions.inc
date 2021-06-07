@@ -4,7 +4,7 @@
 (defq +whole_word_chars (cat
 	"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	"abcdefghijklmnopqrstuvwxyz"
-	"_0123456789"))
+	"_-0123456789"))
 
 (defmacro is-whole-word-char? (_)
 	(list 'find-rev _ +whole_word_chars))
@@ -649,13 +649,13 @@ key_map_control (xmap-kv
 	(ascii-code "O") action-ordered-unique)
 
 recorded_list (list
-	action-home action-end action-home-select action-end-select
 	action-backspace action-break action-comment-block action-copy action-cut
 	action-cut-block action-cut-line action-cut-paragraph action-cut-word
-	action-delete action-down action-down-select action-find-down action-find-up
-	action-insert action-left action-left-bracket action-left-select
-	action-left-tab action-ordered action-ordered-unique action-paste action-redo
-	action-reflow action-replace action-replace-all action-rewind action-right
+	action-delete action-down action-down-select action-end action-end-select
+	action-find-down action-find-up action-home action-home-select action-insert
+	action-left action-left-bracket action-left-select action-left-tab
+	action-ordered action-ordered-unique action-paste action-redo action-reflow
+	action-replace action-replace-all action-rewind action-right
 	action-right-bracket action-right-select action-right-tab action-select-all
 	action-select-block action-select-line action-select-paragraph
 	action-select-word action-set-find-text action-tab action-to-lower
