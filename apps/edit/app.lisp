@@ -19,7 +19,8 @@
 		comment uncomment)
 	(enum prev next close_buffer save_all save new)
 	(enum find_down find_up whole_words)
-	(enum replace replace_all))
+	(enum replace replace_all)
+	(enum macro_playback macro_record))
 
 (enums +select 0
 	(enum main tip))
@@ -27,7 +28,8 @@
 (defq *current_file* nil *selected_file_node* nil *selected_open_node* nil
 	*vdu_width* 80 *vdu_height* 40 *meta_map* (xmap) *underlay* (list)
 	*open_files* (list) *syntax* (Syntax) *whole_words* nil
-	+vdu_min_width 40 +vdu_min_height 16 +vdu_max_width 100 +vdu_max_height 46
+	*macro_record* nil *macro_list* (list)
+	+vdu_min_width 80 +vdu_min_height 40 +vdu_max_width 100 +vdu_max_height 46
 	+selected (apply nums (map (lambda (_)
 		(const (<< (canvas-from-argb32 +argb_grey6 15) 48))) (str-alloc 8192)))
 	+not_selected (nums-sub +selected +selected)
@@ -45,6 +47,8 @@
 				0xe955 0xe93c 0xe93d
 				0xea36 0xea33 0xea27 0xea28
 				0xe9c4 0xe9d4) +event_undo))
+		(ui-tool-bar macro_toolbar (:color (const *env_toolbar2_col*))
+			(ui-buttons (0xe95e 0xe95f) +event_macro_playback))
 		(ui-backdrop _ (:color (const *env_toolbar_col*))))
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-tool-bar buffer_toolbar (:color (const *env_toolbar2_col*))
@@ -59,7 +63,7 @@
 					:connect +event_find_down))
 			(ui-flow _ (:flow_flags +flow_right_fill)
 				(ui-tool-bar replace_toolbar (:color (const *env_toolbar2_col*))
-					(ui-buttons (0xe95c 0xe95e) +event_replace))
+					(ui-buttons (0xe95c 0xe95a) +event_replace))
 				(. (ui-textfield *replace_text* (:hint_text "replace" :clear_text "" :color +argb_white))
 					:connect +event_replace))))
 	(ui-flow _ (:flow_flags +flow_right_fill)
@@ -304,6 +308,9 @@
 		(. find_toolbar :children)
 		'("find down" "find up" "whole words"))
 	(each (lambda (button tip_text) (def button :tip_text tip_text))
+		(. macro_toolbar :children)
+		'("playback" "record"))
+	(each (lambda (button tip_text) (def button :tip_text tip_text))
 		(. replace_toolbar :children)
 		'("replace" "replace all")))
 
@@ -314,6 +321,11 @@
 
 ;import actions and bindings
 (import "apps/edit/actions.inc")
+
+(defun record-action (action &rest params)
+	(and *macro_record* (find action recorded_list)
+		(push *macro_list* (cat (list action) params)))
+	(apply action params))
 
 (defun main ()
 	(defq *cursor_x* 0 *cursor_y* 0 *anchor_x* 0 *anchor_y* 0 *scroll_x* 0 *scroll_y* 0
@@ -335,7 +347,7 @@
 				(cond
 					((defq id (getf *msg* +ev_msg_target_id) action (. event_map :find id))
 						;call bound event action
-						(action))
+						(record-action action))
 					((and (= id (. *vdu* :get_id)) (= (getf *msg* +ev_msg_type) +ev_type_mouse))
 						;mouse event on display
 						(clear-tip)
@@ -362,11 +374,11 @@
 										(defq click_count (getf *msg* +ev_msg_mouse_count))
 										(cond
 											((= click_count 2)
-												(action-select-word))
+												(record-action action-select-word))
 											((= click_count 3)
-												(action-select-line))
+												(record-action action-select-line))
 											((= click_count 4)
-												(action-select-paragraph)))
+												(record-action action-select-paragraph)))
 										(setq mouse_state :u)
 										(refresh))
 									(:u ;mouse hover event
@@ -389,18 +401,21 @@
 							((/= 0 (logand mod (const
 									(+ +ev_key_mod_control +ev_key_mod_option +ev_key_mod_command))))
 								;call bound control/command key action
-								(if (defq action (. key_map_control :find key)) (action)))
+								(if (defq action (. key_map_control :find key))
+									(record-action action)))
 							((/= 0 (logand mod +ev_key_mod_shift))
 								;call bound shift key action, else insert
 								(cond
-									((defq action (. key_map_shift :find key)) (action))
-									((<= +char_space key +char_tilda) (action-insert key))))
+									((defq action (. key_map_shift :find key))
+										(record-action action))
+									((<= +char_space key +char_tilda)
+										(record-action action-insert key))))
 							((defq action (. key_map :find key))
 								;call bound key action
-								(action))
+								(record-action action))
 							((<= +char_space key +char_tilda)
 								;insert the char
-								(action-insert key))))
+								(record-action action-insert key))))
 					(t  ;gui event, plus check for tip text
 						(clear-tip)
 						(. *window* :event *msg*)

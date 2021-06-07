@@ -509,8 +509,26 @@
 		(. buffer :set_cursor x y))
 	(refresh))
 
+(defun action-macro-record ()
+	(setq *macro_record* (not *macro_record*))
+	(cond
+		(*macro_record*
+			(radio-select macro_toolbar 1)
+			(clear *macro_list*))
+		(t  (radio-select macro_toolbar -1))))
+
+(defun action-macro-playback ()
+	(each (lambda ((action &rest params))
+			(apply action params)
+			(bind '(x y) (. *current_buffer* :get_cursor))
+			(setq *cursor_x* x *cursor_y* y))
+		*macro_list*)
+	(clear-selection) (refresh))
+
 (defq
 event_map (xmap-kv
+	+event_macro_record action-macro-record
+	+event_macro_playback action-macro-playback
 	+event_comment action-comment-block
 	+event_uncomment action-uncomment-block
 	+event_close action-close
@@ -602,10 +620,23 @@ key_map_control (xmap-kv
 	(ascii-code "u") action-to-upper
 	(ascii-code "U") action-to-lower
 	(ascii-code "o") action-ordered
-	(ascii-code "O") action-ordered-unique))
+	(ascii-code "O") action-ordered-unique)
+
+recorded_list (list
+	action-backspace action-break action-comment-block action-copy action-cut
+	action-cut-block action-cut-line action-cut-paragraph action-cut-word
+	action-delete action-down action-down-select action-find-down action-find-up
+	action-insert action-left action-left-bracket action-left-select
+	action-left-tab action-ordered action-ordered-unique action-paste action-redo
+	action-reflow action-replace action-replace-all action-rewind action-right
+	action-right-bracket action-right-select action-right-tab action-select-all
+	action-select-block action-select-line action-select-paragraph
+	action-select-word action-set-find-text action-tab action-to-lower
+	action-to-upper action-trim action-uncomment-block action-undo action-up
+	action-up-select action-whole-words))
 
 ;module
 (export (penv)
-	event_map key_map key_map_shift key_map_control
+	event_map key_map key_map_shift key_map_control recorded_list
 	action-insert action-select-word action-select-line action-select-paragraph)
 (env-pop)
