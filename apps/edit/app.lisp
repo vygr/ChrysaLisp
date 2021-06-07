@@ -28,7 +28,7 @@
 (defq *current_file* nil *selected_file_node* nil *selected_open_node* nil
 	*vdu_width* 80 *vdu_height* 40 *meta_map* (xmap) *underlay* (list)
 	*open_files* (list) *syntax* (Syntax) *whole_words* nil
-	*macro_record* nil *macro_list* (list)
+	*macro_record* nil *macro_actions* (list)
 	+vdu_min_width 80 +vdu_min_height 40 +vdu_max_width 100 +vdu_max_height 46
 	+selected (apply nums (map (lambda (_)
 		(const (<< (canvas-from-argb32 +argb_grey6 15) 48))) (str-alloc 8192)))
@@ -324,7 +324,7 @@
 
 (defun record-action (action &rest params)
 	(and *macro_record* (find action recorded_list)
-		(push *macro_list* (cat (list action) params)))
+		(push *macro_actions* (cat (list action) params)))
 	(apply action params))
 
 (defun main ()
