@@ -23,6 +23,7 @@
 	(enum replace replace_all)
 	(enum macro_playback macro_record))
 
+
 (enums +select 0
 	(enum main tip))
 
@@ -31,7 +32,7 @@
 	*open_files* (list) *syntax* (Syntax) *whole_words* nil
 	*macro_record* nil *macro_actions* (list)
 	+min_word_size 3 +max_matches 20 all_words (Dictionary 307)
-	matched_window nil matched_flow nil matched_index -1
+	match_window nil match_flow nil match_index -1
 	+vdu_min_width 80 +vdu_min_height 40 +vdu_max_width 100 +vdu_max_height 46
 	+selected (apply nums (map (lambda (_)
 		(const (<< (canvas-from-argb32 +argb_grey6 15) 48))) (str-alloc 8192)))
@@ -329,8 +330,8 @@
 	(mail-timeout (elem +select_tip select) 0))
 
 (defun clear-matches ()
-	(if matched_window (gui-sub matched_window))
-	(setq matched_window nil matched_flow nil matched_index -1))
+	(if match_window (gui-sub match_window))
+	(setq match_window nil match_flow nil match_index -1))
 
 ;import actions and bindings
 (import "apps/edit/actions.inc")
@@ -340,31 +341,36 @@
 		(push *macro_actions* `(,action ~params)))
 	(apply action params))
 
-(defun find-best-matches ()
+(defun show-matches ()
 	(bind '(*cursor_x* *cursor_y*) (. *current_buffer* :get_cursor))
 	(bind '(x x1) (select-word))
 	(when (>= (- x1 x) +min_word_size)
 		(clear-matches)
-		(defq matched_words (. all_words :find_matches
+		(defq match_words (. all_words :find_matches
 			(slice x x1 (. *current_buffer* :get_text_line *cursor_y*))))
-		(if (> (length matched_words) +max_matches)
-			(setq matched_words (slice 0 +max_matches matched_words)))
+		(if (> (length match_words) +max_matches)
+			(setq match_words (slice 0 +max_matches match_words)))
 		(ui-window window (:color +argb_grey1 :ink_color +argb_white :font *env_terminal_font*)
 			(ui-flow flow (:flow_flags +flow_down_fill)
-				(each (# (ui-label _ (:text %0))) matched_words)))
-		(bind '(w h) (. *vdu* :char_size))
-		(defq x (+ (getf *vdu* +view_ctx_x 0) (- (* (inc *cursor_x*) w) (* *scroll_x* w)))
-			y (+ (getf *vdu* +view_ctx_y 0) (- (* (inc *cursor_y*) h) (* *scroll_y* h))))
+				(each (# (ui-label _ (:text %0))) match_words)))
+		(bind '(cw ch) (. *vdu* :char_size))
+		(defq x (+ (getf *vdu* +view_ctx_x 0) (- (* *cursor_x* cw) (* *scroll_x* cw)))
+			y (+ (getf *vdu* +view_ctx_y 0) (- (* (inc *cursor_y*) ch) (* *scroll_y* ch))))
 		(bind '(w h) (.-> window (:set_flags 0 +view_flag_solid) :pref_size))
+		(bind '(cx cy sw sh) (gui-info))
+		(if (> (+ x w) sw) (setq x (+ (- x w) cw)))
+		(if (> (+ y h) sh) (setq y (- y h ch)))
 		(. window :change x y w h)
-		(gui-add-front (setq matched_flow flow matched_window window))))
+		(gui-add-front (setq match_flow flow match_window window))))
 
 (defun select-match (dir)
-	(when matched_window
-		(defq matches (. matched_flow :children))
-		(if (>= matched_index 0) (undef (. (elem matched_index matches) :dirty) :color))
-		(setq matched_index (min (max 0 (+ matched_index dir)) (dec (length matches))))
-		(def (. (elem matched_index matches) :dirty) :color +argb_red)))
+	(when match_window
+		(defq matches (. match_flow :children))
+		(if (>= match_index 0) (undef (. (elem match_index matches) :dirty) :color))
+		(setq match_index (+ match_index dir))
+		(if (< match_index 0) (setq match_index (dec (length matches))))
+		(if (> match_index (dec (length matches))) (setq match_index 0))
+		(def (. (elem match_index matches) :dirty) :color +argb_red)))
 
 (defun main ()
 	;load up the base Syntax keywords for matching
@@ -440,14 +446,14 @@
 						(clear-tip)
 						(defq key (getf *msg* +ev_msg_key_key) mod (getf *msg* +ev_msg_key_mod))
 						(cond
-							((and matched_window (or
+							((and match_window (or
 									(= key 0x40000052) (= key 0x40000051)
-									(and (or (= key +char_lf) (= key +char_cr)) (>= matched_index 0))))
+									(and (or (= key +char_lf) (= key +char_cr)) (>= match_index 0))))
 								;matches navigation and selection
 								(cond
 									((or (= key +char_lf) (= key +char_cr))
 										;choose a match
-										(defq word (get :text (elem matched_index (. matched_flow :children))))
+										(defq word (get :text (elem match_index (. match_flow :children))))
 										(dispatch-action action-select-word)
 										(dispatch-action action-insert (cat word " "))
 										(clear-matches))
@@ -466,7 +472,7 @@
 										(dispatch-action action))
 									((<= +char_space key +char_tilda)
 										(dispatch-action action-insert (char key))
-										(find-best-matches))))
+										(show-matches))))
 							((defq action (. key_map :find key))
 								;call bound key action
 								(dispatch-action action)
@@ -474,7 +480,7 @@
 							((<= +char_space key +char_tilda)
 								;insert the char
 								(dispatch-action action-insert (char key))
-								(find-best-matches))))
+								(show-matches))))
 					(t  ;gui event, plus check for tip text
 						(clear-tip) (clear-matches)
 						(. *window* :event *msg*)
