@@ -28,24 +28,24 @@
 		(if (get :dirty this) (. this :sort))
 		(defq word_list (get :word_list this) i nil j 0 k (length word_list))
 		;bsearch
-		(while (and (/= j -1) (<= j k))
+		(while (<= j k)
 			(setq i (>> (+ j k) 1))
 			(if (starts-with prefix (elem i word_list))
-				(setq j -1 k -1)
+				(setq k -1)
 				(if (> (cmp prefix (elem i word_list)) 0)
 					(setq j (inc i)) (setq k (dec i)))))
 		;bounds
 		(cond
-			((= j k -1)
-				(defq y (some! i 0 nil
+			((= k -1)
+				(setq j (some! i 0 nil
 						(# (unless (starts-with prefix %0) (inc _)))
 					(list word_list)))
-				(defq y1 (some! i -1 nil
+				(setq k (some! i -1 nil
 						(# (unless (starts-with prefix %0) _))
 					(list word_list)))
-				(unless y (setq y 0))
-				(unless y1 (setq y1 (length word_list)))
-				(slice y y1 word_list))
+				(unless j (setq j 0))
+				(unless k (setq k (length word_list)))
+				(slice j k word_list))
 			((list))))
 	)
 
