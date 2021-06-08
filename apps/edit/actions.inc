@@ -8,7 +8,7 @@
 (defmacro not-whole-word-char? (_)
 	`(find ,_ +not_whole_chars))
 
-(defun empty-line? (line)
+(defun blank-line? (line)
 	(every (# (eql " " %0)) line))
 
 (defun radio-select (toolbar idx)
@@ -51,10 +51,10 @@
 
 (defun select-paragraph ()
 	(defq y (some! *cursor_y* 0 nil
-				(# (if (empty-line? %0) (inc _)))
+				(# (if (blank-line? %0) (inc _)))
 			(list (. *current_buffer* :get_text_lines)))
 		y1 (some! *cursor_y* (bind '(w h) (. *current_buffer* :get_size)) nil
-				(# (if (empty-line? %0) _))
+				(# (if (blank-line? %0) _))
 			(list (. *current_buffer* :get_text_lines))))
 	(unless y (setq y 0))
 	(unless y1 (setq y1 h))

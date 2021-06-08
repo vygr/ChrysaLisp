@@ -23,7 +23,6 @@
 	(enum replace replace_all)
 	(enum macro_playback macro_record))
 
-
 (enums +select 0
 	(enum main tip))
 
@@ -206,15 +205,15 @@
 			(list x y ax ay sx sy ss (defq buffer (Buffer mode *syntax*))))
 		(when file
 			(. buffer :file_load file)
+			(unless (find file *open_files*) (push *open_files* file))
+			;populate dictionary with this files words
 			(each (lambda (line)
 					(defq words (split line +not_whole_chars))
 					(each (lambda (word)
 							(if (>= (length word) +min_word_size)
 								(. all_words :insert_word word)))
 						words))
-				(. buffer :get_text_lines))
-			(unless (find file *open_files*)
-				(push *open_files* file)))))
+				(. buffer :get_text_lines)))))
 
 (defun populate-vdu (file)
 	;load up the vdu widget from this file

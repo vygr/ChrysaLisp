@@ -7,13 +7,13 @@
 		(undoable
 			;trim front
 			(defq y (some! 0 h nil
-					(# (unless (empty-line? %0) _))
+					(# (unless (blank-line? %0) _))
 				(list (. buffer :get_text_lines))))
 			(unless y (setq y h))
 			(.-> buffer (:set_cursor 0 y) (:cut 0 0))
 			;trim end
 			(defq y (some! (bind '(w h) (. buffer :get_size)) 0 nil
-					(# (unless (empty-line? %0) (inc _)))
+					(# (unless (blank-line? %0) (inc _)))
 				(list (. buffer :get_text_lines))))
 			(unless y (setq y 0))
 			(.-> buffer (:set_cursor 0 y) (:cut 0 h))
