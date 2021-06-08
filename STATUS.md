@@ -35,6 +35,8 @@ Lazy colouring of buffers on state restore.
 
 Whole word search toggle in Editor search/replace.
 
+First pass at Intelisense completion in the Editor.
+
 ------
 
 VP and CScript optimizers improved for clarity and extra cases.
