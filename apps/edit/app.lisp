@@ -440,17 +440,17 @@
 						(clear-tip)
 						(defq key (getf *msg* +ev_msg_key_key) mod (getf *msg* +ev_msg_key_mod))
 						(cond
-							((and matched_window (or (= key 0x40000052) (= key 0x40000051)
-													(= key +char_lf) (= key +char_cr)))
+							((and matched_window (or
+									(= key 0x40000052) (= key 0x40000051)
+									(and (or (= key +char_lf) (= key +char_cr)) (>= matched_index 0))))
 								;matches navigation and selection
 								(cond
 									((or (= key +char_lf) (= key +char_cr))
 										;choose a match
-										(when (>= matched_index 0)
-											(defq word (get :text (elem matched_index (. matched_flow :children))))
-											(dispatch-action action-select-word)
-											(dispatch-action action-insert (cat word " "))
-											(clear-matches)))
+										(defq word (get :text (elem matched_index (. matched_flow :children))))
+										(dispatch-action action-select-word)
+										(dispatch-action action-insert (cat word " "))
+										(clear-matches))
 									((select-match (if (= key 0x40000052) -1 1)))))
 							((/= 0 (logand mod (const
 									(+ +ev_key_mod_control +ev_key_mod_option +ev_key_mod_command))))
