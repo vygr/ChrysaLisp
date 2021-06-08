@@ -37,6 +37,8 @@ Whole word search toggle in Editor search/replace.
 
 First pass at Intelisense completion in the Editor.
 
+Split the Editor actions out into separate files.
+
 ------
 
 VP and CScript optimizers improved for clarity and extra cases.
