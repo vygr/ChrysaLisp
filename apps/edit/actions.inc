@@ -2,7 +2,7 @@
 (env-push)
 
 (defmacro not-whole-word-char? (_)
-	`(find ,_ " (){}[]"))
+	`(find ,_ +not_whole_chars))
 
 (defun empty-line? (line)
 	(every (# (eql " " %0)) line))
@@ -64,9 +64,9 @@
 	(. *current_buffer* :redo)
 	(clear-selection) (refresh))
 
-(defun action-insert (key)
+(defun action-insert (string)
 	(. *current_buffer* :cut *anchor_x* *anchor_y*)
-	(. *current_buffer* :insert (char key))
+	(. *current_buffer* :insert string)
 	(clear-selection) (refresh))
 
 (defun action-home ()
@@ -682,5 +682,6 @@ recorded_actions_list (list
 ;module
 (export (penv)
 	event_map key_map key_map_shift key_map_control recorded_actions_list
-	action-insert action-select-word action-select-line action-select-paragraph)
+	action-insert action-select-word action-select-line action-select-paragraph
+	select-word)
 (env-pop)

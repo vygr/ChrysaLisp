@@ -4,6 +4,7 @@
 (import "apps/clipboard/app.inc")
 (import "lib/consts/chars.inc")
 (import "lib/text/buffer.inc")
+(import "lib/text/dictionary.inc")
 
 (enums +event 0
 	(enum close max min)
@@ -29,12 +30,14 @@
 	*vdu_width* 80 *vdu_height* 40 *meta_map* (xmap) *underlay* (list)
 	*open_files* (list) *syntax* (Syntax) *whole_words* nil
 	*macro_record* nil *macro_actions* (list)
+	+min_word_size 3 +max_matches 20 all_words (Dictionary 307)
+	matched_window nil matched_flow nil matched_index -1
 	+vdu_min_width 80 +vdu_min_height 40 +vdu_max_width 100 +vdu_max_height 46
 	+selected (apply nums (map (lambda (_)
 		(const (<< (canvas-from-argb32 +argb_grey6 15) 48))) (str-alloc 8192)))
 	+not_selected (nums-sub +selected +selected)
 	+bracket_char (nums 0x7f) +state_filename "editor_open_files"
-	+tip_time 1000000 tip_id +max_long tip nil
+	+tip_time 1000000 tip_id +max_long tip nil +not_whole_chars " .,'`(){}[]/"
 	select (list (task-mailbox) (mail-alloc-mbox)))
 
 (ui-window *window* (:color +argb_grey1)
@@ -202,6 +205,12 @@
 			(list x y ax ay sx sy ss (defq buffer (Buffer mode *syntax*))))
 		(when file
 			(. buffer :file_load file)
+			(each (lambda (line)
+					(defq words (split line +not_whole_chars))
+					(each (lambda (word)
+							(if (>= (length word) +min_word_size) (. all_words :insert_word word)))
+						words))
+				(. buffer :get_text_lines))
 			(unless (find file *open_files*)
 				(push *open_files* file)))))
 
@@ -319,6 +328,10 @@
 	(setq tip nil tip_id +max_long)
 	(mail-timeout (elem +select_tip select) 0))
 
+(defun clear-matches ()
+	(if matched_window (gui-sub matched_window))
+	(setq matched_window nil matched_flow nil matched_index -1))
+
 ;import actions and bindings
 (import "apps/edit/actions.inc")
 
@@ -326,6 +339,32 @@
 	(and *macro_record* (find action recorded_actions_list)
 		(push *macro_actions* `(,action ~params)))
 	(apply action params))
+
+(defun find-best-matches ()
+	(bind '(*cursor_x* *cursor_y*) (. *current_buffer* :get_cursor))
+	(bind '(x x1) (select-word))
+	(when (>= (- x1 x) +min_word_size)
+		(clear-matches)
+		(defq matched_words (. all_words :find_matches
+			(slice x x1 (. *current_buffer* :get_text_line *cursor_y*))))
+		(if (> (length matched_words) +max_matches)
+			(setq matched_words (slice 0 +max_matches matched_words)))
+		(ui-window window (:color +argb_grey1 :ink_color +argb_white :font *env_terminal_font*)
+			(ui-flow flow (:flow_flags +flow_down_fill)
+				(each (# (ui-label _ (:text %0))) matched_words)))
+		(bind '(w h) (. *vdu* :char_size))
+		(defq x (+ (getf *vdu* +view_ctx_x 0) (- (* (inc *cursor_x*) w) (* *scroll_x* w)))
+			y (+ (getf *vdu* +view_ctx_y 0) (- (* (inc *cursor_y*) h) (* *scroll_y* h))))
+		(bind '(w h) (.-> window (:set_flags 0 +view_flag_solid) :pref_size))
+		(. window :change x y w h)
+		(gui-add-front (setq matched_flow flow matched_window window))))
+
+(defun select-match (dir)
+	(when matched_window
+		(defq matches (. matched_flow :children))
+		(if (>= matched_index 0) (undef (. (elem matched_index matches) :dirty) :color))
+		(setq matched_index (min (max 0 (+ matched_index dir)) (dec (length matches))))
+		(def (. (elem matched_index matches) :dirty) :color +argb_red)))
 
 (defun main ()
 	(defq *cursor_x* 0 *cursor_y* 0 *anchor_x* 0 *anchor_y* 0 *scroll_x* 0 *scroll_y* 0
@@ -350,7 +389,7 @@
 						(dispatch-action action))
 					((and (= id (. *vdu* :get_id)) (= (getf *msg* +ev_msg_type) +ev_type_mouse))
 						;mouse event on display
-						(clear-tip)
+						(clear-tip) (clear-matches)
 						(bind '(w h) (. *vdu* :char_size))
 						(defq x (getf *msg* +ev_msg_mouse_rx) y (getf *msg* +ev_msg_mouse_ry))
 						(setq x (if (>= x 0) x (- x w)) y (if (>= y 0) y (- y h)))
@@ -385,7 +424,7 @@
 										)))))
 					((and (= id (. *vdu* :get_id)) (= (getf *msg* +ev_msg_type) +ev_type_wheel))
 						;wheel event on display area
-						(clear-tip)
+						(clear-tip) (clear-matches)
 						(bind '(x y ax ay sx sy ss buffer) (. *meta_map* :find *current_file*))
 						(setq sx (+ *scroll_x* (getf *msg* +ev_msg_wheel_x))
 							sy (- *scroll_y* (getf *msg* +ev_msg_wheel_y)))
@@ -398,26 +437,43 @@
 						(clear-tip)
 						(defq key (getf *msg* +ev_msg_key_key) mod (getf *msg* +ev_msg_key_mod))
 						(cond
+							((and matched_window (or (= key 0x40000052) (= key 0x40000051)
+													(= key +char_lf) (= key +char_cr)))
+								;matches navigation and selection
+								(cond
+									((or (= key +char_lf) (= key +char_cr))
+										;choose a match
+										(when (>= matched_index 0)
+											(defq word (get :text (elem matched_index (. matched_flow :children))))
+											(dispatch-action action-select-word)
+											(dispatch-action action-insert (cat word " "))
+											(clear-matches)))
+									((select-match (if (= key 0x40000052) -1 1)))))
 							((/= 0 (logand mod (const
 									(+ +ev_key_mod_control +ev_key_mod_option +ev_key_mod_command))))
 								;call bound control/command key action
-								(if (defq action (. key_map_control :find key))
+								(when (defq action (. key_map_control :find key))
+									(clear-matches)
 									(dispatch-action action)))
 							((/= 0 (logand mod +ev_key_mod_shift))
 								;call bound shift key action, else insert
 								(cond
 									((defq action (. key_map_shift :find key))
+										(clear-matches)
 										(dispatch-action action))
 									((<= +char_space key +char_tilda)
-										(dispatch-action action-insert key))))
+										(dispatch-action action-insert (char key))
+										(find-best-matches))))
 							((defq action (. key_map :find key))
 								;call bound key action
-								(dispatch-action action))
+								(dispatch-action action)
+								(clear-matches))
 							((<= +char_space key +char_tilda)
 								;insert the char
-								(dispatch-action action-insert key))))
+								(dispatch-action action-insert (char key))
+								(find-best-matches))))
 					(t  ;gui event, plus check for tip text
-						(clear-tip)
+						(clear-tip) (clear-matches)
 						(. *window* :event *msg*)
 						(when (and (= (getf *msg* +ev_msg_type) +ev_type_mouse)
 								(= (getf *msg* +ev_msg_mouse_buttons) 0))
@@ -439,6 +495,6 @@
 					(bind '(x y w h) (apply view-locate (push (. tip :pref_size) :bottom)))
 					(gui-add-front (. tip :change x y w h))))))
 	(each mail-free-mbox (slice 1 -1 select))
-	(clear-tip)
+	(clear-tip) (clear-matches)
 	(gui-sub *window*)
 	(save-open-files))
