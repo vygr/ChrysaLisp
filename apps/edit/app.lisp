@@ -368,7 +368,8 @@
 
 (defun main ()
 	;load up the base Syntax keywords for matching
-	(each (lambda ((key val)) (. all_words :insert_word key)) (tolist (get :keywords *syntax* )))
+	(each (lambda ((key val)) (. all_words :insert_word (str key)))
+		(tolist (get :keywords *syntax* )))
 	(defq *cursor_x* 0 *cursor_y* 0 *anchor_x* 0 *anchor_y* 0 *scroll_x* 0 *scroll_y* 0
 		*shift_select* nil *current_buffer* nil *running* t mouse_state :u)
 	(load-open-files)
