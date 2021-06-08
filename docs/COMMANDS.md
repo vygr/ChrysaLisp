@@ -77,13 +77,13 @@ Usage: lisp [options] [path] ...
 ## make
 ```code
 Usage: make [options] [all] [boot] [platforms] [doc] [it]
-    options:
-        -h --help: this help info.
-    all: include all .vp files.
-    boot: create a boot image.
-    platforms: for all platforms not just the host.
-    docs: scan source files and create documentation.
-    it: all of the above !
+	options:
+		-h --help: this help info.
+	all: include all .vp files.
+	boot: create a boot image.
+	platforms: for all platforms not just the host.
+	docs: scan source files and create documentation.
+	it: all of the above !
 
 ```
 ## nodes

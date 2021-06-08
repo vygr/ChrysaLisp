@@ -318,6 +318,24 @@
 (. canvas :swap) -> canvas
 ```
 
+### dictionary :find_matches
+
+```code
+(. dictionary :find_matches prefix) -> (word ...)
+```
+
+### dictionary :insert_word
+
+```code
+(. dictionary :insert_word word) -> dictionary
+```
+
+### dictionary :sort
+
+```code
+(. dictionary :sort) -> dictionary
+```
+
 ### emap :copy
 
 ```code
@@ -1192,6 +1210,12 @@
 
 ```code
 (Canvas-from-file file flags) -> nil | canvas
+```
+
+### Dictionary
+
+```code
+(Dictionary [num_buckets]) -> dictionary
 ```
 
 ### Farm
