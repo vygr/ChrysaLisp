@@ -457,9 +457,9 @@
 									((or (= key +char_lf) (= key +char_cr))
 										;choose a match
 										(defq word (get :text (elem match_index (. match_flow :children))))
+										(clear-matches)
 										(dispatch-action action-select-word)
-										(dispatch-action action-insert (cat word " "))
-										(clear-matches))
+										(dispatch-action action-insert word))
 									((select-match (if (= key 0x40000052) -1 1)))))
 							((/= 0 (logand mod (const
 									(+ +ev_key_mod_control +ev_key_mod_option +ev_key_mod_command))))
@@ -478,8 +478,8 @@
 										(show-matches))))
 							((defq action (. key_map :find key))
 								;call bound key action
-								(dispatch-action action)
-								(clear-matches))
+								(clear-matches)
+								(dispatch-action action))
 							((<= +char_space key +char_tilda)
 								;insert the char
 								(dispatch-action action-insert (char key))
