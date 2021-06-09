@@ -37,7 +37,7 @@
 		(const (<< (canvas-from-argb32 +argb_grey6 15) 48))) (str-alloc 8192)))
 	+not_selected (nums-sub +selected +selected)
 	+bracket_char (nums 0x7f) +state_filename "editor_open_files"
-	+tip_time 1000000 tip_id +max_long tip_window nil +not_whole_chars " .,;'`(){}[]/"
+	+tip_time 1000000 tip_id +max_long tip_window nil +not_whole_word_chars " .,;'`(){}[]/"
 	select (list (task-mailbox) (mail-alloc-mbox)))
 
 (ui-window *window* (:color +argb_grey1)
@@ -197,6 +197,16 @@
 	(. *meta_map* :insert *current_file* (list x y ax ay sx sy ss buffer))
 	(set-sliders) (load-display))
 
+(defun populate-words (file)
+	;populate dictionary with this files words
+	(each-line (lambda (line)
+			(defq words (split line +not_whole_word_chars))
+			(each (lambda (word)
+					(if (>= (length word) +min_word_size)
+						(. all_words :insert_word word)))
+				words))
+		(file-stream file)))
+
 (defun populate-file (file x y ax ay sx sy ss)
 	;create new file buffer
 	(unless (. *meta_map* :find file)
@@ -206,14 +216,7 @@
 		(when file
 			(. buffer :file_load file)
 			(unless (find file *open_files*) (push *open_files* file))
-			;populate dictionary with this files words
-			(each (lambda (line)
-					(defq words (split line +not_whole_chars))
-					(each (lambda (word)
-							(if (>= (length word) +min_word_size)
-								(. all_words :insert_word word)))
-						words))
-				(. buffer :get_text_lines)))))
+			(populate-words file))))
 
 (defun populate-vdu (file)
 	;load up the vdu widget from this file
@@ -375,9 +378,10 @@
 		(def (. (elem match_index matches) :dirty) :color +argb_red)))
 
 (defun main ()
-	;load up the base Syntax keywords for matching
+	;load up the base Syntax keywords and boot.inc for matching
 	(each (lambda ((key val)) (. all_words :insert_word (str key)))
 		(tolist (get :keywords *syntax* )))
+	(populate-words "class/lisp/boot.inc")
 	(defq *cursor_x* 0 *cursor_y* 0 *anchor_x* 0 *anchor_y* 0 *scroll_x* 0 *scroll_y* 0
 		*shift_select* nil *current_buffer* nil *running* t mouse_state :u)
 	(load-open-files)

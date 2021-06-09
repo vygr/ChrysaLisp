@@ -6,7 +6,7 @@
 ;;;;;;;
 
 (defmacro not-whole-word-char? (_)
-	`(find ,_ +not_whole_chars))
+	`(find ,_ +not_whole_word_chars))
 
 (defun blank-line? (line)
 	(every (# (eql " " %0)) line))

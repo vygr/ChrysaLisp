@@ -4,6 +4,12 @@
 
 ------
 
+Make system now uses `(abs-path)`.
+
+Editor pulls in `boot.inc` to the matches dictionary on startup.
+
+------
+
 Find and replace added to the Editor app. Multiple buffers, save all buffers,
 rewind all, paragraph reflow, tab in/out block, jump to left/right matched
 brackets, select block and live matched bracket hinting.
