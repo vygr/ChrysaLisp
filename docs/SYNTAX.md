@@ -1341,7 +1341,7 @@
 ### abs-path
 
 ```code
-(abs-path path) -> path
+(abs-path path [current]) -> path
 ```
 
 ### acond

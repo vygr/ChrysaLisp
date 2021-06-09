@@ -804,18 +804,18 @@
 	(while (defq _l (read-line _))
 		(_f _l)))
 
-(defun abs-path (lib_path)
-	; (abs-path path) -> path
+(defun abs-path (lib_path &optional current)
+	; (abs-path path [current]) -> path
 	(cond
 		((not (starts-with "./" lib_path))
 			lib_path)
-		(t  (defq current_prefix *stream_name*)
+		(t  (setd current *stream_name*)
 			(while (starts-with "./" lib_path)
-				(unless (defq i (find-rev "/" current_prefix))
+				(unless (defq i (find-rev "/" current))
 					(throw "No relative path !" lib_path))
-				(setq current_prefix (slice 0 i current_prefix)
+				(setq current (slice 0 i current)
 					lib_path (slice 2 -1 lib_path)))
-			(cat current_prefix "/" lib_path))))
+			(cat current "/" lib_path))))
 
 (defun import (lib_path &optional _e)
 	; (import path [env]) -> env

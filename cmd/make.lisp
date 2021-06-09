@@ -24,7 +24,7 @@
 					(defq s (split line (const (cat (ascii-char 9) " ()'" (ascii-char 34) (ascii-char 13)))) _ (elem 0 s))
 					(cond
 						((eql _ "include")
-							(make-merge *imports* (list (elem 1 s))))
+							(make-merge *imports* (list (abs-path (elem 1 s) file))))
 						((eql _ "def-class")
 							(push classes (list (elem 1 s) (elem 2 s))))
 						((eql _ "dec-method")

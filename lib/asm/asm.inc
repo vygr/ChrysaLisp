@@ -3,7 +3,7 @@
 ;;;;;;;;;;;;;;
 
 (import "class/lisp.inc")
-(import "lib/task/farm.inc")
+(import "././task/farm.inc")
 
 (defun compile (files &optional *abi* *cpu* num_child)
 	(unless (list? files) (setq files (list files)))
@@ -116,9 +116,9 @@
 				(<= 2 (length (defq s (split _ (const (cat " ')" (ascii-char 34) (ascii-char 13)))))) 4))
 			(cond
 				((eql (setq _ (elem 0 s)) "(include")
-					(push d (elem 1 s)))
-				;; ((eql _ "(import")
-				;; 	(push d (elem 1 s)))
+					(push d (abs-path (elem 1 s) file)))
+				((eql _ "(import")
+					(push d (abs-path (elem 1 s) file)))
 				((eql _ "(def-method")
 					(push p (f-path (sym (elem 1 s)) (sym (elem 2 s)))))
 				((eql _ "(gen-vtable")
@@ -129,7 +129,7 @@
 					(push p (f-path (sym (elem 1 s))
 						(if (> (length s) 2) (sym (cat :create_ (elem 2 s))) :create))))
 				((eql _ "(def-func")
-					(push p (sym (elem 1 s))))))) (file-stream _))
+					(push p (sym (elem 1 s))))))) (file-stream (defq file _)))
 	(list d p))
 
 (defun func-obj (_)
