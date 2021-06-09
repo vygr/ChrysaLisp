@@ -1,7 +1,7 @@
 (import "sys/lisp.inc")
 (import "gui/lisp.inc")
 (import "lib/task/pipe.inc")
-(import "apps/terminal/input.inc")
+(import "./input.inc")
 
 (enums +event 0
 	(enum close max min)

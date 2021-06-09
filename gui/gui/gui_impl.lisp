@@ -8,7 +8,7 @@
 (import "gui/lisp.inc" _)
 
 (import "sys/pii/lisp.inc")
-(import "gui/gui/actions.inc")
+(import "./actions.inc")
 
 ;profiling callbacks on the GUI thread from :draw method !!!
 (defq *profile* (env -1) *profile_ret* (list)

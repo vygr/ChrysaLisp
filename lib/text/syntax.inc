@@ -3,8 +3,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "gui/canvas/lisp.inc")
-(import "lib/consts/chars.inc")
-(import "lib/consts/colors.inc")
+(import "././consts/chars.inc")
+(import "././consts/colors.inc")
 
 ;module
 (env-push)

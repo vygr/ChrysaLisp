@@ -64,16 +64,16 @@
 ; actions
 ;;;;;;;;;
 
-(import "apps/edit/undo.inc")
-(import "apps/edit/cursor.inc")
-(import "apps/edit/block.inc")
-(import "apps/edit/edit.inc")
-(import "apps/edit/file.inc")
-(import "apps/edit/select.inc")
-(import "apps/edit/clipboard.inc")
-(import "apps/edit/search.inc")
-(import "apps/edit/macros.inc")
-(import "apps/edit/ui.inc")
+(import "./undo.inc")
+(import "./cursor.inc")
+(import "./block.inc")
+(import "./edit.inc")
+(import "./file.inc")
+(import "./select.inc")
+(import "./clipboard.inc")
+(import "./search.inc")
+(import "./macros.inc")
+(import "./ui.inc")
 
 (defq
 event_map (xmap-kv

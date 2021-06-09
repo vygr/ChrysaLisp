@@ -146,7 +146,7 @@
 	(.-> *file_tree_scroll* :layout :dirty_all))
 
 ;import actions and bindings
-(import "apps/viewer/actions.inc")
+(import "./actions.inc")
 
 (defun main ()
 	(defq *cursor_x* 0 *cursor_y* 0 *anchor_x* 0 *anchor_y* 0 *scroll_x* 0 *scroll_y* 0

@@ -2,9 +2,9 @@
 ; text buffer object
 ;;;;;;;;;;;;;;;;;;;;
 
-(import "lib/text/syntax.inc")
-(import "lib/consts/chars.inc")
-(import "lib/text/substr.inc")
+(import "./syntax.inc")
+(import "./substr.inc")
+(import "././consts/chars.inc")
 
 ;module
 (env-push)

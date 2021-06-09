@@ -2,4 +2,4 @@
 
 ;single instance only
 (if (= (length (mail-enquire "DEBUG_SERVICE")) 0)
-	(import "apps/debug/app_impl.lisp"))
+	(import "./app_impl.lisp"))

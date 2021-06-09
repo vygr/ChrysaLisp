@@ -1,5 +1,5 @@
 (import "sys/lisp.inc")
-(import "apps/netmon/app.inc")
+(import "./app.inc")
 
 (enums +select 0
 	(enum main timeout))

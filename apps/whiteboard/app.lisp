@@ -1,5 +1,5 @@
 (import "lib/math/math.inc")
-(import "apps/whiteboard/app.inc")
+(import "./app.inc")
 
 (enums +select 0
 	(enum main picker timer))

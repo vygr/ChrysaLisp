@@ -3,7 +3,7 @@
 (import "gui/lisp.inc")
 (import "lib/consts/colors.inc")
 (import "lib/task/farm.inc")
-(import "apps/chess/app.inc")
+(import "./app.inc")
 
 (enums +event 0
 	(enum close)

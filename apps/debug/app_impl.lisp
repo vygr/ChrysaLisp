@@ -1,6 +1,6 @@
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
-(import "apps/debug/app.inc")
+(import "./app.inc")
 
 (enums +event 0
 	(enum hvalue)

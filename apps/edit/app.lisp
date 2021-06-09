@@ -1,10 +1,10 @@
 (import "sys/lisp.inc")
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
-(import "apps/clipboard/app.inc")
 (import "lib/consts/chars.inc")
 (import "lib/text/buffer.inc")
 (import "lib/text/dictionary.inc")
+(import "././clipboard/app.inc")
 
 (enums +event 0
 	(enum close max min)
@@ -334,7 +334,7 @@
 	(setq match_window nil match_flow nil match_index -1))
 
 ;import actions and bindings
-(import "apps/edit/actions.inc")
+(import "./actions.inc")
 
 (defun dispatch-action (action &rest params)
 	(and *macro_record* (find action recorded_actions_list)

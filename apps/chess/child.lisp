@@ -3,7 +3,7 @@
 (jit "apps/chess/" "lisp.vp" '("piece_scans"))
 
 (import "class/lisp.inc")
-(import "apps/chess/app.inc")
+(import "./app.inc")
 
 ;piece map accses
 (defmacro piece-map (_ i)

@@ -405,8 +405,8 @@
 	`(not (some! 0 -1 t ,f (list ~_))))
 
 (defun nil? (_)
-  	; (nil? o) -> bool
-  	(eql _ nil))
+	; (nil? o) -> bool
+	(eql _ nil))
 
 (defun empty? (_)
 	; (empty? form) -> bool
@@ -648,7 +648,7 @@
 				(logand (<< _ 16) 0x3f0000)) 3))
 		((>= _ 0x80)
 			(char (+ 0x80c0 (>> _ 6) (logand (<< _ 8) 0x3f00)) 2))
-		(t	(char _))))
+		(t  (char _))))
 
 (defun trim-start (s &optional c)
 	; (trim-start str [str]) -> str
@@ -761,7 +761,7 @@
 				(cond
 					((_fi _l)
 						(_fo _l))
-					(t	(push _stack _l 1)
+					(t  (push _stack _l 1)
 						(if (list? (defq _e (elem 0 _l))) (push _stack _e 0))
 						(_f _e))))
 			((< _ (length _l))
@@ -769,7 +769,7 @@
 				(push _stack _l (inc _))
 				(if (list? (defq _e (elem _ _l))) (push _stack _e 0))
 				(_f _e))
-			(t	;exit list
+			(t  ;exit list
 				(_fo _l)))))
 
 (defmacro # (&rest _)
@@ -804,10 +804,23 @@
 	(while (defq _l (read-line _))
 		(_f _l)))
 
+(defun abs-path (lib_path)
+	; (abs-path path) -> path
+	(cond
+		((not (starts-with "./" lib_path))
+			lib_path)
+		(t  (defq current_prefix *stream_name*)
+			(while (starts-with "./" lib_path)
+				(unless (defq i (find-rev "/" current_prefix))
+					(throw "No relative path !" lib_path))
+				(setq current_prefix (slice 0 i current_prefix)
+					lib_path (slice 2 -1 lib_path)))
+			(cat current_prefix "/" lib_path))))
+
 (defun import (lib_path &optional _e)
 	; (import path [env]) -> env
 	(unless (eql :str (pop (type-of lib_path))) (throw "Not a string !" lib_path))
-	(if (starts-with "./" lib_path) (setq lib_path (slice 2 -1 lib_path)))
+	(setq lib_path (abs-path lib_path))
 	(if (= (age lib_path) 0) (throw "No such file !" lib_path))
 	(setd _e (penv)) (defq _ee _e)
 	; does the import allready exist in the environments tree ?

@@ -1,4 +1,4 @@
-(import "apps/clipboard/app.inc")
+(import "./app.inc")
 
 (defun main ()
 	(defq clip_service (mail-declare (task-mailbox) "CLIPBOARD_SERVICE" "Clipboard Service 0.2")

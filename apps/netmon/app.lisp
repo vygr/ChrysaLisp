@@ -2,7 +2,7 @@
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
 (import "lib/task/global.inc")
-(import "apps/netmon/app.inc")
+(import "./app.inc")
 
 (enums +event 0
 	(enum close max min))

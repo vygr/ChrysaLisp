@@ -2,7 +2,7 @@
 (import "sys/lisp.inc")
 (jit "apps/mandelbrot/" "lisp.vp" '("depth"))
 
-(import "apps/mandelbrot/app.inc")
+(import "./app.inc")
 
 (enums +select 0
 	(enum main timeout))

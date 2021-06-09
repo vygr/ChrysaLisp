@@ -39,6 +39,10 @@ First pass at Intelisense completion in the Editor.
 
 Split the Editor actions out into separate files.
 
+Editor does `(action-save-all)` on app close.
+
+Added relative path accsess to `(import)`.
+
 ------
 
 VP and CScript optimizers improved for clarity and extra cases.

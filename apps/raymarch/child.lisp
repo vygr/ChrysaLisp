@@ -5,7 +5,7 @@
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
 (import "lib/math/math.inc")
-(import "apps/raymarch/app.inc")
+(import "./app.inc")
 
 (enums +select 0
 	(enum main timeout))
