@@ -94,7 +94,7 @@
 						:vdu_width *vdu_width* :vdu_height *vdu_height*
 						:ink_color +argb_white))
 					(ui-vdu *vdu_underlay* (:vdu_width *vdu_width* :vdu_height *vdu_height*
-						:min_width 0 :min_height 0
+						:min_width 0 :min_height 0 :font (get :font *vdu*)
 						:ink_color +argb_white)))))))
 
 (defun all-src-files (root)
@@ -355,7 +355,7 @@
 			(if (> (length match_words) +max_matches)
 				(setq match_words (slice 0 +max_matches match_words)))
 			(ui-window window (:color +argb_grey1 :ink_color +argb_white
-					:font *env_terminal_font*)
+					:font (get :font *vdu*))
 				(ui-flow flow (:flow_flags +flow_down_fill)
 					(each (# (ui-label _ (:text %0))) match_words)))
 			(bind '(cw ch) (. *vdu* :char_size))
