@@ -508,4 +508,5 @@
 	(each mail-free-mbox (slice 1 -1 select))
 	(clear-tip) (clear-matches)
 	(gui-sub *window*)
+	(action-save-all)
 	(save-open-files))
