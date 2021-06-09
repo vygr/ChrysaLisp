@@ -90,6 +90,7 @@ event_map (xmap-kv
 	+event_new action-new
 	+event_next action-next-buffer
 	+event_prev action-prev-buffer
+	+event_scratch action-scratch-buffer
 	+event_find_down action-find-down
 	+event_find_up action-find-up
 	+event_whole_words action-whole-words

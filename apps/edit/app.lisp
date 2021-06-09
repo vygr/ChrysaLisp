@@ -18,7 +18,7 @@
 		block bracket_left bracket_right
 		toupper tolower ordered unique
 		comment uncomment)
-	(enum prev next close_buffer save_all save new)
+	(enum prev next scratch close_buffer save_all save new)
 	(enum find_down find_up whole_words)
 	(enum replace replace_all)
 	(enum macro_playback macro_record))
@@ -55,7 +55,7 @@
 		(ui-backdrop _ (:color (const *env_toolbar_col*))))
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-tool-bar buffer_toolbar (:color (const *env_toolbar2_col*))
-			(ui-buttons (0xe91d 0xe91e 0xe929 0xe97e 0xea07 0xe9f0) +event_prev))
+			(ui-buttons (0xe91d 0xe91e 0xe94b 0xe929 0xe97e 0xea07 0xe9f0) +event_prev))
 		(ui-grid _ (:grid_width 3 :grid_height 1)
 			(. (ui-textfield *name_text* (:hint_text "new file" :clear_text "" :color +argb_white))
 				:connect +event_new)
@@ -313,7 +313,7 @@
 			"lower case" "sort" "unique" "comment" "uncomment"))
 	(each (lambda (button tip_text) (def button :tip_text tip_text))
 		(. buffer_toolbar :children)
-		'("previous" "next" "close" "save all" "save" "new"))
+		'("previous" "next" "scratchpad" "close" "save all" "save" "new"))
 	(each (lambda (button tip_text) (def button :tip_text tip_text))
 		(. find_toolbar :children)
 		'("find down" "find up" "whole words"))

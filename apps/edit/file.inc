@@ -70,6 +70,10 @@
 	(select-node (elem idx live_buffers))
 	(populate-vdu (elem idx live_buffers)))
 
+(defun action-scratch-buffer ()
+	(select-node nil)
+	(populate-vdu nil))
+
 (defun action-close-buffer ()
 	(when *current_file*
 		(each (# (. %0 :sub)) (. *open_tree* :children))
