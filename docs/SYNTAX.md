@@ -1338,6 +1338,12 @@
 (abs num)
 ```
 
+### abs-path
+
+```code
+(abs-path path) -> path
+```
+
 ### acond
 
 ```code

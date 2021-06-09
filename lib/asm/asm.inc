@@ -117,8 +117,8 @@
 			(cond
 				((eql (setq _ (elem 0 s)) "(include")
 					(push d (elem 1 s)))
-				((eql _ "(import")
-					(push d (elem 1 s)))
+				;; ((eql _ "(import")
+				;; 	(push d (elem 1 s)))
 				((eql _ "(def-method")
 					(push p (f-path (sym (elem 1 s)) (sym (elem 2 s)))))
 				((eql _ "(gen-vtable")
