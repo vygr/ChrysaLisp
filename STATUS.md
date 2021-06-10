@@ -28,7 +28,7 @@ Tool tips experiment in the Editor.
 
 Mouse wheel support added across the GUI. Apps and Scroll widget.
 
-New (.?) macro.
+New `(.?)` macro. Returns `nil` if not callable else the bound method lambda.
 
 GUI event loop moved out to Lisp. And move the SDL event queue handling out to
 Lisp !

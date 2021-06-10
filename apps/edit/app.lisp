@@ -306,21 +306,21 @@
 	(.-> *file_tree_scroll* :layout :dirty_all))
 
 (defun tooltips ()
-	(each (lambda (button tip_text) (def button :tip_text tip_text))
+	(each (# (def %0 :tip_text %1))
 		(. edit_toolbar :children)
 		'("undo" "redo" "rewind" "cut" "copy" "paste" "reflow" "select paragraph"
 			"outdent" "indent" "select form" "start form" "end form" "upper case"
 			"lower case" "sort" "unique" "comment" "uncomment"))
-	(each (lambda (button tip_text) (def button :tip_text tip_text))
+	(each (# (def %0 :tip_text %1))
 		(. buffer_toolbar :children)
 		'("previous" "next" "scratchpad" "close" "save all" "save" "new"))
-	(each (lambda (button tip_text) (def button :tip_text tip_text))
+	(each (# (def %0 :tip_text %1))
 		(. find_toolbar :children)
 		'("find down" "find up" "whole words"))
-	(each (lambda (button tip_text) (def button :tip_text tip_text))
+	(each (# (def %0 :tip_text %1))
 		(. macro_toolbar :children)
 		'("playback" "record"))
-	(each (lambda (button tip_text) (def button :tip_text tip_text))
+	(each (# (def %0 :tip_text %1))
 		(. replace_toolbar :children)
 		'("replace" "replace all")))
 
@@ -351,8 +351,8 @@
 		(when (> (length match_words) 0)
 			(if (> (length match_words) +max_matches)
 				(setq match_words (slice 0 +max_matches match_words)))
-			(ui-window window (:color +argb_grey1 :ink_color +argb_white
-					:font (get :font *vdu*))
+			(ui-window window (:color (get :color *window*)
+					:ink_color (get :ink_color *vdu*) :font (get :font *vdu*))
 				(ui-flow flow (:flow_flags +flow_down_fill)
 					(each (# (ui-label _ (:text %0))) match_words)))
 			(bind '(cw ch) (. *vdu* :char_size))
