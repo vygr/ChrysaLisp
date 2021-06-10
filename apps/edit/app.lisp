@@ -30,7 +30,7 @@
 	*vdu_width* 80 *vdu_height* 40 *meta_map* (xmap) *underlay* (list)
 	*open_files* (list) *syntax* (Syntax) *whole_words* nil
 	*macro_record* nil *macro_actions* (list)
-	+min_word_size 3 +max_matches 20 all_words (Dictionary 307)
+	+min_word_size 3 +max_matches 20 dictionary (Dictionary 307)
 	match_window nil match_flow nil match_index -1
 	+vdu_min_width 80 +vdu_min_height 40 +vdu_max_width 100 +vdu_max_height 46
 	+selected (apply nums (map (lambda (_)
@@ -54,36 +54,36 @@
 			(ui-buttons (0xe95e 0xe95f) +event_macro_playback))
 		(ui-backdrop _ (:color (const *env_toolbar_col*))))
 	(ui-flow _ (:flow_flags +flow_right_fill)
-		(ui-tool-bar buffer_toolbar (:color (const *env_toolbar2_col*))
+		(ui-tool-bar buffer_toolbar (:color (get :color macro_toolbar))
 			(ui-buttons (0xe91d 0xe91e 0xe94b 0xe929 0xe97e 0xea07 0xe9f0) +event_prev))
 		(ui-grid _ (:grid_width 3 :grid_height 1)
-			(. (ui-textfield *name_text* (:hint_text "new file" :clear_text "" :color +argb_white))
-				:connect +event_new)
+			(. (ui-textfield *name_text* (:color +argb_white
+					:hint_text "new file" :clear_text "")) :connect +event_new)
 			(ui-flow _ (:flow_flags +flow_right_fill)
-				(ui-tool-bar find_toolbar (:color (const *env_toolbar2_col*))
+				(ui-tool-bar find_toolbar (:color (get :color macro_toolbar))
 					(ui-buttons (0xe914 0xe91b 0xe9cd) +event_find_down))
-				(. (ui-textfield *find_text* (:hint_text "find" :clear_text "" :color +argb_white))
-					:connect +event_find_down))
+				(. (ui-textfield *find_text* (:color +argb_white
+						:hint_text "find" :clear_text "")) :connect +event_find_down))
 			(ui-flow _ (:flow_flags +flow_right_fill)
-				(ui-tool-bar replace_toolbar (:color (const *env_toolbar2_col*))
+				(ui-tool-bar replace_toolbar (:color (get :color macro_toolbar))
 					(ui-buttons (0xe95c 0xe95a) +event_replace))
-				(. (ui-textfield *replace_text* (:hint_text "replace" :clear_text "" :color +argb_white))
-					:connect +event_replace))))
+				(. (ui-textfield *replace_text* (:color +argb_white
+						:hint_text "replace" :clear_text "")) :connect +event_replace))))
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-flow _ (:flow_flags +flow_stack_fill)
-			(ui-grid _ (:grid_width 1 :grid_height 2 :color +argb_grey14)
+			(ui-grid _ (:color +argb_grey14 :grid_width 1 :grid_height 2)
 				(ui-flow _ (:flow_flags +flow_down_fill)
 					(ui-label _ (:text "Open"))
 					(ui-scroll *open_tree_scroll* +scroll_flag_vertical nil
 						(. (ui-tree *open_tree* +event_open_folder_action
-								(:min_width 0 :color +argb_white :font *env_medium_terminal_font*))
-							:connect +event_tree_action)))
-				(ui-flow _ (:flow_flags +flow_down_fill)
+								(:min_width 0 :color +argb_white
+								:font *env_medium_terminal_font*)) :connect +event_tree_action)))
+				(ui-flow _  (:flow_flags +flow_down_fill)
 					(ui-label _ (:text "Project"))
 					(ui-scroll *file_tree_scroll* +scroll_flag_vertical nil
 						(. (ui-tree *file_tree* +event_file_folder_action
-								(:min_width 0 :color +argb_white :font *env_medium_terminal_font*))
-							:connect +event_tree_action))))
+								(:min_width 0 :color (get :color *open_tree*)
+								:font (get :font *open_tree*))) :connect +event_tree_action))))
 			(ui-backdrop _ (:color +argb_white)))
 		(ui-flow _ (:flow_flags +flow_left_fill)
 			(. (ui-slider *yslider*) :connect +event_yscroll)
@@ -91,11 +91,11 @@
 				(. (ui-slider *xslider*) :connect +event_xscroll)
 				(ui-flow _ (:flow_flags +flow_stack_fill :font *env_terminal_font*)
 					(ui-vdu *vdu* (:min_width *vdu_width* :min_height *vdu_height*
-						:vdu_width *vdu_width* :vdu_height *vdu_height*
-						:ink_color +argb_white))
+							:vdu_width *vdu_width* :vdu_height *vdu_height*
+							:ink_color +argb_white))
 					(ui-vdu *vdu_underlay* (:vdu_width *vdu_width* :vdu_height *vdu_height*
-						:min_width 0 :min_height 0 :font (get :font *vdu*)
-						:ink_color +argb_white)))))))
+							:min_width 0 :min_height 0 :font (get :font *vdu*)
+							:ink_color (get :ink_color *vdu*))))))))
 
 (defun all-src-files (root)
 	;all source files from root downwards, none recursive
@@ -197,15 +197,12 @@
 	(. *meta_map* :insert *current_file* (list x y ax ay sx sy ss buffer))
 	(set-sliders) (load-display))
 
-(defun populate-words (file)
-	;populate dictionary with this files words
-	(each-line (lambda (line)
-			(defq words (split line +not_whole_word_chars))
-			(each (lambda (word)
-					(if (>= (length word) +min_word_size)
-						(. all_words :insert_word word)))
-				words))
-		(file-stream file)))
+(defun populate-dictionary (line)
+	;populate dictionary with this lines words
+	(each (lambda (word)
+			(if (>= (length word) +min_word_size)
+				(. dictionary :insert_word word)))
+		(split line +not_whole_word_chars)))
 
 (defun populate-file (file x y ax ay sx sy ss)
 	;create new file buffer
@@ -216,7 +213,7 @@
 		(when file
 			(. buffer :file_load file)
 			(unless (find file *open_files*) (push *open_files* file))
-			(populate-words file))))
+			(each populate-dictionary (. buffer :get_text_lines)))))
 
 (defun populate-vdu (file)
 	;load up the vdu widget from this file
@@ -312,7 +309,7 @@
 	(each (lambda (button tip_text) (def button :tip_text tip_text))
 		(. edit_toolbar :children)
 		'("undo" "redo" "rewind" "cut" "copy" "paste" "reflow" "select paragraph"
-			"undent" "indent" "select form" "start form" "end form" "upper case"
+			"outdent" "indent" "select form" "start form" "end form" "upper case"
 			"lower case" "sort" "unique" "comment" "uncomment"))
 	(each (lambda (button tip_text) (def button :tip_text tip_text))
 		(. buffer_toolbar :children)
@@ -349,7 +346,7 @@
 	(bind '(*cursor_x* *cursor_y*) (. *current_buffer* :get_cursor))
 	(bind '(x x1) (select-word))
 	(when (>= (- x1 x) +min_word_size)
-		(defq match_words (. all_words :find_matches
+		(defq match_words (. dictionary :find_matches
 			(slice x x1 (. *current_buffer* :get_text_line *cursor_y*))))
 		(when (> (length match_words) 0)
 			(if (> (length match_words) +max_matches)
@@ -378,10 +375,10 @@
 		(def (. (elem match_index matches) :dirty) :color +argb_red)))
 
 (defun main ()
-	;load up the base Syntax keywords and boot.inc for matching
-	(each (lambda ((key val)) (. all_words :insert_word (str key)))
+	;load up the base Syntax keywords and boot.inc words for matching
+	(each (lambda ((key val)) (. dictionary :insert_word (str key)))
 		(tolist (get :keywords *syntax* )))
-	(populate-words "class/lisp/boot.inc")
+	(each-line populate-dictionary (file-stream "class/lisp/boot.inc"))
 	(defq *cursor_x* 0 *cursor_y* 0 *anchor_x* 0 *anchor_y* 0 *scroll_x* 0 *scroll_y* 0
 		*shift_select* nil *current_buffer* nil *running* t mouse_state :u)
 	(load-open-files)
@@ -420,7 +417,8 @@
 									(:u ;mouse down event
 										(bind '(x y) (. *current_buffer* :constrain x y))
 										(. *current_buffer* :set_cursor x y)
-										(setq *anchor_x* x *anchor_y* y *shift_select* t mouse_state :d)
+										(setq *anchor_x* x *anchor_y* y
+											*shift_select* t mouse_state :d)
 										(refresh))))
 							(t  ;mouse button is up
 								(case mouse_state
@@ -452,8 +450,7 @@
 						(clear-tip)
 						(defq key (getf *msg* +ev_msg_key_key) mod (getf *msg* +ev_msg_key_mod))
 						(cond
-							((and match_window (or
-									(= key 0x40000052) (= key 0x40000051)
+							((and match_window (or (= key 0x40000052) (= key 0x40000051)
 									(and (or (= key +char_lf) (= key +char_cr)) (>= match_index 0))))
 								;matches navigation and selection
 								(cond
