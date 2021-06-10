@@ -8,6 +8,9 @@ Make system now uses `(abs-path)`.
 
 Editor pulls in `boot.inc` to the matches dictionary on startup.
 
+Viewer application now shares most of the Editor engine source. Can copy from
+Viewer to clipboard now.
+
 ------
 
 Find and replace added to the Editor app. Multiple buffers, save all buffers,

@@ -30,7 +30,7 @@
 	*vdu_width* 80 *vdu_height* 40 *meta_map* (xmap) *underlay* (list)
 	*open_files* (list) *syntax* (Syntax) *whole_words* nil
 	*macro_record* nil *macro_actions* (list)
-	+min_word_size 3 +max_matches 20 dictionary (Dictionary 307)
+	+min_word_size 3 +max_matches 20 dictionary (Dictionary 1021)
 	match_window nil match_flow nil match_index -1
 	+vdu_min_width 80 +vdu_min_height 40 +vdu_max_width 100 +vdu_max_height 46
 	+selected (apply nums (map (lambda (_)
@@ -252,7 +252,7 @@
 		(each-line (lambda (line)
 				(bind '(form _) (read (string-stream line) +char_space))
 				(bind '(file (x y ax ay sx sy ss)) form)
-				(populate-file file x y ax ay sx sy ss))
+				(if (/= (age file) 0) (populate-file file x y ax ay sx sy ss)))
 			stream)))
 
 (defun save-open-files ()
@@ -379,6 +379,7 @@
 	(each (lambda ((key val)) (. dictionary :insert_word (str key)))
 		(tolist (get :keywords *syntax* )))
 	(each-line populate-dictionary (file-stream "class/lisp/boot.inc"))
+	;(each-line populate-dictionary (file-stream "lib/text/english.txt"))
 	(defq *cursor_x* 0 *cursor_y* 0 *anchor_x* 0 *anchor_y* 0 *scroll_x* 0 *scroll_y* 0
 		*shift_select* nil *current_buffer* nil *running* t mouse_state :u)
 	(load-open-files)
