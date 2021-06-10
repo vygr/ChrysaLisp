@@ -84,6 +84,11 @@
 		:cursor_x 0 :cursor_y 0 :max_width 0 :tab_width 4 :wrap_width 80
 		:mode mode :lps nil :lps_pattern nil :next_mark -1)
 
+	(defmethod :set_mode (this mode)
+		; (. buffer :set_mode mode) -> buffer
+		(set this :mode mode)
+		this)
+
 	(defmethod :next_mark (this)
 		; (. buffer :next_mark) -> mark
 		(set this :next_mark (inc (get :next_mark this))))

@@ -43,7 +43,7 @@
 (ui-window *window* (:color +argb_grey1)
 	(ui-title-bar *title* "Edit" (0xea19 0xea1b 0xea1a) +event_close)
 	(ui-flow _ (:flow_flags +flow_right_fill)
-		(ui-tool-bar edit_toolbar ()
+		(ui-tool-bar main_toolbar ()
 			(ui-buttons (0xe9fe 0xe99d 0xe9ff
 				0xea08 0xe9ca 0xe9c9
 				0xe909 0xe90d 0xe90a 0xe90b
@@ -307,7 +307,7 @@
 
 (defun tooltips ()
 	(each (# (def %0 :tip_text %1))
-		(. edit_toolbar :children)
+		(. main_toolbar :children)
 		'("undo" "redo" "rewind" "cut" "copy" "paste" "reflow" "select paragraph"
 			"outdent" "indent" "select form" "start form" "end form" "upper case"
 			"lower case" "sort" "unique" "comment" "uncomment"))

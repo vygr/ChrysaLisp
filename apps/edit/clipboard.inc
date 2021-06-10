@@ -32,3 +32,19 @@
 (defun action-cut-block ()
 	(action-select-block)
 	(action-cut))
+
+(defun action-copy-word ()
+	(action-select-word)
+	(action-copy))
+
+(defun action-copy-line ()
+	(action-select-line)
+	(action-copy))
+
+(defun action-copy-paragraph ()
+	(action-select-paragraph)
+	(action-copy))
+
+(defun action-copy-block ()
+	(action-select-block)
+	(action-copy))

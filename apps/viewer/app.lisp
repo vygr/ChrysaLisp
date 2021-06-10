@@ -7,16 +7,30 @@
 	(enum close max min)
 	(enum layout xscroll yscroll)
 	(enum tree_action)
-	(enum file_folder_action file_leaf_action))
+	(enum file_folder_action file_leaf_action)
+	(enum copy paragraph block bracket_left bracket_right))
+
+(enums +select 0
+	(enum main tip))
 
 (defq +vdu_min_width 32 +vdu_min_height 16
 	+vdu_max_width 100 +vdu_max_height 48
 	*vdu_width* 80 *vdu_height* 48
-	*current_buffer* (Buffer) *meta_map* (xmap 31)
-	*current_file* nil *selected_file_node* nil)
+	*current_buffer* (Buffer) *meta_map* (xmap 31) *underlay* (list)
+	*current_file* nil *selected_file_node* nil
+	+selected (apply nums (map (lambda (_)
+		(const (<< (canvas-from-argb32 +argb_grey6 15) 48))) (str-alloc 8192)))
+	+not_selected (nums-sub +selected +selected)
+	+bracket_char (nums 0x7f) +not_whole_word_chars " .,;'`(){}[]/"
+	+tip_time 1000000 tip_id +max_long tip_window nil
+	select (list (task-mailbox) (mail-alloc-mbox)))
 
 (ui-window *window* (:color +argb_grey1)
 	(ui-title-bar *title* "" (0xea19 0xea1b 0xea1a) +event_close)
+	(ui-flow _ (:flow_flags +flow_right_fill)
+		(ui-tool-bar main_toolbar ()
+			(ui-buttons (0xe9ca 0xe90d 0xe955 0xe93c 0xe93d) +event_copy))
+		(ui-backdrop _ (:color (const *env_toolbar_col*))))
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-flow _ (:flow_flags +flow_stack_fill)
 			(ui-scroll *file_tree_scroll* +scroll_flag_vertical nil
@@ -24,13 +38,17 @@
 						(:min_width 0 :color +argb_white :font *env_medium_terminal_font*))
 					:connect +event_tree_action))
 			(ui-backdrop _ (:color +argb_white)))
-		(ui-flow _ (:flow_flags +flow_left_fill :font *env_terminal_font*)
+		(ui-flow _ (:flow_flags +flow_left_fill)
 			(. (ui-slider *yslider*) :connect +event_yscroll)
 			(ui-flow _ (:flow_flags +flow_up_fill)
 				(. (ui-slider *xslider*) :connect +event_xscroll)
-				(ui-vdu *vdu* (:min_width *vdu_width* :min_height *vdu_height*
-					:vdu_width *vdu_width* :vdu_height *vdu_height*
-					:ink_color +argb_white))))))
+				(ui-flow _ (:flow_flags +flow_stack_fill :font *env_terminal_font*)
+					(ui-vdu *vdu* (:min_width *vdu_width* :min_height *vdu_height*
+							:vdu_width *vdu_width* :vdu_height *vdu_height*
+							:ink_color +argb_white))
+					(ui-vdu *vdu_underlay* (:vdu_width *vdu_width* :vdu_height *vdu_height*
+							:min_width 0 :min_height 0 :font (get :font *vdu*)
+							:ink_color (get :ink_color *vdu*))))))))
 
 (defun all-src-files (root)
 	;all source files from root downwards, none recursive
@@ -54,45 +72,98 @@
 				(unzip (split (pii-dirlist root) ",") (list (list) (list))))))
 	files)
 
+(defun clear-selection ()
+	;clear the selection
+	(bind '(x y) (. *current_buffer* :get_cursor))
+	(bind '(x y) (. *current_buffer* :constrain x y))
+	(setq *anchor_x* x *anchor_y* y *shift_select* nil))
+
+(defun create-selection ()
+	;create the underlay for block selection
+	(bind '(x y) (. *current_buffer* :get_cursor))
+	(defq x1 *anchor_x* y1 *anchor_y*)
+	(if (> y y1)
+		(defq x (logxor x x1) x1 (logxor x x1) x (logxor x x1)
+			y (logxor y y1) y1 (logxor y y1) y (logxor y y1)))
+	(and (= y y1) (> x x1)
+		(defq x (logxor x x1) x1 (logxor x x1) x (logxor x x1)))
+	(cap (inc y1) (clear *underlay*))
+	(defq uy -1 buffer (. *current_buffer* :get_text_lines))
+	(while (< (setq uy (inc uy)) y) (push *underlay* ""))
+	(cond
+		((= y y1)
+			(push *underlay* (cat (slice 0 x +not_selected) (slice x x1 +selected))))
+		(t  (push *underlay* (cat
+				(slice 0 x +not_selected)
+				(slice x (inc (length (elem y buffer))) +selected)))
+			(while (< (setq y (inc y)) y1)
+				(push *underlay* (slice 0 (inc (length (elem y buffer))) +selected)))
+			(push *underlay* (slice 0 x1 +selected)))))
+
+(defun create-brackets ()
+	;create the underlay for just bracket indicators
+	(clear *underlay*)
+	(when (bind '(x y) (. *current_buffer* :left_bracket))
+		(when (bind '(x1 y1) (. *current_buffer* :right_bracket))
+			(cap (inc y1) *underlay*)
+			(defq uy -1)
+			(while (< (setq uy (inc uy)) y) (push *underlay* ""))
+			(cond
+				((= y y1)
+					(push *underlay* (cat
+						(slice 0 x +not_selected) +bracket_char
+						(slice x (dec x1) +not_selected) +bracket_char)))
+				(t  (push *underlay* (cat (slice 0 x +not_selected) +bracket_char))
+					(while (< (setq y (inc y)) y1) (push *underlay* ""))
+					(push *underlay* (cat (slice 0 x1 +not_selected) +bracket_char)))))))
+
 (defun load-display ()
-	;load the vdu widgets with the text
-	(. *current_buffer* :vdu_load *vdu* *scroll_x* *scroll_y*))
+	;load the vdu widgets with the text and selection
+	(. *current_buffer* :vdu_load *vdu* *scroll_x* *scroll_y*)
+	(bind '(x y) (. *current_buffer* :get_cursor))
+	(if (and (= x *anchor_x*) (= y *anchor_y*))
+		(create-brackets)
+		(create-selection))
+	(. *vdu_underlay* :load *underlay* *scroll_x* *scroll_y* -1 -1))
 
 (defun set-sliders ()
 	;set slider values for current file
-	(bind '(x y ax ay sx sy m ss) (. *meta_map* :find *current_file*))
+	(bind '(x y ax ay sx sy ss) (. *meta_map* :find *current_file*))
 	(bind '(w h) (. *current_buffer* :get_size))
 	(defq smaxx (max 0 (- w *vdu_width* -1))
 		smaxy (max 0 (- h *vdu_height* -1))
 		sx (max 0 (min sx smaxx)) sy (max 0 (min sy smaxy)))
 	(def (. *xslider* :dirty) :maximum smaxx :portion *vdu_width* :value sx)
 	(def (. *yslider* :dirty) :maximum smaxy :portion *vdu_height* :value sy)
-	(. *meta_map* :insert *current_file* (list x y ax ay sx sy m ss))
+	(. *meta_map* :insert *current_file* (list x y ax ay sx sy ss))
 	(setq *scroll_x* sx *scroll_y* sy))
 
 (defun refresh ()
 	;refresh display and ensure cursor is visible
-	(bind '(x y ax ay sx sy m ss) (. *meta_map* :find *current_file*))
+	(bind '(x y ax ay sx sy ss) (. *meta_map* :find *current_file*))
 	(bind '(x y) (. *current_buffer* :get_cursor))
 	(bind '(w h) (. *vdu* :vdu_size))
 	(if (< x sx) (setq sx x))
 	(if (< y sy) (setq sy y))
 	(if (>= x (+ sx w)) (setq sx (- x w -1)))
 	(if (>= y (+ sy h)) (setq sy (- y h -1)))
-	(. *meta_map* :insert *current_file* (list x y ax ay sx sy m ss))
+	(. *meta_map* :insert *current_file* (list x y ax ay sx sy ss))
 	(set-sliders) (load-display))
+
+(defun populate-file (file x y ax ay sx sy ss)
+	;create new file buffer
+	(unless (. *meta_map* :find file)
+		(. *meta_map* :insert file (list x y ax ay sx sy ss)))
+	(when file
+		(defq mode (if (ends-with ".md" file) t nil))
+		(.-> *current_buffer* (:set_mode mode) (:file_load file))))
 
 (defun populate-vdu (file)
 	;load up the vdu widget from this file
-	;must create a fresh buffer if not seen this before !
-	(unless (. *meta_map* :find file)
-		(defq m (if (ends-with ".md" file) t nil))
-		(. *meta_map* :insert file (list 0 0 0 0 0 0 m nil)))
-	(bind '(x y ax ay sx sy m ss) (. *meta_map* :find file))
-	(when file
-		(set *current_buffer* :mode m)
-		(. *current_buffer* :file_load file))
-	(setq *cursor_x* x *cursor_y* y *anchor_x* ax *anchor_y* ay mode m *shift_select* ss *current_file* file)
+	(populate-file file 0 0 0 0 0 0 nil)
+	(bind '(x y ax ay sx sy ss) (. *meta_map* :find file))
+	(setq *cursor_x* x *cursor_y* y *anchor_x* ax *anchor_y* ay *shift_select* ss
+		*current_file* file)
 	(. *current_buffer* :set_cursor x y)
 	(refresh)
 	(def *title* :text (cat "Viewer -> " (if file file "<no file>")))
@@ -109,27 +180,30 @@
 	;load up the file tree and a blank Buffer
 	(defq all_src_files (sort cmp (all-src-files ".")))
 	(each (# (. *file_tree* :add_route %0)) (all-dirs all_src_files))
-	(each (# (. *file_tree* :add_route %0)) all_src_files)
-	(populate-vdu nil)
-	(select-node nil))
+	(each (# (. *file_tree* :add_route %0)) all_src_files))
 
 (defun window-resize (w h)
 	;layout the window and size the vdu to fit
 	(setq *vdu_width* w *vdu_height* h)
 	(set *vdu* :vdu_width w :vdu_height h :min_width w :min_height h)
+	(set *vdu_underlay* :vdu_width w :vdu_height h)
 	(bind '(x y) (. *vdu* :get_pos))
 	(bind '(w h) (. *vdu* :pref_size))
 	(set *vdu* :min_width +vdu_min_width :min_height +vdu_min_height)
+	(set *vdu_underlay* :min_width +vdu_min_width :min_height +vdu_min_height)
 	(. *vdu* :change x y w h)
+	(. *vdu_underlay* :change x y w h)
 	(set-sliders) (load-display))
 
 (defun vdu-resize (w h)
 	;size the vdu and layout the window to fit
 	(setq *vdu_width* w *vdu_height* h)
 	(set *vdu* :vdu_width w :vdu_height h :min_width w :min_height h)
+	(set *vdu_underlay* :vdu_width w :vdu_height h)
 	(bind '(x y w h) (apply view-fit
 		(cat (. *window* :get_pos) (. *window* :pref_size))))
 	(set *vdu* :min_width +vdu_min_width :min_height +vdu_min_height)
+	(set *vdu_underlay* :min_width +vdu_min_width :min_height +vdu_min_height)
 	(. *window* :change_dirty x y w h)
 	(set-sliders) (load-display))
 
@@ -145,74 +219,123 @@
 	(def *file_tree_scroll* :min_width w)
 	(.-> *file_tree_scroll* :layout :dirty_all))
 
+(defun tooltips ()
+	(each (# (def %0 :tip_text %1))
+		(. main_toolbar :children)
+		'("copy" "select paragraph" "select form" "start form" "end form")))
+
+(defun clear-tip ()
+	(if tip_window (gui-sub tip_window))
+	(setq tip_window nil tip_id +max_long)
+	(mail-timeout (elem +select_tip select) 0))
+
 ;import actions and bindings
 (import "./actions.inc")
 
 (defun main ()
 	(defq *cursor_x* 0 *cursor_y* 0 *anchor_x* 0 *anchor_y* 0 *scroll_x* 0 *scroll_y* 0
-		mode nil *shift_select* nil *running* t mouse_state :u)
+		*shift_select* nil *running* t mouse_state :u)
 	(populate-file-tree)
+	(populate-vdu nil)
+	(select-node nil)
+	(tooltips)
 	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
 	(refresh)
 	(while *running*
+		(defq *msg* (mail-read (elem (defq idx (mail-select select)) select)))
 		(cond
-			((defq id (getf (defq *msg* (mail-read (task-mailbox))) +ev_msg_target_id)
-					action (. event_map :find id))
-				;call bound event action
-				(action))
-			((and (= id (. *vdu* :get_id)) (= (getf *msg* +ev_msg_type) +ev_type_mouse))
-				;mouse event on display
-				(bind '(w h) (. *vdu* :char_size))
-				(defq x (getf *msg* +ev_msg_mouse_rx) y (getf *msg* +ev_msg_mouse_ry))
-				(setq x (if (>= x 0) x (- x w)) y (if (>= y 0) y (- y h)))
-				(setq x (+ *scroll_x* (/ x w)) y (+ *scroll_y* (/ y h)))
+			((= idx +select_main)
+				;main mailbox
 				(cond
-					((/= (getf *msg* +ev_msg_mouse_buttons) 0)
-						;mouse button is down
-						(case mouse_state
-							(:d ;was down last time
-								(bind '(x y) (. *current_buffer* :constrain x y))
-								(. *current_buffer* :set_cursor x y)
-								(refresh))
-							(:u ;was up last time
-								(bind '(x y) (. *current_buffer* :constrain x y))
-								(. *current_buffer* :set_cursor x y)
-								(setq *anchor_x* x *anchor_y* y *shift_select* t mouse_state :d)
-								(refresh))))
-					(t  ;mouse button is up
-						(case mouse_state
-							(:d ;was down last time
-								(setq mouse_state :u)
-								(refresh))
-							(:u ;was up last time
-								)))))
-			((and (= id (. *vdu* :get_id)) (= (getf *msg* +ev_msg_type) +ev_type_wheel))
-				;wheel event on display
-				(bind '(x y ax ay sx sy ss buffer) (. *meta_map* :find *current_file*))
-				(setq sx (+ *scroll_x* (getf *msg* +ev_msg_wheel_x))
-					sy (- *scroll_y* (getf *msg* +ev_msg_wheel_y)))
-				(. *meta_map* :insert *current_file* (list x y ax ay sx sy ss buffer))
-				(set-sliders) (load-display))
-			((and (not (Textfield? (. *window* :find_id id)))
-					(= (getf *msg* +ev_msg_type) +ev_type_key)
-					(> (getf *msg* +ev_msg_key_keycode) 0))
-				;key event
-				(defq key (getf *msg* +ev_msg_key_key) mod (getf *msg* +ev_msg_key_mod))
-				(cond
-					((/= 0 (logand mod (const (+ +ev_key_mod_control +ev_key_mod_command))))
-						;call bound control/command key action
-						(if (defq action (. key_map_control :find key)) (action)))
-					((/= 0 (logand mod +ev_key_mod_shift))
-						;call bound shift key action
-						(if (defq action (. key_map_shift :find key)) (action)))
-					((defq action (. key_map :find key))
-						;call bound key action
-						(action))))
-			(t  ;gui event
-				(. *window* :event *msg*)))
-		;update meta data
-		(bind '(*cursor_x* *cursor_y*) (. *current_buffer* :get_cursor))
-		(. *meta_map* :insert *current_file*
-			(list *cursor_x* *cursor_y* *anchor_x* *anchor_y* *scroll_x* *scroll_y* mode *shift_select*)))
+					((defq id (getf *msg* +ev_msg_target_id) action (. event_map :find id))
+						;call bound event action
+						(action))
+					((and (= id (. *vdu* :get_id)) (= (getf *msg* +ev_msg_type) +ev_type_mouse))
+						;mouse event on display
+						(clear-tip)
+						(bind '(w h) (. *vdu* :char_size))
+						(defq x (getf *msg* +ev_msg_mouse_rx) y (getf *msg* +ev_msg_mouse_ry))
+						(setq x (if (>= x 0) x (- x w)) y (if (>= y 0) y (- y h)))
+						(setq x (+ *scroll_x* (/ x w)) y (+ *scroll_y* (/ y h)))
+						(cond
+							((/= (getf *msg* +ev_msg_mouse_buttons) 0)
+								;mouse button is down
+								(case mouse_state
+									(:d ;mouse drag event
+										(bind '(x y) (. *current_buffer* :constrain x y))
+										(. *current_buffer* :set_cursor x y)
+										(refresh))
+									(:u ;mouse down event
+										(bind '(x y) (. *current_buffer* :constrain x y))
+										(. *current_buffer* :set_cursor x y)
+										(setq *anchor_x* x *anchor_y* y
+											*shift_select* t mouse_state :d)
+										(refresh))))
+							(t  ;mouse button is up
+								(case mouse_state
+									(:d ;mouse up event
+										(defq click_count (getf *msg* +ev_msg_mouse_count))
+										(cond
+											((= click_count 2)
+												(action-select-word))
+											((= click_count 3)
+												(action-select-line))
+											((= click_count 4)
+												(action-select-paragraph)))
+										(setq mouse_state :u)
+										(refresh))
+									(:u ;mouse hover event
+										)))))
+					((and (= id (. *vdu* :get_id)) (= (getf *msg* +ev_msg_type) +ev_type_wheel))
+						;wheel event on display area
+						(clear-tip)
+						(bind '(x y ax ay sx sy ss) (. *meta_map* :find *current_file*))
+						(setq sx (+ *scroll_x* (getf *msg* +ev_msg_wheel_x))
+							sy (- *scroll_y* (getf *msg* +ev_msg_wheel_y)))
+						(. *meta_map* :insert *current_file* (list x y ax ay sx sy ss))
+						(set-sliders) (load-display))
+					((and (not (Textfield? (. *window* :find_id id)))
+							(= (getf *msg* +ev_msg_type) +ev_type_key)
+							(> (getf *msg* +ev_msg_key_keycode) 0))
+						;key event
+						(clear-tip)
+						(defq key (getf *msg* +ev_msg_key_key) mod (getf *msg* +ev_msg_key_mod))
+						(cond
+							((/= 0 (logand mod (const
+									(+ +ev_key_mod_control +ev_key_mod_option +ev_key_mod_command))))
+								;call bound control/command key action
+								(if (defq action (. key_map_control :find key))
+									(action)))
+							((/= 0 (logand mod +ev_key_mod_shift))
+								;call bound shift key action
+								(if (defq action (. key_map_shift :find key))
+									(action)))
+							((defq action (. key_map :find key))
+								;call bound key action
+								(action))))
+					(t  ;gui event, plus check for tip text
+						(clear-tip)
+						(. *window* :event *msg*)
+						(when (and (= (getf *msg* +ev_msg_type) +ev_type_mouse)
+								(= (getf *msg* +ev_msg_mouse_buttons) 0))
+							;hovering mouse
+							(when (def? :tip_text (. *window* :find_id id))
+								(mail-timeout (elem +select_tip select) +tip_time)
+								(setq tip_id id)))))
+				;update meta data
+				(bind '(*cursor_x* *cursor_y*) (. *current_buffer* :get_cursor))
+				(. *meta_map* :insert *current_file*
+					(list *cursor_x* *cursor_y* *anchor_x* *anchor_y*
+						*scroll_x* *scroll_y* *shift_select*)))
+			((= idx +select_tip)
+				;tip timeout mail
+				(when (defq tip_text (def? :tip_text (. *window* :find_id tip_id)))
+					(def (setq tip_window (Label)) :text tip_text :color +argb_white
+						:font *env_tip_font* :border 0 :flow_flags 0)
+					(. tip_window :set_flags 0 +view_flag_solid)
+					(bind '(x y w h) (apply view-locate (push (. tip_window :pref_size) :bottom)))
+					(gui-add-front (. tip_window :change x y w h))))))
+	(each mail-free-mbox (slice 1 -1 select))
+	(clear-tip)
 	(gui-sub *window*))
