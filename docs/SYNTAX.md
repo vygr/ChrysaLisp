@@ -102,6 +102,12 @@
 (. buffer :get_cursor) -> (x y)
 ```
 
+### buffer :get_modified
+
+```code
+(. buffer :get_modified) -> t | nil
+```
+
 ### buffer :get_size
 
 ```code
