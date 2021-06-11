@@ -58,7 +58,7 @@
 		(clear (get :redo_stack this))
 		(last-line)
 		(set this :buffer buffer :buffer_colored buffer_colored
-			:buffer_states buffer_states :dirty t)
+			:buffer_states buffer_states :dirty t :modified t)
 		(. this :set_cursor x y)))
 
 (defmacro get-selection ()
@@ -82,7 +82,7 @@
 	(def this :buffer (list "") :buffer_colored (list "") :buffer_states (list '(nil nil))
 		:dirty nil :syntax (opt syntax (Syntax)) :undo_stack (list) :redo_stack (list)
 		:cursor_x 0 :cursor_y 0 :max_width 0 :tab_width 4 :wrap_width 80
-		:mode mode :lps nil :lps_pattern nil :next_mark -1)
+		:mode mode :lps nil :lps_pattern nil :next_mark -1 :modified nil)
 
 	(defmethod :set_mode (this mode)
 		; (. buffer :set_mode mode) -> buffer
@@ -107,6 +107,10 @@
 	(defmethod :get_cursor (this)
 		; (. buffer :get_cursor) -> (x y)
 		(list (get :cursor_x this) (get :cursor_y this)))
+
+	(defmethod :get_modified (this)
+		; (. buffer :get_modified) -> t | nil
+		(get :modified this))
 
 	(defmethod :get_size (this)
 		; (. buffer :get_size) -> (width height)
@@ -150,7 +154,7 @@
 		(clear (get :undo_stack this) (get :redo_stack this))
 		(set this :buffer buffer :buffer_colored buffer_colored
 			:buffer_states buffer_states :max_width max_width
-			:cursor_x 0 :cursor_y 0 :dirty t)
+			:cursor_x 0 :cursor_y 0 :dirty t :modified nil)
 		this)
 
 	(defmethod :file_save (this filepath)
@@ -161,6 +165,7 @@
 				(task-sleep 0)
 				(write-line stream (. syntax :compress_tabs line tab_width)))
 			(list (get :buffer this)))
+		(set this :modified nil)
 		this)
 
 	(defmethod :vdu_load (this vdu scroll_x scroll_y)
@@ -329,8 +334,8 @@
 		; (. buffer :paste string) -> buffer
 		(. this :push_undo (list :mark (defq mark (. this :next_mark))))
 		(while (defq idx (find (ascii-char +char_lf) string))
-			(task-sleep 0)
 			(when (> idx 0)
+				(task-sleep 0)
 				(. this :insert (slice 0 idx string)))
 			(. this :break)
 			(setq string (slice (inc idx) -1 string)))
@@ -443,6 +448,7 @@
 			(set this :lps (setq lps (substr-lps pattern)) :lps_pattern pattern))
 		(each! 0 (bind '(w h) (. this :get_size)) (lambda (line)
 				(when (> (length line) 0)
+					(task-sleep 0)
 					(defq idx _)
 					(each (# (push out (list %0 idx))) (substr pattern line lps))))
 			(list (get :buffer this))) out)
