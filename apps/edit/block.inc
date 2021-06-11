@@ -7,6 +7,7 @@
 		(defq tab_width (. buffer :get_tab_width))
 		(bind '(y y1) (select-lines))
 		(each! y y1 (lambda (line)
+				(task-sleep 0)
 				(defq idx -1)
 				(while (and
 					(< (setq idx (inc idx)) (length line))
@@ -23,6 +24,7 @@
 		(defq tab (pad "" (. buffer :get_tab_width) "        "))
 		(bind '(y y1) (select-lines))
 		(each! y y1 (lambda (line)
+				(task-sleep 0)
 				(unless (eql line "")
 					(.-> buffer (:set_cursor 0 _) (:insert tab))))
 			(list (. buffer :get_text_lines)))
@@ -32,7 +34,9 @@
 (defun action-reflow ()
 	(undoable
 		(bind '(y y1) (select-paragraph))
-		(each (lambda (line) (.-> buffer (:insert line) :break))
+		(each (lambda (line)
+				(task-sleep 0)
+				(.-> buffer (:insert line) :break))
 			(. (. buffer :get_syntax) :text_flow
 				(split (.-> buffer (:set_cursor 0 y) (:cut 0 y1))
 					(const (cat " " (ascii-char +char_lf))))
@@ -81,6 +85,7 @@
 		(bind '(y y1) (select-lines))
 		(setq *anchor_x* 0 *anchor_y* y)
 		(each! y y1 (lambda (line)
+				(task-sleep 0)
 				(.-> buffer (:set_cursor 0 _) (:insert ";; ")))
 			(list (. buffer :get_text_lines)))
 		(bind '(x y) (. buffer :get_cursor))
@@ -93,6 +98,7 @@
 		(bind '(y y1) (select-lines))
 		(setq *anchor_x* 0 *anchor_y* y)
 		(each! y y1 (lambda (line)
+				(task-sleep 0)
 				(if (starts-with ";; " line)
 					(.-> buffer (:set_cursor 0 _) (:delete 3))))
 			(list (. buffer :get_text_lines)))

@@ -138,6 +138,7 @@
 			buffer (list) buffer_colored (list) buffer_states (list)
 			max_width 0 tab_width (get :tab_width this))
 		(each-line (lambda (line)
+				(task-sleep 0)
 				(setq line (. syntax :expand_tabs
 						(trim line (const (char +char_cr))) tab_width)
 					max_width (max max_width (length line)))
@@ -157,6 +158,7 @@
 		(defq syntax (get :syntax this) tab_width (get :tab_width this)
 			stream (file-stream filepath +file_open_write))
 		(each! 0 (bind '(w h) (. this :get_size)) (lambda (line)
+				(task-sleep 0)
 				(write-line stream (. syntax :compress_tabs line tab_width)))
 			(list (get :buffer this)))
 		this)
@@ -175,7 +177,8 @@
 						(mode)
 						((and (array? line_array) (eql state start_state))
 							(setq state end_state))
-						(t  (elem-set _ buffer_colored
+						(t  (task-sleep 0)
+							(elem-set _ buffer_colored
 								(.-> syntax (:set_state state) (:colorise line)))
 							(elem-set _ buffer_states
 								(list state (setq state (. syntax :get_state)))))))
@@ -296,6 +299,7 @@
 					(push lines (slice sx sx1 (elem sy (get :buffer this))))
 					(. this :delete (- sx1 sx)))
 				(t  (while (<= sy (setq sy1 (dec sy1)))
+						(task-sleep 0)
 						(push lines (slice sx -1 (elem sy (get :buffer this))) (ascii-char +char_lf))
 						(if (> (defq gap (- (length (elem sy (get :buffer this))) sx)) 0)
 							(. this :delete gap))
@@ -325,6 +329,7 @@
 		; (. buffer :paste string) -> buffer
 		(. this :push_undo (list :mark (defq mark (. this :next_mark))))
 		(while (defq idx (find (ascii-char +char_lf) string))
+			(task-sleep 0)
 			(when (> idx 0)
 				(. this :insert (slice 0 idx string)))
 			(. this :break)
@@ -343,6 +348,7 @@
 					(undo)
 					(defq outer x x -1)
 					(until (and (eql state :mark) (= x outer))
+						(task-sleep 0)
 						(bind '(state &optional x y data) (pop undo_stack))
 						(undo)))
 				(t  (undo)))
@@ -359,6 +365,7 @@
 					(redo)
 					(defq outer x x -1)
 					(until (and (eql state :mark) (= x outer))
+						(task-sleep 0)
 						(bind '(state &optional x y data) (pop redo_stack))
 						(redo)))
 				(t  (redo)))

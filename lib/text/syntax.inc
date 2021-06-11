@@ -81,7 +81,6 @@
 
 		;tokenise the string starting with the current state
 		;save the state at the end as we may wish to continue
-		(task-sleep 0)
 		(defq state (get :state this) token (list) state_list (list)
 			token_list (list) col_list (list))
 		(each (lambda (c)
@@ -223,6 +222,7 @@
 		(each (lambda (word)
 			(cond
 				((> (setq cnt (+ cnt (length word) 1)) line_width)
+					(task-sleep 0)
 					(push lines (join line " "))
 					(push (clear line) word)
 					(setq cnt (+ (length word) 1)))
