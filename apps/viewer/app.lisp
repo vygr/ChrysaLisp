@@ -155,7 +155,8 @@
 	(unless (. *meta_map* :find file)
 		(. *meta_map* :insert file (list x y ax ay sx sy ss)))
 	(when file
-		(defq mode (if (ends-with ".md" file) t nil))
+		(defq mode (if (or (ends-with ".md" file)
+						   (ends-with ".txt" file)) t nil))
 		(.-> *current_buffer* (:set_mode mode) (:file_load file))))
 
 (defun populate-vdu (file)
