@@ -11,6 +11,11 @@ Editor pulls in `boot.inc` to the matches dictionary on startup.
 Viewer application now shares most of the Editor engine source. Can copy from
 Viewer to clipboard now.
 
+`lib/text/english.txt` database file, 84,000 words, available to have in your
+working file set if you wish to extend the word matching to include these
+words. Folks can add other databases for other languages if they wish to follow
+this idea.
+
 ------
 
 Find and replace added to the Editor app. Multiple buffers, save all buffers,
