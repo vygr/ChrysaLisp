@@ -199,6 +199,7 @@
 
 (defun populate-dictionary (line)
 	;populate dictionary with this lines words
+	(task-sleep 0)
 	(each (lambda (word)
 			(if (>= (length word) +min_word_size)
 				(. dictionary :insert_word word)))
@@ -207,7 +208,8 @@
 (defun populate-file (file x y ax ay sx sy ss)
 	;create new file buffer
 	(unless (. *meta_map* :find file)
-		(defq mode (if (ends-with ".md" file) t nil))
+		(defq mode (if (or (ends-with ".md" file)
+						   (ends-with ".txt" file)) t nil))
 		(. *meta_map* :insert file
 			(list x y ax ay sx sy ss (defq buffer (Buffer mode *syntax*))))
 		(when file
@@ -501,7 +503,8 @@
 						*scroll_x* *scroll_y* *shift_select* *current_buffer*)))
 			((= idx +select_tip)
 				;tip timeout mail
-				(when (defq tip_text (def? :tip_text (. *window* :find_id tip_id)))
+				(when (and (defq tip (. *window* :find_id tip_id))
+						(defq tip_text (def? :tip_text tip)))
 					(def (setq tip_window (Label)) :text tip_text :color +argb_white
 						:font *env_tip_font* :border 0 :flow_flags 0)
 					(. tip_window :set_flags 0 +view_flag_solid)

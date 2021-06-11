@@ -330,7 +330,8 @@
 						*scroll_x* *scroll_y* *shift_select*)))
 			((= idx +select_tip)
 				;tip timeout mail
-				(when (defq tip_text (def? :tip_text (. *window* :find_id tip_id)))
+				(when (and (defq tip (. *window* :find_id tip_id))
+						(defq tip_text (def? :tip_text tip)))
 					(def (setq tip_window (Label)) :text tip_text :color +argb_white
 						:font *env_tip_font* :border 0 :flow_flags 0)
 					(. tip_window :set_flags 0 +view_flag_solid)
