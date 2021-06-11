@@ -124,6 +124,7 @@ key_map_control (xmap-kv
 recorded_actions_list (list
 	action-backspace action-break action-comment-block action-copy action-cut
 	action-cut-block action-cut-line action-cut-paragraph action-cut-word
+	action-copy-block action-copy-line action-copy-paragraph action-copy-word
 	action-delete action-down action-down-select action-end action-end-select
 	action-find-down action-find-up action-home action-home-select action-insert
 	action-left action-left-bracket action-left-select action-left-tab
