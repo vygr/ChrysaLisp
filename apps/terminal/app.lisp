@@ -190,9 +190,7 @@
 						(. *pipe* :close)
 						(setq *pipe* nil)
 						(action-insert *env_terminal_prompt*))
-					((action-insert *msg*)))
-				;update meta data
-				(bind '(*cursor_x* *cursor_y*) (. *current_buffer* :get_cursor)))
+					((action-insert *msg*))))
 			((= idx +select_main)
 				;main mailbox
 				(cond
@@ -274,9 +272,7 @@
 							;hovering mouse
 							(when (def? :tip_text (. *window* :find_id id))
 								(mail-timeout (elem +select_tip *select*) +tip_time)
-								(setq tip_id id)))))
-				;update meta data
-				(bind '(*cursor_x* *cursor_y*) (. *current_buffer* :get_cursor)))
+								(setq tip_id id))))))
 			((= idx +select_tip)
 				;tip timeout mail
 				(when (and (defq tip (. *window* :find_id tip_id))

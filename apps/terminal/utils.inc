@@ -43,13 +43,13 @@
 	(unless y1 (setq y1 h))
 	(list y y1))
 
-(defun set-input-cursor ()
-	(bind '(w h) (. *current_buffer* :get_size))
-	(defq x *cursor_x* y (if (/= 0 h) (dec h) h))
-	(unless (= y *cursor_y*)
-		(setq x (length (. *current_buffer* :get_text_line y))))
-	(. *current_buffer* :set_cursor x y)
-	(list x y))
+(defmacro input-cursor (&rest _)
+	`(progn
+		(defq x *cursor_x* y *cursor_y*)
+		(. (defq buffer *current_buffer*) :set_cursor x y)
+		~_
+		(bind '(x y) (. buffer :get_cursor))
+		(setq *cursor_x* x *cursor_y* y)))
 
 ;;;;;;;;;;;
 ; url utils
