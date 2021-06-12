@@ -454,12 +454,14 @@
 						(defq key (getf *msg* +ev_msg_key_key) mod (getf *msg* +ev_msg_key_mod))
 						(cond
 							((and match_window (or (= key 0x40000052) (= key 0x40000051)
-									(and (or (= key +char_lf) (= key +char_cr)) (>= match_index 0))))
+									(and (or (= key +char_lf) (= key +char_cr) (= key +char_space))
+										(>= match_index 0))))
 								;matches navigation and selection
 								(cond
-									((or (= key +char_lf) (= key +char_cr))
+									((or (= key +char_lf) (= key +char_cr) (= key +char_space))
 										;choose a match
 										(defq word (get :text (elem match_index (. match_flow :children))))
+										(if (= key +char_space) (setq word (cat word " ")))
 										(clear-matches)
 										(dispatch-action action-select-word)
 										(dispatch-action action-insert word))
