@@ -8,8 +8,7 @@
 (import "./utils.inc")
 (import "./cursor.inc")
 (import "./edit.inc")
-(import "././edit/block.inc")
-(import "././edit/select.inc")
+(import "./select.inc")
 (import "./clipboard.inc")
 (import "./ui.inc")
 
