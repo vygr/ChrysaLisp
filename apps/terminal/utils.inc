@@ -2,6 +2,8 @@
 ; utils
 ;;;;;;;
 
+(defq +not_whole_word_chars " .,;'`(){}[]/")
+
 (defmacro not-whole-word-char? (_)
 	`(find ,_ +not_whole_word_chars))
 
@@ -77,8 +79,8 @@
 		(if (= (const (ascii-code "|")) (defq c (code (elem i url))))
 			(setq ctx 0 s 'w)
 			(case s
-				(w	(when (<= 33 c 126) (setq s 'b)))
-				(b	(unless (<= 33 c 126) (setq s 'w ctx (inc ctx))))))) ctx)
+				(w  (when (<= 33 c 126) (setq s 'b)))
+				(b  (unless (<= 33 c 126) (setq s 'w ctx (inc ctx))))))) ctx)
 
 (defun url-ext-index (urls)
 	(defq i 0)

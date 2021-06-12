@@ -56,5 +56,5 @@ key_map_control (xmap-kv
 (export (penv)
 	event_map key_map key_map_shift key_map_control
 	action-select-word action-select-line action-select-paragraph
-	action-insert action-paste)
+	action-insert)
 (env-pop)

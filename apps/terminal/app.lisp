@@ -19,7 +19,7 @@
 	+selected (apply nums (map (lambda (_)
 		(const (<< (canvas-from-argb32 +argb_green6 15) 48))) (str-alloc 8192)))
 	+not_selected (nums-sub +selected +selected)
-	+bracket_char (nums 0x7f) +not_whole_word_chars " .,;'`(){}[]/"
+	+bracket_char (nums 0x7f)
 	+tip_time 1000000 tip_id +max_long tip_window nil
 	*select* (list (task-mailbox) (mail-alloc-mbox)))
 
@@ -69,34 +69,17 @@
 				(push *underlay* (slice 0 (inc (length (elem y buffer))) +selected)))
 			(push *underlay* (slice 0 x1 +selected)))))
 
-(defun create-brackets ()
-	;create the underlay for just bracket indicators
-	(clear *underlay*)
-	(when (bind '(x y) (. *current_buffer* :left_bracket))
-		(when (bind '(x1 y1) (. *current_buffer* :right_bracket))
-			(cap (inc y1) *underlay*)
-			(defq uy -1)
-			(while (< (setq uy (inc uy)) y) (push *underlay* ""))
-			(cond
-				((= y y1)
-					(push *underlay* (cat
-						(slice 0 x +not_selected) +bracket_char
-						(slice x (dec x1) +not_selected) +bracket_char)))
-				(t  (push *underlay* (cat (slice 0 x +not_selected) +bracket_char))
-					(while (< (setq y (inc y)) y1) (push *underlay* ""))
-					(push *underlay* (cat (slice 0 x1 +not_selected) +bracket_char)))))))
-
 (defun load-display ()
 	;load the vdu widgets with the text and selection
 	(. *current_buffer* :vdu_load *vdu* *scroll_x* *scroll_y*)
 	(bind '(x y) (. *current_buffer* :get_cursor))
 	(if (and (= x *anchor_x*) (= y *anchor_y*))
-		(create-brackets)
+		(clear *underlay*)
 		(create-selection))
 	(. *vdu_underlay* :load *underlay* *scroll_x* *scroll_y* -1 -1))
 
 (defun set-sliders ()
-	;set slider values for current file
+	;set slider values
 	(bind '(w h) (. *current_buffer* :get_size))
 	(defq smaxx (max 0 (- w *vdu_width* -1)) smaxy (max 0 (- h *vdu_height*)))
 	(setq *scroll_x* (max 0 (min *scroll_x* smaxx)) *scroll_y* (max 0 (min *scroll_y* smaxy)))
@@ -151,7 +134,7 @@
 ;import actions and bindings
 (import "./actions.inc")
 
-(defun wait-input ()
+(defun select-input ()
 	(cond
 		(*pipe*
 			;active pipe running
@@ -160,27 +143,22 @@
 				((eql msg t)
 					;user select msg
 					(defq msg (mail-read (elem (defq idx (mail-select *select*)) *select*))))
-				((eql msg nil)
-					;pipe closed
-					(defq idx +select_pipe))
-				(t	;pipe data string
+				(t  ;pipe closed or pipe data
 					(defq idx +select_pipe))))
-		(t	;no active pipe running
+		(t  ;no active pipe running
 			(defq msg (mail-read (elem (defq idx (mail-select *select*)) *select*)))))
 	(list msg idx))
 
 (defun main ()
 	(defq *cursor_x* 0 *cursor_y* 0 *anchor_x* 0 *anchor_y* 0 *scroll_x* 0 *scroll_y* 0
 		*shift_select* nil *running* t mouse_state :u
-		*pipe* nil *line_history* (list) *line_history_idx* 0)
+		*pipe* nil *history* (list) *history_idx* 0)
 	(tooltips)
 	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
-	(action-insert (const (cat "ChrysaLisp Terminal 2.0" (char +char_lf))))
-	(action-insert *env_terminal_prompt*)
-	(refresh)
+	(action-insert (cat "ChrysaLisp Terminal 2.0" (char +char_lf) *env_terminal_prompt*))
 	(while *running*
-		(bind '(*msg* idx) (wait-input))
+		(bind '(*msg* idx) (select-input))
 		(cond
 			((= idx +select_pipe)
 				;pipe event

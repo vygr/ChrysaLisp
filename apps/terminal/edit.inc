@@ -45,10 +45,10 @@
 					cmd (slice prompt_len -1 (. buffer :get_text_line y)))
 				;push new line history entry if not same as last entry
 				(unless (eql cmd "")
-					(and (> (length (push *line_history* cmd)) 1)
-						(eql (elem -3 *line_history*) cmd)
-						(pop *line_history*))
-					(setq *line_history_idx* (length *line_history*)))
+					(and (> (length (push *history* cmd)) 1)
+						(eql (elem -3 *history*) cmd)
+						(pop *history*))
+					(setq *history_idx* (length *history*)))
 				(. buffer :paste (ascii-char +char_lf))
 				(cond
 					((> (length cmd) 0)
