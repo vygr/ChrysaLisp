@@ -28,7 +28,7 @@
   "TERMINAL_SERVICE"
   "Terminal Services 0.1")
 
-(import "apps/terminal/tuiutils.lisp")
+(import "apps/tui/tuiutils.lisp")
 
 ; Mailbox functions
 
@@ -105,7 +105,7 @@
 
 (defun run-cmd (bfr)
   ; (run-cmd buffer) -> result of command
-  (catch (setq cmd (Pipe (session-sub bfr))) (progn (setq cmd nil) t))
+  (catch (setq cmd (Pipe (session-sub bfr) (list (task-mailbox)))) (progn (setq cmd nil) t))
   (unless cmd
     (print (cat
              "Command '"
@@ -255,7 +255,7 @@
         ; Prompt
         (print (prompt))
         ;create child and send args
-        (mail-send (open-child "apps/terminal/tui_child.lisp" +kn_call_open) (task-mailbox))
+        (mail-send (open-child "apps/tui/tui_child.lisp" +kn_call_open) (task-mailbox))
         (defq cmd nil buffer "")
         (while t
           (defq data t)

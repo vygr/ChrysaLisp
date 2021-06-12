@@ -62,7 +62,7 @@ function boot_cpu_tui
 {
 	if [ $1 -lt 1 ]
 	then
-		./obj/$CPU/$ABI/$OS/main_tui obj/$CPU/$ABI/sys/boot_image $2 $3 -run apps/terminal/tui.lisp
+		./obj/$CPU/$ABI/$OS/main_tui obj/$CPU/$ABI/sys/boot_image $2 $3 -run apps/tui/tui.lisp
 	else
 		./obj/$CPU/$ABI/$OS/main_tui obj/$CPU/$ABI/sys/boot_image $2 $3 &
 	fi

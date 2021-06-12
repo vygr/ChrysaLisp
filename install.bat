@@ -12,4 +12,4 @@
 @start /b .\obj\x86_64\WIN64\Windows\main_tui.exe -e obj\vp64\VP64\sys\boot_image -l 000-003 -l 003-006 -l 003-005 -l 003-004
 @start /b .\obj\x86_64\WIN64\Windows\main_tui.exe -e obj\vp64\VP64\sys\boot_image -l 002-008 -l 002-005 -l 001-002 -l 000-002
 @start /b .\obj\x86_64\WIN64\Windows\main_tui.exe -e obj\vp64\VP64\sys\boot_image -l 001-007 -l 001-004 -l 000-001 -l 001-002
-@start /b .\obj\x86_64\WIN64\Windows\main_tui.exe -e obj\vp64\VP64\sys\boot_image -l 000-006 -l 000-003 -l 000-002 -l 000-001 -run apps/terminal/install.lisp
+@start /b .\obj\x86_64\WIN64\Windows\main_tui.exe -e obj\vp64\VP64\sys\boot_image -l 000-006 -l 000-003 -l 000-002 -l 000-001 -run apps/tui/install.lisp

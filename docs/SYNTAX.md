@@ -48,6 +48,12 @@
 (. buffer :break) -> buffer
 ```
 
+### buffer :clear_undo
+
+```code
+(. buffer :clear_undo) -> buffer
+```
+
 ### buffer :constrain
 
 ```code
@@ -1263,7 +1269,7 @@
 ### Pipe
 
 ```code
-(Pipe cmds &optional flag) -> pipe | nil
+(Pipe cmds &optional user_select) -> pipe | nil
 ```
 
 ### Progress

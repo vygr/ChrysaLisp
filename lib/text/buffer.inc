@@ -99,6 +99,11 @@
 		(each (# (push undo_stack %0)) records)
 		this)
 
+	(defmethod :clear_undo (this)
+		; (. buffer :clear_undo) -> buffer
+		(clear (get :undo_stack this) (get :redo_stack this))
+		this)
+
 	(defmethod :set_cursor (this x y)
 		; (. buffer :set_cursor x y) -> buffer
 		(set this :cursor_x x :cursor_y y)

@@ -20,6 +20,9 @@ Editor now a single instance service. Eventually we could have the ability to
 ask an Editor service to perform actions for us remotely, but for now this just
 ensures we have a single instance per user.
 
+TUI moved to `apps/tui/`. New version 2.0 of the GUI Terminal application. Can
+now copy and paste to and from the Terminal.
+
 ------
 
 Find and replace added to the Editor app. Multiple buffers, save all buffers,

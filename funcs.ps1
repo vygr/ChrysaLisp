@@ -88,7 +88,7 @@ function boot_cpu_tui
 	)
     $cmd = "./obj/$($NHCPU)/$($NHABI)/$($NHOS)/main_tui";
 	if ( $cpu -lt 1 ){
-		Start-Process -FilePath $cmd -NoNewWindow -ArgumentList "obj/$(HCPU)/$(HABI)/sys/boot_image $link -run apps/terminal/tui.lisp"
+		Start-Process -FilePath $cmd -NoNewWindow -ArgumentList "obj/$(HCPU)/$(HABI)/sys/boot_image $link -run apps/tui/tui.lisp"
 	}
 	else {
 		Start-Process -FilePath $cmd -NoNewWindow -ArgumentList "obj/$(HCPU)/$(HABI)/sys/boot_image $link"

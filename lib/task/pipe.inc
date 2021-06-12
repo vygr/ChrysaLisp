@@ -5,8 +5,9 @@
 (import "sys/lisp.inc")
 (import "class/lisp.inc")
 
-(defclass Pipe (cmds &optional flag) nil
-	; (Pipe cmds &optional flag) -> pipe | nil
+(defclass Pipe (cmds &optional user_select) nil
+	; (Pipe cmds &optional user_select) -> pipe | nil
+	(setd user_select '())
 	(defq cmdpipe (list) args (map (lambda (cmd)
 		(defq cmd (split cmd " "))
 		(push cmdpipe (cat "cmd/" (elem 0 cmd) ".lisp"))
@@ -30,20 +31,22 @@
 					(+stdio_msg_init_ack ack_mbox)))
 				(setq stdout_mbox (getf (mail-read ack_mbox) +stdio_msg_init_stdout))) mboxs args select)
 			(push streams stdout (out-stream stdout_mbox))
-			(push select (in-mbox stdout) (if flag (to-net-id (pad "" (const (* +net_id_size 2)) "a")) (task-mailbox)))
+			(push select (in-mbox stdout))
 			(mail-free-mbox ack_mbox)
-			(def this :select select :streams streams :state t)))
+			(def this :select (cat user_select select) :user_select user_select
+				:streams streams :state t)))
 
 	(defmethod :read (this)
 		; (. pipe :read) -> nil | t | data
 		;nil if pipe closed
-		;t if task mailbox
-		(if (get :state this)
+		;t if user select
+		(when (get :state this)
+			(defq user_select_len (length (get :user_select this)))
 			(cond
-				((= (- (defq idx (mail-select (get :select this))) (length (get :select this))) -1))
+				((< (defq idx (mail-select (get :select this))) user_select_len))
 				(t	;must be stdout or one of the stderr's
-					(if (/= (in-get-state (in-next-msg
-								(defq msg_in (elem idx (get :streams this)))))
+					(if (/= (in-get-state (in-next-msg (defq msg_in
+								(elem (- idx user_select_len) (get :streams this)))))
 							+stream_mail_state_started)
 						(def this :state nil))
 					(read-avail msg_in)))))
@@ -59,25 +62,27 @@
 		(pop (get :select this))
 		(pop (get :streams this))
 		;wait for stdout and stderr streams to stop
-		(while (/= (length (get :select this)) 0)
-			(if (= (in-get-state (in-next-msg (elem (defq idx (mail-select (get :select this))) (get :streams this))))
+		(defq user_select_len (length (get :user_select this)))
+		(while (> (length (get :select this)) user_select_len)
+			(if (= (in-get-state (in-next-msg (elem (defq idx (mail-select
+						(slice user_select_len -1 (get :select this)))) (get :streams this))))
 					+stream_mail_state_stopped)
 				(def this
 					:streams (erase (get :streams this) idx (inc idx))
-					:select (erase (get :select this) idx (inc idx)))))
+					:select (erase (get :select this) (+ idx user_select_len) (+ idx user_select_len 1)))))
 		this)
 	)
 
 (defun pipe-run (cmdline &optional out)
 	; (pipe-run cmdline &optional outfun)
 	(setd out print)
-	(defq cmd (Pipe cmdline t))
-	(while cmd
-		(defq data (. cmd :read))
+	(defq pipe (Pipe cmdline))
+	(while pipe
+		(defq data (. pipe :read))
 		(cond
 			((eql data nil)
 				;pipe is closed
-				(. cmd :close)
-				(setq cmd nil))
+				(. pipe :close)
+				(setq pipe nil))
 			(t	;string from pipe
 				(out data)))))
