@@ -347,7 +347,7 @@
 	;trashes
 	;r1-r14
 
-	(vp-def (div out rem in tab_width iter_begin iter_end iter_out len cursor ch sp))
+	(vp-def (div out rem in tab_width iter_begin iter_end iter_out len cursor ch sp flag))
 
 	(entry 'str :lisp_expand '(r0 r1))
 
@@ -357,21 +357,25 @@
 
 	(list-bind-args r1 `(,in ,tab_width) '(:obj :num))
 	(errorif `(,tab_width <= 0) 'error)
+
 	(vp-push r0)
 	(assign `((,in str_length)) `(,len))
-	(vpif `(,len = 0))
-		(assign `(,in) `(,out))
-		(class/obj/ref out r0)
-	(else)
-		(assign `((& ,in str_data)) `(,iter_begin))
-		(assign `((& ,iter_begin ,len)) `(,iter_end))
-		(vp-xor-rr iter_out iter_out)
-		(vp-push iter_begin iter_end)
-		(vp-call 'expand)
+	(gotoif `(,len = 0) 'same)
+	(assign `((& ,in str_data)) `(,iter_begin))
+	(assign `((& ,iter_begin ,len)) `(,iter_end))
+	(vp-xor-rr iter_out iter_out)
+	(vp-push iter_begin iter_end)
+	(vp-call 'expand)
+	(vpif `(,flag /= 0))
 		(call 'str :create_from_buffer `(0 ,cursor) `(,out))
 		(vp-pop iter_begin iter_end)
 		(assign `((& ,out str_data)) `(,iter_out))
 		(vp-call 'expand)
+	(else)
+		(vp-pop iter_begin iter_end)
+	(vp-label 'same)
+		(assign `(,in) `(,out))
+		(class/obj/ref out r0)
 	(endif)
 	(vp-pop r0)
 
@@ -380,6 +384,7 @@
 
 (vp-label 'expand)
 	(vp-xor-rr cursor cursor)
+	(vp-xor-rr flag flag)
 	(vp-cpy-cr 32 sp)
 	(loop-start)
 		(assign `((,iter_begin 0 ub)) `(,ch))
@@ -388,6 +393,7 @@
 			(vp-xor-rr rem rem)
 			(vp-cpy-rr cursor div)
 			(vp-div-rrr-u tab_width rem div)
+			(vp-cpy-cr 1 flag)
 			(vp-cpy-rr tab_width len)
 			(vp-sub-rr rem len)
 			(vp-add-rr len cursor)
