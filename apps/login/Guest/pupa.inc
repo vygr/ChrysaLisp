@@ -17,7 +17,7 @@
 	"apps/wallpaper/wallpaper1280x1024.cpm" "apps/wallpaper/wallpaper1920x1080.cpm"))
 
 ;terminal prompt and scroll back
-(defq *env_terminal_prompt* (cat *env_user* ">") *env_terminal_lines* 1000)
+(defq *env_terminal_prompt* (cat *env_user* "> ") *env_terminal_lines* 1000)
 
 ;timezones must be locations not abbreviations. See lib/date/date.inc for more info.
 (defq *env_clock_timezone* "Etc/GMT" *env_clock_analog* t *env_clock_digital* t
