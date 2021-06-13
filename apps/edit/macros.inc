@@ -13,10 +13,12 @@
 
 (defun action-macro-playback ()
 	(when (> (length *macro_actions*) 0)
+		(defq :macro_playback t)
 		(undoable
 			(each (lambda ((action &rest params))
 					(apply action params)
 					(bind '(x y) (. buffer :get_cursor))
 					(setq *cursor_x* x *cursor_y* y))
 				*macro_actions*))
+		(undef (env) :macro_playback)
 		(clear-selection) (refresh)))

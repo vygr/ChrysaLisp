@@ -126,26 +126,27 @@
 	(setq *anchor_x* x *anchor_y* y *shift_select* nil))
 
 (defun create-selection ()
-	;create the underlay for block selection
-	(bind '(x y) (. *current_buffer* :get_cursor))
-	(defq x1 *anchor_x* y1 *anchor_y*)
-	(if (> y y1)
-		(defq x (logxor x x1) x1 (logxor x x1) x (logxor x x1)
-			y (logxor y y1) y1 (logxor y y1) y (logxor y y1)))
-	(and (= y y1) (> x x1)
-		(defq x (logxor x x1) x1 (logxor x x1) x (logxor x x1)))
-	(cap (inc y1) (clear *underlay*))
-	(defq uy -1 buffer (. *current_buffer* :get_text_lines))
-	(while (< (setq uy (inc uy)) y) (push *underlay* ""))
-	(cond
-		((= y y1)
-			(push *underlay* (cat (slice 0 x +not_selected) (slice x x1 +selected))))
-		(t  (push *underlay* (cat
-				(slice 0 x +not_selected)
-				(slice x (inc (length (elem y buffer))) +selected)))
-			(while (< (setq y (inc y)) y1)
-				(push *underlay* (slice 0 (inc (length (elem y buffer))) +selected)))
-			(push *underlay* (slice 0 x1 +selected)))))
+	(unless (get :macro_playback)
+		;create the underlay for block selection
+		(bind '(x y) (. *current_buffer* :get_cursor))
+		(defq x1 *anchor_x* y1 *anchor_y*)
+		(if (> y y1)
+			(defq x (logxor x x1) x1 (logxor x x1) x (logxor x x1)
+				y (logxor y y1) y1 (logxor y y1) y (logxor y y1)))
+		(and (= y y1) (> x x1)
+			(defq x (logxor x x1) x1 (logxor x x1) x (logxor x x1)))
+		(cap (inc y1) (clear *underlay*))
+		(defq uy -1 buffer (. *current_buffer* :get_text_lines))
+		(while (< (setq uy (inc uy)) y) (push *underlay* ""))
+		(cond
+			((= y y1)
+				(push *underlay* (cat (slice 0 x +not_selected) (slice x x1 +selected))))
+			(t  (push *underlay* (cat
+					(slice 0 x +not_selected)
+					(slice x (inc (length (elem y buffer))) +selected)))
+				(while (< (setq y (inc y)) y1)
+					(push *underlay* (slice 0 (inc (length (elem y buffer))) +selected)))
+				(push *underlay* (slice 0 x1 +selected))))))
 
 (defun create-brackets ()
 	;create the underlay for just bracket indicators
@@ -186,16 +187,17 @@
 	(setq *scroll_x* sx *scroll_y* sy))
 
 (defun refresh ()
-	;refresh display and ensure cursor is visible
-	(bind '(x y ax ay sx sy ss buffer) (. *meta_map* :find *current_file*))
-	(bind '(x y) (. buffer :get_cursor))
-	(bind '(w h) (. *vdu* :vdu_size))
-	(if (< x sx) (setq sx x))
-	(if (< y sy) (setq sy y))
-	(if (>= x (+ sx w)) (setq sx (- x w -1)))
-	(if (>= y (+ sy h)) (setq sy (- y h -1)))
-	(. *meta_map* :insert *current_file* (list x y ax ay sx sy ss buffer))
-	(set-sliders) (load-display))
+	(unless (get :macro_playback)
+		;refresh display and ensure cursor is visible
+		(bind '(x y ax ay sx sy ss buffer) (. *meta_map* :find *current_file*))
+		(bind '(x y) (. buffer :get_cursor))
+		(bind '(w h) (. *vdu* :vdu_size))
+		(if (< x sx) (setq sx x))
+		(if (< y sy) (setq sy y))
+		(if (>= x (+ sx w)) (setq sx (- x w -1)))
+		(if (>= y (+ sy h)) (setq sy (- y h -1)))
+		(. *meta_map* :insert *current_file* (list x y ax ay sx sy ss buffer))
+		(set-sliders) (load-display)))
 
 (defun populate-dictionary (line)
 	;populate dictionary with this lines words
