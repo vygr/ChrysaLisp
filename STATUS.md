@@ -23,6 +23,11 @@ ensures we have a single instance per user.
 TUI moved to `apps/tui/`. New version 2.0 of the GUI Terminal application. Can
 now copy and paste to and from the Terminal.
 
+Basic event roll up added to Editor, Terminal and Viewer applications.
+
+New `(expand string tab_width)` native function to speed tab expansion for
+Editor and Viewer applications.
+
 ------
 
 Find and replace added to the Editor app. Multiple buffers, save all buffers,

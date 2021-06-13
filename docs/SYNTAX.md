@@ -1962,6 +1962,12 @@
 (exec form)
 ```
 
+### expand
+
+```code
+(expand str tab_width)
+```
+
 ### export
 
 ```code

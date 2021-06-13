@@ -336,3 +336,81 @@
 	(signature '(num)))
 
 (def-func-end)
+
+(def-method 'str :lisp_expand)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args list object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(vp-def (div out rem in tab_width iter_begin iter_end iter_out len cursor ch sp))
+
+	(entry 'str :lisp_expand '(r0 r1))
+
+(errorcases
+	(call 'lisp :env_args_sig '(r1 ($ sig) 2) '(r2))
+	(gotoif '(r2 = 0) 'error))
+
+	(list-bind-args r1 `(,in ,tab_width) '(:obj :num))
+	(errorif `(,tab_width <= 0) 'error)
+	(vp-push r0)
+	(assign `((,in str_length)) `(,len))
+	(vpif `(,len = 0))
+		(assign `(,in) `(,out))
+		(class/obj/ref out r0)
+	(else)
+		(assign `((& ,in str_data)) `(,iter_begin))
+		(assign `((& ,iter_begin ,len)) `(,iter_end))
+		(vp-xor-rr iter_out iter_out)
+		(vp-push iter_begin iter_end)
+		(vp-call 'expand)
+		(call 'str :create_from_buffer `(0 ,cursor) `(,out))
+		(vp-pop iter_begin iter_end)
+		(assign `((& ,out str_data)) `(,iter_out))
+		(vp-call 'expand)
+	(endif)
+	(vp-pop r0)
+
+	(exit 'str :lisp_expand '(r0 r1))
+	(vp-ret)
+
+(vp-label 'expand)
+	(vp-xor-rr cursor cursor)
+	(vp-cpy-cr 32 sp)
+	(loop-start)
+		(assign `((,iter_begin 0 ub)) `(,ch))
+		(vp-add-cr +byte_size iter_begin)
+		(vpif `(,ch = 9))
+			(vp-xor-rr rem rem)
+			(vp-cpy-rr cursor div)
+			(vp-div-rrr-u tab_width rem div)
+			(vp-cpy-rr tab_width len)
+			(vp-sub-rr rem len)
+			(vp-add-rr len cursor)
+			(vpif `(,iter_out /= 0))
+				(loop-start)
+					(assign `(,sp) `((,iter_out 0 ub)))
+					(vp-add-cr +byte_size iter_out)
+					(vp-sub-cr +byte_size len)
+				(loop-until `(,len = 0))
+			(endif)
+		(else)
+			(vp-add-cr 1 cursor)
+			(vpif `(,iter_out /= 0))
+				(assign `(,ch) `((,iter_out 0 ub)))
+				(vp-add-cr +byte_size iter_out)
+			(endif)
+		(endif)
+	(loop-until `(,iter_begin = ,iter_end))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp :repl_error '(r0 "(expand str tab_width)" error_msg_wrong_types r1))
+	(signature '(str num)))
+
+(def-func-end)

@@ -6401,6 +6401,19 @@ trashes
 r1-r14
 ```
 
+### str :lisp_expand -> class/str/lisp_expand
+
+```code
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
 ### str :lisp_load -> class/str/lisp_load
 
 ```code
