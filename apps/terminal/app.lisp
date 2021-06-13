@@ -51,11 +51,8 @@
 	;create the underlay for block selection
 	(bind '(x y) (. *current_buffer* :get_cursor))
 	(defq x1 *anchor_x* y1 *anchor_y*)
-	(if (> y y1)
-		(defq x (logxor x x1) x1 (logxor x x1) x (logxor x x1)
-			y (logxor y y1) y1 (logxor y y1) y (logxor y y1)))
-	(and (= y y1) (> x x1)
-		(defq x (logxor x x1) x1 (logxor x x1) x (logxor x x1)))
+	(if (> y y1) (defq st x x x1 x1 st st y y y1 y1 st))
+	(and (= y y1) (> x x1) (defq st x x x1 x1 st))
 	(cap (inc y1) (clear *underlay*))
 	(defq uy -1 buffer (. *current_buffer* :get_text_lines))
 	(while (< (setq uy (inc uy)) y) (push *underlay* ""))
