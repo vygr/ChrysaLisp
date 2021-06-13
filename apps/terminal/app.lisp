@@ -41,7 +41,7 @@
 						:min_width 0 :min_height 0 :font (get :font *vdu*)
 						:ink_color (get :ink_color *vdu*)))))))
 
-(defun poll-input ()
+(defun input-poll ()
 	(cond
 		(*pipe*
 			;active pipe running
@@ -49,7 +49,7 @@
 		(t  ;no active pipe running
 			(mail-poll *select*))))
 
-(defun select-input ()
+(defun input-select ()
 	(cond
 		(*pipe*
 			;active pipe running
@@ -71,7 +71,7 @@
 	(setq *anchor_x* x *anchor_y* y *shift_select* nil))
 
 (defun create-selection ()
-	(unless (poll-input)
+	(unless (input-poll)
 		;create the underlay for block selection
 		(bind '(x y) (. *current_buffer* :get_cursor))
 		(defq x1 *anchor_x* y1 *anchor_y*)
@@ -108,7 +108,7 @@
 	(def (. *yslider* :dirty) :maximum smaxy :portion *vdu_height* :value *scroll_y*))
 
 (defun refresh ()
-	(unless (poll-input)
+	(unless (input-poll)
 		;refresh display and ensure cursor is visible
 		(bind '(x y) (. *current_buffer* :get_cursor))
 		(bind '(w h) (. *vdu* :vdu_size))
@@ -165,7 +165,7 @@
 	(gui-add-front (. *window* :change x y w h))
 	(action-insert (cat "ChrysaLisp Terminal 2.0" (ascii-char +char_lf) *env_terminal_prompt*))
 	(while *running*
-		(bind '(*msg* idx) (select-input))
+		(bind '(*msg* idx) (input-select))
 		(cond
 			((= idx +select_pipe)
 				;pipe event

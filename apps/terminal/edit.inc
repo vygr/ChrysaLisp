@@ -35,6 +35,8 @@
 
 (defun action-break ()
 	(input-cursor
+		(bind '(x y) (. buffer :constrain +max_int y))
+		(. buffer :set_cursor x y)
 		(cond
 			(*pipe*
 				;active pipe so feed it

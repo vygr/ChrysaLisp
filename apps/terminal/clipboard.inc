@@ -9,14 +9,13 @@
 (defun action-paste ()
 	(unless (eql (defq data (clipboard-get)) "")
 		(cond
-			( *pipe*
+			(*pipe*
 				;paste data to active pipe
-				(action-insert data)
-				(. *pipe* :write data))
+				(. *pipe* :write data)
+				(action-insert data))
 			((> (length (defq lines (split data (ascii-char +char_lf)))) 0)
 				;paste first line to input
-				(action-insert (elem 0 lines))))
-		(clear-selection) (refresh)))
+				(action-insert (elem 0 lines))))))
 
 (defun action-copy-word ()
 	(action-select-word)
