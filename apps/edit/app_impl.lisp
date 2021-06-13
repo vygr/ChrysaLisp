@@ -126,7 +126,7 @@
 	(setq *anchor_x* x *anchor_y* y *shift_select* nil))
 
 (defun create-selection ()
-	(unless (get :macro_playback)
+	(unless (or (get :macro_playback) (mail-poll select))
 		;create the underlay for block selection
 		(bind '(x y) (. *current_buffer* :get_cursor))
 		(defq x1 *anchor_x* y1 *anchor_y*)
@@ -184,7 +184,7 @@
 	(setq *scroll_x* sx *scroll_y* sy))
 
 (defun refresh ()
-	(unless (get :macro_playback)
+	(unless (or (get :macro_playback) (mail-poll select))
 		;refresh display and ensure cursor is visible
 		(bind '(x y ax ay sx sy ss buffer) (. *meta_map* :find *current_file*))
 		(bind '(x y) (. buffer :get_cursor))

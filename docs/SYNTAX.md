@@ -498,6 +498,12 @@
 (. pipe :close) -> pipe
 ```
 
+### pipe :poll
+
+```code
+(. pipe :poll) -> nil | t
+```
+
 ### pipe :read
 
 ```code

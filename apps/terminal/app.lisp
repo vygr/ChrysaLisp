@@ -41,6 +41,29 @@
 						:min_width 0 :min_height 0 :font (get :font *vdu*)
 						:ink_color (get :ink_color *vdu*)))))))
 
+(defun poll-input ()
+	(cond
+		(*pipe*
+			;active pipe running
+			(. *pipe* :poll))
+		(t  ;no active pipe running
+			(mail-poll *select*))))
+
+(defun select-input ()
+	(cond
+		(*pipe*
+			;active pipe running
+			(defq msg (. *pipe* :read))
+			(cond
+				((eql msg t)
+					;user select msg
+					(defq msg (mail-read (elem (defq idx (mail-select *select*)) *select*))))
+				(t  ;pipe closed or pipe data
+					(defq idx +select_pipe))))
+		(t  ;no active pipe running
+			(defq msg (mail-read (elem (defq idx (mail-select *select*)) *select*)))))
+	(list msg idx))
+
 (defun clear-selection ()
 	;clear the selection
 	(bind '(x y) (. *current_buffer* :get_cursor))
@@ -48,23 +71,24 @@
 	(setq *anchor_x* x *anchor_y* y *shift_select* nil))
 
 (defun create-selection ()
-	;create the underlay for block selection
-	(bind '(x y) (. *current_buffer* :get_cursor))
-	(defq x1 *anchor_x* y1 *anchor_y*)
-	(if (> y y1) (defq st x x x1 x1 st st y y y1 y1 st))
-	(and (= y y1) (> x x1) (defq st x x x1 x1 st))
-	(cap (inc y1) (clear *underlay*))
-	(defq uy -1 buffer (. *current_buffer* :get_text_lines))
-	(while (< (setq uy (inc uy)) y) (push *underlay* ""))
-	(cond
-		((= y y1)
-			(push *underlay* (cat (slice 0 x +not_selected) (slice x x1 +selected))))
-		(t  (push *underlay* (cat
-				(slice 0 x +not_selected)
-				(slice x (inc (length (elem y buffer))) +selected)))
-			(while (< (setq y (inc y)) y1)
-				(push *underlay* (slice 0 (inc (length (elem y buffer))) +selected)))
-			(push *underlay* (slice 0 x1 +selected)))))
+	(unless (poll-input)
+		;create the underlay for block selection
+		(bind '(x y) (. *current_buffer* :get_cursor))
+		(defq x1 *anchor_x* y1 *anchor_y*)
+		(if (> y y1) (defq st x x x1 x1 st st y y y1 y1 st))
+		(and (= y y1) (> x x1) (defq st x x x1 x1 st))
+		(cap (inc y1) (clear *underlay*))
+		(defq uy -1 buffer (. *current_buffer* :get_text_lines))
+		(while (< (setq uy (inc uy)) y) (push *underlay* ""))
+		(cond
+			((= y y1)
+				(push *underlay* (cat (slice 0 x +not_selected) (slice x x1 +selected))))
+			(t  (push *underlay* (cat
+					(slice 0 x +not_selected)
+					(slice x (inc (length (elem y buffer))) +selected)))
+				(while (< (setq y (inc y)) y1)
+					(push *underlay* (slice 0 (inc (length (elem y buffer))) +selected)))
+				(push *underlay* (slice 0 x1 +selected))))))
 
 (defun load-display ()
 	;load the vdu widgets with the text and selection
@@ -84,14 +108,15 @@
 	(def (. *yslider* :dirty) :maximum smaxy :portion *vdu_height* :value *scroll_y*))
 
 (defun refresh ()
-	;refresh display and ensure cursor is visible
-	(bind '(x y) (. *current_buffer* :get_cursor))
-	(bind '(w h) (. *vdu* :vdu_size))
-	(if (< x *scroll_x*) (setq *scroll_x* x))
-	(if (< y *scroll_y*) (setq *scroll_y* y))
-	(if (>= x (+ *scroll_x* w)) (setq *scroll_x* (- x w -1)))
-	(if (>= y (+ *scroll_y* h)) (setq *scroll_y* (- y h -1)))
-	(set-sliders) (load-display))
+	(unless (poll-input)
+		;refresh display and ensure cursor is visible
+		(bind '(x y) (. *current_buffer* :get_cursor))
+		(bind '(w h) (. *vdu* :vdu_size))
+		(if (< x *scroll_x*) (setq *scroll_x* x))
+		(if (< y *scroll_y*) (setq *scroll_y* y))
+		(if (>= x (+ *scroll_x* w)) (setq *scroll_x* (- x w -1)))
+		(if (>= y (+ *scroll_y* h)) (setq *scroll_y* (- y h -1)))
+		(set-sliders) (load-display)))
 
 (defun window-resize (w h)
 	;layout the window and size the vdu to fit
@@ -130,21 +155,6 @@
 
 ;import actions and bindings
 (import "./actions.inc")
-
-(defun select-input ()
-	(cond
-		(*pipe*
-			;active pipe running
-			(defq msg (. *pipe* :read))
-			(cond
-				((eql msg t)
-					;user select msg
-					(defq msg (mail-read (elem (defq idx (mail-select *select*)) *select*))))
-				(t  ;pipe closed or pipe data
-					(defq idx +select_pipe))))
-		(t  ;no active pipe running
-			(defq msg (mail-read (elem (defq idx (mail-select *select*)) *select*)))))
-	(list msg idx))
 
 (defun main ()
 	(defq *cursor_x* 0 *cursor_y* 0 *anchor_x* 0 *anchor_y* 0 *scroll_x* 0 *scroll_y* 0
