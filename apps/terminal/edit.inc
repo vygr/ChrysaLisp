@@ -49,13 +49,15 @@
 						(eql (elem -3 *history*) cmd)
 						(pop *history*))
 					(setq *history_idx* (length *history*)))
-				(. buffer :paste (ascii-char +char_lf))
+				(. buffer :paste (const (cat (ascii-char +char_lf) (ascii-char +char_lf))))
 				(cond
 					((> (length cmd) 0)
 						;start pipe
 						(catch (setq *pipe* (Pipe cmd *select*)) (progn (setq *pipe* nil) t))
 						(unless *pipe*
-							(. buffer :paste (cat "Pipe Error !" (ascii-char +char_lf) *env_terminal_prompt*))))
+							(. buffer :paste (cat "Pipe Error !"
+								(ascii-char +char_lf) (ascii-char +char_lf)
+								*env_terminal_prompt*))))
 					(t (. buffer :paste *env_terminal_prompt*))))))
 	(clear-selection) (refresh))
 

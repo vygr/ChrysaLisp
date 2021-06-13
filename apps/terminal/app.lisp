@@ -156,7 +156,7 @@
 	(tooltips)
 	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
-	(action-insert (cat "ChrysaLisp Terminal 2.0" (char +char_lf) *env_terminal_prompt*))
+	(action-insert (cat "ChrysaLisp Terminal 2.0" (ascii-char +char_lf) *env_terminal_prompt*))
 	(while *running*
 		(bind '(*msg* idx) (select-input))
 		(cond
@@ -167,7 +167,7 @@
 						;pipe finished
 						(. *pipe* :close)
 						(setq *pipe* nil)
-						(action-insert *env_terminal_prompt*))
+						(action-insert (cat (ascii-char +char_lf) *env_terminal_prompt*)))
 					((action-insert *msg*))))
 			((= idx +select_main)
 				;main mailbox
