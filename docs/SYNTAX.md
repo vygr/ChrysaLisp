@@ -618,12 +618,6 @@
 (. syntax :compress_tabs string tab_width) -> string
 ```
 
-### syntax :expand_tabs
-
-```code
-(. syntax :expand_tabs string tab_width) -> string
-```
-
 ### syntax :get_state
 
 ```code

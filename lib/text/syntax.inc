@@ -178,11 +178,6 @@
 			token_list col_list)
 		(apply cat state_list))
 
-	(defmethod :expand_tabs (this string tab_width)
-		; (. syntax :expand_tabs string tab_width) -> string
-		;tab expantion of string
-		(expand string tab_width))
-
 	(defmethod :compress_tabs (this string tab_width)
 		; (. syntax :compress_tabs string tab_width) -> string
 		;tab compression of string

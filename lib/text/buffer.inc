@@ -148,8 +148,7 @@
 			max_width 0 tab_width (get :tab_width this))
 		(each-line (lambda (line)
 				(task-sleep 0)
-				(setq line (. syntax :expand_tabs
-						(trim line (const (char +char_cr))) tab_width)
+				(setq line (expand (trim line (const (char +char_cr))) tab_width)
 					max_width (max max_width (length line)))
 				(push buffer line)
 				(push buffer_colored line)
