@@ -146,7 +146,7 @@
 (defun tooltips ()
 	(each (# (def %0 :tip_text %1))
 		(. main_toolbar :children)
-		'("copy" "paste" "select paragraph" "select form" "start form" "end form")))
+		'("copy" "paste" "select paragraph")))
 
 (defun clear-tip ()
 	(if tip_window (gui-sub tip_window))
