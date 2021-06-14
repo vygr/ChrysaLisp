@@ -37,7 +37,7 @@
 		(const (<< (canvas-from-argb32 +argb_grey6 15) 48))) (str-alloc 8192)))
 	+not_selected (nums-sub +selected +selected)
 	+bracket_char (nums 0x7f) +state_filename "editor_open_files"
-	+tip_time 1000000 tip_id +max_long tip_window nil +not_whole_word_chars " .,;'`(){}[]/"
+	+not_whole_word_chars " .,;'`(){}[]/"
 	select (list (task-mailbox) (mail-alloc-mbox)))
 
 (ui-window *window* (:color +argb_grey1)
@@ -307,6 +307,7 @@
 	(.-> *file_tree_scroll* :layout :dirty_all))
 
 (defun tooltips ()
+	(def *window* :tip_mbox (elem +select_tip select))
 	(each (# (def %0 :tip_text %1))
 		(. main_toolbar :children)
 		'("undo" "redo" "rewind" "cut" "copy" "paste" "reflow" "select paragraph"
@@ -324,11 +325,6 @@
 	(each (# (def %0 :tip_text %1))
 		(. replace_toolbar :children)
 		'("replace" "replace all")))
-
-(defun clear-tip ()
-	(if tip_window (gui-sub tip_window))
-	(setq tip_window nil tip_id +max_long)
-	(mail-timeout (elem +select_tip select) 0))
 
 (defun clear-matches ()
 	(if match_window (gui-sub match_window))
@@ -403,7 +399,7 @@
 						(dispatch-action action))
 					((and (= id (. *vdu* :get_id)) (= (getf *msg* +ev_msg_type) +ev_type_mouse))
 						;mouse event on display
-						(clear-tip) (clear-matches)
+						(clear-matches)
 						(bind '(w h) (. *vdu* :char_size))
 						(defq x (getf *msg* +ev_msg_mouse_rx) y (getf *msg* +ev_msg_mouse_ry))
 						(setq x (if (>= x 0) x (- x w)) y (if (>= y 0) y (- y h)))
@@ -439,7 +435,7 @@
 										)))))
 					((and (= id (. *vdu* :get_id)) (= (getf *msg* +ev_msg_type) +ev_type_wheel))
 						;wheel event on display area
-						(clear-tip) (clear-matches)
+						(clear-matches)
 						(bind '(x y ax ay sx sy ss buffer) (. *meta_map* :find *current_file*))
 						(setq sx (+ *scroll_x* (getf *msg* +ev_msg_wheel_x))
 							sy (- *scroll_y* (getf *msg* +ev_msg_wheel_y)))
@@ -449,7 +445,6 @@
 							(= (getf *msg* +ev_msg_type) +ev_type_key)
 							(> (getf *msg* +ev_msg_key_keycode) 0))
 						;key event
-						(clear-tip)
 						(defq key (getf *msg* +ev_msg_key_key) mod (getf *msg* +ev_msg_key_mod))
 						(cond
 							((and match_window (or (= key 0x40000052) (= key 0x40000051)
@@ -489,30 +484,19 @@
 								(dispatch-action action-insert (char key))
 								(show-matches))))
 					(t  ;gui event, plus check for tip text
-						(clear-tip) (clear-matches)
-						(. *window* :event *msg*)
-						(when (and (= (getf *msg* +ev_msg_type) +ev_type_mouse)
-								(= (getf *msg* +ev_msg_mouse_buttons) 0))
-							;hovering mouse
-							(when (def? :tip_text (. *window* :find_id id))
-								(mail-timeout (elem +select_tip select) +tip_time)
-								(setq tip_id id)))))
+						(clear-matches)
+						(. *window* :event *msg*)))
 				;update meta data
 				(bind '(*cursor_x* *cursor_y*) (. *current_buffer* :get_cursor))
 				(. *meta_map* :insert *current_file*
 					(list *cursor_x* *cursor_y* *anchor_x* *anchor_y*
 						*scroll_x* *scroll_y* *shift_select* *current_buffer*)))
 			((= idx +select_tip)
-				;tip timeout mail
-				(when (and (defq tip (. *window* :find_id tip_id))
-						(defq tip_text (def? :tip_text tip)))
-					(def (setq tip_window (Label)) :text tip_text :color +argb_white
-						:font *env_tip_font* :border 0 :flow_flags 0)
-					(. tip_window :set_flags 0 +view_flag_solid)
-					(bind '(x y w h) (apply view-locate (push (. tip_window :pref_size) :bottom)))
-					(gui-add-front (. tip_window :change x y w h))))))
+				;tip time mail
+				(if (defq view (. *window* :find_id (getf *msg* +mail_timeout_id)))
+					(. view :show_tip)))))
 	(each mail-free-mbox (slice 1 -1 select))
-	(clear-tip) (clear-matches)
+	(clear-matches)
 	(gui-sub *window*)
 	(action-save-all)
 	(save-open-files)

@@ -37,7 +37,7 @@
 (defun main ()
 	(bind '(x y w h) (apply view-locate (. (win-refresh index) :get_size)))
 	(gui-add-front (. mywindow :change x y w h))
-	(mail-timeout (elem +select_timer select) rate)
+	(mail-timeout (elem +select_timer select) rate 0)
 	(while id
 		(defq msg (mail-read (elem (defq idx (mail-select select)) select)))
 		(cond
@@ -51,7 +51,7 @@
 					(t (. mywindow :event msg))))
 			((= idx +select_timer)
 				;timer event)
-				(mail-timeout (elem +select_timer select) rate)
+				(mail-timeout (elem +select_timer select) rate 0)
 				(.-> canvas :next_frame :swap))))
 	;close window
 	(mail-free-mbox (pop select))

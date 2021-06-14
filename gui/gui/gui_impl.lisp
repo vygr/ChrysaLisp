@@ -29,7 +29,7 @@
 	;fire up the login app and clipboard service
 	(open-child "apps/login/app.lisp" +kn_call_open)
 	(open-child "apps/clipboard/app.lisp" +kn_call_open)
-	(mail-timeout (elem +select_timer select) rate)
+	(mail-timeout (elem +select_timer select) rate 0)
 	(while *running*
 		(defq msg (mail-read (elem (defq idx (mail-select select)) select)))
 		(cond
@@ -54,7 +54,7 @@
 				(undef (env) 'msg 'view 'owner 'reply))
 			((= idx +select_timer)
 				;timer event
-				(mail-timeout (elem +select_timer select) rate)
+				(mail-timeout (elem +select_timer select) rate 0)
 				(gui-update *mouse_x* *mouse_y* 0)
 				(while (defq msg (gui-event))
 					(if (defq action (. event_map :find (getf msg +sdl_common_event_type)))

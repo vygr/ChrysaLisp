@@ -23,7 +23,7 @@
 (defun main ()
 	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
 	(gui-add-front (. mywindow :change x y w h))
-	(mail-timeout (elem +select_timer select) rate)
+	(mail-timeout (elem +select_timer select) rate 0)
 	(while id
 		(defq msg (mail-read (elem (defq idx (mail-select select)) select)))
 		(cond
@@ -45,7 +45,7 @@
 					(t (. mywindow :event msg))))
 			((= idx +select_timer)
 				;timer event
-				(mail-timeout (elem +select_timer select) rate)
+				(mail-timeout (elem +select_timer select) rate 0)
 				(bind '(_ _ backdrop_width backdrop_height) (. mybackdrop :get_bounds))
 				(defq index (% (inc index) (length frames))
 					old_frame frame frame (elem index frames)

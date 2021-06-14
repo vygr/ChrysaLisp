@@ -387,14 +387,14 @@
 
 (defun main ()
 	(defq select (list (task-mailbox) (mail-alloc-mbox)))
-	(mail-timeout (elem +select_timeout select) 1000000)
+	(mail-timeout (elem +select_timeout select) 1000000 0)
 	(defq msg (mail-read (elem (defq idx (mail-select select)) select)))
 	(cond
 		;timeout or quit
 		((or (= idx +select_timeout) (eql msg "")))
 		;main mailbox, reset timeout and reply with move
 		((= idx +select_main)
-			(mail-timeout (elem +select_timeout select) 0)
+			(mail-timeout (elem +select_timeout select) 0 0)
 			;read job
 			(defq reply_mbox (getf msg +job_reply)
 				max_time_per_move (getf msg +job_move_time)

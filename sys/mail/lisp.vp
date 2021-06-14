@@ -385,11 +385,11 @@
 	(entry 'sys_mail :lisp_timeout '(r0 r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(r1 ($ sig) 2) '(r2))
+	(call 'lisp :env_args_sig '(r1 ($ sig) 3) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
 	(vp-push r0)
-	(list-bind-args r1 '(r12 r13) '(:obj :num))
+	(list-bind-args r1 '(r12 r13 r14) '(:obj :num :num))
 	;remove or create ?
 	(vpif '(r13 = 0))
 		;remove from timeout list
@@ -414,8 +414,8 @@
 		;calculate wake time
 		(call 'sys_pii :time nil '(r0))
 		(vp-add-rr r0 r13)
-		(call 'sys_mail :alloc '(+long_size) '(r0 r1))
-		(assign '(r13) '((r1 0)))
+		(call 'sys_mail :alloc `(,(* 2 +long_size)) '(r0 r1))
+		(assign '(r13 r14) '((r1 0) (r1 +long_size)))
 		(load-net-id r12 str_data r2 r3 r4)
 		(save-net-id r0 msg_dest r2 r3 r4)
 		;insert into timeout list
@@ -434,7 +434,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(mail-timeout mbox ns)" error_msg_wrong_types r1))
-	(signature '(str num)))
+	(jump 'lisp :repl_error '(r0 "(mail-timeout mbox ns id)" error_msg_wrong_types r1))
+	(signature '(str num num)))
 
 (def-func-end)

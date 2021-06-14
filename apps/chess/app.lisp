@@ -84,7 +84,7 @@
 	(defq farm (Farm create destroy 1))
 	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
 	(gui-add-front (. mywindow :change x y w h))
-	(mail-timeout (elem +select_timer select) timer_rate)
+	(mail-timeout (elem +select_timer select) timer_rate 0)
 	(while id
 		(defq msg (mail-read (elem (defq idx (mail-select select)) select)))
 		(cond
@@ -127,7 +127,7 @@
 						((= data_type (ascii-code "s"))
 							(vdu-print vdu text_buf data)))))
 			(t	;timer event
-				(mail-timeout (elem +select_timer select) timer_rate)
+				(mail-timeout (elem +select_timer select) timer_rate 0)
 				(. farm :refresh (+ max_move_time 1000000)))))
 	;close window and children
 	(. farm :close)

@@ -82,7 +82,7 @@
 	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
 	(gui-add-front (. mywindow :change x y w h))
 	(defq farm (Farm create destroy (* 2 (length (mail-nodes)))))
-	(mail-timeout (elem +select_timer select) timer_rate)
+	(mail-timeout (elem +select_timer select) timer_rate 0)
 	(while id
 		(defq msg (mail-read (elem (defq idx (mail-select select)) select)))
 		(cond
@@ -107,7 +107,7 @@
 				(setq dirty t)
 				(tile canvas msg))
 			(t	;timer event
-				(mail-timeout (elem +select_timer select) timer_rate)
+				(mail-timeout (elem +select_timer select) timer_rate 0)
 				(. farm :refresh retry_timeout)
 				(when dirty
 					(setq dirty nil)

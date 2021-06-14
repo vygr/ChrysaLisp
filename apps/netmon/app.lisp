@@ -65,7 +65,7 @@
 	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
 	(gui-add-front (. mywindow :change x y w h))
 	(defq global_tasks (Global create destroy))
-	(mail-timeout (elem +select_nodes select) 1)
+	(mail-timeout (elem +select_nodes select) 1 0)
 	(while id
 		(defq msg (mail-read (elem (defq idx (mail-select select)) select)))
 		(cond
@@ -109,7 +109,7 @@
 					(. task_bar :dirty) (. memory_bar :dirty)
 					(. val :insert :timestamp (pii-time))))
 			(t	;timer event
-				(mail-timeout (elem +select_nodes select) rate)
+				(mail-timeout (elem +select_nodes select) rate 0)
 				(when (. global_tasks :refresh retry_timeout)
 					;nodes have mutated
 					(defq size (. global_tasks :size))

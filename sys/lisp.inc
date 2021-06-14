@@ -17,6 +17,9 @@
 (ffi mail-send "sys/mail/lisp_send" 0)
 (ffi mail-timeout "sys/mail/lisp_timeout" 0)
 
+(structure +mail_timeout 0
+	(long time id))
+
 (defun to-net-id (sid)
 	; (to-net-id service_id) -> net_id
 	(bind '(e o) (unzip sid (list (list) (list))))

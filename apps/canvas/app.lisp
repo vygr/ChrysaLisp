@@ -104,7 +104,7 @@
 	(.-> canvas (:fill 0) (:set_canvas_flags +canvas_flag_antialias))
 	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
 	(gui-add-front (. mywindow :change x y w h))
-	(mail-timeout (elem +select_timer select) rate)
+	(mail-timeout (elem +select_timer select) rate 0)
 	(while id
 		(defq msg (mail-read (elem (defq idx (mail-select select)) select)))
 		(cond
@@ -116,7 +116,7 @@
 					(t (. mywindow :event msg))))
 			((= idx +select_timer)
 				;timer event
-				(mail-timeout (elem +select_timer select) rate)
+				(mail-timeout (elem +select_timer select) rate 0)
 				(redraw)
 				(setq angle (+ angle 0.0025)))))
 	;close window

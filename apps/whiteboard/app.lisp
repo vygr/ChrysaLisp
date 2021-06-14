@@ -146,7 +146,7 @@
 
 	;main event loop
 	(defq last_state :u last_point nil last_mid_point nil id t)
-	(mail-timeout (elem +select_timer select) rate)
+	(mail-timeout (elem +select_timer select) rate 0)
 	(while id
 		(defq msg (mail-read (elem (defq idx (mail-select select)) select)))
 		(cond
@@ -266,7 +266,7 @@
 										(apply path _)) p))) (elem 1 data)))
 								(redraw-layers +layer_commited))))))
 			(t	;timer event
-				(mail-timeout (elem +select_timer select) rate)
+				(mail-timeout (elem +select_timer select) rate 0)
 				(redraw dlist))))
 	;close window
 	(each mail-free-mbox (slice 1 -1 select))

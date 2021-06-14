@@ -25,7 +25,7 @@
 (defcvar 'num_old_regions 0)
 
 (def-enum ev_type 0
-	(enum mouse key action gui wheel))
+	(enum mouse key action gui wheel enter exit))
 
 (def-struct ev_msg 0
 	(ulong target_id type))
@@ -45,3 +45,7 @@
 	(ulong source_id))
 
 (def-struct ev_msg_gui ev_msg_size)
+
+(def-struct ev_msg_enter ev_msg_size)
+
+(def-struct ev_msg_exit ev_msg_size)

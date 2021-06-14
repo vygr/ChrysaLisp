@@ -252,6 +252,18 @@
 (. button :mouse_down event) -> button
 ```
 
+### button :mouse_enter
+
+```code
+(. button :mouse_enter event) -> button
+```
+
+### button :mouse_exit
+
+```code
+(. button :mouse_exit event) -> button
+```
+
 ### button :mouse_move
 
 ```code
@@ -262,6 +274,12 @@
 
 ```code
 (. button :mouse_up event) -> button
+```
+
+### button :show_tip
+
+```code
+(. button :show_tip) -> button
 ```
 
 ### canvas :draw
@@ -2481,7 +2499,7 @@
 ### mail-timeout
 
 ```code
-(mail-timeout mbox ns)
+(mail-timeout mbox ns id)
 ```
 
 ### map

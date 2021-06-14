@@ -22,7 +22,7 @@
 (defun main ()
 	(defq select (list (task-mailbox) (mail-alloc-mbox)) working t +timeout 5000000)
 	(while working
-		(mail-timeout (elem +select_timeout select) +timeout)
+		(mail-timeout (elem +select_timeout select) +timeout 0)
 		(defq msg (mail-read (elem (defq idx (mail-select select)) select)))
 		(cond
 			;timeout or quit
@@ -31,7 +31,7 @@
 			;main mailbox
 			((= idx +select_main)
 				;clear timeout
-				(mail-timeout (elem +select_timeout select) 0)
+				(mail-timeout (elem +select_timeout select) 0 0)
 				;read job
 				(defq reply_key (getf msg +job_key) reply_mbox (getf msg +job_reply))
 				(bind '((files *abi* *cpu* *debug_mode* *debug_emit* *debug_inst*) _)

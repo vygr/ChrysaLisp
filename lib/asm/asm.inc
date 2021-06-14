@@ -45,7 +45,7 @@
 		(setq jobs (map (# (str (list %0 *abi* *cpu* *debug_mode* *debug_emit* *debug_inst*)))
 			(unzip files jobs)))
 		(defq farm (Farm create destroy num_child))
-		(mail-timeout (elem +select_timer select) timer_rate)
+		(mail-timeout (elem +select_timer select) timer_rate 0)
 		(while working
 			(defq msg (mail-read (elem (defq idx (mail-select select)) select)))
 			(cond
@@ -68,7 +68,7 @@
 						(. farm :each (lambda (key val)
 							(setq working (or working (. val :find :job)))))))
 				(t	;timer event
-					(mail-timeout (elem +select_timer select) timer_rate)
+					(mail-timeout (elem +select_timer select) timer_rate 0)
 					(. farm :refresh retry_timeout))))
 		(. farm :close)
 		(each mail-free-mbox select)

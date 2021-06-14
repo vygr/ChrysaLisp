@@ -26,7 +26,7 @@
 
 	(defmethod :mouse_down (this event)
 		; (. button :mouse_down event) -> button
-		(def this :state -1)
+		(def (. this :mouse_exit event) :state -1)
 		(.-> this :layout :dirty_all))
 
 	(defmethod :mouse_up (this event)
@@ -44,5 +44,31 @@
 		(when (/= state (get :state this))
 			(def this :state state)
 			(.-> this :layout :dirty_all))
+		this)
+
+	(defmethod :mouse_enter (this event)
+		; (. button :mouse_enter event) -> button
+		(and (def? :tip_text this) (defq tip_mbox (get :tip_mbox this))
+			(mail-timeout tip_mbox 1000000 (. this :get_id)))
+		this)
+
+	(defmethod :mouse_exit (this event)
+		; (. button :mouse_exit event) -> button
+		(if (defq tip_mbox (get :tip_mbox this))
+			(mail-timeout tip_mbox 0 0))
+		(when (defq tip_window (def? :tip_window this))
+			(gui-sub tip_window)
+			(undef this :tip_window))
+		this)
+
+	(defmethod :show_tip (this)
+		; (. button :show_tip) -> button
+		(when (defq tip_text (def? :tip_text this))
+			(def (defq tip_window (Label)) :text tip_text :color +argb_white
+				:font *env_tip_font* :border 0 :flow_flags 0)
+			(. tip_window :set_flags 0 +view_flag_solid)
+			(bind '(x y w h) (apply view-locate (push (. tip_window :pref_size) :bottom)))
+			(gui-add-front (. tip_window :change x y w h))
+			(def this :tip_window tip_window))
 		this)
 	)
