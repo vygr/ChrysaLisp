@@ -10,7 +10,7 @@
 (import "./edit.inc")
 (import "./select.inc")
 (import "./clipboard.inc")
-(import "./ui.inc")
+(import "././edit/ui.inc")
 
 (defq
 event_map (xmap-kv
