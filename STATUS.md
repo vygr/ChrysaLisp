@@ -28,6 +28,8 @@ Basic event roll up added to Editor, Terminal and Viewer applications.
 New `(expand string tab_width)` native function to speed tab expansion for
 Editor and Viewer applications.
 
+GUI enter/exit events and general tooltips system.
+
 ------
 
 Find and replace added to the Editor app. Multiple buffers, save all buffers,

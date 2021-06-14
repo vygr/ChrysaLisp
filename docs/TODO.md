@@ -8,9 +8,7 @@ In no particular order but to just to ensure I get thoughts down. I'll keep
 adding to this as I go along. If anybody would like to try helping out, then
 just get in touch.
 
-* Add keyboard macro record/playback/saveing to Editor.
-
-* Cut/copy/paste in the Terminal app.
+* Add keyboard macro saveing to Editor.
 
 * Full editing in Textfield widgets. Shift selection and copy/cut/paste.
 
