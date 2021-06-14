@@ -30,6 +30,8 @@ Editor and Viewer applications.
 
 GUI enter/exit events and general tooltips system.
 
+Whiteboard application upgraded to latest framework.
+
 ------
 
 Find and replace added to the Editor app. Multiple buffers, save all buffers,

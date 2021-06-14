@@ -38,10 +38,10 @@
 	;transparent colour
 	(+ (logand 0xffffff _) 0x60000000))
 
-(defq +canvas_width 1024 +canvas_height 768 +min_width 320 +min_height 240 eps 0.25 tol 3.0
-	radiuss (map i2f '(2 6 12)) *stroke_radius* (elem 0 radiuss) then (pii-time)
+(defq +canvas_width 1024 +canvas_height 768 +min_width 320 +min_height 240 +eps 0.25 +tol 3.0
+	radiuss (map i2f '(2 6 12)) *stroke_radius* (elem 0 radiuss)
 	palette (list +argb_black +argb_white +argb_red +argb_green +argb_blue +argb_cyan +argb_yellow +argb_magenta)
-	palette (cat palette (map trans palette)) undo_stack (list) redo_stack (list)
+	palette (cat palette (map trans palette)) *undo_stack* (list) *redo_stack* (list)
 	*stroke_col* (elem 0 palette) *stroke_mode* +event_pen *commited_polygons* (list) overlay_paths (list)
 	picker_mbox nil *picker_mode* nil *running* t
 	select (list (task-mailbox) (mail-alloc-mbox) (mail-alloc-mbox) (mail-alloc-mbox))
@@ -83,58 +83,44 @@
 			'())
 		((= 2 (length pnts))
 			;just a point
-			(list (path-gen-arc (elem 0 pnts) (elem 1 pnts) 0.0 +fp_2pi rad (const eps) (path))))
+			(list (path-gen-arc (elem 0 pnts) (elem 1 pnts) 0.0 +fp_2pi rad +eps (path))))
 		(t  ;is a polyline draw
 			(bind '(x y x1 y1 &rest _) pnts)
 			(cond
 				((= mode +event_arrow1)
 					;flatten to arrow1
-					(path-stroke-polylines (list) rad (const eps) +join_bevel +cap_butt +cap_arrow (list pnts)))
+					(path-stroke-polylines (list) rad +eps +join_bevel +cap_butt +cap_arrow (list pnts)))
 				((= mode +event_arrow2)
 					;flatten to arrow2
-					(path-stroke-polylines (list) rad (const eps) +join_bevel +cap_arrow +cap_arrow (list pnts)))
+					(path-stroke-polylines (list) rad +eps +join_bevel +cap_arrow +cap_arrow (list pnts)))
 				((= mode +event_box)
 					;flatten to box
-					(path-stroke-polygons (list) rad (const eps) +join_miter (list (path x y x1 y x1 y1 x y1))))
+					(path-stroke-polygons (list) rad +eps +join_miter (list (path x y x1 y x1 y1 x y1))))
 				((= mode +event_circle)
 					;flatten to circle
-					(path-stroke-polygons (list) rad (const eps) +join_bevel
+					(path-stroke-polygons (list) rad +eps +join_bevel
 						(list (path-gen-arc x y 0.0 +fp_2pi (vec-length (vec-sub (path x y) (path x1 y1)))
-							(const eps) (path)))))
+							+eps (path)))))
 				((= mode +event_fbox)
 					;flatten to filled box
 					(list (path x y x1 y x1 y1 x y1)))
 				((= mode +event_fcircle)
 					;flatten to filled circle
 					(list (path-gen-arc x y 0.0 +fp_2pi (vec-length (vec-sub (path x y) (path x1 y1)))
-						(const eps) (path))))
+						+eps (path))))
 				(t  ;flatten to pen stroke
-					(path-stroke-polylines (list) rad (const eps) +join_bevel +cap_round +cap_round (list pnts))))))))
+					(path-stroke-polylines (list) rad +eps +join_bevel +cap_round +cap_round (list pnts))))))))
 
 (defun snapshot ()
 	;take a snapshot of the canvas state
-	(push undo_stack (cat *commited_polygons*))
-	(clear redo_stack))
+	(push *undo_stack* (cat *commited_polygons*))
+	(clear *redo_stack*))
 
 (defun redraw-layers (mask)
 	;redraw layer/s
 	(elem-set +dlist_commited_polygons dlist (cat *commited_polygons*))
 	(elem-set +dlist_overlay_paths dlist (cat overlay_paths))
 	(elem-set +dlist_mask dlist (logior (elem +dlist_mask dlist) mask)))
-
-(defun undo ()
-	;move state from undo to redo stack and restore old state
-	(when (/= 0 (length undo_stack))
-		(push redo_stack *commited_polygons*)
-		(setq *commited_polygons* (pop undo_stack))
-		(redraw-layers +layer_commited)))
-
-(defun redo ()
-	;move state from redo to undo stack and restore old state
-	(when (/= 0 (length redo_stack))
-		(push undo_stack *commited_polygons*)
-		(setq *commited_polygons* (pop redo_stack))
-		(redraw-layers +layer_commited)))
 
 (defun commit (p)
 	;commit a stroke to the canvas
@@ -228,8 +214,8 @@
 														(elem 0 last_mid_point) (elem 1 last_mid_point)
 														(elem 0 last_point) (elem 1 last_point)
 														(elem 0 mid_point) (elem 1 mid_point)
-														(const eps) stroke)
-													(path-filter (const tol) stroke stroke)
+														+eps stroke)
+													(path-filter +tol stroke stroke)
 													(setq last_point new_point last_mid_point mid_point)
 													(redraw-layers +layer_overlay)))
 											(t  ;a shape mode
