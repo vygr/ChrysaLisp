@@ -1410,6 +1410,12 @@
 (align num div) -> num
 ```
 
+### alloc-select
+
+```code
+(alloc-select size) -> (list (task-mailbox) [temp_mbox] ...)
+```
+
 ### and
 
 ```code
@@ -2074,6 +2080,12 @@
 
 ```code
 (frac num)
+```
+
+### free-select
+
+```code
+(free-select select)
 ```
 
 ### func?

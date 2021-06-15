@@ -14,9 +14,12 @@
 (enums +profile_rec 0
 	(enum buf))
 
+(enums +select 0
+	(enum main service))
+
 (defq vdu_width 60 vdu_height 40 buf_keys (list) buf_list (list) buf_index nil id t
-	select (alloc-select 1)
-	entry (mail-declare (elem -2 select) "PROFILE_SERVICE" "Profile Service 0.1"))
+	select (alloc-select +select_size)
+	entry (mail-declare (elem +select_service select) "PROFILE_SERVICE" "Profile Service 0.1"))
 
 (ui-window mywindow (:color 0xc0000000)
 	(ui-flow _ (:flow_flags +flow_down_fill)
@@ -62,7 +65,7 @@
 		(defq idx (mail-select select) msg (mail-read (elem idx select)))
 		(cond
 			;new profile msg
-			((/= idx 0)
+			((= idx +select_service)
 				(defq tcb (getf msg +profile_msg_tcb)
 					data (slice +profile_msg_data -1 msg)
 					key (sym (str tcb))

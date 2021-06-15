@@ -11,9 +11,12 @@
 (enums +debug_rec 0
 	(enum buf state reply_id))
 
+(enums +select 0
+	(enum main service))
+
 (defq vdu_width 60 vdu_height 40 buf_keys (list) buf_list (list) buf_index nil id t
-	select (alloc-select 1)
-	entry (mail-declare (elem -2 select) "DEBUG_SERVICE" "Debug Service 0.4"))
+	select (alloc-select +select_size)
+	entry (mail-declare (elem +select_service select) "DEBUG_SERVICE" "Debug Service 0.4"))
 
 (ui-window mywindow (:color 0xc0000000)
 	(ui-flow _ (:flow_flags +flow_down_fill)
@@ -31,7 +34,7 @@
 				;line feed and truncate
 				(if (> (length (push buf "")) (const vdu_height))
 					(setq buf (slice (const (dec (neg vdu_height))) -1 buf))))
-			(t	;char
+			(t  ;char
 				(elem-set -2 buf (cat (elem -2 buf) c))))) s)
 	(if vdu (. vdu :load buf 0 0 (length (elem -2 buf)) (dec (length buf)))) buf)
 
@@ -91,7 +94,7 @@
 		(defq idx (mail-select select) msg (mail-read (elem idx select)))
 		(cond
 			;new debug msg
-			((/= idx 0)
+			((= idx +select_service)
 				(defq reply_id (getf msg +debug_reply)
 					key (sym (getf msg +debug_origin))
 					data (slice +debug_data -1 msg)
