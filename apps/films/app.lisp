@@ -16,7 +16,7 @@
 	(sort cmp out))
 
 (defq films (all-films "apps/films/") index 0 canvas nil id t
-	select (list (task-mailbox) (mail-alloc-mbox)) rate (/ 1000000 30))
+	select (alloc-select +select_size) rate (/ 1000000 30))
 
 (ui-window mywindow ()
 	(ui-title-bar window_title "" (0xea19) +event_close)
@@ -54,5 +54,5 @@
 				(mail-timeout (elem +select_timer select) rate 0)
 				(.-> canvas :next_frame :swap))))
 	;close window
-	(mail-free-mbox (pop select))
+	(free-select select)
 	(gui-sub mywindow))

@@ -10,14 +10,14 @@
 (import "sys/pii/lisp.inc")
 (import "./actions.inc")
 
+(enums +select 0
+	(enum main timer))
+
 ;profiling callbacks on the GUI thread from :draw method !!!
 (defq *profile* (env -1) *profile_ret* (list)
 	*mouse_x* 0 *mouse_y* 0 *mouse_buttons* 0 *mouse_id* 0
-	select (list (task-mailbox) (mail-alloc-mbox))
+	select (alloc-select +select_size)
 	rate (/ 1000000 60) *running* t)
-
-(enums +select 0
-	(enum main timer))
 
 (defun main ()
 	;declare service
@@ -59,6 +59,6 @@
 				(while (defq msg (gui-event))
 					(if (defq action (. event_map :find (getf msg +sdl_common_event_type)))
 						(action))))))
-	(each mail-free-mbox (slice 1 -1 select))
+	(free-select select)
 	(gui-deinit)
 	(mail-forget service))

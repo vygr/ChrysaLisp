@@ -14,7 +14,7 @@
 
 (defq vdu_width 38 vdu_height 12 text_buf nil
 	flicker_rate (/ 1000000 8) timer_rate (/ 1000000 1) max_move_time 10000000 id t
-	select (list (task-mailbox) (mail-alloc-mbox) (mail-alloc-mbox) (mail-alloc-mbox))
+	select (alloc-select +select_size)
 	brd "RNBQKBNRPPPPPPPP                                pppppppprnbqkbnr"
 	history (list brd) color +white start_time (pii-time) replys (list) next_seq 0)
 
@@ -131,5 +131,5 @@
 				(. farm :refresh (+ max_move_time 1000000)))))
 	;close window and children
 	(. farm :close)
-	(each mail-free-mbox (slice 1 -1 select))
+	(free-select select)
 	(gui-sub mywindow))

@@ -14,7 +14,7 @@
 	(enum main task reply timer))
 
 (defq canvas_width 800 canvas_height 800 canvas_scale 2 timer_rate (/ 1000000 1) id t dirty nil
-	select (list (task-mailbox) (mail-alloc-mbox) (mail-alloc-mbox) (mail-alloc-mbox))
+	select (alloc-select +select_size)
 	center_x (mbfp-from-fixed -0.5) center_y (mbfp-from-fixed 0.0) zoom (mbfp-from-fixed 1.0)
 	retry_timeout (if (starts-with "obj/vp64" (load-path)) 50000000 5000000)
 	jobs nil farm nil)
@@ -143,5 +143,5 @@
 						(unless working (. farm :close)))))))
 	;close window and children
 	(. farm :close)
-	(each mail-free-mbox (slice 1 -1 select))
+	(free-select select)
 	(gui-sub mywindow))

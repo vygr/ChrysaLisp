@@ -11,7 +11,7 @@
 (defq id t index 0 xv 4 yv 0
 	frames (map (lambda (_) (Canvas-from-file (cat "apps/boing/taoball_" (str _) ".cpm") +load_flag_shared)) (range 1 12))
 	sframes (map (lambda (_) (Canvas-from-file (cat "apps/boing/taoball_s_" (str _) ".cpm") +load_flag_shared)) (range 1 12))
-	select (list (task-mailbox) (mail-alloc-mbox)) rate (/ 1000000 30))
+	select (alloc-select +select_size) rate (/ 1000000 30))
 
 (ui-window mywindow ()
 	(ui-title-bar _ "Boing" (0xea19 0xea1b 0xea1a) +event_close)
@@ -64,5 +64,5 @@
 				(.-> mybackdrop (:add_back sframe) (:add_front frame))
 				(. sframe :dirty)
 				(. frame :dirty))))
-	(mail-free-mbox (pop select))
+	(free-select select)
 	(gui-sub mywindow))

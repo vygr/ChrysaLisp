@@ -37,7 +37,7 @@
 	(each (# (mail-send (to-net-id (elem 1 (split %0 ","))) text)) (mail-enquire "CHAT_SERVICE")))
 
 (defun main ()
-	(defq id t text_buf (list "") select (list (task-mailbox)) entry nil)
+	(defq id t text_buf (list "") select (alloc-select 1) entry nil)
 	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
 	(gui-add-front (. mywindow :change x y w h))
 	(while id
@@ -59,7 +59,7 @@
 				;disconnect to network
 				(when entry
 					(broadcast "Has left the chat !")
-					(mail-free-mbox (pop select))
+					(free-select select)
 					(mail-forget entry)
 					(setq entry nil)))
 			((= id +event_send)
@@ -71,5 +71,5 @@
 	(when entry
 		(broadcast "Has left the chat !")
 		(mail-forget entry)
-		(mail-free-mbox (pop select)))
+		(free-select select))
 	(gui-sub mywindow))

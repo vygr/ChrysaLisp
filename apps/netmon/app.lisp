@@ -12,7 +12,7 @@
 
 (defq task_scale_size 10 max_tasks task_scale_size last_max_tasks max_tasks
 	mem_scale_size 4 max_memory (* 1024 16384) last_max_memory max_memory rate (/ 1000000 2)
-	id t select (list (task-mailbox) (mail-alloc-mbox) (mail-alloc-mbox) (mail-alloc-mbox))
+	id t select (alloc-select +select_size)
 	retry_timeout (if (starts-with "obj/vp64" (load-path)) 10000000 1000000))
 
 (ui-window mywindow ()
@@ -139,5 +139,5 @@
 				(. global_tasks :each poll))))
 	;close window and children
 	(. global_tasks :close)
-	(each mail-free-mbox (slice 1 -1 select))
+	(free-select select)
 	(gui-sub mywindow))

@@ -16,7 +16,7 @@
 (defq canvas_width 800 canvas_height 800 canvas_scale 1
 	timer_rate (/ 1000000 1) id t dirty nil
 	retry_timeout (if (starts-with "obj/vp64" (load-path)) 50000000 5000000)
-	select (list (task-mailbox) (mail-alloc-mbox) (mail-alloc-mbox) (mail-alloc-mbox))
+	select (alloc-select +select_size)
 	jobs (map (lambda (y)
 			(setf-> (str-alloc +job_size)
 				(+job_x 0)
@@ -119,5 +119,5 @@
 						(unless working (. farm :close)))))))
 	;close window and children
 	(. farm :close)
-	(each mail-free-mbox (slice 1 -1 select))
+	(free-select select)
 	(gui-sub mywindow))

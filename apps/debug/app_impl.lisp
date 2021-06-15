@@ -12,7 +12,7 @@
 	(enum buf state reply_id))
 
 (defq vdu_width 60 vdu_height 40 buf_keys (list) buf_list (list) buf_index nil id t
-	select (list (task-mailbox) (mail-alloc-mbox))
+	select (alloc-select 1)
 	entry (mail-declare (elem -2 select) "DEBUG_SERVICE" "Debug Service 0.4"))
 
 (ui-window mywindow (:color 0xc0000000)
@@ -146,5 +146,5 @@
 			;otherwise
 			(t (. mywindow :event msg))))
 	(mail-forget entry)
-	(mail-free-mbox (pop select))
+	(free-select select)
 	(gui-sub mywindow))

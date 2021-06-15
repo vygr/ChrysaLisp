@@ -123,8 +123,7 @@
 
 (defun main ()
 	;ui tree initial setup
-	(defq dlist (list 0 light_pos layer1_canvas (list))
-		select (list (task-mailbox) (mail-alloc-mbox)))
+	(defq dlist (list 0 light_pos layer1_canvas (list)) select (alloc-select +select_size))
 	(. layer1_canvas :set_canvas_flags +canvas_flag_antialias)
 	(. mybackdrop :set_size canvas_width canvas_height)
 	(radio-select style_toolbar 0)
@@ -194,5 +193,5 @@
 				(redraw-layers verts 1)
 				(redraw dlist))))
 	;close window
-	(mail-free-mbox (pop select))
+	(free-select select)
 	(gui-sub mywindow))

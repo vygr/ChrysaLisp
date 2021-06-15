@@ -4,15 +4,15 @@
 (import "lib/math/math.inc")
 (import "lib/date/date.inc")
 
-(defq clock_size 256 clock_scale 1 dotw nil face (list) eps 0.25
-	seconds 0.0 second 0 minutes 0.0 minute 0 hours 0.0 hour 0 id t
-	select (list (task-mailbox) (mail-alloc-mbox)) rate (/ 1000000 1))
-
 (enums +event 0
 	(enum close))
 
 (enums +select 0
 	(enum main timer))
+
+(defq clock_size 256 clock_scale 1 dotw nil face (list) eps 0.25
+	seconds 0.0 second 0 minutes 0.0 minute 0 hours 0.0 hour 0 id t
+	select (alloc-select +select_size) rate (/ 1000000 1))
 
 (ui-window mywindow ()
 	(ui-title-bar _ "Clock" (0xea19) +event_close)
@@ -111,5 +111,5 @@
 					(make-digital-time)
 					(set display :text (view-digital-time))
 					(.-> display :layout :dirty)))))
-	(mail-free-mbox (pop select))
+	(free-select select)
 	(gui-sub mywindow))

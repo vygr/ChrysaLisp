@@ -20,7 +20,7 @@
 ;(import "lib/debug/profile.inc")
 
 (defun main ()
-	(defq select (list (task-mailbox) (mail-alloc-mbox)) working t +timeout 5000000)
+	(defq select (alloc-select +select_size) working t +timeout 5000000)
 	(while working
 		(mail-timeout (elem +select_timeout select) +timeout 0)
 		(defq msg (mail-read (elem (defq idx (mail-select select)) select)))
@@ -45,4 +45,4 @@
 				(print reply_key)
 				(mail-send reply_mbox (apply cat msg)))))
 	;(profile-report "Asm")
-	(mail-free-mbox (pop select)))
+	(free-select select))

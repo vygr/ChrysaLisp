@@ -20,6 +20,17 @@
 (structure +mail_timeout 0
 	(long time id))
 
+(defun alloc-select (size)
+	; (alloc-select size) -> (list (task-mailbox) [temp_mbox] ...)
+	(defq select (list (task-mailbox)))
+	(while (> (setq size (dec size)) 0)
+		(push select (mail-alloc-mbox)))
+	select)
+
+(defun free-select (select)
+	; (free-select select)
+	(each mail-free-mbox (slice 1 -1 select)))
+
 (defun to-net-id (sid)
 	; (to-net-id service_id) -> net_id
 	(bind '(e o) (unzip sid (list (list) (list))))
