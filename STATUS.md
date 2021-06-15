@@ -32,6 +32,10 @@ GUI enter/exit events and general tooltips system.
 
 Whiteboard application upgraded to latest framework.
 
+New `(alloc-select)` and `(free-select)` functions. To standardise allocation
+and freeing of mailbox selection lists. The first element will allways be the
+main `(task-mailbox)`.
+
 ------
 
 Find and replace added to the Editor app. Multiple buffers, save all buffers,
