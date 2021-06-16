@@ -33,11 +33,13 @@
 	(clear-selection) (refresh))
 
 (defun action-save ()
+	(save-open-files)
 	(when (and *current_file* (. (trim-buffer *current_buffer*) :get_modified))
 		(. *current_buffer* :file_save *current_file*)
 		(clear-selection) (refresh)))
 
 (defun action-save-all ()
+	(save-open-files)
 	(. *meta_map* :each (lambda (file (_ _ _ _ _ _ _ buffer))
 		(if (and file (. (trim-buffer buffer) :get_modified))
 			(. buffer :file_save file))))
