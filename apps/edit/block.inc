@@ -2,6 +2,8 @@
 ; block actions
 ;;;;;;;;;;;;;;;
 
+(defq +block_comment ";;")
+
 (defun action-left-tab ()
 	(undoable
 		(defq tab_width (. buffer :get_tab_width))
@@ -86,7 +88,7 @@
 		(setq *anchor_x* 0 *anchor_y* y)
 		(each! y y1 (lambda (line)
 				(task-sleep 0)
-				(.-> buffer (:set_cursor 0 _) (:insert ";;")))
+				(.-> buffer (:set_cursor 0 _) (:insert +block_comment)))
 			(list (. buffer :get_text_lines)))
 		(bind '(x y) (. buffer :get_cursor))
 		(bind '(x y) (. buffer :constrain 0 (inc y)))
@@ -99,8 +101,10 @@
 		(setq *anchor_x* 0 *anchor_y* y)
 		(each! y y1 (lambda (line)
 				(task-sleep 0)
-				(if (starts-with ";;" line)
-					(.-> buffer (:set_cursor 0 _) (:delete 2))))
+				(if (starts-with +block_comment line)
+					(.-> buffer
+						(:set_cursor 0 _)
+						(:delete (const (length +block_comment))))))
 			(list (. buffer :get_text_lines)))
 		(bind '(x y) (. buffer :get_cursor))
 		(bind '(x y) (. buffer :constrain 0 (inc y)))
