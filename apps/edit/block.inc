@@ -100,7 +100,7 @@
 		(each! y y1 (lambda (line)
 				(task-sleep 0)
 				(if (starts-with ";;" line)
-					(.-> buffer (:set_cursor 0 _) (:delete 3))))
+					(.-> buffer (:set_cursor 0 _) (:delete 2))))
 			(list (. buffer :get_text_lines)))
 		(bind '(x y) (. buffer :get_cursor))
 		(bind '(x y) (. buffer :constrain 0 (inc y)))
