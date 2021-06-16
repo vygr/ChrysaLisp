@@ -175,7 +175,7 @@
 	(if (and (= x *anchor_x*) (= y *anchor_y*))
 		(create-brackets) (create-selection))
 	(defq lines (clear '()) start_line *scroll_y*
-		end_line (+ start_line (get :vdu_height *vdu_lines*) 1))
+		end_line (inc (elem 1 (. *current_buffer* :get_size))))
 	(while (< (setq start_line (inc start_line)) end_line)
 		(push lines (pad (str start_line) (const (dec +vdu_line_width)) "    ")))
 	(. *vdu_lines* :load lines 0 0 -1 -1)
