@@ -90,7 +90,7 @@
 		(ui-vdu *vdu_lines* (:min_width +vdu_line_width :min_height 0
 				:vdu_width +vdu_line_width :vdu_height *vdu_height*
 				:ink_color +argb_grey12))
-		(ui-backdrop _ (:color +argb_white :min_width 1))
+		(ui-backdrop _ (:color (get :ink_color *vdu_lines*) :min_width 1))
 		(ui-flow _ (:flow_flags +flow_left_fill)
 			(. (ui-slider *yslider*) :connect +event_yscroll)
 			(ui-flow _ (:flow_flags +flow_up_fill)
