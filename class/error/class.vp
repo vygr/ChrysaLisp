@@ -1,7 +1,10 @@
 (include "sys/func.inc")
 (include "sys/str/class.inc")
 (include "class/str/class.inc")
+(include "class/stream/class.inc")
+(include "class/sstream/class.inc")
 (include "class/error/class.inc")
+(include "lib/consts/chars.inc")
 
 (gen-create 'error)
 (gen-vtable 'error)
@@ -99,5 +102,64 @@
 (vp-label 'unknown)
 	(vp-string "unknown_error !") (vp-byte 0)
 	(vp-byte 0)
+
+(def-func-end)
+
+(def-method 'error :print)
+	;inputs
+	;r0 = error object (ptr)
+	;r1 = stream object (ptr)
+	;outputs
+	;r0 = error object (ptr)
+	;trashes
+	;r1-r14
+
+	(def-struct local 0
+		(ptr this stream string))
+
+	(vp-alloc local_size)
+	(entry 'error :print '(r0 r1))
+	(assign '(r0 r1) '((rsp local_this) (rsp local_stream)))
+
+	(call 'stream :write_cstr '(r1 "Error: "))
+	(call 'error :get_description '((rsp local_this)) '(_ r1))
+	(assign '((r1 str_length)) '(r2))
+	(call 'stream :write '((rsp local_stream) (& r1 str_data) r2) '(r0))
+	(call 'stream :write_char '(r0 +char_space))
+	(call 'error :get_msg '((rsp local_this)) '(_ r1))
+	(call 'stream :write_cstr '((rsp local_stream) r1) '(r0))
+
+	(call 'stream :write_cstr '(r0 " File: "))
+	(call 'error :get_file '((rsp local_this)) '(_ r1))
+	(assign '((r1 str_length)) '(r2))
+	(call 'stream :write '((rsp local_stream) (& r1 str_data) r2) '(r0))
+	(call 'stream :write_char '(r0 +char_lrb))
+	(call 'error :get_line '((rsp local_this)) '(_ r1))
+	(call 'str :create_from_long '(r1 10) '(r0))
+	(assign '(r0) '((rsp local_string)))
+	(call 'stream :write '((rsp local_stream) (& r0 str_data) (r0 str_length)))
+	(call 'str :destroy '((rsp local_string)))
+	(call 'stream :write_char '((rsp local_stream) +char_rrb) '(r0))
+
+	(call 'str :create_from_buffer '(0 str_gap) '(r0))
+	(call 'sstream :create '(r0) '((rsp local_string)))
+	(call 'error :get_object '((rsp local_this)) '(_ r1))
+	(call 'obj :print '(r1 (rsp local_string)))
+	(call 'sstream :ref_string '((rsp local_string)) '(r0 (rsp local_string)))
+	(call 'obj :destroy '(r0))
+	(assign '((rsp local_string)) '(r0))
+	(assign '((r0 str_length) 256) '(r1 r2))
+	(vpif '(r1 > r2))
+		(assign '((& r0 str_data) 0) '(r1 r3))
+		(assign '(r2 r3) '((r0 str_length) (r1 r2 ub)))
+	(endif)
+	(call 'stream :write_cstr '((rsp local_stream) " Obj: ") '(r0))
+	(assign '((rsp local_string)) '(r1))
+	(call 'stream :write '((rsp local_stream) (& r1 str_data) (r1 str_length)))
+	(call 'str :destroy '((rsp local_string)))
+
+	(exit 'error :print '((rsp local_this)))
+	(vp-free local_size)
+	(vp-ret)
 
 (def-func-end)
