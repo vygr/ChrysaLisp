@@ -340,7 +340,7 @@
 (defun dispatch-action (action &rest params)
 	(and *macro_record* (find action recorded_actions_list)
 		(push *macro_actions* `(,action ~params)))
-	(catch (apply action params) t))
+	(catch (apply action params) (progn (print _)(print) t)))
 
 (defun show-matches ()
 	(clear-matches)
