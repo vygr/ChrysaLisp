@@ -2,7 +2,7 @@
 ; block actions
 ;;;;;;;;;;;;;;;
 
-(defq +block_comment ";;")
+(defq +block_comment ";**")
 
 (defun action-left-tab ()
 	(undoable
@@ -102,9 +102,7 @@
 		(each! y y1 (lambda (line)
 				(task-sleep 0)
 				(if (starts-with +block_comment line)
-					(.-> buffer
-						(:set_cursor 0 _)
-						(:delete (const (length +block_comment))))))
+					(.-> buffer (:set_cursor 0 _) (:delete (const (length +block_comment))))))
 			(list (. buffer :get_text_lines)))
 		(bind '(x y) (. buffer :get_cursor))
 		(bind '(x y) (. buffer :constrain 0 (inc y)))
