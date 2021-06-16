@@ -18,6 +18,7 @@
 	;r4 = error payload object (ptr)
 	;r5 = filename c string (pubyte)
 	;r6 = line number (uint)
+	;r7 = stack frame (ptr)
 	;outputs
 	;r0 = error object (ptr)
 	;r1 = 0 if error, else ok
@@ -29,9 +30,9 @@
 
 	;save inputs
 	(vp-alloc local_size)
-	(assign '(r0 r2 r3 r4 r5 r6)
+	(assign '(r0 r2 r3 r4 r5 r6 r7)
 		'((rsp local_this) (r0 error_description) (r0 error_msg i)
-		(r0 error_object) (r0 error_file) (r0 error_line i)))
+		(r0 error_object) (r0 error_file) (r0 error_line i) (r0 error_frame)))
 
 	;init parent
 	(s-call 'error :init '(r0 r1) '(r0 r1))
@@ -66,6 +67,8 @@
 	(call 'obj :deref '((r0 error_file)))
 	(assign '((rsp 0)) '(r0))
 	(call 'obj :deref '((r0 error_object)))
+	(assign '((rsp 0)) '(r0))
+	(call 'obj :deref '((r0 error_frame)))
 	(vp-pop r0)
 	(s-jump 'error :deinit '(r0))
 
@@ -129,7 +132,7 @@
 	(call 'error :get_msg '((rsp local_this)) '(_ r1))
 	(call 'stream :write_cstr '((rsp local_stream) r1) '(r0))
 
-	(call 'stream :write_cstr '(r0 " File: "))
+	(call 'stream :write_cstr '(r0 " Repl: "))
 	(call 'error :get_file '((rsp local_this)) '(_ r1))
 	(assign '((r1 str_length)) '(r2))
 	(call 'stream :write '((rsp local_stream) (& r1 str_data) r2) '(r0))
@@ -140,6 +143,10 @@
 	(call 'stream :write '((rsp local_stream) (& r0 str_data) (r0 str_length)))
 	(call 'str :destroy '((rsp local_string)))
 	(call 'stream :write_char '((rsp local_stream) +char_rrb) '(r0))
+
+	(call 'stream :write_cstr '(r0 " Frame: "))
+	(call 'error :get_frame '((rsp local_this)) '(_ r1))
+	(call 'obj :print '(r1 (rsp local_stream)))
 
 	(call 'str :create_from_buffer '(0 str_gap) '(r0))
 	(call 'sstream :create '(r0) '((rsp local_string)))

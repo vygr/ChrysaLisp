@@ -1156,6 +1156,18 @@ trashes
 r1
 ```
 
+### error :get_frame -> class/error/get_frame
+
+```code
+inputs
+r0 = error object (ptr)
+outputs
+r0 = error object (ptr)
+r1 = error payload object (ptr)
+trashes
+r1
+```
+
 ### error :get_line -> class/error/get_line
 
 ```code
@@ -1203,11 +1215,24 @@ r3 = 0, else error msg index (uint)
 r4 = error payload object (ptr)
 r5 = filename c string (pubyte)
 r6 = line number (uint)
+r7 = stack frame (ptr)
 outputs
 r0 = error object (ptr)
 r1 = 0 if error, else ok
 trashes
 r1-r6
+```
+
+### error :print -> class/error/print
+
+```code
+inputs
+r0 = error object (ptr)
+r1 = stream object (ptr)
+outputs
+r0 = error object (ptr)
+trashes
+r1-r14
 ```
 
 ### error :vtable -> class/error/vtable

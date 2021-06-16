@@ -59,6 +59,6 @@
 	(ptr stdin stdout stderr environment sym_underscore sym_optional
 		sym_rest sym_nil sym_t sym_lambda sym_macro sym_quote sym_qquote
 		sym_unquote sym_splicing sym_stream_name sym_stream_line sym_file_includes
-		sym_ffi)
+		sym_ffi sym_stack_frame)
 	(ptr stack)
 	(ulong nextsym))

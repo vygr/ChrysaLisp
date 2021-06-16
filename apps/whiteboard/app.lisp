@@ -3,6 +3,9 @@
 (import "gui/lisp.inc")
 (import "lib/math/math.inc")
 
+;quick stack frame switch
+(if nil   ;t for stack frame recording
+	(import "lib/debug/frames.inc"))
 ;quick profiling switch
 (if t   ;t for profiling
 	(import "lib/debug/profile.inc")

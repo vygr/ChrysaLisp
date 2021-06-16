@@ -17,7 +17,7 @@
 	;r1-r14
 
 	(def-vars
-		(ptr this desc payload file value)
+		(ptr this desc payload file value frame)
 		(pptr iter)
 		(uint msg line))
 
@@ -43,7 +43,15 @@
 		(call 'num :get_value {value} {_, line})
 	(endif)
 
-	(call 'error :create {desc, msg, payload, file, line} {value})
+	(call 'hmap :search {this->lisp_environment, this->lisp_sym_stack_frame} {_, iter, _})
+	(vpif {iter})
+		(assign {iter[+ptr_size]} {frame})
+		(call 'obj :ref {frame})
+	(else)
+		(call 'list :create nil {frame})
+	(endif)
+
+	(call 'error :create {desc, msg, payload, file, line, frame} {value})
 
 	(exit 'lisp :repl_error {this, value})
 	(pop-scope)

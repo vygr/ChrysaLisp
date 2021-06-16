@@ -14,7 +14,7 @@
 	(enum main timer))
 
 ;profiling callbacks on the GUI thread from :draw method !!!
-(defq *profile* (env -1) *profile_ret* (list)
+(defq *profile_meta_map* (env -1) *profile_return_vals* (list)
 	*mouse_x* 0 *mouse_y* 0 *mouse_buttons* 0 *mouse_id* 0
 	select (alloc-select +select_size)
 	rate (/ 1000000 60) *running* t)

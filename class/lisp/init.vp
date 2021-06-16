@@ -166,6 +166,7 @@
 	(built-in "*stream_line*" lisp_sym_stream_line)
 	(built-in "*file_includes*" lisp_sym_file_includes)
 	(built-in "ffi" lisp_sym_ffi)
+	(built-in "*stack_frame*" lisp_sym_stack_frame)
 	(vp-short 0)
 
 (def-func-end)
