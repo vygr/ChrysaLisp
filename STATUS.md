@@ -4,6 +4,10 @@
 
 ------
 
+Editor now has line number display.
+
+------
+
 Make system now uses `(abs-path)`.
 
 Editor pulls in `boot.inc` to the matches dictionary on startup.

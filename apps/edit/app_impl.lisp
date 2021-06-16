@@ -30,7 +30,7 @@
 
 (defq +vdu_min_width 80 +vdu_min_height 40 +vdu_max_width 100 +vdu_max_height 46
 	*current_file* nil *selected_file_node* nil *selected_open_node* nil
-	*vdu_width* +vdu_max_width *vdu_height* +vdu_max_height
+	*vdu_width* +vdu_max_width *vdu_height* +vdu_max_height +vdu_line_width 5
 	*meta_map* (xmap) *underlay* (list) *open_files* (list) *syntax* (Syntax)
 	*whole_words* nil *macro_record* nil *macro_actions* (list)
 	+min_word_size 3 +max_matches 20 dictionary (Dictionary 1021)
@@ -87,6 +87,10 @@
 								(:min_width 0 :color (get :color *open_tree*)
 								:font (get :font *open_tree*))) :connect +event_tree_action))))
 			(ui-backdrop _ (:color +argb_white)))
+		(ui-vdu *vdu_lines* (:min_width +vdu_line_width :min_height 0
+				:vdu_width +vdu_line_width :vdu_height *vdu_height*
+				:ink_color +argb_grey12))
+		(ui-backdrop _ (:color +argb_white :min_width 1))
 		(ui-flow _ (:flow_flags +flow_left_fill)
 			(. (ui-slider *yslider*) :connect +event_yscroll)
 			(ui-flow _ (:flow_flags +flow_up_fill)
@@ -165,12 +169,16 @@
 					(push *underlay* (cat (slice 0 x1 +not_selected) +bracket_char)))))))
 
 (defun load-display ()
-	;load the vdu widgets with the text and selection
+	;load the vdu widgets with the text, selection and line numbers
 	(. *current_buffer* :vdu_load *vdu* *scroll_x* *scroll_y*)
 	(bind '(x y) (. *current_buffer* :get_cursor))
 	(if (and (= x *anchor_x*) (= y *anchor_y*))
-		(create-brackets)
-		(create-selection))
+		(create-brackets) (create-selection))
+	(defq lines (clear '()) start_line *scroll_y*
+		end_line (+ start_line (get :vdu_height *vdu_lines*) 1))
+	(while (< (setq start_line (inc start_line)) end_line)
+		(push lines (pad (str start_line) (const (dec +vdu_line_width)) "    ")))
+	(. *vdu_lines* :load lines 0 0 -1 -1)
 	(. *vdu_underlay* :load *underlay* *scroll_x* *scroll_y* -1 -1))
 
 (defun set-sliders ()
@@ -270,12 +278,16 @@
 	(setq *vdu_width* w *vdu_height* h)
 	(set *vdu* :vdu_width w :vdu_height h :min_width w :min_height h)
 	(set *vdu_underlay* :vdu_width w :vdu_height h)
+	(set *vdu_lines* :vdu_height h)
 	(bind '(x y) (. *vdu* :get_pos))
 	(bind '(w h) (. *vdu* :pref_size))
 	(set *vdu* :min_width +vdu_min_width :min_height +vdu_min_height)
 	(set *vdu_underlay* :min_width +vdu_min_width :min_height +vdu_min_height)
+	(set *vdu_lines* :min_height +vdu_min_height)
 	(. *vdu* :change x y w h)
 	(. *vdu_underlay* :change x y w h)
+	(bind '(x y w _) (. *vdu_lines* :get_bounds))
+	(. *vdu_lines* :change x y w h)
 	(set-sliders) (load-display))
 
 (defun vdu-resize (w h)
@@ -283,10 +295,12 @@
 	(setq *vdu_width* w *vdu_height* h)
 	(set *vdu* :vdu_width w :vdu_height h :min_width w :min_height h)
 	(set *vdu_underlay* :vdu_width w :vdu_height h)
+	(set *vdu_lines* :vdu_height h)
 	(bind '(x y w h) (apply view-fit
 		(cat (. *window* :get_pos) (. *window* :pref_size))))
 	(set *vdu* :min_width +vdu_min_width :min_height +vdu_min_height)
 	(set *vdu_underlay* :min_width +vdu_min_width :min_height +vdu_min_height)
+	(set *vdu_lines* :min_height +vdu_min_height)
 	(. *window* :change_dirty x y w h)
 	(set-sliders) (load-display))
 
