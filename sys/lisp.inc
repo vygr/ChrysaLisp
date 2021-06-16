@@ -29,7 +29,7 @@
 
 (defun free-select (select)
 	; (free-select select)
-	(each mail-free-mbox (slice 1 -1 select)))
+	(each! 1 -1 mail-free-mbox (list select)))
 
 (defun to-net-id (sid)
 	; (to-net-id service_id) -> net_id
