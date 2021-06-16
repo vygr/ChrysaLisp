@@ -26,13 +26,13 @@
 (enums +select 0
 	(enum main tip))
 
-(defq *current_file* nil *selected_file_node* nil *selected_open_node* nil
-	*vdu_width* 80 *vdu_height* 40 *meta_map* (xmap) *underlay* (list)
-	*open_files* (list) *syntax* (Syntax) *whole_words* nil
-	*macro_record* nil *macro_actions* (list)
+(defq +vdu_min_width 80 +vdu_min_height 40 +vdu_max_width 100 +vdu_max_height 46
+	*current_file* nil *selected_file_node* nil *selected_open_node* nil
+	*vdu_width* +vdu_max_width *vdu_height* +vdu_max_height
+	*meta_map* (xmap) *underlay* (list) *open_files* (list) *syntax* (Syntax)
+	*whole_words* nil *macro_record* nil *macro_actions* (list)
 	+min_word_size 3 +max_matches 20 dictionary (Dictionary 1021)
 	match_window nil match_flow nil match_index -1
-	+vdu_min_width 80 +vdu_min_height 40 +vdu_max_width 100 +vdu_max_height 46
 	+selected (apply nums (map (lambda (_)
 		(const (<< (canvas-from-argb32 +argb_grey6 15) 48))) (str-alloc 8192)))
 	+not_selected (nums-sub +selected +selected)
