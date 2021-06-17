@@ -41,4 +41,9 @@
 			cw (getf this +vdu_char_width 0)
 			ch (getf this +vdu_char_height 0))
 		(list (* (if mw mw vdu_width) cw) (* (if mh mh vdu_height) ch)))
+
+	(defmethod :layout (this)
+		; (. vdu :layout) -> this
+		((const (ffi _ "gui/vdu/lisp_configure" 0)) this)
+		this)
 	)
