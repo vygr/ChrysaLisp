@@ -22,7 +22,6 @@ event_map (xmap-kv
 	+event_macro_record action-macro-record
 	+event_macro_playback action-macro-playback
 	+event_comment action-comment-block
-	+event_uncomment action-uncomment-block
 	+event_close action-close
 	+event_min action-minimise
 	+event_max action-maximise
@@ -88,7 +87,6 @@ key_map_control (xmap-kv
 	(ascii-code "M") action-macro-record
 	(ascii-code "m") action-macro-playback
 	(ascii-code "/") action-comment-block
-	(ascii-code "?") action-uncomment-block
 	(ascii-code "a") action-select-all
 	(ascii-code "b") action-select-block
 	(ascii-code "B") action-cut-block
@@ -133,8 +131,8 @@ recorded_actions_list (list
 	action-right-bracket action-right-select action-right-tab action-select-all
 	action-select-block action-select-line action-select-paragraph
 	action-select-word action-set-find-text action-tab action-to-lower
-	action-to-upper action-trim action-uncomment-block action-undo action-up
-	action-up-select action-whole-words))
+	action-to-upper action-trim action-undo action-up action-up-select
+	action-whole-words))
 
 ;module
 (export (penv)
