@@ -15,7 +15,6 @@
 
 (defq +vdu_min_width 32 +vdu_min_height 16
 	+vdu_max_width 100 +vdu_max_height 48
-	*vdu_width* 80 *vdu_height* 48
 	*current_buffer* (Buffer) *meta_map* (xmap 31) *underlay* (list)
 	*current_file* nil *selected_file_node* nil
 	+selected (apply nums (map (lambda (_)
@@ -42,10 +41,10 @@
 			(ui-flow _ (:flow_flags +flow_up_fill)
 				(. (ui-slider *xslider*) :connect +event_xscroll)
 				(ui-flow _ (:flow_flags +flow_stack_fill :font *env_terminal_font*)
-					(ui-vdu *vdu* (:min_width *vdu_width* :min_height *vdu_height*
-							:vdu_width *vdu_width* :vdu_height *vdu_height*
+					(ui-vdu *vdu* (:min_width +vdu_min_width :min_height +vdu_min_height
+							:vdu_width +vdu_max_width :vdu_height +vdu_max_height
 							:ink_color +argb_white))
-					(ui-vdu *vdu_underlay* (:vdu_width *vdu_width* :vdu_height *vdu_height*
+					(ui-vdu *vdu_underlay* (:vdu_width +vdu_max_width :vdu_height +vdu_max_height
 							:min_width 0 :min_height 0 :font (get :font *vdu*)
 							:ink_color (get :ink_color *vdu*))))))))
 
@@ -119,19 +118,19 @@
 	(. *current_buffer* :vdu_load *vdu* *scroll_x* *scroll_y*)
 	(bind '(x y) (. *current_buffer* :get_cursor))
 	(if (and (= x *anchor_x*) (= y *anchor_y*))
-		(create-brackets)
-		(create-selection))
+		(create-brackets) (create-selection))
 	(. *vdu_underlay* :load *underlay* *scroll_x* *scroll_y* -1 -1))
 
 (defun set-sliders ()
 	;set slider values for current file
 	(bind '(x y ax ay sx sy ss) (. *meta_map* :find *current_file*))
 	(bind '(w h) (. *current_buffer* :get_size))
-	(defq smaxx (max 0 (- w *vdu_width* -1))
-		smaxy (max 0 (- h *vdu_height* -1))
+	(bind '(vw vh) (. *vdu* :vdu_size))
+	(defq smaxx (max 0 (- w vw -1))
+		smaxy (max 0 (- h vh -1))
 		sx (max 0 (min sx smaxx)) sy (max 0 (min sy smaxy)))
-	(def (. *xslider* :dirty) :maximum smaxx :portion *vdu_width* :value sx)
-	(def (. *yslider* :dirty) :maximum smaxy :portion *vdu_height* :value sy)
+	(def (. *xslider* :dirty) :maximum smaxx :portion vw :value sx)
+	(def (. *yslider* :dirty) :maximum smaxy :portion vh :value sy)
 	(. *meta_map* :insert *current_file* (list x y ax ay sx sy ss))
 	(setq *scroll_x* sx *scroll_y* sy))
 
@@ -176,32 +175,29 @@
 			(push dirs dir) dirs)) files (list)))
 
 (defun populate-file-tree ()
-	;load up the file tree and a blank Buffer
+	;load up the file tree
 	(defq all_src_files (sort cmp (all-src-files ".")))
 	(each (# (. *file_tree* :add_route %0)) (all-dirs all_src_files))
 	(each (# (. *file_tree* :add_route %0)) all_src_files))
 
-(defun window-resize (w h)
+(defun window-resize ()
 	;layout the window and size the vdu to fit
-	(setq *vdu_width* w *vdu_height* h)
-	(set *vdu* :vdu_width w :vdu_height h :min_width w :min_height h)
-	(set *vdu_underlay* :vdu_width w :vdu_height h :min_width w :min_height h)
-	(.-> *vdu* :layout :dirty)
-	(.-> *vdu_underlay* :layout :dirty)
-	(set *vdu* :min_width +vdu_min_width :min_height +vdu_min_height)
-	(set *vdu_underlay* :min_width +vdu_min_width :min_height +vdu_min_height)
+	(bind '(w h) (. *vdu* :max_size))
+	(set *vdu* :vdu_width w :vdu_height h)
+	(set *vdu_underlay* :vdu_width w :vdu_height h)
+	(. *vdu* :layout)
+	(. *vdu_underlay* :layout)
 	(set-sliders) (load-display))
 
 (defun vdu-resize (w h)
 	;size the vdu and layout the window to fit
-	(setq *vdu_width* w *vdu_height* h)
 	(set *vdu* :vdu_width w :vdu_height h :min_width w :min_height h)
 	(set *vdu_underlay* :vdu_width w :vdu_height h :min_width w :min_height h)
 	(bind '(x y w h) (apply view-fit
 		(cat (. *window* :get_pos) (. *window* :pref_size))))
-	(. *window* :change_dirty x y w h)
 	(set *vdu* :min_width +vdu_min_width :min_height +vdu_min_height)
 	(set *vdu_underlay* :min_width +vdu_min_width :min_height +vdu_min_height)
+	(. *window* :change_dirty x y w h)
 	(set-sliders) (load-display))
 
 (defun select-node (file)
@@ -234,6 +230,7 @@
 	(tooltips)
 	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
+	(action-maximise)
 	(refresh)
 	(while *running*
 		(defq *msg* (mail-read (elem (defq idx (mail-select select)) select)))

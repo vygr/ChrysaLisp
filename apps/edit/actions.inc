@@ -138,5 +138,5 @@ recorded_actions_list (list
 (export (penv)
 	event_map key_map key_map_shift key_map_control recorded_actions_list
 	action-insert action-select-word action-select-line action-select-paragraph
-	action-save-all select-word)
+	action-save-all action-maximise select-word)
 (env-pop)

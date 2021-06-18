@@ -13,7 +13,7 @@
 
 (defun action-layout ()
 	;user window resize
-	(apply window-resize (. *vdu* :max_size)))
+	(window-resize))
 
 (defun action-xscroll ()
 	;user xscroll bar

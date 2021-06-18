@@ -720,6 +720,12 @@
 (. vdu :char_size) -> (width height)
 ```
 
+### vdu :layout
+
+```code
+(. vdu :layout) -> this
+```
+
 ### vdu :load
 
 ```code

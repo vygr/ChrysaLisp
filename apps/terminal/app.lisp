@@ -14,7 +14,6 @@
 
 (defq +vdu_min_width 60 +vdu_min_height 40
 	+vdu_max_width 120 +vdu_max_height 40
-	*vdu_width* 60 *vdu_height* 40
 	*current_buffer* (Buffer t) *meta_map* (xmap 31) *underlay* (list)
 	+selected (apply nums (map (lambda (_)
 		(const (<< (canvas-from-argb32 +argb_green6 15) 48))) (str-alloc 8192)))
@@ -33,10 +32,10 @@
 		(ui-flow _ (:flow_flags +flow_up_fill)
 			(. (ui-slider *xslider*) :connect +event_xscroll)
 			(ui-flow _ (:flow_flags +flow_stack_fill :font *env_terminal_font*)
-				(ui-vdu *vdu* (:min_width *vdu_width* :min_height *vdu_height*
-						:vdu_width *vdu_width* :vdu_height *vdu_height*
+				(ui-vdu *vdu* (:min_width +vdu_min_width :min_height +vdu_min_height
+						:vdu_width +vdu_min_width :vdu_height +vdu_min_height
 						:ink_color +argb_green))
-				(ui-vdu *vdu_underlay* (:vdu_width *vdu_width* :vdu_height *vdu_height*
+				(ui-vdu *vdu_underlay* (:vdu_width +vdu_min_width :vdu_height +vdu_min_height
 						:min_width 0 :min_height 0 :font (get :font *vdu*)
 						:ink_color (get :ink_color *vdu*)))))))
 
@@ -94,17 +93,17 @@
 	(. *current_buffer* :vdu_load *vdu* *scroll_x* *scroll_y*)
 	(bind '(x y) (. *current_buffer* :get_cursor))
 	(if (and (= x *anchor_x*) (= y *anchor_y*))
-		(clear *underlay*)
-		(create-selection))
+		(clear *underlay*) (create-selection))
 	(. *vdu_underlay* :load *underlay* *scroll_x* *scroll_y* -1 -1))
 
 (defun set-sliders ()
 	;set slider values
 	(bind '(w h) (. *current_buffer* :get_size))
-	(defq smaxx (max 0 (- w *vdu_width* -1)) smaxy (max 0 (- h *vdu_height*)))
+	(bind '(vw vh) (. *vdu* :vdu_size))
+	(defq smaxx (max 0 (- w vw -1)) smaxy (max 0 (- h vh)))
 	(setq *scroll_x* (max 0 (min *scroll_x* smaxx)) *scroll_y* (max 0 (min *scroll_y* smaxy)))
-	(def (. *xslider* :dirty) :maximum smaxx :portion *vdu_width* :value *scroll_x*)
-	(def (. *yslider* :dirty) :maximum smaxy :portion *vdu_height* :value *scroll_y*))
+	(def (. *xslider* :dirty) :maximum smaxx :portion vw :value *scroll_x*)
+	(def (. *yslider* :dirty) :maximum smaxy :portion vh :value *scroll_y*))
 
 (defun refresh ()
 	(unless (input-poll)
@@ -117,27 +116,24 @@
 		(if (>= y (+ *scroll_y* h)) (setq *scroll_y* (- y h -1)))
 		(set-sliders) (load-display)))
 
-(defun window-resize (w h)
+(defun window-resize ()
 	;layout the window and size the vdu to fit
-	(setq *vdu_width* w *vdu_height* h)
-	(set *vdu* :vdu_width w :vdu_height h :min_width w :min_height h)
-	(set *vdu_underlay* :vdu_width w :vdu_height h :min_width w :min_height h)
-	(.-> *vdu* :layout :dirty)
-	(.-> *vdu_underlay* :layout :dirty)
-	(set *vdu* :min_width +vdu_min_width :min_height +vdu_min_height)
-	(set *vdu_underlay* :min_width +vdu_min_width :min_height +vdu_min_height)
+	(bind '(w h) (. *vdu* :max_size))
+	(set *vdu* :vdu_width w :vdu_height h)
+	(set *vdu_underlay* :vdu_width w :vdu_height h)
+	(. *vdu* :layout)
+	(. *vdu_underlay* :layout)
 	(set-sliders) (load-display))
 
 (defun vdu-resize (w h)
 	;size the vdu and layout the window to fit
-	(setq *vdu_width* w *vdu_height* h)
 	(set *vdu* :vdu_width w :vdu_height h :min_width w :min_height h)
 	(set *vdu_underlay* :vdu_width w :vdu_height h :min_width w :min_height h)
 	(bind '(x y w h) (apply view-fit
 		(cat (. *window* :get_pos) (. *window* :pref_size))))
-	(. *window* :change_dirty x y w h)
 	(set *vdu* :min_width +vdu_min_width :min_height +vdu_min_height)
 	(set *vdu_underlay* :min_width +vdu_min_width :min_height +vdu_min_height)
+	(. *window* :change_dirty x y w h)
 	(set-sliders) (load-display))
 
 (defun tooltips ()

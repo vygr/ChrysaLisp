@@ -29,18 +29,15 @@
 	(enum main tip))
 
 (defq +vdu_min_width 80 +vdu_min_height 40 +vdu_max_width 100 +vdu_max_height 46
-	*current_file* nil *selected_file_node* nil *selected_open_node* nil
-	*vdu_width* +vdu_max_width *vdu_height* +vdu_max_height +vdu_line_width 5
-	*meta_map* (xmap) *underlay* (list) *open_files* (list) *syntax* (Syntax)
-	*whole_words* nil *macro_record* nil *macro_actions* (list)
+	+vdu_line_width 5 *current_file* nil *selected_file_node* nil
+	*selected_open_node* nil *meta_map* (xmap) *underlay* (list) *open_files* (list)
+	*syntax* (Syntax) *whole_words* nil *macro_record* nil *macro_actions* (list)
 	+min_word_size 3 +max_matches 20 dictionary (Dictionary 1021)
-	match_window nil match_flow nil match_index -1
+	match_window nil match_flow nil match_index -1 select (alloc-select +select_size)
 	+selected (apply nums (map (lambda (_)
 		(const (<< (canvas-from-argb32 +argb_grey6 15) 48))) (str-alloc 8192)))
-	+not_selected (nums-sub +selected +selected)
-	+bracket_char (nums 0x7f) +state_filename "editor_open_files"
-	+not_whole_word_chars " .,;'`(){}[]/"
-	select (alloc-select +select_size))
+	+not_selected (nums-sub +selected +selected) +bracket_char (nums 0x7f)
+	+state_filename "editor_open_files" +not_whole_word_chars " .,;'`(){}[]/")
 
 (ui-window *window* (:color +argb_grey1)
 	(ui-title-bar *title* "Edit" (0xea19 0xea1b 0xea1a) +event_close)
@@ -88,7 +85,7 @@
 								:font (get :font *open_tree*))) :connect +event_tree_action))))
 			(ui-backdrop _ (:color +argb_white)))
 		(ui-vdu *vdu_lines* (:min_width +vdu_line_width :min_height 0
-				:vdu_width +vdu_line_width :vdu_height *vdu_height*
+				:vdu_width +vdu_line_width :vdu_height +vdu_min_height
 				:ink_color +argb_grey12))
 		(ui-backdrop _ (:color (get :ink_color *vdu_lines*) :min_width 1))
 		(ui-flow _ (:flow_flags +flow_left_fill)
@@ -96,10 +93,10 @@
 			(ui-flow _ (:flow_flags +flow_up_fill)
 				(. (ui-slider *xslider*) :connect +event_xscroll)
 				(ui-flow _ (:flow_flags +flow_stack_fill :font *env_terminal_font*)
-					(ui-vdu *vdu* (:min_width *vdu_width* :min_height *vdu_height*
-							:vdu_width *vdu_width* :vdu_height *vdu_height*
+					(ui-vdu *vdu* (:min_width +vdu_min_width :min_height +vdu_min_height
+							:vdu_width +vdu_min_width :vdu_height +vdu_min_height
 							:ink_color +argb_white))
-					(ui-vdu *vdu_underlay* (:vdu_width *vdu_width* :vdu_height *vdu_height*
+					(ui-vdu *vdu_underlay* (:vdu_width +vdu_min_width :vdu_height +vdu_min_height
 							:min_width 0 :min_height 0 :font (get :font *vdu*)
 							:ink_color (get :ink_color *vdu*))))))))
 
@@ -177,7 +174,7 @@
 	(defq lines (clear '()) start_line *scroll_y*
 		end_line (inc (min
 			(elem 1 (. *current_buffer* :get_size))
-			(+ start_line *vdu_height*))))
+			(+ start_line (get :vdu_height *vdu*)))))
 	(while (< (setq start_line (inc start_line)) end_line)
 		(push lines (pad (str start_line) (const (dec +vdu_line_width)) "    ")))
 	(. *vdu_lines* :load lines 0 0 -1 -1)
@@ -187,11 +184,12 @@
 	;set slider values for current file
 	(bind '(x y ax ay sx sy ss buffer) (. *meta_map* :find *current_file*))
 	(bind '(w h) (. buffer :get_size))
-	(defq smaxx (max 0 (- w *vdu_width* -1))
-		smaxy (max 0 (- h *vdu_height* -1))
+	(bind '(vw vh) (. *vdu* :vdu_size))
+	(defq smaxx (max 0 (- w vw -1))
+		smaxy (max 0 (- h vh -1))
 		sx (max 0 (min sx smaxx)) sy (max 0 (min sy smaxy)))
-	(def (. *xslider* :dirty) :maximum smaxx :portion *vdu_width* :value sx)
-	(def (. *yslider* :dirty) :maximum smaxy :portion *vdu_height* :value sy)
+	(def (. *xslider* :dirty) :maximum smaxx :portion vw :value sx)
+	(def (. *yslider* :dirty) :maximum smaxy :portion vh :value sy)
 	(. *meta_map* :insert *current_file* (list x y ax ay sx sy ss buffer))
 	(setq *scroll_x* sx *scroll_y* sy))
 
@@ -275,32 +273,28 @@
 				(write-line stream (str (list file (slice 0 -2 (. *meta_map* :find file))))))
 			(sort cmp *open_files*))))
 
-(defun window-resize (w h)
+(defun window-resize ()
 	;layout the window and size the vdu to fit
-	(setq *vdu_width* w *vdu_height* h)
-	(set *vdu* :vdu_width w :vdu_height h :min_width w :min_height h)
-	(set *vdu_underlay* :vdu_width w :vdu_height h :min_width w :min_height h)
-	(set *vdu_lines* :vdu_height h :min_height h)
-	(.-> *vdu* :layout :dirty)
-	(.-> *vdu_underlay* :layout :dirty)
-	(.-> *vdu_lines* :layout :dirty)
-	(set *vdu* :min_width +vdu_min_width :min_height +vdu_min_height)
-	(set *vdu_underlay* :min_width +vdu_min_width :min_height +vdu_min_height)
-	(set *vdu_lines* :min_height +vdu_min_height)
+	(bind '(w h) (. *vdu* :max_size))
+	(set *vdu* :vdu_width w :vdu_height h)
+	(set *vdu_underlay* :vdu_width w :vdu_height h)
+	(set *vdu_lines* :vdu_height h)
+	(. *vdu* :layout)
+	(. *vdu_underlay* :layout)
+	(. *vdu_lines* :layout)
 	(set-sliders) (load-display))
 
 (defun vdu-resize (w h)
 	;size the vdu and layout the window to fit
-	(setq *vdu_width* w *vdu_height* h)
 	(set *vdu* :vdu_width w :vdu_height h :min_width w :min_height h)
 	(set *vdu_underlay* :vdu_width w :vdu_height h :min_width w :min_height h)
 	(set *vdu_lines* :vdu_height h :min_height h)
 	(bind '(x y w h) (apply view-fit
 		(cat (. *window* :get_pos) (. *window* :pref_size))))
-	(. *window* :change_dirty x y w h)
 	(set *vdu* :min_width +vdu_min_width :min_height +vdu_min_height)
 	(set *vdu_underlay* :min_width +vdu_min_width :min_height +vdu_min_height)
 	(set *vdu_lines* :min_height +vdu_min_height)
+	(. *window* :change_dirty x y w h)
 	(set-sliders) (load-display))
 
 (defun select-node (file)
@@ -347,14 +341,6 @@
 	(if match_window (gui-sub match_window))
 	(setq match_window nil match_flow nil match_index -1))
 
-;import actions and bindings
-(import "./actions.inc")
-
-(defun dispatch-action (action &rest params)
-	(and *macro_record* (find action recorded_actions_list)
-		(push *macro_actions* `(,action ~params)))
-	(catch (apply action params) (progn (print _)(print) t)))
-
 (defun show-matches ()
 	(clear-matches)
 	(bind '(*cursor_x* *cursor_y*) (. *current_buffer* :get_cursor))
@@ -388,6 +374,14 @@
 		(if (> match_index (dec (length matches))) (setq match_index 0))
 		(def (. (elem match_index matches) :dirty) :color +argb_red)))
 
+;import actions and bindings
+(import "./actions.inc")
+
+(defun dispatch-action (action &rest params)
+	(and *macro_record* (find action recorded_actions_list)
+		(push *macro_actions* `(,action ~params)))
+	(catch (apply action params) (progn (print _)(print) t)))
+
 (defun main ()
 	(defq edit_service (mail-declare (task-mailbox) "EDIT_SERVICE" "Edit Service 0.1"))
 	;load up the base Syntax keywords and boot.inc words for matching
@@ -404,6 +398,7 @@
 	(tooltips)
 	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
+	(action-maximise)
 	(refresh)
 	(while *running*
 		(defq *msg* (mail-read (elem (defq idx (mail-select select)) select)))
