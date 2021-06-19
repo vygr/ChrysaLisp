@@ -19,7 +19,7 @@
 		(const (<< (canvas-from-argb32 +argb_green6 15) 48))) (str-alloc 8192)))
 	+not_selected (nums-sub +selected +selected)
 	+bracket_char (nums 0x7f)
-	*select* (list (task-mailbox) (mail-alloc-mbox)))
+	*select* (alloc-select +select_size))
 
 (ui-window *window* (:color 0xc0000000)
 	(ui-title-bar *title* "Terminal" (0xea19 0xea1b 0xea1a) +event_close)
@@ -242,5 +242,5 @@
 				(if (defq view (. *window* :find_id (getf *msg* +mail_timeout_id)))
 					(. view :show_tip)))))
 	(if *pipe* (. *pipe* :close))
-	(each mail-free-mbox (slice 1 -1 *select*))
+	(free-select *select*)
 	(gui-sub *window*))
