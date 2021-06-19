@@ -7,6 +7,45 @@
 (include "class/lisp/class.inc")
 (include "sys/statics/class.inc")
 
+(def-method 'sys_mail :lisp_validate)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args list object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(entry 'sys_mail :lisp_validate '(r0 r1))
+
+(errorcases
+	(call 'lisp :env_args_sig '(r1 ($ sig) 1) '(r2))
+	(gotoif '(r2 = 0) 'error))
+
+	(vp-push r0)
+	(list-bind-args r1 '(r0) '(:obj))
+	(vp-cpy-ir r0 str_data r0)
+	(call 'sys_mail :validate '(r0) '(r0))
+	(assign '((rsp 0)) '(r1))
+	(vpif '(r0 /= 0))
+		(assign '((r1 lisp_sym_t)) '(r1))
+	(else)
+		(assign '((r1 lisp_sym_nil)) '(r1))
+	(endif)
+	(class/obj/ref r1 r2)
+	(vp-pop r0)
+
+	(exit 'sys_mail :lisp_validate '(r0 r1))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp :repl_error '(r0 "(mail-validate mbox)" error_msg_wrong_types r1))
+	(signature '(str)))
+
+(def-func-end)
+
 (def-method 'sys_mail :lisp_read)
 	;inputs
 	;r0 = lisp object (ptr)

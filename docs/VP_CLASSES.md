@@ -7575,6 +7575,19 @@ trashes
 r1-r14
 ```
 
+### sys_mail :lisp_validate -> sys/mail/lisp_validate
+
+```code
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
 ### sys_mail :mymail -> sys/mail/mymail
 
 ```code

@@ -12,6 +12,7 @@
 (ffi mail-forget "sys/mail/lisp_forget" 0)
 (ffi mail-free-mbox "sys/mail/lisp_free_mbox" 0)
 (ffi mail-poll "sys/mail/lisp_poll" 0)
+(ffi mail-validate "sys/mail/lisp_validate" 0)
 (ffi mail-read "sys/mail/lisp_read" 0)
 (ffi mail-select "sys/mail/lisp_select" 0)
 (ffi mail-send "sys/mail/lisp_send" 0)

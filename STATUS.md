@@ -6,6 +6,11 @@
 
 Editor now has line number display.
 
+New `(mail-validate netid)` function. And with this, the GUI now validates the
+owner of each top level GUI view and if they fail to validate they are removed.
+This means that any process that opens a Window and then throws an uncaught
+exception will have that Window removed and cleaned up.
+
 ------
 
 Make system now uses `(abs-path)`.

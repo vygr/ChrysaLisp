@@ -58,7 +58,10 @@
 				(gui-update *mouse_x* *mouse_y* 0)
 				(while (defq msg (gui-event))
 					(if (defq action (. event_map :find (getf msg +sdl_common_event_type)))
-						(action))))))
+						(action)))
+				;remove orphans
+				(each (# (unless (and (defq owner (. %0 :find_owner)) (mail-validate owner))
+						(.-> %0 :hide :sub))) (. *screen* :children)))))
 	(free-select select)
 	(gui-deinit)
 	(mail-forget service))

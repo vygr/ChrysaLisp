@@ -2514,6 +2514,12 @@
 (mail-timeout mbox ns id)
 ```
 
+### mail-validate
+
+```code
+(mail-validate mbox)
+```
+
 ### map
 
 ```code
