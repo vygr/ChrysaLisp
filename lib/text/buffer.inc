@@ -460,13 +460,14 @@
 		(unless (eql (get :lps_pattern this) pattern)
 			(set this :lps (setq lps (substr-lps pattern)) :lps_pattern pattern)
 			(each (lambda (__) (elem-set _ buffer_index nil)) buffer_index))
-		(each! 0 (bind '(w h) (. this :get_size)) (lambda (line)
+		(each! 0 (bind '(w h) (. this :get_size)) (lambda (line index)
 				(when (> (length line) 0)
-					(unless (elem _ buffer_index)
+					(unless index
 						(task-sleep 0)
-						(elem-set _ buffer_index (substr pattern line lps)))
-					(if (elem _ buffer_index) (push out (list _ (elem _ buffer_index))))))
-			(list (get :buffer this))) out)
+						(elem-set _ buffer_index (setq index (substr pattern line lps))))
+					(if (> (length index) 0)
+						(push out (list _ index)))))
+			(list (get :buffer this) buffer_index)) out)
 	)
 
 ;module
