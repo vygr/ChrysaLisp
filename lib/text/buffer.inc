@@ -455,7 +455,7 @@
 		(if (= c 1) (list x y) '(nil nil)))
 
 	(defmethod :find (this pattern)
-		; (. buffer :find pattern) -> ([(x y)] ...)
+		; (. buffer :find pattern) -> ([(y (x1 ...))] ...)
 		(defq out (list) lps (get :lps this) buffer_index (get :buffer_index this))
 		(unless (eql (get :lps_pattern this) pattern)
 			(set this :lps (setq lps (substr-lps pattern)) :lps_pattern pattern)
@@ -465,7 +465,7 @@
 					(unless (elem _ buffer_index)
 						(task-sleep 0)
 						(elem-set _ buffer_index (substr pattern line lps)))
-					(each (# (push out (list %0 idx))) (elem (defq idx _) buffer_index))))
+					(if (elem _ buffer_index) (push out (list _ (elem _ buffer_index))))))
 			(list (get :buffer this))) out)
 	)
 
