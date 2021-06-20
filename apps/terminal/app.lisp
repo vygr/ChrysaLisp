@@ -69,24 +69,23 @@
 	(setq *anchor_x* x *anchor_y* y *shift_select* nil))
 
 (defun create-selection ()
-	(unless (input-poll)
-		;create the underlay for block selection
-		(bind '(x y) (. *current_buffer* :get_cursor))
-		(defq x1 *anchor_x* y1 *anchor_y*)
-		(if (> y y1) (defq st x x x1 x1 st st y y y1 y1 st))
-		(and (= y y1) (> x x1) (defq st x x x1 x1 st))
-		(cap (inc y1) (clear *underlay*))
-		(defq uy -1 buffer (. *current_buffer* :get_text_lines))
-		(while (< (setq uy (inc uy)) y) (push *underlay* ""))
-		(cond
-			((= y y1)
-				(push *underlay* (cat (slice 0 x +not_selected) (slice x x1 +selected))))
-			(t  (push *underlay* (cat
-					(slice 0 x +not_selected)
-					(slice x (inc (length (elem y buffer))) +selected)))
-				(while (< (setq y (inc y)) y1)
-					(push *underlay* (slice 0 (inc (length (elem y buffer))) +selected)))
-				(push *underlay* (slice 0 x1 +selected))))))
+	;create the underlay for block selection
+	(bind '(x y) (. *current_buffer* :get_cursor))
+	(defq x1 *anchor_x* y1 *anchor_y*)
+	(if (> y y1) (defq st x x x1 x1 st st y y y1 y1 st))
+	(and (= y y1) (> x x1) (defq st x x x1 x1 st))
+	(cap (inc y1) (clear *underlay*))
+	(defq uy -1 buffer (. *current_buffer* :get_text_lines))
+	(while (< (setq uy (inc uy)) y) (push *underlay* ""))
+	(cond
+		((= y y1)
+			(push *underlay* (cat (slice 0 x +not_selected) (slice x x1 +selected))))
+		(t  (push *underlay* (cat
+				(slice 0 x +not_selected)
+				(slice x (inc (length (elem y buffer))) +selected)))
+			(while (< (setq y (inc y)) y1)
+				(push *underlay* (slice 0 (inc (length (elem y buffer))) +selected)))
+			(push *underlay* (slice 0 x1 +selected)))))
 
 (defun load-display ()
 	;load the vdu widgets with the text and selection

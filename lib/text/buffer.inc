@@ -456,7 +456,8 @@
 
 	(defmethod :find (this pattern)
 		; (. buffer :find pattern) -> ([(y (x1 ...))] ...)
-		(defq out (list) lps (get :lps this) buffer_index (get :buffer_index this))
+		(defq out (cap (length (get :buffer_index this)) (list))
+			lps (get :lps this) buffer_index (get :buffer_index this))
 		(unless (eql (get :lps_pattern this) pattern)
 			(set this :lps (setq lps (substr-lps pattern)) :lps_pattern pattern)
 			(each (lambda (__) (elem-set _ buffer_index nil)) buffer_index))
