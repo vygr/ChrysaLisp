@@ -13,22 +13,26 @@
 	(when (or (= (length buffer) 0) (not (eql (elem -2 buffer) "")))
 		(push buffer "")
 		(push buffer_colored "")
-		(push buffer_states '(nil nil))))
+		(push buffer_states '(nil nil))
+		(push buffer_index nil)))
 
 (defun erase-line (y)
 	(setq buffer (erase buffer y (inc y)))
 	(setq buffer_colored (erase buffer_colored y (inc y)))
-	(setq buffer_states (erase buffer_states y (inc y))))
+	(setq buffer_states (erase buffer_states y (inc y)))
+	(setq buffer_index (erase buffer_index y (inc y))))
 
 (defun insert-line (y line)
 	(setq buffer (insert buffer y (list line)))
 	(setq buffer_colored (insert buffer_colored y (list line)))
-	(setq buffer_states (insert buffer_states y '((nil nil)))))
+	(setq buffer_states (insert buffer_states y '((nil nil))))
+	(setq buffer_index (insert buffer_index y '(nil))))
 
 (defun set-line (y line)
 	(elem-set y buffer line)
 	(elem-set y buffer_colored line)
-	(elem-set y buffer_states '(nil nil)))
+	(elem-set y buffer_states '(nil nil))
+	(elem-set y buffer_index nil))
 
 (defun redo ()
 	(defq idx (length undo_stack))
@@ -53,12 +57,14 @@
 		(bind '(w h) (. this :get_size))
 		(defq buffer (get :buffer this)
 			buffer_colored (get :buffer_colored this)
-			buffer_states (get :buffer_states this))
+			buffer_states (get :buffer_states this)
+			buffer_index (get :buffer_index this))
 		~_
 		(clear (get :redo_stack this))
 		(last-line)
 		(set this :buffer buffer :buffer_colored buffer_colored
-			:buffer_states buffer_states :dirty t :modified t)
+			:buffer_states buffer_states :buffer_index buffer_index
+			:dirty t :modified t)
 		(. this :set_cursor x y)))
 
 (defmacro get-selection ()
@@ -79,7 +85,8 @@
 
 (defclass Buffer (&optional mode syntax) nil
 	; (Buffer [mode syntax]) -> buffer
-	(def this :buffer (list "") :buffer_colored (list "") :buffer_states (list '(nil nil))
+	(def this :buffer (list "") :buffer_colored (list "")
+		:buffer_states (list '(nil nil)) :buffer_index (list nil)
 		:dirty nil :syntax (opt syntax (Syntax)) :undo_stack (list) :redo_stack (list)
 		:cursor_x 0 :cursor_y 0 :max_width 0 :tab_width 4 :wrap_width 80
 		:mode mode :lps nil :lps_pattern nil :next_mark -1 :modified nil)
@@ -144,7 +151,8 @@
 	(defmethod :file_load (this filepath)
 		; (. buffer :file_load filepath) -> buffer
 		(defq syntax (get :syntax this)
-			buffer (list) buffer_colored (list) buffer_states (list)
+			buffer (list) buffer_colored (list)
+			buffer_states (list) buffer_index (list)
 			max_width 0 tab_width (get :tab_width this))
 		(each-line (lambda (line)
 				(task-sleep 0)
@@ -152,13 +160,14 @@
 					max_width (max max_width (length line)))
 				(push buffer line)
 				(push buffer_colored line)
-				(push buffer_states '(nil nil)))
+				(push buffer_states '(nil nil))
+				(push buffer_index nil))
 			(file-stream filepath))
 		(last-line)
 		(clear (get :undo_stack this) (get :redo_stack this))
 		(set this :buffer buffer :buffer_colored buffer_colored
-			:buffer_states buffer_states :max_width max_width
-			:cursor_x 0 :cursor_y 0 :dirty t :modified nil)
+			:buffer_states buffer_states :buffer_index buffer_index
+			:max_width max_width :cursor_x 0 :cursor_y 0 :dirty t :modified nil)
 		this)
 
 	(defmethod :file_save (this filepath)
@@ -447,14 +456,16 @@
 
 	(defmethod :find (this pattern)
 		; (. buffer :find pattern) -> ([(x y)] ...)
-		(defq out (list) lps (get :lps this))
+		(defq out (list) lps (get :lps this) buffer_index (get :buffer_index this))
 		(unless (eql (get :lps_pattern this) pattern)
-			(set this :lps (setq lps (substr-lps pattern)) :lps_pattern pattern))
+			(set this :lps (setq lps (substr-lps pattern)) :lps_pattern pattern)
+			(each (lambda (__) (elem-set _ buffer_index nil)) buffer_index))
 		(each! 0 (bind '(w h) (. this :get_size)) (lambda (line)
 				(when (> (length line) 0)
-					(task-sleep 0)
-					(defq idx _)
-					(each (# (push out (list %0 idx))) (substr pattern line lps))))
+					(unless (elem _ buffer_index)
+						(task-sleep 0)
+						(elem-set _ buffer_index (substr pattern line lps)))
+					(each (# (push out (list %0 idx))) (elem (defq idx _) buffer_index))))
 			(list (get :buffer this))) out)
 	)
 

@@ -4,11 +4,11 @@
 	(defq lps (cap (length pattern) (list 0)) i 0 j 1)
 	(times (dec (length pattern)) (push lps -1))
 	(while (< j (length lps))
-		(cond 
+		(cond
 			((eql (elem i pattern) (elem j pattern))
 				(elem-set j lps (inc i))
 				(setq i (inc i) j (inc j)))
-			(t	(cond
+			(t  (cond
 					((= (elem i lps) 0)
 						(elem-set j lps 0)
 						(setq j (inc j)))
@@ -21,7 +21,7 @@
 	(while (< k (length text))
 		(if (defq match (eql (elem j pattern) (elem k text)))
 			(setq j (inc j) k (inc k)))
-		(cond 
+		(cond
 			((= j (length pattern))
 				(push out (- k j))
 				(setq j 0))
@@ -29,4 +29,4 @@
 				(cond
 					((/= j 0)
 						(setq j (elem (dec j) lps)))
-					(t	(setq k (inc k))))))) out)
+					(t  (setq k (inc k))))))) out)

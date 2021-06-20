@@ -29,7 +29,7 @@
 		(undoable
 			(bind '(w h) (. buffer :get_size))
 			(defq eof_gap (- h *cursor_y*) old_eof_gap +max_int)
-			(while (< eof_gap old_eof_gap)
+			(while (and (> eof_gap 0) (< eof_gap old_eof_gap))
 				(each (lambda ((action &rest params))
 						(apply action params)
 						(bind '(x y) (. buffer :get_cursor))
