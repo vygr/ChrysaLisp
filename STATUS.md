@@ -11,6 +11,11 @@ owner of each top level GUI view and if they fail to validate they are removed.
 This means that any process that opens a Window and then throws an uncaught
 exception will have that Window removed and cleaned up.
 
+Much faster search index creation on Buffer class.
+
+Added Macro playback till EOF action to Editor. Demo screen recording in
+`Macro_Playback_Till_EOF.mp4`
+
 ------
 
 Make system now uses `(abs-path)`.
