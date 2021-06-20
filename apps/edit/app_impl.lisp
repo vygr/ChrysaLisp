@@ -1,4 +1,5 @@
 ;(import "lib/debug/frames.inc")
+;(import "lib/debug/profile.inc")
 
 (import "sys/lisp.inc")
 (import "class/lisp.inc")
@@ -23,7 +24,7 @@
 	(enum prev next scratch close_buffer save_all save new)
 	(enum find_down find_up whole_words)
 	(enum replace replace_all)
-	(enum macro_playback macro_record))
+	(enum macro_playback macro_to_eof macro_record))
 
 (enums +select 0
 	(enum main tip))
@@ -50,7 +51,7 @@
 				0xea36 0xea33 0xea27 0xea28
 				0xe9c4) +event_undo))
 		(ui-tool-bar macro_toolbar (:color (const *env_toolbar2_col*))
-			(ui-buttons (0xe95e 0xe95f) +event_macro_playback))
+			(ui-buttons (0xe95e 0xe95a 0xe95f) +event_macro_playback))
 		(ui-backdrop _ (:color (const *env_toolbar_col*))))
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-tool-bar buffer_toolbar (:color (get :color macro_toolbar))
@@ -332,7 +333,7 @@
 		'("find down" "find up" "whole words"))
 	(each (# (def %0 :tip_text %1))
 		(. macro_toolbar :children)
-		'("playback" "record"))
+		'("playback" "playback eof" "record"))
 	(each (# (def %0 :tip_text %1))
 		(. replace_toolbar :children)
 		'("replace" "replace all")))

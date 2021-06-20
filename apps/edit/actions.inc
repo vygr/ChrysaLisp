@@ -21,6 +21,7 @@
 event_map (xmap-kv
 	+event_macro_record action-macro-record
 	+event_macro_playback action-macro-playback
+	+event_macro_to_eof action-macro-to-eof
 	+event_comment action-comment-block
 	+event_close action-close
 	+event_min action-minimise
