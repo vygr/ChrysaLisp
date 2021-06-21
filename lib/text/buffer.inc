@@ -460,18 +460,17 @@
 		; (. buffer :find pattern) -> buffer_index
 		(defq lps (get :lps this) buffer_index (get :buffer_index this))
 		(unless (eql (get :lps_pattern this) pattern)
-			(set this :lps (setq lps (substr-lps pattern))
-				:lps_pattern pattern :dirty_index t)
+			(set this :lps (setq lps (substr-lps pattern)) :lps_pattern pattern :dirty_index t)
 			(each (lambda (__) (elem-set _ buffer_index nil)) buffer_index))
 		(when (get :dirty_index this)
 			(set this :dirty_index nil)
-			(each! 0 (elem 1 (. this :get_size)) (lambda (line index)
+			(each (lambda (line index)
 					(if (> (length line) 0)
 						(unless index
 							(task-sleep 0)
 							(elem-set _ buffer_index (setq index (substr pattern line lps))))
 						(elem-set _ buffer_index '())))
-				(list (get :buffer this) buffer_index)))
+				(get :buffer this) buffer_index))
 		buffer_index)
 	)
 

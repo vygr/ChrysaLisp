@@ -16,6 +16,9 @@ Much faster search index creation on Buffer class.
 Added Macro playback till EOF action to Editor. Demo screen recording in
 `Macro_Playback_Till_EOF.mp4`
 
+:find method on Buffer class now returns the buffer index list directly. Miuch
+faster.
+
 ------
 
 Make system now uses `(abs-path)`.

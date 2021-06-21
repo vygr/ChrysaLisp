@@ -10,7 +10,7 @@
 	(cond
 		(*whole_words*
 			(defq pattern_len (length pattern) out (cap (length found) (list)))
-			(each! 0 (elem 1 (. *current_buffer* :get_size)) (lambda (line xs)
+			(each (lambda (line xs)
 					(defq out_xs (list))
 					(each (lambda (x)
 						(defq x1 (+ x pattern_len))
@@ -22,14 +22,14 @@
 									(not-whole-word-char? (elem x1 line))))
 							(push out_xs x))) xs)
 					(push out out_xs))
-				(list (. *current_buffer* :get_text_lines) found))
+				(. *current_buffer* :get_text_lines) found)
 			  out)
 		(found)))
 
 (defun action-find-down ()
 	(unless (eql (defq pattern (get :clear_text *find_text*)) "")
 		(if (> (length (defq found (filter-whole-words (. *current_buffer* :find pattern) pattern))) 0)
-			(when (defq next (some! *cursor_y* (elem 1 (. *current_buffer* :get_size)) nil (lambda (xs)
+			(when (defq next (some! *cursor_y* -1 nil (lambda (xs)
 					(defq y _)
 					(some (lambda (x) (cond
 						((> y *cursor_y*) (list x y))
@@ -76,9 +76,9 @@
 				(eql (defq replace (get :clear_text *replace_text*)) pattern))
 		(when (> (length (defq found (filter-whole-words (. *current_buffer* :find pattern) pattern))) 0)
 			(undoable
-				(each! 0 (elem 1 (. *current_buffer* :get_size)) (lambda (xs)
+				(each-rev (lambda (xs)
 					(defq y _)
 					(each-rev (lambda (x)
 						(.-> buffer (:set_cursor x y) (:cut (+ x (length pattern)) y))
-						(unless (eql replace "") (. buffer :insert replace))) xs)) (list found)))
+						(unless (eql replace "") (. buffer :insert replace))) xs)) found))
 			(clear-selection) (refresh))))
