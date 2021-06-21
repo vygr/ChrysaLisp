@@ -183,8 +183,8 @@
 		(set this :modified nil)
 		this)
 
-	(defmethod :vdu_load (this vdu scroll_x scroll_y)
-		; (. buffer :vdu_load vdu scroll_x scroll_y) -> buffer
+	(defmethod :colorise (this)
+		; (. buffer :colorise) -> buffer
 		(when (get :dirty_vdu this)
 			(defq syntax (get :syntax this)
 				buffer (get :buffer this)
@@ -204,8 +204,11 @@
 								(list state (setq state (. syntax :get_state)))))))
 				buffer buffer_colored buffer_states)
 			(set this :max_width max_width :dirty_vdu nil))
-		(. vdu :load
-			(get :buffer_colored this)
+		this)
+
+	(defmethod :vdu_load (this vdu scroll_x scroll_y)
+		; (. buffer :vdu_load vdu scroll_x scroll_y) -> buffer
+		(. vdu :load (get :buffer_colored (. this :colorise))
 			scroll_x scroll_y (get :cursor_x this) (get :cursor_y this))
 		this)
 
@@ -394,7 +397,7 @@
 
 	(defmethod :left_bracket (this)
 		; (. buffer :left_bracket) -> (x y) | (nil nil)
-		(bind '(x y) (. this :get_cursor))
+		(bind '(x y) (. (. this :colorise) :get_cursor))
 		(bind '(x y) (. this :constrain x y))
 		(bind '(w h) (. this :get_size))
 		(defq buffer (get :buffer this) buffer_colored (get :buffer_colored this)
@@ -426,7 +429,7 @@
 
 	(defmethod :right_bracket (this)
 		; (. buffer :right_bracket) -> (x y) | (nil nil)
-		(bind '(x y) (. this :get_cursor))
+		(bind '(x y) (. (. this :colorise) :get_cursor))
 		(bind '(x y) (. this :constrain x y))
 		(bind '(w h) (. this :get_size))
 		(defq buffer (get :buffer this) buffer_colored (get :buffer_colored this)

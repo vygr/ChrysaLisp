@@ -54,6 +54,12 @@
 (. buffer :clear_undo) -> buffer
 ```
 
+### buffer :colorise
+
+```code
+(. buffer :colorise) -> buffer
+```
+
 ### buffer :constrain
 
 ```code
