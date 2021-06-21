@@ -99,7 +99,7 @@
 ### buffer :find
 
 ```code
-(. buffer :find pattern) -> ([(x y)] ...)
+(. buffer :find pattern) -> buffer_index
 ```
 
 ### buffer :get_cursor

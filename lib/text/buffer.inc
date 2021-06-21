@@ -64,7 +64,7 @@
 		(last-line)
 		(set this :buffer buffer :buffer_colored buffer_colored
 			:buffer_states buffer_states :buffer_index buffer_index
-			:dirty t :modified t)
+			:dirty_vdu t :dirty_index t :modified t)
 		(. this :set_cursor x y)))
 
 (defmacro get-selection ()
@@ -87,7 +87,8 @@
 	; (Buffer [mode syntax]) -> buffer
 	(def this :buffer (list "") :buffer_colored (list "")
 		:buffer_states (list '(nil nil)) :buffer_index (list nil)
-		:dirty nil :syntax (opt syntax (Syntax)) :undo_stack (list) :redo_stack (list)
+		:dirty_vdu nil :dirty_index nil
+		:syntax (opt syntax (Syntax)) :undo_stack (list) :redo_stack (list)
 		:cursor_x 0 :cursor_y 0 :max_width 0 :tab_width 4 :wrap_width 80
 		:mode mode :lps nil :lps_pattern nil :next_mark -1 :modified nil)
 
@@ -167,7 +168,8 @@
 		(clear (get :undo_stack this) (get :redo_stack this))
 		(set this :buffer buffer :buffer_colored buffer_colored
 			:buffer_states buffer_states :buffer_index buffer_index
-			:max_width max_width :cursor_x 0 :cursor_y 0 :dirty t :modified nil)
+			:max_width max_width :cursor_x 0 :cursor_y 0
+			:dirty_vdu t :dirty_index t :modified nil)
 		this)
 
 	(defmethod :file_save (this filepath)
@@ -183,7 +185,7 @@
 
 	(defmethod :vdu_load (this vdu scroll_x scroll_y)
 		; (. buffer :vdu_load vdu scroll_x scroll_y) -> buffer
-		(when (get :dirty this)
+		(when (get :dirty_vdu this)
 			(defq syntax (get :syntax this)
 				buffer (get :buffer this)
 				buffer_colored (get :buffer_colored this)
@@ -201,7 +203,7 @@
 							(elem-set _ buffer_states
 								(list state (setq state (. syntax :get_state)))))))
 				buffer buffer_colored buffer_states)
-			(set this :max_width max_width :dirty nil))
+			(set this :max_width max_width :dirty_vdu nil))
 		(. vdu :load
 			(get :buffer_colored this)
 			scroll_x scroll_y (get :cursor_x this) (get :cursor_y this))
@@ -455,20 +457,22 @@
 		(if (= c 1) (list x y) '(nil nil)))
 
 	(defmethod :find (this pattern)
-		; (. buffer :find pattern) -> ([(y (x1 ...))] ...)
-		(defq out (cap (length (get :buffer_index this)) (list))
-			lps (get :lps this) buffer_index (get :buffer_index this))
+		; (. buffer :find pattern) -> buffer_index
+		(defq lps (get :lps this) buffer_index (get :buffer_index this))
 		(unless (eql (get :lps_pattern this) pattern)
-			(set this :lps (setq lps (substr-lps pattern)) :lps_pattern pattern)
+			(set this :lps (setq lps (substr-lps pattern))
+				:lps_pattern pattern :dirty_index t)
 			(each (lambda (__) (elem-set _ buffer_index nil)) buffer_index))
-		(each! 0 (bind '(w h) (. this :get_size)) (lambda (line index)
-				(when (> (length line) 0)
-					(unless index
-						(task-sleep 0)
-						(elem-set _ buffer_index (setq index (substr pattern line lps))))
-					(if (> (length index) 0)
-						(push out (list _ index)))))
-			(list (get :buffer this) buffer_index)) out)
+		(when (get :dirty_index this)
+			(set this :dirty_index nil)
+			(each! 0 (elem 1 (. this :get_size)) (lambda (line index)
+					(if (> (length line) 0)
+						(unless index
+							(task-sleep 0)
+							(elem-set _ buffer_index (setq index (substr pattern line lps))))
+						(elem-set _ buffer_index '())))
+				(list (get :buffer this) buffer_index)))
+		buffer_index)
 	)
 
 ;module
