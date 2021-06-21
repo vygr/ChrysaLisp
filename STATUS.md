@@ -19,6 +19,8 @@ Added Macro playback till EOF action to Editor. Demo screen recording in
 :find method on Buffer class now returns the buffer index list directly. Miuch
 faster.
 
+More robust exit conditions on `(action-macro-to-eof)` function.
+
 ------
 
 Make system now uses `(abs-path)`.

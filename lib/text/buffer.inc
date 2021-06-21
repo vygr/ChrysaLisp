@@ -397,7 +397,7 @@
 
 	(defmethod :left_bracket (this)
 		; (. buffer :left_bracket) -> (x y) | (nil nil)
-		(bind '(x y) (. (. this :colorise) :get_cursor))
+		(bind '(x y) (.-> this :colorise :get_cursor))
 		(bind '(x y) (. this :constrain x y))
 		(bind '(w h) (. this :get_size))
 		(defq buffer (get :buffer this) buffer_colored (get :buffer_colored this)
@@ -429,7 +429,7 @@
 
 	(defmethod :right_bracket (this)
 		; (. buffer :right_bracket) -> (x y) | (nil nil)
-		(bind '(x y) (. (. this :colorise) :get_cursor))
+		(bind '(x y) (.-> this :colorise :get_cursor))
 		(bind '(x y) (. this :constrain x y))
 		(bind '(w h) (. this :get_size))
 		(defq buffer (get :buffer this) buffer_colored (get :buffer_colored this)
