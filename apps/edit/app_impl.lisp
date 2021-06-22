@@ -33,7 +33,7 @@
 	+vdu_line_width 5 *current_file* nil *selected_file_node* nil
 	*selected_open_node* nil *meta_map* (xmap) *underlay* (list) *open_files* (list)
 	*syntax* (Syntax) *whole_words* nil *macro_record* nil *macro_actions* (list)
-	+min_word_size 3 +max_matches 20 dictionary (Dictionary 1021)
+	+min_word_size 3 +max_matches 20 dictionary (Dictionary 1021) +margin 2
 	match_window nil match_flow nil match_index -1 select (alloc-select +select_size)
 	+selected (apply nums (map (lambda (_)
 		(const (<< (canvas-from-argb32 +argb_grey6 15) 48))) (str-alloc 8192)))
@@ -199,10 +199,10 @@
 		(bind '(x y ax ay sx sy ss buffer) (. *meta_map* :find *current_file*))
 		(bind '(x y) (. buffer :get_cursor))
 		(bind '(w h) (. *vdu* :vdu_size))
-		(if (< x sx) (setq sx x))
-		(if (< y sy) (setq sy y))
-		(if (>= x (+ sx w)) (setq sx (- x w -1)))
-		(if (>= y (+ sy h)) (setq sy (- y h -1)))
+		(if (< (- x +margin) sx) (setq sx (- x +margin)))
+		(if (< (- y +margin) sy) (setq sy (- y +margin)))
+		(if (>= (+ x +margin) (+ sx w)) (setq sx (- (+ x +margin) w -1)))
+		(if (>= (+ y +margin) (+ sy h)) (setq sy (- (+ y +margin) h -1)))
 		(. *meta_map* :insert *current_file* (list x y ax ay sx sy ss buffer))
 		(set-sliders) (load-display)))
 

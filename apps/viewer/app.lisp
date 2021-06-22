@@ -16,7 +16,7 @@
 (defq +vdu_min_width 32 +vdu_min_height 16
 	+vdu_max_width 100 +vdu_max_height 48
 	*current_buffer* (Buffer) *meta_map* (xmap 31) *underlay* (list)
-	*current_file* nil *selected_file_node* nil
+	*current_file* nil *selected_file_node* nil +margin 2
 	+selected (apply nums (map (lambda (_)
 		(const (<< (canvas-from-argb32 +argb_grey6 15) 48))) (str-alloc 8192)))
 	+not_selected (nums-sub +selected +selected)
@@ -138,10 +138,10 @@
 	(bind '(x y ax ay sx sy ss) (. *meta_map* :find *current_file*))
 	(bind '(x y) (. *current_buffer* :get_cursor))
 	(bind '(w h) (. *vdu* :vdu_size))
-	(if (< x sx) (setq sx x))
-	(if (< y sy) (setq sy y))
-	(if (>= x (+ sx w)) (setq sx (- x w -1)))
-	(if (>= y (+ sy h)) (setq sy (- y h -1)))
+	(if (< (- x +margin) sx) (setq sx (- x +margin)))
+	(if (< (- y +margin) sy) (setq sy (- y +margin)))
+	(if (>= (+ x +margin) (+ sx w)) (setq sx (- (+ x +margin) w -1)))
+	(if (>= (+ y +margin) (+ sy h)) (setq sy (- (+ y +margin) h -1)))
 	(. *meta_map* :insert *current_file* (list x y ax ay sx sy ss))
 	(set-sliders) (load-display))
 

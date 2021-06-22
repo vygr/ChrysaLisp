@@ -16,7 +16,7 @@ Much faster search index creation on Buffer class.
 Added Macro playback till EOF action to Editor. Demo screen recording in
 `Macro_Playback_Till_EOF.mp4`
 
-:find method on Buffer class now returns the buffer index list directly. Miuch
+:find method on Buffer class now returns the buffer index list directly. Much
 faster.
 
 More robust exit conditions on `(action-macro-to-eof)` function.
