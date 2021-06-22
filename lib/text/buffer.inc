@@ -64,7 +64,7 @@
 		(last-line)
 		(set this :buffer buffer :buffer_colored buffer_colored
 			:buffer_states buffer_states :buffer_index buffer_index
-			:dirty_vdu t :dirty_index t :modified t)
+			:dirty_colored t :dirty_index t :modified t)
 		(. this :set_cursor x y)))
 
 (defmacro get-selection ()
@@ -87,7 +87,7 @@
 	; (Buffer [mode syntax]) -> buffer
 	(def this :buffer (list "") :buffer_colored (list "")
 		:buffer_states (list '(nil nil)) :buffer_index (list nil)
-		:dirty_vdu nil :dirty_index nil
+		:dirty_colored nil :dirty_index nil
 		:syntax (opt syntax (Syntax)) :undo_stack (list) :redo_stack (list)
 		:cursor_x 0 :cursor_y 0 :max_width 0 :tab_width 4 :wrap_width 80
 		:mode mode :lps nil :lps_pattern nil :next_mark -1 :modified nil)
@@ -169,7 +169,7 @@
 		(set this :buffer buffer :buffer_colored buffer_colored
 			:buffer_states buffer_states :buffer_index buffer_index
 			:max_width max_width :cursor_x 0 :cursor_y 0
-			:dirty_vdu t :dirty_index t :modified nil)
+			:dirty_colored t :dirty_index t :modified nil)
 		this)
 
 	(defmethod :file_save (this filepath)
@@ -185,7 +185,7 @@
 
 	(defmethod :colorise (this)
 		; (. buffer :colorise) -> buffer
-		(when (get :dirty_vdu this)
+		(when (get :dirty_colored this)
 			(defq syntax (get :syntax this)
 				buffer (get :buffer this)
 				buffer_colored (get :buffer_colored this)
@@ -203,7 +203,7 @@
 							(elem-set _ buffer_states
 								(list state (setq state (. syntax :get_state)))))))
 				buffer buffer_colored buffer_states)
-			(set this :max_width max_width :dirty_vdu nil))
+			(set this :max_width max_width :dirty_colored nil))
 		this)
 
 	(defmethod :vdu_load (this vdu scroll_x scroll_y)
@@ -471,7 +471,7 @@
 					(if (> (length line) 0)
 						(unless index
 							(task-sleep 0)
-							(elem-set _ buffer_index (setq index (substr pattern line lps))))
+							(elem-set _ buffer_index (substr pattern line lps)))
 						(elem-set _ buffer_index '())))
 				(get :buffer this) buffer_index))
 		buffer_index)
