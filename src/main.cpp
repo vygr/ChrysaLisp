@@ -612,6 +612,7 @@ static void (*host_gui_funcs[]) = {
 	(void*)SDL_CreateTexture,
 	(void*)SDL_SetRenderTarget,
 	(void*)SDL_RenderClear,
+	(void*)SDL_ShowCursor,
 };
 #endif
 

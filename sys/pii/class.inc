@@ -50,7 +50,8 @@
 	(dec-method :sdl_compose_custom_blend_mode nil :virtual (abi-args 6) (r0))
 	(dec-method :sdl_create_texture nil :virtual (abi-args 5) (r0))
 	(dec-method :sdl_set_render_target nil :virtual (abi-args 2) (r0))
-	(dec-method :sdl_render_clear nil :virtual (abi-args 1) (r0)))
+	(dec-method :sdl_render_clear nil :virtual (abi-args 1) (r0))
+	(dec-method :sdl_show_cursor nil :virtual (abi-args 1) (r0)))
 
 (defun abi-call-table (_1 _2 _5 &optional _3 _4 _6)
 	;_1 = class name
