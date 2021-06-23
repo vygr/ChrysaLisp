@@ -36,7 +36,10 @@
 		(when (defq texture (getf this +canvas_texture 0))
 			(bind '(tid tw th) (texture-metrics texture))
 			(bind '(w h) (. this :get_size))
-			(. this :ctx_blit tid +argb_white (>>> (- w tw) 1) (>>> (- h th) 1) tw th))
+			(defq ox (def? :offset_x this) oy (def? :offset_y this))
+			(unless ox (setq ox (>>> (- w tw) 1)))
+			(unless oy (setq oy (>>> (- h th) 1)))
+			(. this :ctx_blit tid +argb_white ox oy tw th))
 		this)
 
 	(defmethod :save (this file format)

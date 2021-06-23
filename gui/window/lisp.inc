@@ -6,7 +6,7 @@
 
 (defclass Window () (View)
 	; (Window) -> window
-	(def this :child nil :last_buttons 0 :is_window t)
+	(def this :child nil :last_buttons 0 :is_window t :drag_mode 0)
 
 	(defmethod :draw (this)
 		; (. window :draw) -> window
@@ -53,11 +53,10 @@
 					(.-> this :clr_opaque (:add_opaque (+ border shadow) (+ border shadow)
 						(- w (* 2 (+ border shadow))) (- h (* 2 (+ border shadow)))))))))
 
-	(defmethod :mouse_down (this event)
-		; (. window :mouse_down event) -> window
+	(defmethod :drag_mode (this rx ry)
+		; (. window :drag_mode rx ry) -> (drag_mode drag_offx drag_offy)
 		(bind '(w h) (. this :get_size))
-		(defq rx (getf event +ev_msg_mouse_rx) ry (getf event +ev_msg_mouse_ry)
-			border (get :border this) shadow (get :shadow this)
+		(defq border (get :border this) shadow (get :shadow this)
 			drag_mode 0 drag_offx 0 drag_offy 0)
 		(if (< rx (+ border shadow))
 			(setq drag_mode (+ drag_mode 1) drag_offx rx))
@@ -67,6 +66,12 @@
 			(setq drag_mode (+ drag_mode 4) drag_offx (- rx w)))
 		(if (>= ry (- h border shadow))
 			(setq drag_mode (+ drag_mode 8) drag_offy (- ry h)))
+		(list drag_mode drag_offx drag_offy))
+
+	(defmethod :mouse_down (this event)
+		; (. window :mouse_down event) -> window
+		(bind '(drag_mode drag_offx drag_offy)
+			(. this :drag_mode (getf event +ev_msg_mouse_rx) (getf event +ev_msg_mouse_ry)))
 		(def this :drag_mode drag_mode :drag_offx drag_offx :drag_offy drag_offy)
 		this)
 

@@ -2387,6 +2387,8 @@ Super Class: nil
 
 ### host_gui :sdl_set_texture_color_mod -> nil
 
+### host_gui :sdl_show_cursor -> nil
+
 ## hset
 
 Super Class: obj

@@ -14,7 +14,7 @@
 	(int ctx_x ctx_y x y w h))
 
 (bits +view_flag 0
-	(bit solid opaque dirty_all at_back hiden))
+	(bit solid opaque dirty_all hiden at_back at_front))
 
 (defun view-fit (x y w h)
 	; (view-fit x y w h) -> (x y w h)

@@ -49,6 +49,9 @@
 				SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE}
 			{statics->statics_gui_window})
 
+		;hide host cursor
+		(host-gui-call 'host_gui :sdl_show_cursor {0})
+
 		;create renderer and back buffer
 		(cond
 			((> num_old_regions 0)

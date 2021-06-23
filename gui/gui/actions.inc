@@ -46,7 +46,8 @@
 			(+ev_msg_mouse_rx (- *mouse_x* (getf view +view_ctx_x 0)))
 			(+ev_msg_mouse_ry (- *mouse_y* (getf view +view_ctx_y 0)))
 			(+ev_msg_mouse_buttons *mouse_buttons*)
-			(+ev_msg_mouse_count 0)))))
+			(+ev_msg_mouse_count 0))))
+	(mouse-type view (- *mouse_x* (getf view +view_ctx_x 0)) (- *mouse_y* (getf view +view_ctx_y 0))))
 
 (defun action-mouse-button-down ()
 	(setq *mouse_x* (getf msg +sdl_mouse_button_event_x)
@@ -78,7 +79,9 @@
 			(+ev_msg_mouse_rx (- *mouse_x* (getf view +view_ctx_x 0)))
 			(+ev_msg_mouse_ry (- *mouse_y* (getf view +view_ctx_y 0)))
 			(+ev_msg_mouse_buttons *mouse_buttons*)
-			(+ev_msg_mouse_count (getf msg +sdl_mouse_button_event_clicks))))))
+			(+ev_msg_mouse_count (getf msg +sdl_mouse_button_event_clicks)))))
+	(bind '(view _ _) (. *screen* :hit_tree *mouse_x* *mouse_y*))
+	(mouse-type view (- *mouse_x* (getf view +view_ctx_x 0)) (- *mouse_y* (getf view +view_ctx_y 0))))
 
 (defun action-key-down ()
 	(defq key_code (getf msg +sdl_keyboard_event_scancode)

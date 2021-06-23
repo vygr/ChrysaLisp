@@ -984,6 +984,12 @@
 (. window :add_child child) -> window
 ```
 
+### window :drag_mode
+
+```code
+(. window :drag_mode rx ry) -> (drag_mode drag_offx drag_offy)
+```
+
 ### window :draw
 
 ```code

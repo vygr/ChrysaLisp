@@ -11,13 +11,46 @@
 (import "./actions.inc")
 
 (enums +select 0
-	(enum main timer))
+	(enum main timer mouse))
 
 ;profiling callbacks on the GUI thread from :draw method !!!
 (defq *profile_meta_map* (env -1) *profile_return_vals* (list)
+	*old_mouse_x* -1 *old_mouse_y* -1 *mouse_type* 0
 	*mouse_x* 0 *mouse_y* 0 *mouse_buttons* 0 *mouse_id* 0
 	select (alloc-select +select_size)
 	rate (/ 1000000 60) *running* t)
+
+(defun mouse-type (view rx ry)
+	(defq mouse_type (case (pop (. view :type_of))
+		(:Title 13)
+		((:Vdu :Textfield) 2)
+		(:Slider 12)
+		(:Window
+			(if (= *mouse_buttons* 0)
+				(bind '(drag_mode _ _) (. view :drag_mode rx ry))
+				(defq drag_mode (get :drag_mode view)))
+			(cond
+				((= drag_mode 1) 10)
+				((= drag_mode 2) 8)
+				((= drag_mode 3) 5)
+				((= drag_mode 4) 10)
+				((= drag_mode 6) 4)
+				((= drag_mode 8) 8)
+				((= drag_mode 9) 4)
+				((= drag_mode 12) 5)
+				(0)))
+		(t 0)))
+	(when (or (/= *mouse_x* *old_mouse_x*)
+			(/= *mouse_y* *old_mouse_y*)
+			(/= *mouse_type* mouse_type))
+		(setq *old_mouse_x* *mouse_x* *old_mouse_y* *mouse_y* *mouse_type* mouse_type)
+		(bind '(w h) (. *mouse* :pref_size))
+		(def *mouse* :offset_x 0 :offset_y (* mouse_type w -1))
+		(bind '(hx hy) (cond
+			((= mouse_type 0) '(0 0))
+			((= mouse_type 12) '(6 0))
+			('(8 8))))
+		(. *mouse* :change_dirty (- *mouse_x* hx) (- *mouse_y* hy) w w)))
 
 (defun main ()
 	;declare service
@@ -26,6 +59,13 @@
 	(def (defq *screen* (Backdrop)) :style :grid :color +argb_grey2 :ink_color +argb_grey1)
 	(.-> *screen* (:change 0 0 1280 960) :dirty_all)
 	(gui-init *screen*)
+	(gui-update 0 0 0)
+	;init mouse widget
+	(defq *mouse* (Canvas-from-file "apps/images/mice.cpm" 0))
+	(setf *mouse* +view_owner_id (elem +select_mouse select) 0)
+	(. *mouse* :set_flags +view_flag_at_front (const (+ +view_flag_solid +view_flag_at_front)))
+	(. *screen* :add_front *mouse*)
+	(mouse-type *screen* 0 0)
 	;fire up the login app and clipboard service
 	(open-child "apps/login/app.lisp" +kn_call_open)
 	(open-child "apps/clipboard/app.lisp" +kn_call_open)
@@ -43,8 +83,8 @@
 					((= cmd 1)
 						;add view at front
 						(setf view +view_owner_id owner 0)
-						(. *screen* :add_front view)
-						(. view :set_flags +view_flag_dirty_all +view_flag_dirty_all))
+						(. *screen* :add_back view)
+						(. view :to_front))
 					((= cmd 2)
 						;add view at back
 						(setf view +view_owner_id owner 0)
@@ -52,6 +92,9 @@
 						(. view :set_flags +view_flag_dirty_all +view_flag_dirty_all)))
 				(mail-send reply msg)
 				(undef (env) 'msg 'view 'owner 'reply))
+			((= idx +select_mouse)
+				;mouse mailbox
+				)
 			((= idx +select_timer)
 				;timer event
 				(mail-timeout (elem +select_timer select) rate 0)
