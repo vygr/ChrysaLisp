@@ -21,6 +21,8 @@ faster.
 
 More robust exit conditions on `(action-macro-to-eof)` function.
 
+GUI now runs its own native mouse cursor.
+
 ------
 
 Make system now uses `(abs-path)`.

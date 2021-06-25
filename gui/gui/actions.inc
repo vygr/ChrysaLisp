@@ -29,7 +29,8 @@
 			(+ev_msg_target_id *mouse_id*)
 			(+ev_msg_wheel_x (getf msg +sdl_mouse_wheel_event_x))
 			(+ev_msg_wheel_y (getf msg +sdl_mouse_wheel_event_y))
-			(+ev_msg_wheel_direction (getf msg +sdl_mouse_wheel_event_direction))))))
+			(+ev_msg_wheel_direction (getf msg +sdl_mouse_wheel_event_direction)))))
+	(mouse-type view (- *mouse_x* (getf view +view_ctx_x 0)) (- *mouse_y* (getf view +view_ctx_y 0))))
 
 (defun action-mouse-motion ()
 	(setq *mouse_x* (getf msg +sdl_mouse_motion_event_x)
