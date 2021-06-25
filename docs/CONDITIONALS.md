@@ -94,7 +94,7 @@ So let's see a few examples:
 		(print "b is 0"))
 	((= b 1)
 		(print "b is 1"))
-	(t	(print "no test is none nil!")))
+	(t  (print "no test is none nil!")))
 ```
 
 Here the tests using symbol `a` have precedence over those with symbol `b` and
@@ -123,16 +123,15 @@ of the symbols used at the entry to the `(cond ...)` !
 	((= id +event_max)
 		;maximize app
 		)
-	(t	;ui event for window....
+	(t  ;ui event for window....
 		(. mywindow :event msg)))
 ```
 
 ### case
 
-`(case key (s0 body) ((s1 s2) body) ... (t ...))` is a variant of cond that
-acts like a fast switch. The `key` form is evaluated and must evaluate to a
-symbol or key symbol. A jump is then made to the matching body clause, or if no
-match, the optional `t` clause.
+`(case key (k0 body) ((k1 k2) body) ... (t ...))` is a variant of cond that
+acts like a fast switch. The `key` form is evaluated and a jump is then made to
+the matching body clause, or if no match, the optional `t` clause.
 
 ```vdu
 (case state
@@ -150,7 +149,7 @@ match, the optional `t` clause.
 			((eql (elem 0 token) "-")
 				;is a negative number
 				(push col_list (get :ink_numbers this)))
-			(t	;default text color)
+			(t  ;default text color)
 				(push col_list (get :ink_text this)))))
 	((:string1 :string2)
 		(push col_list (get :ink_strings this)))

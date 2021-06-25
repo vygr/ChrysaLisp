@@ -260,8 +260,6 @@
 	; (case form [(key body)] ...)
 	(if (defq table (reduce-rev (lambda (table (keys &rest clause_body))
 			(unless (list? keys) (setq keys (list keys)))
-			(unless (some! 0 -1 t (lambda (clause) (find :sym (type-of clause))) (list keys))
-				(throw "Key not symbol !" keys))
 			(each! 0 -1 (lambda (key)
 					(push (elem 0 table) key)
 					(push (elem 1 table) (prebind (macroexpand

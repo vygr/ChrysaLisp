@@ -23,6 +23,8 @@ More robust exit conditions on `(action-macro-to-eof)` function.
 
 GUI now runs its own native mouse cursor.
 
+More flexible `(case)`. No longer restricted to symbol only keys.
+
 ------
 
 Make system now uses `(abs-path)`.
