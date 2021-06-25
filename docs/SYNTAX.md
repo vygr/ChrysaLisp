@@ -1605,7 +1605,7 @@
 ### case
 
 ```code
-(case form [(key body)] ...)
+(case form [(key|(key ...) body)] ...)
 ```
 
 ### cat
