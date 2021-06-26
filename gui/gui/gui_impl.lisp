@@ -26,12 +26,10 @@
 		((:Vdu :Textfield) 2)
 		(:Slider 12)
 		(:Window
-			(if (defq i (find
-					(if (= *mouse_buttons* 0)
-						(elem 0 (. view :drag_mode rx ry))
-						(get :drag_mode view))
-					'(1 2 3 4 6 8 9 12)))
-				(elem i '(10 8 5 10 4 8 4 5)) 0))
+			(case (if (= *mouse_buttons* 0)
+					(elem 0 (. view :drag_mode rx ry))
+					(get :drag_mode view))
+				(1 10) (2 8) (3 5) (4 10) (6 4) (8 8) (9 4) (12 5) (t 0)))
 		(t 0)))
 	(when (or (/= *mouse_x* *old_mouse_x*)
 			(/= *mouse_y* *old_mouse_y*)
@@ -39,10 +37,7 @@
 		(setq *old_mouse_x* *mouse_x* *old_mouse_y* *mouse_y* *mouse_type* mouse_type)
 		(bind '(w h) (. *mouse* :pref_size))
 		(def *mouse* :offset_x 0 :offset_y (* mouse_type w -1))
-		(bind '(hx hy) (cond
-			((= mouse_type 0) '(0 0))
-			((= mouse_type 12) '(6 0))
-			('(8 8))))
+		(bind '(hx hy) (case mouse_type (0 '(0 0)) (12 '(6 0)) (t '(8 8))))
 		(. *mouse* :change_dirty (- *mouse_x* hx) (- *mouse_y* hy) w w)))
 
 (defun main ()

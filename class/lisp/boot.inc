@@ -258,20 +258,32 @@
 
 (defmacro case (_form &rest _body)
 	; (case form [(key|(key ...) body)] ...)
-	(if (defq _table (reduce-rev (lambda (_table (_keys &rest _clause_body))
-					(unless (list? _keys) (setq _keys (list _keys)))
-					(setq _clause_body (prebind (macroexpand
-						(if (= (length _clause_body) 1)
-							(elem 0 _clause_body)
-							(cat '(progn) _clause_body)))))
-					(each! 0 -1 (lambda (_key)
-						(push (elem 0 _table) _key)
-						(push (elem 1 _table) _clause_body)) (list _keys)) _table)
-				_body (list (list) (list)))
-			_other (or (find-rev t (elem 0 _table)) (find-rev :otherwise (elem 0 _table))))
-		`(eval (elem (or (find-rev ,_form ',(elem 0 _table)) ,_other) ',(elem 1 _table)))
-		`(if (defq ,(defq _i (gensym)) (find-rev ,_form ',(elem 0 _table)))
-			(eval (elem ,_i ',(elem 1 _table))))))
+	(defq _default_key nil _default_clause nil _atoms t
+		_map (reduce (lambda (_map (_keys &rest _clause_body))
+			(unless (list? _keys) (setq _keys (list _keys)))
+			(setq _clause_body (prebind (macroexpand
+				(if (= (length _clause_body) 1)
+					(elem 0 _clause_body)
+					(cat '(progn) _clause_body)))))
+			(or (eql :num (defq _clause_type (pop (type-of _clause_body))))
+				(eql :str _clause_type) (setq _atoms nil))
+			(each! 0 -1 (lambda (_key) (cond
+				((eql _key t)
+					(setq _default_key t _default_clause _clause_body))
+				(t	(push (elem 0 _map) _key)
+					(push (elem 1 _map) _clause_body)))) (list _keys)) _map)
+			_body (list (list) (list))))
+	(cond
+		(_default_key
+			(push (elem 1 _map) _default_clause)
+			(if _atoms
+				`(elem (or (find ,_form ',(elem 0 _map)) -2) ',(elem 1 _map))
+				`(eval (elem (or (find ,_form ',(elem 0 _map)) -2) ',(elem 1 _map)))))
+		(t	(if _atoms
+				`(if (defq ,(defq _i (gensym)) (find ,_form ',(elem 0 _map)))
+					(elem ,_i ',(elem 1 _map)))
+				`(if (defq ,(defq _i (gensym)) (find ,_form ',(elem 0 _map)))
+					(eval (elem ,_i ',(elem 1 _map))))))))
 
 (defmacro times (c &rest _)
 	; (times num body)
