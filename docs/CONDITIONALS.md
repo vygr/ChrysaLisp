@@ -129,7 +129,7 @@ of the symbols used at the entry to the `(cond ...)` !
 
 ### case
 
-`(case key (k0 body) ((k1 k2) body) ... (t ...))` is a variant of cond that
+`(case key (k0 body) ((k1 k2) body) ... [(t ...)])` is a variant of cond that
 acts like a fast switch. The `key` form is evaluated and a jump is then made to
 the matching body clause, or if no match, the optional `t` clause.
 
