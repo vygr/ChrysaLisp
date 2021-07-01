@@ -377,10 +377,10 @@
 ;import actions and bindings
 (import "./actions.inc")
 
-(defun dispatch-action (action &rest params)
-	(and *macro_record* (find action recorded_actions_list)
-		(push *macro_actions* `(,action ~params)))
-	(catch (apply action params) (progn (print _)(print) t)))
+(defun dispatch-action (&rest action)
+	(and *macro_record* (find (elem 0 action) recorded_actions_list)
+		(push *macro_actions* action))
+	(catch (eval action) (progn (print _)(print) t)))
 
 (defun main ()
 	(defq edit_service (mail-declare (task-mailbox) "EDIT_SERVICE" "Edit Service 0.1"))

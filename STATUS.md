@@ -26,8 +26,8 @@ GUI now runs its own native mouse cursor.
 More flexible `(case)`. No longer restricted to symbol only keys.
 
 `(case)` now checks if all the clauses are atoms and if so does not do an
-`(eval)` of the case clause. Which now makes the code produced a tight flat
-map.
+`(eval)` of the case clause. Which makes the code produced a tight static flat
+map in that situation.
 
 ------
 
