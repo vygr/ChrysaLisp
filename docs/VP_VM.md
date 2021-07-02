@@ -33,7 +33,7 @@ and `r2` as it really helps the x86_64 code generation quality.
 You can use the `(vp-def)` macro to assign register equated symbols to help
 your source look nice. Or bind symbols to registers, via `(method-input)` and
 `(method-output)`, that match function entry/exit parameters if you desire. A
-great example of this is the `'canvas :fpoly`, or the `'canvas :resize_2`
+great example of this is the `'canvas :fpoly`, or the `'pixmap :resize_2`
 functions.
 
 ### VP Assembler

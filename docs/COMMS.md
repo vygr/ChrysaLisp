@@ -179,12 +179,16 @@ Senders can martial data for sending via a `(str ...)` or `(str (string-stream
 ...))` and Receivers with a `(string-stream msg)` or combined with a `(read
 ...)` call on a `(string-stream msg)`, the world is your Lobster have fun.
 
-The Lisp level `(mail-timeout net_id ns)` function can be used to send a mail
-message to a mailbox after a time delay ! This message, on receipt, will
-contain a single 64bit value of the current time. This can be used for
-animation callback purposes or in combination with `'sys_mail :select` to
-provided timed mailbox read functionality. If the time delay given is 0 the
-call will remove the entry from the timer list.
+The Lisp level `(mail-timeout net_id ns user)` function can be used to send a
+mail message to a mailbox after a time delay ! This message, on receipt, will
+contain the 64bit value of the current time and the 64bit user value. This can
+be used for animation callback purposes or in combination with `'sys_mail
+:select` to provided timed mailbox read functionality. If the time delay given
+is 0 the call will remove the entry from the timer list.
+
+For an example of how you can use `(mail-timeout ...)` to aid UI construction,
+take a look at the GUI tooltips ! This makes use of the user value as a View id
+to show which GUI widget is requesting tool tip info display.
 
 ### Lisp example
 

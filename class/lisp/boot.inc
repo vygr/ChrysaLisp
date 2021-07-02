@@ -270,7 +270,7 @@
 			(each! 0 -1 (lambda (_key) (cond
 				((eql _key t)
 					(setq _default_key t _default_clause _clause_body))
-				(t	(push (elem 0 _map) _key)
+				(t  (push (elem 0 _map) _key)
 					(push (elem 1 _map) _clause_body)))) (list _keys)) _map)
 			_body (list (list) (list))))
 	(cond
@@ -279,7 +279,7 @@
 			(if _atoms
 				`(elem (or (find ,_form ',(elem 0 _map)) -2) ',(elem 1 _map))
 				`(eval (elem (or (find ,_form ',(elem 0 _map)) -2) ',(elem 1 _map)))))
-		(t	(if _atoms
+		(t  (if _atoms
 				`(if (defq ,(defq _i (gensym)) (find ,_form ',(elem 0 _map)))
 					(elem ,_i ',(elem 1 _map)))
 				`(if (defq ,(defq _i (gensym)) (find ,_form ',(elem 0 _map)))
@@ -763,7 +763,7 @@
 
 (defun walk-list (_l _f _fi _fo)
 	; (walk-list list fnc_element fnc_in fnc_out)
-	;if fnc_in returns nil will it will step down into that list.
+	;if fnc_in returns nil, it will step down into that list.
 	;fnc_out is allways called to balence calls to fnc_in.
 	(defq _stack (list _l 0))
 	(while (defq _ (pop _stack) _l (pop _stack))
@@ -887,7 +887,7 @@
 ;compilation options
 ;debug_mode 0, release, strip all error checking
 ;debug_mode 1, normal, with error checking
-;debug_mode 2, guarded, with error checking, object stats and guard pages
+;debug_mode 2, guarded, with error checking and guard pages
 (defq *debug_mode* 1 *debug_emit* nil *debug_inst* nil)
 
 (defun cpu ()
