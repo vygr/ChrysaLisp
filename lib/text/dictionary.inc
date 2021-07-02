@@ -12,7 +12,7 @@
 	(defmethod :insert_word (this word)
 		; (. dictionary :insert_word word) -> dictionary
 		(. (get :word_set this) :insert word)
-		(set this :dirty t)
+		(lower (:dirty t))
 		this)
 
 	(defmethod :sort (this)
@@ -20,7 +20,7 @@
 		(defq word_list (clear (get :word_list this)))
 		(. (get :word_set this) :each (# (push word_list %0)))
 		(sort cmp word_list)
-		(set this :dirty nil)
+		(lower (:dirty t))
 		this)
 
 	(defmethod :find_matches (this prefix)
