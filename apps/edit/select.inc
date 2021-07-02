@@ -26,7 +26,7 @@
 	(refresh))
 
 (defun action-select-block ()
-	(when (bind '(x y) (. (defq buffer *current_buffer*) :left_bracket))
+	(if (bind '(x y) (. (defq buffer *current_buffer*) :left_bracket))
 		(when (bind '(x1 y1) (. buffer :right_bracket))
 			(setq *anchor_x* x *anchor_y* y *shift_select* t)
 			(. buffer :set_cursor (inc x1) y1)
