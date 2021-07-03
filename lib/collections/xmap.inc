@@ -77,13 +77,13 @@
 
 	(defmethod :resize (this num_buckets)
 		; (. xmap :resize num_buckets) -> xmap
-		(defq hash_fnc (get :hash_fnc this) old_buckets (get :buckets this) new_buckets (list))
-		(set this :buckets new_buckets :num_buckets num_buckets)
+		(raise :hash_fnc :buckets (new_buckets (list)))
+		(lower :num_buckets (:buckets new_buckets))
 		(while (>= (setq num_buckets (dec num_buckets)) 0)
 			(push new_buckets (list) (list)))
-		(defq num_buckets (get :num_buckets this) i -2)
-		(while (< (setq i (+ i 2)) (length old_buckets))
-			(defq old_keys (elem i old_buckets) old_vals (elem (inc i) old_buckets))
+		(raise :num_buckets (i -2))
+		(while (< (setq i (+ i 2)) (length buckets))
+			(defq old_keys (elem i buckets) old_vals (elem (inc i) buckets))
 			(while (defq key (pop old_keys) val (pop old_vals))
 				(defq ni (* (% (hash_fnc key) num_buckets) 2))
 				(push (elem ni new_buckets) key)

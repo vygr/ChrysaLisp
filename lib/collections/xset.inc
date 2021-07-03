@@ -69,7 +69,7 @@
 		(cond
 			((eql this that)
 				(. this :empty))
-			(t	(. that :each (# (. this :erase %0)))
+			(t  (. that :each (# (. this :erase %0)))
 				this)))
 
 	(defmethod :intersect (this that)
@@ -84,7 +84,7 @@
 		(cond
 			((eql this that)
 				(. this :empty))
-			(t	(. (defq other (. that :copy)) :difference this)
+			(t  (. (defq other (. that :copy)) :difference this)
 				(. this :difference that)
 				(. this :union other))))
 
@@ -103,19 +103,19 @@
 
 	(defmethod :resize (this num_buckets)
 		; (. xset :resize num_buckets) -> xset
-		(defq hash_fnc (get :hash_fnc this) old_buckets (get :buckets this) new_buckets (list))
-		(set this :buckets new_buckets :num_buckets num_buckets)
+		(raise :hash_fnc :buckets (new_buckets (list)))
+		(lower :num_buckets (:buckets new_buckets))
 		(while (>= (setq num_buckets (dec num_buckets)) 0)
 			(push new_buckets (list)))
-		(setq num_buckets (get :num_buckets this))
+		(raise :num_buckets)
 		(each (lambda (old_bucket)
 			(while (defq key (pop old_bucket))
-				(push (elem (% (hash_fnc key) num_buckets) new_buckets) key))) old_buckets)
+				(push (elem (% (hash_fnc key) num_buckets) new_buckets) key))) buckets)
 		this)
 	)
 
 ;module
-(export (penv) 
+(export (penv)
 	*class_xset* xset xset?)
 (env-pop)
 

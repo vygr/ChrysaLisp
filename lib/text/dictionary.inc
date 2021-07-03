@@ -26,7 +26,7 @@
 	(defmethod :find_matches (this prefix)
 		; (. dictionary :find_matches prefix) -> (word ...)
 		(if (get :dirty this) (. this :sort))
-		(defq word_list (get :word_list this) i nil j 0 k (length word_list))
+		(raise :word_list (i nil j 0 k (length word_list)))
 		;bsearch
 		(while (<= j k)
 			(setq i (>> (+ j k) 1))
