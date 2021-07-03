@@ -81,8 +81,7 @@
 
 		;tokenise the string starting with the current state
 		;save the state at the end as we may wish to continue
-		(raise :state (:token (list)) (:state_list (list)) (:token_list (list))
-			(:col_list (list)))
+		(raise :state (token (list) state_list (list) token_list (list) col_list (list)))
 		(each (lambda (c)
 			(while c
 				(case state

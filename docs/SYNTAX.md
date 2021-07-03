@@ -2448,6 +2448,12 @@
 (logxor [num] ...)
 ```
 
+### lower
+
+```code
+(lower field | (field val) ...) -> (set this field var ...)
+```
+
 ### macro?
 
 ```code
@@ -3004,6 +3010,12 @@
 
 ```code
 (r2i real)
+```
+
+### raise
+
+```code
+(raise field | (var val) ...) -> (defq var (get field this) ...)
 ```
 
 ### random

@@ -59,8 +59,8 @@
 		~_
 		(clear (get :redo_stack this))
 		(last-line)
-		(lower :buffer :buffer_colored  :buffer_states :buffer_index
-			(:dirty_colored t) (:dirty_index t) (:modified t))
+		(lower :buffer :buffer_colored :buffer_states :buffer_index
+			(:dirty_colored t :dirty_index t :modified t))
 		(. this :set_cursor x y)))
 
 (defmacro get-selection ()
@@ -147,8 +147,8 @@
 
 	(defmethod :file_load (this filepath)
 		; (. buffer :file_load filepath) -> buffer
-		(raise :syntax :tab_width (:buffer (list)) (:buffer_colored (list))
-			(:buffer_states (list)) (:buffer_index (list)) (:max_width 0))
+		(raise :syntax :tab_width (buffer (list) buffer_colored (list)
+			 buffer_states (list) buffer_index (list) max_width 0))
 		(each-line (lambda (line)
 				(task-sleep 0)
 				(setq line (expand (trim-end line (const (char +char_cr))) tab_width)
@@ -161,12 +161,12 @@
 		(last-line)
 		(clear (get :undo_stack this) (get :redo_stack this))
 		(lower :buffer :buffer_colored :buffer_states :buffer_index :max_width
-			(:cursor_x 0) (:cursor_y 0) (:dirty_colored t) (:dirty_index t) (:modified nil))
+			(:cursor_x 0 :cursor_y 0 :dirty_colored t :dirty_index t :modified nil))
 		this)
 
 	(defmethod :file_save (this filepath)
 		; (. buffer :file_save filepath) -> buffer
-		(raise :syntax :tab_width (:stream (file-stream filepath +file_open_write)))
+		(raise :syntax :tab_width (stream (file-stream filepath +file_open_write)))
 		(each! 0 (bind '(w h) (. this :get_size)) (lambda (line)
 				(task-sleep 0)
 				(write-line stream (. syntax :compress_tabs line tab_width)))
@@ -178,7 +178,7 @@
 		; (. buffer :colorise) -> buffer
 		(when (get :dirty_colored this)
 			(raise :syntax :buffer :buffer_colored :buffer_states :mode
-				 (:state :text) (:max_width 0))
+				 (state :text max_width 0))
 			(each (lambda (line line_array (start_state end_state))
 					(setq max_width (max max_width (length line)))
 					(cond
@@ -388,8 +388,7 @@
 		(bind '(x y) (.-> this :colorise :get_cursor))
 		(bind '(x y) (. this :constrain x y))
 		(bind '(w h) (. this :get_size))
-		(raise :buffer :buffer_colored (:c 0)
-			(:ink_text (get :ink_text (get :syntax this))))
+		(raise :buffer :buffer_colored (c 0 ink_text (get :ink_text (get :syntax this))))
 		(when (array? (defq line_colored (elem y buffer_colored)))
 			(cond
 				((<= x 0))
@@ -420,8 +419,7 @@
 		(bind '(x y) (.-> this :colorise :get_cursor))
 		(bind '(x y) (. this :constrain x y))
 		(bind '(w h) (. this :get_size))
-		(raise :buffer :buffer_colored (:c 0)
-			(:ink_text (get :ink_text (get :syntax this))))
+		(raise :buffer :buffer_colored (c 0 ink_text (get :ink_text (get :syntax this))))
 		(when (array? (defq line_colored (elem y buffer_colored)))
 			(cond
 				((<= x 0))
@@ -451,7 +449,7 @@
 		; (. buffer :find pattern) -> buffer_index
 		(raise :lps :lps_pattern :buffer_index)
 		(unless (eql lps_pattern pattern)
-			(lower (:lps (setq lps (substr-lps pattern))) (:lps_pattern pattern) (:dirty_index t))
+			(lower (:lps (setq lps (substr-lps pattern)) :lps_pattern pattern :dirty_index t))
 			(each (lambda (__) (elem-set _ buffer_index nil)) buffer_index))
 		(when (get :dirty_index this)
 			(lower (:dirty_index nil))
