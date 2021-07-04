@@ -14,7 +14,8 @@
 	(dec-method :copy sys/mem/copy :static (r0 r1 r2) (r0 r1))
 	(dec-method :realloc sys/mem/realloc :static (r0 r1 r2) (r0 r1))
 	(dec-method :recalloc sys/mem/recalloc :static (r0 r1 r2) (r0 r1))
-	(dec-method :collect sys/mem/collect))
+	(dec-method :collect sys/mem/collect)
+	(dec-method :avail sys/mem/avail :static nil (r0)))
 
 (defq mem_cell_min_size 0x000020 mem_cell_max_size 0x4000000
 	max_cell_count (/ (* 32 1024) mem_cell_min_size))

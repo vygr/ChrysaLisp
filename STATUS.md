@@ -32,6 +32,10 @@ map in that situation.
 `(raise)` and `(lower)` macros added to `lib/class/class.inc`. Adjusted the
 macro to allow concatenation of user values.
 
+Extend `(kernel-info)` to return the amount of memory available on the free
+lists. Add an extra column to Netmon to show the amount of allocated vs used
+memory.
+
 ------
 
 Make system now uses `(abs-path)`.

@@ -11,13 +11,14 @@
 	(enum main task reply nodes))
 
 (defq task_scale_size 10 max_tasks task_scale_size last_max_tasks max_tasks
-	mem_scale_size 4 max_memory (* 1024 16384) last_max_memory max_memory rate (/ 1000000 2)
-	id t select (alloc-select +select_size)
+	used_scale_size 4 max_used (* 1024 16384) last_max_used max_used
+	alloc_scale_size 4 max_alloc (* 1024 16384) last_max_alloc max_alloc
+	id t select (alloc-select +select_size) rate (/ 1000000 2) +mem_align (* 1024 4096)
 	retry_timeout (if (starts-with "obj/vp64" (load-path)) 10000000 1000000))
 
 (ui-window mywindow ()
 	(ui-title-bar _ "Network Monitor" (0xea19 0xea1b 0xea1a) +event_close)
-	(ui-grid _ (:grid_width 2 :grid_height 1 :flow_flags +flow_down_fill :maximum 100 :value 0)
+	(ui-grid _ (:grid_width 3 :grid_height 1 :flow_flags +flow_down_fill :maximum 100 :value 0)
 		(ui-flow _ (:color +argb_green)
 			(ui-label _ (:text "Tasks" :color +argb_white))
 			(ui-grid task_scale_grid (:grid_width task_scale_size :grid_height 1 :color +argb_white
@@ -25,23 +26,32 @@
 				(times task_scale_size (ui-label _
 					(:text "|" :flow_flags (logior +flow_flag_align_vcenter +flow_flag_align_hright)))))
 			(ui-grid task_grid (:grid_width 1 :grid_height 0)))
-		(ui-flow _ (:color +argb_red)
-			(ui-label _ (:text "Memory (kb)" :color +argb_white))
-			(ui-grid memory_scale_grid (:grid_width mem_scale_size :grid_height 1 :color +argb_white
+		(ui-flow _ (:color +argb_yellow)
+			(ui-label _ (:text "Alloc (kb)" :color +argb_white))
+			(ui-grid alloc_scale_grid (:grid_width alloc_scale_size :grid_height 1 :color +argb_white
 					:font *env_medium_terminal_font*)
-				(times mem_scale_size (ui-label _
+				(times alloc_scale_size (ui-label _
 					(:text "|" :flow_flags (logior +flow_flag_align_vcenter +flow_flag_align_hright)))))
-			(ui-grid memory_grid (:grid_width 1 :grid_height 0)))))
+			(ui-grid alloc_grid (:grid_width 1 :grid_height 0)))
+		(ui-flow _ (:color +argb_red)
+			(ui-label _ (:text "Used (kb)" :color +argb_white))
+			(ui-grid used_scale_grid (:grid_width used_scale_size :grid_height 1 :color +argb_white
+					:font *env_medium_terminal_font*)
+				(times used_scale_size (ui-label _
+					(:text "|" :flow_flags (logior +flow_flag_align_vcenter +flow_flag_align_hright)))))
+			(ui-grid used_grid (:grid_width 1 :grid_height 0)))))
 
 (defun create (key now)
 	; (create key now) -> val
 	;function called when entry is created
-	(.-> (defq mb (Progress) tb (Progress) val (emap))
+	(.-> (defq ub (Progress) ab (Progress) tb (Progress) val (emap))
 		(:insert :child (const (pad "" +net_id_size)))
 		(:insert :timestamp now)
-		(:insert :memory_bar mb)
+		(:insert :used_bar ub)
+		(:insert :alloc_bar ab)
 		(:insert :task_bar tb))
-	(. memory_grid :add_child mb)
+	(. used_grid :add_child ub)
+	(. alloc_grid :add_child ab)
 	(. task_grid :add_child tb)
 	(open-task "apps/netmon/child.lisp" key +kn_call_open 0 (elem +select_task select))
 	val)
@@ -51,7 +61,8 @@
 	;function called when entry is destroyed
 	(unless (eql (defq child (. val :find :child)) (const (pad "" +net_id_size)))
 		(mail-send child ""))
-	(. (. val :find :memory_bar) :sub)
+	(. (. val :find :used_bar) :sub)
+	(. (. val :find :alloc_bar) :sub)
 	(. (. val :find :task_bar) :sub))
 
 (defun poll (key val)
@@ -99,42 +110,55 @@
 				;child poll responce
 				(when (defq val (. global_tasks :find (getf msg +reply_node)))
 					(defq task_val (getf msg +reply_task_count)
-						memory_val (getf msg +reply_mem_used)
+						alloc_val (getf msg +reply_mem_alloc)
+						used_val (getf msg +reply_mem_used)
 						task_bar (. val :find :task_bar)
-						memory_bar (. val :find :memory_bar))
-					(setq max_memory (max max_memory memory_val)
+						alloc_bar (. val :find :alloc_bar)
+						used_bar (. val :find :used_bar))
+					(setq max_used (align (max max_used used_val) +mem_align)
+						max_alloc (align (max max_alloc alloc_val) +mem_align)
 						max_tasks (align (max max_tasks task_val) (length task_scale)))
 					(def task_bar :maximum last_max_tasks :value task_val)
-					(def memory_bar :maximum last_max_memory :value memory_val)
-					(. task_bar :dirty) (. memory_bar :dirty)
+					(def alloc_bar :maximum last_max_alloc :value alloc_val)
+					(def used_bar :maximum last_max_used :value used_val)
+					(. task_bar :dirty) (. alloc_bar :dirty) (. used_bar :dirty)
 					(. val :insert :timestamp (pii-time))))
-			(t	;timer event
+			(t  ;timer event
 				(mail-timeout (elem +select_nodes select) rate 0)
 				(when (. global_tasks :refresh retry_timeout)
 					;nodes have mutated
 					(defq size (. global_tasks :size))
-					(def memory_grid :grid_height size)
+					(def used_grid :grid_height size)
+					(def alloc_grid :grid_height size)
 					(def task_grid :grid_height size)
-					(. memory_grid :layout)
+					(. used_grid :layout)
+					(. alloc_grid :layout)
 					(. task_grid :layout)
 					(bind '(x y w h) (apply view-fit
 						(cat (. mywindow :get_pos) (. mywindow :pref_size))))
 					(. mywindow :change_dirty x y w h))
 				;set scales
 				(defq task_scale (. task_scale_grid :children)
-					memory_scale (. memory_scale_grid :children))
-				(each (lambda (st)
-					(defq vt (* (inc _) (/ (* last_max_tasks 100) (length task_scale))))
-					(def st :text (str (/ vt 100) "|"))
-					(. st :layout)) task_scale)
-				(each (lambda (sm)
-					(defq vm (* (inc _) (/ (* last_max_memory 100) (length memory_scale))))
-					(def sm :text (str (/ vm 102400) "|"))
-					(. sm :layout)) memory_scale)
+					alloc_scale (. alloc_scale_grid :children)
+					used_scale (. used_scale_grid :children))
+				(each (lambda (mark)
+					(defq val (* (inc _) (/ (* last_max_tasks 100) (length task_scale))))
+					(def mark :text (str (/ val 100) "|"))
+					(. mark :layout)) task_scale)
+				(each (lambda (mark)
+					(defq val (* (inc _) (/ (* last_max_alloc 100) (length alloc_scale))))
+					(def mark :text (str (/ val 102400) "|"))
+					(. mark :layout)) alloc_scale)
+				(each (lambda (mark)
+					(defq val (* (inc _) (/ (* last_max_used 100) (length used_scale))))
+					(def mark :text (str (/ val 102400) "|"))
+					(. mark :layout)) used_scale)
 				(. task_scale_grid :dirty_all)
-				(. memory_scale_grid :dirty_all)
-				(setq last_max_memory max_memory last_max_tasks max_tasks
-					max_memory (* 1024 16384) max_tasks task_scale_size)
+				(. alloc_scale_grid :dirty_all)
+				(. used_scale_grid :dirty_all)
+				(setq last_max_used max_used last_max_tasks max_tasks
+					max_alloc (* 1024 16384) max_alloc task_scale_size
+					max_used (* 1024 16384) max_tasks task_scale_size)
 				;poll all nodes
 				(. global_tasks :each poll))))
 	;close window and children

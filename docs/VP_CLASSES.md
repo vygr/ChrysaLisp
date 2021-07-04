@@ -7957,6 +7957,15 @@ trashes
 r0-r2
 ```
 
+### sys_mem :avail -> sys/mem/avail
+
+```code
+outputs
+r0 = available on free lists (uint)
+trashes
+r0-r3
+```
+
 ### sys_mem :calloc -> sys/mem/calloc
 
 ```code
