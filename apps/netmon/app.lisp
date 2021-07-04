@@ -156,9 +156,8 @@
 				(. task_scale_grid :dirty_all)
 				(. alloc_scale_grid :dirty_all)
 				(. used_scale_grid :dirty_all)
-				(setq last_max_used max_used last_max_tasks max_tasks
-					max_alloc (* 1024 16384) max_alloc task_scale_size
-					max_used (* 1024 16384) max_tasks task_scale_size)
+				(setq last_max_used max_used last_max_alloc max_alloc last_max_tasks max_tasks
+					max_alloc (* 1024 16384) max_used (* 1024 16384) max_tasks task_scale_size)
 				;poll all nodes
 				(. global_tasks :each poll))))
 	;close window and children
