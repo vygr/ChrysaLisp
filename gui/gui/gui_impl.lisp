@@ -63,6 +63,7 @@
 		(cond
 			((= idx +select_main)
 				;main mailbox
+				(env-push)
 				(bind '(cmd view owner reply) msg)
 				(cond
 					((= cmd 0)
@@ -79,7 +80,7 @@
 						(. *screen* :add_back view)
 						(. view :set_flags +view_flag_dirty_all +view_flag_dirty_all)))
 				(mail-send reply msg)
-				(undef (env) 'msg 'view 'owner 'reply))
+				(env-pop))
 			((= idx +select_mouse)
 				;mouse mailbox
 				)
