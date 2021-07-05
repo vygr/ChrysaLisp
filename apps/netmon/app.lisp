@@ -95,7 +95,7 @@
 						;max button
 						(bind '(x y) (. mywindow :get_pos))
 						(bind '(w h) (. mywindow :pref_size))
-						(bind '(x y w h) (view-fit x y (/ (* w 5) 3) h))
+						(bind '(x y w h) (view-fit x y (/ (* w 100) 75) h))
 						(. mywindow :change_dirty x y w h))
 					(t (. mywindow :event msg))))
 			((= idx +select_task)
