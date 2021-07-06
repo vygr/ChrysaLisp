@@ -59,11 +59,13 @@
 	(open-child "apps/clipboard/app.lisp" +kn_call_open)
 	(mail-timeout (elem +select_timer select) rate 0)
 	(while *running*
+		;transient env during this event loop as we don't want to hold references to
+		;user objects ! We will operate on them and then drop them imediatley.
+		(env-push)
 		(defq msg (mail-read (elem (defq idx (mail-select select)) select)))
 		(cond
 			((= idx +select_main)
 				;main mailbox
-				(env-push)
 				(bind '(cmd view owner reply) msg)
 				(cond
 					((= cmd 0)
@@ -79,8 +81,7 @@
 						(setf view +view_owner_id owner 0)
 						(. *screen* :add_back view)
 						(. view :set_flags +view_flag_dirty_all +view_flag_dirty_all)))
-				(mail-send reply msg)
-				(env-pop))
+				(mail-send reply msg))
 			((= idx +select_mouse)
 				;mouse mailbox
 				)
@@ -93,7 +94,8 @@
 						(action)))
 				;remove orphans
 				(each (# (unless (and (defq owner (. %0 :find_owner)) (mail-validate owner))
-						(.-> %0 :hide :sub))) (. *screen* :children)))))
+						(.-> %0 :hide :sub))) (. *screen* :children))))
+		(env-pop))
 	(free-select select)
 	(gui-deinit)
 	(mail-forget service))
