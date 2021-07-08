@@ -249,15 +249,19 @@
 		; (. buffer :break) -> buffer
 		(mutate-buffer
 			(defq front (slice 0 x (elem y buffer)) back (slice x -1 (elem y buffer)))
-			(set-line y front)
-			(insert-line (setq x 0 y (inc y)) back)
+			(setq x 0 y (inc y))
 			(cond
-				((<= y h)
+				((and (eql "" back) (= y h))
 					(. this :push_undo (list :backspace x y)))
-				(t  (. this :push_undo
-						(list :mark (defq mark (. this :next_mark)))
-						(list :backspace x y) (list :delete 0 y)
-						(list :mark mark))))))
+				(t  (set-line (dec y) front)
+					(insert-line y back)
+					(cond
+						((<= y h)
+							(. this :push_undo (list :backspace x y)))
+						(t  (. this :push_undo
+								(list :mark (defq mark (. this :next_mark)))
+								(list :backspace x y) (list :delete 0 y)
+								(list :mark mark))))))))
 
 	(defmethod :backspace (this &optional num)
 		; (. buffer :backspace &optional num) -> buffer
@@ -401,10 +405,9 @@
 			(setq y (some! (inc y) 0 nil (lambda (line line_colored)
 					(if (setq x (some! (if x x -1) 0 nil (lambda (cl cc)
 							(cond
-								((/= (logand 0xffffff000000 cc) ink_text))
-								((eql cl ")") (setq c (inc c)))
-								((eql cl "(") (setq c (dec c))))
-							(if (< c 0) _))
+								((/= (logand 0xffffff000000 cc) ink_text) nil)
+								((eql cl ")") (setq c (inc c)) nil)
+								((eql cl "(") (if (< (setq c (dec c)) 0) _))))
 						(list line line_colored))) _))
 				(list buffer buffer_colored))))
 		(if (< c 0) (list x y) '(nil nil)))
@@ -428,10 +431,9 @@
 			(setq y (some! y h nil (lambda (line line_colored)
 					(if (setq x (some! (if x x 0) -1 nil (lambda (cl cc)
 							(cond
-								((/= (logand 0xffffff000000 cc) ink_text))
-								((eql cl ")") (setq c (inc c)))
-								((eql cl "(") (setq c (dec c))))
-							(if (> c 0) _))
+								((/= (logand 0xffffff000000 cc) ink_text) nil)
+								((eql cl "(") (setq c (dec c)) nil)
+								((eql cl ")") (if (> (setq c (inc c)) 0) _))))
 						(list line line_colored))) _))
 				(list buffer buffer_colored))))
 		(if (> c 0) (list x y) '(nil nil)))
