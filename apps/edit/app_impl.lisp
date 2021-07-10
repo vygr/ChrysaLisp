@@ -319,22 +319,17 @@
 
 (defun tooltips ()
 	(def *window* :tip_mbox (elem +select_tip select))
-	(each (# (def %0 :tip_text %1))
-		(. main_toolbar :children)
+	(each (# (def %0 :tip_text %1)) (. main_toolbar :children)
 		'("undo" "redo" "rewind" "cut" "copy" "paste" "reflow" "select paragraph"
 			"outdent" "indent" "select form" "start form" "end form" "upper case"
 			"lower case" "sort" "unique" "comment"))
-	(each (# (def %0 :tip_text %1))
-		(. buffer_toolbar :children)
+	(each (# (def %0 :tip_text %1)) (. buffer_toolbar :children)
 		'("previous" "next" "scratchpad" "close" "save all" "save" "new"))
-	(each (# (def %0 :tip_text %1))
-		(. find_toolbar :children)
+	(each (# (def %0 :tip_text %1)) (. find_toolbar :children)
 		'("find down" "find up" "whole words"))
-	(each (# (def %0 :tip_text %1))
-		(. macro_toolbar :children)
+	(each (# (def %0 :tip_text %1)) (. macro_toolbar :children)
 		'("playback" "playback eof" "record"))
-	(each (# (def %0 :tip_text %1))
-		(. replace_toolbar :children)
+	(each (# (def %0 :tip_text %1)) (. replace_toolbar :children)
 		'("replace" "replace all")))
 
 (defun clear-matches ()
