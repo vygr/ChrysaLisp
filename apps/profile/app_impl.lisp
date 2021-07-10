@@ -15,18 +15,18 @@
 	(enum buf))
 
 (enums +select 0
-	(enum main service))
+	(enum main service tip))
 
 (defq vdu_width 60 vdu_height 40 buf_keys (list) buf_list (list) buf_index nil id t
 	select (alloc-select +select_size)
 	entry (mail-declare (elem +select_service select) "PROFILE_SERVICE" "Profile Service 0.1"))
 
-(ui-window mywindow (:color 0xc0000000)
+(ui-window *window* (:color 0xc0000000)
 	(ui-flow _ (:flow_flags +flow_down_fill)
 		(ui-title-bar _ "Profile" (0xea19) +event_close)
 		(ui-flow _ (:flow_flags +flow_right_fill)
-			(ui-tool-bar _ () (ui-buttons (0xe960) +event_clear))
-			(ui-tool-bar _ (:color (const *env_toolbar2_col*)) (ui-buttons (0xe960) +event_clear_all)))
+			(ui-tool-bar main_toolbar () (ui-buttons (0xe960) +event_clear))
+			(ui-tool-bar main_toolbar2 (:color (const *env_toolbar2_col*)) (ui-buttons (0xe960) +event_clear_all)))
 		(. (ui-slider hslider (:value 0)) :connect +event_hvalue)
 		(ui-vdu vdu (:vdu_width vdu_width :vdu_height vdu_height :ink_color +argb_yellow))))
 
@@ -57,17 +57,25 @@
 				{then use (profile-report name) to send.}) 0 0 0 1000)))
 	(set-slider-values))
 
+(defun tooltips ()
+	(def *window* :tip_mbox (elem +select_tip select))
+	(each (# (def %0 :tip_text %1)) (. main_toolbar :children)
+		'("clear"))
+	(each (# (def %0 :tip_text %1)) (. main_toolbar2 :children)
+		'("clear all")))
+
 (defun main ()
-	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
-	(gui-add-front (. mywindow :change x y w h))
+	(tooltips)
+	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
+	(gui-add-front (. *window* :change x y w h))
 	(reset)
 	(while id
-		(defq idx (mail-select select) msg (mail-read (elem idx select)))
+		(defq idx (mail-select select) *msg* (mail-read (elem idx select)))
 		(cond
-			;new profile msg
+			;new profile *msg*
 			((= idx +select_service)
-				(defq tcb (getf msg +profile_msg_tcb)
-					data (slice +profile_msg_data -1 msg)
+				(defq tcb (getf *msg* +profile_msg_tcb)
+					data (slice +profile_msg_data -1 *msg*)
 					key (sym (str tcb))
 					index (find-rev key buf_keys))
 				(unless index
@@ -76,8 +84,12 @@
 					(reset (setq index (dec (length buf_list)))))
 				(elem-set +profile_rec_buf (elem index buf_list) (split data (ascii-char 10)))
 				(. vdu :load (elem +profile_rec_buf (elem buf_index buf_list)) 0 0 0 1000))
+			((= idx +select_tip)
+				;tip time mail
+				(if (defq view (. *window* :find_id (getf *msg* +mail_timeout_id)))
+					(. view :show_tip)))
 			;close ?
-			((= (setq id (getf msg +ev_msg_target_id)) +event_close)
+			((= (setq id (getf *msg* +ev_msg_target_id)) +event_close)
 				(setq id nil))
 			;moved task slider
 			((= id +event_hvalue)
@@ -92,7 +104,7 @@
 			((= id +event_clear_all)
 				(reset))
 			;otherwise
-			(t (. mywindow :event msg))))
+			(t (. *window* :event *msg*))))
 	(mail-forget entry)
 	(free-select select)
-	(gui-sub mywindow))
+	(gui-sub *window*))

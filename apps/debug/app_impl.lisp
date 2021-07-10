@@ -12,18 +12,18 @@
 	(enum buf state reply_id))
 
 (enums +select 0
-	(enum main service))
+	(enum main service tip))
 
 (defq vdu_width 60 vdu_height 40 buf_keys (list) buf_list (list) buf_index nil id t
 	select (alloc-select +select_size)
 	entry (mail-declare (elem +select_service select) "DEBUG_SERVICE" "Debug Service 0.4"))
 
-(ui-window mywindow (:color 0xc0000000)
+(ui-window *window* (:color 0xc0000000)
 	(ui-flow _ (:flow_flags +flow_down_fill)
 		(ui-title-bar _ "Debug" (0xea19) +event_close)
 		(ui-flow _ (:flow_flags +flow_right_fill)
-			(ui-tool-bar _ () (ui-buttons (0xe95e 0xe95d 0xe95c 0xe960) +event_play))
-			(ui-tool-bar _ (:color (const *env_toolbar2_col*)) (ui-buttons (0xe95e 0xe95d 0xe95c 0xe960) +event_play_all)))
+			(ui-tool-bar main_toolbar () (ui-buttons (0xe95e 0xe95d 0xe95c 0xe960) +event_play))
+			(ui-tool-bar main_toolbar2 (:color (const *env_toolbar2_col*)) (ui-buttons (0xe95e 0xe95d 0xe95c 0xe960) +event_play_all)))
 		(. (ui-slider hslider (:value 0)) :connect +event_hvalue)
 		(ui-vdu vdu (:vdu_width vdu_width :vdu_height vdu_height :ink_color +argb_yellow))))
 
@@ -86,18 +86,26 @@
 				{as a single stepping debug print.}) 0 0 0 1000)))
 	(set-slider-values))
 
+(defun tooltips ()
+	(def *window* :tip_mbox (elem +select_tip select))
+	(each (# (def %0 :tip_text %1)) (. main_toolbar :children)
+		'("play" "pause" "step" "clear"))
+	(each (# (def %0 :tip_text %1)) (. main_toolbar2 :children)
+		'("play all" "pause all" "step all" "clear all")))
+
 (defun main ()
-	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
-	(gui-add-front (. mywindow :change x y w h))
+	(tooltips)
+	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
+	(gui-add-front (. *window* :change x y w h))
 	(reset)
 	(while id
-		(defq idx (mail-select select) msg (mail-read (elem idx select)))
+		(defq idx (mail-select select) *msg* (mail-read (elem idx select)))
 		(cond
-			;new debug msg
+			;new debug *msg*
 			((= idx +select_service)
-				(defq reply_id (getf msg +debug_reply)
-					key (sym (getf msg +debug_origin))
-					data (slice +debug_data -1 msg)
+				(defq reply_id (getf *msg* +debug_reply)
+					key (sym (getf *msg* +debug_origin))
+					data (slice +debug_data -1 *msg*)
 					index (find-rev key buf_keys))
 				(unless index
 					(push buf_keys key)
@@ -108,8 +116,12 @@
 				(if (elem +debug_rec_state buf_rec)
 					(mail-send reply_id "")
 					(elem-set +debug_rec_reply_id buf_rec reply_id)))
+			((= idx +select_tip)
+				;tip time mail
+				(if (defq view (. *window* :find_id (getf *msg* +mail_timeout_id)))
+					(. view :show_tip)))
 			;close ?
-			((= (setq id (getf msg +ev_msg_target_id)) +event_close)
+			((= (setq id (getf *msg* +ev_msg_target_id)) +event_close)
 				(setq id nil))
 			;moved task slider
 			((= id +event_hvalue)
@@ -147,7 +159,7 @@
 				(each step buf_list)
 				(reset))
 			;otherwise
-			(t (. mywindow :event msg))))
+			(t (. *window* :event *msg*))))
 	(mail-forget entry)
 	(free-select select)
-	(gui-sub mywindow))
+	(gui-sub *window*))
