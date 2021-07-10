@@ -163,82 +163,79 @@
 						(setq *pipe* nil)
 						(action-insert (cat (ascii-char +char_lf) *env_terminal_prompt*)))
 					((action-insert *msg*))))
-			((= idx +select_main)
-				;main mailbox
-				(cond
-					((defq id (getf *msg* +ev_msg_target_id) action (. event_map :find id))
-						;call bound event action
-						(action))
-					((and (= id (. *vdu* :get_id)) (= (getf *msg* +ev_msg_type) +ev_type_mouse))
-						;mouse event on display
-						(bind '(w h) (. *vdu* :char_size))
-						(defq x (getf *msg* +ev_msg_mouse_rx) y (getf *msg* +ev_msg_mouse_ry))
-						(setq x (if (>= x 0) x (- x w)) y (if (>= y 0) y (- y h)))
-						(setq x (+ *scroll_x* (/ x w)) y (+ *scroll_y* (/ y h)))
-						(cond
-							((/= (getf *msg* +ev_msg_mouse_buttons) 0)
-								;mouse button is down
-								(case mouse_state
-									(:d ;mouse drag event
-										(bind '(x y) (. *current_buffer* :constrain x y))
-										(. *current_buffer* :set_cursor x y)
-										(refresh))
-									(:u ;mouse down event
-										(bind '(x y) (. *current_buffer* :constrain x y))
-										(. *current_buffer* :set_cursor x y)
-										(setq *anchor_x* x *anchor_y* y
-											*shift_select* t mouse_state :d)
-										(refresh))))
-							(t  ;mouse button is up
-								(case mouse_state
-									(:d ;mouse up event
-										(defq click_count (getf *msg* +ev_msg_mouse_count))
-										(cond
-											((= click_count 2)
-												(action-select-word))
-											((= click_count 3)
-												(action-select-line))
-											((= click_count 4)
-												(action-select-paragraph)))
-										(setq mouse_state :u)
-										(refresh))
-									(:u ;mouse hover event
-										)))))
-					((and (= id (. *vdu* :get_id)) (= (getf *msg* +ev_msg_type) +ev_type_wheel))
-						;wheel event on display area
-						(setq *scroll_x* (+ *scroll_x* (getf *msg* +ev_msg_wheel_x))
-							*scroll_y* (- *scroll_y* (getf *msg* +ev_msg_wheel_y)))
-						(set-sliders) (load-display))
-					((and (not (Textfield? (. *window* :find_id id)))
-							(= (getf *msg* +ev_msg_type) +ev_type_key)
-							(> (getf *msg* +ev_msg_key_keycode) 0))
-						;key event
-						(defq key (getf *msg* +ev_msg_key_key) mod (getf *msg* +ev_msg_key_mod))
-						(cond
-							((/= 0 (logand mod (const
-									(+ +ev_key_mod_control +ev_key_mod_option +ev_key_mod_command))))
-								;call bound control/command key action
-								(when (defq action (. key_map_control :find key))
-									(action)))
-							((/= 0 (logand mod +ev_key_mod_shift))
-								;call bound shift key action, else insert
-								(cond
-									((defq action (. key_map_shift :find key))
-										(action))
-									((<= +char_space key +char_tilda)
-										(action-insert (char key)))))
-							((defq action (. key_map :find key))
-								;call bound key action
-								(action))
-							((<= +char_space key +char_tilda)
-								;insert the char
-								(action-insert (char key)))))
-					(t  ;gui event
-						(. *window* :event *msg*))))
 			((= idx +select_tip)
 				;tip time mail
 				(if (defq view (. *window* :find_id (getf *msg* +mail_timeout_id)))
-					(. view :show_tip)))))
+					(. view :show_tip)))
+			((defq id (getf *msg* +ev_msg_target_id) action (. event_map :find id))
+				;call bound event action
+				(action))
+			((and (= id (. *vdu* :get_id)) (= (getf *msg* +ev_msg_type) +ev_type_mouse))
+				;mouse event on display
+				(bind '(w h) (. *vdu* :char_size))
+				(defq x (getf *msg* +ev_msg_mouse_rx) y (getf *msg* +ev_msg_mouse_ry))
+				(setq x (if (>= x 0) x (- x w)) y (if (>= y 0) y (- y h)))
+				(setq x (+ *scroll_x* (/ x w)) y (+ *scroll_y* (/ y h)))
+				(cond
+					((/= (getf *msg* +ev_msg_mouse_buttons) 0)
+						;mouse button is down
+						(case mouse_state
+							(:d ;mouse drag event
+								(bind '(x y) (. *current_buffer* :constrain x y))
+								(. *current_buffer* :set_cursor x y)
+								(refresh))
+							(:u ;mouse down event
+								(bind '(x y) (. *current_buffer* :constrain x y))
+								(. *current_buffer* :set_cursor x y)
+								(setq *anchor_x* x *anchor_y* y
+									*shift_select* t mouse_state :d)
+								(refresh))))
+					(t  ;mouse button is up
+						(case mouse_state
+							(:d ;mouse up event
+								(defq click_count (getf *msg* +ev_msg_mouse_count))
+								(cond
+									((= click_count 2)
+										(action-select-word))
+									((= click_count 3)
+										(action-select-line))
+									((= click_count 4)
+										(action-select-paragraph)))
+								(setq mouse_state :u)
+								(refresh))
+							(:u ;mouse hover event
+								)))))
+			((and (= id (. *vdu* :get_id)) (= (getf *msg* +ev_msg_type) +ev_type_wheel))
+				;wheel event on display area
+				(setq *scroll_x* (+ *scroll_x* (getf *msg* +ev_msg_wheel_x))
+					*scroll_y* (- *scroll_y* (getf *msg* +ev_msg_wheel_y)))
+				(set-sliders) (load-display))
+			((and (not (Textfield? (. *window* :find_id id)))
+					(= (getf *msg* +ev_msg_type) +ev_type_key)
+					(> (getf *msg* +ev_msg_key_keycode) 0))
+				;key event
+				(defq key (getf *msg* +ev_msg_key_key) mod (getf *msg* +ev_msg_key_mod))
+				(cond
+					((/= 0 (logand mod (const
+							(+ +ev_key_mod_control +ev_key_mod_option +ev_key_mod_command))))
+						;call bound control/command key action
+						(when (defq action (. key_map_control :find key))
+							(action)))
+					((/= 0 (logand mod +ev_key_mod_shift))
+						;call bound shift key action, else insert
+						(cond
+							((defq action (. key_map_shift :find key))
+								(action))
+							((<= +char_space key +char_tilda)
+								(action-insert (char key)))))
+					((defq action (. key_map :find key))
+						;call bound key action
+						(action))
+					((<= +char_space key +char_tilda)
+						;insert the char
+						(action-insert (char key)))))
+			(t  ;gui event
+				(. *window* :event *msg*))))
 	(if *pipe* (. *pipe* :close))
 	(free-select *select*)
 	(gui-sub *window*))

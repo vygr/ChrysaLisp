@@ -232,82 +232,79 @@
 	(while *running*
 		(defq *msg* (mail-read (elem (defq idx (mail-select select)) select)))
 		(cond
-			((= idx +select_main)
-				;main mailbox
-				(cond
-					((defq id (getf *msg* +ev_msg_target_id) action (. event_map :find id))
-						;call bound event action
-						(action))
-					((and (= id (. *vdu* :get_id)) (= (getf *msg* +ev_msg_type) +ev_type_mouse))
-						;mouse event on display
-						(bind '(w h) (. *vdu* :char_size))
-						(defq x (getf *msg* +ev_msg_mouse_rx) y (getf *msg* +ev_msg_mouse_ry))
-						(setq x (if (>= x 0) x (- x w)) y (if (>= y 0) y (- y h)))
-						(setq x (+ *scroll_x* (/ x w)) y (+ *scroll_y* (/ y h)))
-						(cond
-							((/= (getf *msg* +ev_msg_mouse_buttons) 0)
-								;mouse button is down
-								(case mouse_state
-									(:d ;mouse drag event
-										(bind '(x y) (. *current_buffer* :constrain x y))
-										(. *current_buffer* :set_cursor x y)
-										(refresh))
-									(:u ;mouse down event
-										(bind '(x y) (. *current_buffer* :constrain x y))
-										(. *current_buffer* :set_cursor x y)
-										(setq *anchor_x* x *anchor_y* y
-											*shift_select* t mouse_state :d)
-										(refresh))))
-							(t  ;mouse button is up
-								(case mouse_state
-									(:d ;mouse up event
-										(defq click_count (getf *msg* +ev_msg_mouse_count))
-										(cond
-											((= click_count 2)
-												(action-select-word))
-											((= click_count 3)
-												(action-select-line))
-											((= click_count 4)
-												(action-select-paragraph)))
-										(setq mouse_state :u)
-										(refresh))
-									(:u ;mouse hover event
-										)))))
-					((and (= id (. *vdu* :get_id)) (= (getf *msg* +ev_msg_type) +ev_type_wheel))
-						;wheel event on display area
-						(bind '(x y ax ay sx sy ss) (. *meta_map* :find *current_file*))
-						(setq sx (+ *scroll_x* (getf *msg* +ev_msg_wheel_x))
-							sy (- *scroll_y* (getf *msg* +ev_msg_wheel_y)))
-						(. *meta_map* :insert *current_file* (list x y ax ay sx sy ss))
-						(set-sliders) (load-display))
-					((and (not (Textfield? (. *window* :find_id id)))
-							(= (getf *msg* +ev_msg_type) +ev_type_key)
-							(> (getf *msg* +ev_msg_key_keycode) 0))
-						;key event
-						(defq key (getf *msg* +ev_msg_key_key) mod (getf *msg* +ev_msg_key_mod))
-						(cond
-							((/= 0 (logand mod (const
-									(+ +ev_key_mod_control +ev_key_mod_option +ev_key_mod_command))))
-								;call bound control/command key action
-								(if (defq action (. key_map_control :find key))
-									(action)))
-							((/= 0 (logand mod +ev_key_mod_shift))
-								;call bound shift key action
-								(if (defq action (. key_map_shift :find key))
-									(action)))
-							((defq action (. key_map :find key))
-								;call bound key action
-								(action))))
-					(t  ;gui event
-						(. *window* :event *msg*)))
-				;update meta data
-				(bind '(*cursor_x* *cursor_y*) (. *current_buffer* :get_cursor))
-				(. *meta_map* :insert *current_file*
-					(list *cursor_x* *cursor_y* *anchor_x* *anchor_y*
-						*scroll_x* *scroll_y* *shift_select*)))
 			((= idx +select_tip)
 				;tip time mail
 				(if (defq view (. *window* :find_id (getf *msg* +mail_timeout_id)))
-					(. view :show_tip)))))
+					(. view :show_tip)))
+			((defq id (getf *msg* +ev_msg_target_id) action (. event_map :find id))
+				;call bound event action
+				(action))
+			((and (= id (. *vdu* :get_id)) (= (getf *msg* +ev_msg_type) +ev_type_mouse))
+				;mouse event on display
+				(bind '(w h) (. *vdu* :char_size))
+				(defq x (getf *msg* +ev_msg_mouse_rx) y (getf *msg* +ev_msg_mouse_ry))
+				(setq x (if (>= x 0) x (- x w)) y (if (>= y 0) y (- y h)))
+				(setq x (+ *scroll_x* (/ x w)) y (+ *scroll_y* (/ y h)))
+				(cond
+					((/= (getf *msg* +ev_msg_mouse_buttons) 0)
+						;mouse button is down
+						(case mouse_state
+							(:d ;mouse drag event
+								(bind '(x y) (. *current_buffer* :constrain x y))
+								(. *current_buffer* :set_cursor x y)
+								(refresh))
+							(:u ;mouse down event
+								(bind '(x y) (. *current_buffer* :constrain x y))
+								(. *current_buffer* :set_cursor x y)
+								(setq *anchor_x* x *anchor_y* y
+									*shift_select* t mouse_state :d)
+								(refresh))))
+					(t  ;mouse button is up
+						(case mouse_state
+							(:d ;mouse up event
+								(defq click_count (getf *msg* +ev_msg_mouse_count))
+								(cond
+									((= click_count 2)
+										(action-select-word))
+									((= click_count 3)
+										(action-select-line))
+									((= click_count 4)
+										(action-select-paragraph)))
+								(setq mouse_state :u)
+								(refresh))
+							(:u ;mouse hover event
+								)))))
+			((and (= id (. *vdu* :get_id)) (= (getf *msg* +ev_msg_type) +ev_type_wheel))
+				;wheel event on display area
+				(bind '(x y ax ay sx sy ss) (. *meta_map* :find *current_file*))
+				(setq sx (+ *scroll_x* (getf *msg* +ev_msg_wheel_x))
+					sy (- *scroll_y* (getf *msg* +ev_msg_wheel_y)))
+				(. *meta_map* :insert *current_file* (list x y ax ay sx sy ss))
+				(set-sliders) (load-display))
+			((and (not (Textfield? (. *window* :find_id id)))
+					(= (getf *msg* +ev_msg_type) +ev_type_key)
+					(> (getf *msg* +ev_msg_key_keycode) 0))
+				;key event
+				(defq key (getf *msg* +ev_msg_key_key) mod (getf *msg* +ev_msg_key_mod))
+				(cond
+					((/= 0 (logand mod (const
+							(+ +ev_key_mod_control +ev_key_mod_option +ev_key_mod_command))))
+						;call bound control/command key action
+						(if (defq action (. key_map_control :find key))
+							(action)))
+					((/= 0 (logand mod +ev_key_mod_shift))
+						;call bound shift key action
+						(if (defq action (. key_map_shift :find key))
+							(action)))
+					((defq action (. key_map :find key))
+						;call bound key action
+						(action))))
+			(t  ;gui event
+				(. *window* :event *msg*)))
+		;update meta data
+		(bind '(*cursor_x* *cursor_y*) (. *current_buffer* :get_cursor))
+		(. *meta_map* :insert *current_file*
+			(list *cursor_x* *cursor_y* *anchor_x* *anchor_y*
+				*scroll_x* *scroll_y* *shift_select*)))
 	(free-select select)
 	(gui-sub *window*))

@@ -149,51 +149,6 @@
 	(while id
 		(defq *msg* (mail-read (elem (defq idx (mail-select select)) select)))
 		(cond
-			((= idx +select_main)
-				;main mailbox
-				(cond
-					((= (setq id (getf *msg* +ev_msg_target_id)) +event_close)
-						(setq id nil))
-					((= id +event_min)
-						;min button
-						(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
-						(. *window* :change_dirty x y w h))
-					((= id +event_max)
-						;max button
-						(def image_scroll :min_width canvas_width :min_height canvas_height)
-						(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
-						(. *window* :change_dirty x y w h)
-						(def image_scroll :min_width min_width :min_height min_height))
-					((= id +event_reset)
-						;reset button
-						(setq verts (vertex-cloud num_bubbles)))
-					((<= +event_grid id +event_axis)
-						;styles
-						(def (. mybackdrop :dirty) :style (elem (radio-select style_toolbar (- id +event_grid)) '(nil :grid :axis))))
-					((and (= id (. layer1_canvas :get_id))
-						(= (getf *msg* +ev_msg_type) +ev_type_mouse))
-							;mouse event in canvas
-							(bind '(w h) (. layer1_canvas :get_size))
-							(defq rx (- (getf *msg* +ev_msg_mouse_rx) (/ w 2))
-								ry (- (getf *msg* +ev_msg_mouse_ry) (/ h 2)))
-							(cond
-								((/= (getf *msg* +ev_msg_mouse_buttons) 0)
-									;mouse button is down
-									(case last_state
-										(:d ;was down last time
-											)
-										(:u ;was up last time
-											(setq last_state :d)))
-									;set light pos
-									(elem-set +dlist_light_pos dlist
-										(vec-i2n (* rx 4) (* ry 4) (neg (* box_size 4)))))
-								(t  ;mouse button is up
-									(case last_state
-										(:d ;was down last time
-											(setq last_state :u))
-										(:u ;was up last time, so we are hovering
-											t)))))
-					(t (. *window* :event *msg*))))
 			((= idx +select_timer)
 				;timer event
 				(mail-timeout (elem +select_timer select) rate 0)
@@ -203,7 +158,49 @@
 			((= idx +select_tip)
 				;tip time mail
 				(if (defq view (. *window* :find_id (getf *msg* +mail_timeout_id)))
-					(. view :show_tip)))))
+					(. view :show_tip)))
+			((= (setq id (getf *msg* +ev_msg_target_id)) +event_close)
+				(setq id nil))
+			((= id +event_min)
+				;min button
+				(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
+				(. *window* :change_dirty x y w h))
+			((= id +event_max)
+				;max button
+				(def image_scroll :min_width canvas_width :min_height canvas_height)
+				(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
+				(. *window* :change_dirty x y w h)
+				(def image_scroll :min_width min_width :min_height min_height))
+			((= id +event_reset)
+				;reset button
+				(setq verts (vertex-cloud num_bubbles)))
+			((<= +event_grid id +event_axis)
+				;styles
+				(def (. mybackdrop :dirty) :style (elem (radio-select style_toolbar (- id +event_grid)) '(nil :grid :axis))))
+			((and (= id (. layer1_canvas :get_id))
+				(= (getf *msg* +ev_msg_type) +ev_type_mouse))
+					;mouse event in canvas
+					(bind '(w h) (. layer1_canvas :get_size))
+					(defq rx (- (getf *msg* +ev_msg_mouse_rx) (/ w 2))
+						ry (- (getf *msg* +ev_msg_mouse_ry) (/ h 2)))
+					(cond
+						((/= (getf *msg* +ev_msg_mouse_buttons) 0)
+							;mouse button is down
+							(case last_state
+								(:d ;was down last time
+									)
+								(:u ;was up last time
+									(setq last_state :d)))
+							;set light pos
+							(elem-set +dlist_light_pos dlist
+								(vec-i2n (* rx 4) (* ry 4) (neg (* box_size 4)))))
+						(t  ;mouse button is up
+							(case last_state
+								(:d ;was down last time
+									(setq last_state :u))
+								(:u ;was up last time, so we are hovering
+									t)))))
+			(t (. *window* :event *msg*))))
 	;close window
 	(free-select select)
 	(gui-sub *window*))
