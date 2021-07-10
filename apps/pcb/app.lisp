@@ -8,6 +8,9 @@
 	(enum prev next scale_down scale_up mode_normal mode_gerber)
 	(enum show_all show_1 show_2 show_3 show_4))
 
+(enums +select 0
+	(enum main tip))
+
 (defun all-pcbs (p)
 	(defq out (list))
 	(each! 0 -1 (lambda (f m) (and (eql m "8") (ends-with ".pcb" f) (push out (cat p f))))
@@ -15,11 +18,12 @@
 	(sort cmp out))
 
 (defq pcbs (all-pcbs "apps/pcb/") index 1 canvas_scale 1 mode 0 show -1
-	max_zoom 15.0 min_zoom 5.0 zoom (/ (+ min_zoom max_zoom) 2.0) eps 0.25)
+	+max_zoom 15.0 +min_zoom 5.0 zoom (/ (+ +min_zoom +max_zoom) 2.0) +eps 0.25
+	*running* t)
 
-(ui-window mywindow ()
+(ui-window *window* ()
 	(ui-title-bar window_title "" (0xea19) +event_close)
-	(ui-tool-bar _ ()
+	(ui-tool-bar main_toolbar ()
 		(ui-buttons (0xe91d 0xe91e 0xea00 0xea01 0xe9ac 0xe9ad) +event_prev)
 		(ui-buttons ("0" "1" "2" "3" "4") +event_show_all
 			(:color (const *env_toolbar2_col*) :font (const (create-font "fonts/OpenSans-Regular.ctf" 20)))))
@@ -40,7 +44,7 @@
 	(defq k '() p '())
 	(cond ((defq i (find-rev (defq _ (sym (str r s))) k)) (elem i p))
 		(t (push k _) (elem -2 (push p
-			(path-stroke-polylines (list) r eps +join_bevel +cap_round +cap_round (list s)))))))
+			(path-stroke-polylines (list) r +eps +join_bevel +cap_round +cap_round (list s)))))))
 
 (defun batch (p)
 	(defq s 0 e 0 b (list))
@@ -79,7 +83,7 @@
 			(each (lambda (p path_2d)
 				(each (lambda (seg seg_2d)
 					(when (or (= show (defq z (% (>> (elem 2 (elem 0 seg)) +fp_shift) pcb_depth))) (= show -1))
-						(path-stroke-polylines (elem z layers) track_radius eps +join_round +cap_round +cap_round (list seg_2d)))
+						(path-stroke-polylines (elem z layers) track_radius +eps +join_round +cap_round +cap_round (list seg_2d)))
 					) p path_2d)
 				) batched_paths batched_paths_2d)
 			(each! 0 pcb_depth
@@ -115,7 +119,7 @@
 					((= (length pad_shape) 4)
 						;oval pad
 						(. canvas :fpoly pad_x pad_y +winding_odd_even (oval pad_radius pad_shape)))
-					(t	;polygon pad
+					(t  ;polygon pad
 						(. canvas :fpoly pad_x pad_y +winding_odd_even (list pad_shape)))))) pads)
 		) (list pcb)))
 
@@ -138,7 +142,7 @@
 				(each (lambda (seg seg_2d)
 					(when (= show (defq z (% (>> (elem 2 (elem 0 seg)) +fp_shift) pcb_depth)))
 						(path-stroke-polylines layer (+ track_radius (if with_gaps track_gap 0.0))
-							eps +join_round +cap_round +cap_round (list seg_2d)))
+							+eps +join_round +cap_round +cap_round (list seg_2d)))
 					) p path_2d)
 				) batched_paths batched_paths_2d)
 			(. canvas :fpoly pcb_border pcb_border +winding_none_zero layer)
@@ -164,10 +168,10 @@
 					((= (length pad_shape) 4)
 						;oval pad
 						(. canvas :fpoly pad_x pad_y +winding_odd_even (oval (+ pad_radius (if with_gaps pad_gap 0.0)) pad_shape)))
-					(t	;polygon pad
+					(t  ;polygon pad
 						(if with_gaps
 							(. canvas :fpoly pad_x pad_y +winding_odd_even
-								(path-stroke-polygons (list) pad_gap eps +join_round (list pad_shape)))
+								(path-stroke-polygons (list) pad_gap +eps +join_round (list pad_shape)))
 							(. canvas :fpoly pad_x pad_y +winding_odd_even
 								(list pad_shape))))))
 			) pads)
@@ -178,24 +182,43 @@
 	(. window_title :layout)
 	(.-> pcb_scroll (:add_child (defq canvas (pcb-load (elem (setq index _) pcbs)))) :layout)
 	(. canvas :swap)
-	(. mywindow :dirty_all))
+	(. *window* :dirty_all))
+
+(defun tooltips ()
+	(def *window* :tip_mbox (elem +select_tip select))
+	(each (# (def %0 :tip_text %1))
+		(. main_toolbar :children)
+		'("prev" "next" "zoom out" "zoom in" "pcb" "gerber"
+		"all layers" "layer 1" "layer 2" "layer 3" "layer 4")))
 
 (defun main ()
+	(defq select (alloc-select +select_size))
+	(tooltips)
 	(bind '(x y w h) (apply view-locate (. (win-refresh index) :pref_size)))
-	(gui-add-front (. mywindow :change x y w h))
-	(while (cond
-		((= (defq id (getf (defq msg (mail-read (task-mailbox))) +ev_msg_target_id)) +event_close)
-			nil)
-		((<= +event_prev id +event_next)
-			(win-refresh (% (+ index (dec (* 2 (- id +event_prev))) (length pcbs)) (length pcbs))))
-		((<= +event_scale_down id +event_scale_up)
-			(setq zoom (max (min (+ zoom (i2f (dec (* 2 (- id +event_scale_down))))) max_zoom) min_zoom))
-			(win-refresh index))
-		((<= +event_show_all id +event_show_4)
-			(setq show (- id +event_show_all 1))
-			(win-refresh index))
-		((<= +event_mode_normal id +event_mode_gerber)
-			(setq mode (- id +event_mode_normal))
-			(win-refresh index))
-		(t (. mywindow :event msg))))
-	(gui-sub mywindow))
+	(gui-add-front (. *window* :change x y w h))
+	(while *running*
+		(defq *msg* (mail-read (elem (defq idx (mail-select select)) select)))
+		(cond
+			((= idx +select_main)
+				;main mailbox
+				(cond
+					((= (defq id (getf *msg* +ev_msg_target_id)) +event_close)
+						(setq *running* nil))
+					((<= +event_prev id +event_next)
+						(win-refresh (% (+ index (dec (* 2 (- id +event_prev))) (length pcbs)) (length pcbs))))
+					((<= +event_scale_down id +event_scale_up)
+						(setq zoom (max (min (+ zoom (i2f (dec (* 2 (- id +event_scale_down))))) +max_zoom) +min_zoom))
+						(win-refresh index))
+					((<= +event_show_all id +event_show_4)
+						(setq show (- id +event_show_all 1))
+						(win-refresh index))
+					((<= +event_mode_normal id +event_mode_gerber)
+						(setq mode (- id +event_mode_normal))
+						(win-refresh index))
+					(t (. *window* :event *msg*))))
+			((= idx +select_tip)
+				;tip time mail
+				(if (defq view (. *window* :find_id (getf *msg* +mail_timeout_id)))
+					(. view :show_tip)))))
+	(free-select select)
+	(gui-sub *window*))

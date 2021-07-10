@@ -4,6 +4,13 @@
 
 ------
 
+Optimized versions of the bracket matching methods on the Buffer class. 25%
+faster, but these functions are a good candidate for a VP string method !
+
+Updated Pcb viewer with tooltips.
+
+------
+
 Editor now has line number display.
 
 New `(mail-validate netid)` function. And with this, the GUI now validates the

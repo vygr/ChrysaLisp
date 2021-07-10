@@ -416,7 +416,7 @@
 		; (. buffer :right_bracket) -> (x y) | (nil nil)
 		(bind '(x y) (.-> this :colorise :get_cursor))
 		(bind '(x y) (. this :constrain x y))
-		(bind '(w h) (. this :get_size))
+		(defq h (elem 1 (. this :get_size)))
 		(raise :buffer :buffer_colored (c 0 ink_text (get :ink_text (get :syntax this))))
 		(when (array? (elem y buffer_colored))
 			(unless (eql "" (defq line (elem y buffer)))
