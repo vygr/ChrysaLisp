@@ -17,7 +17,6 @@
 (defq *profile_meta_map* (env -1) *profile_return_vals* (list)
 	*old_mouse_x* -1 *old_mouse_y* -1 *mouse_type* 0
 	*mouse_x* 0 *mouse_y* 0 *mouse_buttons* 0 *mouse_id* 0
-	select (alloc-select +select_size)
 	rate (/ 1000000 60) *running* t)
 
 (defun mouse-type (view rx ry)
@@ -42,7 +41,8 @@
 
 (defun main ()
 	;declare service
-	(defq service (mail-declare (task-mailbox) "GUI_SERVICE" "GUI Service 0.2"))
+	(defq select (alloc-select +select_size)
+		service (mail-declare (task-mailbox) "GUI_SERVICE" "GUI Service 0.2"))
 	;init screen widget
 	(def (defq *screen* (Backdrop)) :style :grid :color +argb_grey2 :ink_color +argb_grey1)
 	(.-> *screen* (:change 0 0 1280 960) :dirty_all)

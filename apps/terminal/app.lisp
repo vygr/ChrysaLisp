@@ -18,8 +18,7 @@
 	+selected (apply nums (map (lambda (_)
 		(const (<< (canvas-from-argb32 +argb_green6 15) 48))) (str-alloc 8192)))
 	+not_selected (nums-sub +selected +selected)
-	+bracket_char (nums 0x7f)
-	*select* (alloc-select +select_size))
+	+bracket_char (nums 0x7f))
 
 (ui-window *window* (:color 0xc0000000)
 	(ui-title-bar *title* "Terminal" (0xea19 0xea1b 0xea1a) +event_close)
@@ -144,7 +143,8 @@
 (import "./actions.inc")
 
 (defun main ()
-	(defq *cursor_x* 0 *cursor_y* 0 *anchor_x* 0 *anchor_y* 0 *scroll_x* 0 *scroll_y* 0
+	(defq *select* (alloc-select +select_size)
+		*cursor_x* 0 *cursor_y* 0 *anchor_x* 0 *anchor_y* 0 *scroll_x* 0 *scroll_y* 0
 		*shift_select* nil *running* t mouse_state :u
 		*pipe* nil *history* (list) *history_idx* 0)
 	(tooltips)

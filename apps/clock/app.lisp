@@ -12,7 +12,7 @@
 
 (defq clock_size 256 clock_scale 1 dotw nil face (list) eps 0.25
 	seconds 0.0 second 0 minutes 0.0 minute 0 hours 0.0 hour 0 id t
-	select (alloc-select +select_size) rate (/ 1000000 1))
+	rate (/ 1000000 1))
 
 (ui-window *window* ()
 	(ui-title-bar _ "Clock" (0xea19) +event_close)
@@ -85,6 +85,7 @@
 (defun main ()
 	;creates local_timezone
 	(timezone-init *env_clock_timezone*)
+	(defq select (alloc-select +select_size))
 	(when clock
 		(.-> clock (:fill 0) (:set_canvas_flags +canvas_flag_antialias))
 		(create-clockface (* (i2f clock_size) (i2f clock_scale))))

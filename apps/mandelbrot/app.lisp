@@ -14,7 +14,6 @@
 	(enum main task reply timer))
 
 (defq canvas_width 800 canvas_height 800 canvas_scale 2 timer_rate (/ 1000000 1) id t dirty nil
-	select (alloc-select +select_size)
 	center_x (mbfp-from-fixed -0.5) center_y (mbfp-from-fixed 0.0) zoom (mbfp-from-fixed 1.0)
 	retry_timeout (if (starts-with "obj/vp64" (load-path)) 50000000 5000000)
 	jobs nil farm nil)
@@ -89,7 +88,7 @@
 		farm (Farm create destroy (* 2 (length (mail-nodes))))))
 
 (defun main ()
-	;add window
+	(defq select (alloc-select +select_size))
 	(.-> canvas (:fill +argb_black) :swap)
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change x y w h))

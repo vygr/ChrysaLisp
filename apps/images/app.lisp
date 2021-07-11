@@ -18,7 +18,7 @@
 
 (defq images (all-images "apps/images/")
 	index (some (# (if (eql "apps/images/logo.cpm" %0) _)) images)
-	select (alloc-select +select_size) id t)
+	id t)
 
 (ui-window *window* ()
 	(ui-title-bar window_title "" (0xea19) +event_close)
@@ -42,6 +42,7 @@
 		'("prev" "next")))
 
 (defun main ()
+	(defq select (alloc-select +select_size))
 	(tooltips)
 	(bind '(x y w h) (apply view-locate (. (win-refresh index) :get_size)))
 	(gui-add-front (. *window* :change x y w h))

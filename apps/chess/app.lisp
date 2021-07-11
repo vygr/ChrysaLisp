@@ -14,7 +14,6 @@
 
 (defq vdu_width 38 vdu_height 12 text_buf nil
 	flicker_rate (/ 1000000 8) timer_rate (/ 1000000 1) max_move_time 10000000 id t
-	select (alloc-select +select_size)
 	brd "RNBQKBNRPPPPPPPP                                pppppppprnbqkbnr"
 	history (list brd) color +white start_time (pii-time) replys (list) next_seq 0)
 
@@ -81,7 +80,7 @@
 
 (defun main ()
 	(display-board brd)
-	(defq farm (Farm create destroy 1))
+	(defq select (alloc-select +select_size) farm (Farm create destroy 1))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
 	(mail-timeout (elem +select_timer select) timer_rate 0)

@@ -13,7 +13,7 @@
 (defq task_scale_size 10 max_tasks task_scale_size last_max_tasks max_tasks
 	used_scale_size 4 max_used (* 1024 16384) last_max_used max_used
 	alloc_scale_size 4 max_alloc (* 1024 16384) last_max_alloc max_alloc
-	id t select (alloc-select +select_size) rate (/ 1000000 2) +mem_align (* 1024 4096)
+	id t rate (/ 1000000 2) +mem_align (* 1024 4096)
 	retry_timeout (if (starts-with "obj/vp64" (load-path)) 10000000 1000000))
 
 (ui-window *window* ()
@@ -72,7 +72,7 @@
 		(mail-send child (elem +select_reply select))))
 
 (defun main ()
-	;add window
+	(defq select (alloc-select +select_size))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
 	(defq global_tasks (Global create destroy))

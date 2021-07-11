@@ -34,7 +34,7 @@
 	*selected_open_node* nil *meta_map* (xmap) *underlay* (list) *open_files* (list)
 	*syntax* (Syntax) *whole_words* nil *macro_record* nil *macro_actions* (list)
 	+min_word_size 3 +max_matches 20 dictionary (Dictionary 1021) +margin 2
-	match_window nil match_flow nil match_index -1 select (alloc-select +select_size)
+	match_window nil match_flow nil match_index -1
 	+selected (apply nums (map (lambda (_)
 		(const (<< (canvas-from-argb32 +argb_grey6 15) 48))) (str-alloc 8192)))
 	+not_selected (nums-sub +selected +selected) +bracket_char (nums 0x7f)
@@ -378,7 +378,8 @@
 	(catch (eval action) (progn (print _)(print) t)))
 
 (defun main ()
-	(defq edit_service (mail-declare (task-mailbox) "EDIT_SERVICE" "Edit Service 0.1"))
+	(defq select (alloc-select +select_size)
+		edit_service (mail-declare (task-mailbox) "EDIT_SERVICE" "Edit Service 0.1"))
 	;load up the base Syntax keywords and boot.inc words for matching
 	(each (lambda ((key val)) (. dictionary :insert_word (str key)))
 		(tolist (get :keywords *syntax* )))

@@ -45,7 +45,7 @@
 		(unzip (split (pii-dirlist p) ",") (list (list) (list))))
 	(sort cmp out))
 
-(defq index 1 id t fonts (all-fonts "fonts/") select (alloc-select +select_size))
+(defq index 1 id t fonts (all-fonts "fonts/"))
 
 (ui-window *window* ()
 	(ui-title-bar window_title "" (0xea19) +event_close)
@@ -59,6 +59,7 @@
 		'("prev" "next")))
 
 (defun main ()
+	(defq select (alloc-select +select_size))
 	(tooltips)
 	(win-refresh index)
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))

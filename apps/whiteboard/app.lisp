@@ -45,7 +45,6 @@
 	*palette* (cat *palette* (map trans *palette*)) *undo_stack* (list) *redo_stack* (list)
 	*stroke_col* (elem 0 *palette*) *stroke_mode* +event_pen *commited_polygons* (list) overlay_paths (list)
 	*picker_mbox* nil *picker_mode* nil *running* t
-	select (alloc-select +select_size)
 	rate (/ 1000000 60) +layer_all (+ +layer_commited +layer_overlay))
 
 (ui-window *window* ()
@@ -165,8 +164,8 @@
 (import "./actions.inc")
 
 (defun main ()
-	;ui tree initial setup
-	(defq dlist (list +layer_all commited_canvas overlay_canvas (list) (list)))
+	(defq select (alloc-select +select_size)
+		dlist (list +layer_all commited_canvas overlay_canvas (list) (list)))
 	(. commited_canvas :set_canvas_flags +canvas_flag_antialias)
 	(. overlay_canvas :set_canvas_flags +canvas_flag_antialias)
 	(. mybackdrop :set_size +canvas_width +canvas_height)

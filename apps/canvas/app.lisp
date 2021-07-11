@@ -11,7 +11,7 @@
 
 (defq canvas_width 600 canvas_height 600 canvas_scale 1 id t
 	f_canvas_width (i2f canvas_width) f_canvas_height (i2f canvas_height) f_canvas_scale (i2f canvas_scale)
-	select (alloc-select +select_size) rate (/ 1000000 30)
+	rate (/ 1000000 30)
 	+eps 0.25 angle 0.0 font (create-font "fonts/OpenSans-Regular.ctf" 36)
 	fp1 (font-glyph-paths font "__Glyphs!")
 	fp2 (font-glyph-paths font "__Easy!")
@@ -101,6 +101,7 @@
 	(. canvas :swap))
 
 (defun main ()
+	(defq select (alloc-select +select_size))
 	(.-> canvas (:fill 0) (:set_canvas_flags +canvas_flag_antialias))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change x y w h))

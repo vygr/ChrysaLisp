@@ -16,7 +16,7 @@
 	(sort cmp out))
 
 (defq films (all-films "apps/films/") index 0 canvas nil id t
-	select (alloc-select +select_size) rate (/ 1000000 30))
+	rate (/ 1000000 30))
 
 (ui-window *window* ()
 	(ui-title-bar window_title "" (0xea19) +event_close)
@@ -40,6 +40,7 @@
 		'("prev" "next")))
 
 (defun main ()
+	(defq select (alloc-select +select_size))
 	(tooltips)
 	(bind '(x y w h) (apply view-locate (. (win-refresh index) :get_size)))
 	(gui-add-front (. *window* :change x y w h))

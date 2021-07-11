@@ -14,9 +14,7 @@
 (enums +select 0
 	(enum main service tip))
 
-(defq vdu_width 60 vdu_height 40 buf_keys (list) buf_list (list) buf_index nil id t
-	select (alloc-select +select_size)
-	entry (mail-declare (elem +select_service select) "DEBUG_SERVICE" "Debug Service 0.4"))
+(defq vdu_width 60 vdu_height 40 buf_keys (list) buf_list (list) buf_index nil id t)
 
 (ui-window *window* (:color 0xc0000000)
 	(ui-flow _ (:flow_flags +flow_down_fill)
@@ -94,6 +92,8 @@
 		'("play all" "pause all" "step all" "clear all")))
 
 (defun main ()
+	(defq select (alloc-select +select_size)
+		entry (mail-declare (elem +select_service select) "DEBUG_SERVICE" "Debug Service 0.4"))
 	(tooltips)
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change x y w h))

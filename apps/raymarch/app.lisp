@@ -16,7 +16,6 @@
 (defq canvas_width 800 canvas_height 800 canvas_scale 1
 	timer_rate (/ 1000000 1) id t dirty nil
 	retry_timeout (if (starts-with "obj/vp64" (load-path)) 50000000 5000000)
-	select (alloc-select +select_size)
 	jobs (map (lambda (y)
 			(setf-> (str-alloc +job_size)
 				(+job_x 0)
@@ -77,7 +76,7 @@
 		(. val :erase :job)))
 
 (defun main ()
-	;add window
+	(defq select (alloc-select +select_size))
 	(.-> canvas (:fill +argb_black) :swap)
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
