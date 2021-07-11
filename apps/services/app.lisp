@@ -5,7 +5,7 @@
 (enums +event 0
 	(enum close max min))
 
-(ui-window mywindow ()
+(ui-window *window* ()
 	(ui-title-bar _ "Services" (0xea19 0xea1b 0xea1a) +event_close)
 	(ui-scroll info_scroll +scroll_flag_vertical nil
 		(ui-flow right_flow (:flow_flags +flow_right_fill)
@@ -23,8 +23,8 @@
 	(bind '(w h) (. right_flow :get_size))
 	(setq h (min h mh))
 	(def info_scroll :min_width w :min_height h)
-	(bind '(x y w h) (apply view-fit (cat (. mywindow :get_pos) (. mywindow :pref_size))))
-	(. mywindow :change_dirty x y w h))
+	(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
+	(. *window* :change_dirty x y w h))
 
 (defun populate ()
 	(defq new_services (mail-enquire ""))
@@ -57,8 +57,8 @@
 	;add window
 	(bind '(w h) (. right_flow :get_size))
 	(def info_scroll :min_width w :min_height h)
-	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
-	(gui-add-front (. mywindow :change x y w h))
+	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
+	(gui-add-front (. *window* :change x y w h))
 	;app event loop
 	(while id
 		;next event
@@ -73,9 +73,9 @@
 				((= id +event_max)
 					;max button
 					(resize 640))
-				(t (. mywindow :event msg))))
+				(t (. *window* :event msg))))
 		(task-sleep 10000)
 		(populate))
 	(free-select select)
 	;close window
-	(gui-sub mywindow))
+	(gui-sub *window*))

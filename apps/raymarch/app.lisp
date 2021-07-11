@@ -27,7 +27,7 @@
 				(+job_h (* canvas_height canvas_scale))))
 		(range (dec (* canvas_height canvas_scale)) -1)))
 
-(ui-window mywindow ()
+(ui-window *window* ()
 	(ui-title-bar _ "Raymarch" (0xea19) +event_close)
 	(ui-canvas canvas canvas_width canvas_height canvas_scale))
 
@@ -79,8 +79,8 @@
 (defun main ()
 	;add window
 	(.-> canvas (:fill +argb_black) :swap)
-	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
-	(gui-add-front (. mywindow :change x y w h))
+	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
+	(gui-add-front (. *window* :change x y w h))
 	(defq farm (Farm create destroy (* 2 (length (mail-nodes)))))
 	(mail-timeout (elem +select_timer select) timer_rate 0)
 	(while id
@@ -92,7 +92,7 @@
 					((= (setq id (getf msg +ev_msg_target_id)) +event_close)
 						;close button
 						(setq id nil))
-					(t (. mywindow :event msg))))
+					(t (. *window* :event msg))))
 			((= idx +select_task)
 				;child launch responce
 				(defq key (getf msg +kn_msg_key) child (getf msg +kn_msg_reply_id))
@@ -120,4 +120,4 @@
 	;close window and children
 	(. farm :close)
 	(free-select select)
-	(gui-sub mywindow))
+	(gui-sub *window*))

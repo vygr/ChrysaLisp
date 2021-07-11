@@ -18,7 +18,7 @@
 	fp3 (font-glyph-paths font "__Simple!")
 	fp4 (font-glyph-paths font "__Quality!"))
 
-(ui-window mywindow ()
+(ui-window *window* ()
 	(ui-title-bar _ "Canvas" (0xea19) +event_close)
 	(ui-canvas canvas canvas_width canvas_height canvas_scale))
 
@@ -102,8 +102,8 @@
 
 (defun main ()
 	(.-> canvas (:fill 0) (:set_canvas_flags +canvas_flag_antialias))
-	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
-	(gui-add-front (. mywindow :change x y w h))
+	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
+	(gui-add-front (. *window* :change x y w h))
 	(mail-timeout (elem +select_timer select) rate 0)
 	(while id
 		(defq msg (mail-read (elem (defq idx (mail-select select)) select)))
@@ -113,7 +113,7 @@
 				(cond
 					((= (getf msg +ev_msg_target_id) +event_close)
 						(setq id nil))
-					(t (. mywindow :event msg))))
+					(t (. *window* :event msg))))
 			((= idx +select_timer)
 				;timer event
 				(mail-timeout (elem +select_timer select) rate 0)
@@ -121,4 +121,4 @@
 				(setq angle (+ angle 0.0025)))))
 	;close window
 	(free-select select)
-	(gui-sub mywindow))
+	(gui-sub *window*))

@@ -6,7 +6,7 @@
 	(enum close max min)
 	(enum button))
 
-(ui-window mywindow ()
+(ui-window *window* ()
 	(ui-title-bar _ "Calculator" (0xea19 0xea1b 0xea1a) +event_close)
 	(ui-label display (:text "0" :color +argb_white :flow_flags +flow_flag_align_hright :font (create-font "fonts/OpenSans-Regular.ctf" 24)))
 	(ui-grid _ (:grid_width 4 :grid_height 4 :color *env_toolbar_col* :font (create-font "fonts/OpenSans-Regular.ctf" 42))
@@ -27,12 +27,12 @@
 	accum)
 
 (defun main ()
-	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
-	(gui-add-front (. mywindow :change x y w h))
+	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
+	(gui-add-front (. *window* :change x y w h))
 	(defq accum 0 value 0 num 0 lastop nil)
 	(while (cond
 		((>= (defq id (getf (defq msg (mail-read (task-mailbox))) +ev_msg_target_id)) +event_button)
-			(defq op (get :text (. mywindow :find_id (getf msg +ev_msg_action_source_id))))
+			(defq op (get :text (. *window* :find_id (getf msg +ev_msg_action_source_id))))
 			(cond
 				((eql op "AC")
 					(setq accum 0 value 0 num 0 lastop nil))
@@ -55,11 +55,11 @@
 			nil)
 		((= id +event_min)
 			;min button
-			(bind '(x y w h) (apply view-fit (cat (. mywindow :get_pos) (. mywindow :pref_size))))
-			(. mywindow :change_dirty x y w h))
+			(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
+			(. *window* :change_dirty x y w h))
 		((= id +event_max)
 			;max button
-			(bind '(x y w h) (apply view-fit (cat (. mywindow :get_pos) '(512 512))))
-			(. mywindow :change_dirty x y w h))
-		(t (. mywindow :event msg))))
-	(gui-sub mywindow))
+			(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) '(512 512))))
+			(. *window* :change_dirty x y w h))
+		(t (. *window* :event msg))))
+	(gui-sub *window*))

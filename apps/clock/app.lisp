@@ -14,7 +14,7 @@
 	seconds 0.0 second 0 minutes 0.0 minute 0 hours 0.0 hour 0 id t
 	select (alloc-select +select_size) rate (/ 1000000 1))
 
-(ui-window mywindow ()
+(ui-window *window* ()
 	(ui-title-bar _ "Clock" (0xea19) +event_close)
 	(if (eql *env_clock_analog* t)
 		(ui-canvas clock clock_size clock_size clock_scale)
@@ -88,8 +88,8 @@
 	(when clock
 		(.-> clock (:fill 0) (:set_canvas_flags +canvas_flag_antialias))
 		(create-clockface (* (i2f clock_size) (i2f clock_scale))))
-	(bind '(w h) (. mywindow :pref_size))
-	(gui-add-front (. mywindow :change 0 0 w h))
+	(bind '(w h) (. *window* :pref_size))
+	(gui-add-front (. *window* :change 0 0 w h))
 	(mail-timeout (elem +select_timer select) 1 0)
 	(while id
 		(defq msg (mail-read (elem (defq idx (mail-select select)) select)))
@@ -99,7 +99,7 @@
 				(cond
 					((= (setq id (getf msg +ev_msg_target_id)) +event_close)
 						(setq id nil))
-					(t (. mywindow :event msg))))
+					(t (. *window* :event msg))))
 			((= idx +select_timer)
 				;timer event
 				(mail-timeout (elem +select_timer select) rate 0)
@@ -112,4 +112,4 @@
 					(set display :text (view-digital-time))
 					(.-> display :layout :dirty)))))
 	(free-select select)
-	(gui-sub mywindow))
+	(gui-sub *window*))

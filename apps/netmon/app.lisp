@@ -16,7 +16,7 @@
 	id t select (alloc-select +select_size) rate (/ 1000000 2) +mem_align (* 1024 4096)
 	retry_timeout (if (starts-with "obj/vp64" (load-path)) 10000000 1000000))
 
-(ui-window mywindow ()
+(ui-window *window* ()
 	(ui-title-bar _ "Network Monitor" (0xea19 0xea1b 0xea1a) +event_close)
 	(ui-grid _ (:grid_width 3 :grid_height 1 :flow_flags +flow_down_fill :maximum 100 :value 0)
 		(ui-flow _ (:color +argb_green)
@@ -73,8 +73,8 @@
 
 (defun main ()
 	;add window
-	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
-	(gui-add-front (. mywindow :change x y w h))
+	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
+	(gui-add-front (. *window* :change x y w h))
 	(defq global_tasks (Global create destroy))
 	(mail-timeout (elem +select_nodes select) 1 0)
 	(while id
@@ -89,15 +89,15 @@
 					((= id +event_min)
 						;min button
 						(bind '(x y w h) (apply view-fit
-							(cat (. mywindow :get_pos) (. mywindow :pref_size))))
-						(. mywindow :change_dirty x y w h))
+							(cat (. *window* :get_pos) (. *window* :pref_size))))
+						(. *window* :change_dirty x y w h))
 					((= id +event_max)
 						;max button
-						(bind '(x y) (. mywindow :get_pos))
-						(bind '(w h) (. mywindow :pref_size))
+						(bind '(x y) (. *window* :get_pos))
+						(bind '(w h) (. *window* :pref_size))
 						(bind '(x y w h) (view-fit x y (/ (* w 100) 75) h))
-						(. mywindow :change_dirty x y w h))
-					(t (. mywindow :event msg))))
+						(. *window* :change_dirty x y w h))
+					(t (. *window* :event msg))))
 			((= idx +select_task)
 				;child launch responce
 				(defq child (getf msg +kn_msg_reply_id)
@@ -135,8 +135,8 @@
 					(. alloc_grid :layout)
 					(. task_grid :layout)
 					(bind '(x y w h) (apply view-fit
-						(cat (. mywindow :get_pos) (. mywindow :pref_size))))
-					(. mywindow :change_dirty x y w h))
+						(cat (. *window* :get_pos) (. *window* :pref_size))))
+					(. *window* :change_dirty x y w h))
 				;set scales
 				(defq task_scale (. task_scale_grid :children)
 					alloc_scale (. alloc_scale_grid :children)
@@ -163,4 +163,4 @@
 	;close window and children
 	(. global_tasks :close)
 	(free-select select)
-	(gui-sub mywindow))
+	(gui-sub *window*))

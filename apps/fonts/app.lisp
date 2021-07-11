@@ -6,6 +6,9 @@
 	(enum close)
 	(enum prev next))
 
+(enums +select 0
+	(enum main tip))
+
 (defun num-to-hex-str (_)
 	(cat "0x"
 		(num-to-char (logand 0xf (>> _ 12)))
@@ -33,8 +36,8 @@
 	(. symbol_grid :change 0 0 w h)
 	(def symbol_scroll :min_width w :min_height (min h 720))
 	(. symbol_scroll :add_child symbol_grid)
-	(bind '(x y w h) (apply view-fit (cat (. mywindow :get_pos) (. mywindow :pref_size))))
-	(. mywindow :change_dirty x y w h))
+	(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
+	(. *window* :change_dirty x y w h))
 
 (defun all-fonts (p)
 	(defq out (list))
@@ -42,24 +45,36 @@
 		(unzip (split (pii-dirlist p) ",") (list (list) (list))))
 	(sort cmp out))
 
-(defq index 1 fonts (all-fonts "fonts/"))
+(defq index 1 id t fonts (all-fonts "fonts/") select (alloc-select +select_size))
 
-(ui-window mywindow ()
+(ui-window *window* ()
 	(ui-title-bar _ "Fonts" (0xea19) +event_close)
-	(ui-tool-bar _ (:flow_flags +flow_right_fill)
+	(ui-tool-bar main_toolbar (:flow_flags +flow_right_fill)
 		(ui-buttons (0xe91d 0xe91e) +event_prev)
 		(ui-label fontname (:font *env_window_font* :border -1)))
 	(ui-scroll symbol_scroll +scroll_flag_vertical))
 
+(defun tooltips ()
+	(def *window* :tip_mbox (elem +select_tip select))
+	(each (# (def %0 :tip_text %1)) (. main_toolbar :children)
+		'("prev" "next")))
+
 (defun main ()
+	(tooltips)
 	(win-refresh index)
-	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
-	(gui-add-front (. mywindow :change x y w h))
-	(while (cond
-		((= (defq id (getf (defq msg (mail-read (task-mailbox))) +ev_msg_target_id)) +event_close)
-			;close button
-			nil)
-		((<= +event_prev id +event_next)
-			(win-refresh (% (+ index (dec (* 2 (- id +event_prev))) (length fonts)) (length fonts))))
-		(t (. mywindow :event msg))))
-	(gui-sub mywindow))
+	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
+	(gui-add-front (. *window* :change x y w h))
+	(while id
+		(defq *msg* (mail-read (elem (defq idx (mail-select select)) select)))
+		(cond
+			((= idx +select_tip)
+				;tip time mail
+				(if (defq view (. *window* :find_id (getf *msg* +mail_timeout_id)))
+					(. view :show_tip)))
+			((= (setq id (getf *msg* +ev_msg_target_id)) +event_close)
+				(setq id nil))
+			((<= +event_prev id +event_next)
+				(win-refresh (% (+ index (dec (* 2 (- id +event_prev))) (length fonts)) (length fonts))))
+			(t (. *window* :event *msg*))))
+	(free-select select)
+	(gui-sub *window*))

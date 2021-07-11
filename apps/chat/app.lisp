@@ -7,19 +7,22 @@
 	(enum connect disconnect)
 	(enum send))
 
+(enums +select 0
+	(enum main tip chat))
+
 (defq vdu_width 60 vdu_height 30)
 
-(ui-window mywindow (:color +argb_grey4)
+(ui-window *window* (:color +argb_grey4)
 	(ui-title-bar _ "Chat" (0xea19) +event_close)
-	(ui-tool-bar _ ()
+	(ui-tool-bar main_toolbar ()
 		(ui-buttons (0xe9ed 0xe9e8) +event_connect))
 	(ui-flow _ (:flow_flags +flow_right_fill :ink_color +argb_white :color +argb_white :ink_color +argb_black)
 		(ui-label _ (:text "User:"))
-		(. (ui-textfield chat_user (:clear_text "guest")) :connect +event_connect))
+		(. (ui-textfield chat_user (:clear_text "" :hint_text "username")) :connect +event_connect))
 	(ui-vdu vdu (:vdu_width vdu_width :vdu_height vdu_height :ink_color +argb_white))
 	(ui-flow _ (:flow_flags +flow_right_fill :ink_color +argb_white :color +argb_white :ink_color +argb_black)
 		(ui-label _ (:text "Chat:"))
-		(. (ui-textfield chat_text (:clear_text "")) :connect +event_send)))
+		(. (ui-textfield chat_text (:clear_text "" :hint_text "type here !")) :connect +event_send)))
 
 (defun vdu-print (vdu buf s)
 	(each (lambda (c)
@@ -36,40 +39,50 @@
 	(setq text (cat "<" (get :clear_text chat_user) "> " text (ascii-char 10)))
 	(each (# (mail-send (to-net-id (elem 1 (split %0 ","))) text)) (mail-enquire "CHAT_SERVICE")))
 
+(defun tooltips ()
+	(def *window* :tip_mbox (elem +select_tip select))
+	(each (# (def %0 :tip_text %1)) (. main_toolbar :children)
+		'("join" "leave")))
+
 (defun main ()
-	(defq id t text_buf (list "") select (alloc-select 1) entry nil)
-	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
-	(gui-add-front (. mywindow :change x y w h))
+	(defq id t text_buf (list "") entry nil select (alloc-select (dec +select_size)))
+	(tooltips)
+	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
+	(gui-add-front (. *window* :change x y w h))
 	(while id
-		(defq idx (mail-select select) msg (mail-read (elem idx select)))
+		(defq *msg* (mail-read (elem (defq idx (mail-select select)) select)))
 		(cond
-			((/= idx 0)
+			((= idx +select_tip)
+				;tip time mail
+				(if (defq view (. *window* :find_id (getf *msg* +mail_timeout_id)))
+					(. view :show_tip)))
+			((= idx +select_chat)
 				;chat text from network
-				(setq text_buf (vdu-print vdu text_buf msg)))
-			((= (setq id (getf msg +ev_msg_target_id)) +event_close)
+				(setq text_buf (vdu-print vdu text_buf *msg*)))
+			((= (setq id (getf *msg* +ev_msg_target_id)) +event_close)
 				;close
 				(setq id nil))
 			((= id +event_connect)
-				;connect to network
-				(unless entry
+				;connect to network ?
+				(unless (or entry (eql "" (get :clear_text chat_user)))
 					(push select (mail-alloc-mbox))
-					(setq entry (mail-declare (elem 1 select) "CHAT_SERVICE" "Chat Service 0.1"))
+					(setq entry (mail-declare (elem +select_chat select) "CHAT_SERVICE" "Chat Service 0.1"))
 					(broadcast "Has joined the chat !")))
 			((= id +event_disconnect)
 				;disconnect to network
 				(when entry
 					(broadcast "Has left the chat !")
-					(free-select select)
+					(mail-free-mbox (pop select))
 					(mail-forget entry)
 					(setq entry nil)))
 			((= id +event_send)
 				;send to network
 				(broadcast (get :clear_text chat_text))
-				(set chat_text :clear_text "")
+				(set chat_text :clear_text "" :cursor 0)
 				(.-> chat_text :layout :dirty))
-			(t (. mywindow :event msg))))
+			(t (. *window* :event *msg*))))
 	(when entry
 		(broadcast "Has left the chat !")
-		(mail-forget entry)
-		(free-select select))
-	(gui-sub mywindow))
+		(mail-forget entry))
+	(free-select select)
+	(gui-sub *window*))

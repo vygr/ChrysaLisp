@@ -7,7 +7,7 @@
 (enums +event 0
 	(enum close beginner intermediate expert click))
 
-(ui-window mywindow ()
+(ui-window *window* ()
 	(ui-flow window_flow (:flow_flags +flow_down_fill)
 		(ui-title-bar window_title "Minefield" (0xea19) +event_close)
 		(ui-flow view (:flow_flags +flow_flag_align_hcenter)
@@ -84,8 +84,8 @@
 	(. game_grid :change 0 0 w h)
 	(def view :min_width w :min_height h)
 	(. view :add_child game_grid)
-	(bind '(x y w h) (apply view-fit (cat (. mywindow :get_pos) (. mywindow :pref_size))))
-	(. mywindow :change_dirty x y w h))
+	(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
+	(. *window* :change_dirty x y w h))
 
 (defun rebuild-board ()
 	(bind '(gw gh nm) difficulty)
@@ -124,14 +124,14 @@
 	(. game_grid :change 0 0 w h)
 	(def view :min_width w :min_height h)
 	(. view :add_child game_grid)
-	(bind '(x y w h) (apply view-fit (cat (. mywindow :get_pos) (. mywindow :pref_size))))
-	(. mywindow :change_dirty x y w h))
+	(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
+	(. *window* :change_dirty x y w h))
 
 (defun main ()
 	(defq started nil game (list) game_board (list) game_adj (list) game_map (list) 
 		first_click t difficulty (list) game_grid nil click_offset 4 game_over nil mouse_down 0)
-	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
-	(gui-add-front (. mywindow :change x y w h))
+	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
+	(gui-add-front (. *window* :change x y w h))
 	(while (cond
 		((= (defq id (getf (defq msg (mail-read (task-mailbox))) +ev_msg_target_id)) +event_close)
 			nil)
@@ -163,5 +163,5 @@
 			(and (= (getf msg +ev_msg_type) +ev_type_mouse)
 				(/= 0 (getf msg +ev_msg_mouse_buttons))
 				(setq mouse_down (getf msg +ev_msg_mouse_buttons)))
-			(. mywindow :event msg))))
-	(gui-sub mywindow))
+			(. *window* :event msg))))
+	(gui-sub *window*))

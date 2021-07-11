@@ -7,7 +7,7 @@
 	(enum file_button tree_button)
 	(enum exts_action ok_action))
 
-(ui-window mywindow nil
+(ui-window *window* nil
 	(ui-flow _ (:flow_flags +flow_down_fill)
 		(ui-title-bar window_title "" (0xea19) +event_close)
 		(ui-flow _ (:flow_flags +flow_right_fill)
@@ -79,9 +79,9 @@
 	(def files_scroll :min_width w :min_height (max ch 512))
 	(. files_scroll :layout)
 	(. tree_scroll :layout)
-	(bind '(x y) (. mywindow :get_pos))
-	(bind '(w h) (. mywindow :pref_size))
-	(. mywindow :change_dirty x y w h)
+	(bind '(x y) (. *window* :get_pos))
+	(bind '(w h) (. *window* :pref_size))
+	(. *window* :change_dirty x y w h)
 	(def tree_scroll :min_height 0)
 	(def files_scroll :min_height 0))
 
@@ -92,8 +92,8 @@
 	(def ext_filter :clear_text exts)
 	(defq all_files (sort cmp (all-files dir)) tree_buttons (list) file_buttons (list) current_dir (cat dir "/"))
 	(populate-files all_files current_dir exts)
-	(bind '(x y w h) (apply view-locate (. mywindow :get_size)))
-	(gui-add-front (. mywindow :change x y w h))
+	(bind '(x y w h) (apply view-locate (. *window* :get_size)))
+	(gui-add-front (. *window* :change x y w h))
 	(while (cond
 		((eql (defq msg (mail-read (task-mailbox))) "")
 			nil)
@@ -103,16 +103,16 @@
 			(mail-send reply_mbox (get :clear_text filename)))
 		((= id +event_file_button)
 			(defq old_filename (get :clear_text filename) new_filename (cat current_dir
-				(get :text (. mywindow :find_id (getf msg +ev_msg_action_source_id)))))
+				(get :text (. *window* :find_id (getf msg +ev_msg_action_source_id)))))
 			(if (eql new_filename old_filename)
 				(mail-send reply_mbox new_filename))
 			(set filename :clear_text new_filename)
 			(.-> filename :layout :dirty))
 		((= id +event_tree_button)
-			(setq current_dir (get :text (. mywindow :find_id (getf msg +ev_msg_action_source_id))))
+			(setq current_dir (get :text (. *window* :find_id (getf msg +ev_msg_action_source_id))))
 			(populate-files all_files current_dir exts))
 		((= id +event_exts_action)
 			(setq exts (get :clear_text ext_filter))
 			(populate-files all_files current_dir exts))
-		(t (. mywindow :event msg))))
-	(gui-sub mywindow))
+		(t (. *window* :event msg))))
+	(gui-sub *window*))

@@ -13,7 +13,7 @@
 	sframes (map (lambda (_) (Canvas-from-file (cat "apps/boing/taoball_s_" (str _) ".cpm") +load_flag_shared)) (range 1 12))
 	select (alloc-select +select_size) rate (/ 1000000 30))
 
-(ui-window mywindow ()
+(ui-window *window* ()
 	(ui-title-bar _ "Boing" (0xea19 0xea1b 0xea1a) +event_close)
 	(ui-backdrop mybackdrop (:color +argb_black :ink_color +argb_white :style :grid
 			:spaceing 64 :min_width 640 :min_height 480)
@@ -21,8 +21,8 @@
 		(ui-element sframe (elem 0 sframes))))
 
 (defun main ()
-	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
-	(gui-add-front (. mywindow :change x y w h))
+	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
+	(gui-add-front (. *window* :change x y w h))
 	(mail-timeout (elem +select_timer select) rate 0)
 	(while id
 		(defq msg (mail-read (elem (defq idx (mail-select select)) select)))
@@ -34,15 +34,15 @@
 						(setq id nil))
 					((= id +event_min)
 						;min button
-						(bind '(x y w h) (apply view-fit (cat (. mywindow :get_pos) (. mywindow :pref_size))))
-						(. mywindow :change_dirty x y w h))
+						(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
+						(. *window* :change_dirty x y w h))
 					((= id +event_max)
 						;max button
-						(bind '(x y) (. mywindow :get_pos))
-						(bind '(w h) (. mywindow :pref_size))
+						(bind '(x y) (. *window* :get_pos))
+						(bind '(w h) (. *window* :pref_size))
 						(bind '(x y w h) (view-fit x y (/ (* w 5) 3) (/ (* h 5) 3)))
-						(. mywindow :change_dirty x y w h))
-					(t (. mywindow :event msg))))
+						(. *window* :change_dirty x y w h))
+					(t (. *window* :event msg))))
 			((= idx +select_timer)
 				;timer event
 				(mail-timeout (elem +select_timer select) rate 0)
@@ -65,4 +65,4 @@
 				(. sframe :dirty)
 				(. frame :dirty))))
 	(free-select select)
-	(gui-sub mywindow))
+	(gui-sub *window*))

@@ -6,7 +6,7 @@
 (enums +event 0
 	(enum login create))
 
-(ui-window mywindow ()
+(ui-window *window* ()
 	(ui-title-bar _ "Login Manager" () ())
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-grid _ (:grid_width 1 :grid_height 2)
@@ -20,16 +20,16 @@
 		(ui-buttons ("Login" "Create") +event_login)))
 
 (defun position-window ()
-	(bind '(w h) (. mywindow :pref_size))
-	(bind '(pw ph) (. (penv mywindow) :get_size))
-	(. mywindow :change_dirty (/ (- pw w) 2) (/ (- ph h) 2) w h))
+	(bind '(w h) (. *window* :pref_size))
+	(bind '(pw ph) (. (penv *window*) :get_size))
+	(. *window* :change_dirty (/ (- pw w) 2) (/ (- ph h) 2) w h))
 
 (defun get-username ()
 	(if (eql (defq user (get :clear_text username)) "") "Guest" user))
 
 (defun main ()
 	;add centered
-	(gui-add-front mywindow)
+	(gui-add-front *window*)
 	(position-window)
 	(while (cond
 		((and (< (defq id (getf (defq msg (mail-read (task-mailbox))) +ev_msg_target_id)) 0)
@@ -57,5 +57,5 @@
 					(open-child "apps/wallpaper/app.lisp" +kn_call_open)
 					nil)
 				(t	t)))
-		(t (. mywindow :event msg))))
-	(gui-sub mywindow))
+		(t (. *window* :event msg))))
+	(gui-sub *window*))

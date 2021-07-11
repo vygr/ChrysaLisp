@@ -44,7 +44,7 @@
 				(elem-set -2 buf (cat (elem -2 buf) c))))) s)
 	(. vdu :load buf 0 0 (length (elem -2 buf)) (dec (length buf))) buf)
 
-(ui-window mywindow (:color +argb_black)
+(ui-window *window* (:color +argb_black)
 	(ui-title-bar _ "Help" (0xea19) +event_close)
 	(ui-flow _ (:flow_flags +flow_right_fill :font *env_terminal_font*)
 		(ui-scroll index_scroll +scroll_flag_vertical nil
@@ -55,13 +55,13 @@
 	(populate-help)
 	(bind '(w h) (. index :pref_size))
 	(. index :change 0 0 (def index_scroll :min_width w) h)
-	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
-	(gui-add-front (. mywindow :change x y w h))
+	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
+	(gui-add-front (. *window* :change x y w h))
 	(while (cond
 		((= (defq id (getf (defq msg (mail-read (task-mailbox))) +ev_msg_target_id)) +event_close)
 			nil)
 		((= id +event_button)
-			(defq _ (find-rev (sym (get :text (. mywindow :find_id (getf msg +ev_msg_action_source_id)))) keys))
+			(defq _ (find-rev (sym (get :text (. *window* :find_id (getf msg +ev_msg_action_source_id)))) keys))
 			(when _
 				(setq text_buf (vdu-print vdu text_buf (str
 					"----------------------" (ascii-char 10)
@@ -69,5 +69,5 @@
 					"----------------------" (ascii-char 10)
 					(elem _ vals)
 					"----------------------" (ascii-char 10) (ascii-char 10))))))
-		(t (. mywindow :event msg))))
-	(gui-sub mywindow))
+		(t (. *window* :event msg))))
+	(gui-sub *window*))

@@ -21,7 +21,7 @@
 
 (defun populate-page (file)
 	(ui-root page_flow (Flow) (:flow_flags +flow_right_fill :font *env_window_font*
-			:color (get :color mywindow))
+			:color (get :color *window*))
 		(ui-label _ (:min_width +margin_width))
 		(ui-flow page (:flow_flags +flow_down_fill :min_width 800))
 		(ui-label _ (:min_width +margin_width)))
@@ -38,7 +38,7 @@
 	(.-> page_scroll (:add_child page_flow) (:layout))
 	(.-> doc_flow :layout :dirty_all))
 
-(ui-window mywindow (:color +argb_grey15)
+(ui-window *window* (:color +argb_grey15)
 	(ui-title-bar _ "Docs" (0xea19) +event_close)
 	(ui-flow doc_flow (:flow_flags +flow_right_fill :font *env_window_font* :color *env_toolbar_col*)
 		(ui-flow index (:flow_flags (logior +flow_flag_down +flow_flag_fillw))
@@ -49,16 +49,16 @@
 
 (defun main ()
 	(populate-page (defq file (elem 0 doc_list)))
-	(bind '(x y w h) (apply view-locate (. mywindow :pref_size)))
-	(gui-add-front (. mywindow :change x y w h))
+	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
+	(gui-add-front (. *window* :change x y w h))
 	(while (cond
 		((= (defq id (getf (defq msg (mail-read (task-mailbox))) +ev_msg_target_id)) +event_close)
 			nil)
 		((= id +event_button)
 			(if button (undef (. button :dirty) :color))
 			(. scroll_pos :insert file (get :value (get :vslider page_scroll)))
-			(setq button (. mywindow :find_id (getf msg +ev_msg_action_source_id)))
+			(setq button (. *window* :find_id (getf msg +ev_msg_action_source_id)))
 			(def (. button :dirty) :color *env_radio_col*)
 			(populate-page (setq file (get :text button))))
-		(t (. mywindow :event msg))))
-	(gui-sub mywindow))
+		(t (. *window* :event msg))))
+	(gui-sub *window*))

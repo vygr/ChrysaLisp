@@ -124,7 +124,7 @@ of the symbols used at the entry to the `(cond ...)` !
 		;maximize app
 		)
 	(t  ;ui event for window....
-		(. mywindow :event msg)))
+		(. *window* :event msg)))
 ```
 
 ### case
