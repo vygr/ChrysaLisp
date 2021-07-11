@@ -9,6 +9,8 @@ faster, but these functions are a good candidate for a VP string method !
 
 Updated Pcb viewer with tooltips.
 
+Updated remaining GUI apps with tooltips.
+
 ------
 
 Editor now has line number display.

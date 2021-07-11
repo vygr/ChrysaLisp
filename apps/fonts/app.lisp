@@ -19,7 +19,7 @@
 (defun win-refresh (i)
 	(defq ctf (elem (setq index i) fonts) font (create-font ctf 42) grid_width 8 grid_height 0
 		ranges (font-glyph-ranges font) symbol_grid (Grid))
-	(def fontname :text ctf)
+	(def window_title :text ctf)
 	(while (defq e (pop ranges) s (pop ranges))
 		(defq s (logand s (neg grid_width)) e (align e grid_width) n (/ (- e s) grid_width))
 		(setq grid_height (+ grid_height n))
@@ -48,10 +48,9 @@
 (defq index 1 id t fonts (all-fonts "fonts/") select (alloc-select +select_size))
 
 (ui-window *window* ()
-	(ui-title-bar _ "Fonts" (0xea19) +event_close)
-	(ui-tool-bar main_toolbar (:flow_flags +flow_right_fill)
-		(ui-buttons (0xe91d 0xe91e) +event_prev)
-		(ui-label fontname (:font *env_window_font* :border -1)))
+	(ui-title-bar window_title "" (0xea19) +event_close)
+	(ui-tool-bar main_toolbar ()
+		(ui-buttons (0xe91d 0xe91e) +event_prev))
 	(ui-scroll symbol_scroll +scroll_flag_vertical))
 
 (defun tooltips ()
