@@ -30,12 +30,12 @@
 	(cond
 		((starts-with "```" line)
 			:text)
-		(t	(case (sym line)
-				(boot-funcs
+		(t  (case line
+				("boot-funcs"
 					(paragraph (boot-funcs)))
-				(boot-macros
+				("boot-macros"
 					(paragraph (boot-macros)))
-				(boot-lambdas
+				("boot-lambdas"
 					(paragraph (boot-lambdas))))
 			state)))
 

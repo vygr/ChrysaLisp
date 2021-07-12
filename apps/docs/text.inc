@@ -34,7 +34,7 @@
 			(eql (elem 0 words) "* "))
 		;needs a bullet and indent
 		(def (defq text (Text))
-			:text (cat (num-to-utf8 0xe95f) "    ") 
+			:text (cat (num-to-utf8 0xe95f) "    ")
 			:font (create-font "fonts/Entypo.ctf" 10))
 		(. flow :add_child text)
 		(setq index 1 cnt (defq indent_width (elem 0 (. text :pref_size)))))
@@ -72,7 +72,7 @@
 		((starts-with "```" line)
 			;section start
 			(if (eql (setq state (sym (cat ":" (slice 3 -1 line)))) :) :code state))
-		(t	;body text
+		(t  ;body text
 			(cond
 				((eql line "")
 					;body paragraph end
@@ -94,7 +94,7 @@
 					(heading (line-words (slice 2 -1 line)) 34)
 					(under-line 4)
 					(blank-line))
-				(t	(each (lambda (word)
+				(t  (each (lambda (word)
 						(push words word)) (line-words line))))
 			state)))
 
