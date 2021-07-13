@@ -10,8 +10,6 @@ just get in touch.
 
 * Add keyboard macro saveing to Editor.
 
-* Full editing in Textfield widgets. Shift selection and copy/cut/paste.
-
 * Create a regexp string search lib and add it to the Editor feature set.
 
 * Create a SVG import library. This should parse basic SVG files and convert

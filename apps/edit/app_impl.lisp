@@ -492,7 +492,7 @@
 						;insert the char
 						(dispatch-action action-insert (char key))
 						(show-matches))))
-			(t  ;gui event, plus check for tip text
+			(t  ;gui event
 				(clear-matches)
 				(. *window* :event *msg*)))
 		;update meta data

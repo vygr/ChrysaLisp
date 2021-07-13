@@ -11,6 +11,8 @@ Updated Pcb viewer with tooltips.
 
 Updated remaining GUI apps with tooltips.
 
+Mouse/shift selection and cut/paste/copy added to Textfield widgets.
+
 ------
 
 Editor now has line number display.
