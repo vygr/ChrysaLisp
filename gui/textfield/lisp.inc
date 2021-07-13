@@ -45,7 +45,7 @@
 
 	(defmethod :key_down (this event)
 		; (. textfield :key_down event) -> textfield
-		(raise :clear_text :cursor :anchor :shift_select)
+		(raise :clear_text :cursor :anchor :shift_select :mode)
 		(defq key (getf event +ev_msg_key_key) mod (getf event +ev_msg_key_mod)
 			cursor (min cursor (length clear_text)))
 		(cond
@@ -54,14 +54,14 @@
 				(cond
 					((= key (ascii-code "x"))
 						;cut
-						(when (/= cursor anchor)
+						(unless (or mode (= cursor anchor))
 							(defq sx (min anchor cursor) sx1 (max anchor cursor))
 							(clipboard-put (slice sx sx1 clear_text))
 							(setq clear_text (erase clear_text sx sx1)
 								cursor sx shift_select t anchor cursor)))
 					((= key (ascii-code "c"))
 						;copy
-						(when (/= cursor anchor)
+						(unless (or mode (= cursor anchor))
 							(defq sx (min anchor cursor) sx1 (max anchor cursor))
 							(clipboard-put (slice sx sx1 clear_text))))
 					((= key (ascii-code "v"))
