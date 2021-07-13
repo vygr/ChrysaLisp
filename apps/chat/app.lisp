@@ -78,7 +78,7 @@
 			((= id +event_send)
 				;send to network
 				(broadcast (get :clear_text chat_text))
-				(set chat_text :clear_text "" :cursor 0)
+				(set chat_text :clear_text "" :cursor 0 :anchor 0)
 				(.-> chat_text :layout :dirty))
 			(t (. *window* :event *msg*))))
 	(when entry

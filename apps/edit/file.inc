@@ -50,7 +50,7 @@
 		(if (= (age file) 0)
 			;file does not exist
 			(save "" file))
-		(def *name_text* :cursor 0 :clear_text "")
+		(def *name_text* :cursor 0 :anchor 0 :clear_text "")
 		(.-> *name_text* :layout :dirty_all)
 		(. *open_tree* :add_route file)
 		(. *file_tree* :add_route file)
