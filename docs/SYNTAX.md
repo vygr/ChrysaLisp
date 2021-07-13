@@ -678,6 +678,24 @@
 (. textfield :layout) -> textfield
 ```
 
+### textfield :mouse_down
+
+```code
+(. textfield :mouse_down event) -> textfield
+```
+
+### textfield :mouse_move
+
+```code
+(. textfield :mouse_move event) -> textfield
+```
+
+### textfield :mouse_up
+
+```code
+(. textfield :mouse_up event) -> textfield
+```
+
 ### .
 
 ```code
