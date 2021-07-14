@@ -8,7 +8,7 @@ In no particular order but to just to ensure I get thoughts down. I'll keep
 adding to this as I go along. If anybody would like to try helping out, then
 just get in touch.
 
-* Add keyboard macro saveing to Editor.
+* Add keyboard macro saving to Editor.
 
 * Create a regexp string search lib and add it to the Editor feature set.
 

@@ -12,7 +12,7 @@ Lisp apps to make use of.
 
 Recently a request came up about being able to create fast hash set and hash
 map structures at the Lisp level. Now ChrysaLisp already has a VP level class
-for hash maps and hash sets, but they are specialized for handling the
+for hash maps and hash sets, but they are specialised for handling the
 environment facilities of the Lisp interpreter.
 
 There is a fast `(find)` function that can be used to create simple and fast

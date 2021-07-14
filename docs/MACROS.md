@@ -1,11 +1,11 @@
 # Macros
 
 This document covers ChrysaLisp macros, what they are and what you can do with
-them. What can be said about Lisp macros that has not allready been said ?
+them. What can be said about Lisp macros that has not already been said ?
 
 When I first started ChrysaLisp I had never used Lisp in anger, just observed
 from the sidelines and thought "that's neat..." . One of the biggest features
-of Lisp like languages was allways macros. Not the text substitution idea of
+of Lisp like languages was always macros. Not the text substitution idea of
 lesser languages, but the real deal.
 
 So what is "the real deal..." ? Sounds like some Lisp guys just smack talking
@@ -29,7 +29,7 @@ is scanned by the `(macroexpand)` phase of the REPL.
 
 Any symbol that is the first item in a list, that is bound within the current
 environment to a `macro` defined function rather than a `lambda`, is
-substituted for the result of calling that macro function with the paramaters
+substituted for the result of calling that macro function with the parameters
 of the rest of the list.
 
 Let's look at a very simple macro.
@@ -87,7 +87,7 @@ This macro would turn `(inc x)` into `(+ x 1)`.
 
 ## Macros are nothing to do with `quasi-quote`
 
-Quasiquotation is useful within macros but has nothing to do with how macros
+Quasi quotation is useful within macros but has nothing to do with how macros
 work. An ordinary function is free to use `quasi-quote` but a macro can make
 use of this as a templating system to make the macro easier to write.
 
@@ -104,8 +104,8 @@ not obvious. But stick with me as we proceed.
 
 ## Macros can extend your language
 
-It might suprise you to learn that a lot of what you take for granted as
-langauge constructs within ChrysaLisp are provided as macros ! They are not
+It might surprise you to learn that a lot of what you take for granted as
+language constructs within ChrysaLisp are provided as macros ! They are not
 actually built in primitives, but supplied in the `boot.inc` file.
 
 Take the `(when)` construct:
@@ -119,7 +119,7 @@ Take the `(when)` construct:
 ```
 
 This replaces your use of `(when ...)` with either an `(if ..)` or `(cond ...)`
-primative. Thus providing you with a nicer syntax to express your intent.
+primitive. Thus providing you with a nicer syntax to express your intent.
 
 ## Macros can do complex substitution
 
@@ -137,11 +137,11 @@ returning it.
 ```
 
 Here the `(or ...)` is replaced with the `out` list, which starts life as
-`(cond)` and for each paramater a new clause is pushed.
+`(cond)` and for each parameter a new clause is pushed.
 
 And how about the `(case)` construct !!! This replaces your simple use of
 `(case)` with a flat map search and evaluate of a `key->result` including
-checking if it can optimize the result based on the type of clauses you
+checking if it can optimise the result based on the type of clauses you
 provided and if you included a default.
 
 ```vdu
@@ -238,7 +238,7 @@ A great example here is the profiling library. The library is imported with:
 
 This redefines the `(defun)` and `(defmethod)` macros to collect timing
 information. Your function and method existing functionality is not effected
-but supllimented with wrapper code that builds and maintains the profiling
+but supplemented with wrapper code that builds and maintains the profiling
 information.
 
 ```file
