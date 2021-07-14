@@ -86,7 +86,14 @@
 						(setq cursor (max 0 (dec cursor))))
 					((= key 0x4000004f)
 						;right
-						(setq cursor (min (length clear_text) (inc cursor))))))
+						(setq cursor (min (length clear_text) (inc cursor))))
+					((<= +char_space key +char_tilda)
+						;insert char
+						(when (/= cursor anchor)
+							(defq sx (min anchor cursor) sx1 (max anchor cursor))
+							(setq clear_text (erase clear_text sx sx1) cursor sx))
+						(setq clear_text (insert clear_text cursor (char key))
+							cursor (inc cursor) anchor cursor))))
 			((or (= key +char_lf) (= key +char_cr))
 				;enter action
 				(setq anchor cursor)
