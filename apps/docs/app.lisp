@@ -8,7 +8,7 @@
 
 (defq +margin_width (* 8 3) syntax (Syntax) handlers (emap) scroll_pos (xmap) button nil
 	doc_list '("VP_VM" "VP_ASSIGNMENT" "VP_STRUCTURE" "VP_FUNCTIONS" "VP_CLASSES"
-	"LISP" "ENVIRONMENT" "CONDITIONALS" "ITERATION" "COMMS" "SYNTAX"
+	"LISP" "ENVIRONMENT" "CONDITIONALS" "ITERATION" "COMMS" "MACROS" "SYNTAX"
 	"TERMINAL" "COMMANDS" "DIARY"
 	"INTRO" "TAOS" "TODO"))
 
