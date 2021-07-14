@@ -23,7 +23,7 @@
 				(bind '(sw _) (font-glyph-bounds font (slice 0 (min anchor cursor) text)))
 				(bind '(sw1 _) (font-glyph-bounds font (slice 0 (max anchor cursor) text)))
 				(.-> this
-					(:ctx_set_color +argb_grey14)
+					(:ctx_set_color (get :hint_color this))
 					(:ctx_filled_box sw (>>> (- h th) 1) (- sw1 sw) th)))
 			(.-> this
 				(:ctx_set_color (get :ink_color this))
@@ -52,6 +52,9 @@
 			((/= 0 (logand mod (const (+ +ev_key_mod_control +ev_key_mod_command))))
 				;control/command key
 				(cond
+					((= key (ascii-code "a"))
+						;select all
+						(setq anchor 0 cursor (length clear_text)))
 					((= key (ascii-code "x"))
 						;cut
 						(unless (or mode (= cursor anchor))
