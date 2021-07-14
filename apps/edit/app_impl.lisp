@@ -127,7 +127,7 @@
 	;clear the selection
 	(bind '(x y) (. *current_buffer* :get_cursor))
 	(bind '(x y) (. *current_buffer* :constrain x y))
-	(setq *anchor_x* x *anchor_y* y *shift_select* nil))
+	(setq *anchor_x* x *anchor_y* y))
 
 (defun create-selection ()
 	;create the underlay for block selection
@@ -182,7 +182,7 @@
 
 (defun set-sliders ()
 	;set slider values for current file
-	(bind '(x y ax ay sx sy ss buffer) (. *meta_map* :find *current_file*))
+	(bind '(x y ax ay sx sy _ buffer) (. *meta_map* :find *current_file*))
 	(bind '(w h) (. buffer :get_size))
 	(bind '(vw vh) (. *vdu* :vdu_size))
 	(defq smaxx (max 0 (- w vw -1))
@@ -190,20 +190,20 @@
 		sx (max 0 (min sx smaxx)) sy (max 0 (min sy smaxy)))
 	(def (. *xslider* :dirty) :maximum smaxx :portion vw :value sx)
 	(def (. *yslider* :dirty) :maximum smaxy :portion vh :value sy)
-	(. *meta_map* :insert *current_file* (list x y ax ay sx sy ss buffer))
+	(. *meta_map* :insert *current_file* (list x y ax ay sx sy _ buffer))
 	(setq *scroll_x* sx *scroll_y* sy))
 
 (defun refresh ()
 	(unless (get :macro_playback)
 		;refresh display and ensure cursor is visible
-		(bind '(x y ax ay sx sy ss buffer) (. *meta_map* :find *current_file*))
+		(bind '(x y ax ay sx sy _ buffer) (. *meta_map* :find *current_file*))
 		(bind '(x y) (. buffer :get_cursor))
 		(bind '(w h) (. *vdu* :vdu_size))
 		(if (< (- x +margin) sx) (setq sx (- x +margin)))
 		(if (< (- y +margin) sy) (setq sy (- y +margin)))
 		(if (>= (+ x +margin) (+ sx w)) (setq sx (- (+ x +margin) w -1)))
 		(if (>= (+ y +margin) (+ sy h)) (setq sy (- (+ y +margin) h -1)))
-		(. *meta_map* :insert *current_file* (list x y ax ay sx sy ss buffer))
+		(. *meta_map* :insert *current_file* (list x y ax ay sx sy _ buffer))
 		(set-sliders) (load-display)))
 
 (defun populate-dictionary (line)
@@ -214,13 +214,13 @@
 				(. dictionary :insert_word word)))
 		(split line +not_whole_word_chars)))
 
-(defun populate-file (file x y ax ay sx sy ss)
+(defun populate-file (file x y ax ay sx sy)
 	;create new file buffer
 	(unless (. *meta_map* :find file)
 		(defq mode (if (or (ends-with ".md" file)
 						   (ends-with ".txt" file)) t nil))
 		(. *meta_map* :insert file
-			(list x y ax ay sx sy ss (defq buffer (Buffer mode *syntax*))))
+			(list x y ax ay sx sy nil (defq buffer (Buffer mode *syntax*))))
 		(when file
 			(. buffer :file_load file)
 			(unless (find file *open_files*) (push *open_files* file))
@@ -228,9 +228,9 @@
 
 (defun populate-vdu (file)
 	;load up the vdu widget from this file
-	(populate-file file 0 0 0 0 0 0 nil)
-	(bind '(x y ax ay sx sy ss buffer) (. *meta_map* :find file))
-	(setq *cursor_x* x *cursor_y* y *anchor_x* ax *anchor_y* ay *shift_select* ss
+	(populate-file file 0 0 0 0 0 0)
+	(bind '(x y ax ay sx sy _ buffer) (. *meta_map* :find file))
+	(setq *cursor_x* x *cursor_y* y *anchor_x* ax *anchor_y* ay
 		*current_buffer* buffer *current_file* file)
 	(. buffer :set_cursor x y)
 	(refresh)
@@ -262,8 +262,8 @@
 	(when (defq stream (file-stream (cat *env_home* +state_filename)))
 		(each-line (lambda (line)
 				(bind '(form _) (read (string-stream line) +char_space))
-				(bind '(file (x y ax ay sx sy ss)) form)
-				(if (/= (age file) 0) (populate-file file x y ax ay sx sy ss)))
+				(bind '(file (x y ax ay sx sy _)) form)
+				(if (/= (age file) 0) (populate-file file x y ax ay sx sy)))
 			stream)))
 
 (defun save-open-files ()
@@ -385,7 +385,7 @@
 		(tolist (get :keywords *syntax* )))
 	(each-line populate-dictionary (file-stream "class/lisp/boot.inc"))
 	(defq *cursor_x* 0 *cursor_y* 0 *anchor_x* 0 *anchor_y* 0 *scroll_x* 0 *scroll_y* 0
-		*shift_select* nil *current_buffer* nil *running* t mouse_state :u)
+		*current_buffer* nil *running* t mouse_state :u)
 	(load-open-files)
 	(populate-file-tree)
 	(populate-open-tree)
@@ -424,8 +424,7 @@
 							(:u ;mouse down event
 								(bind '(x y) (. *current_buffer* :constrain x y))
 								(. *current_buffer* :set_cursor x y)
-								(setq *anchor_x* x *anchor_y* y
-									*shift_select* t mouse_state :d)
+								(setq *anchor_x* x *anchor_y* y mouse_state :d)
 								(refresh))))
 					(t  ;mouse button is up
 						(case mouse_state
@@ -445,10 +444,10 @@
 			((and (= id (. *vdu* :get_id)) (= (getf *msg* +ev_msg_type) +ev_type_wheel))
 				;wheel event on display area
 				(clear-matches)
-				(bind '(x y ax ay sx sy ss buffer) (. *meta_map* :find *current_file*))
+				(bind '(x y ax ay sx sy _ buffer) (. *meta_map* :find *current_file*))
 				(setq sx (+ *scroll_x* (getf *msg* +ev_msg_wheel_x))
 					sy (- *scroll_y* (getf *msg* +ev_msg_wheel_y)))
-				(. *meta_map* :insert *current_file* (list x y ax ay sx sy ss buffer))
+				(. *meta_map* :insert *current_file* (list x y ax ay sx sy _ buffer))
 				(set-sliders) (load-display))
 			((and (not (Textfield? (. *window* :find_id id)))
 					(= (getf *msg* +ev_msg_type) +ev_type_key)
@@ -498,8 +497,8 @@
 		;update meta data
 		(bind '(*cursor_x* *cursor_y*) (. *current_buffer* :get_cursor))
 		(. *meta_map* :insert *current_file*
-			(list *cursor_x* *cursor_y* *anchor_x* *anchor_y*
-				*scroll_x* *scroll_y* *shift_select* *current_buffer*)))
+			(list *cursor_x* *cursor_y* *anchor_x* *anchor_y* *scroll_x* *scroll_y*
+				nil *current_buffer*)))
 	(free-select select)
 	(clear-matches)
 	(gui-sub *window*)

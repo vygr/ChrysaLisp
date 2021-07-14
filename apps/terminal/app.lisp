@@ -65,7 +65,7 @@
 	;clear the selection
 	(bind '(x y) (. *current_buffer* :get_cursor))
 	(bind '(x y) (. *current_buffer* :constrain x y))
-	(setq *anchor_x* x *anchor_y* y *shift_select* nil))
+	(setq *anchor_x* x *anchor_y* y))
 
 (defun create-selection ()
 	;create the underlay for block selection
@@ -145,8 +145,7 @@
 (defun main ()
 	(defq *select* (alloc-select +select_size)
 		*cursor_x* 0 *cursor_y* 0 *anchor_x* 0 *anchor_y* 0 *scroll_x* 0 *scroll_y* 0
-		*shift_select* nil *running* t mouse_state :u
-		*pipe* nil *history* (list) *history_idx* 0)
+		*running* t mouse_state :u *pipe* nil *history* (list) *history_idx* 0)
 	(tooltips)
 	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
@@ -187,8 +186,7 @@
 							(:u ;mouse down event
 								(bind '(x y) (. *current_buffer* :constrain x y))
 								(. *current_buffer* :set_cursor x y)
-								(setq *anchor_x* x *anchor_y* y
-									*shift_select* t mouse_state :d)
+								(setq *anchor_x* x *anchor_y* y mouse_state :d)
 								(refresh))))
 					(t  ;mouse button is up
 						(case mouse_state
