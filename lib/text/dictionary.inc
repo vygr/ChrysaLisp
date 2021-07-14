@@ -28,12 +28,12 @@
 		(if (get :dirty this) (. this :sort))
 		(raise :word_list (i nil j 0 k (length word_list)))
 		;bsearch
-		(while (<= j k)
+		(while (< j k)
 			(setq i (>> (+ j k) 1))
 			(if (starts-with prefix (elem i word_list))
 				(setq k -1)
 				(if (> (cmp prefix (elem i word_list)) 0)
-					(setq j (inc i)) (setq k (dec i)))))
+					(setq j (inc i)) (setq k i))))
 		;bounds
 		(cond
 			((= k -1)
