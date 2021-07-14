@@ -4,12 +4,14 @@
 	(defq clip_service (mail-declare (task-mailbox) "CLIPBOARD_SERVICE" "Clipboard Service 0.2")
 		clipboard "")
 	(while t
+		(env-push)
 		(defq msg (mail-read (task-mailbox)))
 		(cond
-			((= (defq type (getf msg +clipboard_event_type)) +clip_type_put)
+			((= (defq type (elem 0 msg)) +clip_type_put)
 				;put string on clipboard
-				(setq clipboard (slice +clipboard_put_data -1 msg)))
+				(setq clipboard (elem 1 msg)))
 			((= type +clip_type_get)
 				;get string from clipboard
-				(mail-send (getf msg +clipboard_get_reply) clipboard))))
+				(mail-send (elem 1 msg) clipboard)))
+		(env-pop))
 	(mail-forget clip_service))
