@@ -13,6 +13,8 @@ Updated remaining GUI apps with tooltips.
 
 Mouse/shift selection and cut/paste/copy added to Textfield widgets.
 
+New MACROS.md document.
+
 ------
 
 Editor now has line number display.

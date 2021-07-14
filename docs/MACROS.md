@@ -59,7 +59,19 @@ key_map_control (xmap-kv
 	(ascii-code "O") action-ordered-unique)
 ```
 
-The `key_map_control` xmap is a map of `numbers->lambda` not a map of `string->lambda` !
+The `key_map_control` xmap is a map of `numbers->lambda` not a map of
+`string->lambda` ! This source becomes:
+
+```vdu
+key_map_control (xmap-kv
+	77 action-macro-record
+	109 action-macro-playback
+	47 action-comment-block
+	97 action-select-all
+	98 action-select-block
+	...
+	79 action-ordered-unique)
+```
 
 ## Macros can substitute a new list
 
@@ -191,3 +203,44 @@ ui macros, for example the Pcb app UI:
 ```
 
 This expands into a program to build the UI tree !
+
+## Macros can turn run time work into read time work
+
+Macros are expanded at source read time via the REPL. This happens once before
+your source starts to 'run'. Thus you can use macros to move calculations to
+'read time' rather than doing them at 'run time'
+
+A simple example is the `(const)` macro:
+
+```vdu
+(defmacro const (_)
+	; (const form)
+	(eval (macroexpand _)))
+```
+
+This macro replaces the source form with the evaluation of that form at 'read
+time'. A simple use:
+
+```vdu
+	(split data (const (cat " " (ascii-char +char_lf))))
+```
+
+Here we know the splitting chars string is going to be constant at run time,
+but it's convenient to express it as the concatination of a space and lf char.
+
+## Macros can decorate existing functions
+
+A great example here is the profiling library. The library is imported with:
+
+```vdu
+(import "lib/debug/profile.inc")
+```
+
+This redefines the `(defun)` and `(defmethod)` macros to collect timing
+information. Your function and method existing functionality is not effected
+but supllimented with wrapper code that builds and maintains the profiling
+information.
+
+```file
+lib/debug/profile.inc
+```
