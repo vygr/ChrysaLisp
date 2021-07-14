@@ -20,7 +20,7 @@
 		(defq word_list (clear (get :word_list this)))
 		(. (get :word_set this) :each (# (push word_list %0)))
 		(sort cmp word_list)
-		(lower (:dirty t))
+		(lower (:dirty nil))
 		this)
 
 	(defmethod :find_matches (this prefix)
