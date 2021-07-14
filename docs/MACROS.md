@@ -28,8 +28,9 @@ After your source code is read in by the `(read)` function, the resulting tree
 is scanned by the `(macroexpand)` phase of the REPL.
 
 Any symbol that is the first item in a list, that is bound within the current
-environment to be a `macro` defined function, is substituted for the result of
-calling that macro function with the paramaters of the rest of the list.
+environment to a `macro` defined function rather than a `lambda`, is
+substituted for the result of calling that macro function with the paramaters
+of the rest of the list.
 
 Let's look at a very simple macro.
 
@@ -100,11 +101,13 @@ Take the `(when)` construct:
 ```vdu
 (defmacro when (x &rest _)
 	; (when tst body)
-	`(cond (,x ~_)))
+	(if (= (length _) 1)
+		`(if ,x ~_)
+		`(cond (,x ~_))))
 ```
 
-This replaces your use of `(when ...)` with a `(cond ...)` primative. Thus
-providing you with a nicer syntax to express your intent.
+This replaces your use of `(when ...)` with either an `(if ..)` or `(cond ...)`
+primative. Thus providing you with a nicer syntax to express your intent.
 
 ## Macros can do complex substitution
 

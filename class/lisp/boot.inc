@@ -233,11 +233,15 @@
 
 (defmacro when (x &rest _)
 	; (when tst body)
-	`(cond (,x ~_)))
+	(if (= (length _) 1)
+		`(if ,x ~_)
+		`(cond (,x ~_))))
 
 (defmacro unless (x &rest _)
 	; (unless tst body)
-	`(cond (,x nil) (t ~_)))
+	(if (= (length _) 1)
+		`(if ,x nil ~_)
+		`(cond (,x nil) (t ~_))))
 
 (defmacro until (x &rest _)
 	; (until tst body)
