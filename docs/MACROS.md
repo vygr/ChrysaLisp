@@ -93,9 +93,9 @@ not obvious. But stick with me as we proceed.
 
 It might suprise you to learn that a lot of what you take for granted as
 langauge constructs within ChrysaLisp are provided as macros ! They are not
-actually built in primatiuves, but supplied in the `boot.inc` file.
+actually built in primitives, but supplied in the `boot.inc` file.
 
-Take the `(when)` function:
+Take the `(when)` construct:
 
 ```vdu
 (defmacro when (x &rest _)
@@ -103,7 +103,7 @@ Take the `(when)` function:
 	`(cond (,x ~_)))
 ```
 
-This replaces your use of `(when ...)` with a `(cond)` primative. thus
+This replaces your use of `(when ...)` with a `(cond ...)` primative. Thus
 providing you with a nicer syntax to express your intent.
 
 ## Macros can do complex substitution
@@ -120,3 +120,71 @@ returning it.
 	(each! 0 -1 (lambda (&rest c) (push out c)) (list _))
 	out)
 ```
+
+Here the `(or ...)` is replaced with the `out` list, which starts life as
+`(cond)` and for each paramater a new clause is pushed.
+
+And how about the `(case)` construct !!! This replaces your simple use of
+`(case)` with a flat map search and evaluate of a `key->result` including
+checking if it can optimize the result based on the type of clauses you
+provided and if you included a default.
+
+```vdu
+(defmacro case (_form &rest _body)
+	; (case form [(key|(key ...) body)] ...)
+	(defq _default_key nil _default_clause nil _atoms t
+		_map (reduce (lambda (_map (_keys &rest _clause_body))
+			(unless (list? _keys) (setq _keys (list _keys)))
+			(setq _clause_body (prebind (macroexpand
+				(if (= (length _clause_body) 1)
+					(elem 0 _clause_body)
+					(cat '(progn) _clause_body)))))
+			(or (eql :num (defq _clause_type (pop (type-of _clause_body))))
+				(eql :str _clause_type) (setq _atoms nil))
+			(each! 0 -1 (lambda (_key) (cond
+				((eql _key t)
+					(setq _default_key t _default_clause _clause_body))
+				(t  (push (elem 0 _map) _key)
+					(push (elem 1 _map) _clause_body)))) (list _keys)) _map)
+			_body (list (list) (list))))
+	(cond
+		(_default_key
+			(push (elem 1 _map) _default_clause)
+			(if _atoms
+				`(elem (or (find ,_form ',(elem 0 _map)) -2) ',(elem 1 _map))
+				`(eval (elem (or (find ,_form ',(elem 0 _map)) -2) ',(elem 1 _map)))))
+		(t  (if _atoms
+				`(if (defq ,(defq _i (gensym)) (find ,_form ',(elem 0 _map)))
+					(elem ,_i ',(elem 1 _map)))
+				`(if (defq ,(defq _i (gensym)) (find ,_form ',(elem 0 _map)))
+					(eval (elem ,_i ',(elem 1 _map))))))))
+```
+
+## Macros can be nested
+
+The `(macroexpand)` function called by the REPL expands macros in depth first
+order, from left to right.
+
+It's perfectly OK to have nested macro forms, just remember that the lower
+macros will get to 'eat' the results of the higher macros !
+
+`(macroexpand)` will keep looping until it finds no more macro substitutions
+are possible. The resulting tree will only consist of built in primitives,
+atoms and none macro function calls.
+
+Most of the GUI widget trees, for application UIs, are constructed with nested
+ui macros, for example the Pcb app UI:
+
+```vdu
+(ui-window *window* ()
+	(ui-title-bar window_title "" (0xea19) +event_close)
+	(ui-tool-bar main_toolbar ()
+		(ui-buttons (0xe91d 0xe91e 0xea00 0xea01 0xe9ac 0xe9ad) +event_prev)
+		(ui-buttons ("0" "1" "2" "3" "4") +event_show_all
+			(:color (const *env_toolbar2_col*)
+			:font (const (create-font "fonts/OpenSans-Regular.ctf" 20)))))
+	(ui-scroll pcb_scroll (logior +scroll_flag_vertical +scroll_flag_horizontal)
+			(:min_width 512 :min_height 256)))
+```
+
+This expands into a program to build the UI tree !
