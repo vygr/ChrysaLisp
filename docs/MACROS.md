@@ -42,7 +42,7 @@ Let's look at a very simple macro.
 
 This macro will substitute any occurrence of `(ascii-code "X")` with the code
 value of that character. When the source code is evaluated it will only be the
-code value of "X" , it won't be the char string "X" . You can refer to the code
+code value of "X", it won't be the char string "X". You can refer to the code
 of a character in your source without having to know the code value, the macro
 does the work for you.
 
@@ -125,7 +125,7 @@ primitive. Thus providing you with a nicer syntax to express your intent.
 
 Only the result returned by a macro is substituted for the source form. Your
 macro can do complex work and return the result of that work, for example the
-`(or)` construct substitutes a single `(cond)` but builds the result before
+`(or)` construct substitutes a single `(cond)` but builds the clauses before
 returning it.
 
 ```vdu
@@ -219,7 +219,9 @@ A simple example is the `(const)` macro:
 ```
 
 This macro replaces the source form with the evaluation of that form at 'read
-time'. A simple use:
+time'.
+
+A simple use:
 
 ```vdu
 	(split data (const (cat " " (ascii-char +char_lf))))

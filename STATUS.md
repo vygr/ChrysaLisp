@@ -15,6 +15,8 @@ Mouse/shift selection and cut/paste/copy added to Textfield widgets.
 
 New MACROS.md document.
 
+Correct the quote skipping in the `(split)` function.
+
 ------
 
 Editor now has line number display.
