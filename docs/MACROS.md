@@ -17,7 +17,7 @@ your own syntax for your applications and things that I don't think I'm
 qualified to talk about yet.
 
 So let's start slow and work our way up to my level, basic Amoeba... the Lisp
-Gurus are going to die laughing at my attempts to cover this subject...
+Gurus are going to die laughing at my attempts to cover this subject.
 
 ## Macros are just functions
 
@@ -28,9 +28,9 @@ After your source code is read in by the `(read)` function, the resulting tree
 is scanned by the `(macroexpand)` phase of the REPL.
 
 Any symbol that is the first item in a list, that is bound within the current
-environment to a `macro` defined function rather than a `lambda`, is
-substituted for the result of calling that macro function with the parameters
-of the rest of the list.
+environment, to a `macro` defined function rather than a `lambda`, has that
+list substituted for the result of calling that macro function with the
+parameters of the rest of the list.
 
 Let's look at a very simple macro.
 
@@ -106,7 +106,7 @@ not obvious. But stick with me as we proceed.
 
 It might surprise you to learn that a lot of what you take for granted as
 language constructs within ChrysaLisp are provided as macros ! They are not
-actually built in primitives, but supplied in the `boot.inc` file.
+actually built in primitives but macros, supplied in the `boot.inc` file.
 
 Take the `(when)` construct:
 
@@ -246,3 +246,38 @@ information.
 ```file
 lib/debug/profile.inc
 ```
+
+Another example of wrapping code in a decorator macro is the Editor application
+`(undoable)` macro. This macro can be used to wrap any code that mutates the
+text to ensure its effects can be undone.
+
+```vdu
+(defmacro undoable (&rest _)
+	`(progn
+		(. (defq buffer *current_buffer*) :push_undo
+			(list :mark (defq mark (. buffer :next_mark)))
+			(list :cursor *cursor_x* *cursor_y*))
+		~_
+		(. buffer :push_undo (list :mark mark))))
+```
+
+And an example of the macro in use:
+
+```vdu
+(defun action-reflow ()
+	(undoable
+		(bind '(y y1) (select-paragraph))
+		(each (lambda (line)
+				(task-sleep 0)
+				(.-> buffer (:insert line) :break))
+			(. (. buffer :get_syntax) :text_flow
+				(split (.-> buffer (:set_cursor 0 y) (:cut 0 y1))
+					(const (cat " " (ascii-char +char_lf))))
+				(. buffer :get_wrap_width)))
+		(bind '(x y) (. buffer :get_cursor))
+		(bind '(x y) (. buffer :constrain x (inc y)))
+		(. buffer :set_cursor x y))
+	(clear-selection) (refresh))
+```
+
+Here the paragraph reflow action mutations can be undone in a single step.
