@@ -32,6 +32,10 @@ environment, to a `macro` defined function rather than a `lambda`, has that
 list substituted for the result of calling that macro function with the
 parameters of the rest of the list.
 
+That's a very cold explanation of what happens and we can probably sum it up by
+saying, any source that looks like a macro function call is replaced by the
+result of that macro function call before the code is actuality 'executed'.
+
 Let's look at a very simple macro.
 
 ```vdu
