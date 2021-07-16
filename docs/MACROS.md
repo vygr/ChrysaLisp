@@ -118,8 +118,8 @@ Take the `(when)` construct:
 		`(cond (,x ~_))))
 ```
 
-This replaces your use of `(when ...)` with either an `(if ..)` or `(cond ...)`
-primitive. Thus providing you with a nicer syntax to express your intent.
+This replaces your use of `(when ...)` with either an `(if ...)` or `(cond
+...)` primitive. Thus providing you with a nicer syntax to express your intent.
 
 ## Macros can do complex substitution
 
@@ -228,7 +228,7 @@ A simple use:
 ```
 
 Here we know the splitting chars string is going to be constant at run time,
-but it's convenient to express it as the concatination of a space and lf char.
+but it's convenient to express it as the concatenation of a space and lf char.
 
 ## Macros can decorate existing functions
 
@@ -239,7 +239,7 @@ A great example here is the profiling library. The library is imported with:
 ```
 
 This redefines the `(defun)` and `(defmethod)` macros to collect timing
-information. Your function and method existing functionality is not effected
+information. Your function and method existing functionality is not affected
 but supplemented with wrapper code that builds and maintains the profiling
 information.
 
@@ -281,3 +281,43 @@ And an example of the macro in use:
 ```
 
 Here the paragraph reflow action mutations can be undone in a single step.
+
+## Macros can provide type abstraction
+
+You can write source code that allows easy switching of types by using macros
+to abstract them. The Bubbles application uses this idea to allow selection
+between fixed point and real number types.
+
+Here is a section of the `apps/bubbles/app.inc` file:
+
+These macros define an interface for creating and converting to/from a 'number'
+and the actual numeric type selected.
+
+```vdu
+(cond   ;pick number format t/nil
+	(t  ;reals
+		(defmacro vec (&rest _) `(reals ~_))
+		(defmacro i2n (_) `(i2r ,_))
+		(defmacro n2i (_) `(r2i ,_))
+		(defmacro f2n (_) `(f2r ,_))
+		(defmacro n2f (_) `(r2f ,_)))
+	(t  ;fixed point
+		(defmacro vec (&rest _) `(fixeds ~_))
+		(defmacro i2n (_) `(i2f ,_))
+		(defmacro n2i (_) `(f2i ,_))
+		(defmacro f2n (_) _)
+		(defmacro n2f (_) _)))
+```
+
+These macros are then used instead of the raw types, for example in the
+lighting function:
+
+```vdu
+(defun lighting ((r g b) z)
+	;very basic attenuation
+	(defq at (/ (const (i2n box_size)) z) r (* r at) g (* g at) b (* b at))
+	(+ 0xd0000000
+		(<< (n2i (* r (const (i2n 0xff)))) 16)
+		(<< (n2i (* g (const (i2n 0xff)))) 8)
+		(n2i (* b (const (i2n 0xff))))))
+```
