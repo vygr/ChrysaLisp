@@ -166,7 +166,7 @@ the matching body clause, or if no match, the optional `t` clause.
 ## Tricks with logical statements
 
 `(and ...)` and `(or ...)` can be use as conditional operations as they are
-implemented as if a ladder of `(if ..)` by their respective macros.
+implemented as if a ladder of `(if ...)` by their respective macros.
 
 ### and
 

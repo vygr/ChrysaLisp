@@ -6,9 +6,10 @@ apps/images/logo.cpm
 
 Because it existed and not many people know of it. What we deserve is a modern
 version of what Taos did, expanded to modern systems and with global scope that
-the modern world has. This brief was written by the guys at Tantric
-Technologies back in 1990. It did everything they explain here, forgive the
-terminology used, I was quite young and not well schooled back then ;)
+the modern world has. This brief was written by, Dr Ian Thomas (since passed on
+:( ), while with the guys at Tantric Technologies back in 1990. It did
+everything he explains here, forgive the terminology used, I was quite young
+and not well schooled back then ;)
 
 In my view a Lisp based micro kernel along the lines of my current project
 could do this and so much more.
