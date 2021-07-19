@@ -55,7 +55,7 @@ The `.` function is provided as a VP built in function, not within this file,
 but it's a dynamic bound function calling mechanism tailored to this way of
 invoking a function. It could be implemented in Lisp level code, which it was
 during the experimental phase of the classes work, but it's such a performance
-critcial method it was moved to a VP code implementation.
+critical method it was moved to a VP code implementation.
 
 ## (.-> this form ...)
 
@@ -77,7 +77,7 @@ For example from the Editor app actions on a buffer:
 
 ## (.? this method) -> nil | lambda
 
-This is query if the method is defined on this object. A reflection call as
+This will query if the method is defined on this object. A reflection call as
 other languages would say. You get back `nil` or the `lambda` for the method.
 
 Somtimes you do want to check if the method you would call is in fact defined
