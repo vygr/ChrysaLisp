@@ -39,7 +39,7 @@ A method is just a function that has a default parameter `this`. That's pretty
 much the entire deal. You get passed a reference to a hmap containing the local
 state data and you manipulate it as you see fit.
 
-## (. (this [arg ...])
+## (. this [arg ...])
 
 This built in function is how you call a method of an object. You provide the
 instance reference and any additional arguments required.
@@ -49,3 +49,74 @@ but it's a dynamic bound function calling mechanism tailored to this way of
 invoking a function. It could be implemented in Lisp level code, which it was
 during the experimental phase of the classes work, but it's such a performance
 critcial method it was moved to a VP code implementation.
+
+## (.-> this form ...)
+
+This is a `threading` macro to call multiple methods, in sequence, that return
+the `this` reference. Other languages refer to the idea as the `builder`
+pattern.
+
+If the method you are calling returns the `this` reference, which all methods
+that have no other output should !, you can chain a sequence of calls in a more
+compact form.
+
+For example from the Editor app actions on a buffer:
+
+```vdu
+(.-> buffer
+	(:set_cursor (length trimed_line) _)
+	(:delete (- (length line) (length trimed_line))))
+```
+
+## (.? this method) -> nil | lambda
+
+This is query if a method is defined on this object. A reflection call as other
+languages would say. You get back `nil` or the `lambda` for the method.
+
+Somtimes you do want to check if the method you would call is in fact defined
+for this object ! The `Window` class does this within the event dispatch code
+to avoid throwing any errors due to a method not found.
+
+```vdu
+(defmethod :event (this event)
+	; (. window :event event) -> window
+	(defq target (. this :find_id (getf event +ev_msg_target_id))
+		type (getf event +ev_msg_type))
+	(when target
+		(cond
+			((= type +ev_type_mouse)
+				;so what state are we in ?
+				(defq buttons (getf event +ev_msg_mouse_buttons))
+				(cond
+					((/= 0 (get :last_buttons this))
+						;was down previously
+						(cond
+							((/= 0 buttons)
+								;is down now, so move
+								(if (.? target :mouse_move) (. target :mouse_move event)))
+							(t  ;is not down now, so release
+								(set this :last_buttons 0)
+								(if (.? target :mouse_up) (. target :mouse_up event)))))
+					(t  ;was not down previously
+						(cond
+							((/= 0 buttons)
+								;is down now, so first down
+								(set this :last_buttons buttons)
+								(if (.? target :mouse_down) (. target :mouse_down event)))
+							(t  ;is not down now, so hover
+								(if (.? target :mouse_hover) (. target :mouse_hover event)))))))
+			((= type +ev_type_key)
+				(if (>= (getf event +ev_msg_key_keycode) 0)
+					(if (.? target :key_down) (. target :key_down event))
+					(if (.? target :key_up) (. target :key_up event))))
+			((= type +ev_type_wheel)
+				(while (and target (not (Scroll? target))) (setq target (penv target)))
+				(and target (.? target :mouse_wheel) (. target :mouse_wheel event)))
+			((= type +ev_type_enter)
+				(if (.? target :mouse_enter) (. target :mouse_enter event)))
+			((= type +ev_type_exit)
+				(if (.? target :mouse_exit) (. target :mouse_exit event)))
+			((= type +ev_type_action)
+				(if (.? target :action) (. target :action event)))))
+	this)
+```
