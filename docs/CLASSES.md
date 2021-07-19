@@ -15,6 +15,13 @@ the object instance itself. The object class knows what the named methods do.
 This is why the same named method on different objects can perform different
 actions, and why subclasses can redefine or enhance what a method does.
 
+C++ has this model for a `:vtable`, and folks may question why I did not go for
+a multi-method Lisp approach, but this model is very simple to understand and
+in this implementation we still have the option to mix methods into a class at
+runtime !!! as the `:vtable` set of functions is not static ! There is a whole
+world of dynamic `mixin` method libraries possible here that C++ would not
+allow due to the dynamic nature of the ChrysaLisp method call mechanism .
+
 It's not a lot of source for the entire thing:
 
 ```file
@@ -70,8 +77,8 @@ For example from the Editor app actions on a buffer:
 
 ## (.? this method) -> nil | lambda
 
-This is query if a method is defined on this object. A reflection call as other
-languages would say. You get back `nil` or the `lambda` for the method.
+This is query if the method is defined on this object. A reflection call as
+other languages would say. You get back `nil` or the `lambda` for the method.
 
 Somtimes you do want to check if the method you would call is in fact defined
 for this object ! The `Window` class does this within the event dispatch code
