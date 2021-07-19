@@ -127,3 +127,42 @@ to avoid throwing any errors due to a method not found.
 				(if (.? target :action) (. target :action event)))))
 	this)
 ```
+
+## (.super this :method [arg ...])
+
+When defining a subclass, of a class, you may need to invoke the functionality
+of your parent class before or after your subclass method code.
+
+Very often a subclass needs to let the parent class do `its stuff` and then
+supplement that with some additional action/s. This macro allows you to call
+the underling parent method without having to know what it was.
+
+## (raise field | (var val) ...) -> (defq var (get field this) ...)
+
+This, and `lower` the opposite, is a macro to pull instance data properties
+into the method lambda. It will declare, with `defq`, the property as a local
+var without the leading ':'.
+
+Optionally you can add extras to the `defq` if required by wrapping them in
+'()'.
+
+This is called `lifting` in some other languages.
+
+## (lower field | (field val) ...) -> (set this field var ...)
+
+The opposite of `raise`, this macro uses `set this ...` to lower the local
+variables to the object property.
+
+Optionally you can add extras to the `set this` by wrapping them in '()'.
+
+##  (defabstractmethod (this [arg ...]) body)
+
+This macros lets you define in a `base` class that there should exist a
+concrete method within each subclass.
+
+If the subclass fails to declare an override for this method then an
+expectation will be thrown, at run time, if called.
+
+## (deffimethod name ffi)
+
+Allows you to define a VP level implemented method.
