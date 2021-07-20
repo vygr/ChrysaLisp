@@ -40,11 +40,30 @@ The instance of a class is referred to by the symbol `this`. This is only a
 convention and some class's methods use a different symbol for namespace
 reasons.
 
+The macro defines a function `(name [arg ...]) -> obj` as the constructor for
+new instances. It also auto defines both a `(. :type_of this) -> (...
+:grandparent :parent :name)` method, that returns the class inherence list for
+the object, along with a predicate function of the form `(name? this) -> nil |
+t`.
+
+```vdu
+(. (Button) :type_of)
+(:hmap :View :Label :Button)
+
+(Button? (Button))
+3
+(Button? (Label))
+nil
+```
+
+It is recommended that classes start with a capital letter but this is not
+enforced.
+
 ## (defmethod name (this [arg ...]) body)
 
 A method is just a function that has a default parameter `this`. That's pretty
-much the entire deal. You get passed a reference to a hmap containing the local
-state data and you manipulate it as you see fit.
+much the entire deal. You get passed a reference to the `hmap` containing the
+local state and you manipulate it as you see fit.
 
 ## (. this [arg ...])
 
@@ -137,23 +156,52 @@ Very often a subclass needs to let the parent class do `its stuff` and then
 supplement that with some additional action/s. This macro allows you to call
 the underling parent method without having to know what it was.
 
+An example from the `:draw` method of the Textfield class:
+
+```vdu
+(defclass Textfield () (Label)
+	; (Textfield) -> textfield
+	(def this :cursor 0 :anchor 0 :clear_text "" :hint_text "" :text ""
+		:mode nil :state 1)
+
+	(defmethod :draw (this)
+		; (. textfield :draw) -> textfield
+		(.super this :draw)
+		(bind '(w h) (. this :get_size))
+		(raise :font :text :cursor :anchor)
+		(when (and font text)
+			(bind '(tw th) (font-glyph-bounds font (slice 0 cursor text)))
+			(when (/= cursor anchor)
+				(bind '(sw _) (font-glyph-bounds font (slice 0 (min anchor cursor) text)))
+				(bind '(sw1 _) (font-glyph-bounds font (slice 0 (max anchor cursor) text)))
+				(.-> this
+					(:ctx_set_color (get :hint_color this))
+					(:ctx_filled_box sw (>>> (- h th) 1) (- sw1 sw) th)))
+			(.-> this
+				(:ctx_set_color (get :ink_color this))
+				(:ctx_filled_box tw (>>> (- h th) 1) 2 th)))
+		this)
+	)
+```
+
 ## (raise field | (var val) ...) -> (defq var (get field this) ...)
 
-This, and `lower` the opposite, is a macro to pull instance data properties
-into the method lambda. It will declare, with `defq`, the property as a local
-var without the leading ':'.
+This, and `(lower ...)` the opposite, is a macro to pull instance data
+properties into the method lambda. It will declare, with `(defq ...)`, each
+property as a local var without the leading ':'.
 
-Optionally you can add extras to the `defq` if required by wrapping them in
-'()'.
+Optionally you can add extras to the generated `(defq ...)` if required by
+wrapping them in '()'.
 
 This is called `lifting` in some other languages.
 
 ## (lower field | (field val) ...) -> (set this field var ...)
 
-The opposite of `raise`, this macro uses `set this ...` to lower the local
-variables to the object property.
+The opposite of `(raise ...)`, this macro uses `(set this ...)` to lower the
+local variables to the object property.
 
-Optionally you can add extras to the `set this` by wrapping them in '()'.
+Optionally you can add extras to the generated `(set this ...)` by wrapping
+them in '()'.
 
 ##  (defabstractmethod (this [arg ...]) body)
 
@@ -166,3 +214,24 @@ expectation will be thrown, at run time, if called.
 ## (deffimethod name ffi)
 
 Allows you to define a VP level implemented method.
+
+An exmaple from the `View` class:
+
+```vdu
+...
+	(deffimethod :find_id "gui/view/lisp_find_id")
+		; (. view :find_id target_id) -> nil | target_view
+
+	(deffimethod :hit_tree "gui/view/lisp_hit_tree")
+		; (. view :hit_tree x y) -> (hit_view | nil rx ry)
+
+	(deffimethod :set_flags "gui/view/lisp_set_flags")
+		; (. view :set_flags value mask) -> view
+
+	(deffimethod :add_dirty "gui/view/lisp_add_dirty")
+		; (. view :add_dirty x y width height) -> view
+
+	(deffimethod :trans_dirty "gui/view/lisp_trans_dirty")
+		; (. view :trans_dirty rx ry) -> view
+...
+```
