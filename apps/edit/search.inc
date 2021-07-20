@@ -58,7 +58,7 @@
 				(split (. *current_buffer* :copy *anchor_x* *anchor_y*)
 					(ascii-char +char_lf)))) 0)
 			(setq text (elem 0 text))
-			(set *find_text* :clear_text text :cursor (length text))
+			(set *find_text* :clear_text text :cursor (length text) :anchor 0)
 			(.-> *find_text* :layout :dirty))))
 
 (defun action-replace ()
