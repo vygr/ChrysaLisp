@@ -254,8 +254,10 @@
 	;reload open tree
 	(sort cmp *open_files*)
 	(each (# (. %0 :sub)) (. *open_tree* :children))
-	(each (# (. *open_tree* :add_route %0)) (all-dirs *open_files*))
-	(each (# (. *open_tree* :add_route %0)) *open_files*))
+	(each (# (. *open_tree* :add_route %0)) (defq dirs (all-dirs *open_files*)))
+	(each (# (. *open_tree* :add_route %0)) *open_files*)
+	(each (# (. *file_tree* :add_route %0)) dirs)
+	(each (# (. *file_tree* :add_route %0)) *open_files*))
 
 (defun load-open-files ()
 	;load users open file tree
@@ -386,8 +388,8 @@
 	(each-line populate-dictionary (file-stream "class/lisp/boot.inc"))
 	(defq *cursor_x* 0 *cursor_y* 0 *anchor_x* 0 *anchor_y* 0 *scroll_x* 0 *scroll_y* 0
 		*current_buffer* nil *running* t mouse_state :u)
-	(load-open-files)
 	(populate-file-tree)
+	(load-open-files)
 	(populate-open-tree)
 	(populate-vdu nil)
 	(select-node nil)

@@ -17,6 +17,8 @@ New MACROS.md document.
 
 Correct the quote skipping in the `(split)` function.
 
+New CLASSES.md document.
+
 ------
 
 Editor now has line number display.
