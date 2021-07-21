@@ -2406,6 +2406,12 @@
 (let ([(var val) ...]) body)
 ```
 
+### let*
+
+```code
+(let* ([(var val) ...]) body)
+```
+
 ### list
 
 ```code

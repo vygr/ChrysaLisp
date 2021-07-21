@@ -33,8 +33,9 @@ So let go through each of these macros and cover what they do.
 ## (defclass name ([arg ...]) (super ...) body)
 
 This macro allows you to create a new class or subclass. The macro wraps around
-the method declarations that are its body, sorts them, and organises the
-default construction actions for an instance of the class.
+the method declarations and instance properties initialization that form its
+body code, sorts them, and organises the default construction actions for an
+instance of this class.
 
 The instance of a class is referred to by the symbol `this`. This is only a
 convention and some class's methods use a different symbol for namespace

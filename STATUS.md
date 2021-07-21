@@ -19,6 +19,8 @@ Correct the quote skipping in the `(split)` function.
 
 New CLASSES.md document.
 
+Addition of `(let* ...)` macro to `boot.inc`.
+
 ------
 
 Editor now has line number display.

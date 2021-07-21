@@ -223,6 +223,10 @@
 	; (let ([(var val) ...]) body)
 	`((lambda ,(map (lambda (_) (elem 0 _)) l) ~_) ~(map (lambda (_) (elem 1 _)) l)))
 
+(defmacro let* (l &rest _)
+	; (let* ([(var val) ...]) body)
+	`((lambda () ,(reduce (lambda (l (var val)) (push l var val)) l (list defq)) ~_)))
+
 ;;;;;;;;;;;;;;
 ; Control flow
 ;;;;;;;;;;;;;;

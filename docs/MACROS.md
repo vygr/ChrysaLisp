@@ -212,7 +212,7 @@ This expands into a program to build the UI tree !
 
 Macros are expanded at source read time via the REPL. This happens once before
 your source starts to 'run'. Thus you can use macros to move calculations to
-'read time' rather than doing them at 'run time'
+'read time' rather than doing them at 'run time'.
 
 A simple example is the `(const)` macro:
 

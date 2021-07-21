@@ -59,43 +59,40 @@
 	(open-child "apps/clipboard/app.lisp" +kn_call_open)
 	(mail-timeout (elem +select_timer select) rate 0)
 	(while *running*
-		;transient env during this event loop as we don't want to hold references to
-		;user objects ! We will operate on them and then drop them imediatley.
-		(env-push)
-		(defq msg (mail-read (elem (defq idx (mail-select select)) select)))
-		(cond
-			((= idx +select_main)
-				;main mailbox
-				(bind '(cmd view owner reply) msg)
-				(cond
-					((= cmd 0)
-						;hide and sub view
-						(.-> view :hide :sub))
-					((= cmd 1)
-						;add view at front
-						(setf view +view_owner_id owner 0)
-						(. *screen* :add_back view)
-						(. view :to_front))
-					((= cmd 2)
-						;add view at back
-						(setf view +view_owner_id owner 0)
-						(. *screen* :add_back view)
-						(. view :set_flags +view_flag_dirty_all +view_flag_dirty_all)))
-				(mail-send reply msg))
-			((= idx +select_mouse)
-				;mouse mailbox
-				)
-			((= idx +select_timer)
-				;timer event
-				(mail-timeout (elem +select_timer select) rate 0)
-				(gui-update *mouse_x* *mouse_y* 0)
-				(while (defq msg (gui-event))
-					(if (defq action (. event_map :find (getf msg +sdl_common_event_type)))
-						(action)))
-				;remove orphans
-				(each (# (unless (and (defq owner (. %0 :find_owner)) (mail-validate owner))
-						(.-> %0 :hide :sub))) (. *screen* :children))))
-		(env-pop))
+		(let* ((idx (mail-select select))
+			  (msg (mail-read (elem idx select))))
+			(cond
+				((= idx +select_main)
+					;main mailbox
+					(bind '(cmd view owner reply) msg)
+					(cond
+						((= cmd 0)
+							;hide and sub view
+							(.-> view :hide :sub))
+						((= cmd 1)
+							;add view at front
+							(setf view +view_owner_id owner 0)
+							(. *screen* :add_back view)
+							(. view :to_front))
+						((= cmd 2)
+							;add view at back
+							(setf view +view_owner_id owner 0)
+							(. *screen* :add_back view)
+							(. view :set_flags +view_flag_dirty_all +view_flag_dirty_all)))
+					(mail-send reply msg))
+				((= idx +select_mouse)
+					;mouse mailbox
+					)
+				((= idx +select_timer)
+					;timer event
+					(mail-timeout (elem +select_timer select) rate 0)
+					(gui-update *mouse_x* *mouse_y* 0)
+					(while (defq msg (gui-event))
+						(if (defq action (. event_map :find (getf msg +sdl_common_event_type)))
+							(action)))
+					;remove orphans
+					(each (# (unless (and (defq owner (. %0 :find_owner)) (mail-validate owner))
+							(.-> %0 :hide :sub))) (. *screen* :children))))))
 	(free-select select)
 	(gui-deinit)
 	(mail-forget service))
