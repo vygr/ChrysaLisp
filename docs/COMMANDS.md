@@ -200,19 +200,3 @@ Details:
         -c   - include character count in summary (default: nil)
 
 ```
-## wcseg
-```code
-Usage: wcseg [-h] [-v] [-f] [-l] [-w] [-c] {} ...
-
-word counter
-
-optional arguments:
-    -h,--help                 displays application help and exits
-    -v,--version              displays application version and exits
-    -f,--file                 file input to wc
-    -l,--lines                display count of lines
-    -w,--words                display count of words
-    -c,--chars                display count of characters
-
-
-```
