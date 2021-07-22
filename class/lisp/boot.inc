@@ -215,18 +215,6 @@
 	(while (< (setq i (+ i 2)) (length _))
 		(push l (elem i _) (list 'opt (elem i _) (elem (inc i) _)))) l)
 
-;;;;;;;;
-; Scopes
-;;;;;;;;
-
-(defmacro let (l &rest _)
-	; (let ([(var val) ...]) body)
-	`((lambda ,(map (lambda (_) (elem 0 _)) l) ~_) ~(map (lambda (_) (elem 1 _)) l)))
-
-(defmacro let* (l &rest _)
-	; (let* ([(var val) ...]) body)
-	`((lambda () ,(reduce (lambda (l (var val)) (push l var val)) l (list defq)) ~_)))
-
 ;;;;;;;;;;;;;;
 ; Control flow
 ;;;;;;;;;;;;;;
@@ -402,6 +390,18 @@
 (defmacro reduced (_a)
 	; (reduced accum)
 	`(progn (setq __x t) ,_a))
+
+;;;;;;;;
+; Scopes
+;;;;;;;;
+
+(defmacro let (l &rest _)
+	; (let ([(var val) ...]) body)
+	`((lambda ,(map (lambda (_) (elem 0 _)) l) ~_) ~(map (lambda (_) (elem 1 _)) l)))
+
+(defmacro let* (l &rest _)
+	; (let* ([(var val) ...]) body)
+	`((lambda () ,(reduce (lambda (l (var val)) (push l var val)) l (list defq)) ~_)))
 
 ;;;;;;;;;;;;
 ; Predicates
