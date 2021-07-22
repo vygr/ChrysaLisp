@@ -87,12 +87,19 @@ If the method you are calling returns the `this` reference, which all methods
 that have no other output should !, you can chain a sequence of calls in a more
 compact form.
 
-For example from the Editor app actions on a buffer:
+If the method takes no arguments you can omit that forms enclosing `()`.
+
+Example from the Editor app actions on a text buffer and a View :mouse_down
+method:
 
 ```vdu
 (.-> buffer
 	(:set_cursor (length trimed_line) _)
 	(:delete (- (length line) (length trimed_line))))
+```
+
+```vdu
+(.-> this :layout :dirty_all)
 ```
 
 ## (.? this method) -> nil | lambda

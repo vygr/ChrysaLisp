@@ -21,6 +21,8 @@ New CLASSES.md document.
 
 Addition of `(let* ...)` macro to `boot.inc`.
 
+View class :ctx_panel method moved to Lisp code.
+
 ------
 
 Editor now has line number display.
