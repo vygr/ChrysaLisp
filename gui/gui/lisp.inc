@@ -44,35 +44,17 @@
 
 ;add/sub from screen
 
-(defun gui-sub (view)
+(defun gui-rpc (view cmd)
 	(when (/= 0 (length (defq services (mail-enquire "GUI_SERVICE"))))
 		(setq services (filter (# (eql
 			(slice +long_size -1 (task-mailbox))
 			(slice +long_size -1 %0))) (map (# (to-net-id (elem 1 (split %0 ",")))) services)))
 		(defq mbox (mail-alloc-mbox))
-		(mail-send (pop services) (list 0 view (task-mailbox) mbox))
+		(mail-send (pop services) (list cmd view (task-mailbox) mbox))
 		(mail-read mbox)
 		(mail-free-mbox mbox)
 		view))
 
-(defun gui-add-front (view)
-	(when (/= 0 (length (defq services (mail-enquire "GUI_SERVICE"))))
-		(setq services (filter (# (eql
-			(slice +long_size -1 (task-mailbox))
-			(slice +long_size -1 %0))) (map (# (to-net-id (elem 1 (split %0 ",")))) services)))
-		(defq mbox (mail-alloc-mbox))
-		(mail-send (pop services) (list 1 view (task-mailbox) mbox))
-		(mail-read mbox)
-		(mail-free-mbox mbox)
-		view))
-
-(defun gui-add-back (view)
-	(when (/= 0 (length (defq services (mail-enquire "GUI_SERVICE"))))
-		(setq services (filter (# (eql
-			(slice +long_size -1 (task-mailbox))
-			(slice +long_size -1 %0))) (map (# (to-net-id (elem 1 (split %0 ",")))) services)))
-		(defq mbox (mail-alloc-mbox))
-		(mail-send (pop services) (list 2 view (task-mailbox) mbox))
-		(mail-read mbox)
-		(mail-free-mbox mbox)
-		view))
+(defmacro gui-sub (view) `(gui-rpc ,view 0))
+(defmacro gui-add-front (view) `(gui-rpc ,view 1))
+(defmacro gui-add-back (view) `(gui-rpc ,view 2))
